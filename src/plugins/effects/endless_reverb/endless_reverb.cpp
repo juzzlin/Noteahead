@@ -66,7 +66,10 @@ EndlessReverb::EndlessReverb()
     m_wetHpfR.setMode(CascadedSvf::Mode::HighPass);
 
     for (size_t i = 0; i < NumDelays; i++) {
-        m_delays[i].lfoPhase = static_cast<double>(i) * twoPi / static_cast<double>(NumDelays);
+        const double phase = static_cast<double>(i) * twoPi / static_cast<double>(NumDelays);
+        m_delays[i].lfoSin = std::sin(phase);
+        m_delays[i].lfoCos = std::cos(phase);
+        m_delays[i].lfoStepCounter = 0;
     }
 
     EndlessReverb::syncParameters();
@@ -127,7 +130,9 @@ void EndlessReverb::renderSample(double & left, double & right)
     if (!m_preDelayBuffer.empty()) {
         const double delayed = m_preDelayBuffer[m_preDelayWritePos];
         m_preDelayBuffer[m_preDelayWritePos] = input;
-        m_preDelayWritePos = (m_preDelayWritePos + 1) % static_cast<uint32_t>(m_preDelayBuffer.size());
+        if (++m_preDelayWritePos >= m_preDelayBuffer.size()) {
+            m_preDelayWritePos = 0;
+        }
         input = delayed;
     }
 
@@ -145,12 +150,18 @@ void EndlessReverb::renderSample(double & left, double & right)
     std::array<double, NumDelays> outs;
     for (size_t i = 0; i < NumDelays; i++) {
         auto && dl = m_delays[i];
-        const double displacement = static_cast<double>(m_modDepth) * dl.modDepthSamples * std::sin(dl.lfoPhase);
+        const double displacement = static_cast<double>(m_modDepth) * dl.modDepthSamples * dl.lfoSin;
         const double delaySamples = std::clamp(dl.nominalDelay + displacement, 1.0, static_cast<double>(dl.bufferLen) - 2.0);
         outs[i] = dl.read(delaySamples);
-        dl.lfoPhase += dl.lfoInc;
-        if (dl.lfoPhase >= twoPi) {
-            dl.lfoPhase -= twoPi;
+        const double nextSin = dl.lfoSin * dl.lfoStepCos + dl.lfoCos * dl.lfoStepSin;
+        const double nextCos = dl.lfoCos * dl.lfoStepCos - dl.lfoSin * dl.lfoStepSin;
+        dl.lfoSin = nextSin;
+        dl.lfoCos = nextCos;
+        if (++dl.lfoStepCounter >= 4096) {
+            dl.lfoStepCounter = 0;
+            const double invMag = 1.5 - 0.5 * (dl.lfoSin * dl.lfoSin + dl.lfoCos * dl.lfoCos);
+            dl.lfoSin *= invMag;
+            dl.lfoCos *= invMag;
         }
     }
 
@@ -213,7 +224,10 @@ void EndlessReverb::reset()
         dl.reset();
     }
     for (size_t i = 0; i < NumDelays; i++) {
-        m_delays[i].lfoPhase = static_cast<double>(i) * twoPi / static_cast<double>(NumDelays);
+        const double phase = static_cast<double>(i) * twoPi / static_cast<double>(NumDelays);
+        m_delays[i].lfoSin = std::sin(phase);
+        m_delays[i].lfoCos = std::cos(phase);
+        m_delays[i].lfoStepCounter = 0;
     }
     for (auto && diffuser : m_diffusers) {
         diffuser.reset();
@@ -276,6 +290,21 @@ void EndlessReverb::syncParameters()
     }
 
     updateFilters();
+    updateLfoSteps();
+}
+
+void EndlessReverb::updateLfoSteps()
+{
+    if (m_sampleRate <= 0) {
+        return;
+    }
+
+    const double baseInc = twoPi * static_cast<double>(m_modRateHz) / m_sampleRate;
+    for (size_t i = 0; i < NumDelays; i++) {
+        const double inc = baseInc * (1.0 + 0.02 * static_cast<double>(i));
+        m_delays[i].lfoStepSin = std::sin(inc);
+        m_delays[i].lfoStepCos = std::cos(inc);
+    }
 }
 
 void EndlessReverb::updateBuffers()
@@ -303,8 +332,8 @@ void EndlessReverb::updateBuffers()
         }
         dl.nominalDelay = nominal;
         dl.modDepthSamples = maxModSamples;
-        dl.lfoInc = twoPi * static_cast<double>(m_modRateHz) / m_sampleRate * (1.0 + 0.02 * static_cast<double>(i));
     }
+    updateLfoSteps();
 
     for (size_t i = 0; i < NumDiffusers; i++) {
         auto && ap = m_diffusers[i];

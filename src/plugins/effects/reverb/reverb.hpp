@@ -71,6 +71,7 @@ private:
     void updateBuffers();
     void updateFilters();
     void updateGateCoefficients();
+    void renderSample(double & left, double & right);
     void applyWetFilters(double & wetL, double & wetR);
     void applyGate(double dryL, double dryR, double & wetL, double & wetR);
 
@@ -91,6 +92,8 @@ private:
     float m_gateReleaseMs { 100.0f };
     double m_gateGain { 1.0 };
     uint32_t m_gateHoldCounter { 0 };
+    uint32_t m_gateHoldSamples { 0 };
+    double m_gateThresholdLin { 0.01 };
     double m_gateAttackCoeff { 0.0 };
     double m_gateReleaseCoeff { 0.0 };
 

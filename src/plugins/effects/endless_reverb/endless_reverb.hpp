@@ -49,6 +49,7 @@ private:
     void syncParameters();
     void updateBuffers();
     void updateFilters();
+    void updateLfoSteps();
 
     //! The reverb network itself, without the housekeeping the entry points do around it.
     void renderSample(double & left, double & right);
@@ -80,8 +81,11 @@ private:
         double nominalDelay { 0.0 };
         double modDepthSamples { 0.0 };
         double lpState { 0.0 };
-        double lfoPhase { 0.0 };
-        double lfoInc { 0.0 };
+        double lfoSin { 0.0 };
+        double lfoCos { 1.0 };
+        double lfoStepSin { 0.0 };
+        double lfoStepCos { 1.0 };
+        uint32_t lfoStepCounter { 0 };
         CascadedSvf fbLpf;
         CascadedSvf fbHpf;
 
@@ -96,7 +100,7 @@ private:
                 readPos -= static_cast<double>(bufferLen);
             }
             const size_t i0 = static_cast<size_t>(readPos);
-            const size_t i1 = (i0 + 1) % bufferLen;
+            const size_t i1 = i0 + 1 < bufferLen ? i0 + 1 : 0;
             const double frac = readPos - static_cast<double>(i0);
             return buffer[i0] * (1.0 - frac) + buffer[i1] * frac;
         }
@@ -104,7 +108,9 @@ private:
         void write(double value)
         {
             buffer[writePos] = value;
-            writePos = (writePos + 1) % bufferLen;
+            if (++writePos >= bufferLen) {
+                writePos = 0;
+            }
         }
 
         void reset()
@@ -130,7 +136,9 @@ private:
             const double buffered = buffer[writePos];
             const double out = -in + buffered;
             buffer[writePos] = in + buffered * coeff;
-            writePos = (writePos + 1) % size;
+            if (++writePos >= size) {
+                writePos = 0;
+            }
             return out;
         }
 

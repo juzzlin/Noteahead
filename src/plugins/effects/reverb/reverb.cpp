@@ -78,6 +78,11 @@ void Reverb::processSample(double & left, double & right)
         m_shouldSyncParameters = false;
     }
 
+    renderSample(left, right);
+}
+
+void Reverb::renderSample(double & left, double & right)
+{
     const double dryL = left;
     const double dryR = right;
 
@@ -86,7 +91,9 @@ void Reverb::processSample(double & left, double & right)
     if (!m_preDelayBuffer.empty()) {
         const double delayedInput = m_preDelayBuffer[m_preDelayWritePos];
         m_preDelayBuffer[m_preDelayWritePos] = input;
-        m_preDelayWritePos = (m_preDelayWritePos + 1) % static_cast<uint32_t>(m_preDelayBuffer.size());
+        if (++m_preDelayWritePos >= m_preDelayBuffer.size()) {
+            m_preDelayWritePos = 0;
+        }
         input = delayedInput;
     }
 
@@ -136,7 +143,9 @@ void Reverb::processSample(double & left, double & right)
         }
         const double feedback = feedbackSignals[i] - average;
         m_delays[i].buffer[m_delays[i].writePos] = input * inputGains[i] + feedback * m_delays[i].feedback;
-        m_delays[i].writePos = (m_delays[i].writePos + 1) % m_delays[i].size;
+        if (++m_delays[i].writePos >= m_delays[i].size) {
+            m_delays[i].writePos = 0;
+        }
     }
 
     double wetL = (delayOutputs[0] - delayOutputs[2] + delayOutputs[4] - delayOutputs[6]) * 0.25;
@@ -172,7 +181,7 @@ void Reverb::processBlock(AudioContext & context)
     }
 
     for (uint32_t i = 0; i < context.frameCount; i++) {
-        processSample(context.buffer[i * 2], context.buffer[i * 2 + 1]);
+        renderSample(context.buffer[i * 2], context.buffer[i * 2 + 1]);
     }
 }
 
@@ -383,9 +392,11 @@ void Reverb::syncParameters()
 
 void Reverb::updateGateCoefficients()
 {
+    m_gateThresholdLin = static_cast<double>(Utils::Dsp::dbToLinear(m_gateThresholdDb));
     if (m_sampleRate > 0) {
         m_gateAttackCoeff = std::exp(-1.0 / (std::max(0.01, static_cast<double>(m_gateAttackMs)) * m_sampleRate / 1000.0));
         m_gateReleaseCoeff = std::exp(-1.0 / (std::max(0.01, static_cast<double>(m_gateReleaseMs)) * m_sampleRate / 1000.0));
+        m_gateHoldSamples = static_cast<uint32_t>(std::max(0.0, static_cast<double>(m_gateHoldMs) * m_sampleRate / 1000.0));
     }
 }
 
@@ -398,11 +409,10 @@ void Reverb::applyGate(double dryL, double dryR, double & wetL, double & wetR)
     // Key the gate off the dry input: a hit opens it (fast attack), it stays open for the hold time after the
     // key falls below the threshold, then closes over the release time (short release = abrupt gated tail).
     const double key = std::max(std::abs(dryL), std::abs(dryR));
-    const double thresholdLin = static_cast<double>(Utils::Dsp::dbToLinear(m_gateThresholdDb));
 
     double target = 0.0;
-    if (key > thresholdLin) {
-        m_gateHoldCounter = static_cast<uint32_t>(std::max(0.0, m_gateHoldMs * m_sampleRate / 1000.0));
+    if (key > m_gateThresholdLin) {
+        m_gateHoldCounter = m_gateHoldSamples;
         target = 1.0;
     } else if (m_gateHoldCounter > 0) {
         m_gateHoldCounter--;
