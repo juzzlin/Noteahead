@@ -35,6 +35,7 @@ private slots:
     void test_process_solo_shouldBeWhatIsTakenOut();
     void test_latencyFrames_shouldBeZero();
     void test_factoryPresets_shouldAllProduceFiniteOutput();
+    void test_reset_shouldReplayDeterministically();
 };
 
 } // namespace noteahead

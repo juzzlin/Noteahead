@@ -71,6 +71,7 @@ void SpectralPeakDetector::configure(double sampleRate)
 {
     m_sampleRate = sampleRate > 0.0 ? sampleRate : 48000.0;
     m_fftSize = fftSizeFor(m_sampleRate);
+    m_fftMask = m_fftSize - 1;
     m_hopSize = m_fftSize / Overlap;
     const size_t bins = m_fftSize / 2 + 1;
 
@@ -95,6 +96,7 @@ void SpectralPeakDetector::configure(double sampleRate)
     // square, A^2 / 2
     const double n = static_cast<double>(m_fftSize);
     m_powerNormalization = 8.0 / (n * n);
+    rebuildBinCache();
     reset();
 }
 
@@ -110,6 +112,40 @@ void SpectralPeakDetector::setChannelCount(size_t channelCount)
 void SpectralPeakDetector::setSettings(const Settings & settings)
 {
     m_settings = settings;
+    if (m_fftSize > 0) {
+        rebuildBinCache();
+    }
+}
+
+void SpectralPeakDetector::rebuildBinCache()
+{
+    const size_t bins = m_fftSize / 2 + 1;
+    const double outlineRatio = std::pow(2.0, OutlineOctaves * 0.5);
+    const double binHz = m_sampleRate / static_cast<double>(m_fftSize);
+
+    m_binCache.resize(bins);
+    m_binCache[0] = {};
+    for (size_t k = 1; k < bins; k++) {
+        const double frequencyHz = static_cast<double>(k) * binHz;
+        const double weight = rangeWeight(frequencyHz);
+        const double kd = static_cast<double>(k);
+        const size_t halfWidth = std::max(MinOutlineHalfWidthBins, static_cast<size_t>(std::lround(kd * (outlineRatio - 1.0))));
+        const size_t from = k > halfWidth ? k - halfWidth : 1;
+        const size_t to = std::min(bins - 1, k + halfWidth);
+        const size_t excludedFrom = std::max(from, k > OutlineExcludedHalfWidthBins ? k - OutlineExcludedHalfWidthBins : 1);
+        const size_t excludedTo = std::min(to, k + OutlineExcludedHalfWidthBins);
+        const size_t count = (to - from + 1) - (excludedTo - excludedFrom + 1);
+        const double selectivityDb = std::max(MinSelectivityDb, m_settings.selectivityDb - m_settings.focus * FocusDbPerOctave * std::log2(frequencyHz / FocusPivotHz));
+        m_binCache[k] = {
+            .weight = weight,
+            .selectivityDb = selectivityDb,
+            .invCount = count > 0 ? 1.0 / static_cast<double>(count) : 0.0,
+            .from = from,
+            .to = to,
+            .excludedFrom = excludedFrom,
+            .excludedTo = excludedTo,
+        };
+    }
 }
 
 bool SpectralPeakDetector::push(const double * frame)
@@ -120,7 +156,7 @@ bool SpectralPeakDetector::push(const double * frame)
     for (size_t channel = 0; channel < m_channelCount; channel++) {
         m_ring[channel * m_fftSize + m_writeIndex] = frame[channel];
     }
-    m_writeIndex = (m_writeIndex + 1) % m_fftSize;
+    m_writeIndex = (m_writeIndex + 1) & m_fftMask;
     if (++m_framesSinceHop >= m_hopSize) {
         m_framesSinceHop = 0;
         analyse();
@@ -152,8 +188,12 @@ void SpectralPeakDetector::analyse()
     }
     for (size_t channel = 0; channel < m_channelCount; channel++) {
         const double * ring = m_ring.data() + channel * m_fftSize;
-        for (size_t i = 0; i < m_fftSize; i++) {
-            m_input[i] = ring[(m_writeIndex + i) % m_fftSize] * m_window[i];
+        const size_t firstLen = m_fftSize - m_writeIndex;
+        for (size_t i = 0; i < firstLen; i++) {
+            m_input[i] = ring[m_writeIndex + i] * m_window[i];
+        }
+        for (size_t i = 0; i < m_writeIndex; i++) {
+            m_input[firstLen + i] = ring[i] * m_window[firstLen + i];
         }
         Fft::forwardReal(m_input.data(), m_re.data(), m_im.data(), static_cast<int>(m_fftSize));
         for (size_t k = 0; k < bins; k++) {
@@ -184,31 +224,18 @@ void SpectralPeakDetector::analyse()
 
     // Each bin against the outline
     const double floorDb = std::max(FloorDb, loudestDb - DynamicRangeDb);
-    const double outlineRatio = std::pow(2.0, OutlineOctaves * 0.5);
     const double binHz = m_sampleRate / static_cast<double>(m_fftSize);
     m_candidates.clear();
     m_reductionDb[0] = 0.0;
     for (size_t k = 1; k < bins; k++) {
         m_reductionDb[k] = 0.0;
-        const double frequencyHz = static_cast<double>(k) * binHz;
-        const double weight = rangeWeight(frequencyHz);
-        if (weight <= 0.0 || m_levelDb[k] <= floorDb) {
+        const auto & bc = m_binCache[k];
+        if (bc.weight <= 0.0 || bc.invCount <= 0.0 || m_levelDb[k] <= floorDb) {
             continue;
         }
-        const double kd = static_cast<double>(k);
-        const size_t halfWidth = std::max(MinOutlineHalfWidthBins, static_cast<size_t>(std::lround(kd * (outlineRatio - 1.0))));
-        const size_t from = k > halfWidth ? k - halfWidth : 1;
-        const size_t to = std::min(bins - 1, k + halfWidth);
-        const size_t excludedFrom = std::max(from, k > OutlineExcludedHalfWidthBins ? k - OutlineExcludedHalfWidthBins : 1);
-        const size_t excludedTo = std::min(to, k + OutlineExcludedHalfWidthBins);
-        const size_t count = (to - from + 1) - (excludedTo - excludedFrom + 1);
-        if (count == 0) {
-            continue;
-        }
-        const double outlineDb = (sumDb(from, to) - sumDb(excludedFrom, excludedTo)) / static_cast<double>(count);
-        const double selectivityDb = std::max(MinSelectivityDb, m_settings.selectivityDb - m_settings.focus * FocusDbPerOctave * std::log2(frequencyHz / FocusPivotHz));
-        const double excessDb = m_levelDb[k] - outlineDb - selectivityDb;
-        m_reductionDb[k] = std::clamp(excessDb, 0.0, m_settings.depthDb) * weight;
+        const double outlineDb = (sumDb(bc.from, bc.to) - sumDb(bc.excludedFrom, bc.excludedTo)) * bc.invCount;
+        const double excessDb = m_levelDb[k] - outlineDb - bc.selectivityDb;
+        m_reductionDb[k] = std::clamp(excessDb, 0.0, m_settings.depthDb) * bc.weight;
     }
 
     // The strongest local maxima, far enough apart to be peaks of their own

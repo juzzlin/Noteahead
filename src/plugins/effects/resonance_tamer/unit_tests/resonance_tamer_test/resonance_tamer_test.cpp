@@ -330,6 +330,38 @@ void ResonanceTamerTest::test_factoryPresets_shouldAllProduceFiniteOutput()
     QCOMPARE(names.size(), presets.size());
 }
 
+void ResonanceTamerTest::test_reset_shouldReplayDeterministically()
+{
+    auto tamer = makeTamer();
+    QVERIFY(tamer->applyFactoryPreset(1));
+    setParameter(*tamer, C::xmlKeyLowFreq(), ResonanceTamer::frequencyPosition(400.0));
+    setParameter(*tamer, C::xmlKeyHighFreq(), ResonanceTamer::frequencyPosition(20000.0));
+    setParameter(*tamer, C::xmlKeyDepth(), 0.75f);
+    tamer->reset();
+
+    const auto input = sineOverNoise(3000.0, 1.0);
+    const auto first = render(*tamer, input);
+
+    // Changing settings mid-stream and resetting must rebuild the bin cache cleanly
+    setParameter(*tamer, C::xmlKeyLowFreq(), ResonanceTamer::frequencyPosition(8000.0));
+    tamer->reset();
+    const auto outOfRange = render(*tamer, input);
+    const double cutSkipped = sineLevelDb(input, 3000.0, 0) - sineLevelDb(outOfRange, 3000.0, 0);
+    QVERIFY2(std::abs(cutSkipped) < 0.2, qPrintable(QString::number(cutSkipped)));
+
+    // Restoring settings must replay identically to first run
+    QVERIFY(tamer->applyFactoryPreset(1));
+    setParameter(*tamer, C::xmlKeyLowFreq(), ResonanceTamer::frequencyPosition(400.0));
+    setParameter(*tamer, C::xmlKeyHighFreq(), ResonanceTamer::frequencyPosition(20000.0));
+    setParameter(*tamer, C::xmlKeyDepth(), 0.75f);
+    tamer->reset();
+    const auto second = render(*tamer, input);
+
+    for (size_t i = 0; i < first.size(); i++) {
+        QVERIFY2(std::abs(first[i] - second[i]) < 1.0e-12, qPrintable(QString { "Replay mismatch at %1" }.arg(i)));
+    }
+}
+
 } // namespace noteahead
 
 QTEST_GUILESS_MAIN(noteahead::ResonanceTamerTest)

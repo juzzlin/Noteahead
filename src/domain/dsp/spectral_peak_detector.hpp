@@ -83,11 +83,24 @@ public:
 
 private:
     void analyse();
+    void rebuildBinCache();
     double rangeWeight(double frequencyHz) const;
+
+    struct BinCache
+    {
+        double weight { 0.0 };
+        double selectivityDb { 1.0 };
+        double invCount { 0.0 };
+        size_t from { 0 };
+        size_t to { 0 };
+        size_t excludedFrom { 0 };
+        size_t excludedTo { 0 };
+    };
 
     Settings m_settings;
     double m_sampleRate { 48000.0 };
     size_t m_fftSize { 0 };
+    size_t m_fftMask { 0 };
     size_t m_hopSize { 0 };
     size_t m_channelCount { 1 };
     size_t m_writeIndex { 0 };
@@ -104,6 +117,7 @@ private:
     std::vector<double> m_levelDb;
     std::vector<double> m_prefixDb;
     std::vector<double> m_reductionDb;
+    std::vector<BinCache> m_binCache;
 
     struct Candidate
     {
