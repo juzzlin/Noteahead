@@ -38,6 +38,7 @@ private slots:
     void test_roundTrip_topOctave_shouldStayFlat();
     void test_decimator_justAboveBaseNyquist_shouldRejectAliases();
     void test_noiseGain_shouldKeepInBandNoiseLevelConstant();
+    void test_processBlock_matchesPerSample();
 };
 
 } // namespace noteahead

@@ -42,8 +42,11 @@ struct HalfBand
 {
     static constexpr size_t MaxEvenTaps = (OuterHalfBandLength + 1) / 2;
     std::array<float, MaxEvenTaps> evenTaps {}; // h[0], h[2], h[4], ... h[L-1]
+    std::array<float, MaxEvenTaps> evenTaps2x {}; // 2 * evenTaps for zero-stuffed upsampling
     size_t evenTapCount { 0 };
+    size_t halfTapCount { 0 };
     float centre { 0.0f }; // h[c]
+    float centre2x { 0.0f }; // 2 * h[c]
     size_t centreDelay { 0 }; // (c-1)/2: how many base-rate samples back the centre tap reaches
 };
 
@@ -80,9 +83,14 @@ HalfBand makeHalfBand(int length, Window window)
 
     HalfBand result;
     for (int n = 0; n < length; n += 2) {
-        result.evenTaps[result.evenTapCount++] = static_cast<float>(h[static_cast<size_t>(n)] / sum);
+        const float tap = static_cast<float>(h[static_cast<size_t>(n)] / sum);
+        result.evenTaps[result.evenTapCount] = tap;
+        result.evenTaps2x[result.evenTapCount] = 2.0f * tap;
+        result.evenTapCount++;
     }
+    result.halfTapCount = result.evenTapCount / 2;
     result.centre = static_cast<float>(h[static_cast<size_t>(centre)] / sum);
+    result.centre2x = 2.0f * result.centre;
     result.centreDelay = static_cast<size_t>((centre - 1) / 2);
     return result;
 }
@@ -115,26 +123,29 @@ size_t pushNewestFirst(std::array<float, Size> & buffer, size_t position, size_t
 } // namespace
 
 Upsampler2x::Upsampler2x(HalfBandStage stage)
-  : m_histLength { (lengthOf(stage) + 1) / 2 }
-  , m_stage { stage }
 {
+    const auto & hb = halfBand(stage);
+    m_taps = hb.evenTaps2x.data();
+    m_histLength = hb.evenTapCount;
+    m_halfTapCount = hb.halfTapCount;
+    m_centre = hb.centre2x;
+    m_centreDelay = hb.centreDelay;
 }
 
 void Upsampler2x::process(float sample, float & out0, float & out1)
 {
     m_position = pushNewestFirst(m_buffer, m_position, m_histLength, sample);
-    const float * history = m_buffer.data() + m_position;
+    const float * const history = m_buffer.data() + m_position;
 
-    // Zero-stuffing doubles the rate and halves the level, so both branches are scaled by 2. The even
-    // branch meets every nonzero tap but the centre; the odd branch meets only the centre, which
-    // makes it a plain delay.
-    const auto & hb = halfBand(m_stage);
+    // Zero-stuffing doubles the rate and halves the level, so both branches use 2x pre-scaled taps.
+    // Symmetric even taps are folded so each pair of equidistant samples shares one multiply.
+    const size_t last = m_histLength - 1;
     float even = 0.0f;
-    for (size_t k = 0; k < hb.evenTapCount; k++) {
-        even += history[k] * hb.evenTaps[k];
+    for (size_t k = 0; k < m_halfTapCount; k++) {
+        even += (history[k] + history[last - k]) * m_taps[k];
     }
-    out0 = 2.0f * even;
-    out1 = 2.0f * hb.centre * history[hb.centreDelay];
+    out0 = even;
+    out1 = m_centre * history[m_centreDelay];
 }
 
 void Upsampler2x::reset()
@@ -144,22 +155,26 @@ void Upsampler2x::reset()
 }
 
 Decimator2x::Decimator2x(HalfBandStage stage)
-  : m_oddLength { (lengthOf(stage) + 1) / 2 }
-  , m_evenDelay { (lengthOf(stage) + 1) / 4 }
-  , m_stage { stage }
 {
+    const auto & hb = halfBand(stage);
+    m_taps = hb.evenTaps.data();
+    m_oddLength = hb.evenTapCount;
+    m_evenDelay = (lengthOf(stage) + 1) / 4;
+    m_halfTapCount = hb.halfTapCount;
+    m_centre = hb.centre;
+    m_centreDelay = hb.centreDelay;
 }
 
 float Decimator2x::process(float s0, float s1)
 {
     m_evenPosition = pushNewestFirst(m_even, m_evenPosition, m_evenDelay, s0);
     m_oddPosition = pushNewestFirst(m_odd, m_oddPosition, m_oddLength, s1);
-    const float * odd = m_odd.data() + m_oddPosition;
+    const float * const odd = m_odd.data() + m_oddPosition;
 
-    const auto & hb = halfBand(m_stage);
-    float output = hb.centre * m_even[m_evenPosition + hb.centreDelay];
-    for (size_t k = 0; k < hb.evenTapCount; k++) {
-        output += odd[k] * hb.evenTaps[k];
+    const size_t last = m_oddLength - 1;
+    float output = m_centre * m_even[m_evenPosition + m_centreDelay];
+    for (size_t k = 0; k < m_halfTapCount; k++) {
+        output += (odd[k] + odd[last - k]) * m_taps[k];
     }
     return output;
 }
@@ -198,6 +213,31 @@ void Upsampler::process(float sample, float * out, uint8_t factor)
     }
 }
 
+void Upsampler::processBlock(const float * in, float * out, size_t frames, uint8_t factor)
+{
+    switch (factor) {
+    case 2:
+        for (size_t i = 0; i < frames; i++) {
+            m_outer.process(in[i], out[i * 2], out[i * 2 + 1]);
+        }
+        break;
+    case 4:
+        for (size_t i = 0; i < frames; i++) {
+            float a = 0.0f;
+            float b = 0.0f;
+            m_outer.process(in[i], a, b);
+            float * const dst = out + i * 4;
+            m_inner.process(a, dst[0], dst[1]);
+            m_inner.process(b, dst[2], dst[3]);
+        }
+        break;
+    case 1:
+    default:
+        std::copy_n(in, frames, out);
+        break;
+    }
+}
+
 void Upsampler::reset()
 {
     m_outer.reset();
@@ -217,6 +257,33 @@ float Decimator::process(const float * highRate, uint8_t factor)
     case 1:
     default:
         return highRate[0];
+    }
+}
+
+void Decimator::processBlock(const float * highRate, float * out, size_t frames, uint8_t factor)
+{
+    switch (factor) {
+    case 2:
+        for (size_t i = 0; i < frames; i++) {
+            out[i] = m_outer.process(highRate[i * 2], highRate[i * 2 + 1]);
+        }
+        break;
+    case 4:
+        for (size_t i = 0; i < frames; i++) {
+            const float * const src = highRate + i * 4;
+            const float a = m_inner.process(src[0], src[1]);
+            const float b = m_inner.process(src[2], src[3]);
+            out[i] = m_outer.process(a, b);
+        }
+        break;
+    case 1:
+        std::copy_n(highRate, frames, out);
+        break;
+    default:
+        for (size_t i = 0; i < frames; i++) {
+            out[i] = highRate[i * factor];
+        }
+        break;
     }
 }
 

@@ -68,9 +68,12 @@ private:
     // Twice the history, each sample written to both halves, so that the newest-first window is
     // always one contiguous run and the inner loop needs no wrap-around.
     std::array<float, 2 * MaxHistLength> m_buffer {};
-    size_t m_histLength;
+    const float * m_taps { nullptr };
+    size_t m_histLength { 0 };
+    size_t m_halfTapCount { 0 };
     size_t m_position { 0 };
-    HalfBandStage m_stage;
+    float m_centre { 0.0f };
+    size_t m_centreDelay { 0 };
 };
 
 //! 2x half-band decimator for oversampling nonlinear effects: filters two high-rate samples and
@@ -90,11 +93,14 @@ private:
     // meets only the centre one, so each gets its own line. Doubled as in Upsampler2x.
     std::array<float, 2 * MaxOddLength> m_odd {};
     std::array<float, 2 * MaxEvenDelay> m_even {};
-    size_t m_oddLength;
-    size_t m_evenDelay;
+    const float * m_taps { nullptr };
+    size_t m_oddLength { 0 };
+    size_t m_evenDelay { 0 };
+    size_t m_halfTapCount { 0 };
     size_t m_oddPosition { 0 };
     size_t m_evenPosition { 0 };
-    HalfBandStage m_stage;
+    float m_centre { 0.0f };
+    size_t m_centreDelay { 0 };
 };
 
 //! Interpolates one base-rate sample to a block of high-rate samples for factors 1, 2 and 4. Factor 1
@@ -110,6 +116,8 @@ public:
     //! Fill @p out with @p factor high-rate samples interpolated from one base-rate @p sample.
     //! @p factor must be 1, 2 or 4; any other value is treated as a passthrough.
     void process(float sample, float * out, uint8_t factor);
+    //! Interpolate @p frames base-rate samples from @p in to @p frames * @p factor high-rate samples in @p out.
+    void processBlock(const float * in, float * out, size_t frames, uint8_t factor);
     void reset();
 
 private:
@@ -125,6 +133,8 @@ public:
     //! Decimate @p factor consecutive high-rate samples (pointed to by @p highRate) into one
     //! base-rate sample. @p factor must be 1, 2 or 4; any other value is treated as a passthrough.
     float process(const float * highRate, uint8_t factor);
+    //! Decimate @p frames blocks of @p factor high-rate samples from @p highRate into @p frames base-rate samples in @p out.
+    void processBlock(const float * highRate, float * out, size_t frames, uint8_t factor);
     void reset();
 
 private:

@@ -276,6 +276,43 @@ void UpsamplerTest::test_noiseGain_shouldKeepInBandNoiseLevelConstant()
     }
 }
 
+void UpsamplerTest::test_processBlock_matchesPerSample()
+{
+    constexpr size_t Frames { 512 };
+    std::mt19937 rng { 42 };
+    std::uniform_real_distribution<float> dist { -1.0f, 1.0f };
+    std::vector<float> input(Frames, 0.0f);
+    for (float & s : input) {
+        s = dist(rng);
+    }
+
+    for (const uint8_t factor : { uint8_t { 1 }, uint8_t { 2 }, uint8_t { 4 } }) {
+        Upsampler upPerSample;
+        Upsampler upBlock;
+        std::vector<float> upExpected(Frames * factor, 0.0f);
+        std::vector<float> upActual(Frames * factor, 0.0f);
+        for (size_t i = 0; i < Frames; i++) {
+            upPerSample.process(input[i], upExpected.data() + i * factor, factor);
+        }
+        upBlock.processBlock(input.data(), upActual.data(), Frames, factor);
+        for (size_t i = 0; i < upExpected.size(); i++) {
+            QVERIFY2(std::abs(upActual[i] - upExpected[i]) < 1.0e-6f, qPrintable(QString { "Upsampler mismatch at factor %1 sample %2" }.arg(factor).arg(i)));
+        }
+
+        Decimator decPerSample;
+        Decimator decBlock;
+        std::vector<float> decExpected(Frames, 0.0f);
+        std::vector<float> decActual(Frames, 0.0f);
+        for (size_t i = 0; i < Frames; i++) {
+            decExpected[i] = decPerSample.process(upExpected.data() + i * factor, factor);
+        }
+        decBlock.processBlock(upActual.data(), decActual.data(), Frames, factor);
+        for (size_t i = 0; i < Frames; i++) {
+            QVERIFY2(std::abs(decActual[i] - decExpected[i]) < 1.0e-6f, qPrintable(QString { "Decimator mismatch at factor %1 sample %2" }.arg(factor).arg(i)));
+        }
+    }
+}
+
 } // namespace noteahead
 
 QTEST_GUILESS_MAIN(noteahead::UpsamplerTest)
