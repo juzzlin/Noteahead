@@ -201,9 +201,14 @@ private:
         float pan { 0.5f };
         float lpfCutoff { 1.0f };
         float hpfCutoff { 0.0f };
+        uint64_t lastRackVersion { static_cast<uint64_t>(-1) };
 
         void updateEffects();
     };
+
+    uint32_t m_lastOversampledRate { 0 };
+    uint8_t m_lastOversampleFactor { 0 };
+    float m_lastBpm { -1.0f };
 
     //! 0 for 12 dB/oct, which the voice filters have always been, and 1 for 24.
     float m_lpfSlope = 0.0f;

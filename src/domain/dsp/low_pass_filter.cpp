@@ -28,19 +28,28 @@ void LowPassFilter::setCutoff(double cutoff)
     m_cutoff = cutoff;
 }
 
+void LowPassFilter::updateCoefficients()
+{
+    // Zero-Delay Feedback State Variable Filter (2nd order)
+    const double freq = Utils::Dsp::cutoffToHz(static_cast<float>(m_cutoff), static_cast<float>(m_sampleRate));
+    m_g = std::tan(std::numbers::pi * freq / m_sampleRate);
+    m_k = 1.0; // Q = 1.0 / k. Using k = 1.0 for Q = 1.0 (slight resonance)
+    m_damping = 1.0 / (1.0 + m_g * (m_g + m_k));
+    m_lastCutoff = m_cutoff;
+    m_lastSampleRate = m_sampleRate;
+}
+
 void LowPassFilter::processSample(double & left, double & right)
 {
     if (m_cutoff >= 0.999) {
         return;
     }
 
-    // Zero-Delay Feedback State Variable Filter (2nd order)
-    const double freq = Utils::Dsp::cutoffToHz(static_cast<float>(m_cutoff), static_cast<float>(m_sampleRate));
-    const double g = std::tan(std::numbers::pi * freq / m_sampleRate);
-    const double k = 1.0; // Q = 1.0 / k. Using k = 1.0 for Q = 1.0 (slight resonance)
-    const double damping = 1.0 / (1.0 + g * (g + k));
+    if (m_cutoff != m_lastCutoff || m_sampleRate != m_lastSampleRate) {
+        updateCoefficients();
+    }
 
-    processSample(left, right, g, damping, k);
+    processSample(left, right, m_g, m_damping, m_k);
 }
 
 void LowPassFilter::processBlock(AudioContext & context)
@@ -49,13 +58,12 @@ void LowPassFilter::processBlock(AudioContext & context)
         return;
     }
 
-    const double freq = Utils::Dsp::cutoffToHz(static_cast<float>(m_cutoff), static_cast<float>(m_sampleRate));
-    const double g = std::tan(std::numbers::pi * freq / m_sampleRate);
-    const double k = 1.0;
-    const double damping = 1.0 / (1.0 + g * (g + k));
+    if (m_cutoff != m_lastCutoff || m_sampleRate != m_lastSampleRate) {
+        updateCoefficients();
+    }
 
     for (uint32_t i = 0; i < context.frameCount; i++) {
-        processSample(context.buffer[i * 2], context.buffer[i * 2 + 1], g, damping, k);
+        processSample(context.buffer[i * 2], context.buffer[i * 2 + 1], m_g, m_damping, m_k);
     }
 }
 

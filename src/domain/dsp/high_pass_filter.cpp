@@ -28,19 +28,28 @@ void HighPassFilter::setCutoff(float cutoff)
     m_cutoff = cutoff;
 }
 
+void HighPassFilter::updateCoefficients()
+{
+    // Zero-Delay Feedback State Variable Filter (2nd order)
+    const float freq = Utils::Dsp::cutoffToHz(m_cutoff, static_cast<float>(m_sampleRate));
+    m_g = std::tan(std::numbers::pi * static_cast<double>(freq) / m_sampleRate);
+    m_k = 1.0; // Q = 1.0 / k
+    m_damping = 1.0 / (1.0 + m_g * (m_g + m_k));
+    m_lastCutoff = m_cutoff;
+    m_lastSampleRate = m_sampleRate;
+}
+
 void HighPassFilter::processSample(double & left, double & right)
 {
     if (m_cutoff <= 0.001f) {
         return;
     }
 
-    // Zero-Delay Feedback State Variable Filter (2nd order)
-    const float freq = Utils::Dsp::cutoffToHz(m_cutoff, static_cast<float>(m_sampleRate));
-    const double g = std::tan(std::numbers::pi * static_cast<double>(freq) / m_sampleRate);
-    const double k = 1.0; // Q = 1.0 / k
-    const double damping = 1.0 / (1.0 + g * (g + k));
+    if (m_cutoff != m_lastCutoff || m_sampleRate != m_lastSampleRate) {
+        updateCoefficients();
+    }
 
-    processSample(left, right, g, damping, k);
+    processSample(left, right, m_g, m_damping, m_k);
 }
 
 void HighPassFilter::processBlock(AudioContext & context)
@@ -49,13 +58,12 @@ void HighPassFilter::processBlock(AudioContext & context)
         return;
     }
 
-    const float freq = Utils::Dsp::cutoffToHz(m_cutoff, static_cast<float>(m_sampleRate));
-    const double g = std::tan(std::numbers::pi * static_cast<double>(freq) / m_sampleRate);
-    const double k = 1.0;
-    const double damping = 1.0 / (1.0 + g * (g + k));
+    if (m_cutoff != m_lastCutoff || m_sampleRate != m_lastSampleRate) {
+        updateCoefficients();
+    }
 
     for (uint32_t i = 0; i < context.frameCount; i++) {
-        processSample(context.buffer[i * 2], context.buffer[i * 2 + 1], g, damping, k);
+        processSample(context.buffer[i * 2], context.buffer[i * 2 + 1], m_g, m_damping, m_k);
     }
 }
 

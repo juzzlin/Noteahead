@@ -422,6 +422,67 @@ void DrumSynth909Test::test_xmlSerialization_shouldRestoreTheSound()
     QVERIFY(restored.renderVoiceAlone(tom, SampleRate, MaxSeconds) != DrumSynth909Device { "909" }.renderVoiceAlone(tom, SampleRate, MaxSeconds));
 }
 
+void DrumSynth909Test::test_filtersAndSends_shouldRenderDeterministically()
+{
+    namespace NahdXml = Constants::NahdXml;
+
+    DrumSynth909Device dev { "909" };
+    dev.setSampleRate(SampleRate);
+    const int kick = static_cast<int>(DrumSynthV2::VoiceIndex::Kick);
+    const int snare = static_cast<int>(DrumSynthV2::VoiceIndex::Snare);
+    dev.updateVoiceParameter(kick, NahdXml::xmlKeyCutoff().toStdString(), 0.55f);
+    dev.updateVoiceParameter(kick, NahdXml::xmlKeyHpfCutoff().toStdString(), 0.2f);
+    dev.updateVoiceParameter(snare, NahdXml::xmlKeyCutoff().toStdString(), 0.65f);
+    dev.setSendSourceLevel(static_cast<size_t>(kick), 0, 0.5f);
+    dev.setSendSourceLevel(static_cast<size_t>(snare), 0, 0.35f);
+
+    const auto primeRate = [&dev]() {
+        std::vector<double> dummy(2, 0.0);
+        AudioContext ctx {};
+        ctx.buffer = std::span<double> { dummy.data(), dummy.size() };
+        ctx.frameCount = 1;
+        ctx.sampleRate = static_cast<uint32_t>(SampleRate);
+        ctx.oversampleFactor = 2;
+        dev.processAudio(ctx);
+    };
+    primeRate();
+
+    const auto renderKit = [&dev]() {
+        dev.resetAudio();
+        dev.processMidiNoteOn(dev.voiceNote(kick), 115);
+        dev.processMidiNoteOn(dev.voiceNote(snare), 100);
+        constexpr uint32_t frames = 2048;
+        std::vector<double> buffer(frames * 2, 0.0);
+        std::vector<double> send0(frames * 2, 0.0);
+        std::array<std::span<double>, 1> sendBuses { std::span<double> { send0.data(), send0.size() } };
+        AudioContext ctx {};
+        ctx.buffer = std::span<double> { buffer.data(), buffer.size() };
+        ctx.frameCount = frames;
+        ctx.sampleRate = static_cast<uint32_t>(SampleRate);
+        ctx.oversampleFactor = 2;
+        ctx.sendBuses = sendBuses;
+        dev.processAudio(ctx);
+        return std::pair { buffer, send0 };
+    };
+
+    const auto [out1, send1] = renderKit();
+    double maxOut = 0.0;
+    double maxSend = 0.0;
+    for (size_t i = 0; i < out1.size(); i++) {
+        QVERIFY(std::isfinite(out1[i]) && std::isfinite(send1[i]));
+        maxOut = std::max(maxOut, std::abs(out1[i]));
+        maxSend = std::max(maxSend, std::abs(send1[i]));
+    }
+    QVERIFY(maxOut > 0.05);
+    QVERIFY(maxSend > 0.01);
+
+    const auto [out2, send2] = renderKit();
+    for (size_t i = 0; i < out1.size(); i++) {
+        QVERIFY(std::abs(out1[i] - out2[i]) < 1.0e-12);
+        QVERIFY(std::abs(send1[i] - send2[i]) < 1.0e-12);
+    }
+}
+
 } // namespace noteahead
 
 QTEST_GUILESS_MAIN(noteahead::DrumSynth909Test)

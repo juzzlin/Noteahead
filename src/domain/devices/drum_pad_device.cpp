@@ -242,38 +242,57 @@ void DrumPadDevice::processAudio(AudioContext & context)
     const uint32_t oversampledRate = context.sampleRate * oversampleFactor;
     const std::lock_guard<std::recursive_mutex> lock { mutex() };
 
-    for (auto && voice : m_voices) {
-        voice.engine->setSampleRate(oversampledRate);
-        voice.engine->setOversampleFactor(oversampleFactor);
-        voice.lpf->setSampleRate(oversampledRate);
-        voice.hpf->setSampleRate(oversampledRate);
-        voice.lpfStage2->setSampleRate(oversampledRate);
-        voice.hpfStage2->setSampleRate(oversampledRate);
-        voice.ampEnvelope.setSampleRate(oversampledRate);
+    const bool rateChanged = oversampledRate != m_lastOversampledRate;
+    const bool factorChanged = oversampleFactor != m_lastOversampleFactor;
+    const float blockBpm = static_cast<float>(context.bpm);
+    const bool bpmChanged = std::abs(blockBpm - m_lastBpm) > 0.001f;
+
+    if (rateChanged || factorChanged) {
+        for (auto && voice : m_voices) {
+            if (rateChanged) {
+                voice.engine->setSampleRate(oversampledRate);
+                voice.lpf->setSampleRate(oversampledRate);
+                voice.hpf->setSampleRate(oversampledRate);
+                voice.lpfStage2->setSampleRate(oversampledRate);
+                voice.hpfStage2->setSampleRate(oversampledRate);
+                voice.ampEnvelope.setSampleRate(oversampledRate);
+            }
+            if (factorChanged) {
+                voice.engine->setOversampleFactor(oversampleFactor);
+            }
+        }
     }
 
-    // Snapshot each voice's insert-rack effects for per-sample processing at the oversampled rate. The
-    // rack is inserted after the fixed per-voice DSP chain and runs sample-by-sample like the other voice
-    // effects, so time-based effects stay correct (their times derive from the oversampled sample rate).
-    //
-    // No sync() here: every path that changes a parameter already syncs (the controller on a knob
-    // move, deserialization on load, EffectRack::setEffect when the effect is added), and syncing
-    // per block would resolve each parameter key on the audio thread, which allocates.
+    // Snapshot each voice's insert-rack effects for per-sample processing at the oversampled rate.
+    // Only rebuilt when the rack's structure version changes, avoiding per-block mutex locks.
     for (int v = 0; v < NumVoices; v++) {
-        m_voiceRackEffects.at(v).clear();
-        if (m_voices.at(v).effectRack.hasEffects()) {
-            m_voices.at(v).effectRack.effects(m_rackEffectScratch);
-            for (auto & effect : m_rackEffectScratch) {
-                if (effect->enabled()) {
-                    effect->setSampleRate(oversampledRate);
-                    // The per-voice racks are not reached by Device::setBpm, which only walks the
-                    // device's own insert rack, so this is the only place they learn the tempo.
-                    effect->setBpm(static_cast<float>(context.bpm));
+        auto & voice = m_voices.at(v);
+        const uint64_t version = voice.effectRack.version();
+        const bool rackChanged = version != voice.lastRackVersion;
+        if (rackChanged) {
+            m_voiceRackEffects.at(v).clear();
+            if (voice.effectRack.hasEffects()) {
+                voice.effectRack.effects(m_rackEffectScratch);
+                for (auto & effect : m_rackEffectScratch) {
                     m_voiceRackEffects.at(v).push_back(effect);
+                }
+            }
+            voice.lastRackVersion = version;
+        }
+        if ((rackChanged || rateChanged || bpmChanged) && !m_voiceRackEffects.at(v).empty()) {
+            for (auto & effect : m_voiceRackEffects.at(v)) {
+                if (rackChanged || rateChanged) {
+                    effect->setSampleRate(oversampledRate);
+                }
+                if (rackChanged || bpmChanged) {
+                    effect->setBpm(blockBpm);
                 }
             }
         }
     }
+    m_lastOversampledRate = oversampledRate;
+    m_lastOversampleFactor = oversampleFactor;
+    m_lastBpm = blockBpm;
 
     const size_t oversampledSize = static_cast<size_t>(context.frameCount) * oversampleFactor * 2;
     if (m_oversampledBuffer.size() < oversampledSize) {
@@ -298,62 +317,82 @@ void DrumPadDevice::processAudio(AudioContext & context)
     auto & oversampledBuffer = m_oversampledBuffer;
     const float globalGain = linearGainInternal();
 
-    for (uint32_t i = 0; i < context.frameCount; i++) {
-        for (uint8_t os = 0; os < oversampleFactor; os++) {
-            float mixL = 0.0f;
-            float mixR = 0.0f;
+    for (int v = 0; v < NumVoices; v++) {
+        auto & voice = m_voices.at(v);
+        if (!voice.strike.isPending() && (!voice.engine->isActive() || !voice.ampEnvelope.isActive())) {
+            continue;
+        }
 
-            for (int v = 0; v < NumVoices; v++) {
-                auto & voice = m_voices.at(v);
+        const bool useLpf = voice.lpfCutoff < 0.999f;
+        const bool useLpf2 = voice.steepLpf && useLpf;
+        const bool useHpf = voice.hpfCutoff > 0.001f;
+        const bool useHpf2 = voice.steepHpf && useHpf;
+        auto & rackEffects = m_voiceRackEffects.at(v);
+        const bool hasRack = !rackEffects.empty();
+        const size_t maxBus = std::min(m_sendOversampledBuffers.size(), voice.sends.size());
+        bool hasAnySend = false;
+        for (size_t bus = 0; bus < maxBus; bus++) {
+            if (voice.sends.at(bus) > 0.0f) {
+                hasAnySend = true;
+                break;
+            }
+        }
+
+        for (uint32_t i = 0; i < context.frameCount; i++) {
+            for (uint8_t os = 0; os < oversampleFactor; os++) {
                 voice.strike.advance(*voice.engine, voice.ampEnvelope);
-                // Counted on the first pass of the oversampling only, so it stays a count of output
-                // frames and the playhead runs at the same speed whatever the quality is set to.
-                if (!os && voice.engine->isActive() && voice.ampEnvelope.isActive()) {
+                if (!voice.engine->isActive() || !voice.ampEnvelope.isActive()) {
+                    continue;
+                }
+                if (!os) {
                     voice.renderedFrames++;
                 }
-                // Once the envelope has closed there is nothing left to hear however much tail the
-                // engine still has, so the voice stops costing anything -- which is what makes a
-                // short Hold cheaper than a long one rather than merely quieter.
-                if (voice.engine->isActive() && voice.ampEnvelope.isActive()) {
-                    float sample = voice.engine->nextSample();
-                    double l = sample;
-                    double r = sample;
 
+                float sample = voice.engine->nextSample();
+                double l = sample;
+                double r = sample;
+
+                if (useLpf) {
                     voice.lpf->process(l, r);
+                }
+                if (useLpf2) {
                     voice.lpfStage2->process(l, r);
+                }
+                if (useHpf) {
                     voice.hpf->process(l, r);
+                }
+                if (useHpf2) {
                     voice.hpfStage2->process(l, r);
+                }
 
-                    const double amp = voice.ampEnvelope.nextSample();
-                    l *= amp;
-                    r *= amp;
+                const double amp = voice.ampEnvelope.nextSample();
+                l *= amp;
+                r *= amp;
 
-                    voice.volumeEffect->process(l, r);
-                    voice.panningEffect->process(l, r);
+                voice.volumeEffect->process(l, r);
+                voice.panningEffect->process(l, r);
 
-                    for (auto & effect : m_voiceRackEffects.at(v)) {
+                if (hasRack) {
+                    for (auto & effect : rackEffects) {
                         effect->process(l, r);
                     }
-
-                    // The voice's own tap into the global buses, carrying its filters, envelope,
-                    // level, pan and inserts but not the device's soft clip or master pan.
-                    for (size_t bus = 0; bus < m_sendOversampledBuffers.size() && bus < voice.sends.size(); bus++) {
-                        const double level = static_cast<double>(voice.sends.at(bus));
-                        if (level <= 0.0) {
-                            continue;
-                        }
-                        auto & sendBuffer = m_sendOversampledBuffers.at(bus);
-                        sendBuffer[(i * oversampleFactor + os) * 2] += static_cast<float>(l * level);
-                        sendBuffer[(i * oversampleFactor + os) * 2 + 1] += static_cast<float>(r * level);
-                    }
-
-                    mixL += static_cast<float>(l);
-                    mixR += static_cast<float>(r);
                 }
-            }
 
-            oversampledBuffer[(i * oversampleFactor + os) * 2] += mixL * globalGain;
-            oversampledBuffer[(i * oversampleFactor + os) * 2 + 1] += mixR * globalGain;
+                const size_t outIdx = (static_cast<size_t>(i) * oversampleFactor + os) * 2;
+                if (hasAnySend) {
+                    for (size_t bus = 0; bus < maxBus; bus++) {
+                        const double level = static_cast<double>(voice.sends.at(bus));
+                        if (level > 0.0) {
+                            auto & sendBuffer = m_sendOversampledBuffers.at(bus);
+                            sendBuffer[outIdx] += static_cast<float>(l * level);
+                            sendBuffer[outIdx + 1] += static_cast<float>(r * level);
+                        }
+                    }
+                }
+
+                oversampledBuffer[outIdx] += static_cast<float>(l);
+                oversampledBuffer[outIdx + 1] += static_cast<float>(r);
+            }
         }
     }
 
@@ -366,8 +405,9 @@ void DrumPadDevice::processAudio(AudioContext & context)
     for (uint32_t i = 0; i < context.frameCount; i++) {
         // Soft-clip at high rate and then downsample
         for (uint8_t os = 0; os < oversampleFactor; os++) {
-            highL[os] = std::tanh(oversampledBuffer[(i * oversampleFactor + os) * 2]);
-            highR[os] = std::tanh(oversampledBuffer[(i * oversampleFactor + os) * 2 + 1]);
+            const size_t inIdx = (static_cast<size_t>(i) * oversampleFactor + os) * 2;
+            highL[os] = std::tanh(oversampledBuffer[inIdx] * globalGain);
+            highR[os] = std::tanh(oversampledBuffer[inIdx + 1] * globalGain);
         }
 
         const float l = m_downsamplerL.process(highL.data(), oversampleFactor);
@@ -455,6 +495,9 @@ void DrumPadDevice::resetDeviceAudio()
         left.reset();
         right.reset();
     }
+    m_lastOversampledRate = 0;
+    m_lastOversampleFactor = 0;
+    m_lastBpm = -1.0f;
 }
 
 void DrumPadDevice::serializeToXml(ProjectWriter & writer) const

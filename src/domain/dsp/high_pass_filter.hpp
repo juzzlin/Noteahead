@@ -33,8 +33,14 @@ public:
     void reset() override;
 
 private:
+    void updateCoefficients();
     void processSample(double & left, double & right, double g, double damping, double k);
     float m_cutoff { 0.0f };
+    float m_lastCutoff { -1.0f };
+    double m_lastSampleRate { -1.0 };
+    double m_g { 0.0 };
+    double m_damping { 0.0 };
+    double m_k { 1.0 };
     double m_s1L { 0.0 }, m_s2L { 0.0 };
     double m_s1R { 0.0 }, m_s2R { 0.0 };
 };

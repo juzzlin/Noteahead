@@ -41,6 +41,7 @@ private slots:
     void test_crash_shouldBloomFromTheStrikeAndKeepItsSplashPartials();
     void test_reverseCrash_shouldEndOnTheStrike();
     void test_xmlSerialization_shouldRestoreTheSound();
+    void test_filtersAndSends_shouldRenderDeterministically();
 };
 
 } // namespace noteahead
