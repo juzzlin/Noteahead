@@ -45,6 +45,7 @@ private slots:
     void test_applyFactoryPreset_shouldReplaceThePreviousPreset();
     void test_applyFactoryPreset_outOfRange_shouldFail();
     void test_factoryPresets_defaultEffect_shouldOfferNone();
+    void test_inactiveBands_shouldProduceIdenticalAudio();
 };
 
 } // namespace noteahead

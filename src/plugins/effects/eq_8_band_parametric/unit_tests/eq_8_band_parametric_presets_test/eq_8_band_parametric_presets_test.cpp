@@ -17,6 +17,7 @@
 
 #include "../../../../../common/constants.hpp"
 #include "../../../../../common/parameter_mapper.hpp"
+#include "../../../../../domain/dsp/audio_context.hpp"
 #include "../../../../../domain/dsp/svf_filter.hpp"
 #include "../../../gain/gain.hpp"
 #include "../../eq_8_band_parametric.hpp"
@@ -354,6 +355,101 @@ void Eq8BandParametricPresetsTest::test_factoryPresets_defaultEffect_shouldOffer
     // say so, which is what keeps the preset row out of the dialogs that have nothing to show.
     const Gain gain;
     QVERIFY(gain.factoryPresets().empty());
+}
+
+void Eq8BandParametricPresetsTest::test_inactiveBands_shouldProduceIdenticalAudio()
+{
+    namespace C = Constants::NahdXml;
+    constexpr uint32_t Frames { 256 };
+    const auto setParam = [](Eq8BandParametric & eq, const QString & key, float value) {
+        if (const auto p = eq.parameter(key.toStdString()); p) {
+            p->get().setValue(value);
+        }
+    };
+
+    // All flat/inactive types should act as exact identity regardless of band index.
+    Eq8BandParametric flatEq;
+    flatEq.setSampleRate(SampleRate);
+    setParam(flatEq, C::xmlKeyBandType(0), static_cast<float>(SvfFilter::Type::Bypass));
+    setParam(flatEq, C::xmlKeyBandType(1), static_cast<float>(SvfFilter::Type::Bell));
+    setParam(flatEq, C::xmlKeyBandGain(1), 0.5f); // 0 dB
+    setParam(flatEq, C::xmlKeyBandType(2), static_cast<float>(SvfFilter::Type::LowShelf));
+    setParam(flatEq, C::xmlKeyBandGain(2), 0.5f);
+    setParam(flatEq, C::xmlKeyBandType(3), static_cast<float>(SvfFilter::Type::HighShelf));
+    setParam(flatEq, C::xmlKeyBandGain(3), 0.5f);
+    flatEq.sync();
+
+    std::vector<double> source(Frames * 2, 0.0);
+    for (uint32_t i = 0; i < Frames; i++) {
+        source[i * 2] = 0.6 * std::sin(2.0 * std::numbers::pi * 440.0 * i / SampleRate);
+        source[i * 2 + 1] = 0.4 * std::cos(2.0 * std::numbers::pi * 1200.0 * i / SampleRate);
+    }
+
+    auto flatBuffer = source;
+    AudioContext flatCtx;
+    flatCtx.buffer = flatBuffer;
+    flatCtx.frameCount = Frames;
+    flatCtx.sampleRate = static_cast<uint32_t>(SampleRate);
+    flatEq.processBlock(flatCtx);
+    for (size_t i = 0; i < source.size(); i++) {
+        QVERIFY2(std::abs(flatBuffer[i] - source[i]) < 1.0e-12, "Flat inactive bands should pass audio unchanged");
+    }
+
+    // Sparse active bands separated by flat/bypassed bands must match compact active bands across all stereo modes.
+    for (const int mode : { 0, 1, 2 }) {
+        Eq8BandParametric sparseEq;
+        sparseEq.setSampleRate(SampleRate);
+        setParam(sparseEq, C::xmlKeyStereoMode(), static_cast<float>(mode));
+        setParam(sparseEq, C::xmlKeyBandType(0), static_cast<float>(SvfFilter::Type::LowCut));
+        setParam(sparseEq, C::xmlKeyBandFreq(0), 0.25f);
+        setParam(sparseEq, C::xmlKeyBandType(1), static_cast<float>(SvfFilter::Type::Bell));
+        setParam(sparseEq, C::xmlKeyBandGain(1), 0.5f); // 0 dB -> inactive
+        setParam(sparseEq, C::xmlKeyBandType(2), static_cast<float>(SvfFilter::Type::Bell));
+        setParam(sparseEq, C::xmlKeyBandFreq(2), 0.55f);
+        setParam(sparseEq, C::xmlKeyBandGain(2), 0.65f);
+        setParam(sparseEq, C::xmlKeyBandType(3), static_cast<float>(SvfFilter::Type::LowShelf));
+        setParam(sparseEq, C::xmlKeyBandGain(3), 0.5f); // 0 dB -> inactive
+        setParam(sparseEq, C::xmlKeyBandType(4), static_cast<float>(SvfFilter::Type::HighShelf));
+        setParam(sparseEq, C::xmlKeyBandFreq(4), 0.75f);
+        setParam(sparseEq, C::xmlKeyBandGain(4), 0.35f);
+        setParam(sparseEq, C::xmlKeyBandType(5), static_cast<float>(SvfFilter::Type::Bypass));
+        setParam(sparseEq, C::xmlKeyBandType(6), static_cast<float>(SvfFilter::Type::Bypass));
+        setParam(sparseEq, C::xmlKeyBandType(7), static_cast<float>(SvfFilter::Type::Notch));
+        setParam(sparseEq, C::xmlKeyBandFreq(7), 0.65f);
+        sparseEq.sync();
+
+        Eq8BandParametric compactEq;
+        compactEq.setSampleRate(SampleRate);
+        setParam(compactEq, C::xmlKeyStereoMode(), static_cast<float>(mode));
+        setParam(compactEq, C::xmlKeyBandType(0), static_cast<float>(SvfFilter::Type::LowCut));
+        setParam(compactEq, C::xmlKeyBandFreq(0), 0.25f);
+        setParam(compactEq, C::xmlKeyBandType(1), static_cast<float>(SvfFilter::Type::Bell));
+        setParam(compactEq, C::xmlKeyBandFreq(1), 0.55f);
+        setParam(compactEq, C::xmlKeyBandGain(1), 0.65f);
+        setParam(compactEq, C::xmlKeyBandType(2), static_cast<float>(SvfFilter::Type::HighShelf));
+        setParam(compactEq, C::xmlKeyBandFreq(2), 0.75f);
+        setParam(compactEq, C::xmlKeyBandGain(2), 0.35f);
+        setParam(compactEq, C::xmlKeyBandType(3), static_cast<float>(SvfFilter::Type::Notch));
+        setParam(compactEq, C::xmlKeyBandFreq(3), 0.65f);
+        compactEq.sync();
+
+        auto sparseBuffer = source;
+        AudioContext sparseCtx;
+        sparseCtx.buffer = sparseBuffer;
+        sparseCtx.frameCount = Frames;
+        sparseCtx.sampleRate = static_cast<uint32_t>(SampleRate);
+        sparseEq.processBlock(sparseCtx);
+
+        auto compactBuffer = source;
+        for (uint32_t i = 0; i < Frames; i++) {
+            compactEq.process(compactBuffer[i * 2], compactBuffer[i * 2 + 1]);
+        }
+
+        for (size_t i = 0; i < source.size(); i++) {
+            QVERIFY2(std::abs(sparseBuffer[i] - compactBuffer[i]) < 1.0e-12,
+                     qPrintable(QString { "Mismatch at stereo mode %1 sample %2" }.arg(mode).arg(i)));
+        }
+    }
 }
 
 } // namespace noteahead

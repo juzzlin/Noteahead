@@ -207,7 +207,7 @@ void Eq8BandParametric::processBlock(AudioContext & context)
 
     m_spectrumTaps.processPre(context);
     for (uint32_t i = 0; i < context.frameCount; i++) {
-        processSample(context.buffer[i * 2], context.buffer[i * 2 + 1]);
+        processStereo(context.buffer[i * 2], context.buffer[i * 2 + 1]);
     }
     m_spectrumTaps.processPost(context);
 }
@@ -246,14 +246,27 @@ void Eq8BandParametric::processStereo(double & left, double & right)
     const bool processMid = m_stereoMode != StereoMode::Side;
     const bool processSide = m_stereoMode != StereoMode::Mid;
 
-    for (auto & band : m_bands) {
-        if (processMid) {
+    if (processMid && processSide) {
+        for (size_t i = 0; i < m_activeBandCount; i++) {
+            auto & band = m_bands[m_activeBands[i]];
+            mid = band.filterMid.process(mid);
+            side = band.filterSide.process(side);
+            for (size_t stage = 1; stage < band.stages; stage++) {
+                mid = band.extraMid.at(stage - 1).process(mid);
+                side = band.extraSide.at(stage - 1).process(side);
+            }
+        }
+    } else if (processMid) {
+        for (size_t i = 0; i < m_activeBandCount; i++) {
+            auto & band = m_bands[m_activeBands[i]];
             mid = band.filterMid.process(mid);
             for (size_t stage = 1; stage < band.stages; stage++) {
                 mid = band.extraMid.at(stage - 1).process(mid);
             }
         }
-        if (processSide) {
+    } else if (processSide) {
+        for (size_t i = 0; i < m_activeBandCount; i++) {
+            auto & band = m_bands[m_activeBands[i]];
             side = band.filterSide.process(side);
             for (size_t stage = 1; stage < band.stages; stage++) {
                 side = band.extraSide.at(stage - 1).process(side);
@@ -310,6 +323,7 @@ Eq8BandParametric::Band Eq8BandParametric::bandFromParameters(size_t index) cons
 
 void Eq8BandParametric::syncParameters()
 {
+    m_activeBandCount = 0;
     for (size_t i = 0; i < NumBands; i++) {
         auto && band = m_bands[i];
         const auto settings = bandFromParameters(i);
@@ -319,6 +333,9 @@ void Eq8BandParametric::syncParameters()
         band.q = settings.q;
         band.slope = settings.slope;
         band.updateCoefficients(m_sampleRate);
+        if (band.isActive()) {
+            m_activeBands[m_activeBandCount++] = i;
+        }
     }
 
     if (const auto p = parameter(Constants::NahdXml::xmlKeyStereoMode().toStdString()); p) {

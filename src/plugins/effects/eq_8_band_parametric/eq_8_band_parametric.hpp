@@ -227,6 +227,24 @@ private:
                 break;
             }
         }
+
+        bool isActive() const
+        {
+            switch (type) {
+            case SvfFilter::Type::Bypass:
+            case SvfFilter::Type::BandPass:
+                return false;
+            case SvfFilter::Type::Bell:
+            case SvfFilter::Type::LowShelf:
+            case SvfFilter::Type::HighShelf:
+                return gainDb != 0.0;
+            case SvfFilter::Type::LowCut:
+            case SvfFilter::Type::HighCut:
+            case SvfFilter::Type::Notch:
+                return true;
+            }
+            return true;
+        }
     };
 
     static constexpr size_t NumBands = 8;
@@ -257,6 +275,8 @@ private:
     StereoMode stereoModeFromParameters() const;
 
     Bands m_bands;
+    std::array<size_t, NumBands> m_activeBands {};
+    size_t m_activeBandCount { 0 };
 
     StereoMode m_stereoMode { StereoMode::MidSide };
 
