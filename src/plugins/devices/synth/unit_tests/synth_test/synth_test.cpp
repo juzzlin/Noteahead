@@ -4403,6 +4403,49 @@ void SynthTest::test_oscillatorStage_mutedSyncMaster_shouldStillRun()
     QCOMPARE(SynthOscillatorStage::running(settings), (std::array<bool, SynthOscillatorStage::VcoCount> { false, false, true, false }));
 }
 
+void SynthTest::test_voiceMode_unisonWithFilterDrive_shouldRenderDeterministically()
+{
+    SynthDevice synth { "Test Synth" };
+    synth.setSampleRate(48000);
+    synth.setVoiceMode(SynthDevice::VoiceMode::Unison);
+    synth.setVoiceDepth(0.45f);
+    synth.setLpfCutoff(0.4f);
+    synth.setLpfResonance(0.55f);
+    synth.setFilterDrive(0.75f);
+    synth.setModTarget(SynthDevice::ModTarget::Cutoff);
+    synth.setModInt(0.75f);
+    synth.setAmpAttack(0.0f);
+
+    const auto render = [&synth]() {
+        synth.reset();
+        synth.processMidiNoteOn(57, 110);
+        std::vector<double> buffer(1024 * 2, 0.0);
+        AudioContext ctx {};
+        ctx.buffer = std::span(buffer.data(), buffer.size());
+        ctx.frameCount = 1024;
+        ctx.sampleRate = 48000;
+        ctx.oversampleFactor = 2;
+        synth.processAudio(ctx);
+        return buffer;
+    };
+
+    const auto first = render();
+    double maxAbs = 0.0;
+    for (const double sample : first) {
+        QVERIFY(std::isfinite(sample));
+        maxAbs = std::max(maxAbs, std::abs(sample));
+    }
+    QVERIFY(maxAbs > 0.01);
+
+    const auto second = render();
+    QCOMPARE(first.size(), second.size());
+    double maxDiff = 0.0;
+    for (size_t i = 0; i < first.size(); i++) {
+        maxDiff = std::max(maxDiff, std::abs(first[i] - second[i]));
+    }
+    QVERIFY2(maxDiff < 1.0e-12, qPrintable(QString::number(maxDiff)));
+}
+
 } // namespace noteahead
 
 QTEST_GUILESS_MAIN(noteahead::SynthTest)

@@ -578,6 +578,10 @@ private:
         //! Level of that fade, 1 down to 0 while a pending trigger waits.
         double declickGain { 1.0 };
 
+        double lastDrivenCutoff { -1.0 };
+        uint32_t lastDrivenSampleRate { 0 };
+        double cachedDrivenFreq { 20000.0 };
+
         void reset();
 
         //! Phase Sync on: the note starts from a known oscillator phase and its own attack, every
@@ -777,6 +781,10 @@ private:
     double m_vco2BasePitchRatio { 1.0 };
     double m_vco3BasePitchRatio { 1.0 };
     double m_vco4BasePitchRatio { 1.0 };
+    double m_multiBasePitchRatio { 1.0 };
+    double m_drivenGain { 1.0 };
+    double m_drivenInvMakeup { 1.0 };
+    std::array<double, MaxVoices> m_voiceDetuneRatios {};
 
     void handleNoteOn(uint8_t note, uint8_t velocity);
     //! Starts a note on the given voice through whichever path the Phase Sync switch selects.

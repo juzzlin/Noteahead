@@ -84,6 +84,8 @@ void SynthDevice::Voice::reset()
         stage.reset();
     }
     glideFrequency = 0.0;
+    lastDrivenCutoff = -1.0;
+    lastDrivenSampleRate = 0;
     cancelPendingTrigger();
     active = false;
 }
@@ -916,7 +918,7 @@ void SynthDevice::updateVoiceParameters(Voice & voice, uint32_t oversampledRate,
 
     // The detune has to follow the depth knob while a note sounds, not only at the note on.
     if (isStacked(m_voiceMode) || m_voiceMode == VoiceMode::Dual) {
-        voice.frequency = midiNoteToFreq(voice.note) * std::pow(2.0, voiceDetuneSemitones(index) / 12.0);
+        voice.frequency = midiNoteToFreq(voice.note) * m_voiceDetuneRatios.at(index);
     }
 
     // Mono always sounds the same voice, so its position comes from the slot the note was given
@@ -1229,7 +1231,7 @@ void SynthDevice::handleNoteOn(uint8_t note, uint8_t velocity)
     } else if (isStacked(m_voiceMode)) {
         const uint64_t tid { m_nextTriggerId++ };
         for (size_t i = 0; i < MaxVoices; i++) {
-            const double voiceFreq = freq * std::pow(2.0, voiceDetuneSemitones(i) / 12.0);
+            const double voiceFreq = freq * m_voiceDetuneRatios.at(i);
             const Trigger trigger { note, tid, voiceFreq, voiceSpreadPan(i), finalVel, m_portamento <= 0.001f };
             startVoice(m_voices.at(i), trigger, i);
         }
@@ -1276,8 +1278,8 @@ void SynthDevice::handleNoteOn(uint8_t note, uint8_t velocity)
 
             // v0 is always even and v1 always odd, so the detune and the pan follow the voice index
             // exactly as they do in updateVoiceParameters and the two paths cannot drift apart.
-            const double freq0 = freq * std::pow(2.0, voiceDetuneSemitones(v0) / 12.0);
-            const double freq1 = freq * std::pow(2.0, voiceDetuneSemitones(v1) / 12.0);
+            const double freq0 = freq * m_voiceDetuneRatios.at(v0);
+            const double freq1 = freq * m_voiceDetuneRatios.at(v1);
 
             const float pan0 = voiceSpreadPan(v0 % 2);
             const float pan1 = voiceSpreadPan(v1 % 2);
@@ -1367,7 +1369,14 @@ void SynthDevice::handleNoteOff(uint8_t note)
 
 double SynthDevice::midiNoteToFreq(uint8_t note) const
 {
-    return 440.0 * std::pow(2.0, (note - 69) / 12.0);
+    static const auto table = [] {
+        std::array<double, 128> frequencies {};
+        for (size_t i = 0; i < frequencies.size(); i++) {
+            frequencies[i] = 440.0 * std::pow(2.0, (static_cast<int>(i) - 69) / 12.0);
+        }
+        return frequencies;
+    }();
+    return table[note & 0x7Fu];
 }
 
 SynthDevice::ModulationValues SynthDevice::calculateModulation(Voice & voice, uint32_t frame) const
@@ -1500,18 +1509,22 @@ double SynthDevice::drivenLowPass(Voice & voice, double input, double cutoff, do
     // The same corner the linear filter would land on, in Hz rather than in knob travel: the two
     // filters map their cutoff differently, and a patch must not change pitch of tone when Drive
     // comes off the stop.
-    const double maxFreq = std::min(20000.0, oversampledRate * 0.49);
-    const double frequency = 20.0 * std::exp2(cutoff * std::log2(maxFreq / 20.0));
+    if (cutoff != voice.lastDrivenCutoff || oversampledRate != voice.lastDrivenSampleRate) {
+        const double maxFreq = std::min(20000.0, oversampledRate * 0.49);
+        voice.cachedDrivenFreq = 20.0 * std::exp2(cutoff * std::log2(maxFreq / 20.0));
+        voice.lastDrivenCutoff = cutoff;
+        voice.lastDrivenSampleRate = oversampledRate;
+    }
+    const double frequency = voice.cachedDrivenFreq;
 
     // Drive is level into the filter and the same level back out of it, rather than a ceiling that
     // comes down: the loop saturates at unity either way, and dividing out what was put in is what
     // keeps a patch at the level it was while it gains the harmonics. Small signals therefore pass
     // through unchanged and it is the peaks and the resonance that fold, which is what an
     // overdriven VCF does and what no amount of distortion in front of a linear filter can imitate.
-    const double gain = 1.0 + static_cast<double>(m_filterDrive) * (MaxFilterDriveGain - 1.0);
     const int stages = static_cast<int>(m_lpfSlope) == 0 ? 1 : 2;
 
-    double value = input * gain;
+    double value = input * m_drivenGain;
     for (int i = 0; i < stages; i++) {
         auto & stage = voice.drivenLpf[static_cast<size_t>(i)];
         stage.setCutoff(frequency);
@@ -1523,7 +1536,7 @@ double SynthDevice::drivenLowPass(Voice & voice, double input, double cutoff, do
     // rising with the gain rather than anything taking it away. Most of that is given back here, so
     // that turning the knob is a change of tone and not a change of level: what is left is the
     // decibel or two an overdriven filter is supposed to gain.
-    return value / (1.0 + static_cast<double>(m_filterDrive) * DriveMakeup);
+    return value * m_drivenInvMakeup;
 }
 
 float SynthDevice::generateVoiceSample(Voice & voice, const ModulationValues & mods, double oversampledRate, double pbRatio)
@@ -1533,7 +1546,7 @@ float SynthDevice::generateVoiceSample(Voice & voice, const ModulationValues & m
     double vco3Freq = voice.glideFrequency * m_vco3BasePitchRatio * pbRatio;
     double vco4Freq = voice.glideFrequency * m_vco4BasePitchRatio * pbRatio;
     // The multi engine's octave counts from 16', so 8' (one) plays the note itself.
-    double multiFreq = voice.glideFrequency * std::exp2(m_multiOctave - 1) * pbRatio;
+    double multiFreq = voice.glideFrequency * m_multiBasePitchRatio * pbRatio;
     if (mods.multiPitchMod != 0.0) {
         multiFreq *= std::exp2(mods.multiPitchMod);
     }
@@ -1630,18 +1643,22 @@ float SynthDevice::generateVoiceSample(Voice & voice, const ModulationValues & m
 
     // Filter
     const double cutoffMod = mods.cutoffMod + (voice.note - 60.0) / 127.0 * m_filterKeyTrack;
+    const double lpfCutoff = std::clamp(m_lpfCutoff + cutoffMod, 0.0, 1.0);
+    const float lpfResonance = std::clamp(m_lpfResonance + static_cast<float>(mods.resonanceMod), 0.0f, 1.0f);
 
-    voice.lpf.setCutoff(std::clamp(m_lpfCutoff + cutoffMod, 0.0, 1.0));
-    voice.lpf.setResonance(std::clamp(m_lpfResonance + static_cast<float>(mods.resonanceMod), 0.0f, 1.0f));
-    // Two poles or four, per filter. Set here with the rest of their settings rather than once when
-    // the voice is made, so that changing one reaches a note that is already sounding.
-    voice.lpf.setOrder(static_cast<int>(m_lpfSlope) == 0 ? 2 : 4);
+    double lowPassed = 0.0;
+    if (m_filterDrive > 0.001f) {
+        lowPassed = drivenLowPass(voice, mixHeadroom, lpfCutoff, lpfResonance, static_cast<uint32_t>(oversampledRate));
+    } else {
+        voice.lpf.setCutoff(lpfCutoff);
+        voice.lpf.setResonance(lpfResonance);
+        // Two poles or four, per filter. Set here with the rest of their settings rather than once when
+        // the voice is made, so that changing one reaches a note that is already sounding.
+        voice.lpf.setOrder(static_cast<int>(m_lpfSlope) == 0 ? 2 : 4);
+        lowPassed = voice.lpf.process(mixHeadroom);
+    }
     voice.hpf.setOrder(static_cast<int>(m_hpfSlope) == 0 ? 2 : 4);
     voice.hpf.setCutoff(std::clamp(m_hpfCutoff + mods.hpfCutoffMod, 0.0, 1.0));
-
-    const double lowPassed = m_filterDrive > 0.001f
-      ? drivenLowPass(voice, mixHeadroom, std::clamp(m_lpfCutoff + cutoffMod, 0.0, 1.0), std::clamp(m_lpfResonance + static_cast<float>(mods.resonanceMod), 0.0f, 1.0f), oversampledRate)
-      : voice.lpf.process(mixHeadroom);
     const float filtered = voice.hpf.process(static_cast<float>(lowPassed));
     const float ampMod = static_cast<float>(std::max(0.0, 1.0 + mods.volumeMod));
     return filtered * static_cast<float>(mods.ampEnvelope) * ampMod;
@@ -1961,6 +1978,13 @@ void SynthDevice::syncParameters()
     configureLfo2(m_globalLfo2);
     m_globalLfo.setFreeRunning(m_lfoFreeRun);
     m_globalLfo2.setFreeRunning(m_lfo2FreeRun);
+
+    m_multiBasePitchRatio = std::exp2(m_multiOctave - 1);
+    m_drivenGain = 1.0 + static_cast<double>(m_filterDrive) * (MaxFilterDriveGain - 1.0);
+    m_drivenInvMakeup = 1.0 / (1.0 + static_cast<double>(m_filterDrive) * DriveMakeup);
+    for (size_t i = 0; i < MaxVoices; i++) {
+        m_voiceDetuneRatios[i] = std::pow(2.0, voiceDetuneSemitones(i) / 12.0);
+    }
 }
 
 void SynthDevice::configureLfo1(Lfo & lfo) const

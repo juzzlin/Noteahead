@@ -201,6 +201,7 @@ private slots:
     void test_lfoLed_renderedSilence_shouldGoDark();
     void test_lfoLed_idleFreeRun_shouldKeepShowingTheLfo();
     void test_oscillatorStage_mutedSyncMaster_shouldStillRun();
+    void test_voiceMode_unisonWithFilterDrive_shouldRenderDeterministically();
 };
 
 } // namespace noteahead
