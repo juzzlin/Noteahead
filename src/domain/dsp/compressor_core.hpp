@@ -34,6 +34,8 @@ public:
         Rms
     };
 
+    CompressorCore();
+
     void setThresholdDb(double thresholdDb);
     void setRatio(double ratio);
     void setKneeDb(double kneeDb);
@@ -52,7 +54,7 @@ public:
 
 private:
     void updateCoefficients();
-    double detectorLevelDb(double left, double right);
+    void updateKneeBounds();
     double gainComputerDb(double detectorDb) const;
 
     double m_thresholdDb { -20.0 };
@@ -62,6 +64,8 @@ private:
     double m_releaseMs { 100.0 };
     DetectorMode m_detectorMode { DetectorMode::Peak };
 
+    double m_kneeLowLin { 0.0 };
+    double m_kneeLowSquare { 0.0 };
     double m_attackCoeff { 0.0 };
     double m_releaseCoeff { 0.0 };
     double m_rmsCoeff { 0.0 };

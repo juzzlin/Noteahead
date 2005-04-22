@@ -30,9 +30,15 @@ constexpr double rmsWindowMs = 10.0;
 
 } // namespace
 
+CompressorCore::CompressorCore()
+{
+    updateKneeBounds();
+}
+
 void CompressorCore::setThresholdDb(double thresholdDb)
 {
     m_thresholdDb = thresholdDb;
+    updateKneeBounds();
 }
 
 void CompressorCore::setRatio(double ratio)
@@ -43,6 +49,15 @@ void CompressorCore::setRatio(double ratio)
 void CompressorCore::setKneeDb(double kneeDb)
 {
     m_kneeDb = kneeDb;
+    updateKneeBounds();
+}
+
+void CompressorCore::updateKneeBounds()
+{
+    const double kneeLowDb = m_kneeDb > 0.001 ? m_thresholdDb - m_kneeDb * 0.5 : m_thresholdDb;
+    // Small guard factor keeps samples right on the knee boundary on the exact dB path.
+    m_kneeLowLin = std::pow(10.0, kneeLowDb / 20.0) * 0.9999;
+    m_kneeLowSquare = m_kneeLowLin * m_kneeLowLin;
 }
 
 void CompressorCore::setAttackMs(double attackMs)
@@ -82,22 +97,6 @@ void CompressorCore::updateCoefficients()
     m_lastSampleRate = m_sampleRate;
 }
 
-double CompressorCore::detectorLevelDb(double left, double right)
-{
-    if (m_detectorMode == DetectorMode::Rms) {
-        const double meanSquare = (left * left + right * right) * 0.5;
-        m_rmsSquare = m_rmsCoeff * m_rmsSquare + (1.0 - m_rmsCoeff) * meanSquare;
-        // Denormal protection
-        if (m_rmsSquare < 1.0e-30) {
-            m_rmsSquare = 0.0;
-        }
-        return Utils::Dsp::linearToDb(static_cast<float>(std::sqrt(m_rmsSquare)));
-    }
-
-    const double detector = std::max(std::abs(left), std::abs(right));
-    return Utils::Dsp::linearToDb(static_cast<float>(detector));
-}
-
 double CompressorCore::gainComputerDb(double detectorDb) const
 {
     double targetDb = detectorDb;
@@ -122,7 +121,29 @@ double CompressorCore::processGainDb(double left, double right)
 {
     updateCoefficients();
 
-    const double gainReductionDb = gainComputerDb(detectorLevelDb(left, right));
+    double gainReductionDb = 0.0;
+    if (m_detectorMode == DetectorMode::Rms) {
+        const double meanSquare = (left * left + right * right) * 0.5;
+        m_rmsSquare = m_rmsCoeff * m_rmsSquare + (1.0 - m_rmsCoeff) * meanSquare;
+        // Denormal protection
+        if (m_rmsSquare < 1.0e-30) {
+            m_rmsSquare = 0.0;
+        }
+        if (m_rmsSquare > m_kneeLowSquare) {
+            const double detectorDb = Utils::Dsp::linearToDb(static_cast<float>(std::sqrt(m_rmsSquare)));
+            gainReductionDb = gainComputerDb(detectorDb);
+        }
+    } else {
+        const double detector = std::max(std::abs(left), std::abs(right));
+        if (detector > m_kneeLowLin) {
+            const double detectorDb = Utils::Dsp::linearToDb(static_cast<float>(detector));
+            gainReductionDb = gainComputerDb(detectorDb);
+        }
+    }
+
+    if (gainReductionDb == 0.0 && m_envelopeDb == 0.0) {
+        return 0.0;
+    }
 
     if (gainReductionDb < m_envelopeDb) {
         m_envelopeDb = m_attackCoeff * m_envelopeDb + (1.0 - m_attackCoeff) * gainReductionDb;

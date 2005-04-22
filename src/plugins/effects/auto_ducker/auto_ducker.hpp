@@ -53,7 +53,7 @@ public:
 private:
     void updateState();
     void updateCoefficients();
-    double detectorLevelDb(double left, double right);
+    double computeTargetGainDb(double left, double right);
     double targetGainDb(double detectorDb) const;
     void updateEnvelope(double targetDb);
     void applyGain(double & left, double & right) const;
@@ -62,6 +62,7 @@ private:
     float m_threshold { -20.0f };
     float m_amount { -12.0f };
     float m_knee { 6.0f };
+    double m_kneeLowLin { 0.0 };
     float m_attackMs { 5.0f };
     float m_releaseMs { 200.0f };
     float m_holdMs { 0.0f };

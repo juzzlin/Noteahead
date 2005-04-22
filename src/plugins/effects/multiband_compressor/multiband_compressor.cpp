@@ -171,9 +171,16 @@ void MultibandCompressor::processFrame(double & left, double & right, bool hasSi
         const double gainDb = band.core.processGainDb(detectorLeft[i], detectorRight[i]);
 
         if (!band.bypassed) {
-            const double gain = Utils::Dsp::dbToLinear(static_cast<float>(gainDb + band.makeupDb));
-            bandLeft *= gain;
-            bandRight *= gain;
+            if (gainDb == 0.0) {
+                if (band.makeupLin != 1.0) {
+                    bandLeft *= band.makeupLin;
+                    bandRight *= band.makeupLin;
+                }
+            } else {
+                const double gain = Utils::Dsp::dbToLinear(static_cast<float>(gainDb + band.makeupDb));
+                bandLeft *= gain;
+                bandRight *= gain;
+            }
         }
 
         if (!m_anyBandSoloed || band.soloed) {
@@ -239,6 +246,7 @@ void MultibandCompressor::syncParameters()
         }
         if (const auto p = parameter(Constants::NahdXml::xmlKeyBandMakeup(i).toStdString()); p) {
             band.makeupDb = -12.0 + static_cast<double>(p->get().value()) * 24.0;
+            band.makeupLin = band.makeupDb == 0.0 ? 1.0 : static_cast<double>(Utils::Dsp::dbToLinear(static_cast<float>(band.makeupDb)));
         }
         if (const auto p = parameter(Constants::NahdXml::xmlKeyBandBypass(i).toStdString()); p) {
             band.bypassed = p->get().value() > 0.5f;

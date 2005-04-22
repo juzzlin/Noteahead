@@ -76,6 +76,7 @@ private:
     {
         CompressorCore core;
         double makeupDb { 0.0 };
+        double makeupLin { 1.0 };
         bool bypassed { false };
         bool soloed { false };
     };

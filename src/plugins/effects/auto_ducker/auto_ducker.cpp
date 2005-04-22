@@ -64,7 +64,7 @@ void AutoDucker::processSample(double & left, double & right)
     updateState();
 
     // No context here, so the effect's own input is the only detector available
-    updateEnvelope(targetGainDb(detectorLevelDb(left, right)));
+    updateEnvelope(computeTargetGainDb(left, right));
     applyGain(left, right);
 }
 
@@ -88,7 +88,7 @@ void AutoDucker::processBlock(AudioContext & context)
             detectorR = sidechainBuffer[i * 2 + 1];
         }
 
-        updateEnvelope(targetGainDb(detectorLevelDb(detectorL, detectorR)));
+        updateEnvelope(computeTargetGainDb(detectorL, detectorR));
         applyGain(context.buffer[i * 2], context.buffer[i * 2 + 1]);
     }
 }
@@ -112,14 +112,19 @@ void AutoDucker::updateCoefficients()
     }
 }
 
-double AutoDucker::detectorLevelDb(double left, double right)
+double AutoDucker::computeTargetGainDb(double left, double right)
 {
     if (m_sideChainLpfCutoff < 1.0f) {
         left = m_sideChainLpfL.process(left);
         right = m_sideChainLpfR.process(right);
     }
 
-    return Utils::Dsp::linearToDb(static_cast<float>(std::max(std::abs(left), std::abs(right))));
+    const double peak = std::max(std::abs(left), std::abs(right));
+    if (peak <= m_kneeLowLin) {
+        return 0.0;
+    }
+
+    return targetGainDb(Utils::Dsp::linearToDb(static_cast<float>(peak)));
 }
 
 double AutoDucker::targetGainDb(double detectorDb) const
@@ -141,6 +146,10 @@ double AutoDucker::targetGainDb(double detectorDb) const
 
 void AutoDucker::updateEnvelope(double targetDb)
 {
+    if (targetDb == 0.0 && m_envelopeDb == 0.0 && m_holdCounter == 0) {
+        return;
+    }
+
     if (std::abs(targetDb) > std::abs(m_envelopeDb)) {
         // Engaging, so follow at the attack rate and keep the hold timer charged behind it
         m_envelopeDb = m_attackCoeff * m_envelopeDb + (1.0 - m_attackCoeff) * targetDb;
@@ -159,6 +168,10 @@ void AutoDucker::updateEnvelope(double targetDb)
 
 void AutoDucker::applyGain(double & left, double & right) const
 {
+    if (m_envelopeDb == 0.0) {
+        return;
+    }
+
     const double gain = static_cast<double>(Utils::Dsp::dbToLinear(static_cast<float>(m_envelopeDb)));
     left *= gain;
     right *= gain;
@@ -205,6 +218,8 @@ void AutoDucker::syncParameters()
     if (const auto p = parameter(Constants::NahdXml::xmlKeyKnee().toStdString()); p) {
         m_knee = p->get().value() * 24.0f;
     }
+    const double kneeLowDb = m_knee > 0.001f ? static_cast<double>(m_threshold) - static_cast<double>(m_knee) * 0.5 : static_cast<double>(m_threshold);
+    m_kneeLowLin = std::pow(10.0, kneeLowDb / 20.0) * 0.9999;
     if (const auto p = parameter(Constants::NahdXml::xmlKeyAttack().toStdString()); p) {
         m_attackMs = static_cast<float>(ParameterMapper::mapExponential(p->get().value(), 0.1, 500.0));
     }
