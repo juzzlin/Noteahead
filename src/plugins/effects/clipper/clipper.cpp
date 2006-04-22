@@ -22,6 +22,7 @@
 #include <algorithm>
 #include <array>
 #include <cmath>
+#include <vector>
 
 namespace noteahead {
 
@@ -31,6 +32,27 @@ struct Clipper::Oversampling
     Upsampler upsamplerR;
     Decimator decimatorL;
     Decimator decimatorR;
+    std::vector<float> inL;
+    std::vector<float> inR;
+    std::vector<float> highL;
+    std::vector<float> highR;
+    std::vector<float> outL;
+    std::vector<float> outR;
+
+    void ensureCapacity(size_t frames, uint8_t factor)
+    {
+        if (inL.size() < frames) {
+            inL.resize(frames);
+            inR.resize(frames);
+            outL.resize(frames);
+            outR.resize(frames);
+        }
+        const size_t highCount = frames * factor;
+        if (highL.size() < highCount) {
+            highL.resize(highCount);
+            highR.resize(highCount);
+        }
+    }
 };
 
 Clipper::Clipper()
@@ -45,53 +67,23 @@ Clipper::Clipper()
 
 Clipper::~Clipper() = default;
 
-float Clipper::clipSample(float sample, double thresholdLin) const
+float Clipper::clipSample(float sample, float thresholdLin, float invThreshold) const
 {
-    const auto t = static_cast<float>(thresholdLin);
     if (m_mode == Mode::Hard) {
-        return std::clamp(sample, -t, t);
+        return std::clamp(sample, -thresholdLin, thresholdLin);
     }
-    return t * std::tanh(sample / t);
+    return thresholdLin * std::tanh(sample * invThreshold);
 }
 
-void Clipper::processSample(double & left, double & right)
+void Clipper::updateMeter(double peakPre, double peakPost)
 {
-    const auto thresholdLin = m_threshold;
-    const auto gainLin = m_gain;
-    const uint8_t factor = clampOversampleFactor(oversampleFactor());
-
-    // Measured around the clipping itself, never across the whole block: the half-band filters are
-    // linear-phase, so the upsample/decimate round trip delays the output by tens of base-rate
-    // samples. Dividing the current input by an output that old pins the meter near full scale on
-    // any periodic signal, whether or not a single sample was actually clipped.
-    double peakPre = 0.0;
-    double peakPost = 0.0;
-
-    if (factor == 1) {
-        peakPre = std::max(std::abs(left), std::abs(right));
-        left = clipSample(static_cast<float>(left), thresholdLin);
-        right = clipSample(static_cast<float>(right), thresholdLin);
-        peakPost = std::max(std::abs(left), std::abs(right));
-    } else {
-        // Clip at the oversampled rate so the harmonics generated fold above Nyquist and are removed
-        // by the decimation filter instead of aliasing back into the audible band.
-        std::array<float, 4> highL {};
-        std::array<float, 4> highR {};
-        m_oversampling->upsamplerL.process(static_cast<float>(left), highL.data(), factor);
-        m_oversampling->upsamplerR.process(static_cast<float>(right), highR.data(), factor);
-        for (uint8_t k = 0; k < factor; k++) {
-            peakPre = std::max(peakPre, std::max(std::abs(static_cast<double>(highL[k])), std::abs(static_cast<double>(highR[k]))));
-            highL[k] = clipSample(highL[k], thresholdLin);
-            highR[k] = clipSample(highR[k], thresholdLin);
-            peakPost = std::max(peakPost, std::max(std::abs(static_cast<double>(highL[k])), std::abs(static_cast<double>(highR[k]))));
-        }
-        left = static_cast<double>(m_oversampling->decimatorL.process(highL.data(), factor));
-        right = static_cast<double>(m_oversampling->decimatorR.process(highR.data(), factor));
-    }
-
     double reductionDb = 0.0;
     if (peakPre > 1e-10 && peakPost < peakPre) {
         reductionDb = Utils::Dsp::linearToDb(static_cast<float>(peakPost / peakPre));
+    }
+
+    if (reductionDb == 0.0 && m_reductionDb == 0.0) {
+        return;
     }
 
     if (reductionDb < m_reductionDb) {
@@ -104,6 +96,45 @@ void Clipper::processSample(double & left, double & right)
     if (std::abs(m_reductionDb) < 1.0e-15) {
         m_reductionDb = 0.0;
     }
+}
+
+void Clipper::processSample(double & left, double & right)
+{
+    const float thresholdLin = static_cast<float>(m_threshold);
+    const float invThreshold = m_invThreshold;
+    const auto gainLin = m_gain;
+    const uint8_t factor = clampOversampleFactor(oversampleFactor());
+
+    // Measured around the clipping itself, never across the whole block: the half-band filters are
+    // linear-phase, so the upsample/decimate round trip delays the output by tens of base-rate
+    // samples. Dividing the current input by an output that old pins the meter near full scale on
+    // any periodic signal, whether or not a single sample was actually clipped.
+    double peakPre = 0.0;
+    double peakPost = 0.0;
+
+    if (factor == 1) {
+        peakPre = std::max(std::abs(left), std::abs(right));
+        left = clipSample(static_cast<float>(left), thresholdLin, invThreshold);
+        right = clipSample(static_cast<float>(right), thresholdLin, invThreshold);
+        peakPost = std::max(std::abs(left), std::abs(right));
+    } else {
+        // Clip at the oversampled rate so the harmonics generated fold above Nyquist and are removed
+        // by the decimation filter instead of aliasing back into the audible band.
+        std::array<float, 4> highL {};
+        std::array<float, 4> highR {};
+        m_oversampling->upsamplerL.process(static_cast<float>(left), highL.data(), factor);
+        m_oversampling->upsamplerR.process(static_cast<float>(right), highR.data(), factor);
+        for (uint8_t k = 0; k < factor; k++) {
+            peakPre = std::max(peakPre, std::max(std::abs(static_cast<double>(highL[k])), std::abs(static_cast<double>(highR[k]))));
+            highL[k] = clipSample(highL[k], thresholdLin, invThreshold);
+            highR[k] = clipSample(highR[k], thresholdLin, invThreshold);
+            peakPost = std::max(peakPost, std::max(std::abs(static_cast<double>(highL[k])), std::abs(static_cast<double>(highR[k]))));
+        }
+        left = static_cast<double>(m_oversampling->decimatorL.process(highL.data(), factor));
+        right = static_cast<double>(m_oversampling->decimatorR.process(highR.data(), factor));
+    }
+
+    updateMeter(peakPre, peakPost);
 
     left *= gainLin;
     right *= gainLin;
@@ -113,12 +144,72 @@ void Clipper::processBlock(AudioContext & context)
 {
     setOversampleFactor(context.oversampleFactor);
     if (static_cast<uint32_t>(context.sampleRate) != m_lastSampleRate) {
-        m_meterReleaseCoeff = std::exp(-1.0 / (100.0 * context.sampleRate / 1000.0));
+        if (context.sampleRate > 0) {
+            m_meterReleaseCoeff = std::exp(-1.0 / (100.0 * context.sampleRate / 1000.0));
+        }
         m_lastSampleRate = static_cast<uint32_t>(context.sampleRate);
     }
 
-    for (uint32_t i = 0; i < context.frameCount; i++) {
-        processSample(context.buffer[i * 2], context.buffer[i * 2 + 1]);
+    const uint8_t factor = clampOversampleFactor(oversampleFactor());
+    const float thresholdLin = static_cast<float>(m_threshold);
+    const float invThreshold = m_invThreshold;
+    const double gainLin = m_gain;
+
+    if (factor == 1) {
+        for (uint32_t i = 0; i < context.frameCount; i++) {
+            double left = context.buffer[i * 2];
+            double right = context.buffer[i * 2 + 1];
+            const double peakPre = std::max(std::abs(left), std::abs(right));
+            left = clipSample(static_cast<float>(left), thresholdLin, invThreshold);
+            right = clipSample(static_cast<float>(right), thresholdLin, invThreshold);
+            const double peakPost = std::max(std::abs(left), std::abs(right));
+            updateMeter(peakPre, peakPost);
+            context.buffer[i * 2] = left * gainLin;
+            context.buffer[i * 2 + 1] = right * gainLin;
+        }
+        return;
+    }
+
+    const size_t frames = context.frameCount;
+    m_oversampling->ensureCapacity(frames, factor);
+    float * const inL = m_oversampling->inL.data();
+    float * const inR = m_oversampling->inR.data();
+    float * const highL = m_oversampling->highL.data();
+    float * const highR = m_oversampling->highR.data();
+    float * const outL = m_oversampling->outL.data();
+    float * const outR = m_oversampling->outR.data();
+
+    for (size_t i = 0; i < frames; i++) {
+        inL[i] = static_cast<float>(context.buffer[i * 2]);
+        inR[i] = static_cast<float>(context.buffer[i * 2 + 1]);
+    }
+
+    m_oversampling->upsamplerL.processBlock(inL, highL, frames, factor);
+    m_oversampling->upsamplerR.processBlock(inR, highR, frames, factor);
+
+    for (size_t i = 0; i < frames; i++) {
+        double peakPre = 0.0;
+        double peakPost = 0.0;
+        const size_t base = i * factor;
+        for (uint8_t k = 0; k < factor; k++) {
+            const float hl = highL[base + k];
+            const float hr = highR[base + k];
+            peakPre = std::max(peakPre, std::max(std::abs(static_cast<double>(hl)), std::abs(static_cast<double>(hr))));
+            const float cl = clipSample(hl, thresholdLin, invThreshold);
+            const float cr = clipSample(hr, thresholdLin, invThreshold);
+            highL[base + k] = cl;
+            highR[base + k] = cr;
+            peakPost = std::max(peakPost, std::max(std::abs(static_cast<double>(cl)), std::abs(static_cast<double>(cr))));
+        }
+        updateMeter(peakPre, peakPost);
+    }
+
+    m_oversampling->decimatorL.processBlock(highL, outL, frames, factor);
+    m_oversampling->decimatorR.processBlock(highR, outR, frames, factor);
+
+    for (size_t i = 0; i < frames; i++) {
+        context.buffer[i * 2] = static_cast<double>(outL[i]) * gainLin;
+        context.buffer[i * 2 + 1] = static_cast<double>(outR[i]) * gainLin;
     }
 }
 
@@ -154,6 +245,7 @@ void Clipper::syncParameters()
     }
     // The gains follow the parameters alone, so they are worked out here rather than once a sample
     m_threshold = std::max(1e-5, static_cast<double>(Utils::Dsp::dbToLinear(m_thresholdDb)));
+    m_invThreshold = static_cast<float>(1.0 / m_threshold);
     m_gain = static_cast<double>(Utils::Dsp::dbToLinear(m_gainDb));
 }
 

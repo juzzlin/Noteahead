@@ -31,6 +31,7 @@ private slots:
     void test_dbtpMeter_reset_shouldClearReadings();
     void test_dbtpMeter_sampleRateChange_shouldReinitialize();
     void test_dbtpMeter_peakHold_shouldRetainMaximum();
+    void test_dbtpMeter_processBlock_matchesProcessSample();
 };
 
 } // namespace noteahead

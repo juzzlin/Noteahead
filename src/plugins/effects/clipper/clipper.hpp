@@ -49,12 +49,14 @@ public:
 
 private:
     void syncParameters();
-    float clipSample(float sample, double thresholdLin) const;
+    float clipSample(float sample, float thresholdLin, float invThreshold) const;
+    void updateMeter(double peakPre, double peakPost);
 
     Mode m_mode { Mode::Soft };
     float m_thresholdDb { 0.0f };
     float m_gainDb { 0.0f };
     double m_threshold { 1.0 };
+    float m_invThreshold { 1.0f };
     double m_gain { 1.0 };
 
     double m_reductionDb { 0.0 };

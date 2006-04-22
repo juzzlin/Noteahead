@@ -15,12 +15,14 @@
 
 #include "dbtp_meter_test.hpp"
 
+#include "../../domain/dsp/audio_context.hpp"
 #include "../../domain/utility/dbtp_meter.hpp"
 
 #include <QTest>
 
 #include <cmath>
 #include <numbers>
+#include <vector>
 
 namespace noteahead {
 
@@ -137,6 +139,40 @@ void DbTpMeterTest::test_dbtpMeter_peakHold_shouldRetainMaximum()
     // Short silence — hold counter still active, peak hold must not drop
     feedSilence(meter, 0.5);
     QVERIFY(meter.truePeakHoldL() >= peakAfterBurst - 1.0f);
+}
+
+void DbTpMeterTest::test_dbtpMeter_processBlock_matchesProcessSample()
+{
+    constexpr uint32_t Frames { 512 };
+    std::vector<double> source(Frames * 2, 0.0);
+    for (uint32_t i = 0; i < Frames; i++) {
+        source[i * 2] = 0.8 * std::sin(2.0 * std::numbers::pi * 1000.0 * i / sampleRate);
+        source[i * 2 + 1] = 0.5 * std::cos(2.0 * std::numbers::pi * 3000.0 * i / sampleRate);
+    }
+
+    DbTpMeter perSample;
+    perSample.setSampleRate(sampleRate);
+    auto sampleBuf = source;
+    for (uint32_t i = 0; i < Frames; i++) {
+        perSample.processSample(sampleBuf[i * 2], sampleBuf[i * 2 + 1]);
+    }
+
+    DbTpMeter blockMeter;
+    blockMeter.setSampleRate(sampleRate);
+    auto blockBuf = source;
+    AudioContext ctx;
+    ctx.buffer = blockBuf;
+    ctx.frameCount = Frames;
+    ctx.sampleRate = static_cast<uint32_t>(sampleRate);
+    blockMeter.processBlock(ctx);
+
+    for (size_t i = 0; i < source.size(); i++) {
+        QCOMPARE(blockBuf[i], source[i]);
+    }
+    QVERIFY(std::abs(blockMeter.truePeakL() - perSample.truePeakL()) < 1.0e-6f);
+    QVERIFY(std::abs(blockMeter.truePeakR() - perSample.truePeakR()) < 1.0e-6f);
+    QVERIFY(std::abs(blockMeter.truePeakHoldL() - perSample.truePeakHoldL()) < 1.0e-6f);
+    QVERIFY(std::abs(blockMeter.truePeakHoldR() - perSample.truePeakHoldR()) < 1.0e-6f);
 }
 
 } // namespace noteahead

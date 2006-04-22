@@ -46,6 +46,7 @@ void Limiter::processSample(double & left, double & right)
     updateBuffers();
     updateCoefficients();
     applyLimiter(left, right);
+    m_meterEnvGain.store(m_envGain, std::memory_order_relaxed);
 }
 
 void Limiter::processBlock(AudioContext & context)
@@ -60,6 +61,7 @@ void Limiter::processBlock(AudioContext & context)
     for (uint32_t i = 0; i < context.frameCount; i++) {
         applyLimiter(context.buffer[i * 2], context.buffer[i * 2 + 1]);
     }
+    m_meterEnvGain.store(m_envGain, std::memory_order_relaxed);
 }
 
 void Limiter::updateBuffers()
@@ -84,8 +86,10 @@ void Limiter::updateBuffers()
 
 void Limiter::updateCoefficients()
 {
-    if (m_sampleRate > 0) {
+    if (m_sampleRate > 0 && (m_releaseMs != m_lastReleaseMs || static_cast<uint32_t>(m_sampleRate) != m_lastCoeffSampleRate)) {
         m_releaseCoeff = std::exp(-1.0 / (static_cast<double>(m_releaseMs) * m_sampleRate / 1000.0));
+        m_lastReleaseMs = m_releaseMs;
+        m_lastCoeffSampleRate = static_cast<uint32_t>(m_sampleRate);
     }
 }
 
@@ -95,14 +99,9 @@ void Limiter::applyLimiter(double & left, double & right)
         updateBuffers();
     }
 
-    const double thresholdLin = m_threshold;
     const double ceilingLin = m_ceiling;
-
-    // With boost the signal is limited to the threshold and lifted so that the threshold reaches the
-    // ceiling (make-up = ceiling / threshold). Without boost it is pure peak limiting, capped at whichever
-    // of threshold and ceiling is lower.
-    const double targetLevel = m_boost ? thresholdLin : std::min(thresholdLin, ceilingLin);
-    const double postGain = m_boost ? ceilingLin / thresholdLin : 1.0;
+    const double targetLevel = m_targetLevel;
+    const double postGain = m_postGain;
 
     const uint32_t size = static_cast<uint32_t>(m_delayBufferL.size());
     const double peak = std::max(std::abs(left), std::abs(right));
@@ -131,7 +130,7 @@ void Limiter::applyLimiter(double & left, double & right)
     }
     m_envGain = std::min(1.0, m_envGain);
 
-    const uint32_t readPos = (m_writePos + 1) % size;
+    const uint32_t readPos = m_writePos + 1 < size ? m_writePos + 1 : 0;
     double outL = m_delayBufferL[readPos] * m_envGain * postGain;
     double outR = m_delayBufferR[readPos] * m_envGain * postGain;
 
@@ -140,19 +139,12 @@ void Limiter::applyLimiter(double & left, double & right)
     // Brickwall backstop: guarantee the output never exceeds the ceiling.
     left = std::clamp(outL, -ceilingLin, ceilingLin);
     right = std::clamp(outR, -ceilingLin, ceilingLin);
-
-    m_reductionDb = Utils::Dsp::linearToDb(static_cast<float>(m_envGain));
-
-    // Denormal protection
-    if (std::abs(m_reductionDb) < 1.0e-15) {
-        m_reductionDb = 0.0;
-    }
 }
 
 void Limiter::reset()
 {
     m_envGain = 1.0;
-    m_reductionDb = 0.0;
+    m_meterEnvGain.store(1.0, std::memory_order_relaxed);
     std::fill(m_delayBufferL.begin(), m_delayBufferL.end(), 0.0);
     std::fill(m_delayBufferR.begin(), m_delayBufferR.end(), 0.0);
     std::fill(m_peakBuffer.begin(), m_peakBuffer.end(), 0.0);
@@ -192,7 +184,12 @@ const EffectPresetList & Limiter::factoryPresets() const
 
 float Limiter::reductionDb() const
 {
-    return static_cast<float>(m_reductionDb);
+    const double envGain = m_meterEnvGain.load(std::memory_order_relaxed);
+    if (envGain >= 1.0) {
+        return 0.0f;
+    }
+    const double db = Utils::Dsp::linearToDb(static_cast<float>(envGain));
+    return std::abs(db) < 1.0e-15 ? 0.0f : static_cast<float>(db);
 }
 
 void Limiter::syncParameters()
@@ -215,6 +212,8 @@ void Limiter::syncParameters()
     // The levels follow the parameters alone, so they are worked out here rather than once a sample
     m_threshold = std::max(1.0e-6, static_cast<double>(Utils::Dsp::dbToLinear(m_thresholdDb)));
     m_ceiling = std::max(1.0e-6, static_cast<double>(Utils::Dsp::dbToLinear(m_ceilingDb)));
+    m_targetLevel = m_boost ? m_threshold : std::min(m_threshold, m_ceiling);
+    m_postGain = m_boost ? m_ceiling / m_threshold : 1.0;
 }
 
 std::string Limiter::typeIdString()

@@ -45,6 +45,7 @@ public:
     std::vector<std::string> modulationPriority() const override;
 
     void processSample(double & left, double & right) override;
+    void processBlock(AudioContext & context) override;
     void reset() override;
     void sync() override;
 
@@ -52,6 +53,8 @@ public:
 
 private:
     void syncParameters();
+    void ensureToneFilters(double stageSampleRate);
+    void updateMeter(double peakPre, double peakPost, double baseSampleRate);
     double shape(double x) const;
 
     Mode m_mode { Mode::Tape };
@@ -66,6 +69,8 @@ private:
     double m_saturationDb { 0.0 };
     double m_meterReleaseCoeff { 0.0 };
     double m_meterSampleRate { -1.0 };
+    double m_lastToneSampleRate { -1.0 };
+    float m_lastToneCutoff { -1.0f };
     double m_driveGain { 1.0 };
     double m_outputGain { 1.0 };
 

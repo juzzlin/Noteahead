@@ -19,6 +19,7 @@
 #include "../effects/effect.hpp"
 
 #include <array>
+#include <atomic>
 #include <cstdint>
 
 namespace noteahead {
@@ -35,6 +36,7 @@ public:
     std::string typeId() const override;
 
     void processSample(double & left, double & right) override;
+    void processBlock(AudioContext & context) override;
     void reset() override;
     void sync() override;
 
@@ -46,7 +48,6 @@ public:
 private:
     void updateDecayParams();
 
-    double hermiteAt(const std::array<double, 4> & buf, double t) const;
     void processChannel(double sample, double & peak, double & peakHold, int & holdCounter, std::array<double, 4> & buf);
 
     static float linearToDbtp(double linear);
@@ -72,10 +73,10 @@ private:
     double m_holdDecayPerSample { 0.0 };
     int m_holdSamples { 0 };
 
-    float m_truePeakL { -70.0f };
-    float m_truePeakR { -70.0f };
-    float m_truePeakHoldL { -70.0f };
-    float m_truePeakHoldR { -70.0f };
+    std::atomic<double> m_meterPeakL { 0.0 };
+    std::atomic<double> m_meterPeakR { 0.0 };
+    std::atomic<double> m_meterPeakHoldL { 0.0 };
+    std::atomic<double> m_meterPeakHoldR { 0.0 };
 
     uint32_t m_lastSampleRate { 0 };
 };

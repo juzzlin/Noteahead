@@ -19,6 +19,7 @@
 #include "../../../domain/effects/effect.hpp"
 #include "../../../domain/effects/effect_presets.hpp"
 
+#include <atomic>
 #include <cstdint>
 #include <vector>
 
@@ -57,14 +58,18 @@ private:
     float m_ceilingDb { -0.3f };
     double m_threshold { 1.0 };
     double m_ceiling { 1.0 };
+    double m_targetLevel { 1.0 };
+    double m_postGain { 1.0 };
     float m_releaseMs { 100.0f };
+    float m_lastReleaseMs { -1.0f };
+    uint32_t m_lastCoeffSampleRate { 0 };
     float m_lookaheadMs { 5.0f };
     bool m_boost { false };
 
     double m_releaseCoeff { 0.0 };
 
     double m_envGain { 1.0 };
-    double m_reductionDb { 0.0 };
+    std::atomic<double> m_meterEnvGain { 1.0 };
 
     std::vector<double> m_delayBufferL;
     std::vector<double> m_delayBufferR;

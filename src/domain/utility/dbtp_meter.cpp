@@ -16,6 +16,7 @@
 #include "dbtp_meter.hpp"
 
 #include "../../common/constants.hpp"
+#include "../dsp/audio_context.hpp"
 
 #include <algorithm>
 #include <cmath>
@@ -57,15 +58,6 @@ void DbTpMeter::updateDecayParams()
 
 // Catmull-Rom / Hermite interpolation at position t ∈ (0, 1)
 // between buf[1] and buf[2], using buf[0] and buf[3] as context.
-double DbTpMeter::hermiteAt(const std::array<double, 4> & buf, double t) const
-{
-    const double p0 = buf[0], p1 = buf[1], p2 = buf[2], p3 = buf[3];
-    const double c1 = 0.5 * (p2 - p0);
-    const double c2 = p0 - 2.5 * p1 + 2.0 * p2 - 0.5 * p3;
-    const double c3 = -0.5 * p0 + 1.5 * p1 - 1.5 * p2 + 0.5 * p3;
-    return ((c3 * t + c2) * t + c1) * t + p1;
-}
-
 void DbTpMeter::processChannel(double sample, double & peak, double & peakHold,
                                int & holdCounter, std::array<double, 4> & buf)
 {
@@ -75,10 +67,21 @@ void DbTpMeter::processChannel(double sample, double & peak, double & peakHold,
     buf[3] = sample;
 
     // 4 values: original sample at buf[1] + 3 inter-samples in [buf[1], buf[2]]
-    const double v0 = std::abs(buf[1]);
-    const double v1 = std::abs(hermiteAt(buf, 0.25));
-    const double v2 = std::abs(hermiteAt(buf, 0.50));
-    const double v3 = std::abs(hermiteAt(buf, 0.75));
+    const double p0 = buf[0];
+    const double p1 = buf[1];
+    const double p2 = buf[2];
+    const double p3 = buf[3];
+    const double c1 = 0.5 * (p2 - p0);
+    const double c2 = p0 - 2.5 * p1 + 2.0 * p2 - 0.5 * p3;
+    const double c3 = -0.5 * p0 + 1.5 * p1 - 1.5 * p2 + 0.5 * p3;
+    const auto evalAt = [p1, c1, c2, c3](double t) {
+        return ((c3 * t + c2) * t + c1) * t + p1;
+    };
+
+    const double v0 = std::abs(p1);
+    const double v1 = std::abs(evalAt(0.25));
+    const double v2 = std::abs(evalAt(0.50));
+    const double v3 = std::abs(evalAt(0.75));
     const double instPeak = std::max({ v0, v1, v2, v3 });
 
     // Running bar: instant attack, exponential release
@@ -125,10 +128,33 @@ void DbTpMeter::processSample(double & left, double & right)
     processChannel(left, m_peakL, m_peakHoldL, m_holdCounterL, m_bufL);
     processChannel(right, m_peakR, m_peakHoldR, m_holdCounterR, m_bufR);
 
-    m_truePeakL = linearToDbtp(m_peakL);
-    m_truePeakR = linearToDbtp(m_peakR);
-    m_truePeakHoldL = linearToDbtp(m_peakHoldL);
-    m_truePeakHoldR = linearToDbtp(m_peakHoldR);
+    m_meterPeakL.store(m_peakL, std::memory_order_relaxed);
+    m_meterPeakR.store(m_peakR, std::memory_order_relaxed);
+    m_meterPeakHoldL.store(m_peakHoldL, std::memory_order_relaxed);
+    m_meterPeakHoldR.store(m_peakHoldR, std::memory_order_relaxed);
+}
+
+void DbTpMeter::processBlock(AudioContext & context)
+{
+    if (m_sampleRate <= 0) {
+        return;
+    }
+
+    if (const auto sr = static_cast<uint32_t>(m_sampleRate); sr != m_lastSampleRate) {
+        m_lastSampleRate = sr;
+        updateDecayParams();
+        reset();
+    }
+
+    for (uint32_t i = 0; i < context.frameCount; i++) {
+        processChannel(context.buffer[i * 2], m_peakL, m_peakHoldL, m_holdCounterL, m_bufL);
+        processChannel(context.buffer[i * 2 + 1], m_peakR, m_peakHoldR, m_holdCounterR, m_bufR);
+    }
+
+    m_meterPeakL.store(m_peakL, std::memory_order_relaxed);
+    m_meterPeakR.store(m_peakR, std::memory_order_relaxed);
+    m_meterPeakHoldL.store(m_peakHoldL, std::memory_order_relaxed);
+    m_meterPeakHoldR.store(m_peakHoldR, std::memory_order_relaxed);
 }
 
 void DbTpMeter::reset()
@@ -141,10 +167,10 @@ void DbTpMeter::reset()
     m_peakHoldR = 0.0;
     m_holdCounterL = 0;
     m_holdCounterR = 0;
-    m_truePeakL = dbtpFloor;
-    m_truePeakR = dbtpFloor;
-    m_truePeakHoldL = dbtpFloor;
-    m_truePeakHoldR = dbtpFloor;
+    m_meterPeakL.store(0.0, std::memory_order_relaxed);
+    m_meterPeakR.store(0.0, std::memory_order_relaxed);
+    m_meterPeakHoldL.store(0.0, std::memory_order_relaxed);
+    m_meterPeakHoldR.store(0.0, std::memory_order_relaxed);
 }
 
 void DbTpMeter::sync()
@@ -153,22 +179,22 @@ void DbTpMeter::sync()
 
 float DbTpMeter::truePeakL() const
 {
-    return m_truePeakL;
+    return linearToDbtp(m_meterPeakL.load(std::memory_order_relaxed));
 }
 
 float DbTpMeter::truePeakR() const
 {
-    return m_truePeakR;
+    return linearToDbtp(m_meterPeakR.load(std::memory_order_relaxed));
 }
 
 float DbTpMeter::truePeakHoldL() const
 {
-    return m_truePeakHoldL;
+    return linearToDbtp(m_meterPeakHoldL.load(std::memory_order_relaxed));
 }
 
 float DbTpMeter::truePeakHoldR() const
 {
-    return m_truePeakHoldR;
+    return linearToDbtp(m_meterPeakHoldR.load(std::memory_order_relaxed));
 }
 
 } // namespace noteahead
