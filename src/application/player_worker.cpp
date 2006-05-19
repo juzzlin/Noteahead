@@ -68,6 +68,8 @@ void PlayerWorker::stop()
     juzzlin::L(TAG).info() << "Stopping playback";
 
     setIsPlaying(false);
+
+    stopAllNotes();
 }
 
 bool PlayerWorker::shouldEventPlay(const Event & event) const
@@ -167,10 +169,8 @@ void PlayerWorker::processEvents()
     }
 
     juzzlin::L(TAG).debug() << "All events processed";
-    setIsPlaying(false);
 
-    juzzlin::L(TAG).debug() << "Stopping all notes";
-    stopAllNotes();
+    stop();
 
     emit songEnded();
 }
@@ -184,6 +184,8 @@ void PlayerWorker::setIsPlaying(bool isPlaying)
 
 void PlayerWorker::stopAllNotes()
 {
+    juzzlin::L(TAG).info() << "Stopping all notes";
+
     for (auto && instrument : m_allInstruments) {
         m_midiService->stopAllNotes(instrument);
     }
