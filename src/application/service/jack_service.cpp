@@ -32,7 +32,6 @@ JackService::JackService(SettingsServiceS settingsService, AudioEngineS audioEng
   , m_settingsService { settingsService }
   , m_audioEngine { std::move(audioEngine) }
 {
-    connect(m_settingsService.get(), &SettingsService::jackSyncEnabledChanged, this, &JackService::onJackSyncEnabledChanged);
 }
 
 JackService::~JackService()

@@ -169,13 +169,10 @@ void AudioRecorderRtAudio::stop()
     m_running = false;
 
     try {
-        if (m_rtAudio.isStreamRunning()) {
-            m_rtAudio.stopStream();
-        }
         if (m_rtAudio.isStreamOpen()) {
             m_rtAudio.closeStream();
         }
-    } catch (std::exception & e) {
+    } catch (const std::exception & e) {
         juzzlin::L(TAG).error() << e.what();
     }
 

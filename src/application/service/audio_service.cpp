@@ -41,8 +41,6 @@ AudioService::AudioService(SettingsServiceS settingsService, JackServiceS jackSe
   , m_jackService { std::move(jackService) }
   , m_audioEngine { std::move(audioEngine) }
 {
-    connect(m_settingsService.get(), &SettingsService::jackSyncEnabledChanged, this, &AudioService::reinitialize);
-
     if (autoInitialize) {
         reinitialize();
     }

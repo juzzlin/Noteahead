@@ -63,6 +63,8 @@ public:
     void setPlaybackPosition(double position);
     double playbackPosition() const;
 
+    void onJackSyncEnabledChanged();
+
 signals:
     void playRequested();
     void stopRequested();
@@ -71,7 +73,6 @@ signals:
     void errorOccurred(QString message);
 
 private slots:
-    void onJackSyncEnabledChanged();
 
 private:
     void deinitialize();

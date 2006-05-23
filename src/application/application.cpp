@@ -390,6 +390,9 @@ void Application::connectAudioService()
 
 void Application::connectJackService()
 {
+    connect(m_settingsService.get(), &SettingsService::jackSyncEnabledChanged, m_jackService.get(), &JackService::onJackSyncEnabledChanged, Qt::QueuedConnection);
+    connect(m_settingsService.get(), &SettingsService::jackSyncEnabledChanged, m_audioService.get(), &AudioService::reinitialize, Qt::QueuedConnection);
+
     connect(m_jackService.get(), &JackService::errorOccurred, m_applicationService.get(), &ApplicationService::requestAlertDialog);
     connect(m_jackService.get(), &JackService::rewindRequested, this, [this]() {
         if (m_playerService->isPlaying()) {
