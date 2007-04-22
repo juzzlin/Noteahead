@@ -50,6 +50,7 @@ private slots:
     void test_compressorEffect_sideChainLpf_bypass_shouldPreserveGainReduction();
     void test_compressorEffect_sideChainLpf_lowCutoff_shouldAttenuateAcDetectorSignal();
     void test_compressorEffect_sideChainLpf_serialization_shouldPreserveValue();
+    void test_audioEngine_reverbSendUpdatedAfterProcess_shouldRefreshSnapshot();
 };
 
 } // namespace noteahead

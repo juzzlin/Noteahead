@@ -166,7 +166,9 @@ void processDeviceTask(void * context, size_t taskIndex, size_t workerIndex)
         device->outputMeter().write(workBuffer.deviceBuffer.data(), deviceContext.frameCount, deviceContext.sampleRate);
         device->outputStereoMeter().write(workBuffer.deviceBuffer.data(), deviceContext.frameCount, deviceContext.sampleRate);
         device->outputLoudnessMeter().write(workBuffer.deviceBuffer.data(), deviceContext.frameCount, deviceContext.sampleRate);
-        device->loadMeter().addBlock(std::chrono::nanoseconds::zero(), bufferSeconds);
+        if (device->loadMeter().active()) {
+            device->loadMeter().addBlock(std::chrono::nanoseconds::zero(), bufferSeconds);
+        }
         // What keeps time while silent, like a free-running LFO, has to hear about the block anyway
         const AudioContext idleContext { std::span(workBuffer.deviceBuffer.data(), deviceContext.bufferSize), deviceContext.frameCount, deviceContext.sampleRate, deviceContext.bpm, deviceContext.deviceOutputBuffers, deviceContext.oversampleFactor, deviceContext.offline, deviceContext.startFrame };
         device->advanceIdle(idleContext);
@@ -175,8 +177,8 @@ void processDeviceTask(void * context, size_t taskIndex, size_t workerIndex)
 
     AudioContext audioContext { std::span(workBuffer.deviceBuffer.data(), deviceContext.bufferSize), deviceContext.frameCount, deviceContext.sampleRate, deviceContext.bpm, deviceContext.deviceOutputBuffers, deviceContext.oversampleFactor, deviceContext.offline, deviceContext.startFrame, std::span<const std::span<double>>(workBuffer.sendBufferSpans) };
 
-    // Cheap enough to read unconditionally; the meter itself is a no-op while nothing is displayed.
-    const auto processingStarted = std::chrono::steady_clock::now();
+    const bool measureLoad = device->loadMeter().active();
+    const auto processingStarted = measureLoad ? std::chrono::steady_clock::now() : std::chrono::steady_clock::time_point {};
 
     device->renderBlock(audioContext);
 
@@ -212,7 +214,9 @@ void processDeviceTask(void * context, size_t taskIndex, size_t workerIndex)
     // separate control from the fader rather than a second way to move the same one.
     device->applyExpression(audioContext);
 
-    device->loadMeter().addBlock(std::chrono::steady_clock::now() - processingStarted, bufferSeconds);
+    if (measureLoad) {
+        device->loadMeter().addBlock(std::chrono::steady_clock::now() - processingStarted, bufferSeconds);
+    }
 
     // Feed this device's final output to its oscilloscope tap (no-op unless a scope is active).
     device->scope().write(workBuffer.deviceBuffer.data(), deviceContext.frameCount, deviceContext.sampleRate);
@@ -547,6 +551,23 @@ void AudioEngine::refreshSendChainSnapshots()
     }
 }
 
+void AudioEngine::rebuildDeviceSnapshot()
+{
+    m_deviceSnapshot.clear();
+    m_deviceSlotSnapshot.clear();
+    if (!m_devices.empty()) {
+        m_deviceSnapshot.reserve(m_devices.size());
+        m_deviceSlotSnapshot.reserve(m_devices.size());
+        for (auto const & [index, device] : m_devices) {
+            if (device) {
+                m_deviceSnapshot.push_back(device);
+                m_deviceSlotSnapshot.push_back(index);
+            }
+        }
+    }
+    m_deviceSendVersions.assign(m_deviceSnapshot.size(), 0);
+}
+
 void AudioEngine::setDevice(size_t slotIndex, DeviceS device)
 {
     std::lock_guard<std::mutex> lock { m_mutex };
@@ -554,6 +575,7 @@ void AudioEngine::setDevice(size_t slotIndex, DeviceS device)
         releaseModulationsOf(it->second.get());
     }
     m_devices[slotIndex] = std::move(device);
+    rebuildDeviceSnapshot();
 }
 
 void AudioEngine::clearDevice(size_t slotIndex)
@@ -563,6 +585,7 @@ void AudioEngine::clearDevice(size_t slotIndex)
         releaseModulationsOf(it->second.get());
     }
     m_devices.erase(slotIndex);
+    rebuildDeviceSnapshot();
 
     // Nothing writes this slot's output buffer once its device is gone, so whatever it last
     // rendered would sit there for good -- and an effect side chained to the slot would go on
@@ -940,19 +963,6 @@ void AudioEngine::process(AudioContext & context)
         }
     }
 
-    m_deviceSnapshot.clear();
-    m_deviceSlotSnapshot.clear();
-    if (!m_devices.empty()) {
-        m_deviceSnapshot.reserve(m_devices.size());
-        m_deviceSlotSnapshot.reserve(m_devices.size());
-        for (auto const & [index, device] : m_devices) {
-            if (device) {
-                m_deviceSnapshot.push_back(device);
-                m_deviceSlotSnapshot.push_back(index);
-            }
-        }
-    }
-
     // Sized before the device branch rather than inside it: the send buses and the master rack read
     // these spans too, and they run whether or not this project has a single device loaded. Left
     // inside, a span could still be describing an older, shorter block when an effect out there
@@ -963,10 +973,18 @@ void AudioEngine::process(AudioContext & context)
         ensureDeviceActiveFlags(m_deviceSnapshot.size());
         rebuildProcessingGraph();
 
-        m_deviceSendSnapshot.resize(m_deviceSnapshot.size() * sendCount);
-        for (size_t deviceIndex = 0; deviceIndex < m_deviceSnapshot.size(); deviceIndex++) {
-            for (size_t sendIndex = 0; sendIndex < sendCount; sendIndex++) {
-                m_deviceSendSnapshot[deviceIndex * sendCount + sendIndex] = static_cast<double>(m_deviceSnapshot[deviceIndex]->reverbSend(sendIndex));
+        const size_t requiredSends = m_deviceSnapshot.size() * sendCount;
+        if (m_deviceSendSnapshot.size() != requiredSends) {
+            m_deviceSendSnapshot.resize(requiredSends, 0.0);
+            m_deviceSendVersions.assign(m_deviceSnapshot.size(), 0);
+        }
+        if (sendCount > 0) {
+            for (size_t deviceIndex = 0; deviceIndex < m_deviceSnapshot.size(); deviceIndex++) {
+                const uint64_t version = m_deviceSnapshot[deviceIndex]->reverbSendsVersion();
+                if (version != m_deviceSendVersions[deviceIndex]) {
+                    m_deviceSnapshot[deviceIndex]->copyReverbSends(&m_deviceSendSnapshot[deviceIndex * sendCount], sendCount);
+                    m_deviceSendVersions[deviceIndex] = version;
+                }
             }
         }
 
@@ -1239,6 +1257,7 @@ void AudioEngine::clear()
     }
     m_modulationTargetCache.clear();
     m_devices.clear();
+    rebuildDeviceSnapshot();
     m_sendEffectRack->reset();
     m_insertEffectRack->reset();
 

@@ -566,6 +566,8 @@ public:
     float reverbSend(size_t index) const;
     virtual void setReverbSend(size_t index, float send);
     size_t reverbSendCount() const;
+    uint64_t reverbSendsVersion() const;
+    void copyReverbSends(double * destination, size_t count) const;
 
     //! How many parts of this device can be sent to a bus on their own: a Sampler's pads, a Drum
     //! Synth's voices. Zero for a device that is only ever sent as a whole, which is most of them.
@@ -689,6 +691,7 @@ private:
     //! Audio thread only: the ramp state of applyWidth().
     PanAwareWidth m_widthStage;
     std::vector<float> m_reverbSends;
+    std::atomic<uint64_t> m_reverbSendsVersion { 1 };
     float m_linearGain { 1.0f };
 
     //! Settings as they were when a device dialog opened; restoreState() puts these back.

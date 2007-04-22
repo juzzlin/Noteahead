@@ -246,6 +246,8 @@ private:
     //! Refreshes the cached snapshot of every send chain whose rack has changed. Called under
     //! m_mutex at the top of process(), so the audio work below never touches a rack's own lock.
     void refreshSendChainSnapshots();
+    //! Rebuilds m_deviceSnapshot / m_deviceSlotSnapshot under m_mutex whenever m_devices changes.
+    void rebuildDeviceSnapshot();
 
     std::map<size_t, DeviceS> m_devices;
     std::unique_ptr<EffectRack> m_sendEffectRack;
@@ -277,6 +279,7 @@ private:
     std::vector<size_t> m_deviceSlotSnapshot;
     std::vector<uint8_t> m_deviceActiveFlags;
     std::vector<double> m_deviceSendSnapshot;
+    std::vector<uint64_t> m_deviceSendVersions;
     std::vector<uint8_t> m_deviceDirectOutSnapshot;
     std::vector<std::vector<double>> m_sendBusBuffers;
     std::vector<std::vector<double>> m_effectWetBuffers;

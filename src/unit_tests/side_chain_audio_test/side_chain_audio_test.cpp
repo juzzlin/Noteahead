@@ -1031,6 +1031,37 @@ void SideChainAudioTest::test_audioEngine_sendEffectDisabled_shouldReturnNothing
     QVERIFY2(std::abs(buffer[0] - 1.0) < 1e-6, qPrintable(QString { "disabled effect still returned %1" }.arg(buffer[0])));
 }
 
+void SideChainAudioTest::test_audioEngine_reverbSendUpdatedAfterProcess_shouldRefreshSnapshot()
+{
+    AudioEngine engine;
+    const auto device = std::make_shared<MockDevice>("Source");
+    device->setGenerateSignal(true);
+    device->setReverbSend(0, 0.0f);
+    engine.setDevice(0, device);
+
+    const auto volume = std::make_shared<Volume>();
+    volume->setVolume(0.5f); // Send wet = (0.5 - 1.0) * sendLevel
+    engine.sendEffectRack().setEffect(0, volume);
+
+    std::vector<double> buffer(128, 0.0);
+    AudioContext context { std::span(buffer.data(), 128), 64, 44100 };
+
+    engine.process(context);
+    QVERIFY2(std::abs(buffer[0] - 1.0) < 1e-6, qPrintable(QString { "initial send expected 1.0, got %1" }.arg(buffer[0])));
+
+    // Updating the send level after rendering must invalidate the cached device-send snapshot.
+    device->setReverbSend(0, 1.0f);
+    std::fill(buffer.begin(), buffer.end(), 0.0);
+    engine.process(context);
+    QVERIFY2(std::abs(buffer[0] - 0.5) < 1e-6, qPrintable(QString { "updated send expected 0.5, got %1" }.arg(buffer[0])));
+
+    // Clearing the device must refresh the cached device snapshot so it goes silent immediately.
+    engine.clearDevice(0);
+    std::fill(buffer.begin(), buffer.end(), 0.0);
+    engine.process(context);
+    QVERIFY2(std::abs(buffer[0]) < 1e-6, qPrintable(QString { "cleared device expected 0.0, got %1" }.arg(buffer[0])));
+}
+
 } // namespace noteahead
 
 QTEST_GUILESS_MAIN(noteahead::SideChainAudioTest)

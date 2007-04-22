@@ -695,6 +695,23 @@ size_t Device::reverbSendCount() const
     return m_reverbSends.size();
 }
 
+uint64_t Device::reverbSendsVersion() const
+{
+    return m_reverbSendsVersion.load(std::memory_order_acquire);
+}
+
+void Device::copyReverbSends(double * destination, size_t count) const
+{
+    std::lock_guard<std::recursive_mutex> lock { m_mutex };
+    const size_t copied = std::min(count, m_reverbSends.size());
+    for (size_t i = 0; i < copied; i++) {
+        destination[i] = static_cast<double>(m_reverbSends[i]);
+    }
+    for (size_t i = copied; i < count; i++) {
+        destination[i] = 0.0;
+    }
+}
+
 bool Device::updateVolumeParameter(float volume, bool authored)
 {
     std::lock_guard<std::recursive_mutex> lock { m_mutex };
@@ -767,6 +784,7 @@ bool Device::updateReverbSendParameter(size_t index, float send)
     if (index < m_reverbSends.size()) {
         const float oldVal = m_reverbSends[index];
         m_reverbSends[index] = send;
+        m_reverbSendsVersion.fetch_add(1, std::memory_order_release);
         return !qFuzzyCompare(m_reverbSends[index], oldVal);
     }
     return false;
