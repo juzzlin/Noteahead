@@ -439,7 +439,8 @@ int WavetableSynthController::voiceMode() const
 
 void WavetableSynthController::setVoiceMode(int mode)
 {
-    if (m_synth && mode >= 0 && mode <= 1) {
+    // Bounded by the list the dialog offers, so a mode added to one cannot go missing from the other
+    if (m_synth && mode >= 0 && mode < static_cast<int>(voiceModes().size())) {
         m_synth->setVoiceMode(static_cast<WavetableSynthDevice::VoiceMode>(mode));
     }
 }
@@ -519,7 +520,9 @@ QStringList WavetableSynthController::wavetableNames() const
 
 QStringList WavetableSynthController::voiceModes() const
 {
-    return { tr("Poly"), tr("Unison") };
+    // Order is the persisted VoiceMode ordinal, so Mono trails the stacked modes rather than sitting
+    // next to Poly.
+    return { tr("Poly"), tr("Unison"), tr("Dual"), tr("Supersaw"), tr("Drift"), tr("Mono") };
 }
 
 QStringList WavetableSynthController::octaveNames() const

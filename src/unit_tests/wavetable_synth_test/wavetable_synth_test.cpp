@@ -24,6 +24,8 @@
 #include <QTest>
 #include <algorithm>
 #include <cmath>
+#include <optional>
+#include <vector>
 
 namespace noteahead {
 
@@ -551,10 +553,13 @@ void WavetableSynthTest::test_lfo2Target_pan_shouldModulatePanning()
 namespace {
 
 //! Peak of one note held for a while in the given voice mode, with everything else left at defaults.
-double notePeak(WavetableSynthDevice::VoiceMode voiceMode)
+double notePeak(WavetableSynthDevice::VoiceMode voiceMode, std::optional<float> voiceDepth = std::nullopt)
 {
     WavetableSynthDevice synth { "Test Synth" };
     synth.setVoiceMode(voiceMode);
+    if (voiceDepth) {
+        synth.setVoiceDepth(voiceDepth.value());
+    }
     synth.processMidiNoteOn(60, 100);
 
     constexpr uint32_t frameCount = 512;
@@ -574,6 +579,41 @@ double notePeak(WavetableSynthDevice::VoiceMode voiceMode)
     return peak;
 }
 
+//! Detune of every voice after one note on, in semitones relative to the note's own pitch.
+std::vector<double> voiceDetunes(WavetableSynthDevice & synth, uint8_t note)
+{
+    synth.processMidiNoteOn(note, 100);
+    const double base = 440.0 * std::pow(2.0, (static_cast<int>(note) - 69) / 12.0);
+
+    std::vector<double> detunes;
+    for (size_t i = 0; i < WavetableSynthDevice::MaxVoices; i++) {
+        detunes.push_back(12.0 * std::log2(synth.voiceGlideFrequency(i) / base));
+    }
+    return detunes;
+}
+
+size_t triggeredVoiceCount(const WavetableSynthDevice & synth)
+{
+    size_t count = 0;
+    for (size_t i = 0; i < WavetableSynthDevice::MaxVoices; i++) {
+        if (synth.voiceGlideFrequency(i) > 0.0) {
+            count++;
+        }
+    }
+    return count;
+}
+
+//! Fails the calling test unless @p mode lands within 6 dB of poly on the same note.
+void verifyMatchesPolyLevel(WavetableSynthDevice::VoiceMode mode, const char * name)
+{
+    const auto polyPeak = notePeak(WavetableSynthDevice::VoiceMode::Poly);
+    QVERIFY(polyPeak > 0.0);
+
+    const auto differenceDb = Utils::Dsp::linearToDb(static_cast<float>(notePeak(mode) / polyPeak));
+    QVERIFY2(differenceDb < 6.0f, qPrintable(QString { "%1 is %2 dB above poly" }.arg(name).arg(differenceDb)));
+    QVERIFY2(differenceDb > -6.0f, qPrintable(QString { "%1 is %2 dB below poly" }.arg(name).arg(differenceDb)));
+}
+
 } // namespace
 
 void WavetableSynthTest::test_voiceMode_unison_shouldMatchPolyLevel()
@@ -589,6 +629,134 @@ void WavetableSynthTest::test_voiceMode_unison_shouldMatchPolyLevel()
     const auto differenceDb = Utils::Dsp::linearToDb(static_cast<float>(unisonPeak / polyPeak));
     QVERIFY2(differenceDb < 6.0f, qPrintable(QString { "Unison is %1 dB above poly" }.arg(differenceDb)));
     QVERIFY2(differenceDb > -6.0f, qPrintable(QString { "Unison is %1 dB below poly" }.arg(differenceDb)));
+}
+
+void WavetableSynthTest::test_voiceMode_dual_shouldMatchPolyLevel()
+{
+    verifyMatchesPolyLevel(WavetableSynthDevice::VoiceMode::Dual, "Dual");
+}
+
+void WavetableSynthTest::test_voiceMode_supersaw_shouldMatchPolyLevel()
+{
+    verifyMatchesPolyLevel(WavetableSynthDevice::VoiceMode::Supersaw, "Supersaw");
+}
+
+void WavetableSynthTest::test_voiceMode_drift_shouldMatchPolyLevel()
+{
+    verifyMatchesPolyLevel(WavetableSynthDevice::VoiceMode::Drift, "Drift");
+}
+
+void WavetableSynthTest::test_voiceMode_mono_shouldMatchPolyLevel()
+{
+    verifyMatchesPolyLevel(WavetableSynthDevice::VoiceMode::Mono, "Mono");
+}
+
+void WavetableSynthTest::test_voiceMode_supersaw_shouldSpaceDetuneUnevenly()
+{
+    WavetableSynthDevice synth { "Test Synth" };
+    synth.setVoiceMode(WavetableSynthDevice::VoiceMode::Supersaw);
+    synth.setVoiceDepth(1.0f);
+
+    auto detunes = voiceDetunes(synth, 60);
+    // The pool is one voice longer than the supersaw stack, so the untriggered tail reads as -inf
+    detunes.resize(WavetableSynthDevice::SupersawVoices);
+    std::ranges::sort(detunes);
+
+    // Evenly spaced detune is what makes plain unison comb: every adjacent pair beats at the same
+    // rate and every wider pair at an exact multiple. Supersaw's whole point is that no two gaps
+    // match, so the beating never lines up.
+    std::vector<double> gaps;
+    for (size_t i = 1; i < detunes.size(); i++) {
+        gaps.push_back(detunes.at(i) - detunes.at(i - 1));
+    }
+    for (size_t i = 1; i < gaps.size(); i++) {
+        QVERIFY2(std::abs(gaps.at(i) - gaps.at(i - 1)) > 1.0e-6,
+                 qPrintable(QString { "Gaps %1 and %2 are equal at %3" }.arg(i - 1).arg(i).arg(gaps.at(i))));
+    }
+
+    // And one voice sits exactly at pitch, which is the core the rest hangs off.
+    QVERIFY(std::ranges::any_of(detunes, [](double detune) { return std::abs(detune) < 1.0e-9; }));
+}
+
+void WavetableSynthTest::test_voiceMode_supersaw_zeroDepth_shouldCollapseToOneVoice()
+{
+    // Closed all the way up, the side saws are near silent and only the centre one is left, so a
+    // closed supersaw is a single clean voice rather than seven in unison.
+    const auto polyPeak = notePeak(WavetableSynthDevice::VoiceMode::Poly, 0.0f);
+    const auto supersawPeak = notePeak(WavetableSynthDevice::VoiceMode::Supersaw, 0.0f);
+    QVERIFY(polyPeak > 0.0);
+
+    const auto closedDb = Utils::Dsp::linearToDb(static_cast<float>(supersawPeak / polyPeak));
+    QVERIFY2(std::abs(closedDb) < 3.0f, qPrintable(QString { "Closed supersaw is %1 dB off poly" }.arg(closedDb)));
+
+    // And it is the depth knob that opens the stack up, not the mode: wide open, the seven saws
+    // beat against each other and peak well above the one voice a closed stack collapses to.
+    const auto openDb = Utils::Dsp::linearToDb(static_cast<float>(notePeak(WavetableSynthDevice::VoiceMode::Supersaw, 1.0f) / polyPeak));
+    QVERIFY2(openDb > closedDb + 3.0f, qPrintable(QString { "Open supersaw is only %1 dB off poly" }.arg(openDb)));
+}
+
+void WavetableSynthTest::test_voiceMode_drift_shouldNotDetuneStatically()
+{
+    WavetableSynthDevice synth { "Test Synth" };
+    synth.setVoiceMode(WavetableSynthDevice::VoiceMode::Drift);
+    synth.setVoiceDepth(1.0f);
+
+    // Drift has no fixed intervals at all; the movement over time is the entire detune.
+    for (auto && detune : voiceDetunes(synth, 60)) {
+        QVERIFY2(std::abs(detune) < 1.0e-9, qPrintable(QString::number(detune)));
+    }
+}
+
+void WavetableSynthTest::test_voiceMode_dual_shouldDetuneVoicePairs()
+{
+    WavetableSynthDevice synth { "Test Synth" };
+    synth.setVoiceMode(WavetableSynthDevice::VoiceMode::Dual);
+    synth.setVoiceDepth(1.0f);
+
+    // One note takes a pair, detuned symmetrically about the pitch, and leaves the rest free
+    const auto detunes = voiceDetunes(synth, 60);
+    QCOMPARE(triggeredVoiceCount(synth), 2u);
+    QVERIFY(detunes.at(0) < 0.0);
+    QVERIFY(detunes.at(1) > 0.0);
+    QVERIFY(std::abs(detunes.at(0) + detunes.at(1)) < 1.0e-9);
+}
+
+void WavetableSynthTest::test_voiceMode_mono_overlappingNotes_shouldUseOneVoice()
+{
+    WavetableSynthDevice synth { "Test Synth" };
+    synth.setVoiceMode(WavetableSynthDevice::VoiceMode::Mono);
+
+    // A chord's worth of note-ons with nothing released in between: poly would spend four voices,
+    // mono must keep them all on one.
+    synth.processMidiNoteOn(60, 100);
+    synth.processMidiNoteOn(64, 100);
+    synth.processMidiNoteOn(67, 100);
+    synth.processMidiNoteOn(72, 100);
+
+    QCOMPARE(triggeredVoiceCount(synth), 1u);
+}
+
+void WavetableSynthTest::test_voiceMode_serialization_shouldPreserveEveryMode()
+{
+    using VoiceMode = WavetableSynthDevice::VoiceMode;
+
+    // The mode is persisted as a raw ordinal, so every one of them has to survive a round trip
+    for (auto && mode : { VoiceMode::Poly, VoiceMode::Unison, VoiceMode::Dual, VoiceMode::Supersaw, VoiceMode::Drift, VoiceMode::Mono }) {
+        WavetableSynthDevice synth1 { "Test Synth 1" };
+        synth1.setVoiceMode(mode);
+
+        QString xml;
+        NahdXmlWriter writer { xml };
+        synth1.serializeToXml(writer);
+
+        WavetableSynthDevice synth2 { "Test Synth 2" };
+        NahdXmlReader reader { xml };
+        if (reader.readNextStartElement()) {
+            synth2.deserializeFromXml(reader);
+        }
+
+        QCOMPARE(synth2.voiceMode(), mode);
+    }
 }
 
 void WavetableSynthTest::test_lfoIntensity_shouldApplyTheDepthItReadsOut()

@@ -19,12 +19,14 @@
 #include "../dsp/adsr_envelope.hpp"
 #include "../dsp/cascaded_svf.hpp"
 #include "../dsp/lfo.hpp"
+#include "../dsp/one_pole_filter.hpp"
 #include "../dsp/upsampler.hpp"
 #include "../dsp/wavetable_oscillator.hpp"
 #include "device.hpp"
 
 #include <map>
 #include <mutex>
+#include <optional>
 #include <random>
 #include <vector>
 
@@ -57,11 +59,29 @@ public:
         Pan
     };
 
+    //! Serialized as a raw ordinal, so this is append-only: inserting a value would silently change
+    //! the voice mode of every project saved before the change. The order matches SynthDevice's.
     enum class VoiceMode
     {
         Poly,
-        Unison
+        Unison,
+        Dual,
+        //! JP-8000 style: unevenly spaced detune around a centre voice held at full level, so the
+        //! stack keeps a solid core pitch instead of equal voices smearing it.
+        Supersaw,
+        //! No fixed detune at all. Each voice wanders at its own slow rate, so no pair ever settles
+        //! into a steady beat and the comb pattern that makes plain unison harsh never forms.
+        Drift,
+        //! Poly with a single voice: notes glide into each other instead of stacking. Appended last
+        //! because the ordinal is persisted, so it cannot sit next to Poly where it belongs.
+        Mono
     };
+
+    //! Voice modes that spend every voice on a single note.
+    static bool isStacked(VoiceMode mode);
+
+    //! Voices a supersaw stack takes. One short of the pool: the JP-8000 arrangement is seven saws.
+    static constexpr int SupersawVoices = 7;
 
     explicit WavetableSynthDevice(std::string name);
     ~WavetableSynthDevice() override;
@@ -91,6 +111,10 @@ public:
 
     void serializeToXml(ProjectWriter & writer) const override;
     void deserializeFromXml(ProjectReader & reader) override;
+
+    //! Frequency voice @p index is currently gliding towards, or 0 if it has never been triggered.
+    //! Exposed so tests can read the detune a voice mode hands out without rendering audio.
+    double voiceGlideFrequency(size_t index) const;
 
     // Voice / Global
     VoiceMode voiceMode() const;
@@ -211,6 +235,12 @@ private:
         double frequency { 0.0 };
         double glideFrequency { 0.0 };
         float pan { 0.5f };
+        //! Drift mode's per-voice wander. The rates are set apart at construction so that no two
+        //! voices ever settle into a steady beat.
+        double driftPhase { 0.0 };
+        double driftRate { 0.2 };
+        //! Takes the edge off the outer voices of a wide stack. Idle in the modes that do not stack.
+        OnePoleFilter damping;
 
         void reset();
         //! @p startPhase spreads unison voices apart. Voices started at the same phase stay
@@ -222,6 +252,9 @@ private:
 
     std::vector<Voice> m_voices;
     size_t m_polyNextVoice { 0 };
+    size_t m_dualNextPair { 0 };
+    //! Pan slot the sounding mono note took, so a mono line still travels across the field.
+    std::optional<size_t> m_monoPanSlot;
     uint64_t m_nextTriggerId { 1 };
 
     int m_wavetableIndex { 0 };
@@ -311,11 +344,27 @@ private:
     float generateVoiceSample(Voice & voice, const ModulationValues & mods, double oversampledRate, double pbRatio);
 
     void prepareForProcessing(AudioContext & context);
-    void updateVoiceParameters(Voice & voice, uint32_t oversampledRate);
-    //! Voices the current voice mode spends on a single note. Poly plays one, unison stacks the lot.
+    void updateVoiceParameters(Voice & voice, uint32_t oversampledRate, size_t index);
+    //! Voices the current voice mode spends on a single note. Poly and mono play one, dual pairs
+    //! them up, and the stacked modes take the lot.
     int voicesPerNote() const;
+    //! Detune of the stack's voice @p index, in semitones. Zero for the modes that do not stack.
+    double voiceDetuneSemitones(size_t index) const;
+    //! Level weighting the current voice mode gives this voice. Only Supersaw uses anything but
+    //! unity: its centre saw and its side saws follow different curves as the detune opens up.
+    float voiceLevel(size_t index) const;
+    //! Gain that keeps one note at the same loudness whatever the voice mode.
+    float voiceStackNormalization() const;
+    //! Pan for the voice occupying @p slot, spread out from the centre by the pan spread knob.
+    float voiceSpreadPan(size_t slot) const;
+    //! Corner for the voice's damping filter, or 0 when the mode damps nothing.
+    double voiceDampingHz(size_t index) const;
 
-    void renderVoice(Voice & voice, AudioContext & context, uint8_t oversampleFactor, uint32_t oversampledRate, double portamentoCoeff, double pbRatio);
+    void handleMonoNoteOn(uint8_t note, double frequency, float velocity);
+    //! Silences the voices past the end of the current stack, which a mode change can leave ringing.
+    void releaseVoicesAbove(size_t count);
+
+    void renderVoice(Voice & voice, AudioContext & context, uint8_t oversampleFactor, uint32_t oversampledRate, double portamentoCoeff, double pbRatio, size_t index);
 
     std::string m_name;
 

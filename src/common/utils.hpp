@@ -16,6 +16,7 @@
 #ifndef UTILS_HPP
 #define UTILS_HPP
 
+#include <array>
 #include <chrono>
 #include <filesystem>
 #include <optional>
@@ -65,6 +66,30 @@ float linearToDb(float linear);
 //! the transient that arrives when the voices do drift into phase, and it is what the headroom below
 //! full scale exists to absorb.
 float voiceStackGain(int voicesPerNote);
+
+//! Relative detune of the JP-8000's seven saws, the spacing that makes a supersaw a supersaw.
+//!
+//! The point is that they are *not* evenly spaced. Even spacing gives every adjacent pair the same
+//! beat rate and every wider pair an exact multiple of it, so the beating lines up into one periodic
+//! comb — the buzz that makes plain unison harsh in a dense mix. These offsets never line up. The
+//! centre one matters most: the whole arrangement hangs off having a voice exactly at pitch, so a
+//! device with fewer than seven voices drops outer saws and keeps the centre.
+inline constexpr std::array<double, 7> supersawOffsets { -0.11002313, -0.06288439, -0.01952356, 0.0, 0.01991221, 0.06216538, 0.10745242 };
+
+//! Widest detune of the outermost voice, in semitones, at full depth.
+inline constexpr double supersawMaxDetuneSemitones = 0.5;
+
+//! Widest wander of a Drift voice, in cents, at full depth. Deliberately narrower than the supersaw
+//! spread: the movement is what thickens the sound there, not the interval.
+inline constexpr double driftModeMaxCents = 25.0;
+
+//! Level of the centre voice, from Szabo's analysis of the JP-8000. It starts at unity and gives way
+//! as the detune opens up.
+double supersawCentreGain(double depth);
+
+//! Level of every other voice, likewise. Near silent at zero detune, so a closed supersaw collapses
+//! to a single clean saw rather than a stack in unison.
+double supersawSideGain(double depth);
 } // namespace Dsp
 } // namespace noteahead::Utils
 

@@ -51,6 +51,16 @@ private slots:
     void test_lfo2Target_pan_shouldModulatePanning();
 
     void test_voiceMode_unison_shouldMatchPolyLevel();
+    void test_voiceMode_dual_shouldMatchPolyLevel();
+    void test_voiceMode_supersaw_shouldMatchPolyLevel();
+    void test_voiceMode_drift_shouldMatchPolyLevel();
+    void test_voiceMode_mono_shouldMatchPolyLevel();
+    void test_voiceMode_supersaw_shouldSpaceDetuneUnevenly();
+    void test_voiceMode_supersaw_zeroDepth_shouldCollapseToOneVoice();
+    void test_voiceMode_drift_shouldNotDetuneStatically();
+    void test_voiceMode_dual_shouldDetuneVoicePairs();
+    void test_voiceMode_mono_overlappingNotes_shouldUseOneVoice();
+    void test_voiceMode_serialization_shouldPreserveEveryMode();
 
     void test_lfoIntensity_shouldApplyTheDepthItReadsOut();
 };

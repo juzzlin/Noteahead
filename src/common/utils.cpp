@@ -187,5 +187,15 @@ float voiceStackGain(int voicesPerNote)
 {
     return voicesPerNote > 1 ? 1.0f / std::sqrt(static_cast<float>(voicesPerNote)) : 1.0f;
 }
+
+double supersawCentreGain(double depth)
+{
+    return -0.55366 * depth + 0.99785;
+}
+
+double supersawSideGain(double depth)
+{
+    return -0.73764 * depth * depth + 1.2841 * depth + 0.044372;
+}
 } // namespace Dsp
 } // namespace noteahead::Utils

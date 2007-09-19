@@ -300,35 +300,11 @@ int SynthDevice::voicesPerNote() const
 
 namespace {
 
-//! Relative detune of the JP-8000's seven saws, the spacing that makes a supersaw a supersaw.
-//!
-//! The point is that they are *not* evenly spaced. Even spacing gives every adjacent pair the same
-//! beat rate and every wider pair an exact multiple of it, so the beating lines up into one periodic
-//! comb — the buzz that makes plain unison harsh in a dense mix. These offsets never line up.
-//! Six voices, so the outermost of the seven is dropped; the centre one is kept, because the whole
-//! arrangement hangs off having a voice exactly at pitch.
-constexpr std::array<double, SynthDevice::MaxVoices> supersawOffsets { -0.11002313, -0.06288439, -0.01952356, 0.0, 0.01991221, 0.06216538 };
-
-//! Widest detune of the outermost voice, in semitones, at full depth.
-constexpr double supersawMaxDetuneSemitones = 0.5;
-
-//! Widest wander of a Drift voice, in cents, at full depth. Deliberately narrower than the Supersaw
-//! spread: the movement is what thickens the sound here, not the interval.
-constexpr double driftModeMaxCents = 25.0;
-
-//! Level of the centre voice, from Szabo's analysis of the JP-8000. It starts at unity and gives way
-//! as the detune opens up.
-double supersawCentreGain(double depth)
-{
-    return -0.55366 * depth + 0.99785;
-}
-
-//! Level of every other voice, likewise. Near silent at zero detune, so a closed supersaw collapses
-//! to a single clean saw rather than six voices in unison.
-double supersawSideGain(double depth)
-{
-    return -0.73764 * depth * depth + 1.2841 * depth + 0.044372;
-}
+using Utils::Dsp::driftModeMaxCents;
+using Utils::Dsp::supersawCentreGain;
+using Utils::Dsp::supersawMaxDetuneSemitones;
+using Utils::Dsp::supersawOffsets;
+using Utils::Dsp::supersawSideGain;
 
 } // namespace
 

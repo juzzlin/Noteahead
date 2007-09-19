@@ -11,6 +11,10 @@ Bug fixes:
 
 New features:
 
+* Add Dual, Supersaw, Drift and Mono voice modes to the Wavetable Synth
+  - The same modes the Synth has, with the same detune and level curves
+  - Existing projects keep their voice mode: the ordinals are unchanged
+
 * Fix arrow keys barely moving most knobs
   - A focused knob now steps by a thousandth of its range either way
 

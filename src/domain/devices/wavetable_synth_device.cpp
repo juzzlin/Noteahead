@@ -29,6 +29,21 @@
 
 namespace noteahead {
 
+namespace {
+
+//! Detune of a dual pair, in semitones, at full depth. Narrow on purpose: dual is a chorus width,
+//! not an interval.
+constexpr double DualDetuneScale = 0.1;
+
+//! Voice @p index mapped into the supersaw table, which is one entry shorter than the voice pool.
+//! Only a voice left over from another mode can land outside it, and it is on its way out anyway.
+size_t supersawIndex(size_t index)
+{
+    return std::min(index, Utils::Dsp::supersawOffsets.size() - 1);
+}
+
+} // namespace
+
 void WavetableSynthDevice::Voice::reset()
 {
     active = false;
@@ -45,6 +60,8 @@ void WavetableSynthDevice::Voice::reset()
     frequency = 0.0;
     glideFrequency = 0.0;
     pan = 0.5f;
+    driftPhase = 0.0;
+    damping.reset();
 }
 
 void WavetableSynthDevice::Voice::trigger(uint8_t n, double freq, float p, float vel, uint64_t tid, double startPhase)
@@ -120,6 +137,11 @@ WavetableSynthDevice::WavetableSynthDevice(std::string name)
 {
     m_voices.resize(MaxVoices);
 
+    // Mutually irrational drift rates, so no two Drift voices ever settle into a steady beat.
+    for (size_t i = 0; i < m_voices.size(); i++) {
+        m_voices.at(i).driftRate = 0.11 + 0.037 * static_cast<double>(i) * std::numbers::phi;
+    }
+
     // Initialize Parameters
     addParameter(Parameter { Constants::NahdXml::xmlKeyOsc1Pos().toStdString(), 0.0f, 0, 10000, 0, 100, Parameter::Type::Continuous, { "wavetableSynthOsc1Pos" } });
     addParameter(Parameter { Constants::NahdXml::xmlKeyOsc1Octave().toStdString(), 0.0f, -2, 2, 0, 1, Parameter::Type::Discrete, { "wavetableSynthOsc1Octave" } });
@@ -160,7 +182,7 @@ WavetableSynthDevice::WavetableSynthDevice(std::string name)
     addParameter(Parameter { Constants::NahdXml::xmlKeyLfo2Intensity().toStdString(), 0.5f, 0, 10000, 5000, 100, Parameter::Type::Continuous, { "wavetableSynthLfo2Intensity" } });
     addParameter(Parameter { Constants::NahdXml::xmlKeyLfo2Target().toStdString(), 0.0f, 0, 6, 0, 1, Parameter::Type::Discrete, { "wavetableSynthLfo2Target" } });
 
-    addParameter(Parameter { Constants::NahdXml::xmlKeyVoiceMode().toStdString(), 0.0f, 0, 1, 0, 1, Parameter::Type::Discrete, { "wavetableSynthVoiceMode" } });
+    addParameter(Parameter { Constants::NahdXml::xmlKeyVoiceMode().toStdString(), 0.0f, 0, 5, 0, 1, Parameter::Type::Discrete, { "wavetableSynthVoiceMode" } });
     addParameter(Parameter { Constants::NahdXml::xmlKeyVoiceDepth().toStdString(), 0.1f, 0, 10000, 1000, 100, Parameter::Type::Continuous, { "wavetableSynthVoiceDepth" } });
     addParameter(Parameter { Constants::NahdXml::xmlKeyPanSpread().toStdString(), 0.5f, 0, 10000, 5000, 100, Parameter::Type::Continuous, { "wavetableSynthPanSpread" } });
     addParameter(Parameter { Constants::NahdXml::xmlKeyPortamento().toStdString(), 0.0f, 0, 10000, 0, 100, Parameter::Type::Continuous, { "wavetableSynthPortamento" } });
@@ -228,7 +250,8 @@ void WavetableSynthDevice::processAudio(AudioContext & context)
     const double pbOffset = (static_cast<double>(m_pitchBend) - 8192.0) / 8192.0 * m_pitchBendRange;
     const double pbRatio = std::exp2(pbOffset / 12.0);
 
-    for (auto && voice : m_voices) {
+    for (size_t index = 0; index < m_voices.size(); index++) {
+        auto & voice = m_voices.at(index);
         voice.lfo.setWaveform(m_lfoWaveform);
         voice.lfo.setMode(m_lfoMode);
         if (m_lfoMode == Lfo::Mode::BPM) {
@@ -246,7 +269,7 @@ void WavetableSynthDevice::processAudio(AudioContext & context)
         }
 
         if (voice.active) {
-            renderVoice(voice, context, oversampleFactor, oversampledRate, portamentoCoeff, pbRatio);
+            renderVoice(voice, context, oversampleFactor, oversampledRate, portamentoCoeff, pbRatio, index);
         }
     }
 
@@ -273,24 +296,133 @@ void WavetableSynthDevice::prepareForProcessing(AudioContext & context)
     std::fill(m_oversampledBuffer.begin(), m_oversampledBuffer.begin() + requiredSize, 0.0f);
 }
 
-int WavetableSynthDevice::voicesPerNote() const
+bool WavetableSynthDevice::isStacked(VoiceMode mode)
 {
-    return m_voiceMode == VoiceMode::Unison ? MaxVoices : 1;
+    return mode == VoiceMode::Unison || mode == VoiceMode::Supersaw || mode == VoiceMode::Drift;
 }
 
-void WavetableSynthDevice::renderVoice(Voice & voice, AudioContext & context, uint8_t oversampleFactor, uint32_t oversampledRate, double portamentoCoeff, double pbRatio)
+int WavetableSynthDevice::voicesPerNote() const
 {
-    updateVoiceParameters(voice, oversampledRate);
+    switch (m_voiceMode) {
+    case VoiceMode::Supersaw:
+        // A supersaw is seven saws, and the arrangement only works with the centre one at pitch, so
+        // it takes seven of the eight voices rather than stretching the table to fit the last one.
+        return SupersawVoices;
+    case VoiceMode::Unison:
+    case VoiceMode::Drift:
+        return MaxVoices;
+    case VoiceMode::Dual:
+        return 2;
+    case VoiceMode::Poly:
+    case VoiceMode::Mono:
+    default:
+        return 1;
+    }
+}
+
+double WavetableSynthDevice::voiceDetuneSemitones(size_t index) const
+{
+    switch (m_voiceMode) {
+    case VoiceMode::Unison:
+        return (static_cast<double>(index) - (MaxVoices - 1) / 2.0) * std::pow(m_voiceDepth, 1.2) * (0.15 + 0.05 * (index % 2));
+    case VoiceMode::Supersaw:
+        // Normalized so the outermost voice lands on the stated spread; what matters is the spacing.
+        return Utils::Dsp::supersawOffsets.at(supersawIndex(index)) / std::abs(Utils::Dsp::supersawOffsets.front())
+          * Utils::Dsp::supersawMaxDetuneSemitones * std::pow(m_voiceDepth, 1.5);
+    case VoiceMode::Drift:
+        // Nothing fixed: the wander applied per sample in generateVoiceSample is the whole detune.
+        return 0.0;
+    case VoiceMode::Dual: {
+        const double detuneSign = (index % 2 == 0) ? -1.0 : 1.0;
+        return detuneSign * std::pow(m_voiceDepth, 1.5) * DualDetuneScale;
+    }
+    case VoiceMode::Poly:
+    case VoiceMode::Mono:
+    default:
+        return 0.0;
+    }
+}
+
+float WavetableSynthDevice::voiceLevel(size_t index) const
+{
+    if (m_voiceMode != VoiceMode::Supersaw) {
+        return 1.0f;
+    }
+    const auto depth = static_cast<double>(m_voiceDepth);
+    return static_cast<float>(Utils::Dsp::supersawOffsets.at(supersawIndex(index)) == 0.0
+                                ? Utils::Dsp::supersawCentreGain(depth)
+                                : Utils::Dsp::supersawSideGain(depth));
+}
+
+float WavetableSynthDevice::voiceStackNormalization() const
+{
+    // Equal-power: detuned voices are mutually uncorrelated for most of their beat cycle, so their
+    // power sums and the compensation is the RMS of the level weights. Weighting by the actual
+    // levels rather than the raw voice count matters for Supersaw, where a closed-up stack is one
+    // voice and a wide one is seven; a flat 1/sqrt(N) would leave it well down when closed.
+    double power = 0.0;
+    for (int i = 0; i < voicesPerNote(); i++) {
+        const double weight = static_cast<double>(voiceLevel(static_cast<size_t>(i)));
+        power += weight * weight;
+    }
+    return power > 0.0 ? static_cast<float>(1.0 / std::sqrt(power)) : 1.0f;
+}
+
+float WavetableSynthDevice::voiceSpreadPan(size_t slot) const
+{
+    // Voice-alternating distribution inspired by Behringer DeepMind: consecutive slots swap sides and
+    // step in towards the centre, so any prefix of the sequence is still balanced left to right.
+    const float side = (slot % 2 == 0) ? -1.0f : 1.0f;
+    const float depth = 1.0f - static_cast<float>(slot / 2) * (2.0f / static_cast<float>(MaxVoices));
+    return 0.5f + (side * depth * m_panSpread * 0.5f);
+}
+
+double WavetableSynthDevice::voiceDampingHz(size_t index) const
+{
+    if (m_voiceMode != VoiceMode::Supersaw && m_voiceMode != VoiceMode::Drift) {
+        return 0.0;
+    }
+
+    // How far this voice sits from the centre of the stack, 0..1. Supersaw has a real spread to
+    // measure; Drift has none, so the voice index stands in for it.
+    const double distance = m_voiceMode == VoiceMode::Supersaw
+      ? std::abs(Utils::Dsp::supersawOffsets.at(supersawIndex(index))) / std::abs(Utils::Dsp::supersawOffsets.front())
+      : static_cast<double>(index) / (MaxVoices - 1);
+
+    // Full brightness at the centre, progressively darker outwards, and only as far as the depth
+    // knob opens the stack up. The roughness lives in the top octaves, so this is where taking the
+    // edge off costs the least character.
+    constexpr double brightestHz = 20000.0;
+    constexpr double darkestHz = 4000.0;
+    const double amount = distance * static_cast<double>(m_voiceDepth);
+    return brightestHz + (darkestHz - brightestHz) * amount;
+}
+
+void WavetableSynthDevice::renderVoice(Voice & voice, AudioContext & context, uint8_t oversampleFactor, uint32_t oversampledRate, double portamentoCoeff, double pbRatio, size_t index)
+{
+    updateVoiceParameters(voice, oversampledRate, index);
 
     // The 1/MaxVoices base is the headroom for a full chord: every voice sounding at once reaches
-    // full scale. Unison spends every voice on a single note, so without the stack compensation one
-    // note would arrive up to MaxVoices times hotter than the same note in poly.
-    const float gain = (1.0f / static_cast<float>(MaxVoices)) * Utils::Dsp::voiceStackGain(voicesPerNote()) * linearGainInternal() * voice.velocity;
+    // full scale. The stack normalization then keeps one note at the same level whatever the voice
+    // mode, so switching modes changes the character and not the gain.
+    const float gain = (1.0f / static_cast<float>(MaxVoices)) * voiceStackNormalization() * linearGainInternal() * voice.velocity * voiceLevel(index);
+
+    const double dampingHz = voiceDampingHz(index);
+    const bool damped = dampingHz > 0.0 && dampingHz < OnePoleFilter::maxCorner(oversampledRate);
+    if (damped) {
+        voice.damping.calculate(dampingHz, oversampledRate);
+    }
+
     for (uint32_t i = 0; i < context.frameCount; i++) {
         for (uint8_t subSample = 0; subSample < oversampleFactor; subSample++) {
             voice.glideFrequency += (voice.frequency - voice.glideFrequency) * portamentoCoeff;
             const ModulationValues mods = calculateModulation(voice);
-            const float sample = generateVoiceSample(voice, mods, oversampledRate, pbRatio) * gain;
+            float voiceSample = generateVoiceSample(voice, mods, oversampledRate, pbRatio);
+            if (damped) {
+                voice.damping.process(static_cast<double>(voiceSample));
+                voiceSample = static_cast<float>(voice.damping.lowPass());
+            }
+            const float sample = voiceSample * gain;
 
             const float voicePan = std::clamp(panInternal() + voice.pan - 0.5f + static_cast<float>(mods.panMod) * 0.5f, 0.0f, 1.0f);
             const double panAngle = static_cast<double>(voicePan) * std::numbers::pi * 0.5;
@@ -308,8 +440,13 @@ void WavetableSynthDevice::renderVoice(Voice & voice, AudioContext & context, ui
     }
 }
 
-void WavetableSynthDevice::updateVoiceParameters(Voice & voice, uint32_t oversampledRate)
+void WavetableSynthDevice::updateVoiceParameters(Voice & voice, uint32_t oversampledRate, size_t index)
 {
+    // The detune has to follow the depth knob while a note sounds, not only at the note on.
+    if (isStacked(m_voiceMode) || m_voiceMode == VoiceMode::Dual) {
+        voice.frequency = midiNoteToFreq(voice.note) * std::pow(2.0, voiceDetuneSemitones(index) / 12.0);
+    }
+
     voice.osc1.setSampleRate(oversampledRate);
     voice.osc2.setSampleRate(oversampledRate);
     voice.lpf.setSampleRate(oversampledRate);
@@ -423,62 +560,156 @@ void WavetableSynthDevice::resetAudio()
         voice.reset();
     }
     m_polyNextVoice = 0;
+    m_dualNextPair = 0;
+    m_monoPanSlot.reset();
     m_nextTriggerId = 1;
+}
+
+void WavetableSynthDevice::releaseVoicesAbove(size_t count)
+{
+    for (size_t i = count; i < MaxVoices; i++) {
+        if (m_voices.at(i).active) {
+            m_voices.at(i).release();
+        }
+    }
 }
 
 void WavetableSynthDevice::handleNoteOn(uint8_t note, uint8_t velocity)
 {
     const double freq = midiNoteToFreq(note);
     const float finalVel = static_cast<float>(velocity) / 127.0f;
-    const uint64_t tid = m_nextTriggerId++;
 
-    if (m_voiceMode == VoiceMode::Unison) {
-        for (size_t i = 0; i < MaxVoices; i++) {
-            // Non-linear detune spread for better texture
-            const double detuneAmount = (static_cast<double>(i) - (MaxVoices - 1) / 2.0) * std::pow(m_voiceDepth, 1.2) * (0.15 + 0.05 * (i % 2));
-            const double voiceFreq = freq * std::pow(2.0, detuneAmount / 12.0);
+    if (m_voiceMode == VoiceMode::Mono) {
+        // Mono keeps the sounding voice alive on purpose, so it cannot go through the stacked path.
+        handleMonoNoteOn(note, freq, finalVel);
+        return;
+    }
+
+    if (isStacked(m_voiceMode)) {
+        const auto stackSize = static_cast<size_t>(voicesPerNote());
+        releaseVoicesAbove(stackSize);
+        const uint64_t tid = m_nextTriggerId++;
+        for (size_t i = 0; i < stackSize; i++) {
+            const double voiceFreq = freq * std::pow(2.0, voiceDetuneSemitones(i) / 12.0);
 
             if (m_portamento <= 0.001f) {
                 m_voices.at(i).glideFrequency = voiceFreq;
             }
 
-            const float side = (i % 2 == 0) ? -1.0f : 1.0f;
-            const float depth = 1.0f - static_cast<float>(i / 2) * (2.0f / static_cast<float>(MaxVoices));
-            const float pan = 0.5f + (side * depth * m_panSpread * 0.5f);
-
-            m_voices.at(i).trigger(note, voiceFreq, pan, finalVel, tid, m_phaseDist(m_rng));
+            m_voices.at(i).trigger(note, voiceFreq, voiceSpreadPan(i), finalVel, tid, m_phaseDist(m_rng));
         }
-    } else {
-        // Polyphonic mode
-        size_t voiceIndex = m_polyNextVoice;
-        bool found = false;
+        return;
+    }
 
-        for (size_t i = 0; i < MaxVoices; i++) {
-            const size_t idx = (m_polyNextVoice + i) % MaxVoices;
-            if (!m_voices.at(idx).active) {
-                voiceIndex = idx;
-                found = true;
+    if (m_voiceMode == VoiceMode::Dual) {
+        // Pair voices (0,1), (2,3), ... — each pair plays one note with two detuned sub-voices
+        constexpr size_t numPairs = MaxVoices / 2;
+        std::optional<size_t> bestPair;
+
+        // 1. Affinity: reuse a pair already playing this note
+        for (size_t p = 0; p < numPairs; p++) {
+            if (m_voices.at(p * 2).active && m_voices.at(p * 2).note == note) {
+                bestPair = p;
                 break;
             }
         }
 
-        if (!found) {
-            uint64_t oldestId = std::numeric_limits<uint64_t>::max();
-            for (size_t i = 0; i < MaxVoices; i++) {
-                if (m_voices.at(i).triggerId < oldestId) {
-                    oldestId = m_voices.at(i).triggerId;
-                    voiceIndex = i;
+        // 2. Round-robin free pair (both voices must be idle)
+        if (!bestPair) {
+            for (size_t i = 0; i < numPairs; i++) {
+                const size_t p = (m_dualNextPair + i) % numPairs;
+                if (!m_voices.at(p * 2).active && !m_voices.at(p * 2 + 1).active) {
+                    bestPair = p;
+                    m_dualNextPair = (p + 1) % numPairs;
+                    break;
                 }
             }
         }
 
-        if (m_portamento <= 0.001f) {
-            m_voices.at(voiceIndex).glideFrequency = freq;
+        // 3. Steal the oldest pair
+        if (!bestPair) {
+            uint64_t oldestId = std::numeric_limits<uint64_t>::max();
+            for (size_t p = 0; p < numPairs; p++) {
+                if (m_voices.at(p * 2).triggerId < oldestId) {
+                    oldestId = m_voices.at(p * 2).triggerId;
+                    bestPair = p;
+                }
+            }
         }
 
-        m_voices.at(voiceIndex).trigger(note, freq, 0.5f, finalVel, tid);
-        m_polyNextVoice = (voiceIndex + 1) % MaxVoices;
+        const size_t v0 = bestPair.value() * 2;
+        const size_t v1 = v0 + 1;
+        const uint64_t tid = m_nextTriggerId++;
+        const double freq0 = freq * std::pow(2.0, voiceDetuneSemitones(v0) / 12.0);
+        const double freq1 = freq * std::pow(2.0, voiceDetuneSemitones(v1) / 12.0);
+
+        if (m_portamento <= 0.001f) {
+            m_voices.at(v0).glideFrequency = freq0;
+            m_voices.at(v1).glideFrequency = freq1;
+        }
+
+        const float pan0 = 0.5f - m_panSpread * 0.5f;
+        const float pan1 = 0.5f + m_panSpread * 0.5f;
+        m_voices.at(v0).trigger(note, freq0, pan0, finalVel, tid, m_phaseDist(m_rng));
+        m_voices.at(v1).trigger(note, freq1, pan1, finalVel, tid, m_phaseDist(m_rng));
+        return;
     }
+
+    // Polyphonic mode
+    size_t voiceIndex = m_polyNextVoice;
+    bool found = false;
+
+    for (size_t i = 0; i < MaxVoices; i++) {
+        const size_t idx = (m_polyNextVoice + i) % MaxVoices;
+        if (!m_voices.at(idx).active) {
+            voiceIndex = idx;
+            found = true;
+            break;
+        }
+    }
+
+    if (!found) {
+        uint64_t oldestId = std::numeric_limits<uint64_t>::max();
+        for (size_t i = 0; i < MaxVoices; i++) {
+            if (m_voices.at(i).triggerId < oldestId) {
+                oldestId = m_voices.at(i).triggerId;
+                voiceIndex = i;
+            }
+        }
+    }
+
+    if (m_portamento <= 0.001f) {
+        m_voices.at(voiceIndex).glideFrequency = freq;
+    }
+
+    // Poly stays centred: the pan spread is a property of a stack, and widening poly here would
+    // move every note of every project saved before the other voice modes existed.
+    m_voices.at(voiceIndex).trigger(note, freq, 0.5f, finalVel, m_nextTriggerId++);
+    m_polyNextVoice = (voiceIndex + 1) % MaxVoices;
+}
+
+void WavetableSynthDevice::handleMonoNoteOn(uint8_t note, double frequency, float velocity)
+{
+    releaseVoicesAbove(1);
+
+    auto & voice = m_voices.front();
+
+    // A note that starts from silence takes the next pan slot, so a mono line still travels across
+    // the field the way successive poly voices would. A note arriving over a sounding one belongs to
+    // the same gesture and stays where that gesture began, which also keeps the pan from jumping
+    // under a tone that never falls silent between the two.
+    if (!voice.active || voice.ampEg.state() == AdsrEnvelope::State::Release) {
+        m_monoPanSlot = m_monoPanSlot ? (m_monoPanSlot.value() + 1) % MaxVoices : 0;
+    }
+
+    // Every note gets its own attack — the envelopes retrigger even mid-glide, which is what keeps a
+    // mono line articulate. Only the pitch is continuous: the glide frequency is left where the last
+    // note put it, so the oscillators travel to the new note rather than jumping.
+    if (m_portamento <= 0.001f) {
+        voice.glideFrequency = frequency;
+    }
+
+    voice.trigger(note, frequency, voiceSpreadPan(m_monoPanSlot.value_or(0)), velocity, m_nextTriggerId++, m_phaseDist(m_rng));
 }
 
 void WavetableSynthDevice::handleNoteOff(uint8_t note)
@@ -542,9 +773,18 @@ WavetableSynthDevice::ModulationValues WavetableSynthDevice::calculateModulation
     return mods;
 }
 
-float WavetableSynthDevice::generateVoiceSample(Voice & voice, const ModulationValues & mods, double /*oversampledRate*/, double pbRatio)
+float WavetableSynthDevice::generateVoiceSample(Voice & voice, const ModulationValues & mods, double oversampledRate, double pbRatio)
 {
-    const double freq = voice.glideFrequency * pbRatio;
+    double freq = voice.glideFrequency * pbRatio;
+
+    // Drift voice mode has no fixed detune, so the wander is the detune. Each voice has its own
+    // rate, and the rates are mutually irrational enough that no two voices ever settle into a
+    // steady beat, which is what keeps the stack from combing.
+    if (m_voiceMode == VoiceMode::Drift && m_voiceDepth > 0.0f) {
+        const double driftCents = static_cast<double>(m_voiceDepth) * Utils::Dsp::driftModeMaxCents;
+        voice.driftPhase = std::fmod(voice.driftPhase + voice.driftRate / oversampledRate, 1.0);
+        freq *= std::exp2(driftCents / 1200.0 * std::sin(voice.driftPhase * 2.0 * std::numbers::pi));
+    }
 
     double osc1Freq = freq * m_osc1BasePitchRatio;
     double osc2Freq = freq * m_osc2BasePitchRatio;
@@ -1190,6 +1430,12 @@ void WavetableSynthDevice::setLfo2Target(LfoTarget target)
 }
 
 // Voice / Global
+double WavetableSynthDevice::voiceGlideFrequency(size_t index) const
+{
+    const std::lock_guard<std::recursive_mutex> lock { mutex() };
+    return index < m_voices.size() ? m_voices.at(index).glideFrequency : 0.0;
+}
+
 WavetableSynthDevice::VoiceMode WavetableSynthDevice::voiceMode() const
 {
     const std::lock_guard<std::recursive_mutex> lock { mutex() };

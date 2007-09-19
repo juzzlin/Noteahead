@@ -79,10 +79,29 @@ void WavetableSynthControllerTest::test_voiceModes()
 {
     const auto synth = std::make_shared<WavetableSynthDevice>("Test Synth");
     WavetableSynthController controller { synth };
+    // The order is the persisted VoiceMode ordinal, so this list is append-only
     const auto modes = controller.voiceModes();
-    QCOMPARE(modes.size(), 2);
+    QCOMPARE(modes.size(), 6);
     QCOMPARE(modes.at(0), QString("Poly"));
     QCOMPARE(modes.at(1), QString("Unison"));
+    QCOMPARE(modes.at(2), QString("Dual"));
+    QCOMPARE(modes.at(3), QString("Supersaw"));
+    QCOMPARE(modes.at(4), QString("Drift"));
+    QCOMPARE(modes.at(5), QString("Mono"));
+}
+
+void WavetableSynthControllerTest::test_voiceMode_everyOfferedMode_shouldReachTheDevice()
+{
+    const auto synth = std::make_shared<WavetableSynthDevice>("Test Synth");
+    WavetableSynthController controller { synth };
+
+    // A mode the dialog lists but the setter drops leaves the combo box showing one thing and the
+    // device playing another, until the next unrelated edit snaps the combo box back
+    for (int mode = 0; mode < controller.voiceModes().size(); mode++) {
+        controller.setVoiceMode(mode);
+        QCOMPARE(controller.voiceMode(), mode);
+        QCOMPARE(static_cast<int>(synth->voiceMode()), mode);
+    }
 }
 
 void WavetableSynthControllerTest::test_lfo2_properties_shouldUpdateDevice()
