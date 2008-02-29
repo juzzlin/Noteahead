@@ -47,6 +47,7 @@ set(SRC
     ../../domain/dsp/drum/ride_engine.cpp
     ../../domain/dsp/dsp_component.cpp
     ../../domain/dsp/reverb_effect.cpp
+    ../../domain/dsp/all_pass_filter.cpp
     ../../domain/dsp/chorus_effect.cpp
     ../../domain/dsp/compressor_effect.cpp
     ../../domain/dsp/clipper_effect.cpp

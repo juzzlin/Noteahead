@@ -17,6 +17,7 @@
 
 #include "../../common/constants.hpp"
 #include "../../common/parameter_mapper.hpp"
+#include "../../domain/dsp/all_pass_filter.hpp"
 #include "../../domain/dsp/chorus_effect.hpp"
 #include "../../domain/dsp/clipper_effect.hpp"
 #include "../../domain/dsp/compressor_effect.hpp"
@@ -198,6 +199,7 @@ QVariantList EffectRackController::availableEffects() const
         list.append(map);
     };
 
+    addEffect("All-Pass Filter", AllPassFilter::typeIdString());
     addEffect("Auto Panner", AutoPannerEffect::typeIdString());
     addEffect("Chorus", ChorusEffect::typeIdString());
     addEffect("Clipper", ClipperEffect::typeIdString());
@@ -263,7 +265,15 @@ QString EffectRackController::effectParametersSummary(quint32 effectIndex) const
     if (const auto rack = currentRack(); rack) {
         if (const auto effect = rack->get().effect(effectIndex); effect) {
             const auto type = QString::fromStdString(effect->type());
-            if (type == Constants::RackEffectType::autoPanner()) {
+            if (type == Constants::RackEffectType::allPassFilter()) {
+                const auto freq = effect->parameter(Constants::NahdXml::xmlKeyAllPassFilterFrequency().toStdString());
+                const auto stages = effect->parameter(Constants::NahdXml::xmlKeyAllPassFilterStages().toStdString());
+                if (freq && stages) {
+                    return QString { "(freq=%1Hz, stages=%2)" }
+                      .arg(freq->get().xmlValue())
+                      .arg(stages->get().xmlValue());
+                }
+            } else if (type == Constants::RackEffectType::autoPanner()) {
                 const auto sync = effect->parameter(Constants::NahdXml::xmlKeySync().toStdString());
                 const auto intensity = effect->parameter(Constants::NahdXml::xmlKeyIntensity().toStdString());
                 if (sync && intensity) {
@@ -465,6 +475,21 @@ QString EffectRackController::compressorSideChainLpfKey() const
     return Constants::NahdXml::xmlKeySideChainLpf();
 }
 
+QString EffectRackController::allPassFilterFrequencyKey() const
+{
+    return Constants::NahdXml::xmlKeyAllPassFilterFrequency();
+}
+
+QString EffectRackController::allPassFilterQKey() const
+{
+    return Constants::NahdXml::xmlKeyAllPassFilterQ();
+}
+
+QString EffectRackController::allPassFilterStagesKey() const
+{
+    return Constants::NahdXml::xmlKeyAllPassFilterStages();
+}
+
 QString EffectRackController::clipperModeKey() const
 {
     return Constants::NahdXml::xmlKeyMode();
@@ -498,6 +523,11 @@ QString EffectRackController::eq8BandParametricGainKey(quint32 bandIndex) const
 QString EffectRackController::eq8BandParametricQKey(quint32 bandIndex) const
 {
     return Constants::NahdXml::xmlKeyBandQ(bandIndex);
+}
+
+QString EffectRackController::allPassFilterType() const
+{
+    return Constants::RackEffectType::allPassFilter();
 }
 
 QString EffectRackController::clipperType() const

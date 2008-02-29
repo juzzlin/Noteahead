@@ -24,6 +24,7 @@ set(HEADER_FILES
     devices/wavetable_synth_device.hpp
     effects/volume_effect.hpp
     dsp/adsr_envelope.hpp
+    dsp/all_pass_filter.hpp
     dsp/cascaded_svf.hpp
     dsp/clipper_effect.hpp
     dsp/compressor_effect.hpp
@@ -100,6 +101,7 @@ set(SOURCE_FILES
     devices/wavetable_synth_device.cpp
     effects/volume_effect.cpp
     dsp/adsr_envelope.cpp
+    dsp/all_pass_filter.cpp
     dsp/cascaded_svf.cpp
     dsp/chorus_effect.cpp
     dsp/clipper_effect.cpp

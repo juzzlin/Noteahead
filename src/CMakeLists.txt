@@ -37,6 +37,7 @@ set(QML_SOURCE_FILES
     ${QML_BASE_DIR}/Dialogs/AddMidiCcAutomationDialog.qml
     ${QML_BASE_DIR}/Dialogs/AddMidiCcSettingDialog.qml
     ${QML_BASE_DIR}/Dialogs/AddPitchBendAutomationDialog.qml
+    ${QML_BASE_DIR}/Dialogs/AllPassFilterDialog.qml
     ${QML_BASE_DIR}/Dialogs/AudioRenderDialog.qml
     ${QML_BASE_DIR}/Dialogs/AutoPannerDialog.qml
     ${QML_BASE_DIR}/Dialogs/BassSynthDialog.qml
@@ -69,7 +70,7 @@ set(QML_SOURCE_FILES
     ${QML_BASE_DIR}/Dialogs/ErrorDialog.qml
     ${QML_BASE_DIR}/Dialogs/EventSelectionDialog.qml
     ${QML_BASE_DIR}/Dialogs/GainConverterDialog.qml
-${QML_BASE_DIR}/Dialogs/IntegerInputDialog.qml
+    ${QML_BASE_DIR}/Dialogs/IntegerInputDialog.qml
     ${QML_BASE_DIR}/Dialogs/InterpolationDialog.qml
     ${QML_BASE_DIR}/Dialogs/ManualDialog.qml
     ${QML_BASE_DIR}/Dialogs/MasterEffectsDialog.qml

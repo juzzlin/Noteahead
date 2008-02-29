@@ -172,6 +172,11 @@ QString eq8BandParametric()
 {
     return "eq8bandparametric";
 }
+
+QString allPassFilter()
+{
+    return "allpassfilter";
+}
 } // namespace RackEffectType
 
 namespace NahdXml {
@@ -1555,6 +1560,21 @@ QString xmlKeyPitchDepth()
 QString xmlKeyPitchDecay()
 {
     return "pitchDecay";
+}
+
+QString xmlKeyAllPassFilterFrequency()
+{
+    return "allPassFilterFrequency";
+}
+
+QString xmlKeyAllPassFilterQ()
+{
+    return "allPassFilterQ";
+}
+
+QString xmlKeyAllPassFilterStages()
+{
+    return "allPassFilterStages";
 }
 
 QString embeddedDataPathPrefix()

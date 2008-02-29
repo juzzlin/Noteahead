@@ -10,6 +10,8 @@ New features:
   - Modulations stack additively with LFO 1
   - Displayed side-by-side with LFO 1 in the effects tab
 
+* Add an all-pass filter rack effect
+
 Bug fixes:
 
 Other:

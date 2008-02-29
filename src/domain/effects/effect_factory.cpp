@@ -15,6 +15,7 @@
 
 #include "effect_factory.hpp"
 
+#include "../dsp/all_pass_filter.hpp"
 #include "../dsp/chorus_effect.hpp"
 #include "../dsp/clipper_effect.hpp"
 #include "../dsp/compressor_effect.hpp"
@@ -74,6 +75,7 @@ std::shared_ptr<Effect> EffectFactory::createEffect(const std::string & typeId, 
 
 void EffectFactory::init()
 {
+    registerEffect(AllPassFilter::typeIdString(), []() { return std::make_shared<AllPassFilter>(); });
     registerEffect(AutoPannerEffect::typeIdString(), []() { return std::make_shared<AutoPannerEffect>(); });
     registerEffect(ChorusEffect::typeIdString(), []() { return std::make_shared<ChorusEffect>(); });
     registerEffect(ClipperEffect::typeIdString(), []() { return std::make_shared<ClipperEffect>(); });

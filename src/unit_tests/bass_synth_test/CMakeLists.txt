@@ -30,6 +30,7 @@ set(SRC
     ../../domain/dsp/oversampler.cpp
     ../../domain/dsp/poly_blep_oscillator.cpp
     ../../domain/dsp/reverb_effect.cpp
+    ../../domain/dsp/all_pass_filter.cpp
     ../../domain/dsp/chorus_effect.cpp
     ../../domain/tracker/parameter.cpp
     ../../domain/tracker/parameter_container.cpp

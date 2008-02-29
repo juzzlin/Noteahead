@@ -21,6 +21,7 @@ set(SOURCE_FILES
     ../../domain/dsp/cascaded_svf.cpp
     ../../domain/dsp/diode_ladder_filter.cpp
     ../../domain/dsp/reverb_effect.cpp
+    ../../domain/dsp/all_pass_filter.cpp
     ../../domain/dsp/chorus_effect.cpp
     ../../domain/dsp/clipper_effect.cpp
     ../../domain/dsp/eq_8_band_parametric_effect.cpp

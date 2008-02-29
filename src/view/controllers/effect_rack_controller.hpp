@@ -39,6 +39,7 @@ class EffectRackController : public QObject
     Q_PROPERTY(QString targetDeviceName READ targetDeviceName WRITE setTargetDeviceName NOTIFY targetDeviceNameChanged)
     Q_PROPERTY(bool isInsertRack READ isInsertRack WRITE setIsInsertRack NOTIFY isInsertRackChanged)
 
+    Q_PROPERTY(QString allPassFilterType READ allPassFilterType CONSTANT)
     Q_PROPERTY(QString chorusType READ chorusType CONSTANT)
     Q_PROPERTY(QString clipperType READ clipperType CONSTANT)
     Q_PROPERTY(QString compressorType READ compressorType CONSTANT)
@@ -62,6 +63,7 @@ public:
     bool isInsertRack() const;
     void setIsInsertRack(bool isInsert);
 
+    QString allPassFilterType() const;
     QString autoPannerType() const;
     QString clipperType() const;
     QString compressorType() const;
@@ -122,6 +124,10 @@ public:
     Q_INVOKABLE QString compressorLookaheadKey() const;
     Q_INVOKABLE QString compressorSideChainSourceDeviceKey() const;
     Q_INVOKABLE QString compressorSideChainLpfKey() const;
+
+    Q_INVOKABLE QString allPassFilterFrequencyKey() const;
+    Q_INVOKABLE QString allPassFilterQKey() const;
+    Q_INVOKABLE QString allPassFilterStagesKey() const;
 
     Q_INVOKABLE QString clipperModeKey() const;
     Q_INVOKABLE QString clipperThresholdKey() const;
