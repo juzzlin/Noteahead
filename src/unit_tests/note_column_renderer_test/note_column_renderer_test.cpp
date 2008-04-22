@@ -286,6 +286,87 @@ void NoteColumnRendererTest::test_setAutomationDisplayMode_tint_shouldClearHover
     QVERIFY(!column.renderer.automationCurveHovered());
 }
 
+void NoteColumnRendererTest::test_rowPaintData_shouldMatchModelRoles()
+{
+    CurveColumn column;
+
+    NoteData noteOn;
+    noteOn.setAsNoteOn(60, 100);
+    noteOn.setDelay(5);
+    noteOn.setPan(64);
+
+    NoteData noteOff;
+    noteOff.setAsNoteOff();
+
+    NoteData panOnly;
+    panOnly.setPan(32);
+
+    const NoteColumnModel::LineList lines {
+        std::make_shared<Line>(0),
+        std::make_shared<Line>(1, noteOn),
+        std::make_shared<Line>(2, noteOff),
+        std::make_shared<Line>(3, panOnly)
+    };
+
+    NoteData ghostNoteOn;
+    ghostNoteOn.setAsNoteOn(64, 90);
+    const NoteColumnModel::LineList prevLines {
+        std::make_shared<Line>(0),
+        std::make_shared<Line>(1, ghostNoteOn)
+    };
+    const NoteColumnModel::LineList nextLines {
+        std::make_shared<Line>(0),
+        std::make_shared<Line>(1, noteOff)
+    };
+
+    column.model.setColumnData(lines);
+    column.model.setGhostData(prevLines, nextLines);
+    column.model.setLineFocused(1, 2);
+
+    bool sawGhostRow = false;
+    bool sawFocusedRow = false;
+    bool sawActiveRow = false;
+
+    for (int row = 0; row < column.model.rowCount(); row++) {
+        const QModelIndex idx = column.model.index(row, 0);
+        const auto paintData = column.model.rowPaintData(row);
+
+        QCOMPARE(paintData.isVirtualRow, column.model.data(idx, static_cast<int>(NoteColumnModel::DataRole::IsVirtualRow)).toBool());
+        QCOMPARE(paintData.isGhostRow, column.model.data(idx, static_cast<int>(NoteColumnModel::DataRole::IsGhostRow)).toBool());
+
+        if (!paintData.isVirtualRow || paintData.isGhostRow) {
+            QCOMPARE(paintData.bgColor, qvariant_cast<QColor>(column.model.data(idx, static_cast<int>(NoteColumnModel::DataRole::Color))));
+            QCOMPARE(paintData.lineText, column.model.data(idx, static_cast<int>(NoteColumnModel::DataRole::Line)).toString());
+            const QString noteText = column.model.data(idx, static_cast<int>(NoteColumnModel::DataRole::Note)).toString();
+            QCOMPARE(paintData.hasNote, noteText != "" && noteText != "---");
+            QCOMPARE(paintData.isFocused, column.model.data(idx, static_cast<int>(NoteColumnModel::DataRole::IsFocused)).toBool());
+            QCOMPARE(paintData.lineColumn, column.model.data(idx, static_cast<int>(NoteColumnModel::DataRole::LineColumn)).toInt());
+
+            sawGhostRow = sawGhostRow || paintData.isGhostRow;
+            sawActiveRow = sawActiveRow || !paintData.isVirtualRow;
+            sawFocusedRow = sawFocusedRow || paintData.isFocused;
+        }
+    }
+
+    QVERIFY(sawGhostRow);
+    QVERIFY(sawActiveRow);
+    QVERIFY(sawFocusedRow);
+
+    QImage first { imageWidth, imageHeight, QImage::Format_ARGB32 };
+    first.fill(Qt::black);
+    QPainter p1 { &first };
+    column.renderer.paint(&p1);
+    p1.end();
+
+    QImage second { imageWidth, imageHeight, QImage::Format_ARGB32 };
+    second.fill(Qt::black);
+    QPainter p2 { &second };
+    column.renderer.paint(&p2);
+    p2.end();
+
+    QCOMPARE(first, second);
+}
+
 } // namespace noteahead
 
 QTEST_MAIN(noteahead::NoteColumnRendererTest)

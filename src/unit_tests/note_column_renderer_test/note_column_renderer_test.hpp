@@ -42,6 +42,7 @@ private slots:
     void test_setHoverPosition_onTrace_shouldHoverCurve();
     void test_setHoverPosition_awayFromTrace_shouldClearHover();
     void test_setAutomationDisplayMode_tint_shouldClearHover();
+    void test_rowPaintData_shouldMatchModelRoles();
 };
 
 } // namespace noteahead

@@ -23,7 +23,9 @@
 #include "../service/automation_service.hpp"
 
 #include <QAbstractListModel>
+#include <QColor>
 #include <QObject>
+#include <QString>
 
 namespace noteahead {
 
@@ -63,6 +65,19 @@ public:
     int rowCount(const QModelIndex & parent = QModelIndex()) const override;
     QVariant data(const QModelIndex & index, int role = Qt::DisplayRole) const override;
     QHash<int, QByteArray> roleNames() const override;
+
+    struct RowPaintData
+    {
+        bool isVirtualRow { false };
+        bool isGhostRow { false };
+        bool isFocused { false };
+        bool hasNote { false };
+        int lineColumn { 0 };
+        QColor bgColor;
+        QString lineText;
+    };
+
+    RowPaintData rowPaintData(int row) const;
 
     using LineS = std::shared_ptr<Line>;
     using LineList = std::vector<LineS>;

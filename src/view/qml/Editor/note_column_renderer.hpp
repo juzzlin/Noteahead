@@ -17,6 +17,7 @@
 #define NOTE_COLUMN_RENDERER_HPP
 
 #include <QColor>
+#include <QFont>
 #include <QList>
 #include <QPointer>
 #include <QPolygonF>
@@ -178,6 +179,13 @@ private:
     //! Repaints only the rows a dataChanged() covers. A cursor move touches one row, so it no
     //! longer costs a repaint and texture upload of the whole column.
     void updateRows(int firstRow, int lastRow);
+
+    QFont m_cachedFont;
+    int m_cachedFontPixelSize { -1 };
+    qreal m_cachedCharWidth { 0.0 };
+    qreal m_cachedFontAscent { 0.0 };
+    qreal m_cachedFontDescent { 0.0 };
+    qreal m_cachedFontHeight { 0.0 };
 };
 
 } // namespace noteahead

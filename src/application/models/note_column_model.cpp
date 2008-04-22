@@ -25,6 +25,16 @@
 
 namespace noteahead {
 
+namespace {
+
+const QString & emptyLineString()
+{
+    static const QString text { QStringLiteral("--- --- -- ---") };
+    return text;
+}
+
+} // namespace
+
 NoteColumnModel::NoteColumnModel(ColumnAddressCR columnAddress, EditorServiceS editorService, NoteColumnLineContainerHelperS helper, SettingsServiceS settingsService, QObject * parent)
   : QAbstractListModel { parent }
   , m_columnAddress { columnAddress }
@@ -97,6 +107,9 @@ QString NoteColumnModel::displayPan(const Line & line) const
 
 QString NoteColumnModel::displayLine(const Line & line) const
 {
+    if (const auto noteData = line.noteData(); noteData->type() == NoteData::Type::None && !noteData->pan().has_value()) {
+        return emptyLineString();
+    }
     return displayNote(line) + " " + displayVelocity(line) + " " + displayDelay(line) + " " + displayPan(line);
 }
 
@@ -270,6 +283,65 @@ QVariant NoteColumnModel::data(const QModelIndex & index, int role) const
         }
     }
     return {};
+}
+
+NoteColumnModel::RowPaintData NoteColumnModel::rowPaintData(int row) const
+{
+    const auto virtualRow = [] {
+        RowPaintData data;
+        data.isVirtualRow = true;
+        return data;
+    };
+
+    if (row < 0 || row >= rowCount()) {
+        return virtualRow();
+    }
+
+    const int shiftedIndex = row - static_cast<int>(m_editorService->positionBarLine());
+    if (shiftedIndex < 0) {
+        if (const int ghostIndex = static_cast<int>(m_previousLines.size()) + shiftedIndex; ghostIndex >= 0 && ghostIndex < static_cast<int>(m_previousLines.size())) {
+            const auto & line = *m_previousLines.at(static_cast<size_t>(ghostIndex));
+            return {
+                .isVirtualRow = true,
+                .isGhostRow = true,
+                .isFocused = false,
+                .hasNote = line.noteData()->type() != NoteData::Type::None,
+                .lineColumn = 0,
+                .bgColor = QColor { "#0d0d0d" },
+                .lineText = displayLine(line),
+            };
+        }
+        return virtualRow();
+    }
+
+    if (shiftedIndex >= static_cast<int>(m_lines.size())) {
+        if (const int ghostIndex = shiftedIndex - static_cast<int>(m_lines.size()); ghostIndex >= 0 && ghostIndex < static_cast<int>(m_nextLines.size())) {
+            const auto & line = *m_nextLines.at(static_cast<size_t>(ghostIndex));
+            return {
+                .isVirtualRow = true,
+                .isGhostRow = true,
+                .isFocused = false,
+                .hasNote = line.noteData()->type() != NoteData::Type::None,
+                .lineColumn = 0,
+                .bgColor = QColor { "#0d0d0d" },
+                .lineText = displayLine(line),
+            };
+        }
+        return virtualRow();
+    }
+
+    const auto & line = *m_lines.at(static_cast<size_t>(shiftedIndex));
+    const auto focusIt = m_focusedLines.find(static_cast<size_t>(row));
+    const bool isFocused = focusIt != m_focusedLines.end();
+    return {
+        .isVirtualRow = false,
+        .isGhostRow = false,
+        .isFocused = isFocused,
+        .hasNote = line.noteData()->type() != NoteData::Type::None,
+        .lineColumn = isFocused ? static_cast<int>(focusIt->second) : 0,
+        .bgColor = qvariant_cast<QColor>(lineColor(static_cast<size_t>(shiftedIndex))),
+        .lineText = displayLine(line),
+    };
 }
 
 QHash<int, QByteArray> NoteColumnModel::roleNames() const

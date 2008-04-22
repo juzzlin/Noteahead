@@ -19,6 +19,7 @@
 #include "../../../common/constants.hpp"
 
 #include <QAbstractListModel>
+#include <QFontMetricsF>
 #include <QPainter>
 
 #include <algorithm>
@@ -462,47 +463,87 @@ void NoteColumnRenderer::paint(QPainter * painter)
     const int startRow = this->startRow();
     const int endRow = this->endRow();
 
-    QFont font;
-    font.setFamily("monospace");
-    font.setPixelSize(rowHeight * 0.8);
-    painter->setFont(font);
+    const int pixelSize = static_cast<int>(rowHeight * 0.8);
+    if (pixelSize != m_cachedFontPixelSize) {
+        m_cachedFont = QFont {};
+        m_cachedFont.setFamily("monospace");
+        m_cachedFont.setPixelSize(pixelSize);
+        const QFontMetricsF fm { m_cachedFont };
+        m_cachedCharWidth = fm.horizontalAdvance("0");
+        m_cachedFontAscent = fm.ascent();
+        m_cachedFontDescent = fm.descent();
+        m_cachedFontHeight = fm.height();
+        m_cachedFontPixelSize = pixelSize;
+    }
+    painter->setFont(m_cachedFont);
 
-    const QFontMetricsF fm { font };
-    const qreal charWidth = fm.horizontalAdvance("0");
+    const qreal charWidth = m_cachedCharWidth;
     const qreal totalTextWidth = charWidth * 14;
     const qreal textX = (width() - totalTextWidth) / 2.0;
+    const qreal textYOffset = (rowHeight + m_cachedFontAscent - m_cachedFontDescent) / 2.0;
+    const qreal focusYOffset = (rowHeight - m_cachedFontHeight) / 2.0;
+
+    QColor focusColor = m_cursorColor;
+    focusColor.setAlphaF(0.5); // Half-transparent, so the note under the cursor stays readable
+    QColor currentPenColor;
+
+    const auto * noteModel = qobject_cast<const NoteColumnModel *>(m_model.data());
 
     for (int i = startRow; i < endRow; ++i) {
-        const QModelIndex idx = m_model->index(i, 0);
-        if (!idx.isValid()) {
-            continue;
+        bool isGhostRow = false;
+        bool isFocused = false;
+        bool hasNote = false;
+        int lineColumn = 0;
+        QColor bgColor;
+        QString lineText;
+
+        if (noteModel) {
+            const auto rowData = noteModel->rowPaintData(i);
+            if (rowData.isVirtualRow && !rowData.isGhostRow) {
+                continue;
+            }
+            isGhostRow = rowData.isGhostRow;
+            isFocused = rowData.isFocused;
+            hasNote = rowData.hasNote;
+            lineColumn = rowData.lineColumn;
+            bgColor = rowData.bgColor;
+            lineText = rowData.lineText;
+        } else {
+            const QModelIndex idx = m_model->index(i, 0);
+            if (!idx.isValid()) {
+                continue;
+            }
+
+            const bool isVirtualRow = m_model->data(idx, static_cast<int>(NoteColumnModel::DataRole::IsVirtualRow)).toBool();
+            isGhostRow = m_model->data(idx, static_cast<int>(NoteColumnModel::DataRole::IsGhostRow)).toBool();
+            if (isVirtualRow && !isGhostRow) {
+                continue;
+            }
+
+            bgColor = qvariant_cast<QColor>(m_model->data(idx, static_cast<int>(NoteColumnModel::DataRole::Color)));
+            lineText = m_model->data(idx, static_cast<int>(NoteColumnModel::DataRole::Line)).toString();
+            const QString noteText = m_model->data(idx, static_cast<int>(NoteColumnModel::DataRole::Note)).toString();
+            hasNote = noteText != "" && noteText != "---";
+            if (!isGhostRow) {
+                isFocused = m_model->data(idx, static_cast<int>(NoteColumnModel::DataRole::IsFocused)).toBool();
+                if (isFocused) {
+                    lineColumn = m_model->data(idx, static_cast<int>(NoteColumnModel::DataRole::LineColumn)).toInt();
+                }
+            }
         }
 
-        const bool isVirtualRow = m_model->data(idx, static_cast<int>(NoteColumnModel::DataRole::IsVirtualRow)).toBool();
-        const bool isGhostRow = m_model->data(idx, static_cast<int>(NoteColumnModel::DataRole::IsGhostRow)).toBool();
-        if (isVirtualRow && !isGhostRow) {
-            continue;
-        }
-
-        const QColor bgColor = qvariant_cast<QColor>(m_model->data(idx, static_cast<int>(NoteColumnModel::DataRole::Color)));
         const qreal y = (i - m_scrollOffset) * rowHeight;
 
         // Background
         painter->fillRect(QRectF(0, y, width(), rowHeight), bgColor);
 
         // Text
-        const QString lineText = m_model->data(idx, static_cast<int>(NoteColumnModel::DataRole::Line)).toString();
-        const QString noteText = m_model->data(idx, static_cast<int>(NoteColumnModel::DataRole::Note)).toString();
-        QColor rowTextColor;
-        if (isGhostRow) {
-            rowTextColor = m_textColorGhost; // Dim gray so the neighboring pattern reads as a subordinate glimpse
-        } else {
-            rowTextColor = (noteText != "" && noteText != "---") ? m_textColor : m_textColorEmpty;
+        const QColor & rowTextColor = isGhostRow ? m_textColorGhost : (hasNote ? m_textColor : m_textColorEmpty);
+        if (!currentPenColor.isValid() || rowTextColor != currentPenColor) {
+            painter->setPen(rowTextColor);
+            currentPenColor = rowTextColor;
         }
-
-        painter->setPen(rowTextColor);
-        const qreal textY = y + (rowHeight + fm.ascent() - fm.descent()) / 2.0;
-        painter->drawText(QPointF(textX, textY), lineText);
+        painter->drawText(QPointF(textX, y + textYOffset), lineText);
 
         // Ghost rows are a non-interactive preview: never draw the focus overlay
         if (isGhostRow) {
@@ -510,9 +551,7 @@ void NoteColumnRenderer::paint(QPainter * painter)
         }
 
         // Focus
-        const bool isFocused = m_model->data(idx, static_cast<int>(NoteColumnModel::DataRole::IsFocused)).toBool();
         if (isFocused) {
-            const int lineColumn = m_model->data(idx, static_cast<int>(NoteColumnModel::DataRole::LineColumn)).toInt();
             qreal focusX = textX;
             qreal focusWidth = charWidth;
 
@@ -526,9 +565,7 @@ void NoteColumnRenderer::paint(QPainter * painter)
                 focusX = textX + (5 + lineColumn) * charWidth;
             }
 
-            QColor focusColor = m_cursorColor;
-            focusColor.setAlphaF(0.5); // Half-transparent, so the note under the cursor stays readable
-            painter->fillRect(QRectF(focusX, y + (rowHeight - fm.height()) / 2.0, focusWidth, fm.height()), focusColor);
+            painter->fillRect(QRectF(focusX, y + focusYOffset, focusWidth, m_cachedFontHeight), focusColor);
         }
     }
 
