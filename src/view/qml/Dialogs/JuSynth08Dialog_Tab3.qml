@@ -27,7 +27,7 @@ ScrollView {
         columnSpacing: 20
         width: parent.width - 20
 
-        JuSynth08Dialog_Env1 {
+        JuSynth08Dialog_Vca {
             Layout.preferredWidth: moduleWidth
             Layout.fillWidth: true
             Layout.alignment: Qt.AlignTop
@@ -37,7 +37,7 @@ ScrollView {
             Layout.fillWidth: true
             Layout.alignment: Qt.AlignTop
         }
-        JuSynth08Dialog_Vca {
+        JuSynth08Dialog_Delay {
             Layout.preferredWidth: moduleWidth
             Layout.fillWidth: true
             Layout.alignment: Qt.AlignTop

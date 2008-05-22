@@ -66,6 +66,11 @@ void AdsrEnvelope::setCurve(double curve)
     m_curve = std::clamp(curve, 0.0, 1.0);
 }
 
+void AdsrEnvelope::setAttackCurve(double curve)
+{
+    m_attackCurve = std::clamp(curve, 0.0, 1.0);
+}
+
 void AdsrEnvelope::setSampleRate(double sampleRate)
 {
     if (std::abs(m_sampleRate - sampleRate) < 0.1) {
@@ -131,7 +136,7 @@ double AdsrEnvelope::nextSample()
                 m_currentLevel = 0.0;
             }
         } else {
-            const double shaped = shape(m_phase);
+            const double shaped = shape(m_phase, m_state == State::Attack ? m_attackCurve.value_or(m_curve) : m_curve);
             // The attack rises into its target and the other two fall away from their start, so the
             // same shaping function bends one concave and the other convex.
             m_currentLevel = m_state == State::Attack
@@ -210,9 +215,9 @@ double AdsrEnvelope::segmentDuration(State state) const
     }
 }
 
-double AdsrEnvelope::shape(double phase) const
+double AdsrEnvelope::shape(double phase, double curve) const
 {
-    const double curvature = m_curve * MaxCurvature;
+    const double curvature = curve * MaxCurvature;
     if (curvature < 1.0e-6) {
         return phase;
     }

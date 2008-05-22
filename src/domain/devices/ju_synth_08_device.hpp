@@ -21,6 +21,7 @@
 #include "../dsp/lfo.hpp"
 #include "../dsp/one_pole_filter.hpp"
 #include "../dsp/ota_ladder_filter.hpp"
+#include "../dsp/upsampler.hpp"
 #include "device.hpp"
 
 #include <array>
@@ -408,6 +409,7 @@ private:
     double m_lfoDelayElapsed { 0.0 };
 
     std::array<DcBlocker, 2> m_dcBlockers;
+    std::array<Decimator, 2> m_decimators;
 
     std::vector<float> m_delayBufferL;
     std::vector<float> m_delayBufferR;

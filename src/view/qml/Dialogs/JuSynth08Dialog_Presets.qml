@@ -55,4 +55,11 @@ RowLayout {
         enabled: juSynth08Controller.currentPresetIsUserPreset
         onClicked: UiService.requestDeleteConfirmation(juSynth08Controller, juSynth08Controller.currentPresetIndex)
     }
+
+    SectionHeading {
+        text: qsTr("An eight-voice polysynth after the Jupiter-8")
+        Layout.fillWidth: true
+        horizontalAlignment: Text.AlignRight
+        elide: Text.ElideRight
+    }
 }

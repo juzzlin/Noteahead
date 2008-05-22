@@ -206,6 +206,103 @@ void JuSynth08Test::test_advanceIdle_shouldKeepTheLfoRunning()
     QVERIFY2(std::abs(ledAfterSilence(true) - rendered) < 1.0e-3f, qPrintable(QString::number(ledAfterSilence(true))));
 }
 
+namespace {
+
+//! Holds @p note for @p seconds and returns the mono mix.
+std::vector<double> renderHeldNote(JuSynth08Device & synth, uint8_t note, double seconds)
+{
+    constexpr uint32_t sampleRate { 48000 };
+    constexpr size_t block { 256 };
+    const auto blocks = static_cast<size_t>(seconds * sampleRate) / block;
+    std::vector<double> mono;
+    std::vector<double> buffer(block * 2);
+    synth.processDeviceMidiNoteOn(note, 100);
+    for (size_t i = 0; i < blocks; i++) {
+        std::fill(buffer.begin(), buffer.end(), 0.0);
+        AudioContext context { .buffer = buffer, .frameCount = block, .sampleRate = sampleRate };
+        synth.processAudio(context);
+        for (size_t frame = 0; frame < block; frame++) {
+            mono.push_back(0.5 * (buffer[frame * 2] + buffer[frame * 2 + 1]));
+        }
+    }
+    return mono;
+}
+
+double rms(const std::vector<double> & samples, size_t from, size_t to)
+{
+    double sum = 0.0;
+    for (size_t i = from; i < to; i++) {
+        sum += samples[i] * samples[i];
+    }
+    return std::sqrt(sum / static_cast<double>(to - from));
+}
+
+double peak(const std::vector<double> & samples)
+{
+    return std::ranges::max(samples, {}, [](double sample) { return std::abs(sample); });
+}
+
+} // namespace
+
+void JuSynth08Test::test_unisonNoteOn_shouldNotSpikeOnTheAttack()
+{
+    // Eight detuned voices started in step summed to a spike some 35 dB over the note they settle into
+    JuSynth08Device synth;
+    synth.setSampleRate(48000.0);
+    synth.setVoiceMode(static_cast<int>(JuSynth08Device::VoiceMode::Unison));
+    synth.setUnisonDetune(0.2f);
+    const auto mono = renderHeldNote(synth, 48, 1.0);
+    const double crest = std::abs(peak(mono)) / rms(mono, mono.size() / 2, mono.size());
+    QVERIFY2(crest < 4.0, qPrintable(QString::number(crest)));
+}
+
+void JuSynth08Test::test_envMod_closedEnvelope_shouldLeaveTheCutoffAtTheKnob()
+{
+    // The envelope opens the filter from where the knob is: once it has decayed to nothing the
+    // voice sounds as it does with no env mod at all, not two octaves darker
+    const auto sustainedRms = [](float envMod) {
+        JuSynth08Device synth;
+        synth.setSampleRate(48000.0);
+        synth.setLpfCutoff(0.5f);
+        synth.setEnvMod(envMod);
+        synth.setEnv1Attack(0.0f);
+        synth.setEnv1Decay(0.0f);
+        synth.setEnv1Sustain(0.0f);
+        const auto mono = renderHeldNote(synth, 48, 1.0);
+        return rms(mono, mono.size() / 2, mono.size());
+    };
+    const double db = 20.0 * std::log10(sustainedRms(0.5f) / sustainedRms(0.0f));
+    QVERIFY2(std::abs(db) < 1.0, qPrintable(QString::number(db)));
+}
+
+void JuSynth08Test::test_presets_heldNote_shouldBeAudibleAndUnclipped()
+{
+    const auto & presets = JuSynth08Presets::presets();
+    for (size_t i = 0; i < presets.size(); i++) {
+        JuSynth08Device synth;
+        synth.setSampleRate(48000.0);
+        synth.loadPreset(static_cast<int>(i));
+        const double db = 20.0 * std::log10(std::abs(peak(renderHeldNote(synth, 60, 1.0))));
+        QVERIFY2(db > -40.0 && db < -3.0, qPrintable(QString::fromStdString(presets[i].name) + ": " + QString::number(db)));
+    }
+}
+
+void JuSynth08Test::test_initPreset_heldNote_shouldPlayAtConcertPitch()
+{
+    // Both bipolar controls sit at half travel after a reset. Read as unipolar, that put the pitch
+    // envelope at +12 semitones and VCO 2 25 cents sharp on every preset.
+    JuSynth08Device synth { "p" };
+    synth.loadPreset(0);
+    const auto mono = renderHeldNote(synth, 69, 2.0);
+    const size_t from = mono.size() / 2;
+    size_t rises = 0;
+    for (size_t i = from + 1; i < mono.size(); i++) {
+        rises += mono[i - 1] < 0.0 && mono[i] >= 0.0;
+    }
+    const double hz = static_cast<double>(rises) * 48000.0 / static_cast<double>(mono.size() - from);
+    QVERIFY2(std::abs(hz - 440.0) < 2.0, qPrintable(QString::number(hz)));
+}
+
 void JuSynth08Test::test_xmlSerialization()
 {
     JuSynth08Device synth { "JuSynth08Source" };

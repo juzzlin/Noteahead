@@ -30,25 +30,10 @@ ColumnLayout {
         text: qsTr("VCO 2")
         Layout.topMargin: 10
     }
+    // Wave and footage side by side, as in the Synth: both read for themselves without a label
     RowLayout {
         Layout.fillWidth: true
         Layout.bottomMargin: Constants.dropDownBottomMargin
-        Label {
-            text: qsTr("Range")
-        }
-        ComboBox {
-            model: ["16'", "8'", "4'", "2'", "Low"]
-            currentIndex: juSynth08Controller.vco2Range
-            onActivated: i => juSynth08Controller.vco2Range = i
-            Layout.fillWidth: true
-        }
-    }
-    RowLayout {
-        Layout.fillWidth: true
-        Layout.bottomMargin: Constants.dropDownBottomMargin
-        Label {
-            text: qsTr("Waveform")
-        }
         ComboBox {
             model: {
                 languageService.activeLanguage;
@@ -58,10 +43,16 @@ ColumnLayout {
             onActivated: i => juSynth08Controller.vco2Waveform = i
             Layout.fillWidth: true
         }
+        ComboBox {
+            model: ["16'", "8'", "4'", "2'", qsTr("Low")]
+            currentIndex: juSynth08Controller.vco2Range
+            onActivated: i => juSynth08Controller.vco2Range = i
+            Layout.fillWidth: true
+        }
     }
     Knob {
         label: qsTr("Fine Tune")
-        suffix: "cents"
+        suffix: "c"
         mapMin: -50
         mapMax: 50
         value: juSynth08Controller.vco2FineTune
@@ -69,7 +60,7 @@ ColumnLayout {
         Layout.fillWidth: true
     }
     CheckBox {
-        text: qsTr("Sync (Lock to VCO 1)")
+        text: qsTr("Sync")
         checked: juSynth08Controller.sync
         onToggled: juSynth08Controller.sync = checked
         Layout.fillWidth: true
@@ -78,6 +69,17 @@ ColumnLayout {
         label: qsTr("Level")
         value: juSynth08Controller.vco2Level
         onMoved: v => juSynth08Controller.vco2Level = v
+        Layout.fillWidth: true
+    }
+    // The third source of the mixer, beside the two VCOs rather than after the VCA
+    SectionHeading {
+        text: qsTr("Noise")
+        Layout.topMargin: 10
+    }
+    Knob {
+        label: qsTr("Level")
+        value: juSynth08Controller.noiseLevel
+        onMoved: v => juSynth08Controller.noiseLevel = v
         Layout.fillWidth: true
     }
 }

@@ -40,6 +40,7 @@ private slots:
     void test_curve_fullDecay_shouldFallFasterThanLinear();
     void test_curve_fullDecay_shouldReachSustainAtSameTime();
     void test_curve_fullAttack_shouldRiseFasterThanLinear();
+    void test_attackCurve_zero_shouldKeepTheAttackStraightUnderACurve();
 };
 
 } // namespace noteahead

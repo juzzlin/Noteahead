@@ -31,12 +31,6 @@ ColumnLayout {
         Layout.topMargin: 10
     }
     Knob {
-        label: qsTr("Cross Mod (FM)")
-        value: juSynth08Controller.crossMod
-        onMoved: v => juSynth08Controller.crossMod = v
-        Layout.fillWidth: true
-    }
-    Knob {
         label: qsTr("LFO Mod")
         value: juSynth08Controller.pitchLfoDepth
         onMoved: v => juSynth08Controller.pitchLfoDepth = v
@@ -44,16 +38,20 @@ ColumnLayout {
     }
     Knob {
         label: qsTr("Env Mod")
+        mapMin: -24
+        mapMax: 24
+        suffix: "st"
         value: juSynth08Controller.pitchEnvDepth
         onMoved: v => juSynth08Controller.pitchEnvDepth = v
         Layout.fillWidth: true
     }
+    // Label over the box: beside it, a quarter of the row leaves the box too narrow for its text
+    Label {
+        text: qsTr("Env Target")
+    }
     RowLayout {
         Layout.fillWidth: true
         Layout.bottomMargin: Constants.dropDownBottomMargin
-        Label {
-            text: qsTr("Env Target")
-        }
         ComboBox {
             model: {
                 languageService.activeLanguage;
@@ -64,12 +62,12 @@ ColumnLayout {
             Layout.fillWidth: true
         }
     }
+    Label {
+        text: qsTr("PWM Source")
+    }
     RowLayout {
         Layout.fillWidth: true
         Layout.bottomMargin: Constants.dropDownBottomMargin
-        Label {
-            text: qsTr("PWM Source")
-        }
         ComboBox {
             model: {
                 languageService.activeLanguage;

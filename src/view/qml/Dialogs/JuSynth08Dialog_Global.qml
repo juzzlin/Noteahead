@@ -57,6 +57,8 @@ ColumnLayout {
         label: qsTr("Portamento")
         value: juSynth08Controller.portamento
         onMoved: v => juSynth08Controller.portamento = v
+        // Poly voices start on their own notes; only the solo voice and the unison stack glide
+        enabled: juSynth08Controller.voiceMode !== 0
         Layout.fillWidth: true
     }
     Knob {

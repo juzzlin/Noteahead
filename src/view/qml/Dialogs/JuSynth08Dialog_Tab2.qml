@@ -23,17 +23,22 @@ ScrollView {
     property real moduleWidth: 0
 
     GridLayout {
-        columns: 2
+        columns: 3
         columnSpacing: 20
         width: parent.width - 20
 
         JuSynth08Dialog_Hpf {
-            Layout.preferredWidth: moduleWidth * 1.5
+            Layout.preferredWidth: moduleWidth
             Layout.fillWidth: true
             Layout.alignment: Qt.AlignTop
         }
         JuSynth08Dialog_Vcf {
-            Layout.preferredWidth: moduleWidth * 1.5
+            Layout.preferredWidth: moduleWidth
+            Layout.fillWidth: true
+            Layout.alignment: Qt.AlignTop
+        }
+        JuSynth08Dialog_Env1 {
+            Layout.preferredWidth: moduleWidth
             Layout.fillWidth: true
             Layout.alignment: Qt.AlignTop
         }

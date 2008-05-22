@@ -59,31 +59,24 @@ double OtaLadderFilter::process(double input)
     const double stateShare = 1.0 / (1.0 + m_g);
     const double compensated = input * (1.0 + BassCompensation * m_feedback);
 
-    if (m_slope == Slope::Slope12dB) {
-        const double fromStates = (G * m_state[0] + m_state[1]) * stateShare;
-        const double ladderInput = std::tanh((compensated - m_feedback * fromStates) / (1.0 + m_feedback * G * G));
-
-        double value = ladderInput;
-        for (int i = 0; i < 2; ++i) {
-            const double v = (value - m_state[i]) * G;
-            value = v + m_state[i];
-            m_state[i] = value + v;
-        }
-        return value;
-    }
-
     // Each stage is y = G x + s / (1 + g), so the last one is G^4 times the ladder's input plus
     // what the four states contribute. Solving the loop for its input takes no delay at all.
     const double fromStates = (G * G * G * m_state[0] + G * G * m_state[1] + G * m_state[2] + m_state[3]) * stateShare;
     const double ladderInput = std::tanh((compensated - m_feedback * fromStates) / (1.0 + m_feedback * G * G * G * G));
 
+    // The 12 dB mode taps the second stage, as the Jupiter-8 does: the feedback still goes round all
+    // four, which is what makes the resonance. Two poles alone cannot turn the phase far enough.
     double value = ladderInput;
-    for (auto && state : m_state) {
-        const double v = (value - state) * G;
-        value = v + state;
-        state = value + v;
+    double secondStage = 0.0;
+    for (size_t i = 0; i < m_state.size(); i++) {
+        const double v = (value - m_state[i]) * G;
+        value = v + m_state[i];
+        m_state[i] = value + v;
+        if (i == 1) {
+            secondStage = value;
+        }
     }
-    return value;
+    return m_slope == Slope::Slope12dB ? secondStage : value;
 }
 
 void OtaLadderFilter::reset()

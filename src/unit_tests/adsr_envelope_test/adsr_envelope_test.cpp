@@ -207,6 +207,18 @@ void AdsrEnvelopeTest::test_curve_fullAttack_shouldRiseFasterThanLinear()
     QCOMPARE(envelope.state(), AdsrEnvelope::State::Attack);
 }
 
+void AdsrEnvelopeTest::test_attackCurve_zero_shouldKeepTheAttackStraightUnderACurve()
+{
+    auto envelope = makeEnvelope(1.0);
+    envelope.setAttackTime(LongAttackSeconds);
+    envelope.setCurve(1.0);
+    envelope.setAttackCurve(0.0);
+    envelope.trigger();
+    advance(envelope, LongAttackSeconds * 0.5);
+
+    QVERIFY(std::abs(envelope.value() - 0.5) < 0.01);
+}
+
 void AdsrEnvelopeTest::test_hold_zero_shouldNotDelayTheDecay()
 {
     // The default, and the whole reason it is the default: an envelope that never sets a hold has

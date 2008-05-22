@@ -69,6 +69,14 @@ void OtaLadderFilterTest::test_process_twoOctavesAbove_shouldBeDownBy12DbPerOcta
     QVERIFY2(db < -20.0 && db > -30.0, qPrintable(QString::number(db)));
 }
 
+void OtaLadderFilterTest::test_resonance_raised_shouldPeakAtTheCutoffIn12DbMode()
+{
+    // The loop goes round all four poles whichever stage is tapped, so the 12 dB mode resonates too
+    constexpr auto slope = OtaLadderFilter::Slope::Slope12dB;
+    const double db = 20.0 * std::log10(gainAt(1000.0, 0.75, 1000.0, slope) / gainAt(1000.0, 0.75, 250.0, slope));
+    QVERIFY2(db > 6.0, qPrintable(QString::number(db)));
+}
+
 void OtaLadderFilterTest::test_resonance_full_shouldSelfOscillateAtTheCutoff()
 {
     OtaLadderFilter filter;

@@ -32,6 +32,10 @@ private slots:
     void test_crossModulationFm();
     void test_presetLoadingDoesNotDeadlock();
     void test_advanceIdle_shouldKeepTheLfoRunning();
+    void test_unisonNoteOn_shouldNotSpikeOnTheAttack();
+    void test_envMod_closedEnvelope_shouldLeaveTheCutoffAtTheKnob();
+    void test_presets_heldNote_shouldBeAudibleAndUnclipped();
+    void test_initPreset_heldNote_shouldPlayAtConcertPitch();
     void test_xmlSerialization();
 };
 

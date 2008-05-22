@@ -82,6 +82,9 @@ AnimatedDialog {
             readonly property real sidebarWidth: parent.width * 0.18
             readonly property real synthAreaWidth: parent.width - sidebarWidth - separator.width - 20
             readonly property real moduleWidth: (synthAreaWidth - (20 * 2) - 30) / 3
+            // The oscillator tab puts four modules on one row, LFO to VCO 2 as on the Jupiter-8's
+            // panel, so it divides the same width by four. See SynthDialog.qml.
+            readonly property real vcoModuleWidth: (synthAreaWidth - (20 * 3) - 30) / 4
 
             // Fixed Sidebar: Global settings
             ScrollView {
@@ -121,7 +124,7 @@ AnimatedDialog {
                     Layout.bottomMargin: 10
 
                     JuSynth08Dialog_Tab1 {
-                        moduleWidth: mainRow.moduleWidth
+                        moduleWidth: mainRow.vcoModuleWidth
                     }
 
                     JuSynth08Dialog_Tab2 {
@@ -129,10 +132,6 @@ AnimatedDialog {
                     }
 
                     JuSynth08Dialog_Tab3 {
-                        moduleWidth: mainRow.moduleWidth
-                    }
-
-                    JuSynth08Dialog_Tab4 {
                         moduleWidth: mainRow.moduleWidth
                     }
                 }
@@ -147,10 +146,7 @@ AnimatedDialog {
                         text: qsTr("Filter")
                     }
                     AppTabButton {
-                        text: qsTr("Envelopes & VCA")
-                    }
-                    AppTabButton {
-                        text: qsTr("LFO & Delay")
+                        text: qsTr("Amp / Delay")
                     }
                 }
             }

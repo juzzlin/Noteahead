@@ -30,25 +30,10 @@ ColumnLayout {
         text: qsTr("VCO 1")
         Layout.topMargin: 10
     }
+    // Wave and footage side by side, as in the Synth: both read for themselves without a label
     RowLayout {
         Layout.fillWidth: true
         Layout.bottomMargin: Constants.dropDownBottomMargin
-        Label {
-            text: qsTr("Range")
-        }
-        ComboBox {
-            model: ["16'", "8'", "4'", "2'"]
-            currentIndex: juSynth08Controller.vco1Range
-            onActivated: i => juSynth08Controller.vco1Range = i
-            Layout.fillWidth: true
-        }
-    }
-    RowLayout {
-        Layout.fillWidth: true
-        Layout.bottomMargin: Constants.dropDownBottomMargin
-        Label {
-            text: qsTr("Waveform")
-        }
         ComboBox {
             model: {
                 languageService.activeLanguage;
@@ -58,6 +43,18 @@ ColumnLayout {
             onActivated: i => juSynth08Controller.vco1Waveform = i
             Layout.fillWidth: true
         }
+        ComboBox {
+            model: ["16'", "8'", "4'", "2'"]
+            currentIndex: juSynth08Controller.vco1Range
+            onActivated: i => juSynth08Controller.vco1Range = i
+            Layout.fillWidth: true
+        }
+    }
+    Knob {
+        label: qsTr("Cross Mod (FM)")
+        value: juSynth08Controller.crossMod
+        onMoved: v => juSynth08Controller.crossMod = v
+        Layout.fillWidth: true
     }
     Knob {
         label: qsTr("Level")

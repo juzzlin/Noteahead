@@ -110,7 +110,6 @@ set(QML_SOURCE_FILES
     ${QML_BASE_DIR}/Dialogs/JuSynth08Dialog_Tab1.qml
     ${QML_BASE_DIR}/Dialogs/JuSynth08Dialog_Tab2.qml
     ${QML_BASE_DIR}/Dialogs/JuSynth08Dialog_Tab3.qml
-    ${QML_BASE_DIR}/Dialogs/JuSynth08Dialog_Tab4.qml
     ${QML_BASE_DIR}/Dialogs/JuSynth08Dialog_Vco1.qml
     ${QML_BASE_DIR}/Dialogs/JuSynth08Dialog_Vco2.qml
     ${QML_BASE_DIR}/Dialogs/JuSynth08Dialog_VcoMod.qml

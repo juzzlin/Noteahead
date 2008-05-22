@@ -17,6 +17,7 @@
 #define ADSR_ENVELOPE_HPP
 
 #include <cstdint>
+#include <optional>
 
 #include "dsp_component.hpp"
 
@@ -55,6 +56,10 @@ public:
     //! halfway through, where a real string is some 20 dB down, and then it falls off a cliff at the
     //! end instead of ringing out — which is why a linear envelope reads as a fade, not an attack.
     void setCurve(double curve);
+    //! Bend of the attack alone, 0..1, when it should differ from the other segments. An analog
+    //! attack charges toward a level above its peak and is cut off there, so it rises far straighter
+    //! than its decay falls. Unset, the attack takes the bend of the others.
+    void setAttackCurve(double curve);
 
     void setSampleRate(double sampleRate) override;
 
@@ -92,6 +97,7 @@ private:
     double m_sustainLevel { 1.0 };
     double m_releaseTime { 0.1 };
     double m_curve { 0.0 };
+    std::optional<double> m_attackCurve;
 
     double m_currentLevel { 0.0 };
 
@@ -111,7 +117,7 @@ private:
 
     //! Progress 0..1 mapped through the curve, normalised so the segment still lands exactly on its
     //! target: no asymptotic tail that never arrives, and no early cutoff.
-    double shape(double phase) const;
+    double shape(double phase, double curve) const;
 
     void updatePhaseStep();
 };

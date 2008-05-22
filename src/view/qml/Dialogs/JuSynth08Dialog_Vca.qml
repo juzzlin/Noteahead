@@ -27,7 +27,7 @@ ColumnLayout {
     Layout.alignment: Qt.AlignTop
 
     SectionHeading {
-        text: qsTr("VCA & Noise")
+        text: qsTr("VCA")
         Layout.topMargin: 10
     }
     RowLayout {
@@ -56,12 +56,6 @@ ColumnLayout {
         label: qsTr("LFO Mod")
         value: juSynth08Controller.vcaLfoDepth
         onMoved: v => juSynth08Controller.vcaLfoDepth = v
-        Layout.fillWidth: true
-    }
-    Knob {
-        label: qsTr("Noise Level")
-        value: juSynth08Controller.noiseLevel
-        onMoved: v => juSynth08Controller.noiseLevel = v
         Layout.fillWidth: true
     }
 }

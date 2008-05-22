@@ -39,9 +39,6 @@ ColumnLayout {
     RowLayout {
         Layout.fillWidth: true
         Layout.bottomMargin: Constants.dropDownBottomMargin
-        Label {
-            text: qsTr("Waveform")
-        }
         ComboBox {
             model: {
                 languageService.activeLanguage;

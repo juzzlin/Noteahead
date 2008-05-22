@@ -15,6 +15,7 @@
 
 #include "ju_synth_08_device.hpp"
 #include "../../common/constants.hpp"
+#include "../../common/parameter_mapper.hpp"
 #include "../../common/xml/project_reader.hpp"
 #include "../../common/xml/project_writer.hpp"
 #include "../../infra/midi/midi_cc_mapping.hpp"
@@ -32,6 +33,35 @@ namespace C = Constants::NahdXml;
 
 constexpr double TwoPi { 2.0 * std::numbers::pi };
 constexpr double MaxPitchLfoSemitones { 2.0 };
+constexpr double MaxPitchEnvSemitones { 24.0 };
+constexpr double MaxFineTuneCents { 50.0 };
+
+//! The filter's corner over its knob, 20 Hz to 20 kHz in equal octaves. The envelope, the LFO and the
+//! key follow all move the cutoff in this knob travel, as on the JU Synth.
+constexpr double FilterLowestHz { 20.0 };
+constexpr double FilterHighestHz { 20000.0 };
+//! How far the filter LFO moves the cutoff at the top of its control, in knob travel either way.
+constexpr double MaxFilterLfoSweep { 0.5 };
+
+//! Level into the ladder. Its OTAs fold at unity, and the two VCOs at full level peak near two: fed
+//! straight in they flattened the resonance and turned every patch into a fuzz. See the JU Synth.
+constexpr double FilterInputLevel { 0.1 };
+//! Taken back off after the ladder, so the voice comes out at the level it always had.
+constexpr double FilterMakeupGain { 0.5 / FilterInputLevel };
+
+//! The envelopes' RC shape: most of each segment happens at its start, as on the hardware.
+constexpr double EnvelopeCurve { 0.5 };
+//! The attack charges toward half again its peak and stops there, so it rises nearly straight: bent
+//! like the decay it was most of the way up in the first tenth of its time.
+constexpr double EnvelopeAttackCurve { 0.14 };
+
+constexpr double LfoMaxDelaySeconds { 3.0 };
+
+constexpr double DelayMinSeconds { 0.01 };
+constexpr double DelayMaxSeconds { 1.0 };
+
+//! With key follow on, the envelope times halve every two octaves above middle C and double below.
+constexpr double EnvKeyFollowOctavesPerOctave { 0.5 };
 
 // PolyBLEP residual function for bandlimited discontinuities
 double polyBlep(double t, double dt)
@@ -112,7 +142,7 @@ void JuSynth08Device::setupParameters()
     addParameter(Parameter { C::xmlKeyWaveform().toStdString(), 0.0f, 0, 5, 0, 1, Parameter::Type::Discrete });
 
     addParameter(Parameter { C::xmlKeyPitchLfoDepth().toStdString(), 0.0f, 0, 10000, 0, 100 });
-    addParameter(Parameter { C::xmlKeyPitchEnvDepth().toStdString(), 0.0f, -10000, 10000, 0, 100 });
+    addParameter(Parameter { C::xmlKeyPitchEnvDepth().toStdString(), 0.5f, -10000, 10000, 0, 100 });
     addParameter(Parameter { C::xmlKeyPitchEnvTarget().toStdString(), 2.0f, 0, 2, 2, 1, Parameter::Type::Discrete });
     addParameter(Parameter { C::xmlKeyPulseWidth().toStdString(), 0.5f, 0, 10000, 5000, 100 });
     addParameter(Parameter { C::xmlKeyPwmSource().toStdString(), 0.0f, 0, 2, 0, 1, Parameter::Type::Discrete });
@@ -124,7 +154,7 @@ void JuSynth08Device::setupParameters()
 
     addParameter(Parameter { C::xmlKeyVco2Range().toStdString(), 1.0f, 0, 4, 1, 1, Parameter::Type::Discrete });
     addParameter(Parameter { C::xmlKeyVco2Waveform().toStdString(), 0.0f, 0, 3, 0, 1, Parameter::Type::Discrete });
-    addParameter(Parameter { C::xmlKeyVco2FineTune().toStdString(), 0.0f, -10000, 10000, 0, 100 });
+    addParameter(Parameter { C::xmlKeyVco2FineTune().toStdString(), 0.5f, -10000, 10000, 0, 100 });
     addParameter(Parameter { C::xmlKeyVco2Sync().toStdString(), 0.0f, 0, 1, 0, 1, Parameter::Type::Boolean });
     addParameter(Parameter { C::xmlKeyVco2Level().toStdString(), 0.8f, 0, 10000, 8000, 100 });
 
@@ -233,6 +263,11 @@ void JuSynth08Device::handleNoteOn(uint8_t note, uint8_t velocity)
     const double targetFrequency = 440.0 * std::exp2((static_cast<double>(note) - 69.0 + octave() * 12.0) / 12.0);
     const double vel = static_cast<double>(velocity) / 127.0;
 
+    // The LFO delay starts over when a key goes down with none held
+    if (std::ranges::none_of(m_voices, [](const auto & voice) { return voice.gated; })) {
+        m_lfoDelayElapsed = 0.0;
+    }
+
     if (m_voiceMode == VoiceMode::Solo) {
         auto & voice = m_voices[0];
         const bool legato = voice.active && voice.gated;
@@ -263,10 +298,16 @@ void JuSynth08Device::handleNoteOn(uint8_t note, uint8_t velocity)
 
         for (size_t i = 0; i < MaxVoices; i++) {
             auto & voice = m_voices[i];
+            // The stack glides from the note it was playing, as the solo voice does
+            const double fromFrequency = voice.active ? voice.frequency : targetFrequency;
             voice.reset();
+            // Started in step, eight detuned copies of one wave sum to a spike that then sweeps
+            // through a comb. Spread like this they start as the thick stack they settle into.
+            voice.phaseVco1 = std::fmod(static_cast<double>(i) * 0.618034, 1.0);
+            voice.phaseVco2 = std::fmod(static_cast<double>(i) * 0.381966 + 0.25, 1.0);
             voice.detuneCents = UnisonSpreads[i] * maxDetuneCents;
             voice.pan = voiceSpreadPan(i);
-            voice.frequency = targetFrequency;
+            voice.frequency = fromFrequency;
             voice.glideFrequency = targetFrequency;
             voice.note = note;
             voice.velocity = vel;
@@ -283,7 +324,12 @@ void JuSynth08Device::handleNoteOn(uint8_t note, uint8_t velocity)
     // Poly mode: voice allocation
     const size_t slot = allocateVoice(note);
     auto & voice = m_voices[slot];
+    // The VCOs run free, as on the hardware: a note lands wherever they have got to
+    const double phaseVco1 = voice.phaseVco1;
+    const double phaseVco2 = voice.phaseVco2;
     voice.reset();
+    voice.phaseVco1 = phaseVco1;
+    voice.phaseVco2 = phaseVco2;
     voice.note = note;
     voice.velocity = vel;
     voice.frequency = targetFrequency;
@@ -497,7 +543,8 @@ void JuSynth08Device::processAudio(AudioContext & context)
         m_delayWritePos = 0;
     }
 
-    const double delayFrames = std::clamp(static_cast<double>(m_delayTime) * context.sampleRate, 1.0, static_cast<double>(maxDelayFrames - 1));
+    const double delaySeconds = DelayMinSeconds + static_cast<double>(m_delayTime) * (DelayMaxSeconds - DelayMinSeconds);
+    const double delayFrames = std::clamp(delaySeconds * context.sampleRate, 1.0, static_cast<double>(maxDelayFrames - 1));
     const float delayFb = std::clamp(m_delayFeedback, 0.0f, 0.95f);
     const float delayMix = std::clamp(m_delayLevel, 0.0f, 1.0f);
 
@@ -506,18 +553,28 @@ void JuSynth08Device::processAudio(AudioContext & context)
     const double masterPanL = std::cos(masterPanAngle) * std::numbers::sqrt2;
     const double masterPanR = std::sin(masterPanAngle) * std::numbers::sqrt2;
 
-    for (size_t frame = 0; frame < frameCount; frame++) {
-        // LFO update
-        m_lfoDelayElapsed += dt;
-        double lfo = 0.0;
-        if (m_lfoDelayElapsed >= m_lfoDelay) {
-            lfo = m_lfo.nextSample();
-        } else {
-            m_lfo.nextSample();
-        }
+    const double lfoDelaySeconds = static_cast<double>(m_lfoDelay) * LfoMaxDelaySeconds;
+    const double filterOctaves = std::log2(std::min(FilterHighestHz, oversampledRate * 0.45) / FilterLowestHz);
+    const double envSign = m_envPolarity ? -1.0 : 1.0;
+    const double hpfCutoffFreq = 10.0 + std::pow(static_cast<double>(m_hpfCutoff), 2.0) * 1500.0;
+    const auto vcfSlope = m_vcfSlope == VcfSlope::Slope12dB ? OtaLadderFilter::Slope::Slope12dB : OtaLadderFilter::Slope::Slope24dB;
+    // Both are bipolar with their centre at half travel
+    const double pitchEnvDepthSemitones = (static_cast<double>(m_pitchEnvDepth) * 2.0 - 1.0) * MaxPitchEnvSemitones;
+    const double vco2FineRatio = std::exp2((static_cast<double>(m_vco2FineTune) * 2.0 - 1.0) * MaxFineTuneCents / 1200.0);
 
-        double dryLeft = 0.0;
-        double dryRight = 0.0;
+    for (size_t frame = 0; frame < frameCount; frame++) {
+        // The LFO runs whether or not anything is playing; the delay holds it off for half its time
+        // after the first key and then fades it in over the other half.
+        double lfoLevel = 1.0;
+        if (lfoDelaySeconds > 0.0) {
+            const double hold = lfoDelaySeconds * 0.5;
+            lfoLevel = std::clamp((m_lfoDelayElapsed - hold) / (lfoDelaySeconds - hold), 0.0, 1.0);
+        }
+        m_lfoDelayElapsed += dt;
+        const double lfo = m_lfo.nextSample() * lfoLevel;
+
+        std::array<float, Oversampling> highRateLeft {};
+        std::array<float, Oversampling> highRateRight {};
 
         for (auto && voice : m_voices) {
             if (!voice.active) {
@@ -537,7 +594,7 @@ void JuSynth08Device::processAudio(AudioContext & context)
             const double env2 = voice.env2.nextSample();
             const double gateVal = voice.gate.nextSample();
 
-            if (!voice.env2.isActive() && !voice.gate.isActive()) {
+            if ((m_vcaMode == VcaMode::Gate && !voice.gate.isActive()) || (m_vcaMode == VcaMode::Env2 && voice.env2.isSilent())) {
                 voice.active = false;
                 continue;
             }
@@ -552,8 +609,8 @@ void JuSynth08Device::processAudio(AudioContext & context)
             double pitchModVco1 = vibrato;
             double pitchModVco2 = vibrato;
 
-            if (m_pitchEnvDepth != 0.0f) {
-                const double pitchEnvSemitones = static_cast<double>(m_pitchEnvDepth) * 24.0 * env1;
+            if (pitchEnvDepthSemitones != 0.0) {
+                const double pitchEnvSemitones = pitchEnvDepthSemitones * env1;
                 const double pitchEnvRatio = std::exp2(pitchEnvSemitones / 12.0);
                 if (m_pitchEnvTarget == PitchEnvTarget::Vco1 || m_pitchEnvTarget == PitchEnvTarget::Both) {
                     pitchModVco1 *= pitchEnvRatio;
@@ -564,7 +621,6 @@ void JuSynth08Device::processAudio(AudioContext & context)
             }
 
             const double freqVco1 = std::clamp(baseFreq * rangeMultiplier(static_cast<int>(m_vco1Range)) * pitchModVco1, 1.0, oversampledRate * 0.45);
-            const double vco2FineRatio = std::exp2((static_cast<double>(m_vco2FineTune) * 50.0) / 1200.0);
             const double freqVco2 = std::clamp(baseFreq * rangeMultiplier(static_cast<int>(m_vco2Range)) * vco2FineRatio * pitchModVco2, 1.0, oversampledRate * 0.45);
 
             // PWM modulation calculation
@@ -576,8 +632,32 @@ void JuSynth08Device::processAudio(AudioContext & context)
             }
             currentPw = std::clamp(currentPw, 0.05, 0.95);
 
+            // The VCF moves in knob travel: the envelope opens it from where the knob is, the LFO
+            // swings it either way and full key follow tracks an octave per octave from middle C.
+            const double keyTrackOffset = static_cast<double>(m_keyTrack) * (static_cast<double>(voice.note) - 60.0) / 12.0 / std::log2(FilterHighestHz / FilterLowestHz);
+            const double cutoff = std::clamp(static_cast<double>(m_lpfCutoff) + envSign * static_cast<double>(m_envMod) * env1 + lfo * static_cast<double>(m_filterLfoDepth) * MaxFilterLfoSweep + keyTrackOffset, 0.0, 1.0);
+            voice.vcf.setSampleRate(oversampledRate);
+            voice.vcf.setCutoff(FilterLowestHz * std::exp2(cutoff * filterOctaves));
+            voice.vcf.setResonance(m_lpfResonance);
+            voice.vcf.setSlope(vcfSlope);
+            voice.hpf.calculate(hpfCutoffFreq, oversampledRate);
+
+            // VCA Stage
+            double vcaGain = (m_vcaMode == VcaMode::Gate) ? gateVal : env2;
+            if (m_velocitySensitivity > 0.0f) {
+                const double velScale = 1.0 - m_velocitySensitivity * (1.0 - voice.velocity);
+                vcaGain *= velScale;
+            }
+            if (m_vcaLfoDepth > 0.0f) {
+                const double tremolo = 1.0 + lfo * m_vcaLfoDepth * 0.5;
+                vcaGain *= std::max(0.0, tremolo);
+            }
+
+            // Stereo Panning
+            const double panL = std::cos(voice.pan * (std::numbers::pi / 2.0)) * vcaGain;
+            const double panR = std::sin(voice.pan * (std::numbers::pi / 2.0)) * vcaGain;
+
             // 2x Oversampled synthesis of VCOs and VCF
-            double voiceSampleAccum = 0.0;
             for (size_t os = 0; os < Oversampling; os++) {
                 // VCO-1 phase advance
                 const double phaseIncVco1 = freqVco1 * dtOversampled;
@@ -648,60 +728,17 @@ void JuSynth08Device::processAudio(AudioContext & context)
                 const double oscMix = (vco1Instant * m_vco1Level + vco2Instant * m_vco2Level + noise * m_noiseLevel);
 
                 // High-Pass Filter (One-pole HPF)
-                const double hpfCutoffFreq = 10.0 + std::pow(static_cast<double>(m_hpfCutoff), 2.0) * 1500.0;
-                voice.hpf.calculate(hpfCutoffFreq, oversampledRate);
                 voice.hpf.process(oscMix);
                 const double afterHpf = voice.hpf.highPass();
 
-                // OTA Ladder VCF with 12 dB / 24 dB slope switch
-                double vcfMod = 0.0;
-                if (m_envMod > 0.0f) {
-                    const double envVal = m_envPolarity ? (1.0 - env1) : env1;
-                    vcfMod += (envVal * 2.0 - 1.0) * m_envMod;
-                }
-                if (m_filterLfoDepth > 0.0f) {
-                    vcfMod += lfo * m_filterLfoDepth;
-                }
-                if (m_keyTrack > 0.0f) {
-                    const double noteFactor = (static_cast<double>(voice.note) - 60.0) / 48.0;
-                    vcfMod += noteFactor * m_keyTrack;
-                }
-
-                const double baseCutoff = 20.0 * std::pow(20000.0 / 20.0, static_cast<double>(m_lpfCutoff));
-                const double modulatedCutoff = std::clamp(baseCutoff * std::exp2(vcfMod * 4.0), 20.0, oversampledRate * 0.45);
-
-                voice.vcf.setSampleRate(oversampledRate);
-                voice.vcf.setCutoff(modulatedCutoff);
-                voice.vcf.setResonance(m_lpfResonance);
-                voice.vcf.setSlope(m_vcfSlope == VcfSlope::Slope12dB ? OtaLadderFilter::Slope::Slope12dB : OtaLadderFilter::Slope::Slope24dB);
-
-                const double afterVcf = voice.vcf.process(afterHpf);
-                voiceSampleAccum += afterVcf;
+                const double afterVcf = voice.vcf.process(afterHpf * FilterInputLevel) * FilterMakeupGain;
+                highRateLeft[os] += static_cast<float>(afterVcf * panL);
+                highRateRight[os] += static_cast<float>(afterVcf * panR);
             }
-
-            // Downsample average
-            const double voiceOut = voiceSampleAccum / Oversampling;
-
-            // VCA Stage
-            double vcaGain = (m_vcaMode == VcaMode::Gate) ? gateVal : env2;
-            if (m_velocitySensitivity > 0.0f) {
-                const double velScale = 1.0 - m_velocitySensitivity * (1.0 - voice.velocity);
-                vcaGain *= velScale;
-            }
-            if (m_vcaLfoDepth > 0.0f) {
-                const double tremolo = 1.0 + lfo * m_vcaLfoDepth * 0.5;
-                vcaGain *= std::max(0.0, tremolo);
-            }
-
-            const double voiceAmp = voiceOut * vcaGain;
-
-            // Stereo Panning
-            const double panL = std::cos(voice.pan * (std::numbers::pi / 2.0));
-            const double panR = std::sin(voice.pan * (std::numbers::pi / 2.0));
-
-            dryLeft += voiceAmp * panL;
-            dryRight += voiceAmp * panR;
         }
+
+        const double dryLeft = static_cast<double>(m_decimators[0].process(highRateLeft.data(), static_cast<uint8_t>(Oversampling)));
+        const double dryRight = static_cast<double>(m_decimators[1].process(highRateRight.data(), static_cast<uint8_t>(Oversampling)));
 
         // Stereo Delay Line
         const size_t readPosL = (m_delayWritePos + maxDelayFrames - static_cast<size_t>(delayFrames)) % maxDelayFrames;
@@ -778,6 +815,9 @@ void JuSynth08Device::resetAudio()
     m_lfoDelayElapsed = 0.0;
     for (auto && dcBlocker : m_dcBlockers) {
         dcBlocker.reset();
+    }
+    for (auto && decimator : m_decimators) {
+        decimator.reset();
     }
     std::fill(m_delayBufferL.begin(), m_delayBufferL.end(), 0.0f);
     std::fill(m_delayBufferR.begin(), m_delayBufferR.end(), 0.0f);
@@ -908,24 +948,25 @@ void JuSynth08Device::updateSampleRateDependencies()
     m_lfo.setWaveform(lfoWaveformFromIndex(m_lfoWaveform));
 
     for (auto && voice : m_voices) {
-        // ENV-1
-        const double a1 = 0.001 * std::pow(3000.0, static_cast<double>(m_env1Attack));
-        const double d1 = 0.002 * std::pow(6000.0, static_cast<double>(m_env1Decay));
-        const double r1 = 0.002 * std::pow(6000.0, static_cast<double>(m_env1Release));
-        voice.env1.setAttackTime(a1);
-        voice.env1.setDecayTime(d1);
+        // Key follow shortens the envelopes up the keyboard and stretches them down it
+        const double keyScale = std::exp2(-(static_cast<double>(voice.note) - 60.0) / 12.0 * EnvKeyFollowOctavesPerOctave);
+        const double env1Scale = m_env1KeyFollow ? keyScale : 1.0;
+        const double env2Scale = m_env2KeyFollow ? keyScale : 1.0;
+
+        voice.env1.setCurve(EnvelopeCurve);
+        voice.env1.setAttackCurve(EnvelopeAttackCurve);
+        voice.env1.setAttackTime(ParameterMapper::mapExponential(m_env1Attack, 0.001, 3.0) * env1Scale);
+        voice.env1.setDecayTime(ParameterMapper::mapExponential(m_env1Decay, 0.002, 12.0) * env1Scale);
         voice.env1.setSustainLevel(m_env1Sustain);
-        voice.env1.setReleaseTime(r1);
+        voice.env1.setReleaseTime(ParameterMapper::mapExponential(m_env1Release, 0.002, 12.0) * env1Scale);
         voice.env1.setSampleRate(sampleRate());
 
-        // ENV-2
-        const double a2 = 0.001 * std::pow(3000.0, static_cast<double>(m_env2Attack));
-        const double d2 = 0.002 * std::pow(6000.0, static_cast<double>(m_env2Decay));
-        const double r2 = 0.002 * std::pow(6000.0, static_cast<double>(m_env2Release));
-        voice.env2.setAttackTime(a2);
-        voice.env2.setDecayTime(d2);
+        voice.env2.setCurve(EnvelopeCurve);
+        voice.env2.setAttackCurve(EnvelopeAttackCurve);
+        voice.env2.setAttackTime(ParameterMapper::mapExponential(m_env2Attack, 0.001, 3.0) * env2Scale);
+        voice.env2.setDecayTime(ParameterMapper::mapExponential(m_env2Decay, 0.002, 12.0) * env2Scale);
         voice.env2.setSustainLevel(m_env2Sustain);
-        voice.env2.setReleaseTime(r2);
+        voice.env2.setReleaseTime(ParameterMapper::mapExponential(m_env2Release, 0.002, 12.0) * env2Scale);
         voice.env2.setSampleRate(sampleRate());
 
         voice.gate.setSampleRate(sampleRate());
