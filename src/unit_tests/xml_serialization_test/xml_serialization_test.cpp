@@ -760,7 +760,7 @@ void XmlSerializationTest::test_toXmlFromXml_synthDevice_shouldPreserveValuesAnd
     synthOut->setMultiShape(0.42f);
     synthOut->setMultiLevel(0.88f);
     synthOut->setMultiKeyTrack(0.5f);
-    synthOut->setMasterPan(0.12f);
+    synthOut->setPan(0.12f);
     synthOut->setDelayType(DelayEffect::Type::PingPong);
     synthOut->setDelaySync(true);
     synthOut->setDelaySyncDivision(0.25f);
@@ -792,7 +792,7 @@ void XmlSerializationTest::test_toXmlFromXml_synthDevice_shouldPreserveValuesAnd
     QCOMPARE(synthIn->multiShape(), 0.42f);
     QCOMPARE(synthIn->multiLevel(), 0.88f);
     QCOMPARE(synthIn->multiKeyTrack(), 0.5f);
-    QCOMPARE(synthIn->masterPan(), 0.12f);
+    QCOMPARE(synthIn->pan(), 0.12f);
     QCOMPARE(synthIn->delayType(), DelayEffect::Type::PingPong);
     QCOMPARE(synthIn->delaySync(), true);
     QCOMPARE(synthIn->delaySyncDivision(), 0.25f);

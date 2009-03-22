@@ -99,8 +99,8 @@ void SamplerTest::test_volume_shouldAdjustVolume()
     sampler.setSampleVolume(60, 0.5f);
     QCOMPARE(sampler.sampleVolume(60), 0.5f);
 
-    sampler.setGlobalVolume(0.7f);
-    QCOMPARE(sampler.globalVolume(), 0.7f);
+    sampler.setVolume(0.7f);
+    QCOMPARE(sampler.volume(), 0.7f);
 
     sampler.setGain(0.8f);
     QCOMPARE(sampler.gain(), 0.8f);
@@ -171,7 +171,7 @@ void SamplerTest::test_serialization_shouldSaveAndLoadGain()
     {
         SamplerDevice sampler { Constants::samplerDeviceName().toStdString(), std::make_unique<MockAudioFileReader>() };
         sampler.setGain(0.8f);
-        sampler.setGlobalVolume(0.4f);
+        sampler.setVolume(0.4f);
         QXmlStreamWriter writer(&data);
         sampler.serializeToXml(writer);
     }
@@ -184,7 +184,71 @@ void SamplerTest::test_serialization_shouldSaveAndLoadGain()
         }
         sampler.deserializeFromXml(reader);
         QCOMPARE(sampler.gain(), 0.8f);
-        QCOMPARE(sampler.globalVolume(), 0.4f);
+        QCOMPARE(sampler.volume(), 0.4f);
+    }
+}
+
+void SamplerTest::test_midiCcResetGlobalPanAndVolume_shouldRestoreManualValues()
+{
+    SamplerDevice sampler { Constants::samplerDeviceName().toStdString(), std::make_unique<MockAudioFileReader>() };
+
+    // 1. Initial manual state
+    sampler.setVolume(0.8f);
+    sampler.setPan(0.2f);
+    sampler.setGain(0.6f);
+
+    // 2. Change via MIDI CC
+    sampler.processMidiCc(7, 127, 0);  // Volume to 1.0
+    sampler.processMidiCc(10, 127, 0); // Pan to 1.0
+    QCOMPARE(sampler.volume(), 1.0f);
+    QCOMPARE(sampler.pan(), 1.0f);
+
+    // 3. Reset All Controllers (CC 121)
+    sampler.processMidiCc(121, 0, 0);
+
+    // 4. Should restore to manual values
+    QCOMPARE(sampler.volume(), 0.8f);
+    QCOMPARE(sampler.pan(), 0.2f);
+    QCOMPARE(sampler.gain(), 0.6f);
+}
+
+void SamplerTest::test_projectLoadMidiCcResetGlobal_shouldRestoreLoadedValues()
+{
+    QByteArray data;
+    {
+        SamplerDevice sampler { Constants::samplerDeviceName().toStdString(), std::make_unique<MockAudioFileReader>() };
+        sampler.setVolume(0.4f);
+        sampler.setPan(0.6f);
+        sampler.setGain(0.7f);
+        QXmlStreamWriter writer(&data);
+        sampler.serializeToXml(writer);
+    }
+
+    {
+        SamplerDevice sampler { Constants::samplerDeviceName().toStdString(), std::make_unique<MockAudioFileReader>() };
+        QXmlStreamReader reader(data);
+        while (!reader.atEnd() && !reader.isStartElement()) {
+            reader.readNext();
+        }
+        sampler.deserializeFromXml(reader);
+        
+        QCOMPARE(sampler.volume(), 0.4f);
+        QCOMPARE(sampler.pan(), 0.6f);
+        QCOMPARE(sampler.gain(), 0.7f);
+
+        // Change via MIDI CC
+        sampler.processMidiCc(7, 127, 0);
+        sampler.processMidiCc(10, 127, 0);
+        QCOMPARE(sampler.volume(), 1.0f);
+        QCOMPARE(sampler.pan(), 1.0f);
+
+        // Reset All Controllers
+        sampler.processMidiCc(121, 0, 0);
+
+        // Should return to LOADED values
+        QCOMPARE(sampler.volume(), 0.4f);
+        QCOMPARE(sampler.pan(), 0.6f);
+        QCOMPARE(sampler.gain(), 0.7f);
     }
 }
 

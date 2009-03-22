@@ -174,12 +174,10 @@ public:
     void setPortamento(float p);
     float panSpread() const;
     void setPanSpread(float spread);
-    float masterPan() const;
-    void setMasterPan(float pan);
-    float masterVolume() const;
-    void setMasterVolume(float vol);
+    void setPan(float pan) override;
+    void setVolume(float vol) override;
     float gain() const;
-    void setGain(float gain);
+    void setGain(float gain) override;
 
     // Delay parameters
     DelayEffect::Type delayType() const;
@@ -228,7 +226,6 @@ private:
     };
 
     std::vector<Voice> m_voices;
-    mutable std::mutex m_mutex;
     int m_polyNextVoice = 0;
 
     // Internal parameter storage
@@ -277,16 +274,8 @@ private:
     float m_voiceDepth { 0.0f };
     float m_portamento { 0.0f };
     float m_panSpread { 0.0f };
-    float m_masterPan { 0.5f };
-    float m_masterVolume { 1.0f };
-    float m_gain { 0.5f };
-    float m_linearGain { 1.0f };
 
     // Manual settings for CC reset
-    float m_manualPanSpread { 0.0f };
-    float m_manualMasterPan { 0.5f };
-    float m_manualMasterVolume { 1.0f };
-    float m_manualGain { 0.5f };
     float m_manualLpfCutoff { 1.0f };
     float m_manualHpfCutoff { 0.0f };
 
@@ -308,7 +297,7 @@ private:
     void handleNoteOn(uint8_t note, uint8_t velocity);
     void handleNoteOff(uint8_t note);
     double midiNoteToFreq(uint8_t note) const;
-    void syncParameters();
+    void syncParameters() override;
 
     std::string m_name;
 };

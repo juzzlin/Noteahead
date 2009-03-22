@@ -154,19 +154,19 @@ void SamplerController::setSelectedPadHpfCutoff(double cutoff)
     }
 }
 
-double SamplerController::globalVolume() const
+double SamplerController::volume() const
 {
     if (!m_sampler) {
         return 1.0;
     }
-    return static_cast<double>(m_sampler->globalVolume());
+    return static_cast<double>(m_sampler->volume());
 }
 
-void SamplerController::setGlobalVolume(double volume)
+void SamplerController::setVolume(double volume)
 {
     if (m_sampler) {
-        m_sampler->setGlobalVolume(static_cast<float>(volume));
-        emit globalVolumeChanged();
+        m_sampler->setVolume(static_cast<float>(volume));
+        emit volumeChanged();
     }
 }
 
@@ -183,6 +183,22 @@ void SamplerController::setGain(double gain)
     if (m_sampler) {
         m_sampler->setGain(static_cast<float>(gain));
         emit gainChanged();
+    }
+}
+
+double SamplerController::pan() const
+{
+    if (!m_sampler) {
+        return 0.5;
+    }
+    return static_cast<double>(m_sampler->pan());
+}
+
+void SamplerController::setPan(double pan)
+{
+    if (m_sampler) {
+        m_sampler->setPan(static_cast<float>(pan));
+        emit panChanged();
     }
 }
 
@@ -275,8 +291,9 @@ void SamplerController::initialize()
         emit selectedPadStartOffsetChanged();
         emit selectedPadDurationChanged();
     }
-    emit globalVolumeChanged();
+    emit volumeChanged();
     emit gainChanged();
+    emit panChanged();
     emit channelModeChanged();
 }
 
@@ -289,8 +306,9 @@ void SamplerController::reset()
         emit selectedPadCutoffChanged();
         emit selectedPadHpfCutoffChanged();
         emit selectedPadStartOffsetChanged();
-        emit globalVolumeChanged();
+        emit volumeChanged();
         emit gainChanged();
+        emit panChanged();
         emit channelModeChanged();
     }
 }

@@ -21,6 +21,7 @@
 #include "../parameter_container.hpp"
 
 #include <cstdint>
+#include <mutex>
 #include <string>
 
 class QXmlStreamReader;
@@ -53,12 +54,21 @@ public:
 
     virtual void setBpm(float) {}
 
-    virtual void reset() = 0;
+    virtual void reset() override;
 
-    uint32_t sampleRate() const { return m_sampleRate; }
+    uint32_t sampleRate() const;
 
     virtual void serializeToXml(QXmlStreamWriter & writer) const;
     virtual void deserializeFromXml(QXmlStreamReader & reader);
+
+    float volume() const;
+    virtual void setVolume(float volume);
+
+    float gain() const;
+    virtual void setGain(float gain);
+
+    float pan() const;
+    virtual void setPan(float pan);
 
 signals:
     void dataChanged();
@@ -67,10 +77,41 @@ protected:
     void serializeAttributesToXml(QXmlStreamWriter & writer) const;
     void deserializeAttributesFromXml(QXmlStreamReader & reader);
 
-    uint32_t m_sampleRate;
+    virtual void syncParameters();
+
+    bool updateVolumeParameter(float volume, bool updateManual);
+    bool updateGainParameter(float gain, bool updateManual);
+    bool updatePanParameter(float pan, bool updateManual);
+
+    void setSampleRate(uint32_t sampleRate);
+    std::recursive_mutex & mutex() const;
+
+    float volumeInternal() const;
+    float gainInternal() const;
+    float panInternal() const;
+    float linearGainInternal() const;
+    float manualVolumeInternal() const;
+    float manualGainInternal() const;
+    float manualPanInternal() const;
+    void setManualVolume(float volume);
+    void setManualGain(float gain);
+    void setManualPan(float pan);
 
 private:
     size_t m_id { 0 };
+    uint32_t m_sampleRate { 0 };
+
+    float m_volume { 1.0f };
+    float m_gain { 0.5f };
+    float m_pan { 0.5f };
+    float m_linearGain { 1.0f };
+
+    // Manual settings for CC reset
+    float m_manualVolume { 1.0f };
+    float m_manualGain { 0.5f };
+    float m_manualPan { 0.5f };
+
+    mutable std::recursive_mutex m_mutex;
 };
 
 } // namespace noteahead

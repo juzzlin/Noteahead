@@ -47,7 +47,7 @@ void SynthTest::test_defaultValues_shouldBeCorrect()
     QCOMPARE(synth.lpfCutoff(), 1.0f);
     QCOMPARE(synth.hpfCutoff(), 0.0f);
     QCOMPARE(synth.ampSustain(), 1.0f);
-    QCOMPARE(synth.masterPan(), 0.5f);
+    QCOMPARE(synth.pan(), 0.5f);
     QCOMPARE(synth.gain(), 0.5f);
 }
 
@@ -72,8 +72,8 @@ void SynthTest::test_parameterSetting_shouldUpdateValues()
     synth.setDelaySync(true);
     QCOMPARE(synth.delaySync(), true);
 
-    synth.setMasterPan(0.2f);
-    QCOMPARE(synth.masterPan(), 0.2f);
+    synth.setPan(0.2f);
+    QCOMPARE(synth.pan(), 0.2f);
 
     synth.setGain(0.75f);
     QCOMPARE(synth.gain(), 0.75f);
@@ -119,10 +119,10 @@ void SynthTest::test_midiCc_shouldUpdateParameters()
     
     // Test individual CC updates
     synth.processMidiCc(7, 64, 0); // Volume ~0.5
-    QCOMPARE(synth.masterVolume(), 64.0f / 127.0f);
+    QCOMPARE(synth.volume(), 64.0f / 127.0f);
 
-    synth.processMidiCc(10, 32, 0); // Pan Spread ~0.25
-    QCOMPARE(synth.panSpread(), 32.0f / 127.0f);
+    synth.processMidiCc(10, 32, 0); // Pan ~0.25
+    QCOMPARE(synth.pan(), 32.0f / 127.0f);
 
     synth.processMidiCc(74, 100, 0); // Cutoff ~0.78
     QCOMPARE(synth.lpfCutoff(), 100.0f / 127.0f);
@@ -132,8 +132,8 @@ void SynthTest::test_midiCc_shouldUpdateParameters()
 
     // Test CC 121 (Reset All Controllers)
     // First, set manual UI values
-    synth.setMasterVolume(1.0f);
-    synth.setMasterPan(0.0f);
+    synth.setVolume(1.0f);
+    synth.setPan(0.0f);
     synth.setPanSpread(0.0f);
     synth.setLpfCutoff(0.5f);
     synth.setHpfCutoff(0.1f);
@@ -142,15 +142,15 @@ void SynthTest::test_midiCc_shouldUpdateParameters()
     synth.processMidiCc(7, 10, 0);
     synth.processMidiCc(74, 127, 0);
     
-    QCOMPARE(synth.masterVolume(), 10.0f / 127.0f);
+    QCOMPARE(synth.volume(), 10.0f / 127.0f);
     QCOMPARE(synth.lpfCutoff(), 127.0f / 127.0f);
 
     // Trigger Reset
     synth.processMidiCc(121, 0, 0);
 
     // Should return to manual UI values
-    QCOMPARE(synth.masterVolume(), 1.0f);
-    QCOMPARE(synth.masterPan(), 0.0f);
+    QCOMPARE(synth.volume(), 1.0f);
+    QCOMPARE(synth.pan(), 0.0f);
     QCOMPARE(synth.panSpread(), 0.0f);
     QCOMPARE(synth.lpfCutoff(), 0.5f);
     QCOMPARE(synth.hpfCutoff(), 0.1f);
@@ -247,7 +247,7 @@ void SynthTest::test_softClipper_shouldPreventClipping()
     SynthDevice synth { "Test Synth" };
     
     // Max out volume and multiple oscillators to force > 1.0 signal
-    synth.setMasterVolume(1.0f);
+    synth.setVolume(1.0f);
     synth.setMixVco1(1.0f);
     synth.setMixVco2(1.0f);
     synth.setLpfResonance(1.0f); // High resonance adds lots of gain
@@ -491,6 +491,91 @@ void SynthTest::test_serialization_shouldSaveAndLoadGain()
         }
         synth.deserializeFromXml(reader);
         QCOMPARE(synth.gain(), 0.8f);
+    }
+}
+
+void SynthTest::test_midiCcResetPanAndVolume_shouldRestoreManualValues()
+{
+    SynthDevice synth { "Test Synth" };
+
+    // 1. Initial manual state
+    synth.setVolume(0.8f);
+    synth.setPan(0.2f);
+    synth.setGain(0.6f);
+
+    // 2. Change via MIDI CC
+    synth.processMidiCc(7, 127, 0);  // Volume to 1.0
+    synth.processMidiCc(10, 127, 0); // Pan to 1.0
+    QCOMPARE(synth.volume(), 1.0f);
+    QCOMPARE(synth.pan(), 1.0f);
+
+    // 3. Reset All Controllers (CC 121)
+    synth.processMidiCc(121, 0, 0);
+
+    // 4. Should restore to manual values
+    QCOMPARE(synth.volume(), 0.8f);
+    QCOMPARE(synth.pan(), 0.2f);
+    QCOMPARE(synth.gain(), 0.6f);
+
+    // 5. Test with preset load
+    synth.loadPreset(0, 1); // This should update manual fallback values
+    const float presetVolume = synth.volume();
+    const float presetPan = synth.pan();
+    const float presetGain = synth.gain();
+
+    synth.processMidiCc(7, 0, 0);  // Volume to 0.0
+    synth.processMidiCc(10, 0, 0); // Pan to 0.0
+    QCOMPARE(synth.volume(), 0.0f);
+    QCOMPARE(synth.pan(), 0.0f);
+
+    synth.processMidiCc(121, 0, 0);
+    QCOMPARE(synth.volume(), presetVolume);
+    QCOMPARE(synth.pan(), presetPan);
+    QCOMPARE(synth.gain(), presetGain);
+}
+
+void SynthTest::test_projectLoadMidiCcReset_shouldRestoreLoadedValues()
+{
+    QByteArray data;
+    {
+        SynthDevice synth { "Test Synth" };
+        synth.setVolume(0.4f);
+        synth.setPan(0.6f);
+        synth.setGain(0.7f);
+        synth.setLpfCutoff(0.33f);
+        QXmlStreamWriter writer(&data);
+        synth.serializeToXml(writer);
+    }
+
+    {
+        SynthDevice synth { "Test Synth" };
+        QXmlStreamReader reader(data);
+        while (!reader.atEnd() && !reader.isStartElement()) {
+            reader.readNext();
+        }
+        synth.deserializeFromXml(reader);
+
+        QCOMPARE(synth.volume(), 0.4f);
+        QCOMPARE(synth.pan(), 0.6f);
+        QCOMPARE(synth.gain(), 0.7f);
+        QCOMPARE(synth.lpfCutoff(), 0.33f);
+
+        // Change via MIDI CC
+        synth.processMidiCc(7, 127, 0);
+        synth.processMidiCc(10, 127, 0);
+        synth.processMidiCc(74, 127, 0);
+        QCOMPARE(synth.volume(), 1.0f);
+        QCOMPARE(synth.pan(), 1.0f);
+        QCOMPARE(synth.lpfCutoff(), 1.0f);
+
+        // Reset All Controllers
+        synth.processMidiCc(121, 0, 0);
+
+        // Should return to LOADED values
+        QCOMPARE(synth.volume(), 0.4f);
+        QCOMPARE(synth.pan(), 0.6f);
+        QCOMPARE(synth.gain(), 0.7f);
+        QCOMPARE(synth.lpfCutoff(), 0.33f);
     }
 }
 

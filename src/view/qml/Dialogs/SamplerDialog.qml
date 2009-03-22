@@ -311,9 +311,9 @@ Dialog {
 
                 Knob {
                     label: qsTr("Global Volume")
-                    value: samplerController.globalVolume * Constants.uiInternalScaling
+                    value: samplerController.volume * Constants.uiInternalScaling
                     onMoved: v => {
-                        samplerController.globalVolume = v / Constants.uiInternalScaling;
+                        samplerController.volume = v / Constants.uiInternalScaling;
                     }
                 }
 

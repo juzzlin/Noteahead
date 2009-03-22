@@ -84,8 +84,8 @@ class SynthController : public QObject
     Q_PROPERTY(int voiceDepth READ voiceDepth WRITE setVoiceDepth NOTIFY voiceDepthChanged)
     Q_PROPERTY(int portamento READ portamento WRITE setPortamento NOTIFY portamentoChanged)
     Q_PROPERTY(int panSpread READ panSpread WRITE setPanSpread NOTIFY panSpreadChanged)
-    Q_PROPERTY(int masterPan READ masterPan WRITE setMasterPan NOTIFY masterPanChanged)
-    Q_PROPERTY(int masterVolume READ masterVolume WRITE setMasterVolume NOTIFY masterVolumeChanged)
+    Q_PROPERTY(int pan READ pan WRITE setPan NOTIFY panChanged)
+    Q_PROPERTY(int volume READ volume WRITE setVolume NOTIFY volumeChanged)
     Q_PROPERTY(int gain READ gain WRITE setGain NOTIFY gainChanged)
     Q_PROPERTY(uint32_t sampleRate READ sampleRate NOTIFY sampleRateChanged)
     Q_PROPERTY(QStringList presetNames READ presetNames CONSTANT)
@@ -193,10 +193,10 @@ public:
     void setPortamento(int p);
     int panSpread() const;
     void setPanSpread(int s);
-    int masterPan() const;
-    void setMasterPan(int p);
-    int masterVolume() const;
-    void setMasterVolume(int v);
+    int pan() const;
+    void setPan(int p);
+    int volume() const;
+    void setVolume(int v);
     int gain() const;
     void setGain(int g);
 
@@ -285,8 +285,8 @@ signals:
     void voiceDepthChanged();
     void portamentoChanged();
     void panSpreadChanged();
-    void masterPanChanged();
-    void masterVolumeChanged();
+    void panChanged();
+    void volumeChanged();
     void gainChanged();
     void sampleRateChanged();
     void delayTypeChanged();

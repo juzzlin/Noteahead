@@ -27,7 +27,6 @@
 
 #include <array>
 #include <memory>
-#include <mutex>
 #include <string>
 #include <vector>
 
@@ -108,11 +107,11 @@ public:
     bool channelMode() const;
     void setChannelMode(bool enabled);
 
-    float globalVolume() const;
-    void setGlobalVolume(float volume);
+    void setPan(float pan) override;
+    void setVolume(float volume) override;
 
     float gain() const;
-    void setGain(float gain);
+    void setGain(float gain) override;
 
     double playbackPosition(uint8_t note) const;
     bool isFinished(uint8_t note) const;
@@ -125,7 +124,7 @@ public:
 private:
     struct Voice;
     void updateVoiceEffects(Voice & voice);
-    void syncParameters();
+    void syncParameters() override;
 
     struct Voice
     {
@@ -136,7 +135,6 @@ private:
         double position = 0.0;
         float velocity = 1.0f;
         float pan = 0.5f;
-        float volume = 1.0f;
         float cutoff = 1.0f;
         float hpfCutoff = 0.0f;
 
@@ -154,18 +152,10 @@ private:
     std::array<std::unique_ptr<Sample>, maxSamples> m_samples;
     std::array<std::unique_ptr<Sample>, maxSamples> m_savedSamples;
     std::vector<Voice> m_voices;
-    mutable std::mutex m_mutex;
 
     std::string m_name;
-    float m_globalPan = 0.5f;
-    float m_globalVolume = 1.0f;
-    float m_gain = 0.5f;
-    float m_linearGain = 1.0f;
     float m_globalCutoff = 1.0f;
     float m_globalHpfCutoff = 0.0f;
-    float m_manualGlobalPan = 0.5f;
-    float m_manualGlobalVolume = 1.0f;
-    float m_manualGain = 0.5f;
     float m_manualGlobalCutoff = 1.0f;
     float m_manualGlobalHpfCutoff = 0.0f;
     bool m_channelMode = false;

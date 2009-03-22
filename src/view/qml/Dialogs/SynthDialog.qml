@@ -253,8 +253,8 @@ Dialog {
                     }
                     Knob {
                         label: qsTr("Master Volume")
-                        value: synthController.masterVolume
-                        onMoved: v => synthController.masterVolume = v
+                        value: synthController.volume
+                        onMoved: v => synthController.volume = v
                         Layout.fillWidth: true
                     }
                     Knob {
@@ -266,8 +266,8 @@ Dialog {
                     }
                     Knob {
                         label: qsTr("Master Pan")
-                        value: synthController.masterPan
-                        onMoved: v => synthController.masterPan = v
+                        value: synthController.pan
+                        onMoved: v => synthController.pan = v
                         Layout.fillWidth: true
                     }
                 }

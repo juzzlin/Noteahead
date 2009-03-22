@@ -535,29 +535,29 @@ void SynthController::setPanSpread(int s)
     }
 }
 
-int SynthController::masterPan() const
+int SynthController::pan() const
 {
-    return m_synth ? static_cast<int>(std::round(m_synth->masterPan() * Constants::uiInternalScaling())) : 0;
+    return m_synth ? static_cast<int>(std::round(m_synth->pan() * Constants::uiInternalScaling())) : 0;
 }
 
-void SynthController::setMasterPan(int p)
+void SynthController::setPan(int p)
 {
     if (m_synth) {
-        m_synth->setMasterPan(p / Constants::uiInternalScaling());
-        emit masterPanChanged();
+        m_synth->setPan(p / Constants::uiInternalScaling());
+        emit panChanged();
     }
 }
 
-int SynthController::masterVolume() const
+int SynthController::volume() const
 {
-    return m_synth ? static_cast<int>(std::round(m_synth->masterVolume() * Constants::uiInternalScaling())) : 0;
+    return m_synth ? static_cast<int>(std::round(m_synth->volume() * Constants::uiInternalScaling())) : 0;
 }
 
-void SynthController::setMasterVolume(int v)
+void SynthController::setVolume(int v)
 {
     if (m_synth) {
-        m_synth->setMasterVolume(v / Constants::uiInternalScaling());
-        emit masterVolumeChanged();
+        m_synth->setVolume(v / Constants::uiInternalScaling());
+        emit volumeChanged();
     }
 }
 
@@ -829,8 +829,8 @@ void SynthController::requestSettings()
     emit voiceDepthChanged();
     emit portamentoChanged();
     emit panSpreadChanged();
-    emit masterPanChanged();
-    emit masterVolumeChanged();
+    emit panChanged();
+    emit volumeChanged();
     emit gainChanged();
 
     emit delayTypeChanged();
