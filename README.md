@@ -4,7 +4,7 @@
 
 Noteahead is a pattern-based MIDI sequencer and music production environment for Linux, built around the tracker workflow: fast, keyboard-driven editing with the whole song in front of you.
 
-It is also a complete studio. Eighteen internal instruments, an LFO modulator, a virtual device rack with per-device insert effects and sends, a mixer view, 45 rack effects and analyzers, and a sample-accurate offline renderer take a song from the first note to a finished master without ever leaving the application. Point it outwards instead and it drives a room full of MIDI hardware with the same precision — or does both at once, in the same song.
+It is also a complete studio. Twenty internal instruments, an LFO modulator, a virtual device rack with per-device insert effects and sends, a mixer view, 45 rack effects and analyzers, and a sample-accurate offline renderer take a song from the first note to a finished master without ever leaving the application. Point it outwards instead and it drives a room full of MIDI hardware with the same precision — or does both at once, in the same song.
 
 Noteahead is written in Qt/QML/C++20 on top of RtMidi back-end + RtAudio. It builds with CMake and uses CTest + Qt Test framework for unit tests.
 
@@ -48,7 +48,7 @@ Noteahead is written in Qt/QML/C++20 on top of RtMidi back-end + RtAudio. It bui
 ##
 ## What you can do with it
 
-**Produce entire songs in the box.** Nineteen internal instruments cover a lot of ground: a six-voice virtual analog Synth, a Juno-60-style JU Synth, an eight-voice Wavetable Synth, a four-operator FM Synth, an acid Bass Synth, two Drum Synths and an FM drum machine, a physically modelled Snare Synth, a 16-pad Sampler, three physically modelled pianos, a TR-808-style Kick808, four vintage string machines after the VP-330/VC340 and the Solina, and a formant speech synth. Each one sits in a slot of the Virtual Device Rack with its own insert effects, sends, fader, level meter and clip LED, and the LFO device can sweep any of their controls, or any effect's.
+**Produce entire songs in the box.** Twenty internal instruments cover a lot of ground: a six-voice virtual analog Synth, a Juno-60-style JU Synth, a Jupiter-8-style JU Synth 08, an eight-voice Wavetable Synth, a four-operator FM Synth, an acid Bass Synth, two Drum Synths and an FM drum machine, a physically modelled Snare Synth, a 16-pad Sampler, three physically modelled pianos, a TR-808-style Kick808, four vintage string machines after the VP-330/VC340 and the Solina, and a formant speech synth. Each one sits in a slot of the Virtual Device Rack with its own insert effects, sends, fader, level meter and clip LED, and the LFO device can sweep any of their controls, or any effect's.
 
 **Mix and master without leaving the application.** All 45 rack effects and analyzers are available both on the master bus and as per-device inserts: four EQs including an 8-band parametric with Mid/Side, two reverbs and an early-reflections room, single-band and multiband compression, a gate, a lookahead limiter, transient shaping, saturation and tube stages, a bit crusher, chorus, flanger, phaser and tremolo, an auto filter — plus LUFS, true-peak, RTA and goniometer metering, and reference monitoring to tell you where you stand. The Mixer view puts every device side by side as channel strips.
 
@@ -121,6 +121,8 @@ All **Arctic Music Project** songs (sequenced or completely produced with Noteah
   - 8-voice four-operator phase-modulation synthesizer in the shape of Yamaha's four-operator machines. Eight algorithms with feedback on the top operator, eight operator waveforms, and per-operator ratio, detune, level, velocity sensitivity, key scaling and envelope. LPF/HPF, Amp and Mod EGs, two LFOs with delayed and faded engagement, rate dividers and Free Run, and the shared voice modes with Phase Randomness. Ships with sixteen factory presets and a button that assembles a playable patch at random.
 - JU Synth
   - Six-voice polysynth after the Juno-60 and JU-06A: one DCO per voice with saw, pulse with PWM, sub and noise, a self-oscillating four-pole ladder filter of its own, one shared ADSR, a free-running LFO with delay, the high pass on the voice sum, and the Juno's Chorus I, II and I+II. Pan Spread, twelve factory presets and presets of your own.
+- JU Synth 08
+  - Eight-voice polysynth after the Jupiter-8: two VCOs per voice with cross-modulation, hard sync, pulse-width modulation and noise, a switchable 12 dB / 24 dB resonant ladder filter, a high pass, two ADSRs with key follow, an LFO with six waveforms and delay, a pitch envelope, Poly, Solo and Unison modes, and a built-in stereo delay. Eleven factory presets, Strings and Brass fitted to recordings of the factory patches, and presets of your own.
 - Bass Synth
   - Monophonic acid-style synthesizer with sub-oscillator, resonant 24dB LPF, and TB-303 style accent/slide.
 - Drum Synth
