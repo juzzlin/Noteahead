@@ -20,6 +20,7 @@
 
 #include <memory>
 #include <optional>
+#include <set>
 
 namespace noteahead {
 
@@ -88,6 +89,9 @@ private:
     std::shared_ptr<SettingsService> m_settingsService;
 
     int m_activeOctave = 3;
+    //! Keys that started the note under the cursor rather than their own: a digit can be a note key
+    //! too, and its release has to stop what its press started.
+    std::set<int> m_positionNoteKeys;
 };
 
 } // namespace noteahead

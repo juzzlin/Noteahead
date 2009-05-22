@@ -41,6 +41,7 @@ private slots:
     void test_livePlay_withChordAutomationDelay_shouldPlayDelayedChordNote();
     void test_livePlay_fromMidiController_shouldApplyAllEffects();
     void test_livePlay_noteOff_shouldStopAllSoundingNotes();
+    void test_livePlayAtCurrentPosition_afterScroll_shouldStopTheNoteItStarted();
     void test_importMidiFile_shouldAddRecentFile();
     void test_isMidiFile_shouldDetectCorrectExtensions();
     void test_requestAlertDialog_shouldEmitSignal();

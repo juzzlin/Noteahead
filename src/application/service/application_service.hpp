@@ -22,6 +22,7 @@
 #include <QVariantMap>
 
 #include <memory>
+#include <optional>
 #include <unordered_map>
 #include <vector>
 
@@ -280,6 +281,9 @@ private:
         size_t currentArpIndex { 0 };
     };
     std::unordered_map<uint8_t, ActiveLiveNote> m_activeLiveNotes;
+    //! The note started at the cursor, stopped by note rather than by what is under the cursor on
+    //! release: typing a velocity scrolls on before the key comes up.
+    std::optional<uint8_t> m_livePositionNote;
 };
 
 } // namespace noteahead

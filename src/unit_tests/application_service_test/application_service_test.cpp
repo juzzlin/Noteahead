@@ -556,6 +556,39 @@ void ApplicationServiceTest::test_livePlay_noteOff_shouldStopAllSoundingNotes()
     QVERIFY(offSpy.count() >= 3);
 }
 
+void ApplicationServiceTest::test_livePlayAtCurrentPosition_afterScroll_shouldStopTheNoteItStarted()
+{
+    // Typing a velocity plays the note under the cursor and scrolls before the key comes up. The
+    // release used to stop the note under the cursor by then, and the one played rang on for good.
+    ApplicationService service;
+    const auto editorService = std::make_shared<MockEditorService>();
+    service.setEditorService(editorService);
+
+    const auto instrument = std::make_shared<Instrument>("Test Port");
+    editorService->setMockInstrument(0, instrument);
+    const auto song = std::make_shared<Song>();
+    editorService->setMockSong(song);
+    NoteData first { 0, 0 };
+    first.setAsNoteOn(60, 100);
+    song->setNoteDataAtPosition(first, { 0, 0, 0, 0, 0 });
+    NoteData second { 0, 0 };
+    second.setAsNoteOn(64, 100);
+    song->setNoteDataAtPosition(second, { 0, 0, 0, 1, 0 });
+    editorService->setMockPosition({ 0, 0, 0, 0, 0 });
+
+    QSignalSpy onSpy { &service, &ApplicationService::liveNoteOnRequested };
+    QSignalSpy offSpy { &service, &ApplicationService::liveNoteOffRequested };
+
+    service.requestLiveNoteOnAtCurrentPosition();
+    editorService->setMockPosition({ 0, 0, 0, 1, 0 });
+    service.requestLiveNoteOffAtCurrentPosition();
+
+    QCOMPARE(onSpy.count(), 1);
+    QCOMPARE(onSpy.at(0).at(1).value<MidiNoteData>().note(), static_cast<uint8_t>(60));
+    QCOMPARE(offSpy.count(), 1);
+    QCOMPARE(offSpy.at(0).at(1).value<MidiNoteData>().note(), static_cast<uint8_t>(60));
+}
+
 void ApplicationServiceTest::test_importMidiFile_shouldAddRecentFile()
 {
     ApplicationService service;

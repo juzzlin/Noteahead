@@ -301,12 +301,14 @@ void KeyboardService::handleNoteTriggered(int key, int modifiers, bool isAutoRep
             if (const auto digit = keyToDigit(key)) {
                 const bool updated = m_editorService->requestDigitSetAtCurrentPosition(static_cast<uint8_t>(*digit));
                 if (!isAutoRepeat) {
+                    m_positionNoteKeys.insert(key);
                     m_applicationService->requestLiveNoteOnAtCurrentPosition();
                 }
                 if (updated) {
                     m_editorService->requestScroll(m_settingsService->step());
                 }
             } else if (!isAutoRepeat) {
+                m_positionNoteKeys.insert(key);
                 m_applicationService->requestLiveNoteOnAtCurrentPosition();
             }
         }
@@ -320,11 +322,11 @@ void KeyboardService::handleNoteTriggered(int key, int modifiers, bool isAutoRep
 
 void KeyboardService::handleLiveNoteReleased(int key)
 {
-    if (const auto note = effectiveNote(key)) {
+    if (m_positionNoteKeys.erase(key)) {
+        m_applicationService->requestLiveNoteOffAtCurrentPosition();
+    } else if (const auto note = effectiveNote(key)) {
         const auto octave = effectiveOctave(key);
         m_applicationService->requestLiveNoteOff(*note, *octave);
-    } else if (m_editorService->isAtVelocityColumn() || m_editorService->isAtDelayColumn() || m_editorService->isAtPanColumn()) {
-        m_applicationService->requestLiveNoteOffAtCurrentPosition();
     }
 }
 

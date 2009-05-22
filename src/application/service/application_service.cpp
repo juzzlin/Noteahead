@@ -31,6 +31,7 @@
 #include <algorithm>
 #include <cmath>
 #include <random>
+#include <utility>
 
 #include "recent_files_manager.hpp"
 #include <QDir>
@@ -645,9 +646,13 @@ void ApplicationService::requestLiveNoteOnAtCurrentPosition()
     }
     juzzlin::L(TAG).debug() << "Live note ON requested on instrument " << instrument->toString().toStdString();
     emit liveNoteOnAtCurrentPositionRequested(instrument);
+    if (m_livePositionNote) {
+        requestLiveMidiNoteOff(*std::exchange(m_livePositionNote, std::nullopt));
+    }
     if (m_editorService->song()) {
         if (const auto noteData = m_editorService->song()->noteDataAtPosition(m_editorService->position()); noteData && noteData->note().has_value()) {
             requestLiveMidiNoteOn(*noteData->note(), noteData->velocity());
+            m_livePositionNote = *noteData->note();
         }
     }
 }
@@ -679,6 +684,7 @@ void ApplicationService::stopAllLiveNotes()
         noteInfo.soundingNotes.clear();
     }
     m_activeLiveNotes.clear();
+    m_livePositionNote.reset();
 }
 
 void ApplicationService::requestAllNotesOff()
@@ -709,10 +715,8 @@ void ApplicationService::requestLiveNoteOffAtCurrentPosition()
     }
     juzzlin::L(TAG).debug() << "Live note OFF at current position requested on instrument " << instrument->toString().toStdString();
     emit liveNoteOffAtCurrentPositionRequested(instrument);
-    if (m_editorService->song()) {
-        if (const auto noteData = m_editorService->song()->noteDataAtPosition(m_editorService->position()); noteData && noteData->note().has_value()) {
-            requestLiveMidiNoteOff(*noteData->note());
-        }
+    if (m_livePositionNote) {
+        requestLiveMidiNoteOff(*std::exchange(m_livePositionNote, std::nullopt));
     }
 }
 

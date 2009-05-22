@@ -79,6 +79,11 @@ public:
         emit liveNoteOnAtCurrentPositionRequested(nullptr);
     }
 
+    void requestLiveNoteOffAtCurrentPosition() override
+    {
+        emit liveNoteOffAtCurrentPositionRequested(nullptr);
+    }
+
 private:
     bool m_editMode = false;
 };
@@ -413,6 +418,32 @@ void KeyboardServiceTest::test_handleKeyPressed_Digit_shouldSetDelay_whenAtDelay
 
     QVERIFY(editorService->digitSet().has_value());
     QCOMPARE(*editorService->digitSet(), quint8 { 5 });
+}
+
+void KeyboardServiceTest::test_handleKeyReleased_DigitThatIsANoteKey_shouldStopTheNoteAtTheCursor_whenAtVelocityColumn()
+{
+    // '0' is a note key as well as a digit. It played the note under the cursor, so its release has
+    // to stop that note rather than the one '0' plays on a note column.
+    const auto applicationService = std::make_shared<MockApplicationService>();
+    const auto editorService = std::make_shared<MockEditorService>();
+    const auto playerService = std::make_shared<MockPlayerService>();
+    const auto selectionService = std::make_shared<MockSelectionService>();
+    const auto settingsService = std::make_shared<MockSettingsService>();
+
+    KeyboardService keyboardService { applicationService, editorService, playerService, selectionService, settingsService };
+
+    applicationService->setEditMode(true);
+    editorService->setMockIsAtNoteColumn(false);
+    editorService->setMockIsAtVelocityColumn(true);
+
+    QSignalSpy positionOffSpy { applicationService.get(), &ApplicationService::liveNoteOffAtCurrentPositionRequested };
+    QSignalSpy keyOffSpy { applicationService.get(), &ApplicationService::liveNoteOffRequested };
+
+    keyboardService.handleKeyPressed(Qt::Key_0, Qt::NoModifier, false);
+    keyboardService.handleKeyReleased(Qt::Key_0, Qt::NoModifier, false);
+
+    QCOMPARE(positionOffSpy.count(), 1);
+    QCOMPARE(keyOffSpy.count(), 0);
 }
 
 void KeyboardServiceTest::test_handleKeyPressed_Delete_shouldClearDelay_whenAtDelayColumn()
