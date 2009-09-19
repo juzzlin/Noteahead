@@ -365,7 +365,8 @@ int WavetableSynthController::lfoTarget() const
 
 void WavetableSynthController::setLfoTarget(int target)
 {
-    if (m_synth && target >= 0 && target <= 3) {
+    // Bounded by the list the dialog offers, so a target added to one cannot go missing from the other
+    if (m_synth && target >= 0 && target < static_cast<int>(lfoTargetNames().size())) {
         m_synth->setLfoTarget(static_cast<WavetableSynthDevice::LfoTarget>(target));
     }
 }
@@ -426,7 +427,8 @@ int WavetableSynthController::lfo2Target() const
 
 void WavetableSynthController::setLfo2Target(int target)
 {
-    if (m_synth && target >= 0 && target <= 3) {
+    // Bounded by the list the dialog offers, so a target added to one cannot go missing from the other
+    if (m_synth && target >= 0 && target < static_cast<int>(lfo2TargetNames().size())) {
         m_synth->setLfo2Target(static_cast<WavetableSynthDevice::LfoTarget>(target));
     }
 }

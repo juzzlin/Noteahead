@@ -5,6 +5,9 @@ Release date:
 
 Bug fixes:
 
+* Fix the Wavetable Synth's last three LFO targets doing nothing
+  - Volume, Resonance and Pan can now be selected for both LFOs
+
 * Fix automations spanning a single line not being drawn at all
   - Also fixes a longer automation vanishing when scrolled so that
     only its first or last line is visible

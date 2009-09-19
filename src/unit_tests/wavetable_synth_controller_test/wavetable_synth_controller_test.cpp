@@ -104,6 +104,30 @@ void WavetableSynthControllerTest::test_voiceMode_everyOfferedMode_shouldReachTh
     }
 }
 
+void WavetableSynthControllerTest::test_lfoTarget_everyOfferedTarget_shouldReachTheDevice()
+{
+    const auto synth = std::make_shared<WavetableSynthDevice>("Test Synth");
+    WavetableSynthController controller { synth };
+
+    for (int target = 0; target < controller.lfoTargetNames().size(); target++) {
+        controller.setLfoTarget(target);
+        QCOMPARE(controller.lfoTarget(), target);
+        QCOMPARE(static_cast<int>(synth->lfoTarget()), target);
+    }
+}
+
+void WavetableSynthControllerTest::test_lfo2Target_everyOfferedTarget_shouldReachTheDevice()
+{
+    const auto synth = std::make_shared<WavetableSynthDevice>("Test Synth");
+    WavetableSynthController controller { synth };
+
+    for (int target = 0; target < controller.lfo2TargetNames().size(); target++) {
+        controller.setLfo2Target(target);
+        QCOMPARE(controller.lfo2Target(), target);
+        QCOMPARE(static_cast<int>(synth->lfo2Target()), target);
+    }
+}
+
 void WavetableSynthControllerTest::test_lfo2_properties_shouldUpdateDevice()
 {
     const auto synth = std::make_shared<WavetableSynthDevice>("Test Synth");

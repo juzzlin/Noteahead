@@ -31,6 +31,8 @@ private slots:
     void test_properties_shouldEmitSignals();
     void test_voiceModes();
     void test_voiceMode_everyOfferedMode_shouldReachTheDevice();
+    void test_lfoTarget_everyOfferedTarget_shouldReachTheDevice();
+    void test_lfo2Target_everyOfferedTarget_shouldReachTheDevice();
     void test_lfo2_properties_shouldUpdateDevice();
     void test_lfo2_properties_shouldEmitSignals();
 
