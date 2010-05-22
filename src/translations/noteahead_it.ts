@@ -2403,6 +2403,29 @@
     </message>
 </context>
 <context>
+    <name>DrumSynthV2Dialog_Presets</name>
+    <message>
+        <source>Kit:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save</source>
+        <translation type="unfinished">Salva</translation>
+    </message>
+    <message>
+        <source>Save the current settings as a preset of your own</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Delete</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Delete the selected preset of your own</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>DynamicEqDialog</name>
     <message>
         <source>Dynamic EQ (Slot %1)</source>

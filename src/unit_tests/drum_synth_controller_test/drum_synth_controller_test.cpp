@@ -176,6 +176,31 @@ void DrumSynthControllerTest::test_reset_shouldRestoreDefaultValues()
     QCOMPARE(controller.volume(), static_cast<int>(std::round(Constants::faderUnityPosition() * Constants::uiInternalScaling())));
 }
 
+void DrumSynthControllerTest::test_presets_init_shouldResetTheKit()
+{
+    const auto audioEngine = std::make_shared<AudioEngine>();
+    const auto deviceService = std::make_shared<DeviceService>(audioEngine, std::make_shared<DataService>());
+    DrumSynthV2Controller controller { deviceService };
+
+    const auto device = std::make_shared<DrumSynthV2Device>(Constants::drumSynthV2DeviceName().toStdString());
+    deviceService->setDevice(0, device);
+    controller.setDevice(Constants::drumSynthV2DeviceName());
+
+    QVERIFY(controller.presetNames().first().contains("Init"));
+
+    const auto defaultTune = controller.voiceTune();
+    controller.setVoiceTune(defaultTune + 200);
+    controller.setVolume(100);
+    QSignalSpy spy { &controller, &DrumSynthV2Controller::voiceTuneChanged };
+
+    controller.loadPreset(0);
+
+    QVERIFY(spy.count() >= 1);
+    QCOMPARE(controller.currentPresetIndex(), 0);
+    QCOMPARE(controller.voiceTune(), defaultTune);
+    QCOMPARE(controller.volume(), static_cast<int>(std::round(Constants::faderUnityPosition() * Constants::uiInternalScaling())));
+}
+
 } // namespace noteahead
 
 QTEST_GUILESS_MAIN(noteahead::DrumSynthControllerTest)

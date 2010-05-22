@@ -22,6 +22,8 @@ New features:
   - Play chords, strum delays, arpeggios, jitter and transpose via computer keyboard, MIDI controller or cursor preview
   - Sounding chord notes, pending delay timers and arpeggiator instances stop cleanly on note-off
 
+* Drum Synth V2: kits of your own, saved and loaded from a Kit selector above the pads
+
 * Support mouse drag glissando on VirtualKeyboard
 
 * Update JU Synth terminology and UI labels

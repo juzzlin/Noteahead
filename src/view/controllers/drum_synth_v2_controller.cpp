@@ -33,6 +33,18 @@ bool DrumSynthV2Controller::acceptsDevice(const DeviceS & device) const
     return std::dynamic_pointer_cast<DrumSynthV2Device>(device) != nullptr;
 }
 
+QStringList DrumSynthV2Controller::factoryPresetNames() const
+{
+    return { "Init" };
+}
+
+void DrumSynthV2Controller::loadFactoryPreset(int index)
+{
+    if (index == 0) {
+        reset();
+    }
+}
+
 int DrumSynthV2Controller::voiceTune() const
 {
     if (!m_device) {

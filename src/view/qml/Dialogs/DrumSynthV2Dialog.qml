@@ -72,6 +72,9 @@ AnimatedDialog {
         anchors.margins: 15
         spacing: 15
 
+        DrumSynthV2Dialog_Presets {
+        }
+
         // Above the columns, as the Sampler puts its own waveform above its pads. Outside the
         // scrolling area on purpose: it is what the knobs below are being set against, so it stays
         // put while they scroll.

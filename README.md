@@ -128,7 +128,7 @@ All **Arctic Music Project** songs (sequenced or completely produced with Noteah
 - Drum Synth
   - Multi-engine drum machine with 11 independent voices (Kick, Snare, Toms, etc.) and dedicated per-voice controls.
 - Drum Synth V2
-  - A second Drum Synth to build on, kept separate so every kit in an existing project keeps playing the original. Adds a Rim voice and an amp envelope per voice — Attack, Hold, Decay and Curve — riding on top of what the voice already plays, so pulling Hold down tightens the drum.
+  - A second Drum Synth to build on, kept separate so every kit in an existing project keeps playing the original. Adds a Rim voice and an amp envelope per voice — Attack, Hold, Decay and Curve — riding on top of what the voice already plays, so pulling Hold down tightens the drum. Kits of your own are saved and loaded above the pads.
 - FM Drums
   - A drum machine with the same four-operator FM voice on every one of its twelve pads, on Drum Synth V2's notes. Per pad an algorithm, four operators with their own envelopes, feedback, a pitch envelope and filtered noise that can modulate an operator, LPF/HPF, and its own insert effects and sends. Default, Analog and Percussion kits, and any kit's drum loadable onto any pad.
 - Sampler

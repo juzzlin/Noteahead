@@ -164,6 +164,7 @@ set(QML_SOURCE_FILES
     ${QML_BASE_DIR}/Dialogs/DrumPadDialog_WaveformView.qml
     ${QML_BASE_DIR}/Dialogs/DrumSynthDialog.qml
     ${QML_BASE_DIR}/Dialogs/DrumSynthV2Dialog.qml
+    ${QML_BASE_DIR}/Dialogs/DrumSynthV2Dialog_Presets.qml
     ${QML_BASE_DIR}/Dialogs/DynamicEqDialog.qml
     ${QML_BASE_DIR}/Dialogs/EditMidiCcAutomationsDelegate.qml
     ${QML_BASE_DIR}/Dialogs/EditMidiCcAutomationsDialog.qml

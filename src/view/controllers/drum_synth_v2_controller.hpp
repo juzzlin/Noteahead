@@ -107,6 +107,10 @@ public:
 
     void requestSettings() override;
 
+    //! Only Init, the kit as the device starts out. The rest are the user's own.
+    QStringList factoryPresetNames() const override;
+    void loadFactoryPreset(int index) override;
+
 signals:
     void voiceTuneChanged();
     void voiceDecayChanged();

@@ -19,6 +19,7 @@ private slots:
     void test_sampleRateChange_shouldUpdateHzValues();
     void test_properties_shouldUpdateDeviceAndEmitSignals();
     void test_reset_shouldRestoreDefaultValues();
+    void test_presets_init_shouldResetTheKit();
 };
 
 } // namespace noteahead
