@@ -84,6 +84,7 @@ BassSynthDevice::BassSynthDevice(std::string name)
 
     addParameter(Parameter(Constants::NahdXml::xmlKeyAccent().toStdString(), 0.5f, 0, 10000, 5000, 100));
     addParameter(Parameter(Constants::NahdXml::xmlKeySlide().toStdString(), 0.0f, 0, 10000, 0, 100));
+    addParameter(Parameter(Constants::NahdXml::xmlKeyPitchBendRange().toStdString(), 2.0f, 0, 24, 2, 1, Parameter::Type::Discrete));
 
     addParameter(Parameter(Constants::NahdXml::xmlKeyDistDrive().toStdString(), 0.0f, 0, 10000, 0, 100));
     addParameter(Parameter(Constants::NahdXml::xmlKeyDistTone().toStdString(), 0.5f, 0, 10000, 5000, 100));
@@ -475,6 +476,8 @@ void BassSynthDevice::syncParameters()
         m_accent = p->get().value();
     if (auto p = parameter(Constants::NahdXml::xmlKeySlide().toStdString()); p)
         m_slide = p->get().value();
+    if (auto p = parameter(Constants::NahdXml::xmlKeyPitchBendRange().toStdString()); p)
+        m_pitchBendRange = static_cast<int>(p->get().xmlValue());
 
     if (auto p = parameter(Constants::NahdXml::xmlKeyDistDrive().toStdString()); p)
         m_distDrive = p->get().value();
@@ -627,6 +630,23 @@ float BassSynthDevice::slide() const
 void BassSynthDevice::setSlide(float slide)
 {
     setContinuousParameterValue(Constants::NahdXml::xmlKeySlide().toStdString(), slide);
+}
+
+int BassSynthDevice::pitchBendRange() const
+{
+    const std::lock_guard<std::recursive_mutex> lock { mutex() };
+    return m_pitchBendRange;
+}
+
+void BassSynthDevice::setPitchBendRange(int range)
+{
+    setDiscreteParameterValue(Constants::NahdXml::xmlKeyPitchBendRange().toStdString(), range);
+}
+
+float BassSynthDevice::currentPitchBendOffset() const
+{
+    const std::lock_guard<std::recursive_mutex> lock { mutex() };
+    return (static_cast<float>(m_pitchBend) - 8192.0f) / 8192.0f * static_cast<float>(m_pitchBendRange);
 }
 
 float BassSynthDevice::distDrive() const

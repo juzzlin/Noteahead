@@ -175,6 +175,13 @@ void BassSynthControllerTest::test_properties_shouldUpdateDeviceAndEmitSignals()
         QCOMPARE(controller.slide(), 500);
     }
     {
+        QSignalSpy spy { &controller, &BassSynthController::pitchBendRangeChanged };
+        controller.setPitchBendRange(12);
+        QCOMPARE(spy.count(), 1);
+        QCOMPARE(controller.pitchBendRange(), 12);
+        QCOMPARE(device->pitchBendRange(), 12);
+    }
+    {
         QSignalSpy spy { &controller, &BassSynthController::distDriveChanged };
         controller.setDistDrive(750);
         QCOMPARE(spy.count(), 1);

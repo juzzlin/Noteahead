@@ -196,6 +196,18 @@ void BassSynthController::setSlide(int s)
     }
 }
 
+int BassSynthController::pitchBendRange() const
+{
+    return m_device ? m_device->pitchBendRange() : 0;
+}
+
+void BassSynthController::setPitchBendRange(int r)
+{
+    if (m_device) {
+        m_device->setPitchBendRange(r);
+    }
+}
+
 int BassSynthController::distDrive() const
 {
     return m_device ? static_cast<int>(std::round(m_device->distDrive() * Constants::uiInternalScaling())) : 0;
@@ -245,6 +257,7 @@ void BassSynthController::requestSettings()
     emit decayChanged();
     emit accentChanged();
     emit slideChanged();
+    emit pitchBendRangeChanged();
     emit volumeChanged();
     emit gainChanged();
     emit panChanged();

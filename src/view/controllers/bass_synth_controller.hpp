@@ -44,6 +44,7 @@ class BassSynthController : public DeviceController
     // Global / Modifiers
     Q_PROPERTY(int accent READ accent WRITE setAccent NOTIFY accentChanged)
     Q_PROPERTY(int slide READ slide WRITE setSlide NOTIFY slideChanged)
+    Q_PROPERTY(int pitchBendRange READ pitchBendRange WRITE setPitchBendRange NOTIFY pitchBendRangeChanged)
 
     // Distortion
     Q_PROPERTY(int distDrive READ distDrive WRITE setDistDrive NOTIFY distDriveChanged)
@@ -84,6 +85,8 @@ public:
     void setAccent(int a);
     int slide() const;
     void setSlide(int s);
+    int pitchBendRange() const;
+    void setPitchBendRange(int r);
 
     int distDrive() const;
     void setDistDrive(int d);
@@ -107,6 +110,7 @@ signals:
     void decayChanged();
     void accentChanged();
     void slideChanged();
+    void pitchBendRangeChanged();
     void distDriveChanged();
     void distToneChanged();
     void distLevelChanged();

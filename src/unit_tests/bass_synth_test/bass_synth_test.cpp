@@ -30,6 +30,7 @@ void BassSynthTest::test_serialization_shouldRestoreParameters()
     synth.setLpfCutoff(0.75f);
     synth.setWaveform(PolyBlepOscillator::Waveform::Square);
     synth.setSubLevel(0.5f);
+    synth.setPitchBendRange(7);
 
     QString xml;
     NahdXmlWriter writer { xml };
@@ -44,6 +45,7 @@ void BassSynthTest::test_serialization_shouldRestoreParameters()
     QCOMPARE(synth2.lpfCutoff(), 0.75f);
     QCOMPARE(static_cast<int>(synth2.waveform()), static_cast<int>(PolyBlepOscillator::Waveform::Square));
     QCOMPARE(synth2.subLevel(), 0.5f);
+    QCOMPARE(synth2.pitchBendRange(), 7);
 }
 
 void BassSynthTest::test_midiProcessing_shouldTriggerAudio()
@@ -301,6 +303,65 @@ void BassSynthTest::test_subOscOptimization_shouldSkipSilentSubOsc()
         QVERIFY2(std::abs(buffer1[i] - buffer2[i]) < 1e-6,
                  QString("Output changed when Sub-oscillator parameters changed: diff=%1").arg(std::abs(buffer1[i] - buffer2[i])).toUtf8().constData());
     }
+}
+
+void BassSynthTest::test_pitchBendRange_shouldScaleBendOffset()
+{
+    BassSynthDevice synth { "Test BassSynth" };
+    QCOMPARE(synth.pitchBendRange(), 2);
+
+    // Default center
+    QCOMPARE(synth.currentPitchBendOffset(), 0.0f);
+
+    // Max up
+    synth.processMidiPitchBend(16383, 0);
+    QCOMPARE(std::round(synth.currentPitchBendOffset()), 2.0f);
+
+    // Max down
+    synth.processMidiPitchBend(0, 0);
+    QCOMPARE(std::round(synth.currentPitchBendOffset()), -2.0f);
+
+    // Range change
+    synth.setPitchBendRange(12);
+    synth.processMidiPitchBend(16383, 0);
+    QCOMPARE(std::round(synth.currentPitchBendOffset()), 12.0f);
+}
+
+void BassSynthTest::test_pitchBendRange_shouldShiftRenderedFrequency()
+{
+    const uint32_t sampleRate = 44100;
+    const uint32_t frameCount = 8192;
+
+    const auto zeroCrossings = [=](uint16_t pitchBend) {
+        BassSynthDevice synth { "Test BassSynth" };
+        synth.setWaveform(PolyBlepOscillator::Waveform::Sine);
+        synth.setSubLevel(0.0f);
+        synth.setLpfCutoff(1.0f);
+        synth.setDecay(1.0f);
+        synth.setPitchBendRange(12);
+        synth.processMidiPitchBend(pitchBend, 0);
+        synth.processMidiNoteOn(60, 100);
+
+        std::vector<double> buffer(static_cast<size_t>(frameCount) * 2, 0.0);
+        AudioContext context { std::span(buffer.data(), buffer.size()), frameCount, sampleRate };
+        synth.processAudio(context);
+
+        size_t crossings = 0;
+        for (size_t i = 2; i < buffer.size(); i += 2) { // Left channel only
+            if ((buffer.at(i - 2) < 0.0) != (buffer.at(i) < 0.0)) {
+                crossings++;
+            }
+        }
+        return crossings;
+    };
+
+    const auto centered = zeroCrossings(8192);
+    QVERIFY(centered > 0);
+
+    // Max bend up with a range of 12 semitones doubles the frequency
+    const auto bentUp = zeroCrossings(16383);
+    QVERIFY(static_cast<double>(bentUp) > static_cast<double>(centered) * 1.8);
+    QVERIFY(static_cast<double>(bentUp) < static_cast<double>(centered) * 2.2);
 }
 
 } // namespace noteahead

@@ -85,6 +85,9 @@ public:
     void setAccent(float accent);
     float slide() const;
     void setSlide(float slide);
+    int pitchBendRange() const;
+    void setPitchBendRange(int range);
+    float currentPitchBendOffset() const;
 
     float distDrive() const;
     void setDistDrive(float drive);

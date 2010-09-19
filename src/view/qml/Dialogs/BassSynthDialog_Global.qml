@@ -70,4 +70,14 @@ ColumnLayout {
         onMoved: v => bassSynthController.slide = v
         Layout.fillWidth: true
     }
+    Knob {
+        label: qsTr("Pitch Bend Range")
+        from: 0
+        to: 24
+        stepSize: 1
+        suffix: ""
+        value: bassSynthController.pitchBendRange
+        onMoved: v => bassSynthController.pitchBendRange = Math.round(v)
+        Layout.fillWidth: true
+    }
 }

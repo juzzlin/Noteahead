@@ -36,6 +36,8 @@ private slots:
     void test_sineWave_noClickAtAttack();
     void test_midiVelocity_shouldAffectVolume();
     void test_subOscOptimization_shouldSkipSilentSubOsc();
+    void test_pitchBendRange_shouldScaleBendOffset();
+    void test_pitchBendRange_shouldShiftRenderedFrequency();
 };
 
 } // namespace noteahead
