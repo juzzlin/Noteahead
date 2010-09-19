@@ -142,9 +142,11 @@ void WavetableSynthTest::test_serialization_shouldPreserveState()
     const float pos = 0.8f;
     const float cutoff = 0.3f;
     const int wtIndex = 1;
+    const int pitchBendRange = 7;
     synth1.setOsc1Pos(pos);
     synth1.setLpfCutoff(cutoff);
     synth1.setWavetableIndex(wtIndex);
+    synth1.setPitchBendRange(pitchBendRange);
 
     QString xml;
     NahdXmlWriter writer { xml };
@@ -159,6 +161,7 @@ void WavetableSynthTest::test_serialization_shouldPreserveState()
     QCOMPARE(synth2.osc1Pos(), pos);
     QCOMPARE(synth2.lpfCutoff(), cutoff);
     QCOMPARE(synth2.wavetableIndex(), wtIndex);
+    QCOMPARE(synth2.pitchBendRange(), pitchBendRange);
 }
 
 void WavetableSynthTest::test_pitchBend_shouldUpdateFrequency()

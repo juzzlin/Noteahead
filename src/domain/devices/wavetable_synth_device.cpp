@@ -186,6 +186,7 @@ WavetableSynthDevice::WavetableSynthDevice(std::string name)
     addParameter(Parameter { Constants::NahdXml::xmlKeyVoiceDepth().toStdString(), 0.1f, 0, 10000, 1000, 100, Parameter::Type::Continuous, { "wavetableSynthVoiceDepth" } });
     addParameter(Parameter { Constants::NahdXml::xmlKeyPanSpread().toStdString(), 0.5f, 0, 10000, 5000, 100, Parameter::Type::Continuous, { "wavetableSynthPanSpread" } });
     addParameter(Parameter { Constants::NahdXml::xmlKeyPortamento().toStdString(), 0.0f, 0, 10000, 0, 100, Parameter::Type::Continuous, { "wavetableSynthPortamento" } });
+    addParameter(Parameter { Constants::NahdXml::xmlKeyPitchBendRange().toStdString(), 2.0f, 0, 24, 2, 1, Parameter::Type::Discrete });
     addParameter(Parameter { Constants::NahdXml::xmlKeyWavetableIndex().toStdString(), 0.0f, 0, static_cast<int>(Wavetable::setNames().size()) - 1, 0, 1, Parameter::Type::Discrete, { "wavetableSynthWavetableIndex" } });
 
     for (auto && voice : m_voices) {
@@ -893,6 +894,7 @@ void WavetableSynthDevice::syncParameters()
     updateParam(Constants::NahdXml::xmlKeyVoiceDepth(), m_voiceDepth);
     updateParam(Constants::NahdXml::xmlKeyPanSpread(), m_panSpread);
     updateParam(Constants::NahdXml::xmlKeyPortamento(), m_portamento);
+    updateDiscreteParam(Constants::NahdXml::xmlKeyPitchBendRange(), m_pitchBendRange);
     updateDiscreteParam(Constants::NahdXml::xmlKeyWavetableIndex(), m_wavetableIndex);
 
     // A project saved by a newer build can name a set this one does not have; fall back to the
@@ -1505,16 +1507,7 @@ int WavetableSynthDevice::pitchBendRange() const
 
 void WavetableSynthDevice::setPitchBendRange(int range)
 {
-    bool changed = false;
-    {
-        std::lock_guard<std::recursive_mutex> lock { mutex() };
-        m_pitchBendRange = range;
-        syncParameters();
-        changed = true;
-    }
-    if (changed) {
-        emit dataChanged();
-    }
+    setDiscreteParameterValue(Constants::NahdXml::xmlKeyPitchBendRange().toStdString(), range);
 }
 
 } // namespace noteahead

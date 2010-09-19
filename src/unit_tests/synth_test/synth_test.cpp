@@ -621,6 +621,27 @@ void SynthTest::test_serialization_shouldSaveAndLoadGain()
     }
 }
 
+void SynthTest::test_serialization_shouldSaveAndLoadPitchBendRange()
+{
+    QByteArray data;
+    {
+        SynthDevice synth { "Test Synth" };
+        synth.setPitchBendRange(7);
+        NahdXmlWriter writer { data };
+        synth.serializeToXml(writer);
+    }
+
+    {
+        SynthDevice synth { "Test Synth" };
+        NahdXmlReader reader { data };
+        while (!reader.atEnd() && !reader.isStartElement()) {
+            reader.readNext();
+        }
+        synth.deserializeFromXml(reader);
+        QCOMPARE(synth.pitchBendRange(), 7);
+    }
+}
+
 void SynthTest::test_midiCcResetPanAndVolume_shouldRestoreManualValues()
 {
     SynthDevice synth { "Test Synth" };

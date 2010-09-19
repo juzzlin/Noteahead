@@ -1825,7 +1825,7 @@ int SynthDevice::pitchBendRange() const
 
 void SynthDevice::setPitchBendRange(int range)
 {
-    setContinuousParameterValue(Constants::NahdXml::xmlKeyPitchBendRange().toStdString(), static_cast<float>(range));
+    setDiscreteParameterValue(Constants::NahdXml::xmlKeyPitchBendRange().toStdString(), range);
 }
 
 float SynthDevice::currentPitchBendOffset() const

@@ -5,6 +5,9 @@ Release date:
 
 Bug fixes:
 
+* Fix the Wavetable Synth's Pitch Bend Range not being saved
+  - The setting was lost on reload and always came back as 2 semitones
+
 * Fix the Wavetable Synth's last three LFO targets doing nothing
   - Volume, Resonance and Pan can now be selected for both LFOs
 
