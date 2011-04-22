@@ -23,6 +23,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 option(BUILD_TESTS "Build unit tests." ON)
 option(ENABLE_MIDI_DEBUG "Enable MIDI debug messages." OFF)
 option(ENABLE_JACK_SUPPORT "Enable JACK support." ON)
+option(ENABLE_NATIVE_ARCH "Optimize release builds for the host CPU (-march=native)." OFF)
 
 if(CMAKE_COMPILER_IS_GNUCXX OR MINGW OR ${CMAKE_CXX_COMPILER_ID} MATCHES "Clang")
    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wpedantic")
@@ -32,7 +33,11 @@ if(CMAKE_COMPILER_IS_GNUCXX OR MINGW OR ${CMAKE_CXX_COMPILER_ID} MATCHES "Clang"
    set(RELEASE_FLAGS "-O3 -ffast-math -fno-finite-math-only -fno-math-errno")
    # Check architecture and append the correct optimization flags
    if(CMAKE_SYSTEM_PROCESSOR MATCHES "(x86_64|i386|AMD64)")
-       set(RELEASE_FLAGS "${RELEASE_FLAGS} -march=x86-64-v2")
+       if(ENABLE_NATIVE_ARCH)
+           set(RELEASE_FLAGS "${RELEASE_FLAGS} -march=native")
+       else()
+           set(RELEASE_FLAGS "${RELEASE_FLAGS} -march=x86-64-v2")
+       endif()
    elseif(CMAKE_SYSTEM_PROCESSOR MATCHES "(arm|aarch64)")
        # -march=native optimizes for the specific host ARM CPU you are building on.
        # Alternatively, use "-mcpu=native" or omit micro-architecture flags entirely for generic ARM.
