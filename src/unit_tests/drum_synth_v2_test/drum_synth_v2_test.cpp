@@ -32,6 +32,7 @@
 #include <array>
 #include <set>
 #include <span>
+#include <type_traits>
 
 #include <cmath>
 
@@ -174,10 +175,21 @@ bool isFittedVoice(int voice)
       || index == Crash || index == Ride || index == ReverseCrash || index == Rim;
 }
 
+//! Puts every voice of a V2 at V1's level: V1's is a linear gain at 80 %, V2's a fader at unity.
+void matchV1Level(DrumSynthV2Device & device)
+{
+    for (int voice = 0; voice < DrumSynthV2::NumVoices; voice++) {
+        device.updateVoiceParameter(voice, Constants::NahdXml::xmlKeyFader().toStdString(), static_cast<float>(ParameterMapper::unmapFader(0.8)));
+    }
+}
+
 template<typename DeviceT>
 std::vector<double> renderNote(uint8_t note, uint32_t blocks = 1)
 {
     DeviceT device { "Drum Synth" };
+    if constexpr (std::is_same_v<DeviceT, DrumSynthV2Device>) {
+        matchV1Level(device);
+    }
     device.processMidiNoteOn(note, 100);
     std::vector<double> rendered;
     rendered.reserve(static_cast<size_t>(blocks) * frameCount * 2);
@@ -380,6 +392,7 @@ void DrumSynthV2Test::test_ampEnvelope_fullSustain_shouldMatchV1Exactly()
         const auto note = notes.voiceNote(voice);
 
         DrumSynthV2Device v2 { "V2" };
+        matchV1Level(v2);
         v2.updateVoiceParameter(voice, Constants::NahdXml::xmlKeyAmpAttack().toStdString(), 0.0f);
         v2.updateVoiceParameter(voice, Constants::NahdXml::xmlKeyAmpHold().toStdString(), 0.0f);
         v2.updateVoiceParameter(voice, Constants::NahdXml::xmlKeyAmpRelease().toStdString(), 0.0f);
@@ -979,7 +992,7 @@ void DrumSynthV2Test::test_applyParameterAutomation_voiceKey_shouldReachOnlyThat
     const double kickBefore = peakOf(device.renderVoiceAlone(kick, 48000, 2.0));
     const auto snareBefore = device.renderVoiceAlone(snare, 48000, 2.0);
 
-    const auto levelKey = DrumSynthV2::voiceId(kick) + "_" + Constants::NahdXml::xmlKeyLevel().toStdString();
+    const auto levelKey = DrumSynthV2::voiceId(kick) + "_" + Constants::NahdXml::xmlKeyFader().toStdString();
     QVERIFY(device.applyParameterAutomation(levelKey, ParameterAutomation::Mode::Absolute, 0.2));
 
     QVERIFY(peakOf(device.renderVoiceAlone(kick, 48000, 2.0)) < kickBefore * 0.5);
@@ -988,6 +1001,27 @@ void DrumSynthV2Test::test_applyParameterAutomation_voiceKey_shouldReachOnlyThat
     // And the channel strip, which a kit syncs on its own
     QVERIFY(device.applyParameterAutomation(Constants::NahdXml::xmlKeyFader().toStdString(), ParameterAutomation::Mode::Absolute, 0.25));
     QVERIFY(std::abs(device.faderGain() - ParameterMapper::mapFader(0.25)) < 1.0e-6);
+}
+
+void DrumSynthV2Test::test_voiceLevel_default_shouldBeUnity()
+{
+    const DrumSynthV2Device device { "Drum Synth V2" };
+    for (int voice = 0; voice < DrumSynthV2::NumVoices; voice++) {
+        const auto level = device.voiceParameterValue(voice, Constants::NahdXml::xmlKeyFader().toStdString());
+        QCOMPARE(ParameterMapper::mapFader(static_cast<double>(level)), 1.0);
+    }
+}
+
+void DrumSynthV2Test::test_applyParameterAutomation_legacyLevelKey_shouldMoveTheFaderToTheSameGain()
+{
+    // An absolute automation saved against "level" carries a linear gain, not a fader position
+    DrumSynthV2Device device { "Test" };
+    const auto legacyKey = DrumSynthV2::voiceId(0) + "_" + Constants::NahdXml::xmlKeyLevel().toStdString();
+
+    QVERIFY(device.applyParameterAutomation(legacyKey, ParameterAutomation::Mode::Absolute, 0.5));
+
+    const auto level = device.voiceParameterValue(0, Constants::NahdXml::xmlKeyFader().toStdString());
+    QVERIFY(std::abs(ParameterMapper::mapFader(static_cast<double>(level)) - 0.5) < 1.0e-3);
 }
 
 } // namespace noteahead

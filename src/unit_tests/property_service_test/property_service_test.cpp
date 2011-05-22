@@ -545,7 +545,7 @@ void PropertyServiceTest::test_automationTargets_drumSynth_shouldListEachDrum()
         const auto target = targets.at(voice + 1).toMap();
         QCOMPARE(target["group"].toString(), DrumSynthV2::voiceName(voice));
         const auto prefix = QString::fromStdString(DrumSynthV2::voiceId(voice) + "_");
-        for (auto && key : { Constants::NahdXml::xmlKeyLevel(), Constants::NahdXml::xmlKeyPan(), Constants::NahdXml::xmlKeyCutoff(), Constants::NahdXml::xmlKeyHpfCutoff(), Constants::NahdXml::xmlKeyAmpDecay() }) {
+        for (auto && key : { Constants::NahdXml::xmlKeyFader(), Constants::NahdXml::xmlKeyPan(), Constants::NahdXml::xmlKeyCutoff(), Constants::NahdXml::xmlKeyHpfCutoff(), Constants::NahdXml::xmlKeyAmpDecay() }) {
             QVERIFY2(!parameterOf(target, prefix + key).isEmpty(), qPrintable(prefix + key));
         }
     }

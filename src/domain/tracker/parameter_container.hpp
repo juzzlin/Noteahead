@@ -52,6 +52,10 @@ public:
     ParameterOpt parameter(const std::string & name);
     ConstParameterOpt parameter(const std::string & name) const;
 
+    //! The parameter @p legacyName was renamed to, or nothing when it is not a legacy name. What an
+    //! automation saved against the old name is resolved with.
+    std::optional<std::string> renamedParameterName(const std::string & legacyName) const;
+
     std::map<std::string, Parameter> & parameters();
     const std::map<std::string, Parameter> & parameters() const;
 

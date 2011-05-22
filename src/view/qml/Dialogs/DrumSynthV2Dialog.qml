@@ -164,7 +164,7 @@ AnimatedDialog {
 
                         Knob {
                             label: qsTr("Level")
-                            mapping: "volume"
+                            mapping: "fader"
                             value: drumSynthV2Controller.voiceLevel
                             onMoved: (val) => drumSynthV2Controller.voiceLevel = val
                         }

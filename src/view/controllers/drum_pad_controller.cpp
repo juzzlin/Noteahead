@@ -208,14 +208,14 @@ int DrumPadController::voiceLevel() const
     if (!m_device) {
         return 0;
     }
-    const auto parameter = m_device->parameter(currentVoicePrefix() + Constants::NahdXml::xmlKeyLevel().toStdString());
+    const auto parameter = m_device->parameter(currentVoicePrefix() + Constants::NahdXml::xmlKeyFader().toStdString());
     return parameter ? static_cast<int>(std::round(parameter->get().shownValue() * Constants::uiInternalScaling())) : 0;
 }
 
 void DrumPadController::setVoiceLevel(int value)
 {
     if (m_device) {
-        m_device->updateVoiceParameter(m_selectedVoice, Constants::NahdXml::xmlKeyLevel().toStdString(), static_cast<float>(value) / Constants::uiInternalScaling());
+        m_device->updateVoiceParameter(m_selectedVoice, Constants::NahdXml::xmlKeyFader().toStdString(), static_cast<float>(value) / Constants::uiInternalScaling());
     }
 }
 

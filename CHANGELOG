@@ -24,6 +24,8 @@ New features:
 
 * Drum Synth V2: kits of your own, saved and loaded from a Kit selector above the pads
 
+* Drum Synth V2 and FM Drums: a voice's Level is a fader with boost, at 0 dB by default
+
 * Support mouse drag glissando on VirtualKeyboard
 
 * Update JU Synth terminology and UI labels

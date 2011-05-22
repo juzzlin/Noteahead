@@ -36,6 +36,7 @@ void describeDrumVoiceParameters(ParameterContainer & container, const std::stri
     };
 
     percent(C::xmlKeyLevel(), QT_TRANSLATE_NOOP("ParameterDisplay", "Level"));
+    describe(C::xmlKeyFader(), { .mapping = Display::Mapping::Fader, .unit = "dB", .label = QT_TRANSLATE_NOOP("ParameterDisplay", "Level") });
     describe(C::xmlKeyPan(), { .mapping = Display::Mapping::Pan, .unit = "%", .min = -100.0, .max = 100.0, .rest = Display::Rest::Centre, .label = QT_TRANSLATE_NOOP("ParameterDisplay", "Pan") });
     // LowPassFilter and HighPassFilter, whose travel starts at 0 Hz
     describe(C::xmlKeyCutoff(), { .mapping = Display::Mapping::LogFrequency, .unit = "Hz", .min = 0.0, .max = 20000.0, .label = QT_TRANSLATE_NOOP("ParameterDisplay", "LPF Cutoff") });

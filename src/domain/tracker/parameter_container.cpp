@@ -62,6 +62,14 @@ ParameterContainer::ConstParameterOpt ParameterContainer::parameter(const std::s
     return std::nullopt;
 }
 
+std::optional<std::string> ParameterContainer::renamedParameterName(const std::string & legacyName) const
+{
+    if (const auto it = m_legacyNameMap.find(legacyName); it != m_legacyNameMap.end()) {
+        return it->second;
+    }
+    return std::nullopt;
+}
+
 std::map<std::string, Parameter> & ParameterContainer::parameters()
 {
     return m_parameters;

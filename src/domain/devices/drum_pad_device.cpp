@@ -638,7 +638,18 @@ void DrumPadDevice::addVoiceParameters(int index)
     const std::string prefix { voiceId(index) + "_" };
 
     // Standard voice parameters
-    addParameter(Parameter { prefix + Constants::NahdXml::xmlKeyLevel().toStdString(), 0.8f, 0, 10000, 8000, 100 });
+    // A fader, as on the Sampler's pads, with unity three quarters up and boost above it. It was a
+    // linear gain under "level" before, at 80 %, which a kit saved then converts back from.
+    addParameter(Parameter {
+      prefix + Constants::NahdXml::xmlKeyFader().toStdString(),
+      Constants::faderUnityPosition(),
+      0,
+      10000,
+      static_cast<int>(std::lround(Constants::faderUnityPosition() * 10000.0f)),
+      100,
+      Parameter::Type::Continuous,
+      { prefix + Constants::NahdXml::xmlKeyLevel().toStdString() },
+      [](float legacyGain) { return static_cast<float>(ParameterMapper::unmapFader(static_cast<double>(legacyGain))); } });
     addParameter(Parameter { prefix + Constants::NahdXml::xmlKeyPan().toStdString(), 0.5f, 0, 10000, 5000, 100 });
     const auto [lpfCutoff, hpfCutoff] = defaultFilterCutoffs(index);
     addParameter(Parameter { prefix + Constants::NahdXml::xmlKeyCutoff().toStdString(), lpfCutoff, 0, 10000, Parameter::internalToXmlValue(lpfCutoff, 0, 10000), 100 });
@@ -757,8 +768,8 @@ void DrumPadDevice::syncVoiceParameters(int index)
 {
     const std::string prefix { voiceId(index) + "_" };
 
-    if (auto p = parameter(prefix + Constants::NahdXml::xmlKeyLevel().toStdString()); p)
-        m_voices.at(index).level = p->get().value();
+    if (auto p = parameter(prefix + Constants::NahdXml::xmlKeyFader().toStdString()); p)
+        m_voices.at(index).level = static_cast<float>(ParameterMapper::mapFader(static_cast<double>(p->get().value())));
     if (auto p = parameter(prefix + Constants::NahdXml::xmlKeyPan().toStdString()); p)
         m_voices.at(index).pan = p->get().value();
     if (auto p = parameter(prefix + Constants::NahdXml::xmlKeyCutoff().toStdString()); p)

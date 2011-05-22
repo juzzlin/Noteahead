@@ -110,7 +110,7 @@ All **Arctic Music Project** songs (sequenced or completely produced with Noteah
 - Virtual Device Rack
   - Central hub for managing multiple independent instances of internal instruments.
   - Per-slot level meter with a gain staging marker, a load readout, and a clip LED that latches on any full-scale output until clicked.
-  - Faders run from -inf to +10 dB, with unity three quarters up the throw, on devices and Sampler pads alike.
+  - Faders run from -inf to +10 dB, with unity three quarters up the throw, on devices, Sampler pads and the drum machines' voices alike.
   - A track without a device gets one from its header icon or its right-click menu, which opens the rack and offers the device just added.
   - Every instrument but the Sampler and the drum machines has an Octave control, -2 to +2, saved with the project.
 - Synth

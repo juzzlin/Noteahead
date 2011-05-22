@@ -258,7 +258,7 @@ void FmDrumsTest::test_loadKit_default_shouldBeANewDevice()
     namespace NahdXml = Constants::NahdXml;
     FmDrumsDevice device { "FM Drums" };
     device.loadKit(1);
-    device.updateVoiceParameter(0, NahdXml::xmlKeyLevel().toStdString(), 0.3f);
+    device.updateVoiceParameter(0, NahdXml::xmlKeyFader().toStdString(), 0.3f);
     device.updateVoiceParameter(4, NahdXml::xmlKeyAmpHold().toStdString(), 0.6f);
     device.setLpfSlope(1);
 
@@ -275,7 +275,7 @@ void FmDrumsTest::test_loadPadPreset_shouldChangeOnlyThatPadsVoice()
     namespace NahdXml = Constants::NahdXml;
     FmDrumsDevice device { "FM Drums" };
     const int snare = static_cast<int>(DrumSynthV2::VoiceIndex::Snare);
-    device.updateVoiceParameter(snare, NahdXml::xmlKeyLevel().toStdString(), 0.42f);
+    device.updateVoiceParameter(snare, NahdXml::xmlKeyFader().toStdString(), 0.42f);
     device.updateVoiceParameter(snare, NahdXml::xmlKeyAmpHold().toStdString(), 0.33f);
     const auto kickBefore = device.renderVoiceAlone(0, SampleRate, MaxSeconds);
 
@@ -287,7 +287,7 @@ void FmDrumsTest::test_loadPadPreset_shouldChangeOnlyThatPadsVoice()
 
     QCOMPARE(device.voiceParameterValue(snare, NahdXml::xmlKeyAlgorithm().toStdString()), 7.0f);
     QCOMPARE(device.voiceParameterValue(snare, NahdXml::xmlKeyOperatorWaveform(0).toStdString()), static_cast<float>(FmOperator::Waveform::Square));
-    QCOMPARE(device.voiceParameterValue(snare, NahdXml::xmlKeyLevel().toStdString()), 0.42f);
+    QCOMPARE(device.voiceParameterValue(snare, NahdXml::xmlKeyFader().toStdString()), 0.42f);
     QCOMPARE(device.voiceParameterValue(snare, NahdXml::xmlKeyAmpHold().toStdString()), 0.33f);
     QCOMPARE(device.renderVoiceAlone(0, SampleRate, MaxSeconds), kickBefore);
 }

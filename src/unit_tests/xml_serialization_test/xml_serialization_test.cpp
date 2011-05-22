@@ -32,6 +32,7 @@
 #include "../../domain/devices/drum_synth_constants.hpp"
 #include "../../domain/devices/drum_synth_device.hpp"
 #include "../../domain/devices/drum_synth_v2_constants.hpp"
+#include "../../common/parameter_mapper.hpp"
 #include "../../domain/devices/drum_synth_v2_device.hpp"
 #include "../../domain/devices/fm_drums_device.hpp"
 #include "../../domain/devices/fm_synth_device.hpp"
@@ -4994,6 +4995,21 @@ void XmlSerializationTest::test_drive_legacyDrive_shouldKeepItsGain()
     // Half travel used to mean 1 + 0.5 * 9 = 5.5x, which is 14.8 dB.
     const double restoredDb = static_cast<double>(p->get().value()) * 40.0;
     QVERIFY(std::abs(restoredDb - 20.0 * std::log10(5.5)) < 0.05);
+}
+
+void XmlSerializationTest::test_drumSynthV2_legacyVoiceLevel_shouldKeepItsGain()
+{
+    // A voice's level was a linear gain under "level", and is now a fader under "fader". A kit saved
+    // against the old one has to come out at the gain it had: 80 %, the old default.
+    DrumSynthV2Device device { "Drum Synth V2" };
+    const auto prefix = DrumSynthV2::voiceId(0) + "_";
+    NahdXmlReader reader { legacyParameterXml(QString::fromStdString(prefix) + Constants::NahdXml::xmlKeyLevel(), "8000", "0", "10000") };
+    QVERIFY(reader.readNextStartElement());
+    device.deserializeParametersFromXml(reader);
+
+    const auto p = device.parameter(prefix + Constants::NahdXml::xmlKeyFader().toStdString());
+    QVERIFY(p.has_value());
+    QVERIFY(std::abs(ParameterMapper::mapFader(static_cast<double>(p->get().value())) - 0.8) < 1.0e-3);
 }
 
 void XmlSerializationTest::test_saturator_legacyDrive_shouldKeepItsGain()

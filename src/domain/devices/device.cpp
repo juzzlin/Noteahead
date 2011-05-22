@@ -117,16 +117,23 @@ bool Device::applyParameterAutomation(const std::string & key, ParameterAutomati
 {
     {
         std::lock_guard<std::recursive_mutex> lock { m_mutex };
-        const auto p = parameter(key);
+        // An automation saved before its parameter was renamed still names the old one. An absolute
+        // value is a position in the old parameter's domain, so it is converted as a saved value is.
+        const auto renamed = parameter(key) ? std::nullopt : renamedParameterName(key);
+        const auto & name = renamed.value_or(key);
+        const auto p = parameter(name);
         if (!p || p->get().type() != Parameter::Type::Continuous) {
             return false;
+        }
+        if (const auto & converter = p->get().legacyValueConverter(); renamed && converter && mode == ParameterAutomation::Mode::Absolute) {
+            value = static_cast<double>(converter(static_cast<float>(std::clamp(value, 0.0, 1.0))));
         }
         if (const auto effective = ParameterAutomation::effectiveValue(mode, value, p->get()); mode == ParameterAutomation::Mode::Relative) {
             p->get().setRelativeAutomationValue(effective);
         } else {
             p->get().setAutomationValue(effective);
         }
-        syncAutomatedParameter(key);
+        syncAutomatedParameter(name);
     }
     // Nothing is signalled: this runs on the audio thread, where posting an event allocates and
     // takes a lock, and every event used to re-read the whole dialog. The playback that scheduled
@@ -137,12 +144,14 @@ bool Device::applyParameterAutomation(const std::string & key, ParameterAutomati
 bool Device::applyParameterModulation(const std::string & key, ParameterModulation::Mode mode, double source, double depth)
 {
     std::lock_guard<std::recursive_mutex> lock { m_mutex };
-    const auto p = parameter(key);
+    // A modulation is in travel either way, so a renamed parameter needs only its new name
+    const auto name = parameter(key) ? key : renamedParameterName(key).value_or(key);
+    const auto p = parameter(name);
     if (!p || p->get().type() != Parameter::Type::Continuous) {
         return false;
     }
     p->get().setModulatedValue(ParameterModulation::modulatedValue(mode, source, depth, p->get()));
-    syncAutomatedParameter(key);
+    syncAutomatedParameter(name);
     // Not signalled, as automation is not: this runs on the audio thread
     return true;
 }
@@ -150,9 +159,10 @@ bool Device::applyParameterModulation(const std::string & key, ParameterModulati
 void Device::clearParameterModulation(const std::string & key)
 {
     std::lock_guard<std::recursive_mutex> lock { m_mutex };
-    if (const auto p = parameter(key); p && p->get().isModulated()) {
+    const auto name = parameter(key) ? key : renamedParameterName(key).value_or(key);
+    if (const auto p = parameter(name); p && p->get().isModulated()) {
         p->get().clearModulation();
-        syncAutomatedParameter(key);
+        syncAutomatedParameter(name);
     }
 }
 
