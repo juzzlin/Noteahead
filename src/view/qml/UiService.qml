@@ -395,4 +395,16 @@ QtObject {
     function requestQuit(): void {
         quitRequested();
     }
+
+    // The dialog stack, in opening order. Only the topmost dialog is allowed to stay modal; see
+    // AnimatedDialog.qml for why. The array is replaced rather than mutated so that topDialog,
+    // which every dialog watches, actually re-evaluates.
+    property var _openDialogs: []
+    readonly property var topDialog: _openDialogs.length ? _openDialogs[_openDialogs.length - 1] : null
+    function pushDialog(dialog: var): void {
+        _openDialogs = _openDialogs.concat([dialog]);
+    }
+    function popDialog(dialog: var): void {
+        _openDialogs = _openDialogs.filter(openDialog => openDialog !== dialog);
+    }
 }

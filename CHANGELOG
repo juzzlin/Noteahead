@@ -5,6 +5,10 @@ Release date:
 
 Bug fixes:
 
+* Fix the mouse wheel doing nothing on knobs in device and effect dialogs
+  - Only dialogs opened straight from a menu, like the Mixer, worked before
+  - A dialog now drops its modality while another dialog covers it
+
 * Fix the Wavetable Synth's Pitch Bend Range not being saved
   - The setting was lost on reload and always came back as 2 semitones
 

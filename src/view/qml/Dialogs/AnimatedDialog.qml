@@ -16,12 +16,41 @@
 import QtQuick 2.15
 import QtQuick.Controls 2.15
 import QtQuick.Controls.Universal 2.15
-import ".."
+import Noteahead 1.0
 
 // Dialog with a shared open/close transition used as the base for all Noteahead dialogs.
 // Opens with a subtle scale-up fade-in and closes with a scale-down fade-out.
 Dialog {
     id: root
+
+    // Qt 6.4's overlay eats every wheel event aimed at anything that isn't inside the bottom-most
+    // open modal popup (QQuickOverlay::eventFilter, fixed after 6.4.2), which leaves the knobs of a
+    // dialog opened on top of another dialog deaf to the mouse wheel. Only the topmost dialog needs
+    // modality -- it already blocks everything below it -- so a covered dialog gives its own up
+    // until it is uncovered again. The dimmer is set here instead of being left to follow modality,
+    // so that nothing looks different while the modality is off.
+    dim: true
+
+    // A plain onVisibleChanged would be replaced by any dialog that declares one of its own
+    Connections {
+        target: root
+        function onVisibleChanged() {
+            if (root.visible) {
+                UiService.pushDialog(root);
+            } else {
+                UiService.popDialog(root);
+            }
+        }
+    }
+
+    Binding {
+        target: root
+        property: "modal"
+        value: false
+        when: root.visible && UiService.topDialog !== root
+        restoreMode: Binding.RestoreBindingOrValue
+    }
+
     enter: Transition {
         NumberAnimation {
             property: "opacity"
