@@ -11,6 +11,8 @@ Bug fixes:
 
 Other:
 
+* Busy wait in PlayerWorker for higher precision
+
 1.4.0
 =====
 

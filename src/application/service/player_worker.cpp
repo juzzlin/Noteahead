@@ -238,8 +238,12 @@ void PlayerWorker::processEvents()
         const auto nextTickTime = startTime + std::chrono::duration_cast<std::chrono::steady_clock::duration>((tick - minTick + step) * tickDuration);
 
         std::unique_lock<std::mutex> lock { m_mutex };
-        while (std::chrono::steady_clock::now() < nextTickTime && m_isPlaying) {
-            if (m_cv.wait_until(lock, nextTickTime, [this] { return m_mixerChanged || !m_isPlaying; })) {
+
+        const auto spinDuration = std::chrono::milliseconds { 2 };
+        const auto sleepTargetTime = nextTickTime - spinDuration;
+
+        while (std::chrono::steady_clock::now() < sleepTargetTime && m_isPlaying) {
+            if (m_cv.wait_until(lock, sleepTargetTime, [this] { return m_mixerChanged || !m_isPlaying; })) {
                 if (!m_isPlaying) {
                     break;
                 }
@@ -252,6 +256,10 @@ void PlayerWorker::processEvents()
             }
         }
         lock.unlock();
+
+        while (std::chrono::steady_clock::now() < nextTickTime && m_isPlaying) {
+            // Busy wait for high precision
+        }
 
         tick += step;
     }
