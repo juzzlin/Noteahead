@@ -6120,6 +6120,14 @@
         <translation>Morceau d&apos;exemple 1</translation>
     </message>
     <message>
+        <source>Templates</source>
+        <translation>Modèles</translation>
+    </message>
+    <message>
+        <source>EDM</source>
+        <translation>EDM</translation>
+    </message>
+    <message>
         <source>Save</source>
         <translation>Enregistrer</translation>
     </message>
@@ -13224,6 +13232,10 @@ Une apostrophe marque la syllabe accentuée : A&apos;merica</translation>
     <message>
         <source>Example song loaded</source>
         <translation>Morceau d&apos;exemple chargé</translation>
+    </message>
+    <message>
+        <source>Template loaded</source>
+        <translation>Modèle chargé</translation>
     </message>
     <message>
         <source>A new pattern created!</source>

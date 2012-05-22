@@ -26,6 +26,8 @@ New features:
 
 * Drum Synth V2 and FM Drums: a voice's Level is a fader with boost, at 0 dB by default
 
+* Add a built-in EDM template, openable from File > Templates
+
 * Support mouse drag glissando on VirtualKeyboard
 
 * Update JU Synth terminology and UI labels

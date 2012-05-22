@@ -6120,6 +6120,14 @@
         <translation>Música de exemplo 1</translation>
     </message>
     <message>
+        <source>Templates</source>
+        <translation>Modelos</translation>
+    </message>
+    <message>
+        <source>EDM</source>
+        <translation>EDM</translation>
+    </message>
+    <message>
         <source>Save</source>
         <translation>Salvar</translation>
     </message>
@@ -13224,6 +13232,10 @@ Um apóstrofo marca a sílaba tônica: A&apos;merica</translation>
     <message>
         <source>Example song loaded</source>
         <translation>Música de exemplo carregada</translation>
+    </message>
+    <message>
+        <source>Template loaded</source>
+        <translation>Modelo carregado</translation>
     </message>
     <message>
         <source>A new pattern created!</source>

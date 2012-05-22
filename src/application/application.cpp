@@ -1126,6 +1126,16 @@ void Application::applyState(StateMachine::State state)
             m_stateMachine->calculateState(StateMachine::Action::OpeningProjectFailed);
         }
         break;
+    case StateMachine::State::OpenTemplate:
+        try {
+            m_automationService->clear();
+            m_trackSettingsModel->reset();
+            m_editorService->loadTemplate(m_applicationService->requestedTemplatePath());
+            m_stateMachine->calculateState(StateMachine::Action::ProjectOpened);
+        } catch (...) {
+            m_stateMachine->calculateState(StateMachine::Action::OpeningProjectFailed);
+        }
+        break;
     case StateMachine::State::OpenRecent:
         try {
             const auto filePath = m_recentFilesManager->selectedFile();

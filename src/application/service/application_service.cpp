@@ -355,6 +355,18 @@ void ApplicationService::requestOpenExample()
     m_stateMachine->calculateState(StateMachine::Action::OpenExampleRequested);
 }
 
+void ApplicationService::requestOpenTemplate(QString name)
+{
+    juzzlin::L(TAG).info() << "'Open template' requested: " << name.toStdString();
+    m_requestedTemplatePath = Constants::templatePath(name);
+    m_stateMachine->calculateState(StateMachine::Action::OpenTemplateRequested);
+}
+
+QString ApplicationService::requestedTemplatePath() const
+{
+    return m_requestedTemplatePath;
+}
+
 void ApplicationService::requestQuit()
 {
     juzzlin::L(TAG).info() << "Quit requested";

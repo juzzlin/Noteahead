@@ -80,6 +80,9 @@ void StateMachine::calculateState(StateMachine::Action action)
         case QuitType::OpenExample:
             m_state = State::OpenExample;
             break;
+        case QuitType::OpenTemplate:
+            m_state = State::OpenTemplate;
+            break;
         default:
             m_state = State::Edit;
             break;
@@ -104,6 +107,15 @@ void StateMachine::calculateState(StateMachine::Action action)
             m_state = State::ShowUnsavedChangesDialog;
         } else {
             m_state = State::OpenExample;
+        }
+        break;
+
+    case Action::OpenTemplateRequested:
+        m_quitType = QuitType::OpenTemplate;
+        if (m_editorService->isModified()) {
+            m_state = State::ShowUnsavedChangesDialog;
+        } else {
+            m_state = State::OpenTemplate;
         }
         break;
 
@@ -169,6 +181,7 @@ QString StateMachine::stateToString(State state)
         { State::InitializeNewProject, "InitializeNewProject" },
         { State::OpenExample, "OpenExample" },
         { State::OpenRecent, "OpenRecent" },
+        { State::OpenTemplate, "OpenTemplate" },
         { State::Save, "Save" },
         { State::ShowRecentFilesDialog, "ShowRecentFilesDialog" },
         { State::ShowMidiImportDialog, "ShowMidiImportDialog" },

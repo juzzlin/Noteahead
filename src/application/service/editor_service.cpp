@@ -349,10 +349,19 @@ void EditorService::load(QString fileName)
 
 void EditorService::loadExample()
 {
-    const auto resourcePath = Constants::exampleSongPath();
+    loadUnnamed(Constants::exampleSongPath(), tr("Example song loaded"));
+}
+
+void EditorService::loadTemplate(QString resourcePath)
+{
+    loadUnnamed(resourcePath, tr("Template loaded"));
+}
+
+void EditorService::loadUnnamed(QString resourcePath, QString loadedMessage)
+{
     QFile file { resourcePath };
     if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-        throw std::runtime_error("Failed to open the example song: " + resourcePath.toStdString());
+        throw std::runtime_error("Failed to open the bundled song: " + resourcePath.toStdString());
     }
 
     fromXml(file.readAll());
@@ -363,9 +372,8 @@ void EditorService::loadExample()
     m_song->setFileName({});
     setIsModified(false);
 
-    const auto message = tr("Example song loaded");
-    juzzlin::L(TAG).info() << message.toStdString();
-    emit statusTextRequested(message);
+    juzzlin::L(TAG).info() << loadedMessage.toStdString();
+    emit statusTextRequested(loadedMessage);
     emit canBeSavedChanged();
     emit currentFileNameChanged();
 }

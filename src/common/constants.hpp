@@ -30,6 +30,8 @@ QString applicationName();
 
 //! Resource path of the example song embedded in the binary.
 QString exampleSongPath();
+//! Resource path of the song template @p name embedded in the binary, e.g. "Template-EDM".
+QString templatePath(QString name);
 QString applicationVersion();
 
 QString copyright();

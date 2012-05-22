@@ -430,6 +430,10 @@ set_source_files_properties(${CHANGELOG_FILE} PROPERTIES QT_RESOURCE_ALIAS CHANG
 set(EXAMPLE_SONG_FILE ${CMAKE_SOURCE_DIR}/examples/songs/Example.nahd)
 set_source_files_properties(${EXAMPLE_SONG_FILE} PROPERTIES QT_RESOURCE_ALIAS examples/Example.nahd)
 
+# The song templates, embedded and opened the same way as the example song
+set(TEMPLATE_EDM_FILE ${CMAKE_SOURCE_DIR}/templates/Template-EDM.nahd)
+set_source_files_properties(${TEMPLATE_EDM_FILE} PROPERTIES QT_RESOURCE_ALIAS templates/Template-EDM.nahd)
+
 set(PNG_SOURCE_FILES
     ${QML_BASE_DIR}/Graphics/add_box.png
     ${QML_BASE_DIR}/Graphics/alert.png
@@ -495,6 +499,11 @@ qt_add_resources(${ApplicationLibName} "changelog"
 qt_add_resources(${ApplicationLibName} "examples"
     PREFIX "/"
     FILES ${EXAMPLE_SONG_FILE}
+)
+
+qt_add_resources(${ApplicationLibName} "templates"
+    PREFIX "/"
+    FILES ${TEMPLATE_EDM_FILE}
 )
 
 # Compile the catalogues and embed them, so that a language is never missing at runtime because of

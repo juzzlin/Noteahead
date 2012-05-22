@@ -6119,6 +6119,14 @@
         <translation>示例乐曲 1</translation>
     </message>
     <message>
+        <source>Templates</source>
+        <translation>模板</translation>
+    </message>
+    <message>
+        <source>EDM</source>
+        <translation>EDM</translation>
+    </message>
+    <message>
         <source>Save</source>
         <translation>保存</translation>
     </message>
@@ -13222,6 +13230,10 @@ An apostrophe marks the stressed syllable: A&apos;merica</source>
     <message>
         <source>Example song loaded</source>
         <translation>已加载示例乐曲</translation>
+    </message>
+    <message>
+        <source>Template loaded</source>
+        <translation>已加载模板</translation>
     </message>
     <message>
         <source>A new pattern created!</source>

@@ -30,6 +30,7 @@ private slots:
     void test_exampleSong_shouldStayUnnamedSoThatSaveCannotOverwriteIt();
     void test_exampleSong_shouldCarryMetadata();
     void test_exampleSong_resaved_shouldNotGainSendChains();
+    void test_edmTemplate_shouldLoadUnnamedWithTheCurrentFormat();
 };
 
 } // namespace noteahead

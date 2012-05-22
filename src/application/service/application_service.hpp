@@ -166,6 +166,10 @@ public:
     Q_INVOKABLE void requestNewProject();
     Q_INVOKABLE void requestOpenProject();
     Q_INVOKABLE void requestOpenExample();
+    //! Opens the embedded template @p name, e.g. "Template-EDM", as a new unnamed song.
+    Q_INVOKABLE void requestOpenTemplate(QString name);
+    //! The resource path of the template last asked for.
+    QString requestedTemplatePath() const;
     Q_INVOKABLE void requestQuit();
 
     Q_INVOKABLE void requestRecentFilesDialog();
@@ -271,6 +275,7 @@ private:
     QString m_screenshotDirectory;
 
     bool m_editMode = false;
+    QString m_requestedTemplatePath;
     struct ActiveLiveNote
     {
         InstrumentS instrument;

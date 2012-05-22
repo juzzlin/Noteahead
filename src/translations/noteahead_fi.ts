@@ -6120,6 +6120,14 @@
         <translation>Esimerkkikappale 1</translation>
     </message>
     <message>
+        <source>Templates</source>
+        <translation>Mallit</translation>
+    </message>
+    <message>
+        <source>EDM</source>
+        <translation>EDM</translation>
+    </message>
+    <message>
         <source>Save</source>
         <translation>Tallenna</translation>
     </message>
@@ -13224,6 +13232,10 @@ Heittomerkki merkitsee painollisen tavun: A&apos;merica</translation>
     <message>
         <source>Example song loaded</source>
         <translation>Esimerkkikappale ladattu</translation>
+    </message>
+    <message>
+        <source>Template loaded</source>
+        <translation>Malli ladattu</translation>
     </message>
     <message>
         <source>A new pattern created!</source>

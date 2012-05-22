@@ -6121,6 +6121,14 @@
         <translation>Przykładowy utwór 1</translation>
     </message>
     <message>
+        <source>Templates</source>
+        <translation>Szablony</translation>
+    </message>
+    <message>
+        <source>EDM</source>
+        <translation>EDM</translation>
+    </message>
+    <message>
         <source>Save</source>
         <translation>Zapisz</translation>
     </message>
@@ -13226,6 +13234,10 @@ Apostrof oznacza sylabę akcentowaną: A&apos;merica</translation>
     <message>
         <source>Example song loaded</source>
         <translation>Załadowano przykładowy utwór</translation>
+    </message>
+    <message>
+        <source>Template loaded</source>
+        <translation>Załadowano szablon</translation>
     </message>
     <message>
         <source>A new pattern created!</source>

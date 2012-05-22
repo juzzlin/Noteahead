@@ -57,6 +57,17 @@ Menu {
         delegate: MenuItemDelegate {}
     }
     MenuSeparator {}
+    Menu {
+        title: qsTr("Templates")
+        enabled: rootItem._canReplaceSong
+        Action {
+            text: qsTr("EDM")
+            enabled: rootItem._canReplaceSong
+            onTriggered: applicationService.requestOpenTemplate("Template-EDM")
+        }
+        delegate: MenuItemDelegate {}
+    }
+    MenuSeparator {}
     Action {
         text: qsTr("Save")
         shortcut: "Ctrl+S"

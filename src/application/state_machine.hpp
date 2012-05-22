@@ -43,6 +43,7 @@ public:
         InitializeNewProject,
         OpenExample,
         OpenRecent,
+        OpenTemplate,
         Save,
         ShowRecentFilesDialog,
         ShowMidiImportDialog,
@@ -64,6 +65,7 @@ public:
         UnsavedChangesDialogDiscarded,
         OpenExampleRequested,
         OpenProjectRequested,
+        OpenTemplateRequested,
         OpeningProjectCanceled,
         OpeningProjectFailed,
         ProjectOpened,
@@ -87,6 +89,7 @@ public:
         Open,
         OpenExample,
         OpenRecent,
+        OpenTemplate,
         Close
     };
 

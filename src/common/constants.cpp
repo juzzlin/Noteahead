@@ -29,6 +29,11 @@ QString exampleSongPath()
     return ":/examples/Example.nahd";
 }
 
+QString templatePath(QString name)
+{
+    return ":/templates/" + name + ".nahd";
+}
+
 QString applicationVersion()
 {
     return VERSION;

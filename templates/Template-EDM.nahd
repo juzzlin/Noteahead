@@ -1,0 +1,731 @@
+<?xml version="1.0"?>
+<Project fileFormatVersion="1.0" applicationName="Noteahead" applicationVersion="10.0.0" createdDate="2026-10-22T13:47:32.647">
+ <Song beatsPerMinute="134" linesPerBeat="8">
+  <Metadata>
+   <RenderSettings format="1" sampleRate="48000" bitDepth="1" oversampleFactor="4" fastRender="false" normalizeEnabled="false" normalizeLevelTenthsDb="-10" trimEnabled="false" trimMinutes="0" trimSeconds="0" fadeOutEnabled="false" fadeOutSeconds="0" fadeOutTenths="0" silenceEnabled="false" silenceSeconds="0" silenceTenths="0" analyzeEnabled="true"/>
+  </Metadata>
+  <SongSettings autoNoteOffOffset="0" autoNoteOffSyncEnabled="false" autoNoteOffSyncDenominator="32"/>
+  <PlayOrder>
+   <Position index="0" pattern="0"/>
+  </PlayOrder>
+  <Mixer/>
+  <Automation/>
+  <Devices>
+   <Device slot="0" name="Noteahead Internal Device 1" typeName="Noteahead DrumSynth V2" category="Drums" typeId="cf30a9f9-3709-45e3-bf96-80676a5f524b" uuid="ab7f2489-a996-40be-9b9b-9bec070a6551">
+    <InsertEffects enabled="true">
+     <Effect slot="2" typeId="b2e1f3a4-c5d6-4e7f-8a9b-0c1d2e3f4a5b" type="eq8bandparametric" id="f678a9b5-718e-4698-9c40-ae6bd7d23770" enabled="true">
+      <Parameter name="band1Freq" valueType="float" value="1193" min="20" max="20000" default="1000" scale="100"/>
+      <Parameter name="band1Gain" valueType="float" value="0" min="-2400" max="2400" default="0" scale="100"/>
+      <Parameter name="band1Q" valueType="float" value="43" min="1" max="100" default="58" scale="10"/>
+      <Parameter name="band1Slope" valueType="int" value="0"/>
+      <Parameter name="band1Type" valueType="int" value="4"/>
+      <Parameter name="band2Freq" valueType="float" value="2946" min="20" max="20000" default="1000" scale="100"/>
+      <Parameter name="band2Gain" valueType="float" value="300" min="-2400" max="2400" default="0" scale="100"/>
+      <Parameter name="band2Q" valueType="float" value="51" min="1" max="100" default="58" scale="10"/>
+      <Parameter name="band2Slope" valueType="int" value="0"/>
+      <Parameter name="band2Type" valueType="int" value="1"/>
+      <Parameter name="band3Freq" valueType="float" value="6956" min="20" max="20000" default="1000" scale="100"/>
+      <Parameter name="band3Gain" valueType="float" value="-300" min="-2400" max="2400" default="0" scale="100"/>
+      <Parameter name="band3Q" valueType="float" value="54" min="1" max="100" default="58" scale="10"/>
+      <Parameter name="band3Slope" valueType="int" value="0"/>
+      <Parameter name="band3Type" valueType="int" value="1"/>
+      <Parameter name="band4Freq" valueType="float" value="14959" min="20" max="20000" default="1000" scale="100"/>
+      <Parameter name="band4Gain" valueType="float" value="200" min="-2400" max="2400" default="0" scale="100"/>
+      <Parameter name="band4Q" valueType="float" value="59" min="1" max="100" default="58" scale="10"/>
+      <Parameter name="band4Slope" valueType="int" value="0"/>
+      <Parameter name="band4Type" valueType="int" value="1"/>
+      <Parameter name="band5Freq" valueType="float" value="1000" min="20" max="20000" default="1000" scale="100"/>
+      <Parameter name="band5Gain" valueType="float" value="0" min="-2400" max="2400" default="0" scale="100"/>
+      <Parameter name="band5Q" valueType="float" value="58" min="1" max="100" default="58" scale="10"/>
+      <Parameter name="band5Slope" valueType="int" value="0"/>
+      <Parameter name="band5Type" valueType="int" value="0"/>
+      <Parameter name="band6Freq" valueType="float" value="1000" min="20" max="20000" default="1000" scale="100"/>
+      <Parameter name="band6Gain" valueType="float" value="0" min="-2400" max="2400" default="0" scale="100"/>
+      <Parameter name="band6Q" valueType="float" value="58" min="1" max="100" default="58" scale="10"/>
+      <Parameter name="band6Slope" valueType="int" value="0"/>
+      <Parameter name="band6Type" valueType="int" value="0"/>
+      <Parameter name="band7Freq" valueType="float" value="1000" min="20" max="20000" default="1000" scale="100"/>
+      <Parameter name="band7Gain" valueType="float" value="0" min="-2400" max="2400" default="0" scale="100"/>
+      <Parameter name="band7Q" valueType="float" value="58" min="1" max="100" default="58" scale="10"/>
+      <Parameter name="band7Slope" valueType="int" value="0"/>
+      <Parameter name="band7Type" valueType="int" value="0"/>
+      <Parameter name="band8Freq" valueType="float" value="1000" min="20" max="20000" default="1000" scale="100"/>
+      <Parameter name="band8Gain" valueType="float" value="0" min="-2400" max="2400" default="0" scale="100"/>
+      <Parameter name="band8Q" valueType="float" value="58" min="1" max="100" default="58" scale="10"/>
+      <Parameter name="band8Slope" valueType="int" value="0"/>
+      <Parameter name="band8Type" valueType="int" value="0"/>
+      <Parameter name="stereoMode" valueType="int" value="0"/>
+     </Effect>
+    </InsertEffects>
+    <Parameters>
+     <Parameter name="Clap_ampAttack" valueType="float" value="0" min="0" max="10000" default="0" scale="100"/>
+     <Parameter name="Clap_ampCurve" valueType="float" value="0" min="0" max="10000" default="0" scale="100"/>
+     <Parameter name="Clap_ampDecay" valueType="float" value="0" min="0" max="10000" default="0" scale="100"/>
+     <Parameter name="Clap_ampHold" valueType="float" value="0" min="0" max="10000" default="0" scale="100"/>
+     <Parameter name="Clap_ampRelease" valueType="float" value="0" min="0" max="10000" default="0" scale="100"/>
+     <Parameter name="Clap_ampSustain" valueType="float" value="10000" min="0" max="10000" default="10000" scale="100"/>
+     <Parameter name="Clap_cutoff" valueType="float" value="10000" min="0" max="10000" default="10000" scale="100"/>
+     <Parameter name="Clap_decay" valueType="float" value="5000" min="0" max="10000" default="5000" scale="100"/>
+     <Parameter name="Clap_fader" valueType="float" value="6000" min="0" max="10000" default="7500" scale="100"/>
+     <Parameter name="Clap_hpfCutoff" valueType="float" value="0" min="0" max="10000" default="0" scale="100"/>
+     <Parameter name="Clap_pan" valueType="float" value="5000" min="0" max="10000" default="5000" scale="100"/>
+     <Parameter name="Clap_tune" valueType="float" value="5000" min="0" max="10000" default="5000" scale="100"/>
+     <Parameter name="ClosedHiHat_ampAttack" valueType="float" value="0" min="0" max="10000" default="0" scale="100"/>
+     <Parameter name="ClosedHiHat_ampCurve" valueType="float" value="0" min="0" max="10000" default="0" scale="100"/>
+     <Parameter name="ClosedHiHat_ampDecay" valueType="float" value="0" min="0" max="10000" default="0" scale="100"/>
+     <Parameter name="ClosedHiHat_ampHold" valueType="float" value="0" min="0" max="10000" default="0" scale="100"/>
+     <Parameter name="ClosedHiHat_ampRelease" valueType="float" value="0" min="0" max="10000" default="0" scale="100"/>
+     <Parameter name="ClosedHiHat_ampSustain" valueType="float" value="10000" min="0" max="10000" default="10000" scale="100"/>
+     <Parameter name="ClosedHiHat_cutoff" valueType="float" value="10000" min="0" max="10000" default="10000" scale="100"/>
+     <Parameter name="ClosedHiHat_decay" valueType="float" value="1000" min="0" max="10000" default="1000" scale="100"/>
+     <Parameter name="ClosedHiHat_fader" valueType="float" value="6000" min="0" max="10000" default="7500" scale="100"/>
+     <Parameter name="ClosedHiHat_hpfCutoff" valueType="float" value="0" min="0" max="10000" default="0" scale="100"/>
+     <Parameter name="ClosedHiHat_pan" valueType="float" value="5000" min="0" max="10000" default="5000" scale="100"/>
+     <Parameter name="ClosedHiHat_resonance" valueType="float" value="3000" min="0" max="10000" default="3000" scale="100"/>
+     <Parameter name="ClosedHiHat_tune" valueType="float" value="7000" min="0" max="10000" default="7000" scale="100"/>
+     <Parameter name="Crash_ampAttack" valueType="float" value="0" min="0" max="10000" default="0" scale="100"/>
+     <Parameter name="Crash_ampCurve" valueType="float" value="0" min="0" max="10000" default="0" scale="100"/>
+     <Parameter name="Crash_ampDecay" valueType="float" value="0" min="0" max="10000" default="0" scale="100"/>
+     <Parameter name="Crash_ampHold" valueType="float" value="0" min="0" max="10000" default="0" scale="100"/>
+     <Parameter name="Crash_ampRelease" valueType="float" value="0" min="0" max="10000" default="0" scale="100"/>
+     <Parameter name="Crash_ampSustain" valueType="float" value="10000" min="0" max="10000" default="10000" scale="100"/>
+     <Parameter name="Crash_attack" valueType="float" value="0" min="0" max="10000" default="0" scale="100"/>
+     <Parameter name="Crash_cutoff" valueType="float" value="10000" min="0" max="10000" default="10000" scale="100"/>
+     <Parameter name="Crash_decay" valueType="float" value="5000" min="0" max="10000" default="5000" scale="100"/>
+     <Parameter name="Crash_fader" valueType="float" value="6000" min="0" max="10000" default="7500" scale="100"/>
+     <Parameter name="Crash_hpfCutoff" valueType="float" value="0" min="0" max="10000" default="0" scale="100"/>
+     <Parameter name="Crash_pan" valueType="float" value="5000" min="0" max="10000" default="5000" scale="100"/>
+     <Parameter name="Crash_resonance" valueType="float" value="3000" min="0" max="10000" default="3000" scale="100"/>
+     <Parameter name="Crash_tune" valueType="float" value="5000" min="0" max="10000" default="5000" scale="100"/>
+     <Parameter name="HighTom_ampAttack" valueType="float" value="0" min="0" max="10000" default="0" scale="100"/>
+     <Parameter name="HighTom_ampCurve" valueType="float" value="0" min="0" max="10000" default="0" scale="100"/>
+     <Parameter name="HighTom_ampDecay" valueType="float" value="0" min="0" max="10000" default="0" scale="100"/>
+     <Parameter name="HighTom_ampHold" valueType="float" value="0" min="0" max="10000" default="0" scale="100"/>
+     <Parameter name="HighTom_ampRelease" valueType="float" value="0" min="0" max="10000" default="0" scale="100"/>
+     <Parameter name="HighTom_ampSustain" valueType="float" value="10000" min="0" max="10000" default="10000" scale="100"/>
+     <Parameter name="HighTom_cutoff" valueType="float" value="10000" min="0" max="10000" default="10000" scale="100"/>
+     <Parameter name="HighTom_decay" valueType="float" value="5000" min="0" max="10000" default="5000" scale="100"/>
+     <Parameter name="HighTom_fader" valueType="float" value="6000" min="0" max="10000" default="7500" scale="100"/>
+     <Parameter name="HighTom_hpfCutoff" valueType="float" value="0" min="0" max="10000" default="0" scale="100"/>
+     <Parameter name="HighTom_pan" valueType="float" value="5000" min="0" max="10000" default="5000" scale="100"/>
+     <Parameter name="HighTom_pitchDecay" valueType="float" value="5000" min="0" max="10000" default="5000" scale="100"/>
+     <Parameter name="HighTom_pitchDepth" valueType="float" value="5000" min="0" max="10000" default="5000" scale="100"/>
+     <Parameter name="HighTom_tune" valueType="float" value="8000" min="0" max="10000" default="8000" scale="100"/>
+     <Parameter name="Kick_ampAttack" valueType="float" value="0" min="0" max="10000" default="0" scale="100"/>
+     <Parameter name="Kick_ampCurve" valueType="float" value="0" min="0" max="10000" default="0" scale="100"/>
+     <Parameter name="Kick_ampDecay" valueType="float" value="0" min="0" max="10000" default="0" scale="100"/>
+     <Parameter name="Kick_ampHold" valueType="float" value="0" min="0" max="10000" default="0" scale="100"/>
+     <Parameter name="Kick_ampRelease" valueType="float" value="0" min="0" max="10000" default="0" scale="100"/>
+     <Parameter name="Kick_ampSustain" valueType="float" value="10000" min="0" max="10000" default="10000" scale="100"/>
+     <Parameter name="Kick_attack" valueType="float" value="5000" min="0" max="10000" default="5000" scale="100"/>
+     <Parameter name="Kick_clickTune" valueType="float" value="5000" min="0" max="10000" default="5000" scale="100"/>
+     <Parameter name="Kick_cutoff" valueType="float" value="10000" min="0" max="10000" default="10000" scale="100"/>
+     <Parameter name="Kick_decay" valueType="float" value="5000" min="0" max="10000" default="5000" scale="100"/>
+     <Parameter name="Kick_fader" valueType="float" value="7500" min="0" max="10000" default="7500" scale="100"/>
+     <Parameter name="Kick_hpfCutoff" valueType="float" value="0" min="0" max="10000" default="0" scale="100"/>
+     <Parameter name="Kick_pan" valueType="float" value="5000" min="0" max="10000" default="5000" scale="100"/>
+     <Parameter name="Kick_pitchDecay" valueType="float" value="5000" min="0" max="10000" default="5000" scale="100"/>
+     <Parameter name="Kick_pitchDepth" valueType="float" value="5000" min="0" max="10000" default="5000" scale="100"/>
+     <Parameter name="Kick_tune" valueType="float" value="5000" min="0" max="10000" default="5000" scale="100"/>
+     <Parameter name="LowTom_ampAttack" valueType="float" value="0" min="0" max="10000" default="0" scale="100"/>
+     <Parameter name="LowTom_ampCurve" valueType="float" value="0" min="0" max="10000" default="0" scale="100"/>
+     <Parameter name="LowTom_ampDecay" valueType="float" value="0" min="0" max="10000" default="0" scale="100"/>
+     <Parameter name="LowTom_ampHold" valueType="float" value="0" min="0" max="10000" default="0" scale="100"/>
+     <Parameter name="LowTom_ampRelease" valueType="float" value="0" min="0" max="10000" default="0" scale="100"/>
+     <Parameter name="LowTom_ampSustain" valueType="float" value="10000" min="0" max="10000" default="10000" scale="100"/>
+     <Parameter name="LowTom_cutoff" valueType="float" value="10000" min="0" max="10000" default="10000" scale="100"/>
+     <Parameter name="LowTom_decay" valueType="float" value="5000" min="0" max="10000" default="5000" scale="100"/>
+     <Parameter name="LowTom_fader" valueType="float" value="6000" min="0" max="10000" default="7500" scale="100"/>
+     <Parameter name="LowTom_hpfCutoff" valueType="float" value="0" min="0" max="10000" default="0" scale="100"/>
+     <Parameter name="LowTom_pan" valueType="float" value="5000" min="0" max="10000" default="5000" scale="100"/>
+     <Parameter name="LowTom_pitchDecay" valueType="float" value="5000" min="0" max="10000" default="5000" scale="100"/>
+     <Parameter name="LowTom_pitchDepth" valueType="float" value="5000" min="0" max="10000" default="5000" scale="100"/>
+     <Parameter name="LowTom_tune" valueType="float" value="2000" min="0" max="10000" default="2000" scale="100"/>
+     <Parameter name="MidTom_ampAttack" valueType="float" value="0" min="0" max="10000" default="0" scale="100"/>
+     <Parameter name="MidTom_ampCurve" valueType="float" value="0" min="0" max="10000" default="0" scale="100"/>
+     <Parameter name="MidTom_ampDecay" valueType="float" value="0" min="0" max="10000" default="0" scale="100"/>
+     <Parameter name="MidTom_ampHold" valueType="float" value="0" min="0" max="10000" default="0" scale="100"/>
+     <Parameter name="MidTom_ampRelease" valueType="float" value="0" min="0" max="10000" default="0" scale="100"/>
+     <Parameter name="MidTom_ampSustain" valueType="float" value="10000" min="0" max="10000" default="10000" scale="100"/>
+     <Parameter name="MidTom_cutoff" valueType="float" value="10000" min="0" max="10000" default="10000" scale="100"/>
+     <Parameter name="MidTom_decay" valueType="float" value="5000" min="0" max="10000" default="5000" scale="100"/>
+     <Parameter name="MidTom_fader" valueType="float" value="6000" min="0" max="10000" default="7500" scale="100"/>
+     <Parameter name="MidTom_hpfCutoff" valueType="float" value="0" min="0" max="10000" default="0" scale="100"/>
+     <Parameter name="MidTom_pan" valueType="float" value="5000" min="0" max="10000" default="5000" scale="100"/>
+     <Parameter name="MidTom_pitchDecay" valueType="float" value="5000" min="0" max="10000" default="5000" scale="100"/>
+     <Parameter name="MidTom_pitchDepth" valueType="float" value="5000" min="0" max="10000" default="5000" scale="100"/>
+     <Parameter name="MidTom_tune" valueType="float" value="5000" min="0" max="10000" default="5000" scale="100"/>
+     <Parameter name="OpenHiHat_ampAttack" valueType="float" value="0" min="0" max="10000" default="0" scale="100"/>
+     <Parameter name="OpenHiHat_ampCurve" valueType="float" value="0" min="0" max="10000" default="0" scale="100"/>
+     <Parameter name="OpenHiHat_ampDecay" valueType="float" value="0" min="0" max="10000" default="0" scale="100"/>
+     <Parameter name="OpenHiHat_ampHold" valueType="float" value="0" min="0" max="10000" default="0" scale="100"/>
+     <Parameter name="OpenHiHat_ampRelease" valueType="float" value="0" min="0" max="10000" default="0" scale="100"/>
+     <Parameter name="OpenHiHat_ampSustain" valueType="float" value="10000" min="0" max="10000" default="10000" scale="100"/>
+     <Parameter name="OpenHiHat_cutoff" valueType="float" value="10000" min="0" max="10000" default="10000" scale="100"/>
+     <Parameter name="OpenHiHat_decay" valueType="float" value="8000" min="0" max="10000" default="8000" scale="100"/>
+     <Parameter name="OpenHiHat_fader" valueType="float" value="6000" min="0" max="10000" default="7500" scale="100"/>
+     <Parameter name="OpenHiHat_hpfCutoff" valueType="float" value="0" min="0" max="10000" default="0" scale="100"/>
+     <Parameter name="OpenHiHat_pan" valueType="float" value="5000" min="0" max="10000" default="5000" scale="100"/>
+     <Parameter name="OpenHiHat_resonance" valueType="float" value="3000" min="0" max="10000" default="3000" scale="100"/>
+     <Parameter name="OpenHiHat_tune" valueType="float" value="6000" min="0" max="10000" default="6000" scale="100"/>
+     <Parameter name="ReverseCrash_ampAttack" valueType="float" value="0" min="0" max="10000" default="0" scale="100"/>
+     <Parameter name="ReverseCrash_ampCurve" valueType="float" value="0" min="0" max="10000" default="0" scale="100"/>
+     <Parameter name="ReverseCrash_ampDecay" valueType="float" value="0" min="0" max="10000" default="0" scale="100"/>
+     <Parameter name="ReverseCrash_ampHold" valueType="float" value="0" min="0" max="10000" default="0" scale="100"/>
+     <Parameter name="ReverseCrash_ampRelease" valueType="float" value="0" min="0" max="10000" default="0" scale="100"/>
+     <Parameter name="ReverseCrash_ampSustain" valueType="float" value="10000" min="0" max="10000" default="10000" scale="100"/>
+     <Parameter name="ReverseCrash_attack" valueType="float" value="0" min="0" max="10000" default="0" scale="100"/>
+     <Parameter name="ReverseCrash_cutoff" valueType="float" value="10000" min="0" max="10000" default="10000" scale="100"/>
+     <Parameter name="ReverseCrash_decay" valueType="float" value="5000" min="0" max="10000" default="5000" scale="100"/>
+     <Parameter name="ReverseCrash_fader" valueType="float" value="6000" min="0" max="10000" default="7500" scale="100"/>
+     <Parameter name="ReverseCrash_hpfCutoff" valueType="float" value="0" min="0" max="10000" default="0" scale="100"/>
+     <Parameter name="ReverseCrash_pan" valueType="float" value="5000" min="0" max="10000" default="5000" scale="100"/>
+     <Parameter name="ReverseCrash_resonance" valueType="float" value="3000" min="0" max="10000" default="3000" scale="100"/>
+     <Parameter name="ReverseCrash_tune" valueType="float" value="5000" min="0" max="10000" default="5000" scale="100"/>
+     <Parameter name="Ride_ampAttack" valueType="float" value="0" min="0" max="10000" default="0" scale="100"/>
+     <Parameter name="Ride_ampCurve" valueType="float" value="0" min="0" max="10000" default="0" scale="100"/>
+     <Parameter name="Ride_ampDecay" valueType="float" value="0" min="0" max="10000" default="0" scale="100"/>
+     <Parameter name="Ride_ampHold" valueType="float" value="0" min="0" max="10000" default="0" scale="100"/>
+     <Parameter name="Ride_ampRelease" valueType="float" value="0" min="0" max="10000" default="0" scale="100"/>
+     <Parameter name="Ride_ampSustain" valueType="float" value="10000" min="0" max="10000" default="10000" scale="100"/>
+     <Parameter name="Ride_attack" valueType="float" value="0" min="0" max="10000" default="0" scale="100"/>
+     <Parameter name="Ride_cutoff" valueType="float" value="10000" min="0" max="10000" default="10000" scale="100"/>
+     <Parameter name="Ride_decay" valueType="float" value="5000" min="0" max="10000" default="5000" scale="100"/>
+     <Parameter name="Ride_fader" valueType="float" value="6000" min="0" max="10000" default="7500" scale="100"/>
+     <Parameter name="Ride_hpfCutoff" valueType="float" value="0" min="0" max="10000" default="0" scale="100"/>
+     <Parameter name="Ride_pan" valueType="float" value="5000" min="0" max="10000" default="5000" scale="100"/>
+     <Parameter name="Ride_resonance" valueType="float" value="3000" min="0" max="10000" default="3000" scale="100"/>
+     <Parameter name="Ride_tune" valueType="float" value="5000" min="0" max="10000" default="5000" scale="100"/>
+     <Parameter name="Rim_ampAttack" valueType="float" value="0" min="0" max="10000" default="0" scale="100"/>
+     <Parameter name="Rim_ampCurve" valueType="float" value="0" min="0" max="10000" default="0" scale="100"/>
+     <Parameter name="Rim_ampDecay" valueType="float" value="0" min="0" max="10000" default="0" scale="100"/>
+     <Parameter name="Rim_ampHold" valueType="float" value="0" min="0" max="10000" default="0" scale="100"/>
+     <Parameter name="Rim_ampRelease" valueType="float" value="0" min="0" max="10000" default="0" scale="100"/>
+     <Parameter name="Rim_ampSustain" valueType="float" value="10000" min="0" max="10000" default="10000" scale="100"/>
+     <Parameter name="Rim_click" valueType="float" value="5000" min="0" max="10000" default="5000" scale="100"/>
+     <Parameter name="Rim_cutoff" valueType="float" value="10000" min="0" max="10000" default="10000" scale="100"/>
+     <Parameter name="Rim_decay" valueType="float" value="5000" min="0" max="10000" default="5000" scale="100"/>
+     <Parameter name="Rim_fader" valueType="float" value="6000" min="0" max="10000" default="7500" scale="100"/>
+     <Parameter name="Rim_hpfCutoff" valueType="float" value="0" min="0" max="10000" default="0" scale="100"/>
+     <Parameter name="Rim_pan" valueType="float" value="5000" min="0" max="10000" default="5000" scale="100"/>
+     <Parameter name="Rim_tune" valueType="float" value="5000" min="0" max="10000" default="5000" scale="100"/>
+     <Parameter name="Snare_ampAttack" valueType="float" value="0" min="0" max="10000" default="0" scale="100"/>
+     <Parameter name="Snare_ampCurve" valueType="float" value="0" min="0" max="10000" default="0" scale="100"/>
+     <Parameter name="Snare_ampDecay" valueType="float" value="0" min="0" max="10000" default="0" scale="100"/>
+     <Parameter name="Snare_ampHold" valueType="float" value="0" min="0" max="10000" default="0" scale="100"/>
+     <Parameter name="Snare_ampRelease" valueType="float" value="0" min="0" max="10000" default="0" scale="100"/>
+     <Parameter name="Snare_ampSustain" valueType="float" value="10000" min="0" max="10000" default="10000" scale="100"/>
+     <Parameter name="Snare_cutoff" valueType="float" value="10000" min="0" max="10000" default="10000" scale="100"/>
+     <Parameter name="Snare_decay" valueType="float" value="5000" min="0" max="10000" default="5000" scale="100"/>
+     <Parameter name="Snare_fader" valueType="float" value="6000" min="0" max="10000" default="7500" scale="100"/>
+     <Parameter name="Snare_hpfCutoff" valueType="float" value="0" min="0" max="10000" default="0" scale="100"/>
+     <Parameter name="Snare_pan" valueType="float" value="5000" min="0" max="10000" default="5000" scale="100"/>
+     <Parameter name="Snare_snappy" valueType="float" value="5000" min="0" max="10000" default="5000" scale="100"/>
+     <Parameter name="Snare_tone" valueType="float" value="5000" min="0" max="10000" default="5000" scale="100"/>
+     <Parameter name="Snare_tune" valueType="float" value="5000" min="0" max="10000" default="5000" scale="100"/>
+     <Parameter name="expression" valueType="float" value="10000" min="0" max="10000" default="10000" scale="100"/>
+     <Parameter name="fader" valueType="float" value="7500" min="0" max="10000" default="7500" scale="100"/>
+     <Parameter name="faderPosition" valueType="int" value="0"/>
+     <Parameter name="gain" valueType="float" value="-294" min="-3000" max="3000" default="0" scale="100"/>
+     <Parameter name="hpfSlope" valueType="int" value="0"/>
+     <Parameter name="lpfSlope" valueType="int" value="0"/>
+     <Parameter name="pan" valueType="float" value="5000" min="0" max="10000" default="5000" scale="100"/>
+     <Parameter name="sendTap" valueType="int" value="0"/>
+    </Parameters>
+    <Voices/>
+   </Device>
+   <Device slot="1" name="Noteahead Internal Device 2" typeName="Noteahead DrumSynth V2" category="Drums" typeId="cf30a9f9-3709-45e3-bf96-80676a5f524b" uuid="617c4553-0ac9-4df0-8cd3-49500d6fda73">
+    <InsertEffects enabled="true"/>
+    <Parameters>
+     <Parameter name="Clap_ampAttack" valueType="float" value="0" min="0" max="10000" default="0" scale="100"/>
+     <Parameter name="Clap_ampCurve" valueType="float" value="0" min="0" max="10000" default="0" scale="100"/>
+     <Parameter name="Clap_ampDecay" valueType="float" value="0" min="0" max="10000" default="0" scale="100"/>
+     <Parameter name="Clap_ampHold" valueType="float" value="0" min="0" max="10000" default="0" scale="100"/>
+     <Parameter name="Clap_ampRelease" valueType="float" value="0" min="0" max="10000" default="0" scale="100"/>
+     <Parameter name="Clap_ampSustain" valueType="float" value="10000" min="0" max="10000" default="10000" scale="100"/>
+     <Parameter name="Clap_cutoff" valueType="float" value="10000" min="0" max="10000" default="10000" scale="100"/>
+     <Parameter name="Clap_decay" valueType="float" value="5000" min="0" max="10000" default="5000" scale="100"/>
+     <Parameter name="Clap_fader" valueType="float" value="4740" min="0" max="10000" default="7500" scale="100"/>
+     <Parameter name="Clap_hpfCutoff" valueType="float" value="0" min="0" max="10000" default="0" scale="100"/>
+     <Parameter name="Clap_pan" valueType="float" value="5000" min="0" max="10000" default="5000" scale="100"/>
+     <Parameter name="Clap_tune" valueType="float" value="5000" min="0" max="10000" default="5000" scale="100"/>
+     <Parameter name="ClosedHiHat_ampAttack" valueType="float" value="0" min="0" max="10000" default="0" scale="100"/>
+     <Parameter name="ClosedHiHat_ampCurve" valueType="float" value="0" min="0" max="10000" default="0" scale="100"/>
+     <Parameter name="ClosedHiHat_ampDecay" valueType="float" value="0" min="0" max="10000" default="0" scale="100"/>
+     <Parameter name="ClosedHiHat_ampHold" valueType="float" value="0" min="0" max="10000" default="0" scale="100"/>
+     <Parameter name="ClosedHiHat_ampRelease" valueType="float" value="0" min="0" max="10000" default="0" scale="100"/>
+     <Parameter name="ClosedHiHat_ampSustain" valueType="float" value="10000" min="0" max="10000" default="10000" scale="100"/>
+     <Parameter name="ClosedHiHat_cutoff" valueType="float" value="10000" min="0" max="10000" default="10000" scale="100"/>
+     <Parameter name="ClosedHiHat_decay" valueType="float" value="1000" min="0" max="10000" default="1000" scale="100"/>
+     <Parameter name="ClosedHiHat_fader" valueType="float" value="7500" min="0" max="10000" default="7500" scale="100"/>
+     <Parameter name="ClosedHiHat_hpfCutoff" valueType="float" value="0" min="0" max="10000" default="0" scale="100"/>
+     <Parameter name="ClosedHiHat_pan" valueType="float" value="6020" min="0" max="10000" default="5000" scale="100"/>
+     <Parameter name="ClosedHiHat_resonance" valueType="float" value="3000" min="0" max="10000" default="3000" scale="100"/>
+     <Parameter name="ClosedHiHat_tune" valueType="float" value="7000" min="0" max="10000" default="7000" scale="100"/>
+     <Parameter name="Crash_ampAttack" valueType="float" value="0" min="0" max="10000" default="0" scale="100"/>
+     <Parameter name="Crash_ampCurve" valueType="float" value="0" min="0" max="10000" default="0" scale="100"/>
+     <Parameter name="Crash_ampDecay" valueType="float" value="0" min="0" max="10000" default="0" scale="100"/>
+     <Parameter name="Crash_ampHold" valueType="float" value="0" min="0" max="10000" default="0" scale="100"/>
+     <Parameter name="Crash_ampRelease" valueType="float" value="0" min="0" max="10000" default="0" scale="100"/>
+     <Parameter name="Crash_ampSustain" valueType="float" value="10000" min="0" max="10000" default="10000" scale="100"/>
+     <Parameter name="Crash_attack" valueType="float" value="0" min="0" max="10000" default="0" scale="100"/>
+     <Parameter name="Crash_cutoff" valueType="float" value="10000" min="0" max="10000" default="10000" scale="100"/>
+     <Parameter name="Crash_decay" valueType="float" value="5000" min="0" max="10000" default="5000" scale="100"/>
+     <Parameter name="Crash_fader" valueType="float" value="4710" min="0" max="10000" default="7500" scale="100"/>
+     <Parameter name="Crash_hpfCutoff" valueType="float" value="0" min="0" max="10000" default="0" scale="100"/>
+     <Parameter name="Crash_pan" valueType="float" value="7500" min="0" max="10000" default="5000" scale="100"/>
+     <Parameter name="Crash_resonance" valueType="float" value="3000" min="0" max="10000" default="3000" scale="100"/>
+     <Parameter name="Crash_tune" valueType="float" value="5000" min="0" max="10000" default="5000" scale="100"/>
+     <Parameter name="HighTom_ampAttack" valueType="float" value="0" min="0" max="10000" default="0" scale="100"/>
+     <Parameter name="HighTom_ampCurve" valueType="float" value="0" min="0" max="10000" default="0" scale="100"/>
+     <Parameter name="HighTom_ampDecay" valueType="float" value="0" min="0" max="10000" default="0" scale="100"/>
+     <Parameter name="HighTom_ampHold" valueType="float" value="0" min="0" max="10000" default="0" scale="100"/>
+     <Parameter name="HighTom_ampRelease" valueType="float" value="0" min="0" max="10000" default="0" scale="100"/>
+     <Parameter name="HighTom_ampSustain" valueType="float" value="10000" min="0" max="10000" default="10000" scale="100"/>
+     <Parameter name="HighTom_cutoff" valueType="float" value="10000" min="0" max="10000" default="10000" scale="100"/>
+     <Parameter name="HighTom_decay" valueType="float" value="5000" min="0" max="10000" default="5000" scale="100"/>
+     <Parameter name="HighTom_fader" valueType="float" value="6000" min="0" max="10000" default="7500" scale="100"/>
+     <Parameter name="HighTom_hpfCutoff" valueType="float" value="0" min="0" max="10000" default="0" scale="100"/>
+     <Parameter name="HighTom_pan" valueType="float" value="5000" min="0" max="10000" default="5000" scale="100"/>
+     <Parameter name="HighTom_pitchDecay" valueType="float" value="5000" min="0" max="10000" default="5000" scale="100"/>
+     <Parameter name="HighTom_pitchDepth" valueType="float" value="5000" min="0" max="10000" default="5000" scale="100"/>
+     <Parameter name="HighTom_tune" valueType="float" value="8000" min="0" max="10000" default="8000" scale="100"/>
+     <Parameter name="Kick_ampAttack" valueType="float" value="0" min="0" max="10000" default="0" scale="100"/>
+     <Parameter name="Kick_ampCurve" valueType="float" value="0" min="0" max="10000" default="0" scale="100"/>
+     <Parameter name="Kick_ampDecay" valueType="float" value="0" min="0" max="10000" default="0" scale="100"/>
+     <Parameter name="Kick_ampHold" valueType="float" value="0" min="0" max="10000" default="0" scale="100"/>
+     <Parameter name="Kick_ampRelease" valueType="float" value="0" min="0" max="10000" default="0" scale="100"/>
+     <Parameter name="Kick_ampSustain" valueType="float" value="10000" min="0" max="10000" default="10000" scale="100"/>
+     <Parameter name="Kick_attack" valueType="float" value="5000" min="0" max="10000" default="5000" scale="100"/>
+     <Parameter name="Kick_clickTune" valueType="float" value="5000" min="0" max="10000" default="5000" scale="100"/>
+     <Parameter name="Kick_cutoff" valueType="float" value="10000" min="0" max="10000" default="10000" scale="100"/>
+     <Parameter name="Kick_decay" valueType="float" value="5000" min="0" max="10000" default="5000" scale="100"/>
+     <Parameter name="Kick_fader" valueType="float" value="7500" min="0" max="10000" default="7500" scale="100"/>
+     <Parameter name="Kick_hpfCutoff" valueType="float" value="0" min="0" max="10000" default="0" scale="100"/>
+     <Parameter name="Kick_pan" valueType="float" value="5000" min="0" max="10000" default="5000" scale="100"/>
+     <Parameter name="Kick_pitchDecay" valueType="float" value="5000" min="0" max="10000" default="5000" scale="100"/>
+     <Parameter name="Kick_pitchDepth" valueType="float" value="5000" min="0" max="10000" default="5000" scale="100"/>
+     <Parameter name="Kick_tune" valueType="float" value="5000" min="0" max="10000" default="5000" scale="100"/>
+     <Parameter name="LowTom_ampAttack" valueType="float" value="0" min="0" max="10000" default="0" scale="100"/>
+     <Parameter name="LowTom_ampCurve" valueType="float" value="0" min="0" max="10000" default="0" scale="100"/>
+     <Parameter name="LowTom_ampDecay" valueType="float" value="0" min="0" max="10000" default="0" scale="100"/>
+     <Parameter name="LowTom_ampHold" valueType="float" value="0" min="0" max="10000" default="0" scale="100"/>
+     <Parameter name="LowTom_ampRelease" valueType="float" value="0" min="0" max="10000" default="0" scale="100"/>
+     <Parameter name="LowTom_ampSustain" valueType="float" value="10000" min="0" max="10000" default="10000" scale="100"/>
+     <Parameter name="LowTom_cutoff" valueType="float" value="10000" min="0" max="10000" default="10000" scale="100"/>
+     <Parameter name="LowTom_decay" valueType="float" value="5000" min="0" max="10000" default="5000" scale="100"/>
+     <Parameter name="LowTom_fader" valueType="float" value="6000" min="0" max="10000" default="7500" scale="100"/>
+     <Parameter name="LowTom_hpfCutoff" valueType="float" value="0" min="0" max="10000" default="0" scale="100"/>
+     <Parameter name="LowTom_pan" valueType="float" value="5000" min="0" max="10000" default="5000" scale="100"/>
+     <Parameter name="LowTom_pitchDecay" valueType="float" value="5000" min="0" max="10000" default="5000" scale="100"/>
+     <Parameter name="LowTom_pitchDepth" valueType="float" value="5000" min="0" max="10000" default="5000" scale="100"/>
+     <Parameter name="LowTom_tune" valueType="float" value="2000" min="0" max="10000" default="2000" scale="100"/>
+     <Parameter name="MidTom_ampAttack" valueType="float" value="0" min="0" max="10000" default="0" scale="100"/>
+     <Parameter name="MidTom_ampCurve" valueType="float" value="0" min="0" max="10000" default="0" scale="100"/>
+     <Parameter name="MidTom_ampDecay" valueType="float" value="0" min="0" max="10000" default="0" scale="100"/>
+     <Parameter name="MidTom_ampHold" valueType="float" value="0" min="0" max="10000" default="0" scale="100"/>
+     <Parameter name="MidTom_ampRelease" valueType="float" value="0" min="0" max="10000" default="0" scale="100"/>
+     <Parameter name="MidTom_ampSustain" valueType="float" value="10000" min="0" max="10000" default="10000" scale="100"/>
+     <Parameter name="MidTom_cutoff" valueType="float" value="10000" min="0" max="10000" default="10000" scale="100"/>
+     <Parameter name="MidTom_decay" valueType="float" value="5000" min="0" max="10000" default="5000" scale="100"/>
+     <Parameter name="MidTom_fader" valueType="float" value="6000" min="0" max="10000" default="7500" scale="100"/>
+     <Parameter name="MidTom_hpfCutoff" valueType="float" value="0" min="0" max="10000" default="0" scale="100"/>
+     <Parameter name="MidTom_pan" valueType="float" value="5000" min="0" max="10000" default="5000" scale="100"/>
+     <Parameter name="MidTom_pitchDecay" valueType="float" value="5000" min="0" max="10000" default="5000" scale="100"/>
+     <Parameter name="MidTom_pitchDepth" valueType="float" value="5000" min="0" max="10000" default="5000" scale="100"/>
+     <Parameter name="MidTom_tune" valueType="float" value="5000" min="0" max="10000" default="5000" scale="100"/>
+     <Parameter name="OpenHiHat_ampAttack" valueType="float" value="0" min="0" max="10000" default="0" scale="100"/>
+     <Parameter name="OpenHiHat_ampCurve" valueType="float" value="0" min="0" max="10000" default="0" scale="100"/>
+     <Parameter name="OpenHiHat_ampDecay" valueType="float" value="0" min="0" max="10000" default="0" scale="100"/>
+     <Parameter name="OpenHiHat_ampHold" valueType="float" value="0" min="0" max="10000" default="0" scale="100"/>
+     <Parameter name="OpenHiHat_ampRelease" valueType="float" value="0" min="0" max="10000" default="0" scale="100"/>
+     <Parameter name="OpenHiHat_ampSustain" valueType="float" value="10000" min="0" max="10000" default="10000" scale="100"/>
+     <Parameter name="OpenHiHat_cutoff" valueType="float" value="9260" min="0" max="10000" default="10000" scale="100"/>
+     <Parameter name="OpenHiHat_decay" valueType="float" value="8000" min="0" max="10000" default="8000" scale="100"/>
+     <Parameter name="OpenHiHat_fader" valueType="float" value="7500" min="0" max="10000" default="7500" scale="100"/>
+     <Parameter name="OpenHiHat_hpfCutoff" valueType="float" value="0" min="0" max="10000" default="0" scale="100"/>
+     <Parameter name="OpenHiHat_pan" valueType="float" value="3490" min="0" max="10000" default="5000" scale="100"/>
+     <Parameter name="OpenHiHat_resonance" valueType="float" value="3000" min="0" max="10000" default="3000" scale="100"/>
+     <Parameter name="OpenHiHat_tune" valueType="float" value="6000" min="0" max="10000" default="6000" scale="100"/>
+     <Parameter name="ReverseCrash_ampAttack" valueType="float" value="0" min="0" max="10000" default="0" scale="100"/>
+     <Parameter name="ReverseCrash_ampCurve" valueType="float" value="0" min="0" max="10000" default="0" scale="100"/>
+     <Parameter name="ReverseCrash_ampDecay" valueType="float" value="0" min="0" max="10000" default="0" scale="100"/>
+     <Parameter name="ReverseCrash_ampHold" valueType="float" value="0" min="0" max="10000" default="0" scale="100"/>
+     <Parameter name="ReverseCrash_ampRelease" valueType="float" value="0" min="0" max="10000" default="0" scale="100"/>
+     <Parameter name="ReverseCrash_ampSustain" valueType="float" value="10000" min="0" max="10000" default="10000" scale="100"/>
+     <Parameter name="ReverseCrash_attack" valueType="float" value="0" min="0" max="10000" default="0" scale="100"/>
+     <Parameter name="ReverseCrash_cutoff" valueType="float" value="10000" min="0" max="10000" default="10000" scale="100"/>
+     <Parameter name="ReverseCrash_decay" valueType="float" value="5000" min="0" max="10000" default="5000" scale="100"/>
+     <Parameter name="ReverseCrash_fader" valueType="float" value="6000" min="0" max="10000" default="7500" scale="100"/>
+     <Parameter name="ReverseCrash_hpfCutoff" valueType="float" value="0" min="0" max="10000" default="0" scale="100"/>
+     <Parameter name="ReverseCrash_pan" valueType="float" value="5000" min="0" max="10000" default="5000" scale="100"/>
+     <Parameter name="ReverseCrash_resonance" valueType="float" value="3000" min="0" max="10000" default="3000" scale="100"/>
+     <Parameter name="ReverseCrash_tune" valueType="float" value="5000" min="0" max="10000" default="5000" scale="100"/>
+     <Parameter name="Ride_ampAttack" valueType="float" value="0" min="0" max="10000" default="0" scale="100"/>
+     <Parameter name="Ride_ampCurve" valueType="float" value="0" min="0" max="10000" default="0" scale="100"/>
+     <Parameter name="Ride_ampDecay" valueType="float" value="0" min="0" max="10000" default="0" scale="100"/>
+     <Parameter name="Ride_ampHold" valueType="float" value="0" min="0" max="10000" default="0" scale="100"/>
+     <Parameter name="Ride_ampRelease" valueType="float" value="0" min="0" max="10000" default="0" scale="100"/>
+     <Parameter name="Ride_ampSustain" valueType="float" value="10000" min="0" max="10000" default="10000" scale="100"/>
+     <Parameter name="Ride_attack" valueType="float" value="0" min="0" max="10000" default="0" scale="100"/>
+     <Parameter name="Ride_cutoff" valueType="float" value="10000" min="0" max="10000" default="10000" scale="100"/>
+     <Parameter name="Ride_decay" valueType="float" value="5000" min="0" max="10000" default="5000" scale="100"/>
+     <Parameter name="Ride_fader" valueType="float" value="6000" min="0" max="10000" default="7500" scale="100"/>
+     <Parameter name="Ride_hpfCutoff" valueType="float" value="0" min="0" max="10000" default="0" scale="100"/>
+     <Parameter name="Ride_pan" valueType="float" value="5000" min="0" max="10000" default="5000" scale="100"/>
+     <Parameter name="Ride_resonance" valueType="float" value="3000" min="0" max="10000" default="3000" scale="100"/>
+     <Parameter name="Ride_tune" valueType="float" value="5000" min="0" max="10000" default="5000" scale="100"/>
+     <Parameter name="Rim_ampAttack" valueType="float" value="0" min="0" max="10000" default="0" scale="100"/>
+     <Parameter name="Rim_ampCurve" valueType="float" value="0" min="0" max="10000" default="0" scale="100"/>
+     <Parameter name="Rim_ampDecay" valueType="float" value="0" min="0" max="10000" default="0" scale="100"/>
+     <Parameter name="Rim_ampHold" valueType="float" value="0" min="0" max="10000" default="0" scale="100"/>
+     <Parameter name="Rim_ampRelease" valueType="float" value="0" min="0" max="10000" default="0" scale="100"/>
+     <Parameter name="Rim_ampSustain" valueType="float" value="10000" min="0" max="10000" default="10000" scale="100"/>
+     <Parameter name="Rim_click" valueType="float" value="5000" min="0" max="10000" default="5000" scale="100"/>
+     <Parameter name="Rim_cutoff" valueType="float" value="10000" min="0" max="10000" default="10000" scale="100"/>
+     <Parameter name="Rim_decay" valueType="float" value="5000" min="0" max="10000" default="5000" scale="100"/>
+     <Parameter name="Rim_fader" valueType="float" value="6000" min="0" max="10000" default="7500" scale="100"/>
+     <Parameter name="Rim_hpfCutoff" valueType="float" value="0" min="0" max="10000" default="0" scale="100"/>
+     <Parameter name="Rim_pan" valueType="float" value="5000" min="0" max="10000" default="5000" scale="100"/>
+     <Parameter name="Rim_tune" valueType="float" value="5000" min="0" max="10000" default="5000" scale="100"/>
+     <Parameter name="Snare_ampAttack" valueType="float" value="0" min="0" max="10000" default="0" scale="100"/>
+     <Parameter name="Snare_ampCurve" valueType="float" value="0" min="0" max="10000" default="0" scale="100"/>
+     <Parameter name="Snare_ampDecay" valueType="float" value="0" min="0" max="10000" default="0" scale="100"/>
+     <Parameter name="Snare_ampHold" valueType="float" value="0" min="0" max="10000" default="0" scale="100"/>
+     <Parameter name="Snare_ampRelease" valueType="float" value="0" min="0" max="10000" default="0" scale="100"/>
+     <Parameter name="Snare_ampSustain" valueType="float" value="10000" min="0" max="10000" default="10000" scale="100"/>
+     <Parameter name="Snare_cutoff" valueType="float" value="10000" min="0" max="10000" default="10000" scale="100"/>
+     <Parameter name="Snare_decay" valueType="float" value="5000" min="0" max="10000" default="5000" scale="100"/>
+     <Parameter name="Snare_fader" valueType="float" value="6000" min="0" max="10000" default="7500" scale="100"/>
+     <Parameter name="Snare_hpfCutoff" valueType="float" value="0" min="0" max="10000" default="0" scale="100"/>
+     <Parameter name="Snare_pan" valueType="float" value="5000" min="0" max="10000" default="5000" scale="100"/>
+     <Parameter name="Snare_snappy" valueType="float" value="5000" min="0" max="10000" default="5000" scale="100"/>
+     <Parameter name="Snare_tone" valueType="float" value="5000" min="0" max="10000" default="5000" scale="100"/>
+     <Parameter name="Snare_tune" valueType="float" value="5000" min="0" max="10000" default="5000" scale="100"/>
+     <Parameter name="expression" valueType="float" value="10000" min="0" max="10000" default="10000" scale="100"/>
+     <Parameter name="fader" valueType="float" value="7500" min="0" max="10000" default="7500" scale="100"/>
+     <Parameter name="faderPosition" valueType="int" value="0"/>
+     <Parameter name="gain" valueType="float" value="-906" min="-3000" max="3000" default="0" scale="100"/>
+     <Parameter name="hpfSlope" valueType="int" value="0"/>
+     <Parameter name="lpfSlope" valueType="int" value="0"/>
+     <Parameter name="pan" valueType="float" value="5000" min="0" max="10000" default="5000" scale="100"/>
+     <Parameter name="sendTap" valueType="int" value="0"/>
+    </Parameters>
+    <Voices/>
+   </Device>
+   <Device slot="2" name="Noteahead Internal Device 3" typeName="Noteahead SnareSynth" category="Drums" typeId="9490a5c3-c239-4631-b36a-441a559f0b10" uuid="cb9833cc-6411-4666-a226-533e8f99ccf0">
+    <InsertEffects enabled="true"/>
+    <Parameters>
+     <Parameter name="Position" valueType="float" value="2000" min="0" max="10000" default="2000" scale="100"/>
+     <Parameter name="body" valueType="float" value="3000" min="0" max="10000" default="3000" scale="100"/>
+     <Parameter name="click" valueType="float" value="4000" min="0" max="10000" default="4000" scale="100"/>
+     <Parameter name="decay" valueType="float" value="1554" min="0" max="10000" default="1554" scale="100"/>
+     <Parameter name="drive" valueType="float" value="0" min="0" max="10000" default="0" scale="100"/>
+     <Parameter name="expression" valueType="float" value="10000" min="0" max="10000" default="10000" scale="100"/>
+     <Parameter name="fader" valueType="float" value="7500" min="0" max="10000" default="7500" scale="100"/>
+     <Parameter name="faderPosition" valueType="int" value="0"/>
+     <Parameter name="gain" valueType="float" value="0" min="-3000" max="3000" default="0" scale="100"/>
+     <Parameter name="hardness" valueType="float" value="5000" min="0" max="10000" default="5000" scale="100"/>
+     <Parameter name="headTension" valueType="float" value="3500" min="0" max="10000" default="3500" scale="100"/>
+     <Parameter name="hpfCutoff" valueType="float" value="0" min="0" max="10000" default="0" scale="100"/>
+     <Parameter name="keyTrack" valueType="bool" value="false"/>
+     <Parameter name="lpfCutoff" valueType="float" value="10000" min="0" max="10000" default="10000" scale="100"/>
+     <Parameter name="pan" valueType="float" value="5000" min="0" max="10000" default="5000" scale="100"/>
+     <Parameter name="panSpread" valueType="float" value="5000" min="0" max="10000" default="5000" scale="100"/>
+     <Parameter name="pitchDecay" valueType="float" value="2105" min="0" max="10000" default="2105" scale="100"/>
+     <Parameter name="pitchDepth" valueType="float" value="2500" min="0" max="10000" default="2500" scale="100"/>
+     <Parameter name="sendTap" valueType="int" value="0"/>
+     <Parameter name="snappy" valueType="float" value="6000" min="0" max="10000" default="6000" scale="100"/>
+     <Parameter name="snareBuzz" valueType="float" value="5000" min="0" max="10000" default="5000" scale="100"/>
+     <Parameter name="snareDecay" valueType="float" value="2137" min="0" max="10000" default="2137" scale="100"/>
+     <Parameter name="snareTension" valueType="float" value="5000" min="0" max="10000" default="5000" scale="100"/>
+     <Parameter name="tone" valueType="float" value="5000" min="0" max="10000" default="5000" scale="100"/>
+     <Parameter name="tune" valueType="float" value="2857" min="0" max="10000" default="2857" scale="100"/>
+     <Parameter name="velocitySensitivity" valueType="float" value="7000" min="0" max="10000" default="7000" scale="100"/>
+    </Parameters>
+   </Device>
+   <Device slot="3" name="Noteahead Internal Device 4" typeName="Noteahead BassSynth" category="Synths" typeId="7d9c1e4b-2f3a-4b5c-8d6e-9f0a1b2c3d4e" uuid="011f1df7-b1ba-4446-b194-f394563b0a86">
+    <InsertEffects enabled="true">
+     <Effect slot="2" typeId="b2e1f3a4-c5d6-4e7f-8a9b-0c1d2e3f4a5b" type="eq8bandparametric" id="6f3c388d-931a-4c81-bf6f-a0c74d99c6b9" enabled="true">
+      <Parameter name="band1Freq" valueType="float" value="1193" min="20" max="20000" default="1000" scale="100"/>
+      <Parameter name="band1Gain" valueType="float" value="0" min="-2400" max="2400" default="0" scale="100"/>
+      <Parameter name="band1Q" valueType="float" value="43" min="1" max="100" default="58" scale="10"/>
+      <Parameter name="band1Slope" valueType="int" value="0"/>
+      <Parameter name="band1Type" valueType="int" value="4"/>
+      <Parameter name="band2Freq" valueType="float" value="4370" min="20" max="20000" default="1000" scale="100"/>
+      <Parameter name="band2Gain" valueType="float" value="250" min="-2400" max="2400" default="0" scale="100"/>
+      <Parameter name="band2Q" valueType="float" value="51" min="1" max="100" default="58" scale="10"/>
+      <Parameter name="band2Slope" valueType="int" value="0"/>
+      <Parameter name="band2Type" valueType="int" value="1"/>
+      <Parameter name="band3Freq" valueType="float" value="7853" min="20" max="20000" default="1000" scale="100"/>
+      <Parameter name="band3Gain" valueType="float" value="-300" min="-2400" max="2400" default="0" scale="100"/>
+      <Parameter name="band3Q" valueType="float" value="54" min="1" max="100" default="58" scale="10"/>
+      <Parameter name="band3Slope" valueType="int" value="0"/>
+      <Parameter name="band3Type" valueType="int" value="1"/>
+      <Parameter name="band4Freq" valueType="float" value="13340" min="20" max="20000" default="1000" scale="100"/>
+      <Parameter name="band4Gain" valueType="float" value="150" min="-2400" max="2400" default="0" scale="100"/>
+      <Parameter name="band4Q" valueType="float" value="59" min="1" max="100" default="58" scale="10"/>
+      <Parameter name="band4Slope" valueType="int" value="0"/>
+      <Parameter name="band4Type" valueType="int" value="1"/>
+      <Parameter name="band5Freq" valueType="float" value="1000" min="20" max="20000" default="1000" scale="100"/>
+      <Parameter name="band5Gain" valueType="float" value="0" min="-2400" max="2400" default="0" scale="100"/>
+      <Parameter name="band5Q" valueType="float" value="58" min="1" max="100" default="58" scale="10"/>
+      <Parameter name="band5Slope" valueType="int" value="0"/>
+      <Parameter name="band5Type" valueType="int" value="0"/>
+      <Parameter name="band6Freq" valueType="float" value="1000" min="20" max="20000" default="1000" scale="100"/>
+      <Parameter name="band6Gain" valueType="float" value="0" min="-2400" max="2400" default="0" scale="100"/>
+      <Parameter name="band6Q" valueType="float" value="58" min="1" max="100" default="58" scale="10"/>
+      <Parameter name="band6Slope" valueType="int" value="0"/>
+      <Parameter name="band6Type" valueType="int" value="0"/>
+      <Parameter name="band7Freq" valueType="float" value="1000" min="20" max="20000" default="1000" scale="100"/>
+      <Parameter name="band7Gain" valueType="float" value="0" min="-2400" max="2400" default="0" scale="100"/>
+      <Parameter name="band7Q" valueType="float" value="58" min="1" max="100" default="58" scale="10"/>
+      <Parameter name="band7Slope" valueType="int" value="0"/>
+      <Parameter name="band7Type" valueType="int" value="0"/>
+      <Parameter name="band8Freq" valueType="float" value="1000" min="20" max="20000" default="1000" scale="100"/>
+      <Parameter name="band8Gain" valueType="float" value="0" min="-2400" max="2400" default="0" scale="100"/>
+      <Parameter name="band8Q" valueType="float" value="58" min="1" max="100" default="58" scale="10"/>
+      <Parameter name="band8Slope" valueType="int" value="0"/>
+      <Parameter name="band8Type" valueType="int" value="0"/>
+      <Parameter name="stereoMode" valueType="int" value="0"/>
+     </Effect>
+    </InsertEffects>
+    <Parameters>
+     <Parameter name="accent" valueType="float" value="5000" min="0" max="10000" default="5000" scale="100"/>
+     <Parameter name="decay" valueType="float" value="5000" min="0" max="10000" default="5000" scale="100"/>
+     <Parameter name="distDrive" valueType="float" value="0" min="0" max="10000" default="0" scale="100"/>
+     <Parameter name="distLevel" valueType="float" value="10000" min="0" max="10000" default="10000" scale="100"/>
+     <Parameter name="distTone" valueType="float" value="5000" min="0" max="10000" default="5000" scale="100"/>
+     <Parameter name="envMod" valueType="float" value="5000" min="0" max="10000" default="5000" scale="100"/>
+     <Parameter name="expression" valueType="float" value="10000" min="0" max="10000" default="10000" scale="100"/>
+     <Parameter name="fader" valueType="float" value="3750" min="0" max="10000" default="7500" scale="100"/>
+     <Parameter name="faderPosition" valueType="int" value="0"/>
+     <Parameter name="gain" valueType="float" value="-900" min="-3000" max="3000" default="0" scale="100"/>
+     <Parameter name="hpfCutoff" valueType="float" value="590" min="0" max="10000" default="0" scale="100"/>
+     <Parameter name="lpfCutoff" valueType="float" value="4840" min="0" max="10000" default="5000" scale="100"/>
+     <Parameter name="lpfResonance" valueType="float" value="0" min="0" max="10000" default="0" scale="100"/>
+     <Parameter name="pan" valueType="float" value="5000" min="0" max="10000" default="5000" scale="100"/>
+     <Parameter name="pitch" valueType="float" value="0" min="-1200" max="1200" default="0" scale="1"/>
+     <Parameter name="pitchBendRange" valueType="int" value="2"/>
+     <Parameter name="sendTap" valueType="int" value="0"/>
+     <Parameter name="slide" valueType="float" value="0" min="0" max="10000" default="0" scale="100"/>
+     <Parameter name="subLevel" valueType="float" value="0" min="0" max="10000" default="0" scale="100"/>
+     <Parameter name="subOctave" valueType="int" value="1"/>
+     <Parameter name="waveform" valueType="int" value="1"/>
+    </Parameters>
+   </Device>
+   <Device slot="5" name="Noteahead Internal Device 6" typeName="Noteahead JuSynth" category="Synths" typeId="ad85029e-0a1c-43c4-9969-653516e0e1f8" uuid="42e0a385-cd39-4942-9914-5392a2dcc24c">
+    <InsertEffects enabled="true"/>
+    <Parameters>
+     <Parameter name="attack" valueType="float" value="0" min="0" max="10000" default="0" scale="100"/>
+     <Parameter name="chorusMode" valueType="int" value="0"/>
+     <Parameter name="decay" valueType="float" value="5000" min="0" max="10000" default="5000" scale="100"/>
+     <Parameter name="envMod" valueType="float" value="0" min="0" max="10000" default="0" scale="100"/>
+     <Parameter name="envPolarity" valueType="bool" value="false"/>
+     <Parameter name="expression" valueType="float" value="10000" min="0" max="10000" default="10000" scale="100"/>
+     <Parameter name="fader" valueType="float" value="7500" min="0" max="10000" default="7500" scale="100"/>
+     <Parameter name="faderPosition" valueType="int" value="0"/>
+     <Parameter name="filterLfoDepth" valueType="float" value="0" min="0" max="10000" default="0" scale="100"/>
+     <Parameter name="gain" valueType="float" value="0" min="-3000" max="3000" default="0" scale="100"/>
+     <Parameter name="hpfCutoff" valueType="float" value="0" min="0" max="10000" default="0" scale="100"/>
+     <Parameter name="keyTrack" valueType="float" value="0" min="0" max="10000" default="0" scale="100"/>
+     <Parameter name="lfoDelay" valueType="float" value="0" min="0" max="10000" default="0" scale="100"/>
+     <Parameter name="lfoRate" valueType="float" value="5000" min="0" max="10000" default="5000" scale="100"/>
+     <Parameter name="lpfCutoff" valueType="float" value="10000" min="0" max="10000" default="10000" scale="100"/>
+     <Parameter name="lpfResonance" valueType="float" value="0" min="0" max="10000" default="0" scale="100"/>
+     <Parameter name="noiseLevel" valueType="float" value="0" min="0" max="10000" default="0" scale="100"/>
+     <Parameter name="pan" valueType="float" value="5000" min="0" max="10000" default="5000" scale="100"/>
+     <Parameter name="panSpread" valueType="float" value="0" min="0" max="10000" default="0" scale="100"/>
+     <Parameter name="pitchBendRange" valueType="int" value="2"/>
+     <Parameter name="pitchLfoDepth" valueType="float" value="0" min="0" max="10000" default="0" scale="100"/>
+     <Parameter name="portamento" valueType="float" value="0" min="0" max="10000" default="0" scale="100"/>
+     <Parameter name="pulseEnabled" valueType="bool" value="false"/>
+     <Parameter name="pulseWidth" valueType="float" value="0" min="0" max="10000" default="0" scale="100"/>
+     <Parameter name="pwmSource" valueType="int" value="1"/>
+     <Parameter name="range" valueType="int" value="1"/>
+     <Parameter name="release" valueType="float" value="3000" min="0" max="10000" default="3000" scale="100"/>
+     <Parameter name="sawEnabled" valueType="bool" value="true"/>
+     <Parameter name="sendTap" valueType="int" value="0"/>
+     <Parameter name="subLevel" valueType="float" value="0" min="0" max="10000" default="0" scale="100"/>
+     <Parameter name="sustain" valueType="float" value="10000" min="0" max="10000" default="10000" scale="100"/>
+     <Parameter name="vcaMode" valueType="int" value="0"/>
+     <Parameter name="velocitySensitivity" valueType="float" value="0" min="0" max="10000" default="0" scale="100"/>
+    </Parameters>
+   </Device>
+   <Device slot="6" name="Noteahead Internal Device 7" typeName="Noteahead JU Synth 08" category="Synth" typeId="4b790d98-dc58-45e0-9e5c-cb69e5d7778b" uuid="8628a95f-275d-4442-855b-15d07e846ba7">
+    <InsertEffects enabled="true"/>
+    <Parameters>
+     <Parameter name="crossMod" valueType="float" value="0" min="0" max="10000" default="0" scale="100"/>
+     <Parameter name="delayFeedback" valueType="float" value="3000" min="0" max="10000" default="3000" scale="100"/>
+     <Parameter name="delayLevel" valueType="float" value="1500" min="0" max="10000" default="0" scale="100"/>
+     <Parameter name="delayTime" valueType="float" value="3737" min="0" max="10000" default="3000" scale="100"/>
+     <Parameter name="env1Attack" valueType="float" value="8747" min="0" max="10000" default="100" scale="100"/>
+     <Parameter name="env1Decay" valueType="float" value="7610" min="0" max="10000" default="3000" scale="100"/>
+     <Parameter name="env1KeyFollow" valueType="bool" value="false"/>
+     <Parameter name="env1Release" valueType="float" value="7144" min="0" max="10000" default="2000" scale="100"/>
+     <Parameter name="env1Sustain" valueType="float" value="8000" min="0" max="10000" default="5000" scale="100"/>
+     <Parameter name="env2Attack" valueType="float" value="8747" min="0" max="10000" default="100" scale="100"/>
+     <Parameter name="env2Decay" valueType="float" value="7144" min="0" max="10000" default="3000" scale="100"/>
+     <Parameter name="env2KeyFollow" valueType="bool" value="false"/>
+     <Parameter name="env2Release" valueType="float" value="7144" min="0" max="10000" default="2000" scale="100"/>
+     <Parameter name="env2Sustain" valueType="float" value="9000" min="0" max="10000" default="10000" scale="100"/>
+     <Parameter name="envMod" valueType="float" value="800" min="0" max="10000" default="0" scale="100"/>
+     <Parameter name="envPolarity" valueType="bool" value="false"/>
+     <Parameter name="expression" valueType="float" value="10000" min="0" max="10000" default="10000" scale="100"/>
+     <Parameter name="fader" valueType="float" value="7500" min="0" max="10000" default="7500" scale="100"/>
+     <Parameter name="faderPosition" valueType="int" value="0"/>
+     <Parameter name="filterLfoDepth" valueType="float" value="0" min="0" max="10000" default="0" scale="100"/>
+     <Parameter name="gain" valueType="float" value="0" min="-3000" max="3000" default="0" scale="100"/>
+     <Parameter name="hpfCutoff" valueType="float" value="0" min="0" max="10000" default="0" scale="100"/>
+     <Parameter name="keyTrack" valueType="float" value="5000" min="0" max="10000" default="10000" scale="100"/>
+     <Parameter name="lfoDelay" valueType="float" value="2667" min="0" max="10000" default="0" scale="100"/>
+     <Parameter name="lfoRate" valueType="float" value="6712" min="0" max="10000" default="2000" scale="100"/>
+     <Parameter name="lpfCutoff" valueType="float" value="5340" min="0" max="10000" default="10000" scale="100"/>
+     <Parameter name="lpfResonance" valueType="float" value="1000" min="0" max="10000" default="0" scale="100"/>
+     <Parameter name="noiseLevel" valueType="float" value="0" min="0" max="10000" default="0" scale="100"/>
+     <Parameter name="pan" valueType="float" value="5000" min="0" max="10000" default="5000" scale="100"/>
+     <Parameter name="panSpread" valueType="float" value="7000" min="0" max="10000" default="5000" scale="100"/>
+     <Parameter name="pitchBendRange" valueType="int" value="2"/>
+     <Parameter name="pitchEnvDepth" valueType="float" value="0" min="-10000" max="10000" default="0" scale="100"/>
+     <Parameter name="pitchEnvTarget" valueType="int" value="2"/>
+     <Parameter name="pitchLfoDepth" valueType="float" value="2500" min="0" max="10000" default="0" scale="100"/>
+     <Parameter name="portamento" valueType="float" value="0" min="0" max="10000" default="0" scale="100"/>
+     <Parameter name="pulseWidth" valueType="float" value="5000" min="0" max="10000" default="5000" scale="100"/>
+     <Parameter name="pwmSource" valueType="int" value="0"/>
+     <Parameter name="sendTap" valueType="int" value="0"/>
+     <Parameter name="unisonDetune" valueType="float" value="2000" min="0" max="10000" default="2000" scale="100"/>
+     <Parameter name="vcaLfoDepth" valueType="float" value="0" min="0" max="10000" default="0" scale="100"/>
+     <Parameter name="vcaMode" valueType="int" value="0"/>
+     <Parameter name="vcfSlope" valueType="int" value="0"/>
+     <Parameter name="vco1Level" valueType="float" value="7000" min="0" max="10000" default="8000" scale="100"/>
+     <Parameter name="vco1Range" valueType="int" value="1"/>
+     <Parameter name="vco1Waveform" valueType="int" value="1"/>
+     <Parameter name="vco2FineTune" valueType="float" value="2000" min="-10000" max="10000" default="0" scale="100"/>
+     <Parameter name="vco2Level" valueType="float" value="7000" min="0" max="10000" default="8000" scale="100"/>
+     <Parameter name="vco2Range" valueType="int" value="1"/>
+     <Parameter name="vco2Sync" valueType="bool" value="false"/>
+     <Parameter name="vco2Waveform" valueType="int" value="0"/>
+     <Parameter name="velocitySensitivity" valueType="float" value="0" min="0" max="10000" default="0" scale="100"/>
+     <Parameter name="voiceMode" valueType="int" value="0"/>
+     <Parameter name="waveform" valueType="int" value="1"/>
+    </Parameters>
+   </Device>
+   <Device slot="8" name="Noteahead Internal Device 9" typeName="Noteahead Sampler" category="Samplers" typeId="9dda4ff6-471b-11f1-9324-c701bfaf8258" uuid="17e9f334-cd7c-4521-8223-5e7eaac9a3c3">
+    <InsertEffects enabled="true"/>
+    <Parameters>
+     <Parameter name="channelMode" valueType="bool" value="false"/>
+     <Parameter name="chromaticMode" valueType="bool" value="false"/>
+     <Parameter name="embedWaveData" valueType="bool" value="true"/>
+     <Parameter name="expression" valueType="float" value="10000" min="0" max="10000" default="10000" scale="100"/>
+     <Parameter name="fader" valueType="float" value="7500" min="0" max="10000" default="7500" scale="100"/>
+     <Parameter name="faderPosition" valueType="int" value="0"/>
+     <Parameter name="gain" valueType="float" value="0" min="-3000" max="3000" default="0" scale="100"/>
+     <Parameter name="hpfSlope" valueType="int" value="0"/>
+     <Parameter name="lpfSlope" valueType="int" value="0"/>
+     <Parameter name="pan" valueType="float" value="5000" min="0" max="10000" default="5000" scale="100"/>
+     <Parameter name="sendTap" valueType="int" value="0"/>
+    </Parameters>
+    <Samples/>
+   </Device>
+   <MasterEffects>
+    <InsertEffects enabled="true">
+     <Effect slot="2" typeId="7a2b3c4d-5e6f-4a8b-9c0d-1e2f3a4b5c6d" type="compressor" id="38a5455b-c54e-40dd-a144-861f60162a46" enabled="true">
+      <Parameter name="attack" valueType="float" value="335" min="0" max="500" default="10" scale="1"/>
+      <Parameter name="knee" valueType="float" value="600" min="0" max="2400" default="0" scale="100"/>
+      <Parameter name="lookahead" valueType="float" value="0" min="0" max="10" default="0" scale="1"/>
+      <Parameter name="makeup" valueType="float" value="200" min="-1200" max="1200" default="0" scale="100"/>
+      <Parameter name="mode" valueType="int" value="1"/>
+      <Parameter name="ratio" valueType="float" value="200" min="100" max="2000" default="400" scale="100"/>
+      <Parameter name="release" valueType="float" value="1212" min="1" max="2000" default="100" scale="1"/>
+      <Parameter name="sideChainLpf" valueType="float" value="1000" min="0" max="1000" default="1000" scale="1"/>
+      <Parameter name="sidechainSourceDevice" valueType="int" value="-1"/>
+      <Parameter name="threshold" valueType="float" value="-2200" min="-6000" max="0" default="-2000" scale="100"/>
+     </Effect>
+     <Effect slot="7" typeId="3f8c1a2e-6b7d-4e9a-8f0c-2d3e4f5a6b7c" type="limiter" id="97a4c39a-0df3-493c-a904-793f4f058205" enabled="true">
+      <Parameter name="boost" valueType="bool" value="true"/>
+      <Parameter name="ceiling" valueType="float" value="-120" min="-300" max="0" default="-30" scale="100"/>
+      <Parameter name="lookahead" valueType="float" value="5" min="0" max="10" default="5" scale="1"/>
+      <Parameter name="release" valueType="float" value="566" min="1" max="1000" default="667" scale="1"/>
+      <Parameter name="threshold" valueType="float" value="-1248" min="-2400" max="0" default="0" scale="100"/>
+     </Effect>
+     <Effect slot="8" typeId="lufsmeter" type="lufsmeter" id="d6abe1ea-dba9-4af0-951a-2c15e39325c9" enabled="true"/>
+    </InsertEffects>
+    <SendEffects enabled="true"/>
+   </MasterEffects>
+  </Devices>
+  <SideChain/>
+  <Patterns>
+   <Pattern index="0" name="" lineCount="128" trackCount="8">
+    <Tracks>
+     <Track index="0" name="Kick" lineCount="128" columnCount="1">
+      <Instrument portName="Noteahead Internal Device 1" channel="0" group="0">
+       <InstrumentSettings bankEnabled="false" transpose="0" drumTrack="false" delay="0" velocityJitter="0" velocityKeyTrack="0" velocityKeyTrackOffset="0"/>
+      </Instrument>
+     </Track>
+     <Track index="1" name="Drums" lineCount="128" columnCount="5">
+      <Instrument portName="Noteahead Internal Device 2" channel="0" group="0">
+       <InstrumentSettings bankEnabled="false" transpose="0" drumTrack="false" delay="0" velocityJitter="0" velocityKeyTrack="0" velocityKeyTrackOffset="0"/>
+      </Instrument>
+      <Columns>
+       <Column index="0" name="Snare" lineCount="128">
+        <Lines/>
+       </Column>
+       <Column index="1" name="Clap" lineCount="128">
+        <Lines/>
+       </Column>
+       <Column index="2" name="OHH" lineCount="128">
+        <Lines/>
+       </Column>
+       <Column index="3" name="CHH" lineCount="128">
+        <Lines/>
+       </Column>
+       <Column index="4" name="Crash" lineCount="128">
+        <Lines/>
+       </Column>
+      </Columns>
+     </Track>
+     <Track index="2" name="Snare" lineCount="128" columnCount="1">
+      <Instrument portName="Noteahead Internal Device 3" channel="0" group="0">
+       <InstrumentSettings bankEnabled="false" transpose="0" drumTrack="false" delay="0" velocityJitter="0" velocityKeyTrack="0" velocityKeyTrackOffset="0"/>
+      </Instrument>
+     </Track>
+     <Track index="3" name="Bass" lineCount="128" columnCount="1">
+      <Instrument portName="Noteahead Internal Device 4" channel="0" group="0">
+       <InstrumentSettings bankEnabled="false" transpose="0" drumTrack="false" delay="0" velocityJitter="0" velocityKeyTrack="0" velocityKeyTrackOffset="0"/>
+      </Instrument>
+     </Track>
+     <Track index="4" name="Lead" lineCount="128" columnCount="1">
+      <Instrument portName="Noteahead Internal Device 6" channel="0" group="0">
+       <InstrumentSettings bankEnabled="false" transpose="0" drumTrack="false" delay="0" velocityJitter="0" velocityKeyTrack="0" velocityKeyTrackOffset="0"/>
+      </Instrument>
+     </Track>
+     <Track index="5" name="Pads" lineCount="128" columnCount="3">
+      <Instrument portName="Noteahead Internal Device 7" channel="0" group="0">
+       <InstrumentSettings bankEnabled="false" transpose="0" drumTrack="false" delay="0" velocityJitter="0" velocityKeyTrack="0" velocityKeyTrackOffset="0"/>
+      </Instrument>
+      <Columns>
+       <Column index="0" name="Maj" lineCount="128">
+        <ColumnSettings delay="0" midiDelayEnabled="false" midiDelayLines="0" midiDelayFeedback="100" midiDelayMaxRepetitions="8" transpose="0" chordNote1Offset="4" chordNote1Velocity="100" chordNote1Delay="0" chordNote2Offset="7" chordNote2Velocity="100" chordNote2Delay="0" chordNote3Offset="0" chordNote3Velocity="100" chordNote3Delay="0" arpeggiatorEnabled="false" arpeggiatorPattern="0" arpeggiatorEventsPerBeat="4"/>
+        <Lines/>
+       </Column>
+       <Column index="1" name="Min" lineCount="128">
+        <ColumnSettings delay="0" midiDelayEnabled="false" midiDelayLines="0" midiDelayFeedback="100" midiDelayMaxRepetitions="8" transpose="0" chordNote1Offset="3" chordNote1Velocity="100" chordNote1Delay="0" chordNote2Offset="7" chordNote2Velocity="100" chordNote2Delay="0" chordNote3Offset="0" chordNote3Velocity="100" chordNote3Delay="0" arpeggiatorEnabled="false" arpeggiatorPattern="0" arpeggiatorEventsPerBeat="4"/>
+        <Lines/>
+       </Column>
+       <Column index="2" name="Sus4" lineCount="128">
+        <ColumnSettings delay="0" midiDelayEnabled="false" midiDelayLines="0" midiDelayFeedback="100" midiDelayMaxRepetitions="8" transpose="0" chordNote1Offset="5" chordNote1Velocity="100" chordNote1Delay="0" chordNote2Offset="7" chordNote2Velocity="100" chordNote2Delay="0" chordNote3Offset="0" chordNote3Velocity="100" chordNote3Delay="0" arpeggiatorEnabled="false" arpeggiatorPattern="0" arpeggiatorEventsPerBeat="4"/>
+        <Lines/>
+       </Column>
+      </Columns>
+     </Track>
+     <Track index="6" name="Sampler" lineCount="128" columnCount="1">
+      <Instrument portName="Noteahead Internal Device 9" channel="0" group="0">
+       <InstrumentSettings bankEnabled="false" transpose="0" drumTrack="false" delay="0" velocityJitter="0" velocityKeyTrack="0" velocityKeyTrackOffset="0"/>
+      </Instrument>
+     </Track>
+     <Track index="7" name="Track 8" lineCount="128" columnCount="1"/>
+    </Tracks>
+   </Pattern>
+  </Patterns>
+ </Song>
+</Project>

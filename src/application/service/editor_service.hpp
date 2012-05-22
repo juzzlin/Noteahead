@@ -137,6 +137,8 @@ public:
     //! saved back to, so Save has to fall through to Save As rather than trying to write into a
     //! read-only resource.
     void loadExample();
+    //! Loads the embedded template at @p resourcePath, unnamed for the same reason as the example.
+    void loadTemplate(QString resourcePath);
     void save();
     void saveAs(QString fileName);
     void saveAsTemplate(QString fileName);
@@ -513,6 +515,8 @@ public slots:
     void requestPositionByTick(quint64 tick);
 
 private:
+    //! Loads the song embedded at @p resourcePath and leaves it unnamed. See loadExample().
+    void loadUnnamed(QString resourcePath, QString loadedMessage);
     //! Gives a song that stores no settings of its own the application-wide defaults.
     void seedSongSettings();
 

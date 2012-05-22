@@ -6120,6 +6120,14 @@
         <translation>Beispielsong 1</translation>
     </message>
     <message>
+        <source>Templates</source>
+        <translation>Vorlagen</translation>
+    </message>
+    <message>
+        <source>EDM</source>
+        <translation>EDM</translation>
+    </message>
+    <message>
         <source>Save</source>
         <translation>Speichern</translation>
     </message>
@@ -13224,6 +13232,10 @@ Ein Apostroph markiert die betonte Silbe: A&apos;merica</translation>
     <message>
         <source>Example song loaded</source>
         <translation>Beispielsong geladen</translation>
+    </message>
+    <message>
+        <source>Template loaded</source>
+        <translation>Vorlage geladen</translation>
     </message>
     <message>
         <source>A new pattern created!</source>

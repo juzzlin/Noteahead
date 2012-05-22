@@ -96,6 +96,21 @@ void ExampleSongTest::test_exampleSong_resaved_shouldNotGainSendChains()
     QVERIFY(!editorService.toXml().contains(Constants::NahdXml::xmlKeySendChains()));
 }
 
+void ExampleSongTest::test_edmTemplate_shouldLoadUnnamedWithTheCurrentFormat()
+{
+    // Committed once and left alone like the example, and opened read-only from the binary like it
+    const auto path = Constants::templatePath("Template-EDM");
+    QVERIFY2(QFile::exists(path), "The EDM template is not in the binary. Check the qt_add_resources() block in src/CMakeLists.txt.");
+    auto editorService = makeEditorService();
+
+    editorService.loadTemplate(path);
+
+    QVERIFY(editorService.trackCount() > 0);
+    QVERIFY(editorService.currentFileName().isEmpty());
+    QVERIFY(!editorService.isModified());
+    QVERIFY(!editorService.canBeSaved());
+}
+
 } // namespace noteahead
 
 QTEST_GUILESS_MAIN(noteahead::ExampleSongTest)

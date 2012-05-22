@@ -6120,6 +6120,14 @@
         <translation>Voorbeeldsong 1</translation>
     </message>
     <message>
+        <source>Templates</source>
+        <translation>Sjablonen</translation>
+    </message>
+    <message>
+        <source>EDM</source>
+        <translation>EDM</translation>
+    </message>
+    <message>
         <source>Save</source>
         <translation>Opslaan</translation>
     </message>
@@ -13224,6 +13232,10 @@ Een apostrof markeert de beklemtoonde lettergreep: A&apos;merica</translation>
     <message>
         <source>Example song loaded</source>
         <translation>Voorbeeldsong geladen</translation>
+    </message>
+    <message>
+        <source>Template loaded</source>
+        <translation>Sjabloon geladen</translation>
     </message>
     <message>
         <source>A new pattern created!</source>

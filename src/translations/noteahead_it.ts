@@ -6120,6 +6120,14 @@
         <translation>Brano di esempio 1</translation>
     </message>
     <message>
+        <source>Templates</source>
+        <translation>Modelli</translation>
+    </message>
+    <message>
+        <source>EDM</source>
+        <translation>EDM</translation>
+    </message>
+    <message>
         <source>Save</source>
         <translation>Salva</translation>
     </message>
@@ -13224,6 +13232,10 @@ Un apostrofo indica la sillaba accentata: A&apos;merica</translation>
     <message>
         <source>Example song loaded</source>
         <translation>Brano di esempio caricato</translation>
+    </message>
+    <message>
+        <source>Template loaded</source>
+        <translation>Modello caricato</translation>
     </message>
     <message>
         <source>A new pattern created!</source>
