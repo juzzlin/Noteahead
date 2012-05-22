@@ -139,6 +139,7 @@ set(HEADER_FILES
     effects/phase_scope.hpp
     effects/simple_eq.hpp
     effects/vintage_passive_eq.hpp
+    effects/spectrum_source.hpp
     effects/stereo_enhancer.hpp
     effects/stereo_exciter.hpp
     effects/stereo_widener.hpp
@@ -194,7 +195,9 @@ set(HEADER_FILES
     utility/lufs_meter.hpp
     utility/mix_advisor.hpp
     utility/rta.hpp
+    utility/rta_core.hpp
     utility/spectrum_analyzer.hpp
+    utility/spectrum_taps.hpp
     utility/stereo_field_meter.hpp
     utility/stereo_level_meter.hpp
 )
@@ -395,7 +398,9 @@ set(SOURCE_FILES
     utility/lufs_meter.cpp
     utility/mix_advisor.cpp
     utility/rta.cpp
+    utility/rta_core.cpp
     utility/spectrum_analyzer.cpp
+    utility/spectrum_taps.cpp
     utility/stereo_field_meter.cpp
     utility/stereo_level_meter.cpp
 )

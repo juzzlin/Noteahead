@@ -31,11 +31,14 @@
 #include "../../domain/utility/dbtp_meter.hpp"
 #include "../../domain/utility/lufs_meter.hpp"
 #include "../../domain/utility/rta.hpp"
+#include "../../domain/utility/rta_core.hpp"
+#include "../../domain/utility/spectrum_taps.hpp"
 #include "../../infra/audio/audio_engine.hpp"
 #include "../../infra/data_service.hpp"
 #include "../../infra/xml/nahd_xml_reader.hpp"
 #include "../../infra/xml/nahd_xml_writer.hpp"
 #include "../../view/controllers/effect_rack_controller.hpp"
+#include "../../view/qml/Dialogs/eq_curve_renderer.hpp"
 #include "../../view/qml/Dialogs/rta_renderer.hpp"
 
 #include <QBuffer>
@@ -540,6 +543,71 @@ void EffectRackControllerTest::test_rtaUpdateRenderer_shouldHandTheAnalyzersLayo
     QObject stranger;
     controller.rtaUpdateRenderer(0, &stranger);
     controller.rtaUpdateRenderer(0, nullptr);
+}
+
+void EffectRackControllerTest::test_spectrumSetActive_postMode_shouldRunOnlyThePostTap()
+{
+    const auto engine = std::make_shared<AudioEngine>();
+    const auto deviceService = std::make_shared<DeviceService>(engine, std::make_shared<DataService>());
+    const auto editorService = std::make_shared<EditorService>();
+    EffectRackController controller { deviceService, editorService };
+    setUpInsertRackWith(controller, Eq8BandParametric::typeIdString());
+    const auto eq = std::dynamic_pointer_cast<Eq8BandParametric>(deviceService->insertEffectRack().effect(0));
+    QVERIFY(eq);
+
+    EqCurveRenderer renderer;
+    renderer.setSpectrumMode(EqCurveRenderer::SpectrumPost);
+    // Invoked by name, as the dialog reaches it: see test_rtaUpdateRenderer_shouldHandTheAnalyzersLayoutToTheRenderer
+    QVERIFY(QMetaObject::invokeMethod(&controller, "spectrumSetActive", Q_ARG(quint32, 0), Q_ARG(QObject *, &renderer), Q_ARG(bool, true)));
+
+    QVERIFY(eq->spectrumTaps().isEnabled());
+    QVERIFY(eq->spectrumTaps().core(SpectrumTaps::Tap::Post));
+    QVERIFY(!eq->spectrumTaps().core(SpectrumTaps::Tap::Pre));
+}
+
+void EffectRackControllerTest::test_spectrumSetActive_inactive_shouldStopTheTaps()
+{
+    const auto engine = std::make_shared<AudioEngine>();
+    const auto deviceService = std::make_shared<DeviceService>(engine, std::make_shared<DataService>());
+    const auto editorService = std::make_shared<EditorService>();
+    EffectRackController controller { deviceService, editorService };
+    setUpInsertRackWith(controller, Eq8BandParametric::typeIdString());
+    const auto eq = std::dynamic_pointer_cast<Eq8BandParametric>(deviceService->insertEffectRack().effect(0));
+
+    EqCurveRenderer renderer;
+    renderer.setSpectrumMode(EqCurveRenderer::SpectrumPostMinusPre);
+    controller.spectrumSetActive(0, &renderer, true);
+    QVERIFY(eq->spectrumTaps().core(SpectrumTaps::Tap::Pre));
+    QVERIFY(eq->spectrumTaps().core(SpectrumTaps::Tap::Post));
+
+    controller.spectrumSetActive(0, &renderer, false);
+    QVERIFY(!eq->spectrumTaps().isEnabled());
+    QVERIFY(eq->isSettled());
+}
+
+void EffectRackControllerTest::test_spectrumUpdateRenderer_shouldHandTheLayoutToTheRenderer()
+{
+    const auto engine = std::make_shared<AudioEngine>();
+    const auto deviceService = std::make_shared<DeviceService>(engine, std::make_shared<DataService>());
+    const auto editorService = std::make_shared<EditorService>();
+    EffectRackController controller { deviceService, editorService };
+    setUpInsertRackWith(controller, Eq8BandParametric::typeIdString());
+
+    EqCurveRenderer renderer;
+    renderer.setSpectrumMode(EqCurveRenderer::SpectrumBoth);
+    controller.spectrumSetActive(0, &renderer, true);
+    QCOMPARE(renderer.spectrumLayoutGeneration(), 0u);
+
+    QVERIFY(QMetaObject::invokeMethod(&controller, "spectrumUpdateRenderer", Q_ARG(quint32, 0), Q_ARG(QObject *, &renderer)));
+    QVERIFY(renderer.spectrumLayoutGeneration() > 0u);
+
+    // A slot with no equalizer in it, something that is not a renderer, and nothing at all are all
+    // quiet no-ops
+    controller.spectrumUpdateRenderer(1, &renderer);
+    QObject stranger;
+    controller.spectrumUpdateRenderer(0, &stranger);
+    controller.spectrumUpdateRenderer(0, nullptr);
+    controller.spectrumSetActive(0, nullptr, true);
 }
 
 void EffectRackControllerTest::test_airBandEqResponse_wrongEffect_shouldBeEmpty()

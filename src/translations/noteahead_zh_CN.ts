@@ -3317,6 +3317,10 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Spectrum</source>
+        <translation>频谱</translation>
+    </message>
+    <message>
         <source>Output</source>
         <translation type="unfinished">输出</translation>
     </message>
@@ -3342,6 +3346,10 @@
     <message>
         <source>Side</source>
         <translation>侧向</translation>
+    </message>
+    <message>
+        <source>Spectrum</source>
+        <translation>频谱</translation>
     </message>
     <message>
         <source>Band %1</source>
@@ -10267,6 +10275,21 @@ Audio files will appear next to the current project file.</source>
     <message>
         <source>Increase song length</source>
         <translation>增加乐曲长度</translation>
+    </message>
+</context>
+<context>
+    <name>SpectrumModeComboBox</name>
+    <message>
+        <source>Off</source>
+        <translation>关</translation>
+    </message>
+    <message>
+        <source>Both</source>
+        <translation>两者</translation>
+    </message>
+    <message>
+        <source>The live spectrum behind the curve: of the input, of the output, or both. A difference is drawn on the curve&apos;s scale, so where it leaves the curve, something the curve does not show is at work.</source>
+        <translation>曲线背后的实时频谱：输入、输出或两者。差值按曲线的刻度绘制，因此它偏离曲线之处，说明有曲线未显示的因素在起作用。</translation>
     </message>
 </context>
 <context>

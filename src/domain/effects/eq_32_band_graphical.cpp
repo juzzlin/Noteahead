@@ -29,6 +29,10 @@ namespace noteahead {
 
 namespace {
 
+//! The highest rate the input tap's alignment delay is allocated for. Above it the Pre spectrum
+//! runs early by the difference, which is all that goes wrong.
+constexpr double SpectrumMaxSampleRate = 192000.0;
+
 //! The ISO nominal centres the panel is labelled with. The bands run at the exact thirds of an
 //! octave GraphicEqDesigner::centreFrequency() gives, which these only round.
 constexpr std::array<const char *, Eq32BandGraphical::BandCount> NominalLabels {
@@ -41,6 +45,7 @@ constexpr std::array<const char *, Eq32BandGraphical::BandCount> NominalLabels {
 } // namespace
 
 Eq32BandGraphical::Eq32BandGraphical()
+  : m_spectrumTaps { linearPhaseLatencyFrames(SpectrumMaxSampleRate) }
 {
     namespace C = Constants::NahdXml;
     using Display = ParameterDisplay;
@@ -245,16 +250,20 @@ void Eq32BandGraphical::processBlock(AudioContext & context)
     }
     updateBuffers();
     if (m_linearPhase) {
+        m_spectrumTaps.processPre(context, m_fir.latencyFrames());
         m_fir.advanceDesign(context.frameCount);
         for (uint32_t i = 0; i < context.frameCount; i++) {
             processFrameLinearPhase(context.buffer[i * 2], context.buffer[i * 2 + 1]);
         }
         m_firIsIdle = false;
+        m_spectrumTaps.processPost(context);
         return;
     }
+    m_spectrumTaps.processPre(context);
     for (uint32_t i = 0; i < context.frameCount; i++) {
         processFrame(context.buffer[i * 2], context.buffer[i * 2 + 1]);
     }
+    m_spectrumTaps.processPost(context);
 }
 
 void Eq32BandGraphical::reset()
@@ -272,6 +281,9 @@ void Eq32BandGraphical::reset()
 
 bool Eq32BandGraphical::isSettled() const
 {
+    if (m_spectrumTaps.isEnabled()) {
+        return false;
+    }
     // The whole kernel, and the partition being gathered, has to have run out of signal
     return !m_linearPhase || m_firIsIdle || m_quietFrames > m_fir.kernelLength() + 2 * m_fir.partitionSize();
 }
@@ -287,6 +299,11 @@ size_t Eq32BandGraphical::latencyFrames(double sampleRate) const
 size_t Eq32BandGraphical::linearPhaseLatencyFrames(double sampleRate)
 {
     return LinearPhaseFir::latencyFramesFor(sampleRate);
+}
+
+SpectrumTaps & Eq32BandGraphical::spectrumTaps()
+{
+    return m_spectrumTaps;
 }
 
 void Eq32BandGraphical::sync()

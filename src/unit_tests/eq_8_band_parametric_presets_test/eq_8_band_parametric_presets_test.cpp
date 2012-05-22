@@ -26,6 +26,7 @@
 
 #include <algorithm>
 #include <cmath>
+#include <memory>
 #include <numbers>
 #include <set>
 #include <vector>
@@ -119,16 +120,16 @@ double responseDb(Eq8BandParametric & eq, double hz)
     return 10.0 * std::log10(outputSquared / inputSquared);
 }
 
-Eq8BandParametric presetLoaded(const QString & presetName)
+std::unique_ptr<Eq8BandParametric> presetLoaded(const QString & presetName)
 {
     const auto & presets = Eq8BandParametricPresets::presets();
     const auto it = std::ranges::find_if(presets, [&](const EffectPreset & preset) {
         return preset.name == presetName.toStdString();
     });
-    Eq8BandParametric eq;
-    eq.setSampleRate(SampleRate);
+    auto eq = std::make_unique<Eq8BandParametric>();
+    eq->setSampleRate(SampleRate);
     if (it != presets.end()) {
-        eq.applyFactoryPreset(static_cast<size_t>(std::distance(presets.begin(), it)));
+        eq->applyFactoryPreset(static_cast<size_t>(std::distance(presets.begin(), it)));
     }
     return eq;
 }
@@ -212,9 +213,9 @@ void Eq8BandParametricPresetsTest::test_flat_shouldBypassEveryBand()
     QVERIFY(activeBandsOf("Flat").empty());
 
     auto eq = presetLoaded("Flat");
-    QVERIFY(std::abs(responseDb(eq, 50.0)) < 0.01);
-    QVERIFY(std::abs(responseDb(eq, 1000.0)) < 0.01);
-    QVERIFY(std::abs(responseDb(eq, 10000.0)) < 0.01);
+    QVERIFY(std::abs(responseDb(*eq, 50.0)) < 0.01);
+    QVERIFY(std::abs(responseDb(*eq, 1000.0)) < 0.01);
+    QVERIFY(std::abs(responseDb(*eq, 10000.0)) < 0.01);
 }
 
 void Eq8BandParametricPresetsTest::test_leadVocal_shouldMatchTheSourceNotes()
@@ -269,9 +270,9 @@ void Eq8BandParametricPresetsTest::test_highPass_shouldBe12DbPerOctave()
     // peak there instead and nothing in the parameters would say so.
     auto eq = presetLoaded("Hi-Hats & Cymbals");
 
-    const auto atCorner = responseDb(eq, 150.0);
-    const auto oneOctaveBelow = responseDb(eq, 75.0);
-    const auto twoOctavesBelow = responseDb(eq, 37.5);
+    const auto atCorner = responseDb(*eq, 150.0);
+    const auto oneOctaveBelow = responseDb(*eq, 75.0);
+    const auto twoOctavesBelow = responseDb(*eq, 37.5);
 
     QVERIFY2(std::abs(atCorner + 3.0) < 1.0, qPrintable(QString::number(atCorner)));
 
@@ -308,9 +309,9 @@ void Eq8BandParametricPresetsTest::test_applyFactoryPreset_shouldReachTheAudio()
     // A preset that writes parameters but never reaches the filters would pass every check above.
     auto eq = presetLoaded("Hi-Hats & Cymbals");
     // 50 Hz is a third of the 150 Hz corner, where a second-order high pass is about 19 dB down.
-    const auto belowCorner = responseDb(eq, 50.0);
+    const auto belowCorner = responseDb(*eq, 50.0);
     QVERIFY2(belowCorner < -15.0, qPrintable(QString::number(belowCorner)));
-    QVERIFY(responseDb(eq, 9500.0) > 1.0);
+    QVERIFY(responseDb(*eq, 9500.0) > 1.0);
 }
 
 void Eq8BandParametricPresetsTest::test_applyFactoryPreset_shouldReplaceThePreviousPreset()

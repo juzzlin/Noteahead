@@ -21,6 +21,7 @@
 
 #include <algorithm>
 #include <cmath>
+#include <utility>
 
 namespace noteahead {
 
@@ -33,6 +34,15 @@ constexpr double MaxFrequency = 20000.0;
 //! The frequencies that get a gridline and a label. The decades plus the two thirds between them,
 //! which is as many as fit in a corner of a dialog without the labels touching.
 constexpr double GridFrequencies[] { 100.0, 1000.0, 10000.0 };
+
+//! The spectrum's own scale, top to bottom of the plot. Independent of the curve's: a spectrum
+//! spans tens of dB where a curve spans a few either side of flat.
+constexpr double SpectrumTopDb = 0.0;
+constexpr double SpectrumFloorDb = -90.0;
+
+//! Below this a band is too quiet for a difference to mean anything: both taps are reading the
+//! analyzer's floor, and what is left between them is noise.
+constexpr float DifferenceGateDb = -70.0f;
 
 constexpr qreal LabelMargin = 22.0;
 constexpr qreal PlotInset = 2.0;
@@ -96,6 +106,129 @@ void EqCurveRenderer::setAccentColor(const QColor & color)
     }
 }
 
+int EqCurveRenderer::spectrumMode() const
+{
+    return m_spectrumMode;
+}
+
+void EqCurveRenderer::setSpectrumMode(int mode)
+{
+    if (m_spectrumMode != mode) {
+        m_spectrumMode = std::clamp(mode, static_cast<int>(SpectrumOff), static_cast<int>(SpectrumPostMinusPre));
+        m_preLevels.clear();
+        m_postLevels.clear();
+        update();
+        emit spectrumModeChanged();
+    }
+}
+
+bool EqCurveRenderer::spectrumUsesPre() const
+{
+    return m_spectrumMode == SpectrumPre || m_spectrumMode == SpectrumBoth || m_spectrumMode == SpectrumPreMinusPost || m_spectrumMode == SpectrumPostMinusPre;
+}
+
+bool EqCurveRenderer::spectrumUsesPost() const
+{
+    return m_spectrumMode == SpectrumPost || m_spectrumMode == SpectrumBoth || m_spectrumMode == SpectrumPreMinusPost || m_spectrumMode == SpectrumPostMinusPre;
+}
+
+void EqCurveRenderer::setSpectrumLevels(std::vector<float> pre, std::vector<float> post)
+{
+    m_preLevels = std::move(pre);
+    m_postLevels = std::move(post);
+    update();
+}
+
+void EqCurveRenderer::setSpectrumLayout(const std::vector<std::pair<float, float>> & positions, uint32_t generation)
+{
+    m_spectrumPositions = positions;
+    m_spectrumLayoutGeneration = generation;
+    update();
+}
+
+uint32_t EqCurveRenderer::spectrumLayoutGeneration() const
+{
+    return m_spectrumLayoutGeneration;
+}
+
+qreal EqCurveRenderer::bandCentreX(size_t band, const QRectF & plot) const
+{
+    const auto & [lo, hi] = m_spectrumPositions.at(band);
+    return plot.x() + plot.width() * 0.5 * static_cast<double>(lo + hi);
+}
+
+QPainterPath EqCurveRenderer::spectrumPath(const std::vector<float> & levels, const QRectF & plot) const
+{
+    QPainterPath path;
+    for (size_t i = 0; i < levels.size(); i++) {
+        const double db = std::clamp(static_cast<double>(levels.at(i)), SpectrumFloorDb, SpectrumTopDb);
+        const qreal y = plot.y() + plot.height() * (SpectrumTopDb - db) / (SpectrumTopDb - SpectrumFloorDb);
+        if (i == 0) {
+            path.moveTo(bandCentreX(i, plot), y);
+        } else {
+            path.lineTo(bandCentreX(i, plot), y);
+        }
+    }
+    return path;
+}
+
+void EqCurveRenderer::paintSpectrum(QPainter & painter, const QRectF & plot) const
+{
+    const auto fits = [this](const std::vector<float> & levels) {
+        return levels.size() >= 2 && levels.size() == m_spectrumPositions.size();
+    };
+
+    // The output is the one filled whenever it is shown: it is what is heard, and the input is
+    // there to be compared against it
+    const bool fillPre = m_spectrumMode == SpectrumPre;
+    if (const auto & filled = fillPre ? m_preLevels : m_postLevels; fits(filled) && m_spectrumMode != SpectrumOff) {
+        const QPainterPath line = spectrumPath(filled, plot);
+        QPainterPath area = line;
+        area.lineTo(bandCentreX(filled.size() - 1, plot), plot.bottom());
+        area.lineTo(bandCentreX(0, plot), plot.bottom());
+        area.closeSubpath();
+        painter.fillPath(area, QColor { 255, 255, 255, 28 });
+        painter.setPen(QPen { QColor { 255, 255, 255, 70 }, 1 });
+        painter.drawPath(line);
+    }
+
+    if (m_spectrumMode == SpectrumBoth && fits(m_preLevels)) {
+        QPen pen { QColor { 255, 200, 120, 140 }, 1 };
+        pen.setStyle(Qt::DotLine);
+        painter.setPen(pen);
+        painter.drawPath(spectrumPath(m_preLevels, plot));
+    }
+}
+
+void EqCurveRenderer::paintSpectrumDifference(QPainter & painter, const QRectF & plot, bool inverted) const
+{
+    const size_t bands = m_spectrumPositions.size();
+    if (bands < 2 || m_preLevels.size() != bands || m_postLevels.size() != bands) {
+        return;
+    }
+
+    const double range = static_cast<double>(m_dbRange);
+    const auto & reference = inverted ? m_postLevels : m_preLevels;
+    QPainterPath path;
+    bool drawing = false;
+    for (size_t i = 0; i < bands; i++) {
+        if (reference.at(i) < DifferenceGateDb) {
+            drawing = false;
+            continue;
+        }
+        const double difference = static_cast<double>(m_postLevels.at(i) - m_preLevels.at(i)) * (inverted ? -1.0 : 1.0);
+        const qreal y = plot.y() + plot.height() * (0.5 - std::clamp(difference, -range, range) / (range * 2.0));
+        if (drawing) {
+            path.lineTo(bandCentreX(i, plot), y);
+        } else {
+            path.moveTo(bandCentreX(i, plot), y);
+            drawing = true;
+        }
+    }
+    painter.setPen(QPen { QColor { 255, 200, 120, 200 }, 1.5 });
+    painter.drawPath(path);
+}
+
 double EqCurveRenderer::frequencyPosition(double hz)
 {
     return std::log(hz / MinFrequency) / std::log(MaxFrequency / MinFrequency);
@@ -148,6 +281,15 @@ void EqCurveRenderer::paint(QPainter * painter)
 
     const QRectF plot { plotX, plotY, plotW, plotH };
 
+    // Behind everything the equalizer draws: the curve is what this plot is for, and the spectrum is
+    // there to read it against
+    if (m_spectrumMode == SpectrumPre || m_spectrumMode == SpectrumPost || m_spectrumMode == SpectrumBoth) {
+        painter->save();
+        painter->setClipRect(plot);
+        paintSpectrum(*painter, plot);
+        painter->restore();
+    }
+
     // Drawn first and left unfilled, so that where the two coincide the filled one wins and the
     // secondary reads as the lesser of the two without needing a legend to say so.
     if (m_secondaryResponse.size() >= 2) {
@@ -179,6 +321,12 @@ void EqCurveRenderer::paint(QPainter * painter)
 
     painter->setPen(QPen(m_accentColor, 2));
     painter->drawPath(curve);
+
+    // Over the curve rather than under it: where the two coincide is the expected case, and a line
+    // hidden exactly there would look like no line at all
+    if (m_spectrumMode == SpectrumPreMinusPost || m_spectrumMode == SpectrumPostMinusPre) {
+        paintSpectrumDifference(*painter, plot, m_spectrumMode == SpectrumPreMinusPost);
+    }
 }
 
 QPainterPath EqCurveRenderer::curvePath(const QVariantList & response, const QRectF & plot) const

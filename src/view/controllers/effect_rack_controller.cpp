@@ -55,6 +55,7 @@
 #include "../../domain/effects/reference.hpp"
 #include "../../domain/effects/reference_environments.hpp"
 #include "../../domain/effects/saturator.hpp"
+#include "../../domain/effects/spectrum_source.hpp"
 #include "../../domain/effects/stereo_enhancer.hpp"
 #include "../../domain/effects/stereo_exciter.hpp"
 #include "../../domain/effects/stereo_widener.hpp"
@@ -64,9 +65,12 @@
 #include "../../domain/utility/dbtp_meter.hpp"
 #include "../../domain/utility/lufs_meter.hpp"
 #include "../../domain/utility/rta.hpp"
+#include "../../domain/utility/rta_core.hpp"
+#include "../../domain/utility/spectrum_taps.hpp"
 #include "../../domain/utility/stereo_field_meter.hpp"
 #include "../../infra/xml/nahd_xml_reader.hpp"
 #include "../../infra/xml/nahd_xml_writer.hpp"
+#include "../qml/Dialogs/eq_curve_renderer.hpp"
 #include "../qml/Dialogs/rta_renderer.hpp"
 #include "knob_controller.hpp"
 
@@ -3514,6 +3518,41 @@ void EffectRackController::rtaSetActive(quint32 effectIndex, bool active)
             if (const auto rta = std::dynamic_pointer_cast<Rta>(effect)) {
                 rta->setAnalysisEnabled(active);
             }
+        }
+    }
+}
+
+void EffectRackController::spectrumUpdateRenderer(quint32 effectIndex, QObject * rendererObject) const
+{
+    const auto renderer = qobject_cast<EqCurveRenderer *>(rendererObject);
+    if (!renderer) {
+        return;
+    }
+
+    if (const auto rack = currentRack()) {
+        if (const auto source = std::dynamic_pointer_cast<SpectrumSource>(rack->get().effect(effectIndex))) {
+            const auto & taps = source->spectrumTaps();
+            const auto pre = renderer->spectrumUsesPre() ? taps.core(SpectrumTaps::Tap::Pre) : nullptr;
+            const auto post = renderer->spectrumUsesPost() ? taps.core(SpectrumTaps::Tap::Post) : nullptr;
+            // Both taps are built alike, so either one's layout is the other's
+            if (const auto layout = post ? post : pre) {
+                if (const auto generation = layout->layoutGeneration(); generation != renderer->spectrumLayoutGeneration()) {
+                    renderer->setSpectrumLayout(layout->bandLogPositions(), generation);
+                }
+                renderer->setSpectrumLevels(pre ? pre->bandMagnitudesDb() : std::vector<float> {}, post ? post->bandMagnitudesDb() : std::vector<float> {});
+            }
+        }
+    }
+}
+
+void EffectRackController::spectrumSetActive(quint32 effectIndex, QObject * rendererObject, bool active)
+{
+    const auto renderer = qobject_cast<EqCurveRenderer *>(rendererObject);
+    if (const auto rack = currentRack()) {
+        if (const auto source = std::dynamic_pointer_cast<SpectrumSource>(rack->get().effect(effectIndex))) {
+            const bool pre = active && renderer && renderer->spectrumUsesPre();
+            const bool post = active && renderer && renderer->spectrumUsesPost();
+            source->spectrumTaps().setEnabled(pre, post);
         }
     }
 }

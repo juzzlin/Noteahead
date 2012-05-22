@@ -143,9 +143,21 @@ void Eq8BandParametric::processBlock(AudioContext & context)
 
     updateBuffers();
 
+    m_spectrumTaps.processPre(context);
     for (uint32_t i = 0; i < context.frameCount; i++) {
         processSample(context.buffer[i * 2], context.buffer[i * 2 + 1]);
     }
+    m_spectrumTaps.processPost(context);
+}
+
+bool Eq8BandParametric::isSettled() const
+{
+    return !m_spectrumTaps.isEnabled();
+}
+
+SpectrumTaps & Eq8BandParametric::spectrumTaps()
+{
+    return m_spectrumTaps;
 }
 
 void Eq8BandParametric::updateBuffers()

@@ -58,21 +58,40 @@ EffectDialog {
             spacing: 15
             Layout.fillWidth: true
 
-            Label {
-                text: qsTr("Stereo Mode")
-                font.bold: true
-            }
-            ComboBox {
-                id: stereoModeCombo
-                implicitWidth: 160
-                model: [qsTr("Mid + Side"), qsTr("Mid"), qsTr("Side")]
-                currentIndex: {
-                    effectRackController.revision;
-                    return effectRackController.parameterValue(root.effectIndex, effectRackController.eq8BandParametricStereoModeKey());
+            // Stacked, so that the spectrum mode costs the curve no width
+            GridLayout {
+                columns: 2
+                rowSpacing: 10
+                columnSpacing: 15
+                Layout.alignment: Qt.AlignTop
+
+                Label {
+                    text: qsTr("Stereo Mode")
+                    font.bold: true
                 }
-                onActivated: index => effectRackController.setParameterValue(root.effectIndex, effectRackController.eq8BandParametricStereoModeKey(), index)
+                ComboBox {
+                    id: stereoModeCombo
+                    implicitWidth: 160
+                    model: [qsTr("Mid + Side"), qsTr("Mid"), qsTr("Side")]
+                    currentIndex: {
+                        effectRackController.revision;
+                        return effectRackController.parameterValue(root.effectIndex, effectRackController.eq8BandParametricStereoModeKey());
+                    }
+                    onActivated: index => effectRackController.setParameterValue(root.effectIndex, effectRackController.eq8BandParametricStereoModeKey(), index)
+                }
+                Label {
+                    text: qsTr("Spectrum")
+                    font.bold: true
+                }
+                SpectrumModeComboBox {
+                    effectIndex: root.effectIndex
+                    renderer: curve
+                    active: root.visible
+                    implicitWidth: 160
+                }
             }
             EqCurveRenderer {
+                id: curve
                 // The response comes from the equalizer itself, which reads it off the filters it
                 // processes with, so the curve cannot drift from what is being heard. revision is
                 // bumped by every parameter change, which is what makes it follow a knob.

@@ -87,6 +87,15 @@ EffectDialog {
                 toolTipText: qsTr("Every slider back to 0 dB")
                 onClicked: effectRackController.eq32BandGraphicalFlatten(root.effectIndex)
             }
+            Label {
+                text: qsTr("Spectrum")
+                font.bold: true
+            }
+            SpectrumModeComboBox {
+                effectIndex: root.effectIndex
+                renderer: curve
+                active: root.visible
+            }
             Item {
                 Layout.fillWidth: true
             }
@@ -106,6 +115,7 @@ EffectDialog {
         }
 
         EqCurveRenderer {
+            id: curve
             // From the equalizer itself, so the curve is what is heard, the band interaction and the
             // output gain included
             response: {

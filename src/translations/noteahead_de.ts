@@ -3318,6 +3318,10 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Spectrum</source>
+        <translation>Spektrum</translation>
+    </message>
+    <message>
         <source>Output</source>
         <translation type="unfinished">Ausgang</translation>
     </message>
@@ -3343,6 +3347,10 @@
     <message>
         <source>Side</source>
         <translation>Side</translation>
+    </message>
+    <message>
+        <source>Spectrum</source>
+        <translation>Spektrum</translation>
     </message>
     <message>
         <source>Band %1</source>
@@ -10269,6 +10277,21 @@ Die Audiodateien erscheinen neben der aktuellen Projektdatei.</translation>
     <message>
         <source>Increase song length</source>
         <translation>Songlänge erhöhen</translation>
+    </message>
+</context>
+<context>
+    <name>SpectrumModeComboBox</name>
+    <message>
+        <source>Off</source>
+        <translation>Aus</translation>
+    </message>
+    <message>
+        <source>Both</source>
+        <translation>Beide</translation>
+    </message>
+    <message>
+        <source>The live spectrum behind the curve: of the input, of the output, or both. A difference is drawn on the curve&apos;s scale, so where it leaves the curve, something the curve does not show is at work.</source>
+        <translation>Das Live-Spektrum hinter der Kurve: des Eingangs, des Ausgangs oder beider. Eine Differenz wird im Maßstab der Kurve gezeichnet; wo sie von der Kurve abweicht, wirkt etwas, das die Kurve nicht zeigt.</translation>
     </message>
 </context>
 <context>

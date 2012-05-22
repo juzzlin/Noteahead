@@ -17,7 +17,9 @@
 #define EQ_8_BAND_PARAMETRIC_HPP
 
 #include "../dsp/svf_filter.hpp"
+#include "../utility/spectrum_taps.hpp"
 #include "effect.hpp"
+#include "spectrum_source.hpp"
 
 #include <array>
 #include <cmath>
@@ -27,7 +29,7 @@
 
 namespace noteahead {
 
-class Eq8BandParametric : public Effect
+class Eq8BandParametric : public Effect, public SpectrumSource
 {
 public:
     Eq8BandParametric();
@@ -38,6 +40,11 @@ public:
 
     void processSample(double & left, double & right) override;
     void processBlock(AudioContext & context) override;
+
+    //! Not while a spectrum is shown, or it would hang at the last block that had anything in it.
+    bool isSettled() const override;
+
+    SpectrumTaps & spectrumTaps() override;
     void reset() override;
     void sync() override;
     const EffectPresetList & factoryPresets() const override;
@@ -226,6 +233,8 @@ private:
     bool m_shouldSyncParameters { false };
     bool m_shouldUpdateBuffers { false };
     uint32_t m_lastSampleRate { 0 };
+
+    SpectrumTaps m_spectrumTaps;
 };
 
 } // namespace noteahead

@@ -74,6 +74,7 @@ set(QML_SOURCE_FILES
     ${QML_BASE_DIR}/Components/SectionBox.qml
     ${QML_BASE_DIR}/Components/SectionHeading.qml
     ${QML_BASE_DIR}/Components/ShortcutHintAction.qml
+    ${QML_BASE_DIR}/Components/SpectrumModeComboBox.qml
     ${QML_BASE_DIR}/Components/SyncSlider.qml
     ${QML_BASE_DIR}/Components/VerticalLevelMeterBar.qml
     ${QML_BASE_DIR}/Components/VirtualKeyboard.qml

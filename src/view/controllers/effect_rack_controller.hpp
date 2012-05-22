@@ -635,6 +635,12 @@ public:
     Q_INVOKABLE QString rtaFftRateKey() const;
     Q_INVOKABLE void rtaSetActive(quint32 effectIndex, bool active);
 
+    //! Copies one frame of the spectrum an equalizer's @p renderer shows into it, layout included
+    //! when it has moved. QObject for the same reason as rtaUpdateRenderer().
+    Q_INVOKABLE void spectrumUpdateRenderer(quint32 effectIndex, QObject * renderer) const;
+    //! Runs the taps the mode of @p renderer needs, or none when @p active is false.
+    Q_INVOKABLE void spectrumSetActive(quint32 effectIndex, QObject * renderer, bool active);
+
     //! The effect's built-in patches followed by the user's own, numbered continuously and with a
     //! user preset marked, exactly as a device's preset dropdown is built. Empty when the effect
     //! ships no patches and the user has saved none, which is how a dialog knows to hide the row.

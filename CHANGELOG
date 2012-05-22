@@ -28,6 +28,9 @@ New features:
 
 * Add a built-in EDM template, openable from File > Templates
 
+* EQ 8-Band Parametric and EQ 32-Band Graphical: optional live spectrum behind the curve
+  - Pre, Post, Both, Pre − Post or Post − Pre; off by default and costs nothing until turned on
+
 * Support mouse drag glissando on VirtualKeyboard
 
 * Update JU Synth terminology and UI labels

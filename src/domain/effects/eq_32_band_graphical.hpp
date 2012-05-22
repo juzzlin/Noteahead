@@ -19,7 +19,9 @@
 #include "../dsp/graphic_eq_designer.hpp"
 #include "../dsp/linear_phase_fir.hpp"
 #include "../dsp/matched_bell_filter.hpp"
+#include "../utility/spectrum_taps.hpp"
 #include "effect.hpp"
+#include "spectrum_source.hpp"
 
 #include <array>
 #include <cstdint>
@@ -31,7 +33,7 @@ namespace noteahead {
 
 //! A third-octave graphic equalizer for mastering: 32 sliders from 16 Hz to 20 kHz, +-12 dB each,
 //! whose response actually passes through the slider positions. See GraphicEqDesigner.
-class Eq32BandGraphical : public Effect
+class Eq32BandGraphical : public Effect, public SpectrumSource
 {
 public:
     static constexpr size_t BandCount { GraphicEqDesigner::BandCount };
@@ -50,7 +52,7 @@ public:
 
     //! Holds on to a tail as long as the linear-phase filter does, which is about a second: the
     //! engine would otherwise stop a silent device with the end of its last note still inside, and
-    //! play it at the start of the next one.
+    //! play it at the start of the next one. Never while a spectrum is shown.
     bool isSettled() const override;
     //! Half the linear-phase kernel and one partition while Linear Phase is on, nothing otherwise.
     size_t latencyFrames(double sampleRate) const override;
@@ -59,6 +61,10 @@ public:
     static size_t linearPhaseLatencyFrames(double sampleRate);
 
     const EffectPresetList & factoryPresets() const override;
+
+    //! The input tap is held back by the linear-phase latency, so that Pre and Post show the same
+    //! moment and their difference is the equalizer's rather than the delay's.
+    SpectrumTaps & spectrumTaps() override;
 
     enum class StereoMode
     {
@@ -124,6 +130,8 @@ private:
     uint32_t m_lastSampleRate { 0 };
     bool m_shouldUpdateBuffers { true };
     bool m_shouldSyncParameters { true };
+
+    SpectrumTaps m_spectrumTaps;
 };
 
 } // namespace noteahead

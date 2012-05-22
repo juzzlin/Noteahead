@@ -3319,6 +3319,10 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Spectrum</source>
+        <translation>Widmo</translation>
+    </message>
+    <message>
         <source>Output</source>
         <translation type="unfinished">Wyjście</translation>
     </message>
@@ -3344,6 +3348,10 @@
     <message>
         <source>Side</source>
         <translation>Side</translation>
+    </message>
+    <message>
+        <source>Spectrum</source>
+        <translation>Widmo</translation>
     </message>
     <message>
         <source>Band %1</source>
@@ -10271,6 +10279,21 @@ Pliki dźwiękowe pojawią się obok bieżącego pliku projektu.</translation>
     <message>
         <source>Increase song length</source>
         <translation>Zwiększ długość utworu</translation>
+    </message>
+</context>
+<context>
+    <name>SpectrumModeComboBox</name>
+    <message>
+        <source>Off</source>
+        <translation>Wył.</translation>
+    </message>
+    <message>
+        <source>Both</source>
+        <translation>Oba</translation>
+    </message>
+    <message>
+        <source>The live spectrum behind the curve: of the input, of the output, or both. A difference is drawn on the curve&apos;s scale, so where it leaves the curve, something the curve does not show is at work.</source>
+        <translation>Widmo na żywo za krzywą: wejścia, wyjścia lub obu. Różnica jest rysowana w skali krzywej, więc tam, gdzie od niej odbiega, działa coś, czego krzywa nie pokazuje.</translation>
     </message>
 </context>
 <context>

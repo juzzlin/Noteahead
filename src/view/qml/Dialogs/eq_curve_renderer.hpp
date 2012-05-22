@@ -22,6 +22,10 @@
 #include <QRectF>
 #include <QVariantList>
 
+#include <cstdint>
+#include <utility>
+#include <vector>
+
 namespace noteahead {
 
 //! Draws what the equalizer is doing, as one curve over the audible range.
@@ -45,8 +49,28 @@ class EqCurveRenderer : public QQuickPaintedItem
     //! How far the curve is drawn either side of flat, in dB.
     Q_PROPERTY(int dbRange READ dbRange WRITE setDbRange NOTIFY dbRangeChanged)
     Q_PROPERTY(QColor accentColor READ accentColor WRITE setAccentColor NOTIFY accentColorChanged)
+    //! What of the live spectrum is drawn behind the curve, one of SpectrumMode.
+    Q_PROPERTY(int spectrumMode READ spectrumMode WRITE setSpectrumMode NOTIFY spectrumModeChanged)
 
 public:
+    //! Appended to only: the dialogs list the modes in this order.
+    enum SpectrumMode
+    {
+        SpectrumOff,
+        //! What goes into the equalizer.
+        SpectrumPre,
+        //! What comes out of it.
+        SpectrumPost,
+        //! Both, the output filled and the input outlined over it.
+        SpectrumBoth,
+        //! What the equalizer took away, on the curve's own scale.
+        SpectrumPreMinusPost,
+        //! What the equalizer did to the signal, on the curve's own scale. Where it leaves the curve,
+        //! something the curve cannot show is at work.
+        SpectrumPostMinusPre
+    };
+    Q_ENUM(SpectrumMode)
+
     explicit EqCurveRenderer(QQuickItem * parent = nullptr);
 
     QVariantList response() const;
@@ -61,6 +85,23 @@ public:
     QColor accentColor() const;
     void setAccentColor(const QColor & color);
 
+    int spectrumMode() const;
+    void setSpectrumMode(int mode);
+
+    //! Whether the mode needs the input's spectrum, and the output's.
+    bool spectrumUsesPre() const;
+    bool spectrumUsesPost() const;
+
+    //! The levels of the input and the output, in dBFS, one per band, or empty for a tap not shown.
+    //!
+    //! Taken as vectors straight from the analyzer rather than through a QML list, for the same
+    //! reason RtaRenderer takes them that way: this is called thirty times a second.
+    void setSpectrumLevels(std::vector<float> pre, std::vector<float> post);
+
+    //! Where the bands sit, as normalised log-frequency spans, and which layout they came from.
+    void setSpectrumLayout(const std::vector<std::pair<float, float>> & positions, uint32_t generation);
+    uint32_t spectrumLayoutGeneration() const;
+
     void paint(QPainter * painter) override;
 
 signals:
@@ -68,6 +109,7 @@ signals:
     void secondaryResponseChanged();
     void dbRangeChanged();
     void accentColorChanged();
+    void spectrumModeChanged();
 
 private:
     //! Where a frequency falls across the plot, 0 at 20 Hz and 1 at 20 kHz.
@@ -76,10 +118,24 @@ private:
     //! @p response as a path across the plot, with the dB values clamped to the drawn range.
     QPainterPath curvePath(const QVariantList & response, const QRectF & plot) const;
 
+    //! @p levels across the plot on the spectrum's own dBFS scale, at the band centres.
+    QPainterPath spectrumPath(const std::vector<float> & levels, const QRectF & plot) const;
+    void paintSpectrum(QPainter & painter, const QRectF & plot) const;
+    //! Post minus Pre, or Pre minus Post when @p inverted, on the curve's scale. Bands whose
+    //! reference is too quiet to compare are left as gaps rather than drawn as noise.
+    void paintSpectrumDifference(QPainter & painter, const QRectF & plot, bool inverted) const;
+    qreal bandCentreX(size_t band, const QRectF & plot) const;
+
     QVariantList m_response;
     QVariantList m_secondaryResponse;
     int m_dbRange = 18;
     QColor m_accentColor { 0, 180, 255 };
+
+    int m_spectrumMode = SpectrumOff;
+    std::vector<float> m_preLevels;
+    std::vector<float> m_postLevels;
+    std::vector<std::pair<float, float>> m_spectrumPositions;
+    uint32_t m_spectrumLayoutGeneration = 0;
 };
 
 } // namespace noteahead
