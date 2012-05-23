@@ -30,6 +30,7 @@ class SettingsService : public QObject
     Q_PROPERTY(int visibleLines READ visibleLines WRITE setVisibleLines NOTIFY visibleLinesChanged)
     Q_PROPERTY(int trackHeaderFontSize READ trackHeaderFontSize WRITE setTrackHeaderFontSize NOTIFY trackHeaderFontSizeChanged)
     Q_PROPERTY(bool recordingEnabled READ recordingEnabled WRITE setRecordingEnabled NOTIFY recordingEnabledChanged)
+    Q_PROPERTY(int audioBackend READ audioBackend WRITE setAudioBackend NOTIFY audioBackendChanged)
     Q_PROPERTY(bool jackSyncEnabled READ jackSyncEnabled WRITE setJackSyncEnabled NOTIFY jackSyncEnabledChanged)
     Q_PROPERTY(bool jackBpmSyncEnabled READ jackBpmSyncEnabled WRITE setJackBpmSyncEnabled NOTIFY jackBpmSyncEnabledChanged)
     Q_PROPERTY(bool midiSyncEnabled READ midiSyncEnabled WRITE setMidiSyncEnabled NOTIFY midiSyncEnabledChanged)
@@ -68,6 +69,9 @@ public:
     virtual Q_INVOKABLE bool recordingEnabled() const;
     virtual Q_INVOKABLE void setRecordingEnabled(bool enabled);
 
+    virtual Q_INVOKABLE int audioBackend() const;
+    virtual Q_INVOKABLE void setAudioBackend(int audioBackend);
+
     virtual Q_INVOKABLE bool jackSyncEnabled() const;
     virtual Q_INVOKABLE void setJackSyncEnabled(bool enabled);
 
@@ -102,6 +106,7 @@ signals:
     void visibleLinesChanged();
     void trackHeaderFontSizeChanged();
     void recordingEnabledChanged();
+    void audioBackendChanged();
     void jackSyncEnabledChanged();
     void jackBpmSyncEnabledChanged();
     void midiSyncEnabledChanged();

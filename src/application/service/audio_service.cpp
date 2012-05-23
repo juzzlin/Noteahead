@@ -15,6 +15,7 @@
 
 #include "audio_service.hpp"
 
+#include "../../common/audio_backend.hpp"
 #include "../../common/constants.hpp"
 #include "../../common/waveform_generator.hpp"
 #include "../../contrib/SimpleLogger/src/simple_logger.hpp"
@@ -67,12 +68,19 @@ void AudioService::reinitialize()
     std::unique_ptr<AudioRecorder> audioRecorder;
     std::unique_ptr<AudioPlayer> audioPlayer;
 
-    if (m_settingsService->jackSyncEnabled()) {
+    const auto backend = static_cast<AudioBackend>(m_settingsService->audioBackend());
+    if (backend == AudioBackend::Jack) {
         audioRecorder = std::make_unique<AudioRecorderJack>(m_jackService);
         audioPlayer = std::make_unique<AudioPlayerJack>(m_jackService);
     } else {
-        audioRecorder = std::make_unique<AudioRecorderRtAudio>(m_audioEngine, RtAudio::UNSPECIFIED);
-        audioPlayer = std::make_unique<AudioPlayerRtAudio>(m_audioEngine, RtAudio::UNSPECIFIED);
+        RtAudio::Api api = RtAudio::UNSPECIFIED;
+        if (backend == AudioBackend::Alsa) {
+            api = RtAudio::LINUX_ALSA;
+        } else if (backend == AudioBackend::PulseAudio) {
+            api = RtAudio::LINUX_PULSE;
+        }
+        audioRecorder = std::make_unique<AudioRecorderRtAudio>(m_audioEngine, api);
+        audioPlayer = std::make_unique<AudioPlayerRtAudio>(m_audioEngine, api);
     }
 
     m_audioWorker = std::make_unique<AudioWorker>(std::move(audioRecorder), std::move(audioPlayer), m_audioEngine);

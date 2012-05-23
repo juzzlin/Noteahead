@@ -16,18 +16,40 @@ GroupBox {
         GroupBox {
             title: qsTr("General")
             Layout.fillWidth: true
-            CheckBox {
-                id: showWaveViewCheckbox
-                text: qsTr("Show recording and playback wave view at the bottom of the editor.")
-                checked: settingsService.waveViewEnabled
+            ColumnLayout {
                 anchors.fill: parent
-                ToolTip.delay: Constants.toolTipDelay
-                ToolTip.timeout: Constants.toolTipTimeout
-                ToolTip.visible: hovered
-                ToolTip.text: qsTr("Show/hide the wave view")
-                onCheckedChanged: {
-                    if (settingsService.waveViewEnabled !== checked) {
-                        settingsService.waveViewEnabled = checked
+                spacing: 10
+                RowLayout {
+                    spacing: 10
+                    Label {
+                        text: qsTr("Backend:")
+                    }
+                    ComboBox {
+                        id: audioBackendComboBox
+                        Layout.fillWidth: true
+                        model: [qsTr("Auto"), qsTr("ALSA"), qsTr("PulseAudio"), qsTr("JACK")]
+                        currentIndex: settingsService.audioBackend
+                        onActivated: settingsService.audioBackend = index
+                        ToolTip.delay: Constants.toolTipDelay
+                        ToolTip.timeout: Constants.toolTipTimeout
+                        ToolTip.visible: hovered
+                        ToolTip.text: qsTr("Select audio backend")
+                    }
+                }
+
+                CheckBox {
+                    id: showWaveViewCheckbox
+                    text: qsTr("Show recording and playback wave view at the bottom of the editor.")
+                    checked: settingsService.waveViewEnabled
+                    Layout.fillWidth: true
+                    ToolTip.delay: Constants.toolTipDelay
+                    ToolTip.timeout: Constants.toolTipTimeout
+                    ToolTip.visible: hovered
+                    ToolTip.text: qsTr("Show/hide the wave view")
+                    onCheckedChanged: {
+                        if (settingsService.waveViewEnabled !== checked) {
+                            settingsService.waveViewEnabled = checked
+                        }
                     }
                 }
             }
@@ -65,14 +87,14 @@ GroupBox {
                         from: 32
                         to: 4096
                         stepSize: 32
-                        enabled: !settingsService.jackSyncEnabled
+                        enabled: settingsService.audioBackend !== 3
                         value: settingsService.audioBufferSize()
                         Layout.fillWidth: true
                         editable: true
                         ToolTip.delay: Constants.toolTipDelay
                         ToolTip.timeout: Constants.toolTipTimeout
                         ToolTip.visible: hovered
-                        ToolTip.text: settingsService.jackSyncEnabled ? qsTr("Buffer size is managed by JACK server") : qsTr("Set buffer size for audio recording and playback")
+                        ToolTip.text: settingsService.audioBackend === 3 ? qsTr("Buffer size is managed by JACK server") : qsTr("Set buffer size for audio recording and playback")
                         onValueChanged: settingsService.setAudioBufferSize(value)
                         Keys.onReturnPressed: focus = false
                     }
@@ -89,14 +111,14 @@ GroupBox {
                     ComboBox {
                         id: audioInputDeviceComboBox
                         Layout.fillWidth: true
-                        enabled: !settingsService.jackSyncEnabled
+                        enabled: settingsService.audioBackend !== 3
                         model: audioSettingsModel.inputDevices
                         textRole: "name"
                         valueRole: "id"
                         ToolTip.delay: Constants.toolTipDelay
                         ToolTip.timeout: Constants.toolTipTimeout
                         ToolTip.visible: hovered
-                        ToolTip.text: settingsService.jackSyncEnabled ? qsTr("Device selection is managed by JACK routing") : qsTr("Select audio input device")
+                        ToolTip.text: settingsService.audioBackend === 3 ? qsTr("Device selection is managed by JACK routing") : qsTr("Select audio input device")
                         Component.onCompleted: {
                             currentIndex = indexOfValue(audioSettingsModel.selectedInputDeviceId);
                         }
@@ -112,7 +134,7 @@ GroupBox {
                     }
                     Button {
                         text: qsTr("Refresh")
-                        enabled: !settingsService.jackSyncEnabled
+                        enabled: settingsService.audioBackend !== 3
                         onClicked: audioSettingsModel.refreshInputDevices()
                         ToolTip.visible: hovered
                         ToolTip.text: qsTr("Refresh input device list")
@@ -134,14 +156,14 @@ GroupBox {
                 ComboBox {
                     id: audioOutputDeviceComboBox
                     Layout.fillWidth: true
-                    enabled: !settingsService.jackSyncEnabled
+                    enabled: settingsService.audioBackend !== 3
                     model: audioOutputDeviceComboBox.enabled ? audioSettingsModel.outputDevices : []
                     textRole: "name"
                     valueRole: "id"
                     ToolTip.delay: Constants.toolTipDelay
                     ToolTip.timeout: Constants.toolTipTimeout
                     ToolTip.visible: hovered
-                    ToolTip.text: settingsService.jackSyncEnabled ? qsTr("Device selection is managed by JACK routing") : qsTr("Select audio output device")
+                    ToolTip.text: settingsService.audioBackend === 3 ? qsTr("Device selection is managed by JACK routing") : qsTr("Select audio output device")
                     Component.onCompleted: {
                         currentIndex = indexOfValue(audioSettingsModel.selectedOutputDeviceId);
                     }
@@ -157,7 +179,7 @@ GroupBox {
                 }
                 Button {
                     text: qsTr("Refresh")
-                    enabled: !settingsService.jackSyncEnabled
+                    enabled: settingsService.audioBackend !== 3
                     onClicked: audioSettingsModel.refreshOutputDevices()
                     ToolTip.visible: hovered
                     ToolTip.text: qsTr("Refresh output device list")

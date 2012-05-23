@@ -26,6 +26,7 @@ const auto recentFilesArrayKey = "recentFilesArray";
 const auto recentFilesFilePathKey = "filePath";
 const auto lastImportDirectoryKey = "lastImportDirectory";
 
+const auto audioBackendKey = "audioBackend";
 const auto audioBufferSizeKey = "audioBufferSize";
 const auto audioInputDeviceIdKey = "audioInputDeviceId";
 const auto audioOutputDeviceIdKey = "audioOutputDeviceId";
@@ -53,6 +54,23 @@ const auto visibleLinesKey = "visibleLines";
 const auto windowSizeKey = "size";
 
 const auto accentColorKey = "accentColor";
+
+AudioBackend audioBackend()
+{
+    QSettings settings;
+    settings.beginGroup(settingsGroupAudio);
+    const auto audioBackend = static_cast<AudioBackend>(settings.value(audioBackendKey, static_cast<int>(AudioBackend::Auto)).toInt());
+    settings.endGroup();
+    return audioBackend;
+}
+
+void setAudioBackend(AudioBackend audioBackend)
+{
+    QSettings settings;
+    settings.beginGroup(settingsGroupAudio);
+    settings.setValue(audioBackendKey, static_cast<int>(audioBackend));
+    settings.endGroup();
+}
 
 int autoNoteOffOffset(int defaultAutoNoteOffOffset)
 {

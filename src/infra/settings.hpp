@@ -16,12 +16,17 @@
 #ifndef SETTINGS_HPP
 #define SETTINGS_HPP
 
+#include "../common/audio_backend.hpp"
+
 #include <cstddef>
 
 #include <QColor>
 #include <QSize>
 
 namespace noteahead::Settings {
+
+AudioBackend audioBackend();
+void setAudioBackend(AudioBackend audioBackend);
 
 int autoNoteOffOffset(int defaultAutoNoteOffOffset);
 void setAutoNoteOffOffset(int autoNoteOffOffset);

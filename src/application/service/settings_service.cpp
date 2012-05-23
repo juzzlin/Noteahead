@@ -142,6 +142,19 @@ void SettingsService::setRecordingEnabled(bool enabled)
     }
 }
 
+int SettingsService::audioBackend() const
+{
+    return static_cast<int>(Settings::audioBackend());
+}
+
+void SettingsService::setAudioBackend(int audioBackend)
+{
+    if (this->audioBackend() != audioBackend) {
+        Settings::setAudioBackend(static_cast<AudioBackend>(audioBackend));
+        emit audioBackendChanged();
+    }
+}
+
 bool SettingsService::jackSyncEnabled() const
 {
     return Settings::jackSyncEnabled();

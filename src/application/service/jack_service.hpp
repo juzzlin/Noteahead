@@ -63,7 +63,7 @@ public:
     void setPlaybackPosition(double position);
     double playbackPosition() const;
 
-    void onJackSyncEnabledChanged();
+    void onAudioBackendChanged();
 
 signals:
     void playRequested();

@@ -15,6 +15,7 @@
 
 #include "jack_service.hpp"
 
+#include "../../common/audio_backend.hpp"
 #include "../../common/constants.hpp"
 #include "../../contrib/SimpleLogger/src/simple_logger.hpp"
 #include "../../infra/audio/audio_engine.hpp"
@@ -39,9 +40,9 @@ JackService::~JackService()
     deinitialize();
 }
 
-void JackService::onJackSyncEnabledChanged()
+void JackService::onAudioBackendChanged()
 {
-    if (m_settingsService->jackSyncEnabled()) {
+    if (static_cast<AudioBackend>(m_settingsService->audioBackend()) == AudioBackend::Jack) {
         initialize();
     } else {
         deinitialize();
@@ -89,10 +90,6 @@ void JackService::initialize()
         return;
     }
 
-    if (!m_settingsService->jackSyncEnabled()) {
-        return;
-    }
-
     const jack_options_t options = JackNoStartServer;
     jack_status_t status;
     m_client = jack_client_open("Noteahead", options, &status);
@@ -123,7 +120,7 @@ void JackService::initialize()
         emit errorOccurred(message);
     }
 #else
-    if (m_settingsService->jackSyncEnabled()) {
+    if (static_cast<AudioBackend>(m_settingsService->audioBackend()) == AudioBackend::Jack) {
         const auto message = tr("JACK support not compiled in!");
         juzzlin::L(TAG).warning() << message.toStdString();
         emit errorOccurred(message);
@@ -327,25 +324,27 @@ int JackService::processCallback(jack_nframes_t frameCount, void * arg)
     jack_position_t pos;
     jack_transport_state_t state = jack_transport_query(self->m_client, &pos);
 
-    if (state != self->m_lastState) {
-        if (state == JackTransportRolling) {
-            emit self->playRequested();
-        } else if (state == JackTransportStopped) {
-            emit self->stopRequested();
+    if (self->m_settingsService->jackSyncEnabled()) {
+        if (state != self->m_lastState) {
+            if (state == JackTransportRolling) {
+                emit self->playRequested();
+            } else if (state == JackTransportStopped) {
+                emit self->stopRequested();
+            }
+            self->m_lastState = state;
         }
-        self->m_lastState = state;
-    }
 
-    if (pos.valid & JackPositionBBT) {
-        if (std::abs(pos.beats_per_minute - self->m_lastBpm) > 0.001) {
-            self->m_lastBpm = pos.beats_per_minute;
-            emit self->bpmChanged(self->m_lastBpm);
+        if (pos.valid & JackPositionBBT) {
+            if (std::abs(pos.beats_per_minute - self->m_lastBpm) > 0.001) {
+                self->m_lastBpm = pos.beats_per_minute;
+                emit self->bpmChanged(self->m_lastBpm);
+            }
         }
-    }
 
-    if (pos.frame < self->m_lastFrame && (self->m_lastFrame - pos.frame) > 1024) {
-        juzzlin::L(TAG).debug() << "Rewind detected: " << self->m_lastFrame << " -> " << pos.frame;
-        emit self->rewindRequested();
+        if (pos.frame < self->m_lastFrame && (self->m_lastFrame - pos.frame) > 1024) {
+            juzzlin::L(TAG).debug() << "Rewind detected: " << self->m_lastFrame << " -> " << pos.frame;
+            emit self->rewindRequested();
+        }
     }
     self->m_lastFrame = pos.frame;
 

@@ -15,6 +15,7 @@
 
 #include "application.hpp"
 
+#include "../common/audio_backend.hpp"
 #include "../contrib/Argengine/src/argengine.hpp"
 #include "../contrib/SimpleLogger/src/simple_logger.hpp"
 #include "../infra/midi/export/midi_exporter.hpp"
@@ -326,6 +327,17 @@ void Application::handleCommandLineArguments(int & argc, char ** argv)
             throw std::runtime_error { std::string { "Invalid syntax for size: " } + value};
         } }, false, "Force the window size, e.g. '1920x1080'.");
 
+    ae.addOption({ "--audio" }, [this](const std::string & value) {
+        if (value == "alsa") {
+            m_settingsService->setAudioBackend(static_cast<int>(AudioBackend::Alsa));
+        } else if (value == "pulse") {
+            m_settingsService->setAudioBackend(static_cast<int>(AudioBackend::PulseAudio));
+        } else if (value == "jack") {
+            m_settingsService->setAudioBackend(static_cast<int>(AudioBackend::Jack));
+        } else {
+            throw std::runtime_error { std::string { "Invalid audio backend: " } + value };
+        } }, false, "Force the audio backend: [alsa, pulse, jack]");
+
     ae.setPositionalArgumentCallback([this](const std::vector<std::string> & args) {
         if (!args.empty()) {
             const QString path = QString::fromStdString(args.front());
@@ -390,8 +402,9 @@ void Application::connectAudioService()
 
 void Application::connectJackService()
 {
-    connect(m_settingsService.get(), &SettingsService::jackSyncEnabledChanged, m_jackService.get(), &JackService::onJackSyncEnabledChanged, Qt::QueuedConnection);
-    connect(m_settingsService.get(), &SettingsService::jackSyncEnabledChanged, m_audioService.get(), &AudioService::reinitialize, Qt::QueuedConnection);
+    connect(m_settingsService.get(), &SettingsService::audioBackendChanged, m_jackService.get(), &JackService::onAudioBackendChanged, Qt::QueuedConnection);
+    connect(m_settingsService.get(), &SettingsService::audioBackendChanged, m_audioService.get(), &AudioService::reinitialize, Qt::QueuedConnection);
+    connect(m_settingsService.get(), &SettingsService::jackSyncEnabledChanged, m_jackService.get(), &JackService::onAudioBackendChanged, Qt::QueuedConnection);
 
     connect(m_jackService.get(), &JackService::errorOccurred, m_applicationService.get(), &ApplicationService::requestAlertDialog);
     connect(m_jackService.get(), &JackService::rewindRequested, this, [this]() {
@@ -403,7 +416,7 @@ void Application::connectJackService()
             m_editorService->requestPositionByTick(0);
         }
     });
-    m_jackService->initialize();
+    m_jackService->onAudioBackendChanged();
 }
 
 void Application::connectApplicationService()

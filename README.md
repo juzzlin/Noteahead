@@ -151,7 +151,7 @@ All Arctic Music Project songs:
 - Virtual MIDI out port (since 1.0.0+)
 - Velocity key track
   - Make e.g. your piano have less velocity on higher notes. Super cool!
-- Optional Jack transport and BPM synchronization (since 1.8.0)
+- Optional Jack transport and BPM synchronization (requires JACK audio backend)
 - Optional MIDI transport synchronization (since 1.8.0)
 
 ### Audio
@@ -162,11 +162,14 @@ All Arctic Music Project songs:
   - Offline rendering is faster than real-time
 - Audio recorder
   - Just enable recording in `Settings => Audio` and Noteahead will record from the selected audio source when the song starts and name the file according to active tracks
-  - Records audio from Jack if Jack Transport is enabled (since 1.8.0)
+  - Records audio from Jack if the **JACK** audio backend and **Jack Transport Sync** are enabled
   - Clicking on the waveform will make the editor jump to the corresponding location (since 2.1.0)
   - The last recorded audio file path is saved and loaded along the project (since 2.1.0)
 - Audio player (since 2.1.0)
   - Output device can be selected in the audio settings
+- **Explicit Audio Backend Selector** (since 3.1.0)
+  - Select between **Auto**, **ALSA**, **PulseAudio**, and **JACK** backends in `Settings => Audio`
+  - Overridable via CLI: `--audio [alsa, pulse, jack]`
 
 ### Master Effects
 - **Effect Rack**

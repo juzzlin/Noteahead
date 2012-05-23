@@ -90,22 +90,23 @@ GroupBox {
                     spacing: 20
                     CheckBox {
                         text: qsTr("Jack transport sync")
+                        enabled: settingsService.audioBackend === 3
                         checked: midiSettingsModel.jackSyncEnabled
                         onCheckedChanged: midiSettingsModel.jackSyncEnabled = checked
                         ToolTip.delay: Constants.toolTipDelay
                         ToolTip.timeout: Constants.toolTipTimeout
                         ToolTip.visible: hovered
-                        ToolTip.text: qsTr("Sync Noteahead playback with Jack transport")
+                        ToolTip.text: settingsService.audioBackend === 3 ? qsTr("Sync Noteahead playback with Jack transport") : qsTr("Jack transport sync requires JACK audio backend")
                     }
                     CheckBox {
                         text: qsTr("Jack BPM sync")
-                        enabled: midiSettingsModel.jackSyncEnabled
+                        enabled: midiSettingsModel.jackSyncEnabled && settingsService.audioBackend === 3
                         checked: midiSettingsModel.jackBpmSyncEnabled
                         onCheckedChanged: midiSettingsModel.jackBpmSyncEnabled = checked
                         ToolTip.delay: Constants.toolTipDelay
                         ToolTip.timeout: Constants.toolTipTimeout
                         ToolTip.visible: hovered
-                        ToolTip.text: qsTr("Sync Noteahead BPM with Jack")
+                        ToolTip.text: settingsService.audioBackend === 3 ? qsTr("Sync Noteahead BPM with Jack") : qsTr("Jack BPM sync requires JACK audio backend")
                     }
                 }
                 CheckBox {
@@ -129,8 +130,8 @@ GroupBox {
                     horizontalAlignment: Text.AlignHCenter
                     wrapMode: Text.WordWrap
                     color: themeService.accentColor
-                    text: qsTr("Enabling Jack sync switches audio recorder to JACK mode (input_1/input_2). Use a patchbay like Carla to route audio to Noteahead.")
-                    visible: midiSettingsModel.jackSyncEnabled
+                    text: qsTr("Jack mode enabled (input_1/input_2). Use a patchbay like Carla to route audio to Noteahead.")
+                    visible: settingsService.audioBackend === 3
                 }
             }
         }
