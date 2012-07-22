@@ -47,13 +47,22 @@ float CascadedSvf::process(float input)
 
     // Zero-Delay Feedback State Variable Filter
     // Stable for all frequencies up to Nyquist
-    const double freq = 20.0 * std::pow(std::min(20000.0, m_sampleRate * 0.49) / 20.0, m_cutoff);
-    const double g = std::tan(std::numbers::pi * freq / m_sampleRate);
-    const double k = 2.0 * (1.0 - m_resonance);
-    const double damping = 1.0 / (1.0 + g * (g + k));
+    if (std::abs(m_cutoff - m_lastCutoff) > 0.000001 || 
+        std::abs(m_resonance - m_lastResonance) > 0.000001 ||
+        std::abs(m_sampleRate - m_lastSampleRate) > 0.1) 
+    {
+        const double freq = 20.0 * std::pow(std::min(20000.0, m_sampleRate * 0.49) / 20.0, m_cutoff);
+        m_g = std::tan(std::numbers::pi * freq / m_sampleRate);
+        m_k = 2.0 * (1.0 - m_resonance);
+        m_damping = 1.0 / (1.0 + m_g * (m_g + m_k));
 
-    float out1 = m_unit1.process(input, g, damping, k, m_mode);
-    float out2 = m_unit2.process(out1, g, damping, k, m_mode);
+        m_lastCutoff = m_cutoff;
+        m_lastResonance = m_resonance;
+        m_lastSampleRate = m_sampleRate;
+    }
+
+    float out1 = m_unit1.process(input, m_g, m_damping, m_k, m_mode);
+    float out2 = m_unit2.process(out1, m_g, m_damping, m_k, m_mode);
 
     // NaN protection
     if (std::isnan(out2)) {

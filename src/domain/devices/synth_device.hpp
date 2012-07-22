@@ -294,6 +294,8 @@ private:
     Oversampler2x m_oversamplerL;
     Oversampler2x m_oversamplerR;
 
+    std::vector<float> m_oversampledBuffer;
+
     void handleNoteOn(uint8_t note, uint8_t velocity);
     void handleNoteOff(uint8_t note);
     double midiNoteToFreq(uint8_t note) const;

@@ -73,7 +73,7 @@ void AudioEngine::process(float * output, uint32_t nFrames, uint32_t sampleRate)
 
     const uint32_t bufferSize = nFrames * 2;
     if (m_deviceBuffer.size() < bufferSize) {
-        m_deviceBuffer.assign(bufferSize, 0.0f);
+        m_deviceBuffer.resize(bufferSize, 0.0f);
     }
 
     const size_t sendCount = m_effectRack.effectCount();
@@ -83,7 +83,7 @@ void AudioEngine::process(float * output, uint32_t nFrames, uint32_t sampleRate)
 
     for (auto & bus : m_sendBusBuffers) {
         if (bus.size() < bufferSize) {
-            bus.assign(bufferSize, 0.0f);
+            bus.resize(bufferSize, 0.0f);
         } else {
             std::fill(bus.begin(), bus.begin() + bufferSize, 0.0f);
         }
@@ -93,13 +93,19 @@ void AudioEngine::process(float * output, uint32_t nFrames, uint32_t sampleRate)
         std::fill(m_deviceBuffer.begin(), m_deviceBuffer.begin() + bufferSize, 0.0f);
         device->processAudio(m_deviceBuffer.data(), nFrames, sampleRate);
 
+        const float rSend0 = device->reverbSend(0);
+        const float rSend1 = device->reverbSend(1);
+        const float rSend2 = device->reverbSend(2);
+        const float rSend3 = device->reverbSend(3);
+
         for (uint32_t i = 0; i < bufferSize; ++i) {
-            const float sample = m_deviceBuffer[i];
+            const float sample = m_deviceBuffer.at(i);
             output[i] += sample;
             
-            for (size_t s = 0; s < sendCount; ++s) {
-                m_sendBusBuffers[s][i] += sample * device->reverbSend(s);
-            }
+            if (sendCount > 0) m_sendBusBuffers.at(0).at(i) += sample * rSend0;
+            if (sendCount > 1) m_sendBusBuffers.at(1).at(i) += sample * rSend1;
+            if (sendCount > 2) m_sendBusBuffers.at(2).at(i) += sample * rSend2;
+            if (sendCount > 3) m_sendBusBuffers.at(3).at(i) += sample * rSend3;
         }
     }
 

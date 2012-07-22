@@ -162,7 +162,12 @@ void SynthDevice::processAudio(float * output, uint32_t nFrames, uint32_t sample
     const uint32_t oversampledRate { sampleRate * 2 };
     const std::lock_guard<std::recursive_mutex> lock(mutex());
 
-    std::vector<float> oversampledBuffer(nFrames * 4, 0.0f);
+    const uint32_t oversampledBufferCount = nFrames * 4;
+    if (m_oversampledBuffer.size() < oversampledBufferCount) {
+        m_oversampledBuffer.resize(oversampledBufferCount, 0.0f);
+    } else {
+        std::fill(m_oversampledBuffer.begin(), m_oversampledBuffer.begin() + oversampledBufferCount, 0.0f);
+    }
 
     for (auto && voice : m_voices) {
         if (!voice.active) continue;
@@ -254,8 +259,8 @@ void SynthDevice::processAudio(float * output, uint32_t nFrames, uint32_t sample
                 const float filtered { voice.hpf.process(voice.lpf.process(static_cast<float>(mixHeadroom))) };
                 const float finalHighRateSample { filtered * static_cast<float>(ampEnv) * (1.0f / static_cast<float>(MaxVoices)) * linearGainInternal() };
 
-                oversampledBuffer[(i * 2 + os) * 2] += finalHighRateSample * (1.0f - voice.pan) * (1.0f - panInternal()) * 2.0f;
-                oversampledBuffer[(i * 2 + os) * 2 + 1] += finalHighRateSample * voice.pan * panInternal() * 2.0f;
+                m_oversampledBuffer.at((i * 2 + os) * 2) += finalHighRateSample * (1.0f - voice.pan) * (1.0f - panInternal()) * 2.0f;
+                m_oversampledBuffer.at((i * 2 + os) * 2 + 1) += finalHighRateSample * voice.pan * panInternal() * 2.0f;
             }
         }
 
@@ -266,10 +271,10 @@ void SynthDevice::processAudio(float * output, uint32_t nFrames, uint32_t sample
 
     // Apply global FX (Delay) and downsample
     for (uint32_t i { 0 }; i < nFrames; i++) {
-        const float l0 { oversampledBuffer[i * 4] };
-        const float r0 { oversampledBuffer[i * 4 + 1] };
-        const float l1 { oversampledBuffer[i * 4 + 2] };
-        const float r1 { oversampledBuffer[i * 4 + 3] };
+        const float l0 { m_oversampledBuffer.at(i * 4) };
+        const float r0 { m_oversampledBuffer.at(i * 4 + 1) };
+        const float l1 { m_oversampledBuffer.at(i * 4 + 2) };
+        const float r1 { m_oversampledBuffer.at(i * 4 + 3) };
 
         // Soft-clip at high rate and then downsample
         float l { m_oversamplerL.process(std::tanh(l0), std::tanh(l1)) };

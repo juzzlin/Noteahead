@@ -43,6 +43,13 @@ private:
     double m_resonance { 0.0 };
     Mode m_mode { Mode::LowPass };
 
+    double m_lastCutoff { -1.0 };
+    double m_lastResonance { -1.0 };
+    double m_lastSampleRate { -1.0 };
+    double m_g { 0.0 };
+    double m_damping { 0.0 };
+    double m_k { 0.0 };
+
     struct SvfUnit {
         double s1 = 0.0, s2 = 0.0;
         float process(float input, double g, double damping, double k, Mode mode);

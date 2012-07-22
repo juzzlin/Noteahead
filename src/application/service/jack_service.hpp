@@ -94,6 +94,10 @@ private:
     std::atomic<bool> m_isPlayingPlayback { false };
     AudioFileStreamer m_streamer;
 
+    std::vector<int32_t> m_recordingInterleavedBuffer;
+    std::vector<int32_t> m_playbackInterleavedBuffer;
+    std::vector<float> m_engineInterleavedBuffer;
+
     SettingsServiceS m_settingsService;
     AudioEngineS m_audioEngine;
 };

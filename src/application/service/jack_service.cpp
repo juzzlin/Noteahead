@@ -264,14 +264,17 @@ int JackService::processCallback(jack_nframes_t nframes, void * arg)
         auto inL = static_cast<jack_default_audio_sample_t *>(jack_port_get_buffer(self->m_inputPortL, nframes));
         auto inR = static_cast<jack_default_audio_sample_t *>(jack_port_get_buffer(self->m_inputPortR, nframes));
 
-        // Interleave and convert to int32_t (24-bit PCM scaled to 32-bit range)
-        std::vector<int32_t> interleaved(nframes * 2);
-        for (jack_nframes_t i = 0; i < nframes; ++i) {
-            interleaved[i * 2] = static_cast<int32_t>(inL[i] * 2147483647.0f);
-            interleaved[i * 2 + 1] = static_cast<int32_t>(inR[i] * 2147483647.0f);
+        const size_t totalSamples = nframes * 2;
+        if (self->m_recordingInterleavedBuffer.size() < totalSamples) {
+            self->m_recordingInterleavedBuffer.resize(totalSamples);
         }
 
-        if (!self->m_recorder.push(interleaved.data(), interleaved.size())) {
+        for (jack_nframes_t i = 0; i < nframes; ++i) {
+            self->m_recordingInterleavedBuffer[i * 2] = static_cast<int32_t>(inL[i] * 2147483647.0f);
+            self->m_recordingInterleavedBuffer[i * 2 + 1] = static_cast<int32_t>(inR[i] * 2147483647.0f);
+        }
+
+        if (!self->m_recorder.push(self->m_recordingInterleavedBuffer.data(), totalSamples)) {
             // Under PipeWire, we might want to log this but very carefully (not in RT thread)
         }
     }
@@ -280,13 +283,17 @@ int JackService::processCallback(jack_nframes_t nframes, void * arg)
         auto outL = static_cast<jack_default_audio_sample_t *>(jack_port_get_buffer(self->m_outputPortL, nframes));
         auto outR = static_cast<jack_default_audio_sample_t *>(jack_port_get_buffer(self->m_outputPortR, nframes));
 
-        std::vector<int32_t> interleaved(nframes * 2);
-        const size_t read = self->m_streamer.pop(interleaved.data(), interleaved.size());
+        const size_t totalSamples = nframes * 2;
+        if (self->m_playbackInterleavedBuffer.size() < totalSamples) {
+            self->m_playbackInterleavedBuffer.resize(totalSamples);
+        }
+
+        const size_t read = self->m_streamer.pop(self->m_playbackInterleavedBuffer.data(), totalSamples);
 
         for (jack_nframes_t i = 0; i < nframes; ++i) {
             if (i * 2 + 1 < read) {
-                outL[i] = static_cast<float>(interleaved[i * 2]) / 2147483647.0f;
-                outR[i] = static_cast<float>(interleaved[i * 2 + 1]) / 2147483647.0f;
+                outL[i] = static_cast<float>(self->m_playbackInterleavedBuffer[i * 2]) / 2147483647.0f;
+                outR[i] = static_cast<float>(self->m_playbackInterleavedBuffer[i * 2 + 1]) / 2147483647.0f;
             } else {
                 outL[i] = 0.0f;
                 outR[i] = 0.0f;
@@ -300,14 +307,20 @@ int JackService::processCallback(jack_nframes_t nframes, void * arg)
     }
 
     if (self->m_audioEngine) {
-        std::vector<float> interleaved(nframes * 2, 0.0f);
-        self->m_audioEngine->process(interleaved.data(), nframes, self->sampleRate());
+        const size_t totalSamples = nframes * 2;
+        if (self->m_engineInterleavedBuffer.size() < totalSamples) {
+            self->m_engineInterleavedBuffer.assign(totalSamples, 0.0f);
+        } else {
+            std::fill(self->m_engineInterleavedBuffer.begin(), self->m_engineInterleavedBuffer.begin() + totalSamples, 0.0f);
+        }
+
+        self->m_audioEngine->process(self->m_engineInterleavedBuffer.data(), nframes, self->sampleRate());
 
         auto outL = static_cast<jack_default_audio_sample_t *>(jack_port_get_buffer(self->m_outputPortL, nframes));
         auto outR = static_cast<jack_default_audio_sample_t *>(jack_port_get_buffer(self->m_outputPortR, nframes));
         for (jack_nframes_t i = 0; i < nframes; ++i) {
-            outL[i] += interleaved[i * 2];
-            outR[i] += interleaved[i * 2 + 1];
+            outL[i] += self->m_engineInterleavedBuffer[i * 2];
+            outR[i] += self->m_engineInterleavedBuffer[i * 2 + 1];
         }
     }
 
@@ -330,7 +343,7 @@ int JackService::processCallback(jack_nframes_t nframes, void * arg)
         }
     }
 
-    if (pos.frame < self->m_lastFrame) {
+    if (pos.frame < self->m_lastFrame && (self->m_lastFrame - pos.frame) > 1024) {
         juzzlin::L(TAG).debug() << "Rewind detected: " << self->m_lastFrame << " -> " << pos.frame;
         emit self->rewindRequested();
     }
