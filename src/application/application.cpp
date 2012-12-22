@@ -35,11 +35,15 @@
 #include "../plugins/devices/xy_pad/xy_pad_renderer.hpp"
 #include "../plugins/effects/phase_scope/phase_scope_renderer.hpp"
 #include "../view/controllers/audio_analysis_controller.hpp"
+#include "../view/controllers/device_meters_controller.hpp"
+#include "../view/controllers/device_mixer_controller.hpp"
 #include "../view/controllers/device_rack_controller.hpp"
 #include "../view/controllers/effect_rack_controller.hpp"
 #include "../view/controllers/knob_controller.hpp"
+#include "../view/controllers/midi_mapping_controller.hpp"
 #include "../view/controllers/nahd_xml_keys.hpp"
 #include "../view/controllers/performance_panel_controller.hpp"
+#include "../view/controllers/send_controller.hpp"
 #include "../view/controllers/song_overview_controller.hpp"
 #include "../view/plugins/plugin_catalog.hpp"
 #include "../view/qml/Components/level_meter_renderer.hpp"
@@ -159,6 +163,10 @@ Application::Application(int & argc, char ** argv)
   , m_songOverviewService { std::make_shared<SongOverviewService>(m_deviceService, m_editorService) }
   , m_songOverviewController { std::make_shared<SongOverviewController>(m_songOverviewService, m_effectRackController) }
   , m_deviceRackController { std::make_shared<DeviceRackController>(m_deviceService, withPluginDialogModels(std::vector<DeviceDialogModel::DeviceDialogModelS> {}, m_pluginDeviceDialogModels), m_editorService) }
+  , m_deviceMixerController { std::make_shared<DeviceMixerController>(m_deviceService, m_editorService) }
+  , m_deviceMetersController { std::make_shared<DeviceMetersController>(m_deviceService, m_editorService) }
+  , m_midiMappingController { std::make_shared<MidiMappingController>(m_deviceService, m_editorService) }
+  , m_sendController { std::make_shared<SendController>(m_deviceService) }
   , m_performancePanelModel { std::make_unique<PerformancePanelModel>() }
   , m_performancePanelController { std::make_unique<PerformancePanelController>(m_deviceService, *m_performancePanelModel) }
   , m_knobController { std::make_shared<KnobController>() }
@@ -319,6 +327,10 @@ void Application::setContextProperties()
     m_engine->rootContext()->setContextProperty("automationService", m_automationService.get());
     m_engine->rootContext()->setContextProperty("columnSettingsModel", m_columnSettingsModel.get());
     m_engine->rootContext()->setContextProperty("deviceRackController", m_deviceRackController.get());
+    m_engine->rootContext()->setContextProperty("deviceMixerController", m_deviceMixerController.get());
+    m_engine->rootContext()->setContextProperty("deviceMetersController", m_deviceMetersController.get());
+    m_engine->rootContext()->setContextProperty("midiMappingController", m_midiMappingController.get());
+    m_engine->rootContext()->setContextProperty("sendController", m_sendController.get());
     m_engine->rootContext()->setContextProperty("deviceService", m_deviceService.get());
     m_engine->rootContext()->setContextProperty("editorService", m_editorService.get());
     m_engine->rootContext()->setContextProperty("audioAnalysisController", m_audioAnalysisController.get());
@@ -757,7 +769,7 @@ void Application::connectMidiService()
 
     // MIDI Learn in the Device Settings dialog
     connect(m_midiService.get(), &MidiService::controlChangeReceived, this, [this](const auto &, const auto & controller, const auto &) {
-        m_deviceRackController->notifyControllerCcReceived(static_cast<int>(controller));
+        m_midiMappingController->notifyControllerCcReceived(static_cast<int>(controller));
     });
 
     // Apply MIDI CC via a MIDI controller

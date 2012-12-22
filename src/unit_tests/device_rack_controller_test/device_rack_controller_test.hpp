@@ -37,7 +37,6 @@ private slots:
     void test_setDevice_shouldAddDeviceAndNotify();
     void test_replaceDevice_shouldKeepInsertEffectsAndNotify();
     void test_clearDevice_shouldRemoveDeviceAndNotify();
-    void test_addMethods_shouldAddDevicesToFirstEmptySlot();
     void test_availableDevices_shouldReturnCorrectList();
     void test_availableDevices_shouldHaveCategories();
     void test_deviceMeterLevels_shouldReportPreInsertLevel();
@@ -47,7 +46,6 @@ private slots:
     void test_deviceClipped_afterClearing_shouldStayClearWhileBelowFullScale();
     void test_deviceSettings_shouldRoundTripThroughController();
     void test_deviceMidiMappings_shouldRoundTripThroughController();
-    void test_removeDeviceByName_shouldClearCorrectSlot();
     void test_importSettings_matchingType_shouldEmitConfirmationWithoutMismatch();
     void test_importSettings_differentType_shouldEmitConfirmationWithMismatch();
     void test_confirmImportSettings_shouldImportAndNotify();

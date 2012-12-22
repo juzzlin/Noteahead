@@ -38,7 +38,10 @@
 #include "../../plugins/devices/synth/synth_device.hpp"
 #include "../../plugins/devices/synth/synth_dialog_model.hpp"
 #include "../../plugins/effects/gain/gain.hpp"
+#include "../../view/controllers/device_meters_controller.hpp"
+#include "../../view/controllers/device_mixer_controller.hpp"
 #include "../../view/controllers/device_rack_controller.hpp"
+#include "../../view/controllers/midi_mapping_controller.hpp"
 
 #include <QBuffer>
 #include <QSignalSpy>
@@ -326,15 +329,16 @@ void DeviceRackControllerTest::test_deviceGain_shouldDefaultToUnityAndRoundTrip(
 
     const auto editorService = std::make_shared<MockEditorService>();
     DeviceRackController controller { deviceService, {}, editorService };
+    DeviceMixerController mixer { deviceService, editorService };
 
     // Centre of the -30..+30 dB range, so a fresh Sub Mixer passes its group through untouched.
-    QCOMPARE(controller.deviceGain(0), 500);
+    QCOMPARE(mixer.deviceGain(0), 500);
     QCOMPARE(subMixer->gain(), 0.5f);
 
     QSignalSpy revisionSpy { &controller, &DeviceRackController::revisionChanged };
 
-    controller.setDeviceGain(0, 750);
-    QCOMPARE(controller.deviceGain(0), 750);
+    mixer.setDeviceGain(0, 750);
+    QCOMPARE(mixer.deviceGain(0), 750);
     QVERIFY(editorService->isModified());
 
     // The QML knob reads gain through a plain invokable, so its binding only re-evaluates because
@@ -343,8 +347,8 @@ void DeviceRackControllerTest::test_deviceGain_shouldDefaultToUnityAndRoundTrip(
     QVERIFY(revisionSpy.count() > 0);
 
     // An empty slot has no gain to report; 0 dB is the sane answer rather than silence or a crash.
-    QCOMPARE(controller.deviceGain(9), 500);
-    controller.setDeviceGain(9, 750);
+    QCOMPARE(mixer.deviceGain(9), 500);
+    mixer.setDeviceGain(9, 750);
 }
 
 void DeviceRackControllerTest::test_setDevice_shouldAddDeviceAndNotify()
@@ -411,57 +415,6 @@ void DeviceRackControllerTest::test_clearDevice_shouldRemoveDeviceAndNotify()
     QVERIFY(revisionSpy.count() > 0);
     QVERIFY(editorService->isModified());
     QVERIFY(deviceService->device(0) == nullptr);
-}
-
-void DeviceRackControllerTest::test_addMethods_shouldAddDevicesToFirstEmptySlot()
-{
-    const auto audioEngine = std::make_shared<AudioEngine>();
-    const auto deviceService = std::make_shared<DeviceService>(audioEngine, std::make_shared<DataService>());
-    const auto editorService = std::make_shared<MockEditorService>();
-    DeviceRackController controller { deviceService, {}, editorService };
-
-    // Fill first slot
-    controller.setDevice(0, QString::fromStdString(SamplerDevice::typeIdString()));
-
-    // addSynth should go to slot 1
-    controller.addSynth();
-    QVERIFY(deviceService->device(1) != nullptr);
-    QCOMPARE(deviceService->device(1)->typeId(), SynthDevice::typeIdString());
-
-    // addBassSynth should go to slot 2
-    controller.addBassSynth();
-    QVERIFY(deviceService->device(2) != nullptr);
-    QCOMPARE(deviceService->device(2)->typeId(), BassSynthDevice::typeIdString());
-
-    // addDrumSynth should go to slot 3
-    controller.addDrumSynth();
-    QVERIFY(deviceService->device(3) != nullptr);
-    QCOMPARE(deviceService->device(3)->typeId(), DrumSynthDevice::typeIdString());
-
-    // addSampler should go to slot 4
-    controller.addSampler();
-    QVERIFY(deviceService->device(4) != nullptr);
-    QCOMPARE(deviceService->device(4)->typeId(), SamplerDevice::typeIdString());
-
-    // addPianoSynth should go to slot 5
-    controller.addPianoSynth();
-    QVERIFY(deviceService->device(5) != nullptr);
-    QCOMPARE(deviceService->device(5)->typeId(), PianoSynthDevice::typeIdString());
-
-    // addStringVoice should go to slot 6
-    controller.addStringVoice();
-    QVERIFY(deviceService->device(6) != nullptr);
-    QCOMPARE(deviceService->device(6)->typeId(), StringVoiceDevice::typeIdString());
-
-    // addKick808 should go to slot 7
-    controller.addKick808();
-    QVERIFY(deviceService->device(7) != nullptr);
-    QCOMPARE(deviceService->device(7)->typeId(), Kick808Device::typeIdString());
-
-    // addSnareSynth should go to slot 8
-    controller.addSnareSynth();
-    QVERIFY(deviceService->device(8) != nullptr);
-    QCOMPARE(deviceService->device(8)->typeId(), SnareSynthDevice::typeIdString());
 }
 
 void DeviceRackControllerTest::test_availableDevices_shouldReturnCorrectList()
@@ -542,19 +495,21 @@ void DeviceRackControllerTest::test_deviceMeterLevels_shouldReportPreInsertLevel
 
     DeviceRackController controller { deviceService, {}, editorService };
 
-    // An empty slot has nothing to report, and a device whose meter is off reads the floor.
-    QVERIFY(controller.deviceMeterLevels(1).isEmpty());
-    QCOMPARE(controller.deviceMeterLevels(0).size(), 2);
-    QCOMPARE(controller.deviceMeterLevels(0).at(0).toFloat(), LevelMeter::MinimumDb);
+    DeviceMetersController meters { deviceService, editorService };
 
-    controller.setMetersActive(true);
+    // An empty slot has nothing to report, and a device whose meter is off reads the floor.
+    QVERIFY(meters.deviceMeterLevels(1).isEmpty());
+    QCOMPARE(meters.deviceMeterLevels(0).size(), 2);
+    QCOMPARE(meters.deviceMeterLevels(0).at(0).toFloat(), LevelMeter::MinimumDb);
+
+    meters.setMetersActive(true);
     QVERIFY(device->meter().active());
 
     const std::vector<double> fullScale(64, 1.0);
     device->meter().write(fullScale.data(), 32, 48000);
-    QVERIFY(std::abs(controller.deviceMeterLevels(0).at(0).toFloat()) < 0.01f);
+    QVERIFY(std::abs(meters.deviceMeterLevels(0).at(0).toFloat()) < 0.01f);
 
-    controller.setMetersActive(false);
+    meters.setMetersActive(false);
     QVERIFY(!device->meter().active());
 }
 
@@ -568,24 +523,26 @@ void DeviceRackControllerTest::test_deviceOutputMeters_shouldCarryEveryReadingOf
 
     DeviceRackController controller { deviceService, {}, std::make_shared<MockEditorService>() };
 
+    DeviceMetersController meters { deviceService, std::make_shared<MockEditorService>() };
+
     // An empty slot has nothing to report. The map is what the mixer's OUT views read, and every one
     // of them has to find its key there whichever view happens to be showing.
-    QVERIFY(controller.deviceOutputMeters(1).isEmpty());
-    const auto idle = controller.deviceOutputMeters(0);
+    QVERIFY(meters.deviceOutputMeters(1).isEmpty());
+    const auto idle = meters.deviceOutputMeters(0);
     QCOMPARE(idle["peakDb"].toFloat(), LevelMeter::MinimumDb);
     QCOMPARE(idle["rmsDb"].toFloat(), LevelMeter::MinimumDb);
     QCOMPARE(idle["integratedLufs"].toFloat(), LoudnessMeter::MinimumLufs);
     QCOMPARE(idle["shortTermLufs"].toFloat(), LoudnessMeter::MinimumLufs);
 
-    controller.setMetersActive(true);
+    meters.setMetersActive(true);
     QVERIFY(device->outputMeter().active());
     QVERIFY(device->outputLoudnessMeter().active());
 
     const std::vector<double> fullScale(64, 1.0);
     device->outputMeter().write(fullScale.data(), 32, 48000);
-    QVERIFY(std::abs(controller.deviceOutputMeters(0)["peakDb"].toFloat()) < 0.01f);
+    QVERIFY(std::abs(meters.deviceOutputMeters(0)["peakDb"].toFloat()) < 0.01f);
 
-    controller.setMetersActive(false);
+    meters.setMetersActive(false);
     QVERIFY(!device->outputMeter().active());
 }
 
@@ -596,8 +553,9 @@ void DeviceRackControllerTest::test_deviceMeterLevels_afterSlotChanged_shouldFol
     const auto audioEngine = std::make_shared<AudioEngine>();
     const auto deviceService = std::make_shared<DeviceService>(audioEngine, std::make_shared<DataService>());
     DeviceRackController controller { deviceService, {}, std::make_shared<MockEditorService>() };
+    DeviceMetersController meters { deviceService, std::make_shared<MockEditorService>() };
 
-    controller.setMetersActive(true);
+    meters.setMetersActive(true);
     controller.setDevice(0, QString::fromStdString(Kick808Device::typeIdString()));
     QVERIFY(deviceService->device(0)->meter().active());
     QVERIFY(deviceService->device(0)->loadMeter().active());
@@ -608,7 +566,7 @@ void DeviceRackControllerTest::test_deviceMeterLevels_afterSlotChanged_shouldFol
     QVERIFY(deviceService->device(0)->loadMeter().active());
 
     // Off the screen, a device added into the rack must not silently switch the taps back on.
-    controller.setMetersActive(false);
+    meters.setMetersActive(false);
     controller.setDevice(1, QString::fromStdString(SynthDevice::typeIdString()));
     QVERIFY(!deviceService->device(1)->meter().active());
     QVERIFY(!deviceService->device(1)->loadMeter().active());
@@ -658,6 +616,7 @@ void DeviceRackControllerTest::test_deviceClipped_afterClearing_shouldStayClearW
     const auto device = std::make_shared<ClippingDevice>(Constants::internalDevicePortPrefix().toStdString() + " 1");
     deviceService->setDevice(0, device);
     DeviceRackController controller { deviceService, {}, std::make_shared<MockEditorService>() };
+    DeviceMetersController meters { deviceService, std::make_shared<MockEditorService>() };
 
     std::vector<double> buffer(256 * 2, 0.0);
     const auto render = [&] {
@@ -668,10 +627,10 @@ void DeviceRackControllerTest::test_deviceClipped_afterClearing_shouldStayClearW
 
     device->setAmplitude(1.5);
     render();
-    QVERIFY(controller.deviceClipped(0));
+    QVERIFY(meters.deviceClipped(0));
 
-    controller.clearDeviceClip(0);
-    QVERIFY(!controller.deviceClipped(0));
+    meters.clearDeviceClip(0);
+    QVERIFY(!meters.deviceClipped(0));
 
     // Gone quiet: the engine clears each device's buffer before rendering, so a silent device must
     // not keep re-latching the indicator off whatever it last played.
@@ -680,16 +639,16 @@ void DeviceRackControllerTest::test_deviceClipped_afterClearing_shouldStayClearW
     for (int i = 0; i < 5; i++) {
         render();
     }
-    QVERIFY(!controller.deviceClipped(0));
+    QVERIFY(!meters.deviceClipped(0));
 
     // Still playing, but comfortably below full scale.
-    controller.clearDeviceClip(0);
+    meters.clearDeviceClip(0);
     device->setAmplitude(0.5);
     device->setActive(true);
     for (int i = 0; i < 5; i++) {
         render();
     }
-    QVERIFY(!controller.deviceClipped(0));
+    QVERIFY(!meters.deviceClipped(0));
 }
 
 void DeviceRackControllerTest::test_deviceClipped_shouldLatchUntilCleared()
@@ -703,22 +662,24 @@ void DeviceRackControllerTest::test_deviceClipped_shouldLatchUntilCleared()
 
     DeviceRackController controller { deviceService, {}, editorService };
 
-    QVERIFY(!controller.deviceClipped(0));
+    DeviceMetersController meters { deviceService, editorService };
+
+    QVERIFY(!meters.deviceClipped(0));
     // An empty slot cannot clip, and asking must not fall over
-    QVERIFY(!controller.deviceClipped(1));
+    QVERIFY(!meters.deviceClipped(1));
 
     const std::vector<double> fullScale(64, 1.0);
     // Deliberately without setMetersActive(): the clip indicator has to catch what happened while
     // nothing was on screen, unlike the level meters.
     device->clipDetector().write(fullScale.data(), 32);
-    QVERIFY(controller.deviceClipped(0));
+    QVERIFY(meters.deviceClipped(0));
 
-    controller.clearDeviceClip(0);
-    QVERIFY(!controller.deviceClipped(0));
+    meters.clearDeviceClip(0);
+    QVERIFY(!meters.deviceClipped(0));
 
     device->clipDetector().write(fullScale.data(), 32);
-    controller.clearAllDeviceClips();
-    QVERIFY(!controller.deviceClipped(0));
+    meters.clearAllDeviceClips();
+    QVERIFY(!meters.deviceClipped(0));
 }
 
 void DeviceRackControllerTest::test_deviceSettings_shouldRoundTripThroughController()
@@ -731,18 +692,20 @@ void DeviceRackControllerTest::test_deviceSettings_shouldRoundTripThroughControl
 
     DeviceRackController controller { deviceService, {}, editorService };
 
+    DeviceMixerController mixer { deviceService, editorService };
+
     QCOMPARE(controller.slotOfDevice(QString::fromStdString(prefix + " 3")), 2);
     QCOMPARE(controller.slotOfDevice("No Such Device"), -1);
 
     // Defaults are the legacy chain.
-    QCOMPARE(controller.deviceFaderPosition(2), static_cast<int>(Device::FaderPosition::PreInserts));
-    QCOMPARE(controller.deviceSendTap(2), static_cast<int>(Device::SendTap::PostFader));
+    QCOMPARE(mixer.deviceFaderPosition(2), static_cast<int>(Device::FaderPosition::PreInserts));
+    QCOMPARE(mixer.deviceSendTap(2), static_cast<int>(Device::SendTap::PostFader));
 
-    controller.setDeviceFaderPosition(2, static_cast<int>(Device::FaderPosition::PostInserts));
-    controller.setDeviceSendTap(2, static_cast<int>(Device::SendTap::PreFader));
+    mixer.setDeviceFaderPosition(2, static_cast<int>(Device::FaderPosition::PostInserts));
+    mixer.setDeviceSendTap(2, static_cast<int>(Device::SendTap::PreFader));
 
-    QCOMPARE(controller.deviceFaderPosition(2), static_cast<int>(Device::FaderPosition::PostInserts));
-    QCOMPARE(controller.deviceSendTap(2), static_cast<int>(Device::SendTap::PreFader));
+    QCOMPARE(mixer.deviceFaderPosition(2), static_cast<int>(Device::FaderPosition::PostInserts));
+    QCOMPARE(mixer.deviceSendTap(2), static_cast<int>(Device::SendTap::PreFader));
 }
 
 void DeviceRackControllerTest::test_deviceMidiMappings_shouldRoundTripThroughController()
@@ -755,45 +718,27 @@ void DeviceRackControllerTest::test_deviceMidiMappings_shouldRoundTripThroughCon
     deviceService->setDevice(0, device);
 
     DeviceRackController controller { deviceService, {}, editorService };
-    QVERIFY(controller.deviceMidiMappings(0).isEmpty());
+
+    MidiMappingController midiMappings { deviceService, editorService };
+    QVERIFY(midiMappings.deviceMidiMappings(0).isEmpty());
 
     // Out of range values are brought back into it
-    controller.setDeviceMidiMappings(0, { QVariantMap { { "controller", 200 }, { "target", "cutoff" }, { "min", 0.75 }, { "max", 1.5 } } });
+    midiMappings.setDeviceMidiMappings(0, { QVariantMap { { "controller", 200 }, { "target", "cutoff" }, { "min", 0.75 }, { "max", 1.5 } } });
 
     QVERIFY(editorService->isModified());
     const auto expected = MidiMapping { MidiMapping::Kind::Cc, Device::MaxMappableCc, "cutoff", 0.75, 1.0 };
     QVERIFY(device->midiMappings() == Device::MidiMappingList { expected });
-    const auto mappings = controller.deviceMidiMappings(0);
+    const auto mappings = midiMappings.deviceMidiMappings(0);
     QCOMPARE(mappings.size(), 1);
     QCOMPARE(mappings.at(0).toMap()["controller"].toInt(), static_cast<int>(Device::MaxMappableCc));
     QCOMPARE(mappings.at(0).toMap()["target"].toString(), QString { "cutoff" });
     QCOMPARE(mappings.at(0).toMap()["min"].toDouble(), 0.75);
     QCOMPARE(mappings.at(0).toMap()["max"].toDouble(), 1.0);
 
-    QSignalSpy learnSpy { &controller, &DeviceRackController::controllerCcReceived };
-    controller.notifyControllerCcReceived(74);
+    QSignalSpy learnSpy { &midiMappings, &MidiMappingController::controllerCcReceived };
+    midiMappings.notifyControllerCcReceived(74);
     QCOMPARE(learnSpy.count(), 1);
     QCOMPARE(learnSpy.at(0).at(0).toInt(), 74);
-}
-
-void DeviceRackControllerTest::test_removeDeviceByName_shouldClearCorrectSlot()
-{
-    const auto audioEngine = std::make_shared<AudioEngine>();
-    const auto deviceService = std::make_shared<DeviceService>(audioEngine, std::make_shared<DataService>());
-    const auto editorService = std::make_shared<MockEditorService>();
-
-    const auto prefix = Constants::internalDevicePortPrefix().toStdString();
-    deviceService->setDevice(0, std::make_shared<MockDevice>(prefix + " 1"));
-    deviceService->setDevice(2, std::make_shared<MockDevice>(prefix + " 3"));
-
-    DeviceRackController controller { deviceService, {}, editorService };
-
-    controller.removeDevice(QString::fromStdString(prefix + " 3"));
-    QVERIFY(deviceService->device(0) != nullptr);
-    QVERIFY(deviceService->device(2) == nullptr);
-
-    controller.removeDevice(QString::fromStdString(prefix + " 1"));
-    QVERIFY(deviceService->device(0) == nullptr);
 }
 
 void DeviceRackControllerTest::test_importSettings_matchingType_shouldEmitConfirmationWithoutMismatch()

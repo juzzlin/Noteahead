@@ -298,31 +298,11 @@ public:
     //! Deletes the showing preset. A no-op unless the showing one is the user's own.
     Q_INVOKABLE bool deleteCurrentEffectUserPreset(quint32 effectIndex);
 
-    Q_INVOKABLE float deviceSend(const QString & deviceName, quint32 effectIndex) const;
-    Q_INVOKABLE void setDeviceSend(const QString & deviceName, quint32 effectIndex, float send);
-
-    //! The same, for one part of a device: a Sampler pad or a Drum Synth voice.
-    //!
-    //! @p subIndex below zero means the device itself, so a caller that does not know whether it is
-    //! looking at a part can ask the same way either way. A part's send is its own rather than a
-    //! share of the device's: both reach the bus, which is what makes a dry kit with one wet drum
-    //! possible at all.
-    Q_INVOKABLE float partSend(const QString & deviceName, int subIndex, quint32 effectIndex) const;
-    Q_INVOKABLE void setPartSend(const QString & deviceName, int subIndex, quint32 effectIndex, float send);
-    //! Whether this device has parts that can be routed on their own, so a dialog knows whether to
-    //! offer the tab at all.
-    Q_INVOKABLE bool hasPartSends(const QString & deviceName) const;
-
     //! Points the controller at the master send rack and hands back the type of the effect on
     //! @p busIndex, so a send row's title can open that effect's own dialog. Empty when the bus has
     //! no effect to open.
     Q_INVOKABLE QString openSendBusEffect(quint32 busIndex);
 
-    //! The master send rack, read without pointing the controller at it: a device's Sends tab shows
-    //! what the buses are while the controller is still targeting that device's own rack.
-    Q_INVOKABLE int masterSendCount() const;
-    Q_INVOKABLE QString masterSendEffectType(quint32 busIndex) const;
-    Q_INVOKABLE bool hasMasterSendEffects() const;
     //! What effectParametersSummary() gives for the current rack, for a master send bus instead.
     Q_INVOKABLE QString masterSendParametersSummary(quint32 busIndex) const;
 

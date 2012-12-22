@@ -171,9 +171,9 @@ AnimatedDialog {
                 Layout.fillWidth: true
                 value: {
                     deviceRackController.revision;
-                    return deviceRackController.deviceGain(root.slotIndex);
+                    return deviceMixerController.deviceGain(root.slotIndex);
                 }
-                onMoved: v => deviceRackController.setDeviceGain(root.slotIndex, v)
+                onMoved: v => deviceMixerController.setDeviceGain(root.slotIndex, v)
             }
 
             Knob {
@@ -182,9 +182,9 @@ AnimatedDialog {
                 Layout.fillWidth: true
                 value: {
                     deviceRackController.revision;
-                    return deviceRackController.deviceVolume(root.slotIndex);
+                    return deviceMixerController.deviceVolume(root.slotIndex);
                 }
-                onMoved: v => deviceRackController.setDeviceVolume(root.slotIndex, v)
+                onMoved: v => deviceMixerController.setDeviceVolume(root.slotIndex, v)
             }
 
             Knob {
@@ -193,9 +193,9 @@ AnimatedDialog {
                 Layout.fillWidth: true
                 value: {
                     deviceRackController.revision;
-                    return deviceRackController.devicePan(root.slotIndex);
+                    return deviceMixerController.devicePan(root.slotIndex);
                 }
-                onMoved: v => deviceRackController.setDevicePan(root.slotIndex, v)
+                onMoved: v => deviceMixerController.setDevicePan(root.slotIndex, v)
             }
         }
 

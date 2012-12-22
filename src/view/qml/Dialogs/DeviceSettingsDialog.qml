@@ -48,12 +48,12 @@ AnimatedDialog {
 
     onOpened: {
         root.slotIndex = deviceRackController.slotOfDevice(root.deviceName);
-        faderPositionCombo.currentIndex = deviceRackController.deviceFaderPosition(root.slotIndex);
-        sendTapCombo.currentIndex = deviceRackController.deviceSendTap(root.slotIndex);
+        faderPositionCombo.currentIndex = deviceMixerController.deviceFaderPosition(root.slotIndex);
+        sendTapCombo.currentIndex = deviceMixerController.deviceSendTap(root.slotIndex);
         root.learningRow = -1;
         root.mappingTargets = propertyService.midiMappingTargets(root.slotIndex);
         mappingsModel.clear();
-        for (const mapping of deviceRackController.deviceMidiMappings(root.slotIndex)) {
+        for (const mapping of midiMappingController.deviceMidiMappings(root.slotIndex)) {
             mappingsModel.append(mapping);
         }
     }
@@ -70,7 +70,7 @@ AnimatedDialog {
                 "max": mapping.max
             });
         }
-        deviceRackController.setDeviceMidiMappings(root.slotIndex, mappings);
+        midiMappingController.setDeviceMidiMappings(root.slotIndex, mappings);
     }
 
     //! In the dialog rather than in the row: removing the row destroys the context the row's own
@@ -90,9 +90,9 @@ AnimatedDialog {
     }
 
     Connections {
-        target: deviceRackController
+        target: midiMappingController
         function onControllerCcReceived(controller: int): void {
-            if (root.visible && root.learningRow >= 0 && root.learningRow < mappingsModel.count && controller <= deviceRackController.maxMappableMidiCc()) {
+            if (root.visible && root.learningRow >= 0 && root.learningRow < mappingsModel.count && controller <= midiMappingController.maxMappableMidiCc()) {
                 mappingsModel.setProperty(root.learningRow, "controller", controller);
                 root.learningRow = -1;
                 root.commitMappings();
@@ -145,7 +145,7 @@ AnimatedDialog {
                     id: faderPositionCombo
                     model: [qsTr("Before insert effects"), qsTr("After insert effects")]
                     Layout.fillWidth: true
-                    onActivated: deviceRackController.setDeviceFaderPosition(root.slotIndex, currentIndex)
+                    onActivated: deviceMixerController.setDeviceFaderPosition(root.slotIndex, currentIndex)
                 }
             }
 
@@ -176,7 +176,7 @@ AnimatedDialog {
                     id: sendTapCombo
                     model: [qsTr("Post-fader"), qsTr("Pre-fader")]
                     Layout.fillWidth: true
-                    onActivated: deviceRackController.setDeviceSendTap(root.slotIndex, currentIndex)
+                    onActivated: deviceMixerController.setDeviceSendTap(root.slotIndex, currentIndex)
                 }
             }
 
@@ -223,7 +223,7 @@ AnimatedDialog {
                         }
                         SpinBox {
                             from: 0
-                            to: deviceRackController.maxMappableMidiCc()
+                            to: midiMappingController.maxMappableMidiCc()
                             value: mappingRow.controller
                             editable: true
                             Layout.preferredWidth: 120

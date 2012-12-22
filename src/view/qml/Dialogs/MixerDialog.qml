@@ -32,7 +32,7 @@ AnimatedDialog {
     height: parent ? parent.height * Constants.largeDialogScale : 640
 
     // The level taps are a no-op until switched on, so they only run while the mixer is on screen.
-    onVisibleChanged: deviceRackController.setMetersActive(visible)
+    onVisibleChanged: deviceMetersController.setMetersActive(visible)
 
     readonly property int populatedCount: {
         deviceRackController.revision;
@@ -59,7 +59,7 @@ AnimatedDialog {
             DialogButtonBox.buttonRole: DialogButtonBox.ActionRole
             toolTipText: qsTr("Reset every clip indicator in the mixer")
             onClicked: {
-                deviceRackController.clearAllDeviceClips();
+                deviceMetersController.clearAllDeviceClips();
                 mainLayout.meterTick++;
             }
         }
@@ -71,7 +71,7 @@ AnimatedDialog {
             DialogButtonBox.buttonRole: DialogButtonBox.ActionRole
             toolTipText: qsTr("Start every device's integrated loudness measurement over")
             onClicked: {
-                deviceRackController.resetAllDeviceLoudness();
+                deviceMetersController.resetAllDeviceLoudness();
                 mainLayout.meterTick++;
             }
         }
@@ -163,17 +163,17 @@ AnimatedDialog {
                         readonly property var meterLevels: {
                             mainLayout.meterTick;
                             deviceRackController.revision;
-                            return deviceRackController.deviceMeterLevels(index);
+                            return deviceMetersController.deviceMeterLevels(index);
                         }
                         readonly property var outputMeters: {
                             mainLayout.meterTick;
                             deviceRackController.revision;
-                            return deviceRackController.deviceOutputMeters(index);
+                            return deviceMetersController.deviceOutputMeters(index);
                         }
                         readonly property bool deviceClipped: {
                             mainLayout.meterTick;
                             deviceRackController.revision;
-                            return deviceRackController.deviceClipped(index);
+                            return deviceMetersController.deviceClipped(index);
                         }
 
                         RowLayout {
@@ -244,9 +244,9 @@ AnimatedDialog {
                                 Layout.maximumWidth: 200
                                 value: {
                                     deviceRackController.revision;
-                                    return deviceRackController.deviceGain(index);
+                                    return deviceMixerController.deviceGain(index);
                                 }
-                                onMoved: v => deviceRackController.setDeviceGain(index, v)
+                                onMoved: v => deviceMixerController.setDeviceGain(index, v)
                             }
 
                             Knob {
@@ -256,9 +256,9 @@ AnimatedDialog {
                                 Layout.maximumWidth: 200
                                 value: {
                                     deviceRackController.revision;
-                                    return deviceRackController.deviceVolume(index);
+                                    return deviceMixerController.deviceVolume(index);
                                 }
-                                onMoved: v => deviceRackController.setDeviceVolume(index, v)
+                                onMoved: v => deviceMixerController.setDeviceVolume(index, v)
                             }
 
                             Knob {
@@ -268,9 +268,9 @@ AnimatedDialog {
                                 Layout.maximumWidth: 200
                                 value: {
                                     deviceRackController.revision;
-                                    return deviceRackController.devicePan(index);
+                                    return deviceMixerController.devicePan(index);
                                 }
-                                onMoved: v => deviceRackController.setDevicePan(index, v)
+                                onMoved: v => deviceMixerController.setDevicePan(index, v)
                             }
 
                             // Vertical Separator
@@ -338,7 +338,7 @@ AnimatedDialog {
                                     Layout.alignment: Qt.AlignVCenter
                                     clipped: strip.deviceClipped
                                     onClicked: {
-                                        deviceRackController.clearDeviceClip(index);
+                                        deviceMetersController.clearDeviceClip(index);
                                         mainLayout.meterTick++;
                                     }
                                 }
