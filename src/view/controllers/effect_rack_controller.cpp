@@ -1602,69 +1602,6 @@ bool EffectRackController::importSettings(ProjectReader & reader)
     return false;
 }
 
-float EffectRackController::deviceSend(const QString & deviceName, quint32 effectIndex) const
-{
-    if (const auto device = m_deviceService->device(deviceName.toStdString()); device) {
-        return device->reverbSend(effectIndex);
-    }
-    return 0.0f;
-}
-
-void EffectRackController::setDeviceSend(const QString & deviceName, quint32 effectIndex, float send)
-{
-    if (const auto device = m_deviceService->device(deviceName.toStdString()); device) {
-        device->setReverbSend(effectIndex, send);
-    }
-}
-
-float EffectRackController::partSend(const QString & deviceName, int subIndex, quint32 effectIndex) const
-{
-    if (subIndex < 0) {
-        return deviceSend(deviceName, effectIndex);
-    }
-    if (const auto device = m_deviceService->device(deviceName.toStdString()); device) {
-        return device->sendSourceLevel(static_cast<size_t>(subIndex), effectIndex);
-    }
-    return 0.0f;
-}
-
-void EffectRackController::setPartSend(const QString & deviceName, int subIndex, quint32 effectIndex, float send)
-{
-    if (subIndex < 0) {
-        setDeviceSend(deviceName, effectIndex, send);
-        return;
-    }
-    if (const auto device = m_deviceService->device(deviceName.toStdString()); device) {
-        device->setSendSourceLevel(static_cast<size_t>(subIndex), effectIndex, send);
-    }
-}
-
-bool EffectRackController::hasPartSends(const QString & deviceName) const
-{
-    if (const auto device = m_deviceService->device(deviceName.toStdString()); device) {
-        return device->sendSourceCount() > 0;
-    }
-    return false;
-}
-
-int EffectRackController::masterSendCount() const
-{
-    return static_cast<int>(Constants::effectRackSize());
-}
-
-QString EffectRackController::masterSendEffectType(quint32 busIndex) const
-{
-    if (const auto effect = m_deviceService->sendEffectRack().effect(busIndex); effect) {
-        return QString::fromStdString(effect->type());
-    }
-    return {};
-}
-
-bool EffectRackController::hasMasterSendEffects() const
-{
-    return m_deviceService->sendEffectRack().hasEffects();
-}
-
 QString EffectRackController::openSendBusEffect(quint32 busIndex)
 {
     // The bus's effect lives in the master send rack, so the controller is pointed there before the

@@ -42,6 +42,7 @@
 #include "../../plugins/effects/simple_eq/simple_eq.hpp"
 #include "../../plugins/effects/tremolo/tremolo.hpp"
 #include "../../view/controllers/effect_rack_controller.hpp"
+#include "../../view/controllers/send_controller.hpp"
 #include "../../view/qml/Dialogs/eq_curve_renderer.hpp"
 #include "../../view/qml/Dialogs/rta_renderer.hpp"
 
@@ -1319,18 +1320,19 @@ void EffectRackControllerTest::test_partSend_shouldAddressOnePadOnly()
     const auto audioEngine = std::make_shared<AudioEngine>();
     const auto deviceService = std::make_shared<DeviceService>(audioEngine, std::make_shared<DataService>());
     EffectRackController controller { deviceService, std::make_shared<EditorService>() };
+    SendController sends { deviceService };
 
     DeviceFactory::init();
     const auto device = DeviceFactory::createDevice(DrumSynthDevice::typeIdString(), "Drums");
     deviceService->setDevice(0, device);
 
-    QVERIFY(controller.hasPartSends("Drums"));
-    controller.setPartSend("Drums", 2, 1, 0.5f);
+    QVERIFY(sends.hasPartSends("Drums"));
+    sends.setPartSend("Drums", 2, 1, 0.5f);
 
-    QCOMPARE(controller.partSend("Drums", 2, 1), 0.5f);
-    QCOMPARE(controller.partSend("Drums", 3, 1), 0.0f);
-    QCOMPARE(controller.partSend("Drums", 2, 0), 0.0f);
-    QCOMPARE(controller.deviceSend("Drums", 1), 0.0f);
+    QCOMPARE(sends.partSend("Drums", 2, 1), 0.5f);
+    QCOMPARE(sends.partSend("Drums", 3, 1), 0.0f);
+    QCOMPARE(sends.partSend("Drums", 2, 0), 0.0f);
+    QCOMPARE(sends.deviceSend("Drums", 1), 0.0f);
 }
 
 void EffectRackControllerTest::test_partSend_negativeSubIndex_shouldBeTheDeviceItself()
@@ -1340,17 +1342,18 @@ void EffectRackControllerTest::test_partSend_negativeSubIndex_shouldBeTheDeviceI
     const auto audioEngine = std::make_shared<AudioEngine>();
     const auto deviceService = std::make_shared<DeviceService>(audioEngine, std::make_shared<DataService>());
     EffectRackController controller { deviceService, std::make_shared<EditorService>() };
+    SendController sends { deviceService };
 
     DeviceFactory::init();
     const auto device = DeviceFactory::createDevice(SynthDevice::typeIdString(), "Synth");
     deviceService->setDevice(0, device);
 
-    controller.setPartSend("Synth", -1, 3, 0.25f);
+    sends.setPartSend("Synth", -1, 3, 0.25f);
 
-    QCOMPARE(controller.deviceSend("Synth", 3), 0.25f);
-    QCOMPARE(controller.partSend("Synth", -1, 3), 0.25f);
+    QCOMPARE(sends.deviceSend("Synth", 3), 0.25f);
+    QCOMPARE(sends.partSend("Synth", -1, 3), 0.25f);
     // A Synth has no parts of its own, so the tab has nothing to show for it.
-    QVERIFY(!controller.hasPartSends("Synth"));
+    QVERIFY(!sends.hasPartSends("Synth"));
 }
 
 void EffectRackControllerTest::test_availableEffects_shouldOfferTheMonitoringEffects()

@@ -2,6 +2,8 @@ set(HEADER_FILES
     controllers/audio_analysis_controller.hpp
     controllers/automation_refresh_throttle.hpp
     controllers/device_dialog_model.hpp
+    controllers/device_meters_controller.hpp
+    controllers/device_mixer_controller.hpp
     controllers/device_rack_controller.hpp
     controllers/drum_pad_dialog_model.hpp
     controllers/effect_dialog_model.hpp
@@ -9,8 +11,10 @@ set(HEADER_FILES
     controllers/fm_drum_operator_controller.hpp
     controllers/fm_operator_controller.hpp
     controllers/knob_controller.hpp
+    controllers/midi_mapping_controller.hpp
     controllers/nahd_xml_keys.hpp
     controllers/performance_panel_controller.hpp
+    controllers/send_controller.hpp
     controllers/song_overview_controller.hpp
     plugins/effect_summary.hpp
     plugins/plugin_catalog.hpp
@@ -32,6 +36,8 @@ set(SOURCE_FILES
     controllers/audio_analysis_controller.cpp
     controllers/automation_refresh_throttle.cpp
     controllers/device_dialog_model.cpp
+    controllers/device_meters_controller.cpp
+    controllers/device_mixer_controller.cpp
     controllers/device_rack_controller.cpp
     controllers/drum_pad_dialog_model.cpp
     controllers/effect_dialog_model.cpp
@@ -39,8 +45,10 @@ set(SOURCE_FILES
     controllers/fm_drum_operator_controller.cpp
     controllers/fm_operator_controller.cpp
     controllers/knob_controller.cpp
+    controllers/midi_mapping_controller.cpp
     controllers/nahd_xml_keys.cpp
     controllers/performance_panel_controller.cpp
+    controllers/send_controller.cpp
     controllers/song_overview_controller.cpp
     plugins/effect_summary.cpp
     plugins/plugin_catalog.cpp

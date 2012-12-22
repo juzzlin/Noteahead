@@ -46,13 +46,13 @@ ColumnLayout {
     }
 
     Repeater {
-        model: effectRackController.masterSendCount()
+        model: sendController.masterSendCount()
         delegate: RowLayout {
             Layout.fillWidth: true
             spacing: 30
             readonly property string effectType: {
                 effectRackController.revision;
-                return effectRackController.masterSendEffectType(index);
+                return sendController.masterSendEffectType(index);
             }
             visible: effectType !== ""
 
@@ -99,9 +99,9 @@ ColumnLayout {
                 Layout.alignment: Qt.AlignVCenter
                 value: {
                     effectRackController.revision;
-                    return effectRackController.partSend(root.deviceName, root.subIndex, index) * Constants.uiInternalScaling;
+                    return sendController.partSend(root.deviceName, root.subIndex, index) * Constants.uiInternalScaling;
                 }
-                onMoved: v => effectRackController.setPartSend(root.deviceName, root.subIndex, index, v / Constants.uiInternalScaling)
+                onMoved: v => sendController.setPartSend(root.deviceName, root.subIndex, index, v / Constants.uiInternalScaling)
             }
 
             // Everything left over, so the two columns above stay where they are however wide the
@@ -124,7 +124,7 @@ ColumnLayout {
             // Re-read whenever the racks change: an invokable alone is evaluated once, and this
             // sentence would then still be sitting under the sends it says do not exist.
             effectRackController.revision;
-            return !effectRackController.hasMasterSendEffects();
+            return !sendController.hasMasterSendEffects();
         }
     }
 

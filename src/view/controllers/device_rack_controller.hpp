@@ -69,8 +69,6 @@ public:
     Q_INVOKABLE void refresh();
     Q_INVOKABLE void openDevice(const QString & name);
     Q_INVOKABLE void openDevice(int slotIndex);
-    Q_INVOKABLE void requestEffectSendsDialog(const QString & deviceName);
-    Q_INVOKABLE void requestDeviceSettingsDialog(const QString & deviceName);
 
     Q_INVOKABLE void setDevice(int slotIndex, const QString & typeId);
     //! Puts a new device in the slot but keeps the channel strip the old one had. What the Device
@@ -109,83 +107,12 @@ public:
     //! Entries carry "owner" so the dialog can show a device as claimed elsewhere rather than
     //! silently stealing it, and "blocked" for slots that would close a routing loop.
     Q_INVOKABLE QVariantList subMixerCandidates(int subMixerSlot) const;
-    //! Mixer values of the device in a slot, in the same 0..uiInternalScaling units
-    //! DeviceDialogModel uses.
-    //!
-    //! Devices with a dedicated controller expose these through it; a Sub Mixer has none, so its
-    //! dialog reads and writes them by slot instead.
-    Q_INVOKABLE int deviceVolume(int slotIndex) const;
-    Q_INVOKABLE void setDeviceVolume(int slotIndex, int value);
-    Q_INVOKABLE int deviceGain(int slotIndex) const;
-    Q_INVOKABLE void setDeviceGain(int slotIndex, int value);
-    Q_INVOKABLE int devicePan(int slotIndex) const;
-    Q_INVOKABLE void setDevicePan(int slotIndex, int value);
-
-    //! Device::FaderPosition and Device::SendTap as ints, for the Device Settings dialog.
-    Q_INVOKABLE int deviceFaderPosition(int slotIndex) const;
-    Q_INVOKABLE void setDeviceFaderPosition(int slotIndex, int value);
-    Q_INVOKABLE int deviceSendTap(int slotIndex) const;
-    Q_INVOKABLE void setDeviceSendTap(int slotIndex, int value);
-
-    //! The device's controller mappings as { controller, target, min, max }, min and max being knob
-    //! positions 0..1.
-    Q_INVOKABLE QVariantList deviceMidiMappings(int slotIndex) const;
-    Q_INVOKABLE void setDeviceMidiMappings(int slotIndex, const QVariantList & mappings);
-    //! Highest CC a mapping can take.
-    Q_INVOKABLE int maxMappableMidiCc() const;
-    //! For MIDI Learn: a controller CC came in from the controller keyboard.
-    void notifyControllerCcReceived(int controller);
 
     //! Slot index of a device by name, or -1 when no such device is in the rack.
     Q_INVOKABLE int slotOfDevice(const QString & deviceName) const;
 
-    //! [peakDb, rmsDb] of the device's pre-insert level tap. Empty when the slot is empty.
-    Q_INVOKABLE QVariantList deviceMeterLevels(int slotIndex) const;
-    //! Everything the mixer's OUT region can show, taken together so that every view of it describes
-    //! the same moment: peakDb and rmsDb of the output level tap, shortTermLufs and integratedLufs
-    //! of the output loudness tap. Empty when the slot is empty.
-    //!
-    //! A map rather than a list so that a metric added later is a new key, not a renumbering of
-    //! every index the QML reads.
-    Q_INVOKABLE QVariantMap deviceOutputMeters(int slotIndex) const;
-    //! Starts the integrated measurement over, for one device or for the whole rack.
-    Q_INVOKABLE void resetDeviceLoudness(int slotIndex);
-    Q_INVOKABLE void resetAllDeviceLoudness();
-
-    //! Gates every device's level, loudness and load tap. Keep it enabled only while meters are on
-    //! screen.
-    Q_INVOKABLE void setMetersActive(bool active);
-
-    //! Whether the device's output has hit full scale since the indicator was last cleared. Latches
-    //! regardless of whether meters are on screen, so it also reports clipping you were not watching.
-    Q_INVOKABLE bool deviceClipped(int slotIndex) const;
-    Q_INVOKABLE void clearDeviceClip(int slotIndex);
-    Q_INVOKABLE void clearAllDeviceClips();
-
-    //! Share of the audio callback's real-time budget this device takes, in percent.
-    Q_INVOKABLE double deviceLoad(int slotIndex) const;
-    //! Whole-engine load in percent, and how many buffers have overrun since metering started.
-    Q_INVOKABLE double totalLoad() const;
-    Q_INVOKABLE double totalPeakLoad() const;
-    Q_INVOKABLE int overrunCount() const;
-
     Q_INVOKABLE bool addSubMixerMember(int subMixerSlot, int memberSlot);
     Q_INVOKABLE bool removeSubMixerMember(int subMixerSlot, int memberSlot);
-
-    Q_INVOKABLE void addSampler();
-    Q_INVOKABLE void addSynth();
-    Q_INVOKABLE void addWavetableSynth();
-    Q_INVOKABLE void addBassSynth();
-    Q_INVOKABLE void addDrumSynth();
-    Q_INVOKABLE void addDrumSynthV2();
-    Q_INVOKABLE void addPianoSynth();
-    Q_INVOKABLE void addPianoSynthV2();
-    Q_INVOKABLE void addPianoSynthV3();
-    Q_INVOKABLE void addKick808();
-    Q_INVOKABLE void addSnareSynth();
-    Q_INVOKABLE void addStringVoice();
-    Q_INVOKABLE void addSubMixer();
-    Q_INVOKABLE void removeDevice(const QString & name);
 
 signals:
     void deviceCountChanged();
@@ -194,22 +121,14 @@ signals:
     //! A device dialog open on the slot is bound to the device object that was there before the
     //! import, which a file of a different type replaces outright, so it has to react to this.
     void deviceSettingsImported(int slotIndex);
-    //! A CC came in from the controller keyboard, for a mapping that is learning its controller.
-    void controllerCcReceived(int controller);
     //! A device that registers itself asks for its dialog by file name. See PluginCatalog.
     void pluginDeviceDialogRequested(QString dialogFile);
-    void deviceSettingsDialogRequested(QString deviceName);
     void subMixerDialogRequested(int slotIndex);
-    void effectSendsDialogRequested(const QString & deviceName);
 
 private:
     QString trackNames(const QString & deviceName) const;
     QStringList trackNameList(int slotIndex) const;
     QStringList usageTrackNames(int slotIndex) const;
-
-    //! Push the current gate onto every device's taps. Needed after any slot change, because a
-    //! freshly created device starts with its meters off regardless of what is on screen.
-    void applyMetersActive();
 
     DeviceServiceS m_deviceService;
     DialogModelList m_dialogModels;
@@ -217,7 +136,6 @@ private:
 
     QStringList m_devices;
     int m_revision { 0 };
-    bool m_metersActive { false };
 };
 
 } // namespace noteahead

@@ -33,7 +33,7 @@ AnimatedDialog {
     }
 
     // The level taps are a no-op until switched on, so they only run while the rack is on screen.
-    onVisibleChanged: deviceRackController.setMetersActive(visible)
+    onVisibleChanged: deviceMetersController.setMetersActive(visible)
 
     Universal.theme: Universal.Dark
     Universal.accent: themeService.accentColor
@@ -110,17 +110,17 @@ AnimatedDialog {
                 readonly property var meterLevels: {
                     deviceListView.meterTick;
                     deviceRackController.revision;
-                    return deviceRackController.deviceMeterLevels(index);
+                    return deviceMetersController.deviceMeterLevels(index);
                 }
                 readonly property real deviceLoad: {
                     deviceListView.meterTick;
                     deviceRackController.revision;
-                    return deviceRackController.deviceLoad(index);
+                    return deviceMetersController.deviceLoad(index);
                 }
                 readonly property bool deviceClipped: {
                     deviceListView.meterTick;
                     deviceRackController.revision;
-                    return deviceRackController.deviceClipped(index);
+                    return deviceMetersController.deviceClipped(index);
                 }
 
                 Menu {
@@ -226,7 +226,7 @@ AnimatedDialog {
                         visible: deviceType !== ""
                         clipped: deviceClipped
                         onClicked: {
-                            deviceRackController.clearDeviceClip(index);
+                            deviceMetersController.clearDeviceClip(index);
                             deviceListView.meterTick++;
                         }
                     }
@@ -310,11 +310,11 @@ AnimatedDialog {
                 // creates no dependency here, so these would evaluate once and never update.
                 readonly property real load: {
                     deviceListView.meterTick;
-                    return deviceRackController.totalLoad();
+                    return deviceMetersController.totalLoad();
                 }
                 readonly property real peak: {
                     deviceListView.meterTick;
-                    return deviceRackController.totalPeakLoad();
+                    return deviceMetersController.totalPeakLoad();
                 }
                 text: qsTr("DSP load: %1 % (peak %2 %)").arg(load.toFixed(1)).arg(peak.toFixed(1))
                 color: peak > 90 ? Theme.danger : Theme.textSecondary
@@ -324,7 +324,7 @@ AnimatedDialog {
             Text {
                 readonly property int dropouts: {
                     deviceListView.meterTick;
-                    return deviceRackController.overrunCount();
+                    return deviceMetersController.overrunCount();
                 }
                 text: qsTr("Dropouts: %1").arg(dropouts)
                 color: dropouts > 0 ? Theme.danger : Theme.textSecondary
