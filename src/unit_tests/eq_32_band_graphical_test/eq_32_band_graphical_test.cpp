@@ -18,12 +18,14 @@
 #include "../../common/constants.hpp"
 #include "../../domain/dsp/audio_context.hpp"
 #include "../../domain/dsp/graphic_eq_designer.hpp"
+#include "../../domain/dsp/svf_filter.hpp"
 #include "../../domain/effects/effect_rack.hpp"
 #include "../../domain/effects/eq_32_band_graphical.hpp"
 
 #include <QTest>
 
 #include <algorithm>
+#include <array>
 #include <cmath>
 #include <memory>
 #include <numbers>
@@ -92,6 +94,55 @@ double measuredGainDb(Eq32BandGraphical & eq, double frequency)
     double in = 0.0;
     double out = 0.0;
     for (size_t i = frames / 2; i < frames; i++) {
+        in += stereo[i * 2] * stereo[i * 2];
+        out += output[i * 2] * output[i * 2];
+    }
+    return 10.0 * std::log10(out / in);
+}
+
+//! Everything under 1 kHz up by 8 dB, the rest flat: broad enough to make a mix much louder.
+Gains lowBoost()
+{
+    Gains sliders {};
+    for (size_t i = 0; i < Eq32BandGraphical::BandCount; i++) {
+        sliders.at(i) = GraphicEqDesigner::centreFrequency(i) < 1000.0 ? 8.0 : 0.0;
+    }
+    return sliders;
+}
+
+//! Output over input level, in dB, of four seconds of pink noise through @p eq. The first second
+//! is left out, for the filters, the linear-phase kernel and the gain ramp to settle. The noise is
+//! cut below 20 Hz, where auto gain does not look: the generator puts another octave there, and a
+//! low shelf would lift it.
+double pinkNoiseGainDb(Eq32BandGraphical & eq)
+{
+    std::mt19937 generator { 1234 };
+    std::uniform_real_distribution<double> white { -1.0, 1.0 };
+    // Paul Kellet's refined filter: within a fraction of a decibel of -3 dB/octave over the band
+    std::array<double, 7> b {};
+    // A 24 dB/oct Butterworth
+    SvfFilter lowCut1;
+    SvfFilter lowCut2;
+    lowCut1.calculateLowCut(20.0, eq.sampleRate(), 0.5412);
+    lowCut2.calculateLowCut(20.0, eq.sampleRate(), 1.3066);
+    const auto frames = static_cast<size_t>(eq.sampleRate() * 4.0);
+    std::vector<double> stereo(frames * 2);
+    for (size_t i = 0; i < frames; i++) {
+        const double w = white(generator);
+        b[0] = 0.99886 * b[0] + w * 0.0555179;
+        b[1] = 0.99332 * b[1] + w * 0.0750759;
+        b[2] = 0.96900 * b[2] + w * 0.1538520;
+        b[3] = 0.86650 * b[3] + w * 0.3104856;
+        b[4] = 0.55000 * b[4] + w * 0.5329522;
+        b[5] = -0.7616 * b[5] - w * 0.0168980;
+        stereo[i * 2] = stereo[i * 2 + 1] = lowCut2.process(lowCut1.process((b[0] + b[1] + b[2] + b[3] + b[4] + b[5] + b[6] + w * 0.5362) * 0.1));
+        b[6] = w * 0.115926;
+    }
+    eq.reset();
+    const auto output = render(eq, stereo);
+    double in = 0.0;
+    double out = 0.0;
+    for (size_t i = frames / 4; i < frames; i++) {
         in += stereo[i * 2] * stereo[i * 2];
         out += output[i * 2] * output[i * 2];
     }
@@ -448,6 +499,98 @@ void Eq32BandGraphicalTest::test_effectRack_latency_shouldSumTheEnabledEffects()
     QCOMPARE(rack.latencyFrames(48000.0), one * 2);
     rack.effect(1)->setEnabled(false);
     QCOMPARE(rack.latencyFrames(48000.0), one);
+}
+
+void Eq32BandGraphicalTest::test_autoGain_minimumPhase_shouldLevelPinkNoise()
+{
+    Eq32BandGraphical eq;
+    eq.setSampleRate(48000.0);
+    setSliders(eq, lowBoost());
+    const double uncompensated = pinkNoiseGainDb(eq);
+    QVERIFY2(uncompensated > 4.0, qPrintable(QString::number(uncompensated)));
+
+    setParameter(eq, Constants::NahdXml::xmlKeyAutoGain(), 1.0f);
+    QVERIFY(eq.autoGainDb() < -4.0);
+    const double compensated = pinkNoiseGainDb(eq);
+    QVERIFY2(std::abs(compensated) < 0.5, qPrintable(QString::number(compensated)));
+}
+
+void Eq32BandGraphicalTest::test_autoGain_linearPhase_shouldLevelPinkNoise()
+{
+    // Designed into the kernel rather than applied after it, so it has to arrive all the same
+    const auto eq = linearPhaseEq(lowBoost());
+    setParameter(*eq, Constants::NahdXml::xmlKeyAutoGain(), 1.0f);
+    const double compensated = pinkNoiseGainDb(*eq);
+    QVERIFY2(std::abs(compensated) < 0.5, qPrintable(QString::number(compensated)));
+}
+
+void Eq32BandGraphicalTest::test_autoGain_on_shouldMatchWhatIsHeard()
+{
+    for (const bool linearPhase : { false, true }) {
+        Eq32BandGraphical eq;
+        eq.setSampleRate(48000.0);
+        setSliders(eq, lowBoost());
+        setParameter(eq, Constants::NahdXml::xmlKeyLinearPhase(), linearPhase ? 1.0f : 0.0f);
+        setParameter(eq, Constants::NahdXml::xmlKeyAutoGain(), 1.0f);
+        for (const double hz : { 100.0, 5000.0 }) {
+            const double measured = measuredGainDb(eq, hz);
+            const double predicted = eq.magnitudeDbAt(hz);
+            QVERIFY2(std::abs(measured - predicted) < 0.5,
+                     qPrintable(QString("heard %1 dB, drawn %2 dB at %3 Hz, linear phase %4").arg(measured).arg(predicted).arg(hz).arg(linearPhase)));
+        }
+    }
+}
+
+void Eq32BandGraphicalTest::test_autoGain_midMode_shouldLeaveTheSideAlone()
+{
+    Eq32BandGraphical eq;
+    eq.setSampleRate(48000.0);
+    setSliders(eq, lowBoost());
+    setParameter(eq, Constants::NahdXml::xmlKeyStereoMode(), 1.0f);
+    setParameter(eq, Constants::NahdXml::xmlKeyAutoGain(), 1.0f);
+    QVERIFY(eq.autoGainDb() < -4.0);
+
+    // Pure side content is passed through exactly, not turned down with the mid
+    for (int i = 0; i < 4800; i++) {
+        double left = 0.2;
+        double right = -0.2;
+        eq.process(left, right);
+        QVERIFY(left == 0.2);
+        QVERIFY(right == -0.2);
+    }
+}
+
+void Eq32BandGraphicalTest::test_autoGain_off_shouldLeaveOutputUnchanged()
+{
+    // Switched on and back off, the output is bit for bit that of an equalizer that never had it
+    Eq32BandGraphical reference;
+    Eq32BandGraphical toggled;
+    for (auto * eq : { &reference, &toggled }) {
+        eq->setSampleRate(48000.0);
+        setSliders(*eq, lowBoost());
+    }
+    const auto run = [&](int frames, bool compare) {
+        for (int i = 0; i < frames; i++) {
+            const double input = std::sin(static_cast<double>(i) * 0.05);
+            double referenceLeft = input;
+            double referenceRight = -input * 0.5;
+            double toggledLeft = referenceLeft;
+            double toggledRight = referenceRight;
+            reference.process(referenceLeft, referenceRight);
+            toggled.process(toggledLeft, toggledRight);
+            if (compare) {
+                QVERIFY(toggledLeft == referenceLeft);
+                QVERIFY(toggledRight == referenceRight);
+            }
+        }
+    };
+    setParameter(toggled, Constants::NahdXml::xmlKeyAutoGain(), 1.0f);
+    run(4800, false);
+    setParameter(toggled, Constants::NahdXml::xmlKeyAutoGain(), 0.0f);
+    QCOMPARE(toggled.autoGainDb(), 0.0);
+    // Past the ramp back
+    run(960, false);
+    run(4800, true);
 }
 
 } // namespace noteahead

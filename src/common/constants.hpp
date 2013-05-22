@@ -560,6 +560,7 @@ QString xmlKeyVoiceMode();
 QString xmlKeyMode();
 QString xmlKeyStereoMode();
 QString xmlKeyLinearPhase();
+QString xmlKeyAutoGain();
 QString xmlKeyStereoPhase();
 QString xmlKeyBaseRate();
 QString xmlKeyRate();

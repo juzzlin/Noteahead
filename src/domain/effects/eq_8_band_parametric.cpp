@@ -15,6 +15,8 @@
 
 #include "eq_8_band_parametric.hpp"
 
+#include <QtGlobal>
+
 #include "../../common/constants.hpp"
 #include "../../common/parameter_mapper.hpp"
 #include "../dsp/audio_context.hpp"
@@ -42,22 +44,20 @@ bool Eq8BandParametric::isPathBypassed(Path path) const
     return path == Path::Mid ? mode == StereoMode::Side : mode == StereoMode::Mid;
 }
 
-double Eq8BandParametric::magnitudeDbAt(double frequency, Path path) const
+Eq8BandParametric::Bands Eq8BandParametric::bandsFromParameters() const
 {
-    // A path the stereo mode leaves out is a straight wire, however the bands are set.
-    if (isPathBypassed(path)) {
-        return 0.0;
-    }
-
-    // Measured on bands of its own rather than on the ones processing audio. Two reasons, and either
-    // alone would be enough: the processing bands are written by the audio thread and this is asked
-    // from the user interface thread, and they are only brought up to date when a block is
-    // processed -- so a dialog opened before anything played would draw a flat line over settings
-    // that are not flat at all.
-    double magnitude = 1.0;
+    Bands bands;
     for (size_t i = 0; i < NumBands; i++) {
-        auto band = bandFromParameters(i);
-        band.updateCoefficients(m_sampleRate);
+        bands.at(i) = bandFromParameters(i);
+        bands.at(i).updateCoefficients(m_sampleRate);
+    }
+    return bands;
+}
+
+double Eq8BandParametric::cascadeDbAt(const Bands & bands, double frequency) const
+{
+    double magnitude = 1.0;
+    for (auto && band : bands) {
         magnitude *= band.filterMid.magnitudeAt(frequency, m_sampleRate);
         for (size_t stage = 1; stage < band.stages; stage++) {
             magnitude *= band.extraMid.at(stage - 1).magnitudeAt(frequency, m_sampleRate);
@@ -68,6 +68,63 @@ double Eq8BandParametric::magnitudeDbAt(double frequency, Path path) const
     // the way off" on any scale a dialog would use.
     constexpr double floorMagnitude = 1.0e-6;
     return 20.0 * std::log10(std::max(floorMagnitude, magnitude));
+}
+
+double Eq8BandParametric::autoGainDbFor(const Bands & bands) const
+{
+    AutoGain::Grid response {};
+    const auto frequencies = AutoGain::gridFrequencies(m_sampleRate);
+    for (size_t i = 0; i < AutoGain::GridSize; i++) {
+        response.at(i) = cascadeDbAt(bands, frequencies.at(i));
+    }
+    return AutoGain::compensationDb(response);
+}
+
+bool Eq8BandParametric::autoGainFromParameters() const
+{
+    const auto p = parameter(Constants::NahdXml::xmlKeyAutoGain().toStdString());
+    return p && p->get().value() >= 0.5f;
+}
+
+double Eq8BandParametric::outputGainDbFromParameters() const
+{
+    const auto p = parameter(Constants::NahdXml::xmlKeyGain().toStdString());
+    return p ? (static_cast<double>(p->get().value()) - 0.5) * 2.0 * MaxOutputGainDb : 0.0;
+}
+
+double Eq8BandParametric::autoGainDb() const
+{
+    return autoGainFromParameters() ? autoGainDbFor(bandsFromParameters()) : 0.0;
+}
+
+std::vector<double> Eq8BandParametric::magnitudesDbAt(std::span<const double> frequencies, Path path) const
+{
+    // A path the stereo mode leaves out is a straight wire, however the bands are set, and auto
+    // gain leaves it alone too. The Output knob does not: it turns the whole output.
+    const double outputDb = outputGainDbFromParameters();
+    if (isPathBypassed(path)) {
+        return std::vector<double>(frequencies.size(), outputDb);
+    }
+
+    // Measured on bands of its own rather than on the ones processing audio. Two reasons, and either
+    // alone would be enough: the processing bands are written by the audio thread and this is asked
+    // from the user interface thread, and they are only brought up to date when a block is
+    // processed -- so a dialog opened before anything played would draw a flat line over settings
+    // that are not flat at all.
+    const auto bands = bandsFromParameters();
+    const double gainDb = outputDb + (autoGainFromParameters() ? autoGainDbFor(bands) : 0.0);
+
+    std::vector<double> result;
+    result.reserve(frequencies.size());
+    for (const double frequency : frequencies) {
+        result.push_back(cascadeDbAt(bands, frequency) + gainDb);
+    }
+    return result;
+}
+
+double Eq8BandParametric::magnitudeDbAt(double frequency, Path path) const
+{
+    return magnitudesDbAt(std::span { &frequency, 1 }, path).front();
 }
 
 double Eq8BandParametric::magnitudeDbAt(double frequency) const
@@ -121,6 +178,11 @@ Eq8BandParametric::Eq8BandParametric()
     }
 
     addParameter(Parameter { Constants::NahdXml::xmlKeyStereoMode().toStdString(), 0.0f, 0, 2, 0, 1, Parameter::Type::Discrete });
+    // Off, which is also what a project from before the switch existed gets
+    addParameter(Parameter { Constants::NahdXml::xmlKeyAutoGain().toStdString(), 0.0f, 0, 1, 0, 1, Parameter::Type::Boolean });
+    // 0 dB, which is also what a project from before the knob existed gets
+    addParameter(Parameter { Constants::NahdXml::xmlKeyGain().toStdString(), 0.5f, -1200, 1200, 0, 100, Parameter::Type::Continuous });
+    setParameterDisplay(Constants::NahdXml::xmlKeyGain().toStdString(), { .unit = "dB", .min = -MaxOutputGainDb, .max = MaxOutputGainDb, .rest = ParameterDisplay::Rest::Centre, .label = QT_TRANSLATE_NOOP("ParameterDisplay", "Output Gain") });
 
     syncParameters();
 }
@@ -199,8 +261,17 @@ void Eq8BandParametric::processStereo(double & left, double & right)
         }
     }
 
-    left = mid + side;
-    right = mid - side;
+    // Only on the paths the bands shaped: a path passed straight through has no level to make up
+    const double autoGain = m_autoGain.next();
+    if (processMid) {
+        mid *= autoGain;
+    }
+    if (processSide) {
+        side *= autoGain;
+    }
+
+    left = (mid + side) * m_outputGain;
+    right = (mid - side) * m_outputGain;
 }
 
 void Eq8BandParametric::reset()
@@ -208,6 +279,7 @@ void Eq8BandParametric::reset()
     for (auto & band : m_bands) {
         band.reset();
     }
+    m_autoGain.reset();
 }
 
 void Eq8BandParametric::sync()
@@ -252,6 +324,13 @@ void Eq8BandParametric::syncParameters()
     if (const auto p = parameter(Constants::NahdXml::xmlKeyStereoMode().toStdString()); p) {
         m_stereoMode = static_cast<StereoMode>(std::clamp(static_cast<int>(std::round(p->get().value())), 0, 2));
     }
+
+    // Exactly 1 at 0 dB, so a project that never touches the knob renders as it always did
+    const double outputDb = outputGainDbFromParameters();
+    m_outputGain = outputDb == 0.0 ? 1.0 : std::pow(10.0, outputDb / 20.0);
+
+    // From the bands just configured, which are the ones the audio runs through
+    m_autoGain.setTargetDb(autoGainFromParameters() ? autoGainDbFor(m_bands) : 0.0, m_sampleRate);
 }
 
 const EffectPresetList & Eq8BandParametric::factoryPresets() const

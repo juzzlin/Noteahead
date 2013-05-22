@@ -16,6 +16,7 @@
 #ifndef VINTAGE_PASSIVE_EQ_HPP
 #define VINTAGE_PASSIVE_EQ_HPP
 
+#include "../dsp/auto_gain.hpp"
 #include "../dsp/svf_filter.hpp"
 #include "effect.hpp"
 
@@ -43,6 +44,9 @@ public:
     void reset() override;
     void sync() override;
 
+    //! What auto gain applies, in dB, or 0 while it is off.
+    double autoGainDb() const;
+
 private:
     //! A stereo pair of identical filters, one per channel, processed as dual mono.
     struct StereoFilter
@@ -58,6 +62,23 @@ private:
     };
 
     void syncParameters();
+
+    //! One channel's stages, in the order they run.
+    struct Stages
+    {
+        SvfFilter & lowBoost;
+        SvfFilter & lowAtten;
+        SvfFilter & highBoost;
+        SvfFilter & highAtten;
+    };
+
+    //! @p stages configured for the settings the parameters have.
+    void configureStages(const Stages & stages) const;
+
+    //! The auto gain @p stages call for, in dB, whether or not it is switched on.
+    double autoGainDbFor(const Stages & stages) const;
+
+    bool autoGainFromParameters() const;
     void updateBuffers();
     void processStereo(double & left, double & right);
 
@@ -65,6 +86,8 @@ private:
     StereoFilter m_lowAtten;
     StereoFilter m_highBoost;
     StereoFilter m_highAtten;
+
+    AutoGain m_autoGain;
 
     bool m_shouldSyncParameters { false };
     bool m_shouldUpdateBuffers { false };

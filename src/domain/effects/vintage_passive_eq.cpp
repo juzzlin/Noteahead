@@ -67,6 +67,8 @@ VintagePassiveEq::VintagePassiveEq()
     addParameter(Parameter { C::xmlKeyBandwidth().toStdString(), 0.5f, 0, 1000, 500, 1000, Parameter::Type::Continuous });
     addParameter(Parameter { C::xmlKeyHighAttenFreq().toStdString(), 1.0f, 0, static_cast<int>(HighAttenFreqs.size()) - 1, 1, 1, Parameter::Type::Discrete });
     addParameter(Parameter { C::xmlKeyHighAtten().toStdString(), 0.0f, 0, 1800, 0, 100, Parameter::Type::Continuous });
+    // Off, which is also what a project from before the switch existed gets
+    addParameter(Parameter { C::xmlKeyAutoGain().toStdString(), 0.0f, 0, 1, 0, 1, Parameter::Type::Boolean });
 
     syncParameters();
 }
@@ -120,6 +122,10 @@ void VintagePassiveEq::processStereo(double & left, double & right)
     right = m_lowAtten.right.process(right);
     right = m_highBoost.right.process(right);
     right = m_highAtten.right.process(right);
+
+    const double autoGain = m_autoGain.next();
+    left *= autoGain;
+    right *= autoGain;
 }
 
 void VintagePassiveEq::reset()
@@ -128,6 +134,7 @@ void VintagePassiveEq::reset()
     m_lowAtten.reset();
     m_highBoost.reset();
     m_highAtten.reset();
+    m_autoGain.reset();
 }
 
 void VintagePassiveEq::sync()
@@ -136,6 +143,16 @@ void VintagePassiveEq::sync()
 }
 
 void VintagePassiveEq::syncParameters()
+{
+    const Stages left { m_lowBoost.left, m_lowAtten.left, m_highBoost.left, m_highAtten.left };
+    configureStages(left);
+    configureStages({ m_lowBoost.right, m_lowAtten.right, m_highBoost.right, m_highAtten.right });
+
+    // From the stages just configured, which are the ones the audio runs through
+    m_autoGain.setTargetDb(autoGainFromParameters() ? autoGainDbFor(left) : 0.0, m_sampleRate);
+}
+
+void VintagePassiveEq::configureStages(const Stages & stages) const
 {
     namespace C = Constants::NahdXml;
 
@@ -160,20 +177,53 @@ void VintagePassiveEq::syncParameters()
     const auto highShelf = [this](SvfFilter & f, double freq, double gainDb, double q) { f.calculateHighShelf(freq, m_sampleRate, q, gainDb); };
     const auto bell = [this](SvfFilter & f, double freq, double gainDb, double q) { f.calculateBell(freq, m_sampleRate, q, gainDb); };
 
-    const auto applyStage = [&](StereoFilter & filter, auto calc, double frequency, double q, double gainDb) {
+    const auto applyStage = [](SvfFilter & filter, auto calc, double frequency, double q, double gainDb) {
         if (std::abs(gainDb) < SilentGainDb) {
-            filter.left.setBypass();
-            filter.right.setBypass();
+            filter.setBypass();
         } else {
-            calc(filter.left, frequency, gainDb, q);
-            calc(filter.right, frequency, gainDb, q);
+            calc(filter, frequency, gainDb, q);
         }
     };
 
-    applyStage(m_lowBoost, lowShelf, lowFreq, ShelfQ, lowBoostDb);
-    applyStage(m_lowAtten, lowShelf, lowFreq * LowAttenFreqRatio, ShelfQ, lowAttenDb);
-    applyStage(m_highBoost, bell, highBoostFreq, bandwidthQ, highBoostDb);
-    applyStage(m_highAtten, highShelf, highAttenFreq, ShelfQ, highAttenDb);
+    applyStage(stages.lowBoost, lowShelf, lowFreq, ShelfQ, lowBoostDb);
+    applyStage(stages.lowAtten, lowShelf, lowFreq * LowAttenFreqRatio, ShelfQ, lowAttenDb);
+    applyStage(stages.highBoost, bell, highBoostFreq, bandwidthQ, highBoostDb);
+    applyStage(stages.highAtten, highShelf, highAttenFreq, ShelfQ, highAttenDb);
+}
+
+double VintagePassiveEq::autoGainDbFor(const Stages & stages) const
+{
+    AutoGain::Grid response {};
+    const auto frequencies = AutoGain::gridFrequencies(m_sampleRate);
+    for (size_t i = 0; i < AutoGain::GridSize; i++) {
+        const double f = frequencies.at(i);
+        double magnitude = 1.0;
+        for (const SvfFilter * stage : { &stages.lowBoost, &stages.lowAtten, &stages.highBoost, &stages.highAtten }) {
+            magnitude *= stage->magnitudeAt(f, m_sampleRate);
+        }
+        response.at(i) = 20.0 * std::log10(magnitude);
+    }
+    return AutoGain::compensationDb(response);
+}
+
+bool VintagePassiveEq::autoGainFromParameters() const
+{
+    const auto p = parameter(Constants::NahdXml::xmlKeyAutoGain().toStdString());
+    return p && p->get().value() >= 0.5f;
+}
+
+double VintagePassiveEq::autoGainDb() const
+{
+    if (!autoGainFromParameters()) {
+        return 0.0;
+    }
+    SvfFilter lowBoost;
+    SvfFilter lowAtten;
+    SvfFilter highBoost;
+    SvfFilter highAtten;
+    const Stages stages { lowBoost, lowAtten, highBoost, highAtten };
+    configureStages(stages);
+    return autoGainDbFor(stages);
 }
 
 std::string VintagePassiveEq::typeIdString()

@@ -16,13 +16,18 @@
 #ifndef AIR_BAND_EQ_HPP
 #define AIR_BAND_EQ_HPP
 
+#include "../dsp/auto_gain.hpp"
 #include "../dsp/one_pole_filter.hpp"
 #include "../dsp/svf_filter.hpp"
+#include "../utility/spectrum_taps.hpp"
 #include "effect.hpp"
+#include "spectrum_source.hpp"
 
 #include <array>
 #include <cstddef>
 #include <cstdint>
+#include <span>
+#include <vector>
 
 namespace noteahead {
 
@@ -42,7 +47,7 @@ namespace noteahead {
 //!   tap into a dry path gives roughly 2 dB/octave across the audible skirt, so the selected corner
 //!   brightens octaves below itself instead of behaving like a conventional shelf. This is why the
 //!   40 kHz position audibly does something at ordinary sample rates.
-class AirBandEq : public Effect
+class AirBandEq : public Effect, public SpectrumSource
 {
 public:
     AirBandEq();
@@ -56,6 +61,10 @@ public:
     void reset() override;
     void sync() override;
 
+    //! Not while a spectrum is shown, or it would hang at the last block that had anything in it.
+    bool isSettled() const override;
+    SpectrumTaps & spectrumTaps() override;
+
     //! What the whole equalizer does at @p frequency, in dB.
     //!
     //! Summed complex rather than as magnitudes, because that is how the taps actually meet the dry
@@ -67,6 +76,14 @@ public:
     //! this is asked from the user interface thread, and they are only brought up to date once a
     //! block has been processed, so a dialog opened before anything played would draw a flat line.
     double magnitudeDbAt(double frequency) const;
+
+    //! magnitudeDbAt() at each of @p frequencies, for a whole curve: the auto gain is worked out
+    //! once instead of once a point.
+    std::vector<double> magnitudesDbAt(std::span<const double> frequencies) const;
+
+    //! What auto gain applies, in dB, or 0 while it is off. Included in magnitudeDbAt(), since it
+    //! is part of what is heard.
+    double autoGainDb() const;
 
     //! Band passes on the panel, every one of them a bell. The air band is separate: it is the
     //! only section of the panel that lifts everything above a corner rather than around a centre.
@@ -90,9 +107,19 @@ private:
         double airGain { 0.0 };
         double airCorner { 0.0 };
         double outputGain { 1.0 };
+        bool autoGain { false };
     };
 
     TapSettings tapSettingsFromParameters() const;
+
+    //! @p state's taps configured for @p settings.
+    void configureTaps(ChannelState & state, const TapSettings & settings) const;
+
+    //! The taps and the dry path summed at @p frequency, in dB, without either output gain.
+    double tapsDbAt(const ChannelState & state, const TapSettings & settings, double frequency) const;
+
+    //! The auto gain @p state's taps call for, in dB, whether or not it is switched on.
+    double autoGainDbFor(const ChannelState & state, const TapSettings & settings) const;
 
     void syncParameters();
     void updateBuffers();
@@ -105,6 +132,10 @@ private:
     std::array<double, BandCount> m_bandGains {};
     double m_airGain { 0.0 };
     double m_outputGain { 1.0 };
+
+    AutoGain m_autoGain;
+
+    SpectrumTaps m_spectrumTaps;
 
     bool m_shouldSyncParameters { false };
     bool m_shouldUpdateBuffers { false };

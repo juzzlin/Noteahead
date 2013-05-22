@@ -59,6 +59,8 @@ Eq32BandGraphical::Eq32BandGraphical()
     addParameter(Parameter { C::xmlKeyGain().toStdString(), 0.5f, -1200, 1200, 0, 100, Parameter::Type::Continuous });
     // Off, which is also what a project from before the switch existed gets
     addParameter(Parameter { C::xmlKeyLinearPhase().toStdString(), 0.0f, 0, 1, 0, 1, Parameter::Type::Discrete });
+    // Off, which is also what a project from before the switch existed gets
+    addParameter(Parameter { C::xmlKeyAutoGain().toStdString(), 0.0f, 0, 1, 0, 1, Parameter::Type::Boolean });
     setParameterDisplay(C::xmlKeyGain().toStdString(), { .unit = "dB", .min = -MaxGainDb, .max = MaxGainDb, .rest = Display::Rest::Centre, .label = QT_TRANSLATE_NOOP("ParameterDisplay", "Output Gain") });
 
     syncParameters();
@@ -96,6 +98,7 @@ Eq32BandGraphical::Settings Eq32BandGraphical::settingsFromParameters() const
     settings.stereoMode = static_cast<StereoMode>(std::clamp(static_cast<int>(std::round(valueOf(C::xmlKeyStereoMode(), 0.0f))), 0, 2));
     settings.outputGain = std::pow(10.0, sliderGainDb(valueOf(C::xmlKeyGain(), 0.5f)) / 20.0);
     settings.linearPhase = valueOf(C::xmlKeyLinearPhase(), 0.0f) >= 0.5f;
+    settings.autoGain = valueOf(C::xmlKeyAutoGain(), 0.0f) >= 0.5f;
     return settings;
 }
 
@@ -109,6 +112,11 @@ void Eq32BandGraphical::syncParameters()
     }
     m_stereoMode = settings.stereoMode;
     m_outputGain = settings.outputGain;
+
+    // From the bands just configured, which are the ones the audio runs through
+    const double autoGainDb = settings.autoGain ? autoGainDbFor(m_paths.at(0)) : 0.0;
+    m_autoGain.setTargetDb(autoGainDb, m_sampleRate);
+    m_linearPhaseAutoGain = autoGainDb == 0.0 ? 1.0 : std::pow(10.0, autoGainDb / 20.0);
 
     if (settings.linearPhase) {
         if (!m_linearPhase) {
@@ -147,7 +155,7 @@ void Eq32BandGraphical::startLinearPhaseDesign()
     // latency, during which nothing but the kernel's faint pre-ringing reaches the output anyway,
     // and the convolution keeps no state of its own output, so the finished kernel takes over as
     // though it had been there from the start
-    m_fir.startDesign(sections, 1.0);
+    m_fir.startDesign(sections, m_linearPhaseAutoGain);
 }
 
 void Eq32BandGraphical::updateBuffers()
@@ -174,21 +182,23 @@ double Eq32BandGraphical::processPath(Bands & bands, double input)
 
 void Eq32BandGraphical::processFrame(double & left, double & right)
 {
+    // Only on the paths the bands shape: a path passed straight through has no level to make up
+    const double autoGain = m_autoGain.next();
     switch (m_stereoMode) {
     case StereoMode::Stereo:
         // Left and right through identical bands, which is the same as mid and side through them
         // and leaves a flat panel bit for bit transparent: the sum and difference would not.
-        left = processPath(m_paths.at(0), left);
-        right = processPath(m_paths.at(1), right);
+        left = processPath(m_paths.at(0), left) * autoGain;
+        right = processPath(m_paths.at(1), right) * autoGain;
         break;
     case StereoMode::Mid:
     case StereoMode::Side: {
         double mid = (left + right) * 0.5;
         double side = (left - right) * 0.5;
         if (m_stereoMode == StereoMode::Mid) {
-            mid = processPath(m_paths.at(0), mid);
+            mid = processPath(m_paths.at(0), mid) * autoGain;
         } else {
-            side = processPath(m_paths.at(1), side);
+            side = processPath(m_paths.at(1), side) * autoGain;
         }
         left = mid + side;
         right = mid - side;
@@ -277,6 +287,7 @@ void Eq32BandGraphical::reset()
     std::ranges::fill(m_bypassDelay, 0.0);
     m_firIsIdle = true;
     m_quietFrames = 0;
+    m_autoGain.reset();
 }
 
 bool Eq32BandGraphical::isSettled() const
@@ -321,7 +332,7 @@ std::vector<double> Eq32BandGraphical::magnitudesDbAt(std::span<const double> fr
     for (size_t i = 0; i < BandCount; i++) {
         bands.at(i).calculate(GraphicEqDesigner::centreFrequency(i), m_sampleRate, GraphicEqDesigner::bandQ(), settings.filterGainsDb.at(i));
     }
-    const double outputDb = 20.0 * std::log10(settings.outputGain);
+    const double outputDb = 20.0 * std::log10(settings.outputGain) + (settings.autoGain ? autoGainDbFor(bands) : 0.0);
 
     std::vector<double> result;
     result.reserve(frequencies.size());
@@ -338,6 +349,33 @@ std::vector<double> Eq32BandGraphical::magnitudesDbAt(std::span<const double> fr
 double Eq32BandGraphical::magnitudeDbAt(double frequency) const
 {
     return magnitudesDbAt(std::span { &frequency, 1 }).front();
+}
+
+double Eq32BandGraphical::autoGainDbFor(const Bands & bands) const
+{
+    AutoGain::Grid response {};
+    const auto frequencies = AutoGain::gridFrequencies(m_sampleRate);
+    for (size_t i = 0; i < AutoGain::GridSize; i++) {
+        double db = 0.0;
+        for (auto && band : bands) {
+            db += band.magnitudeDbAt(frequencies.at(i), m_sampleRate);
+        }
+        response.at(i) = db;
+    }
+    return AutoGain::compensationDb(response);
+}
+
+double Eq32BandGraphical::autoGainDb() const
+{
+    const auto settings = settingsFromParameters();
+    if (!settings.autoGain) {
+        return 0.0;
+    }
+    Bands bands;
+    for (size_t i = 0; i < BandCount; i++) {
+        bands.at(i).calculate(GraphicEqDesigner::centreFrequency(i), m_sampleRate, GraphicEqDesigner::bandQ(), settings.filterGainsDb.at(i));
+    }
+    return autoGainDbFor(bands);
 }
 
 const EffectPresetList & Eq32BandGraphical::factoryPresets() const

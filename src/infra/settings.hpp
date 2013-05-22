@@ -19,6 +19,7 @@
 #include "../common/audio_backend.hpp"
 
 #include <cstddef>
+#include <optional>
 
 #include <QColor>
 #include <QSize>
@@ -137,6 +138,12 @@ void setAccentColor(QColor accentColor);
 
 QColor cursorColor(QColor defaultCursorColor);
 void setCursorColor(QColor cursorColor);
+
+//! The equalizer spectrum colors, or nothing when they follow the accent color.
+std::optional<QColor> spectrumPostColor();
+void setSpectrumPostColor(std::optional<QColor> color);
+std::optional<QColor> spectrumPreColor();
+void setSpectrumPreColor(std::optional<QColor> color);
 
 int paletteAccentBlend(int defaultPaletteAccentBlend);
 void setPaletteAccentBlend(int paletteAccentBlend);

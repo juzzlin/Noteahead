@@ -35,10 +35,9 @@ constexpr double MaxFrequency = 20000.0;
 //! which is as many as fit in a corner of a dialog without the labels touching.
 constexpr double GridFrequencies[] { 100.0, 1000.0, 10000.0 };
 
-//! The spectrum's own scale, top to bottom of the plot. Independent of the curve's: a spectrum
-//! spans tens of dB where a curve spans a few either side of flat.
+//! The top of the spectrum's own scale, which reaches spectrumRange below it. Independent of the
+//! curve's: a spectrum spans tens of dB where a curve spans a few either side of flat.
 constexpr double SpectrumTopDb = 0.0;
-constexpr double SpectrumFloorDb = -90.0;
 
 //! Below this a band is too quiet for a difference to mean anything: both taps are reading the
 //! analyzer's floor, and what is left between them is noise.
@@ -106,6 +105,49 @@ void EqCurveRenderer::setAccentColor(const QColor & color)
     }
 }
 
+int EqCurveRenderer::spectrumRange() const
+{
+    return m_spectrumRange;
+}
+
+void EqCurveRenderer::setSpectrumRange(int range)
+{
+    range = std::max(range, 1);
+    if (m_spectrumRange != range) {
+        m_spectrumRange = range;
+        update();
+        emit spectrumRangeChanged();
+    }
+}
+
+QColor EqCurveRenderer::spectrumPostColor() const
+{
+    return m_spectrumPostColor;
+}
+
+void EqCurveRenderer::setSpectrumPostColor(const QColor & color)
+{
+    if (m_spectrumPostColor != color) {
+        m_spectrumPostColor = color;
+        update();
+        emit spectrumColorsChanged();
+    }
+}
+
+QColor EqCurveRenderer::spectrumPreColor() const
+{
+    return m_spectrumPreColor;
+}
+
+void EqCurveRenderer::setSpectrumPreColor(const QColor & color)
+{
+    if (m_spectrumPreColor != color) {
+        m_spectrumPreColor = color;
+        update();
+        emit spectrumColorsChanged();
+    }
+}
+
 int EqCurveRenderer::spectrumMode() const
 {
     return m_spectrumMode;
@@ -159,10 +201,11 @@ qreal EqCurveRenderer::bandCentreX(size_t band, const QRectF & plot) const
 
 QPainterPath EqCurveRenderer::spectrumPath(const std::vector<float> & levels, const QRectF & plot) const
 {
+    const double floorDb = SpectrumTopDb - static_cast<double>(m_spectrumRange);
     QPainterPath path;
     for (size_t i = 0; i < levels.size(); i++) {
-        const double db = std::clamp(static_cast<double>(levels.at(i)), SpectrumFloorDb, SpectrumTopDb);
-        const qreal y = plot.y() + plot.height() * (SpectrumTopDb - db) / (SpectrumTopDb - SpectrumFloorDb);
+        const double db = std::clamp(static_cast<double>(levels.at(i)), floorDb, SpectrumTopDb);
+        const qreal y = plot.y() + plot.height() * (SpectrumTopDb - db) / (SpectrumTopDb - floorDb);
         if (i == 0) {
             path.moveTo(bandCentreX(i, plot), y);
         } else {
@@ -187,13 +230,21 @@ void EqCurveRenderer::paintSpectrum(QPainter & painter, const QRectF & plot) con
         area.lineTo(bandCentreX(filled.size() - 1, plot), plot.bottom());
         area.lineTo(bandCentreX(0, plot), plot.bottom());
         area.closeSubpath();
-        painter.fillPath(area, QColor { 255, 255, 255, 28 });
-        painter.setPen(QPen { QColor { 255, 255, 255, 70 }, 1 });
+        // The color of whichever tap it is, so that Pre alone reads as the input it is
+        const QColor color = fillPre ? m_spectrumPreColor : m_spectrumPostColor;
+        QColor fill = color;
+        fill.setAlpha(40);
+        painter.fillPath(area, fill);
+        QColor outline = color;
+        outline.setAlpha(150);
+        painter.setPen(QPen { outline, 1 });
         painter.drawPath(line);
     }
 
     if (m_spectrumMode == SpectrumBoth && fits(m_preLevels)) {
-        QPen pen { QColor { 255, 200, 120, 140 }, 1 };
+        QColor color = m_spectrumPreColor;
+        color.setAlpha(200);
+        QPen pen { color, 1 };
         pen.setStyle(Qt::DotLine);
         painter.setPen(pen);
         painter.drawPath(spectrumPath(m_preLevels, plot));
@@ -225,7 +276,9 @@ void EqCurveRenderer::paintSpectrumDifference(QPainter & painter, const QRectF &
             drawing = true;
         }
     }
-    painter.setPen(QPen { QColor { 255, 200, 120, 200 }, 1.5 });
+    QColor color = m_spectrumPreColor;
+    color.setAlpha(230);
+    painter.setPen(QPen { color, 1.5 });
     painter.drawPath(path);
 }
 

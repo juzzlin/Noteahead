@@ -16,13 +16,17 @@
 #include "air_band_eq_test.hpp"
 
 #include "../../common/constants.hpp"
+#include "../../domain/dsp/svf_filter.hpp"
 #include "../../domain/effects/air_band_eq.hpp"
 
 #include <QTest>
 
 #include <algorithm>
+#include <array>
 #include <cmath>
+#include <memory>
 #include <numbers>
+#include <random>
 #include <vector>
 
 namespace noteahead {
@@ -64,10 +68,11 @@ void setBand(AirBandEq & effect, size_t bandIndex, float value)
     setParameter(effect, Constants::NahdXml::xmlKeyBandGain(bandIndex), value);
 }
 
-AirBandEq makeEq(double sampleRate = SampleRate)
+//! Owned, because the spectrum taps make an equalizer impossible to copy or move.
+std::unique_ptr<AirBandEq> makeEq(double sampleRate = SampleRate)
 {
-    AirBandEq effect;
-    effect.setSampleRate(sampleRate);
+    auto effect = std::make_unique<AirBandEq>();
+    effect->setSampleRate(sampleRate);
     return effect;
 }
 
@@ -110,11 +115,81 @@ void setAllBands(AirBandEq & effect, float value)
     }
 }
 
+//! Output over input level, in dB, of four seconds of pink noise through @p effect. The first
+//! second is left out, for the filters and the gain ramp to settle. The noise is cut below 20 Hz,
+//! where auto gain does not look: the generator puts another octave there, and a low shelf would
+//! lift it.
+double pinkNoiseGainDb(Effect & effect)
+{
+    effect.reset();
+    std::mt19937 generator { 1234 };
+    std::uniform_real_distribution<double> white { -1.0, 1.0 };
+    // Paul Kellet's refined filter: within a fraction of a decibel of -3 dB/octave over the band
+    std::array<double, 7> b {};
+    // A 24 dB/oct Butterworth
+    SvfFilter lowCut1;
+    SvfFilter lowCut2;
+    lowCut1.calculateLowCut(20.0, SampleRate, 0.5412);
+    lowCut2.calculateLowCut(20.0, SampleRate, 1.3066);
+    double inputPower = 0.0;
+    double outputPower = 0.0;
+    const auto frames = static_cast<size_t>(SampleRate * 4.0);
+    for (size_t i = 0; i < frames; i++) {
+        const double w = white(generator);
+        b[0] = 0.99886 * b[0] + w * 0.0555179;
+        b[1] = 0.99332 * b[1] + w * 0.0750759;
+        b[2] = 0.96900 * b[2] + w * 0.1538520;
+        b[3] = 0.86650 * b[3] + w * 0.3104856;
+        b[4] = 0.55000 * b[4] + w * 0.5329522;
+        b[5] = -0.7616 * b[5] - w * 0.0168980;
+        const double pink = lowCut2.process(lowCut1.process((b[0] + b[1] + b[2] + b[3] + b[4] + b[5] + b[6] + w * 0.5362) * 0.1));
+        b[6] = w * 0.115926;
+        double left = pink;
+        double right = pink;
+        effect.process(left, right);
+        if (i >= frames / 4) {
+            inputPower += pink * pink;
+            outputPower += left * left;
+        }
+    }
+    return 10.0 * std::log10(outputPower / inputPower);
+}
+
+//! Whether @p toggled, with auto gain switched on and back off, comes out bit for bit as
+//! @p reference, which never had it. Both are set up alike by the caller.
+template<typename Eq>
+void verifyAutoGainOffLeavesOutputUnchanged(Eq & reference, Eq & toggled)
+{
+    const auto run = [&](int frames, bool compare) {
+        for (int i = 0; i < frames; i++) {
+            const double input = std::sin(static_cast<double>(i) * 0.05);
+            double referenceLeft = input;
+            double referenceRight = -input * 0.5;
+            double toggledLeft = referenceLeft;
+            double toggledRight = referenceRight;
+            reference.process(referenceLeft, referenceRight);
+            toggled.process(toggledLeft, toggledRight);
+            if (compare) {
+                QVERIFY(toggledLeft == referenceLeft);
+                QVERIFY(toggledRight == referenceRight);
+            }
+        }
+    };
+    setParameter(toggled, Constants::NahdXml::xmlKeyAutoGain(), 1.0f);
+    run(4410, false);
+    setParameter(toggled, Constants::NahdXml::xmlKeyAutoGain(), 0.0f);
+    QCOMPARE(toggled.autoGainDb(), 0.0);
+    // Past the ramp back
+    run(882, false);
+    run(4410, true);
+}
+
 } // namespace
 
 void AirBandEqTest::test_neutral_defaults_shouldPassThrough()
 {
-    auto effect = makeEq();
+    const auto effectOwner = makeEq();
+    auto & effect = *effectOwner;
     // Freshly constructed: every band knob is centred and AIR GAIN is at zero, so the parallel taps
     // contribute nothing and the dry path emerges untouched.
     for (double input = -0.8; input <= 0.8; input += 0.2) {
@@ -128,7 +203,8 @@ void AirBandEqTest::test_neutral_defaults_shouldPassThrough()
 
 void AirBandEqTest::test_bandPass_boosted_shouldAmplifyCenterFrequency()
 {
-    auto effect = makeEq();
+    const auto effectOwner = makeEq();
+    auto & effect = *effectOwner;
     setBand(effect, Band160Hz, 0.8f);
 
     QVERIFY(measureGainDb(effect, 160.0) > 3.0);
@@ -136,7 +212,8 @@ void AirBandEqTest::test_bandPass_boosted_shouldAmplifyCenterFrequency()
 
 void AirBandEqTest::test_bandPass_cut_shouldAttenuateCenterFrequency()
 {
-    auto effect = makeEq();
+    const auto effectOwner = makeEq();
+    auto & effect = *effectOwner;
     setBand(effect, Band160Hz, 0.2f);
 
     QVERIFY(measureGainDb(effect, 160.0) < -1.0);
@@ -144,7 +221,8 @@ void AirBandEqTest::test_bandPass_cut_shouldAttenuateCenterFrequency()
 
 void AirBandEqTest::test_bandPass_fullBoost_shouldReachDocumentedMaximum()
 {
-    auto effect = makeEq();
+    const auto effectOwner = makeEq();
+    auto & effect = *effectOwner;
     setBand(effect, Band40Hz, BandFullBoost);
 
     // At the band centre the tap is in phase with the dry path and peaks at unity, so the summed
@@ -154,7 +232,8 @@ void AirBandEqTest::test_bandPass_fullBoost_shouldReachDocumentedMaximum()
 
 void AirBandEqTest::test_bandPass_fullCut_shouldStopAtDocumentedMinimum()
 {
-    auto effect = makeEq();
+    const auto effectOwner = makeEq();
+    auto & effect = *effectOwner;
     setBand(effect, Band40Hz, BandFullCut);
 
     // The asymmetry is structural rather than a styling choice: a tap subtracted from the dry path
@@ -164,7 +243,8 @@ void AirBandEqTest::test_bandPass_fullCut_shouldStopAtDocumentedMinimum()
 
 void AirBandEqTest::test_bandPass_topBandBoosted_shouldFallAwayAboveItsCentre()
 {
-    auto effect = makeEq();
+    const auto effectOwner = makeEq();
+    auto & effect = *effectOwner;
     setBand(effect, Band2500Hz, BandFullBoost);
 
     // The topmost band pass is a bell like the other four, not a shelf: the panel gives all five one
@@ -181,14 +261,18 @@ void AirBandEqTest::test_bandPasses_loweredTogether_shouldPreserveCurveShape()
 {
     const std::vector<double> probeFrequencies { 40.0, 160.0, 650.0, 2500.0 };
 
-    auto boosted = makeEq();
+    const auto boostedOwner = makeEq();
+
+    auto & boosted = *boostedOwner;
     setAllBands(boosted, 0.9f);
     std::vector<double> boostedGains;
     for (const auto frequency : probeFrequencies) {
         boostedGains.push_back(measureGainDb(boosted, frequency));
     }
 
-    auto lowered = makeEq();
+    const auto loweredOwner = makeEq();
+
+    auto & lowered = *loweredOwner;
     setAllBands(lowered, 0.7f);
     std::vector<double> loweredGains;
     for (const auto frequency : probeFrequencies) {
@@ -210,7 +294,8 @@ void AirBandEqTest::test_bandPasses_loweredTogether_shouldPreserveCurveShape()
 
 void AirBandEqTest::test_airBand_boosted_shouldAmplifyHighFrequencies()
 {
-    auto effect = makeEq();
+    const auto effectOwner = makeEq();
+    auto & effect = *effectOwner;
     setParameter(effect, Constants::NahdXml::xmlKeyAirFreq(), Air10kHz);
     setParameter(effect, Constants::NahdXml::xmlKeyAirGain(), 1.0f);
 
@@ -219,7 +304,8 @@ void AirBandEqTest::test_airBand_boosted_shouldAmplifyHighFrequencies()
 
 void AirBandEqTest::test_airBand_boosted_shouldRaiseOverallGain()
 {
-    auto effect = makeEq();
+    const auto effectOwner = makeEq();
+    auto & effect = *effectOwner;
     setParameter(effect, Constants::NahdXml::xmlKeyAirFreq(), Air10kHz);
 
     const auto quiet = measureGainDb(effect, 1000.0);
@@ -233,7 +319,8 @@ void AirBandEqTest::test_airBand_boosted_shouldRaiseOverallGain()
 
 void AirBandEqTest::test_airBand_off_shouldPassThrough()
 {
-    auto effect = makeEq();
+    const auto effectOwner = makeEq();
+    auto & effect = *effectOwner;
     setParameter(effect, Constants::NahdXml::xmlKeyAirFreq(), AirOff);
     setParameter(effect, Constants::NahdXml::xmlKeyAirGain(), 1.0f);
 
@@ -243,7 +330,8 @@ void AirBandEqTest::test_airBand_off_shouldPassThrough()
 
 void AirBandEqTest::test_airBand_skirt_shouldReachBelowSelectedCorner()
 {
-    auto effect = makeEq();
+    const auto effectOwner = makeEq();
+    auto & effect = *effectOwner;
     setParameter(effect, Constants::NahdXml::xmlKeyAirFreq(), Air10kHz);
     setParameter(effect, Constants::NahdXml::xmlKeyAirGain(), 0.5f);
 
@@ -266,7 +354,8 @@ void AirBandEqTest::test_airBand_risingFrequency_shouldReduceAudibleLift()
 
     std::vector<double> gains;
     for (const auto selector : selectors) {
-        auto effect = makeEq();
+        const auto effectOwner = makeEq();
+        auto & effect = *effectOwner;
         setParameter(effect, Constants::NahdXml::xmlKeyAirFreq(), selector);
         setParameter(effect, Constants::NahdXml::xmlKeyAirGain(), 1.0f);
         gains.push_back(measureGainDb(effect, 8000.0));
@@ -282,7 +371,8 @@ void AirBandEqTest::test_airBand_risingFrequency_shouldReduceAudibleLift()
 
 void AirBandEqTest::test_airBand_fortyKilohertz_shouldStayStableAtBaseRate()
 {
-    auto effect = makeEq();
+    const auto effectOwner = makeEq();
+    auto & effect = *effectOwner;
     setParameter(effect, Constants::NahdXml::xmlKeyAirFreq(), Air40kHz);
     setParameter(effect, Constants::NahdXml::xmlKeyAirGain(), 1.0f);
 
@@ -297,7 +387,8 @@ void AirBandEqTest::test_airBand_fortyKilohertz_shouldStayStableAtBaseRate()
 
     // At 96 kHz the corner is representable, so the same setting must brighten more than it can at
     // 44.1 kHz, where it is clamped and scaled back.
-    auto highRateEffect = makeEq(HighSampleRate);
+    const auto highRateEffectOwner = makeEq(HighSampleRate);
+    auto & highRateEffect = *highRateEffectOwner;
     setParameter(highRateEffect, Constants::NahdXml::xmlKeyAirFreq(), Air40kHz);
     setParameter(highRateEffect, Constants::NahdXml::xmlKeyAirGain(), 1.0f);
     QVERIFY(std::isfinite(measureGainDb(highRateEffect, 15000.0, HighSampleRate)));
@@ -305,7 +396,8 @@ void AirBandEqTest::test_airBand_fortyKilohertz_shouldStayStableAtBaseRate()
 
 void AirBandEqTest::test_outputGain_boosted_shouldScaleOutput()
 {
-    auto effect = makeEq();
+    const auto effectOwner = makeEq();
+    auto & effect = *effectOwner;
     const auto flat = measureGainDb(effect, 1000.0);
     QVERIFY(std::abs(flat) < 0.01);
 
@@ -337,7 +429,8 @@ void verifyCurveMatchesWhatIsHeard(AirBandEq & effect, double tolerance)
 
 void AirBandEqTest::test_magnitudeDb_defaults_shouldBeFlat()
 {
-    auto effect = makeEq();
+    const auto effectOwner = makeEq();
+    auto & effect = *effectOwner;
 
     for (auto && frequency : CurveFrequencies) {
         QVERIFY2(std::abs(effect.magnitudeDbAt(frequency)) < 0.01,
@@ -347,7 +440,8 @@ void AirBandEqTest::test_magnitudeDb_defaults_shouldBeFlat()
 
 void AirBandEqTest::test_magnitudeDb_bandBoosted_shouldMatchWhatIsHeard()
 {
-    auto effect = makeEq();
+    const auto effectOwner = makeEq();
+    auto & effect = *effectOwner;
     setBand(effect, Band650Hz, 0.6f); // +3 dB at the centre
 
     verifyCurveMatchesWhatIsHeard(effect, 0.15);
@@ -357,7 +451,8 @@ void AirBandEqTest::test_magnitudeDb_bandsOverlapping_shouldMatchWhatIsHeard()
 {
     // The bells sit two octaves apart at a Q that leaves them overlapping, so several at once is the
     // case where a sum of magnitudes drifts furthest: every tap's error adds in the same direction.
-    auto effect = makeEq();
+    const auto effectOwner = makeEq();
+    auto & effect = *effectOwner;
     setBand(effect, Band160Hz, 0.7f);
     setBand(effect, Band650Hz, 0.8f);
     setBand(effect, Band2500Hz, BandFullCut);
@@ -367,7 +462,8 @@ void AirBandEqTest::test_magnitudeDb_bandsOverlapping_shouldMatchWhatIsHeard()
 
 void AirBandEqTest::test_magnitudeDb_airBandBoosted_shouldMatchWhatIsHeard()
 {
-    auto effect = makeEq();
+    const auto effectOwner = makeEq();
+    auto & effect = *effectOwner;
     setParameter(effect, Constants::NahdXml::xmlKeyAirFreq(), Air10kHz);
     setParameter(effect, Constants::NahdXml::xmlKeyAirGain(), 0.5f);
 
@@ -379,11 +475,60 @@ void AirBandEqTest::test_magnitudeDb_outputGainBoosted_shouldIncludeTheTrim()
     // The trim is part of what is heard, and pulling the band knobs down to offset the air band is
     // the move the hardware prescribes: a curve that hid the trim would show that as an uncompensated
     // cut.
-    auto effect = makeEq();
+    const auto effectOwner = makeEq();
+    auto & effect = *effectOwner;
     setBand(effect, Band650Hz, 0.6f);
     setParameter(effect, Constants::NahdXml::xmlKeyGain(), 0.75f); // +6 dB
 
     verifyCurveMatchesWhatIsHeard(effect, 0.15);
+}
+
+namespace {
+
+void boostBandsAndAir(AirBandEq & effect)
+{
+    setBand(effect, Band160Hz, 0.8f);
+    setBand(effect, Band650Hz, 0.7f);
+    setParameter(effect, Constants::NahdXml::xmlKeyAirFreq(), Air5kHz);
+    setParameter(effect, Constants::NahdXml::xmlKeyAirGain(), 0.6f);
+}
+
+} // namespace
+
+void AirBandEqTest::test_autoGain_boosted_shouldLevelPinkNoise()
+{
+    const auto effectOwner = makeEq();
+    auto & effect = *effectOwner;
+    boostBandsAndAir(effect);
+    const double uncompensated = pinkNoiseGainDb(effect);
+    QVERIFY2(uncompensated > 4.0, qPrintable(QString::number(uncompensated)));
+
+    setParameter(effect, Constants::NahdXml::xmlKeyAutoGain(), 1.0f);
+    QVERIFY(effect.autoGainDb() < -4.0);
+    const double compensated = pinkNoiseGainDb(effect);
+    QVERIFY2(std::abs(compensated) < 0.5, qPrintable(QString::number(compensated)));
+}
+
+void AirBandEqTest::test_autoGain_boosted_shouldMatchWhatIsHeard()
+{
+    // The curve includes auto gain, so it has to be heard there too
+    const auto effectOwner = makeEq();
+    auto & effect = *effectOwner;
+    boostBandsAndAir(effect);
+    setParameter(effect, Constants::NahdXml::xmlKeyAutoGain(), 1.0f);
+
+    verifyCurveMatchesWhatIsHeard(effect, 0.15);
+}
+
+void AirBandEqTest::test_autoGain_off_shouldLeaveOutputUnchanged()
+{
+    const auto referenceOwner = makeEq();
+    auto & reference = *referenceOwner;
+    const auto toggledOwner = makeEq();
+    auto & toggled = *toggledOwner;
+    boostBandsAndAir(reference);
+    boostBandsAndAir(toggled);
+    verifyAutoGainOffLeavesOutputUnchanged(reference, toggled);
 }
 
 } // namespace noteahead

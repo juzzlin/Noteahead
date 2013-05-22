@@ -182,6 +182,36 @@ SectionBox {
                 }
             }
         }
+
+        // The live spectrum behind the equalizer curves. Until a color is picked both follow the
+        // accent, turned round the hue circle so they stand apart from a curve drawn in it.
+        SectionBox {
+            title: qsTr("EQ Spectrum")
+            Layout.fillWidth: true
+
+            RowLayout {
+                spacing: 10
+                anchors.left: parent.left
+                anchors.right: parent.right
+
+                SpectrumColorCell {
+                    label: qsTr("Post:")
+                    swatchColor: themeService.spectrumPostColor
+                    onClicked: spectrumPostColorDialog.open()
+                }
+                SpectrumColorCell {
+                    label: qsTr("Pre:")
+                    swatchColor: themeService.spectrumPreColor
+                    onClicked: spectrumPreColorDialog.open()
+                }
+                AppButton {
+                    text: qsTr("From Accent")
+                    toolTipText: qsTr("Derive both spectrum colors from the accent color again")
+                    enabled: !themeService.spectrumColorsFollowAccent
+                    onClicked: themeService.resetSpectrumColors()
+                }
+            }
+        }
     }
 
     ColorDialog {
@@ -190,6 +220,55 @@ SectionBox {
         selectedColor: themeService.accentColor
         onAccepted: {
             themeService.accentColor = selectedColor
+        }
+    }
+
+    ColorDialog {
+        id: spectrumPostColorDialog
+        title: qsTr("Select Spectrum Post Color")
+        selectedColor: themeService.spectrumPostColor
+        onAccepted: {
+            themeService.spectrumPostColor = selectedColor
+        }
+    }
+
+    ColorDialog {
+        id: spectrumPreColorDialog
+        title: qsTr("Select Spectrum Pre Color")
+        selectedColor: themeService.spectrumPreColor
+        onAccepted: {
+            themeService.spectrumPreColor = selectedColor
+        }
+    }
+
+    // A label and a swatch that opens a color dialog, laid out like the Colors group's cells
+    component SpectrumColorCell: Item {
+        id: cell
+        property alias label: cellLabel.text
+        property alias swatchColor: swatch.color
+        signal clicked
+        Layout.fillWidth: true
+        Layout.preferredWidth: 0
+        implicitHeight: Math.max(cellLabel.implicitHeight, swatch.height)
+        Label {
+            id: cellLabel
+            color: themeService.mainMenuTextColor
+            anchors.left: parent.left
+            anchors.verticalCenter: parent.verticalCenter
+        }
+        Rectangle {
+            id: swatch
+            width: 40
+            height: 20
+            border.color: themeService.mainMenuTextColor
+            border.width: 1
+            anchors.horizontalCenter: parent.horizontalCenter
+            anchors.verticalCenter: parent.verticalCenter
+            MouseArea {
+                anchors.fill: parent
+                cursorShape: Qt.PointingHandCursor
+                onClicked: cell.clicked()
+            }
         }
     }
 

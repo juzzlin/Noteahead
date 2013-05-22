@@ -50,35 +50,42 @@ EffectDialog {
         anchors.margins: 20
         spacing: 20
 
-        EffectPresetRow {
-            effectIndex: root.effectIndex
+        // The stereo mode shares the preset row, which leaves the column beside the curve to what
+        // is read against the curve
+        RowLayout {
+            spacing: 15
+            Layout.fillWidth: true
+
+            EffectPresetRow {
+                effectIndex: root.effectIndex
+            }
+            Label {
+                text: qsTr("Stereo Mode")
+                font.bold: true
+            }
+            ComboBox {
+                id: stereoModeCombo
+                implicitWidth: 160
+                model: [qsTr("Mid + Side"), qsTr("Mid"), qsTr("Side")]
+                currentIndex: {
+                    effectRackController.revision;
+                    return effectRackController.parameterValue(root.effectIndex, effectRackController.eq8BandParametricStereoModeKey());
+                }
+                onActivated: index => effectRackController.setParameterValue(root.effectIndex, effectRackController.eq8BandParametricStereoModeKey(), index)
+            }
         }
 
         RowLayout {
             spacing: 15
             Layout.fillWidth: true
 
-            // Stacked, so that the spectrum mode costs the curve no width
-            GridLayout {
-                columns: 2
-                rowSpacing: 10
-                columnSpacing: 15
+            // Stacked, so that the spectrum controls cost the curve no width. Not filling, which a
+            // layout otherwise does by default, so that the spare width goes to the curve
+            ColumnLayout {
+                spacing: 10
                 Layout.alignment: Qt.AlignTop
+                Layout.fillWidth: false
 
-                Label {
-                    text: qsTr("Stereo Mode")
-                    font.bold: true
-                }
-                ComboBox {
-                    id: stereoModeCombo
-                    implicitWidth: 160
-                    model: [qsTr("Mid + Side"), qsTr("Mid"), qsTr("Side")]
-                    currentIndex: {
-                        effectRackController.revision;
-                        return effectRackController.parameterValue(root.effectIndex, effectRackController.eq8BandParametricStereoModeKey());
-                    }
-                    onActivated: index => effectRackController.setParameterValue(root.effectIndex, effectRackController.eq8BandParametricStereoModeKey(), index)
-                }
                 Label {
                     text: qsTr("Spectrum")
                     font.bold: true
@@ -87,10 +94,26 @@ EffectDialog {
                     effectIndex: root.effectIndex
                     renderer: curve
                     active: root.visible
-                    implicitWidth: 160
+                }
+                AutoGainSwitch {
+                    effectIndex: root.effectIndex
+                }
+                Knob {
+                    label: qsTr("Output")
+                    suffix: "dB"
+                    isInteger: false
+                    from: -12
+                    to: 12
+                    value: {
+                        effectRackController.revision;
+                        return effectRackController.parameterValue(root.effectIndex, effectRackController.eq8BandParametricOutputGainKey()) * 24 - 12;
+                    }
+                    onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.eq8BandParametricOutputGainKey(), (v + 12) / 24)
+                    Layout.fillWidth: false
+                    Layout.preferredWidth: Constants.standaloneKnobWidth
                 }
             }
-            EqCurveRenderer {
+            EqCurveView {
                 id: curve
                 // The response comes from the equalizer itself, which reads it off the filters it
                 // processes with, so the curve cannot drift from what is being heard. revision is
@@ -111,7 +134,11 @@ EffectDialog {
                 }
                 dbRange: 18
                 accentColor: themeService.accentColor
+                spectrumPostColor: themeService.spectrumPostColor
+                spectrumPreColor: themeService.spectrumPreColor
                 Layout.fillWidth: true
+                // As tall as the controls beside it, so the row is not taller than either
+                Layout.fillHeight: true
                 Layout.preferredHeight: 120
             }
         }

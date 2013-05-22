@@ -83,6 +83,11 @@ private slots:
     void test_eq8BandParametricEffect_midMode_shouldAffectMidOnly();
     void test_eq8BandParametricEffect_sideMode_shouldAffectSideOnly();
     void test_eq8BandParametricEffect_midSideMode_shouldAffectBothChannels();
+    void test_eq8BandParametricEffect_autoGain_shouldLevelPinkNoise();
+    void test_eq8BandParametricEffect_autoGain_shouldMatchWhatIsHeard();
+    void test_eq8BandParametricEffect_autoGainMidMode_shouldLeaveTheSideAlone();
+    void test_eq8BandParametricEffect_autoGainOff_shouldLeaveOutputUnchanged();
+    void test_eq8BandParametricEffect_outputGain_shouldScaleBothPaths();
     void test_clipperEffect_shouldClipSignal();
     void test_saturatorEffect_shouldShapeSignalPerMode();
     void test_saturatorEffect_shouldRespectMix();

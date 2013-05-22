@@ -64,6 +64,9 @@ QtObject {
     readonly property int lineNumberColumnWidth: 50
     readonly property int mainToolBarButtonSize: 32
     readonly property int defaultButtonWidth: 100
+    //! A knob on its own beside other controls, rather than in a row of knobs sharing the width.
+    //! A Knob is a layout, and a layout fills by default, so one that should not has to say so.
+    readonly property int standaloneKnobWidth: 160
     readonly property int toolTipDelay: 1000
     readonly property int toolTipTimeout: 5000
     readonly property int trackBorderWidth: 1

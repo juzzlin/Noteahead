@@ -130,6 +130,10 @@
         <source>Output</source>
         <translation>输出</translation>
     </message>
+    <message>
+        <source>Spectrum</source>
+        <translation>频谱</translation>
+    </message>
 </context>
 <context>
     <name>AllPassFilterDialog</name>
@@ -802,6 +806,17 @@
     <message>
         <source>Mix</source>
         <translation>混合</translation>
+    </message>
+</context>
+<context>
+    <name>AutoGainSwitch</name>
+    <message>
+        <source>Auto Gain</source>
+        <translation>自动增益</translation>
+    </message>
+    <message>
+        <source>Turn the output up or down by what the curve adds or takes away on average, so that comparing with the equalizer bypassed compares the tone, not the level</source>
+        <translation>按曲线平均增加或减少的量升高或降低输出，使与旁通均衡器的比较是在比较音色而不是电平</translation>
     </message>
 </context>
 <context>
@@ -2491,6 +2506,18 @@
         <translation type="unfinished">检测方式</translation>
     </message>
     <message>
+        <source>Spectrum</source>
+        <translation>频谱</translation>
+    </message>
+    <message>
+        <source>Both</source>
+        <translation>两者</translation>
+    </message>
+    <message>
+        <source>The live spectrum behind the curve: of the side chain, of this signal as it arrives, or both</source>
+        <translation>曲线后方的实时频谱：侧链的、此信号输入时的，或两者</translation>
+    </message>
+    <message>
         <source>What the detector hears, against the threshold in white. The band moves only while this is over the line.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3352,6 +3379,10 @@
         <translation>频谱</translation>
     </message>
     <message>
+        <source>Output</source>
+        <translation>输出</translation>
+    </message>
+    <message>
         <source>Band %1</source>
         <translation>Band %1</translation>
     </message>
@@ -3402,6 +3433,17 @@
     <message>
         <source>Slope</source>
         <translation>斜率</translation>
+    </message>
+</context>
+<context>
+    <name>EqCurveView</name>
+    <message>
+        <source>How far below full scale the spectrum reaches, in dB</source>
+        <translation>频谱在满刻度以下延伸的深度，单位 dB</translation>
+    </message>
+    <message>
+        <source>Spectrum Range</source>
+        <translation>频谱范围</translation>
     </message>
 </context>
 <context>
@@ -9619,8 +9661,36 @@ Audio files will appear next to the current project file.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>EQ Spectrum</source>
+        <translation>均衡器频谱</translation>
+    </message>
+    <message>
+        <source>Post:</source>
+        <translation>Post:</translation>
+    </message>
+    <message>
+        <source>Pre:</source>
+        <translation>Pre:</translation>
+    </message>
+    <message>
+        <source>From Accent</source>
+        <translation>取自强调色</translation>
+    </message>
+    <message>
+        <source>Derive both spectrum colors from the accent color again</source>
+        <translation>重新从强调色派生两种频谱颜色</translation>
+    </message>
+    <message>
         <source>Select Accent Color</source>
         <translation>选择强调色</translation>
+    </message>
+    <message>
+        <source>Select Spectrum Post Color</source>
+        <translation>选择频谱 Post 颜色</translation>
+    </message>
+    <message>
+        <source>Select Spectrum Pre Color</source>
+        <translation>选择频谱 Pre 颜色</translation>
     </message>
     <message>
         <source>Select Cursor Color</source>

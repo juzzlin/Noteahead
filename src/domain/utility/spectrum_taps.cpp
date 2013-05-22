@@ -120,6 +120,19 @@ void SpectrumTaps::processPost(const AudioContext & context)
     }
 }
 
+void SpectrumTaps::processPost(std::span<const double> stereo, uint32_t frameCount, uint32_t sampleRate)
+{
+    const auto core = runningCore(m_channels.at(index(Tap::Post)));
+    if (!core) {
+        return;
+    }
+    core->setSampleRate(sampleRate);
+    const bool present = stereo.size() >= static_cast<size_t>(frameCount) * 2;
+    for (uint32_t i = 0; i < frameCount; i++) {
+        core->addSample(present ? (stereo[i * 2] + stereo[i * 2 + 1]) * 0.5 : 0.0);
+    }
+}
+
 const RtaCore * SpectrumTaps::core(Tap tap) const
 {
     return m_channels.at(index(tap)).owner.get();

@@ -16,6 +16,7 @@
 #ifndef EQ_32_BAND_GRAPHICAL_HPP
 #define EQ_32_BAND_GRAPHICAL_HPP
 
+#include "../dsp/auto_gain.hpp"
 #include "../dsp/graphic_eq_designer.hpp"
 #include "../dsp/linear_phase_fir.hpp"
 #include "../dsp/matched_bell_filter.hpp"
@@ -83,6 +84,10 @@ public:
     std::vector<double> magnitudesDbAt(std::span<const double> frequencies) const;
     double magnitudeDbAt(double frequency) const;
 
+    //! What auto gain applies to the shaped paths, in dB, or 0 while it is off. Included in
+    //! magnitudesDbAt(), since it is part of what is heard.
+    double autoGainDb() const;
+
     //! The ISO nominal frequency @p band is labelled with, "31.5 Hz" or "1.25 kHz".
     static std::string nominalLabel(size_t band);
     //! A slider's gain in dB, from its parameter value.
@@ -97,9 +102,16 @@ private:
         StereoMode stereoMode { StereoMode::Stereo };
         double outputGain { 1.0 };
         bool linearPhase { false };
+        bool autoGain { false };
     };
 
     Settings settingsFromParameters() const;
+
+    //! The bands of one path through the equalizer.
+    using Bands = std::array<MatchedBellFilter, BandCount>;
+
+    //! The auto gain @p bands call for, in dB, whether or not it is switched on.
+    double autoGainDbFor(const Bands & bands) const;
 
     void updateBuffers();
     void syncParameters();
@@ -107,14 +119,18 @@ private:
     void processFrameLinearPhase(double & left, double & right);
     void startLinearPhaseDesign();
 
-    //! The bands of one path through the equalizer.
-    using Bands = std::array<MatchedBellFilter, BandCount>;
     static double processPath(Bands & bands, double input);
 
     //! Left and right in Stereo mode, mid and side otherwise.
     std::array<Bands, 2> m_paths;
     StereoMode m_stereoMode { StereoMode::Stereo };
     double m_outputGain { 1.0 };
+
+    //! Minimum phase only. Linear phase has it designed into the kernel instead, which keeps it in
+    //! time with the band changes the kernel brings in.
+    AutoGain m_autoGain;
+    //! The kernel's share of auto gain, as a linear factor.
+    double m_linearPhaseAutoGain { 1.0 };
 
     bool m_linearPhase { false };
     LinearPhaseFir m_fir;

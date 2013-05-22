@@ -34,6 +34,9 @@ private slots:
     void test_postMinusPre_eq32_boost_shouldMatchResponse();
     void test_postMinusPre_eq32LinearPhase_boost_shouldMatchResponse();
     void test_postMinusPre_eq32LinearPhase_afterSignalStops_shouldStayAligned();
+    void test_taps_dynamicEq_shouldShowSelfAndSideChain();
+    void test_isSettled_dynamicEq_whileEnabled_shouldBeFalse();
+    void test_postMinusPre_airBandEq_flat_shouldBeZero();
 };
 
 } // namespace noteahead

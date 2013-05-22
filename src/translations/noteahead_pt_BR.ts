@@ -130,6 +130,10 @@
         <source>Output</source>
         <translation>Saída</translation>
     </message>
+    <message>
+        <source>Spectrum</source>
+        <translation>Espectro</translation>
+    </message>
 </context>
 <context>
     <name>AllPassFilterDialog</name>
@@ -802,6 +806,17 @@
     <message>
         <source>Mix</source>
         <translation>Mistura</translation>
+    </message>
+</context>
+<context>
+    <name>AutoGainSwitch</name>
+    <message>
+        <source>Auto Gain</source>
+        <translation>Ganho automático</translation>
+    </message>
+    <message>
+        <source>Turn the output up or down by what the curve adds or takes away on average, so that comparing with the equalizer bypassed compares the tone, not the level</source>
+        <translation>Aumenta ou reduz a saída pelo que a curva acrescenta ou retira em média, para que comparar com o equalizador desativado compare o timbre, não o nível</translation>
     </message>
 </context>
 <context>
@@ -2492,6 +2507,18 @@
         <translation type="unfinished">Detector</translation>
     </message>
     <message>
+        <source>Spectrum</source>
+        <translation>Espectro</translation>
+    </message>
+    <message>
+        <source>Both</source>
+        <translation>Ambos</translation>
+    </message>
+    <message>
+        <source>The live spectrum behind the curve: of the side chain, of this signal as it arrives, or both</source>
+        <translation>O espectro ao vivo atrás da curva: do side chain, deste sinal como chega, ou ambos</translation>
+    </message>
+    <message>
         <source>What the detector hears, against the threshold in white. The band moves only while this is over the line.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3353,6 +3380,10 @@
         <translation>Espectro</translation>
     </message>
     <message>
+        <source>Output</source>
+        <translation>Saída</translation>
+    </message>
+    <message>
         <source>Band %1</source>
         <translation>Band %1</translation>
     </message>
@@ -3403,6 +3434,17 @@
     <message>
         <source>Slope</source>
         <translation>Inclinação</translation>
+    </message>
+</context>
+<context>
+    <name>EqCurveView</name>
+    <message>
+        <source>How far below full scale the spectrum reaches, in dB</source>
+        <translation>Até onde o espectro vai abaixo da escala cheia, em dB</translation>
+    </message>
+    <message>
+        <source>Spectrum Range</source>
+        <translation>Faixa do espectro</translation>
     </message>
 </context>
 <context>
@@ -9621,8 +9663,36 @@ Os arquivos de áudio aparecerão ao lado do arquivo do projeto atual.</translat
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>EQ Spectrum</source>
+        <translation>Espectro do EQ</translation>
+    </message>
+    <message>
+        <source>Post:</source>
+        <translation>Post:</translation>
+    </message>
+    <message>
+        <source>Pre:</source>
+        <translation>Pre:</translation>
+    </message>
+    <message>
+        <source>From Accent</source>
+        <translation>Do destaque</translation>
+    </message>
+    <message>
+        <source>Derive both spectrum colors from the accent color again</source>
+        <translation>Derivar novamente as duas cores do espectro da cor de destaque</translation>
+    </message>
+    <message>
         <source>Select Accent Color</source>
         <translation>Selecionar a cor de destaque</translation>
+    </message>
+    <message>
+        <source>Select Spectrum Post Color</source>
+        <translation>Selecionar cor Post do espectro</translation>
+    </message>
+    <message>
+        <source>Select Spectrum Pre Color</source>
+        <translation>Selecionar cor Pre do espectro</translation>
     </message>
     <message>
         <source>Select Cursor Color</source>

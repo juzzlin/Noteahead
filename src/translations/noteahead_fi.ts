@@ -130,6 +130,10 @@
         <source>Output</source>
         <translation>Ulostulo</translation>
     </message>
+    <message>
+        <source>Spectrum</source>
+        <translation>Spektri</translation>
+    </message>
 </context>
 <context>
     <name>AllPassFilterDialog</name>
@@ -802,6 +806,17 @@
     <message>
         <source>Mix</source>
         <translation>Mix</translation>
+    </message>
+</context>
+<context>
+    <name>AutoGainSwitch</name>
+    <message>
+        <source>Auto Gain</source>
+        <translation>Automaattinen vahvistus</translation>
+    </message>
+    <message>
+        <source>Turn the output up or down by what the curve adds or takes away on average, so that comparing with the equalizer bypassed compares the tone, not the level</source>
+        <translation>Nostaa tai laskee lähtöä sen verran kuin käyrä keskimäärin lisää tai vie, jotta vertailu ohitettuun taajuuskorjaimeen vertaa sävyä eikä voimakkuutta</translation>
     </message>
 </context>
 <context>
@@ -2492,6 +2507,18 @@
         <translation type="unfinished">Ilmaisin</translation>
     </message>
     <message>
+        <source>Spectrum</source>
+        <translation>Spektri</translation>
+    </message>
+    <message>
+        <source>Both</source>
+        <translation>Molemmat</translation>
+    </message>
+    <message>
+        <source>The live spectrum behind the curve: of the side chain, of this signal as it arrives, or both</source>
+        <translation>Elävä spektri käyrän takana: sivuketjun, tämän signaalin sellaisenaan, tai molempien</translation>
+    </message>
+    <message>
         <source>What the detector hears, against the threshold in white. The band moves only while this is over the line.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3353,6 +3380,10 @@
         <translation>Spektri</translation>
     </message>
     <message>
+        <source>Output</source>
+        <translation>Ulostulo</translation>
+    </message>
+    <message>
         <source>Band %1</source>
         <translation>Band %1</translation>
     </message>
@@ -3403,6 +3434,17 @@
     <message>
         <source>Slope</source>
         <translation>Jyrkkyys</translation>
+    </message>
+</context>
+<context>
+    <name>EqCurveView</name>
+    <message>
+        <source>How far below full scale the spectrum reaches, in dB</source>
+        <translation>Kuinka syvälle täydestä tasosta spektri ulottuu, dB</translation>
+    </message>
+    <message>
+        <source>Spectrum Range</source>
+        <translation>Spektrin alue</translation>
     </message>
 </context>
 <context>
@@ -9621,8 +9663,36 @@ Audio files will appear next to the current project file.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>EQ Spectrum</source>
+        <translation>EQ-spektri</translation>
+    </message>
+    <message>
+        <source>Post:</source>
+        <translation>Post:</translation>
+    </message>
+    <message>
+        <source>Pre:</source>
+        <translation>Pre:</translation>
+    </message>
+    <message>
+        <source>From Accent</source>
+        <translation>Korostusväristä</translation>
+    </message>
+    <message>
+        <source>Derive both spectrum colors from the accent color again</source>
+        <translation>Johda molemmat spektrin värit taas korostusväristä</translation>
+    </message>
+    <message>
         <source>Select Accent Color</source>
         <translation>Valitse korostusväri</translation>
+    </message>
+    <message>
+        <source>Select Spectrum Post Color</source>
+        <translation>Valitse spektrin Post-väri</translation>
+    </message>
+    <message>
+        <source>Select Spectrum Pre Color</source>
+        <translation>Valitse spektrin Pre-väri</translation>
     </message>
     <message>
         <source>Select Cursor Color</source>

@@ -50,7 +50,8 @@ EffectDialog {
             // The taps are summed with the dry path rather than cascaded, so what a knob does to
             // the curve is not the dB on its label: the skirts follow the phase each tap meets the
             // dry signal at. Reading it off the equalizer is the only way to show that honestly.
-            EqCurveRenderer {
+            EqCurveView {
+                id: curve
                 response: {
                     effectRackController.revision;
                     // One point per couple of pixels, so the curve stays smooth at whatever width
@@ -63,6 +64,8 @@ EffectDialog {
                 // for are a couple of decibels, and they vanish on a scale built for the extremes.
                 dbRange: 18
                 accentColor: themeService.accentColor
+                spectrumPostColor: themeService.spectrumPostColor
+                spectrumPreColor: themeService.spectrumPreColor
                 Layout.fillWidth: true
                 Layout.preferredHeight: 140
                 Layout.minimumHeight: 100
@@ -166,6 +169,27 @@ EffectDialog {
                         }
                         onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.airBandEqOutputGainKey(), (v + 12) / 24)
                     }
+                }
+            }
+
+            RowLayout {
+                spacing: 15
+                Layout.fillWidth: true
+
+                AutoGainSwitch {
+                    effectIndex: root.effectIndex
+                }
+                Label {
+                    text: qsTr("Spectrum")
+                    font.bold: true
+                }
+                SpectrumModeComboBox {
+                    effectIndex: root.effectIndex
+                    renderer: curve
+                    active: root.visible
+                }
+                Item {
+                    Layout.fillWidth: true
                 }
             }
         }

@@ -105,6 +105,7 @@ private slots:
     void test_toXmlFromXml_vintagePassiveEqEffect_shouldLoadCorrectly();
     void test_toXmlFromXml_airBandEqEffect_shouldLoadCorrectly();
     void test_toXmlFromXml_eq32BandGraphicalEffect_shouldLoadCorrectly();
+    void test_toXmlFromXml_eqAutoGain_shouldLoadCorrectly();
     void test_toXmlFromXml_phaseScopeEffect_shouldLoadCorrectly();
     void test_toXmlFromXml_dynamicEqEffect_shouldLoadCorrectly();
     void test_toXmlFromXml_ambienceEffect_shouldLoadCorrectly();

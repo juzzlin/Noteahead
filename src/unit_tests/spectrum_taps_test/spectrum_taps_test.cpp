@@ -17,6 +17,8 @@
 
 #include "../../common/constants.hpp"
 #include "../../domain/dsp/audio_context.hpp"
+#include "../../domain/effects/air_band_eq.hpp"
+#include "../../domain/effects/dynamic_eq.hpp"
 #include "../../domain/effects/eq_32_band_graphical.hpp"
 #include "../../domain/effects/eq_8_band_parametric.hpp"
 #include "../../domain/utility/rta_core.hpp"
@@ -24,6 +26,7 @@
 
 #include <QTest>
 
+#include <algorithm>
 #include <cmath>
 #include <memory>
 #include <random>
@@ -202,6 +205,59 @@ void SpectrumTapsTest::test_postMinusPre_eq32LinearPhase_afterSignalStops_should
         const auto difference = postMinusPreDb(eq->spectrumTaps(), frequency);
         QVERIFY2(std::abs(difference) < 0.1, qPrintable(QString::number(frequency) + " Hz: " + QString::number(difference)));
     }
+}
+
+void SpectrumTapsTest::test_taps_dynamicEq_shouldShowSelfAndSideChain()
+{
+    // Pre is the signal the band moves, Post the side chain that moves it: a silent track keyed by
+    // a 1 kHz tone shows the tone on Post only
+    DynamicEq eq;
+    eq.setSampleRate(SampleRate);
+    setParameter(eq, Constants::NahdXml::xmlKeySideChainSourceDevice(), 0.0f);
+    eq.spectrumTaps().setEnabled(true, true);
+
+    std::vector<double> self(BlockFrames * 2);
+    std::vector<double> sideChain(BlockFrames * 2);
+    const std::vector<std::span<const double>> devices { std::span<const double> { sideChain } };
+    size_t frame = 0;
+    for (size_t block = 0; block < static_cast<size_t>(SampleRate / BlockFrames); block++) {
+        std::ranges::fill(self, 0.0);
+        for (uint32_t i = 0; i < BlockFrames; i++, frame++) {
+            sideChain[i * 2] = sideChain[i * 2 + 1] = 0.5 * std::sin(2.0 * M_PI * 1000.0 * static_cast<double>(frame) / SampleRate);
+        }
+        AudioContext context { std::span(self.data(), self.size()), BlockFrames, static_cast<uint32_t>(SampleRate) };
+        context.deviceOutputBuffers = devices;
+        eq.process(context);
+    }
+
+    const auto pre = eq.spectrumTaps().core(Tap::Pre);
+    const auto post = eq.spectrumTaps().core(Tap::Post);
+    const auto band = bandAt(*post, 1000.0);
+    QVERIFY2(post->bandMagnitudesDb().at(band) > -30.0f, qPrintable(QString::number(post->bandMagnitudesDb().at(band))));
+    QVERIFY2(pre->bandMagnitudesDb().at(band) < -80.0f, qPrintable(QString::number(pre->bandMagnitudesDb().at(band))));
+}
+
+void SpectrumTapsTest::test_postMinusPre_airBandEq_flat_shouldBeZero()
+{
+    AirBandEq eq;
+    eq.setSampleRate(SampleRate);
+    QVERIFY(eq.isSettled());
+    eq.spectrumTaps().setEnabled(true, true);
+    QVERIFY(!eq.isSettled());
+    feed(eq, 1.0);
+    for (const double hz : { 100.0, 1000.0, 10000.0 }) {
+        QVERIFY(std::abs(postMinusPreDb(eq.spectrumTaps(), hz)) < 0.01);
+    }
+}
+
+void SpectrumTapsTest::test_isSettled_dynamicEq_whileEnabled_shouldBeFalse()
+{
+    DynamicEq eq;
+    QVERIFY(eq.isSettled());
+    eq.spectrumTaps().setEnabled(false, true);
+    QVERIFY(!eq.isSettled());
+    eq.spectrumTaps().setEnabled(false, false);
+    QVERIFY(eq.isSettled());
 }
 
 } // namespace noteahead

@@ -33,6 +33,8 @@ private slots:
     void test_lowFrequencySelector_higherCorner_shouldBoostWiderRange();
     void test_bandwidth_broader_shouldBoostWiderSkirt();
     void test_lowSection_boostAndAtten_shouldInteract();
+    void test_autoGain_boosted_shouldLevelPinkNoise();
+    void test_autoGain_off_shouldLeaveOutputUnchanged();
 };
 
 } // namespace noteahead

@@ -48,14 +48,14 @@ EffectDialog {
         anchors.margins: 20
         spacing: 15
 
-        EffectPresetRow {
-            effectIndex: root.effectIndex
-        }
-
+        // The stereo mode shares the preset row, so that the row below has room for the rest
         RowLayout {
             spacing: 15
             Layout.fillWidth: true
 
+            EffectPresetRow {
+                effectIndex: root.effectIndex
+            }
             Label {
                 text: qsTr("Stereo Mode")
                 font.bold: true
@@ -69,7 +69,14 @@ EffectDialog {
                 }
                 onActivated: index => effectRackController.setParameterValue(root.effectIndex, effectRackController.eq32BandGraphicalStereoModeKey(), index)
             }
-            CheckBox {
+        }
+
+        RowLayout {
+            spacing: 15
+            Layout.fillWidth: true
+
+            // A switch like Auto Gain beside it, so the two read as the same kind of control
+            Switch {
                 text: qsTr("Linear Phase")
                 checked: {
                     effectRackController.revision;
@@ -81,6 +88,9 @@ EffectDialog {
                 ToolTip.visible: hovered
                 // The same curve either way; what changes is the phase, and the price of it is time
                 ToolTip.text: qsTr("Shape the sound without shifting the phase of any frequency against the others, at the cost of delaying the output by %1 ms. Nothing makes up for that delay while playing, so use it on the master, where the whole mix is late together; a rendered file is put back in time.").arg(Math.round(effectRackController.eq32BandGraphicalLinearPhaseLatencyMs(root.effectIndex)))
+            }
+            AutoGainSwitch {
+                effectIndex: root.effectIndex
             }
             AppButton {
                 text: qsTr("Flat")
@@ -110,11 +120,13 @@ EffectDialog {
                     return root.sliderDb(effectRackController.parameterValue(root.effectIndex, effectRackController.eq32BandGraphicalOutputGainKey()));
                 }
                 onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.eq32BandGraphicalOutputGainKey(), (v + 12) / 24)
-                Layout.preferredWidth: 220
+                // Right-aligned by the spacer before it, at the width a lone knob takes
+                Layout.fillWidth: false
+                Layout.preferredWidth: Constants.standaloneKnobWidth
             }
         }
 
-        EqCurveRenderer {
+        EqCurveView {
             id: curve
             // From the equalizer itself, so the curve is what is heard, the band interaction and the
             // output gain included
@@ -124,6 +136,8 @@ EffectDialog {
             }
             dbRange: 15
             accentColor: themeService.accentColor
+            spectrumPostColor: themeService.spectrumPostColor
+            spectrumPreColor: themeService.spectrumPreColor
             Layout.fillWidth: true
             Layout.preferredHeight: 120
             Layout.minimumHeight: 60

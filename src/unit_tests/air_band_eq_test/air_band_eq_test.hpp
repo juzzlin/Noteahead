@@ -44,6 +44,9 @@ private slots:
     void test_magnitudeDb_bandsOverlapping_shouldMatchWhatIsHeard();
     void test_magnitudeDb_airBandBoosted_shouldMatchWhatIsHeard();
     void test_magnitudeDb_outputGainBoosted_shouldIncludeTheTrim();
+    void test_autoGain_boosted_shouldLevelPinkNoise();
+    void test_autoGain_boosted_shouldMatchWhatIsHeard();
+    void test_autoGain_off_shouldLeaveOutputUnchanged();
 };
 
 } // namespace noteahead

@@ -97,6 +97,8 @@ AirBandEq::AirBandEq()
     addParameter(Parameter { C::xmlKeyAirFreq().toStdString(), 3.0f, 0, static_cast<int>(AirFreqs.size()) - 1, 3, 1, Parameter::Type::Discrete });
     addParameter(Parameter { C::xmlKeyAirGain().toStdString(), 0.0f, 0, 500, 0, 100, Parameter::Type::Continuous });
     addParameter(Parameter { C::xmlKeyGain().toStdString(), 0.5f, -1200, 1200, 0, 100, Parameter::Type::Continuous });
+    // Off, which is also what a project from before the switch existed gets
+    addParameter(Parameter { C::xmlKeyAutoGain().toStdString(), 0.0f, 0, 1, 0, 1, Parameter::Type::Boolean });
 
     syncParameters();
 }
@@ -119,9 +121,21 @@ void AirBandEq::processBlock(AudioContext & context)
 
     updateBuffers();
 
+    m_spectrumTaps.processPre(context);
     for (uint32_t i = 0; i < context.frameCount; i++) {
         processStereo(context.buffer[i * 2], context.buffer[i * 2 + 1]);
     }
+    m_spectrumTaps.processPost(context);
+}
+
+bool AirBandEq::isSettled() const
+{
+    return !m_spectrumTaps.isEnabled();
+}
+
+SpectrumTaps & AirBandEq::spectrumTaps()
+{
+    return m_spectrumTaps;
 }
 
 void AirBandEq::updateBuffers()
@@ -140,8 +154,9 @@ void AirBandEq::updateBuffers()
 
 void AirBandEq::processStereo(double & left, double & right)
 {
-    left = processChannel(left, m_channels[0]);
-    right = processChannel(right, m_channels[1]);
+    const double autoGain = m_autoGain.next();
+    left = processChannel(left, m_channels[0]) * autoGain;
+    right = processChannel(right, m_channels[1]) * autoGain;
 }
 
 double AirBandEq::processChannel(double input, ChannelState & state)
@@ -165,6 +180,7 @@ void AirBandEq::reset()
     for (auto & channel : m_channels) {
         channel.reset();
     }
+    m_autoGain.reset();
 }
 
 void AirBandEq::sync()
@@ -203,8 +219,17 @@ AirBandEq::TapSettings AirBandEq::tapSettingsFromParameters() const
     // Kept in sync even while OFF so that selecting a frequency does not click.
     settings.airCorner = airIndex == AirOffIndex ? AirFreqs[1] : airCorner;
     settings.outputGain = outputGainFactor(valueOf(C::xmlKeyGain()));
+    settings.autoGain = valueOf(C::xmlKeyAutoGain()) >= 0.5;
 
     return settings;
+}
+
+void AirBandEq::configureTaps(ChannelState & state, const TapSettings & settings) const
+{
+    for (size_t i = 0; i < BandCount; i++) {
+        state.bells[i].calculateBandPass(BellFreqs[i], m_sampleRate, BandQ);
+    }
+    state.air.calculate(settings.airCorner, m_sampleRate);
 }
 
 void AirBandEq::syncParameters()
@@ -216,41 +241,74 @@ void AirBandEq::syncParameters()
     m_outputGain = settings.outputGain;
 
     for (auto & channel : m_channels) {
-        for (size_t i = 0; i < BandCount; i++) {
-            channel.bells[i].calculateBandPass(BellFreqs[i], m_sampleRate, BandQ);
-        }
-        channel.air.calculate(settings.airCorner, m_sampleRate);
+        configureTaps(channel, settings);
     }
+
+    // From the taps just configured, which are the ones the audio runs through
+    m_autoGain.setTargetDb(settings.autoGain ? autoGainDbFor(m_channels[0], settings) : 0.0, m_sampleRate);
 }
 
-double AirBandEq::magnitudeDbAt(double frequency) const
+double AirBandEq::tapsDbAt(const ChannelState & state, const TapSettings & settings, double frequency) const
 {
-    const auto settings = tapSettingsFromParameters();
-
     // The dry path contributes unity at every frequency; the taps are added to it, exactly as
     // processChannel() adds them.
     std::complex<double> response { 1.0, 0.0 };
 
-    SvfFilter bell;
     for (size_t i = 0; i < BandCount; i++) {
-        bell.calculateBandPass(BellFreqs[i], m_sampleRate, BandQ);
-        response += settings.bandGains[i] * bell.responseAt(frequency, m_sampleRate);
+        response += settings.bandGains[i] * state.bells[i].responseAt(frequency, m_sampleRate);
     }
-
-    OnePoleFilter tap;
-    tap.calculate(settings.airCorner, m_sampleRate);
-    response += settings.airGain * tap.highPassResponseAt(frequency, m_sampleRate);
-
-    // The output trim is part of what is heard, so it belongs on the curve: pulling the band knobs
-    // down to offset the air band is the move the hardware prescribes, and a curve that hid the trim
-    // would show that move as a cut with no compensation.
-    const double magnitude = std::abs(response) * settings.outputGain;
+    response += settings.airGain * state.air.highPassResponseAt(frequency, m_sampleRate);
 
     // Floored for the same reason Eq8BandParametric::magnitudeDbAt() floors: cuts deep enough to
     // null the dry path have no decibel value to draw, and this reads as all the way off on any
     // scale a dialog would use.
     constexpr double floorMagnitude = 1.0e-6;
-    return 20.0 * std::log10(std::max(floorMagnitude, magnitude));
+    return 20.0 * std::log10(std::max(floorMagnitude, std::abs(response)));
+}
+
+double AirBandEq::autoGainDbFor(const ChannelState & state, const TapSettings & settings) const
+{
+    AutoGain::Grid response {};
+    const auto frequencies = AutoGain::gridFrequencies(m_sampleRate);
+    for (size_t i = 0; i < AutoGain::GridSize; i++) {
+        response.at(i) = tapsDbAt(state, settings, frequencies.at(i));
+    }
+    return AutoGain::compensationDb(response);
+}
+
+double AirBandEq::autoGainDb() const
+{
+    const auto settings = tapSettingsFromParameters();
+    if (!settings.autoGain) {
+        return 0.0;
+    }
+    ChannelState state;
+    configureTaps(state, settings);
+    return autoGainDbFor(state, settings);
+}
+
+std::vector<double> AirBandEq::magnitudesDbAt(std::span<const double> frequencies) const
+{
+    const auto settings = tapSettingsFromParameters();
+    ChannelState state;
+    configureTaps(state, settings);
+
+    // Both gains are part of what is heard, so they belong on the curve: pulling the band knobs
+    // down to offset the air band is the move the hardware prescribes, and a curve that hid the trim
+    // would show that move as a cut with no compensation.
+    const double gainDb = 20.0 * std::log10(settings.outputGain) + (settings.autoGain ? autoGainDbFor(state, settings) : 0.0);
+
+    std::vector<double> result;
+    result.reserve(frequencies.size());
+    for (const double frequency : frequencies) {
+        result.push_back(tapsDbAt(state, settings, frequency) + gainDb);
+    }
+    return result;
+}
+
+double AirBandEq::magnitudeDbAt(double frequency) const
+{
+    return magnitudesDbAt(std::span { &frequency, 1 }).front();
 }
 
 std::string AirBandEq::typeIdString()

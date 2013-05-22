@@ -48,6 +48,11 @@ private slots:
     void test_linearPhase_sliderMoved_shouldRenderTheSameEveryTime();
     void test_linearPhase_tail_shouldKeepTheEffectUnsettled();
     void test_effectRack_latency_shouldSumTheEnabledEffects();
+    void test_autoGain_minimumPhase_shouldLevelPinkNoise();
+    void test_autoGain_linearPhase_shouldLevelPinkNoise();
+    void test_autoGain_on_shouldMatchWhatIsHeard();
+    void test_autoGain_midMode_shouldLeaveTheSideAlone();
+    void test_autoGain_off_shouldLeaveOutputUnchanged();
 };
 
 } // namespace noteahead

@@ -37,6 +37,7 @@ set(HEADER_FILES
     devices/wavetable_synth_presets.hpp
     dsp/adsr_envelope.hpp
     dsp/all_pass_chain.hpp
+    dsp/auto_gain.hpp
     dsp/base_rate_source.hpp
     dsp/cascaded_svf.hpp
     dsp/compressor_core.hpp
@@ -243,6 +244,7 @@ set(SOURCE_FILES
     devices/wavetable_synth_presets.cpp
     dsp/adsr_envelope.cpp
     dsp/all_pass_chain.cpp
+    dsp/auto_gain.cpp
     dsp/base_rate_source.cpp
     dsp/cascaded_svf.cpp
     dsp/compressor_core.cpp

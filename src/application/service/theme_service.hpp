@@ -19,6 +19,7 @@
 #include <QColor>
 #include <QObject>
 #include <QVariantList>
+#include <optional>
 
 namespace noteahead {
 
@@ -31,6 +32,12 @@ class ThemeService : public QObject
 
     //! Hue of the edit cursor. The renderer draws it half-transparent, so the note under it stays readable.
     Q_PROPERTY(QColor cursorColor READ cursorColor WRITE setCursorColor NOTIFY cursorColorChanged)
+
+    //! The equalizers' live spectrum: the output, filled, and the input, outlined and in the
+    //! difference modes. Derived from the accent color until the user picks one.
+    Q_PROPERTY(QColor spectrumPostColor READ spectrumPostColor WRITE setSpectrumPostColor NOTIFY spectrumColorsChanged)
+    Q_PROPERTY(QColor spectrumPreColor READ spectrumPreColor WRITE setSpectrumPreColor NOTIFY spectrumColorsChanged)
+    Q_PROPERTY(bool spectrumColorsFollowAccent READ spectrumColorsFollowAccent NOTIFY spectrumColorsChanged)
 
     //! How far the track and automation palettes are pulled towards the accent color, as a
     //! percentage. 0 is the original fixed palette, 100 puts every entry on the accent hue.
@@ -95,6 +102,14 @@ public:
 
     static QColor defaultCursorColor();
 
+    QColor spectrumPostColor() const;
+    void setSpectrumPostColor(const QColor & color);
+    QColor spectrumPreColor() const;
+    void setSpectrumPreColor(const QColor & color);
+    bool spectrumColorsFollowAccent() const;
+    //! Both spectrum colors back to following the accent color.
+    Q_INVOKABLE void resetSpectrumColors();
+
     int paletteAccentBlend() const;
     void setPaletteAccentBlend(int paletteAccentBlend);
 
@@ -145,6 +160,7 @@ public:
 signals:
     void accentColorChanged();
     void cursorColorChanged();
+    void spectrumColorsChanged();
     void paletteAccentBlendChanged();
     void volumeMeterStyleChanged();
     void automationCurveColorsChanged();
@@ -164,6 +180,8 @@ private:
 
     QColor m_accentColor;
     QColor m_cursorColor;
+    std::optional<QColor> m_spectrumPostColor;
+    std::optional<QColor> m_spectrumPreColor;
     int m_paletteAccentBlend;
     int m_volumeMeterStyle;
 };

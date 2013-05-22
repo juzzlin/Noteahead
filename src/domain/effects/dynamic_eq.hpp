@@ -19,7 +19,9 @@
 #include "../dsp/cascaded_svf.hpp"
 #include "../dsp/compressor_core.hpp"
 #include "../dsp/svf_filter.hpp"
+#include "../utility/spectrum_taps.hpp"
 #include "effect.hpp"
+#include "spectrum_source.hpp"
 
 #include <array>
 #include <atomic>
@@ -39,7 +41,7 @@ namespace noteahead {
 //! The detector listens to this signal or to another device's, through a band-pass at the band's
 //! own frequency or to the whole of it. The Flat type moves the whole signal instead of a band,
 //! which makes it a ducker driven by a band of whatever it listens to.
-class DynamicEq : public Effect
+class DynamicEq : public Effect, public SpectrumSource
 {
 public:
     DynamicEq();
@@ -57,6 +59,9 @@ public:
     //! Settled once the band is back at rest: a device skipped for being silent would otherwise
     //! freeze it part way through its release.
     bool isSettled() const override;
+
+    //! Pre is this signal as it arrives ("Self"), Post the side-chain, silent while there is none.
+    SpectrumTaps & spectrumTaps() override;
 
     const EffectPresetList & factoryPresets() const override;
 
@@ -155,6 +160,8 @@ private:
 
     uint32_t m_lastSampleRate { 0 };
     bool m_shouldUpdateBuffers { true };
+
+    SpectrumTaps m_spectrumTaps;
 };
 
 } // namespace noteahead

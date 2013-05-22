@@ -15,6 +15,7 @@
 
 import QtQuick 2.15
 import QtQuick.Controls 2.15
+import QtQuick.Controls.Universal 2.15
 import Noteahead 1.0
 import ".."
 
@@ -35,6 +36,10 @@ ComboBox {
     // the old one off rather than leaving it running unseen.
     property int activeEffectIndex: -1
 
+    //! The EqCurveRenderer.SpectrumMode each entry draws, the first being off. An equalizer whose
+    //! taps mean something else names them in its own model, as Dynamic EQ does its side-chain.
+    property var modes: [0, 1, 2, 3, 4, 5]
+
     implicitWidth: 130
     // In the order of EqCurveRenderer.SpectrumMode
     model: [qsTr("Off"), "Pre", "Post", qsTr("Both"), "Pre − Post", "Post − Pre"]
@@ -51,8 +56,11 @@ ComboBox {
         if (activeEffectIndex >= 0 && activeEffectIndex !== effectIndex) {
             effectRackController.spectrumSetActive(activeEffectIndex, renderer, false);
         }
-        renderer.spectrumMode = currentIndex;
-        const running = active && effectIndex >= 0 && currentIndex > 0; // 0 is Off
+        // Off for an index with no mode, as while the combo is still being built: the renderer is
+        // handed over before the model is, which leaves currentIndex at -1
+        const mode = modes[currentIndex] ?? 0;
+        renderer.spectrumMode = mode;
+        const running = active && effectIndex >= 0 && mode > 0; // 0 is Off
         effectRackController.spectrumSetActive(effectIndex, renderer, running);
         activeEffectIndex = running ? effectIndex : -1;
     }

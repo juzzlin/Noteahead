@@ -70,6 +70,64 @@ void ThemeServiceTest::cleanupTestCase()
     settings.clear();
 }
 
+void ThemeServiceTest::test_spectrumColors_unset_shouldFollowTheAccent()
+{
+    ThemeService themeService;
+    themeService.resetSpectrumColors();
+    QVERIFY(themeService.spectrumColorsFollowAccent());
+
+    const QSignalSpy spy { &themeService, &ThemeService::spectrumColorsChanged };
+    const auto before = themeService.spectrumPostColor();
+    themeService.setAccentColor(QColor { "#3080ff" });
+    QVERIFY(spy.count() >= 1);
+    QVERIFY(themeService.spectrumPostColor() != before);
+    // Apart from each other and from the accent the curve is drawn in
+    QVERIFY(themeService.spectrumPostColor().hsvHue() != themeService.spectrumPreColor().hsvHue());
+    QVERIFY(themeService.spectrumPostColor().hsvHue() != QColor { "#3080ff" }.hsvHue());
+    themeService.setAccentColor(ThemeService::defaultAccentColor());
+}
+
+void ThemeServiceTest::test_spectrumColors_defaultAccent_shouldBeYellowAndOrange()
+{
+    ThemeService themeService;
+    themeService.resetSpectrumColors();
+    themeService.setAccentColor(ThemeService::defaultAccentColor());
+    const int post = themeService.spectrumPostColor().hsvHue();
+    const int pre = themeService.spectrumPreColor().hsvHue();
+    QVERIFY2(post >= 40 && post <= 60, qPrintable(QString::number(post)));
+    QVERIFY2(pre >= 15 && pre <= 35, qPrintable(QString::number(pre)));
+}
+
+void ThemeServiceTest::test_spectrumColors_setter_shouldPersistAndStopFollowing()
+{
+    const QColor post { "#ff00ff" };
+    {
+        ThemeService themeService;
+        themeService.setSpectrumPostColor(post);
+        QVERIFY(!themeService.spectrumColorsFollowAccent());
+    }
+
+    ThemeService reloaded;
+    QCOMPARE(reloaded.spectrumPostColor(), post);
+    reloaded.setAccentColor(QColor { "#3080ff" });
+    QCOMPARE(reloaded.spectrumPostColor(), post);
+    reloaded.setAccentColor(ThemeService::defaultAccentColor());
+    reloaded.resetSpectrumColors();
+}
+
+void ThemeServiceTest::test_resetSpectrumColors_shouldFollowTheAccentAgain()
+{
+    {
+        ThemeService themeService;
+        themeService.setSpectrumPreColor(QColor { "#00ffff" });
+        themeService.resetSpectrumColors();
+        QVERIFY(themeService.spectrumColorsFollowAccent());
+    }
+
+    ThemeService reloaded;
+    QVERIFY(reloaded.spectrumColorsFollowAccent());
+}
+
 void ThemeServiceTest::test_cursorColor_unset_shouldReturnDefault()
 {
     ThemeService themeService;

@@ -46,6 +46,8 @@ constexpr double SilentGainDb = 0.01;
 SimpleEq::SimpleEq()
 {
     addParameter(Parameter { Constants::NahdXml::xmlKeyAmount().toStdString(), 0.0f, 0, 1000, 0, 1000, Parameter::Type::Continuous });
+    // Off, which is also what a project from before the switch existed gets
+    addParameter(Parameter { Constants::NahdXml::xmlKeyAutoGain().toStdString(), 0.0f, 0, 1, 0, 1, Parameter::Type::Boolean });
 
     syncParameters();
 }
@@ -96,6 +98,10 @@ void SimpleEq::processStereo(double & left, double & right)
     right = m_body.right.process(right);
     right = m_mud.right.process(right);
     right = m_air.right.process(right);
+
+    const double autoGain = m_autoGain.next();
+    left *= autoGain;
+    right *= autoGain;
 }
 
 void SimpleEq::reset()
@@ -103,6 +109,7 @@ void SimpleEq::reset()
     m_body.reset();
     m_mud.reset();
     m_air.reset();
+    m_autoGain.reset();
 }
 
 void SimpleEq::sync()
@@ -112,18 +119,25 @@ void SimpleEq::sync()
 
 void SimpleEq::syncParameters()
 {
+    configureStages(m_body.left, m_mud.left, m_air.left);
+    configureStages(m_body.right, m_mud.right, m_air.right);
+
+    // From the stages just configured, which are the ones the audio runs through
+    m_autoGain.setTargetDb(autoGainFromParameters() ? autoGainDbFor(m_body.left, m_mud.left, m_air.left) : 0.0, m_sampleRate);
+}
+
+void SimpleEq::configureStages(SvfFilter & body, SvfFilter & mud, SvfFilter & air) const
+{
     double amount = 0.0;
     if (const auto p = parameter(Constants::NahdXml::xmlKeyAmount().toStdString()); p) {
         amount = static_cast<double>(p->get().value());
     }
 
-    const auto applyStage = [&](StereoFilter & filter, auto calc, double gainDb) {
+    const auto applyStage = [](SvfFilter & filter, auto calc, double gainDb) {
         if (std::abs(gainDb) < SilentGainDb) {
-            filter.left.setBypass();
-            filter.right.setBypass();
+            filter.setBypass();
         } else {
-            calc(filter.left, gainDb);
-            calc(filter.right, gainDb);
+            calc(filter, gainDb);
         }
     };
 
@@ -131,9 +145,39 @@ void SimpleEq::syncParameters()
     const auto mudBell = [this](SvfFilter & f, double gainDb) { f.calculateBell(MudFreq, m_sampleRate, MudQ, gainDb); };
     const auto airShelf = [this](SvfFilter & f, double gainDb) { f.calculateHighShelf(AirFreq, m_sampleRate, ShelfQ, gainDb); };
 
-    applyStage(m_body, bodyShelf, amount * BodyMaxDb);
-    applyStage(m_mud, mudBell, -amount * MudMaxDb);
-    applyStage(m_air, airShelf, amount * AirMaxDb);
+    applyStage(body, bodyShelf, amount * BodyMaxDb);
+    applyStage(mud, mudBell, -amount * MudMaxDb);
+    applyStage(air, airShelf, amount * AirMaxDb);
+}
+
+double SimpleEq::autoGainDbFor(const SvfFilter & body, const SvfFilter & mud, const SvfFilter & air) const
+{
+    AutoGain::Grid response {};
+    const auto frequencies = AutoGain::gridFrequencies(m_sampleRate);
+    for (size_t i = 0; i < AutoGain::GridSize; i++) {
+        const double f = frequencies.at(i);
+        const double magnitude = body.magnitudeAt(f, m_sampleRate) * mud.magnitudeAt(f, m_sampleRate) * air.magnitudeAt(f, m_sampleRate);
+        response.at(i) = 20.0 * std::log10(magnitude);
+    }
+    return AutoGain::compensationDb(response);
+}
+
+bool SimpleEq::autoGainFromParameters() const
+{
+    const auto p = parameter(Constants::NahdXml::xmlKeyAutoGain().toStdString());
+    return p && p->get().value() >= 0.5f;
+}
+
+double SimpleEq::autoGainDb() const
+{
+    if (!autoGainFromParameters()) {
+        return 0.0;
+    }
+    SvfFilter body;
+    SvfFilter mud;
+    SvfFilter air;
+    configureStages(body, mud, air);
+    return autoGainDbFor(body, mud, air);
 }
 
 std::string SimpleEq::typeIdString()

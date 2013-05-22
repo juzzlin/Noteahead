@@ -55,12 +55,14 @@
 #include "../../domain/effects/reference.hpp"
 #include "../../domain/effects/reference_environments.hpp"
 #include "../../domain/effects/saturator.hpp"
+#include "../../domain/effects/simple_eq.hpp"
 #include "../../domain/effects/spectrum_source.hpp"
 #include "../../domain/effects/stereo_enhancer.hpp"
 #include "../../domain/effects/stereo_exciter.hpp"
 #include "../../domain/effects/stereo_widener.hpp"
 #include "../../domain/effects/tremolo.hpp"
 #include "../../domain/effects/tube_stage.hpp"
+#include "../../domain/effects/vintage_passive_eq.hpp"
 #include "../../domain/effects/wave_designer.hpp"
 #include "../../domain/utility/dbtp_meter.hpp"
 #include "../../domain/utility/lufs_meter.hpp"
@@ -1782,7 +1784,43 @@ QVariantList EffectRackController::eq8BandParametricResponse(quint32 effectIndex
     if (!effect) {
         return {};
     }
-    return sampleResponse(points, [&effect](double hz) { return effect->magnitudeDbAt(hz); });
+    QVariantList response;
+    const auto path = effect->isPathBypassed(Eq8BandParametric::Path::Mid) ? Eq8BandParametric::Path::Side : Eq8BandParametric::Path::Mid;
+    for (const double db : effect->magnitudesDbAt(responseFrequencies(points), path)) {
+        response.append(db);
+    }
+    return response;
+}
+
+QString EffectRackController::eq8BandParametricOutputGainKey() const
+{
+    return Constants::NahdXml::xmlKeyGain();
+}
+
+QString EffectRackController::eqAutoGainKey() const
+{
+    return Constants::NahdXml::xmlKeyAutoGain();
+}
+
+double EffectRackController::eqAutoGainDb(quint32 effectIndex) const
+{
+    const auto effect = effectAt(effectIndex);
+    if (const auto eq = std::dynamic_pointer_cast<Eq8BandParametric>(effect); eq) {
+        return eq->autoGainDb();
+    }
+    if (const auto eq = std::dynamic_pointer_cast<Eq32BandGraphical>(effect); eq) {
+        return eq->autoGainDb();
+    }
+    if (const auto eq = std::dynamic_pointer_cast<AirBandEq>(effect); eq) {
+        return eq->autoGainDb();
+    }
+    if (const auto eq = std::dynamic_pointer_cast<VintagePassiveEq>(effect); eq) {
+        return eq->autoGainDb();
+    }
+    if (const auto eq = std::dynamic_pointer_cast<SimpleEq>(effect); eq) {
+        return eq->autoGainDb();
+    }
+    return 0.0;
 }
 
 QVariantList EffectRackController::eq8BandParametricPassThroughResponse(quint32 effectIndex, int points) const
@@ -1810,7 +1848,11 @@ QVariantList EffectRackController::airBandEqResponse(quint32 effectIndex, int po
     if (!effect) {
         return {};
     }
-    return sampleResponse(points, [&effect](double hz) { return effect->magnitudeDbAt(hz); });
+    QVariantList response;
+    for (const double db : effect->magnitudesDbAt(responseFrequencies(points))) {
+        response.append(db);
+    }
+    return response;
 }
 
 QVariantList EffectRackController::eq32BandGraphicalResponse(quint32 effectIndex, int points) const

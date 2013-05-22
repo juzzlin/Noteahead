@@ -94,6 +94,8 @@ QColor blendColor(const QColor & from, const QColor & to, double amount)
 ThemeService::ThemeService()
   : m_accentColor { Settings::accentColor(defaultAccentColor()) }
   , m_cursorColor { Settings::cursorColor(defaultCursorColor()) }
+  , m_spectrumPostColor { Settings::spectrumPostColor() }
+  , m_spectrumPreColor { Settings::spectrumPreColor() }
   , m_paletteAccentBlend { Settings::paletteAccentBlend(defaultPaletteAccentBlend()) }
   , m_volumeMeterStyle { Settings::volumeMeterStyle(Constants::defaultVolumeMeterStyle()) }
 {
@@ -112,6 +114,7 @@ void ThemeService::setAccentColor(const QColor & accentColor)
         m_accentColor = accentColor;
         Settings::setAccentColor(m_accentColor);
         emit accentColorChanged();
+        emit spectrumColorsChanged();
         emit trackHeaderTextColorsChanged();
         emit automationCurveColorsChanged();
     }
@@ -225,6 +228,64 @@ void ThemeService::setCursorColor(const QColor & cursorColor)
         m_cursorColor = cursorColor;
         Settings::setCursorColor(m_cursorColor);
         emit cursorColorChanged();
+    }
+}
+
+namespace {
+
+//! A bright color @p hueOffset degrees round the hue circle from @p accent. Backwards from the
+//! default mint that lands on yellow and orange, which stand apart from a mint curve and from each
+//! other on the dark plot; any other accent gets the same relation to it.
+QColor accentRelatedColor(const QColor & accent, int hueOffset)
+{
+    // A gray accent has no hue to turn from, so it is taken as the default mint's
+    const int hue = accent.hsvHue() >= 0 ? accent.hsvHue() : ThemeService::defaultAccentColor().hsvHue();
+    return QColor::fromHsv((hue + hueOffset + 360) % 360, 190, 250);
+}
+
+} // namespace
+
+QColor ThemeService::spectrumPostColor() const
+{
+    return m_spectrumPostColor.value_or(accentRelatedColor(m_accentColor, -85));
+}
+
+void ThemeService::setSpectrumPostColor(const QColor & color)
+{
+    if (m_spectrumPostColor != color) {
+        m_spectrumPostColor = color;
+        Settings::setSpectrumPostColor(m_spectrumPostColor);
+        emit spectrumColorsChanged();
+    }
+}
+
+QColor ThemeService::spectrumPreColor() const
+{
+    return m_spectrumPreColor.value_or(accentRelatedColor(m_accentColor, -110));
+}
+
+void ThemeService::setSpectrumPreColor(const QColor & color)
+{
+    if (m_spectrumPreColor != color) {
+        m_spectrumPreColor = color;
+        Settings::setSpectrumPreColor(m_spectrumPreColor);
+        emit spectrumColorsChanged();
+    }
+}
+
+bool ThemeService::spectrumColorsFollowAccent() const
+{
+    return !m_spectrumPostColor && !m_spectrumPreColor;
+}
+
+void ThemeService::resetSpectrumColors()
+{
+    if (!spectrumColorsFollowAccent()) {
+        m_spectrumPostColor.reset();
+        m_spectrumPreColor.reset();
+        Settings::setSpectrumPostColor(std::nullopt);
+        Settings::setSpectrumPreColor(std::nullopt);
+        emit spectrumColorsChanged();
     }
 }
 

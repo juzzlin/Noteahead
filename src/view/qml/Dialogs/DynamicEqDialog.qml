@@ -87,8 +87,27 @@ EffectDialog {
         anchors.margins: 20
         spacing: 12
 
-        EffectPresetRow {
-            effectIndex: root.effectIndex
+        // The stereo mode shares the preset row, so that the row below has room for the spectrum
+        RowLayout {
+            spacing: 15
+            Layout.fillWidth: true
+
+            EffectPresetRow {
+                effectIndex: root.effectIndex
+            }
+            Label {
+                text: qsTr("Stereo Mode")
+                font.bold: true
+            }
+            ComboBox {
+                implicitWidth: 120
+                model: [qsTr("Stereo"), qsTr("Mid"), qsTr("Side")]
+                currentIndex: {
+                    effectRackController.revision;
+                    return root.parameter(effectRackController.dynamicEqStereoModeKey());
+                }
+                onActivated: index => root.setParameter(effectRackController.dynamicEqStereoModeKey(), index)
+            }
         }
 
         RowLayout {
@@ -109,20 +128,7 @@ EffectDialog {
                 ToolTip.visible: hovered
                 ToolTip.text: qsTr("Flat moves the whole signal rather than a band of it, which makes a ducker driven by what the detector hears")
             }
-            Label {
-                text: qsTr("Stereo Mode")
-                font.bold: true
-            }
-            ComboBox {
-                implicitWidth: 120
-                model: [qsTr("Stereo"), qsTr("Mid"), qsTr("Side")]
-                currentIndex: {
-                    effectRackController.revision;
-                    return root.parameter(effectRackController.dynamicEqStereoModeKey());
-                }
-                onActivated: index => root.setParameter(effectRackController.dynamicEqStereoModeKey(), index)
-            }
-            CheckBox {
+            Switch {
                 text: qsTr("Listen")
                 checked: {
                     effectRackController.revision;
@@ -134,6 +140,20 @@ EffectDialog {
                 ToolTip.visible: hovered
                 ToolTip.text: qsTr("Play what the detector hears instead of the output, to find the frequency to react to")
             }
+            Label {
+                text: qsTr("Spectrum")
+                font.bold: true
+            }
+            SpectrumModeComboBox {
+                effectIndex: root.effectIndex
+                renderer: curve
+                active: root.visible
+                // The input tap is this signal and the output tap the side chain, which is what a
+                // dynamic band is read against: what it hears beside what it moves
+                model: [qsTr("None"), qsTr("Side Chain"), qsTr("Self"), qsTr("Both")]
+                modes: [0, 2, 1, 3] // Off, Post, Pre, Both
+                ToolTip.text: qsTr("The live spectrum behind the curve: of the side chain, of this signal as it arrives, or both")
+            }
         }
 
         RowLayout {
@@ -143,7 +163,7 @@ EffectDialog {
             Layout.fillHeight: true
             Layout.minimumHeight: 90
 
-            EqCurveRenderer {
+            EqCurveView {
                 id: curve
                 // Where the band is now, and dashed, where the whole of its Gain would take it
                 response: root.liveResponse
@@ -153,6 +173,8 @@ EffectDialog {
                 }
                 dbRange: 18
                 accentColor: themeService.accentColor
+                spectrumPostColor: themeService.spectrumPostColor
+                spectrumPreColor: themeService.spectrumPreColor
                 Layout.fillWidth: true
                 Layout.preferredWidth: 500
                 Layout.fillHeight: true

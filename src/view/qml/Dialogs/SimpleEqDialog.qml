@@ -65,6 +65,11 @@ EffectDialog {
             Layout.alignment: Qt.AlignHCenter
         }
 
+        AutoGainSwitch {
+            effectIndex: root.effectIndex
+            Layout.alignment: Qt.AlignHCenter
+        }
+
         Item {
             Layout.fillHeight: true
         }

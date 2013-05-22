@@ -71,6 +71,8 @@ const auto windowSizeKey = "size";
 
 const auto accentColorKey = "accentColor";
 const auto cursorColorKey = "cursorColor";
+const auto spectrumPostColorKey = "spectrumPostColor";
+const auto spectrumPreColorKey = "spectrumPreColor";
 const auto paletteAccentBlendKey = "paletteAccentBlend";
 const auto volumeMeterStyleKey = "volumeMeterStyle";
 
@@ -738,6 +740,54 @@ void setCursorColor(QColor cursorColor)
     settings.beginGroup(settingsGroupTheme);
     settings.setValue(cursorColorKey, cursorColor);
     settings.endGroup();
+}
+
+namespace {
+
+std::optional<QColor> optionalThemeColor(const char * key)
+{
+    QSettings settings;
+    settings.beginGroup(settingsGroupTheme);
+    const auto value = settings.value(key);
+    settings.endGroup();
+    if (const auto color = value.value<QColor>(); value.isValid() && color.isValid()) {
+        return color;
+    }
+    return std::nullopt;
+}
+
+void setOptionalThemeColor(const char * key, std::optional<QColor> color)
+{
+    QSettings settings;
+    settings.beginGroup(settingsGroupTheme);
+    if (color) {
+        settings.setValue(key, *color);
+    } else {
+        settings.remove(key);
+    }
+    settings.endGroup();
+}
+
+} // namespace
+
+std::optional<QColor> spectrumPostColor()
+{
+    return optionalThemeColor(spectrumPostColorKey);
+}
+
+void setSpectrumPostColor(std::optional<QColor> color)
+{
+    setOptionalThemeColor(spectrumPostColorKey, color);
+}
+
+std::optional<QColor> spectrumPreColor()
+{
+    return optionalThemeColor(spectrumPreColorKey);
+}
+
+void setSpectrumPreColor(std::optional<QColor> color)
+{
+    setOptionalThemeColor(spectrumPreColorKey, color);
 }
 
 int paletteAccentBlend(int defaultPaletteAccentBlend)

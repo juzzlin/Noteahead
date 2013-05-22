@@ -495,6 +495,13 @@ public:
     //! The curve of the path the equalizer leaves unshaped, or an empty list when it shapes both.
     Q_INVOKABLE QVariantList eq8BandParametricPassThroughResponse(quint32 effectIndex, int points) const;
     Q_INVOKABLE QString eq8BandParametricStereoModeKey() const;
+    Q_INVOKABLE QString eq8BandParametricOutputGainKey() const;
+
+    //! The key of the Auto Gain switch, which every equalizer that has one shares.
+    Q_INVOKABLE QString eqAutoGainKey() const;
+    //! What auto gain applies at @p effectIndex, in dB: 0 while it is off, and for an effect
+    //! without it.
+    Q_INVOKABLE double eqAutoGainDb(quint32 effectIndex) const;
 
     Q_INVOKABLE QString vintagePassiveEqLowFreqKey() const;
     Q_INVOKABLE QString vintagePassiveEqLowBoostKey() const;

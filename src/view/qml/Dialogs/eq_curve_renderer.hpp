@@ -51,6 +51,11 @@ class EqCurveRenderer : public QQuickPaintedItem
     Q_PROPERTY(QColor accentColor READ accentColor WRITE setAccentColor NOTIFY accentColorChanged)
     //! What of the live spectrum is drawn behind the curve, one of SpectrumMode.
     Q_PROPERTY(int spectrumMode READ spectrumMode WRITE setSpectrumMode NOTIFY spectrumModeChanged)
+    //! How many dB below full scale the spectrum reaches at the bottom of the plot.
+    Q_PROPERTY(int spectrumRange READ spectrumRange WRITE setSpectrumRange NOTIFY spectrumRangeChanged)
+    //! The output's spectrum, filled, and the input's, outlined and in the difference modes.
+    Q_PROPERTY(QColor spectrumPostColor READ spectrumPostColor WRITE setSpectrumPostColor NOTIFY spectrumColorsChanged)
+    Q_PROPERTY(QColor spectrumPreColor READ spectrumPreColor WRITE setSpectrumPreColor NOTIFY spectrumColorsChanged)
 
 public:
     //! Appended to only: the dialogs list the modes in this order.
@@ -88,6 +93,14 @@ public:
     int spectrumMode() const;
     void setSpectrumMode(int mode);
 
+    int spectrumRange() const;
+    void setSpectrumRange(int range);
+
+    QColor spectrumPostColor() const;
+    void setSpectrumPostColor(const QColor & color);
+    QColor spectrumPreColor() const;
+    void setSpectrumPreColor(const QColor & color);
+
     //! Whether the mode needs the input's spectrum, and the output's.
     bool spectrumUsesPre() const;
     bool spectrumUsesPost() const;
@@ -110,6 +123,8 @@ signals:
     void dbRangeChanged();
     void accentColorChanged();
     void spectrumModeChanged();
+    void spectrumRangeChanged();
+    void spectrumColorsChanged();
 
 private:
     //! Where a frequency falls across the plot, 0 at 20 Hz and 1 at 20 kHz.
@@ -132,6 +147,9 @@ private:
     QColor m_accentColor { 0, 180, 255 };
 
     int m_spectrumMode = SpectrumOff;
+    int m_spectrumRange = 90;
+    QColor m_spectrumPostColor { 250, 220, 60 };
+    QColor m_spectrumPreColor { 250, 140, 60 };
     std::vector<float> m_preLevels;
     std::vector<float> m_postLevels;
     std::vector<std::pair<float, float>> m_spectrumPositions;

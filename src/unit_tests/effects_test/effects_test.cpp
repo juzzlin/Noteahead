@@ -23,6 +23,7 @@
 #include "../../domain/dsp/high_pass_filter.hpp"
 #include "../../domain/dsp/low_pass_filter.hpp"
 #include "../../domain/dsp/panning.hpp"
+#include "../../domain/dsp/svf_filter.hpp"
 #include "../../domain/dsp/volume.hpp"
 #include "../../domain/effects/chorus.hpp"
 #include "../../domain/effects/clipper.hpp"
@@ -36,6 +37,7 @@
 
 #include <QTest>
 
+#include <array>
 #include <cmath>
 #include <numbers>
 #include <random>
@@ -1464,6 +1466,54 @@ void configureShelfEq(Eq8BandParametric & eq, float stereoModeValue)
     }
     eq.sync();
 }
+
+void setAutoGain(Effect & effect, bool enabled)
+{
+    if (auto p = effect.parameter(Constants::NahdXml::xmlKeyAutoGain().toStdString()); p) {
+        p->get().setValue(enabled ? 1.0f : 0.0f);
+    }
+    effect.sync();
+}
+
+//! Output over input level, in dB, of four seconds of pink noise through @p effect. The first
+//! second is left out, for the filters and the gain ramp to settle. The noise is cut below 20 Hz,
+//! where auto gain does not look: the generator puts another octave there, and a low shelf would
+//! lift it.
+double pinkNoiseGainDb(Effect & effect)
+{
+    std::mt19937 generator { 1234 };
+    std::uniform_real_distribution<double> white { -1.0, 1.0 };
+    // Paul Kellet's refined filter: within a fraction of a decibel of -3 dB/octave over the band
+    std::array<double, 7> b {};
+    // A 24 dB/oct Butterworth
+    SvfFilter lowCut1;
+    SvfFilter lowCut2;
+    lowCut1.calculateLowCut(20.0, 48000.0, 0.5412);
+    lowCut2.calculateLowCut(20.0, 48000.0, 1.3066);
+    double inputPower = 0.0;
+    double outputPower = 0.0;
+    constexpr size_t Frames = 192000;
+    for (size_t i = 0; i < Frames; i++) {
+        const double w = white(generator);
+        b[0] = 0.99886 * b[0] + w * 0.0555179;
+        b[1] = 0.99332 * b[1] + w * 0.0750759;
+        b[2] = 0.96900 * b[2] + w * 0.1538520;
+        b[3] = 0.86650 * b[3] + w * 0.3104856;
+        b[4] = 0.55000 * b[4] + w * 0.5329522;
+        b[5] = -0.7616 * b[5] - w * 0.0168980;
+        const double pink = lowCut2.process(lowCut1.process((b[0] + b[1] + b[2] + b[3] + b[4] + b[5] + b[6] + w * 0.5362) * 0.1));
+        b[6] = w * 0.115926;
+        double left = pink;
+        double right = pink;
+        effect.process(left, right);
+        if (i >= Frames / 4) {
+            inputPower += pink * pink;
+            outputPower += left * left;
+        }
+    }
+    return 10.0 * std::log10(outputPower / inputPower);
+}
+
 } // namespace
 
 namespace {
@@ -1870,6 +1920,121 @@ void EffectsTest::test_eq8BandParametricEffect_midSideMode_shouldAffectBothChann
     }
     QVERIFY(std::abs(left) > 0.5);
     QVERIFY(std::abs(right) > 0.5);
+}
+
+void EffectsTest::test_eq8BandParametricEffect_autoGain_shouldLevelPinkNoise()
+{
+    // A +12 dB shelf under 10 kHz lifts nearly everything, so without compensation it is far louder
+    Eq8BandParametric effect;
+    effect.setSampleRate(48000.0);
+    configureShelfEq(effect, 0.0f);
+    const double uncompensated = pinkNoiseGainDb(effect);
+    QVERIFY2(uncompensated > 6.0, qPrintable(QString::number(uncompensated)));
+
+    effect.reset();
+    setAutoGain(effect, true);
+    QVERIFY(effect.autoGainDb() < -6.0);
+    const double compensated = pinkNoiseGainDb(effect);
+    QVERIFY2(std::abs(compensated) < 0.5, qPrintable(QString::number(compensated)));
+}
+
+void EffectsTest::test_eq8BandParametricEffect_autoGain_shouldMatchWhatIsHeard()
+{
+    // The curve includes auto gain, so it has to be heard there too
+    Eq8BandParametric effect;
+    effect.setSampleRate(48000.0);
+    configureShelfEq(effect, 0.0f);
+    setAutoGain(effect, true);
+
+    for (const double hz : { 100.0, 1000.0, 15000.0 }) {
+        effect.reset();
+        double peak = 0.0;
+        for (size_t i = 0; i < 28800; i++) {
+            double left = std::sin(2.0 * M_PI * hz * static_cast<double>(i) / 48000.0), right = left;
+            effect.process(left, right);
+            if (i >= 24000) {
+                peak = std::max(peak, std::abs(left));
+            }
+        }
+        const double measured = 20.0 * std::log10(peak);
+        const double predicted = effect.magnitudeDbAt(hz);
+        QVERIFY2(std::abs(measured - predicted) < 0.5,
+                 qPrintable(QString("heard %1 dB, drawn %2 dB at %3 Hz").arg(measured).arg(predicted).arg(hz)));
+    }
+}
+
+void EffectsTest::test_eq8BandParametricEffect_autoGainMidMode_shouldLeaveTheSideAlone()
+{
+    Eq8BandParametric effect;
+    effect.setSampleRate(44100.0);
+    configureShelfEq(effect, 1.0f); // Mid
+    setAutoGain(effect, true);
+    QVERIFY(effect.autoGainDb() < -6.0);
+    QCOMPARE(effect.magnitudeDbAt(1000.0, Eq8BandParametric::Path::Side), 0.0);
+
+    // Pure side content is passed through exactly, not turned down with the mid
+    for (int i = 0; i < 4000; i++) {
+        double left = 0.2;
+        double right = -0.2;
+        effect.process(left, right);
+        QVERIFY(left == 0.2);
+        QVERIFY(right == -0.2);
+    }
+}
+
+void EffectsTest::test_eq8BandParametricEffect_autoGainOff_shouldLeaveOutputUnchanged()
+{
+    // Switched on and back off, the output is bit for bit that of an equalizer that never had it
+    Eq8BandParametric reference;
+    Eq8BandParametric toggled;
+    for (auto * effect : { &reference, &toggled }) {
+        effect->setSampleRate(48000.0);
+        configureShelfEq(*effect, 0.0f);
+    }
+    const auto run = [&](int frames, bool compare) {
+        for (int i = 0; i < frames; i++) {
+            const double input = std::sin(static_cast<double>(i) * 0.05);
+            double referenceLeft = input;
+            double referenceRight = -input * 0.5;
+            double toggledLeft = referenceLeft;
+            double toggledRight = referenceRight;
+            reference.process(referenceLeft, referenceRight);
+            toggled.process(toggledLeft, toggledRight);
+            if (compare) {
+                QVERIFY(toggledLeft == referenceLeft);
+                QVERIFY(toggledRight == referenceRight);
+            }
+        }
+    };
+    setAutoGain(toggled, true);
+    run(4800, false);
+    setAutoGain(toggled, false);
+    QCOMPARE(toggled.autoGainDb(), 0.0);
+    // Past the ramp back
+    run(960, false);
+    run(4800, true);
+}
+
+void EffectsTest::test_eq8BandParametricEffect_outputGain_shouldScaleBothPaths()
+{
+    // The whole output, the path a Mid mode leaves unshaped included, and on the curve as well
+    Eq8BandParametric effect;
+    effect.setSampleRate(44100.0);
+    configureShelfEq(effect, 1.0f); // Mid
+    if (auto p = effect.parameter(Constants::NahdXml::xmlKeyGain().toStdString()); p) {
+        p->get().setValue(0.25f); // -6 dB
+    }
+    effect.sync();
+    QVERIFY(std::abs(effect.magnitudeDbAt(1000.0, Eq8BandParametric::Path::Side) + 6.0) < 1e-9);
+
+    double left = 0.0;
+    double right = 0.0;
+    for (int i = 0; i < 4000; i++) {
+        left = 0.2;
+        right = -0.2;
+        effect.process(left, right);
+    }
+    QVERIFY(std::abs(left - 0.2 * std::pow(10.0, -6.0 / 20.0)) < 1e-9);
 }
 
 void EffectsTest::test_clipperEffect_shouldClipSignal()

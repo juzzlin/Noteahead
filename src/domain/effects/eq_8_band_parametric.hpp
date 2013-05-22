@@ -16,6 +16,7 @@
 #ifndef EQ_8_BAND_PARAMETRIC_HPP
 #define EQ_8_BAND_PARAMETRIC_HPP
 
+#include "../dsp/auto_gain.hpp"
 #include "../dsp/svf_filter.hpp"
 #include "../utility/spectrum_taps.hpp"
 #include "effect.hpp"
@@ -26,6 +27,7 @@
 #include <cstdint>
 #include <optional>
 #include <span>
+#include <vector>
 
 namespace noteahead {
 
@@ -76,6 +78,10 @@ public:
     //! sections a steep cut runs, which no formula over the parameters would know about.
     double magnitudeDbAt(double frequency, Path path) const;
 
+    //! magnitudeDbAt() at each of @p frequencies, for a whole curve: the bands and the auto gain
+    //! are worked out once instead of once a point.
+    std::vector<double> magnitudesDbAt(std::span<const double> frequencies, Path path) const;
+
     //! What the equalizer does at @p frequency to whichever path it shapes.
     //!
     //! The Mid path unless the stereo mode leaves it untouched, which makes this the curve worth
@@ -84,6 +90,13 @@ public:
 
     //! Whether @p path passes through this equalizer unshaped under the current stereo mode.
     bool isPathBypassed(Path path) const;
+
+    //! What auto gain applies to the shaped paths, in dB, or 0 while it is off. Included in
+    //! magnitudeDbAt(), since it is part of what is heard.
+    double autoGainDb() const;
+
+    //! How far the Output knob turns the whole output up or down.
+    static constexpr double MaxOutputGainDb { 12.0 };
 
     enum class StereoMode
     {
@@ -215,9 +228,26 @@ private:
         }
     };
 
+    static constexpr size_t NumBands = 8;
+    using Bands = std::array<Band, NumBands>;
+
     //! The settings of band @p index, read off the parameters. Its filters are left unconfigured;
     //! updateCoefficients() is what brings them up.
     Band bandFromParameters(size_t index) const;
+
+    //! Every band off the parameters, with its filters configured.
+    Bands bandsFromParameters() const;
+
+    //! The bands' cascade at @p frequency, in dB, without auto gain.
+    double cascadeDbAt(const Bands & bands, double frequency) const;
+
+    //! The auto gain @p bands call for, in dB, whether or not it is switched on.
+    double autoGainDbFor(const Bands & bands) const;
+
+    bool autoGainFromParameters() const;
+
+    //! The Output knob in dB, on both paths whatever the stereo mode.
+    double outputGainDbFromParameters() const;
     void syncParameters();
     void updateBuffers();
     void processStereo(double & left, double & right);
@@ -225,10 +255,12 @@ private:
     //! The stereo mode as the parameters have it, up to date even before a block is processed.
     StereoMode stereoModeFromParameters() const;
 
-    static constexpr size_t NumBands = 8;
-    std::array<Band, NumBands> m_bands;
+    Bands m_bands;
 
     StereoMode m_stereoMode { StereoMode::MidSide };
+
+    AutoGain m_autoGain;
+    double m_outputGain { 1.0 };
 
     bool m_shouldSyncParameters { false };
     bool m_shouldUpdateBuffers { false };

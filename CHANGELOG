@@ -28,8 +28,13 @@ New features:
 
 * Add a built-in EDM template, openable from File > Templates
 
-* EQ 8-Band Parametric and EQ 32-Band Graphical: optional live spectrum behind the curve
-  - Pre, Post, Both, Pre − Post or Post − Pre; off by default and costs nothing until turned on
+* EQ 8, EQ 32, Air Band EQ and Dynamic EQ: optional live spectrum behind the curve
+  - Input, output, side chain or differences; colors follow the accent or are set in Theme settings
+
+* EQ 8-Band Parametric: Output gain
+
+* EQs: Auto Gain keeps the level the same while the tone changes
+  - All EQs but Dynamic EQ; off by default, and in Mid or Side mode only the shaped path is compensated
 
 * Support mouse drag glissando on VirtualKeyboard
 

@@ -33,6 +33,11 @@ private slots:
     void test_cursorColor_sameValue_shouldNotEmitSignal();
     void test_cursorColor_setter_shouldPersistAcrossInstances();
 
+    void test_spectrumColors_unset_shouldFollowTheAccent();
+    void test_spectrumColors_defaultAccent_shouldBeYellowAndOrange();
+    void test_spectrumColors_setter_shouldPersistAndStopFollowing();
+    void test_resetSpectrumColors_shouldFollowTheAccentAgain();
+
     void test_paletteAccentBlend_setter_shouldUpdateGetterAndEmitSignals();
     void test_paletteAccentBlend_outOfRange_shouldBeClamped();
     void test_paletteAccentBlend_setter_shouldPersistAcrossInstances();

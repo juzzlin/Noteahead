@@ -19,7 +19,9 @@
 #include <array>
 #include <atomic>
 #include <cstddef>
+#include <cstdint>
 #include <memory>
+#include <span>
 #include <vector>
 
 namespace noteahead {
@@ -66,6 +68,10 @@ public:
     void processPre(const AudioContext & context, size_t delayFrames = 0);
     //! Audio thread, after the effect has processed the block.
     void processPost(const AudioContext & context);
+
+    //! The Post tap fed from another signal than the block's own, @p frameCount stereo frames of
+    //! it, or silence while @p stereo is empty: a side-chain, which can come and go.
+    void processPost(std::span<const double> stereo, uint32_t frameCount, uint32_t sampleRate);
 
     //! UI thread. Nullptr until @p tap has first been enabled.
     const RtaCore * core(Tap tap) const;

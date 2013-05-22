@@ -27,6 +27,7 @@
 #include "../../domain/effects/phaser.hpp"
 #include "../../domain/effects/reverb.hpp"
 #include "../../domain/effects/saturator.hpp"
+#include "../../domain/effects/simple_eq.hpp"
 #include "../../domain/tracker/parameter_data.hpp"
 #include "../../domain/utility/dbtp_meter.hpp"
 #include "../../domain/utility/lufs_meter.hpp"
@@ -608,6 +609,23 @@ void EffectRackControllerTest::test_spectrumUpdateRenderer_shouldHandTheLayoutTo
     controller.spectrumUpdateRenderer(0, &stranger);
     controller.spectrumUpdateRenderer(0, nullptr);
     controller.spectrumSetActive(0, nullptr, true);
+}
+
+void EffectRackControllerTest::test_eqAutoGainDb_switchedOn_shouldReportTheCompensation()
+{
+    const auto engine = std::make_shared<AudioEngine>();
+    const auto deviceService = std::make_shared<DeviceService>(engine, std::make_shared<DataService>());
+    const auto editorService = std::make_shared<EditorService>();
+    EffectRackController controller { deviceService, editorService };
+    setUpInsertRackWith(controller, SimpleEq::typeIdString());
+    controller.setParameterValue(0, Constants::NahdXml::xmlKeyAmount(), 1.0f);
+
+    QCOMPARE(controller.eqAutoGainDb(0), 0.0);
+    controller.setParameterValue(0, controller.eqAutoGainKey(), 1.0f);
+    QVERIFY(controller.eqAutoGainDb(0) < -1.0);
+
+    // A slot with nothing in it has nothing to report
+    QCOMPARE(controller.eqAutoGainDb(1), 0.0);
 }
 
 void EffectRackControllerTest::test_airBandEqResponse_wrongEffect_shouldBeEmpty()

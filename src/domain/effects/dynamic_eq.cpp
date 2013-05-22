@@ -335,6 +335,8 @@ void DynamicEq::processBlock(AudioContext & context)
     const bool hasExternal = m_sidechainSourceDevice && *m_sidechainSourceDevice < context.deviceOutputBuffers.size() && context.deviceOutputBuffers[*m_sidechainSourceDevice].size() >= static_cast<size_t>(context.frameCount) * 2;
     const auto external = hasExternal ? context.deviceOutputBuffers[*m_sidechainSourceDevice] : std::span<const double> {};
     const bool analysing = m_analysisEnabled.load(std::memory_order_relaxed);
+    m_spectrumTaps.processPre(context);
+    m_spectrumTaps.processPost(external, context.frameCount, context.sampleRate);
 
     for (uint32_t i = 0; i < context.frameCount; i++) {
         processFrame(context.buffer[i * 2], context.buffer[i * 2 + 1], hasExternal ? external.data() + i * 2 : nullptr);
@@ -384,7 +386,13 @@ void DynamicEq::sync()
 
 bool DynamicEq::isSettled() const
 {
-    return std::abs(m_core.reductionDb()) < 0.001;
+    // Not while a spectrum is shown, or it would hang at the last block that had anything in it
+    return !m_spectrumTaps.isEnabled() && std::abs(m_core.reductionDb()) < 0.001;
+}
+
+SpectrumTaps & DynamicEq::spectrumTaps()
+{
+    return m_spectrumTaps;
 }
 
 float DynamicEq::currentGainDb() const

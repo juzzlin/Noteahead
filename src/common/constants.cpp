@@ -1630,6 +1630,11 @@ QString xmlKeyLinearPhase()
     return "linearPhase";
 }
 
+QString xmlKeyAutoGain()
+{
+    return "autoGain";
+}
+
 QString xmlKeyStereoPhase()
 {
     return "stereoPhase";

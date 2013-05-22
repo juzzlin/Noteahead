@@ -28,11 +28,11 @@
 #include "../../application/service/settings_service.hpp"
 #include "../../application/service/side_chain_service.hpp"
 #include "../../common/constants.hpp"
+#include "../../common/parameter_mapper.hpp"
 #include "../../domain/devices/device_factory.hpp"
 #include "../../domain/devices/drum_synth_constants.hpp"
 #include "../../domain/devices/drum_synth_device.hpp"
 #include "../../domain/devices/drum_synth_v2_constants.hpp"
-#include "../../common/parameter_mapper.hpp"
 #include "../../domain/devices/drum_synth_v2_device.hpp"
 #include "../../domain/devices/fm_drums_device.hpp"
 #include "../../domain/devices/fm_synth_device.hpp"
@@ -114,6 +114,8 @@
 #include <QTest>
 
 #include <cmath>
+#include <optional>
+#include <vector>
 
 namespace noteahead {
 
@@ -2466,6 +2468,51 @@ void XmlSerializationTest::test_toXmlFromXml_eq32BandGraphicalEffect_shouldLoadC
     }
     QCOMPARE(valueOf(Constants::NahdXml::xmlKeyStereoMode()), 2.0f);
     QVERIFY(std::abs(valueOf(Constants::NahdXml::xmlKeyGain()) - 0.4f) < 0.001f);
+}
+
+void XmlSerializationTest::test_toXmlFromXml_eqAutoGain_shouldLoadCorrectly()
+{
+    const std::vector<std::shared_ptr<Effect>> eqs {
+        std::make_shared<Eq8BandParametric>(),
+        std::make_shared<Eq32BandGraphical>(),
+        std::make_shared<AirBandEq>(),
+        std::make_shared<VintagePassiveEq>(),
+        std::make_shared<SimpleEq>()
+    };
+    const auto autoGainOf = [](const Effect & effect) {
+        const auto p = effect.parameter(Constants::NahdXml::xmlKeyAutoGain().toStdString());
+        return p ? std::optional<float> { p->get().value() } : std::nullopt;
+    };
+
+    const auto engineOut = std::make_shared<AudioEngine>();
+    DeviceService deviceServiceOut { engineOut, std::make_shared<DataService>() };
+    for (size_t i = 0; i < eqs.size(); i++) {
+        // Off unless asked for, which is what a project from before the switch loads as
+        QCOMPARE(autoGainOf(*eqs.at(i)), std::optional<float> { 0.0f });
+        if (auto p = eqs.at(i)->parameter(Constants::NahdXml::xmlKeyAutoGain().toStdString()); p) {
+            p->get().setValue(1.0f);
+        }
+        deviceServiceOut.insertEffectRack().setEffect(i, eqs.at(i));
+    }
+
+    EditorService editorServiceOut { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+    connect(&editorServiceOut, &EditorService::devicesSerializationRequested, &deviceServiceOut, &DeviceService::serializeToXml);
+
+    const auto xml = editorServiceOut.toXml();
+
+    const auto engineIn = std::make_shared<AudioEngine>();
+    DeviceService deviceServiceIn { engineIn, std::make_shared<DataService>() };
+    EditorService editorServiceIn { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+    connect(&editorServiceIn, &EditorService::devicesDeserializationRequested, &deviceServiceIn, &DeviceService::deserializeFromXml);
+
+    editorServiceIn.fromXml(xml);
+
+    for (size_t i = 0; i < eqs.size(); i++) {
+        const auto restored = deviceServiceIn.insertEffectRack().effect(i);
+        QVERIFY(restored);
+        QCOMPARE(restored->typeId(), eqs.at(i)->typeId());
+        QCOMPARE(autoGainOf(*restored), std::optional<float> { 1.0f });
+    }
 }
 
 void XmlSerializationTest::test_toXmlFromXml_phaseScopeEffect_shouldLoadCorrectly()

@@ -1,0 +1,41 @@
+// This file is part of Noteahead.
+// Copyright (C) 2026 Jussi Lind <jussi.lind@iki.fi>
+//
+// Noteahead is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+// Noteahead is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
+
+#ifndef AUTO_GAIN_TEST_HPP
+#define AUTO_GAIN_TEST_HPP
+
+#include <QObject>
+
+namespace noteahead {
+
+class AutoGainTest : public QObject
+{
+    Q_OBJECT
+
+private slots:
+    void test_compensationDb_flat_shouldBeZero();
+    void test_compensationDb_uniformBoost_shouldCancelIt();
+    void test_compensationDb_narrowBoost_shouldCutLittle();
+    void test_compensationDb_extreme_shouldBeClamped();
+    void test_gridFrequencies_lowSampleRate_shouldStayBelowNyquist();
+    void test_next_atUnity_shouldBeExactlyOne();
+    void test_next_newTarget_shouldRampAndLandOnIt();
+    void test_setTargetDb_noSampleRate_shouldJump();
+    void test_reset_midRamp_shouldJumpToTarget();
+};
+
+} // namespace noteahead
+
+#endif // AUTO_GAIN_TEST_HPP

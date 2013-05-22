@@ -29,6 +29,8 @@ private slots:
     void test_amount_engaged_shouldBoostBodyAndAir();
     void test_amount_engaged_shouldScoopLowMid();
     void test_amount_higher_shouldApplyStrongerCurve();
+    void test_autoGain_engaged_shouldLevelPinkNoise();
+    void test_autoGain_off_shouldLeaveOutputUnchanged();
 };
 
 } // namespace noteahead
