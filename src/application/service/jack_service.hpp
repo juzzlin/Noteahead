@@ -16,11 +16,9 @@
 #ifndef JACK_SERVICE_HPP
 #define JACK_SERVICE_HPP
 
-#include <QCoreApplication>
-#include <QObject>
 #include <atomic>
 #include <memory>
-#include <thread>
+#include <vector>
 
 #ifdef HAVE_JACK
 #include <jack/jack.h>
@@ -29,10 +27,12 @@
 #include "../../infra/audio/audio_file_recorder.hpp"
 #include "../../infra/audio/audio_file_streamer.hpp"
 
+#include <QObject>
+
 namespace noteahead {
 
-class SettingsService;
 class AudioEngine;
+class SettingsService;
 
 class JackService : public QObject
 {
@@ -41,16 +41,15 @@ class JackService : public QObject
 public:
     using SettingsServiceS = std::shared_ptr<SettingsService>;
     using AudioEngineS = std::shared_ptr<AudioEngine>;
+
     explicit JackService(SettingsServiceS settingsService, AudioEngineS audioEngine, QObject * parent = nullptr);
     ~JackService() override;
 
     void initialize();
+    void deinitialize();
 
     double bpm() const;
     uint32_t sampleRate() const;
-#ifdef HAVE_JACK
-    jack_nframes_t currentFrame() const;
-#endif
 
     void startRecording(const QString & filePath);
     void stopRecording();
@@ -65,27 +64,29 @@ public:
 
     void onAudioBackendChanged();
 
+#ifdef HAVE_JACK
+    jack_nframes_t currentFrame() const;
+#endif
+
 signals:
     void playRequested();
     void stopRequested();
     void rewindRequested();
     void bpmChanged(double bpm);
-    void errorOccurred(QString message);
-
-private slots:
+    void errorOccurred(const QString & message);
 
 private:
-    void deinitialize();
-
 #ifdef HAVE_JACK
     static int processCallback(jack_nframes_t frameCount, void * arg);
+
     jack_client_t * m_client = nullptr;
     jack_port_t * m_inputPortL = nullptr;
     jack_port_t * m_inputPortR = nullptr;
     jack_port_t * m_outputPortL = nullptr;
     jack_port_t * m_outputPortR = nullptr;
-    jack_transport_state_t m_lastState = JackTransportStopped;
+
     jack_nframes_t m_lastFrame = 0;
+    jack_transport_state_t m_lastState = JackTransportStopped;
     double m_lastBpm = 120.0;
 #endif
 
@@ -98,6 +99,8 @@ private:
     std::vector<int32_t> m_recordingInterleavedBuffer;
     std::vector<int32_t> m_playbackInterleavedBuffer;
     std::vector<float> m_engineInterleavedBuffer;
+
+    std::atomic<bool> m_isDeinitializing { false };
 
     SettingsServiceS m_settingsService;
     AudioEngineS m_audioEngine;

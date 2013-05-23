@@ -90,6 +90,8 @@ void JackService::initialize()
         return;
     }
 
+    m_isDeinitializing = false;
+
     const jack_options_t options = JackNoStartServer;
     jack_status_t status;
     m_client = jack_client_open("Noteahead", options, &status);
@@ -132,8 +134,10 @@ void JackService::deinitialize()
 {
 #ifdef HAVE_JACK
     if (m_client) {
+        m_isDeinitializing = true;
         stopRecording();
         stopPlayback();
+        jack_deactivate(m_client);
         jack_client_close(m_client);
         m_client = nullptr;
         m_inputPortL = nullptr;
@@ -255,6 +259,10 @@ double JackService::playbackPosition() const
 int JackService::processCallback(jack_nframes_t frameCount, void * arg)
 {
     auto self = static_cast<JackService *>(arg);
+
+    if (self->m_isDeinitializing) {
+        return 0;
+    }
 
     if (self->m_isRecording) {
         auto inL = static_cast<jack_default_audio_sample_t *>(jack_port_get_buffer(self->m_inputPortL, frameCount));

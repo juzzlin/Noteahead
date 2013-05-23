@@ -986,6 +986,13 @@ void Application::applyState(StateMachine::State state)
 
 Application::~Application()
 {
+    if (m_audioService) {
+        m_audioService->stopPlayback();
+        m_audioService->stopRecording(0);
+    }
+    if (m_jackService) {
+        m_jackService->deinitialize();
+    }
     juzzlin::SimpleLogger::flush();
 }
 
