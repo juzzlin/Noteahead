@@ -5,12 +5,15 @@ covers the workflow and conventions, and then walks through the two most common 
 contribution in detail: a new **rack effect** and a new **internal device** (an instrument, a
 mixer or a modulator in the Virtual Device Rack).
 
-The quickest way to learn the shape of a change is to read a recent one end to end:
+Every effect and device lives in a folder of its own, so the quickest way to learn the shape of
+one is to read a folder end to end:
 
-- An effect: `git show --stat $(git log --format=%h -1 --grep="Add Reverb 224")`
-- A device: `git show --stat $(git log --format=%h -1 --grep="Add Kick 909")`
+- An effect: `src/plugins/effects/gain/`, the smallest; `src/plugins/effects/eq_8_band_parametric/`
+  for one with a dialog model.
+- A device: `src/plugins/devices/kick_808/`, the smallest; `src/plugins/devices/kick_909/` for one
+  with presets, a waveform preview and MIDI CCs.
 
-Every file those commits touch is listed below, with what goes into it.
+Every file in such a folder is described below, with what goes into it.
 
 ## Building and testing
 
@@ -30,15 +33,20 @@ The code is in five layers, and logic never leaks upward:
 
 | Layer | Contents |
 |---|---|
-| `src/domain/` | Pure logic: the tracker model, devices, effects, DSP. No UI. |
+| `src/domain/` | Pure logic: the tracker model, the `Device` and `Effect` bases, DSP. No UI. |
 | `src/application/` | Services that orchestrate the domain, QML list models, undo/redo commands. |
 | `src/infra/` | Adapters: XML, MIDI, audio backends. |
 | `src/view/` | Thin `QObject` controllers for QML, and all QML. No logic. |
 | `src/common/` | Constants, including every XML key string, and small utilities. |
+| `src/plugins/` | One folder per effect or device, holding all of it across the layers above. |
 
-A device or an effect lives in `domain/`. QML reaches it only through a controller in
-`view/controllers/`, and dialogs are opened only through the `UiService` QML singleton or a
-controller signal connected in `Main.qml`. A controller never opens a dialog itself.
+A device or an effect lives in its folder in `src/plugins/effects/` or `src/plugins/devices/`.
+Each file there is still built into the library of its own layer, so the layer rules hold inside
+a folder too: the effect or device class is domain code, its dialog model is view code, and so on.
+QML reaches a device only through its dialog model or the controllers in `view/controllers/`, and
+dialogs are opened only through the `UiService` QML singleton, a controller signal connected in
+`Main.qml`, or the `PluginDialogHost` that creates plugin dialogs. A controller never opens a
+dialog itself.
 
 ## Coding conventions
 
@@ -75,7 +83,8 @@ controller signal connected in `Main.qml`. A controller never opens a dialog its
 | C++ files and test directories | `snake_case` | `kick_909_device.cpp`, `kick_909_test/` |
 | QML files | `PascalCase`, sections after `_` | `Kick909Dialog.qml`, `Kick909Dialog_Global.qml` |
 | QML ids and properties | `camelCase` | `id: kick909Dialog`, `property int effectIndex` |
-| Context properties for controllers | `camelCase` | `kick909Controller` |
+| Dialog models | `PascalCase` + `DialogModel` | `Kick909DialogModel`, `Eq8BandParametricDialogModel` |
+| Context properties for controllers and device dialog models | `camelCase` | `effectRackController`, `kick909Controller` |
 | XML keys | `camelCase`, no device prefix | `lpfCutoff`, made by `xmlKeyLpfCutoff()` |
 
 Some rules on top of the styles:
@@ -132,7 +141,7 @@ Effects are processed in insert racks (per device), on send buses and on the mas
 `Effect` base class applies everything every effect shares: Mix, Solo, enable/bypass, send mode and
 output gain. An effect implements only its own processing.
 
-### 1. The effect class: `src/domain/effects/<name>.hpp/.cpp`
+### 1. The effect class: `src/plugins/effects/<name>/<name>.hpp/.cpp`
 
 Inherit from `Effect` and implement:
 
@@ -164,87 +173,144 @@ Override these as the effect needs:
   `<name>_presets.hpp/.cpp`.
 - `setBpm()` if it syncs to tempo.
 
-`src/domain/effects/gain.hpp/.cpp` is the smallest complete example.
+`src/plugins/effects/gain/` is the smallest complete example.
 
-New DSP building blocks go in `src/domain/dsp/` and are reused across effects and devices.
+New DSP building blocks go in `src/domain/dsp/` and are reused across effects and devices. List
+them in `src/domain/CMakeLists.txt` (alphabetically); `src/domain/dsp/CMakeLists.txt` builds a
+library that nothing links.
 
-### 2. Build files
+### 2. The folder's build file: `src/plugins/effects/<name>/CMakeLists.txt`
 
-Add the `.hpp` to `HEADER_FILES` and the `.cpp` to `SOURCE_FILES` in `src/domain/CMakeLists.txt`,
-in alphabetical order. That includes new `dsp/` sources. `src/domain/dsp/CMakeLists.txt` builds a
-library that nothing links, so it doesn't need them.
+One call lists the folder's files by the layer each is built into:
+
+```cmake
+noteahead_add_effect(
+    DOMAIN_SOURCES
+        my_delay.cpp
+        my_delay.hpp
+        my_delay_registration.cpp
+    VIEW_SOURCES
+        my_delay_view_registration.cpp
+    QML_FILES
+        MyDelayDialog.qml
+)
+```
+
+Add `add_subdirectory(effects/<name>)` to `src/plugins/CMakeLists.txt`, alphabetically. A
+`<name>_presets.hpp/.cpp` or a dialog model joins the list of its layer.
 
 ### 3. Constants: `src/common/constants.hpp/.cpp`
 
 - Add the type string to `Constants::RackEffectType`, for example `QString reverb224()`.
-- Add any XML keys the effect needs to `Constants::NahdXml` that don't exist yet.
+- Add any XML keys the effect needs to `Constants::NahdXml` that don't exist yet, and expose a new
+  key to QML by adding it to `NahdXmlKeys` in `src/view/controllers/nahd_xml_keys.hpp/.cpp`.
 
-### 4. Factory: `src/domain/effects/effect_factory.cpp`
+### 4. Registration
 
-Register the effect in `EffectFactory::init()` by its type id:
+Two small files register the effect. The calls to them are generated from their file names, so
+no list anywhere else names the effect.
+
+`<name>_registration.cpp` adds it to the factory:
 
 ```cpp
-registerEffect(MyEffect::typeIdString(), []() { return std::make_shared<MyEffect>(); });
+void registerMyDelayEffect()
+{
+    EffectFactory::registerEffect(MyDelay::typeIdString(), [] { return std::make_shared<MyDelay>(); });
+}
 ```
 
-Older effects are also registered by their type string and under a snake_case
-`registerLegacyEffect()` alias, because old projects saved those. A new effect has no such
-projects, so the type id is enough.
+Older effects also register their type string and a snake_case `registerLegacyEffect()` alias,
+because old projects saved those. A new effect has no such projects, so the type id is enough.
 
-### 5. Controller: `src/view/controllers/effect_rack_controller.hpp/.cpp`
+`<name>_view_registration.cpp` adds its entry to the `PluginCatalog`:
 
-- A `Q_PROPERTY(QString <name>Type READ <name>Type CONSTANT)` returning the
-  `RackEffectType` string.
-- One `Q_INVOKABLE QString <name><Param>Key() const` per parameter, returning its XML key. The
-  dialog reads and writes values through `parameterValue(effectIndex, key)` and
-  `setParameterValue(effectIndex, key, value)`.
-- An `addEffect("<Display Name>", MyEffect::typeIdString(), <category>)` line in
-  `availableEffects()`.
-  - This list feeds the Effect Gallery.
-  - The categories are `dynamics`, `eqAndFilter`, `distortion`, `modulation`, `space`, `stereo`,
-    `utility` and `meters`.
-  - Effect names are not translated.
-- A branch in `effectParametersSummary()`, which gives the one-line summary the rack shows for the
-  slot.
+```cpp
+void registerMyDelayEffectView()
+{
+    PluginCatalog::addEffect({
+      .name = "My Delay",
+      .typeId = MyDelay::typeIdString(),
+      .type = Constants::RackEffectType::myDelay(),
+      .category = PluginCatalog::EffectCategory::Space,
+      .dialogFile = "MyDelayDialog.qml",
+      .summary = [](const std::shared_ptr<Effect> & effect, const PluginCatalog::SummaryContext &) -> QString {
+          // The one-line summary the rack shows for the slot
+      },
+    });
+}
+```
 
-### 6. Dialog: `src/view/qml/Dialogs/<Name>Dialog.qml`
+- The entry feeds the Effect Gallery, which lists effects alphabetically. Effect names are not
+  translated.
+- The categories are `Dynamics`, `EqAndFilter`, `Distortion`, `Modulation`, `Space`, `Stereo`,
+  `Utility` and `Meters`.
+- Translate any words in the summary with `EffectSummary::tr()`.
+- Nothing is added to `EffectRackController`.
+
+### 5. Dialog: `<Name>Dialog.qml` in the effect's folder
 
 - Base it on `EffectDialog`, with an `effectIndex` property that the launcher sets.
 - Size it in its own file as a fraction of the window:
-  `width: parent ? parent.width * Constants.effectDialogScale : <design width>`.
+  `width: parent ? parent.width * Constants.effectDialogScale : <design width>`. Nothing else sizes
+  it.
 - Put the content in a `ScrollView` (see [Dialog sizing](#dialog-sizing)).
-- Bind each control's value to `effectRackController.revision`, so that it refreshes after
-  automation, presets and undo. For example:
+- Read the keys from the `NahdXml` singleton, and bind each control's value to
+  `effectRackController.revision`, so that it refreshes after automation, presets and undo. For
+  example:
 
   ```qml
   Knob {
       label: qsTr("Gain")
       value: {
           effectRackController.revision;
-          return effectRackController.parameterValue(root.effectIndex, effectRackController.gainGainKey());
+          return effectRackController.parameterValue(root.effectIndex, NahdXml.gain);
       }
-      onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.gainGainKey(), v)
+      onMoved: v => effectRackController.setParameterValue(root.effectIndex, NahdXml.gain, v)
   }
   ```
 
-Then wire it up:
+- The top of a discrete parameter's range comes from
+  `effectRackController.parameterMaximum(root.effectIndex, key)`.
 
-- Add the file to `QML_SOURCE_FILES` in `src/CMakeLists.txt` (alphabetical).
-- Instantiate it in `src/view/qml/Main.qml` with only `id` and `anchors.centerIn: parent`.
-- Add a branch to `src/view/qml/Components/EffectDialogLauncher.qml`. It is the one place an
-  effect type is mapped to its dialog:
+The dialog is not instantiated in `Main.qml`, and `EffectDialogLauncher.qml` has no branch for it:
+the launcher asks the catalog for the dialog file, and `PluginDialogHost` creates the dialog the
+first time it opens.
+
+### 6. Dialog model, when the dialog needs more than parameters
+
+A response curve, a meter reading or an action that sets several parameters at once goes in a
+`<Name>DialogModel` in the effect's folder, listed under `VIEW_SOURCES`:
+
+- Derive it from `EffectDialogModel` and read the effect with `effect()`, which is null when the
+  slot holds something else. Set several parameters with one redraw through
+  `setParameterValues()`.
+- Register it from the catalog entry:
+  `.registerQmlTypes = [] { qmlRegisterType<MyDelayDialogModel>("Noteahead", 1, 0, "MyDelayDialogModel"); }`.
+- Create it in the dialog for its own slot:
 
   ```qml
-  } else if (effectType === effectRackController.myEffectType) {
-      myEffectDialog.effectIndex = index;
-      myEffectDialog.open();
+  MyDelayDialogModel {
+      id: dialogModel
+      rack: effectRackController
+      effectIndex: root.effectIndex
+  }
   ```
+
+- A binding that reads the model also reads `dialogModel.effectIndex`, so that it follows the
+  dialog to another slot.
+- An inline `component` cannot see the dialog's ids. Pass the model in through a property, and
+  give that property another name than the id, such as `effectModel: dialogModel`; a property
+  named `dialogModel` would bind to itself.
+
+`src/plugins/effects/eq_8_band_parametric/` is the example.
 
 ### 7. Tests
 
-- `src/unit_tests/<name>_test/` with its own `CMakeLists.txt`, copied from a neighbour such as
-  `reverb_224_test`. Add it to `src/unit_tests/CMakeLists.txt` with `add_subdirectory`. Test the
-  DSP, not just that it runs: levels, frequency response, decay times, bypass at the defaults.
+- The effect's tests go in `unit_tests/<name>_test/` in its folder, with their own
+  `CMakeLists.txt` copied from a neighbour such as `reverb_224`'s. Every folder in `unit_tests/`
+  that has one is added. Test the DSP, not just that it runs: levels, frequency response, decay
+  times, bypass at the defaults. A dialog model gets a test of its own beside it, such as
+  `eq_8_band_parametric_dialog_model_test`.
 - A round-trip case in `xml_serialization_test`: put the effect in a project, save it, load it
   and compare every parameter.
 - A case in `effect_rack_controller_test` that the gallery offers the effect, and that `setEffect`
@@ -262,7 +328,7 @@ A device takes MIDI and renders audio, or modulation, into a slot of the Virtual
 `PianoSynthDevice` is the smallest complete device, and `Kick909Device` is a recent complete one
 with presets, a waveform preview and MIDI CCs.
 
-### 1. The device class: `src/domain/devices/<name>_device.hpp/.cpp`
+### 1. The device class: `src/plugins/devices/<name>/<name>_device.hpp/.cpp`
 
 Inherit from `Device` and implement:
 
@@ -314,11 +380,34 @@ parameter to its default first, so that a preset is the whole panel. See
 Heavy DSP goes in `src/domain/dsp/` (for example `dsp/drum/kick_909_engine.cpp`), so that the
 device class stays a thin layer of parameters, voices and MIDI.
 
-### 2. Build files
+### 2. The folder's build file: `src/plugins/devices/<name>/CMakeLists.txt`
 
-Add every new domain source (device, presets, DSP) to `HEADER_FILES` and `SOURCE_FILES` in
-`src/domain/CMakeLists.txt`, alphabetically. Application sources, such as a waveform preview
-service, go in `src/application/CMakeLists.txt`.
+One call lists the folder's files by the layer each is built into:
+
+```cmake
+noteahead_add_device(
+    DOMAIN_SOURCES
+        my_synth_device.cpp
+        my_synth_device.hpp
+        my_synth_presets.cpp
+        my_synth_presets.hpp
+        my_synth_registration.cpp
+    APPLICATION_SOURCES
+        my_synth_preview.cpp
+        my_synth_preview.hpp
+    VIEW_SOURCES
+        my_synth_dialog_model.cpp
+        my_synth_dialog_model.hpp
+        my_synth_view_registration.cpp
+    QML_FILES
+        MySynthDialog.qml
+        MySynthDialog_Global.qml
+)
+```
+
+Add `add_subdirectory(devices/<name>)` to `src/plugins/CMakeLists.txt`, alphabetically. Leave out
+the layers the device has nothing in. Shared DSP goes in `src/domain/dsp/` and is listed in
+`src/domain/CMakeLists.txt` instead.
 
 ### 3. Constants: `src/common/constants.hpp/.cpp`
 
@@ -326,59 +415,73 @@ service, go in `src/application/CMakeLists.txt`.
   `"Noteahead Kick909"`.
 - Add any new `Constants::NahdXml` keys. Reuse existing ones where they fit.
 
-### 4. Factory: `src/domain/devices/device_registration.cpp`
+### 4. Dialog model: `<name>_dialog_model.hpp/.cpp` in the device's folder
 
-```cpp
-registerDevice(MyDevice::typeIdString(), [](const std::string & name) {
-    return std::make_shared<MyDevice>(name);
-});
-```
-
-### 5. Controller: `src/view/controllers/<name>_controller.hpp/.cpp`
-
-- Inherit from `DeviceController` and implement:
+- Inherit from `DeviceDialogModel` and implement:
   - `device()`
   - `setDevice(DeviceS)`: it casts to your type, then connects to the device's signals.
   - `requestSettings()`
   - `factoryPresetNames()` and `loadFactoryPreset()` if the device ships presets.
+  - `retranslate()` if it builds lists with `tr()`, so that a language change reaches them.
 - One `Q_PROPERTY` per parameter:
   - `int` for continuous values, scaled by `Constants::uiInternalScaling()`, so 0..1 becomes
     0..1000.
   - `bool` for switches.
 - Notify changes when the device emits `dataChanged` or `parametersChanged`, so the dialog
   follows presets, automation and undo.
-- Add both files to `src/view/CMakeLists.txt`.
 
-### 6. Device rack: `src/view/controllers/device_rack_controller.hpp/.cpp`
+There is one dialog model per device type. The rack hands it whichever device of that type is
+being opened.
 
-- Add a `void <name>DialogRequested();` signal.
-- In `openDevice()`, add a branch that emits it:
+### 5. Registration
 
-  ```cpp
-  } else if (typeId == MyDevice::typeIdString()) {
-      emit myDeviceDialogRequested();
-  ```
+Two small files register the device. The calls to them are generated from their file names, so
+nothing in `DeviceFactory`, `DeviceRackController`, `Application` or `Main.qml` names the device.
 
-- Add an `addDevice("<Display Name>", QString::fromStdString(MyDevice::typeIdString()), <category>)`
-  line in `availableDevices()`.
-  - This feeds the Device Gallery.
-  - The categories are `synths`, `keys`, `drums`, `samplers`, `mixers` and `modulators`.
-  - Device names are not translated.
+`<name>_registration.cpp` adds it to the factory:
 
-### 7. Application: `src/application/application.hpp/.cpp`
+```cpp
+void registerMySynthDevice()
+{
+    DeviceFactory::registerDevice(MySynthDevice::typeIdString(), [](const std::string & name) {
+        return std::make_shared<MySynthDevice>(name);
+    });
+}
+```
 
-- Add a `std::shared_ptr<MyController> m_myController` member, constructed with a default device,
-  as `m_kick909Controller` is.
-- Add it to the controller vector passed to `DeviceRackController`. The rack hands the opened
-  device to the controller through this vector.
-- `qmlRegisterType<MyController>("Noteahead", majorVersion, minorVersion, "MyController");`
-- `m_engine->rootContext()->setContextProperty("myController", m_myController.get());`
+`<name>_view_registration.cpp` adds its entry to the `PluginCatalog`:
 
-### 8. Dialog: `src/view/qml/Dialogs/<Name>Dialog.qml` and its sections
+```cpp
+void registerMySynthDeviceView()
+{
+    PluginCatalog::addDevice({
+      .name = "My Synth",
+      .typeId = MySynthDevice::typeIdString(),
+      .category = PluginCatalog::DeviceCategory::Synths,
+      .dialogFile = "MySynthDialog.qml",
+      .controllerProperty = "mySynthController",
+      .createDialogModel = [](const PluginCatalog::DeviceServiceS &) {
+          return std::make_shared<MySynthDialogModel>(std::make_shared<MySynthDevice>("Default MySynth"));
+      },
+      .registerQmlTypes = [] { qmlRegisterType<MySynthDialogModel>("Noteahead", 1, 0, "MySynthDialogModel"); },
+    });
+}
+```
+
+- The entry feeds the Device Gallery, which lists devices alphabetically. Device names are not
+  translated.
+- The categories are `Synths`, `Keys`, `StringsAndVoice`, `Drums`, `Samplers`, `Mixers` and
+  `Modulators`.
+- `controllerProperty` is the name the dialog reaches its model by.
+- `createDialogModel` is given the device service, for a model that needs it.
+- A model that needs a service that only exists later, such as the `AudioService`, gets it from
+  `connectServices`. `src/plugins/devices/sampler/` is the example.
+
+### 6. Dialog: `<Name>Dialog.qml` and its sections, in the device's folder
 
 - Split a large panel into section files: `<Name>Dialog_Global.qml`, `<Name>Dialog_Presets.qml`
-  and so on.
-- Take the title from `myController.displayName`.
+  and so on, all listed under `QML_FILES`.
+- Take the title from `mySynthController.displayName`.
 - Follow [Dialog sizing](#dialog-sizing).
 - Most devices give the user the same Global controls:
   - Gain, Fader and Pan
@@ -386,31 +489,28 @@ registerDevice(MyDevice::typeIdString(), [](const std::string & name) {
   - Velocity Sensitivity
   - Octave (`OctaveKnob`), where the device supports it
 - Add the `VirtualKeyboard` component to play the device from the dialog.
-- Add every file to `QML_SOURCE_FILES` in `src/CMakeLists.txt` (alphabetical).
-- In `Main.qml`:
-  - Instantiate the dialog (`id` and `anchors.centerIn: parent` only).
-  - Connect the request in the same `Component.onCompleted` block as the other devices:
 
-    ```qml
-    deviceRackController.myDeviceDialogRequested.connect(myDeviceDialog.open);
-    ```
+The dialog is not instantiated in `Main.qml`: `openDevice()` emits `pluginDeviceDialogRequested`
+with the catalog's dialog file, and `PluginDialogHost` creates the dialog the first time it opens.
 
-### 9. Tests
+### 7. Tests
 
-- `src/unit_tests/<name>_test/` with its own `CMakeLists.txt`, plus `add_subdirectory` in
-  `src/unit_tests/CMakeLists.txt`. Test:
+- The device's tests go in `unit_tests/<name>_test/` in its folder, with their own
+  `CMakeLists.txt`; a dialog model gets `unit_tests/<name>_dialog_model_test/`. Every folder in
+  `unit_tests/` that has a `CMakeLists.txt` is added. Test:
   - that a note sounds and then goes silent
   - pitch, where the device is pitched
   - velocity
-  - that `resetAudio()` renders identically again
   - that every preset loads, and that the preset names are unique
   - the device's MIDI CCs
 - A project-level round-trip case in `xml_serialization_test`. It covers the factory
   registration too.
-- `device_rack_controller_test` asserts the number of entries in `availableDevices()` and the
-  position of named ones, so update it.
+- `device_service_test` already checks every registered device: that its parameter defaults are
+  where it starts, that its modulation priorities name its own parameters, and that
+  `resetAudio()` renders identically again. `device_rack_controller_test` checks the gallery's
+  list of names, so add the new one there.
 
-### 10. Documentation, translations and changelog
+### 8. Documentation, translations and changelog
 
 See below.
 
@@ -470,7 +570,8 @@ QT_QPA_PLATFORM=offscreen ./build/noteahead --window-size 1024x768 --screenshots
 
 ### Unit tests
 
-- One test per subdirectory of `src/unit_tests/`, each with its own `CMakeLists.txt`.
+- One test per subdirectory, each with its own `CMakeLists.txt`: in the plugin's `unit_tests/`
+  for an effect's or device's own tests, in `src/unit_tests/` for everything else.
 - Test headers include `<QObject>` only. Test sources include `<QTest>`, not `<QtTest>`, plus
   specific headers such as `<QSignalSpy>`. Do not include `.moc` files.
 - Use `QTEST_GUILESS_MAIN`. A test that needs a `QGuiApplication` (fonts, QPainter, windows) uses
@@ -501,26 +602,23 @@ QT_QPA_PLATFORM=offscreen ./build/noteahead --window-size 1024x768 --screenshots
 
 ### Checklist
 
-Effect:
+Effect, all in `src/plugins/effects/<name>/`:
 
-- [ ] `domain/effects/<name>.hpp/.cpp`, plus DSP in `domain/dsp/` and presets as needed
-- [ ] `src/domain/CMakeLists.txt`
-- [ ] `RackEffectType` and any new XML keys in `constants.hpp/.cpp`
-- [ ] `EffectFactory::init()`
-- [ ] `EffectRackController`: type property, key methods, `availableEffects()`, summary
-- [ ] Dialog, `src/CMakeLists.txt`, `Main.qml`, `EffectDialogLauncher.qml`
-- [ ] Effect test, `xml_serialization_test`, `effect_rack_controller_test`
+- [ ] `<name>.hpp/.cpp`, plus DSP in `src/domain/dsp/` and presets as needed
+- [ ] `CMakeLists.txt` with `noteahead_add_effect()`, and `add_subdirectory` in `src/plugins/CMakeLists.txt`
+- [ ] `RackEffectType` and any new XML keys in `constants.hpp/.cpp`, new keys in `NahdXmlKeys`
+- [ ] `<name>_registration.cpp` and `<name>_view_registration.cpp`, with the summary
+- [ ] `<Name>Dialog.qml`, and a `<Name>DialogModel` if it needs more than parameters
+- [ ] Tests in `unit_tests/`, `xml_serialization_test`, `effect_rack_controller_test`
 - [ ] Translations, `CHANGELOG`, `README.md`, `Manual.html`
 
-Device:
+Device, all in `src/plugins/devices/<name>/`:
 
-- [ ] `domain/devices/<name>_device.hpp/.cpp`, plus presets and DSP as needed
-- [ ] `src/domain/CMakeLists.txt` (and `src/application/CMakeLists.txt` for services)
+- [ ] `<name>_device.hpp/.cpp`, plus presets and DSP as needed
+- [ ] `CMakeLists.txt` with `noteahead_add_device()`, and `add_subdirectory` in `src/plugins/CMakeLists.txt`
 - [ ] `<name>DeviceName()` and any new XML keys in `constants.hpp/.cpp`
-- [ ] `device_registration.cpp`
-- [ ] Controller, `src/view/CMakeLists.txt`
-- [ ] `DeviceRackController`: signal, `openDevice()`, `availableDevices()`
-- [ ] `Application`: member, controller vector, `qmlRegisterType`, context property
-- [ ] Dialog and sections, `src/CMakeLists.txt`, `Main.qml` instance and connection
-- [ ] Device test, `xml_serialization_test`, `device_rack_controller_test`
+- [ ] `<name>_dialog_model.hpp/.cpp`
+- [ ] `<name>_registration.cpp` and `<name>_view_registration.cpp`
+- [ ] `<Name>Dialog.qml` and its sections
+- [ ] Tests in `unit_tests/`, `xml_serialization_test`, `device_rack_controller_test`
 - [ ] Translations, `CHANGELOG`, `README.md`, `Manual.html`

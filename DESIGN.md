@@ -128,3 +128,34 @@ Other files use the same elements under another root:
   `Device`, `Effect` or `InsertEffects` and any `Data` a Sampler embeds.
 - **User presets**: `Preset fileFormatVersion applicationName applicationVersion createdDate typeId
   name`, holding `Parameters`.
+
+## Effects and devices as plugins
+
+Every effect and device lives in a folder of its own in `src/plugins/`. The steps for adding one
+are in `CONTRIBUTING.md`; this is why it is built the way it is.
+
+- **A folder, not a list.** Adding an effect used to mean editing a dozen lists across the tree:
+  the factory, the gallery, the controller, `Main.qml`, the launcher and the build files. Now
+  nothing outside the folder names it, except one `add_subdirectory()`, so the shared classes no
+  longer grow with every plugin.
+- **Layers still hold.** A folder mixes layers, but each file is built into the library of its own
+  layer, so domain code in a folder can no more reach the view than the rest of the domain can.
+- **Registration is generated, not static.** The libraries are static, so a self-registering
+  global object would be dropped by the linker. CMake instead writes one function per kind and
+  layer that calls every plugin's `register...()` function by name.
+  - The effects and devices get separate files, so that a binary that uses only effects does not
+    link every device.
+  - The domain half fills `EffectFactory` and `DeviceFactory`. The view half fills
+    `PluginCatalog`: gallery entries, dialog files, summaries, QML types and, for a device, its
+    dialog model.
+- **Dialogs are created on first open.** `PluginDialogHost` loads a plugin's dialog from the file
+  the catalog names and keeps it. Plugin dialogs keep their old resource path, `view/qml/Dialogs/`,
+  so their relative imports and translation contexts did not change when they moved.
+- **Dialog models hold what is not a parameter.** Each effect's response curves, meter readings
+  and multi-parameter actions are in its own `EffectDialogModel`, which looks its effect up through
+  the rack controller every time. A slot can change under an open dialog, so a model never keeps
+  the effect it was opened for. Device dialog models are one per device type, and the rack hands
+  them the device being opened.
+- **Rack controllers are split by subject.** Parameter keys come from the `NahdXml` singleton. The
+  mixer, the meters, the MIDI mappings and the sends each have a controller of their own, so
+  `EffectRackController` and `DeviceRackController` keep only the rack.

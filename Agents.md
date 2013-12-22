@@ -7,7 +7,7 @@ Noteahead is a MIDI tracker and sequencer for Linux, written in **Qt/QML** and *
 The project follows a layered architecture to ensure separation of concerns:
 
 - **`src/domain`**: The "Heart" of the application. Contains pure business logic and data structures.
-    - **`devices/`**: Virtual instruments and effects (e.g., `SynthDevice`, `DelayEffect`).
+    - **`devices/`** and **`effects/`**: The `Device` and `Effect` bases, the effect rack and the factories. The devices and effects themselves are plugins.
     - **`dsp/`**: Digital Signal Processing components (e.g., `AdsrEnvelope`, `SvfFilter`).
     - **Core**: `Song`, `Track`, `Pattern`, `Arpeggiator`, etc.
     - It should remain as independent of the UI and infrastructure as possible.
@@ -21,6 +21,7 @@ The project follows a layered architecture to ensure separation of concerns:
     - **`settings.cpp/hpp`**: Persistent configuration management.
 - **`src/view`**: The "Face". Pure QML-based UI, communicating with the application layer via models and services.
 - **`src/common`**: Shared constants and utilities.
+- **`src/plugins`**: One folder per effect (`effects/<name>/`) or device (`devices/<name>/`), holding its C++, its dialog, its dialog model and its tests. Each file is still built into the library of its own layer, so the layer rules hold inside a folder as well. A plugin registers itself from `<name>_registration.cpp` and `<name>_view_registration.cpp`; see `CONTRIBUTING.md`.
 - **`src/contrib`**: External dependencies bundled with the source (`Argengine`, `SimpleLogger`).
 
 ## 🛠 Technology Stack
@@ -71,7 +72,7 @@ Adherence to these standards is mandatory for all contributions:
 
 ## 🧪 Testing Strategy
 
-- **Unit Tests**: Located in `src/unit_tests`. Every new feature or bug fix should include a test.
+- **Unit Tests**: Located in `src/unit_tests`, or in a plugin's own `unit_tests/` for an effect's or device's tests. Every new feature or bug fix should include a test.
 - **Execution**: Run tests using `ctest` from the build directory.
 - **Framework**: Uses the Qt Test framework.
 - **Project Structure**: Each test MUST be in its own subdirectory with its own `CMakeLists.txt`.
