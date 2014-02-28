@@ -165,7 +165,7 @@ SynthDevice::SynthDevice(std::string name)
     addParameter(Parameter { Constants::NahdXml::xmlKeyLfo2Intensity().toStdString(), 0.5f, -10000, 10000, 0, 100 });
     addParameter(Parameter { Constants::NahdXml::xmlKeyLfo2Target().toStdString(), 0.0f, 0, 5, 0, 1, Parameter::Type::Discrete });
 
-    addParameter(Parameter { Constants::NahdXml::xmlKeyVoiceMode().toStdString(), 0.0f, 0, 1, 0, 1, Parameter::Type::Discrete });
+    addParameter(Parameter { Constants::NahdXml::xmlKeyVoiceMode().toStdString(), 0.0f, 0, 2, 0, 1, Parameter::Type::Discrete });
     addParameter(Parameter { Constants::NahdXml::xmlKeyVoiceDepth().toStdString(), 0.0f, 0, 10000, 0, 100 });
     addParameter(Parameter { Constants::NahdXml::xmlKeyPortamento().toStdString(), 0.0f, 0, 10000, 0, 100 });
     addParameter(Parameter { Constants::NahdXml::xmlKeyPanSpread().toStdString(), 0.0f, 0, 10000, 0, 100 });
@@ -335,6 +335,15 @@ void SynthDevice::updateVoiceParameters(Voice & voice, uint32_t oversampledRate,
         const double baseFreq = midiNoteToFreq(voice.note);
         const double detuneAmount = (static_cast<double>(index) - (MaxVoices - 1) / 2.0) * std::pow(m_voiceDepth, 1.5) * 0.2;
         voice.frequency = baseFreq * std::pow(2.0, detuneAmount / 12.0);
+    } else if (m_voiceMode == VoiceMode::Dual) {
+        const double baseFreq = midiNoteToFreq(voice.note);
+        const double detuneSign = (index % 2 == 0) ? -1.0 : 1.0;
+        constexpr double dualDetuneScale = 0.1;
+        const double detuneAmount = detuneSign * std::pow(m_voiceDepth, 1.5) * dualDetuneScale;
+        voice.frequency = baseFreq * std::pow(2.0, detuneAmount / 12.0);
+        const float side = (index % 2 == 0) ? -1.0f : 1.0f;
+        voice.pan = 0.5f + (side * m_panSpread * 0.5f);
+        return;
     }
 
     const float side = (index % 2 == 0) ? -1.0f : 1.0f;
@@ -480,6 +489,7 @@ void SynthDevice::resetAudio()
     m_oversamplerL.reset();
     m_oversamplerR.reset();
     m_polyNextVoice = 0;
+    m_dualNextPair = 0;
     m_nextTriggerId = 1;
 }
 
@@ -568,8 +578,7 @@ void SynthDevice::handleNoteOn(uint8_t note, uint8_t velocity)
                 m_voices.at(bestVoice.value()).triggerRandomized(note, freq, pan, finalVel, m_phaseDist(m_rng), m_nextTriggerId++);
             }
         }
-    } else {
-        // Unison
+    } else if (m_voiceMode == VoiceMode::Unison) {
         const uint64_t tid { m_nextTriggerId++ };
         for (size_t i = 0; i < MaxVoices; i++) {
             // Non-linear detune spread for better texture
@@ -588,6 +597,68 @@ void SynthDevice::handleNoteOn(uint8_t note, uint8_t velocity)
                 m_voices.at(i).trigger(note, voiceFreq, pan, finalVel, true, tid);
             } else {
                 m_voices.at(i).triggerRandomized(note, voiceFreq, pan, finalVel, m_phaseDist(m_rng), tid);
+            }
+        }
+    } else {
+        // Dual: pair voices (0,1), (2,3), (4,5) — each pair plays one note with two detuned sub-voices
+        constexpr size_t numPairs = MaxVoices / 2;
+        std::optional<size_t> bestPair;
+
+        // 1. Affinity: reuse a pair already playing this note
+        for (size_t p = 0; p < numPairs; p++) {
+            if (m_voices.at(p * 2).active && m_voices.at(p * 2).note == note) {
+                bestPair = p;
+                break;
+            }
+        }
+
+        // 2. Round-robin free pair (both voices must be idle)
+        if (!bestPair) {
+            for (size_t i = 0; i < numPairs; i++) {
+                const size_t p = (m_dualNextPair + i) % numPairs;
+                if (!m_voices.at(p * 2).active && !m_voices.at(p * 2 + 1).active) {
+                    bestPair = p;
+                    m_dualNextPair = (p + 1) % numPairs;
+                    break;
+                }
+            }
+        }
+
+        // 3. Steal oldest pair
+        if (!bestPair) {
+            uint64_t oldestId = std::numeric_limits<uint64_t>::max();
+            for (size_t p = 0; p < numPairs; p++) {
+                if (m_voices.at(p * 2).triggerId < oldestId) {
+                    oldestId = m_voices.at(p * 2).triggerId;
+                    bestPair = p;
+                }
+            }
+        }
+
+        if (bestPair) {
+            const size_t v0 = bestPair.value() * 2;
+            const size_t v1 = v0 + 1;
+            const uint64_t tid = m_nextTriggerId++;
+
+            constexpr double dualDetuneScale = 0.1;
+            const double detuneAmount = std::pow(m_voiceDepth, 1.5) * dualDetuneScale;
+            const double freq0 = freq * std::pow(2.0, -detuneAmount / 12.0);
+            const double freq1 = freq * std::pow(2.0, detuneAmount / 12.0);
+
+            if (m_portamento <= 0.001f) {
+                m_voices.at(v0).glideFrequency = freq0;
+                m_voices.at(v1).glideFrequency = freq1;
+            }
+
+            const float pan0 = 0.5f - m_panSpread * 0.5f;
+            const float pan1 = 0.5f + m_panSpread * 0.5f;
+
+            if (m_vco1Sync) {
+                m_voices.at(v0).trigger(note, freq0, pan0, finalVel, true, tid);
+                m_voices.at(v1).trigger(note, freq1, pan1, finalVel, true, tid);
+            } else {
+                m_voices.at(v0).triggerRandomized(note, freq0, pan0, finalVel, m_phaseDist(m_rng), tid);
+                m_voices.at(v1).triggerRandomized(note, freq1, pan1, finalVel, m_phaseDist(m_rng), tid);
             }
         }
     }

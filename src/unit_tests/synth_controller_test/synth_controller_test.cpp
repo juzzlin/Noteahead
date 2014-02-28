@@ -99,9 +99,10 @@ void SynthControllerTest::test_voiceModes()
     const auto synth = std::make_shared<SynthDevice>("Test Synth");
     SynthController controller { synth };
     const auto modes = controller.voiceModes();
-    QCOMPARE(modes.size(), 2);
+    QCOMPARE(modes.size(), 3);
     QCOMPARE(modes.at(0), QString("Poly"));
     QCOMPARE(modes.at(1), QString("Unison"));
+    QCOMPARE(modes.at(2), QString("Dual"));
 }
 
 } // namespace noteahead

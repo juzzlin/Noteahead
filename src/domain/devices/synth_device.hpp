@@ -43,7 +43,8 @@ public:
     enum class VoiceMode
     {
         Poly,
-        Unison
+        Unison,
+        Dual
     };
 
     enum class ModTarget
@@ -286,6 +287,7 @@ private:
 
     std::vector<Voice> m_voices;
     size_t m_polyNextVoice = 0;
+    size_t m_dualNextPair { 0 };
 
     mutable std::mt19937 m_rng { 0 };
     mutable std::uniform_real_distribution<double> m_phaseDist { 0.0, 1.0 };

@@ -71,6 +71,13 @@ private slots:
     void test_lfoTarget_volume_shouldModulateAmplitude();
     void test_lfoTarget_resonance_shouldModulateResonance();
     void test_lfoTarget_pan_shouldModulatePanning();
+
+    void test_dualMode_shouldProduceAudioOnNote();
+    void test_dualMode_polyphony_shouldAllowChords();
+    void test_dualMode_portamento_shouldGlideFrequency();
+    void test_dualMode_portamentoOff_shouldJumpImmediately();
+    void test_dualMode_liveDepth_shouldUpdateFrequency();
+    void test_dualMode_serialization_shouldPreserveState();
 };
 
 } // namespace noteahead

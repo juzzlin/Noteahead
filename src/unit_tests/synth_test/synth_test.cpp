@@ -1379,6 +1379,149 @@ void SynthTest::test_lfoTarget_pan_shouldModulatePanning()
     QVERIFY2(diffWithPan > diffNoPan, qPrintable(QString("Pan LFO did not create stereo difference: noPan=%1, withPan=%2").arg(diffNoPan).arg(diffWithPan)));
 }
 
+void SynthTest::test_dualMode_shouldProduceAudioOnNote()
+{
+    SynthDevice synth { "Test Synth" };
+    synth.setVoiceMode(SynthDevice::VoiceMode::Dual);
+    synth.processMidiNoteOn(60, 100);
+
+    double output[2048] {};
+    AudioContext context { std::span(output, 2048), 1024, static_cast<uint32_t>(Constants::defaultSampleRate()) };
+    synth.processAudio(context);
+
+    bool soundDetected = false;
+    for (const double s : output) {
+        if (std::abs(s) > 0.0001) {
+            soundDetected = true;
+            break;
+        }
+    }
+    QVERIFY(soundDetected);
+}
+
+void SynthTest::test_dualMode_polyphony_shouldAllowChords()
+{
+    SynthDevice synth { "Test Synth" };
+    synth.setVoiceMode(SynthDevice::VoiceMode::Dual);
+    // Three notes fill all three pairs; chord must still sound
+    synth.processMidiNoteOn(60, 100);
+    synth.processMidiNoteOn(64, 100);
+    synth.processMidiNoteOn(67, 100);
+
+    double output[2048] {};
+    AudioContext context { std::span(output, 2048), 1024, static_cast<uint32_t>(Constants::defaultSampleRate()) };
+    synth.processAudio(context);
+
+    bool soundDetected = false;
+    for (const double s : output) {
+        if (std::abs(s) > 0.0001) {
+            soundDetected = true;
+            break;
+        }
+    }
+    QVERIFY(soundDetected);
+}
+
+void SynthTest::test_dualMode_portamento_shouldGlideFrequency()
+{
+    SynthDevice synth { "Test Synth" };
+    synth.setVoiceMode(SynthDevice::VoiceMode::Dual);
+    synth.setPortamento(0.5f);
+
+    const double freq60 = 440.0 * std::pow(2.0, (60 - 69) / 12.0);
+
+    synth.processMidiNoteOn(60, 100);
+    // Pair 0 (voices 0,1) should hold freq60 as glide start
+    QCOMPARE(synth.voiceGlideFrequency(0), freq60);
+    QCOMPARE(synth.voiceGlideFrequency(1), freq60);
+
+    // Trigger a second note on a new pair — pair 0 must still be at freq60 (gliding)
+    synth.processMidiNoteOn(64, 100);
+    QCOMPARE(synth.voiceGlideFrequency(0), freq60);
+    QCOMPARE(synth.voiceGlideFrequency(1), freq60);
+}
+
+void SynthTest::test_dualMode_portamentoOff_shouldJumpImmediately()
+{
+    SynthDevice synth { "Test Synth" };
+    synth.setVoiceMode(SynthDevice::VoiceMode::Dual);
+    synth.setPortamento(0.0f);
+    synth.setVoiceDepth(0.0f);
+
+    const double freq60 = 440.0 * std::pow(2.0, (60 - 69) / 12.0);
+    const double freq62 = 440.0 * std::pow(2.0, (62 - 69) / 12.0);
+
+    synth.processMidiNoteOn(60, 100);
+    bool found60 = false;
+    for (int i = 0; i < SynthDevice::MaxVoices; i++) {
+        if (std::abs(synth.voiceGlideFrequency(i) - freq60) < 0.001) {
+            found60 = true;
+            break;
+        }
+    }
+    QVERIFY(found60);
+
+    // Release 60, trigger 62 so the same pair is reused (affinity)
+    synth.processMidiNoteOff(60);
+    synth.processMidiNoteOn(62, 100);
+    bool found62 = false;
+    for (int i = 0; i < SynthDevice::MaxVoices; i++) {
+        if (std::abs(synth.voiceGlideFrequency(i) - freq62) < 0.001) {
+            found62 = true;
+            break;
+        }
+    }
+    QVERIFY(found62);
+}
+
+void SynthTest::test_dualMode_liveDepth_shouldUpdateFrequency()
+{
+    SynthDevice synth { "Test Synth" };
+    synth.setVoiceMode(SynthDevice::VoiceMode::Dual);
+    synth.setVoiceDepth(0.0f);
+    synth.setPortamento(0.0f);
+
+    const uint8_t note = 60;
+    const double baseFreq = 440.0 * std::pow(2.0, (note - 69) / 12.0);
+
+    synth.processMidiNoteOn(note, 100);
+    // With depth 0, both sub-voices converge to base frequency
+    QVERIFY(std::abs(synth.voiceGlideFrequency(0) - baseFreq) < 0.001);
+    QVERIFY(std::abs(synth.voiceGlideFrequency(1) - baseFreq) < 0.001);
+
+    double output[256] {};
+    AudioContext context { std::span(output, 256), 128, 44100 };
+    synth.processAudio(context);
+
+    synth.setVoiceDepth(1.0f);
+    synth.processAudio(context);
+
+    // After live depth update: voice 0 (even) is below base, voice 1 (odd) is above
+    QVERIFY(synth.voiceGlideFrequency(0) < baseFreq - 0.001);
+    QVERIFY(synth.voiceGlideFrequency(1) > baseFreq + 0.001);
+}
+
+void SynthTest::test_dualMode_serialization_shouldPreserveState()
+{
+    QByteArray data;
+    {
+        SynthDevice synth { "Test Synth" };
+        synth.setVoiceMode(SynthDevice::VoiceMode::Dual);
+        NahdXmlWriter writer { data };
+        synth.serializeToXml(writer);
+    }
+
+    {
+        SynthDevice synth { "Test Synth" };
+        NahdXmlReader reader { data };
+        while (!reader.atEnd() && !reader.isStartElement()) {
+            reader.readNext();
+        }
+        synth.deserializeFromXml(reader);
+        QCOMPARE(synth.voiceMode(), SynthDevice::VoiceMode::Dual);
+    }
+}
+
 } // namespace noteahead
 
 QTEST_GUILESS_MAIN(noteahead::SynthTest)
