@@ -47,6 +47,25 @@ EffectDialog {
             width: dialogScrollView.availableWidth
             spacing: 20
 
+            // The spectrum mode shares the preset row, right-aligned by the spacer the row ends with
+            RowLayout {
+                spacing: 15
+                Layout.fillWidth: true
+
+                EffectPresetRow {
+                    effectIndex: root.effectIndex
+                }
+                Label {
+                    text: qsTr("Spectrum")
+                    font.bold: true
+                }
+                SpectrumModeComboBox {
+                    effectIndex: root.effectIndex
+                    renderer: curve
+                    active: root.visible
+                }
+            }
+
             // The taps are summed with the dry path rather than cascaded, so what a knob does to
             // the curve is not the dB on its label: the skirts follow the phase each tap meets the
             // dry signal at. Reading it off the equalizer is the only way to show that honestly.
@@ -156,40 +175,28 @@ EffectDialog {
                         }
                     }
 
-                    Knob {
-                        label: qsTr("Output")
-                        suffix: "dB"
-                        isInteger: false
-                        from: -12
-                        to: 12
+                    // Auto gain beside the trim it adds to
+                    RowLayout {
+                        spacing: 15
                         Layout.fillWidth: true
-                        value: {
-                            effectRackController.revision;
-                            return effectRackController.parameterValue(root.effectIndex, effectRackController.airBandEqOutputGainKey()) * 24 - 12;
+
+                        AutoGainSwitch {
+                            effectIndex: root.effectIndex
                         }
-                        onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.airBandEqOutputGainKey(), (v + 12) / 24)
+                        Knob {
+                            label: qsTr("Output")
+                            suffix: "dB"
+                            isInteger: false
+                            from: -12
+                            to: 12
+                            Layout.fillWidth: true
+                            value: {
+                                effectRackController.revision;
+                                return effectRackController.parameterValue(root.effectIndex, effectRackController.airBandEqOutputGainKey()) * 24 - 12;
+                            }
+                            onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.airBandEqOutputGainKey(), (v + 12) / 24)
+                        }
                     }
-                }
-            }
-
-            RowLayout {
-                spacing: 15
-                Layout.fillWidth: true
-
-                AutoGainSwitch {
-                    effectIndex: root.effectIndex
-                }
-                Label {
-                    text: qsTr("Spectrum")
-                    font.bold: true
-                }
-                SpectrumModeComboBox {
-                    effectIndex: root.effectIndex
-                    renderer: curve
-                    active: root.visible
-                }
-                Item {
-                    Layout.fillWidth: true
                 }
             }
         }

@@ -18,6 +18,7 @@
 #include "../../common/constants.hpp"
 #include "../../domain/dsp/svf_filter.hpp"
 #include "../../domain/effects/air_band_eq.hpp"
+#include "../../domain/effects/air_band_eq_presets.hpp"
 
 #include <QTest>
 
@@ -27,6 +28,7 @@
 #include <memory>
 #include <numbers>
 #include <random>
+#include <set>
 #include <vector>
 
 namespace noteahead {
@@ -529,6 +531,57 @@ void AirBandEqTest::test_autoGain_off_shouldLeaveOutputUnchanged()
     boostBandsAndAir(reference);
     boostBandsAndAir(toggled);
     verifyAutoGainOffLeavesOutputUnchanged(reference, toggled);
+}
+
+void AirBandEqTest::test_presets_names_shouldBeUniqueWithFlatFirst()
+{
+    const auto & presets = AirBandEqPresets::presets();
+    QVERIFY(!presets.empty());
+    QCOMPARE(presets.front().name, std::string { "Flat" });
+    std::set<std::string> seen;
+    for (size_t i = 0; i < presets.size(); i++) {
+        QVERIFY2(seen.insert(presets.at(i).name).second, presets.at(i).name.c_str());
+        // Alphabetical after the way back
+        if (i > 1) {
+            QVERIFY2(presets.at(i - 1).name < presets.at(i).name, presets.at(i).name.c_str());
+        }
+    }
+}
+
+void AirBandEqTest::test_presets_shouldNameOnlyKnownParameters()
+{
+    const AirBandEq effect;
+    for (const auto & preset : AirBandEqPresets::presets()) {
+        for (const auto & [name, value] : preset.parameters) {
+            QVERIFY2(effect.parameter(name), (preset.name + ": " + name).c_str());
+            QVERIFY2(value >= 0.0f && value <= 5.0f, (preset.name + ": " + name).c_str());
+        }
+    }
+}
+
+void AirBandEqTest::test_presets_flat_shouldBeNeutral()
+{
+    auto effectOwner = makeEq();
+    auto & effect = *effectOwner;
+    setBand(effect, Band650Hz, BandFullBoost);
+    effect.applyFactoryPreset(0);
+    for (const double hz : { 30.0, 650.0, 10000.0 }) {
+        QVERIFY(std::abs(effect.magnitudeDbAt(hz)) < 1e-9);
+    }
+}
+
+void AirBandEqTest::test_presets_each_shouldStayGentle()
+{
+    // Program moves, not repairs: nothing in the audible range more than 9 dB from flat
+    for (size_t i = 0; i < AirBandEqPresets::presets().size(); i++) {
+        auto effectOwner = makeEq();
+        auto & effect = *effectOwner;
+        effect.applyFactoryPreset(i);
+        for (const double hz : { 20.0, 40.0, 160.0, 650.0, 2500.0, 10000.0, 20000.0 }) {
+            const double db = effect.magnitudeDbAt(hz);
+            QVERIFY2(std::abs(db) < 9.0, qPrintable(QString::fromStdString(AirBandEqPresets::presets().at(i).name) + " " + QString::number(db) + " dB at " + QString::number(hz)));
+        }
+    }
 }
 
 } // namespace noteahead

@@ -50,14 +50,23 @@ EffectDialog {
         anchors.margins: 20
         spacing: 20
 
-        // The stereo mode shares the preset row, which leaves the column beside the curve to what
-        // is read against the curve
+        // The spectrum and the stereo mode share the preset row, which leaves the column beside the
+        // curve to the output
         RowLayout {
             spacing: 15
             Layout.fillWidth: true
 
             EffectPresetRow {
                 effectIndex: root.effectIndex
+            }
+            Label {
+                text: qsTr("Spectrum")
+                font.bold: true
+            }
+            SpectrumModeComboBox {
+                effectIndex: root.effectIndex
+                renderer: curve
+                active: root.visible
             }
             Label {
                 text: qsTr("Stereo Mode")
@@ -79,22 +88,13 @@ EffectDialog {
             spacing: 15
             Layout.fillWidth: true
 
-            // Stacked, so that the spectrum controls cost the curve no width. Not filling, which a
-            // layout otherwise does by default, so that the spare width goes to the curve
+            // Auto gain over the trim it adds to. Not filling, which a layout otherwise does by
+            // default, so that the spare width goes to the curve
             ColumnLayout {
                 spacing: 10
                 Layout.alignment: Qt.AlignTop
                 Layout.fillWidth: false
 
-                Label {
-                    text: qsTr("Spectrum")
-                    font.bold: true
-                }
-                SpectrumModeComboBox {
-                    effectIndex: root.effectIndex
-                    renderer: curve
-                    active: root.visible
-                }
                 AutoGainSwitch {
                     effectIndex: root.effectIndex
                 }

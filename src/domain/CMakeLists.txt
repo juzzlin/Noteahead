@@ -92,6 +92,7 @@ set(HEADER_FILES
     dsp/waveguide_string.hpp
     dsp/wavetable_oscillator.hpp
     effects/air_band_eq.hpp
+    effects/air_band_eq_presets.hpp
     effects/all_pass_filter.hpp
     effects/ambience.hpp
     effects/analog_fuzz.hpp
@@ -300,6 +301,7 @@ set(SOURCE_FILES
     dsp/wavetable.cpp
     dsp/wavetable_oscillator.cpp
     effects/air_band_eq.cpp
+    effects/air_band_eq_presets.cpp
     effects/all_pass_filter.cpp
     effects/ambience.cpp
     effects/analog_fuzz.cpp

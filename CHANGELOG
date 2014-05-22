@@ -33,6 +33,8 @@ New features:
 
 * EQ 8-Band Parametric: Output gain
 
+* Air Band EQ: factory and user presets
+
 * EQs: Auto Gain keeps the level the same while the tone changes
   - All EQs but Dynamic EQ; off by default, and in Mid or Side mode only the shaped path is compensated
 

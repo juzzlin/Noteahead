@@ -65,6 +65,8 @@ public:
     bool isSettled() const override;
     SpectrumTaps & spectrumTaps() override;
 
+    const EffectPresetList & factoryPresets() const override;
+
     //! What the whole equalizer does at @p frequency, in dB.
     //!
     //! Summed complex rather than as magnitudes, because that is how the taps actually meet the dry

@@ -17,6 +17,7 @@
 
 #include "../../common/constants.hpp"
 #include "../dsp/audio_context.hpp"
+#include "air_band_eq_presets.hpp"
 
 #include <algorithm>
 #include <cmath>
@@ -136,6 +137,11 @@ bool AirBandEq::isSettled() const
 SpectrumTaps & AirBandEq::spectrumTaps()
 {
     return m_spectrumTaps;
+}
+
+const EffectPresetList & AirBandEq::factoryPresets() const
+{
+    return AirBandEqPresets::presets();
 }
 
 void AirBandEq::updateBuffers()

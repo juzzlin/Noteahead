@@ -47,6 +47,10 @@ private slots:
     void test_autoGain_boosted_shouldLevelPinkNoise();
     void test_autoGain_boosted_shouldMatchWhatIsHeard();
     void test_autoGain_off_shouldLeaveOutputUnchanged();
+    void test_presets_names_shouldBeUniqueWithFlatFirst();
+    void test_presets_shouldNameOnlyKnownParameters();
+    void test_presets_flat_shouldBeNeutral();
+    void test_presets_each_shouldStayGentle();
 };
 
 } // namespace noteahead

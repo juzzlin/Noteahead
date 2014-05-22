@@ -48,13 +48,23 @@ EffectDialog {
         anchors.margins: 20
         spacing: 15
 
-        // The stereo mode shares the preset row, so that the row below has room for the rest
+        // The spectrum and the stereo mode share the preset row, so that the row below has room for
+        // the rest
         RowLayout {
             spacing: 15
             Layout.fillWidth: true
 
             EffectPresetRow {
                 effectIndex: root.effectIndex
+            }
+            Label {
+                text: qsTr("Spectrum")
+                font.bold: true
+            }
+            SpectrumModeComboBox {
+                effectIndex: root.effectIndex
+                renderer: curve
+                active: root.visible
             }
             Label {
                 text: qsTr("Stereo Mode")
@@ -89,25 +99,17 @@ EffectDialog {
                 // The same curve either way; what changes is the phase, and the price of it is time
                 ToolTip.text: qsTr("Shape the sound without shifting the phase of any frequency against the others, at the cost of delaying the output by %1 ms. Nothing makes up for that delay while playing, so use it on the master, where the whole mix is late together; a rendered file is put back in time.").arg(Math.round(effectRackController.eq32BandGraphicalLinearPhaseLatencyMs(root.effectIndex)))
             }
-            AutoGainSwitch {
-                effectIndex: root.effectIndex
-            }
             AppButton {
                 text: qsTr("Flat")
                 toolTipText: qsTr("Every slider back to 0 dB")
                 onClicked: effectRackController.eq32BandGraphicalFlatten(root.effectIndex)
             }
-            Label {
-                text: qsTr("Spectrum")
-                font.bold: true
-            }
-            SpectrumModeComboBox {
-                effectIndex: root.effectIndex
-                renderer: curve
-                active: root.visible
-            }
             Item {
                 Layout.fillWidth: true
+            }
+            // Auto gain beside the trim it adds to
+            AutoGainSwitch {
+                effectIndex: root.effectIndex
             }
             Knob {
                 label: qsTr("Output")

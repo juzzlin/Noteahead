@@ -87,13 +87,27 @@ EffectDialog {
         anchors.margins: 20
         spacing: 12
 
-        // The stereo mode shares the preset row, so that the row below has room for the spectrum
+        // The spectrum and the stereo mode share the preset row, so that the row below keeps to the band
         RowLayout {
             spacing: 15
             Layout.fillWidth: true
 
             EffectPresetRow {
                 effectIndex: root.effectIndex
+            }
+            Label {
+                text: qsTr("Spectrum")
+                font.bold: true
+            }
+            SpectrumModeComboBox {
+                effectIndex: root.effectIndex
+                renderer: curve
+                active: root.visible
+                // The input tap is this signal and the output tap the side chain, which is what a
+                // dynamic band is read against: what it hears beside what it moves
+                model: [qsTr("None"), qsTr("Side Chain"), qsTr("Self"), qsTr("Both")]
+                modes: [0, 2, 1, 3] // Off, Post, Pre, Both
+                ToolTip.text: qsTr("The live spectrum behind the curve: of the side chain, of this signal as it arrives, or both")
             }
             Label {
                 text: qsTr("Stereo Mode")
@@ -139,20 +153,6 @@ EffectDialog {
                 ToolTip.timeout: Constants.toolTipTimeout
                 ToolTip.visible: hovered
                 ToolTip.text: qsTr("Play what the detector hears instead of the output, to find the frequency to react to")
-            }
-            Label {
-                text: qsTr("Spectrum")
-                font.bold: true
-            }
-            SpectrumModeComboBox {
-                effectIndex: root.effectIndex
-                renderer: curve
-                active: root.visible
-                // The input tap is this signal and the output tap the side chain, which is what a
-                // dynamic band is read against: what it hears beside what it moves
-                model: [qsTr("None"), qsTr("Side Chain"), qsTr("Self"), qsTr("Both")]
-                modes: [0, 2, 1, 3] // Off, Post, Pre, Both
-                ToolTip.text: qsTr("The live spectrum behind the curve: of the side chain, of this signal as it arrives, or both")
             }
         }
 
