@@ -417,6 +417,7 @@ void Application::connectJackService()
         }
     });
     m_jackService->onAudioBackendChanged();
+    m_audioService->reinitialize();
 }
 
 void Application::connectApplicationService()
