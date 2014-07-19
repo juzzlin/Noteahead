@@ -33,7 +33,7 @@ class Device : public QObject, public ParameterContainer
     Q_OBJECT
 
 public:
-    virtual ~Device() = default;
+    virtual ~Device() override = default;
 
     virtual std::string name() const = 0;
     virtual std::string category() const = 0;

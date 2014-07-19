@@ -16,14 +16,17 @@
 #include "device_rack_controller.hpp"
 #include "device_service.hpp"
 #include "sampler_controller.hpp"
+#include "synth_controller.hpp"
 #include "../../domain/devices/sampler_device.hpp"
+#include "../../domain/devices/synth_device.hpp"
 
 namespace noteahead {
 
-DeviceRackController::DeviceRackController(DeviceServiceS deviceService, SamplerControllerS samplerController, QObject * parent)
+DeviceRackController::DeviceRackController(DeviceServiceS deviceService, SamplerControllerS samplerController, SynthControllerS synthController, QObject * parent)
   : QObject { parent }
   , m_deviceService { std::move(deviceService) }
   , m_samplerController { std::move(samplerController) }
+  , m_synthController { std::move(synthController) }
 {
     connect(m_deviceService.get(), &DeviceService::dataChanged, this, &DeviceRackController::devicesChanged);
 }
@@ -40,6 +43,9 @@ void DeviceRackController::openDevice(const QString & name)
     if (const auto sampler = std::dynamic_pointer_cast<SamplerDevice>(m_deviceService->device(name.toStdString()))) {
         m_samplerController->setSampler(sampler);
         emit samplerDialogRequested();
+    } else if (const auto synth = std::dynamic_pointer_cast<SynthDevice>(m_deviceService->device(name.toStdString()))) {
+        m_synthController->setSynth(synth);
+        emit synthDialogRequested();
     }
 }
 

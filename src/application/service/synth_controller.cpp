@@ -176,4 +176,13 @@ void SynthController::loadPreset(int index) { if (m_synth) m_synth->loadPreset(i
 void SynthController::playNote(int note, double velocity) { if (m_synth) m_synth->processMidiNoteOn(note, static_cast<uint8_t>(velocity * 127.0)); }
 void SynthController::stopNote(int note) { if (m_synth) m_synth->processMidiNoteOff(note); }
 
+void SynthController::setSynth(std::shared_ptr<SynthDevice> synth)
+{
+    if (m_synth != synth) {
+        m_synth = std::move(synth);
+        emit synthChanged();
+        requestSettings();
+    }
+}
+
 } // namespace noteahead

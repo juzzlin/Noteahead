@@ -64,7 +64,8 @@ void SynthDevice::Voice::release()
     modEg.release();
 }
 
-SynthDevice::SynthDevice()
+SynthDevice::SynthDevice(std::string name)
+  : m_name { std::move(name) }
 {
     m_voices.resize(MaxVoices);
 
@@ -141,8 +142,20 @@ SynthDevice::SynthDevice()
 
 SynthDevice::~SynthDevice() = default;
 
-std::string SynthDevice::name() const { return "Notealogue"; }
-std::string SynthDevice::category() const { return Constants::NahdXml::xmlValueSynths().toStdString(); }
+std::string SynthDevice::name() const
+{
+    return m_name;
+}
+
+std::string SynthDevice::category() const
+{
+    return Constants::NahdXml::xmlValueSynths().toStdString();
+}
+
+std::string SynthDevice::typeId() const
+{
+    return "26f5a47e-4786-11f1-92b0-0b3f3bef9f74";
+}
 
 void SynthDevice::processAudio(float * output, uint32_t nFrames, uint32_t sampleRate)
 {

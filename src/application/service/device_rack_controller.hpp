@@ -24,6 +24,7 @@ namespace noteahead {
 
 class DeviceService;
 class SamplerController;
+class SynthController;
 
 class DeviceRackController : public QObject
 {
@@ -33,8 +34,9 @@ class DeviceRackController : public QObject
 public:
     using DeviceServiceS = std::shared_ptr<DeviceService>;
     using SamplerControllerS = std::shared_ptr<SamplerController>;
+    using SynthControllerS = std::shared_ptr<SynthController>;
 
-    explicit DeviceRackController(DeviceServiceS deviceService, SamplerControllerS samplerController, QObject * parent = nullptr);
+    explicit DeviceRackController(DeviceServiceS deviceService, SamplerControllerS samplerController, SynthControllerS synthController, QObject * parent = nullptr);
     ~DeviceRackController() override;
 
     QStringList devices() const;
@@ -44,10 +46,12 @@ public:
 signals:
     void devicesChanged();
     void samplerDialogRequested();
+    void synthDialogRequested();
 
 private:
     DeviceServiceS m_deviceService;
     SamplerControllerS m_samplerController;
+    SynthControllerS m_synthController;
 };
 
 } // namespace noteahead

@@ -170,6 +170,7 @@ public:
     Q_INVOKABLE void stopNote(int note);
 
 signals:
+    void synthChanged();
     void vco1WaveformChanged(); void vco1OctaveChanged(); void vco1PitchChanged(); void vco1ShapeChanged(); void vco1SyncChanged();
     void vco2WaveformChanged(); void vco2OctaveChanged(); void vco2PitchChanged(); void vco2ShapeChanged(); void vco2SyncChanged();
     void multiTypeChanged(); void multiShapeChanged(); void multiLevelChanged(); void multiKeyTrackChanged();
@@ -180,6 +181,9 @@ signals:
     void lfoWaveformChanged(); void lfoModeChanged(); void lfoRateChanged(); void lfoIntChanged(); void lfoTargetChanged();
     void voiceModeChanged(); void voiceDepthChanged(); void portamentoChanged(); void panSpreadChanged(); void masterPanChanged(); void masterVolumeChanged();
     void delayTypeChanged(); void delayTimeChanged(); void delayFeedbackChanged(); void delayDepthChanged(); void delayMixChanged(); void delaySyncChanged(); void delaySyncDivisionChanged();
+
+public:
+    void setSynth(std::shared_ptr<SynthDevice> synth);
 
 private:
     std::shared_ptr<SynthDevice> m_synth;

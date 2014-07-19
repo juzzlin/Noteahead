@@ -17,8 +17,8 @@ void SynthTest::cleanupTestCase()
 
 void SynthTest::test_defaultValues_shouldBeCorrect()
 {
-    SynthDevice synth;
-    QCOMPARE(synth.name(), std::string("Notealogue"));
+    SynthDevice synth { "Test Synth" };
+    QCOMPARE(synth.name(), std::string("Test Synth"));
     QCOMPARE(synth.vco1Octave(), 0);
     QCOMPARE(synth.vco1Pitch(), 0);
     QCOMPARE(synth.mixVco1(), 1.0f);
@@ -31,7 +31,7 @@ void SynthTest::test_defaultValues_shouldBeCorrect()
 
 void SynthTest::test_parameterSetting_shouldUpdateValues()
 {
-    SynthDevice synth;
+    SynthDevice synth { "Test Synth" };
     synth.setVco2Waveform(PolyBLEPOscillator::Waveform::Pulse);
     QCOMPARE(synth.vco2Waveform(), PolyBLEPOscillator::Waveform::Pulse);
     
@@ -56,7 +56,7 @@ void SynthTest::test_parameterSetting_shouldUpdateValues()
 
 void SynthTest::test_polyphony_shouldActiveMultipleVoices()
 {
-    SynthDevice synth;
+    SynthDevice synth { "Test Synth" };
     synth.processMidiNoteOn(60, 100);
     synth.processMidiNoteOn(64, 100);
     synth.processMidiNoteOn(67, 100);
@@ -79,7 +79,7 @@ void SynthTest::test_polyphony_shouldActiveMultipleVoices()
 
 void SynthTest::test_presets_shouldLoadCorrectValues()
 {
-    SynthDevice synth;
+    SynthDevice synth { "Test Synth" };
     synth.loadPreset(1); // Fat Bass
     
     QCOMPARE(synth.vco1Waveform(), PolyBLEPOscillator::Waveform::Saw);
@@ -90,7 +90,7 @@ void SynthTest::test_presets_shouldLoadCorrectValues()
 
 void SynthTest::test_midiCc_shouldUpdateParameters()
 {
-    SynthDevice synth;
+    SynthDevice synth { "Test Synth" };
     
     // Test individual CC updates
     synth.processMidiCc(7, 64, 0); // Volume ~0.5
@@ -133,7 +133,7 @@ void SynthTest::test_midiCc_shouldUpdateParameters()
 
 void SynthTest::test_presetMidiCcReset_shouldRestorePresetValues()
 {
-    SynthDevice synth;
+    SynthDevice synth { "Test Synth" };
     
     // 1. Initial manual state
     synth.setLpfCutoff(1.0f);
@@ -155,7 +155,7 @@ void SynthTest::test_presetMidiCcReset_shouldRestorePresetValues()
 
 void SynthTest::test_lfoModulation_shouldUpdateInternalState()
 {
-    SynthDevice synth;
+    SynthDevice synth { "Test Synth" };
     
     synth.setLfoWaveform(LFO::Waveform::Square);
     QCOMPARE(synth.lfoWaveform(), LFO::Waveform::Square);
@@ -187,7 +187,7 @@ void SynthTest::test_lfoModulation_shouldUpdateInternalState()
 
 void SynthTest::test_voiceStealing_shouldStealQuietestVoice()
 {
-    SynthDevice synth;
+    SynthDevice synth { "Test Synth" };
     
     // Trigger 6 notes to fill all voices
     for (int i = 0; i < SynthDevice::MaxVoices; i++) {
@@ -219,7 +219,7 @@ void SynthTest::test_voiceStealing_shouldStealQuietestVoice()
 
 void SynthTest::test_softClipper_shouldPreventClipping()
 {
-    SynthDevice synth;
+    SynthDevice synth { "Test Synth" };
     
     // Max out volume and multiple oscillators to force > 1.0 signal
     synth.setMasterVolume(1.0f);
@@ -241,7 +241,7 @@ void SynthTest::test_softClipper_shouldPreventClipping()
 
 void SynthTest::test_reset_shouldRestoreDefaults()
 {
-    SynthDevice synth;
+    SynthDevice synth { "Test Synth" };
     synth.setMixVco2(0.9f);
     synth.setLpfCutoff(0.1f);
     
@@ -253,7 +253,7 @@ void SynthTest::test_reset_shouldRestoreDefaults()
 
 void SynthTest::test_serialization_shouldPreserveValues()
 {
-    SynthDevice synth1;
+    SynthDevice synth1 { "Test Synth 1" };
     synth1.setVco1Octave(1);
     synth1.setMixVco2(0.75f);
     synth1.setLpfCutoff(0.3f);
@@ -271,7 +271,7 @@ void SynthTest::test_serialization_shouldPreserveValues()
     synth1.serializeToXml(writer);
     buffer.close();
 
-    SynthDevice synth2;
+    SynthDevice synth2 { "Test Synth 2" };
     QBuffer readBuffer(&data);
     readBuffer.open(QIODevice::ReadOnly);
     QXmlStreamReader reader(&readBuffer);
@@ -295,7 +295,7 @@ void SynthTest::test_serialization_shouldPreserveValues()
 
 void SynthTest::test_portamento_shouldGlideFrequency()
 {
-    SynthDevice synth;
+    SynthDevice synth { "Test Synth" };
     const double freq60 = 440.0 * std::pow(2.0, (60 - 69) / 12.0);
 
     // --- Test Poly Mode ---

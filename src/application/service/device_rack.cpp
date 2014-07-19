@@ -16,6 +16,7 @@
 #include "device_rack.hpp"
 #include "device_service.hpp"
 #include "../../domain/devices/sampler_device.hpp"
+#include "../../domain/devices/synth_device.hpp"
 
 namespace noteahead {
 
@@ -32,6 +33,12 @@ void DeviceRack::initialize()
         const auto sampler = std::make_shared<SamplerDevice>("Sampler " + std::to_string(i));
         sampler->setId(i);
         m_deviceService->registerDevice(sampler);
+    }
+
+    for (size_t i = 1; i <= 4; i++) {
+        const auto synth = std::make_shared<SynthDevice>("Synth " + std::to_string(i));
+        synth->setId(i + 100);
+        m_deviceService->registerDevice(synth);
     }
 }
 

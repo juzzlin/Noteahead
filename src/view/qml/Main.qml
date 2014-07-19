@@ -400,6 +400,8 @@ ApplicationWindow {
         });
         applicationService.midiExportDialogRequested.connect(midiExportDialog.open);
         applicationService.deviceRackDialogRequested.connect(deviceRackDialog.open);
+        deviceRackController.samplerDialogRequested.connect(samplerDialog.open);
+        deviceRackController.synthDialogRequested.connect(synthDialog.open);
         applicationService.samplerDialogRequested.connect(samplerDialog.open);
         applicationService.openDialogRequested.connect(openDialog.open);
         applicationService.recentFilesDialogRequested.connect(recentFilesDialog.open);

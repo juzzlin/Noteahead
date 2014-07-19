@@ -95,9 +95,9 @@ Application::Application(int & argc, char ** argv)
   , m_audioEngine { std::make_shared<AudioEngine>() }
   , m_deviceService { std::make_shared<DeviceService>(m_audioEngine) }
   , m_deviceRack { std::make_unique<DeviceRack>(m_deviceService) }
-  , m_samplerController { std::make_shared<SamplerController>(std::make_shared<SamplerDevice>()) }
-  , m_synthController { std::make_shared<SynthController>(std::make_shared<SynthDevice>()) }
-  , m_deviceRackController { std::make_shared<DeviceRackController>(m_deviceService, m_samplerController) }
+  , m_samplerController { std::make_shared<SamplerController>(std::make_shared<SamplerDevice>("Default Sampler")) }
+  , m_synthController { std::make_shared<SynthController>(std::make_shared<SynthDevice>("Default Synth")) }
+  , m_deviceRackController { std::make_shared<DeviceRackController>(m_deviceService, m_samplerController, m_synthController) }
   , m_jackService { std::make_shared<JackService>(m_settingsService, m_audioEngine) }
   , m_audioService { std::make_shared<AudioService>(m_settingsService, m_jackService, m_audioEngine) }
   , m_eventSelectionModel { std::make_shared<EventSelectionModel>() }
@@ -125,6 +125,9 @@ Application::Application(int & argc, char ** argv)
     m_deviceRack->initialize();
     if (const auto sampler = std::dynamic_pointer_cast<SamplerDevice>(m_deviceService->device("Sampler 1"))) {
         m_samplerController->setSampler(sampler);
+    }
+    if (const auto synth = std::dynamic_pointer_cast<SynthDevice>(m_deviceService->device("Synth 1"))) {
+        m_synthController->setSynth(synth);
     }
     m_deviceService->registerDevice(m_samplerController->sampler());
     m_deviceService->registerDevice(m_synthController->synth());

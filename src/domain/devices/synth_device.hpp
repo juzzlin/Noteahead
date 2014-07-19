@@ -59,11 +59,12 @@ public:
         Cutoff
     };
 
-    SynthDevice();
+    explicit SynthDevice(std::string name);
     ~SynthDevice() override;
 
     std::string name() const override;
     std::string category() const override;
+    std::string typeId() const override;
 
     void processMidiNoteOn(uint8_t note, uint8_t velocity) override;
     void processMidiNoteOff(uint8_t note) override;
@@ -291,6 +292,8 @@ private:
     void handleNoteOff(uint8_t note);
     double midiNoteToFreq(uint8_t note) const;
     void syncParameters();
+
+    std::string m_name;
 };
 
 } // namespace noteahead
