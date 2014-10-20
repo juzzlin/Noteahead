@@ -169,6 +169,68 @@ void DeviceRackController::requestEffectSendsDialog(const QString & deviceName)
     emit effectSendsDialogRequested(deviceName);
 }
 
+void DeviceRackController::requestDeviceSettingsDialog(const QString & deviceName)
+{
+    emit deviceSettingsDialogRequested(deviceName);
+}
+
+int DeviceRackController::slotOfDevice(const QString & deviceName) const
+{
+    for (int slotIndex = 0; slotIndex < deviceCount(); slotIndex++) {
+        if (const auto device = m_deviceService->device(static_cast<size_t>(slotIndex)); device && device->name() == deviceName.toStdString()) {
+            return slotIndex;
+        }
+    }
+    return -1;
+}
+
+int DeviceRackController::deviceFaderPosition(int slotIndex) const
+{
+    const auto device = m_deviceService->device(static_cast<size_t>(slotIndex));
+    return device ? static_cast<int>(device->faderPosition()) : static_cast<int>(Device::FaderPosition::PreInserts);
+}
+
+void DeviceRackController::setDeviceFaderPosition(int slotIndex, int value)
+{
+    if (const auto device = m_deviceService->device(static_cast<size_t>(slotIndex))) {
+        device->setFaderPosition(static_cast<Device::FaderPosition>(value));
+        m_editorService->setIsModified(true);
+    }
+}
+
+int DeviceRackController::deviceSendTap(int slotIndex) const
+{
+    const auto device = m_deviceService->device(static_cast<size_t>(slotIndex));
+    return device ? static_cast<int>(device->sendTap()) : static_cast<int>(Device::SendTap::PostFader);
+}
+
+void DeviceRackController::setDeviceSendTap(int slotIndex, int value)
+{
+    if (const auto device = m_deviceService->device(static_cast<size_t>(slotIndex))) {
+        device->setSendTap(static_cast<Device::SendTap>(value));
+        m_editorService->setIsModified(true);
+    }
+}
+
+QVariantList DeviceRackController::deviceMeterLevels(int slotIndex) const
+{
+    QVariantList levels;
+    if (const auto device = m_deviceService->device(static_cast<size_t>(slotIndex))) {
+        levels.append(device->meter().peakDb());
+        levels.append(device->meter().rmsDb());
+    }
+    return levels;
+}
+
+void DeviceRackController::setMetersActive(bool active)
+{
+    for (int slotIndex = 0; slotIndex < deviceCount(); slotIndex++) {
+        if (const auto device = m_deviceService->device(static_cast<size_t>(slotIndex))) {
+            device->meter().setActive(active);
+        }
+    }
+}
+
 void DeviceRackController::setDevice(int slotIndex, const QString & typeId)
 {
     const auto name = Constants::internalDevicePortPrefix().toStdString() + " " + std::to_string(slotIndex + 1);

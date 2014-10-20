@@ -384,8 +384,6 @@ void StringEnsembleDevice::processAudio(AudioContext & context)
         m_ensemble.process(left, right);
         m_phaser.process(left, right);
 
-        left *= static_cast<double>(volumeInternal());
-        right *= static_cast<double>(volumeInternal());
         m_panner.process(left, right);
 
         left = m_hpfL.process(m_lpfL.process(left));

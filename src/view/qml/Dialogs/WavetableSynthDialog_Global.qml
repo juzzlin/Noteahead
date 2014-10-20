@@ -63,19 +63,19 @@ ColumnLayout {
         Layout.fillWidth: true
     }
     Knob {
-        label: qsTr("Master Volume")
-        mapping: "volume"
-        value: wavetableSynthController.volume
-        onMoved: v => wavetableSynthController.volume = v
-        Layout.fillWidth: true
-    }
-    Knob {
         label: qsTr("Gain")
         mapping: "decibel"
         mapMin: -30
         mapMax: 30
         value: wavetableSynthController.gain
         onMoved: v => wavetableSynthController.gain = v
+        Layout.fillWidth: true
+    }
+    Knob {
+        label: qsTr("Fader")
+        mapping: "volume"
+        value: wavetableSynthController.volume
+        onMoved: v => wavetableSynthController.volume = v
         Layout.fillWidth: true
     }
     Knob {

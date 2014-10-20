@@ -33,22 +33,22 @@ ColumnLayout {
     }
 
     Knob {
-        label: qsTr("Global Volume")
-        mapping: "volume"
-        value: samplerController.volume
-        onMoved: v => {
-            samplerController.volume = v;
-        }
-    }
-
-    Knob {
-        label: qsTr("Global Gain")
+        label: qsTr("Gain")
         mapping: "decibel"
         mapMin: -30
         mapMax: 30
         value: samplerController.gain
         onMoved: v => {
             samplerController.gain = v;
+        }
+    }
+
+    Knob {
+        label: qsTr("Fader")
+        mapping: "volume"
+        value: samplerController.volume
+        onMoved: v => {
+            samplerController.volume = v;
         }
     }
 

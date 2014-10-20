@@ -155,7 +155,6 @@ void SubMixerDevice::processAudio(AudioContext & context)
 
     const auto bufferSize = context.frameCount * 2;
     const auto gain = static_cast<double>(linearGainInternal());
-    const auto volume = static_cast<double>(volumeInternal());
 
     TrueStereoPanner panner;
     panner.setPan(static_cast<double>(panInternal()));
@@ -179,8 +178,6 @@ void SubMixerDevice::processAudio(AudioContext & context)
     for (uint32_t i = 0; i < context.frameCount; i++) {
         auto & left = context.buffer[i * 2];
         auto & right = context.buffer[i * 2 + 1];
-        left *= volume;
-        right *= volume;
         panner.process(left, right);
     }
 }

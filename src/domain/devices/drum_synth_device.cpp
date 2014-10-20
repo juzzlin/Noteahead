@@ -277,8 +277,8 @@ void DrumSynthDevice::processAudio(AudioContext & context)
         const float l = m_downsamplerL.process(highL.data(), oversampleFactor);
         const float r = m_downsamplerR.process(highR.data(), oversampleFactor);
 
-        context.buffer[i * 2] += l * panL * volumeInternal();
-        context.buffer[i * 2 + 1] += r * panR * volumeInternal();
+        context.buffer[i * 2] += l * panL;
+        context.buffer[i * 2 + 1] += r * panR;
     }
 }
 

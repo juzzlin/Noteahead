@@ -161,17 +161,6 @@ AnimatedDialog {
             // Volume or Pan underneath them. Without a tracked dependency a knob reads once and
             // snaps back to its stale value the moment the drag ends.
             Knob {
-                label: qsTr("Volume")
-                mapping: "volume"
-                Layout.fillWidth: true
-                value: {
-                    deviceRackController.revision;
-                    return deviceRackController.deviceVolume(root.slotIndex);
-                }
-                onMoved: v => deviceRackController.setDeviceVolume(root.slotIndex, v)
-            }
-
-            Knob {
                 label: qsTr("Gain")
                 mapping: "decibel"
                 mapMin: -30
@@ -182,6 +171,17 @@ AnimatedDialog {
                     return deviceRackController.deviceGain(root.slotIndex);
                 }
                 onMoved: v => deviceRackController.setDeviceGain(root.slotIndex, v)
+            }
+
+            Knob {
+                label: qsTr("Fader")
+                mapping: "volume"
+                Layout.fillWidth: true
+                value: {
+                    deviceRackController.revision;
+                    return deviceRackController.deviceVolume(root.slotIndex);
+                }
+                onMoved: v => deviceRackController.setDeviceVolume(root.slotIndex, v)
             }
 
             Knob {

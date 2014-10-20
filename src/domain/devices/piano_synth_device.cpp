@@ -205,8 +205,6 @@ void PianoSynthDevice::processAudio(AudioContext & context)
             outR += voiceR;
         }
 
-        outL *= static_cast<double>(volumeInternal());
-        outR *= static_cast<double>(volumeInternal());
         m_panner.process(outL, outR);
 
         outL = m_lpfL.process(outL);

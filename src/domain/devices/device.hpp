@@ -22,6 +22,7 @@
 #include "../effects/effect_rack.hpp"
 #include "../tracker/parameter_container.hpp"
 #include "../utility/audio_scope.hpp"
+#include "../utility/level_meter.hpp"
 
 #include <cstdint>
 #include <mutex>
@@ -50,6 +51,25 @@ class Device : public QObject, public ParameterContainer
     Q_OBJECT
 
 public:
+    //! Where the fader sits relative to the insert effect rack.
+    //!
+    //! PreInserts is how the device behaved before the channel strip existed and stays the default,
+    //! so projects saved back then load unchanged. PostInserts is the gain-staging arrangement: Gain
+    //! trims the source into the inserts and the fader only balances what comes out of them, so
+    //! riding it can no longer change how hard a compressor is driven.
+    enum class FaderPosition
+    {
+        PreInserts = 0,
+        PostInserts = 1
+    };
+
+    //! Where the effect sends tap the signal.
+    enum class SendTap
+    {
+        PostFader = 0,
+        PreFader = 1
+    };
+
     Device();
     virtual ~Device() override = default;
 
@@ -79,6 +99,22 @@ public:
 
     virtual void processAudio(AudioContext & context) = 0;
     void processInsertEffects(AudioContext & context);
+    //! Applies the fader in place over the whole buffer.
+    //!
+    //! Devices deliberately do not do this themselves: the engine calls it either side of the
+    //! insert rack depending on faderPosition(), which is the whole point of the setting.
+    //!
+    //! Master pan is *not* part of this and stays inside each device. Synth, Wavetable Synth and
+    //! Sampler fold it into per-voice panning — clamped together with voice spread and pan
+    //! modulation, or as the seed a per-pad pan overrides — so lifting it out would double-apply
+    //! it there and silently change existing patches.
+    void applyFader(AudioContext & context) const;
+
+    FaderPosition faderPosition() const;
+    void setFaderPosition(FaderPosition position);
+
+    SendTap sendTap() const;
+    void setSendTap(SendTap tap);
     //! Device slots whose direct contribution to the master this device takes over.
     //!
     //! A device that mixes other devices' outputs lists them here so the engine can suppress
@@ -94,6 +130,11 @@ public:
 
     //! Oscilloscope tap for this device's output. Capture is gated by AudioScope::setActive().
     AudioScope & scope();
+
+    //! Level tap taken post-gain and pre-insert, which is the level Gain is set against. Unlike the
+    //! other taps its meaning does not move when faderPosition() changes. Gated by setActive().
+    LevelMeter & meter();
+    const LevelMeter & meter() const;
 
     virtual bool hasActiveAudio() const
     {
@@ -173,8 +214,11 @@ private:
     float m_manualGain { 0.5f };
     float m_manualPan { 0.5f };
     std::vector<float> m_manualReverbSends;
+    FaderPosition m_faderPosition { FaderPosition::PreInserts };
+    SendTap m_sendTap { SendTap::PostFader };
     EffectRack m_insertEffectRack;
     AudioScope m_scope;
+    LevelMeter m_meter;
 
     mutable std::recursive_mutex m_mutex;
 };

@@ -65,6 +65,7 @@ public:
     Q_INVOKABLE void openDevice(const QString & name);
     Q_INVOKABLE void openDevice(int slotIndex);
     Q_INVOKABLE void requestEffectSendsDialog(const QString & deviceName);
+    Q_INVOKABLE void requestDeviceSettingsDialog(const QString & deviceName);
 
     Q_INVOKABLE void setDevice(int slotIndex, const QString & typeId);
     Q_INVOKABLE void clearDevice(int slotIndex);
@@ -99,6 +100,20 @@ public:
     Q_INVOKABLE int devicePan(int slotIndex) const;
     Q_INVOKABLE void setDevicePan(int slotIndex, int value);
 
+    //! Device::FaderPosition and Device::SendTap as ints, for the Device Settings dialog.
+    Q_INVOKABLE int deviceFaderPosition(int slotIndex) const;
+    Q_INVOKABLE void setDeviceFaderPosition(int slotIndex, int value);
+    Q_INVOKABLE int deviceSendTap(int slotIndex) const;
+    Q_INVOKABLE void setDeviceSendTap(int slotIndex, int value);
+
+    //! Slot index of a device by name, or -1 when no such device is in the rack.
+    Q_INVOKABLE int slotOfDevice(const QString & deviceName) const;
+
+    //! [peakDb, rmsDb] of the device's pre-insert level tap. Empty when the slot is empty.
+    Q_INVOKABLE QVariantList deviceMeterLevels(int slotIndex) const;
+    //! Gates every device's level tap. Keep it enabled only while meters are on screen.
+    Q_INVOKABLE void setMetersActive(bool active);
+
     Q_INVOKABLE bool addSubMixerMember(int subMixerSlot, int memberSlot);
     Q_INVOKABLE bool removeSubMixerMember(int subMixerSlot, int memberSlot);
 
@@ -124,6 +139,7 @@ signals:
     void pianoSynthDialogRequested();
     void stringVoiceDialogRequested();
     void stringEnsembleDialogRequested();
+    void deviceSettingsDialogRequested(QString deviceName);
     void subMixerDialogRequested(int slotIndex);
     void effectSendsDialogRequested(const QString & deviceName);
 

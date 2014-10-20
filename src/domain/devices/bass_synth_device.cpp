@@ -304,8 +304,8 @@ void BassSynthDevice::processAudio(AudioContext & context)
             r[os] = finalSample * static_cast<float>(std::sin(panAngle));
         }
 
-        const double outL = m_downsamplerL.process(l, oversampleFactor) * volumeInternal();
-        const double outR = m_downsamplerR.process(r, oversampleFactor) * volumeInternal();
+        const double outL = m_downsamplerL.process(l, oversampleFactor);
+        const double outR = m_downsamplerR.process(r, oversampleFactor);
 
         context.buffer[i * 2] += m_dcBlockerL.process(outL);
         context.buffer[i * 2 + 1] += m_dcBlockerR.process(outR);

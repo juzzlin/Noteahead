@@ -59,18 +59,18 @@ AnimatedDialog {
             RowLayout {
                 spacing: 20
                 Knob {
-                    label: qsTr("Volume")
-                    mapping: "volume"
-                    value: drumSynthController.volume
-                    onMoved: (val) => drumSynthController.volume = val
-                }
-                Knob {
                     label: qsTr("Gain")
                     mapping: "decibel"
                     mapMin: -30
                     mapMax: 30
                     value: drumSynthController.gain
                     onMoved: (val) => drumSynthController.gain = val
+                }
+                Knob {
+                    label: qsTr("Fader")
+                    mapping: "volume"
+                    value: drumSynthController.volume
+                    onMoved: (val) => drumSynthController.volume = val
                 }
                 Knob {
                     label: qsTr("Pan")

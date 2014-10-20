@@ -32,6 +32,9 @@ AnimatedDialog {
         deviceRackController.refresh();
     }
 
+    // The level taps are a no-op until switched on, so they only run while the rack is on screen.
+    onVisibleChanged: deviceRackController.setMetersActive(visible)
+
     Universal.theme: Universal.Dark
     Universal.accent: themeService.accentColor
 
@@ -54,6 +57,13 @@ AnimatedDialog {
         anchors.margins: 20
         spacing: 20
 
+        Timer {
+            interval: 50
+            running: root.visible
+            repeat: true
+            onTriggered: deviceListView.meterTick++
+        }
+
         Label {
             text: qsTr("Device Rack")
             font.bold: true
@@ -66,6 +76,9 @@ AnimatedDialog {
             id: deviceListView
             model: deviceRackController.deviceCount
             property int hoveredIndex: -1
+            // Bumped by the timer below; the delegates' level bindings depend on it, which is what
+            // makes them re-read the meters without each row owning a timer of its own.
+            property int meterTick: 0
             Layout.fillWidth: true
             Layout.fillHeight: true
             clip: true
@@ -92,6 +105,11 @@ AnimatedDialog {
                 readonly property string trackNames: {
                     deviceRackController.revision;
                     return deviceRackController.trackNames(index);
+                }
+                readonly property var meterLevels: {
+                    deviceListView.meterTick;
+                    deviceRackController.revision;
+                    return deviceRackController.deviceMeterLevels(index);
                 }
 
                 MouseArea {
@@ -143,6 +161,14 @@ AnimatedDialog {
                         opacity: (deviceListView.hoveredIndex === index && root.activeFocus) ? 1.0 : 0.5
                     }
 
+                    LevelMeterBar {
+                        Layout.preferredWidth: 110
+                        Layout.alignment: Qt.AlignVCenter
+                        visible: deviceType !== ""
+                        peakDb: meterLevels.length ? meterLevels[0] : -120
+                        rmsDb: meterLevels.length ? meterLevels[1] : -120
+                    }
+
                     Button {
                         text: qsTr("Insert FX")
                         onClicked: UiService.requestDeviceInsertEffectsDialog(deviceName)
@@ -153,6 +179,13 @@ AnimatedDialog {
                     Button {
                         text: qsTr("Sends")
                         onClicked: UiService.requestEffectSendsDialog(deviceName)
+                        Layout.preferredWidth: 80
+                        visible: deviceType !== ""
+                    }
+
+                    Button {
+                        text: qsTr("Settings")
+                        onClicked: UiService.requestDeviceSettingsDialog(deviceName)
                         Layout.preferredWidth: 80
                         visible: deviceType !== ""
                     }

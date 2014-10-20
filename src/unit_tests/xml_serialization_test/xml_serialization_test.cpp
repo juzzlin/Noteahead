@@ -1594,6 +1594,8 @@ void XmlSerializationTest::test_toXmlFromXml_stringEnsembleDevice_shouldLoadCorr
     stringEnsemble->setPhaserColor(0.25f);
     stringEnsemble->setPhaserRate(0.8f);
     stringEnsemble->setVelocitySensitivity(0.3f);
+    stringEnsemble->setFaderPosition(Device::FaderPosition::PostInserts);
+    stringEnsemble->setSendTap(Device::SendTap::PreFader);
     deviceServiceOut.setDevice(1, stringEnsemble);
 
     EditorService editorServiceOut { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
@@ -1625,6 +1627,10 @@ void XmlSerializationTest::test_toXmlFromXml_stringEnsembleDevice_shouldLoadCorr
     QVERIFY(std::abs(restored->phaserColor() - 0.25f) < 0.001f);
     QVERIFY(std::abs(restored->phaserRate() - 0.8f) < 0.001f);
     QVERIFY(std::abs(restored->velocitySensitivity() - 0.3f) < 0.001f);
+
+    // The channel strip settings live on the Device base class, so this covers them for every device.
+    QCOMPARE(static_cast<int>(restored->faderPosition()), static_cast<int>(Device::FaderPosition::PostInserts));
+    QCOMPARE(static_cast<int>(restored->sendTap()), static_cast<int>(Device::SendTap::PreFader));
 }
 
 void XmlSerializationTest::test_toXmlFromXml_reverbGate_shouldLoadCorrectly()

@@ -5,6 +5,20 @@ Release date:
 
 New features:
 
+* Add gain staging with a selectable fader position
+  - Gain trims a device into its insert effects and the Fader balances what comes
+    out of them, so balancing a mix no longer changes how hard a device drives its
+    own compressor or saturator
+  - New Settings button on each Device Rack slot: Fader Position (before or after
+    the insert effects) and Send Tap (post- or pre-fader), per device
+  - Both settings default to the previous behaviour, so projects saved before this
+    change load and sound exactly as they did; opt in per device when ready
+  - Each rack slot now has a peak/RMS level meter, tapped post-gain and
+    pre-insert, with a -18 dBFS marker to gain stage against
+  - The Volume knob is now labelled Fader in every device and sits below Gain, in
+    signal-flow order; it was previously called Master Volume, Volume or Global
+    Volume depending on the device
+
 * Add a String Ensemble device
   - Divide-down string machine in the Solina tradition: twelve free-running
     master oscillators, one per pitch class, tapped at 16', 8' and 4' by every

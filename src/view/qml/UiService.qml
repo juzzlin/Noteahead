@@ -38,6 +38,7 @@ QtObject {
     signal editPitchBendAutomationsDialogByPatternRequested
     signal editPitchBendAutomationsDialogByTrackRequested
     signal editPitchBendAutomationsDialogRequested
+    signal deviceSettingsDialogRequested(string deviceName)
     signal effectSendsDialogRequested(string deviceName)
     signal effectsGalleryDialogRequested(int slotIndex)
     signal eventSelectionDialogRequested
@@ -192,6 +193,9 @@ QtObject {
     }
     function requestEffectSendsDialog(deviceName: string): void {
         effectSendsDialogRequested(deviceName);
+    }
+    function requestDeviceSettingsDialog(deviceName: string): void {
+        deviceSettingsDialogRequested(deviceName);
     }
     function requestDeviceInsertEffectsDialog(deviceName: string): void {
         deviceInsertEffectsDialogRequested(deviceName);

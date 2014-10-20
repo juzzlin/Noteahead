@@ -27,6 +27,7 @@
 #include "../../domain/devices/sub_mixer_device.hpp"
 #include "../../domain/devices/synth_device.hpp"
 #include "../../domain/effects/effect_factory.hpp"
+#include "../../domain/utility/level_meter.hpp"
 #include "../../infra/audio/audio_engine.hpp"
 #include "../../infra/data_service.hpp"
 #include "../../infra/xml/nahd_xml_reader.hpp"
@@ -124,8 +125,11 @@ public:
     }
 
 protected:
+    //! Chains to the base so volume, gain, pan and the channel strip settings still land in the
+    //! device's cached members; only subclass-specific syncing is what this mock has none of.
     void syncParameters() override
     {
+        Device::syncParameters();
     }
 
 private:
@@ -378,6 +382,57 @@ void DeviceRackControllerTest::test_availableDevices_shouldReturnCorrectList()
     QCOMPARE(list.at(6).toMap()["name"].toString(), QString("String & Voice"));
     QCOMPARE(list.at(7).toMap()["name"].toString(), QString("String Ensemble"));
     QCOMPARE(list.at(8).toMap()["name"].toString(), QString("Sub Mixer"));
+}
+
+void DeviceRackControllerTest::test_deviceMeterLevels_shouldReportPreInsertLevel()
+{
+    const auto audioEngine = std::make_shared<AudioEngine>();
+    const auto deviceService = std::make_shared<DeviceService>(audioEngine, std::make_shared<DataService>());
+    const auto editorService = std::make_shared<MockEditorService>();
+    const auto prefix = Constants::internalDevicePortPrefix().toStdString();
+    const auto device = std::make_shared<MockDevice>(prefix + " 1");
+    deviceService->setDevice(0, device);
+
+    DeviceRackController controller { deviceService, {}, editorService };
+
+    // An empty slot has nothing to report, and a device whose meter is off reads the floor.
+    QVERIFY(controller.deviceMeterLevels(1).isEmpty());
+    QCOMPARE(controller.deviceMeterLevels(0).size(), 2);
+    QCOMPARE(controller.deviceMeterLevels(0).at(0).toFloat(), LevelMeter::MinimumDb);
+
+    controller.setMetersActive(true);
+    QVERIFY(device->meter().active());
+
+    const std::vector<double> fullScale(64, 1.0);
+    device->meter().write(fullScale.data(), 32, 48000);
+    QVERIFY(std::abs(controller.deviceMeterLevels(0).at(0).toFloat()) < 0.01f);
+
+    controller.setMetersActive(false);
+    QVERIFY(!device->meter().active());
+}
+
+void DeviceRackControllerTest::test_deviceSettings_shouldRoundTripThroughController()
+{
+    const auto audioEngine = std::make_shared<AudioEngine>();
+    const auto deviceService = std::make_shared<DeviceService>(audioEngine, std::make_shared<DataService>());
+    const auto editorService = std::make_shared<MockEditorService>();
+    const auto prefix = Constants::internalDevicePortPrefix().toStdString();
+    deviceService->setDevice(2, std::make_shared<MockDevice>(prefix + " 3"));
+
+    DeviceRackController controller { deviceService, {}, editorService };
+
+    QCOMPARE(controller.slotOfDevice(QString::fromStdString(prefix + " 3")), 2);
+    QCOMPARE(controller.slotOfDevice("No Such Device"), -1);
+
+    // Defaults are the legacy chain.
+    QCOMPARE(controller.deviceFaderPosition(2), static_cast<int>(Device::FaderPosition::PreInserts));
+    QCOMPARE(controller.deviceSendTap(2), static_cast<int>(Device::SendTap::PostFader));
+
+    controller.setDeviceFaderPosition(2, static_cast<int>(Device::FaderPosition::PostInserts));
+    controller.setDeviceSendTap(2, static_cast<int>(Device::SendTap::PreFader));
+
+    QCOMPARE(controller.deviceFaderPosition(2), static_cast<int>(Device::FaderPosition::PostInserts));
+    QCOMPARE(controller.deviceSendTap(2), static_cast<int>(Device::SendTap::PreFader));
 }
 
 void DeviceRackControllerTest::test_removeDeviceByName_shouldClearCorrectSlot()

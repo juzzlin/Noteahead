@@ -332,6 +332,10 @@ ApplicationWindow {
         width: parent.width * Constants.largeDialogScale
         height: parent.height * Constants.largeDialogScale
     }
+    DeviceSettingsDialog {
+        id: deviceSettingsDialog
+        anchors.centerIn: parent
+    }
     DeviceRackDialog {
         id: deviceRackDialog
         anchors.centerIn: parent
@@ -757,6 +761,10 @@ ApplicationWindow {
         UiService.effectSendsDialogRequested.connect(deviceName => {
             effectSendsDialog.deviceName = deviceName;
             effectSendsDialog.open();
+        });
+        UiService.deviceSettingsDialogRequested.connect(deviceName => {
+            deviceSettingsDialog.deviceName = deviceName;
+            deviceSettingsDialog.open();
         });
         UiService.deviceInsertEffectsDialogRequested.connect(deviceName => {
             deviceInsertEffectsDialog.deviceName = deviceName;

@@ -34,6 +34,8 @@ class RealTimeWorkerPool;
 struct AudioEngineWorkBuffer
 {
     std::vector<double> deviceBuffer {};
+    //! Holds the signal as it stood before the fader, for devices whose sends tap pre-fader.
+    std::vector<double> preFaderBuffer {};
     std::vector<double> outputBuffer {};
     std::vector<std::vector<double>> sendBuffers {};
 };

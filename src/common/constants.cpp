@@ -2067,6 +2067,16 @@ QString xmlKeyVelocitySensitivity()
     return "velocitySensitivity";
 }
 
+QString xmlKeyFaderPosition()
+{
+    return "faderPosition";
+}
+
+QString xmlKeySendTap()
+{
+    return "sendTap";
+}
+
 } // namespace NahdXml
 
 } // namespace noteahead::Constants

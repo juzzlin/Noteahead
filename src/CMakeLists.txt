@@ -27,6 +27,7 @@ set(QML_SOURCE_FILES
     ${QML_BASE_DIR}/Components/FilterKnob.qml
     ${QML_BASE_DIR}/Components/Knob.qml
     ${QML_BASE_DIR}/Components/LayoutSeparator.qml
+    ${QML_BASE_DIR}/Components/LevelMeterBar.qml
     ${QML_BASE_DIR}/Components/MenuItemDelegate.qml
     ${QML_BASE_DIR}/Components/MidiCcComboBox.qml
     ${QML_BASE_DIR}/Components/Oscilloscope.qml
@@ -68,6 +69,7 @@ set(QML_SOURCE_FILES
     ${QML_BASE_DIR}/Dialogs/DeviceGalleryDialog.qml
     ${QML_BASE_DIR}/Dialogs/DeviceInsertEffectsDialog.qml
     ${QML_BASE_DIR}/Dialogs/DeviceRackDialog.qml
+    ${QML_BASE_DIR}/Dialogs/DeviceSettingsDialog.qml
     ${QML_BASE_DIR}/Dialogs/DriveDialog.qml
     ${QML_BASE_DIR}/Dialogs/DrumSynthDialog.qml
     ${QML_BASE_DIR}/Dialogs/EditMidiCcAutomationsDelegate.qml

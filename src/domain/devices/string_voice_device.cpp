@@ -473,9 +473,8 @@ void StringVoiceDevice::processAudio(AudioContext & context)
         sampleL = std::tanh(sampleL);
         sampleR = std::tanh(sampleR);
 
-        // Apply global panner and volume
-        sampleL *= static_cast<double>(volumeInternal());
-        sampleR *= static_cast<double>(volumeInternal());
+        // Apply global panner. The fader is applied by the engine, either side of the insert
+        // rack depending on the device's fader position.
         m_panner.process(sampleL, sampleR);
 
         // Write to accumulation buffers

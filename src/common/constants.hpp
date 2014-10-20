@@ -526,6 +526,8 @@ QString xmlKeyPhaserEnabled();
 QString xmlKeyPhaserColor();
 QString xmlKeyPhaserRate();
 QString xmlKeyVelocitySensitivity();
+QString xmlKeyFaderPosition();
+QString xmlKeySendTap();
 
 } // namespace NahdXml
 } // namespace noteahead::Constants

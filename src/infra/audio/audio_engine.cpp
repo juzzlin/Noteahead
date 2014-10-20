@@ -91,7 +91,29 @@ void processDeviceTask(void * context, size_t taskIndex, size_t workerIndex)
 
     AudioContext audioContext { std::span(workBuffer.deviceBuffer.data(), deviceContext.bufferSize), deviceContext.frameCount, deviceContext.sampleRate, deviceContext.bpm, deviceContext.deviceOutputBuffers, deviceContext.oversampleFactor };
     device->processAudio(audioContext);
-    device->processInsertEffects(audioContext);
+
+    // Level tap for gain staging: post-gain and pre-insert, the level the Gain knob is set against.
+    device->meter().write(workBuffer.deviceBuffer.data(), deviceContext.frameCount, deviceContext.sampleRate);
+
+    // Where the fader sits relative to the insert rack is per-device. Pre-inserts is how devices
+    // behaved before the setting existed and stays the default; post-inserts is the gain-staging
+    // arrangement, where riding the fader can no longer change how hard the inserts are driven.
+    const bool preFaderSend = device->sendTap() == Device::SendTap::PreFader && deviceContext.sendCount;
+    const auto capturePreFader = [&] {
+        if (preFaderSend) {
+            std::copy(workBuffer.deviceBuffer.begin(), workBuffer.deviceBuffer.begin() + deviceContext.bufferSize, workBuffer.preFaderBuffer.begin());
+        }
+    };
+
+    if (device->faderPosition() == Device::FaderPosition::PreInserts) {
+        capturePreFader();
+        device->applyFader(audioContext);
+        device->processInsertEffects(audioContext);
+    } else {
+        device->processInsertEffects(audioContext);
+        capturePreFader();
+        device->applyFader(audioContext);
+    }
 
     // Feed this device's final output to its oscilloscope tap (no-op unless a scope is active).
     device->scope().write(workBuffer.deviceBuffer.data(), deviceContext.frameCount, deviceContext.sampleRate);
@@ -123,9 +145,12 @@ void processDeviceTask(void * context, size_t taskIndex, size_t workerIndex)
             workBuffer.outputBuffer[i] += sample;
         }
 
+        // A pre-fader send keeps its level when the fader moves, so it reads the captured buffer
+        // rather than the one the fader has already scaled.
+        const double sendSample = preFaderSend ? workBuffer.preFaderBuffer[i] : sample;
         for (size_t sendIndex = 0; sendIndex < deviceContext.sendCount; sendIndex++) {
             const double send = deviceContext.deviceSends->at(deviceSnapshotIndex * deviceContext.sendCount + sendIndex);
-            workBuffer.sendBuffers[sendIndex][i] += sample * send;
+            workBuffer.sendBuffers[sendIndex][i] += sendSample * send;
         }
     }
 }
@@ -612,6 +637,9 @@ void AudioEngine::ensureWorkBuffers(size_t laneCount, size_t sendCount, uint32_t
     for (auto & workBuffer : m_workBuffers) {
         if (workBuffer.deviceBuffer.size() < bufferSize) {
             workBuffer.deviceBuffer.resize(bufferSize, 0.0);
+        }
+        if (workBuffer.preFaderBuffer.size() < bufferSize) {
+            workBuffer.preFaderBuffer.resize(bufferSize, 0.0);
         }
         if (workBuffer.outputBuffer.size() < bufferSize) {
             workBuffer.outputBuffer.resize(bufferSize, 0.0);

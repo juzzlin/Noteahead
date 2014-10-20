@@ -20,6 +20,7 @@
 #include "../../common/utils.hpp"
 #include "../../common/xml/project_reader.hpp"
 #include "../../common/xml/project_writer.hpp"
+#include "../dsp/true_stereo_panner.hpp"
 
 #include <cmath>
 
@@ -30,6 +31,11 @@ Device::Device()
     addParameter(Parameter { Constants::NahdXml::xmlKeyVolume().toStdString(), 1.0f, 0, 10000, 10000, 100 });
     addParameter(Parameter { Constants::NahdXml::xmlKeyGain().toStdString(), 0.5f, -3000, 3000, 0, 100, Parameter::Type::Continuous });
     addParameter(Parameter { Constants::NahdXml::xmlKeyPan().toStdString(), 0.5f, 0, 10000, 5000, 100 });
+
+    // Defaults reproduce the chain as it was before the channel strip existed, so a project saved
+    // back then — which carries neither key — loads and sounds exactly as it did.
+    addParameter(Parameter { Constants::NahdXml::xmlKeyFaderPosition().toStdString(), 0.0f, 0, 1, 0, 1, Parameter::Type::Discrete });
+    addParameter(Parameter { Constants::NahdXml::xmlKeySendTap().toStdString(), 0.0f, 0, 1, 0, 1, Parameter::Type::Discrete });
 
     m_reverbSends.resize(Constants::effectRackSize(), 0.0f);
     m_manualReverbSends.resize(Constants::effectRackSize(), 0.0f);
@@ -257,6 +263,12 @@ void Device::syncParameters()
     if (auto p = parameter(Constants::NahdXml::xmlKeyPan().toStdString()); p) {
         m_pan = p->get().value();
     }
+    if (auto p = parameter(Constants::NahdXml::xmlKeyFaderPosition().toStdString()); p) {
+        m_faderPosition = p->get().xmlValue() ? FaderPosition::PostInserts : FaderPosition::PreInserts;
+    }
+    if (auto p = parameter(Constants::NahdXml::xmlKeySendTap().toStdString()); p) {
+        m_sendTap = p->get().xmlValue() ? SendTap::PreFader : SendTap::PostFader;
+    }
 }
 
 void Device::setContinuousParameterValue(const std::string & key, float value)
@@ -311,6 +323,42 @@ void Device::processInsertEffects(AudioContext & context)
     m_insertEffectRack.processInPlace(context);
 }
 
+void Device::applyFader(AudioContext & context) const
+{
+    double volume {};
+    {
+        const std::lock_guard<std::recursive_mutex> lock { m_mutex };
+        volume = static_cast<double>(m_volume);
+    }
+
+    const uint32_t sampleCount = context.frameCount * 2;
+    for (uint32_t i = 0; i < sampleCount; i++) {
+        context.buffer[i] *= volume;
+    }
+}
+
+Device::FaderPosition Device::faderPosition() const
+{
+    const std::lock_guard<std::recursive_mutex> lock { m_mutex };
+    return m_faderPosition;
+}
+
+void Device::setFaderPosition(FaderPosition position)
+{
+    setDiscreteParameterValue(Constants::NahdXml::xmlKeyFaderPosition().toStdString(), static_cast<int>(position));
+}
+
+Device::SendTap Device::sendTap() const
+{
+    const std::lock_guard<std::recursive_mutex> lock { m_mutex };
+    return m_sendTap;
+}
+
+void Device::setSendTap(SendTap tap)
+{
+    setDiscreteParameterValue(Constants::NahdXml::xmlKeySendTap().toStdString(), static_cast<int>(tap));
+}
+
 std::vector<size_t> Device::claimedOutputSlots() const
 {
     return {};
@@ -339,6 +387,16 @@ const EffectRack & Device::insertEffectRack() const
 AudioScope & Device::scope()
 {
     return m_scope;
+}
+
+LevelMeter & Device::meter()
+{
+    return m_meter;
+}
+
+const LevelMeter & Device::meter() const
+{
+    return m_meter;
 }
 
 float Device::volumeInternal() const

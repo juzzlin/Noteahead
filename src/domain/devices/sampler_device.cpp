@@ -486,8 +486,8 @@ void SamplerDevice::processAudio(AudioContext & context)
     }
 
     for (uint32_t i = 0; i < context.frameCount; i++) {
-        context.buffer[i * 2] += buffer[i * 2] * volumeInternal();
-        context.buffer[i * 2 + 1] += buffer[i * 2 + 1] * volumeInternal();
+        context.buffer[i * 2] += buffer[i * 2];
+        context.buffer[i * 2 + 1] += buffer[i * 2 + 1];
     }
 }
 

@@ -371,8 +371,8 @@ void SynthDevice::applyGlobalEffects(AudioContext & context)
 
         m_delay.process(l, r);
 
-        context.buffer[i * 2] += l * volumeInternal();
-        context.buffer[i * 2 + 1] += r * volumeInternal();
+        context.buffer[i * 2] += l;
+        context.buffer[i * 2 + 1] += r;
     }
 }
 

@@ -218,7 +218,6 @@ void WavetableSynthDevice::processAudio(AudioContext & context)
         }
     }
 
-    const float vol = volumeInternal();
     std::array<float, 4> highL {};
     std::array<float, 4> highR {};
     for (uint32_t i = 0; i < context.frameCount; i++) {
@@ -227,8 +226,8 @@ void WavetableSynthDevice::processAudio(AudioContext & context)
             highR[os] = m_oversampledBuffer[(i * oversampleFactor + os) * 2 + 1];
         }
 
-        context.buffer[i * 2] += static_cast<double>(m_downsamplerL.process(highL.data(), oversampleFactor) * vol);
-        context.buffer[i * 2 + 1] += static_cast<double>(m_downsamplerR.process(highR.data(), oversampleFactor) * vol);
+        context.buffer[i * 2] += static_cast<double>(m_downsamplerL.process(highL.data(), oversampleFactor));
+        context.buffer[i * 2 + 1] += static_cast<double>(m_downsamplerR.process(highR.data(), oversampleFactor));
     }
 }
 
