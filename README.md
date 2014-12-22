@@ -2,7 +2,7 @@
 
 ![Build Status](https://github.com/juzzlin/Noteahead/actions/workflows/ci.yml/badge.svg)
 
-Noteahead is a pattern-based MIDI sequencer and music production environment for Linux, built around the tracker workflow: fast, keyboard-driven editing with the whole song in front of you.
+Noteahead is a pattern-based MIDI sequencer and music production environment for Linux, built around the tracker workflow: fast, keyboard-driven editing with the whole song in front of you. It is easy to pick up, stable enough to trust with a live set, and fast.
 
 It is also a complete studio. Twenty-six internal instruments, LFO and XY Pad modulators, a performance panel, a virtual device rack with per-device insert effects and sends, a mixer view, 48 rack effects and analyzers, and a sample-accurate offline renderer take a song from the first note to a finished master without ever leaving the application. Point it outwards instead and it drives a room full of MIDI hardware with the same precision — or does both at once, in the same song.
 
@@ -63,6 +63,14 @@ Noteahead is written in Qt/QML/C++20 on top of RtMidi back-end + RtAudio. It bui
 
 **Finish and ship.** The offline renderer writes a master mix or per-track stems to WAV or FLAC with sample-accurate timing, up to 4x oversampling, optional normalization, trim, fade out and tail silence, and a LUFS/LRA/dBTP loudness report. Songs export as SMF Type 1 too, automations included.
 
+### Easy, stable and fast
+
+**Easy to use.** Editing is driven from the keyboard, values are plain decimals rather than hex, and edits have undo and redo. Each instrument and effect opens in a dialog of its own, most with presets to start from, the gallery sorts them by category, and the whole interface is translated into ten languages.
+
+**Stable.** Noteahead is built to be trusted with a live set and a finished song. Its 218 automated test suites run on every commit, covering everything from the DSP of each instrument to the project file format, and a project saved by any earlier version still opens.
+
+**Fast.** Noteahead is native C++20, and its Debian package is only 6–10 MB with twenty-six instruments and 48 effects inside. Playback runs in a thread of its own on timestamps computed ahead of time, the realtime audio can be spread across CPU cores, and offline rendering uses them all.
+
 ### Who it is for
 
 If you already think in patterns and rows rather than in a piano roll, you will be at home in minutes. If you own hardware synths and want a precise, reliable Linux sequencer to drive them, that is exactly where Noteahead started. And if you want neither — just to write music on Linux with open source software and a plain-text project format you can keep in Git — it does that too.
@@ -108,7 +116,7 @@ All **Arctic Music Project** songs (sequenced or completely produced with Noteah
 - Scalable Playback Quality
   - Oversampling for realtime playback is selectable (1x/2x/4x) independently of the export, and playback can be spread across CPU cores. Offline rendering always uses all cores.
 - Lightweight & Scalable
-  - Fully scalable UI with a Debian package size of around 1 MB.
+  - Fully scalable UI with a Debian package size of around 6–10 MB.
 - Themable UI
   - Accent and cursor colors, plus an accent blend that pulls the track and automation palette towards the accent hue. Pattern Peek and the automation drawing style (Tint or Curve) are configurable too.
 - Session Timer
