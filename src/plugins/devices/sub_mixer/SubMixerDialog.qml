@@ -44,6 +44,16 @@ AnimatedDialog {
         root.candidates = slotIndex >= 0 ? deviceRackController.subMixerCandidates(slotIndex) : [];
     }
 
+    // A new candidate list is a new model, which rebuilds the view at the top. Ticking a member
+    // has to re-read all of them, since it can block or free others, so the place the list was
+    // scrolled to is put back after it.
+    function reloadInPlace(): void {
+        const contentY = memberListView.contentY;
+        reload();
+        memberListView.forceLayout();
+        memberListView.contentY = Math.max(memberListView.originY, Math.min(contentY, memberListView.originY + memberListView.contentHeight - memberListView.height));
+    }
+
     onOpened: reload()
 
     footer: DialogButtonBox {
@@ -114,7 +124,7 @@ AnimatedDialog {
                             } else {
                                 deviceRackController.removeSubMixerMember(root.slotIndex, modelData.slot);
                             }
-                            root.reload();
+                            root.reloadInPlace();
                         }
                     }
 
