@@ -181,6 +181,17 @@ Dialog {
                             id: manageMenu
                             y: parent.height
                             MenuItem {
+                                text: qsTr("Move Up")
+                                enabled: index > 0
+                                onClicked: effectRackController.moveEffectUp(index)
+                            }
+                            MenuItem {
+                                text: qsTr("Move Down")
+                                enabled: index < effectRackController.effectCount - 1
+                                onClicked: effectRackController.moveEffectDown(index)
+                            }
+                            MenuSeparator {}
+                            MenuItem {
                                 text: qsTr("Export Settings...")
                                 onClicked: UiService.requestExportEffectSettings(index, effectType)
                             }
