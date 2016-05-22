@@ -16,10 +16,14 @@
 #ifndef THEME_SERVICE_HPP
 #define THEME_SERVICE_HPP
 
+#include "../../common/theme_preset.hpp"
+
 #include <QColor>
 #include <QObject>
+#include <QStringList>
 #include <QVariantList>
 #include <optional>
+#include <vector>
 
 namespace noteahead {
 
@@ -37,7 +41,13 @@ class ThemeService : public QObject
     //! difference modes. Derived from the accent color until the user picks one.
     Q_PROPERTY(QColor spectrumPostColor READ spectrumPostColor WRITE setSpectrumPostColor NOTIFY spectrumColorsChanged)
     Q_PROPERTY(QColor spectrumPreColor READ spectrumPreColor WRITE setSpectrumPreColor NOTIFY spectrumColorsChanged)
-    Q_PROPERTY(bool spectrumColorsFollowAccent READ spectrumColorsFollowAccent NOTIFY spectrumColorsChanged)
+
+    //! The built-in themes, Init first, and then the user's own, as the preset dropdown lists them.
+    Q_PROPERTY(QStringList themePresetNames READ themePresetNames NOTIFY themePresetsChanged)
+    //! The theme last picked or saved. Left where it is when a setting is changed by hand, as an
+    //! effect's preset is.
+    Q_PROPERTY(int currentThemePresetIndex READ currentThemePresetIndex NOTIFY themePresetsChanged)
+    Q_PROPERTY(bool currentThemePresetIsUserPreset READ currentThemePresetIsUserPreset NOTIFY themePresetsChanged)
 
     //! How far the track and automation palettes are pulled towards the accent color, as a
     //! percentage. 0 is the original fixed palette, 100 puts every entry on the accent hue.
@@ -106,9 +116,24 @@ public:
     void setSpectrumPostColor(const QColor & color);
     QColor spectrumPreColor() const;
     void setSpectrumPreColor(const QColor & color);
-    bool spectrumColorsFollowAccent() const;
-    //! Both spectrum colors back to following the accent color.
-    Q_INVOKABLE void resetSpectrumColors();
+
+    //! The themes that ship with the application. Init is the defaults, and the way back to them.
+    static const std::vector<ThemePreset> & factoryThemePresets();
+
+    QStringList themePresetNames() const;
+    int currentThemePresetIndex() const;
+    bool currentThemePresetIsUserPreset() const;
+
+    //! Puts every setting a theme holds to what theme @p index has, Init's where it has none.
+    Q_INVOKABLE void loadThemePreset(int index);
+
+    // What the shared preset row and its Save and Delete dialogs ask of whatever they act on
+    Q_INVOKABLE bool userPresetExists(const QString & name) const;
+    //! Saves the current settings as a theme of the user's own, replacing one of the same name.
+    Q_INVOKABLE bool saveUserPreset(const QString & name);
+    Q_INVOKABLE bool deleteCurrentUserPreset();
+    //! The name of the current theme if it is one of the user's own, otherwise empty.
+    Q_INVOKABLE QString currentUserPresetName() const;
 
     int paletteAccentBlend() const;
     void setPaletteAccentBlend(int paletteAccentBlend);
@@ -161,6 +186,7 @@ signals:
     void accentColorChanged();
     void cursorColorChanged();
     void spectrumColorsChanged();
+    void themePresetsChanged();
     void paletteAccentBlendChanged();
     void volumeMeterStyleChanged();
     void automationCurveColorsChanged();
@@ -182,6 +208,12 @@ private:
     QColor m_cursorColor;
     std::optional<QColor> m_spectrumPostColor;
     std::optional<QColor> m_spectrumPreColor;
+
+    void setSpectrumColors(std::optional<QColor> post, std::optional<QColor> pre);
+    void setThemePresetIndex(int index);
+
+    std::vector<ThemePreset> m_userThemePresets;
+    int m_themePresetIndex { 0 };
     int m_paletteAccentBlend;
     int m_volumeMeterStyle;
 };

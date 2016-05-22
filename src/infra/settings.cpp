@@ -73,6 +73,9 @@ const auto accentColorKey = "accentColor";
 const auto cursorColorKey = "cursorColor";
 const auto spectrumPostColorKey = "spectrumPostColor";
 const auto spectrumPreColorKey = "spectrumPreColor";
+const auto themePresetsArrayKey = "themePresets";
+const auto themePresetNameKey = "themePreset";
+const auto nameKey = "name";
 const auto paletteAccentBlendKey = "paletteAccentBlend";
 const auto volumeMeterStyleKey = "volumeMeterStyle";
 
@@ -769,6 +772,84 @@ void setOptionalThemeColor(const char * key, std::optional<QColor> color)
 }
 
 } // namespace
+
+std::vector<ThemePreset> userThemePresets()
+{
+    QSettings settings;
+    settings.beginGroup(settingsGroupTheme);
+    std::vector<ThemePreset> presets;
+    const int size = settings.beginReadArray(themePresetsArrayKey);
+    const auto color = [&settings](const char * key) -> std::optional<QColor> {
+        if (const auto value = settings.value(key); value.isValid() && value.value<QColor>().isValid()) {
+            return value.value<QColor>();
+        }
+        return std::nullopt;
+    };
+    const auto integer = [&settings](const char * key) -> std::optional<int> {
+        bool ok = false;
+        if (const int value = settings.value(key).toInt(&ok); ok) {
+            return value;
+        }
+        return std::nullopt;
+    };
+    for (int i = 0; i < size; i++) {
+        settings.setArrayIndex(i);
+        presets.push_back({ .name = settings.value(nameKey).toString(),
+                            .accentColor = color(accentColorKey),
+                            .cursorColor = color(cursorColorKey),
+                            .paletteAccentBlend = integer(paletteAccentBlendKey),
+                            .volumeMeterStyle = integer(volumeMeterStyleKey),
+                            .spectrumPostColor = color(spectrumPostColorKey),
+                            .spectrumPreColor = color(spectrumPreColorKey) });
+    }
+    settings.endArray();
+    settings.endGroup();
+    return presets;
+}
+
+void setUserThemePresets(const std::vector<ThemePreset> & presets)
+{
+    QSettings settings;
+    settings.beginGroup(settingsGroupTheme);
+    // Rewritten whole, so that a deleted theme leaves no entries behind past the new end
+    settings.remove(themePresetsArrayKey);
+    settings.beginWriteArray(themePresetsArrayKey, static_cast<int>(presets.size()));
+    for (size_t i = 0; i < presets.size(); i++) {
+        settings.setArrayIndex(static_cast<int>(i));
+        const auto & preset = presets.at(i);
+        settings.setValue(nameKey, preset.name);
+        const auto write = [&settings](const char * key, const auto & value) {
+            if (value) {
+                settings.setValue(key, *value);
+            }
+        };
+        write(accentColorKey, preset.accentColor);
+        write(cursorColorKey, preset.cursorColor);
+        write(paletteAccentBlendKey, preset.paletteAccentBlend);
+        write(volumeMeterStyleKey, preset.volumeMeterStyle);
+        write(spectrumPostColorKey, preset.spectrumPostColor);
+        write(spectrumPreColorKey, preset.spectrumPreColor);
+    }
+    settings.endArray();
+    settings.endGroup();
+}
+
+QString themePresetName()
+{
+    QSettings settings;
+    settings.beginGroup(settingsGroupTheme);
+    const auto name = settings.value(themePresetNameKey).toString();
+    settings.endGroup();
+    return name;
+}
+
+void setThemePresetName(const QString & name)
+{
+    QSettings settings;
+    settings.beginGroup(settingsGroupTheme);
+    settings.setValue(themePresetNameKey, name);
+    settings.endGroup();
+}
 
 std::optional<QColor> spectrumPostColor()
 {

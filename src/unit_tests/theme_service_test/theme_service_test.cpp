@@ -17,6 +17,7 @@
 
 #include "../../application/service/theme_service.hpp"
 #include "../../common/constants.hpp"
+#include "../../infra/settings.hpp"
 
 #include <QSet>
 #include <QSettings>
@@ -24,6 +25,7 @@
 #include <QTemporaryDir>
 #include <QTest>
 
+#include <algorithm>
 #include <cmath>
 
 namespace noteahead {
@@ -70,11 +72,10 @@ void ThemeServiceTest::cleanupTestCase()
     settings.clear();
 }
 
-void ThemeServiceTest::test_spectrumColors_unset_shouldFollowTheAccent()
+void ThemeServiceTest::test_spectrumColors_init_shouldFollowTheAccent()
 {
     ThemeService themeService;
-    themeService.resetSpectrumColors();
-    QVERIFY(themeService.spectrumColorsFollowAccent());
+    themeService.loadThemePreset(0);
 
     const QSignalSpy spy { &themeService, &ThemeService::spectrumColorsChanged };
     const auto before = themeService.spectrumPostColor();
@@ -84,48 +85,140 @@ void ThemeServiceTest::test_spectrumColors_unset_shouldFollowTheAccent()
     // Apart from each other and from the accent the curve is drawn in
     QVERIFY(themeService.spectrumPostColor().hsvHue() != themeService.spectrumPreColor().hsvHue());
     QVERIFY(themeService.spectrumPostColor().hsvHue() != QColor { "#3080ff" }.hsvHue());
-    themeService.setAccentColor(ThemeService::defaultAccentColor());
+    themeService.loadThemePreset(0);
 }
 
 void ThemeServiceTest::test_spectrumColors_defaultAccent_shouldBeYellowAndOrange()
 {
     ThemeService themeService;
-    themeService.resetSpectrumColors();
-    themeService.setAccentColor(ThemeService::defaultAccentColor());
+    themeService.loadThemePreset(0);
     const int post = themeService.spectrumPostColor().hsvHue();
     const int pre = themeService.spectrumPreColor().hsvHue();
     QVERIFY2(post >= 40 && post <= 60, qPrintable(QString::number(post)));
     QVERIFY2(pre >= 15 && pre <= 35, qPrintable(QString::number(pre)));
 }
 
-void ThemeServiceTest::test_spectrumColors_setter_shouldPersistAndStopFollowing()
+void ThemeServiceTest::test_spectrumColors_setter_shouldPersistAcrossInstances()
 {
     const QColor post { "#ff00ff" };
     {
         ThemeService themeService;
+        themeService.loadThemePreset(0);
         themeService.setSpectrumPostColor(post);
-        QVERIFY(!themeService.spectrumColorsFollowAccent());
     }
 
     ThemeService reloaded;
     QCOMPARE(reloaded.spectrumPostColor(), post);
+    // Picked by hand, so no longer turned with the accent
     reloaded.setAccentColor(QColor { "#3080ff" });
     QCOMPARE(reloaded.spectrumPostColor(), post);
-    reloaded.setAccentColor(ThemeService::defaultAccentColor());
-    reloaded.resetSpectrumColors();
+    reloaded.loadThemePreset(0);
 }
 
-void ThemeServiceTest::test_resetSpectrumColors_shouldFollowTheAccentAgain()
+void ThemeServiceTest::test_themePresets_init_shouldBeTheDefaults()
 {
+    const auto & init = ThemeService::factoryThemePresets().front();
+    QCOMPARE(init.name, QString { "Init" });
+    QCOMPARE(*init.accentColor, ThemeService::defaultAccentColor());
+    QCOMPARE(*init.cursorColor, ThemeService::defaultCursorColor());
+    QCOMPARE(*init.paletteAccentBlend, ThemeService::defaultPaletteAccentBlend());
+    QCOMPARE(*init.volumeMeterStyle, Constants::defaultVolumeMeterStyle());
+    QVERIFY(!init.spectrumPostColor && !init.spectrumPreColor);
+}
+
+void ThemeServiceTest::test_themePresets_factory_shouldSetEverySetting()
+{
+    const auto & presets = ThemeService::factoryThemePresets();
+    for (size_t i = 0; i < presets.size(); i++) {
+        const auto & preset = presets.at(i);
+        QVERIFY2(preset.accentColor && preset.cursorColor && preset.paletteAccentBlend && preset.volumeMeterStyle, qPrintable(preset.name));
+        // Init follows the accent; every other theme names its own spectrum colors
+        QVERIFY2(i == 0 || (preset.spectrumPostColor && preset.spectrumPreColor), qPrintable(preset.name));
+        // Alphabetical after Init
+        QVERIFY2(i < 2 || presets.at(i - 1).name < preset.name, qPrintable(preset.name));
+    }
+    QVERIFY(std::ranges::any_of(presets, [](auto && preset) { return preset.name == "Orange" && *preset.accentColor == QColor { "orange" }; }));
+}
+
+void ThemeServiceTest::test_loadThemePreset_orange_shouldApplyAndPersist()
+{
+    const auto & presets = ThemeService::factoryThemePresets();
+    const auto orange = static_cast<int>(std::distance(presets.begin(), std::ranges::find_if(presets, [](auto && preset) { return preset.name == "Orange"; })));
     {
         ThemeService themeService;
-        themeService.setSpectrumPreColor(QColor { "#00ffff" });
-        themeService.resetSpectrumColors();
-        QVERIFY(themeService.spectrumColorsFollowAccent());
+        const QSignalSpy spy { &themeService, &ThemeService::themePresetsChanged };
+        themeService.loadThemePreset(orange);
+        QCOMPARE(spy.count(), 1);
+        QCOMPARE(themeService.accentColor(), QColor { "orange" });
+        QCOMPARE(themeService.paletteAccentBlend(), 0);
+        QCOMPARE(themeService.spectrumPostColor(), *presets.at(static_cast<size_t>(orange)).spectrumPostColor);
+        QCOMPARE(themeService.currentThemePresetIndex(), orange);
     }
 
     ThemeService reloaded;
-    QVERIFY(reloaded.spectrumColorsFollowAccent());
+    QCOMPARE(reloaded.currentThemePresetIndex(), orange);
+    QCOMPARE(reloaded.accentColor(), QColor { "orange" });
+    reloaded.loadThemePreset(0);
+}
+
+void ThemeServiceTest::test_saveUserPreset_shouldListAndReload()
+{
+    const auto factoryCount = static_cast<int>(ThemeService::factoryThemePresets().size());
+    {
+        ThemeService themeService;
+        themeService.loadThemePreset(0);
+        themeService.setAccentColor(QColor { "#123456" });
+        QVERIFY(!themeService.userPresetExists("Mine"));
+        QVERIFY(themeService.saveUserPreset("Mine"));
+        QVERIFY(themeService.userPresetExists("Mine"));
+        QVERIFY(themeService.currentThemePresetIsUserPreset());
+        QCOMPARE(themeService.currentUserPresetName(), QString { "Mine" });
+        QCOMPARE(themeService.currentThemePresetIndex(), factoryCount);
+        QCOMPARE(themeService.themePresetNames().size(), factoryCount + 1);
+        QVERIFY(themeService.themePresetNames().last().endsWith("Mine" + Constants::userPresetMarker()));
+        themeService.loadThemePreset(0);
+    }
+
+    ThemeService reloaded;
+    QVERIFY(reloaded.userPresetExists("Mine"));
+    reloaded.loadThemePreset(factoryCount);
+    QCOMPARE(reloaded.accentColor(), QColor { "#123456" });
+    QVERIFY(reloaded.deleteCurrentUserPreset());
+    reloaded.loadThemePreset(0);
+}
+
+void ThemeServiceTest::test_deleteCurrentUserPreset_shouldRemoveItAndKeepTheLook()
+{
+    ThemeService themeService;
+    themeService.loadThemePreset(0);
+    QVERIFY(!themeService.deleteCurrentUserPreset()); // Init is not the user's to delete
+
+    themeService.setAccentColor(QColor { "#654321" });
+    QVERIFY(themeService.saveUserPreset("Gone"));
+    QVERIFY(themeService.deleteCurrentUserPreset());
+    QVERIFY(!themeService.userPresetExists("Gone"));
+    QVERIFY(!themeService.currentThemePresetIsUserPreset());
+    QCOMPARE(themeService.accentColor(), QColor { "#654321" });
+
+    ThemeService reloaded;
+    QVERIFY(!reloaded.userPresetExists("Gone"));
+    reloaded.loadThemePreset(0);
+}
+
+void ThemeServiceTest::test_loadThemePreset_missingSetting_shouldFallBackToInit()
+{
+    // As a theme saved before a setting existed: only the accent is named
+    Settings::setUserThemePresets({ { .name = "Old", .accentColor = QColor { "#abcdef" } } });
+    ThemeService themeService;
+    themeService.setCursorColor(QColor { "blue" });
+    themeService.setSpectrumPostColor(QColor { "blue" });
+    themeService.loadThemePreset(static_cast<int>(ThemeService::factoryThemePresets().size()));
+    QCOMPARE(themeService.accentColor(), QColor { "#abcdef" });
+    QCOMPARE(themeService.cursorColor(), ThemeService::defaultCursorColor());
+    QCOMPARE(themeService.paletteAccentBlend(), ThemeService::defaultPaletteAccentBlend());
+    QVERIFY(themeService.spectrumPostColor() != QColor { "blue" });
+    QVERIFY(themeService.deleteCurrentUserPreset());
+    themeService.loadThemePreset(0);
 }
 
 void ThemeServiceTest::test_cursorColor_unset_shouldReturnDefault()

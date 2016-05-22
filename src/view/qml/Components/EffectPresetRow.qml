@@ -25,28 +25,20 @@ import Noteahead 1.0
 //! Sits above the rest of the panel rather than inside it, because a preset writes the whole panel.
 //! Hides itself when the effect ships no patches and the user has saved none, so an effect that has
 //! no presets is not given an empty row, unless the dialog asks for it with showWhenEmpty.
-RowLayout {
+PresetRow {
     id: root
 
     //! The slot this row's effect sits in. Set by the dialog, which knows it.
     property int effectIndex: -1
 
-    //! Read once per change rather than bound: every entry is built from the preset store on disk,
-    //! so a binding would re-read the directory on every unrelated revision bump.
-    property var presetNames: []
-    property int currentIndex: 0
-    property bool currentIsUserPreset: false
-
     //! For an effect that ships no patches yet: without this the row, and with it Save, would never
     //! appear, and the user could not save the first preset of their own.
     property bool showWhenEmpty: false
 
-    Universal.theme: Universal.Dark
-    Universal.accent: themeService.accentColor
-    Layout.fillWidth: true
-    spacing: 10
     visible: showWhenEmpty || presetNames.length > 0
 
+    // The names are read once per change rather than bound: every entry is built from the preset
+    // store on disk, so a binding would re-read the directory on every unrelated revision bump.
     function refresh(): void {
         if (effectIndex < 0) {
             presetNames = [];
@@ -71,7 +63,7 @@ RowLayout {
 
     //! Stands in for a device controller so that the shared Save and Delete dialogs, which know only
     //! how to ask a controller, can serve an effect slot too.
-    property QtObject presetTarget: QtObject {
+    presetTarget: QtObject {
         function userPresetExists(name: string): bool {
             return effectRackController.effectUserPresetExists(root.effectIndex, name);
         }
@@ -81,40 +73,10 @@ RowLayout {
         function deleteCurrentUserPreset(): bool {
             return effectRackController.deleteCurrentEffectUserPreset(root.effectIndex);
         }
+        function currentUserPresetName(): string {
+            return effectRackController.currentEffectUserPresetName(root.effectIndex);
+        }
     }
 
-    Label {
-        text: qsTr("Preset:")
-    }
-
-    ComboBox {
-        id: presetCombo
-        model: root.presetNames
-        currentIndex: root.currentIndex
-        onActivated: index => effectRackController.loadEffectPreset(root.effectIndex, index)
-        // A ComboBox writes its own currentIndex when the model changes, which breaks the binding
-        // above. Without this a preset just saved would not show as the one selected.
-        onModelChanged: currentIndex = Qt.binding(() => root.currentIndex)
-        Layout.preferredWidth: 240
-    }
-
-    AppButton {
-        text: qsTr("Save")
-        toolTipText: qsTr("Save the current settings as a preset of your own")
-        implicitWidth: Constants.defaultButtonWidth
-        onClicked: UiService.requestPresetName(root.presetTarget, "")
-    }
-
-    AppButton {
-        text: qsTr("Delete")
-        toolTipText: qsTr("Delete the selected preset of your own")
-        implicitWidth: Constants.defaultButtonWidth
-        // Only the user's own presets are theirs to delete
-        enabled: root.currentIsUserPreset
-        onClicked: UiService.requestPresetDeleteConfirmation(root.presetTarget, effectRackController.currentEffectUserPresetName(root.effectIndex))
-    }
-
-    Item {
-        Layout.fillWidth: true
-    }
+    onPresetActivated: index => effectRackController.loadEffectPreset(root.effectIndex, index)
 }

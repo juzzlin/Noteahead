@@ -17,9 +17,11 @@
 #define SETTINGS_HPP
 
 #include "../common/audio_backend.hpp"
+#include "../common/theme_preset.hpp"
 
 #include <cstddef>
 #include <optional>
+#include <vector>
 
 #include <QColor>
 #include <QSize>
@@ -138,6 +140,14 @@ void setAccentColor(QColor accentColor);
 
 QColor cursorColor(QColor defaultCursorColor);
 void setCursorColor(QColor cursorColor);
+
+//! The user's own themes, in the order they were saved in.
+std::vector<ThemePreset> userThemePresets();
+void setUserThemePresets(const std::vector<ThemePreset> & presets);
+
+//! The name of the theme last picked or saved, or nothing for Init.
+QString themePresetName();
+void setThemePresetName(const QString & name);
 
 //! The equalizer spectrum colors, or nothing when they follow the accent color.
 std::optional<QColor> spectrumPostColor();

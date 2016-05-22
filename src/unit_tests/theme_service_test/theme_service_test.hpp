@@ -33,10 +33,16 @@ private slots:
     void test_cursorColor_sameValue_shouldNotEmitSignal();
     void test_cursorColor_setter_shouldPersistAcrossInstances();
 
-    void test_spectrumColors_unset_shouldFollowTheAccent();
+    void test_spectrumColors_init_shouldFollowTheAccent();
     void test_spectrumColors_defaultAccent_shouldBeYellowAndOrange();
-    void test_spectrumColors_setter_shouldPersistAndStopFollowing();
-    void test_resetSpectrumColors_shouldFollowTheAccentAgain();
+    void test_spectrumColors_setter_shouldPersistAcrossInstances();
+
+    void test_themePresets_init_shouldBeTheDefaults();
+    void test_themePresets_factory_shouldSetEverySetting();
+    void test_loadThemePreset_orange_shouldApplyAndPersist();
+    void test_saveUserPreset_shouldListAndReload();
+    void test_deleteCurrentUserPreset_shouldRemoveItAndKeepTheLook();
+    void test_loadThemePreset_missingSetting_shouldFallBackToInit();
 
     void test_paletteAccentBlend_setter_shouldUpdateGetterAndEmitSignals();
     void test_paletteAccentBlend_outOfRange_shouldBeClamped();

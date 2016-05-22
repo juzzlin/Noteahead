@@ -2,6 +2,7 @@ set(HEADER_FILES
     constants.hpp
     denormal_protection.hpp
     parameter_mapper.hpp
+    theme_preset.hpp
     utils.hpp
     waveform_generator.hpp
     xml/project_reader.hpp

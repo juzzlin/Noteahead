@@ -33,6 +33,15 @@ SectionBox {
                 anchors.right: parent.right
         spacing: 10
 
+        // Every setting below at once. Init is the defaults, and the way back to them.
+        PresetRow {
+            presetNames: themeService.themePresetNames
+            currentIndex: themeService.currentThemePresetIndex
+            currentIsUserPreset: themeService.currentThemePresetIsUserPreset
+            presetTarget: themeService
+            onPresetActivated: index => themeService.loadThemePreset(index)
+        }
+
         SectionBox {
             title: qsTr("Colors")
             Layout.fillWidth: true
@@ -184,7 +193,8 @@ SectionBox {
         }
 
         // The live spectrum behind the equalizer curves. Until a color is picked both follow the
-        // accent, turned round the hue circle so they stand apart from a curve drawn in it.
+        // accent, turned round the hue circle so they stand apart from a curve drawn in it. Init
+        // puts them back to that.
         SectionBox {
             title: qsTr("EQ Spectrum")
             Layout.fillWidth: true
@@ -203,12 +213,6 @@ SectionBox {
                     label: qsTr("Pre:")
                     swatchColor: themeService.spectrumPreColor
                     onClicked: spectrumPreColorDialog.open()
-                }
-                AppButton {
-                    text: qsTr("From Accent")
-                    toolTipText: qsTr("Derive both spectrum colors from the accent color again")
-                    enabled: !themeService.spectrumColorsFollowAccent
-                    onClicked: themeService.resetSpectrumColors()
                 }
             }
         }

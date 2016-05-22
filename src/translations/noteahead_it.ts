@@ -3171,29 +3171,6 @@
     </message>
 </context>
 <context>
-    <name>EffectPresetRow</name>
-    <message>
-        <source>Preset:</source>
-        <translation>Preset:</translation>
-    </message>
-    <message>
-        <source>Save</source>
-        <translation>Salva</translation>
-    </message>
-    <message>
-        <source>Save the current settings as a preset of your own</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Delete</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Delete the selected preset of your own</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
     <name>EffectSendsView</name>
     <message>
         <source>Routing: %1 %2</source>
@@ -8677,6 +8654,29 @@
     </message>
 </context>
 <context>
+    <name>PresetRow</name>
+    <message>
+        <source>Preset:</source>
+        <translation>Preset:</translation>
+    </message>
+    <message>
+        <source>Save</source>
+        <translation>Salva</translation>
+    </message>
+    <message>
+        <source>Save the current settings as a preset of your own</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Delete</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Delete the selected preset of your own</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>PrevButton</name>
     <message>
         <source>Rewind to the start of the song and reset track settings</source>
@@ -9673,14 +9673,6 @@ I file audio compariranno accanto al file di progetto corrente.</translation>
     <message>
         <source>Pre:</source>
         <translation>Pre:</translation>
-    </message>
-    <message>
-        <source>From Accent</source>
-        <translation>Dall&apos;accento</translation>
-    </message>
-    <message>
-        <source>Derive both spectrum colors from the accent color again</source>
-        <translation>Ricava di nuovo entrambi i colori dello spettro dal colore d&apos;accento</translation>
     </message>
     <message>
         <source>Select Accent Color</source>

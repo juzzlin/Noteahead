@@ -96,9 +96,19 @@ ThemeService::ThemeService()
   , m_cursorColor { Settings::cursorColor(defaultCursorColor()) }
   , m_spectrumPostColor { Settings::spectrumPostColor() }
   , m_spectrumPreColor { Settings::spectrumPreColor() }
+  , m_userThemePresets { Settings::userThemePresets() }
   , m_paletteAccentBlend { Settings::paletteAccentBlend(defaultPaletteAccentBlend()) }
   , m_volumeMeterStyle { Settings::volumeMeterStyle(Constants::defaultVolumeMeterStyle()) }
 {
+    // The theme last picked, by name, so that the list can change under it. A factory theme wins
+    // over one of the user's own of the same name, which is the order the list shows them in.
+    const auto name = Settings::themePresetName();
+    const auto & factory = factoryThemePresets();
+    if (const auto it = std::ranges::find_if(factory, [&name](auto && preset) { return preset.name == name; }); it != factory.end()) {
+        m_themePresetIndex = static_cast<int>(std::distance(factory.begin(), it));
+    } else if (const auto user = std::ranges::find_if(m_userThemePresets, [&name](auto && preset) { return preset.name == name; }); user != m_userThemePresets.end()) {
+        m_themePresetIndex = static_cast<int>(factory.size()) + static_cast<int>(std::distance(m_userThemePresets.begin(), user));
+    }
 }
 
 ThemeService::~ThemeService() = default;
@@ -273,20 +283,139 @@ void ThemeService::setSpectrumPreColor(const QColor & color)
     }
 }
 
-bool ThemeService::spectrumColorsFollowAccent() const
+void ThemeService::setSpectrumColors(std::optional<QColor> post, std::optional<QColor> pre)
 {
-    return !m_spectrumPostColor && !m_spectrumPreColor;
-}
-
-void ThemeService::resetSpectrumColors()
-{
-    if (!spectrumColorsFollowAccent()) {
-        m_spectrumPostColor.reset();
-        m_spectrumPreColor.reset();
-        Settings::setSpectrumPostColor(std::nullopt);
-        Settings::setSpectrumPreColor(std::nullopt);
+    if (m_spectrumPostColor != post || m_spectrumPreColor != pre) {
+        m_spectrumPostColor = post;
+        m_spectrumPreColor = pre;
+        Settings::setSpectrumPostColor(m_spectrumPostColor);
+        Settings::setSpectrumPreColor(m_spectrumPreColor);
         emit spectrumColorsChanged();
     }
+}
+
+const std::vector<ThemePreset> & ThemeService::factoryThemePresets()
+{
+    const auto lines = Constants::VolumeMeterStyle::Lines;
+    const auto gradient = Constants::VolumeMeterStyle::Gradient;
+    // Init first, as it is the way back; the rest alphabetical. The names are not translated, like
+    // those of effect presets. A spectrum color left out follows the accent: Init's do, and the
+    // others name theirs where turning from the accent would land somewhere that clashes with it.
+    static const std::vector<ThemePreset> presets {
+        { .name = "Init", .accentColor = defaultAccentColor(), .cursorColor = defaultCursorColor(), .paletteAccentBlend = defaultPaletteAccentBlend(), .volumeMeterStyle = Constants::defaultVolumeMeterStyle(), .spectrumPostColor = std::nullopt, .spectrumPreColor = std::nullopt },
+        { .name = "Ice", .accentColor = QColor { "#7fd4ff" }, .cursorColor = QColor { "#ff5577" }, .paletteAccentBlend = 25, .volumeMeterStyle = static_cast<int>(lines), .spectrumPostColor = QColor { "#ffd75e" }, .spectrumPreColor = QColor { "#ff9a5e" } },
+        { .name = "Mono", .accentColor = QColor { "#d0d0d0" }, .cursorColor = QColor { "white" }, .paletteAccentBlend = 0, .volumeMeterStyle = static_cast<int>(lines), .spectrumPostColor = QColor { "#a0a0a0" }, .spectrumPreColor = QColor { "#e8e8e8" } },
+        // The accent and palette the application had before mint
+        { .name = "Orange", .accentColor = QColor { "orange" }, .cursorColor = QColor { "red" }, .paletteAccentBlend = 0, .volumeMeterStyle = static_cast<int>(gradient), .spectrumPostColor = QColor { "#5ec8ff" }, .spectrumPreColor = QColor { "#b48cff" } },
+        { .name = "Rose", .accentColor = QColor { "#ff8fb1" }, .cursorColor = QColor { "#ffd166" }, .paletteAccentBlend = 35, .volumeMeterStyle = static_cast<int>(gradient), .spectrumPostColor = QColor { "#8fe3ff" }, .spectrumPreColor = QColor { "#c8a2ff" } },
+        { .name = "Violet", .accentColor = QColor { "#b69cff" }, .cursorColor = QColor { "#ff6b6b" }, .paletteAccentBlend = 25, .volumeMeterStyle = static_cast<int>(lines), .spectrumPostColor = QColor { "#ffd36b" }, .spectrumPreColor = QColor { "#ff9f6b" } },
+    };
+    return presets;
+}
+
+QStringList ThemeService::themePresetNames() const
+{
+    QStringList names;
+    const auto append = [&names](const QString & name, bool isUserPreset) {
+        // Numbered and marked as the effect presets are, so the two dropdowns read alike
+        names.append(QString { "%1: %2%3" }
+                       .arg(names.size(), 3, 10, QChar { '0' })
+                       .arg(name)
+                       .arg(isUserPreset ? Constants::userPresetMarker() : QString {}));
+    };
+    for (auto && preset : factoryThemePresets()) {
+        append(preset.name, false);
+    }
+    for (auto && preset : m_userThemePresets) {
+        append(preset.name, true);
+    }
+    return names;
+}
+
+int ThemeService::currentThemePresetIndex() const
+{
+    return m_themePresetIndex;
+}
+
+bool ThemeService::currentThemePresetIsUserPreset() const
+{
+    return m_themePresetIndex >= static_cast<int>(factoryThemePresets().size());
+}
+
+void ThemeService::setThemePresetIndex(int index)
+{
+    const int count = static_cast<int>(factoryThemePresets().size() + m_userThemePresets.size());
+    m_themePresetIndex = std::clamp(index, 0, count - 1);
+    const auto factoryCount = static_cast<int>(factoryThemePresets().size());
+    Settings::setThemePresetName(m_themePresetIndex < factoryCount ? factoryThemePresets().at(static_cast<size_t>(m_themePresetIndex)).name : m_userThemePresets.at(static_cast<size_t>(m_themePresetIndex - factoryCount)).name);
+    emit themePresetsChanged();
+}
+
+void ThemeService::loadThemePreset(int index)
+{
+    const auto factoryCount = static_cast<int>(factoryThemePresets().size());
+    if (index < 0 || index >= factoryCount + static_cast<int>(m_userThemePresets.size())) {
+        return;
+    }
+    const auto & preset = index < factoryCount ? factoryThemePresets().at(static_cast<size_t>(index)) : m_userThemePresets.at(static_cast<size_t>(index - factoryCount));
+    const auto & init = factoryThemePresets().front();
+
+    setAccentColor(preset.accentColor.value_or(*init.accentColor));
+    setCursorColor(preset.cursorColor.value_or(*init.cursorColor));
+    setPaletteAccentBlend(preset.paletteAccentBlend.value_or(*init.paletteAccentBlend));
+    setVolumeMeterStyle(preset.volumeMeterStyle.value_or(*init.volumeMeterStyle));
+    // Left out means following the accent, which is Init's own value, so there is nothing to fall
+    // back on
+    setSpectrumColors(preset.spectrumPostColor, preset.spectrumPreColor);
+    setThemePresetIndex(index);
+}
+
+bool ThemeService::userPresetExists(const QString & name) const
+{
+    return std::ranges::any_of(m_userThemePresets, [&name](auto && preset) { return preset.name == name; });
+}
+
+bool ThemeService::saveUserPreset(const QString & name)
+{
+    if (name.trimmed().isEmpty()) {
+        return false;
+    }
+    const ThemePreset preset { .name = name,
+                               .accentColor = m_accentColor,
+                               .cursorColor = m_cursorColor,
+                               .paletteAccentBlend = m_paletteAccentBlend,
+                               .volumeMeterStyle = m_volumeMeterStyle,
+                               .spectrumPostColor = m_spectrumPostColor,
+                               .spectrumPreColor = m_spectrumPreColor };
+    if (const auto it = std::ranges::find_if(m_userThemePresets, [&name](auto && existing) { return existing.name == name; }); it != m_userThemePresets.end()) {
+        *it = preset;
+    } else {
+        m_userThemePresets.push_back(preset);
+    }
+    Settings::setUserThemePresets(m_userThemePresets);
+
+    // Show what was just saved as the selected theme, as saving an effect preset does
+    const auto it = std::ranges::find_if(m_userThemePresets, [&name](auto && existing) { return existing.name == name; });
+    setThemePresetIndex(static_cast<int>(factoryThemePresets().size()) + static_cast<int>(std::distance(m_userThemePresets.begin(), it)));
+    return true;
+}
+
+bool ThemeService::deleteCurrentUserPreset()
+{
+    if (!currentThemePresetIsUserPreset()) {
+        return false;
+    }
+    m_userThemePresets.erase(m_userThemePresets.begin() + (m_themePresetIndex - static_cast<int>(factoryThemePresets().size())));
+    Settings::setUserThemePresets(m_userThemePresets);
+    // Onto the theme that took the deleted one's place, or the last one left. The settings stay as
+    // they are: deleting a theme is not a reason to change how the application looks.
+    setThemePresetIndex(m_themePresetIndex);
+    return true;
+}
+
+QString ThemeService::currentUserPresetName() const
+{
+    return currentThemePresetIsUserPreset() ? m_userThemePresets.at(static_cast<size_t>(m_themePresetIndex) - factoryThemePresets().size()).name : QString {};
 }
 
 QColor ThemeService::contrastingTextColor(const QColor & background) const

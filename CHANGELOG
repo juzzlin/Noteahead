@@ -35,6 +35,8 @@ New features:
 
 * Air Band EQ: factory and user presets
 
+* Theme presets: Init, Ice, Mono, Orange, Rose and Violet, and your own
+
 * EQs: Auto Gain keeps the level the same while the tone changes
   - All EQs but Dynamic EQ; off by default, and in Mid or Side mode only the shaped path is compensated
 
