@@ -270,6 +270,58 @@ void RenderingTest::test_render_shouldNotCrashWithNullInstrumentEvents()
     worker.render("dummy.wav", events, timing, 24, 44100);
 }
 
+void RenderingTest::test_render_shouldClampSignal()
+{
+    auto audioEngine = std::make_shared<AudioEngine>();
+    auto deviceService = std::make_shared<DeviceService>(audioEngine);
+    auto mixerService = std::make_shared<MixerService>();
+
+    auto drumSynth = std::make_shared<DrumSynthDevice>("Drums");
+    drumSynth->setVolume(1.0f);
+    drumSynth->setGain(1.0f); // 0 dB
+    deviceService->setDevice(0, drumSynth);
+
+    RenderWorker worker(audioEngine, deviceService, mixerService);
+    MockRenderIo * mockIoPtr = nullptr;
+    worker.setAudioFileReaderFactory([&]() {
+        auto io = std::make_unique<MockRenderIo>();
+        mockIoPtr = io.get();
+        return io;
+    });
+
+    RenderWorker::EventList events;
+    auto instrument = std::make_shared<Instrument>("Noteahead Internal Device 1");
+
+    // Kick (36), Snare (38) and Clap (39) at the same time with full velocity
+    for (uint8_t note : { 36, 38, 39 }) {
+        NoteData noteData { 0, 0 };
+        noteData.setAsNoteOn(note, 127);
+        auto event = std::make_shared<Event>(0, noteData);
+        event->setInstrument(instrument);
+        events.push_back(event);
+    }
+
+    RenderWorker::Timing timing;
+    timing.beatsPerMinute = 120;
+    timing.linesPerBeat = 4;
+    timing.ticksPerLine = 6;
+
+    worker.render("dummy.wav", events, timing, 48, 44100);
+
+    QVERIFY(mockIoPtr != nullptr);
+    const auto & audioData = mockIoPtr->data();
+    QVERIFY(!audioData.empty());
+
+    bool foundLargeSignal = false;
+    for (float s : audioData) {
+        QVERIFY2(s >= -1.0f && s <= 1.0f, qPrintable(QString("Sample out of range: %1").arg(static_cast<double>(s))));
+        if (std::abs(s) > 0.999f) {
+            foundLargeSignal = true;
+        }
+    }
+    QVERIFY2(foundLargeSignal, "Should have found samples close to 1.0 due to clamping");
+}
+
 } // namespace noteahead
 
 QTEST_GUILESS_MAIN(noteahead::RenderingTest)

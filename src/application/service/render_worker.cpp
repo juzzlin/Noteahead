@@ -100,6 +100,11 @@ void RenderWorker::render(const QString & fileName, const noteahead::RenderWorke
                 AudioContext audioContext { std::span(audioBuffer.data(), static_cast<size_t>(framesToProcess) * 2), framesToProcess, sampleRate };
                 m_audioEngine->process(audioContext);
 
+                // Clamp signal to prevent overflow when writing to 16-bit PCM
+                for (float & s : audioBuffer) {
+                    s = std::clamp(s, -1.0f, 1.0f);
+                }
+
                 if (!recorder.push(audioBuffer.data(), framesToProcess * 2)) {
                     while (!recorder.push(audioBuffer.data(), framesToProcess * 2)) {
                         std::this_thread::sleep_for(std::chrono::milliseconds { 1 });
@@ -122,6 +127,12 @@ void RenderWorker::render(const QString & fileName, const noteahead::RenderWorke
             std::fill(audioBuffer.begin(), audioBuffer.begin() + finalFrames * 2, 0.0f);
             AudioContext audioContext { std::span(audioBuffer.data(), static_cast<size_t>(finalFrames) * 2), finalFrames, sampleRate };
             m_audioEngine->process(audioContext);
+
+            // Clamp signal to prevent overflow when writing to 16-bit PCM
+            for (float & s : audioBuffer) {
+                s = std::clamp(s, -1.0f, 1.0f);
+            }
+
             while (!recorder.push(audioBuffer.data(), finalFrames * 2)) {
                 std::this_thread::sleep_for(std::chrono::milliseconds { 1 });
             }

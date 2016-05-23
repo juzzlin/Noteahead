@@ -15,6 +15,7 @@ private slots:
     void test_renderSampler_shouldPreserveParameters();
     void test_renderDrumSynth_shouldPreserveParameters();
     void test_render_shouldNotCrashWithNullInstrumentEvents();
+    void test_render_shouldClampSignal();
 };
 
 } // namespace noteahead

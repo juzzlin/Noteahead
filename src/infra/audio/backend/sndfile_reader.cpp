@@ -40,6 +40,10 @@ bool SndFileReader::open(const std::string & filePath, Mode mode, Info & info)
         return false;
     }
 
+    if (mode == Mode::Write) {
+        sf_command(m_sndFile, SFC_SET_CLIPPING, NULL, SF_TRUE);
+    }
+
     info.frames = m_sfInfo.frames;
     info.samplerate = m_sfInfo.samplerate;
     info.channels = m_sfInfo.channels;
