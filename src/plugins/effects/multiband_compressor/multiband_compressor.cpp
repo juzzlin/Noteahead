@@ -288,6 +288,15 @@ void MultibandCompressor::sync()
     m_shouldSyncParameters = true;
 }
 
+const EffectPresetList & MultibandCompressor::factoryPresets() const
+{
+    // Only the way back for now, so that the list the dialog always shows has it as well
+    static const EffectPresetList presets {
+        { "Init", {} },
+    };
+    return presets;
+}
+
 std::string MultibandCompressor::typeIdString()
 {
     return "9c4d5e6f-7a8b-4c9d-8e0f-1a2b3c4d5e6f";

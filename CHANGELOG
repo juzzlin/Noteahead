@@ -41,6 +41,8 @@ Bug fixes:
 
 * Sub Mixer: ticking a member no longer scrolls the device list back to the top
 
+* Multiband Compressor: an Init preset in the preset list
+
 Other:
 
 * Column Flash is on by default
