@@ -354,6 +354,19 @@ void MultibandCompressorTest::test_reset_afterCompressing_shouldReturnToUnity()
     }
 }
 
+void MultibandCompressorTest::test_factoryPresets_init_shouldRestoreDefaults()
+{
+    MultibandCompressor effect;
+    const auto key = Constants::NahdXml::xmlKeyBandThreshold(0).toStdString();
+    const auto defaultValue = effect.parameter(key)->get().value();
+    effect.parameter(key)->get().setValue(defaultValue > 0.5f ? 0.0f : 1.0f);
+
+    QVERIFY(!effect.factoryPresets().empty());
+    QCOMPARE(effect.factoryPresets().front().name, std::string { "Init" });
+    QVERIFY(effect.applyFactoryPreset(0));
+    QCOMPARE(effect.parameter(key)->get().value(), defaultValue);
+}
+
 } // namespace noteahead
 
 QTEST_GUILESS_MAIN(noteahead::MultibandCompressorTest)

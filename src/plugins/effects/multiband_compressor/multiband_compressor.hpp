@@ -40,6 +40,7 @@ public:
     std::string type() const override;
     std::string typeId() const override;
     std::vector<std::string> modulationPriority() const override;
+    const EffectPresetList & factoryPresets() const override;
 
     void processSample(double & left, double & right) override;
     void processBlock(AudioContext & context) override;

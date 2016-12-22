@@ -42,6 +42,8 @@ private slots:
 
     void test_crossoverFrequencies_inverted_shouldKeepBandOrder();
     void test_reset_afterCompressing_shouldReturnToUnity();
+
+    void test_factoryPresets_init_shouldRestoreDefaults();
 };
 
 } // namespace noteahead
