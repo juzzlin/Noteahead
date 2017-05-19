@@ -49,6 +49,7 @@ set(HEADER_FILES
   domain/midi_cc_automation.hpp
   domain/midi_cc_data.hpp
   domain/midi_cc_setting.hpp
+  domain/midi_note_data.hpp
   domain/mixer_unit.hpp
   domain/note_data.hpp
   domain/note_data_manipulator.hpp
@@ -108,6 +109,7 @@ set(SOURCE_FILES
   domain/midi_cc_automation.cpp
   domain/midi_cc_data.cpp
   domain/midi_cc_setting.cpp
+  domain/midi_note_data.cpp
   domain/mixer_unit.cpp
   domain/note_data.cpp
   domain/note_data_manipulator.cpp

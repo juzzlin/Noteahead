@@ -27,6 +27,7 @@ namespace noteahead {
 
 class EditorService;
 class Instrument;
+class MidiNoteData;
 class PlayerService;
 class RecentFilesManager;
 class StateMachine;
@@ -99,12 +100,14 @@ public:
 
     using InstrumentS = std::shared_ptr<Instrument>;
 
+    using MidiNoteDataCR = const MidiNoteData &;
+
 signals:
 
     void applyAllTrackSettingsRequested();
 
-    void liveNoteOnRequested(InstrumentS instrument, quint8 midiNote, quint8 velocity);
-    void liveNoteOffRequested(InstrumentS instrument, quint8 midiNote);
+    void liveNoteOnRequested(InstrumentS instrument, MidiNoteDataCR data);
+    void liveNoteOffRequested(InstrumentS instrument, MidiNoteDataCR data);
 
     void unsavedChangesDialogRequested();
     void openDialogRequested();

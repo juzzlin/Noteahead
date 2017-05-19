@@ -27,9 +27,9 @@
 namespace noteahead {
 
 class Instrument;
-class InstrumentRequest;
 class MidiBackend;
 class MidiCcData;
+class MidiNoteData;
 class MidiWorker;
 class PitchBendData;
 
@@ -46,12 +46,15 @@ public:
 
     Q_INVOKABLE QStringList availableMidiPorts() const;
 
+    // QML API
     Q_INVOKABLE void setIsPlaying(bool isPlaying);
     Q_INVOKABLE void playAndStopMiddleC(QString portName, quint8 channel, quint8 velocity);
 
+    // Internal API
     using InstrumentW = std::weak_ptr<Instrument>;
-    Q_INVOKABLE void playNote(InstrumentW instrument, quint8 midiNote, quint8 velocity);
-    Q_INVOKABLE void stopNote(InstrumentW instrument, quint8 midiNote);
+    using MidiNoteDataCR = const MidiNoteData &;
+    Q_INVOKABLE void playNote(InstrumentW instrument, MidiNoteDataCR data);
+    Q_INVOKABLE void stopNote(InstrumentW instrument, MidiNoteDataCR data);
     Q_INVOKABLE void stopAllNotes(InstrumentW instrument);
     using MidiCcDataCR = const MidiCcData &;
     Q_INVOKABLE void sendCcData(InstrumentW instrument, MidiCcDataCR data);
@@ -75,9 +78,7 @@ private:
     void initializeWorker();
 
     std::mutex m_workerMutex; // Calls to this service may become directly from PlayerWorker and also live notes from other sources
-
     std::unique_ptr<MidiWorker> m_midiWorker;
-
     QThread m_midiWorkerThread;
 
     QStringList m_availableMidiPorts;

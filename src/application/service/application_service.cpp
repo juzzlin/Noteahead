@@ -18,6 +18,7 @@
 #include "../../common/constants.hpp"
 #include "../../contrib/SimpleLogger/src/simple_logger.hpp"
 #include "../../domain/instrument.hpp"
+#include "../../domain/midi_note_data.hpp"
 #include "../recent_files_manager.hpp"
 #include "../state_machine.hpp"
 #include "editor_service.hpp"
@@ -135,7 +136,7 @@ void ApplicationService::requestLiveNoteOn(quint8 note, quint8 octave, quint8 ve
     if (const auto instrument = m_editorService->instrument(m_editorService->position().track); instrument) {
         if (const auto midiNote = EditorService::editorNoteToMidiNote(note, octave); midiNote.has_value()) {
             juzzlin::L(TAG).debug() << "Live note ON " << midiNote->first << " requested on instrument " << instrument->toString().toStdString();
-            emit liveNoteOnRequested(instrument, midiNote->second, velocity);
+            emit liveNoteOnRequested(instrument, { midiNote->second, velocity });
         }
     } else {
         juzzlin::L(TAG).info() << "No instrument set on track!";
@@ -153,7 +154,7 @@ void ApplicationService::requestLiveNoteOff(quint8 note, quint8 octave)
     if (const auto instrument = m_editorService->instrument(m_editorService->position().track); instrument) {
         if (const auto midiNote = EditorService::editorNoteToMidiNote(note, octave); midiNote.has_value()) {
             juzzlin::L(TAG).debug() << "Live note OFF " << midiNote->first << " requested on instrument " << instrument->toString().toStdString();
-            emit liveNoteOffRequested(instrument, midiNote->second);
+            emit liveNoteOffRequested(instrument, { midiNote->second, 0 });
         }
     } else {
         juzzlin::L(TAG).info() << "No instrument set on track!";

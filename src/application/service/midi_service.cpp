@@ -18,6 +18,7 @@
 #include "../../contrib/SimpleLogger/src/simple_logger.hpp"
 #include "../../domain/instrument.hpp"
 #include "../../domain/midi_cc_data.hpp"
+#include "../../domain/midi_note_data.hpp"
 #include "../../domain/pitch_bend_data.hpp"
 #include "../instrument_request.hpp"
 #include "../midi_worker.hpp"
@@ -76,28 +77,28 @@ void MidiService::playAndStopMiddleC(QString portName, quint8 channel, quint8 ve
     }
 }
 
-void MidiService::playNote(InstrumentW instrument, quint8 midiNote, quint8 velocity)
+void MidiService::playNote(InstrumentW instrument, MidiNoteDataCR data)
 {
     std::lock_guard<std::mutex> lock { m_workerMutex };
 
     if (const bool invoked = QMetaObject::invokeMethod(m_midiWorker.get(), "playNote",
                                                        Q_ARG(QString, instrument.lock()->device().portName),
                                                        Q_ARG(quint8, instrument.lock()->device().channel),
-                                                       Q_ARG(quint8, midiNote),
-                                                       Q_ARG(quint8, velocity));
+                                                       Q_ARG(quint8, data.note()),
+                                                       Q_ARG(quint8, data.velocity()));
         !invoked) {
         juzzlin::L(TAG).error() << "Invoking a method failed!";
     }
 }
 
-void MidiService::stopNote(InstrumentW instrument, quint8 midiNote)
+void MidiService::stopNote(InstrumentW instrument, MidiNoteDataCR data)
 {
     std::lock_guard<std::mutex> lock { m_workerMutex };
 
     if (const bool invoked = QMetaObject::invokeMethod(m_midiWorker.get(), "stopNote",
                                                        Q_ARG(QString, instrument.lock()->device().portName),
                                                        Q_ARG(quint8, instrument.lock()->device().channel),
-                                                       Q_ARG(quint8, midiNote));
+                                                       Q_ARG(quint8, data.note()));
         !invoked) {
         juzzlin::L(TAG).error() << "Invoking a method failed!";
     }

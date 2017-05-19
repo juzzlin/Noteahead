@@ -41,6 +41,7 @@
 #include <QQmlApplicationEngine>
 #include <QQmlContext>
 
+Q_DECLARE_METATYPE(noteahead::InstrumentRequest)
 Q_DECLARE_METATYPE(noteahead::Position)
 
 namespace noteahead {
@@ -87,6 +88,7 @@ void Application::registerTypes()
     const int minorVersion = 0;
 
     qRegisterMetaType<noteahead::Position>("Position");
+    qRegisterMetaType<noteahead::InstrumentRequest>("InstrumentRequest");
 
     qmlRegisterType<ApplicationService>("Noteahead", majorVersion, minorVersion, "ApplicationService");
     qmlRegisterType<AutomationService>("Noteahead", majorVersion, minorVersion, "AutomationService");

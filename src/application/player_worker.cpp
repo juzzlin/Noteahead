@@ -18,6 +18,7 @@
 #include "../contrib/SimpleLogger/src/simple_logger.hpp"
 #include "../domain/event.hpp"
 #include "../domain/instrument_settings.hpp"
+#include "../domain/midi_note_data.hpp"
 #include "../domain/note_data.hpp"
 #include "service/midi_service.hpp"
 #include "service/mixer_service.hpp"
@@ -89,9 +90,9 @@ void PlayerWorker::handleEvent(const Event & event) const
                 if (auto && instrument = event.instrument(); instrument) {
                     if (noteData->type() == NoteData::Type::NoteOn && noteData->note().has_value()) {
                         const auto effectiveVelocity = m_mixerService->effectiveVelocity(noteData->track(), noteData->column(), noteData->velocity());
-                        m_midiService->playNote(instrument, *noteData->note(), effectiveVelocity);
+                        m_midiService->playNote(instrument, { *noteData->note(), effectiveVelocity });
                     } else if (noteData->type() == NoteData::Type::NoteOff) {
-                        m_midiService->stopNote(instrument, *noteData->note());
+                        m_midiService->stopNote(instrument, { *noteData->note(), 0 });
                     }
                 }
             }
