@@ -16,6 +16,7 @@
 #ifndef RENDER_WORKER_HPP
 #define RENDER_WORKER_HPP
 
+#include "../../common/audio_backend.hpp"
 #include "../../domain/song.hpp"
 
 #include <functional>
@@ -59,7 +60,7 @@ public:
     void setAudioFileReaderFactory(AudioFileReaderFactory factory);
 
 public slots:
-    void render(const QString & fileName, const noteahead::RenderWorker::EventList & events, const noteahead::RenderWorker::Timing & timing, quint64 maxTick, quint32 sampleRate);
+    void render(const QString & fileName, const noteahead::RenderWorker::EventList & events, const noteahead::RenderWorker::Timing & timing, quint64 maxTick, quint32 sampleRate, noteahead::BitDepth bitDepth = BitDepth::PCM_16);
 
 signals:
     void progressChanged(double progress);
@@ -81,5 +82,6 @@ private:
 
 Q_DECLARE_METATYPE(noteahead::RenderWorker::Timing)
 Q_DECLARE_METATYPE(noteahead::RenderWorker::EventList)
+Q_DECLARE_METATYPE(noteahead::BitDepth)
 
 #endif // RENDER_WORKER_HPP

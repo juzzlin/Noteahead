@@ -18,6 +18,7 @@
 #include "../../common/constants.hpp"
 #include "../../contrib/SimpleLogger/src/simple_logger.hpp"
 #include "../../domain/song.hpp"
+#include "../../infra/settings.hpp"
 #include "editor_service.hpp"
 #include "mixer_service.hpp"
 #include "render_worker.hpp"
@@ -178,9 +179,10 @@ void RenderService::startNextRender()
 
     const auto events = song->renderToEvents(m_automationService, m_sideChainService, 0);
     const auto maxTick = song->totalTicks();
-    const quint32 sampleRate = static_cast<quint32>(Constants::defaultSampleRate());
+    const quint32 sampleRate = static_cast<quint32>(Settings::renderSampleRate());
+    const BitDepth bitDepth = Settings::renderBitDepth();
 
-    juzzlin::L(TAG).info() << "Invoking RenderWorker::render... events=" << events.size() << " maxTick=" << maxTick;
+    juzzlin::L(TAG).info() << "Invoking RenderWorker::render... events=" << events.size() << " maxTick=" << maxTick << " sampleRate=" << sampleRate << " bitDepth=" << static_cast<int>(bitDepth);
 
     bool success = QMetaObject::invokeMethod(m_worker.get(), "render",
                                              Qt::QueuedConnection,
@@ -188,7 +190,8 @@ void RenderService::startNextRender()
                                              Q_ARG(noteahead::RenderWorker::EventList, events),
                                              Q_ARG(noteahead::RenderWorker::Timing, timing),
                                              Q_ARG(quint64, maxTick),
-                                             Q_ARG(quint32, sampleRate));
+                                             Q_ARG(quint32, sampleRate),
+                                             Q_ARG(noteahead::BitDepth, bitDepth));
     if (!success) {
         juzzlin::L(TAG).error() << "Failed to invoke RenderWorker::render!";
         onWorkerFinished(false, "Internal error: Failed to start render worker.");

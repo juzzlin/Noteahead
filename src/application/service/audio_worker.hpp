@@ -16,6 +16,7 @@
 #ifndef AUDIO_WORKER_HPP
 #define AUDIO_WORKER_HPP
 
+#include "../../common/audio_backend.hpp"
 #include <QObject>
 #include <QTimer>
 #include <QVariantList>

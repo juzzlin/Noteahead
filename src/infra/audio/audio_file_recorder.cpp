@@ -37,14 +37,30 @@ AudioFileRecorder::~AudioFileRecorder()
     stop();
 }
 
-void AudioFileRecorder::start(const std::string & fileName, uint32_t sampleRate, uint32_t channelCount, size_t bufferSize)
+void AudioFileRecorder::start(const std::string & fileName, uint32_t sampleRate, uint32_t channelCount, size_t bufferSize, BitDepth bitDepth)
 {
     stop();
 
     AudioFileReader::Info info {};
     info.samplerate = static_cast<int>(sampleRate);
     info.channels = static_cast<int>(channelCount);
-    info.format = SF_FORMAT_WAV | SF_FORMAT_PCM_16;
+
+    int format = SF_FORMAT_WAV;
+    switch (bitDepth) {
+    case BitDepth::PCM_16:
+        format |= SF_FORMAT_PCM_16;
+        break;
+    case BitDepth::PCM_24:
+        format |= SF_FORMAT_PCM_24;
+        break;
+    case BitDepth::PCM_32:
+        format |= SF_FORMAT_PCM_32;
+        break;
+    case BitDepth::Float_32:
+        format |= SF_FORMAT_FLOAT;
+        break;
+    }
+    info.format = format;
 
     if (!m_writer->open(fileName, AudioFileReader::Mode::Write, info)) {
         throw std::runtime_error { "Error opening file for writing: " + fileName };

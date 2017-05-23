@@ -88,6 +88,12 @@ void setAudioInputDeviceId(int deviceId);
 int audioOutputDeviceId();
 void setAudioOutputDeviceId(int deviceId);
 
+int renderSampleRate();
+void setRenderSampleRate(int sampleRate);
+
+BitDepth renderBitDepth();
+void setRenderBitDepth(BitDepth bitDepth);
+
 QColor accentColor(QColor defaultAccentColor);
 void setAccentColor(QColor accentColor);
 

@@ -25,6 +25,13 @@ enum class AudioBackend {
     Jack = 3
 };
 
+enum class BitDepth {
+    PCM_16 = 0,
+    PCM_24 = 1,
+    PCM_32 = 2,
+    Float_32 = 3
+};
+
 } // namespace noteahead
 
 #endif // AUDIO_BACKEND_HPP

@@ -263,6 +263,32 @@ void SettingsService::setAudioOutputDeviceId(int deviceId)
     Settings::setAudioOutputDeviceId(deviceId);
 }
 
+int SettingsService::renderSampleRate() const
+{
+    return Settings::renderSampleRate();
+}
+
+void SettingsService::setRenderSampleRate(int sampleRate)
+{
+    if (this->renderSampleRate() != sampleRate) {
+        Settings::setRenderSampleRate(sampleRate);
+        emit renderSampleRateChanged();
+    }
+}
+
+int SettingsService::renderBitDepth() const
+{
+    return static_cast<int>(Settings::renderBitDepth());
+}
+
+void SettingsService::setRenderBitDepth(int bitDepth)
+{
+    if (this->renderBitDepth() != bitDepth) {
+        Settings::setRenderBitDepth(static_cast<BitDepth>(bitDepth));
+        emit renderBitDepthChanged();
+    }
+}
+
 SettingsService::~SettingsService() = default;
 
 } // namespace noteahead

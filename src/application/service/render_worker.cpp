@@ -48,7 +48,7 @@ void RenderWorker::setAudioFileReaderFactory(AudioFileReaderFactory factory)
     m_audioFileReaderFactory = std::move(factory);
 }
 
-void RenderWorker::render(const QString & fileName, const noteahead::RenderWorker::EventList & events, const noteahead::RenderWorker::Timing & timing, quint64 maxTick, quint32 sampleRate)
+void RenderWorker::render(const QString & fileName, const noteahead::RenderWorker::EventList & events, const noteahead::RenderWorker::Timing & timing, quint64 maxTick, quint32 sampleRate, noteahead::BitDepth bitDepth)
 {
     if (m_isRendering) {
         return;
@@ -70,7 +70,7 @@ void RenderWorker::render(const QString & fileName, const noteahead::RenderWorke
         AudioFileRecorder recorder { m_audioFileReaderFactory ? m_audioFileReaderFactory() : nullptr };
         const quint32 channelCount = 2;
         const size_t recordingBufferSize = static_cast<size_t>(sampleRate) * channelCount * 10; // 10 seconds buffer
-        recorder.start(fileName.toStdString(), sampleRate, channelCount, recordingBufferSize);
+        recorder.start(fileName.toStdString(), sampleRate, channelCount, recordingBufferSize, bitDepth);
 
         m_audioEngine->setBpm(static_cast<float>(timing.beatsPerMinute));
         m_deviceService->processMidiAllNotesOff();
@@ -100,7 +100,7 @@ void RenderWorker::render(const QString & fileName, const noteahead::RenderWorke
                 AudioContext audioContext { std::span(audioBuffer.data(), static_cast<size_t>(framesToProcess) * 2), framesToProcess, sampleRate };
                 m_audioEngine->process(audioContext);
 
-                // Clamp signal to prevent overflow when writing to 16-bit PCM
+                // Clamp signal to prevent overflow when writing to PCM
                 for (float & s : audioBuffer) {
                     s = std::clamp(s, -1.0f, 1.0f);
                 }
@@ -128,7 +128,7 @@ void RenderWorker::render(const QString & fileName, const noteahead::RenderWorke
             AudioContext audioContext { std::span(audioBuffer.data(), static_cast<size_t>(finalFrames) * 2), finalFrames, sampleRate };
             m_audioEngine->process(audioContext);
 
-            // Clamp signal to prevent overflow when writing to 16-bit PCM
+            // Clamp signal to prevent overflow when writing to PCM
             for (float & s : audioBuffer) {
                 s = std::clamp(s, -1.0f, 1.0f);
             }

@@ -16,6 +16,7 @@
 #ifndef AUDIO_FILE_RECORDER_HPP
 #define AUDIO_FILE_RECORDER_HPP
 
+#include "../../common/audio_backend.hpp"
 #include "backend/audio_file_reader.hpp"
 #include "ring_buffer.hpp"
 
@@ -33,7 +34,7 @@ public:
     explicit AudioFileRecorder(std::unique_ptr<AudioFileReader> writer = nullptr);
     ~AudioFileRecorder();
 
-    void start(const std::string & fileName, uint32_t sampleRate, uint32_t channelCount, size_t bufferSize);
+    void start(const std::string & fileName, uint32_t sampleRate, uint32_t channelCount, size_t bufferSize, BitDepth bitDepth = BitDepth::PCM_16);
     void stop();
 
     bool push(const float * data, size_t count);

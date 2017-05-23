@@ -30,6 +30,8 @@ const auto audioBackendKey = "audioBackend";
 const auto audioBufferSizeKey = "audioBufferSize";
 const auto audioInputDeviceIdKey = "audioInputDeviceId";
 const auto audioOutputDeviceIdKey = "audioOutputDeviceId";
+const auto renderSampleRateKey = "renderSampleRate";
+const auto renderBitDepthKey = "renderBitDepth";
 const auto recordingEnabledKey = "recordingEnabled";
 const auto jackSyncEnabledKey = "jackSyncEnabled";
 const auto jackBpmSyncEnabledKey = "jackBpmSyncEnabled";
@@ -416,6 +418,40 @@ void setAudioOutputDeviceId(int deviceId)
     QSettings settings;
     settings.beginGroup(settingsGroupAudio);
     settings.setValue(audioOutputDeviceIdKey, deviceId);
+    settings.endGroup();
+}
+
+int renderSampleRate()
+{
+    QSettings settings;
+    settings.beginGroup(settingsGroupAudio);
+    const auto sampleRate = settings.value(renderSampleRateKey, 48000).toInt();
+    settings.endGroup();
+    return sampleRate;
+}
+
+void setRenderSampleRate(int sampleRate)
+{
+    QSettings settings;
+    settings.beginGroup(settingsGroupAudio);
+    settings.setValue(renderSampleRateKey, sampleRate);
+    settings.endGroup();
+}
+
+BitDepth renderBitDepth()
+{
+    QSettings settings;
+    settings.beginGroup(settingsGroupAudio);
+    const auto bitDepth = static_cast<BitDepth>(settings.value(renderBitDepthKey, static_cast<int>(BitDepth::PCM_24)).toInt());
+    settings.endGroup();
+    return bitDepth;
+}
+
+void setRenderBitDepth(BitDepth bitDepth)
+{
+    QSettings settings;
+    settings.beginGroup(settingsGroupAudio);
+    settings.setValue(renderBitDepthKey, static_cast<int>(bitDepth));
     settings.endGroup();
 }
 

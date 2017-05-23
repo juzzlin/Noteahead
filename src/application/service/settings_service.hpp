@@ -37,6 +37,8 @@ class SettingsService : public QObject
     Q_PROPERTY(bool waveViewEnabled READ waveViewEnabled WRITE setWaveViewEnabled NOTIFY waveViewEnabledChanged)
     Q_PROPERTY(bool midiExportForceDrumChannel10 READ midiExportForceDrumChannel10 WRITE setMidiExportForceDrumChannel10 NOTIFY midiExportForceDrumChannel10Changed)
     Q_PROPERTY(bool midiExportAutoAssignChannels READ midiExportAutoAssignChannels WRITE setMidiExportAutoAssignChannels NOTIFY midiExportAutoAssignChannelsChanged)
+    Q_PROPERTY(int renderSampleRate READ renderSampleRate WRITE setRenderSampleRate NOTIFY renderSampleRateChanged)
+    Q_PROPERTY(int renderBitDepth READ renderBitDepth WRITE setRenderBitDepth NOTIFY renderBitDepthChanged)
 
 public:
     SettingsService();
@@ -99,6 +101,12 @@ public:
     virtual Q_INVOKABLE int audioOutputDeviceId() const;
     virtual Q_INVOKABLE void setAudioOutputDeviceId(int deviceId);
 
+    virtual Q_INVOKABLE int renderSampleRate() const;
+    virtual Q_INVOKABLE void setRenderSampleRate(int sampleRate);
+
+    virtual Q_INVOKABLE int renderBitDepth() const;
+    virtual Q_INVOKABLE void setRenderBitDepth(int bitDepth);
+
 signals:
     void controllerPortChanged();
     void uiUpdatesDisabledDuringPlaybackChanged();
@@ -113,6 +121,8 @@ signals:
     void waveViewEnabledChanged();
     void midiExportForceDrumChannel10Changed();
     void midiExportAutoAssignChannelsChanged();
+    void renderSampleRateChanged();
+    void renderBitDepthChanged();
 
 private:
     QString m_controllerPort;
