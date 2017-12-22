@@ -377,6 +377,9 @@ private:
     void handleParameterAutomation(quintptr target, qint64 delayMs);
     bool isInCurrentRack(quintptr target) const;
     AutomationRefreshThrottle m_automationRefresh;
+    //! Catches the rack's bindings up with device changes at most once a frame rather than once per
+    //! change, which a drag makes dozens of times a second
+    AutomationRefreshThrottle m_dataChangedRefresh;
     bool m_isInsertRack = false;
     int m_targetSubIndex = -1;
     std::optional<EffectSnapshot> m_snapshot;

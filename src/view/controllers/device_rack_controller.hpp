@@ -25,6 +25,7 @@
 #include <memory>
 #include <vector>
 
+#include "automation_refresh_throttle.hpp"
 #include "device_dialog_model.hpp"
 
 namespace noteahead {
@@ -136,6 +137,11 @@ private:
 
     QStringList m_devices;
     int m_revision { 0 };
+
+    //! A drag or a busy MIDI controller changes a device dozens of times a second, and every change
+    //! re-reads each binding on the revision and each row of the rack. The device takes the value at
+    //! once; what is shown catches up at most once a frame.
+    AutomationRefreshThrottle m_dataChangedRefresh;
 };
 
 } // namespace noteahead

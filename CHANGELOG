@@ -43,6 +43,8 @@ Bug fixes:
 
 * Multiband Compressor: an Init preset in the preset list
 
+* Knobs and sends no longer stick while a song plays: the racks catch up once a frame
+
 Other:
 
 * Column Flash is on by default

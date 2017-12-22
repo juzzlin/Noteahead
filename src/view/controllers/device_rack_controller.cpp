@@ -73,7 +73,8 @@ DeviceRackController::DeviceRackController(DeviceServiceS deviceService, DialogM
   , m_editorService { std::move(editorService) }
 {
     if (m_deviceService) {
-        connect(m_deviceService.get(), &DeviceService::dataChanged, this, [this]() {
+        connect(m_deviceService.get(), &DeviceService::dataChanged, this, [this]() { m_dataChangedRefresh.schedule(0); });
+        connect(&m_dataChangedRefresh, &AutomationRefreshThrottle::refreshDue, this, [this]() {
             m_revision++;
             emit revisionChanged();
             refresh();
