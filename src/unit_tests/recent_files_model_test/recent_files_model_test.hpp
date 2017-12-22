@@ -28,6 +28,11 @@ private slots:
     void test_initialState_shouldBeEmpty();
     void test_setRecentFiles_shouldUpdateRowCount();
     void test_data_shouldReturnCorrectValues();
+
+    void test_filter_everyWord_shouldMatchInAnyOrderAndCase();
+    void test_filter_empty_shouldListEveryFile();
+    void test_filter_setRecentFiles_shouldStayApplied();
+    void test_firstExistingFile_shouldSkipMissingFiles();
 };
 
 } // namespace noteahead

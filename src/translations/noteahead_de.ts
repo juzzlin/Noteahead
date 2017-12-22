@@ -10639,6 +10639,10 @@
         <translation>Zuletzt verwendetes Projekt öffnen</translation>
     </message>
     <message>
+        <source>Filter by name or folder</source>
+        <translation>Nach Name oder Ordner filtern</translation>
+    </message>
+    <message>
         <source>Recent files</source>
         <translation>Zuletzt verwendete Dateien</translation>
     </message>

@@ -24,6 +24,8 @@ namespace noteahead {
 class RecentFilesModel : public QAbstractListModel
 {
     Q_OBJECT
+    //! Only the files whose path contains every word of it, in any order and case
+    Q_PROPERTY(QString filter READ filter WRITE setFilter NOTIFY filterChanged)
 
 public:
     enum class Role
@@ -36,12 +38,26 @@ public:
 
     void setRecentFiles(const QStringList & list);
 
+    QString filter() const;
+    void setFilter(const QString & filter);
+
+    //! The first listed file that exists, or empty: what Enter in the filter opens
+    Q_INVOKABLE QString firstExistingFile() const;
+
     Q_INVOKABLE int rowCount(const QModelIndex & parent = QModelIndex()) const override;
     Q_INVOKABLE QVariant data(const QModelIndex & index, int role = Qt::DisplayRole) const override;
     Q_INVOKABLE QHash<int, QByteArray> roleNames() const override;
 
+signals:
+    void filterChanged();
+
 private:
+    void applyFilter();
+
     QStringList m_recentFiles;
+    QString m_filter;
+    //! What is listed: m_recentFiles narrowed down by m_filter
+    QStringList m_listedFiles;
 };
 
 } // namespace noteahead

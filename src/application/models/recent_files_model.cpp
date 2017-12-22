@@ -17,6 +17,8 @@
 
 #include <QFileInfo>
 
+#include <algorithm>
+
 namespace noteahead {
 
 RecentFilesModel::RecentFilesModel(QObject * parent)
@@ -26,22 +28,56 @@ RecentFilesModel::RecentFilesModel(QObject * parent)
 
 void RecentFilesModel::setRecentFiles(const QStringList & list)
 {
-    beginResetModel();
-
     m_recentFiles = list;
+    applyFilter();
+}
 
+QString RecentFilesModel::filter() const
+{
+    return m_filter;
+}
+
+void RecentFilesModel::setFilter(const QString & filter)
+{
+    if (filter != m_filter) {
+        m_filter = filter;
+        applyFilter();
+        emit filterChanged();
+    }
+}
+
+void RecentFilesModel::applyFilter()
+{
+    beginResetModel();
+    const auto words = m_filter.split(' ', Qt::SkipEmptyParts);
+    m_listedFiles.clear();
+    for (auto && path : m_recentFiles) {
+        if (std::all_of(words.begin(), words.end(), [&path](const QString & word) { return path.contains(word, Qt::CaseInsensitive); })) {
+            m_listedFiles.append(path);
+        }
+    }
     endResetModel();
+}
+
+QString RecentFilesModel::firstExistingFile() const
+{
+    for (auto && path : m_listedFiles) {
+        if (QFileInfo::exists(path)) {
+            return path;
+        }
+    }
+    return {};
 }
 
 int RecentFilesModel::rowCount(const QModelIndex & parent) const
 {
-    return parent.isValid() ? 0 : static_cast<int>(m_recentFiles.size());
+    return parent.isValid() ? 0 : static_cast<int>(m_listedFiles.size());
 }
 
 QVariant RecentFilesModel::data(const QModelIndex & index, int role) const
 {
-    if (index.isValid() && index.row() >= 0 && index.row() < m_recentFiles.size()) {
-        const auto path = m_recentFiles.at(index.row());
+    if (index.isValid() && index.row() >= 0 && index.row() < m_listedFiles.size()) {
+        const auto path = m_listedFiles.at(index.row());
         switch (static_cast<Role>(role)) {
         case Role::FilePath:
             return path;
