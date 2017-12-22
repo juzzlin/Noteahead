@@ -10639,6 +10639,10 @@
         <translation>Een recent project openen</translation>
     </message>
     <message>
+        <source>Filter by name or folder</source>
+        <translation>Filteren op naam of map</translation>
+    </message>
+    <message>
         <source>Recent files</source>
         <translation>Recente bestanden</translation>
     </message>

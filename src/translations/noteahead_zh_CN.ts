@@ -10638,6 +10638,10 @@
         <translation>打开最近的项目</translation>
     </message>
     <message>
+        <source>Filter by name or folder</source>
+        <translation>按名称或文件夹筛选</translation>
+    </message>
+    <message>
         <source>Recent files</source>
         <translation>最近的文件</translation>
     </message>

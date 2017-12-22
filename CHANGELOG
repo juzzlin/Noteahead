@@ -5,6 +5,8 @@ Release date:
 
 New features:
 
+* Open a recent project: filter the list by name or folder
+
 Bug fixes:
 
 * Flanger no longer drops out while a knob moves, and keeps its stereo phase after a reset

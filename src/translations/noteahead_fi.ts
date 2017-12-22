@@ -10639,6 +10639,10 @@
         <translation>Avaa viimeisin projekti</translation>
     </message>
     <message>
+        <source>Filter by name or folder</source>
+        <translation>Suodata nimen tai kansion mukaan</translation>
+    </message>
+    <message>
         <source>Recent files</source>
         <translation>Viimeisimmät tiedostot</translation>
     </message>

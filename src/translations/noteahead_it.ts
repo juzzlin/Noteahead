@@ -10639,6 +10639,10 @@
         <translation>Apri un progetto recente</translation>
     </message>
     <message>
+        <source>Filter by name or folder</source>
+        <translation>Filtra per nome o cartella</translation>
+    </message>
+    <message>
         <source>Recent files</source>
         <translation>File recenti</translation>
     </message>

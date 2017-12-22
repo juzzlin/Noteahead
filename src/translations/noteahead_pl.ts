@@ -10640,6 +10640,10 @@
         <translation>Otwórz ostatni projekt</translation>
     </message>
     <message>
+        <source>Filter by name or folder</source>
+        <translation>Filtruj według nazwy lub folderu</translation>
+    </message>
+    <message>
         <source>Recent files</source>
         <translation>Ostatnie pliki</translation>
     </message>

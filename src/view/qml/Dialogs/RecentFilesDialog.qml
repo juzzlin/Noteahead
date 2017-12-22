@@ -26,6 +26,17 @@ AnimatedDialog {
     modal: true
     signal fileSelected(string filePath)
     property string selectedFile
+    // Starts over every time, so the field never hides a file the user is about to look for
+    onAboutToShow: {
+        filterField.text = "";
+        recentFilesModel.filter = "";
+    }
+    onOpened: filterField.forceActiveFocus()
+    function openFile(filePath: string): void {
+        recentFilesDialog.close();
+        recentFilesDialog.selectedFile = filePath;
+        recentFilesDialog.fileSelected(filePath);
+    }
     SectionBox {
         title: qsTr("Recent files")
         anchors.fill: parent
@@ -54,11 +65,7 @@ AnimatedDialog {
                     MouseArea {
                         anchors.fill: parent
                         enabled: model.exists
-                        onClicked: {
-                            recentFilesDialog.close();
-                            recentFilesDialog.selectedFile = model.filePath;
-                            recentFilesDialog.fileSelected(model.filePath);
-                        }
+                        onClicked: rootItem.openFile(model.filePath)
                         HoverHandler {
                             id: hoverHandler
                             acceptedDevices: PointerDevice.Mouse | PointerDevice.TouchPad
@@ -66,19 +73,43 @@ AnimatedDialog {
                         }
                     }
                 }
-                focus: true
             }
         }
     }
-    footer: DialogButtonBox {
-        AppButton {
-            text: qsTr("Cancel")
-            implicitWidth: Constants.defaultButtonWidth
-            DialogButtonBox.buttonRole: DialogButtonBox.RejectRole
-            ToolTip.delay: Constants.toolTipDelay
-            ToolTip.timeout: Constants.toolTipTimeout
-            ToolTip.visible: hovered
-            ToolTip.text: qsTr("Don't open any recent projects")
+    // The filter shares the row with Cancel, so the list keeps the whole height
+    footer: RowLayout {
+        spacing: 0
+        TextField {
+            id: filterField
+            placeholderText: qsTr("Filter by name or folder")
+            Layout.fillWidth: true
+            Layout.leftMargin: 24
+            // Centred on Cancel, which the box's padding keeps off the row's centre
+            Layout.topMargin: buttonBox.topPadding - buttonBox.bottomPadding
+            selectByMouse: true
+            onTextChanged: recentFilesModel.filter = text
+            // Enter opens the first match, so typing a few letters of a name is enough
+            onAccepted: {
+                const filePath = recentFilesModel.firstExistingFile();
+                if (filePath !== "") {
+                    rootItem.openFile(filePath);
+                }
+            }
+        }
+        DialogButtonBox {
+            id: buttonBox
+            leftPadding: 12
+            Layout.preferredWidth: leftPadding + Constants.defaultButtonWidth + rightPadding
+            onRejected: rootItem.reject()
+            AppButton {
+                text: qsTr("Cancel")
+                implicitWidth: Constants.defaultButtonWidth
+                DialogButtonBox.buttonRole: DialogButtonBox.RejectRole
+                ToolTip.delay: Constants.toolTipDelay
+                ToolTip.timeout: Constants.toolTipTimeout
+                ToolTip.visible: hovered
+                ToolTip.text: qsTr("Don't open any recent projects")
+            }
         }
     }
 }
