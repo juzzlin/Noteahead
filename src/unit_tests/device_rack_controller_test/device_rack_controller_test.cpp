@@ -343,12 +343,36 @@ void DeviceRackControllerTest::test_deviceGain_shouldDefaultToUnityAndRoundTrip(
 
     // The QML knob reads gain through a plain invokable, so its binding only re-evaluates because
     // the write reaches revisionChanged. Without this the slider snaps back to its stale value the
-    // moment the drag ends, which reads as the control being stuck.
-    QVERIFY(revisionSpy.count() > 0);
+    // moment the drag ends, which reads as the control being stuck. It arrives on the next turn of
+    // the event loop rather than within the call, since changes are caught up with once a frame.
+    QTRY_VERIFY(revisionSpy.count() > 0);
 
     // An empty slot has no gain to report; 0 dB is the sane answer rather than silence or a crash.
     QCOMPARE(mixer.deviceGain(9), 500);
     mixer.setDeviceGain(9, 750);
+}
+
+void DeviceRackControllerTest::test_revision_burstOfChanges_shouldRefreshOncePerFrame()
+{
+    const auto audioEngine = std::make_shared<AudioEngine>();
+    const auto deviceService = std::make_shared<DeviceService>(audioEngine, std::make_shared<DataService>());
+    deviceService->setDevice(0, std::make_shared<SubMixerDevice>("Sub"));
+    const auto editorService = std::make_shared<MockEditorService>();
+    DeviceRackController controller { deviceService, {}, editorService };
+    DeviceMixerController mixer { deviceService, editorService };
+    QSignalSpy revisionSpy { &controller, &DeviceRackController::revisionChanged };
+
+    // As a knob drag does: many changes before the event loop gets a turn. Each refresh re-reads
+    // every binding on the revision, so one per change kept the interface behind the hand.
+    for (int value = 500; value < 600; value++) {
+        mixer.setDeviceGain(0, value);
+    }
+    QCOMPARE(revisionSpy.count(), 0);
+    QTRY_VERIFY(revisionSpy.count() > 0);
+    QTest::qWait(3 * AutomationRefreshThrottle::RefreshIntervalMs);
+
+    QVERIFY(revisionSpy.count() <= 2);
+    QCOMPARE(mixer.deviceGain(0), 599);
 }
 
 void DeviceRackControllerTest::test_setDevice_shouldAddDeviceAndNotify()
