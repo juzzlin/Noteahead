@@ -301,6 +301,36 @@ void MixerServiceTest::test_shouldTrackPlay_oneOfSoloedTracks_siblingHasSoloedCo
     QVERIFY(!mixerService.shouldTrackPlay(2));
 }
 
+void MixerServiceTest::test_pushPopState_shouldRestoreState()
+{
+    MixerService mixerService;
+    mixerService.muteTrack(0, true);
+    mixerService.soloTrack(1, true);
+    mixerService.setTrackVelocityScale(2, 50);
+    mixerService.muteColumn(3, 0, true);
+    mixerService.soloColumn(4, 1, true);
+    mixerService.setColumnVelocityScale(5, 2, 75);
+
+    mixerService.pushState();
+
+    mixerService.clear();
+    QVERIFY(!mixerService.isTrackMuted(0));
+    QVERIFY(!mixerService.isTrackSoloed(1));
+    QCOMPARE(mixerService.trackVelocityScale(2), 100);
+    QVERIFY(!mixerService.isColumnMuted(3, 0));
+    QVERIFY(!mixerService.isColumnSoloed(4, 1));
+    QCOMPARE(mixerService.columnVelocityScale(5, 2), 100);
+
+    mixerService.popState();
+
+    QVERIFY(mixerService.isTrackMuted(0));
+    QVERIFY(mixerService.isTrackSoloed(1));
+    QCOMPARE(mixerService.trackVelocityScale(2), 50);
+    QVERIFY(mixerService.isColumnMuted(3, 0));
+    QVERIFY(mixerService.isColumnSoloed(4, 1));
+    QCOMPARE(mixerService.columnVelocityScale(5, 2), 75);
+}
+
 void MixerServiceTest::test_clear_shouldSendConfigurationChange()
 {
     MixerService mixerService;

@@ -47,6 +47,8 @@ private slots:
     void test_shouldTrackPlay_oneOfSoloedTracks_siblingHasSoloedColumn_shouldPlay();
     void test_shouldTrackPlay_siblingSoloed_shouldNotPlay();
 
+    void test_pushPopState_shouldRestoreState();
+
     void test_clear_shouldSendConfigurationChange();
 
     void test_setColumnVelocityScale_shouldAffectEffectiveVelocity();

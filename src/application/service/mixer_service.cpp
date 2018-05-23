@@ -321,6 +321,36 @@ void MixerService::clear()
     emit cleared();
 }
 
+void MixerService::pushState()
+{
+    Lock lock { m_muteSoloMutex };
+    juzzlin::L(TAG).info() << "Pushing state";
+    m_stateStack.push_back({ m_mutedColumns, m_soloedColumns, m_columnVelocityScaleMap, m_mutedTracks, m_soloedTracks, m_trackVelocityScaleMap });
+}
+
+void MixerService::popState()
+{
+    juzzlin::L(TAG).info() << "Popping state";
+    {
+        Lock lock { m_muteSoloMutex };
+        if (m_stateStack.empty()) {
+            juzzlin::L(TAG).error() << "State stack is empty!";
+            return;
+        }
+
+        const auto state = m_stateStack.back();
+        m_stateStack.pop_back();
+
+        m_mutedColumns = state.mutedColumns;
+        m_soloedColumns = state.soloedColumns;
+        m_columnVelocityScaleMap = state.columnVelocityScaleMap;
+        m_mutedTracks = state.mutedTracks;
+        m_soloedTracks = state.soloedTracks;
+        m_trackVelocityScaleMap = state.trackVelocityScaleMap;
+    }
+    update();
+}
+
 void MixerService::setColumnCount(quint64 trackIndex, quint64 count)
 {
     m_columnCountMap[trackIndex] = count;

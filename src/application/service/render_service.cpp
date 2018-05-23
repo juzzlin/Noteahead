@@ -68,6 +68,8 @@ void RenderService::renderMaster(const QString & fileName)
 
     juzzlin::L(TAG).info() << "Rendering master to " << fileName.toStdString();
 
+    m_mixerService->pushState();
+
     m_queue.clear();
     m_queue.push_back({ fileName, {} });
     m_currentJobIndex = 0;
@@ -84,11 +86,25 @@ void RenderService::renderIndividualTracks(const QString & directory)
 
     juzzlin::L(TAG).info() << "Rendering individual tracks to " << directory.toStdString();
 
+    m_mixerService->pushState();
+
     m_queue.clear();
     for (auto trackIndex : m_editorService->trackIndices()) {
+        const auto portName = m_editorService->instrumentPortName(trackIndex);
+        if (!m_deviceService->isInternalDevice(portName)) {
+            juzzlin::L(TAG).info() << "Skipping track " << trackIndex << " (" << portName.toStdString() << ") because it is not an internal instrument";
+            continue;
+        }
+
         const auto trackName = m_editorService->trackName(trackIndex);
         const auto fileName = QDir(directory).filePath(trackName + ".wav");
         m_queue.push_back({ fileName, { trackIndex } });
+    }
+
+    if (m_queue.empty()) {
+        juzzlin::L(TAG).info() << "Nothing to render";
+        m_mixerService->popState();
+        return;
     }
 
     m_currentJobIndex = 0;
@@ -129,12 +145,18 @@ QString RenderService::defaultRenderDirectory() const
 
 void RenderService::onWorkerFinished(bool success, QString message)
 {
-    if (!success) {
-        juzzlin::L(TAG).error() << "Worker reported failure: " << message.toStdString();
+    auto finalize = [this](bool success, QString message) {
+        m_mixerService->popState();
+
         m_isRendering = false;
         m_queue.clear();
         emit isRenderingChanged();
-        emit renderingFinished(false, message);
+        emit renderingFinished(success, message);
+    };
+
+    if (!success) {
+        juzzlin::L(TAG).error() << "Worker reported failure: " << message.toStdString();
+        finalize(false, message);
         return;
     }
 
@@ -143,10 +165,7 @@ void RenderService::onWorkerFinished(bool success, QString message)
         startNextRender();
     } else {
         juzzlin::L(TAG).info() << "All render jobs completed successfully";
-        m_isRendering = false;
-        m_queue.clear();
-        emit isRenderingChanged();
-        emit renderingFinished(true, "");
+        finalize(true, "");
     }
 }
 
@@ -162,14 +181,19 @@ void RenderService::startNextRender()
 
     juzzlin::L(TAG).info() << "Starting job " << m_currentJobIndex + 1 << "/" << m_queue.size() << ": " << job.fileName.toStdString();
 
+    m_mixerService->blockSignals(true);
     // Setup mixer for solo if needed
     if (!job.soloTracks.empty()) {
         juzzlin::L(TAG).info() << "Setting up solo tracks for individual render";
         for (auto trackIndex : m_editorService->trackIndices()) {
             bool shouldSolo = std::find(job.soloTracks.begin(), job.soloTracks.end(), trackIndex) != job.soloTracks.end();
             m_mixerService->soloTrack(trackIndex, shouldSolo);
+            if (shouldSolo) {
+                m_mixerService->muteTrack(trackIndex, false);
+            }
         }
     }
+    m_mixerService->blockSignals(false);
 
     const auto song = m_editorService->song();
     RenderWorker::Timing timing;

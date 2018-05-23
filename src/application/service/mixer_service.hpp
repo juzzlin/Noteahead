@@ -62,6 +62,9 @@ public:
 
     void clear();
 
+    void pushState();
+    void popState();
+
     void setColumnCount(quint64 trackIndex, quint64 count);
     using TrackIndexList = std::vector<quint64>;
     void setTrackIndices(TrackIndexList indices);
@@ -107,6 +110,17 @@ private:
 
     using TrackVelocityScaleMap = std::map<quint64, quint8>;
     TrackVelocityScaleMap m_trackVelocityScaleMap;
+
+    struct State
+    {
+        TrackAndColumnMuteSoloMap mutedColumns;
+        TrackAndColumnMuteSoloMap soloedColumns;
+        TrackAndColumnVelocityScaleMap columnVelocityScaleMap;
+        TrackMuteSoloMap mutedTracks;
+        TrackMuteSoloMap soloedTracks;
+        TrackVelocityScaleMap trackVelocityScaleMap;
+    };
+    std::vector<State> m_stateStack;
 
     using ColumnCountMap = std::map<quint64, quint64>;
     ColumnCountMap m_columnCountMap;
