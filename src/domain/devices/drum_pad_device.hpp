@@ -146,6 +146,9 @@ protected:
     //! Where pad @p index's low and high pass rest by default, as knob positions. Wide open, both of
     //! them, unless the engine's own sound needs them to be part of it.
     virtual std::pair<float, float> defaultFilterCutoffs(int index) const;
+    //! Where pad @p index's fader and pan rest by default, as knob positions. Unity and centre
+    //! unless the device mixes its kit itself.
+    virtual std::pair<float, float> defaultVoiceMix(int index) const;
 
     void syncParameters() override;
     //! Only the drum @p key belongs to, or only the channel strip: a full sync of a kit is twelve

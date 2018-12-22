@@ -227,6 +227,29 @@ void FmDrumsDevice::addEngineParameters(int index, const std::string & prefix)
     }
 }
 
+std::pair<float, float> FmDrumsDevice::defaultVoiceMix(int index) const
+{
+    // Fader and pan as knob positions, to the same targets as Drum Synth V2's, so that swapping one
+    // device for the other keeps the mix: each pad's peak against the kick, snare -2.5 dB, clap -3,
+    // toms -4, rim -6, open hat -7, closed hat -8, ride and reverse crash -10, crash -14. Measured
+    // on the Default kit's pads; the other kits are the same drums and land near enough.
+    static constexpr std::array<std::pair<float, float>, NumVoices> mix { {
+      { 0.7500f, 0.500f }, // Kick
+      { 0.6024f, 0.300f }, // Snare
+      { 0.2167f, 0.600f }, // ClosedHiHat
+      { 0.4886f, 0.500f }, // Clap
+      { 0.2583f, 0.350f }, // OpenHiHat
+      { 0.6170f, 0.675f }, // LowTom
+      { 0.6082f, 0.500f }, // MidTom
+      { 0.6584f, 0.325f }, // HighTom
+      { 0.2122f, 0.775f }, // Crash
+      { 0.5050f, 0.700f }, // Ride
+      { 0.3518f, 0.775f }, // ReverseCrash
+      { 0.3826f, 0.300f }, // Rim
+    } };
+    return mix.at(static_cast<size_t>(index));
+}
+
 std::pair<float, float> FmDrumsDevice::defaultFilterCutoffs(int index) const
 {
     const auto & pad = FmDrumsPresets::kits().front().pads.at(static_cast<size_t>(index));

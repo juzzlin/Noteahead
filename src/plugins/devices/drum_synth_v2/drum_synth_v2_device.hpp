@@ -50,6 +50,8 @@ protected:
     void syncEngineParameters(int index, const std::string & prefix) override;
     //! See the definition: what a kit saved before the sustain stage was voiced against.
     void restoreLegacyParameters() override;
+    //! A mixed kit rather than twelve pads at unity: see the definition
+    std::pair<float, float> defaultVoiceMix(int index) const override;
 
 private:
     void initializeEngines();

@@ -79,6 +79,17 @@ void fromXml(FmDrumsDevice & device, const QString & xml)
 
 } // namespace
 
+namespace {
+//! Every pad at unity and centre: the sounds themselves, without the mix the device starts with
+void unmix(DrumPadDevice & device)
+{
+    for (int pad = 0; pad < DrumSynthV2::NumVoices; pad++) {
+        device.updateVoiceParameter(pad, Constants::NahdXml::xmlKeyFader().toStdString(), Constants::faderUnityPosition());
+        device.updateVoiceParameter(pad, Constants::NahdXml::xmlKeyPan().toStdString(), 0.5f);
+    }
+}
+} // namespace
+
 void FmDrumsTest::test_typeId_shouldDifferFromV2()
 {
     const FmDrumsDevice device { "FM Drums" };
@@ -103,6 +114,7 @@ void FmDrumsTest::test_pads_shouldPlayOnTheNotesV2Does()
 void FmDrumsTest::test_everyPad_shouldSoundAndThenStop()
 {
     FmDrumsDevice device { "FM Drums" };
+    unmix(device);
 
     for (int pad = 0; pad < DrumSynthV2::NumVoices; pad++) {
         const auto frames = device.renderVoiceAlone(pad, SampleRate, MaxSeconds);
@@ -118,8 +130,11 @@ void FmDrumsTest::test_everyPad_shouldSitLevelWithV2()
     // Swapping one kit for the other should not move the mix. The two crashes are left out: V2's
     // blooms after the strike and its reverse one has barely started by then, so the strike is not
     // where either is heard.
+    // Both devices mix their kit to the same peaks; the sounds under that are what has to match.
     FmDrumsDevice fm { "FM Drums" };
     DrumSynthV2Device v2 { "Drum Synth V2" };
+    unmix(fm);
+    unmix(v2);
 
     for (int pad = 0; pad < DrumSynthV2::NumVoices; pad++) {
         if (pad == static_cast<int>(DrumSynthV2::VoiceIndex::Crash) || pad == static_cast<int>(DrumSynthV2::VoiceIndex::ReverseCrash)) {
