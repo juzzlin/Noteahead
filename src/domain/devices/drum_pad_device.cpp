@@ -629,6 +629,11 @@ std::pair<float, float> DrumPadDevice::defaultFilterCutoffs(int) const
     return { 1.0f, 0.0f };
 }
 
+std::pair<float, float> DrumPadDevice::defaultVoiceMix(int) const
+{
+    return { Constants::faderUnityPosition(), 0.5f };
+}
+
 void DrumPadDevice::initializeVoices()
 {
     using enum DrumSynthV2::MidiNote;
@@ -668,17 +673,18 @@ void DrumPadDevice::addVoiceParameters(int index)
     // Standard voice parameters
     // A fader, as on the Sampler's pads, with unity three quarters up and boost above it. It was a
     // linear gain under "level" before, at 80 %, which a kit saved then converts back from.
+    const auto [fader, pan] = defaultVoiceMix(index);
     addParameter(Parameter {
       prefix + Constants::NahdXml::xmlKeyFader().toStdString(),
-      Constants::faderUnityPosition(),
+      fader,
       0,
       10000,
-      static_cast<int>(std::lround(Constants::faderUnityPosition() * 10000.0f)),
+      static_cast<int>(std::lround(fader * 10000.0f)),
       100,
       Parameter::Type::Continuous,
       { prefix + Constants::NahdXml::xmlKeyLevel().toStdString() },
       [](float legacyGain) { return static_cast<float>(ParameterMapper::unmapFader(static_cast<double>(legacyGain))); } });
-    addParameter(Parameter { prefix + Constants::NahdXml::xmlKeyPan().toStdString(), 0.5f, 0, 10000, 5000, 100 });
+    addParameter(Parameter { prefix + Constants::NahdXml::xmlKeyPan().toStdString(), pan, 0, 10000, static_cast<int>(std::lround(pan * 10000.0f)), 100 });
     const auto [lpfCutoff, hpfCutoff] = defaultFilterCutoffs(index);
     addParameter(Parameter { prefix + Constants::NahdXml::xmlKeyCutoff().toStdString(), lpfCutoff, 0, 10000, Parameter::internalToXmlValue(lpfCutoff, 0, 10000), 100 });
     addParameter(Parameter { prefix + Constants::NahdXml::xmlKeyHpfCutoff().toStdString(), hpfCutoff, 0, 10000, Parameter::internalToXmlValue(hpfCutoff, 0, 10000), 100 });

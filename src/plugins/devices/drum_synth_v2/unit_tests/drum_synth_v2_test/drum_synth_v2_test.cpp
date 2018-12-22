@@ -181,11 +181,13 @@ bool isFittedVoice(int voice)
       || index == Crash || index == Ride || index == ReverseCrash || index == Rim;
 }
 
-//! Puts every voice of a V2 at V1's level: V1's is a linear gain at 80 %, V2's a fader at unity.
-void matchV1Level(DrumSynthV2Device & device)
+//! Puts every voice of a V2 at V1's level and pan: V1's level is a linear gain at 80 % with every
+//! pad centred, where V2 mixes its kit.
+void matchV1Mix(DrumSynthV2Device & device)
 {
     for (int voice = 0; voice < DrumSynthV2::NumVoices; voice++) {
         device.updateVoiceParameter(voice, Constants::NahdXml::xmlKeyFader().toStdString(), static_cast<float>(ParameterMapper::unmapFader(0.8)));
+        device.updateVoiceParameter(voice, Constants::NahdXml::xmlKeyPan().toStdString(), 0.5f);
     }
 }
 
@@ -194,7 +196,7 @@ std::vector<double> renderNote(uint8_t note, uint32_t blocks = 1)
 {
     DeviceT device { "Drum Synth" };
     if constexpr (std::is_same_v<DeviceT, DrumSynthV2Device>) {
-        matchV1Level(device);
+        matchV1Mix(device);
     }
     device.processMidiNoteOn(note, 100);
     std::vector<double> rendered;
@@ -398,7 +400,7 @@ void DrumSynthV2Test::test_ampEnvelope_fullSustain_shouldMatchV1Exactly()
         const auto note = notes.voiceNote(voice);
 
         DrumSynthV2Device v2 { "V2" };
-        matchV1Level(v2);
+        matchV1Mix(v2);
         v2.updateVoiceParameter(voice, Constants::NahdXml::xmlKeyAmpAttack().toStdString(), 0.0f);
         v2.updateVoiceParameter(voice, Constants::NahdXml::xmlKeyAmpHold().toStdString(), 0.0f);
         v2.updateVoiceParameter(voice, Constants::NahdXml::xmlKeyAmpRelease().toStdString(), 0.0f);
@@ -1091,13 +1093,48 @@ void DrumSynthV2Test::test_applyParameterAutomation_voiceKey_shouldReachOnlyThat
     QVERIFY(std::abs(device.faderGain() - ParameterMapper::mapFader(0.25)) < 1.0e-6);
 }
 
-void DrumSynthV2Test::test_voiceLevel_default_shouldBeUnity()
+namespace {
+//! Each pad's peak against the kick's, in dB, as the pads render alone at their own fader and pan
+std::array<double, DrumSynthV2::NumVoices> peaksAgainstKick(DrumSynthV2Device & device)
 {
-    const DrumSynthV2Device device { "Drum Synth V2" };
+    std::array<double, DrumSynthV2::NumVoices> peaks {};
     for (int voice = 0; voice < DrumSynthV2::NumVoices; voice++) {
-        const auto level = device.voiceParameterValue(voice, Constants::NahdXml::xmlKeyFader().toStdString());
-        QCOMPARE(ParameterMapper::mapFader(static_cast<double>(level)), 1.0);
+        const auto rendered = device.renderVoiceAlone(voice, 48000.0, 3.0);
+        double peak = 0.0;
+        for (size_t i = 0; i + 1 < rendered.size(); i += 2) {
+            peak = std::max(peak, std::abs((rendered.at(i) + rendered.at(i + 1)) * 0.5));
+        }
+        peaks.at(static_cast<size_t>(voice)) = 20.0 * std::log10(peak);
     }
+    const auto kick = peaks.front();
+    for (auto && peak : peaks) {
+        peak -= kick;
+    }
+    return peaks;
+}
+
+//! Where a kit is usually mixed against its kick, in dB, in pad order
+constexpr std::array<double, DrumSynthV2::NumVoices> mixTargets { 0.0, -2.5, -8.0, -3.0, -7.0, -4.0, -4.0, -4.0, -14.0, -10.0, -10.0, -6.0 };
+} // namespace
+
+void DrumSynthV2Test::test_voiceMix_default_shouldMixTheKitAroundTheKick()
+{
+    // Twelve pads at unity were twelve different levels, the hats as loud as the kick: the faders
+    // have to land the peaks where a kit is mixed rather than where the engines happen to put them
+    DrumSynthV2Device device { "Drum Synth V2" };
+    QCOMPARE(ParameterMapper::mapFader(static_cast<double>(device.voiceParameterValue(0, Constants::NahdXml::xmlKeyFader().toStdString()))), 1.0);
+    QCOMPARE(device.voiceParameterValue(0, Constants::NahdXml::xmlKeyPan().toStdString()), 0.5f);
+
+    const auto peaks = peaksAgainstKick(device);
+    for (int voice = 1; voice < DrumSynthV2::NumVoices; voice++) {
+        const auto target = mixTargets.at(static_cast<size_t>(voice));
+        QVERIFY2(std::abs(peaks.at(static_cast<size_t>(voice)) - target) < 0.5,
+                 qPrintable(QString { "%1: %2 dB, wanted %3" }.arg(DrumSynthV2::voiceName(voice)).arg(peaks.at(static_cast<size_t>(voice))).arg(target)));
+    }
+    // Hats and snare left, cymbals right, as the pads are usually spread
+    QVERIFY(device.voiceParameterValue(static_cast<int>(DrumSynthV2::VoiceIndex::Snare), Constants::NahdXml::xmlKeyPan().toStdString()) < 0.5f);
+    QVERIFY(device.voiceParameterValue(static_cast<int>(DrumSynthV2::VoiceIndex::OpenHiHat), Constants::NahdXml::xmlKeyPan().toStdString()) < 0.5f);
+    QVERIFY(device.voiceParameterValue(static_cast<int>(DrumSynthV2::VoiceIndex::Crash), Constants::NahdXml::xmlKeyPan().toStdString()) > 0.5f);
 }
 
 void DrumSynthV2Test::test_applyParameterAutomation_legacyLevelKey_shouldMoveTheFaderToTheSameGain()

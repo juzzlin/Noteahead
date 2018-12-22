@@ -67,6 +67,8 @@ protected:
     void addEngineParameters(int index, const std::string & prefix) override;
     void syncEngineParameters(int index, const std::string & prefix) override;
     std::pair<float, float> defaultFilterCutoffs(int index) const override;
+    //! The kit mixed as Drum Synth V2's is: see the definition
+    std::pair<float, float> defaultVoiceMix(int index) const override;
 
 private:
     //! Units and labels for every continuous control of one pad, so that automation offers them.

@@ -19,6 +19,8 @@
 
 #include "../../../domain/dsp/drum/clap_engine.hpp"
 
+#include <array>
+
 namespace noteahead {
 
 using namespace DrumSynthV2;
@@ -63,6 +65,30 @@ std::unique_ptr<DrumPadDevice> DrumSynthV2Device::newInstance(std::string name) 
 //! putting those values back first would quietly lengthen every drum in it.
 //!
 //! The same shape as SpeechDevice's legacy voice engine, and for the same reason.
+std::pair<float, float> DrumSynthV2Device::defaultVoiceMix(int index) const
+{
+    // Fader and pan as knob positions. The faders put each pad's peak where a kit is usually mixed
+    // against its kick: snare -2.5 dB, clap -3, toms -4, rim -6, open hat -7, closed hat -8, ride
+    // and reverse crash -10, and the crash -14, since it rings on long after any of them. Measured on the pads at their defaults, since the engines' own
+    // levels are nothing like that. The pans are the usual ones, hats and snare to the left and the
+    // cymbals to the right, toms across from high to low.
+    static constexpr std::array<std::pair<float, float>, NumVoices> mix { {
+      { 0.7500f, 0.500f }, // Kick
+      { 0.7450f, 0.300f }, // Snare
+      { 0.3192f, 0.600f }, // ClosedHiHat
+      { 0.3302f, 0.500f }, // Clap
+      { 0.2879f, 0.350f }, // OpenHiHat
+      { 0.4997f, 0.675f }, // LowTom
+      { 0.4311f, 0.500f }, // MidTom
+      { 0.5000f, 0.325f }, // HighTom
+      { 0.3171f, 0.775f }, // Crash
+      { 0.3442f, 0.700f }, // Ride
+      { 0.6980f, 0.775f }, // ReverseCrash
+      { 0.4352f, 0.300f }, // Rim
+    } };
+    return mix.at(static_cast<size_t>(index));
+}
+
 void DrumSynthV2Device::restoreLegacyParameters()
 {
     struct AmpEnvelopeDefaults
