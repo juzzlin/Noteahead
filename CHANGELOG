@@ -13,6 +13,8 @@ Bug fixes:
 
 * Fix velocity interpolation not undo'ed
 
+* Fix broken LBP visualization
+
 Other:
 
 * Busy wait in PlayerWorker for higher precision

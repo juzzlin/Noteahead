@@ -31,6 +31,7 @@ private slots:
     void test_rowCount_shouldReturnCorrectValue();
     void test_data_shouldReturnCorrectValues();
     void test_setLineFocused_shouldUpdateData();
+    void test_updateIndexHighlights_shouldEmitDataChangedWithCorrectRange();
 };
 
 } // namespace noteahead

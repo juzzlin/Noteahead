@@ -106,6 +106,37 @@ void NoteColumnModelTest::test_setLineFocused_shouldUpdateData()
     QCOMPARE(model.data(idx, static_cast<int>(NoteColumnModel::DataRole::LineColumn)).toInt(), 1);
 }
 
+void NoteColumnModelTest::test_updateIndexHighlights_shouldEmitDataChangedWithCorrectRange()
+{
+    const auto automationService { std::make_shared<AutomationService>() };
+    const auto selectionService { std::make_shared<SelectionService>() };
+    const auto settingsService { std::make_shared<SettingsService>() };
+    const auto editorService { std::make_shared<EditorService>(selectionService, settingsService) };
+    const auto utilService { std::make_shared<UtilService>() };
+    const auto helper { std::make_shared<NoteColumnLineContainerHelper>(automationService, editorService, selectionService, utilService) };
+
+    NoteColumnModel model { { 0, 0, 0 }, editorService, helper, settingsService };
+
+    const int lineCount = 10;
+    NoteColumnModel::LineList lines;
+    for (int i = 0; i < lineCount; ++i) {
+        lines.push_back(std::make_shared<Line>(static_cast<size_t>(i)));
+    }
+    model.setColumnData(lines);
+
+    QSignalSpy spy { &model, &NoteColumnModel::dataChanged };
+    model.updateIndexHighlights();
+
+    QCOMPARE(spy.count(), 1);
+    const auto arguments = spy.takeFirst();
+    const auto topLeft = arguments.at(0).value<QModelIndex>();
+    const auto bottomRight = arguments.at(1).value<QModelIndex>();
+
+    const int barLine = static_cast<int>(editorService->positionBarLine());
+    QCOMPARE(topLeft.row(), barLine);
+    QCOMPARE(bottomRight.row(), barLine + lineCount - 1);
+}
+
 } // namespace noteahead
 
 QTEST_GUILESS_MAIN(noteahead::NoteColumnModelTest)

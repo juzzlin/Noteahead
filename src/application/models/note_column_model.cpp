@@ -181,7 +181,9 @@ void NoteColumnModel::notifyDataChanged(int startLine, int endLine, const QList<
 
 void NoteColumnModel::updateIndexHighlights()
 {
-    notifyDataChanged(0, rowCount() - 1, { static_cast<int>(DataRole::Color), static_cast<int>(DataRole::Border) });
+    if (!m_lines.empty()) {
+        notifyDataChanged(0, static_cast<int>(m_lines.size()) - 1, { static_cast<int>(DataRole::Color), static_cast<int>(DataRole::Border) });
+    }
 }
 
 void NoteColumnModel::updateIndexHighlightAtPosition(quint64 line)
