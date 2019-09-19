@@ -166,6 +166,9 @@ Item {
         function updateColumnHeaders() {
             _noteColumns.forEach(noteColumn => {
                     noteColumn.setName(editorService.columnName(_index, noteColumn.index()));
+                    noteColumn.setMuted(mixerService.isColumnMuted(_index, noteColumn.index()));
+                    noteColumn.setSoloed(mixerService.isColumnSoloed(_index, noteColumn.index()));
+                    noteColumn.setVelocityScale(mixerService.columnVelocityScale(_index, noteColumn.index()));
                 });
         }
         function updateIndexHighlights() {
