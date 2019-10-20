@@ -75,7 +75,7 @@ float ClapEngine::nextSample()
         m_tailEnv *= decayRate;
     }
 
-    const float noise = m_dist(m_rng);
+    const float noise = m_dist(m_rng) * noiseGain();
     m_highPassFilter.setSampleRate(sr);
     m_highPassFilter.setCutoff(0.2f + m_tune * 0.5f);
     m_highPassFilter.setResonance(0.3f);

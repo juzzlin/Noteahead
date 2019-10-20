@@ -17,6 +17,7 @@
 #define DRUM_ENGINE_HPP
 
 #include "../dsp_component.hpp"
+#include "../upsampler.hpp"
 
 namespace noteahead {
 
@@ -35,6 +36,23 @@ public:
     virtual void stop()
     {
     }
+
+    //! Pushed by the device before rendering so noise-based engines can keep their in-band level
+    //! independent of the oversampling factor. See noiseGainForOversampling().
+    void setOversampleFactor(uint8_t factor)
+    {
+        m_noiseGain = noiseGainForOversampling(factor);
+    }
+
+protected:
+    //! Multiply every white-noise draw by this.
+    float noiseGain() const
+    {
+        return m_noiseGain;
+    }
+
+private:
+    float m_noiseGain { 1.0f };
 };
 
 } // namespace noteahead

@@ -189,6 +189,7 @@ void WavetableSynthDevice::processAudio(AudioContext & context)
     prepareForProcessing(context);
 
     const uint8_t oversampleFactor = clampOversampleFactor(context.oversampleFactor);
+    m_noiseOversampleGain = noiseGainForOversampling(oversampleFactor);
     const uint32_t oversampledRate = context.sampleRate * oversampleFactor;
 
     const double portamentoTime = ParameterMapper::mapExponential(m_portamento, 0.01, 2.0);
@@ -538,7 +539,7 @@ float WavetableSynthDevice::generateVoiceSample(Voice & voice, const ModulationV
     voice.osc2.setPosition(std::clamp(m_osc2Pos + mods.osc2PosMod, 0.0, 1.0));
     const float osc2Val = static_cast<float>(voice.osc2.nextSample()) * m_osc2Level;
 
-    const float noise = m_noiseDist(m_rng) * m_noiseLevel;
+    const float noise = m_noiseDist(m_rng) * m_noiseLevel * m_noiseOversampleGain;
 
     const float mix = osc1Val + osc2Val + noise;
 

@@ -22,6 +22,18 @@
 
 namespace noteahead {
 
+//! Clamps an arbitrary oversampling factor to a supported value (1, 2 or 4), defaulting to 2 for
+//! anything unexpected. Devices call this before rendering so a bad setting can never misbehave.
+uint8_t clampOversampleFactor(uint8_t factor);
+
+//! Amplitude compensation for white noise drawn one sample per clock at an oversampled rate.
+//!
+//! Such a generator has a fixed total power spread flat up to Nyquist, so raising the render rate
+//! spreads it over a wider band and the part that survives decimation — everything below the base
+//! Nyquist — drops by 10*log10(factor): 3 dB at 2x, 6 dB at 4x. Without this a noisy patch gets
+//! quieter the more you oversample, which is the opposite of oversampling being transparent.
+float noiseGainForOversampling(uint8_t factor);
+
 //! Length of the windowed-sinc half-band FIR shared by the effect interpolator and decimator. Long
 //! enough (steep transition, deep stopband) to suppress the broadband harmonics a nonlinear effect
 //! generates when oversampled, unlike the short half-band the synth voices use on already-band-limited

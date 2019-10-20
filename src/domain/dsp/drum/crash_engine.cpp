@@ -66,7 +66,7 @@ float CrashEngine::nextSample()
     }
 
     const double sr { sampleRate() };
-    const float noise { m_dist(m_rng) };
+    const float noise { m_dist(m_rng) * noiseGain() };
 
     // Attack envelope to soften the initial hit
     if (m_attackEnv < 1.0f) {

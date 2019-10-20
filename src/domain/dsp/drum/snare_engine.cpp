@@ -89,7 +89,7 @@ float SnareEngine::nextSample()
     }
 
     // Noise part (Snappy bump 2000-12000 Hz)
-    const float noise { m_dist(m_rng) };
+    const float noise { m_dist(m_rng) * noiseGain() };
     const auto filteredNoise = static_cast<float>(m_noiseFilter.process(noise));
 
     float out { (tonal * m_tonalEnv * (1.0f - m_snappy) * 0.8f + filteredNoise * m_snappy * 2.5f) * m_ampEnv * m_attackEnv * m_velocity };

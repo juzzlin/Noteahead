@@ -206,6 +206,7 @@ void DrumSynthDevice::processAudio(AudioContext & context)
 
     for (auto && voice : m_voices) {
         voice.engine->setSampleRate(oversampledRate);
+        voice.engine->setOversampleFactor(oversampleFactor);
         voice.lpf->setSampleRate(oversampledRate);
         voice.hpf->setSampleRate(oversampledRate);
     }

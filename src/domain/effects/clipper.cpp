@@ -17,7 +17,6 @@
 #include "../../common/constants.hpp"
 #include "../../common/utils.hpp"
 #include "../dsp/audio_context.hpp"
-#include "../dsp/downsampler.hpp"
 #include "../dsp/upsampler.hpp"
 
 #include <algorithm>

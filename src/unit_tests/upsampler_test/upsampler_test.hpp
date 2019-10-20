@@ -29,6 +29,13 @@ private slots:
     void test_process_dcInput_shouldPreserveLevel();
     void test_roundTrip_factorTwo_lowFrequency_shouldReconstruct();
     void test_roundTrip_factorFour_lowFrequency_shouldReconstruct();
+    void test_clampOversampleFactor_shouldAllowSupportedValues();
+    void test_clampOversampleFactor_shouldFallBackToTwo();
+    void test_decimator_factorOne_shouldPassThrough();
+    void test_decimator_dcInput_shouldPreserveLevel();
+    void test_decimator_audioBand_shouldNotAttenuateWithOversampling();
+    void test_decimator_aboveBaseNyquist_shouldRejectAliases();
+    void test_noiseGain_shouldKeepInBandNoiseLevelConstant();
 };
 
 } // namespace noteahead

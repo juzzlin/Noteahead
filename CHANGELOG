@@ -136,6 +136,14 @@ New features:
 
 Bug fixes:
 
+* Fix high frequencies being attenuated at 2x and 4x oversampling
+  - The instruments' decimation filter drooped up to 0.9 dB in the audio band
+    and rejected aliases by as little as 5 dB; they now use the 43-tap half-band
+    the oversampled effects already used
+  - Noise sources lost 3 dB at 2x and 6 dB at 4x by drawing one sample per clock
+    at the oversampled rate, and are now compensated
+  - Rendering at 1x is unchanged
+
 * Fix Panner rack effect Width knob having no effect
   - The knob read and wrote the "reverbWidth" legacy alias, which is only mapped
     at deserialization, so it never reached the actual "width" parameter

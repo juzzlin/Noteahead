@@ -21,6 +21,16 @@
 
 namespace noteahead {
 
+uint8_t clampOversampleFactor(uint8_t factor)
+{
+    return (factor == 1 || factor == 2 || factor == 4) ? factor : 2;
+}
+
+float noiseGainForOversampling(uint8_t factor)
+{
+    return std::sqrt(static_cast<float>(clampOversampleFactor(factor)));
+}
+
 namespace {
 
 //! Windowed-sinc half-band FIR (cutoff at a quarter of the sample rate) plus its two polyphase

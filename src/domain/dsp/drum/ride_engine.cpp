@@ -46,7 +46,7 @@ float RideEngine::nextSample()
     }
 
     const double sr { sampleRate() };
-    const float noise { m_dist(m_rng) };
+    const float noise { m_dist(m_rng) * noiseGain() };
 
     const double baseFreq { 300.0 + m_tune * 500.0 };
     static constexpr std::array<double, 6> ratios { 1.0, 1.48, 1.92, 2.54, 3.41, 4.23 };

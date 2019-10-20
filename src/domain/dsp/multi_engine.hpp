@@ -40,11 +40,14 @@ public:
     void setShape(float shape);
     void setKeyTrack(float keyTrack);
     void setNote(uint8_t note);
+    //! Keeps the noise source's in-band level independent of the oversampling factor.
+    void setOversampleFactor(uint8_t factor);
 
     float nextSample();
     void reset();
 
 private:
+    float m_noiseGain { 1.0f };
     Type m_type { Type::Low };
     float m_shape { 0.5f };
     float m_keyTrack { 0.0f };

@@ -18,8 +18,8 @@
 
 #include "../dsp/adsr_envelope.hpp"
 #include "../dsp/cascaded_svf.hpp"
-#include "../dsp/downsampler.hpp"
 #include "../dsp/lfo.hpp"
+#include "../dsp/upsampler.hpp"
 #include "../dsp/wavetable_oscillator.hpp"
 #include "device.hpp"
 
@@ -232,6 +232,8 @@ private:
     float m_osc2Level { 0.0f };
 
     float m_noiseLevel { 0.0f };
+    //! Compensation for drawing one noise sample per clock at the oversampled rate.
+    float m_noiseOversampleGain { 1.0f };
 
     float m_lpfCutoff { 1.0f };
     float m_lpfResonance { 0.0f };
@@ -300,8 +302,8 @@ private:
     std::string m_name;
 
     std::vector<float> m_oversampledBuffer;
-    Downsampler m_downsamplerL;
-    Downsampler m_downsamplerR;
+    Decimator m_downsamplerL;
+    Decimator m_downsamplerR;
 };
 
 } // namespace noteahead

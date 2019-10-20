@@ -65,7 +65,7 @@ float HiHatEngine::nextSample()
         m_filter.setSampleRate(sr);
     }
 
-    const float noise { m_dist(m_rng) };
+    const float noise { m_dist(m_rng) * noiseGain() };
 
     // Metallic part: 6 square wave oscillators with ratios (808-style)
     const double baseFreq { 450.0 + m_tune * 750.0 };

@@ -16,7 +16,6 @@
 #ifndef DRUM_SYNTH_DEVICE_HPP
 #define DRUM_SYNTH_DEVICE_HPP
 
-#include "../dsp/downsampler.hpp"
 #include "../dsp/drum/crash_engine.hpp"
 #include "../dsp/drum/hihat_engine.hpp"
 #include "../dsp/drum/kick_engine.hpp"
@@ -26,6 +25,7 @@
 #include "../dsp/high_pass_filter.hpp"
 #include "../dsp/low_pass_filter.hpp"
 #include "../dsp/panning.hpp"
+#include "../dsp/upsampler.hpp"
 #include "../dsp/volume.hpp"
 #include "device.hpp"
 #include "drum_synth_constants.hpp"
@@ -102,8 +102,8 @@ private:
     std::array<Voice, DrumSynth::NumVoices> m_voices;
     int m_selectedVoice { 0 };
 
-    Downsampler m_downsamplerL;
-    Downsampler m_downsamplerR;
+    Decimator m_downsamplerL;
+    Decimator m_downsamplerR;
 
     void initializeVoices();
     void addVoiceParameters(int index);

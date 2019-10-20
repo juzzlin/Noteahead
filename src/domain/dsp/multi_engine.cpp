@@ -15,6 +15,7 @@
 
 #include "multi_engine.hpp"
 #include "../../common/constants.hpp"
+#include "upsampler.hpp"
 
 #include <algorithm>
 #include <cmath>
@@ -63,9 +64,14 @@ void MultiEngine::reset()
     m_lastNote = 0xFF;
 }
 
+void MultiEngine::setOversampleFactor(uint8_t factor)
+{
+    m_noiseGain = noiseGainForOversampling(factor);
+}
+
 float MultiEngine::nextSample()
 {
-    float noise = m_dist(m_rng);
+    float noise = m_dist(m_rng) * m_noiseGain;
 
     if (m_type == Type::High) {
         // High-pass [20Hz ... 20kHz]

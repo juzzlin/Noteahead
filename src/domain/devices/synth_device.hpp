@@ -18,10 +18,10 @@
 
 #include "../dsp/adsr_envelope.hpp"
 #include "../dsp/cascaded_svf.hpp"
-#include "../dsp/downsampler.hpp"
 #include "../dsp/lfo.hpp"
 #include "../dsp/multi_engine.hpp"
 #include "../dsp/poly_blep_oscillator.hpp"
+#include "../dsp/upsampler.hpp"
 #include "../effects/delay.hpp"
 #include "device.hpp"
 #include "synth_presets.hpp"
@@ -376,8 +376,10 @@ private:
     int m_currentBank = 0;
     UserPresets m_userPresets;
 
-    Downsampler m_downsamplerL;
-    Downsampler m_downsamplerR;
+    //! Oversampling factor of the block being rendered, so voices can compensate their noise.
+    uint8_t m_oversampleFactor { 1 };
+    Decimator m_downsamplerL;
+    Decimator m_downsamplerR;
 
     std::vector<float> m_oversampledBuffer;
 

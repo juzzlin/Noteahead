@@ -253,6 +253,7 @@ void SynthDevice::processAudio(AudioContext & context)
     prepareForProcessing(context);
 
     const uint8_t oversampleFactor = clampOversampleFactor(context.oversampleFactor);
+    m_oversampleFactor = oversampleFactor;
     const uint32_t oversampledRate = context.sampleRate * oversampleFactor;
 
     const double portamentoTime = ParameterMapper::mapExponential(m_portamento, 0.01, 2.0);
@@ -316,6 +317,7 @@ void SynthDevice::updateVoiceParameters(Voice & voice, uint32_t oversampledRate,
     voice.vco2.setSampleRate(oversampledRate);
     voice.vco3.setSampleRate(oversampledRate);
     voice.multi.setSampleRate(oversampledRate);
+    voice.multi.setOversampleFactor(m_oversampleFactor);
     voice.lpf.setSampleRate(oversampledRate);
     voice.hpf.setSampleRate(oversampledRate);
     voice.ampEg.setSampleRate(oversampledRate);

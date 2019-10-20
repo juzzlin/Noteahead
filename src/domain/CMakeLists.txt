@@ -18,7 +18,6 @@ set(HEADER_FILES
     dsp/delay_line.hpp
     dsp/divide_down_generator.hpp
     dsp/diode_ladder_filter.hpp
-    dsp/downsampler.hpp
     dsp/drum/clap_engine.hpp
     dsp/drum/crash_engine.hpp
     dsp/drum/drum_engine.hpp
@@ -33,7 +32,6 @@ set(HEADER_FILES
     dsp/low_pass_filter.hpp
     dsp/multi_engine.hpp
     dsp/one_pole_filter.hpp
-    dsp/oversampler.hpp
     dsp/panning.hpp
     dsp/phaser.hpp
     dsp/poly_blep_oscillator.hpp
@@ -123,7 +121,6 @@ set(SOURCE_FILES
     dsp/delay_line.cpp
     dsp/diode_ladder_filter.cpp
     dsp/divide_down_generator.cpp
-    dsp/downsampler.cpp
     dsp/drum/clap_engine.cpp
     dsp/drum/crash_engine.cpp
     dsp/drum/hihat_engine.cpp
@@ -138,7 +135,6 @@ set(SOURCE_FILES
     dsp/low_pass_filter.cpp
     dsp/multi_engine.cpp
     dsp/one_pole_filter.cpp
-    dsp/oversampler.cpp
     dsp/panning.cpp
     dsp/phaser.cpp
     dsp/poly_blep_oscillator.cpp
