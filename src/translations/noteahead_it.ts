@@ -7090,6 +7090,10 @@
         <translation>Attiva/disattiva modalità modifica</translation>
     </message>
     <message>
+        <source>Audio recording</source>
+        <translation>Registrazione audio</translation>
+    </message>
+    <message>
         <source>Undo</source>
         <translation>Annulla</translation>
     </message>
@@ -11888,6 +11892,14 @@ I file audio compariranno accanto al file di progetto corrente.</translation>
     <message>
         <source>Show or hide the performance panel</source>
         <translation>Mostra o nascondi il pannello performance</translation>
+    </message>
+    <message>
+        <source>Ctrl + Shift + R</source>
+        <translation>Ctrl + Shift + R</translation>
+    </message>
+    <message>
+        <source>Turn audio recording on or off</source>
+        <translation>Attiva o disattiva la registrazione audio</translation>
     </message>
     <message>
         <source>INSERT</source>

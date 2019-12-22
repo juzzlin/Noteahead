@@ -7,6 +7,8 @@ New features:
 
 * Open a recent project: filter the list by name or folder
 
+* Edit > Audio recording, Ctrl+Shift+R, turns audio recording on or off
+
 Bug fixes:
 
 * Flanger no longer drops out while a knob moves, and keeps its stereo phase after a reset

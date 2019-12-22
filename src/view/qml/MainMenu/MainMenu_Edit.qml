@@ -21,10 +21,34 @@ import "../Components"
 
 Menu {
     title: qsTr("&Edit")
+    // A Menu keeps its default width whatever its items ask for, which ran the checkable row's label
+    // into its shortcut. Separators are left out: they ask for more than they need.
+    width: {
+        let widest = implicitWidth;
+        for (const item of contentChildren) {
+            if (item instanceof MenuItem) {
+                widest = Math.max(widest, item.implicitWidth);
+            }
+        }
+        return widest;
+    }
     Action {
         text: qsTr("Toggle edit mode")
         shortcut: "Esc"
         onTriggered: applicationService.toggleEditMode()
+    }
+    MenuSeparator {}
+    ShortcutHintAction {
+        text: qsTr("Audio recording")
+        shortcutHint: "Ctrl+Shift+R"
+        checkable: true
+        checked: settingsService.recordingEnabled
+        enabled: !UiService.isPlaying()
+        // Triggering has already flipped checked, which broke the binding Ctrl+Shift+R relies on
+        onTriggered: {
+            settingsService.recordingEnabled = checked;
+            checked = Qt.binding(() => settingsService.recordingEnabled);
+        }
     }
     MenuSeparator {}
     Action {

@@ -7089,6 +7089,10 @@
         <translation>切换编辑模式</translation>
     </message>
     <message>
+        <source>Audio recording</source>
+        <translation>音频录制</translation>
+    </message>
+    <message>
         <source>Undo</source>
         <translation>撤销</translation>
     </message>
@@ -11886,6 +11890,14 @@ Audio files will appear next to the current project file.</source>
     <message>
         <source>Show or hide the performance panel</source>
         <translation>显示或隐藏演奏面板</translation>
+    </message>
+    <message>
+        <source>Ctrl + Shift + R</source>
+        <translation>Ctrl + Shift + R</translation>
+    </message>
+    <message>
+        <source>Turn audio recording on or off</source>
+        <translation>开启或关闭音频录制</translation>
     </message>
     <message>
         <source>INSERT</source>
