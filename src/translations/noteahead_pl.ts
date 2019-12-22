@@ -7091,6 +7091,10 @@
         <translation>Przełącz tryb edycji</translation>
     </message>
     <message>
+        <source>Audio recording</source>
+        <translation>Nagrywanie dźwięku</translation>
+    </message>
+    <message>
         <source>Undo</source>
         <translation>Cofnij</translation>
     </message>
@@ -11890,6 +11894,14 @@ Pliki dźwiękowe pojawią się obok bieżącego pliku projektu.</translation>
     <message>
         <source>Show or hide the performance panel</source>
         <translation>Pokaż lub ukryj panel występu</translation>
+    </message>
+    <message>
+        <source>Ctrl + Shift + R</source>
+        <translation>Ctrl + Shift + R</translation>
+    </message>
+    <message>
+        <source>Turn audio recording on or off</source>
+        <translation>Włącz lub wyłącz nagrywanie dźwięku</translation>
     </message>
     <message>
         <source>INSERT</source>

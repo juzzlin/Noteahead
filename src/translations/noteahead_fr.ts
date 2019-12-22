@@ -7090,6 +7090,10 @@
         <translation>Basculer le mode édition</translation>
     </message>
     <message>
+        <source>Audio recording</source>
+        <translation>Enregistrement audio</translation>
+    </message>
+    <message>
         <source>Undo</source>
         <translation>Annuler</translation>
     </message>
@@ -11888,6 +11892,14 @@ Les fichiers audio apparaîtront à côté du fichier de projet actuel.</transla
     <message>
         <source>Show or hide the performance panel</source>
         <translation>Afficher ou masquer le panneau de performance</translation>
+    </message>
+    <message>
+        <source>Ctrl + Shift + R</source>
+        <translation>Ctrl + Shift + R</translation>
+    </message>
+    <message>
+        <source>Turn audio recording on or off</source>
+        <translation>Activer ou désactiver l'enregistrement audio</translation>
     </message>
     <message>
         <source>INSERT</source>

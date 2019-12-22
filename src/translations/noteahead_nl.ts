@@ -7090,6 +7090,10 @@
         <translation>Bewerkmodus omschakelen</translation>
     </message>
     <message>
+        <source>Audio recording</source>
+        <translation>Audio-opname</translation>
+    </message>
+    <message>
         <source>Undo</source>
         <translation>Ongedaan maken</translation>
     </message>
@@ -11888,6 +11892,14 @@ De audiobestanden verschijnen naast het huidige projectbestand.</translation>
     <message>
         <source>Show or hide the performance panel</source>
         <translation>Performancepaneel tonen of verbergen</translation>
+    </message>
+    <message>
+        <source>Ctrl + Shift + R</source>
+        <translation>Ctrl + Shift + R</translation>
+    </message>
+    <message>
+        <source>Turn audio recording on or off</source>
+        <translation>Audio-opname in- of uitschakelen</translation>
     </message>
     <message>
         <source>INSERT</source>

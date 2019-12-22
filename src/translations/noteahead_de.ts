@@ -7090,6 +7090,10 @@
         <translation>Bearbeitungsmodus umschalten</translation>
     </message>
     <message>
+        <source>Audio recording</source>
+        <translation>Audioaufnahme</translation>
+    </message>
+    <message>
         <source>Undo</source>
         <translation>Rückgängig</translation>
     </message>
@@ -11888,6 +11892,14 @@ Die Audiodateien erscheinen neben der aktuellen Projektdatei.</translation>
     <message>
         <source>Show or hide the performance panel</source>
         <translation>Performance-Panel ein- oder ausblenden</translation>
+    </message>
+    <message>
+        <source>Ctrl + Shift + R</source>
+        <translation>Ctrl + Shift + R</translation>
+    </message>
+    <message>
+        <source>Turn audio recording on or off</source>
+        <translation>Audioaufnahme ein- oder ausschalten</translation>
     </message>
     <message>
         <source>INSERT</source>

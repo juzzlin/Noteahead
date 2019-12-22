@@ -7090,6 +7090,10 @@
         <translation>Alternar modo de edición</translation>
     </message>
     <message>
+        <source>Audio recording</source>
+        <translation>Grabación de audio</translation>
+    </message>
+    <message>
         <source>Undo</source>
         <translation>Deshacer</translation>
     </message>
@@ -11888,6 +11892,14 @@ Los archivos de audio aparecerán junto al archivo del proyecto actual.</transla
     <message>
         <source>Show or hide the performance panel</source>
         <translation>Mostrar u ocultar el panel de interpretación</translation>
+    </message>
+    <message>
+        <source>Ctrl + Shift + R</source>
+        <translation>Ctrl + Shift + R</translation>
+    </message>
+    <message>
+        <source>Turn audio recording on or off</source>
+        <translation>Activar o desactivar la grabación de audio</translation>
     </message>
     <message>
         <source>INSERT</source>

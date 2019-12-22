@@ -7090,6 +7090,10 @@
         <translation>Muokkaustila päälle/pois</translation>
     </message>
     <message>
+        <source>Audio recording</source>
+        <translation>Äänitys</translation>
+    </message>
+    <message>
         <source>Undo</source>
         <translation>Kumoa</translation>
     </message>
@@ -11888,6 +11892,14 @@ Audio files will appear next to the current project file.</source>
     <message>
         <source>Show or hide the performance panel</source>
         <translation>Näytä tai piilota esityspaneeli</translation>
+    </message>
+    <message>
+        <source>Ctrl + Shift + R</source>
+        <translation>Ctrl + Shift + R</translation>
+    </message>
+    <message>
+        <source>Turn audio recording on or off</source>
+        <translation>Äänitys päälle/pois</translation>
     </message>
     <message>
         <source>INSERT</source>

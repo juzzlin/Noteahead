@@ -827,6 +827,13 @@ ApplicationWindow {
         context: Qt.ApplicationShortcut
         onActivated: settingsService.performancePanelEnabled = !settingsService.performancePanelEnabled
     }
+    // Like the wave view's record button, only between takes
+    Shortcut {
+        sequence: "Ctrl+Shift+R"
+        context: Qt.ApplicationShortcut
+        enabled: !UiService.isPlaying()
+        onActivated: settingsService.recordingEnabled = !settingsService.recordingEnabled
+    }
     Shortcut {
         sequence: "Ctrl+B"
         context: Qt.ApplicationShortcut

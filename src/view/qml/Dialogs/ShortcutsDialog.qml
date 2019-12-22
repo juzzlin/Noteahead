@@ -73,6 +73,10 @@ AnimatedDialog {
             description: qsTr("Show or hide the performance panel")
         },
         {
+            key: qsTr("Ctrl + Shift + R"),
+            description: qsTr("Turn audio recording on or off")
+        },
+        {
             key: qsTr("INSERT"),
             description: qsTr("Insert empty line and move subsequent lines down")
         },
