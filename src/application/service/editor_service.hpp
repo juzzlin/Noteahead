@@ -238,6 +238,8 @@ public:
     using InstrumentS = std::shared_ptr<Instrument>;
     InstrumentS instrument(quint64 trackIndex) const;
     void setInstrument(quint64 trackIndex, InstrumentS instrument);
+    using InstrumentList = std::vector<std::pair<quint64, InstrumentS>>;
+    InstrumentList instruments() const;
 
     using InstrumentSettingsS = std::shared_ptr<InstrumentSettings>;
     InstrumentSettingsS instrumentSettingsAtCurrentPosition() const;

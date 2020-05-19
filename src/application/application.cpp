@@ -415,11 +415,9 @@ void Application::initializeApplicationEngine()
 void Application::requestInstruments(QStringList midiPorts)
 {
     for (auto && midiPort : midiPorts) {
-        for (auto && trackIndex : m_editorService->trackIndices()) {
-            if (const auto instrument = m_editorService->instrument(trackIndex); instrument) {
-                if (Utils::portNameMatchScore(instrument->device().portName.toStdString(), midiPort.toStdString()) > 0.75) {
-                    applyInstrument(trackIndex, *instrument);
-                }
+        for (auto && [trackIndex, instrument] : m_editorService->instruments()) {
+            if (Utils::portNameMatchScore(instrument->device().portName.toStdString(), midiPort.toStdString()) > 0.75) {
+                applyInstrument(trackIndex, *instrument);
             }
         }
     }
@@ -448,10 +446,8 @@ void Application::applyAllInstruments()
 {
     juzzlin::L(TAG).info() << "Applying all instruments";
 
-    for (auto trackIndex : m_editorService->trackIndices()) {
-        if (const auto instrument = m_editorService->instrument(trackIndex); instrument) {
-            applyInstrument(trackIndex, *instrument);
-        }
+    for (auto && [trackIndex, instrument] : m_editorService->instruments()) {
+        applyInstrument(trackIndex, *instrument);
     }
 
     m_instrumentTimer = std::make_unique<QTimer>();
@@ -463,10 +459,8 @@ void Application::applyAllInstruments()
 
 void Application::applyAllMidiCcSettings()
 {
-    for (auto trackIndex : m_editorService->trackIndices()) {
-        if (const auto instrument = m_editorService->instrument(trackIndex); instrument) {
-            applyMidiCcSettings(*instrument);
-        }
+    for (auto && [trackIndex, instrument] : m_editorService->instruments()) {
+        applyMidiCcSettings(*instrument);
     }
 }
 

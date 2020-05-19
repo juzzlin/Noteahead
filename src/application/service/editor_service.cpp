@@ -582,6 +582,17 @@ void EditorService::setInstrument(quint64 trackIndex, InstrumentS instrument)
     setIsModified(true);
 }
 
+EditorService::InstrumentList EditorService::instruments() const
+{
+    EditorService::InstrumentList instrumentList;
+    for (auto trackIndex : trackIndices()) {
+        if (const auto instrument = this->instrument(trackIndex); instrument) {
+            instrumentList.push_back({ trackIndex, instrument });
+        }
+    }
+    return instrumentList;
+}
+
 EditorService::InstrumentSettingsS EditorService::instrumentSettingsAtCurrentPosition() const
 {
     if (m_song->hasPosition(position())) {
