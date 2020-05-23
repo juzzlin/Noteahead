@@ -16,6 +16,7 @@ set(SRC
     ../../domain/devices/volume_effect.cpp
     ../../domain/dsp/svf_filter.cpp
     ../../domain/dsp/cascaded_svf.cpp
+    ../../domain/dsp/diode_ladder_filter.cpp
     ../../domain/dsp/compressor_effect.cpp
     ../../domain/dsp/dsp_component.cpp
     ../../domain/dsp/eq_8_band_parametric_effect.cpp

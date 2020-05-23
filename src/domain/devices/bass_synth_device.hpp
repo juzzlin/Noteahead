@@ -18,6 +18,7 @@
 
 #include "../dsp/adsr_envelope.hpp"
 #include "../dsp/cascaded_svf.hpp"
+#include "../dsp/diode_ladder_filter.hpp"
 #include "../dsp/oversampler.hpp"
 #include "../dsp/polyblep_oscillator.hpp"
 #include "device.hpp"
@@ -100,7 +101,7 @@ private:
     {
         PolyBlepOscillator vco;
         PolyBlepOscillator sub;
-        CascadedSvf lpf;
+        DiodeLadderFilter lpf;
         CascadedSvf hpf;
         AdsrEnvelope filterEg;
         AdsrEnvelope ampEg;

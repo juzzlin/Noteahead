@@ -89,7 +89,6 @@ BassSynthDevice::BassSynthDevice(std::string name)
     m_voice.vco.setWaveform(PolyBlepOscillator::Waveform::Saw);
     m_voice.sub.setWaveform(PolyBlepOscillator::Waveform::Square);
 
-    m_voice.lpf.setMode(CascadedSvf::Mode::LowPass);
     m_voice.hpf.setMode(CascadedSvf::Mode::HighPass);
 
     m_voice.filterEg.setSustainLevel(0.0);
@@ -213,7 +212,8 @@ void BassSynthDevice::processAudio(AudioContext & context)
     m_voice.filterEg.setSampleRate(oversampledRate);
     m_voice.ampEg.setSampleRate(oversampledRate);
 
-    m_voice.lpf.setResonance(m_lpfResonance);
+    m_voice.lpf.setResonance(m_voice.accent ? std::clamp(m_lpfResonance + m_accent * 0.2f, 0.0f, 1.0f) : m_lpfResonance);
+    m_voice.lpf.setDrive(m_distDrive);
 
     // Slide constant
     const double slideCoeff = m_slide > 0 ? 1.0 - std::pow(0.001, 1.0 / (ParameterMapper::mapExponential(m_slide, 0.01, 2.0) * oversampledRate)) : 1.0;
@@ -243,7 +243,7 @@ void BassSynthDevice::processAudio(AudioContext & context)
             // Filter
             double cutoffMod = filterEnv * m_envMod;
             if (m_voice.accent) {
-                cutoffMod += m_accent * filterEnv; // Accent boosts filter env effect
+                cutoffMod += m_accent * filterEnv * 0.5; // Accent boosts filter env effect
             }
 
             m_voice.lpf.setCutoff(std::clamp(m_lpfCutoff + cutoffMod, 0.0, 1.0));
@@ -254,7 +254,8 @@ void BassSynthDevice::processAudio(AudioContext & context)
             // Distortion
             if (m_distDrive > 0.0f) {
                 float drive = 1.0f + m_distDrive * 10.0f;
-                filtered = std::tanh(filtered * drive) * m_distLevel;
+                // Asymmetric distortion for more character
+                filtered = (std::tanh(filtered * drive) + 0.1f * std::tanh(filtered * drive * 2.0f)) * m_distLevel;
                 // Simple tone control (LPF)
                 float alpha = 0.1f + m_distTone * 0.8f;
                 m_distLpState += alpha * (filtered - m_distLpState);
@@ -373,10 +374,23 @@ void BassSynthDevice::handleNoteOn(uint8_t note, uint8_t velocity)
         if (m_slide == 0.0f || hasAccent) {
             m_voice.filterEg.reset();
         }
+
+        if (hasAccent) {
+            // Real 303 accent: decay is shorter
+            m_voice.filterEg.setDecayTime(ParameterMapper::mapExponential(m_decay, 0.1, 10.0) * 0.5);
+        } else {
+            m_voice.filterEg.setDecayTime(ParameterMapper::mapExponential(m_decay, 0.1, 10.0));
+        }
+
         m_voice.filterEg.trigger();
         m_voice.ampEg.trigger();
     } else {
         m_distLpState = 0.0f;
+        if (hasAccent) {
+            m_voice.filterEg.setDecayTime(ParameterMapper::mapExponential(m_decay, 0.1, 10.0) * 0.5);
+        } else {
+            m_voice.filterEg.setDecayTime(ParameterMapper::mapExponential(m_decay, 0.1, 10.0));
+        }
         m_voice.trigger(note, freq, vel, hasAccent, true);
     }
 }
@@ -429,10 +443,11 @@ void BassSynthDevice::syncParameters()
         m_distLevel = p->get().value();
 
     m_voice.vco.setWaveform(m_waveform);
-    m_voice.filterEg.setDecayTime(ParameterMapper::mapExponential(m_decay, 0.1, 10.0));
-    m_voice.filterEg.setReleaseTime(ParameterMapper::mapExponential(m_decay, 0.1, 10.0));
-    m_voice.ampEg.setDecayTime(ParameterMapper::mapExponential(m_decay, 0.1, 10.0));
-    m_voice.ampEg.setReleaseTime(ParameterMapper::mapExponential(m_decay, 0.1, 10.0));
+    const float decayTime = ParameterMapper::mapExponential(m_decay, 0.1, 10.0);
+    m_voice.filterEg.setDecayTime(m_voice.accent ? decayTime * 0.5 : decayTime);
+    m_voice.filterEg.setReleaseTime(decayTime);
+    m_voice.ampEg.setDecayTime(decayTime);
+    m_voice.ampEg.setReleaseTime(decayTime);
 }
 
 PolyBlepOscillator::Waveform BassSynthDevice::waveform() const
