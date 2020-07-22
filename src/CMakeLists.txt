@@ -35,6 +35,7 @@ set(HEADER_FILES
   application/service/device_rack.hpp
   application/service/device_rack_controller.hpp
   application/service/device_service.hpp
+  application/service/drum_synth_controller.hpp
   application/service/editor_service.hpp
   application/service/effect_rack_controller.hpp
   application/service/jack_service.hpp
@@ -66,6 +67,7 @@ set(HEADER_FILES
   domain/column.hpp
   domain/column_settings.hpp
   domain/devices/delay_effect.hpp
+  domain/devices/drum_synth_device.hpp
   domain/devices/device.hpp
   domain/devices/effect.hpp
   domain/devices/effect_rack.hpp
@@ -78,6 +80,13 @@ set(HEADER_FILES
   domain/devices/volume_effect.hpp
   domain/dsp/adsr_envelope.hpp
   domain/dsp/cascaded_svf.hpp
+  domain/dsp/drum/crash_engine.hpp
+  domain/dsp/drum/ride_engine.hpp
+  domain/dsp/drum/drum_engine.hpp
+  domain/dsp/drum/hihat_engine.hpp
+  domain/dsp/drum/kick_engine.hpp
+  domain/dsp/drum/snare_engine.hpp
+  domain/dsp/drum/tom_engine.hpp
   domain/dsp/lfo.hpp
   domain/dsp/multi_engine.hpp
   domain/dsp/polyblep_oscillator.hpp
@@ -166,6 +175,7 @@ set(SOURCE_FILES
   application/service/device_rack.cpp
   application/service/device_rack_controller.cpp
   application/service/device_service.cpp
+  application/service/drum_synth_controller.cpp
   application/service/editor_service.cpp
   application/service/effect_rack_controller.cpp
   application/service/jack_service.cpp
@@ -199,6 +209,7 @@ set(SOURCE_FILES
   domain/column.cpp
   domain/column_settings.cpp
   domain/devices/delay_effect.cpp
+  domain/devices/drum_synth_device.cpp
   domain/devices/device.cpp
   domain/devices/effect.cpp
   domain/devices/effect_rack.cpp
@@ -211,6 +222,13 @@ set(SOURCE_FILES
   domain/devices/volume_effect.cpp
   domain/dsp/adsr_envelope.cpp
   domain/dsp/cascaded_svf.cpp
+  domain/dsp/drum/crash_engine.cpp
+  domain/dsp/drum/ride_engine.cpp
+  domain/dsp/drum/hihat_engine.cpp
+  domain/dsp/drum/kick_engine.cpp
+  domain/dsp/drum/clap_engine.cpp
+  domain/dsp/drum/snare_engine.cpp
+  domain/dsp/drum/tom_engine.cpp
   domain/dsp/dsp_component.cpp
   domain/dsp/lfo.cpp
   domain/dsp/multi_engine.cpp
@@ -305,6 +323,7 @@ set(QML_SOURCE_FILES
     ${QML_BASE_DIR}/Dialogs/ColumnSettingsDialog_TimingSettings.qml
     ${QML_BASE_DIR}/Dialogs/DelayCalculatorDialog.qml
     ${QML_BASE_DIR}/Dialogs/DeleteUnusedPatternsDialog.qml
+    ${QML_BASE_DIR}/Dialogs/DrumSynthDialog.qml
     ${QML_BASE_DIR}/Dialogs/EditMidiCcAutomationsDelegate.qml
     ${QML_BASE_DIR}/Dialogs/EditMidiCcAutomationsDialog.qml
     ${QML_BASE_DIR}/Dialogs/EditPitchBendAutomationsDelegate.qml

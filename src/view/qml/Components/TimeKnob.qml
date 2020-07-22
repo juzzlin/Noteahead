@@ -60,7 +60,7 @@ ColumnLayout {
         WheelHandler {
             onWheel: (wheel) => {
                 const currentV = knobController.unmapTime(knobRoot.value, knobRoot.from, knobRoot.to);
-                const delta = wheel.angleDelta.y > 0 ? 0.02 : -0.02;
+                const delta = wheel.angleDelta.y > 0 ? 0.05 : -0.05;
                 const nextV = Math.max(0, Math.min(1, currentV + delta));
                 knobRoot.moved(knobController.mapTime(nextV, knobRoot.from, knobRoot.to));
             }

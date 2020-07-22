@@ -22,6 +22,7 @@
 #include "common/constants.hpp"
 #include "common/utils.hpp"
 #include "domain/column_settings.hpp"
+#include "domain/devices/drum_synth_device.hpp"
 #include "domain/devices/sampler_device.hpp"
 #include "domain/devices/synth_device.hpp"
 #include "domain/midi_note_data.hpp"
@@ -46,6 +47,7 @@
 #include "service/device_rack.hpp"
 #include "service/device_rack_controller.hpp"
 #include "service/device_service.hpp"
+#include "service/drum_synth_controller.hpp"
 #include "service/editor_service.hpp"
 #include "service/jack_service.hpp"
 #include "service/keyboard_service.hpp"
@@ -100,8 +102,9 @@ Application::Application(int & argc, char ** argv)
   , m_deviceRack { std::make_unique<DeviceRack>(m_deviceService) }
   , m_samplerController { std::make_shared<SamplerController>(std::make_shared<SamplerDevice>("Default Sampler")) }
   , m_synthController { std::make_shared<SynthController>(std::make_shared<SynthDevice>("Default Synth")) }
+  , m_drumSynthController { std::make_shared<DrumSynthController>(m_deviceService) }
   , m_effectRackController { std::make_shared<EffectRackController>(m_deviceService) }
-  , m_deviceRackController { std::make_shared<DeviceRackController>(m_deviceService, m_samplerController, m_synthController, m_editorService) }
+  , m_deviceRackController { std::make_shared<DeviceRackController>(m_deviceService, m_samplerController, m_synthController, m_drumSynthController, m_editorService) }
   , m_jackService { std::make_shared<JackService>(m_settingsService, m_audioEngine) }
   , m_audioService { std::make_shared<AudioService>(m_settingsService, m_jackService, m_audioEngine) }
   , m_eventSelectionModel { std::make_shared<EventSelectionModel>() }
@@ -133,6 +136,9 @@ Application::Application(int & argc, char ** argv)
     }
     if (const auto synth = std::dynamic_pointer_cast<SynthDevice>(m_deviceService->device(Constants::synthDeviceName().toStdString() + " 1"))) {
         m_synthController->setSynth(synth);
+    }
+    if (const auto drumSynth = std::dynamic_pointer_cast<DrumSynthDevice>(m_deviceService->device(Constants::drumSynthDeviceName().toStdString() + " 1"))) {
+        m_drumSynthController->setDevice(Constants::drumSynthDeviceName() + " 1");
     }
     m_deviceService->registerDevice(m_samplerController->sampler());
     m_deviceService->registerDevice(m_synthController->synth());
@@ -192,9 +198,9 @@ void Application::registerTypes()
     qmlRegisterType<PropertyService>("Noteahead", majorVersion, minorVersion, "PropertyService");
     qmlRegisterType<RecentFilesModel>("Noteahead", majorVersion, minorVersion, "RecentFilesModel");
     qmlRegisterType<SamplerPadModel>("Noteahead", majorVersion, minorVersion, "SamplerPadModel");
+    qmlRegisterType<DrumSynthController>("Noteahead", majorVersion, minorVersion, "DrumSynthController");
     qmlRegisterType<SamplerController>("Noteahead", majorVersion, minorVersion, "SamplerController");
-    qmlRegisterType<SynthController>("Noteahead", majorVersion, minorVersion, "SynthController");
-    qmlRegisterType<SelectionService>("Noteahead", majorVersion, minorVersion, "SelectionService");
+    qmlRegisterType<SynthController>("Noteahead", majorVersion, minorVersion, "SynthController");    qmlRegisterType<SelectionService>("Noteahead", majorVersion, minorVersion, "SelectionService");
     qmlRegisterType<SettingsService>("Noteahead", majorVersion, minorVersion, "SettingsService");
     qmlRegisterType<SideChainService>("Noteahead", majorVersion, minorVersion, "SideChainService");
     qmlRegisterType<TrackSettingsModel>("Noteahead", majorVersion, minorVersion, "TrackSettingsModel");
@@ -217,8 +223,8 @@ void Application::setContextProperties()
     m_engine->rootContext()->setContextProperty("editorService", m_editorService.get());
     m_engine->rootContext()->setContextProperty("samplerController", m_samplerController.get());
     m_engine->rootContext()->setContextProperty("synthController", m_synthController.get());
-    m_engine->rootContext()->setContextProperty("effectRackController", m_effectRackController.get());
-    m_engine->rootContext()->setContextProperty("selectionService", m_selectionService.get());    m_engine->rootContext()->setContextProperty("eventSelectionModel", m_eventSelectionModel.get());
+    m_engine->rootContext()->setContextProperty("drumSynthController", m_drumSynthController.get());
+    m_engine->rootContext()->setContextProperty("effectRackController", m_effectRackController.get());    m_engine->rootContext()->setContextProperty("selectionService", m_selectionService.get());    m_engine->rootContext()->setContextProperty("eventSelectionModel", m_eventSelectionModel.get());
     m_engine->rootContext()->setContextProperty("midiCcAutomationsModel", m_midiCcAutomationsModel.get());
     m_engine->rootContext()->setContextProperty("keyboardService", m_keyboardService.get());
     m_engine->rootContext()->setContextProperty("knobController", m_knobController.get());

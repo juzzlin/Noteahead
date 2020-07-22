@@ -28,7 +28,9 @@ public:
     enum class Mode
     {
         LowPass,
-        HighPass
+        HighPass,
+        BandPass,
+        Notch
     };
 
     void setCutoff(double cutoff); // 0.0 to 1.0

@@ -43,6 +43,7 @@ int transposeMax();
 
 QString samplerDeviceName();
 QString synthDeviceName();
+QString drumSynthDeviceName();
 
 double defaultSampleRate();
 
@@ -316,6 +317,15 @@ QString xmlKeySamples();
 QString xmlKeySamplePath();
 QString xmlKeyChannelMode();
 QString xmlKeyStartOffset();
+
+QString xmlKeyDrumSynth();
+QString xmlKeyPad();
+QString xmlKeyTune();
+QString xmlKeyClickTune();
+QString xmlKeySnappy();
+QString xmlKeyTone();
+QString xmlKeyPitchDepth();
+QString xmlKeyPitchDecay();
 
 QString xmlValueFalse();
 QString xmlValueTrue();

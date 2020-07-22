@@ -22,6 +22,7 @@ set(SRC
     ../../application/service/property_service.cpp
     ../../application/service/random_service.cpp
     ../../application/service/sampler_controller.cpp
+    ../../application/service/drum_synth_controller.cpp
     ../../application/service/selection_service.cpp
     ../../application/service/settings_service.cpp
     ../../application/service/side_chain_service.cpp
@@ -42,6 +43,7 @@ set(SRC
     ../../domain/devices/panning_effect.cpp
     ../../domain/devices/sampler_device.cpp
     ../../domain/devices/synth_device.cpp
+    ../../domain/devices/drum_synth_device.cpp
     ../../domain/devices/synth_presets.cpp
     ../../domain/devices/volume_effect.cpp
     ../../domain/dsp/adsr_envelope.cpp
@@ -49,6 +51,13 @@ set(SRC
     ../../domain/dsp/dsp_component.cpp
     ../../domain/dsp/lfo.cpp
     ../../domain/dsp/multi_engine.cpp
+    ../../domain/dsp/drum/crash_engine.cpp
+    ../../domain/dsp/drum/ride_engine.cpp
+    ../../domain/dsp/drum/hihat_engine.cpp
+    ../../domain/dsp/drum/kick_engine.cpp
+    ../../domain/dsp/drum/clap_engine.cpp
+    ../../domain/dsp/drum/snare_engine.cpp
+    ../../domain/dsp/drum/tom_engine.cpp
     ../../domain/dsp/oversampler.cpp
     ../../domain/dsp/polyblep_oscillator.cpp
     ../../domain/dsp/reverb_effect.cpp

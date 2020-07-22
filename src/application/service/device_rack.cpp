@@ -16,6 +16,7 @@
 #include "device_rack.hpp"
 #include "device_service.hpp"
 #include "../../common/constants.hpp"
+#include "../../domain/devices/drum_synth_device.hpp"
 #include "../../domain/devices/sampler_device.hpp"
 #include "../../domain/devices/synth_device.hpp"
 
@@ -40,6 +41,12 @@ void DeviceRack::initialize()
         const auto synth = std::make_shared<SynthDevice>(Constants::synthDeviceName().toStdString() + " " + std::to_string(i));
         synth->setId(i + 100);
         m_deviceService->registerDevice(synth);
+    }
+
+    for (size_t i = 1; i <= 2; i++) {
+        const auto drumSynth = std::make_shared<DrumSynthDevice>(Constants::drumSynthDeviceName().toStdString() + " " + std::to_string(i));
+        drumSynth->setId(i + 200);
+        m_deviceService->registerDevice(drumSynth);
     }
 }
 

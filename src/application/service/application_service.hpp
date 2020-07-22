@@ -42,6 +42,7 @@ class ApplicationService : public QObject
     Q_PROPERTY(bool editMode READ editMode WRITE setEditMode NOTIFY editModeChanged)
     Q_PROPERTY(QString samplerDeviceName READ samplerDeviceName CONSTANT)
     Q_PROPERTY(QString synthDeviceName READ synthDeviceName CONSTANT)
+    Q_PROPERTY(QString drumSynthDeviceName READ drumSynthDeviceName CONSTANT)
 
 public:
     ApplicationService();
@@ -58,6 +59,7 @@ public:
     Q_INVOKABLE QString webSiteUrl() const;
     Q_INVOKABLE QString samplerDeviceName() const;
     Q_INVOKABLE QString synthDeviceName() const;
+    Q_INVOKABLE QString drumSynthDeviceName() const;
 
     Q_INVOKABLE QStringList recentFiles() const;
     Q_INVOKABLE void addRecentFile(QString filePath);
@@ -94,6 +96,7 @@ public:
     Q_INVOKABLE void requestRecentFilesDialog();
     Q_INVOKABLE void requestDeviceRackDialog();
     Q_INVOKABLE void requestMasterEffectsDialog();
+    Q_INVOKABLE void requestDrumSynthDialog();
     Q_INVOKABLE void requestSaveProject();
     Q_INVOKABLE void requestSaveProjectAs();
     Q_INVOKABLE void requestSaveProjectAsTemplate();
@@ -156,6 +159,7 @@ signals:
     void deviceRackDialogRequested();
     void masterEffectsDialogRequested();
     void samplerDialogRequested();
+    void drumSynthDialogRequested();
 
     void saveAsDialogRequested();
     void saveAsTemplateDialogRequested();

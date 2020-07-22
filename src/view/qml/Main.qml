@@ -210,6 +210,12 @@ ApplicationWindow {
         width: parent.width * Constants.largeDialogScale
         height: parent.height * Constants.largeDialogScale
     }
+    DrumSynthDialog {
+        id: drumSynthDialog
+        anchors.centerIn: parent
+        width: parent.width * Constants.largeDialogScale
+        height: parent.height * Constants.largeDialogScale
+    }
     DeviceRackDialog {
         id: deviceRackDialog
         anchors.centerIn: parent
@@ -420,11 +426,13 @@ ApplicationWindow {
         applicationService.masterEffectsDialogRequested.connect(masterEffectsDialog.open);
         deviceRackController.samplerDialogRequested.connect(samplerDialog.open);
         deviceRackController.synthDialogRequested.connect(synthDialog.open);
+        deviceRackController.drumSynthDialogRequested.connect(drumSynthDialog.open);
         deviceRackController.effectSendsDialogRequested.connect(deviceName => {
             effectSendsDialog.deviceName = deviceName;
             effectSendsDialog.open();
         });
         applicationService.samplerDialogRequested.connect(samplerDialog.open);
+        applicationService.drumSynthDialogRequested.connect(drumSynthDialog.open);
         applicationService.openDialogRequested.connect(openDialog.open);
         applicationService.recentFilesDialogRequested.connect(recentFilesDialog.open);
         applicationService.saveAsDialogRequested.connect(saveAsDialog.open);
@@ -457,6 +465,7 @@ ApplicationWindow {
         });
         UiService.deviceRackDialogRequested.connect(deviceRackDialog.open);
         UiService.samplerDialogRequested.connect(samplerDialog.open);
+        UiService.drumSynthDialogRequested.connect(drumSynthDialog.open);
         UiService.recentFilesDialogRequested.connect(recentFilesDialog.open);
         UiService.deviceDialogRequested.connect(deviceName => {
             if (deviceService.isInternalDevice(deviceName)) {
@@ -469,6 +478,8 @@ ApplicationWindow {
                 samplerDialog.open();
             } else if (deviceName === applicationService.synthDeviceName) {
                 synthDialog.open();
+            } else if (deviceName === applicationService.drumSynthDeviceName) {
+                drumSynthDialog.open();
             }
         });
         UiService.settingsDialogRequested.connect(settingsDialog.open);

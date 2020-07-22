@@ -89,7 +89,11 @@ float CascadedSvf::SvfUnit::process(float input, double g, double damping, doubl
     const double lp = v2 + s2;
     s2 = v2 + lp;
     
-    return static_cast<float>(mode == Mode::LowPass ? lp : hp);
+    if (mode == Mode::LowPass) return static_cast<float>(lp);
+    if (mode == Mode::HighPass) return static_cast<float>(hp);
+    if (mode == Mode::BandPass) return static_cast<float>(bp);
+    if (mode == Mode::Notch) return static_cast<float>(lp + hp);
+    return 0.0f;
 }
 
 } // namespace noteahead

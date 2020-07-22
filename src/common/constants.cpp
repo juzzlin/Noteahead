@@ -87,6 +87,11 @@ QString synthDeviceName()
     return "Noteahead Synth";
 }
 
+QString drumSynthDeviceName()
+{
+    return "Noteahead DrumSynth";
+}
+
 double defaultSampleRate()
 {
     return 48000.0;
@@ -985,6 +990,15 @@ QString xmlKeySamples()
 QString xmlKeySamplePath() { return "path"; }
 QString xmlKeyChannelMode() { return "channelMode"; }
 QString xmlKeyStartOffset() { return "startOffset"; }
+
+QString xmlKeyDrumSynth() { return "DrumSynth"; }
+QString xmlKeyPad() { return "Pad"; }
+QString xmlKeyTune() { return "tune"; }
+QString xmlKeyClickTune() { return "clickTune"; }
+QString xmlKeySnappy() { return "snappy"; }
+QString xmlKeyTone() { return "tone"; }
+QString xmlKeyPitchDepth() { return "pitchDepth"; }
+QString xmlKeyPitchDecay() { return "pitchDecay"; }
 
 QString xmlValueFalse() { return "false"; }
 

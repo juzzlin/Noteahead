@@ -46,6 +46,13 @@ set(SRC
     ../../domain/dsp/adsr_envelope.cpp
     ../../domain/dsp/cascaded_svf.cpp
     ../../domain/dsp/dsp_component.cpp
+    ../../domain/dsp/drum/crash_engine.cpp
+    ../../domain/dsp/drum/ride_engine.cpp
+    ../../domain/dsp/drum/hihat_engine.cpp
+    ../../domain/dsp/drum/kick_engine.cpp
+    ../../domain/dsp/drum/clap_engine.cpp
+    ../../domain/dsp/drum/snare_engine.cpp
+    ../../domain/dsp/drum/tom_engine.cpp
     ../../domain/dsp/lfo.cpp
     ../../domain/dsp/multi_engine.cpp
     ../../domain/dsp/polyblep_oscillator.cpp

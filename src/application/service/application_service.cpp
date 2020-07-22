@@ -86,6 +86,11 @@ QString ApplicationService::synthDeviceName() const
     return Constants::synthDeviceName();
 }
 
+QString ApplicationService::drumSynthDeviceName() const
+{
+    return Constants::drumSynthDeviceName();
+}
+
 void ApplicationService::acceptUnsavedChangesDialog()
 {
     juzzlin::L(TAG).info() << "Unsaved changes accepted";
@@ -133,6 +138,12 @@ void ApplicationService::requestMasterEffectsDialog()
 {
     juzzlin::L(TAG).info() << "Master Effects requested";
     emit masterEffectsDialogRequested();
+}
+
+void ApplicationService::requestDrumSynthDialog()
+{
+    juzzlin::L(TAG).info() << "Drum Synth requested";
+    emit drumSynthDialogRequested();
 }
 
 void ApplicationService::requestOpenProject()

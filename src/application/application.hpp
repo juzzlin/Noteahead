@@ -64,6 +64,7 @@ class PlayerService;
 class PropertyService;
 class RecentFilesManager;
 class RecentFilesModel;
+class DrumSynthController;
 class SamplerController;
 class SynthController;
 class SelectionService;
@@ -150,6 +151,7 @@ private:
     std::unique_ptr<DeviceRack> m_deviceRack;
     std::shared_ptr<SamplerController> m_samplerController;
     std::shared_ptr<SynthController> m_synthController;
+    std::shared_ptr<DrumSynthController> m_drumSynthController;
     std::shared_ptr<EffectRackController> m_effectRackController;
     std::shared_ptr<DeviceRackController> m_deviceRackController;
 

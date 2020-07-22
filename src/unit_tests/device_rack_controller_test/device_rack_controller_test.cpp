@@ -61,7 +61,7 @@ void DeviceRackControllerTest::test_devices()
     const auto names = QStringList { "Noteahead Sampler 1", "Noteahead Synth 1" };
     deviceService->setMockNames(names);
 
-    DeviceRackController controller(deviceService, nullptr, nullptr, nullptr);
+    DeviceRackController controller(deviceService, nullptr, nullptr, nullptr, nullptr);
     QCOMPARE(controller.rowCount(), 2);
     QCOMPARE(controller.data(controller.index(0), static_cast<int>(DeviceRackController::DataRole::Name)).toString(), names.at(0));
     QCOMPARE(controller.data(controller.index(1), static_cast<int>(DeviceRackController::DataRole::Name)).toString(), names.at(1));
@@ -83,7 +83,7 @@ void DeviceRackControllerTest::test_trackNames()
     editorService->setMockTrackName(3, "Track 4");
     editorService->setMockInstrumentPortName(3, "Noteahead Synth 1");
 
-    DeviceRackController controller(deviceService, nullptr, nullptr, editorService);
+    DeviceRackController controller(deviceService, nullptr, nullptr, nullptr, editorService);
 
     QCOMPARE(controller.data(controller.index(0), static_cast<int>(DeviceRackController::DataRole::TrackNames)).toString(), QString("Track 1, Track 3"));
     QCOMPARE(controller.data(controller.index(1), static_cast<int>(DeviceRackController::DataRole::TrackNames)).toString(), QString("Track 2, Track 4"));

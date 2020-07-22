@@ -35,6 +35,7 @@ QtObject {
     signal deviceDialogRequested(string deviceName)
     signal deviceRackDialogRequested
     signal samplerDialogRequested
+    signal drumSynthDialogRequested
     signal selectionAddMidiCcAutomationDialogRequested
     signal selectionAddPitchBendAutomationDialogRequested
     signal selectionVelocityInterpolationDialogRequested
@@ -70,6 +71,7 @@ QtObject {
     Component.onCompleted: {
         applicationService.deviceRackDialogRequested.connect(deviceRackDialogRequested);
         applicationService.samplerDialogRequested.connect(samplerDialogRequested);
+        applicationService.drumSynthDialogRequested.connect(drumSynthDialogRequested);
     }
 
     function activeVelocity(): int {
@@ -139,6 +141,9 @@ QtObject {
     }
     function requestDeviceRackDialog(): void {
         deviceRackDialogRequested();
+    }
+    function requestDrumSynthDialog(): void {
+        drumSynthDialogRequested();
     }
     function requestDeviceDialog(deviceName: string): void {
         deviceDialogRequested(deviceName);

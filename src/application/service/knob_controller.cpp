@@ -94,8 +94,7 @@ QString KnobController::panToString(double value, double from, double to) const
 double KnobController::mapTime(double value, double from, double to) const
 {
     const double range = to - from;
-    const double mapped = std::pow(value, 3.0);
-    return from + (mapped * range);
+    return from + (std::pow(value, 3.0) * range);
 }
 
 double KnobController::unmapTime(double value, double from, double to) const
