@@ -39,6 +39,7 @@ void SnareEngine::trigger(float velocity)
     m_tonalPhase1 = std::uniform_real_distribution<double>(0.0, 1.0)(m_rng);
     m_tonalPhase2 = std::uniform_real_distribution<double>(0.0, 1.0)(m_rng);
     m_active = true;
+    m_noiseBank.reset();
     m_noiseFilter.reset();
 
     const double sr = sampleRate();
@@ -89,7 +90,11 @@ float SnareEngine::nextSample()
     }
 
     // Noise part (Snappy bump 2000-12000 Hz)
-    const float noise { m_dist(m_rng) * noiseGain() };
+    m_noiseBank.setOversampleFactor(oversampleFactor());
+    if (m_noiseBank.needsBaseSample()) {
+        m_noiseBank.setBaseSample(m_dist(m_rng));
+    }
+    const float noise { m_noiseBank.nextSample() };
     const auto filteredNoise = static_cast<float>(m_noiseFilter.process(noise));
 
     float out { (tonal * m_tonalEnv * (1.0f - m_snappy) * 0.8f + filteredNoise * m_snappy * 2.5f) * m_ampEnv * m_attackEnv * m_velocity };

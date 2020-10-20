@@ -41,18 +41,24 @@ public:
     //! independent of the oversampling factor. See noiseGainForOversampling().
     void setOversampleFactor(uint8_t factor)
     {
-        m_noiseGain = noiseGainForOversampling(factor);
+        m_oversampleFactor = clampOversampleFactor(factor);
     }
 
 protected:
-    //! Multiply every white-noise draw by this.
-    float noiseGain() const
+    uint8_t oversampleFactor() const
     {
-        return m_noiseGain;
+        return m_oversampleFactor;
+    }
+
+    //! Sample rate the caller's generators would run at without oversampling. Anything that must
+    //! sound the same at every factor has to advance at this rate. See BaseRateSource.
+    double baseSampleRate() const
+    {
+        return sampleRate() / m_oversampleFactor;
     }
 
 private:
-    float m_noiseGain { 1.0f };
+    uint8_t m_oversampleFactor { 1 };
 };
 
 } // namespace noteahead

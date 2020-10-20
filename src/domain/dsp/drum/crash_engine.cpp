@@ -49,6 +49,8 @@ void CrashEngine::trigger(float velocity)
     m_lpf.reset();
     m_bodyFilter.reset();
     m_wobblePhase = 0.0;
+    m_metallicBank.reset();
+    m_noiseBank.reset();
     for (auto && phase : m_phases) {
         phase = 0.0;
     }
@@ -59,6 +61,24 @@ void CrashEngine::trigger(float velocity)
     }
 }
 
+float CrashEngine::nextMetallicBaseSample(double pitchScale)
+{
+    const double baseFreq { (350.0 + m_tune * 400.0) * pitchScale };
+    static constexpr std::array<double, 12> ratios {
+        1.0, 1.27, 2.11, 3.47, 4.21, 5.17, 6.39, 7.63, 8.87, 10.13, 12.39, 14.57
+    };
+
+    double metallicSource = 0.0;
+    const double invSr = 1.0 / baseSampleRate();
+    for (size_t i = 0; i < 12; ++i) {
+        m_phases[i] += baseFreq * ratios[i] * invSr;
+        if (m_phases[i] >= 1.0)
+            m_phases[i] -= 1.0;
+        metallicSource += (m_phases[i] < 0.5 ? 1.0 : -1.0);
+    }
+    return static_cast<float>(metallicSource / 12.0);
+}
+
 float CrashEngine::nextSample()
 {
     if (!m_active) {
@@ -66,7 +86,11 @@ float CrashEngine::nextSample()
     }
 
     const double sr { sampleRate() };
-    const float noise { m_dist(m_rng) * noiseGain() };
+    m_noiseBank.setOversampleFactor(oversampleFactor());
+    if (m_noiseBank.needsBaseSample()) {
+        m_noiseBank.setBaseSample(m_dist(m_rng));
+    }
+    const float noise { m_noiseBank.nextSample() };
 
     // Attack envelope to soften the initial hit
     if (m_attackEnv < 1.0f) {
@@ -105,21 +129,14 @@ float CrashEngine::nextSample()
     const float bodyGain = 0.6f * std::min(1.0f, m_decay * 2.0f);
     const float bodySource = m_bodyFilter.process(noise) * m_bodyEnv * bodyGain;
 
-    // Metallic part: 12 square wave oscillators with ratios tuned for 2kHz-8kHz clusters
-    const double baseFreq { (350.0 + m_tune * 400.0) * pitchMod * wobble };
-    static constexpr std::array<double, 12> ratios {
-        1.0, 1.27, 2.11, 3.47, 4.21, 5.17, 6.39, 7.63, 8.87, 10.13, 12.39, 14.57
-    };
-
-    double metallicSource = 0.0;
-    for (size_t i = 0; i < 12; ++i) {
-        const double freq = baseFreq * ratios[i];
-        m_phases[i] += freq / sr;
-        if (m_phases[i] >= 1.0)
-            m_phases[i] -= 1.0;
-        metallicSource += (m_phases[i] < 0.5 ? 1.0 : -1.0);
+    // Metallic part: 12 square wave oscillators with ratios tuned for 2kHz-8kHz clusters, generated
+    // at the base rate and interpolated up so the bank sounds the same at every oversampling
+    // factor. See BaseRateSource.
+    m_metallicBank.setOversampleFactor(oversampleFactor());
+    if (m_metallicBank.needsBaseSample()) {
+        m_metallicBank.setBaseSample(nextMetallicBaseSample(pitchMod * wobble));
     }
-    metallicSource /= 12.0;
+    const double metallicSource { m_metallicBank.nextSample() };
 
     // Blend: metallic core with noise "wash", "sizzle"
     const float strikeNoise = noise * m_pitchEnv * 0.6f;

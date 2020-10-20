@@ -16,6 +16,7 @@
 #ifndef CRASH_ENGINE_HPP
 #define CRASH_ENGINE_HPP
 
+#include "../base_rate_source.hpp"
 #include "../cascaded_svf.hpp"
 #include "drum_engine.hpp"
 
@@ -67,6 +68,11 @@ private:
     CascadedSvf m_bpf;
     CascadedSvf m_lpf;
     CascadedSvf m_bodyFilter;
+
+    //! Bank of square oscillators, run at the base rate so it is oversampling-independent.
+    BaseRateSource m_metallicBank;
+    BaseRateSource m_noiseBank;
+    float nextMetallicBaseSample(double pitchScale);
 
     std::array<double, 12> m_phases { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
     float m_sizzleEnv { 0.0f };

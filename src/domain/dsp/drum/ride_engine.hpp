@@ -16,6 +16,7 @@
 #ifndef RIDE_ENGINE_HPP
 #define RIDE_ENGINE_HPP
 
+#include "../base_rate_source.hpp"
 #include "../cascaded_svf.hpp"
 #include "drum_engine.hpp"
 
@@ -53,6 +54,11 @@ private:
     std::mt19937 m_rng;
     std::uniform_real_distribution<float> m_dist { -1.0f, 1.0f };
     CascadedSvf m_filter;
+
+    //! Bank of square oscillators, run at the base rate so it is oversampling-independent.
+    BaseRateSource m_metallicBank;
+    BaseRateSource m_noiseBank;
+    float nextMetallicBaseSample();
 
     std::array<double, 6> m_phases { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
     bool m_stopping { false };

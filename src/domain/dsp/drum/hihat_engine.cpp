@@ -38,6 +38,8 @@ void HiHatEngine::trigger(float velocity)
     m_choking = false;
     m_filter.reset();
     m_bodyFilter.reset();
+    m_metallicBank.reset();
+    m_noiseBank.reset();
     for (auto && phase : m_phases) {
         phase = 0.0;
     }
@@ -50,6 +52,22 @@ void HiHatEngine::trigger(float velocity)
     m_filter.setSampleRate(sr);
     m_filter.setCutoff(0.68f + m_tune * 0.2f);
     m_filter.setResonance(m_resonance * 0.35f);
+}
+
+float HiHatEngine::nextMetallicBaseSample()
+{
+    const double baseFreq { 450.0 + m_tune * 750.0 };
+    static constexpr std::array<double, 6> ratios { 1.0, 1.47, 1.91, 2.51, 3.39, 4.21 };
+
+    double metallicSource = 0.0;
+    const double invSr = 1.0 / baseSampleRate();
+    for (size_t i = 0; i < 6; ++i) {
+        m_phases[i] += baseFreq * ratios[i] * invSr;
+        if (m_phases[i] >= 1.0)
+            m_phases[i] -= 1.0;
+        metallicSource += (m_phases[i] < 0.5 ? 1.0 : -1.0);
+    }
+    return static_cast<float>(metallicSource / 6.0);
 }
 
 float HiHatEngine::nextSample()
@@ -65,22 +83,19 @@ float HiHatEngine::nextSample()
         m_filter.setSampleRate(sr);
     }
 
-    const float noise { m_dist(m_rng) * noiseGain() };
-
-    // Metallic part: 6 square wave oscillators with ratios (808-style)
-    const double baseFreq { 450.0 + m_tune * 750.0 };
-    static constexpr std::array<double, 6> ratios { 1.0, 1.47, 1.91, 2.51, 3.39, 4.21 };
-
-    double metallicSource = 0.0;
-    const double invSr = 1.0 / sr;
-    for (size_t i = 0; i < 6; ++i) {
-        const double freq = baseFreq * ratios[i];
-        m_phases[i] += freq * invSr;
-        if (m_phases[i] >= 1.0)
-            m_phases[i] -= 1.0;
-        metallicSource += (m_phases[i] < 0.5 ? 1.0 : -1.0);
+    m_noiseBank.setOversampleFactor(oversampleFactor());
+    if (m_noiseBank.needsBaseSample()) {
+        m_noiseBank.setBaseSample(m_dist(m_rng));
     }
-    metallicSource /= 6.0;
+    const float noise { m_noiseBank.nextSample() };
+
+    // Metallic part: 6 square wave oscillators with ratios (808-style), generated at the base rate
+    // and interpolated up so the bank sounds the same at every oversampling factor. See BaseRateSource.
+    m_metallicBank.setOversampleFactor(oversampleFactor());
+    if (m_metallicBank.needsBaseSample()) {
+        m_metallicBank.setBaseSample(nextMetallicBaseSample());
+    }
+    const double metallicSource { m_metallicBank.nextSample() };
 
     // Blend: metallic core with noise - more noise for 909-style character
     float source = static_cast<float>(metallicSource) * 0.7f + noise * 0.6f;

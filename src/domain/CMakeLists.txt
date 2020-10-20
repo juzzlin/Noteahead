@@ -13,6 +13,7 @@ set(HEADER_FILES
     devices/wavetable_synth_device.hpp
     dsp/adsr_envelope.hpp
     dsp/all_pass_chain.hpp
+    dsp/base_rate_source.hpp
     dsp/cascaded_svf.hpp
     dsp/dc_blocker.hpp
     dsp/delay_line.hpp
@@ -116,6 +117,7 @@ set(SOURCE_FILES
     devices/wavetable_synth_device.cpp
     dsp/adsr_envelope.cpp
     dsp/all_pass_chain.cpp
+    dsp/base_rate_source.cpp
     dsp/cascaded_svf.cpp
     dsp/dc_blocker.cpp
     dsp/delay_line.cpp

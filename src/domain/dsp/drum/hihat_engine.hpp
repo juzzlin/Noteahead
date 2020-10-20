@@ -16,6 +16,7 @@
 #ifndef HIHAT_ENGINE_HPP
 #define HIHAT_ENGINE_HPP
 
+#include "../base_rate_source.hpp"
 #include "../cascaded_svf.hpp"
 #include "drum_engine.hpp"
 #include <array>
@@ -56,6 +57,11 @@ private:
     std::uniform_real_distribution<float> m_dist { -1.0f, 1.0f };
     CascadedSvf m_filter;
     CascadedSvf m_bodyFilter;
+
+    //! Bank of square oscillators, run at the base rate so it is oversampling-independent.
+    BaseRateSource m_metallicBank;
+    BaseRateSource m_noiseBank;
+    float nextMetallicBaseSample();
 
     std::array<double, 6> m_phases { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
     float m_bodyEnv { 0.0f };

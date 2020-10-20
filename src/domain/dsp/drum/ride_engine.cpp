@@ -34,9 +34,27 @@ void RideEngine::trigger(float velocity)
     m_filter.reset();
     m_ampEnv = 1.0f;
     m_attackEnv = 0.0f;
+    m_metallicBank.reset();
+    m_noiseBank.reset();
     for (auto && phase : m_phases) {
         phase = 0.0;
     }
+}
+
+float RideEngine::nextMetallicBaseSample()
+{
+    const double baseFreq { 300.0 + m_tune * 500.0 };
+    static constexpr std::array<double, 6> ratios { 1.0, 1.48, 1.92, 2.54, 3.41, 4.23 };
+
+    double metallicSource = 0.0;
+    const double invSr = 1.0 / baseSampleRate();
+    for (size_t i = 0; i < 6; ++i) {
+        m_phases[i] += baseFreq * ratios[i] * invSr;
+        if (m_phases[i] >= 1.0)
+            m_phases[i] -= 1.0;
+        metallicSource += (m_phases[i] < 0.5 ? 1.0 : -1.0);
+    }
+    return static_cast<float>(metallicSource / 6.0);
 }
 
 float RideEngine::nextSample()
@@ -46,20 +64,19 @@ float RideEngine::nextSample()
     }
 
     const double sr { sampleRate() };
-    const float noise { m_dist(m_rng) * noiseGain() };
-
-    const double baseFreq { 300.0 + m_tune * 500.0 };
-    static constexpr std::array<double, 6> ratios { 1.0, 1.48, 1.92, 2.54, 3.41, 4.23 };
-
-    double metallicSource = 0.0;
-    for (size_t i = 0; i < 6; ++i) {
-        const double freq = baseFreq * ratios[i];
-        m_phases[i] += freq / sr;
-        if (m_phases[i] >= 1.0)
-            m_phases[i] -= 1.0;
-        metallicSource += (m_phases[i] < 0.5 ? 1.0 : -1.0);
+    m_noiseBank.setOversampleFactor(oversampleFactor());
+    if (m_noiseBank.needsBaseSample()) {
+        m_noiseBank.setBaseSample(m_dist(m_rng));
     }
-    metallicSource /= 6.0;
+    const float noise { m_noiseBank.nextSample() };
+
+    // Generated at the base rate and interpolated up, so the bank sounds the same at every
+    // oversampling factor. See BaseRateSource.
+    m_metallicBank.setOversampleFactor(oversampleFactor());
+    if (m_metallicBank.needsBaseSample()) {
+        m_metallicBank.setBaseSample(nextMetallicBaseSample());
+    }
+    const double metallicSource { m_metallicBank.nextSample() };
 
     float source = static_cast<float>(metallicSource) * 0.7f + noise * 0.3f;
 

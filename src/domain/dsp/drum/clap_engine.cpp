@@ -40,6 +40,7 @@ void ClapEngine::trigger(float velocity)
     m_sampleCount = 0;
     m_tailEnv = 1.0f;
     m_attackEnv = 0.0f;
+    m_noiseBank.reset();
     m_highPassFilter.reset();
     m_lowPassFilter.reset();
 }
@@ -75,7 +76,11 @@ float ClapEngine::nextSample()
         m_tailEnv *= decayRate;
     }
 
-    const float noise = m_dist(m_rng) * noiseGain();
+    m_noiseBank.setOversampleFactor(oversampleFactor());
+    if (m_noiseBank.needsBaseSample()) {
+        m_noiseBank.setBaseSample(m_dist(m_rng));
+    }
+    const float noise { m_noiseBank.nextSample() };
     m_highPassFilter.setSampleRate(sr);
     m_highPassFilter.setCutoff(0.2f + m_tune * 0.5f);
     m_highPassFilter.setResonance(0.3f);

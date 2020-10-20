@@ -16,6 +16,7 @@
 #ifndef SNARE_ENGINE_HPP
 #define SNARE_ENGINE_HPP
 
+#include "../base_rate_source.hpp"
 #include "../cascaded_svf.hpp"
 #include "drum_engine.hpp"
 #include <random>
@@ -66,6 +67,9 @@ private:
 
     std::mt19937 m_rng;
     std::uniform_real_distribution<float> m_dist { -1.0f, 1.0f };
+    //! Noise is drawn at the base rate and interpolated up, so what reaches the engine's
+    //! saturation and filters is the same waveform at every oversampling factor.
+    BaseRateSource m_noiseBank;
     CascadedSvf m_noiseFilter;
 };
 

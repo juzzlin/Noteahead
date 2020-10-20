@@ -144,6 +144,11 @@ Bug fixes:
     at the oversampled rate, and are now compensated
   - Rendering at 1x is unchanged
 
+* Fix drum voices changing character with the oversampling factor
+  - The metallic oscillator banks and the noise in the drum engines now run at
+    the base rate and are interpolated up, so they are the same waveform at
+    every factor; only the saturation stays oversampled, which is the point
+
 * Fix Panner rack effect Width knob having no effect
   - The knob read and wrote the "reverbWidth" legacy alias, which is only mapped
     at deserialization, so it never reached the actual "width" parameter

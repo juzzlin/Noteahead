@@ -1,5 +1,6 @@
 set(DSP_SOURCES
     adsr_envelope.cpp
+    base_rate_source.cpp
     cascaded_svf.cpp
     dc_blocker.cpp
     diode_ladder_filter.cpp
