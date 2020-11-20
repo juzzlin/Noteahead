@@ -24,7 +24,7 @@ Application::Application(int & argc, char ** argv)
 {
     QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
 
-    const QUrl url(QStringLiteral("qrc:/main.qml"));
+    const QUrl url(QStringLiteral("qrc:/Main.qml"));
     QObject::connect(
       m_engine.get(), &QQmlApplicationEngine::objectCreated,
       m_app.get(), [url](QObject * obj, const QUrl & objUrl) {
