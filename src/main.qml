@@ -11,7 +11,7 @@
 // GNU General Public License for more details.
 //
 // You should have received a copy of the GNU General Public License
-// along with Heimer. If not, see <http://www.gnu.org/licenses/>.
+// along with Cacophony. If not, see <http://www.gnu.org/licenses/>.
 
 import QtQuick 2.12
 import QtQuick.Controls 2.12
@@ -21,4 +21,20 @@ ApplicationWindow {
     height: 480
     visible: true
     title: qsTr("Cacophony")
+
+    menuBar: MenuBar {
+         Menu {
+             title: qsTr("&File")
+             Action { text: qsTr("&New...") }
+             MenuSeparator { }
+             Action {
+                 text: qsTr("&Quit")
+                 onTriggered: close()
+             }
+         }
+         Menu {
+             title: qsTr("&Help")
+             Action { text: qsTr("&About") }
+         }
+    }
 }
