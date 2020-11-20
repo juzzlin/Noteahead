@@ -13,17 +13,31 @@
 // You should have received a copy of the GNU General Public License
 // along with Cacophony. If not, see <http://www.gnu.org/licenses/>.
 
-#include <cstdlib>
-#include <iostream>
-
 #include "application.hpp"
 
-int main(int argc, char ** argv)
+#include <QGuiApplication>
+#include <QQmlApplicationEngine>
+
+Application::Application(int & argc, char ** argv)
+  : m_app(std::make_unique<QGuiApplication>(argc, argv))
+  , m_engine(std::make_unique<QQmlApplicationEngine>())
 {
-    try {
-        return Application(argc, argv).run();
-    } catch (std::exception & e) {
-        std::cerr << e.what() << std::endl;
-        return EXIT_FAILURE;
-    }
+    QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
+
+    const QUrl url(QStringLiteral("qrc:/main.qml"));
+    QObject::connect(
+      m_engine.get(), &QQmlApplicationEngine::objectCreated,
+      m_app.get(), [url](QObject * obj, const QUrl & objUrl) {
+          if (!obj && url == objUrl)
+              QCoreApplication::exit(EXIT_FAILURE);
+      },
+      Qt::QueuedConnection);
+    m_engine->load(url);
 }
+
+int Application::run()
+{
+    return m_app->exec();
+}
+
+Application::~Application() = default;

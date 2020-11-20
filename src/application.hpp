@@ -13,17 +13,27 @@
 // You should have received a copy of the GNU General Public License
 // along with Cacophony. If not, see <http://www.gnu.org/licenses/>.
 
-#include <cstdlib>
-#include <iostream>
+#ifndef APPLICATION_HPP
+#define APPLICATION_HPP
 
-#include "application.hpp"
+#include <memory>
 
-int main(int argc, char ** argv)
+class QGuiApplication;
+class QQmlApplicationEngine;
+
+class Application
 {
-    try {
-        return Application(argc, argv).run();
-    } catch (std::exception & e) {
-        std::cerr << e.what() << std::endl;
-        return EXIT_FAILURE;
-    }
-}
+public:
+    Application(int & argc, char ** argv);
+
+    ~Application();
+
+    int run();
+
+private:
+    std::unique_ptr<QGuiApplication> m_app;
+
+    std::unique_ptr<QQmlApplicationEngine> m_engine;
+};
+
+#endif // APPLICATION_HPP
