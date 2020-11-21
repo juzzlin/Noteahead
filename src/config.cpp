@@ -14,6 +14,7 @@
 // along with Cacophony. If not, see <http://www.gnu.org/licenses/>.
 
 #include "config.hpp"
+#include "settings.hpp"
 
 #include <QGuiApplication>
 #include <QScreen>
@@ -24,13 +25,14 @@ Config::Config()
 {
 }
 
-QSize Config::calculateDefaultWindowSize()
+QSize Config::loadWindowSize(QSize defaultSize) const
 {
-    // Detect screen dimensions
-    const auto screenGeometry = QGuiApplication::primaryScreen()->geometry();
-    const int height = screenGeometry.height();
-    const int width = screenGeometry.width();
-    return { width, height };
+    return settings::loadWindowSize(defaultSize);
+}
+
+void Config::saveWindowSize(QSize size)
+{
+    settings::saveWindowSize(size);
 }
 
 Config::~Config() = default;

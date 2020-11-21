@@ -27,8 +27,6 @@ Application::Application(int & argc, char ** argv)
   , m_engine(std::make_unique<QQmlApplicationEngine>())
   , m_config(std::make_unique<Config>())
 {
-    QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
-
     qmlRegisterType<Config>("Cacophony", 1, 0, "Config");
 }
 

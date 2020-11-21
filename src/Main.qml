@@ -19,9 +19,10 @@ import QtQuick.Controls 2.12
 import Cacophony 1.0
 
 ApplicationWindow {
-    id: root
-    width: config.calculateDefaultWindowSize().width
-    height: config.calculateDefaultWindowSize().height
+    id: mainWindow
+    property bool screenInit: false
+    width: config.loadWindowSize(Qt.size(mainWindow.screen.width * 0.8, mainWindow.screen.height * 0.8)).width
+    height: config.loadWindowSize(Qt.size(mainWindow.screen.width * 0.8, mainWindow.screen.height * 0.8)).height
     visible: true
     title: qsTr("Cacophony")
 
@@ -39,5 +40,14 @@ ApplicationWindow {
              title: qsTr("&Help")
              Action { text: qsTr("&About") }
          }
+    }
+
+    Component.onCompleted: {
+        setX(mainWindow.screen.width / 2 - width / 2);
+        setY(mainWindow.screen.height / 2 - height / 2);
+    }
+
+    onClosing: {
+        config.saveWindowSize(Qt.size(mainWindow.width, mainWindow.height))
     }
 }

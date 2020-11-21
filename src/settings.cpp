@@ -13,29 +13,30 @@
 // You should have received a copy of the GNU General Public License
 // along with Cacophony. If not, see <http://www.gnu.org/licenses/>.
 
-#include <cstdlib>
-#include <iostream>
+#include "settings.hpp"
 
-#include <QCoreApplication>
 #include <QSettings>
 
-#include "application.hpp"
-#include "constants.hpp"
+namespace cacophony {
 
-int main(int argc, char ** argv)
+const auto settingsGroupMainWindow = "MainWindow";
+const auto windowSizeKey = "size";
+
+QSize settings::loadWindowSize(QSize defaultSize)
 {
-    QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
-
-    QCoreApplication::setOrganizationName(cacophony::constants::application::QSETTINGS_COMPANY_NAME);
-    QCoreApplication::setApplicationName(cacophony::constants::application::QSETTINGS_SOFTWARE_NAME);
-#ifdef Q_OS_WIN32
-    QSettings::setDefaultFormat(QSettings::IniFormat);
-#endif
-
-    try {
-        return cacophony::Application(argc, argv).run();
-    } catch (std::exception & e) {
-        std::cerr << e.what() << std::endl;
-        return EXIT_FAILURE;
-    }
+    QSettings settings;
+    settings.beginGroup(settingsGroupMainWindow);
+    const auto size = settings.value(windowSizeKey, defaultSize).toSize();
+    settings.endGroup();
+    return size;
 }
+
+void settings::saveWindowSize(QSize size)
+{
+    QSettings settings;
+    settings.beginGroup(settingsGroupMainWindow);
+    settings.setValue(windowSizeKey, size);
+    settings.endGroup();
+}
+
+} // namespace cacophony

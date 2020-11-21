@@ -12,8 +12,10 @@ set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR})
 add_executable(${BINARY_NAME}
   application.cpp
   config.cpp
+  constants.hpp
   main.cpp
   qml.qrc
+  settings.cpp
 )
 
 target_compile_definitions(${BINARY_NAME}

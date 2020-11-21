@@ -30,7 +30,9 @@ public:
 
     ~Config();
 
-    Q_INVOKABLE static QSize calculateDefaultWindowSize();
+    Q_INVOKABLE QSize loadWindowSize(QSize defaultSize) const;
+
+    Q_INVOKABLE void saveWindowSize(QSize size);
 };
 
 } // namespace cacophony

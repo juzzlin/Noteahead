@@ -13,29 +13,23 @@
 // You should have received a copy of the GNU General Public License
 // along with Cacophony. If not, see <http://www.gnu.org/licenses/>.
 
-#include <cstdlib>
-#include <iostream>
+#ifndef CONSTANTS_HPP
+#define CONSTANTS_HPP
 
-#include <QCoreApplication>
-#include <QSettings>
+namespace cacophony::constants::application {
 
-#include "application.hpp"
-#include "constants.hpp"
+static constexpr auto APPLICATION_NAME = "Cacophony";
 
-int main(int argc, char ** argv)
-{
-    QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
+static constexpr auto APPLICATION_VERSION = VERSION;
 
-    QCoreApplication::setOrganizationName(cacophony::constants::application::QSETTINGS_COMPANY_NAME);
-    QCoreApplication::setApplicationName(cacophony::constants::application::QSETTINGS_SOFTWARE_NAME);
-#ifdef Q_OS_WIN32
-    QSettings::setDefaultFormat(QSettings::IniFormat);
-#endif
+static constexpr auto COPYRIGHT = "Copyright (c) 2020-2021 Jussi Lind";
 
-    try {
-        return cacophony::Application(argc, argv).run();
-    } catch (std::exception & e) {
-        std::cerr << e.what() << std::endl;
-        return EXIT_FAILURE;
-    }
-}
+static constexpr auto QSETTINGS_COMPANY_NAME = APPLICATION_NAME;
+
+static constexpr auto WEB_SITE_URL = "https://github.com/juzzlin/Cacophony";
+
+static constexpr auto QSETTINGS_SOFTWARE_NAME = APPLICATION_NAME;
+
+} // namespace cacophony::constants::application
+
+#endif // CONSTANTS_HPP
