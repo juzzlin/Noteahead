@@ -13,38 +13,26 @@
 // You should have received a copy of the GNU General Public License
 // along with Cacophony. If not, see <http://www.gnu.org/licenses/>.
 
-#include "application.hpp"
 #include "config.hpp"
 
 #include <QGuiApplication>
-#include <QQmlApplicationEngine>
-#include <QQmlContext>
+#include <QScreen>
 
 namespace cacophony {
 
-Application::Application(int & argc, char ** argv)
-  : m_application(std::make_unique<QGuiApplication>(argc, argv))
-  , m_engine(std::make_unique<QQmlApplicationEngine>())
-  , m_config(std::make_unique<Config>())
+Config::Config()
 {
-    QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
-
-    qmlRegisterType<Config>("Cacophony", 1, 0, "Config");
 }
 
-int Application::run()
+QSize Config::calculateDefaultWindowSize()
 {
-    m_engine->rootContext()->setContextProperty("config", m_config.get());
-
-    const QUrl mainUrl(QStringLiteral("qrc:/Main.qml"));
-    m_engine->load(mainUrl);
-    if (m_engine->rootObjects().isEmpty()) {
-        return EXIT_FAILURE;
-    }
-
-    return m_application->exec();
+    // Detect screen dimensions
+    const auto screenGeometry = QGuiApplication::primaryScreen()->geometry();
+    const int height = screenGeometry.height();
+    const int width = screenGeometry.width();
+    return { width, height };
 }
 
-Application::~Application() = default;
+Config::~Config() = default;
 
 } // namespace cacophony

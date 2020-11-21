@@ -13,31 +13,26 @@
 // You should have received a copy of the GNU General Public License
 // along with Cacophony. If not, see <http://www.gnu.org/licenses/>.
 
-import QtQuick 2.12
-import QtQuick.Controls 2.12
+#ifndef CONFIG_HPP
+#define CONFIG_HPP
 
-import Cacophony 1.0
+#include <QObject>
+#include <QSize>
 
-ApplicationWindow {
-    id: root
-    width: config.calculateDefaultWindowSize().width
-    height: config.calculateDefaultWindowSize().height
-    visible: true
-    title: qsTr("Cacophony")
+namespace cacophony {
 
-    menuBar: MenuBar {
-         Menu {
-             title: qsTr("&File")
-             Action { text: qsTr("&New...") }
-             MenuSeparator { }
-             Action {
-                 text: qsTr("&Quit")
-                 onTriggered: close()
-             }
-         }
-         Menu {
-             title: qsTr("&Help")
-             Action { text: qsTr("&About") }
-         }
-    }
-}
+class Config : public QObject
+{
+    Q_OBJECT
+
+public:
+    Config();
+
+    ~Config();
+
+    Q_INVOKABLE static QSize calculateDefaultWindowSize();
+};
+
+} // namespace cacophony
+
+#endif // CONFIG_HPP

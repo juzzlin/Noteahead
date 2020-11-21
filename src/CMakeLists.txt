@@ -11,6 +11,7 @@ set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR})
 
 add_executable(${BINARY_NAME}
   application.cpp
+  config.cpp
   main.cpp
   qml.qrc
 )

@@ -17,9 +17,16 @@
 #define APPLICATION_HPP
 
 #include <memory>
+#include <utility>
+
+#include <QSize>
 
 class QGuiApplication;
 class QQmlApplicationEngine;
+
+namespace cacophony {
+
+class Config;
 
 class Application
 {
@@ -31,9 +38,13 @@ public:
     int run();
 
 private:
-    std::unique_ptr<QGuiApplication> m_app;
+    std::unique_ptr<QGuiApplication> m_application;
 
     std::unique_ptr<QQmlApplicationEngine> m_engine;
+
+    std::unique_ptr<Config> m_config;
 };
+
+} // namespace cacophony
 
 #endif // APPLICATION_HPP
