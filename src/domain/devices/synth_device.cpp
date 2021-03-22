@@ -17,6 +17,7 @@
 
 #include "../../common/constants.hpp"
 #include "../../common/utils.hpp"
+#include "../../infra/midi/midi_cc_mapping.hpp"
 #include "synth_presets.hpp"
 
 #include <algorithm>
@@ -295,11 +296,13 @@ void SynthDevice::processMidiNoteOff(uint8_t note)
 
 void SynthDevice::processMidiCc(uint8_t controller, uint8_t value, uint8_t)
 {
+    using namespace MidiCcMapping;
+
     bool changed = false;
     {
         std::lock_guard<std::recursive_mutex> lock { mutex() };
 
-        if (controller == 121) { // Reset All Controllers
+        if (controller == static_cast<uint8_t>(Controller::ResetAllControllers)) {
             m_lpfCutoff = m_manualLpfCutoff;
             m_hpfCutoff = m_manualHpfCutoff;
 
@@ -310,23 +313,23 @@ void SynthDevice::processMidiCc(uint8_t controller, uint8_t value, uint8_t)
             updateVolumeParameter(manualVolumeInternal(), false);
             updateGainParameter(manualGainInternal(), false);
             changed = true;
-        } else if (controller == 0) { // Bank Select MSB
+        } else if (controller == static_cast<uint8_t>(Controller::BankSelectMSB)) {
             m_currentBank = std::clamp(static_cast<int>(value), 0, 1); // 0: Factory, 1: User
         } else {
             const float val = static_cast<float>(value) / 127.0f;
 
-            if (controller == 7) { // Volume
+            if (controller == static_cast<uint8_t>(Controller::ChannelVolumeMSB)) {
                 changed |= updateVolumeParameter(val, false);
-            } else if (controller == 10) { // Panning
+            } else if (controller == static_cast<uint8_t>(Controller::PanMSB)) {
                 changed |= updatePanParameter(val, false);
-            } else if (controller == 74) { // Cutoff
+            } else if (controller == static_cast<uint8_t>(Controller::SoundController5)) { // Cutoff
                 m_lpfCutoff = val;
                 if (auto p = parameter(Constants::NahdXml::xmlKeySynthLpfCutoff().toStdString()); p) {
                     p->get().setValue(val);
                     syncParameters();
                     changed = true;
                 }
-            } else if (controller == 81) { // HPF Cutoff
+            } else if (controller == static_cast<uint8_t>(Controller::GeneralPurpose6)) { // HPF Cutoff
                 m_hpfCutoff = val;
                 if (auto p = parameter(Constants::NahdXml::xmlKeySynthHpfCutoff().toStdString()); p) {
                     p->get().setValue(val);

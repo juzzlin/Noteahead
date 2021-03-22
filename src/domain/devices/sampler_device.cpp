@@ -19,6 +19,7 @@
 #include "../../common/utils.hpp"
 #include "../../infra/audio/backend/audio_file_reader.hpp"
 #include "../../infra/audio/backend/sndfile_reader.hpp"
+#include "../../infra/midi/midi_cc_mapping.hpp"
 
 #include <algorithm>
 #include <cmath>
@@ -149,11 +150,13 @@ void SamplerDevice::processMidiNoteOff(uint8_t note)
 
 void SamplerDevice::processMidiCc(uint8_t controller, uint8_t value, uint8_t channel)
 {
+    using namespace MidiCcMapping;
+
     bool changed = false;
     {
         std::lock_guard<std::recursive_mutex> lock { mutex() };
 
-        if (controller == 121) { // Reset All Controllers
+        if (controller == static_cast<uint8_t>(Controller::ResetAllControllers)) {
             updatePanParameter(manualPanInternal(), false);
             updateVolumeParameter(manualVolumeInternal(), false);
             updateGainParameter(manualGainInternal(), false);
@@ -188,27 +191,27 @@ void SamplerDevice::processMidiCc(uint8_t controller, uint8_t value, uint8_t cha
             const size_t note = 36 + channel;
             if (note < maxSamples && m_samples.at(note)) {
                 const float val = static_cast<float>(value) / 127.0f;
-                if (controller == 10) { // Panning
+                if (controller == static_cast<uint8_t>(Controller::PanMSB)) { // Panning
                     m_samples.at(note)->pan = val;
                     if (auto p = m_samples.at(note)->parameter(Constants::NahdXml::xmlKeyPan().toStdString()); p) p->get().setValue(val);
-                } else if (controller == 7) { // Volume
+                } else if (controller == static_cast<uint8_t>(Controller::ChannelVolumeMSB)) { // Volume
                     m_samples.at(note)->volume = val;
                     if (auto p = m_samples.at(note)->parameter(Constants::NahdXml::xmlKeyVolume().toStdString()); p) p->get().setValue(val);
-                } else if (controller == 74) { // Cutoff (LPF)
+                } else if (controller == static_cast<uint8_t>(Controller::SoundController5)) { // Cutoff (LPF)
                     m_samples.at(note)->cutoff = val;
                     if (auto p = m_samples.at(note)->parameter(Constants::NahdXml::xmlKeyCutoff().toStdString()); p) p->get().setValue(val);
-                } else if (controller == 81) { // General Purpose 6 (HPF)
+                } else if (controller == static_cast<uint8_t>(Controller::GeneralPurpose6)) { // General Purpose 6 (HPF)
                     m_samples.at(note)->hpfCutoff = val;
                     if (auto p = m_samples.at(note)->parameter(Constants::NahdXml::xmlKeyHpfCutoff().toStdString()); p) p->get().setValue(val);
                 }
                 // Update active voices for this specific note
                 for (auto && voice : m_voices) {
                     if (voice.active && voice.note == note) {
-                        if (controller == 10) {
+                        if (controller == static_cast<uint8_t>(Controller::PanMSB)) {
                             voice.pan = m_samples.at(note)->pan;
-                        } else if (controller == 74) {
+                        } else if (controller == static_cast<uint8_t>(Controller::SoundController5)) {
                             voice.cutoff = m_samples.at(note)->cutoff;
-                        } else if (controller == 81) {
+                        } else if (controller == static_cast<uint8_t>(Controller::GeneralPurpose6)) {
                             voice.hpfCutoff = m_samples.at(note)->hpfCutoff;
                         }
                         updateVoiceEffects(voice);
@@ -216,7 +219,7 @@ void SamplerDevice::processMidiCc(uint8_t controller, uint8_t value, uint8_t cha
                 }
             }
         } else {
-            if (controller == 10) { // Panning
+            if (controller == static_cast<uint8_t>(Controller::PanMSB)) { // Panning
                 changed |= updatePanParameter(static_cast<float>(value) / 127.0f, false);
                 // Update all active voices' pan
                 for (auto && voice : m_voices) {
@@ -225,7 +228,7 @@ void SamplerDevice::processMidiCc(uint8_t controller, uint8_t value, uint8_t cha
                         updateVoiceEffects(voice);
                     }
                 }
-            } else if (controller == 7) { // Volume
+            } else if (controller == static_cast<uint8_t>(Controller::ChannelVolumeMSB)) { // Volume
                 changed |= updateVolumeParameter(static_cast<float>(value) / 127.0f, false);
                 // Update all active voices' volume
                 for (auto && voice : m_voices) {
@@ -233,7 +236,7 @@ void SamplerDevice::processMidiCc(uint8_t controller, uint8_t value, uint8_t cha
                         updateVoiceEffects(voice);
                     }
                 }
-            } else if (controller == 74) { // Cutoff (LPF)
+            } else if (controller == static_cast<uint8_t>(Controller::SoundController5)) { // Cutoff (LPF)
                 m_globalCutoff = static_cast<float>(value) / 127.0f;
                 // Update all active voices' cutoff
                 for (auto && voice : m_voices) {
@@ -242,7 +245,7 @@ void SamplerDevice::processMidiCc(uint8_t controller, uint8_t value, uint8_t cha
                         updateVoiceEffects(voice);
                     }
                 }
-            } else if (controller == 81) { // General Purpose 6 (HPF)
+            } else if (controller == static_cast<uint8_t>(Controller::GeneralPurpose6)) { // General Purpose 6 (HPF)
                 m_globalHpfCutoff = static_cast<float>(value) / 127.0f;
                 // Update all active voices' hpfCutoff
                 for (auto && voice : m_voices) {
