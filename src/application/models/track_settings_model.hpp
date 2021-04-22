@@ -66,12 +66,6 @@ class TrackSettingsModel : public MidiCcSelectionModel
     Q_PROPERTY(int autoNoteOffOffset READ autoNoteOffOffset WRITE setAutoNoteOffOffset NOTIFY autoNoteOffOffsetChanged)
     Q_PROPERTY(bool autoNoteOffOffsetEnabled READ autoNoteOffOffsetEnabled WRITE setAutoNoteOffOffsetEnabled NOTIFY autoNoteOffOffsetEnabledChanged)
 
-    Q_PROPERTY(bool sideChainEnabled READ sideChainEnabled WRITE setSideChainEnabled NOTIFY sideChainEnabledChanged)
-    Q_PROPERTY(quint8 sideChainSourceTrack READ sideChainSourceTrack WRITE setSideChainSourceTrack NOTIFY sideChainSourceTrackChanged)
-    Q_PROPERTY(quint8 sideChainSourceColumn READ sideChainSourceColumn WRITE setSideChainSourceColumn NOTIFY sideChainSourceColumnChanged)
-    Q_PROPERTY(int sideChainLookahead READ sideChainLookahead WRITE setSideChainLookahead NOTIFY sideChainLookaheadChanged)
-    Q_PROPERTY(int sideChainRelease READ sideChainRelease WRITE setSideChainRelease NOTIFY sideChainReleaseChanged)
-
 public:
     explicit TrackSettingsModel(QObject * parent = nullptr);
     ~TrackSettingsModel() override;
@@ -155,26 +149,6 @@ public:
     bool autoNoteOffOffsetEnabled() const;
     void setAutoNoteOffOffsetEnabled(bool enabled);
 
-    bool sideChainEnabled() const;
-    void setSideChainEnabled(bool enabled);
-    quint8 sideChainSourceTrack() const;
-    void setSideChainSourceTrack(quint8 trackIndex);
-    quint8 sideChainSourceColumn() const;
-    void setSideChainSourceColumn(quint8 columnIndex);
-    int sideChainLookahead() const;
-    void setSideChainLookahead(int lookahead);
-    int sideChainRelease() const;
-    void setSideChainRelease(int release);
-    Q_INVOKABLE quint32 sideChainTargetCount() const;
-    Q_INVOKABLE bool sideChainTargetEnabled(quint32 index) const;
-    Q_INVOKABLE void setSideChainTargetEnabled(quint32 index, bool enabled);
-    Q_INVOKABLE quint8 sideChainTargetController(quint32 index) const;
-    Q_INVOKABLE void setSideChainTargetController(quint32 index, quint8 controller);
-    Q_INVOKABLE quint8 sideChainTargetTargetValue(quint32 index) const;
-    Q_INVOKABLE void setSideChainTargetTargetValue(quint32 index, quint8 value);
-    Q_INVOKABLE quint8 sideChainTargetReleaseValue(quint32 index) const;
-    Q_INVOKABLE void setSideChainTargetReleaseValue(quint32 index, quint8 value);
-
 signals:
     void applyAllRequested();
     void applyMidiCcRequested();
@@ -224,14 +198,6 @@ signals:
     void autoNoteOffOffsetChanged();
     void autoNoteOffOffsetEnabledChanged();
 
-    void sideChainEnabledChanged();
-    void sideChainSourceTrackChanged();
-    void sideChainSourceColumnChanged();
-    void sideChainLookaheadChanged();
-    void sideChainReleaseChanged();
-
-    void sideChainTargetChanged(quint32 index);
-
 private:
     void pushApplyDisabled();
     void popApplyDisabled();
@@ -280,26 +246,6 @@ private:
     };
 
     MidiEffectSettings m_midiEffectSettings;
-
-    struct MidiSideChainSettings
-    {
-        bool enabled { false };
-        quint8 sourceTrackIndex { 0 };
-        quint8 sourceColumnIndex { 0 };
-        int lookahead { 0 };
-        int release { 0 };
-
-        struct Target {
-            bool enabled { false };
-            quint8 controller { 0 };
-            quint8 targetValue { 0 };
-            quint8 releaseValue { 0 };
-        };
-
-        std::map<quint32, Target> targets;
-    };
-
-    MidiSideChainSettings m_midiSideChainSettings;
 
     QString m_instrumentPortName;
     QStringList m_availableMidiPorts;

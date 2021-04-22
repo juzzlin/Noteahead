@@ -27,6 +27,7 @@ class MidiService;
 class MixerService;
 class PlayerWorker;
 class SettingsService;
+class SideChainService;
 class Song;
 
 class PlayerService : public QObject
@@ -39,7 +40,13 @@ public:
     using MidiServiceS = std::shared_ptr<MidiService>;
     using MixerServiceS = std::shared_ptr<MixerService>;
     using AutomationServiceS = std::shared_ptr<AutomationService>;
-    explicit PlayerService(MidiServiceS midiService, MixerServiceS mixerService, AutomationServiceS automationService, SettingsServiceS settingsService, QObject * parent = nullptr);
+    using SideChainServiceS = std::shared_ptr<SideChainService>;
+    explicit PlayerService(
+      MidiServiceS midiService,
+      MixerServiceS mixerService,
+      AutomationServiceS automationService,
+      SettingsServiceS settingsService,
+      SideChainServiceS sideChainService, QObject * parent = nullptr);
 
     ~PlayerService() override;
 
@@ -67,18 +74,16 @@ signals:
 
 private:
     void initializeWorker();
-
     void initializeWorkerWithSongData();
 
     void startWorker();
-
     void stopWorker();
 
     SongS m_song;
 
-    SettingsServiceS m_settingsService;
-
     AutomationServiceS m_automationService;
+    SettingsServiceS m_settingsService;
+    SideChainServiceS m_sideChainService;
 
     std::unique_ptr<PlayerWorker> m_playerWorker;
 

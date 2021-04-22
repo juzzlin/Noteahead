@@ -155,15 +155,10 @@ QString xmlKeyTracks();
 
 QString xmlKeyTrackCount();
 
-QString xmlKeyTarget0();
-QString xmlKeyTarget1();
-QString xmlKeyTarget2();
-QString xmlKeyTarget3();
 QString xmlKeyTargetValue();
 
 QString xmlKeyType();
 QString xmlKeyValue();
-
 
 QString xmlKeyVelocity();
 QString xmlKeyVolume();
@@ -173,12 +168,14 @@ QString xmlKeySong();
 
 QString xmlKeySourceColumn();
 QString xmlKeySourceTrack();
+QString xmlKeySideChain();
+QString xmlKeySideChainTarget();
+QString xmlKeySideChainSettings();
 
 QString xmlValueFalse();
 QString xmlValueTrue();
 
 } // namespace NahdXml
-
 } // namespace noteahead::Constants
 
 #endif // CONSTANTS_HPP

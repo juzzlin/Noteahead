@@ -17,7 +17,7 @@
 
 #include "../application/position.hpp"
 #include "../application/service/copy_manager.hpp"
-#include "../application/service/midi_side_chain_service.hpp"
+#include "../application/service/side_chain_service.hpp"
 #include "../common/constants.hpp"
 #include "../common/utils.hpp"
 #include "../contrib/SimpleLogger/src/simple_logger.hpp"
@@ -802,7 +802,7 @@ Song::EventList Song::generateMidiClockEvents(EventListCR eventList, size_t star
     return processedEventList;
 }
 
-Song::EventList Song::renderContent(AutomationServiceS automationService, size_t startPosition, size_t endPosition)
+Song::EventList Song::renderContent(AutomationServiceS automationService, SideChainServiceS sideChainService, size_t startPosition, size_t endPosition)
 {
     if (endPosition >= length()) {
         endPosition = length();
@@ -817,9 +817,8 @@ Song::EventList Song::renderContent(AutomationServiceS automationService, size_t
     auto eventList = renderStartOfSong(tick);
     std::tie(eventList, tick) = renderPatterns(automationService, eventList, tick, startPosition, endPosition);
     eventList = renderEndOfSong(eventList, tick);
-
     juzzlin::L(TAG).debug() << "Rendering side-chains";
-    eventList = MidiSideChainService::renderToEvents(*this, eventList, endPosition);
+    eventList = sideChainService->renderToEvents(*this, eventList, endPosition);
     juzzlin::L(TAG).debug() << "Rendering note-off's";
     eventList = generateNoteOffs(eventList);
     juzzlin::L(TAG).debug() << "Removing non-mapped note-off's";
@@ -830,19 +829,19 @@ Song::EventList Song::renderContent(AutomationServiceS automationService, size_t
     return eventList;
 }
 
-Song::EventList Song::renderToEvents(AutomationServiceS automationService, size_t startPosition)
+Song::EventList Song::renderToEvents(AutomationServiceS automationService, SideChainServiceS sideChainService, size_t startPosition)
 {
-    return renderToEvents(automationService, startPosition, m_length);
+    return renderToEvents(automationService, sideChainService, startPosition, m_length);
 }
 
-Song::EventList Song::renderToEvents(AutomationServiceS automationService, size_t startPosition, size_t endPosition)
+Song::EventList Song::renderToEvents(AutomationServiceS automationService, SideChainServiceS sideChainService, size_t startPosition, size_t endPosition)
 {
-    auto eventList = applyInstrumentsOnEvents(renderContent(automationService, startPosition, endPosition));
+    auto eventList = applyInstrumentsOnEvents(renderContent(automationService, sideChainService, startPosition, endPosition));
     juzzlin::L(TAG).info() << "Rendered event list size: " << eventList.size();
     return eventList;
 }
 
-void Song::serializeToXml(QXmlStreamWriter & writer, MixerSerializationCallback mixerSerializationCallback, AutomationSerializationCallback automationSerializationCallback) const
+void Song::serializeToXml(QXmlStreamWriter & writer, MixerSerializationCallback mixerSerializationCallback, AutomationSerializationCallback automationSerializationCallback, SideChainSerializationCallback sideChainSerializationCallback) const
 {
     writer.writeStartElement(Constants::NahdXml::xmlKeySong());
 
@@ -858,6 +857,10 @@ void Song::serializeToXml(QXmlStreamWriter & writer, MixerSerializationCallback 
 
     if (automationSerializationCallback) {
         automationSerializationCallback(writer);
+    }
+
+    if (sideChainSerializationCallback) {
+        sideChainSerializationCallback(writer);
     }
 
     writer.writeStartElement(Constants::NahdXml::xmlKeyPatterns());
@@ -896,7 +899,7 @@ void Song::serializeToXmlAsTemplate(QXmlStreamWriter & writer, MixerSerializatio
     writer.writeEndElement(); // Song
 }
 
-void Song::deserializeFromXml(QXmlStreamReader & reader, MixerDeserializationCallback mixerDeserializationCallback, AutomationDeserializationCallback automationDeserializationCallback)
+void Song::deserializeFromXml(QXmlStreamReader & reader, MixerDeserializationCallback mixerDeserializationCallback, AutomationDeserializationCallback automationDeserializationCallback, SideChainDeserializationCallback sideChainDeserializationCallback)
 {
     setBeatsPerMinute(*Utils::Xml::readUIntAttribute(reader, Constants::NahdXml::xmlKeyBeatsPerMinute()));
     setLinesPerBeat(*Utils::Xml::readUIntAttribute(reader, Constants::NahdXml::xmlKeyLinesPerBeat()));
@@ -917,6 +920,10 @@ void Song::deserializeFromXml(QXmlStreamReader & reader, MixerDeserializationCal
             } else if (!reader.name().compare(Constants::NahdXml::xmlKeyAutomation())) {
                 if (automationDeserializationCallback) {
                     automationDeserializationCallback(reader);
+                }
+            } else if (!reader.name().compare(Constants::NahdXml::xmlKeySideChain())) {
+                if (sideChainDeserializationCallback) {
+                    sideChainDeserializationCallback(reader);
                 }
             }
         }

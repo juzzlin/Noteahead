@@ -12,13 +12,16 @@ GroupBox {
     property var _sideChainTargets: []
     function initialize(): void {
         velocityJitterSpinBox.value = trackSettingsModel.velocityJitter;
-        sideChainEnabledCheckBox.checked = trackSettingsModel.sideChainEnabled;
-        sideChainSourceTrackSpinBox.value = trackSettingsModel.sideChainSourceTrack + 1;
-        sideChainSourceColumnSpinBox.value = trackSettingsModel.sideChainSourceColumn + 1;
-        sideChainLookaheadSpinBox.value = trackSettingsModel.sideChainLookahead;
-        sideChainReleaseSpinBox.value = trackSettingsModel.sideChainRelease;
+
+        sideChainService.trackIndex = trackSettingsModel.trackIndex;
+        sideChainEnabledCheckBox.checked = sideChainService.sideChainEnabled;
+        sideChainSourceTrackSpinBox.value = sideChainService.sideChainSourceTrack + 1;
+        sideChainSourceColumnSpinBox.value = sideChainService.sideChainSourceColumn + 1;
+        sideChainLookaheadSpinBox.value = sideChainService.sideChainLookahead;
+        sideChainReleaseSpinBox.value = sideChainService.sideChainRelease;
+
         for (const sideChainTarget of _sideChainTargets) {
-            sideChainTarget.initialize(trackSettingsModel.sideChainTargetEnabled(sideChainTarget.targetIndex), trackSettingsModel.sideChainTargetController(sideChainTarget.targetIndex), trackSettingsModel.sideChainTargetTargetValue(sideChainTarget.targetIndex), trackSettingsModel.sideChainTargetReleaseValue(sideChainTarget.targetIndex));
+            sideChainTarget.initialize(sideChainService.sideChainTargetEnabled(sideChainTarget.targetIndex), sideChainService.sideChainTargetController(sideChainTarget.targetIndex), sideChainService.sideChainTargetTargetValue(sideChainTarget.targetIndex), sideChainService.sideChainTargetReleaseValue(sideChainTarget.targetIndex));
         }
     }
     ColumnLayout {
@@ -65,7 +68,11 @@ GroupBox {
                 CheckBox {
                     id: sideChainEnabledCheckBox
                     text: qsTr("Enabled")
-                    onCheckedChanged: trackSettingsModel.sideChainEnabled = checked
+                    onCheckedChanged: sideChainService.sideChainEnabled = checked
+                    ToolTip.delay: Constants.toolTipDelay
+                    ToolTip.timeout: Constants.toolTipTimeout
+                    ToolTip.visible: hovered
+                    ToolTip.text: qsTr("Enable or disable MIDI side-chaining for this track.")
                 }
                 GridLayout {
                     columns: 4
@@ -79,8 +86,12 @@ GroupBox {
                         from: 1
                         to: 255
                         editable: true
-                        onValueChanged: trackSettingsModel.sideChainSourceTrack = value - 1
+                        onValueChanged: sideChainService.sideChainSourceTrack = value - 1
                         Layout.fillWidth: true
+                        ToolTip.delay: Constants.toolTipDelay
+                        ToolTip.timeout: Constants.toolTipTimeout
+                        ToolTip.visible: hovered
+                        ToolTip.text: qsTr("Set the track from which to receive MIDI notes for side-chaining.")
                     }
                     Label {
                         text: qsTr("Source column:")
@@ -90,8 +101,12 @@ GroupBox {
                         from: 1
                         to: 255
                         editable: true
-                        onValueChanged: trackSettingsModel.sideChainSourceColumn = value - 1
+                        onValueChanged: sideChainService.sideChainSourceColumn = value - 1
                         Layout.fillWidth: true
+                        ToolTip.delay: Constants.toolTipDelay
+                        ToolTip.timeout: Constants.toolTipTimeout
+                        ToolTip.visible: hovered
+                        ToolTip.text: qsTr("Set the column within the source track from which to receive MIDI notes for side-chaining.")
                     }
                     Label {
                         text: qsTr("Lookahead (ms):")
@@ -101,8 +116,12 @@ GroupBox {
                         from: 0
                         to: 1000
                         editable: true
-                        onValueChanged: trackSettingsModel.sideChainLookahead = value
+                        onValueChanged: sideChainService.sideChainLookahead = value
                         Layout.fillWidth: true
+                        ToolTip.delay: Constants.toolTipDelay
+                        ToolTip.timeout: Constants.toolTipTimeout
+                        ToolTip.visible: hovered
+                        ToolTip.text: qsTr("Set the lookahead time in milliseconds. This allows the side-chain effect to react to notes before they are played.")
                     }
                     Label {
                         text: qsTr("Release (ms):")
@@ -112,13 +131,17 @@ GroupBox {
                         from: 0
                         to: 1000
                         editable: true
-                        onValueChanged: trackSettingsModel.sideChainRelease = value
+                        onValueChanged: sideChainService.sideChainRelease = value
                         Layout.fillWidth: true
+                        ToolTip.delay: Constants.toolTipDelay
+                        ToolTip.timeout: Constants.toolTipTimeout
+                        ToolTip.visible: hovered
+                        ToolTip.text: qsTr("Set the release time in milliseconds. This controls how long the side-chain effect remains active after the source event ends.")
                     }
                 }
                 // Targets
                 Repeater {
-                    model: trackSettingsModel.sideChainTargetCount()
+                    model: sideChainService.sideChainTargetCount()
                     delegate: SideChainTargetDelegate {
                         targetIndex: index
                         Layout.fillWidth: true

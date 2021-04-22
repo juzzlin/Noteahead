@@ -302,6 +302,8 @@ signals:
     void automationDeserializationRequested(QXmlStreamReader & xmlStreamReader);
     void mixerSerializationRequested(QXmlStreamWriter & xmlStreamWriter);
     void mixerDeserializationRequested(QXmlStreamReader & xmlStreamReader);
+    void sideChainSerializationRequested(QXmlStreamWriter & xmlStreamWriter);
+    void sideChainDeserializationRequested(QXmlStreamReader & xmlStreamReader);
 
     void noteDataAtPositionChanged(const Position & position);
     void patternAtCurrentSongPositionChanged(); // For the play order widget

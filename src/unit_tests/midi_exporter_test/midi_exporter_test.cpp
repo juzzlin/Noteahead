@@ -3,6 +3,7 @@
 #include "../../application/position.hpp"
 #include "../../application/service/automation_service.hpp"
 #include "../../application/service/mixer_service.hpp"
+#include "../../application/service/side_chain_service.hpp"
 #include "../../domain/note_data.hpp"
 #include "../../domain/song.hpp"
 #include "../../infra/midi/export/midi_exporter.hpp"
@@ -214,8 +215,9 @@ void MidiExporterTest::test_exportTo_singleNote_shouldExportCorrectly()
 
     const auto automationService = std::make_shared<AutomationService>();
     const auto mixerService = std::make_shared<MixerService>();
-    MidiExporter exporter(automationService);
-    exporter.exportTo(fileName.toStdString(), song, mixerService);
+    const auto sideChainService = std::make_shared<SideChainService>();
+    MidiExporter exporter { automationService, mixerService, sideChainService };
+    exporter.exportTo(fileName.toStdString(), song);
 
     QVERIFY(QFile::exists(fileName));
     QVERIFY(QFile { fileName }.size() > 0);
@@ -280,8 +282,9 @@ void MidiExporterTest::test_exportTo_multipleNotesAndTracks_shouldExportCorrectl
 
     const auto automationService = std::make_shared<AutomationService>();
     const auto mixerService = std::make_shared<MixerService>();
-    MidiExporter exporter(automationService);
-    exporter.exportTo(fileName.toStdString(), song, mixerService);
+    const auto sideChainService = std::make_shared<SideChainService>();
+    MidiExporter exporter { automationService, mixerService, sideChainService };
+    exporter.exportTo(fileName.toStdString(), song);
 
     QVERIFY(QFile::exists(fileName));
     QVERIFY(QFile { fileName }.size() > 0);
@@ -331,8 +334,9 @@ void MidiExporterTest::test_exportTo_timing_shouldBeCorrect()
 
     const auto automationService = std::make_shared<AutomationService>();
     const auto mixerService = std::make_shared<MixerService>();
-    MidiExporter exporter(automationService);
-    exporter.exportTo(fileName.toStdString(), song, mixerService);
+    const auto sideChainService = std::make_shared<SideChainService>();
+    MidiExporter exporter { automationService, mixerService, sideChainService };
+    exporter.exportTo(fileName.toStdString(), song);
 
     QVERIFY(QFile::exists(fileName));
     QVERIFY(QFile(fileName).size() > 0);
@@ -388,7 +392,7 @@ void MidiExporterTest::test_exportTo_mutedAndSoloedTracks_shouldExportCorrectly(
     song->setNoteDataAtPosition(noteData, { 0, 2, 0, 1, 0 });
 
     const auto automationService = std::make_shared<AutomationService>();
-    auto mixerService = std::make_shared<MixerService>();
+    const auto mixerService = std::make_shared<MixerService>();
     mixerService->muteTrack(1, true);
     mixerService->soloTrack(2, true);
 
@@ -397,8 +401,9 @@ void MidiExporterTest::test_exportTo_mutedAndSoloedTracks_shouldExportCorrectly(
     const auto fileName = tempFile.fileName();
     tempFile.close();
 
-    MidiExporter exporter(automationService);
-    exporter.exportTo(fileName.toStdString(), song, mixerService);
+    const auto sideChainService = std::make_shared<SideChainService>();
+    MidiExporter exporter { automationService, mixerService, sideChainService };
+    exporter.exportTo(fileName.toStdString(), song);
 
     const auto exportedEvents = readMidiFile(fileName.toStdString());
 
@@ -450,11 +455,13 @@ void MidiExporterTest::test_exportTo_rangedExport_shouldExportCorrectRange()
 
     const auto automationService = std::make_shared<AutomationService>();
     const auto mixerService = std::make_shared<MixerService>();
-    MidiExporter exporter(automationService);
+    const auto sideChainService = std::make_shared<SideChainService>();
+    MidiExporter exporter { automationService, mixerService, sideChainService };
+    exporter.exportTo(fileName.toStdString(), song);
 
     const auto startPosition = 1;
     const auto endPosition = 2;
-    exporter.exportTo(fileName.toStdString(), song, mixerService, startPosition, endPosition);
+    exporter.exportTo(fileName.toStdString(), song, startPosition, endPosition);
 
     QVERIFY(QFile::exists(fileName));
     QVERIFY(QFile { fileName }.size() > 0);

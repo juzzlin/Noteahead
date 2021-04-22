@@ -26,10 +26,17 @@ namespace noteahead {
 
 static const auto TAG = "PlayerService";
 
-PlayerService::PlayerService(MidiServiceS midiService, MixerServiceS mixerService, AutomationServiceS automationService, SettingsServiceS settingsService, QObject * parent)
+PlayerService::PlayerService(
+  MidiServiceS midiService,
+  MixerServiceS mixerService,
+  AutomationServiceS automationService,
+  SettingsServiceS settingsService,
+  SideChainServiceS sideChainService,
+  QObject * parent)
   : QObject { parent }
-  , m_settingsService { settingsService }
   , m_automationService { automationService }
+  , m_settingsService { settingsService }
+  , m_sideChainService { sideChainService }
   , m_playerWorker { std::make_unique<PlayerWorker>(midiService, mixerService) }
 {
     initializeWorker();
@@ -58,9 +65,9 @@ void PlayerService::initializeWorkerWithSongData()
     const PlayerWorker::Timing timing { m_song->beatsPerMinute(), m_song->linesPerBeat(), m_song->ticksPerLine() };
     m_song->setAutoNoteOffOffset(std::chrono::milliseconds { m_settingsService->autoNoteOffOffset() });
     if (m_playerWorker->isLooping()) {
-        m_playerWorker->initialize(m_song->renderToEvents(m_automationService, m_songPosition, m_songPosition + 1), timing);
+        m_playerWorker->initialize(m_song->renderToEvents(m_automationService, m_sideChainService, m_songPosition, m_songPosition + 1), timing);
     } else {
-        m_playerWorker->initialize(m_song->renderToEvents(m_automationService, m_songPosition), timing);
+        m_playerWorker->initialize(m_song->renderToEvents(m_automationService, m_sideChainService, m_songPosition), timing);
     }
 }
 

@@ -22,10 +22,12 @@
 #include "../../application/service/editor_service.hpp"
 #include "../../application/service/mixer_service.hpp"
 #include "../../application/service/selection_service.hpp"
+#include "../../application/service/side_chain_service.hpp"
 #include "../../domain/column_settings.hpp"
 #include "../../domain/instrument.hpp"
 #include "../../domain/note_data.hpp"
 #include "../../domain/pattern.hpp"
+#include "../../domain/side_chain_settings.hpp"
 #include "../../domain/song.hpp"
 #include "../../domain/track.hpp"
 
@@ -1772,71 +1774,41 @@ void EditorServiceTest::test_toXmlFromXml_instrumentSettings_shouldParseInstrume
     }
 }
 
-void EditorServiceTest::test_toXmlFromXml_instrumentSettings_shouldParseMidiSideChain()
+void EditorServiceTest::test_toXmlFromXml_sideChainService_shouldLoadSideChainService()
 {
-    EditorService editorServiceOut;
-    editorServiceOut.requestPosition(0, 0, 0, 0, 0);
+    SideChainService sideChainServiceOut;
+    SideChainSettings settings;
+    settings.enabled = true;
+    settings.sourceTrackIndex = 1;
+    settings.sourceColumnIndex = 2;
+    settings.lookahead = std::chrono::milliseconds(10);
+    settings.release = std::chrono::milliseconds(100);
+    settings.targets.push_back({ true, 7, 127, 0 });
+    settings.targets.push_back({ false, 10, 100, 10 });
+    sideChainServiceOut.setSettings(0, settings);
 
-    auto instrumentSettingsOut = std::make_shared<InstrumentSettings>();
-    auto & midiSideChainOut = instrumentSettingsOut->midiEffects.midiSideChain;
-    midiSideChainOut.enabled = true;
-    midiSideChainOut.sourceTrackIndex = 1;
-    midiSideChainOut.sourceColumnIndex = 2;
-    midiSideChainOut.lookahead = std::chrono::milliseconds(10);
-    midiSideChainOut.release = std::chrono::milliseconds(100);
-    midiSideChainOut.targets.push_back({ true, 7, 127, 0 });
-    midiSideChainOut.targets.push_back({ false, 10, 100, 10 });
-    midiSideChainOut.targets.push_back({ true, 11, 80, 20 });
-    midiSideChainOut.targets.push_back({ false, 14, 60, 30 });
+    SideChainService sideChainServiceIn;
+    EditorService editorService;
+    connect(&editorService, &EditorService::sideChainSerializationRequested, &sideChainServiceOut, &SideChainService::serializeToXml);
+    connect(&editorService, &EditorService::sideChainDeserializationRequested, &sideChainServiceIn, &SideChainService::deserializeFromXml);
 
-    editorServiceOut.setInstrumentSettingsAtCurrentPosition(instrumentSettingsOut);
+    editorService.fromXml(editorService.toXml());
 
-    const auto xml = editorServiceOut.toXml();
+    const auto settingsIn = sideChainServiceIn.settings(0);
 
-    EditorService editorServiceIn;
-    editorServiceIn.fromXml(xml);
-
-    editorServiceIn.requestPosition(0, 0, 0, 0, 0);
-    const auto instrumentSettingsIn = editorServiceIn.instrumentSettingsAtCurrentPosition();
-
-    QVERIFY(instrumentSettingsIn);
-
-    auto & midiSideChainIn = instrumentSettingsIn->midiEffects.midiSideChain;
-
-    // Sort the vectors to make the comparison order-independent
-    std::sort(midiSideChainOut.targets.begin(), midiSideChainOut.targets.end(),
-              [](const InstrumentSettings::MidiEffects::MidiSideChain::Target &a,
-                 const InstrumentSettings::MidiEffects::MidiSideChain::Target &b) {
-                  if (a.controller != b.controller) return a.controller < b.controller;
-                  if (a.targetValue != b.targetValue) return a.targetValue < b.targetValue;
-                  if (a.releaseValue != b.releaseValue) return a.releaseValue < b.releaseValue;
-                  return a.enabled < b.enabled;
-              });
-
-    std::sort(midiSideChainIn.targets.begin(), midiSideChainIn.targets.end(),
-              [](const InstrumentSettings::MidiEffects::MidiSideChain::Target &a,
-                 const InstrumentSettings::MidiEffects::MidiSideChain::Target &b) {
-                  if (a.controller != b.controller) return a.controller < b.controller;
-                  if (a.targetValue != b.targetValue) return a.targetValue < b.targetValue;
-                  if (a.releaseValue != b.releaseValue) return a.releaseValue < b.releaseValue;
-                  return a.enabled < b.enabled;
-              });
-
-    QCOMPARE(midiSideChainIn.enabled, midiSideChainOut.enabled);
-    QCOMPARE(midiSideChainIn.sourceTrackIndex, midiSideChainOut.sourceTrackIndex);
-    QCOMPARE(midiSideChainIn.sourceColumnIndex, midiSideChainOut.sourceColumnIndex);
-    QCOMPARE(midiSideChainIn.lookahead, midiSideChainOut.lookahead);
-    QCOMPARE(midiSideChainIn.release, midiSideChainOut.release);
-    QCOMPARE(midiSideChainIn.targets.size(), midiSideChainOut.targets.size());
-    for (size_t i = 0; i < midiSideChainOut.targets.size(); ++i) {
-        QCOMPARE(midiSideChainIn.targets.at(i).enabled, midiSideChainOut.targets.at(i).enabled);
-        QCOMPARE(midiSideChainIn.targets.at(i).controller, midiSideChainOut.targets.at(i).controller);
-        QCOMPARE(midiSideChainIn.targets.at(i).targetValue, midiSideChainOut.targets.at(i).targetValue);
-        QCOMPARE(midiSideChainIn.targets.at(i).releaseValue, midiSideChainOut.targets.at(i).releaseValue);
+    QCOMPARE(settingsIn.enabled, settings.enabled);
+    QCOMPARE(settingsIn.sourceTrackIndex, settings.sourceTrackIndex);
+    QCOMPARE(settingsIn.sourceColumnIndex, settings.sourceColumnIndex);
+    QCOMPARE(settingsIn.lookahead, settings.lookahead);
+    QCOMPARE(settingsIn.release, settings.release);
+    QCOMPARE(settingsIn.targets.size(), settings.targets.size());
+    for (size_t i = 0; i < settings.targets.size(); ++i) {
+        QCOMPARE(settingsIn.targets.at(i).enabled, settings.targets.at(i).enabled);
+        QCOMPARE(settingsIn.targets.at(i).controller, settings.targets.at(i).controller);
+        QCOMPARE(settingsIn.targets.at(i).targetValue, settings.targets.at(i).targetValue);
+        QCOMPARE(settingsIn.targets.at(i).releaseValue, settings.targets.at(i).releaseValue);
     }
 }
-
-
 
 void EditorServiceTest::test_toXmlFromXml_noteData_noteOn()
 {

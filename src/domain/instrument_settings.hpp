@@ -64,34 +64,6 @@ public:
     struct MidiEffects
     {
         int velocityJitter { 0 };
-
-        struct MidiSideChain
-        {
-            //! Enable/disable the side-chain functionality.
-            bool enabled { false };
-
-            //! Side-chain source track.
-            uint8_t sourceTrackIndex { 0 };
-            //! Side-chain source column.
-            uint8_t sourceColumnIndex { 0 };
-
-            //! Time before the source event.
-            std::chrono::milliseconds lookahead { 0 };
-            //! Time after the source event.
-            std::chrono::milliseconds release { 0 };
-
-            //! MIDI CC controller target definitions.
-            struct Target
-            {
-                bool enabled { false };
-                uint8_t controller { 0 };
-                uint8_t targetValue { 0 };
-                uint8_t releaseValue { 0 };
-            };
-            std::vector<Target> targets;
-        };
-
-        MidiSideChain midiSideChain;
     };
 
     MidiEffects midiEffects;

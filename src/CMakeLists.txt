@@ -30,7 +30,6 @@ set(HEADER_FILES
   application/service/midi_in_worker.hpp
   application/service/midi_out_worker.hpp
   application/service/midi_service.hpp
-  application/service/midi_side_chain_service.hpp
   application/service/midi_worker.hpp
   application/service/mixer_service.hpp
   application/service/player_service.hpp
@@ -39,6 +38,7 @@ set(HEADER_FILES
   application/service/recent_files_manager.hpp
   application/service/selection_service.hpp
   application/service/settings_service.hpp
+  application/service/side_chain_service.hpp
   application/service/util_service.hpp
   application/state_machine.hpp
   application/ui_logger.hpp
@@ -67,6 +67,7 @@ set(HEADER_FILES
   domain/pitch_bend_automation.hpp
   domain/pitch_bend_data.hpp
   domain/play_order.hpp
+  domain/side_chain_settings.hpp
   domain/song.hpp
   domain/track.hpp
   infra/audio/audio_recorder.hpp
@@ -111,7 +112,6 @@ set(SOURCE_FILES
   application/service/midi_in_worker.cpp
   application/service/midi_out_worker.cpp
   application/service/midi_service.cpp
-  application/service/midi_side_chain_service.cpp
   application/service/midi_worker.cpp
   application/service/mixer_service.cpp
   application/service/player_service.cpp
@@ -120,6 +120,7 @@ set(SOURCE_FILES
   application/service/recent_files_manager.cpp
   application/service/selection_service.cpp
   application/service/settings_service.cpp
+  application/service/side_chain_service.cpp
   application/service/util_service.cpp
   application/state_machine.cpp
   application/ui_logger.cpp

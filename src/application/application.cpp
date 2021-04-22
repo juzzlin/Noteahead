@@ -20,8 +20,8 @@
 #include "../infra/midi/export/midi_exporter.hpp"
 #include "../infra/video/video_generator.hpp"
 #include "common/utils.hpp"
-#include "domain/midi_note_data.hpp"
 #include "domain/column_settings.hpp"
+#include "domain/midi_note_data.hpp"
 #include "models/column_settings_model.hpp"
 #include "models/event_selection_model.hpp"
 #include "models/midi_cc_automations_model.hpp"
@@ -42,6 +42,7 @@
 #include "service/recent_files_manager.hpp"
 #include "service/selection_service.hpp"
 #include "service/settings_service.hpp"
+#include "service/side_chain_service.hpp"
 #include "service/util_service.hpp"
 #include "state_machine.hpp"
 #include "ui_logger.hpp"
@@ -70,10 +71,11 @@ Application::Application(int & argc, char ** argv)
   , m_selectionService { std::make_unique<SelectionService>() }
   , m_editorService { std::make_unique<EditorService>(m_selectionService) }
   , m_eventSelectionModel { std::make_unique<EventSelectionModel>() }
-  , m_midiExporter { std::make_unique<MidiExporter>(m_automationService) }
   , m_midiService { std::make_unique<MidiService>() }
   , m_mixerService { std::make_unique<MixerService>() }
-  , m_playerService { std::make_unique<PlayerService>(m_midiService, m_mixerService, m_automationService, m_settingsService) }
+  , m_sideChainService { std::make_unique<SideChainService>() }
+  , m_playerService { std::make_unique<PlayerService>(m_midiService, m_mixerService, m_automationService, m_settingsService, m_sideChainService) }
+  , m_midiExporter { std::make_unique<MidiExporter>(m_automationService, m_mixerService, m_sideChainService) }
   , m_stateMachine { std::make_unique<StateMachine>(m_applicationService, m_editorService) }
   , m_recentFilesManager { std::make_unique<RecentFilesManager>() }
   , m_recentFilesModel { std::make_unique<RecentFilesModel>() }
@@ -127,6 +129,7 @@ void Application::registerTypes()
     qmlRegisterType<RecentFilesModel>("Noteahead", majorVersion, minorVersion, "RecentFilesModel");
     qmlRegisterType<SelectionService>("Noteahead", majorVersion, minorVersion, "SelectionService");
     qmlRegisterType<SettingsService>("Noteahead", majorVersion, minorVersion, "SettingsService");
+    qmlRegisterType<SideChainService>("Noteahead", majorVersion, minorVersion, "SideChainService");
     qmlRegisterType<TrackSettingsModel>("Noteahead", majorVersion, minorVersion, "TrackSettingsModel");
     qmlRegisterType<UiLogger>("Noteahead", majorVersion, minorVersion, "UiLogger");
     qmlRegisterType<UtilService>("Noteahead", majorVersion, minorVersion, "UtilService");
@@ -153,6 +156,7 @@ void Application::setContextProperties()
     m_engine->rootContext()->setContextProperty("recentFilesModel", m_recentFilesModel.get());
     m_engine->rootContext()->setContextProperty("selectionService", m_selectionService.get());
     m_engine->rootContext()->setContextProperty("settingsService", m_settingsService.get());
+    m_engine->rootContext()->setContextProperty("sideChainService", m_sideChainService.get());
     m_engine->rootContext()->setContextProperty("trackSettingsModel", m_trackSettingsModel.get());
     m_engine->rootContext()->setContextProperty("uiLogger", m_uiLogger.get());
     m_engine->rootContext()->setContextProperty("utilService", m_utilService.get());
@@ -273,7 +277,7 @@ void Application::connectApplicationService()
 void Application::exportToMidi(QString fileName, quint64 startPosition, quint64 endPosition)
 {
     try {
-        m_midiExporter->exportTo(fileName.toStdString(), m_editorService->song(), m_mixerService, startPosition, endPosition);
+        m_midiExporter->exportTo(fileName.toStdString(), m_editorService->song(), startPosition, endPosition);
         const auto message = QString { "Exported the project to '%1' " }.arg(fileName);
         m_applicationService->statusTextRequested(message);
     } catch (std::exception & e) {
@@ -346,6 +350,8 @@ void Application::connectEditorService()
     connect(m_editorService.get(), &EditorService::automationSerializationRequested, m_automationService.get(), &AutomationService::serializeToXml);
     connect(m_editorService.get(), &EditorService::mixerDeserializationRequested, m_mixerService.get(), &MixerService::deserializeFromXml);
     connect(m_editorService.get(), &EditorService::mixerSerializationRequested, m_mixerService.get(), &MixerService::serializeToXml);
+    connect(m_editorService.get(), &EditorService::sideChainDeserializationRequested, m_sideChainService.get(), &SideChainService::deserializeFromXml);
+    connect(m_editorService.get(), &EditorService::sideChainSerializationRequested, m_sideChainService.get(), &SideChainService::serializeToXml);
 
     connect(m_editorService.get(), &EditorService::songPositionChanged, m_playerService.get(), &PlayerService::setSongPosition);
 

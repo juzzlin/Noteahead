@@ -20,9 +20,13 @@ GroupBox {
         CheckBox {
             id: targetEnabledCheckBox
             text: qsTr("Enabled")
-            onCheckedChanged: trackSettingsModel.setSideChainTargetEnabled(targetIndex, checked)
+            onCheckedChanged: sideChainService.setSideChainTargetEnabled(targetIndex, checked)
             Layout.row: 0
             Layout.column: 0
+            ToolTip.delay: Constants.toolTipDelay
+            ToolTip.timeout: Constants.toolTipTimeout
+            ToolTip.visible: hovered
+            ToolTip.text: qsTr("Enable or disable this side-chain target.")
         }
         Label {
             text: qsTr("Controller:")
@@ -35,11 +39,15 @@ GroupBox {
             to: 127
             editable: true
             enabled: targetEnabledCheckBox.checked
-            onValueChanged: trackSettingsModel.setSideChainTargetController(targetIndex, value)
+            onValueChanged: sideChainService.setSideChainTargetController(targetIndex, value)
             Keys.onReturnPressed: focus = false
             Layout.fillWidth: true
             Layout.row: 1
             Layout.column: 1
+            ToolTip.delay: Constants.toolTipDelay
+            ToolTip.timeout: Constants.toolTipTimeout
+            ToolTip.visible: hovered
+            ToolTip.text: qsTr("Set the MIDI CC controller number that this side-chain target will affect.")
         }
         Label {
             text: qsTr("Target Value:")
@@ -52,11 +60,15 @@ GroupBox {
             to: 127
             editable: true
             enabled: targetEnabledCheckBox.checked
-            onValueChanged: trackSettingsModel.setSideChainTargetTargetValue(targetIndex, value)
+            onValueChanged: sideChainService.setSideChainTargetTargetValue(targetIndex, value)
             Keys.onReturnPressed: focus = false
             Layout.fillWidth: true
             Layout.row: 1
             Layout.column: 3
+            ToolTip.delay: Constants.toolTipDelay
+            ToolTip.timeout: Constants.toolTipTimeout
+            ToolTip.visible: hovered
+            ToolTip.text: qsTr("Set the value that the target MIDI CC controller will be set to when the side-chain is active.")
         }
         Label {
             text: qsTr("Release Value:")
@@ -69,12 +81,16 @@ GroupBox {
             to: 127
             editable: true
             enabled: targetEnabledCheckBox.checked
-            onValueChanged: trackSettingsModel.setSideChainTargetReleaseValue(targetIndex, value)
+            onValueChanged: sideChainService.setSideChainTargetReleaseValue(targetIndex, value)
             Keys.onReturnPressed: focus = false
             Layout.columnSpan: 3
             Layout.fillWidth: true
             Layout.row: 1
             Layout.column: 5
+            ToolTip.delay: Constants.toolTipDelay
+            ToolTip.timeout: Constants.toolTipTimeout
+            ToolTip.visible: hovered
+            ToolTip.text: qsTr("Set the value that the target MIDI CC controller will return to after the side-chain effect is released.")
         }
     }
 }

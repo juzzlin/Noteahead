@@ -1,17 +1,11 @@
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
-set(NAME editor_service_test)
+set(NAME side_chain_service_test)
 set(SRC
     ${NAME}.cpp
     ${NAME}.hpp
-    ../../application/instrument_request.cpp
-    ../../application/note_converter.cpp
-    ../../application/position.hpp
     ../../application/service/automation_service.cpp
     ../../application/service/copy_manager.cpp
-    ../../application/service/editor_service.cpp
-    ../../application/service/mixer_service.cpp
     ../../application/service/random_service.cpp
-    ../../application/service/selection_service.cpp
     ../../application/service/side_chain_service.cpp
     ../../common/constants.cpp
     ../../common/utils.cpp
@@ -30,6 +24,7 @@ set(SRC
     ../../domain/midi_cc_automation.cpp
     ../../domain/midi_cc_data.cpp
     ../../domain/midi_cc_setting.cpp
+    ../../domain/midi_note_data.cpp
     ../../domain/mixer_unit.cpp
     ../../domain/note_data.cpp
     ../../domain/note_data_manipulator.cpp

@@ -27,14 +27,6 @@ static const auto TAG = "TrackSettingsModel";
 TrackSettingsModel::TrackSettingsModel(QObject * parent)
   : MidiCcSelectionModel { parent }
 {
-    for (quint32 i = 0; i < sideChainTargetCount(); i++) {
-        m_midiSideChainSettings.targets[i] = {};
-    }
-}
-
-quint32 TrackSettingsModel::sideChainTargetCount() const
-{
-    return 2;
 }
 
 void TrackSettingsModel::applyAll()
@@ -276,19 +268,6 @@ void TrackSettingsModel::setInstrumentData(const Instrument & instrument)
 
     setMidiCcSettings(instrument.settings().midiCcSettings);
 
-    setSideChainEnabled(instrument.settings().midiEffects.midiSideChain.enabled);
-    setSideChainSourceTrack(instrument.settings().midiEffects.midiSideChain.sourceTrackIndex);
-    setSideChainSourceColumn(instrument.settings().midiEffects.midiSideChain.sourceColumnIndex);
-    setSideChainLookahead(static_cast<int>(instrument.settings().midiEffects.midiSideChain.lookahead.count()));
-    setSideChainRelease(static_cast<int>(instrument.settings().midiEffects.midiSideChain.release.count()));
-
-    m_midiSideChainSettings.targets.clear();
-    for (quint32 i = 0; i < instrument.settings().midiEffects.midiSideChain.targets.size(); i++) {
-        auto && target = instrument.settings().midiEffects.midiSideChain.targets[i];
-        m_midiSideChainSettings.targets[i] = { target.enabled, target.controller, target.targetValue, target.releaseValue };
-        emit sideChainTargetChanged(i);
-    }
-
     emit instrumentDataReceived();
 
     popApplyDisabled();
@@ -310,12 +289,6 @@ void TrackSettingsModel::reset()
     m_standardMidiCcSettings = {};
 
     m_midiEffectSettings = {};
-
-    m_midiSideChainSettings = {};
-    m_midiSideChainSettings.targets.clear();
-    for (quint32 i = 0; i < sideChainTargetCount(); i++) {
-        emit sideChainTargetChanged(i);
-    }
 
     setMidiCcSettings({});
 
@@ -365,21 +338,6 @@ TrackSettingsModel::InstrumentU TrackSettingsModel::toInstrument() const
     }
 
     settings.midiEffects.velocityJitter = m_midiEffectSettings.velocityJitter;
-
-    settings.midiEffects.midiSideChain.enabled = m_midiSideChainSettings.enabled;
-    settings.midiEffects.midiSideChain.sourceTrackIndex = m_midiSideChainSettings.sourceTrackIndex;
-    settings.midiEffects.midiSideChain.sourceColumnIndex = m_midiSideChainSettings.sourceColumnIndex;
-    settings.midiEffects.midiSideChain.lookahead = std::chrono::milliseconds { m_midiSideChainSettings.lookahead };
-    settings.midiEffects.midiSideChain.release = std::chrono::milliseconds { m_midiSideChainSettings.release };
-
-    for (quint32 i = 0; i < sideChainTargetCount(); i++) {
-        if (m_midiSideChainSettings.targets.count(i)) {
-            const auto& target = m_midiSideChainSettings.targets.at(i);
-            settings.midiEffects.midiSideChain.targets.push_back({target.enabled, target.controller, target.targetValue, target.releaseValue});
-        } else {
-            settings.midiEffects.midiSideChain.targets.push_back({});
-        }
-    }
 
     settings.midiCcSettings = midiCcSettings();
     instrument->setSettings(settings);
@@ -607,143 +565,6 @@ void TrackSettingsModel::setAutoNoteOffOffsetEnabled(bool enabled)
     }
 }
 
-bool TrackSettingsModel::sideChainEnabled() const
-{
-    return m_midiSideChainSettings.enabled;
-}
-
-void TrackSettingsModel::setSideChainEnabled(bool enabled)
-{
-    if (m_midiSideChainSettings.enabled != enabled) {
-        m_midiSideChainSettings.enabled = enabled;
-        emit sideChainEnabledChanged();
-        applyAll();
-    }
-}
-
-quint8 TrackSettingsModel::sideChainSourceTrack() const
-{
-    return m_midiSideChainSettings.sourceTrackIndex;
-}
-
-void TrackSettingsModel::setSideChainSourceTrack(quint8 trackIndex)
-{
-    if (m_midiSideChainSettings.sourceTrackIndex != trackIndex) {
-        m_midiSideChainSettings.sourceTrackIndex = trackIndex;
-        emit sideChainSourceTrackChanged();
-        applyAll();
-    }
-}
-
-quint8 TrackSettingsModel::sideChainSourceColumn() const
-{
-    return m_midiSideChainSettings.sourceColumnIndex;
-}
-
-void TrackSettingsModel::setSideChainSourceColumn(quint8 columnIndex)
-{
-    if (m_midiSideChainSettings.sourceColumnIndex != columnIndex) {
-        m_midiSideChainSettings.sourceColumnIndex = columnIndex;
-        emit sideChainSourceColumnChanged();
-        applyAll();
-    }
-}
-
-int TrackSettingsModel::sideChainLookahead() const
-{
-    return m_midiSideChainSettings.lookahead;
-}
-
-void TrackSettingsModel::setSideChainLookahead(int lookahead)
-{
-    if (m_midiSideChainSettings.lookahead != lookahead) {
-        m_midiSideChainSettings.lookahead = lookahead;
-        emit sideChainLookaheadChanged();
-        applyAll();
-    }
-}
-
-int TrackSettingsModel::sideChainRelease() const
-{
-    return m_midiSideChainSettings.release;
-}
-
-void TrackSettingsModel::setSideChainRelease(int release)
-{
-    if (m_midiSideChainSettings.release != release) {
-        m_midiSideChainSettings.release = release;
-        emit sideChainReleaseChanged();
-        applyAll();
-    }
-}
-
-bool TrackSettingsModel::sideChainTargetEnabled(quint32 index) const
-{
-    if (m_midiSideChainSettings.targets.count(index)) {
-        return m_midiSideChainSettings.targets.at(index).enabled;
-    }
-    return false;
-}
-
-void TrackSettingsModel::setSideChainTargetEnabled(quint32 index, bool enabled)
-{
-    if (sideChainTargetEnabled(index) != enabled) {
-        m_midiSideChainSettings.targets[index].enabled = enabled;
-        emit sideChainTargetChanged(index);
-        applyAll();
-    }
-}
-
-quint8 TrackSettingsModel::sideChainTargetController(quint32 index) const
-{
-    if (m_midiSideChainSettings.targets.count(index)) {
-        return m_midiSideChainSettings.targets.at(index).controller;
-    }
-    return 0;
-}
-
-void TrackSettingsModel::setSideChainTargetController(quint32 index, quint8 controller)
-{
-    if (sideChainTargetController(index) != controller) {
-        m_midiSideChainSettings.targets[index].controller = controller;
-        emit sideChainTargetChanged(index);
-        applyAll();
-    }
-}
-
-quint8 TrackSettingsModel::sideChainTargetTargetValue(quint32 index) const
-{
-    if (m_midiSideChainSettings.targets.count(index)) {
-        return m_midiSideChainSettings.targets.at(index).targetValue;
-    }
-    return 0;
-}
-
-void TrackSettingsModel::setSideChainTargetTargetValue(quint32 index, quint8 value)
-{
-    if (sideChainTargetTargetValue(index) != value) {
-        m_midiSideChainSettings.targets[index].targetValue = value;
-        emit sideChainTargetChanged(index);
-        applyAll();
-    }
-}
-
-quint8 TrackSettingsModel::sideChainTargetReleaseValue(quint32 index) const
-{
-    if (m_midiSideChainSettings.targets.count(index)) {
-        return m_midiSideChainSettings.targets.at(index).releaseValue;
-    }
-    return 0;
-}
-
-void TrackSettingsModel::setSideChainTargetReleaseValue(quint32 index, quint8 value)
-{
-    if (sideChainTargetReleaseValue(index) != value) {
-        m_midiSideChainSettings.targets[index].releaseValue = value;
-        emit sideChainTargetChanged(index);
-        applyAll();
-    }
-}
 
 void TrackSettingsModel::pushApplyDisabled()
 {

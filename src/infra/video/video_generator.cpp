@@ -16,6 +16,7 @@
 #include "video_generator.hpp"
 
 #include "../../application/service/automation_service.hpp"
+#include "../../application/service/side_chain_service.hpp"
 #include "../../common/utils.hpp"
 #include "../../contrib/SimpleLogger/src/simple_logger.hpp"
 #include "bars_animation.hpp"
@@ -55,7 +56,7 @@ void VideoGenerator::initialize(const VideoConfig & config, SongS song)
     m_config.logo = !config.logoPath.empty() ? QImage { QString::fromStdString(config.logoPath) } : QImage {};
 
     m_eventMap.clear();
-    for (auto && event : m_song->renderToEvents(std::make_shared<AutomationService>(), config.startPosition)) {
+    for (auto && event : m_song->renderToEvents(std::make_shared<AutomationService>(), std::make_shared<SideChainService>(), config.startPosition)) {
         m_eventMap[event->tick()].push_back(event);
     }
     const double tickDurationMs = 60'000 / (static_cast<double>(m_song->beatsPerMinute() * m_song->linesPerBeat() * m_song->ticksPerLine()));

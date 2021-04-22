@@ -53,6 +53,7 @@ class RecentFilesManager;
 class RecentFilesModel;
 class SelectionService;
 class SettingsService;
+class SideChainService;
 class TrackSettingsModel;
 class UiLogger;
 class UtilService;
@@ -124,10 +125,12 @@ private:
 
     std::shared_ptr<EventSelectionModel> m_eventSelectionModel;
 
-    std::shared_ptr<MidiExporter> m_midiExporter;
     std::shared_ptr<MidiService> m_midiService;
     std::shared_ptr<MixerService> m_mixerService;
+    std::shared_ptr<SideChainService> m_sideChainService;
     std::shared_ptr<PlayerService> m_playerService;
+
+    std::shared_ptr<MidiExporter> m_midiExporter;
 
     std::shared_ptr<StateMachine> m_stateMachine;
 

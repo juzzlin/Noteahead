@@ -78,8 +78,10 @@ namespace {
 
 } // namespace
 
-MidiExporter::MidiExporter(AutomationServiceS automationService)
+MidiExporter::MidiExporter(AutomationServiceS automationService, MixerServiceS mixerService, SideChainServiceS sideChainService)
   : m_automationService { automationService }
+  , m_mixerService { mixerService }
+  , m_sideChainService { sideChainService }
 {
 }
 
@@ -93,7 +95,7 @@ void MidiExporter::sortEvents(std::vector<EventS> & events)
     });
 }
 
-void MidiExporter::exportTo(std::string fileName, SongW songW, MixerServiceS mixerService, size_t startPosition, size_t endPosition) const
+void MidiExporter::exportTo(std::string fileName, SongW songW, size_t startPosition, size_t endPosition) const
 {
     auto song = songW.lock();
     if (!song) {
@@ -113,7 +115,7 @@ void MidiExporter::exportTo(std::string fileName, SongW songW, MixerServiceS mix
         return;
     }
 
-    auto renderedEvents = song->renderToEvents(m_automationService, startPosition, endPosition);
+    auto renderedEvents = song->renderToEvents(m_automationService, m_sideChainService, startPosition, endPosition);
     sortEvents(renderedEvents);
 
     if (startPosition > 0 && !renderedEvents.empty()) {
@@ -123,7 +125,7 @@ void MidiExporter::exportTo(std::string fileName, SongW songW, MixerServiceS mix
         }
     }
 
-    auto filteredEvents = filterEvents(renderedEvents, mixerService);
+    auto filteredEvents = filterEvents(renderedEvents, m_mixerService);
 
     const auto activeTracks = discoverActiveTracks(song, filteredEvents);
     const auto trackData = buildTrackData(filteredEvents, activeTracks);

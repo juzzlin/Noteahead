@@ -13,17 +13,22 @@
 // You should have received a copy of the GNU General Public License
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef MIDI_SIDE_CHAIN_SERVICE_HPP
-#define MIDI_SIDE_CHAIN_SERVICE_HPP
+#ifndef SIDE_CHAIN_SERVICE_TEST_HPP
+#define SIDE_CHAIN_SERVICE_TEST_HPP
 
-#include "../../domain/song.hpp"
+#include <QObject>
+#include <QTest>
 
 namespace noteahead {
 
-namespace MidiSideChainService {
-Song::EventList renderToEvents(const Song & song, const Song::EventList & events, size_t endPosition);
-}
+class SideChainServiceTest : public QObject
+{
+    Q_OBJECT
+
+private slots:
+    void test_setAndGet_sideChainSettings_shouldUpdateModel();
+};
 
 } // namespace noteahead
 
-#endif // MIDI_SIDE_CHAIN_SERVICE_HPP
+#endif // SIDE_CHAIN_SERVICE_TEST_HPP

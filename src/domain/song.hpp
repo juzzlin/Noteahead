@@ -48,6 +48,7 @@ class LineEvent;
 class NoteData;
 class Pattern;
 class PlayOrder;
+class SideChainService;
 class Track;
 
 using namespace std::chrono_literals;
@@ -163,8 +164,9 @@ public:
     using EventS = std::shared_ptr<Event>;
     using EventList = std::vector<EventS>;
     using AutomationServiceS = std::shared_ptr<AutomationService>;
-    EventList renderToEvents(AutomationServiceS automationService, size_t startPosition);
-    EventList renderToEvents(AutomationServiceS automationService, size_t startPosition, size_t endPosition);
+    using SideChainServiceS = std::shared_ptr<SideChainService>;
+    EventList renderToEvents(AutomationServiceS automationService, SideChainServiceS sideChainService, size_t startPosition);
+    EventList renderToEvents(AutomationServiceS automationService, SideChainServiceS sideChainService, size_t startPosition, size_t endPosition);
 
     size_t beatsPerMinute() const;
     void setBeatsPerMinute(size_t bpm);
@@ -196,11 +198,13 @@ public:
     //! The same applies to AutomationSerializationCallback.
     using MixerSerializationCallback = std::function<void(QXmlStreamWriter & writer)>;
     using AutomationSerializationCallback = std::function<void(QXmlStreamWriter & writer)>;
-    void serializeToXml(QXmlStreamWriter & writer, MixerSerializationCallback mixerSerializationCallback, AutomationSerializationCallback automationSerializationCallback) const;
+    using SideChainSerializationCallback = std::function<void(QXmlStreamWriter & writer)>;
+    void serializeToXml(QXmlStreamWriter & writer, MixerSerializationCallback mixerSerializationCallback, AutomationSerializationCallback automationSerializationCallback, SideChainSerializationCallback sideChainSerializationCallback) const;
     void serializeToXmlAsTemplate(QXmlStreamWriter & writer, MixerSerializationCallback mixerSerializationCallback, AutomationSerializationCallback automationSerializationCallback) const;
     using MixerDeserializationCallback = std::function<void(QXmlStreamReader & reader)>;
     using AutomationDeserializationCallback = std::function<void(QXmlStreamReader & reader)>;
-    void deserializeFromXml(QXmlStreamReader & reader, MixerDeserializationCallback mixerDeserializationCallback, AutomationDeserializationCallback automationDeserializationCallback);
+    using SideChainDeserializationCallback = std::function<void(QXmlStreamReader & reader)>;
+    void deserializeFromXml(QXmlStreamReader & reader, MixerDeserializationCallback mixerDeserializationCallback, AutomationDeserializationCallback automationDeserializationCallback, SideChainDeserializationCallback sideChainDeserializationCallback);
 
     size_t positionToTick(size_t position) const;
     std::chrono::milliseconds tickToTime(size_t tick) const;
@@ -229,7 +233,7 @@ private:
 
     using EventsAndTick = std::pair<EventList, size_t>;
     EventsAndTick renderPatterns(AutomationServiceS automationService, EventListCR eventList, size_t tick, size_t startPosition, size_t endPosition);
-    EventList renderContent(AutomationServiceS automationService, size_t startPosition, size_t endPosition);
+    EventList renderContent(AutomationServiceS automationService, SideChainServiceS sideChainService, size_t startPosition, size_t endPosition);
 
     std::chrono::milliseconds m_autoNoteOffOffset = 125ms;
 

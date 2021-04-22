@@ -26,21 +26,23 @@
 namespace noteahead {
 
 class AutomationService;
-class Song;
-class Instrument;
 class Event;
-class NoteData;
+class Instrument;
 class MidiCcData;
-class PitchBendData;
 class MixerService;
+class NoteData;
+class PitchBendData;
+class SideChainService;
+class Song;
 
 class MidiExporter {
 public:
     using AutomationServiceS = std::shared_ptr<AutomationService>;
-    using MixerServiceS = std::shared_ptr<MixerService>;
     using ByteVector = std::vector<char>;
     using EventS = std::shared_ptr<Event>;
     using InstrumentS = std::shared_ptr<Instrument>;
+    using MixerServiceS = std::shared_ptr<MixerService>;
+    using SideChainServiceS = std::shared_ptr<SideChainService>;
     using SongS = std::shared_ptr<Song>;
     using SongW = std::weak_ptr<Song>;
 
@@ -50,13 +52,9 @@ public:
         std::map<std::string, uint8_t> portNameToIndex;
     };
 
-    MidiExporter(AutomationServiceS automationService);
+    MidiExporter(AutomationServiceS automationService, MixerServiceS mixerService, SideChainServiceS sidechainService);
 
-    void exportTo(std::string fileName,
-        SongW songW,
-        MixerServiceS mixerService,
-        size_t startPosition = 0,
-        size_t endPosition = std::numeric_limits<size_t>::max()) const;
+    void exportTo(std::string fileName, SongW songW, size_t startPosition = 0, size_t endPosition = std::numeric_limits<size_t>::max()) const;
 
 private:
     struct TrackProcessingState {
@@ -86,6 +84,8 @@ private:
     static void sortEvents(std::vector<EventS> & events);
 
     AutomationServiceS m_automationService;
+    MixerServiceS m_mixerService;
+    SideChainServiceS m_sideChainService;
 };
 
 } // namespace noteahead

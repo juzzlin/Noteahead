@@ -179,10 +179,13 @@ EditorService::SongS EditorService::deserializeProject(QXmlStreamReader & reader
         const auto automationDeserializationCallback = [this](QXmlStreamReader & reader) {
             emit automationDeserializationRequested(reader);
         };
+        const auto sideChainDeserializationCallback = [this](QXmlStreamReader & reader) {
+            emit sideChainDeserializationRequested(reader);
+        };
         while (!(reader.isEndElement() && !reader.name().compare(Constants::NahdXml::xmlKeyProject()))) {
             if (reader.isStartElement() && !reader.name().compare(Constants::NahdXml::xmlKeySong())) {
                 song = std::make_unique<Song>();
-                song->deserializeFromXml(reader, mixerDeserializationCallback, automationDeserializationCallback);
+                song->deserializeFromXml(reader, mixerDeserializationCallback, automationDeserializationCallback, sideChainDeserializationCallback);
             }
             reader.readNext();
         }
@@ -260,7 +263,10 @@ QString EditorService::toXml()
     const auto automationSerializationCallback = [this](QXmlStreamWriter & writer) {
         emit automationSerializationRequested(writer);
     };
-    m_song->serializeToXml(writer, mixerSerializationCallback, automationSerializationCallback);
+    const auto sideChainSerializationCallback = [this](QXmlStreamWriter & writer) {
+        emit sideChainSerializationRequested(writer);
+    };
+    m_song->serializeToXml(writer, mixerSerializationCallback, automationSerializationCallback, sideChainSerializationCallback);
 
     writer.writeEndElement();
     writer.writeEndDocument();

@@ -489,26 +489,6 @@ QString xmlKeyTrackCount()
     return "trackCount";
 }
 
-QString xmlKeyTarget0()
-{
-    return "Target0";
-}
-
-QString xmlKeyTarget1()
-{
-    return "Target1";
-}
-
-QString xmlKeyTarget2()
-{
-    return "Target2";
-}
-
-QString xmlKeyTarget3()
-{
-    return "Target3";
-}
-
 QString xmlKeyTargetValue()
 {
     return "targetValue";
@@ -554,6 +534,21 @@ QString xmlKeySourceTrack()
     return "sourceTrack";
 }
 
+QString xmlKeySideChain()
+{
+    return "SideChain";
+}
+
+QString xmlKeySideChainTarget()
+{
+    return "Target";
+}
+
+QString xmlKeySideChainSettings()
+{
+    return "SideChainSettings";
+}
+
 QString xmlValueFalse()
 {
     return "false";
@@ -566,4 +561,4 @@ QString xmlValueTrue()
 
 } // namespace NahdXml
 
-} // namespace noteahead::constants
+} // namespace noteahead::Constants
