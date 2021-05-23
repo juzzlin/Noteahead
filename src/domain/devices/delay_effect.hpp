@@ -50,49 +50,49 @@ public:
         return typeIdString();
     }
 
-    void process(float & left, float & right) override;
+    void process(double & left, double & right) override;
     void process(AudioContext & context) override;
     void setSampleRate(double sampleRate) override;
     void reset() override;
 
     void setType(Type type);
-    void setTime(float seconds);
-    void setFeedback(float feedback);
-    void setDepth(float depth);
-    void setMix(float mix);
-    void setBpm(float bpm);
-    float bpm() const;
+    void setTime(double seconds);
+    void setFeedback(double feedback);
+    void setDepth(double depth);
+    void setMix(double mix);
+    void setBpm(double bpm);
+    double bpm() const;
     void setSync(bool sync);
-    void setSyncDivision(float division);
+    void setSyncDivision(double division);
 
-    void setFeedbackLpf(float cutoff);
-    float feedbackLpf() const;
-    void setFeedbackHpf(float cutoff);
-    float feedbackHpf() const;
+    void setFeedbackLpf(double cutoff);
+    double feedbackLpf() const;
+    void setFeedbackHpf(double cutoff);
+    double feedbackHpf() const;
 
 private:
     double calculateDelaySamples() const;
-    float readFromBuffer(const std::vector<float> & buffer, double delay) const;
-    void applyFeedbackFilters(float & fbL, float & fbR);
-    void applyMix(float & left, float & right, float outL, float outR) const;
-    void applyTapeSaturation(float & fbL, float & fbR);
+    double readFromBuffer(const std::vector<double> & buffer, double delay) const;
+    void applyFeedbackFilters(double & fbL, double & fbR);
+    void applyMix(double & left, double & right, double outL, double outR) const;
+    void applyTapeSaturation(double & fbL, double & fbR);
     void updateBuffers(uint32_t sampleRate);
     void updateFilters();
-    void updateWriteBuffer(float inputL, float inputR, float fbL, float fbR, float & outL, float & outR);
+    void updateWriteBuffer(double inputL, double inputR, double fbL, double fbR, double & outL, double & outR);
 
     Type m_type { Type::Stereo };
-    float m_time { 0.5f };
-    float m_feedback { 0.3f };
-    float m_depth { 0.5f };
-    float m_mix { 0.0f };
-    float m_bpm { 120.0f };
+    double m_time { 0.5 };
+    double m_feedback { 0.3 };
+    double m_depth { 0.5 };
+    double m_mix { 0.0 };
+    double m_bpm { 120.0 };
     bool m_sync { false };
-    float m_syncDivision { 0.25f };
-    float m_feedbackLpfCutoff { 1.0f };
-    float m_feedbackHpfCutoff { 0.0f };
+    double m_syncDivision { 0.25 };
+    double m_feedbackLpfCutoff { 1.0 };
+    double m_feedbackHpfCutoff { 0.0 };
 
-    std::vector<float> m_bufferL;
-    std::vector<float> m_bufferR;
+    std::vector<double> m_bufferL;
+    std::vector<double> m_bufferR;
     uint32_t m_writePos { 0 };
     uint32_t m_lastSampleRate { 0 };
 
@@ -103,10 +103,10 @@ private:
     CascadedSvf m_fbHpfR;
 
     // Filter states for legacy HiPass/LowPass/Tape
-    float m_lpStateL { 0.0f };
-    float m_lpStateR { 0.0f };
-    float m_hpStateL { 0.0f };
-    float m_hpStateR { 0.0f };
+    double m_lpStateL { 0.0 };
+    double m_lpStateR { 0.0 };
+    double m_hpStateL { 0.0 };
+    double m_hpStateR { 0.0 };
 };
 
 } // namespace noteahead

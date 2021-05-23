@@ -115,7 +115,7 @@ void SamplerTest::test_midiNoteOn_shouldPlaySample()
     SamplerDevice sampler { Constants::samplerDeviceName().toStdString(), std::move(mockReader) };
     sampler.loadSample(60, "test.wav");
     sampler.processMidiNoteOn(60, 127);
-    std::vector<float> buffer(4, 0.0f);
+    std::vector<double> buffer(4, 0.0);
     AudioContext context { std::span(buffer.data(), buffer.size()), 2, static_cast<uint32_t>(Constants::defaultSampleRate()) };
     sampler.processAudio(context);
     QVERIFY(buffer[0] > 0.0f);
@@ -127,7 +127,7 @@ void SamplerTest::test_midiAllNotesOff_shouldStopAllVoices()
     sampler.loadSample(60, "test.wav");
     sampler.processMidiNoteOn(60, 127);
     sampler.processMidiAllNotesOff();
-    std::vector<float> buffer(4, 0.0f);
+    std::vector<double> buffer(4, 0.0);
     AudioContext context { std::span(buffer.data(), buffer.size()), 2, static_cast<uint32_t>(Constants::defaultSampleRate()) };
     sampler.processAudio(context);
     QCOMPARE(buffer[0], 0.0f);
@@ -208,7 +208,7 @@ void SamplerTest::test_processAudio_shouldProduceOutput()
     SamplerDevice sampler { Constants::samplerDeviceName().toStdString(), std::move(mockReader) };
     sampler.loadSample(60, "test.wav");
     sampler.processMidiNoteOn(60, 127);
-    std::vector<float> buffer(4, 0.0f);
+    std::vector<double> buffer(4, 0.0);
     AudioContext context { std::span(buffer.data(), buffer.size()), 2, static_cast<uint32_t>(Constants::defaultSampleRate()) };
     sampler.processAudio(context);
     QCOMPARE(buffer[0], 1.0f);

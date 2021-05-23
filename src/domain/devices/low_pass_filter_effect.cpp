@@ -23,20 +23,20 @@
 
 namespace noteahead {
 
-void LowPassFilterEffect::setCutoff(float cutoff)
+void LowPassFilterEffect::setCutoff(double cutoff)
 {
     m_cutoff = cutoff;
 }
 
-void LowPassFilterEffect::process(float & left, float & right)
+void LowPassFilterEffect::process(double & left, double & right)
 {
-    if (m_cutoff >= 0.999f) {
+    if (m_cutoff >= 0.999) {
         return;
     }
 
     // Zero-Delay Feedback State Variable Filter (2nd order)
-    const float freq = Utils::Dsp::cutoffToHz(m_cutoff, static_cast<float>(m_sampleRate));
-    const double g = std::tan(std::numbers::pi * static_cast<double>(freq) / m_sampleRate);
+    const double freq = Utils::Dsp::cutoffToHz(static_cast<float>(m_cutoff), static_cast<float>(m_sampleRate));
+    const double g = std::tan(std::numbers::pi * freq / m_sampleRate);
     const double k = 1.0; // Q = 1.0 / k. Using k = 1.0 for Q = 1.0 (slight resonance)
     const double damping = 1.0 / (1.0 + g * (g + k));
 
@@ -45,12 +45,12 @@ void LowPassFilterEffect::process(float & left, float & right)
 
 void LowPassFilterEffect::process(AudioContext & context)
 {
-    if (m_cutoff >= 0.999f) {
+    if (m_cutoff >= 0.999) {
         return;
     }
 
-    const float freq = Utils::Dsp::cutoffToHz(m_cutoff, static_cast<float>(m_sampleRate));
-    const double g = std::tan(std::numbers::pi * static_cast<double>(freq) / m_sampleRate);
+    const double freq = Utils::Dsp::cutoffToHz(static_cast<float>(m_cutoff), static_cast<float>(m_sampleRate));
+    const double g = std::tan(std::numbers::pi * freq / m_sampleRate);
     const double k = 1.0;
     const double damping = 1.0 / (1.0 + g * (g + k));
 
@@ -59,30 +59,30 @@ void LowPassFilterEffect::process(AudioContext & context)
     }
 }
 
-void LowPassFilterEffect::processSample(float & left, float & right, double g, double damping, double k)
+void LowPassFilterEffect::processSample(double & left, double & right, double g, double damping, double k)
 {
     // Left channel
     {
-        const double hp = (static_cast<double>(left) - (g + k) * m_s1L - m_s2L) * damping;
+        const double hp = (left - (g + k) * m_s1L - m_s2L) * damping;
         const double v1 = g * hp;
         const double v = v1 + m_s1L;
         m_s1L = v1 + v;
         const double v2 = g * v;
         const double lp = v2 + m_s2L;
         m_s2L = v2 + lp;
-        left = static_cast<float>(lp);
+        left = lp;
     }
 
     // Right channel
     {
-        const double hp = (static_cast<double>(right) - (g + k) * m_s1R - m_s2R) * damping;
+        const double hp = (right - (g + k) * m_s1R - m_s2R) * damping;
         const double v1 = g * hp;
         const double v = v1 + m_s1R;
         m_s1R = v1 + v;
         const double v2 = g * v;
         const double lp = v2 + m_s2R;
         m_s2R = v2 + lp;
-        right = static_cast<float>(lp);
+        right = lp;
     }
 
     // Denormal protection
@@ -98,8 +98,8 @@ void LowPassFilterEffect::processSample(float & left, float & right, double g, d
     // NaN protection
     if (std::isnan(left) || std::isnan(right)) {
         reset();
-        left = 0.0f;
-        right = 0.0f;
+        left = 0.0;
+        right = 0.0;
     }
 }
 

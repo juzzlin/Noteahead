@@ -180,16 +180,16 @@ void DrumSynthDevice::processAudio(AudioContext & context)
             for (auto && voice : m_voices) {
                 if (voice.engine->isActive()) {
                     float sample = voice.engine->nextSample();
-                    float l = sample;
-                    float r = sample;
+                    double l = sample;
+                    double r = sample;
 
                     voice.lpf->process(l, r);
                     voice.hpf->process(l, r);
                     voice.volumeEffect->process(l, r);
                     voice.panningEffect->process(l, r);
 
-                    mixL += l;
-                    mixR += r;
+                    mixL += static_cast<float>(l);
+                    mixR += static_cast<float>(r);
                 }
             }
 

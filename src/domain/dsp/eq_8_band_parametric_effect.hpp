@@ -44,7 +44,7 @@ public:
         return typeIdString();
     }
 
-    void process(float & left, float & right) override;
+    void process(double & left, double & right) override;
     void process(AudioContext & context) override;
     void reset() override;
     void sync() override;
@@ -102,7 +102,7 @@ private:
 
     void syncParameters();
     void updateBuffers();
-    void processStereo(float & left, float & right);
+    void processStereo(double & left, double & right);
 
     static constexpr size_t NumBands = 8;
     std::array<Band, NumBands> m_bands;

@@ -29,9 +29,9 @@ namespace noteahead {
 class DiodeLadderFilter : public DspComponent
 {
 public:
-    void setCutoff(double cutoff);     // 0.0 to 1.0
+    void setCutoff(double cutoff); // 0.0 to 1.0
     void setResonance(double resonance); // 0.0 to 1.0
-    void setDrive(double drive);       // 0.0 to 1.0
+    void setDrive(double drive); // 0.0 to 1.0
 
     float process(float input);
     void reset();

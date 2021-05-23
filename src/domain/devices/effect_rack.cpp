@@ -74,7 +74,7 @@ size_t EffectRack::effectCount() const
     return m_effects.size();
 }
 
-void EffectRack::process(AudioContext & outputContext, const float * sendBus, size_t effectIndex)
+void EffectRack::process(AudioContext & outputContext, const double * sendBus, size_t effectIndex)
 {
     std::lock_guard<std::recursive_mutex> lock { m_mutex };
     if (effectIndex >= m_effects.size())
@@ -92,11 +92,11 @@ void EffectRack::process(AudioContext & outputContext, const float * sendBus, si
     // The previous implementation was doing a sample-by-sample delta mix.
 
     for (uint32_t i = 0; i < outputContext.frameCount; i++) {
-        float l = sendBus[i * 2];
-        float r = sendBus[i * 2 + 1];
+        double l = sendBus[i * 2];
+        double r = sendBus[i * 2 + 1];
 
-        float wetL = l;
-        float wetR = r;
+        double wetL = l;
+        double wetR = r;
         effect->process(wetL, wetR);
 
         outputContext.buffer[i * 2] += (wetL - l);

@@ -327,7 +327,7 @@ void SamplerDevice::processAudio(AudioContext & context)
     setSampleRate(context.sampleRate);
     const std::lock_guard<std::recursive_mutex> lock { mutex() };
 
-    std::vector<float> buffer(context.frameCount * 2, 0.0f);
+    std::vector<double> buffer(context.frameCount * 2, 0.0);
 
     const float fadeStep = 1.0f / 256.0f;
 
@@ -354,18 +354,18 @@ void SamplerDevice::processAudio(AudioContext & context)
                 break;
             }
 
-            float left = 0.0f;
-            float right = 0.0f;
+            double left = 0.0;
+            double right = 0.0;
 
             if (channels == 1) {
-                const float s0 = sampleData.at(index);
-                const float s1 = sampleData.at(index + 1);
+                const double s0 = static_cast<double>(sampleData.at(index));
+                const double s1 = static_cast<double>(sampleData.at(index + 1));
                 left = right = s0 + (s1 - s0) * fract;
             } else if (channels == 2) {
-                const float l0 = sampleData.at(index * 2);
-                const float l1 = sampleData.at((index + 1) * 2);
-                const float r0 = sampleData.at(index * 2 + 1);
-                const float r1 = sampleData.at((index + 1) * 2 + 1);
+                const double l0 = static_cast<double>(sampleData.at(index * 2));
+                const double l1 = static_cast<double>(sampleData.at((index + 1) * 2));
+                const double r0 = static_cast<double>(sampleData.at(index * 2 + 1));
+                const double r1 = static_cast<double>(sampleData.at((index + 1) * 2 + 1));
                 left = l0 + (l1 - l0) * fract;
                 right = r0 + (r1 - r0) * fract;
             }
@@ -375,8 +375,8 @@ void SamplerDevice::processAudio(AudioContext & context)
             }
 
             if (voice.releasing) {
-                left *= voice.releaseGain;
-                right *= voice.releaseGain;
+                left *= static_cast<double>(voice.releaseGain);
+                right *= static_cast<double>(voice.releaseGain);
                 voice.releaseGain -= fadeStep;
                 if (voice.releaseGain <= 0.0f) {
                     voice.active = false;
@@ -385,8 +385,8 @@ void SamplerDevice::processAudio(AudioContext & context)
                 }
             }
 
-            buffer[i * 2] += left * linearGainInternal();
-            buffer[i * 2 + 1] += right * linearGainInternal();
+            buffer[i * 2] += left * static_cast<double>(linearGainInternal());
+            buffer[i * 2 + 1] += right * static_cast<double>(linearGainInternal());
 
             voice.position += static_cast<double>(pitchScale);
         }

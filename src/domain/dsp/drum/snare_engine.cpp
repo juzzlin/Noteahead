@@ -76,7 +76,7 @@ float SnareEngine::nextSample()
     m_noiseFilter.setSampleRate(sampleRate());
     m_noiseFilter.setCutoff(0.65f + m_tone * 0.3f);
     m_noiseFilter.setResonance(0.3f);
-    const float filteredNoise { m_noiseFilter.process(noise) };
+    const auto filteredNoise = static_cast<float>(m_noiseFilter.process(noise));
 
     float out { (tonal * m_tonalEnv * (1.0f - m_snappy) * 0.8f + filteredNoise * m_snappy * 2.5f) * m_ampEnv * m_velocity };
     out = std::tanh(out);

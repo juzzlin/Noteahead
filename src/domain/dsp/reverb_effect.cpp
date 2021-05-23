@@ -48,7 +48,7 @@ ReverbEffect::ReverbEffect()
     ReverbEffect::syncParameters();
 }
 
-void ReverbEffect::process(float & left, float & right)
+void ReverbEffect::process(double & left, double & right)
 {
     if (m_sampleRate <= 0) {
         return;
@@ -64,42 +64,42 @@ void ReverbEffect::process(float & left, float & right)
         m_shouldSyncParameters = false;
     }
 
-    const float dryL = left;
-    const float dryR = right;
+    const double dryL = left;
+    const double dryR = right;
 
-    float input = (dryL + dryR) * 0.5f;
+    double input = (dryL + dryR) * 0.5;
 
     if (!m_preDelayBuffer.empty()) {
-        const float delayedInput = m_preDelayBuffer[m_preDelayWritePos];
+        const double delayedInput = m_preDelayBuffer[m_preDelayWritePos];
         m_preDelayBuffer[m_preDelayWritePos] = input;
         m_preDelayWritePos = (m_preDelayWritePos + 1) % static_cast<uint32_t>(m_preDelayBuffer.size());
         input = delayedInput;
     }
 
-    std::array<float, NumDelays> delayOutputs;
+    std::array<double, NumDelays> delayOutputs;
     for (int i = 0; i < NumDelays; i++) {
         if (m_delays[i].buffer.empty()) {
-            delayOutputs[i] = 0.0f;
+            delayOutputs[i] = 0.0;
             continue;
         }
         delayOutputs[i] = m_delays[i].buffer[m_delays[i].writePos];
     }
 
-    std::array<float, NumDelays> feedbackSignals;
+    std::array<double, NumDelays> feedbackSignals;
     for (int i = 0; i < NumDelays; i++) {
         if (m_delays[i].buffer.empty()) {
-            feedbackSignals[i] = 0.0f;
+            feedbackSignals[i] = 0.0;
             continue;
         }
 
-        const float dOut = delayOutputs[i];
-        m_delays[i].lpState = dOut + m_damping * (m_delays[i].lpState - dOut);
+        const double dOut = delayOutputs[i];
+        m_delays[i].lpState = dOut + static_cast<double>(m_damping) * (m_delays[i].lpState - dOut);
 
-        if (std::abs(m_delays[i].lpState) < 1.0e-15f) {
-            m_delays[i].lpState = 0.0f;
+        if (std::abs(m_delays[i].lpState) < 1.0e-15) {
+            m_delays[i].lpState = 0.0;
         }
 
-        float filtered = m_delays[i].lpState;
+        double filtered = m_delays[i].lpState;
         if (m_hpfCutoff > 0.001f) {
             filtered = m_delays[i].fbHpf.process(filtered);
         }
@@ -109,34 +109,34 @@ void ReverbEffect::process(float & left, float & right)
         feedbackSignals[i] = filtered;
     }
 
-    float sum = 0.0f;
+    double sum = 0.0;
     for (int i = 0; i < NumDelays; i++) {
         sum += feedbackSignals[i];
     }
-    const float average = sum * (2.0f / static_cast<float>(NumDelays));
+    const double average = sum * (2.0 / static_cast<double>(NumDelays));
 
-    static constexpr std::array<float, NumDelays> inputGains = { 0.82f, -0.74f, 0.68f, -0.61f, 0.56f, -0.51f, 0.47f, -0.43f };
+    static constexpr std::array<double, NumDelays> inputGains = { 0.82, -0.74, 0.68, -0.61, 0.56, -0.51, 0.47, -0.43 };
     for (int i = 0; i < NumDelays; i++) {
         if (m_delays[i].buffer.empty()) {
             continue;
         }
-        const float feedback = feedbackSignals[i] - average;
+        const double feedback = feedbackSignals[i] - average;
         m_delays[i].buffer[m_delays[i].writePos] = input * inputGains[i] + feedback * m_delays[i].feedback;
         m_delays[i].writePos = (m_delays[i].writePos + 1) % m_delays[i].size;
     }
 
-    float wetL = (delayOutputs[0] - delayOutputs[2] + delayOutputs[4] - delayOutputs[6]) * 0.25f;
-    float wetR = (delayOutputs[1] - delayOutputs[3] + delayOutputs[5] - delayOutputs[7]) * 0.25f;
+    double wetL = (delayOutputs[0] - delayOutputs[2] + delayOutputs[4] - delayOutputs[6]) * 0.25;
+    double wetR = (delayOutputs[1] - delayOutputs[3] + delayOutputs[5] - delayOutputs[7]) * 0.25;
 
     applyWetFilters(wetL, wetR);
 
-    const float mid = (wetL + wetR) * 0.5f;
-    const float side = (wetL - wetR) * 0.5f;
-    wetL = mid + side * m_width;
-    wetR = mid - side * m_width;
+    const double mid = (wetL + wetR) * 0.5;
+    const double side = (wetL - wetR) * 0.5;
+    wetL = mid + side * static_cast<double>(m_width);
+    wetR = mid - side * static_cast<double>(m_width);
 
-    left = dryL + wetL * m_mix;
-    right = dryR + wetR * m_mix;
+    left = dryL + wetL * static_cast<double>(m_mix);
+    right = dryR + wetR * static_cast<double>(m_mix);
 }
 
 void ReverbEffect::process(AudioContext & context)
@@ -165,7 +165,7 @@ void ReverbEffect::reset()
     for (auto & dl : m_delays) {
         dl.reset();
     }
-    std::fill(m_preDelayBuffer.begin(), m_preDelayBuffer.end(), 0.0f);
+    std::fill(m_preDelayBuffer.begin(), m_preDelayBuffer.end(), 0.0);
     m_preDelayWritePos = 0;
     m_wetLpfL.reset();
     m_wetLpfR.reset();
@@ -473,20 +473,20 @@ void ReverbEffect::updateBuffers()
         }
 
         if (newSize != m_delays[i].size) {
-            m_delays[i].buffer.assign(newSize, 0.0f);
+            m_delays[i].buffer.assign(newSize, 0.0);
             m_delays[i].size = newSize;
             m_delays[i].writePos = 0;
-            m_delays[i].lpState = 0.0f;
+            m_delays[i].lpState = 0.0;
             m_delays[i].fbLpf.reset();
             m_delays[i].fbHpf.reset();
         }
 
-        m_delays[i].feedback = std::min(0.985f, std::pow(10.0f, -3.0f * static_cast<float>(newSize) / (t60 * static_cast<float>(m_sampleRate))));
+        m_delays[i].feedback = static_cast<double>(std::min(0.985f, std::pow(10.0f, -3.0f * static_cast<float>(newSize) / (t60 * static_cast<float>(m_sampleRate)))));
     }
 
     const uint32_t preDelaySize = std::max(1u, static_cast<uint32_t>(m_preDelayMs * static_cast<float>(m_sampleRate) / 1000.0f));
     if (preDelaySize != m_preDelayBuffer.size()) {
-        m_preDelayBuffer.assign(preDelaySize, 0.0f);
+        m_preDelayBuffer.assign(preDelaySize, 0.0);
         m_preDelayWritePos = 0;
     }
 }
@@ -510,7 +510,7 @@ void ReverbEffect::updateFilters()
     m_wetHpfR.setCutoff(static_cast<double>(m_hpfCutoff));
 }
 
-void ReverbEffect::applyWetFilters(float & wetL, float & wetR)
+void ReverbEffect::applyWetFilters(double & wetL, double & wetR)
 {
     if (m_hpfCutoff > 0.001f) {
         wetL = m_wetHpfL.process(wetL);

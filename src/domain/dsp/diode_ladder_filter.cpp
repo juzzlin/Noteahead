@@ -49,14 +49,14 @@ float DiodeLadderFilter::process(float input)
 
     // Zero-Delay Feedback solver for Diode Ladder
     // Using a simplified one-iteration approximation for the non-linear loop
-    
+
     const double g = m_g;
     const double k = m_k;
 
     // Feedback compensation and non-linearity
     const double feedback = k * m_s4;
     const double u = (in - feedback);
-    
+
     // Tanh non-linearity for the "squelch" and saturation
     const double v = std::tanh(u);
 
@@ -100,7 +100,7 @@ void DiodeLadderFilter::updateCoefficients()
     // 303 filter range is roughly 300Hz to 10kHz
     const double freq = 300.0 * std::pow(10000.0 / 300.0, m_cutoff);
     m_g = std::tan(std::numbers::pi * freq / m_sampleRate);
-    
+
     // Resonance k: 0 to 17 is a common range for diode ladder models
     m_k = m_resonance * 17.0;
 

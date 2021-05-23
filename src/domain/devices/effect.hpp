@@ -39,7 +39,7 @@ public:
 
     virtual std::string type() const = 0;
     virtual std::string typeId() const = 0;
-    virtual void process(float & left, float & right) = 0;
+    virtual void process(double & left, double & right) = 0;
     virtual void process(AudioContext & context);
     virtual std::vector<std::string> parameterNames() const;
 

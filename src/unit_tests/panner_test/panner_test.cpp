@@ -31,7 +31,7 @@ void PannerTest::test_pan_shouldAdjustGains()
     // Pan Center
     panParam->get().update(0.5f);
     panner.sync();
-    float l = 1.0f, r = 1.0f;
+    double l = 1.0, r = 1.0;
     panner.process(l, r);
     QCOMPARE(l, 1.0f);
     QCOMPARE(r, 1.0f);
@@ -39,7 +39,7 @@ void PannerTest::test_pan_shouldAdjustGains()
     // Pan Left
     panParam->get().update(0.0f);
     panner.sync();
-    l = 1.0f, r = 1.0f;
+    l = 1.0, r = 1.0;
     panner.process(l, r);
     QCOMPARE(l, 1.0f);
     QCOMPARE(r, 0.0f);
@@ -47,7 +47,7 @@ void PannerTest::test_pan_shouldAdjustGains()
     // Pan Right
     panParam->get().update(1.0f);
     panner.sync();
-    l = 1.0f, r = 1.0f;
+    l = 1.0, r = 1.0;
     panner.process(l, r);
     QCOMPARE(l, 0.0f);
     QCOMPARE(r, 1.0f);
@@ -62,7 +62,7 @@ void PannerTest::test_width_shouldAdjustStereoImage()
     // Width 100% (Normal)
     widthParam->get().update(1.0f);
     panner.sync();
-    float l = 1.0f, r = -1.0f;
+    double l = 1.0, r = -1.0;
     panner.process(l, r);
     QCOMPARE(l, 1.0f);
     QCOMPARE(r, -1.0f);
@@ -70,12 +70,12 @@ void PannerTest::test_width_shouldAdjustStereoImage()
     // Width 0% (Mono)
     widthParam->get().update(0.0f);
     panner.sync();
-    l = 1.0f, r = -1.0f; // Pure side signal
+    l = 1.0, r = -1.0; // Pure side signal
     panner.process(l, r);
     QCOMPARE(l, 0.0f);
     QCOMPARE(r, 0.0f);
 
-    l = 1.0f, r = 1.0f; // Pure mid signal
+    l = 1.0, r = 1.0; // Pure mid signal
     panner.process(l, r);
     QCOMPARE(l, 1.0f);
     QCOMPARE(r, 1.0f);
@@ -91,7 +91,7 @@ void PannerTest::test_sync_shouldUpdateInternalState()
     panParam->get().update(0.1f);
     panner.sync();
 
-    float l = 1.0f, r = 0.0f;
+    double l = 1.0, r = 0.0;
     panner.process(l, r);
     // gainL = min(1.0, 2.0 - 0.1*2.0) = min(1.0, 1.8) = 1.0
     // gainR = min(1.0, 0.1*2.0) = 0.2
@@ -99,7 +99,7 @@ void PannerTest::test_sync_shouldUpdateInternalState()
     QCOMPARE(l, 1.0f);
     QCOMPARE(r, 0.0f);
 
-    l = 0.0f, r = 1.0f;
+    l = 0.0, r = 1.0;
     panner.process(l, r);
     QCOMPARE(l, 0.0f);
     QCOMPARE(r, 0.2f);

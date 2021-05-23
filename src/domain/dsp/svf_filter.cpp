@@ -136,13 +136,13 @@ void SvfFilter::setBypass()
     m_isBypassed = true;
 }
 
-float SvfFilter::process(float input)
+double SvfFilter::process(double input)
 {
     if (m_isBypassed) {
         return input;
     }
 
-    const double v0 = static_cast<double>(input);
+    const double v0 = input;
     const double v3 = v0 - m_s2;
     const double v1 = m_a1 * m_s1 + m_a2 * v3;
     const double v2 = m_s2 + m_g * v1;
@@ -158,7 +158,7 @@ float SvfFilter::process(float input)
     if (std::abs(m_s2) < 1.0e-15)
         m_s2 = 0.0;
 
-    return static_cast<float>(out);
+    return out;
 }
 
 void SvfFilter::reset()

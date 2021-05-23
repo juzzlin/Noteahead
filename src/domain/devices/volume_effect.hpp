@@ -39,7 +39,7 @@ public:
     }
 
     void setVolume(float volume);
-    void process(float & left, float & right) override;
+    void process(double & left, double & right) override;
 
 private:
     float m_volume { 1.0f };

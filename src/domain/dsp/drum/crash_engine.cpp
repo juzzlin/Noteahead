@@ -139,11 +139,11 @@ float CrashEngine::nextSample()
     m_lpf.setCutoff(0.85f); // 12kHz roll-off
     m_lpf.setResonance(0.1f);
 
-    const float hpfOut { m_hpf.process(source) };
-    const float bpfOut { m_bpf.process(source) };
-    const float filtered { (hpfOut * 0.85f + bpfOut * 0.55f) };
+    const auto hpfOut = static_cast<float>(m_hpf.process(source));
+    const auto bpfOut = static_cast<float>(m_bpf.process(source));
+    const auto filtered = hpfOut * 0.5f + bpfOut * 0.5f;
 
-    const float out { (m_lpf.process(filtered) + bodySource * m_attackEnv) * m_ampEnv * m_velocity };
+    const auto out = static_cast<float>((m_lpf.process(filtered) + bodySource * m_attackEnv) * m_ampEnv * m_velocity);
 
     if (m_mode == Mode::Normal) {
         const float decayRate { 1.0f - (1.0f / (std::max(0.01f, m_decay) * 2.5f * static_cast<float>(sampleRate()))) };

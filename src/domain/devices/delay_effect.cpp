@@ -31,7 +31,7 @@ DelayEffect::DelayEffect()
     m_fbHpfR.setMode(CascadedSvf::Mode::HighPass);
 }
 
-void DelayEffect::process(float & left, float & right)
+void DelayEffect::process(double & left, double & right)
 {
     if (m_bufferL.empty()) {
         return;
@@ -43,12 +43,12 @@ void DelayEffect::process(float & left, float & right)
     const double delaySamples = calculateDelaySamples();
 
     // 1. Read from buffers (this is our WET signal)
-    float outL = readFromBuffer(m_bufferL, delaySamples);
-    float outR = readFromBuffer(m_bufferR, delaySamples);
+    double outL = readFromBuffer(m_bufferL, delaySamples);
+    double outR = readFromBuffer(m_bufferR, delaySamples);
 
     // 2. Feedback and Character Processing
-    float fbL = outL;
-    float fbR = outR;
+    double fbL = outL;
+    double fbR = outR;
 
     // 3. Routing and Write-back
     updateWriteBuffer(left, right, fbL, fbR, outL, outR);
@@ -59,30 +59,30 @@ void DelayEffect::process(float & left, float & right)
 
 void DelayEffect::updateFilters()
 {
-    m_fbLpfL.setCutoff(static_cast<double>(m_feedbackLpfCutoff));
-    m_fbLpfR.setCutoff(static_cast<double>(m_feedbackLpfCutoff));
-    m_fbHpfL.setCutoff(static_cast<double>(std::max(0.001f, m_feedbackHpfCutoff)));
-    m_fbHpfR.setCutoff(static_cast<double>(std::max(0.001f, m_feedbackHpfCutoff)));
+    m_fbLpfL.setCutoff(m_feedbackLpfCutoff);
+    m_fbLpfR.setCutoff(m_feedbackLpfCutoff);
+    m_fbHpfL.setCutoff(std::max(0.001, m_feedbackHpfCutoff));
+    m_fbHpfR.setCutoff(std::max(0.001, m_feedbackHpfCutoff));
 }
 
-void DelayEffect::updateWriteBuffer(float inputL, float inputR, float fbL, float fbR, float & outL, float & outR)
+void DelayEffect::updateWriteBuffer(double inputL, double inputR, double fbL, double fbR, double & outL, double & outR)
 {
     const size_t bufSize = m_bufferL.size();
-    float writeL = inputL;
-    float writeR = inputR;
+    double writeL = inputL;
+    double writeR = inputR;
 
     if (m_type == Type::PingPong) {
         // Ping-Pong: Depth controls stereo width/bounce amount.
-        const float inL = inputL + inputR * (1.0f - m_depth);
-        const float inR = inputR * (1.0f - m_depth);
+        const double inL = inputL + inputR * (1.0 - m_depth);
+        const double inR = inputR * (1.0 - m_depth);
         writeL = inL + fbR;
         writeR = inR + fbL;
     } else if (m_type == Type::Mono) {
         // Sum input and feedback to mono delay line
-        const float monoInput = (inputL + inputR) * 0.5f;
-        const float monoFb = (fbL + fbR) * 0.5f;
+        const double monoInput = (inputL + inputR) * 0.5;
+        const double monoFb = (fbL + fbR) * 0.5;
         writeL = writeR = monoInput + monoFb;
-        outL = outR = (outL + outR) * 0.5f;
+        outL = outR = (outL + outR) * 0.5;
     } else {
         // Normal Stereo
         writeL = inputL + fbL;
@@ -104,12 +104,12 @@ double DelayEffect::calculateDelaySamples() const
     if (bufSize < 2) {
         return 0.0;
     }
-    const float delayTime = m_sync ? (60.0f / m_bpm) * m_syncDivision * 4.0f : m_time;
+    const double delayTime = m_sync ? (60.0 / m_bpm) * m_syncDivision * 4.0 : m_time;
     const uint32_t sampleRate = static_cast<uint32_t>(m_sampleRate);
-    return std::clamp(static_cast<double>(delayTime) * sampleRate, 1.0, static_cast<double>(bufSize - 2));
+    return std::clamp(delayTime * sampleRate, 1.0, static_cast<double>(bufSize - 2));
 }
 
-float DelayEffect::readFromBuffer(const std::vector<float> & buffer, double delay) const
+double DelayEffect::readFromBuffer(const std::vector<double> & buffer, double delay) const
 {
     const size_t bufSize = buffer.size();
     const double bufSizeD = static_cast<double>(bufSize);
@@ -123,55 +123,55 @@ float DelayEffect::readFromBuffer(const std::vector<float> & buffer, double dela
 
     const size_t i0 = static_cast<size_t>(readPos) % bufSize;
     const size_t i1 = (i0 + 1) % bufSize;
-    const float frac = static_cast<float>(readPos - static_cast<double>(i0));
+    const double frac = readPos - static_cast<double>(i0);
 
-    return buffer[i0] * (1.0f - frac) + buffer[i1] * frac;
+    return buffer[i0] * (1.0 - frac) + buffer[i1] * frac;
 }
 
-void DelayEffect::applyFeedbackFilters(float & fbL, float & fbR)
+void DelayEffect::applyFeedbackFilters(double & fbL, double & fbR)
 {
-    if (m_feedbackLpfCutoff < 0.999f) {
+    if (m_feedbackLpfCutoff < 0.999) {
         fbL = m_fbLpfL.process(fbL);
         fbR = m_fbLpfR.process(fbR);
     }
-    if (m_feedbackHpfCutoff > 0.001f) {
+    if (m_feedbackHpfCutoff > 0.001) {
         fbL = m_fbHpfL.process(fbL);
         fbR = m_fbHpfR.process(fbR);
     }
 }
 
-void DelayEffect::applyTapeSaturation(float & fbL, float & fbR)
+void DelayEffect::applyTapeSaturation(double & fbL, double & fbR)
 {
     if (m_type != Type::Tape) {
         return;
     }
 
     // Tape: Dark, saturated, slightly compressed. Depth controls saturation.
-    m_lpStateL += 0.2f * (fbL - m_lpStateL);
-    m_lpStateR += 0.2f * (fbR - m_lpStateR);
+    m_lpStateL += 0.2 * (fbL - m_lpStateL);
+    m_lpStateR += 0.2 * (fbR - m_lpStateR);
 
-    const float saturation = 1.0f + (m_depth * 2.0f);
+    const double saturation = 1.0 + (m_depth * 2.0);
     fbL = std::tanh(m_lpStateL * saturation);
     fbR = std::tanh(m_lpStateR * saturation);
 
     // Denormal protection for feedback states
-    if (std::abs(m_lpStateL) < 1.0e-15f) {
-        m_lpStateL = 0.0f;
+    if (std::abs(m_lpStateL) < 1.0e-15) {
+        m_lpStateL = 0.0;
     }
-    if (std::abs(m_lpStateR) < 1.0e-15f) {
-        m_lpStateR = 0.0f;
+    if (std::abs(m_lpStateR) < 1.0e-15) {
+        m_lpStateR = 0.0;
     }
 }
 
-void DelayEffect::applyMix(float & left, float & right, float outL, float outR) const
+void DelayEffect::applyMix(double & left, double & right, double outL, double outR) const
 {
     if (m_mix <= Constants::minEffectLevel()) {
         return;
     }
 
     // Mix: Use a unity-dry crossfade strategy (0% to 50% Dry is 100%, Wet fades in)
-    const float dry = std::clamp(2.0f * (1.0f - m_mix), 0.0f, 1.0f);
-    const float wet = std::clamp(2.0f * m_mix, 0.0f, 1.0f);
+    const double dry = std::clamp(2.0 * (1.0 - m_mix), 0.0, 1.0);
+    const double wet = std::clamp(2.0 * m_mix, 0.0, 1.0);
     left = left * dry + outL * wet;
     right = right * dry + outR * wet;
 }
@@ -213,10 +213,10 @@ void DelayEffect::setSampleRate(double sampleRate)
 
 void DelayEffect::reset()
 {
-    std::fill(m_bufferL.begin(), m_bufferL.end(), 0.0f);
-    std::fill(m_bufferR.begin(), m_bufferR.end(), 0.0f);
-    m_lpStateL = m_lpStateR = 0.0f;
-    m_hpStateL = m_hpStateR = 0.0f;
+    std::fill(m_bufferL.begin(), m_bufferL.end(), 0.0);
+    std::fill(m_bufferR.begin(), m_bufferR.end(), 0.0);
+    m_lpStateL = m_lpStateR = 0.0;
+    m_hpStateL = m_hpStateR = 0.0;
     m_fbLpfL.reset();
     m_fbLpfR.reset();
     m_fbHpfL.reset();
@@ -228,32 +228,32 @@ void DelayEffect::setType(Type type)
     m_type = type;
 }
 
-void DelayEffect::setTime(float seconds)
+void DelayEffect::setTime(double seconds)
 {
-    m_time = std::clamp(seconds, 0.001f, 10.0f);
+    m_time = std::clamp(seconds, 0.001, 10.0);
 }
 
-void DelayEffect::setFeedback(float feedback)
+void DelayEffect::setFeedback(double feedback)
 {
-    m_feedback = std::clamp(feedback, 0.0f, 1.0f);
+    m_feedback = std::clamp(feedback, 0.0, 1.0);
 }
 
-void DelayEffect::setDepth(float depth)
+void DelayEffect::setDepth(double depth)
 {
-    m_depth = std::clamp(depth, 0.0f, 1.0f);
+    m_depth = std::clamp(depth, 0.0, 1.0);
 }
 
-void DelayEffect::setMix(float mix)
+void DelayEffect::setMix(double mix)
 {
-    m_mix = std::clamp(mix, 0.0f, 1.0f);
+    m_mix = std::clamp(mix, 0.0, 1.0);
 }
 
-void DelayEffect::setBpm(float bpm)
+void DelayEffect::setBpm(double bpm)
 {
-    m_bpm = std::max(1.0f, bpm);
+    m_bpm = std::max(1.0, bpm);
 }
 
-float DelayEffect::bpm() const
+double DelayEffect::bpm() const
 {
     return m_bpm;
 }
@@ -263,27 +263,27 @@ void DelayEffect::setSync(bool sync)
     m_sync = sync;
 }
 
-void DelayEffect::setSyncDivision(float division)
+void DelayEffect::setSyncDivision(double division)
 {
     m_syncDivision = division;
 }
 
-void DelayEffect::setFeedbackLpf(float cutoff)
+void DelayEffect::setFeedbackLpf(double cutoff)
 {
-    m_feedbackLpfCutoff = std::clamp(cutoff, 0.0f, 1.0f);
+    m_feedbackLpfCutoff = std::clamp(cutoff, 0.0, 1.0);
 }
 
-float DelayEffect::feedbackLpf() const
+double DelayEffect::feedbackLpf() const
 {
     return m_feedbackLpfCutoff;
 }
 
-void DelayEffect::setFeedbackHpf(float cutoff)
+void DelayEffect::setFeedbackHpf(double cutoff)
 {
-    m_feedbackHpfCutoff = std::clamp(cutoff, 0.0f, 1.0f);
+    m_feedbackHpfCutoff = std::clamp(cutoff, 0.0, 1.0);
 }
 
-float DelayEffect::feedbackHpf() const
+double DelayEffect::feedbackHpf() const
 {
     return m_feedbackHpfCutoff;
 }
@@ -291,8 +291,8 @@ float DelayEffect::feedbackHpf() const
 void DelayEffect::updateBuffers(uint32_t sampleRate)
 {
     size_t size = static_cast<size_t>(sampleRate * 10); // 10 seconds max
-    m_bufferL.assign(size, 0.0f);
-    m_bufferR.assign(size, 0.0f);
+    m_bufferL.assign(size, 0.0);
+    m_bufferR.assign(size, 0.0);
     m_writePos = 0;
 }
 

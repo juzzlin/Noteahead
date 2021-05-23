@@ -24,10 +24,10 @@ void PanningEffect::setPan(float pan)
     m_pan = pan;
 }
 
-void PanningEffect::process(float & left, float & right)
+void PanningEffect::process(double & left, double & right)
 {
-    const float gainL = std::min(1.0f, 2.0f - m_pan * 2.0f);
-    const float gainR = std::min(1.0f, m_pan * 2.0f);
+    const double gainL = std::min(1.0, 2.0 - static_cast<double>(m_pan) * 2.0);
+    const double gainR = std::min(1.0, static_cast<double>(m_pan) * 2.0);
     left *= gainL;
     right *= gainR;
 }

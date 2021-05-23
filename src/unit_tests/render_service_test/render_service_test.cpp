@@ -1,38 +1,72 @@
 #include "render_service_test.hpp"
 
-#include "../../application/service/render_service.hpp"
-#include "../../application/service/render_worker.hpp"
+#include "../../application/service/automation_service.hpp"
+#include "../../application/service/device_service.hpp"
 #include "../../application/service/editor_service.hpp"
 #include "../../application/service/mixer_service.hpp"
-#include "../../application/service/device_service.hpp"
-#include "../../application/service/automation_service.hpp"
-#include "../../application/service/side_chain_service.hpp"
-#include "../../application/service/settings_service.hpp"
-#include "../../application/service/selection_service.hpp"
 #include "../../application/service/property_service.hpp"
+#include "../../application/service/render_service.hpp"
+#include "../../application/service/render_worker.hpp"
+#include "../../application/service/selection_service.hpp"
+#include "../../application/service/settings_service.hpp"
+#include "../../application/service/side_chain_service.hpp"
+#include "../../common/constants.hpp"
 #include "../../domain/song.hpp"
 #include "../../infra/audio/audio_engine.hpp"
-#include "../../common/constants.hpp"
 
 #include <QSignalSpy>
-#include <QTest>
 #include <QTemporaryDir>
+#include <QTest>
 
 namespace noteahead {
 
 class MockEditorService : public EditorService
 {
 public:
-    MockEditorService() : EditorService(nullptr, nullptr, nullptr) {}
-    TrackIndexList trackIndices() const override { return m_trackIndices; }
-    QString instrumentPortName(quint64 trackIndex) const override { return m_instrumentPorts.at(trackIndex); }
-    QString trackName(quint64 trackIndex) const override { return QString("Track%1").arg(trackIndex); }
-    quint64 beatsPerMinute() const override { return 120; }
-    quint64 linesPerBeat() const override { return 4; }
-    quint64 ticksPerLine() const override { return 6; }
+    MockEditorService()
+      : EditorService(nullptr, nullptr, nullptr)
+    {
+    }
 
-    void setTrackIndices(TrackIndexList indices) { m_trackIndices = indices; }
-    void setInstrumentPort(quint64 trackIndex, QString port) { m_instrumentPorts[trackIndex] = port; }
+    TrackIndexList trackIndices() const override
+    {
+        return m_trackIndices;
+    }
+
+    QString instrumentPortName(quint64 trackIndex) const override
+    {
+        return m_instrumentPorts.at(trackIndex);
+    }
+
+    QString trackName(quint64 trackIndex) const override
+    {
+        return QString("Track%1").arg(trackIndex);
+    }
+
+    quint64 beatsPerMinute() const override
+    {
+        return 120;
+    }
+
+    quint64 linesPerBeat() const override
+    {
+        return 4;
+    }
+
+    quint64 ticksPerLine() const override
+    {
+        return 6;
+    }
+
+    void setTrackIndices(TrackIndexList indices)
+    {
+        m_trackIndices = indices;
+    }
+
+    void setInstrumentPort(quint64 trackIndex, QString port)
+    {
+        m_instrumentPorts[trackIndex] = port;
+    }
 
 private:
     TrackIndexList m_trackIndices;

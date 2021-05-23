@@ -30,7 +30,7 @@ public:
     std::string type() const override;
     std::string typeId() const override;
 
-    void process(float & left, float & right) override;
+    void process(double & left, double & right) override;
     void sync() override;
 
 private:

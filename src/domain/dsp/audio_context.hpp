@@ -21,9 +21,15 @@
 
 namespace noteahead {
 
+/**
+ * @brief Audio processing context.
+ *
+ * Uses double precision for the accumulation buffer to ensure high-quality
+ * mixing and summing across many voices and tracks.
+ */
 struct AudioContext
 {
-    std::span<float> buffer {};
+    std::span<double> buffer {};
     uint32_t frameCount { 0 };
     uint32_t sampleRate { 0 };
 };

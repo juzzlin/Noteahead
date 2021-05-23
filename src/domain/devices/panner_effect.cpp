@@ -41,7 +41,7 @@ std::string PannerEffect::typeId() const
     return typeIdString();
 }
 
-void PannerEffect::process(float & left, float & right)
+void PannerEffect::process(double & left, double & right)
 {
     // Stereo Width (Mid-Side processing)
     // Mid = (L + R) / 2
@@ -49,15 +49,16 @@ void PannerEffect::process(float & left, float & right)
     // New L = Mid + Side * width
     // New R = Mid - Side * width
 
-    const float mid = (left + right) * 0.5f;
-    const float side = (left - right) * 0.5f;
+    const double mid = (left + right) * 0.5;
+    const double side = (left - right) * 0.5;
+    const double width = static_cast<double>(m_width);
 
-    left = mid + side * m_width;
-    right = mid - side * m_width;
+    left = mid + side * width;
+    right = mid - side * width;
 
     // Panning (Linear)
-    const float gainL = std::min(1.0f, 2.0f - m_pan * 2.0f);
-    const float gainR = std::min(1.0f, m_pan * 2.0f);
+    const double gainL = std::min(1.0, 2.0 - static_cast<double>(m_pan) * 2.0);
+    const double gainR = std::min(1.0, static_cast<double>(m_pan) * 2.0);
 
     left *= gainL;
     right *= gainR;

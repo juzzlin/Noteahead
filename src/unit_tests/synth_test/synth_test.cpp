@@ -88,7 +88,7 @@ void SynthTest::test_polyphony_shouldActiveMultipleVoices()
 
     // We can't easily check internal voice state without exposing it,
     // but we can check if audio is generated.
-    float output[2048];
+    double output[2048] {};
     std::fill(output, output + 2048, 0.0f);
     AudioContext context { std::span(output, 2048), 1024, static_cast<uint32_t>(Constants::defaultSampleRate()) };
     synth.processAudio(context);
@@ -200,7 +200,7 @@ void SynthTest::test_lfoModulation_shouldUpdateInternalState()
 
     // Verify audio generation works with Lfo
     synth.processMidiNoteOn(60, 100);
-    float output[512];
+    double output[512] {};
     std::fill(output, output + 512, 0.0f);
     AudioContext context { std::span(output, 512), 256, static_cast<uint32_t>(Constants::defaultSampleRate()) };
     synth.processAudio(context);
@@ -225,7 +225,7 @@ void SynthTest::test_voiceStealing_shouldStealQuietestVoice()
     }
 
     // Process audio so they all start playing
-    float output[256];
+    double output[256] {};
     AudioContext context { std::span(output, 256), 128, static_cast<uint32_t>(Constants::defaultSampleRate()) };
     synth.processAudio(context);
 
@@ -263,7 +263,7 @@ void SynthTest::test_softClipper_shouldPreventClipping()
 
     synth.processMidiNoteOn(60, 127);
 
-    float output[1024];
+    double output[1024] {};
     std::fill(output, output + 1024, 0.0f);
     AudioContext context { std::span(output, 1024), 512, static_cast<uint32_t>(Constants::defaultSampleRate()) };
     synth.processAudio(context);
@@ -300,7 +300,7 @@ void SynthTest::test_portamento_shouldGlideFrequency()
     QCOMPARE(synth.voiceGlideFrequency(0), freq60);
 
     // Let it finish (we need to process audio until it's inactive)
-    float dummy[1024];
+    double dummy[1024] {};
     AudioContext context { std::span(dummy, 1024), 512, static_cast<uint32_t>(Constants::defaultSampleRate()) };
     for (int i = 0; i < 100; i++) {
         synth.processAudio(context);
@@ -651,7 +651,7 @@ void SynthTest::test_pulseWidth_shouldUpdateDutyCycle()
 
     const uint32_t sampleRate = 44100;
     const uint32_t frameCount = 1000;
-    std::vector<float> buffer(frameCount * 2, 0.0f);
+    std::vector<double> buffer(frameCount * 2, 0.0);
     AudioContext context { std::span(buffer.data(), buffer.size()), frameCount, sampleRate };
 
     // Shape 0.0 -> 50% duty cycle
@@ -708,7 +708,7 @@ void SynthTest::test_pwm_shouldModulatePulseWidth()
 
     const uint32_t sampleRate = 44100;
     const uint32_t frameCount = 1000;
-    std::vector<float> buffer(frameCount * 2, 0.0f);
+    std::vector<double> buffer(frameCount * 2, 0.0);
     AudioContext context { std::span(buffer.data(), buffer.size()), frameCount, sampleRate };
 
     synth.processMidiNoteOn(60, 100);

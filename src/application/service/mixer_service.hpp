@@ -120,6 +120,7 @@ private:
         TrackMuteSoloMap soloedTracks;
         TrackVelocityScaleMap trackVelocityScaleMap;
     };
+
     std::vector<State> m_stateStack;
 
     using ColumnCountMap = std::map<quint64, quint64>;

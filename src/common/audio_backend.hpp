@@ -18,14 +18,16 @@
 
 namespace noteahead {
 
-enum class AudioBackend {
+enum class AudioBackend
+{
     Auto = 0,
     Alsa = 1,
     PulseAudio = 2,
     Jack = 3
 };
 
-enum class BitDepth {
+enum class BitDepth
+{
     PCM_16 = 0,
     PCM_24 = 1,
     PCM_32 = 2,

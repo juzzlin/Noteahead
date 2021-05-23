@@ -80,7 +80,8 @@ void RenderWorker::render(const QString & fileName, const noteahead::RenderWorke
         const double samplesPerTick = secondsPerTick * sampleRate;
 
         double sampleCounter = 0.0;
-        std::vector<float> audioBuffer {};
+        std::vector<double> audioBuffer {};
+        std::vector<float> finalBuffer {};
 
         for (quint64 tick = 0; tick <= maxTick; tick++) {
             if (auto it = eventMap.find(tick); it != eventMap.end()) {
@@ -92,21 +93,23 @@ void RenderWorker::render(const QString & fileName, const noteahead::RenderWorke
             sampleCounter += samplesPerTick;
             const quint32 framesToProcess = static_cast<quint32>(sampleCounter);
             if (framesToProcess > 0) {
-                if (audioBuffer.size() < framesToProcess * 2) {
-                    audioBuffer.resize(framesToProcess * 2);
+                const size_t totalSamples = static_cast<size_t>(framesToProcess) * 2;
+                if (audioBuffer.size() < totalSamples) {
+                    audioBuffer.resize(totalSamples);
+                    finalBuffer.resize(totalSamples);
                 }
 
-                std::fill(audioBuffer.begin(), audioBuffer.begin() + framesToProcess * 2, 0.0f);
-                AudioContext audioContext { std::span(audioBuffer.data(), static_cast<size_t>(framesToProcess) * 2), framesToProcess, sampleRate };
+                std::fill(audioBuffer.begin(), audioBuffer.begin() + totalSamples, 0.0);
+                AudioContext audioContext { std::span(audioBuffer.data(), totalSamples), framesToProcess, sampleRate };
                 m_audioEngine->process(audioContext);
 
-                // Clamp signal to prevent overflow when writing to PCM
-                for (float & s : audioBuffer) {
-                    s = std::clamp(s, -1.0f, 1.0f);
+                // Convert to float and clamp signal to prevent overflow when writing to PCM
+                for (size_t i = 0; i < totalSamples; i++) {
+                    finalBuffer[i] = static_cast<float>(std::clamp(audioBuffer[i], -1.0, 1.0));
                 }
 
-                if (!recorder.push(audioBuffer.data(), framesToProcess * 2)) {
-                    while (!recorder.push(audioBuffer.data(), framesToProcess * 2)) {
+                if (!recorder.push(finalBuffer.data(), totalSamples)) {
+                    while (!recorder.push(finalBuffer.data(), totalSamples)) {
                         std::this_thread::sleep_for(std::chrono::milliseconds { 1 });
                     }
                 }
@@ -121,19 +124,21 @@ void RenderWorker::render(const QString & fileName, const noteahead::RenderWorke
         // Process any remaining sub-sample (round to nearest)
         const quint32 finalFrames = static_cast<quint32>(std::round(sampleCounter));
         if (finalFrames > 0) {
-            if (audioBuffer.size() < finalFrames * 2) {
-                audioBuffer.resize(finalFrames * 2);
+            const size_t totalSamples = static_cast<size_t>(finalFrames) * 2;
+            if (audioBuffer.size() < totalSamples) {
+                audioBuffer.resize(totalSamples);
+                finalBuffer.resize(totalSamples);
             }
-            std::fill(audioBuffer.begin(), audioBuffer.begin() + finalFrames * 2, 0.0f);
-            AudioContext audioContext { std::span(audioBuffer.data(), static_cast<size_t>(finalFrames) * 2), finalFrames, sampleRate };
+            std::fill(audioBuffer.begin(), audioBuffer.begin() + totalSamples, 0.0);
+            AudioContext audioContext { std::span(audioBuffer.data(), totalSamples), finalFrames, sampleRate };
             m_audioEngine->process(audioContext);
 
-            // Clamp signal to prevent overflow when writing to PCM
-            for (float & s : audioBuffer) {
-                s = std::clamp(s, -1.0f, 1.0f);
+            // Convert to float and clamp signal to prevent overflow when writing to PCM
+            for (size_t i = 0; i < totalSamples; i++) {
+                finalBuffer[i] = static_cast<float>(std::clamp(audioBuffer[i], -1.0, 1.0));
             }
 
-            while (!recorder.push(audioBuffer.data(), finalFrames * 2)) {
+            while (!recorder.push(finalBuffer.data(), totalSamples)) {
                 std::this_thread::sleep_for(std::chrono::milliseconds { 1 });
             }
         }

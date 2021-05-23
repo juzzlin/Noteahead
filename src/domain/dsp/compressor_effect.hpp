@@ -41,7 +41,7 @@ public:
         return typeIdString();
     }
 
-    void process(float & left, float & right) override;
+    void process(double & left, double & right) override;
     void process(AudioContext & context) override;
     void reset() override;
     void sync() override;
@@ -51,10 +51,10 @@ public:
 private:
     void updateBuffers();
     void updateCoefficients();
-    float calculateDetectorLevelDb(float left, float right) const;
-    float calculateGainReductionDb(float detectorDb) const;
-    void updateEnvelope(float gainReductionDb);
-    void applyGain(float & left, float & right);
+    double calculateDetectorLevelDb(double left, double right) const;
+    double calculateGainReductionDb(double detectorDb) const;
+    void updateEnvelope(double gainReductionDb);
+    void applyGain(double & left, double & right);
     void syncParameters();
 
     float m_threshold { -20.0f };
@@ -65,14 +65,14 @@ private:
     float m_makeup { 0.0f };
     float m_lookaheadMs { 0.0f };
 
-    float m_attackCoeff { 0.0f };
-    float m_releaseCoeff { 0.0f };
+    double m_attackCoeff { 0.0 };
+    double m_releaseCoeff { 0.0 };
 
-    float m_envelopeDb { 0.0f };
-    float m_reductionDb { 0.0f };
+    double m_envelopeDb { 0.0 };
+    double m_reductionDb { 0.0 };
 
-    std::vector<float> m_delayBufferL;
-    std::vector<float> m_delayBufferR;
+    std::vector<double> m_delayBufferL;
+    std::vector<double> m_delayBufferR;
     uint32_t m_writePos { 0 };
     uint32_t m_delaySamples { 0 };
 

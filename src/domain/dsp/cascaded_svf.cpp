@@ -36,7 +36,7 @@ void CascadedSvf::setMode(Mode mode)
     m_mode = mode;
 }
 
-float CascadedSvf::process(float input)
+double CascadedSvf::process(double input)
 {
     if (m_mode == Mode::LowPass && m_cutoff >= 0.999) {
         return input;
@@ -58,13 +58,13 @@ float CascadedSvf::process(float input)
         m_lastSampleRate = m_sampleRate;
     }
 
-    float out1 = m_unit1.process(input, m_g, m_damping, m_k, m_mode);
-    float out2 = m_unit2.process(out1, m_g, m_damping, m_k, m_mode);
+    double out1 = m_unit1.process(input, m_g, m_damping, m_k, m_mode);
+    double out2 = m_unit2.process(out1, m_g, m_damping, m_k, m_mode);
 
     // NaN protection
     if (std::isnan(out2)) {
         reset();
-        return 0.0f;
+        return 0.0;
     }
 
     return out2;
@@ -76,7 +76,7 @@ void CascadedSvf::reset()
     m_unit2.reset();
 }
 
-float CascadedSvf::SvfUnit::process(float input, double g, double damping, double k, Mode mode)
+double CascadedSvf::SvfUnit::process(double input, double g, double damping, double k, Mode mode)
 {
     const double hp = (input - (g + k) * s1 - s2) * damping;
     const double v1 = g * hp;
@@ -87,14 +87,14 @@ float CascadedSvf::SvfUnit::process(float input, double g, double damping, doubl
     s2 = v2 + lp;
 
     if (mode == Mode::LowPass)
-        return static_cast<float>(lp);
+        return lp;
     if (mode == Mode::HighPass)
-        return static_cast<float>(hp);
+        return hp;
     if (mode == Mode::BandPass)
-        return static_cast<float>(bp);
+        return bp;
     if (mode == Mode::Notch)
-        return static_cast<float>(lp + hp);
-    return 0.0f;
+        return lp + hp;
+    return 0.0;
 }
 
 } // namespace noteahead

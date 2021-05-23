@@ -39,7 +39,7 @@ public:
     }
 
     void setPan(float pan);
-    void process(float & left, float & right) override;
+    void process(double & left, double & right) override;
 
 private:
     float m_pan { 0.5f };

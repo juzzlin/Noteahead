@@ -37,7 +37,7 @@ public:
     void setResonance(double resonance); // 0.0 to 1.0
     void setMode(Mode mode);
 
-    float process(float input);
+    double process(double input);
     void reset();
 
 private:
@@ -55,7 +55,7 @@ private:
     struct SvfUnit
     {
         double s1 = 0.0, s2 = 0.0;
-        float process(float input, double g, double damping, double k, Mode mode);
+        double process(double input, double g, double damping, double k, Mode mode);
 
         void reset()
         {

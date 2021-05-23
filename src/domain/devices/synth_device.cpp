@@ -260,8 +260,8 @@ void SynthDevice::applyGlobalEffects(AudioContext & context)
         const float l1 = m_oversampledBuffer[i * 4 + 2];
         const float r1 = m_oversampledBuffer[i * 4 + 3];
 
-        float l = m_oversamplerL.process(std::tanh(l0), std::tanh(l1));
-        float r = m_oversamplerR.process(std::tanh(r0), std::tanh(r1));
+        double l = static_cast<double>(m_oversamplerL.process(std::tanh(l0), std::tanh(l1)));
+        double r = static_cast<double>(m_oversamplerR.process(std::tanh(r0), std::tanh(r1)));
 
         m_delay.process(l, r);
 

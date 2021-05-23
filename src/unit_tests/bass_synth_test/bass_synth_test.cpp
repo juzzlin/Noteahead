@@ -96,27 +96,27 @@ void BassSynthTest::test_retriggerOnSlide_shouldIncreaseVolume()
 
     // Render some audio to let it reach decay phase
     const int frameCount { 1000 };
-    std::vector<float> buffer(static_cast<size_t>(frameCount) * 2, 0.0f);
+    std::vector<double> buffer(static_cast<size_t>(frameCount) * 2, 0.0);
     AudioContext context { std::span(buffer.data(), buffer.size()), static_cast<uint32_t>(frameCount), 44100 };
     synth.processAudio(context);
 
-    float peak1 { 0.0f };
-    for (float sample : buffer) {
+    double peak1 { 0.0 };
+    for (double sample : buffer) {
         peak1 = std::max(peak1, std::abs(sample));
     }
     QVERIFY(peak1 > 0.0f);
 
     // Render more to let it decay a lot
     synth.processAudio(context);
-    float lastVal { std::abs(buffer[buffer.size() - 2]) };
+    double lastVal { std::abs(buffer[buffer.size() - 2]) };
 
     // 2. Trigger second note (legato)
     synth.processMidiNoteOn(62, 100);
 
     // Render again. Volume should INCREASE because of re-triggering attack
     synth.processAudio(context);
-    float peak2 { 0.0f };
-    for (float sample : buffer) {
+    double peak2 { 0.0 };
+    for (double sample : buffer) {
         peak2 = std::max(peak2, std::abs(sample));
     }
 
@@ -132,7 +132,7 @@ void BassSynthTest::test_noClickOnSlideZero_shouldNotHaveLargeDiscontinuities()
     synth.processMidiNoteOn(60, 100);
 
     const int frameCount { 100 };
-    std::vector<float> buffer(static_cast<size_t>(frameCount) * 2, 0.0f);
+    std::vector<double> buffer(static_cast<size_t>(frameCount) * 2, 0.0);
     AudioContext context { std::span(buffer.data(), buffer.size()), static_cast<uint32_t>(frameCount), 44100 };
     synth.processAudio(context);
 
@@ -143,7 +143,7 @@ void BassSynthTest::test_noClickOnSlideZero_shouldNotHaveLargeDiscontinuities()
 
     // Check for huge jumps (clicks) in the transition
     for (size_t i { 1 }; i < buffer.size(); i++) {
-        float diff { std::abs(buffer[i] - buffer[i - 1]) };
+        double diff { std::abs(buffer[i] - buffer[i - 1]) };
         // A click would be a very large jump, e.g., > 0.5 in one sample
         QVERIFY2(diff < 0.5f, QString("Large discontinuity detected: %1").arg(static_cast<double>(diff)).toUtf8().constData());
     }
@@ -163,12 +163,12 @@ void BassSynthTest::test_outputLevel_shouldBeCorrect()
     synth.processMidiNoteOn(60, 100);
 
     const int frameCount { 1000 };
-    std::vector<float> buffer(static_cast<size_t>(frameCount) * 2, 0.0f);
+    std::vector<double> buffer(static_cast<size_t>(frameCount) * 2, 0.0);
     AudioContext context { std::span(buffer.data(), buffer.size()), static_cast<uint32_t>(frameCount), 44100 };
     synth.processAudio(context);
 
-    float peak { 0.0f };
-    for (float sample : buffer) {
+    double peak { 0.0 };
+    for (double sample : buffer) {
         peak = std::max(peak, std::abs(sample));
     }
 

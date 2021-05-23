@@ -39,12 +39,12 @@ public:
     }
 
     void setCutoff(float cutoff);
-    void process(float & left, float & right) override;
+    void process(double & left, double & right) override;
     void process(AudioContext & context) override;
     void reset() override;
 
 private:
-    void processSample(float & left, float & right, double g, double damping, double k);
+    void processSample(double & left, double & right, double g, double damping, double k);
     float m_cutoff { 0.0f };
     double m_s1L { 0.0 }, m_s2L { 0.0 };
     double m_s1R { 0.0 }, m_s2R { 0.0 };

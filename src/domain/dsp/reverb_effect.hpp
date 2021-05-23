@@ -57,7 +57,7 @@ public:
         return typeIdString();
     }
 
-    void process(float & left, float & right) override;
+    void process(double & left, double & right) override;
     void process(AudioContext & context) override;
     void reset() override;
     void sync() override;
@@ -96,7 +96,7 @@ private:
     void syncParameters();
     void updateBuffers();
     void updateFilters();
-    void applyWetFilters(float & wetL, float & wetR);
+    void applyWetFilters(double & wetL, double & wetR);
 
     float m_size { 0.5f };
     float m_decayMs { 1500.0f };
@@ -114,26 +114,26 @@ private:
 
     struct DelayLine
     {
-        std::vector<float> buffer;
+        std::vector<double> buffer;
         uint32_t writePos { 0 };
-        float lpState { 0.0f };
+        double lpState { 0.0 };
         uint32_t size { 0 };
-        float feedback { 0.0f };
+        double feedback { 0.0 };
         CascadedSvf fbLpf;
         CascadedSvf fbHpf;
 
         void reset()
         {
-            std::fill(buffer.begin(), buffer.end(), 0.0f);
+            std::fill(buffer.begin(), buffer.end(), 0.0);
             writePos = 0;
-            lpState = 0.0f;
+            lpState = 0.0;
             fbLpf.reset();
             fbHpf.reset();
         }
     };
 
     std::array<DelayLine, NumDelays> m_delays;
-    std::vector<float> m_preDelayBuffer;
+    std::vector<double> m_preDelayBuffer;
     uint32_t m_preDelayWritePos { 0 };
     uint32_t m_lastSampleRate { 0 };
 

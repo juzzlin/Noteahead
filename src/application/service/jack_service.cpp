@@ -312,20 +312,20 @@ int JackService::processCallback(jack_nframes_t frameCount, void * arg)
 
     if (self->m_audioEngine && !self->m_audioEngine->isExclusive()) {
         const size_t totalSamples = frameCount * 2;
-        if (self->m_engineInterleavedBuffer.size() < totalSamples) {
-            self->m_engineInterleavedBuffer.assign(totalSamples, 0.0f);
+        if (self->m_doubleAccumulationBuffer.size() < totalSamples) {
+            self->m_doubleAccumulationBuffer.assign(totalSamples, 0.0);
         } else {
-            std::fill(self->m_engineInterleavedBuffer.begin(), self->m_engineInterleavedBuffer.begin() + totalSamples, 0.0f);
+            std::fill(self->m_doubleAccumulationBuffer.begin(), self->m_doubleAccumulationBuffer.begin() + totalSamples, 0.0);
         }
 
-        AudioContext audioContext { std::span(self->m_engineInterleavedBuffer.data(), frameCount * 2), frameCount, self->sampleRate() };
+        AudioContext audioContext { std::span(self->m_doubleAccumulationBuffer.data(), totalSamples), frameCount, self->sampleRate() };
         self->m_audioEngine->process(audioContext);
 
         auto outL = static_cast<jack_default_audio_sample_t *>(jack_port_get_buffer(self->m_outputPortL, frameCount));
         auto outR = static_cast<jack_default_audio_sample_t *>(jack_port_get_buffer(self->m_outputPortR, frameCount));
         for (jack_nframes_t i = 0; i < frameCount; i++) {
-            outL[i] += self->m_engineInterleavedBuffer[i * 2];
-            outR[i] += self->m_engineInterleavedBuffer[i * 2 + 1];
+            outL[i] += static_cast<jack_default_audio_sample_t>(self->m_doubleAccumulationBuffer[i * 2]);
+            outR[i] += static_cast<jack_default_audio_sample_t>(self->m_doubleAccumulationBuffer[i * 2 + 1]);
         }
     }
 

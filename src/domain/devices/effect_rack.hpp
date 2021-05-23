@@ -41,7 +41,7 @@ public:
     std::vector<EffectS> effects() const;
     size_t effectCount() const;
 
-    void process(AudioContext & outputContext, const float * sendBus, size_t effectIndex);
+    void process(AudioContext & outputContext, const double * sendBus, size_t effectIndex);
     void processInPlace(AudioContext & context);
     void reset();
     void clear();

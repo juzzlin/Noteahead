@@ -29,7 +29,7 @@ struct DeviceProcessContext
     std::vector<AudioEngine::DeviceS> * devices {};
     std::vector<AudioEngineWorkBuffer> * workBuffers {};
     std::vector<uint8_t> * deviceActiveFlags {};
-    std::vector<float> * deviceSends {};
+    std::vector<double> * deviceSends {};
     size_t sendCount {};
     uint32_t frameCount {};
     uint32_t sampleRate {};
@@ -39,16 +39,16 @@ struct DeviceProcessContext
 struct EffectProcessContext
 {
     std::vector<EffectRack::EffectS> * effects {};
-    std::vector<std::vector<float>> * sendBusBuffers {};
-    std::vector<std::vector<float>> * effectWetBuffers {};
+    std::vector<std::vector<double>> * sendBusBuffers {};
+    std::vector<std::vector<double>> * effectWetBuffers {};
     std::vector<uint8_t> * effectActiveFlags {};
     uint32_t frameCount {};
     uint32_t sampleRate {};
 };
 
-bool bufferContainsSignal(const std::vector<float> & buffer, uint32_t bufferSize)
+bool bufferContainsSignal(const std::vector<double> & buffer, uint32_t bufferSize)
 {
-    constexpr float threshold = 1.0e-8f;
+    constexpr double threshold = 1.0e-12;
     for (uint32_t i = 0; i < bufferSize; i++) {
         if (std::abs(buffer[i]) > threshold) {
             return true;
@@ -63,7 +63,7 @@ void processDeviceTask(void * context, size_t taskIndex, size_t workerIndex)
     auto & device = deviceContext.devices->at(taskIndex);
     auto & workBuffer = deviceContext.workBuffers->at(workerIndex);
 
-    std::fill(workBuffer.deviceBuffer.begin(), workBuffer.deviceBuffer.begin() + deviceContext.bufferSize, 0.0f);
+    std::fill(workBuffer.deviceBuffer.begin(), workBuffer.deviceBuffer.begin() + deviceContext.bufferSize, 0.0);
     if (!device->hasActiveAudio() && !deviceContext.deviceActiveFlags->at(taskIndex)) {
         return;
     }
@@ -75,11 +75,11 @@ void processDeviceTask(void * context, size_t taskIndex, size_t workerIndex)
     deviceContext.deviceActiveFlags->at(taskIndex) = hasOutputSignal ? 1 : 0;
 
     for (uint32_t i = 0; i < deviceContext.bufferSize; i++) {
-        const float sample = workBuffer.deviceBuffer[i];
+        const double sample = workBuffer.deviceBuffer[i];
         workBuffer.outputBuffer[i] += sample;
 
         for (size_t sendIndex = 0; sendIndex < deviceContext.sendCount; sendIndex++) {
-            const float send = deviceContext.deviceSends->at(taskIndex * deviceContext.sendCount + sendIndex);
+            const double send = deviceContext.deviceSends->at(taskIndex * deviceContext.sendCount + sendIndex);
             workBuffer.sendBuffers[sendIndex][i] += sample * send;
         }
     }
@@ -94,13 +94,13 @@ void processEffectTask(void * context, size_t taskIndex, size_t /*workerIndex*/)
     const auto bufferSize = effectContext.frameCount * 2;
 
     if (!effect) {
-        std::fill(wetBuffer.begin(), wetBuffer.begin() + bufferSize, 0.0f);
+        std::fill(wetBuffer.begin(), wetBuffer.begin() + bufferSize, 0.0);
         effectContext.effectActiveFlags->at(taskIndex) = 0;
         return;
     }
 
     if (!bufferContainsSignal(sendBus, bufferSize) && !effectContext.effectActiveFlags->at(taskIndex)) {
-        std::fill(wetBuffer.begin(), wetBuffer.begin() + bufferSize, 0.0f);
+        std::fill(wetBuffer.begin(), wetBuffer.begin() + bufferSize, 0.0);
         return;
     }
 
@@ -115,7 +115,7 @@ void processEffectTask(void * context, size_t taskIndex, size_t /*workerIndex*/)
     bool hasWetSignal = false;
     for (uint32_t i = 0; i < bufferSize; i++) {
         wetBuffer[i] -= sendBus[i];
-        if (std::abs(wetBuffer[i]) > 1.0e-8f) {
+        if (std::abs(wetBuffer[i]) > 1.0e-12) {
             hasWetSignal = true;
         }
     }
@@ -225,9 +225,9 @@ void AudioEngine::process(AudioContext & context)
 
     for (auto & bus : m_sendBusBuffers) {
         if (bus.size() < bufferSize) {
-            bus.resize(bufferSize, 0.0f);
+            bus.resize(bufferSize, 0.0);
         } else {
-            std::fill(bus.begin(), bus.begin() + bufferSize, 0.0f);
+            std::fill(bus.begin(), bus.begin() + bufferSize, 0.0);
         }
     }
 
@@ -247,14 +247,14 @@ void AudioEngine::process(AudioContext & context)
         m_deviceSendSnapshot.resize(m_deviceSnapshot.size() * sendCount);
         for (size_t deviceIndex = 0; deviceIndex < m_deviceSnapshot.size(); deviceIndex++) {
             for (size_t sendIndex = 0; sendIndex < sendCount; sendIndex++) {
-                m_deviceSendSnapshot[deviceIndex * sendCount + sendIndex] = m_deviceSnapshot[deviceIndex]->reverbSend(sendIndex);
+                m_deviceSendSnapshot[deviceIndex * sendCount + sendIndex] = static_cast<double>(m_deviceSnapshot[deviceIndex]->reverbSend(sendIndex));
             }
         }
 
         for (auto & workBuffer : m_workBuffers) {
-            std::fill(workBuffer.outputBuffer.begin(), workBuffer.outputBuffer.begin() + bufferSize, 0.0f);
+            std::fill(workBuffer.outputBuffer.begin(), workBuffer.outputBuffer.begin() + bufferSize, 0.0);
             for (auto & sendBuffer : workBuffer.sendBuffers) {
-                std::fill(sendBuffer.begin(), sendBuffer.begin() + bufferSize, 0.0f);
+                std::fill(sendBuffer.begin(), sendBuffer.begin() + bufferSize, 0.0);
             }
         }
 
@@ -304,7 +304,7 @@ void AudioEngine::process(AudioContext & context)
     } else {
         for (size_t i = 0; i < sendCount; i++) {
             if (m_effectActiveFlags[i]) {
-                std::fill(m_effectWetBuffers[i].begin(), m_effectWetBuffers[i].begin() + bufferSize, 0.0f);
+                std::fill(m_effectWetBuffers[i].begin(), m_effectWetBuffers[i].begin() + bufferSize, 0.0);
                 m_effectActiveFlags[i] = 0;
             }
         }
@@ -370,17 +370,17 @@ void AudioEngine::ensureWorkBuffers(size_t laneCount, size_t sendCount, uint32_t
 
     for (auto & workBuffer : m_workBuffers) {
         if (workBuffer.deviceBuffer.size() < bufferSize) {
-            workBuffer.deviceBuffer.resize(bufferSize, 0.0f);
+            workBuffer.deviceBuffer.resize(bufferSize, 0.0);
         }
         if (workBuffer.outputBuffer.size() < bufferSize) {
-            workBuffer.outputBuffer.resize(bufferSize, 0.0f);
+            workBuffer.outputBuffer.resize(bufferSize, 0.0);
         }
         if (workBuffer.sendBuffers.size() != sendCount) {
             workBuffer.sendBuffers.resize(sendCount);
         }
         for (auto & sendBuffer : workBuffer.sendBuffers) {
             if (sendBuffer.size() < bufferSize) {
-                sendBuffer.resize(bufferSize, 0.0f);
+                sendBuffer.resize(bufferSize, 0.0);
             }
         }
     }
@@ -394,7 +394,7 @@ void AudioEngine::ensureEffectWetBuffers(size_t effectCount, uint32_t bufferSize
 
     for (auto & buffer : m_effectWetBuffers) {
         if (buffer.size() < bufferSize) {
-            buffer.resize(bufferSize, 0.0f);
+            buffer.resize(bufferSize, 0.0);
         }
     }
 }

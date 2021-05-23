@@ -28,7 +28,7 @@ void HighPassFilterEffect::setCutoff(float cutoff)
     m_cutoff = cutoff;
 }
 
-void HighPassFilterEffect::process(float & left, float & right)
+void HighPassFilterEffect::process(double & left, double & right)
 {
     if (m_cutoff <= 0.001f) {
         return;
@@ -59,30 +59,30 @@ void HighPassFilterEffect::process(AudioContext & context)
     }
 }
 
-void HighPassFilterEffect::processSample(float & left, float & right, double g, double damping, double k)
+void HighPassFilterEffect::processSample(double & left, double & right, double g, double damping, double k)
 {
     // Left channel
     {
-        const double hp = (static_cast<double>(left) - (g + k) * m_s1L - m_s2L) * damping;
+        const double hp = (left - (g + k) * m_s1L - m_s2L) * damping;
         const double v1 = g * hp;
         const double v = v1 + m_s1L;
         m_s1L = v1 + v;
         const double v2 = g * v;
         const double lp = v2 + m_s2L;
         m_s2L = v2 + lp;
-        left = static_cast<float>(hp);
+        left = hp;
     }
 
     // Right channel
     {
-        const double hp = (static_cast<double>(right) - (g + k) * m_s1R - m_s2R) * damping;
+        const double hp = (right - (g + k) * m_s1R - m_s2R) * damping;
         const double v1 = g * hp;
         const double v = v1 + m_s1R;
         m_s1R = v1 + v;
         const double v2 = g * v;
         const double lp = v2 + m_s2R;
         m_s2R = v2 + lp;
-        right = static_cast<float>(hp);
+        right = hp;
     }
 
     // Denormal protection
@@ -98,8 +98,8 @@ void HighPassFilterEffect::processSample(float & left, float & right, double g, 
     // NaN protection
     if (std::isnan(left) || std::isnan(right)) {
         reset();
-        left = 0.0f;
-        right = 0.0f;
+        left = 0.0;
+        right = 0.0;
     }
 }
 

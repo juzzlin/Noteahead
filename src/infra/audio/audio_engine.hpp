@@ -30,9 +30,9 @@ namespace noteahead {
 
 struct AudioEngineWorkBuffer
 {
-    std::vector<float> deviceBuffer {};
-    std::vector<float> outputBuffer {};
-    std::vector<std::vector<float>> sendBuffers {};
+    std::vector<double> deviceBuffer {};
+    std::vector<double> outputBuffer {};
+    std::vector<std::vector<double>> sendBuffers {};
 };
 
 class AudioEngine
@@ -77,9 +77,9 @@ private:
     std::vector<AudioEngineWorkBuffer> m_workBuffers {};
     std::vector<DeviceS> m_deviceSnapshot {};
     std::vector<uint8_t> m_deviceActiveFlags {};
-    std::vector<float> m_deviceSendSnapshot {};
-    std::vector<std::vector<float>> m_sendBusBuffers {};
-    std::vector<std::vector<float>> m_effectWetBuffers {};
+    std::vector<double> m_deviceSendSnapshot {};
+    std::vector<std::vector<double>> m_sendBusBuffers {};
+    std::vector<std::vector<double>> m_effectWetBuffers {};
     std::vector<uint8_t> m_effectActiveFlags {};
     mutable std::mutex m_mutex;
     std::atomic<bool> m_isExclusive { false };

@@ -41,7 +41,7 @@ public:
 
     void setBypass();
 
-    float process(float input);
+    double process(double input);
     void reset();
 
 private:

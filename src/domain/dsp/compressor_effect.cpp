@@ -38,7 +38,7 @@ CompressorEffect::CompressorEffect()
     syncParameters();
 }
 
-void CompressorEffect::process(float & left, float & right)
+void CompressorEffect::process(double & left, double & right)
 {
     if (m_sampleRate <= 0) {
         return;
@@ -47,8 +47,8 @@ void CompressorEffect::process(float & left, float & right)
     updateBuffers();
     updateCoefficients();
 
-    const float detectorDb = calculateDetectorLevelDb(left, right);
-    const float gainReductionDb = calculateGainReductionDb(detectorDb);
+    const double detectorDb = calculateDetectorLevelDb(left, right);
+    const double gainReductionDb = calculateGainReductionDb(detectorDb);
 
     updateEnvelope(gainReductionDb);
     applyGain(left, right);
@@ -75,8 +75,8 @@ void CompressorEffect::updateBuffers()
         const uint32_t lookaheadSamples = static_cast<uint32_t>(m_lookaheadMs * m_sampleRate / 1000.0f);
         const uint32_t bufferSize = std::max(1u, lookaheadSamples + 1);
         if (bufferSize != m_delayBufferL.size()) {
-            m_delayBufferL.assign(bufferSize, 0.0f);
-            m_delayBufferR.assign(bufferSize, 0.0f);
+            m_delayBufferL.assign(bufferSize, 0.0);
+            m_delayBufferR.assign(bufferSize, 0.0);
             m_writePos = 0;
         }
         m_delaySamples = lookaheadSamples;
@@ -92,53 +92,57 @@ void CompressorEffect::updateBuffers()
 void CompressorEffect::updateCoefficients()
 {
     if (m_sampleRate > 0) {
-        m_attackCoeff = std::exp(-1.0f / (m_attackMs * static_cast<float>(m_sampleRate) / 1000.0f));
-        m_releaseCoeff = std::exp(-1.0f / (m_releaseMs * static_cast<float>(m_sampleRate) / 1000.0f));
+        m_attackCoeff = std::exp(-1.0 / (static_cast<double>(m_attackMs) * m_sampleRate / 1000.0));
+        m_releaseCoeff = std::exp(-1.0 / (static_cast<double>(m_releaseMs) * m_sampleRate / 1000.0));
     }
 }
 
-float CompressorEffect::calculateDetectorLevelDb(float left, float right) const
+double CompressorEffect::calculateDetectorLevelDb(double left, double right) const
 {
-    const float detector = std::max(std::abs(left), std::abs(right));
-    return Utils::Dsp::linearToDb(detector);
+    const double detector = std::max(std::abs(left), std::abs(right));
+    return Utils::Dsp::linearToDb(static_cast<float>(detector)); // Assuming linearToDb can handle float
 }
 
-float CompressorEffect::calculateGainReductionDb(float detectorDb) const
+double CompressorEffect::calculateGainReductionDb(double detectorDb) const
 {
-    float targetDb = detectorDb;
-    if (m_knee > 0.001f) {
-        if (detectorDb > m_threshold + m_knee / 2.0f) {
-            targetDb = m_threshold + (detectorDb - m_threshold) / m_ratio;
-        } else if (detectorDb > m_threshold - m_knee / 2.0f) {
-            const float diff = detectorDb - m_threshold + m_knee / 2.0f;
-            targetDb = detectorDb + (1.0f / m_ratio - 1.0f) * diff * diff / (2.0f * m_knee);
+    double targetDb = detectorDb;
+    const double threshold = static_cast<double>(m_threshold);
+    const double knee = static_cast<double>(m_knee);
+    const double ratio = static_cast<double>(m_ratio);
+
+    if (knee > 0.001) {
+        if (detectorDb > threshold + knee / 2.0) {
+            targetDb = threshold + (detectorDb - threshold) / ratio;
+        } else if (detectorDb > threshold - knee / 2.0) {
+            const double diff = detectorDb - threshold + knee / 2.0;
+            targetDb = detectorDb + (1.0 / ratio - 1.0) * diff * diff / (2.0 * knee);
         }
     } else {
-        if (detectorDb > m_threshold) {
-            targetDb = m_threshold + (detectorDb - m_threshold) / m_ratio;
+        if (detectorDb > threshold) {
+            targetDb = threshold + (detectorDb - threshold) / ratio;
         }
     }
 
     return targetDb - detectorDb;
 }
 
-void CompressorEffect::updateEnvelope(float gainReductionDb)
+void CompressorEffect::updateEnvelope(double gainReductionDb)
 {
     if (gainReductionDb < m_envelopeDb) {
-        m_envelopeDb = m_attackCoeff * m_envelopeDb + (1.0f - m_attackCoeff) * gainReductionDb;
+        m_envelopeDb = m_attackCoeff * m_envelopeDb + (1.0 - m_attackCoeff) * gainReductionDb;
     } else {
-        m_envelopeDb = m_releaseCoeff * m_envelopeDb + (1.0f - m_releaseCoeff) * gainReductionDb;
+        m_envelopeDb = m_releaseCoeff * m_envelopeDb + (1.0 - m_releaseCoeff) * gainReductionDb;
     }
 
     // Denormal protection
-    if (std::abs(m_envelopeDb) < 1.0e-15f) {
-        m_envelopeDb = 0.0f;
+    if (std::abs(m_envelopeDb) < 1.0e-15) {
+        m_envelopeDb = 0.0;
     }
 
     m_reductionDb = m_envelopeDb;
 }
 
-void CompressorEffect::applyGain(float & left, float & right)
+void CompressorEffect::applyGain(double & left, double & right)
 {
     if (m_delayBufferL.empty()) {
         updateBuffers();
@@ -148,13 +152,13 @@ void CompressorEffect::applyGain(float & left, float & right)
     m_delayBufferR[m_writePos] = right;
 
     const uint32_t readPos = (m_writePos + m_delayBufferL.size() - m_delaySamples) % m_delayBufferL.size();
-    float outL = m_delayBufferL[readPos];
-    float outR = m_delayBufferR[readPos];
+    double outL = m_delayBufferL[readPos];
+    double outR = m_delayBufferR[readPos];
 
     m_writePos = (m_writePos + 1) % m_delayBufferL.size();
 
-    const float totalGainDb = m_envelopeDb + m_makeup;
-    const float totalGain = Utils::Dsp::dbToLinear(totalGainDb);
+    const double totalGainDb = m_envelopeDb + static_cast<double>(m_makeup);
+    const double totalGain = Utils::Dsp::dbToLinear(static_cast<float>(totalGainDb));
 
     left = outL * totalGain;
     right = outR * totalGain;
@@ -162,10 +166,10 @@ void CompressorEffect::applyGain(float & left, float & right)
 
 void CompressorEffect::reset()
 {
-    m_envelopeDb = 0.0f;
-    m_reductionDb = 0.0f;
-    std::fill(m_delayBufferL.begin(), m_delayBufferL.end(), 0.0f);
-    std::fill(m_delayBufferR.begin(), m_delayBufferR.end(), 0.0f);
+    m_envelopeDb = 0.0;
+    m_reductionDb = 0.0;
+    std::fill(m_delayBufferL.begin(), m_delayBufferL.end(), 0.0);
+    std::fill(m_delayBufferR.begin(), m_delayBufferR.end(), 0.0);
     m_writePos = 0;
 }
 
@@ -176,7 +180,7 @@ void CompressorEffect::sync()
 
 float CompressorEffect::reductionDb() const
 {
-    return m_reductionDb;
+    return static_cast<float>(m_reductionDb);
 }
 
 void CompressorEffect::syncParameters()

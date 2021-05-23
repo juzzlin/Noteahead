@@ -64,7 +64,7 @@ float RideEngine::nextSample()
     m_filter.setSampleRate(sr);
     m_filter.setCutoff(0.4f + m_tune * 0.5f);
     m_filter.setResonance(m_resonance);
-    const float out { m_filter.process(source) * m_ampEnv * m_velocity };
+    const auto out = static_cast<float>(m_filter.process(source) * m_ampEnv * m_velocity);
 
     const float decayRate { 1.0f - (1.0f / (std::max(0.01f, m_decay) * 2.0f * static_cast<float>(sampleRate()))) };
     m_ampEnv *= decayRate;

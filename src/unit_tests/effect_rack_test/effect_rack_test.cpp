@@ -51,8 +51,8 @@ void EffectRackTest::test_process_shouldProcessAudio()
     reverb->setHpfCutoff(0.0f);
     rack.setEffect(0, reverb);
 
-    std::vector<float> output(2, 0.0f);
-    std::vector<float> sendBus(2, 1.0f); // DC input
+    std::vector<double> output(2, 0.0);
+    std::vector<double> sendBus(2, 1.0); // DC input
     AudioContext outputContext { std::span(output.data(), output.size()), 1, 44100 };
 
     // Reverb needs some samples to build up output
@@ -64,7 +64,7 @@ void EffectRackTest::test_process_shouldProcessAudio()
     QVERIFY(output[0] != 0.0f || output[1] != 0.0f);
 
     // Verify processing an empty slot doesn't crash
-    std::vector<float> output2(2, 0.0f);
+    std::vector<double> output2(2, 0.0);
     AudioContext outputContext2 { std::span(output2.data(), output2.size()), 1, 44100 };
     rack.process(outputContext2, sendBus.data(), 1);
     QCOMPARE(output2[0], 0.0f);
@@ -78,13 +78,13 @@ void EffectRackTest::test_processInPlace_shouldApplyEffectToBuffer()
     volume->setVolume(0.5f); // Half volume
     rack.setEffect(0, volume);
 
-    std::vector<float> buffer(4, 1.0f); // 2 stereo frames of DC 1.0
+    std::vector<double> buffer(4, 1.0); // 2 stereo frames of DC 1.0
     AudioContext context { std::span(buffer.data(), buffer.size()), 2, 44100 };
 
     rack.processInPlace(context);
 
     // All samples should be 0.5
-    for (float sample : buffer) {
+    for (double sample : buffer) {
         QCOMPARE(sample, 0.5f);
     }
 }
@@ -155,18 +155,18 @@ void EffectRackTest::test_enabled_flag_shouldControlProcessing()
     rack.setEffect(0, volume);
 
     // Test processInPlace
-    std::vector<float> buffer(4, 1.0f); // 2 stereo frames of DC 1.0
+    std::vector<double> buffer(4, 1.0); // 2 stereo frames of DC 1.0
     AudioContext context { std::span(buffer.data(), buffer.size()), 2, 44100 };
     rack.processInPlace(context);
 
     // All samples should STILL be 1.0 because effect is disabled
-    for (float sample : buffer) {
+    for (double sample : buffer) {
         QCOMPARE(sample, 1.0f);
     }
 
     // Test process (send bus style)
-    std::vector<float> output(2, 0.0f);
-    std::vector<float> sendBus(2, 1.0f);
+    std::vector<double> output(2, 0.0);
+    std::vector<double> sendBus = { 1.0, 1.0 };
     AudioContext outputContext { std::span(output.data(), output.size()), 1, 44100 };
     rack.process(outputContext, sendBus.data(), 0);
 
@@ -177,7 +177,7 @@ void EffectRackTest::test_enabled_flag_shouldControlProcessing()
     // Re-enable and verify it processes
     volume->setEnabled(true);
     rack.processInPlace(context);
-    for (float sample : buffer) {
+    for (double sample : buffer) {
         QCOMPARE(sample, 0.5f);
     }
 }

@@ -37,7 +37,7 @@ Eq8BandParametricEffect::Eq8BandParametricEffect()
     syncParameters();
 }
 
-void Eq8BandParametricEffect::process(float & left, float & right)
+void Eq8BandParametricEffect::process(double & left, double & right)
 {
     if (m_sampleRate <= 0) {
         return;
@@ -74,7 +74,7 @@ void Eq8BandParametricEffect::updateBuffers()
     }
 }
 
-void Eq8BandParametricEffect::processStereo(float & left, float & right)
+void Eq8BandParametricEffect::processStereo(double & left, double & right)
 {
     for (auto & band : m_bands) {
         left = band.filterL.process(left);

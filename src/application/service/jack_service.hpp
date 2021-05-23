@@ -99,6 +99,7 @@ private:
     std::vector<int32_t> m_recordingInterleavedBuffer;
     std::vector<int32_t> m_playbackInterleavedBuffer;
     std::vector<float> m_engineInterleavedBuffer;
+    std::vector<double> m_doubleAccumulationBuffer;
 
     std::atomic<bool> m_isDeinitializing { false };
 
