@@ -146,9 +146,128 @@ void SamplerDevice::processMidiNoteOff(uint8_t note)
 
 void SamplerDevice::processMidiCc(uint8_t controller, uint8_t value, uint8_t channel)
 {
-    std::lock_guard<std::mutex> lock { m_mutex };
+    bool changed = false;
+    {
+        std::lock_guard<std::mutex> lock { m_mutex };
 
-    if (controller == 121) { // Reset All Controllers
+        if (controller == 121) { // Reset All Controllers
+            m_globalPan = m_manualGlobalPan;
+            m_globalVolume = m_manualGlobalVolume;
+            m_globalCutoff = m_manualGlobalCutoff;
+            m_globalHpfCutoff = m_manualGlobalHpfCutoff;
+
+            for (auto && sample : m_samples) {
+                if (sample) {
+                    sample->pan = sample->manualPan;
+                    sample->volume = sample->manualVolume;
+                    sample->cutoff = sample->manualCutoff;
+                    sample->hpfCutoff = sample->manualHpfCutoff;
+
+                    if (auto p = sample->parameter(Constants::NahdXml::xmlKeyPan().toStdString()); p) p->get().setValue(sample->pan);
+                    if (auto p = sample->parameter(Constants::NahdXml::xmlKeyVolume().toStdString()); p) p->get().setValue(sample->volume);
+                    if (auto p = sample->parameter(Constants::NahdXml::xmlKeyCutoff().toStdString()); p) p->get().setValue(sample->cutoff);
+                    if (auto p = sample->parameter(Constants::NahdXml::xmlKeyHpfCutoff().toStdString()); p) p->get().setValue(sample->hpfCutoff);
+                }
+            }
+
+            for (auto && voice : m_voices) {
+                if (voice.active && voice.sample) {
+                    voice.pan = m_globalPan;
+                    voice.volume = m_globalVolume;
+                    voice.cutoff = m_globalCutoff;
+                    voice.hpfCutoff = m_globalHpfCutoff;
+                    updateVoiceEffects(voice);
+                }
+            }
+            changed = true;
+        } else if (m_channelMode) {
+            // channel is 0-indexed (0-15)
+            const size_t note = 36 + channel;
+            if (note < maxSamples && m_samples.at(note)) {
+                const float val = static_cast<float>(value) / 127.0f;
+                if (controller == 10) { // Panning
+                    m_samples.at(note)->pan = val;
+                    if (auto p = m_samples.at(note)->parameter(Constants::NahdXml::xmlKeyPan().toStdString()); p) p->get().setValue(val);
+                } else if (controller == 7) { // Volume
+                    m_samples.at(note)->volume = val;
+                    if (auto p = m_samples.at(note)->parameter(Constants::NahdXml::xmlKeyVolume().toStdString()); p) p->get().setValue(val);
+                } else if (controller == 74) { // Cutoff (LPF)
+                    m_samples.at(note)->cutoff = val;
+                    if (auto p = m_samples.at(note)->parameter(Constants::NahdXml::xmlKeyCutoff().toStdString()); p) p->get().setValue(val);
+                } else if (controller == 81) { // General Purpose 6 (HPF)
+                    m_samples.at(note)->hpfCutoff = val;
+                    if (auto p = m_samples.at(note)->parameter(Constants::NahdXml::xmlKeyHpfCutoff().toStdString()); p) p->get().setValue(val);
+                }
+                // Update active voices for this specific note
+                for (auto && voice : m_voices) {
+                    if (voice.active && voice.note == note) {
+                        if (controller == 10) {
+                            voice.pan = m_samples.at(note)->pan;
+                        } else if (controller == 7) {
+                            voice.volume = m_samples.at(note)->volume;
+                        } else if (controller == 74) {
+                            voice.cutoff = m_samples.at(note)->cutoff;
+                        } else if (controller == 81) {
+                            voice.hpfCutoff = m_samples.at(note)->hpfCutoff;
+                        }
+                        updateVoiceEffects(voice);
+                    }
+                }
+            }
+        } else {
+            if (controller == 10) { // Panning
+                m_globalPan = static_cast<float>(value) / 127.0f;
+                // Update all active voices' pan
+                for (auto && voice : m_voices) {
+                    if (voice.active) {
+                        voice.pan = m_globalPan;
+                        updateVoiceEffects(voice);
+                    }
+                }
+            } else if (controller == 7) { // Volume
+                m_globalVolume = static_cast<float>(value) / 127.0f;
+                // Update all active voices' volume
+                for (auto && voice : m_voices) {
+                    if (voice.active) {
+                        voice.volume = m_globalVolume;
+                        updateVoiceEffects(voice);
+                    }
+                }
+            } else if (controller == 74) { // Cutoff (LPF)
+                m_globalCutoff = static_cast<float>(value) / 127.0f;
+                // Update all active voices' cutoff
+                for (auto && voice : m_voices) {
+                    if (voice.active) {
+                        voice.cutoff = m_globalCutoff;
+                        updateVoiceEffects(voice);
+                    }
+                }
+            } else if (controller == 81) { // General Purpose 6 (HPF)
+                m_globalHpfCutoff = static_cast<float>(value) / 127.0f;
+                // Update all active voices' hpfCutoff
+                for (auto && voice : m_voices) {
+                    if (voice.active) {
+                        voice.hpfCutoff = m_globalHpfCutoff;
+                        updateVoiceEffects(voice);
+                    }
+                }
+            }
+        }
+    }
+
+    if (changed) {
+        emit dataChanged();
+    }
+}
+
+void SamplerDevice::processMidiAllNotesOff()
+{
+    {
+        std::lock_guard<std::mutex> lock { m_mutex };
+        for (auto && voice : m_voices) {
+            voice.active = false;
+        }
+
         m_globalPan = m_manualGlobalPan;
         m_globalVolume = m_manualGlobalVolume;
         m_globalCutoff = m_manualGlobalCutoff;
@@ -167,7 +286,8 @@ void SamplerDevice::processMidiCc(uint8_t controller, uint8_t value, uint8_t cha
                 if (auto p = sample->parameter(Constants::NahdXml::xmlKeyHpfCutoff().toStdString()); p) p->get().setValue(sample->hpfCutoff);
             }
         }
-        
+
+        // Update active voices to reflect the reset values
         for (auto && voice : m_voices) {
             if (voice.active && voice.sample) {
                 voice.pan = m_globalPan;
@@ -176,120 +296,6 @@ void SamplerDevice::processMidiCc(uint8_t controller, uint8_t value, uint8_t cha
                 voice.hpfCutoff = m_globalHpfCutoff;
                 updateVoiceEffects(voice);
             }
-        }
-        emit dataChanged();
-        return;
-    }
-
-    if (m_channelMode) {
-        // channel is 0-indexed (0-15)
-        const size_t note = 36 + channel;
-        if (note < maxSamples && m_samples.at(note)) {
-            const float val = static_cast<float>(value) / 127.0f;
-            if (controller == 10) { // Panning
-                m_samples.at(note)->pan = val;
-                if (auto p = m_samples.at(note)->parameter(Constants::NahdXml::xmlKeyPan().toStdString()); p) p->get().setValue(val);
-            } else if (controller == 7) { // Volume
-                m_samples.at(note)->volume = val;
-                if (auto p = m_samples.at(note)->parameter(Constants::NahdXml::xmlKeyVolume().toStdString()); p) p->get().setValue(val);
-            } else if (controller == 74) { // Cutoff (LPF)
-                m_samples.at(note)->cutoff = val;
-                if (auto p = m_samples.at(note)->parameter(Constants::NahdXml::xmlKeyCutoff().toStdString()); p) p->get().setValue(val);
-            } else if (controller == 81) { // General Purpose 6 (HPF)
-                m_samples.at(note)->hpfCutoff = val;
-                if (auto p = m_samples.at(note)->parameter(Constants::NahdXml::xmlKeyHpfCutoff().toStdString()); p) p->get().setValue(val);
-            }
-            // Update active voices for this specific note
-            for (auto && voice : m_voices) {
-                if (voice.active && voice.note == note) {
-                    if (controller == 10) {
-                        voice.pan = m_samples.at(note)->pan;
-                    } else if (controller == 7) {
-                        voice.volume = m_samples.at(note)->volume;
-                    } else if (controller == 74) {
-                        voice.cutoff = m_samples.at(note)->cutoff;
-                    } else if (controller == 81) {
-                        voice.hpfCutoff = m_samples.at(note)->hpfCutoff;
-                    }
-                    updateVoiceEffects(voice);
-                }
-            }
-        }
-    } else {
-        if (controller == 10) { // Panning
-            m_globalPan = static_cast<float>(value) / 127.0f;
-            // Update all active voices' pan
-            for (auto && voice : m_voices) {
-                if (voice.active) {
-                    voice.pan = m_globalPan;
-                    updateVoiceEffects(voice);
-                }
-            }
-        } else if (controller == 7) { // Volume
-            m_globalVolume = static_cast<float>(value) / 127.0f;
-            // Update all active voices' volume
-            for (auto && voice : m_voices) {
-                if (voice.active) {
-                    voice.volume = m_globalVolume;
-                    updateVoiceEffects(voice);
-                }
-            }
-        } else if (controller == 74) { // Cutoff (LPF)
-            m_globalCutoff = static_cast<float>(value) / 127.0f;
-            // Update all active voices' cutoff
-            for (auto && voice : m_voices) {
-                if (voice.active) {
-                    voice.cutoff = m_globalCutoff;
-                    updateVoiceEffects(voice);
-                }
-            }
-        } else if (controller == 81) { // General Purpose 6 (HPF)
-            m_globalHpfCutoff = static_cast<float>(value) / 127.0f;
-            // Update all active voices' hpfCutoff
-            for (auto && voice : m_voices) {
-                if (voice.active) {
-                    voice.hpfCutoff = m_globalHpfCutoff;
-                    updateVoiceEffects(voice);
-                }
-            }
-        }
-    }
-}
-
-void SamplerDevice::processMidiAllNotesOff()
-{
-    std::lock_guard<std::mutex> lock { m_mutex };
-    for (auto && voice : m_voices) {
-        voice.active = false;
-    }
-
-    m_globalPan = m_manualGlobalPan;
-    m_globalVolume = m_manualGlobalVolume;
-    m_globalCutoff = m_manualGlobalCutoff;
-    m_globalHpfCutoff = m_manualGlobalHpfCutoff;
-
-    for (auto && sample : m_samples) {
-        if (sample) {
-            sample->pan = sample->manualPan;
-            sample->volume = sample->manualVolume;
-            sample->cutoff = sample->manualCutoff;
-            sample->hpfCutoff = sample->manualHpfCutoff;
-
-            if (auto p = sample->parameter(Constants::NahdXml::xmlKeyPan().toStdString()); p) p->get().setValue(sample->pan);
-            if (auto p = sample->parameter(Constants::NahdXml::xmlKeyVolume().toStdString()); p) p->get().setValue(sample->volume);
-            if (auto p = sample->parameter(Constants::NahdXml::xmlKeyCutoff().toStdString()); p) p->get().setValue(sample->cutoff);
-            if (auto p = sample->parameter(Constants::NahdXml::xmlKeyHpfCutoff().toStdString()); p) p->get().setValue(sample->hpfCutoff);
-        }
-    }
-
-    // Update active voices to reflect the reset values
-    for (auto && voice : m_voices) {
-        if (voice.active && voice.sample) {
-            voice.pan = m_globalPan;
-            voice.volume = m_globalVolume;
-            voice.cutoff = m_globalCutoff;
-            voice.hpfCutoff = m_globalHpfCutoff;
-            updateVoiceEffects(voice);
         }
     }
 
@@ -362,17 +368,19 @@ void SamplerDevice::processAudio(float * output, uint32_t nFrames, uint32_t samp
 
 void SamplerDevice::reset()
 {
-    std::lock_guard<std::mutex> lock { m_mutex };
-    ParameterContainer::reset();
-    for (auto && sample : m_samples) {
-        sample = nullptr;
-    }
-    for (auto && voice : m_voices) {
-        voice.active = false;
-    }
+    {
+        std::lock_guard<std::mutex> lock { m_mutex };
+        ParameterContainer::reset();
+        for (auto && sample : m_samples) {
+            sample = nullptr;
+        }
+        for (auto && voice : m_voices) {
+            voice.active = false;
+        }
 
-    if (auto p = parameter(Constants::NahdXml::xmlKeyChannelMode().toStdString()); p) {
-        m_channelMode = p->get().value() > 0.5f;
+        if (auto p = parameter(Constants::NahdXml::xmlKeyChannelMode().toStdString()); p) {
+            m_channelMode = p->get().value() > 0.5f;
+        }
     }
 
     emit dataChanged();
@@ -409,8 +417,11 @@ void SamplerDevice::loadSample(uint8_t note, const std::string & filePath)
     sample->sampleRate = info.samplerate;
     sample->data = std::move(data);
 
-    std::lock_guard<std::mutex> lock { m_mutex };
-    m_samples.at(note) = std::move(sample);
+    {
+        std::lock_guard<std::mutex> lock { m_mutex };
+        m_samples.at(note) = std::move(sample);
+    }
+
     emit dataChanged();
 }
 
@@ -419,13 +430,16 @@ void SamplerDevice::clearSample(uint8_t note)
     if (note >= maxSamples) {
         return;
     }
-    std::lock_guard<std::mutex> lock { m_mutex };
-    m_samples.at(note) = nullptr;
+    {
+        std::lock_guard<std::mutex> lock { m_mutex };
+        m_samples.at(note) = nullptr;
+    }
     emit dataChanged();
 }
 
 const SamplerDevice::Sample * SamplerDevice::sample(uint8_t note) const
 {
+    std::lock_guard<std::mutex> lock { m_mutex };
     if (note >= maxSamples) {
         return nullptr;
     }
@@ -434,6 +448,7 @@ const SamplerDevice::Sample * SamplerDevice::sample(uint8_t note) const
 
 std::string SamplerDevice::absoluteFilePath(uint8_t note) const
 {
+    std::lock_guard<std::mutex> lock { m_mutex };
     if (note >= maxSamples || !m_samples.at(note)) {
         return "";
     }
@@ -460,18 +475,24 @@ void SamplerDevice::setSamplePan(uint8_t note, float pan)
     if (note >= maxSamples) {
         return;
     }
-    std::lock_guard<std::mutex> lock { m_mutex };
-    if (m_samples.at(note)) {
-        if (auto p = m_samples.at(note)->parameter(Constants::NahdXml::xmlKeyPan().toStdString()); p) {
-            p->get().setValue(pan);
-            m_samples.at(note)->pan = p->get().value();
-            m_samples.at(note)->manualPan = m_samples.at(note)->pan;
-        }
-        for (auto && voice : m_voices) {
-            if (voice.active && voice.note == note) {
-                updateVoiceEffects(voice);
+    bool changed = false;
+    {
+        std::lock_guard<std::mutex> lock { m_mutex };
+        if (m_samples.at(note)) {
+            if (auto p = m_samples.at(note)->parameter(Constants::NahdXml::xmlKeyPan().toStdString()); p) {
+                p->get().setValue(pan);
+                m_samples.at(note)->pan = p->get().value();
+                m_samples.at(note)->manualPan = m_samples.at(note)->pan;
             }
+            for (auto && voice : m_voices) {
+                if (voice.active && voice.note == note) {
+                    updateVoiceEffects(voice);
+                }
+            }
+            changed = true;
         }
+    }
+    if (changed) {
         emit dataChanged();
     }
 }
@@ -490,18 +511,24 @@ void SamplerDevice::setSampleVolume(uint8_t note, float volume)
     if (note >= maxSamples) {
         return;
     }
-    std::lock_guard<std::mutex> lock { m_mutex };
-    if (m_samples.at(note)) {
-        if (auto p = m_samples.at(note)->parameter(Constants::NahdXml::xmlKeyVolume().toStdString()); p) {
-            p->get().setValue(volume);
-            m_samples.at(note)->volume = p->get().value();
-            m_samples.at(note)->manualVolume = m_samples.at(note)->volume;
-        }
-        for (auto && voice : m_voices) {
-            if (voice.active && voice.note == note) {
-                updateVoiceEffects(voice);
+    bool changed = false;
+    {
+        std::lock_guard<std::mutex> lock { m_mutex };
+        if (m_samples.at(note)) {
+            if (auto p = m_samples.at(note)->parameter(Constants::NahdXml::xmlKeyVolume().toStdString()); p) {
+                p->get().setValue(volume);
+                m_samples.at(note)->volume = p->get().value();
+                m_samples.at(note)->manualVolume = m_samples.at(note)->volume;
             }
+            for (auto && voice : m_voices) {
+                if (voice.active && voice.note == note) {
+                    updateVoiceEffects(voice);
+                }
+            }
+            changed = true;
         }
+    }
+    if (changed) {
         emit dataChanged();
     }
 }
@@ -520,18 +547,24 @@ void SamplerDevice::setSampleCutoff(uint8_t note, float cutoff)
     if (note >= maxSamples) {
         return;
     }
-    std::lock_guard<std::mutex> lock { m_mutex };
-    if (m_samples.at(note)) {
-        if (auto p = m_samples.at(note)->parameter(Constants::NahdXml::xmlKeyCutoff().toStdString()); p) {
-            p->get().setValue(cutoff);
-            m_samples.at(note)->cutoff = p->get().value();
-            m_samples.at(note)->manualCutoff = m_samples.at(note)->cutoff;
-        }
-        for (auto && voice : m_voices) {
-            if (voice.active && voice.note == note) {
-                updateVoiceEffects(voice);
+    bool changed = false;
+    {
+        std::lock_guard<std::mutex> lock { m_mutex };
+        if (m_samples.at(note)) {
+            if (auto p = m_samples.at(note)->parameter(Constants::NahdXml::xmlKeyCutoff().toStdString()); p) {
+                p->get().setValue(cutoff);
+                m_samples.at(note)->cutoff = p->get().value();
+                m_samples.at(note)->manualCutoff = m_samples.at(note)->cutoff;
             }
+            for (auto && voice : m_voices) {
+                if (voice.active && voice.note == note) {
+                    updateVoiceEffects(voice);
+                }
+            }
+            changed = true;
         }
+    }
+    if (changed) {
         emit dataChanged();
     }
 }
@@ -550,18 +583,24 @@ void SamplerDevice::setSampleHpfCutoff(uint8_t note, float cutoff)
     if (note >= maxSamples) {
         return;
     }
-    std::lock_guard<std::mutex> lock { m_mutex };
-    if (m_samples.at(note)) {
-        if (auto p = m_samples.at(note)->parameter(Constants::NahdXml::xmlKeyHpfCutoff().toStdString()); p) {
-            p->get().setValue(cutoff);
-            m_samples.at(note)->hpfCutoff = p->get().value();
-            m_samples.at(note)->manualHpfCutoff = m_samples.at(note)->hpfCutoff;
-        }
-        for (auto && voice : m_voices) {
-            if (voice.active && voice.note == note) {
-                updateVoiceEffects(voice);
+    bool changed = false;
+    {
+        std::lock_guard<std::mutex> lock { m_mutex };
+        if (m_samples.at(note)) {
+            if (auto p = m_samples.at(note)->parameter(Constants::NahdXml::xmlKeyHpfCutoff().toStdString()); p) {
+                p->get().setValue(cutoff);
+                m_samples.at(note)->hpfCutoff = p->get().value();
+                m_samples.at(note)->manualHpfCutoff = m_samples.at(note)->hpfCutoff;
             }
+            for (auto && voice : m_voices) {
+                if (voice.active && voice.note == note) {
+                    updateVoiceEffects(voice);
+                }
+            }
+            changed = true;
         }
+    }
+    if (changed) {
         emit dataChanged();
     }
 }
@@ -580,14 +619,16 @@ void SamplerDevice::setSampleStartOffset(uint8_t note, double offset)
     if (note >= maxSamples) {
         return;
     }
-    std::lock_guard<std::mutex> lock { m_mutex };
-    if (m_samples.at(note)) {
-        if (auto p = m_samples.at(note)->parameter(Constants::NahdXml::xmlKeyStartOffset().toStdString()); p) {
-            p->get().setValue(static_cast<float>(offset / 60.0));
-            m_samples.at(note)->startOffset = static_cast<double>(p->get().value()) * 60.0;
+    {
+        std::lock_guard<std::mutex> lock { m_mutex };
+        if (m_samples.at(note)) {
+            if (auto p = m_samples.at(note)->parameter(Constants::NahdXml::xmlKeyStartOffset().toStdString()); p) {
+                p->get().setValue(static_cast<float>(offset / 60.0));
+                m_samples.at(note)->startOffset = static_cast<double>(p->get().value()) * 60.0;
+            }
         }
-        emit dataChanged();
     }
+    emit dataChanged();
 }
 
 double SamplerDevice::sampleDuration(uint8_t note) const
@@ -608,12 +649,14 @@ bool SamplerDevice::channelMode() const
 
 void SamplerDevice::setChannelMode(bool enabled)
 {
-    std::lock_guard<std::mutex> lock { m_mutex };
-    if (auto p = parameter(Constants::NahdXml::xmlKeyChannelMode().toStdString()); p) {
-        p->get().setValue(enabled ? 1.0f : 0.0f);
-        m_channelMode = p->get().value() > 0.5f;
-        emit dataChanged();
+    {
+        std::lock_guard<std::mutex> lock { m_mutex };
+        if (auto p = parameter(Constants::NahdXml::xmlKeyChannelMode().toStdString()); p) {
+            p->get().setValue(enabled ? 1.0f : 0.0f);
+            m_channelMode = p->get().value() > 0.5f;
+        }
     }
+    emit dataChanged();
 }
 
 double SamplerDevice::playbackPosition(uint8_t note) const
@@ -643,6 +686,7 @@ bool SamplerDevice::isFinished(uint8_t note) const
 
 void SamplerDevice::serializeToXml(QXmlStreamWriter & writer) const
 {
+    std::lock_guard<std::mutex> lock { m_mutex };
     writer.writeStartElement(Constants::NahdXml::xmlKeyDevice());
     serializeAttributesToXml(writer);
     serializeParametersToXml(writer);
@@ -681,6 +725,7 @@ void SamplerDevice::deserializeFromXml(QXmlStreamReader & reader)
         if (name == Constants::NahdXml::xmlKeyParameter()) {
             const auto paramName = reader.attributes().value(Constants::NahdXml::xmlKeyName()).toString().toStdString();
             const auto value = reader.attributes().value(Constants::NahdXml::xmlKeyValue()).toInt();
+            std::lock_guard<std::mutex> lock { m_mutex };
             if (auto p = parameter(paramName); p) {
                 p->get().setFromXml(value);
             }
@@ -692,6 +737,7 @@ void SamplerDevice::deserializeFromXml(QXmlStreamReader & reader)
                     const auto path = reader.attributes().value(Constants::NahdXml::xmlKeySamplePath()).toString();
                     if (note.has_value()) {
                         loadSample(static_cast<uint8_t>(note.value()), path.toStdString());
+                        std::lock_guard<std::mutex> lock { m_mutex };
                         if (const auto s = m_samples.at(note.value()).get(); s) {
                             s->deserializeParametersFromXml(reader);
                             // Sync internal fields from parameters
@@ -719,9 +765,12 @@ void SamplerDevice::deserializeFromXml(QXmlStreamReader & reader)
         }
     }
     
-    // Sync global fields
-    if (auto p = parameter(Constants::NahdXml::xmlKeyChannelMode().toStdString()); p) {
-        m_channelMode = p->get().value() > 0.5f;
+    {
+        std::lock_guard<std::mutex> lock { m_mutex };
+        // Sync global fields
+        if (auto p = parameter(Constants::NahdXml::xmlKeyChannelMode().toStdString()); p) {
+            m_channelMode = p->get().value() > 0.5f;
+        }
     }
 
     emit dataChanged();
@@ -741,10 +790,12 @@ void SamplerDevice::saveState()
 
 void SamplerDevice::restoreState()
 {
-    std::lock_guard<std::mutex> lock { m_mutex };
-    for (size_t i = 0; i < maxSamples; i++) {
-        m_samples.at(i) = std::move(m_savedSamples.at(i));
-        m_savedSamples.at(i) = nullptr;
+    {
+        std::lock_guard<std::mutex> lock { m_mutex };
+        for (size_t i = 0; i < maxSamples; i++) {
+            m_samples.at(i) = std::move(m_savedSamples.at(i));
+            m_savedSamples.at(i) = nullptr;
+        }
     }
     emit dataChanged();
 }

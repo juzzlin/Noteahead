@@ -213,8 +213,8 @@ ApplicationWindow {
     SynthDialog {
         id: synthDialog
         anchors.centerIn: parent
-        width: parent.width * Constants.defaultDialogScale
-        height: parent.height * Constants.defaultDialogScale
+        width: parent.width * Constants.largeDialogScale
+        height: parent.height * Constants.largeDialogScale
     }
     SettingsDialog {
         id: settingsDialog

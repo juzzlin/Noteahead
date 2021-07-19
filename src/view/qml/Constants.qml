@@ -5,6 +5,7 @@ QtObject {
     readonly property int columnHeaderHeight: 40
     readonly property double defaultWindowScale: 0.8
     readonly property double defaultDialogScale: 0.7
+    readonly property double largeDialogScale: 0.85
     readonly property int minWindowWidth: 1024
     readonly property int minWindowHeight: 768
 
