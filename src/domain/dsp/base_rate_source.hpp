@@ -49,13 +49,33 @@ public:
     void setOversampleFactor(uint8_t factor);
 
     //! True when the next nextSample() call needs a fresh base-rate sample supplied first.
-    bool needsBaseSample() const;
+    //!
+    //! This and the two below are defined here rather than in the .cpp because every drum voice
+    //! calls them once per sample; left out of line they cost more than the work they do.
+    bool needsBaseSample() const
+    {
+        return m_index == 0;
+    }
 
     //! Feed the base-rate generator's output. Only meaningful right after needsBaseSample().
-    void setBaseSample(float sample);
+    void setBaseSample(float sample)
+    {
+        if (m_factor == 1) {
+            m_interpolated[0] = sample; // Nothing to interpolate, and this is the realtime default
+            return;
+        }
+        m_upsampler.process(sample, m_interpolated.data(), m_factor);
+    }
 
     //! The next sample at the oversampled rate.
-    float nextSample();
+    float nextSample()
+    {
+        const float sample = m_interpolated[m_index];
+        if (++m_index >= m_factor) {
+            m_index = 0;
+        }
+        return sample;
+    }
 
     void reset();
 

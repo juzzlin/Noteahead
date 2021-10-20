@@ -25,23 +25,6 @@ void BaseRateSource::setOversampleFactor(uint8_t factor)
     }
 }
 
-bool BaseRateSource::needsBaseSample() const
-{
-    return m_index == 0;
-}
-
-void BaseRateSource::setBaseSample(float sample)
-{
-    m_upsampler.process(sample, m_interpolated.data(), m_factor);
-}
-
-float BaseRateSource::nextSample()
-{
-    const float sample = m_interpolated.at(m_index);
-    m_index = static_cast<uint8_t>((m_index + 1) % m_factor);
-    return sample;
-}
-
 void BaseRateSource::reset()
 {
     m_upsampler.reset();
