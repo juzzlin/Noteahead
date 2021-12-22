@@ -25,10 +25,10 @@ namespace noteahead {
 //! The TR-909 bass drum, modelled on recordings of one at every combination of Tune, Attack and
 //! Decay at 0, 3, 7 and 10.
 //!
-//! A rounded triangle swept down from two hundred hertz or so to its pitch, after a click: the
-//! pulse that triggers the drum leaks through as a short ramp before the oscillator starts, then
-//! clicks as it does, and a burst of noise rides on the first few tens of milliseconds, more of it
-//! with Attack. What the recordings showed:
+//! A rounded triangle swept down from two hundred hertz or so to its pitch, after a click: a small
+//! hump at the trigger and a sharp spike down 2 ms in, where the oscillator comes in, both an RD-9's
+//! and both deeper with Attack, and a burst of noise rides on the first few tens of milliseconds.
+//! What the recordings showed:
 //! - Tune is the length of the sweep, not its depth: every setting settles at the same 49.5 Hz,
 //!   and starts from about the same 210 to 250 Hz.
 //! - Decay changes the shape of the fall as well as its length: short settings fall away faster
@@ -93,6 +93,8 @@ private:
 
     float m_tune { 0.5f };
     float m_attack { 0.5f };
+    //! Attack along the RD-9's curve: how much of its full click it adds
+    double m_attackAmount { 0.25 };
     float m_decay { 0.5f };
     float m_pitch { 0.5f };
     float m_pitchDepth { 0.5f };
@@ -108,6 +110,9 @@ private:
     double m_sweepCurve { 1.0 };
     double m_decaySeconds { 0.0 };
     double m_decayCurve { 1.0 };
+    double m_swellDepth { 0.0 };
+    double m_stopLevel { 0.0 };
+    double m_bodyNormalization { 1.0 };
     double m_driveGain { 1.0 };
     double m_driveNormalization { 1.0 };
 
@@ -116,13 +121,14 @@ private:
     double m_time { 0.0 };
     double m_phase { 0.0 };
     double m_velocity { 1.0 };
-    BandPass m_click {};
     BandPass m_noise {};
-    bool m_clicked { false };
     uint32_t m_noiseSeed { 0 };
     //! Fades a hit cut short by stop() out instead of leaving a step
     double m_choke { 1.0 };
     bool m_choking { false };
+    //! The oscillation's stop, from 1 to 0, once the amplitude has fallen to m_stopLevel
+    double m_stop { 1.0 };
+    bool m_stopping { false };
 };
 
 } // namespace noteahead

@@ -11,6 +11,10 @@ New features:
 
 Bug fixes:
 
+* Kick 909: Decay is an RD-9's, up to 1.7 s instead of 0.45 s
+
+* Kick 909: the click and Attack are an RD-9's
+
 * Flanger no longer drops out while a knob moves, and keeps its stereo phase after a reset
 
 * Auto Panner keeps its waveform when a project is reloaded

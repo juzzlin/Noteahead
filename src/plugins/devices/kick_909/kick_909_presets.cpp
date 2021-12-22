@@ -88,7 +88,7 @@ const std::vector<SynthPreset> & Kick909Presets::presets()
         // The long one: Decay up, Tune a little, Attack most of the way
         { .name = "Classic Long", .parameters = parameters({ .tune = 3.0, .attack = 7.0, .decay = 10.0, .pitch = 3.5 }) },
         // Everything but the click taken away: a tick for layering over another kick
-        { .name = "Click Layer", .parameters = parameters({ .tune = 0.0, .attack = 10.0, .decay = 0.0, .hpfHz = 150.0, .gainDb = 3.3 }) },
+        { .name = "Click Layer", .parameters = parameters({ .tune = 0.0, .attack = 10.0, .decay = 0.0, .hpfHz = 150.0, .gainDb = 3.9 }) },
         // Low, round and long under a low-pass: the house kick
         { .name = "Deep House", .parameters = parameters({ .tune = 2.0, .attack = 3.0, .decay = 8.0, .pitch = 3.4, .lpfHz = 3000.0, .gainDb = 0.5 }) },
         // A long sweep from high up to far below the drum, driven flat: the zap of the electro kick
