@@ -36,15 +36,21 @@ constexpr std::array<double, 4> SweepStartHz { 306.2, 329.8, 356.3, 373.9 };
 constexpr std::array<double, 4> SweepSeconds { 0.02362, 0.02954, 0.04464, 0.06673 };
 constexpr std::array<double, 4> SweepCurve { 0.951, 0.888, 0.792, 0.716 };
 
-//! The amplitude, exp(-(t / tau)^curve), per Decay setting, within 0.5 to 1.9 dB. Given as the
-//! time to -40 dB, which is what Decay is heard as, and interpolated geometrically. The short
-//! settings fall away faster than an exponential towards their end.
-constexpr std::array<double, 4> DecayTo40DbSeconds { 0.1048, 0.178, 0.3026, 0.4543 };
-constexpr std::array<double, 4> DecayCurve { 3.498, 1.889, 1.345, 1.123 };
-//! The first few cycles are louder than the decay accounts for: a boost on top that is gone in a
-//! few milliseconds
-constexpr double EarlyBoost = 0.482;
-constexpr double EarlyBoostSeconds = 0.00614;
+//! The amplitude, exp(-(t / tau)^curve), per Decay setting, an RD-9's at 0, 2, 5, 8 and 10 with
+//! the rest at noon, within 0.5 to 0.9 dB rms up to where it stops. Given as the time to -40 dB,
+//! which is what Decay is heard as, and interpolated geometrically. The knob's top half is where
+//! the length is: 0.41 s at noon and 1.73 s at full.
+constexpr std::array<double, 5> DecayTo40DbSeconds { 0.2077, 0.3051, 0.4120, 1.3635, 1.7349 };
+constexpr std::array<double, 5> DecayCurve { 1.453, 1.626, 1.549, 1.336, 1.231 };
+//! The body swells over its first cycles, 9 dB from its start, except at the shortest Decay, where
+//! it is already falling: 1 - depth exp(-t / time)
+constexpr std::array<double, 5> SwellDepth { 0.0, 0.639, 0.639, 0.639, 0.639 };
+constexpr double SwellSeconds = 0.0258;
+//! Up to noon the oscillation stops dead once the amplitude falls this far under its peak, instead
+//! of fading out. Above it, it fades all the way.
+constexpr std::array<double, 5> StopDb { -31.45, -32.26, -34.57, -80.0, -80.0 };
+//! How fast it stops: within a cycle, as the RD-9's does
+constexpr double StopSeconds = 0.002;
 
 //! The oscillator's waveform, its first twelve harmonics against the fundamental. The 909's settled
 //! cycle is the same in every recording, to a decibel and a few degrees: lopsided and flatter-topped
@@ -56,41 +62,50 @@ constexpr std::array<double, HarmonicCount> HarmonicPhase { 0.0, -2.7547, 0.2455
 constexpr double StartPhase = 0.7639;
 constexpr size_t WaveTableSize = 4096;
 
-//! The click: the trigger pulse leaking through as a ramp before the oscillator starts
-constexpr double ClickDelaySeconds = 0.001;
-constexpr double ClickLevel = 0.424;
-constexpr double ClickRiseSeconds = 0.00139;
+//! The oscillator starts this soon after the trigger, which puts its zero crossings within a tenth
+//! of a millisecond of the RD-9's
+constexpr double BodyDelaySeconds = 0.0006;
+//! The click, an RD-9's at every Attack, fitted on its spectra over the first 30 ms within 1.3 to
+//! 1.9 dB and on its peak within a decibel. It is three pulses, t/tau exp(1 - t/tau) from where each
+//! starts, against the body's peak: a small hump at the trigger, a slower fall from 1.7 ms and a
+//! sharp spike down at 2.1 ms. The body is held under them until the spike.
+constexpr double HumpLevel = 0.047;
+constexpr double HumpSeconds = 0.000477;
+constexpr double LeadLevel = 0.556;
+constexpr double LeadStartSeconds = 0.001717;
+constexpr double LeadSeconds = 0.000295;
+constexpr double SpikeLevel = 1.056;
+constexpr double SpikeStartSeconds = 0.002148;
+constexpr double SpikeSeconds = 0.000105;
+constexpr double BodyGateSeconds = 0.001818;
+constexpr double BodyGateRiseSeconds = 0.00003;
+//! What Attack at full adds to the hump and the spike. The RD-9's knob does nothing up to 2 and most
+//! of its work between 5 and 8.
+constexpr double AttackHumpLevel = 0.191;
+constexpr double AttackSpikeLevel = 1.031;
+constexpr std::array<double, 5> AttackCurve { 0.0, 0.04, 0.25, 0.85, 1.0 };
+//! Past this the pulses are spent and the gate open
+constexpr double ClickSeconds = 0.01;
 
-//! The click as the oscillator starts: an impulse rung through a broad band-pass. It is what puts the
-//! recordings' first 4 ms 10 to 17 dB above the body alone from 2 to 8 kHz; with it the spectrum
-//! there is within 3.1 dB of theirs, with the noise below.
-constexpr double ClickImpulse = 1.505;
-constexpr double ClickHz = 1237.0;
-constexpr double ClickQ = 0.80;
-//! How much louder Attack at full makes the click. The recordings' own Attack hardly changes it, so
-//! this goes beyond them: the knob's square, so the lower half stays near the recordings (+3 dB at
-//! noon) and the top reaches the hard click an RD-9 gets.
-constexpr double MaxAttackClickDb = 12.0;
-
-//! The noise over the start of the drum: band-passed, there at every setting, and Attack at full
-//! doubles it. Fitted to the recordings' spectra from 4 to 60 ms within 2.7 dB.
+//! The noise over the start of the drum: band-passed and the same at every Attack, as on the RD-9.
+//! Fitted to the 909 recordings' spectra from 4 to 60 ms within 2.7 dB.
 constexpr double NoiseLevel = 0.0860;
-constexpr double AttackNoiseLevel = 0.0803;
 constexpr double NoiseSeconds = 0.0100;
 constexpr double NoiseHz = 991.0;
 constexpr double NoiseQ = 0.54;
-//! The rate the click and the noise were fitted at; held to the same spectrum at any other
+//! The rate the noise was fitted at; held to the same spectrum at any other
 constexpr double ReferenceSampleRate = 44100.0;
 
-//! The level of the whole, as the recordings have it
-constexpr double OutputLevel = 0.888;
+//! The level of the whole: Init's body peaks where the Kick Synth puts its own peak. The click's
+//! spike goes 4 to 9 dB over it, as an RD-9's does.
+constexpr double OutputLevel = 1.193;
 
 //! Drive at full: the gain into the saturator
 constexpr double MaxDriveGain = 8.0;
 
-//! The RD-9's Pitch and Pitch Depth, measured on one at 0, 2, 5, 8 and 10 with the rest at noon.
-//! Its sweep keeps the same shape at every setting, so they are ratios against its noon, which is
-//! the sweep above.
+//! Where the RD-9's Decay, Pitch and Pitch Depth were measured: 0, 2, 5, 8 and 10 with the rest at
+//! noon. Its sweep keeps the same shape at every setting, so Pitch and Pitch Depth are ratios against
+//! its noon, which is the sweep above.
 constexpr std::array<double, 5> RdKnobPoints { 0.0, 0.2, 0.5, 0.8, 1.0 };
 //! Pitch multiplies the whole sweep, start and end alike, within a few per cent at every moment
 constexpr std::array<double, 5> PitchScale { 0.22, 0.345, 1.0, 1.79, 2.45 };
@@ -146,6 +161,13 @@ const std::array<double, WaveTableSize + 1> & waveTable()
     return table;
 }
 
+//! A pulse of unit peak, (t / tau) exp(1 - t / tau) from @p start
+double pulse(double time, double start, double tau)
+{
+    const double u = (time - start) / tau;
+    return u > 0.0 ? u * std::exp(1.0 - u) : 0.0;
+}
+
 double oscillator(double phase)
 {
     const auto & table = waveTable();
@@ -172,9 +194,19 @@ void Kick909Engine::updateShape()
     m_sweepCurve = interpolate(KnobPoints, SweepCurve, tune);
 
     const double decay = static_cast<double>(m_decay);
-    m_decayCurve = interpolate(KnobPoints, DecayCurve, decay);
+    m_decayCurve = interpolate(RdKnobPoints, DecayCurve, decay);
     // exp(-(t / tau)^q) is -40 dB where (t / tau)^q = 40 / 8.686
-    m_decaySeconds = interpolateGeometric(KnobPoints, DecayTo40DbSeconds, decay) / std::pow(40.0 / 8.685889638, 1.0 / m_decayCurve);
+    m_decaySeconds = interpolateGeometric(RdKnobPoints, DecayTo40DbSeconds, decay) / std::pow(40.0 / 8.685889638, 1.0 / m_decayCurve);
+    m_swellDepth = interpolate(RdKnobPoints, SwellDepth, decay);
+    m_stopLevel = std::pow(10.0, interpolate(RdKnobPoints, StopDb, decay) / 20.0);
+    // The RD-9's body peaks at the same level at every Decay; the swell only moves when. Found to a
+    // millisecond, which is well inside a cycle.
+    m_bodyNormalization = 1.0;
+    double bodyPeak = 0.0;
+    for (int milliseconds = 0; milliseconds <= 300; milliseconds++) {
+        bodyPeak = std::max(bodyPeak, bodyEnvelope(milliseconds / 1000.0));
+    }
+    m_bodyNormalization = 1.0 / bodyPeak;
 
     m_pitchScale = interpolateGeometric(RdKnobPoints, PitchScale, static_cast<double>(m_pitch)) * m_noteRatio;
     m_endRatio = interpolate(RdKnobPoints, PitchDepthEnd, static_cast<double>(m_pitchDepth));
@@ -194,6 +226,7 @@ void Kick909Engine::setTune(float tune)
 void Kick909Engine::setAttack(float attack)
 {
     m_attack = std::clamp(attack, 0.0f, 1.0f);
+    m_attackAmount = interpolate(RdKnobPoints, AttackCurve, static_cast<double>(m_attack));
 }
 
 void Kick909Engine::setDecay(float decay)
@@ -233,11 +266,11 @@ void Kick909Engine::trigger(float velocity)
     m_phase = StartPhase;
     m_velocity = static_cast<double>(std::clamp(velocity, 0.0f, 1.0f));
     m_noiseSeed = NoiseSeed;
-    m_click.set(ClickHz, ClickQ, sampleRate());
     m_noise.set(NoiseHz, NoiseQ, sampleRate());
-    m_clicked = false;
     m_choke = 1.0;
     m_choking = false;
+    m_stop = 1.0;
+    m_stopping = false;
 }
 
 void Kick909Engine::BandPass::set(double hz, double q, double sampleRate)
@@ -279,12 +312,12 @@ double Kick909Engine::nextNoise()
 double Kick909Engine::bodyEnvelope(double seconds) const
 {
     const double time = std::max(seconds, 0.0);
-    return std::exp(-std::pow(time / m_decaySeconds, m_decayCurve)) * (1.0 + EarlyBoost * std::exp(-time / EarlyBoostSeconds));
+    return m_bodyNormalization * std::exp(-std::pow(time / m_decaySeconds, m_decayCurve)) * (1.0 - m_swellDepth * std::exp(-time / SwellSeconds));
 }
 
 double Kick909Engine::lengthSeconds() const
 {
-    return ClickDelaySeconds + m_decaySeconds * std::pow(-SilenceDb / 8.685889638, 1.0 / m_decayCurve);
+    return BodyDelaySeconds + m_decaySeconds * std::pow(-SilenceDb / 8.685889638, 1.0 / m_decayCurve);
 }
 
 float Kick909Engine::nextSample()
@@ -296,29 +329,34 @@ float Kick909Engine::nextSample()
     const double rate = sampleRate();
     const double t = m_time;
     double y = 0.0;
-    if (t < ClickDelaySeconds) {
-        y = ClickLevel * (1.0 - std::exp(-t / ClickRiseSeconds));
-    } else {
-        const double bodyTime = t - ClickDelaySeconds;
+    if (t >= BodyDelaySeconds) {
+        const double bodyTime = t - BodyDelaySeconds;
         const double endHz = DefaultPitchHz * m_endRatio;
         const double sweepHz = (m_startHz - DefaultPitchHz) * m_sweepRatio;
         const double hz = m_pitchScale * (endHz + sweepHz * std::exp(-std::pow(bodyTime / m_sweepSeconds, m_sweepCurve)));
         m_phase += std::min(hz / rate, 0.5);
         m_phase -= std::floor(m_phase);
-        y = oscillator(m_phase) * bodyEnvelope(bodyTime);
+        const double envelope = bodyEnvelope(bodyTime);
+        // Past the swell, so that a deep one starting low does not count
+        if (!m_stopping && bodyTime > SwellSeconds && envelope < m_stopLevel) {
+            m_stopping = true;
+        }
+        if (m_stopping) {
+            m_stop = std::max(0.0, m_stop - 1.0 / (StopSeconds * rate));
+        }
+        y = oscillator(m_phase) * envelope * m_stop;
     }
 
-    // An impulse carries the same spectrum at any rate when it scales with the rate, and white noise
-    // the same density when it scales with its root
-    double impulse = 0.0;
-    if (!m_clicked && t >= ClickDelaySeconds) {
-        const double attack = static_cast<double>(m_attack);
-        impulse = ClickImpulse * std::pow(10.0, MaxAttackClickDb * attack * attack / 20.0) * rate / ReferenceSampleRate;
-        m_clicked = true;
+    if (t < ClickSeconds) {
+        y = y / (1.0 + std::exp(-(t - BodyGateSeconds) / BodyGateRiseSeconds)) //
+          + (HumpLevel + AttackHumpLevel * m_attackAmount) * pulse(t, 0.0, HumpSeconds) //
+          - LeadLevel * pulse(t, LeadStartSeconds, LeadSeconds) //
+          - (SpikeLevel + AttackSpikeLevel * m_attackAmount) * pulse(t, SpikeStartSeconds, SpikeSeconds);
     }
-    y += m_click.process(impulse);
+
+    // White noise carries the same density at any rate when it scales with the rate's root
     const double white = nextNoise() * std::sqrt(rate / ReferenceSampleRate);
-    y += m_noise.process(white) * (NoiseLevel + AttackNoiseLevel * static_cast<double>(m_attack)) * std::exp(-t / NoiseSeconds);
+    y += m_noise.process(white) * NoiseLevel * std::exp(-t / NoiseSeconds);
 
     y *= OutputLevel * m_velocity;
     if (m_drive > 0.0f) {
@@ -335,7 +373,8 @@ float Kick909Engine::nextSample()
     }
 
     m_time += 1.0 / rate;
-    if (m_time > lengthSeconds()) {
+    // Stopped, and the click and the noise long gone with it
+    if (m_time > lengthSeconds() || (m_stop <= 0.0 && m_time > 10.0 * NoiseSeconds)) {
         m_active = false;
     }
     return static_cast<float>(y);
@@ -351,9 +390,7 @@ void Kick909Engine::reset()
     m_active = false;
     m_time = 0.0;
     m_phase = StartPhase;
-    m_click.reset();
     m_noise.reset();
-    m_clicked = false;
     m_noiseSeed = NoiseSeed;
     m_choke = 1.0;
     m_choking = false;
