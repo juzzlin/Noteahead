@@ -93,6 +93,7 @@ private:
     void setContextProperties();
 
     void requestInstruments(QStringList midiPorts);
+    void stopAllNotes() const;
 
     std::unique_ptr<UiLogger> m_uiLogger;
 

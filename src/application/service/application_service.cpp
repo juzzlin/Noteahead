@@ -149,6 +149,12 @@ void ApplicationService::requestInstrumentReset()
     emit applyAllTrackSettingsRequested();
 }
 
+void ApplicationService::requestAllNotesOff()
+{
+    juzzlin::L(TAG).info() << "All notes off requested";
+    emit allNotesOffRequested();
+}
+
 void ApplicationService::requestLiveNoteOff(quint8 note, quint8 octave)
 {
     if (const auto instrument = m_editorService->instrument(m_editorService->position().track); instrument) {

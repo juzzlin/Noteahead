@@ -226,6 +226,7 @@ void Application::connectApplicationService()
     connect(m_applicationService.get(), &ApplicationService::applyAllTrackSettingsRequested, this, &Application::applyAllInstruments);
     connect(m_applicationService.get(), &ApplicationService::liveNoteOnRequested, m_midiService.get(), &MidiService::playNote);
     connect(m_applicationService.get(), &ApplicationService::liveNoteOffRequested, m_midiService.get(), &MidiService::stopNote);
+    connect(m_applicationService.get(), &ApplicationService::allNotesOffRequested, this, &Application::stopAllNotes);
 }
 
 void Application::connectAutomationService()
@@ -420,6 +421,15 @@ void Application::requestInstruments(QStringList midiPorts)
                 applyInstrument(trackIndex, *instrument);
             }
         }
+    }
+}
+
+void Application::stopAllNotes() const
+{
+    juzzlin::L(TAG).info() << "Stopping all notes";
+
+    for (auto && [trackIndex, instrument] : m_editorService->instruments()) {
+        m_midiService->stopAllNotes(instrument);
     }
 }
 

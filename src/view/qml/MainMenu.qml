@@ -61,6 +61,10 @@ MenuBar {
             text: qsTr("Reset instruments")
             onTriggered: applicationService.requestInstrumentReset()
         }
+        Action {
+            text: qsTr("Stop all notes")
+            onTriggered: applicationService.requestAllNotesOff()
+        }
         MenuSeparator {
         }
         Action {

@@ -65,6 +65,7 @@ public:
 
     Q_INVOKABLE void rejectUnsavedChangesDialog();
 
+    Q_INVOKABLE void requestAllNotesOff();
     Q_INVOKABLE void requestLiveNoteOff(quint8 note, quint8 octave);
     Q_INVOKABLE void requestLiveNoteOn(quint8 note, quint8 octave, quint8 velocity);
 
@@ -106,6 +107,7 @@ signals:
 
     void applyAllTrackSettingsRequested();
 
+    void allNotesOffRequested();
     void liveNoteOnRequested(InstrumentS instrument, MidiNoteDataCR data);
     void liveNoteOffRequested(InstrumentS instrument, MidiNoteDataCR data);
 

@@ -5,6 +5,8 @@ Release date:
 
 New features:
 
+* Add menu action to stop all notes
+
 Bug fixes:
 
 * When stopping all notes, stop only the notes that are actually playing
