@@ -20,6 +20,11 @@
 #include <algorithm>
 #include <cmath>
 
+#if defined(__x86_64__) || defined(_M_X64) || defined(__i386__) || defined(_M_IX86)
+#include <pmmintrin.h>
+#include <xmmintrin.h>
+#endif
+
 namespace noteahead {
 
 namespace {
@@ -127,6 +132,11 @@ void processEffectTask(void * context, size_t taskIndex, size_t /*workerIndex*/)
 
 AudioEngine::AudioEngine()
 {
+#if defined(__x86_64__) || defined(_M_X64) || defined(__i386__) || defined(_M_IX86)
+    // Hardware denormal protection: Flush-To-Zero (FTZ) and Denormals-Are-Zero (DAZ)
+    _MM_SET_FLUSH_ZERO_MODE(_MM_FLUSH_ZERO_ON);
+    _MM_SET_DENORMALS_ZERO_MODE(_MM_DENORMALS_ZERO_ON);
+#endif
 }
 
 AudioEngine::~AudioEngine() = default;
