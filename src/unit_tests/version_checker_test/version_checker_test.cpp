@@ -16,7 +16,7 @@
 #include "version_checker_test.hpp"
 #include "../../application/service/version_checker_service.hpp"
 
-#include <QtTest>
+#include <QTest>
 
 using namespace noteahead;
 

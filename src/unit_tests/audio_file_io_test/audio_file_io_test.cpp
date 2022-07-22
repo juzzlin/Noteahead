@@ -19,7 +19,7 @@
 #include "../../infra/audio/backend/audio_file_reader.hpp"
 #include "../../common/constants.hpp"
 
-#include <QtTest>
+#include <QTest>
 #include <mutex>
 #include <condition_variable>
 

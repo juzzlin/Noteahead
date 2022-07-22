@@ -1,4 +1,4 @@
-#include <QtTest>
+#include <QTest>
 #include <iostream>
 #include "../../domain/dsp/drum/kick_engine.hpp"
 

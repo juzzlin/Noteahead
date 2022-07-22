@@ -14,6 +14,7 @@
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
 #include "column_settings_model_test.hpp"
+#include <QTest>
 
 #include <QSignalSpy>
 

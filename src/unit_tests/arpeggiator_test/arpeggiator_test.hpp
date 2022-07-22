@@ -16,7 +16,8 @@
 #ifndef ARPEGGIATOR_TEST_HPP
 #define ARPEGGIATOR_TEST_HPP
 
-#include <QtTest>
+#include <QObject>
+
 
 namespace noteahead {
 

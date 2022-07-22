@@ -23,7 +23,7 @@
 #include "../../domain/dsp/cascaded_svf.hpp"
 #include "../../common/constants.hpp"
 
-#include <QtTest>
+#include <QTest>
 
 #include <cmath>
 

@@ -16,7 +16,8 @@
 #ifndef DRUM_SYNTH_TEST_HPP
 #define DRUM_SYNTH_TEST_HPP
 
-#include <QtTest>
+#include <QObject>
+
 
 namespace noteahead {
 

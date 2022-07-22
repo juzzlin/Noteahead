@@ -16,7 +16,7 @@
 #include "oversampler_test.hpp"
 #include "../../domain/dsp/oversampler.hpp"
 
-#include <QtTest>
+#include <QTest>
 
 namespace noteahead {
 

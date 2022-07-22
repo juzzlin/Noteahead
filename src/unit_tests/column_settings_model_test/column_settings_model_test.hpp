@@ -16,7 +16,8 @@
 #ifndef COLUMN_SETTINGS_MODEL_TEST_HPP
 #define COLUMN_SETTINGS_MODEL_TEST_HPP
 
-#include <QtTest>
+#include <QObject>
+
 #include "../../application/models/column_settings_model.hpp"
 
 namespace noteahead {

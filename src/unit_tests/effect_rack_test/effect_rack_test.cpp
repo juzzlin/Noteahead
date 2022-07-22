@@ -17,7 +17,7 @@
 #include "../../domain/devices/effect_rack.hpp"
 #include "../../domain/dsp/reverb_effect.hpp"
 
-#include <QtTest>
+#include <QTest>
 #include <QXmlStreamWriter>
 #include <QXmlStreamReader>
 

@@ -16,7 +16,7 @@
 #include "ring_buffer_test.hpp"
 #include "../../infra/audio/ring_buffer.hpp"
 
-#include <QtTest>
+#include <QTest>
 #include <vector>
 
 namespace noteahead {
