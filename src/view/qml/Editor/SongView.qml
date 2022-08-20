@@ -30,6 +30,10 @@ Rectangle {
                 color: index % 4 < 2 ? "#4A4A4A" : "#5A5A5A"
                 border.color: "#888888"
                 border.width: 1
+                ToolTip.visible: patternMouseArea.containsMouse
+                ToolTip.text: editorService.patternName(Number(textField.text))
+                ToolTip.delay: Constants.toolTipDelay
+                ToolTip.timeout: Constants.toolTipTimeout
                 Text {
                     id: textField
                     anchors.centerIn: parent
