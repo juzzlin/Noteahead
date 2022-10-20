@@ -95,6 +95,7 @@ set(HEADER_FILES
     utility/audio_scope.hpp
     utility/dbtp_meter.hpp
     utility/level_meter.hpp
+    utility/load_meter.hpp
     utility/loudness_analyzer.hpp
     utility/lufs_meter.hpp
     utility/rta.hpp
@@ -198,6 +199,7 @@ set(SOURCE_FILES
     utility/audio_scope.cpp
     utility/dbtp_meter.cpp
     utility/level_meter.cpp
+    utility/load_meter.cpp
     utility/loudness_analyzer.cpp
     utility/lufs_meter.cpp
     utility/rta.cpp

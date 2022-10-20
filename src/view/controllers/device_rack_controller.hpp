@@ -111,8 +111,15 @@ public:
 
     //! [peakDb, rmsDb] of the device's pre-insert level tap. Empty when the slot is empty.
     Q_INVOKABLE QVariantList deviceMeterLevels(int slotIndex) const;
-    //! Gates every device's level tap. Keep it enabled only while meters are on screen.
+    //! Gates every device's level and load tap. Keep it enabled only while meters are on screen.
     Q_INVOKABLE void setMetersActive(bool active);
+
+    //! Share of the audio callback's real-time budget this device takes, in percent.
+    Q_INVOKABLE double deviceLoad(int slotIndex) const;
+    //! Whole-engine load in percent, and how many buffers have overrun since metering started.
+    Q_INVOKABLE double totalLoad() const;
+    Q_INVOKABLE double totalPeakLoad() const;
+    Q_INVOKABLE int overrunCount() const;
 
     Q_INVOKABLE bool addSubMixerMember(int subMixerSlot, int memberSlot);
     Q_INVOKABLE bool removeSubMixerMember(int subMixerSlot, int memberSlot);

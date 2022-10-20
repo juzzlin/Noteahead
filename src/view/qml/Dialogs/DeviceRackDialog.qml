@@ -111,6 +111,11 @@ AnimatedDialog {
                     deviceRackController.revision;
                     return deviceRackController.deviceMeterLevels(index);
                 }
+                readonly property real deviceLoad: {
+                    deviceListView.meterTick;
+                    deviceRackController.revision;
+                    return deviceRackController.deviceLoad(index);
+                }
 
                 MouseArea {
                     id: mouseArea
@@ -167,6 +172,17 @@ AnimatedDialog {
                         visible: deviceType !== ""
                         peakDb: meterLevels.length ? meterLevels[0] : -120
                         rmsDb: meterLevels.length ? meterLevels[1] : -120
+                    }
+
+                    Text {
+                        text: deviceLoad.toFixed(1) + " %"
+                        // Amber past a third of the budget, red past two thirds: one device eating
+                        // that much of a callback is what tips a busy song over.
+                        color: deviceLoad > 66 ? "#ff6060" : (deviceLoad > 33 ? "#d0a040" : "#aaa")
+                        font.pointSize: 11
+                        Layout.preferredWidth: 55
+                        horizontalAlignment: Text.AlignRight
+                        visible: deviceType !== ""
                     }
 
                     Button {
@@ -227,6 +243,30 @@ AnimatedDialog {
                         onClicked: deviceRackController.clearDevice(index)
                     }
                 }
+            }
+        }
+
+        RowLayout {
+            Layout.fillWidth: true
+            spacing: 16
+
+            // Re-read on every meter tick, like the per-slot readouts above.
+            readonly property int tick: deviceListView.meterTick
+
+            Text {
+                text: qsTr("DSP load: %1 % (peak %2 %)").arg(deviceRackController.totalLoad().toFixed(1)).arg(deviceRackController.totalPeakLoad().toFixed(1))
+                color: deviceRackController.totalPeakLoad() > 90 ? "#ff6060" : "#aaa"
+                font.pointSize: 11
+            }
+
+            Text {
+                text: qsTr("Dropouts: %1").arg(deviceRackController.overrunCount())
+                color: deviceRackController.overrunCount() > 0 ? "#ff6060" : "#aaa"
+                font.pointSize: 11
+            }
+
+            Item {
+                Layout.fillWidth: true
             }
         }
 

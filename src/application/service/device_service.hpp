@@ -94,6 +94,9 @@ public:
     void serializeToXml(ProjectWriter & writer) const;
     void deserializeFromXml(ProjectReader & reader);
 
+    //! The engine, for callers that need its whole-callback load meter.
+    AudioEngineS audioEngine() const;
+
     using SamplerAudioFileReaderFactory = std::function<std::unique_ptr<AudioFileReader>()>;
     void setSamplerAudioFileReaderFactory(SamplerAudioFileReaderFactory factory);
 

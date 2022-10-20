@@ -862,4 +862,9 @@ EffectRack & DeviceService::insertEffectRack()
     return m_audioEngine->insertEffectRack();
 }
 
+DeviceService::AudioEngineS DeviceService::audioEngine() const
+{
+    return m_audioEngine;
+}
+
 } // namespace noteahead

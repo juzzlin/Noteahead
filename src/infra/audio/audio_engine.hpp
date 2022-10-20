@@ -26,6 +26,8 @@
 #include <string>
 #include <vector>
 
+#include "../../domain/utility/load_meter.hpp"
+
 namespace noteahead {
 
 class EffectRack;
@@ -65,6 +67,10 @@ public:
 
     void setIsExclusive(bool exclusive);
     bool isExclusive() const;
+
+    //! Whole-callback DSP load, in percent of the real-time budget, plus an overrun count.
+    LoadMeter & loadMeter();
+    const LoadMeter & loadMeter() const;
 
     //! Oversampling factor used for realtime playback (offline export sets its own factor directly on
     //! the AudioContext). Read by the playback context builders and stamped onto each device's context.
@@ -116,6 +122,7 @@ private:
     std::vector<size_t> m_prevGraphSignature;
     mutable std::mutex m_mutex;
     std::atomic<bool> m_isExclusive { false };
+    LoadMeter m_loadMeter;
     std::atomic<uint8_t> m_playbackOversampleFactor { 2 };
 };
 

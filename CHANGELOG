@@ -5,6 +5,11 @@ Release date:
 
 New features:
 
+* Add DSP load metering to the Device Rack
+  - Each slot shows the share of the audio callback its device takes, alongside a
+    total, a peak hold and a dropout counter
+  - Measured only while the Device Rack is open, so it costs nothing otherwise
+
 * Add gain staging with a selectable fader position
   - Gain trims a device into its insert effects and the Fader balances what comes
     out of them, so balancing a mix no longer changes how hard a device drives its

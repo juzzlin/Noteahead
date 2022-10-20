@@ -399,6 +399,16 @@ const LevelMeter & Device::meter() const
     return m_meter;
 }
 
+LoadMeter & Device::loadMeter()
+{
+    return m_loadMeter;
+}
+
+const LoadMeter & Device::loadMeter() const
+{
+    return m_loadMeter;
+}
+
 float Device::volumeInternal() const
 {
     return m_volume;

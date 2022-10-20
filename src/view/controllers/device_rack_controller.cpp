@@ -28,6 +28,7 @@
 #include "../../domain/devices/sub_mixer_device.hpp"
 #include "../../domain/devices/synth_device.hpp"
 #include "../../domain/devices/wavetable_synth_device.hpp"
+#include "../../infra/audio/audio_engine.hpp"
 #include "bass_synth_controller.hpp"
 #include "drum_synth_controller.hpp"
 #include "piano_synth_controller.hpp"
@@ -227,8 +228,36 @@ void DeviceRackController::setMetersActive(bool active)
     for (int slotIndex = 0; slotIndex < deviceCount(); slotIndex++) {
         if (const auto device = m_deviceService->device(static_cast<size_t>(slotIndex))) {
             device->meter().setActive(active);
+            device->loadMeter().setActive(active);
         }
     }
+    if (const auto engine = m_deviceService->audioEngine()) {
+        engine->loadMeter().setActive(active);
+    }
+}
+
+double DeviceRackController::deviceLoad(int slotIndex) const
+{
+    const auto device = m_deviceService->device(static_cast<size_t>(slotIndex));
+    return device ? static_cast<double>(device->loadMeter().loadPercent()) : 0.0;
+}
+
+double DeviceRackController::totalLoad() const
+{
+    const auto engine = m_deviceService->audioEngine();
+    return engine ? static_cast<double>(engine->loadMeter().loadPercent()) : 0.0;
+}
+
+double DeviceRackController::totalPeakLoad() const
+{
+    const auto engine = m_deviceService->audioEngine();
+    return engine ? static_cast<double>(engine->loadMeter().peakPercent()) : 0.0;
+}
+
+int DeviceRackController::overrunCount() const
+{
+    const auto engine = m_deviceService->audioEngine();
+    return engine ? static_cast<int>(engine->loadMeter().overrunCount()) : 0;
 }
 
 void DeviceRackController::setDevice(int slotIndex, const QString & typeId)

@@ -22,6 +22,7 @@
 #include "real_time_worker_pool.hpp"
 
 #include <algorithm>
+#include <chrono>
 #include <cmath>
 
 namespace noteahead {
@@ -79,6 +80,8 @@ void processDeviceTask(void * context, size_t taskIndex, size_t workerIndex)
     auto & device = deviceContext.devices->at(deviceSnapshotIndex);
     auto & workBuffer = deviceContext.workBuffers->at(workerIndex);
 
+    const double bufferSeconds = static_cast<double>(deviceContext.frameCount) / deviceContext.sampleRate;
+
     std::fill(workBuffer.deviceBuffer.begin(), workBuffer.deviceBuffer.begin() + deviceContext.bufferSize, 0.0);
     if (!device->hasActiveAudio() && !deviceContext.deviceActiveFlags->at(deviceSnapshotIndex)) {
         if (deviceContext.deviceOutputBuffersMutable) {
@@ -86,10 +89,17 @@ void processDeviceTask(void * context, size_t taskIndex, size_t workerIndex)
             auto & outputBuffer = deviceContext.deviceOutputBuffersMutable->at(slotIndex);
             std::fill(outputBuffer.begin(), outputBuffer.begin() + deviceContext.bufferSize, 0.0);
         }
+        // A skipped device costs nothing, and has to say so: without this its meter would keep
+        // reading whatever it last cost, for as long as it stays silent.
+        device->loadMeter().addBlock(std::chrono::nanoseconds::zero(), bufferSeconds);
         return;
     }
 
     AudioContext audioContext { std::span(workBuffer.deviceBuffer.data(), deviceContext.bufferSize), deviceContext.frameCount, deviceContext.sampleRate, deviceContext.bpm, deviceContext.deviceOutputBuffers, deviceContext.oversampleFactor };
+
+    // Cheap enough to read unconditionally; the meter itself is a no-op while nothing is displayed.
+    const auto processingStarted = std::chrono::steady_clock::now();
+
     device->processAudio(audioContext);
 
     // Level tap for gain staging: post-gain and pre-insert, the level the Gain knob is set against.
@@ -114,6 +124,8 @@ void processDeviceTask(void * context, size_t taskIndex, size_t workerIndex)
         capturePreFader();
         device->applyFader(audioContext);
     }
+
+    device->loadMeter().addBlock(std::chrono::steady_clock::now() - processingStarted, bufferSeconds);
 
     // Feed this device's final output to its oscilloscope tap (no-op unless a scope is active).
     device->scope().write(workBuffer.deviceBuffer.data(), deviceContext.frameCount, deviceContext.sampleRate);
@@ -410,6 +422,8 @@ void AudioEngine::process(AudioContext & context)
 {
     std::lock_guard<std::mutex> lock { m_mutex };
 
+    const auto callbackStarted = std::chrono::steady_clock::now();
+
     const uint32_t bufferSize = context.frameCount * 2;
     if (!bufferSize) {
         return;
@@ -567,6 +581,21 @@ void AudioEngine::process(AudioContext & context)
     }
 
     m_insertEffectRack->processInPlace(context);
+
+    // Whole-callback load. Over 100% is what the listener hears as a dropout, so the meter counts
+    // those separately.
+    m_loadMeter.addBlock(std::chrono::steady_clock::now() - callbackStarted,
+                         static_cast<double>(context.frameCount) / context.sampleRate);
+}
+
+LoadMeter & AudioEngine::loadMeter()
+{
+    return m_loadMeter;
+}
+
+const LoadMeter & AudioEngine::loadMeter() const
+{
+    return m_loadMeter;
 }
 
 void AudioEngine::reset()

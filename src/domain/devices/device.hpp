@@ -23,6 +23,7 @@
 #include "../tracker/parameter_container.hpp"
 #include "../utility/audio_scope.hpp"
 #include "../utility/level_meter.hpp"
+#include "../utility/load_meter.hpp"
 
 #include <cstdint>
 #include <mutex>
@@ -136,6 +137,11 @@ public:
     LevelMeter & meter();
     const LevelMeter & meter() const;
 
+    //! Share of the audio buffer's real-time budget this device's processing takes. Gated by
+    //! setActive() like the other taps.
+    LoadMeter & loadMeter();
+    const LoadMeter & loadMeter() const;
+
     virtual bool hasActiveAudio() const
     {
         return true;
@@ -219,6 +225,7 @@ private:
     EffectRack m_insertEffectRack;
     AudioScope m_scope;
     LevelMeter m_meter;
+    LoadMeter m_loadMeter;
 
     mutable std::recursive_mutex m_mutex;
 };
