@@ -15,6 +15,8 @@ Bug fixes:
 
 * Kick 909: the click and Attack are an RD-9's
 
+* Drum machines' keyboard no longer lights the pedal hi-hat key, which plays nothing
+
 * Flanger no longer drops out while a knob moves, and keeps its stereo phase after a reset
 
 * Auto Panner keeps its waveform when a project is reloaded

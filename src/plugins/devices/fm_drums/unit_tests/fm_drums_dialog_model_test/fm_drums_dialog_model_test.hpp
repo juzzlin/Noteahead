@@ -26,6 +26,7 @@ class FmDrumsDialogModelTest : public QObject
 
 private slots:
     void test_setDevice_otherDrumMachine_shouldBeRefused();
+    void test_activeNotes_shouldBeThePadsOnly();
     void test_knob_write_shouldReachTheSelectedPadOnly();
     void test_choice_write_shouldStoreThePlainIndex();
     void test_selectedVoice_change_shouldFollowTheNewPad();

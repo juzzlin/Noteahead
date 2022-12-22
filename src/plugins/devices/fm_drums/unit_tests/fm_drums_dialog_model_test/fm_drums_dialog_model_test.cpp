@@ -67,6 +67,18 @@ void FmDrumsDialogModelTest::test_setDevice_otherDrumMachine_shouldBeRefused()
     QVERIFY(controller.setDevice(std::make_shared<FmDrumsDevice>("FM Drums")));
 }
 
+void FmDrumsDialogModelTest::test_activeNotes_shouldBeThePadsOnly()
+{
+    // The keyboard lights the keys that play a pad, and not the pedal hi-hat's, which plays nothing
+    Fixture fixture;
+    const auto notes = fixture.controller.activeNotes();
+    QCOMPARE(notes.size(), DrumSynthV2::NumVoices);
+    for (int pad = 0; pad < DrumSynthV2::NumVoices; pad++) {
+        QVERIFY(notes.contains(QVariant::fromValue(fixture.device->voiceNote(pad))));
+    }
+    QVERIFY(!notes.contains(QVariant::fromValue(static_cast<uint8_t>(DrumSynthV2::MidiNote::PedalHiHat))));
+}
+
 void FmDrumsDialogModelTest::test_knob_write_shouldReachTheSelectedPadOnly()
 {
     Fixture fixture;
