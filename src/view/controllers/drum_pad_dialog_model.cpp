@@ -410,8 +410,7 @@ QVariantList DrumPadDialogModel::activeNotes() const
                 list.append(note);
             }
         }
-        // Pedal HiHat is not a separate voice but it is an active note
-        list.append(static_cast<uint8_t>(DrumSynthV2::MidiNote::PedalHiHat));
+        // Not the pedal hi-hat's note: it only chokes the open hat and plays nothing of its own
     }
     return list;
 }
