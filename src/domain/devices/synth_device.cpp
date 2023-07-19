@@ -95,13 +95,13 @@ SynthDevice::SynthDevice(std::string name)
     addParameter(Parameter { "hpf" + Constants::NahdXml::xmlKeyCutoff().toStdString(), 0.0f, 0, 100, 0 });
     addParameter(Parameter { Constants::NahdXml::xmlKeyKeyTrack().toStdString(), 0.0f, 0, 100, 0 });
 
-    addParameter(Parameter { "amp" + Constants::NahdXml::xmlKeyAttack().toStdString(), 0.1f, 0, 100, 10 });
-    addParameter(Parameter { "amp" + Constants::NahdXml::xmlKeyDecay().toStdString(), 0.2f, 0, 100, 20 });
+    addParameter(Parameter { "amp" + Constants::NahdXml::xmlKeyAttack().toStdString(), 0.5f, 0, 100, 50 });
+    addParameter(Parameter { "amp" + Constants::NahdXml::xmlKeyDecay().toStdString(), 0.34f, 0, 100, 34 });
     addParameter(Parameter { "amp" + Constants::NahdXml::xmlKeySustain().toStdString(), 1.0f, 0, 100, 100 });
-    addParameter(Parameter { "amp" + Constants::NahdXml::xmlKeyReleaseTime().toStdString(), 0.2f, 0, 100, 20 });
+    addParameter(Parameter { "amp" + Constants::NahdXml::xmlKeyReleaseTime().toStdString(), 0.48f, 0, 100, 48 });
 
-    addParameter(Parameter { "mod" + Constants::NahdXml::xmlKeyAttack().toStdString(), 0.1f, 0, 100, 10 });
-    addParameter(Parameter { "mod" + Constants::NahdXml::xmlKeyDecay().toStdString(), 0.2f, 0, 100, 20 });
+    addParameter(Parameter { "mod" + Constants::NahdXml::xmlKeyAttack().toStdString(), 0.5f, 0, 100, 50 });
+    addParameter(Parameter { "mod" + Constants::NahdXml::xmlKeyDecay().toStdString(), 0.34f, 0, 100, 34 });
     addParameter(Parameter { "mod" + Constants::NahdXml::xmlKeyIntensity().toStdString(), 0.0f, 0, 100, 0 });
     addParameter(Parameter { "mod" + Constants::NahdXml::xmlKeyTarget().toStdString(), 1.0f, 0, 2, 2 }); // Cutoff default
 
@@ -490,6 +490,11 @@ void SynthDevice::syncParameters()
 
     if (auto p = parameter("mod" + Constants::NahdXml::xmlKeyAttack().toStdString()); p) m_modAttack = p->get().value();
     if (auto p = parameter("mod" + Constants::NahdXml::xmlKeyDecay().toStdString()); p) m_modDecay = p->get().value();
+
+    const auto mapAttack = [](float x) { return 0.000001f * std::pow(20.0f / 0.000001f, x); };
+    const auto mapDecay = [](float x) { return 0.01f * std::pow(60.0f / 0.01f, x); };
+    const auto mapRelease = [](float x) { return 0.001f * std::pow(60.0f / 0.001f, x); };
+
     if (auto p = parameter("mod" + Constants::NahdXml::xmlKeyIntensity().toStdString()); p) m_modInt = p->get().value();
     if (auto p = parameter("mod" + Constants::NahdXml::xmlKeyTarget().toStdString()); p) m_modTarget = static_cast<ModTarget>(p->get().xmlValue());
 
@@ -540,14 +545,14 @@ void SynthDevice::syncParameters()
         }
         voice.lfo.setFrequency(freq);
 
-        voice.ampEg.setAttackTime(m_ampAttack);
-        voice.ampEg.setDecayTime(m_ampDecay);
+        voice.ampEg.setAttackTime(mapAttack(m_ampAttack));
+        voice.ampEg.setDecayTime(mapDecay(m_ampDecay));
         voice.ampEg.setSustainLevel(m_ampSustain);
-        voice.ampEg.setReleaseTime(m_ampRelease);
-        voice.modEg.setAttackTime(m_modAttack);
-        voice.modEg.setDecayTime(m_modDecay);
+        voice.ampEg.setReleaseTime(mapRelease(m_ampRelease));
+        voice.modEg.setAttackTime(mapAttack(m_modAttack));
+        voice.modEg.setDecayTime(mapDecay(m_modDecay));
         voice.modEg.setSustainLevel(0.0); // Mod EG is AD only
-        voice.modEg.setReleaseTime(m_modDecay);
+        voice.modEg.setReleaseTime(mapDecay(m_modDecay));
     }
 }
 

@@ -27,13 +27,13 @@ void ADSREnvelope::setSampleRate(double sampleRate)
 
 void ADSREnvelope::setAttackTime(double seconds)
 {
-    m_attackTime = std::max(0.001, seconds);
+    m_attackTime = std::max(0.000001, seconds);
     calculateSteps();
 }
 
 void ADSREnvelope::setDecayTime(double seconds)
 {
-    m_decayTime = std::max(0.001, seconds);
+    m_decayTime = std::max(0.000001, seconds);
     calculateSteps();
 }
 
@@ -45,7 +45,7 @@ void ADSREnvelope::setSustainLevel(double level)
 
 void ADSREnvelope::setReleaseTime(double seconds)
 {
-    m_releaseTime = std::max(0.001, seconds);
+    m_releaseTime = std::max(0.000001, seconds);
     calculateSteps();
 }
 
