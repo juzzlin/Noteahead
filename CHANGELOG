@@ -141,6 +141,14 @@ New features:
 
 Bug fixes:
 
+* Fix voices never ending when a patch has zero sustain
+  - The envelope decayed to silence and parked in Sustain, which is not Idle, so
+    the voice kept being rendered until the note was released, which in a pattern
+    may be never
+  - Affected the Synth, Wavetable Synth, Bass Synth, String & Voice and String
+    Ensemble; a silent percussive patch cost about 1.5 % of the audio budget per
+    stuck voice
+
 * Fix high frequencies being attenuated at 2x and 4x oversampling
   - The instruments' decimation filter drooped up to 0.9 dB in the audio band
     and rejected aliases by as little as 5 dB; they now use the 43-tap half-band

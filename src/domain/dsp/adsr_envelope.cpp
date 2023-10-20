@@ -119,6 +119,15 @@ bool AdsrEnvelope::isActive() const
     return m_state != State::Idle;
 }
 
+bool AdsrEnvelope::isSilent() const
+{
+    if (m_state == State::Idle) {
+        return true;
+    }
+    // Attack starts from zero and is on its way up, so a low level there means nothing yet.
+    return m_state != State::Attack && m_currentLevel <= SilenceThreshold;
+}
+
 void AdsrEnvelope::calculateSteps()
 {
     m_attackStep = 1.0 / (m_attackTime * m_sampleRate);

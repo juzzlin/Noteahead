@@ -311,7 +311,7 @@ void BassSynthDevice::processAudio(AudioContext & context)
         context.buffer[i * 2 + 1] += m_dcBlockerR.process(outR);
     }
 
-    if (m_voice.ampEg.state() == AdsrEnvelope::State::Idle) {
+    if (m_voice.ampEg.isSilent()) {
         m_voice.active = false;
     }
 }

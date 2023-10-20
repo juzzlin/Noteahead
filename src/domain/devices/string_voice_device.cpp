@@ -371,7 +371,7 @@ void StringVoiceDevice::processAudio(AudioContext & context)
             const double strEnv { v.stringEg.nextSample() };
             const double vocEnv { v.voiceEg.nextSample() };
 
-            if (v.stringEg.state() == AdsrEnvelope::State::Idle && v.voiceEg.state() == AdsrEnvelope::State::Idle) {
+            if (v.stringEg.isSilent() && v.voiceEg.isSilent()) {
                 v.active = false;
                 continue;
             }

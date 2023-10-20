@@ -50,7 +50,18 @@ public:
     State state() const;
     bool isActive() const;
 
+    //! True once the envelope can no longer produce anything and the note may be dropped.
+    //!
+    //! Not the same as isActive(): a percussive patch with a zero sustain level decays to silence
+    //! and then *parks* in Sustain, which is not Idle. A voice gated only on Idle therefore renders
+    //! digital silence forever, at full cost, until the note is released — which in a tracker
+    //! pattern may be never.
+    bool isSilent() const;
+
 private:
+    //! Level below which the envelope is treated as finished, about -120 dBFS.
+    static constexpr double SilenceThreshold { 1.0e-6 };
+
     State m_state { State::Idle };
 
     double m_attackTime { 0.01 };

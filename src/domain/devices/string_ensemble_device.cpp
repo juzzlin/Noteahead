@@ -328,7 +328,7 @@ void StringEnsembleDevice::processAudio(AudioContext & context)
             auto & key = m_keys.at(note);
             key.gate.setSampleRate(sRate);
             const double envelope = key.gate.nextSample();
-            if (key.gate.state() == AdsrEnvelope::State::Idle) {
+            if (key.gate.isSilent()) {
                 key.active = false;
                 continue;
             }

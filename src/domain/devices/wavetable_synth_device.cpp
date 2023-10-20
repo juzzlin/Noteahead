@@ -262,7 +262,7 @@ void WavetableSynthDevice::renderVoice(Voice & voice, AudioContext & context, ui
             m_oversampledBuffer[(i * oversampleFactor + subSample) * 2 + 1] += sample * panR;
         }
 
-        if (voice.ampEg.state() == AdsrEnvelope::State::Idle) {
+        if (voice.ampEg.isSilent()) {
             voice.active = false;
             break;
         }

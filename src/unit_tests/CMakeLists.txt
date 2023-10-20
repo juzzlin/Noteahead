@@ -1,5 +1,6 @@
 set(UNIT_TEST_BASE_DIR ${CMAKE_BINARY_DIR}/unit_tests)
 include_directories(${CMAKE_SOURCE_DIR}/src)
+add_subdirectory(adsr_envelope_test)
 add_subdirectory(all_pass_chain_test)
 add_subdirectory(all_pass_filter_test)
 add_subdirectory(application_service_test)
