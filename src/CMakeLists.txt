@@ -1,24 +1,23 @@
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
-
-set(CMAKE_AUTOUIC ON)
-set(CMAKE_AUTOMOC ON)
-set(CMAKE_AUTORCC ON)
-
-find_package(QT NAMES Qt6 Qt5 COMPONENTS Core Quick REQUIRED)
-find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Core Quick REQUIRED)
-
 set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR})
 
-add_executable(${BINARY_NAME}
+qt_add_executable(${BINARY_NAME}
   application.cpp
   config.cpp
   constants.hpp
   main.cpp
-  qml.qrc
   settings.cpp
 )
 
-target_compile_definitions(${BINARY_NAME}
-  PRIVATE $<$<OR:$<CONFIG:Debug>,$<CONFIG:RelWithDebInfo>>:QT_QML_DEBUG>)
-target_link_libraries(${BINARY_NAME}
-  PRIVATE Qt${QT_VERSION_MAJOR}::Core Qt${QT_VERSION_MAJOR}::Quick)
+set(URI ${BINARY_NAME})
+set(MAIN Ui/Main.qml)
+qt_add_qml_module(${BINARY_NAME}
+    URI ${URI}
+    QML_FILES
+        ${MAIN}
+)
+
+set_target_properties(${BINARY_NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY_DEBUG ${CMAKE_CURRENT_BINARY_DIR})
+target_compile_definitions(${BINARY_NAME} PRIVATE $<$<OR:$<CONFIG:Debug>,$<CONFIG:RelWithDebInfo>>:QT_QML_DEBUG>)
+target_compile_definitions(${BINARY_NAME} PRIVATE QML_ENTRY_POINT="qrc:/qt/qml/${URI}/${MAIN}")
+target_link_libraries(${BINARY_NAME} PRIVATE Qt6::Core Qt6::Quick)

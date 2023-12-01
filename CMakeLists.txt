@@ -8,7 +8,13 @@ set(VERSION_MINOR 0)
 set(VERSION_PATCH 1)
 set(VERSION "${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}")
 
-set(BINARY_NAME cacophony)
+message("\n${CMAKE_PROJECT_NAME} ${VERSION}\n")
+message(STATUS "System name       : ${CMAKE_HOST_SYSTEM_NAME}")
+message(STATUS "System version    : ${CMAKE_SYSTEM_VERSION}")
+message(STATUS "Compiler identity : ${CMAKE_CXX_COMPILER_ID}")
+message(STATUS "Compiler version  : ${CMAKE_CXX_COMPILER_VERSION}")
+
+string(TOLOWER ${CMAKE_PROJECT_NAME} BINARY_NAME)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -33,6 +39,12 @@ if(NOT CMAKE_BUILD_TYPE)
         "Choose the type of build, options are: None Debug Release RelWithDebInfo
 MinSizeRel." FORCE)
 endif()
+
+find_package(QT NAMES Qt6 COMPONENTS Core REQUIRED)
+find_package(Qt6 6.5 COMPONENTS Core Quick Xml Widgets LinguistTools Svg Test Network REQUIRED)
+qt_standard_project_setup()
+qt_policy(SET QTP0001 NEW)
+message(STATUS "Qt version found  : ${QT_VERSION_MAJOR}.${QT_VERSION_MINOR}.${QT_VERSION_PATCH}\n")
 
 add_definitions(-DVERSION="${VERSION}")
 
