@@ -9,6 +9,8 @@ New features:
 
 * Edit > Audio recording, Ctrl+Shift+R, turns audio recording on or off
 
+* Drum Synth 909: a TR-909 modelled on an RD-9, each drum with the RD-9's own knobs
+
 Bug fixes:
 
 * Kick 909: Decay is an RD-9's, up to 1.7 s instead of 0.45 s

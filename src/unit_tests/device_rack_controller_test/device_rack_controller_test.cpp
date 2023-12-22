@@ -450,6 +450,7 @@ void DeviceRackControllerTest::test_availableDevices_shouldReturnCorrectList()
     const QStringList expected {
         "Bass Synth",
         "Drum Synth",
+        "Drum Synth 909",
         "Drum Synth V2",
         "Electric Bass",
         "FM Drums",

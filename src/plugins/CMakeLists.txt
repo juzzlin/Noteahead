@@ -116,6 +116,7 @@ endfunction()
 
 add_subdirectory(devices/bass_synth)
 add_subdirectory(devices/drum_synth)
+add_subdirectory(devices/drum_synth_909)
 add_subdirectory(devices/drum_synth_v2)
 add_subdirectory(devices/electric_bass)
 add_subdirectory(devices/fm_drums)

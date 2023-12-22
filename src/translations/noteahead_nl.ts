@@ -2391,6 +2391,92 @@
     </message>
 </context>
 <context>
+    <name>DrumSynth909Dialog</name>
+    <message>
+        <source>Ok</source>
+        <translation>OK</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>Annuleren</translation>
+    </message>
+    <message>
+        <source>Voices</source>
+        <translation>Stemmen</translation>
+    </message>
+    <message>
+        <source>Voice Settings</source>
+        <translation>Steminstellingen</translation>
+    </message>
+    <message>
+        <source>Level</source>
+        <translation>Niveau</translation>
+    </message>
+    <message>
+        <source>Pan</source>
+        <translation>Panning</translation>
+    </message>
+    <message>
+        <source>LPF</source>
+        <translation>LPF</translation>
+    </message>
+    <message>
+        <source>HPF</source>
+        <translation>HPF</translation>
+    </message>
+    <message>
+        <source>Global</source>
+        <translation>Globaal</translation>
+    </message>
+    <message>
+        <source>Gain</source>
+        <translation>Gain</translation>
+    </message>
+    <message>
+        <source>Fader</source>
+        <translation>Fader</translation>
+    </message>
+    <message>
+        <source>LPF Slope</source>
+        <translation>LPF-flank</translation>
+    </message>
+    <message>
+        <source>How steeply every voice&apos;s low pass rolls off. The steeper one clears more out of the way at the same cutoff.</source>
+        <translation>Hoe steil het laagdoorlaatfilter van elke stem afloopt. Het steilere ruimt bij dezelfde kantelfrequentie meer op.</translation>
+    </message>
+    <message>
+        <source>HPF Slope</source>
+        <translation>HPF-flank</translation>
+    </message>
+    <message>
+        <source>How steeply every voice&apos;s high pass rolls off. The steeper one clears more out of the way at the same cutoff.</source>
+        <translation>Hoe steil het hoogdoorlaatfilter van elke stem afloopt. Het steilere ruimt bij dezelfde kantelfrequentie meer op.</translation>
+    </message>
+</context>
+<context>
+    <name>DrumSynth909Dialog_Presets</name>
+    <message>
+        <source>Kit:</source>
+        <translation>Kit:</translation>
+    </message>
+    <message>
+        <source>Save</source>
+        <translation>Opslaan</translation>
+    </message>
+    <message>
+        <source>Save the current settings as a preset of your own</source>
+        <translation>De huidige instellingen opslaan als eigen preset</translation>
+    </message>
+    <message>
+        <source>Delete</source>
+        <translation>Verwijderen</translation>
+    </message>
+    <message>
+        <source>Delete the selected preset of your own</source>
+        <translation>Het geselecteerde eigen preset verwijderen</translation>
+    </message>
+</context>
+<context>
     <name>DrumSynthDialog</name>
     <message>
         <source>Ok</source>

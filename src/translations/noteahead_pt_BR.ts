@@ -2391,6 +2391,92 @@
     </message>
 </context>
 <context>
+    <name>DrumSynth909Dialog</name>
+    <message>
+        <source>Ok</source>
+        <translation>OK</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>Cancelar</translation>
+    </message>
+    <message>
+        <source>Voices</source>
+        <translation>Vozes</translation>
+    </message>
+    <message>
+        <source>Voice Settings</source>
+        <translation>Configurações de voz</translation>
+    </message>
+    <message>
+        <source>Level</source>
+        <translation>Nível</translation>
+    </message>
+    <message>
+        <source>Pan</source>
+        <translation>Panorama</translation>
+    </message>
+    <message>
+        <source>LPF</source>
+        <translation>LPF</translation>
+    </message>
+    <message>
+        <source>HPF</source>
+        <translation>HPF</translation>
+    </message>
+    <message>
+        <source>Global</source>
+        <translation>Global</translation>
+    </message>
+    <message>
+        <source>Gain</source>
+        <translation>Ganho</translation>
+    </message>
+    <message>
+        <source>Fader</source>
+        <translation>Fader</translation>
+    </message>
+    <message>
+        <source>LPF Slope</source>
+        <translation>Inclinação do LPF</translation>
+    </message>
+    <message>
+        <source>How steeply every voice&apos;s low pass rolls off. The steeper one clears more out of the way at the same cutoff.</source>
+        <translation>Quão íngreme o passa-baixa de cada voz cai. O mais íngreme tira mais do caminho na mesma frequência de corte.</translation>
+    </message>
+    <message>
+        <source>HPF Slope</source>
+        <translation>Inclinação do HPF</translation>
+    </message>
+    <message>
+        <source>How steeply every voice&apos;s high pass rolls off. The steeper one clears more out of the way at the same cutoff.</source>
+        <translation>Quão íngreme o passa-alta de cada voz cai. O mais íngreme tira mais do caminho na mesma frequência de corte.</translation>
+    </message>
+</context>
+<context>
+    <name>DrumSynth909Dialog_Presets</name>
+    <message>
+        <source>Kit:</source>
+        <translation>Kit:</translation>
+    </message>
+    <message>
+        <source>Save</source>
+        <translation>Salvar</translation>
+    </message>
+    <message>
+        <source>Save the current settings as a preset of your own</source>
+        <translation>Salvar as configurações atuais como predefinição própria</translation>
+    </message>
+    <message>
+        <source>Delete</source>
+        <translation>Excluir</translation>
+    </message>
+    <message>
+        <source>Delete the selected preset of your own</source>
+        <translation>Excluir a predefinição própria selecionada</translation>
+    </message>
+</context>
+<context>
     <name>DrumSynthDialog</name>
     <message>
         <source>Ok</source>

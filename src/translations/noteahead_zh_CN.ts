@@ -2390,6 +2390,92 @@
     </message>
 </context>
 <context>
+    <name>DrumSynth909Dialog</name>
+    <message>
+        <source>Ok</source>
+        <translation>确定</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>取消</translation>
+    </message>
+    <message>
+        <source>Voices</source>
+        <translation>复音数</translation>
+    </message>
+    <message>
+        <source>Voice Settings</source>
+        <translation>声部设置</translation>
+    </message>
+    <message>
+        <source>Level</source>
+        <translation>电平</translation>
+    </message>
+    <message>
+        <source>Pan</source>
+        <translation>声像</translation>
+    </message>
+    <message>
+        <source>LPF</source>
+        <translation>LPF</translation>
+    </message>
+    <message>
+        <source>HPF</source>
+        <translation>HPF</translation>
+    </message>
+    <message>
+        <source>Global</source>
+        <translation>全局</translation>
+    </message>
+    <message>
+        <source>Gain</source>
+        <translation>增益</translation>
+    </message>
+    <message>
+        <source>Fader</source>
+        <translation>推子</translation>
+    </message>
+    <message>
+        <source>LPF Slope</source>
+        <translation>低通斜率</translation>
+    </message>
+    <message>
+        <source>How steeply every voice&apos;s low pass rolls off. The steeper one clears more out of the way at the same cutoff.</source>
+        <translation>每个声部低通滤波器的衰减陡度。在相同截止频率下，越陡清除得越多。</translation>
+    </message>
+    <message>
+        <source>HPF Slope</source>
+        <translation>高通斜率</translation>
+    </message>
+    <message>
+        <source>How steeply every voice&apos;s high pass rolls off. The steeper one clears more out of the way at the same cutoff.</source>
+        <translation>每个声部高通滤波器的衰减陡度。在相同截止频率下，越陡清除得越多。</translation>
+    </message>
+</context>
+<context>
+    <name>DrumSynth909Dialog_Presets</name>
+    <message>
+        <source>Kit:</source>
+        <translation>套件：</translation>
+    </message>
+    <message>
+        <source>Save</source>
+        <translation>保存</translation>
+    </message>
+    <message>
+        <source>Save the current settings as a preset of your own</source>
+        <translation>将当前设置保存为自定义预设</translation>
+    </message>
+    <message>
+        <source>Delete</source>
+        <translation>删除</translation>
+    </message>
+    <message>
+        <source>Delete the selected preset of your own</source>
+        <translation>删除所选的自定义预设</translation>
+    </message>
+</context>
+<context>
     <name>DrumSynthDialog</name>
     <message>
         <source>Ok</source>

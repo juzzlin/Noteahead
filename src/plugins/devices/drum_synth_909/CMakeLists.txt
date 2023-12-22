@@ -1,0 +1,13 @@
+noteahead_add_device(
+    DOMAIN_SOURCES
+        drum_synth_909_device.cpp
+        drum_synth_909_device.hpp
+        drum_synth_909_registration.cpp
+    VIEW_SOURCES
+        drum_synth_909_dialog_model.cpp
+        drum_synth_909_dialog_model.hpp
+        drum_synth_909_view_registration.cpp
+    QML_FILES
+        DrumSynth909Dialog.qml
+        DrumSynth909Dialog_Presets.qml
+)

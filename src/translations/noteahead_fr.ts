@@ -2391,6 +2391,92 @@
     </message>
 </context>
 <context>
+    <name>DrumSynth909Dialog</name>
+    <message>
+        <source>Ok</source>
+        <translation>OK</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>Annuler</translation>
+    </message>
+    <message>
+        <source>Voices</source>
+        <translation>Voix</translation>
+    </message>
+    <message>
+        <source>Voice Settings</source>
+        <translation>Paramètres de voix</translation>
+    </message>
+    <message>
+        <source>Level</source>
+        <translation>Niveau</translation>
+    </message>
+    <message>
+        <source>Pan</source>
+        <translation>Panoramique</translation>
+    </message>
+    <message>
+        <source>LPF</source>
+        <translation>LPF</translation>
+    </message>
+    <message>
+        <source>HPF</source>
+        <translation>HPF</translation>
+    </message>
+    <message>
+        <source>Global</source>
+        <translation>Global</translation>
+    </message>
+    <message>
+        <source>Gain</source>
+        <translation>Gain</translation>
+    </message>
+    <message>
+        <source>Fader</source>
+        <translation>Fader</translation>
+    </message>
+    <message>
+        <source>LPF Slope</source>
+        <translation>Pente du LPF</translation>
+    </message>
+    <message>
+        <source>How steeply every voice&apos;s low pass rolls off. The steeper one clears more out of the way at the same cutoff.</source>
+        <translation>La pente du passe-bas de chaque voix. La plus raide dégage davantage à la même fréquence de coupure.</translation>
+    </message>
+    <message>
+        <source>HPF Slope</source>
+        <translation>Pente du HPF</translation>
+    </message>
+    <message>
+        <source>How steeply every voice&apos;s high pass rolls off. The steeper one clears more out of the way at the same cutoff.</source>
+        <translation>La pente du passe-haut de chaque voix. La plus raide dégage davantage à la même fréquence de coupure.</translation>
+    </message>
+</context>
+<context>
+    <name>DrumSynth909Dialog_Presets</name>
+    <message>
+        <source>Kit:</source>
+        <translation>Kit :</translation>
+    </message>
+    <message>
+        <source>Save</source>
+        <translation>Enregistrer</translation>
+    </message>
+    <message>
+        <source>Save the current settings as a preset of your own</source>
+        <translation>Enregistrer les réglages actuels comme préréglage personnel</translation>
+    </message>
+    <message>
+        <source>Delete</source>
+        <translation>Supprimer</translation>
+    </message>
+    <message>
+        <source>Delete the selected preset of your own</source>
+        <translation>Supprimer le préréglage personnel sélectionné</translation>
+    </message>
+</context>
+<context>
     <name>DrumSynthDialog</name>
     <message>
         <source>Ok</source>
@@ -11899,7 +11985,7 @@ Les fichiers audio apparaîtront à côté du fichier de projet actuel.</transla
     </message>
     <message>
         <source>Turn audio recording on or off</source>
-        <translation>Activer ou désactiver l'enregistrement audio</translation>
+        <translation>Activer ou désactiver l&apos;enregistrement audio</translation>
     </message>
     <message>
         <source>INSERT</source>

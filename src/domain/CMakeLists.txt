@@ -16,6 +16,7 @@ set(HEADER_FILES
     dsp/delay_line.hpp
     dsp/divide_down_generator.hpp
     dsp/diode_ladder_filter.hpp
+    dsp/drum/clap_909_engine.hpp
     dsp/drum/clap_engine.hpp
     dsp/drum/crash_engine.hpp
     dsp/drum/drum_amp_envelope.hpp
@@ -24,12 +25,17 @@ set(HEADER_FILES
     dsp/drum/hihat_engine.hpp
     dsp/drum/kick_808_engine.hpp
     dsp/drum/kick_909_engine.hpp
+    dsp/drum/metal_909_engine.hpp
+    dsp/drum/metal_909_sources.hpp
     dsp/drum/kick_engine.hpp
     dsp/drum/kick_pm_engine.hpp
     dsp/drum/ride_engine.hpp
+    dsp/drum/rim_909_engine.hpp
     dsp/drum/rim_engine.hpp
+    dsp/drum/snare_909_engine.hpp
     dsp/drum/snare_engine.hpp
     dsp/drum/snare_pm_engine.hpp
+    dsp/drum/tom_909_engine.hpp
     dsp/drum/tom_engine.hpp
     dsp/dsp_component.hpp
     dsp/fft.hpp
@@ -159,6 +165,7 @@ set(SOURCE_FILES
     dsp/delay_line.cpp
     dsp/diode_ladder_filter.cpp
     dsp/divide_down_generator.cpp
+    dsp/drum/clap_909_engine.cpp
     dsp/drum/clap_engine.cpp
     dsp/drum/crash_engine.cpp
     dsp/drum/drum_amp_envelope.cpp
@@ -166,12 +173,17 @@ set(SOURCE_FILES
     dsp/drum/hihat_engine.cpp
     dsp/drum/kick_808_engine.cpp
     dsp/drum/kick_909_engine.cpp
+    dsp/drum/metal_909_engine.cpp
+    dsp/drum/metal_909_sources.cpp
     dsp/drum/kick_engine.cpp
     dsp/drum/kick_pm_engine.cpp
     dsp/drum/ride_engine.cpp
+    dsp/drum/rim_909_engine.cpp
     dsp/drum/rim_engine.cpp
+    dsp/drum/snare_909_engine.cpp
     dsp/drum/snare_engine.cpp
     dsp/drum/snare_pm_engine.cpp
+    dsp/drum/tom_909_engine.cpp
     dsp/drum/tom_engine.cpp
     dsp/dsp_component.cpp
     dsp/ensemble_chorus.cpp

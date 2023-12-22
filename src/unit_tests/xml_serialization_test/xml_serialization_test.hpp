@@ -96,6 +96,7 @@ private slots:
     void test_toXmlFromXml_device_withoutUuid_shouldBeGivenOne();
     void test_toXmlFromXml_drumSynthV2Device_shouldComeBackAsV2();
     void test_toXmlFromXml_fmDrumsDevice_shouldComeBackAsFmDrums();
+    void test_toXmlFromXml_drumSynth909Device_shouldComeBackAsDrumSynth909();
     void test_toXmlFromXml_juSynthDevice_shouldComeBackAsJuSynth();
     void test_toXmlFromXml_lfoDevice_shouldComeBackWithItsTargets();
     void test_toXmlFromXml_xyPadDevice_shouldComeBackWithItsTargets();

@@ -110,6 +110,7 @@ QString stringEnsembleDeviceName();
 QString speechDeviceName();
 QString fmSynthDeviceName();
 QString fmDrumsDeviceName();
+QString drumSynth909DeviceName();
 QString lfoDeviceName();
 QString xyPadDeviceName();
 QString noiseFxDeviceName();
