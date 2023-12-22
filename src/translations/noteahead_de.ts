@@ -2391,6 +2391,92 @@
     </message>
 </context>
 <context>
+    <name>DrumSynth909Dialog</name>
+    <message>
+        <source>Ok</source>
+        <translation>OK</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>Abbrechen</translation>
+    </message>
+    <message>
+        <source>Voices</source>
+        <translation>Stimmen</translation>
+    </message>
+    <message>
+        <source>Voice Settings</source>
+        <translation>Stimmeinstellungen</translation>
+    </message>
+    <message>
+        <source>Level</source>
+        <translation>Pegel</translation>
+    </message>
+    <message>
+        <source>Pan</source>
+        <translation>Panorama</translation>
+    </message>
+    <message>
+        <source>LPF</source>
+        <translation>LPF</translation>
+    </message>
+    <message>
+        <source>HPF</source>
+        <translation>HPF</translation>
+    </message>
+    <message>
+        <source>Global</source>
+        <translation>Global</translation>
+    </message>
+    <message>
+        <source>Gain</source>
+        <translation>Gain</translation>
+    </message>
+    <message>
+        <source>Fader</source>
+        <translation>Fader</translation>
+    </message>
+    <message>
+        <source>LPF Slope</source>
+        <translation>LPF-Flankensteilheit</translation>
+    </message>
+    <message>
+        <source>How steeply every voice&apos;s low pass rolls off. The steeper one clears more out of the way at the same cutoff.</source>
+        <translation>Wie steil der Tiefpass jeder Stimme abfällt. Der steilere räumt bei gleicher Grenzfrequenz mehr aus dem Weg.</translation>
+    </message>
+    <message>
+        <source>HPF Slope</source>
+        <translation>HPF-Flankensteilheit</translation>
+    </message>
+    <message>
+        <source>How steeply every voice&apos;s high pass rolls off. The steeper one clears more out of the way at the same cutoff.</source>
+        <translation>Wie steil der Hochpass jeder Stimme abfällt. Der steilere räumt bei gleicher Grenzfrequenz mehr aus dem Weg.</translation>
+    </message>
+</context>
+<context>
+    <name>DrumSynth909Dialog_Presets</name>
+    <message>
+        <source>Kit:</source>
+        <translation>Kit:</translation>
+    </message>
+    <message>
+        <source>Save</source>
+        <translation>Speichern</translation>
+    </message>
+    <message>
+        <source>Save the current settings as a preset of your own</source>
+        <translation>Die aktuellen Einstellungen als eigenes Preset speichern</translation>
+    </message>
+    <message>
+        <source>Delete</source>
+        <translation>Löschen</translation>
+    </message>
+    <message>
+        <source>Delete the selected preset of your own</source>
+        <translation>Das ausgewählte eigene Preset löschen</translation>
+    </message>
+</context>
+<context>
     <name>DrumSynthDialog</name>
     <message>
         <source>Ok</source>

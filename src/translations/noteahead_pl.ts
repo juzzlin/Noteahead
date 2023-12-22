@@ -2392,6 +2392,92 @@
     </message>
 </context>
 <context>
+    <name>DrumSynth909Dialog</name>
+    <message>
+        <source>Ok</source>
+        <translation>OK</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>Anuluj</translation>
+    </message>
+    <message>
+        <source>Voices</source>
+        <translation>Głosy</translation>
+    </message>
+    <message>
+        <source>Voice Settings</source>
+        <translation>Ustawienia głosu</translation>
+    </message>
+    <message>
+        <source>Level</source>
+        <translation>Poziom</translation>
+    </message>
+    <message>
+        <source>Pan</source>
+        <translation>Panorama</translation>
+    </message>
+    <message>
+        <source>LPF</source>
+        <translation>LPF</translation>
+    </message>
+    <message>
+        <source>HPF</source>
+        <translation>HPF</translation>
+    </message>
+    <message>
+        <source>Global</source>
+        <translation>Globalne</translation>
+    </message>
+    <message>
+        <source>Gain</source>
+        <translation>Wzmocnienie</translation>
+    </message>
+    <message>
+        <source>Fader</source>
+        <translation>Suwak</translation>
+    </message>
+    <message>
+        <source>LPF Slope</source>
+        <translation>Nachylenie LPF</translation>
+    </message>
+    <message>
+        <source>How steeply every voice&apos;s low pass rolls off. The steeper one clears more out of the way at the same cutoff.</source>
+        <translation>Jak stromo opada filtr dolnoprzepustowy każdego głosu. Bardziej stromy usuwa więcej przy tej samej częstotliwości odcięcia.</translation>
+    </message>
+    <message>
+        <source>HPF Slope</source>
+        <translation>Nachylenie HPF</translation>
+    </message>
+    <message>
+        <source>How steeply every voice&apos;s high pass rolls off. The steeper one clears more out of the way at the same cutoff.</source>
+        <translation>Jak stromo opada filtr górnoprzepustowy każdego głosu. Bardziej stromy usuwa więcej przy tej samej częstotliwości odcięcia.</translation>
+    </message>
+</context>
+<context>
+    <name>DrumSynth909Dialog_Presets</name>
+    <message>
+        <source>Kit:</source>
+        <translation>Zestaw:</translation>
+    </message>
+    <message>
+        <source>Save</source>
+        <translation>Zapisz</translation>
+    </message>
+    <message>
+        <source>Save the current settings as a preset of your own</source>
+        <translation>Zapisz bieżące ustawienia jako własny preset</translation>
+    </message>
+    <message>
+        <source>Delete</source>
+        <translation>Usuń</translation>
+    </message>
+    <message>
+        <source>Delete the selected preset of your own</source>
+        <translation>Usuń wybrany własny preset</translation>
+    </message>
+</context>
+<context>
     <name>DrumSynthDialog</name>
     <message>
         <source>Ok</source>

@@ -2391,6 +2391,92 @@
     </message>
 </context>
 <context>
+    <name>DrumSynth909Dialog</name>
+    <message>
+        <source>Ok</source>
+        <translation>OK</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>Peruuta</translation>
+    </message>
+    <message>
+        <source>Voices</source>
+        <translation>Äänet</translation>
+    </message>
+    <message>
+        <source>Voice Settings</source>
+        <translation>Ääniasetukset</translation>
+    </message>
+    <message>
+        <source>Level</source>
+        <translation>Taso</translation>
+    </message>
+    <message>
+        <source>Pan</source>
+        <translation>Panorointi</translation>
+    </message>
+    <message>
+        <source>LPF</source>
+        <translation>LPF</translation>
+    </message>
+    <message>
+        <source>HPF</source>
+        <translation>HPF</translation>
+    </message>
+    <message>
+        <source>Global</source>
+        <translation>Yleiset</translation>
+    </message>
+    <message>
+        <source>Gain</source>
+        <translation>Vahvistus</translation>
+    </message>
+    <message>
+        <source>Fader</source>
+        <translation>Liuku</translation>
+    </message>
+    <message>
+        <source>LPF Slope</source>
+        <translation>LPF-jyrkkyys</translation>
+    </message>
+    <message>
+        <source>How steeply every voice&apos;s low pass rolls off. The steeper one clears more out of the way at the same cutoff.</source>
+        <translation>Kuinka jyrkästi kunkin äänen alipäästö vaimentaa. Jyrkempi raivaa samalla rajataajuudella enemmän tieltä.</translation>
+    </message>
+    <message>
+        <source>HPF Slope</source>
+        <translation>HPF-jyrkkyys</translation>
+    </message>
+    <message>
+        <source>How steeply every voice&apos;s high pass rolls off. The steeper one clears more out of the way at the same cutoff.</source>
+        <translation>Kuinka jyrkästi kunkin äänen ylipäästö vaimentaa. Jyrkempi raivaa samalla rajataajuudella enemmän tieltä.</translation>
+    </message>
+</context>
+<context>
+    <name>DrumSynth909Dialog_Presets</name>
+    <message>
+        <source>Kit:</source>
+        <translation>Setti:</translation>
+    </message>
+    <message>
+        <source>Save</source>
+        <translation>Tallenna</translation>
+    </message>
+    <message>
+        <source>Save the current settings as a preset of your own</source>
+        <translation>Tallenna nykyiset asetukset omaksi esiasetukseksi</translation>
+    </message>
+    <message>
+        <source>Delete</source>
+        <translation>Poista</translation>
+    </message>
+    <message>
+        <source>Delete the selected preset of your own</source>
+        <translation>Poista valittu oma esiasetus</translation>
+    </message>
+</context>
+<context>
     <name>DrumSynthDialog</name>
     <message>
         <source>Ok</source>

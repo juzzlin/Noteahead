@@ -179,6 +179,11 @@ QString fmDrumsDeviceName()
     return "Noteahead FmDrums";
 }
 
+QString drumSynth909DeviceName()
+{
+    return "Noteahead DrumSynth909";
+}
+
 QString lfoDeviceName()
 {
     return "Noteahead LFO";

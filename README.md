@@ -4,7 +4,7 @@
 
 Noteahead is a pattern-based MIDI sequencer and music production environment for Linux, built around the tracker workflow: fast, keyboard-driven editing with the whole song in front of you. It is easy to pick up, stable enough to trust with a live set, and fast.
 
-It is also a complete studio. Twenty-six internal instruments, LFO and XY Pad modulators, a performance panel, a virtual device rack with per-device insert effects and sends, a mixer view, 48 rack effects and analyzers, and a sample-accurate offline renderer take a song from the first note to a finished master without ever leaving the application. Point it outwards instead and it drives a room full of MIDI hardware with the same precision — or does both at once, in the same song.
+It is also a complete studio. Twenty-seven internal instruments, LFO and XY Pad modulators, a performance panel, a virtual device rack with per-device insert effects and sends, a mixer view, 48 rack effects and analyzers, and a sample-accurate offline renderer take a song from the first note to a finished master without ever leaving the application. Point it outwards instead and it drives a room full of MIDI hardware with the same precision — or does both at once, in the same song.
 
 Noteahead is written in Qt/QML/C++20 on top of RtMidi back-end + RtAudio. It builds with CMake and uses CTest + Qt Test framework for unit tests.
 
@@ -55,7 +55,7 @@ Noteahead is written in Qt/QML/C++20 on top of RtMidi back-end + RtAudio. It bui
 ##
 ## What you can do with it
 
-**Produce entire songs in the box.** Twenty-six internal instruments cover a lot of ground: a six-voice virtual analog Synth, a Juno-60-style JU Synth, a Jupiter-8-style JU Synth 08, a Model D-style mono Synth D, an eight-voice Wavetable Synth, a four-operator FM Synth, an acid Bass Synth, a physically modelled Electric Bass, two Drum Synths and an FM drum machine, physically modelled Kick and Snare Synths, a 16-pad Sampler, four physically modelled pianos, one of them a concert grand, a TR-808-style Kick808, a TR-909-style Kick 909, four vintage string machines after the VP-330/VC340 and the Solina, a formant speech synth, and Noise FX for risers, sweeps and impacts. Each one sits in a slot of the Virtual Device Rack with its own insert effects, sends, fader, level meter and clip LED, and the LFO and XY Pad devices can move any of their controls, or any effect's.
+**Produce entire songs in the box.** Twenty-seven internal instruments cover a lot of ground: a six-voice virtual analog Synth, a Juno-60-style JU Synth, a Jupiter-8-style JU Synth 08, a Model D-style mono Synth D, an eight-voice Wavetable Synth, a four-operator FM Synth, an acid Bass Synth, a physically modelled Electric Bass, two Drum Synths, a TR-909-style Drum Synth 909 and an FM drum machine, physically modelled Kick and Snare Synths, a 16-pad Sampler, four physically modelled pianos, one of them a concert grand, a TR-808-style Kick808, a TR-909-style Kick 909, four vintage string machines after the VP-330/VC340 and the Solina, a formant speech synth, and Noise FX for risers, sweeps and impacts. Each one sits in a slot of the Virtual Device Rack with its own insert effects, sends, fader, level meter and clip LED, and the LFO and XY Pad devices can move any of their controls, or any effect's.
 
 **Mix and master without leaving the application.** All 48 rack effects and analyzers are available both on the master bus and as per-device inserts: six EQs including an 8-band parametric with Mid/Side, a 32-band graphical and a dynamic EQ, three reverbs including a Lexicon 224-style Reverb 224, an ambience and an early-reflections room, single-band and multiband compression, a gate, a lookahead limiter, transient shaping, saturation and tube stages, a bit crusher, chorus, flanger, phaser and tremolo, an auto filter — plus LUFS, true-peak, RTA and goniometer metering, and reference monitoring to tell you where you stand. The Mixer view puts every device side by side as channel strips.
 
@@ -69,7 +69,7 @@ Noteahead is written in Qt/QML/C++20 on top of RtMidi back-end + RtAudio. It bui
 
 **Stable.** Noteahead is built to be trusted with a live set and a finished song. Its 218 automated test suites run on every commit, covering everything from the DSP of each instrument to the project file format, and a project saved by any earlier version still opens.
 
-**Fast.** Noteahead is native C++20, and its Debian package is only 6–10 MB with twenty-six instruments and 48 effects inside. Playback runs in a thread of its own on timestamps computed ahead of time, the realtime audio can be spread across CPU cores, and offline rendering uses them all.
+**Fast.** Noteahead is native C++20, and its Debian package is only 6–10 MB with twenty-seven instruments and 48 effects inside. Playback runs in a thread of its own on timestamps computed ahead of time, the realtime audio can be spread across CPU cores, and offline rendering uses them all.
 
 ### Who it is for
 
@@ -149,6 +149,8 @@ All **Arctic Music Project** songs (sequenced or completely produced with Noteah
   - Multi-engine drum machine with 11 independent voices (Kick, Snare, Toms, etc.) and dedicated per-voice controls.
 - Drum Synth V2
   - A second Drum Synth to build on, kept separate so every kit in an existing project keeps playing the original. Adds a Rim voice and an amp envelope per voice — Attack, Hold, Decay and Curve — riding on top of what the voice already plays, so pulling Hold down tightens the drum. Kits of your own are saved and loaded above the pads.
+- Drum Synth 909
+  - TR-909-style drum machine, every drum modelled on recordings of an RD-9 with its knobs swept, and given the RD-9's own knobs: Tune, Attack, Decay, Pitch and Pitch Depth on the kick, Tune, Tone and Snappy on the snare, Tune and Decay on the toms and hats, Tune on the cymbals. The hats and cymbals are played as the 909's samples are, so Tune speeds them up. The twelfth pad plays the crash backwards. Init, Mono, Equal and Mono Equal kits, and Drum Synth V2's pads, notes, envelopes, effects and sends.
 - FM Drums
   - A drum machine with the same four-operator FM voice on every one of its twelve pads, on Drum Synth V2's notes. Per pad an algorithm, four operators with their own envelopes, feedback, a pitch envelope and filtered noise that can modulate an operator, LPF/HPF, and its own insert effects and sends. Default, Analog and Percussion kits, and any kit's drum loadable onto any pad.
 - Sampler
@@ -485,7 +487,7 @@ The section below is only a quick start — the manual is the authoritative refe
 **1) Give a track a sound.** Click the settings icon on a track header to open **Track Settings**. A track plays either an external MIDI instrument or one of Noteahead's internal devices:
 
 * **External MIDI**: pick the MIDI output port and channel of your synth or drum machine. Devices are hot-plugged, so they appear as they come online.
-* **Internal device**: click **Device Rack...** in the same dialog (also under **Devices => Device rack...**), press **(+)** on a free slot, pick an instrument from the **Device Gallery** — Synth, Wavetable Synth, FM Synth, JU Synth, JU Synth 08, Synth D, Bass Synth, Electric Bass, Drum Synth, Drum Synth V2, FM Drums, Sampler, Piano Synth, Piano Synth V2, Piano Synth V3, Piano Synth Acoustic, Kick 808, Kick 909, Kick Synth, Snare Synth, String & Voice, String & Voice V2, String & Voice V3, String Ensemble, Speech or Noise FX, or the Sub Mixer, LFO or XY Pad — and then select its internal port (e.g. *Noteahead Internal Device 1 (Noteahead Synth)*) back in Track Settings. Nothing external is needed; Noteahead renders these itself.
+* **Internal device**: click **Device Rack...** in the same dialog (also under **Devices => Device rack...**), press **(+)** on a free slot, pick an instrument from the **Device Gallery** — Synth, Wavetable Synth, FM Synth, JU Synth, JU Synth 08, Synth D, Bass Synth, Electric Bass, Drum Synth, Drum Synth V2, Drum Synth 909, FM Drums, Sampler, Piano Synth, Piano Synth V2, Piano Synth V3, Piano Synth Acoustic, Kick 808, Kick 909, Kick Synth, Snare Synth, String & Voice, String & Voice V2, String & Voice V3, String Ensemble, Speech or Noise FX, or the Sub Mixer, LFO or XY Pad — and then select its internal port (e.g. *Noteahead Internal Device 1 (Noteahead Synth)*) back in Track Settings. Nothing external is needed; Noteahead renders these itself.
 
 **2) Set up the track.** Click the track name to rename it. `[+]`/`[-]` in the track header adds or removes note columns.
 
