@@ -141,6 +141,11 @@ private:
 
     float m_distLpState { 0.0f };
 
+    double m_vcoBasePitchRatio { 1.0 };
+    double m_subBasePitchRatio { 0.5 };
+    double m_slideCoeff { 1.0 };
+    uint32_t m_lastOversampledRate { 0 };
+
     Oversampler2x m_oversamplerL;
     Oversampler2x m_oversamplerR;
 

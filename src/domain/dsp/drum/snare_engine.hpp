@@ -38,6 +38,8 @@ public:
     void setSnappy(float snappy);
     void setTone(float tone);
 
+    void updateRates();
+
 private:
     double m_tonalPhase1 { 0.0 };
     double m_tonalPhase2 { 0.0 };
@@ -51,6 +53,11 @@ private:
     float m_snappy { 0.5f };
     float m_tone { 0.5f };
     float m_velocity { 1.0f };
+
+    float m_pitchEnvDecay { 1.0f };
+    float m_tonalDecayRate { 1.0f };
+    float m_decayRate { 1.0f };
+    double m_lastSampleRate { 0.0 };
 
     std::mt19937 m_rng;
     std::uniform_real_distribution<float> m_dist { -1.0f, 1.0f };

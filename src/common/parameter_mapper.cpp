@@ -37,7 +37,8 @@ double ParameterMapper::unmapExponential(double mappedValue, double min, double 
 double ParameterMapper::mapCubic(double value, double min, double max)
 {
     const double range = max - min;
-    return min + (std::pow(std::clamp(value, 0.0, 1.0), 3.0) * range);
+    const double v = std::clamp(value, 0.0, 1.0);
+    return min + (v * v * v * range);
 }
 
 double ParameterMapper::unmapCubic(double mappedValue, double min, double max)
@@ -54,7 +55,8 @@ double ParameterMapper::mapCubicCentered(double value, double min, double max)
     const double center = (min + max) / 2.0;
     const double range = (max - min) / 2.0;
     const double norm = std::clamp(value, -1.0, 1.0);
-    const double mapped = (norm >= 0 ? 1.0 : -1.0) * std::pow(std::abs(norm), 3.0);
+    const double absNorm = std::abs(norm);
+    const double mapped = (norm >= 0 ? 1.0 : -1.0) * (absNorm * absNorm * absNorm);
     return mapped * range + center;
 }
 

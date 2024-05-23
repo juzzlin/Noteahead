@@ -29,6 +29,7 @@ KickEngine::KickEngine()
 
 void KickEngine::trigger(float velocity)
 {
+    updateRates();
     m_retriggerOffset = m_lastOut;
     m_velocity = velocity;
     m_pitchEnv = 1.0f;
@@ -48,6 +49,9 @@ float KickEngine::nextSample()
     }
 
     const double sr = sampleRate();
+    if (sr != m_lastSampleRate) {
+        updateRates();
+    }
 
     // Base Sine Oscillator
     const double baseFreq { 40.0 + (m_tune * 60.0) };
@@ -81,15 +85,9 @@ float KickEngine::nextSample()
     m_retriggerOffset *= 0.95f;
 
     // Envelopes
-    const float ampDecayRate { 1.0f - (1.0f / (std::max(0.001f, m_decay) * 0.5f * static_cast<float>(sr))) };
-    m_ampEnv *= ampDecayRate;
-
-    // Extremely fast click decay (e.g. 5ms)
-    const float clickDecayRate { 1.0f - (1.0f / (0.005f * static_cast<float>(sr))) };
-    m_clickEnv *= clickDecayRate;
-
-    const float pitchDecayRate { 1.0f - (1.0f / (std::max(0.001f, m_pitchDecay * 0.1f) * static_cast<float>(sr))) };
-    m_pitchEnv *= pitchDecayRate;
+    m_ampEnv *= m_ampDecayRate;
+    m_clickEnv *= m_clickDecayRate;
+    m_pitchEnv *= m_pitchDecayRate;
 
     if (m_ampEnv < AmplitudeThreshold && std::abs(out) < AmplitudeThreshold) {
         m_active = false;
@@ -118,6 +116,7 @@ void KickEngine::reset()
 void KickEngine::setTune(float tune)
 {
     m_tune = tune;
+    updateRates();
 }
 
 void KickEngine::setAttack(float attack)
@@ -133,6 +132,7 @@ void KickEngine::setClickTune(float tune)
 void KickEngine::setDecay(float decay)
 {
     m_decay = decay;
+    updateRates();
 }
 
 void KickEngine::setPitchDepth(float depth)
@@ -143,6 +143,17 @@ void KickEngine::setPitchDepth(float depth)
 void KickEngine::setPitchDecay(float decay)
 {
     m_pitchDecay = decay;
+    updateRates();
+}
+
+void KickEngine::updateRates()
+{
+    if (const double sr = sampleRate(); sr > 0) {
+        m_lastSampleRate = sr;
+        m_ampDecayRate = 1.0f - (1.0f / (std::max(0.001f, m_decay) * 0.5f * static_cast<float>(sr)));
+        m_clickDecayRate = 1.0f - (1.0f / (0.005f * static_cast<float>(sr)));
+        m_pitchDecayRate = 1.0f - (1.0f / (std::max(0.001f, m_pitchDecay * 0.1f) * static_cast<float>(sr)));
+    }
 }
 
 } // namespace noteahead

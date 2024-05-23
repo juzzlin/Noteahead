@@ -216,21 +216,24 @@ void BassSynthDevice::processAudio(AudioContext & context)
     m_voice.lpf.setDrive(m_distDrive);
 
     // Slide constant
-    const double slideCoeff = m_slide > 0 ? 1.0 - std::pow(0.001, 1.0 / (ParameterMapper::mapExponential(m_slide, 0.01, 2.0) * oversampledRate)) : 1.0;
+    if (oversampledRate != m_lastOversampledRate) {
+        m_slideCoeff = m_slide > 0 ? 1.0 - std::pow(0.001, 1.0 / (ParameterMapper::mapExponential(m_slide, 0.01, 2.0) * oversampledRate)) : 1.0;
+        m_lastOversampledRate = oversampledRate;
+    }
 
-    const double pbOffset = (static_cast<double>(m_pitchBend) - 8192.0) / 8192.0 * m_pitchBendRange;
-    const double tuningOffset = ParameterMapper::mapCubicCentered(m_tuning * 2.0 - 1.0, -1200, 1200);
+    const double pbOffset = (static_cast<double>(m_pitchBend) - 8192.0) / 8192.0 * (m_pitchBendRange / 12.0);
+    const double combinedPitchRatio = m_vcoBasePitchRatio * std::exp2(pbOffset);
 
     for (uint32_t i = 0; i < context.frameCount; i++) {
         float l[2] { 0.0f, 0.0f };
         float r[2] { 0.0f, 0.0f };
 
         for (int os = 0; os < 2; os++) {
-            m_voice.glideFrequency += (m_voice.frequency - m_voice.glideFrequency) * slideCoeff;
+            m_voice.glideFrequency += (m_voice.frequency - m_voice.glideFrequency) * m_slideCoeff;
 
-            const double vcoFreq = m_voice.glideFrequency * std::pow(2.0, (tuningOffset / 100.0 + pbOffset) / 12.0);
+            const double vcoFreq = m_voice.glideFrequency * combinedPitchRatio;
             m_voice.vco.setFrequency(vcoFreq);
-            m_voice.sub.setFrequency(vcoFreq / std::pow(2.0, m_subOctave));
+            m_voice.sub.setFrequency(vcoFreq * m_subBasePitchRatio);
 
             const double filterEnv = m_voice.filterEg.nextSample();
             const double ampEnv = m_voice.ampEg.nextSample();
@@ -441,6 +444,12 @@ void BassSynthDevice::syncParameters()
         m_distTone = p->get().value();
     if (auto p = parameter(Constants::NahdXml::xmlKeyDistLevel().toStdString()); p)
         m_distLevel = p->get().value();
+
+    const double tuningOffset = ParameterMapper::mapCubicCentered(m_tuning * 2.0 - 1.0, -1200, 1200);
+    m_vcoBasePitchRatio = std::exp2(tuningOffset / 1200.0);
+    m_subBasePitchRatio = 1.0 / std::exp2(static_cast<double>(m_subOctave));
+
+    m_lastOversampledRate = 0; // Force update of slideCoeff in processAudio
 
     m_voice.vco.setWaveform(m_waveform);
     const float decayTime = ParameterMapper::mapExponential(m_decay, 0.1, 10.0);

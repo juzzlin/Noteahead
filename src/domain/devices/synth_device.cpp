@@ -521,14 +521,9 @@ SynthDevice::ModulationValues SynthDevice::calculateModulation(Voice & voice) co
 
 float SynthDevice::generateVoiceSample(Voice & voice, const ModulationValues & mods, double oversampledRate)
 {
-    // Note: Pitch parameters are in cents (-2400..2400)
-    const double vco1PitchOffset = ParameterMapper::mapCubicCentered(m_vco1Pitch * 2.0 - 1.0, -2400, 2400);
-    const double vco2PitchOffset = ParameterMapper::mapCubicCentered(m_vco2Pitch * 2.0 - 1.0, -2400, 2400);
-    const double vco3PitchOffset = ParameterMapper::mapCubicCentered(m_vco3Pitch * 2.0 - 1.0, -2400, 2400);
-
-    const double vco1Freq = voice.glideFrequency * std::pow(2.0, (m_vco1Octave * 12.0 + vco1PitchOffset / 100.0 + mods.vco1PitchMod * 12.0) / 12.0);
-    const double vco2Freq = voice.glideFrequency * std::pow(2.0, (m_vco2Octave * 12.0 + vco2PitchOffset / 100.0 + mods.vco2PitchMod * 12.0) / 12.0);
-    const double vco3Freq = voice.glideFrequency * std::pow(2.0, (m_vco3Octave * 12.0 + vco3PitchOffset / 100.0 + mods.vco3PitchMod * 12.0) / 12.0);
+    const double vco1Freq = voice.glideFrequency * m_vco1BasePitchRatio * std::exp2(mods.vco1PitchMod);
+    const double vco2Freq = voice.glideFrequency * m_vco2BasePitchRatio * std::exp2(mods.vco2PitchMod);
+    const double vco3Freq = voice.glideFrequency * m_vco3BasePitchRatio * std::exp2(mods.vco3PitchMod);
 
     voice.vco1.setFrequency(vco1Freq);
     voice.vco2.setFrequency(vco2Freq);
@@ -596,6 +591,9 @@ void SynthDevice::syncParameters()
     if (auto p = parameter(Constants::NahdXml::xmlKeySynthVco1Sync().toStdString()); p)
         m_vco1Sync = p->get().value() > 0.5f;
 
+    const double vco1PitchOffset = ParameterMapper::mapCubicCentered(m_vco1Pitch * 2.0 - 1.0, -2400, 2400);
+    m_vco1BasePitchRatio = std::pow(2.0, (m_vco1Octave * 12.0 + vco1PitchOffset / 100.0) / 12.0);
+
     if (auto p = parameter(Constants::NahdXml::xmlKeySynthVco2Waveform().toStdString()); p)
         m_vco2Waveform = static_cast<PolyBlepOscillator::Waveform>(p->get().xmlValue());
     if (auto p = parameter(Constants::NahdXml::xmlKeySynthVco2Octave().toStdString()); p)
@@ -607,6 +605,9 @@ void SynthDevice::syncParameters()
     if (auto p = parameter(Constants::NahdXml::xmlKeySynthVco2Sync().toStdString()); p)
         m_vco2Sync = p->get().value() > 0.5f;
 
+    const double vco2PitchOffset = ParameterMapper::mapCubicCentered(m_vco2Pitch * 2.0 - 1.0, -2400, 2400);
+    m_vco2BasePitchRatio = std::pow(2.0, (m_vco2Octave * 12.0 + vco2PitchOffset / 100.0) / 12.0);
+
     if (auto p = parameter(Constants::NahdXml::xmlKeySynthVco3Waveform().toStdString()); p)
         m_vco3Waveform = static_cast<PolyBlepOscillator::Waveform>(p->get().xmlValue());
     if (auto p = parameter(Constants::NahdXml::xmlKeySynthVco3Octave().toStdString()); p)
@@ -617,6 +618,9 @@ void SynthDevice::syncParameters()
         m_vco3Shape = p->get().value();
     if (auto p = parameter(Constants::NahdXml::xmlKeySynthVco3Sync().toStdString()); p)
         m_vco3Sync = p->get().value() > 0.5f;
+
+    const double vco3PitchOffset = ParameterMapper::mapCubicCentered(m_vco3Pitch * 2.0 - 1.0, -2400, 2400);
+    m_vco3BasePitchRatio = std::pow(2.0, (m_vco3Octave * 12.0 + vco3PitchOffset / 100.0) / 12.0);
 
     if (auto p = parameter(Constants::NahdXml::xmlKeySynthMultiMode().toStdString()); p)
         m_multiType = static_cast<MultiEngine::Type>(p->get().xmlValue());

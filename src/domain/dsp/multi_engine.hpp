@@ -61,7 +61,20 @@ private:
     float m_lastSample { 0.0f };
     double m_phase { 0.0 };
 
-    float processFilter(float input, float cutoff, float resonance, int mode);
+    // Cached coefficients
+    double m_g { 0.0 };
+    double m_k { 0.0 };
+    double m_damping { 0.0 };
+    double m_decimRate { 0.0 };
+    double m_lastCutoff { -1.0 };
+    double m_lastResonance { -1.0 };
+    double m_lastSampleRate { -1.0 };
+    float m_lastDecimRateParam { -1.0f };
+    uint8_t m_lastNote { 0xFF };
+
+    void updateCoefficients(float cutoff, float resonance);
+    void updateDecimRate();
+    float processFilter(float input, int mode);
 };
 
 } // namespace noteahead

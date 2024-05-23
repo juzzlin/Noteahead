@@ -40,6 +40,8 @@ public:
     void setPitchDepth(float depth);
     void setPitchDecay(float decay);
 
+    void updateRates();
+
 private:
     double m_phase { 0.0 };
     double m_clickPhase { 0.0 };
@@ -57,6 +59,11 @@ private:
     float m_velocity { 1.0f };
     float m_lastOut { 0.0f };
     float m_retriggerOffset { 0.0f };
+
+    float m_ampDecayRate { 1.0f };
+    float m_clickDecayRate { 1.0f };
+    float m_pitchDecayRate { 1.0f };
+    double m_lastSampleRate { 0.0 };
 
     std::mt19937 m_rng;
     std::uniform_real_distribution<float> m_dist { -1.0f, 1.0f };

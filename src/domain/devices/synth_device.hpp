@@ -333,6 +333,10 @@ private:
 
     std::vector<float> m_oversampledBuffer;
 
+    double m_vco1BasePitchRatio { 1.0 };
+    double m_vco2BasePitchRatio { 1.0 };
+    double m_vco3BasePitchRatio { 1.0 };
+
     void handleNoteOn(uint8_t note, uint8_t velocity);
     void handleNoteOff(uint8_t note);
     double midiNoteToFreq(uint8_t note) const;

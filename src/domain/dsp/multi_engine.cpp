@@ -65,26 +65,27 @@ float MultiEngine::nextSample()
 
     if (m_type == Type::High) {
         // High-pass [10Hz ... 21kHz]
-        float cutoff = std::pow(m_shape, 2.0f); // Non-linear for better control
-        return processFilter(noise, cutoff, 0.1f, 1); // 1 = HP
+        float cutoff = m_shape * m_shape; // Use multiplication instead of std::pow
+        updateCoefficients(cutoff, 0.1f);
+        return processFilter(noise, 1); // 1 = HP
     } else if (m_type == Type::Low) {
         // Low-pass [10Hz ... 21kHz]
-        float cutoff = std::pow(m_shape, 2.0f);
-        return processFilter(noise, cutoff, 0.1f, 0); // 0 = LP
+        float cutoff = m_shape * m_shape;
+        updateCoefficients(cutoff, 0.1f);
+        return processFilter(noise, 0); // 0 = LP
     } else if (m_type == Type::Peak) {
         // Bandpass [110Hz ... 880Hz]
         // Map 0..1 to 110..880
         float freqHz = 110.0f + m_shape * (880.0f - 110.0f);
         // Map Hz back to 0..1 range for processFilter approx
-        float cutoff = std::log10(freqHz / 20.0f) / std::log10(20000.0f / 20.0f);
-        return processFilter(noise, cutoff, 0.8f, 2); // 2 = BP
+        // log10(20000/20) = 3.0
+        float cutoff = std::log10(freqHz * 0.05f) * 0.3333333333333333f;
+        updateCoefficients(cutoff, 0.8f);
+        return processFilter(noise, 2); // 2 = BP
     } else if (m_type == Type::Decim) {
         // Decimator [240Hz ... 48kHz]
-        float baseRate = 240.0f + m_shape * (static_cast<float>(Constants::defaultSampleRate()) - 240.0f);
-        float trackedRate = baseRate * std::pow(2.0f, (m_note - 60) / 12.0f * m_keyTrack);
-        trackedRate = std::clamp(trackedRate, 240.0f, static_cast<float>(m_sampleRate));
-
-        m_phase += trackedRate / m_sampleRate;
+        updateDecimRate();
+        m_phase += m_decimRate;
         if (m_phase >= 1.0) {
             m_phase -= 1.0;
             m_lastSample = noise;
@@ -95,19 +96,47 @@ float MultiEngine::nextSample()
     return noise;
 }
 
-float MultiEngine::processFilter(float input, float cutoff, float resonance, int mode)
+void MultiEngine::updateCoefficients(float cutoff, float resonance)
 {
-    // Simple SVF
-    const double freq = 20.0 * std::pow(std::min(20000.0, m_sampleRate * 0.49) / 20.0, cutoff);
-    const double g = std::tan(std::numbers::pi * freq / m_sampleRate);
-    const double k = 2.0 * (1.0 - resonance);
-    const double damping = 1.0 / (1.0 + g * (g + k));
+    if (std::abs(cutoff - m_lastCutoff) < 0.000001f && std::abs(resonance - m_lastResonance) < 0.000001f && std::abs(m_sampleRate - m_lastSampleRate) < 0.1) {
+        return;
+    }
 
-    const double hp = (input - (g + k) * m_s1 - m_s2) * damping;
-    const double v1 = g * hp;
+    const double maxFreq = std::min(20000.0, m_sampleRate * 0.49);
+    const double freq = 20.0 * std::exp2(static_cast<double>(cutoff) * std::log2(maxFreq / 20.0));
+    m_g = std::tan(std::numbers::pi * freq / m_sampleRate);
+    m_k = 2.0 * (1.0 - resonance);
+    m_damping = 1.0 / (1.0 + m_g * (m_g + m_k));
+
+    m_lastCutoff = cutoff;
+    m_lastResonance = resonance;
+    m_lastSampleRate = m_sampleRate;
+}
+
+void MultiEngine::updateDecimRate()
+{
+    if (std::abs(m_shape - m_lastDecimRateParam) < 0.000001f && m_note == m_lastNote && std::abs(m_sampleRate - m_lastSampleRate) < 0.1) {
+        return;
+    }
+
+    float baseRate = 240.0f + m_shape * (static_cast<float>(Constants::defaultSampleRate()) - 240.0f);
+    float trackedRate = baseRate * std::exp2((static_cast<float>(m_note) - 60.0f) / 12.0f * m_keyTrack);
+    trackedRate = std::clamp(trackedRate, 240.0f, static_cast<float>(m_sampleRate));
+
+    m_decimRate = static_cast<double>(trackedRate) / m_sampleRate;
+
+    m_lastDecimRateParam = m_shape;
+    m_lastNote = m_note;
+    m_lastSampleRate = m_sampleRate;
+}
+
+float MultiEngine::processFilter(float input, int mode)
+{
+    const double hp = (input - (m_g + m_k) * m_s1 - m_s2) * m_damping;
+    const double v1 = m_g * hp;
     const double bp = v1 + m_s1;
     m_s1 = v1 + bp;
-    const double v2 = g * bp;
+    const double v2 = m_g * bp;
     const double lp = v2 + m_s2;
     m_s2 = v2 + lp;
 

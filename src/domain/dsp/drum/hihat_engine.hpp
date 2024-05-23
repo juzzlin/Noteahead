@@ -39,6 +39,7 @@ public:
     void setResonance(float resonance);
 
     void stop(); // For choking
+    void updateRates();
 
 private:
     float m_ampEnv { 0.0f };
@@ -57,6 +58,11 @@ private:
 
     std::array<double, 6> m_phases { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
     float m_bodyEnv { 0.0f };
+
+    float m_bodyDecayRate { 1.0f };
+    float m_decayRate { 1.0f };
+    float m_chokeDecayRate { 1.0f };
+    double m_lastSampleRate { 0.0 };
 };
 
 } // namespace noteahead

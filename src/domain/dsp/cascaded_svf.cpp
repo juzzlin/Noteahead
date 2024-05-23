@@ -48,7 +48,8 @@ double CascadedSvf::process(double input)
     // Zero-Delay Feedback State Variable Filter
     // Stable for all frequencies up to Nyquist
     if (std::abs(m_cutoff - m_lastCutoff) > 0.000001 || std::abs(m_resonance - m_lastResonance) > 0.000001 || std::abs(m_sampleRate - m_lastSampleRate) > 0.1) {
-        const double freq = 20.0 * std::pow(std::min(20000.0, m_sampleRate * 0.49) / 20.0, m_cutoff);
+        const double maxFreq = std::min(20000.0, m_sampleRate * 0.49);
+        const double freq = 20.0 * std::exp2(m_cutoff * std::log2(maxFreq / 20.0));
         m_g = std::tan(std::numbers::pi * freq / m_sampleRate);
         m_k = 2.0 * (1.0 - m_resonance);
         m_damping = 1.0 / (1.0 + m_g * (m_g + m_k));
