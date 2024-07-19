@@ -18,6 +18,7 @@ import QtQuick.Controls 2.15
 import QtQuick.Controls.Universal 2.15
 import QtQuick.Layouts 1.15
 import Noteahead 1.0
+import "../Components"
 
 Dialog {
     id: root
@@ -56,32 +57,6 @@ Dialog {
         }
         onRejected: () => {
             synthController.reject();
-        }
-    }
-
-    component Knob : ColumnLayout {
-        id: knobRoot
-        property string label: ""
-        property real value: 0
-        property real from: 0
-        property real to: 100
-        property string suffix: "%"
-        signal moved(real val)
-
-        spacing: 2
-        Label {
-            text: knobRoot.label + " (" + Math.round(knobRoot.value) + knobRoot.suffix + ")"
-            font.pixelSize: 11
-            color: themeService.accentColor
-            Layout.alignment: Qt.AlignHCenter
-        }
-        Slider {
-            from: knobRoot.from
-            to: knobRoot.to
-            value: knobRoot.value
-            stepSize: 1
-            Layout.fillWidth: true
-            onMoved: () => knobRoot.moved(value)
         }
     }
 
@@ -367,9 +342,10 @@ Dialog {
                 ColumnLayout {
                     Layout.fillWidth: true
                     Layout.alignment: Qt.AlignTop
-                    Knob {
+                    FilterKnob {
                         label: qsTr("LPF Cutoff")
                         value: synthController.lpfCutoff
+                        sampleRate: synthController.sampleRate
                         onMoved: v => synthController.lpfCutoff = v
                         Layout.fillWidth: true
                     }
@@ -379,9 +355,11 @@ Dialog {
                         onMoved: v => synthController.lpfResonance = v
                         Layout.fillWidth: true
                     }
-                    Knob {
+                    FilterKnob {
                         label: qsTr("HPF Cutoff")
                         value: synthController.hpfCutoff
+                        sampleRate: synthController.sampleRate
+                        isHpf: true
                         onMoved: v => synthController.hpfCutoff = v
                         Layout.fillWidth: true
                     }

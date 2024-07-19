@@ -25,6 +25,9 @@ SynthController::SynthController(std::shared_ptr<SynthDevice> synth, QObject * p
   : QObject(parent)
   , m_synth { std::move(synth) }
 {
+    if (m_synth) {
+        connect(m_synth.get(), &Device::dataChanged, this, &SynthController::sampleRateChanged);
+    }
 }
 
 SynthController::~SynthController() = default;
@@ -127,6 +130,8 @@ void SynthController::setMasterPan(int p) { if (m_synth) { m_synth->setMasterPan
 int SynthController::masterVolume() const { return m_synth ? static_cast<int>(std::round(m_synth->masterVolume() * 100.0f)) : 0; }
 void SynthController::setMasterVolume(int v) { if (m_synth) { m_synth->setMasterVolume(v / 100.0f); emit masterVolumeChanged(); } }
 
+uint32_t SynthController::sampleRate() const { return m_synth ? m_synth->sampleRate() : 44100; }
+
 QStringList SynthController::presetNames() const
 {
     QStringList names;
@@ -180,6 +185,9 @@ void SynthController::setSynth(std::shared_ptr<SynthDevice> synth)
 {
     if (m_synth != synth) {
         m_synth = std::move(synth);
+        if (m_synth) {
+            connect(m_synth.get(), &Device::dataChanged, this, &SynthController::sampleRateChanged);
+        }
         emit synthChanged();
         requestSettings();
     }

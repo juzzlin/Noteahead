@@ -74,32 +74,6 @@ Dialog {
         }
     }
 
-    component Knob: ColumnLayout {
-        id: knobRoot
-        property string label: ""
-        property real value: 0
-        property real from: 0
-        property real to: 100
-        property string suffix: "%"
-        signal moved(real val)
-
-        spacing: 2
-        Label {
-            text: knobRoot.label + " (" + Math.round(knobRoot.value) + knobRoot.suffix + ")"
-            font.pixelSize: 11
-            color: themeService.accentColor
-            Layout.alignment: Qt.AlignHCenter
-        }
-        Slider {
-            from: knobRoot.from
-            to: knobRoot.to
-            value: knobRoot.value
-            stepSize: 1
-            Layout.fillWidth: true
-            onMoved: () => knobRoot.moved(value)
-        }
-    }
-
     ColumnLayout {
         anchors.fill: parent
         anchors.margins: 10
@@ -306,18 +280,21 @@ Dialog {
                 }
 
                 // LPF Cutoff Knob
-                Knob {
+                FilterKnob {
                     label: qsTr("LPF Cutoff")
                     value: samplerController.selectedPadCutoff * 100
+                    sampleRate: samplerController.sampleRate
                     onMoved: v => {
                         samplerController.selectedPadCutoff = v / 100;
                     }
                 }
 
                 // HPF Cutoff Knob
-                Knob {
+                FilterKnob {
                     label: qsTr("HPF Cutoff")
                     value: samplerController.selectedPadHpfCutoff * 100
+                    sampleRate: samplerController.sampleRate
+                    isHpf: true
                     onMoved: v => {
                         samplerController.selectedPadHpfCutoff = v / 100;
                     }

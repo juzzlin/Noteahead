@@ -304,7 +304,9 @@ void SamplerDevice::processMidiAllNotesOff()
 
 void SamplerDevice::processAudio(float * output, uint32_t nFrames, uint32_t sampleRate)
 {
-    std::lock_guard<std::mutex> lock { m_mutex };
+    m_sampleRate = sampleRate;
+    const std::lock_guard<std::mutex> lock(m_mutex);
+
 
     const float fadeStep = 1.0f / 256.0f;
 

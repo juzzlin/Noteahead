@@ -53,6 +53,8 @@ public:
 
     virtual void reset() = 0;
 
+    uint32_t sampleRate() const { return m_sampleRate; }
+
     virtual void serializeToXml(QXmlStreamWriter & writer) const;
     virtual void deserializeFromXml(QXmlStreamReader & reader);
 
@@ -62,6 +64,8 @@ signals:
 protected:
     void serializeAttributesToXml(QXmlStreamWriter & writer) const;
     void deserializeAttributesFromXml(QXmlStreamReader & reader);
+
+    uint32_t m_sampleRate { 44100 };
 
 private:
     size_t m_id { 0 };

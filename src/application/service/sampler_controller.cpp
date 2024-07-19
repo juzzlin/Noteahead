@@ -11,6 +11,9 @@ SamplerController::SamplerController(SamplerDevice::SamplerDeviceS sampler, QObj
   , m_padModel { std::make_unique<SamplerPadModel>(m_sampler, this) }
   , m_selectedPad { -1 }
 {
+    if (m_sampler) {
+        connect(m_sampler.get(), &Device::dataChanged, this, &SamplerController::sampleRateChanged);
+    }
 }
 
 SamplerController::~SamplerController() = default;
@@ -29,10 +32,18 @@ void SamplerController::setSampler(SamplerDevice::SamplerDeviceS sampler)
 {
     if (m_sampler != sampler) {
         m_sampler = std::move(sampler);
+        if (m_sampler) {
+            connect(m_sampler.get(), &Device::dataChanged, this, &SamplerController::sampleRateChanged);
+        }
         m_padModel->setSampler(m_sampler);
         emit samplerChanged();
         setSelectedPad(m_selectedPad); // Trigger updates for properties
     }
+}
+
+uint32_t SamplerController::sampleRate() const
+{
+    return m_sampler ? m_sampler->sampleRate() : 44100;
 }
 
 int SamplerController::selectedPad() const

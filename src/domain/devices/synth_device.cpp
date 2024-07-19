@@ -159,7 +159,9 @@ std::string SynthDevice::typeId() const
 
 void SynthDevice::processAudio(float * output, uint32_t nFrames, uint32_t sampleRate)
 {
-    const std::lock_guard<std::mutex> lock { m_mutex };
+    m_sampleRate = sampleRate;
+    const std::lock_guard<std::mutex> lock(m_mutex);
+
 
     std::vector<float> localBuffer(nFrames * 2, 0.0f);
 

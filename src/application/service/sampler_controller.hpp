@@ -41,10 +41,13 @@ class SamplerController : public QObject
     Q_PROPERTY(int selectedPadStartOffsetMilliseconds READ selectedPadStartOffsetMilliseconds WRITE setSelectedPadStartOffsetMilliseconds NOTIFY selectedPadStartOffsetChanged)
     Q_PROPERTY(double selectedPadDuration READ selectedPadDuration NOTIFY selectedPadDurationChanged)
     Q_PROPERTY(bool channelMode READ channelMode WRITE setChannelMode NOTIFY channelModeChanged)
+    Q_PROPERTY(uint32_t sampleRate READ sampleRate NOTIFY sampleRateChanged)
 
 public:
     explicit SamplerController(SamplerDevice::SamplerDeviceS sampler, QObject * parent = nullptr);
     ~SamplerController() override;
+
+    uint32_t sampleRate() const;
 
     SamplerPadModel * padModel() const;
     SamplerDevice::SamplerDeviceS sampler() const;
@@ -103,6 +106,7 @@ signals:
     void selectedPadStartOffsetChanged();
     void selectedPadDurationChanged();
     void channelModeChanged();
+    void sampleRateChanged();
     void samplerChanged();
 
 private:

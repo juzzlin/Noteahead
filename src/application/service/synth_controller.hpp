@@ -83,6 +83,7 @@ class SynthController : public QObject
     Q_PROPERTY(int panSpread READ panSpread WRITE setPanSpread NOTIFY panSpreadChanged)
     Q_PROPERTY(int masterPan READ masterPan WRITE setMasterPan NOTIFY masterPanChanged)
     Q_PROPERTY(int masterVolume READ masterVolume WRITE setMasterVolume NOTIFY masterVolumeChanged)
+    Q_PROPERTY(uint32_t sampleRate READ sampleRate NOTIFY sampleRateChanged)
     Q_PROPERTY(QStringList presetNames READ presetNames CONSTANT)
 
     // Delay
@@ -149,6 +150,8 @@ public:
     int masterPan() const; void setMasterPan(int p);
     int masterVolume() const; void setMasterVolume(int v);
 
+    uint32_t sampleRate() const;
+
     QStringList presetNames() const;
 
     int delayType() const; void setDelayType(int type);
@@ -180,6 +183,7 @@ signals:
     void modAttackChanged(); void modDecayChanged(); void modIntChanged(); void modTargetChanged();
     void lfoWaveformChanged(); void lfoModeChanged(); void lfoRateChanged(); void lfoIntChanged(); void lfoTargetChanged();
     void voiceModeChanged(); void voiceDepthChanged(); void portamentoChanged(); void panSpreadChanged(); void masterPanChanged(); void masterVolumeChanged();
+    void sampleRateChanged();
     void delayTypeChanged(); void delayTimeChanged(); void delayFeedbackChanged(); void delayDepthChanged(); void delayMixChanged(); void delaySyncChanged(); void delaySyncDivisionChanged();
 
 public:
