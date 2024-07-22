@@ -96,4 +96,4 @@ void EffectRackTest::test_reverb_parameters()
 
 } // namespace noteahead
 
-QTEST_MAIN(noteahead::EffectRackTest)
+QTEST_GUILESS_MAIN(noteahead::EffectRackTest)

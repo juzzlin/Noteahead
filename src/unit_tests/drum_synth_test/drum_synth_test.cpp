@@ -227,4 +227,4 @@ void DrumSynthTest::test_tomEngine_tunes_shouldSoundDifferent()
 
 } // namespace noteahead
 
-QTEST_MAIN(noteahead::DrumSynthTest)
+QTEST_GUILESS_MAIN(noteahead::DrumSynthTest)

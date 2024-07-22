@@ -44,10 +44,12 @@ ColumnLayout {
                 onMoved: v => synthController.delaySyncDivision = v
                 Layout.fillWidth: true
             }
-            TimeKnob {
+            Knob {
                 id: delayTimeKnob
                 label: qsTr("Time")
-                from: 1
+                mapping: "cubic"
+                mapMin: 1
+                mapMax: 10000
                 to: 10000
                 suffix: "ms"
                 value: synthController.delayTime

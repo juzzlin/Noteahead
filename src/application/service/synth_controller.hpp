@@ -202,8 +202,6 @@ public:
 
     uint32_t sampleRate() const;
     Q_INVOKABLE float cutoffToHz(float cutoff) const;
-    Q_INVOKABLE int uiValueToPitch(int uiValue) const;
-    Q_INVOKABLE int pitchToUiValue(int pitch) const;
 
     QStringList presetNames() const;
     int currentBank() const;

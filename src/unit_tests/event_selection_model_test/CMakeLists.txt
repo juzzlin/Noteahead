@@ -5,6 +5,7 @@ set(SRC
     ${NAME}.hpp
     ../../application/models/event_selection_model.cpp
     ../../common/constants.cpp
+    ../../common/parameter_mapper.cpp
     ../../common/utils.cpp
     ../../domain/event_data.cpp
     ../../domain/instrument_settings.cpp

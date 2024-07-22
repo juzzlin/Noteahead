@@ -28,6 +28,7 @@ set(SRC
     ../../application/service/side_chain_service.cpp
     ../../application/service/synth_controller.cpp
     ../../common/constants.cpp
+    ../../common/parameter_mapper.cpp
     ../../common/utils.cpp
     ../../common/waveform_generator.cpp
     ../../domain/arpeggiator.cpp

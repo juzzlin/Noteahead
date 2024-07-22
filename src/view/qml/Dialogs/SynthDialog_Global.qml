@@ -59,10 +59,12 @@ ColumnLayout {
         onMoved: v => synthController.gain = v
         Layout.fillWidth: true
     }
-    PanKnob {
-        label: qsTr("Master Pan")
+    Knob {
+        label: qsTr("Pan")
+        mapping: "pan"
         value: synthController.pan
         onMoved: v => synthController.pan = v
         Layout.fillWidth: true
     }
+
 }

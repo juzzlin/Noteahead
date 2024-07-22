@@ -20,6 +20,7 @@ set(SRC
     ../../application/service/settings_service.cpp
     ../../application/service/side_chain_service.cpp
     ../../common/constants.cpp
+    ../../common/parameter_mapper.cpp
     ../../common/utils.cpp
     ../../domain/arpeggiator.cpp
     ../../domain/automation.cpp

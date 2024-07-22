@@ -30,18 +30,27 @@ ColumnLayout {
     }
     Knob {
         label: qsTr("Attack")
+        mapping: "exponential"
+        mapMin: 0.000001
+        mapMax: 20.0
+        suffix: "s"
         value: synthController.modAttack
         onMoved: v => synthController.modAttack = v
         Layout.fillWidth: true
     }
     Knob {
         label: qsTr("Decay")
+        mapping: "exponential"
+        mapMin: 0.01
+        mapMax: 60.0
+        suffix: "s"
         value: synthController.modDecay
         onMoved: v => synthController.modDecay = v
         Layout.fillWidth: true
     }
-    IntensityKnob {
+    Knob {
         label: qsTr("Intensity")
+        mapping: "intensity"
         value: synthController.modInt
         onMoved: v => synthController.modInt = v
         Layout.fillWidth: true

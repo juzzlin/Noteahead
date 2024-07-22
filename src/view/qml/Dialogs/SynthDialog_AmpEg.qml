@@ -22,12 +22,20 @@ ColumnLayout {
 
     Knob {
         label: qsTr("Attack")
+        mapping: "exponential"
+        mapMin: 0.000001
+        mapMax: 20.0
+        suffix: "s"
         value: synthController.ampAttack
         onMoved: v => synthController.ampAttack = v
         Layout.fillWidth: true
     }
     Knob {
         label: qsTr("Decay")
+        mapping: "exponential"
+        mapMin: 0.01
+        mapMax: 60.0
+        suffix: "s"
         value: synthController.ampDecay
         onMoved: v => synthController.ampDecay = v
         Layout.fillWidth: true
@@ -40,6 +48,10 @@ ColumnLayout {
     }
     Knob {
         label: qsTr("Release")
+        mapping: "exponential"
+        mapMin: 0.001
+        mapMax: 60.0
+        suffix: "s"
         value: synthController.ampRelease
         onMoved: v => synthController.ampRelease = v
         Layout.fillWidth: true

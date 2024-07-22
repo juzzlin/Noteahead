@@ -97,7 +97,7 @@ void KnobControllerTest::test_timeToString()
 {
     KnobController controller;
     QCOMPARE(controller.timeToString(123.4, "ms"), QString("123ms"));
-    QCOMPARE(controller.timeToString(10.0, "s"), QString("10s"));
+    QCOMPARE(controller.timeToString(10.0, "s"), QString("10.0 s"));
 }
 
 void KnobControllerTest::test_percentageToString()

@@ -861,6 +861,16 @@ void SamplerDevice::syncParameters()
     if (auto p = parameter(Constants::NahdXml::xmlKeyChannelMode().toStdString()); p) {
         m_channelMode = p->get().value() > 0.5f;
     }
+
+    // Update active voices with new global parameters
+    for (auto && voice : m_voices) {
+        if (voice.active) {
+            voice.pan = panInternal();
+            voice.cutoff = m_globalCutoff;
+            voice.hpfCutoff = m_globalHpfCutoff;
+            updateVoiceEffects(voice);
+        }
+    }
 }
 
 } // namespace noteahead

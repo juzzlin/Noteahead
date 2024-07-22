@@ -50,7 +50,7 @@ uint32_t SamplerController::sampleRate() const
 
 float SamplerController::cutoffToHz(float cutoff) const
 {
-    return Utils::Dsp::cutoffToHz(cutoff / 1000.0f, static_cast<float>(sampleRate()));
+    return Utils::Dsp::cutoffToHz(cutoff / Constants::uiInternalScaling(), static_cast<float>(sampleRate()));
 }
 
 int SamplerController::selectedPad() const

@@ -6,6 +6,7 @@ set(SRC
     ../../application/models/track_settings_model.cpp
     ../../application/models/midi_cc_selection_model.cpp
     ../../common/constants.cpp
+    ../../common/parameter_mapper.cpp
     ../../common/utils.cpp
     ../../domain/instrument.cpp
     ../../domain/instrument_settings.cpp

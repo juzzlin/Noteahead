@@ -8,6 +8,7 @@ set(SRC
     ../../domain/arpeggiator.cpp
     ../../domain/column_settings.cpp
     ../../common/constants.cpp
+    ../../common/parameter_mapper.cpp
     ../../common/utils.cpp
 )
 qt_add_executable(${NAME} ${SRC})

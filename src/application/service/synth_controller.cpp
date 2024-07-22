@@ -74,13 +74,13 @@ void SynthController::setVco1Octave(int oct)
 
 int SynthController::vco1Pitch() const
 {
-    return m_synth ? m_synth->vco1Pitch() : 0;
+    return m_synth ? static_cast<int>(std::round(m_synth->vco1Pitch() * Constants::uiInternalScaling())) : 0;
 }
 
 void SynthController::setVco1Pitch(int p)
 {
     if (m_synth) {
-        m_synth->setVco1Pitch(p);
+        m_synth->setVco1Pitch(static_cast<float>(p) / Constants::uiInternalScaling());
         emit vco1PitchChanged();
     }
 }
@@ -140,13 +140,13 @@ void SynthController::setVco2Octave(int oct)
 
 int SynthController::vco2Pitch() const
 {
-    return m_synth ? m_synth->vco2Pitch() : 0;
+    return m_synth ? static_cast<int>(std::round(m_synth->vco2Pitch() * Constants::uiInternalScaling())) : 0;
 }
 
 void SynthController::setVco2Pitch(int p)
 {
     if (m_synth) {
-        m_synth->setVco2Pitch(p);
+        m_synth->setVco2Pitch(static_cast<float>(p) / Constants::uiInternalScaling());
         emit vco2PitchChanged();
     }
 }
@@ -592,18 +592,6 @@ uint32_t SynthController::sampleRate() const
 float SynthController::cutoffToHz(float cutoff) const
 {
     return Utils::Dsp::cutoffToHz(cutoff / Constants::uiInternalScaling(), static_cast<float>(sampleRate()));
-}
-
-int SynthController::uiValueToPitch(int uiValue) const
-{
-    const double x = static_cast<double>(uiValue) / Constants::uiInternalScaling();
-    return static_cast<int>(std::round(std::pow(x, 3.0) * 2400.0));
-}
-
-int SynthController::pitchToUiValue(int pitch) const
-{
-    const double x = std::cbrt(static_cast<double>(pitch) / 2400.0);
-    return static_cast<int>(std::round(x * Constants::uiInternalScaling()));
 }
 
 QStringList SynthController::presetNames() const

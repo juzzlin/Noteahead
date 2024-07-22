@@ -23,10 +23,22 @@ ColumnLayout {
     id: knobRoot
     property string label: ""
     property real value: 0
-    property real customValue: NaN
     property real from: 0
-    property real to: 1000
+    property real to: Constants.uiInternalScaling
     property string suffix: "%"
+    property string mapping: "linear"
+    property real mapMin: 0
+    property real mapMax: 1
+    property real sliderFrom: {
+        if (mapping === "linear") return from;
+        if (mapping === "cubicCentered") return -1.0;
+        return 0.0;
+    }
+    property real sliderTo: {
+        if (mapping === "linear") return to;
+        if (mapping === "cubicCentered") return 1.0;
+        return 1.0;
+    }
     property alias stepSize: slider.stepSize
     signal moved(real val)
 
@@ -36,14 +48,18 @@ ColumnLayout {
     spacing: 2
     Label {
         text: {
-            let val = isNaN(knobRoot.customValue) ? knobRoot.value : knobRoot.customValue;
             let displayValue = "";
-            if (knobRoot.suffix === "%") {
-                displayValue = knobController.percentageToString(val);
-            } else if (knobRoot.suffix === "dB") {
-                displayValue = knobController.decibelToString(val);
+            if (knobRoot.mapping === "linear") {
+                if (knobRoot.suffix === "%") {
+                    displayValue = knobController.percentageToString(knobRoot.value);
+                } else if (knobRoot.suffix === "dB") {
+                    displayValue = knobController.decibelToString(knobRoot.value);
+                } else {
+                    displayValue = Math.round(knobRoot.value) + knobRoot.suffix;
+                }
             } else {
-                displayValue = Math.round(val) + knobRoot.suffix;
+                let mappedValue = knobController.map(knobRoot.value / knobRoot.to, knobRoot.mapping, knobRoot.mapMin, knobRoot.mapMax);
+                displayValue = knobController.format(mappedValue, knobRoot.mapping, knobRoot.suffix, knobRoot.mapMin, knobRoot.mapMax);
             }
             return `${knobRoot.label} (${displayValue})`;
         }
@@ -53,19 +69,64 @@ ColumnLayout {
     }
     Slider {
         id: slider
-        from: knobRoot.from
-        to: knobRoot.to
-        value: knobRoot.value
-        stepSize: 1
+        from: knobRoot.sliderFrom
+        to: knobRoot.sliderTo
+        stepSize: 0
         Layout.fillWidth: true
-        onMoved: () => knobRoot.moved(value)
+        
+        onMoved: {
+            let val = value;
+            if (knobRoot.mapping === "linear") {
+                knobRoot.moved(val);
+            } else if (knobRoot.mapping === "cubicCentered") {
+                // slider -1..1 maps to model 0..1000 via internal 0..1
+                knobRoot.moved((val * 0.5 + 0.5) * knobRoot.to);
+            } else {
+                // slider 0..1 maps to model 0..1000
+                knobRoot.moved(val * knobRoot.to);
+            }
+        }
+
+        Binding {
+            target: slider
+            property: "value"
+            value: {
+                if (knobRoot.mapping === "linear") return knobRoot.value;
+                if (knobRoot.mapping === "cubicCentered") {
+                    return (knobRoot.value / knobRoot.to) * 2.0 - 1.0;
+                }
+                return knobRoot.value / knobRoot.to;
+            }
+            when: !slider.pressed
+        }
 
         WheelHandler {
             onWheel: (wheel) => {
-                if (wheel.angleDelta.y > 0) {
-                    slider.increase();
+                const delta = wheel.angleDelta.y > 0 ? 0.05 : -0.05;
+                if (knobRoot.mapping === "linear") {
+                    const range = knobRoot.to - knobRoot.from;
+                    const linearDelta = delta * range;
+                    knobRoot.moved(Math.max(knobRoot.from, Math.min(knobRoot.to, knobRoot.value + linearDelta)));
                 } else {
-                    slider.decrease();
+                    const nextV = Math.max(slider.from, Math.min(slider.to, slider.value + delta));
+                    if (knobRoot.mapping === "cubicCentered") {
+                         knobRoot.moved((nextV * 0.5 + 0.5) * knobRoot.to);
+                    } else {
+                         knobRoot.moved(nextV * knobRoot.to);
+                    }
+                }
+            }
+        }
+
+        MouseArea {
+            anchors.fill: parent
+            acceptedButtons: Qt.RightButton
+            onPressed: mouse => {
+                if (mouse.button === Qt.RightButton) {
+                    const center = (knobRoot.from + knobRoot.to) / 2.0;
+                    knobRoot.moved(center);
+                } else {
+                    mouse.accepted = false;
                 }
             }
         }

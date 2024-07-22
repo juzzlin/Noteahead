@@ -8,6 +8,7 @@ set(SRC
     ../../application/service/property_service.cpp
     ../../application/service/random_service.cpp
     ../../common/constants.cpp
+    ../../common/parameter_mapper.cpp
     ../../common/utils.cpp
     ../../domain/automation.cpp
     ../../domain/automation_location.cpp

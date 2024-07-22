@@ -15,6 +15,7 @@ set(SRC
     ../../application/service/random_service.cpp
     ../../application/service/settings_service.cpp
     ../../common/constants.cpp
+    ../../common/parameter_mapper.cpp
     ../../common/utils.cpp
     ../../common/waveform_generator.cpp
     ../../domain/devices/delay_effect.cpp

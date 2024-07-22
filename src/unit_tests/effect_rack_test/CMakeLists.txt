@@ -4,6 +4,7 @@ set(SRC
     ${NAME}.cpp
     ${NAME}.hpp
     ../../common/constants.cpp
+    ../../common/parameter_mapper.cpp
     ../../common/utils.cpp
     ../../domain/devices/effect_rack.cpp
     ../../domain/devices/effect.cpp

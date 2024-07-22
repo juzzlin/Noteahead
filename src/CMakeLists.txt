@@ -59,6 +59,7 @@ set(HEADER_FILES
   application/state_machine.hpp
   application/ui_logger.hpp
   common/constants.hpp
+  common/parameter_mapper.hpp
   common/utils.hpp
   common/waveform_generator.hpp
   domain/arpeggiator.hpp
@@ -201,7 +202,9 @@ set(SOURCE_FILES
   application/state_machine.cpp
   application/ui_logger.cpp
   common/constants.cpp
+  common/parameter_mapper.cpp
   common/utils.cpp
+
   common/waveform_generator.cpp
   domain/arpeggiator.cpp
   domain/automation.cpp
@@ -301,14 +304,11 @@ set(QML_SOURCE_FILES
     ${QML_BASE_DIR}/${MAIN}
     ${QML_BASE_DIR}/BottomBar.qml
     ${QML_BASE_DIR}/Components/FilterKnob.qml
-    ${QML_BASE_DIR}/Components/IntensityKnob.qml
     ${QML_BASE_DIR}/Components/Knob.qml
-    ${QML_BASE_DIR}/Components/PanKnob.qml
-    ${QML_BASE_DIR}/Components/SyncSlider.qml
-    ${QML_BASE_DIR}/Components/TimeKnob.qml
     ${QML_BASE_DIR}/Components/LayoutSeparator.qml
     ${QML_BASE_DIR}/Components/MenuItemDelegate.qml
     ${QML_BASE_DIR}/Components/MidiCcComboBox.qml
+    ${QML_BASE_DIR}/Components/SyncSlider.qml
     ${QML_BASE_DIR}/Components/VirtualKeyboard.qml
     ${QML_BASE_DIR}/Components/WaveformView.qml
     ${QML_BASE_DIR}/Constants.qml

@@ -22,6 +22,7 @@ set(SRC
     ../../application/service/random_service.cpp
     ../../application/service/copy_manager.cpp
     ../../common/constants.cpp
+    ../../common/parameter_mapper.cpp
     ../../common/utils.cpp
     ../../domain/arpeggiator.cpp
     ../../domain/automation.cpp

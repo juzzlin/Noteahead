@@ -67,8 +67,9 @@ Dialog {
                     value: drumSynthController.gain
                     onMoved: (val) => drumSynthController.gain = val
                 }
-                PanKnob {
+                Knob {
                     label: qsTr("Pan")
+                    mapping: "pan"
                     value: drumSynthController.pan
                     onMoved: (val) => drumSynthController.pan = val
                 }
@@ -123,8 +124,9 @@ Dialog {
                         value: drumSynthController.padLevel
                         onMoved: (val) => drumSynthController.padLevel = val
                     }
-                    PanKnob {
+                    Knob {
                         label: qsTr("Pan")
+                        mapping: "pan"
                         value: drumSynthController.padPan
                         onMoved: (val) => drumSynthController.padPan = val
                     }
@@ -153,12 +155,10 @@ Dialog {
                     }
 
                     // Voice Specific
-                    TimeKnob {
+                    Knob {
                         visible: drumSynthController.selectedPad === 0
                         label: qsTr("Attack")
-                        from: 0
-                        to: Constants.uiInternalScaling
-                        suffix: "%"
+                        mapping: "cubic"
                         value: drumSynthController.kickAttack
                         onMoved: (val) => drumSynthController.kickAttack = val
                     }
@@ -168,9 +168,10 @@ Dialog {
                         value: drumSynthController.kickClickTune
                         onMoved: (val) => drumSynthController.kickClickTune = val
                     }
-                    IntensityKnob {
+                    Knob {
                         visible: drumSynthController.selectedPad === 0
                         label: qsTr("P.Depth")
+                        mapping: "intensity"
                         value: drumSynthController.kickPitchDepth
                         onMoved: (val) => drumSynthController.kickPitchDepth = val
                     }
@@ -192,9 +193,10 @@ Dialog {
                         value: drumSynthController.snareTone
                         onMoved: (val) => drumSynthController.snareTone = val
                     }
-                    IntensityKnob {
+                    Knob {
                         visible: drumSynthController.selectedPad >= 5 && drumSynthController.selectedPad <= 7
                         label: qsTr("P.Depth")
+                        mapping: "intensity"
                         value: drumSynthController.tomPitchDepth
                         onMoved: (val) => drumSynthController.tomPitchDepth = val
                     }

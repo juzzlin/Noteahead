@@ -33,5 +33,5 @@ private slots:
     }
 };
 
-QTEST_MAIN(ReproTomTest)
+QTEST_GUILESS_MAIN(ReproTomTest)
 #include "repro_tom.moc"

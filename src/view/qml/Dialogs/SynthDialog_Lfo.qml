@@ -56,8 +56,9 @@ ColumnLayout {
         Layout.fillWidth: true
         visible: synthController.lfoMode === 1
     }
-    IntensityKnob {
+    Knob {
         label: qsTr("Intensity")
+        mapping: "intensity"
         value: synthController.lfoInt
         onMoved: v => synthController.lfoInt = v
         Layout.fillWidth: true

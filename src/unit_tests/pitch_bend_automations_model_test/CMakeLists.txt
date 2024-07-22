@@ -5,6 +5,7 @@ set(SRC
     ${NAME}.hpp
     ../../application/models/pitch_bend_automations_model.cpp
     ../../common/constants.cpp
+    ../../common/parameter_mapper.cpp
     ../../common/utils.cpp
     ../../domain/automation.cpp
     ../../domain/automation_location.cpp

@@ -15,6 +15,7 @@
 
 #include "knob_controller.hpp"
 #include "../../common/constants.hpp"
+#include "../../common/parameter_mapper.hpp"
 
 #include <cmath>
 #include <vector>
@@ -29,28 +30,59 @@ KnobController::KnobController(QObject * parent)
 {
 }
 
+double KnobController::map(double value, const QString & type, double min, double max) const
+{
+    if (type == "exponential") return ParameterMapper::mapExponential(value, min, max);
+    if (type == "cubic") return ParameterMapper::mapCubic(value, min, max);
+    if (type == "cubicCentered" || type == "pan") return ParameterMapper::mapCubicCentered(value * 2.0 - 1.0, min, max);
+    if (type == "intensity") return mapIntensity(value * 2.0 - 1.0, min, max);
+    if (type == "logFrequency") return ParameterMapper::mapLogFrequency(value, min, max);
+    return min + (value * (max - min)); // linear
+}
+
+double KnobController::unmap(double mappedValue, const QString & type, double min, double max) const
+{
+    if (type == "exponential") return ParameterMapper::unmapExponential(mappedValue, min, max);
+    if (type == "cubic") return ParameterMapper::unmapCubic(mappedValue, min, max);
+    if (type == "cubicCentered" || type == "pan") return (ParameterMapper::unmapCubicCentered(mappedValue, min, max) + 1.0) / 2.0;
+    if (type == "intensity") return (unmapIntensity(mappedValue, min, max) + 1.0) / 2.0;
+    if (type == "logFrequency") return ParameterMapper::unmapLogFrequency(mappedValue, min, max);
+    return (max != min) ? (mappedValue - min) / (max - min) : 0.0;
+}
+
+QString KnobController::format(double mappedValue, const QString & type, const QString & suffix, double min, double max) const
+{
+    if (type == "pan") {
+        return panToString(mappedValue, min, max);
+    }
+    if (type == "intensity" || type == "cubicCentered") {
+        return intensityToString(mappedValue, min, max);
+    }
+    if (type == "logFrequency" || type == "frequency") {
+        const double linearValue = unmap(mappedValue, type, min, max) * Constants::uiInternalScaling();
+        const QString freqStr = frequencyToString(linearValue, mappedValue, false);
+        const QString pctStr = percentageToString(linearValue);
+        return QString("%1 / %2").arg(pctStr).arg(freqStr);
+    }
+    if (suffix == "%") {
+        return percentageToString(unmap(mappedValue, type, min, max) * Constants::uiInternalScaling());
+    }
+    if (suffix == "dB") {
+        return decibelToString(unmap(mappedValue, type, min, max) * Constants::uiInternalScaling());
+    }
+    
+    // Default to time-like formatting
+    return timeToString(mappedValue, suffix);
+}
+
 double KnobController::mapIntensity(double value, double from, double to) const
 {
-    const double center = (from + to) / 2.0;
-    const double range = (to - from) / 2.0;
-    const double mapped = (value >= 0 ? 1.0 : -1.0) * std::pow(std::abs(value), 3.0);
-    double outVal = mapped * range + center;
-
-    // Snap to center (within 1% of total range)
-    if (std::abs(outVal - center) < (range * 0.01)) {
-        outVal = center;
-    }
-
-    return outVal;
+    return ParameterMapper::mapCubicCentered(value, from, to);
 }
 
 double KnobController::unmapIntensity(double value, double from, double to) const
 {
-    const double center = (from + to) / 2.0;
-    const double range = (to - from) / 2.0;
-    if (range == 0) return 0;
-    const double norm = std::max(-1.0, std::min(1.0, (value - center) / range));
-    return (norm >= 0 ? 1.0 : -1.0) * std::pow(std::abs(norm), 1.0 / 3.0);
+    return ParameterMapper::unmapCubicCentered(value, from, to);
 }
 
 QString KnobController::intensityToString(double value, double from, double to) const
@@ -93,21 +125,33 @@ QString KnobController::panToString(double value, double from, double to) const
 
 double KnobController::mapTime(double value, double from, double to) const
 {
-    const double range = to - from;
-    return from + (std::pow(value, 3.0) * range);
+    return ParameterMapper::mapCubic(value, from, to);
 }
 
 double KnobController::unmapTime(double value, double from, double to) const
 {
-    const double range = to - from;
-    if (range <= 0) return 0;
-    const double norm = std::max(0.0, std::min(1.0, (value - from) / range));
-    return std::pow(norm, 1.0 / 3.0);
+    return ParameterMapper::unmapCubic(value, from, to);
 }
 
 QString KnobController::timeToString(double value, const QString & suffix) const
 {
+    if (suffix == "s") {
+        if (value < 1.0) {
+            return QString("%1 ms").arg(std::round(value * 1000.0));
+        }
+        return QString("%1 s").arg(value, 0, 'f', 1);
+    }
     return QString("%1%2").arg(std::round(value)).arg(suffix);
+}
+
+double KnobController::mapExponential(double value, double min, double max) const
+{
+    return ParameterMapper::mapExponential(value, min, max);
+}
+
+double KnobController::unmapExponential(double value, double min, double max) const
+{
+    return ParameterMapper::unmapExponential(value, min, max);
 }
 
 QString KnobController::percentageToString(double value) const
@@ -118,9 +162,8 @@ QString KnobController::percentageToString(double value) const
 
 QString KnobController::decibelToString(double value) const
 {
-    // Map 0..Constants.uiInternalScaling to -30..30 dB
-    double displayValue = (value / Constants::uiInternalScaling() * 60.0) - 30.0;
-    return QString("%1%2 dB").arg(displayValue > 0 ? "+" : "").arg(displayValue, 0, 'f', 1);
+    const double db = (value / Constants::uiInternalScaling() - 0.5) * 60.0;
+    return QString("%1%2 dB").arg(db > 0 ? "+" : "").arg(db, 0, 'f', 1);
 }
 
 QString KnobController::frequencyToString(double value, double cutoffHz, bool isHpf) const

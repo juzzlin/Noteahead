@@ -13,15 +13,27 @@
 // You should have received a copy of the GNU General Public License
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
-import QtQuick 2.15
-import Noteahead 1.0
+#ifndef PARAMETER_MAPPER_TEST_HPP
+#define PARAMETER_MAPPER_TEST_HPP
 
-Knob {
-    id: knobRoot
-    property var controller: null
-    property bool isHpf: false
-    
-    mapping: "logFrequency"
-    mapMin: 0
-    mapMax: controller ? controller.sampleRate / 2.0 : 20000 // Generic max
-}
+#include <QObject>
+
+namespace noteahead {
+
+class ParameterMapperTest : public QObject
+{
+    Q_OBJECT
+private slots:
+    void test_exponentialMapping();
+    void test_exponentialUnmapping();
+    void test_cubicMapping();
+    void test_cubicUnmapping();
+    void test_cubicCenteredMapping();
+    void test_cubicCenteredUnmapping();
+    void test_logFrequencyMapping();
+    void test_logFrequencyUnmapping();
+};
+
+} // namespace noteahead
+
+#endif // PARAMETER_MAPPER_TEST_HPP

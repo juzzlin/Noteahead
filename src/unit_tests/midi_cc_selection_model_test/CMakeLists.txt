@@ -5,6 +5,7 @@ set(SRC
     ${NAME}.hpp
     ../../application/models/midi_cc_selection_model.cpp
     ../../common/constants.cpp
+    ../../common/parameter_mapper.cpp
     ../../common/utils.cpp
     ../../domain/midi_cc_setting.cpp
     ../../infra/midi/midi_cc_mapping.cpp

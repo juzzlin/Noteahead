@@ -6,6 +6,7 @@ set(SOURCE_FILES
     knob_controller_test.cpp
     ../../application/service/knob_controller.cpp
     ../../common/constants.cpp
+    ../../common/parameter_mapper.cpp
 )
 
 qt_add_executable(knob_controller_test ${HEADER_FILES} ${SOURCE_FILES})

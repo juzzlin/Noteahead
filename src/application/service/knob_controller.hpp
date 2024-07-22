@@ -27,6 +27,10 @@ class KnobController : public QObject
 public:
     explicit KnobController(QObject *parent = nullptr);
 
+    Q_INVOKABLE double map(double value, const QString & type, double min, double max) const;
+    Q_INVOKABLE double unmap(double mappedValue, const QString & type, double min, double max) const;
+    Q_INVOKABLE QString format(double mappedValue, const QString & type, const QString & suffix, double min = 0, double max = 1) const;
+
     Q_INVOKABLE double mapIntensity(double value, double from, double to) const;
     Q_INVOKABLE double unmapIntensity(double value, double from, double to) const;
     Q_INVOKABLE QString intensityToString(double value, double from, double to) const;
@@ -38,6 +42,9 @@ public:
     Q_INVOKABLE double mapTime(double value, double from, double to) const;
     Q_INVOKABLE double unmapTime(double value, double from, double to) const;
     Q_INVOKABLE QString timeToString(double value, const QString & suffix) const;
+
+    Q_INVOKABLE double mapExponential(double value, double min, double max) const;
+    Q_INVOKABLE double unmapExponential(double value, double min, double max) const;
 
     Q_INVOKABLE QString percentageToString(double value) const;
     Q_INVOKABLE QString decibelToString(double value) const;

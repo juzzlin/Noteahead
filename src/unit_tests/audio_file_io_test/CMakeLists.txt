@@ -4,6 +4,7 @@ set(SRC
     ${NAME}.cpp
     ${NAME}.hpp
     ../../common/constants.cpp
+    ../../common/parameter_mapper.cpp
     ../../common/utils.cpp
     ../../infra/audio/audio_file_recorder.cpp
     ../../infra/audio/audio_file_streamer.cpp

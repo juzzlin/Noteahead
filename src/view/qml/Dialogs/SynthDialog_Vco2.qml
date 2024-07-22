@@ -36,12 +36,12 @@ ColumnLayout {
     }
     Knob {
         label: qsTr("Pitch")
-        from: -Constants.uiInternalScaling
-        to: Constants.uiInternalScaling
+        mapping: "cubicCentered"
+        mapMin: -2400
+        mapMax: 2400
         suffix: "c"
-        value: synthController.pitchToUiValue(synthController.vco2Pitch)
-        customValue: synthController.vco2Pitch
-        onMoved: v => synthController.vco2Pitch = synthController.uiValueToPitch(v)
+        value: synthController.vco2Pitch
+        onMoved: v => synthController.vco2Pitch = v
         Layout.fillWidth: true
     }
     Knob {

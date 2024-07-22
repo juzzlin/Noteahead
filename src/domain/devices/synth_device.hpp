@@ -88,8 +88,8 @@ public:
     void setVco1Waveform(PolyBlepOscillator::Waveform wave);
     int vco1Octave() const;
     void setVco1Octave(int octave);
-    int vco1Pitch() const;
-    void setVco1Pitch(int pitch);
+    float vco1Pitch() const;
+    void setVco1Pitch(float pitch);
     float vco1Shape() const;
     void setVco1Shape(float shape);
     bool vco1Sync() const;
@@ -100,8 +100,8 @@ public:
     void setVco2Waveform(PolyBlepOscillator::Waveform wave);
     int vco2Octave() const;
     void setVco2Octave(int octave);
-    int vco2Pitch() const;
-    void setVco2Pitch(int pitch);
+    float vco2Pitch() const;
+    void setVco2Pitch(float pitch);
     float vco2Shape() const;
     void setVco2Shape(float shape);
     bool vco2Sync() const;
@@ -231,13 +231,13 @@ private:
     // Internal parameter storage
     PolyBlepOscillator::Waveform m_vco1Waveform { PolyBlepOscillator::Waveform::Saw };
     int m_vco1Octave { 0 };
-    int m_vco1Pitch { 0 };
+    float m_vco1Pitch { 0.5f };
     float m_vco1Shape { 0.0f };
     bool m_vco1Sync { false };
 
     PolyBlepOscillator::Waveform m_vco2Waveform { PolyBlepOscillator::Waveform::Saw };
     int m_vco2Octave { 0 };
-    int m_vco2Pitch { 0 };
+    float m_vco2Pitch { 0.5f };
     float m_vco2Shape { 0.0f };
     bool m_vco2Sync { false };
 

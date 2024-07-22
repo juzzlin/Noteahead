@@ -22,6 +22,7 @@ set(SRC
     ../../application/service/settings_service.cpp
     ../../application/service/side_chain_service.cpp
     ../../common/constants.cpp
+    ../../common/parameter_mapper.cpp
     ../../common/utils.cpp
     ../../common/waveform_generator.cpp
     ../../domain/arpeggiator.cpp
@@ -114,6 +115,7 @@ set(DELAY_TEST_SRC
     ../../application/service/settings_service.cpp
     ../../application/service/side_chain_service.cpp
     ../../common/constants.cpp
+    ../../common/parameter_mapper.cpp
     ../../common/utils.cpp
     ../../common/waveform_generator.cpp
     ../../domain/arpeggiator.cpp

@@ -15,6 +15,7 @@
 
 #include "device.hpp"
 #include "../../common/constants.hpp"
+#include "../../common/parameter_mapper.hpp"
 #include "../../common/utils.hpp"
 
 #include <QXmlStreamReader>
@@ -211,7 +212,7 @@ void Device::syncParameters()
     }
     if (auto p = parameter(Constants::NahdXml::xmlKeyGain().toStdString()); p) {
         m_gain = p->get().value();
-        m_linearGain = std::pow(10.0f, ((m_gain - 0.5f) * 60.0f) / 20.0f);
+        m_linearGain = static_cast<float>(ParameterMapper::mapDecibel(m_gain, 30.0));
     }
     if (auto p = parameter(Constants::NahdXml::xmlKeyPan().toStdString()); p) {
         m_pan = p->get().value();

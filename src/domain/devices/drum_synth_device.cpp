@@ -182,8 +182,8 @@ void DrumSynthDevice::processAudio(float * output, uint32_t nFrames, uint32_t sa
             }
         }
 
-        output[i * 2] += mixL * globalVol;
-        output[i * 2 + 1] += mixR * globalVol;
+        output[i * 2] += mixL * globalVol * (1.0f - panInternal()) * 2.0f;
+        output[i * 2 + 1] += mixR * globalVol * panInternal() * 2.0f;
     }
 }
 

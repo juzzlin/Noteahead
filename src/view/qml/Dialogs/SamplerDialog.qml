@@ -261,13 +261,12 @@ Dialog {
                 spacing: 15
 
                 // Pan Knob
-                PanKnob {
+                Knob {
                     label: qsTr("Pan")
-                    from: -Constants.uiInternalScaling
-                    to: Constants.uiInternalScaling
-                    value: (samplerController.selectedPadPan * 2 * Constants.uiInternalScaling) - Constants.uiInternalScaling
+                    mapping: "pan"
+                    value: samplerController.selectedPadPan * Constants.uiInternalScaling
                     onMoved: v => {
-                        samplerController.selectedPadPan = (v + Constants.uiInternalScaling) / (2 * Constants.uiInternalScaling);
+                        samplerController.selectedPadPan = v / Constants.uiInternalScaling;
                     }
                 }
 
