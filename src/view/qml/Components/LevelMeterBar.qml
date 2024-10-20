@@ -50,8 +50,9 @@ Item {
             anchors.margins: 1
             width: Math.max(0, (track.width - 2) * root.positionOf(root.rmsDb))
             radius: 1
-            // Green up to the target, amber above it, red once it is close to clipping.
-            color: root.peakDb > -1 ? "#d04040" : (root.rmsDb > root.markerDb ? "#d0a040" : "#40a060")
+            // Accent normally, red once it is close to clipping. The target marker below already
+            // shows where the gain staging aim is, so the bar itself needs no second warning colour.
+            color: root.peakDb > -1 ? "#d04040" : themeService.accentColor
         }
 
         Rectangle {

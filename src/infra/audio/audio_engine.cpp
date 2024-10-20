@@ -89,8 +89,10 @@ void processDeviceTask(void * context, size_t taskIndex, size_t workerIndex)
             auto & outputBuffer = deviceContext.deviceOutputBuffersMutable->at(slotIndex);
             std::fill(outputBuffer.begin(), outputBuffer.begin() + deviceContext.bufferSize, 0.0);
         }
-        // A skipped device costs nothing, and has to say so: without this its meter would keep
-        // reading whatever it last cost, for as long as it stays silent.
+        // A skipped device produces nothing and costs nothing, and has to say so: without these
+        // its meters would keep reading whatever they last showed, for as long as it stays silent.
+        // The device buffer was just cleared, so it is the silence to report.
+        device->meter().write(workBuffer.deviceBuffer.data(), deviceContext.frameCount, deviceContext.sampleRate);
         device->loadMeter().addBlock(std::chrono::nanoseconds::zero(), bufferSeconds);
         return;
     }

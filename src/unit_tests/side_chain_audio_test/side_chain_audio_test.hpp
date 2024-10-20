@@ -25,6 +25,7 @@ class SideChainAudioTest : public QObject
     Q_OBJECT
 
 private slots:
+    void test_audioEngine_idleDevice_shouldLetItsMetersFallBack();
     void test_audioEngine_rebuildProcessingGraph_shouldCorrectlySortIndependentDevices();
     void test_audioEngine_rebuildProcessingGraph_shouldCorrectlySortDependentDevices();
     void test_audioEngine_process_runtimeSidechainChange_shouldRebuildGraph();

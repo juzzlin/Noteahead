@@ -87,10 +87,59 @@ public:
         m_generateSignal = generate;
     }
 
+    bool hasActiveAudio() const override
+    {
+        return m_hasActiveAudio;
+    }
+
+    void setHasActiveAudio(bool active)
+    {
+        m_hasActiveAudio = active;
+    }
+
 private:
     std::string m_name;
     bool m_generateSignal { false };
+    bool m_hasActiveAudio { true };
 };
+
+void SideChainAudioTest::test_audioEngine_idleDevice_shouldLetItsMetersFallBack()
+{
+    // The engine skips a device that has gone silent. It still has to report that silence, or the
+    // device's meters freeze at whatever they last showed and read as a device that is still
+    // playing and still costing CPU.
+    AudioEngine engine;
+    const auto device = std::make_shared<MockDevice>("Device");
+    device->setGenerateSignal(true);
+    engine.setDevice(0, device);
+    device->meter().setActive(true);
+    device->loadMeter().setActive(true);
+
+    std::vector<double> buffer(128, 0.0);
+    AudioContext context;
+    context.frameCount = 64;
+    context.sampleRate = 44100;
+    context.buffer = std::span<double>(buffer.data(), 128);
+
+    for (int i = 0; i < 20; i++) {
+        std::fill(buffer.begin(), buffer.end(), 0.0);
+        engine.process(context);
+    }
+    QVERIFY2(device->meter().peakDb() > -1.0f, qPrintable(QString::number(device->meter().peakDb())));
+
+    // The device falls silent and stops claiming activity, so the engine starts skipping it.
+    device->setGenerateSignal(false);
+    device->setHasActiveAudio(false);
+    for (int i = 0; i < 2000; i++) {
+        std::fill(buffer.begin(), buffer.end(), 0.0);
+        engine.process(context);
+    }
+
+    // The peak falls back at a fixed rate, so this only has to prove it is falling at all: frozen
+    // would still read around 0 dB.
+    QVERIFY2(device->meter().peakDb() < -50.0f, qPrintable(QString::number(device->meter().peakDb())));
+    QVERIFY2(device->loadMeter().loadPercent() < 1.0f, qPrintable(QString::number(device->loadMeter().loadPercent())));
+}
 
 void SideChainAudioTest::test_audioEngine_rebuildProcessingGraph_shouldCorrectlySortIndependentDevices()
 {
