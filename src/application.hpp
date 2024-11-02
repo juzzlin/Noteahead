@@ -17,9 +17,6 @@
 #define APPLICATION_HPP
 
 #include <memory>
-#include <utility>
-
-#include <QSize>
 
 class QGuiApplication;
 class QQmlApplicationEngine;
@@ -27,6 +24,7 @@ class QQmlApplicationEngine;
 namespace cacophony {
 
 class Config;
+class MidiService; // Forward declaration of MidiService
 
 class Application
 {
@@ -38,11 +36,17 @@ public:
     int run();
 
 private:
+    void handleCommandLineArguments();
+
     std::unique_ptr<QGuiApplication> m_application;
 
     std::unique_ptr<QQmlApplicationEngine> m_engine;
 
     std::unique_ptr<Config> m_config;
+
+    std::unique_ptr<MidiService> m_midiService; // MidiService instance for --list-devices
+
+    bool m_listDevices = false; // Flag for --list-devices
 };
 
 } // namespace cacophony
