@@ -17,6 +17,7 @@
 #define APPLICATION_HPP
 
 #include <memory>
+#include <optional>
 
 class QGuiApplication;
 class QQmlApplicationEngine;
@@ -47,6 +48,8 @@ private:
     std::unique_ptr<MidiService> m_midiService; // MidiService instance for --list-devices
 
     bool m_listDevices = false; // Flag for --list-devices
+
+    std::optional<unsigned int> m_testDeviceIndex;
 };
 
 } // namespace cacophony

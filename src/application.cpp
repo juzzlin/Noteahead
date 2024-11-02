@@ -20,7 +20,6 @@
 #include <QGuiApplication>
 #include <QQmlApplicationEngine>
 #include <QQmlContext>
-#include <cstring>
 #include <iostream>
 
 namespace cacophony {
@@ -38,26 +37,40 @@ Application::Application(int & argc, char ** argv)
 
 void Application::handleCommandLineArguments()
 {
-    // Parse command-line arguments for --list-devices
-    for (int i = 1; i < m_application->arguments().size(); ++i) {
-        if (strcmp(m_application->arguments().at(i).toStdString().c_str(), "--list-devices") == 0) {
+    // Parse command-line arguments for --list-devices and --test-device
+    QStringList arguments = m_application->arguments();
+    for (int i = 1; i < arguments.size(); ++i) {
+        if (arguments.at(i) == "--list-devices") {
             m_listDevices = true;
-            break;
+        } else if (arguments.at(i) == "--test-device" && i + 1 < arguments.size()) {
+            m_testDeviceIndex = arguments.at(i + 1).toInt();
+            ++i; // Skip the index argument
         }
     }
 
-    // If --list-devices is set, list devices and exit
+    // Handle --list-devices option
     if (m_listDevices) {
         std::cout << "Listing available MIDI devices:\n";
         m_midiService->listDevices();
         m_application->exit(); // Exit after listing devices
+    }
+
+    // Handle --test-device option
+    if (m_testDeviceIndex.has_value()) {
+        if (m_midiService->openDevice(*m_testDeviceIndex)) {
+            std::cout << "Playing middle C on device index " << *m_testDeviceIndex << "\n";
+            m_midiService->playMiddleC();
+        } else {
+            std::cerr << "Failed to open MIDI device at index " << *m_testDeviceIndex << "\n";
+        }
+        m_application->exit(); // Exit after testing device
     }
 }
 
 int Application::run()
 {
     // If --list-devices was set, we should exit, so skip loading QML
-    if (m_listDevices) {
+    if (m_listDevices || m_testDeviceIndex.has_value()) {
         return EXIT_SUCCESS;
     }
 
