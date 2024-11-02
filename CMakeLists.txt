@@ -40,6 +40,12 @@ if(NOT CMAKE_BUILD_TYPE)
 MinSizeRel." FORCE)
 endif()
 
+# Find pkg-config
+find_package(PkgConfig REQUIRED)
+
+# Use pkg-config to find RtMidi
+pkg_check_modules(RTMIDI REQUIRED rtmidi)
+
 find_package(QT NAMES Qt6 COMPONENTS Core REQUIRED)
 find_package(Qt6 6.5 COMPONENTS Core Quick Xml Widgets LinguistTools Svg Test Network REQUIRED)
 qt_standard_project_setup()
