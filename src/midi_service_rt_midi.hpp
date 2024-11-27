@@ -14,7 +14,7 @@ class MidiServiceRtMidi : public MidiService
 public:
     MidiServiceRtMidi();
 
-    void listDevices() const override;
+    MidiDeviceList listDevices() const override;
 
     bool openDevice(uint32_t index) override;
 

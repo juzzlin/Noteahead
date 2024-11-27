@@ -4,8 +4,9 @@ namespace cacophony {
 
 MidiService::MidiService() = default;
 
-void MidiService::listDevices() const
+MidiService::MidiDeviceList MidiService::listDevices() const
 {
+    return {};
 }
 
 bool MidiService::openDevice(uint32_t)

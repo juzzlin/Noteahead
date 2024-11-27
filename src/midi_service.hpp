@@ -1,7 +1,10 @@
 #ifndef MIDI_SERVICE_HPP
 #define MIDI_SERVICE_HPP
 
+#include "midi_device.hpp"
+
 #include <cstdint>
+#include <vector>
 
 namespace cacophony {
 
@@ -13,7 +16,9 @@ public:
 
     virtual ~MidiService();
 
-    virtual void listDevices() const;
+    using MidiDeviceList = std::vector<MidiDevice>;
+
+    virtual MidiDeviceList listDevices() const;
 
     virtual bool openDevice(uint32_t index);
 

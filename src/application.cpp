@@ -55,23 +55,34 @@ void Application::handleCommandLineArguments()
 
     // Handle --list-devices option
     if (m_listDevices) {
-        std::cout << "Listing available MIDI devices:\n";
-        m_midiService->listDevices();
-        m_application->exit(); // Exit after listing devices
+        listDevices();
     }
 
     // Handle --test-device option
     if (m_testDeviceIndex.has_value() && m_testDeviceChannel.has_value()) {
-        if (m_midiService->openDevice(*m_testDeviceIndex)) {
-            std::cout << "Playing middle C on device index " << *m_testDeviceIndex << " on channel " << *m_testDeviceChannel << std::endl;
-            m_midiService->sendNoteOn(*m_testDeviceChannel, 60, 100); // Middle C
-            std::this_thread::sleep_for(std::chrono::milliseconds(500));
-            m_midiService->sendNoteOff(*m_testDeviceChannel, 60, 100); // Stop Middle C
-        } else {
-            std::cerr << "Failed to open MIDI device at index " << *m_testDeviceIndex << "\n";
-        }
-        m_application->exit(); // Exit after testing device
+        testDevice();
     }
+}
+
+void Application::listDevices()
+{
+    for (auto && midiDevice : m_midiService->listDevices()) {
+        std::cout << midiDevice.toString() << std::endl;
+    }
+    m_application->exit(); // Exit after listing devices
+}
+
+void Application::testDevice()
+{
+    if (m_midiService->openDevice(*m_testDeviceIndex)) {
+        std::cout << "Playing middle C on device index " << *m_testDeviceIndex << " on channel " << *m_testDeviceChannel << std::endl;
+        m_midiService->sendNoteOn(*m_testDeviceChannel, 60, 100); // Middle C
+        std::this_thread::sleep_for(std::chrono::milliseconds(500));
+        m_midiService->sendNoteOff(*m_testDeviceChannel, 60, 100); // Stop Middle C
+    } else {
+        std::cerr << "Failed to open MIDI device at index " << *m_testDeviceIndex << "\n";
+    }
+    m_application->exit(); // Exit after testing device
 }
 
 int Application::run()

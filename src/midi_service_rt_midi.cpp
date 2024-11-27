@@ -10,16 +10,16 @@ MidiServiceRtMidi::MidiServiceRtMidi()
 {
 }
 
-void MidiServiceRtMidi::listDevices() const
+MidiService::MidiDeviceList MidiServiceRtMidi::listDevices() const
 {
     if (uint32_t portCount = midiOut->getPortCount(); !portCount) {
         throw std::runtime_error { "No MIDI devices found." };
     } else {
-        std::cout << "Available MIDI devices:" << std::endl;
+        MidiDeviceList midiDevices;
         for (uint32_t i = 0; i < portCount; ++i) {
-            const std::string portName = midiOut->getPortName(i);
-            std::cout << i << ": " << portName << "\n";
+            midiDevices.push_back({ i, midiOut->getPortName(i) });
         }
+        return midiDevices;
     }
 }
 

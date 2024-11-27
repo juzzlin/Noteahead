@@ -39,6 +39,10 @@ public:
 private:
     void handleCommandLineArguments();
 
+    void listDevices();
+
+    void testDevice();
+
     std::unique_ptr<QGuiApplication> m_application;
 
     std::unique_ptr<QQmlApplicationEngine> m_engine;
