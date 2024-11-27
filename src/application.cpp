@@ -20,7 +20,9 @@
 #include <QGuiApplication>
 #include <QQmlApplicationEngine>
 #include <QQmlContext>
+
 #include <iostream>
+#include <thread>
 
 namespace cacophony {
 
@@ -45,6 +47,9 @@ void Application::handleCommandLineArguments()
         } else if (arguments.at(i) == "--test-device" && i + 1 < arguments.size()) {
             m_testDeviceIndex = arguments.at(i + 1).toInt();
             ++i; // Skip the index argument
+        } else if (arguments.at(i) == "--test-channel" && i + 1 < arguments.size()) {
+            m_testDeviceChannel = arguments.at(i + 1).toInt();
+            ++i; // Skip the index argument
         }
     }
 
@@ -56,10 +61,12 @@ void Application::handleCommandLineArguments()
     }
 
     // Handle --test-device option
-    if (m_testDeviceIndex.has_value()) {
+    if (m_testDeviceIndex.has_value() && m_testDeviceChannel.has_value()) {
         if (m_midiService->openDevice(*m_testDeviceIndex)) {
-            std::cout << "Playing middle C on device index " << *m_testDeviceIndex << "\n";
-            m_midiService->playMiddleC();
+            std::cout << "Playing middle C on device index " << *m_testDeviceIndex << " on channel " << *m_testDeviceChannel << std::endl;
+            m_midiService->sendNoteOn(*m_testDeviceChannel, 60, 100); // Middle C
+            std::this_thread::sleep_for(std::chrono::milliseconds(500));
+            m_midiService->sendNoteOff(*m_testDeviceChannel, 60, 100); // Stop Middle C
         } else {
             std::cerr << "Failed to open MIDI device at index " << *m_testDeviceIndex << "\n";
         }

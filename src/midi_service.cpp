@@ -1,8 +1,7 @@
 #include "midi_service.hpp"
 
-#include <chrono>
 #include <iostream>
-#include <thread>
+#include <stdexcept>
 
 namespace cacophony {
 
@@ -13,43 +12,45 @@ MidiService::MidiService()
 
 void MidiService::listDevices() const
 {
-    unsigned int nPorts = midiOut->getPortCount();
-    if (nPorts == 0) {
-        std::cout << "No MIDI devices found.\n";
-        return;
-    }
-
-    std::cout << "Available MIDI devices:\n";
-    for (unsigned int i = 0; i < nPorts; ++i) {
-        std::string portName = midiOut->getPortName(i);
-        std::cout << i << ": " << portName << "\n";
+    if (uint32_t portCount = midiOut->getPortCount(); !portCount) {
+        throw std::runtime_error { "No MIDI devices found." };
+    } else {
+        std::cout << "Available MIDI devices:\n";
+        for (uint32_t i = 0; i < portCount; ++i) {
+            const std::string portName = midiOut->getPortName(i);
+            std::cout << i << ": " << portName << "\n";
+        }
     }
 }
 
-bool MidiService::openDevice(unsigned int index)
+bool MidiService::openDevice(uint32_t index)
 {
     if (index >= midiOut->getPortCount()) {
-        std::cerr << "Invalid device index.\n";
-        return false;
+        throw std::runtime_error { "Invalid device index." };
     }
     midiOut->openPort(index);
     return true;
 }
 
-void MidiService::playMiddleC() const
+void MidiService::sendNoteOn(uint32_t channel, uint32_t note, uint32_t velocity) const
 {
     if (!midiOut->isPortOpen()) {
-        std::cerr << "No MIDI device is open.\n";
-        return;
+        throw std::runtime_error { "No MIDI device is open." };
     }
-
-    std::vector<unsigned char> message = { 0x90, 60, 100 }; // Note On, note 60, velocity 100
+    std::vector<unsigned char> message = { static_cast<unsigned char>(0x90 | (channel & 0x0F)),
+                                           static_cast<unsigned char>(note),
+                                           static_cast<unsigned char>(velocity) };
     midiOut->sendMessage(&message);
+}
 
-    // Wait a bit to hear the note
-    std::this_thread::sleep_for(std::chrono::milliseconds(500));
-
-    message = { 0x80, 60, 100 }; // Note Off, note 60, velocity 100
+void MidiService::sendNoteOff(uint32_t channel, uint32_t note, uint32_t velocity) const
+{
+    if (!midiOut->isPortOpen()) {
+        throw std::runtime_error { "No MIDI device is open." };
+    }
+    std::vector<unsigned char> message = { static_cast<unsigned char>(0x80 | (channel & 0x0F)),
+                                           static_cast<unsigned char>(note),
+                                           static_cast<unsigned char>(velocity) };
     midiOut->sendMessage(&message);
 }
 

@@ -10,9 +10,14 @@ class MidiService
 {
 public:
     MidiService();
+
     void listDevices() const;
-    bool openDevice(unsigned int index);
-    void playMiddleC() const;
+
+    bool openDevice(uint32_t index);
+
+    void sendNoteOn(uint32_t channel, uint32_t note, uint32_t velocity) const;
+
+    void sendNoteOff(uint32_t channel, uint32_t note, uint32_t velocity) const;
 
 private:
     std::unique_ptr<RtMidiOut> midiOut;

@@ -50,6 +50,8 @@ private:
     bool m_listDevices = false; // Flag for --list-devices
 
     std::optional<unsigned int> m_testDeviceIndex;
+
+    std::optional<unsigned int> m_testDeviceChannel;
 };
 
 } // namespace cacophony
