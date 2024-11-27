@@ -1,26 +1,25 @@
 #ifndef MIDI_SERVICE_HPP
 #define MIDI_SERVICE_HPP
 
-#include <memory>
-#include <rtmidi/RtMidi.h>
+#include <cstdint>
 
 namespace cacophony {
 
+//! Base class for MIDI service implementations.
 class MidiService
 {
 public:
     MidiService();
 
-    void listDevices() const;
+    virtual ~MidiService();
 
-    bool openDevice(uint32_t index);
+    virtual void listDevices() const;
 
-    void sendNoteOn(uint32_t channel, uint32_t note, uint32_t velocity) const;
+    virtual bool openDevice(uint32_t index);
 
-    void sendNoteOff(uint32_t channel, uint32_t note, uint32_t velocity) const;
+    virtual void sendNoteOn(uint32_t channel, uint32_t note, uint32_t velocity) const;
 
-private:
-    std::unique_ptr<RtMidiOut> midiOut;
+    virtual void sendNoteOff(uint32_t channel, uint32_t note, uint32_t velocity) const;
 };
 
 } // namespace cacophony

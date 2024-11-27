@@ -6,6 +6,7 @@ set(HEADERS
   application.hpp
   config.hpp
   midi_service.hpp
+  midi_service_rt_midi.hpp
   settings.hpp
 )
 
@@ -14,6 +15,7 @@ set(SOURCES
   config.cpp
   main.cpp
   midi_service.cpp
+  midi_service_rt_midi.cpp
   settings.cpp
 )
 

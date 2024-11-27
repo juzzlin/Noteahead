@@ -15,7 +15,7 @@
 
 #include "application.hpp"
 #include "config.hpp"
-#include "midi_service.hpp" // Include the MidiService header
+#include "midi_service_rt_midi.hpp" // Include the MidiService header
 
 #include <QGuiApplication>
 #include <QQmlApplicationEngine>
@@ -30,7 +30,7 @@ Application::Application(int & argc, char ** argv)
   : m_application(std::make_unique<QGuiApplication>(argc, argv))
   , m_engine(std::make_unique<QQmlApplicationEngine>())
   , m_config(std::make_unique<Config>())
-  , m_midiService(std::make_unique<MidiService>()) // Initialize MidiService
+  , m_midiService(std::make_unique<MidiServiceRtMidi>()) // Initialize MidiService
 {
     qmlRegisterType<Config>("Cacophony", 1, 0, "Config");
 
