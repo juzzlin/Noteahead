@@ -19,8 +19,8 @@
 #include <QCoreApplication>
 #include <QSettings>
 
-#include "application.hpp"
-#include "constants.hpp"
+#include "application/application.hpp"
+#include "common/constants.hpp"
 
 int main(int argc, char ** argv)
 {

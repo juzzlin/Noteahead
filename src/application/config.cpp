@@ -14,7 +14,7 @@
 // along with Cacophony. If not, see <http://www.gnu.org/licenses/>.
 
 #include "config.hpp"
-#include "settings.hpp"
+#include "../infra/settings.hpp"
 
 #include <QGuiApplication>
 #include <QScreen>

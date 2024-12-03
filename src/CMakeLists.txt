@@ -3,28 +3,28 @@ set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR})
 
 # These are needed only for the IDE
 set(HEADER_FILES
-  application.hpp
-  config.hpp
-  midi_device.hpp
-  midi_service.hpp
-  midi_service_rt_midi.hpp
-  settings.hpp
+  application/application.hpp
+  application/config.hpp
+  infra/midi_device.hpp
+  infra/midi_service.hpp
+  infra/midi_service_rt_midi.hpp
+  infra/settings.hpp
 )
 
 set(SOURCE_FILES
-  application.cpp
-  config.cpp
+  application/application.cpp
+  application/config.cpp
+  infra/midi_device.cpp
+  infra/midi_service.cpp
+  infra/midi_service_rt_midi.cpp
+  infra/settings.cpp
   main.cpp
-  midi_device.cpp
-  midi_service.cpp
-  midi_service_rt_midi.cpp
-  settings.cpp
 )
 
 qt_add_executable(${BINARY_NAME} ${HEADER_FILES} ${SOURCE_FILES})
 
 set(URI ${BINARY_NAME})
-set(QML_ENTRY_POINT Ui/Main.qml)
+set(QML_ENTRY_POINT view/qml/Main.qml)
 qt_add_qml_module(${BINARY_NAME}
     URI ${URI}
     QML_FILES ${QML_ENTRY_POINT}

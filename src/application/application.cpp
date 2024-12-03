@@ -14,8 +14,8 @@
 // along with Cacophony. If not, see <http://www.gnu.org/licenses/>.
 
 #include "application.hpp"
+#include "../infra/midi_service_rt_midi.hpp" // Include the MidiService header
 #include "config.hpp"
-#include "midi_service_rt_midi.hpp" // Include the MidiService header
 
 #include <QGuiApplication>
 #include <QQmlApplicationEngine>
