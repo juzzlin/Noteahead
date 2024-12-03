@@ -5,6 +5,12 @@ set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR})
 set(HEADER_FILES
   application/application.hpp
   application/config.hpp
+  domain/column.hpp
+  domain/event.hpp
+  domain/instrument.hpp
+  domain/pattern.hpp
+  domain/song.hpp
+  domain/track.hpp
   infra/midi_device.hpp
   infra/midi_service.hpp
   infra/midi_service_rt_midi.hpp
@@ -14,6 +20,12 @@ set(HEADER_FILES
 set(SOURCE_FILES
   application/application.cpp
   application/config.cpp
+  domain/column.cpp
+  domain/event.cpp
+  domain/instrument.cpp
+  domain/pattern.cpp
+  domain/song.cpp
+  domain/track.cpp
   infra/midi_device.cpp
   infra/midi_service.cpp
   infra/midi_service_rt_midi.cpp
