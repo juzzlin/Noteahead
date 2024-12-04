@@ -16,12 +16,35 @@
 #ifndef TRACK_HPP
 #define TRACK_HPP
 
+#include <memory>
+#include <vector>
+
 namespace cacophony {
+
+class Column;
+class Instrument;
 
 class Track
 {
 public:
-    Track();
+    enum class Type
+    {
+        Drum,
+        Note,
+        Chord,
+        Control
+    };
+
+    explicit Track(Type type, uint32_t length, uint32_t columnCount);
+
+private:
+    void initialize(uint32_t length, uint32_t columnCount);
+
+    Type m_type;
+
+    std::vector<std::shared_ptr<Column>> m_columns;
+
+    std::shared_ptr<Instrument> m_instrument;
 };
 
 } // namespace cacophony

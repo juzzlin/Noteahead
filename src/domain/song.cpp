@@ -15,10 +15,24 @@
 
 #include "song.hpp"
 
+#include "pattern.hpp"
+
 namespace cacophony {
 
 Song::Song()
 {
+    initialize();
+}
+
+uint32_t Song::bpm() const
+{
+    return m_bpm;
+}
+
+void Song::initialize()
+{
+    m_patterns.clear();
+    m_patterns.push_back(std::make_shared<Pattern>(64, 8));
 }
 
 } // namespace cacophony

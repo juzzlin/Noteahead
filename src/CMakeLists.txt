@@ -8,6 +8,7 @@ set(HEADER_FILES
   domain/column.hpp
   domain/event.hpp
   domain/instrument.hpp
+  domain/line.hpp
   domain/pattern.hpp
   domain/song.hpp
   domain/track.hpp
@@ -23,6 +24,7 @@ set(SOURCE_FILES
   domain/column.cpp
   domain/event.cpp
   domain/instrument.cpp
+  domain/line.cpp
   domain/pattern.cpp
   domain/song.cpp
   domain/track.cpp
@@ -40,6 +42,7 @@ set(QML_ENTRY_POINT view/qml/Main.qml)
 qt_add_qml_module(${BINARY_NAME}
     URI ${URI}
     QML_FILES ${QML_ENTRY_POINT}
+    SOURCES domain/line.hpp domain/line.cpp
 )
 
 set_target_properties(${BINARY_NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY_DEBUG ${CMAKE_CURRENT_BINARY_DIR})

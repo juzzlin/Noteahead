@@ -15,10 +15,21 @@
 
 #include "column.hpp"
 
+#include "line.hpp"
+
 namespace cacophony {
 
-Column::Column()
+Column::Column(uint32_t length)
 {
+    initialize(length);
+}
+
+void Column::initialize(uint32_t length)
+{
+    m_lines.clear();
+    for (uint32_t i = 0; i < length; i++) {
+        m_lines.push_back(std::make_shared<Line>());
+    }
 }
 
 } // namespace cacophony

@@ -16,12 +16,22 @@
 #ifndef PATTERN_HPP
 #define PATTERN_HPP
 
+#include <memory>
+#include <vector>
+
 namespace cacophony {
+
+class Track;
 
 class Pattern
 {
 public:
-    Pattern();
+    Pattern(uint32_t length, uint32_t trackCount);
+
+private:
+    void initialize(uint32_t length, uint32_t trackCount);
+
+    std::vector<std::shared_ptr<Track>> m_tracks;
 };
 
 } // namespace cacophony

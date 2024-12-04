@@ -16,12 +16,22 @@
 #ifndef COLUMN_HPP
 #define COLUMN_HPP
 
+#include <memory>
+#include <vector>
+
 namespace cacophony {
+
+class Line;
 
 class Column
 {
 public:
-    Column();
+    Column(uint32_t length);
+
+private:
+    void initialize(uint32_t length);
+
+    std::vector<std::shared_ptr<Line>> m_lines;
 };
 
 } // namespace cacophony

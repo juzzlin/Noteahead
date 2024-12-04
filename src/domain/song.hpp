@@ -16,12 +16,28 @@
 #ifndef SONG_HPP
 #define SONG_HPP
 
+#include <memory>
+#include <vector>
+
 namespace cacophony {
+
+class Pattern;
 
 class Song
 {
 public:
     Song();
+
+    uint32_t bpm() const;
+
+    using PatternS = std::shared_ptr<Pattern>;
+
+private:
+    void initialize();
+
+    uint32_t m_bpm = 120;
+
+    std::vector<PatternS> m_patterns;
 };
 
 } // namespace cacophony

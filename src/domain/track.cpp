@@ -15,10 +15,22 @@
 
 #include "track.hpp"
 
+#include "column.hpp"
+
 namespace cacophony {
 
-Track::Track()
+Track::Track(Type type, uint32_t length, uint32_t columnCount)
+  : m_type { type }
 {
+    initialize(length, columnCount);
+}
+
+void Track::initialize(uint32_t length, uint32_t columnCount)
+{
+    m_columns.clear();
+    for (uint32_t column = 0; column < columnCount; column++) {
+        m_columns.push_back(std::make_shared<Column>(length));
+    }
 }
 
 } // namespace cacophony

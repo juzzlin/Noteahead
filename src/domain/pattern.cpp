@@ -15,10 +15,20 @@
 
 #include "pattern.hpp"
 
+#include "track.hpp"
+
 namespace cacophony {
 
-Pattern::Pattern()
+Pattern::Pattern(uint32_t length, uint32_t trackCount)
 {
+    initialize(length, trackCount);
+}
+
+void Pattern::initialize(uint32_t length, uint32_t trackCount)
+{
+    for (uint32_t i = 0; i < trackCount; i++) {
+        m_tracks.push_back(std::make_shared<Track>(Track::Type::Drum, length, 1));
+    }
 }
 
 } // namespace cacophony
