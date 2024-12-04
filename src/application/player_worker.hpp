@@ -13,28 +13,21 @@
 // You should have received a copy of the GNU General Public License
 // along with Cacophony. If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef LINE_HPP
-#define LINE_HPP
+#ifndef PLAYER_WORKER_HPP
+#define PLAYER_WORKER_HPP
 
-#include <memory>
+#include <QObject>
 
 namespace cacophony {
 
-class Event;
-
-class Line
+class PlayerWorker : public QObject
 {
+    Q_OBJECT
+
 public:
-    Line();
-
-private:
-    std::shared_ptr<Event> m_event;
-
-    uint8_t m_volume = 0;
-
-    uint8_t m_panning = 0;
+    PlayerWorker();
 };
 
 } // namespace cacophony
 
-#endif // LINE_HPP
+#endif // PLAYER_WORKER_HPP

@@ -13,28 +13,21 @@
 // You should have received a copy of the GNU General Public License
 // along with Cacophony. If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef LINE_HPP
-#define LINE_HPP
-
-#include <memory>
+#include "player.hpp"
 
 namespace cacophony {
 
-class Event;
-
-class Line
+Player::Player()
 {
-public:
-    Line();
+}
 
-private:
-    std::shared_ptr<Event> m_event;
+void Player::play()
+{
+}
 
-    uint8_t m_volume = 0;
-
-    uint8_t m_panning = 0;
-};
+void Player::setSong(std::shared_ptr<Song> song)
+{
+    m_song = song;
+}
 
 } // namespace cacophony
-
-#endif // LINE_HPP

@@ -16,6 +16,7 @@
 #include "application.hpp"
 #include "../infra/midi_service_rt_midi.hpp" // Include the MidiService header
 #include "config.hpp"
+#include "models/editor.hpp"
 
 #include <QGuiApplication>
 #include <QQmlApplicationEngine>
@@ -30,9 +31,11 @@ Application::Application(int & argc, char ** argv)
   : m_application(std::make_unique<QGuiApplication>(argc, argv))
   , m_engine(std::make_unique<QQmlApplicationEngine>())
   , m_config(std::make_unique<Config>())
+  , m_editor(std::make_unique<Editor>())
   , m_midiService(std::make_unique<MidiServiceRtMidi>()) // Initialize MidiService
 {
     qmlRegisterType<Config>("Cacophony", 1, 0, "Config");
+    qmlRegisterType<Config>("Cacophony", 1, 0, "Editor");
 
     handleCommandLineArguments(); // Handle command-line arguments at initialization
 }
@@ -94,6 +97,22 @@ void Application::testDevice()
     m_application->exit(); // Exit after testing device
 }
 
+void Application::setContextProperties()
+{
+    m_engine->rootContext()->setContextProperty("config", m_config.get());
+    m_engine->rootContext()->setContextProperty("editor", m_editor.get());
+}
+
+void Application::initializeApplicationEngine()
+{
+    setContextProperties();
+
+    m_engine->load(QML_ENTRY_POINT);
+    if (m_engine->rootObjects().isEmpty()) {
+        throw std::runtime_error("Failed to initialize QML application engine!");
+    }
+}
+
 int Application::run()
 {
     // If --list-devices was set, we should exit, so skip loading QML
@@ -101,11 +120,7 @@ int Application::run()
         return EXIT_SUCCESS;
     }
 
-    m_engine->rootContext()->setContextProperty("config", m_config.get());
-    m_engine->load(QML_ENTRY_POINT);
-    if (m_engine->rootObjects().isEmpty()) {
-        return EXIT_FAILURE;
-    }
+    initializeApplicationEngine();
 
     return m_application->exec();
 }

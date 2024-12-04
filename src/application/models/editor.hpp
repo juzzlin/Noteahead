@@ -13,28 +13,33 @@
 // You should have received a copy of the GNU General Public License
 // along with Cacophony. If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef LINE_HPP
-#define LINE_HPP
+#ifndef EDITOR_HPP
+#define EDITOR_HPP
 
-#include <memory>
+#include <QObject>
 
 namespace cacophony {
 
-class Event;
+class Song;
 
-class Line
+class Editor : public QObject
 {
+    Q_OBJECT
+
 public:
-    Line();
+    Editor();
+
+    using SongS = std::shared_ptr<Song>;
+
+    void setSong(SongS song);
+
+signals:
+    void songChanged();
 
 private:
-    std::shared_ptr<Event> m_event;
-
-    uint8_t m_volume = 0;
-
-    uint8_t m_panning = 0;
+    SongS m_song;
 };
 
 } // namespace cacophony
 
-#endif // LINE_HPP
+#endif // EDITOR_HPP

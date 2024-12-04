@@ -25,6 +25,7 @@ class QQmlApplicationEngine;
 namespace cacophony {
 
 class Config;
+class Editor;
 class MidiService; // Forward declaration of MidiService
 
 class Application
@@ -39,7 +40,11 @@ public:
 private:
     void handleCommandLineArguments();
 
+    void initializeApplicationEngine();
+
     void listDevices();
+
+    void setContextProperties();
 
     void testDevice();
 
@@ -48,6 +53,8 @@ private:
     std::unique_ptr<QQmlApplicationEngine> m_engine;
 
     std::unique_ptr<Config> m_config;
+
+    std::unique_ptr<Editor> m_editor;
 
     std::unique_ptr<MidiService> m_midiService; // MidiService instance for --list-devices
 

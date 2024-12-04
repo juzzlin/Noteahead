@@ -5,6 +5,9 @@ set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR})
 set(HEADER_FILES
   application/application.hpp
   application/config.hpp
+  application/models/editor.hpp
+  application/player.hpp
+  application/player_worker.hpp
   domain/column.hpp
   domain/event.hpp
   domain/instrument.hpp
@@ -21,6 +24,9 @@ set(HEADER_FILES
 set(SOURCE_FILES
   application/application.cpp
   application/config.cpp
+  application/models/editor.cpp
+  application/player.cpp
+  application/player_worker.cpp
   domain/column.cpp
   domain/event.cpp
   domain/instrument.cpp
