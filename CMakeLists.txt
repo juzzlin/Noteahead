@@ -19,6 +19,8 @@ string(TOLOWER ${CMAKE_PROJECT_NAME} BINARY_NAME)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+option(BUILD_TESTS "Build unit tests." ON)
+
 if(CMAKE_COMPILER_IS_GNUCXX OR MINGW OR ${CMAKE_CXX_COMPILER_ID} STREQUAL "Clang")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wpedantic")
     # CMAKE_CXX_STANDARD supported only by versions >= 3.1
@@ -55,4 +57,10 @@ message(STATUS "Qt version found  : ${QT_VERSION_MAJOR}.${QT_VERSION_MINOR}.${QT
 add_definitions(-DVERSION="${VERSION}")
 
 add_subdirectory(src)
+
+# Enable CMake's unit test framework
+if(BUILD_TESTS)
+    enable_testing()
+    add_subdirectory(src/unit_tests)
+endif()
 
