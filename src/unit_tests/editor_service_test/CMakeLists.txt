@@ -1,9 +1,9 @@
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
-set(NAME editor_test)
+set(NAME editor_service_test)
 set(SRC
     ${NAME}.cpp
     ${NAME}.hpp
-    ../../application/models/editor.cpp
+    ../../application/editor_service.cpp
     ../../domain/column.cpp
     ../../domain/line.cpp
     ../../domain/pattern.cpp

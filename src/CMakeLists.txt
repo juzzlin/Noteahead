@@ -6,7 +6,7 @@ set(HEADER_FILES
   application/application.hpp
   application/application_service.hpp
   application/config.hpp
-  application/models/editor.hpp
+  application/editor_service.hpp
   application/player.hpp
   application/player_worker.hpp
   domain/column.hpp
@@ -26,7 +26,7 @@ set(SOURCE_FILES
   application/application.cpp
   application/application_service.cpp
   application/config.cpp
-  application/models/editor.cpp
+  application/editor_service.cpp
   application/player.cpp
   application/player_worker.cpp
   domain/column.cpp

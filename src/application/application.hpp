@@ -26,7 +26,7 @@ namespace cacophony {
 
 class ApplicationService;
 class Config;
-class Editor;
+class EditorService;
 class MidiService; // Forward declaration of MidiService
 
 class Application
@@ -45,7 +45,7 @@ private:
 
     void initializeApplicationEngine();
 
-    void initializeEditor();
+    void initializeEditorService();
 
     void listDevices();
 
@@ -61,7 +61,7 @@ private:
 
     std::unique_ptr<Config> m_config;
 
-    std::unique_ptr<Editor> m_editor;
+    std::unique_ptr<EditorService> m_editorService;
 
     std::unique_ptr<MidiService> m_midiService; // MidiService instance for --list-devices
 

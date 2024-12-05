@@ -13,24 +13,35 @@
 // You should have received a copy of the GNU General Public License
 // along with Cacophony. If not, see <http://www.gnu.org/licenses/>.
 
-#include "editor.hpp"
+#ifndef EDITOR_SERVICE_HPP
+#define EDITOR_SERVICE_HPP
 
-#include "../../domain/song.hpp"
+#include <QObject>
 
 namespace cacophony {
 
-Editor::Editor() = default;
+class Song;
 
-void Editor::initialize()
+class EditorService : public QObject
 {
-    setSong(std::make_unique<Song>());
-}
+    Q_OBJECT
 
-void Editor::setSong(SongS song)
-{
-    m_song = song;
+public:
+    EditorService();
 
-    emit songChanged();
-}
+    void initialize();
+
+    using SongS = std::shared_ptr<Song>;
+
+    void setSong(SongS song);
+
+signals:
+    void songChanged();
+
+private:
+    SongS m_song;
+};
 
 } // namespace cacophony
+
+#endif // EDITOR_SERVICE_HPP
