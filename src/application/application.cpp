@@ -39,7 +39,7 @@ Application::Application(int & argc, char ** argv)
 {
     qmlRegisterType<Config>("Cacophony", 1, 0, "ApplicationService");
     qmlRegisterType<Config>("Cacophony", 1, 0, "Config");
-    qmlRegisterType<Config>("Cacophony", 1, 0, "Editor");
+    qmlRegisterType<Config>("Cacophony", 1, 0, "EditorService");
 
     handleCommandLineArguments(); // Handle command-line arguments at initialization
 }
@@ -105,7 +105,7 @@ void Application::setContextProperties()
 {
     m_engine->rootContext()->setContextProperty("applicationService", m_applicationService.get());
     m_engine->rootContext()->setContextProperty("config", m_config.get());
-    m_engine->rootContext()->setContextProperty("editor", m_editorService.get());
+    m_engine->rootContext()->setContextProperty("editorService", m_editorService.get());
 }
 
 void Application::initialize()

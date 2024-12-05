@@ -19,7 +19,10 @@
 
 namespace cacophony {
 
-EditorService::EditorService() = default;
+EditorService::EditorService()
+{
+    initialize();
+}
 
 void EditorService::initialize()
 {
@@ -31,6 +34,11 @@ void EditorService::setSong(SongS song)
     m_song = song;
 
     emit songChanged();
+}
+
+Q_INVOKABLE uint32_t EditorService::trackCount() const
+{
+    return m_song->trackCount();
 }
 
 } // namespace cacophony

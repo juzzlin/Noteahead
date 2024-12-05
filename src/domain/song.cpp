@@ -29,6 +29,11 @@ uint32_t Song::bpm() const
     return m_bpm;
 }
 
+uint32_t Song::trackCount() const
+{
+    return m_patterns.at(0)->trackCount();
+}
+
 void Song::initialize()
 {
     m_patterns.clear();

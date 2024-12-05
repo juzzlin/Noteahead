@@ -22,7 +22,6 @@ ApplicationWindow {
     property bool screenInit: false
     visible: true
     title: qsTr("Cacophony")
-
     menuBar: MenuBar {
         Menu {
             title: qsTr("&File")
@@ -43,7 +42,6 @@ ApplicationWindow {
             }
         }
     }
-
     EditorView {
         id: editorView
         anchors.left: parent.left
@@ -51,14 +49,13 @@ ApplicationWindow {
         anchors.top: menuBar.bottom
         anchors.bottom: parent.bottom
     }
-
     Component.onCompleted: {
         width = config.loadWindowSize(Qt.size(mainWindow.screen.width * 0.8, mainWindow.screen.height * 0.8)).width;
         height = config.loadWindowSize(Qt.size(mainWindow.screen.width * 0.8, mainWindow.screen.height * 0.8)).height;
         setX(mainWindow.screen.width / 2 - width / 2);
         setY(mainWindow.screen.height / 2 - height / 2);
+        editorView.initialize();
     }
-
     onClosing: {
         config.saveWindowSize(Qt.size(mainWindow.width, mainWindow.height));
     }

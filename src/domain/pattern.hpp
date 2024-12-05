@@ -28,6 +28,8 @@ class Pattern
 public:
     Pattern(uint32_t length, uint32_t trackCount);
 
+    uint32_t trackCount() const;
+
 private:
     void initialize(uint32_t length, uint32_t trackCount);
 

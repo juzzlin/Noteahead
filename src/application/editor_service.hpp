@@ -35,6 +35,8 @@ public:
 
     void setSong(SongS song);
 
+    Q_INVOKABLE uint32_t trackCount() const;
+
 signals:
     void songChanged();
 

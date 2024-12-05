@@ -24,6 +24,11 @@ Pattern::Pattern(uint32_t length, uint32_t trackCount)
     initialize(length, trackCount);
 }
 
+uint32_t Pattern::trackCount() const
+{
+    return static_cast<uint32_t>(m_tracks.size());
+}
+
 void Pattern::initialize(uint32_t length, uint32_t trackCount)
 {
     for (uint32_t i = 0; i < trackCount; i++) {

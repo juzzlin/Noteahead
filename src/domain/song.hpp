@@ -32,6 +32,8 @@ public:
 
     using PatternS = std::shared_ptr<Pattern>;
 
+    uint32_t trackCount() const;
+
 private:
     void initialize();
 
