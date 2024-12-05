@@ -14,7 +14,9 @@
 // along with Cacophony. If not, see <http://www.gnu.org/licenses/>.
 
 #include "application.hpp"
+
 #include "../infra/midi_service_rt_midi.hpp" // Include the MidiService header
+#include "application_service.hpp"
 #include "config.hpp"
 #include "models/editor.hpp"
 
@@ -30,10 +32,12 @@ namespace cacophony {
 Application::Application(int & argc, char ** argv)
   : m_application(std::make_unique<QGuiApplication>(argc, argv))
   , m_engine(std::make_unique<QQmlApplicationEngine>())
+  , m_applicationService(std::make_unique<ApplicationService>())
   , m_config(std::make_unique<Config>())
   , m_editor(std::make_unique<Editor>())
   , m_midiService(std::make_unique<MidiServiceRtMidi>()) // Initialize MidiService
 {
+    qmlRegisterType<Config>("Cacophony", 1, 0, "ApplicationService");
     qmlRegisterType<Config>("Cacophony", 1, 0, "Config");
     qmlRegisterType<Config>("Cacophony", 1, 0, "Editor");
 
@@ -99,6 +103,7 @@ void Application::testDevice()
 
 void Application::setContextProperties()
 {
+    m_engine->rootContext()->setContextProperty("applicationService", m_applicationService.get());
     m_engine->rootContext()->setContextProperty("config", m_config.get());
     m_engine->rootContext()->setContextProperty("editor", m_editor.get());
 }

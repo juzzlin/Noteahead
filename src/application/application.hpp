@@ -24,6 +24,7 @@ class QQmlApplicationEngine;
 
 namespace cacophony {
 
+class ApplicationService;
 class Config;
 class Editor;
 class MidiService; // Forward declaration of MidiService
@@ -51,6 +52,8 @@ private:
     std::unique_ptr<QGuiApplication> m_application;
 
     std::unique_ptr<QQmlApplicationEngine> m_engine;
+
+    std::unique_ptr<ApplicationService> m_applicationService;
 
     std::unique_ptr<Config> m_config;
 

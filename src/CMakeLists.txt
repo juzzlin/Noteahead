@@ -4,6 +4,7 @@ set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR})
 # These are needed only for the IDE
 set(HEADER_FILES
   application/application.hpp
+  application/application_service.hpp
   application/config.hpp
   application/models/editor.hpp
   application/player.hpp
@@ -23,6 +24,7 @@ set(HEADER_FILES
 
 set(SOURCE_FILES
   application/application.cpp
+  application/application_service.cpp
   application/config.cpp
   application/models/editor.cpp
   application/player.cpp
