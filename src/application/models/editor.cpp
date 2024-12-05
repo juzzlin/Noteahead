@@ -15,10 +15,15 @@
 
 #include "editor.hpp"
 
+#include "../../domain/song.hpp"
+
 namespace cacophony {
 
-Editor::Editor()
+Editor::Editor() = default;
+
+void Editor::initialize()
 {
+    setSong(std::make_unique<Song>());
 }
 
 void Editor::setSong(SongS song)

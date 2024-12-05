@@ -15,39 +15,51 @@
 
 import QtQuick 2.15
 import QtQuick.Controls 2.15
-
 import Cacophony 1.0
 
 ApplicationWindow {
     id: mainWindow
     property bool screenInit: false
-    width: config.loadWindowSize(Qt.size(mainWindow.screen.width * 0.8, mainWindow.screen.height * 0.8)).width
-    height: config.loadWindowSize(Qt.size(mainWindow.screen.width * 0.8, mainWindow.screen.height * 0.8)).height
     visible: true
     title: qsTr("Cacophony")
 
     menuBar: MenuBar {
-         Menu {
-             title: qsTr("&File")
-             Action { text: qsTr("&New...") }
-             MenuSeparator { }
-             Action {
-                 text: qsTr("&Quit")
-                 onTriggered: close()
-             }
-         }
-         Menu {
-             title: qsTr("&Help")
-             Action { text: qsTr("&About") }
-         }
+        Menu {
+            title: qsTr("&File")
+            Action {
+                text: qsTr("&New...")
+            }
+            MenuSeparator {
+            }
+            Action {
+                text: qsTr("&Quit")
+                onTriggered: close()
+            }
+        }
+        Menu {
+            title: qsTr("&Help")
+            Action {
+                text: qsTr("&About")
+            }
+        }
+    }
+
+    EditorView {
+        id: editorView
+        anchors.left: parent.left
+        anchors.right: parent.right
+        anchors.top: menuBar.bottom
+        anchors.bottom: parent.bottom
     }
 
     Component.onCompleted: {
+        width = config.loadWindowSize(Qt.size(mainWindow.screen.width * 0.8, mainWindow.screen.height * 0.8)).width;
+        height = config.loadWindowSize(Qt.size(mainWindow.screen.width * 0.8, mainWindow.screen.height * 0.8)).height;
         setX(mainWindow.screen.width / 2 - width / 2);
         setY(mainWindow.screen.height / 2 - height / 2);
     }
 
     onClosing: {
-        config.saveWindowSize(Qt.size(mainWindow.width, mainWindow.height))
+        config.saveWindowSize(Qt.size(mainWindow.width, mainWindow.height));
     }
 }

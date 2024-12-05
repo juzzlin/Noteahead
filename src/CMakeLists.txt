@@ -45,12 +45,18 @@ set(SOURCE_FILES
 
 qt_add_executable(${BINARY_NAME} ${HEADER_FILES} ${SOURCE_FILES})
 
+set(QML_BASE_DIR view/qml)
+set(QML_ENTRY_POINT ${QML_BASE_DIR}/Main.qml)
+set(QML_SOURCE_FILES
+    ${QML_ENTRY_POINT}
+    ${QML_BASE_DIR}/EditorView.qml
+)
+
 set(URI ${BINARY_NAME})
-set(QML_ENTRY_POINT view/qml/Main.qml)
 qt_add_qml_module(${BINARY_NAME}
     URI ${URI}
-    QML_FILES ${QML_ENTRY_POINT}
-    SOURCES domain/line.hpp domain/line.cpp
+    QML_FILES ${QML_SOURCE_FILES}
+
 )
 
 set_target_properties(${BINARY_NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY_DEBUG ${CMAKE_CURRENT_BINARY_DIR})

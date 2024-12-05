@@ -41,7 +41,11 @@ public:
 private:
     void handleCommandLineArguments();
 
+    void initialize();
+
     void initializeApplicationEngine();
+
+    void initializeEditor();
 
     void listDevices();
 

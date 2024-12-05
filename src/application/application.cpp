@@ -108,6 +108,13 @@ void Application::setContextProperties()
     m_engine->rootContext()->setContextProperty("editor", m_editor.get());
 }
 
+void Application::initialize()
+{
+    initializeApplicationEngine();
+
+    initializeEditor();
+}
+
 void Application::initializeApplicationEngine()
 {
     setContextProperties();
@@ -118,6 +125,11 @@ void Application::initializeApplicationEngine()
     }
 }
 
+void Application::initializeEditor()
+{
+    m_editor->initialize();
+}
+
 int Application::run()
 {
     // If --list-devices was set, we should exit, so skip loading QML
@@ -125,7 +137,7 @@ int Application::run()
         return EXIT_SUCCESS;
     }
 
-    initializeApplicationEngine();
+    initialize();
 
     return m_application->exec();
 }

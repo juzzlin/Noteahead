@@ -4,6 +4,11 @@ set(SRC
     ${NAME}.cpp
     ${NAME}.hpp
     ../../application/models/editor.cpp
+    ../../domain/column.cpp
+    ../../domain/line.cpp
+    ../../domain/pattern.cpp
+    ../../domain/song.cpp
+    ../../domain/track.cpp
 )
 add_executable(${NAME} ${SRC} ${MOC_SRC})
 set_target_properties(${NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${UNIT_TEST_BASE_DIR})

@@ -29,6 +29,8 @@ class Editor : public QObject
 public:
     Editor();
 
+    void initialize();
+
     using SongS = std::shared_ptr<Song>;
 
     void setSong(SongS song);
