@@ -50,6 +50,7 @@ set(QML_ENTRY_POINT ${QML_BASE_DIR}/Main.qml)
 set(QML_SOURCE_FILES
     ${QML_ENTRY_POINT}
     ${QML_BASE_DIR}/EditorView.qml
+    ${QML_BASE_DIR}/Track.qml
 )
 
 set(URI ${BINARY_NAME})

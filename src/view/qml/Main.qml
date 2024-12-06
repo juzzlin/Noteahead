@@ -15,6 +15,7 @@
 
 import QtQuick 2.15
 import QtQuick.Controls 2.15
+import QtQuick.Controls.Universal 2.15
 import Cacophony 1.0
 
 ApplicationWindow {
@@ -42,6 +43,7 @@ ApplicationWindow {
             }
         }
     }
+    Universal.theme: Universal.Light
     EditorView {
         id: editorView
         anchors.left: parent.left
