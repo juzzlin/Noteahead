@@ -32,7 +32,17 @@ public:
 
     using PatternS = std::shared_ptr<Pattern>;
 
+    uint32_t columnCount(uint32_t trackId) const;
+
+    uint32_t lineCount(uint32_t patternId) const;
+
+    uint32_t patternCount() const;
+
     uint32_t trackCount() const;
+
+    std::string trackName(uint32_t trackId) const;
+
+    void setTrackName(uint32_t trackId, std::string name);
 
 private:
     void initialize();

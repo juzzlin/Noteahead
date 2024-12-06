@@ -26,7 +26,9 @@ class EditorServiceTest : public QObject
 
 private slots:
 
-    void test();
+    void testDefaultSong_shouldReturnCorrectProperties();
+
+    void testSetTrackName_shouldChangeTrackName();
 };
 
 } // namespace cacophony

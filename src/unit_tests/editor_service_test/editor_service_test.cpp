@@ -19,9 +19,34 @@
 
 namespace cacophony {
 
-void EditorServiceTest::test()
+void EditorServiceTest::testDefaultSong_shouldReturnCorrectProperties()
 {
-    EditorService editor;
+    EditorService editorService;
+
+    const auto trackCount = 8;
+    QCOMPARE(editorService.trackCount(), trackCount);
+    for (uint32_t trackId = 0; trackId < trackCount; trackId++) {
+        QCOMPARE(editorService.columnCount(trackId), 1);
+        QCOMPARE(editorService.trackName(trackId), QString { "Track %1" }.arg(trackId));
+    }
+
+    for (uint32_t trackId = 0; trackId < trackCount; trackId++) {
+        QCOMPARE(editorService.columnCount(trackId), 1);
+    }
+
+    QCOMPARE(editorService.patternCount(), 1);
+    QCOMPARE(editorService.lineCount(0), 64);
+}
+
+void EditorServiceTest::testSetTrackName_shouldChangeTrackName()
+{
+    EditorService editorService;
+
+    editorService.setTrackName(0, "Foo");
+    editorService.setTrackName(1, "Bar");
+
+    QCOMPARE(editorService.trackName(0), "Foo");
+    QCOMPARE(editorService.trackName(1), "Bar");
 }
 
 } // namespace cacophony

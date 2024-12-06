@@ -6,6 +6,7 @@ Item {
     id: rootItem
 
     property int _trackCount: 0
+
     property var _trackComponents: []
 
     Component {
@@ -13,14 +14,6 @@ Item {
         Track {
             height: rootItem.height
         }
-    }
-
-    function initialize() {
-        connectSignals();
-    }
-
-    function connectSignals() {
-        editorService.songChanged.connect(refreshTracks);
     }
 
     function clearTracks() {
@@ -45,6 +38,8 @@ Item {
             if (track) {
                 setTrackDimensionsByIndex(track, trackIndex);
                 _trackComponents.push(track);
+                track.setName(editorService.trackName(trackIndex));
+                track.nameChanged.connect(name => editorService.setTrackName(trackIndex, name));
                 console.log(`Added track index=${trackIndex}, width=${track.width}, x=${track.x}`);
             }
         }
@@ -62,6 +57,18 @@ Item {
         }
     }
 
+    function connectSignals() {
+        editorService.songChanged.connect(refreshTracks);
+    }
+
+    function initialize() {
+        connectSignals();
+        refreshTracks();
+    }
+
+    Component.onCompleted: initialize()
+
     onWidthChanged: updateTrackSizes()
+
     onHeightChanged: updateTrackSizes()
 }

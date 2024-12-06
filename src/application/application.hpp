@@ -53,15 +53,15 @@ private:
 
     void testDevice();
 
-    std::unique_ptr<QGuiApplication> m_application;
-
-    std::unique_ptr<QQmlApplicationEngine> m_engine;
-
     std::unique_ptr<ApplicationService> m_applicationService;
+
+    std::unique_ptr<EditorService> m_editorService;
 
     std::unique_ptr<Config> m_config;
 
-    std::unique_ptr<EditorService> m_editorService;
+    std::unique_ptr<QGuiApplication> m_application;
+
+    std::unique_ptr<QQmlApplicationEngine> m_engine;
 
     std::unique_ptr<MidiService> m_midiService; // MidiService instance for --list-devices
 

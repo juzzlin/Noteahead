@@ -16,23 +16,29 @@
 #ifndef LINE_HPP
 #define LINE_HPP
 
+#include "note_data.hpp"
+
 #include <memory>
 
 namespace cacophony {
-
-class Event;
 
 class Line
 {
 public:
     Line();
 
+    explicit Line(const NoteData & noteData);
+
+    void clear();
+
+    using NoteDataS = std::shared_ptr<NoteData>;
+
+    NoteDataS noteData() const;
+
+    void setNoteData(NoteDataS noteData);
+
 private:
-    std::shared_ptr<Event> m_event;
-
-    uint8_t m_volume = 0;
-
-    uint8_t m_panning = 0;
+    NoteDataS m_noteData;
 };
 
 } // namespace cacophony

@@ -15,13 +15,26 @@
 
 #include "pattern.hpp"
 
+#include "../contrib/SimpleLogger/src/simple_logger.hpp"
 #include "track.hpp"
 
 namespace cacophony {
 
+static const auto TAG = "Pattern";
+
 Pattern::Pattern(uint32_t length, uint32_t trackCount)
 {
     initialize(length, trackCount);
+}
+
+uint32_t Pattern::columnCount(uint32_t trackId) const
+{
+    return m_tracks.at(trackId)->columnCount();
+}
+
+uint32_t Pattern::lineCount() const
+{
+    return m_tracks.at(0)->lineCount();
 }
 
 uint32_t Pattern::trackCount() const
@@ -29,10 +42,21 @@ uint32_t Pattern::trackCount() const
     return static_cast<uint32_t>(m_tracks.size());
 }
 
+std::string Pattern::trackName(uint32_t trackId) const
+{
+    return m_tracks.at(trackId)->name();
+}
+
+void Pattern::setTrackName(uint32_t trackId, std::string name)
+{
+    juzzlin::L(TAG).info() << "Changing name of track " << trackId << " from " << trackName(trackId) << " to " << name;
+    m_tracks.at(trackId)->setName(name);
+}
+
 void Pattern::initialize(uint32_t length, uint32_t trackCount)
 {
     for (uint32_t i = 0; i < trackCount; i++) {
-        m_tracks.push_back(std::make_shared<Track>(Track::Type::Drum, length, 1));
+        m_tracks.push_back(std::make_shared<Track>("Track " + std::to_string(i), Track::Type::Drum, length, 1));
     }
 }
 

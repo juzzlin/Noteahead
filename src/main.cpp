@@ -13,24 +13,67 @@
 // You should have received a copy of the GNU General Public License
 // along with Cacophony. If not, see <http://www.gnu.org/licenses/>.
 
+#include "application/application.hpp"
+#include "common/constants.hpp"
+#include "simple_logger.hpp"
+
 #include <cstdlib>
 #include <iostream>
 
 #include <QCoreApplication>
+#include <QDir>
 #include <QSettings>
 
-#include "application/application.hpp"
-#include "common/constants.hpp"
+static const auto TAG = "main";
+
+static size_t tsMs()
+{
+    using namespace std::chrono;
+    return static_cast<size_t>(duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count());
+}
+
+static void initLogger()
+{
+    using juzzlin::L;
+
+    const QString logPath { QDir::tempPath() + QDir::separator() + cacophony::constants::applicationName().c_str() + "-" + std::to_string(tsMs()).c_str() + ".log" };
+    L::initialize(logPath.toStdString());
+    L::enableEchoMode(true);
+    L::setTimestampMode(L::TimestampMode::ISODateTime);
+    L::setTimestampSeparator(" ");
+    const std::map<L::Level, std::string> symbols = {
+        { L::Level::Debug, "D" },
+        { L::Level::Error, "E" },
+        { L::Level::Fatal, "F" },
+        { L::Level::Info, "I" },
+        { L::Level::Trace, "T" },
+        { L::Level::Warning, "W" }
+    };
+    for (auto && symbol : symbols) {
+        L::setLevelSymbol(symbol.first, "[" + symbol.second + "]");
+    }
+
+#if defined(NDEBUG) or defined(QT_NO_DEBUG)
+    L::setLoggingLevel(L::Level::Info);
+#else
+    L::setLoggingLevel(L::Level::Debug);
+#endif
+
+    L(TAG).info() << cacophony::constants::applicationName() << " version " << cacophony::constants::applicationVersion();
+    L(TAG).info() << cacophony::constants::copyright();
+    L(TAG).info() << "Compiled against Qt version " << QT_VERSION_STR;
+}
 
 int main(int argc, char ** argv)
 {
-    QCoreApplication::setOrganizationName(cacophony::constants::application::QSETTINGS_COMPANY_NAME);
-    QCoreApplication::setApplicationName(cacophony::constants::application::QSETTINGS_SOFTWARE_NAME);
+    QCoreApplication::setOrganizationName(cacophony::constants::qSettingsCompanyName().c_str());
+    QCoreApplication::setApplicationName(cacophony::constants::qSettingSoftwareName().c_str());
 #ifdef Q_OS_WIN32
     QSettings::setDefaultFormat(QSettings::IniFormat);
 #endif
 
     try {
+        initLogger();
         return cacophony::Application(argc, argv).run();
     } catch (std::exception & e) {
         std::cerr << e.what() << std::endl;

@@ -1,0 +1,6 @@
+add_subdirectory(conflicting_arguments_test)
+add_subdirectory(help_test)
+add_subdirectory(positional_argument_test)
+add_subdirectory(single_value_test)
+add_subdirectory(unknown_argument_test)
+add_subdirectory(valueless_test)

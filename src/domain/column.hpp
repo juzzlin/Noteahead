@@ -22,11 +22,18 @@
 namespace cacophony {
 
 class Line;
+struct NoteData;
 
 class Column
 {
 public:
     Column(uint32_t length);
+
+    using NoteDataS = std::shared_ptr<NoteData>;
+
+    uint32_t lineCount() const;
+
+    NoteDataS noteDataAtPosition(uint32_t position) const;
 
 private:
     void initialize(uint32_t length);

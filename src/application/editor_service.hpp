@@ -35,7 +35,19 @@ public:
 
     void setSong(SongS song);
 
+    Q_INVOKABLE uint32_t columnCount(uint32_t trackId) const;
+
+    Q_INVOKABLE uint32_t lineCount(uint32_t patternId) const;
+
+    Q_INVOKABLE uint32_t linesVisible() const;
+
+    Q_INVOKABLE uint32_t patternCount() const;
+
     Q_INVOKABLE uint32_t trackCount() const;
+
+    Q_INVOKABLE QString trackName(uint32_t trackId) const;
+
+    Q_INVOKABLE void setTrackName(uint32_t trackId, QString name);
 
 signals:
     void songChanged();

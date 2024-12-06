@@ -32,4 +32,14 @@ void Column::initialize(uint32_t length)
     }
 }
 
+uint32_t Column::lineCount() const
+{
+    return static_cast<uint32_t>(m_lines.size());
+}
+
+Column::NoteDataS Column::noteDataAtPosition(uint32_t position) const
+{
+    return m_lines.at(position)->noteData();
+}
+
 } // namespace cacophony

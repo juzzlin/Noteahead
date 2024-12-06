@@ -28,7 +28,15 @@ class Pattern
 public:
     Pattern(uint32_t length, uint32_t trackCount);
 
+    uint32_t columnCount(uint32_t trackId) const;
+
+    uint32_t lineCount() const;
+
     uint32_t trackCount() const;
+
+    std::string trackName(uint32_t trackId) const;
+
+    void setTrackName(uint32_t trackId, std::string name);
 
 private:
     void initialize(uint32_t length, uint32_t trackCount);

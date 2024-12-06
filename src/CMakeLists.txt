@@ -1,3 +1,9 @@
+add_subdirectory(contrib/SimpleLogger EXCLUDE_FROM_ALL)
+include_directories(contrib/SimpleLogger/src)
+
+add_subdirectory(contrib/Argengine EXCLUDE_FROM_ALL)
+include_directories(contrib/Argengine/src)
+
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR})
 
@@ -9,10 +15,12 @@ set(HEADER_FILES
   application/editor_service.hpp
   application/player.hpp
   application/player_worker.hpp
+  common/constants.hpp
   domain/column.hpp
   domain/event.hpp
   domain/instrument.hpp
   domain/line.hpp
+  domain/note_data.hpp
   domain/pattern.hpp
   domain/song.hpp
   domain/track.hpp
@@ -29,6 +37,7 @@ set(SOURCE_FILES
   application/editor_service.cpp
   application/player.cpp
   application/player_worker.cpp
+  common/constants.cpp
   domain/column.cpp
   domain/event.cpp
   domain/instrument.cpp
@@ -63,4 +72,4 @@ qt_add_qml_module(${BINARY_NAME}
 set_target_properties(${BINARY_NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY_DEBUG ${CMAKE_CURRENT_BINARY_DIR})
 target_compile_definitions(${BINARY_NAME} PRIVATE $<$<OR:$<CONFIG:Debug>,$<CONFIG:RelWithDebInfo>>:QT_QML_DEBUG>)
 target_compile_definitions(${BINARY_NAME} PRIVATE QML_ENTRY_POINT="qrc:/qt/qml/${URI}/${QML_ENTRY_POINT}")
-target_link_libraries(${BINARY_NAME} PRIVATE Qt6::Core Qt6::Quick rtmidi)
+target_link_libraries(${BINARY_NAME} PRIVATE Qt6::Core Qt6::Quick rtmidi SimpleLogger Argengine)

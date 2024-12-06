@@ -36,9 +36,39 @@ void EditorService::setSong(SongS song)
     emit songChanged();
 }
 
-Q_INVOKABLE uint32_t EditorService::trackCount() const
+uint32_t EditorService::columnCount(uint32_t trackId) const
+{
+    return m_song->columnCount(trackId);
+}
+
+uint32_t EditorService::lineCount(uint32_t patternId) const
+{
+    return m_song->lineCount(patternId);
+}
+
+uint32_t EditorService::linesVisible() const
+{
+    return 32;
+}
+
+uint32_t EditorService::patternCount() const
+{
+    return m_song->patternCount();
+}
+
+uint32_t EditorService::trackCount() const
 {
     return m_song->trackCount();
+}
+
+QString EditorService::trackName(uint32_t trackId) const
+{
+    return m_song->trackName(trackId).c_str();
+}
+
+void EditorService::setTrackName(uint32_t trackId, QString name)
+{
+    m_song->setTrackName(trackId, name.toStdString());
 }
 
 } // namespace cacophony

@@ -1,5 +1,5 @@
 // This file is part of Cacophony.
-// Copyright (C) 2020 Jussi Lind <jussi.lind@iki.fi>
+// Copyright (C) 2024 Jussi Lind <jussi.lind@iki.fi>
 //
 // Cacophony is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -16,20 +16,22 @@
 #ifndef CONSTANTS_HPP
 #define CONSTANTS_HPP
 
-namespace cacophony::constants::application {
+#include <string>
 
-static constexpr auto APPLICATION_NAME = "Cacophony";
+namespace cacophony::constants {
 
-static constexpr auto APPLICATION_VERSION = VERSION;
+std::string applicationName();
 
-static constexpr auto COPYRIGHT = "Copyright (c) 2020-2021 Jussi Lind";
+std::string applicationVersion();
 
-static constexpr auto QSETTINGS_COMPANY_NAME = APPLICATION_NAME;
+std::string copyright();
 
-static constexpr auto WEB_SITE_URL = "https://github.com/juzzlin/Cacophony";
+std::string qSettingsCompanyName();
 
-static constexpr auto QSETTINGS_SOFTWARE_NAME = APPLICATION_NAME;
+std::string webSiteUrl();
 
-} // namespace cacophony::constants::application
+std::string qSettingSoftwareName();
+
+} // namespace cacophony::constants
 
 #endif // CONSTANTS_HPP

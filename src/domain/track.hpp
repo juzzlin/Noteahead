@@ -35,10 +35,20 @@ public:
         Control
     };
 
-    explicit Track(Type type, uint32_t length, uint32_t columnCount);
+    explicit Track(std::string name, Type type, uint32_t length, uint32_t columnCount);
+
+    uint32_t columnCount() const;
+
+    uint32_t lineCount() const;
+
+    std::string name() const;
+
+    void setName(const std::string & newName);
 
 private:
     void initialize(uint32_t length, uint32_t columnCount);
+
+    std::string m_name;
 
     Type m_type;
 

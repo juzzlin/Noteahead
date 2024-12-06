@@ -29,9 +29,34 @@ uint32_t Song::bpm() const
     return m_bpm;
 }
 
+uint32_t Song::columnCount(uint32_t trackId) const
+{
+    return m_patterns.at(0)->columnCount(trackId);
+}
+
+uint32_t Song::lineCount(uint32_t patternId) const
+{
+    return m_patterns.at(patternId)->lineCount();
+}
+
+uint32_t Song::patternCount() const
+{
+    return static_cast<uint32_t>(m_patterns.size());
+}
+
 uint32_t Song::trackCount() const
 {
     return m_patterns.at(0)->trackCount();
+}
+
+std::string Song::trackName(uint32_t trackId) const
+{
+    return m_patterns.at(0)->trackName(trackId);
+}
+
+void Song::setTrackName(uint32_t trackId, std::string name)
+{
+    m_patterns.at(0)->setTrackName(trackId, name);
 }
 
 void Song::initialize()

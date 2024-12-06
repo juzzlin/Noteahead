@@ -30,11 +30,11 @@
 namespace cacophony {
 
 Application::Application(int & argc, char ** argv)
-  : m_application(std::make_unique<QGuiApplication>(argc, argv))
-  , m_engine(std::make_unique<QQmlApplicationEngine>())
-  , m_applicationService(std::make_unique<ApplicationService>())
-  , m_config(std::make_unique<Config>())
+  : m_applicationService(std::make_unique<ApplicationService>())
   , m_editorService(std::make_unique<EditorService>())
+  , m_config(std::make_unique<Config>())
+  , m_application(std::make_unique<QGuiApplication>(argc, argv))
+  , m_engine(std::make_unique<QQmlApplicationEngine>())
   , m_midiService(std::make_unique<MidiServiceRtMidi>()) // Initialize MidiService
 {
     qmlRegisterType<Config>("Cacophony", 1, 0, "ApplicationService");
@@ -110,9 +110,9 @@ void Application::setContextProperties()
 
 void Application::initialize()
 {
-    initializeApplicationEngine();
-
     initializeEditorService();
+
+    initializeApplicationEngine();
 }
 
 void Application::initializeApplicationEngine()

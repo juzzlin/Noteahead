@@ -17,8 +17,26 @@
 
 namespace cacophony {
 
-Line::Line()
+Line::Line() = default;
+
+Line::Line(const NoteData & noteData)
+  : m_noteData { std::make_shared<NoteData>(noteData) }
 {
+}
+
+void Line::clear()
+{
+    setNoteData({});
+}
+
+void Line::setNoteData(NoteDataS noteData)
+{
+    m_noteData = noteData;
+}
+
+Line::NoteDataS Line::noteData() const
+{
+    return m_noteData;
 }
 
 } // namespace cacophony

@@ -19,8 +19,9 @@
 
 namespace cacophony {
 
-Track::Track(Type type, uint32_t length, uint32_t columnCount)
-  : m_type { type }
+Track::Track(std::string name, Type type, uint32_t length, uint32_t columnCount)
+  : m_name { name }
+  , m_type { type }
 {
     initialize(length, columnCount);
 }
@@ -31,6 +32,26 @@ void Track::initialize(uint32_t length, uint32_t columnCount)
     for (uint32_t column = 0; column < columnCount; column++) {
         m_columns.push_back(std::make_shared<Column>(length));
     }
+}
+
+void Track::setName(const std::string & name)
+{
+    m_name = name;
+}
+
+uint32_t Track::columnCount() const
+{
+    return static_cast<uint32_t>(m_columns.size());
+}
+
+uint32_t Track::lineCount() const
+{
+    return m_columns.at(0)->lineCount();
+}
+
+std::string Track::name() const
+{
+    return m_name;
 }
 
 } // namespace cacophony
