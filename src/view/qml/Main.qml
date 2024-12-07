@@ -51,13 +51,15 @@ ApplicationWindow {
         anchors.top: menuBar.bottom
         anchors.bottom: parent.bottom
     }
-    Component.onCompleted: {
-        width = config.loadWindowSize(Qt.size(mainWindow.screen.width * 0.8, mainWindow.screen.height * 0.8)).width;
-        height = config.loadWindowSize(Qt.size(mainWindow.screen.width * 0.8, mainWindow.screen.height * 0.8)).height;
+    function setWindowSizeAndPosition() {
+        const defaultWindowScale = Constants.defaultWindowScale;
+        width = config.loadWindowSize(Qt.size(mainWindow.screen.width * defaultWindowScale, mainWindow.screen.height * defaultWindowScale)).width;
+        width = Math.max(width, Constants.minWindowWidth);
+        height = config.loadWindowSize(Qt.size(mainWindow.screen.width * defaultWindowScale, mainWindow.screen.height * defaultWindowScale)).height;
+        height = Math.max(height, Constants.minWindowHeight);
         setX(mainWindow.screen.width / 2 - width / 2);
         setY(mainWindow.screen.height / 2 - height / 2);
     }
-    onClosing: {
-        config.saveWindowSize(Qt.size(mainWindow.width, mainWindow.height));
-    }
+    Component.onCompleted: setWindowSizeAndPosition()
+    onClosing: config.saveWindowSize(Qt.size(mainWindow.width, mainWindow.height))
 }
