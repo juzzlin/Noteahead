@@ -40,9 +40,9 @@ Application::Application(int & argc, char ** argv)
   , m_engine(std::make_unique<QQmlApplicationEngine>())
   , m_midiService(std::make_unique<MidiServiceRtMidi>()) // Initialize MidiService
 {
-    qmlRegisterType<Config>("Cacophony", 1, 0, "ApplicationService");
+    qmlRegisterType<ApplicationService>("Cacophony", 1, 0, "ApplicationService");
     qmlRegisterType<Config>("Cacophony", 1, 0, "Config");
-    qmlRegisterType<Config>("Cacophony", 1, 0, "EditorService");
+    qmlRegisterType<EditorService>("Cacophony", 1, 0, "EditorService");
 
     qmlRegisterSingletonType(QUrl(QML_ROOT_DIR + QString { "/Constants.qml" }), "Cacophony", 1, 0, "Constants");
 
