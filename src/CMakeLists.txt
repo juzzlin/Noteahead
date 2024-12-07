@@ -13,6 +13,7 @@ set(HEADER_FILES
   application/application_service.hpp
   application/config.hpp
   application/editor_service.hpp
+  application/note_converter.hpp
   application/player.hpp
   application/player_worker.hpp
   common/constants.hpp
@@ -35,6 +36,7 @@ set(SOURCE_FILES
   application/application_service.cpp
   application/config.cpp
   application/editor_service.cpp
+  application/note_converter.cpp
   application/player.cpp
   application/player_worker.cpp
   common/constants.cpp
