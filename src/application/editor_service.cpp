@@ -15,7 +15,9 @@
 
 #include "editor_service.hpp"
 
+#include "../domain/note_data.hpp"
 #include "../domain/song.hpp"
+#include "note_converter.hpp"
 
 namespace cacophony {
 
@@ -49,6 +51,15 @@ uint32_t EditorService::lineCount(uint32_t patternId) const
 uint32_t EditorService::linesVisible() const
 {
     return 32;
+}
+
+QString EditorService::noteAtPosition(uint32_t patternId, uint32_t trackId, uint32_t columnId, uint32_t line) const
+{
+    if (const auto noteData = m_song->noteDataAtPosition(patternId, trackId, columnId, line); noteData) {
+        return noteData->noteOff ? "OFF" : NoteConverter::midiToString(noteData->noteOn).c_str();
+    } else {
+        return "---";
+    }
 }
 
 uint32_t EditorService::patternCount() const

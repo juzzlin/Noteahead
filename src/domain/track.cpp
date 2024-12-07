@@ -34,6 +34,11 @@ void Track::initialize(uint32_t length, uint32_t columnCount)
     }
 }
 
+std::string Track::name() const
+{
+    return m_name;
+}
+
 void Track::setName(const std::string & name)
 {
     m_name = name;
@@ -49,9 +54,9 @@ uint32_t Track::lineCount() const
     return m_columns.at(0)->lineCount();
 }
 
-std::string Track::name() const
+Track::NoteDataS Track::noteDataAtPosition(uint32_t columnId, uint32_t line) const
 {
-    return m_name;
+    return m_columns.at(columnId)->noteDataAtPosition(line);
 }
 
 } // namespace cacophony

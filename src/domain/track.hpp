@@ -23,6 +23,7 @@ namespace cacophony {
 
 class Column;
 class Instrument;
+class NoteData;
 
 class Track
 {
@@ -44,6 +45,10 @@ public:
     std::string name() const;
 
     void setName(const std::string & newName);
+
+    using NoteDataS = std::shared_ptr<NoteData>;
+
+    NoteDataS noteDataAtPosition(uint32_t columnId, uint32_t line) const;
 
 private:
     void initialize(uint32_t length, uint32_t columnCount);

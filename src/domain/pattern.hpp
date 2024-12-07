@@ -22,6 +22,7 @@
 namespace cacophony {
 
 class Track;
+class NoteData;
 
 class Pattern
 {
@@ -37,6 +38,10 @@ public:
     std::string trackName(uint32_t trackId) const;
 
     void setTrackName(uint32_t trackId, std::string name);
+
+    using NoteDataS = std::shared_ptr<NoteData>;
+
+    NoteDataS noteDataAtPosition(uint32_t trackId, uint32_t columnId, uint32_t line) const;
 
 private:
     void initialize(uint32_t length, uint32_t trackCount);

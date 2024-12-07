@@ -41,6 +41,8 @@ public:
 
     Q_INVOKABLE uint32_t linesVisible() const;
 
+    Q_INVOKABLE QString noteAtPosition(uint32_t patternId, uint32_t trackId, uint32_t columnId, uint32_t line) const;
+
     Q_INVOKABLE uint32_t patternCount() const;
 
     Q_INVOKABLE uint32_t trackCount() const;

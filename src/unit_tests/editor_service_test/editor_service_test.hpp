@@ -28,6 +28,8 @@ private slots:
 
     void testDefaultSong_shouldReturnCorrectProperties();
 
+    void testDefaultSong_shouldNotHaveNoteData();
+
     void testSetTrackName_shouldChangeTrackName();
 };
 

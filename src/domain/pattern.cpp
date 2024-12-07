@@ -53,6 +53,11 @@ void Pattern::setTrackName(uint32_t trackId, std::string name)
     m_tracks.at(trackId)->setName(name);
 }
 
+Pattern::NoteDataS Pattern::noteDataAtPosition(uint32_t trackId, uint32_t columnId, uint32_t line) const
+{
+    return m_tracks.at(trackId)->noteDataAtPosition(columnId, line);
+}
+
 void Pattern::initialize(uint32_t length, uint32_t trackCount)
 {
     for (uint32_t i = 0; i < trackCount; i++) {

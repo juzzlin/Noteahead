@@ -4,6 +4,7 @@ set(SRC
     ${NAME}.cpp
     ${NAME}.hpp
     ../../application/editor_service.cpp
+    ../../application/note_converter.cpp
     ../../domain/column.cpp
     ../../domain/line.cpp
     ../../domain/pattern.cpp

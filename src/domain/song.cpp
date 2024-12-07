@@ -59,6 +59,11 @@ void Song::setTrackName(uint32_t trackId, std::string name)
     m_patterns.at(0)->setTrackName(trackId, name);
 }
 
+Song::NoteDataS Song::noteDataAtPosition(uint32_t patternId, uint32_t trackId, uint32_t columnId, uint32_t line) const
+{
+    return m_patterns.at(patternId)->noteDataAtPosition(trackId, columnId, line);
+}
+
 void Song::initialize()
 {
     m_patterns.clear();

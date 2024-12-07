@@ -38,6 +38,21 @@ void EditorServiceTest::testDefaultSong_shouldReturnCorrectProperties()
     QCOMPARE(editorService.lineCount(0), 64);
 }
 
+void EditorServiceTest::testDefaultSong_shouldNotHaveNoteData()
+{
+    EditorService editorService;
+
+    for (uint8_t pattern = 0; pattern < editorService.patternCount(); pattern++) {
+        for (uint8_t track = 0; track < editorService.trackCount(); track++) {
+            for (uint8_t column = 0; column < editorService.columnCount(track); column++) {
+                for (uint8_t line = 0; line < editorService.lineCount(pattern); line++) {
+                    QCOMPARE(editorService.noteAtPosition(pattern, track, column, line), "---");
+                }
+            }
+        }
+    }
+}
+
 void EditorServiceTest::testSetTrackName_shouldChangeTrackName()
 {
     EditorService editorService;
