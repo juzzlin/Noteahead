@@ -29,7 +29,7 @@ std::string applicationVersion()
 
 std::string copyright()
 {
-    return "Copyright (c) 2020-2021 Jussi Lind";
+    return "Copyright (c) 2020-2025 Jussi Lind";
 }
 
 std::string qSettingsCompanyName()

@@ -15,6 +15,7 @@
 
 #include "application.hpp"
 
+#include "../contrib/SimpleLogger/src/simple_logger.hpp"
 #include "../infra/midi_service_rt_midi.hpp" // Include the MidiService header
 #include "application_service.hpp"
 #include "config.hpp"
@@ -29,6 +30,8 @@
 
 namespace cacophony {
 
+static const auto TAG = "Application";
+
 Application::Application(int & argc, char ** argv)
   : m_applicationService(std::make_unique<ApplicationService>())
   , m_editorService(std::make_unique<EditorService>())
@@ -40,6 +43,8 @@ Application::Application(int & argc, char ** argv)
     qmlRegisterType<Config>("Cacophony", 1, 0, "ApplicationService");
     qmlRegisterType<Config>("Cacophony", 1, 0, "Config");
     qmlRegisterType<Config>("Cacophony", 1, 0, "EditorService");
+
+    qmlRegisterSingletonType(QUrl(QML_ROOT_DIR + QString { "/Constants.qml" }), "Cacophony", 1, 0, "Constants");
 
     handleCommandLineArguments(); // Handle command-line arguments at initialization
 }
@@ -119,7 +124,9 @@ void Application::initializeApplicationEngine()
 {
     setContextProperties();
 
-    m_engine->load(QML_ENTRY_POINT);
+    const auto entryPoint = QML_ROOT_DIR + QString { "/" } + QML_ENTRY_POINT;
+    juzzlin::L(TAG).info() << "Loading entry point " << entryPoint.toStdString();
+    m_engine->load(entryPoint);
     if (m_engine->rootObjects().isEmpty()) {
         throw std::runtime_error("Failed to initialize QML application engine!");
     }

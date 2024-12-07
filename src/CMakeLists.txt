@@ -56,15 +56,17 @@ set(SOURCE_FILES
 
 qt_add_executable(${BINARY_NAME} ${HEADER_FILES} ${SOURCE_FILES})
 
+set(URI ${BINARY_NAME})
 set(QML_BASE_DIR view/qml)
-set(QML_ENTRY_POINT ${QML_BASE_DIR}/Main.qml)
+set(QML_ROOT_DIR "qrc:/qt/qml/${URI}/${QML_BASE_DIR}")
+set(MAIN Main.qml)
 set(QML_SOURCE_FILES
-    ${QML_ENTRY_POINT}
+    ${QML_BASE_DIR}/${MAIN}
+    ${QML_BASE_DIR}/Constants.qml
     ${QML_BASE_DIR}/EditorView.qml
     ${QML_BASE_DIR}/Track.qml
 )
 
-set(URI ${BINARY_NAME})
 qt_add_qml_module(${BINARY_NAME}
     URI ${URI}
     QML_FILES ${QML_SOURCE_FILES}
@@ -73,5 +75,6 @@ qt_add_qml_module(${BINARY_NAME}
 
 set_target_properties(${BINARY_NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY_DEBUG ${CMAKE_CURRENT_BINARY_DIR})
 target_compile_definitions(${BINARY_NAME} PRIVATE $<$<OR:$<CONFIG:Debug>,$<CONFIG:RelWithDebInfo>>:QT_QML_DEBUG>)
-target_compile_definitions(${BINARY_NAME} PRIVATE QML_ENTRY_POINT="qrc:/qt/qml/${URI}/${QML_ENTRY_POINT}")
+target_compile_definitions(${BINARY_NAME} PRIVATE QML_ROOT_DIR="${QML_ROOT_DIR}")
+target_compile_definitions(${BINARY_NAME} PRIVATE QML_ENTRY_POINT="${MAIN}")
 target_link_libraries(${BINARY_NAME} PRIVATE Qt6::Core Qt6::Quick rtmidi SimpleLogger Argengine)
