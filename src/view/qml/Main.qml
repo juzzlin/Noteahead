@@ -46,6 +46,13 @@ ApplicationWindow {
     property bool screenInit: false
     property var _editorView
     Universal.theme: Universal.Light
+    Item {
+        id: contentArea
+        anchors.top: menuBar.bottom
+        anchors.bottom: parent.bottom
+        anchors.left: parent.left
+        anchors.right: parent.right
+    }
     Component {
         id: editorViewComponent
         EditorView {
@@ -63,14 +70,13 @@ ApplicationWindow {
     }
     function _initialize() {
         _setWindowSizeAndPosition();
-        _editorView = editorViewComponent.createObject(mainWindow, {
-                "height": mainWindow.height - menuBar.height,
-                "width": mainWindow.width,
-                "y": menuBar.height
+        _editorView = editorViewComponent.createObject(contentArea, {
+                "height": contentArea.height,
+                "width": contentArea.width
             });
     }
     function _resize() {
-        _editorView.resize(mainWindow.width, mainWindow.height - menuBar.height);
+        _editorView.resize(contentArea.width, contentArea.height);
     }
     Component.onCompleted: {
         _initialize();

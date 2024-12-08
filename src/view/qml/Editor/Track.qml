@@ -17,7 +17,7 @@ Rectangle {
         console.log(`Resizing track ${_index} to width = ${width}, height = ${height}`);
         rootItem.width = width;
         rootItem.height = height;
-        columnContainer.resize(rootItem.width, rootItem.height);
+        columnContainer.resize(rootItem.width, rootItem.height - trackHeader.height);
     }
     function setIndex(index) {
         _index = index;

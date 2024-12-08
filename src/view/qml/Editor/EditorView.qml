@@ -52,8 +52,8 @@ Item {
     }
     function updateTrackSizes() {
         _tracks.forEach(track => {
-                track.x = track.index() * track.width;
                 track.resize(rootItem.width / _trackCount, rootItem.height);
+                track.x = track.index() * track.width;
             });
     }
     function connectSignals() {
