@@ -9,7 +9,6 @@ Rectangle {
     border.width: 1
     property int _index: 0
     property string _name
-    property var _columns: []
     signal nameChanged(string name)
     function index() {
         return _index;
@@ -18,7 +17,7 @@ Rectangle {
         console.log(`Resizing track ${_index} to width = ${width}, height = ${height}`);
         rootItem.width = width;
         rootItem.height = height;
-        noteColumnContainer.resize(rootItem.width, rootItem.height);
+        columnContainer.resize(rootItem.width, rootItem.height);
     }
     function setIndex(index) {
         _index = index;
@@ -32,10 +31,10 @@ Rectangle {
         _createColumns();
     }
     function _clearColumns() {
-        _columns.forEach(column => column.destroy());
+        columnContainer.clearColumns();
     }
     function _createColumns() {
-        noteColumnContainer.createColumns();
+        columnContainer.createColumns();
     }
     Rectangle {
         id: trackHeader
@@ -55,24 +54,60 @@ Rectangle {
         }
     }
     Rectangle {
-        id: noteColumnContainer
+        id: columnContainer
         anchors.top: trackHeader.bottom
         anchors.bottom: rootItem.bottom
         anchors.left: rootItem.left
         anchors.right: rootItem.right
         color: "red"
+        property int _noteColumnCount
         property var _noteColumns: []
+        property var _lineColumn
+        function clearColumns() {
+            if (_lineColumn) {
+                _lineColumn.destroy();
+            }
+            _noteColumns.forEach(column => column.destroy());
+        }
         function createColumns() {
+            _noteColumnCount = editorService.columnCount(_index);
+            _createLineColumn();
+            _createNoteColumns();
+        }
+        function _lineColumnX() {
+            return 0;
+        }
+        function _lineColumnWidth() {
+            return width * 0.25;
+        }
+        function _noteColumnX(index) {
+            return _noteColumnWidth() * index + _lineColumnX() + _lineColumnWidth();
+        }
+        function _noteColumnWidth() {
+            return width * 0.75 / _noteColumnCount;
+        }
+        function _createLineColumn() {
+            const lineColumnWidth = _lineColumnWidth();
+            const lineColumnHeight = columnContainer.height;
+            const lineColumn = lineColumnComponent.createObject(columnContainer);
+            console.log(`Line column width: ${lineColumnWidth}, height: ${lineColumnHeight}`);
+            lineColumn.width = lineColumnWidth;
+            lineColumn.height = lineColumnHeight;
+            lineColumn.x = _lineColumnX();
+            lineColumn.updateData();
+            _lineColumn = lineColumn;
+        }
+        function _createNoteColumns() {
             _noteColumns = [];
-            const columnCount = editorService.columnCount(_index);
-            const noteColumnWidth = noteColumnContainer.width / columnCount;
-            const noteColumnHeight = noteColumnContainer.height;
-            for (let col = 0; col < columnCount; col++) {
-                console.log(`Creating column ${col} for track ${_index}`);
-                const noteColumn = noteColumnComponent.createObject(noteColumnContainer);
+            const noteColumnWidth = _noteColumnWidth();
+            const noteColumnHeight = columnContainer.height;
+            for (let col = 0; col < _noteColumnCount; col++) {
+                console.log(`Creating note column ${col} for track ${_index}`);
+                const noteColumn = noteColumnComponent.createObject(columnContainer);
                 console.log(`Column width: ${noteColumnWidth}, height: ${noteColumnHeight}`);
                 noteColumn.width = noteColumnWidth;
                 noteColumn.height = noteColumnHeight;
+                noteColumn.x = _noteColumnX(col);
                 noteColumn.setIndex(col);
                 noteColumn.setTrackIndex(_index);
                 noteColumn.updateData();
@@ -80,12 +115,22 @@ Rectangle {
             }
         }
         function resize(width, height) {
-            noteColumnContainer.width = width;
-            noteColumnContainer.height = height;
-            const columnCount = editorService.columnCount(_index);
-            const noteColumnWidth = width / columnCount;
+            columnContainer.width = width;
+            columnContainer.height = height;
+            const noteColumnWidth = _noteColumnWidth();
             const noteColumnHeight = height;
-            _noteColumns.forEach(noteColumn => noteColumn.resize(noteColumnWidth, noteColumnHeight));
+            _noteColumns.forEach(noteColumn => {
+                    noteColumn.x = _noteColumnX(noteColumn.index());
+                    noteColumn.resize(noteColumnWidth, noteColumnHeight);
+                });
+            const lineColumnWidth = _lineColumnWidth();
+            const lineColumnHeight = height;
+            _lineColumn.resize(lineColumnWidth, lineColumnHeight);
+        }
+        Component {
+            id: lineColumnComponent
+            LineColumn {
+            }
         }
         Component {
             id: noteColumnComponent

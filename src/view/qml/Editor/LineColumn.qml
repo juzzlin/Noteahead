@@ -11,9 +11,6 @@ Rectangle {
         rootItem.height = height;
         _resizeLines();
     }
-    function index() {
-        return _index;
-    }
     function setIndex(index) {
         _index = index;
     }
@@ -24,19 +21,17 @@ Rectangle {
         _createLines();
     }
     function _createLines() {
-        console.log(`Creating lines for column ${_index} on track ${_trackIndex}`);
+        console.log(`Creating line number column for track ${_trackIndex}`);
         _lines = [];
         const lineCount = editorService.lineCount(editorService.currentPatternId());
         for (let lineIndex = 0; lineIndex < lineCount; lineIndex++) {
-            const note = editorService.noteAtPosition(editorService.currentPatternId(), _trackIndex, _index, lineIndex);
             const lineHeight = rootItem.height / lineCount;
-            const line = lineComponent.createObject(rootItem, {
+            const line = textComponent.createObject(rootItem, {
                     "index": lineIndex,
                     "width": rootItem.width,
                     "height": lineHeight,
                     "x": 0,
-                    "y": lineHeight * lineIndex,
-                    "note": note
+                    "y": lineHeight * lineIndex
                 });
             _lines.push(line);
         }
@@ -44,15 +39,22 @@ Rectangle {
     function _resizeLines() {
         const lineCount = editorService.lineCount(editorService.currentPatternId());
         const lineHeight = rootItem.height / lineCount;
-        console.log(`Resizing lines of column ${_trackIndex}, ${_index} to width = ${width}, height = ${lineHeight}`);
+        console.log(`Resizing lines of line number column of track ${_trackIndex} to width = ${width}, height = ${lineHeight}`);
         _lines.forEach(line => {
                 line.y = lineHeight * line.index;
-                line.resize(width, lineHeight);
+                line.width = width;
+                line.height = lineHeight;
             });
     }
     Component {
-        id: lineComponent
-        Line {
+        id: textComponent
+        Item {
+            property int index
+            Text {
+                font.bold: true
+                text: index
+                anchors.centerIn: parent
+            }
         }
     }
 }
