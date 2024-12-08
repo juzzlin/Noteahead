@@ -37,29 +37,11 @@ Rectangle {
     function _createColumns() {
         columnContainer.createColumns();
     }
-    Rectangle {
+    TrackHeader {
         id: trackHeader
         anchors.top: parent.top
-        height: 32
         width: parent.width
-        color: Constants.trackHeaderBackgroundColor
-        border.color: Constants.trackHeaderBorderColor
-        border.width: 1
-        TextField {
-            text: _name
-            placeholderText: qsTr("Track name")
-            color: Constants.trackHeaderTextColor
-            background: Rectangle {
-                color: "transparent"
-            }
-            font.pixelSize: 24
-            height: parent.height
-            width: parent.width
-            verticalAlignment: Text.AlignVCenter
-            horizontalAlignment: Text.AlignHCenter
-            padding: 0  // Remove default padding
-            onTextChanged: rootItem.nameChanged(text)
-        }
+        onNameChanged: name => rootItem.nameChanged(name)
     }
     Rectangle {
         id: columnContainer
