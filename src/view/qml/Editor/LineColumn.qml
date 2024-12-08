@@ -21,12 +21,16 @@ Rectangle {
     function updateData() {
         _createLines();
     }
+    function _lineHeight() {
+        const lineCount = editorService.linesVisible();
+        return rootItem.height / lineCount;
+    }
     function _createLines() {
         console.log(`Creating line number column for track ${_trackIndex}`);
         _lines = [];
         const lineCount = editorService.lineCount(editorService.currentPatternId());
+        const lineHeight = _lineHeight();
         for (let lineIndex = 0; lineIndex < lineCount; lineIndex++) {
-            const lineHeight = rootItem.height / lineCount;
             const line = textComponent.createObject(rootItem, {
                     "index": lineIndex,
                     "width": rootItem.width,
@@ -39,7 +43,7 @@ Rectangle {
     }
     function _resizeLines() {
         const lineCount = editorService.lineCount(editorService.currentPatternId());
-        const lineHeight = rootItem.height / lineCount;
+        const lineHeight = _lineHeight();
         console.log(`Resizing lines of line number column of track ${_trackIndex} to width = ${width}, height = ${lineHeight}`);
         _lines.forEach(line => {
                 line.y = lineHeight * line.index;
@@ -57,7 +61,8 @@ Rectangle {
             Text {
                 color: Constants.lineNumberColumnTextColor
                 font.bold: true
-                text: index
+                font.pixelSize: parent.height * 0.8
+                text: index < 10 ? `0${index}` : index
                 anchors.centerIn: parent
             }
             IndexHighlight {

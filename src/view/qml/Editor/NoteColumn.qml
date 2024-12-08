@@ -24,13 +24,17 @@ Rectangle {
     function updateData() {
         _createLines();
     }
+    function _lineHeight() {
+        const lineCount = editorService.linesVisible();
+        return rootItem.height / lineCount;
+    }
     function _createLines() {
         console.log(`Creating lines for column ${_index} on track ${_trackIndex}`);
         _lines = [];
         const lineCount = editorService.lineCount(editorService.currentPatternId());
+        const lineHeight = _lineHeight();
         for (let lineIndex = 0; lineIndex < lineCount; lineIndex++) {
             const note = editorService.noteAtPosition(editorService.currentPatternId(), _trackIndex, _index, lineIndex);
-            const lineHeight = rootItem.height / lineCount;
             const line = lineComponent.createObject(rootItem, {
                     "index": lineIndex,
                     "width": rootItem.width,
@@ -44,7 +48,7 @@ Rectangle {
     }
     function _resizeLines() {
         const lineCount = editorService.lineCount(editorService.currentPatternId());
-        const lineHeight = rootItem.height / lineCount;
+        const lineHeight = _lineHeight();
         console.log(`Resizing lines of column ${_trackIndex}, ${_index} to width = ${width}, height = ${lineHeight}`);
         _lines.forEach(line => {
                 line.y = lineHeight * line.index;
