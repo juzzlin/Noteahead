@@ -45,7 +45,7 @@ ApplicationWindow {
     }
     property bool screenInit: false
     property var _editorView
-    Universal.theme: Universal.Light
+    Universal.theme: Universal.Dark
     Item {
         id: contentArea
         anchors.top: menuBar.bottom
