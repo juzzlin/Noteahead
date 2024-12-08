@@ -27,7 +27,7 @@ void EditorServiceTest::testDefaultSong_shouldReturnCorrectProperties()
     QCOMPARE(editorService.trackCount(), trackCount);
     for (uint32_t trackId = 0; trackId < trackCount; trackId++) {
         QCOMPARE(editorService.columnCount(trackId), 1);
-        QCOMPARE(editorService.trackName(trackId), QString { "Track %1" }.arg(trackId));
+        QCOMPARE(editorService.trackName(trackId), QString { "Track %1" }.arg(trackId + 1));
     }
 
     for (uint32_t trackId = 0; trackId < trackCount; trackId++) {

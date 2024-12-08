@@ -61,7 +61,7 @@ Pattern::NoteDataS Pattern::noteDataAtPosition(uint32_t trackId, uint32_t column
 void Pattern::initialize(uint32_t length, uint32_t trackCount)
 {
     for (uint32_t i = 0; i < trackCount; i++) {
-        m_tracks.push_back(std::make_shared<Track>("Track " + std::to_string(i), Track::Type::Drum, length, 1));
+        m_tracks.push_back(std::make_shared<Track>("Track " + std::to_string(i + 1), Track::Type::Drum, length, 1));
     }
 }
 
