@@ -18,5 +18,6 @@ QtObject {
     readonly property color trackBorderColor: "#888888"
     readonly property color trackHeaderBackgroundColor: "black"
     readonly property color trackHeaderBorderColor: "#222222"
+    readonly property int trackHeaderHeight: 40
     readonly property color trackHeaderTextColor: "orange"
 }

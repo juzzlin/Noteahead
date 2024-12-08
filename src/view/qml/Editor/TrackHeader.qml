@@ -5,7 +5,7 @@ import ".."
 
 Rectangle {
     id: rootItem
-    height: 32
+    height: Constants.trackHeaderHeight
     width: parent.width
     color: Constants.trackHeaderBackgroundColor
     border.color: Constants.trackHeaderBorderColor
@@ -18,7 +18,9 @@ Rectangle {
         background: Rectangle {
             color: "transparent"
         }
-        font.pixelSize: 24
+        font.bold: true
+        font.pixelSize: parent.height * 0.8
+        font.family: "monospace"
         height: parent.height
         width: parent.width
         verticalAlignment: Text.AlignVCenter

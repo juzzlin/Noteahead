@@ -13,6 +13,7 @@ Rectangle {
         anchors.centerIn: parent
         text: rootItem.note
         font.pixelSize: parent.height * 0.8
+        font.family: "monospace"
         color: Constants.noteColumnTextColor
     }
     function resize(width, height) {

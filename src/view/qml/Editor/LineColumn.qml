@@ -60,8 +60,8 @@ Rectangle {
             property int index
             Text {
                 color: Constants.lineNumberColumnTextColor
-                font.bold: true
                 font.pixelSize: parent.height * 0.8
+                font.family: "monospace"
                 text: index < 10 ? `0${index}` : index
                 anchors.centerIn: parent
             }
