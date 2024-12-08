@@ -51,11 +51,19 @@ public:
 
     Q_INVOKABLE void setTrackName(uint32_t trackId, QString name);
 
+    Q_INVOKABLE uint32_t currentPatternId() const;
+
+    Q_INVOKABLE void setCurrentPatternId(uint32_t currentPatternId);
+
 signals:
+    void currentPatternChanged();
+
     void songChanged();
 
 private:
     SongS m_song;
+
+    uint32_t m_currentPatternId = 0;
 };
 
 } // namespace cacophony

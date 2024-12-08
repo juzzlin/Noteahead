@@ -4,30 +4,26 @@ import QtQuick.Controls.Universal 2.15
 
 Item {
     id: rootItem
-
     property int _trackCount: 0
-
     property var _tracks: []
-
     Component {
         id: trackComponent
         Track {
             height: rootItem.height
         }
     }
-
     function clearTracks() {
         _tracks.forEach(track => {
                 track.destroy();
             });
         _tracks = [];
     }
-
     function setTrackDimensionsByIndex(track, trackIndex) {
         track.width = rootItem.width / _trackCount;
+        track.height = rootItem.height;
+        track.y = 0;
         track.x = trackIndex * track.width;
     }
-
     function createTracks() {
         _trackCount = editorService.trackCount();
         console.log(`Editor view width: ${rootItem.width}`);
@@ -38,36 +34,34 @@ Item {
                 track.setIndex(trackIndex);
                 track.setName(editorService.trackName(trackIndex));
                 track.nameChanged.connect(name => editorService.setTrackName(trackIndex, name));
+                track.updateData();
                 _tracks.push(track);
-                console.log(`Added track index=${trackIndex}, width=${track.width}, x=${track.x}`);
+                console.log(`Added track index=${trackIndex}, width=${track.width}, height=${track.height}, x=${track.x}, y=${track.y}`);
             }
         }
     }
-
     function refreshTracks() {
         console.log(`Refreshing track layout..`);
         clearTracks();
         createTracks();
     }
-
-    function updateTrackSizes() {
-        for (let i = 0; i < _tracks.length; i++) {
-            setTrackDimensionsByIndex(_tracks[i], i);
-        }
+    function resize(width, height) {
+        rootItem.width = width;
+        rootItem.height = height;
+        updateTrackSizes();
     }
-
+    function updateTrackSizes() {
+        _tracks.forEach(track => {
+                track.x = track.index() * track.width;
+                track.resize(rootItem.width / _trackCount, rootItem.height);
+            });
+    }
     function connectSignals() {
         editorService.songChanged.connect(refreshTracks);
     }
-
     function initialize() {
         connectSignals();
         refreshTracks();
     }
-
     Component.onCompleted: initialize()
-
-    onWidthChanged: updateTrackSizes()
-
-    onHeightChanged: updateTrackSizes()
 }

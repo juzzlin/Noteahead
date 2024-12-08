@@ -82,4 +82,17 @@ void EditorService::setTrackName(uint32_t trackId, QString name)
     m_song->setTrackName(trackId, name.toStdString());
 }
 
+uint32_t EditorService::currentPatternId() const
+{
+    return m_currentPatternId;
+}
+
+void EditorService::setCurrentPatternId(uint32_t currentPatternId)
+{
+    if (m_currentPatternId != currentPatternId) {
+        m_currentPatternId = currentPatternId;
+        emit currentPatternChanged();
+    }
+}
+
 } // namespace cacophony

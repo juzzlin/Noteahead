@@ -21,7 +21,6 @@ import "Editor"
 
 ApplicationWindow {
     id: mainWindow
-    property bool screenInit: false
     visible: true
     title: qsTr("Cacophony")
     menuBar: MenuBar {
@@ -44,15 +43,16 @@ ApplicationWindow {
             }
         }
     }
+    property bool screenInit: false
+    property var _editorView
     Universal.theme: Universal.Light
-    EditorView {
-        id: editorView
-        anchors.left: parent.left
-        anchors.right: parent.right
-        anchors.top: menuBar.bottom
-        anchors.bottom: parent.bottom
+    Component {
+        id: editorViewComponent
+        EditorView {
+            id: editorView
+        }
     }
-    function setWindowSizeAndPosition() {
+    function _setWindowSizeAndPosition() {
         const defaultWindowScale = Constants.defaultWindowScale;
         width = config.loadWindowSize(Qt.size(mainWindow.screen.width * defaultWindowScale, mainWindow.screen.height * defaultWindowScale)).width;
         width = Math.max(width, Constants.minWindowWidth);
@@ -61,6 +61,21 @@ ApplicationWindow {
         setX(mainWindow.screen.width / 2 - width / 2);
         setY(mainWindow.screen.height / 2 - height / 2);
     }
-    Component.onCompleted: setWindowSizeAndPosition()
+    function _initialize() {
+        _setWindowSizeAndPosition();
+        _editorView = editorViewComponent.createObject(mainWindow, {
+                "height": mainWindow.height - menuBar.height,
+                "width": mainWindow.width,
+                "y": menuBar.height
+            });
+    }
+    function _resize() {
+        _editorView.resize(mainWindow.width, mainWindow.height - menuBar.height);
+    }
+    Component.onCompleted: {
+        _initialize();
+    }
+    onWidthChanged: _resize()
+    onHeightChanged: _resize()
     onClosing: config.saveWindowSize(Qt.size(mainWindow.width, mainWindow.height))
 }
