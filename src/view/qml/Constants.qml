@@ -11,4 +11,7 @@ QtObject {
     readonly property color noteColumnBackgroundColor: "black"
     readonly property color noteColumnBorderColor: "#222222"
     readonly property color noteColumnTextColor: "white"
+    readonly property color trackHeaderBackgroundColor: "black"
+    readonly property color trackHeaderBorderColor: "#222222"
+    readonly property color trackHeaderTextColor: "orange"
 }
