@@ -1,8 +1,9 @@
 import QtQuick 2.15
+import ".."
 
 Rectangle {
     id: rootItem
-    color: "gray"
+    color: Constants.lineNumberColumnBackgroundColor
     property int _index: 0
     property int _trackIndex: 0
     property var _lines: []
@@ -48,12 +49,20 @@ Rectangle {
     }
     Component {
         id: textComponent
-        Item {
+        Rectangle {
+            color: Constants.lineNumberColumnBackgroundColor
+            border.color: Constants.lineNumberColumnBorderColor
+            border.width: 1
             property int index
             Text {
+                color: Constants.lineNumberColumnTextColor
                 font.bold: true
                 text: index
                 anchors.centerIn: parent
+            }
+            IndexHighlight {
+                anchors.fill: parent
+                index: parent.index
             }
         }
     }
