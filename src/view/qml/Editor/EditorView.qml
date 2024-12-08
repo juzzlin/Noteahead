@@ -7,7 +7,7 @@ Item {
 
     property int _trackCount: 0
 
-    property var _trackComponents: []
+    property var _tracks: []
 
     Component {
         id: trackComponent
@@ -17,10 +17,10 @@ Item {
     }
 
     function clearTracks() {
-        _trackComponents.forEach(track => {
+        _tracks.forEach(track => {
                 track.destroy();
             });
-        _trackComponents = [];
+        _tracks = [];
     }
 
     function setTrackDimensionsByIndex(track, trackIndex) {
@@ -32,14 +32,13 @@ Item {
         _trackCount = editorService.trackCount();
         console.log(`Editor view width: ${rootItem.width}`);
         for (let trackIndex = 0; trackIndex < _trackCount; trackIndex++) {
-            const track = trackComponent.createObject(editorView, {
-                    "index": trackIndex
-                });
+            const track = trackComponent.createObject(editorView);
             if (track) {
                 setTrackDimensionsByIndex(track, trackIndex);
-                _trackComponents.push(track);
+                track.setIndex(trackIndex);
                 track.setName(editorService.trackName(trackIndex));
                 track.nameChanged.connect(name => editorService.setTrackName(trackIndex, name));
+                _tracks.push(track);
                 console.log(`Added track index=${trackIndex}, width=${track.width}, x=${track.x}`);
             }
         }
@@ -52,8 +51,8 @@ Item {
     }
 
     function updateTrackSizes() {
-        for (let i = 0; i < _trackComponents.length; i++) {
-            setTrackDimensionsByIndex(_trackComponents[i], i);
+        for (let i = 0; i < _tracks.length; i++) {
+            setTrackDimensionsByIndex(_tracks[i], i);
         }
     }
 

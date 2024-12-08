@@ -4,13 +4,21 @@ import QtQuick.Controls.Universal 2.15
 
 Rectangle {
     id: rootItem
-    color: index % 2 === 0 ? "lightgray" : "darkgray"
+    color: _index % 2 === 0 ? "lightgray" : "darkgray"
     border.color: "black"
     border.width: 1
 
-    property int index: 0
+    property int _index: 0
 
     property string _name
+
+    function index() {
+        return _index;
+    }
+
+    function setIndex(index) {
+        _index = index;
+    }
 
     function setName(name) {
         _name = name;

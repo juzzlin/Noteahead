@@ -63,14 +63,15 @@ set(MAIN Main.qml)
 set(QML_SOURCE_FILES
     ${QML_BASE_DIR}/${MAIN}
     ${QML_BASE_DIR}/Constants.qml
-    ${QML_BASE_DIR}/EditorView.qml
-    ${QML_BASE_DIR}/Track.qml
+    ${QML_BASE_DIR}/Editor/Column.qml
+    ${QML_BASE_DIR}/Editor/EditorView.qml
+    ${QML_BASE_DIR}/Editor/Line.qml
+    ${QML_BASE_DIR}/Editor/Track.qml
 )
 
 qt_add_qml_module(${BINARY_NAME}
     URI ${URI}
     QML_FILES ${QML_SOURCE_FILES}
-
 )
 
 set_target_properties(${BINARY_NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY_DEBUG ${CMAKE_CURRENT_BINARY_DIR})
