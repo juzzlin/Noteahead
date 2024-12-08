@@ -50,8 +50,8 @@ Rectangle {
     Component {
         id: textComponent
         Rectangle {
-            color: Constants.lineNumberColumnBackgroundColor
-            border.color: Constants.lineNumberColumnBorderColor
+            color: Constants.lineNumberColumnCellBackgroundColor
+            border.color: Constants.lineNumberColumnCellBorderColor
             border.width: 1
             property int index
             Text {
@@ -65,5 +65,13 @@ Rectangle {
                 index: parent.index
             }
         }
+    }
+    Rectangle {
+        id: borderRectangle
+        color: "transparent"
+        border.color: Constants.lineNumberColumnBorderColor
+        border.width: 1
+        anchors.fill: parent
+        z: 2
     }
 }

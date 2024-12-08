@@ -3,8 +3,8 @@ import ".."
 
 Rectangle {
     id: rootItem
-    color: Constants.noteColumnBackgroundColor
-    border.color: Constants.noteColumnBorderColor
+    color: Constants.noteColumnCellBackgroundColor
+    border.color: Constants.noteColumnCellBorderColor
     border.width: 1
     property string note: ""
     property int index: 0

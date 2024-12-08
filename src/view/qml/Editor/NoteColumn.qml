@@ -1,8 +1,9 @@
 import QtQuick 2.15
+import ".."
 
 Rectangle {
     id: rootItem
-    color: "gray"
+    color: Constants.noteColumnBackgroundColor
     property int _index: 0
     property int _trackIndex: 0
     property var _lines: []
@@ -54,5 +55,13 @@ Rectangle {
         id: lineComponent
         Line {
         }
+    }
+    Rectangle {
+        id: borderRectangle
+        color: "transparent"
+        border.color: Constants.noteColumnBorderColor
+        border.width: 1
+        anchors.fill: parent
+        z: 2
     }
 }

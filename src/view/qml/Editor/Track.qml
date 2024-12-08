@@ -3,11 +3,8 @@ import QtQuick.Controls 2.15
 import QtQuick.Controls.Universal 2.15
 import ".."
 
-Rectangle {
+Item {
     id: rootItem
-    color: _index % 2 === 0 ? "lightgray" : "darkgray"
-    border.color: "black"
-    border.width: 1
     property int _index: 0
     property string _name
     signal nameChanged(string name)
@@ -43,13 +40,12 @@ Rectangle {
         width: parent.width
         onNameChanged: name => rootItem.nameChanged(name)
     }
-    Rectangle {
+    Item {
         id: columnContainer
         anchors.top: trackHeader.bottom
         anchors.bottom: rootItem.bottom
         anchors.left: rootItem.left
         anchors.right: rootItem.right
-        color: "red"
         property int _noteColumnCount
         property var _noteColumns: []
         property var _lineColumn
@@ -127,5 +123,12 @@ Rectangle {
             NoteColumn {
             }
         }
+    }
+    Rectangle {
+        id: borderRectangle
+        anchors.fill: parent
+        color: "transparent"
+        border.color: Constants.trackBorderColor
+        border.width: 1
     }
 }
