@@ -50,38 +50,17 @@ Item {
         property var _noteColumns: []
         property var _lineColumn
         function clearColumns() {
-            if (_lineColumn) {
-                _lineColumn.destroy();
-            }
             _noteColumns.forEach(column => column.destroy());
         }
         function createColumns() {
             _noteColumnCount = editorService.columnCount(_index);
-            _createLineColumn();
             _createNoteColumns();
         }
-        function _lineColumnX() {
-            return 0;
-        }
-        function _lineColumnWidth() {
-            return width * 0.25;
-        }
         function _noteColumnX(index) {
-            return _noteColumnWidth() * index + _lineColumnX() + _lineColumnWidth();
+            return _noteColumnWidth() * index;
         }
         function _noteColumnWidth() {
-            return width * 0.75 / _noteColumnCount;
-        }
-        function _createLineColumn() {
-            const lineColumnWidth = _lineColumnWidth();
-            const lineColumnHeight = columnContainer.height;
-            const lineColumn = lineNumberColumnComponent.createObject(columnContainer);
-            console.log(`Line column width: ${lineColumnWidth}, height: ${lineColumnHeight}`);
-            lineColumn.width = lineColumnWidth;
-            lineColumn.height = lineColumnHeight;
-            lineColumn.x = _lineColumnX();
-            lineColumn.updateData();
-            _lineColumn = lineColumn;
+            return width / _noteColumnCount;
         }
         function _createNoteColumns() {
             _noteColumns = [];
@@ -109,14 +88,6 @@ Item {
                     noteColumn.x = _noteColumnX(noteColumn.index());
                     noteColumn.resize(noteColumnWidth, noteColumnHeight);
                 });
-            const lineColumnWidth = _lineColumnWidth();
-            const lineColumnHeight = height;
-            _lineColumn.resize(lineColumnWidth, lineColumnHeight);
-        }
-        Component {
-            id: lineNumberColumnComponent
-            LineNumberColumn {
-            }
         }
         Component {
             id: noteColumnComponent

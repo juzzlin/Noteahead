@@ -10,6 +10,7 @@ QtObject {
     readonly property color lineNumberColumnCellBackgroundColor: "black"
     readonly property color lineNumberColumnCellBorderColor: "#222222"
     readonly property color lineNumberColumnTextColor: "orange"
+    readonly property int lineNumberColumnWidth: 50
     readonly property color noteColumnBackgroundColor: "black"
     readonly property color noteColumnBorderColor: "#444444"
     readonly property color noteColumnCellBackgroundColor: "black"
