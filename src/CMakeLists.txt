@@ -65,9 +65,9 @@ set(QML_SOURCE_FILES
     ${QML_BASE_DIR}/Constants.qml
     ${QML_BASE_DIR}/Editor/EditorView.qml
     ${QML_BASE_DIR}/Editor/IndexHighlight.qml
-    ${QML_BASE_DIR}/Editor/Line.qml
-    ${QML_BASE_DIR}/Editor/LineColumn.qml
+    ${QML_BASE_DIR}/Editor/LineNumberColumn.qml
     ${QML_BASE_DIR}/Editor/NoteColumn.qml
+    ${QML_BASE_DIR}/Editor/NoteColumnLine.qml
     ${QML_BASE_DIR}/Editor/Track.qml
     ${QML_BASE_DIR}/Editor/TrackHeader.qml
 )

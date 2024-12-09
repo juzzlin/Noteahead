@@ -75,7 +75,7 @@ Item {
         function _createLineColumn() {
             const lineColumnWidth = _lineColumnWidth();
             const lineColumnHeight = columnContainer.height;
-            const lineColumn = lineColumnComponent.createObject(columnContainer);
+            const lineColumn = lineNumberColumnComponent.createObject(columnContainer);
             console.log(`Line column width: ${lineColumnWidth}, height: ${lineColumnHeight}`);
             lineColumn.width = lineColumnWidth;
             lineColumn.height = lineColumnHeight;
@@ -114,8 +114,8 @@ Item {
             _lineColumn.resize(lineColumnWidth, lineColumnHeight);
         }
         Component {
-            id: lineColumnComponent
-            LineColumn {
+            id: lineNumberColumnComponent
+            LineNumberColumn {
             }
         }
         Component {

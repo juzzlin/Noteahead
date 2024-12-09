@@ -35,7 +35,7 @@ Rectangle {
         const lineHeight = _lineHeight();
         for (let lineIndex = 0; lineIndex < lineCount; lineIndex++) {
             const note = editorService.noteAtPosition(editorService.currentPatternId(), _trackIndex, _index, lineIndex);
-            const line = lineComponent.createObject(rootItem, {
+            const line = noteColumnLineComponent.createObject(rootItem, {
                     "index": lineIndex,
                     "width": rootItem.width,
                     "height": lineHeight,
@@ -56,8 +56,8 @@ Rectangle {
             });
     }
     Component {
-        id: lineComponent
-        Line {
+        id: noteColumnLineComponent
+        NoteColumnLine {
         }
     }
     Rectangle {
