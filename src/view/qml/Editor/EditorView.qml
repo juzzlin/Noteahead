@@ -7,6 +7,7 @@ Item {
     id: rootItem
     property int _trackCount: 0
     property var _tracks: []
+    focus: true
     Component {
         id: trackComponent
         Track {
@@ -27,6 +28,14 @@ Item {
         anchors.top: parent.top
         anchors.left: lineNumberColumnLeft.right
         anchors.right: lineNumberColumnRight.left
+    }
+    PositionBar {
+        id: positionBar
+        width: rootItem.width
+        height: _positionBarHeight()
+        x: 0
+        y: _positionBarY()
+        z: 10
     }
     LineNumberColumn {
         id: lineNumberColumnRight
@@ -105,6 +114,12 @@ Item {
     function _lineNumberColumnWidth() {
         return Constants.lineNumberColumnWidth;
     }
+    function _positionBarHeight() {
+        return _lineNumberColumnHeight() / editorService.linesVisible();
+    }
+    function _positionBarY() {
+        return editorService.positionBarLine() * _positionBarHeight() + Constants.trackHeaderHeight;
+    }
     function _createLineColumns() {
         lineNumberColumnLeft.width = _lineNumberColumnWidth();
         lineNumberColumnLeft.updateData();
@@ -114,6 +129,15 @@ Item {
     function _updateLineColumns() {
         lineNumberColumnLeft.resize(_lineNumberColumnWidth(), _lineNumberColumnHeight());
         lineNumberColumnRight.resize(_lineNumberColumnWidth(), _lineNumberColumnHeight());
+    }
+    Keys.onPressed: event => {
+        if (event.key === Qt.Key_Up) {
+            editorService.scroll(-1);
+            event.accepted = true;
+        } else if (event.key === Qt.Key_Down) {
+            editorService.scroll(1);
+            event.accepted = true;
+        }
     }
     Component.onCompleted: initialize()
 }

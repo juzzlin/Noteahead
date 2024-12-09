@@ -10,16 +10,21 @@ QtObject {
     readonly property color lineNumberColumnCellBackgroundColor: "black"
     readonly property color lineNumberColumnCellBorderColor: "#222222"
     readonly property color lineNumberColumnTextColor: "orange"
+    readonly property color lineNumberColumnOverflowTextColor: "#444444"
     readonly property int lineNumberColumnWidth: 50
     readonly property color noteColumnBackgroundColor: "black"
     readonly property color noteColumnBorderColor: "#444444"
     readonly property color noteColumnCellBackgroundColor: "black"
     readonly property color noteColumnCellBorderColor: "#222222"
     readonly property color noteColumnTextColor: "white"
+    readonly property color positionBarColor: "orange"
+    readonly property color positionBarBorderColor: "white"
+    readonly property int positionBarBorderWidth: 1
+    readonly property double positionBarOpacity: 0.25
     readonly property color trackBorderColor: "#888888"
     readonly property color trackBorderFocusedColor: "orange"
     readonly property int trackBorderWidth: 1
-    readonly property int trackBorderFocusedWidth: 8
+    readonly property int trackBorderFocusedWidth: 4
     readonly property color trackHeaderBackgroundColor: "black"
     readonly property color trackHeaderBorderColor: "#222222"
     readonly property int trackHeaderHeight: 40

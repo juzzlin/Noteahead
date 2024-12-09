@@ -4,8 +4,10 @@ import ".."
 Rectangle {
     id: rootItem
     color: Constants.noteColumnBackgroundColor
+    clip: true
     property int _index: 0
     property int _trackIndex: 0
+    property int _scrollOffset: 0
     property var _lines: []
     function resize(width, height) {
         rootItem.width = width;
@@ -28,10 +30,12 @@ Rectangle {
         const lineCount = editorService.linesVisible();
         return rootItem.height / lineCount;
     }
+    function _scrolledLinePositionByLineIndex(lineIndex) {
+        return lineIndex - _scrollOffset + editorService.positionBarLine();
+    }
     function _createLines() {
-        console.log(`Creating lines for column ${_index} on track ${_trackIndex}`);
         _lines = [];
-        const lineCount = editorService.lineCount(editorService.currentPatternId());
+        const lineCount = editorService.currentLineCount();
         const lineHeight = _lineHeight();
         for (let lineIndex = 0; lineIndex < lineCount; lineIndex++) {
             const note = editorService.noteAtPosition(editorService.currentPatternId(), _trackIndex, _index, lineIndex);
@@ -40,19 +44,24 @@ Rectangle {
                     "width": rootItem.width,
                     "height": lineHeight,
                     "x": 0,
-                    "y": lineHeight * lineIndex,
+                    "y": lineHeight * _scrolledLinePositionByLineIndex(lineIndex),
                     "note": note
                 });
             _lines.push(line);
         }
     }
     function _resizeLines() {
-        const lineCount = editorService.lineCount(editorService.currentPatternId());
+        const lineCount = editorService.currentLineCount();
         const lineHeight = _lineHeight();
-        console.log(`Resizing lines of column ${_trackIndex}, ${_index} to width = ${width}, height = ${lineHeight}`);
         _lines.forEach(line => {
-                line.y = lineHeight * line.index;
+                line.y = lineHeight * _scrolledLinePositionByLineIndex(line.index);
                 line.resize(width, lineHeight);
+            });
+    }
+    function _scrollLines() {
+        const lineHeight = _lineHeight();
+        _lines.forEach(line => {
+                line.y = lineHeight * _scrolledLinePositionByLineIndex(line.index);
             });
     }
     Component {
@@ -67,5 +76,14 @@ Rectangle {
         border.width: 1
         anchors.fill: parent
         z: 2
+    }
+    function _connectToEditorService() {
+        editorService.positionChanged.connect(position => {
+                _scrollOffset = position.line;
+                _scrollLines();
+            });
+    }
+    Component.onCompleted: {
+        _connectToEditorService();
     }
 }

@@ -53,6 +53,31 @@ void EditorServiceTest::testDefaultSong_shouldNotHaveNoteData()
     }
 }
 
+void EditorServiceTest::testDefaultSong_scroll_shouldCorrectly()
+{
+    EditorService editorService;
+
+    QCOMPARE(editorService.position().line, 0);
+
+    editorService.scroll(1);
+    QCOMPARE(editorService.position().line, 1);
+
+    editorService.scroll(0);
+    QCOMPARE(editorService.position().line, 1);
+
+    editorService.scroll(-1);
+    QCOMPARE(editorService.position().line, 0);
+
+    editorService.scroll(-10);
+    QCOMPARE(editorService.position().line, editorService.lineCount(editorService.currentPatternId()) - 10);
+
+    editorService.scroll(10);
+    QCOMPARE(editorService.position().line, 0);
+
+    editorService.scroll(static_cast<int>(editorService.lineCount(editorService.currentPatternId()) + 10));
+    QCOMPARE(editorService.position().line, 10);
+}
+
 void EditorServiceTest::testSetTrackName_shouldChangeTrackName()
 {
     EditorService editorService;

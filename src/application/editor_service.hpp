@@ -16,6 +16,7 @@
 #ifndef EDITOR_SERVICE_HPP
 #define EDITOR_SERVICE_HPP
 
+#include "position.hpp"
 #include <QObject>
 
 namespace cacophony {
@@ -39,6 +40,10 @@ public:
 
     Q_INVOKABLE uint32_t lineCount(uint32_t patternId) const;
 
+    Q_INVOKABLE uint32_t currentLineCount() const;
+
+    Q_INVOKABLE int lineNumberAtViewLine(uint32_t line) const;
+
     Q_INVOKABLE uint32_t linesVisible() const;
 
     Q_INVOKABLE QString noteAtPosition(uint32_t patternId, uint32_t trackId, uint32_t columnId, uint32_t line) const;
@@ -55,8 +60,16 @@ public:
 
     Q_INVOKABLE void setCurrentPatternId(uint32_t currentPatternId);
 
+    Q_INVOKABLE void scroll(int steps);
+
+    Q_INVOKABLE Position position() const;
+
+    Q_INVOKABLE uint32_t positionBarLine() const;
+
 signals:
     void currentPatternChanged();
+
+    void positionChanged(const Position & position);
 
     void songChanged();
 
@@ -64,6 +77,8 @@ private:
     SongS m_song;
 
     uint32_t m_currentPatternId = 0;
+
+    Position m_position;
 };
 
 } // namespace cacophony

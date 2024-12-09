@@ -4,19 +4,12 @@ import ".."
 Rectangle {
     id: rootItem
     color: Constants.lineNumberColumnBackgroundColor
-    property int _index: 0
-    property int _trackIndex: 0
     property var _lines: []
+    property int _scrollOffset: 0
     function resize(width, height) {
         rootItem.width = width;
         rootItem.height = height;
         _resizeLines();
-    }
-    function setIndex(index) {
-        _index = index;
-    }
-    function setTrackIndex(index) {
-        _trackIndex = index;
     }
     function updateData() {
         _createLines();
@@ -26,13 +19,13 @@ Rectangle {
         return rootItem.height / lineCount;
     }
     function _createLines() {
-        console.log(`Creating line number column for track ${_trackIndex}`);
         _lines = [];
         const lineCount = editorService.lineCount(editorService.currentPatternId());
         const lineHeight = _lineHeight();
         for (let lineIndex = 0; lineIndex < lineCount; lineIndex++) {
             const line = textComponent.createObject(rootItem, {
                     "index": lineIndex,
+                    "lineNumber": editorService.lineNumberAtViewLine(lineIndex),
                     "width": rootItem.width,
                     "height": lineHeight,
                     "x": 0,
@@ -42,11 +35,10 @@ Rectangle {
         }
     }
     function _resizeLines() {
-        const lineCount = editorService.lineCount(editorService.currentPatternId());
+        const lineCount = editorService.currentLineCount();
         const lineHeight = _lineHeight();
-        console.log(`Resizing lines of line number column of track ${_trackIndex} to width = ${width}, height = ${lineHeight}`);
         _lines.forEach(line => {
-                line.y = lineHeight * line.index;
+                line.y = lineHeight * (line.index + _scrollOffset);
                 line.width = width;
                 line.height = lineHeight;
             });
@@ -54,20 +46,29 @@ Rectangle {
     Component {
         id: textComponent
         Rectangle {
-            color: Constants.lineNumberColumnCellBackgroundColor
+            color: lineNumber < 0 ? "transparent" : Constants.lineNumberColumnCellBackgroundColor
             border.color: Constants.lineNumberColumnCellBorderColor
             border.width: 1
             property int index
+            property int lineNumber
+            function updateLineNumber() {
+                lineNumber = editorService.lineNumberAtViewLine(index);
+            }
+            function _formattedLineNumber() {
+                const lineCount = editorService.currentLineCount();
+                const formattedLineNumber = Math.abs(lineNumber) % lineCount;
+                return formattedLineNumber < 10 ? `0${formattedLineNumber}` : formattedLineNumber;
+            }
             Text {
-                color: Constants.lineNumberColumnTextColor
+                color: lineNumber < 0 || lineNumber >= editorService.currentLineCount() ? Constants.lineNumberColumnOverflowTextColor : Constants.lineNumberColumnTextColor
                 font.pixelSize: parent.height * 0.8
                 font.family: "monospace"
-                text: index < 10 ? `0${index}` : index
+                text: _formattedLineNumber()
                 anchors.centerIn: parent
             }
             IndexHighlight {
                 anchors.fill: parent
-                index: parent.index
+                index: lineNumber
             }
         }
     }
@@ -78,5 +79,15 @@ Rectangle {
         border.width: 1
         anchors.fill: parent
         z: 2
+    }
+    function _connectToEditorService() {
+        editorService.positionChanged.connect(position => {
+                _lines.forEach(line => {
+                        line.updateLineNumber();
+                    });
+            });
+    }
+    Component.onCompleted: {
+        _connectToEditorService();
     }
 }

@@ -35,7 +35,10 @@ void EditorService::setSong(SongS song)
 {
     m_song = song;
 
+    m_position = {};
+
     emit songChanged();
+    emit positionChanged(m_position);
 }
 
 uint32_t EditorService::columnCount(uint32_t trackId) const
@@ -48,9 +51,26 @@ uint32_t EditorService::lineCount(uint32_t patternId) const
     return m_song->lineCount(patternId);
 }
 
+uint32_t EditorService::currentLineCount() const
+{
+    return m_song->lineCount(m_currentPatternId);
+}
+
 uint32_t EditorService::linesVisible() const
 {
     return 32;
+}
+
+int EditorService::lineNumberAtViewLine(uint32_t line) const
+{
+    // Encode underflow and overflow as negative numbers. The view will show "-64" as "64" but in a different color.
+    const int lineNumber = (static_cast<int>(line) + m_position.line - static_cast<int>(positionBarLine()));
+    const int lineCount = static_cast<int>(this->lineCount(currentPatternId()));
+    if (lineNumber < 0) {
+        return -(lineCount + lineNumber);
+    } else {
+        return lineNumber;
+    }
 }
 
 QString EditorService::noteAtPosition(uint32_t patternId, uint32_t trackId, uint32_t columnId, uint32_t line) const
@@ -93,6 +113,23 @@ void EditorService::setCurrentPatternId(uint32_t currentPatternId)
         m_currentPatternId = currentPatternId;
         emit currentPatternChanged();
     }
+}
+
+void EditorService::scroll(int steps)
+{
+    m_position.line += steps;
+    m_position.line %= m_song->lineCount(m_position.pattern);
+    emit positionChanged(m_position);
+}
+
+Position EditorService::position() const
+{
+    return m_position;
+}
+
+uint32_t EditorService::positionBarLine() const
+{
+    return 8;
 }
 
 } // namespace cacophony

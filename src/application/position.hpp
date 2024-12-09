@@ -13,28 +13,32 @@
 // You should have received a copy of the GNU General Public License
 // along with Cacophony. If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef EDITOR_SERVICE_TEST_HPP
-#define EDITOR_SERVICE_TEST_HPP
+#ifndef POSITION_HPP
+#define POSITION_HPP
 
-#include <QTest>
+#include <QObject>
+#include <cstdint>
 
 namespace cacophony {
 
-class EditorServiceTest : public QObject
+struct Position
 {
-    Q_OBJECT
+    Q_GADGET
+    Q_PROPERTY(uint32_t pattern MEMBER pattern)
+    Q_PROPERTY(uint32_t track MEMBER track)
+    Q_PROPERTY(uint32_t column MEMBER column)
+    Q_PROPERTY(int line MEMBER line)
 
-private slots:
+public:
+    uint32_t pattern = 0;
 
-    void testDefaultSong_shouldReturnCorrectProperties();
+    uint32_t track = 0;
 
-    void testDefaultSong_shouldNotHaveNoteData();
+    uint32_t column = 0;
 
-    void testDefaultSong_scroll_shouldCorrectly();
-
-    void testSetTrackName_shouldChangeTrackName();
+    int line = 0;
 };
 
 } // namespace cacophony
 
-#endif // EDITOR_SERVICE_TEST_HPP
+#endif // POSITION_HPP

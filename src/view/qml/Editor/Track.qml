@@ -116,7 +116,10 @@ Item {
     }
     MouseArea {
         id: clickHandler
-        anchors.fill: parent
+        anchors.top: trackHeader.bottom
+        anchors.left: parent.left
+        anchors.right: parent.right
+        anchors.bottom: parent.bottom
         onClicked: {
             console.log(`Track ${rootItem._index} clicked`);
             rootItem.clicked();
