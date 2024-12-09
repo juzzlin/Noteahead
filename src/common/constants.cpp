@@ -15,7 +15,7 @@
 
 #include "constants.hpp"
 
-namespace cacophony::constants {
+namespace cacophony::Constants {
 
 std::string applicationName()
 {

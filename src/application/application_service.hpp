@@ -23,8 +23,13 @@ namespace cacophony {
 class ApplicationService : public QObject
 {
     Q_OBJECT
+
 public:
     ApplicationService();
+
+    Q_INVOKABLE QString applicationName() const;
+
+    Q_INVOKABLE QString applicationVersion() const;
 };
 
 } // namespace cacophony

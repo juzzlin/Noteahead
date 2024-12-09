@@ -15,10 +15,20 @@
 
 #include "application_service.hpp"
 
+#include "../common/constants.hpp"
+
 namespace cacophony {
 
-ApplicationService::ApplicationService()
+ApplicationService::ApplicationService() = default;
+
+QString ApplicationService::applicationName() const
 {
+    return Constants::applicationName().c_str();
+}
+
+QString ApplicationService::applicationVersion() const
+{
+    return Constants::applicationVersion().c_str();
 }
 
 } // namespace cacophony

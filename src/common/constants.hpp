@@ -18,7 +18,7 @@
 
 #include <string>
 
-namespace cacophony::constants {
+namespace cacophony::Constants {
 
 std::string applicationName();
 
@@ -32,6 +32,6 @@ std::string webSiteUrl();
 
 std::string qSettingSoftwareName();
 
-} // namespace cacophony::constants
+} // namespace cacophony::Constants
 
 #endif // CONSTANTS_HPP

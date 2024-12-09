@@ -22,7 +22,7 @@ import "Editor"
 ApplicationWindow {
     id: mainWindow
     visible: true
-    title: qsTr("Cacophony")
+    title: `${applicationService.applicationName()} MIDI tracker v${applicationService.applicationVersion()}`
     menuBar: MenuBar {
         Menu {
             title: qsTr("&File")
