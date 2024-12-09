@@ -48,6 +48,12 @@ Item {
         track.y = 0;
         track.x = trackIndex * track.width;
     }
+    function _connectTrack(track) {
+        track.clicked.connect(() => {
+                setAllTracksUnfocused();
+                track.setFocused(true);
+            });
+    }
     function createTracks() {
         _trackCount = editorService.trackCount();
         console.log(`Editor view width: ${rootItem.width}`);
@@ -60,6 +66,7 @@ Item {
                 track.nameChanged.connect(name => editorService.setTrackName(trackIndex, name));
                 track.updateData();
                 _tracks.push(track);
+                _connectTrack(track);
                 console.log(`Added track index=${trackIndex}, width=${track.width}, height=${track.height}, x=${track.x}, y=${track.y}`);
             }
         }
@@ -74,6 +81,9 @@ Item {
         rootItem.height = height;
         _updateTrackSizes();
         _updateLineColumns();
+    }
+    function setAllTracksUnfocused() {
+        _tracks.forEach(track => track.setFocused(false));
     }
     function _updateTrackSizes() {
         _tracks.forEach(track => {

@@ -7,6 +7,8 @@ Item {
     id: rootItem
     property int _index: 0
     property string _name
+    property bool _focused
+    signal clicked
     signal nameChanged(string name)
     function index() {
         return _index;
@@ -16,6 +18,12 @@ Item {
         rootItem.width = width;
         rootItem.height = height;
         columnContainer.resize(rootItem.width, rootItem.height - trackHeader.height);
+    }
+    function focused() {
+        return _focused;
+    }
+    function setFocused(focused) {
+        _focused = focused;
     }
     function setIndex(index) {
         _index = index;
@@ -100,6 +108,18 @@ Item {
         anchors.fill: parent
         color: "transparent"
         border.color: Constants.trackBorderColor
-        border.width: 1
+        border.width: Constants.trackBorderWidth
+    }
+    TrackFocusThing {
+        anchors.fill: parent
+        visible: focused()
+    }
+    MouseArea {
+        id: clickHandler
+        anchors.fill: parent
+        onClicked: {
+            console.log(`Track ${rootItem._index} clicked`);
+            rootItem.clicked();
+        }
     }
 }

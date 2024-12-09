@@ -69,6 +69,7 @@ set(QML_SOURCE_FILES
     ${QML_BASE_DIR}/Editor/NoteColumn.qml
     ${QML_BASE_DIR}/Editor/NoteColumnLine.qml
     ${QML_BASE_DIR}/Editor/Track.qml
+    ${QML_BASE_DIR}/Editor/TrackFocusThing.qml
     ${QML_BASE_DIR}/Editor/TrackHeader.qml
 )
 
