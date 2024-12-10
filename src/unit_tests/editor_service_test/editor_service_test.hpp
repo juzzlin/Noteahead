@@ -32,6 +32,10 @@ private slots:
 
     void testDefaultSong_scroll_shouldCorrectly();
 
+    void testRequestTrackFocus_shouldChangePosition();
+
+    void testRequestTrackFocus_shouldNotChangePosition();
+
     void testSetTrackName_shouldChangeTrackName();
 };
 

@@ -66,6 +66,8 @@ public:
 
     Q_INVOKABLE uint32_t positionBarLine() const;
 
+    Q_INVOKABLE void requestTrackFocus(uint32_t trackId);
+
 signals:
     void currentPatternChanged();
 

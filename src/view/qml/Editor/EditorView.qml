@@ -59,8 +59,7 @@ Item {
     }
     function _connectTrack(track) {
         track.clicked.connect(() => {
-                setAllTracksUnfocused();
-                track.setFocused(true);
+                editorService.requestTrackFocus(track.index());
             });
     }
     function createTracks() {
@@ -91,7 +90,12 @@ Item {
         _updateTrackSizes();
         _updateLineColumns();
     }
-    function setAllTracksUnfocused() {
+    function _setTrackFocused(trackIndex) {
+        console.log(`Setting track ${trackIndex} focused`);
+        _tracks.forEach(track => track.setFocused(false));
+        _tracks[trackIndex].setFocused(true);
+    }
+    function _setAllTracksUnfocused() {
         _tracks.forEach(track => track.setFocused(false));
     }
     function _updateTrackSizes() {
@@ -102,11 +106,15 @@ Item {
     }
     function connectSignals() {
         editorService.songChanged.connect(refreshTracks);
+        editorService.positionChanged.connect(position => {
+                _setTrackFocused(position.track);
+            });
     }
     function initialize() {
         connectSignals();
         refreshTracks();
         _createLineColumns();
+        editorService.requestTrackFocus(0);
     }
     function _lineNumberColumnHeight() {
         return trackArea.height - Constants.trackHeaderHeight;

@@ -15,11 +15,14 @@
 
 #include "editor_service.hpp"
 
+#include "../contrib/SimpleLogger/src/simple_logger.hpp"
 #include "../domain/note_data.hpp"
 #include "../domain/song.hpp"
 #include "note_converter.hpp"
 
 namespace cacophony {
+
+static const auto TAG = "EditorService";
 
 EditorService::EditorService()
 {
@@ -130,6 +133,15 @@ Position EditorService::position() const
 uint32_t EditorService::positionBarLine() const
 {
     return 8;
+}
+
+void EditorService::requestTrackFocus(uint32_t trackId)
+{
+    juzzlin::L(TAG).info() << "Focus for track " << trackId << " requested";
+    if (trackId < trackCount()) {
+        m_position.track = trackId;
+        emit positionChanged(m_position);
+    }
 }
 
 } // namespace cacophony

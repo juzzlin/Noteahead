@@ -17,6 +17,8 @@
 
 #include "../../application/editor_service.hpp"
 
+#include <QSignalSpy>
+
 namespace cacophony {
 
 void EditorServiceTest::testDefaultSong_shouldReturnCorrectProperties()
@@ -76,6 +78,30 @@ void EditorServiceTest::testDefaultSong_scroll_shouldCorrectly()
 
     editorService.scroll(static_cast<int>(editorService.lineCount(editorService.currentPatternId()) + 10));
     QCOMPARE(editorService.position().line, 10);
+}
+
+void EditorServiceTest::testRequestTrackFocus_shouldChangePosition()
+{
+    EditorService editorService;
+    QSignalSpy positionChangedSpy { &editorService, &EditorService::positionChanged };
+
+    editorService.requestTrackFocus(0);
+    QCOMPARE(positionChangedSpy.count(), 1);
+
+    editorService.requestTrackFocus(editorService.trackCount() - 1);
+    QCOMPARE(positionChangedSpy.count(), 2);
+    QCOMPARE(editorService.position().track, editorService.trackCount() - 1);
+}
+
+void EditorServiceTest::testRequestTrackFocus_shouldNotChangePosition()
+{
+    EditorService editorService;
+    QSignalSpy positionChangedSpy { &editorService, &EditorService::positionChanged };
+
+    editorService.requestTrackFocus(editorService.trackCount());
+
+    QCOMPARE(positionChangedSpy.count(), 0);
+    QCOMPARE(editorService.position().track, 0);
 }
 
 void EditorServiceTest::testSetTrackName_shouldChangeTrackName()
