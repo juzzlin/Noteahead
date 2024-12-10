@@ -64,6 +64,10 @@ public:
 
     Q_INVOKABLE uint32_t positionBarLine() const;
 
+    Q_INVOKABLE void requestCursorLeft();
+
+    Q_INVOKABLE void requestCursorRight();
+
     Q_INVOKABLE void requestScroll(int steps);
 
     Q_INVOKABLE void requestTrackFocus(uint32_t trackId);

@@ -8,6 +8,10 @@ Rectangle {
     border.width: 1
     property string note: ""
     property int index: 0
+    property bool _focused: false
+    function setFocused(focused) {
+        _focused = focused;
+    }
     Text {
         id: text
         anchors.centerIn: parent
@@ -23,5 +27,12 @@ Rectangle {
     IndexHighlight {
         anchors.fill: parent
         index: parent.index
+    }
+    Rectangle {
+        id: cursor
+        anchors.fill: parent
+        color: "red"
+        opacity: 0.5
+        visible: rootItem._focused
     }
 }

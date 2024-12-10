@@ -91,7 +91,6 @@ Item {
         _updateLineColumns();
     }
     function _setTrackFocused(trackIndex) {
-        console.log(`Setting track ${trackIndex} focused`);
         _tracks.forEach(track => track.setFocused(false));
         _tracks[trackIndex].setFocused(true);
     }
@@ -144,6 +143,12 @@ Item {
             event.accepted = true;
         } else if (event.key === Qt.Key_Down) {
             editorService.requestScroll(1);
+            event.accepted = true;
+        } else if (event.key === Qt.Key_Left) {
+            editorService.requestCursorLeft();
+            event.accepted = true;
+        } else if (event.key === Qt.Key_Right) {
+            editorService.requestCursorRight();
             event.accepted = true;
         }
     }

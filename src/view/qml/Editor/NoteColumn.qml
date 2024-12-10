@@ -23,6 +23,10 @@ Rectangle {
     function setTrackIndex(index) {
         _trackIndex = index;
     }
+    function setFocused(focused) {
+        const lineIndex = editorService.position().line;
+        _setLineFocused(lineIndex, focused);
+    }
     function updateData() {
         _createLines();
     }
@@ -62,6 +66,11 @@ Rectangle {
         const lineHeight = _lineHeight();
         _lines.forEach(line => {
                 line.y = lineHeight * _scrolledLinePositionByLineIndex(line.index);
+            });
+    }
+    function _setLineFocused(lineIndex, focused) {
+        _lines.forEach((line, index) => {
+                line.setFocused(focused && index === lineIndex);
             });
     }
     Component {

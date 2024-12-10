@@ -24,6 +24,7 @@ Item {
     }
     function setFocused(focused) {
         _focused = focused;
+        columnContainer.setFocused(focused);
     }
     function setIndex(index) {
         _index = index;
@@ -63,6 +64,10 @@ Item {
         function createColumns() {
             _noteColumnCount = editorService.columnCount(_index);
             _createNoteColumns();
+        }
+        function setFocused(focused) {
+            const columnIndex = 0;
+            _noteColumns[columnIndex].setFocused(focused);
         }
         function _noteColumnX(index) {
             return _noteColumnWidth() * index;

@@ -128,6 +128,24 @@ uint32_t EditorService::positionBarLine() const
     return 8;
 }
 
+void EditorService::requestCursorLeft()
+{
+    juzzlin::L(TAG).info() << "Cursor left requested";
+    // TODO: Handle focus inside columns
+    m_position.track--;
+    m_position.track %= trackCount();
+    emit positionChanged(m_position);
+}
+
+void EditorService::requestCursorRight()
+{
+    juzzlin::L(TAG).info() << "Cursor right requested";
+    // TODO: Handle focus inside columns
+    m_position.track++;
+    m_position.track %= trackCount();
+    emit positionChanged(m_position);
+}
+
 void EditorService::requestScroll(int steps)
 {
     m_position.line += steps;
