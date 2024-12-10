@@ -91,11 +91,10 @@ Item {
         _updateLineColumns();
     }
     function _setTrackFocused(trackIndex) {
-        _tracks.forEach(track => track.setFocused(false));
         _tracks[trackIndex].setFocused(true);
     }
-    function _setAllTracksUnfocused() {
-        _tracks.forEach(track => track.setFocused(false));
+    function _setTrackUnfocused(trackIndex) {
+        _tracks[trackIndex].setFocused(false);
     }
     function _updateTrackSizes() {
         _tracks.forEach(track => {
@@ -103,10 +102,22 @@ Item {
                 track.x = track.index() * track.width;
             });
     }
+    function _updateFocus(newPosition, oldPosition) {
+        _setTrackUnfocused(oldPosition.track);
+        _setTrackFocused(newPosition.track);
+    }
+    function _updatePosition(newPosition) {
+        _tracks.forEach(track => {
+                track.setPosition(newPosition);
+            });
+        lineNumberColumnLeft.setPosition(newPosition);
+        lineNumberColumnRight.setPosition(newPosition);
+    }
     function connectSignals() {
         editorService.songChanged.connect(refreshTracks);
-        editorService.positionChanged.connect(position => {
-                _setTrackFocused(position.track);
+        editorService.positionChanged.connect((newPosition, oldPosition) => {
+                _updateFocus(newPosition, oldPosition);
+                _updatePosition(newPosition);
             });
     }
     function initialize() {

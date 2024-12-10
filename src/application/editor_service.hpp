@@ -75,7 +75,7 @@ public:
 signals:
     void currentPatternChanged();
 
-    void positionChanged(const Position & position);
+    void positionChanged(const Position & newPosition, const Position & oldPosition);
 
     void songChanged();
 

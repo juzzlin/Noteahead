@@ -27,6 +27,10 @@ Rectangle {
         const lineIndex = editorService.position().line;
         _setLineFocused(lineIndex, focused);
     }
+    function setPosition(position) {
+        _scrollOffset = position.line;
+        _scrollLines();
+    }
     function updateData() {
         _createLines();
     }
@@ -69,6 +73,7 @@ Rectangle {
             });
     }
     function _setLineFocused(lineIndex, focused) {
+        console.log("Setting line " + lineIndex + " focused: " + focused);
         _lines.forEach((line, index) => {
                 line.setFocused(focused && index === lineIndex);
             });
@@ -85,14 +90,5 @@ Rectangle {
         border.width: 1
         anchors.fill: parent
         z: 2
-    }
-    function _connectToEditorService() {
-        editorService.positionChanged.connect(position => {
-                _scrollOffset = position.line;
-                _scrollLines();
-            });
-    }
-    Component.onCompleted: {
-        _connectToEditorService();
     }
 }

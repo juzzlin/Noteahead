@@ -11,6 +11,11 @@ Rectangle {
         rootItem.height = height;
         _resizeLines();
     }
+    function setPosition(position) {
+        _lines.forEach(line => {
+                line.updateLineNumber();
+            });
+    }
     function updateData() {
         _createLines();
     }
@@ -79,15 +84,5 @@ Rectangle {
         border.width: 1
         anchors.fill: parent
         z: 2
-    }
-    function _connectToEditorService() {
-        editorService.positionChanged.connect(position => {
-                _lines.forEach(line => {
-                        line.updateLineNumber();
-                    });
-            });
-    }
-    Component.onCompleted: {
-        _connectToEditorService();
     }
 }

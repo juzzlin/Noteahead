@@ -32,6 +32,9 @@ Item {
     function setName(name) {
         _name = name;
     }
+    function setPosition(position) {
+        columnContainer.setPosition(position);
+    }
     function updateData() {
         console.log(`Updating data for track ${_index}`);
         _clearColumns();
@@ -68,6 +71,11 @@ Item {
         function setFocused(focused) {
             const columnIndex = 0;
             _noteColumns[columnIndex].setFocused(focused);
+        }
+        function setPosition(position) {
+            _noteColumns.forEach(noteColumn => {
+                    noteColumn.setPosition(position);
+                });
         }
         function _noteColumnX(index) {
             return _noteColumnWidth() * index;

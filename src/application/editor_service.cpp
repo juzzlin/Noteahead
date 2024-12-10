@@ -41,7 +41,7 @@ void EditorService::setSong(SongS song)
     m_position = {};
 
     emit songChanged();
-    emit positionChanged(m_position);
+    emit positionChanged(m_position, m_position);
 }
 
 uint32_t EditorService::columnCount(uint32_t trackId) const
@@ -132,33 +132,37 @@ void EditorService::requestCursorLeft()
 {
     juzzlin::L(TAG).info() << "Cursor left requested";
     // TODO: Handle focus inside columns
+    const auto oldPosition = m_position;
     m_position.track--;
     m_position.track %= trackCount();
-    emit positionChanged(m_position);
+    emit positionChanged(m_position, oldPosition);
 }
 
 void EditorService::requestCursorRight()
 {
     juzzlin::L(TAG).info() << "Cursor right requested";
     // TODO: Handle focus inside columns
+    const auto oldPosition = m_position;
     m_position.track++;
     m_position.track %= trackCount();
-    emit positionChanged(m_position);
+    emit positionChanged(m_position, oldPosition);
 }
 
 void EditorService::requestScroll(int steps)
 {
+    const auto oldPosition = m_position;
     m_position.line += steps;
     m_position.line %= m_song->lineCount(m_position.pattern);
-    emit positionChanged(m_position);
+    emit positionChanged(m_position, oldPosition);
 }
 
 void EditorService::requestTrackFocus(uint32_t trackId)
 {
     juzzlin::L(TAG).info() << "Focus for track " << trackId << " requested";
     if (trackId < trackCount()) {
+        const auto oldPosition = m_position;
         m_position.track = trackId;
-        emit positionChanged(m_position);
+        emit positionChanged(m_position, oldPosition);
     }
 }
 
