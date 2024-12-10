@@ -55,28 +55,28 @@ void EditorServiceTest::testDefaultSong_shouldNotHaveNoteData()
     }
 }
 
-void EditorServiceTest::testDefaultSong_scroll_shouldCorrectly()
+void EditorServiceTest::testRequestScroll_shouldChangePosition()
 {
     EditorService editorService;
 
     QCOMPARE(editorService.position().line, 0);
 
-    editorService.scroll(1);
+    editorService.requestScroll(1);
     QCOMPARE(editorService.position().line, 1);
 
-    editorService.scroll(0);
+    editorService.requestScroll(0);
     QCOMPARE(editorService.position().line, 1);
 
-    editorService.scroll(-1);
+    editorService.requestScroll(-1);
     QCOMPARE(editorService.position().line, 0);
 
-    editorService.scroll(-10);
+    editorService.requestScroll(-10);
     QCOMPARE(editorService.position().line, editorService.lineCount(editorService.currentPatternId()) - 10);
 
-    editorService.scroll(10);
+    editorService.requestScroll(10);
     QCOMPARE(editorService.position().line, 0);
 
-    editorService.scroll(static_cast<int>(editorService.lineCount(editorService.currentPatternId()) + 10));
+    editorService.requestScroll(static_cast<int>(editorService.lineCount(editorService.currentPatternId()) + 10));
     QCOMPARE(editorService.position().line, 10);
 }
 

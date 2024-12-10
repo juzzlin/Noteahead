@@ -60,11 +60,11 @@ public:
 
     Q_INVOKABLE void setCurrentPatternId(uint32_t currentPatternId);
 
-    Q_INVOKABLE void scroll(int steps);
-
     Q_INVOKABLE Position position() const;
 
     Q_INVOKABLE uint32_t positionBarLine() const;
+
+    Q_INVOKABLE void requestScroll(int steps);
 
     Q_INVOKABLE void requestTrackFocus(uint32_t trackId);
 

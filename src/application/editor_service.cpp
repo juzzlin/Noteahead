@@ -118,13 +118,6 @@ void EditorService::setCurrentPatternId(uint32_t currentPatternId)
     }
 }
 
-void EditorService::scroll(int steps)
-{
-    m_position.line += steps;
-    m_position.line %= m_song->lineCount(m_position.pattern);
-    emit positionChanged(m_position);
-}
-
 Position EditorService::position() const
 {
     return m_position;
@@ -133,6 +126,13 @@ Position EditorService::position() const
 uint32_t EditorService::positionBarLine() const
 {
     return 8;
+}
+
+void EditorService::requestScroll(int steps)
+{
+    m_position.line += steps;
+    m_position.line %= m_song->lineCount(m_position.pattern);
+    emit positionChanged(m_position);
 }
 
 void EditorService::requestTrackFocus(uint32_t trackId)

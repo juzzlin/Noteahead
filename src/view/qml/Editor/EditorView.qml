@@ -140,10 +140,10 @@ Item {
     }
     Keys.onPressed: event => {
         if (event.key === Qt.Key_Up) {
-            editorService.scroll(-1);
+            editorService.requestScroll(-1);
             event.accepted = true;
         } else if (event.key === Qt.Key_Down) {
-            editorService.scroll(1);
+            editorService.requestScroll(1);
             event.accepted = true;
         }
     }
