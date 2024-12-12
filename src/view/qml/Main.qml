@@ -46,9 +46,16 @@ ApplicationWindow {
     property bool screenInit: false
     property var _editorView
     Universal.theme: Universal.Dark
+    MainToolBar {
+        id: mainToolBar
+        height: menuBar.height
+        anchors.top: menuBar.bottom
+        anchors.left: parent.left
+        anchors.right: parent.right
+    }
     Item {
         id: contentArea
-        anchors.top: menuBar.bottom
+        anchors.top: mainToolBar.bottom
         anchors.bottom: parent.bottom
         anchors.left: parent.left
         anchors.right: parent.right

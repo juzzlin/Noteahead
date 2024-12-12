@@ -73,6 +73,7 @@ set(QML_SOURCE_FILES
     ${QML_BASE_DIR}/Editor/Track.qml
     ${QML_BASE_DIR}/Editor/TrackFocusThing.qml
     ${QML_BASE_DIR}/Editor/TrackHeader.qml
+    ${QML_BASE_DIR}/MainToolBar.qml
 )
 
 qt_add_qml_module(${BINARY_NAME}
