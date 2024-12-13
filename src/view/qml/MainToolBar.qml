@@ -4,7 +4,16 @@ import QtQuick.Controls.Universal 2.15
 
 Rectangle {
     id: rootItem
-    color: Constants.mainToolBarColor
+    gradient: Gradient {
+        GradientStop {
+            position: 0.0
+            color: Constants.mainToolBarColor
+        }
+        GradientStop {
+            position: 1.0
+            color: "black"
+        }
+    }
     Row {
         anchors.verticalCenter: parent.verticalCenter
         anchors.right: parent.right
