@@ -137,5 +137,14 @@ Item {
             console.log(`Track ${rootItem._index} clicked`);
             rootItem.clicked();
         }
+        onWheel: event => {
+            if (event.angleDelta.y > 0) {
+                editorService.requestScroll(-1);
+                event.accepted = true;
+            } else if (event.angleDelta.y < 0) {
+                editorService.requestScroll(1);
+                event.accepted = true;
+            }
+        }
     }
 }

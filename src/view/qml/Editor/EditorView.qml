@@ -148,18 +148,6 @@ Item {
         lineNumberColumnLeft.resize(_lineNumberColumnWidth(), _lineNumberColumnHeight());
         lineNumberColumnRight.resize(_lineNumberColumnWidth(), _lineNumberColumnHeight());
     }
-    MouseArea {
-        anchors.fill: parent
-        onWheel: event => {
-            if (event.angleDelta.y > 0) {
-                editorService.requestScroll(-1);
-                event.accepted = true;
-            } else if (event.angleDelta.y < 0) {
-                editorService.requestScroll(1);
-                event.accepted = true;
-            }
-        }
-    }
     Keys.onPressed: event => {
         if (event.key === Qt.Key_Up) {
             editorService.requestScroll(-1);
