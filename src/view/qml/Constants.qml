@@ -12,7 +12,7 @@ QtObject {
     readonly property color lineNumberColumnTextColor: "orange"
     readonly property color lineNumberColumnOverflowTextColor: "#444444"
     readonly property int lineNumberColumnWidth: 50
-    readonly property color mainToolBarColor: "black"
+    readonly property color mainToolBarColor: "#303030"
     readonly property color mainToolBarTextColor: "white"
     readonly property color noteColumnBackgroundColor: "black"
     readonly property color noteColumnBorderColor: "#444444"

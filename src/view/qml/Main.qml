@@ -48,7 +48,7 @@ ApplicationWindow {
     Universal.theme: Universal.Dark
     MainToolBar {
         id: mainToolBar
-        height: menuBar.height
+        height: menuBar.height * 2
         anchors.top: menuBar.bottom
         anchors.left: parent.left
         anchors.right: parent.right
