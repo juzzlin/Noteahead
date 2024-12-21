@@ -12,6 +12,7 @@ QtObject {
     readonly property color lineNumberColumnTextColor: "orange"
     readonly property color lineNumberColumnOverflowTextColor: "#444444"
     readonly property int lineNumberColumnWidth: 50
+    readonly property int mainToolBarButtonSize: 32
     readonly property color mainToolBarColor: "#303030"
     readonly property color mainToolBarTextColor: "white"
     readonly property color noteColumnBackgroundColor: "black"
@@ -30,5 +31,6 @@ QtObject {
     readonly property color trackHeaderBackgroundColor: "black"
     readonly property color trackHeaderBorderColor: "#222222"
     readonly property int trackHeaderHeight: 40
+    readonly property int trackHeaderFontSize: 24
     readonly property color trackHeaderTextColor: "orange"
 }

@@ -19,7 +19,7 @@ Rectangle {
             color: "transparent"
         }
         font.bold: true
-        font.pixelSize: parent.height * 0.8
+        font.pixelSize: Constants.trackHeaderFontSize
         font.family: "monospace"
         height: parent.height
         width: parent.width

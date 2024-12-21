@@ -5,8 +5,8 @@ import QtQuick.Layouts 2.15
 
 Button {
     id: rootItem
-    width: 48
-    height: 48
+    width: Constants.mainToolBarButtonSize
+    height: width
     signal clicked
     function setImageSource(imageSource) {
         background.source = imageSource;
