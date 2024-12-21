@@ -16,6 +16,15 @@ Rectangle {
     }
     Row {
         anchors.verticalCenter: parent.verticalCenter
+        anchors.left: parent.left
+        anchors.leftMargin: Constants.lineNumberColumnWidth
+        spacing: 5
+        PlayButton {}
+        PrevButton {}
+        StopButton {}
+    }
+    Row {
+        anchors.verticalCenter: parent.verticalCenter
         anchors.right: parent.right
         anchors.rightMargin: Constants.lineNumberColumnWidth
         spacing: 20

@@ -74,11 +74,20 @@ set(QML_SOURCE_FILES
     ${QML_BASE_DIR}/Editor/TrackFocusThing.qml
     ${QML_BASE_DIR}/Editor/TrackHeader.qml
     ${QML_BASE_DIR}/MainToolBar.qml
+    ${QML_BASE_DIR}/PlayButton.qml
+    ${QML_BASE_DIR}/PrevButton.qml
+    ${QML_BASE_DIR}/StopButton.qml
+    ${QML_BASE_DIR}/ToolBarButtonBase.qml
 )
-
+set(SVG_SOURCE_FILES
+    ${QML_BASE_DIR}/Graphics/play.svg
+    ${QML_BASE_DIR}/Graphics/prev.svg
+    ${QML_BASE_DIR}/Graphics/stop.svg
+)
 qt_add_qml_module(${BINARY_NAME}
     URI ${URI}
     QML_FILES ${QML_SOURCE_FILES}
+    RESOURCES ${SVG_SOURCE_FILES}
 )
 
 set_target_properties(${BINARY_NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY_DEBUG ${CMAKE_CURRENT_BINARY_DIR})
