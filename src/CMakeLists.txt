@@ -11,12 +11,15 @@ set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR})
 set(HEADER_FILES
   application/application.hpp
   application/application_service.hpp
+  application/clock.hpp
   application/config.hpp
   application/editor_service.hpp
   application/note_converter.hpp
   application/player.hpp
+  application/player_service.hpp
   application/player_worker.hpp
   application/position.hpp
+  application/ui_logger.hpp
   common/constants.hpp
   domain/column.hpp
   domain/event.hpp
@@ -35,16 +38,20 @@ set(HEADER_FILES
 set(SOURCE_FILES
   application/application.cpp
   application/application_service.cpp
+  application/clock.cpp
   application/config.cpp
   application/editor_service.cpp
   application/note_converter.cpp
   application/player.cpp
+  application/player_service.cpp
   application/player_worker.cpp
+  application/ui_logger.cpp
   common/constants.cpp
   domain/column.cpp
   domain/event.cpp
   domain/instrument.cpp
   domain/line.cpp
+  domain/note_data.cpp
   domain/pattern.cpp
   domain/song.cpp
   domain/track.cpp
@@ -64,8 +71,10 @@ set(MAIN Main.qml)
 set(QML_SOURCE_FILES
     ${QML_BASE_DIR}/${MAIN}
     ${QML_BASE_DIR}/Constants.qml
+    ${QML_BASE_DIR}/Editor/Cursor.qml
     ${QML_BASE_DIR}/Editor/EditorView.qml
     ${QML_BASE_DIR}/Editor/IndexHighlight.qml
+    ${QML_BASE_DIR}/Editor/KeyboardHandler.qml
     ${QML_BASE_DIR}/Editor/LineNumberColumn.qml
     ${QML_BASE_DIR}/Editor/NoteColumn.qml
     ${QML_BASE_DIR}/Editor/NoteColumnLine.qml
@@ -73,11 +82,13 @@ set(QML_SOURCE_FILES
     ${QML_BASE_DIR}/Editor/Track.qml
     ${QML_BASE_DIR}/Editor/TrackFocusThing.qml
     ${QML_BASE_DIR}/Editor/TrackHeader.qml
-    ${QML_BASE_DIR}/MainToolBar.qml
-    ${QML_BASE_DIR}/PlayButton.qml
-    ${QML_BASE_DIR}/PrevButton.qml
-    ${QML_BASE_DIR}/StopButton.qml
-    ${QML_BASE_DIR}/ToolBarButtonBase.qml
+    ${QML_BASE_DIR}/Editor/VelocityCell.qml
+    ${QML_BASE_DIR}/ToolBar/MainToolBar.qml
+    ${QML_BASE_DIR}/ToolBar/PlayButton.qml
+    ${QML_BASE_DIR}/ToolBar/PrevButton.qml
+    ${QML_BASE_DIR}/ToolBar/StopButton.qml
+    ${QML_BASE_DIR}/ToolBar/ToolBarButtonBase.qml
+    ${QML_BASE_DIR}/UiService.qml
 )
 set(SVG_SOURCE_FILES
     ${QML_BASE_DIR}/Graphics/play.svg

@@ -15,7 +15,9 @@
 
 #include "pattern.hpp"
 
+#include "../application/position.hpp"
 #include "../contrib/SimpleLogger/src/simple_logger.hpp"
+#include "../domain/note_data.hpp"
 #include "track.hpp"
 
 namespace cacophony {
@@ -53,9 +55,15 @@ void Pattern::setTrackName(uint32_t trackId, std::string name)
     m_tracks.at(trackId)->setName(name);
 }
 
-Pattern::NoteDataS Pattern::noteDataAtPosition(uint32_t trackId, uint32_t columnId, uint32_t line) const
+Pattern::NoteDataS Pattern::noteDataAtPosition(const Position & position) const
 {
-    return m_tracks.at(trackId)->noteDataAtPosition(columnId, line);
+    return m_tracks.at(position.track)->noteDataAtPosition(position);
+}
+
+void Pattern::setNoteDataAtPosition(const NoteData & noteData, const Position & position) const
+{
+    juzzlin::L(TAG).debug() << "Set note data at position: " << noteData.toString() << " @ " << position.toString();
+    m_tracks.at(position.track)->setNoteDataAtPosition(noteData, position);
 }
 
 void Pattern::initialize(uint32_t length, uint32_t trackCount)
@@ -63,6 +71,16 @@ void Pattern::initialize(uint32_t length, uint32_t trackCount)
     for (uint32_t i = 0; i < trackCount; i++) {
         m_tracks.push_back(std::make_shared<Track>("Track " + std::to_string(i + 1), Track::Type::Drum, length, 1));
     }
+}
+
+Pattern::EventList Pattern::renderToEvents(size_t startTick, size_t ticksPerLine) const
+{
+    Pattern::EventList eventList;
+    for (auto && track : m_tracks) {
+        const auto trackEvents = track->renderToEvents(startTick, ticksPerLine);
+        std::copy(trackEvents.begin(), trackEvents.end(), std::back_inserter(eventList));
+    }
+    return eventList;
 }
 
 } // namespace cacophony

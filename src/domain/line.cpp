@@ -15,12 +15,19 @@
 
 #include "line.hpp"
 
+#include "../contrib/SimpleLogger/src/simple_logger.hpp"
+
 namespace cacophony {
 
-Line::Line() = default;
+static const auto TAG = "Line";
+
+Line::Line()
+  : m_noteData { std::make_unique<NoteData>() }
+{
+}
 
 Line::Line(const NoteData & noteData)
-  : m_noteData { std::make_shared<NoteData>(noteData) }
+  : m_noteData { std::make_unique<NoteData>(noteData) }
 {
 }
 
@@ -29,9 +36,10 @@ void Line::clear()
     setNoteData({});
 }
 
-void Line::setNoteData(NoteDataS noteData)
+void Line::setNoteData(const NoteData & noteData)
 {
-    m_noteData = noteData;
+    juzzlin::L(TAG).debug() << "Set note data " << noteData.toString();
+    *m_noteData = noteData;
 }
 
 Line::NoteDataS Line::noteData() const

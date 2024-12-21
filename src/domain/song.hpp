@@ -17,19 +17,21 @@
 #define SONG_HPP
 
 #include <memory>
+#include <optional>
+#include <unordered_map>
 #include <vector>
 
 namespace cacophony {
 
+class Event;
 class Pattern;
-struct NoteData;
+struct Position;
+class NoteData;
 
 class Song
 {
 public:
     Song();
-
-    uint32_t bpm() const;
 
     using PatternS = std::shared_ptr<Pattern>;
 
@@ -47,14 +49,44 @@ public:
 
     using NoteDataS = std::shared_ptr<NoteData>;
 
-    NoteDataS noteDataAtPosition(uint32_t patternId, uint32_t trackId, uint32_t columnId, uint32_t line) const;
+    NoteDataS noteDataAtPosition(const Position & position) const;
+
+    void setNoteDataAtPosition(const NoteData & noteData, const Position & position);
+
+    using EventS = std::shared_ptr<Event>;
+    using EventList = std::vector<EventS>;
+    EventList renderToEvents();
+
+    uint32_t beatsPerMinute() const;
+
+    void setBeatsPerMinute(uint32_t bpm);
+
+    uint32_t linesPerBeat() const;
+
+    void setLinesPerBeat(uint32_t lpb);
+
+    uint32_t ticksPerLine() const;
+
+    using PatternAndLine = std::pair<uint32_t, uint32_t>;
+    using PatternAndLineOpt = std::optional<PatternAndLine>;
+    PatternAndLineOpt patternAndLineByTick(uint32_t tick) const;
 
 private:
     void initialize();
 
-    uint32_t m_bpm = 120;
+    EventList introduceNoteOffs(const EventList & events) const;
+
+    void updateTickToPatternAndLineMapping(uint32_t tick, uint32_t patternIndex, uint32_t patternLineCount);
+
+    uint32_t m_beatsPerMinute = 120;
+
+    uint32_t m_linesPerBeat = 8;
+
+    uint32_t m_ticksPerLine = 24;
 
     std::vector<PatternS> m_patterns;
+
+    std::unordered_map<uint32_t, PatternAndLine> m_tickToPatternAndLineMap;
 };
 
 } // namespace cacophony

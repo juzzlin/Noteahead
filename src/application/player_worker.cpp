@@ -15,10 +15,85 @@
 
 #include "player_worker.hpp"
 
+#include "../contrib/SimpleLogger/src/simple_logger.hpp"
+#include "../domain/event.hpp"
+#include "../domain/note_data.hpp"
+
+#include <ranges>
+#include <thread>
+
 namespace cacophony {
 
-PlayerWorker::PlayerWorker()
+static const auto TAG = "PlayerWorker";
+
+PlayerWorker::PlayerWorker(const EventList & events, const Timing & timing)
+  : m_events { events }
+  , m_timing { timing }
 {
+    for (auto && event : m_events) {
+        m_eventMap[event->tick()].push_back(event);
+    }
+}
+
+void PlayerWorker::play()
+{
+    juzzlin::L(TAG).info() << "Starting playback, event count: " << m_events.size();
+
+    processEvents();
+}
+
+void PlayerWorker::stop()
+{
+    juzzlin::L(TAG).info() << "Stopping playback";
+
+    m_stopped = true;
+}
+
+void PlayerWorker::processEvents()
+{
+    if (m_eventMap.empty()) {
+        juzzlin::L(TAG).debug() << "No events";
+        return;
+    }
+
+    const auto [minTick, maxTick] = std::ranges::minmax(m_eventMap | std::views::keys);
+
+    juzzlin::L(TAG).debug() << "Min tick: " << minTick;
+    juzzlin::L(TAG).debug() << "Max tick: " << maxTick;
+    juzzlin::L(TAG).debug() << "Beats per min: " << m_timing.beatsPerMinute;
+    juzzlin::L(TAG).debug() << "Lines per beat: " << m_timing.linesPerBeat;
+    juzzlin::L(TAG).debug() << "Ticks per line: " << m_timing.ticksPerLine;
+
+    const double tickDurationMs = 60.0 / (m_timing.beatsPerMinute * m_timing.linesPerBeat * m_timing.ticksPerLine);
+    const auto tickDuration = std::chrono::duration<double> { tickDurationMs };
+    auto startTime = std::chrono::steady_clock::now();
+
+    for (auto tick = minTick; tick <= maxTick && !m_stopped; tick++) {
+        emit tickUpdated(tick);
+        if (m_eventMap.count(tick)) {
+            for (auto && event : m_eventMap[tick]) {
+                if (const auto noteData = event->noteData(); noteData) {
+                    if (noteData->type() == NoteData::Type::NoteOn) {
+                        juzzlin::L(TAG).debug() << "Note " << static_cast<int>(noteData->note()) << " ON at tick " << tick;
+                    } else if (noteData->type() == NoteData::Type::NoteOff) {
+                        juzzlin::L(TAG).debug() << "Note " << static_cast<int>(noteData->note()) << " OFF at tick " << tick;
+                    }
+                }
+            }
+        }
+        // Calculate next tick's start time
+        auto nextTickTime = startTime + std::chrono::duration_cast<std::chrono::steady_clock::duration>(tick * tickDuration);
+        std::this_thread::sleep_until(nextTickTime);
+    }
+
+    juzzlin::L(TAG).debug() << "All events processed";
+
+    emit songEnded();
+}
+
+PlayerWorker::~PlayerWorker()
+{
+    juzzlin::L(TAG).debug() << "Deleted";
 }
 
 } // namespace cacophony

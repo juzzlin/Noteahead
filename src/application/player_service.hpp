@@ -1,5 +1,5 @@
 // This file is part of Cacophony.
-// Copyright (C) 2024 Jussi Lind <jussi.lind@iki.fi>
+// Copyright (C) 2025 Jussi Lind <jussi.lind@iki.fi>
 //
 // Cacophony is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -13,62 +13,62 @@
 // You should have received a copy of the GNU General Public License
 // along with Cacophony. If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef PLAYER_WORKER_HPP
-#define PLAYER_WORKER_HPP
+#ifndef PLAYER_SERVICE_HPP
+#define PLAYER_SERVICE_HPP
 
 #include <QObject>
-#include <cstddef>
+#include <QThread>
 #include <memory>
-#include <unordered_map>
-#include <vector>
 
 namespace cacophony {
 
-class Event;
+class PlayerWorker;
+class Song;
 
-class PlayerWorker : public QObject
+class PlayerService : public QObject
 {
     Q_OBJECT
+    Q_PROPERTY(bool isPlaying READ isPlaying NOTIFY isPlayingChanged)
 
 public:
-    using EventS = std::shared_ptr<Event>;
-    using EventList = std::vector<EventS>;
+    explicit PlayerService(QObject * parent = nullptr);
 
-    struct Timing
-    {
-        uint32_t beatsPerMinute = 0;
+    ~PlayerService();
 
-        uint32_t linesPerBeat = 0;
+    Q_INVOKABLE bool requestPlay();
 
-        uint32_t ticksPerLine = 0;
-    };
+    Q_INVOKABLE bool isPlaying() const;
 
-    explicit PlayerWorker(const EventList & events, const Timing & timing);
+    Q_INVOKABLE void requestStop();
 
-    ~PlayerWorker();
+    Q_INVOKABLE void requestPrev();
 
-    Q_INVOKABLE void play();
-
-    Q_INVOKABLE void stop();
+    using SongS = std::shared_ptr<Song>;
+    void setSong(SongS song);
 
 signals:
+    void isPlayingChanged();
+
     void songEnded();
+
+    void songRequested();
 
     void tickUpdated(uint32_t tick);
 
 private:
-    void processEvents();
+    void initializeWorker();
 
-    EventList m_events;
+    void startPlayback();
 
-    Timing m_timing;
+    void stop();
 
-    using EventMap = std::unordered_map<size_t, EventList>;
-    EventMap m_eventMap;
+    SongS m_song;
 
-    std::atomic_bool m_stopped = false;
+    std::unique_ptr<PlayerWorker> m_playerWorker;
+
+    QThread m_playerWorkerThread;
 };
 
 } // namespace cacophony
 
-#endif // PLAYER_WORKER_HPP
+#endif // PLAYER_SERVICE_HPP

@@ -1,0 +1,114 @@
+// This file is part of Cacophony.
+// Copyright (C) 2025 Jussi Lind <jussi.lind@iki.fi>
+//
+// Cacophony is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+// Cacophony is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Cacophony. If not, see <http://www.gnu.org/licenses/>.
+
+#include "player_service.hpp"
+
+#include "../contrib/SimpleLogger/src/simple_logger.hpp"
+#include "../domain/event.hpp"
+#include "../domain/song.hpp"
+#include "clock.hpp"
+#include "player_worker.hpp"
+
+#include <QThread>
+
+namespace cacophony {
+
+static const auto TAG = "PlayerService";
+
+PlayerService::PlayerService(QObject * parent)
+  : QObject { parent }
+{
+}
+
+void PlayerService::setSong(SongS song)
+{
+    m_song = song;
+}
+
+void PlayerService::initializeWorker()
+{
+    juzzlin::L(TAG).debug() << "Instantiating a new worker";
+    const PlayerWorker::Timing timing { m_song->beatsPerMinute(), m_song->linesPerBeat(), m_song->ticksPerLine() };
+    m_playerWorker = std::make_unique<PlayerWorker>(m_song->renderToEvents(), timing);
+    connect(m_playerWorker.get(), &PlayerWorker::songEnded, this, [this] {
+        stop();
+    });
+    connect(m_playerWorker.get(), &PlayerWorker::tickUpdated, this, &PlayerService::tickUpdated, Qt::QueuedConnection);
+    m_playerWorker->moveToThread(&m_playerWorkerThread);
+}
+
+void PlayerService::startPlayback()
+{
+    juzzlin::L(TAG).debug() << "Starting playback";
+    m_playerWorkerThread.start(QThread::HighPriority);
+    QMetaObject::invokeMethod(m_playerWorker.get(), "play", Qt::QueuedConnection);
+    emit isPlayingChanged();
+}
+
+bool PlayerService::requestPlay()
+{
+    juzzlin::L(TAG).debug() << "Song for playback requested";
+
+    emit songRequested();
+
+    if (m_song) {
+        initializeWorker();
+        startPlayback();
+        return true;
+    }
+
+    return false;
+}
+
+bool PlayerService::isPlaying() const
+{
+    return m_playerWorkerThread.isRunning();
+}
+
+void PlayerService::stop()
+{
+    if (m_playerWorkerThread.isRunning()) {
+        if (m_playerWorker) {
+            juzzlin::L(TAG).debug() << "Stopping playback";
+            m_playerWorker->stop();
+        }
+        juzzlin::L(TAG).debug() << "Stopping playback thread";
+        m_playerWorkerThread.exit();
+        m_playerWorkerThread.wait();
+    }
+    emit isPlayingChanged();
+}
+
+void PlayerService::requestStop()
+{
+    juzzlin::L(TAG).debug() << "Stop requested";
+    stop();
+    emit isPlayingChanged();
+    m_song.reset();
+}
+
+void PlayerService::requestPrev()
+{
+    juzzlin::L(TAG).debug() << "Prev requested";
+}
+
+PlayerService::~PlayerService()
+{
+    stop();
+
+    juzzlin::L(TAG).debug() << "Deleted";
+}
+
+} // namespace cacophony

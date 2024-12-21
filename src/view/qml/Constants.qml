@@ -14,14 +14,17 @@ QtObject {
     readonly property int lineNumberColumnWidth: 50
     readonly property int mainToolBarButtonSize: 32
     readonly property color mainToolBarColor: "#303030"
+    readonly property color mainToolBarSeparatorColor: "white"
     readonly property color mainToolBarTextColor: "white"
     readonly property color noteColumnBackgroundColor: "black"
     readonly property color noteColumnBorderColor: "#444444"
     readonly property color noteColumnCellBackgroundColor: "black"
     readonly property color noteColumnCellBorderColor: "#222222"
     readonly property color noteColumnTextColor: "white"
+    readonly property color noteColumnTextColorEmpty: "#888888"
     readonly property color positionBarColor: "orange"
     readonly property color positionBarBorderColor: "white"
+    readonly property color positionBarBorderColorEditMode: "red"
     readonly property int positionBarBorderWidth: 1
     readonly property double positionBarOpacity: 0.25
     readonly property color trackBorderColor: "#888888"

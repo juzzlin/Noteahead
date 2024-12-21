@@ -24,8 +24,7 @@ Rectangle {
         _trackIndex = index;
     }
     function setFocused(focused) {
-        const lineIndex = editorService.position().line;
-        _setLineFocused(lineIndex, focused);
+        _setLineFocused(editorService.position().line, editorService.position().lineColumn, focused);
     }
     function setPosition(position) {
         _scrollOffset = position.line;
@@ -33,6 +32,17 @@ Rectangle {
     }
     function updateData() {
         _createLines();
+    }
+    function updateNoteDataAtPosition(position) {
+        if (_isPositionMe(position)) {
+            const note = editorService.noteAtPosition(editorService.currentPatternId(), _trackIndex, _index, position.line);
+            _lines[position.line].note = note;
+            const velocity = editorService.velocityAtPosition(editorService.currentPatternId(), _trackIndex, _index, position.line);
+            _lines[position.line].velocity = velocity;
+        }
+    }
+    function _isPositionMe(position) {
+        return position.pattern === editorService.currentPatternId() && position.track === _trackIndex && position.column === _index;
     }
     function _lineHeight() {
         const lineCount = editorService.linesVisible();
@@ -47,13 +57,15 @@ Rectangle {
         const lineHeight = _lineHeight();
         for (let lineIndex = 0; lineIndex < lineCount; lineIndex++) {
             const note = editorService.noteAtPosition(editorService.currentPatternId(), _trackIndex, _index, lineIndex);
+            const velocity = editorService.velocityAtPosition(editorService.currentPatternId(), _trackIndex, _index, lineIndex);
             const line = noteColumnLineComponent.createObject(rootItem, {
                     "index": lineIndex,
                     "width": rootItem.width,
                     "height": lineHeight,
                     "x": 0,
                     "y": lineHeight * _scrolledLinePositionByLineIndex(lineIndex),
-                    "note": note
+                    "note": note,
+                    "velocity": velocity
                 });
             _lines.push(line);
         }
@@ -72,10 +84,9 @@ Rectangle {
                 line.y = lineHeight * _scrolledLinePositionByLineIndex(line.index);
             });
     }
-    function _setLineFocused(lineIndex, focused) {
-        console.log("Setting line " + lineIndex + " focused: " + focused);
+    function _setLineFocused(lineIndex, lineColumnIndex, focused) {
         _lines.forEach((line, index) => {
-                line.setFocused(focused && index === lineIndex);
+                line.setFocused(focused && index === lineIndex, lineColumnIndex);
             });
     }
     Component {

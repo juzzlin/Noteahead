@@ -35,6 +35,26 @@ void Config::saveWindowSize(QSize size)
     settings::saveWindowSize(size);
 }
 
+int Config::loadStep(int defaultStep) const
+{
+    return settings::loadStep(defaultStep);
+}
+
+void Config::saveStep(int step)
+{
+    settings::saveStep(step);
+}
+
+int Config::loadVelocity(int defaultVelocity) const
+{
+    return settings::loadVelocity(defaultVelocity);
+}
+
+void Config::saveVelocity(int velocity)
+{
+    settings::saveVelocity(velocity);
+}
+
 Config::~Config() = default;
 
 } // namespace cacophony

@@ -24,6 +24,14 @@ QSize loadWindowSize(QSize defaultSize);
 
 void saveWindowSize(QSize size);
 
+int loadStep(int defaultStep);
+
+void saveStep(int step);
+
+int loadVelocity(int defaultVelocity);
+
+void saveVelocity(int velocity);
+
 } // namespace cacophony::settings
 
 #endif // SETTINGS_HPP

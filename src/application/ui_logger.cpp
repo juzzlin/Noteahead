@@ -1,5 +1,5 @@
 // This file is part of Cacophony.
-// Copyright (C) 2024 Jussi Lind <jussi.lind@iki.fi>
+// Copyright (C) 2025 Jussi Lind <jussi.lind@iki.fi>
 //
 // Cacophony is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -13,34 +13,35 @@
 // You should have received a copy of the GNU General Public License
 // along with Cacophony. If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef LINE_HPP
-#define LINE_HPP
+#include "ui_logger.hpp"
 
-#include "note_data.hpp"
-
-#include <memory>
+#include "../contrib/SimpleLogger/src/simple_logger.hpp"
 
 namespace cacophony {
 
-class Line
+UiLogger::UiLogger(QObject * parent)
+  : QObject { parent }
 {
-public:
-    Line();
+}
 
-    explicit Line(const NoteData & noteData);
+void UiLogger::debug(QString tag, QString message) const
+{
+    juzzlin::L(tag.toStdString()).debug() << message.toStdString();
+}
 
-    void clear();
+void UiLogger::info(QString tag, QString message) const
+{
+    juzzlin::L(tag.toStdString()).info() << message.toStdString();
+}
 
-    using NoteDataS = std::shared_ptr<NoteData>;
+void UiLogger::warning(QString tag, QString message) const
+{
+    juzzlin::L(tag.toStdString()).warning() << message.toStdString();
+}
 
-    NoteDataS noteData() const;
-
-    void setNoteData(const NoteData & noteData);
-
-private:
-    NoteDataS m_noteData;
-};
+void UiLogger::error(QString tag, QString message) const
+{
+    juzzlin::L(tag.toStdString()).error() << message.toStdString();
+}
 
 } // namespace cacophony
-
-#endif // LINE_HPP

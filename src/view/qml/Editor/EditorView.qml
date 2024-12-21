@@ -3,10 +3,11 @@ import QtQuick.Controls 2.15
 import QtQuick.Controls.Universal 2.15
 import ".."
 
-Item {
+FocusScope {
     id: rootItem
     property int _trackCount: 0
     property var _tracks: []
+    readonly property string _tag: "EditorView"
     focus: true
     Component {
         id: trackComponent
@@ -22,7 +23,7 @@ Item {
         anchors.topMargin: Constants.trackHeaderHeight
         anchors.left: parent.left
     }
-    Item {
+    Rectangle {
         id: trackArea
         height: rootItem.height
         anchors.top: parent.top
@@ -36,6 +37,8 @@ Item {
         x: 0
         y: _positionBarY()
         z: 10
+        border.width: UiService.editMode() ? 2 : 0
+        border.color: Constants.positionBarBorderColorEditMode
     }
     LineNumberColumn {
         id: lineNumberColumnRight
@@ -45,10 +48,17 @@ Item {
         anchors.topMargin: Constants.trackHeaderHeight
         anchors.right: parent.right
     }
+    KeyboardHandler {
+        id: keyboardHandler
+    }
+    Keys.onPressed: event => {
+        keyboardHandler.handleEvent(event);
+        event.accepted = true;
+    }
     function clearTracks() {
         _tracks.forEach(track => {
-                track.destroy();
-            });
+            track.destroy();
+        });
         _tracks = [];
     }
     function setTrackDimensionsByIndex(track, trackIndex) {
@@ -59,12 +69,13 @@ Item {
     }
     function _connectTrack(track) {
         track.clicked.connect(() => {
-                editorService.requestTrackFocus(track.index());
-            });
+            editorService.requestTrackFocus(track.index());
+            rootItem.forceActiveFocus();
+        });
     }
     function createTracks() {
         _trackCount = editorService.trackCount();
-        console.log(`Editor view width: ${rootItem.width}`);
+        uiLogger.debug(_tag, `Editor view width: ${rootItem.width}`);
         for (let trackIndex = 0; trackIndex < _trackCount; trackIndex++) {
             const track = trackComponent.createObject(trackArea);
             if (track) {
@@ -75,12 +86,12 @@ Item {
                 track.updateData();
                 _tracks.push(track);
                 _connectTrack(track);
-                console.log(`Added track index=${trackIndex}, width=${track.width}, height=${track.height}, x=${track.x}, y=${track.y}`);
+                uiLogger.debug(_tag, `Added track index=${trackIndex}, width=${track.width}, height=${track.height}, x=${track.x}, y=${track.y}`);
             }
         }
     }
     function refreshTracks() {
-        console.log(`Refreshing track layout..`);
+        uiLogger.debug(_tag, `Refreshing track layout..`);
         clearTracks();
         createTracks();
     }
@@ -98,9 +109,9 @@ Item {
     }
     function _updateTrackSizes() {
         _tracks.forEach(track => {
-                track.resize(trackArea.width / _trackCount, trackArea.height);
-                track.x = track.index() * track.width;
-            });
+            track.resize(trackArea.width / _trackCount, trackArea.height);
+            track.x = track.index() * track.width;
+        });
     }
     function _updateFocus(newPosition, oldPosition) {
         _setTrackUnfocused(oldPosition.track);
@@ -108,17 +119,23 @@ Item {
     }
     function _updatePosition(newPosition) {
         _tracks.forEach(track => {
-                track.setPosition(newPosition);
-            });
+            track.setPosition(newPosition);
+        });
         lineNumberColumnLeft.setPosition(newPosition);
         lineNumberColumnRight.setPosition(newPosition);
     }
+    function _updateNoteDataAtPosition(position) {
+        _tracks.forEach(track => {
+            track.updateNoteDataAtPosition(position);
+        });
+    }
     function connectSignals() {
+        editorService.noteDataAtPositionChanged.connect(_updateNoteDataAtPosition);
         editorService.songChanged.connect(refreshTracks);
         editorService.positionChanged.connect((newPosition, oldPosition) => {
-                _updateFocus(newPosition, oldPosition);
-                _updatePosition(newPosition);
-            });
+            _updateFocus(newPosition, oldPosition);
+            _updatePosition(newPosition);
+        });
     }
     function initialize() {
         connectSignals();
@@ -147,21 +164,6 @@ Item {
     function _updateLineColumns() {
         lineNumberColumnLeft.resize(_lineNumberColumnWidth(), _lineNumberColumnHeight());
         lineNumberColumnRight.resize(_lineNumberColumnWidth(), _lineNumberColumnHeight());
-    }
-    Keys.onPressed: event => {
-        if (event.key === Qt.Key_Up) {
-            editorService.requestScroll(-1);
-            event.accepted = true;
-        } else if (event.key === Qt.Key_Down) {
-            editorService.requestScroll(1);
-            event.accepted = true;
-        } else if (event.key === Qt.Key_Left) {
-            editorService.requestCursorLeft();
-            event.accepted = true;
-        } else if (event.key === Qt.Key_Right) {
-            editorService.requestCursorRight();
-            event.accepted = true;
-        }
     }
     Component.onCompleted: initialize()
 }

@@ -20,6 +20,8 @@
 #include "application_service.hpp"
 #include "config.hpp"
 #include "editor_service.hpp"
+#include "player_service.hpp"
+#include "ui_logger.hpp"
 
 #include <QGuiApplication>
 #include <QQmlApplicationEngine>
@@ -33,18 +35,22 @@ namespace cacophony {
 static const auto TAG = "Application";
 
 Application::Application(int & argc, char ** argv)
-  : m_applicationService(std::make_unique<ApplicationService>())
+  : m_uiLogger(std::make_unique<UiLogger>())
+  , m_applicationService(std::make_unique<ApplicationService>())
   , m_editorService(std::make_unique<EditorService>())
+  , m_playerService(std::make_unique<PlayerService>())
   , m_config(std::make_unique<Config>())
   , m_application(std::make_unique<QGuiApplication>(argc, argv))
   , m_engine(std::make_unique<QQmlApplicationEngine>())
-  , m_midiService(std::make_unique<MidiServiceRtMidi>()) // Initialize MidiService
+  , m_midiService(std::make_unique<MidiServiceRtMidi>())
 {
+    qmlRegisterType<UiLogger>("Cacophony", 1, 0, "UiLogger");
     qmlRegisterType<ApplicationService>("Cacophony", 1, 0, "ApplicationService");
     qmlRegisterType<Config>("Cacophony", 1, 0, "Config");
     qmlRegisterType<EditorService>("Cacophony", 1, 0, "EditorService");
 
     qmlRegisterSingletonType(QUrl(QML_ROOT_DIR + QString { "/Constants.qml" }), "Cacophony", 1, 0, "Constants");
+    qmlRegisterSingletonType(QUrl(QML_ROOT_DIR + QString { "/UiService.qml" }), "Cacophony", 1, 0, "UiService");
 
     handleCommandLineArguments(); // Handle command-line arguments at initialization
 }
@@ -54,7 +60,9 @@ void Application::handleCommandLineArguments()
     // Parse command-line arguments for --list-devices and --test-device
     QStringList arguments = m_application->arguments();
     for (int i = 1; i < arguments.size(); ++i) {
-        if (arguments.at(i) == "--list-devices") {
+        if (arguments.at(i) == "--debug") {
+            juzzlin::SimpleLogger::setLoggingLevel(juzzlin::SimpleLogger::Level::Debug);
+        } else if (arguments.at(i) == "--list-devices") {
             m_listDevices = true;
         } else if (arguments.at(i) == "--test-device" && i + 1 < arguments.size()) {
             m_testDeviceIndex = arguments.at(i + 1).toInt();
@@ -111,6 +119,16 @@ void Application::setContextProperties()
     m_engine->rootContext()->setContextProperty("applicationService", m_applicationService.get());
     m_engine->rootContext()->setContextProperty("config", m_config.get());
     m_engine->rootContext()->setContextProperty("editorService", m_editorService.get());
+    m_engine->rootContext()->setContextProperty("playerService", m_playerService.get());
+    m_engine->rootContext()->setContextProperty("uiLogger", m_uiLogger.get());
+}
+
+void Application::connectServices()
+{
+    connect(m_playerService.get(), &PlayerService::songRequested, this, [this]{
+        m_playerService->setSong(m_editorService->song());
+    });
+    connect(m_playerService.get(), &PlayerService::tickUpdated, m_editorService.get(), &EditorService::requestPositionByTick);
 }
 
 void Application::initialize()
@@ -118,6 +136,8 @@ void Application::initialize()
     initializeEditorService();
 
     initializeApplicationEngine();
+
+    connectServices();
 }
 
 void Application::initializeApplicationEngine()

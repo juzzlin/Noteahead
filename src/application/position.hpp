@@ -18,25 +18,47 @@
 
 #include <QObject>
 #include <cstdint>
+#include <sstream>
 
 namespace cacophony {
 
+//! Position (or coordinates) of the editor focus.
 struct Position
 {
     Q_GADGET
     Q_PROPERTY(uint32_t pattern MEMBER pattern)
     Q_PROPERTY(uint32_t track MEMBER track)
     Q_PROPERTY(uint32_t column MEMBER column)
-    Q_PROPERTY(int line MEMBER line)
+    Q_PROPERTY(uint32_t line MEMBER line)
+    Q_PROPERTY(uint32_t lineColumn MEMBER lineColumn)
 
 public:
+    //! Index of the pattern.
     uint32_t pattern = 0;
 
+    //! Index of the active track of the pattern.
     uint32_t track = 0;
 
+    //! Index of the active note column of the track.
     uint32_t column = 0;
 
-    int line = 0;
+    //! Index of the active line (common for all tracks).
+    uint32_t line = 0;
+
+    //! Index of the active column of the line consisting of note and velocity values.
+    //! 0: Note, e.g. "C-3"
+    //! 1: Velocity digit 2, e.g. [1]27
+    //! 2: Velocity digit 1, e.g. 1[2]7
+    //! 3: Velocity digit 0, e.g. 12[7]
+    uint32_t lineColumn = 0;
+
+    std::string toString() const
+    {
+        std::stringstream ss;
+        ss << "[ "
+           << "Pattern: " << pattern << " Track: " << track << " Column: " << column << " Line: " << line << " Line Column: " << lineColumn << " ]";
+        return ss.str();
+    }
 };
 
 } // namespace cacophony

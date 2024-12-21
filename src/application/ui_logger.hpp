@@ -1,5 +1,5 @@
 // This file is part of Cacophony.
-// Copyright (C) 2024 Jussi Lind <jussi.lind@iki.fi>
+// Copyright (C) 2025 Jussi Lind <jussi.lind@iki.fi>
 //
 // Cacophony is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -13,34 +13,29 @@
 // You should have received a copy of the GNU General Public License
 // along with Cacophony. If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef LINE_HPP
-#define LINE_HPP
+#ifndef UI_LOGGER_HPP
+#define UI_LOGGER_HPP
 
-#include "note_data.hpp"
-
-#include <memory>
+#include <QObject>
 
 namespace cacophony {
 
-class Line
+class UiLogger : public QObject
 {
+    Q_OBJECT
+
 public:
-    Line();
+    explicit UiLogger(QObject * parent = nullptr);
 
-    explicit Line(const NoteData & noteData);
+    Q_INVOKABLE void debug(QString tag, QString message) const;
 
-    void clear();
+    Q_INVOKABLE void info(QString tag, QString message) const;
 
-    using NoteDataS = std::shared_ptr<NoteData>;
+    Q_INVOKABLE void warning(QString tag, QString message) const;
 
-    NoteDataS noteData() const;
-
-    void setNoteData(const NoteData & noteData);
-
-private:
-    NoteDataS m_noteData;
+    Q_INVOKABLE void error(QString tag, QString message) const;
 };
 
 } // namespace cacophony
 
-#endif // LINE_HPP
+#endif // UI_LOGGER_HPP

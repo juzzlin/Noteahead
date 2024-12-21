@@ -18,6 +18,7 @@ import QtQuick.Controls 2.15
 import QtQuick.Controls.Universal 2.15
 import Cacophony 1.0
 import "Editor"
+import "ToolBar"
 
 ApplicationWindow {
     id: mainWindow
@@ -78,9 +79,9 @@ ApplicationWindow {
     function _initialize() {
         _setWindowSizeAndPosition();
         _editorView = editorViewComponent.createObject(contentArea, {
-                "height": contentArea.height,
-                "width": contentArea.width
-            });
+            "height": contentArea.height,
+            "width": contentArea.width
+        });
     }
     function _resize() {
         _editorView.resize(contentArea.width, contentArea.height);

@@ -13,34 +13,17 @@
 // You should have received a copy of the GNU General Public License
 // along with Cacophony. If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef LINE_HPP
-#define LINE_HPP
-
-#include "note_data.hpp"
-
-#include <memory>
+#include "clock.hpp"
 
 namespace cacophony {
 
-class Line
+Clock::Clock(QObject * parent)
+  : QObject { parent }
 {
-public:
-    Line();
+}
 
-    explicit Line(const NoteData & noteData);
-
-    void clear();
-
-    using NoteDataS = std::shared_ptr<NoteData>;
-
-    NoteDataS noteData() const;
-
-    void setNoteData(const NoteData & noteData);
-
-private:
-    NoteDataS m_noteData;
-};
+Clock::~Clock()
+{
+}
 
 } // namespace cacophony
-
-#endif // LINE_HPP

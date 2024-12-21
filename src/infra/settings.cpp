@@ -19,7 +19,10 @@
 
 namespace cacophony {
 
+const auto settingsGroupEditor = "Editor";
 const auto settingsGroupMainWindow = "MainWindow";
+const auto stepKey = "step";
+const auto velocityKey = "velocity";
 const auto windowSizeKey = "size";
 
 QSize settings::loadWindowSize(QSize defaultSize)
@@ -36,6 +39,40 @@ void settings::saveWindowSize(QSize size)
     QSettings settings;
     settings.beginGroup(settingsGroupMainWindow);
     settings.setValue(windowSizeKey, size);
+    settings.endGroup();
+}
+
+int settings::loadStep(int defaultStep)
+{
+    QSettings settings;
+    settings.beginGroup(settingsGroupEditor);
+    const auto step = settings.value(stepKey, defaultStep).toInt();
+    settings.endGroup();
+    return step;
+}
+
+void settings::saveStep(int step)
+{
+    QSettings settings;
+    settings.beginGroup(settingsGroupEditor);
+    settings.setValue(stepKey, step);
+    settings.endGroup();
+}
+
+int settings::loadVelocity(int defaultVelocity)
+{
+    QSettings settings;
+    settings.beginGroup(settingsGroupEditor);
+    const auto velocity = settings.value(velocityKey, defaultVelocity).toInt();
+    settings.endGroup();
+    return velocity;
+}
+
+void settings::saveVelocity(int velocity)
+{
+    QSettings settings;
+    settings.beginGroup(settingsGroupEditor);
+    settings.setValue(velocityKey, velocity);
     settings.endGroup();
 }
 

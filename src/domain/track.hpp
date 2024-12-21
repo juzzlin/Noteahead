@@ -22,8 +22,10 @@
 namespace cacophony {
 
 class Column;
+class Event;
 class Instrument;
-struct NoteData;
+class NoteData;
+struct Position;
 
 class Track
 {
@@ -48,7 +50,13 @@ public:
 
     using NoteDataS = std::shared_ptr<NoteData>;
 
-    NoteDataS noteDataAtPosition(uint32_t columnId, uint32_t line) const;
+    NoteDataS noteDataAtPosition(const Position & position) const;
+
+    void setNoteDataAtPosition(const NoteData & noteData, const Position & position);
+
+    using EventS = std::shared_ptr<Event>;
+    using EventList = std::vector<EventS>;
+    EventList renderToEvents(size_t startTick, size_t ticksPerLine) const;
 
 private:
     void initialize(uint32_t length, uint32_t columnCount);

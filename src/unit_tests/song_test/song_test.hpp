@@ -1,5 +1,5 @@
 // This file is part of Cacophony.
-// Copyright (C) 2024 Jussi Lind <jussi.lind@iki.fi>
+// Copyright (C) 2025 Jussi Lind <jussi.lind@iki.fi>
 //
 // Cacophony is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -13,34 +13,26 @@
 // You should have received a copy of the GNU General Public License
 // along with Cacophony. If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef LINE_HPP
-#define LINE_HPP
+#ifndef SONG_TEST_HPP
+#define SONG_TEST_HPP
 
-#include "note_data.hpp"
-
-#include <memory>
+#include <QTest>
 
 namespace cacophony {
 
-class Line
+class SongTest : public QObject
 {
-public:
-    Line();
+    Q_OBJECT
 
-    explicit Line(const NoteData & noteData);
+private slots:
 
-    void clear();
+    void test_renderToEvents_noEvents_shouldAddStartAndEndOfSong();
 
-    using NoteDataS = std::shared_ptr<NoteData>;
+    void test_renderToEvents_singleEvent_shouldRenderEvent();
 
-    NoteDataS noteData() const;
-
-    void setNoteData(const NoteData & noteData);
-
-private:
-    NoteDataS m_noteData;
+    void test_renderToEvents_sameColumn_shouldAddNoteOff();
 };
 
 } // namespace cacophony
 
-#endif // LINE_HPP
+#endif // SONG_TEST_HPP

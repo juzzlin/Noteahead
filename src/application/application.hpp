@@ -19,6 +19,8 @@
 #include <memory>
 #include <optional>
 
+#include <QObject>
+
 class QGuiApplication;
 class QQmlApplicationEngine;
 
@@ -28,9 +30,13 @@ class ApplicationService;
 class Config;
 class EditorService;
 class MidiService; // Forward declaration of MidiService
+class PlayerService;
+class UiLogger;
 
-class Application
+class Application : public QObject
 {
+    Q_OBJECT
+
 public:
     Application(int & argc, char ** argv);
 
@@ -39,6 +45,8 @@ public:
     int run();
 
 private:
+    void connectServices();
+
     void handleCommandLineArguments();
 
     void initialize();
@@ -53,9 +61,13 @@ private:
 
     void testDevice();
 
+    std::unique_ptr<UiLogger> m_uiLogger;
+
     std::unique_ptr<ApplicationService> m_applicationService;
 
     std::unique_ptr<EditorService> m_editorService;
+
+    std::unique_ptr<PlayerService> m_playerService;
 
     std::unique_ptr<Config> m_config;
 

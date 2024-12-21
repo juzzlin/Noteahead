@@ -15,9 +15,15 @@
 
 #include "track.hpp"
 
+#include "../application/position.hpp"
+#include "../contrib/SimpleLogger/src/simple_logger.hpp"
+#include "../domain/note_data.hpp"
+#include "../domain/track.hpp"
 #include "column.hpp"
 
 namespace cacophony {
+
+static const auto TAG = "Track";
 
 Track::Track(std::string name, Type type, uint32_t length, uint32_t columnCount)
   : m_name { name }
@@ -54,9 +60,25 @@ uint32_t Track::lineCount() const
     return m_columns.at(0)->lineCount();
 }
 
-Track::NoteDataS Track::noteDataAtPosition(uint32_t columnId, uint32_t line) const
+Track::NoteDataS Track::noteDataAtPosition(const Position & position) const
 {
-    return m_columns.at(columnId)->noteDataAtPosition(line);
+    return m_columns.at(position.column)->noteDataAtPosition(position);
+}
+
+void Track::setNoteDataAtPosition(const NoteData & noteData, const Position & position)
+{
+    juzzlin::L(TAG).debug() << "Set note data at position: " << noteData.toString() << " @ " << position.toString();
+    m_columns.at(position.column)->setNoteDataAtPosition(noteData, position);
+}
+
+Track::EventList Track::renderToEvents(size_t startTick, size_t ticksPerLine) const
+{
+    Track::EventList eventList;
+    for (auto && column : m_columns) {
+        const auto columnList = column->renderToEvents(startTick, ticksPerLine);
+        std::copy(columnList.begin(), columnList.end(), std::back_inserter(eventList));
+    }
+    return eventList;
 }
 
 } // namespace cacophony

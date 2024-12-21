@@ -26,14 +26,14 @@ class NoteConverterTest : public QObject
 
 private slots:
 
-    void testMidiToString_shouldReturnCorrectString_data();
-    void testMidiToString_shouldReturnCorrectString();
+    void test_midiToString_shouldReturnCorrectString_data();
+    void test_midiToString_shouldReturnCorrectString();
 
-    void testStringToMidi_shouldReturnCorrectMidiNote_data();
-    void testStringToMidi_shouldReturnCorrectMidiNote();
+    void test_stringToMidi_shouldReturnCorrectMidiNote_data();
+    void test_stringToMidi_shouldReturnCorrectMidiNote();
 
-    void testMidiToString_shouldThrowOnInvalidInput();
-    void testStringToMidi_shouldThrowOnInvalidInput();
+    void test_midiToString_shouldThrowOnInvalidInput();
+    void test_stringToMidi_shouldThrowOnInvalidInput();
 };
 
 } // namespace cacophony

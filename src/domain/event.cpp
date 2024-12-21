@@ -17,8 +17,42 @@
 
 namespace cacophony {
 
-Event::Event()
+Event::Event(size_t tick, NoteDataS noteData)
+  : m_tick { tick }
+  , m_type { Event::Type::NoteData }
+  , m_noteData { noteData }
 {
+}
+
+Event::Event(size_t tick)
+  : m_tick { tick }
+  , m_type { Event::Type::None }
+{
+}
+
+void Event::setAsStartOfSong()
+{
+    m_type = Type::StartOfSong;
+}
+
+void Event::setAsEndOfSong()
+{
+    m_type = Type::EndOfSong;
+}
+
+size_t Event::tick() const
+{
+    return m_tick;
+}
+
+Event::Type Event::type() const
+{
+    return m_type;
+}
+
+Event::NoteDataS Event::noteData() const
+{
+    return m_noteData;
 }
 
 } // namespace cacophony

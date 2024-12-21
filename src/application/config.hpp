@@ -33,6 +33,14 @@ public:
     Q_INVOKABLE QSize loadWindowSize(QSize defaultSize) const;
 
     Q_INVOKABLE void saveWindowSize(QSize size);
+
+    Q_INVOKABLE int loadStep(int defaultStep) const;
+
+    Q_INVOKABLE void saveStep(int step);
+
+    Q_INVOKABLE int loadVelocity(int defaultVelocity) const;
+
+    Q_INVOKABLE void saveVelocity(int velocity);
 };
 
 } // namespace cacophony

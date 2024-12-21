@@ -2,12 +2,12 @@ import QtQuick 2.15
 import QtQuick.Controls 2.15
 import QtQuick.Controls.Universal 2.15
 import QtQuick.Layouts 2.15
+import ".."
 
 Button {
     id: rootItem
     width: Constants.mainToolBarButtonSize
     height: width
-    signal clicked
     function setImageSource(imageSource) {
         background.source = imageSource;
     }
@@ -16,6 +16,6 @@ Button {
         width: parent.width
         height: parent.height
         fillMode: Image.PreserveAspectFit
+        opacity: rootItem.enabled ? 1.0 : 0.5
     }
-    onClicked: rootItem.clicked()
 }

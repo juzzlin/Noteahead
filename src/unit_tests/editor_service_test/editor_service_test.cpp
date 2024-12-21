@@ -21,7 +21,7 @@
 
 namespace cacophony {
 
-void EditorServiceTest::testDefaultSong_shouldReturnCorrectProperties()
+void EditorServiceTest::test_defaultSong_shouldReturnCorrectProperties()
 {
     EditorService editorService;
 
@@ -40,7 +40,7 @@ void EditorServiceTest::testDefaultSong_shouldReturnCorrectProperties()
     QCOMPARE(editorService.lineCount(0), 64);
 }
 
-void EditorServiceTest::testDefaultSong_shouldNotHaveNoteData()
+void EditorServiceTest::test_defaultSong_shouldNotHaveNoteData()
 {
     EditorService editorService;
 
@@ -48,39 +48,156 @@ void EditorServiceTest::testDefaultSong_shouldNotHaveNoteData()
         for (uint8_t track = 0; track < editorService.trackCount(); track++) {
             for (uint8_t column = 0; column < editorService.columnCount(track); column++) {
                 for (uint8_t line = 0; line < editorService.lineCount(pattern); line++) {
-                    QCOMPARE(editorService.noteAtPosition(pattern, track, column, line), "---");
+                    QCOMPARE(editorService.noteAtPosition(pattern, track, column, line), editorService.noDataString());
+                    QCOMPARE(editorService.velocityAtPosition(pattern, track, column, line), editorService.noDataString());
                 }
             }
         }
     }
 }
 
-void EditorServiceTest::testRequestScroll_shouldChangePosition()
+void EditorServiceTest::test_requestDigitSetAtCurrentPosition_velocity_shouldChangeVelocity()
 {
     EditorService editorService;
+    QSignalSpy noteDataChangedSpy { &editorService, &EditorService::noteDataAtPositionChanged };
+    QVERIFY(editorService.requestPosition(0, 0, 0, 0, 0));
+    QVERIFY(editorService.requestNoteOnAtCurrentPosition(1, 3, 64));
+
+    editorService.requestCursorRight();
+    QVERIFY(!editorService.requestDigitSetAtCurrentPosition(4)); // 464 not possible
+    QVERIFY(editorService.requestDigitSetAtCurrentPosition(1)); // 164 not possible => 127
+    QCOMPARE(editorService.velocityAtPosition(0, 0, 0, 0), "127");
+    QVERIFY(editorService.requestDigitSetAtCurrentPosition(0)); // 027 possible
+    QCOMPARE(editorService.velocityAtPosition(0, 0, 0, 0), "027");
+    editorService.requestCursorRight();
+    QVERIFY(editorService.requestDigitSetAtCurrentPosition(6));
+    QCOMPARE(editorService.velocityAtPosition(0, 0, 0, 0), "067");
+    editorService.requestCursorRight();
+    QVERIFY(editorService.requestDigitSetAtCurrentPosition(8));
+    QCOMPARE(editorService.velocityAtPosition(0, 0, 0, 0), "068");
+    editorService.requestCursorLeft();
+    editorService.requestCursorLeft();
+    QVERIFY(editorService.requestDigitSetAtCurrentPosition(1)); // 168 not possible => 127
+    QCOMPARE(editorService.velocityAtPosition(0, 0, 0, 0), "127");
+    editorService.requestCursorRight();
+    QVERIFY(editorService.requestDigitSetAtCurrentPosition(0));
+    editorService.requestCursorRight();
+    QVERIFY(editorService.requestDigitSetAtCurrentPosition(0));
+    QCOMPARE(editorService.velocityAtPosition(0, 0, 0, 0), "100");
+    editorService.requestCursorLeft();
+    QVERIFY(editorService.requestDigitSetAtCurrentPosition(5)); // 150 not possible => 050
+    QCOMPARE(editorService.velocityAtPosition(0, 0, 0, 0), "050");
+}
+
+void EditorServiceTest::test_requestNoteDeletionAtCurrentPosition_shouldDeleteNoteData()
+{
+    EditorService editorService;
+    QSignalSpy noteDataChangedSpy { &editorService, &EditorService::noteDataAtPositionChanged };
+    QVERIFY(editorService.requestPosition(0, 0, 0, 0, 0));
+
+    QVERIFY(editorService.requestNoteOnAtCurrentPosition(1, 3, 64));
+    editorService.requestNoteDeletionAtCurrentPosition();
+
+    QCOMPARE(noteDataChangedSpy.count(), 2);
+    QCOMPARE(editorService.noteAtPosition(0, 0, 0, 4), editorService.noDataString());
+    QCOMPARE(editorService.velocityAtPosition(0, 0, 0, 4), editorService.noDataString());
+}
+
+void EditorServiceTest::test_requestNoteOnAtCurrentPosition_shouldChangeNoteData()
+{
+    EditorService editorService;
+    QSignalSpy noteDataChangedSpy { &editorService, &EditorService::noteDataAtPositionChanged };
+    QVERIFY(editorService.requestPosition(0, 0, 0, 0, 0));
+    QVERIFY(editorService.requestNoteOnAtCurrentPosition(1, 3, 64));
+
+    QCOMPARE(noteDataChangedSpy.count(), 1);
+    QCOMPARE(editorService.noteAtPosition(0, 0, 0, 0), "C-3");
+    QCOMPARE(editorService.velocityAtPosition(0, 0, 0, 0), "064");
+
+    QVERIFY(editorService.requestNoteOnAtCurrentPosition(3, 3, 88));
+    QCOMPARE(noteDataChangedSpy.count(), 2);
+    QCOMPARE(editorService.noteAtPosition(0, 0, 0, 0), "D-3");
+    QCOMPARE(editorService.velocityAtPosition(0, 0, 0, 0), "064"); // Should not change velocity on existing note
+
+    editorService.requestScroll(4);
+    editorService.requestNoteOnAtCurrentPosition(2, 4, 72);
+    QCOMPARE(noteDataChangedSpy.count(), 3);
+    QCOMPARE(editorService.noteAtPosition(0, 0, 0, 4), "C#4");
+    QCOMPARE(editorService.velocityAtPosition(0, 0, 0, 4), "072");
+}
+
+void EditorServiceTest::test_requestNoteOnAtCurrentPosition_notOnNoteColumn_shouldNotChangeNoteData()
+{
+    EditorService editorService;
+    QSignalSpy noteDataChangedSpy { &editorService, &EditorService::noteDataAtPositionChanged };
+
+    QVERIFY(editorService.requestPosition(0, 0, 0, 0, 1));
+    QVERIFY(!editorService.requestNoteOnAtCurrentPosition(1, 3, 64));
+    QCOMPARE(noteDataChangedSpy.count(), 0);
+
+    QCOMPARE(editorService.noteAtPosition(0, 0, 0, 0), editorService.noDataString());
+    QCOMPARE(editorService.velocityAtPosition(0, 0, 0, 0), editorService.noDataString());
+}
+
+void EditorServiceTest::test_requestPosition_invalidPosition_shouldNotChangePosition()
+{
+    EditorService editorService;
+    QSignalSpy positionChangedSpy { &editorService, &EditorService::positionChanged };
+
+    const auto neg = static_cast<uint32_t>(-1);
+    QVERIFY(!editorService.requestPosition(neg, 0, 0, 0, 0));
+    QVERIFY(!editorService.requestPosition(0, neg, 0, 0, 0));
+    QVERIFY(!editorService.requestPosition(0, 0, neg, 0, 0));
+    QVERIFY(!editorService.requestPosition(0, 0, 0, neg, 0));
+    QVERIFY(!editorService.requestPosition(0, 0, 0, 0, neg));
+    QCOMPARE(positionChangedSpy.count(), 0);
+}
+
+void EditorServiceTest::test_requestPosition_validPosition_shouldChangePosition()
+{
+    EditorService editorService;
+    QSignalSpy positionChangedSpy { &editorService, &EditorService::positionChanged };
+
+    QVERIFY(editorService.requestPosition(0, 0, 0, 0, 0));
+    QVERIFY(editorService.requestPosition(0, 0, 0, 0, 1));
+    QVERIFY(editorService.requestPosition(0, 0, 0, 0, 2));
+    QVERIFY(editorService.requestPosition(0, 0, 0, 0, 3));
+    QCOMPARE(positionChangedSpy.count(), 4);
+}
+
+void EditorServiceTest::test_requestScroll_shouldChangePosition()
+{
+    EditorService editorService;
+    QSignalSpy positionChangedSpy { &editorService, &EditorService::positionChanged };
 
     QCOMPARE(editorService.position().line, 0);
 
     editorService.requestScroll(1);
     QCOMPARE(editorService.position().line, 1);
+    QCOMPARE(positionChangedSpy.count(), 1);
 
     editorService.requestScroll(0);
     QCOMPARE(editorService.position().line, 1);
+    QCOMPARE(positionChangedSpy.count(), 2);
 
     editorService.requestScroll(-1);
     QCOMPARE(editorService.position().line, 0);
+    QCOMPARE(positionChangedSpy.count(), 3);
 
     editorService.requestScroll(-10);
     QCOMPARE(editorService.position().line, editorService.lineCount(editorService.currentPatternId()) - 10);
+    QCOMPARE(positionChangedSpy.count(), 4);
 
     editorService.requestScroll(10);
     QCOMPARE(editorService.position().line, 0);
+    QCOMPARE(positionChangedSpy.count(), 5);
 
     editorService.requestScroll(static_cast<int>(editorService.lineCount(editorService.currentPatternId()) + 10));
     QCOMPARE(editorService.position().line, 10);
+    QCOMPARE(positionChangedSpy.count(), 6);
 }
 
-void EditorServiceTest::testRequestTrackFocus_shouldChangePosition()
+void EditorServiceTest::test_requestTrackFocus_shouldChangePosition()
 {
     EditorService editorService;
     QSignalSpy positionChangedSpy { &editorService, &EditorService::positionChanged };
@@ -93,7 +210,7 @@ void EditorServiceTest::testRequestTrackFocus_shouldChangePosition()
     QCOMPARE(editorService.position().track, editorService.trackCount() - 1);
 }
 
-void EditorServiceTest::testRequestTrackFocus_shouldNotChangePosition()
+void EditorServiceTest::test_requestTrackFocus_shouldNotChangePosition()
 {
     EditorService editorService;
     QSignalSpy positionChangedSpy { &editorService, &EditorService::positionChanged };
@@ -104,7 +221,7 @@ void EditorServiceTest::testRequestTrackFocus_shouldNotChangePosition()
     QCOMPARE(editorService.position().track, 0);
 }
 
-void EditorServiceTest::testSetTrackName_shouldChangeTrackName()
+void EditorServiceTest::test_setTrackName_shouldChangeTrackName()
 {
     EditorService editorService;
 

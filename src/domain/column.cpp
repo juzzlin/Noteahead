@@ -15,9 +15,15 @@
 
 #include "column.hpp"
 
+#include "../application/position.hpp"
+#include "../contrib/SimpleLogger/src/simple_logger.hpp"
+#include "../domain/event.hpp"
+#include "../domain/note_data.hpp"
 #include "line.hpp"
 
 namespace cacophony {
+
+static const auto TAG = "Column";
 
 Column::Column(uint32_t length)
 {
@@ -37,9 +43,29 @@ uint32_t Column::lineCount() const
     return static_cast<uint32_t>(m_lines.size());
 }
 
-Column::NoteDataS Column::noteDataAtPosition(uint32_t position) const
+Column::NoteDataS Column::noteDataAtPosition(const Position & position) const
 {
-    return m_lines.at(position)->noteData();
+    return m_lines.at(static_cast<size_t>(position.line))->noteData();
+}
+
+void Column::setNoteDataAtPosition(const NoteData & noteData, const Position & position)
+{
+    juzzlin::L(TAG).debug() << "Set note data at position: " << noteData.toString() << " @ " << position.toString();
+    m_lines.at(static_cast<size_t>(position.line))->setNoteData(noteData);
+}
+
+Column::EventList Column::renderToEvents(size_t startTick, size_t ticksPerLine) const
+{
+    EventList eventList;
+    size_t tick = startTick;
+    for (auto && line : m_lines) {
+        if (line->noteData()->type() != NoteData::Type::None) {
+            const auto event = std::make_shared<Event>(tick, line->noteData());
+            eventList.push_back(event);
+        }
+        tick += ticksPerLine;
+    }
+    return eventList;
 }
 
 } // namespace cacophony

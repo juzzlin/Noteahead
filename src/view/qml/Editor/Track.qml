@@ -8,13 +8,14 @@ Item {
     property int _index: 0
     property string _name
     property bool _focused
+    readonly property string _tag: "Track"
     signal clicked
     signal nameChanged(string name)
     function index() {
         return _index;
     }
     function resize(width, height) {
-        console.log(`Resizing track ${_index} to width = ${width}, height = ${height}`);
+        uiLogger.debug(_tag, `Resizing track ${_index} to width = ${width}, height = ${height}`);
         rootItem.width = width;
         rootItem.height = height;
         columnContainer.resize(rootItem.width, rootItem.height - trackHeader.height);
@@ -36,9 +37,12 @@ Item {
         columnContainer.setPosition(position);
     }
     function updateData() {
-        console.log(`Updating data for track ${_index}`);
+        uiLogger.debug(_tag, `Updating data for track ${_index}`);
         _clearColumns();
         _createColumns();
+    }
+    function updateNoteDataAtPosition(position) {
+        columnContainer.updateNoteDataAtPosition(position);
     }
     function _clearColumns() {
         columnContainer.clearColumns();
@@ -74,8 +78,13 @@ Item {
         }
         function setPosition(position) {
             _noteColumns.forEach(noteColumn => {
-                    noteColumn.setPosition(position);
-                });
+                noteColumn.setPosition(position);
+            });
+        }
+        function updateNoteDataAtPosition(position) {
+            _noteColumns.forEach(noteColumn => {
+                noteColumn.updateNoteDataAtPosition(position);
+            });
         }
         function _noteColumnX(index) {
             return _noteColumnWidth() * index;
@@ -88,9 +97,9 @@ Item {
             const noteColumnWidth = _noteColumnWidth();
             const noteColumnHeight = columnContainer.height;
             for (let col = 0; col < _noteColumnCount; col++) {
-                console.log(`Creating note column ${col} for track ${_index}`);
+                uiLogger.debug(_tag, `Creating note column ${col} for track ${_index}`);
                 const noteColumn = noteColumnComponent.createObject(columnContainer);
-                console.log(`Column width: ${noteColumnWidth}, height: ${noteColumnHeight}`);
+                uiLogger.debug(_tag, `Column width: ${noteColumnWidth}, height: ${noteColumnHeight}`);
                 noteColumn.width = noteColumnWidth;
                 noteColumn.height = noteColumnHeight;
                 noteColumn.x = _noteColumnX(col);
@@ -106,9 +115,9 @@ Item {
             const noteColumnWidth = _noteColumnWidth();
             const noteColumnHeight = height;
             _noteColumns.forEach(noteColumn => {
-                    noteColumn.x = _noteColumnX(noteColumn.index());
-                    noteColumn.resize(noteColumnWidth, noteColumnHeight);
-                });
+                noteColumn.x = _noteColumnX(noteColumn.index());
+                noteColumn.resize(noteColumnWidth, noteColumnHeight);
+            });
         }
         Component {
             id: noteColumnComponent
@@ -134,7 +143,7 @@ Item {
         anchors.right: parent.right
         anchors.bottom: parent.bottom
         onClicked: {
-            console.log(`Track ${rootItem._index} clicked`);
+            uiLogger.debug(_tag, `Track ${rootItem._index} clicked`);
             rootItem.clicked();
         }
         onWheel: event => {

@@ -17,16 +17,52 @@
 #define NOTE_DATA_HPP
 
 #include <cstdint>
+#include <string>
 
 namespace cacophony {
 
-struct NoteData
+class NoteData
 {
-    uint8_t noteOn = 0;
+public:
+    enum class Type
+    {
+        None,
+        NoteOn,
+        NoteOff
+    };
 
-    uint8_t velocity = 0;
+    NoteData() = default;
 
-    bool noteOff = false;
+    NoteData(uint32_t track, uint32_t column);
+
+    void setAsNoteOn(uint8_t note, uint8_t velocity);
+
+    void setAsNoteOff(uint8_t note);
+
+    NoteData::Type type() const;
+
+    uint8_t note() const;
+
+    uint8_t velocity() const;
+
+    void setVelocity(uint8_t velocity);
+
+    std::string toString() const;
+
+    uint32_t track() const;
+
+    uint32_t column() const;
+
+private:
+    Type m_type = Type::None;
+
+    uint8_t m_note = 0;
+
+    uint8_t m_velocity = 0;
+
+    uint32_t m_track = 0;
+
+    uint32_t m_column = 0;
 };
 
 } // namespace cacophony

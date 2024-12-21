@@ -26,17 +26,29 @@ class EditorServiceTest : public QObject
 
 private slots:
 
-    void testDefaultSong_shouldReturnCorrectProperties();
+    void test_defaultSong_shouldReturnCorrectProperties();
 
-    void testDefaultSong_shouldNotHaveNoteData();
+    void test_defaultSong_shouldNotHaveNoteData();
 
-    void testRequestScroll_shouldChangePosition();
+    void test_requestDigitSetAtCurrentPosition_velocity_shouldChangeVelocity();
 
-    void testRequestTrackFocus_shouldChangePosition();
+    void test_requestNoteDeletionAtCurrentPosition_shouldDeleteNoteData();
 
-    void testRequestTrackFocus_shouldNotChangePosition();
+    void test_requestNoteOnAtCurrentPosition_shouldChangeNoteData();
 
-    void testSetTrackName_shouldChangeTrackName();
+    void test_requestNoteOnAtCurrentPosition_notOnNoteColumn_shouldNotChangeNoteData();
+
+    void test_requestPosition_invalidPosition_shouldNotChangePosition();
+
+    void test_requestPosition_validPosition_shouldChangePosition();
+
+    void test_requestScroll_shouldChangePosition();
+
+    void test_requestTrackFocus_shouldChangePosition();
+
+    void test_requestTrackFocus_shouldNotChangePosition();
+
+    void test_setTrackName_shouldChangeTrackName();
 };
 
 } // namespace cacophony

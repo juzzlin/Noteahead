@@ -19,6 +19,9 @@
 #include "position.hpp"
 #include <QObject>
 
+#include <optional>
+#include <utility>
+
 namespace cacophony {
 
 class Song;
@@ -34,6 +37,8 @@ public:
 
     using SongS = std::shared_ptr<Song>;
 
+    SongS song() const;
+
     void setSong(SongS song);
 
     Q_INVOKABLE uint32_t columnCount(uint32_t trackId) const;
@@ -48,6 +53,10 @@ public:
 
     Q_INVOKABLE QString noteAtPosition(uint32_t patternId, uint32_t trackId, uint32_t columnId, uint32_t line) const;
 
+    Q_INVOKABLE QString noDataString() const;
+
+    Q_INVOKABLE QString velocityAtPosition(uint32_t pattern, uint32_t track, uint32_t column, uint32_t line) const;
+
     Q_INVOKABLE uint32_t patternCount() const;
 
     Q_INVOKABLE uint32_t trackCount() const;
@@ -60,6 +69,10 @@ public:
 
     Q_INVOKABLE void setCurrentPatternId(uint32_t currentPatternId);
 
+    Q_INVOKABLE bool isAtNoteColumn() const;
+
+    Q_INVOKABLE bool isAtVelocityColumn() const;
+
     Q_INVOKABLE Position position() const;
 
     Q_INVOKABLE uint32_t positionBarLine() const;
@@ -68,18 +81,51 @@ public:
 
     Q_INVOKABLE void requestCursorRight();
 
+    Q_INVOKABLE bool requestDigitSetAtCurrentPosition(uint8_t digit);
+
+    Q_INVOKABLE void requestNoteDeletionAtCurrentPosition();
+
+    Q_INVOKABLE bool requestNoteOnAtCurrentPosition(uint8_t note, uint8_t octave, uint8_t velocity);
+
+    Q_INVOKABLE bool requestPosition(uint32_t pattern, uint32_t track, uint32_t column, uint32_t line, uint32_t lineColumn);
+
     Q_INVOKABLE void requestScroll(int steps);
 
     Q_INVOKABLE void requestTrackFocus(uint32_t trackId);
 
+    Q_INVOKABLE uint32_t beatsPerMinute() const;
+
+    Q_INVOKABLE void setBeatsPerMinute(uint32_t bpm);
+
+    Q_INVOKABLE uint32_t linesPerBeat() const;
+
+    Q_INVOKABLE void setLinesPerBeat(uint32_t lpb);
+
 signals:
     void currentPatternChanged();
+
+    void noteDataAtPositionChanged(const Position & position);
 
     void positionChanged(const Position & newPosition, const Position & oldPosition);
 
     void songChanged();
 
+public slots:
+    void requestPositionByTick(uint32_t tick);
+
 private:
+    using MidiNoteNameAndCode = std::pair<std::string, uint8_t>;
+    using MidiNoteNameAndCodeOpt = std::optional<MidiNoteNameAndCode>;
+    MidiNoteNameAndCodeOpt editorNoteToMidiNote(uint32_t note, uint32_t octave) const;
+
+    void logPosition() const;
+
+    void notifyPositionChange(const Position & oldPosition);
+
+    QString padVelocityToThreeDigits(QString velocity) const;
+
+    bool setVelocityAtCurrentPosition(uint8_t digit);
+
     SongS m_song;
 
     uint32_t m_currentPatternId = 0;

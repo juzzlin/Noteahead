@@ -1,10 +1,8 @@
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
-set(NAME editor_service_test)
+set(NAME song_test)
 set(SRC
     ${NAME}.cpp
     ${NAME}.hpp
-    ../../application/editor_service.cpp
-    ../../application/note_converter.cpp
     ../../application/position.hpp
     ../../domain/column.cpp
     ../../domain/event.cpp

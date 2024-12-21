@@ -1,6 +1,7 @@
 import QtQuick 2.15
 import QtQuick.Controls 2.15
 import QtQuick.Controls.Universal 2.15
+import ".."
 
 Rectangle {
     id: rootItem
@@ -19,9 +20,12 @@ Rectangle {
         anchors.left: parent.left
         anchors.leftMargin: Constants.lineNumberColumnWidth
         spacing: 5
-        PlayButton {}
-        PrevButton {}
-        StopButton {}
+        PlayButton {
+        }
+        PrevButton {
+        }
+        StopButton {
+        }
     }
     Row {
         anchors.verticalCenter: parent.verticalCenter
@@ -31,61 +35,86 @@ Rectangle {
         Row {
             spacing: 5
             Text {
-                text: "BPM"
+                text: qsTr("STEP")
                 font.bold: true
                 color: Constants.mainToolBarTextColor
                 anchors.verticalCenter: parent.verticalCenter
             }
             SpinBox {
-                id: bpmSpinBox
-                value: 120
-                from: 30
-                to: 300
+                id: stepSpinBox
+                value: UiService.activeStep()
+                from: 0
+                to: 64
+                onValueChanged: UiService.setActiveStep(stepSpinBox.value)
             }
         }
         Row {
             spacing: 5
             Text {
-                text: "LBP"
+                text: qsTr("VEL")
                 font.bold: true
                 color: Constants.mainToolBarTextColor
                 anchors.verticalCenter: parent.verticalCenter
             }
             SpinBox {
-                id: lbpSpinBox
-                value: 4
-                from: 1
-                to: 16
-            }
-        }
-        Row {
-            spacing: 5
-            Text {
-                text: "VEL"
-                font.bold: true
-                color: Constants.mainToolBarTextColor
-                anchors.verticalCenter: parent.verticalCenter
-            }
-            SpinBox {
-                id: velSpinBox
-                value: 100
+                id: velocitySpinBox
+                value: UiService.activeVelocity()
                 from: 0
                 to: 127
+                onValueChanged: UiService.setActiveVelocity(velocitySpinBox.value)
             }
         }
         Row {
             spacing: 5
             Text {
-                text: "OCT"
+                text: qsTr("OCT")
                 font.bold: true
                 color: Constants.mainToolBarTextColor
                 anchors.verticalCenter: parent.verticalCenter
             }
             SpinBox {
                 id: octSpinBox
-                value: 4
+                value: UiService.activeOctave()
                 from: 0
                 to: 8
+                onValueChanged: UiService.setActiveOctave(octSpinBox.value)
+            }
+        }
+        Rectangle {
+            height: parent.height
+            width: 1
+            color: Constants.mainToolBarSeparatorColor
+        }
+        Row {
+            spacing: 5
+            Text {
+                text: qsTr("BPM")
+                font.bold: true
+                color: Constants.mainToolBarTextColor
+                anchors.verticalCenter: parent.verticalCenter
+            }
+            SpinBox {
+                id: bpmSpinBox
+                value: editorService.beatsPerMinute()
+                from: 30
+                to: 300
+                onValueChanged: editorService.setBeatsPerMinute(value)
+            }
+        }
+        Row {
+            spacing: 5
+            Text {
+                text: qsTr("LBP")
+                font.bold: true
+                color: Constants.mainToolBarTextColor
+                anchors.verticalCenter: parent.verticalCenter
+            }
+            SpinBox {
+                id: lbpSpinBox
+                value: editorService.linesPerBeat()
+                from: 1
+                to: 16
+                onValueChanged: editorService.setLinesPerBeat(value)
             }
         }
     }

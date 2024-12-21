@@ -16,12 +16,45 @@
 #ifndef EVENT_HPP
 #define EVENT_HPP
 
+#include <cstddef>
+#include <memory>
+
 namespace cacophony {
+
+class NoteData;
 
 class Event
 {
 public:
-    Event();
+    enum class Type
+    {
+        None,
+        NoteData,
+        StartOfSong,
+        EndOfSong
+    };
+
+    using NoteDataS = std::shared_ptr<NoteData>;
+    Event(size_t tick, NoteDataS noteData);
+
+    Event(size_t tick);
+
+    void setAsStartOfSong();
+
+    void setAsEndOfSong();
+
+    size_t tick() const;
+
+    Type type() const;
+
+    NoteDataS noteData() const;
+
+private:
+    size_t m_tick;
+
+    Type m_type;
+
+    NoteDataS m_noteData;
 };
 
 } // namespace cacophony

@@ -21,8 +21,10 @@
 
 namespace cacophony {
 
+class Event;
 class Line;
-struct NoteData;
+class NoteData;
+struct Position;
 
 class Column
 {
@@ -33,7 +35,13 @@ public:
 
     uint32_t lineCount() const;
 
-    NoteDataS noteDataAtPosition(uint32_t position) const;
+    NoteDataS noteDataAtPosition(const Position & position) const;
+
+    void setNoteDataAtPosition(const NoteData & noteData, const Position & position);
+
+    using EventS = std::shared_ptr<Event>;
+    using EventList = std::vector<EventS>;
+    EventList renderToEvents(size_t startTick, size_t ticksPerLine) const;
 
 private:
     void initialize(uint32_t length);

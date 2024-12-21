@@ -19,7 +19,7 @@
 
 namespace cacophony {
 
-void NoteConverterTest::testMidiToString_shouldReturnCorrectString_data()
+void NoteConverterTest::test_midiToString_shouldReturnCorrectString_data()
 {
     QTest::addColumn<uint8_t>("midiNote");
     QTest::addColumn<QString>("expectedString");
@@ -31,7 +31,7 @@ void NoteConverterTest::testMidiToString_shouldReturnCorrectString_data()
     QTest::newRow("C#5") << static_cast<uint8_t>(61) << "C#5";
 }
 
-void NoteConverterTest::testMidiToString_shouldReturnCorrectString()
+void NoteConverterTest::test_midiToString_shouldReturnCorrectString()
 {
     QFETCH(uint8_t, midiNote);
     QFETCH(QString, expectedString);
@@ -39,7 +39,7 @@ void NoteConverterTest::testMidiToString_shouldReturnCorrectString()
     QCOMPARE(QString::fromStdString(NoteConverter::midiToString(midiNote)), expectedString);
 }
 
-void NoteConverterTest::testStringToMidi_shouldReturnCorrectMidiNote_data()
+void NoteConverterTest::test_stringToMidi_shouldReturnCorrectMidiNote_data()
 {
     QTest::addColumn<QString>("noteString");
     QTest::addColumn<uint8_t>("expectedMidiNote");
@@ -51,7 +51,7 @@ void NoteConverterTest::testStringToMidi_shouldReturnCorrectMidiNote_data()
     QTest::newRow("C#5") << "C#5" << static_cast<uint8_t>(61);
 }
 
-void NoteConverterTest::testStringToMidi_shouldReturnCorrectMidiNote()
+void NoteConverterTest::test_stringToMidi_shouldReturnCorrectMidiNote()
 {
     QFETCH(QString, noteString);
     QFETCH(uint8_t, expectedMidiNote);
@@ -59,13 +59,13 @@ void NoteConverterTest::testStringToMidi_shouldReturnCorrectMidiNote()
     QCOMPARE(NoteConverter::stringToMidi(noteString.toStdString()), expectedMidiNote);
 }
 
-void NoteConverterTest::testMidiToString_shouldThrowOnInvalidInput()
+void NoteConverterTest::test_midiToString_shouldThrowOnInvalidInput()
 {
     // Check for out_of_range exception when MIDI note is out of valid range
     QVERIFY_THROWS_EXCEPTION(std::out_of_range, NoteConverter::midiToString(128));
 }
 
-void NoteConverterTest::testStringToMidi_shouldThrowOnInvalidInput()
+void NoteConverterTest::test_stringToMidi_shouldThrowOnInvalidInput()
 {
     // Check for invalid_argument exception for malformed strings
     QVERIFY_THROWS_EXCEPTION(std::invalid_argument, NoteConverter::stringToMidi("H-3"));
