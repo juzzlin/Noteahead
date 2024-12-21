@@ -23,7 +23,7 @@ namespace cacophony {
 
 class Column;
 class Instrument;
-class NoteData;
+struct NoteData;
 
 class Track
 {

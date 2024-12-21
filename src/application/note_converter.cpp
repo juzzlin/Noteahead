@@ -1,5 +1,6 @@
 #include "note_converter.hpp"
 
+#include <array>
 #include <stdexcept>
 #include <string>
 #include <unordered_map>

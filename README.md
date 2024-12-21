@@ -1,8 +1,22 @@
 # Cacophony
 
-A simple music tracker for Linux.
+A simple MIDI tracker for Linux. There are no audio tracks, only MIDI.
 
-## Build and runtime dependencies
+## Build dependencies on Ubuntu 24.04+
 
-qt5-default, qtquickcontrols2-5-dev, qml-module-qtquick-controls2, qml-module-qtquick-window2
+    build-essential cmake pkg-config ninja-build qt6-base-dev qt6-declarative-dev qt6-tools-dev librtmidi-dev
+
+    qml6-module-qtqml qml6-module-qtquick-templates [Runtime]
+
+## Build and run on CLI
+
+    mkdir build
+
+    cd build
+
+    cmake -GNinja
+
+    ninja
+
+    ./cacophony
 

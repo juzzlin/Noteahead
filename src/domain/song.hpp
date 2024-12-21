@@ -22,7 +22,7 @@
 namespace cacophony {
 
 class Pattern;
-class NoteData;
+struct NoteData;
 
 class Song
 {

@@ -15,6 +15,8 @@
 
 #include "midi_service.hpp"
 
+#include <algorithm>
+
 namespace cacophony {
 
 MidiService::MidiService() = default;

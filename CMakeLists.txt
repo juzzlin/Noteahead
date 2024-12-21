@@ -45,7 +45,7 @@ find_package(PkgConfig REQUIRED)
 pkg_check_modules(RTMIDI REQUIRED rtmidi)
 
 find_package(QT NAMES Qt6 COMPONENTS Core REQUIRED)
-find_package(Qt6 6.5 COMPONENTS Core Quick Xml Widgets LinguistTools Svg Test Network REQUIRED)
+find_package(Qt6 6.5 COMPONENTS Core Quick Xml Widgets LinguistTools Test REQUIRED)
 qt_standard_project_setup()
 qt_policy(SET QTP0001 NEW)
 message(STATUS "Qt version found  : ${QT_VERSION_MAJOR}.${QT_VERSION_MINOR}.${QT_VERSION_PATCH}\n")

@@ -1,6 +1,7 @@
 #ifndef NOTE_CONVERTER_HPP
 #define NOTE_CONVERTER_HPP
 
+#include <cstdint>
 #include <string>
 
 namespace cacophony::NoteConverter {
