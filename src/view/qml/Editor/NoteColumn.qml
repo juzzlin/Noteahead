@@ -35,9 +35,9 @@ Rectangle {
     }
     function updateNoteDataAtPosition(position) {
         if (_isPositionMe(position)) {
-            const note = editorService.noteAtPosition(editorService.currentPatternId(), _trackIndex, _index, position.line);
+            const note = editorService.displayNoteAtPosition(editorService.currentPatternId(), _trackIndex, _index, position.line);
             _lines[position.line].note = note;
-            const velocity = editorService.velocityAtPosition(editorService.currentPatternId(), _trackIndex, _index, position.line);
+            const velocity = editorService.displayVelocityAtPosition(editorService.currentPatternId(), _trackIndex, _index, position.line);
             _lines[position.line].velocity = velocity;
         }
     }
@@ -56,17 +56,17 @@ Rectangle {
         const lineCount = editorService.currentLineCount();
         const lineHeight = _lineHeight();
         for (let lineIndex = 0; lineIndex < lineCount; lineIndex++) {
-            const note = editorService.noteAtPosition(editorService.currentPatternId(), _trackIndex, _index, lineIndex);
-            const velocity = editorService.velocityAtPosition(editorService.currentPatternId(), _trackIndex, _index, lineIndex);
+            const note = editorService.displayNoteAtPosition(editorService.currentPatternId(), _trackIndex, _index, lineIndex);
+            const velocity = editorService.displayVelocityAtPosition(editorService.currentPatternId(), _trackIndex, _index, lineIndex);
             const line = noteColumnLineComponent.createObject(rootItem, {
-                    "index": lineIndex,
-                    "width": rootItem.width,
-                    "height": lineHeight,
-                    "x": 0,
-                    "y": lineHeight * _scrolledLinePositionByLineIndex(lineIndex),
-                    "note": note,
-                    "velocity": velocity
-                });
+                "index": lineIndex,
+                "width": rootItem.width,
+                "height": lineHeight,
+                "x": 0,
+                "y": lineHeight * _scrolledLinePositionByLineIndex(lineIndex),
+                "note": note,
+                "velocity": velocity
+            });
             _lines.push(line);
         }
     }
@@ -74,20 +74,20 @@ Rectangle {
         const lineCount = editorService.currentLineCount();
         const lineHeight = _lineHeight();
         _lines.forEach(line => {
-                line.y = lineHeight * _scrolledLinePositionByLineIndex(line.index);
-                line.resize(width, lineHeight);
-            });
+            line.y = lineHeight * _scrolledLinePositionByLineIndex(line.index);
+            line.resize(width, lineHeight);
+        });
     }
     function _scrollLines() {
         const lineHeight = _lineHeight();
         _lines.forEach(line => {
-                line.y = lineHeight * _scrolledLinePositionByLineIndex(line.index);
-            });
+            line.y = lineHeight * _scrolledLinePositionByLineIndex(line.index);
+        });
     }
     function _setLineFocused(lineIndex, lineColumnIndex, focused) {
         _lines.forEach((line, index) => {
-                line.setFocused(focused && index === lineIndex, lineColumnIndex);
-            });
+            line.setFocused(focused && index === lineIndex, lineColumnIndex);
+        });
     }
     Component {
         id: noteColumnLineComponent

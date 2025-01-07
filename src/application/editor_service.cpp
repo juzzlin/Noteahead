@@ -81,7 +81,7 @@ int EditorService::lineNumberAtViewLine(uint32_t line) const
     }
 }
 
-QString EditorService::noteAtPosition(uint32_t patternId, uint32_t trackId, uint32_t columnId, uint32_t line) const
+QString EditorService::displayNoteAtPosition(uint32_t patternId, uint32_t trackId, uint32_t columnId, uint32_t line) const
 {
     if (const auto noteData = m_song->noteDataAtPosition({ patternId, trackId, columnId, line }); noteData->type() != NoteData::Type::None) {
         return noteData->type() == NoteData::Type::NoteOff ? "OFF" : NoteConverter::midiToString(noteData->note()).c_str();
@@ -100,12 +100,21 @@ QString EditorService::padVelocityToThreeDigits(QString velocity) const
     return velocity.rightJustified(3, '0', true);
 }
 
-QString EditorService::velocityAtPosition(uint32_t pattern, uint32_t track, uint32_t column, uint32_t line) const
+QString EditorService::displayVelocityAtPosition(uint32_t pattern, uint32_t track, uint32_t column, uint32_t line) const
 {
     if (const auto noteData = m_song->noteDataAtPosition({ pattern, track, column, line }); noteData->type() != NoteData::Type::None) {
         return noteData->type() == NoteData::Type::NoteOff ? noDataString() : padVelocityToThreeDigits(QString::number(noteData->velocity()));
     } else {
         return noDataString();
+    }
+}
+
+double EditorService::effectiveVolumeAtPosition(uint32_t pattern, uint32_t track, uint32_t column, uint32_t line) const
+{
+    if (const auto noteData = m_song->noteDataAtPosition({ pattern, track, column, line }); noteData->type() != NoteData::Type::None) {
+        return noteData->type() == NoteData::Type::NoteOff ? 0 : static_cast<double>(noteData->velocity()) / 127;
+    } else {
+        return 0;
     }
 }
 
@@ -365,7 +374,6 @@ void EditorService::requestPositionByTick(uint32_t tick)
     if (auto && patternAndLine = m_song->patternAndLineByTick(tick); patternAndLine.has_value()) {
         m_position.pattern = patternAndLine->first;
         m_position.line = patternAndLine->second;
-
         notifyPositionChange(oldPosition);
     }
 }

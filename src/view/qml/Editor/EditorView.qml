@@ -57,8 +57,8 @@ FocusScope {
     }
     function clearTracks() {
         _tracks.forEach(track => {
-            track.destroy();
-        });
+                track.destroy();
+            });
         _tracks = [];
     }
     function setTrackDimensionsByIndex(track, trackIndex) {
@@ -69,9 +69,9 @@ FocusScope {
     }
     function _connectTrack(track) {
         track.clicked.connect(() => {
-            editorService.requestTrackFocus(track.index());
-            rootItem.forceActiveFocus();
-        });
+                editorService.requestTrackFocus(track.index());
+                rootItem.forceActiveFocus();
+            });
     }
     function createTracks() {
         _trackCount = editorService.trackCount();
@@ -82,6 +82,7 @@ FocusScope {
                 setTrackDimensionsByIndex(track, trackIndex);
                 track.setIndex(trackIndex);
                 track.setName(editorService.trackName(trackIndex));
+                track.setPositionBar(positionBar);
                 track.nameChanged.connect(name => editorService.setTrackName(trackIndex, name));
                 track.updateData();
                 _tracks.push(track);
@@ -109,9 +110,9 @@ FocusScope {
     }
     function _updateTrackSizes() {
         _tracks.forEach(track => {
-            track.resize(trackArea.width / _trackCount, trackArea.height);
-            track.x = track.index() * track.width;
-        });
+                track.resize(trackArea.width / _trackCount, trackArea.height);
+                track.x = track.index() * track.width;
+            });
     }
     function _updateFocus(newPosition, oldPosition) {
         _setTrackUnfocused(oldPosition.track);
@@ -119,23 +120,23 @@ FocusScope {
     }
     function _updatePosition(newPosition) {
         _tracks.forEach(track => {
-            track.setPosition(newPosition);
-        });
+                track.setPosition(newPosition);
+            });
         lineNumberColumnLeft.setPosition(newPosition);
         lineNumberColumnRight.setPosition(newPosition);
     }
     function _updateNoteDataAtPosition(position) {
         _tracks.forEach(track => {
-            track.updateNoteDataAtPosition(position);
-        });
+                track.updateNoteDataAtPosition(position);
+            });
     }
     function connectSignals() {
         editorService.noteDataAtPositionChanged.connect(_updateNoteDataAtPosition);
         editorService.songChanged.connect(refreshTracks);
         editorService.positionChanged.connect((newPosition, oldPosition) => {
-            _updateFocus(newPosition, oldPosition);
-            _updatePosition(newPosition);
-        });
+                _updateFocus(newPosition, oldPosition);
+                _updatePosition(newPosition);
+            });
     }
     function initialize() {
         connectSignals();

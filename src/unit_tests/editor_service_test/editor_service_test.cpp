@@ -48,8 +48,8 @@ void EditorServiceTest::test_defaultSong_shouldNotHaveNoteData()
         for (uint8_t track = 0; track < editorService.trackCount(); track++) {
             for (uint8_t column = 0; column < editorService.columnCount(track); column++) {
                 for (uint8_t line = 0; line < editorService.lineCount(pattern); line++) {
-                    QCOMPARE(editorService.noteAtPosition(pattern, track, column, line), editorService.noDataString());
-                    QCOMPARE(editorService.velocityAtPosition(pattern, track, column, line), editorService.noDataString());
+                    QCOMPARE(editorService.displayNoteAtPosition(pattern, track, column, line), editorService.noDataString());
+                    QCOMPARE(editorService.displayVelocityAtPosition(pattern, track, column, line), editorService.noDataString());
                 }
             }
         }
@@ -66,27 +66,27 @@ void EditorServiceTest::test_requestDigitSetAtCurrentPosition_velocity_shouldCha
     editorService.requestCursorRight();
     QVERIFY(!editorService.requestDigitSetAtCurrentPosition(4)); // 464 not possible
     QVERIFY(editorService.requestDigitSetAtCurrentPosition(1)); // 164 not possible => 127
-    QCOMPARE(editorService.velocityAtPosition(0, 0, 0, 0), "127");
+    QCOMPARE(editorService.displayVelocityAtPosition(0, 0, 0, 0), "127");
     QVERIFY(editorService.requestDigitSetAtCurrentPosition(0)); // 027 possible
-    QCOMPARE(editorService.velocityAtPosition(0, 0, 0, 0), "027");
+    QCOMPARE(editorService.displayVelocityAtPosition(0, 0, 0, 0), "027");
     editorService.requestCursorRight();
     QVERIFY(editorService.requestDigitSetAtCurrentPosition(6));
-    QCOMPARE(editorService.velocityAtPosition(0, 0, 0, 0), "067");
+    QCOMPARE(editorService.displayVelocityAtPosition(0, 0, 0, 0), "067");
     editorService.requestCursorRight();
     QVERIFY(editorService.requestDigitSetAtCurrentPosition(8));
-    QCOMPARE(editorService.velocityAtPosition(0, 0, 0, 0), "068");
+    QCOMPARE(editorService.displayVelocityAtPosition(0, 0, 0, 0), "068");
     editorService.requestCursorLeft();
     editorService.requestCursorLeft();
     QVERIFY(editorService.requestDigitSetAtCurrentPosition(1)); // 168 not possible => 127
-    QCOMPARE(editorService.velocityAtPosition(0, 0, 0, 0), "127");
+    QCOMPARE(editorService.displayVelocityAtPosition(0, 0, 0, 0), "127");
     editorService.requestCursorRight();
     QVERIFY(editorService.requestDigitSetAtCurrentPosition(0));
     editorService.requestCursorRight();
     QVERIFY(editorService.requestDigitSetAtCurrentPosition(0));
-    QCOMPARE(editorService.velocityAtPosition(0, 0, 0, 0), "100");
+    QCOMPARE(editorService.displayVelocityAtPosition(0, 0, 0, 0), "100");
     editorService.requestCursorLeft();
     QVERIFY(editorService.requestDigitSetAtCurrentPosition(5)); // 150 not possible => 050
-    QCOMPARE(editorService.velocityAtPosition(0, 0, 0, 0), "050");
+    QCOMPARE(editorService.displayVelocityAtPosition(0, 0, 0, 0), "050");
 }
 
 void EditorServiceTest::test_requestNoteDeletionAtCurrentPosition_shouldDeleteNoteData()
@@ -99,8 +99,8 @@ void EditorServiceTest::test_requestNoteDeletionAtCurrentPosition_shouldDeleteNo
     editorService.requestNoteDeletionAtCurrentPosition();
 
     QCOMPARE(noteDataChangedSpy.count(), 2);
-    QCOMPARE(editorService.noteAtPosition(0, 0, 0, 4), editorService.noDataString());
-    QCOMPARE(editorService.velocityAtPosition(0, 0, 0, 4), editorService.noDataString());
+    QCOMPARE(editorService.displayNoteAtPosition(0, 0, 0, 4), editorService.noDataString());
+    QCOMPARE(editorService.displayVelocityAtPosition(0, 0, 0, 4), editorService.noDataString());
 }
 
 void EditorServiceTest::test_requestNoteOnAtCurrentPosition_shouldChangeNoteData()
@@ -111,19 +111,19 @@ void EditorServiceTest::test_requestNoteOnAtCurrentPosition_shouldChangeNoteData
     QVERIFY(editorService.requestNoteOnAtCurrentPosition(1, 3, 64));
 
     QCOMPARE(noteDataChangedSpy.count(), 1);
-    QCOMPARE(editorService.noteAtPosition(0, 0, 0, 0), "C-3");
-    QCOMPARE(editorService.velocityAtPosition(0, 0, 0, 0), "064");
+    QCOMPARE(editorService.displayNoteAtPosition(0, 0, 0, 0), "C-3");
+    QCOMPARE(editorService.displayVelocityAtPosition(0, 0, 0, 0), "064");
 
     QVERIFY(editorService.requestNoteOnAtCurrentPosition(3, 3, 88));
     QCOMPARE(noteDataChangedSpy.count(), 2);
-    QCOMPARE(editorService.noteAtPosition(0, 0, 0, 0), "D-3");
-    QCOMPARE(editorService.velocityAtPosition(0, 0, 0, 0), "064"); // Should not change velocity on existing note
+    QCOMPARE(editorService.displayNoteAtPosition(0, 0, 0, 0), "D-3");
+    QCOMPARE(editorService.displayVelocityAtPosition(0, 0, 0, 0), "064"); // Should not change velocity on existing note
 
     editorService.requestScroll(4);
     editorService.requestNoteOnAtCurrentPosition(2, 4, 72);
     QCOMPARE(noteDataChangedSpy.count(), 3);
-    QCOMPARE(editorService.noteAtPosition(0, 0, 0, 4), "C#4");
-    QCOMPARE(editorService.velocityAtPosition(0, 0, 0, 4), "072");
+    QCOMPARE(editorService.displayNoteAtPosition(0, 0, 0, 4), "C#4");
+    QCOMPARE(editorService.displayVelocityAtPosition(0, 0, 0, 4), "072");
 }
 
 void EditorServiceTest::test_requestNoteOnAtCurrentPosition_notOnNoteColumn_shouldNotChangeNoteData()
@@ -135,8 +135,8 @@ void EditorServiceTest::test_requestNoteOnAtCurrentPosition_notOnNoteColumn_shou
     QVERIFY(!editorService.requestNoteOnAtCurrentPosition(1, 3, 64));
     QCOMPARE(noteDataChangedSpy.count(), 0);
 
-    QCOMPARE(editorService.noteAtPosition(0, 0, 0, 0), editorService.noDataString());
-    QCOMPARE(editorService.velocityAtPosition(0, 0, 0, 0), editorService.noDataString());
+    QCOMPARE(editorService.displayNoteAtPosition(0, 0, 0, 0), editorService.noDataString());
+    QCOMPARE(editorService.displayVelocityAtPosition(0, 0, 0, 0), editorService.noDataString());
 }
 
 void EditorServiceTest::test_requestPosition_invalidPosition_shouldNotChangePosition()

@@ -8,6 +8,7 @@ Item {
     property int _index: 0
     property string _name
     property bool _focused
+    property Item _positionBar
     readonly property string _tag: "Track"
     signal clicked
     signal nameChanged(string name)
@@ -15,7 +16,6 @@ Item {
         return _index;
     }
     function resize(width, height) {
-        uiLogger.debug(_tag, `Resizing track ${_index} to width = ${width}, height = ${height}`);
         rootItem.width = width;
         rootItem.height = height;
         columnContainer.resize(rootItem.width, rootItem.height - trackHeader.height);
@@ -35,9 +35,17 @@ Item {
     }
     function setPosition(position) {
         columnContainer.setPosition(position);
+        if (UiService.isPlaying()) {
+            volumeMeter.trigger(editorService.effectiveVolumeAtPosition(position.pattern, _index, position.column, position.line));
+        }
+    }
+    function setPositionBar(positionBar) {
+        _positionBar = positionBar;
+    }
+    function setPositionBarY(positionBarY) {
+        _positionBarY = positionBarY;
     }
     function updateData() {
-        uiLogger.debug(_tag, `Updating data for track ${_index}`);
         _clearColumns();
         _createColumns();
     }
@@ -97,9 +105,7 @@ Item {
             const noteColumnWidth = _noteColumnWidth();
             const noteColumnHeight = columnContainer.height;
             for (let col = 0; col < _noteColumnCount; col++) {
-                uiLogger.debug(_tag, `Creating note column ${col} for track ${_index}`);
                 const noteColumn = noteColumnComponent.createObject(columnContainer);
-                uiLogger.debug(_tag, `Column width: ${noteColumnWidth}, height: ${noteColumnHeight}`);
                 noteColumn.width = noteColumnWidth;
                 noteColumn.height = noteColumnHeight;
                 noteColumn.x = _noteColumnX(col);
@@ -124,6 +130,13 @@ Item {
             NoteColumn {
             }
         }
+    }
+    VolumeMeter {
+        id: volumeMeter
+        anchors.top: trackHeader.bottom
+        anchors.left: rootItem.left
+        anchors.right: rootItem.right
+        height: _positionBar ? _positionBar.y - y : 0
     }
     Rectangle {
         id: borderRectangle

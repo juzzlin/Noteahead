@@ -52,11 +52,13 @@ public:
 
     Q_INVOKABLE uint32_t linesVisible() const;
 
-    Q_INVOKABLE QString noteAtPosition(uint32_t patternId, uint32_t trackId, uint32_t columnId, uint32_t line) const;
+    Q_INVOKABLE QString displayNoteAtPosition(uint32_t patternId, uint32_t trackId, uint32_t columnId, uint32_t line) const;
+
+    Q_INVOKABLE QString displayVelocityAtPosition(uint32_t pattern, uint32_t track, uint32_t column, uint32_t line) const;
+
+    Q_INVOKABLE double effectiveVolumeAtPosition(uint32_t pattern, uint32_t track, uint32_t column, uint32_t line) const;
 
     Q_INVOKABLE QString noDataString() const;
-
-    Q_INVOKABLE QString velocityAtPosition(uint32_t pattern, uint32_t track, uint32_t column, uint32_t line) const;
 
     Q_INVOKABLE uint32_t patternCount() const;
 
