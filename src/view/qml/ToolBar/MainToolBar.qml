@@ -112,7 +112,7 @@ Rectangle {
             }
             SpinBox {
                 id: lbpSpinBox
-                value: editorService.linesPerBeat()
+                value: editorService.linesPerBeat
                 from: 1
                 to: 16
                 enabled: !UiService.isPlaying()

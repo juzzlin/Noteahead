@@ -397,7 +397,6 @@ uint32_t EditorService::beatsPerMinute() const
 
 void EditorService::setBeatsPerMinute(uint32_t bpm)
 {
-    juzzlin::L(TAG).debug() << "New BPM set: " << bpm;{}
     m_song->setBeatsPerMinute(bpm);
 }
 
@@ -406,10 +405,12 @@ uint32_t EditorService::linesPerBeat() const
     return m_song->linesPerBeat();
 }
 
-void EditorService::setLinesPerBeat(uint32_t lpb)
+void EditorService::setLinesPerBeat(uint32_t linesPerBeat)
 {
-    juzzlin::L(TAG).debug() << "New LBP set: " << lpb;
-    m_song->setLinesPerBeat(lpb);
+    if (m_song->linesPerBeat() != linesPerBeat) {
+        m_song->setLinesPerBeat(linesPerBeat);
+        emit linesPerBeatChanged();
+    }
 }
 
 } // namespace cacophony

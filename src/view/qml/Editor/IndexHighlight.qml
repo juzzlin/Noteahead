@@ -2,23 +2,23 @@ import QtQuick 2.15
 
 Item {
     property int index: 0
+    readonly property int _beatLine1: editorService.linesPerBeat
+    readonly property int _beatLine2: _beatLine1 % 3 ? _beatLine1 / 2 : _beatLine1 / 3
+    readonly property int _beatLine3: _beatLine1 % 6 ? _beatLine1 / 4 : _beatLine1 / 6
     Rectangle {
-        id: highlight16
-        visible: !(index % 16)
+        visible: !(index % _beatLine1)
         anchors.fill: parent
         color: "white"
-        opacity: 0.2
+        opacity: 0.25
     }
     Rectangle {
-        id: highlight8
-        visible: !(index % 4) && !(index % 8) && (index % 16)
+        visible: !(index % _beatLine3) && !(index % _beatLine2) && (index % _beatLine1)
         anchors.fill: parent
         color: "white"
-        opacity: 0.1
+        opacity: 0.10
     }
     Rectangle {
-        id: highlight4
-        visible: !(index % 4) && (index % 8) && (index % 16)
+        visible: !(index % _beatLine3) && (index % _beatLine2) && (index % _beatLine1)
         anchors.fill: parent
         color: "white"
         opacity: 0.05

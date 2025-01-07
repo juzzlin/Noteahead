@@ -29,6 +29,7 @@ class Song;
 class EditorService : public QObject
 {
     Q_OBJECT
+    Q_PROPERTY(uint32_t linesPerBeat READ linesPerBeat NOTIFY linesPerBeatChanged)
 
 public:
     EditorService();
@@ -99,10 +100,12 @@ public:
 
     Q_INVOKABLE uint32_t linesPerBeat() const;
 
-    Q_INVOKABLE void setLinesPerBeat(uint32_t lpb);
+    Q_INVOKABLE void setLinesPerBeat(uint32_t linesPerBeat);
 
 signals:
     void currentPatternChanged();
+
+    void linesPerBeatChanged();
 
     void noteDataAtPositionChanged(const Position & position);
 
