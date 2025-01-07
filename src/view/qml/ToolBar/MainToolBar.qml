@@ -98,6 +98,7 @@ Rectangle {
                 value: editorService.beatsPerMinute()
                 from: 30
                 to: 300
+                enabled: !UiService.isPlaying()
                 onValueChanged: editorService.setBeatsPerMinute(value)
             }
         }
@@ -114,6 +115,7 @@ Rectangle {
                 value: editorService.linesPerBeat()
                 from: 1
                 to: 16
+                enabled: !UiService.isPlaying()
                 onValueChanged: editorService.setLinesPerBeat(value)
             }
         }
