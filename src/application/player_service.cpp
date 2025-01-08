@@ -18,7 +18,6 @@
 #include "../contrib/SimpleLogger/src/simple_logger.hpp"
 #include "../domain/event.hpp"
 #include "../domain/song.hpp"
-#include "clock.hpp"
 #include "player_worker.hpp"
 
 #include <QThread>

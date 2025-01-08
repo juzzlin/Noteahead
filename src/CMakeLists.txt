@@ -11,7 +11,6 @@ set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR})
 set(HEADER_FILES
   application/application.hpp
   application/application_service.hpp
-  application/clock.hpp
   application/config.hpp
   application/editor_service.hpp
   application/note_converter.hpp
@@ -38,7 +37,6 @@ set(HEADER_FILES
 set(SOURCE_FILES
   application/application.cpp
   application/application_service.cpp
-  application/clock.cpp
   application/config.cpp
   application/editor_service.cpp
   application/note_converter.cpp
