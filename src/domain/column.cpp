@@ -21,6 +21,8 @@
 #include "../domain/note_data.hpp"
 #include "line.hpp"
 
+#include <QXmlStreamWriter>
+
 namespace cacophony {
 
 static const auto TAG = "Column";
@@ -66,6 +68,23 @@ Column::EventList Column::renderToEvents(size_t startTick, size_t ticksPerLine) 
         tick += ticksPerLine;
     }
     return eventList;
+}
+
+void Column::serializeToXml(QXmlStreamWriter & writer) const
+{
+    writer.writeStartElement("Column");
+
+    writer.writeTextElement("LineCount", QString::number(lineCount()));
+
+    writer.writeStartElement("Lines");
+    for (const auto & line : m_lines) {
+        if (line) {
+            line->serializeToXml(writer);
+        }
+    }
+    writer.writeEndElement(); // Lines
+
+    writer.writeEndElement(); // Column
 }
 
 } // namespace cacophony

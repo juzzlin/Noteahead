@@ -7,19 +7,24 @@ MenuBar {
         title: qsTr("&File")
         Action {
             text: qsTr("&New...")
+            onTriggered: applicationService.requestNewProject()
         }
         MenuSeparator {
         }
         Action {
             text: qsTr("&Open...")
+            onTriggered: applicationService.requestOpenProject()
         }
         MenuSeparator {
         }
         Action {
             text: qsTr("&Save")
+            onTriggered: applicationService.requestSaveProject()
+            enabled: editorService.canBeSaved()
         }
         Action {
             text: qsTr("Save &as...")
+            onTriggered: applicationService.requestSaveProjectAs()
         }
         MenuSeparator {
         }

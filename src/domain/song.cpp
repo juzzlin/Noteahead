@@ -21,6 +21,8 @@
 #include "../domain/note_data.hpp"
 #include "pattern.hpp"
 
+#include <QXmlStreamWriter>
+
 namespace cacophony {
 
 static const auto TAG = "Song";
@@ -58,6 +60,16 @@ std::string Song::trackName(uint32_t trackId) const
 void Song::setTrackName(uint32_t trackId, std::string name)
 {
     m_patterns.at(0)->setTrackName(trackId, name);
+}
+
+std::string Song::fileName() const
+{
+    return m_fileName;
+}
+
+void Song::setFileName(std::string fileName)
+{
+    m_fileName = fileName;
 }
 
 Song::NoteDataS Song::noteDataAtPosition(const Position & position) const
@@ -177,6 +189,26 @@ Song::EventList Song::renderToEvents()
     eventList = introduceNoteOffs(eventList);
 
     return eventList;
+}
+
+void Song::serializeToXml(QXmlStreamWriter & writer) const
+{
+    writer.writeStartElement("Song");
+
+    writer.writeTextElement("FileName", QString::fromStdString(m_fileName));
+    writer.writeTextElement("BeatsPerMinute", QString::number(m_beatsPerMinute));
+    writer.writeTextElement("LinesPerBeat", QString::number(m_linesPerBeat));
+    writer.writeTextElement("TicksPerLine", QString::number(m_ticksPerLine));
+
+    writer.writeStartElement("Patterns");
+    for (const auto & pattern : m_patterns) {
+        if (pattern) {
+            pattern->serializeToXml(writer);
+        }
+    }
+
+    writer.writeEndElement(); // Patterns
+    writer.writeEndElement(); // Song
 }
 
 } // namespace cacophony

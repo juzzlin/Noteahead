@@ -26,6 +26,10 @@ std::string applicationVersion();
 
 std::string copyright();
 
+std::string fileFormatVersion();
+
+std::string fileFormatExtension();
+
 std::string qSettingsCompanyName();
 
 std::string webSiteUrl();

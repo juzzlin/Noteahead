@@ -18,8 +18,13 @@
 
 #include <memory>
 #include <optional>
+#include <string>
 #include <unordered_map>
 #include <vector>
+
+#include <QString>
+
+class QXmlStreamWriter;
 
 namespace cacophony {
 
@@ -47,6 +52,10 @@ public:
 
     void setTrackName(uint32_t trackId, std::string name);
 
+    std::string fileName() const;
+
+    void setFileName(std::string fileName);
+
     using NoteDataS = std::shared_ptr<NoteData>;
 
     NoteDataS noteDataAtPosition(const Position & position) const;
@@ -71,6 +80,8 @@ public:
     using PatternAndLineOpt = std::optional<PatternAndLine>;
     PatternAndLineOpt patternAndLineByTick(uint32_t tick) const;
 
+    void serializeToXml(QXmlStreamWriter & writer) const;
+
 private:
     void initialize();
 
@@ -87,6 +98,8 @@ private:
     std::vector<PatternS> m_patterns;
 
     std::unordered_map<uint32_t, PatternAndLine> m_tickToPatternAndLineMap;
+
+    std::string m_fileName;
 };
 
 } // namespace cacophony

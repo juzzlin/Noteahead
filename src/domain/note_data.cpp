@@ -17,6 +17,8 @@
 
 #include <sstream>
 
+#include <QXmlStreamWriter>
+
 namespace cacophony {
 
 NoteData::NoteData(uint32_t track, uint32_t column)
@@ -76,6 +78,19 @@ uint32_t NoteData::track() const
 uint32_t NoteData::column() const
 {
     return m_column;
+}
+
+void NoteData::serializeToXml(QXmlStreamWriter & writer) const
+{
+    writer.writeStartElement("NoteData");
+
+    writer.writeTextElement("Type", QString::number(static_cast<int>(m_type)));
+    writer.writeTextElement("Note", QString::number(m_note));
+    writer.writeTextElement("Velocity", QString::number(m_velocity));
+    writer.writeTextElement("Track", QString::number(m_track));
+    writer.writeTextElement("Column", QString::number(m_column));
+
+    writer.writeEndElement(); // NoteData
 }
 
 } // namespace cacophony

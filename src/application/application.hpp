@@ -16,6 +16,8 @@
 #ifndef APPLICATION_HPP
 #define APPLICATION_HPP
 
+#include "state_machine.hpp"
+
 #include <memory>
 #include <optional>
 
@@ -45,6 +47,8 @@ public:
     int run();
 
 private:
+    void applyState(StateMachine::State state);
+
     void connectServices();
 
     void handleCommandLineArguments();
@@ -65,9 +69,11 @@ private:
 
     std::unique_ptr<ApplicationService> m_applicationService;
 
-    std::unique_ptr<EditorService> m_editorService;
+    std::shared_ptr<EditorService> m_editorService;
 
     std::unique_ptr<PlayerService> m_playerService;
+
+    std::shared_ptr<StateMachine> m_stateMachine;
 
     std::unique_ptr<Config> m_config;
 

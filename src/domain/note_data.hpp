@@ -19,6 +19,8 @@
 #include <cstdint>
 #include <string>
 
+class QXmlStreamWriter;
+
 namespace cacophony {
 
 class NoteData
@@ -52,6 +54,8 @@ public:
     uint32_t track() const;
 
     uint32_t column() const;
+
+    void serializeToXml(QXmlStreamWriter & writer) const;
 
 private:
     Type m_type = Type::None;

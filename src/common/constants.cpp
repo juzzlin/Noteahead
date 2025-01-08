@@ -32,6 +32,16 @@ std::string copyright()
     return "Copyright (c) 2020-2025 Jussi Lind";
 }
 
+std::string fileFormatVersion()
+{
+    return "1.0";
+}
+
+std::string fileFormatExtension()
+{
+    return ".caco";
+}
+
 std::string qSettingsCompanyName()
 {
     return applicationName();

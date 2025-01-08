@@ -30,6 +30,7 @@ class EditorService : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(uint32_t linesPerBeat READ linesPerBeat NOTIFY linesPerBeatChanged)
+    Q_PROPERTY(bool isModified READ isModified NOTIFY isModifiedChanged)
 
 public:
     EditorService();
@@ -41,6 +42,10 @@ public:
     SongS song() const;
 
     void setSong(SongS song);
+
+    void saveAs(QString fileName);
+
+    Q_INVOKABLE bool canBeSaved() const;
 
     Q_INVOKABLE uint32_t columnCount(uint32_t trackId) const;
 
@@ -76,6 +81,8 @@ public:
 
     Q_INVOKABLE bool isAtVelocityColumn() const;
 
+    Q_INVOKABLE bool isModified() const;
+
     Q_INVOKABLE Position position() const;
 
     Q_INVOKABLE uint32_t positionBarLine() const;
@@ -109,6 +116,8 @@ signals:
 
     void linesPerBeatChanged();
 
+    void isModifiedChanged();
+
     void noteDataAtPositionChanged(const Position & position);
 
     void positionChanged(const Position & newPosition, const Position & oldPosition);
@@ -131,11 +140,15 @@ private:
 
     bool setVelocityAtCurrentPosition(uint8_t digit);
 
+    void setIsModified(bool isModified);
+
     SongS m_song;
 
     uint32_t m_currentPatternId = 0;
 
     Position m_position;
+
+    bool m_isModified = false;
 };
 
 } // namespace cacophony

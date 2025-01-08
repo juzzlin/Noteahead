@@ -13,9 +13,11 @@
 // You should have received a copy of the GNU General Public License
 // along with Cacophony. If not, see <http://www.gnu.org/licenses/>.
 
+import QtCore
 import QtQuick 2.15
 import QtQuick.Controls 2.15
 import QtQuick.Controls.Universal 2.15
+import QtQuick.Dialogs
 import Cacophony 1.0
 import "Editor"
 import "ToolBar"
@@ -28,6 +30,7 @@ ApplicationWindow {
     }
     property bool screenInit: false
     property var _editorView
+    readonly property string _tag: "Main"
     Universal.theme: Universal.Dark
     MainToolBar {
         id: mainToolBar
@@ -49,6 +52,20 @@ ApplicationWindow {
             id: editorView
         }
     }
+    FileDialog {
+        id: saveAsDialog
+        currentFolder: StandardPaths.standardLocations(StandardPaths.DocumentsLocation)[0]
+        fileMode: FileDialog.SaveFile
+        nameFilters: [qsTr("Cacophony files") + " (*.caco)"]
+        onAccepted: {
+            uiLogger.info(_tag, "File selected to save: " + selectedFile);
+            applicationService.saveProjectAs(selectedFile);
+        }
+        onRejected: {
+            uiLogger.info(_tag, "Save As dialog was canceled.");
+            applicationService.cancelSaveProjectAs();
+        }
+    }
     function _setWindowSizeAndPosition() {
         const defaultWindowScale = Constants.defaultWindowScale;
         width = config.loadWindowSize(Qt.size(mainWindow.screen.width * defaultWindowScale, mainWindow.screen.height * defaultWindowScale)).width;
@@ -58,12 +75,18 @@ ApplicationWindow {
         setX(mainWindow.screen.width / 2 - width / 2);
         setY(mainWindow.screen.height / 2 - height / 2);
     }
+    function _connectApplicationService() {
+        applicationService.saveAsDialogRequested.connect(() => {
+            saveAsDialog.open();
+        });
+    }
     function _initialize() {
         _setWindowSizeAndPosition();
         _editorView = editorViewComponent.createObject(contentArea, {
-                "height": contentArea.height,
-                "width": contentArea.width
-            });
+            "height": contentArea.height,
+            "width": contentArea.width
+        });
+        _connectApplicationService();
     }
     function _resize() {
         _editorView.resize(contentArea.width, contentArea.height);

@@ -21,6 +21,8 @@
 #include "../domain/track.hpp"
 #include "column.hpp"
 
+#include <QXmlStreamWriter>
+
 namespace cacophony {
 
 static const auto TAG = "Track";
@@ -79,6 +81,26 @@ Track::EventList Track::renderToEvents(size_t startTick, size_t ticksPerLine) co
         std::copy(columnList.begin(), columnList.end(), std::back_inserter(eventList));
     }
     return eventList;
+}
+
+void Track::serializeToXml(QXmlStreamWriter & writer) const
+{
+    writer.writeStartElement("Track");
+
+    writer.writeTextElement("Name", QString::fromStdString(m_name));
+    writer.writeTextElement("Type", QString::number(static_cast<int>(m_type)));
+    writer.writeTextElement("LineCount", QString::number(lineCount()));
+    writer.writeTextElement("ColumnCount", QString::number(columnCount()));
+
+    writer.writeStartElement("Columns");
+    for (const auto & column : m_columns) {
+        if (column) {
+            column->serializeToXml(writer);
+        }
+    }
+    writer.writeEndElement(); // Columns
+
+    writer.writeEndElement(); // Track
 }
 
 } // namespace cacophony

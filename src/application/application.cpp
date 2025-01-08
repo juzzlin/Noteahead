@@ -21,6 +21,7 @@
 #include "config.hpp"
 #include "editor_service.hpp"
 #include "player_service.hpp"
+#include "state_machine.hpp"
 #include "ui_logger.hpp"
 
 #include <QGuiApplication>
@@ -39,11 +40,12 @@ Application::Application(int & argc, char ** argv)
   , m_applicationService(std::make_unique<ApplicationService>())
   , m_editorService(std::make_unique<EditorService>())
   , m_playerService(std::make_unique<PlayerService>())
+  , m_stateMachine(std::make_unique<StateMachine>(m_editorService))
   , m_config(std::make_unique<Config>())
   , m_application(std::make_unique<QGuiApplication>(argc, argv))
   , m_engine(std::make_unique<QQmlApplicationEngine>())
   , m_midiService(std::make_unique<MidiServiceRtMidi>())
-{
+{    
     qmlRegisterType<UiLogger>("Cacophony", 1, 0, "UiLogger");
     qmlRegisterType<ApplicationService>("Cacophony", 1, 0, "ApplicationService");
     qmlRegisterType<Config>("Cacophony", 1, 0, "Config");
@@ -53,6 +55,9 @@ Application::Application(int & argc, char ** argv)
     qmlRegisterSingletonType(QUrl(QML_ROOT_DIR + QString { "/UiService.qml" }), "Cacophony", 1, 0, "UiService");
 
     handleCommandLineArguments(); // Handle command-line arguments at initialization
+
+    m_applicationService->setStateMachine(m_stateMachine);
+    m_applicationService->setEditorService(m_editorService);
 }
 
 void Application::handleCommandLineArguments()
@@ -129,6 +134,8 @@ void Application::connectServices()
         m_playerService->setSong(m_editorService->song());
     });
     connect(m_playerService.get(), &PlayerService::tickUpdated, m_editorService.get(), &EditorService::requestPositionByTick);
+
+    connect(m_stateMachine.get(), &StateMachine::stateChanged, this, &Application::applyState);
 }
 
 void Application::initialize()
@@ -167,6 +174,19 @@ int Application::run()
     initialize();
 
     return m_application->exec();
+}
+
+void Application::applyState(StateMachine::State state)
+{
+    juzzlin::L(TAG).info() << "Applying state: " << static_cast<int>(state);
+
+    switch (state) {
+    case StateMachine::State::ShowSaveAsDialog:
+        m_applicationService->requestSaveAsDialog();
+        break;
+    default:
+        break;
+    }
 }
 
 Application::~Application() = default;

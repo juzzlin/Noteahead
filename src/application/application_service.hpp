@@ -17,8 +17,12 @@
 #define APPLICATION_SERVICE_HPP
 
 #include <QObject>
+#include <QUrl>
 
 namespace cacophony {
+
+class EditorService;
+class StateMachine;
 
 class ApplicationService : public QObject
 {
@@ -30,6 +34,34 @@ public:
     Q_INVOKABLE QString applicationName() const;
 
     Q_INVOKABLE QString applicationVersion() const;
+
+    Q_INVOKABLE void requestNewProject();
+
+    Q_INVOKABLE void requestOpenProject();
+
+    Q_INVOKABLE void requestSaveProject();
+
+    Q_INVOKABLE void requestSaveProjectAs();
+
+    Q_INVOKABLE void cancelSaveProjectAs();
+
+    Q_INVOKABLE void saveProjectAs(QUrl url);
+
+    void requestSaveAsDialog();
+
+    using StateMachineS = std::shared_ptr<StateMachine>;
+    void setStateMachine(StateMachineS stateMachine);
+
+    using EditorServiceS = std::shared_ptr<EditorService>;
+    void setEditorService(EditorServiceS editorService);
+
+signals:
+    void saveAsDialogRequested();
+
+private:
+    StateMachineS m_stateMachine;
+
+    EditorServiceS m_editorService;
 };
 
 } // namespace cacophony

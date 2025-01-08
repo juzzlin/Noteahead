@@ -20,6 +20,8 @@
 
 #include <memory>
 
+class QXmlStreamWriter;
+
 namespace cacophony {
 
 class Line
@@ -36,6 +38,8 @@ public:
     NoteDataS noteData() const;
 
     void setNoteData(const NoteData & noteData);
+
+    void serializeToXml(QXmlStreamWriter & writer) const;
 
 private:
     NoteDataS m_noteData;

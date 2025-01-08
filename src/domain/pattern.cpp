@@ -20,6 +20,8 @@
 #include "../domain/note_data.hpp"
 #include "track.hpp"
 
+#include <QXmlStreamWriter>
+
 namespace cacophony {
 
 static const auto TAG = "Pattern";
@@ -81,6 +83,25 @@ Pattern::EventList Pattern::renderToEvents(size_t startTick, size_t ticksPerLine
         std::copy(trackEvents.begin(), trackEvents.end(), std::back_inserter(eventList));
     }
     return eventList;
+}
+
+void Pattern::serializeToXml(QXmlStreamWriter & writer) const
+{
+    writer.writeStartElement("Pattern");
+
+    writer.writeTextElement("LineCount", QString::number(lineCount()));
+    writer.writeTextElement("TrackCount", QString::number(trackCount()));
+
+    writer.writeStartElement("Tracks");
+    for (const auto & track : m_tracks) {
+        if (track) {
+            track->serializeToXml(writer);
+        }
+    }
+
+    writer.writeEndElement(); // Tracks
+
+    writer.writeEndElement(); // Pattern
 }
 
 } // namespace cacophony

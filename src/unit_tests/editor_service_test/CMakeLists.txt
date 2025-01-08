@@ -6,6 +6,7 @@ set(SRC
     ../../application/editor_service.cpp
     ../../application/note_converter.cpp
     ../../application/position.hpp
+    ../../common/constants.cpp
     ../../domain/column.cpp
     ../../domain/event.cpp
     ../../domain/line.cpp

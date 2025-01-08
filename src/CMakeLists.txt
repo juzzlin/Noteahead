@@ -18,6 +18,7 @@ set(HEADER_FILES
   application/player_service.hpp
   application/player_worker.hpp
   application/position.hpp
+  application/state_machine.hpp
   application/ui_logger.hpp
   common/constants.hpp
   domain/column.hpp
@@ -43,6 +44,7 @@ set(SOURCE_FILES
   application/player.cpp
   application/player_service.cpp
   application/player_worker.cpp
+  application/state_machine.cpp
   application/ui_logger.cpp
   common/constants.cpp
   domain/column.cpp

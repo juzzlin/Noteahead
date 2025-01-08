@@ -15,10 +15,15 @@
 
 #include "editor_service.hpp"
 
+#include "../common/constants.hpp"
 #include "../contrib/SimpleLogger/src/simple_logger.hpp"
 #include "../domain/note_data.hpp"
 #include "../domain/song.hpp"
 #include "note_converter.hpp"
+
+#include <QDateTime>
+#include <QFile>
+#include <QXmlStreamWriter>
 
 namespace cacophony {
 
@@ -47,6 +52,47 @@ void EditorService::setSong(SongS song)
 
     emit songChanged();
     emit positionChanged(m_position, m_position);
+
+    setIsModified(false);
+}
+
+void EditorService::saveAs(QString fileName)
+{
+    if (!fileName.endsWith(Constants::fileFormatExtension().c_str())) {
+        fileName += Constants::fileFormatExtension().c_str();
+    }
+
+    juzzlin::L(TAG).info() << "Saving to " << fileName.toStdString();
+
+    QFile file { fileName };
+    if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) {
+        throw std::runtime_error("Failed to open file for writing: " + fileName.toStdString());
+    }
+
+    QXmlStreamWriter writer(&file);
+    writer.setAutoFormatting(true);
+    writer.setAutoFormattingIndent(1);
+
+    // Start the XML document
+    writer.writeStartDocument();
+
+    // Root element <Project>
+    writer.writeStartElement("Project");
+    writer.writeAttribute("fileFormatversion", Constants::fileFormatVersion());
+    writer.writeAttribute("applicationName", Constants::applicationName());
+    writer.writeAttribute("applicationVersion", Constants::applicationVersion());
+    writer.writeAttribute("createdDate", QDateTime::currentDateTime().toString(Qt::DateFormat::ISODateWithMs));
+
+    m_song->serializeToXml(writer);
+
+    writer.writeEndElement();
+
+    writer.writeEndDocument();
+}
+
+bool EditorService::canBeSaved() const
+{
+    return m_song && !m_song->fileName().empty() && QFile::exists(m_song->fileName().c_str());
 }
 
 uint32_t EditorService::columnCount(uint32_t trackId) const
@@ -136,6 +182,8 @@ QString EditorService::trackName(uint32_t trackId) const
 void EditorService::setTrackName(uint32_t trackId, QString name)
 {
     m_song->setTrackName(trackId, name.toStdString());
+
+    setIsModified(true);
 }
 
 uint32_t EditorService::currentPatternId() const
@@ -159,6 +207,11 @@ bool EditorService::isAtNoteColumn() const
 bool EditorService::isAtVelocityColumn() const
 {
     return m_position.lineColumn >= 1 && m_position.lineColumn <= 3;
+}
+
+bool EditorService::isModified() const
+{
+    return m_isModified;
 }
 
 Position EditorService::position() const
@@ -264,10 +317,19 @@ bool EditorService::setVelocityAtCurrentPosition(uint8_t digit)
     if (currentVelocity <= 127) {
         noteData->setVelocity(currentVelocity);
         emit noteDataAtPositionChanged(m_position);
+        setIsModified(true);
         return true;
     }
 
     return false;
+}
+
+void EditorService::setIsModified(bool isModified)
+{
+    if (m_isModified != isModified) {
+        m_isModified = isModified;
+        emit isModifiedChanged();
+    }
 }
 
 bool EditorService::requestDigitSetAtCurrentPosition(uint8_t digit)
@@ -287,6 +349,7 @@ void EditorService::requestNoteDeletionAtCurrentPosition()
     const NoteData noteData {};
     m_song->setNoteDataAtPosition(noteData, m_position);
     emit noteDataAtPositionChanged(m_position);
+    setIsModified(true);
 }
 
 bool EditorService::requestNoteOnAtCurrentPosition(uint8_t note, uint8_t octave, uint8_t velocity)
@@ -309,6 +372,7 @@ bool EditorService::requestNoteOnAtCurrentPosition(uint8_t note, uint8_t octave,
             m_song->setNoteDataAtPosition(noteData, m_position);
         }
         emit noteDataAtPositionChanged(m_position);
+        setIsModified(true);
         return true;
     }
 
@@ -406,6 +470,7 @@ uint32_t EditorService::beatsPerMinute() const
 void EditorService::setBeatsPerMinute(uint32_t bpm)
 {
     m_song->setBeatsPerMinute(bpm);
+    setIsModified(true);
 }
 
 uint32_t EditorService::linesPerBeat() const
@@ -418,6 +483,7 @@ void EditorService::setLinesPerBeat(uint32_t linesPerBeat)
     if (m_song->linesPerBeat() != linesPerBeat) {
         m_song->setLinesPerBeat(linesPerBeat);
         emit linesPerBeatChanged();
+        setIsModified(true);
     }
 }
 

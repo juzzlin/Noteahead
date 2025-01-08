@@ -17,6 +17,8 @@
 
 #include "../contrib/SimpleLogger/src/simple_logger.hpp"
 
+#include <QXmlStreamWriter>
+
 namespace cacophony {
 
 static const auto TAG = "Line";
@@ -45,6 +47,17 @@ void Line::setNoteData(const NoteData & noteData)
 Line::NoteDataS Line::noteData() const
 {
     return m_noteData;
+}
+
+void Line::serializeToXml(QXmlStreamWriter & writer) const
+{
+    writer.writeStartElement("Line");
+
+    if (m_noteData) {
+        m_noteData->serializeToXml(writer);
+    }
+
+    writer.writeEndElement(); // Line
 }
 
 } // namespace cacophony

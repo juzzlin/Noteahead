@@ -19,6 +19,8 @@
 #include <memory>
 #include <vector>
 
+class QXmlStreamWriter;
+
 namespace cacophony {
 
 class Column;
@@ -57,6 +59,8 @@ public:
     using EventS = std::shared_ptr<Event>;
     using EventList = std::vector<EventS>;
     EventList renderToEvents(size_t startTick, size_t ticksPerLine) const;
+
+    void serializeToXml(QXmlStreamWriter & writer) const;
 
 private:
     void initialize(uint32_t length, uint32_t columnCount);
