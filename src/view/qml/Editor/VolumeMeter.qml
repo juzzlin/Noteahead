@@ -35,6 +35,22 @@ Item {
                 }
             }
         }
+        Rectangle {
+            id: leftShadow
+            width: levelIndicatorGradient.width * 0.2
+            height: levelIndicatorGradient.height
+            anchors.left: levelIndicatorGradient.left
+            opacity: 0.25
+            color: "white"
+        }
+        Rectangle {
+            id: rightShadow
+            width: leftShadow.width
+            height: leftShadow.height
+            anchors.right: levelIndicatorGradient.right
+            opacity: leftShadow.opacity
+            color: "black"
+        }
     }
     Timer {
         id: fallTimer
