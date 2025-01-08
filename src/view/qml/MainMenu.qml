@@ -11,6 +11,19 @@ MenuBar {
         MenuSeparator {
         }
         Action {
+            text: qsTr("&Open...")
+        }
+        MenuSeparator {
+        }
+        Action {
+            text: qsTr("&Save")
+        }
+        Action {
+            text: qsTr("Save &as...")
+        }
+        MenuSeparator {
+        }
+        Action {
             text: qsTr("&Quit")
             onTriggered: close()
         }
