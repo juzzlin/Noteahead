@@ -24,25 +24,7 @@ ApplicationWindow {
     id: mainWindow
     visible: true
     title: `${applicationService.applicationName()} MIDI tracker v${applicationService.applicationVersion()}`
-    menuBar: MenuBar {
-        Menu {
-            title: qsTr("&File")
-            Action {
-                text: qsTr("&New...")
-            }
-            MenuSeparator {
-            }
-            Action {
-                text: qsTr("&Quit")
-                onTriggered: close()
-            }
-        }
-        Menu {
-            title: qsTr("&Help")
-            Action {
-                text: qsTr("&About")
-            }
-        }
+    menuBar: MainMenu {
     }
     property bool screenInit: false
     property var _editorView
@@ -79,9 +61,9 @@ ApplicationWindow {
     function _initialize() {
         _setWindowSizeAndPosition();
         _editorView = editorViewComponent.createObject(contentArea, {
-            "height": contentArea.height,
-            "width": contentArea.width
-        });
+                "height": contentArea.height,
+                "width": contentArea.width
+            });
     }
     function _resize() {
         _editorView.resize(contentArea.width, contentArea.height);
