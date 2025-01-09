@@ -25,7 +25,7 @@ import "ToolBar"
 ApplicationWindow {
     id: mainWindow
     visible: true
-    title: `${applicationService.applicationName()} MIDI tracker v${applicationService.applicationVersion()}`
+    title: _getWindowTitle()
     menuBar: MainMenu {
     }
     footer: BottomBar {
@@ -71,6 +71,11 @@ ApplicationWindow {
             applicationService.cancelSaveProjectAs();
         }
     }
+    function _getWindowTitle() {
+        const nameAndVersion = `${applicationService.applicationName()} MIDI tracker v${applicationService.applicationVersion()}`;
+        const currentFileName = (editorService.currentFileName ? " - " + editorService.currentFileName : "");
+        return `${nameAndVersion}${currentFileName}`;
+    }
     function _setWindowSizeAndPosition() {
         const defaultWindowScale = Constants.defaultWindowScale;
         width = config.loadWindowSize(Qt.size(mainWindow.screen.width * defaultWindowScale, mainWindow.screen.height * defaultWindowScale)).width;
@@ -93,9 +98,9 @@ ApplicationWindow {
     function _initialize() {
         _setWindowSizeAndPosition();
         _editorView = editorViewComponent.createObject(contentArea, {
-                "height": contentArea.height,
-                "width": contentArea.width
-            });
+            "height": contentArea.height,
+            "width": contentArea.width
+        });
         _connectServices();
     }
     function _resize() {

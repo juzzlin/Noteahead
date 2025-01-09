@@ -32,6 +32,7 @@ class EditorService : public QObject
     Q_PROPERTY(uint32_t linesPerBeat READ linesPerBeat NOTIFY linesPerBeatChanged)
     Q_PROPERTY(bool isModified READ isModified NOTIFY isModifiedChanged)
     Q_PROPERTY(bool canBeSaved READ canBeSaved NOTIFY canBeSavedChanged)
+    Q_PROPERTY(QString currentFileName READ currentFileName NOTIFY currentFileNameChanged)
 
 public:
     EditorService();
@@ -51,6 +52,8 @@ public:
     Q_INVOKABLE uint32_t columnCount(uint32_t trackId) const;
 
     Q_INVOKABLE uint32_t lineCount(uint32_t patternId) const;
+
+    Q_INVOKABLE QString currentFileName() const;
 
     Q_INVOKABLE uint32_t currentLineCount() const;
 
@@ -116,6 +119,8 @@ public:
 
 signals:
     void canBeSavedChanged();
+
+    void currentFileNameChanged();
 
     void currentPatternChanged();
 

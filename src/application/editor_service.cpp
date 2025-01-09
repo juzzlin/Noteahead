@@ -59,8 +59,8 @@ void EditorService::setSong(SongS song)
 void EditorService::saveAs(QString fileName)
 {
     try {
-        if (!fileName.endsWith(Constants::fileFormatExtension().c_str())) {
-            fileName += Constants::fileFormatExtension().c_str();
+        if (!fileName.endsWith(QString::fromStdString(Constants::fileFormatExtension()))) {
+            fileName += QString::fromStdString(Constants::fileFormatExtension());
         }
 
         juzzlin::L(TAG).info() << "Saving to " << fileName.toStdString();
@@ -96,6 +96,7 @@ void EditorService::saveAs(QString fileName)
 
         m_song->setFileName(fileName.toStdString());
         emit canBeSavedChanged();
+        emit currentFileNameChanged();
 
     } catch (std::exception & e) {
         const auto message = QString { "Failed to save project: %1 " }.arg(e.what());
@@ -106,7 +107,7 @@ void EditorService::saveAs(QString fileName)
 
 bool EditorService::canBeSaved() const
 {
-    return m_song && !m_song->fileName().empty() && QFile::exists(m_song->fileName().c_str());
+    return m_song && !m_song->fileName().empty() && QFile::exists(QString::fromStdString(m_song->fileName()));
 }
 
 uint32_t EditorService::columnCount(uint32_t trackId) const
@@ -117,6 +118,11 @@ uint32_t EditorService::columnCount(uint32_t trackId) const
 uint32_t EditorService::lineCount(uint32_t patternId) const
 {
     return m_song->lineCount(patternId);
+}
+
+QString EditorService::currentFileName() const
+{
+    return QString::fromStdString(m_song->fileName());
 }
 
 uint32_t EditorService::currentLineCount() const
@@ -144,7 +150,7 @@ int EditorService::lineNumberAtViewLine(uint32_t line) const
 QString EditorService::displayNoteAtPosition(uint32_t patternId, uint32_t trackId, uint32_t columnId, uint32_t line) const
 {
     if (const auto noteData = m_song->noteDataAtPosition({ patternId, trackId, columnId, line }); noteData->type() != NoteData::Type::None) {
-        return noteData->type() == NoteData::Type::NoteOff ? "OFF" : NoteConverter::midiToString(noteData->note()).c_str();
+        return noteData->type() == NoteData::Type::NoteOff ? "OFF" : QString::fromStdString(NoteConverter::midiToString(noteData->note()));
     } else {
         return noDataString();
     }
@@ -190,7 +196,7 @@ uint32_t EditorService::trackCount() const
 
 QString EditorService::trackName(uint32_t trackId) const
 {
-    return m_song->trackName(trackId).c_str();
+    return QString::fromStdString(m_song->trackName(trackId));
 }
 
 void EditorService::setTrackName(uint32_t trackId, QString name)
