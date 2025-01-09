@@ -45,6 +45,7 @@ Rectangle {
                 value: UiService.activeStep()
                 from: 0
                 to: 64
+                editable: true
                 onValueChanged: UiService.setActiveStep(stepSpinBox.value)
             }
         }
@@ -61,6 +62,7 @@ Rectangle {
                 value: UiService.activeVelocity()
                 from: 0
                 to: 127
+                editable: true
                 onValueChanged: UiService.setActiveVelocity(velocitySpinBox.value)
             }
         }
@@ -77,6 +79,7 @@ Rectangle {
                 value: UiService.activeOctave()
                 from: 0
                 to: 8
+                editable: true
                 onValueChanged: UiService.setActiveOctave(octSpinBox.value)
             }
         }
@@ -98,6 +101,7 @@ Rectangle {
                 value: editorService.beatsPerMinute()
                 from: 30
                 to: 300
+                editable: true
                 enabled: !UiService.isPlaying()
                 onValueChanged: editorService.setBeatsPerMinute(value)
             }
@@ -115,6 +119,7 @@ Rectangle {
                 value: editorService.linesPerBeat
                 from: 1
                 to: 16
+                editable: true
                 enabled: !UiService.isPlaying()
                 onValueChanged: editorService.setLinesPerBeat(value)
             }
