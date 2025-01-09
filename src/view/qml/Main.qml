@@ -28,6 +28,10 @@ ApplicationWindow {
     title: `${applicationService.applicationName()} MIDI tracker v${applicationService.applicationVersion()}`
     menuBar: MainMenu {
     }
+    footer: BottomBar {
+        height: menuBar.height
+        width: parent.width
+    }
     property bool screenInit: false
     property var _editorView
     readonly property string _tag: "Main"
@@ -77,15 +81,15 @@ ApplicationWindow {
     }
     function _connectApplicationService() {
         applicationService.saveAsDialogRequested.connect(() => {
-            saveAsDialog.open();
-        });
+                saveAsDialog.open();
+            });
     }
     function _initialize() {
         _setWindowSizeAndPosition();
         _editorView = editorViewComponent.createObject(contentArea, {
-            "height": contentArea.height,
-            "width": contentArea.width
-        });
+                "height": contentArea.height,
+                "width": contentArea.width
+            });
         _connectApplicationService();
     }
     function _resize() {
