@@ -45,7 +45,7 @@ public:
 
     explicit PlayerWorker(const EventList & events, const Timing & timing);
 
-    ~PlayerWorker();
+    ~PlayerWorker() override;
 
     Q_INVOKABLE void play();
 

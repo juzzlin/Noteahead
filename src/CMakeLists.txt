@@ -14,7 +14,6 @@ set(HEADER_FILES
   application/config.hpp
   application/editor_service.hpp
   application/note_converter.hpp
-  application/player.hpp
   application/player_service.hpp
   application/player_worker.hpp
   application/position.hpp
@@ -41,7 +40,6 @@ set(SOURCE_FILES
   application/config.cpp
   application/editor_service.cpp
   application/note_converter.cpp
-  application/player.cpp
   application/player_service.cpp
   application/player_worker.cpp
   application/state_machine.cpp
