@@ -27,9 +27,9 @@ namespace cacophony {
 class Line
 {
 public:
-    Line();
+    explicit Line(uint32_t index);
 
-    explicit Line(const NoteData & noteData);
+    explicit Line(uint32_t m_index, const NoteData & noteData);
 
     void clear();
 
@@ -42,6 +42,8 @@ public:
     void serializeToXml(QXmlStreamWriter & writer) const;
 
 private:
+    uint32_t m_index = 0;
+
     NoteDataS m_noteData;
 };
 

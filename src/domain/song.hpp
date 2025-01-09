@@ -38,8 +38,6 @@ class Song
 public:
     Song();
 
-    using PatternS = std::shared_ptr<Pattern>;
-
     uint32_t columnCount(uint32_t trackId) const;
 
     uint32_t lineCount(uint32_t patternId) const;
@@ -47,6 +45,8 @@ public:
     uint32_t patternCount() const;
 
     uint32_t trackCount() const;
+
+    bool hasData() const;
 
     std::string trackName(uint32_t trackId) const;
 
@@ -94,6 +94,8 @@ private:
     uint32_t m_linesPerBeat = 8;
 
     uint32_t m_ticksPerLine = 24;
+
+    using PatternS = std::shared_ptr<Pattern>;
 
     std::vector<PatternS> m_patterns;
 

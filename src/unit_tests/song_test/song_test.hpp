@@ -26,6 +26,12 @@ class SongTest : public QObject
 
 private slots:
 
+    void test_hasData_emptySong_hasNoData();
+
+    void test_hasData_noteOnAdded_shouldHaveData();
+
+    void test_hasData_noteOffAdded_shouldHaveData();
+
     void test_renderToEvents_noEvents_shouldAddStartAndEndOfSong();
 
     void test_renderToEvents_singleEvent_shouldRenderEvent();

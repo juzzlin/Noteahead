@@ -52,6 +52,14 @@ uint32_t Song::trackCount() const
     return m_patterns.at(0)->trackCount();
 }
 
+bool Song::hasData() const
+{
+    return std::find_if(m_patterns.begin(), m_patterns.end(), [](auto && pattern) {
+               return pattern->hasData();
+           })
+      != m_patterns.end();
+}
+
 std::string Song::trackName(uint32_t trackId) const
 {
     return m_patterns.at(0)->trackName(trackId);
@@ -86,7 +94,7 @@ void Song::setNoteDataAtPosition(const NoteData & noteData, const Position & pos
 void Song::initialize()
 {
     m_patterns.clear();
-    m_patterns.push_back(std::make_shared<Pattern>(64, 8));
+    m_patterns.push_back(std::make_shared<Pattern>(0, 64, 8));
 }
 
 uint32_t Song::linesPerBeat() const
@@ -195,7 +203,6 @@ void Song::serializeToXml(QXmlStreamWriter & writer) const
 {
     writer.writeStartElement("Song");
 
-    writer.writeTextElement("FileName", QString::fromStdString(m_fileName));
     writer.writeTextElement("BeatsPerMinute", QString::number(m_beatsPerMinute));
     writer.writeTextElement("LinesPerBeat", QString::number(m_linesPerBeat));
     writer.writeTextElement("TicksPerLine", QString::number(m_ticksPerLine));

@@ -31,9 +31,11 @@ struct Position;
 class Column
 {
 public:
-    Column(uint32_t length);
+    Column(uint32_t index, uint32_t length);
 
     using NoteDataS = std::shared_ptr<NoteData>;
+
+    bool hasData() const;
 
     uint32_t lineCount() const;
 
@@ -49,6 +51,8 @@ public:
 
 private:
     void initialize(uint32_t length);
+
+    uint32_t m_index = 0;
 
     std::vector<std::shared_ptr<Line>> m_lines;
 };

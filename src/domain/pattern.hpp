@@ -31,13 +31,15 @@ struct Position;
 class Pattern
 {
 public:
-    Pattern(uint32_t length, uint32_t trackCount);
+    Pattern(uint32_t index, uint32_t length, uint32_t trackCount);
 
     uint32_t columnCount(uint32_t trackId) const;
 
     uint32_t lineCount() const;
 
     uint32_t trackCount() const;
+
+    bool hasData() const;
 
     std::string trackName(uint32_t trackId) const;
 
@@ -57,6 +59,8 @@ public:
 
 private:
     void initialize(uint32_t length, uint32_t trackCount);
+
+    uint32_t m_index = 0;
 
     std::vector<std::shared_ptr<Track>> m_tracks;
 };

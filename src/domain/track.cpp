@@ -27,8 +27,9 @@ namespace cacophony {
 
 static const auto TAG = "Track";
 
-Track::Track(std::string name, Type type, uint32_t length, uint32_t columnCount)
-  : m_name { name }
+Track::Track(uint32_t index, std::string name, Type type, uint32_t length, uint32_t columnCount)
+  : m_index { index }
+  , m_name { name }
   , m_type { type }
 {
     initialize(length, columnCount);
@@ -38,7 +39,7 @@ void Track::initialize(uint32_t length, uint32_t columnCount)
 {
     m_columns.clear();
     for (uint32_t column = 0; column < columnCount; column++) {
-        m_columns.push_back(std::make_shared<Column>(length));
+        m_columns.push_back(std::make_shared<Column>(column, length));
     }
 }
 
@@ -60,6 +61,14 @@ uint32_t Track::columnCount() const
 uint32_t Track::lineCount() const
 {
     return m_columns.at(0)->lineCount();
+}
+
+bool Track::hasData() const
+{
+    return std::find_if(m_columns.begin(), m_columns.end(), [](auto && column) {
+               return column->hasData();
+           })
+      != m_columns.end();
 }
 
 Track::NoteDataS Track::noteDataAtPosition(const Position & position) const
@@ -87,18 +96,20 @@ void Track::serializeToXml(QXmlStreamWriter & writer) const
 {
     writer.writeStartElement("Track");
 
-    writer.writeTextElement("Name", QString::fromStdString(m_name));
-    writer.writeTextElement("Type", QString::number(static_cast<int>(m_type)));
-    writer.writeTextElement("LineCount", QString::number(lineCount()));
-    writer.writeTextElement("ColumnCount", QString::number(columnCount()));
+    writer.writeAttribute("index", QString::number(m_index));
+    writer.writeAttribute("name", QString::fromStdString(m_name));
+    writer.writeAttribute("lineCount", QString::number(lineCount()));
+    writer.writeAttribute("columnCount", QString::number(columnCount()));
 
-    writer.writeStartElement("Columns");
-    for (const auto & column : m_columns) {
-        if (column) {
-            column->serializeToXml(writer);
+    if (hasData()) {
+        writer.writeStartElement("Columns");
+        for (const auto & column : m_columns) {
+            if (column && column->hasData()) {
+                column->serializeToXml(writer);
+            }
         }
+        writer.writeEndElement(); // Columns
     }
-    writer.writeEndElement(); // Columns
 
     writer.writeEndElement(); // Track
 }

@@ -40,11 +40,13 @@ public:
         Control
     };
 
-    explicit Track(std::string name, Type type, uint32_t length, uint32_t columnCount);
+    explicit Track(uint32_t index, std::string name, Type type, uint32_t length, uint32_t columnCount);
 
     uint32_t columnCount() const;
 
     uint32_t lineCount() const;
+
+    bool hasData() const;
 
     std::string name() const;
 
@@ -64,6 +66,8 @@ public:
 
 private:
     void initialize(uint32_t length, uint32_t columnCount);
+
+    uint32_t m_index = 0;
 
     std::string m_name;
 

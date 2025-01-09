@@ -22,6 +22,31 @@
 
 namespace cacophony {
 
+void SongTest::test_hasData_emptySong_hasNoData()
+{
+    Song song;
+
+    QVERIFY(!song.hasData());
+}
+
+void SongTest::test_hasData_noteOnAdded_shouldHaveData()
+{
+    Song song;
+
+    song.noteDataAtPosition({ 0, 0, 0, 42, 0 })->setAsNoteOn(60, 100);
+
+    QVERIFY(song.hasData());
+}
+
+void SongTest::test_hasData_noteOffAdded_shouldHaveData()
+{
+    Song song;
+
+    song.noteDataAtPosition({ 0, 0, 0, 42, 0 })->setAsNoteOff(60);
+
+    QVERIFY(song.hasData());
+}
+
 void SongTest::test_renderToEvents_noEvents_shouldAddStartAndEndOfSong()
 {
     Song song;

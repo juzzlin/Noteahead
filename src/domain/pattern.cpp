@@ -26,7 +26,8 @@ namespace cacophony {
 
 static const auto TAG = "Pattern";
 
-Pattern::Pattern(uint32_t length, uint32_t trackCount)
+Pattern::Pattern(uint32_t index, uint32_t length, uint32_t trackCount)
+  : m_index { index }
 {
     initialize(length, trackCount);
 }
@@ -44,6 +45,14 @@ uint32_t Pattern::lineCount() const
 uint32_t Pattern::trackCount() const
 {
     return static_cast<uint32_t>(m_tracks.size());
+}
+
+bool Pattern::hasData() const
+{
+    return std::find_if(m_tracks.begin(), m_tracks.end(), [](auto && track) {
+               return track->hasData();
+           })
+      != m_tracks.end();
 }
 
 std::string Pattern::trackName(uint32_t trackId) const
@@ -71,7 +80,7 @@ void Pattern::setNoteDataAtPosition(const NoteData & noteData, const Position & 
 void Pattern::initialize(uint32_t length, uint32_t trackCount)
 {
     for (uint32_t i = 0; i < trackCount; i++) {
-        m_tracks.push_back(std::make_shared<Track>("Track " + std::to_string(i + 1), Track::Type::Drum, length, 1));
+        m_tracks.push_back(std::make_shared<Track>(i, "Track " + std::to_string(i + 1), Track::Type::Drum, length, 1));
     }
 }
 
@@ -89,10 +98,12 @@ void Pattern::serializeToXml(QXmlStreamWriter & writer) const
 {
     writer.writeStartElement("Pattern");
 
-    writer.writeTextElement("LineCount", QString::number(lineCount()));
-    writer.writeTextElement("TrackCount", QString::number(trackCount()));
+    writer.writeAttribute("index", QString::number(m_index));
+    writer.writeAttribute("lineCount", QString::number(lineCount()));
+    writer.writeAttribute("TrackCount", QString::number(trackCount()));
 
     writer.writeStartElement("Tracks");
+
     for (const auto & track : m_tracks) {
         if (track) {
             track->serializeToXml(writer);

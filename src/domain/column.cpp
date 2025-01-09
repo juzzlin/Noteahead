@@ -27,7 +27,8 @@ namespace cacophony {
 
 static const auto TAG = "Column";
 
-Column::Column(uint32_t length)
+Column::Column(uint32_t index, uint32_t length)
+  : m_index { index }
 {
     initialize(length);
 }
@@ -36,8 +37,16 @@ void Column::initialize(uint32_t length)
 {
     m_lines.clear();
     for (uint32_t i = 0; i < length; i++) {
-        m_lines.push_back(std::make_shared<Line>());
+        m_lines.push_back(std::make_shared<Line>(i));
     }
+}
+
+bool Column::hasData() const
+{
+    return std::find_if(m_lines.begin(), m_lines.end(), [](auto && line) {
+               return line->noteData()->type() != NoteData::Type::None;
+           })
+      != m_lines.end();
 }
 
 uint32_t Column::lineCount() const
@@ -73,17 +82,18 @@ Column::EventList Column::renderToEvents(size_t startTick, size_t ticksPerLine) 
 void Column::serializeToXml(QXmlStreamWriter & writer) const
 {
     writer.writeStartElement("Column");
-
-    writer.writeTextElement("LineCount", QString::number(lineCount()));
+    writer.writeAttribute("index", QString::number(m_index));
+    writer.writeAttribute("lineCount", QString::number(lineCount()));
 
     writer.writeStartElement("Lines");
+
     for (const auto & line : m_lines) {
         if (line) {
             line->serializeToXml(writer);
         }
     }
-    writer.writeEndElement(); // Lines
 
+    writer.writeEndElement(); // Lines
     writer.writeEndElement(); // Column
 }
 

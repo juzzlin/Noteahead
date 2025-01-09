@@ -23,13 +23,15 @@ namespace cacophony {
 
 static const auto TAG = "Line";
 
-Line::Line()
-  : m_noteData { std::make_unique<NoteData>() }
+Line::Line(uint32_t index)
+  : m_index { index }
+  , m_noteData { std::make_unique<NoteData>() }
 {
 }
 
-Line::Line(const NoteData & noteData)
-  : m_noteData { std::make_unique<NoteData>(noteData) }
+Line::Line(uint32_t index, const NoteData & noteData)
+  : m_index { index }
+  , m_noteData { std::make_unique<NoteData>(noteData) }
 {
 }
 
@@ -51,9 +53,9 @@ Line::NoteDataS Line::noteData() const
 
 void Line::serializeToXml(QXmlStreamWriter & writer) const
 {
-
     if (m_noteData && m_noteData->type() != NoteData::Type::None) {
         writer.writeStartElement("Line");
+        writer.writeAttribute("index", QString::number(m_index));
         m_noteData->serializeToXml(writer);
         writer.writeEndElement(); // Line
     }
