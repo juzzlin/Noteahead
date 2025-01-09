@@ -84,11 +84,14 @@ void NoteData::serializeToXml(QXmlStreamWriter & writer) const
 {
     writer.writeStartElement("NoteData");
 
-    writer.writeTextElement("Type", QString::number(static_cast<int>(m_type)));
-    writer.writeTextElement("Note", QString::number(m_note));
-    writer.writeTextElement("Velocity", QString::number(m_velocity));
-    writer.writeTextElement("Track", QString::number(m_track));
-    writer.writeTextElement("Column", QString::number(m_column));
+    if (m_type == Type::NoteOn) {
+        writer.writeAttribute("type", "on");
+        writer.writeAttribute("note", QString::number(m_note));
+        writer.writeAttribute("velocity", QString::number(m_velocity));
+    } else {
+        writer.writeAttribute("type", "off");
+        writer.writeAttribute("note", QString::number(m_note));
+    }
 
     writer.writeEndElement(); // NoteData
 }

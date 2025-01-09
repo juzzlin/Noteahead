@@ -51,13 +51,12 @@ Line::NoteDataS Line::noteData() const
 
 void Line::serializeToXml(QXmlStreamWriter & writer) const
 {
-    writer.writeStartElement("Line");
 
-    if (m_noteData) {
+    if (m_noteData && m_noteData->type() != NoteData::Type::None) {
+        writer.writeStartElement("Line");
         m_noteData->serializeToXml(writer);
+        writer.writeEndElement(); // Line
     }
-
-    writer.writeEndElement(); // Line
 }
 
 } // namespace cacophony
