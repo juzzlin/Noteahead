@@ -268,6 +268,17 @@ void EditorService::requestCursorRight()
     notifyPositionChange(oldPosition);
 }
 
+void EditorService::requestTrackRight()
+{
+    juzzlin::L(TAG).debug() << "Track right requested";
+    const auto oldPosition = m_position;
+    m_position.column = 0;
+    m_position.lineColumn = 0;
+    ++m_position.track %= trackCount();
+
+    notifyPositionChange(oldPosition);
+}
+
 EditorService::MidiNoteNameAndCodeOpt EditorService::editorNoteToMidiNote(uint32_t note, uint32_t octave) const
 {
     if (note < 1 || note > 12) {

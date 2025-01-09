@@ -92,6 +92,8 @@ public:
 
     Q_INVOKABLE void requestCursorRight();
 
+    Q_INVOKABLE void requestTrackRight();
+
     Q_INVOKABLE bool requestDigitSetAtCurrentPosition(uint8_t digit);
 
     Q_INVOKABLE void requestNoteDeletionAtCurrentPosition();
