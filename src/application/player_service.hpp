@@ -33,7 +33,7 @@ class PlayerService : public QObject
 public:
     explicit PlayerService(QObject * parent = nullptr);
 
-    ~PlayerService();
+    ~PlayerService() override;
 
     Q_INVOKABLE bool requestPlay();
 
