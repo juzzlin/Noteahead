@@ -26,18 +26,24 @@ namespace cacophony {
 
 static const auto TAG = "PlayerWorker";
 
-PlayerWorker::PlayerWorker(const EventList & events, const Timing & timing)
-  : m_events { events }
-  , m_timing { timing }
+void PlayerWorker::initialize(const EventList & events, const Timing & timing)
 {
-    for (auto && event : m_events) {
-        m_eventMap[event->tick()].push_back(event);
+    if (m_isStopped) {
+        m_events = events;
+        m_timing = timing;
+        for (auto && event : m_events) {
+            m_eventMap[event->tick()].push_back(event);
+        }
+    } else {
+        juzzlin::L(TAG).error() << "Cannot initialize, because still playing!";
     }
 }
 
 void PlayerWorker::play()
 {
     juzzlin::L(TAG).info() << "Starting playback, event count: " << m_events.size();
+
+    m_isStopped = false;
 
     processEvents();
 }
@@ -46,7 +52,7 @@ void PlayerWorker::stop()
 {
     juzzlin::L(TAG).info() << "Stopping playback";
 
-    m_stopped = true;
+    m_isStopped = true;
 }
 
 void PlayerWorker::processEvents()
@@ -68,7 +74,7 @@ void PlayerWorker::processEvents()
     const auto tickDuration = std::chrono::duration<double> { tickDurationMs };
     auto startTime = std::chrono::steady_clock::now();
 
-    for (auto tick = minTick; tick <= maxTick && !m_stopped; tick++) {
+    for (auto tick = minTick; tick <= maxTick && !m_isStopped; tick++) {
         emit tickUpdated(static_cast<uint32_t>(tick));
         if (m_eventMap.count(tick)) {
             for (auto && event : m_eventMap[tick]) {
@@ -89,6 +95,11 @@ void PlayerWorker::processEvents()
     juzzlin::L(TAG).debug() << "All events processed";
 
     emit songEnded();
+}
+
+bool PlayerWorker::isStopped() const
+{
+    return m_isStopped;
 }
 
 PlayerWorker::~PlayerWorker()

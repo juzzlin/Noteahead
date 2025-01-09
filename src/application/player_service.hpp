@@ -58,6 +58,8 @@ signals:
 private:
     void initializeWorker();
 
+    void initializeWorkerWithSongData();
+
     void startPlayback();
 
     void stop();

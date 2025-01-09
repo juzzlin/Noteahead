@@ -37,12 +37,12 @@ static const auto TAG = "Application";
 
 Application::Application(int & argc, char ** argv)
   : m_uiLogger(std::make_unique<UiLogger>())
+  , m_application(std::make_unique<QGuiApplication>(argc, argv))
   , m_applicationService(std::make_unique<ApplicationService>())
   , m_editorService(std::make_unique<EditorService>())
   , m_playerService(std::make_unique<PlayerService>())
   , m_stateMachine(std::make_unique<StateMachine>(m_editorService))
   , m_config(std::make_unique<Config>())
-  , m_application(std::make_unique<QGuiApplication>(argc, argv))
   , m_engine(std::make_unique<QQmlApplicationEngine>())
   , m_midiService(std::make_unique<MidiServiceRtMidi>())
 {    

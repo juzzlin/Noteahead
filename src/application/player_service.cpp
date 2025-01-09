@@ -28,7 +28,9 @@ static const auto TAG = "PlayerService";
 
 PlayerService::PlayerService(QObject * parent)
   : QObject { parent }
+  , m_playerWorker { std::make_unique<PlayerWorker>() }
 {
+    initializeWorker();
 }
 
 void PlayerService::setSong(SongS song)
@@ -38,20 +40,23 @@ void PlayerService::setSong(SongS song)
 
 void PlayerService::initializeWorker()
 {
-    juzzlin::L(TAG).debug() << "Instantiating a new worker";
-    const PlayerWorker::Timing timing { m_song->beatsPerMinute(), m_song->linesPerBeat(), m_song->ticksPerLine() };
-    m_playerWorker = std::make_unique<PlayerWorker>(m_song->renderToEvents(), timing);
     connect(m_playerWorker.get(), &PlayerWorker::songEnded, this, [this] {
         stop();
     });
     connect(m_playerWorker.get(), &PlayerWorker::tickUpdated, this, &PlayerService::tickUpdated, Qt::QueuedConnection);
     m_playerWorker->moveToThread(&m_playerWorkerThread);
+    m_playerWorkerThread.start(QThread::HighPriority);
+}
+
+void PlayerService::initializeWorkerWithSongData()
+{
+    const PlayerWorker::Timing timing { m_song->beatsPerMinute(), m_song->linesPerBeat(), m_song->ticksPerLine() };
+    m_playerWorker->initialize(m_song->renderToEvents(), timing);
 }
 
 void PlayerService::startPlayback()
 {
     juzzlin::L(TAG).debug() << "Starting playback";
-    m_playerWorkerThread.start(QThread::HighPriority);
     QMetaObject::invokeMethod(m_playerWorker.get(), "play", Qt::QueuedConnection);
     emit isPlayingChanged();
 }
@@ -63,7 +68,7 @@ bool PlayerService::requestPlay()
     emit songRequested();
 
     if (m_song) {
-        initializeWorker();
+        initializeWorkerWithSongData();
         startPlayback();
         return true;
     }
@@ -73,20 +78,15 @@ bool PlayerService::requestPlay()
 
 bool PlayerService::isPlaying() const
 {
-    return m_playerWorkerThread.isRunning();
+    return !m_playerWorker->isStopped();
 }
 
 void PlayerService::stop()
 {
-    if (m_playerWorkerThread.isRunning()) {
-        if (m_playerWorker) {
-            juzzlin::L(TAG).debug() << "Stopping playback";
-            m_playerWorker->stop();
-        }
-        juzzlin::L(TAG).debug() << "Stopping playback thread";
-        m_playerWorkerThread.exit();
-        m_playerWorkerThread.wait();
+    if (m_playerWorker) {
+        m_playerWorker->stop();
     }
+
     emit isPlayingChanged();
 }
 
@@ -106,6 +106,11 @@ void PlayerService::requestPrev()
 PlayerService::~PlayerService()
 {
     stop();
+
+    juzzlin::L(TAG).debug() << "Stopping playback thread";
+
+    m_playerWorkerThread.exit();
+    m_playerWorkerThread.wait();
 
     juzzlin::L(TAG).debug() << "Deleted";
 }

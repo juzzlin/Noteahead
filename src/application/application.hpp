@@ -67,6 +67,8 @@ private:
 
     std::unique_ptr<UiLogger> m_uiLogger;
 
+    std::unique_ptr<QGuiApplication> m_application;
+
     std::unique_ptr<ApplicationService> m_applicationService;
 
     std::shared_ptr<EditorService> m_editorService;
@@ -76,8 +78,6 @@ private:
     std::shared_ptr<StateMachine> m_stateMachine;
 
     std::unique_ptr<Config> m_config;
-
-    std::unique_ptr<QGuiApplication> m_application;
 
     std::unique_ptr<QQmlApplicationEngine> m_engine;
 

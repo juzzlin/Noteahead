@@ -43,13 +43,17 @@ public:
         uint32_t ticksPerLine = 0;
     };
 
-    explicit PlayerWorker(const EventList & events, const Timing & timing);
+    PlayerWorker() = default;
 
     ~PlayerWorker() override;
+
+    void initialize(const EventList & events, const Timing & timing);
 
     Q_INVOKABLE void play();
 
     Q_INVOKABLE void stop();
+
+    bool isStopped() const;
 
 signals:
     void songEnded();
@@ -66,7 +70,7 @@ private:
     using EventMap = std::unordered_map<size_t, EventList>;
     EventMap m_eventMap;
 
-    std::atomic_bool m_stopped = false;
+    std::atomic_bool m_isStopped = true;
 };
 
 } // namespace cacophony
