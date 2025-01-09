@@ -20,7 +20,7 @@ MenuBar {
         Action {
             text: qsTr("&Save")
             onTriggered: applicationService.requestSaveProject()
-            enabled: editorService.canBeSaved()
+            enabled: editorService.canBeSaved
         }
         Action {
             text: qsTr("Save &as...")

@@ -31,6 +31,7 @@ class EditorService : public QObject
     Q_OBJECT
     Q_PROPERTY(uint32_t linesPerBeat READ linesPerBeat NOTIFY linesPerBeatChanged)
     Q_PROPERTY(bool isModified READ isModified NOTIFY isModifiedChanged)
+    Q_PROPERTY(bool canBeSaved READ canBeSaved NOTIFY canBeSavedChanged)
 
 public:
     EditorService();
@@ -112,6 +113,8 @@ public:
     Q_INVOKABLE void setLinesPerBeat(uint32_t linesPerBeat);
 
 signals:
+    void canBeSavedChanged();
+
     void currentPatternChanged();
 
     void linesPerBeatChanged();
@@ -123,6 +126,8 @@ signals:
     void positionChanged(const Position & newPosition, const Position & oldPosition);
 
     void songChanged();
+
+    void statusTextRequested(QString text);
 
 public slots:
     void requestPositionByTick(uint32_t tick);

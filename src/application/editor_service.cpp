@@ -58,36 +58,50 @@ void EditorService::setSong(SongS song)
 
 void EditorService::saveAs(QString fileName)
 {
-    if (!fileName.endsWith(Constants::fileFormatExtension().c_str())) {
-        fileName += Constants::fileFormatExtension().c_str();
+    try {
+        if (!fileName.endsWith(Constants::fileFormatExtension().c_str())) {
+            fileName += Constants::fileFormatExtension().c_str();
+        }
+
+        juzzlin::L(TAG).info() << "Saving to " << fileName.toStdString();
+
+        QFile file { fileName };
+        if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) {
+            throw std::runtime_error("Failed to open file for writing: " + fileName.toStdString());
+        }
+
+        QXmlStreamWriter writer(&file);
+        writer.setAutoFormatting(true);
+        writer.setAutoFormattingIndent(1);
+
+        // Start the XML document
+        writer.writeStartDocument();
+
+        // Root element <Project>
+        writer.writeStartElement("Project");
+        writer.writeAttribute("fileFormatversion", Constants::fileFormatVersion());
+        writer.writeAttribute("applicationName", Constants::applicationName());
+        writer.writeAttribute("applicationVersion", Constants::applicationVersion());
+        writer.writeAttribute("createdDate", QDateTime::currentDateTime().toString(Qt::DateFormat::ISODateWithMs));
+
+        m_song->serializeToXml(writer);
+
+        writer.writeEndElement();
+
+        writer.writeEndDocument();
+
+        const auto message = QString { "Project successfully saved to: %1 " }.arg(fileName);
+        juzzlin::L(TAG).info() << message.toStdString();
+        emit statusTextRequested(message);
+
+        m_song->setFileName(fileName.toStdString());
+        emit canBeSavedChanged();
+
+    } catch (std::exception & e) {
+        const auto message = QString { "Failed to save project: %1 " }.arg(e.what());
+        juzzlin::L(TAG).error() << message.toStdString();
+        emit statusTextRequested(message);
     }
-
-    juzzlin::L(TAG).info() << "Saving to " << fileName.toStdString();
-
-    QFile file { fileName };
-    if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) {
-        throw std::runtime_error("Failed to open file for writing: " + fileName.toStdString());
-    }
-
-    QXmlStreamWriter writer(&file);
-    writer.setAutoFormatting(true);
-    writer.setAutoFormattingIndent(1);
-
-    // Start the XML document
-    writer.writeStartDocument();
-
-    // Root element <Project>
-    writer.writeStartElement("Project");
-    writer.writeAttribute("fileFormatversion", Constants::fileFormatVersion());
-    writer.writeAttribute("applicationName", Constants::applicationName());
-    writer.writeAttribute("applicationVersion", Constants::applicationVersion());
-    writer.writeAttribute("createdDate", QDateTime::currentDateTime().toString(Qt::DateFormat::ISODateWithMs));
-
-    m_song->serializeToXml(writer);
-
-    writer.writeEndElement();
-
-    writer.writeEndDocument();
 }
 
 bool EditorService::canBeSaved() const

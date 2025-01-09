@@ -29,6 +29,7 @@ ApplicationWindow {
     menuBar: MainMenu {
     }
     footer: BottomBar {
+        id: bottomBar
         height: menuBar.height
         width: parent.width
     }
@@ -80,9 +81,14 @@ ApplicationWindow {
         setY(mainWindow.screen.height / 2 - height / 2);
     }
     function _connectApplicationService() {
-        applicationService.saveAsDialogRequested.connect(() => {
-                saveAsDialog.open();
-            });
+        applicationService.saveAsDialogRequested.connect(saveAsDialog.open);
+    }
+    function _connectEditorService() {
+        editorService.statusTextRequested.connect(bottomBar.setStatusText);
+    }
+    function _connectServices() {
+        _connectApplicationService();
+        _connectEditorService();
     }
     function _initialize() {
         _setWindowSizeAndPosition();
@@ -90,7 +96,7 @@ ApplicationWindow {
                 "height": contentArea.height,
                 "width": contentArea.width
             });
-        _connectApplicationService();
+        _connectServices();
     }
     function _resize() {
         _editorView.resize(contentArea.width, contentArea.height);

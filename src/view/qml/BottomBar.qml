@@ -12,6 +12,7 @@ Rectangle {
         _fadeOutText();
     }
     function _fadeOutText() {
+        fadeAnimation.running = false;
         fadeAnimation.running = true;
     }
     Label {
