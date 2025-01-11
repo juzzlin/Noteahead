@@ -27,12 +27,16 @@ namespace cacophony {
 
 static const auto TAG = "Track";
 
-Track::Track(uint32_t index, std::string name, Type type, uint32_t length, uint32_t columnCount)
+Track::Track(uint32_t index, std::string name, uint32_t length, uint32_t columnCount)
   : m_index { index }
   , m_name { name }
-  , m_type { type }
 {
     initialize(length, columnCount);
+}
+
+uint32_t Track::index() const
+{
+    return m_index;
 }
 
 void Track::initialize(uint32_t length, uint32_t columnCount)
@@ -51,6 +55,11 @@ std::string Track::name() const
 void Track::setName(const std::string & name)
 {
     m_name = name;
+}
+
+void Track::addOrReplaceColumn(ColumnS column)
+{
+    m_columns.at(column->index()) = column;
 }
 
 uint32_t Track::columnCount() const

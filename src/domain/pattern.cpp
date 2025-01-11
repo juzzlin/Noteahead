@@ -16,6 +16,7 @@
 #include "pattern.hpp"
 
 #include "../application/position.hpp"
+#include "../common/constants.hpp"
 #include "../contrib/SimpleLogger/src/simple_logger.hpp"
 #include "../domain/note_data.hpp"
 #include "track.hpp"
@@ -26,15 +27,20 @@ namespace cacophony {
 
 static const auto TAG = "Pattern";
 
-Pattern::Pattern(uint32_t index, uint32_t length, uint32_t trackCount)
+Pattern::Pattern(uint32_t index, uint32_t lineCount, uint32_t trackCount)
   : m_index { index }
 {
-    initialize(length, trackCount);
+    initialize(lineCount, trackCount);
 }
 
-uint32_t Pattern::columnCount(uint32_t trackId) const
+uint32_t Pattern::index() const
 {
-    return m_tracks.at(trackId)->columnCount();
+    return m_index;
+}
+
+uint32_t Pattern::columnCount(uint32_t trackIndex) const
+{
+    return m_tracks.at(trackIndex)->columnCount();
 }
 
 uint32_t Pattern::lineCount() const
@@ -55,15 +61,23 @@ bool Pattern::hasData() const
       != m_tracks.end();
 }
 
-std::string Pattern::trackName(uint32_t trackId) const
+std::string Pattern::trackName(uint32_t trackIndex) const
 {
-    return m_tracks.at(trackId)->name();
+    return m_tracks.at(trackIndex)->name();
 }
 
-void Pattern::setTrackName(uint32_t trackId, std::string name)
+void Pattern::addOrReplaceTrack(TrackS track)
 {
-    juzzlin::L(TAG).info() << "Changing name of track " << trackId << " from " << trackName(trackId) << " to " << name;
-    m_tracks.at(trackId)->setName(name);
+    juzzlin::L(TAG).info() << "Settings track " << track->name() << " as track " << track->index();
+
+    m_tracks.at(track->index()) = track;
+}
+
+void Pattern::setTrackName(uint32_t trackIndex, std::string name)
+{
+    juzzlin::L(TAG).info() << "Changing name of track " << trackIndex << " from " << trackName(trackIndex) << " to " << name;
+
+    m_tracks.at(trackIndex)->setName(name);
 }
 
 Pattern::NoteDataS Pattern::noteDataAtPosition(const Position & position) const
@@ -77,10 +91,10 @@ void Pattern::setNoteDataAtPosition(const NoteData & noteData, const Position & 
     m_tracks.at(position.track)->setNoteDataAtPosition(noteData, position);
 }
 
-void Pattern::initialize(uint32_t length, uint32_t trackCount)
+void Pattern::initialize(uint32_t lineCount, uint32_t trackCount)
 {
     for (uint32_t i = 0; i < trackCount; i++) {
-        m_tracks.push_back(std::make_shared<Track>(i, "Track " + std::to_string(i + 1), Track::Type::Drum, length, 1));
+        m_tracks.push_back(std::make_shared<Track>(i, "Track " + std::to_string(i + 1), lineCount, 1));
     }
 }
 
@@ -96,13 +110,13 @@ Pattern::EventList Pattern::renderToEvents(size_t startTick, size_t ticksPerLine
 
 void Pattern::serializeToXml(QXmlStreamWriter & writer) const
 {
-    writer.writeStartElement("Pattern");
+    writer.writeStartElement(Constants::xmlKeyPattern());
 
-    writer.writeAttribute("index", QString::number(m_index));
-    writer.writeAttribute("lineCount", QString::number(lineCount()));
-    writer.writeAttribute("TrackCount", QString::number(trackCount()));
+    writer.writeAttribute(Constants::xmlKeyIndex(), QString::number(m_index));
+    writer.writeAttribute(Constants::xmlKeyLineCount(), QString::number(lineCount()));
+    writer.writeAttribute(Constants::xmlKeyTrackCount(), QString::number(trackCount()));
 
-    writer.writeStartElement("Tracks");
+    writer.writeStartElement(Constants::xmlKeyTracks());
 
     for (const auto & track : m_tracks) {
         if (track) {

@@ -24,13 +24,17 @@
 
 #include <QString>
 
+class QXmlStreamReader;
 class QXmlStreamWriter;
 
 namespace cacophony {
 
+class Column;
 class Event;
+class Line;
 class Pattern;
 struct Position;
+class Track;
 class NoteData;
 
 class Song
@@ -82,12 +86,42 @@ public:
 
     void serializeToXml(QXmlStreamWriter & writer) const;
 
+    void deserializeFromXml(QXmlStreamReader & reader);
+
 private:
+    void load(const std::string & filename);
+
+    void deserializePatterns(QXmlStreamReader & reader);
+
+    using PatternS = std::shared_ptr<Pattern>;
+
+    PatternS deserializePattern(QXmlStreamReader & reader);
+
+    void deserializeTracks(QXmlStreamReader & reader, PatternS pattern);
+
+    using TrackS = std::shared_ptr<Track>;
+
+    TrackS deserializeTrack(QXmlStreamReader & reader);
+
+    void deserializeColumns(QXmlStreamReader & reader, TrackS track);
+
+    using ColumnS = std::shared_ptr<Column>;
+
+    ColumnS deserializeColumn(QXmlStreamReader & reader);
+
+    void deserializeLines(QXmlStreamReader & reader, ColumnS column);
+
+    using LineS = std::shared_ptr<Line>;
+
+    LineS deserializeLine(QXmlStreamReader & reader);
+
+    NoteDataS deserializeNoteData(QXmlStreamReader & reader);
+
     void initialize();
 
     EventList introduceNoteOffs(const EventList & events) const;
 
-    void updateTickToPatternAndLineMapping(uint32_t tick, uint32_t patternIndex, uint32_t patternLineCount);
+    void updateTickToPatternAndLineMapping(size_t tick, size_t patternIndex, size_t patternLineCount);
 
     uint32_t m_beatsPerMinute = 120;
 
@@ -95,11 +129,9 @@ private:
 
     uint32_t m_ticksPerLine = 24;
 
-    using PatternS = std::shared_ptr<Pattern>;
-
     std::vector<PatternS> m_patterns;
 
-    std::unordered_map<uint32_t, PatternAndLine> m_tickToPatternAndLineMap;
+    std::unordered_map<size_t, PatternAndLine> m_tickToPatternAndLineMap;
 
     std::string m_fileName;
 };

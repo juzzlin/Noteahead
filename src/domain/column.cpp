@@ -16,6 +16,7 @@
 #include "column.hpp"
 
 #include "../application/position.hpp"
+#include "../common/constants.hpp"
 #include "../contrib/SimpleLogger/src/simple_logger.hpp"
 #include "../domain/event.hpp"
 #include "../domain/note_data.hpp"
@@ -31,6 +32,11 @@ Column::Column(uint32_t index, uint32_t length)
   : m_index { index }
 {
     initialize(length);
+}
+
+uint32_t Column::index() const
+{
+    return m_index;
 }
 
 void Column::initialize(uint32_t length)
@@ -52,6 +58,11 @@ bool Column::hasData() const
 uint32_t Column::lineCount() const
 {
     return static_cast<uint32_t>(m_lines.size());
+}
+
+void Column::addOrReplaceLine(LineS line)
+{
+    m_lines.at(line->index()) = line;
 }
 
 Column::NoteDataS Column::noteDataAtPosition(const Position & position) const
@@ -81,11 +92,11 @@ Column::EventList Column::renderToEvents(size_t startTick, size_t ticksPerLine) 
 
 void Column::serializeToXml(QXmlStreamWriter & writer) const
 {
-    writer.writeStartElement("Column");
-    writer.writeAttribute("index", QString::number(m_index));
-    writer.writeAttribute("lineCount", QString::number(lineCount()));
+    writer.writeStartElement(Constants::xmlKeyColumn());
+    writer.writeAttribute(Constants::xmlKeyIndex(), QString::number(m_index));
+    writer.writeAttribute(Constants::xmlKeyLineCount(), QString::number(lineCount()));
 
-    writer.writeStartElement("Lines");
+    writer.writeStartElement(Constants::xmlKeyLines());
 
     for (const auto & line : m_lines) {
         if (line) {

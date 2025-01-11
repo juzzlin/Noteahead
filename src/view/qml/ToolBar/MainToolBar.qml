@@ -98,7 +98,7 @@ Rectangle {
             }
             SpinBox {
                 id: bpmSpinBox
-                value: editorService.beatsPerMinute()
+                value: editorService.beatsPerMinute
                 from: 30
                 to: 300
                 editable: true

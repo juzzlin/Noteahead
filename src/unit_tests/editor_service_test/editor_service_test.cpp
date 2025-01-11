@@ -38,6 +38,9 @@ void EditorServiceTest::test_defaultSong_shouldReturnCorrectProperties()
 
     QCOMPARE(editorService.patternCount(), 1);
     QCOMPARE(editorService.lineCount(0), 64);
+
+    QVERIFY(!editorService.canBeSaved());
+    QVERIFY(!editorService.isModified());
 }
 
 void EditorServiceTest::test_defaultSong_shouldNotHaveNoteData()
@@ -230,6 +233,63 @@ void EditorServiceTest::test_setTrackName_shouldChangeTrackName()
 
     QCOMPARE(editorService.trackName(0), "Foo");
     QCOMPARE(editorService.trackName(1), "Bar");
+}
+
+void EditorServiceTest::test_toXmlFromXml_songProperties()
+{
+    EditorService editorServiceOut;
+    editorServiceOut.setBeatsPerMinute(666);
+    editorServiceOut.setLinesPerBeat(42);
+
+    const auto xml = editorServiceOut.toXml();
+
+    EditorService editorServiceIn;
+    QSignalSpy songChangedSpy { &editorServiceIn, &EditorService::songChanged };
+    QSignalSpy positionChangedSpy { &editorServiceIn, &EditorService::positionChanged };
+    QSignalSpy beatsPerMinuteChangedSpy { &editorServiceIn, &EditorService::beatsPerMinuteChanged };
+    QSignalSpy linesPerBeatChangedSpy { &editorServiceIn, &EditorService::linesPerBeatChanged };
+    editorServiceIn.fromXml(xml);
+
+    QCOMPARE(songChangedSpy.count(), 1);
+    QCOMPARE(positionChangedSpy.count(), 1);
+    QCOMPARE(beatsPerMinuteChangedSpy.count(), 1);
+    QCOMPARE(linesPerBeatChangedSpy.count(), 1);
+    QCOMPARE(editorServiceIn.beatsPerMinute(), 666);
+    QCOMPARE(editorServiceIn.linesPerBeat(), 42);
+}
+
+void EditorServiceTest::test_toXmlFromXml_noteData_noteOn()
+{
+    EditorService editorServiceOut;
+
+    editorServiceOut.requestPosition(0, 0, 0, 0, 0);
+    editorServiceOut.requestNoteOnAtCurrentPosition(1, 3, 64);
+
+    editorServiceOut.requestPosition(0, 0, 0, 2, 0);
+    editorServiceOut.requestNoteOnAtCurrentPosition(3, 3, 80);
+
+    editorServiceOut.requestPosition(0, 1, 0, 0, 0);
+    editorServiceOut.requestNoteOnAtCurrentPosition(2, 4, 100);
+
+    editorServiceOut.requestPosition(0, 1, 0, 2, 0);
+    editorServiceOut.requestNoteOnAtCurrentPosition(3, 4, 127);
+
+    const auto xml = editorServiceOut.toXml();
+
+    EditorService editorServiceIn;
+    editorServiceIn.fromXml(xml);
+
+    QCOMPARE(editorServiceIn.displayNoteAtPosition(0, 0, 0, 0), "C-3");
+    QCOMPARE(editorServiceIn.displayVelocityAtPosition(0, 0, 0, 0), "064");
+
+    QCOMPARE(editorServiceIn.displayNoteAtPosition(0, 0, 0, 2), "D-3");
+    QCOMPARE(editorServiceIn.displayVelocityAtPosition(0, 0, 0, 2), "080");
+
+    QCOMPARE(editorServiceIn.displayNoteAtPosition(0, 1, 0, 0), "C#4");
+    QCOMPARE(editorServiceIn.displayVelocityAtPosition(0, 1, 0, 0), "100");
+
+    QCOMPARE(editorServiceIn.displayNoteAtPosition(0, 1, 0, 2), "D-4");
+    QCOMPARE(editorServiceIn.displayVelocityAtPosition(0, 1, 0, 2), "127");
 }
 
 } // namespace cacophony

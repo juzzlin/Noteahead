@@ -28,12 +28,12 @@ ApplicationService::ApplicationService() = default;
 
 QString ApplicationService::applicationName() const
 {
-    return Constants::applicationName().c_str();
+    return Constants::applicationName();
 }
 
 QString ApplicationService::applicationVersion() const
 {
-    return Constants::applicationVersion().c_str();
+    return Constants::applicationVersion();
 }
 
 void ApplicationService::requestNewProject()
@@ -60,15 +60,54 @@ void ApplicationService::requestSaveProjectAs()
     m_stateMachine->calculateState(StateMachine::Action::SaveProjectAsRequested);
 }
 
-void ApplicationService::cancelSaveProjectAs()
+void ApplicationService::cancelOpenProject()
 {
-    m_stateMachine->calculateState(StateMachine::Action::ProjectSaveAsCanceled);
+    m_stateMachine->calculateState(StateMachine::Action::OpeningProjectCanceled);
 }
 
-void ApplicationService::saveProjectAs(QUrl fileName)
+void ApplicationService::openProject(QUrl url)
 {
-    m_editorService->saveAs(fileName.toLocalFile());
-    m_stateMachine->calculateState(StateMachine::Action::ProjectSavedAs);
+    try {
+        m_editorService->load(url.toLocalFile());
+        m_stateMachine->calculateState(StateMachine::Action::ProjectOpened);
+    } catch (std::exception & e) {
+        const auto message = QString { "Failed to load project: %1 " }.arg(e.what());
+        juzzlin::L(TAG).error() << message.toStdString();
+        emit statusTextRequested(message);
+    }
+}
+
+void ApplicationService::cancelSaveProjectAs()
+{
+    m_stateMachine->calculateState(StateMachine::Action::SavingProjectAsCanceled);
+}
+
+void ApplicationService::saveProjectAs(QUrl url)
+{
+    try {
+        auto fileName = url.toLocalFile();
+        if (!fileName.endsWith(Constants::fileFormatExtension())) {
+            fileName += Constants::fileFormatExtension();
+        }
+        m_editorService->saveAs(fileName);
+        m_stateMachine->calculateState(StateMachine::Action::ProjectSavedAs);
+    } catch (std::exception & e) {
+        const auto message = QString { "Failed to save project: %1 " }.arg(e.what());
+        juzzlin::L(TAG).error() << message.toStdString();
+        emit statusTextRequested(message);
+    }
+}
+
+void ApplicationService::requestNotSavedDialog()
+{
+    juzzlin::L(TAG).info() << "Not saved dialog requested";
+    emit notSavedDialogRequested();
+}
+
+void ApplicationService::requestOpenDialog()
+{
+    juzzlin::L(TAG).info() << "Open dialog requested";
+    emit openDialogRequested();
 }
 
 void ApplicationService::requestSaveAsDialog()

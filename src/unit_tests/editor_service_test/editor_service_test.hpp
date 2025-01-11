@@ -49,6 +49,10 @@ private slots:
     void test_requestTrackFocus_shouldNotChangePosition();
 
     void test_setTrackName_shouldChangeTrackName();
+
+    void test_toXmlFromXml_songProperties();
+
+    void test_toXmlFromXml_noteData_noteOn();
 };
 
 } // namespace cacophony

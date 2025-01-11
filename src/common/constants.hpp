@@ -16,25 +16,71 @@
 #ifndef CONSTANTS_HPP
 #define CONSTANTS_HPP
 
-#include <string>
+#include <QString>
 
 namespace cacophony::Constants {
 
-std::string applicationName();
+QString applicationName();
 
-std::string applicationVersion();
+QString applicationVersion();
 
-std::string copyright();
+QString copyright();
 
-std::string fileFormatVersion();
+QString fileFormatVersion();
 
-std::string fileFormatExtension();
+QString fileFormatExtension();
 
-std::string qSettingsCompanyName();
+QString qSettingsCompanyName();
 
-std::string webSiteUrl();
+QString webSiteUrl();
 
-std::string qSettingSoftwareName();
+QString qSettingSoftwareName();
+
+QString xmlKeyBeatsPerMinute();
+
+QString xmlKeyColumn();
+
+QString xmlKeyColumns();
+
+QString xmlKeyColumnCount();
+
+QString xmlKeyIndex();
+
+QString xmlKeyLine();
+
+QString xmlKeyLines();
+
+QString xmlKeyLineCount();
+
+QString xmlKeyLinesPerBeat();
+
+QString xmlKeyName();
+
+QString xmlKeyNote();
+
+QString xmlKeyNoteOn();
+
+QString xmlKeyNoteOff();
+
+QString xmlKeyNoteData();
+
+QString xmlKeyPattern();
+
+QString xmlKeyPatterns();
+
+QString xmlKeyTrack();
+
+QString xmlKeyTracks();
+
+QString xmlKeyTrackCount();
+
+QString xmlKeyType();
+
+QString xmlKeyVelocity();
+
+QString xmlKeyProject();
+
+QString xmlKeySong();
 
 } // namespace cacophony::Constants
 

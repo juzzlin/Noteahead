@@ -69,8 +69,8 @@ void StateMachine::calculateState(StateMachine::Action action)
 
     case Action::ProjectOpened:
     case Action::ProjectSaveFailed:
-    case Action::ProjectSaveAsCanceled:
-    case Action::ProjectSaveAsFailed:
+    case Action::SavingProjectAsCanceled:
+    case Action::SavingProjectAsFailed:
     case Action::NewProjectInitialized:
     case Action::NotSavedDialogCanceled:
     case Action::OpeningProjectCanceled:

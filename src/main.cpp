@@ -36,7 +36,7 @@ static void initLogger()
 {
     using juzzlin::L;
 
-    const QString logPath { QDir::tempPath() + QDir::separator() + cacophony::Constants::applicationName().c_str() + "-" + std::to_string(tsMs()).c_str() + ".log" };
+    const QString logPath { QDir::tempPath() + QDir::separator() + cacophony::Constants::applicationName() + "-" + QString::number(tsMs()) + ".log" };
     L::initialize(logPath.toStdString());
     L::enableEchoMode(true);
     L::setTimestampMode(L::TimestampMode::ISODateTime);
@@ -59,15 +59,15 @@ static void initLogger()
     L::setLoggingLevel(L::Level::Debug);
 #endif
 
-    L(TAG).info() << cacophony::Constants::applicationName() << " version " << cacophony::Constants::applicationVersion();
-    L(TAG).info() << cacophony::Constants::copyright();
+    L(TAG).info() << cacophony::Constants::applicationName().toStdString() << " version " << cacophony::Constants::applicationVersion().toStdString();
+    L(TAG).info() << cacophony::Constants::copyright().toStdString();
     L(TAG).info() << "Compiled against Qt version " << QT_VERSION_STR;
 }
 
 int main(int argc, char ** argv)
 {
-    QCoreApplication::setOrganizationName(cacophony::Constants::qSettingsCompanyName().c_str());
-    QCoreApplication::setApplicationName(cacophony::Constants::qSettingSoftwareName().c_str());
+    QCoreApplication::setOrganizationName(cacophony::Constants::qSettingsCompanyName());
+    QCoreApplication::setApplicationName(cacophony::Constants::qSettingSoftwareName());
 #ifdef Q_OS_WIN32
     QSettings::setDefaultFormat(QSettings::IniFormat);
 #endif

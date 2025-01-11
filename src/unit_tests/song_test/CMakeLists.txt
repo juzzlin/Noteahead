@@ -5,6 +5,7 @@ set(SRC
     ${NAME}.hpp
     ../../application/position.hpp
     ../../domain/column.cpp
+    ../../common/constants.cpp
     ../../domain/event.cpp
     ../../domain/line.cpp
     ../../domain/note_data.cpp

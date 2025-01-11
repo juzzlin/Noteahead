@@ -33,11 +33,17 @@ class Column
 public:
     Column(uint32_t index, uint32_t length);
 
+    uint32_t index() const;
+
     using NoteDataS = std::shared_ptr<NoteData>;
 
     bool hasData() const;
 
     uint32_t lineCount() const;
+
+    using LineS = std::shared_ptr<Line>;
+
+    void addOrReplaceLine(LineS line);
 
     NoteDataS noteDataAtPosition(const Position & position) const;
 
@@ -54,7 +60,7 @@ private:
 
     uint32_t m_index = 0;
 
-    std::vector<std::shared_ptr<Line>> m_lines;
+    std::vector<LineS> m_lines;
 };
 
 } // namespace cacophony

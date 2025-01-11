@@ -15,6 +15,8 @@
 
 #include "line.hpp"
 
+#include "../common/constants.hpp"
+
 #include "../contrib/SimpleLogger/src/simple_logger.hpp"
 
 #include <QXmlStreamWriter>
@@ -33,6 +35,11 @@ Line::Line(uint32_t index, const NoteData & noteData)
   : m_index { index }
   , m_noteData { std::make_unique<NoteData>(noteData) }
 {
+}
+
+uint32_t Line::index() const
+{
+    return m_index;
 }
 
 void Line::clear()
@@ -54,8 +61,8 @@ Line::NoteDataS Line::noteData() const
 void Line::serializeToXml(QXmlStreamWriter & writer) const
 {
     if (m_noteData && m_noteData->type() != NoteData::Type::None) {
-        writer.writeStartElement("Line");
-        writer.writeAttribute("index", QString::number(m_index));
+        writer.writeStartElement(Constants::xmlKeyLine());
+        writer.writeAttribute(Constants::xmlKeyIndex(), QString::number(m_index));
         m_noteData->serializeToXml(writer);
         writer.writeEndElement(); // Line
     }

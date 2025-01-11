@@ -31,9 +31,11 @@ struct Position;
 class Pattern
 {
 public:
-    Pattern(uint32_t index, uint32_t length, uint32_t trackCount);
+    Pattern(uint32_t index, uint32_t lineCount, uint32_t trackCount);
 
-    uint32_t columnCount(uint32_t trackId) const;
+    uint32_t index() const;
+
+    uint32_t columnCount(uint32_t trackIndex) const;
 
     uint32_t lineCount() const;
 
@@ -41,9 +43,13 @@ public:
 
     bool hasData() const;
 
-    std::string trackName(uint32_t trackId) const;
+    std::string trackName(uint32_t trackIndex) const;
 
-    void setTrackName(uint32_t trackId, std::string name);
+    using TrackS = std::shared_ptr<Track>;
+
+    void addOrReplaceTrack(TrackS track);
+
+    void setTrackName(uint32_t trackIndex, std::string name);
 
     using NoteDataS = std::shared_ptr<NoteData>;
 
@@ -58,7 +64,7 @@ public:
     void serializeToXml(QXmlStreamWriter & writer) const;
 
 private:
-    void initialize(uint32_t length, uint32_t trackCount);
+    void initialize(uint32_t lineCount, uint32_t trackCount);
 
     uint32_t m_index = 0;
 

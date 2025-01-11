@@ -22,6 +22,8 @@
 #include <optional>
 #include <utility>
 
+class QXmlStreamReader;
+
 namespace cacophony {
 
 class Song;
@@ -29,6 +31,7 @@ class Song;
 class EditorService : public QObject
 {
     Q_OBJECT
+    Q_PROPERTY(uint32_t beatsPerMinute READ beatsPerMinute NOTIFY beatsPerMinuteChanged)
     Q_PROPERTY(uint32_t linesPerBeat READ linesPerBeat NOTIFY linesPerBeatChanged)
     Q_PROPERTY(bool isModified READ isModified NOTIFY isModifiedChanged)
     Q_PROPERTY(bool canBeSaved READ canBeSaved NOTIFY canBeSavedChanged)
@@ -45,7 +48,13 @@ public:
 
     void setSong(SongS song);
 
+    void load(QString fileName);
+
     void saveAs(QString fileName);
+
+    void fromXml(QString xml);
+
+    QString toXml() const;
 
     Q_INVOKABLE bool canBeSaved() const;
 
@@ -111,13 +120,15 @@ public:
 
     Q_INVOKABLE uint32_t beatsPerMinute() const;
 
-    Q_INVOKABLE void setBeatsPerMinute(uint32_t bpm);
+    Q_INVOKABLE void setBeatsPerMinute(uint32_t beatsPerMinute);
 
     Q_INVOKABLE uint32_t linesPerBeat() const;
 
     Q_INVOKABLE void setLinesPerBeat(uint32_t linesPerBeat);
 
 signals:
+    void beatsPerMinuteChanged();
+
     void canBeSavedChanged();
 
     void currentFileNameChanged();
@@ -143,6 +154,8 @@ private:
     using MidiNoteNameAndCode = std::pair<std::string, uint8_t>;
     using MidiNoteNameAndCodeOpt = std::optional<MidiNoteNameAndCode>;
     MidiNoteNameAndCodeOpt editorNoteToMidiNote(uint32_t note, uint32_t octave) const;
+
+    SongS deserializeProject(QXmlStreamReader & reader);
 
     void logPosition() const;
 

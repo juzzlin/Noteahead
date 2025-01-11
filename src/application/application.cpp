@@ -67,6 +67,8 @@ void Application::handleCommandLineArguments()
     for (int i = 1; i < arguments.size(); ++i) {
         if (arguments.at(i) == "--debug") {
             juzzlin::SimpleLogger::setLoggingLevel(juzzlin::SimpleLogger::Level::Debug);
+        } else if (arguments.at(i) == "--trace") {
+            juzzlin::SimpleLogger::setLoggingLevel(juzzlin::SimpleLogger::Level::Trace);
         } else if (arguments.at(i) == "--list-devices") {
             m_listDevices = true;
         } else if (arguments.at(i) == "--test-device" && i + 1 < arguments.size()) {
@@ -181,6 +183,12 @@ void Application::applyState(StateMachine::State state)
     juzzlin::L(TAG).info() << "Applying state: " << static_cast<int>(state);
 
     switch (state) {
+    case StateMachine::State::ShowNotSavedDialog:
+        m_applicationService->requestNotSavedDialog();
+        break;
+    case StateMachine::State::ShowOpenDialog:
+        m_applicationService->requestOpenDialog();
+        break;
     case StateMachine::State::ShowSaveAsDialog:
         m_applicationService->requestSaveAsDialog();
         break;

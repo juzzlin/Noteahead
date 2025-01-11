@@ -20,6 +20,8 @@
 #include "../../domain/note_data.hpp"
 #include "../../domain/song.hpp"
 
+#include <QXmlStreamWriter>
+
 namespace cacophony {
 
 void SongTest::test_hasData_emptySong_hasNoData()

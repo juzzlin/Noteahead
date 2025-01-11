@@ -23,6 +23,7 @@
 
 #include <QDateTime>
 #include <QFile>
+#include <QXmlStreamReader>
 #include <QXmlStreamWriter>
 
 namespace cacophony {
@@ -52,56 +53,100 @@ void EditorService::setSong(SongS song)
 
     emit songChanged();
     emit positionChanged(m_position, m_position);
+    emit beatsPerMinuteChanged();
+    emit linesPerBeatChanged();
 
     setIsModified(false);
 }
 
+EditorService::SongS EditorService::deserializeProject(QXmlStreamReader & reader)
+{
+    juzzlin::L(TAG).trace() << "Reading project started";
+    SongS song;
+    const auto applicationName = reader.attributes().value("applicationName").toString();
+    const auto applicationVersion = reader.attributes().value("applicationVersion").toString();
+    const auto createdDate = reader.attributes().value("createdDate").toString();
+    const auto fileFormatVersion = reader.attributes().value("fileFormatVersion").toString();
+    while (!(reader.isEndElement() && !reader.name().compare(Constants::xmlKeyProject()))) {
+        if (reader.isStartElement() && !reader.name().compare(Constants::xmlKeySong())) {
+            song = std::make_unique<Song>();
+            song->deserializeFromXml(reader);
+        }
+        reader.readNext();
+    }
+    juzzlin::L(TAG).trace() << "Reading project ended";
+    return song;
+}
+
+void EditorService::fromXml(QString xml)
+{
+    juzzlin::L(TAG).info() << "Reading Project from XML";
+    juzzlin::L(TAG).debug() << xml.toStdString();
+    QXmlStreamReader reader { xml };
+    while (!(reader.atEnd())) {
+        juzzlin::L(TAG).trace() << "Current element: " << reader.name().toString().toStdString();
+        if (reader.isStartElement() && !reader.name().compare(Constants::xmlKeyProject())) {
+            if (const auto song = deserializeProject(reader); song) {
+                setSong(song);
+            }
+        }
+        reader.readNext();
+    }
+}
+
+void EditorService::load(QString fileName)
+{
+    if (QFile file { fileName }; file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        fromXml(file.readAll());
+        m_song->setFileName(fileName.toStdString());
+        const auto message = QString { "Project successfully loaded from: %1 " }.arg(fileName);
+        juzzlin::L(TAG).info() << message.toStdString();
+        emit statusTextRequested(message);
+        emit canBeSavedChanged();
+        emit currentFileNameChanged();
+    } else {
+        throw std::runtime_error("Failed to open file for reading: " + fileName.toStdString());
+    }
+}
+
+QString EditorService::toXml() const
+{
+    QString xml;
+    QXmlStreamWriter writer { &xml };
+
+    writer.setAutoFormatting(true);
+    writer.setAutoFormattingIndent(1);
+
+    writer.writeStartDocument();
+
+    writer.writeStartElement(Constants::xmlKeyProject());
+    writer.writeAttribute("fileFormatversion", Constants::fileFormatVersion());
+    writer.writeAttribute("applicationName", Constants::applicationName());
+    writer.writeAttribute("applicationVersion", Constants::applicationVersion());
+    writer.writeAttribute("createdDate", QDateTime::currentDateTime().toString(Qt::DateFormat::ISODateWithMs));
+
+    m_song->serializeToXml(writer);
+
+    writer.writeEndElement();
+
+    writer.writeEndDocument();
+
+    return xml;
+}
+
 void EditorService::saveAs(QString fileName)
 {
-    try {
-        if (!fileName.endsWith(QString::fromStdString(Constants::fileFormatExtension()))) {
-            fileName += QString::fromStdString(Constants::fileFormatExtension());
-        }
-
+    if (QFile file { fileName }; file.open(QIODevice::WriteOnly | QIODevice::Text)) {
         juzzlin::L(TAG).info() << "Saving to " << fileName.toStdString();
-
-        QFile file { fileName };
-        if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) {
-            throw std::runtime_error("Failed to open file for writing: " + fileName.toStdString());
-        }
-
-        QXmlStreamWriter writer(&file);
-        writer.setAutoFormatting(true);
-        writer.setAutoFormattingIndent(1);
-
-        // Start the XML document
-        writer.writeStartDocument();
-
-        // Root element <Project>
-        writer.writeStartElement("Project");
-        writer.writeAttribute("fileFormatversion", Constants::fileFormatVersion());
-        writer.writeAttribute("applicationName", Constants::applicationName());
-        writer.writeAttribute("applicationVersion", Constants::applicationVersion());
-        writer.writeAttribute("createdDate", QDateTime::currentDateTime().toString(Qt::DateFormat::ISODateWithMs));
-
-        m_song->serializeToXml(writer);
-
-        writer.writeEndElement();
-
-        writer.writeEndDocument();
-
+        file.write(toXml().toUtf8());
         const auto message = QString { "Project successfully saved to: %1 " }.arg(fileName);
         juzzlin::L(TAG).info() << message.toStdString();
         emit statusTextRequested(message);
-
         m_song->setFileName(fileName.toStdString());
         emit canBeSavedChanged();
         emit currentFileNameChanged();
-
-    } catch (std::exception & e) {
-        const auto message = QString { "Failed to save project: %1 " }.arg(e.what());
-        juzzlin::L(TAG).error() << message.toStdString();
-        emit statusTextRequested(message);
+    } else {
+        throw std::runtime_error("Failed to open file for writing: " + fileName.toStdString());
     }
 }
 
@@ -356,10 +401,13 @@ bool EditorService::setVelocityAtCurrentPosition(uint8_t digit)
 }
 
 void EditorService::setIsModified(bool isModified)
-{
+{   
     if (m_isModified != isModified) {
         m_isModified = isModified;
         emit isModifiedChanged();
+        if (isModified) {
+            juzzlin::L(TAG).info() << "Project set as modified";
+        }
     }
 }
 
@@ -498,10 +546,13 @@ uint32_t EditorService::beatsPerMinute() const
     return m_song->beatsPerMinute();
 }
 
-void EditorService::setBeatsPerMinute(uint32_t bpm)
+void EditorService::setBeatsPerMinute(uint32_t beatsPerMinute)
 {
-    m_song->setBeatsPerMinute(bpm);
-    setIsModified(true);
+    if (m_song->beatsPerMinute() != beatsPerMinute) {
+        m_song->setBeatsPerMinute(beatsPerMinute);
+        emit beatsPerMinuteChanged();
+        setIsModified(true);
+    }
 }
 
 uint32_t EditorService::linesPerBeat() const

@@ -29,7 +29,9 @@ class Line
 public:
     explicit Line(uint32_t index);
 
-    explicit Line(uint32_t m_index, const NoteData & noteData);
+    Line(uint32_t index, const NoteData & noteData);
+
+    uint32_t index() const;
 
     void clear();
 

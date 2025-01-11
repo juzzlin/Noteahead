@@ -15,6 +15,8 @@
 
 #include "note_data.hpp"
 
+#include "../common/constants.hpp"
+
 #include <sstream>
 
 #include <QXmlStreamWriter>
@@ -82,15 +84,15 @@ uint32_t NoteData::column() const
 
 void NoteData::serializeToXml(QXmlStreamWriter & writer) const
 {
-    writer.writeStartElement("NoteData");
+    writer.writeStartElement(Constants::xmlKeyNoteData());
 
     if (m_type == Type::NoteOn) {
-        writer.writeAttribute("type", "on");
-        writer.writeAttribute("note", QString::number(m_note));
-        writer.writeAttribute("velocity", QString::number(m_velocity));
+        writer.writeAttribute(Constants::xmlKeyType(), Constants::xmlKeyNoteOn());
+        writer.writeAttribute(Constants::xmlKeyNote(), QString::number(m_note));
+        writer.writeAttribute(Constants::xmlKeyVelocity(), QString::number(m_velocity));
     } else {
-        writer.writeAttribute("type", "off");
-        writer.writeAttribute("note", QString::number(m_note));
+        writer.writeAttribute(Constants::xmlKeyType(), Constants::xmlKeyNoteOff());
+        writer.writeAttribute(Constants::xmlKeyNote(), QString::number(m_note));
     }
 
     writer.writeEndElement(); // NoteData

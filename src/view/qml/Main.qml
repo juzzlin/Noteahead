@@ -58,6 +58,20 @@ ApplicationWindow {
         }
     }
     FileDialog {
+        id: openDialog
+        currentFolder: StandardPaths.standardLocations(StandardPaths.DocumentsLocation)[0]
+        fileMode: FileDialog.OpenFile
+        nameFilters: [qsTr("Cacophony files") + " (*.caco)"]
+        onAccepted: {
+            uiLogger.info(_tag, "File selected to open: " + selectedFile);
+            applicationService.openProject(selectedFile);
+        }
+        onRejected: {
+            uiLogger.info(_tag, "Open dialog was canceled.");
+            applicationService.cancelOpenProject();
+        }
+    }
+    FileDialog {
         id: saveAsDialog
         currentFolder: StandardPaths.standardLocations(StandardPaths.DocumentsLocation)[0]
         fileMode: FileDialog.SaveFile
@@ -86,7 +100,9 @@ ApplicationWindow {
         setY(mainWindow.screen.height / 2 - height / 2);
     }
     function _connectApplicationService() {
+        applicationService.openDialogRequested.connect(openDialog.open);
         applicationService.saveAsDialogRequested.connect(saveAsDialog.open);
+        applicationService.statusTextRequested.connect(bottomBar.setStatusText);
     }
     function _connectEditorService() {
         editorService.statusTextRequested.connect(bottomBar.setStatusText);

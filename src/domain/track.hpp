@@ -32,19 +32,17 @@ struct Position;
 class Track
 {
 public:
-    enum class Type
-    {
-        Drum,
-        Note,
-        Chord,
-        Control
-    };
+    Track(uint32_t index, std::string name, uint32_t length, uint32_t columnCount);
 
-    explicit Track(uint32_t index, std::string name, Type type, uint32_t length, uint32_t columnCount);
+    uint32_t index() const;
 
-    uint32_t columnCount() const;
+    using ColumnS = std::shared_ptr<Column>;
+
+    void addOrReplaceColumn(ColumnS column);
 
     uint32_t lineCount() const;
+
+    uint32_t columnCount() const;
 
     bool hasData() const;
 
@@ -71,9 +69,7 @@ private:
 
     std::string m_name;
 
-    Type m_type;
-
-    std::vector<std::shared_ptr<Column>> m_columns;
+    std::vector<ColumnS> m_columns;
 
     std::shared_ptr<Instrument> m_instrument;
 };

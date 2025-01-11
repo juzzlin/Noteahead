@@ -17,44 +17,159 @@
 
 namespace cacophony::Constants {
 
-std::string applicationName()
+QString applicationName()
 {
     return "Cacophony";
 }
 
-std::string applicationVersion()
+QString applicationVersion()
 {
     return VERSION;
 }
 
-std::string copyright()
+QString copyright()
 {
     return "Copyright (c) 2020-2025 Jussi Lind";
 }
 
-std::string fileFormatVersion()
+QString fileFormatVersion()
 {
     return "1.0";
 }
 
-std::string fileFormatExtension()
+QString fileFormatExtension()
 {
     return ".caco";
 }
 
-std::string qSettingsCompanyName()
+QString qSettingsCompanyName()
 {
     return applicationName();
 }
 
-std::string webSiteUrl()
+QString webSiteUrl()
 {
     return "https://github.com/juzzlin/Cacophony";
 }
 
-std::string qSettingSoftwareName()
+QString qSettingSoftwareName()
 {
     return applicationName();
+}
+
+QString xmlKeyBeatsPerMinute()
+{
+    return "beatsPerMinute";
+}
+
+QString xmlKeyColumn()
+{
+    return "Column";
+}
+
+QString xmlKeyColumns()
+{
+    return "Columns";
+}
+
+QString xmlKeyColumnCount()
+{
+    return "columnCount";
+}
+
+QString xmlKeyIndex()
+{
+    return "index";
+}
+
+QString xmlKeyLine()
+{
+    return "Line";
+}
+
+QString xmlKeyLines()
+{
+    return "Lines";
+}
+
+QString xmlKeyLineCount()
+{
+    return "lineCount";
+}
+
+QString xmlKeyLinesPerBeat()
+{
+    return "linesPerBeat";
+}
+
+QString xmlKeyName()
+{
+    return "name";
+}
+
+QString xmlKeyNote()
+{
+    return "note";
+}
+
+QString xmlKeyNoteOn()
+{
+    return "noteOn";
+}
+
+QString xmlKeyNoteOff()
+{
+    return "noteOff";
+}
+
+QString xmlKeyNoteData()
+{
+    return "NoteData";
+}
+
+QString xmlKeyPattern()
+{
+    return "Pattern";
+}
+
+QString xmlKeyPatterns()
+{
+    return "Patterns";
+}
+
+QString xmlKeyTrack()
+{
+    return "Track";
+}
+
+QString xmlKeyTracks()
+{
+    return "Tracks";
+}
+
+QString xmlKeyTrackCount()
+{
+    return "trackCount";
+}
+
+QString xmlKeyType()
+{
+    return "type";
+}
+
+QString xmlKeyVelocity()
+{
+    return "velocity";
+}
+
+QString xmlKeyProject()
+{
+    return "Project";
+}
+
+QString xmlKeySong()
+{
+    return "Song";
 }
 
 } // namespace cacophony::constants

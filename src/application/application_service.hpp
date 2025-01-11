@@ -43,9 +43,17 @@ public:
 
     Q_INVOKABLE void requestSaveProjectAs();
 
+    Q_INVOKABLE void cancelOpenProject();
+
+    Q_INVOKABLE void openProject(QUrl url);
+
     Q_INVOKABLE void cancelSaveProjectAs();
 
     Q_INVOKABLE void saveProjectAs(QUrl url);
+
+    void requestNotSavedDialog();
+
+    void requestOpenDialog();
 
     void requestSaveAsDialog();
 
@@ -56,7 +64,13 @@ public:
     void setEditorService(EditorServiceS editorService);
 
 signals:
+    void notSavedDialogRequested();
+
+    void openDialogRequested();
+
     void saveAsDialogRequested();
+
+    void statusTextRequested(QString message);
 
 private:
     StateMachineS m_stateMachine;
