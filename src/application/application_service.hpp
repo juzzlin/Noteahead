@@ -49,6 +49,8 @@ public:
 
     Q_INVOKABLE void requestSaveProjectAs();
 
+    Q_INVOKABLE void requestQuit();
+
     Q_INVOKABLE void cancelOpenProject();
 
     Q_INVOKABLE void openProject(QUrl url);
@@ -73,6 +75,8 @@ signals:
     void unsavedChangesDialogRequested();
 
     void openDialogRequested();
+
+    void quitRequested();
 
     void saveAsDialogRequested();
 

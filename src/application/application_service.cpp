@@ -67,6 +67,12 @@ void ApplicationService::requestOpenProject()
     m_stateMachine->calculateState(StateMachine::Action::OpenProjectRequested);
 }
 
+void ApplicationService::requestQuit()
+{
+    juzzlin::L(TAG).info() << "Quit requested";
+    m_stateMachine->calculateState(StateMachine::Action::QuitSelected);
+}
+
 void ApplicationService::requestSaveProject()
 {
     juzzlin::L(TAG).info() << "'Save file' requested";

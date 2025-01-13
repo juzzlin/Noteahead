@@ -183,6 +183,9 @@ void Application::applyState(StateMachine::State state)
     juzzlin::L(TAG).info() << "Applying state: " << static_cast<int>(state);
 
     switch (state) {
+    case StateMachine::State::Exit:
+        m_application->exit(EXIT_SUCCESS);
+        break;
     case StateMachine::State::InitializeNewProject:
         m_editorService->initialize();
         break;
