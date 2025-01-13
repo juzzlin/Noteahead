@@ -57,6 +57,10 @@ ApplicationWindow {
             id: editorView
         }
     }
+    AboutDialog {
+        id: aboutDialog
+        anchors.centerIn: parent
+    }
     FileDialog {
         id: openDialog
         currentFolder: StandardPaths.standardLocations(StandardPaths.DocumentsLocation)[0]
@@ -125,9 +129,13 @@ ApplicationWindow {
     function _connectEditorService() {
         editorService.statusTextRequested.connect(bottomBar.setStatusText);
     }
+    function _connectUiService() {
+        UiService.aboutDialogRequested.connect(aboutDialog.open);
+    }
     function _connectServices() {
         _connectApplicationService();
         _connectEditorService();
+        _connectUiService();
     }
     function _initialize() {
         _setWindowSizeAndPosition();

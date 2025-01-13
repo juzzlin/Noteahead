@@ -29,7 +29,12 @@ QString applicationVersion()
 
 QString copyright()
 {
-    return "Copyright (c) 2020-2025 Jussi Lind";
+    return "Copyright (c) 2020-2025 Jussi Lind <jussi.lind@iki.fi>";
+}
+
+QString license()
+{
+    return "The GNU General Public License v3.0";
 }
 
 QString fileFormatVersion()

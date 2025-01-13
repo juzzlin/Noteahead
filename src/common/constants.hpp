@@ -26,6 +26,8 @@ QString applicationVersion();
 
 QString copyright();
 
+QString license();
+
 QString fileFormatVersion();
 
 QString fileFormatExtension();

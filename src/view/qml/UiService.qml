@@ -2,6 +2,7 @@ pragma Singleton
 import QtQuick 2.15
 
 QtObject {
+    signal aboutDialogRequested
     signal activeOctaveChanged(int activeOctave)
     property int _activeOctave: 3
     readonly property string _tag: "UiService"
@@ -68,5 +69,8 @@ QtObject {
     function requestStop() {
         uiLogger.debug(_tag, "Requesting stop");
         playerService.requestStop();
+    }
+    function requestAboutDialog() {
+        aboutDialogRequested();
     }
 }

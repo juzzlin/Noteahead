@@ -36,6 +36,15 @@ QString ApplicationService::applicationVersion() const
     return Constants::applicationVersion();
 }
 
+QString ApplicationService::copyright() const
+{
+    return Constants::copyright();
+}
+
+QString ApplicationService::license() const
+{
+    return Constants::license();
+}
 
 void ApplicationService::acceptUnsavedChangesDialog()
 {

@@ -68,6 +68,7 @@ set(QML_ROOT_DIR "qrc:/qt/qml/${URI}/${QML_BASE_DIR}")
 set(MAIN Main.qml)
 set(QML_SOURCE_FILES
     ${QML_BASE_DIR}/${MAIN}
+    ${QML_BASE_DIR}/AboutDialog.qml
     ${QML_BASE_DIR}/BottomBar.qml
     ${QML_BASE_DIR}/Constants.qml
     ${QML_BASE_DIR}/Editor/Cursor.qml

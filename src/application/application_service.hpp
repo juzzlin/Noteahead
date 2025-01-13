@@ -35,6 +35,10 @@ public:
 
     Q_INVOKABLE QString applicationVersion() const;
 
+    Q_INVOKABLE QString copyright() const;
+
+    Q_INVOKABLE QString license() const;
+
     Q_INVOKABLE void acceptUnsavedChangesDialog();
 
     Q_INVOKABLE void discardUnsavedChangesDialog();

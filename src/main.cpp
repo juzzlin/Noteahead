@@ -60,6 +60,7 @@ static void initLogger()
 #endif
 
     L(TAG).info() << cacophony::Constants::applicationName().toStdString() << " version " << cacophony::Constants::applicationVersion().toStdString();
+    L(TAG).info() << "Licensed under " << cacophony::Constants::license().toStdString();
     L(TAG).info() << cacophony::Constants::copyright().toStdString();
     L(TAG).info() << "Compiled against Qt version " << QT_VERSION_STR;
 }

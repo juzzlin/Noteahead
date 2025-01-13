@@ -42,6 +42,7 @@ MenuBar {
         title: qsTr("&Help")
         Action {
             text: qsTr("&About")
+            onTriggered: UiService.requestAboutDialog()
         }
     }
 }
