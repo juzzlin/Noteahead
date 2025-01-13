@@ -50,6 +50,8 @@ public:
 
     void load(QString fileName);
 
+    void save();
+
     void saveAs(QString fileName);
 
     void fromXml(QString xml);

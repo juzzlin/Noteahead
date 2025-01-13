@@ -134,6 +134,15 @@ QString EditorService::toXml() const
     return xml;
 }
 
+void EditorService::save()
+{
+    if (canBeSaved()) {
+        saveAs(QString::fromStdString(m_song->fileName()));
+    } else {
+        throw std::runtime_error("Song cannot be saved!");
+    }
+}
+
 void EditorService::saveAs(QString fileName)
 {
     if (QFile file { fileName }; file.open(QIODevice::WriteOnly | QIODevice::Text)) {
