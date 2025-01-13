@@ -107,15 +107,15 @@ private:
 
     using ColumnS = std::shared_ptr<Column>;
 
-    ColumnS deserializeColumn(QXmlStreamReader & reader);
+    ColumnS deserializeColumn(QXmlStreamReader & reader, uint32_t trackIndex);
 
-    void deserializeLines(QXmlStreamReader & reader, ColumnS column);
+    void deserializeLines(QXmlStreamReader & reader, uint32_t trackIndex, ColumnS column);
 
     using LineS = std::shared_ptr<Line>;
 
-    LineS deserializeLine(QXmlStreamReader & reader);
+    LineS deserializeLine(QXmlStreamReader & reader, uint32_t trackIndex, uint32_t columnIndex);
 
-    NoteDataS deserializeNoteData(QXmlStreamReader & reader);
+    NoteDataS deserializeNoteData(QXmlStreamReader & reader, uint32_t trackIndex, uint32_t columnIndex);
 
     void initialize();
 

@@ -329,7 +329,7 @@ void Song::deserializeColumns(QXmlStreamReader & reader, TrackS track)
     while (!(reader.isEndElement() && !reader.name().compare(Constants::xmlKeyColumns()))) {
         juzzlin::L(TAG).trace() << "Columns: Current element: " << reader.name().toString().toStdString();
         if (reader.isStartElement() && !reader.name().compare(Constants::xmlKeyColumn())) {
-            const auto column = deserializeColumn(reader);
+            const auto column = deserializeColumn(reader, track->index());
             track->addOrReplaceColumn(column);
         }
         reader.readNext();
@@ -337,7 +337,7 @@ void Song::deserializeColumns(QXmlStreamReader & reader, TrackS track)
     juzzlin::L(TAG).trace() << "Reading Columns ended";
 }
 
-Song::ColumnS Song::deserializeColumn(QXmlStreamReader & reader)
+Song::ColumnS Song::deserializeColumn(QXmlStreamReader & reader, uint32_t trackIndex)
 {
     juzzlin::L(TAG).trace() << "Reading Column started";
     const auto index = readUIntAttribute(reader, Constants::xmlKeyIndex());
@@ -346,7 +346,7 @@ Song::ColumnS Song::deserializeColumn(QXmlStreamReader & reader)
     while (!(reader.isEndElement() && !reader.name().compare(Constants::xmlKeyColumn()))) {
         juzzlin::L(TAG).trace() << "Current element: " << reader.name().toString().toStdString();
         if (reader.isStartElement() && !reader.name().compare(Constants::xmlKeyLines())) {
-            deserializeLines(reader, column);
+            deserializeLines(reader, trackIndex, column);
         }
         reader.readNext();
     }
@@ -354,13 +354,13 @@ Song::ColumnS Song::deserializeColumn(QXmlStreamReader & reader)
     return column;
 }
 
-void Song::deserializeLines(QXmlStreamReader & reader, ColumnS column)
+void Song::deserializeLines(QXmlStreamReader & reader, uint32_t trackIndex, ColumnS column)
 {
     juzzlin::L(TAG).trace() << "Reading Lines started";
     while (!(reader.isEndElement() && !reader.name().compare(Constants::xmlKeyLines()))) {
         juzzlin::L(TAG).trace() << "Deserializing Line: " << reader.name().toString().toStdString();
         if (reader.isStartElement() && !reader.name().compare(Constants::xmlKeyLine())) {
-            const auto line = deserializeLine(reader);
+            const auto line = deserializeLine(reader, trackIndex, column->index());
             column->addOrReplaceLine(line);
         }
         reader.readNext();
@@ -368,7 +368,7 @@ void Song::deserializeLines(QXmlStreamReader & reader, ColumnS column)
     juzzlin::L(TAG).trace() << "Reading Lines ended";
 }
 
-Song::LineS Song::deserializeLine(QXmlStreamReader & reader)
+Song::LineS Song::deserializeLine(QXmlStreamReader & reader, uint32_t trackIndex, uint32_t columnIndex)
 {
     juzzlin::L(TAG).trace() << "Reading Line started";
     const auto index = readUIntAttribute(reader, Constants::xmlKeyIndex());
@@ -376,7 +376,7 @@ Song::LineS Song::deserializeLine(QXmlStreamReader & reader)
     while (!(reader.isEndElement() && !reader.name().compare(Constants::xmlKeyLine()))) {
         juzzlin::L(TAG).trace() << "Current element: " << reader.name().toString().toStdString();
         if (reader.isStartElement() && !reader.name().compare(Constants::xmlKeyNoteData())) {
-            const auto noteData = deserializeNoteData(reader);
+            const auto noteData = deserializeNoteData(reader, trackIndex, columnIndex);
             line->setNoteData(*noteData);
         }
         reader.readNext();
@@ -385,12 +385,12 @@ Song::LineS Song::deserializeLine(QXmlStreamReader & reader)
     return line;
 }
 
-Song::NoteDataS Song::deserializeNoteData(QXmlStreamReader & reader)
+Song::NoteDataS Song::deserializeNoteData(QXmlStreamReader & reader, uint32_t trackIndex, uint32_t columnIndex)
 {
     juzzlin::L(TAG).trace() << "Reading NoteData";
     const auto typeString = readStringAttribute(reader, Constants::xmlKeyType());
     const auto type = typeString == Constants::xmlKeyNoteOn() ? NoteData::Type::NoteOn : NoteData::Type::NoteOff;
-    const auto noteData = std::make_shared<NoteData>();
+    const auto noteData = std::make_shared<NoteData>(trackIndex, columnIndex);
     if (type == NoteData::Type::NoteOn) {
         const auto note = readUIntAttribute(reader, Constants::xmlKeyNote());
         const auto velocity = readUIntAttribute(reader, Constants::xmlKeyVelocity());

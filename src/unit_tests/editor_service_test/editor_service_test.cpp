@@ -16,6 +16,8 @@
 #include "editor_service_test.hpp"
 
 #include "../../application/editor_service.hpp"
+#include "../../domain/note_data.hpp"
+#include "../../domain/song.hpp"
 
 #include <QSignalSpy>
 
@@ -279,15 +281,27 @@ void EditorServiceTest::test_toXmlFromXml_noteData_noteOn()
     EditorService editorServiceIn;
     editorServiceIn.fromXml(xml);
 
+    auto noteData = editorServiceIn.song()->noteDataAtPosition({ 0, 0, 0, 0, 0 });
+    QCOMPARE(noteData->track(), 0);
+    QCOMPARE(noteData->column(), 0);
     QCOMPARE(editorServiceIn.displayNoteAtPosition(0, 0, 0, 0), "C-3");
     QCOMPARE(editorServiceIn.displayVelocityAtPosition(0, 0, 0, 0), "064");
 
+    noteData = editorServiceIn.song()->noteDataAtPosition({ 0, 0, 0, 2, 0 });
+    QCOMPARE(noteData->track(), 0);
+    QCOMPARE(noteData->column(), 0);
     QCOMPARE(editorServiceIn.displayNoteAtPosition(0, 0, 0, 2), "D-3");
     QCOMPARE(editorServiceIn.displayVelocityAtPosition(0, 0, 0, 2), "080");
 
+    noteData = editorServiceIn.song()->noteDataAtPosition({ 0, 1, 0, 0, 0 });
+    QCOMPARE(noteData->track(), 1);
+    QCOMPARE(noteData->column(), 0);
     QCOMPARE(editorServiceIn.displayNoteAtPosition(0, 1, 0, 0), "C#4");
     QCOMPARE(editorServiceIn.displayVelocityAtPosition(0, 1, 0, 0), "100");
 
+    noteData = editorServiceIn.song()->noteDataAtPosition({ 0, 1, 0, 2, 0 });
+    QCOMPARE(noteData->track(), 1);
+    QCOMPARE(noteData->column(), 0);
     QCOMPARE(editorServiceIn.displayNoteAtPosition(0, 1, 0, 2), "D-4");
     QCOMPARE(editorServiceIn.displayVelocityAtPosition(0, 1, 0, 2), "127");
 }
