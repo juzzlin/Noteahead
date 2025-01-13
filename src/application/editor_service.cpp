@@ -152,8 +152,8 @@ void EditorService::saveAs(QString fileName)
         juzzlin::L(TAG).info() << message.toStdString();
         emit statusTextRequested(message);
         m_song->setFileName(fileName.toStdString());
-        emit canBeSavedChanged();
         emit currentFileNameChanged();
+        setIsModified(false);
     } else {
         throw std::runtime_error("Failed to open file for writing: " + fileName.toStdString());
     }
@@ -161,7 +161,7 @@ void EditorService::saveAs(QString fileName)
 
 bool EditorService::canBeSaved() const
 {
-    return m_song && !m_song->fileName().empty() && QFile::exists(QString::fromStdString(m_song->fileName()));
+    return isModified() && m_song && !m_song->fileName().empty() && QFile::exists(QString::fromStdString(m_song->fileName()));
 }
 
 uint32_t EditorService::columnCount(uint32_t trackId) const
@@ -288,6 +288,18 @@ bool EditorService::isModified() const
     return m_isModified;
 }
 
+void EditorService::setIsModified(bool isModified)
+{
+    if (m_isModified != isModified) {
+        m_isModified = isModified;
+        emit isModifiedChanged();
+        emit canBeSavedChanged();
+        if (isModified) {
+            juzzlin::L(TAG).info() << "Project set as modified";
+        }
+    }
+}
+
 Position EditorService::position() const
 {
     return m_position;
@@ -407,17 +419,6 @@ bool EditorService::setVelocityAtCurrentPosition(uint8_t digit)
     }
 
     return false;
-}
-
-void EditorService::setIsModified(bool isModified)
-{   
-    if (m_isModified != isModified) {
-        m_isModified = isModified;
-        emit isModifiedChanged();
-        if (isModified) {
-            juzzlin::L(TAG).info() << "Project set as modified";
-        }
-    }
 }
 
 bool EditorService::requestDigitSetAtCurrentPosition(uint8_t digit)
