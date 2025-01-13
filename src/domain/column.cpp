@@ -65,6 +65,29 @@ void Column::addOrReplaceLine(LineS line)
     m_lines.at(line->index()) = line;
 }
 
+Position Column::nextNoteDataOnSameColumn(const Position & position) const
+{
+    auto nextNoteDataPosition = position;
+    for (uint32_t line = position.line + 1; line < m_lines.size(); line++) {
+        if (const auto noteData = m_lines.at(line)->noteData(); noteData->type() != NoteData::Type::None) {
+            nextNoteDataPosition.line = line;
+            break;
+        }
+    }
+    return nextNoteDataPosition;
+}
+
+Position Column::prevNoteDataOnSameColumn(const Position & position) const
+{
+    auto nextNoteDataPosition = position;
+    for (uint32_t line = 0; line < position.line; line++) {
+        if (const auto noteData = m_lines.at(line)->noteData(); noteData->type() != NoteData::Type::None) {
+            nextNoteDataPosition.line = line;
+        }
+    }
+    return nextNoteDataPosition;
+}
+
 Column::NoteDataS Column::noteDataAtPosition(const Position & position) const
 {
     return m_lines.at(static_cast<size_t>(position.line))->noteData();

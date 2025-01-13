@@ -114,6 +114,8 @@ public:
 
     Q_INVOKABLE bool requestNoteOnAtCurrentPosition(uint8_t note, uint8_t octave, uint8_t velocity);
 
+    Q_INVOKABLE bool requestNoteOffAtCurrentPosition();
+
     Q_INVOKABLE bool requestPosition(uint32_t pattern, uint32_t track, uint32_t column, uint32_t line, uint32_t lineColumn);
 
     Q_INVOKABLE void requestScroll(int steps);
@@ -157,6 +159,8 @@ private:
     using MidiNoteNameAndCodeOpt = std::optional<MidiNoteNameAndCode>;
     MidiNoteNameAndCodeOpt editorNoteToMidiNote(uint32_t note, uint32_t octave) const;
 
+    void deleteNoteDataAtPosition(const Position & position);
+
     SongS deserializeProject(QXmlStreamReader & reader);
 
     void logPosition() const;
@@ -164,6 +168,8 @@ private:
     void notifyPositionChange(const Position & oldPosition);
 
     QString padVelocityToThreeDigits(QString velocity) const;
+
+    void removeDuplicateNoteOffs();
 
     bool setVelocityAtCurrentPosition(uint8_t digit);
 

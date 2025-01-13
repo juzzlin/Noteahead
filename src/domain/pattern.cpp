@@ -85,6 +85,16 @@ Pattern::NoteDataS Pattern::noteDataAtPosition(const Position & position) const
     return m_tracks.at(position.track)->noteDataAtPosition(position);
 }
 
+Position Pattern::nextNoteDataOnSameColumn(const Position & position) const
+{
+    return m_tracks.at(position.track)->nextNoteDataOnSameColumn(position);
+}
+
+Position Pattern::prevNoteDataOnSameColumn(const Position & position) const
+{
+    return m_tracks.at(position.track)->prevNoteDataOnSameColumn(position);
+}
+
 void Pattern::setNoteDataAtPosition(const NoteData & noteData, const Position & position) const
 {
     juzzlin::L(TAG).debug() << "Set note data at position: " << noteData.toString() << " @ " << position.toString();

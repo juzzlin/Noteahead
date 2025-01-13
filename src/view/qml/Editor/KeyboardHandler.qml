@@ -36,6 +36,11 @@ QtObject {
         } else if (event.key === Qt.Key_Space) {
             UiService.togglePlay();
             event.accepted = true;
+        } else if (event.key === Qt.Key_A) {
+            if (editorService.requestNoteOffAtCurrentPosition()) {
+                editorService.requestScroll(UiService.activeStep());
+            }
+            event.accepted = true;
         } else {
             if (UiService.editMode()) {
                 if (editorService.isAtNoteColumn()) {

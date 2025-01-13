@@ -32,6 +32,14 @@ private slots:
 
     void test_hasData_noteOffAdded_shouldHaveData();
 
+    void test_nextNoteDataOnSameColumn_noteOn_shouldFindNoteData();
+
+    void test_nextNoteDataOnSameColumn_noteOff_shouldFindNoteData();
+
+    void test_prevNoteDataOnSameColumn_noteOn_shouldFindNoteData();
+
+    void test_prevNoteDataOnSameColumn_noteOff_shouldFindNoteData();
+
     void test_renderToEvents_noEvents_shouldAddStartAndEndOfSong();
 
     void test_renderToEvents_singleEvent_shouldRenderEvent();

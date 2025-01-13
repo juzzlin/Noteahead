@@ -306,6 +306,43 @@ void EditorServiceTest::test_toXmlFromXml_noteData_noteOn()
     QCOMPARE(editorServiceIn.displayVelocityAtPosition(0, 1, 0, 2), "127");
 }
 
+void EditorServiceTest::test_toXmlFromXml_noteData_noteOff()
+{
+    EditorService editorServiceOut;
+
+    editorServiceOut.requestPosition(0, 0, 0, 0, 0);
+    editorServiceOut.requestNoteOffAtCurrentPosition();
+
+    editorServiceOut.requestPosition(0, 0, 0, 2, 0);
+    editorServiceOut.requestNoteOnAtCurrentPosition(3, 3, 80);
+
+    editorServiceOut.requestPosition(0, 0, 0, 4, 0);
+    editorServiceOut.requestNoteOffAtCurrentPosition();
+
+    const auto xml = editorServiceOut.toXml();
+
+    EditorService editorServiceIn;
+    editorServiceIn.fromXml(xml);
+
+    auto noteData = editorServiceIn.song()->noteDataAtPosition({ 0, 0, 0, 0, 0 });
+    QCOMPARE(noteData->track(), 0);
+    QCOMPARE(noteData->column(), 0);
+    QCOMPARE(editorServiceIn.displayNoteAtPosition(0, 0, 0, 0), "OFF");
+    QCOMPARE(editorServiceIn.displayVelocityAtPosition(0, 0, 0, 0), "---");
+
+    noteData = editorServiceIn.song()->noteDataAtPosition({ 0, 0, 0, 2, 0 });
+    QCOMPARE(noteData->track(), 0);
+    QCOMPARE(noteData->column(), 0);
+    QCOMPARE(editorServiceIn.displayNoteAtPosition(0, 0, 0, 2), "D-3");
+    QCOMPARE(editorServiceIn.displayVelocityAtPosition(0, 0, 0, 2), "080");
+
+    noteData = editorServiceIn.song()->noteDataAtPosition({ 0, 0, 0, 4, 0 });
+    QCOMPARE(noteData->track(), 0);
+    QCOMPARE(noteData->column(), 0);
+    QCOMPARE(editorServiceIn.displayNoteAtPosition(0, 0, 0, 4), "OFF");
+    QCOMPARE(editorServiceIn.displayVelocityAtPosition(0, 0, 0, 4), "---");
+}
+
 } // namespace cacophony
 
 QTEST_GUILESS_MAIN(cacophony::EditorServiceTest)

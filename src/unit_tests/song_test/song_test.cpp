@@ -49,6 +49,74 @@ void SongTest::test_hasData_noteOffAdded_shouldHaveData()
     QVERIFY(song.hasData());
 }
 
+void SongTest::test_nextNoteDataOnSameColumn_noteOn_shouldFindNoteData()
+{
+    Song song;
+    const Position notePosition = { 0, 1, 0, 8, 0 };
+    song.noteDataAtPosition(notePosition)->setAsNoteOn(60, 100);
+
+    const Position testPosition1 = { 0, 0, 0, 0, 0 };
+    auto nextPosition = song.nextNoteDataOnSameColumn(testPosition1);
+
+    QCOMPARE(nextPosition, testPosition1);
+
+    const Position testPosition2 = { 0, 1, 0, 4, 0 };
+    nextPosition = song.nextNoteDataOnSameColumn(testPosition2);
+
+    QCOMPARE(nextPosition, notePosition);
+}
+
+void SongTest::test_nextNoteDataOnSameColumn_noteOff_shouldFindNoteData()
+{
+    Song song;
+    const Position notePosition = { 0, 1, 0, 8, 0 };
+    song.noteDataAtPosition(notePosition)->setAsNoteOff();
+
+    const Position testPosition1 = { 0, 0, 0, 0, 0 };
+    auto nextPosition = song.nextNoteDataOnSameColumn(testPosition1);
+
+    QCOMPARE(nextPosition, testPosition1);
+
+    const Position testPosition2 = { 0, 1, 0, 4, 0 };
+    nextPosition = song.nextNoteDataOnSameColumn(testPosition2);
+
+    QCOMPARE(nextPosition, notePosition);
+}
+
+void SongTest::test_prevNoteDataOnSameColumn_noteOn_shouldFindNoteData()
+{
+    Song song;
+    const Position notePosition = { 0, 1, 0, 8, 0 };
+    song.noteDataAtPosition(notePosition)->setAsNoteOn(60, 100);
+
+    const Position testPosition1 = { 0, 0, 0, 0, 0 };
+    auto prevPosition = song.prevNoteDataOnSameColumn(testPosition1);
+
+    QCOMPARE(prevPosition, testPosition1);
+
+    const Position testPosition2 = { 0, 1, 0, 12, 0 };
+    prevPosition = song.prevNoteDataOnSameColumn(testPosition2);
+
+    QCOMPARE(prevPosition, notePosition);
+}
+
+void SongTest::test_prevNoteDataOnSameColumn_noteOff_shouldFindNoteData()
+{
+    Song song;
+    const Position notePosition = { 0, 1, 0, 8, 0 };
+    song.noteDataAtPosition(notePosition)->setAsNoteOff();
+
+    const Position testPosition1 = { 0, 0, 0, 0, 0 };
+    auto prevPosition = song.prevNoteDataOnSameColumn(testPosition1);
+
+    QCOMPARE(prevPosition, testPosition1);
+
+    const Position testPosition2 = { 0, 1, 0, 12, 0 };
+    prevPosition = song.prevNoteDataOnSameColumn(testPosition2);
+
+    QCOMPARE(prevPosition, notePosition);
+}
+
 void SongTest::test_renderToEvents_noEvents_shouldAddStartAndEndOfSong()
 {
     Song song;

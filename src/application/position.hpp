@@ -52,6 +52,16 @@ public:
     //! 3: Velocity digit 0, e.g. 12[7]
     uint32_t lineColumn = 0;
 
+    bool operator==(const Position & other) const
+    {
+        return pattern == other.pattern && track == other.track && column == other.column && line == other.line && lineColumn == other.lineColumn;
+    }
+
+    bool operator!=(const Position & other) const
+    {
+        return !(*this == other);
+    }
+
     std::string toString() const
     {
         std::stringstream ss;

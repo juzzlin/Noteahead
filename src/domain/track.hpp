@@ -52,6 +52,10 @@ public:
 
     using NoteDataS = std::shared_ptr<NoteData>;
 
+    Position nextNoteDataOnSameColumn(const Position & position) const;
+
+    Position prevNoteDataOnSameColumn(const Position & position) const;
+
     NoteDataS noteDataAtPosition(const Position & position) const;
 
     void setNoteDataAtPosition(const NoteData & noteData, const Position & position);

@@ -42,12 +42,18 @@ void NoteData::setAsNoteOff(uint8_t note)
     m_note = note;
 }
 
+void NoteData::setAsNoteOff()
+{
+    m_type = Type::NoteOff;
+    m_note = {};
+}
+
 NoteData::Type NoteData::type() const
 {
     return m_type;
 }
 
-uint8_t NoteData::note() const
+std::optional<uint8_t> NoteData::note() const
 {
     return m_note;
 }
@@ -68,7 +74,7 @@ std::string NoteData::toString() const
     ss << "[ "
        << "Type: " << static_cast<int>(m_type)
        << " Track: " << static_cast<int>(m_track) << " Column: " << static_cast<int>(m_column)
-       << " Note: " << static_cast<int>(m_note) << " Velocity: " << static_cast<int>(m_velocity) << " ]";
+       << " Note: " << (m_note.has_value() ? std::to_string(static_cast<int>(*m_note)) : "N/A") << " Velocity: " << static_cast<int>(m_velocity) << " ]";
     return ss.str();
 }
 
@@ -88,11 +94,10 @@ void NoteData::serializeToXml(QXmlStreamWriter & writer) const
 
     if (m_type == Type::NoteOn) {
         writer.writeAttribute(Constants::xmlKeyType(), Constants::xmlKeyNoteOn());
-        writer.writeAttribute(Constants::xmlKeyNote(), QString::number(m_note));
+        writer.writeAttribute(Constants::xmlKeyNote(), QString::number(*m_note));
         writer.writeAttribute(Constants::xmlKeyVelocity(), QString::number(m_velocity));
     } else {
         writer.writeAttribute(Constants::xmlKeyType(), Constants::xmlKeyNoteOff());
-        writer.writeAttribute(Constants::xmlKeyNote(), QString::number(m_note));
     }
 
     writer.writeEndElement(); // NoteData

@@ -80,6 +80,16 @@ bool Track::hasData() const
       != m_columns.end();
 }
 
+Position Track::nextNoteDataOnSameColumn(const Position & position) const
+{
+    return m_columns.at(position.column)->nextNoteDataOnSameColumn(position);
+}
+
+Position Track::prevNoteDataOnSameColumn(const Position & position) const
+{
+    return m_columns.at(position.column)->prevNoteDataOnSameColumn(position);
+}
+
 Track::NoteDataS Track::noteDataAtPosition(const Position & position) const
 {
     return m_columns.at(position.column)->noteDataAtPosition(position);

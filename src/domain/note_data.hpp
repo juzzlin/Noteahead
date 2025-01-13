@@ -17,6 +17,7 @@
 #define NOTE_DATA_HPP
 
 #include <cstdint>
+#include <optional>
 #include <string>
 
 class QXmlStreamWriter;
@@ -41,9 +42,11 @@ public:
 
     void setAsNoteOff(uint8_t note);
 
+    void setAsNoteOff();
+
     NoteData::Type type() const;
 
-    uint8_t note() const;
+    std::optional<uint8_t> note() const;
 
     uint8_t velocity() const;
 
@@ -60,7 +63,7 @@ public:
 private:
     Type m_type = Type::None;
 
-    uint8_t m_note = 0;
+    std::optional<uint8_t> m_note;
 
     uint8_t m_velocity = 0;
 

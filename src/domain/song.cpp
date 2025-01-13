@@ -96,6 +96,16 @@ void Song::setNoteDataAtPosition(const NoteData & noteData, const Position & pos
     m_patterns.at(position.pattern)->setNoteDataAtPosition(noteData, position);
 }
 
+Position Song::nextNoteDataOnSameColumn(const Position & position) const
+{
+    return m_patterns.at(position.pattern)->nextNoteDataOnSameColumn(position);
+}
+
+Position Song::prevNoteDataOnSameColumn(const Position & position) const
+{
+    return m_patterns.at(position.pattern)->prevNoteDataOnSameColumn(position);
+}
+
 void Song::initialize()
 {
     m_patterns.clear();
@@ -151,7 +161,7 @@ Song::EventList Song::introduceNoteOffs(const EventList & events) const
                     noteData->setAsNoteOff(static_cast<uint8_t>(activeNote));
                     processedEvents.push_back(std::make_shared<Event>(event->tick() - 1, noteData));
                 }
-                activeNotes[trackColumn] = noteData->note();
+                activeNotes[trackColumn] = *noteData->note();
             } else if (noteData->type() == NoteData::Type::NoteOff) {
                 activeNotes.erase(trackColumn);
             }
@@ -396,8 +406,7 @@ Song::NoteDataS Song::deserializeNoteData(QXmlStreamReader & reader, uint32_t tr
         const auto velocity = readUIntAttribute(reader, Constants::xmlKeyVelocity());
         noteData->setAsNoteOn(static_cast<uint8_t>(note), static_cast<uint8_t>(velocity));
     } else {
-        const auto note = readUIntAttribute(reader, Constants::xmlKeyNote());
-        noteData->setAsNoteOff(static_cast<uint8_t>(note));
+        noteData->setAsNoteOff();
     }
     return noteData;
 }

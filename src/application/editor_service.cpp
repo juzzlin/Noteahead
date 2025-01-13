@@ -208,7 +208,7 @@ int EditorService::lineNumberAtViewLine(uint32_t line) const
 QString EditorService::displayNoteAtPosition(uint32_t patternId, uint32_t trackId, uint32_t columnId, uint32_t line) const
 {
     if (const auto noteData = m_song->noteDataAtPosition({ patternId, trackId, columnId, line }); noteData->type() != NoteData::Type::None) {
-        return noteData->type() == NoteData::Type::NoteOff ? "OFF" : QString::fromStdString(NoteConverter::midiToString(noteData->note()));
+        return noteData->type() == NoteData::Type::NoteOff ? "OFF" : QString::fromStdString(NoteConverter::midiToString(*noteData->note()));
     } else {
         return noDataString();
     }
@@ -438,10 +438,15 @@ bool EditorService::requestDigitSetAtCurrentPosition(uint8_t digit)
 
 void EditorService::requestNoteDeletionAtCurrentPosition()
 {
-    juzzlin::L(TAG).debug() << "Note deletion requested at position " << m_position.toString();
+    deleteNoteDataAtPosition(m_position);
+}
+
+void EditorService::deleteNoteDataAtPosition(const Position & position)
+{
+    juzzlin::L(TAG).debug() << "Note deletion requested at position " << position.toString();
     const NoteData noteData {};
-    m_song->setNoteDataAtPosition(noteData, m_position);
-    emit noteDataAtPositionChanged(m_position);
+    m_song->setNoteDataAtPosition(noteData, position);
+    emit noteDataAtPositionChanged(position);
     setIsModified(true);
 }
 
@@ -470,6 +475,39 @@ bool EditorService::requestNoteOnAtCurrentPosition(uint8_t note, uint8_t octave,
     }
 
     return false;
+}
+
+void EditorService::removeDuplicateNoteOffs()
+{
+    juzzlin::L(TAG).debug() << "Removing duplicate note offs";
+    if (const auto prevNoteDataPosition = m_song->prevNoteDataOnSameColumn(m_position); prevNoteDataPosition != m_position) {
+        if (const auto previousNoteData = m_song->noteDataAtPosition(prevNoteDataPosition); previousNoteData->type() == NoteData::Type::NoteOff) {
+            deleteNoteDataAtPosition(prevNoteDataPosition);
+        }
+    }
+    if (const auto nextNoteDataPosition = m_song->nextNoteDataOnSameColumn(m_position); nextNoteDataPosition != m_position) {
+        if (const auto nextNoteData = m_song->noteDataAtPosition(nextNoteDataPosition); nextNoteData->type() == NoteData::Type::NoteOff) {
+            deleteNoteDataAtPosition(nextNoteDataPosition);
+        }
+    }
+}
+
+bool EditorService::requestNoteOffAtCurrentPosition()
+{
+    if (m_position.lineColumn) {
+        juzzlin::L(TAG).debug() << "Not on note column";
+        return false;
+    }
+
+    NoteData noteData { m_position.track, m_position.column };
+    noteData.setAsNoteOff();
+    m_song->setNoteDataAtPosition(noteData, m_position);
+    emit noteDataAtPositionChanged(m_position);
+    setIsModified(true);
+
+    removeDuplicateNoteOffs();
+
+    return true;
 }
 
 void EditorService::logPosition() const

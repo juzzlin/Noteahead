@@ -66,6 +66,10 @@ public:
 
     void setNoteDataAtPosition(const NoteData & noteData, const Position & position);
 
+    Position nextNoteDataOnSameColumn(const Position & position) const;
+
+    Position prevNoteDataOnSameColumn(const Position & position) const;
+
     using EventS = std::shared_ptr<Event>;
     using EventList = std::vector<EventS>;
     EventList renderToEvents();

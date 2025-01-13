@@ -80,9 +80,9 @@ void PlayerWorker::processEvents()
             for (auto && event : m_eventMap[tick]) {
                 if (const auto noteData = event->noteData(); noteData) {
                     if (noteData->type() == NoteData::Type::NoteOn) {
-                        juzzlin::L(TAG).debug() << "Note " << static_cast<int>(noteData->note()) << " ON at tick " << tick;
+                        juzzlin::L(TAG).debug() << "Note " << static_cast<int>(*noteData->note()) << " ON at tick " << tick;
                     } else if (noteData->type() == NoteData::Type::NoteOff) {
-                        juzzlin::L(TAG).debug() << "Note " << static_cast<int>(noteData->note()) << " OFF at tick " << tick;
+                        juzzlin::L(TAG).debug() << "Note " << static_cast<int>(*noteData->note()) << " OFF at tick " << tick;
                     }
                 }
             }

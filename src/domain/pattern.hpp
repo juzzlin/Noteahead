@@ -55,6 +55,10 @@ public:
 
     NoteDataS noteDataAtPosition(const Position & position) const;
 
+    Position nextNoteDataOnSameColumn(const Position & position) const;
+
+    Position prevNoteDataOnSameColumn(const Position & position) const;
+
     void setNoteDataAtPosition(const NoteData & noteData, const Position & position) const;
 
     using EventS = std::shared_ptr<Event>;
