@@ -85,6 +85,23 @@ ApplicationWindow {
             applicationService.cancelSaveProjectAs();
         }
     }
+    UnsavedChangesDialog {
+        id: unsavedChangesDialog
+        anchors.centerIn: parent
+        onAccepted: {
+            uiLogger.info(_tag, "Unsaved changes accepted");
+            applicationService.acceptUnsavedChangesDialog();
+        }
+        onDiscarded: {
+            uiLogger.info(_tag, "Unsaved changes discarded");
+            applicationService.discardUnsavedChangesDialog();
+            close();
+        }
+        onRejected: {
+            uiLogger.info(_tag, "Unsaved changes rejected");
+            applicationService.rejectUnsavedChangesDialog();
+        }
+    }
     function _getWindowTitle() {
         const nameAndVersion = `${applicationService.applicationName()} MIDI tracker v${applicationService.applicationVersion()}`;
         const currentFileName = (editorService.currentFileName ? " - " + editorService.currentFileName : "");
@@ -103,6 +120,7 @@ ApplicationWindow {
         applicationService.openDialogRequested.connect(openDialog.open);
         applicationService.saveAsDialogRequested.connect(saveAsDialog.open);
         applicationService.statusTextRequested.connect(bottomBar.setStatusText);
+        applicationService.unsavedChangesDialogRequested.connect(unsavedChangesDialog.open);
     }
     function _connectEditorService() {
         editorService.statusTextRequested.connect(bottomBar.setStatusText);

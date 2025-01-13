@@ -35,7 +35,7 @@ void StateMachine::calculateState(StateMachine::Action action)
     case Action::NewProjectRequested:
         m_quitType = QuitType::New;
         if (m_editorService->isModified()) {
-            m_state = State::ShowNotSavedDialog;
+            m_state = State::ShowUnsavedChangesDialog;
         } else {
             m_state = State::InitializeNewProject;
         }
@@ -45,7 +45,7 @@ void StateMachine::calculateState(StateMachine::Action action)
         m_state = State::InitializeNewProject;
         break;
 
-    case Action::NotSavedDialogDiscarded:
+    case Action::UnsavedChangesDialogDiscarded:
     case Action::ProjectSaved:
     case Action::ProjectSavedAs:
         switch (m_quitType) {
@@ -67,14 +67,14 @@ void StateMachine::calculateState(StateMachine::Action action)
         }
         break;
 
+    case Action::NewProjectInitialized:
+    case Action::OpeningProjectCanceled:
+    case Action::OpeningProjectFailed:
     case Action::ProjectOpened:
     case Action::ProjectSaveFailed:
     case Action::SavingProjectAsCanceled:
     case Action::SavingProjectAsFailed:
-    case Action::NewProjectInitialized:
-    case Action::NotSavedDialogCanceled:
-    case Action::OpeningProjectCanceled:
-    case Action::OpeningProjectFailed:
+    case Action::UnsavedChangesDialogCanceled:
         m_quitType = QuitType::None;
         m_state = State::Edit;
         break;
@@ -82,7 +82,7 @@ void StateMachine::calculateState(StateMachine::Action action)
     case Action::OpenProjectRequested:
         m_quitType = QuitType::Open;
         if (m_editorService->isModified()) {
-            m_state = State::ShowNotSavedDialog;
+            m_state = State::ShowUnsavedChangesDialog;
         } else {
             m_state = State::ShowOpenDialog;
         }
@@ -91,13 +91,13 @@ void StateMachine::calculateState(StateMachine::Action action)
     case Action::QuitSelected:
         m_quitType = QuitType::Close;
         if (m_editorService->isModified()) {
-            m_state = State::ShowNotSavedDialog;
+            m_state = State::ShowUnsavedChangesDialog;
         } else {
             m_state = State::Exit;
         }
         break;
 
-    case Action::NotSavedDialogAccepted:
+    case Action::UnsavedChangesDialogAccepted:
     case Action::SaveProjectRequested:
         if (m_editorService->canBeSaved()) {
             m_state = State::Save;
@@ -113,7 +113,7 @@ void StateMachine::calculateState(StateMachine::Action action)
     case Action::RecentFileSelected:
         m_quitType = QuitType::OpenRecent;
         if (m_editorService->isModified()) {
-            m_state = State::ShowNotSavedDialog;
+            m_state = State::ShowUnsavedChangesDialog;
         } else {
             m_state = State::OpenRecent;
         }

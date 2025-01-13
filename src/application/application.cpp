@@ -183,11 +183,14 @@ void Application::applyState(StateMachine::State state)
     juzzlin::L(TAG).info() << "Applying state: " << static_cast<int>(state);
 
     switch (state) {
+    case StateMachine::State::InitializeNewProject:
+        m_editorService->initialize();
+        break;
     case StateMachine::State::Save:
         m_editorService->save();
         break;
-    case StateMachine::State::ShowNotSavedDialog:
-        m_applicationService->requestNotSavedDialog();
+    case StateMachine::State::ShowUnsavedChangesDialog:
+        m_applicationService->requestUnsavedChangesDialog();
         break;
     case StateMachine::State::ShowOpenDialog:
         m_applicationService->requestOpenDialog();

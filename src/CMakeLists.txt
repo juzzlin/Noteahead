@@ -90,6 +90,7 @@ set(QML_SOURCE_FILES
     ${QML_BASE_DIR}/ToolBar/StopButton.qml
     ${QML_BASE_DIR}/ToolBar/ToolBarButtonBase.qml
     ${QML_BASE_DIR}/UiService.qml
+    ${QML_BASE_DIR}/UnsavedChangesDialog.qml
 )
 set(SVG_SOURCE_FILES
     ${QML_BASE_DIR}/Graphics/play.svg

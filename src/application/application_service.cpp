@@ -36,6 +36,25 @@ QString ApplicationService::applicationVersion() const
     return Constants::applicationVersion();
 }
 
+
+void ApplicationService::acceptUnsavedChangesDialog()
+{
+    juzzlin::L(TAG).info() << "Unsaved changes accepted";
+    m_stateMachine->calculateState(StateMachine::Action::UnsavedChangesDialogAccepted);
+}
+
+void ApplicationService::discardUnsavedChangesDialog()
+{
+    juzzlin::L(TAG).info() << "Unsaved changes discarded";
+    m_stateMachine->calculateState(StateMachine::Action::UnsavedChangesDialogDiscarded);
+}
+
+void ApplicationService::rejectUnsavedChangesDialog()
+{
+    juzzlin::L(TAG).info() << "Unsaved changes rejected";
+    m_stateMachine->calculateState(StateMachine::Action::UnsavedChangesDialogCanceled);
+}
+
 void ApplicationService::requestNewProject()
 {
     juzzlin::L(TAG).info() << "'New file' requested";
@@ -98,10 +117,10 @@ void ApplicationService::saveProjectAs(QUrl url)
     }
 }
 
-void ApplicationService::requestNotSavedDialog()
+void ApplicationService::requestUnsavedChangesDialog()
 {
     juzzlin::L(TAG).info() << "Not saved dialog requested";
-    emit notSavedDialogRequested();
+    emit unsavedChangesDialogRequested();
 }
 
 void ApplicationService::requestOpenDialog()

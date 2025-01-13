@@ -37,7 +37,11 @@ EditorService::EditorService()
 
 void EditorService::initialize()
 {
+    juzzlin::L(TAG).info() << "Initializing a new song";
+
     setSong(std::make_unique<Song>());
+
+    emit statusTextRequested("A new project initialized");
 }
 
 EditorService::SongS EditorService::song() const

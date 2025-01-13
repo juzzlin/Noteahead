@@ -35,6 +35,12 @@ public:
 
     Q_INVOKABLE QString applicationVersion() const;
 
+    Q_INVOKABLE void acceptUnsavedChangesDialog();
+
+    Q_INVOKABLE void discardUnsavedChangesDialog();
+
+    Q_INVOKABLE void rejectUnsavedChangesDialog();
+
     Q_INVOKABLE void requestNewProject();
 
     Q_INVOKABLE void requestOpenProject();
@@ -51,7 +57,7 @@ public:
 
     Q_INVOKABLE void saveProjectAs(QUrl url);
 
-    void requestNotSavedDialog();
+    void requestUnsavedChangesDialog();
 
     void requestOpenDialog();
 
@@ -64,7 +70,7 @@ public:
     void setEditorService(EditorServiceS editorService);
 
 signals:
-    void notSavedDialogRequested();
+    void unsavedChangesDialogRequested();
 
     void openDialogRequested();
 
