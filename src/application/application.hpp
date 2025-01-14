@@ -51,7 +51,7 @@ private:
 
     void connectServices();
 
-    void handleCommandLineArguments();
+    void handleCommandLineArguments(int & argc, char ** argv);
 
     void initialize();
 

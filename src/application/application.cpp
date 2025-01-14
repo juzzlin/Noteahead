@@ -15,6 +15,7 @@
 
 #include "application.hpp"
 
+#include "../contrib/Argengine/src/argengine.hpp"
 #include "../contrib/SimpleLogger/src/simple_logger.hpp"
 #include "../infra/midi_service_rt_midi.hpp" // Include the MidiService header
 #include "application_service.hpp"
@@ -54,36 +55,37 @@ Application::Application(int & argc, char ** argv)
     qmlRegisterSingletonType(QUrl(QML_ROOT_DIR + QString { "/Constants.qml" }), "Cacophony", 1, 0, "Constants");
     qmlRegisterSingletonType(QUrl(QML_ROOT_DIR + QString { "/UiService.qml" }), "Cacophony", 1, 0, "UiService");
 
-    handleCommandLineArguments(); // Handle command-line arguments at initialization
+    handleCommandLineArguments(argc, argv); // Handle command-line arguments at initialization
 
     m_applicationService->setStateMachine(m_stateMachine);
     m_applicationService->setEditorService(m_editorService);
 }
 
-void Application::handleCommandLineArguments()
+void Application::handleCommandLineArguments(int & argc, char ** argv)
 {
-    // Parse command-line arguments for --list-devices and --test-device
-    QStringList arguments = m_application->arguments();
-    for (int i = 1; i < arguments.size(); ++i) {
-        if (arguments.at(i) == "--debug") {
-            juzzlin::SimpleLogger::setLoggingLevel(juzzlin::SimpleLogger::Level::Debug);
-        } else if (arguments.at(i) == "--trace") {
-            juzzlin::SimpleLogger::setLoggingLevel(juzzlin::SimpleLogger::Level::Trace);
-        } else if (arguments.at(i) == "--list-devices") {
-            m_listDevices = true;
-        } else if (arguments.at(i) == "--test-device" && i + 1 < arguments.size()) {
-            m_testDeviceIndex = arguments.at(i + 1).toInt();
-            ++i; // Skip the index argument
-        } else if (arguments.at(i) == "--test-channel" && i + 1 < arguments.size()) {
-            m_testDeviceChannel = arguments.at(i + 1).toInt();
-            ++i; // Skip the index argument
-        }
-    }
+    juzzlin::Argengine ae { argc, argv };
 
-    // Handle --list-devices option
-    if (m_listDevices) {
+    ae.addOption({ "--debug" }, [] {
+        juzzlin::SimpleLogger::setLoggingLevel(juzzlin::SimpleLogger::Level::Debug);
+    });
+
+    ae.addOption({ "--trace" }, [] {
+        juzzlin::SimpleLogger::setLoggingLevel(juzzlin::SimpleLogger::Level::Trace);
+    });
+
+    ae.addOption({ "--list-devices" }, [this] {
         listDevices();
-    }
+    });
+
+    ae.addOption({ "--test-device" }, [this](std::string argument) {
+        m_testDeviceIndex = std::stoi(argument);
+    });
+
+    ae.addOption({ "--test-channel" }, [this](std::string argument) {
+        m_testDeviceChannel = std::stoi(argument);
+    });
+
+    ae.parse();
 
     // Handle --test-device option
     if (m_testDeviceIndex.has_value() && m_testDeviceChannel.has_value()) {
