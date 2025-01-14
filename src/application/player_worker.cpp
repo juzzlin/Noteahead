@@ -28,7 +28,7 @@ static const auto TAG = "PlayerWorker";
 
 void PlayerWorker::initialize(const EventList & events, const Timing & timing)
 {
-    if (m_isStopped) {
+    if (!m_isPlaying) {
         m_events = events;
         m_timing = timing;
         for (auto && event : m_events) {
@@ -43,7 +43,7 @@ void PlayerWorker::play()
 {
     juzzlin::L(TAG).info() << "Starting playback, event count: " << m_events.size();
 
-    m_isStopped = false;
+    setIsPlaying(true);
 
     processEvents();
 }
@@ -52,7 +52,7 @@ void PlayerWorker::stop()
 {
     juzzlin::L(TAG).info() << "Stopping playback";
 
-    m_isStopped = true;
+    setIsPlaying(false);
 }
 
 void PlayerWorker::processEvents()
@@ -74,7 +74,7 @@ void PlayerWorker::processEvents()
     const auto tickDuration = std::chrono::duration<double> { tickDurationMs };
     auto startTime = std::chrono::steady_clock::now();
 
-    for (auto tick = minTick; tick <= maxTick && !m_isStopped; tick++) {
+    for (auto tick = minTick; tick <= maxTick && m_isPlaying; tick++) {
         emit tickUpdated(static_cast<uint32_t>(tick));
         if (m_eventMap.count(tick)) {
             for (auto && event : m_eventMap[tick]) {
@@ -94,12 +94,21 @@ void PlayerWorker::processEvents()
 
     juzzlin::L(TAG).debug() << "All events processed";
 
+    setIsPlaying(false);
+
     emit songEnded();
 }
 
-bool PlayerWorker::isStopped() const
+void PlayerWorker::setIsPlaying(bool isPlaying)
 {
-    return m_isStopped;
+    m_isPlaying = isPlaying;
+
+    emit isPlayingChanged();
+}
+
+bool PlayerWorker::isPlaying() const
+{
+    return m_isPlaying;
 }
 
 PlayerWorker::~PlayerWorker()

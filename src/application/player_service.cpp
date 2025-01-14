@@ -44,6 +44,7 @@ void PlayerService::initializeWorker()
         stop();
     });
     connect(m_playerWorker.get(), &PlayerWorker::tickUpdated, this, &PlayerService::tickUpdated, Qt::QueuedConnection);
+    connect(m_playerWorker.get(), &PlayerWorker::isPlayingChanged, this, &PlayerService::isPlayingChanged, Qt::QueuedConnection);
     m_playerWorker->moveToThread(&m_playerWorkerThread);
     m_playerWorkerThread.start(QThread::HighPriority);
 }
@@ -58,7 +59,6 @@ void PlayerService::startPlayback()
 {
     juzzlin::L(TAG).debug() << "Starting playback";
     QMetaObject::invokeMethod(m_playerWorker.get(), "play", Qt::QueuedConnection);
-    emit isPlayingChanged();
 }
 
 bool PlayerService::requestPlay()
@@ -78,7 +78,7 @@ bool PlayerService::requestPlay()
 
 bool PlayerService::isPlaying() const
 {
-    return !m_playerWorker->isStopped();
+    return m_playerWorker->isPlaying();
 }
 
 void PlayerService::stop()
@@ -86,15 +86,12 @@ void PlayerService::stop()
     if (m_playerWorker) {
         m_playerWorker->stop();
     }
-
-    emit isPlayingChanged();
 }
 
 void PlayerService::requestStop()
 {
     juzzlin::L(TAG).debug() << "Stop requested";
     stop();
-    emit isPlayingChanged();
     m_song.reset();
 }
 

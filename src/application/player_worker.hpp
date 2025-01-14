@@ -53,15 +53,19 @@ public:
 
     Q_INVOKABLE void stop();
 
-    bool isStopped() const;
+    bool isPlaying() const;
 
 signals:
+    void isPlayingChanged();
+
     void songEnded();
 
     void tickUpdated(uint32_t tick);
 
 private:
     void processEvents();
+
+    void setIsPlaying(bool isPlaying);
 
     EventList m_events;
 
@@ -70,7 +74,7 @@ private:
     using EventMap = std::unordered_map<size_t, EventList>;
     EventMap m_eventMap;
 
-    std::atomic_bool m_isStopped = true;
+    std::atomic_bool m_isPlaying = false;
 };
 
 } // namespace cacophony
