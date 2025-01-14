@@ -49,7 +49,7 @@ public:
 
     enum class Action
     {
-        MainWindowInitialized,
+        ApplicationInitialized,
         NewProjectInitialized,
         NewProjectRequested,
         UnsavedChangesDialogAccepted,
@@ -80,6 +80,8 @@ public:
     };
 
     void calculateState(StateMachine::Action action);
+
+    static QString stateToString(StateMachine::State state);
 
 signals:
 

@@ -142,11 +142,11 @@ void Application::connectServices()
 
 void Application::initialize()
 {
-    initializeEditorService();
-
     initializeApplicationEngine();
 
     connectServices();
+
+    m_stateMachine->calculateState(StateMachine::Action::ApplicationInitialized);
 }
 
 void Application::initializeApplicationEngine()
@@ -159,11 +159,6 @@ void Application::initializeApplicationEngine()
     if (m_engine->rootObjects().isEmpty()) {
         throw std::runtime_error("Failed to initialize QML application engine!");
     }
-}
-
-void Application::initializeEditorService()
-{
-    m_editorService->initialize();
 }
 
 int Application::run()
@@ -180,7 +175,7 @@ int Application::run()
 
 void Application::applyState(StateMachine::State state)
 {
-    juzzlin::L(TAG).info() << "Applying state: " << static_cast<int>(state);
+    juzzlin::L(TAG).info() << "Applying state: " << StateMachine::stateToString(state).toStdString();
 
     switch (state) {
     case StateMachine::State::Exit:

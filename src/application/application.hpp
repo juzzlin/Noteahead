@@ -42,7 +42,7 @@ class Application : public QObject
 public:
     Application(int & argc, char ** argv);
 
-    ~Application();
+    ~Application() override;
 
     int run();
 
@@ -56,8 +56,6 @@ private:
     void initialize();
 
     void initializeApplicationEngine();
-
-    void initializeEditorService();
 
     void listDevices();
 

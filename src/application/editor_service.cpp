@@ -31,17 +31,17 @@ namespace cacophony {
 static const auto TAG = "EditorService";
 
 EditorService::EditorService()
+  : m_song { std::make_unique<Song>() } // Initial dummy song to guarantee valid requests
 {
-    initialize();
 }
 
 void EditorService::initialize()
 {
-    juzzlin::L(TAG).info() << "Initializing a new song";
+    juzzlin::L(TAG).info() << "Initializing an empty song";
 
     setSong(std::make_unique<Song>());
 
-    emit statusTextRequested("A new project initialized");
+    emit statusTextRequested("An empty song initialized");
 }
 
 EditorService::SongS EditorService::song() const

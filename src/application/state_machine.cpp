@@ -41,7 +41,7 @@ void StateMachine::calculateState(StateMachine::Action action)
         }
         break;
 
-    case Action::MainWindowInitialized:
+    case Action::ApplicationInitialized:
         m_state = State::InitializeNewProject;
         break;
 
@@ -124,6 +124,27 @@ void StateMachine::calculateState(StateMachine::Action action)
     }
 
     emit stateChanged(m_state);
+}
+
+QString StateMachine::stateToString(State state)
+{
+    static const std::map<State, QString> stateMap = {
+        { State::Edit, "Edit" },
+        { State::Exit, "Exit" },
+        { State::Init, "Init" },
+        { State::InitializeNewProject, "InitializeNewProject" },
+        { State::OpenRecent, "OpenRecent" },
+        { State::Save, "Save" },
+        { State::ShowUnsavedChangesDialog, "ShowUnsavedChangesDialog" },
+        { State::ShowOpenDialog, "ShowOpenDialog" },
+        { State::ShowSaveAsDialog, "ShowSaveAsDialog" },
+        { State::TryCloseWindow, "TryCloseWindow" }
+    };
+    if (const auto it = stateMap.find(state); it != stateMap.end()) {
+        return it->second;
+    } else {
+        return QString::number(static_cast<int>(state));
+    }
 }
 
 } // namespace cacophony
