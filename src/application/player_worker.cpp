@@ -72,7 +72,7 @@ void PlayerWorker::processEvents()
 
     const double tickDurationMs = 60.0 / (m_timing.beatsPerMinute * m_timing.linesPerBeat * m_timing.ticksPerLine);
     const auto tickDuration = std::chrono::duration<double> { tickDurationMs };
-    auto startTime = std::chrono::steady_clock::now();
+    const auto startTime = std::chrono::steady_clock::now();
 
     for (auto tick = minTick; tick <= maxTick && m_isPlaying; tick++) {
         emit tickUpdated(static_cast<uint32_t>(tick));
@@ -88,7 +88,7 @@ void PlayerWorker::processEvents()
             }
         }
         // Calculate next tick's start time
-        auto nextTickTime = startTime + std::chrono::duration_cast<std::chrono::steady_clock::duration>(tick * tickDuration);
+        const auto nextTickTime = startTime + std::chrono::duration_cast<std::chrono::steady_clock::duration>(tick * tickDuration);
         std::this_thread::sleep_until(nextTickTime);
     }
 
