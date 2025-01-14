@@ -85,6 +85,7 @@ set(QML_SOURCE_FILES
     ${QML_BASE_DIR}/Editor/VelocityCell.qml
     ${QML_BASE_DIR}/Editor/VolumeMeter.qml
     ${QML_BASE_DIR}/MainMenu.qml
+    ${QML_BASE_DIR}/MainMenuItemDelegate.qml
     ${QML_BASE_DIR}/ToolBar/MainToolBar.qml
     ${QML_BASE_DIR}/ToolBar/PlayButton.qml
     ${QML_BASE_DIR}/ToolBar/PrevButton.qml

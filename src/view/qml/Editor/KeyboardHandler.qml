@@ -31,7 +31,7 @@ QtObject {
             }
             event.accepted = true;
         } else if (event.key === Qt.Key_Escape) {
-            UiService.setEditMode(!UiService.editMode());
+            UiService.toggleEditMode();
             event.accepted = true;
         } else if (event.key === Qt.Key_Space) {
             UiService.togglePlay();
