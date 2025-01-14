@@ -68,7 +68,7 @@ std::string Pattern::trackName(uint32_t trackIndex) const
 
 void Pattern::addOrReplaceTrack(TrackS track)
 {
-    juzzlin::L(TAG).info() << "Settings track " << track->name() << " as track " << track->index();
+    juzzlin::L(TAG).debug() << "Setting track " << track->name() << " as track " << track->index();
 
     m_tracks.at(track->index()) = track;
 }
