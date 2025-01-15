@@ -321,12 +321,18 @@ void EditorService::requestCursorLeft()
 {
     juzzlin::L(TAG).debug() << "Cursor left requested";
     const auto oldPosition = m_cursorPosition;
+    // Switch line column => switch column => switch track
     if (m_cursorPosition.lineColumn) {
         m_cursorPosition.lineColumn--;
     } else {
         m_cursorPosition.lineColumn = 3;
-        m_cursorPosition.track--;
-        m_cursorPosition.track %= trackCount();
+        if (m_cursorPosition.column) {
+            m_cursorPosition.column--;
+        } else {
+            m_cursorPosition.track--;
+            m_cursorPosition.track %= trackCount();
+            m_cursorPosition.column = m_song->columnCount(m_cursorPosition.track) - 1;
+        }
     }
 
     notifyPositionChange(oldPosition);
@@ -336,12 +342,18 @@ void EditorService::requestCursorRight()
 {
     juzzlin::L(TAG).debug() << "Cursor right requested";
     const auto oldPosition = m_cursorPosition;
+    // Switch line column => switch column => switch track
     if (m_cursorPosition.lineColumn < 3) {
         m_cursorPosition.lineColumn++;
     } else {
         m_cursorPosition.lineColumn = 0;
-        m_cursorPosition.track++;
-        m_cursorPosition.track %= trackCount();
+        if (m_cursorPosition.column + 1 < m_song->columnCount(m_cursorPosition.track)) {
+            m_cursorPosition.column++;
+        } else {
+            m_cursorPosition.column = 0;
+            m_cursorPosition.track++;
+            m_cursorPosition.track %= trackCount();
+        }
     }
 
     notifyPositionChange(oldPosition);
