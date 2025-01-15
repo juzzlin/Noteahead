@@ -57,7 +57,13 @@ void Track::setName(const std::string & name)
     m_name = name;
 }
 
-void Track::addOrReplaceColumn(ColumnS column)
+void Track::addColumn()
+{
+    const auto length = m_columns.back()->lineCount();
+    m_columns.push_back(std::make_shared<Column>(m_columns.size(), length));
+}
+
+void Track::setColumn(ColumnS column)
 {
     m_columns.at(column->index()) = column;
 }

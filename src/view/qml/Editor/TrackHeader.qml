@@ -11,21 +11,37 @@ Rectangle {
     border.color: Constants.trackHeaderBorderColor
     border.width: 1
     signal nameChanged(string name)
-    TextField {
-        text: _name
-        placeholderText: qsTr("Track name")
-        color: Constants.trackHeaderTextColor
-        background: Rectangle {
-            color: "transparent"
-        }
-        font.bold: true
-        font.pixelSize: Constants.trackHeaderFontSize
-        font.family: "monospace"
+    signal newColumnRequested
+    Row {
         height: parent.height
         width: parent.width
-        verticalAlignment: Text.AlignVCenter
-        horizontalAlignment: Text.AlignHCenter
-        padding: 0  // Remove default padding
-        onTextChanged: rootItem.nameChanged(text)
+        TextField {
+            id: nameField
+            text: _name
+            placeholderText: qsTr("Track name")
+            color: Constants.trackHeaderTextColor
+            background: Rectangle {
+                color: "transparent"
+            }
+            font.bold: true
+            font.pixelSize: Constants.trackHeaderFontSize
+            font.family: "monospace"
+            height: parent.height
+            width: parent.width - newColumnButton.width
+            verticalAlignment: Text.AlignVCenter
+            horizontalAlignment: Text.AlignHCenter
+            padding: 0  // Remove default padding
+            onTextChanged: rootItem.nameChanged(text)
+        }
+        Button {
+            id: newColumnButton
+            height: parent.height
+            width: height
+            text: "+"
+            font.bold: true
+            font.pixelSize: Constants.trackHeaderFontSize
+            font.family: "monospace"
+            onClicked: rootItem.newColumnRequested()
+        }
     }
 }

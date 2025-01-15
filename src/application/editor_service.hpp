@@ -110,6 +110,8 @@ public:
 
     Q_INVOKABLE bool requestDigitSetAtCurrentPosition(uint8_t digit);
 
+    Q_INVOKABLE void requestNewColumn(uint32_t track);
+
     Q_INVOKABLE void requestNoteDeletionAtCurrentPosition();
 
     Q_INVOKABLE bool requestNoteOnAtCurrentPosition(uint8_t note, uint8_t octave, uint8_t velocity);
@@ -129,6 +131,14 @@ public:
     Q_INVOKABLE uint32_t linesPerBeat() const;
 
     Q_INVOKABLE void setLinesPerBeat(uint32_t linesPerBeat);
+
+    Q_INVOKABLE uint32_t visibleUnitCount() const;
+
+    Q_INVOKABLE uint32_t unitCursorPosition() const;
+
+    Q_INVOKABLE uint32_t trackWidthInUnits(uint32_t trackId) const;
+
+    Q_INVOKABLE int trackPositionInUnits(uint32_t trackId) const;
 
 signals:
     void beatsPerMinuteChanged();
@@ -150,6 +160,8 @@ signals:
     void songChanged();
 
     void statusTextRequested(QString text);
+
+    void trackConfigurationChanged();
 
 public slots:
     void requestPositionByTick(uint32_t tick);
@@ -175,11 +187,18 @@ private:
 
     void setIsModified(bool isModified);
 
+    size_t totalColumnCount() const;
+
+    using TrackAndColumn = std::pair<uint32_t, uint32_t>;
+    TrackAndColumn trackAndColumnOnVisualizationSlot(uint32_t slotIndex) const;
+
     SongS m_song;
 
     uint32_t m_currentPatternId = 0;
 
-    Position m_position;
+    Position m_cursorPosition;
+
+    uint32_t m_unitCursorPosition = 0;
 
     bool m_isModified = false;
 };

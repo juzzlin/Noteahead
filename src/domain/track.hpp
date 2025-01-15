@@ -38,7 +38,9 @@ public:
 
     using ColumnS = std::shared_ptr<Column>;
 
-    void addOrReplaceColumn(ColumnS column);
+    void addColumn();
+
+    void setColumn(ColumnS column);
 
     uint32_t lineCount() const;
 

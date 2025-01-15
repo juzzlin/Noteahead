@@ -63,6 +63,7 @@ Item {
         anchors.top: parent.top
         width: parent.width
         onNameChanged: name => rootItem.nameChanged(name)
+        onNewColumnRequested: editorService.requestNewColumn(_index)
     }
     Item {
         id: columnContainer
@@ -86,13 +87,13 @@ Item {
         }
         function setPosition(position) {
             _noteColumns.forEach(noteColumn => {
-                noteColumn.setPosition(position);
-            });
+                    noteColumn.setPosition(position);
+                });
         }
         function updateNoteDataAtPosition(position) {
             _noteColumns.forEach(noteColumn => {
-                noteColumn.updateNoteDataAtPosition(position);
-            });
+                    noteColumn.updateNoteDataAtPosition(position);
+                });
         }
         function _noteColumnX(index) {
             return _noteColumnWidth() * index;
@@ -121,9 +122,9 @@ Item {
             const noteColumnWidth = _noteColumnWidth();
             const noteColumnHeight = height;
             _noteColumns.forEach(noteColumn => {
-                noteColumn.x = _noteColumnX(noteColumn.index());
-                noteColumn.resize(noteColumnWidth, noteColumnHeight);
-            });
+                    noteColumn.x = _noteColumnX(noteColumn.index());
+                    noteColumn.resize(noteColumnWidth, noteColumnHeight);
+                });
         }
         Component {
             id: noteColumnComponent

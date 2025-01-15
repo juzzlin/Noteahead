@@ -35,6 +35,8 @@ public:
 
     uint32_t index() const;
 
+    void addColumn(uint32_t trackIndex);
+
     uint32_t columnCount(uint32_t trackIndex) const;
 
     uint32_t lineCount() const;

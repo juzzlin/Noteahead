@@ -42,6 +42,8 @@ class Song
 public:
     Song();
 
+    void addColumn(uint32_t trackId);
+
     uint32_t columnCount(uint32_t trackId) const;
 
     uint32_t lineCount(uint32_t patternId) const;

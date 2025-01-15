@@ -57,21 +57,21 @@ FocusScope {
     }
     function clearTracks() {
         _tracks.forEach(track => {
-            track.destroy();
-        });
+                track.destroy();
+            });
         _tracks = [];
     }
     function setTrackDimensionsByIndex(track, trackIndex) {
-        track.width = trackArea.width / _trackCount;
-        track.height = trackArea.height;
+        const unitWidth = trackArea.width / editorService.visibleUnitCount();
+        track.resize(unitWidth * editorService.trackWidthInUnits(trackIndex), trackArea.height);
+        track.x = unitWidth * editorService.trackPositionInUnits(trackIndex);
         track.y = 0;
-        track.x = trackIndex * track.width;
     }
     function _connectTrack(track) {
         track.clicked.connect(() => {
-            editorService.requestTrackFocus(track.index());
-            rootItem.forceActiveFocus();
-        });
+                editorService.requestTrackFocus(track.index());
+                rootItem.forceActiveFocus();
+            });
     }
     function createTracks() {
         _trackCount = editorService.trackCount();
@@ -91,10 +91,18 @@ FocusScope {
             }
         }
     }
-    function refreshTracks() {
-        uiLogger.debug(_tag, `Refreshing track layout..`);
+    function recreateTracks() {
+        uiLogger.debug(_tag, `Recreating track layout..`);
         clearTracks();
         createTracks();
+    }
+    function refreshTracks() {
+        uiLogger.debug(_tag, `Refresing track layout..`);
+        for (const track of _tracks) {
+            setTrackDimensionsByIndex(track, track.index());
+            track.updateData();
+            uiLogger.debug(_tag, `Updated track index=${trackIndex}, width=${track.width}, height=${track.height}, x=${track.x}, y=${track.y}`);
+        }
     }
     function resize(width, height) {
         rootItem.width = width;
@@ -110,9 +118,8 @@ FocusScope {
     }
     function _updateTrackSizes() {
         _tracks.forEach(track => {
-            track.resize(trackArea.width / _trackCount, trackArea.height);
-            track.x = track.index() * track.width;
-        });
+                setTrackDimensionsByIndex(track, track.index());
+            });
     }
     function _updateFocus(newPosition, oldPosition) {
         _setTrackUnfocused(oldPosition.track);
@@ -120,27 +127,28 @@ FocusScope {
     }
     function _updatePosition(newPosition) {
         _tracks.forEach(track => {
-            track.setPosition(newPosition);
-        });
+                track.setPosition(newPosition);
+            });
         lineNumberColumnLeft.setPosition(newPosition);
         lineNumberColumnRight.setPosition(newPosition);
     }
     function _updateNoteDataAtPosition(position) {
         _tracks.forEach(track => {
-            track.updateNoteDataAtPosition(position);
-        });
+                track.updateNoteDataAtPosition(position);
+            });
     }
     function connectSignals() {
         editorService.noteDataAtPositionChanged.connect(_updateNoteDataAtPosition);
-        editorService.songChanged.connect(refreshTracks);
+        editorService.songChanged.connect(recreateTracks);
+        editorService.trackConfigurationChanged.connect(recreateTracks);
         editorService.positionChanged.connect((newPosition, oldPosition) => {
-            _updateFocus(newPosition, oldPosition);
-            _updatePosition(newPosition);
-        });
+                _updateFocus(newPosition, oldPosition);
+                _updatePosition(newPosition);
+            });
     }
     function initialize() {
         connectSignals();
-        refreshTracks();
+        recreateTracks();
         _createLineColumns();
         editorService.requestTrackFocus(0);
     }

@@ -53,10 +53,10 @@ void EditorService::setSong(SongS song)
 {
     m_song = song;
 
-    m_position = {};
+    m_cursorPosition = {};
 
     emit songChanged();
-    emit positionChanged(m_position, m_position);
+    emit positionChanged(m_cursorPosition, m_cursorPosition);
     emit beatsPerMinuteChanged();
     emit linesPerBeatChanged();
 
@@ -196,7 +196,7 @@ uint32_t EditorService::linesVisible() const
 int EditorService::lineNumberAtViewLine(uint32_t line) const
 {
     // Encode underflow and overflow as negative numbers. The view will show "-64" as "64" but in a different color.
-    const int lineNumber = (static_cast<int>(line) + static_cast<int>(m_position.line) - static_cast<int>(positionBarLine()));
+    const int lineNumber = (static_cast<int>(line) + static_cast<int>(m_cursorPosition.line) - static_cast<int>(positionBarLine()));
     const int lineCount = static_cast<int>(this->lineCount(currentPatternId()));
     if (lineNumber < 0) {
         return -(lineCount + lineNumber);
@@ -279,12 +279,12 @@ void EditorService::setCurrentPatternId(uint32_t currentPatternId)
 
 bool EditorService::isAtNoteColumn() const
 {
-    return !m_position.lineColumn;
+    return !m_cursorPosition.lineColumn;
 }
 
 bool EditorService::isAtVelocityColumn() const
 {
-    return m_position.lineColumn >= 1 && m_position.lineColumn <= 3;
+    return m_cursorPosition.lineColumn >= 1 && m_cursorPosition.lineColumn <= 3;
 }
 
 bool EditorService::isModified() const
@@ -306,7 +306,7 @@ void EditorService::setIsModified(bool isModified)
 
 Position EditorService::position() const
 {
-    return m_position;
+    return m_cursorPosition;
 }
 
 uint32_t EditorService::positionBarLine() const
@@ -317,13 +317,13 @@ uint32_t EditorService::positionBarLine() const
 void EditorService::requestCursorLeft()
 {
     juzzlin::L(TAG).debug() << "Cursor left requested";
-    const auto oldPosition = m_position;
-    if (m_position.lineColumn) {
-        m_position.lineColumn--;
+    const auto oldPosition = m_cursorPosition;
+    if (m_cursorPosition.lineColumn) {
+        m_cursorPosition.lineColumn--;
     } else {
-        m_position.lineColumn = 3;
-        m_position.track--;
-        m_position.track %= trackCount();
+        m_cursorPosition.lineColumn = 3;
+        m_cursorPosition.track--;
+        m_cursorPosition.track %= trackCount();
     }
 
     notifyPositionChange(oldPosition);
@@ -332,13 +332,13 @@ void EditorService::requestCursorLeft()
 void EditorService::requestCursorRight()
 {
     juzzlin::L(TAG).debug() << "Cursor right requested";
-    const auto oldPosition = m_position;
-    if (m_position.lineColumn < 3) {
-        m_position.lineColumn++;
+    const auto oldPosition = m_cursorPosition;
+    if (m_cursorPosition.lineColumn < 3) {
+        m_cursorPosition.lineColumn++;
     } else {
-        m_position.lineColumn = 0;
-        m_position.track++;
-        m_position.track %= trackCount();
+        m_cursorPosition.lineColumn = 0;
+        m_cursorPosition.track++;
+        m_cursorPosition.track %= trackCount();
     }
 
     notifyPositionChange(oldPosition);
@@ -347,10 +347,10 @@ void EditorService::requestCursorRight()
 void EditorService::requestTrackRight()
 {
     juzzlin::L(TAG).debug() << "Track right requested";
-    const auto oldPosition = m_position;
-    m_position.column = 0;
-    m_position.lineColumn = 0;
-    ++m_position.track %= trackCount();
+    const auto oldPosition = m_cursorPosition;
+    m_cursorPosition.column = 0;
+    m_cursorPosition.lineColumn = 0;
+    ++m_cursorPosition.track %= trackCount();
 
     notifyPositionChange(oldPosition);
 }
@@ -374,9 +374,9 @@ EditorService::MidiNoteNameAndCodeOpt EditorService::editorNoteToMidiNote(uint32
 
 bool EditorService::setVelocityAtCurrentPosition(uint8_t digit)
 {
-    juzzlin::L(TAG).debug() << "Set velocity digit at position " << m_position.toString() << ": " << static_cast<int>(digit);
+    juzzlin::L(TAG).debug() << "Set velocity digit at position " << m_cursorPosition.toString() << ": " << static_cast<int>(digit);
 
-    const auto noteData = m_song->noteDataAtPosition(m_position);
+    const auto noteData = m_song->noteDataAtPosition(m_cursorPosition);
     if (!noteData) {
         return false;
     }
@@ -392,7 +392,7 @@ bool EditorService::setVelocityAtCurrentPosition(uint8_t digit)
         return false;
     }
 
-    if (m_position.lineColumn == 1) {
+    if (m_cursorPosition.lineColumn == 1) {
         if (digit == 0 || digit == 1) {
             currentVelocity = (digit * 100) + (currentVelocity % 100);
             if (currentVelocity > 127) {
@@ -401,12 +401,12 @@ bool EditorService::setVelocityAtCurrentPosition(uint8_t digit)
         } else {
             return false; // Invalid digit for hundreds place
         }
-    } else if (m_position.lineColumn == 2) {
+    } else if (m_cursorPosition.lineColumn == 2) {
         currentVelocity = (currentVelocity / 100) * 100 + (digit * 10) + (currentVelocity % 10);
         if (currentVelocity > 127) {
             currentVelocity -= 100;
         }
-    } else if (m_position.lineColumn == 3) {
+    } else if (m_cursorPosition.lineColumn == 3) {
         currentVelocity = (currentVelocity / 10) * 10 + digit;
         if (currentVelocity > 127) {
             currentVelocity -= 10;
@@ -417,7 +417,7 @@ bool EditorService::setVelocityAtCurrentPosition(uint8_t digit)
 
     if (currentVelocity <= 127) {
         noteData->setVelocity(currentVelocity);
-        emit noteDataAtPositionChanged(m_position);
+        emit noteDataAtPositionChanged(m_cursorPosition);
         setIsModified(true);
         return true;
     }
@@ -427,7 +427,7 @@ bool EditorService::setVelocityAtCurrentPosition(uint8_t digit)
 
 bool EditorService::requestDigitSetAtCurrentPosition(uint8_t digit)
 {
-    juzzlin::L(TAG).debug() << "Digit set requested at position " << m_position.toString() << ": " << static_cast<int>(digit);
+    juzzlin::L(TAG).debug() << "Digit set requested at position " << m_cursorPosition.toString() << ": " << static_cast<int>(digit);
 
     if (isAtVelocityColumn()) {
         return setVelocityAtCurrentPosition(digit);
@@ -436,9 +436,18 @@ bool EditorService::requestDigitSetAtCurrentPosition(uint8_t digit)
     return false;
 }
 
+void EditorService::requestNewColumn(uint32_t track)
+{
+    juzzlin::L(TAG).debug() << "New column requested on track " << track;
+
+    m_song->addColumn(track);
+
+    emit trackConfigurationChanged();
+}
+
 void EditorService::requestNoteDeletionAtCurrentPosition()
 {
-    deleteNoteDataAtPosition(m_position);
+    deleteNoteDataAtPosition(m_cursorPosition);
 }
 
 void EditorService::deleteNoteDataAtPosition(const Position & position)
@@ -452,24 +461,24 @@ void EditorService::deleteNoteDataAtPosition(const Position & position)
 
 bool EditorService::requestNoteOnAtCurrentPosition(uint8_t note, uint8_t octave, uint8_t velocity)
 {
-    if (m_position.lineColumn) {
+    if (m_cursorPosition.lineColumn) {
         juzzlin::L(TAG).debug() << "Not on note column";
         return false;
     }
 
     if (const auto midiNote = editorNoteToMidiNote(note, octave); midiNote.has_value()) {
-        juzzlin::L(TAG).debug() << "Note ON requested at position " << m_position.toString() << ": " << midiNote->first
+        juzzlin::L(TAG).debug() << "Note ON requested at position " << m_cursorPosition.toString() << ": " << midiNote->first
                                 << ", MIDI Note = " << static_cast<int>(midiNote->second) << ", Velocity = " << static_cast<int>(velocity);
-        if (const auto noteDataAtPosition = m_song->noteDataAtPosition(m_position); noteDataAtPosition->type() == NoteData::Type::NoteOn) {
-            NoteData noteData { m_position.track, m_position.column };
+        if (const auto noteDataAtPosition = m_song->noteDataAtPosition(m_cursorPosition); noteDataAtPosition->type() == NoteData::Type::NoteOn) {
+            NoteData noteData { m_cursorPosition.track, m_cursorPosition.column };
             noteData.setAsNoteOn(midiNote->second, noteDataAtPosition->velocity());
-            m_song->setNoteDataAtPosition(noteData, m_position);
+            m_song->setNoteDataAtPosition(noteData, m_cursorPosition);
         } else {
-            NoteData noteData { m_position.track, m_position.column };
+            NoteData noteData { m_cursorPosition.track, m_cursorPosition.column };
             noteData.setAsNoteOn(midiNote->second, velocity);
-            m_song->setNoteDataAtPosition(noteData, m_position);
+            m_song->setNoteDataAtPosition(noteData, m_cursorPosition);
         }
-        emit noteDataAtPositionChanged(m_position);
+        emit noteDataAtPositionChanged(m_cursorPosition);
         setIsModified(true);
         return true;
     }
@@ -480,12 +489,12 @@ bool EditorService::requestNoteOnAtCurrentPosition(uint8_t note, uint8_t octave,
 void EditorService::removeDuplicateNoteOffs()
 {
     juzzlin::L(TAG).debug() << "Removing duplicate note offs";
-    if (const auto prevNoteDataPosition = m_song->prevNoteDataOnSameColumn(m_position); prevNoteDataPosition != m_position) {
+    if (const auto prevNoteDataPosition = m_song->prevNoteDataOnSameColumn(m_cursorPosition); prevNoteDataPosition != m_cursorPosition) {
         if (const auto previousNoteData = m_song->noteDataAtPosition(prevNoteDataPosition); previousNoteData->type() == NoteData::Type::NoteOff) {
             deleteNoteDataAtPosition(prevNoteDataPosition);
         }
     }
-    if (const auto nextNoteDataPosition = m_song->nextNoteDataOnSameColumn(m_position); nextNoteDataPosition != m_position) {
+    if (const auto nextNoteDataPosition = m_song->nextNoteDataOnSameColumn(m_cursorPosition); nextNoteDataPosition != m_cursorPosition) {
         if (const auto nextNoteData = m_song->noteDataAtPosition(nextNoteDataPosition); nextNoteData->type() == NoteData::Type::NoteOff) {
             deleteNoteDataAtPosition(nextNoteDataPosition);
         }
@@ -494,15 +503,15 @@ void EditorService::removeDuplicateNoteOffs()
 
 bool EditorService::requestNoteOffAtCurrentPosition()
 {
-    if (m_position.lineColumn) {
+    if (m_cursorPosition.lineColumn) {
         juzzlin::L(TAG).debug() << "Not on note column";
         return false;
     }
 
-    NoteData noteData { m_position.track, m_position.column };
+    NoteData noteData { m_cursorPosition.track, m_cursorPosition.column };
     noteData.setAsNoteOff();
-    m_song->setNoteDataAtPosition(noteData, m_position);
-    emit noteDataAtPositionChanged(m_position);
+    m_song->setNoteDataAtPosition(noteData, m_cursorPosition);
+    emit noteDataAtPositionChanged(m_cursorPosition);
     setIsModified(true);
 
     removeDuplicateNoteOffs();
@@ -512,14 +521,14 @@ bool EditorService::requestNoteOffAtCurrentPosition()
 
 void EditorService::logPosition() const
 {
-    juzzlin::L(TAG).debug() << "Position: " << m_position.toString();
+    juzzlin::L(TAG).debug() << "Position: " << m_cursorPosition.toString();
 }
 
 void EditorService::notifyPositionChange(const Position & oldPosition)
 {
     logPosition();
 
-    emit positionChanged(m_position, oldPosition);
+    emit positionChanged(m_cursorPosition, oldPosition);
 }
 
 bool EditorService::requestPosition(uint32_t pattern, uint32_t track, uint32_t column, uint32_t line, uint32_t lineColumn)
@@ -551,12 +560,12 @@ bool EditorService::requestPosition(uint32_t pattern, uint32_t track, uint32_t c
         return false;
     }
 
-    const auto oldPosition = m_position;
-    m_position.pattern = pattern;
-    m_position.track = track;
-    m_position.column = column;
-    m_position.line = line;
-    m_position.lineColumn = lineColumn;
+    const auto oldPosition = m_cursorPosition;
+    m_cursorPosition.pattern = pattern;
+    m_cursorPosition.track = track;
+    m_cursorPosition.column = column;
+    m_cursorPosition.line = line;
+    m_cursorPosition.lineColumn = lineColumn;
 
     notifyPositionChange(oldPosition);
 
@@ -565,19 +574,19 @@ bool EditorService::requestPosition(uint32_t pattern, uint32_t track, uint32_t c
 
 void EditorService::requestPositionByTick(uint32_t tick)
 {
-    const auto oldPosition = m_position;
+    const auto oldPosition = m_cursorPosition;
     if (auto && patternAndLine = m_song->patternAndLineByTick(tick); patternAndLine.has_value()) {
-        m_position.pattern = patternAndLine->first;
-        m_position.line = patternAndLine->second;
+        m_cursorPosition.pattern = patternAndLine->first;
+        m_cursorPosition.line = patternAndLine->second;
         notifyPositionChange(oldPosition);
     }
 }
 
 void EditorService::requestScroll(int steps)
 {
-    const auto oldPosition = m_position;
-    m_position.line += static_cast<uint32_t>(steps);
-    m_position.line %= m_song->lineCount(m_position.pattern);
+    const auto oldPosition = m_cursorPosition;
+    m_cursorPosition.line += static_cast<uint32_t>(steps);
+    m_cursorPosition.line %= m_song->lineCount(m_cursorPosition.pattern);
 
     notifyPositionChange(oldPosition);
 }
@@ -586,8 +595,8 @@ void EditorService::requestTrackFocus(uint32_t trackId)
 {
     juzzlin::L(TAG).info() << "Focus for track " << trackId << " requested";
     if (trackId < trackCount()) {
-        const auto oldPosition = m_position;
-        m_position.track = trackId;
+        const auto oldPosition = m_cursorPosition;
+        m_cursorPosition.track = trackId;
 
         notifyPositionChange(oldPosition);
     }
@@ -619,6 +628,39 @@ void EditorService::setLinesPerBeat(uint32_t linesPerBeat)
         emit linesPerBeatChanged();
         setIsModified(true);
     }
+}
+
+uint32_t EditorService::visibleUnitCount() const
+{
+    return 8;
+}
+
+uint32_t EditorService::unitCursorPosition() const
+{
+    return m_unitCursorPosition;
+}
+
+size_t EditorService::totalColumnCount() const
+{
+    size_t columnCount = 0;
+    for (uint32_t trackIndex = 0; trackIndex < m_song->trackCount(); trackIndex++) {
+        columnCount += m_song->columnCount(trackIndex);
+    }
+    return columnCount;
+}
+
+uint32_t EditorService::trackWidthInUnits(uint32_t trackId) const
+{
+    return m_song->columnCount(trackId);
+}
+
+int EditorService::trackPositionInUnits(uint32_t trackId) const
+{
+    int unitPosition = 0;
+    for (uint32_t track = 0; track < trackId; track++) {
+        unitPosition += m_song->columnCount(track);
+    }
+    return unitPosition;
 }
 
 } // namespace cacophony

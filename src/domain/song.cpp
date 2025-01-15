@@ -37,6 +37,13 @@ Song::Song()
     initialize();
 }
 
+void Song::addColumn(uint32_t trackId)
+{
+    for (auto pattern : m_patterns) {
+        pattern->addColumn(trackId);
+    }
+}
+
 uint32_t Song::columnCount(uint32_t trackId) const
 {
     return m_patterns.at(0)->columnCount(trackId);
@@ -340,7 +347,7 @@ void Song::deserializeColumns(QXmlStreamReader & reader, TrackS track)
         juzzlin::L(TAG).trace() << "Columns: Current element: " << reader.name().toString().toStdString();
         if (reader.isStartElement() && !reader.name().compare(Constants::xmlKeyColumn())) {
             const auto column = deserializeColumn(reader, track->index());
-            track->addOrReplaceColumn(column);
+            track->setColumn(column);
         }
         reader.readNext();
     }

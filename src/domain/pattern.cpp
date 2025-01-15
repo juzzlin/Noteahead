@@ -38,6 +38,11 @@ uint32_t Pattern::index() const
     return m_index;
 }
 
+void Pattern::addColumn(uint32_t trackIndex)
+{
+    m_tracks.at(trackIndex)->addColumn();
+}
+
 uint32_t Pattern::columnCount(uint32_t trackIndex) const
 {
     return m_tracks.at(trackIndex)->columnCount();
