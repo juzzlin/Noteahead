@@ -5,6 +5,7 @@ Rectangle {
     id: rootItem
     color: Constants.noteColumnBackgroundColor
     clip: true
+    signal clicked
     property int _index: 0
     property int _trackIndex: 0
     property int _scrollOffset: 0
@@ -101,5 +102,22 @@ Rectangle {
         border.width: 1
         anchors.fill: parent
         z: 2
+    }
+    MouseArea {
+        id: clickHandler
+        anchors.fill: parent
+        onClicked: {
+            uiLogger.debug(_tag, `Column ${rootItem._index} clicked`);
+            rootItem.clicked();
+        }
+        onWheel: event => {
+            if (event.angleDelta.y > 0) {
+                editorService.requestScroll(-1);
+                event.accepted = true;
+            } else if (event.angleDelta.y < 0) {
+                editorService.requestScroll(1);
+                event.accepted = true;
+            }
+        }
     }
 }

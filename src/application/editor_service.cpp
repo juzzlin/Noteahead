@@ -591,13 +591,13 @@ void EditorService::requestScroll(int steps)
     notifyPositionChange(oldPosition);
 }
 
-void EditorService::requestTrackFocus(uint32_t trackId)
+void EditorService::requestTrackFocus(uint32_t track, uint32_t column)
 {
-    juzzlin::L(TAG).info() << "Focus for track " << trackId << " requested";
-    if (trackId < trackCount()) {
+    juzzlin::L(TAG).info() << "Focus for track " << track << " on column " << column << " requested";
+    if (track < trackCount() && column < m_song->columnCount(track)) {
         const auto oldPosition = m_cursorPosition;
-        m_cursorPosition.track = trackId;
-
+        m_cursorPosition.track = track;
+        m_cursorPosition.column = column;
         notifyPositionChange(oldPosition);
     }
 }

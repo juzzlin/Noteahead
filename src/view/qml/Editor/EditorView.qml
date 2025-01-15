@@ -57,8 +57,8 @@ FocusScope {
     }
     function clearTracks() {
         _tracks.forEach(track => {
-                track.destroy();
-            });
+            track.destroy();
+        });
         _tracks = [];
     }
     function setTrackDimensionsByIndex(track, trackIndex) {
@@ -68,10 +68,10 @@ FocusScope {
         track.y = 0;
     }
     function _connectTrack(track) {
-        track.clicked.connect(() => {
-                editorService.requestTrackFocus(track.index());
-                rootItem.forceActiveFocus();
-            });
+        track.clicked.connect(columnIndex => {
+            editorService.requestTrackFocus(track.index(), columnIndex);
+            rootItem.forceActiveFocus();
+        });
     }
     function createTracks() {
         _trackCount = editorService.trackCount();
@@ -110,47 +110,47 @@ FocusScope {
         _updateTrackSizes();
         _updateLineColumns();
     }
-    function _setTrackFocused(trackIndex) {
-        _tracks[trackIndex].setFocused(true);
+    function _setTrackFocused(trackIndex, columnIndex) {
+        _tracks[trackIndex].setFocused(columnIndex, true);
     }
-    function _setTrackUnfocused(trackIndex) {
-        _tracks[trackIndex].setFocused(false);
+    function _setTrackUnfocused(trackIndex, columnIndex) {
+        _tracks[trackIndex].setFocused(columnIndex, false);
     }
     function _updateTrackSizes() {
         _tracks.forEach(track => {
-                setTrackDimensionsByIndex(track, track.index());
-            });
+            setTrackDimensionsByIndex(track, track.index());
+        });
     }
     function _updateFocus(newPosition, oldPosition) {
-        _setTrackUnfocused(oldPosition.track);
-        _setTrackFocused(newPosition.track);
+        _setTrackUnfocused(oldPosition.track, oldPosition.column);
+        _setTrackFocused(newPosition.track, newPosition.column);
     }
     function _updatePosition(newPosition) {
         _tracks.forEach(track => {
-                track.setPosition(newPosition);
-            });
+            track.setPosition(newPosition);
+        });
         lineNumberColumnLeft.setPosition(newPosition);
         lineNumberColumnRight.setPosition(newPosition);
     }
     function _updateNoteDataAtPosition(position) {
         _tracks.forEach(track => {
-                track.updateNoteDataAtPosition(position);
-            });
+            track.updateNoteDataAtPosition(position);
+        });
     }
     function connectSignals() {
         editorService.noteDataAtPositionChanged.connect(_updateNoteDataAtPosition);
         editorService.songChanged.connect(recreateTracks);
         editorService.trackConfigurationChanged.connect(recreateTracks);
         editorService.positionChanged.connect((newPosition, oldPosition) => {
-                _updateFocus(newPosition, oldPosition);
-                _updatePosition(newPosition);
-            });
+            _updateFocus(newPosition, oldPosition);
+            _updatePosition(newPosition);
+        });
     }
     function initialize() {
         connectSignals();
         recreateTracks();
         _createLineColumns();
-        editorService.requestTrackFocus(0);
+        editorService.requestTrackFocus(0, 0);
     }
     function _lineNumberColumnHeight() {
         return trackArea.height - Constants.trackHeaderHeight;

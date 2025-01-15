@@ -122,7 +122,7 @@ public:
 
     Q_INVOKABLE void requestScroll(int steps);
 
-    Q_INVOKABLE void requestTrackFocus(uint32_t trackId);
+    Q_INVOKABLE void requestTrackFocus(uint32_t track, uint32_t column);
 
     Q_INVOKABLE uint32_t beatsPerMinute() const;
 

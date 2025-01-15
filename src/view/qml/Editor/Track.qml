@@ -10,7 +10,7 @@ Item {
     property bool _focused
     property Item _positionBar
     readonly property string _tag: "Track"
-    signal clicked
+    signal clicked(int columnIndex)
     signal nameChanged(string name)
     function index() {
         return _index;
@@ -23,9 +23,9 @@ Item {
     function focused() {
         return _focused;
     }
-    function setFocused(focused) {
+    function setFocused(columnIndex, focused) {
         _focused = focused;
-        columnContainer.setFocused(focused);
+        columnContainer.setFocused(columnIndex, focused);
     }
     function setIndex(index) {
         _index = index;
@@ -81,19 +81,18 @@ Item {
             _noteColumnCount = editorService.columnCount(_index);
             _createNoteColumns();
         }
-        function setFocused(focused) {
-            const columnIndex = 0;
+        function setFocused(columnIndex, focused) {
             _noteColumns[columnIndex].setFocused(focused);
         }
         function setPosition(position) {
             _noteColumns.forEach(noteColumn => {
-                    noteColumn.setPosition(position);
-                });
+                noteColumn.setPosition(position);
+            });
         }
         function updateNoteDataAtPosition(position) {
             _noteColumns.forEach(noteColumn => {
-                    noteColumn.updateNoteDataAtPosition(position);
-                });
+                noteColumn.updateNoteDataAtPosition(position);
+            });
         }
         function _noteColumnX(index) {
             return _noteColumnWidth() * index;
@@ -113,6 +112,10 @@ Item {
                 noteColumn.setIndex(col);
                 noteColumn.setTrackIndex(_index);
                 noteColumn.updateData();
+                noteColumn.clicked.connect(() => {
+                    uiLogger.debug(_tag, `Track ${rootItem._index} clicked`);
+                    rootItem.clicked(noteColumn.index());
+                });
                 _noteColumns.push(noteColumn);
             }
         }
@@ -122,9 +125,9 @@ Item {
             const noteColumnWidth = _noteColumnWidth();
             const noteColumnHeight = height;
             _noteColumns.forEach(noteColumn => {
-                    noteColumn.x = _noteColumnX(noteColumn.index());
-                    noteColumn.resize(noteColumnWidth, noteColumnHeight);
-                });
+                noteColumn.x = _noteColumnX(noteColumn.index());
+                noteColumn.resize(noteColumnWidth, noteColumnHeight);
+            });
         }
         Component {
             id: noteColumnComponent
@@ -149,25 +152,5 @@ Item {
     TrackFocusThing {
         anchors.fill: parent
         visible: focused()
-    }
-    MouseArea {
-        id: clickHandler
-        anchors.top: trackHeader.bottom
-        anchors.left: parent.left
-        anchors.right: parent.right
-        anchors.bottom: parent.bottom
-        onClicked: {
-            uiLogger.debug(_tag, `Track ${rootItem._index} clicked`);
-            rootItem.clicked();
-        }
-        onWheel: event => {
-            if (event.angleDelta.y > 0) {
-                editorService.requestScroll(-1);
-                event.accepted = true;
-            } else if (event.angleDelta.y < 0) {
-                editorService.requestScroll(1);
-                event.accepted = true;
-            }
-        }
     }
 }
