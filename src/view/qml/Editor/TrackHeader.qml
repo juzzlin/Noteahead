@@ -12,6 +12,10 @@ Rectangle {
     border.width: 1
     signal nameChanged(string name)
     signal newColumnRequested
+    property bool _focused: false
+    function setFocused(focused) {
+        _focused = focused;
+    }
     Row {
         height: parent.height
         width: parent.width
@@ -19,11 +23,11 @@ Rectangle {
             id: nameField
             text: _name
             placeholderText: qsTr("Track name")
-            color: Constants.trackHeaderTextColor
+            color: _focused ? "black" : Constants.trackHeaderTextColor
             background: Rectangle {
-                color: "transparent"
+                color: _focused ? Constants.trackHeaderTextColor : "transparent"
             }
-            font.bold: true
+            font.bold: _focused
             font.pixelSize: Constants.trackHeaderFontSize
             font.family: "monospace"
             height: parent.height

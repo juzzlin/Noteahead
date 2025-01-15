@@ -25,6 +25,7 @@ Item {
     }
     function setFocused(columnIndex, focused) {
         _focused = focused;
+        trackHeader.setFocused(focused);
         columnContainer.setFocused(columnIndex, focused);
     }
     function setIndex(index) {
@@ -148,9 +149,5 @@ Item {
         color: "transparent"
         border.color: Constants.trackBorderColor
         border.width: Constants.trackBorderWidth
-    }
-    TrackFocusThing {
-        anchors.fill: parent
-        visible: focused()
     }
 }
