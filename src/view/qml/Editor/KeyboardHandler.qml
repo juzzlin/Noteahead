@@ -16,7 +16,7 @@ QtObject {
             editorService.requestCursorRight();
             event.accepted = true;
         } else if (event.key === Qt.Key_Tab) {
-            editorService.requestTrackRight();
+            editorService.requestColumnRight();
             event.accepted = true;
         } else if (event.key === Qt.Key_Delete) {
             if (UiService.editMode()) {

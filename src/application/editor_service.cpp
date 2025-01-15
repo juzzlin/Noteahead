@@ -355,6 +355,21 @@ void EditorService::requestTrackRight()
     notifyPositionChange(oldPosition);
 }
 
+void EditorService::requestColumnRight()
+{
+    juzzlin::L(TAG).debug() << "Column right requested";
+    const auto oldPosition = m_cursorPosition;
+    if (oldPosition.column + 1 < m_song->columnCount(oldPosition.track)) {
+        m_cursorPosition.column++;
+    } else {
+        m_cursorPosition.column = 0;
+        m_cursorPosition.lineColumn = 0;
+        ++m_cursorPosition.track %= trackCount();
+    }
+
+    notifyPositionChange(oldPosition);
+}
+
 EditorService::MidiNoteNameAndCodeOpt EditorService::editorNoteToMidiNote(uint32_t note, uint32_t octave) const
 {
     if (note < 1 || note > 12) {

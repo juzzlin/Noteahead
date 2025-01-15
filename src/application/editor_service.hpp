@@ -108,6 +108,8 @@ public:
 
     Q_INVOKABLE void requestTrackRight();
 
+    Q_INVOKABLE void requestColumnRight();
+
     Q_INVOKABLE bool requestDigitSetAtCurrentPosition(uint8_t digit);
 
     Q_INVOKABLE void requestNewColumn(uint32_t track);
