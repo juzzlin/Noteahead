@@ -462,6 +462,7 @@ void EditorService::requestNewColumn(uint32_t track)
 
     emit trackConfigurationChanged();
     updateScrollBar();
+    notifyPositionChange(m_cursorPosition); // Re-focuses the previous track
 }
 
 void EditorService::requestNoteDeletionAtCurrentPosition()
@@ -666,7 +667,7 @@ void EditorService::requestUnitCursorPosition(double position)
     m_unitCursorPosition = std::round(position / scrollBarSize() * visibleUnitCount());
 
     emit horizontalScrollChanged();
-    emit positionChanged(m_cursorPosition, m_cursorPosition); // Forces vertical scroll update
+    notifyPositionChange(m_cursorPosition); // Forces vertical scroll update
 }
 
 uint32_t EditorService::totalUnitCount() const
