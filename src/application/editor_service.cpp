@@ -56,9 +56,12 @@ void EditorService::setSong(SongS song)
     m_cursorPosition = {};
 
     emit songChanged();
+    emit trackConfigurationChanged();
     emit positionChanged(m_cursorPosition, m_cursorPosition);
     emit beatsPerMinuteChanged();
     emit linesPerBeatChanged();
+
+    updateScrollBar();
 
     setIsModified(false);
 }
@@ -458,6 +461,7 @@ void EditorService::requestNewColumn(uint32_t track)
     m_song->addColumn(track);
 
     emit trackConfigurationChanged();
+    updateScrollBar();
 }
 
 void EditorService::requestNoteDeletionAtCurrentPosition()
@@ -655,7 +659,17 @@ uint32_t EditorService::unitCursorPosition() const
     return m_unitCursorPosition;
 }
 
-size_t EditorService::totalColumnCount() const
+void EditorService::requestUnitCursorPosition(double position)
+{
+    juzzlin::L(TAG).info() << "Unit cursor position requested: " << position;
+
+    m_unitCursorPosition = std::round(position / scrollBarSize() * visibleUnitCount());
+
+    emit horizontalScrollChanged();
+    emit positionChanged(m_cursorPosition, m_cursorPosition); // Forces vertical scroll update
+}
+
+uint32_t EditorService::totalUnitCount() const
 {
     size_t columnCount = 0;
     for (uint32_t trackIndex = 0; trackIndex < m_song->trackCount(); trackIndex++) {
@@ -671,11 +685,27 @@ uint32_t EditorService::trackWidthInUnits(uint32_t trackId) const
 
 int EditorService::trackPositionInUnits(uint32_t trackId) const
 {
-    int unitPosition = 0;
+    int unitPosition = -m_unitCursorPosition;
     for (uint32_t track = 0; track < trackId; track++) {
         unitPosition += m_song->columnCount(track);
     }
     return unitPosition;
+}
+
+double EditorService::scrollBarStepSize() const
+{
+    return 1.0 / static_cast<double>(totalUnitCount() - visibleUnitCount());
+}
+
+double EditorService::scrollBarSize() const
+{
+    return static_cast<double>(visibleUnitCount()) / totalUnitCount();
+}
+
+void EditorService::updateScrollBar()
+{
+    emit scrollBarSizeChanged();
+    emit scrollBarStepSizeChanged();
 }
 
 } // namespace cacophony

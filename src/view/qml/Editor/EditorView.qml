@@ -1,6 +1,6 @@
-import QtQuick 2.15
-import QtQuick.Controls 2.15
-import QtQuick.Controls.Universal 2.15
+import QtQuick 2.3
+import QtQuick.Controls 2.3
+import QtQuick.Controls.Universal 2.3
 import ".."
 
 FocusScope {
@@ -29,6 +29,7 @@ FocusScope {
         anchors.top: parent.top
         anchors.left: lineNumberColumnLeft.right
         anchors.right: lineNumberColumnRight.left
+        clip: true
     }
     PositionBar {
         id: positionBar
@@ -50,6 +51,22 @@ FocusScope {
     }
     KeyboardHandler {
         id: keyboardHandler
+    }
+    ScrollBar {
+        id: horizontalScrollBar
+        hoverEnabled: true
+        active: hovered || pressed
+        orientation: Qt.Horizontal
+        size: editorService.scrollBarSize
+        stepSize: editorService.scrollBarStepSize
+        snapMode: ScrollBar.SnapAlways
+        anchors.left: parent.left
+        anchors.right: parent.right
+        anchors.bottom: parent.bottom
+        height: Constants.trackHeaderHeight
+        onPositionChanged: {
+            editorService.requestUnitCursorPosition(position);
+        }
     }
     Keys.onPressed: event => {
         keyboardHandler.handleEvent(event);
@@ -101,7 +118,7 @@ FocusScope {
         for (const track of _tracks) {
             setTrackDimensionsByIndex(track, track.index());
             track.updateData();
-            uiLogger.debug(_tag, `Updated track index=${trackIndex}, width=${track.width}, height=${track.height}, x=${track.x}, y=${track.y}`);
+            uiLogger.debug(_tag, `Updated track index=${track.index()}, width=${track.width}, height=${track.height}, x=${track.x}, y=${track.y}`);
         }
     }
     function resize(width, height) {
@@ -138,6 +155,7 @@ FocusScope {
         });
     }
     function connectSignals() {
+        editorService.horizontalScrollChanged.connect(refreshTracks);
         editorService.noteDataAtPositionChanged.connect(_updateNoteDataAtPosition);
         editorService.songChanged.connect(recreateTracks);
         editorService.trackConfigurationChanged.connect(recreateTracks);

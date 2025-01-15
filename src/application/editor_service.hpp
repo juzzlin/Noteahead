@@ -36,6 +36,8 @@ class EditorService : public QObject
     Q_PROPERTY(bool isModified READ isModified NOTIFY isModifiedChanged)
     Q_PROPERTY(bool canBeSaved READ canBeSaved NOTIFY canBeSavedChanged)
     Q_PROPERTY(QString currentFileName READ currentFileName NOTIFY currentFileNameChanged)
+    Q_PROPERTY(double scrollBarSize READ scrollBarSize NOTIFY scrollBarSizeChanged)
+    Q_PROPERTY(double scrollBarStepSize READ scrollBarStepSize NOTIFY scrollBarStepSizeChanged)
 
 public:
     EditorService();
@@ -136,11 +138,19 @@ public:
 
     Q_INVOKABLE uint32_t visibleUnitCount() const;
 
+    Q_INVOKABLE uint32_t totalUnitCount() const;
+
     Q_INVOKABLE uint32_t unitCursorPosition() const;
 
     Q_INVOKABLE uint32_t trackWidthInUnits(uint32_t trackId) const;
 
     Q_INVOKABLE int trackPositionInUnits(uint32_t trackId) const;
+
+    Q_INVOKABLE void requestUnitCursorPosition(double position);
+
+    Q_INVOKABLE double scrollBarStepSize() const;
+
+    Q_INVOKABLE double scrollBarSize() const;
 
 signals:
     void beatsPerMinuteChanged();
@@ -153,6 +163,8 @@ signals:
 
     void linesPerBeatChanged();
 
+    void horizontalScrollChanged();
+
     void isModifiedChanged();
 
     void noteDataAtPositionChanged(const Position & position);
@@ -164,6 +176,10 @@ signals:
     void statusTextRequested(QString text);
 
     void trackConfigurationChanged();
+
+    void scrollBarStepSizeChanged();
+
+    void scrollBarSizeChanged();
 
 public slots:
     void requestPositionByTick(uint32_t tick);
@@ -189,10 +205,7 @@ private:
 
     void setIsModified(bool isModified);
 
-    size_t totalColumnCount() const;
-
-    using TrackAndColumn = std::pair<uint32_t, uint32_t>;
-    TrackAndColumn trackAndColumnOnVisualizationSlot(uint32_t slotIndex) const;
+    void updateScrollBar();
 
     SongS m_song;
 
