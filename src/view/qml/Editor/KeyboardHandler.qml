@@ -4,11 +4,15 @@ import ".."
 QtObject {
     function handleEvent(event) {
         if (event.key === Qt.Key_Up) {
-            editorService.requestScroll(-1);
-            event.accepted = true;
+            if (!UiService.isPlaying()) {
+                editorService.requestScroll(-1);
+                event.accepted = true;
+            }
         } else if (event.key === Qt.Key_Down) {
-            editorService.requestScroll(1);
-            event.accepted = true;
+            if (!UiService.isPlaying()) {
+                editorService.requestScroll(1);
+                event.accepted = true;
+            }
         } else if (event.key === Qt.Key_Left) {
             editorService.requestCursorLeft();
             event.accepted = true;

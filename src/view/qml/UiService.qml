@@ -51,7 +51,7 @@ QtObject {
         }
     }
     function toggleEditMode() {
-        UiService.setEditMode(!UiService.editMode());
+        setEditMode(!editMode());
     }
     function isPlaying() {
         return playerService.isPlaying;
