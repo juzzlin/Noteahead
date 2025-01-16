@@ -66,6 +66,8 @@ private:
 
     uint32_t m_index = 0;
 
+    uint32_t m_virtualLineCount = 0;
+
     std::vector<LineS> m_lines;
 };
 

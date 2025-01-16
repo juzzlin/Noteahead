@@ -45,6 +45,7 @@ void Column::initialize(uint32_t length)
     for (uint32_t i = 0; i < length; i++) {
         m_lines.push_back(std::make_shared<Line>(i));
     }
+    m_virtualLineCount = m_lines.size();
 }
 
 bool Column::hasData() const
@@ -57,15 +58,15 @@ bool Column::hasData() const
 
 uint32_t Column::lineCount() const
 {
-    return static_cast<uint32_t>(m_lines.size());
+    return m_virtualLineCount;
 }
 
 void Column::setLineCount(uint32_t lineCount)
 {
-    if (lineCount < m_lines.size()) {
-        m_lines.erase(m_lines.begin() + lineCount, m_lines.end());
-    } else if (lineCount > m_lines.size()) {
-        for (uint32_t i = static_cast<uint32_t>(m_lines.size()); i < lineCount; ++i) {
+    m_virtualLineCount = lineCount;
+    if (m_virtualLineCount > m_lines.size()) {
+        m_lines.reserve(m_virtualLineCount);
+        for (uint32_t i = m_lines.size(); i < m_virtualLineCount; i++) {
             m_lines.push_back(std::make_shared<Line>(i));
         }
     }
@@ -114,8 +115,8 @@ Column::EventList Column::renderToEvents(size_t startTick, size_t ticksPerLine) 
 {
     EventList eventList;
     size_t tick = startTick;
-    for (auto && line : m_lines) {
-        if (line->noteData()->type() != NoteData::Type::None) {
+    for (size_t i = 0; i < m_virtualLineCount; i++) {
+        if (auto && line = m_lines.at(i); line->noteData()->type() != NoteData::Type::None) {
             const auto event = std::make_shared<Event>(tick, line->noteData());
             eventList.push_back(event);
         }
@@ -132,8 +133,8 @@ void Column::serializeToXml(QXmlStreamWriter & writer) const
 
     writer.writeStartElement(Constants::xmlKeyLines());
 
-    for (const auto & line : m_lines) {
-        if (line) {
+    for (size_t i = 0; i < m_virtualLineCount; i++) {
+        if (auto && line = m_lines.at(i); line) {
             line->serializeToXml(writer);
         }
     }
