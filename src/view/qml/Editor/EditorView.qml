@@ -63,7 +63,6 @@ FocusScope {
         anchors.left: parent.left
         anchors.right: parent.right
         anchors.bottom: parent.bottom
-        height: Constants.trackHeaderHeight
         onPositionChanged: {
             editorService.requestUnitCursorPosition(position);
         }
