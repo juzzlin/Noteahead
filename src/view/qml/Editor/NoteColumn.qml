@@ -111,12 +111,14 @@ Rectangle {
             rootItem.clicked();
         }
         onWheel: event => {
-            if (event.angleDelta.y > 0) {
-                editorService.requestScroll(-1);
-                event.accepted = true;
-            } else if (event.angleDelta.y < 0) {
-                editorService.requestScroll(1);
-                event.accepted = true;
+            if (!UiService.isPlaying()) {
+                if (event.angleDelta.y > 0) {
+                    editorService.requestScroll(-1);
+                    event.accepted = true;
+                } else if (event.angleDelta.y < 0) {
+                    editorService.requestScroll(1);
+                    event.accepted = true;
+                }
             }
         }
     }
