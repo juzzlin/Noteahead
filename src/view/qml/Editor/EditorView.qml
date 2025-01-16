@@ -73,8 +73,8 @@ FocusScope {
     }
     function clearTracks() {
         _tracks.forEach(track => {
-            track.destroy();
-        });
+                track.destroy();
+            });
         _tracks = [];
     }
     function setTrackDimensionsByIndex(track, trackIndex) {
@@ -85,9 +85,9 @@ FocusScope {
     }
     function _connectTrack(track) {
         track.clicked.connect(columnIndex => {
-            editorService.requestTrackFocus(track.index(), columnIndex);
-            rootItem.forceActiveFocus();
-        });
+                editorService.requestTrackFocus(track.index(), columnIndex);
+                rootItem.forceActiveFocus();
+            });
     }
     function createTracks() {
         _trackCount = editorService.trackCount();
@@ -134,8 +134,8 @@ FocusScope {
     }
     function _updateTrackSizes() {
         _tracks.forEach(track => {
-            setTrackDimensionsByIndex(track, track.index());
-        });
+                setTrackDimensionsByIndex(track, track.index());
+            });
     }
     function _updateFocus(newPosition, oldPosition) {
         _setTrackUnfocused(oldPosition.track, oldPosition.column);
@@ -143,15 +143,15 @@ FocusScope {
     }
     function _updatePosition(newPosition) {
         _tracks.forEach(track => {
-            track.setPosition(newPosition);
-        });
+                track.setPosition(newPosition);
+            });
         lineNumberColumnLeft.setPosition(newPosition);
         lineNumberColumnRight.setPosition(newPosition);
     }
     function _updateNoteDataAtPosition(position) {
         _tracks.forEach(track => {
-            track.updateNoteDataAtPosition(position);
-        });
+                track.updateNoteDataAtPosition(position);
+            });
     }
     function connectSignals() {
         editorService.horizontalScrollChanged.connect(refreshTracks);
@@ -159,9 +159,9 @@ FocusScope {
         editorService.songChanged.connect(recreateTracks);
         editorService.trackConfigurationChanged.connect(recreateTracks);
         editorService.positionChanged.connect((newPosition, oldPosition) => {
-            _updateFocus(newPosition, oldPosition);
-            _updatePosition(newPosition);
-        });
+                _updateFocus(newPosition, oldPosition);
+                _updatePosition(newPosition);
+            });
     }
     function initialize() {
         connectSignals();
