@@ -46,6 +46,7 @@ Rectangle {
                 from: editorService.minLineCount()
                 to: editorService.maxLineCount()
                 editable: true
+                enabled: !UiService.isPlaying()
                 onValueChanged: editorService.setCurrentLineCount(patternLengthSpinBox.value)
                 Keys.onReturnPressed: {
                     focus = false;
@@ -72,6 +73,7 @@ Rectangle {
                 from: 0
                 to: 64
                 editable: true
+                enabled: !UiService.isPlaying()
                 onValueChanged: UiService.setActiveStep(stepSpinBox.value)
             }
         }
@@ -89,6 +91,7 @@ Rectangle {
                 from: 0
                 to: 127
                 editable: true
+                enabled: !UiService.isPlaying()
                 onValueChanged: UiService.setActiveVelocity(velocitySpinBox.value)
             }
         }
@@ -106,6 +109,7 @@ Rectangle {
                 from: 0
                 to: 8
                 editable: true
+                enabled: !UiService.isPlaying()
                 onValueChanged: UiService.setActiveOctave(octSpinBox.value)
             }
         }
