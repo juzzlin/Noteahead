@@ -8,11 +8,11 @@ Rectangle {
     gradient: Gradient {
         GradientStop {
             position: 0.0
-            color: Constants.mainToolBarColor
+            color: Constants.mainToolBarGradientStartColor
         }
         GradientStop {
             position: 1.0
-            color: "black"
+            color: Constants.mainToolBarGradientStopColor
         }
     }
     Row {

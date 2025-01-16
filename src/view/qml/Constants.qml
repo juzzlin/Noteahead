@@ -14,7 +14,8 @@ QtObject {
     readonly property int lineNumberColumnWidth: 50
     readonly property int mainToolBarButtonSize: 32
     readonly property color mainMenuTextColor: "white"
-    readonly property color mainToolBarColor: "#303030"
+    readonly property color mainToolBarGradientStartColor: "#303030"
+    readonly property color mainToolBarGradientStopColor: "black"
     readonly property color mainToolBarSeparatorColor: "white"
     readonly property color mainToolBarTextColor: "white"
     readonly property color noteColumnBackgroundColor: "black"
