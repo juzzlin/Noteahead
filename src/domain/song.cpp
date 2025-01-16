@@ -54,6 +54,11 @@ uint32_t Song::lineCount(uint32_t patternId) const
     return m_patterns.at(patternId)->lineCount();
 }
 
+void Song::setLineCount(uint32_t patternId, uint32_t lineCount)
+{
+    m_patterns.at(patternId)->setLineCount(lineCount);
+}
+
 uint32_t Song::patternCount() const
 {
     return static_cast<uint32_t>(m_patterns.size());

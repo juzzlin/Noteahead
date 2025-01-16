@@ -70,6 +70,12 @@ public:
 
     Q_INVOKABLE uint32_t currentLineCount() const;
 
+    Q_INVOKABLE void setCurrentLineCount(uint32_t lineCount);
+
+    Q_INVOKABLE uint32_t minLineCount() const;
+
+    Q_INVOKABLE uint32_t maxLineCount() const;
+
     Q_INVOKABLE int lineNumberAtViewLine(uint32_t line) const;
 
     Q_INVOKABLE uint32_t linesVisible() const;
@@ -158,6 +164,8 @@ signals:
     void canBeSavedChanged();
 
     void currentFileNameChanged();
+
+    void currentLineCountChanged();
 
     void currentPatternChanged();
 

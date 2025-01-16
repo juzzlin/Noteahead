@@ -1,6 +1,6 @@
-import QtQuick 2.15
-import QtQuick.Controls 2.15
-import QtQuick.Controls.Universal 2.15
+import QtQuick 2.3
+import QtQuick.Controls 2.3
+import QtQuick.Controls.Universal 2.3
 import ".."
 
 Rectangle {
@@ -32,6 +32,32 @@ Rectangle {
         anchors.right: parent.right
         anchors.rightMargin: Constants.lineNumberColumnWidth
         spacing: 20
+        Row {
+            spacing: 5
+            Text {
+                text: qsTr("LEN")
+                font.bold: true
+                color: Constants.mainToolBarTextColor
+                anchors.verticalCenter: parent.verticalCenter
+            }
+            SpinBox {
+                id: patternLengthSpinBox
+                value: editorService.currentLineCount()
+                from: editorService.minLineCount()
+                to: editorService.maxLineCount()
+                editable: true
+                onValueChanged: editorService.setCurrentLineCount(patternLengthSpinBox.value)
+                Keys.onReturnPressed: {
+                    focus = false;
+                }
+                ToolTip.delay: 1000
+                ToolTip.timeout: 5000
+                ToolTip.visible: hovered
+                ToolTip.text: qsTr("Set length of the current pattern") + ` (${editorService.minLineCount()}-${editorService.maxLineCount()})`
+            }
+        }
+        Separator {
+        }
         Row {
             spacing: 5
             Text {
@@ -83,10 +109,7 @@ Rectangle {
                 onValueChanged: UiService.setActiveOctave(octSpinBox.value)
             }
         }
-        Rectangle {
-            height: parent.height
-            width: 1
-            color: Constants.mainToolBarSeparatorColor
+        Separator {
         }
         Row {
             spacing: 5

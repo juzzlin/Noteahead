@@ -48,6 +48,8 @@ public:
 
     uint32_t lineCount(uint32_t patternId) const;
 
+    void setLineCount(uint32_t patternId, uint32_t lineCount);
+
     uint32_t patternCount() const;
 
     uint32_t trackCount() const;

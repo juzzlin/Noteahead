@@ -44,6 +44,8 @@ public:
 
     uint32_t lineCount() const;
 
+    void setLineCount(uint32_t lineCount);
+
     uint32_t columnCount() const;
 
     bool hasData() const;

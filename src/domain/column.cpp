@@ -60,6 +60,17 @@ uint32_t Column::lineCount() const
     return static_cast<uint32_t>(m_lines.size());
 }
 
+void Column::setLineCount(uint32_t lineCount)
+{
+    if (lineCount < m_lines.size()) {
+        m_lines.erase(m_lines.begin() + lineCount, m_lines.end());
+    } else if (lineCount > m_lines.size()) {
+        for (uint32_t i = static_cast<uint32_t>(m_lines.size()); i < lineCount; ++i) {
+            m_lines.push_back(std::make_shared<Line>(i));
+        }
+    }
+}
+
 void Column::addOrReplaceLine(LineS line)
 {
     m_lines.at(line->index()) = line;

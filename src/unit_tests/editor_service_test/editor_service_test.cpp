@@ -236,6 +236,51 @@ void EditorServiceTest::test_requestTrackFocus_shouldNotChangePosition()
     QCOMPARE(editorService.position().track, 0);
 }
 
+void EditorServiceTest::test_setCurrentLineCount_shouldSetLineCount()
+{
+    EditorService editorService;
+    QSignalSpy currentLineCountChangedSpy { &editorService, &EditorService::currentLineCountChanged };
+    QSignalSpy positionChangedSpy { &editorService, &EditorService::positionChanged };
+
+    // Min size
+    editorService.setCurrentLineCount(0);
+    QCOMPARE(currentLineCountChangedSpy.count(), 1);
+    QCOMPARE(positionChangedSpy.count(), 1);
+    QCOMPARE(editorService.currentLineCount(), editorService.minLineCount());
+
+    // No change
+    editorService.setCurrentLineCount(editorService.minLineCount());
+    QCOMPARE(currentLineCountChangedSpy.count(), 1);
+    QCOMPARE(positionChangedSpy.count(), 1);
+    QCOMPARE(editorService.currentLineCount(), editorService.minLineCount());
+
+    // Expand
+    editorService.setCurrentLineCount(256);
+    QCOMPARE(currentLineCountChangedSpy.count(), 2);
+    QCOMPARE(positionChangedSpy.count(), 2);
+    QCOMPARE(editorService.currentLineCount(), 256);
+
+    // Shrink with cursor line over the bounds
+    editorService.requestPosition(0, 0, 0, 200, 0);
+    editorService.setCurrentLineCount(64);
+    QCOMPARE(positionChangedSpy.count(), 5);
+    QCOMPARE(currentLineCountChangedSpy.count(), 3);
+    QCOMPARE(editorService.currentLineCount(), 64);
+    QCOMPARE(editorService.position().line, 63);
+
+    // Max size
+    editorService.setCurrentLineCount(editorService.maxLineCount());
+    QCOMPARE(positionChangedSpy.count(), 6);
+    QCOMPARE(currentLineCountChangedSpy.count(), 4);
+    QCOMPARE(editorService.currentLineCount(), editorService.maxLineCount());
+
+    // Beyond max size
+    editorService.setCurrentLineCount(editorService.maxLineCount() + 1);
+    QCOMPARE(positionChangedSpy.count(), 7);
+    QCOMPARE(currentLineCountChangedSpy.count(), 5);
+    QCOMPARE(editorService.currentLineCount(), editorService.maxLineCount());
+}
+
 void EditorServiceTest::test_setTrackName_shouldChangeTrackName()
 {
     EditorService editorService;

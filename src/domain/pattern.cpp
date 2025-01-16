@@ -53,6 +53,13 @@ uint32_t Pattern::lineCount() const
     return m_tracks.at(0)->lineCount();
 }
 
+void Pattern::setLineCount(uint32_t lineCount)
+{
+    for (auto && track : m_tracks) {
+        track->setLineCount(lineCount);
+    }
+}
+
 uint32_t Pattern::trackCount() const
 {
     return static_cast<uint32_t>(m_tracks.size());

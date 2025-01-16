@@ -41,6 +41,8 @@ public:
 
     uint32_t lineCount() const;
 
+    void setLineCount(uint32_t lineCount);
+
     using LineS = std::shared_ptr<Line>;
 
     void addOrReplaceLine(LineS line);

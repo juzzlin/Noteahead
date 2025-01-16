@@ -78,6 +78,13 @@ uint32_t Track::lineCount() const
     return m_columns.at(0)->lineCount();
 }
 
+void Track::setLineCount(uint32_t lineCount)
+{
+    for (auto && column : m_columns) {
+        column->setLineCount(lineCount);
+    }
+}
+
 bool Track::hasData() const
 {
     return std::find_if(m_columns.begin(), m_columns.end(), [](auto && column) {

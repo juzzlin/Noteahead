@@ -191,6 +191,32 @@ uint32_t EditorService::currentLineCount() const
     return m_song->lineCount(m_currentPatternId);
 }
 
+void EditorService::setCurrentLineCount(uint32_t lineCount)
+{
+    if (const auto oldLineCount = currentLineCount(); lineCount != oldLineCount) {
+        m_song->setLineCount(m_currentPatternId, std::min(std::max(lineCount, minLineCount()), maxLineCount()));
+        // Remove cursor focus from non-existent row before updating UI
+        if (currentLineCount() < oldLineCount) {
+            if (const auto oldPosition = m_cursorPosition; m_cursorPosition.line >= currentLineCount()) {
+                m_cursorPosition.line = currentLineCount() - 1;
+                notifyPositionChange(oldPosition);
+            }
+        }
+        emit currentLineCountChanged();
+        notifyPositionChange(m_cursorPosition); // Force focus after tracks are rebuilt
+    }
+}
+
+uint32_t EditorService::minLineCount() const
+{
+    return 2;
+}
+
+uint32_t EditorService::maxLineCount() const
+{
+    return 999;
+}
+
 uint32_t EditorService::linesVisible() const
 {
     return 32;

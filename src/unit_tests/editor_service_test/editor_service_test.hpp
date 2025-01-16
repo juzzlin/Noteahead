@@ -48,6 +48,8 @@ private slots:
 
     void test_requestTrackFocus_shouldNotChangePosition();
 
+    void test_setCurrentLineCount_shouldSetLineCount();
+
     void test_setTrackName_shouldChangeTrackName();
 
     void test_toXmlFromXml_songProperties();
