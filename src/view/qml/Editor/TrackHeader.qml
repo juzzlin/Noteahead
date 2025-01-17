@@ -36,6 +36,9 @@ Rectangle {
             horizontalAlignment: Text.AlignHCenter
             padding: 0  // Remove default padding
             onTextChanged: rootItem.nameChanged(text)
+            Keys.onReturnPressed: {
+                focus = false;
+            }
         }
         Button {
             id: newColumnButton
