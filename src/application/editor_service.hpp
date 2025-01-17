@@ -158,6 +158,8 @@ public:
 
     Q_INVOKABLE double scrollBarSize() const;
 
+    void setIsModified(bool isModified);
+
 signals:
     void beatsPerMinuteChanged();
 
@@ -210,8 +212,6 @@ private:
     void removeDuplicateNoteOffs();
 
     bool setVelocityAtCurrentPosition(uint8_t digit);
-
-    void setIsModified(bool isModified);
 
     void updateScrollBar();
 

@@ -204,6 +204,7 @@ void EditorService::setCurrentLineCount(uint32_t lineCount)
         }
         emit currentLineCountChanged();
         notifyPositionChange(m_cursorPosition); // Force focus after tracks are rebuilt
+        setIsModified(true);
     }
 }
 
