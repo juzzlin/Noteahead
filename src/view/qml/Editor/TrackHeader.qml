@@ -39,6 +39,10 @@ Rectangle {
             Keys.onReturnPressed: {
                 focus = false;
             }
+            ToolTip.delay: Constants.toolTipDelay
+            ToolTip.timeout: Constants.toolTipTimeout
+            ToolTip.visible: hovered
+            ToolTip.text: qsTr("Set track name")
         }
         Button {
             id: newColumnButton
@@ -49,6 +53,10 @@ Rectangle {
             font.pixelSize: Constants.trackHeaderFontSize
             font.family: "monospace"
             onClicked: rootItem.newColumnRequested()
+            ToolTip.delay: Constants.toolTipDelay
+            ToolTip.timeout: Constants.toolTipTimeout
+            ToolTip.visible: hovered
+            ToolTip.text: qsTr("Add a new note column")
         }
     }
 }

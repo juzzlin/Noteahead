@@ -48,11 +48,9 @@ Rectangle {
                 editable: true
                 enabled: !UiService.isPlaying()
                 onValueChanged: editorService.setCurrentLineCount(patternLengthSpinBox.value)
-                Keys.onReturnPressed: {
-                    focus = false;
-                }
-                ToolTip.delay: 1000
-                ToolTip.timeout: 5000
+                Keys.onReturnPressed: focus = false
+                ToolTip.delay: Constants.toolTipDelay
+                ToolTip.timeout: Constants.toolTipTimeout
                 ToolTip.visible: hovered
                 ToolTip.text: qsTr("Set length of the current pattern") + ` (${editorService.minLineCount()}-${editorService.maxLineCount()})`
             }
@@ -75,6 +73,11 @@ Rectangle {
                 editable: true
                 enabled: !UiService.isPlaying()
                 onValueChanged: UiService.setActiveStep(stepSpinBox.value)
+                Keys.onReturnPressed: focus = false
+                ToolTip.delay: Constants.toolTipDelay
+                ToolTip.timeout: Constants.toolTipTimeout
+                ToolTip.visible: hovered
+                ToolTip.text: qsTr("Set editing step")
             }
         }
         Row {
@@ -93,6 +96,11 @@ Rectangle {
                 editable: true
                 enabled: !UiService.isPlaying()
                 onValueChanged: UiService.setActiveVelocity(velocitySpinBox.value)
+                Keys.onReturnPressed: focus = false
+                ToolTip.delay: Constants.toolTipDelay
+                ToolTip.timeout: Constants.toolTipTimeout
+                ToolTip.visible: hovered
+                ToolTip.text: qsTr("Set default note velocity (0-127)")
             }
         }
         Row {
@@ -111,6 +119,11 @@ Rectangle {
                 editable: true
                 enabled: !UiService.isPlaying()
                 onValueChanged: UiService.setActiveOctave(octSpinBox.value)
+                Keys.onReturnPressed: focus = false
+                ToolTip.delay: Constants.toolTipDelay
+                ToolTip.timeout: Constants.toolTipTimeout
+                ToolTip.visible: hovered
+                ToolTip.text: qsTr("Set base octave when adding new notes")
             }
         }
         Separator {
@@ -131,6 +144,11 @@ Rectangle {
                 editable: true
                 enabled: !UiService.isPlaying()
                 onValueChanged: editorService.setBeatsPerMinute(value)
+                Keys.onReturnPressed: focus = false
+                ToolTip.delay: Constants.toolTipDelay
+                ToolTip.timeout: Constants.toolTipTimeout
+                ToolTip.visible: hovered
+                ToolTip.text: qsTr("Set beats per minute")
             }
         }
         Row {
@@ -149,6 +167,11 @@ Rectangle {
                 editable: true
                 enabled: !UiService.isPlaying()
                 onValueChanged: editorService.setLinesPerBeat(value)
+                Keys.onReturnPressed: focus = false
+                ToolTip.delay: Constants.toolTipDelay
+                ToolTip.timeout: Constants.toolTipTimeout
+                ToolTip.visible: hovered
+                ToolTip.text: qsTr("Set lines per beat")
             }
         }
     }
