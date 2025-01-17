@@ -32,6 +32,8 @@ private slots:
 
     void test_requestDigitSetAtCurrentPosition_velocity_shouldChangeVelocity();
 
+    void test_requestNewColumn_shouldAddNewColumn();
+
     void test_requestNoteDeletionAtCurrentPosition_shouldDeleteNoteData();
 
     void test_requestNoteOnAtCurrentPosition_shouldChangeNoteData();

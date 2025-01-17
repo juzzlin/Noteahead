@@ -502,6 +502,7 @@ void EditorService::requestNewColumn(uint32_t track)
     emit trackConfigurationChanged();
     updateScrollBar();
     notifyPositionChange(m_cursorPosition); // Re-focuses the previous track
+    setIsModified(true);
 }
 
 void EditorService::requestNoteDeletionAtCurrentPosition()

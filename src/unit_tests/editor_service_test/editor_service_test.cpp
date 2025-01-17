@@ -100,6 +100,25 @@ void EditorServiceTest::test_requestDigitSetAtCurrentPosition_velocity_shouldCha
     QCOMPARE(editorService.displayVelocityAtPosition(0, 0, 0, 0), "050");
 }
 
+void EditorServiceTest::test_requestNewColumn_shouldAddNewColumn()
+{
+    EditorService editorService;
+    QVERIFY(editorService.requestPosition(0, 0, 0, 0, 0));
+    QSignalSpy positionChangedSpy { &editorService, &EditorService::positionChanged };
+    QSignalSpy trackConfigurationChangedSpy { &editorService, &EditorService::trackConfigurationChanged };
+    QSignalSpy scrollBarSizeChangedSpy { &editorService, &EditorService::scrollBarSizeChanged };
+    QSignalSpy scrollBarStepSizeChangedSpy { &editorService, &EditorService::scrollBarStepSizeChanged };
+
+    editorService.requestNewColumn(0);
+
+    QVERIFY(editorService.isModified());
+    QCOMPARE(positionChangedSpy.count(), 1);
+    QCOMPARE(trackConfigurationChangedSpy.count(), 1);
+    QCOMPARE(scrollBarSizeChangedSpy.count(), 1);
+    QCOMPARE(scrollBarStepSizeChangedSpy.count(), 1);
+    QCOMPARE(editorService.columnCount(0), 2);
+}
+
 void EditorServiceTest::test_requestNoteDeletionAtCurrentPosition_shouldDeleteNoteData()
 {
     EditorService editorService;
