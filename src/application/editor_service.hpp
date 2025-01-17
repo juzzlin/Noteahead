@@ -146,13 +146,13 @@ public:
 
     Q_INVOKABLE uint32_t totalUnitCount() const;
 
-    Q_INVOKABLE uint32_t unitCursorPosition() const;
+    Q_INVOKABLE uint32_t horizontalScrollPosition() const;
 
     Q_INVOKABLE uint32_t trackWidthInUnits(uint32_t trackId) const;
 
     Q_INVOKABLE int trackPositionInUnits(uint32_t trackId) const;
 
-    Q_INVOKABLE void requestUnitCursorPosition(double position);
+    Q_INVOKABLE void requestHorizontalScrollPositionChange(double position);
 
     Q_INVOKABLE double scrollBarStepSize() const;
 
@@ -221,7 +221,7 @@ private:
 
     Position m_cursorPosition;
 
-    uint32_t m_unitCursorPosition = 0;
+    uint32_t m_horizontalScrollPosition = 0;
 
     bool m_isModified = false;
 };

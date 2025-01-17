@@ -64,7 +64,7 @@ FocusScope {
         anchors.right: parent.right
         anchors.bottom: parent.bottom
         onPositionChanged: {
-            editorService.requestUnitCursorPosition(position);
+            editorService.requestHorizontalScrollPositionChange(position);
         }
     }
     Keys.onPressed: event => {

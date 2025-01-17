@@ -695,16 +695,14 @@ uint32_t EditorService::visibleUnitCount() const
     return 8;
 }
 
-uint32_t EditorService::unitCursorPosition() const
+uint32_t EditorService::horizontalScrollPosition() const
 {
-    return m_unitCursorPosition;
+    return m_horizontalScrollPosition;
 }
 
-void EditorService::requestUnitCursorPosition(double position)
+void EditorService::requestHorizontalScrollPositionChange(double position)
 {
-    juzzlin::L(TAG).info() << "Unit cursor position requested: " << position;
-
-    m_unitCursorPosition = std::round(position / scrollBarSize() * visibleUnitCount());
+    m_horizontalScrollPosition = std::round(position / scrollBarSize() * visibleUnitCount());
 
     emit horizontalScrollChanged();
     notifyPositionChange(m_cursorPosition); // Forces vertical scroll update
@@ -726,7 +724,7 @@ uint32_t EditorService::trackWidthInUnits(uint32_t trackId) const
 
 int EditorService::trackPositionInUnits(uint32_t trackId) const
 {
-    int unitPosition = -m_unitCursorPosition;
+    int unitPosition = -m_horizontalScrollPosition;
     for (uint32_t track = 0; track < trackId; track++) {
         unitPosition += m_song->columnCount(track);
     }
