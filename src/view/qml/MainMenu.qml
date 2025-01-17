@@ -35,7 +35,7 @@ MenuBar {
         Action {
             text: qsTr("Quit")
             shortcut: "Ctrl+Q"
-            onTriggered: applicationService.requestQuit()
+            onTriggered: UiService.requestQuit()
         }
         delegate: MainMenuItemDelegate {
         }

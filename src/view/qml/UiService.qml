@@ -76,4 +76,8 @@ QtObject {
     function requestAboutDialog() {
         aboutDialogRequested();
     }
+    signal quitRequested
+    function requestQuit() {
+        quitRequested();
+    }
 }

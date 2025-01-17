@@ -131,6 +131,10 @@ ApplicationWindow {
     }
     function _connectUiService() {
         UiService.aboutDialogRequested.connect(aboutDialog.open);
+        UiService.quitRequested.connect(() => {
+            config.saveWindowSize(Qt.size(mainWindow.width, mainWindow.height));
+            applicationService.requestQuit();
+        });
     }
     function _connectServices() {
         _connectApplicationService();
@@ -153,5 +157,8 @@ ApplicationWindow {
     }
     onWidthChanged: _resize()
     onHeightChanged: _resize()
-    onClosing: config.saveWindowSize(Qt.size(mainWindow.width, mainWindow.height))
+    onClosing: close => {
+        UiService.requestQuit();
+        close.accepted = false; // Let C++-side handle the termination
+    }
 }
