@@ -100,6 +100,25 @@ void EditorServiceTest::test_requestDigitSetAtCurrentPosition_velocity_shouldCha
     QCOMPARE(editorService.displayVelocityAtPosition(0, 0, 0, 0), "050");
 }
 
+void EditorServiceTest::test_requestHorizontalScrollPositionChange_shouldChangePosition()
+{
+    EditorService editorService;
+    QSignalSpy horizontalScrollChangeSpy(&editorService, &EditorService::horizontalScrollChanged);
+    QSignalSpy positionChangedSpy { &editorService, &EditorService::positionChanged };
+
+    editorService.requestHorizontalScrollPositionChange(0.5);
+
+    QCOMPARE(editorService.horizontalScrollPosition(), 0);
+
+    editorService.requestNewColumn(0);
+    QCOMPARE(positionChangedSpy.count(), 1);
+    editorService.requestHorizontalScrollPositionChange(0.5); // Not the exact threshold, but "enough"
+
+    QCOMPARE(editorService.horizontalScrollPosition(), 1);
+    QCOMPARE(horizontalScrollChangeSpy.count(), 1);
+    QCOMPARE(positionChangedSpy.count(), 2);
+}
+
 void EditorServiceTest::test_requestNewColumn_shouldAddNewColumn()
 {
     EditorService editorService;

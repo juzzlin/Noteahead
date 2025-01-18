@@ -702,10 +702,20 @@ uint32_t EditorService::horizontalScrollPosition() const
 
 void EditorService::requestHorizontalScrollPositionChange(double position)
 {
-    m_horizontalScrollPosition = std::round(position / scrollBarSize() * visibleUnitCount());
+    const auto oldPosition = m_horizontalScrollPosition;
 
-    emit horizontalScrollChanged();
-    notifyPositionChange(m_cursorPosition); // Forces vertical scroll update
+    if (visibleUnitCount() < totalUnitCount()) {
+        const auto maxPosition = totalUnitCount() - visibleUnitCount();
+        m_horizontalScrollPosition = std::round(position / scrollBarSize() * visibleUnitCount());
+        m_horizontalScrollPosition = std::min(m_horizontalScrollPosition, maxPosition);
+    } else {
+        m_horizontalScrollPosition = 0;
+    }
+
+    if (m_horizontalScrollPosition != oldPosition) {
+        emit horizontalScrollChanged();
+        notifyPositionChange(m_cursorPosition); // Forces vertical scroll update
+    }
 }
 
 uint32_t EditorService::totalUnitCount() const
