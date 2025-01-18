@@ -13,8 +13,8 @@ Rectangle {
     }
     function setPosition(position) {
         _lines.forEach(line => {
-                line.updateLineNumber();
-            });
+            line.updateLineNumber();
+        });
     }
     function updateData() {
         _createLines();
@@ -25,28 +25,28 @@ Rectangle {
     }
     function _createLines() {
         _lines = [];
-        const lineCount = editorService.lineCount(editorService.currentPatternId());
+        const lineCount = editorService.lineCount(editorService.currentPattern());
         const lineHeight = _lineHeight();
         for (let lineIndex = 0; lineIndex < lineCount; lineIndex++) {
             const line = textComponent.createObject(rootItem, {
-                    "index": lineIndex,
-                    "lineNumber": editorService.lineNumberAtViewLine(lineIndex),
-                    "width": rootItem.width,
-                    "height": lineHeight,
-                    "x": 0,
-                    "y": lineHeight * lineIndex
-                });
+                "index": lineIndex,
+                "lineNumber": editorService.lineNumberAtViewLine(lineIndex),
+                "width": rootItem.width,
+                "height": lineHeight,
+                "x": 0,
+                "y": lineHeight * lineIndex
+            });
             _lines.push(line);
         }
     }
     function _resizeLines() {
-        const lineCount = editorService.currentLineCount();
+        const lineCount = editorService.currentLineCount;
         const lineHeight = _lineHeight();
         _lines.forEach(line => {
-                line.y = lineHeight * (line.index + _scrollOffset);
-                line.width = width;
-                line.height = lineHeight;
-            });
+            line.y = lineHeight * (line.index + _scrollOffset);
+            line.width = width;
+            line.height = lineHeight;
+        });
     }
     Component {
         id: textComponent
@@ -60,12 +60,12 @@ Rectangle {
                 lineNumber = editorService.lineNumberAtViewLine(index);
             }
             function _formattedLineNumber() {
-                const lineCount = editorService.currentLineCount();
+                const lineCount = editorService.currentLineCount;
                 const formattedLineNumber = Math.abs(lineNumber) % lineCount;
                 return formattedLineNumber < 10 ? `0${formattedLineNumber}` : formattedLineNumber;
             }
             Text {
-                color: lineNumber < 0 || lineNumber >= editorService.currentLineCount() ? Constants.lineNumberColumnOverflowTextColor : Constants.lineNumberColumnTextColor
+                color: lineNumber < 0 || lineNumber >= editorService.currentLineCount ? Constants.lineNumberColumnOverflowTextColor : Constants.lineNumberColumnTextColor
                 font.pixelSize: parent.height * 0.8
                 font.family: "monospace"
                 text: _formattedLineNumber()

@@ -37,26 +37,41 @@ Song::Song()
     initialize();
 }
 
-void Song::addColumn(uint32_t trackId)
+void Song::createPattern(uint32_t patternIndex)
 {
-    for (auto pattern : m_patterns) {
-        pattern->addColumn(trackId);
+    if (m_patterns.empty()) {
+        initialize();
+    } else {
+        const auto previousPattern = m_patterns[m_patterns.rbegin()->first];
+        m_patterns[patternIndex] = std::make_shared<Pattern>(patternIndex, previousPattern->lineCount(), previousPattern->trackCount());
     }
 }
 
-uint32_t Song::columnCount(uint32_t trackId) const
+bool Song::hasPattern(uint32_t patternIndex) const
 {
-    return m_patterns.at(0)->columnCount(trackId);
+    return m_patterns.contains(patternIndex);
 }
 
-uint32_t Song::lineCount(uint32_t patternId) const
+void Song::addColumn(uint32_t trackIndex)
 {
-    return m_patterns.at(patternId)->lineCount();
+    for (auto pattern : m_patterns) {
+        pattern.second->addColumn(trackIndex);
+    }
 }
 
-void Song::setLineCount(uint32_t patternId, uint32_t lineCount)
+uint32_t Song::columnCount(uint32_t trackIndex) const
 {
-    m_patterns.at(patternId)->setLineCount(lineCount);
+    return m_patterns.at(0)->columnCount(trackIndex);
+}
+
+uint32_t Song::lineCount(uint32_t patternIndex) const
+{
+    return m_patterns.at(patternIndex)->lineCount();
+}
+
+void Song::setLineCount(uint32_t patternIndex, uint32_t lineCount)
+{
+    m_patterns.at(patternIndex)->setLineCount(lineCount);
 }
 
 uint32_t Song::patternCount() const
@@ -72,19 +87,19 @@ uint32_t Song::trackCount() const
 bool Song::hasData() const
 {
     return std::find_if(m_patterns.begin(), m_patterns.end(), [](auto && pattern) {
-               return pattern->hasData();
+               return pattern.second->hasData();
            })
       != m_patterns.end();
 }
 
-std::string Song::trackName(uint32_t trackId) const
+std::string Song::trackName(uint32_t trackIndex) const
 {
-    return m_patterns.at(0)->trackName(trackId);
+    return m_patterns.at(0)->trackName(trackIndex);
 }
 
-void Song::setTrackName(uint32_t trackId, std::string name)
+void Song::setTrackName(uint32_t trackIndex, std::string name)
 {
-    m_patterns.at(0)->setTrackName(trackId, name);
+    m_patterns.at(0)->setTrackName(trackIndex, name);
 }
 
 std::string Song::fileName() const
@@ -121,7 +136,7 @@ Position Song::prevNoteDataOnSameColumn(const Position & position) const
 void Song::initialize()
 {
     m_patterns.clear();
-    m_patterns.push_back(std::make_shared<Pattern>(0, 64, 8));
+    m_patterns[0] = std::make_shared<Pattern>(0, 64, 8);
 }
 
 uint32_t Song::linesPerBeat() const
@@ -236,8 +251,8 @@ void Song::serializeToXml(QXmlStreamWriter & writer) const
     writer.writeStartElement(Constants::xmlKeyPatterns());
 
     for (const auto & pattern : m_patterns) {
-        if (pattern) {
-            pattern->serializeToXml(writer);
+        if (pattern.second) {
+            pattern.second->serializeToXml(writer);
         }
     }
 

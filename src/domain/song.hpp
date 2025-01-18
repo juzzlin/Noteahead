@@ -16,6 +16,7 @@
 #ifndef SONG_HPP
 #define SONG_HPP
 
+#include <map>
 #include <memory>
 #include <optional>
 #include <string>
@@ -42,13 +43,17 @@ class Song
 public:
     Song();
 
-    void addColumn(uint32_t trackId);
+    void createPattern(uint32_t patternIndex);
 
-    uint32_t columnCount(uint32_t trackId) const;
+    bool hasPattern(uint32_t patternIndex) const;
 
-    uint32_t lineCount(uint32_t patternId) const;
+    void addColumn(uint32_t trackIndex);
 
-    void setLineCount(uint32_t patternId, uint32_t lineCount);
+    uint32_t columnCount(uint32_t trackIndex) const;
+
+    uint32_t lineCount(uint32_t patternIndex) const;
+
+    void setLineCount(uint32_t patternIndex, uint32_t lineCount);
 
     uint32_t patternCount() const;
 
@@ -56,9 +61,9 @@ public:
 
     bool hasData() const;
 
-    std::string trackName(uint32_t trackId) const;
+    std::string trackName(uint32_t trackIndex) const;
 
-    void setTrackName(uint32_t trackId, std::string name);
+    void setTrackName(uint32_t trackIndex, std::string name);
 
     std::string fileName() const;
 
@@ -137,7 +142,7 @@ private:
 
     uint32_t m_ticksPerLine = 24;
 
-    std::vector<PatternS> m_patterns;
+    std::map<size_t, PatternS> m_patterns;
 
     std::unordered_map<size_t, PatternAndLine> m_tickToPatternAndLineMap;
 

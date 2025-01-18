@@ -238,14 +238,14 @@ void EditorServiceTest::test_requestScroll_shouldChangePosition()
     QCOMPARE(positionChangedSpy.count(), 3);
 
     editorService.requestScroll(-10);
-    QCOMPARE(editorService.position().line, editorService.lineCount(editorService.currentPatternId()) - 10);
+    QCOMPARE(editorService.position().line, editorService.lineCount(editorService.currentPattern()) - 10);
     QCOMPARE(positionChangedSpy.count(), 4);
 
     editorService.requestScroll(10);
     QCOMPARE(editorService.position().line, 0);
     QCOMPARE(positionChangedSpy.count(), 5);
 
-    editorService.requestScroll(static_cast<int>(editorService.lineCount(editorService.currentPatternId()) + 10));
+    editorService.requestScroll(static_cast<int>(editorService.lineCount(editorService.currentPattern()) + 10));
     QCOMPARE(editorService.position().line, 10);
     QCOMPARE(positionChangedSpy.count(), 6);
 }

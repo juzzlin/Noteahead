@@ -41,7 +41,7 @@ void EditorService::initialize()
 
     setSong(std::make_unique<Song>());
 
-    emit statusTextRequested("An empty song initialized");
+    emit statusTextRequested(tr("An empty song initialized"));
 }
 
 EditorService::SongS EditorService::song() const
@@ -56,7 +56,6 @@ void EditorService::setSong(SongS song)
     m_cursorPosition = {};
 
     emit songChanged();
-    emit trackConfigurationChanged();
     emit positionChanged(m_cursorPosition, m_cursorPosition);
     emit beatsPerMinuteChanged();
     emit linesPerBeatChanged();
@@ -99,6 +98,13 @@ void EditorService::fromXml(QString xml)
         }
         reader.readNext();
     }
+}
+
+void EditorService::resetCursorPosition()
+{
+    const auto oldPosition = m_cursorPosition;
+    m_cursorPosition = {};
+    notifyPositionChange(oldPosition);
 }
 
 void EditorService::load(QString fileName)
@@ -171,9 +177,9 @@ bool EditorService::canBeSaved() const
     return isModified() && m_song && !m_song->fileName().empty() && QFile::exists(QString::fromStdString(m_song->fileName()));
 }
 
-uint32_t EditorService::columnCount(uint32_t trackId) const
+uint32_t EditorService::columnCount(uint32_t trackIndex) const
 {
-    return m_song->columnCount(trackId);
+    return m_song->columnCount(trackIndex);
 }
 
 uint32_t EditorService::lineCount(uint32_t patternId) const
@@ -188,21 +194,27 @@ QString EditorService::currentFileName() const
 
 uint32_t EditorService::currentLineCount() const
 {
-    return m_song->lineCount(m_currentPatternId);
+    return m_song->lineCount(currentPattern());
+}
+
+void EditorService::clampCursorLine(size_t oldLineCount, size_t newLineCount)
+{
+    // Remove cursor focus from non-existent row before updating UI
+    if (newLineCount < oldLineCount) {
+        if (const auto oldPosition = m_cursorPosition; m_cursorPosition.line >= newLineCount) {
+            m_cursorPosition.line = newLineCount - 1;
+            notifyPositionChange(oldPosition);
+        }
+    }
 }
 
 void EditorService::setCurrentLineCount(uint32_t lineCount)
 {
     if (const auto oldLineCount = currentLineCount(); lineCount != oldLineCount) {
-        m_song->setLineCount(m_currentPatternId, std::min(std::max(lineCount, minLineCount()), maxLineCount()));
-        // Remove cursor focus from non-existent row before updating UI
-        if (currentLineCount() < oldLineCount) {
-            if (const auto oldPosition = m_cursorPosition; m_cursorPosition.line >= currentLineCount()) {
-                m_cursorPosition.line = currentLineCount() - 1;
-                notifyPositionChange(oldPosition);
-            }
-        }
+        m_song->setLineCount(currentPattern(), std::min(std::max(lineCount, minLineCount()), maxLineCount()));
+        clampCursorLine(oldLineCount, currentLineCount());
         emit currentLineCountChanged();
+        emit currentLineCountModified(oldLineCount, lineCount);
         notifyPositionChange(m_cursorPosition); // Force focus after tracks are rebuilt
         setIsModified(true);
     }
@@ -218,6 +230,16 @@ uint32_t EditorService::maxLineCount() const
     return 999;
 }
 
+uint32_t EditorService::minPatternIndex() const
+{
+    return 0;
+}
+
+uint32_t EditorService::maxPatternIndex() const
+{
+    return 999;
+}
+
 uint32_t EditorService::linesVisible() const
 {
     return 32;
@@ -227,7 +249,7 @@ int EditorService::lineNumberAtViewLine(uint32_t line) const
 {
     // Encode underflow and overflow as negative numbers. The view will show "-64" as "64" but in a different color.
     const int lineNumber = (static_cast<int>(line) + static_cast<int>(m_cursorPosition.line) - static_cast<int>(positionBarLine()));
-    const int lineCount = static_cast<int>(this->lineCount(currentPatternId()));
+    const int lineCount = static_cast<int>(this->lineCount(currentPattern()));
     if (lineNumber < 0) {
         return -(lineCount + lineNumber);
     } else {
@@ -235,9 +257,9 @@ int EditorService::lineNumberAtViewLine(uint32_t line) const
     }
 }
 
-QString EditorService::displayNoteAtPosition(uint32_t patternId, uint32_t trackId, uint32_t columnId, uint32_t line) const
+QString EditorService::displayNoteAtPosition(uint32_t patternId, uint32_t trackIndex, uint32_t columnId, uint32_t line) const
 {
-    if (const auto noteData = m_song->noteDataAtPosition({ patternId, trackId, columnId, line }); noteData->type() != NoteData::Type::None) {
+    if (const auto noteData = m_song->noteDataAtPosition({ patternId, trackIndex, columnId, line }); noteData->type() != NoteData::Type::None) {
         return noteData->type() == NoteData::Type::NoteOff ? "OFF" : QString::fromStdString(NoteConverter::midiToString(*noteData->note()));
     } else {
         return noDataString();
@@ -282,29 +304,47 @@ uint32_t EditorService::trackCount() const
     return m_song->trackCount();
 }
 
-QString EditorService::trackName(uint32_t trackId) const
+QString EditorService::trackName(uint32_t trackIndex) const
 {
-    return QString::fromStdString(m_song->trackName(trackId));
+    return QString::fromStdString(m_song->trackName(trackIndex));
 }
 
-void EditorService::setTrackName(uint32_t trackId, QString name)
+void EditorService::setTrackName(uint32_t trackIndex, QString name)
 {
-    m_song->setTrackName(trackId, name.toStdString());
+    m_song->setTrackName(trackIndex, name.toStdString());
 
     setIsModified(true);
 }
 
-uint32_t EditorService::currentPatternId() const
+uint32_t EditorService::currentPattern() const
 {
-    return m_currentPatternId;
+    return m_cursorPosition.pattern;
 }
 
-void EditorService::setCurrentPatternId(uint32_t currentPatternId)
+void EditorService::setCurrentPattern(uint32_t patternIndex)
 {
-    if (m_currentPatternId != currentPatternId) {
-        m_currentPatternId = currentPatternId;
-        emit currentPatternChanged();
+    if (currentPattern() == patternIndex) {
+        return;
     }
+
+    const auto oldPosition = m_cursorPosition;
+    m_cursorPosition.pattern = patternIndex;
+
+    const auto oldLineCount = m_song->lineCount(oldPosition.pattern);
+
+    if (!m_song->hasPattern(patternIndex)) {
+        m_song->createPattern(patternIndex);
+        emit patternCreated(patternIndex);
+        emit statusTextRequested(tr("A new pattern created!"));
+        setIsModified(true);
+    }
+
+    if (const auto newLineCount = m_song->lineCount(m_cursorPosition.pattern); newLineCount != oldLineCount) {
+        clampCursorLine(oldLineCount, newLineCount);
+        emit currentLineCountChanged();
+    }
+
+    notifyPositionChange(oldPosition);
 }
 
 bool EditorService::isAtNoteColumn() const
@@ -727,15 +767,15 @@ uint32_t EditorService::totalUnitCount() const
     return columnCount;
 }
 
-uint32_t EditorService::trackWidthInUnits(uint32_t trackId) const
+uint32_t EditorService::trackWidthInUnits(uint32_t trackIndex) const
 {
-    return m_song->columnCount(trackId);
+    return m_song->columnCount(trackIndex);
 }
 
-int EditorService::trackPositionInUnits(uint32_t trackId) const
+int EditorService::trackPositionInUnits(uint32_t trackIndex) const
 {
     int unitPosition = -m_horizontalScrollPosition;
-    for (uint32_t track = 0; track < trackId; track++) {
+    for (uint32_t track = 0; track < trackIndex; track++) {
         unitPosition += m_song->columnCount(track);
     }
     return unitPosition;

@@ -36,14 +36,14 @@ Rectangle {
     }
     function updateNoteDataAtPosition(position) {
         if (_isPositionMe(position)) {
-            const note = editorService.displayNoteAtPosition(editorService.currentPatternId(), _trackIndex, _index, position.line);
+            const note = editorService.displayNoteAtPosition(editorService.currentPattern(), _trackIndex, _index, position.line);
             _lines[position.line].note = note;
-            const velocity = editorService.displayVelocityAtPosition(editorService.currentPatternId(), _trackIndex, _index, position.line);
+            const velocity = editorService.displayVelocityAtPosition(editorService.currentPattern(), _trackIndex, _index, position.line);
             _lines[position.line].velocity = velocity;
         }
     }
     function _isPositionMe(position) {
-        return position.pattern === editorService.currentPatternId() && position.track === _trackIndex && position.column === _index;
+        return position.pattern === editorService.currentPattern() && position.track === _trackIndex && position.column === _index;
     }
     function _lineHeight() {
         const lineCount = editorService.linesVisible();
@@ -54,11 +54,11 @@ Rectangle {
     }
     function _createLines() {
         _lines = [];
-        const lineCount = editorService.currentLineCount();
+        const lineCount = editorService.currentLineCount;
         const lineHeight = _lineHeight();
         for (let lineIndex = 0; lineIndex < lineCount; lineIndex++) {
-            const note = editorService.displayNoteAtPosition(editorService.currentPatternId(), _trackIndex, _index, lineIndex);
-            const velocity = editorService.displayVelocityAtPosition(editorService.currentPatternId(), _trackIndex, _index, lineIndex);
+            const note = editorService.displayNoteAtPosition(editorService.currentPattern(), _trackIndex, _index, lineIndex);
+            const velocity = editorService.displayVelocityAtPosition(editorService.currentPattern(), _trackIndex, _index, lineIndex);
             const line = noteColumnLineComponent.createObject(rootItem, {
                 "index": lineIndex,
                 "width": rootItem.width,
@@ -72,7 +72,7 @@ Rectangle {
         }
     }
     function _resizeLines() {
-        const lineCount = editorService.currentLineCount();
+        const lineCount = editorService.currentLineCount;
         const lineHeight = _lineHeight();
         _lines.forEach(line => {
             line.y = lineHeight * _scrolledLinePositionByLineIndex(line.index);

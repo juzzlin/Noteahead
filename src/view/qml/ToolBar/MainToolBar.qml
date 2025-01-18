@@ -15,24 +15,24 @@ Rectangle {
             color: Constants.mainToolBarGradientStopColor
         }
     }
-    PlayerControls {
-        id: playerControls
-        anchors.left: parent.left
-        anchors.leftMargin: Constants.lineNumberColumnWidth
-        anchors.verticalCenter: parent.verticalCenter
-    }
     Item {
         id: editorControlsContainer
-        anchors.left: playerControls.right
-        anchors.right: parent.right
+        anchors.left: parent.left
+        anchors.leftMargin: Constants.lineNumberColumnWidth
+        anchors.right: playerControls.left
         anchors.verticalCenter: parent.verticalCenter
         height: parent.height
         clip: true
         EditorControls {
             id: editorControls
-            anchors.right: parent.right
-            anchors.rightMargin: Constants.lineNumberColumnWidth
+            anchors.left: parent.left
             anchors.verticalCenter: parent.verticalCenter
         }
+    }
+    PlayerControls {
+        id: playerControls
+        anchors.right: parent.right
+        anchors.rightMargin: Constants.lineNumberColumnWidth
+        anchors.verticalCenter: parent.verticalCenter
     }
 }

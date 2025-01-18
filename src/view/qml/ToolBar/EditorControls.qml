@@ -10,6 +10,29 @@ Row {
     Row {
         spacing: 5
         Text {
+            text: qsTr("PAT")
+            font.bold: true
+            color: Constants.mainToolBarTextColor
+            anchors.verticalCenter: parent.verticalCenter
+        }
+        SpinBox {
+            id: patternIndexSpinBox
+            value: editorService.currentPattern()
+            from: editorService.minPatternIndex()
+            to: editorService.maxPatternIndex()
+            editable: false
+            enabled: !UiService.isPlaying()
+            onValueChanged: editorService.setCurrentPattern(patternIndexSpinBox.value)
+            Keys.onReturnPressed: focus = false
+            ToolTip.delay: Constants.toolTipDelay
+            ToolTip.timeout: Constants.toolTipTimeout
+            ToolTip.visible: hovered
+            ToolTip.text: qsTr("Add or browse patterns") + ` (${editorService.minPatternIndex()}-${editorService.maxPatternIndex()})`
+        }
+    }
+    Row {
+        spacing: 5
+        Text {
             text: qsTr("LEN")
             font.bold: true
             color: Constants.mainToolBarTextColor
@@ -17,7 +40,7 @@ Row {
         }
         SpinBox {
             id: patternLengthSpinBox
-            value: editorService.currentLineCount()
+            value: editorService.currentLineCount
             from: editorService.minLineCount()
             to: editorService.maxLineCount()
             editable: true

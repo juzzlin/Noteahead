@@ -36,6 +36,7 @@ class EditorService : public QObject
     Q_PROPERTY(bool isModified READ isModified NOTIFY isModifiedChanged)
     Q_PROPERTY(bool canBeSaved READ canBeSaved NOTIFY canBeSavedChanged)
     Q_PROPERTY(QString currentFileName READ currentFileName NOTIFY currentFileNameChanged)
+    Q_PROPERTY(uint32_t currentLineCount READ currentLineCount NOTIFY currentLineCountChanged)
     Q_PROPERTY(double scrollBarSize READ scrollBarSize NOTIFY scrollBarSizeChanged)
     Q_PROPERTY(double scrollBarStepSize READ scrollBarStepSize NOTIFY scrollBarStepSizeChanged)
 
@@ -62,7 +63,7 @@ public:
 
     Q_INVOKABLE bool canBeSaved() const;
 
-    Q_INVOKABLE uint32_t columnCount(uint32_t trackId) const;
+    Q_INVOKABLE uint32_t columnCount(uint32_t trackIndex) const;
 
     Q_INVOKABLE uint32_t lineCount(uint32_t patternId) const;
 
@@ -76,11 +77,15 @@ public:
 
     Q_INVOKABLE uint32_t maxLineCount() const;
 
+    Q_INVOKABLE uint32_t minPatternIndex() const;
+
+    Q_INVOKABLE uint32_t maxPatternIndex() const;
+
     Q_INVOKABLE int lineNumberAtViewLine(uint32_t line) const;
 
     Q_INVOKABLE uint32_t linesVisible() const;
 
-    Q_INVOKABLE QString displayNoteAtPosition(uint32_t patternId, uint32_t trackId, uint32_t columnId, uint32_t line) const;
+    Q_INVOKABLE QString displayNoteAtPosition(uint32_t patternId, uint32_t trackIndex, uint32_t columnId, uint32_t line) const;
 
     Q_INVOKABLE QString displayVelocityAtPosition(uint32_t pattern, uint32_t track, uint32_t column, uint32_t line) const;
 
@@ -92,13 +97,13 @@ public:
 
     Q_INVOKABLE uint32_t trackCount() const;
 
-    Q_INVOKABLE QString trackName(uint32_t trackId) const;
+    Q_INVOKABLE QString trackName(uint32_t trackIndex) const;
 
-    Q_INVOKABLE void setTrackName(uint32_t trackId, QString name);
+    Q_INVOKABLE void setTrackName(uint32_t trackIndex, QString name);
 
-    Q_INVOKABLE uint32_t currentPatternId() const;
+    Q_INVOKABLE uint32_t currentPattern() const;
 
-    Q_INVOKABLE void setCurrentPatternId(uint32_t currentPatternId);
+    Q_INVOKABLE void setCurrentPattern(uint32_t currentPattern);
 
     Q_INVOKABLE bool isAtNoteColumn() const;
 
@@ -148,9 +153,9 @@ public:
 
     Q_INVOKABLE uint32_t horizontalScrollPosition() const;
 
-    Q_INVOKABLE uint32_t trackWidthInUnits(uint32_t trackId) const;
+    Q_INVOKABLE uint32_t trackWidthInUnits(uint32_t trackIndex) const;
 
-    Q_INVOKABLE int trackPositionInUnits(uint32_t trackId) const;
+    Q_INVOKABLE int trackPositionInUnits(uint32_t trackIndex) const;
 
     Q_INVOKABLE void requestHorizontalScrollPositionChange(double position);
 
@@ -167,7 +172,9 @@ signals:
 
     void currentFileNameChanged();
 
-    void currentLineCountChanged();
+    void currentLineCountChanged(); // For the pattern length widget
+
+    void currentLineCountModified(uint32_t oldLineCount, uint32_t newLineCount);
 
     void currentPatternChanged();
 
@@ -178,6 +185,8 @@ signals:
     void isModifiedChanged();
 
     void noteDataAtPositionChanged(const Position & position);
+
+    void patternCreated(uint32_t patternIndex);
 
     void positionChanged(const Position & newPosition, const Position & oldPosition);
 
@@ -195,6 +204,8 @@ public slots:
     void requestPositionByTick(uint32_t tick);
 
 private:
+    void clampCursorLine(size_t oldLineCount, size_t newLineCount);
+
     using MidiNoteNameAndCode = std::pair<std::string, uint8_t>;
     using MidiNoteNameAndCodeOpt = std::optional<MidiNoteNameAndCode>;
     MidiNoteNameAndCodeOpt editorNoteToMidiNote(uint32_t note, uint32_t octave) const;
@@ -211,13 +222,13 @@ private:
 
     void removeDuplicateNoteOffs();
 
+    void resetCursorPosition();
+
     bool setVelocityAtCurrentPosition(uint8_t digit);
 
     void updateScrollBar();
 
     SongS m_song;
-
-    uint32_t m_currentPatternId = 0;
 
     Position m_cursorPosition;
 
