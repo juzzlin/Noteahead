@@ -88,6 +88,7 @@ set(QML_SOURCE_FILES
     ${QML_BASE_DIR}/ToolBar/EditorControls.qml
     ${QML_BASE_DIR}/ToolBar/MainToolBar.qml
     ${QML_BASE_DIR}/ToolBar/PlayButton.qml
+    ${QML_BASE_DIR}/ToolBar/PlayerControls.qml
     ${QML_BASE_DIR}/ToolBar/PrevButton.qml
     ${QML_BASE_DIR}/ToolBar/Separator.qml
     ${QML_BASE_DIR}/ToolBar/StopButton.qml

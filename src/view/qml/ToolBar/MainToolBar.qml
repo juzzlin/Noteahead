@@ -15,22 +15,14 @@ Rectangle {
             color: Constants.mainToolBarGradientStopColor
         }
     }
-    Row {
-        anchors.verticalCenter: parent.verticalCenter
+    PlayerControls {
         anchors.left: parent.left
         anchors.leftMargin: Constants.lineNumberColumnWidth
-        spacing: 5
-        PlayButton {
-        }
-        PrevButton {
-        }
-        StopButton {
-        }
+        anchors.verticalCenter: parent.verticalCenter
     }
     EditorControls {
         anchors.right: parent.right
         anchors.rightMargin: Constants.lineNumberColumnWidth
         anchors.verticalCenter: parent.verticalCenter
-        height: parent.height
     }
 }
