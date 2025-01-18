@@ -16,13 +16,23 @@ Rectangle {
         }
     }
     PlayerControls {
+        id: playerControls
         anchors.left: parent.left
         anchors.leftMargin: Constants.lineNumberColumnWidth
         anchors.verticalCenter: parent.verticalCenter
     }
-    EditorControls {
+    Item {
+        id: editorControlsContainer
+        anchors.left: playerControls.right
         anchors.right: parent.right
-        anchors.rightMargin: Constants.lineNumberColumnWidth
         anchors.verticalCenter: parent.verticalCenter
+        height: parent.height
+        clip: true
+        EditorControls {
+            id: editorControls
+            anchors.right: parent.right
+            anchors.rightMargin: Constants.lineNumberColumnWidth
+            anchors.verticalCenter: parent.verticalCenter
+        }
     }
 }
