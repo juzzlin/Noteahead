@@ -25,6 +25,7 @@ Cacophony is still a work in progress. **DO NOT USE FOR ANY REAL WORK** (except 
 * MIDI side-chaining (not sure if this is gonna work)
 * MIDI CC automation (channel volume, pan, cut-off)
 * Clock sync options: Internal, MIDI, Jack
+* Video generation
 
 ##
 ## License
