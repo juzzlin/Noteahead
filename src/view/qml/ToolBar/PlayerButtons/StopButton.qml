@@ -1,5 +1,6 @@
 import QtQuick 2.15
 import ".."
+import "../.."
 
 ToolBarButtonBase {
     id: rootItem

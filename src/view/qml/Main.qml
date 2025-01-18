@@ -19,6 +19,7 @@ import QtQuick.Controls 2.15
 import QtQuick.Controls.Universal 2.15
 import QtQuick.Dialogs
 import Cacophony 1.0
+import "Dialogs"
 import "Editor"
 import "ToolBar"
 
