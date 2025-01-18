@@ -87,11 +87,11 @@ set(QML_SOURCE_FILES
     ${QML_BASE_DIR}/MainMenuItemDelegate.qml
     ${QML_BASE_DIR}/ToolBar/EditorControls.qml
     ${QML_BASE_DIR}/ToolBar/MainToolBar.qml
-    ${QML_BASE_DIR}/ToolBar/PlayButton.qml
+    ${QML_BASE_DIR}/ToolBar/PlayerButtons/PlayButton.qml
+    ${QML_BASE_DIR}/ToolBar/PlayerButtons/PrevButton.qml
+    ${QML_BASE_DIR}/ToolBar/PlayerButtons/StopButton.qml
     ${QML_BASE_DIR}/ToolBar/PlayerControls.qml
-    ${QML_BASE_DIR}/ToolBar/PrevButton.qml
     ${QML_BASE_DIR}/ToolBar/Separator.qml
-    ${QML_BASE_DIR}/ToolBar/StopButton.qml
     ${QML_BASE_DIR}/ToolBar/ToolBarButtonBase.qml
     ${QML_BASE_DIR}/UiService.qml
     ${QML_BASE_DIR}/UnsavedChangesDialog.qml
