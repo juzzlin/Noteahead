@@ -17,7 +17,7 @@ Row {
         }
         SpinBox {
             id: patternIndexSpinBox
-            value: editorService.currentPattern()
+            value: editorService.currentPattern
             from: editorService.minPatternIndex()
             to: editorService.maxPatternIndex()
             editable: false

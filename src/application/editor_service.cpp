@@ -60,6 +60,7 @@ void EditorService::setSong(SongS song)
     emit beatsPerMinuteChanged();
     emit linesPerBeatChanged();
     emit currentLineCountChanged();
+    emit currentPatternChanged();
 
     updateScrollBar();
 

@@ -25,7 +25,7 @@ Rectangle {
     }
     function _createLines() {
         _lines = [];
-        const lineCount = editorService.lineCount(editorService.currentPattern());
+        const lineCount = editorService.lineCount(editorService.currentPattern);
         const lineHeight = _lineHeight();
         for (let lineIndex = 0; lineIndex < lineCount; lineIndex++) {
             const line = textComponent.createObject(rootItem, {

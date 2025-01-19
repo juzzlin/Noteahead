@@ -37,6 +37,7 @@ class EditorService : public QObject
     Q_PROPERTY(bool canBeSaved READ canBeSaved NOTIFY canBeSavedChanged)
     Q_PROPERTY(QString currentFileName READ currentFileName NOTIFY currentFileNameChanged)
     Q_PROPERTY(uint32_t currentLineCount READ currentLineCount NOTIFY currentLineCountChanged)
+    Q_PROPERTY(uint32_t currentPattern READ currentPattern NOTIFY currentPatternChanged)
     Q_PROPERTY(double scrollBarSize READ scrollBarSize NOTIFY scrollBarSizeChanged)
     Q_PROPERTY(double scrollBarStepSize READ scrollBarStepSize NOTIFY scrollBarStepSizeChanged)
 
@@ -178,7 +179,7 @@ signals:
 
     void currentLineCountModified(uint32_t oldLineCount, uint32_t newLineCount);
 
-    void currentPatternChanged();
+    void currentPatternChanged(); // For the pattern index widget
 
     void linesPerBeatChanged();
 

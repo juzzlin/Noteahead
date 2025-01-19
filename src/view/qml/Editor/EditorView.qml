@@ -130,27 +130,27 @@ FocusScope {
         _updatePatternVisibility();
     }
     function _updateCurrentTrackDimensions() {
-        const currentPattern = _patterns[editorService.currentPattern()];
+        const currentPattern = _patterns[editorService.currentPattern];
         for (const track of currentPattern._tracks) {
             _setTrackDimensionsByIndex(track, track.index());
         }
     }
     function _updateCurrentTrackData() {
-        const currentPattern = _patterns[editorService.currentPattern()];
+        const currentPattern = _patterns[editorService.currentPattern];
         for (const track of currentPattern._tracks) {
             track.updateData();
         }
     }
     function _setTrackFocused(trackIndex, columnIndex) {
-        const currentPattern = _patterns[editorService.currentPattern()];
+        const currentPattern = _patterns[editorService.currentPattern];
         currentPattern._tracks[trackIndex].setFocused(columnIndex, true);
     }
     function _setTrackUnfocused(trackIndex, columnIndex) {
-        const currentPattern = _patterns[editorService.currentPattern()];
+        const currentPattern = _patterns[editorService.currentPattern];
         currentPattern._tracks[trackIndex].setFocused(columnIndex, false);
     }
     function _updateTrackSizes() {
-        const currentPattern = _patterns[editorService.currentPattern()];
+        const currentPattern = _patterns[editorService.currentPattern];
         currentPattern._tracks.forEach(track => {
             _setTrackDimensionsByIndex(track, track.index());
         });
@@ -160,7 +160,7 @@ FocusScope {
         _setTrackFocused(newPosition.track, newPosition.column);
     }
     function _updatePosition(newPosition) {
-        const currentPattern = _patterns[editorService.currentPattern()];
+        const currentPattern = _patterns[editorService.currentPattern];
         currentPattern._tracks.forEach(track => {
             track.setPosition(newPosition);
         });
@@ -168,13 +168,13 @@ FocusScope {
         lineNumberColumnRight.setPosition(newPosition);
     }
     function _updateNoteDataAtPosition(position) {
-        const currentPattern = _patterns[editorService.currentPattern()];
+        const currentPattern = _patterns[editorService.currentPattern];
         currentPattern._tracks.forEach(track => {
             track.updateNoteDataAtPosition(position);
         });
     }
     function _updatePatternVisibility() {
-        const currentPatternIndex = editorService.currentPattern();
+        const currentPatternIndex = editorService.currentPattern;
         _patterns.forEach(pattern => {
             pattern.visible = pattern.index() === currentPatternIndex;
         });
