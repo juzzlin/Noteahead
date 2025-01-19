@@ -330,6 +330,49 @@ void EditorServiceTest::test_setCurrentLineCount_shouldSetLineCount()
     QCOMPARE(editorService.currentLineCount(), editorService.maxLineCount());
 }
 
+void EditorServiceTest::test_setCurrentPattern_shouldCreatePattern()
+{
+    EditorService editorService;
+
+    editorService.setCurrentLineCount(32); // New pattern should take the previous line count
+
+    QSignalSpy positionChangedSpy { &editorService, &EditorService::positionChanged };
+    QSignalSpy patternCreatedSpy { &editorService, &EditorService::patternCreated };
+
+    editorService.setCurrentPattern(0);
+
+    QCOMPARE(editorService.currentPattern(), 0);
+    QCOMPARE(editorService.patternCount(), 1);
+    QCOMPARE(positionChangedSpy.count(), 0);
+    QCOMPARE(patternCreatedSpy.count(), 0);
+
+    editorService.setCurrentPattern(1);
+
+    QCOMPARE(editorService.currentPattern(), 1);
+    QCOMPARE(editorService.patternCount(), 2);
+    QCOMPARE(editorService.lineCount(1), 32);
+    QCOMPARE(positionChangedSpy.count(), 1);
+    QCOMPARE(patternCreatedSpy.count(), 1);
+
+    editorService.setCurrentPattern(0);
+
+    QCOMPARE(editorService.currentPattern(), 0);
+    QCOMPARE(editorService.patternCount(), 2);
+    QCOMPARE(positionChangedSpy.count(), 2);
+    QCOMPARE(patternCreatedSpy.count(), 1);
+
+    editorService.setCurrentPattern(1);
+    editorService.setCurrentLineCount(128); // New pattern should take the previous line count
+
+    editorService.setCurrentPattern(2);
+
+    QCOMPARE(editorService.currentPattern(), 2);
+    QCOMPARE(editorService.patternCount(), 3);
+    QCOMPARE(editorService.lineCount(1), 128);
+    QCOMPARE(positionChangedSpy.count(), 5);
+    QCOMPARE(patternCreatedSpy.count(), 2);
+}
+
 void EditorServiceTest::test_setTrackName_shouldChangeTrackName()
 {
     EditorService editorService;

@@ -54,6 +54,8 @@ private slots:
 
     void test_setCurrentLineCount_shouldSetLineCount();
 
+    void test_setCurrentPattern_shouldCreatePattern();
+
     void test_setTrackName_shouldChangeTrackName();
 
     void test_toXmlFromXml_songProperties();
