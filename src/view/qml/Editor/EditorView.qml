@@ -185,7 +185,6 @@ FocusScope {
     function _changePattern() {
         _updatePatternVisibility();
         _updateCurrentTrackDimensions();
-        _updateCurrentTrackData();
     }
     function _updateCurrentLineCount(oldLineCount, newLineCount) {
         const currentPattern = _patterns[editorService.currentPattern()];
