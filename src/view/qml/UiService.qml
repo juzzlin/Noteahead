@@ -4,6 +4,7 @@ import QtQuick 2.15
 QtObject {
     signal aboutDialogRequested
     signal activeOctaveChanged(int activeOctave)
+    signal trackSettingsDialogRequested(int trackIndex)
     property int _activeOctave: 3
     readonly property string _tag: "UiService"
     function activeOctave() {
@@ -76,8 +77,14 @@ QtObject {
     function requestAboutDialog() {
         aboutDialogRequested();
     }
+    function requestTrackSettingsDialog(trackIndex) {
+        trackSettingsDialogRequested(trackIndex);
+    }
     signal quitRequested
     function requestQuit() {
         quitRequested();
+    }
+    function requestAvailableMidiPorts() {
+        return applicationService.availableMidiPorts;
     }
 }

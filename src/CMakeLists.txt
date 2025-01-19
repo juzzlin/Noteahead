@@ -71,6 +71,7 @@ set(QML_SOURCE_FILES
     ${QML_BASE_DIR}/BottomBar.qml
     ${QML_BASE_DIR}/Constants.qml
     ${QML_BASE_DIR}/Dialogs/AboutDialog.qml
+    ${QML_BASE_DIR}/Dialogs/TrackSettingsDialog.qml
     ${QML_BASE_DIR}/Dialogs/UnsavedChangesDialog.qml
     ${QML_BASE_DIR}/Editor/Cursor.qml
     ${QML_BASE_DIR}/Editor/EditorView.qml
@@ -98,8 +99,10 @@ set(QML_SOURCE_FILES
     ${QML_BASE_DIR}/UiService.qml
 )
 set(SVG_SOURCE_FILES
+    ${QML_BASE_DIR}/Graphics/add_box.svg
     ${QML_BASE_DIR}/Graphics/play.svg
     ${QML_BASE_DIR}/Graphics/prev.svg
+    ${QML_BASE_DIR}/Graphics/settings.svg
     ${QML_BASE_DIR}/Graphics/stop.svg
 )
 qt_add_qml_module(${BINARY_NAME}

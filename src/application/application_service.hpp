@@ -17,16 +17,21 @@
 #define APPLICATION_SERVICE_HPP
 
 #include <QObject>
+#include <QTimer>
 #include <QUrl>
 
 namespace cacophony {
 
 class EditorService;
+class MidiService;
+class PlayerService;
 class StateMachine;
 
 class ApplicationService : public QObject
 {
     Q_OBJECT
+
+    Q_PROPERTY(QStringList availableMidiPorts READ availableMidiPorts NOTIFY availableMidiPortsChanged)
 
 public:
     ApplicationService();
@@ -63,6 +68,8 @@ public:
 
     Q_INVOKABLE void saveProjectAs(QUrl url);
 
+    Q_INVOKABLE QStringList availableMidiPorts() const;
+
     void requestUnsavedChangesDialog();
 
     void requestOpenDialog();
@@ -75,7 +82,15 @@ public:
     using EditorServiceS = std::shared_ptr<EditorService>;
     void setEditorService(EditorServiceS editorService);
 
+    using MidiServiceS = std::shared_ptr<MidiService>;
+    void setMidiService(MidiServiceS midiService);
+
+    using PlayerServiceS = std::shared_ptr<PlayerService>;
+    void setPlayerService(PlayerServiceS playerService);
+
 signals:
+    void availableMidiPortsChanged();
+
     void unsavedChangesDialogRequested();
 
     void openDialogRequested();
@@ -89,7 +104,15 @@ signals:
 private:
     StateMachineS m_stateMachine;
 
+    MidiServiceS m_midiService;
+
     EditorServiceS m_editorService;
+
+    PlayerServiceS m_playerService;
+
+    std::unique_ptr<QTimer> m_midiScanTimer;
+
+    QStringList m_availableMidiPorts;
 };
 
 } // namespace cacophony

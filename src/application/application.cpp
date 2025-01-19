@@ -59,6 +59,8 @@ Application::Application(int & argc, char ** argv)
 
     m_applicationService->setStateMachine(m_stateMachine);
     m_applicationService->setEditorService(m_editorService);
+    m_applicationService->setMidiService(m_midiService);
+    m_applicationService->setPlayerService(m_playerService);
 }
 
 void Application::handleCommandLineArguments(int & argc, char ** argv)

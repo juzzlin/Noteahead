@@ -54,5 +54,5 @@ Rectangle {
             }
         }
     }
-    Component.onCompleted: setStatusText(qsTr("Press <b>ESC</b> to edit, <b>SPACE</b> to play"))
+    Component.onCompleted: setStatusText(qsTr("Press <b>ESC</b> to edit, <b>SPACE</b> to play, letter keys are notes"))
 }

@@ -90,6 +90,17 @@ ApplicationWindow {
             applicationService.cancelSaveProjectAs();
         }
     }
+    TrackSettingsDialog {
+        id: trackSettingsDialog
+        anchors.centerIn: parent
+        width: parent.width * 0.5
+        onAccepted: {
+            uiLogger.info(_tag, "Track settings accepted");
+        }
+        onRejected: {
+            uiLogger.info(_tag, "Track settings rejected");
+        }
+    }
     UnsavedChangesDialog {
         id: unsavedChangesDialog
         anchors.centerIn: parent
@@ -132,6 +143,10 @@ ApplicationWindow {
     }
     function _connectUiService() {
         UiService.aboutDialogRequested.connect(aboutDialog.open);
+        UiService.trackSettingsDialogRequested.connect(trackIndex => {
+            trackSettingsDialog.setTrackIndex(trackIndex);
+            trackSettingsDialog.open();
+        });
         UiService.quitRequested.connect(() => {
             config.saveWindowSize(Qt.size(mainWindow.width, mainWindow.height));
             applicationService.requestQuit();

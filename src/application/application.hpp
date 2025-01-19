@@ -71,7 +71,7 @@ private:
 
     std::shared_ptr<EditorService> m_editorService;
 
-    std::unique_ptr<PlayerService> m_playerService;
+    std::shared_ptr<PlayerService> m_playerService;
 
     std::shared_ptr<StateMachine> m_stateMachine;
 
@@ -79,7 +79,7 @@ private:
 
     std::unique_ptr<QQmlApplicationEngine> m_engine;
 
-    std::unique_ptr<MidiService> m_midiService; // MidiService instance for --list-devices
+    std::shared_ptr<MidiService> m_midiService;
 
     bool m_listDevices = false; // Flag for --list-devices
 
