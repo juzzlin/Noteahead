@@ -100,6 +100,11 @@ bool Pattern::hasData() const
       != m_tracks.end();
 }
 
+bool Pattern::hasData(uint32_t track, uint32_t column) const
+{
+    return m_tracks.at(track)->hasData(column);
+}
+
 std::string Pattern::trackName(uint32_t trackIndex) const
 {
     return m_tracks.at(trackIndex)->name();

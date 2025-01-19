@@ -105,6 +105,8 @@ public:
 
     Q_INVOKABLE void setCurrentPattern(uint32_t currentPattern);
 
+    Q_INVOKABLE bool hasData(uint32_t pattern, uint32_t track, uint32_t column) const;
+
     Q_INVOKABLE bool isAtNoteColumn() const;
 
     Q_INVOKABLE bool isAtVelocityColumn() const;

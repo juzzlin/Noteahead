@@ -67,6 +67,8 @@ public:
 
     bool hasData() const;
 
+    bool hasData(uint32_t pattern, uint32_t track, uint32_t column) const;
+
     std::string trackName(uint32_t trackIndex) const;
 
     void setTrackName(uint32_t trackIndex, std::string name);

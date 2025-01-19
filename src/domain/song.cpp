@@ -102,6 +102,11 @@ bool Song::hasData() const
       != m_patterns.end();
 }
 
+bool Song::hasData(uint32_t pattern, uint32_t track, uint32_t column) const
+{
+    return m_patterns.at(pattern)->hasData(track, column);
+}
+
 std::string Song::trackName(uint32_t trackIndex) const
 {
     return m_patterns.at(0)->trackName(trackIndex);

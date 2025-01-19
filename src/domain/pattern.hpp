@@ -59,6 +59,8 @@ public:
 
     bool hasData() const;
 
+    bool hasData(uint32_t track, uint32_t column) const;
+
     std::string trackName(uint32_t trackIndex) const;
 
     using TrackS = std::shared_ptr<Track>;

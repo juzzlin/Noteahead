@@ -353,6 +353,11 @@ void EditorService::setCurrentPattern(uint32_t patternIndex)
     notifyPositionChange(oldPosition);
 }
 
+bool EditorService::hasData(uint32_t pattern, uint32_t track, uint32_t column) const
+{
+    return m_song->hasData(pattern, track, column);
+}
+
 bool EditorService::isAtNoteColumn() const
 {
     return !m_cursorPosition.lineColumn;

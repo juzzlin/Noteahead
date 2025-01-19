@@ -56,10 +56,23 @@ Rectangle {
     function _scrolledLinePositionByLineIndex(lineIndex) {
         return lineIndex - _scrollOffset + editorService.positionBarLine();
     }
-    function _createLines() {
-        _lines = [];
-        const lineCount = editorService.lineCount(_patternIndex);
-        const lineHeight = _lineHeight();
+    function _initializeWithNoData(lineCount, lineHeight) {
+        const note = editorService.displayNoteAtPosition(_patternIndex, _trackIndex, _index, 0);
+        for (let lineIndex = 0; lineIndex < lineCount; lineIndex++) {
+            const velocity = editorService.displayVelocityAtPosition(_patternIndex, _trackIndex, _index, lineIndex);
+            const line = noteColumnLineComponent.createObject(rootItem, {
+                "index": lineIndex,
+                "width": rootItem.width,
+                "height": lineHeight,
+                "x": 0,
+                "y": lineHeight * _scrolledLinePositionByLineIndex(lineIndex),
+                "note": note,
+                "velocity": velocity
+            });
+            _lines.push(line);
+        }
+    }
+    function _initializeWithData(lineCount, lineHeight) {
         for (let lineIndex = 0; lineIndex < lineCount; lineIndex++) {
             const note = editorService.displayNoteAtPosition(_patternIndex, _trackIndex, _index, lineIndex);
             const velocity = editorService.displayVelocityAtPosition(_patternIndex, _trackIndex, _index, lineIndex);
@@ -73,6 +86,16 @@ Rectangle {
                 "velocity": velocity
             });
             _lines.push(line);
+        }
+    }
+    function _createLines() {
+        _lines = [];
+        const lineCount = editorService.lineCount(_patternIndex);
+        const lineHeight = _lineHeight();
+        if (editorService.hasData(_patternIndex, _trackIndex, _index)) {
+            _initializeWithData(lineCount, lineHeight);
+        } else {
+            _initializeWithNoData(lineCount, lineHeight);
         }
     }
     function _resizeLines() {

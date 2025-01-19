@@ -50,6 +50,8 @@ public:
 
     bool hasData() const;
 
+    bool hasData(uint32_t column) const;
+
     std::string name() const;
 
     void setName(const std::string & newName);

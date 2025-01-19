@@ -93,6 +93,11 @@ bool Track::hasData() const
       != m_columns.end();
 }
 
+bool Track::hasData(uint32_t column) const
+{
+    return m_columns.at(column)->hasData();
+}
+
 Position Track::nextNoteDataOnSameColumn(const Position & position) const
 {
     return m_columns.at(position.column)->nextNoteDataOnSameColumn(position);
