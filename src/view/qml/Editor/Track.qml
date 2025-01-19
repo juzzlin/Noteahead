@@ -80,7 +80,7 @@ Item {
         property var _noteColumns: []
         property var _lineColumn
         function clearColumns() {
-            _noteColumns.forEach(column => column.destroy());
+            _noteColumns = [];
         }
         function createColumns() {
             _noteColumnCount = editorService.columnCount(_index);

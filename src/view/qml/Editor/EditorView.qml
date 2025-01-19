@@ -84,9 +84,6 @@ FocusScope {
         _updateLineColumns();
     }
     function _clearPatterns() {
-        _patterns.forEach(pattern => {
-            pattern.destroy();
-        });
         _patterns = [];
     }
     function _setTrackDimensionsByIndex(track, trackIndex) {
