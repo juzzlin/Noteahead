@@ -52,7 +52,16 @@ Rectangle {
             font.bold: true
             font.pixelSize: Constants.trackHeaderFontSize
             font.family: "monospace"
-            onClicked: rootItem.newColumnRequested()
+            enabled: !UiService.isPlaying()
+            onClicked: {
+                rootItem.newColumnRequested();
+                focus = false;
+            }
+            Keys.onPressed: event => {
+                if (event.key === Qt.Key_Space) {
+                    event.accepted = true;
+                }
+            }
             ToolTip.delay: Constants.toolTipDelay
             ToolTip.timeout: Constants.toolTipTimeout
             ToolTip.visible: hovered
