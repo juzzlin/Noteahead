@@ -42,8 +42,8 @@ void Song::createPattern(uint32_t patternIndex)
     if (m_patterns.empty()) {
         initialize();
     } else {
-        const auto previousPattern = m_patterns[m_patterns.rbegin()->first];
-        m_patterns[patternIndex] = std::make_shared<Pattern>(patternIndex, previousPattern->lineCount(), previousPattern->trackCount());
+        const auto previousPattern = m_patterns.at(m_patterns.rbegin()->first);
+        m_patterns[patternIndex] = previousPattern->copyWithoutData(patternIndex);
     }
 }
 
@@ -64,6 +64,11 @@ uint32_t Song::columnCount(uint32_t trackIndex) const
     return m_patterns.at(0)->columnCount(trackIndex);
 }
 
+uint32_t Song::columnCount(uint32_t patternIndex, uint32_t trackIndex) const
+{
+    return m_patterns.at(patternIndex)->columnCount(trackIndex);
+}
+
 uint32_t Song::lineCount(uint32_t patternIndex) const
 {
     return m_patterns.at(patternIndex)->lineCount();
@@ -82,6 +87,11 @@ uint32_t Song::patternCount() const
 uint32_t Song::trackCount() const
 {
     return m_patterns.at(0)->trackCount();
+}
+
+uint32_t Song::trackCount(uint32_t patternIndex) const
+{
+    return m_patterns.at(patternIndex)->trackCount();
 }
 
 bool Song::hasData() const

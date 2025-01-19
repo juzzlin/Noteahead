@@ -24,6 +24,25 @@
 
 namespace cacophony {
 
+void SongTest::test_createPattern_columnAdded_shouldCreatePattern()
+{
+    Song song;
+
+    song.addColumn(0);
+    song.addColumn(2);
+    song.addColumn(4);
+    song.addColumn(6);
+    song.addColumn(6);
+    song.createPattern(1);
+
+    QCOMPARE(song.patternCount(), 2);
+    QCOMPARE(song.trackCount(0), song.trackCount(1));
+    for (size_t i = 0; i < song.trackCount(0); i++) {
+        QCOMPARE(song.columnCount(0, i), song.columnCount(1, i));
+    }
+    QCOMPARE(song.lineCount(0), song.lineCount(1));
+}
+
 void SongTest::test_hasData_emptySong_hasNoData()
 {
     Song song;

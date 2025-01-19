@@ -26,6 +26,8 @@ class SongTest : public QObject
 
 private slots:
 
+    void test_createPattern_columnAdded_shouldCreatePattern();
+
     void test_hasData_emptySong_hasNoData();
 
     void test_hasData_noteOnAdded_shouldHaveData();

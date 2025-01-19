@@ -10,12 +10,6 @@ FocusScope {
     readonly property string _tag: "EditorView"
     focus: true
     Component {
-        id: trackComponent
-        Track {
-            height: rootItem.height
-        }
-    }
-    Component {
         id: patternComponent
         Pattern {
             height: rootItem.height
@@ -108,23 +102,14 @@ FocusScope {
         });
     }
     function _createTracks(pattern) {
-        pattern.clearTracks();
-        for (let trackIndex = 0; trackIndex < _trackCount; trackIndex++) {
-            const track = trackComponent.createObject(pattern);
-            if (track) {
-                _setTrackDimensionsByIndex(track, trackIndex);
-                track.setIndex(trackIndex);
-                track.setName(editorService.trackName(trackIndex));
-                track.setPositionBar(positionBar);
-                track.nameChanged.connect(name => editorService.setTrackName(trackIndex, name));
-                track.updateData();
-                pattern._tracks.push(track);
-                _connectTrack(track);
-                uiLogger.debug(_tag, `Added track index=${trackIndex}, width=${track.width}, height=${track.height}, x=${track.x}, y=${track.y}`);
-            }
-        }
+        pattern.createTracks(positionBar);
+        pattern.tracks().forEach(track => {
+            _setTrackDimensionsByIndex(track, track.index());
+            _connectTrack(track);
+        });
     }
     function _createPattern(patternIndex) {
+        uiLogger.debug(_tag, `Creating pattern index=${patternIndex}`);
         const pattern = patternComponent.createObject(trackArea);
         pattern.setIndex(patternIndex);
         _createTracks(pattern);

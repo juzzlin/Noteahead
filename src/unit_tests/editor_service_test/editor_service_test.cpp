@@ -373,6 +373,25 @@ void EditorServiceTest::test_setCurrentPattern_shouldCreatePattern()
     QCOMPARE(patternCreatedSpy.count(), 2);
 }
 
+void EditorServiceTest::test_setCurrentPattern_addColumnFirst_shouldCreatePattern()
+{
+    EditorService editorService;
+
+    QSignalSpy positionChangedSpy { &editorService, &EditorService::positionChanged };
+    QSignalSpy patternCreatedSpy { &editorService, &EditorService::patternCreated };
+
+    editorService.setCurrentPattern(0);
+    editorService.requestNewColumn(0);
+    const auto newColumnCount = editorService.columnCount(0);
+    editorService.setCurrentPattern(1);
+
+    QCOMPARE(editorService.currentPattern(), 1);
+    QCOMPARE(editorService.columnCount(0), newColumnCount);
+    QCOMPARE(editorService.patternCount(), 2);
+    QCOMPARE(positionChangedSpy.count(), 2);
+    QCOMPARE(patternCreatedSpy.count(), 1);
+}
+
 void EditorServiceTest::test_setTrackName_shouldChangeTrackName()
 {
     EditorService editorService;

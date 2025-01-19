@@ -16,6 +16,7 @@
 #ifndef PATTERN_HPP
 #define PATTERN_HPP
 
+#include <map>
 #include <memory>
 #include <vector>
 
@@ -32,6 +33,17 @@ class Pattern
 {
 public:
     Pattern(uint32_t index, uint32_t lineCount, uint32_t trackCount);
+
+    using ColumnConfig = std::map<uint32_t, uint32_t>;
+
+    struct PatternConfig
+    {
+        uint32_t lineCount = 0;
+
+        ColumnConfig columnConfig;
+    };
+
+    Pattern(uint32_t index, PatternConfig config);
 
     uint32_t index() const;
 
@@ -70,6 +82,10 @@ public:
     EventList renderToEvents(size_t startTick, size_t ticksPerLine) const;
 
     void serializeToXml(QXmlStreamWriter & writer) const;
+
+    std::unique_ptr<Pattern> copyWithoutData(uint32_t index) const;
+
+    PatternConfig patternConfig() const;
 
 private:
     void initialize(uint32_t lineCount, uint32_t trackCount);

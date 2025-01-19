@@ -6,6 +6,7 @@ import ".."
 Item {
     id: rootItem
     property int _index: 0
+    property int _patternIndex: 0
     property string _name
     property bool _focused
     property Item _positionBar
@@ -14,6 +15,12 @@ Item {
     signal nameChanged(string name)
     function index() {
         return _index;
+    }
+    function setIndex(index) {
+        _index = index;
+    }
+    function setPatternIndex(index) {
+        _patternIndex = index;
     }
     function resize(width, height) {
         rootItem.width = width;
@@ -27,9 +34,6 @@ Item {
         _focused = focused;
         trackHeader.setFocused(focused);
         columnContainer.setFocused(columnIndex, focused);
-    }
-    function setIndex(index) {
-        _index = index;
     }
     function setName(name) {
         _name = name;
@@ -112,6 +116,7 @@ Item {
                 noteColumn.x = _noteColumnX(col);
                 noteColumn.setIndex(col);
                 noteColumn.setTrackIndex(_index);
+                noteColumn.setPatternIndex(_patternIndex);
                 noteColumn.updateData();
                 noteColumn.clicked.connect(() => {
                     uiLogger.debug(_tag, `Track ${rootItem._index} clicked`);

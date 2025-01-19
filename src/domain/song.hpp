@@ -51,6 +51,9 @@ public:
 
     uint32_t columnCount(uint32_t trackIndex) const;
 
+    //! For testing purposes as column counts should be consistent over patterns.
+    uint32_t columnCount(uint32_t patternIndex, uint32_t trackIndex) const;
+
     uint32_t lineCount(uint32_t patternIndex) const;
 
     void setLineCount(uint32_t patternIndex, uint32_t lineCount);
@@ -58,6 +61,9 @@ public:
     uint32_t patternCount() const;
 
     uint32_t trackCount() const;
+
+    //! For testing purposes as track counts should be consistent over patterns.
+    uint32_t trackCount(uint32_t patternIndex) const;
 
     bool hasData() const;
 

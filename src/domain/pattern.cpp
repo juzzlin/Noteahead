@@ -33,6 +33,33 @@ Pattern::Pattern(uint32_t index, uint32_t lineCount, uint32_t trackCount)
     initialize(lineCount, trackCount);
 }
 
+Pattern::Pattern(uint32_t index, PatternConfig config)
+  : m_index { index }
+{
+    initialize(config.lineCount, config.columnConfig.size());
+
+    for (auto && track : m_tracks) {
+        while (track->columnCount() < config.columnConfig.at(track->index())) {
+            track->addColumn();
+        }
+    }
+}
+
+std::unique_ptr<Pattern> Pattern::copyWithoutData(uint32_t index) const
+{
+    return std::make_unique<Pattern>(index, patternConfig());
+}
+
+Pattern::PatternConfig Pattern::patternConfig() const
+{
+    PatternConfig config;
+    config.lineCount = m_tracks.at(0)->lineCount();
+    for (auto && track : m_tracks) {
+        config.columnConfig[track->index()] = track->columnCount();
+    }
+    return config;
+}
+
 uint32_t Pattern::index() const
 {
     return m_index;

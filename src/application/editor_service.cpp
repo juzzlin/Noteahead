@@ -321,6 +321,16 @@ uint32_t EditorService::currentPattern() const
     return m_cursorPosition.pattern;
 }
 
+void EditorService::createPatternIfDoesNotExist(uint32_t patternIndex)
+{
+    if (!m_song->hasPattern(patternIndex)) {
+        m_song->createPattern(patternIndex);
+        emit patternCreated(patternIndex);
+        emit statusTextRequested(tr("A new pattern created!"));
+        setIsModified(true);
+    }
+}
+
 void EditorService::setCurrentPattern(uint32_t patternIndex)
 {
     if (currentPattern() == patternIndex) {
@@ -332,12 +342,7 @@ void EditorService::setCurrentPattern(uint32_t patternIndex)
 
     const auto oldLineCount = m_song->lineCount(oldPosition.pattern);
 
-    if (!m_song->hasPattern(patternIndex)) {
-        m_song->createPattern(patternIndex);
-        emit patternCreated(patternIndex);
-        emit statusTextRequested(tr("A new pattern created!"));
-        setIsModified(true);
-    }
+    createPatternIfDoesNotExist(patternIndex);
 
     if (const auto newLineCount = m_song->lineCount(m_cursorPosition.pattern); newLineCount != oldLineCount) {
         clampCursorLine(oldLineCount, newLineCount);

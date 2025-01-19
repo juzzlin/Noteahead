@@ -56,6 +56,8 @@ private slots:
 
     void test_setCurrentPattern_shouldCreatePattern();
 
+    void test_setCurrentPattern_addColumnFirst_shouldCreatePattern();
+
     void test_setTrackName_shouldChangeTrackName();
 
     void test_toXmlFromXml_songProperties();
