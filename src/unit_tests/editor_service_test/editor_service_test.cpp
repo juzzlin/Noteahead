@@ -106,17 +106,19 @@ void EditorServiceTest::test_requestHorizontalScrollPositionChange_shouldChangeP
     QSignalSpy horizontalScrollChangeSpy(&editorService, &EditorService::horizontalScrollChanged);
     QSignalSpy positionChangedSpy { &editorService, &EditorService::positionChanged };
 
-    editorService.requestHorizontalScrollPositionChange(0.5);
-
+    editorService.requestHorizontalScrollPositionChange(0);
     QCOMPARE(editorService.horizontalScrollPosition(), 0);
 
+    editorService.requestHorizontalScrollPositionChange(0.5);
+    QCOMPARE(editorService.horizontalScrollPosition(), 2);
+
     editorService.requestNewColumn(0);
-    QCOMPARE(positionChangedSpy.count(), 1);
+    QCOMPARE(positionChangedSpy.count(), 2);
     editorService.requestHorizontalScrollPositionChange(0.5); // Not the exact threshold, but "enough"
 
-    QCOMPARE(editorService.horizontalScrollPosition(), 1);
-    QCOMPARE(horizontalScrollChangeSpy.count(), 1);
-    QCOMPARE(positionChangedSpy.count(), 2);
+    QCOMPARE(editorService.horizontalScrollPosition(), 3);
+    QCOMPARE(horizontalScrollChangeSpy.count(), 2);
+    QCOMPARE(positionChangedSpy.count(), 3);
 }
 
 void EditorServiceTest::test_requestNewColumn_shouldAddNewColumn()

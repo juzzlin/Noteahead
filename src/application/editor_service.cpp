@@ -744,7 +744,7 @@ void EditorService::setLinesPerBeat(uint32_t linesPerBeat)
 
 uint32_t EditorService::visibleUnitCount() const
 {
-    return 8;
+    return 6;
 }
 
 uint32_t EditorService::horizontalScrollPosition() const
