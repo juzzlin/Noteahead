@@ -31,18 +31,15 @@ void MidiServiceRtMidi::updateAvailableDevices()
     setDevices(devices);
 }
 
-bool MidiServiceRtMidi::openDevice(MidiDeviceS device)
+void MidiServiceRtMidi::openDevice(MidiDeviceS device)
 {
-    if (m_midiPorts.find(device->portIndex()) != m_midiPorts.end()) {
-        throw std::runtime_error { "Device already opened." };
-    }
-
-    if (auto midiOut = std::make_unique<RtMidiOut>(); device->portIndex() >= midiOut->getPortCount()) {
-        throw std::runtime_error { "Invalid MIDI port index: " + std::to_string(device->portIndex()) };
-    } else {
-        midiOut->openPort(device->portIndex());
-        m_midiPorts[device->portIndex()] = std::move(midiOut);
-        return true;
+    if (!m_midiPorts.contains(device->portIndex())) {
+        if (auto midiOut = std::make_unique<RtMidiOut>(); device->portIndex() >= midiOut->getPortCount()) {
+            throw std::runtime_error { "Invalid MIDI port index: " + std::to_string(device->portIndex()) };
+        } else {
+            midiOut->openPort(device->portIndex());
+            m_midiPorts[device->portIndex()] = std::move(midiOut);
+        }
     }
 }
 
@@ -64,20 +61,28 @@ void MidiServiceRtMidi::sendMessage(MidiDeviceS device, const Message & message)
     }
 }
 
-void MidiServiceRtMidi::sendNoteOn(MidiDeviceS device, uint32_t channel, uint32_t note, uint32_t velocity) const
+void MidiServiceRtMidi::sendNoteOn(MidiDeviceS device, uint8_t channel, uint8_t note, uint8_t velocity) const
 {
-    Message message = { static_cast<unsigned char>(0x90 | (channel & 0x0F)),
-                        static_cast<unsigned char>(note),
-                        static_cast<unsigned char>(velocity) };
+    const Message message = { static_cast<unsigned char>(0x90 | (channel & 0x0F)),
+                              static_cast<unsigned char>(note),
+                              static_cast<unsigned char>(velocity) };
 
     sendMessage(device, message);
 }
 
-void MidiServiceRtMidi::sendNoteOff(MidiDeviceS device, uint32_t channel, uint32_t note, uint32_t velocity) const
+void MidiServiceRtMidi::sendNoteOff(MidiDeviceS device, uint8_t channel, uint8_t note, uint8_t velocity) const
 {
-    Message message = { static_cast<unsigned char>(0x80 | (channel & 0x0F)),
-                        static_cast<unsigned char>(note),
-                        static_cast<unsigned char>(velocity) };
+    const Message message = { static_cast<unsigned char>(0x80 | (channel & 0x0F)),
+                              static_cast<unsigned char>(note),
+                              static_cast<unsigned char>(velocity) };
+
+    sendMessage(device, message);
+}
+
+void MidiServiceRtMidi::sendPatchChange(MidiDeviceS device, uint8_t channel, uint8_t patch) const
+{
+    const Message message = { static_cast<unsigned char>(0xC0 | (channel & 0x0F)),
+                              static_cast<unsigned char>(patch) };
 
     sendMessage(device, message);
 }

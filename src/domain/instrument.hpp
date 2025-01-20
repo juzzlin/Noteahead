@@ -16,12 +16,30 @@
 #ifndef INSTRUMENT_HPP
 #define INSTRUMENT_HPP
 
+#include <cstdint>
+#include <optional>
+#include <string>
+
 namespace cacophony {
 
-class Instrument
+struct Instrument
 {
-public:
-    Instrument();
+    std::string portName;
+
+    uint32_t channel = 0;
+
+    std::optional<uint8_t> patch;
+
+    struct Bank
+    {
+        uint8_t bankLsb = 0;
+
+        uint8_t bankMsb = 0;
+
+        bool swapByteOrder = false;
+    };
+
+    std::optional<Bank> bank;
 };
 
 } // namespace cacophony

@@ -11,14 +11,30 @@ Dialog {
     modal: true
     footer: DialogButtonBox {
         Button {
-            text: qsTr("Ok")
+            text: qsTr("Save")
             DialogButtonBox.buttonRole: DialogButtonBox.AcceptRole
             onClicked: rootItem.accepted()
+            ToolTip.delay: Constants.toolTipDelay
+            ToolTip.timeout: Constants.toolTipTimeout
+            ToolTip.visible: hovered
+            ToolTip.text: qsTr("Save current settings")
         }
         Button {
             text: qsTr("Cancel")
             DialogButtonBox.buttonRole: DialogButtonBox.RejectRole
             onClicked: rootItem.rejected()
+            ToolTip.delay: Constants.toolTipDelay
+            ToolTip.timeout: Constants.toolTipTimeout
+            ToolTip.visible: hovered
+            ToolTip.text: qsTr("Don't save current settings")
+        }
+        Button {
+            text: qsTr("Test")
+            DialogButtonBox.buttonRole: DialogButtonBox.ApplyRole
+            ToolTip.delay: Constants.toolTipDelay
+            ToolTip.timeout: Constants.toolTipTimeout
+            ToolTip.visible: hovered
+            ToolTip.text: qsTr("Test current settings by triggering the middle C")
         }
     }
     property int _trackIndex: 0
@@ -53,6 +69,10 @@ Dialog {
                         Layout.columnSpan: 7
                         Layout.row: 0
                         Layout.fillWidth: true
+                        ToolTip.delay: Constants.toolTipDelay
+                        ToolTip.timeout: Constants.toolTipTimeout
+                        ToolTip.visible: hovered
+                        ToolTip.text: qsTr("Set MIDI port for this track")
                     }
                     Label {
                         text: qsTr("Channel:")
@@ -68,8 +88,8 @@ Dialog {
                             Component.onCompleted: {
                                 for (let i = 1; i <= 16; i++)
                                     append({
-                                        "channel": i
-                                    });
+                                            "channel": i
+                                        });
                             }
                         }
                         textRole: "channel"
@@ -78,6 +98,10 @@ Dialog {
                         Layout.columnSpan: 7
                         Layout.row: 1
                         Layout.fillWidth: true
+                        ToolTip.delay: Constants.toolTipDelay
+                        ToolTip.timeout: Constants.toolTipTimeout
+                        ToolTip.visible: hovered
+                        ToolTip.text: qsTr("Set MIDI channel (1-16)")
                     }
                     Label {
                         text: qsTr("Patch:")
@@ -93,6 +117,10 @@ Dialog {
                         Layout.columnSpan: 2
                         Layout.row: 2
                         Layout.fillWidth: true
+                        ToolTip.delay: Constants.toolTipDelay
+                        ToolTip.timeout: Constants.toolTipTimeout
+                        ToolTip.visible: hovered
+                        ToolTip.text: qsTr("Enable/disable patch setting for this track")
                     }
                     SpinBox {
                         id: midiPatchSpinBox
@@ -103,6 +131,14 @@ Dialog {
                         Layout.columnSpan: 5
                         Layout.row: 2
                         Layout.fillWidth: true
+                        editable: true
+                        onValueChanged: {
+                            UiService.requestPatchChange(midiPortDropdown.currentText, midiChannelDropdown.currentValue - 1, value);
+                        }
+                        ToolTip.delay: Constants.toolTipDelay
+                        ToolTip.timeout: Constants.toolTipTimeout
+                        ToolTip.visible: hovered
+                        ToolTip.text: qsTr("Set initial patch for this track. Note that some synths will add 1 to the chosen value so that 0 means 1.")
                     }
                     CheckBox {
                         id: enableBankCheckbox
@@ -111,6 +147,10 @@ Dialog {
                         Layout.columnSpan: 2
                         Layout.row: 3
                         Layout.fillWidth: true
+                        ToolTip.delay: Constants.toolTipDelay
+                        ToolTip.timeout: Constants.toolTipTimeout
+                        ToolTip.visible: hovered
+                        ToolTip.text: qsTr("Enable/disable bank setting for this track")
                     }
                     Label {
                         text: qsTr("Bank (LSB):")
@@ -128,6 +168,10 @@ Dialog {
                         Layout.columnSpan: 1
                         Layout.row: 3
                         Layout.fillWidth: true
+                        ToolTip.delay: Constants.toolTipDelay
+                        ToolTip.timeout: Constants.toolTipTimeout
+                        ToolTip.visible: hovered
+                        ToolTip.text: qsTr("Set initial bank for this track (LSB)")
                     }
                     Label {
                         text: qsTr("Bank (MSB):")
@@ -145,6 +189,10 @@ Dialog {
                         Layout.columnSpan: 1
                         Layout.row: 3
                         Layout.fillWidth: true
+                        ToolTip.delay: Constants.toolTipDelay
+                        ToolTip.timeout: Constants.toolTipTimeout
+                        ToolTip.visible: hovered
+                        ToolTip.text: qsTr("Set initial bank for this track (MSB)")
                     }
                     CheckBox {
                         id: swapBankByteOrderCheckBox
@@ -154,6 +202,10 @@ Dialog {
                         Layout.columnSpan: 2
                         Layout.row: 3
                         Layout.fillWidth: true
+                        ToolTip.delay: Constants.toolTipDelay
+                        ToolTip.timeout: Constants.toolTipTimeout
+                        ToolTip.visible: hovered
+                        ToolTip.text: qsTr("Swap the send order of LSB and MSB bytes")
                     }
                 }
             }

@@ -110,14 +110,16 @@ void Application::testDevice()
     m_midiService->updateAvailableDevices();
 
     if (const auto device = m_midiService->deviceByPortIndex(*m_testDeviceIndex); device) {
-        if (m_midiService->openDevice(device)) {
+        try {
+            m_midiService->openDevice(device);
             std::cout << "Playing middle C on device index " << *m_testDeviceIndex << " on channel " << *m_testDeviceChannel << std::endl;
             m_midiService->sendNoteOn(device, *m_testDeviceChannel, 60, 100); // Middle C
             std::this_thread::sleep_for(std::chrono::milliseconds(500));
             m_midiService->sendNoteOff(device, *m_testDeviceChannel, 60, 100); // Stop Middle C
-        } else {
-            std::cerr << "Failed to open MIDI device at index " << *m_testDeviceIndex << std::endl;
+        } catch (const std::runtime_error & e) {
+            std::cerr << e.what();
         }
+
     } else {
         std::cerr << "No MIDI device at index " << *m_testDeviceIndex << std::endl;
     }

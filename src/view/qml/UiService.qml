@@ -87,4 +87,8 @@ QtObject {
     function requestAvailableMidiPorts() {
         return applicationService.availableMidiPorts;
     }
+    function requestPatchChange(midiPort, midiChannel, patch) {
+        uiLogger.debug(_tag, `Requesting patch change port = '${midiPort}', channel = ${midiChannel}, patch = ${patch}`);
+        applicationService.requestPatchChange(midiPort, midiChannel, patch);
+    }
 }

@@ -60,6 +60,8 @@ public:
 
     Q_INVOKABLE void requestQuit();
 
+    Q_INVOKABLE void requestPatchChange(QString port, uint8_t channel, uint8_t patch);
+
     Q_INVOKABLE void cancelOpenProject();
 
     Q_INVOKABLE void openProject(QUrl url);

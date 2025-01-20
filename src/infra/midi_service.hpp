@@ -37,15 +37,19 @@ public:
 
     virtual MidiDeviceS deviceByPortIndex(uint32_t index) const;
 
+    virtual MidiDeviceS deviceByPortName(const std::string & name) const;
+
     virtual void updateAvailableDevices();
 
-    virtual bool openDevice(MidiDeviceS device);
+    virtual void openDevice(MidiDeviceS device);
 
     virtual void closeDevice(MidiDeviceS device);
 
-    virtual void sendNoteOn(MidiDeviceS device, uint32_t channel, uint32_t note, uint32_t velocity) const;
+    virtual void sendNoteOn(MidiDeviceS device, uint8_t channel, uint8_t note, uint8_t velocity) const;
 
-    virtual void sendNoteOff(MidiDeviceS device, uint32_t channel, uint32_t note, uint32_t velocity) const;
+    virtual void sendNoteOff(MidiDeviceS device, uint8_t channel, uint8_t note, uint8_t velocity) const;
+
+    virtual void sendPatchChange(MidiDeviceS device, uint8_t channel, uint8_t patch) const;
 
 protected:
     void setDevices(MidiDeviceList devices);

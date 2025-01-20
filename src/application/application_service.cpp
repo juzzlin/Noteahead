@@ -144,6 +144,22 @@ void ApplicationService::requestSaveProjectAs()
     m_stateMachine->calculateState(StateMachine::Action::SaveProjectAsRequested);
 }
 
+void ApplicationService::requestPatchChange(QString port, uint8_t channel, uint8_t patch)
+{
+    juzzlin::L(TAG).info() << "Patch change requested: port = '" + port.toStdString() + "', channel = " + std::to_string(channel) + ", patch = " + std::to_string(patch);
+    if (const auto device = m_midiService->deviceByPortName(port.toStdString()); device) {
+        juzzlin::L(TAG).info() << "Mapped device index: " << device->portIndex();
+        try {
+            m_midiService->openDevice(device);
+            m_midiService->sendPatchChange(device, channel, patch);
+        } catch (const std::runtime_error & e) {
+            juzzlin::L(TAG).error() << e.what();
+        }
+    } else {
+        juzzlin::L(TAG).error() << "No device found for port '" << port.toStdString() << "'";
+    }
+}
+
 void ApplicationService::cancelOpenProject()
 {
     m_stateMachine->calculateState(StateMachine::Action::OpeningProjectCanceled);

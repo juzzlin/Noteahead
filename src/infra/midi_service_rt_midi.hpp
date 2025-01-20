@@ -33,13 +33,15 @@ public:
 
     void updateAvailableDevices() override;
 
-    bool openDevice(MidiDeviceS device) override;
+    void openDevice(MidiDeviceS device) override;
 
     void closeDevice(MidiDeviceS device) override;
 
-    void sendNoteOn(MidiDeviceS device, uint32_t channel, uint32_t note, uint32_t velocity) const override;
+    void sendNoteOn(MidiDeviceS device, uint8_t channel, uint8_t note, uint8_t velocity) const override;
 
-    void sendNoteOff(MidiDeviceS device, uint32_t channel, uint32_t note, uint32_t velocity) const override;
+    void sendNoteOff(MidiDeviceS device, uint8_t channel, uint8_t note, uint8_t velocity) const override;
+
+    void sendPatchChange(MidiDeviceS device, uint8_t channel, uint8_t patch) const override;
 
 private:
     using Message = std::vector<unsigned char>;

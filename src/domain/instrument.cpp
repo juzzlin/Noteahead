@@ -17,8 +17,4 @@
 
 namespace cacophony {
 
-Instrument::Instrument()
-{
-}
-
 } // namespace cacophony
