@@ -6,13 +6,28 @@ import ".."
 Rectangle {
     id: rootItem
     color: "black"
-    property string _statusText
+    property string _statusText: ""
+    property var _statusQueue: []
+    property bool _isDisplaying: false
+    property string _tag: "BottomBar"
     function setStatusText(text) {
-        _statusText = text;
-        _fadeOutText();
+        uiLogger.debug(_tag, `Pushing new text ${text}`);
+        _statusQueue.push(text);
+        if (!_isDisplaying) {
+            _displayNextText();
+        }
+    }
+    function _displayNextText() {
+        if (_statusQueue.length > 0) {
+            _isDisplaying = true;
+            _statusText = _statusQueue.shift();
+            _fadeOutText();
+            uiLogger.debug(_tag, `Displaying text ${_statusText}`);
+        } else {
+            _isDisplaying = false;
+        }
     }
     function _fadeOutText() {
-        fadeAnimation.running = false;
         fadeAnimation.running = true;
     }
     Label {
@@ -28,8 +43,15 @@ Rectangle {
             property: "opacity"
             from: 1
             to: 0
-            duration: 5000
+            duration: 2500
+            easing.type: Easing.InQuad
             running: false
+            onRunningChanged: {
+                uiLogger.debug(_tag, `onRunningChanged: ${running} ${opacity}`);
+                if (!running) {
+                    _displayNextText();
+                }
+            }
         }
     }
     Component.onCompleted: setStatusText(qsTr("Press <b>ESC</b> to edit, <b>SPACE</b> to play"))
