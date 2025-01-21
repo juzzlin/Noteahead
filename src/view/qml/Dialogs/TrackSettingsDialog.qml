@@ -4,47 +4,47 @@ import QtQuick.Controls.Universal 2.15
 import QtQuick.Dialogs
 import QtQuick.Layouts
 import ".."
-import "../Common"
 
 Dialog {
     id: rootItem
-    title: "<strong>" + qsTr("Settings for track") + ` '${editorService.trackName(_trackIndex)}'` + "</strong>"
+    title: "<strong>" + qsTr("Settings for track") + ` '${editorService.trackName(trackSettingsModel.trackIndex)}'` + "</strong>"
     modal: true
-    property int _trackIndex: 0
     function setTrackIndex(trackIndex) {
-        _trackIndex = trackIndex;
-        const trackSettings = trackSettingsComponent.createObject();
-        trackSettings.fromMap(UiService.trackSettings(_trackIndex));
-        portNameDropdown.setSelected(trackSettings.portName);
-        channelDropdown.setSelected(trackSettings.channel + 1);
-        enablePatchCheckbox.checked = trackSettings.patchEnabled;
-        if (trackSettings.patchEnabled) {
-            patchSpinBox.value = trackSettings.patch;
+        trackSettingsModel.trackIndex = trackIndex;
+        trackSettingsModel.requestInstrumentData();
+    }
+    function initialize() {
+        portNameDropdown.setSelected(trackSettingsModel.portName);
+        channelDropdown.setSelected(trackSettingsModel.channel + 1);
+        enablePatchCheckbox.checked = trackSettingsModel.patchEnabled;
+        if (trackSettingsModel.patchEnabled) {
+            patchSpinBox.value = trackSettingsModel.patch;
         }
-        enableBankCheckbox.checked = trackSettings.bankEnabled;
-        if (trackSettings.bankEnabled) {
-            bankLsbSpinBox.value = trackSettings.bankLsb;
-            bankMsbSpinBox.value = trackSettings.bankMsb;
-            swapBankByteOrderCheckBox.checked = trackSettings.bankByteOrderSwapped;
+        enableBankCheckbox.checked = trackSettingsModel.bankEnabled;
+        if (trackSettingsModel.bankEnabled) {
+            bankLsbSpinBox.value = trackSettingsModel.bankLsb;
+            bankMsbSpinBox.value = trackSettingsModel.bankMsb;
+            swapBankByteOrderCheckBox.checked = trackSettingsModel.bankByteOrderSwapped;
         }
     }
     footer: DialogButtonBox {
         Button {
-            text: qsTr("Save")
+            text: qsTr("Ok")
             DialogButtonBox.buttonRole: DialogButtonBox.AcceptRole
             onClicked: {
-                const trackSettings = trackSettingsComponent.createObject(this, {
-                        "trackIndex": _trackIndex,
-                        "portName": portNameDropdown.currentText,
-                        "channel": channelDropdown.currentValue - 1,
-                        "patchEnabled": enablePatchCheckbox.checked,
-                        "patch": patchSpinBox.value,
-                        "bankEnabled": enableBankCheckbox.checked,
-                        "bankLsb": bankLsbSpinBox.value,
-                        "bankMsb": bankMsbSpinBox.value,
-                        "bankByteOrderSwapped": swapBankByteOrderCheckBox.checked
-                    });
-                UiService.setTrackSettings(trackSettings);
+                trackSettingsModel.portName = portNameDropdown.currentText;
+                trackSettingsModel.channel = channelDropdown.value - 1;
+                trackSettingsModel.patchEnabled = enablePatchCheckbox.checked;
+                if (trackSettingsModel.patchEnabled) {
+                    trackSettingsModel.patch = patchSpinBox.value;
+                }
+                trackSettingsModel.bankEnabled = enableBankCheckbox.checked;
+                if (trackSettingsModel.bankEnabled) {
+                    trackSettingsModel.bankLsb = bankLsbSpinBox.value;
+                    trackSettingsModel.bankMsb = bankMsbSpinBox.value;
+                    trackSettingsModel.bankByteOrderSwapped = swapBankByteOrderCheckBox.checked;
+                }
+                trackSettingsModel.save();
                 rootItem.accepted();
             }
             ToolTip.delay: Constants.toolTipDelay
@@ -246,12 +246,8 @@ Dialog {
             }
         }
     }
-    Component {
-        id: trackSettingsComponent
-        TrackSettings {
-        }
-    }
     Component.onCompleted: {
         visible = false;
+        trackSettingsModel.instrumentDataReceived.connect(initialize);
     }
 }

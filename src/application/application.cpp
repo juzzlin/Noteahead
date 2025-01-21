@@ -21,6 +21,7 @@
 #include "application_service.hpp"
 #include "config.hpp"
 #include "editor_service.hpp"
+#include "models/track_settings_model.hpp"
 #include "player_service.hpp"
 #include "state_machine.hpp"
 #include "ui_logger.hpp"
@@ -37,20 +38,22 @@ namespace cacophony {
 static const auto TAG = "Application";
 
 Application::Application(int & argc, char ** argv)
-  : m_uiLogger(std::make_unique<UiLogger>())
-  , m_application(std::make_unique<QGuiApplication>(argc, argv))
-  , m_applicationService(std::make_unique<ApplicationService>())
-  , m_editorService(std::make_unique<EditorService>())
-  , m_playerService(std::make_unique<PlayerService>())
-  , m_stateMachine(std::make_unique<StateMachine>(m_editorService))
-  , m_config(std::make_unique<Config>())
-  , m_engine(std::make_unique<QQmlApplicationEngine>())
-  , m_midiService(std::make_unique<MidiServiceRtMidi>())
+  : m_uiLogger { std::make_unique<UiLogger>() }
+  , m_application { std::make_unique<QGuiApplication>(argc, argv) }
+  , m_applicationService { std::make_unique<ApplicationService>() }
+  , m_editorService { std::make_unique<EditorService>() }
+  , m_playerService { std::make_unique<PlayerService>() }
+  , m_stateMachine { std::make_unique<StateMachine>(m_editorService) }
+  , m_trackSettingsModel { std::make_unique<TrackSettingsModel>() }
+  , m_config { std::make_unique<Config>() }
+  , m_engine { std::make_unique<QQmlApplicationEngine>() }
+  , m_midiService { std::make_unique<MidiServiceRtMidi>() }
 {    
     qmlRegisterType<UiLogger>("Cacophony", 1, 0, "UiLogger");
     qmlRegisterType<ApplicationService>("Cacophony", 1, 0, "ApplicationService");
     qmlRegisterType<Config>("Cacophony", 1, 0, "Config");
     qmlRegisterType<EditorService>("Cacophony", 1, 0, "EditorService");
+    qmlRegisterType<TrackSettingsModel>("Cacophony", 1, 0, "TrackSettingsModel");
 
     qmlRegisterSingletonType(QUrl(QML_ROOT_DIR + QString { "/Constants.qml" }), "Cacophony", 1, 0, "Constants");
     qmlRegisterSingletonType(QUrl(QML_ROOT_DIR + QString { "/UiService.qml" }), "Cacophony", 1, 0, "UiService");
@@ -134,6 +137,7 @@ void Application::setContextProperties()
     m_engine->rootContext()->setContextProperty("editorService", m_editorService.get());
     m_engine->rootContext()->setContextProperty("playerService", m_playerService.get());
     m_engine->rootContext()->setContextProperty("uiLogger", m_uiLogger.get());
+    m_engine->rootContext()->setContextProperty("trackSettingsModel", m_trackSettingsModel.get());
 }
 
 void Application::connectServices()
@@ -144,6 +148,18 @@ void Application::connectServices()
     connect(m_playerService.get(), &PlayerService::tickUpdated, m_editorService.get(), &EditorService::requestPositionByTick);
 
     connect(m_stateMachine.get(), &StateMachine::stateChanged, this, &Application::applyState);
+
+    connect(m_trackSettingsModel.get(), &TrackSettingsModel::instrumentDataRequested, this, [this]() {
+        if (const auto instrument = m_editorService->instrument(m_trackSettingsModel->trackIndex()); instrument) {
+            m_trackSettingsModel->setInstrumentData(*instrument);
+        } else {
+            m_trackSettingsModel->reset();
+        }
+    });
+
+    connect(m_trackSettingsModel.get(), &TrackSettingsModel::saveRequested, this, [this]() {
+        m_editorService->setInstrument(m_trackSettingsModel->trackIndex(), m_trackSettingsModel->toInstrument());
+    });
 }
 
 void Application::initialize()

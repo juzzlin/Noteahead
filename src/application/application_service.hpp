@@ -71,10 +71,6 @@ public:
 
     Q_INVOKABLE void saveProjectAs(QUrl url);
 
-    Q_INVOKABLE QVariantMap trackSettings(uint8_t trackIndex);
-
-    Q_INVOKABLE void setTrackSettings(QVariantMap trackSettings);
-
     Q_INVOKABLE QStringList availableMidiPorts() const;
 
     void requestUnsavedChangesDialog();

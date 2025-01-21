@@ -13,6 +13,7 @@ set(HEADER_FILES
   application/application_service.hpp
   application/config.hpp
   application/editor_service.hpp
+  application/models/track_settings_model.hpp
   application/note_converter.hpp
   application/player_service.hpp
   application/player_worker.hpp
@@ -39,6 +40,7 @@ set(SOURCE_FILES
   application/application_service.cpp
   application/config.cpp
   application/editor_service.cpp
+  application/models/track_settings_model.cpp
   application/note_converter.cpp
   application/player_service.cpp
   application/player_worker.cpp
@@ -69,7 +71,6 @@ set(MAIN Main.qml)
 set(QML_SOURCE_FILES
     ${QML_BASE_DIR}/${MAIN}
     ${QML_BASE_DIR}/BottomBar.qml
-    ${QML_BASE_DIR}/Common/TrackSettings.qml
     ${QML_BASE_DIR}/Constants.qml
     ${QML_BASE_DIR}/Dialogs/AboutDialog.qml
     ${QML_BASE_DIR}/Dialogs/TrackSettingsDialog.qml

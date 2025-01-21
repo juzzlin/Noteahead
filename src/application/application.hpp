@@ -33,6 +33,7 @@ class Config;
 class EditorService;
 class MidiService; // Forward declaration of MidiService
 class PlayerService;
+class TrackSettingsModel;
 class UiLogger;
 
 class Application : public QObject
@@ -74,6 +75,8 @@ private:
     std::shared_ptr<PlayerService> m_playerService;
 
     std::shared_ptr<StateMachine> m_stateMachine;
+
+    std::unique_ptr<TrackSettingsModel> m_trackSettingsModel;
 
     std::unique_ptr<Config> m_config;
 
