@@ -32,6 +32,7 @@ namespace cacophony {
 
 class Column;
 class Event;
+class Instrument;
 class Line;
 class Pattern;
 struct Position;
@@ -72,6 +73,11 @@ public:
     std::string trackName(uint32_t trackIndex) const;
 
     void setTrackName(uint32_t trackIndex, std::string name);
+
+    using InstrumentS = std::shared_ptr<Instrument>;
+    InstrumentS instrument(uint32_t trackIndex) const;
+
+    void setInstrument(uint32_t trackIndex, InstrumentS instrument);
 
     std::string fileName() const;
 
@@ -137,6 +143,8 @@ private:
     LineS deserializeLine(QXmlStreamReader & reader, uint32_t trackIndex, uint32_t columnIndex);
 
     NoteDataS deserializeNoteData(QXmlStreamReader & reader, uint32_t trackIndex, uint32_t columnIndex);
+
+    InstrumentS deserializeInstrument(QXmlStreamReader & reader);
 
     void initialize();
 

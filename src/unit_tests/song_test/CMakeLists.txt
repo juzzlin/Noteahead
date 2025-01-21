@@ -7,6 +7,7 @@ set(SRC
     ../../domain/column.cpp
     ../../common/constants.cpp
     ../../domain/event.cpp
+    ../../domain/instrument.cpp
     ../../domain/line.cpp
     ../../domain/note_data.cpp
     ../../domain/pattern.cpp

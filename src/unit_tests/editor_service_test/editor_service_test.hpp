@@ -65,6 +65,8 @@ private slots:
     void test_toXmlFromXml_noteData_noteOn();
 
     void test_toXmlFromXml_noteData_noteOff();
+
+    void test_toXmlFromXml_instrument_shouldParseInstrument();
 };
 
 } // namespace cacophony

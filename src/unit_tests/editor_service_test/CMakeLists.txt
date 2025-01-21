@@ -9,6 +9,7 @@ set(SRC
     ../../common/constants.cpp
     ../../domain/column.cpp
     ../../domain/event.cpp
+    ../../domain/instrument.cpp
     ../../domain/line.cpp
     ../../domain/note_data.cpp
     ../../domain/pattern.cpp

@@ -318,6 +318,18 @@ void EditorService::setTrackName(uint32_t trackIndex, QString name)
     setIsModified(true);
 }
 
+EditorService::InstrumentS EditorService::instrument(uint32_t trackIndex) const
+{
+    return m_song->instrument(trackIndex);
+}
+
+void EditorService::setInstrument(uint32_t trackIndex, InstrumentS instrument)
+{
+    m_song->setInstrument(trackIndex, instrument);
+
+    setIsModified(true);
+}
+
 uint32_t EditorService::currentPattern() const
 {
     return m_cursorPosition.pattern;

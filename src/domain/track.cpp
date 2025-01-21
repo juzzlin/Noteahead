@@ -17,6 +17,7 @@
 
 #include "../application/position.hpp"
 #include "../contrib/SimpleLogger/src/simple_logger.hpp"
+#include "../domain/instrument.hpp"
 #include "../domain/note_data.hpp"
 #include "../domain/track.hpp"
 #include "column.hpp"
@@ -45,6 +46,16 @@ void Track::initialize(uint32_t length, uint32_t columnCount)
     for (uint32_t column = 0; column < columnCount; column++) {
         m_columns.push_back(std::make_shared<Column>(column, length));
     }
+}
+
+Track::InstrumentS Track::instrument() const
+{
+    return m_instrument;
+}
+
+void Track::setInstrument(InstrumentS instrument)
+{
+    m_instrument = instrument;
 }
 
 std::string Track::name() const
@@ -137,6 +148,10 @@ void Track::serializeToXml(QXmlStreamWriter & writer) const
     writer.writeAttribute("name", QString::fromStdString(m_name));
     writer.writeAttribute("lineCount", QString::number(lineCount()));
     writer.writeAttribute("columnCount", QString::number(columnCount()));
+
+    if (m_instrument) {
+        m_instrument->serializeToXml(writer);
+    }
 
     if (hasData()) {
         writer.writeStartElement("Columns");

@@ -72,6 +72,11 @@ public:
 
     void serializeToXml(QXmlStreamWriter & writer) const;
 
+    using InstrumentS = std::shared_ptr<Instrument>;
+    InstrumentS instrument() const;
+
+    void setInstrument(InstrumentS instrument);
+
 private:
     void initialize(uint32_t length, uint32_t columnCount);
 
@@ -81,7 +86,7 @@ private:
 
     std::vector<ColumnS> m_columns;
 
-    std::shared_ptr<Instrument> m_instrument;
+    InstrumentS m_instrument;
 };
 
 } // namespace cacophony

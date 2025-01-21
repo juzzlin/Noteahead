@@ -17,6 +17,7 @@
 
 #include "../common/constants.hpp"
 #include "../contrib/SimpleLogger/src/simple_logger.hpp"
+#include "../domain/instrument.hpp"
 #include "../infra/midi_service.hpp"
 #include "editor_service.hpp"
 #include "player_service.hpp"
@@ -144,19 +145,79 @@ void ApplicationService::requestSaveProjectAs()
     m_stateMachine->calculateState(StateMachine::Action::SaveProjectAsRequested);
 }
 
-void ApplicationService::requestPatchChange(QString port, uint8_t channel, uint8_t patch)
+void ApplicationService::requestPatchChange(QString portName, uint8_t channel, uint8_t patch)
 {
-    juzzlin::L(TAG).info() << "Patch change requested: port = '" + port.toStdString() + "', channel = " + std::to_string(channel) + ", patch = " + std::to_string(patch);
-    if (const auto device = m_midiService->deviceByPortName(port.toStdString()); device) {
-        juzzlin::L(TAG).info() << "Mapped device index: " << device->portIndex();
-        try {
+    try {
+        juzzlin::L(TAG).info() << "Patch change requested: portName = '" + portName.toStdString() + "', channel = " + std::to_string(channel) + ", patch = " + std::to_string(patch);
+        if (const auto device = m_midiService->deviceByPortName(portName.toStdString()); device) {
+            juzzlin::L(TAG).info() << "Mapped device index: " << device->portIndex();
             m_midiService->openDevice(device);
             m_midiService->sendPatchChange(device, channel, patch);
-        } catch (const std::runtime_error & e) {
-            juzzlin::L(TAG).error() << e.what();
+        } else {
+            juzzlin::L(TAG).error() << "No device found for portName '" << portName.toStdString() << "'";
         }
-    } else {
-        juzzlin::L(TAG).error() << "No device found for port '" << port.toStdString() << "'";
+    } catch (const std::runtime_error & e) {
+        juzzlin::L(TAG).error() << e.what();
+        emit statusTextRequested(tr("Error: ") + e.what());
+    }
+}
+
+QVariantMap ApplicationService::trackSettings(uint8_t trackIndex)
+{
+    QVariantMap result;
+
+    try {
+        if (const auto instrument = m_editorService->instrument(trackIndex); instrument) {
+            result.insert(Constants::xmlKeyPortName(), instrument->portName);
+            result.insert(Constants::xmlKeyChannel(), instrument->channel);
+
+            result.insert(Constants::xmlKeyPatchEnabled(), instrument->patch.has_value());
+            if (instrument->patch) {
+                result.insert(Constants::xmlKeyPatch(), *instrument->patch);
+            }
+
+            result.insert(Constants::xmlKeyBankEnabled(), instrument->bank.has_value());
+            if (instrument->bank) {
+                result.insert(Constants::xmlKeyBankLsb(), static_cast<uint>(instrument->bank->lsb));
+                result.insert(Constants::xmlKeyBankMsb(), static_cast<uint>(instrument->bank->msb));
+                result.insert(Constants::xmlKeyBankByteOrderSwapped(), instrument->bank->byteOrderSwapped);
+            }
+
+            result.insert("trackIndex", trackIndex);
+        }
+    } catch (const std::runtime_error & e) {
+        juzzlin::L(TAG).error() << e.what();
+        emit statusTextRequested(tr("Error: ") + e.what());
+    }
+
+    return result;
+}
+
+void ApplicationService::setTrackSettings(QVariantMap trackSettings)
+{
+    try {
+        const auto trackIndexKey = "trackIndex";
+        if (trackSettings.contains(trackIndexKey) && trackSettings.contains(Constants::xmlKeyPortName())) {
+            const auto instrument = std::make_shared<Instrument>(trackSettings[Constants::xmlKeyPortName()].toString());
+            instrument->channel = trackSettings[Constants::xmlKeyChannel()].toUInt();
+            if (trackSettings[Constants::xmlKeyPatchEnabled()].toBool()) {
+                instrument->patch = trackSettings[Constants::xmlKeyPatch()].toUInt();
+            }
+            if (trackSettings[Constants::xmlKeyBankEnabled()].toBool()) {
+                instrument->bank = {
+                    static_cast<uint8_t>(trackSettings[Constants::xmlKeyBankLsb()].toUInt()),
+                    static_cast<uint8_t>(trackSettings[Constants::xmlKeyBankMsb()].toUInt()),
+                    trackSettings[Constants::xmlKeyBankByteOrderSwapped()].toBool()
+                };
+            }
+            m_editorService->setInstrument(trackSettings[trackIndexKey].toUInt(), instrument);
+        } else {
+            juzzlin::L(TAG).error() << "Invalid track settings!";
+            emit statusTextRequested(tr("Invalid track settings!"));
+        }
+    } catch (const std::runtime_error & e) {
+        juzzlin::L(TAG).error() << e.what();
+        emit statusTextRequested(tr("Error: ") + e.what());
     }
 }
 

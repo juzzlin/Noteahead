@@ -15,6 +15,43 @@
 
 #include "instrument.hpp"
 
+#include "../common/constants.hpp"
+
+#include <QXmlStreamWriter>
+
 namespace cacophony {
+
+Instrument::Instrument(QString portName)
+  : portName { portName }
+{
+}
+
+void Instrument::serializeToXml(QXmlStreamWriter & writer) const
+{
+    writer.writeStartElement(Constants::xmlKeyInstrument());
+
+    // Mandatory properties
+    writer.writeAttribute(Constants::xmlKeyPortName(), portName);
+    writer.writeAttribute(Constants::xmlKeyChannel(), QString::number(channel));
+
+    // Optional properties
+    if (patch.has_value()) {
+        writer.writeAttribute(Constants::xmlKeyPatchEnabled(), "true");
+        writer.writeAttribute(Constants::xmlKeyPatch(), QString::number(*patch));
+    } else {
+        writer.writeAttribute(Constants::xmlKeyPatchEnabled(), "false");
+    }
+
+    if (bank.has_value()) {
+        writer.writeAttribute(Constants::xmlKeyBankEnabled(), "true");
+        writer.writeAttribute(Constants::xmlKeyBankLsb(), QString::number(bank->lsb));
+        writer.writeAttribute(Constants::xmlKeyBankMsb(), QString::number(bank->msb));
+        writer.writeAttribute(Constants::xmlKeyBankByteOrderSwapped(), bank->byteOrderSwapped ? "true" : "false");
+    } else {
+        writer.writeAttribute(Constants::xmlKeyBankEnabled(), "false");
+    }
+
+    writer.writeEndElement(); // Instrument
+}
 
 } // namespace cacophony

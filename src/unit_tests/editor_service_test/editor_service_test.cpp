@@ -16,6 +16,7 @@
 #include "editor_service_test.hpp"
 
 #include "../../application/editor_service.hpp"
+#include "../../domain/instrument.hpp"
 #include "../../domain/note_data.hpp"
 #include "../../domain/song.hpp"
 
@@ -510,6 +511,51 @@ void EditorServiceTest::test_toXmlFromXml_noteData_noteOff()
     QCOMPARE(noteData->column(), 0);
     QCOMPARE(editorServiceIn.displayNoteAtPosition(0, 0, 0, 4), "OFF");
     QCOMPARE(editorServiceIn.displayVelocityAtPosition(0, 0, 0, 4), "---");
+}
+
+void EditorServiceTest::test_toXmlFromXml_instrument_shouldParseInstrument()
+{
+    EditorService editorServiceOut;
+
+    // Set up the instrument with all possible properties
+    const auto instrumentOut = std::make_shared<Instrument>("Test Port");
+    instrumentOut->channel = 10; // Example channel
+    instrumentOut->patch = 42; // Optional patch
+    instrumentOut->bank = {
+        static_cast<uint8_t>(21), // Bank LSB
+        static_cast<uint8_t>(34), // Bank MSB
+        true // Byte order swapped
+    };
+
+    editorServiceOut.setInstrument(0, instrumentOut);
+
+    // Serialize to XML
+    const auto xml = editorServiceOut.toXml();
+
+    // Deserialize from XML
+    EditorService editorServiceIn;
+    editorServiceIn.fromXml(xml);
+
+    // Retrieve the instrument
+    const auto instrumentIn = editorServiceIn.instrument(0);
+
+    // Validate the instrument
+    QVERIFY(instrumentIn);
+    QCOMPARE(instrumentIn->portName, instrumentOut->portName);
+    QCOMPARE(instrumentIn->channel, instrumentOut->channel);
+
+    // Validate optional properties
+    QCOMPARE(instrumentIn->patch.has_value(), instrumentOut->patch.has_value());
+    if (instrumentIn->patch && instrumentOut->patch) {
+        QCOMPARE(*instrumentIn->patch, *instrumentOut->patch);
+    }
+
+    QCOMPARE(instrumentIn->bank.has_value(), instrumentOut->bank.has_value());
+    if (instrumentIn->bank && instrumentOut->bank) {
+        QCOMPARE(instrumentIn->bank->lsb, instrumentOut->bank->lsb);
+        QCOMPARE(instrumentIn->bank->msb, instrumentOut->bank->msb);
+        QCOMPARE(instrumentIn->bank->byteOrderSwapped, instrumentOut->bank->byteOrderSwapped);
+    }
 }
 
 } // namespace cacophony

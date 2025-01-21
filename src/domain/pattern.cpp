@@ -124,6 +124,16 @@ void Pattern::setTrackName(uint32_t trackIndex, std::string name)
     m_tracks.at(trackIndex)->setName(name);
 }
 
+Pattern::InstrumentS Pattern::instrument(uint32_t trackIndex) const
+{
+    return m_tracks.at(trackIndex)->instrument();
+}
+
+void Pattern::setInstrument(uint32_t trackIndex, InstrumentS instrument)
+{
+    m_tracks.at(trackIndex)->setInstrument(instrument);
+}
+
 Pattern::NoteDataS Pattern::noteDataAtPosition(const Position & position) const
 {
     return m_tracks.at(position.track)->noteDataAtPosition(position);
@@ -142,6 +152,7 @@ Position Pattern::prevNoteDataOnSameColumn(const Position & position) const
 void Pattern::setNoteDataAtPosition(const NoteData & noteData, const Position & position) const
 {
     juzzlin::L(TAG).debug() << "Set note data at position: " << noteData.toString() << " @ " << position.toString();
+
     m_tracks.at(position.track)->setNoteDataAtPosition(noteData, position);
 }
 

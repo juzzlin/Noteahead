@@ -19,6 +19,7 @@
 #include "../common/constants.hpp"
 #include "../contrib/SimpleLogger/src/simple_logger.hpp"
 #include "../domain/event.hpp"
+#include "../domain/instrument.hpp"
 #include "../domain/note_data.hpp"
 #include "column.hpp"
 #include "line.hpp"
@@ -115,6 +116,16 @@ std::string Song::trackName(uint32_t trackIndex) const
 void Song::setTrackName(uint32_t trackIndex, std::string name)
 {
     m_patterns.at(0)->setTrackName(trackIndex, name);
+}
+
+Song::InstrumentS Song::instrument(uint32_t trackIndex) const
+{
+    return m_patterns.at(0)->instrument(trackIndex);
+}
+
+void Song::setInstrument(uint32_t trackIndex, InstrumentS instrument)
+{
+    m_patterns.at(0)->setInstrument(trackIndex, instrument);
 }
 
 std::string Song::fileName() const
@@ -275,6 +286,15 @@ void Song::serializeToXml(QXmlStreamWriter & writer) const
     writer.writeEndElement(); // Song
 }
 
+bool readBoolAttribute(QXmlStreamReader & reader, QString name)
+{
+    if (!reader.attributes().hasAttribute(name)) {
+        throw std::runtime_error { "Attribute " + name.toStdString() + " not found!" };
+    } else {
+        return reader.attributes().value(name).toString() == "true";
+    }
+}
+
 uint32_t readUIntAttribute(QXmlStreamReader & reader, QString name)
 {
     if (!reader.attributes().hasAttribute(name)) {
@@ -367,12 +387,48 @@ Song::TrackS Song::deserializeTrack(QXmlStreamReader & reader)
         juzzlin::L(TAG).trace() << "Track: Current element: " << reader.name().toString().toStdString();
         if (reader.isStartElement() && !reader.name().compare(Constants::xmlKeyColumns())) {
             deserializeColumns(reader, track);
-            return track;
+        } else if (reader.isStartElement() && !reader.name().compare(Constants::xmlKeyInstrument())) {
+            if (const auto instrument = deserializeInstrument(reader); instrument) {
+                track->setInstrument(instrument);
+            }
         }
         reader.readNext();
     }
     juzzlin::L(TAG).trace() << "Reading Track ended";
     return track;
+}
+
+Song::InstrumentS Song::deserializeInstrument(QXmlStreamReader & reader)
+{
+    juzzlin::L(TAG).trace() << "Reading Instrument";
+
+    // Read mandatory properties
+    const auto portName = readStringAttribute(reader, Constants::xmlKeyPortName());
+    const auto channel = readUIntAttribute(reader, Constants::xmlKeyChannel());
+    const auto instrument = std::make_shared<Instrument>(portName);
+    instrument->channel = channel;
+
+    // Read optional properties
+    const auto patchEnabled = readBoolAttribute(reader, Constants::xmlKeyPatchEnabled());
+    if (patchEnabled) {
+        const auto patch = readUIntAttribute(reader, Constants::xmlKeyPatch());
+        instrument->patch = patch;
+    }
+
+    const auto bankEnabled = readBoolAttribute(reader, Constants::xmlKeyBankEnabled());
+    if (bankEnabled) {
+        const auto bankLsb = static_cast<uint8_t>(readUIntAttribute(reader, Constants::xmlKeyBankLsb()));
+        const auto bankMsb = static_cast<uint8_t>(readUIntAttribute(reader, Constants::xmlKeyBankMsb()));
+        const auto bankByteOrderSwapped = readBoolAttribute(reader, Constants::xmlKeyBankByteOrderSwapped());
+        instrument->bank = { bankLsb, bankMsb, bankByteOrderSwapped };
+    }
+
+    // Ensure we reach the end of the Instrument element
+    while (!(reader.isEndElement() && reader.name() == Constants::xmlKeyInstrument())) {
+        reader.readNext();
+    }
+
+    return instrument;
 }
 
 void Song::deserializeColumns(QXmlStreamReader & reader, TrackS track)

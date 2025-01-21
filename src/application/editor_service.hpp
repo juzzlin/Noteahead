@@ -27,6 +27,7 @@ class QXmlStreamReader;
 namespace cacophony {
 
 class Song;
+class Instrument;
 
 class EditorService : public QObject
 {
@@ -165,6 +166,11 @@ public:
     Q_INVOKABLE double scrollBarStepSize() const;
 
     Q_INVOKABLE double scrollBarSize() const;
+
+    using InstrumentS = std::shared_ptr<Instrument>;
+    InstrumentS instrument(uint32_t trackIndex) const;
+
+    void setInstrument(uint32_t trackIndex, InstrumentS instrument);
 
     void setIsModified(bool isModified);
 

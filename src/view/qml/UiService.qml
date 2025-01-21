@@ -1,5 +1,6 @@
 pragma Singleton
 import QtQuick 2.15
+import "Common"
 
 QtObject {
     signal aboutDialogRequested
@@ -84,11 +85,21 @@ QtObject {
     function requestQuit() {
         quitRequested();
     }
-    function requestAvailableMidiPorts() {
+    function availableMidiPorts() {
         return applicationService.availableMidiPorts;
     }
-    function requestPatchChange(midiPort, midiChannel, patch) {
-        uiLogger.debug(_tag, `Requesting patch change port = '${midiPort}', channel = ${midiChannel}, patch = ${patch}`);
-        applicationService.requestPatchChange(midiPort, midiChannel, patch);
+    function requestPatchChange(portName, channel, patch) {
+        uiLogger.debug(_tag, `Requesting patch change portName = '${portName}', channel = ${channel}, patch = ${patch}`);
+        applicationService.requestPatchChange(portName, channel, patch);
+    }
+    function setTrackSettings(trackSettings: TrackSettings) {
+        const variantMap = trackSettings.toMap();
+        uiLogger.debug(_tag, `Setting track settings: '${JSON.stringify(variantMap)}'`);
+        applicationService.setTrackSettings(variantMap);
+    }
+    function trackSettings(trackIndex) {
+        const variantMap = applicationService.trackSettings(trackIndex);
+        uiLogger.debug(_tag, `Getting track settings for track ${trackIndex}: '${JSON.stringify(variantMap)}'`);
+        return variantMap;
     }
 }

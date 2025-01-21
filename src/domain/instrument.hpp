@@ -18,13 +18,19 @@
 
 #include <cstdint>
 #include <optional>
-#include <string>
+
+#include <QString>
+
+class QXmlStreamWriter;
 
 namespace cacophony {
 
-struct Instrument
+class Instrument
 {
-    std::string portName;
+public:
+    explicit Instrument(QString portName);
+
+    QString portName;
 
     uint32_t channel = 0;
 
@@ -32,14 +38,16 @@ struct Instrument
 
     struct Bank
     {
-        uint8_t bankLsb = 0;
+        uint8_t lsb = 0;
 
-        uint8_t bankMsb = 0;
+        uint8_t msb = 0;
 
-        bool swapByteOrder = false;
+        bool byteOrderSwapped = false;
     };
 
     std::optional<Bank> bank;
+
+    void serializeToXml(QXmlStreamWriter & writer) const;
 };
 
 } // namespace cacophony

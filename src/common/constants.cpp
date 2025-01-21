@@ -67,6 +67,31 @@ QString xmlKeyBeatsPerMinute()
     return "beatsPerMinute";
 }
 
+QString xmlKeyBankEnabled()
+{
+    return "bankEnabled";
+}
+
+QString xmlKeyBankLsb()
+{
+    return "bankLsb";
+}
+
+QString xmlKeyBankMsb()
+{
+    return "bankMsb";
+}
+
+QString xmlKeyBankByteOrderSwapped()
+{
+    return "bankByteOrderSwapped";
+}
+
+QString xmlKeyChannel()
+{
+    return "channel";
+}
+
 QString xmlKeyColumn()
 {
     return "Column";
@@ -85,6 +110,11 @@ QString xmlKeyColumnCount()
 QString xmlKeyIndex()
 {
     return "index";
+}
+
+QString xmlKeyInstrument()
+{
+    return "Instrument";
 }
 
 QString xmlKeyLine()
@@ -132,6 +162,16 @@ QString xmlKeyNoteData()
     return "NoteData";
 }
 
+QString xmlKeyPatchEnabled()
+{
+    return "patchEnabled";
+}
+
+QString xmlKeyPatch()
+{
+    return "patch";
+}
+
 QString xmlKeyPattern()
 {
     return "Pattern";
@@ -140,6 +180,11 @@ QString xmlKeyPattern()
 QString xmlKeyPatterns()
 {
     return "Patterns";
+}
+
+QString xmlKeyPortName()
+{
+    return "portName";
 }
 
 QString xmlKeyTrack()

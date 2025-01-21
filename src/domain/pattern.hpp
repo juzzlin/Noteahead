@@ -25,6 +25,7 @@ class QXmlStreamWriter;
 namespace cacophony {
 
 class Event;
+class Instrument;
 class Track;
 class NoteData;
 struct Position;
@@ -69,8 +70,12 @@ public:
 
     void setTrackName(uint32_t trackIndex, std::string name);
 
-    using NoteDataS = std::shared_ptr<NoteData>;
+    using InstrumentS = std::shared_ptr<Instrument>;
+    InstrumentS instrument(uint32_t trackIndex) const;
 
+    void setInstrument(uint32_t trackIndex, InstrumentS instrument);
+
+    using NoteDataS = std::shared_ptr<NoteData>;
     NoteDataS noteDataAtPosition(const Position & position) const;
 
     Position nextNoteDataOnSameColumn(const Position & position) const;

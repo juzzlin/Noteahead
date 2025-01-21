@@ -38,7 +38,17 @@ QString webSiteUrl();
 
 QString qSettingSoftwareName();
 
+QString xmlKeyBankEnabled();
+
+QString xmlKeyBankLsb();
+
+QString xmlKeyBankMsb();
+
+QString xmlKeyBankByteOrderSwapped();
+
 QString xmlKeyBeatsPerMinute();
+
+QString xmlKeyChannel();
 
 QString xmlKeyColumn();
 
@@ -47,6 +57,8 @@ QString xmlKeyColumns();
 QString xmlKeyColumnCount();
 
 QString xmlKeyIndex();
+
+QString xmlKeyInstrument();
 
 QString xmlKeyLine();
 
@@ -66,9 +78,15 @@ QString xmlKeyNoteOff();
 
 QString xmlKeyNoteData();
 
+QString xmlKeyPatchEnabled();
+
+QString xmlKeyPatch();
+
 QString xmlKeyPattern();
 
 QString xmlKeyPatterns();
+
+QString xmlKeyPortName();
 
 QString xmlKeyTrack();
 

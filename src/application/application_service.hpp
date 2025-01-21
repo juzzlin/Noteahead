@@ -19,6 +19,7 @@
 #include <QObject>
 #include <QTimer>
 #include <QUrl>
+#include <QVariantMap>
 
 namespace cacophony {
 
@@ -60,7 +61,7 @@ public:
 
     Q_INVOKABLE void requestQuit();
 
-    Q_INVOKABLE void requestPatchChange(QString port, uint8_t channel, uint8_t patch);
+    Q_INVOKABLE void requestPatchChange(QString portName, uint8_t channel, uint8_t patch);
 
     Q_INVOKABLE void cancelOpenProject();
 
@@ -69,6 +70,10 @@ public:
     Q_INVOKABLE void cancelSaveProjectAs();
 
     Q_INVOKABLE void saveProjectAs(QUrl url);
+
+    Q_INVOKABLE QVariantMap trackSettings(uint8_t trackIndex);
+
+    Q_INVOKABLE void setTrackSettings(QVariantMap trackSettings);
 
     Q_INVOKABLE QStringList availableMidiPorts() const;
 

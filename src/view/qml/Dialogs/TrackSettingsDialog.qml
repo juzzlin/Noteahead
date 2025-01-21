@@ -4,16 +4,49 @@ import QtQuick.Controls.Universal 2.15
 import QtQuick.Dialogs
 import QtQuick.Layouts
 import ".."
+import "../Common"
 
 Dialog {
     id: rootItem
     title: "<strong>" + qsTr("Settings for track") + ` '${editorService.trackName(_trackIndex)}'` + "</strong>"
     modal: true
+    property int _trackIndex: 0
+    function setTrackIndex(trackIndex) {
+        _trackIndex = trackIndex;
+        const trackSettings = trackSettingsComponent.createObject();
+        trackSettings.fromMap(UiService.trackSettings(_trackIndex));
+        portNameDropdown.setSelected(trackSettings.portName);
+        channelDropdown.setSelected(trackSettings.channel + 1);
+        enablePatchCheckbox.checked = trackSettings.patchEnabled;
+        if (trackSettings.patchEnabled) {
+            patchSpinBox.value = trackSettings.patch;
+        }
+        enableBankCheckbox.checked = trackSettings.bankEnabled;
+        if (trackSettings.bankEnabled) {
+            bankLsbSpinBox.value = trackSettings.bankLsb;
+            bankMsbSpinBox.value = trackSettings.bankMsb;
+            swapBankByteOrderCheckBox.checked = trackSettings.bankByteOrderSwapped;
+        }
+    }
     footer: DialogButtonBox {
         Button {
             text: qsTr("Save")
             DialogButtonBox.buttonRole: DialogButtonBox.AcceptRole
-            onClicked: rootItem.accepted()
+            onClicked: {
+                const trackSettings = trackSettingsComponent.createObject(this, {
+                        "trackIndex": _trackIndex,
+                        "portName": portNameDropdown.currentText,
+                        "channel": channelDropdown.currentValue - 1,
+                        "patchEnabled": enablePatchCheckbox.checked,
+                        "patch": patchSpinBox.value,
+                        "bankEnabled": enableBankCheckbox.checked,
+                        "bankLsb": bankLsbSpinBox.value,
+                        "bankMsb": bankMsbSpinBox.value,
+                        "bankByteOrderSwapped": swapBankByteOrderCheckBox.checked
+                    });
+                UiService.setTrackSettings(trackSettings);
+                rootItem.accepted();
+            }
             ToolTip.delay: Constants.toolTipDelay
             ToolTip.timeout: Constants.toolTipTimeout
             ToolTip.visible: hovered
@@ -37,10 +70,6 @@ Dialog {
             ToolTip.text: qsTr("Test current settings by triggering the middle C")
         }
     }
-    property int _trackIndex: 0
-    function setTrackIndex(trackIndex) {
-        _trackIndex = trackIndex;
-    }
     ColumnLayout {
         anchors.fill: parent
         spacing: 12
@@ -62,8 +91,8 @@ Dialog {
                         Layout.fillWidth: true
                     }
                     ComboBox {
-                        id: midiPortDropdown
-                        model: UiService.requestAvailableMidiPorts()
+                        id: portNameDropdown
+                        model: UiService.availableMidiPorts()
                         currentIndex: 0
                         Layout.column: 2
                         Layout.columnSpan: 7
@@ -73,6 +102,9 @@ Dialog {
                         ToolTip.timeout: Constants.toolTipTimeout
                         ToolTip.visible: hovered
                         ToolTip.text: qsTr("Set MIDI port for this track")
+                        function setSelected(text) {
+                            currentIndex = find(text);
+                        }
                     }
                     Label {
                         text: qsTr("Channel:")
@@ -82,7 +114,7 @@ Dialog {
                         Layout.fillWidth: true
                     }
                     ComboBox {
-                        id: midiChannelDropdown
+                        id: channelDropdown
                         model: ListModel {
                             // Populate channels 1–16
                             Component.onCompleted: {
@@ -102,6 +134,9 @@ Dialog {
                         ToolTip.timeout: Constants.toolTipTimeout
                         ToolTip.visible: hovered
                         ToolTip.text: qsTr("Set MIDI channel (1-16)")
+                        function setSelected(text) {
+                            currentIndex = find(text);
+                        }
                     }
                     Label {
                         text: qsTr("Patch:")
@@ -123,7 +158,7 @@ Dialog {
                         ToolTip.text: qsTr("Enable/disable patch setting for this track")
                     }
                     SpinBox {
-                        id: midiPatchSpinBox
+                        id: patchSpinBox
                         from: 0
                         to: 127
                         enabled: enablePatchCheckbox.checked
@@ -133,7 +168,7 @@ Dialog {
                         Layout.fillWidth: true
                         editable: true
                         onValueChanged: {
-                            UiService.requestPatchChange(midiPortDropdown.currentText, midiChannelDropdown.currentValue - 1, value);
+                            UiService.requestPatchChange(portNameDropdown.currentText, channelDropdown.currentValue - 1, value);
                         }
                         ToolTip.delay: Constants.toolTipDelay
                         ToolTip.timeout: Constants.toolTipTimeout
@@ -209,6 +244,11 @@ Dialog {
                     }
                 }
             }
+        }
+    }
+    Component {
+        id: trackSettingsComponent
+        TrackSettings {
         }
     }
     Component.onCompleted: {
