@@ -54,4 +54,27 @@ void Instrument::serializeToXml(QXmlStreamWriter & writer) const
     writer.writeEndElement(); // Instrument
 }
 
+QString Instrument::toString() const
+{
+    auto result = QString { "Instrument ( portName='%1', channel=%2" }.arg(portName).arg(channel);
+
+    if (patch) {
+        result += QString { ", patch=%1" }.arg(*patch);
+    } else {
+        result += ", patch=None";
+    }
+
+    if (bank) {
+        result += QString { ", bank={lsb=%1, msb=%2, byteOrderSwapped=%3}" }
+                    .arg(bank->lsb)
+                    .arg(bank->msb)
+                    .arg(bank->byteOrderSwapped ? "true" : "false");
+    } else {
+        result += ", bank=None";
+    }
+
+    result += " )";
+    return result;
+}
+
 } // namespace cacophony

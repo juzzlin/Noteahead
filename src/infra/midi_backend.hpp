@@ -13,8 +13,8 @@
 // You should have received a copy of the GNU General Public License
 // along with Cacophony. If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef MIDI_SERVICE_HPP
-#define MIDI_SERVICE_HPP
+#ifndef MIDI_BACKEND_HPP
+#define MIDI_BACKEND_HPP
 
 #include "midi_device.hpp"
 
@@ -23,13 +23,13 @@
 
 namespace cacophony {
 
-//! Base class for MIDI service implementations.
-class MidiService
+//! Base class for MIDI backend implementations.
+class MidiBackend
 {
 public:
-    MidiService();
+    MidiBackend();
 
-    virtual ~MidiService();
+    virtual ~MidiBackend();
 
     using MidiDeviceList = std::vector<MidiDeviceS>;
 
@@ -60,4 +60,4 @@ private:
 
 } // namespace cacophony
 
-#endif // MIDI_SERVICE_HPP
+#endif // MIDI_BACKEND_HPP

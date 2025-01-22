@@ -1,5 +1,5 @@
 // This file is part of Cacophony.
-// Copyright (C) 2024 Jussi Lind <jussi.lind@iki.fi>
+// Copyright (C) 2025 Jussi Lind <jussi.lind@iki.fi>
 //
 // Cacophony is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -13,45 +13,40 @@
 // You should have received a copy of the GNU General Public License
 // along with Cacophony. If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef INSTRUMENT_HPP
-#define INSTRUMENT_HPP
+#ifndef INSTRUMENT_REQUEST_HPP
+#define INSTRUMENT_REQUEST_HPP
 
-#include <cstdint>
-#include <optional>
-
-#include <QString>
-
-class QXmlStreamWriter;
+#include <memory>
 
 namespace cacophony {
 
-class Instrument
+class Instrument;
+
+class InstrumentRequest
 {
 public:
-    explicit Instrument(QString portName);
-
-    QString portName;
-
-    uint32_t channel = 0;
-
-    std::optional<uint8_t> patch;
-
-    struct Bank
+    enum class Type
     {
-        uint8_t lsb = 0;
-
-        uint8_t msb = 0;
-
-        bool byteOrderSwapped = false;
+        None,
+        Apply,
+        Test
     };
 
-    std::optional<Bank> bank;
+    InstrumentRequest() = default;
 
-    void serializeToXml(QXmlStreamWriter & writer) const;
+    using InstrumentS = std::shared_ptr<Instrument>;
+    InstrumentRequest(Type type, InstrumentS instrument);
 
-    QString toString() const;
+    Type type() const;
+
+    InstrumentS instrument() const;
+
+private:
+    Type m_type = Type::None;
+
+    InstrumentS m_instrument;
 };
 
 } // namespace cacophony
 
-#endif // INSTRUMENT_HPP
+#endif // INSTRUMENT_REQUEST_HPP

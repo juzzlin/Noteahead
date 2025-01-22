@@ -4,6 +4,7 @@ set(SRC
     ${NAME}.cpp
     ${NAME}.hpp
     ../../application/editor_service.cpp
+    ../../application/instrument_request.cpp
     ../../application/note_converter.cpp
     ../../application/position.hpp
     ../../common/constants.cpp

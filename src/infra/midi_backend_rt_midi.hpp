@@ -13,10 +13,10 @@
 // You should have received a copy of the GNU General Public License
 // along with Cacophony. If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef MIDI_SERVICE_RT_MIDI_HPP
-#define MIDI_SERVICE_RT_MIDI_HPP
+#ifndef MIDI_BACKEND_RT_MIDI_HPP
+#define MIDI_BACKEND_RT_MIDI_HPP
 
-#include "midi_service.hpp"
+#include "midi_backend.hpp"
 
 #include <map>
 #include <memory>
@@ -25,11 +25,11 @@
 
 namespace cacophony {
 
-//! MIDI-service implementation on the RtMidi library.
-class MidiServiceRtMidi : public MidiService
+//! MIDI backend implementation on the RtMidi library.
+class MidiBackendRtMidi : public MidiBackend
 {
 public:
-    MidiServiceRtMidi() = default;
+    MidiBackendRtMidi() = default;
 
     void updateAvailableDevices() override;
 
@@ -53,4 +53,4 @@ private:
 
 } // namespace cacophony
 
-#endif // MIDI_SERVICE_RT_MIDI_HPP
+#endif // MIDI_BACKEND_RT_MIDI_HPP

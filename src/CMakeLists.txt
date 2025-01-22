@@ -13,6 +13,8 @@ set(HEADER_FILES
   application/application_service.hpp
   application/config.hpp
   application/editor_service.hpp
+  application/instrument_request.hpp
+  application/midi_service.hpp
   application/models/track_settings_model.hpp
   application/note_converter.hpp
   application/player_service.hpp
@@ -29,9 +31,9 @@ set(HEADER_FILES
   domain/pattern.hpp
   domain/song.hpp
   domain/track.hpp
+  infra/midi_backend.hpp
+  infra/midi_backend_rt_midi.hpp
   infra/midi_device.hpp
-  infra/midi_service.hpp
-  infra/midi_service_rt_midi.hpp
   infra/settings.hpp
 )
 
@@ -40,6 +42,8 @@ set(SOURCE_FILES
   application/application_service.cpp
   application/config.cpp
   application/editor_service.cpp
+  application/instrument_request.cpp
+  application/midi_service.cpp
   application/models/track_settings_model.cpp
   application/note_converter.cpp
   application/player_service.cpp
@@ -55,9 +59,9 @@ set(SOURCE_FILES
   domain/pattern.cpp
   domain/song.cpp
   domain/track.cpp
+  infra/midi_backend.cpp
+  infra/midi_backend_rt_midi.cpp
   infra/midi_device.cpp
-  infra/midi_service.cpp
-  infra/midi_service_rt_midi.cpp
   infra/settings.cpp
   main.cpp
 )

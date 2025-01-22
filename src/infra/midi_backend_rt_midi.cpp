@@ -13,14 +13,14 @@
 // You should have received a copy of the GNU General Public License
 // along with Cacophony. If not, see <http://www.gnu.org/licenses/>.
 
-#include "midi_service_rt_midi.hpp"
+#include "midi_backend_rt_midi.hpp"
 
 #include <memory>
 #include <stdexcept>
 
 namespace cacophony {
 
-void MidiServiceRtMidi::updateAvailableDevices()
+void MidiBackendRtMidi::updateAvailableDevices()
 {
     RtMidiOut tempMidiOut; // Temporary instance to list devices
     MidiDeviceList devices = {};
@@ -31,7 +31,7 @@ void MidiServiceRtMidi::updateAvailableDevices()
     setDevices(devices);
 }
 
-void MidiServiceRtMidi::openDevice(MidiDeviceS device)
+void MidiBackendRtMidi::openDevice(MidiDeviceS device)
 {
     if (!m_midiPorts.contains(device->portIndex())) {
         if (auto midiOut = std::make_unique<RtMidiOut>(); device->portIndex() >= midiOut->getPortCount()) {
@@ -43,7 +43,7 @@ void MidiServiceRtMidi::openDevice(MidiDeviceS device)
     }
 }
 
-void MidiServiceRtMidi::closeDevice(MidiDeviceS device)
+void MidiBackendRtMidi::closeDevice(MidiDeviceS device)
 {
     if (auto it = m_midiPorts.find(device->portIndex()); it != m_midiPorts.end()) {
         m_midiPorts.erase(it);
@@ -52,7 +52,7 @@ void MidiServiceRtMidi::closeDevice(MidiDeviceS device)
     }
 }
 
-void MidiServiceRtMidi::sendMessage(MidiDeviceS device, const Message & message) const
+void MidiBackendRtMidi::sendMessage(MidiDeviceS device, const Message & message) const
 {
     if (auto it = m_midiPorts.find(device->portIndex()); it == m_midiPorts.end()) {
         throw std::runtime_error { "Device not opened." };
@@ -61,7 +61,7 @@ void MidiServiceRtMidi::sendMessage(MidiDeviceS device, const Message & message)
     }
 }
 
-void MidiServiceRtMidi::sendNoteOn(MidiDeviceS device, uint8_t channel, uint8_t note, uint8_t velocity) const
+void MidiBackendRtMidi::sendNoteOn(MidiDeviceS device, uint8_t channel, uint8_t note, uint8_t velocity) const
 {
     const Message message = { static_cast<unsigned char>(0x90 | (channel & 0x0F)),
                               static_cast<unsigned char>(note),
@@ -70,7 +70,7 @@ void MidiServiceRtMidi::sendNoteOn(MidiDeviceS device, uint8_t channel, uint8_t 
     sendMessage(device, message);
 }
 
-void MidiServiceRtMidi::sendNoteOff(MidiDeviceS device, uint8_t channel, uint8_t note, uint8_t velocity) const
+void MidiBackendRtMidi::sendNoteOff(MidiDeviceS device, uint8_t channel, uint8_t note, uint8_t velocity) const
 {
     const Message message = { static_cast<unsigned char>(0x80 | (channel & 0x0F)),
                               static_cast<unsigned char>(note),
@@ -79,7 +79,7 @@ void MidiServiceRtMidi::sendNoteOff(MidiDeviceS device, uint8_t channel, uint8_t
     sendMessage(device, message);
 }
 
-void MidiServiceRtMidi::sendPatchChange(MidiDeviceS device, uint8_t channel, uint8_t patch) const
+void MidiBackendRtMidi::sendPatchChange(MidiDeviceS device, uint8_t channel, uint8_t patch) const
 {
     const Message message = { static_cast<unsigned char>(0xC0 | (channel & 0x0F)),
                               static_cast<unsigned char>(patch) };

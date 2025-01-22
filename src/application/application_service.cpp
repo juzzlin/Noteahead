@@ -17,8 +17,6 @@
 
 #include "../common/constants.hpp"
 #include "../contrib/SimpleLogger/src/simple_logger.hpp"
-#include "../domain/instrument.hpp"
-#include "../infra/midi_service.hpp"
 #include "editor_service.hpp"
 #include "player_service.hpp"
 #include "state_machine.hpp"
@@ -33,48 +31,7 @@ static const auto TAG = "ApplicationService";
 using namespace std::chrono_literals;
 
 ApplicationService::ApplicationService()
-  : m_midiScanTimer { std::make_unique<QTimer>() }
 {
-    m_midiScanTimer->setInterval(2500ms);
-    connect(m_midiScanTimer.get(), &QTimer::timeout, this, [this] {
-        if (!m_playerService->isPlaying()) {
-            m_midiService->updateAvailableDevices();
-            QStringList updatedDeviceList;
-            std::ranges::transform(m_midiService->listDevices(), std::back_inserter(updatedDeviceList),
-                                   [](const auto & device) { return QString::fromStdString(device->portName()); });
-            if (m_availableMidiPorts != updatedDeviceList) {
-                QStringList newDevices;
-                for (auto && port : updatedDeviceList) {
-                    if (!m_availableMidiPorts.contains(port)) {
-                        newDevices << port;
-                    }
-                }
-                QStringList offDevices;
-                for (auto && port : m_availableMidiPorts) {
-                    if (!updatedDeviceList.contains(port)) {
-                        offDevices << port;
-                    }
-                }
-                if (!newDevices.isEmpty()) {
-                    if (newDevices.size() <= 3) {
-                        emit statusTextRequested(tr("New MIDI devices found: ") + newDevices.join(","));
-                    } else {
-                        emit statusTextRequested(tr("New MIDI device(s) found"));
-                    }
-                }
-                if (!offDevices.isEmpty()) {
-                    if (newDevices.size() <= 3) {
-                        emit statusTextRequested(tr("MIDI devices went offline: ") + offDevices.join(","));
-                    } else {
-                        emit statusTextRequested(tr("MIDI device(s) went offline "));
-                    }
-                }
-                m_availableMidiPorts = updatedDeviceList;
-                emit availableMidiPortsChanged();
-            }
-        }
-    });
-    m_midiScanTimer->start();
 }
 
 QString ApplicationService::applicationName() const
@@ -145,23 +102,6 @@ void ApplicationService::requestSaveProjectAs()
     m_stateMachine->calculateState(StateMachine::Action::SaveProjectAsRequested);
 }
 
-void ApplicationService::requestPatchChange(QString portName, uint8_t channel, uint8_t patch)
-{
-    try {
-        juzzlin::L(TAG).info() << "Patch change requested: portName = '" + portName.toStdString() + "', channel = " + std::to_string(channel) + ", patch = " + std::to_string(patch);
-        if (const auto device = m_midiService->deviceByPortName(portName.toStdString()); device) {
-            juzzlin::L(TAG).info() << "Mapped device index: " << device->portIndex();
-            m_midiService->openDevice(device);
-            m_midiService->sendPatchChange(device, channel, patch);
-        } else {
-            juzzlin::L(TAG).error() << "No device found for portName '" << portName.toStdString() << "'";
-        }
-    } catch (const std::runtime_error & e) {
-        juzzlin::L(TAG).error() << e.what();
-        emit statusTextRequested(tr("Error: ") + e.what());
-    }
-}
-
 void ApplicationService::cancelOpenProject()
 {
     m_stateMachine->calculateState(StateMachine::Action::OpeningProjectCanceled);
@@ -218,11 +158,6 @@ void ApplicationService::requestSaveAsDialog()
     emit saveAsDialogRequested();
 }
 
-QStringList ApplicationService::availableMidiPorts() const
-{
-    return m_availableMidiPorts;
-}
-
 void ApplicationService::setStateMachine(StateMachineS stateMachine)
 {
     m_stateMachine = stateMachine;
@@ -231,11 +166,6 @@ void ApplicationService::setStateMachine(StateMachineS stateMachine)
 void ApplicationService::setEditorService(EditorServiceS editorService)
 {
     m_editorService = editorService;
-}
-
-void ApplicationService::setMidiService(MidiServiceS midiService)
-{
-    m_midiService = midiService;
 }
 
 void ApplicationService::setPlayerService(PlayerServiceS playerService)

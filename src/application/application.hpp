@@ -19,7 +19,6 @@
 #include "state_machine.hpp"
 
 #include <memory>
-#include <optional>
 
 #include <QObject>
 
@@ -31,7 +30,7 @@ namespace cacophony {
 class ApplicationService;
 class Config;
 class EditorService;
-class MidiService; // Forward declaration of MidiService
+class MidiService;
 class PlayerService;
 class TrackSettingsModel;
 class UiLogger;
@@ -58,11 +57,7 @@ private:
 
     void initializeApplicationEngine();
 
-    void listDevices();
-
     void setContextProperties();
-
-    void testDevice();
 
     std::unique_ptr<UiLogger> m_uiLogger;
 
@@ -71,6 +66,8 @@ private:
     std::unique_ptr<ApplicationService> m_applicationService;
 
     std::shared_ptr<EditorService> m_editorService;
+
+    std::shared_ptr<MidiService> m_midiService;
 
     std::shared_ptr<PlayerService> m_playerService;
 
@@ -81,14 +78,6 @@ private:
     std::unique_ptr<Config> m_config;
 
     std::unique_ptr<QQmlApplicationEngine> m_engine;
-
-    std::shared_ptr<MidiService> m_midiService;
-
-    bool m_listDevices = false; // Flag for --list-devices
-
-    std::optional<unsigned int> m_testDeviceIndex;
-
-    std::optional<unsigned int> m_testDeviceChannel;
 };
 
 } // namespace cacophony

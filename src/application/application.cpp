@@ -17,10 +17,10 @@
 
 #include "../contrib/Argengine/src/argengine.hpp"
 #include "../contrib/SimpleLogger/src/simple_logger.hpp"
-#include "../infra/midi_service_rt_midi.hpp" // Include the MidiService header
 #include "application_service.hpp"
 #include "config.hpp"
 #include "editor_service.hpp"
+#include "midi_service.hpp"
 #include "models/track_settings_model.hpp"
 #include "player_service.hpp"
 #include "state_machine.hpp"
@@ -29,9 +29,6 @@
 #include <QGuiApplication>
 #include <QQmlApplicationEngine>
 #include <QQmlContext>
-
-#include <iostream>
-#include <thread>
 
 namespace cacophony {
 
@@ -42,17 +39,18 @@ Application::Application(int & argc, char ** argv)
   , m_application { std::make_unique<QGuiApplication>(argc, argv) }
   , m_applicationService { std::make_unique<ApplicationService>() }
   , m_editorService { std::make_unique<EditorService>() }
+  , m_midiService { std::make_unique<MidiService>() }
   , m_playerService { std::make_unique<PlayerService>() }
   , m_stateMachine { std::make_unique<StateMachine>(m_editorService) }
   , m_trackSettingsModel { std::make_unique<TrackSettingsModel>() }
   , m_config { std::make_unique<Config>() }
   , m_engine { std::make_unique<QQmlApplicationEngine>() }
-  , m_midiService { std::make_unique<MidiServiceRtMidi>() }
 {    
     qmlRegisterType<UiLogger>("Cacophony", 1, 0, "UiLogger");
     qmlRegisterType<ApplicationService>("Cacophony", 1, 0, "ApplicationService");
     qmlRegisterType<Config>("Cacophony", 1, 0, "Config");
     qmlRegisterType<EditorService>("Cacophony", 1, 0, "EditorService");
+    qmlRegisterType<MidiService>("Cacophony", 1, 0, "MidiService");
     qmlRegisterType<TrackSettingsModel>("Cacophony", 1, 0, "TrackSettingsModel");
 
     qmlRegisterSingletonType(QUrl(QML_ROOT_DIR + QString { "/Constants.qml" }), "Cacophony", 1, 0, "Constants");
@@ -62,7 +60,6 @@ Application::Application(int & argc, char ** argv)
 
     m_applicationService->setStateMachine(m_stateMachine);
     m_applicationService->setEditorService(m_editorService);
-    m_applicationService->setMidiService(m_midiService);
     m_applicationService->setPlayerService(m_playerService);
 }
 
@@ -78,56 +75,7 @@ void Application::handleCommandLineArguments(int & argc, char ** argv)
         juzzlin::SimpleLogger::setLoggingLevel(juzzlin::SimpleLogger::Level::Trace);
     });
 
-    ae.addOption({ "--list-devices" }, [this] {
-        listDevices();
-    });
-
-    ae.addOption({ "--test-device" }, [this](std::string argument) {
-        m_testDeviceIndex = std::stoi(argument);
-    });
-
-    ae.addOption({ "--test-channel" }, [this](std::string argument) {
-        m_testDeviceChannel = std::stoi(argument);
-    });
-
     ae.parse();
-
-    // Handle --test-device option
-    if (m_testDeviceIndex.has_value() && m_testDeviceChannel.has_value()) {
-        testDevice();
-    }
-}
-
-void Application::listDevices()
-{
-    m_midiService->updateAvailableDevices();
-
-    for (auto && midiDevice : m_midiService->listDevices()) {
-        std::cout << midiDevice->toString() << std::endl;
-    }
-    m_application->exit(); // Exit after listing devices
-}
-
-void Application::testDevice()
-{
-    m_midiService->updateAvailableDevices();
-
-    if (const auto device = m_midiService->deviceByPortIndex(*m_testDeviceIndex); device) {
-        try {
-            m_midiService->openDevice(device);
-            std::cout << "Playing middle C on device index " << *m_testDeviceIndex << " on channel " << *m_testDeviceChannel << std::endl;
-            m_midiService->sendNoteOn(device, *m_testDeviceChannel, 60, 100); // Middle C
-            std::this_thread::sleep_for(std::chrono::milliseconds(500));
-            m_midiService->sendNoteOff(device, *m_testDeviceChannel, 60, 100); // Stop Middle C
-        } catch (const std::runtime_error & e) {
-            std::cerr << e.what();
-        }
-
-    } else {
-        std::cerr << "No MIDI device at index " << *m_testDeviceIndex << std::endl;
-    }
-
-    m_application->exit(); // Exit after testing device
 }
 
 void Application::setContextProperties()
@@ -135,6 +83,7 @@ void Application::setContextProperties()
     m_engine->rootContext()->setContextProperty("applicationService", m_applicationService.get());
     m_engine->rootContext()->setContextProperty("config", m_config.get());
     m_engine->rootContext()->setContextProperty("editorService", m_editorService.get());
+    m_engine->rootContext()->setContextProperty("midiService", m_midiService.get());
     m_engine->rootContext()->setContextProperty("playerService", m_playerService.get());
     m_engine->rootContext()->setContextProperty("uiLogger", m_uiLogger.get());
     m_engine->rootContext()->setContextProperty("trackSettingsModel", m_trackSettingsModel.get());
@@ -142,10 +91,16 @@ void Application::setContextProperties()
 
 void Application::connectServices()
 {
-    connect(m_playerService.get(), &PlayerService::songRequested, this, [this]{
+    connect(m_editorService.get(), &EditorService::instrumentRequested, m_midiService.get(), &MidiService::handleInstrumentRequest);
+
+    connect(m_playerService.get(), &PlayerService::songRequested, this, [this] {
         m_playerService->setSong(m_editorService->song());
     });
     connect(m_playerService.get(), &PlayerService::tickUpdated, m_editorService.get(), &EditorService::requestPositionByTick);
+
+    connect(m_playerService.get(), &PlayerService::isPlayingChanged, this, [this]() {
+        m_midiService->setIsPlaying(m_playerService->isPlaying());
+    });
 
     connect(m_stateMachine.get(), &StateMachine::stateChanged, this, &Application::applyState);
 
@@ -185,11 +140,6 @@ void Application::initializeApplicationEngine()
 
 int Application::run()
 {
-    // If --list-devices was set, we should exit, so skip loading QML
-    if (m_listDevices || m_testDeviceIndex.has_value()) {
-        return EXIT_SUCCESS;
-    }
-
     initialize();
 
     return m_application->exec();

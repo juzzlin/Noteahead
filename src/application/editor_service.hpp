@@ -28,6 +28,7 @@ namespace cacophony {
 
 class Song;
 class Instrument;
+class InstrumentRequest;
 
 class EditorService : public QObject
 {
@@ -187,11 +188,13 @@ signals:
 
     void currentPatternChanged(); // For the pattern index widget
 
-    void linesPerBeatChanged();
-
     void horizontalScrollChanged();
 
+    void instrumentRequested(const InstrumentRequest & instrumentRequest);
+
     void isModifiedChanged();
+
+    void linesPerBeatChanged();
 
     void noteDataAtPositionChanged(const Position & position);
 
@@ -199,15 +202,15 @@ signals:
 
     void positionChanged(const Position & newPosition, const Position & oldPosition);
 
+    void scrollBarSizeChanged();
+
+    void scrollBarStepSizeChanged();
+
     void songChanged();
 
     void statusTextRequested(QString text);
 
     void trackConfigurationChanged();
-
-    void scrollBarStepSizeChanged();
-
-    void scrollBarSizeChanged();
 
 public slots:
     void requestPositionByTick(uint32_t tick);
@@ -230,6 +233,8 @@ private:
     void notifyPositionChange(const Position & oldPosition);
 
     QString padVelocityToThreeDigits(QString velocity) const;
+
+    void requestInstruments();
 
     void removeDuplicateNoteOffs();
 

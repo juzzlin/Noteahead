@@ -19,6 +19,7 @@
 #include "../contrib/SimpleLogger/src/simple_logger.hpp"
 #include "../domain/note_data.hpp"
 #include "../domain/song.hpp"
+#include "instrument_request.hpp"
 #include "note_converter.hpp"
 
 #include <QDateTime>
@@ -64,7 +65,19 @@ void EditorService::setSong(SongS song)
 
     updateScrollBar();
 
+    requestInstruments();
+
     setIsModified(false);
+}
+
+void EditorService::requestInstruments()
+{
+    for (size_t trackIndex = 0; trackIndex < m_song->trackCount(); trackIndex++) {
+        if (const auto instrument = m_song->instrument(trackIndex); instrument) {
+            juzzlin::L(TAG).info() << "Requesting instrument for track index=" << trackIndex;
+            emit instrumentRequested({ InstrumentRequest::Type::Apply, instrument });
+        }
+    }
 }
 
 EditorService::SongS EditorService::deserializeProject(QXmlStreamReader & reader)
