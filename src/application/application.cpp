@@ -112,6 +112,11 @@ void Application::connectServices()
         }
     });
 
+    connect(m_trackSettingsModel.get(), &TrackSettingsModel::applySettingsRequested, this, [this]() {
+        const InstrumentRequest instrumentRequest { InstrumentRequest::Type::Apply, m_trackSettingsModel->toInstrument() };
+        m_midiService->handleInstrumentRequest(instrumentRequest);
+    });
+
     connect(m_trackSettingsModel.get(), &TrackSettingsModel::saveRequested, this, [this]() {
         m_editorService->setInstrument(m_trackSettingsModel->trackIndex(), m_trackSettingsModel->toInstrument());
     });

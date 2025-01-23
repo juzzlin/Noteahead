@@ -27,23 +27,27 @@ Dialog {
             swapBankByteOrderCheckBox.checked = trackSettingsModel.bankByteOrderSwapped;
         }
     }
+    function applySettings() {
+        trackSettingsModel.portName = portNameDropdown.currentText;
+        trackSettingsModel.channel = channelDropdown.currentValue - 1;
+        trackSettingsModel.patchEnabled = enablePatchCheckbox.checked;
+        if (trackSettingsModel.patchEnabled) {
+            trackSettingsModel.patch = patchSpinBox.value;
+        }
+        trackSettingsModel.bankEnabled = enableBankCheckbox.checked;
+        if (trackSettingsModel.bankEnabled) {
+            trackSettingsModel.bankLsb = bankLsbSpinBox.value;
+            trackSettingsModel.bankMsb = bankMsbSpinBox.value;
+            trackSettingsModel.bankByteOrderSwapped = swapBankByteOrderCheckBox.checked;
+        }
+        trackSettingsModel.applySettings();
+    }
     footer: DialogButtonBox {
         Button {
             text: qsTr("Ok")
             DialogButtonBox.buttonRole: DialogButtonBox.AcceptRole
             onClicked: {
-                trackSettingsModel.portName = portNameDropdown.currentText;
-                trackSettingsModel.channel = channelDropdown.value - 1;
-                trackSettingsModel.patchEnabled = enablePatchCheckbox.checked;
-                if (trackSettingsModel.patchEnabled) {
-                    trackSettingsModel.patch = patchSpinBox.value;
-                }
-                trackSettingsModel.bankEnabled = enableBankCheckbox.checked;
-                if (trackSettingsModel.bankEnabled) {
-                    trackSettingsModel.bankLsb = bankLsbSpinBox.value;
-                    trackSettingsModel.bankMsb = bankMsbSpinBox.value;
-                    trackSettingsModel.bankByteOrderSwapped = swapBankByteOrderCheckBox.checked;
-                }
+                applySettings();
                 trackSettingsModel.save();
                 rootItem.accepted();
             }
@@ -92,7 +96,7 @@ Dialog {
                     }
                     ComboBox {
                         id: portNameDropdown
-                        model: UiService.availableMidiPorts()
+                        model: midiService.availableMidiPorts
                         currentIndex: 0
                         Layout.column: 2
                         Layout.columnSpan: 7
@@ -168,7 +172,7 @@ Dialog {
                         Layout.fillWidth: true
                         editable: true
                         onValueChanged: {
-                            UiService.requestPatchChange(portNameDropdown.currentText, channelDropdown.currentValue - 1, value);
+                            applySettings();
                         }
                         ToolTip.delay: Constants.toolTipDelay
                         ToolTip.timeout: Constants.toolTipTimeout

@@ -33,7 +33,7 @@ class TrackSettingsModel : public QObject
 
     Q_PROPERTY(uint32_t trackIndex READ trackIndex WRITE setTrackIndex NOTIFY trackIndexChanged)
     Q_PROPERTY(QString portName READ portName WRITE setPortName NOTIFY portNameChanged)
-    Q_PROPERTY(uint32_t channel READ channel WRITE setChannel NOTIFY channelChanged)
+    Q_PROPERTY(uint8_t channel READ channel WRITE setChannel NOTIFY channelChanged)
     Q_PROPERTY(bool patchEnabled READ patchEnabled WRITE setPatchEnabled NOTIFY patchEnabledChanged)
     Q_PROPERTY(uint8_t patch READ patch WRITE setPatch NOTIFY patchChanged)
     Q_PROPERTY(bool bankEnabled READ bankEnabled WRITE setBankEnabled NOTIFY bankEnabledChanged)
@@ -45,6 +45,8 @@ public:
     explicit TrackSettingsModel(QObject * parent = nullptr);
 
     ~TrackSettingsModel() override;
+
+    Q_INVOKABLE void applySettings();
 
     Q_INVOKABLE void requestInstrumentData();
 
@@ -58,7 +60,7 @@ public:
 
     uint32_t trackIndex() const;
     QString portName() const;
-    uint32_t channel() const;
+    uint8_t channel() const;
     bool patchEnabled() const;
     uint8_t patch() const;
     bool bankEnabled() const;
@@ -67,7 +69,7 @@ public:
     bool bankByteOrderSwapped() const;
 
     void setPortName(const QString & name);
-    void setChannel(uint32_t channel);
+    void setChannel(uint8_t channel);
     void setPatchEnabled(bool enabled);
     void setPatch(uint8_t patch);
     void setBankEnabled(bool enabled);
@@ -86,6 +88,7 @@ signals:
     void bankMsbChanged();
     void bankByteOrderSwappedChanged();
 
+    void applySettingsRequested();
     void instrumentDataRequested();
     void instrumentDataReceived();
     void saveRequested();
@@ -93,7 +96,7 @@ signals:
 private:
     uint32_t m_trackIndex { 0 };
     QString m_portName;
-    uint32_t m_channel { 0 };
+    uint8_t m_channel { 0 };
     bool m_patchEnabled { false };
     uint8_t m_patch { 0 };
     bool m_bankEnabled { false };

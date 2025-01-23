@@ -27,6 +27,11 @@ TrackSettingsModel::TrackSettingsModel(QObject * parent)
 {
 }
 
+void TrackSettingsModel::applySettings()
+{
+    emit applySettingsRequested();
+}
+
 void TrackSettingsModel::requestInstrumentData()
 {
     emit instrumentDataRequested();
@@ -48,7 +53,7 @@ QString TrackSettingsModel::portName() const
     return m_portName;
 }
 
-uint32_t TrackSettingsModel::channel() const
+uint8_t TrackSettingsModel::channel() const
 {
     return m_channel;
 }
@@ -153,7 +158,7 @@ void TrackSettingsModel::setPortName(const QString & name)
     }
 }
 
-void TrackSettingsModel::setChannel(uint32_t channel)
+void TrackSettingsModel::setChannel(uint8_t channel)
 {
     if (m_channel != channel) {
         m_channel = channel;

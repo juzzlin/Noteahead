@@ -32,7 +32,7 @@ public:
 
     QString portName;
 
-    uint32_t channel = 0;
+    uint8_t channel = 0;
 
     std::optional<uint8_t> patch;
 
