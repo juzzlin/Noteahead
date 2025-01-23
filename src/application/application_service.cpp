@@ -17,6 +17,7 @@
 
 #include "../common/constants.hpp"
 #include "../contrib/SimpleLogger/src/simple_logger.hpp"
+#include "../domain/instrument.hpp"
 #include "editor_service.hpp"
 #include "player_service.hpp"
 #include "state_machine.hpp"
@@ -100,6 +101,30 @@ void ApplicationService::requestSaveProjectAs()
 {
     juzzlin::L(TAG).info() << "'Save file as' requested";
     m_stateMachine->calculateState(StateMachine::Action::SaveProjectAsRequested);
+}
+
+void ApplicationService::requestLiveNoteOn(uint8_t note, uint8_t octave, uint8_t velocity)
+{
+    if (const auto instrument = m_editorService->instrument(m_editorService->position().track); instrument) {
+        if (const auto midiNote = EditorService::editorNoteToMidiNote(note, octave); midiNote.has_value()) {
+            juzzlin::L(TAG).info() << "Live note ON " << midiNote->first << " requested on instrument " << instrument->toString().toStdString();
+            emit liveNoteOnRequested(instrument, midiNote->second, velocity);
+        }
+    } else {
+        juzzlin::L(TAG).info() << "No instrument set on track!";
+    }
+}
+
+void ApplicationService::requestLiveNoteOff(uint8_t note, uint8_t octave)
+{
+    if (const auto instrument = m_editorService->instrument(m_editorService->position().track); instrument) {
+        if (const auto midiNote = EditorService::editorNoteToMidiNote(note, octave); midiNote.has_value()) {
+            juzzlin::L(TAG).info() << "Live note OFF " << midiNote->first << " requested on instrument " << instrument->toString().toStdString();
+            emit liveNoteOffRequested(instrument, midiNote->second);
+        }
+    } else {
+        juzzlin::L(TAG).info() << "No instrument set on track!";
+    }
 }
 
 void ApplicationService::cancelOpenProject()

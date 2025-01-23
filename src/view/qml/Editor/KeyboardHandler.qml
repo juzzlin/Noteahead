@@ -2,7 +2,10 @@ import QtQuick 2.15
 import ".."
 
 QtObject {
-    function handleEvent(event) {
+    function handleKeyPressed(event) {
+        if (event.isAutoRepeat) {
+            return;
+        }
         if (event.key === Qt.Key_Up) {
             if (!UiService.isPlaying()) {
                 editorService.requestScroll(-1);
@@ -41,32 +44,70 @@ QtObject {
             UiService.togglePlay();
             event.accepted = true;
         } else if (event.key === Qt.Key_A) {
-            if (editorService.requestNoteOffAtCurrentPosition()) {
-                editorService.requestScroll(UiService.activeStep());
+            if (UiService.editMode()) {
+                if (editorService.requestNoteOffAtCurrentPosition()) {
+                    editorService.requestScroll(UiService.activeStep());
+                }
             }
             event.accepted = true;
         } else {
-            if (UiService.editMode()) {
-                if (editorService.isAtNoteColumn()) {
-                    const key = _keyToNote(event.key);
-                    if (key) {
-                        const keysPerOctave = 12;
-                        const effectiveOctave = UiService.activeOctave() + Math.floor(key / keysPerOctave);
-                        const effectiveKey = key % keysPerOctave;
-                        if (editorService.requestNoteOnAtCurrentPosition(effectiveKey, effectiveOctave, UiService.activeVelocity())) {
-                            editorService.requestScroll(UiService.activeStep());
-                        }
-                    }
-                } else if (editorService.isAtVelocityColumn()) {
-                    const digit = _keyToDigit(event.key);
-                    if (digit !== undefined) {
-                        if (editorService.requestDigitSetAtCurrentPosition(digit)) {
-                            editorService.requestScroll(UiService.activeStep());
-                        }
-                    }
-                }
+            _handleNoteTriggered(event);
+        }
+    }
+    function _handleNoteTriggered(event) {
+        if (UiService.editMode()) {
+            if (editorService.isAtNoteColumn()) {
+                _handleNoteInserted(event);
+            } else if (editorService.isAtVelocityColumn()) {
+                _handleVelocityInserted(event);
             }
         }
+        _handleLiveNoteTriggered(event);
+    }
+    function _handleNoteInserted(event) {
+        const effectiveNote = _effectiveNote(event.key);
+        if (effectiveNote) {
+            const effectiveOctave = _effectiveOctave(effectiveNote);
+            if (editorService.requestNoteOnAtCurrentPosition(effectiveNote, effectiveOctave, UiService.activeVelocity())) {
+                editorService.requestScroll(UiService.activeStep());
+            }
+            applicationService.requestLiveNoteOn(effectiveNote, effectiveOctave, UiService.activeVelocity());
+        }
+    }
+    function _handleVelocityInserted(event) {
+        const digit = _keyToDigit(event.key);
+        if (digit !== undefined) {
+            if (editorService.requestDigitSetAtCurrentPosition(digit)) {
+                editorService.requestScroll(UiService.activeStep());
+            }
+        }
+    }
+    function _handleLiveNoteTriggered(event) {
+        const effectiveNote = _effectiveNote(event.key);
+        if (effectiveNote) {
+            const effectiveOctave = _effectiveOctave(event.key);
+            applicationService.requestLiveNoteOn(effectiveNote, effectiveOctave, UiService.activeVelocity());
+        }
+    }
+    function handleKeyReleased(event) {
+        if (event.isAutoRepeat) {
+            return;
+        }
+        _handleLiveNoteReleased(event);
+    }
+    function _handleLiveNoteReleased(event) {
+        const effectiveNote = _effectiveNote(event.key);
+        if (effectiveNote) {
+            const effectiveOctave = _effectiveOctave(event.key);
+            applicationService.requestLiveNoteOff(effectiveNote, effectiveOctave);
+        }
+    }
+    function _effectiveNote(eventKey) {
+        const key = _keyToNote(eventKey);
+        return key ? key.note : null;
+    }
+    function _effectiveOctave(eventKey) {
+        return UiService.activeOctave() + _keyToNote(eventKey).octave;
     }
     function _keyToDigit(eventKey) {
         const digitMap = {
@@ -86,32 +127,143 @@ QtObject {
     function _keyToNote(eventKey) {
         const noteMap = {
             // Lower octave starting with Z (C)
-            [Qt.Key_Z]: 1,
-            [Qt.Key_S]: 2,
-            [Qt.Key_X]: 3,
-            [Qt.Key_D]: 4,
-            [Qt.Key_C]: 5,
-            [Qt.Key_V]: 6,
-            [Qt.Key_G]: 7,
-            [Qt.Key_B]: 8,
-            [Qt.Key_H]: 9,
-            [Qt.Key_N]: 10,
-            [Qt.Key_J]: 11,
-            [Qt.Key_M]: 12,
-
+            [Qt.Key_Z]: {
+                "note": 1,
+                "octave": 0
+            },
+            [Qt.Key_S]: {
+                "note": 2,
+                "octave": 0
+            },
+            [Qt.Key_X]: {
+                "note": 3,
+                "octave": 0
+            },
+            [Qt.Key_D]: {
+                "note": 4,
+                "octave": 0
+            },
+            [Qt.Key_C]: {
+                "note": 5,
+                "octave": 0
+            },
+            [Qt.Key_V]: {
+                "note": 6,
+                "octave": 0
+            },
+            [Qt.Key_G]: {
+                "note": 7,
+                "octave": 0
+            },
+            [Qt.Key_B]: {
+                "note": 8,
+                "octave": 0
+            },
+            [Qt.Key_H]: {
+                "note": 9,
+                "octave": 0
+            },
+            [Qt.Key_N]: {
+                "note": 10,
+                "octave": 0
+            },
+            [Qt.Key_J]: {
+                "note": 11,
+                "octave": 0
+            },
+            [Qt.Key_M]: {
+                "note": 12,
+                "octave": 0
+            },
+            [Qt.Key_Comma]: {
+                "note": 1,
+                "octave": 1
+            },
+            [Qt.Key_L]: {
+                "note": 2,
+                "octave": 1
+            },
+            [Qt.Key_Period]: {
+                "note": 3,
+                "octave": 1
+            },
+            [Qt.Key_Odiaeresis]: {
+                "note": 4,
+                "octave": 1
+            },
+            [Qt.Key_Minus]: {
+                "note": 5,
+                "octave": 1
+            },
             // Higher octave starting with Q (C)
-            [Qt.Key_Q]: 13,
-            [Qt.Key_2]: 14,
-            [Qt.Key_W]: 15,
-            [Qt.Key_3]: 16,
-            [Qt.Key_E]: 17,
-            [Qt.Key_R]: 18,
-            [Qt.Key_5]: 19,
-            [Qt.Key_T]: 20,
-            [Qt.Key_6]: 21,
-            [Qt.Key_Y]: 22,
-            [Qt.Key_7]: 23,
-            [Qt.Key_U]: 24
+            [Qt.Key_Q]: {
+                "note": 1,
+                "octave": 1
+            },
+            [Qt.Key_2]: {
+                "note": 2,
+                "octave": 1
+            },
+            [Qt.Key_W]: {
+                "note": 3,
+                "octave": 1
+            },
+            [Qt.Key_3]: {
+                "note": 4,
+                "octave": 1
+            },
+            [Qt.Key_E]: {
+                "note": 5,
+                "octave": 1
+            },
+            [Qt.Key_R]: {
+                "note": 6,
+                "octave": 1
+            },
+            [Qt.Key_5]: {
+                "note": 7,
+                "octave": 1
+            },
+            [Qt.Key_T]: {
+                "note": 8,
+                "octave": 1
+            },
+            [Qt.Key_6]: {
+                "note": 9,
+                "octave": 1
+            },
+            [Qt.Key_Y]: {
+                "note": 10,
+                "octave": 1
+            },
+            [Qt.Key_7]: {
+                "note": 11,
+                "octave": 1
+            },
+            [Qt.Key_U]: {
+                "note": 12,
+                "octave": 1
+            },
+            [Qt.Key_I]: {
+                "note": 1,
+                "octave": 2
+            },
+            [Qt.Key_9]: {
+                "note": 2,
+                "octave": 2
+            },
+            [Qt.Key_O]: {
+                "note": 3,
+                "octave": 2
+            },
+            [Qt.Key_0]: {
+                "note": 4,
+                "octave": 2
+            },
+            [Qt.Key_P]: {
+                "note": 5,
+                "octave": 2
+            }
         };
         return noteMap[eventKey];
     }

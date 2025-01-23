@@ -66,6 +66,29 @@ void MidiService::playMiddleC(QString portName, uint8_t channel)
     }
 }
 
+void MidiService::playNote(InstrumentS instrument, uint8_t midiNote, uint8_t velocity)
+{
+    if (const bool invoked = QMetaObject::invokeMethod(m_midiWorker.get(), "playNote",
+                                                       Q_ARG(QString, instrument->portName),
+                                                       Q_ARG(uint8_t, instrument->channel),
+                                                       Q_ARG(uint8_t, midiNote),
+                                                       Q_ARG(uint8_t, velocity));
+        !invoked) {
+        juzzlin::L(TAG).error() << "Invoking a method failed!";
+    }
+}
+
+void MidiService::stopNote(InstrumentS instrument, uint8_t midiNote)
+{
+    if (const bool invoked = QMetaObject::invokeMethod(m_midiWorker.get(), "stopNote",
+                                                       Q_ARG(QString, instrument->portName),
+                                                       Q_ARG(uint8_t, instrument->channel),
+                                                       Q_ARG(uint8_t, midiNote));
+        !invoked) {
+        juzzlin::L(TAG).error() << "Invoking a method failed!";
+    }
+}
+
 MidiService::~MidiService()
 {
     m_midiWorkerThread.exit();

@@ -91,6 +91,10 @@ void Application::setContextProperties()
 
 void Application::connectServices()
 {
+    connect(m_applicationService.get(), &ApplicationService::liveNoteOnRequested, m_midiService.get(), &MidiService::playNote);
+
+    connect(m_applicationService.get(), &ApplicationService::liveNoteOffRequested, m_midiService.get(), &MidiService::stopNote);
+
     connect(m_editorService.get(), &EditorService::instrumentRequested, m_midiService.get(), &MidiService::handleInstrumentRequest);
 
     connect(m_playerService.get(), &PlayerService::songRequested, this, [this] {

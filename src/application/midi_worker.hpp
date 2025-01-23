@@ -25,6 +25,7 @@
 
 namespace cacophony {
 
+class Instrument;
 class InstrumentRequest;
 class MidiBackend;
 
@@ -38,6 +39,10 @@ public:
     Q_INVOKABLE void handleInstrumentRequest(const InstrumentRequest & instrumentRequest);
 
     Q_INVOKABLE void playMiddleC(QString portName, uint8_t channel);
+
+    Q_INVOKABLE void playNote(QString portName, uint8_t channel, uint8_t midiNote, uint8_t velocity);
+
+    Q_INVOKABLE void stopNote(QString portName, uint8_t channel, uint8_t midiNote);
 
     Q_INVOKABLE void requestPatchChange(QString portName, uint8_t channel, uint8_t patch);
 

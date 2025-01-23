@@ -175,6 +175,10 @@ public:
 
     void setIsModified(bool isModified);
 
+    using MidiNoteNameAndCode = std::pair<std::string, uint8_t>;
+    using MidiNoteNameAndCodeOpt = std::optional<MidiNoteNameAndCode>;
+    static MidiNoteNameAndCodeOpt editorNoteToMidiNote(uint32_t note, uint32_t octave);
+
 signals:
     void beatsPerMinuteChanged();
 
@@ -219,10 +223,6 @@ private:
     void clampCursorLine(size_t oldLineCount, size_t newLineCount);
 
     void createPatternIfDoesNotExist(uint32_t patternIndex);
-
-    using MidiNoteNameAndCode = std::pair<std::string, uint8_t>;
-    using MidiNoteNameAndCodeOpt = std::optional<MidiNoteNameAndCode>;
-    MidiNoteNameAndCodeOpt editorNoteToMidiNote(uint32_t note, uint32_t octave) const;
 
     void deleteNoteDataAtPosition(const Position & position);
 

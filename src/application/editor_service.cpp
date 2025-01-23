@@ -489,7 +489,7 @@ void EditorService::requestColumnRight()
     notifyPositionChange(oldPosition);
 }
 
-EditorService::MidiNoteNameAndCodeOpt EditorService::editorNoteToMidiNote(uint32_t note, uint32_t octave) const
+EditorService::MidiNoteNameAndCodeOpt EditorService::editorNoteToMidiNote(uint32_t note, uint32_t octave)
 {
     if (note < 1 || note > 12) {
         juzzlin::L(TAG).error() << "Invalid note value: " << note << ". Valid range is 1..12.";

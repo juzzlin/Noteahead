@@ -155,6 +155,34 @@ void MidiWorker::playMiddleC(QString portName, uint8_t channel)
     }
 }
 
+void MidiWorker::playNote(QString portName, uint8_t channel, uint8_t midiNote, uint8_t velocity)
+{
+    try {
+        if (const auto device = m_midiBackend->deviceByPortName(portName.toStdString()); device) {
+            m_midiBackend->openDevice(device);
+            m_midiBackend->sendNoteOn(device, channel, midiNote, velocity);
+        } else {
+            juzzlin::L(TAG).error() << "No device found for portName '" << portName.toStdString() << "'";
+        }
+    } catch (const std::runtime_error & e) {
+        juzzlin::L(TAG).error() << e.what();
+    }
+}
+
+void MidiWorker::stopNote(QString portName, uint8_t channel, uint8_t midiNote)
+{
+    try {
+        if (const auto device = m_midiBackend->deviceByPortName(portName.toStdString()); device) {
+            m_midiBackend->openDevice(device);
+            m_midiBackend->sendNoteOff(device, channel, midiNote);
+        } else {
+            juzzlin::L(TAG).error() << "No device found for portName '" << portName.toStdString() << "'";
+        }
+    } catch (const std::runtime_error & e) {
+        juzzlin::L(TAG).error() << e.what();
+    }
+}
+
 void MidiWorker::requestPatchChange(QString portName, uint8_t channel, uint8_t patch)
 {
     try {

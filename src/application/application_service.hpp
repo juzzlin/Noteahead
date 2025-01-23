@@ -21,12 +21,14 @@
 #include <QUrl>
 #include <QVariantMap>
 
+#include <set>
+
 namespace cacophony {
 
 class EditorService;
-class MidiBackend;
 class PlayerService;
 class StateMachine;
+class Instrument;
 
 class ApplicationService : public QObject
 {
@@ -59,6 +61,10 @@ public:
 
     Q_INVOKABLE void requestQuit();
 
+    Q_INVOKABLE void requestLiveNoteOn(uint8_t note, uint8_t octave, uint8_t velocity);
+
+    Q_INVOKABLE void requestLiveNoteOff(uint8_t note, uint8_t octave);
+
     Q_INVOKABLE void cancelOpenProject();
 
     Q_INVOKABLE void openProject(QUrl url);
@@ -82,7 +88,14 @@ public:
     using PlayerServiceS = std::shared_ptr<PlayerService>;
     void setPlayerService(PlayerServiceS playerService);
 
+    using InstrumentS = std::shared_ptr<Instrument>;
+
 signals:
+
+    void liveNoteOnRequested(InstrumentS instrument, uint8_t midiNote, uint8_t velocity);
+
+    void liveNoteOffRequested(InstrumentS instrument, uint8_t midiNote);
+
     void unsavedChangesDialogRequested();
 
     void openDialogRequested();

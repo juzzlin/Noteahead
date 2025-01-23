@@ -68,7 +68,11 @@ FocusScope {
         }
     }
     Keys.onPressed: event => {
-        keyboardHandler.handleEvent(event);
+        keyboardHandler.handleKeyPressed(event);
+        event.accepted = true;
+    }
+    Keys.onReleased: event => {
+        keyboardHandler.handleKeyReleased(event);
         event.accepted = true;
     }
     function initialize() {
@@ -94,16 +98,16 @@ FocusScope {
     }
     function _connectTrack(track) {
         track.clicked.connect(columnIndex => {
-            editorService.requestTrackFocus(track.index(), columnIndex);
-            rootItem.forceActiveFocus();
-        });
+                editorService.requestTrackFocus(track.index(), columnIndex);
+                rootItem.forceActiveFocus();
+            });
     }
     function _createTracks(pattern) {
         pattern.createTracks(positionBar);
         pattern.tracks().forEach(track => {
-            _setTrackDimensionsByIndex(track, track.index());
-            _connectTrack(track);
-        });
+                _setTrackDimensionsByIndex(track, track.index());
+                _connectTrack(track);
+            });
     }
     function _createPattern(patternIndex) {
         uiLogger.debug(_tag, `Creating pattern index=${patternIndex}`);
@@ -152,8 +156,8 @@ FocusScope {
     function _updateTrackSizes() {
         const currentPattern = _patterns[editorService.currentPattern];
         currentPattern._tracks.forEach(track => {
-            _setTrackDimensionsByIndex(track, track.index());
-        });
+                _setTrackDimensionsByIndex(track, track.index());
+            });
     }
     function _updateFocus(newPosition, oldPosition) {
         _setTrackUnfocused(oldPosition.track, oldPosition.column);
@@ -162,22 +166,22 @@ FocusScope {
     function _updatePosition(newPosition) {
         const currentPattern = _patterns[editorService.currentPattern];
         currentPattern._tracks.forEach(track => {
-            track.setPosition(newPosition);
-        });
+                track.setPosition(newPosition);
+            });
         lineNumberColumnLeft.setPosition(newPosition);
         lineNumberColumnRight.setPosition(newPosition);
     }
     function _updateNoteDataAtPosition(position) {
         const currentPattern = _patterns[editorService.currentPattern];
         currentPattern._tracks.forEach(track => {
-            track.updateNoteDataAtPosition(position);
-        });
+                track.updateNoteDataAtPosition(position);
+            });
     }
     function _updatePatternVisibility() {
         const currentPatternIndex = editorService.currentPattern;
         _patterns.forEach(pattern => {
-            pattern.visible = pattern.index() === currentPatternIndex;
-        });
+                pattern.visible = pattern.index() === currentPatternIndex;
+            });
     }
     function _changePattern() {
         _updatePatternVisibility();
@@ -195,12 +199,12 @@ FocusScope {
         editorService.trackConfigurationChanged.connect(_recreatePatterns);
         editorService.patternCreated.connect(patternIndex => _createPattern(patternIndex));
         editorService.positionChanged.connect((newPosition, oldPosition) => {
-            if (newPosition.pattern !== oldPosition.pattern) {
-                _changePattern();
-            }
-            _updateFocus(newPosition, oldPosition);
-            _updatePosition(newPosition);
-        });
+                if (newPosition.pattern !== oldPosition.pattern) {
+                    _changePattern();
+                }
+                _updateFocus(newPosition, oldPosition);
+                _updatePosition(newPosition);
+            });
     }
     function _lineNumberColumnHeight() {
         return trackArea.height - Constants.trackHeaderHeight;

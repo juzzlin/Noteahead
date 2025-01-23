@@ -25,6 +25,7 @@
 
 namespace cacophony {
 
+class Instrument;
 class InstrumentRequest;
 class MidiBackend;
 class MidiWorker;
@@ -45,6 +46,12 @@ public:
     void setIsPlaying(bool isPlaying);
 
     void playMiddleC(QString portName, uint8_t channel);
+
+    using InstrumentS = std::shared_ptr<Instrument>;
+
+    void playNote(InstrumentS instrument, uint8_t midiNote, uint8_t velocity);
+
+    void stopNote(InstrumentS instrument, uint8_t midiNote);
 
 public slots:
     void handleInstrumentRequest(const InstrumentRequest & instrumentRequest);
