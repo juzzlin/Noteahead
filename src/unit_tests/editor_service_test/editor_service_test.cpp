@@ -141,6 +141,32 @@ void EditorServiceTest::test_requestNewColumn_shouldAddNewColumn()
     QCOMPARE(editorService.columnCount(0), 2);
 }
 
+void EditorServiceTest::test_requestColumnDeletion_shouldDeleteColumn()
+{
+    EditorService editorService;
+    QVERIFY(editorService.requestPosition(0, 0, 0, 0, 0));
+    QSignalSpy positionChangedSpy { &editorService, &EditorService::positionChanged };
+    QSignalSpy trackConfigurationChangedSpy { &editorService, &EditorService::trackConfigurationChanged };
+    QSignalSpy scrollBarSizeChangedSpy { &editorService, &EditorService::scrollBarSizeChanged };
+    QSignalSpy scrollBarStepSizeChangedSpy { &editorService, &EditorService::scrollBarStepSizeChanged };
+
+    editorService.requestNewColumn(0);
+    QCOMPARE(editorService.columnCount(0), 2);
+    QVERIFY(editorService.requestPosition(0, 0, 1, 0, 0));
+    QCOMPARE(trackConfigurationChangedSpy.count(), 1);
+    QCOMPARE(scrollBarSizeChangedSpy.count(), 1);
+
+    editorService.requestColumnDeletion(0);
+
+    QVERIFY(editorService.isModified());
+    QCOMPARE(positionChangedSpy.count(), 4);
+    QCOMPARE(editorService.position().column, 0);
+    QCOMPARE(trackConfigurationChangedSpy.count(), 2);
+    QCOMPARE(scrollBarSizeChangedSpy.count(), 2);
+    QCOMPARE(scrollBarStepSizeChangedSpy.count(), 2);
+    QCOMPARE(editorService.columnCount(0), 1);
+}
+
 void EditorServiceTest::test_requestNoteDeletionAtCurrentPosition_shouldDeleteNoteData()
 {
     EditorService editorService;

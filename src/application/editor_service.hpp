@@ -132,6 +132,8 @@ public:
 
     Q_INVOKABLE void requestNewColumn(uint32_t track);
 
+    Q_INVOKABLE void requestColumnDeletion(uint32_t track);
+
     Q_INVOKABLE void requestNoteDeletionAtCurrentPosition();
 
     Q_INVOKABLE bool requestNoteOnAtCurrentPosition(uint8_t note, uint8_t octave, uint8_t velocity);

@@ -70,6 +70,11 @@ void Pattern::addColumn(uint32_t trackIndex)
     m_tracks.at(trackIndex)->addColumn();
 }
 
+bool Pattern::deleteColumn(uint32_t trackIndex)
+{
+    return m_tracks.at(trackIndex)->deleteColumn();
+}
+
 uint32_t Pattern::columnCount(uint32_t trackIndex) const
 {
     return m_tracks.at(trackIndex)->columnCount();

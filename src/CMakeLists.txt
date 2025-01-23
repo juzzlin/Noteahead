@@ -108,6 +108,7 @@ set(QML_SOURCE_FILES
 )
 set(SVG_SOURCE_FILES
     ${QML_BASE_DIR}/Graphics/add_box.svg
+    ${QML_BASE_DIR}/Graphics/del_box.svg
     ${QML_BASE_DIR}/Graphics/play.svg
     ${QML_BASE_DIR}/Graphics/prev.svg
     ${QML_BASE_DIR}/Graphics/settings.svg

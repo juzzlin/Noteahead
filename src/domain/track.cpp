@@ -46,6 +46,7 @@ void Track::initialize(uint32_t length, uint32_t columnCount)
     for (uint32_t column = 0; column < columnCount; column++) {
         m_columns.push_back(std::make_shared<Column>(column, length));
     }
+    m_virtualColumnCount = m_columns.size();
 }
 
 Track::InstrumentS Track::instrument() const
@@ -70,8 +71,22 @@ void Track::setName(const std::string & name)
 
 void Track::addColumn()
 {
-    const auto length = m_columns.back()->lineCount();
-    m_columns.push_back(std::make_shared<Column>(m_columns.size(), length));
+    if (m_virtualColumnCount < m_columns.size()) {
+        m_virtualColumnCount++;
+    } else {
+        const auto length = m_columns.back()->lineCount();
+        m_columns.push_back(std::make_shared<Column>(m_columns.size(), length));
+        m_virtualColumnCount = m_columns.size();
+    }
+}
+
+bool Track::deleteColumn()
+{
+    if (m_virtualColumnCount > 1) {
+        m_virtualColumnCount--;
+        return true;
+    }
+    return false;
 }
 
 void Track::setColumn(ColumnS column)
@@ -79,9 +94,9 @@ void Track::setColumn(ColumnS column)
     m_columns.at(column->index()) = column;
 }
 
-uint32_t Track::columnCount() const
+size_t Track::columnCount() const
 {
-    return static_cast<uint32_t>(m_columns.size());
+    return m_virtualColumnCount;
 }
 
 uint32_t Track::lineCount() const
@@ -98,8 +113,8 @@ void Track::setLineCount(uint32_t lineCount)
 
 bool Track::hasData() const
 {
-    return std::find_if(m_columns.begin(), m_columns.end(), [](auto && column) {
-               return column->hasData();
+    return std::find_if(m_columns.begin(), m_columns.end(), [this](auto && column) {
+               return column->index() < m_virtualColumnCount && column->hasData();
            })
       != m_columns.end();
 }
@@ -133,7 +148,8 @@ void Track::setNoteDataAtPosition(const NoteData & noteData, const Position & po
 Track::EventList Track::renderToEvents(size_t startTick, size_t ticksPerLine) const
 {
     Track::EventList eventList;
-    for (auto && column : m_columns) {
+    for (size_t columnIndex = 0; columnIndex < m_virtualColumnCount; columnIndex++) {
+        const auto column = m_columns.at(columnIndex);
         const auto columnList = column->renderToEvents(startTick, ticksPerLine);
         std::copy(columnList.begin(), columnList.end(), std::back_inserter(eventList));
     }
@@ -155,8 +171,8 @@ void Track::serializeToXml(QXmlStreamWriter & writer) const
 
     if (hasData()) {
         writer.writeStartElement("Columns");
-        for (const auto & column : m_columns) {
-            if (column && column->hasData()) {
+        for (size_t columnIndex = 0; columnIndex < m_virtualColumnCount; columnIndex++) {
+            if (const auto column = m_columns.at(columnIndex); column && column->hasData()) {
                 column->serializeToXml(writer);
             }
         }

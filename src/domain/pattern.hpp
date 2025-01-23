@@ -50,6 +50,8 @@ public:
 
     void addColumn(uint32_t trackIndex);
 
+    bool deleteColumn(uint32_t trackIndex);
+
     uint32_t columnCount(uint32_t trackIndex) const;
 
     uint32_t lineCount() const;

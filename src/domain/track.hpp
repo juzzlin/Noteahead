@@ -40,13 +40,15 @@ public:
 
     void addColumn();
 
+    bool deleteColumn();
+
     void setColumn(ColumnS column);
 
     uint32_t lineCount() const;
 
     void setLineCount(uint32_t lineCount);
 
-    uint32_t columnCount() const;
+    size_t columnCount() const;
 
     bool hasData() const;
 
@@ -85,6 +87,8 @@ private:
     std::string m_name;
 
     std::vector<ColumnS> m_columns;
+
+    size_t m_virtualColumnCount = 0;
 
     InstrumentS m_instrument;
 };

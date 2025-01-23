@@ -60,6 +60,17 @@ void Song::addColumn(uint32_t trackIndex)
     }
 }
 
+bool Song::deleteColumn(uint32_t trackIndex)
+{
+    if (columnCount(trackIndex) > 1) {
+        for (auto pattern : m_patterns) {
+            pattern.second->deleteColumn(trackIndex);
+        }
+        return true;
+    }
+    return false;
+}
+
 uint32_t Song::columnCount(uint32_t trackIndex) const
 {
     return m_patterns.at(0)->columnCount(trackIndex);

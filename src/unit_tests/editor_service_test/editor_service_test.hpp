@@ -36,6 +36,8 @@ private slots:
 
     void test_requestNewColumn_shouldAddNewColumn();
 
+    void test_requestColumnDeletion_shouldDeleteColumn();
+
     void test_requestNoteDeletionAtCurrentPosition_shouldDeleteNoteData();
 
     void test_requestNoteOnAtCurrentPosition_shouldChangeNoteData();

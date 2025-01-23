@@ -67,6 +67,7 @@ Item {
         id: trackHeader
         anchors.top: parent.top
         width: parent.width
+        onColumnDeletionRequested: editorService.requestColumnDeletion(_index)
         onNameChanged: name => rootItem.nameChanged(name)
         onNewColumnRequested: editorService.requestNewColumn(_index)
         onTrackSettingsDialogRequested: UiService.requestTrackSettingsDialog(_index)
