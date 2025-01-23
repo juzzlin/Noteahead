@@ -67,7 +67,7 @@ QtObject {
     function _handleNoteInserted(event) {
         const effectiveNote = _effectiveNote(event.key);
         if (effectiveNote) {
-            const effectiveOctave = _effectiveOctave(effectiveNote);
+            const effectiveOctave = _effectiveOctave(event.key);
             if (editorService.requestNoteOnAtCurrentPosition(effectiveNote, effectiveOctave, UiService.activeVelocity())) {
                 editorService.requestScroll(UiService.activeStep());
             }
