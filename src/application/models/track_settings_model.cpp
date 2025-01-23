@@ -163,6 +163,7 @@ void TrackSettingsModel::setPortName(const QString & name)
     if (m_portName != name) {
         m_portName = name;
         emit portNameChanged();
+        applySettings();
     }
 }
 
@@ -171,6 +172,7 @@ void TrackSettingsModel::setChannel(uint8_t channel)
     if (m_channel != channel) {
         m_channel = channel;
         emit channelChanged();
+        applySettings();
     }
 }
 
@@ -179,6 +181,7 @@ void TrackSettingsModel::setPatchEnabled(bool enabled)
     if (m_patchEnabled != enabled) {
         m_patchEnabled = enabled;
         emit patchEnabledChanged();
+        applySettings();
     }
 }
 
@@ -187,6 +190,7 @@ void TrackSettingsModel::setPatch(uint8_t patch)
     if (m_patch != patch) {
         m_patch = patch;
         emit patchChanged();
+        applySettings();
     }
 }
 
@@ -195,6 +199,7 @@ void TrackSettingsModel::setBankEnabled(bool enabled)
     if (m_bankEnabled != enabled) {
         m_bankEnabled = enabled;
         emit bankEnabledChanged();
+        applySettings();
     }
 }
 
@@ -203,6 +208,7 @@ void TrackSettingsModel::setBankLsb(uint8_t lsb)
     if (m_bankLsb != lsb) {
         m_bankLsb = lsb;
         emit bankLsbChanged();
+        applySettings();
     }
 }
 
@@ -211,6 +217,7 @@ void TrackSettingsModel::setBankMsb(uint8_t msb)
     if (m_bankMsb != msb) {
         m_bankMsb = msb;
         emit bankMsbChanged();
+        applySettings();
     }
 }
 
@@ -219,6 +226,7 @@ void TrackSettingsModel::setBankByteOrderSwapped(bool swapped)
     if (m_bankByteOrderSwapped != swapped) {
         m_bankByteOrderSwapped = swapped;
         emit bankByteOrderSwappedChanged();
+        applySettings();
     }
 }
 

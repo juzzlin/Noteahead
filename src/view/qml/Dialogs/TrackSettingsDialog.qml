@@ -28,19 +28,8 @@ Dialog {
         }
     }
     function saveSettings() {
-        trackSettingsModel.portName = portNameDropdown.currentText;
-        trackSettingsModel.channel = channelDropdown.currentValue - 1;
-        trackSettingsModel.patchEnabled = enablePatchCheckbox.checked;
-        if (trackSettingsModel.patchEnabled) {
-            trackSettingsModel.patch = patchSpinBox.value;
-        }
-        trackSettingsModel.bankEnabled = enableBankCheckbox.checked;
-        if (trackSettingsModel.bankEnabled) {
-            trackSettingsModel.bankLsb = bankLsbSpinBox.value;
-            trackSettingsModel.bankMsb = bankMsbSpinBox.value;
-            trackSettingsModel.bankByteOrderSwapped = swapBankByteOrderCheckBox.checked;
-        }
         trackSettingsModel.applySettings();
+        trackSettingsModel.save();
     }
     footer: DialogButtonBox {
         Button {
@@ -48,7 +37,6 @@ Dialog {
             DialogButtonBox.buttonRole: DialogButtonBox.AcceptRole
             onClicked: {
                 saveSettings();
-                trackSettingsModel.save();
                 rootItem.accepted();
             }
             ToolTip.delay: Constants.toolTipDelay
@@ -109,7 +97,7 @@ Dialog {
                         function setSelected(text) {
                             currentIndex = find(text);
                         }
-                        onCurrentTextChanged: trackSettingsModel.applySettings()
+                        onCurrentTextChanged: trackSettingsModel.portName = currentText
                     }
                     Label {
                         text: qsTr("Channel:")
@@ -142,7 +130,7 @@ Dialog {
                         function setSelected(text) {
                             currentIndex = find(text);
                         }
-                        onCurrentValueChanged: trackSettingsModel.applySettings()
+                        onCurrentValueChanged: trackSettingsModel.channel = currentValue - 1
                     }
                     Label {
                         text: qsTr("Patch:")
@@ -162,6 +150,7 @@ Dialog {
                         ToolTip.timeout: Constants.toolTipTimeout
                         ToolTip.visible: hovered
                         ToolTip.text: qsTr("Enable/disable patch setting for this track")
+                        onCheckedChanged: trackSettingsModel.patchEnabled = checked
                     }
                     SpinBox {
                         id: patchSpinBox
@@ -173,11 +162,11 @@ Dialog {
                         Layout.row: 2
                         Layout.fillWidth: true
                         editable: true
-                        onValueChanged: trackSettingsModel.applySettings()
                         ToolTip.delay: Constants.toolTipDelay
                         ToolTip.timeout: Constants.toolTipTimeout
                         ToolTip.visible: hovered
                         ToolTip.text: qsTr("Set initial patch for this track. Note that some synths will add 1 to the chosen value so that 0 means 1.")
+                        onValueChanged: trackSettingsModel.patch = value
                     }
                     CheckBox {
                         id: enableBankCheckbox
@@ -190,6 +179,7 @@ Dialog {
                         ToolTip.timeout: Constants.toolTipTimeout
                         ToolTip.visible: hovered
                         ToolTip.text: qsTr("Enable/disable bank setting for this track")
+                        onCheckedChanged: trackSettingsModel.bankEnabled = checked
                     }
                     Label {
                         text: qsTr("Bank (LSB):")
@@ -207,11 +197,11 @@ Dialog {
                         Layout.columnSpan: 1
                         Layout.row: 3
                         Layout.fillWidth: true
-                        onValueChanged: trackSettingsModel.applySettings()
                         ToolTip.delay: Constants.toolTipDelay
                         ToolTip.timeout: Constants.toolTipTimeout
                         ToolTip.visible: hovered
                         ToolTip.text: qsTr("Set initial bank for this track (LSB)")
+                        onValueChanged: trackSettingsModel.bankLsb = value
                     }
                     Label {
                         text: qsTr("Bank (MSB):")
@@ -229,11 +219,11 @@ Dialog {
                         Layout.columnSpan: 1
                         Layout.row: 3
                         Layout.fillWidth: true
-                        onValueChanged: trackSettingsModel.applySettings()
                         ToolTip.delay: Constants.toolTipDelay
                         ToolTip.timeout: Constants.toolTipTimeout
                         ToolTip.visible: hovered
                         ToolTip.text: qsTr("Set initial bank for this track (MSB)")
+                        onValueChanged: trackSettingsModel.bankMsb = value
                     }
                     CheckBox {
                         id: swapBankByteOrderCheckBox
@@ -243,11 +233,11 @@ Dialog {
                         Layout.columnSpan: 2
                         Layout.row: 3
                         Layout.fillWidth: true
-                        onCheckedChanged: trackSettingsModel.applySettings()
                         ToolTip.delay: Constants.toolTipDelay
                         ToolTip.timeout: Constants.toolTipTimeout
                         ToolTip.visible: hovered
                         ToolTip.text: qsTr("Swap the send order of LSB and MSB bytes")
+                        onCheckedChanged: trackSettingsModel.bankByteOrderSwapped = checked
                     }
                 }
             }
