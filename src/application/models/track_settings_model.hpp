@@ -94,6 +94,8 @@ signals:
     void saveRequested();
 
 private:
+    bool m_isRequestingInstrumentData = false;
+
     uint32_t m_trackIndex { 0 };
     QString m_portName;
     uint8_t m_channel { 0 };

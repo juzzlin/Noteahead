@@ -27,7 +27,7 @@ Dialog {
             swapBankByteOrderCheckBox.checked = trackSettingsModel.bankByteOrderSwapped;
         }
     }
-    function applySettings() {
+    function saveSettings() {
         trackSettingsModel.portName = portNameDropdown.currentText;
         trackSettingsModel.channel = channelDropdown.currentValue - 1;
         trackSettingsModel.patchEnabled = enablePatchCheckbox.checked;
@@ -47,7 +47,7 @@ Dialog {
             text: qsTr("Ok")
             DialogButtonBox.buttonRole: DialogButtonBox.AcceptRole
             onClicked: {
-                applySettings();
+                saveSettings();
                 trackSettingsModel.save();
                 rootItem.accepted();
             }
@@ -109,6 +109,7 @@ Dialog {
                         function setSelected(text) {
                             currentIndex = find(text);
                         }
+                        onCurrentTextChanged: trackSettingsModel.applySettings()
                     }
                     Label {
                         text: qsTr("Channel:")
@@ -141,6 +142,7 @@ Dialog {
                         function setSelected(text) {
                             currentIndex = find(text);
                         }
+                        onCurrentValueChanged: trackSettingsModel.applySettings()
                     }
                     Label {
                         text: qsTr("Patch:")
@@ -171,9 +173,7 @@ Dialog {
                         Layout.row: 2
                         Layout.fillWidth: true
                         editable: true
-                        onValueChanged: {
-                            applySettings();
-                        }
+                        onValueChanged: trackSettingsModel.applySettings()
                         ToolTip.delay: Constants.toolTipDelay
                         ToolTip.timeout: Constants.toolTipTimeout
                         ToolTip.visible: hovered
@@ -207,6 +207,7 @@ Dialog {
                         Layout.columnSpan: 1
                         Layout.row: 3
                         Layout.fillWidth: true
+                        onValueChanged: trackSettingsModel.applySettings()
                         ToolTip.delay: Constants.toolTipDelay
                         ToolTip.timeout: Constants.toolTipTimeout
                         ToolTip.visible: hovered
@@ -228,6 +229,7 @@ Dialog {
                         Layout.columnSpan: 1
                         Layout.row: 3
                         Layout.fillWidth: true
+                        onValueChanged: trackSettingsModel.applySettings()
                         ToolTip.delay: Constants.toolTipDelay
                         ToolTip.timeout: Constants.toolTipTimeout
                         ToolTip.visible: hovered
@@ -241,6 +243,7 @@ Dialog {
                         Layout.columnSpan: 2
                         Layout.row: 3
                         Layout.fillWidth: true
+                        onCheckedChanged: trackSettingsModel.applySettings()
                         ToolTip.delay: Constants.toolTipDelay
                         ToolTip.timeout: Constants.toolTipTimeout
                         ToolTip.visible: hovered

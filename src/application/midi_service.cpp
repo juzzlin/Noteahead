@@ -104,6 +104,11 @@ void MidiService::handleInstrumentRequest(const InstrumentRequest & instrumentRe
                 const auto portName = instrument->portName;
                 if (const auto device = m_midiBackend->deviceByPortName(portName.toStdString()); device) {
                     m_midiBackend->openDevice(device);
+                    if (instrument->bank.has_value()) {
+                        m_midiBackend->sendBankChange(device, instrument->channel,
+                                                      instrument->bank->byteOrderSwapped ? instrument->bank->lsb : instrument->bank->msb,
+                                                      instrument->bank->byteOrderSwapped ? instrument->bank->msb : instrument->bank->lsb);
+                    }
                     if (instrument->patch.has_value()) {
                         m_midiBackend->sendPatchChange(device, instrument->channel, *instrument->patch);
                     }

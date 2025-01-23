@@ -73,6 +73,10 @@ void MidiBackend::sendPatchChange(MidiDeviceS, uint8_t, uint8_t) const
 {
 }
 
+void MidiBackend::sendBankChange(MidiDeviceS, uint8_t, uint8_t, uint8_t) const
+{
+}
+
 MidiBackend::~MidiBackend() = default;
 
 } // namespace cacophony

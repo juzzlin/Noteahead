@@ -29,11 +29,15 @@ TrackSettingsModel::TrackSettingsModel(QObject * parent)
 
 void TrackSettingsModel::applySettings()
 {
-    emit applySettingsRequested();
+    if (!m_isRequestingInstrumentData) {
+        emit applySettingsRequested();
+    }
 }
 
 void TrackSettingsModel::requestInstrumentData()
 {
+    m_isRequestingInstrumentData = true;
+
     emit instrumentDataRequested();
 }
 
@@ -101,7 +105,7 @@ void TrackSettingsModel::setTrackIndex(uint32_t trackIndex)
 
 void TrackSettingsModel::setInstrumentData(const Instrument & instrument)
 {
-    juzzlin::L(TAG).info() << "Setting instrument data";
+    juzzlin::L(TAG).info() << "Setting instrument data: " << instrument.toString().toStdString();
 
     setPortName(instrument.portName);
     setChannel(instrument.channel);
@@ -117,6 +121,8 @@ void TrackSettingsModel::setInstrumentData(const Instrument & instrument)
     }
 
     emit instrumentDataReceived();
+
+    m_isRequestingInstrumentData = false;
 }
 
 void TrackSettingsModel::reset()
@@ -131,6 +137,8 @@ void TrackSettingsModel::reset()
     m_bankByteOrderSwapped = false;
 
     emit instrumentDataReceived();
+
+    m_isRequestingInstrumentData = false;
 }
 
 TrackSettingsModel::InstrumentU TrackSettingsModel::toInstrument() const
