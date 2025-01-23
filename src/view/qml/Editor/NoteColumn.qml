@@ -10,6 +10,7 @@ Rectangle {
     property int _patternIndex: 0
     property int _trackIndex: 0
     property int _scrollOffset: 0
+    property Item _positionBar
     property var _lines: []
     function resize(width, height) {
         rootItem.width = width;
@@ -34,6 +35,12 @@ Rectangle {
     function setPosition(position) {
         _scrollOffset = position.line;
         _scrollLines();
+        if (UiService.isPlaying()) {
+            volumeMeter.trigger(editorService.effectiveVolumeAtPosition(position.patternIndex, _trackIndex, _index, position.line));
+        }
+    }
+    function setPositionBar(positionBar) {
+        _positionBar = positionBar;
     }
     function updateData() {
         _createLines();
@@ -61,14 +68,14 @@ Rectangle {
         for (let lineIndex = 0; lineIndex < lineCount; lineIndex++) {
             const velocity = editorService.displayVelocityAtPosition(_patternIndex, _trackIndex, _index, lineIndex);
             const line = noteColumnLineComponent.createObject(rootItem, {
-                "index": lineIndex,
-                "width": rootItem.width,
-                "height": lineHeight,
-                "x": 0,
-                "y": lineHeight * _scrolledLinePositionByLineIndex(lineIndex),
-                "note": note,
-                "velocity": velocity
-            });
+                    "index": lineIndex,
+                    "width": rootItem.width,
+                    "height": lineHeight,
+                    "x": 0,
+                    "y": lineHeight * _scrolledLinePositionByLineIndex(lineIndex),
+                    "note": note,
+                    "velocity": velocity
+                });
             _lines.push(line);
         }
     }
@@ -77,14 +84,14 @@ Rectangle {
             const note = editorService.displayNoteAtPosition(_patternIndex, _trackIndex, _index, lineIndex);
             const velocity = editorService.displayVelocityAtPosition(_patternIndex, _trackIndex, _index, lineIndex);
             const line = noteColumnLineComponent.createObject(rootItem, {
-                "index": lineIndex,
-                "width": rootItem.width,
-                "height": lineHeight,
-                "x": 0,
-                "y": lineHeight * _scrolledLinePositionByLineIndex(lineIndex),
-                "note": note,
-                "velocity": velocity
-            });
+                    "index": lineIndex,
+                    "width": rootItem.width,
+                    "height": lineHeight,
+                    "x": 0,
+                    "y": lineHeight * _scrolledLinePositionByLineIndex(lineIndex),
+                    "note": note,
+                    "velocity": velocity
+                });
             _lines.push(line);
         }
     }
@@ -102,20 +109,20 @@ Rectangle {
         const lineCount = editorService.lineCount(_patternIndex);
         const lineHeight = _lineHeight();
         _lines.forEach(line => {
-            line.y = lineHeight * _scrolledLinePositionByLineIndex(line.index);
-            line.resize(width, lineHeight);
-        });
+                line.y = lineHeight * _scrolledLinePositionByLineIndex(line.index);
+                line.resize(width, lineHeight);
+            });
     }
     function _scrollLines() {
         const lineHeight = _lineHeight();
         _lines.forEach(line => {
-            line.y = lineHeight * _scrolledLinePositionByLineIndex(line.index);
-        });
+                line.y = lineHeight * _scrolledLinePositionByLineIndex(line.index);
+            });
     }
     function _setLineFocused(lineIndex, lineColumnIndex, focused) {
         _lines.forEach((line, index) => {
-            line.setFocused(focused && index === lineIndex, lineColumnIndex);
-        });
+                line.setFocused(focused && index === lineIndex, lineColumnIndex);
+            });
     }
     Component {
         id: noteColumnLineComponent
@@ -129,6 +136,14 @@ Rectangle {
         border.width: 1
         anchors.fill: parent
         z: 2
+    }
+    VolumeMeter {
+        id: volumeMeter
+        anchors.top: rootItem.top
+        anchors.left: rootItem.left
+        anchors.right: rootItem.right
+        height: _positionBar ? _positionBar.y - rootItem.parent.y : 0
+        z: 3
     }
     MouseArea {
         id: clickHandler

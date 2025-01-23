@@ -40,15 +40,10 @@ Item {
     }
     function setPosition(position) {
         columnContainer.setPosition(position);
-        if (UiService.isPlaying()) {
-            volumeMeter.trigger(editorService.effectiveVolumeAtPosition(position.pattern, _index, position.column, position.line));
-        }
     }
     function setPositionBar(positionBar) {
         _positionBar = positionBar;
-    }
-    function setPositionBarY(positionBarY) {
-        _positionBarY = positionBarY;
+        columnContainer.setPositionBar(positionBar);
     }
     function updateData() {
         _clearColumns();
@@ -95,10 +90,10 @@ Item {
             _createNoteColumns();
         }
         function addColumn() {
-            const noteColumn = _createNoteColumn(_noteColumnCount);
+            _noteColumnCount = editorService.columnCount(_index);
+            const noteColumn = _createNoteColumn(_noteColumnCount - 1);
             _noteColumns.push(noteColumn);
             _resize(width, height);
-            _noteColumnCount = editorService.columnCount(_index);
         }
         function deleteColumn() {
             _noteColumns.pop();
@@ -111,6 +106,11 @@ Item {
         function setPosition(position) {
             _noteColumns.forEach(noteColumn => {
                     noteColumn.setPosition(position);
+                });
+        }
+        function setPositionBar(positionBar) {
+            _noteColumns.forEach(noteColumn => {
+                    noteColumn.setPositionBar(positionBar);
                 });
         }
         function updateNoteDataAtPosition(position) {
@@ -134,6 +134,7 @@ Item {
             noteColumn.setIndex(columnIndex);
             noteColumn.setTrackIndex(_index);
             noteColumn.setPatternIndex(_patternIndex);
+            noteColumn.setPositionBar(_positionBar);
             noteColumn.updateData();
             noteColumn.clicked.connect(() => {
                     uiLogger.debug(_tag, `Track ${rootItem._index} clicked`);
@@ -165,13 +166,6 @@ Item {
             NoteColumn {
             }
         }
-    }
-    VolumeMeter {
-        id: volumeMeter
-        anchors.top: trackHeader.bottom
-        anchors.left: rootItem.left
-        anchors.right: rootItem.right
-        height: _positionBar ? _positionBar.y - y : 0
     }
     Rectangle {
         id: borderRectangle
