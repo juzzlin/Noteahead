@@ -27,10 +27,10 @@ TrackSettingsModel::TrackSettingsModel(QObject * parent)
 {
 }
 
-void TrackSettingsModel::applySettings()
+void TrackSettingsModel::applyAll()
 {
     if (!m_isRequestingInstrumentData) {
-        emit applySettingsRequested();
+        emit applyAllRequested();
     }
 }
 
@@ -39,6 +39,11 @@ void TrackSettingsModel::requestInstrumentData()
     m_isRequestingInstrumentData = true;
 
     emit instrumentDataRequested();
+}
+
+void TrackSettingsModel::requestTestSound()
+{
+    emit testSoundRequested();
 }
 
 void TrackSettingsModel::save()
@@ -163,7 +168,7 @@ void TrackSettingsModel::setPortName(const QString & name)
     if (m_portName != name) {
         m_portName = name;
         emit portNameChanged();
-        applySettings();
+        applyAll();
     }
 }
 
@@ -172,7 +177,7 @@ void TrackSettingsModel::setChannel(uint8_t channel)
     if (m_channel != channel) {
         m_channel = channel;
         emit channelChanged();
-        applySettings();
+        applyAll();
     }
 }
 
@@ -181,7 +186,7 @@ void TrackSettingsModel::setPatchEnabled(bool enabled)
     if (m_patchEnabled != enabled) {
         m_patchEnabled = enabled;
         emit patchEnabledChanged();
-        applySettings();
+        applyAll();
     }
 }
 
@@ -190,7 +195,7 @@ void TrackSettingsModel::setPatch(uint8_t patch)
     if (m_patch != patch) {
         m_patch = patch;
         emit patchChanged();
-        applySettings();
+        applyAll();
     }
 }
 
@@ -199,7 +204,7 @@ void TrackSettingsModel::setBankEnabled(bool enabled)
     if (m_bankEnabled != enabled) {
         m_bankEnabled = enabled;
         emit bankEnabledChanged();
-        applySettings();
+        applyAll();
     }
 }
 
@@ -208,7 +213,7 @@ void TrackSettingsModel::setBankLsb(uint8_t lsb)
     if (m_bankLsb != lsb) {
         m_bankLsb = lsb;
         emit bankLsbChanged();
-        applySettings();
+        applyAll();
     }
 }
 
@@ -217,7 +222,7 @@ void TrackSettingsModel::setBankMsb(uint8_t msb)
     if (m_bankMsb != msb) {
         m_bankMsb = msb;
         emit bankMsbChanged();
-        applySettings();
+        applyAll();
     }
 }
 
@@ -226,7 +231,7 @@ void TrackSettingsModel::setBankByteOrderSwapped(bool swapped)
     if (m_bankByteOrderSwapped != swapped) {
         m_bankByteOrderSwapped = swapped;
         emit bankByteOrderSwappedChanged();
-        applySettings();
+        applyAll();
     }
 }
 

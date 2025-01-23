@@ -65,7 +65,7 @@ void MidiBackend::sendNoteOn(MidiDeviceS, uint8_t, uint8_t, uint8_t) const
 {
 }
 
-void MidiBackend::sendNoteOff(MidiDeviceS, uint8_t, uint8_t, uint8_t) const
+void MidiBackend::sendNoteOff(MidiDeviceS, uint8_t, uint8_t) const
 {
 }
 

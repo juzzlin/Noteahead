@@ -70,11 +70,11 @@ void MidiBackendRtMidi::sendNoteOn(MidiDeviceS device, uint8_t channel, uint8_t 
     sendMessage(device, message);
 }
 
-void MidiBackendRtMidi::sendNoteOff(MidiDeviceS device, uint8_t channel, uint8_t note, uint8_t velocity) const
+void MidiBackendRtMidi::sendNoteOff(MidiDeviceS device, uint8_t channel, uint8_t note) const
 {
     const Message message = { static_cast<unsigned char>(0x80 | (channel & 0x0F)),
                               static_cast<unsigned char>(note),
-                              static_cast<unsigned char>(velocity) };
+                              static_cast<unsigned char>(0) };
 
     sendMessage(device, message);
 }

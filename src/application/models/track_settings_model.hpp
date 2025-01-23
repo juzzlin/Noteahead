@@ -46,9 +46,11 @@ public:
 
     ~TrackSettingsModel() override;
 
-    Q_INVOKABLE void applySettings();
+    Q_INVOKABLE void applyAll();
 
     Q_INVOKABLE void requestInstrumentData();
+
+    Q_INVOKABLE void requestTestSound();
 
     Q_INVOKABLE void save();
 
@@ -88,10 +90,12 @@ signals:
     void bankMsbChanged();
     void bankByteOrderSwappedChanged();
 
-    void applySettingsRequested();
+    void applyAllRequested();
+    void applyPatchRequested();
     void instrumentDataRequested();
     void instrumentDataReceived();
     void saveRequested();
+    void testSoundRequested();
 
 private:
     bool m_isRequestingInstrumentData = false;

@@ -28,7 +28,7 @@ Dialog {
         }
     }
     function saveSettings() {
-        trackSettingsModel.applySettings();
+        trackSettingsModel.applyAll();
         trackSettingsModel.save();
     }
     footer: DialogButtonBox {
@@ -60,6 +60,7 @@ Dialog {
             ToolTip.timeout: Constants.toolTipTimeout
             ToolTip.visible: hovered
             ToolTip.text: qsTr("Test current settings by triggering the middle C")
+            onClicked: trackSettingsModel.requestTestSound()
         }
     }
     ColumnLayout {

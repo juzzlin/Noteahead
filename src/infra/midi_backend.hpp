@@ -47,7 +47,7 @@ public:
 
     virtual void sendNoteOn(MidiDeviceS device, uint8_t channel, uint8_t note, uint8_t velocity) const;
 
-    virtual void sendNoteOff(MidiDeviceS device, uint8_t channel, uint8_t note, uint8_t velocity) const;
+    virtual void sendNoteOff(MidiDeviceS device, uint8_t channel, uint8_t note) const;
 
     virtual void sendPatchChange(MidiDeviceS device, uint8_t channel, uint8_t patch) const;
 

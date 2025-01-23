@@ -84,11 +84,4 @@ QtObject {
     function requestQuit() {
         quitRequested();
     }
-    function availableMidiPorts() {
-        return midiService.availableMidiPorts;
-    }
-    function requestPatchChange(portName, channel, patch) {
-        uiLogger.debug(_tag, `Requesting patch change portName = '${portName}', channel = ${channel}, patch = ${patch}`);
-        midiService.requestPatchChange(portName, channel, patch);
-    }
 }

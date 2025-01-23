@@ -13,11 +13,11 @@
 // You should have received a copy of the GNU General Public License
 // along with Cacophony. If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef MIDI_SERVICE_HPP
-#define MIDI_SERVICE_HPP
+#ifndef MIDI_WORKER_H
+#define MIDI_WORKER_H
 
 #include <QObject>
-#include <QThread>
+#include <QTimer>
 
 #include <memory>
 
@@ -27,45 +27,41 @@ namespace cacophony {
 
 class InstrumentRequest;
 class MidiBackend;
-class MidiWorker;
 
-class MidiService : public QObject
+class MidiWorker : public QObject
 {
     Q_OBJECT
 
-    Q_PROPERTY(QStringList availableMidiPorts READ availableMidiPorts NOTIFY availableMidiPortsChanged)
-
 public:
-    explicit MidiService(QObject * parent = nullptr);
+    explicit MidiWorker(QObject * parent = nullptr);
 
-    ~MidiService() override;
+    Q_INVOKABLE void handleInstrumentRequest(const InstrumentRequest & instrumentRequest);
 
-    Q_INVOKABLE QStringList availableMidiPorts() const;
+    Q_INVOKABLE void playMiddleC(QString portName, uint8_t channel);
 
-    void setIsPlaying(bool isPlaying);
+    Q_INVOKABLE void requestPatchChange(QString portName, uint8_t channel, uint8_t patch);
 
-    void playMiddleC(QString portName, uint8_t channel);
-
-public slots:
-    void handleInstrumentRequest(const InstrumentRequest & instrumentRequest);
+    Q_INVOKABLE void setIsPlaying(bool isPlaying);
 
 signals:
-    void availableMidiPortsChanged();
+    void availableMidiPortsChanged(QStringList availableMidiPorts);
 
     void statusTextRequested(QString message);
 
-    void instrumentRequestHandlingRequested(const InstrumentRequest & instrumentRequest);
-
 private:
-    void initializeWorker();
+    void processFailedInstrumentRequests();
 
-    std::unique_ptr<MidiWorker> m_midiWorker;
+    std::shared_ptr<MidiBackend> m_midiBackend;
 
-    QThread m_midiWorkerThread;
+    std::unique_ptr<QTimer> m_midiScanTimer;
 
     QStringList m_availableMidiPorts;
+
+    std::atomic_bool m_isPlaying = false;
+
+    std::map<QString, InstrumentRequest> m_failedInstrumentRequests;
 };
 
 } // namespace cacophony
 
-#endif // MIDI_SERVICE_HPP
+#endif // MIDI_WORKER_H

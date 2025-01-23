@@ -39,7 +39,7 @@ public:
 
     void sendNoteOn(MidiDeviceS device, uint8_t channel, uint8_t note, uint8_t velocity) const override;
 
-    void sendNoteOff(MidiDeviceS device, uint8_t channel, uint8_t note, uint8_t velocity) const override;
+    void sendNoteOff(MidiDeviceS device, uint8_t channel, uint8_t note) const override;
 
     void sendPatchChange(MidiDeviceS device, uint8_t channel, uint8_t patch) const override;
 

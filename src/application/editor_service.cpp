@@ -75,7 +75,7 @@ void EditorService::requestInstruments()
     for (size_t trackIndex = 0; trackIndex < m_song->trackCount(); trackIndex++) {
         if (const auto instrument = m_song->instrument(trackIndex); instrument) {
             juzzlin::L(TAG).info() << "Requesting instrument for track index=" << trackIndex;
-            emit instrumentRequested({ InstrumentRequest::Type::Apply, instrument });
+            emit instrumentRequested({ InstrumentRequest::Type::ApplyAll, instrument });
         }
     }
 }

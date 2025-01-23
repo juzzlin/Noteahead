@@ -28,8 +28,8 @@ public:
     enum class Type
     {
         None,
-        Apply,
-        Test
+        ApplyAll,
+        ApplyPatch,
     };
 
     InstrumentRequest() = default;

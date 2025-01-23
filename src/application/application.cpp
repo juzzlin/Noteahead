@@ -45,7 +45,7 @@ Application::Application(int & argc, char ** argv)
   , m_trackSettingsModel { std::make_unique<TrackSettingsModel>() }
   , m_config { std::make_unique<Config>() }
   , m_engine { std::make_unique<QQmlApplicationEngine>() }
-{    
+{
     qmlRegisterType<UiLogger>("Cacophony", 1, 0, "UiLogger");
     qmlRegisterType<ApplicationService>("Cacophony", 1, 0, "ApplicationService");
     qmlRegisterType<Config>("Cacophony", 1, 0, "Config");
@@ -112,13 +112,23 @@ void Application::connectServices()
         }
     });
 
-    connect(m_trackSettingsModel.get(), &TrackSettingsModel::applySettingsRequested, this, [this]() {
-        const InstrumentRequest instrumentRequest { InstrumentRequest::Type::Apply, m_trackSettingsModel->toInstrument() };
+    connect(m_trackSettingsModel.get(), &TrackSettingsModel::applyAllRequested, this, [this]() {
+        const InstrumentRequest instrumentRequest { InstrumentRequest::Type::ApplyAll, m_trackSettingsModel->toInstrument() };
+        m_midiService->handleInstrumentRequest(instrumentRequest);
+    });
+
+    connect(m_trackSettingsModel.get(), &TrackSettingsModel::applyPatchRequested, this, [this]() {
+        const InstrumentRequest instrumentRequest { InstrumentRequest::Type::ApplyPatch, m_trackSettingsModel->toInstrument() };
+        qInfo() << "Applying PATCH: " << instrumentRequest.instrument()->toString();
         m_midiService->handleInstrumentRequest(instrumentRequest);
     });
 
     connect(m_trackSettingsModel.get(), &TrackSettingsModel::saveRequested, this, [this]() {
         m_editorService->setInstrument(m_trackSettingsModel->trackIndex(), m_trackSettingsModel->toInstrument());
+    });
+
+    connect(m_trackSettingsModel.get(), &TrackSettingsModel::testSoundRequested, this, [this]() {
+        m_midiService->playMiddleC(m_trackSettingsModel->portName(), m_trackSettingsModel->channel());
     });
 }
 

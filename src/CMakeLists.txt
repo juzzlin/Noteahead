@@ -15,6 +15,7 @@ set(HEADER_FILES
   application/editor_service.hpp
   application/instrument_request.hpp
   application/midi_service.hpp
+  application/midi_worker.hpp
   application/models/track_settings_model.hpp
   application/note_converter.hpp
   application/player_service.hpp
@@ -44,6 +45,7 @@ set(SOURCE_FILES
   application/editor_service.cpp
   application/instrument_request.cpp
   application/midi_service.cpp
+  application/midi_worker.cpp
   application/models/track_settings_model.cpp
   application/note_converter.cpp
   application/player_service.cpp
