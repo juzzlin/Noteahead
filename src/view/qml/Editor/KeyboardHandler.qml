@@ -3,9 +3,6 @@ import ".."
 
 QtObject {
     function handleKeyPressed(event) {
-        if (event.isAutoRepeat) {
-            return;
-        }
         if (event.key === Qt.Key_Up) {
             if (!UiService.isPlaying()) {
                 editorService.requestScroll(-1);
@@ -62,7 +59,9 @@ QtObject {
                 _handleVelocityInserted(event);
             }
         }
-        _handleLiveNoteTriggered(event);
+        if (!event.isAutoRepeat) {
+            _handleLiveNoteTriggered(event);
+        }
     }
     function _handleNoteInserted(event) {
         const effectiveNote = _effectiveNote(event.key);
@@ -90,10 +89,9 @@ QtObject {
         }
     }
     function handleKeyReleased(event) {
-        if (event.isAutoRepeat) {
-            return;
+        if (!event.isAutoRepeat) {
+            _handleLiveNoteReleased(event);
         }
-        _handleLiveNoteReleased(event);
     }
     function _handleLiveNoteReleased(event) {
         const effectiveNote = _effectiveNote(event.key);
