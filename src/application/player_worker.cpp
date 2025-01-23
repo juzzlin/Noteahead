@@ -76,9 +76,9 @@ void PlayerWorker::processEvents()
 
     for (auto tick = minTick; tick <= maxTick && m_isPlaying; tick++) {
         emit tickUpdated(static_cast<uint32_t>(tick));
-        if (m_eventMap.count(tick)) {
-            for (auto && event : m_eventMap[tick]) {
-                if (const auto noteData = event->noteData(); noteData) {
+        if (auto && eventsAtTick = m_eventMap.find(tick); eventsAtTick != m_eventMap.end()) {
+            for (auto && event : eventsAtTick->second) {
+                if (auto && noteData = event->noteData(); noteData) {
                     if (noteData->type() == NoteData::Type::NoteOn) {
                         juzzlin::L(TAG).debug() << "Note " << static_cast<int>(*noteData->note()) << " ON at tick " << tick;
                     } else if (noteData->type() == NoteData::Type::NoteOff) {
