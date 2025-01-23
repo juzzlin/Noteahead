@@ -45,7 +45,7 @@ public:
 
     void setIsPlaying(bool isPlaying);
 
-    void playMiddleC(QString portName, uint8_t channel);
+    void playAndStopMiddleC(QString portName, uint8_t channel, uint8_t velocity);
 
     using InstrumentS = std::shared_ptr<Instrument>;
 

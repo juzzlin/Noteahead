@@ -131,8 +131,8 @@ void Application::connectServices()
         m_editorService->setInstrument(m_trackSettingsModel->trackIndex(), m_trackSettingsModel->toInstrument());
     });
 
-    connect(m_trackSettingsModel.get(), &TrackSettingsModel::testSoundRequested, this, [this]() {
-        m_midiService->playMiddleC(m_trackSettingsModel->portName(), m_trackSettingsModel->channel());
+    connect(m_trackSettingsModel.get(), &TrackSettingsModel::testSoundRequested, this, [this](uint8_t velocity) {
+        m_midiService->playAndStopMiddleC(m_trackSettingsModel->portName(), m_trackSettingsModel->channel(), velocity);
     });
 }
 

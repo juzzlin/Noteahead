@@ -41,9 +41,9 @@ void TrackSettingsModel::requestInstrumentData()
     emit instrumentDataRequested();
 }
 
-void TrackSettingsModel::requestTestSound()
+void TrackSettingsModel::requestTestSound(uint8_t velocity)
 {
-    emit testSoundRequested();
+    emit testSoundRequested(velocity);
 }
 
 void TrackSettingsModel::save()

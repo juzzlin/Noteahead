@@ -59,9 +59,9 @@ void MidiService::setIsPlaying(bool isPlaying)
     m_midiWorker->setIsPlaying(isPlaying);
 }
 
-void MidiService::playMiddleC(QString portName, uint8_t channel)
+void MidiService::playAndStopMiddleC(QString portName, uint8_t channel, uint8_t velocity)
 {
-    if (const bool invoked = QMetaObject::invokeMethod(m_midiWorker.get(), "playMiddleC", Q_ARG(QString, portName), Q_ARG(uint8_t, channel)); !invoked) {
+    if (const bool invoked = QMetaObject::invokeMethod(m_midiWorker.get(), "playAndStopMiddleC", Q_ARG(QString, portName), Q_ARG(uint8_t, channel), Q_ARG(uint8_t, velocity)); !invoked) {
         juzzlin::L(TAG).error() << "Invoking a method failed!";
     }
 }

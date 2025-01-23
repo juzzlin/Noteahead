@@ -38,7 +38,7 @@ public:
 
     Q_INVOKABLE void handleInstrumentRequest(const InstrumentRequest & instrumentRequest);
 
-    Q_INVOKABLE void playMiddleC(QString portName, uint8_t channel);
+    Q_INVOKABLE void playAndStopMiddleC(QString portName, uint8_t channel, uint8_t velocity);
 
     Q_INVOKABLE void playNote(QString portName, uint8_t channel, uint8_t midiNote, uint8_t velocity);
 

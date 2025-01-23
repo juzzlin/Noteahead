@@ -139,12 +139,12 @@ void MidiWorker::handleInstrumentRequest(const InstrumentRequest & instrumentReq
     }
 }
 
-void MidiWorker::playMiddleC(QString portName, uint8_t channel)
+void MidiWorker::playAndStopMiddleC(QString portName, uint8_t channel, uint8_t velocity)
 {
     try {
         if (const auto device = m_midiBackend->deviceByPortName(portName.toStdString()); device) {
             m_midiBackend->openDevice(device);
-            m_midiBackend->sendNoteOn(device, channel, 60, 100);
+            m_midiBackend->sendNoteOn(device, channel, 60, velocity);
             std::this_thread::sleep_for(std::chrono::milliseconds(500));
             m_midiBackend->sendNoteOff(device, channel, 60);
         } else {

@@ -60,7 +60,7 @@ Dialog {
             ToolTip.timeout: Constants.toolTipTimeout
             ToolTip.visible: hovered
             ToolTip.text: qsTr("Test current settings by triggering the middle C")
-            onClicked: trackSettingsModel.requestTestSound()
+            onClicked: trackSettingsModel.requestTestSound(UiService._activeVelocity)
         }
     }
     ColumnLayout {

@@ -50,7 +50,7 @@ public:
 
     Q_INVOKABLE void requestInstrumentData();
 
-    Q_INVOKABLE void requestTestSound();
+    Q_INVOKABLE void requestTestSound(uint8_t velocity);
 
     Q_INVOKABLE void save();
 
@@ -95,7 +95,7 @@ signals:
     void instrumentDataRequested();
     void instrumentDataReceived();
     void saveRequested();
-    void testSoundRequested();
+    void testSoundRequested(uint8_t velocity);
 
 private:
     bool m_isRequestingInstrumentData = false;
