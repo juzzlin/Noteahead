@@ -576,7 +576,7 @@ void EditorService::requestNewColumn(uint32_t track)
 
     m_song->addColumn(track);
 
-    emit trackConfigurationChanged();
+    emit columnAdded(track);
     updateScrollBar();
     notifyPositionChange(m_cursorPosition); // Re-focuses the previous track
     setIsModified(true);
@@ -588,7 +588,7 @@ void EditorService::requestColumnDeletion(uint32_t track)
 
     if (m_song->deleteColumn(track)) {
         const auto oldPosition = m_cursorPosition;
-        if (m_cursorPosition.column >= m_song->columnCount(track)) {
+        if (oldPosition.track == track && m_cursorPosition.column >= m_song->columnCount(track)) {
             m_cursorPosition.column--;
         }
         notifyPositionChange(oldPosition);

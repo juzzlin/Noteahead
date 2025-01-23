@@ -57,6 +57,9 @@ Item {
     function updateNoteDataAtPosition(position) {
         columnContainer.updateNoteDataAtPosition(position);
     }
+    function addColumn() {
+        columnContainer.addColumn();
+    }
     function deleteColumn() {
         columnContainer.deleteColumn();
     }
@@ -91,6 +94,12 @@ Item {
             _noteColumnCount = editorService.columnCount(_index);
             _createNoteColumns();
         }
+        function addColumn() {
+            const noteColumn = _createNoteColumn(_noteColumnCount);
+            _noteColumns.push(noteColumn);
+            _resize(width, height);
+            _noteColumnCount = editorService.columnCount(_index);
+        }
         function deleteColumn() {
             _noteColumns.pop();
             _noteColumnCount = editorService.columnCount(_index);
@@ -115,23 +124,29 @@ Item {
         function _noteColumnWidth() {
             return width / _noteColumnCount;
         }
+        function _createNoteColumn(columnIndex) {
+            const noteColumnWidth = _noteColumnWidth();
+            const noteColumnHeight = columnContainer.height;
+            const noteColumn = noteColumnComponent.createObject(columnContainer);
+            noteColumn.width = noteColumnWidth;
+            noteColumn.height = noteColumnHeight;
+            noteColumn.x = _noteColumnX(columnIndex);
+            noteColumn.setIndex(columnIndex);
+            noteColumn.setTrackIndex(_index);
+            noteColumn.setPatternIndex(_patternIndex);
+            noteColumn.updateData();
+            noteColumn.clicked.connect(() => {
+                    uiLogger.debug(_tag, `Track ${rootItem._index} clicked`);
+                    rootItem.clicked(noteColumn.index());
+                });
+            return noteColumn;
+        }
         function _createNoteColumns() {
             _noteColumns = [];
             const noteColumnWidth = _noteColumnWidth();
             const noteColumnHeight = columnContainer.height;
             for (let col = 0; col < _noteColumnCount; col++) {
-                const noteColumn = noteColumnComponent.createObject(columnContainer);
-                noteColumn.width = noteColumnWidth;
-                noteColumn.height = noteColumnHeight;
-                noteColumn.x = _noteColumnX(col);
-                noteColumn.setIndex(col);
-                noteColumn.setTrackIndex(_index);
-                noteColumn.setPatternIndex(_patternIndex);
-                noteColumn.updateData();
-                noteColumn.clicked.connect(() => {
-                        uiLogger.debug(_tag, `Track ${rootItem._index} clicked`);
-                        rootItem.clicked(noteColumn.index());
-                    });
+                const noteColumn = _createNoteColumn(col);
                 _noteColumns.push(noteColumn);
             }
         }

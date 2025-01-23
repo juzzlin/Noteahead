@@ -24,6 +24,9 @@ Item {
             }
         }
     }
+    function addColumn(trackIndex) {
+        _tracks[trackIndex].addColumn();
+    }
     function deleteColumn(trackIndex) {
         _tracks[trackIndex].deleteColumn();
     }

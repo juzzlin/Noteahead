@@ -186,6 +186,8 @@ signals:
 
     void canBeSavedChanged();
 
+    void columnAdded(uint32_t track);
+
     void columnDeleted(uint32_t track);
 
     void currentFileNameChanged();
