@@ -186,6 +186,8 @@ signals:
 
     void canBeSavedChanged();
 
+    void columnDeleted(uint32_t track);
+
     void currentFileNameChanged();
 
     void currentLineCountChanged(); // For the pattern length widget

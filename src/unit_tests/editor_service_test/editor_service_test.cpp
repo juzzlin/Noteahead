@@ -145,6 +145,7 @@ void EditorServiceTest::test_requestColumnDeletion_shouldDeleteColumn()
 {
     EditorService editorService;
     QVERIFY(editorService.requestPosition(0, 0, 0, 0, 0));
+    QSignalSpy columnDeletedSpy { &editorService, &EditorService::columnDeleted };
     QSignalSpy positionChangedSpy { &editorService, &EditorService::positionChanged };
     QSignalSpy trackConfigurationChangedSpy { &editorService, &EditorService::trackConfigurationChanged };
     QSignalSpy scrollBarSizeChangedSpy { &editorService, &EditorService::scrollBarSizeChanged };
@@ -159,9 +160,10 @@ void EditorServiceTest::test_requestColumnDeletion_shouldDeleteColumn()
     editorService.requestColumnDeletion(0);
 
     QVERIFY(editorService.isModified());
+    QCOMPARE(columnDeletedSpy.count(), 1);
     QCOMPARE(positionChangedSpy.count(), 4);
     QCOMPARE(editorService.position().column, 0);
-    QCOMPARE(trackConfigurationChangedSpy.count(), 2);
+    QCOMPARE(trackConfigurationChangedSpy.count(), 1);
     QCOMPARE(scrollBarSizeChangedSpy.count(), 2);
     QCOMPARE(scrollBarStepSizeChangedSpy.count(), 2);
     QCOMPARE(editorService.columnCount(0), 1);

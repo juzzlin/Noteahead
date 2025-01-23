@@ -191,7 +191,14 @@ FocusScope {
         const currentPattern = _patterns[editorService.currentPattern()];
         _createTracks(currentPattern);
     }
+    function _deleteColumn(trackIndex) {
+        _patterns.forEach(pattern => {
+                pattern.deleteColumn(trackIndex);
+            });
+        _updateCurrentTrackDimensions();
+    }
     function _connectSignals() {
+        editorService.columnDeleted.connect(trackIndex => _deleteColumn(trackIndex));
         editorService.currentLineCountModified.connect(_updateCurrentLineCount);
         editorService.horizontalScrollChanged.connect(_updateCurrentTrackDimensions);
         editorService.noteDataAtPositionChanged.connect(_updateNoteDataAtPosition);

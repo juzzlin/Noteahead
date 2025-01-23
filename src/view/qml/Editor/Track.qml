@@ -57,6 +57,9 @@ Item {
     function updateNoteDataAtPosition(position) {
         columnContainer.updateNoteDataAtPosition(position);
     }
+    function deleteColumn() {
+        columnContainer.deleteColumn();
+    }
     function _clearColumns() {
         columnContainer.clearColumns();
     }
@@ -87,6 +90,11 @@ Item {
         function createColumns() {
             _noteColumnCount = editorService.columnCount(_index);
             _createNoteColumns();
+        }
+        function deleteColumn() {
+            _noteColumns.pop();
+            _noteColumnCount = editorService.columnCount(_index);
+            _resize(width, height);
         }
         function setFocused(columnIndex, focused) {
             _noteColumns[columnIndex].setFocused(focused);
