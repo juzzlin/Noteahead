@@ -14,6 +14,9 @@ Cacophony is still a work in progress. **DO NOT USE FOR ANY REAL WORK** (except 
 * Fully scalable UI
 * Cool volume meters like in NoiseTracker
 * Easy-to-use track editing
+* Poor Man's MIDI Hot-Plug with automatic setup
+  - Cacophony notices when a device goes online/offline
+  - Cacophony automatically sets channel, bank, and patch
 * Unlimited number of tracks
 * Unlimited number of note columns per track
 * Saves to a custom (but open!) XML-based **.caco** format
