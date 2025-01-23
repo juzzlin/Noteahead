@@ -59,6 +59,31 @@ Cacophony's source code is licensed under GNU GPLv3. See COPYING for the complet
     ctest
 
 ##
+## Basic usage
+
+When starting a new project, just click on the settings icon on a desired track and setup the MIDI device. I have all my synthesizers connected via USB.
+
+Click on the track name to change it. `[+]`/`[-]` in the track header adds or removes note columns.
+
+Press **ESC** to enter to edit mode and use your PC keyboard to input notes on a note column. The keyboard acts as a virtual "piano" like they usually do in tracker applications, **Z** is "C" on the lower octave.
+
+When sequenced enough, press **SPACE** or use the play buttons to start playing.
+
+Create a new pattern by increasing the value on the **PAT** spinner. Use **LEN** to set the pattern length.
+
+### Most important "special" keys
+
+* **ESC**: toggles the edit mode
+
+* **SPACE**: toggles the play mode
+
+* **A**: inserts a note off event
+
+* **Z**..**M**: notes of the lower octave
+
+* **Q**..**U**: notes of the higher octave
+
+##
 ## Why am I doing this?
 
 First of all, I'm a tracker musician and also a professional software engineer.
