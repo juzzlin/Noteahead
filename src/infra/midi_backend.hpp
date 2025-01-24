@@ -19,6 +19,7 @@
 #include "midi_device.hpp"
 
 #include <cstdint>
+#include <unordered_map>
 #include <vector>
 
 namespace noteahead {
@@ -58,6 +59,8 @@ protected:
 
 private:
     MidiDeviceList m_devices;
+
+    mutable std::unordered_map<std::string, MidiDeviceS> m_portNameToDeviceCache;
 };
 
 } // namespace noteahead

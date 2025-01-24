@@ -34,7 +34,7 @@ void MidiBackendRtMidi::updateAvailableDevices()
 void MidiBackendRtMidi::openDevice(MidiDeviceS device)
 {
     if (!m_midiPorts.contains(device->portIndex())) {
-        if (auto midiOut = std::make_unique<RtMidiOut>(); device->portIndex() >= midiOut->getPortCount()) {
+        if (auto && midiOut = std::make_unique<RtMidiOut>(); device->portIndex() >= midiOut->getPortCount()) {
             throw std::runtime_error { "Invalid MIDI port index: " + std::to_string(device->portIndex()) };
         } else {
             midiOut->openPort(device->portIndex());
@@ -45,16 +45,14 @@ void MidiBackendRtMidi::openDevice(MidiDeviceS device)
 
 void MidiBackendRtMidi::closeDevice(MidiDeviceS device)
 {
-    if (auto it = m_midiPorts.find(device->portIndex()); it != m_midiPorts.end()) {
+    if (auto && it = m_midiPorts.find(device->portIndex()); it != m_midiPorts.end()) {
         m_midiPorts.erase(it);
-    } else {
-        throw std::runtime_error { "Device not opened." };
     }
 }
 
 void MidiBackendRtMidi::sendMessage(MidiDeviceS device, const Message & message) const
 {
-    if (auto it = m_midiPorts.find(device->portIndex()); it == m_midiPorts.end()) {
+    if (auto && it = m_midiPorts.find(device->portIndex()); it == m_midiPorts.end()) {
         throw std::runtime_error { "Device not opened." };
     } else {
         it->second->sendMessage(&message);

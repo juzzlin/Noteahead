@@ -57,8 +57,7 @@ MidiWorker::MidiWorker(QObject * parent)
                 if (!newDevices.isEmpty()) {
                     for (auto && portName : newDevices) {
                         if (const auto device = m_midiBackend->deviceByPortName(portName.toStdString()); device) {
-                            juzzlin::L(TAG).info() << "Opening MIDI device " << portName.toStdString();
-                            m_midiBackend->openDevice(device);
+                            juzzlin::L(TAG).info() << "Detected MIDI device " << portName.toStdString();
                         }
                     }
                     if (newDevices.size() <= 3) {
@@ -68,7 +67,7 @@ MidiWorker::MidiWorker(QObject * parent)
                     }
                 }
                 if (!offDevices.isEmpty()) {
-                    for (auto && portName : newDevices) {
+                    for (auto && portName : offDevices) {
                         if (const auto device = m_midiBackend->deviceByPortName(portName.toStdString()); device) {
                             juzzlin::L(TAG).info() << "Closing MIDI device " << portName.toStdString();
                             m_midiBackend->closeDevice(device);
@@ -92,13 +91,14 @@ MidiWorker::MidiWorker(QObject * parent)
 
 void MidiWorker::processFailedInstrumentRequests()
 {
-    juzzlin::L(TAG).info() << "Processing previously failed instrument requests..";
-    auto failedInstrumentRequests = m_failedInstrumentRequests;
-
-    for (auto && [portName, instrumentRequest] : failedInstrumentRequests) {
-        if (m_availableMidiPorts.contains(portName)) {
-            m_failedInstrumentRequests.erase(portName);
-            handleInstrumentRequest(instrumentRequest);
+    if (!m_failedInstrumentRequests.empty()) {
+        juzzlin::L(TAG).info() << "Processing previously failed instrument requests..";
+        auto failedInstrumentRequests = m_failedInstrumentRequests;
+        for (auto && [requestedPortName, instrumentRequest] : failedInstrumentRequests) {
+            if (const auto device = m_midiBackend->deviceByPortName(requestedPortName.toStdString()); device) {
+                m_failedInstrumentRequests.erase(requestedPortName);
+                handleInstrumentRequest(instrumentRequest);
+            }
         }
     }
 }
@@ -111,9 +111,9 @@ void MidiWorker::handleInstrumentRequest(const InstrumentRequest & instrumentReq
 
     try {
         if (const auto instrument = instrumentRequest.instrument(); instrument) {
-            juzzlin::L(TAG).info() << "Applying instrument " << instrument->toString().toStdString();
-            const auto portName = instrument->portName;
-            if (const auto device = m_midiBackend->deviceByPortName(portName.toStdString()); device) {
+            juzzlin::L(TAG).info() << "Applying instrument " << instrument->toString().toStdString() << " for requested port " << instrumentRequest.instrument()->portName.toStdString();
+            const auto requestedPortName = instrument->portName;
+            if (const auto device = m_midiBackend->deviceByPortName(requestedPortName.toStdString()); device) {
                 m_midiBackend->openDevice(device);
                 if (instrumentRequest.type() == InstrumentRequest::Type::ApplyAll) {
                     if (instrument->bank.has_value()) {
@@ -130,8 +130,8 @@ void MidiWorker::handleInstrumentRequest(const InstrumentRequest & instrumentReq
                     }
                 }
             } else {
-                juzzlin::L(TAG).error() << "No device found for portName '" << portName.toStdString() << "'";
-                m_failedInstrumentRequests[portName] = instrumentRequest;
+                juzzlin::L(TAG).error() << "No device found for portName '" << requestedPortName.toStdString() << "'";
+                m_failedInstrumentRequests[requestedPortName] = instrumentRequest;
             }
         }
     } catch (const std::runtime_error & e) {

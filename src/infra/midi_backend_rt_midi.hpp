@@ -18,8 +18,8 @@
 
 #include "midi_backend.hpp"
 
-#include <map>
 #include <memory>
+#include <unordered_map>
 
 #include <rtmidi/RtMidi.h>
 
@@ -50,7 +50,7 @@ private:
 
     void sendMessage(MidiDeviceS device, const Message & message) const;
 
-    std::map<uint32_t, std::unique_ptr<RtMidiOut>> m_midiPorts;
+    std::unordered_map<uint32_t, std::unique_ptr<RtMidiOut>> m_midiPorts;
 };
 
 } // namespace noteahead

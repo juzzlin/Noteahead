@@ -35,10 +35,42 @@ MidiDeviceS MidiBackend::deviceByPortIndex(uint32_t index) const
     }
 }
 
+static double portNameMatchScore(const std::string & s1, const std::string & s2)
+{
+    if (s1.empty() || s2.empty()) {
+        return 0;
+    }
+
+    if (s1 == s2) {
+        return 1;
+    }
+
+    size_t count = 0;
+    while (count < s1.size() && count < s2.size() && s1.at(count) == s2.at(count)) {
+        count++;
+    }
+
+    return static_cast<double>(count) / static_cast<double>(std::max(s1.size(), s2.size()));
+}
+
 MidiDeviceS MidiBackend::deviceByPortName(const std::string & name) const
 {
-    if (auto device = std::find_if(m_devices.begin(), m_devices.end(), [&name](auto & device) { return device->portName() == name; }); device != m_devices.end()) {
-        return *device;
+    if (const auto device = m_portNameToDeviceCache.find(name); device != m_portNameToDeviceCache.end()) {
+        return device->second;
+    }
+
+    MidiDeviceS bestMatch;
+    double bestScore = 0;
+    for (auto && device : m_devices) {
+        if (const auto score = portNameMatchScore(name, device->portName()); score > 0.75 && score > bestScore) {
+            bestScore = score;
+            bestMatch = device;
+        }
+    }
+
+    if (bestMatch) {
+        m_portNameToDeviceCache[name] = bestMatch;
+        return bestMatch;
     } else {
         return {};
     }
