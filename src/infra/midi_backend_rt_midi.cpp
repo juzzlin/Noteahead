@@ -89,15 +89,23 @@ void MidiBackendRtMidi::sendBankChange(MidiDeviceS device, uint8_t channel, uint
 {
     // Send MSB (Control Change 0)
     const Message msbMessage = { static_cast<unsigned char>(0xB0 | (channel & 0x0F)),
-                                 0x00, // CC 0 (Bank Select MSB)
+                                 0x00, // CC #0 (Bank Select MSB)
                                  static_cast<unsigned char>(msb) };
     sendMessage(device, msbMessage);
 
     // Send LSB (Control Change 32)
     const Message lsbMessage = { static_cast<unsigned char>(0xB0 | (channel & 0x0F)),
-                                 0x20, // CC 32 (Bank Select LSB)
+                                 0x20, // CC #32 (Bank Select LSB)
                                  static_cast<unsigned char>(lsb) };
     sendMessage(device, lsbMessage);
+}
+
+void MidiBackendRtMidi::stopAllNotes(MidiDeviceS device, uint8_t channel) const
+{
+    const Message message = { static_cast<unsigned char>(0xB0 | (channel & 0x0F)),
+                              123, // CC #123 (All Notes Off)
+                              0 }; // Value for "All Notes Off"
+    sendMessage(device, message);
 }
 
 } // namespace noteahead

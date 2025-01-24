@@ -109,6 +109,10 @@ void MidiBackend::sendBankChange(MidiDeviceS, uint8_t, uint8_t, uint8_t) const
 {
 }
 
+void MidiBackend::stopAllNotes(MidiDeviceS, uint8_t) const
+{
+}
+
 MidiBackend::~MidiBackend() = default;
 
 } // namespace noteahead

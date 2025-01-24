@@ -37,8 +37,12 @@ void PlayerWorker::initialize(const EventList & events, const Timing & timing)
     if (!m_isPlaying) {
         m_events = events;
         m_timing = timing;
+        m_allInstruments.clear();
         for (auto && event : m_events) {
             m_eventMap[event->tick()].push_back(event);
+            if (event->instrument()) {
+                m_allInstruments.insert(event->instrument());
+            }
         }
     } else {
         juzzlin::L(TAG).error() << "Cannot initialize, because still playing!";
@@ -104,6 +108,10 @@ void PlayerWorker::processEvents()
 
     setIsPlaying(false);
 
+    juzzlin::L(TAG).debug() << "Stopping all notes";
+
+    stopAllNotes();
+
     emit songEnded();
 }
 
@@ -112,6 +120,13 @@ void PlayerWorker::setIsPlaying(bool isPlaying)
     m_isPlaying = isPlaying;
 
     emit isPlayingChanged();
+}
+
+void PlayerWorker::stopAllNotes()
+{
+    for (auto && instrument : m_allInstruments) {
+        m_midiService->stopAllNotes(instrument);
+    }
 }
 
 bool PlayerWorker::isPlaying() const

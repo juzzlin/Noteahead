@@ -89,6 +89,16 @@ void MidiService::stopNote(InstrumentS instrument, uint8_t midiNote)
     }
 }
 
+void MidiService::stopAllNotes(InstrumentS instrument)
+{
+    if (const bool invoked = QMetaObject::invokeMethod(m_midiWorker.get(), "stopAllNotes",
+                                                       Q_ARG(QString, instrument->portName),
+                                                       Q_ARG(uint8_t, instrument->channel));
+        !invoked) {
+        juzzlin::L(TAG).error() << "Invoking a method failed!";
+    }
+}
+
 MidiService::~MidiService()
 {
     m_midiWorkerThread.exit();

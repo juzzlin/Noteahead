@@ -54,6 +54,8 @@ public:
 
     virtual void sendBankChange(MidiDeviceS device, uint8_t channel, uint8_t msb, uint8_t lsb) const;
 
+    virtual void stopAllNotes(MidiDeviceS device, uint8_t channel) const;
+
 protected:
     void setDevices(MidiDeviceList devices);
 

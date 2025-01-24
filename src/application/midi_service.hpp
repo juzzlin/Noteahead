@@ -53,6 +53,8 @@ public:
 
     void stopNote(InstrumentS instrument, uint8_t midiNote);
 
+    void stopAllNotes(InstrumentS instrument);
+
 public slots:
     void handleInstrumentRequest(const InstrumentRequest & instrumentRequest);
 

@@ -19,12 +19,14 @@
 #include <QObject>
 #include <cstddef>
 #include <memory>
+#include <set>
 #include <unordered_map>
 #include <vector>
 
 namespace noteahead {
 
 class Event;
+class Instrument;
 class MidiService;
 
 class PlayerWorker : public QObject
@@ -69,6 +71,8 @@ private:
 
     void setIsPlaying(bool isPlaying);
 
+    void stopAllNotes();
+
     MidiServiceS m_midiService;
 
     EventList m_events;
@@ -77,6 +81,9 @@ private:
 
     using EventMap = std::unordered_map<size_t, EventList>;
     EventMap m_eventMap;
+
+    using InstrumentS = std::shared_ptr<Instrument>;
+    std::set<InstrumentS> m_allInstruments;
 
     std::atomic_bool m_isPlaying = false;
 };
