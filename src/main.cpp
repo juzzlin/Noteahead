@@ -1,17 +1,17 @@
-// This file is part of Cacophony.
+// This file is part of Noteahead.
 // Copyright (C) 2020 Jussi Lind <jussi.lind@iki.fi>
 //
-// Cacophony is free software: you can redistribute it and/or modify
+// Noteahead is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
-// Cacophony is distributed in the hope that it will be useful,
+// Noteahead is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU General Public License for more details.
 //
 // You should have received a copy of the GNU General Public License
-// along with Cacophony. If not, see <http://www.gnu.org/licenses/>.
+// along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
 #include "application/application.hpp"
 #include "common/constants.hpp"
@@ -36,7 +36,7 @@ static void initLogger()
 {
     using juzzlin::L;
 
-    const QString logPath { QDir::tempPath() + QDir::separator() + cacophony::Constants::applicationName() + "-" + QString::number(tsMs()) + ".log" };
+    const QString logPath { QDir::tempPath() + QDir::separator() + noteahead::Constants::applicationName() + "-" + QString::number(tsMs()) + ".log" };
     L::initialize(logPath.toStdString());
     L::enableEchoMode(true);
     L::setTimestampMode(L::TimestampMode::ISODateTime);
@@ -59,23 +59,23 @@ static void initLogger()
     L::setLoggingLevel(L::Level::Debug);
 #endif
 
-    L(TAG).info() << cacophony::Constants::applicationName().toStdString() << " version " << cacophony::Constants::applicationVersion().toStdString();
-    L(TAG).info() << "Licensed under " << cacophony::Constants::license().toStdString();
-    L(TAG).info() << cacophony::Constants::copyright().toStdString();
+    L(TAG).info() << noteahead::Constants::applicationName().toStdString() << " version " << noteahead::Constants::applicationVersion().toStdString();
+    L(TAG).info() << "Licensed under " << noteahead::Constants::license().toStdString();
+    L(TAG).info() << noteahead::Constants::copyright().toStdString();
     L(TAG).info() << "Compiled against Qt version " << QT_VERSION_STR;
 }
 
 int main(int argc, char ** argv)
 {
-    QCoreApplication::setOrganizationName(cacophony::Constants::qSettingsCompanyName());
-    QCoreApplication::setApplicationName(cacophony::Constants::qSettingSoftwareName());
+    QCoreApplication::setOrganizationName(noteahead::Constants::qSettingsCompanyName());
+    QCoreApplication::setApplicationName(noteahead::Constants::qSettingSoftwareName());
 #ifdef Q_OS_WIN32
     QSettings::setDefaultFormat(QSettings::IniFormat);
 #endif
 
     try {
         initLogger();
-        return cacophony::Application(argc, argv).run();
+        return noteahead::Application(argc, argv).run();
     } catch (std::exception & e) {
         std::cerr << e.what() << std::endl;
         return EXIT_FAILURE;

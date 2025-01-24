@@ -1,17 +1,17 @@
-// This file is part of Cacophony.
+// This file is part of Noteahead.
 // Copyright (C) 2020 Jussi Lind <jussi.lind@iki.fi>
 //
-// Cacophony is free software: you can redistribute it and/or modify
+// Noteahead is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
-// Cacophony is distributed in the hope that it will be useful,
+// Noteahead is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU General Public License for more details.
 //
 // You should have received a copy of the GNU General Public License
-// along with Cacophony. If not, see <http://www.gnu.org/licenses/>.
+// along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
 #include "application.hpp"
 
@@ -30,7 +30,7 @@
 #include <QQmlApplicationEngine>
 #include <QQmlContext>
 
-namespace cacophony {
+namespace noteahead {
 
 static const auto TAG = "Application";
 
@@ -46,15 +46,15 @@ Application::Application(int & argc, char ** argv)
   , m_config { std::make_unique<Config>() }
   , m_engine { std::make_unique<QQmlApplicationEngine>() }
 {
-    qmlRegisterType<UiLogger>("Cacophony", 1, 0, "UiLogger");
-    qmlRegisterType<ApplicationService>("Cacophony", 1, 0, "ApplicationService");
-    qmlRegisterType<Config>("Cacophony", 1, 0, "Config");
-    qmlRegisterType<EditorService>("Cacophony", 1, 0, "EditorService");
-    qmlRegisterType<MidiService>("Cacophony", 1, 0, "MidiService");
-    qmlRegisterType<TrackSettingsModel>("Cacophony", 1, 0, "TrackSettingsModel");
+    qmlRegisterType<UiLogger>("Noteahead", 1, 0, "UiLogger");
+    qmlRegisterType<ApplicationService>("Noteahead", 1, 0, "ApplicationService");
+    qmlRegisterType<Config>("Noteahead", 1, 0, "Config");
+    qmlRegisterType<EditorService>("Noteahead", 1, 0, "EditorService");
+    qmlRegisterType<MidiService>("Noteahead", 1, 0, "MidiService");
+    qmlRegisterType<TrackSettingsModel>("Noteahead", 1, 0, "TrackSettingsModel");
 
-    qmlRegisterSingletonType(QUrl(QML_ROOT_DIR + QString { "/Constants.qml" }), "Cacophony", 1, 0, "Constants");
-    qmlRegisterSingletonType(QUrl(QML_ROOT_DIR + QString { "/UiService.qml" }), "Cacophony", 1, 0, "UiService");
+    qmlRegisterSingletonType(QUrl(QML_ROOT_DIR + QString { "/Constants.qml" }), "Noteahead", 1, 0, "Constants");
+    qmlRegisterSingletonType(QUrl(QML_ROOT_DIR + QString { "/UiService.qml" }), "Noteahead", 1, 0, "UiService");
 
     handleCommandLineArguments(argc, argv); // Handle command-line arguments at initialization
 
@@ -194,4 +194,4 @@ void Application::applyState(StateMachine::State state)
 
 Application::~Application() = default;
 
-} // namespace cacophony
+} // namespace noteahead

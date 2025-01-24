@@ -4,7 +4,7 @@
 #include <cstdint>
 #include <string>
 
-namespace cacophony::NoteConverter {
+namespace noteahead::NoteConverter {
 
 // Converts a MIDI note (uint8_t) to a string in "key-octave" format
 std::string midiToString(uint8_t midiNote);
@@ -12,6 +12,6 @@ std::string midiToString(uint8_t midiNote);
 // Converts a string in "key-octave" format to a MIDI note (uint8_t)
 uint8_t stringToMidi(const std::string & noteString);
 
-} // namespace cacophony::NoteConverter
+} // namespace noteahead::NoteConverter
 
 #endif // NOTE_CONVERTER_HPP

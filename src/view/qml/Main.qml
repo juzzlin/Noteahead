@@ -1,24 +1,24 @@
-// This file is part of Cacophony.
+// This file is part of Noteahead.
 // Copyright (C) 2023 Jussi Lind <jussi.lind@iki.fi>
 //
-// Cacophony is free software: you can redistribute it and/or modify
+// Noteahead is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
-// Cacophony is distributed in the hope that it will be useful,
+// Noteahead is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU General Public License for more details.
 //
 // You should have received a copy of the GNU General Public License
-// along with Cacophony. If not, see <http://www.gnu.org/licenses/>.
+// along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
 import QtCore
 import QtQuick 2.15
 import QtQuick.Controls 2.15
 import QtQuick.Controls.Universal 2.15
 import QtQuick.Dialogs
-import Cacophony 1.0
+import Noteahead 1.0
 import "Dialogs"
 import "Editor"
 import "ToolBar"
@@ -66,7 +66,7 @@ ApplicationWindow {
         id: openDialog
         currentFolder: StandardPaths.standardLocations(StandardPaths.DocumentsLocation)[0]
         fileMode: FileDialog.OpenFile
-        nameFilters: [qsTr("Cacophony files") + " (*.caco)"]
+        nameFilters: [qsTr("Noteahead files") + ` (*${applicationService.fileFormatExtension()})`, qsTr("All files") + ` (*)`]
         onAccepted: {
             uiLogger.info(_tag, "File selected to open: " + selectedFile);
             applicationService.openProject(selectedFile);
@@ -80,7 +80,7 @@ ApplicationWindow {
         id: saveAsDialog
         currentFolder: StandardPaths.standardLocations(StandardPaths.DocumentsLocation)[0]
         fileMode: FileDialog.SaveFile
-        nameFilters: [qsTr("Cacophony files") + " (*.caco)"]
+        nameFilters: [qsTr("Noteahead files") + ` (*${applicationService.fileFormatExtension()})`]
         onAccepted: {
             uiLogger.info(_tag, "File selected to save: " + selectedFile);
             applicationService.saveProjectAs(selectedFile);
@@ -144,13 +144,13 @@ ApplicationWindow {
     function _connectUiService() {
         UiService.aboutDialogRequested.connect(aboutDialog.open);
         UiService.trackSettingsDialogRequested.connect(trackIndex => {
-            trackSettingsDialog.setTrackIndex(trackIndex);
-            trackSettingsDialog.open();
-        });
+                trackSettingsDialog.setTrackIndex(trackIndex);
+                trackSettingsDialog.open();
+            });
         UiService.quitRequested.connect(() => {
-            config.saveWindowSize(Qt.size(mainWindow.width, mainWindow.height));
-            applicationService.requestQuit();
-        });
+                config.saveWindowSize(Qt.size(mainWindow.width, mainWindow.height));
+                applicationService.requestQuit();
+            });
     }
     function _connectServices() {
         _connectApplicationService();
@@ -160,9 +160,9 @@ ApplicationWindow {
     function _initialize() {
         _setWindowSizeAndPosition();
         _editorView = editorViewComponent.createObject(contentArea, {
-            "height": contentArea.height,
-            "width": contentArea.width
-        });
+                "height": contentArea.height,
+                "width": contentArea.width
+            });
         _connectServices();
     }
     function _resize() {

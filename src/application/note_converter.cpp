@@ -5,7 +5,7 @@
 #include <string>
 #include <unordered_map>
 
-namespace cacophony::NoteConverter {
+namespace noteahead::NoteConverter {
 
 std::string midiToString(uint8_t midiNote)
 {
@@ -56,4 +56,4 @@ uint8_t stringToMidi(const std::string & noteString)
     }
 }
 
-} // namespace cacophony::NoteConverter
+} // namespace noteahead::NoteConverter

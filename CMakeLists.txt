@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.14)
 
-project(Cacophony LANGUAGES CXX)
+project(Noteahead LANGUAGES CXX)
 
 # Global version
 set(VERSION_MAJOR 0)

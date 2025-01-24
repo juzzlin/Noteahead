@@ -1,10 +1,10 @@
-# Cacophony
+# Noteahead
 
-A simple pattern-based MIDI tracker for Linux. There are no audio tracks, only MIDI.
+A simple pattern-based MIDI tracker for Linux focusing on ease of use. There are no audio tracks, only MIDI.
 
 Written in Qt/QML/C++20 on top of RtMidi back-end. Builds with CMake and uses CTest + Qt Test framework for unit tests.
 
-Cacophony is still a work in progress. **DO NOT USE FOR ANY REAL WORK** (except for me, of course :).
+Noteahead is still a work in progress. **DO NOT USE FOR ANY REAL WORK** (except for me, of course :).
 
 ##
 ## Features
@@ -15,11 +15,11 @@ Cacophony is still a work in progress. **DO NOT USE FOR ANY REAL WORK** (except 
 * Cool volume meters like in NoiseTracker
 * Easy-to-use track editing
 * Poor Man's MIDI Hot-Plug with automatic setup
-  - Cacophony notices when a device goes online/offline
-  - Cacophony automatically sets channel, bank, and patch
+  - Noteahead notices when a device goes online/offline
+  - Noteahead automatically sets channel, bank, and patch
 * Unlimited number of tracks
 * Unlimited number of note columns per track
-* Saves to a custom (but open!) XML-based **.caco** format
+* Saves to a custom (but open!) XML-based **.naxml** format
 
 ##
 ## Future dreams (**NOT YET IMPLEMENTED**):
@@ -33,7 +33,7 @@ Cacophony is still a work in progress. **DO NOT USE FOR ANY REAL WORK** (except 
 ##
 ## License
 
-Cacophony's source code is licensed under GNU GPLv3. See COPYING for the complete license text.
+Noteahead's source code is licensed under GNU GPLv3. See COPYING for the complete license text.
 
 ##
 ## Build dependencies on Ubuntu 24.04+
@@ -51,7 +51,7 @@ Cacophony's source code is licensed under GNU GPLv3. See COPYING for the complet
 
     ninja
 
-    ./cacophony
+    ./noteahead
 
 ##
 ## Run unit tests on CLI
