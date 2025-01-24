@@ -22,6 +22,7 @@
 
 namespace cacophony {
 
+class MidiService;
 class PlayerWorker;
 class Song;
 
@@ -31,7 +32,8 @@ class PlayerService : public QObject
     Q_PROPERTY(bool isPlaying READ isPlaying NOTIFY isPlayingChanged)
 
 public:
-    explicit PlayerService(QObject * parent = nullptr);
+    using MidiServiceS = std::shared_ptr<MidiService>;
+    explicit PlayerService(MidiServiceS midiService, QObject * parent = nullptr);
 
     ~PlayerService() override;
 

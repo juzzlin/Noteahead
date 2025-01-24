@@ -26,9 +26,9 @@ namespace cacophony {
 
 static const auto TAG = "PlayerService";
 
-PlayerService::PlayerService(QObject * parent)
+PlayerService::PlayerService(MidiServiceS midiService, QObject * parent)
   : QObject { parent }
-  , m_playerWorker { std::make_unique<PlayerWorker>() }
+  , m_playerWorker { std::make_unique<PlayerWorker>(midiService) }
 {
     initializeWorker();
 }

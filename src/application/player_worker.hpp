@@ -25,6 +25,7 @@
 namespace cacophony {
 
 class Event;
+class MidiService;
 
 class PlayerWorker : public QObject
 {
@@ -43,7 +44,8 @@ public:
         uint32_t ticksPerLine = 0;
     };
 
-    PlayerWorker() = default;
+    using MidiServiceS = std::shared_ptr<MidiService>;
+    PlayerWorker(MidiServiceS midiService);
 
     ~PlayerWorker() override;
 
@@ -66,6 +68,8 @@ private:
     void processEvents();
 
     void setIsPlaying(bool isPlaying);
+
+    MidiServiceS m_midiService;
 
     EventList m_events;
 

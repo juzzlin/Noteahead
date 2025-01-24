@@ -117,6 +117,8 @@ public:
 
     void deserializeFromXml(QXmlStreamReader & reader);
 
+    uint32_t autoNoteOffTickOffset() const;
+
 private:
     void load(const std::string & filename);
 
@@ -149,6 +151,8 @@ private:
     InstrumentS deserializeInstrument(QXmlStreamReader & reader);
 
     void initialize();
+
+    void assignInstruments(const EventList & events) const;
 
     EventList introduceNoteOffs(const EventList & events) const;
 

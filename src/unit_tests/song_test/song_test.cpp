@@ -196,7 +196,7 @@ void SongTest::test_renderToEvents_sameColumn_shouldAddNoteOff()
     QCOMPARE(noteOn->noteData()->note(), 60);
 
     const auto noteOff = events.at(2);
-    QCOMPARE(noteOff->tick(), 42 * song.ticksPerLine() - 1);
+    QCOMPARE(noteOff->tick(), 42 * song.ticksPerLine() - song.autoNoteOffTickOffset());
     QCOMPARE(noteOff->noteData()->type(), NoteData::Type::NoteOff);
     QCOMPARE(noteOff->noteData()->note(), 60);
 

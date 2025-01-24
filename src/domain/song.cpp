@@ -55,7 +55,7 @@ bool Song::hasPattern(uint32_t patternIndex) const
 
 void Song::addColumn(uint32_t trackIndex)
 {
-    for (auto pattern : m_patterns) {
+    for (auto && pattern : m_patterns) {
         pattern.second->addColumn(trackIndex);
     }
 }
@@ -63,7 +63,7 @@ void Song::addColumn(uint32_t trackIndex)
 bool Song::deleteColumn(uint32_t trackIndex)
 {
     if (columnCount(trackIndex) > 1) {
-        for (auto pattern : m_patterns) {
+        for (auto && pattern : m_patterns) {
             pattern.second->deleteColumn(trackIndex);
         }
         return true;
@@ -210,10 +210,19 @@ void Song::setBeatsPerMinute(uint32_t bpm)
     m_beatsPerMinute = bpm;
 }
 
+uint32_t Song::autoNoteOffTickOffset() const
+{
+    return static_cast<uint32_t>(250 * m_beatsPerMinute * m_linesPerBeat / 60 / 1000);
+}
+
 Song::EventList Song::introduceNoteOffs(const EventList & events) const
 {
     Song::EventList processedEvents;
-    std::map<std::pair<int, int>, int> activeNotes; // Tracks active notes (key: {track, column}, value: note)
+    using TrackAndColumn = std::pair<int, int>;
+    std::map<TrackAndColumn, int> activeNotes; // Tracks active notes (key: {track, column}, value: note)
+
+    const auto autoNoteOffTickOffset = this->autoNoteOffTickOffset();
+    juzzlin::L(TAG).debug() << "Auto note-off tick offset: " << autoNoteOffTickOffset;
 
     for (const auto & event : events) {
         if (const auto noteData = event->noteData(); noteData) {
@@ -223,7 +232,7 @@ Song::EventList Song::introduceNoteOffs(const EventList & events) const
                     const auto activeNote = activeNotes[trackColumn];
                     const auto noteData = std::make_shared<NoteData>(trackColumn.first, trackColumn.second);
                     noteData->setAsNoteOff(static_cast<uint8_t>(activeNote));
-                    processedEvents.push_back(std::make_shared<Event>(event->tick() - 1, noteData));
+                    processedEvents.push_back(std::make_shared<Event>(event->tick() - autoNoteOffTickOffset, noteData));
                 }
                 activeNotes[trackColumn] = *noteData->note();
             } else if (noteData->type() == NoteData::Type::NoteOff) {
@@ -247,6 +256,15 @@ void Song::updateTickToPatternAndLineMapping(size_t tick, size_t patternIndex, s
 {
     for (size_t lineIndex = 0; lineIndex < patternLineCount; lineIndex++) {
         m_tickToPatternAndLineMap[tick + lineIndex * m_ticksPerLine] = std::make_pair(patternIndex, lineIndex);
+    }
+}
+
+void Song::assignInstruments(const EventList & events) const
+{
+    for (const auto & event : events) {
+        if (const auto noteData = event->noteData(); noteData) {
+            event->setInstrument(instrument(noteData->track()));
+        }
     }
 }
 
@@ -274,6 +292,8 @@ Song::EventList Song::renderToEvents()
     eventList.push_back(endOfSongEvent);
 
     eventList = introduceNoteOffs(eventList);
+
+    assignInstruments(eventList);
 
     return eventList;
 }
@@ -417,7 +437,7 @@ Song::InstrumentS Song::deserializeInstrument(QXmlStreamReader & reader)
     const auto portName = readStringAttribute(reader, Constants::xmlKeyPortName());
     const auto channel = readUIntAttribute(reader, Constants::xmlKeyChannel());
     const auto instrument = std::make_shared<Instrument>(portName);
-    instrument->channel = channel;
+    instrument->channel = static_cast<uint8_t>(channel);
 
     // Read optional properties
     const auto patchEnabled = readBoolAttribute(reader, Constants::xmlKeyPatchEnabled());

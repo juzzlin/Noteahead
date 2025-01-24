@@ -21,6 +21,7 @@
 
 namespace cacophony {
 
+class Instrument;
 class NoteData;
 
 class Event
@@ -49,12 +50,19 @@ public:
 
     NoteDataS noteData() const;
 
+    using InstrumentS = std::shared_ptr<Instrument>;
+    InstrumentS instrument();
+
+    void setInstrument(InstrumentS instrument);
+
 private:
     size_t m_tick;
 
     Type m_type;
 
     NoteDataS m_noteData;
+
+    InstrumentS m_instrument;
 };
 
 } // namespace cacophony

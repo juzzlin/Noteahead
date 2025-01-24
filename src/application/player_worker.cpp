@@ -18,6 +18,7 @@
 #include "../contrib/SimpleLogger/src/simple_logger.hpp"
 #include "../domain/event.hpp"
 #include "../domain/note_data.hpp"
+#include "midi_service.hpp"
 
 #include <ranges>
 #include <thread>
@@ -25,6 +26,11 @@
 namespace cacophony {
 
 static const auto TAG = "PlayerWorker";
+
+PlayerWorker::PlayerWorker(MidiServiceS midiService)
+  : m_midiService { midiService }
+{
+}
 
 void PlayerWorker::initialize(const EventList & events, const Timing & timing)
 {
@@ -79,10 +85,12 @@ void PlayerWorker::processEvents()
         if (auto && eventsAtTick = m_eventMap.find(tick); eventsAtTick != m_eventMap.end()) {
             for (auto && event : eventsAtTick->second) {
                 if (auto && noteData = event->noteData(); noteData) {
-                    if (noteData->type() == NoteData::Type::NoteOn) {
-                        juzzlin::L(TAG).debug() << "Note " << static_cast<int>(*noteData->note()) << " ON at tick " << tick;
-                    } else if (noteData->type() == NoteData::Type::NoteOff) {
-                        juzzlin::L(TAG).debug() << "Note " << static_cast<int>(*noteData->note()) << " OFF at tick " << tick;
+                    if (auto && instrument = event->instrument(); instrument) {
+                        if (noteData->type() == NoteData::Type::NoteOn && noteData->note().has_value()) {
+                            m_midiService->playNote(instrument, *noteData->note(), noteData->velocity());
+                        } else if (noteData->type() == NoteData::Type::NoteOff) {
+                            m_midiService->stopNote(instrument, *noteData->note());
+                        }
                     }
                 }
             }

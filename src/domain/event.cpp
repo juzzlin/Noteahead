@@ -15,6 +15,8 @@
 
 #include "event.hpp"
 
+#include "instrument.hpp"
+
 namespace cacophony {
 
 Event::Event(size_t tick, NoteDataS noteData)
@@ -53,6 +55,16 @@ Event::Type Event::type() const
 Event::NoteDataS Event::noteData() const
 {
     return m_noteData;
+}
+
+Event::InstrumentS Event::instrument()
+{
+    return m_instrument;
+}
+
+void Event::setInstrument(InstrumentS instrument)
+{
+    m_instrument = instrument;
 }
 
 } // namespace cacophony
