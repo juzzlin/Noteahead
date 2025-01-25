@@ -37,6 +37,7 @@ void PlayerWorker::initialize(const EventList & events, const Timing & timing)
     if (!m_isPlaying) {
         m_events = events;
         m_timing = timing;
+        m_eventMap.clear();
         m_allInstruments.clear();
         for (auto && event : m_events) {
             m_eventMap[event->tick()].push_back(event);
