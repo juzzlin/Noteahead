@@ -31,32 +31,59 @@ Noteahead is still a work in progress. **DO NOT USE FOR ANY REAL WORK** (except 
 * Video generation
 
 ##
-## License
+## Some important design choices
 
-Noteahead's source code is licensed under GNU GPLv3. See COPYING for the complete license text.
+### Software framework
+
+Noteahead is written in Qt/QML/C++20, because it's a relevant, stable, and well-known technology stack especially in the Linux-world. Qt also has a very good support for safe threads and it performs well. The MIDI backend is currently based on RtMidi, but the architecture is such that it can be easily changed.
+
+### Tracks and note columns
+
+Only one "instrument" can be set per track (it will be possible to change patch on-the-fly, however). I don't like the traditional concept where each note includes the instrument number and can be inserted anywhere. In my opinion this easily leads into a mess and the workflow is clumsy.
+
+### Internal timing strategy
+
+The song is rendered into events just before playing. Accurate timestamps are calculated for each event beforehand in order to achieve a drifting-free timing. The player thread syncs to these event timestamps. Wow, that's A-M-A-Z-I-N-G! \o/
+
+### Project file format
+
+Noteahead reads and saves to a custom XML-based format. This has several pros:
+
+* I don't have to write a MIDI-file parser (yet)
+* A plain text project file works well with version control systems like Git. You can immediately see what you have changed in the project. A binary-formatted project file is a black box and a PITA. 
+
+Several..? That was only two, come on!
 
 ##
-## Build dependencies on Ubuntu 24.04+
+## License
+
+Noteahead's source code is licensed under **GNU GPLv3**. See COPYING for the complete license text.
+
+##
+## Build instructions
+
+###
+### Build dependencies on Ubuntu 24.04+
 
     build-essential cmake pkg-config ninja-build qt6-base-dev qt6-declarative-dev qt6-tools-dev librtmidi-dev
 
     qml6-module-qtqml qml6-module-qtcore qml6-module-qtquick-dialogs qml6-module-qtquick-templates [Runtime]
 
-##
-## Build and run on CLI
+###
+### Build and run on CLI
 
-    mkdir build && cd build
+    $ mkdir build && cd build
 
-    cmake -GNinja ..
+    $ cmake -GNinja ..
 
-    ninja
+    $ ninja
 
-    ./noteahead
+    $ ./noteahead
 
-##
-## Run unit tests on CLI
+###
+### Run unit tests on CLI
 
-    ctest
+    $ ctest
 
 ##
 ## Basic usage
