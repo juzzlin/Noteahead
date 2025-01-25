@@ -1,5 +1,5 @@
 // This file is part of Noteahead.
-// Copyright (C) 2020 Jussi Lind <jussi.lind@iki.fi>
+// Copyright (C) 2025 Jussi Lind <jussi.lind@iki.fi>
 //
 // Noteahead is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -13,29 +13,41 @@
 // You should have received a copy of the GNU General Public License
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef SETTINGS_HPP
-#define SETTINGS_HPP
+#ifndef RECENT_FILES_MANAGER_HPP
+#define RECENT_FILES_MANAGER_HPP
 
-#include <QSize>
+#include <QList>
+#include <QObject>
+#include <QString>
 
-namespace noteahead::settings {
+#include <optional>
 
-QSize loadWindowSize(QSize defaultSize);
+namespace noteahead {
 
-void saveWindowSize(QSize size);
+class RecentFilesManager : public QObject
+{
+public:
+    RecentFilesManager();
 
-QStringList loadRecentFiles();
+    std::optional<QString> recentFile() const;
 
-void saveRecentFiles(const QStringList & fileList);
+    QStringList recentFiles() const;
 
-int loadStep(int defaultStep);
+    bool hasRecentFiles() const;
 
-void saveStep(int step);
+    QString selectedFile() const;
 
-int loadVelocity(int defaultVelocity);
+public slots:
+    void addRecentFile(QString filePath);
 
-void saveVelocity(int velocity);
+    void setSelectedFile(QString filePath);
 
-} // namespace noteahead::settings
+private:
+    QStringList m_recentFiles;
 
-#endif // SETTINGS_HPP
+    QString m_selectedFile;
+};
+
+} // namespace noteahead
+
+#endif // RECENT_FILES_MANAGER_HPP

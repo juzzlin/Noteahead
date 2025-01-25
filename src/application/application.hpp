@@ -32,6 +32,8 @@ class Config;
 class EditorService;
 class MidiService;
 class PlayerService;
+class RecentFilesManager;
+class RecentFilesModel;
 class TrackSettingsModel;
 class UiLogger;
 
@@ -63,7 +65,7 @@ private:
 
     std::unique_ptr<QGuiApplication> m_application;
 
-    std::unique_ptr<ApplicationService> m_applicationService;
+    std::shared_ptr<ApplicationService> m_applicationService;
 
     std::shared_ptr<EditorService> m_editorService;
 
@@ -72,6 +74,10 @@ private:
     std::shared_ptr<PlayerService> m_playerService;
 
     std::shared_ptr<StateMachine> m_stateMachine;
+
+    std::shared_ptr<RecentFilesManager> m_recentFilesManager;
+
+    std::unique_ptr<RecentFilesModel> m_recentFilesModel;
 
     std::unique_ptr<TrackSettingsModel> m_trackSettingsModel;
 

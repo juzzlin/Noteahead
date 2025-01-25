@@ -17,15 +17,23 @@
 
 #include <QSettings>
 
-namespace noteahead {
+namespace noteahead::settings {
+
+const auto recentFilesArrayKey = "recentFilesArray";
+
+const auto recentFilesFilePathKey = "filePath";
 
 const auto settingsGroupEditor = "Editor";
+
 const auto settingsGroupMainWindow = "MainWindow";
+
 const auto stepKey = "step";
+
 const auto velocityKey = "velocity";
+
 const auto windowSizeKey = "size";
 
-QSize settings::loadWindowSize(QSize defaultSize)
+QSize loadWindowSize(QSize defaultSize)
 {
     QSettings settings;
     settings.beginGroup(settingsGroupMainWindow);
@@ -34,7 +42,7 @@ QSize settings::loadWindowSize(QSize defaultSize)
     return size;
 }
 
-void settings::saveWindowSize(QSize size)
+void saveWindowSize(QSize size)
 {
     QSettings settings;
     settings.beginGroup(settingsGroupMainWindow);
@@ -42,7 +50,31 @@ void settings::saveWindowSize(QSize size)
     settings.endGroup();
 }
 
-int settings::loadStep(int defaultStep)
+QStringList loadRecentFiles()
+{
+    QStringList fileList;
+    QSettings settings;
+    const int size = settings.beginReadArray(recentFilesArrayKey);
+    for (int i = 0; i < size; i++) {
+        settings.setArrayIndex(i);
+        fileList.push_back(settings.value(recentFilesFilePathKey).toString());
+    }
+    settings.endArray();
+    return fileList;
+}
+
+void saveRecentFiles(const QStringList & fileList)
+{
+    QSettings settings;
+    settings.beginWriteArray(recentFilesArrayKey);
+    for (int i = 0; i < fileList.size(); i++) {
+        settings.setArrayIndex(i);
+        settings.setValue(recentFilesFilePathKey, fileList.at(i));
+    }
+    settings.endArray();
+}
+
+int loadStep(int defaultStep)
 {
     QSettings settings;
     settings.beginGroup(settingsGroupEditor);
@@ -51,7 +83,7 @@ int settings::loadStep(int defaultStep)
     return step;
 }
 
-void settings::saveStep(int step)
+void saveStep(int step)
 {
     QSettings settings;
     settings.beginGroup(settingsGroupEditor);
@@ -59,7 +91,7 @@ void settings::saveStep(int step)
     settings.endGroup();
 }
 
-int settings::loadVelocity(int defaultVelocity)
+int loadVelocity(int defaultVelocity)
 {
     QSettings settings;
     settings.beginGroup(settingsGroupEditor);
@@ -68,7 +100,7 @@ int settings::loadVelocity(int defaultVelocity)
     return velocity;
 }
 
-void settings::saveVelocity(int velocity)
+void saveVelocity(int velocity)
 {
     QSettings settings;
     settings.beginGroup(settingsGroupEditor);
@@ -76,4 +108,4 @@ void settings::saveVelocity(int velocity)
     settings.endGroup();
 }
 
-} // namespace noteahead
+} // namespace noteahead::settings

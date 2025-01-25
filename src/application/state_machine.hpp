@@ -22,6 +22,7 @@
 
 namespace noteahead {
 
+class ApplicationService;
 class EditorService;
 
 //! State machine mainly for application logic involving user actions (show dialog, load file, etc ... )
@@ -30,8 +31,9 @@ class StateMachine : public QObject
     Q_OBJECT
 
 public:
+    using ApplicationServiceS = std::shared_ptr<ApplicationService>;
     using EditorServiceS = std::shared_ptr<EditorService>;
-    StateMachine(EditorServiceS editorService, QObject * parent = nullptr);
+    StateMachine(ApplicationServiceS applicationService, EditorServiceS editorService, QObject * parent = nullptr);
 
     enum class State
     {
@@ -41,6 +43,7 @@ public:
         InitializeNewProject,
         OpenRecent,
         Save,
+        ShowRecentFilesDialog,
         ShowUnsavedChangesDialog,
         ShowOpenDialog,
         ShowSaveAsDialog,
@@ -91,6 +94,8 @@ private:
     State m_state = State::Init;
 
     QuitType m_quitType = QuitType::None;
+
+    ApplicationServiceS m_applicationService;
 
     EditorServiceS m_editorService;
 };

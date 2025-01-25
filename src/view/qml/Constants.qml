@@ -29,6 +29,8 @@ QtObject {
     readonly property color positionBarBorderColorEditMode: "red"
     readonly property int positionBarBorderWidth: 1
     readonly property double positionBarOpacity: 0.25
+    readonly property color recentFileItemHoveredTextColor: "orange"
+    readonly property color recentFileItemTextColor: "white"
     readonly property int toolTipDelay: 1000
     readonly property int toolTipTimeout: 5000
     readonly property color trackBorderColor: "#888888"

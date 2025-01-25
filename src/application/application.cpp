@@ -21,8 +21,10 @@
 #include "config.hpp"
 #include "editor_service.hpp"
 #include "midi_service.hpp"
+#include "models/recent_files_model.hpp"
 #include "models/track_settings_model.hpp"
 #include "player_service.hpp"
+#include "recent_files_manager.hpp"
 #include "state_machine.hpp"
 #include "ui_logger.hpp"
 
@@ -41,7 +43,9 @@ Application::Application(int & argc, char ** argv)
   , m_editorService { std::make_unique<EditorService>() }
   , m_midiService { std::make_unique<MidiService>() }
   , m_playerService { std::make_unique<PlayerService>(m_midiService) }
-  , m_stateMachine { std::make_unique<StateMachine>(m_editorService) }
+  , m_stateMachine { std::make_unique<StateMachine>(m_applicationService, m_editorService) }
+  , m_recentFilesManager { std::make_unique<RecentFilesManager>() }
+  , m_recentFilesModel { std::make_unique<RecentFilesModel>() }
   , m_trackSettingsModel { std::make_unique<TrackSettingsModel>() }
   , m_config { std::make_unique<Config>() }
   , m_engine { std::make_unique<QQmlApplicationEngine>() }
@@ -51,6 +55,7 @@ Application::Application(int & argc, char ** argv)
     qmlRegisterType<Config>("Noteahead", 1, 0, "Config");
     qmlRegisterType<EditorService>("Noteahead", 1, 0, "EditorService");
     qmlRegisterType<MidiService>("Noteahead", 1, 0, "MidiService");
+    qmlRegisterType<RecentFilesModel>("Noteahead", 1, 0, "RecentFilesModel");
     qmlRegisterType<TrackSettingsModel>("Noteahead", 1, 0, "TrackSettingsModel");
 
     qmlRegisterSingletonType(QUrl(QML_ROOT_DIR + QString { "/Constants.qml" }), "Noteahead", 1, 0, "Constants");
@@ -58,9 +63,12 @@ Application::Application(int & argc, char ** argv)
 
     handleCommandLineArguments(argc, argv); // Handle command-line arguments at initialization
 
+    m_applicationService->setRecentFilesManager(m_recentFilesManager);
     m_applicationService->setStateMachine(m_stateMachine);
     m_applicationService->setEditorService(m_editorService);
     m_applicationService->setPlayerService(m_playerService);
+
+    m_recentFilesModel->setRecentFiles(m_recentFilesManager->recentFiles());
 }
 
 void Application::handleCommandLineArguments(int & argc, char ** argv)
@@ -86,6 +94,7 @@ void Application::setContextProperties()
     m_engine->rootContext()->setContextProperty("midiService", m_midiService.get());
     m_engine->rootContext()->setContextProperty("playerService", m_playerService.get());
     m_engine->rootContext()->setContextProperty("uiLogger", m_uiLogger.get());
+    m_engine->rootContext()->setContextProperty("recentFilesModel", m_recentFilesModel.get());
     m_engine->rootContext()->setContextProperty("trackSettingsModel", m_trackSettingsModel.get());
 }
 
@@ -175,8 +184,20 @@ void Application::applyState(StateMachine::State state)
     case StateMachine::State::InitializeNewProject:
         m_editorService->initialize();
         break;
+    case StateMachine::State::OpenRecent:
+        try {
+            m_editorService->load(m_recentFilesManager->selectedFile());
+            m_recentFilesManager->addRecentFile(m_recentFilesManager->selectedFile()); // Moves the loaded file to top
+            m_stateMachine->calculateState(StateMachine::Action::ProjectOpened);
+        } catch (...) {
+            m_stateMachine->calculateState(StateMachine::Action::OpeningProjectFailed);
+        }
+        break;
     case StateMachine::State::Save:
         m_editorService->save();
+        break;
+    case StateMachine::State::ShowRecentFilesDialog:
+        m_applicationService->requestRecentFilesDialog();
         break;
     case StateMachine::State::ShowUnsavedChangesDialog:
         m_applicationService->requestUnsavedChangesDialog();

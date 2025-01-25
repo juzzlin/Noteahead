@@ -90,6 +90,20 @@ ApplicationWindow {
             applicationService.cancelSaveProjectAs();
         }
     }
+    RecentFilesDialog {
+        id: recentFilesDialog
+        anchors.centerIn: parent
+        width: parent.width * 0.5
+        height: parent.height * 0.5
+        onAccepted: {
+            uiLogger.info(_tag, "Recent file accepted: " + selectedFile);
+            applicationService.openRecentProject(selectedFile);
+        }
+        onRejected: {
+            uiLogger.info(_tag, "Recent file dialog was canceled.");
+            applicationService.cancelRecentFileDialog();
+        }
+    }
     TrackSettingsDialog {
         id: trackSettingsDialog
         anchors.centerIn: parent
@@ -134,6 +148,7 @@ ApplicationWindow {
     }
     function _connectApplicationService() {
         applicationService.openDialogRequested.connect(openDialog.open);
+        applicationService.recentFilesDialogRequested.connect(recentFilesDialog.open);
         applicationService.saveAsDialogRequested.connect(saveAsDialog.open);
         applicationService.statusTextRequested.connect(bottomBar.setStatusText);
         applicationService.unsavedChangesDialogRequested.connect(unsavedChangesDialog.open);

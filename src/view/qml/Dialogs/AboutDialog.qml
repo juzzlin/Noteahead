@@ -26,7 +26,6 @@ Dialog {
             text: `${applicationService.copyright()}`
         }
     }
-
     Component.onCompleted: {
         visible = false;
     }

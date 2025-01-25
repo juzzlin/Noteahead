@@ -15,6 +15,7 @@
 
 #include "state_machine.hpp"
 
+#include "application_service.hpp"
 #include "editor_service.hpp"
 #include "simple_logger.hpp"
 
@@ -22,8 +23,9 @@ namespace noteahead {
 
 static const auto TAG = "StateMachine";
 
-StateMachine::StateMachine(EditorServiceS editorService, QObject * parent)
+StateMachine::StateMachine(ApplicationServiceS applicationService, EditorServiceS editorService, QObject * parent)
   : QObject { parent }
+  , m_applicationService { applicationService }
   , m_editorService { editorService }
 {
 }
@@ -42,7 +44,11 @@ void StateMachine::calculateState(StateMachine::Action action)
         break;
 
     case Action::ApplicationInitialized:
-        m_state = State::InitializeNewProject;
+        if (!m_applicationService->recentFiles().isEmpty()) {
+            m_state = State::ShowRecentFilesDialog;
+        } else {
+            m_state = State::InitializeNewProject;
+        }
         break;
 
     case Action::UnsavedChangesDialogDiscarded:
@@ -118,9 +124,6 @@ void StateMachine::calculateState(StateMachine::Action action)
             m_state = State::OpenRecent;
         }
         break;
-
-    default:
-        juzzlin::L(TAG).warning() << "Action " << static_cast<int>(action) << " not handled!";
     }
 
     emit stateChanged(m_state);
@@ -135,6 +138,7 @@ QString StateMachine::stateToString(State state)
         { State::InitializeNewProject, "InitializeNewProject" },
         { State::OpenRecent, "OpenRecent" },
         { State::Save, "Save" },
+        { State::ShowRecentFilesDialog, "ShowRecentFilesDialog" },
         { State::ShowUnsavedChangesDialog, "ShowUnsavedChangesDialog" },
         { State::ShowOpenDialog, "ShowOpenDialog" },
         { State::ShowSaveAsDialog, "ShowSaveAsDialog" },

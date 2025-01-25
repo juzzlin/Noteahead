@@ -21,14 +21,15 @@
 #include <QUrl>
 #include <QVariantMap>
 
-#include <set>
+#include <memory>
 
 namespace noteahead {
 
 class EditorService;
-class PlayerService;
-class StateMachine;
 class Instrument;
+class PlayerService;
+class RecentFilesManager;
+class StateMachine;
 
 class ApplicationService : public QObject
 {
@@ -36,6 +37,8 @@ class ApplicationService : public QObject
 
 public:
     ApplicationService();
+
+    ~ApplicationService() override;
 
     Q_INVOKABLE QString applicationName() const;
 
@@ -57,6 +60,8 @@ public:
 
     Q_INVOKABLE void requestOpenProject();
 
+    Q_INVOKABLE void requestRecentFilesDialog();
+
     Q_INVOKABLE void requestSaveProject();
 
     Q_INVOKABLE void requestSaveProjectAs();
@@ -71,15 +76,24 @@ public:
 
     Q_INVOKABLE void openProject(QUrl url);
 
+    Q_INVOKABLE void openRecentProject(QString filePath);
+
+    Q_INVOKABLE void cancelRecentFileDialog();
+
     Q_INVOKABLE void cancelSaveProjectAs();
 
     Q_INVOKABLE void saveProjectAs(QUrl url);
+
+    Q_INVOKABLE QStringList recentFiles() const;
 
     void requestUnsavedChangesDialog();
 
     void requestOpenDialog();
 
     void requestSaveAsDialog();
+
+    using RecentFilesManagerS = std::shared_ptr<RecentFilesManager>;
+    void setRecentFilesManager(RecentFilesManagerS recentFilesManager);
 
     using StateMachineS = std::shared_ptr<StateMachine>;
     void setStateMachine(StateMachineS stateMachine);
@@ -104,11 +118,15 @@ signals:
 
     void quitRequested();
 
+    void recentFilesDialogRequested();
+
     void saveAsDialogRequested();
 
     void statusTextRequested(QString message);
 
 private:
+    RecentFilesManagerS m_recentFilesManager;
+
     StateMachineS m_stateMachine;
 
     EditorServiceS m_editorService;

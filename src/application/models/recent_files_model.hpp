@@ -1,5 +1,5 @@
 // This file is part of Noteahead.
-// Copyright (C) 2020 Jussi Lind <jussi.lind@iki.fi>
+// Copyright (C) 2025 Jussi Lind <jussi.lind@iki.fi>
 //
 // Noteahead is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -13,29 +13,31 @@
 // You should have received a copy of the GNU General Public License
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef SETTINGS_HPP
-#define SETTINGS_HPP
+#ifndef RECENT_FILES_MODEL_HPP
+#define RECENT_FILES_MODEL_HPP
 
-#include <QSize>
+#include <QAbstractListModel>
+#include <QObject>
 
-namespace noteahead::settings {
+namespace noteahead {
 
-QSize loadWindowSize(QSize defaultSize);
+class RecentFilesModel : public QAbstractListModel
+{
+    Q_OBJECT
 
-void saveWindowSize(QSize size);
+public:
+    explicit RecentFilesModel(QObject * parent = nullptr);
 
-QStringList loadRecentFiles();
+    void setRecentFiles(const QStringList & list);
 
-void saveRecentFiles(const QStringList & fileList);
+    Q_INVOKABLE int rowCount(const QModelIndex & parent = QModelIndex()) const override;
 
-int loadStep(int defaultStep);
+    Q_INVOKABLE QVariant data(const QModelIndex & index, int role = Qt::DisplayRole) const override;
 
-void saveStep(int step);
+private:
+    QStringList m_recentFiles;
+};
 
-int loadVelocity(int defaultVelocity);
+} // namespace noteahead
 
-void saveVelocity(int velocity);
-
-} // namespace noteahead::settings
-
-#endif // SETTINGS_HPP
+#endif // RECENT_FILES_MODEL_HPP
