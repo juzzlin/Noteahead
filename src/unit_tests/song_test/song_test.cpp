@@ -151,6 +151,32 @@ void SongTest::test_renderToEvents_noEvents_shouldAddStartAndEndOfSong()
     QCOMPARE(endOfSong->type(), Event::Type::EndOfSong);
 }
 
+void SongTest::test_renderToEvents_noteOff_shouldMapNoteOff()
+{
+    Song song;
+    const Position noteOnPosition = { 0, 0, 0, 0, 0 };
+    song.noteDataAtPosition(noteOnPosition)->setAsNoteOn(60, 100);
+    const Position noteOffPosition = { 0, 0, 0, 1, 0 };
+    song.noteDataAtPosition(noteOffPosition)->setAsNoteOff();
+
+    const auto events = song.renderToEvents();
+    QCOMPARE(events.size(), 4);
+
+    const auto noteOn = events.at(1);
+    QCOMPARE(noteOn->tick(), 0 * song.ticksPerLine());
+    QCOMPARE(noteOn->type(), Event::Type::NoteData);
+    QCOMPARE(noteOn->noteData()->type(), NoteData::Type::NoteOn);
+    QCOMPARE(noteOn->noteData()->note(), 60);
+    QCOMPARE(noteOn->noteData()->velocity(), 100);
+
+    const auto noteOff = events.at(2);
+    QCOMPARE(noteOff->tick(), 1 * song.ticksPerLine());
+    QCOMPARE(noteOff->type(), Event::Type::NoteData);
+    QCOMPARE(noteOff->noteData()->type(), NoteData::Type::NoteOff);
+    QCOMPARE(noteOff->noteData()->note(), 60);
+    QCOMPARE(noteOff->noteData()->velocity(), 0);
+}
+
 void SongTest::test_renderToEvents_singleEvent_shouldRenderEvent()
 {
     Song song;

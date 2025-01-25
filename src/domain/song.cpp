@@ -219,7 +219,7 @@ Song::EventList Song::introduceNoteOffs(const EventList & events) const
 {
     Song::EventList processedEvents;
     using TrackAndColumn = std::pair<int, int>;
-    std::map<TrackAndColumn, int> activeNotes; // Tracks active notes (key: {track, column}, value: note)
+    std::map<TrackAndColumn, uint8_t> activeNotes; // Tracks active notes (key: {track, column}, value: note)
 
     const auto autoNoteOffTickOffset = this->autoNoteOffTickOffset();
     juzzlin::L(TAG).debug() << "Auto note-off tick offset: " << autoNoteOffTickOffset;
@@ -236,7 +236,11 @@ Song::EventList Song::introduceNoteOffs(const EventList & events) const
                 }
                 activeNotes[trackColumn] = *noteData->note();
             } else if (noteData->type() == NoteData::Type::NoteOff) {
-                activeNotes.erase(trackColumn);
+                if (activeNotes.contains(trackColumn)) {
+                    // Map anonymous note-off to the playing note
+                    event->noteData()->setAsNoteOff(activeNotes[trackColumn]);
+                    activeNotes.erase(trackColumn);
+                }
             }
         }
 
