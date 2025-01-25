@@ -19,7 +19,7 @@ Rectangle {
         id: editorControlsContainer
         anchors.left: parent.left
         anchors.leftMargin: Constants.lineNumberColumnWidth
-        anchors.right: playerControls.left
+        anchors.right: parent.right
         anchors.verticalCenter: parent.verticalCenter
         height: parent.height
         clip: true
@@ -28,11 +28,5 @@ Rectangle {
             anchors.left: parent.left
             anchors.verticalCenter: parent.verticalCenter
         }
-    }
-    PlayerControls {
-        id: playerControls
-        anchors.right: parent.right
-        anchors.rightMargin: Constants.lineNumberColumnWidth
-        anchors.verticalCenter: parent.verticalCenter
     }
 }

@@ -420,6 +420,79 @@ void EditorServiceTest::test_setCurrentPattern_addColumnFirst_shouldCreatePatter
     QCOMPARE(patternCreatedSpy.count(), 1);
 }
 
+void EditorServiceTest::test_setPatternAtSongPosition_shouldCreatePattern()
+{
+    EditorService editorService;
+
+    QSignalSpy currentPatternChangedSpy { &editorService, &EditorService::currentPatternChanged };
+    QSignalSpy patternAtCurrentSongPositionChangedSpy { &editorService, &EditorService::patternAtCurrentSongPositionChanged };
+    QSignalSpy patternCreatedChangedSpy { &editorService, &EditorService::patternCreated };
+    QSignalSpy positionChangedSpy { &editorService, &EditorService::positionChanged };
+    QSignalSpy songPositionChangedSpy { &editorService, &EditorService::songPositionChanged };
+
+    editorService.setPatternAtSongPosition(0, 0);
+
+    QCOMPARE(editorService.currentPattern(), 0);
+    QCOMPARE(editorService.patternAtCurrentSongPosition(), 0);
+    QCOMPARE(editorService.patternCount(), 1);
+
+    QCOMPARE(currentPatternChangedSpy.count(), 0);
+    QCOMPARE(patternAtCurrentSongPositionChangedSpy.count(), 0);
+    QCOMPARE(patternCreatedChangedSpy.count(), 0);
+    QCOMPARE(positionChangedSpy.count(), 0);
+    QCOMPARE(songPositionChangedSpy.count(), 0);
+
+    editorService.setPatternAtSongPosition(0, 1);
+
+    QCOMPARE(editorService.currentPattern(), 1);
+    QCOMPARE(editorService.patternAtCurrentSongPosition(), 1);
+    QCOMPARE(editorService.patternCount(), 2);
+
+    QCOMPARE(currentPatternChangedSpy.count(), 1);
+    QCOMPARE(patternAtCurrentSongPositionChangedSpy.count(), 1);
+    QCOMPARE(patternCreatedChangedSpy.count(), 1);
+    QCOMPARE(positionChangedSpy.count(), 1);
+    QCOMPARE(songPositionChangedSpy.count(), 0);
+
+    editorService.setPatternAtSongPosition(1, 1);
+
+    QCOMPARE(editorService.currentPattern(), 1);
+    QCOMPARE(editorService.patternAtCurrentSongPosition(), 1);
+    QCOMPARE(editorService.patternCount(), 2);
+
+    QCOMPARE(currentPatternChangedSpy.count(), 1);
+    QCOMPARE(patternAtCurrentSongPositionChangedSpy.count(), 1);
+    QCOMPARE(patternCreatedChangedSpy.count(), 1);
+    QCOMPARE(positionChangedSpy.count(), 1);
+    QCOMPARE(songPositionChangedSpy.count(), 0);
+}
+
+void EditorServiceTest::test_setSongPosition_shouldChangePattern()
+{
+    EditorService editorService;
+
+    QSignalSpy currentPatternChangedSpy { &editorService, &EditorService::currentPatternChanged };
+    QSignalSpy patternAtCurrentSongPositionChangedSpy { &editorService, &EditorService::patternAtCurrentSongPositionChanged };
+    QSignalSpy patternCreatedChangedSpy { &editorService, &EditorService::patternCreated };
+    QSignalSpy positionChangedSpy { &editorService, &EditorService::positionChanged };
+    QSignalSpy songPositionChangedSpy { &editorService, &EditorService::songPositionChanged };
+
+    editorService.setPatternAtSongPosition(1, 1);
+    editorService.setSongPosition(1);
+
+    QCOMPARE(editorService.currentPattern(), 1);
+    QCOMPARE(editorService.patternAtSongPosition(0), 0);
+    QCOMPARE(editorService.patternAtSongPosition(1), 1);
+    QCOMPARE(editorService.patternAtCurrentSongPosition(), 1);
+    QCOMPARE(editorService.patternCount(), 2);
+
+    QCOMPARE(currentPatternChangedSpy.count(), 1);
+    QCOMPARE(patternAtCurrentSongPositionChangedSpy.count(), 1);
+    QCOMPARE(patternCreatedChangedSpy.count(), 1);
+    QCOMPARE(positionChangedSpy.count(), 1);
+    QCOMPARE(songPositionChangedSpy.count(), 1);
+}
+
 void EditorServiceTest::test_setTrackName_shouldChangeTrackName()
 {
     EditorService editorService;
@@ -430,6 +503,24 @@ void EditorServiceTest::test_setTrackName_shouldChangeTrackName()
     QVERIFY(editorService.isModified());
     QCOMPARE(editorService.trackName(0), "Foo");
     QCOMPARE(editorService.trackName(1), "Bar");
+}
+
+void EditorServiceTest::test_toXmlFromXml_playOrder()
+{
+    EditorService editorServiceOut;
+    editorServiceOut.setPatternAtSongPosition(1, 11);
+    editorServiceOut.setPatternAtSongPosition(2, 22);
+    editorServiceOut.setPatternAtSongPosition(3, 33);
+
+    const auto xml = editorServiceOut.toXml();
+
+    EditorService editorServiceIn;
+    editorServiceIn.fromXml(xml);
+
+    QCOMPARE(editorServiceIn.patternAtSongPosition(0), 0);
+    QCOMPARE(editorServiceIn.patternAtSongPosition(1), 11);
+    QCOMPARE(editorServiceIn.patternAtSongPosition(2), 22);
+    QCOMPARE(editorServiceIn.patternAtSongPosition(3), 33);
 }
 
 void EditorServiceTest::test_toXmlFromXml_songProperties()

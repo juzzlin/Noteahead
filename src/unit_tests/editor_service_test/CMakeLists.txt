@@ -14,6 +14,7 @@ set(SRC
     ../../domain/line.cpp
     ../../domain/note_data.cpp
     ../../domain/pattern.cpp
+    ../../domain/play_order.cpp
     ../../domain/song.cpp
     ../../domain/track.cpp
 )

@@ -117,6 +117,21 @@ QString xmlKeyInstrument()
     return "Instrument";
 }
 
+QString xmlKeyPatternAttr()
+{
+    return "pattern";
+}
+
+QString xmlKeyPlayOrder()
+{
+    return "PlayOrder";
+}
+
+QString xmlKeyPosition()
+{
+    return "Position";
+}
+
 QString xmlKeyLine()
 {
     return "Line";

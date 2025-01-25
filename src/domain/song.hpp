@@ -34,15 +34,18 @@ class Column;
 class Event;
 class Instrument;
 class Line;
-class Pattern;
-struct Position;
-class Track;
 class NoteData;
+class Pattern;
+class PlayOrder;
+class Track;
+struct Position;
 
 class Song
 {
 public:
     Song();
+
+    ~Song();
 
     void createPattern(uint32_t patternIndex);
 
@@ -62,6 +65,10 @@ public:
     void setLineCount(uint32_t patternIndex, uint32_t lineCount);
 
     uint32_t patternCount() const;
+
+    uint32_t patternAtSongPosition(uint32_t position) const;
+
+    void setPatternAtSongPosition(uint32_t position, uint32_t pattern);
 
     uint32_t trackCount() const;
 
@@ -122,6 +129,10 @@ public:
 private:
     void load(const std::string & filename);
 
+    void deserializePlayOrder(QXmlStreamReader & reader);
+
+    void deserializePosition(QXmlStreamReader & reader);
+
     void deserializePatterns(QXmlStreamReader & reader);
 
     using PatternS = std::shared_ptr<Pattern>;
@@ -165,6 +176,8 @@ private:
     uint32_t m_ticksPerLine = 24;
 
     std::map<size_t, PatternS> m_patterns;
+
+    std::unique_ptr<PlayOrder> m_playOrder;
 
     std::unordered_map<size_t, PatternAndLine> m_tickToPatternAndLineMap;
 

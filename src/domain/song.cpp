@@ -24,6 +24,7 @@
 #include "column.hpp"
 #include "line.hpp"
 #include "pattern.hpp"
+#include "play_order.hpp"
 #include "track.hpp"
 
 #include <QXmlStreamReader>
@@ -34,6 +35,7 @@ namespace noteahead {
 static const auto TAG = "Song";
 
 Song::Song()
+  : m_playOrder { std::make_unique<PlayOrder>() }
 {
     initialize();
 }
@@ -94,6 +96,16 @@ void Song::setLineCount(uint32_t patternIndex, uint32_t lineCount)
 uint32_t Song::patternCount() const
 {
     return static_cast<uint32_t>(m_patterns.size());
+}
+
+uint32_t Song::patternAtSongPosition(uint32_t position) const
+{
+    return m_playOrder->positionToPattern(position);
+}
+
+void Song::setPatternAtSongPosition(uint32_t position, uint32_t pattern)
+{
+    m_playOrder->setPatternAtPosition(position, pattern);
 }
 
 uint32_t Song::trackCount() const
@@ -309,6 +321,8 @@ void Song::serializeToXml(QXmlStreamWriter & writer) const
     writer.writeAttribute(Constants::xmlKeyBeatsPerMinute(), QString::number(m_beatsPerMinute));
     writer.writeAttribute(Constants::xmlKeyLinesPerBeat(), QString::number(m_linesPerBeat));
 
+    m_playOrder->serializeToXml(writer);
+
     writer.writeStartElement(Constants::xmlKeyPatterns());
 
     for (const auto & pattern : m_patterns) {
@@ -356,12 +370,38 @@ void Song::deserializeFromXml(QXmlStreamReader & reader)
     juzzlin::L(TAG).trace() << "Reading Song started";
     while (!(reader.isEndElement() && !reader.name().compare(Constants::xmlKeySong()))) {
         juzzlin::L(TAG).trace() << "Current element: " << reader.name().toString().toStdString();
-        if (reader.isStartElement() && !reader.name().compare(Constants::xmlKeyPatterns())) {
-            deserializePatterns(reader);
+        if (reader.isStartElement()) {
+            if (!reader.name().compare(Constants::xmlKeyPatterns())) {
+                deserializePatterns(reader);
+            } else if (!reader.name().compare(Constants::xmlKeyPlayOrder())) {
+                deserializePlayOrder(reader);
+            }
         }
         reader.readNext();
     }
     juzzlin::L(TAG).trace() << "Reading Song ended";
+}
+
+void Song::deserializePlayOrder(QXmlStreamReader & reader)
+{
+    juzzlin::L(TAG).trace() << "Reading PlayOrder started";
+    while (!(reader.isEndElement() && !reader.name().compare(Constants::xmlKeyPlayOrder()))) {
+        juzzlin::L(TAG).trace() << "PlayOrder: Current element: " << reader.name().toString().toStdString();
+        if (reader.isStartElement() && !reader.name().compare(Constants::xmlKeyPosition())) {
+            deserializePosition(reader);
+        }
+        reader.readNext();
+    }
+    juzzlin::L(TAG).trace() << "Reading PlayOrder ended";
+}
+
+void Song::deserializePosition(QXmlStreamReader & reader)
+{
+    juzzlin::L(TAG).trace() << "Reading Position started";
+    const auto index = readUIntAttribute(reader, Constants::xmlKeyIndex());
+    const auto pattern = readUIntAttribute(reader, Constants::xmlKeyPatternAttr());
+    setPatternAtSongPosition(index, pattern);
+    juzzlin::L(TAG).trace() << "Reading Position ended";
 }
 
 void Song::deserializePatterns(QXmlStreamReader & reader)
@@ -543,5 +583,7 @@ Song::NoteDataS Song::deserializeNoteData(QXmlStreamReader & reader, uint32_t tr
     }
     return noteData;
 }
+
+Song::~Song() = default;
 
 } // namespace noteahead

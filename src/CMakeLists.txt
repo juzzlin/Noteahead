@@ -32,6 +32,7 @@ set(HEADER_FILES
   domain/line.hpp
   domain/note_data.hpp
   domain/pattern.hpp
+  domain/play_order.hpp
   domain/song.hpp
   domain/track.hpp
   infra/midi_backend.hpp
@@ -63,6 +64,7 @@ set(SOURCE_FILES
   domain/line.cpp
   domain/note_data.cpp
   domain/pattern.cpp
+  domain/play_order.cpp
   domain/song.cpp
   domain/track.cpp
   infra/midi_backend.cpp

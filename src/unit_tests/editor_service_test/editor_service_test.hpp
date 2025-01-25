@@ -60,7 +60,13 @@ private slots:
 
     void test_setCurrentPattern_addColumnFirst_shouldCreatePattern();
 
+    void test_setPatternAtSongPosition_shouldCreatePattern();
+
+    void test_setSongPosition_shouldChangePattern();
+
     void test_setTrackName_shouldChangeTrackName();
+
+    void test_toXmlFromXml_playOrder();
 
     void test_toXmlFromXml_songProperties();
 

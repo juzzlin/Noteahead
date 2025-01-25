@@ -40,6 +40,8 @@ class EditorService : public QObject
     Q_PROPERTY(QString currentFileName READ currentFileName NOTIFY currentFileNameChanged)
     Q_PROPERTY(uint32_t currentLineCount READ currentLineCount NOTIFY currentLineCountChanged)
     Q_PROPERTY(uint32_t currentPattern READ currentPattern NOTIFY currentPatternChanged)
+    Q_PROPERTY(uint32_t songPosition READ songPosition NOTIFY songPositionChanged)
+    Q_PROPERTY(uint32_t patternAtCurrentSongPosition READ patternAtCurrentSongPosition NOTIFY patternAtCurrentSongPositionChanged)
     Q_PROPERTY(double scrollBarSize READ scrollBarSize NOTIFY scrollBarSizeChanged)
     Q_PROPERTY(double scrollBarStepSize READ scrollBarStepSize NOTIFY scrollBarStepSizeChanged)
 
@@ -83,6 +85,10 @@ public:
     Q_INVOKABLE uint32_t minPatternIndex() const;
 
     Q_INVOKABLE uint32_t maxPatternIndex() const;
+
+    Q_INVOKABLE uint32_t minSongPosition() const;
+
+    Q_INVOKABLE uint32_t maxSongPosition() const;
 
     Q_INVOKABLE int lineNumberAtViewLine(uint32_t line) const;
 
@@ -170,6 +176,16 @@ public:
 
     Q_INVOKABLE double scrollBarSize() const;
 
+    Q_INVOKABLE uint32_t songPosition() const;
+
+    Q_INVOKABLE void setSongPosition(uint32_t songPosition);
+
+    Q_INVOKABLE uint32_t patternAtCurrentSongPosition() const;
+
+    Q_INVOKABLE uint32_t patternAtSongPosition(uint32_t songPosition) const;
+
+    Q_INVOKABLE void setPatternAtSongPosition(uint32_t songPosition, uint32_t pattern);
+
     using InstrumentS = std::shared_ptr<Instrument>;
     InstrumentS instrument(uint32_t trackIndex) const;
 
@@ -208,6 +224,8 @@ signals:
 
     void noteDataAtPositionChanged(const Position & position);
 
+    void patternAtCurrentSongPositionChanged(); // For the play order widget
+
     void patternCreated(uint32_t patternIndex);
 
     void positionChanged(const Position & newPosition, const Position & oldPosition);
@@ -217,6 +235,8 @@ signals:
     void scrollBarStepSizeChanged();
 
     void songChanged();
+
+    void songPositionChanged();
 
     void statusTextRequested(QString text);
 
@@ -255,6 +275,8 @@ private:
     Position m_cursorPosition;
 
     uint32_t m_horizontalScrollPosition = 0;
+
+    uint32_t m_songPosition = 0;
 
     bool m_isModified = false;
 };

@@ -255,6 +255,16 @@ uint32_t EditorService::maxPatternIndex() const
     return 999;
 }
 
+uint32_t EditorService::minSongPosition() const
+{
+    return 0;
+}
+
+uint32_t EditorService::maxSongPosition() const
+{
+    return 999;
+}
+
 uint32_t EditorService::linesVisible() const
 {
     return 32;
@@ -683,6 +693,10 @@ void EditorService::notifyPositionChange(const Position & oldPosition)
     logPosition();
 
     emit positionChanged(m_cursorPosition, oldPosition);
+
+    if (m_cursorPosition.pattern != oldPosition.pattern) {
+        emit currentPatternChanged();
+    }
 }
 
 bool EditorService::requestPosition(uint32_t pattern, uint32_t track, uint32_t column, uint32_t line, uint32_t lineColumn)
@@ -849,6 +863,45 @@ void EditorService::updateScrollBar()
 {
     emit scrollBarSizeChanged();
     emit scrollBarStepSizeChanged();
+}
+
+uint32_t EditorService::songPosition() const
+{
+    return m_songPosition;
+}
+
+void EditorService::setSongPosition(uint32_t songPosition)
+{
+    if (m_songPosition != songPosition) {
+        m_songPosition = songPosition;
+        emit songPositionChanged();
+        emit patternAtCurrentSongPositionChanged();
+    }
+}
+
+void EditorService::setPatternAtSongPosition(uint32_t songPosition, uint32_t pattern)
+{
+    if (!m_song->hasPattern(pattern)) {
+        setCurrentPattern(pattern);
+    }
+
+    if (m_song->patternAtSongPosition(songPosition) != pattern) {
+        m_song->setPatternAtSongPosition(songPosition, pattern);
+        if (m_songPosition == songPosition) {
+            emit patternAtCurrentSongPositionChanged();
+        }
+        setIsModified(true);
+    }
+}
+
+uint32_t EditorService::patternAtCurrentSongPosition() const
+{
+    return m_song->patternAtSongPosition(m_songPosition);
+}
+
+uint32_t EditorService::patternAtSongPosition(uint32_t songPosition) const
+{
+    return m_song->patternAtSongPosition(songPosition);
 }
 
 } // namespace noteahead
