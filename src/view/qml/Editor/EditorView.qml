@@ -145,13 +145,11 @@ FocusScope {
             track.updateData();
         }
     }
-    function _setTrackFocused(trackIndex, columnIndex) {
-        const currentPattern = _patterns[editorService.currentPattern];
-        currentPattern._tracks[trackIndex].setFocused(columnIndex, true);
+    function _setTrackFocused(position) {
+        _patterns[position.pattern]._tracks[position.track].setFocused(position.column, true);
     }
-    function _setTrackUnfocused(trackIndex, columnIndex) {
-        const currentPattern = _patterns[editorService.currentPattern];
-        currentPattern._tracks[trackIndex].setFocused(columnIndex, false);
+    function _setTrackUnfocused(position) {
+        _patterns[position.pattern]._tracks[position.track].setFocused(position.column, false);
     }
     function _updateTrackSizes() {
         const currentPattern = _patterns[editorService.currentPattern];
@@ -160,8 +158,8 @@ FocusScope {
             });
     }
     function _updateFocus(newPosition, oldPosition) {
-        _setTrackUnfocused(oldPosition.track, oldPosition.column);
-        _setTrackFocused(newPosition.track, newPosition.column);
+        _setTrackUnfocused(oldPosition);
+        _setTrackFocused(newPosition);
     }
     function _updatePosition(newPosition) {
         const currentPattern = _patterns[editorService.currentPattern];
