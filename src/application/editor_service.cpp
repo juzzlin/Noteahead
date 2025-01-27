@@ -865,21 +865,21 @@ void EditorService::updateScrollBar()
     emit scrollBarStepSizeChanged();
 }
 
-uint32_t EditorService::songPosition() const
+uint32_t EditorService::playOrderSongPosition() const
 {
-    return m_songPosition;
+    return m_playOrderSongPosition;
 }
 
-void EditorService::setSongPosition(uint32_t songPosition)
+void EditorService::setPlayOrderSongPosition(uint32_t songPosition)
 {
-    if (m_songPosition != songPosition) {
-        m_songPosition = songPosition;
-        emit songPositionChanged();
-        emit patternAtCurrentSongPositionChanged();
+    if (m_playOrderSongPosition != songPosition) {
+        m_playOrderSongPosition = songPosition;
+        emit playOrderSongPositionChanged();
+        emit patternAtCurrentPlayOrderSongPositionChanged();
     }
 }
 
-void EditorService::setPatternAtSongPosition(uint32_t songPosition, uint32_t pattern)
+void EditorService::setPatternAtPlayOrderSongPosition(uint32_t songPosition, uint32_t pattern)
 {
     if (!m_song->hasPattern(pattern)) {
         setCurrentPattern(pattern);
@@ -887,19 +887,19 @@ void EditorService::setPatternAtSongPosition(uint32_t songPosition, uint32_t pat
 
     if (m_song->patternAtSongPosition(songPosition) != pattern) {
         m_song->setPatternAtSongPosition(songPosition, pattern);
-        if (m_songPosition == songPosition) {
-            emit patternAtCurrentSongPositionChanged();
+        if (m_playOrderSongPosition == songPosition) {
+            emit patternAtCurrentPlayOrderSongPositionChanged();
         }
         setIsModified(true);
     }
 }
 
-uint32_t EditorService::patternAtCurrentSongPosition() const
+uint32_t EditorService::patternAtCurrentPlayOrderSongPosition() const
 {
-    return m_song->patternAtSongPosition(m_songPosition);
+    return m_song->patternAtSongPosition(m_playOrderSongPosition);
 }
 
-uint32_t EditorService::patternAtSongPosition(uint32_t songPosition) const
+uint32_t EditorService::patternAtPlayOrderSongPosition(uint32_t songPosition) const
 {
     return m_song->patternAtSongPosition(songPosition);
 }

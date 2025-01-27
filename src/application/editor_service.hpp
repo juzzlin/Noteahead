@@ -40,8 +40,8 @@ class EditorService : public QObject
     Q_PROPERTY(QString currentFileName READ currentFileName NOTIFY currentFileNameChanged)
     Q_PROPERTY(uint32_t currentLineCount READ currentLineCount NOTIFY currentLineCountChanged)
     Q_PROPERTY(uint32_t currentPattern READ currentPattern NOTIFY currentPatternChanged)
-    Q_PROPERTY(uint32_t songPosition READ songPosition NOTIFY songPositionChanged)
-    Q_PROPERTY(uint32_t patternAtCurrentSongPosition READ patternAtCurrentSongPosition NOTIFY patternAtCurrentSongPositionChanged)
+    Q_PROPERTY(uint32_t playOrderSongPosition READ playOrderSongPosition NOTIFY playOrderSongPositionChanged)
+    Q_PROPERTY(uint32_t patternAtCurrentPlayOrderSongPosition READ patternAtCurrentPlayOrderSongPosition NOTIFY patternAtCurrentPlayOrderSongPositionChanged)
     Q_PROPERTY(double scrollBarSize READ scrollBarSize NOTIFY scrollBarSizeChanged)
     Q_PROPERTY(double scrollBarStepSize READ scrollBarStepSize NOTIFY scrollBarStepSizeChanged)
 
@@ -176,15 +176,15 @@ public:
 
     Q_INVOKABLE double scrollBarSize() const;
 
-    Q_INVOKABLE uint32_t songPosition() const;
+    Q_INVOKABLE uint32_t playOrderSongPosition() const;
 
-    Q_INVOKABLE void setSongPosition(uint32_t songPosition);
+    Q_INVOKABLE void setPlayOrderSongPosition(uint32_t songPosition);
 
-    Q_INVOKABLE uint32_t patternAtCurrentSongPosition() const;
+    Q_INVOKABLE uint32_t patternAtCurrentPlayOrderSongPosition() const;
 
-    Q_INVOKABLE uint32_t patternAtSongPosition(uint32_t songPosition) const;
+    Q_INVOKABLE uint32_t patternAtPlayOrderSongPosition(uint32_t songPosition) const;
 
-    Q_INVOKABLE void setPatternAtSongPosition(uint32_t songPosition, uint32_t pattern);
+    Q_INVOKABLE void setPatternAtPlayOrderSongPosition(uint32_t songPosition, uint32_t pattern);
 
     using InstrumentS = std::shared_ptr<Instrument>;
     InstrumentS instrument(uint32_t trackIndex) const;
@@ -224,7 +224,9 @@ signals:
 
     void noteDataAtPositionChanged(const Position & position);
 
-    void patternAtCurrentSongPositionChanged(); // For the play order widget
+    void patternAtCurrentPlayOrderSongPositionChanged(); // For the play order widget
+
+    void playOrderSongPositionChanged(); // For the play order widget
 
     void patternCreated(uint32_t patternIndex);
 
@@ -235,8 +237,6 @@ signals:
     void scrollBarStepSizeChanged();
 
     void songChanged();
-
-    void songPositionChanged();
 
     void statusTextRequested(QString text);
 
@@ -276,7 +276,7 @@ private:
 
     uint32_t m_horizontalScrollPosition = 0;
 
-    uint32_t m_songPosition = 0;
+    uint32_t m_playOrderSongPosition = 0;
 
     bool m_isModified = false;
 };

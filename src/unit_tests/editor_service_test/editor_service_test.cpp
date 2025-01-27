@@ -425,15 +425,15 @@ void EditorServiceTest::test_setPatternAtSongPosition_shouldCreatePattern()
     EditorService editorService;
 
     QSignalSpy currentPatternChangedSpy { &editorService, &EditorService::currentPatternChanged };
-    QSignalSpy patternAtCurrentSongPositionChangedSpy { &editorService, &EditorService::patternAtCurrentSongPositionChanged };
+    QSignalSpy patternAtCurrentSongPositionChangedSpy { &editorService, &EditorService::patternAtCurrentPlayOrderSongPositionChanged };
     QSignalSpy patternCreatedChangedSpy { &editorService, &EditorService::patternCreated };
     QSignalSpy positionChangedSpy { &editorService, &EditorService::positionChanged };
-    QSignalSpy songPositionChangedSpy { &editorService, &EditorService::songPositionChanged };
+    QSignalSpy songPositionChangedSpy { &editorService, &EditorService::playOrderSongPositionChanged };
 
-    editorService.setPatternAtSongPosition(0, 0);
+    editorService.setPatternAtPlayOrderSongPosition(0, 0);
 
     QCOMPARE(editorService.currentPattern(), 0);
-    QCOMPARE(editorService.patternAtCurrentSongPosition(), 0);
+    QCOMPARE(editorService.patternAtCurrentPlayOrderSongPosition(), 0);
     QCOMPARE(editorService.patternCount(), 1);
 
     QCOMPARE(currentPatternChangedSpy.count(), 0);
@@ -442,10 +442,10 @@ void EditorServiceTest::test_setPatternAtSongPosition_shouldCreatePattern()
     QCOMPARE(positionChangedSpy.count(), 0);
     QCOMPARE(songPositionChangedSpy.count(), 0);
 
-    editorService.setPatternAtSongPosition(0, 1);
+    editorService.setPatternAtPlayOrderSongPosition(0, 1);
 
     QCOMPARE(editorService.currentPattern(), 1);
-    QCOMPARE(editorService.patternAtCurrentSongPosition(), 1);
+    QCOMPARE(editorService.patternAtCurrentPlayOrderSongPosition(), 1);
     QCOMPARE(editorService.patternCount(), 2);
 
     QCOMPARE(currentPatternChangedSpy.count(), 1);
@@ -454,10 +454,10 @@ void EditorServiceTest::test_setPatternAtSongPosition_shouldCreatePattern()
     QCOMPARE(positionChangedSpy.count(), 1);
     QCOMPARE(songPositionChangedSpy.count(), 0);
 
-    editorService.setPatternAtSongPosition(1, 1);
+    editorService.setPatternAtPlayOrderSongPosition(1, 1);
 
     QCOMPARE(editorService.currentPattern(), 1);
-    QCOMPARE(editorService.patternAtCurrentSongPosition(), 1);
+    QCOMPARE(editorService.patternAtCurrentPlayOrderSongPosition(), 1);
     QCOMPARE(editorService.patternCount(), 2);
 
     QCOMPARE(currentPatternChangedSpy.count(), 1);
@@ -472,19 +472,19 @@ void EditorServiceTest::test_setSongPosition_shouldChangePattern()
     EditorService editorService;
 
     QSignalSpy currentPatternChangedSpy { &editorService, &EditorService::currentPatternChanged };
-    QSignalSpy patternAtCurrentSongPositionChangedSpy { &editorService, &EditorService::patternAtCurrentSongPositionChanged };
+    QSignalSpy patternAtCurrentSongPositionChangedSpy { &editorService, &EditorService::patternAtCurrentPlayOrderSongPositionChanged };
     QSignalSpy patternCreatedChangedSpy { &editorService, &EditorService::patternCreated };
     QSignalSpy positionChangedSpy { &editorService, &EditorService::positionChanged };
-    QSignalSpy songPositionChangedSpy { &editorService, &EditorService::songPositionChanged };
+    QSignalSpy songPositionChangedSpy { &editorService, &EditorService::playOrderSongPositionChanged };
 
-    editorService.setPatternAtSongPosition(1, 1);
-    editorService.setSongPosition(1);
+    editorService.setPatternAtPlayOrderSongPosition(1, 1);
+    editorService.setPlayOrderSongPosition(1);
 
     QCOMPARE(editorService.currentPattern(), 1);
     QCOMPARE(editorService.position().pattern, 1);
-    QCOMPARE(editorService.patternAtSongPosition(0), 0);
-    QCOMPARE(editorService.patternAtSongPosition(1), 1);
-    QCOMPARE(editorService.patternAtCurrentSongPosition(), 1);
+    QCOMPARE(editorService.patternAtPlayOrderSongPosition(0), 0);
+    QCOMPARE(editorService.patternAtPlayOrderSongPosition(1), 1);
+    QCOMPARE(editorService.patternAtCurrentPlayOrderSongPosition(), 1);
     QCOMPARE(editorService.patternCount(), 2);
 
     QCOMPARE(currentPatternChangedSpy.count(), 1);
@@ -493,13 +493,13 @@ void EditorServiceTest::test_setSongPosition_shouldChangePattern()
     QCOMPARE(positionChangedSpy.count(), 1);
     QCOMPARE(songPositionChangedSpy.count(), 1);
 
-    editorService.setSongPosition(0);
+    editorService.setPlayOrderSongPosition(0);
 
     QCOMPARE(editorService.currentPattern(), 1);
     QCOMPARE(editorService.position().pattern, 1);
-    QCOMPARE(editorService.patternAtSongPosition(0), 0);
-    QCOMPARE(editorService.patternAtSongPosition(1), 1);
-    QCOMPARE(editorService.patternAtCurrentSongPosition(), 0);
+    QCOMPARE(editorService.patternAtPlayOrderSongPosition(0), 0);
+    QCOMPARE(editorService.patternAtPlayOrderSongPosition(1), 1);
+    QCOMPARE(editorService.patternAtCurrentPlayOrderSongPosition(), 0);
     QCOMPARE(editorService.patternCount(), 2);
 
     QCOMPARE(currentPatternChangedSpy.count(), 1);
@@ -524,19 +524,19 @@ void EditorServiceTest::test_setTrackName_shouldChangeTrackName()
 void EditorServiceTest::test_toXmlFromXml_playOrder()
 {
     EditorService editorServiceOut;
-    editorServiceOut.setPatternAtSongPosition(1, 11);
-    editorServiceOut.setPatternAtSongPosition(2, 22);
-    editorServiceOut.setPatternAtSongPosition(3, 33);
+    editorServiceOut.setPatternAtPlayOrderSongPosition(1, 11);
+    editorServiceOut.setPatternAtPlayOrderSongPosition(2, 22);
+    editorServiceOut.setPatternAtPlayOrderSongPosition(3, 33);
 
     const auto xml = editorServiceOut.toXml();
 
     EditorService editorServiceIn;
     editorServiceIn.fromXml(xml);
 
-    QCOMPARE(editorServiceIn.patternAtSongPosition(0), 0);
-    QCOMPARE(editorServiceIn.patternAtSongPosition(1), 11);
-    QCOMPARE(editorServiceIn.patternAtSongPosition(2), 22);
-    QCOMPARE(editorServiceIn.patternAtSongPosition(3), 33);
+    QCOMPARE(editorServiceIn.patternAtPlayOrderSongPosition(0), 0);
+    QCOMPARE(editorServiceIn.patternAtPlayOrderSongPosition(1), 11);
+    QCOMPARE(editorServiceIn.patternAtPlayOrderSongPosition(2), 22);
+    QCOMPARE(editorServiceIn.patternAtPlayOrderSongPosition(3), 33);
 }
 
 void EditorServiceTest::test_toXmlFromXml_songProperties()

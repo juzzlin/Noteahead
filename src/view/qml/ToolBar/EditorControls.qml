@@ -28,12 +28,12 @@ Row {
                 }
                 SpinBox {
                     id: songPositionSpinBox
-                    value: editorService.songPosition
+                    value: editorService.playOrderSongPosition
                     from: editorService.minSongPosition()
                     to: editorService.maxSongPosition()
                     editable: false
                     enabled: !UiService.isPlaying()
-                    onValueChanged: editorService.setSongPosition(value)
+                    onValueChanged: editorService.setPlayOrderSongPosition(value)
                     Keys.onReturnPressed: focus = false
                     ToolTip.delay: Constants.toolTipDelay
                     ToolTip.timeout: Constants.toolTipTimeout
@@ -51,10 +51,10 @@ Row {
                 }
                 SpinBox {
                     id: songPatternIndexSpinBox
-                    value: editorService.patternAtCurrentSongPosition
+                    value: editorService.patternAtCurrentPlayOrderSongPosition
                     editable: false
                     enabled: !UiService.isPlaying()
-                    onValueChanged: editorService.setPatternAtSongPosition(songPositionSpinBox.value, value)
+                    onValueChanged: editorService.setPatternAtPlayOrderSongPosition(songPositionSpinBox.value, value)
                     Keys.onReturnPressed: focus = false
                     ToolTip.delay: Constants.toolTipDelay
                     ToolTip.timeout: Constants.toolTipTimeout
