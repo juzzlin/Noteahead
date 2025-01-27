@@ -481,6 +481,7 @@ void EditorServiceTest::test_setSongPosition_shouldChangePattern()
     editorService.setSongPosition(1);
 
     QCOMPARE(editorService.currentPattern(), 1);
+    QCOMPARE(editorService.position().pattern, 1);
     QCOMPARE(editorService.patternAtSongPosition(0), 0);
     QCOMPARE(editorService.patternAtSongPosition(1), 1);
     QCOMPARE(editorService.patternAtCurrentSongPosition(), 1);
@@ -491,6 +492,21 @@ void EditorServiceTest::test_setSongPosition_shouldChangePattern()
     QCOMPARE(patternCreatedChangedSpy.count(), 1);
     QCOMPARE(positionChangedSpy.count(), 1);
     QCOMPARE(songPositionChangedSpy.count(), 1);
+
+    editorService.setSongPosition(0);
+
+    QCOMPARE(editorService.currentPattern(), 1);
+    QCOMPARE(editorService.position().pattern, 1);
+    QCOMPARE(editorService.patternAtSongPosition(0), 0);
+    QCOMPARE(editorService.patternAtSongPosition(1), 1);
+    QCOMPARE(editorService.patternAtCurrentSongPosition(), 0);
+    QCOMPARE(editorService.patternCount(), 2);
+
+    QCOMPARE(currentPatternChangedSpy.count(), 1);
+    QCOMPARE(patternAtCurrentSongPositionChangedSpy.count(), 2);
+    QCOMPARE(patternCreatedChangedSpy.count(), 1);
+    QCOMPARE(positionChangedSpy.count(), 1);
+    QCOMPARE(songPositionChangedSpy.count(), 2);
 }
 
 void EditorServiceTest::test_setTrackName_shouldChangeTrackName()
