@@ -33,16 +33,27 @@ class InstrumentRequest;
 class EditorService : public QObject
 {
     Q_OBJECT
+
     Q_PROPERTY(uint32_t beatsPerMinute READ beatsPerMinute NOTIFY beatsPerMinuteChanged)
+
     Q_PROPERTY(uint32_t linesPerBeat READ linesPerBeat NOTIFY linesPerBeatChanged)
+
     Q_PROPERTY(bool isModified READ isModified NOTIFY isModifiedChanged)
+
     Q_PROPERTY(bool canBeSaved READ canBeSaved NOTIFY canBeSavedChanged)
+
     Q_PROPERTY(QString currentFileName READ currentFileName NOTIFY currentFileNameChanged)
+
     Q_PROPERTY(uint32_t currentLineCount READ currentLineCount NOTIFY currentLineCountChanged)
+
     Q_PROPERTY(uint32_t currentPattern READ currentPattern NOTIFY currentPatternChanged)
+
     Q_PROPERTY(uint32_t playOrderSongPosition READ playOrderSongPosition NOTIFY playOrderSongPositionChanged)
+
     Q_PROPERTY(uint32_t patternAtCurrentPlayOrderSongPosition READ patternAtCurrentPlayOrderSongPosition NOTIFY patternAtCurrentPlayOrderSongPositionChanged)
+
     Q_PROPERTY(double scrollBarSize READ scrollBarSize NOTIFY scrollBarSizeChanged)
+
     Q_PROPERTY(double scrollBarStepSize READ scrollBarStepSize NOTIFY scrollBarStepSizeChanged)
 
 public:
