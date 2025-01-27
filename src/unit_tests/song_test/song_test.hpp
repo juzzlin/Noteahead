@@ -46,6 +46,8 @@ private slots:
 
     void test_renderToEvents_noteOff_shouldMapNoteOff();
 
+    void test_renderToEvents_playOrderSet_shouldRenderMultiplePatterns();
+
     void test_renderToEvents_singleEvent_shouldRenderEvent();
 
     void test_renderToEvents_sameColumn_shouldAddNoteOff();

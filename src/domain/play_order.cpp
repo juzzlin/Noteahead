@@ -29,6 +29,11 @@ PlayOrder::PlayOrder()
     setPatternAtPosition(0, 0);
 }
 
+uint32_t PlayOrder::length() const
+{
+    return m_positionToPatternMap.rbegin()->first + 1;
+}
+
 void PlayOrder::setPatternAtPosition(uint32_t position, uint32_t pattern)
 {
     juzzlin::L(TAG).info() << "Position " << position << " mapped to pattern " << pattern;

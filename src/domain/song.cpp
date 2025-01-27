@@ -295,7 +295,9 @@ Song::EventList Song::renderToEvents()
     startOfSongEvent->setAsStartOfSong();
     eventList.push_back(startOfSongEvent);
 
-    for (size_t patternIndex = 0; patternIndex < m_patterns.size(); patternIndex++) {
+    for (uint32_t playOrderSongPosition = 0; playOrderSongPosition < m_playOrder->length(); playOrderSongPosition++) {
+        const auto patternIndex = m_playOrder->positionToPattern(playOrderSongPosition);
+        juzzlin::L(TAG).debug() << "Rendering position " << playOrderSongPosition << " as pattern " << patternIndex;
         const auto & pattern = m_patterns[patternIndex];
         const auto patternEventList = pattern->renderToEvents(tick, m_ticksPerLine);
         std::copy(patternEventList.begin(), patternEventList.end(), std::back_inserter(eventList));

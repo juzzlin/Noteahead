@@ -28,6 +28,8 @@ class PlayOrder
 public:
     PlayOrder();
 
+    uint32_t length() const;
+
     void setPatternAtPosition(uint32_t position, uint32_t pattern);
 
     uint32_t positionToPattern(uint32_t position) const;

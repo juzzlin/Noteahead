@@ -26,6 +26,19 @@ void PlayOrderTest::test_initialization_shouldReturnInitialMapping()
     QCOMPARE(playOrder.positionToPattern(0), uint32_t(0));
 }
 
+void PlayOrderTest::test_length_shouldReturnCorrectLength()
+{
+    PlayOrder playOrder;
+    playOrder.setPatternAtPosition(0, 0);
+    playOrder.setPatternAtPosition(1, 1);
+
+    QCOMPARE(playOrder.length(), 2);
+
+    playOrder.setPatternAtPosition(10, 2);
+
+    QCOMPARE(playOrder.length(), 11);
+}
+
 void PlayOrderTest::test_setAndGetPattern_shouldReturnCorrectValues()
 {
     PlayOrder playOrder;
