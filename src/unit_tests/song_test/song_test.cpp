@@ -37,7 +37,7 @@ void SongTest::test_createPattern_columnAdded_shouldCreatePattern()
 
     QCOMPARE(song.patternCount(), 2);
     QCOMPARE(song.trackCount(0), song.trackCount(1));
-    for (size_t i = 0; i < song.trackCount(0); i++) {
+    for (uint32_t i = 0; i < song.trackCount(0); i++) {
         QCOMPARE(song.columnCount(0, i), song.columnCount(1, i));
     }
     QCOMPARE(song.lineCount(0), song.lineCount(1));
