@@ -36,7 +36,7 @@ Rectangle {
         _scrollOffset = position.line;
         _scrollLines();
         if (UiService.isPlaying()) {
-            volumeMeter.trigger(editorService.effectiveVolumeAtPosition(position.patternIndex, _trackIndex, _index, position.line));
+            volumeMeter.trigger(editorService.effectiveVolumeAtPosition(position.pattern, _trackIndex, _index, position.line));
         }
     }
     function setPositionBar(positionBar) {
