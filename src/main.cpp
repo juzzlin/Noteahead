@@ -39,7 +39,7 @@ static void initLogger()
     const QString logPath { QDir::tempPath() + QDir::separator() + noteahead::Constants::applicationName() + "-" + QString::number(tsMs()) + ".log" };
     L::initialize(logPath.toStdString());
     L::enableEchoMode(true);
-    L::setTimestampMode(L::TimestampMode::ISODateTime);
+    L::setTimestampMode(L::TimestampMode::ISODateTimeMilliseconds);
     L::setTimestampSeparator(" ");
     const std::map<L::Level, std::string> symbols = {
         { L::Level::Debug, "D" },
