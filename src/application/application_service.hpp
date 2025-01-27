@@ -46,19 +46,37 @@ public:
 
     Q_INVOKABLE QString copyright() const;
 
+    Q_INVOKABLE QString fileFormatExtension() const;
+
     Q_INVOKABLE QString license() const;
 
-    Q_INVOKABLE QString fileFormatExtension() const;
+    Q_INVOKABLE QStringList recentFiles() const;
 
     Q_INVOKABLE void acceptUnsavedChangesDialog();
 
+    Q_INVOKABLE void cancelOpenProject();
+
+    Q_INVOKABLE void cancelRecentFileDialog();
+
+    Q_INVOKABLE void cancelSaveProjectAs();
+
     Q_INVOKABLE void discardUnsavedChangesDialog();
 
+    Q_INVOKABLE void openProject(QUrl url);
+
+    Q_INVOKABLE void openRecentProject(QString filePath);
+
     Q_INVOKABLE void rejectUnsavedChangesDialog();
+
+    Q_INVOKABLE void requestLiveNoteOff(uint8_t note, uint8_t octave);
+
+    Q_INVOKABLE void requestLiveNoteOn(uint8_t note, uint8_t octave, uint8_t velocity);
 
     Q_INVOKABLE void requestNewProject();
 
     Q_INVOKABLE void requestOpenProject();
+
+    Q_INVOKABLE void requestQuit();
 
     Q_INVOKABLE void requestRecentFilesDialog();
 
@@ -66,25 +84,7 @@ public:
 
     Q_INVOKABLE void requestSaveProjectAs();
 
-    Q_INVOKABLE void requestQuit();
-
-    Q_INVOKABLE void requestLiveNoteOn(uint8_t note, uint8_t octave, uint8_t velocity);
-
-    Q_INVOKABLE void requestLiveNoteOff(uint8_t note, uint8_t octave);
-
-    Q_INVOKABLE void cancelOpenProject();
-
-    Q_INVOKABLE void openProject(QUrl url);
-
-    Q_INVOKABLE void openRecentProject(QString filePath);
-
-    Q_INVOKABLE void cancelRecentFileDialog();
-
-    Q_INVOKABLE void cancelSaveProjectAs();
-
     Q_INVOKABLE void saveProjectAs(QUrl url);
-
-    Q_INVOKABLE QStringList recentFiles() const;
 
     void requestUnsavedChangesDialog();
 
