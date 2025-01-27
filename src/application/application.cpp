@@ -179,6 +179,9 @@ void Application::applyState(StateMachine::State state)
 
     switch (state) {
     case StateMachine::State::Exit:
+        if (m_playerService->isPlaying()) {
+            m_playerService->requestStop();
+        }
         m_application->exit(EXIT_SUCCESS);
         break;
     case StateMachine::State::InitializeNewProject:
