@@ -117,7 +117,7 @@ void ApplicationService::requestLiveNoteOn(uint8_t note, uint8_t octave, uint8_t
 {
     if (const auto instrument = m_editorService->instrument(m_editorService->position().track); instrument) {
         if (const auto midiNote = EditorService::editorNoteToMidiNote(note, octave); midiNote.has_value()) {
-            juzzlin::L(TAG).info() << "Live note ON " << midiNote->first << " requested on instrument " << instrument->toString().toStdString();
+            juzzlin::L(TAG).debug() << "Live note ON " << midiNote->first << " requested on instrument " << instrument->toString().toStdString();
             emit liveNoteOnRequested(instrument, midiNote->second, velocity);
         }
     } else {
@@ -129,7 +129,7 @@ void ApplicationService::requestLiveNoteOff(uint8_t note, uint8_t octave)
 {
     if (const auto instrument = m_editorService->instrument(m_editorService->position().track); instrument) {
         if (const auto midiNote = EditorService::editorNoteToMidiNote(note, octave); midiNote.has_value()) {
-            juzzlin::L(TAG).info() << "Live note OFF " << midiNote->first << " requested on instrument " << instrument->toString().toStdString();
+            juzzlin::L(TAG).debug() << "Live note OFF " << midiNote->first << " requested on instrument " << instrument->toString().toStdString();
             emit liveNoteOffRequested(instrument, midiNote->second);
         }
     } else {
