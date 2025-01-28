@@ -106,6 +106,11 @@ void MidiBackendRtMidi::stopAllNotes(MidiDeviceS device, uint8_t channel) const
                               123, // CC #123 (All Notes Off)
                               0 }; // Value for "All Notes Off"
     sendMessage(device, message);
+
+    // All devices won't obey CC #123: Manually stop all notes
+    for (uint8_t note = 0; note < 128; note++) {
+        sendNoteOff(device, channel, note);
+    }
 }
 
 } // namespace noteahead
