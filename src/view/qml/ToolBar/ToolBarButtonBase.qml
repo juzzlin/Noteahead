@@ -10,6 +10,7 @@ Button {
     height: width
     property double _scale: 1.0
     property double _hoverScale: 1.0
+    property string toolTipText
     function setImageSource(imageSource) {
         background.source = imageSource;
     }
@@ -41,4 +42,8 @@ Button {
             duration: 50
         }
     }
+    ToolTip.delay: Constants.toolTipDelay
+    ToolTip.timeout: Constants.toolTipTimeout
+    ToolTip.visible: hovered
+    ToolTip.text: toolTipText
 }

@@ -10,4 +10,5 @@ ToolBarButtonBase {
         UiService.requestPlay();
         focus = false;
     }
+    toolTipText: qsTr("Start playing from the current position")
 }

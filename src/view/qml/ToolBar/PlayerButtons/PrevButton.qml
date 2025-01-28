@@ -10,4 +10,5 @@ ToolBarButtonBase {
         editorService.setPlayOrderSongPosition(0);
         focus = false;
     }
+    toolTipText: qsTr("Rewind to the start of the song")
 }

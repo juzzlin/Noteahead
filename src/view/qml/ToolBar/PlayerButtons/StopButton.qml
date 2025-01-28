@@ -10,4 +10,5 @@ ToolBarButtonBase {
         UiService.requestStop();
         focus = false;
     }
+    toolTipText: qsTr("Stop playing")
 }
