@@ -106,6 +106,10 @@ void Application::connectServices()
 
     connect(m_editorService.get(), &EditorService::instrumentRequested, m_midiService.get(), &MidiService::handleInstrumentRequest);
 
+    connect(m_midiService.get(), &MidiService::availableMidiPortsChanged, this, [this] {
+        m_trackSettingsModel->setAvailableMidiPorts(m_midiService->availableMidiPorts());
+    });
+
     connect(m_playerService.get(), &PlayerService::songRequested, this, [this] {
         m_playerService->setSong(m_editorService->song());
     });
@@ -127,12 +131,13 @@ void Application::connectServices()
 
     connect(m_trackSettingsModel.get(), &TrackSettingsModel::applyAllRequested, this, [this]() {
         const InstrumentRequest instrumentRequest { InstrumentRequest::Type::ApplyAll, m_trackSettingsModel->toInstrument() };
+        juzzlin::L(TAG).info() << "Applying ALL: " << instrumentRequest.instrument()->toString().toStdString();
         m_midiService->handleInstrumentRequest(instrumentRequest);
     });
 
     connect(m_trackSettingsModel.get(), &TrackSettingsModel::applyPatchRequested, this, [this]() {
         const InstrumentRequest instrumentRequest { InstrumentRequest::Type::ApplyPatch, m_trackSettingsModel->toInstrument() };
-        qInfo() << "Applying PATCH: " << instrumentRequest.instrument()->toString();
+        juzzlin::L(TAG).info() << "Applying PATCH: " << instrumentRequest.instrument()->toString().toStdString();
         m_midiService->handleInstrumentRequest(instrumentRequest);
     });
 
@@ -185,6 +190,7 @@ void Application::applyState(StateMachine::State state)
         m_application->exit(EXIT_SUCCESS);
         break;
     case StateMachine::State::InitializeNewProject:
+        m_trackSettingsModel->reset();
         m_editorService->initialize();
         break;
     case StateMachine::State::OpenRecent:

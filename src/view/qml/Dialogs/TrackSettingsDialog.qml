@@ -85,7 +85,7 @@ Dialog {
                     }
                     ComboBox {
                         id: portNameDropdown
-                        model: midiService.availableMidiPorts
+                        model: trackSettingsModel.availableMidiPorts
                         currentIndex: 0
                         Layout.column: 2
                         Layout.columnSpan: 7

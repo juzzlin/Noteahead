@@ -29,14 +29,14 @@ TrackSettingsModel::TrackSettingsModel(QObject * parent)
 
 void TrackSettingsModel::applyAll()
 {
-    if (!m_isRequestingInstrumentData) {
+    if (!m_applyDisabled && !m_portName.isEmpty()) {
         emit applyAllRequested();
     }
 }
 
 void TrackSettingsModel::requestInstrumentData()
 {
-    m_isRequestingInstrumentData = true;
+    m_applyDisabled = true;
 
     emit instrumentDataRequested();
 }
@@ -49,6 +49,29 @@ void TrackSettingsModel::requestTestSound(uint8_t velocity)
 void TrackSettingsModel::save()
 {
     emit saveRequested();
+}
+
+QStringList TrackSettingsModel::availableMidiPorts() const
+{
+    return m_availableMidiPorts;
+}
+
+void TrackSettingsModel::setAvailableMidiPorts(QStringList portNames)
+{
+    pushApplyDisabled();
+
+    const auto oldMidiPorts = m_availableMidiPorts;
+    m_availableMidiPorts = portNames;
+    if (!m_instrumentPortName.isEmpty() && !m_availableMidiPorts.contains(m_instrumentPortName)) {
+        m_availableMidiPorts.append(m_instrumentPortName);
+    }
+
+    if (m_availableMidiPorts != oldMidiPorts) {
+        juzzlin::L(TAG).info() << "Setting available MIDI ports to '" << m_availableMidiPorts.join(", ").toStdString() << "'";
+        emit availableMidiPortsChanged();
+    }
+
+    popApplyDisabled();
 }
 
 // Getters
@@ -112,6 +135,13 @@ void TrackSettingsModel::setInstrumentData(const Instrument & instrument)
 {
     juzzlin::L(TAG).info() << "Setting instrument data: " << instrument.toString().toStdString();
 
+    pushApplyDisabled();
+
+    // Store the original instrument's port name as it might not be in the
+    // list of currently available port names
+    m_instrumentPortName = instrument.portName;
+    setAvailableMidiPorts(m_availableMidiPorts); // Update the list with instrument port name
+
     setPortName(instrument.portName);
     setChannel(instrument.channel);
     setPatchEnabled(instrument.patch.has_value());
@@ -127,11 +157,18 @@ void TrackSettingsModel::setInstrumentData(const Instrument & instrument)
 
     emit instrumentDataReceived();
 
-    m_isRequestingInstrumentData = false;
+    popApplyDisabled();
 }
 
 void TrackSettingsModel::reset()
 {
+    juzzlin::L(TAG).info() << "Reset";
+
+    pushApplyDisabled();
+
+    m_instrumentPortName = {};
+    setAvailableMidiPorts(m_availableMidiPorts); // Update the list with instrument port name
+
     m_portName = {};
     m_channel = 0;
     m_patchEnabled = false;
@@ -143,7 +180,7 @@ void TrackSettingsModel::reset()
 
     emit instrumentDataReceived();
 
-    m_isRequestingInstrumentData = false;
+    popApplyDisabled();
 }
 
 TrackSettingsModel::InstrumentU TrackSettingsModel::toInstrument() const
@@ -165,6 +202,8 @@ TrackSettingsModel::InstrumentU TrackSettingsModel::toInstrument() const
 
 void TrackSettingsModel::setPortName(const QString & name)
 {
+    juzzlin::L(TAG).debug() << "Setting port name to '" << name.toStdString() << "'";
+
     if (m_portName != name) {
         m_portName = name;
         emit portNameChanged();
@@ -174,6 +213,8 @@ void TrackSettingsModel::setPortName(const QString & name)
 
 void TrackSettingsModel::setChannel(uint8_t channel)
 {
+    juzzlin::L(TAG).debug() << "Setting channel to " << static_cast<int>(channel);
+
     if (m_channel != channel) {
         m_channel = channel;
         emit channelChanged();
@@ -183,6 +224,8 @@ void TrackSettingsModel::setChannel(uint8_t channel)
 
 void TrackSettingsModel::setPatchEnabled(bool enabled)
 {
+    juzzlin::L(TAG).debug() << "Enabling patch: " << static_cast<int>(enabled);
+
     if (m_patchEnabled != enabled) {
         m_patchEnabled = enabled;
         emit patchEnabledChanged();
@@ -192,6 +235,8 @@ void TrackSettingsModel::setPatchEnabled(bool enabled)
 
 void TrackSettingsModel::setPatch(uint8_t patch)
 {
+    juzzlin::L(TAG).debug() << "Setting patch to " << static_cast<int>(patch);
+
     if (m_patch != patch) {
         m_patch = patch;
         emit patchChanged();
@@ -201,6 +246,8 @@ void TrackSettingsModel::setPatch(uint8_t patch)
 
 void TrackSettingsModel::setBankEnabled(bool enabled)
 {
+    juzzlin::L(TAG).debug() << "Enabling bank: " << static_cast<int>(enabled);
+
     if (m_bankEnabled != enabled) {
         m_bankEnabled = enabled;
         emit bankEnabledChanged();
@@ -210,6 +257,8 @@ void TrackSettingsModel::setBankEnabled(bool enabled)
 
 void TrackSettingsModel::setBankLsb(uint8_t lsb)
 {
+    juzzlin::L(TAG).debug() << "Setting bank LSB to " << static_cast<int>(lsb);
+
     if (m_bankLsb != lsb) {
         m_bankLsb = lsb;
         emit bankLsbChanged();
@@ -219,6 +268,8 @@ void TrackSettingsModel::setBankLsb(uint8_t lsb)
 
 void TrackSettingsModel::setBankMsb(uint8_t msb)
 {
+    juzzlin::L(TAG).debug() << "Setting bank MSB to " << static_cast<int>(msb);
+
     if (m_bankMsb != msb) {
         m_bankMsb = msb;
         emit bankMsbChanged();
@@ -228,10 +279,26 @@ void TrackSettingsModel::setBankMsb(uint8_t msb)
 
 void TrackSettingsModel::setBankByteOrderSwapped(bool swapped)
 {
+    juzzlin::L(TAG).debug() << "Enabling swapped bank byte order: " << static_cast<int>(swapped);
+
     if (m_bankByteOrderSwapped != swapped) {
         m_bankByteOrderSwapped = swapped;
         emit bankByteOrderSwappedChanged();
         applyAll();
+    }
+}
+
+void TrackSettingsModel::pushApplyDisabled()
+{
+    m_applyDisabledStack.push_back(m_applyDisabled);
+    m_applyDisabled = true;
+}
+
+void TrackSettingsModel::popApplyDisabled()
+{
+    if (!m_applyDisabledStack.empty()) {
+        m_applyDisabled = m_applyDisabledStack.back();
+        m_applyDisabledStack.pop_back();
     }
 }
 

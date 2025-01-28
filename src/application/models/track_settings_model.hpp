@@ -32,6 +32,7 @@ class TrackSettingsModel : public QObject
     Q_OBJECT
 
     Q_PROPERTY(uint32_t trackIndex READ trackIndex WRITE setTrackIndex NOTIFY trackIndexChanged)
+    Q_PROPERTY(QStringList availableMidiPorts READ availableMidiPorts NOTIFY availableMidiPortsChanged)
     Q_PROPERTY(QString portName READ portName WRITE setPortName NOTIFY portNameChanged)
     Q_PROPERTY(uint8_t channel READ channel WRITE setChannel NOTIFY channelChanged)
     Q_PROPERTY(bool patchEnabled READ patchEnabled WRITE setPatchEnabled NOTIFY patchEnabledChanged)
@@ -54,13 +55,22 @@ public:
 
     Q_INVOKABLE void save();
 
-    void setTrackIndex(uint32_t trackIndex);
-    void setInstrumentData(const Instrument &);
-    void reset();
-    using InstrumentU = std::unique_ptr<Instrument>;
-    InstrumentU toInstrument() const;
+    QStringList availableMidiPorts() const;
+
+    void setAvailableMidiPorts(QStringList portNames);
 
     uint32_t trackIndex() const;
+
+    void setTrackIndex(uint32_t trackIndex);
+
+    void setInstrumentData(const Instrument &);
+
+    void reset();
+
+    using InstrumentU = std::unique_ptr<Instrument>;
+
+    InstrumentU toInstrument() const;
+
     QString portName() const;
     uint8_t channel() const;
     bool patchEnabled() const;
@@ -80,7 +90,10 @@ public:
     void setBankByteOrderSwapped(bool swapped);
 
 signals:
+    void availableMidiPortsChanged();
+
     void trackIndexChanged();
+
     void portNameChanged();
     void channelChanged();
     void patchEnabledChanged();
@@ -98,7 +111,16 @@ signals:
     void testSoundRequested(uint8_t velocity);
 
 private:
-    bool m_isRequestingInstrumentData = false;
+    void pushApplyDisabled();
+
+    void popApplyDisabled();
+
+    bool m_applyDisabled = false;
+    std::vector<bool> m_applyDisabledStack;
+
+    QString m_instrumentPortName;
+
+    QStringList m_availableMidiPorts;
 
     uint32_t m_trackIndex { 0 };
     QString m_portName;
