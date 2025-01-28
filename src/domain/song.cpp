@@ -303,6 +303,8 @@ Song::EventList Song::renderEndOfSong(Song::EventList eventList, size_t tick) co
 
 std::pair<Song::EventList, size_t> Song::renderPatterns(Song::EventList eventList, size_t tick)
 {
+    m_tickToPatternAndLineMap.clear();
+
     for (uint32_t playOrderSongPosition = 0; playOrderSongPosition < m_playOrder->length(); playOrderSongPosition++) {
         const auto patternIndex = m_playOrder->positionToPattern(playOrderSongPosition);
         juzzlin::L(TAG).debug() << "Rendering position " << playOrderSongPosition << " as pattern " << patternIndex;
@@ -316,10 +318,8 @@ std::pair<Song::EventList, size_t> Song::renderPatterns(Song::EventList eventLis
     return { eventList, tick };
 }
 
-Song::EventList Song::renderToEvents()
+Song::EventList Song::renderContent()
 {
-    m_tickToPatternAndLineMap.clear();
-
     size_t tick = 0;
 
     auto eventList = renderStartOfSong(tick);
@@ -329,6 +329,13 @@ Song::EventList Song::renderToEvents()
     eventList = renderEndOfSong(eventList, tick);
 
     eventList = introduceNoteOffs(eventList);
+
+    return eventList;
+}
+
+Song::EventList Song::renderToEvents()
+{
+    const auto & eventList = renderContent();
 
     assignInstruments(eventList);
 

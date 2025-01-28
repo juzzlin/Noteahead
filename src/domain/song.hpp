@@ -180,6 +180,8 @@ private:
 
     std::pair<Song::EventList, size_t> renderPatterns(Song::EventList eventList, size_t tick);
 
+    EventList renderContent();
+
     void updateTickToSongPositionMapping(size_t patternStartTick, uint32_t playOrderSongPosition, uint32_t patternIndex, uint32_t lineCount);
 
     uint32_t m_beatsPerMinute = 120;
