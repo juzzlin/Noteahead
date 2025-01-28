@@ -38,7 +38,7 @@ Row {
                     ToolTip.delay: Constants.toolTipDelay
                     ToolTip.timeout: Constants.toolTipTimeout
                     ToolTip.visible: hovered
-                    ToolTip.text: qsTr("Set current song position")
+                    ToolTip.text: qsTr("Set the song position where you want to assign a pattern.")
                 }
             }
             Row {
@@ -59,7 +59,7 @@ Row {
                     ToolTip.delay: Constants.toolTipDelay
                     ToolTip.timeout: Constants.toolTipTimeout
                     ToolTip.visible: hovered
-                    ToolTip.text: qsTr("Set pattern for current position")
+                    ToolTip.text: qsTr("Assign a pattern to the selected position. If the selected index doesn’t exist, a new pattern will be created.")
                 }
             }
         }
