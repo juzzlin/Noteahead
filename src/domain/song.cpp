@@ -203,7 +203,7 @@ uint32_t Song::ticksPerLine() const
     return m_ticksPerLine;
 }
 
-Song::PatternAndLineOpt Song::patternAndLineByTick(uint32_t tick) const
+Song::SongPositionOpt Song::songPositionByTick(uint32_t tick) const
 {
     if (const auto iter = m_tickToPatternAndLineMap.find(tick); iter != m_tickToPatternAndLineMap.end()) {
         return iter->second;
@@ -268,10 +268,10 @@ Song::EventList Song::introduceNoteOffs(const EventList & events) const
     return processedEvents;
 }
 
-void Song::updateTickToPatternAndLineMapping(size_t tick, size_t patternIndex, size_t patternLineCount)
+void Song::updateTickToSongPositionMapping(size_t patternStartTick, uint32_t playOrderSongPosition, uint32_t patternIndex, uint32_t lineCount)
 {
-    for (size_t lineIndex = 0; lineIndex < patternLineCount; lineIndex++) {
-        m_tickToPatternAndLineMap[tick + lineIndex * m_ticksPerLine] = std::make_pair(patternIndex, lineIndex);
+    for (uint32_t lineIndex = 0; lineIndex < lineCount; lineIndex++) {
+        m_tickToPatternAndLineMap[patternStartTick + lineIndex * m_ticksPerLine] = { playOrderSongPosition, patternIndex, lineIndex };
     }
 }
 
@@ -301,7 +301,7 @@ Song::EventList Song::renderToEvents()
         const auto & pattern = m_patterns[patternIndex];
         const auto patternEventList = pattern->renderToEvents(tick, m_ticksPerLine);
         std::copy(patternEventList.begin(), patternEventList.end(), std::back_inserter(eventList));
-        updateTickToPatternAndLineMapping(tick, patternIndex, pattern->lineCount());
+        updateTickToSongPositionMapping(tick, playOrderSongPosition, patternIndex, pattern->lineCount());
         tick += pattern->lineCount() * m_ticksPerLine;
     }
 

@@ -743,9 +743,9 @@ bool EditorService::requestPosition(uint32_t pattern, uint32_t track, uint32_t c
 void EditorService::requestPositionByTick(uint32_t tick)
 {
     const auto oldPosition = m_cursorPosition;
-    if (auto && patternAndLine = m_song->patternAndLineByTick(tick); patternAndLine.has_value()) {
-        m_cursorPosition.pattern = patternAndLine->first;
-        m_cursorPosition.line = patternAndLine->second;
+    if (auto && songPosition = m_song->songPositionByTick(tick); songPosition.has_value()) {
+        m_cursorPosition.pattern = songPosition->pattern;
+        m_cursorPosition.line = songPosition->line;
         notifyPositionChange(oldPosition);
     }
 }

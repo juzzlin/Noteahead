@@ -116,9 +116,16 @@ public:
 
     uint32_t ticksPerLine() const;
 
-    using PatternAndLine = std::pair<uint32_t, uint32_t>;
-    using PatternAndLineOpt = std::optional<PatternAndLine>;
-    PatternAndLineOpt patternAndLineByTick(uint32_t tick) const;
+    struct SongPosition
+    {
+        uint32_t position = 0;
+
+        uint32_t pattern = 0;
+
+        uint32_t line = 0;
+    };
+    using SongPositionOpt = std::optional<SongPosition>;
+    SongPositionOpt songPositionByTick(uint32_t tick) const;
 
     void serializeToXml(QXmlStreamWriter & writer) const;
 
@@ -167,7 +174,7 @@ private:
 
     EventList introduceNoteOffs(const EventList & events) const;
 
-    void updateTickToPatternAndLineMapping(size_t tick, size_t patternIndex, size_t patternLineCount);
+    void updateTickToSongPositionMapping(size_t patternStartTick, uint32_t playOrderSongPosition, uint32_t patternIndex, uint32_t lineCount);
 
     uint32_t m_beatsPerMinute = 120;
 
@@ -179,7 +186,7 @@ private:
 
     std::unique_ptr<PlayOrder> m_playOrder;
 
-    std::unordered_map<size_t, PatternAndLine> m_tickToPatternAndLineMap;
+    std::unordered_map<size_t, SongPosition> m_tickToPatternAndLineMap;
 
     std::string m_fileName;
 };
