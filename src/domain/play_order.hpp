@@ -16,8 +16,8 @@
 #ifndef PLAY_ORDER_HPP
 #define PLAY_ORDER_HPP
 
+#include <cstddef>
 #include <map>
-#include <stdint.h>
 
 class QXmlStreamWriter;
 
@@ -28,16 +28,16 @@ class PlayOrder
 public:
     PlayOrder();
 
-    uint32_t length() const;
+    size_t length() const;
 
-    void setPatternAtPosition(uint32_t position, uint32_t pattern);
+    void setPatternAtPosition(size_t position, size_t pattern);
 
-    uint32_t positionToPattern(uint32_t position) const;
+    size_t positionToPattern(size_t position) const;
 
     void serializeToXml(QXmlStreamWriter & writer) const;
 
 private:
-    std::map<uint32_t, uint32_t> m_positionToPatternMap;
+    std::map<size_t, size_t> m_positionToPatternMap;
 };
 
 } // namespace noteahead

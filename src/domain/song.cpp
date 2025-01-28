@@ -42,7 +42,7 @@ Song::Song()
     initialize();
 }
 
-void Song::createPattern(uint32_t patternIndex)
+void Song::createPattern(size_t patternIndex)
 {
     if (m_patterns.empty()) {
         initialize();
@@ -52,19 +52,19 @@ void Song::createPattern(uint32_t patternIndex)
     }
 }
 
-bool Song::hasPattern(uint32_t patternIndex) const
+bool Song::hasPattern(size_t patternIndex) const
 {
     return m_patterns.contains(patternIndex);
 }
 
-void Song::addColumn(uint32_t trackIndex)
+void Song::addColumn(size_t trackIndex)
 {
     std::ranges::for_each(m_patterns, [=](const auto & pattern) {
         pattern.second->addColumn(trackIndex);
     });
 }
 
-bool Song::deleteColumn(uint32_t trackIndex)
+bool Song::deleteColumn(size_t trackIndex)
 {
     if (columnCount(trackIndex) > 1) {
         std::ranges::for_each(m_patterns, [=](const auto & pattern) {
@@ -75,47 +75,47 @@ bool Song::deleteColumn(uint32_t trackIndex)
     return false;
 }
 
-uint32_t Song::columnCount(uint32_t trackIndex) const
+size_t Song::columnCount(size_t trackIndex) const
 {
     return m_patterns.at(0)->columnCount(trackIndex);
 }
 
-uint32_t Song::columnCount(uint32_t patternIndex, uint32_t trackIndex) const
+size_t Song::columnCount(size_t patternIndex, size_t trackIndex) const
 {
     return m_patterns.at(patternIndex)->columnCount(trackIndex);
 }
 
-uint32_t Song::lineCount(uint32_t patternIndex) const
+size_t Song::lineCount(size_t patternIndex) const
 {
     return m_patterns.at(patternIndex)->lineCount();
 }
 
-void Song::setLineCount(uint32_t patternIndex, uint32_t lineCount)
+void Song::setLineCount(size_t patternIndex, size_t lineCount)
 {
     m_patterns.at(patternIndex)->setLineCount(lineCount);
 }
 
-uint32_t Song::patternCount() const
+size_t Song::patternCount() const
 {
-    return static_cast<uint32_t>(m_patterns.size());
+    return static_cast<size_t>(m_patterns.size());
 }
 
-uint32_t Song::patternAtSongPosition(uint32_t position) const
+size_t Song::patternAtSongPosition(size_t position) const
 {
     return m_playOrder->positionToPattern(position);
 }
 
-void Song::setPatternAtSongPosition(uint32_t position, uint32_t pattern)
+void Song::setPatternAtSongPosition(size_t position, size_t pattern)
 {
     m_playOrder->setPatternAtPosition(position, pattern);
 }
 
-uint32_t Song::trackCount() const
+size_t Song::trackCount() const
 {
     return m_patterns.at(0)->trackCount();
 }
 
-uint32_t Song::trackCount(uint32_t patternIndex) const
+size_t Song::trackCount(size_t patternIndex) const
 {
     return m_patterns.at(patternIndex)->trackCount();
 }
@@ -128,27 +128,27 @@ bool Song::hasData() const
       != m_patterns.end();
 }
 
-bool Song::hasData(uint32_t pattern, uint32_t track, uint32_t column) const
+bool Song::hasData(size_t pattern, size_t track, size_t column) const
 {
     return m_patterns.at(pattern)->hasData(track, column);
 }
 
-std::string Song::trackName(uint32_t trackIndex) const
+std::string Song::trackName(size_t trackIndex) const
 {
     return m_patterns.at(0)->trackName(trackIndex);
 }
 
-void Song::setTrackName(uint32_t trackIndex, std::string name)
+void Song::setTrackName(size_t trackIndex, std::string name)
 {
     m_patterns.at(0)->setTrackName(trackIndex, name);
 }
 
-Song::InstrumentS Song::instrument(uint32_t trackIndex) const
+Song::InstrumentS Song::instrument(size_t trackIndex) const
 {
     return m_patterns.at(0)->instrument(trackIndex);
 }
 
-void Song::setInstrument(uint32_t trackIndex, InstrumentS instrument)
+void Song::setInstrument(size_t trackIndex, InstrumentS instrument)
 {
     m_patterns.at(0)->setInstrument(trackIndex, instrument);
 }
@@ -190,22 +190,22 @@ void Song::initialize()
     m_patterns[0] = std::make_shared<Pattern>(0, 64, 8);
 }
 
-uint32_t Song::linesPerBeat() const
+size_t Song::linesPerBeat() const
 {
     return m_linesPerBeat;
 }
 
-void Song::setLinesPerBeat(uint32_t lpb)
+void Song::setLinesPerBeat(size_t lpb)
 {
     m_linesPerBeat = lpb;
 }
 
-uint32_t Song::ticksPerLine() const
+size_t Song::ticksPerLine() const
 {
     return m_ticksPerLine;
 }
 
-Song::SongPositionOpt Song::songPositionByTick(uint32_t tick) const
+Song::SongPositionOpt Song::songPositionByTick(size_t tick) const
 {
     if (const auto iter = m_tickToPatternAndLineMap.find(tick); iter != m_tickToPatternAndLineMap.end()) {
         return iter->second;
@@ -214,19 +214,19 @@ Song::SongPositionOpt Song::songPositionByTick(uint32_t tick) const
     }
 }
 
-uint32_t Song::beatsPerMinute() const
+size_t Song::beatsPerMinute() const
 {
     return m_beatsPerMinute;
 }
 
-void Song::setBeatsPerMinute(uint32_t bpm)
+void Song::setBeatsPerMinute(size_t bpm)
 {
     m_beatsPerMinute = bpm;
 }
 
-uint32_t Song::autoNoteOffTickOffset() const
+size_t Song::autoNoteOffTickOffset() const
 {
-    return static_cast<uint32_t>(250 * m_beatsPerMinute * m_linesPerBeat / 60 / 1000);
+    return static_cast<size_t>(250 * m_beatsPerMinute * m_linesPerBeat / 60 / 1000);
 }
 
 Song::EventList Song::introduceNoteOffs(const EventList & events) const
@@ -270,9 +270,9 @@ Song::EventList Song::introduceNoteOffs(const EventList & events) const
     return processedEvents;
 }
 
-void Song::updateTickToSongPositionMapping(size_t patternStartTick, uint32_t playOrderSongPosition, uint32_t patternIndex, uint32_t lineCount)
+void Song::updateTickToSongPositionMapping(size_t patternStartTick, size_t playOrderSongPosition, size_t patternIndex, size_t lineCount)
 {
-    for (uint32_t lineIndex = 0; lineIndex < lineCount; lineIndex++) {
+    for (size_t lineIndex = 0; lineIndex < lineCount; lineIndex++) {
         m_tickToPatternAndLineMap[patternStartTick + lineIndex * m_ticksPerLine] = { playOrderSongPosition, patternIndex, lineIndex };
     }
 }
@@ -307,7 +307,7 @@ std::pair<Song::EventList, size_t> Song::renderPatterns(Song::EventList eventLis
 {
     m_tickToPatternAndLineMap.clear();
 
-    for (uint32_t playOrderSongPosition = 0; playOrderSongPosition < m_playOrder->length(); playOrderSongPosition++) {
+    for (size_t playOrderSongPosition = 0; playOrderSongPosition < m_playOrder->length(); playOrderSongPosition++) {
         const auto patternIndex = m_playOrder->positionToPattern(playOrderSongPosition);
         juzzlin::L(TAG).debug() << "Rendering position " << playOrderSongPosition << " as pattern " << patternIndex;
         const auto & pattern = m_patterns[patternIndex];
@@ -374,7 +374,7 @@ bool readBoolAttribute(QXmlStreamReader & reader, QString name)
     }
 }
 
-uint32_t readUIntAttribute(QXmlStreamReader & reader, QString name)
+size_t readUIntAttribute(QXmlStreamReader & reader, QString name)
 {
     if (!reader.attributes().hasAttribute(name)) {
         throw std::runtime_error { "Attribute " + name.toStdString() + " not found!" };
@@ -550,7 +550,7 @@ void Song::deserializeColumns(QXmlStreamReader & reader, TrackS track)
     juzzlin::L(TAG).trace() << "Reading Columns ended";
 }
 
-Song::ColumnS Song::deserializeColumn(QXmlStreamReader & reader, uint32_t trackIndex)
+Song::ColumnS Song::deserializeColumn(QXmlStreamReader & reader, size_t trackIndex)
 {
     juzzlin::L(TAG).trace() << "Reading Column started";
     const auto index = readUIntAttribute(reader, Constants::xmlKeyIndex());
@@ -567,7 +567,7 @@ Song::ColumnS Song::deserializeColumn(QXmlStreamReader & reader, uint32_t trackI
     return column;
 }
 
-void Song::deserializeLines(QXmlStreamReader & reader, uint32_t trackIndex, ColumnS column)
+void Song::deserializeLines(QXmlStreamReader & reader, size_t trackIndex, ColumnS column)
 {
     juzzlin::L(TAG).trace() << "Reading Lines started";
     while (!(reader.isEndElement() && !reader.name().compare(Constants::xmlKeyLines()))) {
@@ -581,7 +581,7 @@ void Song::deserializeLines(QXmlStreamReader & reader, uint32_t trackIndex, Colu
     juzzlin::L(TAG).trace() << "Reading Lines ended";
 }
 
-Song::LineS Song::deserializeLine(QXmlStreamReader & reader, uint32_t trackIndex, uint32_t columnIndex)
+Song::LineS Song::deserializeLine(QXmlStreamReader & reader, size_t trackIndex, size_t columnIndex)
 {
     juzzlin::L(TAG).trace() << "Reading Line started";
     const auto index = readUIntAttribute(reader, Constants::xmlKeyIndex());
@@ -598,7 +598,7 @@ Song::LineS Song::deserializeLine(QXmlStreamReader & reader, uint32_t trackIndex
     return line;
 }
 
-Song::NoteDataS Song::deserializeNoteData(QXmlStreamReader & reader, uint32_t trackIndex, uint32_t columnIndex)
+Song::NoteDataS Song::deserializeNoteData(QXmlStreamReader & reader, size_t trackIndex, size_t columnIndex)
 {
     juzzlin::L(TAG).trace() << "Reading NoteData";
     const auto typeString = readStringAttribute(reader, Constants::xmlKeyType());

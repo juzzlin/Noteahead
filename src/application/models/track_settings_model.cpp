@@ -75,7 +75,7 @@ void TrackSettingsModel::setAvailableMidiPorts(QStringList portNames)
 }
 
 // Getters
-uint32_t TrackSettingsModel::trackIndex() const
+size_t TrackSettingsModel::trackIndex() const
 {
     return m_trackIndex;
 }
@@ -121,7 +121,7 @@ bool TrackSettingsModel::bankByteOrderSwapped() const
 }
 
 // Setters
-void TrackSettingsModel::setTrackIndex(uint32_t trackIndex)
+void TrackSettingsModel::setTrackIndex(size_t trackIndex)
 {
     juzzlin::L(TAG).info() << "Setting track index to " << trackIndex;
 

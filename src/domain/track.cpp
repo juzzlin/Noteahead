@@ -30,22 +30,22 @@ namespace noteahead {
 
 static const auto TAG = "Track";
 
-Track::Track(uint32_t index, std::string name, uint32_t length, uint32_t columnCount)
+Track::Track(size_t index, std::string name, size_t length, size_t columnCount)
   : m_index { index }
   , m_name { name }
 {
     initialize(length, columnCount);
 }
 
-uint32_t Track::index() const
+size_t Track::index() const
 {
     return m_index;
 }
 
-void Track::initialize(uint32_t length, uint32_t columnCount)
+void Track::initialize(size_t length, size_t columnCount)
 {
     m_columns.clear();
-    for (uint32_t column = 0; column < columnCount; column++) {
+    for (size_t column = 0; column < columnCount; column++) {
         m_columns.push_back(std::make_shared<Column>(column, length));
     }
     m_virtualColumnCount = m_columns.size();
@@ -101,12 +101,12 @@ size_t Track::columnCount() const
     return m_virtualColumnCount;
 }
 
-uint32_t Track::lineCount() const
+size_t Track::lineCount() const
 {
     return m_columns.at(0)->lineCount();
 }
 
-void Track::setLineCount(uint32_t lineCount)
+void Track::setLineCount(size_t lineCount)
 {
     for (auto && column : m_columns) {
         column->setLineCount(lineCount);
@@ -121,7 +121,7 @@ bool Track::hasData() const
       != m_columns.end();
 }
 
-bool Track::hasData(uint32_t column) const
+bool Track::hasData(size_t column) const
 {
     return m_columns.at(column)->hasData();
 }

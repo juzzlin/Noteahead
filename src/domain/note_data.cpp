@@ -23,7 +23,7 @@
 
 namespace noteahead {
 
-NoteData::NoteData(uint32_t track, uint32_t column)
+NoteData::NoteData(size_t track, size_t column)
   : m_track { track }
   , m_column { column }
 {
@@ -78,12 +78,12 @@ std::string NoteData::toString() const
     return ss.str();
 }
 
-uint32_t NoteData::track() const
+size_t NoteData::track() const
 {
     return m_track;
 }
 
-uint32_t NoteData::column() const
+size_t NoteData::column() const
 {
     return m_column;
 }

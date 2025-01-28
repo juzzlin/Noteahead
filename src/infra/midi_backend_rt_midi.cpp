@@ -24,8 +24,8 @@ void MidiBackendRtMidi::updateAvailableDevices()
 {
     RtMidiOut tempMidiOut; // Temporary instance to list devices
     MidiDeviceList devices = {};
-    const uint32_t portCount = tempMidiOut.getPortCount();
-    for (uint32_t i = 0; i < portCount; ++i) {
+    const size_t portCount = tempMidiOut.getPortCount();
+    for (size_t i = 0; i < portCount; ++i) {
         devices.push_back(std::make_shared<MidiDevice>(i, tempMidiOut.getPortName(i)));
     }
     setDevices(devices);

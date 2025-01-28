@@ -25,19 +25,19 @@ namespace noteahead {
 
 static const auto TAG = "Line";
 
-Line::Line(uint32_t index)
+Line::Line(size_t index)
   : m_index { index }
   , m_noteData { std::make_unique<NoteData>() }
 {
 }
 
-Line::Line(uint32_t index, const NoteData & noteData)
+Line::Line(size_t index, const NoteData & noteData)
   : m_index { index }
   , m_noteData { std::make_unique<NoteData>(noteData) }
 {
 }
 
-uint32_t Line::index() const
+size_t Line::index() const
 {
     return m_index;
 }

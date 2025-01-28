@@ -23,7 +23,7 @@ void PlayOrderTest::test_initialization_shouldReturnInitialMapping()
 {
     PlayOrder playOrder;
 
-    QCOMPARE(playOrder.positionToPattern(0), uint32_t(0));
+    QCOMPARE(playOrder.positionToPattern(0), size_t(0));
 }
 
 void PlayOrderTest::test_length_shouldReturnCorrectLength()
@@ -45,9 +45,9 @@ void PlayOrderTest::test_setAndGetPattern_shouldReturnCorrectValues()
     playOrder.setPatternAtPosition(0, 1);
     playOrder.setPatternAtPosition(1, 2);
 
-    QCOMPARE(playOrder.positionToPattern(0), uint32_t(1));
-    QCOMPARE(playOrder.positionToPattern(1), uint32_t(2));
-    QCOMPARE(playOrder.positionToPattern(2), uint32_t(0)); // Default return value
+    QCOMPARE(playOrder.positionToPattern(0), size_t(1));
+    QCOMPARE(playOrder.positionToPattern(1), size_t(2));
+    QCOMPARE(playOrder.positionToPattern(2), size_t(0)); // Default return value
 }
 
 void PlayOrderTest::test_positionToPattern_shouldReturnCorrectValues()
@@ -55,8 +55,8 @@ void PlayOrderTest::test_positionToPattern_shouldReturnCorrectValues()
     PlayOrder playOrder;
     playOrder.setPatternAtPosition(5, 42);
 
-    QCOMPARE(playOrder.positionToPattern(5), uint32_t(42));
-    QCOMPARE(playOrder.positionToPattern(6), uint32_t(0)); // Nonexistent position
+    QCOMPARE(playOrder.positionToPattern(5), size_t(42));
+    QCOMPARE(playOrder.positionToPattern(6), size_t(0)); // Nonexistent position
 }
 
 } // namespace noteahead

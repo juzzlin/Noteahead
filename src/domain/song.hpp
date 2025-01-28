@@ -47,46 +47,46 @@ public:
 
     ~Song();
 
-    void createPattern(uint32_t patternIndex);
+    void createPattern(size_t patternIndex);
 
-    bool hasPattern(uint32_t patternIndex) const;
+    bool hasPattern(size_t patternIndex) const;
 
-    void addColumn(uint32_t trackIndex);
+    void addColumn(size_t trackIndex);
 
-    bool deleteColumn(uint32_t trackIndex);
+    bool deleteColumn(size_t trackIndex);
 
-    uint32_t columnCount(uint32_t trackIndex) const;
+    size_t columnCount(size_t trackIndex) const;
 
     //! For testing purposes as column counts should be consistent over patterns.
-    uint32_t columnCount(uint32_t patternIndex, uint32_t trackIndex) const;
+    size_t columnCount(size_t patternIndex, size_t trackIndex) const;
 
-    uint32_t lineCount(uint32_t patternIndex) const;
+    size_t lineCount(size_t patternIndex) const;
 
-    void setLineCount(uint32_t patternIndex, uint32_t lineCount);
+    void setLineCount(size_t patternIndex, size_t lineCount);
 
-    uint32_t patternCount() const;
+    size_t patternCount() const;
 
-    uint32_t patternAtSongPosition(uint32_t position) const;
+    size_t patternAtSongPosition(size_t position) const;
 
-    void setPatternAtSongPosition(uint32_t position, uint32_t pattern);
+    void setPatternAtSongPosition(size_t position, size_t pattern);
 
-    uint32_t trackCount() const;
+    size_t trackCount() const;
 
     //! For testing purposes as track counts should be consistent over patterns.
-    uint32_t trackCount(uint32_t patternIndex) const;
+    size_t trackCount(size_t patternIndex) const;
 
     bool hasData() const;
 
-    bool hasData(uint32_t pattern, uint32_t track, uint32_t column) const;
+    bool hasData(size_t pattern, size_t track, size_t column) const;
 
-    std::string trackName(uint32_t trackIndex) const;
+    std::string trackName(size_t trackIndex) const;
 
-    void setTrackName(uint32_t trackIndex, std::string name);
+    void setTrackName(size_t trackIndex, std::string name);
 
     using InstrumentS = std::shared_ptr<Instrument>;
-    InstrumentS instrument(uint32_t trackIndex) const;
+    InstrumentS instrument(size_t trackIndex) const;
 
-    void setInstrument(uint32_t trackIndex, InstrumentS instrument);
+    void setInstrument(size_t trackIndex, InstrumentS instrument);
 
     std::string fileName() const;
 
@@ -106,32 +106,32 @@ public:
     using EventList = std::vector<EventS>;
     EventList renderToEvents();
 
-    uint32_t beatsPerMinute() const;
+    size_t beatsPerMinute() const;
 
-    void setBeatsPerMinute(uint32_t bpm);
+    void setBeatsPerMinute(size_t bpm);
 
-    uint32_t linesPerBeat() const;
+    size_t linesPerBeat() const;
 
-    void setLinesPerBeat(uint32_t lpb);
+    void setLinesPerBeat(size_t lpb);
 
-    uint32_t ticksPerLine() const;
+    size_t ticksPerLine() const;
 
     struct SongPosition
     {
-        uint32_t position = 0;
+        size_t position = 0;
 
-        uint32_t pattern = 0;
+        size_t pattern = 0;
 
-        uint32_t line = 0;
+        size_t line = 0;
     };
     using SongPositionOpt = std::optional<SongPosition>;
-    SongPositionOpt songPositionByTick(uint32_t tick) const;
+    SongPositionOpt songPositionByTick(size_t tick) const;
 
     void serializeToXml(QXmlStreamWriter & writer) const;
 
     void deserializeFromXml(QXmlStreamReader & reader);
 
-    uint32_t autoNoteOffTickOffset() const;
+    size_t autoNoteOffTickOffset() const;
 
 private:
     void load(const std::string & filename);
@@ -156,15 +156,15 @@ private:
 
     using ColumnS = std::shared_ptr<Column>;
 
-    ColumnS deserializeColumn(QXmlStreamReader & reader, uint32_t trackIndex);
+    ColumnS deserializeColumn(QXmlStreamReader & reader, size_t trackIndex);
 
-    void deserializeLines(QXmlStreamReader & reader, uint32_t trackIndex, ColumnS column);
+    void deserializeLines(QXmlStreamReader & reader, size_t trackIndex, ColumnS column);
 
     using LineS = std::shared_ptr<Line>;
 
-    LineS deserializeLine(QXmlStreamReader & reader, uint32_t trackIndex, uint32_t columnIndex);
+    LineS deserializeLine(QXmlStreamReader & reader, size_t trackIndex, size_t columnIndex);
 
-    NoteDataS deserializeNoteData(QXmlStreamReader & reader, uint32_t trackIndex, uint32_t columnIndex);
+    NoteDataS deserializeNoteData(QXmlStreamReader & reader, size_t trackIndex, size_t columnIndex);
 
     InstrumentS deserializeInstrument(QXmlStreamReader & reader);
 
@@ -182,13 +182,13 @@ private:
 
     EventList renderContent();
 
-    void updateTickToSongPositionMapping(size_t patternStartTick, uint32_t playOrderSongPosition, uint32_t patternIndex, uint32_t lineCount);
+    void updateTickToSongPositionMapping(size_t patternStartTick, size_t playOrderSongPosition, size_t patternIndex, size_t lineCount);
 
-    uint32_t m_beatsPerMinute = 120;
+    size_t m_beatsPerMinute = 120;
 
-    uint32_t m_linesPerBeat = 8;
+    size_t m_linesPerBeat = 8;
 
-    uint32_t m_ticksPerLine = 24;
+    size_t m_ticksPerLine = 24;
 
     std::map<size_t, PatternS> m_patterns;
 

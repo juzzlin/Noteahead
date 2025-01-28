@@ -32,9 +32,9 @@ struct Position;
 class Track
 {
 public:
-    Track(uint32_t index, std::string name, uint32_t length, uint32_t columnCount);
+    Track(size_t index, std::string name, size_t length, size_t columnCount);
 
-    uint32_t index() const;
+    size_t index() const;
 
     using ColumnS = std::shared_ptr<Column>;
 
@@ -44,15 +44,15 @@ public:
 
     void setColumn(ColumnS column);
 
-    uint32_t lineCount() const;
+    size_t lineCount() const;
 
-    void setLineCount(uint32_t lineCount);
+    void setLineCount(size_t lineCount);
 
     size_t columnCount() const;
 
     bool hasData() const;
 
-    bool hasData(uint32_t column) const;
+    bool hasData(size_t column) const;
 
     std::string name() const;
 
@@ -80,9 +80,9 @@ public:
     void setInstrument(InstrumentS instrument);
 
 private:
-    void initialize(uint32_t length, uint32_t columnCount);
+    void initialize(size_t length, size_t columnCount);
 
-    uint32_t m_index = 0;
+    size_t m_index = 0;
 
     std::string m_name;
 

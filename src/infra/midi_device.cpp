@@ -17,13 +17,13 @@
 
 namespace noteahead {
 
-MidiDevice::MidiDevice(uint32_t portIndex, std::string portName)
+MidiDevice::MidiDevice(size_t portIndex, std::string portName)
   : mPortIndex { portIndex }
   , mPortName { portName }
 {
 }
 
-uint32_t MidiDevice::portIndex() const
+size_t MidiDevice::portIndex() const
 {
     return mPortIndex;
 }

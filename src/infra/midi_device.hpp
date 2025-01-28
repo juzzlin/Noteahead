@@ -25,16 +25,16 @@ namespace noteahead {
 class MidiDevice
 {
 public:
-    MidiDevice(uint32_t portIndex, std::string portName);
+    MidiDevice(size_t portIndex, std::string portName);
 
-    uint32_t portIndex() const;
+    size_t portIndex() const;
 
     std::string portName() const;
 
     std::string toString() const;
 
 private:
-    uint32_t mPortIndex;
+    size_t mPortIndex;
 
     std::string mPortName;
 };

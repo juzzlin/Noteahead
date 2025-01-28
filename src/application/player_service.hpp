@@ -55,7 +55,7 @@ signals:
 
     void songRequested();
 
-    void tickUpdated(uint32_t tick);
+    void tickUpdated(size_t tick);
 
 private:
     void initializeWorker();

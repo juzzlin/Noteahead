@@ -27,7 +27,7 @@ MidiBackend::MidiDeviceList MidiBackend::listDevices() const
     return m_devices;
 }
 
-MidiDeviceS MidiBackend::deviceByPortIndex(uint32_t index) const
+MidiDeviceS MidiBackend::deviceByPortIndex(size_t index) const
 {
     if (auto device = std::ranges::find_if(m_devices, [&index](auto & device) { return device->portIndex() == index; }); device != m_devices.end()) {
         return *device;

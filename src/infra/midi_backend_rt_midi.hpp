@@ -52,7 +52,7 @@ private:
 
     void sendMessage(MidiDeviceS device, const Message & message) const;
 
-    std::unordered_map<uint32_t, std::unique_ptr<RtMidiOut>> m_midiPorts;
+    std::unordered_map<size_t, std::unique_ptr<RtMidiOut>> m_midiPorts;
 };
 
 } // namespace noteahead

@@ -86,7 +86,7 @@ void PlayerWorker::processEvents()
     const auto startTime = std::chrono::steady_clock::now();
 
     for (auto tick = minTick; tick <= maxTick && m_isPlaying; tick++) {
-        emit tickUpdated(static_cast<uint32_t>(tick));
+        emit tickUpdated(static_cast<size_t>(tick));
         if (auto && eventsAtTick = m_eventMap.find(tick); eventsAtTick != m_eventMap.end()) {
             for (auto && event : eventsAtTick->second) {
                 if (auto && noteData = event->noteData(); noteData) {

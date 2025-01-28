@@ -31,7 +31,7 @@ class TrackSettingsModel : public QObject
 {
     Q_OBJECT
 
-    Q_PROPERTY(uint32_t trackIndex READ trackIndex WRITE setTrackIndex NOTIFY trackIndexChanged)
+    Q_PROPERTY(size_t trackIndex READ trackIndex WRITE setTrackIndex NOTIFY trackIndexChanged)
     Q_PROPERTY(QStringList availableMidiPorts READ availableMidiPorts NOTIFY availableMidiPortsChanged)
     Q_PROPERTY(QString portName READ portName WRITE setPortName NOTIFY portNameChanged)
     Q_PROPERTY(uint8_t channel READ channel WRITE setChannel NOTIFY channelChanged)
@@ -59,9 +59,9 @@ public:
 
     void setAvailableMidiPorts(QStringList portNames);
 
-    uint32_t trackIndex() const;
+    size_t trackIndex() const;
 
-    void setTrackIndex(uint32_t trackIndex);
+    void setTrackIndex(size_t trackIndex);
 
     void setInstrumentData(const Instrument &);
 
@@ -122,7 +122,7 @@ private:
 
     QStringList m_availableMidiPorts;
 
-    uint32_t m_trackIndex { 0 };
+    size_t m_trackIndex { 0 };
     QString m_portName;
     uint8_t m_channel { 0 };
     bool m_patchEnabled { false };

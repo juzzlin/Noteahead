@@ -192,12 +192,12 @@ bool EditorService::canBeSaved() const
     return isModified() && m_song && !m_song->fileName().empty() && QFile::exists(QString::fromStdString(m_song->fileName()));
 }
 
-uint32_t EditorService::columnCount(uint32_t trackIndex) const
+size_t EditorService::columnCount(size_t trackIndex) const
 {
     return m_song->columnCount(trackIndex);
 }
 
-uint32_t EditorService::lineCount(uint32_t patternId) const
+size_t EditorService::lineCount(size_t patternId) const
 {
     return m_song->lineCount(patternId);
 }
@@ -207,7 +207,7 @@ QString EditorService::currentFileName() const
     return QString::fromStdString(m_song->fileName());
 }
 
-uint32_t EditorService::currentLineCount() const
+size_t EditorService::currentLineCount() const
 {
     return m_song->lineCount(currentPattern());
 }
@@ -223,7 +223,7 @@ void EditorService::clampCursorLine(size_t oldLineCount, size_t newLineCount)
     }
 }
 
-void EditorService::setCurrentLineCount(uint32_t lineCount)
+void EditorService::setCurrentLineCount(size_t lineCount)
 {
     if (const auto oldLineCount = currentLineCount(); lineCount != oldLineCount) {
         m_song->setLineCount(currentPattern(), std::min(std::max(lineCount, minLineCount()), maxLineCount()));
@@ -235,42 +235,42 @@ void EditorService::setCurrentLineCount(uint32_t lineCount)
     }
 }
 
-uint32_t EditorService::minLineCount() const
+size_t EditorService::minLineCount() const
 {
     return 2;
 }
 
-uint32_t EditorService::maxLineCount() const
+size_t EditorService::maxLineCount() const
 {
     return 999;
 }
 
-uint32_t EditorService::minPatternIndex() const
+size_t EditorService::minPatternIndex() const
 {
     return 0;
 }
 
-uint32_t EditorService::maxPatternIndex() const
+size_t EditorService::maxPatternIndex() const
 {
     return 999;
 }
 
-uint32_t EditorService::minSongPosition() const
+size_t EditorService::minSongPosition() const
 {
     return 0;
 }
 
-uint32_t EditorService::maxSongPosition() const
+size_t EditorService::maxSongPosition() const
 {
     return 999;
 }
 
-uint32_t EditorService::linesVisible() const
+size_t EditorService::linesVisible() const
 {
     return 32;
 }
 
-int EditorService::lineNumberAtViewLine(uint32_t line) const
+int EditorService::lineNumberAtViewLine(size_t line) const
 {
     // Encode underflow and overflow as negative numbers. The view will show "-64" as "64" but in a different color.
     const int lineNumber = (static_cast<int>(line) + static_cast<int>(m_cursorPosition.line) - static_cast<int>(positionBarLine()));
@@ -282,7 +282,7 @@ int EditorService::lineNumberAtViewLine(uint32_t line) const
     }
 }
 
-QString EditorService::displayNoteAtPosition(uint32_t patternId, uint32_t trackIndex, uint32_t columnId, uint32_t line) const
+QString EditorService::displayNoteAtPosition(size_t patternId, size_t trackIndex, size_t columnId, size_t line) const
 {
     if (const auto noteData = m_song->noteDataAtPosition({ patternId, trackIndex, columnId, line }); noteData->type() != NoteData::Type::None) {
         return noteData->type() == NoteData::Type::NoteOff ? "OFF" : QString::fromStdString(NoteConverter::midiToString(*noteData->note()));
@@ -301,7 +301,7 @@ QString EditorService::padVelocityToThreeDigits(QString velocity) const
     return velocity.rightJustified(3, '0', true);
 }
 
-QString EditorService::displayVelocityAtPosition(uint32_t pattern, uint32_t track, uint32_t column, uint32_t line) const
+QString EditorService::displayVelocityAtPosition(size_t pattern, size_t track, size_t column, size_t line) const
 {
     if (const auto noteData = m_song->noteDataAtPosition({ pattern, track, column, line }); noteData->type() != NoteData::Type::None) {
         return noteData->type() == NoteData::Type::NoteOff ? noDataString() : padVelocityToThreeDigits(QString::number(noteData->velocity()));
@@ -310,7 +310,7 @@ QString EditorService::displayVelocityAtPosition(uint32_t pattern, uint32_t trac
     }
 }
 
-double EditorService::effectiveVolumeAtPosition(uint32_t pattern, uint32_t track, uint32_t column, uint32_t line) const
+double EditorService::effectiveVolumeAtPosition(size_t pattern, size_t track, size_t column, size_t line) const
 {
     if (const auto noteData = m_song->noteDataAtPosition({ pattern, track, column, line }); noteData->type() != NoteData::Type::None) {
         return noteData->type() == NoteData::Type::NoteOff ? 0 : static_cast<double>(noteData->velocity()) / 127;
@@ -319,46 +319,46 @@ double EditorService::effectiveVolumeAtPosition(uint32_t pattern, uint32_t track
     }
 }
 
-uint32_t EditorService::patternCount() const
+size_t EditorService::patternCount() const
 {
     return m_song->patternCount();
 }
 
-uint32_t EditorService::trackCount() const
+size_t EditorService::trackCount() const
 {
     return m_song->trackCount();
 }
 
-QString EditorService::trackName(uint32_t trackIndex) const
+QString EditorService::trackName(size_t trackIndex) const
 {
     return QString::fromStdString(m_song->trackName(trackIndex));
 }
 
-void EditorService::setTrackName(uint32_t trackIndex, QString name)
+void EditorService::setTrackName(size_t trackIndex, QString name)
 {
     m_song->setTrackName(trackIndex, name.toStdString());
 
     setIsModified(true);
 }
 
-EditorService::InstrumentS EditorService::instrument(uint32_t trackIndex) const
+EditorService::InstrumentS EditorService::instrument(size_t trackIndex) const
 {
     return m_song->instrument(trackIndex);
 }
 
-void EditorService::setInstrument(uint32_t trackIndex, InstrumentS instrument)
+void EditorService::setInstrument(size_t trackIndex, InstrumentS instrument)
 {
     m_song->setInstrument(trackIndex, instrument);
 
     setIsModified(true);
 }
 
-uint32_t EditorService::currentPattern() const
+size_t EditorService::currentPattern() const
 {
     return m_cursorPosition.pattern;
 }
 
-void EditorService::createPatternIfDoesNotExist(uint32_t patternIndex)
+void EditorService::createPatternIfDoesNotExist(size_t patternIndex)
 {
     if (!m_song->hasPattern(patternIndex)) {
         m_song->createPattern(patternIndex);
@@ -368,7 +368,7 @@ void EditorService::createPatternIfDoesNotExist(uint32_t patternIndex)
     }
 }
 
-void EditorService::setCurrentPattern(uint32_t patternIndex)
+void EditorService::setCurrentPattern(size_t patternIndex)
 {
     if (currentPattern() == patternIndex) {
         return;
@@ -389,7 +389,7 @@ void EditorService::setCurrentPattern(uint32_t patternIndex)
     notifyPositionChange(oldPosition);
 }
 
-bool EditorService::hasData(uint32_t pattern, uint32_t track, uint32_t column) const
+bool EditorService::hasData(size_t pattern, size_t track, size_t column) const
 {
     return m_song->hasData(pattern, track, column);
 }
@@ -426,7 +426,7 @@ Position EditorService::position() const
     return m_cursorPosition;
 }
 
-uint32_t EditorService::positionBarLine() const
+size_t EditorService::positionBarLine() const
 {
     return 8;
 }
@@ -499,7 +499,7 @@ void EditorService::requestColumnRight()
     notifyPositionChange(oldPosition);
 }
 
-EditorService::MidiNoteNameAndCodeOpt EditorService::editorNoteToMidiNote(uint32_t note, uint32_t octave)
+EditorService::MidiNoteNameAndCodeOpt EditorService::editorNoteToMidiNote(size_t note, size_t octave)
 {
     if (note < 1 || note > 12) {
         juzzlin::L(TAG).error() << "Invalid note value: " << note << ". Valid range is 1..12.";
@@ -580,7 +580,7 @@ bool EditorService::requestDigitSetAtCurrentPosition(uint8_t digit)
     return false;
 }
 
-void EditorService::requestNewColumn(uint32_t track)
+void EditorService::requestNewColumn(size_t track)
 {
     juzzlin::L(TAG).debug() << "New column requested on track " << track;
 
@@ -592,7 +592,7 @@ void EditorService::requestNewColumn(uint32_t track)
     setIsModified(true);
 }
 
-void EditorService::requestColumnDeletion(uint32_t track)
+void EditorService::requestColumnDeletion(size_t track)
 {
     juzzlin::L(TAG).debug() << "Column deletion requested on track " << track;
 
@@ -699,7 +699,7 @@ void EditorService::notifyPositionChange(const Position & oldPosition)
     }
 }
 
-bool EditorService::requestPosition(uint32_t pattern, uint32_t track, uint32_t column, uint32_t line, uint32_t lineColumn)
+bool EditorService::requestPosition(size_t pattern, size_t track, size_t column, size_t line, size_t lineColumn)
 {
     juzzlin::L(TAG).debug() << "Requesting position: " << pattern << " " << track << " " << column << " " << line << " " << lineColumn;
 
@@ -740,7 +740,7 @@ bool EditorService::requestPosition(uint32_t pattern, uint32_t track, uint32_t c
     return true;
 }
 
-void EditorService::requestPositionByTick(uint32_t tick)
+void EditorService::requestPositionByTick(size_t tick)
 {
     const auto oldPosition = m_cursorPosition;
     if (auto && songPosition = m_song->songPositionByTick(tick); songPosition.has_value()) {
@@ -753,13 +753,13 @@ void EditorService::requestPositionByTick(uint32_t tick)
 void EditorService::requestScroll(int steps)
 {
     const auto oldPosition = m_cursorPosition;
-    m_cursorPosition.line += static_cast<uint32_t>(steps);
+    m_cursorPosition.line += static_cast<size_t>(steps);
     m_cursorPosition.line %= m_song->lineCount(m_cursorPosition.pattern);
 
     notifyPositionChange(oldPosition);
 }
 
-void EditorService::requestTrackFocus(uint32_t track, uint32_t column)
+void EditorService::requestTrackFocus(size_t track, size_t column)
 {
     juzzlin::L(TAG).info() << "Focus for track " << track << " on column " << column << " requested";
     if (track < trackCount() && column < m_song->columnCount(track)) {
@@ -770,12 +770,12 @@ void EditorService::requestTrackFocus(uint32_t track, uint32_t column)
     }
 }
 
-uint32_t EditorService::beatsPerMinute() const
+size_t EditorService::beatsPerMinute() const
 {
     return m_song->beatsPerMinute();
 }
 
-void EditorService::setBeatsPerMinute(uint32_t beatsPerMinute)
+void EditorService::setBeatsPerMinute(size_t beatsPerMinute)
 {
     if (m_song->beatsPerMinute() != beatsPerMinute) {
         m_song->setBeatsPerMinute(beatsPerMinute);
@@ -784,12 +784,12 @@ void EditorService::setBeatsPerMinute(uint32_t beatsPerMinute)
     }
 }
 
-uint32_t EditorService::linesPerBeat() const
+size_t EditorService::linesPerBeat() const
 {
     return m_song->linesPerBeat();
 }
 
-void EditorService::setLinesPerBeat(uint32_t linesPerBeat)
+void EditorService::setLinesPerBeat(size_t linesPerBeat)
 {
     if (m_song->linesPerBeat() != linesPerBeat) {
         m_song->setLinesPerBeat(linesPerBeat);
@@ -798,12 +798,12 @@ void EditorService::setLinesPerBeat(uint32_t linesPerBeat)
     }
 }
 
-uint32_t EditorService::visibleUnitCount() const
+size_t EditorService::visibleUnitCount() const
 {
     return 6;
 }
 
-uint32_t EditorService::horizontalScrollPosition() const
+size_t EditorService::horizontalScrollPosition() const
 {
     return m_horizontalScrollPosition;
 }
@@ -826,24 +826,24 @@ void EditorService::requestHorizontalScrollPositionChange(double position)
     }
 }
 
-uint32_t EditorService::totalUnitCount() const
+size_t EditorService::totalUnitCount() const
 {
     size_t columnCount = 0;
-    for (uint32_t trackIndex = 0; trackIndex < m_song->trackCount(); trackIndex++) {
+    for (size_t trackIndex = 0; trackIndex < m_song->trackCount(); trackIndex++) {
         columnCount += m_song->columnCount(trackIndex);
     }
     return columnCount;
 }
 
-uint32_t EditorService::trackWidthInUnits(uint32_t trackIndex) const
+size_t EditorService::trackWidthInUnits(size_t trackIndex) const
 {
     return m_song->columnCount(trackIndex);
 }
 
-int EditorService::trackPositionInUnits(uint32_t trackIndex) const
+int EditorService::trackPositionInUnits(size_t trackIndex) const
 {
     int unitPosition = -m_horizontalScrollPosition;
-    for (uint32_t track = 0; track < trackIndex; track++) {
+    for (size_t track = 0; track < trackIndex; track++) {
         unitPosition += m_song->columnCount(track);
     }
     return unitPosition;
@@ -865,12 +865,12 @@ void EditorService::updateScrollBar()
     emit scrollBarStepSizeChanged();
 }
 
-uint32_t EditorService::playOrderSongPosition() const
+size_t EditorService::playOrderSongPosition() const
 {
     return m_playOrderSongPosition;
 }
 
-void EditorService::setPlayOrderSongPosition(uint32_t songPosition)
+void EditorService::setPlayOrderSongPosition(size_t songPosition)
 {
     if (m_playOrderSongPosition != songPosition) {
         m_playOrderSongPosition = songPosition;
@@ -879,7 +879,7 @@ void EditorService::setPlayOrderSongPosition(uint32_t songPosition)
     }
 }
 
-void EditorService::setPatternAtPlayOrderSongPosition(uint32_t songPosition, uint32_t pattern)
+void EditorService::setPatternAtPlayOrderSongPosition(size_t songPosition, size_t pattern)
 {
     if (!m_song->hasPattern(pattern)) {
         setCurrentPattern(pattern);
@@ -894,12 +894,12 @@ void EditorService::setPatternAtPlayOrderSongPosition(uint32_t songPosition, uin
     }
 }
 
-uint32_t EditorService::patternAtCurrentPlayOrderSongPosition() const
+size_t EditorService::patternAtCurrentPlayOrderSongPosition() const
 {
     return m_song->patternAtSongPosition(m_playOrderSongPosition);
 }
 
-uint32_t EditorService::patternAtPlayOrderSongPosition(uint32_t songPosition) const
+size_t EditorService::patternAtPlayOrderSongPosition(size_t songPosition) const
 {
     return m_song->patternAtSongPosition(songPosition);
 }

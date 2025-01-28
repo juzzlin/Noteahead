@@ -29,19 +29,19 @@ PlayOrder::PlayOrder()
     setPatternAtPosition(0, 0);
 }
 
-uint32_t PlayOrder::length() const
+size_t PlayOrder::length() const
 {
     return m_positionToPatternMap.rbegin()->first + 1;
 }
 
-void PlayOrder::setPatternAtPosition(uint32_t position, uint32_t pattern)
+void PlayOrder::setPatternAtPosition(size_t position, size_t pattern)
 {
     juzzlin::L(TAG).info() << "Position " << position << " mapped to pattern " << pattern;
 
     m_positionToPatternMap[position] = pattern;
 }
 
-uint32_t PlayOrder::positionToPattern(uint32_t position) const
+size_t PlayOrder::positionToPattern(size_t position) const
 {
     if (const auto pattern = m_positionToPatternMap.find(position); pattern != m_positionToPatternMap.end()) {
         return pattern->second;

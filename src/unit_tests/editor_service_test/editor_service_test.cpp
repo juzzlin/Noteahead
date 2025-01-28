@@ -30,12 +30,12 @@ void EditorServiceTest::test_defaultSong_shouldReturnCorrectProperties()
 
     const auto trackCount = 8;
     QCOMPARE(editorService.trackCount(), trackCount);
-    for (uint32_t trackId = 0; trackId < trackCount; trackId++) {
+    for (size_t trackId = 0; trackId < trackCount; trackId++) {
         QCOMPARE(editorService.columnCount(trackId), 1);
         QCOMPARE(editorService.trackName(trackId), QString { "Track %1" }.arg(trackId + 1));
     }
 
-    for (uint32_t trackId = 0; trackId < trackCount; trackId++) {
+    for (size_t trackId = 0; trackId < trackCount; trackId++) {
         QCOMPARE(editorService.columnCount(trackId), 1);
     }
 
@@ -225,7 +225,7 @@ void EditorServiceTest::test_requestPosition_invalidPosition_shouldNotChangePosi
     EditorService editorService;
     QSignalSpy positionChangedSpy { &editorService, &EditorService::positionChanged };
 
-    const auto neg = static_cast<uint32_t>(-1);
+    const auto neg = static_cast<size_t>(-1);
     QVERIFY(!editorService.requestPosition(neg, 0, 0, 0, 0));
     QVERIFY(!editorService.requestPosition(0, neg, 0, 0, 0));
     QVERIFY(!editorService.requestPosition(0, 0, neg, 0, 0));

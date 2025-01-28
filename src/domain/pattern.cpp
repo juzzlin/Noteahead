@@ -29,13 +29,13 @@ namespace noteahead {
 
 static const auto TAG = "Pattern";
 
-Pattern::Pattern(uint32_t index, uint32_t lineCount, uint32_t trackCount)
+Pattern::Pattern(size_t index, size_t lineCount, size_t trackCount)
   : m_index { index }
 {
     initialize(lineCount, trackCount);
 }
 
-Pattern::Pattern(uint32_t index, PatternConfig config)
+Pattern::Pattern(size_t index, PatternConfig config)
   : m_index { index }
 {
     initialize(config.lineCount, config.columnConfig.size());
@@ -47,7 +47,7 @@ Pattern::Pattern(uint32_t index, PatternConfig config)
     });
 }
 
-std::unique_ptr<Pattern> Pattern::copyWithoutData(uint32_t index) const
+std::unique_ptr<Pattern> Pattern::copyWithoutData(size_t index) const
 {
     return std::make_unique<Pattern>(index, patternConfig());
 }
@@ -62,41 +62,41 @@ Pattern::PatternConfig Pattern::patternConfig() const
     return config;
 }
 
-uint32_t Pattern::index() const
+size_t Pattern::index() const
 {
     return m_index;
 }
 
-void Pattern::addColumn(uint32_t trackIndex)
+void Pattern::addColumn(size_t trackIndex)
 {
     m_tracks.at(trackIndex)->addColumn();
 }
 
-bool Pattern::deleteColumn(uint32_t trackIndex)
+bool Pattern::deleteColumn(size_t trackIndex)
 {
     return m_tracks.at(trackIndex)->deleteColumn();
 }
 
-uint32_t Pattern::columnCount(uint32_t trackIndex) const
+size_t Pattern::columnCount(size_t trackIndex) const
 {
     return m_tracks.at(trackIndex)->columnCount();
 }
 
-uint32_t Pattern::lineCount() const
+size_t Pattern::lineCount() const
 {
     return m_tracks.at(0)->lineCount();
 }
 
-void Pattern::setLineCount(uint32_t lineCount)
+void Pattern::setLineCount(size_t lineCount)
 {
     for (auto && track : m_tracks) {
         track->setLineCount(lineCount);
     }
 }
 
-uint32_t Pattern::trackCount() const
+size_t Pattern::trackCount() const
 {
-    return static_cast<uint32_t>(m_tracks.size());
+    return static_cast<size_t>(m_tracks.size());
 }
 
 bool Pattern::hasData() const
@@ -107,12 +107,12 @@ bool Pattern::hasData() const
       != m_tracks.end();
 }
 
-bool Pattern::hasData(uint32_t track, uint32_t column) const
+bool Pattern::hasData(size_t track, size_t column) const
 {
     return m_tracks.at(track)->hasData(column);
 }
 
-std::string Pattern::trackName(uint32_t trackIndex) const
+std::string Pattern::trackName(size_t trackIndex) const
 {
     return m_tracks.at(trackIndex)->name();
 }
@@ -124,19 +124,19 @@ void Pattern::addOrReplaceTrack(TrackS track)
     m_tracks.at(track->index()) = track;
 }
 
-void Pattern::setTrackName(uint32_t trackIndex, std::string name)
+void Pattern::setTrackName(size_t trackIndex, std::string name)
 {
     juzzlin::L(TAG).debug() << "Changing name of track " << trackIndex << " from " << trackName(trackIndex) << " to " << name;
 
     m_tracks.at(trackIndex)->setName(name);
 }
 
-Pattern::InstrumentS Pattern::instrument(uint32_t trackIndex) const
+Pattern::InstrumentS Pattern::instrument(size_t trackIndex) const
 {
     return m_tracks.at(trackIndex)->instrument();
 }
 
-void Pattern::setInstrument(uint32_t trackIndex, InstrumentS instrument)
+void Pattern::setInstrument(size_t trackIndex, InstrumentS instrument)
 {
     m_tracks.at(trackIndex)->setInstrument(instrument);
 }
@@ -163,9 +163,9 @@ void Pattern::setNoteDataAtPosition(const NoteData & noteData, const Position & 
     m_tracks.at(position.track)->setNoteDataAtPosition(noteData, position);
 }
 
-void Pattern::initialize(uint32_t lineCount, uint32_t trackCount)
+void Pattern::initialize(size_t lineCount, size_t trackCount)
 {
-    for (uint32_t i = 0; i < trackCount; i++) {
+    for (size_t i = 0; i < trackCount; i++) {
         m_tracks.push_back(std::make_shared<Track>(i, "Track " + std::to_string(i + 1), lineCount, 1));
     }
 }

@@ -33,49 +33,49 @@ struct Position;
 class Pattern
 {
 public:
-    Pattern(uint32_t index, uint32_t lineCount, uint32_t trackCount);
+    Pattern(size_t index, size_t lineCount, size_t trackCount);
 
-    using ColumnConfig = std::map<uint32_t, uint32_t>;
+    using ColumnConfig = std::map<size_t, size_t>;
 
     struct PatternConfig
     {
-        uint32_t lineCount = 0;
+        size_t lineCount = 0;
 
         ColumnConfig columnConfig;
     };
 
-    Pattern(uint32_t index, PatternConfig config);
+    Pattern(size_t index, PatternConfig config);
 
-    uint32_t index() const;
+    size_t index() const;
 
-    void addColumn(uint32_t trackIndex);
+    void addColumn(size_t trackIndex);
 
-    bool deleteColumn(uint32_t trackIndex);
+    bool deleteColumn(size_t trackIndex);
 
-    uint32_t columnCount(uint32_t trackIndex) const;
+    size_t columnCount(size_t trackIndex) const;
 
-    uint32_t lineCount() const;
+    size_t lineCount() const;
 
-    void setLineCount(uint32_t lineCount);
+    void setLineCount(size_t lineCount);
 
-    uint32_t trackCount() const;
+    size_t trackCount() const;
 
     bool hasData() const;
 
-    bool hasData(uint32_t track, uint32_t column) const;
+    bool hasData(size_t track, size_t column) const;
 
-    std::string trackName(uint32_t trackIndex) const;
+    std::string trackName(size_t trackIndex) const;
 
     using TrackS = std::shared_ptr<Track>;
 
     void addOrReplaceTrack(TrackS track);
 
-    void setTrackName(uint32_t trackIndex, std::string name);
+    void setTrackName(size_t trackIndex, std::string name);
 
     using InstrumentS = std::shared_ptr<Instrument>;
-    InstrumentS instrument(uint32_t trackIndex) const;
+    InstrumentS instrument(size_t trackIndex) const;
 
-    void setInstrument(uint32_t trackIndex, InstrumentS instrument);
+    void setInstrument(size_t trackIndex, InstrumentS instrument);
 
     using NoteDataS = std::shared_ptr<NoteData>;
     NoteDataS noteDataAtPosition(const Position & position) const;
@@ -92,14 +92,14 @@ public:
 
     void serializeToXml(QXmlStreamWriter & writer) const;
 
-    std::unique_ptr<Pattern> copyWithoutData(uint32_t index) const;
+    std::unique_ptr<Pattern> copyWithoutData(size_t index) const;
 
     PatternConfig patternConfig() const;
 
 private:
-    void initialize(uint32_t lineCount, uint32_t trackCount);
+    void initialize(size_t lineCount, size_t trackCount);
 
-    uint32_t m_index = 0;
+    size_t m_index = 0;
 
     std::vector<std::shared_ptr<Track>> m_tracks;
 };

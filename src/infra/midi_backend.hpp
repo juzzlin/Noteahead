@@ -36,7 +36,7 @@ public:
 
     virtual MidiDeviceList listDevices() const;
 
-    virtual MidiDeviceS deviceByPortIndex(uint32_t index) const;
+    virtual MidiDeviceS deviceByPortIndex(size_t index) const;
 
     virtual MidiDeviceS deviceByPortName(const std::string & name) const;
 

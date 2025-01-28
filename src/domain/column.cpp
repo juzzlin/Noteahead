@@ -30,21 +30,21 @@ namespace noteahead {
 
 static const auto TAG = "Column";
 
-Column::Column(uint32_t index, uint32_t length)
+Column::Column(size_t index, size_t length)
   : m_index { index }
 {
     initialize(length);
 }
 
-uint32_t Column::index() const
+size_t Column::index() const
 {
     return m_index;
 }
 
-void Column::initialize(uint32_t length)
+void Column::initialize(size_t length)
 {
     m_lines.clear();
-    for (uint32_t i = 0; i < length; i++) {
+    for (size_t i = 0; i < length; i++) {
         m_lines.push_back(std::make_shared<Line>(i));
     }
     m_virtualLineCount = m_lines.size();
@@ -58,17 +58,17 @@ bool Column::hasData() const
       != m_lines.end();
 }
 
-uint32_t Column::lineCount() const
+size_t Column::lineCount() const
 {
     return m_virtualLineCount;
 }
 
-void Column::setLineCount(uint32_t lineCount)
+void Column::setLineCount(size_t lineCount)
 {
     m_virtualLineCount = lineCount;
     if (m_virtualLineCount > m_lines.size()) {
         m_lines.reserve(m_virtualLineCount);
-        for (uint32_t i = m_lines.size(); i < m_virtualLineCount; i++) {
+        for (size_t i = m_lines.size(); i < m_virtualLineCount; i++) {
             m_lines.push_back(std::make_shared<Line>(i));
         }
     }
@@ -82,7 +82,7 @@ void Column::addOrReplaceLine(LineS line)
 Position Column::nextNoteDataOnSameColumn(const Position & position) const
 {
     auto nextNoteDataPosition = position;
-    for (uint32_t line = position.line + 1; line < m_lines.size(); line++) {
+    for (size_t line = position.line + 1; line < m_lines.size(); line++) {
         if (const auto noteData = m_lines.at(line)->noteData(); noteData->type() != NoteData::Type::None) {
             nextNoteDataPosition.line = line;
             break;
@@ -94,7 +94,7 @@ Position Column::nextNoteDataOnSameColumn(const Position & position) const
 Position Column::prevNoteDataOnSameColumn(const Position & position) const
 {
     auto nextNoteDataPosition = position;
-    for (uint32_t line = 0; line < position.line; line++) {
+    for (size_t line = 0; line < position.line; line++) {
         if (const auto noteData = m_lines.at(line)->noteData(); noteData->type() != NoteData::Type::None) {
             nextNoteDataPosition.line = line;
         }

@@ -39,11 +39,11 @@ public:
 
     struct Timing
     {
-        uint32_t beatsPerMinute = 0;
+        size_t beatsPerMinute = 0;
 
-        uint32_t linesPerBeat = 0;
+        size_t linesPerBeat = 0;
 
-        uint32_t ticksPerLine = 0;
+        size_t ticksPerLine = 0;
     };
 
     using MidiServiceS = std::shared_ptr<MidiService>;
@@ -64,7 +64,7 @@ signals:
 
     void songEnded();
 
-    void tickUpdated(uint32_t tick);
+    void tickUpdated(size_t tick);
 
 private:
     void processEvents();

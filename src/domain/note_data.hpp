@@ -36,7 +36,7 @@ public:
 
     NoteData() = default;
 
-    NoteData(uint32_t track, uint32_t column);
+    NoteData(size_t track, size_t column);
 
     void setAsNoteOn(uint8_t note, uint8_t velocity);
 
@@ -54,9 +54,9 @@ public:
 
     std::string toString() const;
 
-    uint32_t track() const;
+    size_t track() const;
 
-    uint32_t column() const;
+    size_t column() const;
 
     void serializeToXml(QXmlStreamWriter & writer) const;
 
@@ -67,9 +67,9 @@ private:
 
     uint8_t m_velocity = 0;
 
-    uint32_t m_track = 0;
+    size_t m_track = 0;
 
-    uint32_t m_column = 0;
+    size_t m_column = 0;
 };
 
 } // namespace noteahead

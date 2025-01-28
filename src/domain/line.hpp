@@ -27,11 +27,11 @@ namespace noteahead {
 class Line
 {
 public:
-    explicit Line(uint32_t index);
+    explicit Line(size_t index);
 
-    Line(uint32_t index, const NoteData & noteData);
+    Line(size_t index, const NoteData & noteData);
 
-    uint32_t index() const;
+    size_t index() const;
 
     void clear();
 
@@ -44,7 +44,7 @@ public:
     void serializeToXml(QXmlStreamWriter & writer) const;
 
 private:
-    uint32_t m_index = 0;
+    size_t m_index = 0;
 
     NoteDataS m_noteData;
 };

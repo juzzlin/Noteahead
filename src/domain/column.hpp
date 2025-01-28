@@ -31,17 +31,17 @@ struct Position;
 class Column
 {
 public:
-    Column(uint32_t index, uint32_t length);
+    Column(size_t index, size_t length);
 
-    uint32_t index() const;
+    size_t index() const;
 
     using NoteDataS = std::shared_ptr<NoteData>;
 
     bool hasData() const;
 
-    uint32_t lineCount() const;
+    size_t lineCount() const;
 
-    void setLineCount(uint32_t lineCount);
+    void setLineCount(size_t lineCount);
 
     using LineS = std::shared_ptr<Line>;
 
@@ -62,11 +62,11 @@ public:
     void serializeToXml(QXmlStreamWriter & writer) const;
 
 private:
-    void initialize(uint32_t length);
+    void initialize(size_t length);
 
-    uint32_t m_index = 0;
+    size_t m_index = 0;
 
-    uint32_t m_virtualLineCount = 0;
+    size_t m_virtualLineCount = 0;
 
     std::vector<LineS> m_lines;
 };
