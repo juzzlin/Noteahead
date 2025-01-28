@@ -9,6 +9,7 @@ ToolBarButtonBase {
     onClicked: {
         UiService.requestStop();
         focus = false;
+        UiService.requestFocusOnEditorView();
     }
     toolTipText: qsTr("Stop playing")
 }

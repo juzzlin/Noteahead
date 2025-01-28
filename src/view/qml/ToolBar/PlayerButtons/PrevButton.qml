@@ -9,6 +9,7 @@ ToolBarButtonBase {
     onClicked: {
         editorService.setPlayOrderSongPosition(0);
         focus = false;
+        UiService.requestFocusOnEditorView();
     }
     toolTipText: qsTr("Rewind to the start of the song")
 }

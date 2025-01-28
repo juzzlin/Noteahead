@@ -158,6 +158,7 @@ FocusScope {
             });
     }
     function _updateFocus(newPosition, oldPosition) {
+        rootItem.focus = true;
         _setTrackUnfocused(oldPosition);
         _setTrackFocused(newPosition);
     }

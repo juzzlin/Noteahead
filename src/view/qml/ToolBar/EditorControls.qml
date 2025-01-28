@@ -34,7 +34,10 @@ Row {
                     editable: false
                     enabled: !UiService.isPlaying()
                     onValueChanged: editorService.setPlayOrderSongPosition(value)
-                    Keys.onReturnPressed: focus = false
+                    Keys.onReturnPressed: {
+                        focus = false;
+                        UiService.requestFocusOnEditorView();
+                    }
                     ToolTip.delay: Constants.toolTipDelay
                     ToolTip.timeout: Constants.toolTipTimeout
                     ToolTip.visible: hovered
@@ -55,7 +58,10 @@ Row {
                     editable: false
                     enabled: !UiService.isPlaying()
                     onValueChanged: editorService.setPatternAtPlayOrderSongPosition(songPositionSpinBox.value, value)
-                    Keys.onReturnPressed: focus = false
+                    Keys.onReturnPressed: {
+                        focus = false;
+                        UiService.requestFocusOnEditorView();
+                    }
                     ToolTip.delay: Constants.toolTipDelay
                     ToolTip.timeout: Constants.toolTipTimeout
                     ToolTip.visible: hovered
@@ -86,7 +92,10 @@ Row {
                     editable: false
                     enabled: !UiService.isPlaying()
                     onValueChanged: editorService.setCurrentPattern(patternIndexSpinBox.value)
-                    Keys.onReturnPressed: focus = false
+                    Keys.onReturnPressed: {
+                        focus = false;
+                        UiService.requestFocusOnEditorView();
+                    }
                     ToolTip.delay: Constants.toolTipDelay
                     ToolTip.timeout: Constants.toolTipTimeout
                     ToolTip.visible: hovered
@@ -109,7 +118,10 @@ Row {
                     editable: true
                     enabled: !UiService.isPlaying()
                     onValueChanged: editorService.setCurrentLineCount(patternLengthSpinBox.value)
-                    Keys.onReturnPressed: focus = false
+                    Keys.onReturnPressed: {
+                        focus = false;
+                        UiService.requestFocusOnEditorView();
+                    }
                     ToolTip.delay: Constants.toolTipDelay
                     ToolTip.timeout: Constants.toolTipTimeout
                     ToolTip.visible: hovered
@@ -140,7 +152,10 @@ Row {
                     editable: true
                     enabled: !UiService.isPlaying()
                     onValueChanged: UiService.setActiveStep(stepSpinBox.value)
-                    Keys.onReturnPressed: focus = false
+                    Keys.onReturnPressed: {
+                        focus = false;
+                        UiService.requestFocusOnEditorView();
+                    }
                     ToolTip.delay: Constants.toolTipDelay
                     ToolTip.timeout: Constants.toolTipTimeout
                     ToolTip.visible: hovered
@@ -163,7 +178,10 @@ Row {
                     editable: true
                     enabled: !UiService.isPlaying()
                     onValueChanged: UiService.setActiveVelocity(velocitySpinBox.value)
-                    Keys.onReturnPressed: focus = false
+                    Keys.onReturnPressed: {
+                        focus = false;
+                        UiService.requestFocusOnEditorView();
+                    }
                     ToolTip.delay: Constants.toolTipDelay
                     ToolTip.timeout: Constants.toolTipTimeout
                     ToolTip.visible: hovered
@@ -186,7 +204,10 @@ Row {
                     editable: true
                     enabled: !UiService.isPlaying()
                     onValueChanged: UiService.setActiveOctave(octSpinBox.value)
-                    Keys.onReturnPressed: focus = false
+                    Keys.onReturnPressed: {
+                        focus = false;
+                        UiService.requestFocusOnEditorView();
+                    }
                     ToolTip.delay: Constants.toolTipDelay
                     ToolTip.timeout: Constants.toolTipTimeout
                     ToolTip.visible: hovered
@@ -217,7 +238,10 @@ Row {
                     editable: true
                     enabled: !UiService.isPlaying()
                     onValueChanged: editorService.setBeatsPerMinute(value)
-                    Keys.onReturnPressed: focus = false
+                    Keys.onReturnPressed: {
+                        focus = false;
+                        UiService.requestFocusOnEditorView();
+                    }
                     ToolTip.delay: Constants.toolTipDelay
                     ToolTip.timeout: Constants.toolTipTimeout
                     ToolTip.visible: hovered
@@ -240,7 +264,10 @@ Row {
                     editable: true
                     enabled: !UiService.isPlaying()
                     onValueChanged: editorService.setLinesPerBeat(value)
-                    Keys.onReturnPressed: focus = false
+                    Keys.onReturnPressed: {
+                        focus = false;
+                        UiService.requestFocusOnEditorView();
+                    }
                     ToolTip.delay: Constants.toolTipDelay
                     ToolTip.timeout: Constants.toolTipTimeout
                     ToolTip.visible: hovered

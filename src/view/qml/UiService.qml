@@ -4,6 +4,7 @@ import QtQuick 2.15
 QtObject {
     signal aboutDialogRequested
     signal activeOctaveChanged(int activeOctave)
+    signal focusOnEditorViewRequested
     signal trackSettingsDialogRequested(int trackIndex)
     property int _activeOctave: 3
     readonly property string _tag: "UiService"
@@ -79,6 +80,9 @@ QtObject {
     }
     function requestTrackSettingsDialog(trackIndex) {
         trackSettingsDialogRequested(trackIndex);
+    }
+    function requestFocusOnEditorView() {
+        focusOnEditorViewRequested();
     }
     signal quitRequested
     function requestQuit() {

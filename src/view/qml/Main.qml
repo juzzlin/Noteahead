@@ -158,6 +158,10 @@ ApplicationWindow {
     }
     function _connectUiService() {
         UiService.aboutDialogRequested.connect(aboutDialog.open);
+        UiService.focusOnEditorViewRequested.connect(() => {
+                uiLogger.info(_tag, "Settings focus on editor view");
+                _editorView.focus = true;
+            });
         UiService.trackSettingsDialogRequested.connect(trackIndex => {
                 trackSettingsDialog.setTrackIndex(trackIndex);
                 trackSettingsDialog.open();

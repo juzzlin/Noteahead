@@ -9,6 +9,7 @@ ToolBarButtonBase {
     onClicked: {
         UiService.requestPlay();
         focus = false;
+        UiService.requestFocusOnEditorView();
     }
     toolTipText: qsTr("Start playing from the current position")
 }
