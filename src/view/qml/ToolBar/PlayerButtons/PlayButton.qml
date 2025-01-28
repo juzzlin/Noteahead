@@ -4,7 +4,10 @@ import "../.."
 
 ToolBarButtonBase {
     id: rootItem
-    Component.onCompleted: setImageSource("../Graphics/play.svg")
-    onClicked: UiService.requestPlay()
     enabled: !UiService.isPlaying()
+    Component.onCompleted: setImageSource("../Graphics/play.svg")
+    onClicked: {
+        UiService.requestPlay();
+        focus = false;
+    }
 }
