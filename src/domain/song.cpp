@@ -27,6 +27,8 @@
 #include "play_order.hpp"
 #include "track.hpp"
 
+#include <ranges>
+
 #include <QXmlStreamReader>
 #include <QXmlStreamWriter>
 
@@ -57,17 +59,17 @@ bool Song::hasPattern(uint32_t patternIndex) const
 
 void Song::addColumn(uint32_t trackIndex)
 {
-    for (auto && pattern : m_patterns) {
+    std::ranges::for_each(m_patterns, [=](const auto & pattern) {
         pattern.second->addColumn(trackIndex);
-    }
+    });
 }
 
 bool Song::deleteColumn(uint32_t trackIndex)
 {
     if (columnCount(trackIndex) > 1) {
-        for (auto && pattern : m_patterns) {
+        std::ranges::for_each(m_patterns, [=](const auto & pattern) {
             pattern.second->deleteColumn(trackIndex);
-        }
+        });
         return true;
     }
     return false;
@@ -120,7 +122,7 @@ uint32_t Song::trackCount(uint32_t patternIndex) const
 
 bool Song::hasData() const
 {
-    return std::find_if(m_patterns.begin(), m_patterns.end(), [](auto && pattern) {
+    return std::ranges::find_if(m_patterns, [](auto && pattern) {
                return pattern.second->hasData();
            })
       != m_patterns.end();
@@ -277,11 +279,11 @@ void Song::updateTickToSongPositionMapping(size_t patternStartTick, uint32_t pla
 
 void Song::assignInstruments(const EventList & events) const
 {
-    for (const auto & event : events) {
+    std::ranges::for_each(events, [this](const auto & event) {
         if (const auto noteData = event->noteData(); noteData) {
             event->setInstrument(instrument(noteData->track()));
         }
-    }
+    });
 }
 
 Song::EventList Song::renderStartOfSong(size_t tick) const
@@ -353,11 +355,11 @@ void Song::serializeToXml(QXmlStreamWriter & writer) const
 
     writer.writeStartElement(Constants::xmlKeyPatterns());
 
-    for (const auto & pattern : m_patterns) {
+    std::ranges::for_each(m_patterns, [&writer](const auto & pattern) {
         if (pattern.second) {
             pattern.second->serializeToXml(writer);
         }
-    }
+    });
 
     writer.writeEndElement(); // Patterns
     writer.writeEndElement(); // Song
