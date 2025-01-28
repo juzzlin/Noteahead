@@ -284,17 +284,25 @@ void Song::assignInstruments(const EventList & events) const
     }
 }
 
-Song::EventList Song::renderToEvents()
+Song::EventList Song::renderStartOfSong(size_t tick) const
 {
-    m_tickToPatternAndLineMap.clear();
-
     Song::EventList eventList;
-    size_t tick = 0;
-
     const auto startOfSongEvent = std::make_shared<Event>(tick);
     startOfSongEvent->setAsStartOfSong();
     eventList.push_back(startOfSongEvent);
+    return eventList;
+}
 
+Song::EventList Song::renderEndOfSong(Song::EventList eventList, size_t tick) const
+{
+    const auto endOfSongEvent = std::make_shared<Event>(tick);
+    endOfSongEvent->setAsEndOfSong();
+    eventList.push_back(endOfSongEvent);
+    return eventList;
+}
+
+std::pair<Song::EventList, size_t> Song::renderPatterns(Song::EventList eventList, size_t tick)
+{
     for (uint32_t playOrderSongPosition = 0; playOrderSongPosition < m_playOrder->length(); playOrderSongPosition++) {
         const auto patternIndex = m_playOrder->positionToPattern(playOrderSongPosition);
         juzzlin::L(TAG).debug() << "Rendering position " << playOrderSongPosition << " as pattern " << patternIndex;
@@ -305,9 +313,20 @@ Song::EventList Song::renderToEvents()
         tick += pattern->lineCount() * m_ticksPerLine;
     }
 
-    const auto endOfSongEvent = std::make_shared<Event>(tick);
-    endOfSongEvent->setAsEndOfSong();
-    eventList.push_back(endOfSongEvent);
+    return { eventList, tick };
+}
+
+Song::EventList Song::renderToEvents()
+{
+    m_tickToPatternAndLineMap.clear();
+
+    size_t tick = 0;
+
+    auto eventList = renderStartOfSong(tick);
+
+    std::tie(eventList, tick) = renderPatterns(eventList, tick);
+
+    eventList = renderEndOfSong(eventList, tick);
 
     eventList = introduceNoteOffs(eventList);
 
