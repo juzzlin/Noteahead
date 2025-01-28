@@ -747,6 +747,7 @@ void EditorService::requestPositionByTick(size_t tick)
         m_cursorPosition.pattern = songPosition->pattern;
         m_cursorPosition.line = songPosition->line;
         notifyPositionChange(oldPosition);
+        setPlayOrderSongPosition(songPosition->position);
     }
 }
 
@@ -874,7 +875,7 @@ void EditorService::setPlayOrderSongPosition(size_t songPosition)
 {
     if (m_playOrderSongPosition != songPosition) {
         m_playOrderSongPosition = songPosition;
-        emit playOrderSongPositionChanged();
+        emit playOrderSongPositionChanged(songPosition);
         emit patternAtCurrentPlayOrderSongPositionChanged();
     }
 }

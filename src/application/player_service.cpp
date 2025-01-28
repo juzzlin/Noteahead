@@ -33,6 +33,11 @@ PlayerService::PlayerService(MidiServiceS midiService, QObject * parent)
     initializeWorker();
 }
 
+void PlayerService::setPlayOrderSongPosition(size_t position)
+{
+    m_playOrderSongPosition = position;
+}
+
 void PlayerService::setSong(SongS song)
 {
     m_song = song;
@@ -52,7 +57,7 @@ void PlayerService::initializeWorker()
 void PlayerService::initializeWorkerWithSongData()
 {
     const PlayerWorker::Timing timing { m_song->beatsPerMinute(), m_song->linesPerBeat(), m_song->ticksPerLine() };
-    m_playerWorker->initialize(m_song->renderToEvents(), timing);
+    m_playerWorker->initialize(m_song->renderToEvents(m_playOrderSongPosition), timing);
 }
 
 void PlayerService::startPlayback()

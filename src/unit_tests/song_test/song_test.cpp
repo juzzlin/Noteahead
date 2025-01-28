@@ -139,7 +139,7 @@ void SongTest::test_prevNoteDataOnSameColumn_noteOff_shouldFindNoteData()
 void SongTest::test_renderToEvents_noEvents_shouldAddStartAndEndOfSong()
 {
     Song song;
-    const auto events = song.renderToEvents();
+    const auto events = song.renderToEvents(0);
     QCOMPARE(events.size(), 2);
 
     const auto startOfSong = events.at(0);
@@ -159,7 +159,7 @@ void SongTest::test_renderToEvents_noteOff_shouldMapNoteOff()
     const Position noteOffPosition = { 0, 0, 0, 1, 0 };
     song.noteDataAtPosition(noteOffPosition)->setAsNoteOff();
 
-    const auto events = song.renderToEvents();
+    const auto events = song.renderToEvents(0);
     QCOMPARE(events.size(), 4);
 
     const auto noteOn = events.at(1);
@@ -188,7 +188,7 @@ void SongTest::test_renderToEvents_playOrderSet_shouldRenderMultiplePatterns()
     song.setPatternAtSongPosition(0, 0);
     song.setPatternAtSongPosition(1, 0);
 
-    const auto events = song.renderToEvents();
+    const auto events = song.renderToEvents(0);
     QCOMPARE(events.size(), 6);
 
     auto noteOn = events.at(1);
@@ -225,7 +225,7 @@ void SongTest::test_renderToEvents_singleEvent_shouldRenderEvent()
     Song song;
     song.noteDataAtPosition({ 0, 0, 0, 42, 0 })->setAsNoteOn(60, 100);
 
-    const auto events = song.renderToEvents();
+    const auto events = song.renderToEvents(0);
     QCOMPARE(events.size(), 4);
 
     const auto startOfSong = events.at(0);
@@ -256,7 +256,7 @@ void SongTest::test_renderToEvents_sameColumn_shouldAddNoteOff()
     song.noteDataAtPosition({ 0, 0, 0, 21, 0 })->setAsNoteOn(60, 100);
     song.noteDataAtPosition({ 0, 0, 0, 42, 0 })->setAsNoteOn(60, 100);
 
-    const auto events = song.renderToEvents();
+    const auto events = song.renderToEvents(0);
     QCOMPARE(events.size(), 6);
 
     auto noteOn = events.at(1);

@@ -237,7 +237,7 @@ signals:
 
     void patternAtCurrentPlayOrderSongPositionChanged(); // For the play order widget
 
-    void playOrderSongPositionChanged(); // For the play order widget
+    void playOrderSongPositionChanged(size_t position); // For the play order widget
 
     void patternCreated(size_t patternIndex);
 

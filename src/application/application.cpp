@@ -106,6 +106,8 @@ void Application::connectServices()
 
     connect(m_editorService.get(), &EditorService::instrumentRequested, m_midiService.get(), &MidiService::handleInstrumentRequest);
 
+    connect(m_editorService.get(), &EditorService::playOrderSongPositionChanged, m_playerService.get(), &PlayerService::setPlayOrderSongPosition);
+
     connect(m_midiService.get(), &MidiService::availableMidiPortsChanged, this, [this] {
         m_trackSettingsModel->setAvailableMidiPorts(m_midiService->availableMidiPorts());
     });

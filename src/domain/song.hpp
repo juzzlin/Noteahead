@@ -104,7 +104,7 @@ public:
 
     using EventS = std::shared_ptr<Event>;
     using EventList = std::vector<EventS>;
-    EventList renderToEvents();
+    EventList renderToEvents(size_t startPosition);
 
     size_t beatsPerMinute() const;
 
@@ -178,9 +178,9 @@ private:
 
     EventList renderEndOfSong(Song::EventList eventList, size_t tick) const;
 
-    std::pair<Song::EventList, size_t> renderPatterns(Song::EventList eventList, size_t tick);
+    std::pair<Song::EventList, size_t> renderPatterns(Song::EventList eventList, size_t tick, size_t startPosition);
 
-    EventList renderContent();
+    EventList renderContent(size_t startPosition);
 
     void updateTickToSongPositionMapping(size_t patternStartTick, size_t playOrderSongPosition, size_t patternIndex, size_t lineCount);
 
