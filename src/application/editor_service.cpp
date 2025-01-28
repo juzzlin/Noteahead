@@ -742,6 +742,11 @@ bool EditorService::requestPosition(size_t pattern, size_t track, size_t column,
 
 void EditorService::requestPositionByTick(size_t tick)
 {
+    // Skip unnecessary updates
+    if (tick % m_song->ticksPerLine()) {
+        return;
+    }
+
     const auto oldPosition = m_cursorPosition;
     if (auto && songPosition = m_song->songPositionByTick(tick); songPosition.has_value()) {
         m_cursorPosition.pattern = songPosition->pattern;
