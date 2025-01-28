@@ -16,6 +16,7 @@
 #include "midi_backend.hpp"
 
 #include <algorithm>
+#include <ranges>
 
 namespace noteahead {
 
@@ -28,7 +29,7 @@ MidiBackend::MidiDeviceList MidiBackend::listDevices() const
 
 MidiDeviceS MidiBackend::deviceByPortIndex(uint32_t index) const
 {
-    if (auto device = std::find_if(m_devices.begin(), m_devices.end(), [&index](auto & device) { return device->portIndex() == index; }); device != m_devices.end()) {
+    if (auto device = std::ranges::find_if(m_devices, [&index](auto & device) { return device->portIndex() == index; }); device != m_devices.end()) {
         return *device;
     } else {
         return {};

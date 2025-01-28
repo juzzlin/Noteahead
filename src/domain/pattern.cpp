@@ -23,6 +23,8 @@
 
 #include <QXmlStreamWriter>
 
+#include <ranges>
+
 namespace noteahead {
 
 static const auto TAG = "Pattern";
@@ -38,11 +40,11 @@ Pattern::Pattern(uint32_t index, PatternConfig config)
 {
     initialize(config.lineCount, config.columnConfig.size());
 
-    for (auto && track : m_tracks) {
+    std::ranges::for_each(m_tracks, [&](auto && track) {
         while (track->columnCount() < config.columnConfig.at(track->index())) {
             track->addColumn();
         }
-    }
+    });
 }
 
 std::unique_ptr<Pattern> Pattern::copyWithoutData(uint32_t index) const
@@ -54,9 +56,9 @@ Pattern::PatternConfig Pattern::patternConfig() const
 {
     PatternConfig config;
     config.lineCount = m_tracks.at(0)->lineCount();
-    for (auto && track : m_tracks) {
+    std::ranges::for_each(m_tracks, [&](auto && track) {
         config.columnConfig[track->index()] = track->columnCount();
-    }
+    });
     return config;
 }
 
@@ -99,7 +101,7 @@ uint32_t Pattern::trackCount() const
 
 bool Pattern::hasData() const
 {
-    return std::find_if(m_tracks.begin(), m_tracks.end(), [](auto && track) {
+    return std::ranges::find_if(m_tracks, [](auto && track) {
                return track->hasData();
            })
       != m_tracks.end();
@@ -171,10 +173,10 @@ void Pattern::initialize(uint32_t lineCount, uint32_t trackCount)
 Pattern::EventList Pattern::renderToEvents(size_t startTick, size_t ticksPerLine) const
 {
     Pattern::EventList eventList;
-    for (auto && track : m_tracks) {
+    std::ranges::for_each(m_tracks, [&](auto && track) {
         const auto trackEvents = track->renderToEvents(startTick, ticksPerLine);
         std::copy(trackEvents.begin(), trackEvents.end(), std::back_inserter(eventList));
-    }
+    });
     return eventList;
 }
 
@@ -188,11 +190,11 @@ void Pattern::serializeToXml(QXmlStreamWriter & writer) const
 
     writer.writeStartElement(Constants::xmlKeyTracks());
 
-    for (const auto & track : m_tracks) {
+    std::ranges::for_each(m_tracks, [&writer](auto && track) {
         if (track) {
             track->serializeToXml(writer);
         }
-    }
+    });
 
     writer.writeEndElement(); // Tracks
 

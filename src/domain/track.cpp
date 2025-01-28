@@ -24,6 +24,8 @@
 
 #include <QXmlStreamWriter>
 
+#include <ranges>
+
 namespace noteahead {
 
 static const auto TAG = "Track";
@@ -113,7 +115,7 @@ void Track::setLineCount(uint32_t lineCount)
 
 bool Track::hasData() const
 {
-    return std::find_if(m_columns.begin(), m_columns.end(), [this](auto && column) {
+    return std::ranges::find_if(m_columns, [this](auto && column) {
                return column->index() < m_virtualColumnCount && column->hasData();
            })
       != m_columns.end();

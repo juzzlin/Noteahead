@@ -24,6 +24,8 @@
 
 #include <QXmlStreamWriter>
 
+#include <ranges>
+
 namespace noteahead {
 
 static const auto TAG = "Column";
@@ -50,7 +52,7 @@ void Column::initialize(uint32_t length)
 
 bool Column::hasData() const
 {
-    return std::find_if(m_lines.begin(), m_lines.end(), [](auto && line) {
+    return std::ranges::find_if(m_lines, [](auto && line) {
                return line->noteData()->type() != NoteData::Type::None;
            })
       != m_lines.end();
