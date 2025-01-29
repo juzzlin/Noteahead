@@ -98,6 +98,8 @@ When sequenced enough, press **SPACE** or use the play buttons to start playing.
 
 Create a new pattern by increasing the value on the **PAT** spinner. Use **LEN** to set the pattern length.
 
+Click on the pattern name to change it.
+
 ### Most important "special" keys
 
 * **ESC**: toggles the edit mode
