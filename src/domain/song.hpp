@@ -16,6 +16,7 @@
 #ifndef SONG_HPP
 #define SONG_HPP
 
+#include <chrono>
 #include <map>
 #include <memory>
 #include <optional>
@@ -130,9 +131,13 @@ public:
         size_t pattern = 0;
 
         size_t line = 0;
+
+        std::chrono::milliseconds currentTime;
     };
     using SongPositionOpt = std::optional<SongPosition>;
     SongPositionOpt songPositionByTick(size_t tick) const;
+
+    std::chrono::milliseconds lineToTime(size_t line) const;
 
     void serializeToXml(QXmlStreamWriter & writer) const;
 
@@ -189,6 +194,8 @@ private:
 
     EventList renderContent(size_t startPosition);
 
+    std::chrono::milliseconds tickToTime(size_t tick) const;
+
     void updateTickToSongPositionMapping(size_t patternStartTick, size_t playOrderSongPosition, size_t patternIndex, size_t lineCount);
 
     size_t m_beatsPerMinute = 120;
@@ -201,7 +208,7 @@ private:
 
     std::unique_ptr<PlayOrder> m_playOrder;
 
-    std::unordered_map<size_t, SongPosition> m_tickToPatternAndLineMap;
+    std::unordered_map<size_t, SongPosition> m_tickToSongPositionMap;
 
     std::string m_fileName;
 };

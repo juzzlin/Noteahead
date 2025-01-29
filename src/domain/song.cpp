@@ -224,7 +224,7 @@ size_t Song::ticksPerLine() const
 
 Song::SongPositionOpt Song::songPositionByTick(size_t tick) const
 {
-    if (const auto iter = m_tickToPatternAndLineMap.find(tick); iter != m_tickToPatternAndLineMap.end()) {
+    if (const auto iter = m_tickToSongPositionMap.find(tick); iter != m_tickToSongPositionMap.end()) {
         return iter->second;
     } else {
         return {};
@@ -287,10 +287,22 @@ Song::EventList Song::introduceNoteOffs(const EventList & events) const
     return processedEvents;
 }
 
+std::chrono::milliseconds Song::tickToTime(size_t tick) const
+{
+    return std::chrono::milliseconds { tick * 60'000 / m_beatsPerMinute / m_linesPerBeat / m_ticksPerLine };
+}
+
+std::chrono::milliseconds Song::lineToTime(size_t line) const
+{
+    return tickToTime(line * m_ticksPerLine);
+}
+
 void Song::updateTickToSongPositionMapping(size_t patternStartTick, size_t playOrderSongPosition, size_t patternIndex, size_t lineCount)
 {
     for (size_t lineIndex = 0; lineIndex < lineCount; lineIndex++) {
-        m_tickToPatternAndLineMap[patternStartTick + lineIndex * m_ticksPerLine] = { playOrderSongPosition, patternIndex, lineIndex };
+        const auto tick = patternStartTick + lineIndex * m_ticksPerLine;
+        const auto time = tickToTime(tick);
+        m_tickToSongPositionMap[tick] = { playOrderSongPosition, patternIndex, lineIndex, time };
     }
 }
 
@@ -322,7 +334,7 @@ Song::EventList Song::renderEndOfSong(Song::EventList eventList, size_t tick) co
 
 std::pair<Song::EventList, size_t> Song::renderPatterns(Song::EventList eventList, size_t tick, size_t startPosition)
 {
-    m_tickToPatternAndLineMap.clear();
+    m_tickToSongPositionMap.clear();
 
     for (size_t playOrderSongPosition = startPosition; playOrderSongPosition < m_playOrder->length(); playOrderSongPosition++) {
         const auto patternIndex = m_playOrder->positionToPattern(playOrderSongPosition);

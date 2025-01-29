@@ -52,6 +52,8 @@ private slots:
 
     void test_requestScroll_shouldChangePosition();
 
+    void test_requestScroll_shouldChangeCurrentTime();
+
     void test_requestTrackFocus_shouldChangePosition();
 
     void test_requestTrackFocus_shouldNotChangePosition();

@@ -44,6 +44,8 @@ void EditorServiceTest::test_defaultSong_shouldReturnCorrectProperties()
 
     QVERIFY(!editorService.canBeSaved());
     QVERIFY(!editorService.isModified());
+
+    QCOMPARE(editorService.currentTime(), "00:00:00.000");
 }
 
 void EditorServiceTest::test_defaultSong_shouldNotHaveNoteData()
@@ -299,6 +301,21 @@ void EditorServiceTest::test_requestScroll_shouldChangePosition()
     editorService.requestScroll(static_cast<int>(editorService.lineCount(editorService.currentPattern()) + 10));
     QCOMPARE(editorService.position().line, 10);
     QCOMPARE(positionChangedSpy.count(), 6);
+}
+
+void EditorServiceTest::test_requestScroll_shouldChangeCurrentTime()
+{
+    EditorService editorService;
+    QSignalSpy currentTimeChangedSpy { &editorService, &EditorService::currentTimeChanged };
+    QCOMPARE(currentTimeChangedSpy.count(), 0);
+    QCOMPARE(editorService.position().line, 0);
+    QCOMPARE(editorService.currentTime(), "00:00:00.000");
+
+    editorService.requestScroll(1);
+
+    QCOMPARE(currentTimeChangedSpy.count(), 1);
+    QCOMPARE(editorService.position().line, 1);
+    QCOMPARE(editorService.currentTime(), "00:00:00.062");
 }
 
 void EditorServiceTest::test_requestTrackFocus_shouldChangePosition()

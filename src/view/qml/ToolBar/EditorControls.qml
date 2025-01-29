@@ -12,7 +12,13 @@ Row {
         label: Row {
             spacing: 5
             TextField {
-                text: qsTr("Song")
+                text: qsTr("Song: ")
+                padding: 0
+                background: null
+                readOnly: true
+            }
+            TextField {
+                text: editorService.currentTime
                 padding: 0
                 background: null
                 readOnly: true

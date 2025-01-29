@@ -29,11 +29,13 @@
 
 namespace noteahead {
 
+using namespace std::chrono_literals;
+
 static const auto TAG = "EditorService";
 
 EditorService::EditorService()
-  : m_song { std::make_unique<Song>() } // Initial dummy song to guarantee valid requests
 {
+    setSong(std::make_unique<Song>()); // Initial dummy song to guarantee valid requests and UI
 }
 
 void EditorService::initialize()
@@ -66,6 +68,8 @@ void EditorService::setSong(SongS song)
     updateScrollBar();
 
     requestInstruments();
+
+    setCurrentTime(0ms);
 
     setIsModified(false);
 }
@@ -409,6 +413,41 @@ void EditorService::setCurrentPattern(size_t patternIndex)
     }
 
     notifyPositionChange(oldPosition);
+}
+
+QString EditorService::currentTime() const
+{
+    return m_currentTime;
+}
+
+// Return display time as "hh:mm:ss.sss"
+static QString getFormattedTime(std::chrono::milliseconds currentTime)
+{
+    using namespace std::chrono;
+
+    if (!currentTime.count()) {
+        return "00:00:00.000";
+    }
+
+    const auto totalSeconds = duration_cast<seconds>(currentTime).count();
+    const auto hours = totalSeconds / 3600;
+    const auto minutes = (totalSeconds % 3600) / 60;
+    const auto seconds = totalSeconds % 60;
+    const auto milliseconds = currentTime.count() % 1000;
+
+    return QString("%1:%2:%3.%4")
+      .arg(hours, 2, 10, QChar('0'))
+      .arg(minutes, 2, 10, QChar('0'))
+      .arg(seconds, 2, 10, QChar('0'))
+      .arg(milliseconds, 3, 10, QChar('0'));
+}
+
+void EditorService::setCurrentTime(std::chrono::milliseconds currentTime)
+{
+    if (const QString newDisplayTime = getFormattedTime(currentTime); m_currentTime != newDisplayTime) {
+        m_currentTime = newDisplayTime;
+        emit currentTimeChanged();
+    }
 }
 
 bool EditorService::hasData(size_t pattern, size_t track, size_t column) const
@@ -773,7 +812,6 @@ bool EditorService::requestPosition(size_t pattern, size_t track, size_t column,
     m_cursorPosition.column = column;
     m_cursorPosition.line = line;
     m_cursorPosition.lineColumn = lineColumn;
-
     notifyPositionChange(oldPosition);
 
     return true;
@@ -792,6 +830,7 @@ void EditorService::requestPositionByTick(size_t tick)
         m_cursorPosition.line = songPosition->line;
         notifyPositionChange(oldPosition);
         setPlayOrderSongPosition(songPosition->position);
+        setCurrentTime(songPosition->currentTime);
     }
 }
 
@@ -800,7 +839,7 @@ void EditorService::requestScroll(int steps)
     const auto oldPosition = m_cursorPosition;
     m_cursorPosition.line += static_cast<size_t>(steps);
     m_cursorPosition.line %= m_song->lineCount(m_cursorPosition.pattern);
-
+    setCurrentTime(m_song->lineToTime(m_cursorPosition.line));
     notifyPositionChange(oldPosition);
 }
 
