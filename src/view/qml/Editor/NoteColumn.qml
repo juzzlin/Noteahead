@@ -115,8 +115,11 @@ Rectangle {
     }
     function _scrollLines() {
         const lineHeight = _lineHeight();
+        const linesVisible = editorService.linesVisible();
         _lines.forEach(line => {
-                line.y = lineHeight * _scrolledLinePositionByLineIndex(line.index);
+                const scrolledLinePosition = _scrolledLinePositionByLineIndex(line.index);
+                line.y = lineHeight * scrolledLinePosition;
+                line.visible = scrolledLinePosition >= 0 && scrolledLinePosition <= linesVisible;
             });
     }
     function _setLineFocused(lineIndex, lineColumnIndex, focused) {
