@@ -187,7 +187,7 @@ FocusScope {
         _updateCurrentTrackDimensions();
     }
     function _updateCurrentLineCount(oldLineCount, newLineCount) {
-        const currentPattern = _patterns[editorService.currentPattern()];
+        const currentPattern = _patterns[editorService.currentPattern];
         _createTracks(currentPattern);
     }
     function _addColumn(trackIndex) {
