@@ -133,6 +133,16 @@ bool Song::hasData(size_t pattern, size_t track, size_t column) const
     return m_patterns.at(pattern)->hasData(track, column);
 }
 
+std::string Song::patternName(size_t patternIndex) const
+{
+    return m_patterns.at(patternIndex)->name();
+}
+
+void Song::setPatternName(size_t patternIndex, std::string name)
+{
+    m_patterns.at(patternIndex)->setName(name);
+}
+
 std::string Song::trackName(size_t trackIndex) const
 {
     return m_patterns.at(0)->trackName(trackIndex);
@@ -452,9 +462,11 @@ Song::PatternS Song::deserializePattern(QXmlStreamReader & reader)
 {
     juzzlin::L(TAG).trace() << "Reading Pattern started";
     const auto index = readUIntAttribute(reader, Constants::xmlKeyIndex());
+    const auto name = readStringAttribute(reader, Constants::xmlKeyName());
     const auto lineCount = readUIntAttribute(reader, Constants::xmlKeyLineCount());
     const auto trackCount = readUIntAttribute(reader, Constants::xmlKeyTrackCount());
     const auto pattern = std::make_shared<Pattern>(index, lineCount, trackCount);
+    pattern->setName(name.toStdString());
     while (!(reader.isEndElement() && !reader.name().compare(Constants::xmlKeyPattern()))) {
         juzzlin::L(TAG).trace() << "Pattern: Current element: " << reader.name().toString().toStdString();
         if (reader.isStartElement() && !reader.name().compare(Constants::xmlKeyTracks())) {

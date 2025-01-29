@@ -329,6 +329,18 @@ size_t EditorService::trackCount() const
     return m_song->trackCount();
 }
 
+QString EditorService::patternName(size_t patternIndex) const
+{
+    return QString::fromStdString(m_song->patternName(patternIndex));
+}
+
+void EditorService::setPatternName(size_t patternIndex, QString name)
+{
+    m_song->setPatternName(patternIndex, name.toStdString());
+
+    setIsModified(true);
+}
+
 QString EditorService::trackName(size_t trackIndex) const
 {
     return QString::fromStdString(m_song->trackName(trackIndex));
@@ -351,6 +363,16 @@ void EditorService::setInstrument(size_t trackIndex, InstrumentS instrument)
     m_song->setInstrument(trackIndex, instrument);
 
     setIsModified(true);
+}
+
+QString EditorService::currentPatternName() const
+{
+    return patternName(currentPattern());
+}
+
+void EditorService::setCurrentPatternName(QString patternName)
+{
+    setPatternName(currentPattern(), patternName);
 }
 
 size_t EditorService::currentPattern() const

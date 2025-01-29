@@ -112,6 +112,16 @@ bool Pattern::hasData(size_t track, size_t column) const
     return m_tracks.at(track)->hasData(column);
 }
 
+std::string Pattern::name() const
+{
+    return m_name;
+}
+
+void Pattern::setName(std::string name)
+{
+    m_name = name;
+}
+
 std::string Pattern::trackName(size_t trackIndex) const
 {
     return m_tracks.at(trackIndex)->name();
@@ -185,6 +195,7 @@ void Pattern::serializeToXml(QXmlStreamWriter & writer) const
     writer.writeStartElement(Constants::xmlKeyPattern());
 
     writer.writeAttribute(Constants::xmlKeyIndex(), QString::number(m_index));
+    writer.writeAttribute(Constants::xmlKeyName(), m_name);
     writer.writeAttribute(Constants::xmlKeyLineCount(), QString::number(lineCount()));
     writer.writeAttribute(Constants::xmlKeyTrackCount(), QString::number(trackCount()));
 

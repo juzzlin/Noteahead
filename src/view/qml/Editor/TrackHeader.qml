@@ -67,6 +67,7 @@ Rectangle {
             onTextChanged: rootItem.nameChanged(text)
             Keys.onReturnPressed: {
                 focus = false;
+                UiService.requestFocusOnEditorView();
             }
             ToolTip.delay: Constants.toolTipDelay
             ToolTip.timeout: Constants.toolTipTimeout

@@ -509,6 +509,23 @@ void EditorServiceTest::test_setSongPosition_shouldChangePattern()
     QCOMPARE(songPositionChangedSpy.count(), 2);
 }
 
+void EditorServiceTest::test_setPatternName_shouldChangePatternName()
+{
+    EditorService editorService;
+
+    editorService.setPatternName(0, "Foo");
+
+    QVERIFY(editorService.isModified());
+    QCOMPARE(editorService.patternName(0), "Foo");
+    QCOMPARE(editorService.currentPatternName(), "Foo");
+
+    editorService.setCurrentPatternName("Bar");
+
+    QVERIFY(editorService.isModified());
+    QCOMPARE(editorService.patternName(0), "Bar");
+    QCOMPARE(editorService.currentPatternName(), "Bar");
+}
+
 void EditorServiceTest::test_setTrackName_shouldChangeTrackName()
 {
     EditorService editorService;
@@ -544,6 +561,9 @@ void EditorServiceTest::test_toXmlFromXml_songProperties()
     EditorService editorServiceOut;
     editorServiceOut.setBeatsPerMinute(666);
     editorServiceOut.setLinesPerBeat(42);
+    editorServiceOut.setPatternName(0, "patternName");
+    editorServiceOut.setTrackName(0, "trackName0");
+    editorServiceOut.setTrackName(1, "trackName1");
 
     const auto xml = editorServiceOut.toXml();
 
@@ -558,8 +578,11 @@ void EditorServiceTest::test_toXmlFromXml_songProperties()
     QCOMPARE(positionChangedSpy.count(), 1);
     QCOMPARE(beatsPerMinuteChangedSpy.count(), 1);
     QCOMPARE(linesPerBeatChangedSpy.count(), 1);
-    QCOMPARE(editorServiceIn.beatsPerMinute(), 666);
-    QCOMPARE(editorServiceIn.linesPerBeat(), 42);
+    QCOMPARE(editorServiceIn.beatsPerMinute(), editorServiceOut.beatsPerMinute());
+    QCOMPARE(editorServiceIn.linesPerBeat(), editorServiceOut.linesPerBeat());
+    QCOMPARE(editorServiceIn.patternName(0), editorServiceOut.patternName(0));
+    QCOMPARE(editorServiceIn.trackName(0), editorServiceOut.trackName(0));
+    QCOMPARE(editorServiceIn.trackName(1), editorServiceOut.trackName(1));
 }
 
 void EditorServiceTest::test_toXmlFromXml_noteData_noteOn()

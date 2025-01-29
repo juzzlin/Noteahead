@@ -64,6 +64,8 @@ private slots:
 
     void test_setSongPosition_shouldChangePattern();
 
+    void test_setPatternName_shouldChangePatternName();
+
     void test_setTrackName_shouldChangeTrackName();
 
     void test_toXmlFromXml_playOrder();

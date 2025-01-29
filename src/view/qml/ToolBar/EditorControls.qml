@@ -9,9 +9,18 @@ Row {
     anchors.verticalCenter: parent.verticalCenter
     GroupBox {
         id: songGroupBox
-        title: qsTr("Song")
+        label: Row {
+            spacing: 5
+            TextField {
+                text: qsTr("Song")
+                padding: 0
+                background: null
+                readOnly: true
+            }
+        }
         Row {
             spacing: 20
+            anchors.verticalCenter: parent.verticalCenter
             PlayerControls {
                 id: playerControls
                 anchors.verticalCenter: parent.verticalCenter
@@ -71,11 +80,40 @@ Row {
         }
     }
     GroupBox {
-        title: qsTr("Pattern")
+        label: Row {
+            spacing: 5
+            TextField {
+                id: patternLabel
+                text: qsTr("Pattern: ")
+                padding: 0
+                background: null
+                readOnly: true
+            }
+            TextField {
+                placeholderText: qsTr("Pattern name")
+                text: editorService.currentPatternName
+                height: patternLabel.height
+                padding: 0
+                background: null
+                color: Constants.trackHeaderTextColor
+                font.bold: true
+                verticalAlignment: TextInput.AlignVCenter // Align text inside the field
+                Keys.onReturnPressed: {
+                    focus = false;
+                    UiService.requestFocusOnEditorView();
+                }
+                onTextChanged: editorService.setCurrentPatternName(text)
+                ToolTip.delay: Constants.toolTipDelay
+                ToolTip.timeout: Constants.toolTipTimeout
+                ToolTip.visible: hovered
+                ToolTip.text: qsTr("Set pattern name")
+            }
+        }
         anchors.top: songGroupBox.top
         anchors.bottom: songGroupBox.bottom
         Row {
             spacing: 20
+            anchors.verticalCenter: parent.verticalCenter
             Row {
                 spacing: 5
                 Text {
@@ -131,11 +169,20 @@ Row {
         }
     }
     GroupBox {
-        title: qsTr("Edit")
+        label: Row {
+            spacing: 5
+            TextField {
+                text: qsTr("Edit")
+                padding: 0
+                background: null
+                readOnly: true
+            }
+        }
         anchors.top: songGroupBox.top
         anchors.bottom: songGroupBox.bottom
         Row {
             spacing: 20
+            anchors.verticalCenter: parent.verticalCenter
             Row {
                 spacing: 5
                 Text {
@@ -217,11 +264,20 @@ Row {
         }
     }
     GroupBox {
-        title: qsTr("Tempo")
+        label: Row {
+            spacing: 5
+            TextField {
+                text: qsTr("Tempo")
+                padding: 0
+                background: null
+                readOnly: true
+            }
+        }
         anchors.top: songGroupBox.top
         anchors.bottom: songGroupBox.bottom
         Row {
             spacing: 20
+            anchors.verticalCenter: parent.verticalCenter
             Row {
                 spacing: 5
                 Text {

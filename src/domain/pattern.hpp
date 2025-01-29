@@ -64,13 +64,17 @@ public:
 
     bool hasData(size_t track, size_t column) const;
 
+    std::string name() const;
+
+    void setName(std::string name);
+
     std::string trackName(size_t trackIndex) const;
+
+    void setTrackName(size_t trackIndex, std::string name);
 
     using TrackS = std::shared_ptr<Track>;
 
     void addOrReplaceTrack(TrackS track);
-
-    void setTrackName(size_t trackIndex, std::string name);
 
     using InstrumentS = std::shared_ptr<Instrument>;
     InstrumentS instrument(size_t trackIndex) const;
@@ -100,6 +104,8 @@ private:
     void initialize(size_t lineCount, size_t trackCount);
 
     size_t m_index = 0;
+
+    std::string m_name;
 
     std::vector<std::shared_ptr<Track>> m_tracks;
 };

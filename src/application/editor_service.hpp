@@ -44,9 +44,11 @@ class EditorService : public QObject
 
     Q_PROPERTY(QString currentFileName READ currentFileName NOTIFY currentFileNameChanged)
 
-    Q_PROPERTY(size_t currentLineCount READ currentLineCount NOTIFY currentLineCountChanged)
-
     Q_PROPERTY(size_t currentPattern READ currentPattern NOTIFY currentPatternChanged)
+
+    Q_PROPERTY(QString currentPatternName READ currentPatternName NOTIFY currentPatternChanged)
+
+    Q_PROPERTY(size_t currentLineCount READ currentLineCount NOTIFY currentLineCountChanged)
 
     Q_PROPERTY(size_t playOrderSongPosition READ playOrderSongPosition NOTIFY playOrderSongPositionChanged)
 
@@ -89,6 +91,10 @@ public:
 
     Q_INVOKABLE void setCurrentLineCount(size_t lineCount);
 
+    Q_INVOKABLE QString currentPatternName() const;
+
+    Q_INVOKABLE void setCurrentPatternName(QString patternName);
+
     Q_INVOKABLE size_t minLineCount() const;
 
     Q_INVOKABLE size_t maxLineCount() const;
@@ -116,6 +122,10 @@ public:
     Q_INVOKABLE size_t patternCount() const;
 
     Q_INVOKABLE size_t trackCount() const;
+
+    Q_INVOKABLE QString patternName(size_t patternIndex) const;
+
+    Q_INVOKABLE void setPatternName(size_t patternIndex, QString name);
 
     Q_INVOKABLE QString trackName(size_t trackIndex) const;
 
