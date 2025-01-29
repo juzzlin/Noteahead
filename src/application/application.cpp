@@ -206,6 +206,7 @@ void Application::applyState(StateMachine::State state)
         break;
     case StateMachine::State::Save:
         m_editorService->save();
+        m_stateMachine->calculateState(StateMachine::Action::ProjectSaved);
         break;
     case StateMachine::State::ShowRecentFilesDialog:
         m_applicationService->requestRecentFilesDialog();

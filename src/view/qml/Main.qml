@@ -118,19 +118,6 @@ ApplicationWindow {
     UnsavedChangesDialog {
         id: unsavedChangesDialog
         anchors.centerIn: parent
-        onAccepted: {
-            uiLogger.info(_tag, "Unsaved changes accepted");
-            applicationService.acceptUnsavedChangesDialog();
-        }
-        onDiscarded: {
-            uiLogger.info(_tag, "Unsaved changes discarded");
-            applicationService.discardUnsavedChangesDialog();
-            close();
-        }
-        onRejected: {
-            uiLogger.info(_tag, "Unsaved changes rejected");
-            applicationService.rejectUnsavedChangesDialog();
-        }
     }
     function _getWindowTitle() {
         const nameAndVersion = `${applicationService.applicationName()} MIDI tracker v${applicationService.applicationVersion()}`;
