@@ -106,6 +106,10 @@ Create a new pattern by increasing the value on the **PAT** spinner. Use **LEN**
 
 * **A**: inserts a note off event
 
+* **F3**: decreases the current octave
+
+* **F4**: increases the current octave
+
 * **Z**..**M**: notes of the lower octave
 
 * **Q**..**U**: notes of the higher octave

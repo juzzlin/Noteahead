@@ -6,13 +6,13 @@ QtObject {
         if (event.key === Qt.Key_Up) {
             if (!UiService.isPlaying()) {
                 editorService.requestScroll(-1);
-                event.accepted = true;
             }
+            event.accepted = true;
         } else if (event.key === Qt.Key_Down) {
             if (!UiService.isPlaying()) {
                 editorService.requestScroll(1);
-                event.accepted = true;
             }
+            event.accepted = true;
         } else if (event.key === Qt.Key_Left) {
             editorService.requestCursorLeft();
             event.accepted = true;
@@ -23,16 +23,7 @@ QtObject {
             editorService.requestColumnRight();
             event.accepted = true;
         } else if (event.key === Qt.Key_Delete) {
-            if (UiService.editMode()) {
-                if (editorService.isAtNoteColumn()) {
-                    editorService.requestNoteDeletionAtCurrentPosition();
-                    editorService.requestScroll(UiService.activeStep());
-                } else if (editorService.isAtVelocityColumn) {
-                    if (editorService.requestDigitSetAtCurrentPosition(0)) {
-                        editorService.requestScroll(UiService.activeStep());
-                    }
-                }
-            }
+            _handleDelete();
             event.accepted = true;
         } else if (event.key === Qt.Key_Escape) {
             UiService.toggleEditMode();
@@ -40,15 +31,34 @@ QtObject {
         } else if (event.key === Qt.Key_Space) {
             UiService.togglePlay();
             event.accepted = true;
+        } else if (event.key === Qt.Key_F3) {
+            UiService.setActiveOctave(UiService.activeOctave() - 1);
+        } else if (event.key === Qt.Key_F4) {
+            UiService.setActiveOctave(UiService.activeOctave() + 1);
         } else if (event.key === Qt.Key_A) {
-            if (UiService.editMode()) {
-                if (editorService.requestNoteOffAtCurrentPosition()) {
-                    editorService.requestScroll(UiService.activeStep());
-                }
-            }
+            _handleNoteOff();
             event.accepted = true;
         } else {
             _handleNoteTriggered(event);
+        }
+    }
+    function _handleDelete() {
+        if (UiService.editMode()) {
+            if (editorService.isAtNoteColumn()) {
+                editorService.requestNoteDeletionAtCurrentPosition();
+                editorService.requestScroll(UiService.activeStep());
+            } else if (editorService.isAtVelocityColumn) {
+                if (editorService.requestDigitSetAtCurrentPosition(0)) {
+                    editorService.requestScroll(UiService.activeStep());
+                }
+            }
+        }
+    }
+    function _handleNoteOff() {
+        if (UiService.editMode()) {
+            if (editorService.requestNoteOffAtCurrentPosition()) {
+                editorService.requestScroll(UiService.activeStep());
+            }
         }
     }
     function _handleNoteTriggered(event) {

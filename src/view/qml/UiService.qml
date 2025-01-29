@@ -12,7 +12,7 @@ QtObject {
         return _activeOctave;
     }
     function setActiveOctave(octave) {
-        if (_activeOctave !== octave) {
+        if (0 >= octave <= 8 && _activeOctave !== octave) {
             _activeOctave = octave;
             activeOctaveChanged(_activeOctave);
         }
