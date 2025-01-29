@@ -27,6 +27,7 @@
 #include "play_order.hpp"
 #include "track.hpp"
 
+#include <algorithm>
 #include <ranges>
 
 #include <QXmlStreamReader>

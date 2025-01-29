@@ -16,7 +16,6 @@
 #include "midi_backend.hpp"
 
 #include <algorithm>
-#include <ranges>
 
 namespace noteahead {
 
@@ -29,7 +28,7 @@ MidiBackend::MidiDeviceList MidiBackend::listDevices() const
 
 MidiDeviceS MidiBackend::deviceByPortIndex(size_t index) const
 {
-    if (auto device = std::ranges::find_if(m_devices, [&index](auto & device) { return device->portIndex() == index; }); device != m_devices.end()) {
+    if (const auto device = std::ranges::find_if(m_devices, [&index](auto & device) { return device->portIndex() == index; }); device != m_devices.end()) {
         return *device;
     } else {
         return {};
@@ -60,21 +59,13 @@ MidiDeviceS MidiBackend::deviceByPortName(const std::string & name) const
         return device->second;
     }
 
-    MidiDeviceS bestMatch;
-    double bestScore = 0;
-    for (auto && device : m_devices) {
-        if (const auto score = portNameMatchScore(name, device->portName()); score > 0.75 && score > bestScore) {
-            bestScore = score;
-            bestMatch = device;
-        }
+    const auto bestMatch = std::ranges::max_element(m_devices, {}, [&](const auto & device) { return portNameMatchScore(name, device->portName()); });
+    if (bestMatch != m_devices.end() && portNameMatchScore(name, (*bestMatch)->portName()) > 0.75) {
+        m_portNameToDeviceCache[name] = *bestMatch;
+        return *bestMatch;
     }
 
-    if (bestMatch) {
-        m_portNameToDeviceCache[name] = bestMatch;
-        return bestMatch;
-    } else {
-        return {};
-    }
+    return {};
 }
 
 void MidiBackend::updateAvailableDevices()

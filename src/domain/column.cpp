@@ -24,7 +24,7 @@
 
 #include <QXmlStreamWriter>
 
-#include <ranges>
+#include <algorithm>
 
 namespace noteahead {
 
