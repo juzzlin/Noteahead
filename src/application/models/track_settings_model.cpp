@@ -36,8 +36,6 @@ void TrackSettingsModel::applyAll()
 
 void TrackSettingsModel::requestInstrumentData()
 {
-    m_applyDisabled = true;
-
     emit instrumentDataRequested();
 }
 
