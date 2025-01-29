@@ -161,6 +161,8 @@ public:
 
     Q_INVOKABLE void requestColumnDeletion(size_t track);
 
+    Q_INVOKABLE void requestNoteInsertionAtCurrentPosition();
+
     Q_INVOKABLE void requestNoteDeletionAtCurrentPosition();
 
     Q_INVOKABLE bool requestNoteOnAtCurrentPosition(uint8_t note, uint8_t octave, uint8_t velocity);
@@ -272,6 +274,8 @@ private:
     void createPatternIfDoesNotExist(size_t patternIndex);
 
     void deleteNoteDataAtPosition(const Position & position);
+
+    void insertNoteAtPosition(const Position & position);
 
     SongS deserializeProject(QXmlStreamReader & reader);
 

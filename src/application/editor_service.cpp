@@ -631,9 +631,26 @@ void EditorService::requestColumnDeletion(size_t track)
     }
 }
 
+void EditorService::requestNoteInsertionAtCurrentPosition()
+{
+    insertNoteAtPosition(m_cursorPosition);
+}
+
 void EditorService::requestNoteDeletionAtCurrentPosition()
 {
     deleteNoteDataAtPosition(m_cursorPosition);
+}
+
+void EditorService::insertNoteAtPosition(const Position & position)
+{
+    juzzlin::L(TAG).debug() << "Note insertion requested at position " << position.toString();
+    const NoteData noteData {};
+    if (const auto changedPositions = m_song->insertNoteDataAtPosition(noteData, position); !changedPositions.empty()) {
+        for (auto && changedPosition : changedPositions) {
+            emit noteDataAtPositionChanged(changedPosition);
+        }
+        setIsModified(true);
+    }
 }
 
 void EditorService::deleteNoteDataAtPosition(const Position & position)

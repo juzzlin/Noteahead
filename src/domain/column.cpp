@@ -113,6 +113,26 @@ void Column::setNoteDataAtPosition(const NoteData & noteData, const Position & p
     m_lines.at(static_cast<size_t>(position.line))->setNoteData(noteData);
 }
 
+using PositionList = std::vector<Position>;
+Column::PositionList Column::insertNoteDataAtPosition(const NoteData & noteData, const Position & position)
+{
+    juzzlin::L(TAG).debug() << "Set note data at position: " << noteData.toString() << " @ " << position.toString();
+    Column::PositionList changedPositions;
+    const auto newIndex = position.line;
+    const auto iter = m_lines.insert(m_lines.begin() + static_cast<long>(newIndex), m_lines.back());
+    (*iter)->setNoteData(noteData);
+    m_lines.pop_back();
+    for (size_t i = 0; i < m_lines.size(); i++) {
+        if (i >= newIndex) {
+            m_lines.at(i)->setIndex(i);
+            auto changedPosition = position;
+            changedPosition.line = i;
+            changedPositions.push_back(changedPosition);
+        }
+    }
+    return changedPositions;
+}
+
 Column::EventList Column::renderToEvents(size_t startTick, size_t ticksPerLine) const
 {
     EventList eventList;

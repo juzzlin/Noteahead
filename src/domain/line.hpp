@@ -33,6 +33,8 @@ public:
 
     size_t index() const;
 
+    void setIndex(size_t index);
+
     void clear();
 
     using NoteDataS = std::shared_ptr<NoteData>;

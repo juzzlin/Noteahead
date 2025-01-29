@@ -185,6 +185,12 @@ void Song::setNoteDataAtPosition(const NoteData & noteData, const Position & pos
     m_patterns.at(position.pattern)->setNoteDataAtPosition(noteData, position);
 }
 
+Song::PositionList Song::insertNoteDataAtPosition(const NoteData & noteData, const Position & position)
+{
+    juzzlin::L(TAG).trace() << "Insert note data at position: " << noteData.toString() << " @ " << position.toString();
+    return m_patterns.at(position.pattern)->insertNoteDataAtPosition(noteData, position);
+}
+
 Position Song::nextNoteDataOnSameColumn(const Position & position) const
 {
     return m_patterns.at(position.pattern)->nextNoteDataOnSameColumn(position);

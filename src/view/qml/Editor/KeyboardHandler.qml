@@ -28,6 +28,9 @@ QtObject {
         } else if (event.key === Qt.Key_Escape) {
             UiService.toggleEditMode();
             event.accepted = true;
+        } else if (event.key === Qt.Key_Insert) {
+            _handleInsert();
+            event.accepted = true;
         } else if (event.key === Qt.Key_Space) {
             UiService.togglePlay();
             event.accepted = true;
@@ -52,6 +55,11 @@ QtObject {
                     editorService.requestScroll(UiService.activeStep());
                 }
             }
+        }
+    }
+    function _handleInsert() {
+        if (UiService.editMode()) {
+            editorService.requestNoteInsertionAtCurrentPosition();
         }
     }
     function _handleNoteOff() {

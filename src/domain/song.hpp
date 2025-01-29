@@ -102,6 +102,9 @@ public:
 
     void setNoteDataAtPosition(const NoteData & noteData, const Position & position);
 
+    using PositionList = std::vector<Position>;
+    PositionList insertNoteDataAtPosition(const NoteData & noteData, const Position & position);
+
     Position nextNoteDataOnSameColumn(const Position & position) const;
 
     Position prevNoteDataOnSameColumn(const Position & position) const;

@@ -42,6 +42,11 @@ size_t Line::index() const
     return m_index;
 }
 
+void Line::setIndex(size_t index)
+{
+    m_index = index;
+}
+
 void Line::clear()
 {
     setNoteData({});

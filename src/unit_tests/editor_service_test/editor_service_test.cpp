@@ -182,6 +182,29 @@ void EditorServiceTest::test_requestNoteDeletionAtCurrentPosition_shouldDeleteNo
     QCOMPARE(editorService.displayVelocityAtPosition(0, 0, 0, 4), editorService.noDataString());
 }
 
+void EditorServiceTest::test_requestNoteInsertionAtCurrentPosition_shouldInsertNoteData()
+{
+    EditorService editorService;
+    QVERIFY(editorService.requestPosition(0, 0, 0, 10, 0));
+    QVERIFY(editorService.requestNoteOnAtCurrentPosition(1, 3, 64));
+    QVERIFY(editorService.requestPosition(0, 0, 0, 11, 0));
+    QVERIFY(editorService.requestNoteOnAtCurrentPosition(2, 3, 65));
+
+    editorService.setIsModified(false);
+    QVERIFY(editorService.requestPosition(0, 0, 0, 10, 0));
+    QSignalSpy noteDataChangedSpy { &editorService, &EditorService::noteDataAtPositionChanged };
+    editorService.requestNoteInsertionAtCurrentPosition();
+
+    QVERIFY(editorService.isModified());
+    QCOMPARE(noteDataChangedSpy.count(), 54);
+    QCOMPARE(editorService.displayNoteAtPosition(0, 0, 0, 10), editorService.noDataString());
+    QCOMPARE(editorService.displayVelocityAtPosition(0, 0, 0, 10), editorService.noDataString());
+    QCOMPARE(editorService.displayNoteAtPosition(0, 0, 0, 11), "C-3");
+    QCOMPARE(editorService.displayVelocityAtPosition(0, 0, 0, 11), "064");
+    QCOMPARE(editorService.displayNoteAtPosition(0, 0, 0, 12), "C#3");
+    QCOMPARE(editorService.displayVelocityAtPosition(0, 0, 0, 12), "065");
+}
+
 void EditorServiceTest::test_requestNoteOnAtCurrentPosition_shouldChangeNoteData()
 {
     EditorService editorService;

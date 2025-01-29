@@ -147,6 +147,12 @@ void Track::setNoteDataAtPosition(const NoteData & noteData, const Position & po
     m_columns.at(position.column)->setNoteDataAtPosition(noteData, position);
 }
 
+Track::PositionList Track::insertNoteDataAtPosition(const NoteData & noteData, const Position & position)
+{
+    juzzlin::L(TAG).debug() << "Insert note data at position: " << noteData.toString() << " @ " << position.toString();
+    return m_columns.at(position.column)->insertNoteDataAtPosition(noteData, position);
+}
+
 Track::EventList Track::renderToEvents(size_t startTick, size_t ticksPerLine) const
 {
     Track::EventList eventList;
