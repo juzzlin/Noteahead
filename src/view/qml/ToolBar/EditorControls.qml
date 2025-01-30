@@ -12,7 +12,7 @@ Row {
         label: Row {
             spacing: 5
             TextField {
-                text: `${editorService.currentTime} / ${editorService.duration}`
+                text: qsTr("Song") + ` | ${editorService.currentTime} / ${editorService.duration}`
                 padding: 0
                 background: null
                 readOnly: true
@@ -137,7 +137,7 @@ Row {
                     ToolTip.delay: Constants.toolTipDelay
                     ToolTip.timeout: Constants.toolTipTimeout
                     ToolTip.visible: hovered
-                    ToolTip.text: qsTr("Set current pattern and/or create a new pattern ") + ` (${editorService.minPatternIndex()}-${editorService.maxPatternIndex()})`
+                    ToolTip.text: qsTr("Set pattern to edit and/or create a new pattern ") + ` (${editorService.minPatternIndex()}-${editorService.maxPatternIndex()})`
                 }
             }
             Row {
