@@ -287,6 +287,15 @@ Song::EventList Song::introduceNoteOffs(const EventList & events) const
     return processedEvents;
 }
 
+size_t Song::startPositionToTick(size_t startPosition) const
+{
+    size_t tick = 0;
+    for (size_t position = 0; position < startPosition; position++) {
+        tick += m_patterns.at(m_playOrder->positionToPattern(position))->lineCount() * m_ticksPerLine;
+    }
+    return tick;
+}
+
 std::chrono::milliseconds Song::tickToTime(size_t tick) const
 {
     return std::chrono::milliseconds { tick * 60'000 / m_beatsPerMinute / m_linesPerBeat / m_ticksPerLine };
@@ -351,7 +360,7 @@ std::pair<Song::EventList, size_t> Song::renderPatterns(Song::EventList eventLis
 
 Song::EventList Song::renderContent(size_t startPosition)
 {
-    size_t tick = 0;
+    size_t tick = startPositionToTick(startPosition);
 
     auto eventList = renderStartOfSong(tick);
 
