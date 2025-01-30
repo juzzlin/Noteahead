@@ -444,8 +444,8 @@ static QString getFormattedTime(std::chrono::milliseconds currentTime)
 
 void EditorService::setCurrentTime(std::chrono::milliseconds currentTime)
 {
-    if (const QString newDisplayTime = getFormattedTime(currentTime); m_currentTime != newDisplayTime) {
-        m_currentTime = newDisplayTime;
+    if (const QString newCurrentTime = getFormattedTime(currentTime); m_currentTime != newCurrentTime) {
+        m_currentTime = newCurrentTime;
         emit currentTimeChanged();
     }
 }
