@@ -8,6 +8,12 @@ Noteahead is designed to be especially a MIDI tracker so it has/will have featur
 
 Noteahead is still a work in progress. **DO NOT USE FOR ANY REAL WORK** (except for me, of course :).
 
+<table>
+  <tr>
+    <td><img src="/screenshots/Noteahead_30-01-2025.png" width="100%"></td>
+  </tr>
+ </table>
+
 ##
 ## Features
 
