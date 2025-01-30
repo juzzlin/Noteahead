@@ -19,6 +19,7 @@
 #include "../contrib/SimpleLogger/src/simple_logger.hpp"
 #include "../domain/note_data.hpp"
 #include "../domain/song.hpp"
+#include "copy_manager.hpp"
 #include "instrument_request.hpp"
 #include "note_converter.hpp"
 
@@ -34,6 +35,7 @@ using namespace std::chrono_literals;
 static const auto TAG = "EditorService";
 
 EditorService::EditorService()
+  : m_copyManager { std::make_unique<CopyManager>() }
 {
     setSong(std::make_unique<Song>()); // Initial dummy song to guarantee valid requests and UI
 }
@@ -801,6 +803,29 @@ void EditorService::notifyPositionChange(const Position & oldPosition)
     }
 }
 
+void EditorService::requestPatternCopy()
+{
+    juzzlin::L(TAG).info() << "Requesting pattern copy";
+    m_song->copyPattern(currentPattern(), *m_copyManager);
+    emit statusTextRequested(tr("Pattern copied"));
+}
+
+void EditorService::requestPatternPaste()
+{
+    try {
+        juzzlin::L(TAG).info() << "Requesting pattern paste";
+        m_song->pastePattern(currentPattern(), *m_copyManager);
+        for (auto && changedPosition : m_copyManager->pastePattern()) {
+            emit noteDataAtPositionChanged(changedPosition);
+        }
+        emit statusTextRequested(tr("Pattern pasted"));
+        setIsModified(true);
+        updateDuration();
+    } catch (const std::runtime_error & e) {
+        emit statusTextRequested(tr("Failed to paste pattern!: ") + e.what());
+    }
+}
+
 bool EditorService::requestPosition(size_t pattern, size_t track, size_t column, size_t line, size_t lineColumn)
 {
     juzzlin::L(TAG).debug() << "Requesting position: " << pattern << " " << track << " " << column << " " << line << " " << lineColumn;
@@ -952,7 +977,7 @@ size_t EditorService::trackWidthInUnits(size_t trackIndex) const
 
 int EditorService::trackPositionInUnits(size_t trackIndex) const
 {
-    int unitPosition = -m_horizontalScrollPosition;
+    int unitPosition = -static_cast<int>(m_horizontalScrollPosition);
     for (size_t track = 0; track < trackIndex; track++) {
         unitPosition += m_song->columnCount(track);
     }
@@ -1014,5 +1039,7 @@ size_t EditorService::patternAtPlayOrderSongPosition(size_t songPosition) const
 {
     return m_song->patternAtSongPosition(songPosition);
 }
+
+EditorService::~EditorService() = default;
 
 } // namespace noteahead

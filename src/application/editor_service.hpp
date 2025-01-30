@@ -26,6 +26,7 @@ class QXmlStreamReader;
 
 namespace noteahead {
 
+class CopyManager;
 class Song;
 class Instrument;
 class InstrumentRequest;
@@ -64,6 +65,8 @@ class EditorService : public QObject
 
 public:
     EditorService();
+
+    ~EditorService() override;
 
     void initialize();
 
@@ -176,6 +179,10 @@ public:
     Q_INVOKABLE bool requestNoteOnAtCurrentPosition(uint8_t note, uint8_t octave, uint8_t velocity);
 
     Q_INVOKABLE bool requestNoteOffAtCurrentPosition();
+
+    Q_INVOKABLE void requestPatternCopy();
+
+    Q_INVOKABLE void requestPatternPaste();
 
     Q_INVOKABLE bool requestPosition(size_t pattern, size_t track, size_t column, size_t line, size_t lineColumn);
 
@@ -324,6 +331,8 @@ private:
     size_t m_horizontalScrollPosition = 0;
 
     size_t m_playOrderSongPosition = 0;
+
+    std::unique_ptr<CopyManager> m_copyManager;
 
     bool m_isModified = false;
 };

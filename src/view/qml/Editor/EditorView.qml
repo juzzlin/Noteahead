@@ -67,6 +67,11 @@ FocusScope {
             editorService.requestHorizontalScrollPositionChange(position);
         }
     }
+    MainContextMenu {
+        id: contextMenu
+        width: parent.width * 0.25
+        height: parent.height * 0.25
+    }
     Keys.onPressed: event => {
         keyboardHandler.handleKeyPressed(event);
         event.accepted = true;
@@ -97,9 +102,16 @@ FocusScope {
         track.y = 0;
     }
     function _connectTrack(track) {
-        track.clicked.connect(columnIndex => {
+        track.leftClicked.connect(columnIndex => {
                 editorService.requestTrackFocus(track.index(), columnIndex);
                 rootItem.forceActiveFocus();
+            });
+        track.rightClicked.connect((columnIndex, x, y) => {
+                editorService.requestTrackFocus(track.index(), columnIndex);
+                rootItem.forceActiveFocus();
+                contextMenu.x = track.x + x;
+                contextMenu.y = track.y + y;
+                contextMenu.open();
             });
     }
     function _createTracks(pattern) {

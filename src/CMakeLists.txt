@@ -12,6 +12,7 @@ set(HEADER_FILES
   application/application.hpp
   application/application_service.hpp
   application/config.hpp
+  application/copy_manager.hpp
   application/editor_service.hpp
   application/instrument_request.hpp
   application/midi_service.hpp
@@ -45,6 +46,7 @@ set(SOURCE_FILES
   application/application.cpp
   application/application_service.cpp
   application/config.cpp
+  application/copy_manager.cpp
   application/editor_service.cpp
   application/instrument_request.cpp
   application/midi_service.cpp
@@ -93,6 +95,7 @@ set(QML_SOURCE_FILES
     ${QML_BASE_DIR}/Editor/IndexHighlight.qml
     ${QML_BASE_DIR}/Editor/KeyboardHandler.qml
     ${QML_BASE_DIR}/Editor/LineNumberColumn.qml
+    ${QML_BASE_DIR}/Editor/MainContextMenu.qml
     ${QML_BASE_DIR}/Editor/NoteColumn.qml
     ${QML_BASE_DIR}/Editor/NoteColumnLine.qml
     ${QML_BASE_DIR}/Editor/Pattern.qml

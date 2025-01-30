@@ -124,6 +124,10 @@ Click on the pattern name to change it.
 
 * **Q**..**U**: notes of the higher octave
 
+* **Ctrl + F4**: copy the current pattern
+
+* **Ctrl + F5**: paste the copied pattern
+
 ##
 ## Why am I doing this?
 

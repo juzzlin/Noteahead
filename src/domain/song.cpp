@@ -15,6 +15,7 @@
 
 #include "song.hpp"
 
+#include "../application/copy_manager.hpp"
 #include "../application/position.hpp"
 #include "../common/constants.hpp"
 #include "../contrib/SimpleLogger/src/simple_logger.hpp"
@@ -41,6 +42,20 @@ Song::Song()
   : m_playOrder { std::make_unique<PlayOrder>() }
 {
     initialize();
+}
+
+void Song::copyPattern(size_t patternIndex, CopyManager & copyManager) const
+{
+    if (m_patterns.contains(patternIndex)) {
+        copyManager.setSourcePattern(m_patterns.at(patternIndex));
+    }
+}
+
+void Song::pastePattern(size_t patternIndex, CopyManager & copyManager) const
+{
+    if (m_patterns.contains(patternIndex)) {
+        copyManager.setTargetPattern(m_patterns.at(patternIndex));
+    }
 }
 
 void Song::createPattern(size_t patternIndex)

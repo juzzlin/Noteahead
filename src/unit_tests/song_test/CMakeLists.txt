@@ -3,6 +3,7 @@ set(NAME song_test)
 set(SRC
     ${NAME}.cpp
     ${NAME}.hpp
+    ../../application/copy_manager.cpp
     ../../application/position.hpp
     ../../domain/column.cpp
     ../../common/constants.cpp

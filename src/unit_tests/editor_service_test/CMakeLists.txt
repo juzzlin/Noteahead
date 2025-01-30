@@ -3,6 +3,7 @@ set(NAME editor_service_test)
 set(SRC
     ${NAME}.cpp
     ${NAME}.hpp
+    ../../application/copy_manager.cpp
     ../../application/editor_service.cpp
     ../../application/instrument_request.cpp
     ../../application/note_converter.cpp

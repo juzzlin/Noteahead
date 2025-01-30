@@ -32,6 +32,7 @@ class QXmlStreamWriter;
 namespace noteahead {
 
 class Column;
+class CopyManager;
 class Event;
 class Instrument;
 class Line;
@@ -47,6 +48,10 @@ public:
     Song();
 
     ~Song();
+
+    void copyPattern(size_t patternIndex, CopyManager & copyManager) const;
+
+    void pastePattern(size_t patternIndex, CopyManager & copyManager) const;
 
     void createPattern(size_t patternIndex);
 

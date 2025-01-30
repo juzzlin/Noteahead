@@ -5,7 +5,8 @@ Rectangle {
     id: rootItem
     color: Constants.noteColumnBackgroundColor
     clip: true
-    signal clicked
+    signal leftClicked(int x, int y)
+    signal rightClicked(int x, int y)
     property int _index: 0
     property int _patternIndex: 0
     property int _trackIndex: 0
@@ -151,9 +152,15 @@ Rectangle {
     MouseArea {
         id: clickHandler
         anchors.fill: parent
-        onClicked: {
-            uiLogger.debug(_tag, `Column ${rootItem._index} clicked`);
-            rootItem.clicked();
+        acceptedButtons: Qt.LeftButton | Qt.RightButton
+        onClicked: mouse => {
+            if (mouse.button === Qt.LeftButton) {
+                uiLogger.debug(_tag, `Column ${rootItem._index} left clicked`);
+                rootItem.leftClicked(mouse.x, mouse.y);
+            } else {
+                uiLogger.debug(_tag, `Column ${rootItem._index} right clicked`);
+                rootItem.rightClicked(mouse.x, mouse.y);
+            }
         }
         onWheel: event => {
             if (!UiService.isPlaying()) {
