@@ -1016,9 +1016,7 @@ void EditorService::setPlayOrderSongPosition(size_t songPosition)
 
 void EditorService::setPatternAtPlayOrderSongPosition(size_t songPosition, size_t pattern)
 {
-    if (!m_song->hasPattern(pattern)) {
-        setCurrentPattern(pattern);
-    }
+    setCurrentPattern(pattern);
 
     if (m_song->patternAtSongPosition(songPosition) != pattern) {
         m_song->setPatternAtSongPosition(songPosition, pattern);
