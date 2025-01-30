@@ -1,6 +1,6 @@
 # Noteahead
 
-A simple pattern-based MIDI tracker for Linux focusing on ease of use. There are no audio tracks, only MIDI.
+A simple MIDI tracker and sequencer for Linux focusing on ease of use. There are no audio tracks, only MIDI.
 
 Written in Qt/QML/C++20 on top of RtMidi back-end. Builds with CMake and uses CTest + Qt Test framework for unit tests.
 
