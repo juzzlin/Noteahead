@@ -28,6 +28,8 @@ private slots:
 
     void test_initialization_shouldReturnInitialMapping();
 
+    void test_flatten_shouldReturnCorrectMapping();
+
     void test_length_shouldReturnCorrectLength();
 
     void test_setAndGetPattern_shouldReturnCorrectValues();

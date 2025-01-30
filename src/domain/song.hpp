@@ -139,6 +139,8 @@ public:
 
     std::chrono::milliseconds lineToTime(size_t line) const;
 
+    std::chrono::milliseconds duration() const;
+
     void serializeToXml(QXmlStreamWriter & writer) const;
 
     void deserializeFromXml(QXmlStreamReader & reader);
@@ -193,6 +195,8 @@ private:
     std::pair<Song::EventList, size_t> renderPatterns(Song::EventList eventList, size_t tick, size_t startPosition);
 
     EventList renderContent(size_t startPosition);
+
+    size_t startPositionToTick(size_t startPosition) const;
 
     std::chrono::milliseconds tickToTime(size_t tick) const;
 

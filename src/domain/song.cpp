@@ -306,6 +306,15 @@ std::chrono::milliseconds Song::lineToTime(size_t line) const
     return tickToTime(line * m_ticksPerLine);
 }
 
+std::chrono::milliseconds Song::duration() const
+{
+    std::chrono::milliseconds d {};
+    for (auto && pattern : m_playOrder->flatten()) {
+        d += tickToTime(m_patterns.at(pattern)->lineCount() * m_ticksPerLine);
+    }
+    return d;
+}
+
 void Song::updateTickToSongPositionMapping(size_t patternStartTick, size_t playOrderSongPosition, size_t patternIndex, size_t lineCount)
 {
     for (size_t lineIndex = 0; lineIndex < lineCount; lineIndex++) {

@@ -18,6 +18,7 @@
 
 #include <cstddef>
 #include <map>
+#include <vector>
 
 class QXmlStreamWriter;
 
@@ -29,6 +30,9 @@ public:
     PlayOrder();
 
     size_t length() const;
+
+    using PatternList = std::vector<size_t>;
+    PatternList flatten() const;
 
     void setPatternAtPosition(size_t position, size_t pattern);
 

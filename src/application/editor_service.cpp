@@ -71,6 +71,8 @@ void EditorService::setSong(SongS song)
 
     setCurrentTime(0ms);
 
+    updateDuration();
+
     setIsModified(false);
 }
 
@@ -236,6 +238,7 @@ void EditorService::setCurrentLineCount(size_t lineCount)
         emit currentLineCountModified(oldLineCount, lineCount);
         notifyPositionChange(m_cursorPosition); // Force focus after tracks are rebuilt
         setIsModified(true);
+        updateDuration();
     }
 }
 
@@ -391,6 +394,7 @@ void EditorService::createPatternIfDoesNotExist(size_t patternIndex)
         emit patternCreated(patternIndex);
         emit statusTextRequested(tr("A new pattern created!"));
         setIsModified(true);
+        updateDuration();
     }
 }
 
@@ -420,6 +424,11 @@ QString EditorService::currentTime() const
     return m_currentTime;
 }
 
+QString EditorService::duration() const
+{
+    return m_duration;
+}
+
 // Return display time as "hh:mm:ss.sss"
 static QString getFormattedTime(std::chrono::milliseconds currentTime)
 {
@@ -447,6 +456,19 @@ void EditorService::setCurrentTime(std::chrono::milliseconds currentTime)
     if (const QString newCurrentTime = getFormattedTime(currentTime); m_currentTime != newCurrentTime) {
         m_currentTime = newCurrentTime;
         emit currentTimeChanged();
+    }
+}
+
+void EditorService::updateDuration()
+{
+    setDuration(m_song->duration());
+}
+
+void EditorService::setDuration(std::chrono::milliseconds duration)
+{
+    if (const QString newDuration = getFormattedTime(duration); m_duration != newDuration) {
+        m_duration = newDuration;
+        emit durationChanged();
     }
 }
 
@@ -689,6 +711,7 @@ void EditorService::insertNoteAtPosition(const Position & position)
             emit noteDataAtPositionChanged(changedPosition);
         }
         setIsModified(true);
+        updateDuration();
     }
 }
 
@@ -699,6 +722,7 @@ void EditorService::deleteNoteDataAtPosition(const Position & position)
     m_song->setNoteDataAtPosition(noteData, position);
     emit noteDataAtPositionChanged(position);
     setIsModified(true);
+    updateDuration();
 }
 
 bool EditorService::requestNoteOnAtCurrentPosition(uint8_t note, uint8_t octave, uint8_t velocity)
@@ -865,6 +889,7 @@ void EditorService::setBeatsPerMinute(size_t beatsPerMinute)
         m_song->setBeatsPerMinute(beatsPerMinute);
         emit beatsPerMinuteChanged();
         setIsModified(true);
+        updateDuration();
     }
 }
 
@@ -879,6 +904,7 @@ void EditorService::setLinesPerBeat(size_t linesPerBeat)
         m_song->setLinesPerBeat(linesPerBeat);
         emit linesPerBeatChanged();
         setIsModified(true);
+        updateDuration();
     }
 }
 
@@ -975,6 +1001,7 @@ void EditorService::setPatternAtPlayOrderSongPosition(size_t songPosition, size_
             emit patternAtCurrentPlayOrderSongPositionChanged();
         }
         setIsModified(true);
+        updateDuration();
     }
 }
 

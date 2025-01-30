@@ -52,6 +52,8 @@ class EditorService : public QObject
 
     Q_PROPERTY(QString currentTime READ currentTime NOTIFY currentTimeChanged)
 
+    Q_PROPERTY(QString duration READ duration NOTIFY durationChanged)
+
     Q_PROPERTY(size_t playOrderSongPosition READ playOrderSongPosition NOTIFY playOrderSongPositionChanged)
 
     Q_PROPERTY(size_t patternAtCurrentPlayOrderSongPosition READ patternAtCurrentPlayOrderSongPosition NOTIFY patternAtCurrentPlayOrderSongPositionChanged)
@@ -98,6 +100,8 @@ public:
     Q_INVOKABLE void setCurrentPatternName(QString patternName);
 
     Q_INVOKABLE QString currentTime() const;
+
+    Q_INVOKABLE QString duration() const;
 
     Q_INVOKABLE size_t minLineCount() const;
 
@@ -243,6 +247,8 @@ signals:
 
     void currentTimeChanged();
 
+    void durationChanged();
+
     void horizontalScrollChanged();
 
     void instrumentRequested(const InstrumentRequest & instrumentRequest);
@@ -301,6 +307,10 @@ private:
 
     void setCurrentTime(std::chrono::milliseconds currentTime);
 
+    void setDuration(std::chrono::milliseconds duration);
+
+    void updateDuration();
+
     void updateScrollBar();
 
     SongS m_song;
@@ -308,6 +318,8 @@ private:
     Position m_cursorPosition;
 
     QString m_currentTime;
+
+    QString m_duration;
 
     size_t m_horizontalScrollPosition = 0;
 

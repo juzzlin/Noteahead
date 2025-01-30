@@ -34,6 +34,15 @@ size_t PlayOrder::length() const
     return m_positionToPatternMap.rbegin()->first + 1;
 }
 
+PlayOrder::PatternList PlayOrder::flatten() const
+{
+    PlayOrder::PatternList patterns;
+    for (auto && it : m_positionToPatternMap) {
+        patterns.push_back(it.second);
+    }
+    return patterns;
+}
+
 void PlayOrder::setPatternAtPosition(size_t position, size_t pattern)
 {
     juzzlin::L(TAG).info() << "Position " << position << " mapped to pattern " << pattern;

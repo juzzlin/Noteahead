@@ -46,6 +46,7 @@ void EditorServiceTest::test_defaultSong_shouldReturnCorrectProperties()
     QVERIFY(!editorService.isModified());
 
     QCOMPARE(editorService.currentTime(), "00:00:00.000");
+    QCOMPARE(editorService.duration(), "00:00:04.000");
 }
 
 void EditorServiceTest::test_defaultSong_shouldNotHaveNoteData()
@@ -191,6 +192,7 @@ void EditorServiceTest::test_requestNoteInsertionAtCurrentPosition_shouldInsertN
     QVERIFY(editorService.requestNoteOnAtCurrentPosition(1, 3, 64));
     QVERIFY(editorService.requestPosition(0, 0, 0, 11, 0));
     QVERIFY(editorService.requestNoteOnAtCurrentPosition(2, 3, 65));
+    QCOMPARE(editorService.duration(), "00:00:04.000");
 
     editorService.setIsModified(false);
     QVERIFY(editorService.requestPosition(0, 0, 0, 10, 0));
@@ -205,6 +207,7 @@ void EditorServiceTest::test_requestNoteInsertionAtCurrentPosition_shouldInsertN
     QCOMPARE(editorService.displayVelocityAtPosition(0, 0, 0, 11), "064");
     QCOMPARE(editorService.displayNoteAtPosition(0, 0, 0, 12), "C#3");
     QCOMPARE(editorService.displayVelocityAtPosition(0, 0, 0, 12), "065");
+    QCOMPARE(editorService.duration(), "00:00:04.000");
 }
 
 void EditorServiceTest::test_requestNoteOnAtCurrentPosition_shouldChangeNoteData()
@@ -356,6 +359,7 @@ void EditorServiceTest::test_setCurrentLineCount_shouldSetLineCount()
 {
     EditorService editorService;
     QSignalSpy currentLineCountChangedSpy { &editorService, &EditorService::currentLineCountChanged };
+    QSignalSpy durationChangedSpy { &editorService, &EditorService::durationChanged };
     QSignalSpy positionChangedSpy { &editorService, &EditorService::positionChanged };
 
     // Min size
@@ -364,18 +368,24 @@ void EditorServiceTest::test_setCurrentLineCount_shouldSetLineCount()
     QCOMPARE(positionChangedSpy.count(), 1);
     QCOMPARE(editorService.currentLineCount(), editorService.minLineCount());
     QVERIFY(editorService.isModified());
+    QCOMPARE(durationChangedSpy.count(), 1);
+    QCOMPARE(editorService.duration(), "00:00:00.125");
 
     // No change
     editorService.setCurrentLineCount(editorService.minLineCount());
     QCOMPARE(currentLineCountChangedSpy.count(), 1);
     QCOMPARE(positionChangedSpy.count(), 1);
     QCOMPARE(editorService.currentLineCount(), editorService.minLineCount());
+    QCOMPARE(durationChangedSpy.count(), 1);
+    QCOMPARE(editorService.duration(), "00:00:00.125");
 
     // Expand
     editorService.setCurrentLineCount(256);
     QCOMPARE(currentLineCountChangedSpy.count(), 2);
     QCOMPARE(positionChangedSpy.count(), 2);
     QCOMPARE(editorService.currentLineCount(), 256);
+    QCOMPARE(durationChangedSpy.count(), 2);
+    QCOMPARE(editorService.duration(), "00:00:16.000");
 
     // Shrink with cursor line over the bounds
     editorService.requestPosition(0, 0, 0, 200, 0);
@@ -384,18 +394,24 @@ void EditorServiceTest::test_setCurrentLineCount_shouldSetLineCount()
     QCOMPARE(currentLineCountChangedSpy.count(), 3);
     QCOMPARE(editorService.currentLineCount(), 64);
     QCOMPARE(editorService.position().line, 63);
+    QCOMPARE(durationChangedSpy.count(), 3);
+    QCOMPARE(editorService.duration(), "00:00:04.000");
 
     // Max size
     editorService.setCurrentLineCount(editorService.maxLineCount());
     QCOMPARE(positionChangedSpy.count(), 6);
     QCOMPARE(currentLineCountChangedSpy.count(), 4);
     QCOMPARE(editorService.currentLineCount(), editorService.maxLineCount());
+    QCOMPARE(durationChangedSpy.count(), 4);
+    QCOMPARE(editorService.duration(), "00:01:02.437");
 
     // Beyond max size
     editorService.setCurrentLineCount(editorService.maxLineCount() + 1);
     QCOMPARE(positionChangedSpy.count(), 7);
     QCOMPARE(currentLineCountChangedSpy.count(), 5);
     QCOMPARE(editorService.currentLineCount(), editorService.maxLineCount());
+    QCOMPARE(durationChangedSpy.count(), 4);
+    QCOMPARE(editorService.duration(), "00:01:02.437");
 }
 
 void EditorServiceTest::test_setCurrentPattern_shouldCreatePattern()
@@ -413,6 +429,7 @@ void EditorServiceTest::test_setCurrentPattern_shouldCreatePattern()
     QCOMPARE(editorService.patternCount(), 1);
     QCOMPARE(positionChangedSpy.count(), 0);
     QCOMPARE(patternCreatedSpy.count(), 0);
+    QCOMPARE(editorService.duration(), "00:00:02.000");
 
     editorService.setCurrentPattern(1);
 
@@ -421,6 +438,7 @@ void EditorServiceTest::test_setCurrentPattern_shouldCreatePattern()
     QCOMPARE(editorService.lineCount(1), 32);
     QCOMPARE(positionChangedSpy.count(), 1);
     QCOMPARE(patternCreatedSpy.count(), 1);
+    QCOMPARE(editorService.duration(), "00:00:02.000"); // Play order has not changed
 
     editorService.setCurrentPattern(0);
 
@@ -428,6 +446,7 @@ void EditorServiceTest::test_setCurrentPattern_shouldCreatePattern()
     QCOMPARE(editorService.patternCount(), 2);
     QCOMPARE(positionChangedSpy.count(), 2);
     QCOMPARE(patternCreatedSpy.count(), 1);
+    QCOMPARE(editorService.duration(), "00:00:02.000");
 
     editorService.setCurrentPattern(1);
     editorService.setCurrentLineCount(128); // New pattern should take the previous line count
@@ -439,6 +458,7 @@ void EditorServiceTest::test_setCurrentPattern_shouldCreatePattern()
     QCOMPARE(editorService.lineCount(1), 128);
     QCOMPARE(positionChangedSpy.count(), 5);
     QCOMPARE(patternCreatedSpy.count(), 2);
+    QCOMPARE(editorService.duration(), "00:00:02.000");
 }
 
 void EditorServiceTest::test_setCurrentPattern_addColumnFirst_shouldCreatePattern()
@@ -465,6 +485,7 @@ void EditorServiceTest::test_setPatternAtSongPosition_shouldCreatePattern()
     EditorService editorService;
 
     QSignalSpy currentPatternChangedSpy { &editorService, &EditorService::currentPatternChanged };
+    QSignalSpy durationChangedSpy { &editorService, &EditorService::durationChanged };
     QSignalSpy patternAtCurrentSongPositionChangedSpy { &editorService, &EditorService::patternAtCurrentPlayOrderSongPositionChanged };
     QSignalSpy patternCreatedChangedSpy { &editorService, &EditorService::patternCreated };
     QSignalSpy positionChangedSpy { &editorService, &EditorService::positionChanged };
@@ -481,6 +502,8 @@ void EditorServiceTest::test_setPatternAtSongPosition_shouldCreatePattern()
     QCOMPARE(patternCreatedChangedSpy.count(), 0);
     QCOMPARE(positionChangedSpy.count(), 0);
     QCOMPARE(songPositionChangedSpy.count(), 0);
+    QCOMPARE(durationChangedSpy.count(), 0);
+    QCOMPARE(editorService.duration(), "00:00:04.000");
 
     editorService.setPatternAtPlayOrderSongPosition(0, 1);
 
@@ -493,6 +516,8 @@ void EditorServiceTest::test_setPatternAtSongPosition_shouldCreatePattern()
     QCOMPARE(patternCreatedChangedSpy.count(), 1);
     QCOMPARE(positionChangedSpy.count(), 1);
     QCOMPARE(songPositionChangedSpy.count(), 0);
+    QCOMPARE(durationChangedSpy.count(), 0);
+    QCOMPARE(editorService.duration(), "00:00:04.000");
 
     editorService.setPatternAtPlayOrderSongPosition(1, 1);
 
@@ -505,6 +530,8 @@ void EditorServiceTest::test_setPatternAtSongPosition_shouldCreatePattern()
     QCOMPARE(patternCreatedChangedSpy.count(), 1);
     QCOMPARE(positionChangedSpy.count(), 1);
     QCOMPARE(songPositionChangedSpy.count(), 0);
+    QCOMPARE(durationChangedSpy.count(), 1);
+    QCOMPARE(editorService.duration(), "00:00:08.000");
 }
 
 void EditorServiceTest::test_setSongPosition_shouldChangePattern()
