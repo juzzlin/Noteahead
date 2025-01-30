@@ -44,7 +44,7 @@ QString fileFormatVersion()
 
 QString fileFormatExtension()
 {
-    return ".naxml";
+    return ".nahd";
 }
 
 QString qSettingsCompanyName()

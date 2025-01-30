@@ -27,7 +27,7 @@ Noteahead is still a work in progress and there's a lot of limitations and missi
   - Noteahead automatically sets channel, bank, and patch
 * Unlimited number of tracks
 * Unlimited number of note columns per track
-* Saves to a custom (but open!) XML-based **.naxml** format
+* Saves to a custom (but open!) XML-based **.nahd** format
 
 ##
 ## Future dreams (**NOT YET IMPLEMENTED**):
