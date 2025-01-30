@@ -6,7 +6,7 @@ Written in Qt/QML/C++20 on top of RtMidi back-end. Builds with CMake and uses CT
 
 Noteahead is designed to be especially a MIDI tracker so it has/will have features that make MIDI sequencing as easy as possible, e.g. setting filter cutoff or changing patch on-the-fly without entering crypting hex values on a panning column.
 
-Noteahead is still a work in progress. **DO NOT USE FOR ANY REAL WORK** (except for me, of course :).
+Noteahead is still a work in progress and there's a lot of limitations and missing features. **DO NOT USE FOR ANY REAL WORK** (except for me, of course :).
 
 <table>
   <tr>
