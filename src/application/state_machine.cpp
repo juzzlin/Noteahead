@@ -17,11 +17,8 @@
 
 #include "application_service.hpp"
 #include "editor_service.hpp"
-#include "simple_logger.hpp"
 
 namespace noteahead {
-
-static const auto TAG = "StateMachine";
 
 StateMachine::StateMachine(ApplicationServiceS applicationService, EditorServiceS editorService, QObject * parent)
   : QObject { parent }
