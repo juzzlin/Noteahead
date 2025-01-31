@@ -51,11 +51,9 @@ void Song::copyPattern(size_t patternIndex, CopyManager & copyManager) const
     }
 }
 
-void Song::pastePattern(size_t patternIndex, CopyManager & copyManager) const
+std::vector<Position> Song::pastePattern(size_t patternIndex, CopyManager & copyManager) const
 {
-    if (m_patterns.contains(patternIndex)) {
-        copyManager.setTargetPattern(m_patterns.at(patternIndex));
-    }
+    return m_patterns.contains(patternIndex) ? copyManager.pastePattern(m_patterns.at(patternIndex)) : std::vector<Position> {};
 }
 
 void Song::createPattern(size_t patternIndex)

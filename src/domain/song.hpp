@@ -51,7 +51,7 @@ public:
 
     void copyPattern(size_t patternIndex, CopyManager & copyManager) const;
 
-    void pastePattern(size_t patternIndex, CopyManager & copyManager) const;
+    std::vector<Position> pastePattern(size_t patternIndex, CopyManager & copyManager) const;
 
     void createPattern(size_t patternIndex);
 

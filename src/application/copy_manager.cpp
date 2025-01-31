@@ -32,25 +32,20 @@ void CopyManager::setSourcePattern(PatternS pattern)
     m_sourcePattern = pattern;
 }
 
-void CopyManager::setTargetPattern(PatternS pattern)
+CopyManager::PositionList CopyManager::pastePattern(PatternS targetPattern)
 {
-    m_targetPattern = pattern;
-}
-
-CopyManager::PositionList CopyManager::pastePattern()
-{
-    if (!m_sourcePattern || !m_targetPattern) {
+    if (!m_sourcePattern || !targetPattern) {
         throw std::runtime_error("Target or source not set");
     }
 
-    juzzlin::L(TAG).info() << "Pasting pattern " << m_sourcePattern->index() << " on pattern " << m_targetPattern->index();
+    juzzlin::L(TAG).info() << "Pasting pattern " << m_sourcePattern->index() << " on pattern " << targetPattern->index();
 
-    if (m_sourcePattern == m_targetPattern) {
+    if (m_sourcePattern == targetPattern) {
         return {};
     }
 
     PositionList changedPositions;
-    const auto lineCount = std::min(m_sourcePattern->lineCount(), m_targetPattern->lineCount());
+    const auto lineCount = std::min(m_sourcePattern->lineCount(), targetPattern->lineCount());
     for (size_t trackIndex = 0; trackIndex < m_sourcePattern->trackCount(); trackIndex++) {
         juzzlin::L(TAG).debug() << "Copying track " << trackIndex;
         const auto columnCount = m_sourcePattern->columnCount(trackIndex);
@@ -60,10 +55,10 @@ CopyManager::PositionList CopyManager::pastePattern()
                 juzzlin::L(TAG).debug() << "Copying line " << lineIndex;
                 const Position sourcePosition = { m_sourcePattern->index(), trackIndex, columnIndex, lineIndex, 0 };
                 const auto newNoteData = m_sourcePattern->noteDataAtPosition(sourcePosition);
-                const Position targetPosition = { m_targetPattern->index(), trackIndex, columnIndex, lineIndex, 0 };
-                const auto oldNoteData = m_targetPattern->noteDataAtPosition(targetPosition);
+                const Position targetPosition = { targetPattern->index(), trackIndex, columnIndex, lineIndex, 0 };
+                const auto oldNoteData = targetPattern->noteDataAtPosition(targetPosition);
                 if (newNoteData != oldNoteData) {
-                    m_targetPattern->setNoteDataAtPosition(*newNoteData, targetPosition);
+                    targetPattern->setNoteDataAtPosition(*newNoteData, targetPosition);
                     changedPositions.push_back(targetPosition);
                 }
             }

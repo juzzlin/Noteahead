@@ -35,15 +35,11 @@ public:
     using PatternS = std::shared_ptr<Pattern>;
     void setSourcePattern(PatternS pattern);
 
-    void setTargetPattern(PatternS pattern);
-
     using PositionList = std::vector<Position>;
-    PositionList pastePattern();
+    PositionList pastePattern(PatternS targetPattern);
 
 private:
     PatternS m_sourcePattern;
-
-    PatternS m_targetPattern;
 };
 
 } // namespace noteahead

@@ -814,8 +814,7 @@ void EditorService::requestPatternPaste()
 {
     try {
         juzzlin::L(TAG).info() << "Requesting pattern paste";
-        m_song->pastePattern(currentPattern(), *m_copyManager);
-        for (auto && changedPosition : m_copyManager->pastePattern()) {
+        for (auto && changedPosition : m_song->pastePattern(currentPattern(), *m_copyManager)) {
             emit noteDataAtPositionChanged(changedPosition);
         }
         emit statusTextRequested(tr("Pattern pasted"));
