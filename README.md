@@ -49,6 +49,8 @@ Noteahead is written in Qt/QML/C++20, because it's a relevant, stable, and well-
 
 Only one "instrument" can be set per track (it will be possible to change patch on-the-fly, however). I don't like the traditional concept where each note includes the instrument number and can be inserted anywhere. In my opinion this easily leads into a mess and the workflow is clumsy.
 
+All values are entered in decimal format, typically ranging from 0 to 127 to align with the MIDI protocol and also used in many synthesizers. I've never been a fan of the hexadecimal notation commonly used in trackers.
+
 ### Internal timing strategy
 
 The song is rendered into events just before playing. Accurate timestamps are calculated for each event beforehand in order to achieve a drifting-free timing. The player thread syncs to these event timestamps. Wow, that's A-M-A-Z-I-N-G! \o/
