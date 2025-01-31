@@ -30,6 +30,10 @@ private slots:
 
     void test_defaultSong_shouldNotHaveNoteData();
 
+    void test_patternCopyPaste_equalSizes_shouldCopyPattern();
+
+    void test_patternCopyPaste_shorterTarget_shouldCopyPattern();
+
     void test_requestDigitSetAtCurrentPosition_velocity_shouldChangeVelocity();
 
     void test_requestHorizontalScrollPositionChange_shouldChangePosition();
