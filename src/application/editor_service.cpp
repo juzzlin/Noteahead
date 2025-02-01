@@ -819,6 +819,7 @@ void EditorService::requestColumnCut()
     for (auto && changedPosition : m_song->cutColumn(currentPattern(), currentTrack(), currentColumn(), *m_copyManager)) {
         emit noteDataAtPositionChanged(changedPosition);
     }
+    emit copyManagerStateChanged();
     emit statusTextRequested(tr("Column cut"));
     setIsModified(true);
 }
@@ -827,6 +828,7 @@ void EditorService::requestColumnCopy()
 {
     juzzlin::L(TAG).info() << "Requesting column copy";
     m_song->copyColumn(currentPattern(), currentTrack(), currentColumn(), *m_copyManager);
+    emit copyManagerStateChanged();
     emit statusTextRequested(tr("Column copied"));
 }
 
@@ -845,12 +847,18 @@ void EditorService::requestColumnPaste()
     }
 }
 
+bool EditorService::hasColumnToPaste() const
+{
+    return m_copyManager->mode() == CopyManager::Mode::Column;
+}
+
 void EditorService::requestTrackCut()
 {
     juzzlin::L(TAG).info() << "Requesting track cut";
     for (auto && changedPosition : m_song->cutTrack(currentPattern(), currentTrack(), *m_copyManager)) {
         emit noteDataAtPositionChanged(changedPosition);
     }
+    emit copyManagerStateChanged();
     emit statusTextRequested(tr("Track cut"));
     setIsModified(true);
 }
@@ -859,6 +867,7 @@ void EditorService::requestTrackCopy()
 {
     juzzlin::L(TAG).info() << "Requesting track copy";
     m_song->copyTrack(currentPattern(), currentTrack(), *m_copyManager);
+    emit copyManagerStateChanged();
     emit statusTextRequested(tr("Track copied"));
 }
 
@@ -877,6 +886,11 @@ void EditorService::requestTrackPaste()
     }
 }
 
+bool EditorService::hasTrackToPaste() const
+{
+    return m_copyManager->mode() == CopyManager::Mode::Track;
+}
+
 void EditorService::requestPatternCut()
 {
     juzzlin::L(TAG).info() << "Requesting pattern cut";
@@ -884,6 +898,7 @@ void EditorService::requestPatternCut()
         emit noteDataAtPositionChanged(changedPosition);
     }
     emit statusTextRequested(tr("Pattern cut"));
+    emit copyManagerStateChanged();
     setIsModified(true);
 }
 
@@ -891,6 +906,7 @@ void EditorService::requestPatternCopy()
 {
     juzzlin::L(TAG).info() << "Requesting pattern copy";
     m_song->copyPattern(currentPattern(), *m_copyManager);
+    emit copyManagerStateChanged();
     emit statusTextRequested(tr("Pattern copied"));
 }
 
@@ -907,6 +923,11 @@ void EditorService::requestPatternPaste()
     } catch (const std::runtime_error & e) {
         emit statusTextRequested(tr("Failed to paste pattern: ") + e.what());
     }
+}
+
+bool EditorService::hasPatternToPaste() const
+{
+    return m_copyManager->mode() == CopyManager::Mode::Pattern;
 }
 
 bool EditorService::requestPosition(size_t pattern, size_t track, size_t column, size_t line, size_t lineColumn)

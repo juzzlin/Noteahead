@@ -33,6 +33,16 @@ public:
 
     ~CopyManager();
 
+    enum class Mode
+    {
+        None,
+        Column,
+        Track,
+        Pattern
+    };
+
+    Mode mode() const;
+
     using PositionList = std::vector<Position>;
     PositionList pushSourcePattern(const Pattern & pattern);
 
@@ -48,6 +58,8 @@ public:
     PositionList pasteColumn(PatternS targetPattern, size_t trackIndex, size_t columnIndex);
 
 private:
+    Mode m_mode = Mode::None;
+
     PatternS m_sourcePattern;
 
     std::vector<std::pair<Position, NoteData>> m_copiedData;

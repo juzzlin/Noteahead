@@ -55,6 +55,12 @@ class EditorService : public QObject
 
     Q_PROPERTY(QString duration READ duration NOTIFY durationChanged)
 
+    Q_PROPERTY(bool hasColumnToPaste READ hasColumnToPaste NOTIFY copyManagerStateChanged)
+
+    Q_PROPERTY(bool hasTrackToPaste READ hasTrackToPaste NOTIFY copyManagerStateChanged)
+
+    Q_PROPERTY(bool hasPatternToPaste READ hasPatternToPaste NOTIFY copyManagerStateChanged)
+
     Q_PROPERTY(size_t playOrderSongPosition READ playOrderSongPosition NOTIFY playOrderSongPositionChanged)
 
     Q_PROPERTY(size_t patternAtCurrentPlayOrderSongPosition READ patternAtCurrentPlayOrderSongPosition NOTIFY patternAtCurrentPlayOrderSongPositionChanged)
@@ -186,17 +192,23 @@ public:
 
     Q_INVOKABLE void requestColumnPaste();
 
+    Q_INVOKABLE bool hasColumnToPaste() const;
+
     Q_INVOKABLE void requestTrackCut();
 
     Q_INVOKABLE void requestTrackCopy();
 
     Q_INVOKABLE void requestTrackPaste();
 
+    Q_INVOKABLE bool hasTrackToPaste() const;
+
     Q_INVOKABLE void requestPatternCut();
 
     Q_INVOKABLE void requestPatternCopy();
 
     Q_INVOKABLE void requestPatternPaste();
+
+    Q_INVOKABLE bool hasPatternToPaste() const;
 
     Q_INVOKABLE bool requestPosition(size_t pattern, size_t track, size_t column, size_t line, size_t lineColumn);
 
@@ -257,6 +269,8 @@ signals:
     void columnAdded(size_t track);
 
     void columnDeleted(size_t track);
+
+    void copyManagerStateChanged();
 
     void currentFileNameChanged();
 

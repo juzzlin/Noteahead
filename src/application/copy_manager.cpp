@@ -47,6 +47,7 @@ CopyManager::PositionList CopyManager::pushSourcePattern(const Pattern & pattern
             }
         }
     }
+    m_mode = Mode::Pattern;
     return changedPositions;
 }
 
@@ -68,6 +69,7 @@ CopyManager::PositionList CopyManager::pushSourceTrack(const Pattern & pattern, 
             }
         }
     }
+    m_mode = Mode::Track;
     return changedPositions;
 }
 
@@ -86,6 +88,7 @@ CopyManager::PositionList CopyManager::pushSourceColumn(const Pattern & pattern,
             changedPositions.push_back(position);
         }
     }
+    m_mode = Mode::Column;
     return changedPositions;
 }
 
@@ -142,6 +145,11 @@ CopyManager::PositionList CopyManager::pasteColumn(PatternS targetPattern, size_
         }
     }
     return changedPositions;
+}
+
+CopyManager::Mode CopyManager::mode() const
+{
+    return m_mode;
 }
 
 CopyManager::~CopyManager() = default;

@@ -19,7 +19,7 @@ Menu {
     Action {
         text: qsTr("Paste column")
         shortcut: "Alt+F5"
-        enabled: UiService.editMode() && !UiService.isPlaying()
+        enabled: UiService.editMode() && !UiService.isPlaying() && editorService.hasColumnToPaste
         onTriggered: editorService.requestColumnPaste()
     }
     MenuSeparator {
@@ -38,7 +38,7 @@ Menu {
     Action {
         text: qsTr("Paste track")
         shortcut: "Shift+F5"
-        enabled: UiService.editMode() && !UiService.isPlaying()
+        enabled: UiService.editMode() && !UiService.isPlaying() && editorService.hasTrackToPaste
         onTriggered: editorService.requestTrackPaste()
     }
     MenuSeparator {
@@ -57,7 +57,7 @@ Menu {
     Action {
         text: qsTr("Paste pattern")
         shortcut: "Ctrl+F5"
-        enabled: UiService.editMode() && !UiService.isPlaying()
+        enabled: UiService.editMode() && !UiService.isPlaying() && editorService.hasPatternToPaste
         onTriggered: editorService.requestPatternPaste()
     }
     delegate: MainMenuItemDelegate {
