@@ -241,6 +241,94 @@ void EditorServiceTest::test_trackCopyPaste_shorterTarget_shouldCopyTrack()
     QCOMPARE(editorService.displayVelocityAtPosition(1, 0, 0, 0), "064");
 }
 
+void EditorServiceTest::test_columnCutPaste_equalSizes_shouldCopyColumn()
+{
+    EditorService editorService;
+    QSignalSpy noteDataChangedSpy { &editorService, &EditorService::noteDataAtPositionChanged };
+    QVERIFY(editorService.requestPosition(0, 0, 0, 0, 0));
+    QVERIFY(editorService.requestNoteOnAtCurrentPosition(1, 3, 64));
+    QCOMPARE(noteDataChangedSpy.count(), 1);
+
+    editorService.setIsModified(false);
+    editorService.requestColumnCut();
+    QVERIFY(editorService.isModified());
+    QCOMPARE(noteDataChangedSpy.count(), 65);
+    editorService.setCurrentPattern(1);
+    editorService.requestPaste();
+
+    QCOMPARE(noteDataChangedSpy.count(), 129);
+    QCOMPARE(editorService.displayNoteAtPosition(0, 0, 0, 0), editorService.noDataString());
+    QCOMPARE(editorService.displayVelocityAtPosition(0, 0, 0, 0), editorService.noDataString());
+    QCOMPARE(editorService.displayNoteAtPosition(1, 0, 0, 0), "C-3");
+    QCOMPARE(editorService.displayVelocityAtPosition(1, 0, 0, 0), "064");
+}
+
+void EditorServiceTest::test_columnCutPaste_shorterTarget_shouldCopyColumn()
+{
+    EditorService editorService;
+    QSignalSpy noteDataChangedSpy { &editorService, &EditorService::noteDataAtPositionChanged };
+    QVERIFY(editorService.requestPosition(0, 0, 0, 0, 0));
+    QVERIFY(editorService.requestNoteOnAtCurrentPosition(1, 3, 64));
+    QCOMPARE(noteDataChangedSpy.count(), 1);
+
+    editorService.setIsModified(false);
+    editorService.requestColumnCut();
+    QVERIFY(editorService.isModified());
+    QCOMPARE(noteDataChangedSpy.count(), 65);
+    editorService.setCurrentPattern(1);
+    editorService.setCurrentLineCount(32);
+    editorService.requestPaste();
+
+    QCOMPARE(noteDataChangedSpy.count(), 97);
+    QCOMPARE(editorService.displayNoteAtPosition(0, 0, 0, 0), editorService.noDataString());
+    QCOMPARE(editorService.displayVelocityAtPosition(0, 0, 0, 0), editorService.noDataString());
+    QCOMPARE(editorService.displayNoteAtPosition(1, 0, 0, 0), "C-3");
+    QCOMPARE(editorService.displayVelocityAtPosition(1, 0, 0, 0), "064");
+}
+
+void EditorServiceTest::test_columnCopyPaste_equalSizes_shouldCopyColumn()
+{
+    EditorService editorService;
+    QSignalSpy noteDataChangedSpy { &editorService, &EditorService::noteDataAtPositionChanged };
+    QVERIFY(editorService.requestPosition(0, 0, 0, 0, 0));
+    QVERIFY(editorService.requestNoteOnAtCurrentPosition(1, 3, 64));
+    QCOMPARE(noteDataChangedSpy.count(), 1);
+
+    editorService.setIsModified(false);
+    editorService.requestColumnCopy();
+    QVERIFY(!editorService.isModified());
+    editorService.setCurrentPattern(1);
+    editorService.requestPaste();
+
+    QCOMPARE(noteDataChangedSpy.count(), 65);
+    QCOMPARE(editorService.displayNoteAtPosition(0, 0, 0, 0), "C-3");
+    QCOMPARE(editorService.displayVelocityAtPosition(0, 0, 0, 0), "064");
+    QCOMPARE(editorService.displayNoteAtPosition(1, 0, 0, 0), "C-3");
+    QCOMPARE(editorService.displayVelocityAtPosition(1, 0, 0, 0), "064");
+}
+
+void EditorServiceTest::test_columnCopyPaste_shorterTarget_shouldCopyColumn()
+{
+    EditorService editorService;
+    QSignalSpy noteDataChangedSpy { &editorService, &EditorService::noteDataAtPositionChanged };
+    QVERIFY(editorService.requestPosition(0, 0, 0, 0, 0));
+    QVERIFY(editorService.requestNoteOnAtCurrentPosition(1, 3, 64));
+    QCOMPARE(noteDataChangedSpy.count(), 1);
+
+    editorService.setIsModified(false);
+    editorService.requestColumnCopy();
+    QVERIFY(!editorService.isModified());
+    editorService.setCurrentPattern(1);
+    editorService.setCurrentLineCount(32);
+    editorService.requestPaste();
+
+    QCOMPARE(noteDataChangedSpy.count(), 33);
+    QCOMPARE(editorService.displayNoteAtPosition(0, 0, 0, 0), "C-3");
+    QCOMPARE(editorService.displayVelocityAtPosition(0, 0, 0, 0), "064");
+    QCOMPARE(editorService.displayNoteAtPosition(1, 0, 0, 0), "C-3");
+    QCOMPARE(editorService.displayVelocityAtPosition(1, 0, 0, 0), "064");
+}
+
 void EditorServiceTest::test_requestDigitSetAtCurrentPosition_velocity_shouldChangeVelocity()
 {
     EditorService editorService;

@@ -46,6 +46,14 @@ private slots:
 
     void test_trackCopyPaste_shorterTarget_shouldCopyTrack();
 
+    void test_columnCutPaste_equalSizes_shouldCopyColumn();
+
+    void test_columnCutPaste_shorterTarget_shouldCopyColumn();
+
+    void test_columnCopyPaste_equalSizes_shouldCopyColumn();
+
+    void test_columnCopyPaste_shorterTarget_shouldCopyColumn();
+
     void test_requestDigitSetAtCurrentPosition_velocity_shouldChangeVelocity();
 
     void test_requestHorizontalScrollPositionChange_shouldChangePosition();

@@ -91,6 +91,27 @@ void Song::copyTrack(size_t patternIndex, size_t trackIndex, CopyManager & copyM
     }
 }
 
+Song::ChangedPositions Song::cutColumn(size_t patternIndex, size_t trackIndex, size_t columnIndex, CopyManager & copyManager) const
+{
+    if (m_patterns.contains(trackIndex)) {
+        const auto sourcePattern = m_patterns.at(patternIndex);
+        const auto changedPositions = copyManager.pushSourceColumn(*sourcePattern, trackIndex, columnIndex);
+        for (auto && changedPosition : changedPositions) {
+            sourcePattern->setNoteDataAtPosition(NoteData {}, changedPosition);
+        }
+        return changedPositions;
+    } else {
+        return {};
+    }
+}
+
+void Song::copyColumn(size_t patternIndex, size_t trackIndex, size_t columnIndex, CopyManager & copyManager) const
+{
+    if (m_patterns.contains(patternIndex)) {
+        copyManager.pushSourceColumn(*m_patterns.at(patternIndex), trackIndex, columnIndex);
+    }
+}
+
 void Song::createPattern(size_t patternIndex)
 {
     if (m_patterns.empty()) {

@@ -394,6 +394,11 @@ size_t EditorService::currentTrack() const
     return m_cursorPosition.track;
 }
 
+size_t EditorService::currentColumn() const
+{
+    return m_cursorPosition.column;
+}
+
 void EditorService::createPatternIfDoesNotExist(size_t patternIndex)
 {
     if (!m_song->hasPattern(patternIndex)) {
@@ -806,6 +811,23 @@ void EditorService::notifyPositionChange(const Position & oldPosition)
     if (m_cursorPosition.pattern != oldPosition.pattern) {
         emit currentPatternChanged();
     }
+}
+
+void EditorService::requestColumnCut()
+{
+    juzzlin::L(TAG).info() << "Requesting column cut";
+    for (auto && changedPosition : m_song->cutColumn(currentPattern(), currentTrack(), currentColumn(), *m_copyManager)) {
+        emit noteDataAtPositionChanged(changedPosition);
+    }
+    emit statusTextRequested(tr("Column cut"));
+    setIsModified(true);
+}
+
+void EditorService::requestColumnCopy()
+{
+    juzzlin::L(TAG).info() << "Requesting column copy";
+    m_song->copyColumn(currentPattern(), currentTrack(), currentColumn(), *m_copyManager);
+    emit statusTextRequested(tr("Column copied"));
 }
 
 void EditorService::requestTrackCut()

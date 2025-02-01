@@ -6,6 +6,25 @@ import ".."
 Menu {
     id: rootItem
     Action {
+        text: qsTr("Cut column")
+        shortcut: "Alt+F3"
+        enabled: UiService.editMode() && !UiService.isPlaying()
+        onTriggered: editorService.requestColumnCut()
+    }
+    Action {
+        text: qsTr("Copy column")
+        shortcut: "Alt+F4"
+        onTriggered: editorService.requestColumnCopy()
+    }
+    Action {
+        text: qsTr("Paste column")
+        shortcut: "Alt+F5"
+        enabled: UiService.editMode() && !UiService.isPlaying()
+        onTriggered: editorService.requestPaste()
+    }
+    MenuSeparator {
+    }
+    Action {
         text: qsTr("Cut track")
         shortcut: "Shift+F3"
         enabled: UiService.editMode() && !UiService.isPlaying()

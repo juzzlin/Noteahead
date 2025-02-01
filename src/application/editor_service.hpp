@@ -146,8 +146,6 @@ public:
 
     Q_INVOKABLE void setCurrentPattern(size_t currentPattern);
 
-    Q_INVOKABLE size_t currentTrack() const;
-
     Q_INVOKABLE bool hasData(size_t pattern, size_t track, size_t column) const;
 
     Q_INVOKABLE bool isAtNoteColumn() const;
@@ -181,6 +179,10 @@ public:
     Q_INVOKABLE bool requestNoteOnAtCurrentPosition(uint8_t note, uint8_t octave, uint8_t velocity);
 
     Q_INVOKABLE bool requestNoteOffAtCurrentPosition();
+
+    Q_INVOKABLE void requestColumnCut();
+
+    Q_INVOKABLE void requestColumnCopy();
 
     Q_INVOKABLE void requestTrackCut();
 
@@ -299,6 +301,10 @@ private:
     void clampCursorLine(size_t oldLineCount, size_t newLineCount);
 
     void createPatternIfDoesNotExist(size_t patternIndex);
+
+    size_t currentTrack() const;
+
+    size_t currentColumn() const;
 
     void deleteNoteDataAtPosition(const Position & position);
 
