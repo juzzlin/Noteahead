@@ -38,6 +38,14 @@ private slots:
 
     void test_patternCopyPaste_shorterTarget_shouldCopyPattern();
 
+    void test_trackCutPaste_equalSizes_shouldCopyTrack();
+
+    void test_trackCutPaste_shorterTarget_shouldCopyTrack();
+
+    void test_trackCopyPaste_equalSizes_shouldCopyTrack();
+
+    void test_trackCopyPaste_shorterTarget_shouldCopyTrack();
+
     void test_requestDigitSetAtCurrentPosition_velocity_shouldChangeVelocity();
 
     void test_requestHorizontalScrollPositionChange_shouldChangePosition();

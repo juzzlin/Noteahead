@@ -146,6 +146,8 @@ public:
 
     Q_INVOKABLE void setCurrentPattern(size_t currentPattern);
 
+    Q_INVOKABLE size_t currentTrack() const;
+
     Q_INVOKABLE bool hasData(size_t pattern, size_t track, size_t column) const;
 
     Q_INVOKABLE bool isAtNoteColumn() const;
@@ -180,11 +182,15 @@ public:
 
     Q_INVOKABLE bool requestNoteOffAtCurrentPosition();
 
+    Q_INVOKABLE void requestTrackCut();
+
+    Q_INVOKABLE void requestTrackCopy();
+
     Q_INVOKABLE void requestPatternCut();
 
     Q_INVOKABLE void requestPatternCopy();
 
-    Q_INVOKABLE void requestPatternPaste();
+    Q_INVOKABLE void requestPaste();
 
     Q_INVOKABLE bool requestPosition(size_t pattern, size_t track, size_t column, size_t line, size_t lineColumn);
 

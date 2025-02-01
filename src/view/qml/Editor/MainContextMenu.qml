@@ -6,6 +6,25 @@ import ".."
 Menu {
     id: rootItem
     Action {
+        text: qsTr("Cut track")
+        shortcut: "Shift+F3"
+        enabled: UiService.editMode() && !UiService.isPlaying()
+        onTriggered: editorService.requestTrackCut()
+    }
+    Action {
+        text: qsTr("Copy track")
+        shortcut: "Shift+F4"
+        onTriggered: editorService.requestTrackCopy()
+    }
+    Action {
+        text: qsTr("Paste track")
+        shortcut: "Shift+F5"
+        enabled: UiService.editMode() && !UiService.isPlaying()
+        onTriggered: editorService.requestPaste()
+    }
+    MenuSeparator {
+    }
+    Action {
         text: qsTr("Cut pattern")
         shortcut: "Ctrl+F3"
         enabled: UiService.editMode() && !UiService.isPlaying()
@@ -20,7 +39,7 @@ Menu {
         text: qsTr("Paste pattern")
         shortcut: "Ctrl+F5"
         enabled: UiService.editMode() && !UiService.isPlaying()
-        onTriggered: editorService.requestPatternPaste()
+        onTriggered: editorService.requestPaste()
     }
     delegate: MainMenuItemDelegate {
     }

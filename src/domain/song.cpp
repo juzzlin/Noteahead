@@ -48,7 +48,7 @@ Song::ChangedPositions Song::cutPattern(size_t patternIndex, CopyManager & copyM
 {
     if (m_patterns.contains(patternIndex)) {
         const auto sourcePattern = m_patterns.at(patternIndex);
-        const auto changedPositions = copyManager.pushSourceData(*sourcePattern);
+        const auto changedPositions = copyManager.pushSourcePattern(*sourcePattern);
         for (auto && changedPosition : changedPositions) {
             sourcePattern->setNoteDataAtPosition(NoteData {}, changedPosition);
         }
@@ -61,13 +61,34 @@ Song::ChangedPositions Song::cutPattern(size_t patternIndex, CopyManager & copyM
 void Song::copyPattern(size_t patternIndex, CopyManager & copyManager) const
 {
     if (m_patterns.contains(patternIndex)) {
-        copyManager.pushSourceData(*m_patterns.at(patternIndex));
+        copyManager.pushSourcePattern(*m_patterns.at(patternIndex));
     }
 }
 
-Song::ChangedPositions Song::pastePattern(size_t patternIndex, CopyManager & copyManager) const
+Song::ChangedPositions Song::pasteCopiedData(size_t patternIndex, CopyManager & copyManager) const
 {
-    return m_patterns.contains(patternIndex) ? copyManager.pastePattern(m_patterns.at(patternIndex)) : Song::ChangedPositions {};
+    return m_patterns.contains(patternIndex) ? copyManager.pasteCopiedData(m_patterns.at(patternIndex)) : Song::ChangedPositions {};
+}
+
+Song::ChangedPositions Song::cutTrack(size_t patternIndex, size_t trackIndex, CopyManager & copyManager) const
+{
+    if (m_patterns.contains(trackIndex)) {
+        const auto sourcePattern = m_patterns.at(patternIndex);
+        const auto changedPositions = copyManager.pushSourceTrack(*sourcePattern, trackIndex);
+        for (auto && changedPosition : changedPositions) {
+            sourcePattern->setNoteDataAtPosition(NoteData {}, changedPosition);
+        }
+        return changedPositions;
+    } else {
+        return {};
+    }
+}
+
+void Song::copyTrack(size_t patternIndex, size_t trackIndex, CopyManager & copyManager) const
+{
+    if (m_patterns.contains(patternIndex)) {
+        copyManager.pushSourceTrack(*m_patterns.at(patternIndex), trackIndex);
+    }
 }
 
 void Song::createPattern(size_t patternIndex)

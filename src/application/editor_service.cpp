@@ -389,6 +389,11 @@ size_t EditorService::currentPattern() const
     return m_cursorPosition.pattern;
 }
 
+size_t EditorService::currentTrack() const
+{
+    return m_cursorPosition.track;
+}
+
 void EditorService::createPatternIfDoesNotExist(size_t patternIndex)
 {
     if (!m_song->hasPattern(patternIndex)) {
@@ -803,6 +808,23 @@ void EditorService::notifyPositionChange(const Position & oldPosition)
     }
 }
 
+void EditorService::requestTrackCut()
+{
+    juzzlin::L(TAG).info() << "Requesting track cut";
+    for (auto && changedPosition : m_song->cutTrack(currentPattern(), currentTrack(), *m_copyManager)) {
+        emit noteDataAtPositionChanged(changedPosition);
+    }
+    emit statusTextRequested(tr("Track cut"));
+    setIsModified(true);
+}
+
+void EditorService::requestTrackCopy()
+{
+    juzzlin::L(TAG).info() << "Requesting track copy";
+    m_song->copyTrack(currentPattern(), currentTrack(), *m_copyManager);
+    emit statusTextRequested(tr("Track copied"));
+}
+
 void EditorService::requestPatternCut()
 {
     juzzlin::L(TAG).info() << "Requesting pattern cut";
@@ -820,18 +842,18 @@ void EditorService::requestPatternCopy()
     emit statusTextRequested(tr("Pattern copied"));
 }
 
-void EditorService::requestPatternPaste()
+void EditorService::requestPaste()
 {
     try {
-        juzzlin::L(TAG).info() << "Requesting pattern paste";
-        for (auto && changedPosition : m_song->pastePattern(currentPattern(), *m_copyManager)) {
+        juzzlin::L(TAG).info() << "Requesting paste for copied data";
+        for (auto && changedPosition : m_song->pasteCopiedData(currentPattern(), *m_copyManager)) {
             emit noteDataAtPositionChanged(changedPosition);
         }
-        emit statusTextRequested(tr("Pattern pasted"));
+        emit statusTextRequested(tr("Copied data pasted"));
         setIsModified(true);
         updateDuration();
     } catch (const std::runtime_error & e) {
-        emit statusTextRequested(tr("Failed to paste pattern!: ") + e.what());
+        emit statusTextRequested(tr("Failed to paste data: ") + e.what());
     }
 }
 

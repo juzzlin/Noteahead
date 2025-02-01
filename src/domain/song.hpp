@@ -54,7 +54,11 @@ public:
 
     void copyPattern(size_t patternIndex, CopyManager & copyManager) const;
 
-    ChangedPositions pastePattern(size_t patternIndex, CopyManager & copyManager) const;
+    ChangedPositions pasteCopiedData(size_t patternIndex, CopyManager & copyManager) const;
+
+    ChangedPositions cutTrack(size_t patternIndex, size_t trackIndex, CopyManager & copyManager) const;
+
+    void copyTrack(size_t patternIndex, size_t trackIndex, CopyManager & copyManager) const;
 
     void createPattern(size_t patternIndex);
 

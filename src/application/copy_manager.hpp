@@ -34,10 +34,12 @@ public:
     ~CopyManager();
 
     using PositionList = std::vector<Position>;
-    PositionList pushSourceData(const Pattern & pattern);
+    PositionList pushSourcePattern(const Pattern & pattern);
+
+    PositionList pushSourceTrack(const Pattern & pattern, size_t trackIndex);
 
     using PatternS = std::shared_ptr<Pattern>;
-    PositionList pastePattern(PatternS targetPattern);
+    PositionList pasteCopiedData(PatternS targetPattern);
 
 private:
     PatternS m_sourcePattern;
