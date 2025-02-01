@@ -830,6 +830,21 @@ void EditorService::requestColumnCopy()
     emit statusTextRequested(tr("Column copied"));
 }
 
+void EditorService::requestColumnPaste()
+{
+    try {
+        juzzlin::L(TAG).info() << "Requesting paste for copied column";
+        for (auto && changedPosition : m_song->pasteColumn(currentPattern(), currentTrack(), currentColumn(), *m_copyManager)) {
+            emit noteDataAtPositionChanged(changedPosition);
+        }
+        emit statusTextRequested(tr("Copied column pasted"));
+        setIsModified(true);
+        updateDuration();
+    } catch (const std::runtime_error & e) {
+        emit statusTextRequested(tr("Failed to paste column: ") + e.what());
+    }
+}
+
 void EditorService::requestTrackCut()
 {
     juzzlin::L(TAG).info() << "Requesting track cut";
@@ -845,6 +860,21 @@ void EditorService::requestTrackCopy()
     juzzlin::L(TAG).info() << "Requesting track copy";
     m_song->copyTrack(currentPattern(), currentTrack(), *m_copyManager);
     emit statusTextRequested(tr("Track copied"));
+}
+
+void EditorService::requestTrackPaste()
+{
+    try {
+        juzzlin::L(TAG).info() << "Requesting paste for copied track";
+        for (auto && changedPosition : m_song->pasteTrack(currentPattern(), currentTrack(), *m_copyManager)) {
+            emit noteDataAtPositionChanged(changedPosition);
+        }
+        emit statusTextRequested(tr("Copied track pasted"));
+        setIsModified(true);
+        updateDuration();
+    } catch (const std::runtime_error & e) {
+        emit statusTextRequested(tr("Failed to paste track: ") + e.what());
+    }
 }
 
 void EditorService::requestPatternCut()
@@ -864,18 +894,18 @@ void EditorService::requestPatternCopy()
     emit statusTextRequested(tr("Pattern copied"));
 }
 
-void EditorService::requestPaste()
+void EditorService::requestPatternPaste()
 {
     try {
-        juzzlin::L(TAG).info() << "Requesting paste for copied data";
-        for (auto && changedPosition : m_song->pasteCopiedData(currentPattern(), *m_copyManager)) {
+        juzzlin::L(TAG).info() << "Requesting paste for copied pattern";
+        for (auto && changedPosition : m_song->pastePattern(currentPattern(), *m_copyManager)) {
             emit noteDataAtPositionChanged(changedPosition);
         }
-        emit statusTextRequested(tr("Copied data pasted"));
+        emit statusTextRequested(tr("Copied pattern pasted"));
         setIsModified(true);
         updateDuration();
     } catch (const std::runtime_error & e) {
-        emit statusTextRequested(tr("Failed to paste data: ") + e.what());
+        emit statusTextRequested(tr("Failed to paste pattern: ") + e.what());
     }
 }
 

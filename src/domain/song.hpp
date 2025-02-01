@@ -62,7 +62,11 @@ public:
 
     void copyColumn(size_t patternIndex, size_t trackIndex, size_t columnIndex, CopyManager & copyManager) const;
 
-    ChangedPositions pasteCopiedData(size_t patternIndex, CopyManager & copyManager) const;
+    ChangedPositions pastePattern(size_t patternIndex, CopyManager & copyManager) const;
+
+    ChangedPositions pasteTrack(size_t patternIndex, size_t trackIndex, CopyManager & copyManager) const;
+
+    ChangedPositions pasteColumn(size_t patternIndex, size_t trackIndex, size_t columnIndex, CopyManager & copyManager) const;
 
     void createPattern(size_t patternIndex);
 

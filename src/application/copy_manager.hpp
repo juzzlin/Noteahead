@@ -41,7 +41,11 @@ public:
     PositionList pushSourceColumn(const Pattern & pattern, size_t trackIndex, size_t columnIndex);
 
     using PatternS = std::shared_ptr<Pattern>;
-    PositionList pasteCopiedData(PatternS targetPattern);
+    PositionList pastePattern(PatternS targetPattern);
+
+    PositionList pasteTrack(PatternS targetPattern, size_t trackIndex);
+
+    PositionList pasteColumn(PatternS targetPattern, size_t trackIndex, size_t columnIndex);
 
 private:
     PatternS m_sourcePattern;

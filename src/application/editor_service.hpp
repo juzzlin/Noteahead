@@ -184,15 +184,19 @@ public:
 
     Q_INVOKABLE void requestColumnCopy();
 
+    Q_INVOKABLE void requestColumnPaste();
+
     Q_INVOKABLE void requestTrackCut();
 
     Q_INVOKABLE void requestTrackCopy();
+
+    Q_INVOKABLE void requestTrackPaste();
 
     Q_INVOKABLE void requestPatternCut();
 
     Q_INVOKABLE void requestPatternCopy();
 
-    Q_INVOKABLE void requestPaste();
+    Q_INVOKABLE void requestPatternPaste();
 
     Q_INVOKABLE bool requestPosition(size_t pattern, size_t track, size_t column, size_t line, size_t lineColumn);
 

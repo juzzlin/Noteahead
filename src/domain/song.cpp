@@ -65,11 +65,6 @@ void Song::copyPattern(size_t patternIndex, CopyManager & copyManager) const
     }
 }
 
-Song::ChangedPositions Song::pasteCopiedData(size_t patternIndex, CopyManager & copyManager) const
-{
-    return m_patterns.contains(patternIndex) ? copyManager.pasteCopiedData(m_patterns.at(patternIndex)) : Song::ChangedPositions {};
-}
-
 Song::ChangedPositions Song::cutTrack(size_t patternIndex, size_t trackIndex, CopyManager & copyManager) const
 {
     if (m_patterns.contains(trackIndex)) {
@@ -110,6 +105,21 @@ void Song::copyColumn(size_t patternIndex, size_t trackIndex, size_t columnIndex
     if (m_patterns.contains(patternIndex)) {
         copyManager.pushSourceColumn(*m_patterns.at(patternIndex), trackIndex, columnIndex);
     }
+}
+
+Song::ChangedPositions Song::pastePattern(size_t patternIndex, CopyManager & copyManager) const
+{
+    return m_patterns.contains(patternIndex) ? copyManager.pastePattern(m_patterns.at(patternIndex)) : Song::ChangedPositions {};
+}
+
+Song::ChangedPositions Song::pasteTrack(size_t patternIndex, size_t trackIndex, CopyManager & copyManager) const
+{
+    return m_patterns.contains(patternIndex) ? copyManager.pasteTrack(m_patterns.at(patternIndex), trackIndex) : Song::ChangedPositions {};
+}
+
+Song::ChangedPositions Song::pasteColumn(size_t patternIndex, size_t trackIndex, size_t columnIndex, CopyManager & copyManager) const
+{
+    return m_patterns.contains(patternIndex) ? copyManager.pasteColumn(m_patterns.at(patternIndex), trackIndex, columnIndex) : Song::ChangedPositions {};
 }
 
 void Song::createPattern(size_t patternIndex)
