@@ -58,6 +58,11 @@ bool Column::hasData() const
       != m_lines.end();
 }
 
+bool Column::hasPosition(const Position & position) const
+{
+    return position.column == m_index && position.line < m_virtualLineCount;
+}
+
 size_t Column::lineCount() const
 {
     return m_virtualLineCount;

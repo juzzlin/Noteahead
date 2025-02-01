@@ -19,6 +19,7 @@
 #include <memory>
 #include <vector>
 
+#include "../domain/note_data.hpp"
 #include "position.hpp"
 
 namespace noteahead {
@@ -32,14 +33,16 @@ public:
 
     ~CopyManager();
 
-    using PatternS = std::shared_ptr<Pattern>;
-    void setSourcePattern(PatternS pattern);
-
     using PositionList = std::vector<Position>;
+    PositionList pushSourceData(const Pattern & pattern);
+
+    using PatternS = std::shared_ptr<Pattern>;
     PositionList pastePattern(PatternS targetPattern);
 
 private:
     PatternS m_sourcePattern;
+
+    std::vector<std::pair<Position, NoteData>> m_copiedData;
 };
 
 } // namespace noteahead

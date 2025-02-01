@@ -49,13 +49,18 @@ public:
 
     ~Song();
 
+    using ChangedPositions = std::vector<Position>;
+    ChangedPositions cutPattern(size_t patternIndex, CopyManager & copyManager) const;
+
     void copyPattern(size_t patternIndex, CopyManager & copyManager) const;
 
-    std::vector<Position> pastePattern(size_t patternIndex, CopyManager & copyManager) const;
+    ChangedPositions pastePattern(size_t patternIndex, CopyManager & copyManager) const;
 
     void createPattern(size_t patternIndex);
 
     bool hasPattern(size_t patternIndex) const;
+
+    bool hasPosition(const Position & position) const;
 
     void addColumn(size_t trackIndex);
 

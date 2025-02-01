@@ -44,16 +44,30 @@ Song::Song()
     initialize();
 }
 
-void Song::copyPattern(size_t patternIndex, CopyManager & copyManager) const
+Song::ChangedPositions Song::cutPattern(size_t patternIndex, CopyManager & copyManager) const
 {
     if (m_patterns.contains(patternIndex)) {
-        copyManager.setSourcePattern(m_patterns.at(patternIndex));
+        const auto sourcePattern = m_patterns.at(patternIndex);
+        const auto changedPositions = copyManager.pushSourceData(*sourcePattern);
+        for (auto && changedPosition : changedPositions) {
+            sourcePattern->setNoteDataAtPosition(NoteData {}, changedPosition);
+        }
+        return changedPositions;
+    } else {
+        return {};
     }
 }
 
-std::vector<Position> Song::pastePattern(size_t patternIndex, CopyManager & copyManager) const
+void Song::copyPattern(size_t patternIndex, CopyManager & copyManager) const
 {
-    return m_patterns.contains(patternIndex) ? copyManager.pastePattern(m_patterns.at(patternIndex)) : std::vector<Position> {};
+    if (m_patterns.contains(patternIndex)) {
+        copyManager.pushSourceData(*m_patterns.at(patternIndex));
+    }
+}
+
+Song::ChangedPositions Song::pastePattern(size_t patternIndex, CopyManager & copyManager) const
+{
+    return m_patterns.contains(patternIndex) ? copyManager.pastePattern(m_patterns.at(patternIndex)) : Song::ChangedPositions {};
 }
 
 void Song::createPattern(size_t patternIndex)
@@ -69,6 +83,15 @@ void Song::createPattern(size_t patternIndex)
 bool Song::hasPattern(size_t patternIndex) const
 {
     return m_patterns.contains(patternIndex);
+}
+
+bool Song::hasPosition(const Position & position) const
+{
+    if (m_patterns.contains(position.pattern)) {
+        return m_patterns.at(position.pattern)->hasPosition(position);
+    }
+
+    return false;
 }
 
 void Song::addColumn(size_t trackIndex)

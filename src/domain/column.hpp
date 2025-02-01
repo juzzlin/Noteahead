@@ -39,6 +39,8 @@ public:
 
     bool hasData() const;
 
+    bool hasPosition(const Position & position) const;
+
     size_t lineCount() const;
 
     void setLineCount(size_t lineCount);

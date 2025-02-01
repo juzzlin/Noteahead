@@ -112,6 +112,14 @@ bool Pattern::hasData(size_t track, size_t column) const
     return m_tracks.at(track)->hasData(column);
 }
 
+bool Pattern::hasPosition(const Position & position) const
+{
+    if (position.pattern == m_index && position.track < m_tracks.size()) {
+        return m_tracks.at(position.track)->hasPosition(position);
+    }
+    return false;
+}
+
 std::string Pattern::name() const
 {
     return m_name;

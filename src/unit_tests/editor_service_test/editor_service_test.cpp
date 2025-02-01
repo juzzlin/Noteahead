@@ -65,6 +65,51 @@ void EditorServiceTest::test_defaultSong_shouldNotHaveNoteData()
     }
 }
 
+void EditorServiceTest::test_patternCutPaste_equalSizes_shouldCopyPattern()
+{
+    EditorService editorService;
+    QSignalSpy noteDataChangedSpy { &editorService, &EditorService::noteDataAtPositionChanged };
+    QVERIFY(editorService.requestPosition(0, 0, 0, 0, 0));
+    QVERIFY(editorService.requestNoteOnAtCurrentPosition(1, 3, 64));
+    QCOMPARE(noteDataChangedSpy.count(), 1);
+
+    editorService.setIsModified(false);
+    editorService.requestPatternCut();
+    QVERIFY(editorService.isModified());
+    QCOMPARE(noteDataChangedSpy.count(), 513);
+    editorService.setCurrentPattern(1);
+    editorService.requestPatternPaste();
+
+    QCOMPARE(noteDataChangedSpy.count(), 1025);
+    QCOMPARE(editorService.displayNoteAtPosition(0, 0, 0, 0), editorService.noDataString());
+    QCOMPARE(editorService.displayVelocityAtPosition(0, 0, 0, 0), editorService.noDataString());
+    QCOMPARE(editorService.displayNoteAtPosition(1, 0, 0, 0), "C-3");
+    QCOMPARE(editorService.displayVelocityAtPosition(1, 0, 0, 0), "064");
+}
+
+void EditorServiceTest::test_patternCutPaste_shorterTarget_shouldCopyPattern()
+{
+    EditorService editorService;
+    QSignalSpy noteDataChangedSpy { &editorService, &EditorService::noteDataAtPositionChanged };
+    QVERIFY(editorService.requestPosition(0, 0, 0, 0, 0));
+    QVERIFY(editorService.requestNoteOnAtCurrentPosition(1, 3, 64));
+    QCOMPARE(noteDataChangedSpy.count(), 1);
+
+    editorService.setIsModified(false);
+    editorService.requestPatternCut();
+    QVERIFY(editorService.isModified());
+    QCOMPARE(noteDataChangedSpy.count(), 513);
+    editorService.setCurrentPattern(1);
+    editorService.setCurrentLineCount(32);
+    editorService.requestPatternPaste();
+
+    QCOMPARE(noteDataChangedSpy.count(), 769);
+    QCOMPARE(editorService.displayNoteAtPosition(0, 0, 0, 0), editorService.noDataString());
+    QCOMPARE(editorService.displayVelocityAtPosition(0, 0, 0, 0), editorService.noDataString());
+    QCOMPARE(editorService.displayNoteAtPosition(1, 0, 0, 0), "C-3");
+    QCOMPARE(editorService.displayVelocityAtPosition(1, 0, 0, 0), "064");
+}
+
 void EditorServiceTest::test_patternCopyPaste_equalSizes_shouldCopyPattern()
 {
     EditorService editorService;
@@ -73,7 +118,9 @@ void EditorServiceTest::test_patternCopyPaste_equalSizes_shouldCopyPattern()
     QVERIFY(editorService.requestNoteOnAtCurrentPosition(1, 3, 64));
     QCOMPARE(noteDataChangedSpy.count(), 1);
 
+    editorService.setIsModified(false);
     editorService.requestPatternCopy();
+    QVERIFY(!editorService.isModified());
     editorService.setCurrentPattern(1);
     editorService.requestPatternPaste();
 
@@ -92,7 +139,9 @@ void EditorServiceTest::test_patternCopyPaste_shorterTarget_shouldCopyPattern()
     QVERIFY(editorService.requestNoteOnAtCurrentPosition(1, 3, 64));
     QCOMPARE(noteDataChangedSpy.count(), 1);
 
+    editorService.setIsModified(false);
     editorService.requestPatternCopy();
+    QVERIFY(!editorService.isModified());
     editorService.setCurrentPattern(1);
     editorService.setCurrentLineCount(32);
     editorService.requestPatternPaste();

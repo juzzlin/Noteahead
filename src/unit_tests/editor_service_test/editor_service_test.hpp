@@ -30,6 +30,10 @@ private slots:
 
     void test_defaultSong_shouldNotHaveNoteData();
 
+    void test_patternCutPaste_equalSizes_shouldCopyPattern();
+
+    void test_patternCutPaste_shorterTarget_shouldCopyPattern();
+
     void test_patternCopyPaste_equalSizes_shouldCopyPattern();
 
     void test_patternCopyPaste_shorterTarget_shouldCopyPattern();

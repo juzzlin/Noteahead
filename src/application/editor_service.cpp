@@ -803,6 +803,16 @@ void EditorService::notifyPositionChange(const Position & oldPosition)
     }
 }
 
+void EditorService::requestPatternCut()
+{
+    juzzlin::L(TAG).info() << "Requesting pattern cut";
+    for (auto && changedPosition : m_song->cutPattern(currentPattern(), *m_copyManager)) {
+        emit noteDataAtPositionChanged(changedPosition);
+    }
+    emit statusTextRequested(tr("Pattern cut"));
+    setIsModified(true);
+}
+
 void EditorService::requestPatternCopy()
 {
     juzzlin::L(TAG).info() << "Requesting pattern copy";

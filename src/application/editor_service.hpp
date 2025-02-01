@@ -180,6 +180,8 @@ public:
 
     Q_INVOKABLE bool requestNoteOffAtCurrentPosition();
 
+    Q_INVOKABLE void requestPatternCut();
+
     Q_INVOKABLE void requestPatternCopy();
 
     Q_INVOKABLE void requestPatternPaste();

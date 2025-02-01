@@ -64,6 +64,8 @@ public:
 
     bool hasData(size_t track, size_t column) const;
 
+    bool hasPosition(const Position & position) const;
+
     std::string name() const;
 
     void setName(std::string name);

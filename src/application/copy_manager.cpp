@@ -27,41 +27,42 @@ CopyManager::CopyManager()
 {
 }
 
-void CopyManager::setSourcePattern(PatternS pattern)
+CopyManager::PositionList CopyManager::pushSourceData(const Pattern & pattern)
 {
-    m_sourcePattern = pattern;
+    m_copiedData.clear();
+    CopyManager::PositionList changedPositions;
+    juzzlin::L(TAG).info() << "Pushing data of pattern " << pattern.index();
+    const auto lineCount = pattern.lineCount();
+    for (size_t trackIndex = 0; trackIndex < pattern.trackCount(); trackIndex++) {
+        juzzlin::L(TAG).debug() << "Pushing data of track " << trackIndex;
+        const auto columnCount = pattern.columnCount(trackIndex);
+        for (size_t columnIndex = 0; columnIndex < columnCount; columnIndex++) {
+            juzzlin::L(TAG).debug() << "Pushing data of column " << columnIndex;
+            for (size_t lineIndex = 0; lineIndex < lineCount; lineIndex++) {
+                juzzlin::L(TAG).debug() << "Pushing data of line " << lineIndex;
+                const Position position = { pattern.index(), trackIndex, columnIndex, lineIndex, 0 };
+                m_copiedData.push_back({ position, *pattern.noteDataAtPosition(position) });
+                changedPositions.push_back(position);
+            }
+        }
+    }
+    return changedPositions;
 }
 
 CopyManager::PositionList CopyManager::pastePattern(PatternS targetPattern)
 {
-    if (!m_sourcePattern || !targetPattern) {
+    if (!targetPattern) {
         throw std::runtime_error("Target or source not set");
     }
 
-    juzzlin::L(TAG).info() << "Pasting pattern " << m_sourcePattern->index() << " on pattern " << targetPattern->index();
-
-    if (m_sourcePattern == targetPattern) {
-        return {};
-    }
+    juzzlin::L(TAG).info() << "Pasting coped data on pattern " << targetPattern->index();
 
     PositionList changedPositions;
-    const auto lineCount = std::min(m_sourcePattern->lineCount(), targetPattern->lineCount());
-    for (size_t trackIndex = 0; trackIndex < m_sourcePattern->trackCount(); trackIndex++) {
-        juzzlin::L(TAG).debug() << "Copying track " << trackIndex;
-        const auto columnCount = m_sourcePattern->columnCount(trackIndex);
-        for (size_t columnIndex = 0; columnIndex < columnCount; columnIndex++) {
-            juzzlin::L(TAG).debug() << "Copying column " << columnIndex;
-            for (size_t lineIndex = 0; lineIndex < lineCount; lineIndex++) {
-                juzzlin::L(TAG).debug() << "Copying line " << lineIndex;
-                const Position sourcePosition = { m_sourcePattern->index(), trackIndex, columnIndex, lineIndex, 0 };
-                const auto newNoteData = m_sourcePattern->noteDataAtPosition(sourcePosition);
-                const Position targetPosition = { targetPattern->index(), trackIndex, columnIndex, lineIndex, 0 };
-                const auto oldNoteData = targetPattern->noteDataAtPosition(targetPosition);
-                if (newNoteData != oldNoteData) {
-                    targetPattern->setNoteDataAtPosition(*newNoteData, targetPosition);
-                    changedPositions.push_back(targetPosition);
-                }
-            }
+    for (const auto & [sourcePosition, newNoteData] : m_copiedData) {
+        const Position targetPosition = { targetPattern->index(), sourcePosition.track, sourcePosition.column, sourcePosition.line, 0 };
+        if (targetPattern->hasPosition(targetPosition)) {
+            targetPattern->setNoteDataAtPosition(newNoteData, targetPosition);
+            changedPositions.push_back(targetPosition);
         }
     }
     return changedPositions;

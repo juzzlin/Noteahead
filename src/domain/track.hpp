@@ -54,6 +54,8 @@ public:
 
     bool hasData(size_t column) const;
 
+    bool hasPosition(const Position & position) const;
+
     std::string name() const;
 
     void setName(const std::string & newName);

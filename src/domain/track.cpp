@@ -126,6 +126,14 @@ bool Track::hasData(size_t column) const
     return m_columns.at(column)->hasData();
 }
 
+bool Track::hasPosition(const Position & position) const
+{
+    if (position.track == m_index && position.column < m_columns.size()) {
+        return m_columns.at(position.column)->hasPosition(position);
+    }
+    return false;
+}
+
 Position Track::nextNoteDataOnSameColumn(const Position & position) const
 {
     return m_columns.at(position.column)->nextNoteDataOnSameColumn(position);
