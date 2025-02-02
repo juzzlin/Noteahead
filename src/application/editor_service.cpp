@@ -291,6 +291,11 @@ int EditorService::lineNumberAtViewLine(size_t line) const
     }
 }
 
+QString EditorService::displayNoteAtPosition(const Position & position) const
+{
+    return displayNoteAtPosition(position.pattern, position.track, position.column, position.line);
+}
+
 QString EditorService::displayNoteAtPosition(size_t patternId, size_t trackIndex, size_t columnId, size_t line) const
 {
     if (const auto noteData = m_song->noteDataAtPosition({ patternId, trackIndex, columnId, line }); noteData->type() != NoteData::Type::None) {
@@ -308,6 +313,11 @@ QString EditorService::noDataString() const
 QString EditorService::padVelocityToThreeDigits(QString velocity) const
 {
     return velocity.rightJustified(3, '0', true);
+}
+
+QString EditorService::displayVelocityAtPosition(const Position & position) const
+{
+    return displayVelocityAtPosition(position.pattern, position.track, position.column, position.line);
 }
 
 QString EditorService::displayVelocityAtPosition(size_t pattern, size_t track, size_t column, size_t line) const
@@ -928,6 +938,11 @@ void EditorService::requestPatternPaste()
 bool EditorService::hasPatternToPaste() const
 {
     return m_copyManager->mode() == CopyManager::Mode::Pattern;
+}
+
+bool EditorService::requestPosition(const Position & position)
+{
+    return requestPosition(position.pattern, position.track, position.column, position.line, position.lineColumn);
 }
 
 bool EditorService::requestPosition(size_t pattern, size_t track, size_t column, size_t line, size_t lineColumn)

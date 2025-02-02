@@ -128,7 +128,11 @@ public:
 
     Q_INVOKABLE size_t linesVisible() const;
 
+    QString displayNoteAtPosition(const Position & position) const;
+
     Q_INVOKABLE QString displayNoteAtPosition(size_t patternId, size_t trackIndex, size_t columnId, size_t line) const;
+
+    QString displayVelocityAtPosition(const Position & position) const;
 
     Q_INVOKABLE QString displayVelocityAtPosition(size_t pattern, size_t track, size_t column, size_t line) const;
 
@@ -209,6 +213,8 @@ public:
     Q_INVOKABLE void requestPatternPaste();
 
     Q_INVOKABLE bool hasPatternToPaste() const;
+
+    bool requestPosition(const Position & position);
 
     Q_INVOKABLE bool requestPosition(size_t pattern, size_t track, size_t column, size_t line, size_t lineColumn);
 
