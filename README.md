@@ -122,9 +122,25 @@ Click on the pattern name to change it.
 
 * **F4**: increases the current octave
 
-* **Z**..**M**: notes of the lower octave
+* **Z**..**M**: play/insert notes of the lower octave
 
-* **Q**..**U**: notes of the higher octave
+* **Q**..**U**: play/insert notes of the higher octave
+
+Cut/Copy/Paste (also available via right-clicking on the editor):
+
+* **Alt + F3**: cut the current column
+
+* **Alt + F4**: copy the current column
+
+* **Alt + F5**: paste the copied column
+
+* **Shift + F3**: cut the current track
+
+* **Shift + F4**: copy the current track
+
+* **Shift + F5**: paste the copied track
+
+* **Ctrl + F3**: cut the current pattern
 
 * **Ctrl + F4**: copy the current pattern
 
