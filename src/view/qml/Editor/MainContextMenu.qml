@@ -8,7 +8,7 @@ Menu {
     Action {
         text: qsTr("Cut column")
         shortcut: "Alt+F3"
-        enabled: UiService.editMode() && !UiService.isPlaying()
+        enabled: !UiService.isPlaying()
         onTriggered: editorService.requestColumnCut()
     }
     Action {
@@ -19,7 +19,7 @@ Menu {
     Action {
         text: qsTr("Paste column")
         shortcut: "Alt+F5"
-        enabled: UiService.editMode() && !UiService.isPlaying() && editorService.hasColumnToPaste
+        enabled: !UiService.isPlaying() && editorService.hasColumnToPaste
         onTriggered: editorService.requestColumnPaste()
     }
     MenuSeparator {
@@ -27,7 +27,7 @@ Menu {
     Action {
         text: qsTr("Cut track")
         shortcut: "Shift+F3"
-        enabled: UiService.editMode() && !UiService.isPlaying()
+        enabled: UiService.isPlaying()
         onTriggered: editorService.requestTrackCut()
     }
     Action {
@@ -38,7 +38,7 @@ Menu {
     Action {
         text: qsTr("Paste track")
         shortcut: "Shift+F5"
-        enabled: UiService.editMode() && !UiService.isPlaying() && editorService.hasTrackToPaste
+        enabled: !UiService.isPlaying() && editorService.hasTrackToPaste
         onTriggered: editorService.requestTrackPaste()
     }
     MenuSeparator {
@@ -46,7 +46,7 @@ Menu {
     Action {
         text: qsTr("Cut pattern")
         shortcut: "Ctrl+F3"
-        enabled: UiService.editMode() && !UiService.isPlaying()
+        enabled: !UiService.isPlaying()
         onTriggered: editorService.requestPatternCut()
     }
     Action {
@@ -57,7 +57,7 @@ Menu {
     Action {
         text: qsTr("Paste pattern")
         shortcut: "Ctrl+F5"
-        enabled: UiService.editMode() && !UiService.isPlaying() && editorService.hasPatternToPaste
+        enabled: !UiService.isPlaying() && editorService.hasPatternToPaste
         onTriggered: editorService.requestPatternPaste()
     }
     delegate: MainMenuItemDelegate {
