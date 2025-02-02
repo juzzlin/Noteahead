@@ -521,7 +521,7 @@ void EditorServiceTest::test_requestNoteOnAtCurrentPosition_shouldChangeNoteData
     QVERIFY(editorService.requestNoteOnAtCurrentPosition(3, 3, 88));
     QCOMPARE(noteDataChangedSpy.count(), 2);
     QCOMPARE(editorService.displayNoteAtPosition(0, 0, 0, 0), "D-3");
-    QCOMPARE(editorService.displayVelocityAtPosition(0, 0, 0, 0), "064"); // Should not change velocity on existing note
+    QCOMPARE(editorService.displayVelocityAtPosition(0, 0, 0, 0), "088");
 
     editorService.requestScroll(4);
     editorService.requestNoteOnAtCurrentPosition(2, 4, 72);

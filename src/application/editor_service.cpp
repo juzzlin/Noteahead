@@ -757,15 +757,9 @@ bool EditorService::requestNoteOnAtCurrentPosition(uint8_t note, uint8_t octave,
     if (const auto midiNote = editorNoteToMidiNote(note, octave); midiNote.has_value()) {
         juzzlin::L(TAG).debug() << "Note ON requested at position " << m_cursorPosition.toString() << ": " << midiNote->first
                                 << ", MIDI Note = " << static_cast<int>(midiNote->second) << ", Velocity = " << static_cast<int>(velocity);
-        if (const auto noteDataAtPosition = m_song->noteDataAtPosition(m_cursorPosition); noteDataAtPosition->type() == NoteData::Type::NoteOn) {
-            NoteData noteData { m_cursorPosition.track, m_cursorPosition.column };
-            noteData.setAsNoteOn(midiNote->second, noteDataAtPosition->velocity());
-            m_song->setNoteDataAtPosition(noteData, m_cursorPosition);
-        } else {
-            NoteData noteData { m_cursorPosition.track, m_cursorPosition.column };
-            noteData.setAsNoteOn(midiNote->second, velocity);
-            m_song->setNoteDataAtPosition(noteData, m_cursorPosition);
-        }
+        NoteData noteData { m_cursorPosition.track, m_cursorPosition.column };
+        noteData.setAsNoteOn(midiNote->second, velocity);
+        m_song->setNoteDataAtPosition(noteData, m_cursorPosition);
         emit noteDataAtPositionChanged(m_cursorPosition);
         setIsModified(true);
         return true;
