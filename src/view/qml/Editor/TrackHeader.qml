@@ -19,6 +19,9 @@ Rectangle {
     function setFocused(focused) {
         _focused = focused;
     }
+    function setName(name) {
+        _name = name;
+    }
     Row {
         anchors.fill: parent
         anchors.leftMargin: 2

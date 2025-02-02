@@ -367,9 +367,11 @@ QString EditorService::trackName(size_t trackIndex) const
 
 void EditorService::setTrackName(size_t trackIndex, QString name)
 {
-    m_song->setTrackName(trackIndex, name.toStdString());
-
-    setIsModified(true);
+    if (m_song->trackName(trackIndex) != name.toStdString()) {
+        m_song->setTrackName(trackIndex, name.toStdString());
+        emit trackNameChanged();
+        setIsModified(true);
+    }
 }
 
 EditorService::InstrumentS EditorService::instrument(size_t trackIndex) const

@@ -7,9 +7,9 @@ Item {
     id: rootItem
     property int _index: 0
     property int _patternIndex: 0
-    property string _name
     property bool _focused
     property Item _positionBar
+    property string _name
     readonly property string _tag: "Track"
     signal leftClicked(int columnIndex, int x, int y)
     signal rightClicked(int columnIndex, int x, int y)
@@ -37,7 +37,7 @@ Item {
         columnContainer.setFocused(columnIndex, focused);
     }
     function setName(name) {
-        _name = name;
+        trackHeader.setName(name);
     }
     function setPosition(position) {
         columnContainer.setPosition(position);

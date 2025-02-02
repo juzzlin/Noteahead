@@ -163,6 +163,9 @@ FocusScope {
     function _setTrackUnfocused(position) {
         _patterns[position.pattern]._tracks[position.track].setFocused(position.column, false);
     }
+    function _updateTrackHeaders() {
+        _patterns.forEach(pattern => pattern.updateTrackHeaders());
+    }
     function _updateTrackSizes() {
         const currentPattern = _patterns[editorService.currentPattern];
         currentPattern._tracks.forEach(track => {
@@ -222,6 +225,7 @@ FocusScope {
         editorService.noteDataAtPositionChanged.connect(_updateNoteDataAtPosition);
         editorService.songChanged.connect(_recreatePatterns);
         editorService.trackConfigurationChanged.connect(_recreatePatterns);
+        editorService.trackNameChanged.connect(_updateTrackHeaders);
         editorService.patternCreated.connect(patternIndex => _createPattern(patternIndex));
         editorService.positionChanged.connect((newPosition, oldPosition) => {
                 if (newPosition.pattern !== oldPosition.pattern) {

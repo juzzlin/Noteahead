@@ -17,7 +17,9 @@ Item {
                 track.setPatternIndex(_index);
                 track.setName(editorService.trackName(trackIndex));
                 track.setPositionBar(positionBar);
-                track.nameChanged.connect(name => editorService.setTrackName(trackIndex, name));
+                track.nameChanged.connect(name => {
+                        editorService.setTrackName(trackIndex, name);
+                    });
                 track.updateData();
                 _tracks.push(track);
                 uiLogger.debug(_tag, `Added track index=${trackIndex}, width=${track.width}, height=${track.height}, x=${track.x}, y=${track.y}`);
@@ -38,6 +40,11 @@ Item {
     }
     function tracks() {
         return _tracks;
+    }
+    function updateTrackHeaders() {
+        _tracks.forEach(track => {
+                track.setName(editorService.trackName(track.index()));
+            });
     }
     Component {
         id: trackComponent

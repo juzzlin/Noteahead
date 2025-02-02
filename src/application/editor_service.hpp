@@ -318,6 +318,8 @@ signals:
 
     void trackConfigurationChanged();
 
+    void trackNameChanged();
+
 public slots:
     void requestPositionByTick(size_t tick);
 
