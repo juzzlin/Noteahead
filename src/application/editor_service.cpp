@@ -329,6 +329,14 @@ QString EditorService::displayVelocityAtPosition(size_t pattern, size_t track, s
     }
 }
 
+QStringList EditorService::displayNoteAndVelocityAtPosition(size_t patternId, size_t trackIndex, size_t columnId, size_t line) const
+{
+    return {
+        displayNoteAtPosition(patternId, trackIndex, columnId, line),
+        displayVelocityAtPosition(patternId, trackIndex, columnId, line)
+    };
+}
+
 double EditorService::effectiveVolumeAtPosition(size_t pattern, size_t track, size_t column, size_t line) const
 {
     if (const auto noteData = m_song->noteDataAtPosition({ pattern, track, column, line }); noteData->type() != NoteData::Type::None) {
