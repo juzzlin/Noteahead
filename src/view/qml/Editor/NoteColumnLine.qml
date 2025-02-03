@@ -2,7 +2,7 @@ import QtQuick 2.15
 
 Rectangle {
     id: rootItem
-    color: "black"
+    color: "#000000"
     border.color: "#222222"
     border.width: 1
     property int index: 0
@@ -29,7 +29,7 @@ Rectangle {
         id: noteText
         font.pixelSize: parent.height * 0.8
         font.family: "monospace"
-        color: _isValidNote(text) ? "white" : "#888888"
+        color: _isValidNote(text) ? "#ffffff" : "#888888"
         anchors.verticalCenter: parent.verticalCenter
         anchors.right: parent.horizontalCenter
         anchors.rightMargin: width / 3
@@ -50,7 +50,7 @@ Rectangle {
         id: indexHighlightComponent
         Rectangle {
             anchors.fill: parent
-            color: "white"
+            color: "#ffffff"
             visible: opacity > 0
         }
     }

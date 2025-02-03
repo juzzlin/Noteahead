@@ -21,7 +21,7 @@ Item {
         text: _getVelocityDigit(2)
         font.pixelSize: rootItem.height * 0.8
         font.family: "monospace"
-        color: isValid ? "white" : "#888888"
+        color: isValid ? "#ffffff" : "#888888"
         anchors.verticalCenter: parent.verticalCenter
         anchors.left: parent.left
     }
