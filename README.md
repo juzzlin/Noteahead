@@ -113,63 +113,38 @@ Click on the pattern name to change it.
 ### Most important "special" keys
 
 * **ESC**: toggles the edit mode
-
 * **SPACE**: toggles the play mode
-
 * **A**: inserts a note off event
-
 * **F3**: decreases the current octave
-
 * **F4**: increases the current octave
-
 * **Z**..**M**: play/insert notes of the lower octave
-
 * **Q**..**U**: play/insert notes of the higher octave
 
 Cut/Copy/Paste (also available via right-clicking on the editor):
 
 * **Alt + F3**: cut the current column
-
 * **Alt + F4**: copy the current column
-
 * **Alt + F5**: paste the copied column
-
 * **Shift + F3**: cut the current track
-
 * **Shift + F4**: copy the current track
-
 * **Shift + F5**: paste the copied track
-
 * **Ctrl + F3**: cut the current pattern
-
 * **Ctrl + F4**: copy the current pattern
-
 * **Ctrl + F5**: paste the copied pattern
 
 Transposition (also available via right-clicking on the editor):
 
 * **Alt + F9**: transpose column by +1 semitone
-
 * **Alt + F10**: transpose column by -1 semitone
-
 * **Alt + F11**: transpose column by +12 semitones
-
 * **Alt + F12**: transpose column by -12 semitones
-
 * **Shift + F9**: transpose track by +1 semitone
-
 * **Shift + F10**: transpose track by -1 semitone
-
 * **Shift + F11**: transpose track by +12 semitones
-
 * **Shift + F12**: transpose track by -12 semitones
-
 * **Ctrl + F9**: transpose pattern by +1 semitone
-
 * **Ctrl + F10**: transpose pattern by -1 semitone
-
 * **Ctrl + F11**: transpose pattern by +12 semitones
-
 * **Ctrl + F12**: transpose pattern by -12 semitones
 
 ##
