@@ -1,11 +1,9 @@
 import QtQuick 2.15
-import QtQuick.Layouts 2.15
-import ".."
 
 Rectangle {
     id: rootItem
-    color: Constants.noteColumnCellBackgroundColor
-    border.color: Constants.noteColumnCellBorderColor
+    color: "black"
+    border.color: "#222222"
     border.width: 1
     property string note: ""
     property string velocity: ""
@@ -14,7 +12,7 @@ Rectangle {
     property var _indexHighlight
     property int _lineColumnIndex: 0
     readonly property string _fontFamily: "monospace"
-    readonly property color _textColor: _isValidNote(note) ? Constants.noteColumnTextColor : Constants.noteColumnTextColorEmpty
+    readonly property color _textColor: _isValidNote(note) ? "white" : "#888888"
     function resize(width, height) {
         rootItem.width = width;
         rootItem.height = height;
