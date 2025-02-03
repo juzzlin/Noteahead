@@ -48,10 +48,9 @@ Rectangle {
     }
     function updateNoteDataAtPosition(position) {
         if (_isPositionMe(position)) {
-            const note = editorService.displayNoteAtPosition(_patternIndex, _trackIndex, _index, position.line);
-            _lines[position.line].note = note;
-            const velocity = editorService.displayVelocityAtPosition(_patternIndex, _trackIndex, _index, position.line);
-            _lines[position.line].velocity = velocity;
+            const noteAndVelocity = editorService.displayNoteAndVelocityAtPosition(_patternIndex, _trackIndex, _index, position.line);
+            _lines[position.line].note = noteAndVelocity[0];
+            _lines[position.line].velocity = noteAndVelocity[1];
         }
     }
     function _isPositionMe(position) {
