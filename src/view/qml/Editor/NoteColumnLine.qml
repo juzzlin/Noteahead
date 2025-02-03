@@ -22,35 +22,26 @@ Rectangle {
     function _isValidNote(note) {
         return note && note !== editorService.noDataString();
     }
-    Row {
-        anchors.centerIn: parent
+    Text {
+        id: noteText
+        text: note
+        font.pixelSize: parent.height * 0.8
+        font.family: _fontFamily
+        color: _textColor
+        anchors.verticalCenter: parent.verticalCenter
+        anchors.right: parent.horizontalCenter
+    }
+    VelocityCell {
+        id: velocityCell
+        velocity: rootItem.velocity
+        isValid: _isValidNote(note)
         height: parent.height
-        Text {
-            id: noteText
-            text: note
-            font.pixelSize: parent.height * 0.8
-            font.family: _fontFamily
-            color: _textColor
-            anchors.verticalCenter: parent.verticalCenter
             Cursor {
                 id: cursor
                 visible: rootItem._focused && _lineColumnIndex === 0
             }
-        }
-        Text {
-            id: spacer
-            text: " "
-            font.pixelSize: noteText.font.pixelSize
-            font.family: noteText.font.family
-            anchors.verticalCenter: parent.verticalCenter
-        }
-        VelocityCell {
-            id: velocityCell
-            velocity: rootItem.velocity
-            isValid: _isValidNote(note)
-            height: parent.height
-            anchors.verticalCenter: parent.verticalCenter
-        }
+        anchors.verticalCenter: parent.verticalCenter
+        anchors.left: parent.horizontalCenter
     }
     function resize(width, height) {
         rootItem.width = width;
