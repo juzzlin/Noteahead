@@ -38,6 +38,7 @@ Rectangle {
         anchors.rightMargin: width / 3
         Cursor {
             id: cursor
+            anchors.fill: parent
             visible: rootItem._focused && _lineColumnIndex === 0
         }
     }

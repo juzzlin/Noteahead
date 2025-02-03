@@ -16,7 +16,7 @@ Item {
     }
     function _getVelocityDigit(digit) {
         const index = velocity.length - 1 - digit;
-        return 0 >= index < velocity.length ? velocity[index] : editorService.noDataString()[0];
+        return 0 <= index && index < velocity.length ? velocity[index] : editorService.noDataString()[0];
     }
     Row {
         anchors.centerIn: parent
@@ -28,9 +28,6 @@ Item {
             font.family: _fontFamily
             color: _textColor
             anchors.verticalCenter: parent.verticalCenter
-            Cursor {
-                visible: rootItem._focused && _lineColumnIndex === 1
-            }
         }
         Text {
             id: velocityDigit1
@@ -39,9 +36,6 @@ Item {
             font.family: velocityDigit2.font.family
             color: velocityDigit2.color
             anchors.verticalCenter: parent.verticalCenter
-            Cursor {
-                visible: rootItem._focused && _lineColumnIndex === 2
-            }
         }
         Text {
             id: velocityDigit0
@@ -50,9 +44,13 @@ Item {
             font.family: velocityDigit2.font.family
             color: velocityDigit2.color
             anchors.verticalCenter: parent.verticalCenter
-            Cursor {
-                visible: rootItem._focused && _lineColumnIndex === 3
-            }
         }
+    }
+    Cursor {
+        visible: rootItem._focused && (_lineColumnIndex === 1 || _lineColumnIndex === 2 || _lineColumnIndex === 3)
+        x: _lineColumnIndex === 1 ? velocityDigit2.x : _lineColumnIndex === 2 ? velocityDigit1.x : velocityDigit0.x
+        y: velocityDigit2.y
+        width: _lineColumnIndex === 1 ? velocityDigit2.width : _lineColumnIndex === 2 ? velocityDigit1.width : velocityDigit0.width
+        height: velocityDigit2.height
     }
 }
