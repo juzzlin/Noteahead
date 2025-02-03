@@ -146,6 +146,32 @@ Cut/Copy/Paste (also available via right-clicking on the editor):
 
 * **Ctrl + F5**: paste the copied pattern
 
+Transposition (also available via right-clicking on the editor):
+
+* **Alt + F9**: transpose column by +1 semitone
+
+* **Alt + F10**: transpose column by -1 semitone
+
+* **Alt + F11**: transpose column by +12 semitones
+
+* **Alt + F12**: transpose column by -12 semitones
+
+* **Shift + F9**: transpose track by +1 semitone
+
+* **Shift + F10**: transpose track by -1 semitone
+
+* **Shift + F11**: transpose track by +12 semitones
+
+* **Shift + F12**: transpose track by -12 semitones
+
+* **Ctrl + F9**: transpose pattern by +1 semitone
+
+* **Ctrl + F10**: transpose pattern by -1 semitone
+
+* **Ctrl + F11**: transpose pattern by +12 semitones
+
+* **Ctrl + F12**: transpose pattern by -12 semitones
+
 ##
 ## Why am I doing this?
 
