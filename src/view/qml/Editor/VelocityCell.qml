@@ -5,20 +5,17 @@ Item {
     width: velocityText.contentWidth
     height: velocityText.contentHeight
     property bool isValid: false
-    property string velocity: ""
     property bool _focused: false
     property int _lineColumnIndex: 0
     function setFocused(focused, lineColumnIndex) {
         _focused = focused;
         _lineColumnIndex = lineColumnIndex;
     }
-    function _getVelocityString() {
-        let padded = velocity.padStart(3, "-"); // Ensures we always have three characters
-        return padded.substring(padded.length - 3);
+    function setVelocity(velocity) {
+        velocityText.text = velocity.padStart(3, "-"); // Ensures we always have three characters
     }
     Text {
         id: velocityText
-        text: _getVelocityString()
         font.pixelSize: rootItem.height * 0.8
         font.family: "monospace"
         color: isValid ? "#ffffff" : "#888888"

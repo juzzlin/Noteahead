@@ -15,7 +15,7 @@ Rectangle {
     }
     function setNoteData(note, velocity) {
         noteText.text = note;
-        velocityCell.velocity = velocity;
+        velocityCell.setVelocity(velocity);
     }
     function setFocused(focused, lineColumnIndex) {
         _focused = focused;
