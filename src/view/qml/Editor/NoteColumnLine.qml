@@ -11,8 +11,6 @@ Rectangle {
     property bool _focused: false
     property var _indexHighlight
     property int _lineColumnIndex: 0
-    readonly property string _fontFamily: "monospace"
-    readonly property color _textColor: _isValidNote(note) ? "white" : "#888888"
     function resize(width, height) {
         rootItem.width = width;
         rootItem.height = height;
@@ -29,8 +27,8 @@ Rectangle {
         id: noteText
         text: note
         font.pixelSize: parent.height * 0.8
-        font.family: _fontFamily
-        color: _textColor
+        font.family: "monospace"
+        color: _isValidNote(note) ? "white" : "#888888"
         anchors.verticalCenter: parent.verticalCenter
         anchors.right: parent.horizontalCenter
         anchors.rightMargin: width / 3
