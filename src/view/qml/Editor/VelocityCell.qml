@@ -14,7 +14,7 @@ Item {
     }
     function _getVelocityDigit(digit) {
         const index = velocity.length - 1 - digit;
-        return 0 <= index && index < velocity.length ? velocity[index] : editorService.noDataString()[0];
+        return 0 <= index < velocity.length ? velocity[index] : "-";
     }
     Text {
         id: velocityDigit2
