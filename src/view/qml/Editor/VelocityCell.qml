@@ -1,5 +1,4 @@
 import QtQuick 2.15
-import ".."
 
 Item {
     id: rootItem
@@ -9,8 +8,6 @@ Item {
     property string velocity: ""
     property bool _focused: false
     property int _lineColumnIndex: 0
-    readonly property string _fontFamily: "monospace"
-    readonly property color _textColor: isValid ? Constants.noteColumnTextColor : Constants.noteColumnTextColorEmpty
     function setFocused(focused, lineColumnIndex) {
         _focused = focused;
         _lineColumnIndex = lineColumnIndex;
@@ -23,8 +20,8 @@ Item {
         id: velocityDigit2
         text: _getVelocityDigit(2)
         font.pixelSize: rootItem.height * 0.8
-        font.family: _fontFamily
-        color: _textColor
+        font.family: "monospace"
+        color: isValid ? "white" : "#888888"
         anchors.verticalCenter: parent.verticalCenter
         anchors.left: parent.left
     }
