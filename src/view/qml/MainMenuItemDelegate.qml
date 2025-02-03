@@ -12,7 +12,7 @@ MenuItem {
             color: "white"
         }
         Text {
-            text: rootItem.action.shortcut || ""
+            text: rootItem?.action?.shortcut || ""
             anchors.right: parent.right
             color: "white"
         }

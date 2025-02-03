@@ -186,6 +186,27 @@ Pattern::PositionList Pattern::insertNoteDataAtPosition(const NoteData & noteDat
     return m_tracks.at(position.track)->insertNoteDataAtPosition(noteData, position);
 }
 
+Pattern::PositionList Pattern::transposePattern(const Position & position, int semitones) const
+{
+    Pattern::PositionList changedPositions;
+    for (auto && track : m_tracks) {
+        auto trackPosition = position;
+        trackPosition.track = track->index();
+        std::ranges::copy(track->transposeTrack(trackPosition, semitones), std::back_inserter(changedPositions));
+    }
+    return changedPositions;
+}
+
+Pattern::PositionList Pattern::transposeTrack(const Position & position, int semitones) const
+{
+    return m_tracks.at(position.track)->transposeTrack(position, semitones);
+}
+
+Pattern::PositionList Pattern::transposeColumn(const Position & position, int semitones) const
+{
+    return m_tracks.at(position.track)->transposeColumn(position, semitones);
+}
+
 void Pattern::initialize(size_t lineCount, size_t trackCount)
 {
     for (size_t i = 0; i < trackCount; i++) {

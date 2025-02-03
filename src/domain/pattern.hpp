@@ -91,6 +91,12 @@ public:
     using PositionList = std::vector<Position>;
     PositionList insertNoteDataAtPosition(const NoteData & noteData, const Position & position);
 
+    PositionList transposePattern(const Position & position, int semitones) const;
+
+    PositionList transposeTrack(const Position & position, int semitones) const;
+
+    PositionList transposeColumn(const Position & position, int semitones) const;
+
     Position nextNoteDataOnSameColumn(const Position & position) const;
     Position prevNoteDataOnSameColumn(const Position & position) const;
 

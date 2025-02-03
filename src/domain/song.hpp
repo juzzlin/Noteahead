@@ -68,6 +68,12 @@ public:
 
     ChangedPositions pasteColumn(size_t patternIndex, size_t trackIndex, size_t columnIndex, CopyManager & copyManager) const;
 
+    ChangedPositions transposePattern(const Position & position, int semitones) const;
+
+    ChangedPositions transposeTrack(const Position & position, int semitones) const;
+
+    ChangedPositions transposeColumn(const Position & position, int semitones) const;
+
     void createPattern(size_t patternIndex);
 
     bool hasPattern(size_t patternIndex) const;

@@ -546,6 +546,62 @@ void EditorServiceTest::test_requestNoteOnAtCurrentPosition_notOnNoteColumn_shou
     QCOMPARE(editorService.displayVelocityAtPosition(0, 0, 0, 0), editorService.noDataString());
 }
 
+void EditorServiceTest::test_requestColumnTranspose_shouldTransposeColumn()
+{
+    EditorService editorService;
+    QSignalSpy noteDataChangedSpy { &editorService, &EditorService::noteDataAtPositionChanged };
+
+    QVERIFY(editorService.requestPosition(0, 0, 0, 0, 0));
+    QVERIFY(editorService.requestNoteOnAtCurrentPosition(1, 3, 64));
+    editorService.requestNewColumn(0);
+    QVERIFY(editorService.requestPosition(0, 0, 1, 0, 0));
+    QVERIFY(editorService.requestNoteOnAtCurrentPosition(3, 3, 64));
+
+    editorService.requestColumnTranspose(1);
+
+    QCOMPARE(editorService.displayNoteAtPosition(0, 0, 0, 0), "C-3");
+    QCOMPARE(editorService.displayVelocityAtPosition(0, 0, 0, 0), "064");
+    QCOMPARE(editorService.displayNoteAtPosition(0, 0, 1, 0), "D#3");
+    QCOMPARE(editorService.displayVelocityAtPosition(0, 0, 1, 0), "064");
+}
+
+void EditorServiceTest::test_requestTrackTranspose_shouldTransposeTrack()
+{
+    EditorService editorService;
+    QSignalSpy noteDataChangedSpy { &editorService, &EditorService::noteDataAtPositionChanged };
+
+    QVERIFY(editorService.requestPosition(0, 0, 0, 0, 0));
+    QVERIFY(editorService.requestNoteOnAtCurrentPosition(1, 3, 64));
+    editorService.requestNewColumn(0);
+    QVERIFY(editorService.requestPosition(0, 0, 1, 0, 0));
+    QVERIFY(editorService.requestNoteOnAtCurrentPosition(3, 3, 64));
+
+    editorService.requestTrackTranspose(1);
+
+    QCOMPARE(editorService.displayNoteAtPosition(0, 0, 0, 0), "C#3");
+    QCOMPARE(editorService.displayVelocityAtPosition(0, 0, 0, 0), "064");
+    QCOMPARE(editorService.displayNoteAtPosition(0, 0, 1, 0), "D#3");
+    QCOMPARE(editorService.displayVelocityAtPosition(0, 0, 1, 0), "064");
+}
+
+void EditorServiceTest::test_requestPatternTranspose_shouldTransposePattern()
+{
+    EditorService editorService;
+    QSignalSpy noteDataChangedSpy { &editorService, &EditorService::noteDataAtPositionChanged };
+
+    QVERIFY(editorService.requestPosition(0, 0, 0, 0, 0));
+    QVERIFY(editorService.requestNoteOnAtCurrentPosition(1, 3, 64));
+    QVERIFY(editorService.requestPosition(0, 1, 0, 0, 0));
+    QVERIFY(editorService.requestNoteOnAtCurrentPosition(3, 3, 64));
+
+    editorService.requestPatternTranspose(1);
+
+    QCOMPARE(editorService.displayNoteAtPosition(0, 0, 0, 0), "C#3");
+    QCOMPARE(editorService.displayVelocityAtPosition(0, 0, 0, 0), "064");
+    QCOMPARE(editorService.displayNoteAtPosition(0, 1, 0, 0), "D#3");
+    QCOMPARE(editorService.displayVelocityAtPosition(0, 1, 0, 0), "064");
+}
+
 void EditorServiceTest::test_requestPosition_invalidPosition_shouldNotChangePosition()
 {
     EditorService editorService;

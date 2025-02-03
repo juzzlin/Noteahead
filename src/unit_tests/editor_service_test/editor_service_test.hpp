@@ -70,6 +70,12 @@ private slots:
 
     void test_requestNoteOnAtCurrentPosition_notOnNoteColumn_shouldNotChangeNoteData();
 
+    void test_requestColumnTranspose_shouldTransposeColumn();
+
+    void test_requestTrackTranspose_shouldTransposeTrack();
+
+    void test_requestPatternTranspose_shouldTransposePattern();
+
     void test_requestPosition_invalidPosition_shouldNotChangePosition();
 
     void test_requestPosition_validPosition_shouldChangePosition();

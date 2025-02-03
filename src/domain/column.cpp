@@ -138,6 +138,20 @@ Column::PositionList Column::insertNoteDataAtPosition(const NoteData & noteData,
     return changedPositions;
 }
 
+Column::PositionList Column::transposeColumn(const Position & position, int semitones)
+{
+    Column::PositionList changedPositions;
+    for (size_t i = 0; i < m_lines.size(); i++) {
+        if (m_lines.at(i)->noteData()->type() == NoteData::Type::NoteOn) {
+            m_lines.at(i)->noteData()->transpose(semitones);
+            auto changedPosition = position;
+            changedPosition.line = i;
+            changedPositions.push_back(changedPosition);
+        }
+    }
+    return changedPositions;
+}
+
 Column::EventList Column::renderToEvents(size_t startTick, size_t ticksPerLine) const
 {
     EventList eventList;

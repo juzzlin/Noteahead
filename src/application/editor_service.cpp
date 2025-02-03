@@ -867,6 +867,14 @@ void EditorService::requestColumnPaste()
     }
 }
 
+void EditorService::requestColumnTranspose(int semitones)
+{
+    for (auto && changedPosition : m_song->transposeColumn(m_cursorPosition, semitones)) {
+        emit noteDataAtPositionChanged(changedPosition);
+    }
+    setIsModified(true);
+}
+
 bool EditorService::hasColumnToPaste() const
 {
     return m_copyManager->mode() == CopyManager::Mode::Column;
@@ -911,6 +919,14 @@ bool EditorService::hasTrackToPaste() const
     return m_copyManager->mode() == CopyManager::Mode::Track;
 }
 
+void EditorService::requestTrackTranspose(int semitones)
+{
+    for (auto && changedPosition : m_song->transposeTrack(m_cursorPosition, semitones)) {
+        emit noteDataAtPositionChanged(changedPosition);
+    }
+    setIsModified(true);
+}
+
 void EditorService::requestPatternCut()
 {
     juzzlin::L(TAG).info() << "Requesting pattern cut";
@@ -948,6 +964,14 @@ void EditorService::requestPatternPaste()
 bool EditorService::hasPatternToPaste() const
 {
     return m_copyManager->mode() == CopyManager::Mode::Pattern;
+}
+
+void EditorService::requestPatternTranspose(int semitones)
+{
+    for (auto && changedPosition : m_song->transposePattern(m_cursorPosition, semitones)) {
+        emit noteDataAtPositionChanged(changedPosition);
+    }
+    setIsModified(true);
 }
 
 bool EditorService::requestPosition(const Position & position)

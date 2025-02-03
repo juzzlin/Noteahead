@@ -48,6 +48,13 @@ void NoteData::setAsNoteOff()
     m_note = {};
 }
 
+void NoteData::transpose(int semitones)
+{
+    if (m_note.has_value() && ((semitones > 0 && *m_note + semitones <= 127) || (semitones < 0 && *m_note + semitones >= 0))) {
+        m_note = *m_note + semitones;
+    }
+}
+
 NoteData::Type NoteData::type() const
 {
     return m_type;

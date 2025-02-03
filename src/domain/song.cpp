@@ -122,6 +122,21 @@ Song::ChangedPositions Song::pasteColumn(size_t patternIndex, size_t trackIndex,
     return m_patterns.contains(patternIndex) ? copyManager.pasteColumn(m_patterns.at(patternIndex), trackIndex, columnIndex) : Song::ChangedPositions {};
 }
 
+Song::ChangedPositions Song::transposePattern(const Position & position, int semitones) const
+{
+    return m_patterns.contains(position.pattern) ? m_patterns.at(position.pattern)->transposePattern(position, semitones) : Song::ChangedPositions {};
+}
+
+Song::ChangedPositions Song::transposeTrack(const Position & position, int semitones) const
+{
+    return m_patterns.contains(position.pattern) ? m_patterns.at(position.pattern)->transposeTrack(position, semitones) : Song::ChangedPositions {};
+}
+
+Song::ChangedPositions Song::transposeColumn(const Position & position, int semitones) const
+{
+    return m_patterns.contains(position.pattern) ? m_patterns.at(position.pattern)->transposeColumn(position, semitones) : Song::ChangedPositions {};
+}
+
 void Song::createPattern(size_t patternIndex)
 {
     if (m_patterns.empty()) {

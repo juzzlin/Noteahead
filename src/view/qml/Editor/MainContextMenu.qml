@@ -1,4 +1,3 @@
-import QtQuick 2.3
 import QtQuick.Controls 2.3
 import QtQuick.Controls.Universal 2.3
 import ".."
@@ -7,6 +6,8 @@ Menu {
     id: rootItem
     Menu {
         title: qsTr("Column")
+        height: rootItem.height
+        width: rootItem.width
         Action {
             text: qsTr("Cut")
             shortcut: "Alt+F3"
@@ -24,6 +25,32 @@ Menu {
             enabled: !UiService.isPlaying() && editorService.hasColumnToPaste
             onTriggered: editorService.requestColumnPaste()
         }
+        MenuSeparator {
+        }
+        Action {
+            text: qsTr("Transpose <b>+1</b> semitones")
+            shortcut: "Alt+F10"
+            enabled: !UiService.isPlaying()
+            onTriggered: editorService.requestColumnTranspose(1)
+        }
+        Action {
+            text: qsTr("Transpose <b>-1</b> semitones")
+            shortcut: "Alt+F9"
+            enabled: !UiService.isPlaying()
+            onTriggered: editorService.requestColumnTranspose(-1)
+        }
+        Action {
+            text: qsTr("Transpose <b>+12</b> semitones")
+            shortcut: "Alt+F12"
+            enabled: !UiService.isPlaying()
+            onTriggered: editorService.requestColumnTranspose(12)
+        }
+        Action {
+            text: qsTr("Transpose <b>-12</b> semitones")
+            shortcut: "Alt+F11"
+            enabled: !UiService.isPlaying()
+            onTriggered: editorService.requestColumnTranspose(-12)
+        }
         delegate: MainMenuItemDelegate {
         }
     }
@@ -31,6 +58,8 @@ Menu {
     }
     Menu {
         title: qsTr("Track")
+        height: rootItem.height
+        width: rootItem.width
         Action {
             text: qsTr("Cut")
             shortcut: "Shift+F3"
@@ -48,6 +77,32 @@ Menu {
             enabled: !UiService.isPlaying() && editorService.hasTrackToPaste
             onTriggered: editorService.requestTrackPaste()
         }
+        MenuSeparator {
+        }
+        Action {
+            text: qsTr("Transpose <b>+1</b> semitones")
+            shortcut: "Shift+F10"
+            enabled: !UiService.isPlaying()
+            onTriggered: editorService.requestTrackTranspose(1)
+        }
+        Action {
+            text: qsTr("Transpose <b>-1</b> semitones")
+            shortcut: "Shift+F9"
+            enabled: !UiService.isPlaying()
+            onTriggered: editorService.requestTrackTranspose(-1)
+        }
+        Action {
+            text: qsTr("Transpose <b>+12</b> semitones")
+            shortcut: "Shift+F12"
+            enabled: !UiService.isPlaying()
+            onTriggered: editorService.requestTrackTranspose(12)
+        }
+        Action {
+            text: qsTr("Transpose <b>-12</b> semitones")
+            shortcut: "Shift+F11"
+            enabled: !UiService.isPlaying()
+            onTriggered: editorService.requestTrackTranspose(-12)
+        }
         delegate: MainMenuItemDelegate {
         }
     }
@@ -55,6 +110,8 @@ Menu {
     }
     Menu {
         title: "Pattern"
+        height: rootItem.height
+        width: rootItem.width
         Action {
             text: qsTr("Cut")
             shortcut: "Ctrl+F3"
@@ -71,6 +128,32 @@ Menu {
             shortcut: "Ctrl+F5"
             enabled: !UiService.isPlaying() && editorService.hasPatternToPaste
             onTriggered: editorService.requestPatternPaste()
+        }
+        MenuSeparator {
+        }
+        Action {
+            text: qsTr("Transpose <b>+1</b> semitones")
+            shortcut: "Ctrl+F10"
+            enabled: !UiService.isPlaying()
+            onTriggered: editorService.requestPatternTranspose(1)
+        }
+        Action {
+            text: qsTr("Transpose <b>-1</b> semitones")
+            shortcut: "Ctrl+F9"
+            enabled: !UiService.isPlaying()
+            onTriggered: editorService.requestPatternTranspose(-1)
+        }
+        Action {
+            text: qsTr("Transpose <b>+12</b> semitones")
+            shortcut: "Ctrl+F12"
+            enabled: !UiService.isPlaying()
+            onTriggered: editorService.requestPatternTranspose(12)
+        }
+        Action {
+            text: qsTr("Transpose <b>-12</b> semitones")
+            shortcut: "Ctrl+F11"
+            enabled: !UiService.isPlaying()
+            onTriggered: editorService.requestPatternTranspose(-12)
         }
         delegate: MainMenuItemDelegate {
         }

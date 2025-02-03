@@ -44,6 +44,8 @@ public:
 
     void setAsNoteOff();
 
+    void transpose(int semitones);
+
     NoteData::Type type() const;
 
     std::optional<uint8_t> note() const;

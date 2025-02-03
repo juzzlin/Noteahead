@@ -200,6 +200,8 @@ public:
 
     Q_INVOKABLE void requestColumnPaste();
 
+    Q_INVOKABLE void requestColumnTranspose(int semitones);
+
     Q_INVOKABLE bool hasColumnToPaste() const;
 
     Q_INVOKABLE void requestTrackCut();
@@ -210,11 +212,15 @@ public:
 
     Q_INVOKABLE bool hasTrackToPaste() const;
 
+    Q_INVOKABLE void requestTrackTranspose(int semitones);
+
     Q_INVOKABLE void requestPatternCut();
 
     Q_INVOKABLE void requestPatternCopy();
 
     Q_INVOKABLE void requestPatternPaste();
+
+    Q_INVOKABLE void requestPatternTranspose(int semitones);
 
     Q_INVOKABLE bool hasPatternToPaste() const;
 

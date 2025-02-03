@@ -60,6 +60,8 @@ public:
     using PositionList = std::vector<Position>;
     PositionList insertNoteDataAtPosition(const NoteData & noteData, const Position & position);
 
+    PositionList transposeColumn(const Position & position, int semitones);
+
     using EventS = std::shared_ptr<Event>;
     using EventList = std::vector<EventS>;
     EventList renderToEvents(size_t startTick, size_t ticksPerLine) const;
