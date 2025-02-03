@@ -11,6 +11,7 @@ Rectangle {
     property string velocity: ""
     property int index: 0
     property bool _focused: false
+    property var _indexHighlight
     property int _lineColumnIndex: 0
     readonly property string _fontFamily: "monospace"
     readonly property color _textColor: _isValidNote(note) ? Constants.noteColumnTextColor : Constants.noteColumnTextColorEmpty
@@ -48,8 +49,42 @@ Rectangle {
         anchors.verticalCenter: parent.verticalCenter
         anchors.left: parent.horizontalCenter
     }
-    IndexHighlight {
-        anchors.fill: parent
-        index: parent.index
+    Component {
+        id: indexHighlightComponent
+        Rectangle {
+            anchors.fill: parent
+            color: "white"
+            visible: opacity > 0
+        }
+    }
+    function _indexHighlightOpacity(linesPerBeat) {
+        const _beatLine1 = linesPerBeat;
+        const _beatLine2 = _beatLine1 % 3 ? _beatLine1 / 2 : _beatLine1 / 3;
+        const _beatLine3 = _beatLine1 % 6 ? _beatLine1 / 4 : _beatLine1 / 6;
+        if (!(index % _beatLine1))
+            return 0.25;
+        if (!(index % _beatLine3) && !(index % _beatLine2))
+            return 0.10;
+        if (!(index % _beatLine3))
+            return 0.05;
+        return 0;
+    }
+    function _updateIndexHighlight() {
+        const indexHighlightOpacity = _indexHighlightOpacity(editorService.linesPerBeat);
+        if (indexHighlightOpacity > 0) {
+            if (!_indexHighlight) {
+                _indexHighlight = indexHighlightComponent.createObject(rootItem);
+            }
+            _indexHighlight.opacity = indexHighlightOpacity;
+        } else {
+            if (_indexHighlight) {
+                _indexHighlight.destroy();
+                _indexHighlight = null;
+            }
+        }
+    }
+    Component.onCompleted: {
+        editorService.linesPerBeatChanged.connect(_updateIndexHighlight);
+        _updateIndexHighlight();
     }
 }
