@@ -49,8 +49,7 @@ Rectangle {
     function updateNoteDataAtPosition(position) {
         if (_isPositionMe(position)) {
             const noteAndVelocity = editorService.displayNoteAndVelocityAtPosition(_patternIndex, _trackIndex, _index, position.line);
-            _lines[position.line].note = noteAndVelocity[0];
-            _lines[position.line].velocity = noteAndVelocity[1];
+            _lines[position.line].setNoteData(noteAndVelocity[0], noteAndVelocity[1]);
         }
     }
     function _isPositionMe(position) {
@@ -71,10 +70,9 @@ Rectangle {
                     "width": rootItem.width,
                     "height": lineHeight,
                     "x": 0,
-                    "y": lineHeight * _scrolledLinePositionByLineIndex(lineIndex),
-                    "note": noteAndVelocity[0],
-                    "velocity": noteAndVelocity[1]
+                    "y": lineHeight * _scrolledLinePositionByLineIndex(lineIndex)
                 });
+            line.setNoteData(noteAndVelocity[0], noteAndVelocity[1]);
             _lines.push(line);
         }
     }
@@ -86,10 +84,9 @@ Rectangle {
                     "width": rootItem.width,
                     "height": lineHeight,
                     "x": 0,
-                    "y": lineHeight * _scrolledLinePositionByLineIndex(lineIndex),
-                    "note": noteAndVelocity[0],
-                    "velocity": noteAndVelocity[1]
+                    "y": lineHeight * _scrolledLinePositionByLineIndex(lineIndex)
                 });
+            line.setNoteData(noteAndVelocity[0], noteAndVelocity[1]);
             _lines.push(line);
         }
     }

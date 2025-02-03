@@ -5,8 +5,6 @@ Rectangle {
     color: "black"
     border.color: "#222222"
     border.width: 1
-    property string note: ""
-    property string velocity: ""
     property int index: 0
     property bool _focused: false
     property var _indexHighlight
@@ -14,6 +12,10 @@ Rectangle {
     function resize(width, height) {
         rootItem.width = width;
         rootItem.height = height;
+    }
+    function setNoteData(note, velocity) {
+        noteText.text = note;
+        velocityCell.velocity = velocity;
     }
     function setFocused(focused, lineColumnIndex) {
         _focused = focused;
@@ -25,10 +27,9 @@ Rectangle {
     }
     Text {
         id: noteText
-        text: note
         font.pixelSize: parent.height * 0.8
         font.family: "monospace"
-        color: _isValidNote(note) ? "white" : "#888888"
+        color: _isValidNote(text) ? "white" : "#888888"
         anchors.verticalCenter: parent.verticalCenter
         anchors.right: parent.horizontalCenter
         anchors.rightMargin: width / 3
@@ -40,8 +41,7 @@ Rectangle {
     }
     VelocityCell {
         id: velocityCell
-        velocity: rootItem.velocity
-        isValid: _isValidNote(note)
+        isValid: _isValidNote(noteText.text)
         height: parent.height
         anchors.verticalCenter: parent.verticalCenter
         anchors.left: parent.horizontalCenter
