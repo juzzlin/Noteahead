@@ -164,6 +164,8 @@ public:
 
     Q_INVOKABLE bool isAtVelocityColumn() const;
 
+    Q_INVOKABLE bool isColumnVisible(size_t track, size_t column) const;
+
     Q_INVOKABLE bool isModified() const;
 
     Q_INVOKABLE Position position() const;

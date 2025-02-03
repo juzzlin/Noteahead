@@ -144,6 +144,7 @@ FocusScope {
         _clearPatterns();
         _createPatterns();
         _updatePatternVisibility();
+        _updateTrackVisibility();
     }
     function _updateCurrentTrackDimensions() {
         const currentPattern = _patterns[editorService.currentPattern];
@@ -197,6 +198,9 @@ FocusScope {
                 pattern.visible = pattern.index() === currentPatternIndex;
             });
     }
+    function _updateTrackVisibility() {
+        _patterns.forEach(pattern => pattern.updateTrackVisibility());
+    }
     function _changePattern() {
         _updatePatternVisibility();
         _updateCurrentTrackDimensions();
@@ -222,6 +226,7 @@ FocusScope {
         editorService.columnDeleted.connect(trackIndex => _deleteColumn(trackIndex));
         editorService.currentLineCountModified.connect(_updateCurrentLineCount);
         editorService.horizontalScrollChanged.connect(_updateCurrentTrackDimensions);
+        editorService.horizontalScrollChanged.connect(_updateTrackVisibility);
         editorService.noteDataAtPositionChanged.connect(_updateNoteDataAtPosition);
         editorService.songChanged.connect(_recreatePatterns);
         editorService.trackConfigurationChanged.connect(_recreatePatterns);

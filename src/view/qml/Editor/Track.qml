@@ -53,6 +53,9 @@ Item {
     function updateNoteDataAtPosition(position) {
         columnContainer.updateNoteDataAtPosition(position);
     }
+    function updateColumnVisibility() {
+        columnContainer.updateVisibility();
+    }
     function addColumn() {
         columnContainer.addColumn();
     }
@@ -117,6 +120,11 @@ Item {
         function updateNoteDataAtPosition(position) {
             _noteColumns.forEach(noteColumn => {
                     noteColumn.updateNoteDataAtPosition(position);
+                });
+        }
+        function updateVisibility() {
+            _noteColumns.forEach(noteColumn => {
+                    noteColumn.visible = editorService.isColumnVisible(_index, noteColumn.index());
                 });
         }
         function _noteColumnX(index) {

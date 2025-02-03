@@ -519,6 +519,12 @@ bool EditorService::isAtVelocityColumn() const
     return m_cursorPosition.lineColumn >= 1 && m_cursorPosition.lineColumn <= 3;
 }
 
+bool EditorService::isColumnVisible(size_t track, size_t column) const
+{
+    const int columnPosition = trackPositionInUnits(track) + static_cast<int>(column);
+    return columnPosition >= 0 && columnPosition < static_cast<int>(visibleUnitCount());
+}
+
 bool EditorService::isModified() const
 {
     return m_isModified;

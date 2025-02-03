@@ -46,6 +46,9 @@ Item {
                 track.setName(editorService.trackName(track.index()));
             });
     }
+    function updateTrackVisibility() {
+        _tracks.forEach(track => track.updateColumnVisibility());
+    }
     Component {
         id: trackComponent
         Track {

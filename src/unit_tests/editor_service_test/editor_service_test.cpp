@@ -408,9 +408,11 @@ void EditorServiceTest::test_requestHorizontalScrollPositionChange_shouldChangeP
 
     editorService.requestHorizontalScrollPositionChange(0);
     QCOMPARE(editorService.horizontalScrollPosition(), 0);
+    QVERIFY(editorService.isColumnVisible(0, 0));
 
     editorService.requestHorizontalScrollPositionChange(0.5);
     QCOMPARE(editorService.horizontalScrollPosition(), 2);
+    QVERIFY(!editorService.isColumnVisible(0, 0));
 
     editorService.requestNewColumn(0);
     QCOMPARE(positionChangedSpy.count(), 2);
