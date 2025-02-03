@@ -132,6 +132,11 @@ QString xmlKeyPosition()
     return "Position";
 }
 
+QString xmlKeyLength()
+{
+    return "length";
+}
+
 QString xmlKeyLine()
 {
     return "Line";

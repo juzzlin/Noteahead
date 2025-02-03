@@ -26,14 +26,31 @@ void PlayOrderTest::test_initialization_shouldReturnInitialMapping()
     QCOMPARE(playOrder.positionToPattern(0), size_t(0));
 }
 
+void PlayOrderTest::test_insertPattern_shouldInsertPattern()
+{
+    PlayOrder playOrder;
+
+    playOrder.setPatternAtPosition(0, 0);
+    playOrder.setPatternAtPosition(1, 1);
+    playOrder.setPatternAtPosition(2, 2);
+
+    playOrder.insertPattern(0, 3);
+
+    QCOMPARE(playOrder.positionToPattern(0), 3);
+    QCOMPARE(playOrder.positionToPattern(1), 0);
+    QCOMPARE(playOrder.positionToPattern(2), 1);
+    QCOMPARE(playOrder.positionToPattern(3), 2);
+}
+
 void PlayOrderTest::test_flatten_shouldReturnCorrectMapping()
 {
     PlayOrder playOrder;
     playOrder.setPatternAtPosition(0, 10);
     playOrder.setPatternAtPosition(1, 11);
 
-    QCOMPARE(playOrder.flatten().at(0), 10);
-    QCOMPARE(playOrder.flatten().at(1), 11);
+    QCOMPARE(playOrder.flatten(2).at(0), 10);
+    QCOMPARE(playOrder.flatten(2).at(1), 11);
+    QCOMPARE(playOrder.flatten(3).at(2), 0);
 }
 
 void PlayOrderTest::test_length_shouldReturnCorrectLength()
@@ -47,6 +64,20 @@ void PlayOrderTest::test_length_shouldReturnCorrectLength()
     playOrder.setPatternAtPosition(10, 2);
 
     QCOMPARE(playOrder.length(), 11);
+}
+
+void PlayOrderTest::test_removePattern_shouldRemovePattern()
+{
+    PlayOrder playOrder;
+
+    playOrder.setPatternAtPosition(0, 0);
+    playOrder.setPatternAtPosition(1, 1);
+    playOrder.setPatternAtPosition(2, 2);
+
+    playOrder.removePattern(0);
+
+    QCOMPARE(playOrder.positionToPattern(0), 1);
+    QCOMPARE(playOrder.positionToPattern(1), 2);
 }
 
 void PlayOrderTest::test_setAndGetPattern_shouldReturnCorrectValues()

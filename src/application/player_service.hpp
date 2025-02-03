@@ -45,7 +45,7 @@ public:
 
     Q_INVOKABLE void requestPrev();
 
-    void setPlayOrderSongPosition(size_t position);
+    void setSongPosition(size_t position);
 
     using SongS = std::shared_ptr<Song>;
     void setSong(SongS song);
@@ -74,7 +74,7 @@ private:
 
     QThread m_playerWorkerThread;
 
-    size_t m_playOrderSongPosition = 0;
+    size_t m_songPosition = 0;
 };
 
 } // namespace noteahead

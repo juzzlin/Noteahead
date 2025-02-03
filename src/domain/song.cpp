@@ -214,6 +214,16 @@ void Song::setPatternAtSongPosition(size_t position, size_t pattern)
     m_playOrder->setPatternAtPosition(position, pattern);
 }
 
+void Song::insertPatternToPlayOrder(size_t position)
+{
+    m_playOrder->insertPattern(position, 0);
+}
+
+void Song::removePatternFromPlayOrder(size_t position)
+{
+    m_playOrder->removePattern(position);
+}
+
 size_t Song::trackCount() const
 {
     return m_patterns.at(0)->trackCount();
@@ -412,18 +422,28 @@ std::chrono::milliseconds Song::lineToTime(size_t line) const
 std::chrono::milliseconds Song::duration() const
 {
     std::chrono::milliseconds d {};
-    for (auto && pattern : m_playOrder->flatten()) {
+    for (auto && pattern : m_playOrder->flatten(m_length)) {
         d += tickToTime(m_patterns.at(pattern)->lineCount() * m_ticksPerLine);
     }
     return d;
 }
 
-void Song::updateTickToSongPositionMapping(size_t patternStartTick, size_t playOrderSongPosition, size_t patternIndex, size_t lineCount)
+size_t Song::length() const
+{
+    return m_length;
+}
+
+void Song::setLength(size_t length)
+{
+    m_length = length ? length : 1;
+}
+
+void Song::updateTickToSongPositionMapping(size_t patternStartTick, size_t songPosition, size_t patternIndex, size_t lineCount)
 {
     for (size_t lineIndex = 0; lineIndex < lineCount; lineIndex++) {
         const auto tick = patternStartTick + lineIndex * m_ticksPerLine;
         const auto time = tickToTime(tick);
-        m_tickToSongPositionMap[tick] = { playOrderSongPosition, patternIndex, lineIndex, time };
+        m_tickToSongPositionMap[tick] = { songPosition, patternIndex, lineIndex, time };
     }
 }
 
@@ -457,13 +477,13 @@ std::pair<Song::EventList, size_t> Song::renderPatterns(Song::EventList eventLis
 {
     m_tickToSongPositionMap.clear();
 
-    for (size_t playOrderSongPosition = startPosition; playOrderSongPosition < m_playOrder->length(); playOrderSongPosition++) {
-        const auto patternIndex = m_playOrder->positionToPattern(playOrderSongPosition);
-        juzzlin::L(TAG).debug() << "Rendering position " << playOrderSongPosition << " as pattern " << patternIndex;
+    for (size_t songPosition = startPosition; songPosition < m_length; songPosition++) {
+        const auto patternIndex = m_playOrder->positionToPattern(songPosition);
+        juzzlin::L(TAG).debug() << "Rendering position " << songPosition << " as pattern " << patternIndex;
         const auto & pattern = m_patterns[patternIndex];
         const auto patternEventList = pattern->renderToEvents(tick, m_ticksPerLine);
         std::copy(patternEventList.begin(), patternEventList.end(), std::back_inserter(eventList));
-        updateTickToSongPositionMapping(tick, playOrderSongPosition, patternIndex, pattern->lineCount());
+        updateTickToSongPositionMapping(tick, songPosition, patternIndex, pattern->lineCount());
         tick += pattern->lineCount() * m_ticksPerLine;
     }
 
@@ -500,6 +520,7 @@ void Song::serializeToXml(QXmlStreamWriter & writer) const
 
     writer.writeAttribute(Constants::xmlKeyBeatsPerMinute(), QString::number(m_beatsPerMinute));
     writer.writeAttribute(Constants::xmlKeyLinesPerBeat(), QString::number(m_linesPerBeat));
+    writer.writeAttribute(Constants::xmlKeyLength(), QString::number(m_length));
 
     m_playOrder->serializeToXml(writer);
 
@@ -546,6 +567,7 @@ void Song::deserializeFromXml(QXmlStreamReader & reader)
 {
     setBeatsPerMinute(readUIntAttribute(reader, Constants::xmlKeyBeatsPerMinute()));
     setLinesPerBeat(readUIntAttribute(reader, Constants::xmlKeyLinesPerBeat()));
+    setLength(readUIntAttribute(reader, Constants::xmlKeyLength()));
 
     juzzlin::L(TAG).trace() << "Reading Song started";
     while (!(reader.isEndElement() && !reader.name().compare(Constants::xmlKeySong()))) {

@@ -61,13 +61,15 @@ class EditorService : public QObject
 
     Q_PROPERTY(bool hasPatternToPaste READ hasPatternToPaste NOTIFY copyManagerStateChanged)
 
-    Q_PROPERTY(size_t playOrderSongPosition READ playOrderSongPosition NOTIFY playOrderSongPositionChanged)
+    Q_PROPERTY(size_t songPosition READ songPosition NOTIFY songPositionChanged)
 
-    Q_PROPERTY(size_t patternAtCurrentPlayOrderSongPosition READ patternAtCurrentPlayOrderSongPosition NOTIFY patternAtCurrentPlayOrderSongPositionChanged)
+    Q_PROPERTY(size_t patternAtCurrentSongPosition READ patternAtCurrentSongPosition NOTIFY patternAtCurrentSongPositionChanged)
 
     Q_PROPERTY(double scrollBarSize READ scrollBarSize NOTIFY scrollBarSizeChanged)
 
     Q_PROPERTY(double scrollBarStepSize READ scrollBarStepSize NOTIFY scrollBarStepSizeChanged)
+
+    Q_PROPERTY(size_t songLength READ songLength WRITE setSongLength NOTIFY songLengthChanged)
 
 public:
     EditorService();
@@ -256,15 +258,25 @@ public:
 
     Q_INVOKABLE double scrollBarSize() const;
 
-    Q_INVOKABLE size_t playOrderSongPosition() const;
+    Q_INVOKABLE size_t songPosition() const;
 
-    Q_INVOKABLE void setPlayOrderSongPosition(size_t songPosition);
+    Q_INVOKABLE void setSongPosition(size_t songPosition);
 
-    Q_INVOKABLE size_t patternAtCurrentPlayOrderSongPosition() const;
+    Q_INVOKABLE size_t patternAtCurrentSongPosition() const;
 
-    Q_INVOKABLE size_t patternAtPlayOrderSongPosition(size_t songPosition) const;
+    Q_INVOKABLE void insertPatternToPlayOrder();
 
-    Q_INVOKABLE void setPatternAtPlayOrderSongPosition(size_t songPosition, size_t pattern);
+    Q_INVOKABLE void removePatternFromPlayOrder();
+
+    Q_INVOKABLE size_t patternAtSongPosition(size_t songPosition) const;
+
+    Q_INVOKABLE void setPatternAtSongPosition(size_t songPosition, size_t pattern);
+
+    Q_INVOKABLE size_t songLength() const;
+
+    Q_INVOKABLE void setSongLength(size_t songLength);
+
+    Q_INVOKABLE size_t maxSongLength() const;
 
     using InstrumentS = std::shared_ptr<Instrument>;
     InstrumentS instrument(size_t trackIndex) const;
@@ -310,9 +322,9 @@ signals:
 
     void noteDataAtPositionChanged(const Position & position);
 
-    void patternAtCurrentPlayOrderSongPositionChanged(); // For the play order widget
+    void patternAtCurrentSongPositionChanged(); // For the play order widget
 
-    void playOrderSongPositionChanged(size_t position); // For the play order widget
+    void songPositionChanged(size_t position); // For the play order widget
 
     void patternCreated(size_t patternIndex);
 
@@ -323,6 +335,8 @@ signals:
     void scrollBarStepSizeChanged();
 
     void songChanged();
+
+    void songLengthChanged();
 
     void statusTextRequested(QString text);
 
@@ -380,7 +394,7 @@ private:
 
     size_t m_horizontalScrollPosition = 0;
 
-    size_t m_playOrderSongPosition = 0;
+    size_t m_songPosition = 0;
 
     std::unique_ptr<CopyManager> m_copyManager;
 

@@ -66,6 +66,7 @@ void EditorService::setSong(SongS song)
     emit linesPerBeatChanged();
     emit currentLineCountChanged();
     emit currentPatternChanged();
+    emit songLengthChanged();
 
     updateScrollBar();
 
@@ -590,7 +591,6 @@ void EditorService::requestCursorRight()
             m_cursorPosition.track %= trackCount();
         }
     }
-
     notifyPositionChange(oldPosition);
 }
 
@@ -1033,7 +1033,7 @@ void EditorService::requestPositionByTick(size_t tick)
         m_cursorPosition.pattern = songPosition->pattern;
         m_cursorPosition.line = songPosition->line;
         notifyPositionChange(oldPosition);
-        setPlayOrderSongPosition(songPosition->position);
+        setSongPosition(songPosition->position);
         setCurrentTime(songPosition->currentTime);
     }
 }
@@ -1155,42 +1155,91 @@ void EditorService::updateScrollBar()
     emit scrollBarStepSizeChanged();
 }
 
-size_t EditorService::playOrderSongPosition() const
+size_t EditorService::songPosition() const
 {
-    return m_playOrderSongPosition;
+    return m_songPosition;
 }
 
-void EditorService::setPlayOrderSongPosition(size_t songPosition)
+void EditorService::setSongPosition(size_t songPosition)
 {
-    if (m_playOrderSongPosition != songPosition) {
-        m_playOrderSongPosition = songPosition;
-        emit playOrderSongPositionChanged(songPosition);
-        emit patternAtCurrentPlayOrderSongPositionChanged();
+    if (m_songPosition != songPosition) {
+        m_songPosition = songPosition;
+        emit songPositionChanged(songPosition);
+        emit patternAtCurrentSongPositionChanged();
+        if (songPosition >= songLength()) {
+            setSongLength(songPosition + 1);
+        }
     }
 }
 
-void EditorService::setPatternAtPlayOrderSongPosition(size_t songPosition, size_t pattern)
+void EditorService::setPatternAtSongPosition(size_t songPosition, size_t pattern)
 {
     setCurrentPattern(pattern);
 
     if (m_song->patternAtSongPosition(songPosition) != pattern) {
         m_song->setPatternAtSongPosition(songPosition, pattern);
-        if (m_playOrderSongPosition == songPosition) {
-            emit patternAtCurrentPlayOrderSongPositionChanged();
+        if (m_songPosition == songPosition) {
+            emit patternAtCurrentSongPositionChanged();
+        }
+        if (songPosition >= songLength()) {
+            setSongLength(songPosition + 1);
         }
         setIsModified(true);
         updateDuration();
     }
 }
 
-size_t EditorService::patternAtCurrentPlayOrderSongPosition() const
+size_t EditorService::patternAtCurrentSongPosition() const
 {
-    return m_song->patternAtSongPosition(m_playOrderSongPosition);
+    return m_song->patternAtSongPosition(m_songPosition);
 }
 
-size_t EditorService::patternAtPlayOrderSongPosition(size_t songPosition) const
+void EditorService::insertPatternToPlayOrder()
+{
+    m_song->insertPatternToPlayOrder(m_songPosition);
+    emit songPositionChanged(m_songPosition);
+    emit patternAtCurrentSongPositionChanged();
+    setSongLength(songLength() + 1);
+    setIsModified(true);
+    updateDuration();
+}
+
+void EditorService::removePatternFromPlayOrder()
+{
+    m_song->removePatternFromPlayOrder(m_songPosition);
+    emit songPositionChanged(m_songPosition);
+    emit patternAtCurrentSongPositionChanged();
+    setSongLength(songLength() - 1);
+    setIsModified(true);
+    updateDuration();
+}
+
+size_t EditorService::patternAtSongPosition(size_t songPosition) const
 {
     return m_song->patternAtSongPosition(songPosition);
+}
+
+size_t EditorService::songLength() const
+{
+    return m_song->length();
+}
+
+void EditorService::setSongLength(size_t songLength)
+{
+    if (m_song->length() != songLength && songLength <= maxSongLength()) {
+        m_song->setLength(songLength);
+        emit songLengthChanged();
+        updateDuration();
+        if (songPosition() >= m_song->length()) {
+            setSongPosition(songPosition() - 1);
+        }
+        setIsModified(true);
+    }
+}
+
+size_t EditorService::maxSongLength() const
+{
+    return 999;
 }
 
 EditorService::~EditorService() = default;

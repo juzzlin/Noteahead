@@ -18,6 +18,8 @@
 #include "../common/constants.hpp"
 #include "../contrib/SimpleLogger/src/simple_logger.hpp"
 
+#include <algorithm>
+
 #include <QXmlStreamWriter>
 
 namespace noteahead {
@@ -31,41 +33,68 @@ PlayOrder::PlayOrder()
 
 size_t PlayOrder::length() const
 {
-    return m_positionToPatternMap.rbegin()->first + 1;
+    return m_positionToPattern.size();
 }
 
-PlayOrder::PatternList PlayOrder::flatten() const
+PlayOrder::PatternList PlayOrder::flatten(size_t songLength) const
 {
-    PlayOrder::PatternList patterns;
-    for (auto && it : m_positionToPatternMap) {
-        patterns.push_back(it.second);
+    auto patternList = m_positionToPattern;
+    songLength = std::max(static_cast<size_t>(1), songLength);
+    if (songLength > patternList.size()) {
+        while (songLength > patternList.size()) {
+            patternList.push_back(0);
+        }
+    } else if (songLength < patternList.size()) {
+        while (songLength < patternList.size()) {
+            patternList.pop_back();
+        }
     }
-    return patterns;
+    return patternList;
+}
+
+void PlayOrder::insertPattern(size_t position, size_t pattern)
+{
+    juzzlin::L(TAG).info() << "Inserting pattern " << pattern << " at position " << position;
+
+    while (m_positionToPattern.size() <= position) {
+        m_positionToPattern.push_back(0);
+    }
+
+    m_positionToPattern.insert(m_positionToPattern.begin() + position, pattern);
+}
+
+void PlayOrder::removePattern(size_t position)
+{
+    juzzlin::L(TAG).info() << "Removing pattern at position " << position;
+
+    if (position < m_positionToPattern.size()) {
+        m_positionToPattern.erase(m_positionToPattern.begin() + position);
+    }
 }
 
 void PlayOrder::setPatternAtPosition(size_t position, size_t pattern)
 {
     juzzlin::L(TAG).info() << "Position " << position << " mapped to pattern " << pattern;
 
-    m_positionToPatternMap[position] = pattern;
+    while (m_positionToPattern.size() <= position) {
+        m_positionToPattern.push_back(0);
+    }
+
+    m_positionToPattern[position] = pattern;
 }
 
 size_t PlayOrder::positionToPattern(size_t position) const
 {
-    if (const auto pattern = m_positionToPatternMap.find(position); pattern != m_positionToPatternMap.end()) {
-        return pattern->second;
-    } else {
-        return 0;
-    }
+    return position < m_positionToPattern.size() ? m_positionToPattern.at(position) : 0;
 }
 
 void PlayOrder::serializeToXml(QXmlStreamWriter & writer) const
 {
     writer.writeStartElement(Constants::xmlKeyPlayOrder());
-    for (auto && position : m_positionToPatternMap) {
+    for (size_t i = 0; i < m_positionToPattern.size(); i++) {
         writer.writeStartElement(Constants::xmlKeyPosition());
-        writer.writeAttribute(Constants::xmlKeyIndex(), std::to_string(position.first));
-        writer.writeAttribute(Constants::xmlKeyPatternAttr(), std::to_string(position.second));
+        writer.writeAttribute(Constants::xmlKeyIndex(), std::to_string(i));
+        writer.writeAttribute(Constants::xmlKeyPatternAttr(), std::to_string(m_positionToPattern.at(i)));
         writer.writeEndElement();
     }
     writer.writeEndElement();

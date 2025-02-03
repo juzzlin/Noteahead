@@ -99,6 +99,10 @@ public:
 
     void setPatternAtSongPosition(size_t position, size_t pattern);
 
+    void insertPatternToPlayOrder(size_t position);
+
+    void removePatternFromPlayOrder(size_t position);
+
     size_t trackCount() const;
 
     //! For testing purposes as track counts should be consistent over patterns.
@@ -169,6 +173,10 @@ public:
 
     std::chrono::milliseconds duration() const;
 
+    size_t length() const;
+
+    void setLength(size_t length);
+
     void serializeToXml(QXmlStreamWriter & writer) const;
 
     void deserializeFromXml(QXmlStreamReader & reader);
@@ -228,7 +236,7 @@ private:
 
     std::chrono::milliseconds tickToTime(size_t tick) const;
 
-    void updateTickToSongPositionMapping(size_t patternStartTick, size_t playOrderSongPosition, size_t patternIndex, size_t lineCount);
+    void updateTickToSongPositionMapping(size_t patternStartTick, size_t songPosition, size_t patternIndex, size_t lineCount);
 
     size_t m_beatsPerMinute = 120;
 
@@ -239,6 +247,8 @@ private:
     std::map<size_t, PatternS> m_patterns;
 
     std::unique_ptr<PlayOrder> m_playOrder;
+
+    size_t m_length = 1;
 
     std::unordered_map<size_t, SongPosition> m_tickToSongPositionMap;
 

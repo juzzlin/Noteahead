@@ -15,18 +15,27 @@ Rectangle {
             color: Constants.mainToolBarGradientStopColor
         }
     }
-    Item {
+
+    ScrollView {
         id: editorControlsContainer
         anchors.left: parent.left
         anchors.leftMargin: Constants.lineNumberColumnWidth
         anchors.right: parent.right
-        anchors.verticalCenter: parent.verticalCenter
-        height: parent.height
+        anchors.rightMargin: Constants.lineNumberColumnWidth
+        anchors.top: parent.top
+        anchors.bottom: parent.bottom
         clip: true
-        EditorControls {
-            id: editorControls
-            anchors.left: parent.left
+        ScrollBar.vertical.policy: ScrollBar.AlwaysOff
+        contentWidth: editorControls.width
+        // Wrapper to allow vertical centering of content
+        Item {
+            width: rootItem.width
+            height: parent.height
             anchors.verticalCenter: parent.verticalCenter
+            EditorControls {
+                id: editorControls
+                anchors.verticalCenter: parent.verticalCenter
+            }
         }
     }
 }

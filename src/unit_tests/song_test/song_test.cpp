@@ -188,7 +188,12 @@ void SongTest::test_renderToEvents_playOrderSet_shouldRenderMultiplePatterns()
     song.setPatternAtSongPosition(0, 0);
     song.setPatternAtSongPosition(1, 0);
 
-    const auto events = song.renderToEvents(0);
+    song.setLength(1);
+    auto events = song.renderToEvents(0);
+    QCOMPARE(events.size(), 4);
+
+    song.setLength(2);
+    events = song.renderToEvents(0);
     QCOMPARE(events.size(), 6);
 
     auto noteOn = events.at(1);

@@ -32,7 +32,11 @@ public:
     size_t length() const;
 
     using PatternList = std::vector<size_t>;
-    PatternList flatten() const;
+    PatternList flatten(size_t songLength) const;
+
+    void insertPattern(size_t position, size_t pattern);
+
+    void removePattern(size_t position);
 
     void setPatternAtPosition(size_t position, size_t pattern);
 
@@ -41,7 +45,7 @@ public:
     void serializeToXml(QXmlStreamWriter & writer) const;
 
 private:
-    std::map<size_t, size_t> m_positionToPatternMap;
+    std::vector<size_t> m_positionToPattern;
 };
 
 } // namespace noteahead

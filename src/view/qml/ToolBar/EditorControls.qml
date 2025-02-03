@@ -5,8 +5,7 @@ import ".."
 
 Row {
     id: rootItem
-    spacing: 20
-    anchors.verticalCenter: parent.verticalCenter
+    spacing: 10
     GroupBox {
         id: songGroupBox
         label: Row {
@@ -37,12 +36,12 @@ Row {
                 }
                 SpinBox {
                     id: songPositionSpinBox
-                    value: editorService.playOrderSongPosition
+                    value: editorService.songPosition
                     from: editorService.minSongPosition()
                     to: editorService.maxSongPosition()
                     editable: false
                     enabled: !UiService.isPlaying()
-                    onValueChanged: editorService.setPlayOrderSongPosition(value)
+                    onValueChanged: editorService.setSongPosition(value)
                     Keys.onReturnPressed: {
                         focus = false;
                         UiService.requestFocusOnEditorView();
@@ -63,10 +62,10 @@ Row {
                 }
                 SpinBox {
                     id: songPatternIndexSpinBox
-                    value: editorService.patternAtCurrentPlayOrderSongPosition
+                    value: editorService.patternAtCurrentSongPosition
                     editable: false
                     enabled: !UiService.isPlaying()
-                    onValueChanged: editorService.setPatternAtPlayOrderSongPosition(songPositionSpinBox.value, value)
+                    onValueChanged: editorService.setPatternAtSongPosition(songPositionSpinBox.value, value)
                     Keys.onReturnPressed: {
                         focus = false;
                         UiService.requestFocusOnEditorView();
@@ -75,6 +74,87 @@ Row {
                     ToolTip.timeout: Constants.toolTipTimeout
                     ToolTip.visible: hovered
                     ToolTip.text: qsTr("Assign a pattern to the selected position. If the selected index doesn’t exist, a new pattern will be created.")
+                }
+            }
+            Row {
+                spacing: 5
+                Text {
+                    text: qsTr("LEN")
+                    font.bold: true
+                    color: Constants.mainToolBarTextColor
+                    anchors.verticalCenter: parent.verticalCenter
+                }
+                SpinBox {
+                    id: songLengthSpinBox
+                    value: editorService.songLength
+                    from: 1
+                    to: editorService.maxSongLength()
+                    editable: false
+                    enabled: !UiService.isPlaying()
+                    onValueChanged: editorService.setSongLength(songLengthSpinBox.value)
+                    Keys.onReturnPressed: {
+                        focus = false;
+                        UiService.requestFocusOnEditorView();
+                    }
+                    ToolTip.delay: Constants.toolTipDelay
+                    ToolTip.timeout: Constants.toolTipTimeout
+                    ToolTip.visible: hovered
+                    ToolTip.text: qsTr("Set song length")
+                }
+            }
+            Item {
+                id: insertRemovePatternButtonContainer
+                height: parent.height
+                width: height / 2 + 10
+                ToolBarButtonBase {
+                    id: insertPatternButton
+                    anchors.top: parent.top
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    width: parent.height / 2
+                    height: width
+                    enabled: !UiService.isPlaying()
+                    onClicked: {
+                        editorService.insertPatternToPlayOrder();
+                        focus = false;
+                    }
+                    Keys.onPressed: event => {
+                        if (event.key === Qt.Key_Space) {
+                            event.accepted = true;
+                        }
+                    }
+                    ToolTip.delay: Constants.toolTipDelay
+                    ToolTip.timeout: Constants.toolTipTimeout
+                    ToolTip.visible: hovered
+                    ToolTip.text: qsTr("Insert pattern to the current position")
+                    Component.onCompleted: {
+                        setScale(0.9);
+                        setImageSource("../Graphics/add_box.svg");
+                    }
+                }
+                ToolBarButtonBase {
+                    id: removePatternButton
+                    anchors.top: insertPatternButton.bottom
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    width: parent.height / 2
+                    height: width
+                    enabled: !UiService.isPlaying()
+                    onClicked: {
+                        editorService.removePatternFromPlayOrder();
+                        focus = false;
+                    }
+                    Keys.onPressed: event => {
+                        if (event.key === Qt.Key_Space) {
+                            event.accepted = true;
+                        }
+                    }
+                    ToolTip.delay: Constants.toolTipDelay
+                    ToolTip.timeout: Constants.toolTipTimeout
+                    ToolTip.visible: hovered
+                    ToolTip.text: qsTr("Remove pattern from the current position")
+                    Component.onCompleted: {
+                        setScale(0.9);
+                        setImageSource("../Graphics/del_box.svg");
+                    }
                 }
             }
         }

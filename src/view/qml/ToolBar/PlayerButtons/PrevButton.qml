@@ -7,7 +7,7 @@ ToolBarButtonBase {
     enabled: !UiService.isPlaying()
     Component.onCompleted: setImageSource("../Graphics/prev.svg")
     onClicked: {
-        editorService.setPlayOrderSongPosition(0);
+        editorService.setSongPosition(0);
         editorService.requestPosition(0, 0, 0, 0, 0);
         focus = false;
         UiService.requestFocusOnEditorView();
