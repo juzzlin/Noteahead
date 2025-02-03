@@ -5,60 +5,75 @@ import ".."
 
 Menu {
     id: rootItem
-    Action {
-        text: qsTr("Cut column")
-        shortcut: "Alt+F3"
-        enabled: !UiService.isPlaying()
-        onTriggered: editorService.requestColumnCut()
-    }
-    Action {
-        text: qsTr("Copy column")
-        shortcut: "Alt+F4"
-        onTriggered: editorService.requestColumnCopy()
-    }
-    Action {
-        text: qsTr("Paste column")
-        shortcut: "Alt+F5"
-        enabled: !UiService.isPlaying() && editorService.hasColumnToPaste
-        onTriggered: editorService.requestColumnPaste()
-    }
-    MenuSeparator {
-    }
-    Action {
-        text: qsTr("Cut track")
-        shortcut: "Shift+F3"
-        enabled: UiService.isPlaying()
-        onTriggered: editorService.requestTrackCut()
-    }
-    Action {
-        text: qsTr("Copy track")
-        shortcut: "Shift+F4"
-        onTriggered: editorService.requestTrackCopy()
-    }
-    Action {
-        text: qsTr("Paste track")
-        shortcut: "Shift+F5"
-        enabled: !UiService.isPlaying() && editorService.hasTrackToPaste
-        onTriggered: editorService.requestTrackPaste()
+    Menu {
+        title: qsTr("Column")
+        Action {
+            text: qsTr("Cut")
+            shortcut: "Alt+F3"
+            enabled: !UiService.isPlaying()
+            onTriggered: editorService.requestColumnCut()
+        }
+        Action {
+            text: qsTr("Copy")
+            shortcut: "Alt+F4"
+            onTriggered: editorService.requestColumnCopy()
+        }
+        Action {
+            text: qsTr("Paste")
+            shortcut: "Alt+F5"
+            enabled: !UiService.isPlaying() && editorService.hasColumnToPaste
+            onTriggered: editorService.requestColumnPaste()
+        }
+        delegate: MainMenuItemDelegate {
+        }
     }
     MenuSeparator {
     }
-    Action {
-        text: qsTr("Cut pattern")
-        shortcut: "Ctrl+F3"
-        enabled: !UiService.isPlaying()
-        onTriggered: editorService.requestPatternCut()
+    Menu {
+        title: qsTr("Track")
+        Action {
+            text: qsTr("Cut")
+            shortcut: "Shift+F3"
+            enabled: UiService.isPlaying()
+            onTriggered: editorService.requestTrackCut()
+        }
+        Action {
+            text: qsTr("Copy")
+            shortcut: "Shift+F4"
+            onTriggered: editorService.requestTrackCopy()
+        }
+        Action {
+            text: qsTr("Paste")
+            shortcut: "Shift+F5"
+            enabled: !UiService.isPlaying() && editorService.hasTrackToPaste
+            onTriggered: editorService.requestTrackPaste()
+        }
+        delegate: MainMenuItemDelegate {
+        }
     }
-    Action {
-        text: qsTr("Copy pattern")
-        shortcut: "Ctrl+F4"
-        onTriggered: editorService.requestPatternCopy()
+    MenuSeparator {
     }
-    Action {
-        text: qsTr("Paste pattern")
-        shortcut: "Ctrl+F5"
-        enabled: !UiService.isPlaying() && editorService.hasPatternToPaste
-        onTriggered: editorService.requestPatternPaste()
+    Menu {
+        title: "Pattern"
+        Action {
+            text: qsTr("Cut")
+            shortcut: "Ctrl+F3"
+            enabled: !UiService.isPlaying()
+            onTriggered: editorService.requestPatternCut()
+        }
+        Action {
+            text: qsTr("Copy")
+            shortcut: "Ctrl+F4"
+            onTriggered: editorService.requestPatternCopy()
+        }
+        Action {
+            text: qsTr("Paste")
+            shortcut: "Ctrl+F5"
+            enabled: !UiService.isPlaying() && editorService.hasPatternToPaste
+            onTriggered: editorService.requestPatternPaste()
+        }
+        delegate: MainMenuItemDelegate {
+        }
     }
     delegate: MainMenuItemDelegate {
     }
