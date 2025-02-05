@@ -606,6 +606,7 @@ void EditorServiceTest::test_requestPosition_invalidPosition_shouldNotChangePosi
 {
     EditorService editorService;
     QSignalSpy positionChangedSpy { &editorService, &EditorService::positionChanged };
+    QSignalSpy currentTimeChangedSpy { &editorService, &EditorService::currentTimeChanged };
 
     const auto neg = static_cast<size_t>(-1);
     QVERIFY(!editorService.requestPosition(neg, 0, 0, 0, 0));
@@ -614,18 +615,21 @@ void EditorServiceTest::test_requestPosition_invalidPosition_shouldNotChangePosi
     QVERIFY(!editorService.requestPosition(0, 0, 0, neg, 0));
     QVERIFY(!editorService.requestPosition(0, 0, 0, 0, neg));
     QCOMPARE(positionChangedSpy.count(), 0);
+    QCOMPARE(currentTimeChangedSpy.count(), 0);
 }
 
 void EditorServiceTest::test_requestPosition_validPosition_shouldChangePosition()
 {
     EditorService editorService;
     QSignalSpy positionChangedSpy { &editorService, &EditorService::positionChanged };
+    QSignalSpy currentTimeChangedSpy { &editorService, &EditorService::currentTimeChanged };
 
     QVERIFY(editorService.requestPosition(0, 0, 0, 0, 0));
-    QVERIFY(editorService.requestPosition(0, 0, 0, 0, 1));
-    QVERIFY(editorService.requestPosition(0, 0, 0, 0, 2));
-    QVERIFY(editorService.requestPosition(0, 0, 0, 0, 3));
+    QVERIFY(editorService.requestPosition(0, 0, 0, 1, 0));
+    QVERIFY(editorService.requestPosition(0, 0, 0, 2, 0));
+    QVERIFY(editorService.requestPosition(0, 0, 0, 3, 0));
     QCOMPARE(positionChangedSpy.count(), 4);
+    QCOMPARE(currentTimeChangedSpy.count(), 3);
 }
 
 void EditorServiceTest::test_requestScroll_shouldChangePosition()

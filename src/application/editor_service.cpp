@@ -1016,6 +1016,8 @@ bool EditorService::requestPosition(size_t pattern, size_t track, size_t column,
     m_cursorPosition.lineColumn = lineColumn;
     notifyPositionChange(oldPosition);
 
+    setCurrentTime(m_song->lineToTime(m_cursorPosition.line));
+
     return true;
 }
 
