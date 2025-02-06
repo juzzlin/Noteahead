@@ -5,6 +5,7 @@ QtObject {
     signal aboutDialogRequested
     signal activeOctaveChanged(int activeOctave)
     signal focusOnEditorViewRequested
+    signal settingsDialogRequested
     signal trackSettingsDialogRequested(int trackIndex)
     property int _activeOctave: 3
     readonly property string _tag: "UiService"
@@ -18,26 +19,26 @@ QtObject {
         }
     }
     signal activeStepChanged(int activeStep)
-    property int _activeStep: config.loadStep(1)
+    property int _activeStep: config.step(1)
     function activeStep() {
         return _activeStep;
     }
     function setActiveStep(step) {
         if (_activeStep !== step) {
             _activeStep = step;
-            config.saveStep(step);
+            config.setStep(step);
             activeStepChanged(_activeStep);
         }
     }
     signal activeVelocityChanged(int activeVelocity)
-    property int _activeVelocity: config.loadVelocity(100)
+    property int _activeVelocity: config.velocity(100)
     function activeVelocity() {
         return _activeVelocity;
     }
     function setActiveVelocity(velocity) {
         if (_activeVelocity !== velocity) {
             _activeVelocity = velocity;
-            config.saveVelocity(velocity);
+            config.setVelocity(velocity);
             activeVelocityChanged(_activeVelocity);
         }
     }
@@ -77,6 +78,9 @@ QtObject {
     }
     function requestAboutDialog() {
         aboutDialogRequested();
+    }
+    function requestSettingsDialog() {
+        settingsDialogRequested();
     }
     function requestTrackSettingsDialog(trackIndex) {
         trackSettingsDialogRequested(trackIndex);

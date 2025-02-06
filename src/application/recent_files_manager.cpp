@@ -27,7 +27,7 @@ namespace noteahead {
 static const auto TAG = "RecentFilesManager";
 
 RecentFilesManager::RecentFilesManager()
-  : m_recentFiles { settings::loadRecentFiles() }
+  : m_recentFiles { settings::recentFiles() }
 {
 }
 
@@ -48,7 +48,7 @@ void RecentFilesManager::addRecentFile(QString filePath)
     juzzlin::L(TAG).debug() << "Added recent file: " << filePath.toStdString();
     juzzlin::L(TAG).debug() << "Recent file count: " << m_recentFiles.size();
 
-    settings::saveRecentFiles(m_recentFiles);
+    settings::setRecentFiles(m_recentFiles);
 }
 
 std::optional<QString> RecentFilesManager::recentFile() const

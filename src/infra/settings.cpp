@@ -31,9 +31,11 @@ const auto stepKey = "step";
 
 const auto velocityKey = "velocity";
 
+const auto visibleLinesKey = "visibleLines";
+
 const auto windowSizeKey = "size";
 
-QSize loadWindowSize(QSize defaultSize)
+QSize windowSize(QSize defaultSize)
 {
     QSettings settings;
     settings.beginGroup(settingsGroupMainWindow);
@@ -42,7 +44,7 @@ QSize loadWindowSize(QSize defaultSize)
     return size;
 }
 
-void saveWindowSize(QSize size)
+void setWindowSize(QSize size)
 {
     QSettings settings;
     settings.beginGroup(settingsGroupMainWindow);
@@ -50,7 +52,7 @@ void saveWindowSize(QSize size)
     settings.endGroup();
 }
 
-QStringList loadRecentFiles()
+QStringList recentFiles()
 {
     QStringList fileList;
     QSettings settings;
@@ -63,7 +65,7 @@ QStringList loadRecentFiles()
     return fileList;
 }
 
-void saveRecentFiles(const QStringList & fileList)
+void setRecentFiles(const QStringList & fileList)
 {
     QSettings settings;
     settings.beginWriteArray(recentFilesArrayKey);
@@ -74,7 +76,7 @@ void saveRecentFiles(const QStringList & fileList)
     settings.endArray();
 }
 
-int loadStep(int defaultStep)
+int step(int defaultStep)
 {
     QSettings settings;
     settings.beginGroup(settingsGroupEditor);
@@ -83,7 +85,7 @@ int loadStep(int defaultStep)
     return step;
 }
 
-void saveStep(int step)
+void setStep(int step)
 {
     QSettings settings;
     settings.beginGroup(settingsGroupEditor);
@@ -91,7 +93,7 @@ void saveStep(int step)
     settings.endGroup();
 }
 
-int loadVelocity(int defaultVelocity)
+int velocity(int defaultVelocity)
 {
     QSettings settings;
     settings.beginGroup(settingsGroupEditor);
@@ -100,11 +102,28 @@ int loadVelocity(int defaultVelocity)
     return velocity;
 }
 
-void saveVelocity(int velocity)
+void setVelocity(int velocity)
 {
     QSettings settings;
     settings.beginGroup(settingsGroupEditor);
     settings.setValue(velocityKey, velocity);
+    settings.endGroup();
+}
+
+int visibleLines(int defaultVisibleLines)
+{
+    QSettings settings;
+    settings.beginGroup(settingsGroupEditor);
+    const auto visibleLines = settings.value(visibleLinesKey, defaultVisibleLines).toInt();
+    settings.endGroup();
+    return visibleLines;
+}
+
+void setVisibleLines(int visibleLines)
+{
+    QSettings settings;
+    settings.beginGroup(settingsGroupEditor);
+    settings.setValue(visibleLinesKey, visibleLines);
     settings.endGroup();
 }
 

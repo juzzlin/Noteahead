@@ -88,6 +88,7 @@ set(QML_SOURCE_FILES
     ${QML_BASE_DIR}/Constants.qml
     ${QML_BASE_DIR}/Dialogs/AboutDialog.qml
     ${QML_BASE_DIR}/Dialogs/RecentFilesDialog.qml
+    ${QML_BASE_DIR}/Dialogs/SettingsDialog.qml
     ${QML_BASE_DIR}/Dialogs/TrackSettingsDialog.qml
     ${QML_BASE_DIR}/Dialogs/UnsavedChangesDialog.qml
     ${QML_BASE_DIR}/Editor/Cursor.qml

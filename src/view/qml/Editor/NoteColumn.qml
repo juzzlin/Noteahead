@@ -56,7 +56,7 @@ Rectangle {
         return position.pattern === _patternIndex && position.track === _trackIndex && position.column === _index;
     }
     function _lineHeight() {
-        const lineCount = editorService.linesVisible();
+        const lineCount = config.visibleLines;
         return rootItem.height / lineCount;
     }
     function _scrolledLinePositionByLineIndex(lineIndex) {
@@ -91,6 +91,9 @@ Rectangle {
         }
     }
     function _createLines() {
+        _lines.forEach(line => {
+                line.destroy();
+            });
         _lines = [];
         const lineCount = editorService.lineCount(_patternIndex);
         const lineHeight = _lineHeight();
@@ -110,7 +113,7 @@ Rectangle {
     }
     function _scrollLines() {
         const lineHeight = _lineHeight();
-        const linesVisible = editorService.linesVisible();
+        const linesVisible = config.visibleLines;
         _lines.forEach(line => {
                 const scrolledLinePosition = _scrolledLinePositionByLineIndex(line.index);
                 line.y = lineHeight * scrolledLinePosition;
@@ -167,5 +170,8 @@ Rectangle {
                 }
             }
         }
+    }
+    Component.onCompleted: {
+        config.visibleLinesChanged.connect(_resizeLines);
     }
 }

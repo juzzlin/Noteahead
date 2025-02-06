@@ -128,8 +128,6 @@ public:
 
     Q_INVOKABLE int lineNumberAtViewLine(size_t line) const;
 
-    Q_INVOKABLE size_t linesVisible() const;
-
     QString displayNoteAtPosition(const Position & position) const;
 
     Q_INVOKABLE QString displayNoteAtPosition(size_t patternId, size_t trackIndex, size_t columnId, size_t line) const;

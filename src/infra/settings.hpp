@@ -20,21 +20,25 @@
 
 namespace noteahead::settings {
 
-QSize loadWindowSize(QSize defaultSize);
+QSize windowSize(QSize defaultSize);
 
-void saveWindowSize(QSize size);
+void setWindowSize(QSize size);
 
-QStringList loadRecentFiles();
+QStringList recentFiles();
 
-void saveRecentFiles(const QStringList & fileList);
+void setRecentFiles(const QStringList & fileList);
 
-int loadStep(int defaultStep);
+int step(int defaultStep);
 
-void saveStep(int step);
+void setStep(int step);
 
-int loadVelocity(int defaultVelocity);
+int velocity(int defaultVelocity);
 
-void saveVelocity(int velocity);
+void setVelocity(int velocity);
+
+int visibleLines(int defaultVisibleLines);
+
+void setVisibleLines(int visibleLines);
 
 } // namespace noteahead::settings
 

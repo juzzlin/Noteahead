@@ -275,11 +275,6 @@ size_t EditorService::maxSongPosition() const
     return 999;
 }
 
-size_t EditorService::linesVisible() const
-{
-    return 32;
-}
-
 int EditorService::lineNumberAtViewLine(size_t line) const
 {
     // Encode underflow and overflow as negative numbers. The view will show "-64" as "64" but in a different color.

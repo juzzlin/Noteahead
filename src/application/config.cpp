@@ -22,37 +22,52 @@
 namespace noteahead {
 
 Config::Config()
+  : m_visibleLines { settings::visibleLines(32) }
 {
 }
 
-QSize Config::loadWindowSize(QSize defaultSize) const
+QSize Config::windowSize(QSize defaultSize) const
 {
-    return settings::loadWindowSize(defaultSize);
+    return settings::windowSize(defaultSize);
 }
 
-void Config::saveWindowSize(QSize size)
+void Config::setWindowSize(QSize size)
 {
-    settings::saveWindowSize(size);
+    settings::setWindowSize(size);
 }
 
-int Config::loadStep(int defaultStep) const
+int Config::step(int defaultStep) const
 {
-    return settings::loadStep(defaultStep);
+    return settings::step(defaultStep);
 }
 
-void Config::saveStep(int step)
+void Config::setStep(int step)
 {
-    settings::saveStep(step);
+    settings::setStep(step);
 }
 
-int Config::loadVelocity(int defaultVelocity) const
+int Config::velocity(int defaultVelocity) const
 {
-    return settings::loadVelocity(defaultVelocity);
+    return settings::velocity(defaultVelocity);
 }
 
-void Config::saveVelocity(int velocity)
+void Config::setVelocity(int velocity)
 {
-    settings::saveVelocity(velocity);
+    settings::setVelocity(velocity);
+}
+
+int Config::visibleLines() const
+{
+    return m_visibleLines;
+}
+
+void Config::setVisibleLines(int visibleLines)
+{
+    if (m_visibleLines != visibleLines) {
+        m_visibleLines = visibleLines;
+        settings::setVisibleLines(visibleLines);
+        emit visibleLinesChanged();
+    }
 }
 
 Config::~Config() = default;

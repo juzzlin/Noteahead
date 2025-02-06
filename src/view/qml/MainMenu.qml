@@ -47,6 +47,12 @@ MenuBar {
             shortcut: "Esc"
             onTriggered: UiService.toggleEditMode()
         }
+        MenuSeparator {
+        }
+        Action {
+            text: qsTr("Settings")
+            onTriggered: UiService.requestSettingsDialog()
+        }
         delegate: MainMenuItemDelegate {
         }
     }

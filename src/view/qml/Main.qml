@@ -104,6 +104,17 @@ ApplicationWindow {
             applicationService.cancelRecentFileDialog();
         }
     }
+    SettingsDialog {
+        id: settingsDialog
+        anchors.centerIn: parent
+        width: parent.width * 0.5
+        onAccepted: {
+            uiLogger.info(_tag, "Settings accepted");
+        }
+        onRejected: {
+            uiLogger.info(_tag, "Settings rejected");
+        }
+    }
     TrackSettingsDialog {
         id: trackSettingsDialog
         anchors.centerIn: parent
@@ -126,9 +137,9 @@ ApplicationWindow {
     }
     function _setWindowSizeAndPosition() {
         const defaultWindowScale = Constants.defaultWindowScale;
-        width = config.loadWindowSize(Qt.size(mainWindow.screen.width * defaultWindowScale, mainWindow.screen.height * defaultWindowScale)).width;
+        width = config.windowSize(Qt.size(mainWindow.screen.width * defaultWindowScale, mainWindow.screen.height * defaultWindowScale)).width;
         width = Math.max(width, Constants.minWindowWidth);
-        height = config.loadWindowSize(Qt.size(mainWindow.screen.width * defaultWindowScale, mainWindow.screen.height * defaultWindowScale)).height;
+        height = config.windowSize(Qt.size(mainWindow.screen.width * defaultWindowScale, mainWindow.screen.height * defaultWindowScale)).height;
         height = Math.max(height, Constants.minWindowHeight);
         setX(mainWindow.screen.width / 2 - width / 2);
         setY(mainWindow.screen.height / 2 - height / 2);
@@ -149,12 +160,13 @@ ApplicationWindow {
                 uiLogger.info(_tag, "Settings focus on editor view");
                 _editorView.focus = true;
             });
+        UiService.settingsDialogRequested.connect(settingsDialog.open);
         UiService.trackSettingsDialogRequested.connect(trackIndex => {
                 trackSettingsDialog.setTrackIndex(trackIndex);
                 trackSettingsDialog.open();
             });
         UiService.quitRequested.connect(() => {
-                config.saveWindowSize(Qt.size(mainWindow.width, mainWindow.height));
+                config.setWindowSize(Qt.size(mainWindow.width, mainWindow.height));
                 applicationService.requestQuit();
             });
     }

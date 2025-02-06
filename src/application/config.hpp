@@ -25,22 +25,34 @@ class Config : public QObject
 {
     Q_OBJECT
 
+    Q_PROPERTY(int visibleLines READ visibleLines WRITE setVisibleLines NOTIFY visibleLinesChanged)
+
 public:
     Config();
 
     ~Config() override;
 
-    Q_INVOKABLE QSize loadWindowSize(QSize defaultSize) const;
+    Q_INVOKABLE QSize windowSize(QSize defaultSize) const;
 
-    Q_INVOKABLE void saveWindowSize(QSize size);
+    Q_INVOKABLE void setWindowSize(QSize size);
 
-    Q_INVOKABLE int loadStep(int defaultStep) const;
+    Q_INVOKABLE int step(int defaultStep) const;
 
-    Q_INVOKABLE void saveStep(int step);
+    Q_INVOKABLE void setStep(int step);
 
-    Q_INVOKABLE int loadVelocity(int defaultVelocity) const;
+    Q_INVOKABLE int velocity(int defaultVelocity) const;
 
-    Q_INVOKABLE void saveVelocity(int velocity);
+    Q_INVOKABLE void setVelocity(int velocity);
+
+    Q_INVOKABLE int visibleLines() const;
+
+    Q_INVOKABLE void setVisibleLines(int visibleLines);
+
+signals:
+    void visibleLinesChanged();
+
+private:
+    int m_visibleLines;
 };
 
 } // namespace noteahead
