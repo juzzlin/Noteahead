@@ -15,8 +15,7 @@ Rectangle {
         rootItem.height = height;
     }
     function setNoteData(note, velocity) {
-        noteText.text = note;
-        velocityText.text = velocity.padStart(3, "-");
+        noteVelocityText.text = `${note} ${velocity.padStart(3, "-")}`;
     }
     function setFocused(focused, lineColumnIndex) {
         _focused = focused;
@@ -26,31 +25,22 @@ Rectangle {
         rootItem.color = _scaledColor(_indexHighlightOpacity(linesPerBeat));
     }
     Text {
-        id: noteText
+        id: noteVelocityText
         font.pixelSize: parent.height * 0.8
         font.family: "monospace"
-        color: _isValidNote(text) ? "#ffffff" : "#888888"
+        color: rootItem._isValidNote(noteVelocityText.text.split(" ")[0]) ? "#ffffff" : "#888888"
         anchors.verticalCenter: parent.verticalCenter
-        anchors.right: parent.horizontalCenter
-        anchors.rightMargin: width / 3
-    }
-    Text {
-        id: velocityText
-        font.pixelSize: parent.height * 0.8
-        font.family: "monospace"
-        color: rootItem._isValidNote(noteText.text) ? "#ffffff" : "#888888"
-        anchors.verticalCenter: parent.verticalCenter
-        anchors.left: parent.horizontalCenter
+        anchors.horizontalCenter: parent.horizontalCenter
     }
     Rectangle {
         id: combinedCursor
         visible: rootItem._focused
-        width: _lineColumnIndex === 0 ? noteText.contentWidth : velocityText.contentWidth / 3
-        height: noteText.contentHeight
+        width: _lineColumnIndex === 0 ? 3 * noteVelocityText.contentWidth / 7 : noteVelocityText.contentWidth / 7
+        height: noteVelocityText.contentHeight
         color: "red"
         opacity: 0.5
         anchors.verticalCenter: parent.verticalCenter
-        x: _lineColumnIndex === 0 ? noteText.x : velocityText.x + (_lineColumnIndex - 1) * (velocityText.contentWidth / 3)
+        x: _lineColumnIndex === 0 ? noteVelocityText.x : noteVelocityText.x + (3 + _lineColumnIndex) * noteVelocityText.contentWidth / 7
     }
     function _indexHighlightOpacity(linesPerBeat) {
         const _beatLine1 = linesPerBeat;
