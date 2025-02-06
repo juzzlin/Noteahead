@@ -63,7 +63,7 @@ Rectangle {
             font.pixelSize: Constants.trackHeaderFontSize
             font.family: "monospace"
             height: parent.height
-            width: parent.width - trackSettingsButton.width - columnButtonContainer.width
+            width: parent.width - trackSettingsButton.width - trackHeaderButtons.width
             verticalAlignment: Text.AlignVCenter
             horizontalAlignment: Text.AlignHCenter
             padding: 0  // Remove default padding
@@ -77,60 +77,14 @@ Rectangle {
             ToolTip.visible: hovered
             ToolTip.text: qsTr("Set track name")
         }
-        Item {
-            id: columnButtonContainer
+        TrackHeaderButtons {
+            id: trackHeaderButtons
             height: parent.height
             width: height / 2 + 10
-            ToolBarButtonBase {
-                id: addColumnButton
-                anchors.top: parent.top
-                anchors.horizontalCenter: parent.horizontalCenter
-                width: parent.height / 2
-                height: width
-                enabled: !UiService.isPlaying()
-                onClicked: {
-                    rootItem.newColumnRequested();
-                    focus = false;
-                }
-                Keys.onPressed: event => {
-                    if (event.key === Qt.Key_Space) {
-                        event.accepted = true;
-                    }
-                }
-                ToolTip.delay: Constants.toolTipDelay
-                ToolTip.timeout: Constants.toolTipTimeout
-                ToolTip.visible: hovered
-                ToolTip.text: qsTr("Add a new note column")
-                Component.onCompleted: {
-                    setScale(0.9);
-                    setImageSource("../Graphics/add_box.svg");
-                }
-            }
-            ToolBarButtonBase {
-                id: removeColumnButton
-                anchors.top: addColumnButton.bottom
-                anchors.horizontalCenter: parent.horizontalCenter
-                width: parent.height / 2
-                height: width
-                enabled: !UiService.isPlaying()
-                onClicked: {
-                    rootItem.columnDeletionRequested();
-                    focus = false;
-                }
-                Keys.onPressed: event => {
-                    if (event.key === Qt.Key_Space) {
-                        event.accepted = true;
-                    }
-                }
-                ToolTip.delay: Constants.toolTipDelay
-                ToolTip.timeout: Constants.toolTipTimeout
-                ToolTip.visible: hovered
-                ToolTip.text: qsTr("Remove the last note column")
-                Component.onCompleted: {
-                    setScale(0.9);
-                    setImageSource("../Graphics/del_box.svg");
-                }
-            }
         }
+    }
+    Component.onCompleted: {
+        trackHeaderButtons.columnDeletionRequested.connect(rootItem.columnDeletionRequested);
+        trackHeaderButtons.newColumnRequested.connect(rootItem.newColumnRequested);
     }
 }
