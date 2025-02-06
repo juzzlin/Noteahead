@@ -92,8 +92,8 @@ Rectangle {
             return 0.05;
         return 0;
     }
-    function _updateIndexHighlight() {
-        const indexHighlightOpacity = _indexHighlightOpacity(editorService.linesPerBeat);
+    function updateIndexHighlight(linesPerBeat) {
+        const indexHighlightOpacity = _indexHighlightOpacity(linesPerBeat);
         if (indexHighlightOpacity > 0) {
             if (!_indexHighlight) {
                 _indexHighlight = indexHighlightComponent.createObject(rootItem);
@@ -105,9 +105,5 @@ Rectangle {
                 _indexHighlight = null;
             }
         }
-    }
-    Component.onCompleted: {
-        editorService.linesPerBeatChanged.connect(_updateIndexHighlight);
-        _updateIndexHighlight();
     }
 }

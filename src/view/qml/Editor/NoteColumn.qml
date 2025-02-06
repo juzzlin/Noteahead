@@ -102,6 +102,7 @@ Rectangle {
         } else {
             _initializeWithNoData(lineCount, lineHeight);
         }
+        _updateIndexHighlights();
     }
     function _resizeLines() {
         const lineCount = editorService.lineCount(_patternIndex);
@@ -123,6 +124,11 @@ Rectangle {
     function _setLineFocused(lineIndex, lineColumnIndex, focused) {
         _lines.forEach((line, index) => {
                 line.setFocused(focused && index === lineIndex, lineColumnIndex);
+            });
+    }
+    function _updateIndexHighlights() {
+        _lines.forEach(line => {
+                line.updateIndexHighlight(editorService.linesPerBeat);
             });
     }
     Component {
@@ -173,5 +179,6 @@ Rectangle {
     }
     Component.onCompleted: {
         config.visibleLinesChanged.connect(_resizeLines);
+        editorService.linesPerBeatChanged.connect(_updateIndexHighlights);
     }
 }
