@@ -164,7 +164,7 @@ void ApplicationService::openRecentProject(QString filePath)
 
 void ApplicationService::cancelRecentFileDialog()
 {
-    m_stateMachine->calculateState(StateMachine::Action::OpeningProjectCanceled);
+    m_stateMachine->calculateState(StateMachine::Action::RecentFileDialogCanceled);
 }
 
 void ApplicationService::cancelSaveProjectAs()

@@ -113,6 +113,10 @@ void StateMachine::calculateState(StateMachine::Action action)
         m_state = State::ShowSaveAsDialog;
         break;
 
+    case Action::RecentFileDialogCanceled:
+        m_state = State::InitializeNewProject;
+        break;
+
     case Action::RecentFileSelected:
         m_quitType = QuitType::OpenRecent;
         if (m_editorService->isModified()) {

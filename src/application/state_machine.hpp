@@ -68,6 +68,7 @@ public:
         ProjectSaved,
         ProjectSavedAs,
         QuitSelected,
+        RecentFileDialogCanceled,
         RecentFileSelected,
         SaveProjectAsRequested,
         SaveProjectRequested
