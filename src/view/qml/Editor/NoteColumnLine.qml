@@ -2,13 +2,14 @@ import QtQuick 2.15
 
 Rectangle {
     id: rootItem
-    color: "#000000"
+    color: _scaledColor(_indexHighlightOpacity(linesPerBeat))
     border.color: "#222222"
     border.width: 1
     property int index: 0
     property bool _focused: false
     property var _indexHighlight
     property int _lineColumnIndex: 0
+    property int linesPerBeat: 4 // Default value
     function resize(width, height) {
         rootItem.width = width;
         rootItem.height = height;
@@ -21,8 +22,8 @@ Rectangle {
         _focused = focused;
         _lineColumnIndex = lineColumnIndex;
     }
-    function _isValidNote(note) {
-        return note && note !== editorService.noDataString();
+    function updateIndexHighlight(linesPerBeat) {
+        rootItem.color = _scaledColor(_indexHighlightOpacity(linesPerBeat));
     }
     Text {
         id: noteText
@@ -51,14 +52,6 @@ Rectangle {
         anchors.verticalCenter: parent.verticalCenter
         x: _lineColumnIndex === 0 ? noteText.x : velocityText.x + (_lineColumnIndex - 1) * (velocityText.contentWidth / 3)
     }
-    Component {
-        id: indexHighlightComponent
-        Rectangle {
-            anchors.fill: parent
-            color: "#ffffff"
-            visible: opacity > 0
-        }
-    }
     function _indexHighlightOpacity(linesPerBeat) {
         const _beatLine1 = linesPerBeat;
         const _beatLine2 = _beatLine1 % 3 ? _beatLine1 / 2 : _beatLine1 / 3;
@@ -71,18 +64,11 @@ Rectangle {
             return 0.05;
         return 0;
     }
-    function updateIndexHighlight(linesPerBeat) {
-        const indexHighlightOpacity = _indexHighlightOpacity(linesPerBeat);
-        if (indexHighlightOpacity > 0) {
-            if (!_indexHighlight) {
-                _indexHighlight = indexHighlightComponent.createObject(rootItem);
-            }
-            _indexHighlight.opacity = indexHighlightOpacity;
-        } else {
-            if (_indexHighlight) {
-                _indexHighlight.destroy();
-                _indexHighlight = null;
-            }
-        }
+    function _isValidNote(note) {
+        return note && note !== editorService.noDataString();
+    }
+    function _scaledColor(opacity) {
+        const value = Math.round(255 * opacity);
+        return "#" + value.toString(16).padStart(2, "0").repeat(3);
     }
 }
