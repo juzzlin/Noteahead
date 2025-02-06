@@ -61,7 +61,6 @@ void EditorService::setSong(SongS song)
     m_cursorPosition = {};
 
     emit songChanged();
-    emit positionChanged(m_cursorPosition, m_cursorPosition);
     emit beatsPerMinuteChanged();
     emit linesPerBeatChanged();
     emit currentLineCountChanged();
@@ -75,6 +74,8 @@ void EditorService::setSong(SongS song)
     setCurrentTime(0ms);
 
     updateDuration();
+
+    notifyPositionChange(m_cursorPosition);
 
     setIsModified(false);
 }

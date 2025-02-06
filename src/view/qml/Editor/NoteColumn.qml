@@ -122,9 +122,17 @@ Rectangle {
             });
     }
     function _setLineFocused(lineIndex, lineColumnIndex, focused) {
+        let focusedLine = null;
         _lines.forEach((line, index) => {
                 line.setFocused(focused && index === lineIndex, lineColumnIndex);
+                if (focused && index === lineIndex) {
+                    focusedLine = line;
+                }
             });
+        if (focusedLine !== null) {
+            focusedLine.setCursor(lineCursor);
+        }
+        lineCursor.visible = !!focusedLine;
     }
     function _updateIndexHighlights() {
         _lines.forEach(line => {
@@ -144,13 +152,21 @@ Rectangle {
         anchors.fill: parent
         z: 2
     }
+    Rectangle {
+        id: lineCursor
+        color: "red"
+        opacity: 0.5
+        anchors.verticalCenter: parent.verticalCenter
+        z: 3
+        visible: false
+    }
     VolumeMeter {
         id: volumeMeter
         anchors.top: rootItem.top
         anchors.left: rootItem.left
         anchors.right: rootItem.right
         height: _positionBar ? _positionBar.y - rootItem.parent.y : 0
-        z: 3
+        z: 5
     }
     MouseArea {
         id: clickHandler
