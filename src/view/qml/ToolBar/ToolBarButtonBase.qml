@@ -9,22 +9,42 @@ Button {
     width: Constants.mainToolBarButtonSize
     height: width
     property double _scale: 1.0
+    property bool _toggled: false
     property double _hoverScale: 1.0
     property string toolTipText
+    property string _toggleColor: "red"
     function setImageSource(imageSource) {
-        background.source = imageSource;
+        backgroundImage.source = imageSource;
     }
     function setScale(scale) {
         _scale = scale;
         _hoverScale = scale * 1.1;
     }
-    background: Image {
-        sourceSize: Qt.size(parent.width, parent.height) // Makes the SVG look "good"
-        width: parent.width * _scale
-        height: parent.height * _scale
-        anchors.centerIn: rootItem
-        fillMode: Image.PreserveAspectFit
+    function toggled() {
+        return _toggled;
+    }
+    function setToggled(toggled) {
+        _toggled = toggled;
+    }
+    function setToggleColor(toggleColor) {
+        _toggleColor = toggleColor;
+    }
+    background: Rectangle {
+        id: borderRect
+        color: "transparent"
+        border.color: rootItem._toggled ? _toggleColor : "transparent"
+        border.width: rootItem._toggled ? 4 : 0
+        radius: 4
         opacity: rootItem.enabled ? 1.0 : 0.5
+        Image {
+            id: backgroundImage
+            sourceSize: Qt.size(parent.width, parent.height)
+            width: parent.width * rootItem._scale
+            height: parent.height * rootItem._scale
+            anchors.centerIn: parent
+            fillMode: Image.PreserveAspectFit
+            opacity: rootItem.enabled ? 1.0 : 0.5
+        }
     }
     states: State {
         name: "hovered"

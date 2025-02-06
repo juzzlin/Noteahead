@@ -72,10 +72,26 @@ Item {
         id: trackHeader
         anchors.top: parent.top
         width: parent.width
-        onColumnDeletionRequested: editorService.requestColumnDeletion(_index)
-        onNameChanged: name => rootItem.nameChanged(name)
-        onNewColumnRequested: editorService.requestNewColumn(_index)
-        onTrackSettingsDialogRequested: UiService.requestTrackSettingsDialog(_index)
+        Component.onCompleted: {
+            columnDeletionRequested.connect(() => editorService.requestColumnDeletion(_index));
+            muteTrackRequested.connect(() => mixerService.muteTrack(_index, true));
+            nameChanged.connect(name => rootItem.nameChanged(name));
+            newColumnRequested.connect(() => editorService.requestNewColumn(_index));
+            soloTrackRequested.connect(() => mixerService.soloTrack(_index, true));
+            trackSettingsDialogRequested.connect(() => UiService.requestTrackSettingsDialog(_index));
+            unmuteTrackRequested.connect(() => mixerService.muteTrack(_index, false));
+            unsoloTrackRequested.connect(() => mixerService.soloTrack(_index, false));
+            mixerService.trackMuted.connect((trackIndex, mute) => {
+                    if (trackIndex === _index) {
+                        setTrackMuted(mute);
+                    }
+                });
+            mixerService.trackSoloed.connect((trackIndex, solo) => {
+                    if (trackIndex === _index) {
+                        setTrackSoloed(solo);
+                    }
+                });
+        }
     }
     Item {
         id: columnContainer

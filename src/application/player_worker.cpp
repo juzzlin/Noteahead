@@ -66,6 +66,34 @@ void PlayerWorker::stop()
     setIsPlaying(false);
 }
 
+bool PlayerWorker::isTrackMuted(size_t trackIndex) const
+{
+    return m_mutedTracks.contains(trackIndex);
+}
+
+bool PlayerWorker::isTrackSoloed(size_t trackIndex) const
+{
+    return m_soloedTracks.contains(trackIndex);
+}
+
+bool PlayerWorker::shouldEventPlay(const Event & event) const
+{
+    if (m_mutedTracks.empty() && m_soloedTracks.empty()) {
+        return true;
+    }
+
+    if (auto && noteData = event.noteData(); noteData) {
+        const auto trackIndex = noteData->track();
+        if (!m_soloedTracks.empty()) {
+            return isTrackSoloed(trackIndex) && !isTrackMuted(trackIndex);
+        } else {
+            return !isTrackMuted(trackIndex);
+        }
+    }
+
+    return true;
+}
+
 void PlayerWorker::processEvents()
 {
     if (m_eventMap.empty()) {
@@ -81,7 +109,7 @@ void PlayerWorker::processEvents()
     juzzlin::L(TAG).debug() << "Lines per beat: " << m_timing.linesPerBeat;
     juzzlin::L(TAG).debug() << "Ticks per line: " << m_timing.ticksPerLine;
 
-    const double tickDurationMs = 60.0 / (m_timing.beatsPerMinute * m_timing.linesPerBeat * m_timing.ticksPerLine);
+    const double tickDurationMs = 60.0 / (static_cast<double>(m_timing.beatsPerMinute * m_timing.linesPerBeat * m_timing.ticksPerLine));
     const auto tickDuration = std::chrono::duration<double> { tickDurationMs };
     const auto startTime = std::chrono::steady_clock::now();
 
@@ -89,12 +117,14 @@ void PlayerWorker::processEvents()
         emit tickUpdated(static_cast<size_t>(tick));
         if (auto && eventsAtTick = m_eventMap.find(tick); eventsAtTick != m_eventMap.end()) {
             for (auto && event : eventsAtTick->second) {
-                if (auto && noteData = event->noteData(); noteData) {
-                    if (auto && instrument = event->instrument(); instrument) {
-                        if (noteData->type() == NoteData::Type::NoteOn && noteData->note().has_value()) {
-                            m_midiService->playNote(instrument, *noteData->note(), noteData->velocity());
-                        } else if (noteData->type() == NoteData::Type::NoteOff) {
-                            m_midiService->stopNote(instrument, *noteData->note());
+                if (shouldEventPlay(*event)) {
+                    if (auto && noteData = event->noteData(); noteData) {
+                        if (auto && instrument = event->instrument(); instrument) {
+                            if (noteData->type() == NoteData::Type::NoteOn && noteData->note().has_value()) {
+                                m_midiService->playNote(instrument, *noteData->note(), noteData->velocity());
+                            } else if (noteData->type() == NoteData::Type::NoteOff) {
+                                m_midiService->stopNote(instrument, *noteData->note());
+                            }
                         }
                     }
                 }
@@ -133,6 +163,26 @@ void PlayerWorker::stopAllNotes()
 bool PlayerWorker::isPlaying() const
 {
     return m_isPlaying;
+}
+
+void PlayerWorker::muteTrack(size_t trackIndex, bool mute)
+{
+    juzzlin::L(TAG).debug() << "Muting track " << trackIndex << ": " << mute;
+    if (mute) {
+        m_mutedTracks.insert(trackIndex);
+    } else {
+        m_mutedTracks.erase(trackIndex);
+    }
+}
+
+void PlayerWorker::soloTrack(size_t trackIndex, bool solo)
+{
+    juzzlin::L(TAG).debug() << "Soloing track " << trackIndex << ": " << solo;
+    if (solo) {
+        m_soloedTracks.insert(trackIndex);
+    } else {
+        m_soloedTracks.erase(trackIndex);
+    }
 }
 
 PlayerWorker::~PlayerWorker()

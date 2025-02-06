@@ -31,6 +31,7 @@ class ApplicationService;
 class Config;
 class EditorService;
 class MidiService;
+class MixerService;
 class PlayerService;
 class RecentFilesManager;
 class RecentFilesModel;
@@ -70,6 +71,8 @@ private:
     std::shared_ptr<EditorService> m_editorService;
 
     std::shared_ptr<MidiService> m_midiService;
+
+    std::shared_ptr<MixerService> m_mixerService;
 
     std::shared_ptr<PlayerService> m_playerService;
 

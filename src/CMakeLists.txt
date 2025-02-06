@@ -17,6 +17,7 @@ set(HEADER_FILES
   application/instrument_request.hpp
   application/midi_service.hpp
   application/midi_worker.hpp
+  application/mixer_service.hpp
   application/models/recent_files_model.hpp
   application/models/track_settings_model.hpp
   application/note_converter.hpp
@@ -51,6 +52,7 @@ set(SOURCE_FILES
   application/instrument_request.cpp
   application/midi_service.cpp
   application/midi_worker.cpp
+  application/mixer_service.cpp
   application/models/recent_files_model.cpp
   application/models/track_settings_model.cpp
   application/note_converter.cpp
@@ -103,7 +105,8 @@ set(QML_SOURCE_FILES
     ${QML_BASE_DIR}/Editor/PositionBar.qml
     ${QML_BASE_DIR}/Editor/Track.qml
     ${QML_BASE_DIR}/Editor/TrackHeader.qml
-    ${QML_BASE_DIR}/Editor/TrackHeaderButtons.qml
+    ${QML_BASE_DIR}/Editor/TrackHeaderColumnButtons.qml
+    ${QML_BASE_DIR}/Editor/TrackHeaderMuteSoloButtons.qml
     ${QML_BASE_DIR}/Editor/VolumeMeter.qml
     ${QML_BASE_DIR}/MainMenu.qml
     ${QML_BASE_DIR}/MainMenuItemDelegate.qml
@@ -120,9 +123,11 @@ set(QML_SOURCE_FILES
 set(SVG_SOURCE_FILES
     ${QML_BASE_DIR}/Graphics/add_box.svg
     ${QML_BASE_DIR}/Graphics/del_box.svg
+    ${QML_BASE_DIR}/Graphics/mute.svg
     ${QML_BASE_DIR}/Graphics/play.svg
     ${QML_BASE_DIR}/Graphics/prev.svg
     ${QML_BASE_DIR}/Graphics/settings.svg
+    ${QML_BASE_DIR}/Graphics/solo.svg
     ${QML_BASE_DIR}/Graphics/stop.svg
 )
 qt_add_qml_module(${BINARY_NAME}

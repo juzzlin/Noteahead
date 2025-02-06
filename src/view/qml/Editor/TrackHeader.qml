@@ -12,15 +12,25 @@ Rectangle {
     border.color: Constants.trackHeaderBorderColor
     border.width: 1
     signal columnDeletionRequested
+    signal muteTrackRequested
     signal nameChanged(string name)
     signal newColumnRequested
+    signal soloTrackRequested
     signal trackSettingsDialogRequested
+    signal unmuteTrackRequested
+    signal unsoloTrackRequested
     property bool _focused: false
     function setFocused(focused) {
         _focused = focused;
     }
     function setName(name) {
         _name = name;
+    }
+    function setTrackMuted(mute) {
+        trackHeaderMuteSoloButtons.setMuted(mute);
+    }
+    function setTrackSoloed(solo) {
+        trackHeaderMuteSoloButtons.setSoloed(solo);
     }
     Row {
         anchors.fill: parent
@@ -63,7 +73,7 @@ Rectangle {
             font.pixelSize: Constants.trackHeaderFontSize
             font.family: "monospace"
             height: parent.height
-            width: parent.width - trackSettingsButton.width - trackHeaderButtons.width
+            width: parent.width - trackSettingsButton.width - trackHeaderColumnButtons.width - trackHeaderMuteSoloButtons.width
             verticalAlignment: Text.AlignVCenter
             horizontalAlignment: Text.AlignHCenter
             padding: 0  // Remove default padding
@@ -77,14 +87,23 @@ Rectangle {
             ToolTip.visible: hovered
             ToolTip.text: qsTr("Set track name")
         }
-        TrackHeaderButtons {
-            id: trackHeaderButtons
+        TrackHeaderMuteSoloButtons {
+            id: trackHeaderMuteSoloButtons
+            height: parent.height
+            width: height / 2 + 10
+        }
+        TrackHeaderColumnButtons {
+            id: trackHeaderColumnButtons
             height: parent.height
             width: height / 2 + 10
         }
     }
     Component.onCompleted: {
-        trackHeaderButtons.columnDeletionRequested.connect(rootItem.columnDeletionRequested);
-        trackHeaderButtons.newColumnRequested.connect(rootItem.newColumnRequested);
+        trackHeaderColumnButtons.columnDeletionRequested.connect(rootItem.columnDeletionRequested);
+        trackHeaderColumnButtons.newColumnRequested.connect(rootItem.newColumnRequested);
+        trackHeaderMuteSoloButtons.muteTrackRequested.connect(rootItem.muteTrackRequested);
+        trackHeaderMuteSoloButtons.soloTrackRequested.connect(rootItem.soloTrackRequested);
+        trackHeaderMuteSoloButtons.unmuteTrackRequested.connect(rootItem.unmuteTrackRequested);
+        trackHeaderMuteSoloButtons.unsoloTrackRequested.connect(rootItem.unsoloTrackRequested);
     }
 }

@@ -70,11 +70,11 @@ QtObject {
     }
     function requestPlay() {
         uiLogger.debug(_tag, "Requesting play");
-        return playerService.requestPlay();
+        return playerService.play();
     }
     function requestStop() {
         uiLogger.debug(_tag, "Requesting stop");
-        playerService.requestStop();
+        playerService.stop();
     }
     function requestAboutDialog() {
         aboutDialogRequested();

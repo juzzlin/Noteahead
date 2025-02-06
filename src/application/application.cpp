@@ -21,6 +21,7 @@
 #include "config.hpp"
 #include "editor_service.hpp"
 #include "midi_service.hpp"
+#include "mixer_service.hpp"
 #include "models/recent_files_model.hpp"
 #include "models/track_settings_model.hpp"
 #include "player_service.hpp"
@@ -42,6 +43,7 @@ Application::Application(int & argc, char ** argv)
   , m_applicationService { std::make_unique<ApplicationService>() }
   , m_editorService { std::make_unique<EditorService>() }
   , m_midiService { std::make_unique<MidiService>() }
+  , m_mixerService { std::make_unique<MixerService>() }
   , m_playerService { std::make_unique<PlayerService>(m_midiService) }
   , m_stateMachine { std::make_unique<StateMachine>(m_applicationService, m_editorService) }
   , m_recentFilesManager { std::make_unique<RecentFilesManager>() }
@@ -55,6 +57,7 @@ Application::Application(int & argc, char ** argv)
     qmlRegisterType<Config>("Noteahead", 1, 0, "Config");
     qmlRegisterType<EditorService>("Noteahead", 1, 0, "EditorService");
     qmlRegisterType<MidiService>("Noteahead", 1, 0, "MidiService");
+    qmlRegisterType<MixerService>("Noteahead", 1, 0, "MixerService");
     qmlRegisterType<RecentFilesModel>("Noteahead", 1, 0, "RecentFilesModel");
     qmlRegisterType<TrackSettingsModel>("Noteahead", 1, 0, "TrackSettingsModel");
 
@@ -92,6 +95,7 @@ void Application::setContextProperties()
     m_engine->rootContext()->setContextProperty("config", m_config.get());
     m_engine->rootContext()->setContextProperty("editorService", m_editorService.get());
     m_engine->rootContext()->setContextProperty("midiService", m_midiService.get());
+    m_engine->rootContext()->setContextProperty("mixerService", m_mixerService.get());
     m_engine->rootContext()->setContextProperty("playerService", m_playerService.get());
     m_engine->rootContext()->setContextProperty("uiLogger", m_uiLogger.get());
     m_engine->rootContext()->setContextProperty("recentFilesModel", m_recentFilesModel.get());
@@ -111,6 +115,10 @@ void Application::connectServices()
     connect(m_midiService.get(), &MidiService::availableMidiPortsChanged, this, [this] {
         m_trackSettingsModel->setAvailableMidiPorts(m_midiService->availableMidiPorts());
     });
+
+    connect(m_mixerService.get(), &MixerService::trackMuted, m_playerService.get(), &PlayerService::muteTrack);
+
+    connect(m_mixerService.get(), &MixerService::trackSoloed, m_playerService.get(), &PlayerService::soloTrack);
 
     connect(m_playerService.get(), &PlayerService::songRequested, this, [this] {
         m_playerService->setSong(m_editorService->song());
@@ -187,7 +195,7 @@ void Application::applyState(StateMachine::State state)
     switch (state) {
     case StateMachine::State::Exit:
         if (m_playerService->isPlaying()) {
-            m_playerService->requestStop();
+            m_playerService->stop();
         }
         m_application->exit(EXIT_SUCCESS);
         break;

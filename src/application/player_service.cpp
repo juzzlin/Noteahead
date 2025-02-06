@@ -60,13 +60,20 @@ void PlayerService::initializeWorkerWithSongData()
     m_playerWorker->initialize(m_song->renderToEvents(m_songPosition), timing);
 }
 
-void PlayerService::startPlayback()
+void PlayerService::startWorker()
 {
     juzzlin::L(TAG).debug() << "Starting playback";
     QMetaObject::invokeMethod(m_playerWorker.get(), "play", Qt::QueuedConnection);
 }
 
-bool PlayerService::requestPlay()
+void PlayerService::stopWorker()
+{
+    if (m_playerWorker) {
+        m_playerWorker->stop();
+    }
+}
+
+bool PlayerService::play()
 {
     juzzlin::L(TAG).debug() << "Song for playback requested";
 
@@ -74,7 +81,7 @@ bool PlayerService::requestPlay()
 
     if (m_song) {
         initializeWorkerWithSongData();
-        startPlayback();
+        startWorker();
         return true;
     }
 
@@ -88,21 +95,30 @@ bool PlayerService::isPlaying() const
 
 void PlayerService::stop()
 {
-    if (m_playerWorker) {
-        m_playerWorker->stop();
-    }
-}
-
-void PlayerService::requestStop()
-{
     juzzlin::L(TAG).debug() << "Stop requested";
-    stop();
+    stopWorker();
     m_song.reset();
 }
 
-void PlayerService::requestPrev()
+void PlayerService::prev()
 {
     juzzlin::L(TAG).debug() << "Prev requested";
+}
+
+void PlayerService::muteTrack(size_t trackIndex, bool mute)
+{
+    juzzlin::L(TAG).debug() << "Muting track " << trackIndex << ": " << mute;
+    if (const bool invoked = QMetaObject::invokeMethod(m_playerWorker.get(), "muteTrack", Q_ARG(size_t, trackIndex), Q_ARG(bool, mute)); !invoked) {
+        juzzlin::L(TAG).error() << "Failed to invoke method";
+    }
+}
+
+void PlayerService::soloTrack(size_t trackIndex, bool solo)
+{
+    juzzlin::L(TAG).debug() << "Soloing track " << trackIndex << ": " << solo;
+    if (const bool invoked = QMetaObject::invokeMethod(m_playerWorker.get(), "soloTrack", Q_ARG(size_t, trackIndex), Q_ARG(bool, solo)); !invoked) {
+        juzzlin::L(TAG).error() << "Failed to invoke method";
+    }
 }
 
 PlayerService::~PlayerService()

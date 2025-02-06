@@ -37,13 +37,17 @@ public:
 
     ~PlayerService() override;
 
-    Q_INVOKABLE bool requestPlay();
+    Q_INVOKABLE bool play();
 
     Q_INVOKABLE bool isPlaying() const;
 
-    Q_INVOKABLE void requestStop();
+    Q_INVOKABLE void stop();
 
-    Q_INVOKABLE void requestPrev();
+    Q_INVOKABLE void prev();
+
+    Q_INVOKABLE void muteTrack(size_t trackIndex, bool mute);
+
+    Q_INVOKABLE void soloTrack(size_t trackIndex, bool solo);
 
     void setSongPosition(size_t position);
 
@@ -64,9 +68,9 @@ private:
 
     void initializeWorkerWithSongData();
 
-    void startPlayback();
+    void startWorker();
 
-    void stop();
+    void stopWorker();
 
     SongS m_song;
 

@@ -20,7 +20,7 @@
 #include <cstddef>
 #include <memory>
 #include <set>
-#include <unordered_map>
+#include <unordered_set>
 #include <vector>
 
 namespace noteahead {
@@ -59,6 +59,10 @@ public:
 
     bool isPlaying() const;
 
+    Q_INVOKABLE void muteTrack(size_t trackIndex, bool mute);
+
+    Q_INVOKABLE void soloTrack(size_t trackIndex, bool solo);
+
 signals:
     void isPlayingChanged();
 
@@ -67,9 +71,15 @@ signals:
     void tickUpdated(size_t tick);
 
 private:
+    bool isTrackMuted(size_t trackIndex) const;
+
+    bool isTrackSoloed(size_t trackIndex) const;
+
     void processEvents();
 
     void setIsPlaying(bool isPlaying);
+
+    bool shouldEventPlay(const Event & event) const;
 
     void stopAllNotes();
 
@@ -86,6 +96,10 @@ private:
     std::set<InstrumentS> m_allInstruments;
 
     std::atomic_bool m_isPlaying = false;
+
+    std::unordered_set<size_t> m_mutedTracks;
+
+    std::unordered_set<size_t> m_soloedTracks;
 };
 
 } // namespace noteahead
