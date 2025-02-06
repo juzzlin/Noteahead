@@ -15,12 +15,11 @@ Rectangle {
     }
     function setNoteData(note, velocity) {
         noteText.text = note;
-        velocityCell.setVelocity(velocity);
+        velocityText.text = velocity.padStart(3, "-");
     }
     function setFocused(focused, lineColumnIndex) {
         _focused = focused;
         _lineColumnIndex = lineColumnIndex;
-        velocityCell.setFocused(focused, lineColumnIndex);
     }
     function _isValidNote(note) {
         return note && note !== editorService.noDataString();
@@ -33,44 +32,24 @@ Rectangle {
         anchors.verticalCenter: parent.verticalCenter
         anchors.right: parent.horizontalCenter
         anchors.rightMargin: width / 3
-        Cursor {
-            id: noteCursor
-            anchors.fill: parent
-            visible: rootItem._focused && _lineColumnIndex === 0
-        }
     }
-    Item {
-        id: velocityCell
-        width: velocityText.contentWidth
-        height: parent.height
+    Text {
+        id: velocityText
+        font.pixelSize: parent.height * 0.8
+        font.family: "monospace"
+        color: rootItem._isValidNote(noteText.text) ? "#ffffff" : "#888888"
         anchors.verticalCenter: parent.verticalCenter
         anchors.left: parent.horizontalCenter
-        property bool _focused: false
-        property int _lineColumnIndex: 0
-        function setFocused(focused, lineColumnIndex) {
-            _focused = focused;
-            _lineColumnIndex = lineColumnIndex;
-        }
-        function setVelocity(velocity) {
-            velocityText.text = velocity.padStart(3, "-"); // Ensures we always have three characters
-        }
-        Text {
-            id: velocityText
-            font.pixelSize: parent.height * 0.8
-            font.family: "monospace"
-            color: rootItem._isValidNote(noteText.text) ? "#ffffff" : "#888888"
-            anchors.verticalCenter: parent.verticalCenter
-        }
-        Rectangle {
-            id: velocityCursor
-            visible: parent._focused && (_lineColumnIndex >= 1 && _lineColumnIndex <= 3)
-            width: velocityText.contentWidth / 3
-            height: velocityText.contentHeight
-            color: "red"
-            opacity: 0.5
-            anchors.verticalCenter: velocityText.verticalCenter
-            x: (_lineColumnIndex - 1) * (velocityText.contentWidth / 3)
-        }
+    }
+    Rectangle {
+        id: combinedCursor
+        visible: rootItem._focused
+        width: _lineColumnIndex === 0 ? noteText.contentWidth : velocityText.contentWidth / 3
+        height: noteText.contentHeight
+        color: "red"
+        opacity: 0.5
+        anchors.verticalCenter: parent.verticalCenter
+        x: _lineColumnIndex === 0 ? noteText.x : velocityText.x + (_lineColumnIndex - 1) * (velocityText.contentWidth / 3)
     }
     Component {
         id: indexHighlightComponent
