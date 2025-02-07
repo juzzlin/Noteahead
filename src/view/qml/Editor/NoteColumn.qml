@@ -66,7 +66,6 @@ Rectangle {
         const noteAndVelocity = editorService.displayNoteAndVelocityAtPosition(_patternIndex, _trackIndex, _index, 0);
         for (let lineIndex = 0; lineIndex < lineCount; lineIndex++) {
             const line = noteColumnLineComponent.createObject(rootItem, {
-                    "index": lineIndex,
                     "width": rootItem.width,
                     "height": lineHeight,
                     "x": 0,
@@ -80,7 +79,6 @@ Rectangle {
         for (let lineIndex = 0; lineIndex < lineCount; lineIndex++) {
             const noteAndVelocity = editorService.displayNoteAndVelocityAtPosition(_patternIndex, _trackIndex, _index, lineIndex);
             const line = noteColumnLineComponent.createObject(rootItem, {
-                    "index": lineIndex,
                     "width": rootItem.width,
                     "height": lineHeight,
                     "x": 0,
@@ -107,36 +105,48 @@ Rectangle {
     function _resizeLines() {
         const lineCount = editorService.lineCount(_patternIndex);
         const lineHeight = _lineHeight();
-        _lines.forEach(line => {
-                line.y = lineHeight * _scrolledLinePositionByLineIndex(line.index);
-                line.resize(width, lineHeight);
+        _lines.forEach((line, index) => {
+                line.y = lineHeight * _scrolledLinePositionByLineIndex(index);
+                line.width = width;
+                line.height = lineHeight;
             });
     }
     function _scrollLines() {
         const lineHeight = _lineHeight();
         const linesVisible = config.visibleLines;
-        _lines.forEach(line => {
-                const scrolledLinePosition = _scrolledLinePositionByLineIndex(line.index);
+        _lines.forEach((line, index) => {
+                const scrolledLinePosition = _scrolledLinePositionByLineIndex(index);
                 line.y = lineHeight * scrolledLinePosition;
                 line.visible = scrolledLinePosition >= 0 && scrolledLinePosition <= linesVisible;
             });
     }
     function _setLineFocused(lineIndex, lineColumnIndex, focused) {
-        let focusedLine = null;
-        _lines.forEach((line, index) => {
-                line.setFocused(focused && index === lineIndex, lineColumnIndex);
-                if (focused && index === lineIndex) {
-                    focusedLine = line;
-                }
-            });
-        if (focusedLine !== null) {
-            focusedLine.setCursor(lineCursor);
+        if (!focused) {
+            lineCursor.visible = false;
+        } else {
+            _lines[lineIndex].setCursor(lineCursor, lineColumnIndex);
+            lineCursor.visible = true;
         }
-        lineCursor.visible = !!focusedLine;
     }
     function _updateIndexHighlights() {
-        _lines.forEach(line => {
-                line.updateIndexHighlight(editorService.linesPerBeat);
+        function _indexHighlightOpacity(index, linesPerBeat) {
+            const _beatLine1 = linesPerBeat;
+            const _beatLine2 = _beatLine1 % 3 ? _beatLine1 / 2 : _beatLine1 / 3;
+            const _beatLine3 = _beatLine1 % 6 ? _beatLine1 / 4 : _beatLine1 / 6;
+            if (!(index % _beatLine1))
+                return 0.25;
+            if (!(index % _beatLine3) && !(index % _beatLine2))
+                return 0.10;
+            if (!(index % _beatLine3))
+                return 0.05;
+            return 0;
+        }
+        function _scaledColor(opacity) {
+            const value = Math.round(255 * opacity);
+            return "#" + value.toString(16).padStart(2, "0").repeat(3);
+        }
+        _lines.forEach((line, index) => {
+                line.color = _scaledColor(_indexHighlightOpacity(index, editorService.linesPerBeat));
             });
     }
     Component {
