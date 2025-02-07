@@ -16,16 +16,14 @@ Dialog {
     function initialize() {
         portNameDropdown.setSelected(trackSettingsModel.portName);
         channelDropdown.setSelected(trackSettingsModel.channel + 1);
-        enablePatchCheckbox.checked = trackSettingsModel.patchEnabled;
-        if (trackSettingsModel.patchEnabled) {
-            patchSpinBox.value = trackSettingsModel.patch;
-        }
         enableBankCheckbox.checked = trackSettingsModel.bankEnabled;
-        if (trackSettingsModel.bankEnabled) {
-            bankLsbSpinBox.value = trackSettingsModel.bankLsb;
-            bankMsbSpinBox.value = trackSettingsModel.bankMsb;
-            swapBankByteOrderCheckBox.checked = trackSettingsModel.bankByteOrderSwapped;
-        }
+        bankLsbSpinBox.value = trackSettingsModel.bankLsb;
+        bankMsbSpinBox.value = trackSettingsModel.bankMsb;
+        swapBankByteOrderCheckBox.checked = trackSettingsModel.bankByteOrderSwapped;
+        enablePatchCheckbox.checked = trackSettingsModel.patchEnabled;
+        patchSpinBox.value = trackSettingsModel.patch;
+        enableVolumeCheckbox.checked = trackSettingsModel.volumeEnabled;
+        volumeSpinBox.value = trackSettingsModel.volume;
     }
     function saveSettings() {
         trackSettingsModel.applyAll();
@@ -189,7 +187,7 @@ Dialog {
                         onCheckedChanged: trackSettingsModel.bankEnabled = checked
                     }
                     Label {
-                        text: qsTr("Bank (MSB/LSB):")
+                        text: qsTr("MSB/LSB:")
                         Layout.column: 4
                         Layout.row: 3
                         Layout.fillWidth: true
@@ -235,6 +233,47 @@ Dialog {
                         ToolTip.visible: hovered
                         ToolTip.text: qsTr("Swap the send order of LSB and MSB bytes")
                         onCheckedChanged: trackSettingsModel.bankByteOrderSwapped = checked
+                    }
+                    Label {
+                        text: qsTr("Volume:")
+                        Layout.column: 0
+                        Layout.row: 4
+                        Layout.fillWidth: true
+                    }
+                    CheckBox {
+                        id: enableVolumeCheckbox
+                        text: qsTr("Enable Volume")
+                        Layout.column: 2
+                        Layout.columnSpan: 2
+                        Layout.row: 4
+                        Layout.fillWidth: true
+                        ToolTip.delay: Constants.toolTipDelay
+                        ToolTip.timeout: Constants.toolTipTimeout
+                        ToolTip.visible: hovered
+                        ToolTip.text: qsTr("Enable/disable channel volume for this track")
+                        onCheckedChanged: trackSettingsModel.volumeEnabled = checked
+                    }
+                    Label {
+                        text: qsTr("MSB:")
+                        Layout.column: 4
+                        Layout.row: 4
+                        Layout.fillWidth: true
+                    }
+                    SpinBox {
+                        id: volumeSpinBox
+                        from: 0
+                        to: 127
+                        enabled: enableVolumeCheckbox.checked
+                        Layout.column: 5
+                        Layout.columnSpan: 1
+                        Layout.row: 4
+                        Layout.fillWidth: true
+                        editable: true
+                        ToolTip.delay: Constants.toolTipDelay
+                        ToolTip.timeout: Constants.toolTipTimeout
+                        ToolTip.visible: hovered
+                        ToolTip.text: qsTr("Set initial channel volume for this track (LSB)")
+                        onValueChanged: trackSettingsModel.volume = value
                     }
                 }
             }

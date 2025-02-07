@@ -106,6 +106,10 @@ QString xmlKeyType();
 
 QString xmlKeyVelocity();
 
+QString xmlKeyVolumeEnabled();
+
+QString xmlKeyVolume();
+
 QString xmlKeyProject();
 
 QString xmlKeySong();

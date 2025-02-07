@@ -688,18 +688,21 @@ Song::InstrumentS Song::deserializeInstrument(QXmlStreamReader & reader)
     instrument->channel = static_cast<uint8_t>(channel);
 
     // Read optional properties
-    const auto patchEnabled = readBoolAttribute(reader, Constants::xmlKeyPatchEnabled());
-    if (patchEnabled) {
+    if (const auto patchEnabled = readBoolAttribute(reader, Constants::xmlKeyPatchEnabled()); patchEnabled) {
         const auto patch = readUIntAttribute(reader, Constants::xmlKeyPatch());
         instrument->patch = patch;
     }
 
-    const auto bankEnabled = readBoolAttribute(reader, Constants::xmlKeyBankEnabled());
-    if (bankEnabled) {
+    if (const auto bankEnabled = readBoolAttribute(reader, Constants::xmlKeyBankEnabled()); bankEnabled) {
         const auto bankLsb = static_cast<uint8_t>(readUIntAttribute(reader, Constants::xmlKeyBankLsb()));
         const auto bankMsb = static_cast<uint8_t>(readUIntAttribute(reader, Constants::xmlKeyBankMsb()));
         const auto bankByteOrderSwapped = readBoolAttribute(reader, Constants::xmlKeyBankByteOrderSwapped());
         instrument->bank = { bankLsb, bankMsb, bankByteOrderSwapped };
+    }
+
+    if (const auto volumeEnabled = readBoolAttribute(reader, Constants::xmlKeyVolumeEnabled()); volumeEnabled) {
+        const auto volume = readUIntAttribute(reader, Constants::xmlKeyVolume());
+        instrument->volume = volume;
     }
 
     // Ensure we reach the end of the Instrument element

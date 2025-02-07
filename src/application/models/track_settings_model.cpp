@@ -72,15 +72,9 @@ void TrackSettingsModel::setAvailableMidiPorts(QStringList portNames)
     popApplyDisabled();
 }
 
-// Getters
 size_t TrackSettingsModel::trackIndex() const
 {
     return m_trackIndex;
-}
-
-QString TrackSettingsModel::portName() const
-{
-    return m_portName;
 }
 
 uint8_t TrackSettingsModel::channel() const
@@ -88,14 +82,15 @@ uint8_t TrackSettingsModel::channel() const
     return m_channel;
 }
 
-bool TrackSettingsModel::patchEnabled() const
+void TrackSettingsModel::setChannel(uint8_t channel)
 {
-    return m_patchEnabled;
-}
+    juzzlin::L(TAG).debug() << "Setting channel to " << static_cast<int>(channel);
 
-uint8_t TrackSettingsModel::patch() const
-{
-    return m_patch;
+    if (m_channel != channel) {
+        m_channel = channel;
+        emit channelChanged();
+        applyAll();
+    }
 }
 
 bool TrackSettingsModel::bankEnabled() const
@@ -103,9 +98,31 @@ bool TrackSettingsModel::bankEnabled() const
     return m_bankEnabled;
 }
 
+void TrackSettingsModel::setBankEnabled(bool enabled)
+{
+    juzzlin::L(TAG).debug() << "Enabling bank: " << static_cast<int>(enabled);
+
+    if (m_bankEnabled != enabled) {
+        m_bankEnabled = enabled;
+        emit bankEnabledChanged();
+        applyAll();
+    }
+}
+
 uint8_t TrackSettingsModel::bankLsb() const
 {
     return m_bankLsb;
+}
+
+void TrackSettingsModel::setBankLsb(uint8_t lsb)
+{
+    juzzlin::L(TAG).debug() << "Setting bank LSB to " << static_cast<int>(lsb);
+
+    if (m_bankLsb != lsb) {
+        m_bankLsb = lsb;
+        emit bankLsbChanged();
+        applyAll();
+    }
 }
 
 uint8_t TrackSettingsModel::bankMsb() const
@@ -113,12 +130,33 @@ uint8_t TrackSettingsModel::bankMsb() const
     return m_bankMsb;
 }
 
+void TrackSettingsModel::setBankMsb(uint8_t msb)
+{
+    juzzlin::L(TAG).debug() << "Setting bank MSB to " << static_cast<int>(msb);
+
+    if (m_bankMsb != msb) {
+        m_bankMsb = msb;
+        emit bankMsbChanged();
+        applyAll();
+    }
+}
+
 bool TrackSettingsModel::bankByteOrderSwapped() const
 {
     return m_bankByteOrderSwapped;
 }
 
-// Setters
+void TrackSettingsModel::setBankByteOrderSwapped(bool swapped)
+{
+    juzzlin::L(TAG).debug() << "Enabling swapped bank byte order: " << static_cast<int>(swapped);
+
+    if (m_bankByteOrderSwapped != swapped) {
+        m_bankByteOrderSwapped = swapped;
+        emit bankByteOrderSwappedChanged();
+        applyAll();
+    }
+}
+
 void TrackSettingsModel::setTrackIndex(size_t trackIndex)
 {
     juzzlin::L(TAG).info() << "Setting track index to " << trackIndex;
@@ -143,15 +181,13 @@ void TrackSettingsModel::setInstrumentData(const Instrument & instrument)
     setPortName(instrument.portName);
     setChannel(instrument.channel);
     setPatchEnabled(instrument.patch.has_value());
-    if (instrument.patch.has_value()) {
-        setPatch(*instrument.patch);
-    }
+    setPatch(*instrument.patch);
     setBankEnabled(instrument.bank.has_value());
-    if (instrument.bank.has_value()) {
-        setBankLsb(instrument.bank->lsb);
-        setBankMsb(instrument.bank->msb);
-        setBankByteOrderSwapped(instrument.bank->byteOrderSwapped);
-    }
+    setBankLsb(instrument.bank->lsb);
+    setBankMsb(instrument.bank->msb);
+    setBankByteOrderSwapped(instrument.bank->byteOrderSwapped);
+    setVolumeEnabled(instrument.volume.has_value());
+    setVolume(*instrument.volume);
 
     emit instrumentDataReceived();
 
@@ -175,6 +211,8 @@ void TrackSettingsModel::reset()
     m_bankLsb = 0;
     m_bankMsb = 0;
     m_bankByteOrderSwapped = false;
+    m_volumeEnabled = false;
+    m_volume = m_defaultVolume;
 
     emit instrumentDataReceived();
 
@@ -195,7 +233,15 @@ TrackSettingsModel::InstrumentU TrackSettingsModel::toInstrument() const
             m_bankByteOrderSwapped
         };
     }
+    if (m_volumeEnabled) {
+        instrument->volume = m_volume;
+    }
     return instrument;
+}
+
+QString TrackSettingsModel::portName() const
+{
+    return m_portName;
 }
 
 void TrackSettingsModel::setPortName(const QString & name)
@@ -209,15 +255,9 @@ void TrackSettingsModel::setPortName(const QString & name)
     }
 }
 
-void TrackSettingsModel::setChannel(uint8_t channel)
+bool TrackSettingsModel::patchEnabled() const
 {
-    juzzlin::L(TAG).debug() << "Setting channel to " << static_cast<int>(channel);
-
-    if (m_channel != channel) {
-        m_channel = channel;
-        emit channelChanged();
-        applyAll();
-    }
+    return m_patchEnabled;
 }
 
 void TrackSettingsModel::setPatchEnabled(bool enabled)
@@ -231,6 +271,11 @@ void TrackSettingsModel::setPatchEnabled(bool enabled)
     }
 }
 
+uint8_t TrackSettingsModel::patch() const
+{
+    return m_patch;
+}
+
 void TrackSettingsModel::setPatch(uint8_t patch)
 {
     juzzlin::L(TAG).debug() << "Setting patch to " << static_cast<int>(patch);
@@ -242,46 +287,34 @@ void TrackSettingsModel::setPatch(uint8_t patch)
     }
 }
 
-void TrackSettingsModel::setBankEnabled(bool enabled)
+uint8_t TrackSettingsModel::volume() const
 {
-    juzzlin::L(TAG).debug() << "Enabling bank: " << static_cast<int>(enabled);
+    return m_volume;
+}
 
-    if (m_bankEnabled != enabled) {
-        m_bankEnabled = enabled;
-        emit bankEnabledChanged();
+void TrackSettingsModel::setVolume(uint8_t volume)
+{
+    juzzlin::L(TAG).debug() << "Setting volume to " << static_cast<int>(volume);
+
+    if (m_volume != volume) {
+        m_volume = volume;
+        emit volumeChanged();
         applyAll();
     }
 }
 
-void TrackSettingsModel::setBankLsb(uint8_t lsb)
+bool TrackSettingsModel::volumeEnabled() const
 {
-    juzzlin::L(TAG).debug() << "Setting bank LSB to " << static_cast<int>(lsb);
-
-    if (m_bankLsb != lsb) {
-        m_bankLsb = lsb;
-        emit bankLsbChanged();
-        applyAll();
-    }
+    return m_volumeEnabled;
 }
 
-void TrackSettingsModel::setBankMsb(uint8_t msb)
+void TrackSettingsModel::setVolumeEnabled(bool enabled)
 {
-    juzzlin::L(TAG).debug() << "Setting bank MSB to " << static_cast<int>(msb);
+    juzzlin::L(TAG).debug() << "Enabling volume: " << static_cast<int>(enabled);
 
-    if (m_bankMsb != msb) {
-        m_bankMsb = msb;
-        emit bankMsbChanged();
-        applyAll();
-    }
-}
-
-void TrackSettingsModel::setBankByteOrderSwapped(bool swapped)
-{
-    juzzlin::L(TAG).debug() << "Enabling swapped bank byte order: " << static_cast<int>(swapped);
-
-    if (m_bankByteOrderSwapped != swapped) {
-        m_bankByteOrderSwapped = swapped;
-        emit bankByteOrderSwappedChanged();
+    if (m_volumeEnabled != enabled) {
+        m_volumeEnabled = enabled;
+        emit volumeEnabledChanged();
         applyAll();
     }
 }

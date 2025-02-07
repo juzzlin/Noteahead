@@ -32,15 +32,28 @@ class TrackSettingsModel : public QObject
     Q_OBJECT
 
     Q_PROPERTY(size_t trackIndex READ trackIndex WRITE setTrackIndex NOTIFY trackIndexChanged)
+
     Q_PROPERTY(QStringList availableMidiPorts READ availableMidiPorts NOTIFY availableMidiPortsChanged)
+
     Q_PROPERTY(QString portName READ portName WRITE setPortName NOTIFY portNameChanged)
+
     Q_PROPERTY(uint8_t channel READ channel WRITE setChannel NOTIFY channelChanged)
+
     Q_PROPERTY(bool patchEnabled READ patchEnabled WRITE setPatchEnabled NOTIFY patchEnabledChanged)
+
     Q_PROPERTY(uint8_t patch READ patch WRITE setPatch NOTIFY patchChanged)
+
     Q_PROPERTY(bool bankEnabled READ bankEnabled WRITE setBankEnabled NOTIFY bankEnabledChanged)
+
     Q_PROPERTY(uint8_t bankLsb READ bankLsb WRITE setBankLsb NOTIFY bankLsbChanged)
+
     Q_PROPERTY(uint8_t bankMsb READ bankMsb WRITE setBankMsb NOTIFY bankMsbChanged)
+
     Q_PROPERTY(bool bankByteOrderSwapped READ bankByteOrderSwapped WRITE setBankByteOrderSwapped NOTIFY bankByteOrderSwappedChanged)
+
+    Q_PROPERTY(uint8_t volume READ volume WRITE setVolume NOTIFY volumeChanged)
+
+    Q_PROPERTY(bool volumeEnabled READ volumeEnabled WRITE setVolumeEnabled NOTIFY volumeEnabledChanged)
 
 public:
     explicit TrackSettingsModel(QObject * parent = nullptr);
@@ -72,65 +85,108 @@ public:
     InstrumentU toInstrument() const;
 
     QString portName() const;
-    uint8_t channel() const;
-    bool patchEnabled() const;
-    uint8_t patch() const;
-    bool bankEnabled() const;
-    uint8_t bankLsb() const;
-    uint8_t bankMsb() const;
-    bool bankByteOrderSwapped() const;
-
     void setPortName(const QString & name);
-    void setChannel(uint8_t channel);
-    void setPatchEnabled(bool enabled);
-    void setPatch(uint8_t patch);
-    void setBankEnabled(bool enabled);
-    void setBankLsb(uint8_t lsb);
-    void setBankMsb(uint8_t msb);
+
+    bool bankByteOrderSwapped() const;
     void setBankByteOrderSwapped(bool swapped);
 
+    bool bankEnabled() const;
+    void setBankEnabled(bool enabled);
+
+    bool patchEnabled() const;
+    void setPatchEnabled(bool enabled);
+
+    uint8_t bankLsb() const;
+    void setBankLsb(uint8_t lsb);
+
+    uint8_t bankMsb() const;
+    void setBankMsb(uint8_t msb);
+
+    uint8_t channel() const;
+    void setChannel(uint8_t channel);
+
+    uint8_t patch() const;
+    void setPatch(uint8_t patch);
+
+    uint8_t volume() const;
+    void setVolume(uint8_t volume);
+
+    bool volumeEnabled() const;
+    void setVolumeEnabled(bool enabled);
+
 signals:
+    void applyAllRequested();
+
+    void applyPatchRequested();
+
     void availableMidiPortsChanged();
+
+    void bankByteOrderSwappedChanged();
+
+    void bankEnabledChanged();
+
+    void bankLsbChanged();
+
+    void bankMsbChanged();
+
+    void channelChanged();
+
+    void instrumentDataReceived();
+
+    void instrumentDataRequested();
+
+    void patchChanged();
+
+    void patchEnabledChanged();
+
+    void portNameChanged();
+
+    void saveRequested();
+
+    void testSoundRequested(uint8_t velocity);
 
     void trackIndexChanged();
 
-    void portNameChanged();
-    void channelChanged();
-    void patchEnabledChanged();
-    void patchChanged();
-    void bankEnabledChanged();
-    void bankLsbChanged();
-    void bankMsbChanged();
-    void bankByteOrderSwappedChanged();
+    void volumeChanged();
 
-    void applyAllRequested();
-    void applyPatchRequested();
-    void instrumentDataRequested();
-    void instrumentDataReceived();
-    void saveRequested();
-    void testSoundRequested(uint8_t velocity);
+    void volumeEnabledChanged();
 
 private:
     void pushApplyDisabled();
 
     void popApplyDisabled();
 
-    bool m_applyDisabled = false;
-    std::vector<bool> m_applyDisabledStack;
-
     QString m_instrumentPortName;
+
+    QString m_portName;
 
     QStringList m_availableMidiPorts;
 
-    size_t m_trackIndex { 0 };
-    QString m_portName;
-    uint8_t m_channel { 0 };
-    bool m_patchEnabled { false };
-    uint8_t m_patch { 0 };
-    bool m_bankEnabled { false };
-    uint8_t m_bankLsb { 0 };
-    uint8_t m_bankMsb { 0 };
+    bool m_applyDisabled = false;
+
     bool m_bankByteOrderSwapped { false };
+
+    bool m_bankEnabled { false };
+
+    bool m_patchEnabled { false };
+
+    bool m_volumeEnabled { false };
+
+    size_t m_trackIndex { 0 };
+
+    std::vector<bool> m_applyDisabledStack;
+
+    uint8_t m_bankLsb { 0 };
+
+    uint8_t m_bankMsb { 0 };
+
+    uint8_t m_channel { 0 };
+
+    uint8_t m_patch { 0 };
+
+    const uint8_t m_defaultVolume { 127 };
+
+    uint8_t m_volume { m_defaultVolume };
 };
 
 } // namespace noteahead

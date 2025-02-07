@@ -51,6 +51,13 @@ void Instrument::serializeToXml(QXmlStreamWriter & writer) const
         writer.writeAttribute(Constants::xmlKeyBankEnabled(), "false");
     }
 
+    if (volume.has_value()) {
+        writer.writeAttribute(Constants::xmlKeyVolumeEnabled(), "true");
+        writer.writeAttribute(Constants::xmlKeyVolume(), QString::number(*volume));
+    } else {
+        writer.writeAttribute(Constants::xmlKeyVolumeEnabled(), "false");
+    }
+
     writer.writeEndElement(); // Instrument
 }
 
@@ -71,6 +78,12 @@ QString Instrument::toString() const
                     .arg(bank->byteOrderSwapped ? "true" : "false");
     } else {
         result += ", bank=None";
+    }
+
+    if (volume) {
+        result += QString { ", volume=%1" }.arg(*volume);
+    } else {
+        result += ", volume=None";
     }
 
     result += " )";

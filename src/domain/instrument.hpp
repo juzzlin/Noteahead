@@ -47,6 +47,8 @@ public:
 
     std::optional<Bank> bank;
 
+    std::optional<uint8_t> volume;
+
     void serializeToXml(QXmlStreamWriter & writer) const;
 
     QString toString() const;

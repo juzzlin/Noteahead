@@ -232,6 +232,16 @@ QString xmlKeyVelocity()
     return "velocity";
 }
 
+QString xmlKeyVolumeEnabled()
+{
+    return "volumeEnabled";
+}
+
+QString xmlKeyVolume()
+{
+    return "volume";
+}
+
 QString xmlKeyProject()
 {
     return "Project";

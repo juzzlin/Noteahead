@@ -1126,6 +1126,7 @@ void EditorServiceTest::test_toXmlFromXml_instrument_shouldParseInstrument()
     const auto instrumentOut = std::make_shared<Instrument>("Test Port");
     instrumentOut->channel = 10; // Example channel
     instrumentOut->patch = 42; // Optional patch
+    instrumentOut->volume = 100; // Optional volume
     instrumentOut->bank = {
         static_cast<uint8_t>(21), // Bank LSB
         static_cast<uint8_t>(34), // Bank MSB
@@ -1153,6 +1154,11 @@ void EditorServiceTest::test_toXmlFromXml_instrument_shouldParseInstrument()
     QCOMPARE(instrumentIn->patch.has_value(), instrumentOut->patch.has_value());
     if (instrumentIn->patch && instrumentOut->patch) {
         QCOMPARE(*instrumentIn->patch, *instrumentOut->patch);
+    }
+
+    QCOMPARE(instrumentIn->volume.has_value(), instrumentOut->volume.has_value());
+    if (instrumentIn->volume && instrumentOut->volume) {
+        QCOMPARE(*instrumentIn->volume, *instrumentOut->volume);
     }
 
     QCOMPARE(instrumentIn->bank.has_value(), instrumentOut->bank.has_value());
