@@ -93,6 +93,38 @@ void TrackSettingsModel::setChannel(uint8_t channel)
     }
 }
 
+uint8_t TrackSettingsModel::cutoff() const
+{
+    return m_cutoff;
+}
+
+void TrackSettingsModel::setCutoff(uint8_t cutoff)
+{
+    juzzlin::L(TAG).debug() << "Setting cutoff to " << static_cast<int>(cutoff);
+
+    if (m_cutoff != cutoff) {
+        m_cutoff = cutoff;
+        emit cutoffChanged();
+        applyAll();
+    }
+}
+
+bool TrackSettingsModel::cutoffEnabled() const
+{
+    return m_cutoffEnabled;
+}
+
+void TrackSettingsModel::setCutoffEnabled(bool enabled)
+{
+    juzzlin::L(TAG).debug() << "Enabling cutoff: " << static_cast<int>(enabled);
+
+    if (m_cutoffEnabled != enabled) {
+        m_cutoffEnabled = enabled;
+        emit cutoffEnabledChanged();
+        applyAll();
+    }
+}
+
 bool TrackSettingsModel::bankEnabled() const
 {
     return m_bankEnabled;
@@ -186,6 +218,8 @@ void TrackSettingsModel::setInstrumentData(const Instrument & instrument)
     setBankLsb(instrument.bank->lsb);
     setBankMsb(instrument.bank->msb);
     setBankByteOrderSwapped(instrument.bank->byteOrderSwapped);
+    setCutoffEnabled(instrument.cutoff.has_value());
+    setCutoff(*instrument.cutoff);
     setVolumeEnabled(instrument.volume.has_value());
     setVolume(*instrument.volume);
 
@@ -211,6 +245,8 @@ void TrackSettingsModel::reset()
     m_bankLsb = 0;
     m_bankMsb = 0;
     m_bankByteOrderSwapped = false;
+    m_cutoffEnabled = false;
+    m_cutoff = m_defaultCutoff;
     m_volumeEnabled = false;
     m_volume = m_defaultVolume;
 
@@ -232,6 +268,9 @@ TrackSettingsModel::InstrumentU TrackSettingsModel::toInstrument() const
             m_bankMsb,
             m_bankByteOrderSwapped
         };
+    }
+    if (m_cutoffEnabled) {
+        instrument->cutoff = m_cutoff;
     }
     if (m_volumeEnabled) {
         instrument->volume = m_volume;

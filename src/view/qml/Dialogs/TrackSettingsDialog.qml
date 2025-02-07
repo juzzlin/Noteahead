@@ -20,6 +20,8 @@ Dialog {
         bankLsbSpinBox.value = trackSettingsModel.bankLsb;
         bankMsbSpinBox.value = trackSettingsModel.bankMsb;
         swapBankByteOrderCheckBox.checked = trackSettingsModel.bankByteOrderSwapped;
+        enableCutoffCheckbox.checked = trackSettingsModel.cutoffEnabled;
+        cutoffSpinBox.value = trackSettingsModel.cutoff;
         enablePatchCheckbox.checked = trackSettingsModel.patchEnabled;
         patchSpinBox.value = trackSettingsModel.patch;
         enableVolumeCheckbox.checked = trackSettingsModel.volumeEnabled;
@@ -166,6 +168,7 @@ Dialog {
                         ToolTip.visible: hovered
                         ToolTip.text: qsTr("Set initial patch for this track. Note that some synths will add 1 to the chosen value so that 0 means 1.")
                         onValueChanged: trackSettingsModel.patch = value
+                        Keys.onReturnPressed: focus = false
                     }
                     Label {
                         text: qsTr("Bank:")
@@ -205,6 +208,7 @@ Dialog {
                         ToolTip.visible: hovered
                         ToolTip.text: qsTr("Set initial bank for this track (MSB)")
                         onValueChanged: trackSettingsModel.bankMsb = value
+                        Keys.onReturnPressed: focus = false
                     }
                     SpinBox {
                         id: bankLsbSpinBox
@@ -219,6 +223,7 @@ Dialog {
                         ToolTip.visible: hovered
                         ToolTip.text: qsTr("Set initial bank for this track (LSB)")
                         onValueChanged: trackSettingsModel.bankLsb = value
+                        Keys.onReturnPressed: focus = false
                     }
                     CheckBox {
                         id: swapBankByteOrderCheckBox
@@ -272,8 +277,51 @@ Dialog {
                         ToolTip.delay: Constants.toolTipDelay
                         ToolTip.timeout: Constants.toolTipTimeout
                         ToolTip.visible: hovered
-                        ToolTip.text: qsTr("Set initial channel volume for this track (LSB)")
+                        ToolTip.text: qsTr("Set initial channel volume for this track")
                         onValueChanged: trackSettingsModel.volume = value
+                        Keys.onReturnPressed: focus = false
+                    }
+                    Label {
+                        text: qsTr("Cutoff:")
+                        Layout.column: 0
+                        Layout.row: 5
+                        Layout.fillWidth: true
+                    }
+                    CheckBox {
+                        id: enableCutoffCheckbox
+                        text: qsTr("Enable Cutoff")
+                        Layout.column: 2
+                        Layout.columnSpan: 2
+                        Layout.row: 5
+                        Layout.fillWidth: true
+                        ToolTip.delay: Constants.toolTipDelay
+                        ToolTip.timeout: Constants.toolTipTimeout
+                        ToolTip.visible: hovered
+                        ToolTip.text: qsTr("Enable/disable filter cutoff for this track")
+                        onCheckedChanged: trackSettingsModel.cutoffEnabled = checked
+                    }
+                    Label {
+                        text: qsTr("MSB:")
+                        Layout.column: 4
+                        Layout.row: 5
+                        Layout.fillWidth: true
+                    }
+                    SpinBox {
+                        id: cutoffSpinBox
+                        from: 0
+                        to: 127
+                        enabled: enableCutoffCheckbox.checked
+                        Layout.column: 5
+                        Layout.columnSpan: 1
+                        Layout.row: 5
+                        Layout.fillWidth: true
+                        editable: true
+                        ToolTip.delay: Constants.toolTipDelay
+                        ToolTip.timeout: Constants.toolTipTimeout
+                        ToolTip.visible: hovered
+                        ToolTip.text: qsTr("Set initial filter cutoff for this track")
+                        onValueChanged: trackSettingsModel.cutoff = value
+                        Keys.onReturnPressed: focus = false
                     }
                 }
             }

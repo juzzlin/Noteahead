@@ -1127,6 +1127,7 @@ void EditorServiceTest::test_toXmlFromXml_instrument_shouldParseInstrument()
     instrumentOut->channel = 10; // Example channel
     instrumentOut->patch = 42; // Optional patch
     instrumentOut->volume = 100; // Optional volume
+    instrumentOut->cutoff = 64; // Optional cutoff
     instrumentOut->bank = {
         static_cast<uint8_t>(21), // Bank LSB
         static_cast<uint8_t>(34), // Bank MSB
@@ -1159,6 +1160,11 @@ void EditorServiceTest::test_toXmlFromXml_instrument_shouldParseInstrument()
     QCOMPARE(instrumentIn->volume.has_value(), instrumentOut->volume.has_value());
     if (instrumentIn->volume && instrumentOut->volume) {
         QCOMPARE(*instrumentIn->volume, *instrumentOut->volume);
+    }
+
+    QCOMPARE(instrumentIn->cutoff.has_value(), instrumentOut->cutoff.has_value());
+    if (instrumentIn->cutoff && instrumentOut->cutoff) {
+        QCOMPARE(*instrumentIn->cutoff, *instrumentOut->cutoff);
     }
 
     QCOMPARE(instrumentIn->bank.has_value(), instrumentOut->bank.has_value());

@@ -700,6 +700,11 @@ Song::InstrumentS Song::deserializeInstrument(QXmlStreamReader & reader)
         instrument->bank = { bankLsb, bankMsb, bankByteOrderSwapped };
     }
 
+    if (const auto cutoffEnabled = readBoolAttribute(reader, Constants::xmlKeyCutoffEnabled()); cutoffEnabled) {
+        const auto cutoff = readUIntAttribute(reader, Constants::xmlKeyCutoff());
+        instrument->cutoff = cutoff;
+    }
+
     if (const auto volumeEnabled = readBoolAttribute(reader, Constants::xmlKeyVolumeEnabled()); volumeEnabled) {
         const auto volume = readUIntAttribute(reader, Constants::xmlKeyVolume());
         instrument->volume = volume;

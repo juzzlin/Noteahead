@@ -56,6 +56,10 @@ QString xmlKeyColumns();
 
 QString xmlKeyColumnCount();
 
+QString xmlKeyCutoff();
+
+QString xmlKeyCutoffEnabled();
+
 QString xmlKeyIndex();
 
 QString xmlKeyInstrument();

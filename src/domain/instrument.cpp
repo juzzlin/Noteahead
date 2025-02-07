@@ -51,6 +51,13 @@ void Instrument::serializeToXml(QXmlStreamWriter & writer) const
         writer.writeAttribute(Constants::xmlKeyBankEnabled(), "false");
     }
 
+    if (cutoff.has_value()) {
+        writer.writeAttribute(Constants::xmlKeyCutoffEnabled(), "true");
+        writer.writeAttribute(Constants::xmlKeyCutoff(), QString::number(*cutoff));
+    } else {
+        writer.writeAttribute(Constants::xmlKeyCutoffEnabled(), "false");
+    }
+
     if (volume.has_value()) {
         writer.writeAttribute(Constants::xmlKeyVolumeEnabled(), "true");
         writer.writeAttribute(Constants::xmlKeyVolume(), QString::number(*volume));
@@ -78,6 +85,12 @@ QString Instrument::toString() const
                     .arg(bank->byteOrderSwapped ? "true" : "false");
     } else {
         result += ", bank=None";
+    }
+
+    if (cutoff) {
+        result += QString { ", cutoff=%1" }.arg(*cutoff);
+    } else {
+        result += ", cutoff=None";
     }
 
     if (volume) {

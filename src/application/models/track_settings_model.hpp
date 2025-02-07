@@ -39,6 +39,10 @@ class TrackSettingsModel : public QObject
 
     Q_PROPERTY(uint8_t channel READ channel WRITE setChannel NOTIFY channelChanged)
 
+    Q_PROPERTY(uint8_t cutoff READ cutoff WRITE setCutoff NOTIFY cutoffChanged)
+
+    Q_PROPERTY(bool cutoffEnabled READ cutoffEnabled WRITE setCutoffEnabled NOTIFY cutoffEnabledChanged)
+
     Q_PROPERTY(bool patchEnabled READ patchEnabled WRITE setPatchEnabled NOTIFY patchEnabledChanged)
 
     Q_PROPERTY(uint8_t patch READ patch WRITE setPatch NOTIFY patchChanged)
@@ -105,6 +109,12 @@ public:
     uint8_t channel() const;
     void setChannel(uint8_t channel);
 
+    uint8_t cutoff() const;
+    void setCutoff(uint8_t cutoff);
+
+    bool cutoffEnabled() const;
+    void setCutoffEnabled(bool enabled);
+
     uint8_t patch() const;
     void setPatch(uint8_t patch);
 
@@ -130,6 +140,10 @@ signals:
     void bankMsbChanged();
 
     void channelChanged();
+
+    void cutoffChanged();
+
+    void cutoffEnabledChanged();
 
     void instrumentDataReceived();
 
@@ -168,6 +182,8 @@ private:
 
     bool m_bankEnabled { false };
 
+    bool m_cutoffEnabled { false };
+
     bool m_patchEnabled { false };
 
     bool m_volumeEnabled { false };
@@ -181,6 +197,10 @@ private:
     uint8_t m_bankMsb { 0 };
 
     uint8_t m_channel { 0 };
+
+    const uint8_t m_defaultCutoff { 127 };
+
+    uint8_t m_cutoff { m_defaultCutoff };
 
     uint8_t m_patch { 0 };
 

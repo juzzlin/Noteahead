@@ -107,6 +107,16 @@ QString xmlKeyColumnCount()
     return "columnCount";
 }
 
+QString xmlKeyCutoff()
+{
+    return "cutoff";
+}
+
+QString xmlKeyCutoffEnabled()
+{
+    return "cutoffEnabled";
+}
+
 QString xmlKeyIndex()
 {
     return "index";

@@ -128,6 +128,9 @@ void MidiWorker::handleInstrumentRequest(const InstrumentRequest & instrumentReq
                         m_midiBackend->sendCC(device, instrument->channel, MidiCC::ChannelVolumeMSB, *instrument->volume);
                         m_midiBackend->sendCC(device, instrument->channel, MidiCC::ChannelVolumeLSB, 0);
                     }
+                    if (instrument->cutoff.has_value()) {
+                        m_midiBackend->sendCC(device, instrument->channel, MidiCC::SoundController5, *instrument->cutoff);
+                    }
                 } else if (instrumentRequest.type() == InstrumentRequest::Type::ApplyPatch) {
                     if (instrument->patch.has_value()) {
                         m_midiBackend->sendPatchChange(device, instrument->channel, *instrument->patch);
