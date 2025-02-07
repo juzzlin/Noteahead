@@ -17,16 +17,15 @@ Noteahead is still a work in progress and there's a lot of limitations and missi
 ##
 ## Features
 
-* Very lightweight and fast
-* Very accurate internal timing
+* Accurate internal timing
 * Fully scalable UI
 * Cool volume meters like in NoiseTracker
 * Easy-to-use track editing
 * Poor Man's MIDI Hot-Plug with automatic setup
   - Noteahead notices when a device goes online/offline
   - Noteahead automatically sets channel, bank, and patch
-* Unlimited number of tracks
-* Unlimited number of note columns per track
+* Tracks with multiple note columns
+* Track settings with port, channel, bank, patch, volume, pan, cutoff
 * Saves to a custom (but open!) XML-based **.nahd** format
 
 ##
