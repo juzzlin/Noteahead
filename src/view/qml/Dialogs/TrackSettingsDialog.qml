@@ -169,10 +169,16 @@ Dialog {
                         ToolTip.text: qsTr("Set initial patch for this track. Note that some synths will add 1 to the chosen value so that 0 means 1.")
                         onValueChanged: trackSettingsModel.patch = value
                     }
+                    Label {
+                        text: qsTr("Bank:")
+                        Layout.column: 0
+                        Layout.row: 3
+                        Layout.fillWidth: true
+                    }
                     CheckBox {
                         id: enableBankCheckbox
                         text: qsTr("Enable Bank")
-                        Layout.column: 0
+                        Layout.column: 2
                         Layout.columnSpan: 2
                         Layout.row: 3
                         Layout.fillWidth: true
@@ -183,31 +189,8 @@ Dialog {
                         onCheckedChanged: trackSettingsModel.bankEnabled = checked
                     }
                     Label {
-                        text: qsTr("Bank (LSB):")
-                        Layout.column: 2
-                        Layout.columnSpan: 1
-                        Layout.row: 3
-                        Layout.fillWidth: true
-                    }
-                    SpinBox {
-                        id: bankLsbSpinBox
-                        from: 0
-                        to: 127
-                        enabled: enableBankCheckbox.checked
-                        Layout.column: 3
-                        Layout.columnSpan: 1
-                        Layout.row: 3
-                        Layout.fillWidth: true
-                        ToolTip.delay: Constants.toolTipDelay
-                        ToolTip.timeout: Constants.toolTipTimeout
-                        ToolTip.visible: hovered
-                        ToolTip.text: qsTr("Set initial bank for this track (LSB)")
-                        onValueChanged: trackSettingsModel.bankLsb = value
-                    }
-                    Label {
-                        text: qsTr("Bank (MSB):")
-                        Layout.column: 5
-                        Layout.columnSpan: 1
+                        text: qsTr("Bank (MSB/LSB):")
+                        Layout.column: 4
                         Layout.row: 3
                         Layout.fillWidth: true
                     }
@@ -216,8 +199,7 @@ Dialog {
                         from: 0
                         to: 127
                         enabled: enableBankCheckbox.checked
-                        Layout.column: 6
-                        Layout.columnSpan: 1
+                        Layout.column: 5
                         Layout.row: 3
                         Layout.fillWidth: true
                         ToolTip.delay: Constants.toolTipDelay
@@ -226,9 +208,23 @@ Dialog {
                         ToolTip.text: qsTr("Set initial bank for this track (MSB)")
                         onValueChanged: trackSettingsModel.bankMsb = value
                     }
+                    SpinBox {
+                        id: bankLsbSpinBox
+                        from: 0
+                        to: 127
+                        enabled: enableBankCheckbox.checked
+                        Layout.column: 6
+                        Layout.row: 3
+                        Layout.fillWidth: true
+                        ToolTip.delay: Constants.toolTipDelay
+                        ToolTip.timeout: Constants.toolTipTimeout
+                        ToolTip.visible: hovered
+                        ToolTip.text: qsTr("Set initial bank for this track (LSB)")
+                        onValueChanged: trackSettingsModel.bankLsb = value
+                    }
                     CheckBox {
                         id: swapBankByteOrderCheckBox
-                        text: qsTr("Swap LSB/MSB")
+                        text: qsTr("Swap MSB/LSB")
                         enabled: enableBankCheckbox.checked
                         Layout.column: 7
                         Layout.columnSpan: 2
