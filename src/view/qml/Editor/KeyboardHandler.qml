@@ -31,6 +31,9 @@ QtObject {
         } else if (event.key === Qt.Key_Insert) {
             _handleInsert();
             event.accepted = true;
+        } else if (event.key === Qt.Key_Backspace) {
+            _handleBackspace();
+            event.accepted = true;
         } else if (event.key === Qt.Key_Space) {
             UiService.togglePlay();
             event.accepted = true;
@@ -48,7 +51,7 @@ QtObject {
     function _handleDelete() {
         if (UiService.editMode()) {
             if (editorService.isAtNoteColumn()) {
-                editorService.requestNoteDeletionAtCurrentPosition();
+                editorService.requestNoteDeletionAtCurrentPosition(false);
                 editorService.requestScroll(UiService.activeStep());
             } else if (editorService.isAtVelocityColumn) {
                 if (editorService.requestDigitSetAtCurrentPosition(0)) {
@@ -60,6 +63,11 @@ QtObject {
     function _handleInsert() {
         if (UiService.editMode()) {
             editorService.requestNoteInsertionAtCurrentPosition();
+        }
+    }
+    function _handleBackspace() {
+        if (UiService.editMode()) {
+            editorService.requestNoteDeletionAtCurrentPosition(true);
         }
     }
     function _handleNoteOff() {

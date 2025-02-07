@@ -113,6 +113,8 @@ Click on the pattern name to change it.
 
 * **ESC**: toggles the edit mode
 * **SPACE**: toggles the play mode
+* **INSERT**: inserts an empty line and moves subsequent lines down
+* **BACKSPACE**: deletes the current line and pulls subsequent lines up
 * **A**: inserts a note off event
 * **F3**: decreases the current octave
 * **F4**: increases the current octave

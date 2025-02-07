@@ -68,6 +68,8 @@ private slots:
 
     void test_requestNoteDeletionAtCurrentPosition_shouldDeleteNoteData();
 
+    void test_requestNoteDeletionAtCurrentPosition_shouldDeleteNoteData_shouldShiftNotes();
+
     void test_requestNoteInsertionAtCurrentPosition_shouldInsertNoteData();
 
     void test_requestNoteOnAtCurrentPosition_shouldChangeNoteData();

@@ -188,7 +188,7 @@ public:
 
     Q_INVOKABLE void requestNoteInsertionAtCurrentPosition();
 
-    Q_INVOKABLE void requestNoteDeletionAtCurrentPosition();
+    Q_INVOKABLE void requestNoteDeletionAtCurrentPosition(bool shiftNotes);
 
     Q_INVOKABLE bool requestNoteOnAtCurrentPosition(uint8_t note, uint8_t octave, uint8_t velocity);
 
@@ -354,7 +354,7 @@ private:
 
     size_t currentColumn() const;
 
-    void deleteNoteDataAtPosition(const Position & position);
+    void deleteNoteDataAtPosition(const Position & position, bool shiftNotes);
 
     void insertNoteAtPosition(const Position & position);
 

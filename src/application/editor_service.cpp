@@ -731,9 +731,9 @@ void EditorService::requestNoteInsertionAtCurrentPosition()
     insertNoteAtPosition(m_cursorPosition);
 }
 
-void EditorService::requestNoteDeletionAtCurrentPosition()
+void EditorService::requestNoteDeletionAtCurrentPosition(bool shiftNotes)
 {
-    deleteNoteDataAtPosition(m_cursorPosition);
+    deleteNoteDataAtPosition(m_cursorPosition, shiftNotes);
 }
 
 void EditorService::insertNoteAtPosition(const Position & position)
@@ -749,14 +749,25 @@ void EditorService::insertNoteAtPosition(const Position & position)
     }
 }
 
-void EditorService::deleteNoteDataAtPosition(const Position & position)
+void EditorService::deleteNoteDataAtPosition(const Position & position, bool shiftNotes)
 {
     juzzlin::L(TAG).debug() << "Note deletion requested at position " << position.toString();
-    const NoteData noteData {};
-    m_song->setNoteDataAtPosition(noteData, position);
-    emit noteDataAtPositionChanged(position);
-    setIsModified(true);
-    updateDuration();
+    if (!shiftNotes) {
+        const NoteData noteData {};
+        m_song->setNoteDataAtPosition(noteData, position);
+        emit noteDataAtPositionChanged(position);
+        setIsModified(true);
+        updateDuration();
+    } else {
+        const NoteData noteData {};
+        if (const auto changedPositions = m_song->deleteNoteDataAtPosition(noteData, position); !changedPositions.empty()) {
+            for (auto && changedPosition : changedPositions) {
+                emit noteDataAtPositionChanged(changedPosition);
+            }
+            setIsModified(true);
+            updateDuration();
+        }
+    }
 }
 
 bool EditorService::requestNoteOnAtCurrentPosition(uint8_t note, uint8_t octave, uint8_t velocity)
@@ -785,12 +796,12 @@ void EditorService::removeDuplicateNoteOffs()
     juzzlin::L(TAG).debug() << "Removing duplicate note offs";
     if (const auto prevNoteDataPosition = m_song->prevNoteDataOnSameColumn(m_cursorPosition); prevNoteDataPosition != m_cursorPosition) {
         if (const auto previousNoteData = m_song->noteDataAtPosition(prevNoteDataPosition); previousNoteData->type() == NoteData::Type::NoteOff) {
-            deleteNoteDataAtPosition(prevNoteDataPosition);
+            deleteNoteDataAtPosition(prevNoteDataPosition, false);
         }
     }
     if (const auto nextNoteDataPosition = m_song->nextNoteDataOnSameColumn(m_cursorPosition); nextNoteDataPosition != m_cursorPosition) {
         if (const auto nextNoteData = m_song->noteDataAtPosition(nextNoteDataPosition); nextNoteData->type() == NoteData::Type::NoteOff) {
-            deleteNoteDataAtPosition(nextNoteDataPosition);
+            deleteNoteDataAtPosition(nextNoteDataPosition, false);
         }
     }
 }

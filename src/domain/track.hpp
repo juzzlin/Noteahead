@@ -71,6 +71,7 @@ public:
     void setNoteDataAtPosition(const NoteData & noteData, const Position & position);
 
     using PositionList = std::vector<Position>;
+    PositionList deleteNoteDataAtPosition(const NoteData & noteData, const Position & position);
     PositionList insertNoteDataAtPosition(const NoteData & noteData, const Position & position);
 
     PositionList transposeTrack(const Position & position, int semitones) const;

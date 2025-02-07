@@ -498,12 +498,29 @@ void EditorServiceTest::test_requestNoteDeletionAtCurrentPosition_shouldDeleteNo
     QVERIFY(editorService.requestNoteOnAtCurrentPosition(1, 3, 64));
 
     editorService.setIsModified(false);
-    editorService.requestNoteDeletionAtCurrentPosition();
+    editorService.requestNoteDeletionAtCurrentPosition(false);
 
     QVERIFY(editorService.isModified());
     QCOMPARE(noteDataChangedSpy.count(), 2);
     QCOMPARE(editorService.displayNoteAtPosition(0, 0, 0, 4), editorService.noDataString());
     QCOMPARE(editorService.displayVelocityAtPosition(0, 0, 0, 4), editorService.noDataString());
+}
+
+void EditorServiceTest::test_requestNoteDeletionAtCurrentPosition_shouldDeleteNoteData_shouldShiftNotes()
+{
+    EditorService editorService;
+    QSignalSpy noteDataChangedSpy { &editorService, &EditorService::noteDataAtPositionChanged };
+    QVERIFY(editorService.requestPosition(0, 0, 0, 10, 0));
+    QVERIFY(editorService.requestNoteOnAtCurrentPosition(1, 3, 64));
+
+    editorService.setIsModified(false);
+    QVERIFY(editorService.requestPosition(0, 0, 0, 9, 0));
+    editorService.requestNoteDeletionAtCurrentPosition(true);
+
+    QVERIFY(editorService.isModified());
+    QCOMPARE(noteDataChangedSpy.count(), 56);
+    QCOMPARE(editorService.displayNoteAtPosition(0, 0, 0, 9), "C-3");
+    QCOMPARE(editorService.displayVelocityAtPosition(0, 0, 0, 9), "064");
 }
 
 void EditorServiceTest::test_requestNoteInsertionAtCurrentPosition_shouldInsertNoteData()
