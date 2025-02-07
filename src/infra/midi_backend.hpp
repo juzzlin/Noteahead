@@ -16,6 +16,7 @@
 #ifndef MIDI_BACKEND_HPP
 #define MIDI_BACKEND_HPP
 
+#include "midi_cc.hpp"
 #include "midi_device.hpp"
 
 #include <cstdint>
@@ -45,6 +46,8 @@ public:
     virtual void openDevice(MidiDeviceS device);
 
     virtual void closeDevice(MidiDeviceS device);
+
+    virtual void sendCC(MidiDeviceS device, uint8_t channel, MidiCC controller, uint8_t value) const;
 
     virtual void sendNoteOn(MidiDeviceS device, uint8_t channel, uint8_t note, uint8_t velocity) const;
 

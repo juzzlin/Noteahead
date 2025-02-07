@@ -59,6 +59,14 @@ void MidiBackendRtMidi::sendMessage(MidiDeviceS device, const Message & message)
     }
 }
 
+void MidiBackendRtMidi::sendCC(MidiDeviceS device, uint8_t channel, MidiCC controller, uint8_t value) const
+{
+    const Message message = { static_cast<unsigned char>(0xB0 | (channel & 0x0F)),
+                              static_cast<unsigned char>(controller),
+                              static_cast<unsigned char>(value) };
+    sendMessage(device, message);
+}
+
 void MidiBackendRtMidi::sendNoteOn(MidiDeviceS device, uint8_t channel, uint8_t note, uint8_t velocity) const
 {
     const Message message = { static_cast<unsigned char>(0x90 | (channel & 0x0F)),
@@ -87,25 +95,13 @@ void MidiBackendRtMidi::sendPatchChange(MidiDeviceS device, uint8_t channel, uin
 
 void MidiBackendRtMidi::sendBankChange(MidiDeviceS device, uint8_t channel, uint8_t msb, uint8_t lsb) const
 {
-    // Send MSB (Control Change 0)
-    const Message msbMessage = { static_cast<unsigned char>(0xB0 | (channel & 0x0F)),
-                                 0x00, // CC #0 (Bank Select MSB)
-                                 static_cast<unsigned char>(msb) };
-    sendMessage(device, msbMessage);
-
-    // Send LSB (Control Change 32)
-    const Message lsbMessage = { static_cast<unsigned char>(0xB0 | (channel & 0x0F)),
-                                 0x20, // CC #32 (Bank Select LSB)
-                                 static_cast<unsigned char>(lsb) };
-    sendMessage(device, lsbMessage);
+    sendCC(device, channel, MidiCC::BankSelectMSB, msb);
+    sendCC(device, channel, MidiCC::BankSelectLSB, lsb);
 }
 
 void MidiBackendRtMidi::stopAllNotes(MidiDeviceS device, uint8_t channel) const
 {
-    const Message message = { static_cast<unsigned char>(0xB0 | (channel & 0x0F)),
-                              123, // CC #123 (All Notes Off)
-                              0 }; // Value for "All Notes Off"
-    sendMessage(device, message);
+    sendCC(device, channel, MidiCC::AllNotesOff, 0);
 
     // All devices won't obey CC #123: Manually stop all notes
     for (uint8_t note = 0; note < 128; note++) {

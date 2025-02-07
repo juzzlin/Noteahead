@@ -37,6 +37,8 @@ public:
 
     void closeDevice(MidiDeviceS device) override;
 
+    void sendCC(MidiDeviceS device, uint8_t channel, MidiCC controller, uint8_t value) const override;
+
     void sendNoteOn(MidiDeviceS device, uint8_t channel, uint8_t note, uint8_t velocity) const override;
 
     void sendNoteOff(MidiDeviceS device, uint8_t channel, uint8_t note) const override;
