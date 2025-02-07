@@ -213,17 +213,27 @@ void TrackSettingsModel::setInstrumentData(const Instrument & instrument)
     setPortName(instrument.portName);
     setChannel(instrument.channel);
     setPatchEnabled(instrument.patch.has_value());
-    setPatch(*instrument.patch);
+    if (patchEnabled()) {
+        setPatch(*instrument.patch);
+    }
     setBankEnabled(instrument.bank.has_value());
-    setBankLsb(instrument.bank->lsb);
-    setBankMsb(instrument.bank->msb);
-    setBankByteOrderSwapped(instrument.bank->byteOrderSwapped);
+    if (bankEnabled()) {
+        setBankLsb(instrument.bank->lsb);
+        setBankMsb(instrument.bank->msb);
+        setBankByteOrderSwapped(instrument.bank->byteOrderSwapped);
+    }
     setCutoffEnabled(instrument.cutoff.has_value());
-    setCutoff(*instrument.cutoff);
+    if (cutoffEnabled()) {
+        setCutoff(*instrument.cutoff);
+    }
     setPanEnabled(instrument.pan.has_value());
-    setPan(*instrument.pan);
+    if (panEnabled()) {
+        setPan(*instrument.pan);
+    }
     setVolumeEnabled(instrument.volume.has_value());
-    setVolume(*instrument.volume);
+    if (volumeEnabled()) {
+        setVolume(*instrument.volume);
+    }
 
     emit instrumentDataReceived();
 

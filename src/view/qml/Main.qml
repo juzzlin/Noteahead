@@ -76,6 +76,28 @@ ApplicationWindow {
             applicationService.cancelOpenProject();
         }
     }
+    Dialog {
+        id: errorDialog
+        anchors.centerIn: parent
+        width: parent.width * 0.5
+        height: parent.height * 0.5
+        title: "<strong>" + qsTr("Error") + "</strong>"
+        modal: true
+        footer: DialogButtonBox {
+            Button {
+                text: qsTr("Ok")
+                DialogButtonBox.buttonRole: DialogButtonBox.AcceptRole
+            }
+        }
+        property alias errorMessage: errorMessage.text
+        Label {
+            id: errorMessage
+            anchors.centerIn: parent
+        }
+        Component.onCompleted: {
+            visible = false;
+        }
+    }
     FileDialog {
         id: saveAsDialog
         currentFolder: StandardPaths.standardLocations(StandardPaths.DocumentsLocation)[0]
@@ -152,6 +174,10 @@ ApplicationWindow {
         applicationService.unsavedChangesDialogRequested.connect(unsavedChangesDialog.open);
     }
     function _connectEditorService() {
+        editorService.errorTextRequested.connect(errorText => {
+                errorDialog.errorMessage = "ERROR!!: " + errorText;
+                errorDialog.open();
+            });
         editorService.statusTextRequested.connect(bottomBar.setStatusText);
     }
     function _connectUiService() {

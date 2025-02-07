@@ -336,6 +336,8 @@ signals:
 
     void songLengthChanged();
 
+    void errorTextRequested(QString text);
+
     void statusTextRequested(QString text);
 
     void trackConfigurationChanged();

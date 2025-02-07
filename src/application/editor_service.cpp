@@ -92,21 +92,28 @@ void EditorService::requestInstruments()
 
 EditorService::SongS EditorService::deserializeProject(QXmlStreamReader & reader)
 {
-    juzzlin::L(TAG).trace() << "Reading project started";
-    SongS song;
-    const auto applicationName = reader.attributes().value("applicationName").toString();
-    const auto applicationVersion = reader.attributes().value("applicationVersion").toString();
-    const auto createdDate = reader.attributes().value("createdDate").toString();
-    const auto fileFormatVersion = reader.attributes().value("fileFormatVersion").toString();
-    while (!(reader.isEndElement() && !reader.name().compare(Constants::xmlKeyProject()))) {
-        if (reader.isStartElement() && !reader.name().compare(Constants::xmlKeySong())) {
-            song = std::make_unique<Song>();
-            song->deserializeFromXml(reader);
+    try {
+        juzzlin::L(TAG).trace() << "Reading project started";
+        SongS song;
+        const auto applicationName = reader.attributes().value("applicationName").toString();
+        const auto applicationVersion = reader.attributes().value("applicationVersion").toString();
+        const auto createdDate = reader.attributes().value("createdDate").toString();
+        const auto fileFormatVersion = reader.attributes().value("fileFormatVersion").toString();
+        while (!(reader.isEndElement() && !reader.name().compare(Constants::xmlKeyProject()))) {
+            if (reader.isStartElement() && !reader.name().compare(Constants::xmlKeySong())) {
+                song = std::make_unique<Song>();
+                song->deserializeFromXml(reader);
+            }
+            reader.readNext();
         }
-        reader.readNext();
+        juzzlin::L(TAG).trace() << "Reading project ended";
+        return song;
+    } catch (std::runtime_error & e) {
+        juzzlin::L(TAG).error() << e.what();
+        emit errorTextRequested(e.what());
+        initialize();
+        return m_song;
     }
-    juzzlin::L(TAG).trace() << "Reading project ended";
-    return song;
 }
 
 void EditorService::fromXml(QString xml)
