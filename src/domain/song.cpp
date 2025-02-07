@@ -705,6 +705,11 @@ Song::InstrumentS Song::deserializeInstrument(QXmlStreamReader & reader)
         instrument->cutoff = cutoff;
     }
 
+    if (const auto panEnabled = readBoolAttribute(reader, Constants::xmlKeyPanEnabled()); panEnabled) {
+        const auto pan = readUIntAttribute(reader, Constants::xmlKeyPan());
+        instrument->pan = pan;
+    }
+
     if (const auto volumeEnabled = readBoolAttribute(reader, Constants::xmlKeyVolumeEnabled()); volumeEnabled) {
         const auto volume = readUIntAttribute(reader, Constants::xmlKeyVolume());
         instrument->volume = volume;

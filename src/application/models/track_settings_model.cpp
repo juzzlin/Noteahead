@@ -220,6 +220,8 @@ void TrackSettingsModel::setInstrumentData(const Instrument & instrument)
     setBankByteOrderSwapped(instrument.bank->byteOrderSwapped);
     setCutoffEnabled(instrument.cutoff.has_value());
     setCutoff(*instrument.cutoff);
+    setPanEnabled(instrument.pan.has_value());
+    setPan(*instrument.pan);
     setVolumeEnabled(instrument.volume.has_value());
     setVolume(*instrument.volume);
 
@@ -247,6 +249,8 @@ void TrackSettingsModel::reset()
     m_bankByteOrderSwapped = false;
     m_cutoffEnabled = false;
     m_cutoff = m_defaultCutoff;
+    m_panEnabled = false;
+    m_pan = m_defaultPan;
     m_volumeEnabled = false;
     m_volume = m_defaultVolume;
 
@@ -271,6 +275,9 @@ TrackSettingsModel::InstrumentU TrackSettingsModel::toInstrument() const
     }
     if (m_cutoffEnabled) {
         instrument->cutoff = m_cutoff;
+    }
+    if (m_panEnabled) {
+        instrument->pan = m_pan;
     }
     if (m_volumeEnabled) {
         instrument->volume = m_volume;
@@ -322,6 +329,38 @@ void TrackSettingsModel::setPatch(uint8_t patch)
     if (m_patch != patch) {
         m_patch = patch;
         emit patchChanged();
+        applyAll();
+    }
+}
+
+uint8_t TrackSettingsModel::pan() const
+{
+    return m_pan;
+}
+
+void TrackSettingsModel::setPan(uint8_t pan)
+{
+    juzzlin::L(TAG).debug() << "Setting pan to " << static_cast<int>(pan);
+
+    if (m_pan != pan) {
+        m_pan = pan;
+        emit panChanged();
+        applyAll();
+    }
+}
+
+bool TrackSettingsModel::panEnabled() const
+{
+    return m_panEnabled;
+}
+
+void TrackSettingsModel::setPanEnabled(bool enabled)
+{
+    juzzlin::L(TAG).debug() << "Enabling pan: " << static_cast<int>(enabled);
+
+    if (m_panEnabled != enabled) {
+        m_panEnabled = enabled;
+        emit panEnabledChanged();
         applyAll();
     }
 }

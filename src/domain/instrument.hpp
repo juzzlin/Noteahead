@@ -49,6 +49,8 @@ public:
 
     std::optional<uint8_t> cutoff;
 
+    std::optional<uint8_t> pan;
+
     std::optional<uint8_t> volume;
 
     void serializeToXml(QXmlStreamWriter & writer) const;

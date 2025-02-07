@@ -192,6 +192,16 @@ QString xmlKeyNoteData()
     return "NoteData";
 }
 
+QString xmlKeyPan()
+{
+    return "pan";
+}
+
+QString xmlKeyPanEnabled()
+{
+    return "panEnabled";
+}
+
 QString xmlKeyPatchEnabled()
 {
     return "patchEnabled";

@@ -55,6 +55,10 @@ class TrackSettingsModel : public QObject
 
     Q_PROPERTY(bool bankByteOrderSwapped READ bankByteOrderSwapped WRITE setBankByteOrderSwapped NOTIFY bankByteOrderSwappedChanged)
 
+    Q_PROPERTY(uint8_t pan READ pan WRITE setPan NOTIFY panChanged)
+
+    Q_PROPERTY(bool panEnabled READ panEnabled WRITE setPanEnabled NOTIFY panEnabledChanged)
+
     Q_PROPERTY(uint8_t volume READ volume WRITE setVolume NOTIFY volumeChanged)
 
     Q_PROPERTY(bool volumeEnabled READ volumeEnabled WRITE setVolumeEnabled NOTIFY volumeEnabledChanged)
@@ -115,6 +119,12 @@ public:
     bool cutoffEnabled() const;
     void setCutoffEnabled(bool enabled);
 
+    uint8_t pan() const;
+    void setPan(uint8_t volume);
+
+    bool panEnabled() const;
+    void setPanEnabled(bool enabled);
+
     uint8_t patch() const;
     void setPatch(uint8_t patch);
 
@@ -148,6 +158,10 @@ signals:
     void instrumentDataReceived();
 
     void instrumentDataRequested();
+
+    void panChanged();
+
+    void panEnabledChanged();
 
     void patchChanged();
 
@@ -184,6 +198,8 @@ private:
 
     bool m_cutoffEnabled { false };
 
+    bool m_panEnabled { false };
+
     bool m_patchEnabled { false };
 
     bool m_volumeEnabled { false };
@@ -203,6 +219,10 @@ private:
     uint8_t m_cutoff { m_defaultCutoff };
 
     uint8_t m_patch { 0 };
+
+    const uint8_t m_defaultPan { 64 };
+
+    uint8_t m_pan { m_defaultPan };
 
     const uint8_t m_defaultVolume { 127 };
 

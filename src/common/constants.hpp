@@ -90,6 +90,10 @@ QString xmlKeyNoteOff();
 
 QString xmlKeyNoteData();
 
+QString xmlKeyPan();
+
+QString xmlKeyPanEnabled();
+
 QString xmlKeyPatchEnabled();
 
 QString xmlKeyPatch();

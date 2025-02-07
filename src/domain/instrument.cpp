@@ -58,6 +58,13 @@ void Instrument::serializeToXml(QXmlStreamWriter & writer) const
         writer.writeAttribute(Constants::xmlKeyCutoffEnabled(), "false");
     }
 
+    if (pan.has_value()) {
+        writer.writeAttribute(Constants::xmlKeyPanEnabled(), "true");
+        writer.writeAttribute(Constants::xmlKeyPan(), QString::number(*pan));
+    } else {
+        writer.writeAttribute(Constants::xmlKeyPanEnabled(), "false");
+    }
+
     if (volume.has_value()) {
         writer.writeAttribute(Constants::xmlKeyVolumeEnabled(), "true");
         writer.writeAttribute(Constants::xmlKeyVolume(), QString::number(*volume));
@@ -72,11 +79,7 @@ QString Instrument::toString() const
 {
     auto result = QString { "Instrument ( portName='%1', channel=%2" }.arg(portName).arg(channel);
 
-    if (patch) {
-        result += QString { ", patch=%1" }.arg(*patch);
-    } else {
-        result += ", patch=None";
-    }
+    result += patch ? QString { ", patch=%1" }.arg(*patch) : ", patch=None";
 
     if (bank) {
         result += QString { ", bank={lsb=%1, msb=%2, byteOrderSwapped=%3}" }
@@ -87,17 +90,9 @@ QString Instrument::toString() const
         result += ", bank=None";
     }
 
-    if (cutoff) {
-        result += QString { ", cutoff=%1" }.arg(*cutoff);
-    } else {
-        result += ", cutoff=None";
-    }
-
-    if (volume) {
-        result += QString { ", volume=%1" }.arg(*volume);
-    } else {
-        result += ", volume=None";
-    }
+    result += cutoff ? QString { ", cutoff=%1" }.arg(*cutoff) : ", cutoff=None";
+    result += pan ? QString { ", pan=%1" }.arg(*pan) : ", pan=None";
+    result += volume ? QString { ", volume=%1" }.arg(*volume) : ", volume=None";
 
     result += " )";
     return result;

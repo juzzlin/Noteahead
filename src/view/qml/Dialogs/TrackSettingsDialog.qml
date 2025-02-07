@@ -24,6 +24,8 @@ Dialog {
         cutoffSpinBox.value = trackSettingsModel.cutoff;
         enablePatchCheckbox.checked = trackSettingsModel.patchEnabled;
         patchSpinBox.value = trackSettingsModel.patch;
+        enablePanCheckbox.checked = trackSettingsModel.panEnabled;
+        panSpinBox.value = trackSettingsModel.pan;
         enableVolumeCheckbox.checked = trackSettingsModel.volumeEnabled;
         volumeSpinBox.value = trackSettingsModel.volume;
     }
@@ -282,9 +284,51 @@ Dialog {
                         Keys.onReturnPressed: focus = false
                     }
                     Label {
-                        text: qsTr("Cutoff:")
+                        text: qsTr("Panning:")
                         Layout.column: 0
                         Layout.row: 5
+                        Layout.fillWidth: true
+                    }
+                    CheckBox {
+                        id: enablePanCheckbox
+                        text: qsTr("Enable Panning")
+                        Layout.column: 2
+                        Layout.columnSpan: 2
+                        Layout.row: 5
+                        Layout.fillWidth: true
+                        ToolTip.delay: Constants.toolTipDelay
+                        ToolTip.timeout: Constants.toolTipTimeout
+                        ToolTip.visible: hovered
+                        ToolTip.text: qsTr("Enable/disable panning for this track")
+                        onCheckedChanged: trackSettingsModel.panEnabled = checked
+                    }
+                    Label {
+                        text: qsTr("MSB:")
+                        Layout.column: 4
+                        Layout.row: 5
+                        Layout.fillWidth: true
+                    }
+                    SpinBox {
+                        id: panSpinBox
+                        from: 0
+                        to: 127
+                        enabled: enablePanCheckbox.checked
+                        Layout.column: 5
+                        Layout.columnSpan: 1
+                        Layout.row: 5
+                        Layout.fillWidth: true
+                        editable: true
+                        ToolTip.delay: Constants.toolTipDelay
+                        ToolTip.timeout: Constants.toolTipTimeout
+                        ToolTip.visible: hovered
+                        ToolTip.text: qsTr("Set initial panning for this track (64 = center)")
+                        onValueChanged: trackSettingsModel.pan = value
+                        Keys.onReturnPressed: focus = false
+                    }
+                    Label {
+                        text: qsTr("Cutoff:")
+                        Layout.column: 0
+                        Layout.row: 6
                         Layout.fillWidth: true
                     }
                     CheckBox {
@@ -292,7 +336,7 @@ Dialog {
                         text: qsTr("Enable Cutoff")
                         Layout.column: 2
                         Layout.columnSpan: 2
-                        Layout.row: 5
+                        Layout.row: 6
                         Layout.fillWidth: true
                         ToolTip.delay: Constants.toolTipDelay
                         ToolTip.timeout: Constants.toolTipTimeout
@@ -303,7 +347,7 @@ Dialog {
                     Label {
                         text: qsTr("MSB:")
                         Layout.column: 4
-                        Layout.row: 5
+                        Layout.row: 6
                         Layout.fillWidth: true
                     }
                     SpinBox {
@@ -313,7 +357,7 @@ Dialog {
                         enabled: enableCutoffCheckbox.checked
                         Layout.column: 5
                         Layout.columnSpan: 1
-                        Layout.row: 5
+                        Layout.row: 6
                         Layout.fillWidth: true
                         editable: true
                         ToolTip.delay: Constants.toolTipDelay

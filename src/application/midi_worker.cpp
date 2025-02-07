@@ -124,6 +124,10 @@ void MidiWorker::handleInstrumentRequest(const InstrumentRequest & instrumentReq
                     if (instrument->patch.has_value()) {
                         m_midiBackend->sendPatchChange(device, instrument->channel, *instrument->patch);
                     }
+                    if (instrument->pan.has_value()) {
+                        m_midiBackend->sendCC(device, instrument->channel, MidiCC::PanMSB, *instrument->pan);
+                        m_midiBackend->sendCC(device, instrument->channel, MidiCC::PanLSB, 0);
+                    }
                     if (instrument->volume.has_value()) {
                         m_midiBackend->sendCC(device, instrument->channel, MidiCC::ChannelVolumeMSB, *instrument->volume);
                         m_midiBackend->sendCC(device, instrument->channel, MidiCC::ChannelVolumeLSB, 0);
