@@ -119,6 +119,7 @@ void PlayerWorker::processEvents()
             for (auto && event : eventsAtTick->second) {
                 if (shouldEventPlay(*event)) {
                     if (auto && noteData = event->noteData(); noteData) {
+                        juzzlin::L(TAG).trace() << noteData->toString();
                         if (auto && instrument = event->instrument(); instrument) {
                             if (noteData->type() == NoteData::Type::NoteOn && noteData->note().has_value()) {
                                 m_midiService->playNote(instrument, *noteData->note(), noteData->velocity());

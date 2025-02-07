@@ -833,7 +833,9 @@ bool EditorService::requestNoteOffAtCurrentPosition()
 
 void EditorService::logPosition() const
 {
+#ifdef NOTEAHEAD_DEBUG
     juzzlin::L(TAG).trace() << "Position: " << m_cursorPosition.toString();
+#endif
 }
 
 void EditorService::notifyPositionChange(const Position & oldPosition)

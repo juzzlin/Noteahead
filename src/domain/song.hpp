@@ -20,6 +20,7 @@
 #include <map>
 #include <memory>
 #include <optional>
+#include <set>
 #include <string>
 #include <unordered_map>
 #include <vector>
@@ -42,12 +43,20 @@ class PlayOrder;
 class Track;
 struct Position;
 
+using namespace std::chrono_literals;
+
 class Song
 {
 public:
     Song();
 
     ~Song();
+
+    std::chrono::milliseconds autoNoteOffOffset() const;
+
+    void setAutoNoteOffOffset(std::chrono::milliseconds autoNoteOffOffset);
+
+    size_t autoNoteOffOffsetTicks() const;
 
     using ChangedPositions = std::vector<Position>;
     ChangedPositions cutPattern(size_t patternIndex, CopyManager & copyManager) const;
@@ -182,8 +191,6 @@ public:
 
     void deserializeFromXml(QXmlStreamReader & reader);
 
-    size_t autoNoteOffTickOffset() const;
-
 private:
     void load(const std::string & filename);
 
@@ -223,7 +230,16 @@ private:
 
     void assignInstruments(const EventList & events) const;
 
+    using TrackAndColumn = std::pair<int, int>;
+    using ActiveNoteMap = std::map<TrackAndColumn, std::set<uint8_t>>;
+
+    EventList generateNoteOffsForActiveNotes(TrackAndColumn trackAndcolumn, size_t tick, ActiveNoteMap & activeNotes) const;
+
+    EventList generateAutoNoteOffsForDanglingNotes(size_t tick, ActiveNoteMap & activeNotes) const;
+
     EventList introduceNoteOffs(const EventList & events) const;
+
+    EventList removeNonMappedNoteOffs(const EventList & events) const;
 
     EventList renderStartOfSong(size_t tick) const;
 
@@ -238,6 +254,8 @@ private:
     std::chrono::milliseconds tickToTime(size_t tick) const;
 
     void updateTickToSongPositionMapping(size_t patternStartTick, size_t songPosition, size_t patternIndex, size_t lineCount);
+
+    std::chrono::milliseconds m_autoNoteOffOffset = 125ms;
 
     size_t m_beatsPerMinute = 120;
 

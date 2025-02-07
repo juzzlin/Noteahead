@@ -30,6 +30,7 @@
 
 #include <algorithm>
 #include <ranges>
+#include <set>
 
 #include <QXmlStreamReader>
 #include <QXmlStreamWriter>
@@ -360,47 +361,91 @@ void Song::setBeatsPerMinute(size_t bpm)
     m_beatsPerMinute = bpm;
 }
 
-size_t Song::autoNoteOffTickOffset() const
+std::chrono::milliseconds Song::autoNoteOffOffset() const
 {
-    return static_cast<size_t>(250 * m_beatsPerMinute * m_linesPerBeat / 60 / 1000);
+    return m_autoNoteOffOffset;
+}
+
+void Song::setAutoNoteOffOffset(std::chrono::milliseconds autoNoteOffOffset)
+{
+    m_autoNoteOffOffset = autoNoteOffOffset;
+}
+
+size_t Song::autoNoteOffOffsetTicks() const
+{
+    return static_cast<size_t>(static_cast<size_t>(m_autoNoteOffOffset.count()) * m_beatsPerMinute * m_linesPerBeat / 60 / 1000);
+}
+
+Song::EventList Song::generateNoteOffsForActiveNotes(TrackAndColumn trackAndColumn, size_t tick, ActiveNoteMap & activeNotes) const
+{
+    Song::EventList processedEvents;
+    if (activeNotes.contains(trackAndColumn)) {
+        const auto _activeNotes = activeNotes[trackAndColumn];
+        for (auto && activeNote : _activeNotes) {
+            const auto noteData = std::make_shared<NoteData>(trackAndColumn.first, trackAndColumn.second);
+            noteData->setAsNoteOff(static_cast<uint8_t>(activeNote));
+            activeNotes[trackAndColumn].erase(activeNote);
+            processedEvents.push_back(std::make_shared<Event>(tick, noteData));
+        }
+    }
+    return processedEvents;
+}
+
+Song::EventList Song::generateAutoNoteOffsForDanglingNotes(size_t tick, ActiveNoteMap & activeNotes) const
+{
+    Song::EventList processedEvents;
+    for (const auto & [trackAndColumn, notes] : activeNotes) {
+        const auto noteOffEvents = generateNoteOffsForActiveNotes(trackAndColumn, tick, activeNotes);
+        std::ranges::copy(noteOffEvents, std::back_inserter(processedEvents));
+    }
+    return processedEvents;
 }
 
 Song::EventList Song::introduceNoteOffs(const EventList & events) const
 {
     Song::EventList processedEvents;
     using TrackAndColumn = std::pair<int, int>;
-    std::map<TrackAndColumn, uint8_t> activeNotes; // Tracks active notes (key: {track, column}, value: note)
+    std::map<TrackAndColumn, std::set<uint8_t>> activeNotes; // Tracks active notes (key: {track, column}, value: note)
 
-    const auto autoNoteOffTickOffset = this->autoNoteOffTickOffset();
-    juzzlin::L(TAG).debug() << "Auto note-off tick offset: " << autoNoteOffTickOffset;
+    const auto autoNoteOffOffset = this->autoNoteOffOffsetTicks();
+    juzzlin::L(TAG).debug() << "Auto note-off offset: " << autoNoteOffOffset << " ticks";
 
     for (const auto & event : events) {
         if (const auto noteData = event->noteData(); noteData) {
-            const auto trackColumn = std::make_pair(noteData->track(), noteData->column());
+            const auto trackAndColumn = std::make_pair(noteData->track(), noteData->column());
             if (noteData->type() == NoteData::Type::NoteOn) {
-                if (activeNotes.contains(trackColumn)) {
-                    const auto activeNote = activeNotes[trackColumn];
-                    const auto noteData = std::make_shared<NoteData>(trackColumn.first, trackColumn.second);
-                    noteData->setAsNoteOff(static_cast<uint8_t>(activeNote));
-                    processedEvents.push_back(std::make_shared<Event>(event->tick() - autoNoteOffTickOffset, noteData));
-                }
-                activeNotes[trackColumn] = *noteData->note();
+                const auto noteOffEvents = generateNoteOffsForActiveNotes(trackAndColumn, event->tick() - autoNoteOffOffset, activeNotes);
+                std::ranges::copy(noteOffEvents, std::back_inserter(processedEvents));
+                activeNotes[trackAndColumn].insert(*noteData->note());
             } else if (noteData->type() == NoteData::Type::NoteOff) {
-                if (activeNotes.contains(trackColumn)) {
-                    // Map anonymous note-off to the playing note
-                    event->noteData()->setAsNoteOff(activeNotes[trackColumn]);
-                    activeNotes.erase(trackColumn);
-                }
+                // Map anonymous note-off's to the playing notes
+                const auto noteOffEvents = generateNoteOffsForActiveNotes(trackAndColumn, event->tick(), activeNotes);
+                std::ranges::copy(noteOffEvents, std::back_inserter(processedEvents));
             }
         }
 
         processedEvents.push_back(event);
     }
 
-    for (const auto & [trackColumn, note] : activeNotes) {
-        const auto noteData = std::make_shared<NoteData>(trackColumn.first, trackColumn.second);
-        noteData->setAsNoteOff(static_cast<uint8_t>(note));
-        processedEvents.push_back(std::make_shared<Event>(events.back()->tick() + 1, noteData));
+    const auto noteOffEvents = generateAutoNoteOffsForDanglingNotes(events.back()->tick() + 1, activeNotes);
+    std::ranges::copy(noteOffEvents, std::back_inserter(processedEvents));
+
+    return processedEvents;
+}
+
+Song::EventList Song::removeNonMappedNoteOffs(const EventList & events) const
+{
+    Song::EventList processedEvents;
+    for (const auto & event : events) {
+        if (const auto noteData = event->noteData(); noteData) {
+            if (noteData->type() != NoteData::Type::NoteOff || noteData->note().has_value()) {
+                processedEvents.push_back(event);
+            } else {
+                juzzlin::L(TAG).debug() << "Skipping non-mapped note-off: " << noteData->toString();
+            }
+        } else {
+            processedEvents.push_back(event);
+        }
     }
 
     return processedEvents;
@@ -507,6 +552,8 @@ Song::EventList Song::renderContent(size_t startPosition)
     eventList = renderEndOfSong(eventList, tick);
 
     eventList = introduceNoteOffs(eventList);
+
+    eventList = removeNonMappedNoteOffs(eventList);
 
     return eventList;
 }

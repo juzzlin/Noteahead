@@ -79,7 +79,7 @@ std::string NoteData::toString() const
 {
     std::stringstream ss;
     ss << "[ "
-       << "Type: " << static_cast<int>(m_type)
+       << "Type: " << (m_type == Type::NoteOn ? "NoteOn" : "NoteOff")
        << " Track: " << static_cast<int>(m_track) << " Column: " << static_cast<int>(m_column)
        << " Note: " << (m_note.has_value() ? std::to_string(static_cast<int>(*m_note)) : "N/A") << " Velocity: " << static_cast<int>(m_velocity) << " ]";
     return ss.str();
