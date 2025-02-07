@@ -39,6 +39,7 @@ set(HEADER_FILES
   domain/track.hpp
   infra/midi_backend.hpp
   infra/midi_backend_rt_midi.hpp
+  infra/midi_cc.hpp
   infra/midi_device.hpp
   infra/settings.hpp
 )
