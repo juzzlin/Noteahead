@@ -63,7 +63,7 @@ Menu {
         Action {
             text: qsTr("Cut")
             shortcut: "Shift+F3"
-            enabled: UiService.isPlaying()
+            enabled: !UiService.isPlaying()
             onTriggered: editorService.requestTrackCut()
         }
         Action {
