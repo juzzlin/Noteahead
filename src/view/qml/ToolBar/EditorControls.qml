@@ -41,7 +41,10 @@ Row {
                     to: editorService.maxSongPosition()
                     editable: false
                     enabled: !UiService.isPlaying()
-                    onValueChanged: editorService.setSongPosition(value)
+                    onValueChanged: {
+                        editorService.setSongPosition(value);
+                        ToolTip.hide();
+                    }
                     Keys.onReturnPressed: {
                         focus = false;
                         UiService.requestFocusOnEditorView();
@@ -65,7 +68,10 @@ Row {
                     value: editorService.patternAtCurrentSongPosition
                     editable: false
                     enabled: !UiService.isPlaying()
-                    onValueChanged: editorService.setPatternAtSongPosition(songPositionSpinBox.value, value)
+                    onValueChanged: {
+                        editorService.setPatternAtSongPosition(songPositionSpinBox.value, value);
+                        ToolTip.hide();
+                    }
                     Keys.onReturnPressed: {
                         focus = false;
                         UiService.requestFocusOnEditorView();
@@ -91,7 +97,10 @@ Row {
                     to: editorService.maxSongLength()
                     editable: false
                     enabled: !UiService.isPlaying()
-                    onValueChanged: editorService.setSongLength(songLengthSpinBox.value)
+                    onValueChanged: {
+                        editorService.setSongLength(songLengthSpinBox.value);
+                        ToolTip.hide();
+                    }
                     Keys.onReturnPressed: {
                         focus = false;
                         UiService.requestFocusOnEditorView();
@@ -209,7 +218,10 @@ Row {
                     to: editorService.maxPatternIndex()
                     editable: false
                     enabled: !UiService.isPlaying()
-                    onValueChanged: editorService.setCurrentPattern(patternIndexSpinBox.value)
+                    onValueChanged: {
+                        editorService.setCurrentPattern(patternIndexSpinBox.value);
+                        ToolTip.hide();
+                    }
                     Keys.onReturnPressed: {
                         focus = false;
                         UiService.requestFocusOnEditorView();
@@ -235,7 +247,10 @@ Row {
                     to: editorService.maxLineCount()
                     editable: true
                     enabled: !UiService.isPlaying()
-                    onValueChanged: editorService.setCurrentLineCount(patternLengthSpinBox.value)
+                    onValueChanged: {
+                        editorService.setCurrentLineCount(patternLengthSpinBox.value);
+                        ToolTip.hide();
+                    }
                     Keys.onReturnPressed: {
                         focus = false;
                         UiService.requestFocusOnEditorView();
@@ -278,7 +293,10 @@ Row {
                     to: 64
                     editable: true
                     enabled: !UiService.isPlaying()
-                    onValueChanged: UiService.setActiveStep(stepSpinBox.value)
+                    onValueChanged: {
+                        UiService.setActiveStep(stepSpinBox.value);
+                        ToolTip.hide();
+                    }
                     Keys.onReturnPressed: {
                         focus = false;
                         UiService.requestFocusOnEditorView();
@@ -304,7 +322,10 @@ Row {
                     to: 127
                     editable: true
                     enabled: !UiService.isPlaying()
-                    onValueChanged: UiService.setActiveVelocity(velocitySpinBox.value)
+                    onValueChanged: {
+                        UiService.setActiveVelocity(velocitySpinBox.value);
+                        ToolTip.hide();
+                    }
                     Keys.onReturnPressed: {
                         focus = false;
                         UiService.requestFocusOnEditorView();
@@ -330,7 +351,10 @@ Row {
                     to: 8
                     editable: true
                     enabled: !UiService.isPlaying()
-                    onValueChanged: UiService.setActiveOctave(octSpinBox.value)
+                    onValueChanged: {
+                        UiService.setActiveOctave(octSpinBox.value);
+                        ToolTip.hide();
+                    }
                     Keys.onReturnPressed: {
                         focus = false;
                         UiService.requestFocusOnEditorView();
@@ -373,7 +397,10 @@ Row {
                     to: 300
                     editable: true
                     enabled: !UiService.isPlaying()
-                    onValueChanged: editorService.setBeatsPerMinute(value)
+                    onValueChanged: {
+                        editorService.setBeatsPerMinute(value);
+                        ToolTip.hide();
+                    }
                     Keys.onReturnPressed: {
                         focus = false;
                         UiService.requestFocusOnEditorView();
@@ -399,7 +426,10 @@ Row {
                     to: 16
                     editable: true
                     enabled: !UiService.isPlaying()
-                    onValueChanged: editorService.setLinesPerBeat(value)
+                    onValueChanged: {
+                        editorService.setLinesPerBeat(value);
+                        ToolTip.hide();
+                    }
                     Keys.onReturnPressed: {
                         focus = false;
                         UiService.requestFocusOnEditorView();
