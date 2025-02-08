@@ -74,9 +74,13 @@ Noteahead's source code is licensed under **GNU GPLv3**. See COPYING for the com
 ###
 ### Build dependencies on Ubuntu 24.04+
 
+Build:
+
     build-essential cmake pkg-config ninja-build qt6-base-dev qt6-declarative-dev qt6-tools-dev librtmidi-dev
 
-    qml6-module-qtqml qml6-module-qtcore qml6-module-qtquick-dialogs qml6-module-qtquick-templates [Runtime]
+Runtime:
+
+    qml6-module-qtqml qml6-module-qtcore qml6-module-qtquick-dialogs qml6-module-qtquick-templates
 
 ###
 ### Build and run on CLI
