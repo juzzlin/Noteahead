@@ -41,15 +41,15 @@ Application::Application(int & argc, char ** argv)
   : m_uiLogger { std::make_unique<UiLogger>() }
   , m_application { std::make_unique<QGuiApplication>(argc, argv) }
   , m_applicationService { std::make_unique<ApplicationService>() }
+  , m_config { std::make_unique<Config>() }
   , m_editorService { std::make_unique<EditorService>() }
   , m_midiService { std::make_unique<MidiService>() }
   , m_mixerService { std::make_unique<MixerService>() }
-  , m_playerService { std::make_unique<PlayerService>(m_midiService) }
+  , m_playerService { std::make_unique<PlayerService>(m_midiService, m_config) }
   , m_stateMachine { std::make_unique<StateMachine>(m_applicationService, m_editorService) }
   , m_recentFilesManager { std::make_unique<RecentFilesManager>() }
   , m_recentFilesModel { std::make_unique<RecentFilesModel>() }
   , m_trackSettingsModel { std::make_unique<TrackSettingsModel>() }
-  , m_config { std::make_unique<Config>() }
   , m_engine { std::make_unique<QQmlApplicationEngine>() }
 {
     qmlRegisterType<UiLogger>("Noteahead", 1, 0, "UiLogger");

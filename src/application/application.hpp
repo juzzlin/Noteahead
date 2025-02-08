@@ -68,6 +68,8 @@ private:
 
     std::shared_ptr<ApplicationService> m_applicationService;
 
+    std::shared_ptr<Config> m_config;
+
     std::shared_ptr<EditorService> m_editorService;
 
     std::shared_ptr<MidiService> m_midiService;
@@ -83,8 +85,6 @@ private:
     std::unique_ptr<RecentFilesModel> m_recentFilesModel;
 
     std::unique_ptr<TrackSettingsModel> m_trackSettingsModel;
-
-    std::unique_ptr<Config> m_config;
 
     std::unique_ptr<QQmlApplicationEngine> m_engine;
 };

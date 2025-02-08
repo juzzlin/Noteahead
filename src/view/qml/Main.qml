@@ -129,6 +129,7 @@ ApplicationWindow {
     SettingsDialog {
         id: settingsDialog
         anchors.centerIn: parent
+        height: parent.height * 0.5
         width: parent.width * 0.5
         onAccepted: {
             uiLogger.info(_tag, "Settings accepted");

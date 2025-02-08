@@ -32,6 +32,10 @@ public:
 
     ~Config() override;
 
+    Q_INVOKABLE int autoNoteOffOffset() const;
+
+    Q_INVOKABLE void setAutoNoteOffOffset(int autoNoteOffOffset);
+
     Q_INVOKABLE QSize windowSize(QSize defaultSize) const;
 
     Q_INVOKABLE void setWindowSize(QSize size);

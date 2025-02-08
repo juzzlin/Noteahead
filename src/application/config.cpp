@@ -26,6 +26,16 @@ Config::Config()
 {
 }
 
+int Config::autoNoteOffOffset() const
+{
+    return settings::autoNoteOffOffset(250);
+}
+
+void Config::setAutoNoteOffOffset(int autoNoteOffOffset)
+{
+    settings::setAutoNoteOffOffset(autoNoteOffOffset);
+}
+
 QSize Config::windowSize(QSize defaultSize) const
 {
     return settings::windowSize(defaultSize);

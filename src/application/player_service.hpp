@@ -22,6 +22,7 @@
 
 namespace noteahead {
 
+class Config;
 class MidiService;
 class PlayerWorker;
 class Song;
@@ -32,8 +33,9 @@ class PlayerService : public QObject
     Q_PROPERTY(bool isPlaying READ isPlaying NOTIFY isPlayingChanged)
 
 public:
+    using ConfigS = std::shared_ptr<Config>;
     using MidiServiceS = std::shared_ptr<MidiService>;
-    explicit PlayerService(MidiServiceS midiService, QObject * parent = nullptr);
+    explicit PlayerService(MidiServiceS midiService, ConfigS config, QObject * parent = nullptr);
 
     ~PlayerService() override;
 
@@ -73,6 +75,8 @@ private:
     void stopWorker();
 
     SongS m_song;
+
+    ConfigS m_config;
 
     std::unique_ptr<PlayerWorker> m_playerWorker;
 

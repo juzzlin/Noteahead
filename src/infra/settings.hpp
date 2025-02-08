@@ -20,6 +20,10 @@
 
 namespace noteahead::settings {
 
+int autoNoteOffOffset(int defaultAutoNoteOffOffset);
+
+void setAutoNoteOffOffset(int autoNoteOffOffset);
+
 QSize windowSize(QSize defaultSize);
 
 void setWindowSize(QSize size);
