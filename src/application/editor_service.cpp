@@ -1066,13 +1066,14 @@ void EditorService::requestScroll(int steps)
     notifyPositionChange(oldPosition);
 }
 
-void EditorService::requestTrackFocus(size_t track, size_t column)
+void EditorService::requestTrackFocus(size_t track, size_t column, size_t line)
 {
-    juzzlin::L(TAG).info() << "Focus for track " << track << " on column " << column << " requested";
-    if (track < trackCount() && column < m_song->columnCount(track)) {
+    juzzlin::L(TAG).info() << "Focus for track " << track << " on column " << column << " on line " << line << " requested";
+    if (track < trackCount() && column < m_song->columnCount(track) && line < currentLineCount()) {
         const auto oldPosition = m_cursorPosition;
         m_cursorPosition.track = track;
         m_cursorPosition.column = column;
+        m_cursorPosition.line = line;
         notifyPositionChange(oldPosition);
     }
 }

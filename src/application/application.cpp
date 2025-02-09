@@ -104,6 +104,16 @@ void Application::setContextProperties()
 
 void Application::connectServices()
 {
+    connect(m_applicationService.get(), &ApplicationService::applyAllTrackSettingsRequested, this, [this]() {
+        for (size_t trackIndex = 0; trackIndex < m_editorService->trackCount(); trackIndex++) {
+            if (const auto instrument = m_editorService->instrument(trackIndex); instrument) {
+                const InstrumentRequest instrumentRequest { InstrumentRequest::Type::ApplyAll, instrument };
+                juzzlin::L(TAG).info() << "Applying instrument: " << instrumentRequest.instrument()->toString().toStdString();
+                m_midiService->handleInstrumentRequest(instrumentRequest);
+            }
+        }
+    });
+
     connect(m_applicationService.get(), &ApplicationService::liveNoteOnRequested, m_midiService.get(), &MidiService::playNote);
 
     connect(m_applicationService.get(), &ApplicationService::liveNoteOffRequested, m_midiService.get(), &MidiService::stopNote);

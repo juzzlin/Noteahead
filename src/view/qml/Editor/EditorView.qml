@@ -84,7 +84,7 @@ FocusScope {
         _connectSignals();
         _recreatePatterns();
         _createLineColumns();
-        editorService.requestTrackFocus(0, 0);
+        editorService.requestTrackFocus(0, 0, 0);
     }
     function resize(width, height) {
         rootItem.width = width;
@@ -102,12 +102,12 @@ FocusScope {
         track.y = 0;
     }
     function _connectTrack(track) {
-        track.leftClicked.connect(columnIndex => {
-                editorService.requestTrackFocus(track.index(), columnIndex);
+        track.leftClicked.connect((columnIndex, lineIndex) => {
+                editorService.requestTrackFocus(track.index(), columnIndex, lineIndex);
                 rootItem.forceActiveFocus();
             });
-        track.rightClicked.connect((columnIndex, x, y) => {
-                editorService.requestTrackFocus(track.index(), columnIndex);
+        track.rightClicked.connect((columnIndex, lineIndex, x, y) => {
+                editorService.requestTrackFocus(track.index(), columnIndex, lineIndex);
                 rootItem.forceActiveFocus();
                 contextMenu.x = track.x + x;
                 contextMenu.y = track.y + y;

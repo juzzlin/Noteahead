@@ -743,20 +743,20 @@ void EditorServiceTest::test_requestTrackFocus_shouldChangePosition()
     EditorService editorService;
     QSignalSpy positionChangedSpy { &editorService, &EditorService::positionChanged };
 
-    editorService.requestTrackFocus(0, 0);
+    editorService.requestTrackFocus(0, 0, 0);
     QCOMPARE(positionChangedSpy.count(), 1);
 
-    editorService.requestTrackFocus(0, 1);
+    editorService.requestTrackFocus(0, 1, 0);
     QCOMPARE(positionChangedSpy.count(), 1);
 
     editorService.requestNewColumn(0);
     QCOMPARE(positionChangedSpy.count(), 2);
-    editorService.requestTrackFocus(0, 1);
+    editorService.requestTrackFocus(0, 1, 0);
     QCOMPARE(positionChangedSpy.count(), 3);
     QCOMPARE(editorService.position().track, 0);
     QCOMPARE(editorService.position().column, 1);
 
-    editorService.requestTrackFocus(editorService.trackCount() - 1, 0);
+    editorService.requestTrackFocus(editorService.trackCount() - 1, 0, 0);
     QCOMPARE(positionChangedSpy.count(), 4);
     QCOMPARE(editorService.position().track, editorService.trackCount() - 1);
 }
@@ -766,7 +766,7 @@ void EditorServiceTest::test_requestTrackFocus_shouldNotChangePosition()
     EditorService editorService;
     QSignalSpy positionChangedSpy { &editorService, &EditorService::positionChanged };
 
-    editorService.requestTrackFocus(editorService.trackCount(), 0);
+    editorService.requestTrackFocus(editorService.trackCount(), 0, 0);
 
     QCOMPARE(positionChangedSpy.count(), 0);
     QCOMPARE(editorService.position().track, 0);

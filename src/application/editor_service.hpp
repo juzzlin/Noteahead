@@ -230,7 +230,7 @@ public:
 
     Q_INVOKABLE void requestScroll(int steps);
 
-    Q_INVOKABLE void requestTrackFocus(size_t track, size_t column);
+    Q_INVOKABLE void requestTrackFocus(size_t track, size_t column, size_t line);
 
     Q_INVOKABLE size_t beatsPerMinute() const;
 

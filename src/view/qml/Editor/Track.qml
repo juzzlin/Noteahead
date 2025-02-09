@@ -11,8 +11,8 @@ Item {
     property Item _positionBar
     property string _name
     readonly property string _tag: "Track"
-    signal leftClicked(int columnIndex, int x, int y)
-    signal rightClicked(int columnIndex, int x, int y)
+    signal leftClicked(int columnIndex, int lineIndex, int x, int y)
+    signal rightClicked(int columnIndex, int lineIndex, int x, int y)
     signal nameChanged(string name)
     function index() {
         return _index;
@@ -161,13 +161,13 @@ Item {
             noteColumn.setPatternIndex(_patternIndex);
             noteColumn.setPositionBar(_positionBar);
             noteColumn.updateData();
-            noteColumn.leftClicked.connect((x, y) => {
+            noteColumn.leftClicked.connect((x, y, lineIndex) => {
                     uiLogger.debug(_tag, `Track ${rootItem._index} left clicked`);
-                    rootItem.leftClicked(noteColumn.index(), x, y);
+                    rootItem.leftClicked(noteColumn.index(), lineIndex, x, y);
                 });
-            noteColumn.rightClicked.connect((x, y) => {
+            noteColumn.rightClicked.connect((x, y, lineIndex) => {
                     uiLogger.debug(_tag, `Track ${rootItem._index} right clicked`);
-                    rootItem.rightClicked(noteColumn.index(), x, y);
+                    rootItem.rightClicked(noteColumn.index(), lineIndex, x, y);
                 });
             return noteColumn;
         }

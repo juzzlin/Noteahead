@@ -54,6 +54,8 @@ public:
 
     Q_INVOKABLE void acceptUnsavedChangesDialog();
 
+    Q_INVOKABLE void applyAllTrackSettings();
+
     Q_INVOKABLE void cancelOpenProject();
 
     Q_INVOKABLE void cancelRecentFileDialog();
@@ -107,6 +109,8 @@ public:
     using InstrumentS = std::shared_ptr<Instrument>;
 
 signals:
+
+    void applyAllTrackSettingsRequested();
 
     void liveNoteOnRequested(InstrumentS instrument, uint8_t midiNote, uint8_t velocity);
 

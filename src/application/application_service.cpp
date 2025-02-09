@@ -64,6 +64,12 @@ void ApplicationService::acceptUnsavedChangesDialog()
     m_stateMachine->calculateState(StateMachine::Action::UnsavedChangesDialogAccepted);
 }
 
+void ApplicationService::applyAllTrackSettings()
+{
+    juzzlin::L(TAG).info() << "Apply all track settings";
+    emit applyAllTrackSettingsRequested();
+}
+
 void ApplicationService::discardUnsavedChangesDialog()
 {
     juzzlin::L(TAG).info() << "Unsaved changes discarded";

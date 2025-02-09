@@ -5,14 +5,15 @@ Rectangle {
     id: rootItem
     color: Constants.noteColumnBackgroundColor
     clip: true
-    signal leftClicked(int x, int y)
-    signal rightClicked(int x, int y)
+    signal leftClicked(int x, int y, int lineIndex)
+    signal rightClicked(int x, int y, int lineIndex)
     property int _index: 0
     property int _patternIndex: 0
     property int _trackIndex: 0
     property int _scrollOffset: 0
     property Item _positionBar
     property var _lines: []
+    readonly property string _tag: "NoteColumn"
     function resize(width, height) {
         rootItem.width = width;
         rootItem.height = height;
@@ -128,6 +129,15 @@ Rectangle {
             lineCursor.visible = true;
         }
     }
+    function _lineIndexAtPosition(y) {
+        let bestIndex = 0;
+        _lines.forEach((line, index) => {
+                if (y >= line.y) {
+                    bestIndex = index;
+                }
+            });
+        return bestIndex;
+    }
     function _updateIndexHighlights() {
         function _indexHighlightOpacity(index, linesPerBeat) {
             const _beatLine1 = linesPerBeat;
@@ -183,12 +193,13 @@ Rectangle {
         anchors.fill: parent
         acceptedButtons: Qt.LeftButton | Qt.RightButton
         onClicked: mouse => {
+            const lineIndex = rootItem._lineIndexAtPosition(mouse.y);
             if (mouse.button === Qt.LeftButton) {
-                uiLogger.debug(_tag, `Column ${rootItem._index} left clicked`);
-                rootItem.leftClicked(mouse.x, mouse.y);
+                uiLogger.debug(_tag, `Column ${rootItem._index} left clicked on line  ${lineIndex}`);
+                rootItem.leftClicked(mouse.x, mouse.y, lineIndex);
             } else {
-                uiLogger.debug(_tag, `Column ${rootItem._index} right clicked`);
-                rootItem.rightClicked(mouse.x, mouse.y);
+                uiLogger.debug(_tag, `Column ${rootItem._index} right clicked on line ${lineIndex}`);
+                rootItem.rightClicked(mouse.x, mouse.y, lineIndex);
             }
         }
         onWheel: event => {
