@@ -207,6 +207,8 @@ void EditorServiceTest::test_trackCutPaste_equalSizes_shouldCopyTrack()
     QCOMPARE(editorService.displayVelocityAtPosition(sourcePosition), editorService.noDataString());
     QCOMPARE(editorService.displayNoteAtPosition(targetPosition), "C-3");
     QCOMPARE(editorService.displayVelocityAtPosition(targetPosition), "064");
+    QCOMPARE(editorService.song()->noteDataAtPosition(targetPosition)->column(), targetPosition.column);
+    QCOMPARE(editorService.song()->noteDataAtPosition(targetPosition)->track(), targetPosition.track);
 }
 
 void EditorServiceTest::test_trackCutPaste_shorterTarget_shouldCopyTrack()
@@ -233,6 +235,8 @@ void EditorServiceTest::test_trackCutPaste_shorterTarget_shouldCopyTrack()
     QCOMPARE(editorService.displayVelocityAtPosition(sourcePosition), editorService.noDataString());
     QCOMPARE(editorService.displayNoteAtPosition(targetPosition), "C-3");
     QCOMPARE(editorService.displayVelocityAtPosition(targetPosition), "064");
+    QCOMPARE(editorService.song()->noteDataAtPosition(targetPosition)->column(), targetPosition.column);
+    QCOMPARE(editorService.song()->noteDataAtPosition(targetPosition)->track(), targetPosition.track);
 }
 
 void EditorServiceTest::test_trackCopyPaste_equalSizes_shouldCopyTrack()
@@ -257,6 +261,8 @@ void EditorServiceTest::test_trackCopyPaste_equalSizes_shouldCopyTrack()
     QCOMPARE(editorService.displayVelocityAtPosition(sourcePosition), "064");
     QCOMPARE(editorService.displayNoteAtPosition(targetPosition), "C-3");
     QCOMPARE(editorService.displayVelocityAtPosition(targetPosition), "064");
+    QCOMPARE(editorService.song()->noteDataAtPosition(targetPosition)->column(), targetPosition.column);
+    QCOMPARE(editorService.song()->noteDataAtPosition(targetPosition)->track(), targetPosition.track);
 }
 
 void EditorServiceTest::test_trackCopyPaste_shorterTarget_shouldCopyTrack()
@@ -282,6 +288,8 @@ void EditorServiceTest::test_trackCopyPaste_shorterTarget_shouldCopyTrack()
     QCOMPARE(editorService.displayVelocityAtPosition(sourcePosition), "064");
     QCOMPARE(editorService.displayNoteAtPosition(targetPosition), "C-3");
     QCOMPARE(editorService.displayVelocityAtPosition(targetPosition), "064");
+    QCOMPARE(editorService.song()->noteDataAtPosition(targetPosition)->column(), targetPosition.column);
+    QCOMPARE(editorService.song()->noteDataAtPosition(targetPosition)->track(), targetPosition.track);
 }
 
 void EditorServiceTest::test_columnCutPaste_equalSizes_shouldCopyColumn()
@@ -307,6 +315,8 @@ void EditorServiceTest::test_columnCutPaste_equalSizes_shouldCopyColumn()
     QCOMPARE(editorService.displayVelocityAtPosition(sourcePosition), editorService.noDataString());
     QCOMPARE(editorService.displayNoteAtPosition(targetPosition), "C-3");
     QCOMPARE(editorService.displayVelocityAtPosition(targetPosition), "064");
+    QCOMPARE(editorService.song()->noteDataAtPosition(targetPosition)->column(), targetPosition.column);
+    QCOMPARE(editorService.song()->noteDataAtPosition(targetPosition)->track(), targetPosition.track);
 }
 
 void EditorServiceTest::test_columnCutPaste_shorterTarget_shouldCopyColumn()
@@ -333,6 +343,8 @@ void EditorServiceTest::test_columnCutPaste_shorterTarget_shouldCopyColumn()
     QCOMPARE(editorService.displayVelocityAtPosition(sourcePosition), editorService.noDataString());
     QCOMPARE(editorService.displayNoteAtPosition(targetPosition), "C-3");
     QCOMPARE(editorService.displayVelocityAtPosition(targetPosition), "064");
+    QCOMPARE(editorService.song()->noteDataAtPosition(targetPosition)->column(), targetPosition.column);
+    QCOMPARE(editorService.song()->noteDataAtPosition(targetPosition)->track(), targetPosition.track);
 }
 
 void EditorServiceTest::test_columnCopyPaste_equalSizes_shouldCopyColumn()
@@ -357,6 +369,8 @@ void EditorServiceTest::test_columnCopyPaste_equalSizes_shouldCopyColumn()
     QCOMPARE(editorService.displayVelocityAtPosition(sourcePosition), "064");
     QCOMPARE(editorService.displayNoteAtPosition(targetPosition), "C-3");
     QCOMPARE(editorService.displayVelocityAtPosition(targetPosition), "064");
+    QCOMPARE(editorService.song()->noteDataAtPosition(targetPosition)->column(), targetPosition.column);
+    QCOMPARE(editorService.song()->noteDataAtPosition(targetPosition)->track(), targetPosition.track);
 }
 
 void EditorServiceTest::test_columnCopyPaste_shorterTarget_shouldCopyColumn()
@@ -382,6 +396,8 @@ void EditorServiceTest::test_columnCopyPaste_shorterTarget_shouldCopyColumn()
     QCOMPARE(editorService.displayVelocityAtPosition(sourcePosition), "064");
     QCOMPARE(editorService.displayNoteAtPosition(targetPosition), "C-3");
     QCOMPARE(editorService.displayVelocityAtPosition(targetPosition), "064");
+    QCOMPARE(editorService.song()->noteDataAtPosition(targetPosition)->column(), targetPosition.column);
+    QCOMPARE(editorService.song()->noteDataAtPosition(targetPosition)->track(), targetPosition.track);
 }
 
 void EditorServiceTest::test_requestDigitSetAtCurrentPosition_velocity_shouldChangeVelocity()

@@ -58,7 +58,11 @@ public:
 
     size_t track() const;
 
+    void setTrack(size_t track);
+
     size_t column() const;
+
+    void setColumn(size_t column);
 
     void serializeToXml(QXmlStreamWriter & writer) const;
 

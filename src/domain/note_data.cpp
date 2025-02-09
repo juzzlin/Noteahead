@@ -90,9 +90,19 @@ size_t NoteData::track() const
     return m_track;
 }
 
+void NoteData::setTrack(size_t track)
+{
+    m_track = track;
+}
+
 size_t NoteData::column() const
 {
     return m_column;
+}
+
+void NoteData::setColumn(size_t column)
+{
+    m_column = column;
 }
 
 void NoteData::serializeToXml(QXmlStreamWriter & writer) const
