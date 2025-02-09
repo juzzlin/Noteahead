@@ -128,9 +128,7 @@ CopyManager::PositionList CopyManager::pasteTrack(PatternS targetPattern, size_t
     PositionList changedPositions;
     for (const auto & [sourcePosition, noteData] : m_copiedData) {
         if (const Position targetPosition = { targetPattern->index(), trackIndex, sourcePosition.column, sourcePosition.line, 0 }; targetPattern->hasPosition(targetPosition)) {
-            auto newNoteData = noteData;
-            newNoteData.setTrack(trackIndex);
-            targetPattern->setNoteDataAtPosition(newNoteData, targetPosition);
+            targetPattern->setNoteDataAtPosition(noteData, targetPosition);
             changedPositions.push_back(targetPosition);
         }
     }
@@ -148,10 +146,7 @@ CopyManager::PositionList CopyManager::pasteColumn(PatternS targetPattern, size_
     PositionList changedPositions;
     for (const auto & [sourcePosition, noteData] : m_copiedData) {
         if (const Position targetPosition = { targetPattern->index(), trackIndex, columnIndex, sourcePosition.line, 0 }; targetPattern->hasPosition(targetPosition)) {
-            auto newNoteData = noteData;
-            newNoteData.setTrack(trackIndex);
-            newNoteData.setColumn(columnIndex);
-            targetPattern->setNoteDataAtPosition(newNoteData, targetPosition);
+            targetPattern->setNoteDataAtPosition(noteData, targetPosition);
             changedPositions.push_back(targetPosition);
         }
     }

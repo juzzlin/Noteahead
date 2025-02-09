@@ -115,7 +115,9 @@ Column::NoteDataS Column::noteDataAtPosition(const Position & position) const
 void Column::setNoteDataAtPosition(const NoteData & noteData, const Position & position)
 {
     juzzlin::L(TAG).debug() << "Set note data at position: " << noteData.toString() << " @ " << position.toString();
-    m_lines.at(static_cast<size_t>(position.line))->setNoteData(noteData);
+    auto newNoteData = noteData;
+    newNoteData.setColumn(m_index);
+    m_lines.at(static_cast<size_t>(position.line))->setNoteData(newNoteData);
 }
 
 using PositionList = std::vector<Position>;
