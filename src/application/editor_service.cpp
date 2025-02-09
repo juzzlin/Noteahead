@@ -764,12 +764,18 @@ void EditorService::deleteNoteDataAtPosition(const Position & position, bool shi
         setIsModified(true);
         updateDuration();
     } else {
-        if (const auto changedPositions = m_song->deleteNoteDataAtPosition(position); !changedPositions.empty()) {
-            for (auto && changedPosition : changedPositions) {
-                emit noteDataAtPositionChanged(changedPosition);
+        // For traditional backspace function we actually delete the previous line and shift
+        auto positionToBeDeleted = position;
+        positionToBeDeleted.line = position.line - 1;
+        if (m_song->hasPosition(positionToBeDeleted)) {
+            if (const auto changedPositions = m_song->deleteNoteDataAtPosition(positionToBeDeleted); !changedPositions.empty()) {
+                for (auto && changedPosition : changedPositions) {
+                    emit noteDataAtPositionChanged(changedPosition);
+                }
+                requestScroll(-1);
+                setIsModified(true);
+                updateDuration();
             }
-            setIsModified(true);
-            updateDuration();
         }
     }
 }
