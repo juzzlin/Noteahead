@@ -746,8 +746,7 @@ void EditorService::requestNoteDeletionAtCurrentPosition(bool shiftNotes)
 void EditorService::insertNoteAtPosition(const Position & position)
 {
     juzzlin::L(TAG).debug() << "Note insertion requested at position " << position.toString();
-    const NoteData noteData {};
-    if (const auto changedPositions = m_song->insertNoteDataAtPosition(noteData, position); !changedPositions.empty()) {
+    if (const auto changedPositions = m_song->insertNoteDataAtPosition({}, position); !changedPositions.empty()) {
         for (auto && changedPosition : changedPositions) {
             emit noteDataAtPositionChanged(changedPosition);
         }
@@ -759,14 +758,13 @@ void EditorService::insertNoteAtPosition(const Position & position)
 void EditorService::deleteNoteDataAtPosition(const Position & position, bool shiftNotes)
 {
     juzzlin::L(TAG).debug() << "Note deletion requested at position " << position.toString();
-    const NoteData noteData {};
     if (!shiftNotes) {
-        m_song->setNoteDataAtPosition(noteData, position);
+        m_song->setNoteDataAtPosition({}, position);
         emit noteDataAtPositionChanged(position);
         setIsModified(true);
         updateDuration();
     } else {
-        if (const auto changedPositions = m_song->deleteNoteDataAtPosition(noteData, position); !changedPositions.empty()) {
+        if (const auto changedPositions = m_song->deleteNoteDataAtPosition(position); !changedPositions.empty()) {
             for (auto && changedPosition : changedPositions) {
                 emit noteDataAtPositionChanged(changedPosition);
             }

@@ -157,10 +157,10 @@ void Track::setNoteDataAtPosition(const NoteData & noteData, const Position & po
     m_columns.at(position.column)->setNoteDataAtPosition(newNoteData, position);
 }
 
-Track::PositionList Track::deleteNoteDataAtPosition(const NoteData & noteData, const Position & position)
+Track::PositionList Track::deleteNoteDataAtPosition(const Position & position)
 {
-    juzzlin::L(TAG).debug() << "Delete note data at position: " << noteData.toString() << " @ " << position.toString();
-    return m_columns.at(position.column)->deleteNoteDataAtPosition(noteData, position);
+    juzzlin::L(TAG).debug() << "Delete note data at position: " << position.toString();
+    return m_columns.at(position.column)->deleteNoteDataAtPosition(position);
 }
 
 Track::PositionList Track::insertNoteDataAtPosition(const NoteData & noteData, const Position & position)

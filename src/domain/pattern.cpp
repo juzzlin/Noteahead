@@ -180,10 +180,10 @@ void Pattern::setNoteDataAtPosition(const NoteData & noteData, const Position & 
     m_tracks.at(position.track)->setNoteDataAtPosition(noteData, position);
 }
 
-Pattern::PositionList Pattern::deleteNoteDataAtPosition(const NoteData & noteData, const Position & position)
+Pattern::PositionList Pattern::deleteNoteDataAtPosition(const Position & position)
 {
-    juzzlin::L(TAG).debug() << "Delete note data at position: " << noteData.toString() << " @ " << position.toString();
-    return m_tracks.at(position.track)->deleteNoteDataAtPosition(noteData, position);
+    juzzlin::L(TAG).debug() << "Delete note data at position: " << position.toString();
+    return m_tracks.at(position.track)->deleteNoteDataAtPosition(position);
 }
 
 Pattern::PositionList Pattern::insertNoteDataAtPosition(const NoteData & noteData, const Position & position)

@@ -121,9 +121,9 @@ void Column::setNoteDataAtPosition(const NoteData & noteData, const Position & p
 }
 
 using PositionList = std::vector<Position>;
-Column::PositionList Column::deleteNoteDataAtPosition(const NoteData & noteData, const Position & position)
+Column::PositionList Column::deleteNoteDataAtPosition(const Position & position)
 {
-    juzzlin::L(TAG).debug() << "Delete note data at position: " << noteData.toString() << " @ " << position.toString();
+    juzzlin::L(TAG).debug() << "Delete note data at position: " << position.toString();
     Column::PositionList changedPositions;
     for (size_t i = position.line; i < m_lines.size(); i++) {
         auto changedPosition = position;
