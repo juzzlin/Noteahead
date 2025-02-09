@@ -21,6 +21,7 @@
 #include "../domain/event.hpp"
 #include "../domain/note_data.hpp"
 #include "line.hpp"
+#include "line_event.hpp"
 
 #include <QXmlStreamWriter>
 
@@ -53,7 +54,7 @@ void Column::initialize(size_t length)
 bool Column::hasData() const
 {
     return std::ranges::find_if(m_lines, [](auto && line) {
-               return line->noteData()->type() != NoteData::Type::None;
+               return line->hasData();
            })
       != m_lines.end();
 }
@@ -176,13 +177,34 @@ Column::EventList Column::renderToEvents(size_t startTick, size_t ticksPerLine) 
     EventList eventList;
     size_t tick = startTick;
     for (size_t i = 0; i < m_virtualLineCount; i++) {
-        if (auto && line = m_lines.at(i); line->noteData()->type() != NoteData::Type::None) {
-            const auto event = std::make_shared<Event>(tick, line->noteData());
-            eventList.push_back(event);
+        if (auto && line = m_lines.at(i)) {
+            if (line->lineEvent()) {
+                if (line->lineEvent()->instrumentSettings) {
+                    const auto event = std::make_shared<Event>(tick, line->lineEvent()->instrumentSettings);
+                    eventList.push_back(event);
+                }
+            }
+            if (line->noteData()->type() != NoteData::Type::None) {
+                const auto event = std::make_shared<Event>(tick, line->noteData());
+                eventList.push_back(event);
+            }
         }
         tick += ticksPerLine;
     }
     return eventList;
+}
+
+Column::InstrumentSettingsS Column::instrumentSettings(const Position & position) const
+{
+    const auto lineEvent = m_lines.at(position.line)->lineEvent();
+    return lineEvent ? lineEvent->instrumentSettings : nullptr;
+}
+
+void Column::setInstrumentSettings(const Position & position, InstrumentSettingsS instrumentSettings)
+{
+    LineEvent lineEvent;
+    lineEvent.instrumentSettings = instrumentSettings;
+    m_lines.at(position.line)->setLineEvent(lineEvent);
 }
 
 void Column::serializeToXml(QXmlStreamWriter & writer) const

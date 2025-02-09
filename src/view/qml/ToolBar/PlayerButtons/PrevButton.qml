@@ -11,5 +11,5 @@ ToolBarButtonBase {
         focus = false;
         UiService.requestFocusOnEditorView();
     }
-    toolTipText: qsTr("Rewind to the start of the song")
+    toolTipText: qsTr("Rewind to the start of the song and reset track settings")
 }

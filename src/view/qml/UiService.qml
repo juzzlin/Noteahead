@@ -3,6 +3,7 @@ import QtQuick 2.15
 
 QtObject {
     signal aboutDialogRequested
+    signal eventSelectionDialogRequested
     signal activeOctaveChanged(int activeOctave)
     signal focusOnEditorViewRequested
     signal settingsDialogRequested
@@ -78,6 +79,9 @@ QtObject {
     }
     function requestAboutDialog() {
         aboutDialogRequested();
+    }
+    function requestEventSelectionDialog() {
+        eventSelectionDialogRequested();
     }
     function requestSettingsDialog() {
         settingsDialogRequested();

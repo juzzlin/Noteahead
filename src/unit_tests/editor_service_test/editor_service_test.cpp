@@ -897,6 +897,42 @@ void EditorServiceTest::test_setCurrentPattern_addColumnFirst_shouldCreatePatter
     QCOMPARE(patternCreatedSpy.count(), 1);
 }
 
+void EditorServiceTest::test_setInstrumentSettings_shouldSetInstrumentSettings()
+{
+    EditorService editorService;
+    QSignalSpy lineDataChangedSpy { &editorService, &EditorService::lineDataChanged };
+    editorService.requestPosition(0, 1, 0, 0, 0);
+    auto instrumentSettings = std::make_shared<InstrumentSettings>();
+    instrumentSettings->patch = 42;
+
+    editorService.setInstrumentSettingsAtCurrentPosition(instrumentSettings);
+
+    QCOMPARE(lineDataChangedSpy.count(), 1);
+    editorService.requestPosition(0, 1, 0, 0, 0);
+    instrumentSettings = editorService.instrumentSettingsAtCurrentPosition();
+    QVERIFY(instrumentSettings);
+    QCOMPARE(instrumentSettings->patch, 42);
+    QCOMPARE(instrumentSettings->track(), 1);
+}
+
+void EditorServiceTest::test_removeInstrumentSettings_shouldRemoveInstrumentSettings()
+{
+    EditorService editorService;
+    QSignalSpy lineDataChangedSpy { &editorService, &EditorService::lineDataChanged };
+    editorService.requestPosition(0, 1, 0, 0, 0);
+    auto instrumentSettings = std::make_shared<InstrumentSettings>();
+    instrumentSettings->patch = 42;
+    editorService.setInstrumentSettingsAtCurrentPosition(instrumentSettings);
+    QCOMPARE(lineDataChangedSpy.count(), 1);
+
+    editorService.removeInstrumentSettingsAtCurrentPosition();
+    QCOMPARE(lineDataChangedSpy.count(), 2);
+
+    editorService.requestPosition(0, 1, 0, 0, 0);
+    instrumentSettings = editorService.instrumentSettingsAtCurrentPosition();
+    QVERIFY(!instrumentSettings);
+}
+
 void EditorServiceTest::test_setPatternAtSongPosition_shouldCreatePattern()
 {
     EditorService editorService;
@@ -1069,6 +1105,25 @@ void EditorServiceTest::test_toXmlFromXml_songProperties()
     QCOMPARE(editorServiceIn.songLength(), editorServiceOut.songLength());
     QCOMPARE(editorServiceIn.trackName(0), editorServiceOut.trackName(0));
     QCOMPARE(editorServiceIn.trackName(1), editorServiceOut.trackName(1));
+}
+
+void EditorServiceTest::test_toXmlFromXml_instrumentSettingsSet_shouldParseInstrumentSettings()
+{
+    EditorService editorServiceOut;
+    editorServiceOut.requestPosition(0, 0, 0, 0, 0);
+    const auto instrumentSettingsOut = std::make_shared<InstrumentSettings>();
+    instrumentSettingsOut->patch = 42;
+    editorServiceOut.setInstrumentSettingsAtCurrentPosition(instrumentSettingsOut);
+
+    const auto xml = editorServiceOut.toXml();
+
+    EditorService editorServiceIn;
+    editorServiceIn.fromXml(xml);
+
+    editorServiceIn.requestPosition(0, 0, 0, 0, 0);
+    const auto instrumentSettingsIn = editorServiceIn.instrumentSettingsAtCurrentPosition();
+    QVERIFY(instrumentSettingsIn);
+    QCOMPARE(instrumentSettingsIn->patch, instrumentSettingsOut->patch);
 }
 
 void EditorServiceTest::test_toXmlFromXml_noteData_noteOn()

@@ -26,6 +26,7 @@ namespace noteahead {
 class Column;
 class Event;
 class Instrument;
+class InstrumentSettings;
 class NoteData;
 struct Position;
 
@@ -86,8 +87,11 @@ public:
 
     using InstrumentS = std::shared_ptr<Instrument>;
     InstrumentS instrument() const;
-
     void setInstrument(InstrumentS instrument);
+
+    using InstrumentSettingsS = std::shared_ptr<InstrumentSettings>;
+    InstrumentSettingsS instrumentSettings(const Position & position) const;
+    void setInstrumentSettings(const Position & position, InstrumentSettingsS instrumentSettings);
 
 private:
     void initialize(size_t length, size_t columnCount);

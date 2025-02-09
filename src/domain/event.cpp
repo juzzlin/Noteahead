@@ -16,6 +16,7 @@
 #include "event.hpp"
 
 #include "instrument.hpp"
+#include "instrument_settings.hpp"
 
 namespace noteahead {
 
@@ -23,6 +24,13 @@ Event::Event(size_t tick, NoteDataS noteData)
   : m_tick { tick }
   , m_type { Event::Type::NoteData }
   , m_noteData { noteData }
+{
+}
+
+Event::Event(size_t tick, InstrumentSettingsS instrumentSettings)
+  : m_tick { tick }
+  , m_type { Event::Type::InstrumentSettings }
+  , m_instrumentSettings { instrumentSettings }
 {
 }
 
@@ -65,6 +73,16 @@ Event::InstrumentS Event::instrument()
 void Event::setInstrument(InstrumentS instrument)
 {
     m_instrument = instrument;
+}
+
+Event::InstrumentSettingsS Event::instrumentSettings()
+{
+    return m_instrumentSettings;
+}
+
+void Event::setInstrumentSettings(InstrumentSettingsS instrumentSettings)
+{
+    m_instrumentSettings = instrumentSettings;
 }
 
 } // namespace noteahead

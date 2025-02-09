@@ -22,6 +22,7 @@
 #include "editor_service.hpp"
 #include "midi_service.hpp"
 #include "mixer_service.hpp"
+#include "models/event_selection_model.hpp"
 #include "models/recent_files_model.hpp"
 #include "models/track_settings_model.hpp"
 #include "player_service.hpp"
@@ -43,6 +44,7 @@ Application::Application(int & argc, char ** argv)
   , m_applicationService { std::make_unique<ApplicationService>() }
   , m_config { std::make_unique<Config>() }
   , m_editorService { std::make_unique<EditorService>() }
+  , m_eventSelectionModel { std::make_unique<EventSelectionModel>() }
   , m_midiService { std::make_unique<MidiService>() }
   , m_mixerService { std::make_unique<MixerService>() }
   , m_playerService { std::make_unique<PlayerService>(m_midiService, m_config) }
@@ -56,6 +58,7 @@ Application::Application(int & argc, char ** argv)
     qmlRegisterType<ApplicationService>("Noteahead", 1, 0, "ApplicationService");
     qmlRegisterType<Config>("Noteahead", 1, 0, "Config");
     qmlRegisterType<EditorService>("Noteahead", 1, 0, "EditorService");
+    qmlRegisterType<EditorService>("Noteahead", 1, 0, "EventSelectionModel");
     qmlRegisterType<MidiService>("Noteahead", 1, 0, "MidiService");
     qmlRegisterType<MixerService>("Noteahead", 1, 0, "MixerService");
     qmlRegisterType<RecentFilesModel>("Noteahead", 1, 0, "RecentFilesModel");
@@ -94,6 +97,7 @@ void Application::setContextProperties()
     m_engine->rootContext()->setContextProperty("applicationService", m_applicationService.get());
     m_engine->rootContext()->setContextProperty("config", m_config.get());
     m_engine->rootContext()->setContextProperty("editorService", m_editorService.get());
+    m_engine->rootContext()->setContextProperty("eventSelectionModel", m_eventSelectionModel.get());
     m_engine->rootContext()->setContextProperty("midiService", m_midiService.get());
     m_engine->rootContext()->setContextProperty("mixerService", m_mixerService.get());
     m_engine->rootContext()->setContextProperty("playerService", m_playerService.get());
@@ -107,8 +111,8 @@ void Application::connectServices()
     connect(m_applicationService.get(), &ApplicationService::applyAllTrackSettingsRequested, this, [this]() {
         for (size_t trackIndex = 0; trackIndex < m_editorService->trackCount(); trackIndex++) {
             if (const auto instrument = m_editorService->instrument(trackIndex); instrument) {
-                const InstrumentRequest instrumentRequest { InstrumentRequest::Type::ApplyAll, instrument };
-                juzzlin::L(TAG).info() << "Applying instrument: " << instrumentRequest.instrument()->toString().toStdString();
+                const InstrumentRequest instrumentRequest { InstrumentRequest::Type::ApplyAll, *instrument };
+                juzzlin::L(TAG).info() << "Applying instrument: " << instrumentRequest.instrument().toString().toStdString();
                 m_midiService->handleInstrumentRequest(instrumentRequest);
             }
         }
@@ -141,6 +145,18 @@ void Application::connectServices()
 
     connect(m_stateMachine.get(), &StateMachine::stateChanged, this, &Application::applyState);
 
+    connect(m_eventSelectionModel.get(), &EventSelectionModel::dataRequested, this, [this]() {
+        if (const auto instrumentSettings = m_editorService->instrumentSettingsAtCurrentPosition(); instrumentSettings) {
+            m_eventSelectionModel->fromInstrumentSettings(*instrumentSettings);
+        } else {
+            m_eventSelectionModel->reset();
+        }
+    });
+
+    connect(m_eventSelectionModel.get(), &EventSelectionModel::saveRequested, this, [this]() {
+        m_editorService->setInstrumentSettingsAtCurrentPosition(m_eventSelectionModel->toInstrumentSettings());
+    });
+
     connect(m_trackSettingsModel.get(), &TrackSettingsModel::instrumentDataRequested, this, [this]() {
         if (const auto instrument = m_editorService->instrument(m_trackSettingsModel->trackIndex()); instrument) {
             m_trackSettingsModel->setInstrumentData(*instrument);
@@ -150,14 +166,14 @@ void Application::connectServices()
     });
 
     connect(m_trackSettingsModel.get(), &TrackSettingsModel::applyAllRequested, this, [this]() {
-        const InstrumentRequest instrumentRequest { InstrumentRequest::Type::ApplyAll, m_trackSettingsModel->toInstrument() };
-        juzzlin::L(TAG).info() << "Applying ALL: " << instrumentRequest.instrument()->toString().toStdString();
+        const InstrumentRequest instrumentRequest { InstrumentRequest::Type::ApplyAll, *m_trackSettingsModel->toInstrument() };
+        juzzlin::L(TAG).info() << "Applying ALL: " << instrumentRequest.instrument().toString().toStdString();
         m_midiService->handleInstrumentRequest(instrumentRequest);
     });
 
     connect(m_trackSettingsModel.get(), &TrackSettingsModel::applyPatchRequested, this, [this]() {
-        const InstrumentRequest instrumentRequest { InstrumentRequest::Type::ApplyPatch, m_trackSettingsModel->toInstrument() };
-        juzzlin::L(TAG).info() << "Applying PATCH: " << instrumentRequest.instrument()->toString().toStdString();
+        const InstrumentRequest instrumentRequest { InstrumentRequest::Type::ApplyPatch, *m_trackSettingsModel->toInstrument() };
+        juzzlin::L(TAG).info() << "Applying PATCH: " << instrumentRequest.instrument().toString().toStdString();
         m_midiService->handleInstrumentRequest(instrumentRequest);
     });
 

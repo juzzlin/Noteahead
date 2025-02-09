@@ -38,7 +38,9 @@ class Column;
 class CopyManager;
 class Event;
 class Instrument;
+class InstrumentSettings;
 class Line;
+class LineEvent;
 class NoteData;
 class Pattern;
 class PlayOrder;
@@ -133,8 +135,12 @@ public:
 
     using InstrumentS = std::shared_ptr<Instrument>;
     InstrumentS instrument(size_t trackIndex) const;
-
     void setInstrument(size_t trackIndex, InstrumentS instrument);
+
+    using InstrumentSettingsS = std::shared_ptr<InstrumentSettings>;
+    using InstrumentSettingsU = std::unique_ptr<InstrumentSettings>;
+    InstrumentSettingsS instrumentSettings(const Position & position) const;
+    void setInstrumentSettings(const Position & position, InstrumentSettingsS instrumentSettings);
 
     std::string fileName() const;
 
@@ -221,14 +227,16 @@ private:
     void deserializeLines(QXmlStreamReader & reader, size_t trackIndex, ColumnS column);
 
     using LineS = std::shared_ptr<Line>;
-
     LineS deserializeLine(QXmlStreamReader & reader, size_t trackIndex, size_t columnIndex);
+
+    using LineEventS = std::shared_ptr<LineEvent>;
+    LineEventS deserializeLineEvent(QXmlStreamReader & reader);
 
     NoteDataS deserializeNoteData(QXmlStreamReader & reader, size_t trackIndex, size_t columnIndex);
 
     InstrumentS deserializeInstrument(QXmlStreamReader & reader);
 
-    Instrument::Settings deserializeInstrumentSettings(QXmlStreamReader & reader);
+    InstrumentSettingsU deserializeInstrumentSettings(QXmlStreamReader & reader);
 
     void initialize();
 

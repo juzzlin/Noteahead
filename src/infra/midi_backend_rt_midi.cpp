@@ -59,7 +59,7 @@ void MidiBackendRtMidi::sendMessage(MidiDeviceS device, const Message & message)
     }
 }
 
-void MidiBackendRtMidi::sendCC(MidiDeviceS device, uint8_t channel, MidiCC controller, uint8_t value) const
+void MidiBackendRtMidi::sendCC(MidiDeviceS device, uint8_t channel, MidiCc controller, uint8_t value) const
 {
     const Message message = { static_cast<unsigned char>(0xB0 | (channel & 0x0F)),
                               static_cast<unsigned char>(controller),
@@ -95,13 +95,13 @@ void MidiBackendRtMidi::sendPatchChange(MidiDeviceS device, uint8_t channel, uin
 
 void MidiBackendRtMidi::sendBankChange(MidiDeviceS device, uint8_t channel, uint8_t msb, uint8_t lsb) const
 {
-    sendCC(device, channel, MidiCC::BankSelectMSB, msb);
-    sendCC(device, channel, MidiCC::BankSelectLSB, lsb);
+    sendCC(device, channel, MidiCc::BankSelectMSB, msb);
+    sendCC(device, channel, MidiCc::BankSelectLSB, lsb);
 }
 
 void MidiBackendRtMidi::stopAllNotes(MidiDeviceS device, uint8_t channel) const
 {
-    sendCC(device, channel, MidiCC::AllNotesOff, 0);
+    sendCC(device, channel, MidiCc::AllNotesOff, 0);
 
     // All devices won't obey CC #123: Manually stop all notes
     for (uint8_t note = 0; note < 128; note++) {

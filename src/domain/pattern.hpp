@@ -26,6 +26,7 @@ namespace noteahead {
 
 class Event;
 class Instrument;
+class InstrumentSettings;
 class Track;
 class NoteData;
 struct Position;
@@ -80,8 +81,11 @@ public:
 
     using InstrumentS = std::shared_ptr<Instrument>;
     InstrumentS instrument(size_t trackIndex) const;
-
     void setInstrument(size_t trackIndex, InstrumentS instrument);
+
+    using InstrumentSettingsS = std::shared_ptr<InstrumentSettings>;
+    InstrumentSettingsS instrumentSettings(const Position & position) const;
+    void setInstrumentSettings(const Position & position, InstrumentSettingsS instrumentSettings);
 
     using NoteDataS = std::shared_ptr<NoteData>;
     NoteDataS noteDataAtPosition(const Position & position) const;

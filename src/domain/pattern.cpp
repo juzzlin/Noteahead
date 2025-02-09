@@ -159,6 +159,16 @@ void Pattern::setInstrument(size_t trackIndex, InstrumentS instrument)
     m_tracks.at(trackIndex)->setInstrument(instrument);
 }
 
+Pattern::InstrumentSettingsS Pattern::instrumentSettings(const Position & position) const
+{
+    return m_tracks.at(position.track)->instrumentSettings(position);
+}
+
+void Pattern::setInstrumentSettings(const Position & position, InstrumentSettingsS instrumentSettings)
+{
+    m_tracks.at(position.track)->setInstrumentSettings(position, instrumentSettings);
+}
+
 Pattern::NoteDataS Pattern::noteDataAtPosition(const Position & position) const
 {
     return m_tracks.at(position.track)->noteDataAtPosition(position);

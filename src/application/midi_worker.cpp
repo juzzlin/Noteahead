@@ -110,40 +110,39 @@ void MidiWorker::handleInstrumentRequest(const InstrumentRequest & instrumentReq
     }
 
     try {
-        if (const auto instrument = instrumentRequest.instrument(); instrument) {
-            juzzlin::L(TAG).info() << "Applying instrument " << instrument->toString().toStdString() << " for requested port " << instrumentRequest.instrument()->device.portName.toStdString();
-            const auto requestedPortName = instrument->device.portName;
-            if (const auto device = m_midiBackend->deviceByPortName(requestedPortName.toStdString()); device) {
-                m_midiBackend->openDevice(device);
-                if (instrumentRequest.type() == InstrumentRequest::Type::ApplyAll) {
-                    if (instrument->settings.bank.has_value()) {
-                        m_midiBackend->sendBankChange(device, instrument->device.channel,
-                                                      instrument->settings.bank->byteOrderSwapped ? instrument->settings.bank->lsb : instrument->settings.bank->msb,
-                                                      instrument->settings.bank->byteOrderSwapped ? instrument->settings.bank->msb : instrument->settings.bank->lsb);
-                    }
-                    if (instrument->settings.patch.has_value()) {
-                        m_midiBackend->sendPatchChange(device, instrument->device.channel, *instrument->settings.patch);
-                    }
-                    if (instrument->settings.pan.has_value()) {
-                        m_midiBackend->sendCC(device, instrument->device.channel, MidiCC::PanMSB, *instrument->settings.pan);
-                        m_midiBackend->sendCC(device, instrument->device.channel, MidiCC::PanLSB, 0);
-                    }
-                    if (instrument->settings.volume.has_value()) {
-                        m_midiBackend->sendCC(device, instrument->device.channel, MidiCC::ChannelVolumeMSB, *instrument->settings.volume);
-                        m_midiBackend->sendCC(device, instrument->device.channel, MidiCC::ChannelVolumeLSB, 0);
-                    }
-                    if (instrument->settings.cutoff.has_value()) {
-                        m_midiBackend->sendCC(device, instrument->device.channel, MidiCC::SoundController5, *instrument->settings.cutoff);
-                    }
-                } else if (instrumentRequest.type() == InstrumentRequest::Type::ApplyPatch) {
-                    if (instrument->settings.patch.has_value()) {
-                        m_midiBackend->sendPatchChange(device, instrument->device.channel, *instrument->settings.patch);
-                    }
+        auto && instrument = instrumentRequest.instrument();
+        juzzlin::L(TAG).info() << "Applying instrument " << instrument.toString().toStdString() << " for requested port " << instrument.device.portName.toStdString();
+        const auto requestedPortName = instrument.device.portName;
+        if (const auto device = m_midiBackend->deviceByPortName(requestedPortName.toStdString()); device) {
+            m_midiBackend->openDevice(device);
+            if (instrumentRequest.type() == InstrumentRequest::Type::ApplyAll) {
+                if (instrument.settings.bank.has_value()) {
+                    m_midiBackend->sendBankChange(device, instrument.device.channel,
+                                                  instrument.settings.bank->byteOrderSwapped ? instrument.settings.bank->lsb : instrument.settings.bank->msb,
+                                                  instrument.settings.bank->byteOrderSwapped ? instrument.settings.bank->msb : instrument.settings.bank->lsb);
                 }
-            } else {
-                juzzlin::L(TAG).error() << "No device found for portName '" << requestedPortName.toStdString() << "'";
-                m_failedInstrumentRequests[requestedPortName] = instrumentRequest;
+                if (instrument.settings.patch.has_value()) {
+                    m_midiBackend->sendPatchChange(device, instrument.device.channel, *instrument.settings.patch);
+                }
+                if (instrument.settings.pan.has_value()) {
+                    m_midiBackend->sendCC(device, instrument.device.channel, MidiCc::PanMSB, *instrument.settings.pan);
+                    m_midiBackend->sendCC(device, instrument.device.channel, MidiCc::PanLSB, 0);
+                }
+                if (instrument.settings.volume.has_value()) {
+                    m_midiBackend->sendCC(device, instrument.device.channel, MidiCc::ChannelVolumeMSB, *instrument.settings.volume);
+                    m_midiBackend->sendCC(device, instrument.device.channel, MidiCc::ChannelVolumeLSB, 0);
+                }
+                if (instrument.settings.cutoff.has_value()) {
+                    m_midiBackend->sendCC(device, instrument.device.channel, MidiCc::SoundController5, *instrument.settings.cutoff);
+                }
+            } else if (instrumentRequest.type() == InstrumentRequest::Type::ApplyPatch) {
+                if (instrument.settings.patch.has_value()) {
+                    m_midiBackend->sendPatchChange(device, instrument.device.channel, *instrument.settings.patch);
+                }
             }
+        } else {
+            juzzlin::L(TAG).error() << "No device found for portName '" << requestedPortName.toStdString() << "'";
+            m_failedInstrumentRequests[requestedPortName] = instrumentRequest;
         }
     } catch (const std::runtime_error & e) {
         juzzlin::L(TAG).error() << e.what();

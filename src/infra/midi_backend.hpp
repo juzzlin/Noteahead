@@ -47,7 +47,7 @@ public:
 
     virtual void closeDevice(MidiDeviceS device);
 
-    virtual void sendCC(MidiDeviceS device, uint8_t channel, MidiCC controller, uint8_t value) const;
+    virtual void sendCC(MidiDeviceS device, uint8_t channel, MidiCc controller, uint8_t value) const;
 
     virtual void sendNoteOn(MidiDeviceS device, uint8_t channel, uint8_t note, uint8_t velocity) const;
 

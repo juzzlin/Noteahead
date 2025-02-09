@@ -16,8 +16,8 @@
 #include "line.hpp"
 
 #include "../common/constants.hpp"
-
 #include "../contrib/SimpleLogger/src/simple_logger.hpp"
+#include "instrument_settings.hpp"
 
 #include <QXmlStreamWriter>
 
@@ -63,12 +63,39 @@ Line::NoteDataS Line::noteData() const
     return m_noteData;
 }
 
+Line::LineEventOpt Line::lineEvent() const
+{
+    return m_lineEvent;
+}
+
+void Line::setLineEvent(LineEventOpt lineEvent)
+{
+    if (lineEvent) {
+        if (lineEvent->instrumentSettings) {
+            juzzlin::L(TAG).debug() << "Set instrument settings " << lineEvent->instrumentSettings->toString().toStdString();
+        }
+    } else {
+        juzzlin::L(TAG).debug() << "Reset LineEvent";
+    }
+    m_lineEvent = lineEvent;
+}
+
+bool Line::hasData() const
+{
+    return (m_noteData && m_noteData->type() != NoteData::Type::None) || m_lineEvent;
+}
+
 void Line::serializeToXml(QXmlStreamWriter & writer) const
 {
-    if (m_noteData && m_noteData->type() != NoteData::Type::None) {
+    if (hasData()) {
         writer.writeStartElement(Constants::xmlKeyLine());
         writer.writeAttribute(Constants::xmlKeyIndex(), QString::number(m_index));
-        m_noteData->serializeToXml(writer);
+        if (m_noteData->type() != NoteData::Type::None) {
+            m_noteData->serializeToXml(writer);
+        }
+        if (m_lineEvent) {
+            m_lineEvent->serializeToXml(writer);
+        }
         writer.writeEndElement(); // Line
     }
 }

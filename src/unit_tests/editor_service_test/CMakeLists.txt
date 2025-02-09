@@ -12,7 +12,9 @@ set(SRC
     ../../domain/column.cpp
     ../../domain/event.cpp
     ../../domain/instrument.cpp
+    ../../domain/instrument_settings.cpp
     ../../domain/line.cpp
+    ../../domain/line_event.cpp
     ../../domain/note_data.cpp
     ../../domain/pattern.cpp
     ../../domain/play_order.cpp

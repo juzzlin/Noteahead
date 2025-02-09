@@ -98,6 +98,17 @@ ApplicationWindow {
             visible = false;
         }
     }
+    EventSelectionDialog {
+        id: eventSelectionDialog
+        anchors.centerIn: parent
+        width: parent.width * 0.5
+        onAccepted: {
+            uiLogger.info(_tag, "Event selection dialog accepted");
+        }
+        onRejected: {
+            uiLogger.info(_tag, "Event selection dialog rejected.");
+        }
+    }
     FileDialog {
         id: saveAsDialog
         currentFolder: StandardPaths.standardLocations(StandardPaths.DocumentsLocation)[0]
@@ -108,7 +119,7 @@ ApplicationWindow {
             applicationService.saveProjectAs(selectedFile);
         }
         onRejected: {
-            uiLogger.info(_tag, "Save As dialog was canceled.");
+            uiLogger.info(_tag, "Save As dialog canceled.");
             applicationService.cancelSaveProjectAs();
         }
     }
@@ -183,6 +194,10 @@ ApplicationWindow {
     }
     function _connectUiService() {
         UiService.aboutDialogRequested.connect(aboutDialog.open);
+        UiService.eventSelectionDialogRequested.connect(() => {
+                eventSelectionDialog.requestData();
+                eventSelectionDialog.open();
+            });
         UiService.focusOnEditorViewRequested.connect(() => {
                 uiLogger.info(_tag, "Settings focus on editor view");
                 _editorView.focus = true;

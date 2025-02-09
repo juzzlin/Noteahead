@@ -51,6 +51,8 @@ QStringList MidiService::availableMidiPorts() const
 
 void MidiService::handleInstrumentRequest(const InstrumentRequest & instrumentRequest)
 {
+    std::lock_guard<std::mutex> { m_workerMutex };
+
     emit instrumentRequestHandlingRequested(instrumentRequest);
 }
 
@@ -61,6 +63,8 @@ void MidiService::setIsPlaying(bool isPlaying)
 
 void MidiService::playAndStopMiddleC(QString portName, uint8_t channel, uint8_t velocity)
 {
+    std::lock_guard<std::mutex> { m_workerMutex };
+
     if (const bool invoked = QMetaObject::invokeMethod(m_midiWorker.get(), "playAndStopMiddleC", Q_ARG(QString, portName), Q_ARG(uint8_t, channel), Q_ARG(uint8_t, velocity)); !invoked) {
         juzzlin::L(TAG).error() << "Invoking a method failed!";
     }
@@ -68,6 +72,8 @@ void MidiService::playAndStopMiddleC(QString portName, uint8_t channel, uint8_t 
 
 void MidiService::playNote(InstrumentS instrument, uint8_t midiNote, uint8_t velocity)
 {
+    std::lock_guard<std::mutex> { m_workerMutex };
+
     if (const bool invoked = QMetaObject::invokeMethod(m_midiWorker.get(), "playNote",
                                                        Q_ARG(QString, instrument->device.portName),
                                                        Q_ARG(uint8_t, instrument->device.channel),
@@ -80,6 +86,8 @@ void MidiService::playNote(InstrumentS instrument, uint8_t midiNote, uint8_t vel
 
 void MidiService::stopNote(InstrumentS instrument, uint8_t midiNote)
 {
+    std::lock_guard<std::mutex> { m_workerMutex };
+
     if (const bool invoked = QMetaObject::invokeMethod(m_midiWorker.get(), "stopNote",
                                                        Q_ARG(QString, instrument->device.portName),
                                                        Q_ARG(uint8_t, instrument->device.channel),
@@ -91,6 +99,8 @@ void MidiService::stopNote(InstrumentS instrument, uint8_t midiNote)
 
 void MidiService::stopAllNotes(InstrumentS instrument)
 {
+    std::lock_guard<std::mutex> { m_workerMutex };
+
     if (const bool invoked = QMetaObject::invokeMethod(m_midiWorker.get(), "stopAllNotes",
                                                        Q_ARG(QString, instrument->device.portName),
                                                        Q_ARG(uint8_t, instrument->device.channel));

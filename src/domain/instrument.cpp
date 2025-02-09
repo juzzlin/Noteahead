@@ -32,68 +32,21 @@ void Instrument::serializeDevice(QXmlStreamWriter & writer) const
     writer.writeAttribute(Constants::xmlKeyChannel(), QString::number(device.channel));
 }
 
-void Instrument::serializeSettings(QXmlStreamWriter & writer) const
-{
-    writer.writeStartElement(Constants::xmlKeySettings());
-
-    if (settings.patch.has_value()) {
-        writer.writeAttribute(Constants::xmlKeyPatch(), QString::number(*settings.patch));
-    }
-
-    if (settings.bank.has_value()) {
-        writer.writeAttribute(Constants::xmlKeyBankEnabled(), "true");
-        writer.writeAttribute(Constants::xmlKeyBankLsb(), QString::number(settings.bank->lsb));
-        writer.writeAttribute(Constants::xmlKeyBankMsb(), QString::number(settings.bank->msb));
-        writer.writeAttribute(Constants::xmlKeyBankByteOrderSwapped(), settings.bank->byteOrderSwapped ? "true" : "false");
-    } else {
-        writer.writeAttribute(Constants::xmlKeyBankEnabled(), "false");
-    }
-
-    if (settings.cutoff.has_value()) {
-        writer.writeAttribute(Constants::xmlKeyCutoff(), QString::number(*settings.cutoff));
-    }
-
-    if (settings.pan.has_value()) {
-        writer.writeAttribute(Constants::xmlKeyPan(), QString::number(*settings.pan));
-    }
-
-    if (settings.volume.has_value()) {
-        writer.writeAttribute(Constants::xmlKeyVolume(), QString::number(*settings.volume));
-    }
-
-    writer.writeEndElement(); // Settings
-}
-
 void Instrument::serializeToXml(QXmlStreamWriter & writer) const
 {
     writer.writeStartElement(Constants::xmlKeyInstrument());
 
     serializeDevice(writer);
 
-    serializeSettings(writer);
+    settings.serializeToXml(writer);
 
     writer.writeEndElement(); // Instrument
 }
 
 QString Instrument::toString() const
 {
-    auto result = QString { "Instrument ( portName='%1', channel=%2" }.arg(device.portName).arg(device.channel);
-
-    result += settings.patch ? QString { ", patch=%1" }.arg(*settings.patch) : ", patch=None";
-
-    if (settings.bank) {
-        result += QString { ", bank={lsb=%1, msb=%2, byteOrderSwapped=%3}" }
-                    .arg(settings.bank->lsb)
-                    .arg(settings.bank->msb)
-                    .arg(settings.bank->byteOrderSwapped ? "true" : "false");
-    } else {
-        result += ", bank=None";
-    }
-
-    result += settings.cutoff ? QString { ", cutoff=%1" }.arg(*settings.cutoff) : ", cutoff=None";
-    result += settings.pan ? QString { ", pan=%1" }.arg(*settings.pan) : ", pan=None";
-    result += settings.volume ? QString { ", volume=%1" }.arg(*settings.volume) : ", volume=None";
-
+    auto result = QString { "Instrument ( portName='%1', channel=%2 " }.arg(device.portName).arg(device.channel);
+    result += settings.toString();
     result += " )";
     return result;
 }

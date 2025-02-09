@@ -61,6 +61,19 @@ void Track::setInstrument(InstrumentS instrument)
     m_instrument = instrument;
 }
 
+Track::InstrumentSettingsS Track::instrumentSettings(const Position & position) const
+{
+    return m_columns.at(position.column)->instrumentSettings(position);
+}
+
+void Track::setInstrumentSettings(const Position & position, InstrumentSettingsS instrumentSettings)
+{
+    if (instrumentSettings) {
+        instrumentSettings->setTrack(m_index);
+    }
+    m_columns.at(position.column)->setInstrumentSettings(position, instrumentSettings);
+}
+
 std::string Track::name() const
 {
     return m_name;

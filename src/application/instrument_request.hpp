@@ -16,11 +16,9 @@
 #ifndef INSTRUMENT_REQUEST_HPP
 #define INSTRUMENT_REQUEST_HPP
 
-#include <memory>
+#include "../domain/instrument.hpp"
 
 namespace noteahead {
-
-class Instrument;
 
 class InstrumentRequest
 {
@@ -32,19 +30,18 @@ public:
         ApplyPatch,
     };
 
-    InstrumentRequest() = default;
+    InstrumentRequest();
 
-    using InstrumentS = std::shared_ptr<Instrument>;
-    InstrumentRequest(Type type, InstrumentS instrument);
+    InstrumentRequest(Type type, const Instrument & instrument);
 
     Type type() const;
 
-    InstrumentS instrument() const;
+    const Instrument & instrument() const;
 
 private:
     Type m_type = Type::None;
 
-    InstrumentS m_instrument;
+    Instrument m_instrument;
 };
 
 } // namespace noteahead

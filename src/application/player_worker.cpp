@@ -17,6 +17,7 @@
 
 #include "../contrib/SimpleLogger/src/simple_logger.hpp"
 #include "../domain/event.hpp"
+#include "../domain/instrument_settings.hpp"
 #include "../domain/note_data.hpp"
 #include "midi_service.hpp"
 
@@ -126,6 +127,14 @@ void PlayerWorker::processEvents()
                             } else if (noteData->type() == NoteData::Type::NoteOff) {
                                 m_midiService->stopNote(instrument, *noteData->note());
                             }
+                        }
+                    } else if (auto && instrumentSettings = event->instrumentSettings(); instrumentSettings) {
+                        juzzlin::L(TAG).trace() << instrumentSettings->toString().toStdString();
+                        if (auto && instrument = event->instrument(); instrument) {
+                            auto tempInstrument = *instrument;
+                            tempInstrument.settings = *instrumentSettings;
+                            InstrumentRequest instrumentRequest { InstrumentRequest::Type::ApplyAll, tempInstrument };
+                            m_midiService->handleInstrumentRequest(instrumentRequest);
                         }
                     }
                 }

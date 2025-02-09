@@ -30,6 +30,7 @@ class CopyManager;
 class Song;
 class Instrument;
 class InstrumentRequest;
+class InstrumentSettings;
 
 class EditorService : public QObject
 {
@@ -60,6 +61,8 @@ class EditorService : public QObject
     Q_PROPERTY(bool hasTrackToPaste READ hasTrackToPaste NOTIFY copyManagerStateChanged)
 
     Q_PROPERTY(bool hasPatternToPaste READ hasPatternToPaste NOTIFY copyManagerStateChanged)
+
+    Q_PROPERTY(Position position READ position NOTIFY positionChanged)
 
     Q_PROPERTY(size_t songPosition READ songPosition NOTIFY songPositionChanged)
 
@@ -172,6 +175,8 @@ public:
 
     Q_INVOKABLE size_t positionBarLine() const;
 
+    Q_INVOKABLE void requestEventRemoval();
+
     Q_INVOKABLE void requestCursorLeft();
 
     Q_INVOKABLE void requestCursorRight();
@@ -278,8 +283,13 @@ public:
 
     using InstrumentS = std::shared_ptr<Instrument>;
     InstrumentS instrument(size_t trackIndex) const;
-
     void setInstrument(size_t trackIndex, InstrumentS instrument);
+
+    using InstrumentSettingsS = std::shared_ptr<InstrumentSettings>;
+    InstrumentSettingsS instrumentSettingsAtCurrentPosition() const;
+    void setInstrumentSettingsAtCurrentPosition(InstrumentSettingsS instrument);
+    void removeInstrumentSettingsAtCurrentPosition();
+    Q_INVOKABLE bool hasInstrumentSettings(size_t pattern, size_t track, size_t column, size_t line) const;
 
     void setIsModified(bool isModified);
 
@@ -315,6 +325,8 @@ signals:
     void instrumentRequested(const InstrumentRequest & instrumentRequest);
 
     void isModifiedChanged();
+
+    void lineDataChanged(const Position & position);
 
     void linesPerBeatChanged();
 

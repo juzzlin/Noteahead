@@ -18,6 +18,7 @@ set(HEADER_FILES
   application/midi_service.hpp
   application/midi_worker.hpp
   application/mixer_service.hpp
+  application/models/event_selection_model.hpp
   application/models/recent_files_model.hpp
   application/models/track_settings_model.hpp
   application/note_converter.hpp
@@ -31,7 +32,9 @@ set(HEADER_FILES
   domain/column.hpp
   domain/event.hpp
   domain/instrument.hpp
+  domain/instrument_settings.hpp
   domain/line.hpp
+  domain/line_event.hpp
   domain/note_data.hpp
   domain/pattern.hpp
   domain/play_order.hpp
@@ -54,6 +57,7 @@ set(SOURCE_FILES
   application/midi_service.cpp
   application/midi_worker.cpp
   application/mixer_service.cpp
+  application/models/event_selection_model.cpp
   application/models/recent_files_model.cpp
   application/models/track_settings_model.cpp
   application/note_converter.cpp
@@ -66,7 +70,9 @@ set(SOURCE_FILES
   domain/column.cpp
   domain/event.cpp
   domain/instrument.cpp
+  domain/instrument_settings.cpp
   domain/line.cpp
+  domain/line_event.cpp
   domain/note_data.cpp
   domain/pattern.cpp
   domain/play_order.cpp
@@ -90,6 +96,7 @@ set(QML_SOURCE_FILES
     ${QML_BASE_DIR}/BottomBar.qml
     ${QML_BASE_DIR}/Constants.qml
     ${QML_BASE_DIR}/Dialogs/AboutDialog.qml
+    ${QML_BASE_DIR}/Dialogs/EventSelectionDialog.qml
     ${QML_BASE_DIR}/Dialogs/RecentFilesDialog.qml
     ${QML_BASE_DIR}/Dialogs/SettingsDialog.qml
     ${QML_BASE_DIR}/Dialogs/TrackSettingsDialog.qml

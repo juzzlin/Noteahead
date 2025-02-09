@@ -30,6 +30,7 @@ namespace noteahead {
 class ApplicationService;
 class Config;
 class EditorService;
+class EventSelectionModel;
 class MidiService;
 class MixerService;
 class PlayerService;
@@ -71,6 +72,8 @@ private:
     std::shared_ptr<Config> m_config;
 
     std::shared_ptr<EditorService> m_editorService;
+
+    std::shared_ptr<EventSelectionModel> m_eventSelectionModel;
 
     std::shared_ptr<MidiService> m_midiService;
 

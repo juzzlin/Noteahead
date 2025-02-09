@@ -16,11 +16,13 @@
 #ifndef LINE_HPP
 #define LINE_HPP
 
+#include "line_event.hpp"
 #include "note_data.hpp"
 
 #include <memory>
+#include <optional>
 
-class QXmlStreamWriter;
+#include <QXmlStreamWriter>
 
 namespace noteahead {
 
@@ -37,11 +39,15 @@ public:
 
     void clear();
 
+    bool hasData() const;
+
     using NoteDataS = std::shared_ptr<NoteData>;
-
     NoteDataS noteData() const;
-
     void setNoteData(const NoteData & noteData);
+
+    using LineEventOpt = std::optional<LineEvent>;
+    LineEventOpt lineEvent() const;
+    void setLineEvent(LineEventOpt lineEvent);
 
     void serializeToXml(QXmlStreamWriter & writer) const;
 
@@ -49,6 +55,8 @@ private:
     size_t m_index = 0;
 
     NoteDataS m_noteData;
+
+    LineEventOpt m_lineEvent;
 };
 
 } // namespace noteahead

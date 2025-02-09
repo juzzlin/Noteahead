@@ -17,7 +17,12 @@
 
 namespace noteahead {
 
-InstrumentRequest::InstrumentRequest(Type type, InstrumentS instrument)
+InstrumentRequest::InstrumentRequest()
+  : m_instrument { {} }
+{
+}
+
+InstrumentRequest::InstrumentRequest(Type type, const Instrument & instrument)
   : m_type { type }
   , m_instrument { instrument }
 {
@@ -28,7 +33,7 @@ InstrumentRequest::Type InstrumentRequest::type() const
     return m_type;
 }
 
-InstrumentRequest::InstrumentS InstrumentRequest::instrument() const
+const Instrument & InstrumentRequest::instrument() const
 {
     return m_instrument;
 }

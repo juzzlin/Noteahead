@@ -1,4 +1,5 @@
 import QtQuick 2.15
+import QtQuick.Controls.Universal 2.15
 import ".."
 
 Rectangle {
@@ -32,7 +33,7 @@ Rectangle {
         _trackIndex = index;
     }
     function setFocused(focused) {
-        _setLineFocused(editorService.position().line, editorService.position().lineColumn, focused);
+        _setLineFocused(editorService.position.line, editorService.position.lineColumn, focused);
     }
     function setPosition(position) {
         _scrollOffset = position.line;
@@ -156,7 +157,11 @@ Rectangle {
             return "#" + value.toString(16).padStart(2, "0").repeat(3);
         }
         _lines.forEach((line, index) => {
-                line.color = _scaledColor(_indexHighlightOpacity(index, editorService.linesPerBeat));
+                if (editorService.hasInstrumentSettings(_patternIndex, _trackIndex, _index, index)) {
+                    line.color = Universal.color(Universal.Cobalt);
+                } else {
+                    line.color = _scaledColor(_indexHighlightOpacity(index, editorService.linesPerBeat));
+                }
             });
     }
     Component {
@@ -217,5 +222,6 @@ Rectangle {
     Component.onCompleted: {
         config.visibleLinesChanged.connect(_resizeLines);
         editorService.linesPerBeatChanged.connect(_updateIndexHighlights);
+        editorService.lineDataChanged.connect(_updateIndexHighlights);
     }
 }

@@ -5,6 +5,27 @@ import ".."
 Menu {
     id: rootItem
     Menu {
+        title: qsTr("Line")
+        height: rootItem.height
+        width: rootItem.width
+        Action {
+            text: qsTr("Insert an event")
+            shortcut: "Alt+E"
+            enabled: !UiService.isPlaying()
+            onTriggered: UiService.requestEventSelectionDialog()
+        }
+        Action {
+            text: qsTr("Remove current event")
+            shortcut: "Alt+Shift+E"
+            enabled: !UiService.isPlaying()
+            onTriggered: editorService.requestEventRemoval()
+        }
+        delegate: MainMenuItemDelegate {
+        }
+    }
+    MenuSeparator {
+    }
+    Menu {
         title: qsTr("Column")
         height: rootItem.height
         width: rootItem.width

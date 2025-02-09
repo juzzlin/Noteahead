@@ -1,5 +1,5 @@
 // This file is part of Noteahead.
-// Copyright (C) 2024 Jussi Lind <jussi.lind@iki.fi>
+// Copyright (C) 2025 Jussi Lind <jussi.lind@iki.fi>
 //
 // Noteahead is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -13,49 +13,52 @@
 // You should have received a copy of the GNU General Public License
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef INSTRUMENT_HPP
-#define INSTRUMENT_HPP
+#ifndef INSTRUMENT_SETTINGS_HPP
+#define INSTRUMENT_SETTINGS_HPP
 
 #include <cstdint>
 #include <optional>
 
 #include <QString>
 
-#include "instrument_settings.hpp"
-
 class QXmlStreamWriter;
 
 namespace noteahead {
 
-class Instrument
+class InstrumentSettings
 {
 public:
-    explicit Instrument(QString portName);
+    std::optional<uint8_t> patch;
 
-    struct Device
+    struct Bank
     {
-        Device(QString portName)
-          : portName { portName }
-        {
-        }
+        uint8_t lsb = 0;
 
-        QString portName;
+        uint8_t msb = 0;
 
-        uint8_t channel = 0;
+        bool byteOrderSwapped = false;
     };
 
-    Device device;
+    std::optional<Bank> bank;
 
-    InstrumentSettings settings;
+    std::optional<uint8_t> cutoff;
+
+    std::optional<uint8_t> pan;
+
+    std::optional<uint8_t> volume;
+
+    size_t track() const;
+
+    void setTrack(size_t track);
 
     void serializeToXml(QXmlStreamWriter & writer) const;
 
     QString toString() const;
 
 private:
-    void serializeDevice(QXmlStreamWriter & writer) const;
+    size_t m_track; // Not part of settings, used to map instrument
 };
 
 } // namespace noteahead
 
-#endif // INSTRUMENT_HPP
+#endif // INSTRUMENT_SETTINGS_HPP

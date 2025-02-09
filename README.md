@@ -31,6 +31,7 @@ Noteahead is still a work in progress and there's **a lot of limitations and mis
   - Noteahead automatically sets channel, bank, and patch
 * Tracks with multiple note columns
 * Track settings with port, channel, bank, patch, volume, pan, cutoff
+  - Can be easily changed on-the-fly via line events
 * Saves to a custom (but open!) XML-based **.nahd** format
 
 ##
@@ -51,7 +52,7 @@ Noteahead is written in Qt/QML/C++20, because it's a relevant, stable, and well-
 
 ### Tracks and note columns
 
-Only one "instrument" can be set per track (it will be possible to change patch on-the-fly, however). I don't like the traditional concept where each note includes the instrument number and can be inserted anywhere. In my opinion this easily leads into a mess and the workflow is clumsy.
+Only one "instrument" can be set per track (it's possible to change patch on-the-fly, however). I don't like the traditional concept where each note includes the instrument number and can be inserted anywhere. In my opinion this easily leads into a mess and the workflow is clumsy.
 
 All values are entered in decimal format, typically ranging from 0 to 127 to align with the MIDI protocol and also used in many synthesizers. I've never been a fan of the hexadecimal notation commonly used in trackers.
 
@@ -121,6 +122,14 @@ When sequenced enough, press **SPACE** or use the play buttons to start playing.
 Create a new pattern by increasing the value on the **PAT** spinner. Use **LEN** to set the pattern length.
 
 Click on the pattern name to change it.
+
+Use the Song section to set the play order of your patterns as well as the song length.
+
+### Context menu
+
+The main context menu can be accessed by right-clicking on the editor view.
+
+Here you can cut/copy/paste, transpose, and set events on individual lines e.g. to change patch. The lines that have an event assigned will be rendered in a accent color.
 
 ### Most important "special" keys
 

@@ -24,6 +24,7 @@ class QXmlStreamWriter;
 namespace noteahead {
 
 class Event;
+class InstrumentSettings;
 class Line;
 class NoteData;
 struct Position;
@@ -66,6 +67,10 @@ public:
     using EventS = std::shared_ptr<Event>;
     using EventList = std::vector<EventS>;
     EventList renderToEvents(size_t startTick, size_t ticksPerLine) const;
+
+    using InstrumentSettingsS = std::shared_ptr<InstrumentSettings>;
+    InstrumentSettingsS instrumentSettings(const Position & position) const;
+    void setInstrumentSettings(const Position & position, InstrumentSettingsS instrumentSettings);
 
     void serializeToXml(QXmlStreamWriter & writer) const;
 

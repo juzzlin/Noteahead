@@ -18,7 +18,7 @@
 
 namespace noteahead {
 
-enum class MidiCC
+enum class MidiCc
 {
     BankSelectMSB = 0,
     ModulationWheelMSB = 1,
@@ -93,7 +93,6 @@ enum class MidiCC
     MonoModeOn = 126,
     PolyModeOn = 127
 };
-
 }
 
 #endif // MIDI_CC_HPP

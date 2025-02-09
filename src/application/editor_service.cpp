@@ -85,7 +85,7 @@ void EditorService::requestInstruments()
     for (size_t trackIndex = 0; trackIndex < m_song->trackCount(); trackIndex++) {
         if (const auto instrument = m_song->instrument(trackIndex); instrument) {
             juzzlin::L(TAG).info() << "Requesting instrument for track index=" << trackIndex;
-            emit instrumentRequested({ InstrumentRequest::Type::ApplyAll, instrument });
+            emit instrumentRequested({ InstrumentRequest::Type::ApplyAll, *instrument });
         }
     }
 }
@@ -396,6 +396,40 @@ void EditorService::setInstrument(size_t trackIndex, InstrumentS instrument)
     m_song->setInstrument(trackIndex, instrument);
 
     setIsModified(true);
+}
+
+EditorService::InstrumentSettingsS EditorService::instrumentSettingsAtCurrentPosition() const
+{
+    if (m_song->hasPosition(position())) {
+        return m_song->instrumentSettings(position());
+    } else {
+        return {};
+    }
+}
+
+void EditorService::removeInstrumentSettingsAtCurrentPosition()
+{
+    m_song->setInstrumentSettings(position(), {});
+    emit lineDataChanged(position());
+    setIsModified(true);
+}
+
+void EditorService::setInstrumentSettingsAtCurrentPosition(InstrumentSettingsS instrumentSettings)
+{
+    m_song->setInstrumentSettings(position(), instrumentSettings);
+    emit lineDataChanged(position());
+    setIsModified(true);
+}
+
+bool EditorService::hasInstrumentSettings(size_t pattern, size_t track, size_t column, size_t line) const
+{
+    const Position testPosition { pattern, track, column, line };
+    return m_song->hasPosition(testPosition) && m_song->instrumentSettings(testPosition);
+}
+
+void EditorService::requestEventRemoval()
+{
+    removeInstrumentSettingsAtCurrentPosition();
 }
 
 QString EditorService::currentPatternName() const

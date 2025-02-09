@@ -1,5 +1,5 @@
 // This file is part of Noteahead.
-// Copyright (C) 2024 Jussi Lind <jussi.lind@iki.fi>
+// Copyright (C) 2025 Jussi Lind <jussi.lind@iki.fi>
 //
 // Noteahead is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -13,49 +13,29 @@
 // You should have received a copy of the GNU General Public License
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef INSTRUMENT_HPP
-#define INSTRUMENT_HPP
+#include "line_event.hpp"
 
-#include <cstdint>
-#include <optional>
-
-#include <QString>
-
+#include "../common/constants.hpp"
 #include "instrument_settings.hpp"
 
-class QXmlStreamWriter;
+#include <QXmlStreamWriter>
 
 namespace noteahead {
 
-class Instrument
+bool LineEvent::hasData() const
 {
-public:
-    explicit Instrument(QString portName);
+    return instrumentSettings != nullptr;
+}
 
-    struct Device
-    {
-        Device(QString portName)
-          : portName { portName }
-        {
+void LineEvent::serializeToXml(QXmlStreamWriter & writer) const
+{
+    if (hasData()) {
+        writer.writeStartElement(Constants::xmlKeyLineEvent());
+        if (instrumentSettings) {
+            instrumentSettings->serializeToXml(writer);
         }
-
-        QString portName;
-
-        uint8_t channel = 0;
-    };
-
-    Device device;
-
-    InstrumentSettings settings;
-
-    void serializeToXml(QXmlStreamWriter & writer) const;
-
-    QString toString() const;
-
-private:
-    void serializeDevice(QXmlStreamWriter & writer) const;
-};
+        writer.writeEndElement(); // LineEvent
+    }
+}
 
 } // namespace noteahead
-
-#endif // INSTRUMENT_HPP

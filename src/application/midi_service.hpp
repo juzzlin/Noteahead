@@ -20,6 +20,7 @@
 #include <QThread>
 
 #include <memory>
+#include <mutex>
 
 #include "instrument_request.hpp"
 
@@ -67,6 +68,8 @@ signals:
 
 private:
     void initializeWorker();
+
+    std::mutex m_workerMutex; // Calls to this service may become directly from PlayerWorker and also live notes from other sources
 
     std::unique_ptr<MidiWorker> m_midiWorker;
 

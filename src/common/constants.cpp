@@ -122,6 +122,11 @@ QString xmlKeyInstrument()
     return "Instrument";
 }
 
+QString xmlKeyInstrumentSettings()
+{
+    return "InstrumentSettings";
+}
+
 QString xmlKeyPatternAttr()
 {
     return "pattern";
@@ -137,11 +142,6 @@ QString xmlKeyPosition()
     return "Position";
 }
 
-QString xmlKeySettings()
-{
-    return "Settings";
-}
-
 QString xmlKeyLength()
 {
     return "length";
@@ -150,6 +150,11 @@ QString xmlKeyLength()
 QString xmlKeyLine()
 {
     return "Line";
+}
+
+QString xmlKeyLineEvent()
+{
+    return "LineEvent";
 }
 
 QString xmlKeyLines()

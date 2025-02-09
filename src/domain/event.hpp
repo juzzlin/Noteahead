@@ -22,6 +22,7 @@
 namespace noteahead {
 
 class Instrument;
+class InstrumentSettings;
 class NoteData;
 
 class Event
@@ -31,12 +32,16 @@ public:
     {
         None,
         NoteData,
+        InstrumentSettings,
         StartOfSong,
         EndOfSong
     };
 
     using NoteDataS = std::shared_ptr<NoteData>;
     Event(size_t tick, NoteDataS noteData);
+
+    using InstrumentSettingsS = std::shared_ptr<InstrumentSettings>;
+    Event(size_t tick, InstrumentSettingsS instrumentSettings);
 
     Event(size_t tick);
 
@@ -52,8 +57,10 @@ public:
 
     using InstrumentS = std::shared_ptr<Instrument>;
     InstrumentS instrument();
-
     void setInstrument(InstrumentS instrument);
+
+    InstrumentSettingsS instrumentSettings();
+    void setInstrumentSettings(InstrumentSettingsS instrumentSettings);
 
 private:
     size_t m_tick;
@@ -63,6 +70,8 @@ private:
     NoteDataS m_noteData;
 
     InstrumentS m_instrument;
+
+    InstrumentSettingsS m_instrumentSettings;
 };
 
 } // namespace noteahead

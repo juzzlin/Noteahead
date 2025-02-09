@@ -62,17 +62,19 @@ QString xmlKeyIndex();
 
 QString xmlKeyInstrument();
 
+QString xmlKeyInstrumentSettings();
+
 QString xmlKeyPlayOrder();
 
 QString xmlKeyPatternAttr();
 
 QString xmlKeyPosition();
 
-QString xmlKeySettings();
-
 QString xmlKeyLength();
 
 QString xmlKeyLine();
+
+QString xmlKeyLineEvent();
 
 QString xmlKeyLines();
 
