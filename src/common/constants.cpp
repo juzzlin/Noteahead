@@ -112,11 +112,6 @@ QString xmlKeyCutoff()
     return "cutoff";
 }
 
-QString xmlKeyCutoffEnabled()
-{
-    return "cutoffEnabled";
-}
-
 QString xmlKeyIndex()
 {
     return "index";
@@ -202,16 +197,6 @@ QString xmlKeyPan()
     return "pan";
 }
 
-QString xmlKeyPanEnabled()
-{
-    return "panEnabled";
-}
-
-QString xmlKeyPatchEnabled()
-{
-    return "patchEnabled";
-}
-
 QString xmlKeyPatch()
 {
     return "patch";
@@ -255,11 +240,6 @@ QString xmlKeyType()
 QString xmlKeyVelocity()
 {
     return "velocity";
-}
-
-QString xmlKeyVolumeEnabled()
-{
-    return "volumeEnabled";
 }
 
 QString xmlKeyVolume()

@@ -37,10 +37,7 @@ void Instrument::serializeSettings(QXmlStreamWriter & writer) const
     writer.writeStartElement(Constants::xmlKeySettings());
 
     if (settings.patch.has_value()) {
-        writer.writeAttribute(Constants::xmlKeyPatchEnabled(), "true");
         writer.writeAttribute(Constants::xmlKeyPatch(), QString::number(*settings.patch));
-    } else {
-        writer.writeAttribute(Constants::xmlKeyPatchEnabled(), "false");
     }
 
     if (settings.bank.has_value()) {
@@ -53,24 +50,15 @@ void Instrument::serializeSettings(QXmlStreamWriter & writer) const
     }
 
     if (settings.cutoff.has_value()) {
-        writer.writeAttribute(Constants::xmlKeyCutoffEnabled(), "true");
         writer.writeAttribute(Constants::xmlKeyCutoff(), QString::number(*settings.cutoff));
-    } else {
-        writer.writeAttribute(Constants::xmlKeyCutoffEnabled(), "false");
     }
 
     if (settings.pan.has_value()) {
-        writer.writeAttribute(Constants::xmlKeyPanEnabled(), "true");
         writer.writeAttribute(Constants::xmlKeyPan(), QString::number(*settings.pan));
-    } else {
-        writer.writeAttribute(Constants::xmlKeyPanEnabled(), "false");
     }
 
     if (settings.volume.has_value()) {
-        writer.writeAttribute(Constants::xmlKeyVolumeEnabled(), "true");
         writer.writeAttribute(Constants::xmlKeyVolume(), QString::number(*settings.volume));
-    } else {
-        writer.writeAttribute(Constants::xmlKeyVolumeEnabled(), "false");
     }
 
     writer.writeEndElement(); // Settings

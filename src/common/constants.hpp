@@ -58,8 +58,6 @@ QString xmlKeyColumnCount();
 
 QString xmlKeyCutoff();
 
-QString xmlKeyCutoffEnabled();
-
 QString xmlKeyIndex();
 
 QString xmlKeyInstrument();
@@ -94,10 +92,6 @@ QString xmlKeyNoteData();
 
 QString xmlKeyPan();
 
-QString xmlKeyPanEnabled();
-
-QString xmlKeyPatchEnabled();
-
 QString xmlKeyPatch();
 
 QString xmlKeyPattern();
@@ -115,8 +109,6 @@ QString xmlKeyTrackCount();
 QString xmlKeyType();
 
 QString xmlKeyVelocity();
-
-QString xmlKeyVolumeEnabled();
 
 QString xmlKeyVolume();
 

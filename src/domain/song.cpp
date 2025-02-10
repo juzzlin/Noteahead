@@ -744,11 +744,7 @@ Instrument::Settings Song::deserializeInstrumentSettings(QXmlStreamReader & read
 
     Instrument::Settings settings;
 
-    // Read optional properties
-    if (const auto patchEnabled = readBoolAttribute(reader, Constants::xmlKeyPatchEnabled(), false); patchEnabled.has_value() && *patchEnabled) {
-        const auto patch = *readUIntAttribute(reader, Constants::xmlKeyPatch());
-        settings.patch = patch;
-    }
+    settings.patch = readUIntAttribute(reader, Constants::xmlKeyPatch(), false);
 
     if (const auto bankEnabled = readBoolAttribute(reader, Constants::xmlKeyBankEnabled(), false); bankEnabled.has_value() && *bankEnabled) {
         const auto bankLsb = static_cast<uint8_t>(*readUIntAttribute(reader, Constants::xmlKeyBankLsb()));
@@ -757,20 +753,11 @@ Instrument::Settings Song::deserializeInstrumentSettings(QXmlStreamReader & read
         settings.bank = { bankLsb, bankMsb, bankByteOrderSwapped };
     }
 
-    if (const auto cutoffEnabled = readBoolAttribute(reader, Constants::xmlKeyCutoffEnabled(), false); cutoffEnabled.has_value() && *cutoffEnabled) {
-        const auto cutoff = *readUIntAttribute(reader, Constants::xmlKeyCutoff());
-        settings.cutoff = cutoff;
-    }
+    settings.cutoff = readUIntAttribute(reader, Constants::xmlKeyCutoff(), false);
 
-    if (const auto panEnabled = readBoolAttribute(reader, Constants::xmlKeyPanEnabled(), false); panEnabled.has_value() && *panEnabled) {
-        const auto pan = *readUIntAttribute(reader, Constants::xmlKeyPan());
-        settings.pan = pan;
-    }
+    settings.pan = readUIntAttribute(reader, Constants::xmlKeyPan(), false);
 
-    if (const auto volumeEnabled = readBoolAttribute(reader, Constants::xmlKeyVolumeEnabled(), false); volumeEnabled.has_value() && *volumeEnabled) {
-        const auto volume = *readUIntAttribute(reader, Constants::xmlKeyVolume());
-        settings.volume = volume;
-    }
+    settings.volume = readUIntAttribute(reader, Constants::xmlKeyVolume(), false);
 
     return settings;
 }
