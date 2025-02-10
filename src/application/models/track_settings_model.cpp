@@ -207,32 +207,32 @@ void TrackSettingsModel::setInstrumentData(const Instrument & instrument)
 
     // Store the original instrument's port name as it might not be in the
     // list of currently available port names
-    m_instrumentPortName = instrument.portName;
+    m_instrumentPortName = instrument.device.portName;
     setAvailableMidiPorts(m_availableMidiPorts); // Update the list with instrument port name
 
-    setPortName(instrument.portName);
-    setChannel(instrument.channel);
-    setPatchEnabled(instrument.patch.has_value());
+    setPortName(instrument.device.portName);
+    setChannel(instrument.device.channel);
+    setPatchEnabled(instrument.settings.patch.has_value());
     if (patchEnabled()) {
-        setPatch(*instrument.patch);
+        setPatch(*instrument.settings.patch);
     }
-    setBankEnabled(instrument.bank.has_value());
+    setBankEnabled(instrument.settings.bank.has_value());
     if (bankEnabled()) {
-        setBankLsb(instrument.bank->lsb);
-        setBankMsb(instrument.bank->msb);
-        setBankByteOrderSwapped(instrument.bank->byteOrderSwapped);
+        setBankLsb(instrument.settings.bank->lsb);
+        setBankMsb(instrument.settings.bank->msb);
+        setBankByteOrderSwapped(instrument.settings.bank->byteOrderSwapped);
     }
-    setCutoffEnabled(instrument.cutoff.has_value());
+    setCutoffEnabled(instrument.settings.cutoff.has_value());
     if (cutoffEnabled()) {
-        setCutoff(*instrument.cutoff);
+        setCutoff(*instrument.settings.cutoff);
     }
-    setPanEnabled(instrument.pan.has_value());
+    setPanEnabled(instrument.settings.pan.has_value());
     if (panEnabled()) {
-        setPan(*instrument.pan);
+        setPan(*instrument.settings.pan);
     }
-    setVolumeEnabled(instrument.volume.has_value());
+    setVolumeEnabled(instrument.settings.volume.has_value());
     if (volumeEnabled()) {
-        setVolume(*instrument.volume);
+        setVolume(*instrument.settings.volume);
     }
 
     emit instrumentDataReceived();
@@ -272,25 +272,25 @@ void TrackSettingsModel::reset()
 TrackSettingsModel::InstrumentU TrackSettingsModel::toInstrument() const
 {
     auto instrument = std::make_unique<Instrument>(m_portName);
-    instrument->channel = m_channel;
+    instrument->device.channel = m_channel;
     if (m_patchEnabled) {
-        instrument->patch = m_patch;
+        instrument->settings.patch = m_patch;
     }
     if (m_bankEnabled) {
-        instrument->bank = {
+        instrument->settings.bank = {
             m_bankLsb,
             m_bankMsb,
             m_bankByteOrderSwapped
         };
     }
     if (m_cutoffEnabled) {
-        instrument->cutoff = m_cutoff;
+        instrument->settings.cutoff = m_cutoff;
     }
     if (m_panEnabled) {
-        instrument->pan = m_pan;
+        instrument->settings.pan = m_pan;
     }
     if (m_volumeEnabled) {
-        instrument->volume = m_volume;
+        instrument->settings.volume = m_volume;
     }
     return instrument;
 }

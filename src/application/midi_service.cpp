@@ -69,8 +69,8 @@ void MidiService::playAndStopMiddleC(QString portName, uint8_t channel, uint8_t 
 void MidiService::playNote(InstrumentS instrument, uint8_t midiNote, uint8_t velocity)
 {
     if (const bool invoked = QMetaObject::invokeMethod(m_midiWorker.get(), "playNote",
-                                                       Q_ARG(QString, instrument->portName),
-                                                       Q_ARG(uint8_t, instrument->channel),
+                                                       Q_ARG(QString, instrument->device.portName),
+                                                       Q_ARG(uint8_t, instrument->device.channel),
                                                        Q_ARG(uint8_t, midiNote),
                                                        Q_ARG(uint8_t, velocity));
         !invoked) {
@@ -81,8 +81,8 @@ void MidiService::playNote(InstrumentS instrument, uint8_t midiNote, uint8_t vel
 void MidiService::stopNote(InstrumentS instrument, uint8_t midiNote)
 {
     if (const bool invoked = QMetaObject::invokeMethod(m_midiWorker.get(), "stopNote",
-                                                       Q_ARG(QString, instrument->portName),
-                                                       Q_ARG(uint8_t, instrument->channel),
+                                                       Q_ARG(QString, instrument->device.portName),
+                                                       Q_ARG(uint8_t, instrument->device.channel),
                                                        Q_ARG(uint8_t, midiNote));
         !invoked) {
         juzzlin::L(TAG).error() << "Invoking a method failed!";
@@ -92,8 +92,8 @@ void MidiService::stopNote(InstrumentS instrument, uint8_t midiNote)
 void MidiService::stopAllNotes(InstrumentS instrument)
 {
     if (const bool invoked = QMetaObject::invokeMethod(m_midiWorker.get(), "stopAllNotes",
-                                                       Q_ARG(QString, instrument->portName),
-                                                       Q_ARG(uint8_t, instrument->channel));
+                                                       Q_ARG(QString, instrument->device.portName),
+                                                       Q_ARG(uint8_t, instrument->device.channel));
         !invoked) {
         juzzlin::L(TAG).error() << "Invoking a method failed!";
     }

@@ -30,28 +30,43 @@ class Instrument
 public:
     explicit Instrument(QString portName);
 
-    QString portName;
-
-    uint8_t channel = 0;
-
-    std::optional<uint8_t> patch;
-
-    struct Bank
+    struct Device
     {
-        uint8_t lsb = 0;
+        Device(QString portName)
+          : portName { portName }
+        {
+        }
 
-        uint8_t msb = 0;
+        QString portName;
 
-        bool byteOrderSwapped = false;
+        uint8_t channel = 0;
     };
 
-    std::optional<Bank> bank;
+    Device device;
 
-    std::optional<uint8_t> cutoff;
+    struct Settings
+    {
+        std::optional<uint8_t> patch;
 
-    std::optional<uint8_t> pan;
+        struct Bank
+        {
+            uint8_t lsb = 0;
 
-    std::optional<uint8_t> volume;
+            uint8_t msb = 0;
+
+            bool byteOrderSwapped = false;
+        };
+
+        std::optional<Bank> bank;
+
+        std::optional<uint8_t> cutoff;
+
+        std::optional<uint8_t> pan;
+
+        std::optional<uint8_t> volume;
+    };
+
+    Settings settings;
 
     void serializeToXml(QXmlStreamWriter & writer) const;
 

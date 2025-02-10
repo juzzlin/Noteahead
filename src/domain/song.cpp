@@ -746,34 +746,34 @@ Song::InstrumentS Song::deserializeInstrument(QXmlStreamReader & reader)
     const auto portName = *readStringAttribute(reader, Constants::xmlKeyPortName());
     const auto channel = *readUIntAttribute(reader, Constants::xmlKeyChannel());
     const auto instrument = std::make_shared<Instrument>(portName);
-    instrument->channel = static_cast<uint8_t>(channel);
+    instrument->device.channel = static_cast<uint8_t>(channel);
 
     // Read optional properties
     if (const auto patchEnabled = readBoolAttribute(reader, Constants::xmlKeyPatchEnabled(), false); patchEnabled.has_value() && *patchEnabled) {
         const auto patch = *readUIntAttribute(reader, Constants::xmlKeyPatch());
-        instrument->patch = patch;
+        instrument->settings.patch = patch;
     }
 
     if (const auto bankEnabled = readBoolAttribute(reader, Constants::xmlKeyBankEnabled(), false); bankEnabled.has_value() && *bankEnabled) {
         const auto bankLsb = static_cast<uint8_t>(*readUIntAttribute(reader, Constants::xmlKeyBankLsb()));
         const auto bankMsb = static_cast<uint8_t>(*readUIntAttribute(reader, Constants::xmlKeyBankMsb()));
         const auto bankByteOrderSwapped = *readBoolAttribute(reader, Constants::xmlKeyBankByteOrderSwapped());
-        instrument->bank = { bankLsb, bankMsb, bankByteOrderSwapped };
+        instrument->settings.bank = { bankLsb, bankMsb, bankByteOrderSwapped };
     }
 
     if (const auto cutoffEnabled = readBoolAttribute(reader, Constants::xmlKeyCutoffEnabled(), false); cutoffEnabled.has_value() && *cutoffEnabled) {
         const auto cutoff = *readUIntAttribute(reader, Constants::xmlKeyCutoff());
-        instrument->cutoff = cutoff;
+        instrument->settings.cutoff = cutoff;
     }
 
     if (const auto panEnabled = readBoolAttribute(reader, Constants::xmlKeyPanEnabled(), false); panEnabled.has_value() && *panEnabled) {
         const auto pan = *readUIntAttribute(reader, Constants::xmlKeyPan());
-        instrument->pan = pan;
+        instrument->settings.pan = pan;
     }
 
     if (const auto volumeEnabled = readBoolAttribute(reader, Constants::xmlKeyVolumeEnabled(), false); volumeEnabled.has_value() && *volumeEnabled) {
         const auto volume = *readUIntAttribute(reader, Constants::xmlKeyVolume());
-        instrument->volume = volume;
+        instrument->settings.volume = volume;
     }
 
     // Ensure we reach the end of the Instrument element

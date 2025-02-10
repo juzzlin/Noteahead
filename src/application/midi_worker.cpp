@@ -111,33 +111,33 @@ void MidiWorker::handleInstrumentRequest(const InstrumentRequest & instrumentReq
 
     try {
         if (const auto instrument = instrumentRequest.instrument(); instrument) {
-            juzzlin::L(TAG).info() << "Applying instrument " << instrument->toString().toStdString() << " for requested port " << instrumentRequest.instrument()->portName.toStdString();
-            const auto requestedPortName = instrument->portName;
+            juzzlin::L(TAG).info() << "Applying instrument " << instrument->toString().toStdString() << " for requested port " << instrumentRequest.instrument()->device.portName.toStdString();
+            const auto requestedPortName = instrument->device.portName;
             if (const auto device = m_midiBackend->deviceByPortName(requestedPortName.toStdString()); device) {
                 m_midiBackend->openDevice(device);
                 if (instrumentRequest.type() == InstrumentRequest::Type::ApplyAll) {
-                    if (instrument->bank.has_value()) {
-                        m_midiBackend->sendBankChange(device, instrument->channel,
-                                                      instrument->bank->byteOrderSwapped ? instrument->bank->lsb : instrument->bank->msb,
-                                                      instrument->bank->byteOrderSwapped ? instrument->bank->msb : instrument->bank->lsb);
+                    if (instrument->settings.bank.has_value()) {
+                        m_midiBackend->sendBankChange(device, instrument->device.channel,
+                                                      instrument->settings.bank->byteOrderSwapped ? instrument->settings.bank->lsb : instrument->settings.bank->msb,
+                                                      instrument->settings.bank->byteOrderSwapped ? instrument->settings.bank->msb : instrument->settings.bank->lsb);
                     }
-                    if (instrument->patch.has_value()) {
-                        m_midiBackend->sendPatchChange(device, instrument->channel, *instrument->patch);
+                    if (instrument->settings.patch.has_value()) {
+                        m_midiBackend->sendPatchChange(device, instrument->device.channel, *instrument->settings.patch);
                     }
-                    if (instrument->pan.has_value()) {
-                        m_midiBackend->sendCC(device, instrument->channel, MidiCC::PanMSB, *instrument->pan);
-                        m_midiBackend->sendCC(device, instrument->channel, MidiCC::PanLSB, 0);
+                    if (instrument->settings.pan.has_value()) {
+                        m_midiBackend->sendCC(device, instrument->device.channel, MidiCC::PanMSB, *instrument->settings.pan);
+                        m_midiBackend->sendCC(device, instrument->device.channel, MidiCC::PanLSB, 0);
                     }
-                    if (instrument->volume.has_value()) {
-                        m_midiBackend->sendCC(device, instrument->channel, MidiCC::ChannelVolumeMSB, *instrument->volume);
-                        m_midiBackend->sendCC(device, instrument->channel, MidiCC::ChannelVolumeLSB, 0);
+                    if (instrument->settings.volume.has_value()) {
+                        m_midiBackend->sendCC(device, instrument->device.channel, MidiCC::ChannelVolumeMSB, *instrument->settings.volume);
+                        m_midiBackend->sendCC(device, instrument->device.channel, MidiCC::ChannelVolumeLSB, 0);
                     }
-                    if (instrument->cutoff.has_value()) {
-                        m_midiBackend->sendCC(device, instrument->channel, MidiCC::SoundController5, *instrument->cutoff);
+                    if (instrument->settings.cutoff.has_value()) {
+                        m_midiBackend->sendCC(device, instrument->device.channel, MidiCC::SoundController5, *instrument->settings.cutoff);
                     }
                 } else if (instrumentRequest.type() == InstrumentRequest::Type::ApplyPatch) {
-                    if (instrument->patch.has_value()) {
-                        m_midiBackend->sendPatchChange(device, instrument->channel, *instrument->patch);
+                    if (instrument->settings.patch.has_value()) {
+                        m_midiBackend->sendPatchChange(device, instrument->device.channel, *instrument->settings.patch);
                     }
                 }
             } else {
