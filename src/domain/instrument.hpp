@@ -71,6 +71,11 @@ public:
     void serializeToXml(QXmlStreamWriter & writer) const;
 
     QString toString() const;
+
+private:
+    void serializeDevice(QXmlStreamWriter & writer) const;
+
+    void serializeSettings(QXmlStreamWriter & writer) const;
 };
 
 } // namespace noteahead

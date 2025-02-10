@@ -738,6 +738,43 @@ Song::TrackS Song::deserializeTrack(QXmlStreamReader & reader)
     return track;
 }
 
+Instrument::Settings Song::deserializeInstrumentSettings(QXmlStreamReader & reader)
+{
+    juzzlin::L(TAG).trace() << "Reading Instrument";
+
+    Instrument::Settings settings;
+
+    // Read optional properties
+    if (const auto patchEnabled = readBoolAttribute(reader, Constants::xmlKeyPatchEnabled(), false); patchEnabled.has_value() && *patchEnabled) {
+        const auto patch = *readUIntAttribute(reader, Constants::xmlKeyPatch());
+        settings.patch = patch;
+    }
+
+    if (const auto bankEnabled = readBoolAttribute(reader, Constants::xmlKeyBankEnabled(), false); bankEnabled.has_value() && *bankEnabled) {
+        const auto bankLsb = static_cast<uint8_t>(*readUIntAttribute(reader, Constants::xmlKeyBankLsb()));
+        const auto bankMsb = static_cast<uint8_t>(*readUIntAttribute(reader, Constants::xmlKeyBankMsb()));
+        const auto bankByteOrderSwapped = *readBoolAttribute(reader, Constants::xmlKeyBankByteOrderSwapped());
+        settings.bank = { bankLsb, bankMsb, bankByteOrderSwapped };
+    }
+
+    if (const auto cutoffEnabled = readBoolAttribute(reader, Constants::xmlKeyCutoffEnabled(), false); cutoffEnabled.has_value() && *cutoffEnabled) {
+        const auto cutoff = *readUIntAttribute(reader, Constants::xmlKeyCutoff());
+        settings.cutoff = cutoff;
+    }
+
+    if (const auto panEnabled = readBoolAttribute(reader, Constants::xmlKeyPanEnabled(), false); panEnabled.has_value() && *panEnabled) {
+        const auto pan = *readUIntAttribute(reader, Constants::xmlKeyPan());
+        settings.pan = pan;
+    }
+
+    if (const auto volumeEnabled = readBoolAttribute(reader, Constants::xmlKeyVolumeEnabled(), false); volumeEnabled.has_value() && *volumeEnabled) {
+        const auto volume = *readUIntAttribute(reader, Constants::xmlKeyVolume());
+        settings.volume = volume;
+    }
+
+    return settings;
+}
+
 Song::InstrumentS Song::deserializeInstrument(QXmlStreamReader & reader)
 {
     juzzlin::L(TAG).trace() << "Reading Instrument";
@@ -747,37 +784,11 @@ Song::InstrumentS Song::deserializeInstrument(QXmlStreamReader & reader)
     const auto channel = *readUIntAttribute(reader, Constants::xmlKeyChannel());
     const auto instrument = std::make_shared<Instrument>(portName);
     instrument->device.channel = static_cast<uint8_t>(channel);
-
-    // Read optional properties
-    if (const auto patchEnabled = readBoolAttribute(reader, Constants::xmlKeyPatchEnabled(), false); patchEnabled.has_value() && *patchEnabled) {
-        const auto patch = *readUIntAttribute(reader, Constants::xmlKeyPatch());
-        instrument->settings.patch = patch;
-    }
-
-    if (const auto bankEnabled = readBoolAttribute(reader, Constants::xmlKeyBankEnabled(), false); bankEnabled.has_value() && *bankEnabled) {
-        const auto bankLsb = static_cast<uint8_t>(*readUIntAttribute(reader, Constants::xmlKeyBankLsb()));
-        const auto bankMsb = static_cast<uint8_t>(*readUIntAttribute(reader, Constants::xmlKeyBankMsb()));
-        const auto bankByteOrderSwapped = *readBoolAttribute(reader, Constants::xmlKeyBankByteOrderSwapped());
-        instrument->settings.bank = { bankLsb, bankMsb, bankByteOrderSwapped };
-    }
-
-    if (const auto cutoffEnabled = readBoolAttribute(reader, Constants::xmlKeyCutoffEnabled(), false); cutoffEnabled.has_value() && *cutoffEnabled) {
-        const auto cutoff = *readUIntAttribute(reader, Constants::xmlKeyCutoff());
-        instrument->settings.cutoff = cutoff;
-    }
-
-    if (const auto panEnabled = readBoolAttribute(reader, Constants::xmlKeyPanEnabled(), false); panEnabled.has_value() && *panEnabled) {
-        const auto pan = *readUIntAttribute(reader, Constants::xmlKeyPan());
-        instrument->settings.pan = pan;
-    }
-
-    if (const auto volumeEnabled = readBoolAttribute(reader, Constants::xmlKeyVolumeEnabled(), false); volumeEnabled.has_value() && *volumeEnabled) {
-        const auto volume = *readUIntAttribute(reader, Constants::xmlKeyVolume());
-        instrument->settings.volume = volume;
-    }
-
-    // Ensure we reach the end of the Instrument element
-    while (!(reader.isEndElement() && reader.name() == Constants::xmlKeyInstrument())) {
+    while (!(reader.isEndElement() && !reader.name().compare(Constants::xmlKeyInstrument()))) {
+        juzzlin::L(TAG).trace() << "Instrument: Current element: " << reader.name().toString().toStdString();
+        if (reader.isStartElement() && !reader.name().compare(Constants::xmlKeySettings())) {
+            instrument->settings = deserializeInstrumentSettings(reader);
+        }
         reader.readNext();
     }
 

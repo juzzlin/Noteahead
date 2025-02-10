@@ -70,6 +70,8 @@ QString xmlKeyPatternAttr();
 
 QString xmlKeyPosition();
 
+QString xmlKeySettings();
+
 QString xmlKeyLength();
 
 QString xmlKeyLine();

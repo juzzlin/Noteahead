@@ -27,6 +27,8 @@
 
 #include <QString>
 
+#include "instrument.hpp"
+
 class QXmlStreamReader;
 class QXmlStreamWriter;
 
@@ -225,6 +227,8 @@ private:
     NoteDataS deserializeNoteData(QXmlStreamReader & reader, size_t trackIndex, size_t columnIndex);
 
     InstrumentS deserializeInstrument(QXmlStreamReader & reader);
+
+    Instrument::Settings deserializeInstrumentSettings(QXmlStreamReader & reader);
 
     void initialize();
 

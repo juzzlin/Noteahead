@@ -26,15 +26,16 @@ Instrument::Instrument(QString portName)
 {
 }
 
-void Instrument::serializeToXml(QXmlStreamWriter & writer) const
+void Instrument::serializeDevice(QXmlStreamWriter & writer) const
 {
-    writer.writeStartElement(Constants::xmlKeyInstrument());
-
-    // Mandatory properties
     writer.writeAttribute(Constants::xmlKeyPortName(), device.portName);
     writer.writeAttribute(Constants::xmlKeyChannel(), QString::number(device.channel));
+}
 
-    // Optional properties
+void Instrument::serializeSettings(QXmlStreamWriter & writer) const
+{
+    writer.writeStartElement(Constants::xmlKeySettings());
+
     if (settings.patch.has_value()) {
         writer.writeAttribute(Constants::xmlKeyPatchEnabled(), "true");
         writer.writeAttribute(Constants::xmlKeyPatch(), QString::number(*settings.patch));
@@ -71,6 +72,17 @@ void Instrument::serializeToXml(QXmlStreamWriter & writer) const
     } else {
         writer.writeAttribute(Constants::xmlKeyVolumeEnabled(), "false");
     }
+
+    writer.writeEndElement(); // Settings
+}
+
+void Instrument::serializeToXml(QXmlStreamWriter & writer) const
+{
+    writer.writeStartElement(Constants::xmlKeyInstrument());
+
+    serializeDevice(writer);
+
+    serializeSettings(writer);
 
     writer.writeEndElement(); // Instrument
 }
