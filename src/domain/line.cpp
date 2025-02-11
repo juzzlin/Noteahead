@@ -71,8 +71,8 @@ Line::LineEventOpt Line::lineEvent() const
 void Line::setLineEvent(LineEventOpt lineEvent)
 {
     if (lineEvent) {
-        if (lineEvent->instrumentSettings) {
-            juzzlin::L(TAG).debug() << "Set instrument settings " << lineEvent->instrumentSettings->toString().toStdString();
+        if (lineEvent->instrumentSettings()) {
+            juzzlin::L(TAG).debug() << "Set instrument settings " << lineEvent->instrumentSettings()->toString().toStdString();
         }
     } else {
         juzzlin::L(TAG).debug() << "Reset LineEvent";

@@ -22,17 +22,36 @@
 
 namespace noteahead {
 
+LineEvent::LineEvent(size_t trackIndex, size_t columnIndex)
+  : m_trackIndex { trackIndex }
+  , m_columnIndex { columnIndex }
+{
+}
+
+LineEvent::InstrumentSettingsS LineEvent::instrumentSettings() const
+{
+    return m_instrumentSettings;
+}
+
+void LineEvent::setInstrumentSettings(InstrumentSettingsS instrumentSettings)
+{
+    m_instrumentSettings = instrumentSettings;
+    if (m_instrumentSettings) {
+        m_instrumentSettings->setTrack(m_trackIndex);
+    }
+}
+
 bool LineEvent::hasData() const
 {
-    return instrumentSettings != nullptr;
+    return m_instrumentSettings != nullptr;
 }
 
 void LineEvent::serializeToXml(QXmlStreamWriter & writer) const
 {
     if (hasData()) {
         writer.writeStartElement(Constants::xmlKeyLineEvent());
-        if (instrumentSettings) {
-            instrumentSettings->serializeToXml(writer);
+        if (m_instrumentSettings) {
+            m_instrumentSettings->serializeToXml(writer);
         }
         writer.writeEndElement(); // LineEvent
     }

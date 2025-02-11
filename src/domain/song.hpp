@@ -230,7 +230,7 @@ private:
     LineS deserializeLine(QXmlStreamReader & reader, size_t trackIndex, size_t columnIndex);
 
     using LineEventS = std::shared_ptr<LineEvent>;
-    LineEventS deserializeLineEvent(QXmlStreamReader & reader);
+    LineEventS deserializeLineEvent(QXmlStreamReader & reader, size_t trackIndex, size_t columnIndex);
 
     NoteDataS deserializeNoteData(QXmlStreamReader & reader, size_t trackIndex, size_t columnIndex);
 

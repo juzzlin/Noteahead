@@ -179,8 +179,8 @@ Column::EventList Column::renderToEvents(size_t startTick, size_t ticksPerLine) 
     for (size_t i = 0; i < m_virtualLineCount; i++) {
         if (auto && line = m_lines.at(i)) {
             if (line->lineEvent()) {
-                if (line->lineEvent()->instrumentSettings) {
-                    const auto event = std::make_shared<Event>(tick, line->lineEvent()->instrumentSettings);
+                if (line->lineEvent()->instrumentSettings()) {
+                    const auto event = std::make_shared<Event>(tick, line->lineEvent()->instrumentSettings());
                     eventList.push_back(event);
                 }
             }
@@ -197,13 +197,13 @@ Column::EventList Column::renderToEvents(size_t startTick, size_t ticksPerLine) 
 Column::InstrumentSettingsS Column::instrumentSettings(const Position & position) const
 {
     const auto lineEvent = m_lines.at(position.line)->lineEvent();
-    return lineEvent ? lineEvent->instrumentSettings : nullptr;
+    return lineEvent ? lineEvent->instrumentSettings() : nullptr;
 }
 
 void Column::setInstrumentSettings(const Position & position, InstrumentSettingsS instrumentSettings)
 {
-    LineEvent lineEvent;
-    lineEvent.instrumentSettings = instrumentSettings;
+    LineEvent lineEvent { position.track, position.column };
+    lineEvent.setInstrumentSettings(instrumentSettings);
     m_lines.at(position.line)->setLineEvent(lineEvent);
 }
 

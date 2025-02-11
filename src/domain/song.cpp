@@ -850,7 +850,7 @@ Song::LineS Song::deserializeLine(QXmlStreamReader & reader, size_t trackIndex, 
         if (reader.isStartElement() && !reader.name().compare(Constants::xmlKeyNoteData())) {
             line->setNoteData(*deserializeNoteData(reader, trackIndex, columnIndex));
         } else if (reader.isStartElement() && !reader.name().compare(Constants::xmlKeyLineEvent())) {
-            line->setLineEvent(*deserializeLineEvent(reader));
+            line->setLineEvent(*deserializeLineEvent(reader, trackIndex, columnIndex));
         }
         reader.readNext();
     }
@@ -858,14 +858,14 @@ Song::LineS Song::deserializeLine(QXmlStreamReader & reader, size_t trackIndex, 
     return line;
 }
 
-Song::LineEventS Song::deserializeLineEvent(QXmlStreamReader & reader)
+Song::LineEventS Song::deserializeLineEvent(QXmlStreamReader & reader, size_t trackIndex, size_t columnIndex)
 {
     juzzlin::L(TAG).trace() << "Reading LineEvent started";
-    const auto lineEvent = std::make_shared<LineEvent>();
+    const auto lineEvent = std::make_shared<LineEvent>(trackIndex, columnIndex);
     while (!(reader.isEndElement() && !reader.name().compare(Constants::xmlKeyLineEvent()))) {
         juzzlin::L(TAG).trace() << "Current element: " << reader.name().toString().toStdString();
         if (reader.isStartElement() && !reader.name().compare(Constants::xmlKeyInstrumentSettings())) {
-            lineEvent->instrumentSettings = deserializeInstrumentSettings(reader);
+            lineEvent->setInstrumentSettings(deserializeInstrumentSettings(reader));
         }
         reader.readNext();
     }

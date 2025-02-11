@@ -27,12 +27,22 @@ class InstrumentSettings;
 class LineEvent
 {
 public:
+    LineEvent(size_t trackIndex, size_t columnIndex);
+
     using InstrumentSettingsS = std::shared_ptr<InstrumentSettings>;
-    InstrumentSettingsS instrumentSettings;
+    InstrumentSettingsS instrumentSettings() const;
+    void setInstrumentSettings(InstrumentSettingsS instrumentSettings);
 
     bool hasData() const;
 
     void serializeToXml(QXmlStreamWriter & writer) const;
+
+private:
+    InstrumentSettingsS m_instrumentSettings;
+
+    size_t m_trackIndex = 0;
+
+    size_t m_columnIndex = 0;
 };
 
 } // namespace noteahead
