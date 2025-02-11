@@ -37,15 +37,19 @@ static const auto TAG = "EditorService";
 EditorService::EditorService()
   : m_copyManager { std::make_unique<CopyManager>() }
 {
-    setSong(std::make_unique<Song>()); // Initial dummy song to guarantee valid requests and UI
+    initialize();
 }
 
 void EditorService::initialize()
 {
+    emit aboutToInitialize();
+
     juzzlin::L(TAG).info() << "Initializing an empty song";
 
+    // Initial dummy song to guarantee valid requests and UI
     setSong(std::make_unique<Song>());
 
+    emit initialized();
     emit statusTextRequested(tr("An empty song initialized"));
 }
 
@@ -161,10 +165,13 @@ EditorService::SongS EditorService::deserializeProject(QXmlStreamReader & reader
         const auto applicationVersion = reader.attributes().value(Constants::xmlKeyApplicationVersion()).toString();
         const auto createdDate = reader.attributes().value(Constants::xmlKeyCreatedDate()).toString();
         doVersionCheck(reader.attributes().value(Constants::xmlKeyFileFormatVersion()).toString());
+        const auto mixerDeserializationCallback = [this](QXmlStreamReader & reader) {
+            emit mixerDeserializationRequested(reader);
+        };
         while (!(reader.isEndElement() && !reader.name().compare(Constants::xmlKeyProject()))) {
             if (reader.isStartElement() && !reader.name().compare(Constants::xmlKeySong())) {
                 song = std::make_unique<Song>();
-                song->deserializeFromXml(reader);
+                song->deserializeFromXml(reader, mixerDeserializationCallback);
             }
             reader.readNext();
         }
@@ -180,6 +187,8 @@ EditorService::SongS EditorService::deserializeProject(QXmlStreamReader & reader
 
 void EditorService::fromXml(QString xml)
 {
+    emit aboutToChangeSong();
+
     juzzlin::L(TAG).info() << "Reading Project from XML";
     juzzlin::L(TAG).debug() << xml.toStdString();
     QXmlStreamReader reader { xml };
@@ -216,7 +225,7 @@ void EditorService::load(QString fileName)
     }
 }
 
-QString EditorService::toXml() const
+QString EditorService::toXml()
 {
     QString xml;
     QXmlStreamWriter writer { &xml };
@@ -232,10 +241,13 @@ QString EditorService::toXml() const
     writer.writeAttribute(Constants::xmlKeyApplicationVersion(), Constants::applicationVersion());
     writer.writeAttribute(Constants::xmlKeyCreatedDate(), QDateTime::currentDateTime().toString(Qt::DateFormat::ISODateWithMs));
 
-    m_song->serializeToXml(writer);
+    const auto mixerSerializationCallback = [this](QXmlStreamWriter & writer) {
+        emit mixerSerializationRequested(writer);
+    };
+
+    m_song->serializeToXml(writer, mixerSerializationCallback);
 
     writer.writeEndElement();
-
     writer.writeEndDocument();
 
     return xml;

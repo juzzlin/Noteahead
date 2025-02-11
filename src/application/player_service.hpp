@@ -24,6 +24,7 @@ namespace noteahead {
 
 class Config;
 class MidiService;
+class MixerService;
 class PlayerWorker;
 class Song;
 
@@ -35,21 +36,15 @@ class PlayerService : public QObject
 public:
     using ConfigS = std::shared_ptr<Config>;
     using MidiServiceS = std::shared_ptr<MidiService>;
-    explicit PlayerService(MidiServiceS midiService, ConfigS config, QObject * parent = nullptr);
+    using MixerServiceS = std::shared_ptr<MixerService>;
+    explicit PlayerService(MidiServiceS midiService, MixerServiceS mixerService, ConfigS config, QObject * parent = nullptr);
 
     ~PlayerService() override;
 
     Q_INVOKABLE bool play();
-
     Q_INVOKABLE bool isPlaying() const;
-
     Q_INVOKABLE void stop();
-
     Q_INVOKABLE void prev();
-
-    Q_INVOKABLE void muteTrack(size_t trackIndex, bool mute);
-
-    Q_INVOKABLE void soloTrack(size_t trackIndex, bool solo);
 
     void setSongPosition(size_t position);
 

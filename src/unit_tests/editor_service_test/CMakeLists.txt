@@ -6,6 +6,7 @@ set(SRC
     ../../application/copy_manager.cpp
     ../../application/editor_service.cpp
     ../../application/instrument_request.cpp
+    ../../application/mixer_service.cpp
     ../../application/note_converter.cpp
     ../../application/position.hpp
     ../../common/constants.cpp
@@ -16,6 +17,7 @@ set(SRC
     ../../domain/line.cpp
     ../../domain/line_event.cpp
     ../../domain/midi_cc_setting.cpp
+    ../../domain/mixer_unit.cpp
     ../../domain/note_data.cpp
     ../../domain/pattern.cpp
     ../../domain/play_order.cpp

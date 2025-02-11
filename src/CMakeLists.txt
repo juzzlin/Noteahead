@@ -38,6 +38,7 @@ set(HEADER_FILES
   domain/line.hpp
   domain/line_event.hpp
   domain/midi_cc_setting.hpp
+  domain/mixer_unit.hpp
   domain/note_data.hpp
   domain/pattern.hpp
   domain/play_order.hpp
@@ -79,6 +80,7 @@ set(SOURCE_FILES
   domain/line.cpp
   domain/line_event.cpp
   domain/midi_cc_setting.cpp
+  domain/mixer_unit.cpp
   domain/note_data.cpp
   domain/pattern.cpp
   domain/play_order.cpp
@@ -115,14 +117,15 @@ set(QML_SOURCE_FILES
     ${QML_BASE_DIR}/Editor/KeyboardHandler.qml
     ${QML_BASE_DIR}/Editor/LineNumberColumn.qml
     ${QML_BASE_DIR}/Editor/MainContextMenu.qml
+    ${QML_BASE_DIR}/Editor/MuteSoloButtons.qml
     ${QML_BASE_DIR}/Editor/NoteColumn.qml
+    ${QML_BASE_DIR}/Editor/NoteColumnHeader.qml
     ${QML_BASE_DIR}/Editor/NoteColumnLine.qml
     ${QML_BASE_DIR}/Editor/Pattern.qml
     ${QML_BASE_DIR}/Editor/PositionBar.qml
     ${QML_BASE_DIR}/Editor/Track.qml
     ${QML_BASE_DIR}/Editor/TrackHeader.qml
     ${QML_BASE_DIR}/Editor/TrackHeaderColumnButtons.qml
-    ${QML_BASE_DIR}/Editor/TrackHeaderMuteSoloButtons.qml
     ${QML_BASE_DIR}/Editor/VolumeMeter.qml
     ${QML_BASE_DIR}/MainMenu.qml
     ${QML_BASE_DIR}/MainMenuItemDelegate.qml

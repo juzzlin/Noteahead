@@ -16,6 +16,7 @@
 #include "editor_service_test.hpp"
 
 #include "../../application/editor_service.hpp"
+#include "../../application/mixer_service.hpp"
 #include "../../domain/instrument.hpp"
 #include "../../domain/note_data.hpp"
 #include "../../domain/song.hpp"
@@ -1160,6 +1161,27 @@ void EditorServiceTest::test_toXmlFromXml_songProperties()
     QCOMPARE(editorServiceIn.songLength(), editorServiceOut.songLength());
     QCOMPARE(editorServiceIn.trackName(0), editorServiceOut.trackName(0));
     QCOMPARE(editorServiceIn.trackName(1), editorServiceOut.trackName(1));
+}
+
+void EditorServiceTest::test_toXmlFromXml_mixerService_shouldLoadMixerService()
+{
+    MixerService mixerServiceOut;
+    mixerServiceOut.muteTrack(1, true);
+    mixerServiceOut.soloTrack(2, true);
+    mixerServiceOut.muteColumn(3, 0, true);
+    mixerServiceOut.soloColumn(4, 1, true);
+
+    MixerService mixerServiceIn;
+    EditorService editorService;
+    connect(&editorService, &EditorService::mixerSerializationRequested, &mixerServiceOut, &MixerService::serializeToXml);
+    connect(&editorService, &EditorService::mixerDeserializationRequested, &mixerServiceIn, &MixerService::deserializeFromXml);
+
+    editorService.fromXml(editorService.toXml());
+
+    QVERIFY(mixerServiceIn.isTrackMuted(1));
+    QVERIFY(mixerServiceIn.isTrackSoloed(2));
+    QVERIFY(mixerServiceIn.isColumnMuted(3, 0));
+    QVERIFY(mixerServiceIn.isColumnSoloed(4, 1));
 }
 
 void EditorServiceTest::test_toXmlFromXml_instrumentSettingsSet_shouldParseInstrumentSettings()

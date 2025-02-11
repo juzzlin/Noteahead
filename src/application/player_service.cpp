@@ -26,10 +26,10 @@ namespace noteahead {
 
 static const auto TAG = "PlayerService";
 
-PlayerService::PlayerService(MidiServiceS midiService, ConfigS config, QObject * parent)
+PlayerService::PlayerService(MidiServiceS midiService, MixerServiceS mixerService, ConfigS config, QObject * parent)
   : QObject { parent }
   , m_config { config }
-  , m_playerWorker { std::make_unique<PlayerWorker>(midiService) }
+  , m_playerWorker { std::make_unique<PlayerWorker>(midiService, mixerService) }
 {
     initializeWorker();
 }
@@ -105,22 +105,6 @@ void PlayerService::stop()
 void PlayerService::prev()
 {
     juzzlin::L(TAG).debug() << "Prev requested";
-}
-
-void PlayerService::muteTrack(size_t trackIndex, bool mute)
-{
-    juzzlin::L(TAG).debug() << "Muting track " << trackIndex << ": " << mute;
-    if (const bool invoked = QMetaObject::invokeMethod(m_playerWorker.get(), "muteTrack", Q_ARG(size_t, trackIndex), Q_ARG(bool, mute)); !invoked) {
-        juzzlin::L(TAG).error() << "Failed to invoke method";
-    }
-}
-
-void PlayerService::soloTrack(size_t trackIndex, bool solo)
-{
-    juzzlin::L(TAG).debug() << "Soloing track " << trackIndex << ": " << solo;
-    if (const bool invoked = QMetaObject::invokeMethod(m_playerWorker.get(), "soloTrack", Q_ARG(size_t, trackIndex), Q_ARG(bool, solo)); !invoked) {
-        juzzlin::L(TAG).error() << "Failed to invoke method";
-    }
 }
 
 PlayerService::~PlayerService()

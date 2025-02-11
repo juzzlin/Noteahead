@@ -93,6 +93,7 @@ private slots:
     void test_toXmlFromXml_instrumentSettingsSet_shouldParseInstrumentSettings();
     void test_toXmlFromXml_playOrder();
     void test_toXmlFromXml_songProperties();
+    void test_toXmlFromXml_mixerService_shouldLoadMixerService();
     void test_toXmlFromXml_noteData_noteOn();
     void test_toXmlFromXml_noteData_noteOff();
     void test_toXmlFromXml_instrument_shouldParseInstrument();

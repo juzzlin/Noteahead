@@ -48,7 +48,7 @@ Application::Application(int & argc, char ** argv)
   , m_eventSelectionModel { std::make_unique<EventSelectionModel>() }
   , m_midiService { std::make_unique<MidiService>() }
   , m_mixerService { std::make_unique<MixerService>() }
-  , m_playerService { std::make_unique<PlayerService>(m_midiService, m_config) }
+  , m_playerService { std::make_unique<PlayerService>(m_midiService, m_mixerService, m_config) }
   , m_stateMachine { std::make_unique<StateMachine>(m_applicationService, m_editorService) }
   , m_recentFilesManager { std::make_unique<RecentFilesManager>() }
   , m_recentFilesModel { std::make_unique<RecentFilesModel>() }
@@ -112,20 +112,21 @@ void Application::connectServices()
     connect(m_applicationService.get(), &ApplicationService::applyAllTrackSettingsRequested, this, &Application::applyAllInstruments);
 
     connect(m_applicationService.get(), &ApplicationService::liveNoteOnRequested, m_midiService.get(), &MidiService::playNote);
-
     connect(m_applicationService.get(), &ApplicationService::liveNoteOffRequested, m_midiService.get(), &MidiService::stopNote);
 
+    connect(m_editorService.get(), &EditorService::aboutToChangeSong, m_mixerService.get(), &MixerService::clear);
+    connect(m_editorService.get(), &EditorService::aboutToInitialize, m_mixerService.get(), &MixerService::clear);
     connect(m_editorService.get(), &EditorService::instrumentRequested, m_midiService.get(), &MidiService::handleInstrumentRequest);
-
+    connect(m_editorService.get(), &EditorService::mixerDeserializationRequested, m_mixerService.get(), &MixerService::deserializeFromXml);
+    connect(m_editorService.get(), &EditorService::mixerSerializationRequested, m_mixerService.get(), &MixerService::serializeToXml);
     connect(m_editorService.get(), &EditorService::songPositionChanged, m_playerService.get(), &PlayerService::setSongPosition);
 
     connect(m_midiService.get(), &MidiService::availableMidiPortsChanged, m_trackSettingsModel.get(), &TrackSettingsModel::setAvailableMidiPorts);
-
     connect(m_midiService.get(), &MidiService::midiPortsAppeared, this, &Application::requestInstruments);
 
-    connect(m_mixerService.get(), &MixerService::trackMuted, m_playerService.get(), &PlayerService::muteTrack);
-
-    connect(m_mixerService.get(), &MixerService::trackSoloed, m_playerService.get(), &PlayerService::soloTrack);
+    connect(m_mixerService.get(), &MixerService::configurationChanged, this, [this]() {
+        m_editorService->setIsModified(true);
+    });
 
     connect(m_playerService.get(), &PlayerService::songRequested, this, [this] {
         m_playerService->setSong(m_editorService->song());

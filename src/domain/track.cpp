@@ -31,15 +31,9 @@ namespace noteahead {
 static const auto TAG = "Track";
 
 Track::Track(size_t index, std::string name, size_t length, size_t columnCount)
-  : m_index { index }
-  , m_name { name }
+  : MixerUnit { index, name }
 {
     initialize(length, columnCount);
-}
-
-size_t Track::index() const
-{
-    return m_index;
 }
 
 void Track::initialize(size_t length, size_t columnCount)
@@ -69,19 +63,9 @@ Track::InstrumentSettingsS Track::instrumentSettings(const Position & position) 
 void Track::setInstrumentSettings(const Position & position, InstrumentSettingsS instrumentSettings)
 {
     if (instrumentSettings) {
-        instrumentSettings->setTrack(m_index);
+        instrumentSettings->setTrack(index());
     }
     m_columns.at(position.column)->setInstrumentSettings(position, instrumentSettings);
-}
-
-std::string Track::name() const
-{
-    return m_name;
-}
-
-void Track::setName(const std::string & name)
-{
-    m_name = name;
 }
 
 void Track::addColumn()
@@ -141,7 +125,7 @@ bool Track::hasData(size_t column) const
 
 bool Track::hasPosition(const Position & position) const
 {
-    if (position.track == m_index && position.column < m_columns.size()) {
+    if (position.track == index() && position.column < m_columns.size()) {
         return m_columns.at(position.column)->hasPosition(position);
     }
     return false;
@@ -166,7 +150,7 @@ void Track::setNoteDataAtPosition(const NoteData & noteData, const Position & po
 {
     juzzlin::L(TAG).debug() << "Set note data at position: " << noteData.toString() << " @ " << position.toString();
     auto newNoteData = noteData;
-    newNoteData.setTrack(m_index);
+    newNoteData.setTrack(index());
     m_columns.at(position.column)->setNoteDataAtPosition(newNoteData, position);
 }
 
@@ -213,8 +197,8 @@ void Track::serializeToXml(QXmlStreamWriter & writer) const
 {
     writer.writeStartElement("Track");
 
-    writer.writeAttribute("index", QString::number(m_index));
-    writer.writeAttribute("name", QString::fromStdString(m_name));
+    writer.writeAttribute("index", QString::number(index()));
+    writer.writeAttribute("name", QString::fromStdString(name()));
     writer.writeAttribute("lineCount", QString::number(lineCount()));
     writer.writeAttribute("columnCount", QString::number(columnCount()));
 

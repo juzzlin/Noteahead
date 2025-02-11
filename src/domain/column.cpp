@@ -32,14 +32,9 @@ namespace noteahead {
 static const auto TAG = "Column";
 
 Column::Column(size_t index, size_t length)
-  : m_index { index }
+  : MixerUnit { index, "" }
 {
     initialize(length);
-}
-
-size_t Column::index() const
-{
-    return m_index;
 }
 
 void Column::initialize(size_t length)
@@ -61,7 +56,7 @@ bool Column::hasData() const
 
 bool Column::hasPosition(const Position & position) const
 {
-    return position.column == m_index && position.line < m_virtualLineCount;
+    return position.column == index() && position.line < m_virtualLineCount;
 }
 
 size_t Column::lineCount() const
@@ -117,7 +112,7 @@ void Column::setNoteDataAtPosition(const NoteData & noteData, const Position & p
 {
     juzzlin::L(TAG).debug() << "Set note data at position: " << noteData.toString() << " @ " << position.toString();
     auto newNoteData = noteData;
-    newNoteData.setColumn(m_index);
+    newNoteData.setColumn(index());
     m_lines.at(static_cast<size_t>(position.line))->setNoteData(newNoteData);
 }
 
@@ -210,7 +205,7 @@ void Column::setInstrumentSettings(const Position & position, InstrumentSettings
 void Column::serializeToXml(QXmlStreamWriter & writer) const
 {
     writer.writeStartElement(Constants::xmlKeyColumn());
-    writer.writeAttribute(Constants::xmlKeyIndex(), QString::number(m_index));
+    writer.writeAttribute(Constants::xmlKeyIndex(), QString::number(index()));
     writer.writeAttribute(Constants::xmlKeyLineCount(), QString::number(lineCount()));
 
     writer.writeStartElement(Constants::xmlKeyLines());

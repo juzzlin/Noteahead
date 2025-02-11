@@ -21,7 +21,6 @@
 namespace noteahead::Constants {
 
 QString applicationName();
-
 QString applicationVersion();
 
 QString copyright();
@@ -29,29 +28,22 @@ QString copyright();
 QString license();
 
 QString fileFormatVersion();
-
 QString fileFormatExtension();
 
 QString qSettingsCompanyName();
-
-QString webSiteUrl();
-
 QString qSettingSoftwareName();
+QString webSiteUrl();
 
 QString xmlKeyFileFormatVersion();
 
 QString xmlKeyApplicationName();
-
 QString xmlKeyApplicationVersion();
 
 QString xmlKeyCreatedDate();
 
 QString xmlKeyBankEnabled();
-
 QString xmlKeyBankLsb();
-
 QString xmlKeyBankMsb();
-
 QString xmlKeyBankByteOrderSwapped();
 
 QString xmlKeyBeatsPerMinute();
@@ -59,9 +51,7 @@ QString xmlKeyBeatsPerMinute();
 QString xmlKeyChannel();
 
 QString xmlKeyColumn();
-
 QString xmlKeyColumns();
-
 QString xmlKeyColumnCount();
 
 QString xmlKeyController();
@@ -71,7 +61,6 @@ QString xmlKeyCutoff();
 QString xmlKeyIndex();
 
 QString xmlKeyInstrument();
-
 QString xmlKeyInstrumentSettings();
 
 QString xmlKeyPlayOrder();
@@ -83,25 +72,26 @@ QString xmlKeyPosition();
 QString xmlKeyLength();
 
 QString xmlKeyLine();
-
 QString xmlKeyLineEvent();
-
 QString xmlKeyLines();
-
 QString xmlKeyLineCount();
-
 QString xmlKeyLinesPerBeat();
 
 QString xmlKeyMidiCcSetting();
 
+QString xmlKeyMixer();
+QString xmlKeyColumnAttr();
+QString xmlKeyColumnMuted();
+QString xmlKeyColumnSoloed();
+QString xmlKeyTrackAttr();
+QString xmlKeyTrackMuted();
+QString xmlKeyTrackSoloed();
+
 QString xmlKeyName();
 
 QString xmlKeyNote();
-
 QString xmlKeyNoteOn();
-
 QString xmlKeyNoteOff();
-
 QString xmlKeyNoteData();
 
 QString xmlKeyPan();
@@ -109,28 +99,25 @@ QString xmlKeyPan();
 QString xmlKeyPatch();
 
 QString xmlKeyPattern();
-
 QString xmlKeyPatterns();
 
 QString xmlKeyPortName();
 
 QString xmlKeyTrack();
-
 QString xmlKeyTracks();
-
 QString xmlKeyTrackCount();
 
 QString xmlKeyType();
-
 QString xmlKeyValue();
 
 QString xmlKeyVelocity();
-
 QString xmlKeyVolume();
 
 QString xmlKeyProject();
-
 QString xmlKeySong();
+
+QString xmlValueFalse();
+QString xmlValueTrue();
 
 } // namespace noteahead::Constants
 

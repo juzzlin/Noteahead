@@ -46,6 +46,23 @@ Item {
         _positionBar = positionBar;
         columnContainer.setPositionBar(positionBar);
     }
+    function setMuted(muted) {
+        trackHeader.setMuted(muted);
+    }
+    function setSoloed(soloed) {
+        trackHeader.setSoloed(soloed);
+    }
+    function setColumnMuted(columnIndex, muted) {
+        columnContainer.setColumnMuted(columnIndex, muted);
+    }
+    function setColumnSoloed(columnIndex, soloed) {
+        columnContainer.setColumnSoloed(columnIndex, soloed);
+    }
+    function clearMixerSettings() {
+        setMuted(false);
+        setSoloed(false);
+        columnContainer.clearMixerSettings();
+    }
     function updateData() {
         _clearColumns();
         _createColumns();
@@ -75,26 +92,6 @@ Item {
         id: trackHeader
         anchors.top: parent.top
         width: parent.width
-        Component.onCompleted: {
-            columnDeletionRequested.connect(() => editorService.requestColumnDeletion(_index));
-            muteTrackRequested.connect(() => mixerService.muteTrack(_index, true));
-            nameChanged.connect(name => rootItem.nameChanged(name));
-            newColumnRequested.connect(() => editorService.requestNewColumn(_index));
-            soloTrackRequested.connect(() => mixerService.soloTrack(_index, true));
-            trackSettingsDialogRequested.connect(() => UiService.requestTrackSettingsDialog(_index));
-            unmuteTrackRequested.connect(() => mixerService.muteTrack(_index, false));
-            unsoloTrackRequested.connect(() => mixerService.soloTrack(_index, false));
-            mixerService.trackMuted.connect((trackIndex, mute) => {
-                    if (trackIndex === _index) {
-                        setTrackMuted(mute);
-                    }
-                });
-            mixerService.trackSoloed.connect((trackIndex, solo) => {
-                    if (trackIndex === _index) {
-                        setTrackSoloed(solo);
-                    }
-                });
-        }
     }
     Item {
         id: columnContainer
@@ -125,33 +122,45 @@ Item {
             _noteColumnCount = editorService.columnCount(_index);
             _resize(width, height);
         }
+        function setColumnMuted(columnIndex, muted) {
+            _noteColumns[columnIndex].setMuted(muted);
+        }
+        function setColumnSoloed(columnIndex, soloed) {
+            _noteColumns[columnIndex].setSoloed(soloed);
+        }
+        function clearMixerSettings() {
+            _noteColumns.forEach(noteColumn => {
+                noteColumn.setMuted(false);
+                noteColumn.setSoloed(false);
+            });
+        }
         function setFocused(columnIndex, focused) {
             _noteColumns[columnIndex].setFocused(focused);
         }
         function setPosition(position) {
             _noteColumns.forEach(noteColumn => {
-                    noteColumn.setPosition(position);
-                });
+                noteColumn.setPosition(position);
+            });
         }
         function setPositionBar(positionBar) {
             _noteColumns.forEach(noteColumn => {
-                    noteColumn.setPositionBar(positionBar);
-                });
+                noteColumn.setPositionBar(positionBar);
+            });
         }
         function updateIndexHighlights() {
             _noteColumns.forEach(noteColumn => {
-                    noteColumn.updateIndexHighlights();
-                });
+                noteColumn.updateIndexHighlights();
+            });
         }
         function updateNoteDataAtPosition(position) {
             _noteColumns.forEach(noteColumn => {
-                    noteColumn.updateNoteDataAtPosition(position);
-                });
+                noteColumn.updateNoteDataAtPosition(position);
+            });
         }
         function updateVisibility() {
             _noteColumns.forEach(noteColumn => {
-                    noteColumn.visible = editorService.isColumnVisible(_index, noteColumn.index());
-                });
+                noteColumn.visible = editorService.isColumnVisible(_index, noteColumn.index());
+            });
         }
         function _noteColumnX(index) {
             return _noteColumnWidth() * index;
@@ -172,13 +181,13 @@ Item {
             noteColumn.setPositionBar(_positionBar);
             noteColumn.updateData();
             noteColumn.leftClicked.connect((x, y, lineIndex) => {
-                    uiLogger.debug(_tag, `Track ${rootItem._index} left clicked`);
-                    rootItem.leftClicked(noteColumn.index(), lineIndex, x, y);
-                });
+                uiLogger.debug(_tag, `Track ${rootItem._index} left clicked`);
+                rootItem.leftClicked(noteColumn.index(), lineIndex, x, y);
+            });
             noteColumn.rightClicked.connect((x, y, lineIndex) => {
-                    uiLogger.debug(_tag, `Track ${rootItem._index} right clicked`);
-                    rootItem.rightClicked(noteColumn.index(), lineIndex, x, y);
-                });
+                uiLogger.debug(_tag, `Track ${rootItem._index} right clicked`);
+                rootItem.rightClicked(noteColumn.index(), lineIndex, x, y);
+            });
             return noteColumn;
         }
         function _createNoteColumns() {
@@ -196,9 +205,9 @@ Item {
             const noteColumnWidth = _noteColumnWidth();
             const noteColumnHeight = height;
             _noteColumns.forEach(noteColumn => {
-                    noteColumn.x = _noteColumnX(noteColumn.index());
-                    noteColumn.resize(noteColumnWidth, noteColumnHeight);
-                });
+                noteColumn.x = _noteColumnX(noteColumn.index());
+                noteColumn.resize(noteColumnWidth, noteColumnHeight);
+            });
         }
         Component {
             id: noteColumnComponent
@@ -212,5 +221,15 @@ Item {
         color: "transparent"
         border.color: Constants.trackBorderColor
         border.width: Constants.trackBorderWidth
+    }
+    Component.onCompleted: {
+        trackHeader.columnDeletionRequested.connect(() => editorService.requestColumnDeletion(_index));
+        trackHeader.muteRequested.connect(() => mixerService.muteTrack(_index, true));
+        trackHeader.nameChanged.connect(name => rootItem.nameChanged(name));
+        trackHeader.newColumnRequested.connect(() => editorService.requestNewColumn(_index));
+        trackHeader.soloRequested.connect(() => mixerService.soloTrack(_index, true));
+        trackHeader.trackSettingsDialogRequested.connect(() => UiService.requestTrackSettingsDialog(_index));
+        trackHeader.unmuteRequested.connect(() => mixerService.muteTrack(_index, false));
+        trackHeader.unsoloRequested.connect(() => mixerService.soloTrack(_index, false));
     }
 }

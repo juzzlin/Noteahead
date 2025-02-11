@@ -15,8 +15,8 @@ Item {
                 track.setName(editorService.trackName(trackIndex));
                 track.setPositionBar(positionBar);
                 track.nameChanged.connect(name => {
-                        editorService.setTrackName(trackIndex, name);
-                    });
+                    editorService.setTrackName(trackIndex, name);
+                });
                 track.updateData();
                 _tracks.push(track);
                 uiLogger.debug(_tag, `Added track index=${trackIndex}, width=${track.width}, height=${track.height}, x=${track.x}, y=${track.y}`);
@@ -67,6 +67,43 @@ Item {
             uiLogger.error(_tag, `No such track: index=${trackIndex}`);
         }
     }
+    function setColumnMuted(trackIndex, columnIndex, muted) {
+        _tracks.forEach(track => {
+            if (track.index() === trackIndex) {
+                uiLogger.debug(_tag, `Muting column ${columnIndex} of track ${trackIndex}: ${muted}`);
+                track.setColumnMuted(columnIndex, muted);
+            }
+        });
+    }
+    function setColumnSoloed(trackIndex, columnIndex, soloed) {
+        _tracks.forEach(track => {
+            if (track.index() === trackIndex) {
+                uiLogger.debug(_tag, `Soloing column ${columnIndex} of track ${trackIndex}: ${soloed}`);
+                track.setColumnSoloed(columnIndex, soloed);
+            }
+        });
+    }
+    function setTrackMuted(trackIndex, muted) {
+        _tracks.forEach(track => {
+            if (track.index() === trackIndex) {
+                uiLogger.debug(_tag, `Muting track ${trackIndex}: ${muted}`);
+                track.setMuted(muted);
+            }
+        });
+    }
+    function setTrackSoloed(trackIndex, soloed) {
+        _tracks.forEach(track => {
+            if (track.index() === trackIndex) {
+                uiLogger.debug(_tag, `Soloing track ${trackIndex}: ${soloed}`);
+                track.setSoloed(soloed);
+            }
+        });
+    }
+    function clearMixerSettings() {
+        _tracks.forEach(track => {
+            track.clearMixerSettings();
+        });
+    }
     function tracks() {
         return _tracks;
     }
@@ -75,13 +112,13 @@ Item {
     }
     function updateIndexHighlights() {
         _tracks.forEach(track => {
-                track.updateIndexHighlights();
-            });
+            track.updateIndexHighlights();
+        });
     }
     function updateTrackHeaders() {
         _tracks.forEach(track => {
-                track.setName(editorService.trackName(track.index()));
-            });
+            track.setName(editorService.trackName(track.index()));
+        });
     }
     function updateTrackVisibility() {
         _tracks.forEach(track => track.updateColumnVisibility());

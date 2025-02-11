@@ -23,6 +23,7 @@
 #include <utility>
 
 class QXmlStreamReader;
+class QXmlStreamWriter;
 
 namespace noteahead {
 
@@ -90,7 +91,7 @@ public:
     void saveAs(QString fileName);
 
     void fromXml(QString xml);
-    QString toXml() const;
+    QString toXml();
 
     Q_INVOKABLE bool canBeSaved() const;
 
@@ -257,12 +258,18 @@ signals:
 
     void horizontalScrollChanged();
 
+    void aboutToInitialize();
+    void initialized();
+
     void instrumentRequested(const InstrumentRequest & instrumentRequest);
 
     void isModifiedChanged();
 
     void lineDataChanged(const Position & position);
     void linesPerBeatChanged();
+
+    void mixerSerializationRequested(QXmlStreamWriter & xmlStreamWriter);
+    void mixerDeserializationRequested(QXmlStreamReader & xmlStreamReader);
 
     void noteDataAtPositionChanged(const Position & position);
     void patternAtCurrentSongPositionChanged(); // For the play order widget
@@ -273,6 +280,7 @@ signals:
     void scrollBarSizeChanged();
     void scrollBarStepSizeChanged();
 
+    void aboutToChangeSong();
     void songChanged();
     void songLengthChanged();
 

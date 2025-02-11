@@ -202,6 +202,41 @@ QString xmlKeyMidiCcSetting()
     return "MidiCcSetting";
 }
 
+QString xmlKeyMixer()
+{
+    return "Mixer";
+}
+
+QString xmlKeyColumnAttr()
+{
+    return "column";
+}
+
+QString xmlKeyColumnMuted()
+{
+    return "ColumMuted";
+}
+
+QString xmlKeyColumnSoloed()
+{
+    return "ColumSoloed";
+}
+
+QString xmlKeyTrackAttr()
+{
+    return "track";
+}
+
+QString xmlKeyTrackMuted()
+{
+    return "TrackMuted";
+}
+
+QString xmlKeyTrackSoloed()
+{
+    return "TrackSoloed";
+}
+
 QString xmlKeyName()
 {
     return "name";
@@ -295,6 +330,16 @@ QString xmlKeyProject()
 QString xmlKeySong()
 {
     return "Song";
+}
+
+QString xmlValueFalse()
+{
+    return "false";
+}
+
+QString xmlValueTrue()
+{
+    return "true";
 }
 
 } // namespace noteahead::constants

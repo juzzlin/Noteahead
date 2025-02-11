@@ -19,6 +19,8 @@
 #include <memory>
 #include <vector>
 
+#include "mixer_unit.hpp"
+
 class QXmlStreamWriter;
 
 namespace noteahead {
@@ -30,12 +32,10 @@ class InstrumentSettings;
 class NoteData;
 struct Position;
 
-class Track
+class Track : public MixerUnit
 {
 public:
     Track(size_t index, std::string name, size_t length, size_t columnCount);
-
-    size_t index() const;
 
     using ColumnS = std::shared_ptr<Column>;
 
@@ -51,9 +51,6 @@ public:
     bool hasData(size_t column) const;
     bool hasPosition(const Position & position) const;
 
-    std::string name() const;
-    void setName(const std::string & newName);
-
     using NoteDataS = std::shared_ptr<NoteData>;
     Position nextNoteDataOnSameColumn(const Position & position) const;
     Position prevNoteDataOnSameColumn(const Position & position) const;
@@ -67,12 +64,6 @@ public:
     PositionList transposeTrack(const Position & position, int semitones) const;
     PositionList transposeColumn(const Position & position, int semitones) const;
 
-    using EventS = std::shared_ptr<Event>;
-    using EventList = std::vector<EventS>;
-    EventList renderToEvents(size_t startTick, size_t ticksPerLine) const;
-
-    void serializeToXml(QXmlStreamWriter & writer) const;
-
     using InstrumentS = std::shared_ptr<Instrument>;
     InstrumentS instrument() const;
     void setInstrument(InstrumentS instrument);
@@ -81,12 +72,14 @@ public:
     InstrumentSettingsS instrumentSettings(const Position & position) const;
     void setInstrumentSettings(const Position & position, InstrumentSettingsS instrumentSettings);
 
+    using EventS = std::shared_ptr<Event>;
+    using EventList = std::vector<EventS>;
+    EventList renderToEvents(size_t startTick, size_t ticksPerLine) const;
+
+    void serializeToXml(QXmlStreamWriter & writer) const;
+
 private:
     void initialize(size_t length, size_t columnCount);
-
-    size_t m_index = 0;
-
-    std::string m_name;
 
     std::vector<ColumnS> m_columns;
 

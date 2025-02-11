@@ -20,6 +20,7 @@
 #include "../domain/instrument_settings.hpp"
 #include "../domain/note_data.hpp"
 #include "midi_service.hpp"
+#include "mixer_service.hpp"
 
 #include <ranges>
 #include <thread>
@@ -28,8 +29,9 @@ namespace noteahead {
 
 static const auto TAG = "PlayerWorker";
 
-PlayerWorker::PlayerWorker(MidiServiceS midiService)
+PlayerWorker::PlayerWorker(MidiServiceS midiService, MixerServiceS mixerService)
   : m_midiService { midiService }
+  , m_mixerService { mixerService }
 {
 }
 
@@ -67,31 +69,11 @@ void PlayerWorker::stop()
     setIsPlaying(false);
 }
 
-bool PlayerWorker::isTrackMuted(size_t trackIndex) const
-{
-    return m_mutedTracks.contains(trackIndex);
-}
-
-bool PlayerWorker::isTrackSoloed(size_t trackIndex) const
-{
-    return m_soloedTracks.contains(trackIndex);
-}
-
 bool PlayerWorker::shouldEventPlay(const Event & event) const
 {
-    if (m_mutedTracks.empty() && m_soloedTracks.empty()) {
-        return true;
-    }
-
     if (auto && noteData = event.noteData(); noteData) {
-        const auto trackIndex = noteData->track();
-        if (!m_soloedTracks.empty()) {
-            return isTrackSoloed(trackIndex) && !isTrackMuted(trackIndex);
-        } else {
-            return !isTrackMuted(trackIndex);
-        }
+        return m_mixerService->shouldColumnPlay(noteData->track(), noteData->column());
     }
-
     return true;
 }
 
@@ -178,26 +160,6 @@ void PlayerWorker::stopAllNotes()
 bool PlayerWorker::isPlaying() const
 {
     return m_isPlaying;
-}
-
-void PlayerWorker::muteTrack(size_t trackIndex, bool mute)
-{
-    juzzlin::L(TAG).debug() << "Muting track " << trackIndex << ": " << mute;
-    if (mute) {
-        m_mutedTracks.insert(trackIndex);
-    } else {
-        m_mutedTracks.erase(trackIndex);
-    }
-}
-
-void PlayerWorker::soloTrack(size_t trackIndex, bool solo)
-{
-    juzzlin::L(TAG).debug() << "Soloing track " << trackIndex << ": " << solo;
-    if (solo) {
-        m_soloedTracks.insert(trackIndex);
-    } else {
-        m_soloedTracks.erase(trackIndex);
-    }
 }
 
 PlayerWorker::~PlayerWorker()

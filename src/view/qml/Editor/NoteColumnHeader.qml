@@ -11,12 +11,9 @@ Rectangle {
     color: Constants.trackHeaderBackgroundColor
     border.color: Constants.trackHeaderBorderColor
     border.width: 1
-    signal columnDeletionRequested
     signal muteRequested
     signal nameChanged(string name)
-    signal newColumnRequested
     signal soloRequested
-    signal trackSettingsDialogRequested
     signal unmuteRequested
     signal unsoloRequested
     property bool _focused: false
@@ -37,32 +34,8 @@ Rectangle {
         anchors.leftMargin: 2
         anchors.topMargin: 2
         anchors.bottomMargin: 2
-        ToolBarButtonBase {
-            id: trackSettingsButton
-            height: parent.height
-            width: height
-            enabled: !UiService.isPlaying()
-            onClicked: {
-                rootItem.trackSettingsDialogRequested();
-                focus = false;
-            }
-            Keys.onPressed: event => {
-                if (event.key === Qt.Key_Space) {
-                    event.accepted = true;
-                }
-            }
-            ToolTip.delay: Constants.toolTipDelay
-            ToolTip.timeout: Constants.toolTipTimeout
-            ToolTip.visible: hovered
-            ToolTip.text: qsTr("Open track settings")
-            Component.onCompleted: {
-                setScale(0.8);
-                setImageSource("../Graphics/settings.svg");
-            }
-        }
         TextField {
             id: nameField
-            placeholderText: qsTr("Track name")
             color: _focused ? "black" : Constants.trackHeaderTextColor
             background: Rectangle {
                 color: _focused ? Constants.trackHeaderTextColor : "transparent"
@@ -72,7 +45,7 @@ Rectangle {
             font.pixelSize: Constants.trackHeaderFontSize
             font.family: "monospace"
             height: parent.height
-            width: parent.width - trackSettingsButton.width - trackHeaderColumnButtons.width - muteSoloButtons.width
+            width: parent.width - muteSoloButtons.width
             verticalAlignment: Text.AlignVCenter
             horizontalAlignment: Text.AlignHCenter
             padding: 0  // Remove default padding
@@ -84,12 +57,7 @@ Rectangle {
             ToolTip.delay: Constants.toolTipDelay
             ToolTip.timeout: Constants.toolTipTimeout
             ToolTip.visible: hovered
-            ToolTip.text: qsTr("Set track name")
-        }
-        TrackHeaderColumnButtons {
-            id: trackHeaderColumnButtons
-            height: parent.height
-            width: height / 2 + 10
+            ToolTip.text: qsTr("Set column name")
         }
         MuteSoloButtons {
             id: muteSoloButtons
@@ -98,8 +66,6 @@ Rectangle {
         }
     }
     Component.onCompleted: {
-        trackHeaderColumnButtons.columnDeletionRequested.connect(rootItem.columnDeletionRequested);
-        trackHeaderColumnButtons.newColumnRequested.connect(rootItem.newColumnRequested);
         muteSoloButtons.muteRequested.connect(rootItem.muteRequested);
         muteSoloButtons.soloRequested.connect(rootItem.soloRequested);
         muteSoloButtons.unmuteRequested.connect(rootItem.unmuteRequested);

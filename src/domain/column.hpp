@@ -19,6 +19,8 @@
 #include <memory>
 #include <vector>
 
+#include "mixer_unit.hpp"
+
 class QXmlStreamWriter;
 
 namespace noteahead {
@@ -29,12 +31,10 @@ class Line;
 class NoteData;
 struct Position;
 
-class Column
+class Column : public MixerUnit
 {
 public:
     Column(size_t index, size_t length);
-
-    size_t index() const;
 
     bool hasData() const;
     bool hasPosition(const Position & position) const;
@@ -70,8 +70,6 @@ public:
 
 private:
     void initialize(size_t length);
-
-    size_t m_index = 0;
 
     size_t m_virtualLineCount = 0;
 

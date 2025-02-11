@@ -2,10 +2,8 @@ import QtQuick 2.15
 import QtQuick.Controls.Universal 2.15
 import ".."
 
-Rectangle {
+Item {
     id: rootItem
-    color: Constants.noteColumnBackgroundColor
-    clip: true
     signal leftClicked(int x, int y, int lineIndex)
     signal rightClicked(int x, int y, int lineIndex)
     property int _index: 0
@@ -18,6 +16,8 @@ Rectangle {
     function resize(width, height) {
         rootItem.width = width;
         rootItem.height = height;
+        lineContainer.width = width;
+        lineContainer.height = height - columnHeader.height;
         _resizeLines();
     }
     function index() {
@@ -35,10 +35,16 @@ Rectangle {
     function setFocused(focused) {
         _setLineFocused(editorService.position.line, editorService.position.lineColumn, focused);
     }
+    function setMuted(muted) {
+        columnHeader.setMuted(muted);
+    }
+    function setSoloed(soloed) {
+        columnHeader.setSoloed(soloed);
+    }
     function setPosition(position) {
         _scrollOffset = position.line;
         _scrollLines();
-        if (UiService.isPlaying() && mixerService.shouldTrackPlay(_trackIndex)) {
+        if (UiService.isPlaying() && mixerService.shouldColumnPlay(_trackIndex, _index)) {
             volumeMeter.trigger(editorService.effectiveVolumeAtPosition(position.pattern, _trackIndex, _index, position.line));
         }
     }
@@ -73,19 +79,19 @@ Rectangle {
             return "#" + value.toString(16).padStart(2, "0").repeat(3);
         }
         _lines.forEach((line, index) => {
-                if (editorService.hasInstrumentSettings(_patternIndex, _trackIndex, _index, index)) {
-                    line.color = Universal.color(Universal.Cobalt);
-                } else {
-                    line.color = _scaledColor(_indexHighlightOpacity(index, editorService.linesPerBeat));
-                }
-            });
+            if (editorService.hasInstrumentSettings(_patternIndex, _trackIndex, _index, index)) {
+                line.color = Universal.color(Universal.Cobalt);
+            } else {
+                line.color = _scaledColor(_indexHighlightOpacity(index, editorService.linesPerBeat));
+            }
+        });
     }
     function _isPositionMe(position) {
         return position.pattern === _patternIndex && position.track === _trackIndex && position.column === _index;
     }
     function _lineHeight() {
         const lineCount = config.visibleLines;
-        return rootItem.height / lineCount;
+        return lineContainer.height / lineCount;
     }
     function _scrolledLinePositionByLineIndex(lineIndex) {
         return lineIndex - _scrollOffset + editorService.positionBarLine();
@@ -93,12 +99,12 @@ Rectangle {
     function _initializeWithNoData(lineCount, lineHeight) {
         const noteAndVelocity = editorService.displayNoteAndVelocityAtPosition(_patternIndex, _trackIndex, _index, 0);
         for (let lineIndex = 0; lineIndex < lineCount; lineIndex++) {
-            const line = noteColumnLineComponent.createObject(rootItem, {
-                    "width": rootItem.width,
-                    "height": lineHeight,
-                    "x": 0,
-                    "y": lineHeight * _scrolledLinePositionByLineIndex(lineIndex)
-                });
+            const line = noteColumnLineComponent.createObject(lineContainer, {
+                "width": lineContainer.width,
+                "height": lineHeight,
+                "x": 0,
+                "y": lineHeight * _scrolledLinePositionByLineIndex(lineIndex)
+            });
             line.setNoteData(noteAndVelocity[0], noteAndVelocity[1]);
             _lines.push(line);
         }
@@ -106,20 +112,20 @@ Rectangle {
     function _initializeWithData(lineCount, lineHeight) {
         for (let lineIndex = 0; lineIndex < lineCount; lineIndex++) {
             const noteAndVelocity = editorService.displayNoteAndVelocityAtPosition(_patternIndex, _trackIndex, _index, lineIndex);
-            const line = noteColumnLineComponent.createObject(rootItem, {
-                    "width": rootItem.width,
-                    "height": lineHeight,
-                    "x": 0,
-                    "y": lineHeight * _scrolledLinePositionByLineIndex(lineIndex)
-                });
+            const line = noteColumnLineComponent.createObject(lineContainer, {
+                "width": lineContainer.width,
+                "height": lineHeight,
+                "x": 0,
+                "y": lineHeight * _scrolledLinePositionByLineIndex(lineIndex)
+            });
             line.setNoteData(noteAndVelocity[0], noteAndVelocity[1]);
             _lines.push(line);
         }
     }
     function _createLines() {
         _lines.forEach(line => {
-                line.destroy();
-            });
+            line.destroy();
+        });
         _lines.length = 0;
         const lineCount = editorService.lineCount(_patternIndex);
         const lineHeight = _lineHeight();
@@ -134,19 +140,19 @@ Rectangle {
         const lineCount = editorService.lineCount(_patternIndex);
         const lineHeight = _lineHeight();
         _lines.forEach((line, index) => {
-                line.y = lineHeight * _scrolledLinePositionByLineIndex(index);
-                line.width = width;
-                line.height = lineHeight;
-            });
+            line.y = lineHeight * _scrolledLinePositionByLineIndex(index);
+            line.width = width;
+            line.height = lineHeight;
+        });
     }
     function _scrollLines() {
         const lineHeight = _lineHeight();
         const linesVisible = config.visibleLines;
         _lines.forEach((line, index) => {
-                const scrolledLinePosition = _scrolledLinePositionByLineIndex(index);
-                line.y = lineHeight * scrolledLinePosition;
-                line.visible = scrolledLinePosition >= 0 && scrolledLinePosition <= linesVisible;
-            });
+            const scrolledLinePosition = _scrolledLinePositionByLineIndex(index);
+            line.y = lineHeight * scrolledLinePosition;
+            line.visible = scrolledLinePosition >= 0 && scrolledLinePosition <= linesVisible;
+        });
     }
     function _setLineFocused(lineIndex, lineColumnIndex, focused) {
         if (!focused) {
@@ -159,68 +165,86 @@ Rectangle {
     function _lineIndexAtPosition(y) {
         let bestIndex = 0;
         _lines.forEach((line, index) => {
-                if (y >= line.y) {
-                    bestIndex = index;
-                }
-            });
+            if (y >= line.y) {
+                bestIndex = index;
+            }
+        });
         return bestIndex;
     }
-    Component {
-        id: noteColumnLineComponent
-        NoteColumnLine {
-        }
+    NoteColumnHeader {
+        id: columnHeader
+        anchors.top: parent.top
+        width: parent.width
     }
     Rectangle {
-        id: borderRectangle
-        color: "transparent"
-        border.color: Constants.noteColumnBorderColor
-        border.width: 1
-        anchors.fill: parent
-        z: 2
-    }
-    Rectangle {
-        id: lineCursor
-        color: "red"
-        opacity: 0.5
-        anchors.verticalCenter: parent.verticalCenter
-        z: 3
-        visible: false
-    }
-    VolumeMeter {
-        id: volumeMeter
-        anchors.top: rootItem.top
-        anchors.left: rootItem.left
-        anchors.right: rootItem.right
-        height: _positionBar ? _positionBar.y - rootItem.parent.y : 0
-        z: 5
-    }
-    MouseArea {
-        id: clickHandler
-        anchors.fill: parent
-        acceptedButtons: Qt.LeftButton | Qt.RightButton
-        onClicked: mouse => {
-            const lineIndex = rootItem._lineIndexAtPosition(mouse.y);
-            if (mouse.button === Qt.LeftButton) {
-                uiLogger.debug(_tag, `Column ${rootItem._index} left clicked on line  ${lineIndex}`);
-                rootItem.leftClicked(mouse.x, mouse.y, lineIndex);
-            } else {
-                uiLogger.debug(_tag, `Column ${rootItem._index} right clicked on line ${lineIndex}`);
-                rootItem.rightClicked(mouse.x, mouse.y, lineIndex);
+        id: lineContainer
+        anchors.top: columnHeader.bottom
+        anchors.bottom: parent.bottom
+        anchors.left: parent.left
+        anchors.right: parent.right
+        color: Constants.noteColumnBackgroundColor
+        clip: true
+        Component {
+            id: noteColumnLineComponent
+            NoteColumnLine {
             }
         }
-        onWheel: event => {
-            if (!UiService.isPlaying()) {
-                if (event.angleDelta.y > 0) {
-                    editorService.requestScroll(-1);
-                    event.accepted = true;
-                } else if (event.angleDelta.y < 0) {
-                    editorService.requestScroll(1);
-                    event.accepted = true;
+        Rectangle {
+            id: borderRectangle
+            color: "transparent"
+            border.color: Constants.noteColumnBorderColor
+            border.width: 1
+            anchors.fill: parent
+            z: 2
+        }
+        Rectangle {
+            id: lineCursor
+            color: "red"
+            opacity: 0.5
+            anchors.verticalCenter: parent.verticalCenter
+            z: 3
+            visible: false
+        }
+        VolumeMeter {
+            id: volumeMeter
+            anchors.top: lineContainer.top
+            anchors.left: lineContainer.left
+            anchors.right: lineContainer.right
+            height: _positionBar ? _positionBar.y - lineContainer.parent.y - 2 * columnHeader.height : 0
+            z: 5
+        }
+        MouseArea {
+            id: clickHandler
+            anchors.fill: parent
+            acceptedButtons: Qt.LeftButton | Qt.RightButton
+            onClicked: mouse => {
+                const lineIndex = rootItem._lineIndexAtPosition(mouse.y);
+                if (mouse.button === Qt.LeftButton) {
+                    uiLogger.debug(_tag, `Column ${lineContainer._index} left clicked on line  ${lineIndex}`);
+                    rootItem.leftClicked(mouse.x, mouse.y, lineIndex);
+                } else {
+                    uiLogger.debug(_tag, `Column ${lineContainer._index} right clicked on line ${lineIndex}`);
+                    rootItem.rightClicked(mouse.x, mouse.y, lineIndex);
+                }
+            }
+            onWheel: event => {
+                if (!UiService.isPlaying()) {
+                    if (event.angleDelta.y > 0) {
+                        editorService.requestScroll(-1);
+                        event.accepted = true;
+                    } else if (event.angleDelta.y < 0) {
+                        editorService.requestScroll(1);
+                        event.accepted = true;
+                    }
                 }
             }
         }
     }
     Component.onCompleted: {
         config.visibleLinesChanged.connect(_resizeLines);
+        columnHeader.muteRequested.connect(() => mixerService.muteColumn(_trackIndex, _index, true));
+        columnHeader.soloRequested.connect(() => mixerService.soloColumn(_trackIndex, _index, true));
+        columnHeader.unmuteRequested.connect(() => mixerService.muteColumn(_trackIndex, _index, false));
+        columnHeader.unsoloRequested.connect(() => mixerService.soloColumn(_trackIndex, _index, false));
     }
 }

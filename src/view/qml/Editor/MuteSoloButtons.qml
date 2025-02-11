@@ -6,18 +6,18 @@ import "../ToolBar"
 
 Item {
     id: rootItem
-    signal muteTrackRequested
-    signal soloTrackRequested
-    signal unmuteTrackRequested
-    signal unsoloTrackRequested
+    signal muteRequested
+    signal soloRequested
+    signal unmuteRequested
+    signal unsoloRequested
     function setMuted(mute) {
-        muteTrackButton.setToggled(mute);
+        muteButton.setToggled(mute);
     }
     function setSoloed(solo) {
-        soloTrackButton.setToggled(solo);
+        soloButton.setToggled(solo);
     }
     ToolBarButtonBase {
-        id: muteTrackButton
+        id: muteButton
         anchors.top: parent.top
         anchors.horizontalCenter: parent.horizontalCenter
         width: parent.height / 2
@@ -25,9 +25,9 @@ Item {
         enabled: !UiService.isPlaying()
         onClicked: {
             if (toggled()) {
-                rootItem.unmuteTrackRequested();
+                rootItem.unmuteRequested();
             } else {
-                rootItem.muteTrackRequested();
+                rootItem.muteRequested();
             }
             focus = false;
         }
@@ -39,7 +39,7 @@ Item {
         ToolTip.delay: Constants.toolTipDelay
         ToolTip.timeout: Constants.toolTipTimeout
         ToolTip.visible: hovered
-        ToolTip.text: qsTr("Mute track")
+        ToolTip.text: qsTr("Mute")
         Component.onCompleted: {
             setScale(0.9);
             setImageSource("../Graphics/mute.svg");
@@ -47,17 +47,17 @@ Item {
         }
     }
     ToolBarButtonBase {
-        id: soloTrackButton
-        anchors.top: muteTrackButton.bottom
+        id: soloButton
+        anchors.top: muteButton.bottom
         anchors.horizontalCenter: parent.horizontalCenter
         width: parent.height / 2
         height: width
         enabled: !UiService.isPlaying()
         onClicked: {
             if (toggled()) {
-                rootItem.unsoloTrackRequested();
+                rootItem.unsoloRequested();
             } else {
-                rootItem.soloTrackRequested();
+                rootItem.soloRequested();
             }
             focus = false;
         }
@@ -69,7 +69,7 @@ Item {
         ToolTip.delay: Constants.toolTipDelay
         ToolTip.timeout: Constants.toolTipTimeout
         ToolTip.visible: hovered
-        ToolTip.text: qsTr("Solo track")
+        ToolTip.text: qsTr("Solo")
         Component.onCompleted: {
             setScale(0.9);
             setImageSource("../Graphics/solo.svg");

@@ -18,40 +18,64 @@
 
 #include <QObject>
 
+#include <map>
 #include <unordered_map>
+
+class QXmlStreamReader;
+class QXmlStreamWriter;
 
 namespace noteahead {
 
 class MixerService : public QObject
 {
     Q_OBJECT
+
 public:
     explicit MixerService(QObject * parent = nullptr);
 
+    ~MixerService() override;
+
+    Q_INVOKABLE void muteColumn(size_t trackIndex, size_t columnIndex, bool mute);
+    Q_INVOKABLE bool shouldColumnPlay(size_t trackIndex, size_t columnIndex) const;
+    Q_INVOKABLE void soloColumn(size_t trackIndex, size_t columnIndex, bool solo);
+    Q_INVOKABLE bool isColumnMuted(size_t trackIndex, size_t columnIndex) const;
+    Q_INVOKABLE bool isColumnSoloed(size_t trackIndex, size_t columnIndex) const;
+
     Q_INVOKABLE void muteTrack(size_t trackIndex, bool mute);
-
     Q_INVOKABLE bool shouldTrackPlay(size_t trackIndex) const;
-
     Q_INVOKABLE void soloTrack(size_t trackIndex, bool solo);
-
     Q_INVOKABLE bool isTrackMuted(size_t trackIndex) const;
-
     Q_INVOKABLE bool isTrackSoloed(size_t trackIndex) const;
 
+    Q_INVOKABLE void update();
+
+    void clear();
+
+    void deserializeFromXml(QXmlStreamReader & reader);
+    void serializeToXml(QXmlStreamWriter & writer) const;
+
 signals:
+    void columnMuted(size_t trackIndex, size_t columnIndex, bool muted);
+    void columnSoloed(size_t trackIndex, size_t columnIndex, bool soloed);
 
     void trackMuted(size_t trackIndex, bool muted);
+    void trackSoloed(size_t trackIndex, bool soloed);
 
-    void trackSoloed(size_t trackIndex, bool muted);
+    void cleared();
+    void configurationChanged();
 
 private:
+    bool hasSoloedColumns() const;
     bool hasSoloedTracks() const;
 
-    void updateTrackStates();
+    using TrackAndColumn = std::pair<size_t, size_t>;
+    using TrackAndColumnMap = std::map<TrackAndColumn, bool>;
+    TrackAndColumnMap m_mutedColumns;
+    TrackAndColumnMap m_soloedColumns;
 
-    std::unordered_map<size_t, bool> m_mutedTracks;
-
-    std::unordered_map<size_t, bool> m_soloedTracks;
+    using TrackMap = std::unordered_map<size_t, bool>;
+    TrackMap m_mutedTracks;
+    TrackMap m_soloedTracks;
 };
 
 } // namespace noteahead

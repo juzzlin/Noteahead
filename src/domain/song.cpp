@@ -619,7 +619,7 @@ Song::EventList Song::renderToEvents(size_t startPosition)
     return eventList;
 }
 
-void Song::serializeToXml(QXmlStreamWriter & writer) const
+void Song::serializeToXml(QXmlStreamWriter & writer, MixerSerializationCallback mixerSerializationCallback) const
 {
     writer.writeStartElement(Constants::xmlKeySong());
 
@@ -628,6 +628,10 @@ void Song::serializeToXml(QXmlStreamWriter & writer) const
     writer.writeAttribute(Constants::xmlKeyLength(), QString::number(m_length));
 
     m_playOrder->serializeToXml(writer);
+
+    if (mixerSerializationCallback) {
+        mixerSerializationCallback(writer);
+    }
 
     writer.writeStartElement(Constants::xmlKeyPatterns());
 
@@ -649,7 +653,7 @@ std::optional<bool> readBoolAttribute(QXmlStreamReader & reader, QString name, b
         }
         return {};
     } else {
-        return reader.attributes().value(name).toString() == "true";
+        return reader.attributes().value(name).toString() == Constants::xmlValueTrue();
     }
 }
 
@@ -678,7 +682,7 @@ std::optional<QString> readStringAttribute(QXmlStreamReader & reader, QString na
     }
 }
 
-void Song::deserializeFromXml(QXmlStreamReader & reader)
+void Song::deserializeFromXml(QXmlStreamReader & reader, MixerDeserializationCallback mixerDeserializationCallback)
 {
     setBeatsPerMinute(*readUIntAttribute(reader, Constants::xmlKeyBeatsPerMinute()));
     setLinesPerBeat(*readUIntAttribute(reader, Constants::xmlKeyLinesPerBeat()));
@@ -692,6 +696,10 @@ void Song::deserializeFromXml(QXmlStreamReader & reader)
                 deserializePatterns(reader);
             } else if (!reader.name().compare(Constants::xmlKeyPlayOrder())) {
                 deserializePlayOrder(reader);
+            } else if (!reader.name().compare(Constants::xmlKeyMixer())) {
+                if (mixerDeserializationCallback) {
+                    mixerDeserializationCallback(reader);
+                }
             }
         }
         reader.readNext();

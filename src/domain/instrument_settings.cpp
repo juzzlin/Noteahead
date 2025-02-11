@@ -40,12 +40,12 @@ void InstrumentSettings::serializeToXml(QXmlStreamWriter & writer) const
     }
 
     if (bank.has_value()) {
-        writer.writeAttribute(Constants::xmlKeyBankEnabled(), "true");
+        writer.writeAttribute(Constants::xmlKeyBankEnabled(), Constants::xmlValueTrue());
         writer.writeAttribute(Constants::xmlKeyBankLsb(), QString::number(bank->lsb));
         writer.writeAttribute(Constants::xmlKeyBankMsb(), QString::number(bank->msb));
-        writer.writeAttribute(Constants::xmlKeyBankByteOrderSwapped(), bank->byteOrderSwapped ? "true" : "false");
+        writer.writeAttribute(Constants::xmlKeyBankByteOrderSwapped(), bank->byteOrderSwapped ? Constants::xmlValueTrue() : Constants::xmlValueFalse());
     } else {
-        writer.writeAttribute(Constants::xmlKeyBankEnabled(), "false");
+        writer.writeAttribute(Constants::xmlKeyBankEnabled(), Constants::xmlValueFalse());
     }
 
     if (cutoff.has_value()) {
@@ -77,7 +77,7 @@ QString InstrumentSettings::toString() const
         result += QString { ", bank={lsb=%1, msb=%2, byteOrderSwapped=%3}" }
                     .arg(bank->lsb)
                     .arg(bank->msb)
-                    .arg(bank->byteOrderSwapped ? "true" : "false");
+                    .arg(bank->byteOrderSwapped ? Constants::xmlValueTrue() : Constants::xmlValueFalse());
     } else {
         result += ", bank=None";
     }

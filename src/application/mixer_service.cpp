@@ -15,7 +15,11 @@
 
 #include "mixer_service.hpp"
 
+#include "../common/constants.hpp"
 #include "../contrib/SimpleLogger/src/simple_logger.hpp"
+
+#include <QXmlStreamReader>
+#include <QXmlStreamWriter>
 
 namespace noteahead {
 
@@ -26,13 +30,55 @@ MixerService::MixerService(QObject * parent)
 {
 }
 
+void MixerService::muteColumn(size_t trackIndex, size_t columnIndex, bool mute)
+{
+    juzzlin::L(TAG).info() << "Muting column " << columnIndex << " on track " << trackIndex << ": " << mute;
+    m_mutedColumns[{ trackIndex, columnIndex }] = mute;
+    update();
+}
+
+bool MixerService::shouldColumnPlay(size_t trackIndex, size_t columnIndex) const
+{
+    if (!shouldTrackPlay(trackIndex)) {
+        return false;
+    }
+
+    if (hasSoloedColumns()) {
+        return isColumnSoloed(trackIndex, columnIndex) && !isColumnMuted(trackIndex, columnIndex);
+    } else {
+        return !isColumnMuted(trackIndex, columnIndex);
+    }
+}
+
+void MixerService::soloColumn(size_t trackIndex, size_t columnIndex, bool solo)
+{
+    juzzlin::L(TAG).info() << "Soloing column " << columnIndex << " on track " << trackIndex << ": " << solo;
+    m_soloedColumns[{ trackIndex, columnIndex }] = solo;
+    update();
+}
+
+bool MixerService::isColumnMuted(size_t trackIndex, size_t columnIndex) const
+{
+    return m_mutedColumns.contains({ trackIndex, columnIndex }) && m_mutedColumns.at({ trackIndex, columnIndex });
+}
+
+bool MixerService::isColumnSoloed(size_t trackIndex, size_t columnIndex) const
+{
+    return m_soloedColumns.contains({ trackIndex, columnIndex }) && m_soloedColumns.at({ trackIndex, columnIndex });
+}
+
+bool MixerService::hasSoloedColumns() const
+{
+    return std::ranges::any_of(m_soloedColumns, [](const auto & pair) {
+        return pair.second;
+    });
+}
+
 void MixerService::muteTrack(size_t trackIndex, bool mute)
 {
     juzzlin::L(TAG).info() << "Muting track " << trackIndex << ": " << mute;
-
     m_mutedTracks[trackIndex] = mute;
-
-    updateTrackStates();
+    update();
 }
 
 bool MixerService::hasSoloedTracks() const
@@ -54,10 +100,8 @@ bool MixerService::shouldTrackPlay(size_t trackIndex) const
 void MixerService::soloTrack(size_t trackIndex, bool solo)
 {
     juzzlin::L(TAG).info() << "Soloing track " << trackIndex << ": " << solo;
-
     m_soloedTracks[trackIndex] = solo;
-
-    updateTrackStates();
+    update();
 }
 
 bool MixerService::isTrackMuted(size_t trackIndex) const
@@ -70,7 +114,7 @@ bool MixerService::isTrackSoloed(size_t trackIndex) const
     return m_soloedTracks.contains(trackIndex) && m_soloedTracks.at(trackIndex);
 }
 
-void MixerService::updateTrackStates()
+void MixerService::update()
 {
     for (auto && [trackIndex, state] : m_mutedTracks) {
         emit trackMuted(trackIndex, state);
@@ -79,6 +123,119 @@ void MixerService::updateTrackStates()
     for (auto && [trackIndex, state] : m_soloedTracks) {
         emit trackSoloed(trackIndex, state);
     }
+
+    for (const auto & [key, state] : m_mutedColumns) {
+        emit columnMuted(key.first, key.second, state);
+    }
+
+    for (const auto & [key, state] : m_soloedColumns) {
+        emit columnSoloed(key.first, key.second, state);
+    }
+
+    emit configurationChanged();
 }
+
+void MixerService::clear()
+{
+    juzzlin::L(TAG).info() << "Clearing";
+
+    m_mutedColumns.clear();
+    m_soloedColumns.clear();
+    m_mutedTracks.clear();
+    m_soloedTracks.clear();
+
+    emit cleared();
+}
+
+void MixerService::deserializeFromXml(QXmlStreamReader & reader)
+{
+    juzzlin::L(TAG).trace() << "Reading Mixer started";
+
+    clear();
+
+    while (!(reader.isEndElement() && !reader.name().compare(Constants::xmlKeyMixer()))) {
+        juzzlin::L(TAG).trace() << "Current element: " << reader.name().toString().toStdString();
+
+        if (reader.isStartElement()) {
+            if (!reader.name().compare(Constants::xmlKeyColumnMuted())) {
+                bool trackOk = false, columnOk = false;
+                const size_t trackIndex = reader.attributes().value(Constants::xmlKeyTrackAttr()).toUInt(&trackOk);
+                const size_t columnIndex = reader.attributes().value(Constants::xmlKeyColumnAttr()).toUInt(&columnOk);
+                if (trackOk && columnOk) {
+                    m_mutedColumns[{ trackIndex, columnIndex }] = true;
+                }
+            } else if (!reader.name().compare(Constants::xmlKeyColumnSoloed())) {
+                bool trackOk = false, columnOk = false;
+                const size_t trackIndex = reader.attributes().value(Constants::xmlKeyTrackAttr()).toUInt(&trackOk);
+                const size_t columnIndex = reader.attributes().value(Constants::xmlKeyColumnAttr()).toUInt(&columnOk);
+                if (trackOk && columnOk) {
+                    m_soloedColumns[{ trackIndex, columnIndex }] = true;
+                }
+            } else if (!reader.name().compare(Constants::xmlKeyTrackMuted())) {
+                bool ok = false;
+                const size_t trackIndex = reader.attributes().value(Constants::xmlKeyIndex()).toUInt(&ok);
+                if (ok) {
+                    m_mutedTracks[trackIndex] = true;
+                }
+            } else if (!reader.name().compare(Constants::xmlKeyTrackSoloed())) {
+                bool ok = false;
+                const size_t trackIndex = reader.attributes().value(Constants::xmlKeyIndex()).toUInt(&ok);
+                if (ok) {
+                    m_soloedTracks[trackIndex] = true;
+                }
+            }
+        }
+        reader.readNext();
+    }
+
+    if (reader.hasError()) {
+        juzzlin::L(TAG).error() << "XML parsing error: " << reader.errorString().toStdString();
+    }
+
+    juzzlin::L(TAG).trace() << "Reading Mixer ended";
+}
+
+void MixerService::serializeToXml(QXmlStreamWriter & writer) const
+{
+    writer.writeStartElement(Constants::xmlKeyMixer());
+
+    for (const auto & [key, state] : m_mutedColumns) {
+        if (state) {
+            writer.writeStartElement(Constants::xmlKeyColumnMuted());
+            writer.writeAttribute(Constants::xmlKeyTrackAttr(), QString::number(key.first));
+            writer.writeAttribute(Constants::xmlKeyColumnAttr(), QString::number(key.second));
+            writer.writeEndElement();
+        }
+    }
+
+    for (const auto & [key, state] : m_soloedColumns) {
+        if (state) {
+            writer.writeStartElement(Constants::xmlKeyColumnSoloed());
+            writer.writeAttribute(Constants::xmlKeyTrackAttr(), QString::number(key.first));
+            writer.writeAttribute(Constants::xmlKeyColumnAttr(), QString::number(key.second));
+            writer.writeEndElement();
+        }
+    }
+
+    for (auto && [trackIndex, state] : m_mutedTracks) {
+        if (state) {
+            writer.writeStartElement(Constants::xmlKeyTrackMuted());
+            writer.writeAttribute(Constants::xmlKeyIndex(), QString::number(trackIndex));
+            writer.writeEndElement();
+        }
+    }
+
+    for (auto && [trackIndex, state] : m_soloedTracks) {
+        if (state) {
+            writer.writeStartElement(Constants::xmlKeyTrackSoloed());
+            writer.writeAttribute(Constants::xmlKeyIndex(), QString::number(trackIndex));
+            writer.writeEndElement();
+        }
+    }
+
+    writer.writeEndElement(); // Mixer
+}
+
+MixerService::~MixerService() = default;
 
 } // namespace noteahead

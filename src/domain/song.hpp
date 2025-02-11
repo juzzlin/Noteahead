@@ -17,6 +17,7 @@
 #define SONG_HPP
 
 #include <chrono>
+#include <functional>
 #include <map>
 #include <memory>
 #include <optional>
@@ -169,8 +170,12 @@ public:
     size_t length() const;
     void setLength(size_t length);
 
-    void serializeToXml(QXmlStreamWriter & writer) const;
-    void deserializeFromXml(QXmlStreamReader & reader);
+    //! To decouple MiserService from Song. I don't want Song to know anything about MixerService.
+    //! However, concept-wise the mixer settings should still be Song-specific as track configurations may vary.
+    using MixerSerializationCallback = std::function<void(QXmlStreamWriter & writer)>;
+    void serializeToXml(QXmlStreamWriter & writer, MixerSerializationCallback mixerSerializationCallback) const;
+    using MixerDeserializationCallback = std::function<void(QXmlStreamReader & reader)>;
+    void deserializeFromXml(QXmlStreamReader & reader, MixerDeserializationCallback mixerDeserializationCallback);
 
 private:
     void load(const std::string & filename);

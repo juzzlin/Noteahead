@@ -20,7 +20,6 @@
 #include <cstddef>
 #include <memory>
 #include <set>
-#include <unordered_set>
 #include <vector>
 
 namespace noteahead {
@@ -29,6 +28,7 @@ class Event;
 class Instrument;
 class InstrumentSettings;
 class MidiService;
+class MixerService;
 class NoteData;
 
 class PlayerWorker : public QObject
@@ -49,7 +49,8 @@ public:
     };
 
     using MidiServiceS = std::shared_ptr<MidiService>;
-    PlayerWorker(MidiServiceS midiService);
+    using MixerServiceS = std::shared_ptr<MixerService>;
+    PlayerWorker(MidiServiceS midiService, MixerServiceS mixerService);
 
     ~PlayerWorker() override;
 
@@ -59,9 +60,6 @@ public:
     Q_INVOKABLE void stop();
     bool isPlaying() const;
 
-    Q_INVOKABLE void muteTrack(size_t trackIndex, bool mute);
-    Q_INVOKABLE void soloTrack(size_t trackIndex, bool solo);
-
 signals:
     void isPlayingChanged();
 
@@ -70,9 +68,6 @@ signals:
     void tickUpdated(size_t tick);
 
 private:
-    bool isTrackMuted(size_t trackIndex) const;
-    bool isTrackSoloed(size_t trackIndex) const;
-
     void handleEvent(const Event & event) const;
     void processEvents();
 
@@ -81,6 +76,7 @@ private:
     void stopAllNotes();
 
     MidiServiceS m_midiService;
+    MixerServiceS m_mixerService;
 
     EventList m_events;
 
@@ -93,10 +89,6 @@ private:
     std::set<InstrumentS> m_allInstruments;
 
     std::atomic_bool m_isPlaying = false;
-
-    std::unordered_set<size_t> m_mutedTracks;
-
-    std::unordered_set<size_t> m_soloedTracks;
 };
 
 } // namespace noteahead
