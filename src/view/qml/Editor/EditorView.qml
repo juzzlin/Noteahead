@@ -5,7 +5,6 @@ import ".."
 
 FocusScope {
     id: rootItem
-    property int _trackCount: 0
     property var _patterns: []
     readonly property string _tag: "EditorView"
     focus: true
@@ -93,12 +92,16 @@ FocusScope {
         _updateLineColumns();
     }
     function _clearPatterns() {
-        _patterns = [];
+        _patterns.forEach(pattern => {
+                pattern.clearTracks();
+                pattern.destroy();
+            });
+        _patterns.length = 0;
     }
-    function _setTrackDimensionsByIndex(track, trackIndex) {
+    function _setTrackDimensions(track) {
         const unitWidth = trackArea.width / editorService.visibleUnitCount();
-        track.resize(unitWidth * editorService.trackWidthInUnits(trackIndex), trackArea.height);
-        track.x = unitWidth * editorService.trackPositionInUnits(trackIndex);
+        track.resize(unitWidth * editorService.trackWidthInUnits(track.index()), trackArea.height);
+        track.x = unitWidth * editorService.trackPositionInUnits(track.index());
         track.y = 0;
     }
     function _connectTrack(track) {
@@ -117,7 +120,7 @@ FocusScope {
     function _createTracks(pattern) {
         pattern.createTracks(positionBar);
         pattern.tracks().forEach(track => {
-                _setTrackDimensionsByIndex(track, track.index());
+                _setTrackDimensions(track);
                 _connectTrack(track);
             });
     }
@@ -129,27 +132,24 @@ FocusScope {
         _patterns.push(pattern);
     }
     function _createPatterns() {
-        _trackCount = editorService.trackCount();
+        uiLogger.info(_tag, `Track count: ${editorService.trackCount()}`);
         uiLogger.debug(_tag, `Editor view width: ${rootItem.width}`);
         for (let patternIndex = 0; patternIndex < editorService.patternCount(); patternIndex++) {
-            uiLogger.debug(_tag, `Creating pattern index=${patternIndex}`);
             _createPattern(patternIndex);
         }
     }
     function _recreatePatterns() {
         uiLogger.debug(_tag, `Recreating track layout..`);
-        for (const pattern of _patterns) {
-            pattern.clearTracks();
-        }
         _clearPatterns();
         _createPatterns();
         _updatePatternVisibility();
         _updateTrackVisibility();
+        _updateIndexHighlights();
     }
     function _updateCurrentTrackDimensions() {
         const currentPattern = _patterns[editorService.currentPattern];
         for (const track of currentPattern._tracks) {
-            _setTrackDimensionsByIndex(track, track.index());
+            _setTrackDimensions(track);
         }
     }
     function _updateCurrentTrackData() {
@@ -159,10 +159,10 @@ FocusScope {
         }
     }
     function _setTrackFocused(position) {
-        _patterns[position.pattern]._tracks[position.track].setFocused(position.column, true);
+        _patterns[position.pattern].setTrackFocused(position.track, position.column);
     }
     function _setTrackUnfocused(position) {
-        _patterns[position.pattern]._tracks[position.track].setFocused(position.column, false);
+        _patterns[position.pattern].setTrackUnfocused(position.track, position.column);
     }
     function _updateTrackHeaders() {
         _patterns.forEach(pattern => pattern.updateTrackHeaders());
@@ -170,7 +170,7 @@ FocusScope {
     function _updateTrackSizes() {
         const currentPattern = _patterns[editorService.currentPattern];
         currentPattern._tracks.forEach(track => {
-                _setTrackDimensionsByIndex(track, track.index());
+                _setTrackDimensions(track);
             });
     }
     function _updateFocus(newPosition, oldPosition) {
@@ -209,6 +209,9 @@ FocusScope {
         const currentPattern = _patterns[editorService.currentPattern];
         _createTracks(currentPattern);
     }
+    function _updateIndexHighlights() {
+        _patterns.forEach(pattern => pattern.updateIndexHighlights());
+    }
     function _addColumn(trackIndex) {
         _patterns.forEach(pattern => {
                 pattern.addColumn(trackIndex);
@@ -227,6 +230,8 @@ FocusScope {
         editorService.currentLineCountModified.connect(_updateCurrentLineCount);
         editorService.horizontalScrollChanged.connect(_updateCurrentTrackDimensions);
         editorService.horizontalScrollChanged.connect(_updateTrackVisibility);
+        editorService.linesPerBeatChanged.connect(_updateIndexHighlights);
+        editorService.lineDataChanged.connect(_updateIndexHighlights);
         editorService.noteDataAtPositionChanged.connect(_updateNoteDataAtPosition);
         editorService.songChanged.connect(_recreatePatterns);
         editorService.trackConfigurationChanged.connect(_recreatePatterns);

@@ -54,6 +54,32 @@ Rectangle {
             _lines[position.line].setNoteData(noteAndVelocity[0], noteAndVelocity[1]);
         }
     }
+    function updateIndexHighlights() {
+        uiLogger.debug(_tag, `Updating index highlights of track ${_trackIndex}, column ${_index}`);
+        function _indexHighlightOpacity(index, linesPerBeat) {
+            const _beatLine1 = linesPerBeat;
+            const _beatLine2 = _beatLine1 % 3 ? _beatLine1 / 2 : _beatLine1 / 3;
+            const _beatLine3 = _beatLine1 % 6 ? _beatLine1 / 4 : _beatLine1 / 6;
+            if (!(index % _beatLine1))
+                return 0.25;
+            if (!(index % _beatLine3) && !(index % _beatLine2))
+                return 0.10;
+            if (!(index % _beatLine3))
+                return 0.05;
+            return 0;
+        }
+        function _scaledColor(opacity) {
+            const value = Math.round(255 * opacity);
+            return "#" + value.toString(16).padStart(2, "0").repeat(3);
+        }
+        _lines.forEach((line, index) => {
+                if (editorService.hasInstrumentSettings(_patternIndex, _trackIndex, _index, index)) {
+                    line.color = Universal.color(Universal.Cobalt);
+                } else {
+                    line.color = _scaledColor(_indexHighlightOpacity(index, editorService.linesPerBeat));
+                }
+            });
+    }
     function _isPositionMe(position) {
         return position.pattern === _patternIndex && position.track === _trackIndex && position.column === _index;
     }
@@ -94,7 +120,7 @@ Rectangle {
         _lines.forEach(line => {
                 line.destroy();
             });
-        _lines = [];
+        _lines.length = 0;
         const lineCount = editorService.lineCount(_patternIndex);
         const lineHeight = _lineHeight();
         if (editorService.hasData(_patternIndex, _trackIndex, _index)) {
@@ -138,31 +164,6 @@ Rectangle {
                 }
             });
         return bestIndex;
-    }
-    function _updateIndexHighlights() {
-        function _indexHighlightOpacity(index, linesPerBeat) {
-            const _beatLine1 = linesPerBeat;
-            const _beatLine2 = _beatLine1 % 3 ? _beatLine1 / 2 : _beatLine1 / 3;
-            const _beatLine3 = _beatLine1 % 6 ? _beatLine1 / 4 : _beatLine1 / 6;
-            if (!(index % _beatLine1))
-                return 0.25;
-            if (!(index % _beatLine3) && !(index % _beatLine2))
-                return 0.10;
-            if (!(index % _beatLine3))
-                return 0.05;
-            return 0;
-        }
-        function _scaledColor(opacity) {
-            const value = Math.round(255 * opacity);
-            return "#" + value.toString(16).padStart(2, "0").repeat(3);
-        }
-        _lines.forEach((line, index) => {
-                if (editorService.hasInstrumentSettings(_patternIndex, _trackIndex, _index, index)) {
-                    line.color = Universal.color(Universal.Cobalt);
-                } else {
-                    line.color = _scaledColor(_indexHighlightOpacity(index, editorService.linesPerBeat));
-                }
-            });
     }
     Component {
         id: noteColumnLineComponent
@@ -221,7 +222,5 @@ Rectangle {
     }
     Component.onCompleted: {
         config.visibleLinesChanged.connect(_resizeLines);
-        editorService.linesPerBeatChanged.connect(_updateIndexHighlights);
-        editorService.lineDataChanged.connect(_updateIndexHighlights);
     }
 }

@@ -421,6 +421,16 @@ EditorService::TrackIndexList EditorService::trackIndices() const
     return m_song->trackIndices();
 }
 
+size_t EditorService::trackPositionByIndex(size_t trackIndex) const
+{
+    return m_song->trackPositionByIndex(trackIndex).value_or(0);
+}
+
+size_t EditorService::trackIndexByPosition(size_t track) const
+{
+    return m_song->trackIndexByPosition(track).value_or(0);
+}
+
 QString EditorService::patternName(size_t patternIndex) const
 {
     return QString::fromStdString(m_song->patternName(patternIndex));
@@ -799,13 +809,13 @@ bool EditorService::requestDigitSetAtCurrentPosition(uint8_t digit)
     return false;
 }
 
-void EditorService::requestNewColumn(size_t track)
+void EditorService::requestNewColumn(size_t trackIndex)
 {
-    juzzlin::L(TAG).debug() << "New column requested on track " << track;
+    juzzlin::L(TAG).debug() << "New column requested on track " << trackIndex;
 
-    m_song->addColumn(track);
+    m_song->addColumn(trackIndex);
 
-    emit columnAdded(track);
+    emit columnAdded(trackIndex);
     updateScrollBar();
     notifyPositionChange(m_cursorPosition); // Re-focuses the previous track
     setIsModified(true);
@@ -830,6 +840,10 @@ void EditorService::requestColumnDeletion(size_t track)
 
 void EditorService::requestNewTrackToRight()
 {
+    juzzlin::L(TAG).debug() << "New track requested to the right of track " << position().track;
+    m_song->addTrackToRightOf(position().track);
+    emit trackConfigurationChanged();
+    setIsModified(true);
 }
 
 void EditorService::requestNoteInsertionAtCurrentPosition()
@@ -1111,7 +1125,7 @@ bool EditorService::requestPosition(size_t pattern, size_t track, size_t column,
         return false;
     }
 
-    if (track >= m_song->trackCount()) {
+    if (!m_song->hasTrack(track)) {
         juzzlin::L(TAG).error() << "Invalid track index: " << track;
         return false;
     }
@@ -1165,15 +1179,17 @@ void EditorService::requestScroll(int steps)
     notifyPositionChange(oldPosition);
 }
 
-void EditorService::requestTrackFocus(size_t track, size_t column, size_t line)
+void EditorService::requestTrackFocus(size_t trackIndex, size_t column, size_t line)
 {
-    juzzlin::L(TAG).info() << "Focus for track " << track << " on column " << column << " on line " << line << " requested";
-    if (track < trackCount() && column < m_song->columnCount(track) && line < currentLineCount()) {
-        const auto oldPosition = m_cursorPosition;
-        m_cursorPosition.track = track;
-        m_cursorPosition.column = column;
-        m_cursorPosition.line = line;
-        notifyPositionChange(oldPosition);
+    if (m_song->hasTrack(trackIndex)) {
+        juzzlin::L(TAG).info() << "Focus for track " << trackIndex << " on column " << column << " on line " << line << " requested";
+        if (column < m_song->columnCount(trackIndex) && line < currentLineCount()) {
+            const auto oldPosition = m_cursorPosition;
+            m_cursorPosition.track = trackIndex;
+            m_cursorPosition.column = column;
+            m_cursorPosition.line = line;
+            notifyPositionChange(oldPosition);
+        }
     }
 }
 
@@ -1238,7 +1254,7 @@ void EditorService::requestHorizontalScrollPositionChange(double position)
 size_t EditorService::totalUnitCount() const
 {
     size_t columnCount = 0;
-    for (size_t trackIndex = 0; trackIndex < m_song->trackCount(); trackIndex++) {
+    for (auto && trackIndex : m_song->trackIndices()) {
         columnCount += m_song->columnCount(trackIndex);
     }
     return columnCount;
@@ -1252,8 +1268,9 @@ size_t EditorService::trackWidthInUnits(size_t trackIndex) const
 int EditorService::trackPositionInUnits(size_t trackIndex) const
 {
     int unitPosition = -static_cast<int>(m_horizontalScrollPosition);
-    for (size_t track = 0; track < trackIndex; track++) {
-        unitPosition += m_song->columnCount(track);
+    const auto trackPosition = m_song->trackPositionByIndex(trackIndex);
+    for (size_t track = 0; track < trackPosition; track++) {
+        unitPosition += m_song->columnCount(m_song->trackIndexByPosition(track).value_or(0));
     }
     return unitPosition;
 }

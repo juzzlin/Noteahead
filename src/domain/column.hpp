@@ -36,26 +36,20 @@ public:
 
     size_t index() const;
 
-    using NoteDataS = std::shared_ptr<NoteData>;
-
     bool hasData() const;
-
     bool hasPosition(const Position & position) const;
 
     size_t lineCount() const;
-
     void setLineCount(size_t lineCount);
 
     using LineS = std::shared_ptr<Line>;
-
     void addOrReplaceLine(LineS line);
 
     Position nextNoteDataOnSameColumn(const Position & position) const;
-
     Position prevNoteDataOnSameColumn(const Position & position) const;
 
+    using NoteDataS = std::shared_ptr<NoteData>;
     NoteDataS noteDataAtPosition(const Position & position) const;
-
     void setNoteDataAtPosition(const NoteData & noteData, const Position & position);
 
     using PositionList = std::vector<Position>;

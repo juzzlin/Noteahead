@@ -131,7 +131,9 @@ public:
     Q_INVOKABLE size_t patternCount() const;
     Q_INVOKABLE size_t trackCount() const;
     using TrackIndexList = std::vector<size_t>;
-    TrackIndexList trackIndices() const;
+    Q_INVOKABLE TrackIndexList trackIndices() const;
+    Q_INVOKABLE size_t trackPositionByIndex(size_t trackIndex) const;
+    size_t trackIndexByPosition(size_t track) const;
 
     Q_INVOKABLE QString patternName(size_t patternIndex) const;
     Q_INVOKABLE void setPatternName(size_t patternIndex, QString name);
@@ -160,8 +162,8 @@ public:
 
     Q_INVOKABLE bool requestDigitSetAtCurrentPosition(uint8_t digit);
 
-    Q_INVOKABLE void requestNewColumn(size_t track);
-    Q_INVOKABLE void requestColumnDeletion(size_t track);
+    Q_INVOKABLE void requestNewColumn(size_t trackIndex);
+    Q_INVOKABLE void requestColumnDeletion(size_t trackIndex);
     Q_INVOKABLE void requestNewTrackToRight();
 
     Q_INVOKABLE void requestNoteInsertionAtCurrentPosition();
@@ -190,7 +192,7 @@ public:
     bool requestPosition(const Position & position);
     Q_INVOKABLE bool requestPosition(size_t pattern, size_t track, size_t column, size_t line, size_t lineColumn);
     Q_INVOKABLE void requestScroll(int steps);
-    Q_INVOKABLE void requestTrackFocus(size_t track, size_t column, size_t line);
+    Q_INVOKABLE void requestTrackFocus(size_t trackIndex, size_t column, size_t line);
 
     Q_INVOKABLE size_t beatsPerMinute() const;
     Q_INVOKABLE void setBeatsPerMinute(size_t beatsPerMinute);

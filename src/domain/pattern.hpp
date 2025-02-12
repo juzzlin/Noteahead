@@ -18,6 +18,7 @@
 
 #include <map>
 #include <memory>
+#include <optional>
 #include <vector>
 
 class QXmlStreamWriter;
@@ -50,36 +51,30 @@ public:
     size_t index() const;
 
     void addColumn(size_t trackIndex);
-
     bool deleteColumn(size_t trackIndex);
-
     size_t columnCount(size_t trackIndex) const;
 
     size_t lineCount() const;
-
     void setLineCount(size_t lineCount);
-
     size_t trackCount() const;
     using TrackIndexList = std::vector<size_t>;
     TrackIndexList trackIndices() const;
+    std::optional<size_t> trackPositionByIndex(size_t trackIndex) const;
+    std::optional<size_t> trackIndexByPosition(size_t track) const;
 
     bool hasData() const;
-
     bool hasData(size_t trackIndex, size_t columnIndex) const;
-
     bool hasPosition(const Position & position) const;
 
     std::string name() const;
-
     void setName(std::string name);
 
     std::string trackName(size_t trackIndex) const;
-
     void setTrackName(size_t trackIndex, std::string name);
 
     using TrackS = std::shared_ptr<Track>;
-
-    void addOrReplaceTrack(TrackS track);
+    void setTrackAtPosition(size_t position, TrackS track);
+    void addTrackToRightOf(size_t track);
 
     using InstrumentS = std::shared_ptr<Instrument>;
     InstrumentS instrument(size_t trackIndex) const;
@@ -91,7 +86,6 @@ public:
 
     using NoteDataS = std::shared_ptr<NoteData>;
     NoteDataS noteDataAtPosition(const Position & position) const;
-
     void setNoteDataAtPosition(const NoteData & noteData, const Position & position) const;
 
     using PositionList = std::vector<Position>;
@@ -99,9 +93,7 @@ public:
     PositionList insertNoteDataAtPosition(const NoteData & noteData, const Position & position);
 
     PositionList transposePattern(const Position & position, int semitones) const;
-
     PositionList transposeTrack(const Position & position, int semitones) const;
-
     PositionList transposeColumn(const Position & position, int semitones) const;
 
     Position nextNoteDataOnSameColumn(const Position & position) const;
@@ -120,9 +112,11 @@ public:
 private:
     void initialize(size_t lineCount, size_t trackCount);
 
+    size_t maxIndex() const;
     TrackS trackByIndex(size_t index) const;
-
+    TrackS trackByIndexThrow(size_t index) const;
     TrackS trackByPosition(size_t position) const;
+    TrackS trackByPositionThrow(size_t position) const;
 
     size_t m_index = 0;
 

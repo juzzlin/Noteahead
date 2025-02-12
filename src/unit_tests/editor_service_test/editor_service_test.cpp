@@ -481,6 +481,39 @@ void EditorServiceTest::test_requestNewColumn_shouldAddNewColumn()
     QCOMPARE(editorService.columnCount(0), 2);
 }
 
+void EditorServiceTest::test_requestNewTrackToRight_shouldAddNewTrack()
+{
+    EditorService editorService;
+    const auto initialTrackCount = editorService.trackCount();
+    QVERIFY(editorService.requestPosition(0, 1, 0, 0, 0));
+    QSignalSpy trackConfigurationChangedSpy { &editorService, &EditorService::trackConfigurationChanged };
+    editorService.requestNewTrackToRight();
+
+    const auto newIndex = initialTrackCount;
+    QCOMPARE(editorService.trackCount(), initialTrackCount + 1);
+    QCOMPARE(editorService.trackName(newIndex), "Track " + QString::number(newIndex + 1));
+    QCOMPARE(editorService.trackPositionByIndex(newIndex), 2);
+    QCOMPARE(editorService.trackIndexByPosition(2), newIndex);
+    QCOMPARE(trackConfigurationChangedSpy.count(), 1);
+
+    editorService.requestNewColumn(newIndex);
+    QCOMPARE(editorService.columnCount(newIndex), 2);
+
+    QVERIFY(editorService.requestPosition(0, newIndex, 1, 0, 0));
+    QVERIFY(editorService.requestNoteOnAtCurrentPosition(1, 3, 64));
+    editorService.requestColumnTranspose(1);
+    editorService.requestTrackTranspose(1);
+    const auto noteAndVelocity = editorService.displayNoteAndVelocityAtPosition(0, newIndex, 1, 0);
+    QCOMPARE(noteAndVelocity.at(0), "D-3");
+    QCOMPARE(noteAndVelocity.at(1), "064");
+
+    editorService.requestColumnDeletion(newIndex);
+    QCOMPARE(editorService.columnCount(newIndex), 1);
+
+    editorService.initialize();
+    QCOMPARE(editorService.trackCount(), initialTrackCount);
+}
+
 void EditorServiceTest::test_requestColumnDeletion_shouldDeleteColumn()
 {
     EditorService editorService;

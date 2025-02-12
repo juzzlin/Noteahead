@@ -56,6 +56,9 @@ Item {
     function updateColumnVisibility() {
         columnContainer.updateVisibility();
     }
+    function updateIndexHighlights() {
+        columnContainer.updateIndexHighlights();
+    }
     function addColumn() {
         columnContainer.addColumn();
     }
@@ -103,7 +106,8 @@ Item {
         property var _noteColumns: []
         property var _lineColumn
         function clearColumns() {
-            _noteColumns = [];
+            _noteColumns.forEach(noteColumn => noteColumn.destry());
+            _noteColumns.length = 0;
         }
         function createColumns() {
             _noteColumnCount = editorService.columnCount(_index);
@@ -131,6 +135,11 @@ Item {
         function setPositionBar(positionBar) {
             _noteColumns.forEach(noteColumn => {
                     noteColumn.setPositionBar(positionBar);
+                });
+        }
+        function updateIndexHighlights() {
+            _noteColumns.forEach(noteColumn => {
+                    noteColumn.updateIndexHighlights();
                 });
         }
         function updateNoteDataAtPosition(position) {

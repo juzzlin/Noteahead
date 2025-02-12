@@ -11,7 +11,7 @@ Rectangle {
     property bool _isDisplaying: false
     property string _tag: "BottomBar"
     function setStatusText(text) {
-        uiLogger.debug(_tag, `Pushing new text ${text}`);
+        uiLogger.debug(_tag, `Pushing new text '${text}'`);
         _statusQueue.push(text);
         if (!_isDisplaying) {
             _displayNextText();
@@ -22,7 +22,7 @@ Rectangle {
             _isDisplaying = true;
             _statusText = _statusQueue.shift();
             _fadeOutText();
-            uiLogger.debug(_tag, `Displaying text ${_statusText}`);
+            uiLogger.debug(_tag, `Displaying text '${_statusText}'`);
         } else {
             _isDisplaying = false;
         }

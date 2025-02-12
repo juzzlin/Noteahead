@@ -6,11 +6,12 @@ Item {
     property var _tracks: []
     readonly property string _tag: "Pattern"
     function clearTracks() {
-        _tracks = [];
+        _tracks.forEach(track => track.destroy());
+        _tracks.length = 0;
     }
     function createTracks(positionBar) {
         _tracks = [];
-        for (let trackIndex = 0; trackIndex < _trackCount; trackIndex++) {
+        for (let trackIndex of editorService.trackIndices()) {
             const track = trackComponent.createObject(this);
             if (track) {
                 track.setIndex(trackIndex);
@@ -27,10 +28,16 @@ Item {
         }
     }
     function addColumn(trackIndex) {
-        _tracks[trackIndex].addColumn();
+        const track = trackByIndex(trackIndex);
+        if (track) {
+            track.addColumn();
+        }
     }
     function deleteColumn(trackIndex) {
-        _tracks[trackIndex].deleteColumn();
+        const track = trackByIndex(trackIndex);
+        if (track) {
+            track.deleteColumn();
+        }
     }
     function index() {
         return _index;
@@ -38,8 +45,32 @@ Item {
     function setIndex(index) {
         _index = index;
     }
+    function setTrackFocused(trackIndex, column) {
+        const track = trackByIndex(trackIndex);
+        if (track) {
+            track.setFocused(column, true);
+        } else {
+            uiLogger.error(_tag, `No such track: index=${trackIndex}`);
+        }
+    }
+    function setTrackUnfocused(trackIndex, column) {
+        const track = trackByIndex(trackIndex);
+        if (track) {
+            track.setFocused(column, false);
+        } else {
+            uiLogger.error(_tag, `No such track: index=${trackIndex}`);
+        }
+    }
     function tracks() {
         return _tracks;
+    }
+    function trackByIndex(trackIndex) {
+        return _tracks.find(track => track.index() === trackIndex) || null;
+    }
+    function updateIndexHighlights() {
+        _tracks.forEach(track => {
+                track.updateIndexHighlights();
+            });
     }
     function updateTrackHeaders() {
         _tracks.forEach(track => {
