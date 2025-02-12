@@ -126,6 +126,14 @@ Menu {
         }
         delegate: MainMenuItemDelegate {
         }
+        MenuSeparator {
+        }
+        Action {
+            text: qsTr("Insert a new track")
+            shortcut: "Shift+I"
+            enabled: !UiService.isPlaying()
+            onTriggered: editorService.requestNewTrackToRight()
+        }
     }
     MenuSeparator {
     }

@@ -244,9 +244,9 @@ bool Song::hasData() const
       != m_patterns.end();
 }
 
-bool Song::hasData(size_t pattern, size_t track, size_t column) const
+bool Song::hasData(size_t patternIndex, size_t trackIndex, size_t columnIndex) const
 {
-    return m_patterns.at(pattern)->hasData(track, column);
+    return m_patterns.at(patternIndex)->hasData(trackIndex, columnIndex);
 }
 
 std::string Song::patternName(size_t patternIndex) const

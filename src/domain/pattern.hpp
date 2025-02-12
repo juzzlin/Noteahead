@@ -63,7 +63,7 @@ public:
 
     bool hasData() const;
 
-    bool hasData(size_t track, size_t column) const;
+    bool hasData(size_t trackIndex, size_t columnIndex) const;
 
     bool hasPosition(const Position & position) const;
 
@@ -118,11 +118,15 @@ public:
 private:
     void initialize(size_t lineCount, size_t trackCount);
 
+    TrackS trackByIndex(size_t index) const;
+
+    TrackS trackByPosition(size_t position) const;
+
     size_t m_index = 0;
 
     std::string m_name;
 
-    std::vector<std::shared_ptr<Track>> m_tracks;
+    std::vector<TrackS> m_trackOrder;
 };
 
 } // namespace noteahead

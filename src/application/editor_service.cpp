@@ -542,9 +542,9 @@ void EditorService::setDuration(std::chrono::milliseconds duration)
     }
 }
 
-bool EditorService::hasData(size_t pattern, size_t track, size_t column) const
+bool EditorService::hasData(size_t patternIndex, size_t trackIndex, size_t columnIndex) const
 {
-    return m_song->hasData(pattern, track, column);
+    return m_song->hasData(patternIndex, trackIndex, columnIndex);
 }
 
 bool EditorService::isAtNoteColumn() const
@@ -765,6 +765,10 @@ void EditorService::requestColumnDeletion(size_t track)
         notifyPositionChange(m_cursorPosition); // Re-focuses the previous track
         setIsModified(true);
     }
+}
+
+void EditorService::requestNewTrackToRight()
+{
 }
 
 void EditorService::requestNoteInsertionAtCurrentPosition()
