@@ -161,7 +161,7 @@ public:
 
     Q_INVOKABLE void setCurrentPattern(size_t currentPattern);
 
-    Q_INVOKABLE bool hasData(size_t pattern, size_t track, size_t column) const;
+    Q_INVOKABLE bool hasData(size_t patternIndex, size_t trackIndex, size_t columnIndex) const;
 
     Q_INVOKABLE bool isAtNoteColumn() const;
 
@@ -190,6 +190,8 @@ public:
     Q_INVOKABLE void requestNewColumn(size_t track);
 
     Q_INVOKABLE void requestColumnDeletion(size_t track);
+
+    Q_INVOKABLE void requestNewTrackToRight();
 
     Q_INVOKABLE void requestNoteInsertionAtCurrentPosition();
 

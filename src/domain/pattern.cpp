@@ -24,6 +24,7 @@
 #include <QXmlStreamWriter>
 
 #include <algorithm>
+#include <stdexcept>
 
 namespace noteahead {
 
@@ -40,7 +41,7 @@ Pattern::Pattern(size_t index, PatternConfig config)
 {
     initialize(config.lineCount, config.columnConfig.size());
 
-    std::ranges::for_each(m_tracks, [&](auto && track) {
+    std::ranges::for_each(m_trackOrder, [&](auto && track) {
         while (track->columnCount() < config.columnConfig.at(track->index())) {
             track->addColumn();
         }
@@ -55,8 +56,8 @@ std::unique_ptr<Pattern> Pattern::copyWithoutData(size_t index) const
 Pattern::PatternConfig Pattern::patternConfig() const
 {
     PatternConfig config;
-    config.lineCount = m_tracks.at(0)->lineCount();
-    std::ranges::for_each(m_tracks, [&](auto && track) {
+    config.lineCount = m_trackOrder.at(0)->lineCount();
+    std::ranges::for_each(m_trackOrder, [&](auto && track) {
         config.columnConfig[track->index()] = track->columnCount();
     });
     return config;
@@ -69,55 +70,56 @@ size_t Pattern::index() const
 
 void Pattern::addColumn(size_t trackIndex)
 {
-    m_tracks.at(trackIndex)->addColumn();
+    trackByIndex(trackIndex)->addColumn();
 }
 
 bool Pattern::deleteColumn(size_t trackIndex)
 {
-    return m_tracks.at(trackIndex)->deleteColumn();
+    return trackByIndex(trackIndex)->deleteColumn();
 }
 
 size_t Pattern::columnCount(size_t trackIndex) const
 {
-    return m_tracks.at(trackIndex)->columnCount();
+    return trackByIndex(trackIndex)->columnCount();
 }
 
 size_t Pattern::lineCount() const
 {
-    return m_tracks.at(0)->lineCount();
+    return m_trackOrder.at(0)->lineCount();
 }
 
 void Pattern::setLineCount(size_t lineCount)
 {
-    for (auto && track : m_tracks) {
+    for (auto && track : m_trackOrder) {
         track->setLineCount(lineCount);
     }
 }
 
 size_t Pattern::trackCount() const
 {
-    return static_cast<size_t>(m_tracks.size());
+    return static_cast<size_t>(m_trackOrder.size());
 }
 
 bool Pattern::hasData() const
 {
-    return std::ranges::find_if(m_tracks, [](auto && track) {
+    return std::ranges::find_if(m_trackOrder, [](auto && track) {
                return track->hasData();
            })
-      != m_tracks.end();
+      != m_trackOrder.end();
 }
 
-bool Pattern::hasData(size_t track, size_t column) const
+bool Pattern::hasData(size_t trackIndex, size_t columnIndex) const
 {
-    return m_tracks.at(track)->hasData(column);
+    return trackByIndex(trackIndex)->hasData(columnIndex);
 }
 
 bool Pattern::hasPosition(const Position & position) const
 {
-    if (position.pattern == m_index && position.track < m_tracks.size()) {
-        return m_tracks.at(position.track)->hasPosition(position);
+    try {
+        return position.pattern == m_index && trackByPosition(position.track)->hasPosition(position);
+    } catch (...) {
+        return false;
     }
-    return false;
 }
 
 std::string Pattern::name() const
@@ -132,108 +134,130 @@ void Pattern::setName(std::string name)
 
 std::string Pattern::trackName(size_t trackIndex) const
 {
-    return m_tracks.at(trackIndex)->name();
+    return trackByIndex(trackIndex)->name();
+}
+
+Pattern::TrackS Pattern::trackByIndex(size_t index) const
+{
+    if (const auto it = std::ranges::find_if(m_trackOrder, [index](auto && track) { return track->index() == index; }); it != m_trackOrder.end()) {
+        return *it;
+    } else {
+        juzzlin::L(TAG).error() << "Invalid track index:" << index;
+        throw std::runtime_error("Invalid track index: " + std::to_string(index));
+    }
+}
+
+Pattern::TrackS Pattern::trackByPosition(size_t position) const
+{
+    if (position < m_trackOrder.size()) {
+        return m_trackOrder.at(position);
+    } else {
+        juzzlin::L(TAG).error() << "Invalid track position:" << position;
+        throw std::runtime_error("Invalid track position: " + std::to_string(position));
+    }
 }
 
 void Pattern::addOrReplaceTrack(TrackS track)
 {
     juzzlin::L(TAG).debug() << "Setting track " << track->name() << " as track " << track->index();
 
-    m_tracks.at(track->index()) = track;
+    m_trackOrder.at(track->index()) = track;
 }
 
 void Pattern::setTrackName(size_t trackIndex, std::string name)
 {
     juzzlin::L(TAG).debug() << "Changing name of track " << trackIndex << " from " << trackName(trackIndex) << " to " << name;
 
-    m_tracks.at(trackIndex)->setName(name);
+    if (const auto track = trackByIndex(trackIndex); track) {
+        track->setName(name);
+    }
 }
 
 Pattern::InstrumentS Pattern::instrument(size_t trackIndex) const
 {
-    return m_tracks.at(trackIndex)->instrument();
+    return trackByIndex(trackIndex)->instrument();
 }
 
 void Pattern::setInstrument(size_t trackIndex, InstrumentS instrument)
 {
-    m_tracks.at(trackIndex)->setInstrument(instrument);
+    trackByIndex(trackIndex)->setInstrument(instrument);
 }
 
 Pattern::InstrumentSettingsS Pattern::instrumentSettings(const Position & position) const
 {
-    return m_tracks.at(position.track)->instrumentSettings(position);
+    return trackByPosition(position.track)->instrumentSettings(position);
 }
 
 void Pattern::setInstrumentSettings(const Position & position, InstrumentSettingsS instrumentSettings)
 {
-    m_tracks.at(position.track)->setInstrumentSettings(position, instrumentSettings);
+    trackByPosition(position.track)->setInstrumentSettings(position, instrumentSettings);
 }
 
 Pattern::NoteDataS Pattern::noteDataAtPosition(const Position & position) const
 {
-    return m_tracks.at(position.track)->noteDataAtPosition(position);
+    return trackByPosition(position.track)->noteDataAtPosition(position);
 }
 
 Position Pattern::nextNoteDataOnSameColumn(const Position & position) const
 {
-    return m_tracks.at(position.track)->nextNoteDataOnSameColumn(position);
+    return trackByPosition(position.track)->nextNoteDataOnSameColumn(position);
 }
 
 Position Pattern::prevNoteDataOnSameColumn(const Position & position) const
 {
-    return m_tracks.at(position.track)->prevNoteDataOnSameColumn(position);
+    return trackByPosition(position.track)->prevNoteDataOnSameColumn(position);
 }
 
 void Pattern::setNoteDataAtPosition(const NoteData & noteData, const Position & position) const
 {
     juzzlin::L(TAG).debug() << "Set note data at position: " << noteData.toString() << " @ " << position.toString();
-    m_tracks.at(position.track)->setNoteDataAtPosition(noteData, position);
+    trackByPosition(position.track)->setNoteDataAtPosition(noteData, position);
 }
 
 Pattern::PositionList Pattern::deleteNoteDataAtPosition(const Position & position)
 {
     juzzlin::L(TAG).debug() << "Delete note data at position: " << position.toString();
-    return m_tracks.at(position.track)->deleteNoteDataAtPosition(position);
+    return trackByPosition(position.track)->deleteNoteDataAtPosition(position);
 }
 
 Pattern::PositionList Pattern::insertNoteDataAtPosition(const NoteData & noteData, const Position & position)
 {
     juzzlin::L(TAG).debug() << "Insert note data at position: " << noteData.toString() << " @ " << position.toString();
-    return m_tracks.at(position.track)->insertNoteDataAtPosition(noteData, position);
+    return trackByPosition(position.track)->insertNoteDataAtPosition(noteData, position);
 }
 
 Pattern::PositionList Pattern::transposePattern(const Position & position, int semitones) const
 {
     Pattern::PositionList changedPositions;
-    for (auto && track : m_tracks) {
+    for (size_t track = 0; track < m_trackOrder.size(); track++) {
         auto trackPosition = position;
-        trackPosition.track = track->index();
-        std::ranges::copy(track->transposeTrack(trackPosition, semitones), std::back_inserter(changedPositions));
+        trackPosition.track = track; // Need to set track because these positions will be returned back as changed positions.
+        std::ranges::copy(m_trackOrder.at(track)->transposeTrack(trackPosition, semitones), std::back_inserter(changedPositions));
     }
     return changedPositions;
 }
 
 Pattern::PositionList Pattern::transposeTrack(const Position & position, int semitones) const
 {
-    return m_tracks.at(position.track)->transposeTrack(position, semitones);
+    return trackByPosition(position.track)->transposeTrack(position, semitones);
 }
 
 Pattern::PositionList Pattern::transposeColumn(const Position & position, int semitones) const
 {
-    return m_tracks.at(position.track)->transposeColumn(position, semitones);
+    return trackByPosition(position.track)->transposeColumn(position, semitones);
 }
 
 void Pattern::initialize(size_t lineCount, size_t trackCount)
 {
     for (size_t i = 0; i < trackCount; i++) {
-        m_tracks.push_back(std::make_shared<Track>(i, "Track " + std::to_string(i + 1), lineCount, 1));
+        m_trackOrder.push_back(std::make_shared<Track>(i, "Track " + std::to_string(i + 1), lineCount, 1));
     }
 }
 
 Pattern::EventList Pattern::renderToEvents(size_t startTick, size_t ticksPerLine) const
 {
     Pattern::EventList eventList;
-    std::ranges::for_each(m_tracks, [&](auto && track) {
+    std::ranges::for_each(m_trackOrder, [&](auto && track) {
         const auto trackEvents = track->renderToEvents(startTick, ticksPerLine);
         std::copy(trackEvents.begin(), trackEvents.end(), std::back_inserter(eventList));
     });
@@ -251,7 +275,7 @@ void Pattern::serializeToXml(QXmlStreamWriter & writer) const
 
     writer.writeStartElement(Constants::xmlKeyTracks());
 
-    std::ranges::for_each(m_tracks, [&writer](auto && track) {
+    std::ranges::for_each(m_trackOrder, [&writer](auto && track) {
         if (track) {
             track->serializeToXml(writer);
         }
