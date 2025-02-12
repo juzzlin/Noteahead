@@ -124,11 +124,7 @@ bool Pattern::hasData(size_t trackIndex, size_t columnIndex) const
 
 bool Pattern::hasPosition(const Position & position) const
 {
-    try {
-        return position.pattern == m_index && trackByPosition(position.track)->hasPosition(position);
-    } catch (...) {
-        return false;
-    }
+    return position.pattern == m_index && trackByPosition(position.track)->hasPosition(position);
 }
 
 std::string Pattern::name() const
@@ -151,6 +147,15 @@ Pattern::TrackS Pattern::trackByIndex(size_t index) const
     if (const auto it = std::ranges::find_if(m_trackOrder, [index](auto && track) { return track->index() == index; }); it != m_trackOrder.end()) {
         return *it;
     } else {
+        return nullptr;
+    }
+}
+
+Pattern::TrackS Pattern::trackByIndexThrow(size_t index) const
+{
+    if (const auto track = trackByIndex(index); track) {
+        return track;
+    } else {
         juzzlin::L(TAG).error() << "Invalid track index:" << index;
         throw std::runtime_error("Invalid track index: " + std::to_string(index));
     }
@@ -158,7 +163,12 @@ Pattern::TrackS Pattern::trackByIndex(size_t index) const
 
 Pattern::TrackS Pattern::trackByPosition(size_t position) const
 {
-    if (position < m_trackOrder.size()) {
+    return position < m_trackOrder.size() ? m_trackOrder.at(position) : nullptr;
+}
+
+Pattern::TrackS Pattern::trackByPositionThrow(size_t position) const
+{
+    if (const auto track = trackByPosition(position); track) {
         return m_trackOrder.at(position);
     } else {
         juzzlin::L(TAG).error() << "Invalid track position:" << position;
@@ -166,11 +176,25 @@ Pattern::TrackS Pattern::trackByPosition(size_t position) const
     }
 }
 
-void Pattern::addOrReplaceTrack(TrackS track)
+std::optional<size_t> Pattern::trackPositionByIndex(size_t index) const
 {
-    juzzlin::L(TAG).debug() << "Setting track " << track->name() << " as track " << track->index();
+    if (const auto it = std::ranges::find_if(m_trackOrder, [index](auto && track) { return track->index() == index; }); it != m_trackOrder.end()) {
+        return std::distance(m_trackOrder.begin(), it);
+    } else {
+        return {};
+    }
+}
 
-    m_trackOrder.at(track->index()) = track;
+void Pattern::setTrackAtPosition(size_t position, TrackS track)
+{
+    juzzlin::L(TAG).debug() << "Setting track " << track->name() << " as track " << track->index() << " at position " << position;
+
+    m_trackOrder.at(position) = track;
+}
+
+void Pattern::addTrackToRightOf(size_t track)
+{
+    juzzlin::L(TAG).debug() << "Add track to the right of track " << track;
 }
 
 void Pattern::setTrackName(size_t trackIndex, std::string name)
@@ -184,55 +208,55 @@ void Pattern::setTrackName(size_t trackIndex, std::string name)
 
 Pattern::InstrumentS Pattern::instrument(size_t trackIndex) const
 {
-    return trackByIndex(trackIndex)->instrument();
+    return trackByIndexThrow(trackIndex)->instrument();
 }
 
 void Pattern::setInstrument(size_t trackIndex, InstrumentS instrument)
 {
-    trackByIndex(trackIndex)->setInstrument(instrument);
+    trackByIndexThrow(trackIndex)->setInstrument(instrument);
 }
 
 Pattern::InstrumentSettingsS Pattern::instrumentSettings(const Position & position) const
 {
-    return trackByPosition(position.track)->instrumentSettings(position);
+    return trackByPositionThrow(position.track)->instrumentSettings(position);
 }
 
 void Pattern::setInstrumentSettings(const Position & position, InstrumentSettingsS instrumentSettings)
 {
-    trackByPosition(position.track)->setInstrumentSettings(position, instrumentSettings);
+    trackByPositionThrow(position.track)->setInstrumentSettings(position, instrumentSettings);
 }
 
 Pattern::NoteDataS Pattern::noteDataAtPosition(const Position & position) const
 {
-    return trackByPosition(position.track)->noteDataAtPosition(position);
+    return trackByPositionThrow(position.track)->noteDataAtPosition(position);
 }
 
 Position Pattern::nextNoteDataOnSameColumn(const Position & position) const
 {
-    return trackByPosition(position.track)->nextNoteDataOnSameColumn(position);
+    return trackByPositionThrow(position.track)->nextNoteDataOnSameColumn(position);
 }
 
 Position Pattern::prevNoteDataOnSameColumn(const Position & position) const
 {
-    return trackByPosition(position.track)->prevNoteDataOnSameColumn(position);
+    return trackByPositionThrow(position.track)->prevNoteDataOnSameColumn(position);
 }
 
 void Pattern::setNoteDataAtPosition(const NoteData & noteData, const Position & position) const
 {
     juzzlin::L(TAG).debug() << "Set note data at position: " << noteData.toString() << " @ " << position.toString();
-    trackByPosition(position.track)->setNoteDataAtPosition(noteData, position);
+    trackByPositionThrow(position.track)->setNoteDataAtPosition(noteData, position);
 }
 
 Pattern::PositionList Pattern::deleteNoteDataAtPosition(const Position & position)
 {
     juzzlin::L(TAG).debug() << "Delete note data at position: " << position.toString();
-    return trackByPosition(position.track)->deleteNoteDataAtPosition(position);
+    return trackByPositionThrow(position.track)->deleteNoteDataAtPosition(position);
 }
 
 Pattern::PositionList Pattern::insertNoteDataAtPosition(const NoteData & noteData, const Position & position)
 {
     juzzlin::L(TAG).debug() << "Insert note data at position: " << noteData.toString() << " @ " << position.toString();
-    return trackByPosition(position.track)->insertNoteDataAtPosition(noteData, position);
+    return trackByPositionThrow(position.track)->insertNoteDataAtPosition(noteData, position);
 }
 
 Pattern::PositionList Pattern::transposePattern(const Position & position, int semitones) const
@@ -248,12 +272,12 @@ Pattern::PositionList Pattern::transposePattern(const Position & position, int s
 
 Pattern::PositionList Pattern::transposeTrack(const Position & position, int semitones) const
 {
-    return trackByPosition(position.track)->transposeTrack(position, semitones);
+    return trackByPositionThrow(position.track)->transposeTrack(position, semitones);
 }
 
 Pattern::PositionList Pattern::transposeColumn(const Position & position, int semitones) const
 {
-    return trackByPosition(position.track)->transposeColumn(position, semitones);
+    return trackByPositionThrow(position.track)->transposeColumn(position, semitones);
 }
 
 void Pattern::initialize(size_t lineCount, size_t trackCount)

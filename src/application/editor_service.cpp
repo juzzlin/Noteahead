@@ -774,6 +774,9 @@ void EditorService::requestColumnDeletion(size_t track)
 
 void EditorService::requestNewTrackToRight()
 {
+    juzzlin::L(TAG).debug() << "New track requested to the right of track " << position().track;
+    m_song->addTrackToRightOf(position().track);
+    setIsModified(true);
 }
 
 void EditorService::requestNoteInsertionAtCurrentPosition()

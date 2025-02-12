@@ -226,6 +226,13 @@ void Song::removePatternFromPlayOrder(size_t position)
     m_playOrder->removePattern(position);
 }
 
+void Song::addTrackToRightOf(size_t track)
+{
+    std::ranges::for_each(m_patterns, [track](const auto & pattern) {
+        pattern.second->addTrackToRightOf(track);
+    });
+}
+
 size_t Song::trackCount() const
 {
     return m_patterns.at(0)->trackCount();
@@ -722,11 +729,12 @@ Song::PatternS Song::deserializePattern(QXmlStreamReader & reader)
 void Song::deserializeTracks(QXmlStreamReader & reader, PatternS pattern)
 {
     juzzlin::L(TAG).trace() << "Reading Tracks started";
+    size_t position = 0;
     while (!(reader.isEndElement() && !reader.name().compare(Constants::xmlKeyTracks()))) {
         juzzlin::L(TAG).trace() << "Tracks: Current element: " << reader.name().toString().toStdString();
         if (reader.isStartElement() && !reader.name().compare(Constants::xmlKeyTrack())) {
             const auto track = deserializeTrack(reader);
-            pattern->addOrReplaceTrack(track);
+            pattern->setTrackAtPosition(position++, track);
         }
         reader.readNext();
     }

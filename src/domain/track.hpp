@@ -40,35 +40,24 @@ public:
     using ColumnS = std::shared_ptr<Column>;
 
     void addColumn();
-
     bool deleteColumn();
-
     void setColumn(ColumnS column);
 
     size_t lineCount() const;
-
     void setLineCount(size_t lineCount);
-
     size_t columnCount() const;
 
     bool hasData() const;
-
     bool hasData(size_t column) const;
-
     bool hasPosition(const Position & position) const;
 
     std::string name() const;
-
     void setName(const std::string & newName);
 
     using NoteDataS = std::shared_ptr<NoteData>;
-
     Position nextNoteDataOnSameColumn(const Position & position) const;
-
     Position prevNoteDataOnSameColumn(const Position & position) const;
-
     NoteDataS noteDataAtPosition(const Position & position) const;
-
     void setNoteDataAtPosition(const NoteData & noteData, const Position & position);
 
     using PositionList = std::vector<Position>;
@@ -76,7 +65,6 @@ public:
     PositionList insertNoteDataAtPosition(const NoteData & noteData, const Position & position);
 
     PositionList transposeTrack(const Position & position, int semitones) const;
-
     PositionList transposeColumn(const Position & position, int semitones) const;
 
     using EventS = std::shared_ptr<Event>;
