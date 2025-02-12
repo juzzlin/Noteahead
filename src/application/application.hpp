@@ -19,6 +19,7 @@
 #include "state_machine.hpp"
 
 #include <memory>
+#include <set>
 
 #include <QObject>
 
@@ -31,6 +32,7 @@ class ApplicationService;
 class Config;
 class EditorService;
 class EventSelectionModel;
+class Instrument;
 class MidiService;
 class MixerService;
 class PlayerService;
@@ -51,6 +53,8 @@ public:
     int run();
 
 private:
+    void applyAllInstruments();
+    void applyInstrument(const Instrument & instrument);
     void applyState(StateMachine::State state);
 
     void connectServices();
@@ -60,6 +64,8 @@ private:
     void initialize();
 
     void initializeApplicationEngine();
+
+    void requestInstruments(QStringList midiPorts);
 
     void setContextProperties();
 

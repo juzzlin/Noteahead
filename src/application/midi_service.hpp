@@ -60,7 +60,9 @@ public slots:
     void handleInstrumentRequest(const InstrumentRequest & instrumentRequest);
 
 signals:
-    void availableMidiPortsChanged();
+    void availableMidiPortsChanged(const QStringList & availableMidiPorts);
+    void midiPortsAppeared(const QStringList & midiPorts);
+    void midiPortsDisappeared(const QStringList & midiPorts);
 
     void statusTextRequested(QString message);
 

@@ -29,6 +29,7 @@ set(HEADER_FILES
   application/state_machine.hpp
   application/ui_logger.hpp
   common/constants.hpp
+  common/utils.hpp
   domain/column.hpp
   domain/event.hpp
   domain/instrument.hpp
@@ -67,6 +68,7 @@ set(SOURCE_FILES
   application/state_machine.cpp
   application/ui_logger.cpp
   common/constants.cpp
+  common/utils.cpp
   domain/column.cpp
   domain/event.cpp
   domain/instrument.cpp

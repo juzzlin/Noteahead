@@ -60,6 +60,8 @@ public:
     void setLineCount(size_t lineCount);
 
     size_t trackCount() const;
+    using TrackIndexList = std::vector<size_t>;
+    TrackIndexList trackIndices() const;
 
     bool hasData() const;
 
