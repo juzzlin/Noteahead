@@ -100,6 +100,15 @@ size_t Pattern::trackCount() const
     return static_cast<size_t>(m_trackOrder.size());
 }
 
+Pattern::TrackIndexList Pattern::trackIndices() const
+{
+    TrackIndexList indices;
+    std::ranges::transform(m_trackOrder, std::back_inserter(indices), [](auto && track) {
+        return track->index();
+    });
+    return indices;
+}
+
 bool Pattern::hasData() const
 {
     return std::ranges::find_if(m_trackOrder, [](auto && track) {

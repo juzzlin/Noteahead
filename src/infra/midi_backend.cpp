@@ -15,6 +15,8 @@
 
 #include "midi_backend.hpp"
 
+#include "../common/utils.hpp"
+
 #include <algorithm>
 
 namespace noteahead {
@@ -35,32 +37,14 @@ MidiDeviceS MidiBackend::deviceByPortIndex(size_t index) const
     }
 }
 
-static double portNameMatchScore(const std::string & s1, const std::string & s2)
-{
-    if (s1.empty() || s2.empty()) {
-        return 0;
-    }
-
-    if (s1 == s2) {
-        return 1;
-    }
-
-    size_t count = 0;
-    while (count < s1.size() && count < s2.size() && s1.at(count) == s2.at(count)) {
-        count++;
-    }
-
-    return static_cast<double>(count) / static_cast<double>(std::max(s1.size(), s2.size()));
-}
-
 MidiDeviceS MidiBackend::deviceByPortName(const std::string & name) const
 {
     if (const auto device = m_portNameToDeviceCache.find(name); device != m_portNameToDeviceCache.end()) {
         return device->second;
     }
 
-    const auto bestMatch = std::ranges::max_element(m_devices, {}, [&](const auto & device) { return portNameMatchScore(name, device->portName()); });
-    if (bestMatch != m_devices.end() && portNameMatchScore(name, (*bestMatch)->portName()) > 0.75) {
+    const auto bestMatch = std::ranges::max_element(m_devices, {}, [&](const auto & device) { return Utils::portNameMatchScore(name, device->portName()); });
+    if (bestMatch != m_devices.end() && Utils::portNameMatchScore(name, (*bestMatch)->portName()) > 0.75) {
         m_portNameToDeviceCache[name] = *bestMatch;
         return *bestMatch;
     }

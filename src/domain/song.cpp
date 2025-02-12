@@ -236,6 +236,11 @@ size_t Song::trackCount(size_t patternIndex) const
     return m_patterns.at(patternIndex)->trackCount();
 }
 
+Song::TrackIndexList Song::trackIndices() const
+{
+    return m_patterns.at(0)->trackIndices();
+}
+
 bool Song::hasData() const
 {
     return std::ranges::find_if(m_patterns, [](auto && pattern) {

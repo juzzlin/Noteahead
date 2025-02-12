@@ -120,6 +120,8 @@ public:
 
     //! For testing purposes as track counts should be consistent over patterns.
     size_t trackCount(size_t patternIndex) const;
+    using TrackIndexList = std::vector<size_t>;
+    TrackIndexList trackIndices() const;
 
     bool hasData() const;
 

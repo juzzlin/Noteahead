@@ -18,6 +18,7 @@
 #include "../contrib/Argengine/src/argengine.hpp"
 #include "../contrib/SimpleLogger/src/simple_logger.hpp"
 #include "application_service.hpp"
+#include "common/utils.hpp"
 #include "config.hpp"
 #include "editor_service.hpp"
 #include "midi_service.hpp"
@@ -108,15 +109,7 @@ void Application::setContextProperties()
 
 void Application::connectServices()
 {
-    connect(m_applicationService.get(), &ApplicationService::applyAllTrackSettingsRequested, this, [this]() {
-        for (size_t trackIndex = 0; trackIndex < m_editorService->trackCount(); trackIndex++) {
-            if (const auto instrument = m_editorService->instrument(trackIndex); instrument) {
-                const InstrumentRequest instrumentRequest { InstrumentRequest::Type::ApplyAll, *instrument };
-                juzzlin::L(TAG).info() << "Applying instrument: " << instrumentRequest.instrument().toString().toStdString();
-                m_midiService->handleInstrumentRequest(instrumentRequest);
-            }
-        }
-    });
+    connect(m_applicationService.get(), &ApplicationService::applyAllTrackSettingsRequested, this, &Application::applyAllInstruments);
 
     connect(m_applicationService.get(), &ApplicationService::liveNoteOnRequested, m_midiService.get(), &MidiService::playNote);
 
@@ -126,9 +119,9 @@ void Application::connectServices()
 
     connect(m_editorService.get(), &EditorService::songPositionChanged, m_playerService.get(), &PlayerService::setSongPosition);
 
-    connect(m_midiService.get(), &MidiService::availableMidiPortsChanged, this, [this] {
-        m_trackSettingsModel->setAvailableMidiPorts(m_midiService->availableMidiPorts());
-    });
+    connect(m_midiService.get(), &MidiService::availableMidiPortsChanged, m_trackSettingsModel.get(), &TrackSettingsModel::setAvailableMidiPorts);
+
+    connect(m_midiService.get(), &MidiService::midiPortsAppeared, this, &Application::requestInstruments);
 
     connect(m_mixerService.get(), &MixerService::trackMuted, m_playerService.get(), &PlayerService::muteTrack);
 
@@ -207,11 +200,40 @@ void Application::initializeApplicationEngine()
     }
 }
 
+void Application::requestInstruments(QStringList midiPorts)
+{
+    for (auto && midiPort : midiPorts) {
+        for (auto && trackIndex : m_editorService->trackIndices()) {
+            if (const auto instrument = m_editorService->instrument(trackIndex); instrument) {
+                if (Utils::portNameMatchScore(instrument->device.portName.toStdString(), midiPort.toStdString()) > 0.75) {
+                    applyInstrument(*instrument);
+                }
+            }
+        }
+    }
+}
+
 int Application::run()
 {
     initialize();
 
     return m_application->exec();
+}
+
+void Application::applyInstrument(const Instrument & instrument)
+{
+    const InstrumentRequest instrumentRequest { InstrumentRequest::Type::ApplyAll, instrument };
+    juzzlin::L(TAG).info() << "Applying instrument: " << instrumentRequest.instrument().toString().toStdString();
+    m_midiService->handleInstrumentRequest(instrumentRequest);
+}
+
+void Application::applyAllInstruments()
+{
+    for (auto trackIndex : m_editorService->trackIndices()) {
+        if (const auto instrument = m_editorService->instrument(trackIndex); instrument) {
+            applyInstrument(*instrument);
+        }
+    }
 }
 
 void Application::applyState(StateMachine::State state)

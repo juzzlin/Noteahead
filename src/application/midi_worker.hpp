@@ -52,12 +52,12 @@ public:
 
 signals:
     void availableMidiPortsChanged(QStringList availableMidiPorts);
+    void midiPortsAppeared(QStringList midiPorts);
+    void midiPortsDisappeared(QStringList midiPorts);
 
     void statusTextRequested(QString message);
 
 private:
-    void processFailedInstrumentRequests();
-
     std::shared_ptr<MidiBackend> m_midiBackend;
 
     std::unique_ptr<QTimer> m_midiScanTimer;
@@ -65,8 +65,6 @@ private:
     QStringList m_availableMidiPorts;
 
     std::atomic_bool m_isPlaying = false;
-
-    std::map<QString, InstrumentRequest> m_failedInstrumentRequests;
 };
 
 } // namespace noteahead

@@ -360,6 +360,11 @@ size_t EditorService::trackCount() const
     return m_song->trackCount();
 }
 
+EditorService::TrackIndexList EditorService::trackIndices() const
+{
+    return m_song->trackIndices();
+}
+
 QString EditorService::patternName(size_t patternIndex) const
 {
     return QString::fromStdString(m_song->patternName(patternIndex));

@@ -37,8 +37,11 @@ void MidiService::initializeWorker()
 
     connect(m_midiWorker.get(), &MidiWorker::availableMidiPortsChanged, this, [this](const auto & midiPorts) {
         m_availableMidiPorts = midiPorts;
-        emit availableMidiPortsChanged();
+        emit availableMidiPortsChanged(m_availableMidiPorts);
     });
+
+    connect(m_midiWorker.get(), &MidiWorker::midiPortsAppeared, this, &MidiService::midiPortsAppeared);
+    connect(m_midiWorker.get(), &MidiWorker::midiPortsDisappeared, this, &MidiService::midiPortsDisappeared);
 
     m_midiWorker->moveToThread(&m_midiWorkerThread);
     m_midiWorkerThread.start(QThread::HighPriority);

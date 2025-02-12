@@ -81,26 +81,12 @@ MidiWorker::MidiWorker(QObject * parent)
                 }
                 m_availableMidiPorts = updatedDeviceList;
                 emit availableMidiPortsChanged(m_availableMidiPorts);
-
-                processFailedInstrumentRequests();
+                emit midiPortsAppeared(newDevices);
+                emit midiPortsDisappeared(offDevices);
             }
         }
     });
     m_midiScanTimer->start();
-}
-
-void MidiWorker::processFailedInstrumentRequests()
-{
-    if (!m_failedInstrumentRequests.empty()) {
-        juzzlin::L(TAG).info() << "Processing previously failed instrument requests..";
-        auto failedInstrumentRequests = m_failedInstrumentRequests;
-        for (auto && [requestedPortName, instrumentRequest] : failedInstrumentRequests) {
-            if (const auto device = m_midiBackend->deviceByPortName(requestedPortName.toStdString()); device) {
-                m_failedInstrumentRequests.erase(requestedPortName);
-                handleInstrumentRequest(instrumentRequest);
-            }
-        }
-    }
 }
 
 void MidiWorker::handleInstrumentRequest(const InstrumentRequest & instrumentRequest)
@@ -142,7 +128,6 @@ void MidiWorker::handleInstrumentRequest(const InstrumentRequest & instrumentReq
             }
         } else {
             juzzlin::L(TAG).error() << "No device found for portName '" << requestedPortName.toStdString() << "'";
-            m_failedInstrumentRequests[requestedPortName] = instrumentRequest;
         }
     } catch (const std::runtime_error & e) {
         juzzlin::L(TAG).error() << e.what();
