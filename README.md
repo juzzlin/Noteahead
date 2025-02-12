@@ -21,8 +21,9 @@ Noteahead is still a work in progress and there's **a lot of limitations and mis
 
 My first track composed with Noteahead:
 
-<a href="https://soundcloud.com/jussilindplays/right-to-castle">J.L.P - Right To Castle</a>
+<a href="https://www.youtube.com/watch?feature=player_embedded&v=Y_hq6uGTx9M">J.L.P - Right To Castle (YouTube)</a>
 
+<a href="https://soundcloud.com/jussilindplays/right-to-castle">J.L.P - Right To Castle  (SoundCloud)</a>
 
 ##
 ## Features
