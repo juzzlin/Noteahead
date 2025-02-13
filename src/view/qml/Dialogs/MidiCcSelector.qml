@@ -18,7 +18,7 @@ GridLayout {
         ToolTip.delay: Constants.toolTipDelay
         ToolTip.timeout: Constants.toolTipTimeout
         ToolTip.visible: hovered
-        ToolTip.text: qsTr("Enable/disable filter cutoff for this track")
+        ToolTip.text: qsTr("Enable/disable MIDI Continuous Controller setting slot #") + index
         onCheckedChanged: trackSettingsModel.cutoffEnabled = checked
     }
     Label {
@@ -39,7 +39,7 @@ GridLayout {
         ToolTip.delay: Constants.toolTipDelay
         ToolTip.timeout: Constants.toolTipTimeout
         ToolTip.visible: hovered
-        ToolTip.text: qsTr("Set optional MIDI continuous controller value for this track")
+        ToolTip.text: qsTr("Set optional MIDI Continuous Controller number. See the MIDI CC implementation chart of your device.")
         onValueChanged: trackSettingsModel.midiCc1 = value
         Keys.onReturnPressed: focus = false
     }
@@ -55,7 +55,7 @@ GridLayout {
         ToolTip.delay: Constants.toolTipDelay
         ToolTip.timeout: Constants.toolTipTimeout
         ToolTip.visible: hovered
-        ToolTip.text: qsTr("Set optional MIDI continuous controller value for this track")
+        ToolTip.text: qsTr("Set optional MIDI Continuous Controller value")
         onValueChanged: trackSettingsModel.midiCc1 = value
         Keys.onReturnPressed: focus = false
     }
