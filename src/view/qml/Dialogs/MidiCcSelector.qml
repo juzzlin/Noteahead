@@ -8,6 +8,9 @@ GridLayout {
     columns: 9
     rows: 1
     property int index
+    function initialize() {
+    //        midiCcControllerSpinBox.value = 32 * index;
+    }
     CheckBox {
         id: enableCcCheckbox
         text: qsTr("Enable MIDI CC #") + index
@@ -28,7 +31,7 @@ GridLayout {
         Layout.fillWidth: true
     }
     SpinBox {
-        id: midiCc1ControllerSpinBox
+        id: midiCcControllerSpinBox
         from: 0
         to: 127
         enabled: enableCcCheckbox.checked
@@ -44,7 +47,7 @@ GridLayout {
         Keys.onReturnPressed: focus = false
     }
     SpinBox {
-        id: midiCc1SpinBox
+        id: midiCcValueSpinBox
         from: 0
         to: 127
         enabled: enableCcCheckbox.checked

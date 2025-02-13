@@ -9,6 +9,7 @@ Dialog {
     id: rootItem
     title: "<strong>" + qsTr("Settings for track") + ` '${editorService.trackName(trackSettingsModel.trackIndex)}'` + "</strong>"
     modal: true
+    property var _midiCcSelectors: []
     function setTrackIndex(trackIndex) {
         trackSettingsModel.trackIndex = trackIndex;
         trackSettingsModel.requestInstrumentData();
@@ -28,6 +29,12 @@ Dialog {
         panSpinBox.value = trackSettingsModel.pan;
         enableVolumeCheckbox.checked = trackSettingsModel.volumeEnabled;
         volumeSpinBox.value = trackSettingsModel.volume;
+        initializeMidiCcSelectors();
+    }
+    function initializeMidiCcSelectors() {
+        for (const midiCcSeletor of _midiCcSelectors) {
+            midiCcSeletor.initialize();
+        }
     }
     function saveSettings() {
         trackSettingsModel.applyAll();
@@ -351,12 +358,13 @@ Dialog {
                 spacing: 8
                 width: parent.width
                 Repeater {
-                    id: repeater
+                    id: midiCcRepeater
                     model: 2
                     MidiCcSelector {
                     }
-                    onItemAdded: index => {
-                        repeater.itemAt(index).index = index;
+                    onItemAdded: (index, item) => {
+                        item.index = index;
+                        _midiCcSelectors.push(item);
                     }
                 }
             }
