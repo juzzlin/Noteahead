@@ -55,6 +55,11 @@ class TrackSettingsModel : public QObject
     Q_PROPERTY(uint8_t volume READ volume WRITE setVolume NOTIFY volumeChanged)
     Q_PROPERTY(bool volumeEnabled READ volumeEnabled WRITE setVolumeEnabled NOTIFY volumeEnabledChanged)
 
+    Q_PROPERTY(uint8_t midiCc1 READ midiCc1 WRITE setMidiCc1 NOTIFY midiCc1Changed)
+    Q_PROPERTY(bool midiCc1Enabled READ midiCc1Enabled WRITE setMidiCc1Enabled NOTIFY midiCc1EnabledChanged)
+    Q_PROPERTY(uint8_t midiCc2 READ midiCc2 WRITE setMidiCc2 NOTIFY midiCc2Changed)
+    Q_PROPERTY(bool midiCc2Enabled READ midiCc2Enabled WRITE setMidiCc2Enabled NOTIFY midiCc2EnabledChanged)
+
 public:
     explicit TrackSettingsModel(QObject * parent = nullptr);
 
@@ -119,9 +124,18 @@ public:
 
     uint8_t volume() const;
     void setVolume(uint8_t volume);
-
     bool volumeEnabled() const;
     void setVolumeEnabled(bool enabled);
+
+    uint8_t midiCc1() const;
+    void setMidiCc1(uint8_t midiCc);
+    bool midiCc1Enabled() const;
+    void setMidiCc1Enabled(bool enabled);
+
+    uint8_t midiCc2() const;
+    void setMidiCc2(uint8_t midiCc);
+    bool midiCc2Enabled() const;
+    void setMidiCc2Enabled(bool enabled);
 
 signals:
     void applyAllRequested();
@@ -144,8 +158,10 @@ signals:
 
     void panChanged();
     void panEnabledChanged();
+
     void patchChanged();
     void patchEnabledChanged();
+
     void portNameChanged();
 
     void saveRequested();
@@ -156,6 +172,11 @@ signals:
 
     void volumeChanged();
     void volumeEnabledChanged();
+
+    void midiCc1Changed();
+    void midiCc1EnabledChanged();
+    void midiCc2Changed();
+    void midiCc2EnabledChanged();
 
 private:
     void pushApplyDisabled();
@@ -173,6 +194,8 @@ private:
     bool m_panEnabled { false };
     bool m_patchEnabled { false };
     bool m_volumeEnabled { false };
+    bool m_midiCc1Enabled { false };
+    bool m_midiCc2Enabled { false };
 
     size_t m_trackIndex { 0 };
 
@@ -193,6 +216,9 @@ private:
 
     const uint8_t m_defaultVolume { 127 };
     uint8_t m_volume { m_defaultVolume };
+
+    uint8_t m_midiCc1 { 0 };
+    uint8_t m_midiCc2 { 0 };
 };
 
 } // namespace noteahead

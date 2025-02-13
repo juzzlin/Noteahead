@@ -16,6 +16,8 @@
 #ifndef MIDI_CC_HPP
 #define MIDI_CC_HPP
 
+#include <QString>
+
 namespace noteahead {
 
 enum class MidiCc
@@ -93,6 +95,9 @@ enum class MidiCc
     MonoModeOn = 126,
     PolyModeOn = 127
 };
-}
+
+QString midiCcEnumToString(MidiCc midiCc);
+
+}; // namespace noteahead
 
 #endif // MIDI_CC_HPP

@@ -81,6 +81,7 @@ set(SOURCE_FILES
   domain/song.cpp
   domain/track.cpp
   infra/midi_backend.cpp
+  infra/midi_cc.cpp
   infra/midi_backend_rt_midi.cpp
   infra/midi_device.cpp
   infra/settings.cpp
@@ -99,6 +100,7 @@ set(QML_SOURCE_FILES
     ${QML_BASE_DIR}/Constants.qml
     ${QML_BASE_DIR}/Dialogs/AboutDialog.qml
     ${QML_BASE_DIR}/Dialogs/EventSelectionDialog.qml
+    ${QML_BASE_DIR}/Dialogs/MidiCcSelector.qml
     ${QML_BASE_DIR}/Dialogs/RecentFilesDialog.qml
     ${QML_BASE_DIR}/Dialogs/SettingsDialog.qml
     ${QML_BASE_DIR}/Dialogs/TrackSettingsDialog.qml

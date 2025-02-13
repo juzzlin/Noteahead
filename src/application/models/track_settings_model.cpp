@@ -407,6 +407,70 @@ void TrackSettingsModel::setVolumeEnabled(bool enabled)
     }
 }
 
+uint8_t TrackSettingsModel::midiCc1() const
+{
+    return m_midiCc1;
+}
+
+void TrackSettingsModel::setMidiCc1(uint8_t midiCc)
+{
+    juzzlin::L(TAG).debug() << "Setting midiCc1 to " << static_cast<int>(midiCc);
+
+    if (m_midiCc1 != midiCc) {
+        m_midiCc1 = midiCc;
+        emit midiCc1Changed();
+        applyAll();
+    }
+}
+
+bool TrackSettingsModel::midiCc1Enabled() const
+{
+    return m_midiCc1Enabled;
+}
+
+void TrackSettingsModel::setMidiCc1Enabled(bool enabled)
+{
+    juzzlin::L(TAG).debug() << "Enabling midiCc1: " << static_cast<int>(enabled);
+
+    if (m_midiCc1Enabled != enabled) {
+        m_midiCc1Enabled = enabled;
+        emit midiCc1EnabledChanged();
+        applyAll();
+    }
+}
+
+uint8_t TrackSettingsModel::midiCc2() const
+{
+    return m_midiCc2;
+}
+
+void TrackSettingsModel::setMidiCc2(uint8_t midiCc)
+{
+    juzzlin::L(TAG).debug() << "Setting midiCc2 to " << static_cast<int>(midiCc);
+
+    if (m_midiCc2 != midiCc) {
+        m_midiCc2 = midiCc;
+        emit midiCc2Changed();
+        applyAll();
+    }
+}
+
+bool TrackSettingsModel::midiCc2Enabled() const
+{
+    return m_midiCc2Enabled;
+}
+
+void TrackSettingsModel::setMidiCc2Enabled(bool enabled)
+{
+    juzzlin::L(TAG).debug() << "Enabling midiCc2: " << static_cast<int>(enabled);
+
+    if (m_midiCc2Enabled != enabled) {
+        m_midiCc2Enabled = enabled;
+        emit midiCc2EnabledChanged();
+        applyAll();
+    }
+}
+
 void TrackSettingsModel::pushApplyDisabled()
 {
     m_applyDisabledStack.push_back(m_applyDisabled);
