@@ -292,7 +292,6 @@ Row {
                     from: 0
                     to: 64
                     editable: true
-                    enabled: !UiService.isPlaying()
                     onValueChanged: {
                         UiService.setActiveStep(stepSpinBox.value);
                         ToolTip.hide();
@@ -321,7 +320,6 @@ Row {
                     from: 0
                     to: 127
                     editable: true
-                    enabled: !UiService.isPlaying()
                     onValueChanged: {
                         UiService.setActiveVelocity(velocitySpinBox.value);
                         ToolTip.hide();
@@ -350,7 +348,6 @@ Row {
                     from: 0
                     to: 8
                     editable: true
-                    enabled: !UiService.isPlaying()
                     onValueChanged: {
                         UiService.setActiveOctave(octSpinBox.value);
                         ToolTip.hide();
