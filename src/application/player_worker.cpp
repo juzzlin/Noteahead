@@ -95,6 +95,30 @@ bool PlayerWorker::shouldEventPlay(const Event & event) const
     return true;
 }
 
+void PlayerWorker::handleEvent(const Event & event) const
+{
+    if (shouldEventPlay(event)) {
+        if (auto && noteData = event.noteData(); noteData) {
+            juzzlin::L(TAG).trace() << noteData->toString();
+            if (auto && instrument = event.instrument(); instrument) {
+                if (noteData->type() == NoteData::Type::NoteOn && noteData->note().has_value()) {
+                    m_midiService->playNote(instrument, *noteData->note(), noteData->velocity());
+                } else if (noteData->type() == NoteData::Type::NoteOff) {
+                    m_midiService->stopNote(instrument, *noteData->note());
+                }
+            }
+        } else if (auto && instrumentSettings = event.instrumentSettings(); instrumentSettings) {
+            juzzlin::L(TAG).trace() << instrumentSettings->toString().toStdString();
+            if (auto && instrument = event.instrument(); instrument) {
+                auto tempInstrument = *instrument;
+                tempInstrument.settings = *instrumentSettings;
+                InstrumentRequest instrumentRequest { InstrumentRequest::Type::ApplyAll, tempInstrument };
+                m_midiService->handleInstrumentRequest(instrumentRequest);
+            }
+        }
+    }
+}
+
 void PlayerWorker::processEvents()
 {
     if (m_eventMap.empty()) {
@@ -118,26 +142,7 @@ void PlayerWorker::processEvents()
         emit tickUpdated(static_cast<size_t>(tick));
         if (auto && eventsAtTick = m_eventMap.find(tick); eventsAtTick != m_eventMap.end()) {
             for (auto && event : eventsAtTick->second) {
-                if (shouldEventPlay(*event)) {
-                    if (auto && noteData = event->noteData(); noteData) {
-                        juzzlin::L(TAG).trace() << noteData->toString();
-                        if (auto && instrument = event->instrument(); instrument) {
-                            if (noteData->type() == NoteData::Type::NoteOn && noteData->note().has_value()) {
-                                m_midiService->playNote(instrument, *noteData->note(), noteData->velocity());
-                            } else if (noteData->type() == NoteData::Type::NoteOff) {
-                                m_midiService->stopNote(instrument, *noteData->note());
-                            }
-                        }
-                    } else if (auto && instrumentSettings = event->instrumentSettings(); instrumentSettings) {
-                        juzzlin::L(TAG).trace() << instrumentSettings->toString().toStdString();
-                        if (auto && instrument = event->instrument(); instrument) {
-                            auto tempInstrument = *instrument;
-                            tempInstrument.settings = *instrumentSettings;
-                            InstrumentRequest instrumentRequest { InstrumentRequest::Type::ApplyAll, tempInstrument };
-                            m_midiService->handleInstrumentRequest(instrumentRequest);
-                        }
-                    }
-                }
+                handleEvent(*event);
             }
         }
         // Calculate next tick's start time

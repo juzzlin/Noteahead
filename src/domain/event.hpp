@@ -56,10 +56,10 @@ public:
     NoteDataS noteData() const;
 
     using InstrumentS = std::shared_ptr<Instrument>;
-    InstrumentS instrument();
+    InstrumentS instrument() const;
     void setInstrument(InstrumentS instrument);
 
-    InstrumentSettingsS instrumentSettings();
+    InstrumentSettingsS instrumentSettings() const;
     void setInstrumentSettings(InstrumentSettingsS instrumentSettings);
 
 private:

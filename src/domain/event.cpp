@@ -65,7 +65,7 @@ Event::NoteDataS Event::noteData() const
     return m_noteData;
 }
 
-Event::InstrumentS Event::instrument()
+Event::InstrumentS Event::instrument() const
 {
     return m_instrument;
 }
@@ -75,7 +75,7 @@ void Event::setInstrument(InstrumentS instrument)
     m_instrument = instrument;
 }
 
-Event::InstrumentSettingsS Event::instrumentSettings()
+Event::InstrumentSettingsS Event::instrumentSettings() const
 {
     return m_instrumentSettings;
 }

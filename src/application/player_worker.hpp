@@ -27,7 +27,9 @@ namespace noteahead {
 
 class Event;
 class Instrument;
+class InstrumentSettings;
 class MidiService;
+class NoteData;
 
 class PlayerWorker : public QObject
 {
@@ -54,13 +56,10 @@ public:
     void initialize(const EventList & events, const Timing & timing);
 
     Q_INVOKABLE void play();
-
     Q_INVOKABLE void stop();
-
     bool isPlaying() const;
 
     Q_INVOKABLE void muteTrack(size_t trackIndex, bool mute);
-
     Q_INVOKABLE void soloTrack(size_t trackIndex, bool solo);
 
 signals:
@@ -72,15 +71,13 @@ signals:
 
 private:
     bool isTrackMuted(size_t trackIndex) const;
-
     bool isTrackSoloed(size_t trackIndex) const;
 
+    void handleEvent(const Event & event) const;
     void processEvents();
 
     void setIsPlaying(bool isPlaying);
-
     bool shouldEventPlay(const Event & event) const;
-
     void stopAllNotes();
 
     MidiServiceS m_midiService;
