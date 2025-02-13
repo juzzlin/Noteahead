@@ -19,6 +19,7 @@ set(HEADER_FILES
   application/midi_worker.hpp
   application/mixer_service.hpp
   application/models/event_selection_model.hpp
+  application/models/midi_cc_selection_model.hpp
   application/models/recent_files_model.hpp
   application/models/track_settings_model.hpp
   application/note_converter.hpp
@@ -36,6 +37,7 @@ set(HEADER_FILES
   domain/instrument_settings.hpp
   domain/line.hpp
   domain/line_event.hpp
+  domain/midi_cc_setting.hpp
   domain/note_data.hpp
   domain/pattern.hpp
   domain/play_order.hpp
@@ -59,6 +61,7 @@ set(SOURCE_FILES
   application/midi_worker.cpp
   application/mixer_service.cpp
   application/models/event_selection_model.cpp
+  application/models/midi_cc_selection_model.cpp
   application/models/recent_files_model.cpp
   application/models/track_settings_model.cpp
   application/note_converter.cpp
@@ -75,12 +78,14 @@ set(SOURCE_FILES
   domain/instrument_settings.cpp
   domain/line.cpp
   domain/line_event.cpp
+  domain/midi_cc_setting.cpp
   domain/note_data.cpp
   domain/pattern.cpp
   domain/play_order.cpp
   domain/song.cpp
   domain/track.cpp
   infra/midi_backend.cpp
+  infra/midi_cc.cpp
   infra/midi_backend_rt_midi.cpp
   infra/midi_device.cpp
   infra/settings.cpp
@@ -99,6 +104,7 @@ set(QML_SOURCE_FILES
     ${QML_BASE_DIR}/Constants.qml
     ${QML_BASE_DIR}/Dialogs/AboutDialog.qml
     ${QML_BASE_DIR}/Dialogs/EventSelectionDialog.qml
+    ${QML_BASE_DIR}/Dialogs/MidiCcSelector.qml
     ${QML_BASE_DIR}/Dialogs/RecentFilesDialog.qml
     ${QML_BASE_DIR}/Dialogs/SettingsDialog.qml
     ${QML_BASE_DIR}/Dialogs/TrackSettingsDialog.qml

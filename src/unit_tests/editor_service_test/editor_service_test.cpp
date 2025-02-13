@@ -1111,8 +1111,18 @@ void EditorServiceTest::test_toXmlFromXml_instrumentSettingsSet_shouldParseInstr
 {
     EditorService editorServiceOut;
     editorServiceOut.requestPosition(0, 0, 0, 0, 0);
-    const auto instrumentSettingsOut = std::make_shared<InstrumentSettings>();
+
+    auto instrumentSettingsOut = std::make_shared<InstrumentSettings>();
     instrumentSettingsOut->patch = 42;
+    instrumentSettingsOut->bank = { 10, 20, true };
+    instrumentSettingsOut->cutoff = 127;
+    instrumentSettingsOut->pan = 64;
+    instrumentSettingsOut->volume = 100;
+    instrumentSettingsOut->midiCcSettings = {
+        { 7, 80 },
+        { 10, 127 }
+    };
+
     editorServiceOut.setInstrumentSettingsAtCurrentPosition(instrumentSettingsOut);
 
     const auto xml = editorServiceOut.toXml();
@@ -1122,8 +1132,23 @@ void EditorServiceTest::test_toXmlFromXml_instrumentSettingsSet_shouldParseInstr
 
     editorServiceIn.requestPosition(0, 0, 0, 0, 0);
     const auto instrumentSettingsIn = editorServiceIn.instrumentSettingsAtCurrentPosition();
+
     QVERIFY(instrumentSettingsIn);
+
     QCOMPARE(instrumentSettingsIn->patch, instrumentSettingsOut->patch);
+    QCOMPARE(instrumentSettingsIn->bank.has_value(), true);
+    QCOMPARE(instrumentSettingsIn->bank->lsb, instrumentSettingsOut->bank->lsb);
+    QCOMPARE(instrumentSettingsIn->bank->msb, instrumentSettingsOut->bank->msb);
+    QCOMPARE(instrumentSettingsIn->bank->byteOrderSwapped, instrumentSettingsOut->bank->byteOrderSwapped);
+    QCOMPARE(instrumentSettingsIn->cutoff, instrumentSettingsOut->cutoff);
+    QCOMPARE(instrumentSettingsIn->pan, instrumentSettingsOut->pan);
+    QCOMPARE(instrumentSettingsIn->volume, instrumentSettingsOut->volume);
+    QCOMPARE(instrumentSettingsIn->midiCcSettings.size(), instrumentSettingsOut->midiCcSettings.size());
+
+    for (size_t i = 0; i < instrumentSettingsOut->midiCcSettings.size(); ++i) {
+        QCOMPARE(instrumentSettingsIn->midiCcSettings.at(i).controller(), instrumentSettingsOut->midiCcSettings.at(i).controller());
+        QCOMPARE(instrumentSettingsIn->midiCcSettings.at(i).value(), instrumentSettingsOut->midiCcSettings.at(i).value());
+    }
 }
 
 void EditorServiceTest::test_toXmlFromXml_noteData_noteOn()

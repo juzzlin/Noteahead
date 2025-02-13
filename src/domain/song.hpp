@@ -238,6 +238,9 @@ private:
 
     InstrumentS deserializeInstrument(QXmlStreamReader & reader);
 
+    using MidiCcSettingU = std::unique_ptr<MidiCcSetting>;
+    MidiCcSettingU deserializeMidiCcSetting(QXmlStreamReader & reader);
+
     InstrumentSettingsU deserializeInstrumentSettings(QXmlStreamReader & reader);
 
     void initialize();

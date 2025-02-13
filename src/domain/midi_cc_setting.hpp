@@ -13,56 +13,39 @@
 // You should have received a copy of the GNU General Public License
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef INSTRUMENT_SETTINGS_HPP
-#define INSTRUMENT_SETTINGS_HPP
-
-#include <cstdint>
-#include <optional>
+#ifndef MIDI_CC_SETTING_HPP
+#define MIDI_CC_SETTING_HPP
 
 #include <QString>
-
-#include "midi_cc_setting.hpp"
+#include <cstdint>
 
 class QXmlStreamWriter;
 
 namespace noteahead {
 
-class InstrumentSettings
+class MidiCcSetting
 {
 public:
-    std::optional<uint8_t> patch;
+    MidiCcSetting(uint8_t controller, uint8_t value);
 
-    struct Bank
-    {
-        uint8_t lsb = 0;
+    MidiCcSetting();
 
-        uint8_t msb = 0;
+    uint8_t controller() const;
+    void setController(uint8_t controller);
 
-        bool byteOrderSwapped = false;
-    };
-
-    std::optional<Bank> bank;
-
-    std::optional<uint8_t> cutoff;
-
-    std::optional<uint8_t> pan;
-
-    std::optional<uint8_t> volume;
-
-    std::vector<MidiCcSetting> midiCcSettings;
-
-    size_t track() const;
-
-    void setTrack(size_t track);
+    uint8_t value() const;
+    void setValue(uint8_t value);
 
     void serializeToXml(QXmlStreamWriter & writer) const;
 
     QString toString() const;
 
 private:
-    size_t m_track; // Not part of settings, used to map instrument
+    uint8_t m_controller = 0;
+
+    uint8_t m_value = 0;
 };
 
 } // namespace noteahead
 
-#endif // INSTRUMENT_SETTINGS_HPP
+#endif // MIDI_CC_SETTING_HPP

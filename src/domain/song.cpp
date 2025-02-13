@@ -756,6 +756,13 @@ Song::TrackS Song::deserializeTrack(QXmlStreamReader & reader)
     return track;
 }
 
+Song::MidiCcSettingU Song::deserializeMidiCcSetting(QXmlStreamReader & reader)
+{
+    const auto controller = static_cast<uint8_t>(*readUIntAttribute(reader, Constants::xmlKeyController()));
+    const auto value = static_cast<uint8_t>(*readUIntAttribute(reader, Constants::xmlKeyValue()));
+    return std::make_unique<MidiCcSetting>(controller, value);
+}
+
 Song::InstrumentSettingsU Song::deserializeInstrumentSettings(QXmlStreamReader & reader)
 {
     juzzlin::L(TAG).trace() << "Reading InstrumentSettings";
@@ -763,19 +770,23 @@ Song::InstrumentSettingsU Song::deserializeInstrumentSettings(QXmlStreamReader &
     auto settings = std::make_unique<InstrumentSettings>();
 
     settings->patch = readUIntAttribute(reader, Constants::xmlKeyPatch(), false);
-
     if (const auto bankEnabled = readBoolAttribute(reader, Constants::xmlKeyBankEnabled(), false); bankEnabled.has_value() && *bankEnabled) {
         const auto bankLsb = static_cast<uint8_t>(*readUIntAttribute(reader, Constants::xmlKeyBankLsb()));
         const auto bankMsb = static_cast<uint8_t>(*readUIntAttribute(reader, Constants::xmlKeyBankMsb()));
         const auto bankByteOrderSwapped = *readBoolAttribute(reader, Constants::xmlKeyBankByteOrderSwapped());
         settings->bank = { bankLsb, bankMsb, bankByteOrderSwapped };
     }
-
     settings->cutoff = readUIntAttribute(reader, Constants::xmlKeyCutoff(), false);
-
     settings->pan = readUIntAttribute(reader, Constants::xmlKeyPan(), false);
-
     settings->volume = readUIntAttribute(reader, Constants::xmlKeyVolume(), false);
+
+    while (!(reader.isEndElement() && !reader.name().compare(Constants::xmlKeyInstrumentSettings()))) {
+        juzzlin::L(TAG).trace() << "InstrumentSettings: Current element: " << reader.name().toString().toStdString();
+        if (reader.isStartElement() && !reader.name().compare(Constants::xmlKeyMidiCcSetting())) {
+            settings->midiCcSettings.push_back(*deserializeMidiCcSetting(reader));
+        }
+        reader.readNext();
+    }
 
     return settings;
 }

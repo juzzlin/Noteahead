@@ -127,6 +127,11 @@ QString xmlKeyColumnCount()
     return "columnCount";
 }
 
+QString xmlKeyController()
+{
+    return "controller";
+}
+
 QString xmlKeyCutoff()
 {
     return "cutoff";
@@ -190,6 +195,11 @@ QString xmlKeyLineCount()
 QString xmlKeyLinesPerBeat()
 {
     return "linesPerBeat";
+}
+
+QString xmlKeyMidiCcSetting()
+{
+    return "MidiCcSetting";
 }
 
 QString xmlKeyName()
@@ -260,6 +270,11 @@ QString xmlKeyTrackCount()
 QString xmlKeyType()
 {
     return "type";
+}
+
+QString xmlKeyValue()
+{
+    return "value";
 }
 
 QString xmlKeyVelocity()

@@ -69,7 +69,7 @@ void MidiBackend::closeDevice(MidiDeviceS)
 {
 }
 
-void MidiBackend::sendCC(MidiDeviceS, uint8_t, MidiCc, uint8_t) const
+void MidiBackend::sendCC(MidiDeviceS, uint8_t, uint8_t, uint8_t) const
 {
 }
 

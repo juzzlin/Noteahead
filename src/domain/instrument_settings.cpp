@@ -60,6 +60,10 @@ void InstrumentSettings::serializeToXml(QXmlStreamWriter & writer) const
         writer.writeAttribute(Constants::xmlKeyVolume(), QString::number(*volume));
     }
 
+    for (auto && midiCcSetting : midiCcSettings) {
+        midiCcSetting.serializeToXml(writer);
+    }
+
     writer.writeEndElement(); // Settings
 }
 

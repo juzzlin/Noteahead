@@ -17,6 +17,7 @@
 #define TRACK_SETTINGS_MODEL_HPP
 
 #include "../../domain/instrument.hpp"
+#include "midi_cc_selection_model.hpp"
 
 #include <memory>
 
@@ -27,7 +28,7 @@ namespace noteahead {
 class EditorService;
 class Instrument;
 
-class TrackSettingsModel : public QObject
+class TrackSettingsModel : public MidiCcSelectionModel
 {
     Q_OBJECT
 
@@ -119,7 +120,6 @@ public:
 
     uint8_t volume() const;
     void setVolume(uint8_t volume);
-
     bool volumeEnabled() const;
     void setVolumeEnabled(bool enabled);
 
@@ -144,8 +144,10 @@ signals:
 
     void panChanged();
     void panEnabledChanged();
+
     void patchChanged();
     void patchEnabledChanged();
+
     void portNameChanged();
 
     void saveRequested();

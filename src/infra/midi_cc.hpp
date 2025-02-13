@@ -16,9 +16,12 @@
 #ifndef MIDI_CC_HPP
 #define MIDI_CC_HPP
 
-namespace noteahead {
+#include <QString>
+#include <cstdint>
 
-enum class MidiCc
+namespace noteahead::MidiCc {
+
+enum class Controller : uint8_t
 {
     BankSelectMSB = 0,
     ModulationWheelMSB = 1,
@@ -93,6 +96,9 @@ enum class MidiCc
     MonoModeOn = 126,
     PolyModeOn = 127
 };
-}
+
+QString controllerToString(Controller controller);
+
+}; // namespace noteahead::MidiCc
 
 #endif // MIDI_CC_HPP

@@ -9,6 +9,7 @@ Dialog {
     id: rootItem
     title: "<strong>" + qsTr("Settings for track") + ` '${editorService.trackName(trackSettingsModel.trackIndex)}'` + "</strong>"
     modal: true
+    property var _midiCcSelectors: []
     function setTrackIndex(trackIndex) {
         trackSettingsModel.trackIndex = trackIndex;
         trackSettingsModel.requestInstrumentData();
@@ -28,19 +29,29 @@ Dialog {
         panSpinBox.value = trackSettingsModel.pan;
         enableVolumeCheckbox.checked = trackSettingsModel.volumeEnabled;
         volumeSpinBox.value = trackSettingsModel.volume;
+        initializeMidiCcSelectors();
+    }
+    function initializeMidiCcSelectors() {
+        for (const midiCcSeletor of _midiCcSelectors) {
+            midiCcSeletor.initialize();
+        }
     }
     function saveSettings() {
         trackSettingsModel.applyAll();
         trackSettingsModel.save();
     }
+    function _requestApplyAll() {
+        trackSettingsModel.applyAll();
+    }
     function _requestTestSound() {
         if (rootItem.visible) {
+            _requestApplyAll();
             testSoundTimer.restart();
         }
     }
     Timer {
         id: testSoundTimer
-        interval: 250
+        interval: 125
         running: false
         repeat: false
         onTriggered: trackSettingsModel.requestTestSound(UiService._activeVelocity)
@@ -72,14 +83,14 @@ Dialog {
         anchors.fill: parent
         spacing: 12
         GroupBox {
-            title: qsTr("MIDI Settings")
+            title: qsTr("MIDI Instrument Settings")
             Layout.fillWidth: true
             ColumnLayout {
                 spacing: 8
                 width: parent.width
                 GridLayout {
                     columns: 9
-                    rows: 2
+                    rows: 3
                     width: parent.width
                     Label {
                         text: qsTr("Port:")
@@ -269,18 +280,25 @@ Dialog {
                             _requestTestSound();
                         }
                     }
-                    Label {
-                        text: qsTr("Volume:")
-                        Layout.column: 0
-                        Layout.row: 4
-                        Layout.fillWidth: true
-                    }
+                }
+            }
+        }
+        GroupBox {
+            title: qsTr("Pre-defined MIDI CC Settings")
+            Layout.fillWidth: true
+            ColumnLayout {
+                spacing: 8
+                width: parent.width
+                GridLayout {
+                    columns: 9
+                    rows: 3
+                    width: parent.width
                     CheckBox {
                         id: enableVolumeCheckbox
-                        text: qsTr("Enable Volume")
-                        Layout.column: 2
+                        text: qsTr("Set Volume")
+                        Layout.column: 0
                         Layout.columnSpan: 2
-                        Layout.row: 4
+                        Layout.row: 0
                         Layout.fillWidth: true
                         ToolTip.delay: Constants.toolTipDelay
                         ToolTip.timeout: Constants.toolTipTimeout
@@ -288,20 +306,13 @@ Dialog {
                         ToolTip.text: qsTr("Enable/disable channel volume for this track")
                         onCheckedChanged: trackSettingsModel.volumeEnabled = checked
                     }
-                    Label {
-                        text: qsTr("MSB:")
-                        Layout.column: 4
-                        Layout.row: 4
-                        Layout.fillWidth: true
-                    }
                     SpinBox {
                         id: volumeSpinBox
                         from: 0
                         to: 127
                         enabled: enableVolumeCheckbox.checked
-                        Layout.column: 5
-                        Layout.columnSpan: 1
-                        Layout.row: 4
+                        Layout.column: 3
+                        Layout.row: 0
                         Layout.fillWidth: true
                         editable: true
                         ToolTip.delay: Constants.toolTipDelay
@@ -311,18 +322,12 @@ Dialog {
                         onValueChanged: trackSettingsModel.volume = value
                         Keys.onReturnPressed: focus = false
                     }
-                    Label {
-                        text: qsTr("Panning:")
-                        Layout.column: 0
-                        Layout.row: 5
-                        Layout.fillWidth: true
-                    }
                     CheckBox {
                         id: enablePanCheckbox
-                        text: qsTr("Enable Panning")
-                        Layout.column: 2
+                        text: qsTr("Set Panning")
+                        Layout.column: 0
                         Layout.columnSpan: 2
-                        Layout.row: 5
+                        Layout.row: 1
                         Layout.fillWidth: true
                         ToolTip.delay: Constants.toolTipDelay
                         ToolTip.timeout: Constants.toolTipTimeout
@@ -330,20 +335,13 @@ Dialog {
                         ToolTip.text: qsTr("Enable/disable panning for this track")
                         onCheckedChanged: trackSettingsModel.panEnabled = checked
                     }
-                    Label {
-                        text: qsTr("MSB:")
-                        Layout.column: 4
-                        Layout.row: 5
-                        Layout.fillWidth: true
-                    }
                     SpinBox {
                         id: panSpinBox
                         from: 0
                         to: 127
                         enabled: enablePanCheckbox.checked
-                        Layout.column: 5
-                        Layout.columnSpan: 1
-                        Layout.row: 5
+                        Layout.column: 3
+                        Layout.row: 1
                         Layout.fillWidth: true
                         editable: true
                         ToolTip.delay: Constants.toolTipDelay
@@ -353,18 +351,12 @@ Dialog {
                         onValueChanged: trackSettingsModel.pan = value
                         Keys.onReturnPressed: focus = false
                     }
-                    Label {
-                        text: qsTr("Cutoff:")
-                        Layout.column: 0
-                        Layout.row: 6
-                        Layout.fillWidth: true
-                    }
                     CheckBox {
                         id: enableCutoffCheckbox
-                        text: qsTr("Enable Cutoff")
-                        Layout.column: 2
+                        text: qsTr("Set Cutoff")
+                        Layout.column: 0
                         Layout.columnSpan: 2
-                        Layout.row: 6
+                        Layout.row: 2
                         Layout.fillWidth: true
                         ToolTip.delay: Constants.toolTipDelay
                         ToolTip.timeout: Constants.toolTipTimeout
@@ -372,20 +364,13 @@ Dialog {
                         ToolTip.text: qsTr("Enable/disable filter cutoff for this track")
                         onCheckedChanged: trackSettingsModel.cutoffEnabled = checked
                     }
-                    Label {
-                        text: qsTr("MSB:")
-                        Layout.column: 4
-                        Layout.row: 6
-                        Layout.fillWidth: true
-                    }
                     SpinBox {
                         id: cutoffSpinBox
                         from: 0
                         to: 127
                         enabled: enableCutoffCheckbox.checked
-                        Layout.column: 5
-                        Layout.columnSpan: 1
-                        Layout.row: 6
+                        Layout.column: 3
+                        Layout.row: 2
                         Layout.fillWidth: true
                         editable: true
                         ToolTip.delay: Constants.toolTipDelay
@@ -394,6 +379,27 @@ Dialog {
                         ToolTip.text: qsTr("Set initial filter cutoff for this track")
                         onValueChanged: trackSettingsModel.cutoff = value
                         Keys.onReturnPressed: focus = false
+                    }
+                }
+            }
+        }
+        GroupBox {
+            title: qsTr("Generic MIDI CC Settings")
+            Layout.fillWidth: true
+            width: parent.width
+            ColumnLayout {
+                id: columnLayout
+                spacing: 8
+                width: parent.width
+                Repeater {
+                    id: midiCcRepeater
+                    model: trackSettingsModel.midiCcSlots
+                    MidiCcSelector {
+                    }
+                    onItemAdded: (index, item) => {
+                        item.index = index;
+                        _midiCcSelectors.push(item);
+                        item.settingsChanged.connect(rootItem._requestApplyAll);
                     }
                 }
             }

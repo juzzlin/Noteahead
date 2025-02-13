@@ -18,6 +18,7 @@
 #include "../contrib/SimpleLogger/src/simple_logger.hpp"
 #include "../domain/instrument.hpp"
 #include "../infra/midi_backend_rt_midi.hpp"
+#include "../infra/midi_cc.hpp"
 #include "instrument_request.hpp"
 
 #include <chrono>
@@ -131,6 +132,7 @@ void MidiWorker::handleInstrumentRequest(const InstrumentRequest & instrumentReq
         if (const auto device = m_midiBackend->deviceByPortName(requestedPortName.toStdString()); device) {
             m_midiBackend->openDevice(device);
             if (instrumentRequest.type() == InstrumentRequest::Type::ApplyAll) {
+                m_midiBackend->sendCC(device, instrument.device.channel, static_cast<uint8_t>(MidiCc::Controller::ResetAllControllers), 127);
                 if (instrument.settings.bank.has_value()) {
                     m_midiBackend->sendBankChange(device, instrument.device.channel,
                                                   instrument.settings.bank->byteOrderSwapped ? instrument.settings.bank->lsb : instrument.settings.bank->msb,
@@ -140,15 +142,18 @@ void MidiWorker::handleInstrumentRequest(const InstrumentRequest & instrumentReq
                     m_midiBackend->sendPatchChange(device, instrument.device.channel, *instrument.settings.patch);
                 }
                 if (instrument.settings.pan.has_value()) {
-                    m_midiBackend->sendCC(device, instrument.device.channel, MidiCc::PanMSB, *instrument.settings.pan);
-                    m_midiBackend->sendCC(device, instrument.device.channel, MidiCc::PanLSB, 0);
+                    m_midiBackend->sendCC(device, instrument.device.channel, static_cast<uint8_t>(MidiCc::Controller::PanMSB), *instrument.settings.pan);
+                    m_midiBackend->sendCC(device, instrument.device.channel, static_cast<uint8_t>(MidiCc::Controller::PanLSB), 0);
                 }
                 if (instrument.settings.volume.has_value()) {
-                    m_midiBackend->sendCC(device, instrument.device.channel, MidiCc::ChannelVolumeMSB, *instrument.settings.volume);
-                    m_midiBackend->sendCC(device, instrument.device.channel, MidiCc::ChannelVolumeLSB, 0);
+                    m_midiBackend->sendCC(device, instrument.device.channel, static_cast<uint8_t>(MidiCc::Controller::ChannelVolumeMSB), *instrument.settings.volume);
+                    m_midiBackend->sendCC(device, instrument.device.channel, static_cast<uint8_t>(MidiCc::Controller::ChannelVolumeLSB), 0);
                 }
                 if (instrument.settings.cutoff.has_value()) {
-                    m_midiBackend->sendCC(device, instrument.device.channel, MidiCc::SoundController5, *instrument.settings.cutoff);
+                    m_midiBackend->sendCC(device, instrument.device.channel, static_cast<uint8_t>(MidiCc::Controller::SoundController5), *instrument.settings.cutoff);
+                }
+                for (auto && midiCcSetting : instrument.settings.midiCcSettings) {
+                    m_midiBackend->sendCC(device, instrument.device.channel, midiCcSetting.controller(), midiCcSetting.value());
                 }
             } else if (instrumentRequest.type() == InstrumentRequest::Type::ApplyPatch) {
                 if (instrument.settings.patch.has_value()) {

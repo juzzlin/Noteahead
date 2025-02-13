@@ -64,6 +64,8 @@ QString xmlKeyColumns();
 
 QString xmlKeyColumnCount();
 
+QString xmlKeyController();
+
 QString xmlKeyCutoff();
 
 QString xmlKeyIndex();
@@ -89,6 +91,8 @@ QString xmlKeyLines();
 QString xmlKeyLineCount();
 
 QString xmlKeyLinesPerBeat();
+
+QString xmlKeyMidiCcSetting();
 
 QString xmlKeyName();
 
@@ -117,6 +121,8 @@ QString xmlKeyTracks();
 QString xmlKeyTrackCount();
 
 QString xmlKeyType();
+
+QString xmlKeyValue();
 
 QString xmlKeyVelocity();
 

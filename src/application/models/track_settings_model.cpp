@@ -23,7 +23,7 @@ namespace noteahead {
 static const auto TAG = "TrackSettingsModel";
 
 TrackSettingsModel::TrackSettingsModel(QObject * parent)
-  : QObject { parent }
+  : MidiCcSelectionModel { parent }
 {
 }
 
@@ -234,6 +234,7 @@ void TrackSettingsModel::setInstrumentData(const Instrument & instrument)
     if (volumeEnabled()) {
         setVolume(*instrument.settings.volume);
     }
+    setMidiCcSettings(instrument.settings.midiCcSettings);
 
     emit instrumentDataReceived();
 
@@ -292,6 +293,7 @@ TrackSettingsModel::InstrumentU TrackSettingsModel::toInstrument() const
     if (m_volumeEnabled) {
         instrument->settings.volume = m_volume;
     }
+    instrument->settings.midiCcSettings = midiCcSettings();
     return instrument;
 }
 

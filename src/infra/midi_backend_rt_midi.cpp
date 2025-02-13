@@ -15,6 +15,8 @@
 
 #include "midi_backend_rt_midi.hpp"
 
+#include "midi_cc.hpp"
+
 #include <memory>
 #include <stdexcept>
 
@@ -25,7 +27,7 @@ void MidiBackendRtMidi::updateAvailableDevices()
     RtMidiOut tempMidiOut; // Temporary instance to list devices
     MidiDeviceList devices = {};
     const size_t portCount = tempMidiOut.getPortCount();
-    for (size_t i = 0; i < portCount; ++i) {
+    for (uint8_t i = 0; i < portCount; ++i) {
         devices.push_back(std::make_shared<MidiDevice>(i, tempMidiOut.getPortName(i)));
     }
     setDevices(devices);
@@ -37,7 +39,7 @@ void MidiBackendRtMidi::openDevice(MidiDeviceS device)
         if (auto && midiOut = std::make_unique<RtMidiOut>(); device->portIndex() >= midiOut->getPortCount()) {
             throw std::runtime_error { "Invalid MIDI port index: " + std::to_string(device->portIndex()) };
         } else {
-            midiOut->openPort(device->portIndex());
+            midiOut->openPort(static_cast<uint8_t>(device->portIndex()));
             m_midiPorts[device->portIndex()] = std::move(midiOut);
         }
     }
@@ -59,7 +61,7 @@ void MidiBackendRtMidi::sendMessage(MidiDeviceS device, const Message & message)
     }
 }
 
-void MidiBackendRtMidi::sendCC(MidiDeviceS device, uint8_t channel, MidiCc controller, uint8_t value) const
+void MidiBackendRtMidi::sendCC(MidiDeviceS device, uint8_t channel, uint8_t controller, uint8_t value) const
 {
     const Message message = { static_cast<unsigned char>(0xB0 | (channel & 0x0F)),
                               static_cast<unsigned char>(controller),
@@ -95,13 +97,13 @@ void MidiBackendRtMidi::sendPatchChange(MidiDeviceS device, uint8_t channel, uin
 
 void MidiBackendRtMidi::sendBankChange(MidiDeviceS device, uint8_t channel, uint8_t msb, uint8_t lsb) const
 {
-    sendCC(device, channel, MidiCc::BankSelectMSB, msb);
-    sendCC(device, channel, MidiCc::BankSelectLSB, lsb);
+    sendCC(device, channel, static_cast<uint8_t>(MidiCc::Controller::BankSelectMSB), msb);
+    sendCC(device, channel, static_cast<uint8_t>(MidiCc::Controller::BankSelectLSB), lsb);
 }
 
 void MidiBackendRtMidi::stopAllNotes(MidiDeviceS device, uint8_t channel) const
 {
-    sendCC(device, channel, MidiCc::AllNotesOff, 0);
+    sendCC(device, channel, static_cast<uint8_t>(MidiCc::Controller::AllNotesOff), 0);
 
     // All devices won't obey CC #123: Manually stop all notes
     for (uint8_t note = 0; note < 128; note++) {
