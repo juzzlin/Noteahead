@@ -33,6 +33,18 @@ Dialog {
         trackSettingsModel.applyAll();
         trackSettingsModel.save();
     }
+    function _requestTestSound() {
+        if (rootItem.visible) {
+            testSoundTimer.restart();
+        }
+    }
+    Timer {
+        id: testSoundTimer
+        interval: 250
+        running: false
+        repeat: false
+        onTriggered: trackSettingsModel.requestTestSound(UiService._activeVelocity)
+    }
     footer: DialogButtonBox {
         Button {
             text: qsTr("Ok")
@@ -54,15 +66,6 @@ Dialog {
             ToolTip.timeout: Constants.toolTipTimeout
             ToolTip.visible: hovered
             ToolTip.text: qsTr("Don't save current settings")
-        }
-        Button {
-            text: qsTr("Test")
-            DialogButtonBox.buttonRole: DialogButtonBox.ApplyRole
-            ToolTip.delay: Constants.toolTipDelay
-            ToolTip.timeout: Constants.toolTipTimeout
-            ToolTip.visible: hovered
-            ToolTip.text: qsTr("Test current settings by triggering the middle C")
-            onClicked: trackSettingsModel.requestTestSound(UiService._activeVelocity)
         }
     }
     ColumnLayout {
@@ -133,7 +136,10 @@ Dialog {
                         function setSelected(text) {
                             currentIndex = find(text);
                         }
-                        onCurrentValueChanged: trackSettingsModel.channel = currentValue - 1
+                        onCurrentValueChanged: {
+                            trackSettingsModel.channel = currentValue - 1;
+                            _requestTestSound();
+                        }
                     }
                     Label {
                         text: qsTr("Patch:")
@@ -153,7 +159,12 @@ Dialog {
                         ToolTip.timeout: Constants.toolTipTimeout
                         ToolTip.visible: hovered
                         ToolTip.text: qsTr("Enable/disable patch setting for this track")
-                        onCheckedChanged: trackSettingsModel.patchEnabled = checked
+                        onCheckedChanged: {
+                            trackSettingsModel.patchEnabled = checked;
+                            if (checked) {
+                                _requestTestSound();
+                            }
+                        }
                     }
                     SpinBox {
                         id: patchSpinBox
@@ -169,7 +180,10 @@ Dialog {
                         ToolTip.timeout: Constants.toolTipTimeout
                         ToolTip.visible: hovered
                         ToolTip.text: qsTr("Set initial patch for this track. Note that some synths will add 1 to the chosen value so that 0 means 1.")
-                        onValueChanged: trackSettingsModel.patch = value
+                        onValueChanged: {
+                            trackSettingsModel.patch = value;
+                            _requestTestSound();
+                        }
                         Keys.onReturnPressed: focus = false
                     }
                     Label {
@@ -189,7 +203,12 @@ Dialog {
                         ToolTip.timeout: Constants.toolTipTimeout
                         ToolTip.visible: hovered
                         ToolTip.text: qsTr("Enable/disable bank setting for this track")
-                        onCheckedChanged: trackSettingsModel.bankEnabled = checked
+                        onCheckedChanged: {
+                            trackSettingsModel.bankEnabled = checked;
+                            if (checked) {
+                                _requestTestSound();
+                            }
+                        }
                     }
                     Label {
                         text: qsTr("MSB/LSB:")
@@ -209,7 +228,10 @@ Dialog {
                         ToolTip.timeout: Constants.toolTipTimeout
                         ToolTip.visible: hovered
                         ToolTip.text: qsTr("Set initial bank for this track (MSB)")
-                        onValueChanged: trackSettingsModel.bankMsb = value
+                        onValueChanged: {
+                            trackSettingsModel.bankMsb = value;
+                            _requestTestSound();
+                        }
                         Keys.onReturnPressed: focus = false
                     }
                     SpinBox {
@@ -224,7 +246,10 @@ Dialog {
                         ToolTip.timeout: Constants.toolTipTimeout
                         ToolTip.visible: hovered
                         ToolTip.text: qsTr("Set initial bank for this track (LSB)")
-                        onValueChanged: trackSettingsModel.bankLsb = value
+                        onValueChanged: {
+                            trackSettingsModel.bankLsb = value;
+                            _requestTestSound();
+                        }
                         Keys.onReturnPressed: focus = false
                     }
                     CheckBox {
@@ -239,7 +264,10 @@ Dialog {
                         ToolTip.timeout: Constants.toolTipTimeout
                         ToolTip.visible: hovered
                         ToolTip.text: qsTr("Swap the send order of LSB and MSB bytes")
-                        onCheckedChanged: trackSettingsModel.bankByteOrderSwapped = checked
+                        onCheckedChanged: {
+                            trackSettingsModel.bankByteOrderSwapped = checked;
+                            _requestTestSound();
+                        }
                     }
                     Label {
                         text: qsTr("Volume:")
