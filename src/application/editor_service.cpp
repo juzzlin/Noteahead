@@ -93,18 +93,54 @@ void EditorService::requestInstruments()
 void EditorService::doVersionCheck(QString fileFormatVersion)
 {
     juzzlin::L(TAG).info() << "File format version: " << fileFormatVersion.toStdString();
-    if (!fileFormatVersion.isEmpty()) {
-        const auto majorVersion = fileFormatVersion.split(".").at(0);
-        const auto minorVersion = fileFormatVersion.split(".").at(1);
-        const auto majorVersionSupported = Constants::fileFormatVersion().split(".").at(0);
-        const auto minorVersionSupported = Constants::fileFormatVersion().split(".").at(1);
-        if ((majorVersion == majorVersionSupported && minorVersion > minorVersionSupported) || majorVersion > majorVersionSupported) {
-            const auto errorText = QString(tr("File format version '%1' is greater than supported version '%2'. Project may not load correctly!")).arg(fileFormatVersion, Constants::fileFormatVersion());
-            emit errorTextRequested(errorText);
-            juzzlin::L(TAG).error() << errorText.toStdString();
-        }
-    } else {
+
+    if (fileFormatVersion.isEmpty()) {
         const auto errorText = tr("Couldn't parse file format version!");
+        emit errorTextRequested(errorText);
+        juzzlin::L(TAG).error() << errorText.toStdString();
+        return;
+    }
+
+    const auto parts = fileFormatVersion.split(".");
+    if (parts.size() < 2) {
+        const auto errorText = tr("Invalid file format version: '%1'").arg(fileFormatVersion);
+        emit errorTextRequested(errorText);
+        juzzlin::L(TAG).error() << errorText.toStdString();
+        return;
+    }
+
+    bool majorOk = false, minorOk = false;
+    const int majorVersion = parts[0].toInt(&majorOk);
+    const int minorVersion = parts[1].toInt(&minorOk);
+    if (!majorOk || !minorOk) {
+        const auto errorText = tr("File format version contains non-numeric values: '%1'").arg(fileFormatVersion);
+        emit errorTextRequested(errorText);
+        juzzlin::L(TAG).error() << errorText.toStdString();
+        return;
+    }
+
+    const auto supportedParts = Constants::fileFormatVersion().split(".");
+    if (supportedParts.size() < 2) {
+        const auto errorText = tr("Internal error: Supported file format version is invalid.");
+        emit errorTextRequested(errorText);
+        juzzlin::L(TAG).error() << errorText.toStdString();
+        return;
+    }
+
+    bool majorSupportedOk = false, minorSupportedOk = false;
+    const int majorVersionSupported = supportedParts[0].toInt(&majorSupportedOk);
+    const int minorVersionSupported = supportedParts[1].toInt(&minorSupportedOk);
+
+    if (!majorSupportedOk || !minorSupportedOk) {
+        const auto errorText = tr("Internal error: Supported file format version contains non-numeric values.");
+        emit errorTextRequested(errorText);
+        juzzlin::L(TAG).error() << errorText.toStdString();
+        return;
+    }
+
+    if ((majorVersion == majorVersionSupported && minorVersion > minorVersionSupported) || (majorVersion > majorVersionSupported)) {
+        const auto errorText = QString(tr("File format version '%1' is greater than supported version '%2'. Project may not load correctly!"))
+                                 .arg(fileFormatVersion, Constants::fileFormatVersion());
         emit errorTextRequested(errorText);
         juzzlin::L(TAG).error() << errorText.toStdString();
     }
