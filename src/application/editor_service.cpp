@@ -90,15 +90,35 @@ void EditorService::requestInstruments()
     }
 }
 
+void EditorService::doVersionCheck(QString fileFormatVersion)
+{
+    juzzlin::L(TAG).info() << "File format version: " << fileFormatVersion.toStdString();
+    if (!fileFormatVersion.isEmpty()) {
+        const auto majorVersion = fileFormatVersion.split(".").at(0);
+        const auto minorVersion = fileFormatVersion.split(".").at(1);
+        const auto majorVersionSupported = Constants::fileFormatVersion().split(".").at(0);
+        const auto minorVersionSupported = Constants::fileFormatVersion().split(".").at(1);
+        if ((majorVersion == majorVersionSupported && minorVersion > minorVersionSupported) || majorVersion > majorVersionSupported) {
+            const auto errorText = QString(tr("File format version '%1' is greater than supported version '%2'. Project may not load correctly!")).arg(fileFormatVersion, Constants::fileFormatVersion());
+            emit errorTextRequested(errorText);
+            juzzlin::L(TAG).error() << errorText.toStdString();
+        }
+    } else {
+        const auto errorText = tr("Couldn't parse file format version!");
+        emit errorTextRequested(errorText);
+        juzzlin::L(TAG).error() << errorText.toStdString();
+    }
+}
+
 EditorService::SongS EditorService::deserializeProject(QXmlStreamReader & reader)
 {
     try {
         juzzlin::L(TAG).trace() << "Reading project started";
         SongS song;
-        const auto applicationName = reader.attributes().value("applicationName").toString();
-        const auto applicationVersion = reader.attributes().value("applicationVersion").toString();
-        const auto createdDate = reader.attributes().value("createdDate").toString();
-        const auto fileFormatVersion = reader.attributes().value("fileFormatVersion").toString();
+        const auto applicationName = reader.attributes().value(Constants::xmlKeyApplicationName()).toString();
+        const auto applicationVersion = reader.attributes().value(Constants::xmlKeyApplicationVersion()).toString();
+        const auto createdDate = reader.attributes().value(Constants::xmlKeyCreatedDate()).toString();
+        doVersionCheck(reader.attributes().value(Constants::xmlKeyFileFormatVersion()).toString());
         while (!(reader.isEndElement() && !reader.name().compare(Constants::xmlKeyProject()))) {
             if (reader.isStartElement() && !reader.name().compare(Constants::xmlKeySong())) {
                 song = std::make_unique<Song>();
@@ -165,10 +185,10 @@ QString EditorService::toXml() const
     writer.writeStartDocument();
 
     writer.writeStartElement(Constants::xmlKeyProject());
-    writer.writeAttribute("fileFormatversion", Constants::fileFormatVersion());
-    writer.writeAttribute("applicationName", Constants::applicationName());
-    writer.writeAttribute("applicationVersion", Constants::applicationVersion());
-    writer.writeAttribute("createdDate", QDateTime::currentDateTime().toString(Qt::DateFormat::ISODateWithMs));
+    writer.writeAttribute(Constants::xmlKeyFileFormatVersion(), Constants::fileFormatVersion());
+    writer.writeAttribute(Constants::xmlKeyApplicationName(), Constants::applicationName());
+    writer.writeAttribute(Constants::xmlKeyApplicationVersion(), Constants::applicationVersion());
+    writer.writeAttribute(Constants::xmlKeyCreatedDate(), QDateTime::currentDateTime().toString(Qt::DateFormat::ISODateWithMs));
 
     m_song->serializeToXml(writer);
 

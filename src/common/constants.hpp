@@ -38,6 +38,14 @@ QString webSiteUrl();
 
 QString qSettingSoftwareName();
 
+QString xmlKeyFileFormatVersion();
+
+QString xmlKeyApplicationName();
+
+QString xmlKeyApplicationVersion();
+
+QString xmlKeyCreatedDate();
+
 QString xmlKeyBankEnabled();
 
 QString xmlKeyBankLsb();

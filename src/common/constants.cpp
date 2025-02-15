@@ -62,6 +62,26 @@ QString qSettingSoftwareName()
     return applicationName();
 }
 
+QString xmlKeyFileFormatVersion()
+{
+    return "fileFormatVersion";
+}
+
+QString xmlKeyApplicationName()
+{
+    return "applicationName";
+}
+
+QString xmlKeyApplicationVersion()
+{
+    return "applicationVersion";
+}
+
+QString xmlKeyCreatedDate()
+{
+    return "createdDate";
+}
+
 QString xmlKeyBeatsPerMinute()
 {
     return "beatsPerMinute";

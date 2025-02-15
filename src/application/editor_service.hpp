@@ -294,6 +294,7 @@ private:
     void insertNoteAtPosition(const Position & position);
 
     SongS deserializeProject(QXmlStreamReader & reader);
+    void doVersionCheck(QString fileFormatVersion);
 
     void logPosition() const;
 
