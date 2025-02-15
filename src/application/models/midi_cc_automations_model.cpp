@@ -98,8 +98,8 @@ int MidiCcAutomationsModel::rowCount(const QModelIndex & parent) const
 
 QVariant MidiCcAutomationsModel::data(const QModelIndex & index, int role) const
 {
-    if (static_cast<size_t>(index.row()) < m_midiCcAutomations.size()) {
-        const auto midiCcAutomation = m_midiCcAutomations.at(static_cast<size_t>(index.row()));
+    if (const auto row = static_cast<size_t>(index.row()); row < m_midiCcAutomations.size()) {
+        const auto midiCcAutomation = m_midiCcAutomations.at(row);
         switch (static_cast<DataRole>(role)) {
         case DataRole::Comment:
             return midiCcAutomation.comment();
@@ -130,74 +130,75 @@ QVariant MidiCcAutomationsModel::data(const QModelIndex & index, int role) const
 
 bool MidiCcAutomationsModel::setData(const QModelIndex & index, const QVariant & value, int role)
 {
-    if (!index.isValid() || static_cast<size_t>(index.row()) >= m_midiCcAutomations.size())
-        return false;
+    if (const auto row = static_cast<size_t>(index.row()); index.isValid() && row < m_midiCcAutomations.size()) {
+        auto midiCcAutomation = m_midiCcAutomations[row];
+        bool changed = false;
+        switch (static_cast<DataRole>(role)) {
+        case DataRole::Comment:
+            if (midiCcAutomation.comment() != value.toString()) {
+                midiCcAutomation.setComment(value.toString());
+                changed = true;
+            }
+            break;
+        case DataRole::Controller:
+            if (const auto newController = static_cast<uint8_t>(value.toInt()); midiCcAutomation.controller() != newController) {
+                midiCcAutomation.setController(newController);
+                changed = true;
+            }
+            break;
+        case DataRole::Enabled:
+            if (midiCcAutomation.enabled() != value.toBool()) {
+                midiCcAutomation.setEnabled(value.toBool());
+                changed = true;
+            }
+            break;
+        case DataRole::Line0: {
+            auto interpolation = midiCcAutomation.interpolation();
+            if (const auto newLine0 = static_cast<uint16_t>(value.toUInt()); interpolation.line0 != newLine0) {
+                interpolation.line0 = newLine0;
+                midiCcAutomation.setInterpolation(interpolation);
+                changed = true;
+            }
+        } break;
+        case DataRole::Line1: {
+            auto interpolation = midiCcAutomation.interpolation();
+            if (const auto newLine1 = static_cast<uint16_t>(value.toUInt()); interpolation.line1 != newLine1) {
+                interpolation.line1 = newLine1;
+                midiCcAutomation.setInterpolation(interpolation);
+                changed = true;
+            }
+        } break;
+        case DataRole::Value0: {
+            auto interpolation = midiCcAutomation.interpolation();
+            if (const auto newValue0 = static_cast<uint8_t>(value.toUInt()); interpolation.value0 != newValue0) {
+                interpolation.value0 = newValue0;
+                midiCcAutomation.setInterpolation(interpolation);
+                changed = true;
+            }
+        } break;
+        case DataRole::Value1: {
+            auto interpolation = midiCcAutomation.interpolation();
+            if (const auto newValue1 = static_cast<uint8_t>(value.toUInt()); interpolation.value1 != newValue1) {
+                interpolation.value1 = newValue1;
+                midiCcAutomation.setInterpolation(interpolation);
+                changed = true;
+            }
+        } break;
+        case DataRole::Pattern:
+        case DataRole::Track:
+        case DataRole::Column:
+        case DataRole::Id:
+            break;
+        }
 
-    auto & midiCcAutomation = m_midiCcAutomations[static_cast<size_t>(index.row())];
-    bool changed = false;
-
-    switch (static_cast<DataRole>(role)) {
-    case DataRole::Comment:
-        if (midiCcAutomation.comment() != value.toString()) {
-            midiCcAutomation.setComment(value.toString());
-            changed = true;
+        if (changed) {
+            m_midiCcAutomations[static_cast<size_t>(index.row())] = midiCcAutomation;
+            m_midiCcAutomationsChanged.erase(midiCcAutomation);
+            m_midiCcAutomationsChanged.insert(midiCcAutomation);
+            juzzlin::L(TAG).info() << "MIDI CC automation changed: " << midiCcAutomation.toString().toStdString();
+            emit dataChanged(index, index, { role });
+            return true;
         }
-        break;
-    case DataRole::Controller:
-        if (const auto newController = static_cast<uint8_t>(value.toInt()); midiCcAutomation.controller() != newController) {
-            midiCcAutomation.setController(newController);
-            changed = true;
-        }
-        break;
-    case DataRole::Enabled:
-        if (midiCcAutomation.enabled() != value.toBool()) {
-            midiCcAutomation.setEnabled(value.toBool());
-            changed = true;
-        }
-        break;
-    case DataRole::Line0: {
-        auto interpolation = midiCcAutomation.interpolation();
-        if (const auto newLine0 = static_cast<uint16_t>(value.toUInt()); interpolation.line0 != newLine0) {
-            interpolation.line0 = newLine0;
-            midiCcAutomation.setInterpolation(interpolation);
-            changed = true;
-        }
-    } break;
-    case DataRole::Line1: {
-        auto interpolation = midiCcAutomation.interpolation();
-        if (const auto newLine1 = static_cast<uint16_t>(value.toUInt()); interpolation.line1 != newLine1) {
-            interpolation.line1 = newLine1;
-            midiCcAutomation.setInterpolation(interpolation);
-            changed = true;
-        }
-    } break;
-    case DataRole::Value0: {
-        auto interpolation = midiCcAutomation.interpolation();
-        if (const auto newValue0 = static_cast<uint8_t>(value.toUInt()); interpolation.value0 != newValue0) {
-            interpolation.value0 = newValue0;
-            midiCcAutomation.setInterpolation(interpolation);
-            changed = true;
-        }
-    } break;
-    case DataRole::Value1: {
-        auto interpolation = midiCcAutomation.interpolation();
-        if (const auto newValue1 = static_cast<uint8_t>(value.toUInt()); interpolation.value1 != newValue1) {
-            interpolation.value1 = newValue1;
-            midiCcAutomation.setInterpolation(interpolation);
-            changed = true;
-        }
-    } break;
-    case DataRole::Pattern:
-    case DataRole::Track:
-    case DataRole::Column:
-    case DataRole::Id:
-        break;
-    }
-
-    if (changed) {
-        m_midiCcAutomationsChanged.insert(midiCcAutomation);
-        emit dataChanged(index, index, { role });
-        return true;
     }
 
     return false;
@@ -240,10 +241,12 @@ QHash<int, QByteArray> MidiCcAutomationsModel::roleNames() const
 void MidiCcAutomationsModel::applyAll()
 {
     for (auto && midiCcAutomation : m_midiCcAutomationsChanged) {
+        juzzlin::L(TAG).info() << "MIDI CC automation applied: " << midiCcAutomation.toString().toStdString();
         emit midiCcAutomationChanged(midiCcAutomation);
     }
     m_midiCcAutomationsChanged.clear();
     for (auto && midiCcAutomation : m_midiCcAutomationsDeleted) {
+        juzzlin::L(TAG).info() << "MIDI CC automation deleted: " << midiCcAutomation.toString().toStdString();
         emit midiCcAutomationDeleted(midiCcAutomation);
     }
     m_midiCcAutomationsDeleted.clear();

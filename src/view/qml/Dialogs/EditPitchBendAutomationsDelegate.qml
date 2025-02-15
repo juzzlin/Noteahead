@@ -31,7 +31,7 @@ GroupBox {
         SpinBox {
             id: startLineSpinBox
             from: 0
-            to: endLineSpinBox.value
+            to: 999
             value: model.line0
             editable: true
             Keys.onReturnPressed: focus = false
@@ -52,7 +52,7 @@ GroupBox {
         }
         SpinBox {
             id: endLineSpinBox
-            from: startLineSpinBox.value + 1
+            from: 0
             to: 999
             value: model.line1
             editable: true
