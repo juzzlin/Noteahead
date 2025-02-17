@@ -59,6 +59,9 @@ signals:
     void statusTextRequested(QString message);
 
 private:
+    void initializeScanTimer();
+    void initializeStopTimer();
+
     std::shared_ptr<MidiBackend> m_midiBackend;
 
     std::unique_ptr<QTimer> m_midiScanTimer;

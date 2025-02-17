@@ -31,61 +31,91 @@ static const auto TAG = "MidiWorker";
 MidiWorker::MidiWorker(QObject * parent)
   : QObject { parent }
   , m_midiBackend { std::make_unique<MidiBackendRtMidi>() }
-  , m_midiScanTimer { std::make_unique<QTimer>() }
 {
-    m_midiScanTimer->setInterval(2500ms);
-    connect(m_midiScanTimer.get(), &QTimer::timeout, this, [this] {
-        if (!m_isPlaying) {
-            m_midiBackend->updateAvailableDevices();
-            QStringList updatedDeviceList;
-            std::ranges::transform(m_midiBackend->listDevices(), std::back_inserter(updatedDeviceList),
-                                   [](const auto & device) { return QString::fromStdString(device->portName()); });
-            if (m_availableMidiPorts != updatedDeviceList) {
-                QStringList newDevices;
-                for (auto && port : updatedDeviceList) {
-                    if (!m_availableMidiPorts.contains(port)) {
-                        newDevices << port;
-                    }
-                }
-                QStringList offDevices;
-                for (auto && port : m_availableMidiPorts) {
-                    if (!updatedDeviceList.contains(port)) {
-                        offDevices << port;
-                    }
-                }
-                if (!newDevices.isEmpty()) {
-                    for (auto && portName : newDevices) {
-                        if (const auto device = m_midiBackend->deviceByPortName(portName.toStdString()); device) {
-                            juzzlin::L(TAG).info() << "Detected MIDI device " << portName.toStdString();
+    initializeScanTimer();
+}
+
+void MidiWorker::initializeScanTimer()
+{
+    if (!m_midiScanTimer) {
+        m_midiScanTimer = std::make_unique<QTimer>();
+        m_midiScanTimer->setInterval(2500ms);
+        connect(m_midiScanTimer.get(), &QTimer::timeout, this, [this] {
+            if (!m_isPlaying) {
+                m_midiBackend->updateAvailableDevices();
+                QStringList updatedDeviceList;
+                std::ranges::transform(m_midiBackend->listDevices(), std::back_inserter(updatedDeviceList),
+                                       [](const auto & device) { return QString::fromStdString(device->portName()); });
+                if (m_availableMidiPorts != updatedDeviceList) {
+                    QStringList newDevices;
+                    for (auto && port : updatedDeviceList) {
+                        if (!m_availableMidiPorts.contains(port)) {
+                            newDevices << port;
                         }
                     }
-                    if (newDevices.size() <= 3) {
-                        emit statusTextRequested(tr("New MIDI devices found: ") + newDevices.join(","));
-                    } else {
-                        emit statusTextRequested(tr("New MIDI device(s) found"));
-                    }
-                }
-                if (!offDevices.isEmpty()) {
-                    for (auto && portName : offDevices) {
-                        if (const auto device = m_midiBackend->deviceByPortName(portName.toStdString()); device) {
-                            juzzlin::L(TAG).info() << "Closing MIDI device " << portName.toStdString();
-                            m_midiBackend->closeDevice(device);
+                    QStringList offDevices;
+                    for (auto && port : m_availableMidiPorts) {
+                        if (!updatedDeviceList.contains(port)) {
+                            offDevices << port;
                         }
                     }
-                    if (newDevices.size() <= 3) {
-                        emit statusTextRequested(tr("MIDI devices went offline: ") + offDevices.join(","));
-                    } else {
-                        emit statusTextRequested(tr("MIDI device(s) went offline "));
+                    if (!newDevices.isEmpty()) {
+                        for (auto && portName : newDevices) {
+                            if (const auto device = m_midiBackend->deviceByPortName(portName.toStdString()); device) {
+                                juzzlin::L(TAG).info() << "Detected MIDI device " << portName.toStdString();
+                            }
+                        }
+                        if (newDevices.size() <= 3) {
+                            emit statusTextRequested(tr("New MIDI devices found: ") + newDevices.join(","));
+                        } else {
+                            emit statusTextRequested(tr("New MIDI device(s) found"));
+                        }
                     }
+                    if (!offDevices.isEmpty()) {
+                        for (auto && portName : offDevices) {
+                            if (const auto device = m_midiBackend->deviceByPortName(portName.toStdString()); device) {
+                                juzzlin::L(TAG).info() << "Closing MIDI device " << portName.toStdString();
+                                m_midiBackend->closeDevice(device);
+                            }
+                        }
+                        if (newDevices.size() <= 3) {
+                            emit statusTextRequested(tr("MIDI devices went offline: ") + offDevices.join(","));
+                        } else {
+                            emit statusTextRequested(tr("MIDI device(s) went offline "));
+                        }
+                    }
+                    m_availableMidiPorts = updatedDeviceList;
+                    emit availableMidiPortsChanged(m_availableMidiPorts);
+                    emit midiPortsAppeared(newDevices);
+                    emit midiPortsDisappeared(offDevices);
                 }
-                m_availableMidiPorts = updatedDeviceList;
-                emit availableMidiPortsChanged(m_availableMidiPorts);
-                emit midiPortsAppeared(newDevices);
-                emit midiPortsDisappeared(offDevices);
             }
-        }
-    });
-    m_midiScanTimer->start();
+        });
+        m_midiScanTimer->start();
+    }
+}
+
+void MidiWorker::initializeStopTimer()
+{
+    if (!m_midiStopTimer) {
+        m_midiStopTimer = std::make_unique<QTimer>();
+        m_midiStopTimer->setInterval(500ms);
+        m_midiStopTimer->setSingleShot(true);
+        connect(m_midiStopTimer.get(), &QTimer::timeout, this, [this]() {
+            for (auto && stopTask : m_stopTasks) {
+                try {
+                    if (const auto device = m_midiBackend->deviceByPortName(stopTask.portName.toStdString()); device) {
+                        m_midiBackend->openDevice(device);
+                        m_midiBackend->sendNoteOff(device, stopTask.channel, 60);
+                    } else {
+                        juzzlin::L(TAG).error() << "No device found for portName '" << stopTask.portName.toStdString() << "'";
+                    }
+                } catch (const std::runtime_error & e) {
+                    juzzlin::L(TAG).error() << e.what();
+                }
+            }
+        });
+    }
 }
 
 void MidiWorker::handleInstrumentRequest(const InstrumentRequest & instrumentRequest)
@@ -140,25 +170,7 @@ void MidiWorker::playAndStopMiddleC(QString portName, uint8_t channel, uint8_t v
             m_midiBackend->openDevice(device);
             m_midiBackend->sendNoteOn(device, channel, 60, velocity);
             m_stopTasks.push_back({ portName, channel, 60 });
-            if (!m_midiStopTimer) {
-                m_midiStopTimer = std::make_unique<QTimer>();
-                m_midiStopTimer->setInterval(500ms);
-                m_midiStopTimer->setSingleShot(true);
-                connect(m_midiStopTimer.get(), &QTimer::timeout, this, [this]() {
-                    for (auto && stopTask : m_stopTasks) {
-                        try {
-                            if (const auto device = m_midiBackend->deviceByPortName(stopTask.portName.toStdString()); device) {
-                                m_midiBackend->openDevice(device);
-                                m_midiBackend->sendNoteOff(device, stopTask.channel, 60);
-                            } else {
-                                juzzlin::L(TAG).error() << "No device found for portName '" << stopTask.portName.toStdString() << "'";
-                            }
-                        } catch (const std::runtime_error & e) {
-                            juzzlin::L(TAG).error() << e.what();
-                        }
-                    }
-                });
-            }
+            initializeStopTimer(); // Initialize here to end up in the correct thread
             m_midiStopTimer->start();
         } else {
             juzzlin::L(TAG).error() << "No device found for portName '" << portName.toStdString() << "'";
