@@ -21,7 +21,6 @@
 #include "instrument_request.hpp"
 
 #include <chrono>
-#include <thread>
 
 using namespace std::chrono_literals;
 
@@ -140,8 +139,27 @@ void MidiWorker::playAndStopMiddleC(QString portName, uint8_t channel, uint8_t v
         if (const auto device = m_midiBackend->deviceByPortName(portName.toStdString()); device) {
             m_midiBackend->openDevice(device);
             m_midiBackend->sendNoteOn(device, channel, 60, velocity);
-            std::this_thread::sleep_for(std::chrono::milliseconds(500));
-            m_midiBackend->sendNoteOff(device, channel, 60);
+            m_stopTasks.push_back({ portName, channel, 60 });
+            if (!m_midiStopTimer) {
+                m_midiStopTimer = std::make_unique<QTimer>();
+                m_midiStopTimer->setInterval(500ms);
+                m_midiStopTimer->setSingleShot(true);
+                connect(m_midiStopTimer.get(), &QTimer::timeout, this, [this]() {
+                    for (auto && stopTask : m_stopTasks) {
+                        try {
+                            if (const auto device = m_midiBackend->deviceByPortName(stopTask.portName.toStdString()); device) {
+                                m_midiBackend->openDevice(device);
+                                m_midiBackend->sendNoteOff(device, stopTask.channel, 60);
+                            } else {
+                                juzzlin::L(TAG).error() << "No device found for portName '" << stopTask.portName.toStdString() << "'";
+                            }
+                        } catch (const std::runtime_error & e) {
+                            juzzlin::L(TAG).error() << e.what();
+                        }
+                    }
+                });
+            }
+            m_midiStopTimer->start();
         } else {
             juzzlin::L(TAG).error() << "No device found for portName '" << portName.toStdString() << "'";
         }

@@ -20,6 +20,7 @@
 #include <QTimer>
 
 #include <memory>
+#include <vector>
 
 #include "instrument_request.hpp"
 
@@ -61,6 +62,19 @@ private:
     std::shared_ptr<MidiBackend> m_midiBackend;
 
     std::unique_ptr<QTimer> m_midiScanTimer;
+
+    std::unique_ptr<QTimer> m_midiStopTimer;
+
+    struct StopTask
+    {
+        QString portName;
+
+        uint8_t channel = 0;
+
+        uint8_t note = 0;
+    };
+
+    std::vector<StopTask> m_stopTasks;
 
     QStringList m_availableMidiPorts;
 
