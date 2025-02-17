@@ -83,12 +83,12 @@ Noteahead's source code is licensed under **GNU GPLv3**. See COPYING for the com
 ##
 ## Build instructions
 
-Currently Noteahead depends on Qt >= 6.5. Actually that's the only thing that defines the Ubuntu version if stock Qt is to be used.
+Currently Noteahead depends on Qt >= 6.4. Actually that's the only thing that defines the Ubuntu version if stock Qt is to be used.
 
 Noteahead is currently being developing on Ubuntu 22.04 LTS with the official Qt SDK and on Ubuntu 24.10 with the stock Qt from repositories.
 
 ###
-### Build dependencies on Ubuntu 24.10+
+### Build dependencies on Ubuntu 24.04+
 
 Packages needed for building:
 
@@ -117,6 +117,11 @@ Optionally install locally:
 ### Run unit tests on CLI
 
     $ ctest
+
+###
+### Create a Debian package
+
+    $ cpack -G DEB
 
 ##
 ## Basic usage

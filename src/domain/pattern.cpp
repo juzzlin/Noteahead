@@ -278,7 +278,7 @@ void Pattern::serializeToXml(QXmlStreamWriter & writer) const
     writer.writeStartElement(Constants::xmlKeyPattern());
 
     writer.writeAttribute(Constants::xmlKeyIndex(), QString::number(m_index));
-    writer.writeAttribute(Constants::xmlKeyName(), m_name);
+    writer.writeAttribute(Constants::xmlKeyName(), QString::fromStdString(m_name));
     writer.writeAttribute(Constants::xmlKeyLineCount(), QString::number(lineCount()));
     writer.writeAttribute(Constants::xmlKeyTrackCount(), QString::number(trackCount()));
 
