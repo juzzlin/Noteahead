@@ -40,6 +40,9 @@ public:
 
     virtual MidiDeviceS deviceByPortName(const std::string & name) const;
 
+    //! \returns e.g. "ALSA"
+    virtual std::string midiApiName() const;
+
     virtual void updateAvailableDevices();
 
     virtual void openDevice(MidiDeviceS device);

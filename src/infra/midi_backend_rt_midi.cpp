@@ -52,6 +52,11 @@ void MidiBackendRtMidi::closeDevice(MidiDeviceS device)
     }
 }
 
+std::string MidiBackendRtMidi::midiApiName() const
+{
+    return RtMidi::getApiDisplayName(RtMidiOut {}.getCurrentApi());
+}
+
 void MidiBackendRtMidi::sendMessage(MidiDeviceS device, const Message & message) const
 {
     if (auto && it = m_midiPorts.find(device->portIndex()); it == m_midiPorts.end()) {

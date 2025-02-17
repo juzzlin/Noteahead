@@ -33,6 +33,8 @@ MidiWorker::MidiWorker(QObject * parent)
   : QObject { parent }
   , m_midiBackend { std::make_unique<MidiBackendRtMidi>() }
 {
+    juzzlin::L(TAG).info() << "Midi API name: " << m_midiBackend->midiApiName();
+
     initializeScanTimer();
 }
 

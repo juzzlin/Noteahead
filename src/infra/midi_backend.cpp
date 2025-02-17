@@ -52,6 +52,11 @@ MidiDeviceS MidiBackend::deviceByPortName(const std::string & name) const
     return {};
 }
 
+std::string MidiBackend::midiApiName() const
+{
+    return "";
+}
+
 void MidiBackend::updateAvailableDevices()
 {
 }
