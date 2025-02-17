@@ -109,6 +109,10 @@ Additional packages needed to run:
 
     $ ./noteahead
 
+Optionally install locally:
+
+    $ ninja install
+
 ###
 ### Run unit tests on CLI
 
