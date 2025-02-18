@@ -48,10 +48,9 @@ void Column::initialize(size_t length)
 
 bool Column::hasData() const
 {
-    return !name().empty() || std::ranges::find_if(m_lines, [](auto && line) {
-                                  return line->hasData();
-                              })
-      != m_lines.end();
+    return !name().empty() || std::ranges::any_of(m_lines, [](auto && line) {
+        return line->hasData();
+    });
 }
 
 bool Column::hasPosition(const Position & position) const

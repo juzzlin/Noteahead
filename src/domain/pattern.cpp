@@ -111,10 +111,9 @@ Pattern::TrackIndexList Pattern::trackIndices() const
 
 bool Pattern::hasData() const
 {
-    return std::ranges::find_if(m_trackOrder, [](auto && track) {
-               return track->hasData();
-           })
-      != m_trackOrder.end();
+    return std::ranges::any_of(m_trackOrder, [](auto && track) {
+        return track->hasData();
+    });
 }
 
 bool Pattern::hasData(size_t trackIndex, size_t columnIndex) const

@@ -278,10 +278,9 @@ std::optional<size_t> Song::trackIndexByPosition(size_t track) const
 
 bool Song::hasData() const
 {
-    return std::ranges::find_if(m_patterns, [](auto && pattern) {
-               return pattern.second->hasData();
-           })
-      != m_patterns.end();
+    return std::ranges::any_of(m_patterns, [](auto && pattern) {
+        return pattern.second->hasData();
+    });
 }
 
 bool Song::hasData(size_t patternIndex, size_t trackIndex, size_t columnIndex) const

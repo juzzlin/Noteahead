@@ -122,10 +122,9 @@ void Track::setLineCount(size_t lineCount)
 
 bool Track::hasData() const
 {
-    return std::ranges::find_if(m_columns, [this](auto && column) {
-               return column->index() < m_virtualColumnCount && column->hasData();
-           })
-      != m_columns.end();
+    return std::ranges::any_of(m_columns, [this](auto && column) {
+        return column->index() < m_virtualColumnCount && column->hasData();
+    });
 }
 
 bool Track::hasData(size_t column) const
