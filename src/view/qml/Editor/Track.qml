@@ -118,6 +118,7 @@ Item {
             const noteColumn = _createNoteColumn(_noteColumnCount - 1);
             _noteColumns.push(noteColumn);
             _resize(width, height);
+            updateIndexHighlights();
         }
         function deleteColumn() {
             _noteColumns.pop();
