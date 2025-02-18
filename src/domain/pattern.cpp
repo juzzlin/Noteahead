@@ -210,19 +210,16 @@ void Pattern::setTrackAtPosition(size_t position, TrackS track)
     m_trackOrder.at(position) = track;
 }
 
-void Pattern::addTrackToRightOf(size_t track)
+void Pattern::addTrackToRightOf(size_t trackIndex)
 {
-    juzzlin::L(TAG).debug() << "Add track to the right of track position " << track;
-
-    if (track >= m_trackOrder.size()) {
-        juzzlin::L(TAG).error() << "Invalid track position: " << track;
-        return;
+    if (const auto track = trackPositionByIndex(trackIndex); track.has_value()) {
+        juzzlin::L(TAG).debug() << "Add track to the right of track position " << *track;
+        const auto newIndex = maxIndex() + 1;
+        const auto newTrack = std::make_shared<Track>(newIndex, "Track " + std::to_string(newIndex + 1), m_trackOrder.at(0)->lineCount(), 1);
+        m_trackOrder.insert(m_trackOrder.begin() + static_cast<long>(*track) + 1, newTrack);
+    } else {
+        juzzlin::L(TAG).error() << "Invalid track position: " << *track;
     }
-
-    const auto newIndex = maxIndex() + 1;
-    const auto newTrack = std::make_shared<Track>(newIndex, "Track " + std::to_string(newIndex + 1), m_trackOrder.at(0)->lineCount(), 1);
-
-    m_trackOrder.insert(m_trackOrder.begin() + static_cast<long>(track) + 1, newTrack);
 }
 
 void Pattern::setTrackName(size_t trackIndex, std::string name)

@@ -232,10 +232,10 @@ void Song::removePatternFromPlayOrder(size_t position)
     m_playOrder->removePattern(position);
 }
 
-void Song::addTrackToRightOf(size_t track)
+void Song::addTrackToRightOf(size_t trackIndex)
 {
-    std::ranges::for_each(m_patterns, [track](const auto & pattern) {
-        pattern.second->addTrackToRightOf(track);
+    std::ranges::for_each(m_patterns, [trackIndex](const auto & pattern) {
+        pattern.second->addTrackToRightOf(trackIndex);
     });
 }
 

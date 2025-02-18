@@ -74,7 +74,7 @@ public:
 
     using TrackS = std::shared_ptr<Track>;
     void setTrackAtPosition(size_t position, TrackS track);
-    void addTrackToRightOf(size_t track);
+    void addTrackToRightOf(size_t trackIndex);
 
     using InstrumentS = std::shared_ptr<Instrument>;
     InstrumentS instrument(size_t trackIndex) const;
