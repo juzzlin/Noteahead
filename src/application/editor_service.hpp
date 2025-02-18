@@ -309,6 +309,8 @@ private:
     void removeDuplicateNoteOffs();
 
     void resetCursorPosition();
+    void moveCursorToNextTrack();
+    void moveCursorToPrevTrack();
 
     bool setVelocityAtCurrentPosition(uint8_t digit);
 

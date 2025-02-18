@@ -661,6 +661,28 @@ size_t EditorService::positionBarLine() const
     return 8;
 }
 
+void EditorService::moveCursorToPrevTrack()
+{
+    if (const auto currentTrack = m_song->trackPositionByIndex(m_cursorPosition.track); currentTrack.has_value()) {
+        size_t newTrack = *currentTrack - 1;
+        newTrack %= m_song->trackIndices().size();
+        m_cursorPosition.track = m_song->trackIndices().at(newTrack);
+        m_cursorPosition.column = m_song->columnCount(m_cursorPosition.track) - 1;
+        m_cursorPosition.lineColumn = 3;
+    }
+}
+
+void EditorService::moveCursorToNextTrack()
+{
+    if (const auto currentTrack = m_song->trackPositionByIndex(m_cursorPosition.track); currentTrack.has_value()) {
+        size_t newTrack = *currentTrack + 1;
+        newTrack %= m_song->trackIndices().size();
+        m_cursorPosition.track = m_song->trackIndices().at(newTrack);
+        m_cursorPosition.column = 0;
+        m_cursorPosition.lineColumn = 0;
+    }
+}
+
 void EditorService::requestCursorLeft()
 {
     juzzlin::L(TAG).debug() << "Cursor left requested";
@@ -673,9 +695,7 @@ void EditorService::requestCursorLeft()
         if (m_cursorPosition.column) {
             m_cursorPosition.column--;
         } else {
-            m_cursorPosition.track--;
-            m_cursorPosition.track %= trackCount();
-            m_cursorPosition.column = m_song->columnCount(m_cursorPosition.track) - 1;
+            moveCursorToPrevTrack();
         }
     }
 
@@ -694,9 +714,7 @@ void EditorService::requestCursorRight()
         if (m_cursorPosition.column + 1 < m_song->columnCount(m_cursorPosition.track)) {
             m_cursorPosition.column++;
         } else {
-            m_cursorPosition.column = 0;
-            m_cursorPosition.track++;
-            m_cursorPosition.track %= trackCount();
+            moveCursorToNextTrack();
         }
     }
     notifyPositionChange(oldPosition);
@@ -706,10 +724,7 @@ void EditorService::requestTrackRight()
 {
     juzzlin::L(TAG).debug() << "Track right requested";
     const auto oldPosition = m_cursorPosition;
-    m_cursorPosition.column = 0;
-    m_cursorPosition.lineColumn = 0;
-    ++m_cursorPosition.track %= trackCount();
-
+    moveCursorToNextTrack();
     notifyPositionChange(oldPosition);
 }
 
@@ -720,9 +735,7 @@ void EditorService::requestColumnRight()
     if (oldPosition.column + 1 < m_song->columnCount(oldPosition.track)) {
         m_cursorPosition.column++;
     } else {
-        m_cursorPosition.column = 0;
-        m_cursorPosition.lineColumn = 0;
-        ++m_cursorPosition.track %= trackCount();
+        moveCursorToNextTrack();
     }
 
     notifyPositionChange(oldPosition);
