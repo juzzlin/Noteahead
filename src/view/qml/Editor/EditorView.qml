@@ -93,7 +93,6 @@ FocusScope {
     }
     function _clearPatterns() {
         _patterns.forEach(pattern => {
-                pattern.clearTracks();
                 pattern.destroy();
             });
         _patterns.length = 0;
@@ -224,6 +223,13 @@ FocusScope {
             });
         _updateCurrentTrackDimensions();
     }
+    function _deleteTrack(trackIndex) {
+        _patterns.forEach(pattern => {
+                pattern.deleteTrack(trackIndex);
+            });
+        _updateCurrentTrackDimensions();
+        _updateTrackVisibility();
+    }
     function _connectSignals() {
         editorService.columnAdded.connect(trackIndex => _addColumn(trackIndex));
         editorService.columnDeleted.connect(trackIndex => _deleteColumn(trackIndex));
@@ -235,6 +241,7 @@ FocusScope {
         editorService.noteDataAtPositionChanged.connect(_updateNoteDataAtPosition);
         editorService.songChanged.connect(_recreatePatterns);
         editorService.trackConfigurationChanged.connect(_recreatePatterns);
+        editorService.trackDeleted.connect(_deleteTrack);
         editorService.trackNameChanged.connect(_updateTrackHeaders);
         editorService.patternCreated.connect(patternIndex => _createPattern(patternIndex));
         editorService.positionChanged.connect((newPosition, oldPosition) => {

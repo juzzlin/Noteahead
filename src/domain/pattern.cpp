@@ -165,7 +165,7 @@ Pattern::TrackS Pattern::trackByIndexThrow(size_t index) const
     if (const auto track = trackByIndex(index); track) {
         return track;
     } else {
-        juzzlin::L(TAG).error() << "Invalid track index:" << index;
+        juzzlin::L(TAG).error() << "Invalid track index: " << index;
         throw std::runtime_error("Invalid track index: " + std::to_string(index));
     }
 }
@@ -180,7 +180,7 @@ Pattern::TrackS Pattern::trackByPositionThrow(size_t position) const
     if (const auto track = trackByPosition(position); track) {
         return m_trackOrder.at(position);
     } else {
-        juzzlin::L(TAG).error() << "Invalid track position:" << position;
+        juzzlin::L(TAG).error() << "Invalid track position: " << position;
         throw std::runtime_error("Invalid track position: " + std::to_string(position));
     }
 }
@@ -217,6 +217,16 @@ void Pattern::addTrackToRightOf(size_t trackIndex)
         const auto newIndex = maxIndex() + 1;
         const auto newTrack = std::make_shared<Track>(newIndex, "Track " + std::to_string(newIndex + 1), m_trackOrder.at(0)->lineCount(), 1);
         m_trackOrder.insert(m_trackOrder.begin() + static_cast<long>(*track) + 1, newTrack);
+    } else {
+        juzzlin::L(TAG).error() << "Invalid track position: " << *track;
+    }
+}
+
+void Pattern::deleteTrack(size_t trackIndex)
+{
+    if (const auto track = trackPositionByIndex(trackIndex); track.has_value()) {
+        juzzlin::L(TAG).debug() << "Deleting track at position " << *track;
+        m_trackOrder.erase(m_trackOrder.begin() + static_cast<long>(*track));
     } else {
         juzzlin::L(TAG).error() << "Invalid track position: " << *track;
     }

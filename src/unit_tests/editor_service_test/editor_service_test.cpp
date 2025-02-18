@@ -481,6 +481,31 @@ void EditorServiceTest::test_requestNewColumn_shouldAddNewColumn()
     QCOMPARE(editorService.columnCount(0), 2);
 }
 
+void EditorServiceTest::test_requestColumnDeletion_shouldDeleteColumn()
+{
+    EditorService editorService;
+    QVERIFY(editorService.requestPosition(0, 0, 0, 0, 0));
+    QSignalSpy columnDeletedSpy { &editorService, &EditorService::columnDeleted };
+    QSignalSpy positionChangedSpy { &editorService, &EditorService::positionChanged };
+    QSignalSpy scrollBarSizeChangedSpy { &editorService, &EditorService::scrollBarSizeChanged };
+    QSignalSpy scrollBarStepSizeChangedSpy { &editorService, &EditorService::scrollBarStepSizeChanged };
+
+    editorService.requestNewColumn(0);
+    QCOMPARE(editorService.columnCount(0), 2);
+    QVERIFY(editorService.requestPosition(0, 0, 1, 0, 0));
+    QCOMPARE(scrollBarSizeChangedSpy.count(), 1);
+
+    editorService.requestColumnDeletion(0);
+
+    QVERIFY(editorService.isModified());
+    QCOMPARE(columnDeletedSpy.count(), 1);
+    QCOMPARE(positionChangedSpy.count(), 4);
+    QCOMPARE(editorService.position().column, 0);
+    QCOMPARE(scrollBarSizeChangedSpy.count(), 2);
+    QCOMPARE(scrollBarStepSizeChangedSpy.count(), 2);
+    QCOMPARE(editorService.columnCount(0), 1);
+}
+
 void EditorServiceTest::test_requestNewTrackToRight_shouldAddNewTrack()
 {
     EditorService editorService;
@@ -514,29 +539,26 @@ void EditorServiceTest::test_requestNewTrackToRight_shouldAddNewTrack()
     QCOMPARE(editorService.trackCount(), initialTrackCount);
 }
 
-void EditorServiceTest::test_requestColumnDeletion_shouldDeleteColumn()
+void EditorServiceTest::test_requestTrackDeletion_shouldDeleteTrack()
 {
     EditorService editorService;
-    QVERIFY(editorService.requestPosition(0, 0, 0, 0, 0));
-    QSignalSpy columnDeletedSpy { &editorService, &EditorService::columnDeleted };
+    const auto initialTrackCount = editorService.trackCount();
+    QSignalSpy trackDeletedSpy { &editorService, &EditorService::trackDeleted };
     QSignalSpy positionChangedSpy { &editorService, &EditorService::positionChanged };
     QSignalSpy scrollBarSizeChangedSpy { &editorService, &EditorService::scrollBarSizeChanged };
     QSignalSpy scrollBarStepSizeChangedSpy { &editorService, &EditorService::scrollBarStepSizeChanged };
 
-    editorService.requestNewColumn(0);
-    QCOMPARE(editorService.columnCount(0), 2);
-    QVERIFY(editorService.requestPosition(0, 0, 1, 0, 0));
-    QCOMPARE(scrollBarSizeChangedSpy.count(), 1);
+    QVERIFY(editorService.requestPosition(0, 0, 0, 0, 0));
+    editorService.requestTrackDeletion();
 
-    editorService.requestColumnDeletion(0);
-
+    QCOMPARE(editorService.trackCount(), initialTrackCount - 1);
     QVERIFY(editorService.isModified());
-    QCOMPARE(columnDeletedSpy.count(), 1);
-    QCOMPARE(positionChangedSpy.count(), 4);
+    QCOMPARE(trackDeletedSpy.count(), 1);
+    QCOMPARE(positionChangedSpy.count(), 2);
+    QCOMPARE(editorService.position().track, editorService.trackIndexByPosition(editorService.trackCount() - 1)); // Should wrap around to the last track
     QCOMPARE(editorService.position().column, 0);
-    QCOMPARE(scrollBarSizeChangedSpy.count(), 2);
-    QCOMPARE(scrollBarStepSizeChangedSpy.count(), 2);
-    QCOMPARE(editorService.columnCount(0), 1);
+    QCOMPARE(scrollBarSizeChangedSpy.count(), 1);
+    QCOMPARE(scrollBarStepSizeChangedSpy.count(), 1);
 }
 
 void EditorServiceTest::test_requestNoteDeletionAtCurrentPosition_shouldDeleteNoteData()
@@ -1328,6 +1350,36 @@ void EditorServiceTest::test_toXmlFromXml_instrument_shouldParseInstrument()
         QCOMPARE(instrumentIn->settings.bank->msb, instrumentOut->settings.bank->msb);
         QCOMPARE(instrumentIn->settings.bank->byteOrderSwapped, instrumentOut->settings.bank->byteOrderSwapped);
     }
+}
+
+void EditorServiceTest::test_toXmlFromXml_addTrack_shouldLoadSong()
+{
+    EditorService editorServiceOut;
+    editorServiceOut.requestPosition(0, 0, 0, 0, 0);
+    editorServiceOut.requestNewTrackToRight();
+
+    const auto xml = editorServiceOut.toXml();
+
+    EditorService editorServiceIn;
+    editorServiceIn.fromXml(xml);
+
+    QCOMPARE(editorServiceIn.trackCount(), editorServiceOut.trackCount());
+    QCOMPARE(editorServiceIn.trackIndices(), editorServiceOut.trackIndices());
+}
+
+void EditorServiceTest::test_toXmlFromXml_removeTrack_shouldLoadSong()
+{
+    EditorService editorServiceOut;
+    editorServiceOut.requestPosition(0, 0, 0, 0, 0);
+    editorServiceOut.requestTrackDeletion();
+
+    const auto xml = editorServiceOut.toXml();
+
+    EditorService editorServiceIn;
+    editorServiceIn.fromXml(xml);
+
+    QCOMPARE(editorServiceIn.trackCount(), editorServiceOut.trackCount());
+    QCOMPARE(editorServiceIn.trackIndices(), editorServiceOut.trackIndices());
 }
 
 } // namespace noteahead

@@ -165,6 +165,7 @@ public:
     Q_INVOKABLE void requestNewColumn(size_t trackIndex);
     Q_INVOKABLE void requestColumnDeletion(size_t trackIndex);
     Q_INVOKABLE void requestNewTrackToRight();
+    Q_INVOKABLE void requestTrackDeletion();
 
     Q_INVOKABLE void requestNoteInsertionAtCurrentPosition();
     Q_INVOKABLE void requestNoteDeletionAtCurrentPosition(bool shiftNotes);
@@ -279,6 +280,7 @@ signals:
     void statusTextRequested(QString text);
 
     void trackConfigurationChanged();
+    void trackDeleted(size_t trackIndex);
     void trackNameChanged();
 
 public slots:

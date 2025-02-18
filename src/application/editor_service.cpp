@@ -58,7 +58,13 @@ void EditorService::setSong(SongS song)
 {
     m_song = song;
 
-    m_cursorPosition = {};
+    m_cursorPosition = {
+        0,
+        m_song->trackIndices().at(0),
+        0,
+        0,
+        0
+    };
 
     emit songChanged();
     emit beatsPerMinuteChanged();
@@ -82,7 +88,7 @@ void EditorService::setSong(SongS song)
 
 void EditorService::requestInstruments()
 {
-    for (size_t trackIndex = 0; trackIndex < m_song->trackCount(); trackIndex++) {
+    for (size_t trackIndex : m_song->trackIndices()) {
         if (const auto instrument = m_song->instrument(trackIndex); instrument) {
             juzzlin::L(TAG).info() << "Requesting instrument for track index=" << trackIndex;
             emit instrumentRequested({ InstrumentRequest::Type::ApplyAll, *instrument });
@@ -857,6 +863,23 @@ void EditorService::requestNewTrackToRight()
     m_song->addTrackToRightOf(position().track);
     emit trackConfigurationChanged();
     setIsModified(true);
+}
+
+void EditorService::requestTrackDeletion()
+{
+    juzzlin::L(TAG).debug() << "Deletion of track requested: " << position().track;
+    if (trackCount() > visibleUnitCount()) {
+        const auto trackToDelete = position().track;
+        moveCursorToPrevTrack();
+        notifyPositionChange(m_cursorPosition); // Re-focuses the previous track
+        if (m_song->deleteTrack(trackToDelete)) {
+            emit trackDeleted(trackToDelete);
+            updateScrollBar();
+            setIsModified(true);
+        }
+    } else {
+        emit statusTextRequested(tr("Cannot have less than ") + QString::number(visibleUnitCount()) + " tracks");
+    }
 }
 
 void EditorService::requestNoteInsertionAtCurrentPosition()

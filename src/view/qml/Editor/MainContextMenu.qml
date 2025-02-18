@@ -134,6 +134,14 @@ Menu {
             enabled: !UiService.isPlaying()
             onTriggered: editorService.requestNewTrackToRight()
         }
+        MenuSeparator {
+        }
+        Action {
+            text: qsTr("Delete current track")
+            shortcut: "Shift+D"
+            enabled: !UiService.isPlaying()
+            onTriggered: editorService.requestTrackDeletion()
+        }
     }
     MenuSeparator {
     }

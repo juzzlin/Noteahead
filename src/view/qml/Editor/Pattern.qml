@@ -5,12 +5,8 @@ Item {
     property int _index: 0
     property var _tracks: []
     readonly property string _tag: "Pattern"
-    function clearTracks() {
-        _tracks.forEach(track => track.destroy());
-        _tracks.length = 0;
-    }
     function createTracks(positionBar) {
-        _tracks = [];
+        _tracks.length = 0;
         for (let trackIndex of editorService.trackIndices()) {
             const track = trackComponent.createObject(this);
             if (track) {
@@ -37,6 +33,16 @@ Item {
         const track = trackByIndex(trackIndex);
         if (track) {
             track.deleteColumn();
+        }
+    }
+    function deleteTrack(trackIndex) {
+        const track = trackByIndex(trackIndex);
+        if (track) {
+            _tracks = _tracks.filter(t => t !== track); // Remove the track from the array
+            track.destroy(); // Destroy the track object
+            uiLogger.debug(_tag, `Deleted track index=${trackIndex}`);
+        } else {
+            uiLogger.error(_tag, `No such track: index=${trackIndex}`);
         }
     }
     function index() {
