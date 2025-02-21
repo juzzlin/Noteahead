@@ -1275,7 +1275,7 @@ void EditorService::requestHorizontalScrollPositionChange(double position)
 
     if (visibleUnitCount() < totalUnitCount()) {
         const auto maxPosition = totalUnitCount() - visibleUnitCount();
-        m_horizontalScrollPosition = std::round(position / scrollBarSize() * visibleUnitCount());
+        m_horizontalScrollPosition = static_cast<size_t>(std::round(position * static_cast<double>(visibleUnitCount()) / scrollBarSize()));
         m_horizontalScrollPosition = std::min(m_horizontalScrollPosition, maxPosition);
     } else {
         m_horizontalScrollPosition = 0;
@@ -1318,7 +1318,7 @@ double EditorService::scrollBarStepSize() const
 
 double EditorService::scrollBarSize() const
 {
-    return static_cast<double>(visibleUnitCount()) / totalUnitCount();
+    return static_cast<double>(visibleUnitCount()) / static_cast<double>(totalUnitCount());
 }
 
 void EditorService::updateScrollBar()
