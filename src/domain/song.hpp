@@ -114,9 +114,10 @@ public:
 
     std::string patternName(size_t patternIndex) const;
     void setPatternName(size_t patternIndex, std::string name);
-
     std::string trackName(size_t trackIndex) const;
     void setTrackName(size_t trackIndex, std::string name);
+    std::string columnName(size_t trackIndex, size_t columnIndex) const;
+    void setColumnName(size_t trackIndex, size_t columnIndex, std::string name);
 
     using InstrumentS = std::shared_ptr<Instrument>;
     InstrumentS instrument(size_t trackIndex) const;

@@ -138,9 +138,10 @@ public:
 
     Q_INVOKABLE QString patternName(size_t patternIndex) const;
     Q_INVOKABLE void setPatternName(size_t patternIndex, QString name);
-
     Q_INVOKABLE QString trackName(size_t trackIndex) const;
     Q_INVOKABLE void setTrackName(size_t trackIndex, QString name);
+    Q_INVOKABLE QString columnName(size_t trackIndex, size_t columnIndex) const;
+    Q_INVOKABLE void setColumnName(size_t trackIndex, size_t columnIndex, QString name);
 
     Q_INVOKABLE size_t currentPattern() const;
     Q_INVOKABLE void setCurrentPattern(size_t currentPattern);
@@ -245,6 +246,7 @@ signals:
 
     void columnAdded(size_t track);
     void columnDeleted(size_t track);
+    void columnNameChanged();
 
     void copyManagerStateChanged();
 

@@ -1102,6 +1102,18 @@ void EditorServiceTest::test_setPatternName_shouldChangePatternName()
     QCOMPARE(editorService.currentPatternName(), "Bar");
 }
 
+void EditorServiceTest::test_setColumnName_shouldChangeColumnName()
+{
+    EditorService editorService;
+
+    editorService.setColumnName(0, 0, "Foo");
+    editorService.setColumnName(1, 0, "Bar");
+
+    QVERIFY(editorService.isModified());
+    QCOMPARE(editorService.columnName(0, 0), "Foo");
+    QCOMPARE(editorService.columnName(1, 0), "Bar");
+}
+
 void EditorServiceTest::test_setTrackName_shouldChangeTrackName()
 {
     EditorService editorService;
@@ -1139,8 +1151,6 @@ void EditorServiceTest::test_toXmlFromXml_songProperties()
     editorServiceOut.setLinesPerBeat(42);
     editorServiceOut.setPatternName(0, "patternName");
     editorServiceOut.setSongLength(16);
-    editorServiceOut.setTrackName(0, "trackName0");
-    editorServiceOut.setTrackName(1, "trackName1");
 
     const auto xml = editorServiceOut.toXml();
 
@@ -1159,6 +1169,32 @@ void EditorServiceTest::test_toXmlFromXml_songProperties()
     QCOMPARE(editorServiceIn.linesPerBeat(), editorServiceOut.linesPerBeat());
     QCOMPARE(editorServiceIn.patternName(0), editorServiceOut.patternName(0));
     QCOMPARE(editorServiceIn.songLength(), editorServiceOut.songLength());
+}
+
+void EditorServiceTest::test_toXmlFromXml_columnName_shouldLoadColumnName()
+{
+    EditorService editorServiceOut;
+    editorServiceOut.setColumnName(0, 0, "columnName0_0");
+    editorServiceOut.setColumnName(1, 0, "columnName1_0");
+
+    const auto xml = editorServiceOut.toXml();
+    EditorService editorServiceIn;
+    editorServiceIn.fromXml(xml);
+
+    QCOMPARE(editorServiceIn.columnName(0, 0), editorServiceOut.columnName(0, 0));
+    QCOMPARE(editorServiceIn.columnName(1, 0), editorServiceOut.columnName(1, 0));
+}
+
+void EditorServiceTest::test_toXmlFromXml_trackName_shouldLoadTrackName()
+{
+    EditorService editorServiceOut;
+    editorServiceOut.setTrackName(0, "trackName0");
+    editorServiceOut.setTrackName(1, "trackName1");
+
+    const auto xml = editorServiceOut.toXml();
+    EditorService editorServiceIn;
+    editorServiceIn.fromXml(xml);
+
     QCOMPARE(editorServiceIn.trackName(0), editorServiceOut.trackName(0));
     QCOMPARE(editorServiceIn.trackName(1), editorServiceOut.trackName(1));
 }

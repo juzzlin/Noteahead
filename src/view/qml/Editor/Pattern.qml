@@ -115,6 +115,11 @@ Item {
             track.updateIndexHighlights();
         });
     }
+    function updateColumnHeaders() {
+        _tracks.forEach(track => {
+            track.updateColumnHeaders();
+        });
+    }
     function updateTrackHeaders() {
         _tracks.forEach(track => {
             track.setName(editorService.trackName(track.index()));

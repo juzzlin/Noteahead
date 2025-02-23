@@ -475,6 +475,20 @@ void EditorService::setTrackName(size_t trackIndex, QString name)
     }
 }
 
+QString EditorService::columnName(size_t trackIndex, size_t columnIndex) const
+{
+    return QString::fromStdString(m_song->columnName(trackIndex, columnIndex));
+}
+
+void EditorService::setColumnName(size_t trackIndex, size_t columnIndex, QString name)
+{
+    if (m_song->columnName(trackIndex, columnIndex) != name.toStdString()) {
+        m_song->setColumnName(trackIndex, columnIndex, name.toStdString());
+        emit columnNameChanged();
+        setIsModified(true);
+    }
+}
+
 EditorService::InstrumentS EditorService::instrument(size_t trackIndex) const
 {
     return m_song->instrument(trackIndex);

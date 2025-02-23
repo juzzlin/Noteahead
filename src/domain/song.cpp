@@ -313,6 +313,16 @@ Song::InstrumentS Song::instrument(size_t trackIndex) const
     return m_patterns.at(0)->instrument(trackIndex);
 }
 
+std::string Song::columnName(size_t trackIndex, size_t columnIndex) const
+{
+    return m_patterns.at(0)->columnName(trackIndex, columnIndex);
+}
+
+void Song::setColumnName(size_t trackIndex, size_t columnIndex, std::string name)
+{
+    return m_patterns.at(0)->setColumnName(trackIndex, columnIndex, name);
+}
+
 void Song::setInstrument(size_t trackIndex, InstrumentS instrument)
 {
     m_patterns.at(0)->setInstrument(trackIndex, instrument);
@@ -874,6 +884,10 @@ Song::ColumnS Song::deserializeColumn(QXmlStreamReader & reader, size_t trackInd
     const auto index = *readUIntAttribute(reader, Constants::xmlKeyIndex());
     const auto lineCount = *readUIntAttribute(reader, Constants::xmlKeyLineCount());
     const auto column = std::make_shared<Column>(index, lineCount);
+    if (const auto name = readStringAttribute(reader, Constants::xmlKeyName(), false); name.has_value()) {
+        juzzlin::L(TAG).trace() << "Setting column index=" << index << " name to '" << name->toStdString() << "'";
+        column->setName(name->toStdString());
+    }
     while (!(reader.isEndElement() && !reader.name().compare(Constants::xmlKeyColumn()))) {
         juzzlin::L(TAG).trace() << "Current element: " << reader.name().toString().toStdString();
         if (reader.isStartElement() && !reader.name().compare(Constants::xmlKeyLines())) {

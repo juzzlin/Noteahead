@@ -70,6 +70,9 @@ Item {
     function updateNoteDataAtPosition(position) {
         columnContainer.updateNoteDataAtPosition(position);
     }
+    function updateColumnHeaders() {
+        columnContainer.updateColumnHeaders();
+    }
     function updateColumnVisibility() {
         columnContainer.updateVisibility();
     }
@@ -145,6 +148,11 @@ Item {
         function setPositionBar(positionBar) {
             _noteColumns.forEach(noteColumn => {
                 noteColumn.setPositionBar(positionBar);
+            });
+        }
+        function updateColumnHeaders() {
+            _noteColumns.forEach(noteColumn => {
+                noteColumn.setName(editorService.columnName(_index, noteColumn.index()));
             });
         }
         function updateIndexHighlights() {

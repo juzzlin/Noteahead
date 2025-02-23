@@ -89,16 +89,19 @@ private slots:
 
     void test_setPatternName_shouldChangePatternName();
     void test_setTrackName_shouldChangeTrackName();
+    void test_setColumnName_shouldChangeColumnName();
 
-    void test_toXmlFromXml_instrumentSettingsSet_shouldParseInstrumentSettings();
-    void test_toXmlFromXml_playOrder();
-    void test_toXmlFromXml_songProperties();
-    void test_toXmlFromXml_mixerService_shouldLoadMixerService();
-    void test_toXmlFromXml_noteData_noteOn();
-    void test_toXmlFromXml_noteData_noteOff();
-    void test_toXmlFromXml_instrument_shouldParseInstrument();
     void test_toXmlFromXml_addTrack_shouldLoadSong();
+    void test_toXmlFromXml_columnName_shouldLoadColumnName();
+    void test_toXmlFromXml_instrumentSettingsSet_shouldParseInstrumentSettings();
+    void test_toXmlFromXml_instrument_shouldParseInstrument();
+    void test_toXmlFromXml_mixerService_shouldLoadMixerService();
+    void test_toXmlFromXml_noteData_noteOff();
+    void test_toXmlFromXml_noteData_noteOn();
+    void test_toXmlFromXml_playOrder();
     void test_toXmlFromXml_removeTrack_shouldLoadSong();
+    void test_toXmlFromXml_songProperties();
+    void test_toXmlFromXml_trackName_shouldLoadTrackName();
 };
 
 } // namespace noteahead

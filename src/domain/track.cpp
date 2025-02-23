@@ -93,6 +93,16 @@ void Track::setColumn(ColumnS column)
     m_columns.at(column->index()) = column;
 }
 
+std::string Track::columnName(size_t columnIndex) const
+{
+    return m_columns.at(columnIndex)->name();
+}
+
+void Track::setColumnName(size_t columnIndex, std::string name)
+{
+    m_columns.at(columnIndex)->setName(name);
+}
+
 size_t Track::columnCount() const
 {
     return m_virtualColumnCount;

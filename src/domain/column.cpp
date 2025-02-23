@@ -48,9 +48,9 @@ void Column::initialize(size_t length)
 
 bool Column::hasData() const
 {
-    return std::ranges::find_if(m_lines, [](auto && line) {
-               return line->hasData();
-           })
+    return !name().empty() || std::ranges::find_if(m_lines, [](auto && line) {
+                                  return line->hasData();
+                              })
       != m_lines.end();
 }
 
@@ -206,6 +206,7 @@ void Column::serializeToXml(QXmlStreamWriter & writer) const
 {
     writer.writeStartElement(Constants::xmlKeyColumn());
     writer.writeAttribute(Constants::xmlKeyIndex(), QString::number(index()));
+    writer.writeAttribute(Constants::xmlKeyName(), QString::fromStdString(name()));
     writer.writeAttribute(Constants::xmlKeyLineCount(), QString::number(lineCount()));
 
     writer.writeStartElement(Constants::xmlKeyLines());

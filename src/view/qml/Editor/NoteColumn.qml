@@ -35,6 +35,9 @@ Item {
     function setFocused(focused) {
         _setLineFocused(editorService.position.line, editorService.position.lineColumn, focused);
     }
+    function setName(name) {
+        columnHeader.setName(name);
+    }
     function setMuted(muted) {
         columnHeader.setMuted(muted);
     }
@@ -246,5 +249,6 @@ Item {
         columnHeader.soloRequested.connect(() => mixerService.soloColumn(_trackIndex, _index, true));
         columnHeader.unmuteRequested.connect(() => mixerService.muteColumn(_trackIndex, _index, false));
         columnHeader.unsoloRequested.connect(() => mixerService.soloColumn(_trackIndex, _index, false));
+        columnHeader.nameChanged.connect(name => editorService.setColumnName(_trackIndex, _index, name));
     }
 }

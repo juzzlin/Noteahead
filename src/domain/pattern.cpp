@@ -142,6 +142,16 @@ std::string Pattern::trackName(size_t trackIndex) const
     return trackByIndexThrow(trackIndex)->name();
 }
 
+std::string Pattern::columnName(size_t trackIndex, size_t columnIndex) const
+{
+    return trackByIndexThrow(trackIndex)->columnName(columnIndex);
+}
+
+void Pattern::setColumnName(size_t trackIndex, size_t columnIndex, std::string name)
+{
+    trackByIndexThrow(trackIndex)->setColumnName(columnIndex, name);
+}
+
 size_t Pattern::maxIndex() const
 {
     if (const auto it = std::ranges::max_element(m_trackOrder, [](auto && a, auto && b) { return a->index() < b->index(); }); it != m_trackOrder.end()) {

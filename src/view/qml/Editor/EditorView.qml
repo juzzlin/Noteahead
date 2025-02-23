@@ -129,6 +129,7 @@ FocusScope {
         pattern.setIndex(patternIndex);
         _createTracks(pattern);
         pattern.updateIndexHighlights();
+        pattern.updateColumnHeaders();
         _patterns.push(pattern);
         mixerService.update();
     }
@@ -164,6 +165,9 @@ FocusScope {
     }
     function _setTrackUnfocused(position) {
         _patterns[position.pattern].setTrackUnfocused(position.track, position.column);
+    }
+    function _updateColumnHeaders() {
+        _patterns.forEach(pattern => pattern.updateColumnHeaders());
     }
     function _updateTrackHeaders() {
         _patterns.forEach(pattern => pattern.updateTrackHeaders());
@@ -241,6 +245,7 @@ FocusScope {
     function _connectSignals() {
         editorService.columnAdded.connect(trackIndex => _addColumn(trackIndex));
         editorService.columnDeleted.connect(trackIndex => _deleteColumn(trackIndex));
+        editorService.columnNameChanged.connect(_updateColumnHeaders);
         editorService.currentLineCountModified.connect(_updateCurrentLineCount);
         editorService.horizontalScrollChanged.connect(_updateCurrentTrackDimensions);
         editorService.horizontalScrollChanged.connect(_updateTrackVisibility);

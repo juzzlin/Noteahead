@@ -42,6 +42,8 @@ public:
     void addColumn();
     bool deleteColumn();
     void setColumn(ColumnS column);
+    std::string columnName(size_t columnIndex) const;
+    void setColumnName(size_t columnIndex, std::string name);
 
     size_t lineCount() const;
     void setLineCount(size_t lineCount);
