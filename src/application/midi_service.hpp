@@ -48,15 +48,11 @@ public:
 
     void playAndStopMiddleC(QString portName, uint8_t channel, uint8_t velocity);
 
-    using InstrumentS = std::shared_ptr<Instrument>;
-
-    void playNote(InstrumentS instrument, uint8_t midiNote, uint8_t velocity);
-
-    void stopNote(InstrumentS instrument, uint8_t midiNote);
-
-    void stopAllNotes(InstrumentS instrument);
-
     using InstrumentW = std::weak_ptr<Instrument>;
+
+    void playNote(InstrumentW instrument, uint8_t midiNote, uint8_t velocity);
+    void stopNote(InstrumentW instrument, uint8_t midiNote);
+    void stopAllNotes(InstrumentW instrument);
 
     void sendClock(InstrumentW instrument);
 

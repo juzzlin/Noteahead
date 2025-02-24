@@ -33,23 +33,23 @@ public:
 
     void updateAvailableDevices() override;
 
-    void openDevice(MidiDeviceS device) override;
+    void openDevice(MidiDeviceW device) override;
 
-    void closeDevice(MidiDeviceS device) override;
+    void closeDevice(MidiDeviceW device) override;
 
     std::string midiApiName() const override;
 
-    void sendCC(MidiDeviceS device, uint8_t channel, uint8_t controller, uint8_t value) const override;
+    void sendCC(MidiDeviceW device, uint8_t channel, uint8_t controller, uint8_t value) const override;
 
-    void sendNoteOn(MidiDeviceS device, uint8_t channel, uint8_t note, uint8_t velocity) const override;
+    void sendNoteOn(MidiDeviceW device, uint8_t channel, uint8_t note, uint8_t velocity) const override;
 
-    void sendNoteOff(MidiDeviceS device, uint8_t channel, uint8_t note) const override;
+    void sendNoteOff(MidiDeviceW device, uint8_t channel, uint8_t note) const override;
 
-    void sendPatchChange(MidiDeviceS device, uint8_t channel, uint8_t patch) const override;
+    void sendPatchChange(MidiDeviceW device, uint8_t channel, uint8_t patch) const override;
 
-    void sendBankChange(MidiDeviceS device, uint8_t channel, uint8_t msb, uint8_t lsb) const override;
+    void sendBankChange(MidiDeviceW device, uint8_t channel, uint8_t msb, uint8_t lsb) const override;
 
-    void stopAllNotes(MidiDeviceS device, uint8_t channel) const override;
+    void stopAllNotes(MidiDeviceW device, uint8_t channel) const override;
 
     void sendClock(MidiDeviceW device) const override;
 

@@ -66,35 +66,35 @@ void MidiBackend::setDevices(MidiDeviceList devices)
     m_devices = devices;
 }
 
-void MidiBackend::openDevice(MidiDeviceS)
+void MidiBackend::openDevice(MidiDeviceW)
 {
 }
 
-void MidiBackend::closeDevice(MidiDeviceS)
+void MidiBackend::closeDevice(MidiDeviceW)
 {
 }
 
-void MidiBackend::sendCC(MidiDeviceS, uint8_t, uint8_t, uint8_t) const
+void MidiBackend::sendCC(MidiDeviceW, uint8_t, uint8_t, uint8_t) const
 {
 }
 
-void MidiBackend::sendNoteOn(MidiDeviceS, uint8_t, uint8_t, uint8_t) const
+void MidiBackend::sendNoteOn(MidiDeviceW, uint8_t, uint8_t, uint8_t) const
 {
 }
 
-void MidiBackend::sendNoteOff(MidiDeviceS, uint8_t, uint8_t) const
+void MidiBackend::sendNoteOff(MidiDeviceW, uint8_t, uint8_t) const
 {
 }
 
-void MidiBackend::sendPatchChange(MidiDeviceS, uint8_t, uint8_t) const
+void MidiBackend::sendPatchChange(MidiDeviceW, uint8_t, uint8_t) const
 {
 }
 
-void MidiBackend::sendBankChange(MidiDeviceS, uint8_t, uint8_t, uint8_t) const
+void MidiBackend::sendBankChange(MidiDeviceW, uint8_t, uint8_t, uint8_t) const
 {
 }
 
-void MidiBackend::stopAllNotes(MidiDeviceS, uint8_t) const
+void MidiBackend::stopAllNotes(MidiDeviceW, uint8_t) const
 {
 }
 

@@ -45,21 +45,21 @@ public:
 
     virtual void updateAvailableDevices();
 
-    virtual void openDevice(MidiDeviceS device);
+    virtual void openDevice(MidiDeviceW device);
 
-    virtual void closeDevice(MidiDeviceS device);
+    virtual void closeDevice(MidiDeviceW device);
 
-    virtual void sendCC(MidiDeviceS device, uint8_t channel, uint8_t controller, uint8_t value) const;
+    virtual void sendCC(MidiDeviceW device, uint8_t channel, uint8_t controller, uint8_t value) const;
 
-    virtual void sendNoteOn(MidiDeviceS device, uint8_t channel, uint8_t note, uint8_t velocity) const;
+    virtual void sendNoteOn(MidiDeviceW device, uint8_t channel, uint8_t note, uint8_t velocity) const;
 
-    virtual void sendNoteOff(MidiDeviceS device, uint8_t channel, uint8_t note) const;
+    virtual void sendNoteOff(MidiDeviceW device, uint8_t channel, uint8_t note) const;
 
-    virtual void sendPatchChange(MidiDeviceS device, uint8_t channel, uint8_t patch) const;
+    virtual void sendPatchChange(MidiDeviceW device, uint8_t channel, uint8_t patch) const;
 
-    virtual void sendBankChange(MidiDeviceS device, uint8_t channel, uint8_t msb, uint8_t lsb) const;
+    virtual void sendBankChange(MidiDeviceW device, uint8_t channel, uint8_t msb, uint8_t lsb) const;
 
-    virtual void stopAllNotes(MidiDeviceS device, uint8_t channel) const;
+    virtual void stopAllNotes(MidiDeviceW device, uint8_t channel) const;
 
     virtual void sendClock(MidiDeviceW device) const;
 

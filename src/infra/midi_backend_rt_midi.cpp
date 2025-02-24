@@ -33,21 +33,23 @@ void MidiBackendRtMidi::updateAvailableDevices()
     setDevices(devices);
 }
 
-void MidiBackendRtMidi::openDevice(MidiDeviceS device)
+void MidiBackendRtMidi::openDevice(MidiDeviceW device)
 {
-    if (!m_midiPorts.contains(device->portIndex())) {
-        if (auto && midiOut = std::make_unique<RtMidiOut>(); device->portIndex() >= midiOut->getPortCount()) {
-            throw std::runtime_error { "Invalid MIDI port index: " + std::to_string(device->portIndex()) };
-        } else {
-            midiOut->openPort(static_cast<uint8_t>(device->portIndex()));
-            m_midiPorts[device->portIndex()] = std::move(midiOut);
+    if (const auto lockedDevice = device.lock(); lockedDevice) {
+        if (!m_midiPorts.contains(lockedDevice->portIndex())) {
+            if (auto && midiOut = std::make_unique<RtMidiOut>(); lockedDevice->portIndex() >= midiOut->getPortCount()) {
+                throw std::runtime_error { "Invalid MIDI port index: " + std::to_string(lockedDevice->portIndex()) };
+            } else {
+                midiOut->openPort(static_cast<uint8_t>(lockedDevice->portIndex()));
+                m_midiPorts[lockedDevice->portIndex()] = std::move(midiOut);
+            }
         }
     }
 }
 
-void MidiBackendRtMidi::closeDevice(MidiDeviceS device)
+void MidiBackendRtMidi::closeDevice(MidiDeviceW device)
 {
-    if (auto && it = m_midiPorts.find(device->portIndex()); it != m_midiPorts.end()) {
+    if (auto && it = m_midiPorts.find(device.lock()->portIndex()); it != m_midiPorts.end()) {
         m_midiPorts.erase(it);
     }
 }
@@ -66,47 +68,47 @@ void MidiBackendRtMidi::sendMessage(const MidiDevice & device, const Message & m
     }
 }
 
-void MidiBackendRtMidi::sendCC(MidiDeviceS device, uint8_t channel, uint8_t controller, uint8_t value) const
+void MidiBackendRtMidi::sendCC(MidiDeviceW device, uint8_t channel, uint8_t controller, uint8_t value) const
 {
     const Message message = { static_cast<unsigned char>(0xB0 | (channel & 0x0F)),
                               static_cast<unsigned char>(controller),
                               static_cast<unsigned char>(value) };
-    sendMessage(*device, message);
+    sendMessage(*device.lock(), message);
 }
 
-void MidiBackendRtMidi::sendNoteOn(MidiDeviceS device, uint8_t channel, uint8_t note, uint8_t velocity) const
+void MidiBackendRtMidi::sendNoteOn(MidiDeviceW device, uint8_t channel, uint8_t note, uint8_t velocity) const
 {
     const Message message = { static_cast<unsigned char>(0x90 | (channel & 0x0F)),
                               static_cast<unsigned char>(note),
                               static_cast<unsigned char>(velocity) };
 
-    sendMessage(*device, message);
+    sendMessage(*device.lock(), message);
 }
 
-void MidiBackendRtMidi::sendNoteOff(MidiDeviceS device, uint8_t channel, uint8_t note) const
+void MidiBackendRtMidi::sendNoteOff(MidiDeviceW device, uint8_t channel, uint8_t note) const
 {
     const Message message = { static_cast<unsigned char>(0x80 | (channel & 0x0F)),
                               static_cast<unsigned char>(note),
                               static_cast<unsigned char>(0) };
 
-    sendMessage(*device, message);
+    sendMessage(*device.lock(), message);
 }
 
-void MidiBackendRtMidi::sendPatchChange(MidiDeviceS device, uint8_t channel, uint8_t patch) const
+void MidiBackendRtMidi::sendPatchChange(MidiDeviceW device, uint8_t channel, uint8_t patch) const
 {
     const Message message = { static_cast<unsigned char>(0xC0 | (channel & 0x0F)),
                               static_cast<unsigned char>(patch) };
 
-    sendMessage(*device, message);
+    sendMessage(*device.lock(), message);
 }
 
-void MidiBackendRtMidi::sendBankChange(MidiDeviceS device, uint8_t channel, uint8_t msb, uint8_t lsb) const
+void MidiBackendRtMidi::sendBankChange(MidiDeviceW device, uint8_t channel, uint8_t msb, uint8_t lsb) const
 {
     sendCC(device, channel, static_cast<uint8_t>(MidiCc::Controller::BankSelectMSB), msb);
     sendCC(device, channel, static_cast<uint8_t>(MidiCc::Controller::BankSelectLSB), lsb);
 }
 
-void MidiBackendRtMidi::stopAllNotes(MidiDeviceS device, uint8_t channel) const
+void MidiBackendRtMidi::stopAllNotes(MidiDeviceW device, uint8_t channel) const
 {
     sendCC(device, channel, static_cast<uint8_t>(MidiCc::Controller::AllNotesOff), 0);
 
