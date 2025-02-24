@@ -57,9 +57,9 @@ std::string MidiBackendRtMidi::midiApiName() const
     return RtMidi::getApiDisplayName(RtMidiOut {}.getCurrentApi());
 }
 
-void MidiBackendRtMidi::sendMessage(MidiDeviceS device, const Message & message) const
+void MidiBackendRtMidi::sendMessage(const MidiDevice & device, const Message & message) const
 {
-    if (auto && it = m_midiPorts.find(device->portIndex()); it == m_midiPorts.end()) {
+    if (auto && it = m_midiPorts.find(device.portIndex()); it == m_midiPorts.end()) {
         throw std::runtime_error { "Device not opened." };
     } else {
         it->second->sendMessage(&message);
@@ -71,7 +71,7 @@ void MidiBackendRtMidi::sendCC(MidiDeviceS device, uint8_t channel, uint8_t cont
     const Message message = { static_cast<unsigned char>(0xB0 | (channel & 0x0F)),
                               static_cast<unsigned char>(controller),
                               static_cast<unsigned char>(value) };
-    sendMessage(device, message);
+    sendMessage(*device, message);
 }
 
 void MidiBackendRtMidi::sendNoteOn(MidiDeviceS device, uint8_t channel, uint8_t note, uint8_t velocity) const
@@ -80,7 +80,7 @@ void MidiBackendRtMidi::sendNoteOn(MidiDeviceS device, uint8_t channel, uint8_t 
                               static_cast<unsigned char>(note),
                               static_cast<unsigned char>(velocity) };
 
-    sendMessage(device, message);
+    sendMessage(*device, message);
 }
 
 void MidiBackendRtMidi::sendNoteOff(MidiDeviceS device, uint8_t channel, uint8_t note) const
@@ -89,7 +89,7 @@ void MidiBackendRtMidi::sendNoteOff(MidiDeviceS device, uint8_t channel, uint8_t
                               static_cast<unsigned char>(note),
                               static_cast<unsigned char>(0) };
 
-    sendMessage(device, message);
+    sendMessage(*device, message);
 }
 
 void MidiBackendRtMidi::sendPatchChange(MidiDeviceS device, uint8_t channel, uint8_t patch) const
@@ -97,7 +97,7 @@ void MidiBackendRtMidi::sendPatchChange(MidiDeviceS device, uint8_t channel, uin
     const Message message = { static_cast<unsigned char>(0xC0 | (channel & 0x0F)),
                               static_cast<unsigned char>(patch) };
 
-    sendMessage(device, message);
+    sendMessage(*device, message);
 }
 
 void MidiBackendRtMidi::sendBankChange(MidiDeviceS device, uint8_t channel, uint8_t msb, uint8_t lsb) const
@@ -114,6 +114,12 @@ void MidiBackendRtMidi::stopAllNotes(MidiDeviceS device, uint8_t channel) const
     for (uint8_t note = 0; note < 128; note++) {
         sendNoteOff(device, channel, note);
     }
+}
+
+void MidiBackendRtMidi::sendClock(MidiDeviceW device) const
+{
+    const Message message = { 0xF8 };
+    sendMessage(*device.lock(), message);
 }
 
 } // namespace noteahead

@@ -461,7 +461,7 @@ Song::EventList Song::generateAutoNoteOffsForDanglingNotes(size_t tick, ActiveNo
     return processedEvents;
 }
 
-Song::EventList Song::introduceNoteOffs(const EventList & events) const
+Song::EventList Song::generateNoteOffs(const EventList & events) const
 {
     Song::EventList processedEvents;
     using TrackAndColumn = std::pair<int, int>;
@@ -603,9 +603,34 @@ std::pair<Song::EventList, size_t> Song::renderPatterns(Song::EventList eventLis
     return { eventList, tick };
 }
 
+Song::EventList Song::generateMidiClockEvents(Song::EventList eventList, size_t startTick, size_t endTick)
+{
+    const size_t midiClockPulsesPerBeat = 24;
+    const double ticksPerMidiClock = static_cast<double>(m_ticksPerLine * m_linesPerBeat) / midiClockPulsesPerBeat;
+    double currentTick = static_cast<double>(startTick);
+    std::set<QString> processedPortNames;
+    while (static_cast<size_t>(currentTick) < endTick) {
+        processedPortNames.clear();
+        for (auto trackIndex : trackIndices()) {
+            if (const auto instrument = this->instrument(trackIndex); instrument && instrument->settings.sendMidiClock.has_value() && *instrument->settings.sendMidiClock) {
+                if (const auto portName = instrument->device.portName; !processedPortNames.contains(portName)) {
+                    auto midiClockEvent = std::make_shared<Event>(static_cast<size_t>(currentTick));
+                    midiClockEvent->setAsMidiClockOut();
+                    midiClockEvent->setInstrument(instrument);
+                    eventList.push_back(midiClockEvent);
+                    processedPortNames.insert(portName);
+                }
+            }
+        }
+        currentTick += ticksPerMidiClock;
+    }
+    return eventList;
+}
+
 Song::EventList Song::renderContent(size_t startPosition)
 {
-    size_t tick = startPositionToTick(startPosition);
+    const size_t startTick = startPositionToTick(startPosition);
+    size_t tick = startTick;
 
     auto eventList = renderStartOfSong(tick);
 
@@ -613,9 +638,11 @@ Song::EventList Song::renderContent(size_t startPosition)
 
     eventList = renderEndOfSong(eventList, tick);
 
-    eventList = introduceNoteOffs(eventList);
+    eventList = generateNoteOffs(eventList);
 
     eventList = removeNonMappedNoteOffs(eventList);
+
+    eventList = generateMidiClockEvents(eventList, startTick, tick);
 
     return eventList;
 }
@@ -832,6 +859,7 @@ Song::InstrumentSettingsU Song::deserializeInstrumentSettings(QXmlStreamReader &
     settings->cutoff = readUIntAttribute(reader, Constants::xmlKeyCutoff(), false);
     settings->pan = readUIntAttribute(reader, Constants::xmlKeyPan(), false);
     settings->volume = readUIntAttribute(reader, Constants::xmlKeyVolume(), false);
+    settings->sendMidiClock = readBoolAttribute(reader, Constants::xmlKeySendMidiClock(), false);
 
     while (!(reader.isEndElement() && !reader.name().compare(Constants::xmlKeyInstrumentSettings()))) {
         juzzlin::L(TAG).trace() << "InstrumentSettings: Current element: " << reader.name().toString().toStdString();

@@ -97,6 +97,10 @@ void PlayerWorker::handleEvent(const Event & event) const
                 InstrumentRequest instrumentRequest { InstrumentRequest::Type::ApplyAll, tempInstrument };
                 m_midiService->handleInstrumentRequest(instrumentRequest);
             }
+        } else if (event.type() == Event::Type::MidiClockOut) {
+            if (auto && instrument = event.instrument(); instrument) {
+                m_midiService->sendClock(instrument);
+            }
         }
     }
 }

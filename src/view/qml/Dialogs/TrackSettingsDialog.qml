@@ -29,6 +29,7 @@ Dialog {
         panSpinBox.value = trackSettingsModel.pan;
         enableVolumeCheckbox.checked = trackSettingsModel.volumeEnabled;
         volumeSpinBox.value = trackSettingsModel.volume;
+        sendMidiClockCheckbox.checked = trackSettingsModel.sendMidiClock;
         initializeMidiCcSelectors();
     }
     function initializeMidiCcSelectors() {
@@ -391,6 +392,29 @@ Dialog {
                 id: columnLayout
                 spacing: 8
                 width: parent.width
+                GridLayout {
+                    columns: 9
+                    rows: 3
+                    width: parent.width
+                    CheckBox {
+                        id: sendMidiClockCheckbox
+                        text: qsTr("Send MIDI clock")
+                        Layout.column: 0
+                        Layout.columnSpan: 2
+                        Layout.row: 0
+                        Layout.fillWidth: true
+                        ToolTip.delay: Constants.toolTipDelay
+                        ToolTip.timeout: Constants.toolTipTimeout
+                        ToolTip.visible: hovered
+                        ToolTip.text: qsTr("Send MIDI clock for this track")
+                        onCheckedChanged: trackSettingsModel.sendMidiClock = checked
+                    }
+                }
+                Rectangle {
+                    height: 1
+                    color: "#888888"
+                    Layout.fillWidth: true
+                }
                 Repeater {
                     id: midiCcRepeater
                     model: trackSettingsModel.midiCcSlots

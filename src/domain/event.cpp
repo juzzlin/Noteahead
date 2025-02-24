@@ -40,6 +40,11 @@ Event::Event(size_t tick)
 {
 }
 
+void Event::setAsMidiClockOut()
+{
+    m_type = Type::MidiClockOut;
+}
+
 void Event::setAsStartOfSong()
 {
     m_type = Type::StartOfSong;

@@ -152,6 +152,11 @@ QString xmlKeyInstrumentSettings()
     return "InstrumentSettings";
 }
 
+QString xmlKeySendMidiClock()
+{
+    return "sendMidiClock";
+}
+
 QString xmlKeyPatternAttr()
 {
     return "pattern";

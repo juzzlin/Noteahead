@@ -218,9 +218,9 @@ private:
 
     EventList generateNoteOffsForActiveNotes(TrackAndColumn trackAndcolumn, size_t tick, ActiveNoteMap & activeNotes) const;
     EventList generateAutoNoteOffsForDanglingNotes(size_t tick, ActiveNoteMap & activeNotes) const;
-    EventList introduceNoteOffs(const EventList & events) const;
+    EventList generateNoteOffs(const EventList & events) const;
+    EventList generateMidiClockEvents(Song::EventList eventList, size_t startTick, size_t endTick);
     EventList removeNonMappedNoteOffs(const EventList & events) const;
-
     EventList renderStartOfSong(size_t tick) const;
     EventList renderEndOfSong(Song::EventList eventList, size_t tick) const;
 

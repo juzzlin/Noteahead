@@ -47,6 +47,8 @@ public:
 
     Q_INVOKABLE void stopAllNotes(QString portName, uint8_t channel);
 
+    Q_INVOKABLE void sendClock(QString portName);
+
     Q_INVOKABLE void requestPatchChange(QString portName, uint8_t channel, uint8_t patch);
 
     Q_INVOKABLE void setIsPlaying(bool isPlaying);

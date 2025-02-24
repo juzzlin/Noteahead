@@ -32,10 +32,13 @@ public:
     {
         None,
         NoteData,
+        MidiClockOut,
         InstrumentSettings,
         StartOfSong,
         EndOfSong
     };
+
+    Event(size_t tick);
 
     using NoteDataS = std::shared_ptr<NoteData>;
     Event(size_t tick, NoteDataS noteData);
@@ -43,7 +46,7 @@ public:
     using InstrumentSettingsS = std::shared_ptr<InstrumentSettings>;
     Event(size_t tick, InstrumentSettingsS instrumentSettings);
 
-    Event(size_t tick);
+    void setAsMidiClockOut();
 
     void setAsStartOfSong();
 

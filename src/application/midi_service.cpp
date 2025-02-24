@@ -112,6 +112,17 @@ void MidiService::stopAllNotes(InstrumentS instrument)
     }
 }
 
+void MidiService::sendClock(MidiService::InstrumentW instrument)
+{
+    std::lock_guard<std::mutex> lock { m_workerMutex };
+
+    if (const bool invoked = QMetaObject::invokeMethod(m_midiWorker.get(), "sendClock",
+                                                       Q_ARG(QString, instrument.lock()->device.portName));
+        !invoked) {
+        juzzlin::L(TAG).error() << "Invoking a method failed!";
+    }
+}
+
 MidiService::~MidiService()
 {
     m_midiWorkerThread.exit();

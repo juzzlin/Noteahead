@@ -234,6 +234,7 @@ void TrackSettingsModel::setInstrumentData(const Instrument & instrument)
     if (volumeEnabled()) {
         setVolume(*instrument.settings.volume);
     }
+    setSendMidiClock(instrument.settings.sendMidiClock.has_value() && *instrument.settings.sendMidiClock);
     setMidiCcSettings(instrument.settings.midiCcSettings);
 
     emit instrumentDataReceived();
@@ -293,6 +294,7 @@ TrackSettingsModel::InstrumentU TrackSettingsModel::toInstrument() const
     if (m_volumeEnabled) {
         instrument->settings.volume = m_volume;
     }
+    instrument->settings.sendMidiClock = m_sendMidiClock;
     instrument->settings.midiCcSettings = midiCcSettings();
     return instrument;
 }
@@ -405,6 +407,22 @@ void TrackSettingsModel::setVolumeEnabled(bool enabled)
     if (m_volumeEnabled != enabled) {
         m_volumeEnabled = enabled;
         emit volumeEnabledChanged();
+        applyAll();
+    }
+}
+
+bool TrackSettingsModel::sendMidiClock() const
+{
+    return m_sendMidiClock;
+}
+
+void TrackSettingsModel::setSendMidiClock(bool enabled)
+{
+    juzzlin::L(TAG).debug() << "Enabling MIDI clock: " << static_cast<int>(enabled);
+
+    if (m_sendMidiClock != enabled) {
+        m_sendMidiClock = enabled;
+        emit sendMidiClockChanged();
         applyAll();
     }
 }

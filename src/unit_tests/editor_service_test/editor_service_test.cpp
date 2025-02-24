@@ -1220,7 +1220,7 @@ void EditorServiceTest::test_toXmlFromXml_mixerService_shouldLoadMixerService()
     QVERIFY(mixerServiceIn.isColumnSoloed(4, 1));
 }
 
-void EditorServiceTest::test_toXmlFromXml_instrumentSettingsSet_shouldParseInstrumentSettings()
+void EditorServiceTest::test_toXmlFromXml_instrumentSettings_shouldParseInstrumentSettings()
 {
     EditorService editorServiceOut;
     editorServiceOut.requestPosition(0, 0, 0, 0, 0);
@@ -1231,6 +1231,7 @@ void EditorServiceTest::test_toXmlFromXml_instrumentSettingsSet_shouldParseInstr
     instrumentSettingsOut->cutoff = 127;
     instrumentSettingsOut->pan = 64;
     instrumentSettingsOut->volume = 100;
+    instrumentSettingsOut->sendMidiClock = true;
     instrumentSettingsOut->midiCcSettings = {
         { 7, 80 },
         { 10, 127 }
@@ -1256,6 +1257,7 @@ void EditorServiceTest::test_toXmlFromXml_instrumentSettingsSet_shouldParseInstr
     QCOMPARE(instrumentSettingsIn->cutoff, instrumentSettingsOut->cutoff);
     QCOMPARE(instrumentSettingsIn->pan, instrumentSettingsOut->pan);
     QCOMPARE(instrumentSettingsIn->volume, instrumentSettingsOut->volume);
+    QCOMPARE(instrumentSettingsIn->sendMidiClock, instrumentSettingsOut->sendMidiClock);
     QCOMPARE(instrumentSettingsIn->midiCcSettings.size(), instrumentSettingsOut->midiCcSettings.size());
 
     for (size_t i = 0; i < instrumentSettingsOut->midiCcSettings.size(); ++i) {

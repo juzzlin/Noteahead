@@ -98,6 +98,10 @@ void MidiBackend::stopAllNotes(MidiDeviceS, uint8_t) const
 {
 }
 
+void MidiBackend::sendClock(MidiDeviceW) const
+{
+}
+
 MidiBackend::~MidiBackend() = default;
 
 } // namespace noteahead

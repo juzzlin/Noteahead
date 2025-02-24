@@ -56,6 +56,10 @@ public:
 
     void stopAllNotes(InstrumentS instrument);
 
+    using InstrumentW = std::weak_ptr<Instrument>;
+
+    void sendClock(InstrumentW instrument);
+
 public slots:
     void handleInstrumentRequest(const InstrumentRequest & instrumentRequest);
 

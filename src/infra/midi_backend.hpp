@@ -61,6 +61,8 @@ public:
 
     virtual void stopAllNotes(MidiDeviceS device, uint8_t channel) const;
 
+    virtual void sendClock(MidiDeviceW device) const;
+
 protected:
     void setDevices(MidiDeviceList devices);
 

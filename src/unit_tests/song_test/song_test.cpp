@@ -136,6 +136,34 @@ void SongTest::test_prevNoteDataOnSameColumn_noteOff_shouldFindNoteData()
     QCOMPARE(prevPosition, notePosition);
 }
 
+void SongTest::test_renderToEvents_clockEvents_shouldRenderClockEvents()
+{
+    Song song;
+    auto events = song.renderToEvents(0);
+    QCOMPARE(events.size(), 2);
+
+    const auto instrument1 = std::make_shared<Instrument>("MyPort");
+    song.setInstrument(0, instrument1);
+    instrument1->settings.sendMidiClock = true;
+
+    events = song.renderToEvents(0);
+    QCOMPARE(events.size(), 194);
+
+    const auto instrument2 = std::make_shared<Instrument>("MyPort");
+    song.setInstrument(1, instrument2);
+    instrument2->settings.sendMidiClock = true;
+
+    events = song.renderToEvents(0);
+    QCOMPARE(events.size(), 194);
+
+    const auto instrument3 = std::make_shared<Instrument>("MyOtherPort");
+    song.setInstrument(2, instrument3);
+    instrument3->settings.sendMidiClock = true;
+
+    events = song.renderToEvents(0);
+    QCOMPARE(events.size(), 386);
+}
+
 void SongTest::test_renderToEvents_noEvents_shouldAddStartAndEndOfSong()
 {
     Song song;

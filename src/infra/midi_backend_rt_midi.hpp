@@ -51,10 +51,12 @@ public:
 
     void stopAllNotes(MidiDeviceS device, uint8_t channel) const override;
 
+    void sendClock(MidiDeviceW device) const override;
+
 private:
     using Message = std::vector<unsigned char>;
 
-    void sendMessage(MidiDeviceS device, const Message & message) const;
+    void sendMessage(const MidiDevice & device, const Message & message) const;
 
     std::unordered_map<size_t, std::unique_ptr<RtMidiOut>> m_midiPorts;
 };

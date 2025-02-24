@@ -56,6 +56,8 @@ class TrackSettingsModel : public MidiCcSelectionModel
     Q_PROPERTY(uint8_t volume READ volume WRITE setVolume NOTIFY volumeChanged)
     Q_PROPERTY(bool volumeEnabled READ volumeEnabled WRITE setVolumeEnabled NOTIFY volumeEnabledChanged)
 
+    Q_PROPERTY(bool sendMidiClock READ sendMidiClock WRITE setSendMidiClock NOTIFY sendMidiClockChanged)
+
 public:
     explicit TrackSettingsModel(QObject * parent = nullptr);
 
@@ -123,6 +125,9 @@ public:
     bool volumeEnabled() const;
     void setVolumeEnabled(bool enabled);
 
+    bool sendMidiClock() const;
+    void setSendMidiClock(bool enabled);
+
 signals:
     void applyAllRequested();
     void applyPatchRequested();
@@ -159,6 +164,8 @@ signals:
     void volumeChanged();
     void volumeEnabledChanged();
 
+    void sendMidiClockChanged();
+
 private:
     void pushApplyDisabled();
     void popApplyDisabled();
@@ -175,6 +182,7 @@ private:
     bool m_panEnabled { false };
     bool m_patchEnabled { false };
     bool m_volumeEnabled { false };
+    bool m_sendMidiClock { false };
 
     size_t m_trackIndex { 0 };
 

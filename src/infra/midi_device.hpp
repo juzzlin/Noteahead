@@ -16,7 +16,7 @@
 #ifndef MIDI_DEVICE_HPP
 #define MIDI_DEVICE_HPP
 
-#include <cstdint>
+#include <cstddef>
 #include <memory>
 #include <string>
 
@@ -40,6 +40,7 @@ private:
 };
 
 using MidiDeviceS = std::shared_ptr<MidiDevice>;
+using MidiDeviceW = std::weak_ptr<MidiDevice>;
 
 } // namespace noteahead
 

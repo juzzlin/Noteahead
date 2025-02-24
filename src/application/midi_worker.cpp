@@ -229,6 +229,20 @@ void MidiWorker::stopAllNotes(QString portName, uint8_t channel)
     }
 }
 
+void MidiWorker::sendClock(QString portName)
+{
+    try {
+        if (const auto device = m_midiBackend->deviceByPortName(portName.toStdString()); device) {
+            m_midiBackend->openDevice(device);
+            m_midiBackend->sendClock(device);
+        } else {
+            juzzlin::L(TAG).error() << "No device found for portName '" << portName.toStdString() << "'";
+        }
+    } catch (const std::runtime_error & e) {
+        juzzlin::L(TAG).error() << e.what();
+    }
+}
+
 void MidiWorker::requestPatchChange(QString portName, uint8_t channel, uint8_t patch)
 {
     try {

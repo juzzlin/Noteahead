@@ -60,6 +60,10 @@ void InstrumentSettings::serializeToXml(QXmlStreamWriter & writer) const
         writer.writeAttribute(Constants::xmlKeyVolume(), QString::number(*volume));
     }
 
+    if (sendMidiClock.has_value()) {
+        writer.writeAttribute(Constants::xmlKeySendMidiClock(), Constants::xmlValueTrue());
+    }
+
     for (auto && midiCcSetting : midiCcSettings) {
         midiCcSetting.serializeToXml(writer);
     }
@@ -82,9 +86,10 @@ QString InstrumentSettings::toString() const
         result += ", bank=None";
     }
 
-    result += cutoff ? QString { ", cutoff=%1" }.arg(*cutoff) : ", cutoff=None";
-    result += pan ? QString { ", pan=%1" }.arg(*pan) : ", pan=None";
-    result += volume ? QString { ", volume=%1" }.arg(*volume) : ", volume=None";
+    result += cutoff.has_value() ? QString { ", cutoff=%1" }.arg(*cutoff) : ", cutoff=None";
+    result += pan.has_value() ? QString { ", pan=%1" }.arg(*pan) : ", pan=None";
+    result += volume.has_value() ? QString { ", volume=%1" }.arg(*volume) : ", volume=None";
+    result += sendMidiClock.has_value() ? QString { ", sendMidiClock=%1" }.arg(sendMidiClock.value() ? Constants::xmlValueTrue() : Constants::xmlValueFalse()) : ", sendMidiClock=None";
 
     result += " )";
     return result;

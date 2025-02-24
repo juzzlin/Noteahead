@@ -49,6 +49,8 @@ public:
 
     std::optional<uint8_t> volume;
 
+    std::optional<bool> sendMidiClock;
+
     std::vector<MidiCcSetting> midiCcSettings;
 
     size_t track() const;
