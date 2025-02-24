@@ -102,6 +102,8 @@ private slots:
     void test_toXmlFromXml_removeTrack_shouldLoadSong();
     void test_toXmlFromXml_songProperties();
     void test_toXmlFromXml_trackName_shouldLoadTrackName();
+
+    void test_velocityAtPosition_shouldReturnCorrectVelocity();
 };
 
 } // namespace noteahead

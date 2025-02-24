@@ -125,7 +125,7 @@ public:
     QString displayVelocityAtPosition(const Position & position) const;
     Q_INVOKABLE QString displayVelocityAtPosition(size_t pattern, size_t track, size_t column, size_t line) const;
     Q_INVOKABLE QStringList displayNoteAndVelocityAtPosition(size_t patternId, size_t trackIndex, size_t columnId, size_t line) const;
-    Q_INVOKABLE double effectiveVolumeAtPosition(size_t pattern, size_t track, size_t column, size_t line) const;
+    Q_INVOKABLE double velocityAtPosition(size_t pattern, size_t track, size_t column, size_t line) const;
 
     Q_INVOKABLE QString noDataString() const;
 

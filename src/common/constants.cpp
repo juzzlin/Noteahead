@@ -227,6 +227,11 @@ QString xmlKeyColumnSoloed()
     return "ColumSoloed";
 }
 
+QString xmlKeyColumnVelocityScale()
+{
+    return "ColumnVelocityScale";
+}
+
 QString xmlKeyTrackAttr()
 {
     return "track";
@@ -240,6 +245,11 @@ QString xmlKeyTrackMuted()
 QString xmlKeyTrackSoloed()
 {
     return "TrackSoloed";
+}
+
+QString xmlKeyTrackVelocityScale()
+{
+    return "TrackVelocityScale";
 }
 
 QString xmlKeyName()

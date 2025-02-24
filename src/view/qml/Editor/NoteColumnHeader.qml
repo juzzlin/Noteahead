@@ -16,6 +16,7 @@ Rectangle {
     signal soloRequested
     signal unmuteRequested
     signal unsoloRequested
+    signal velocityScaleRequested
     property bool _focused: false
     function setFocused(focused) {
         _focused = focused;
@@ -29,11 +30,20 @@ Rectangle {
     function setSoloed(solo) {
         muteSoloButtons.setSoloed(solo);
     }
+    function setVelocityScale(value) {
+        velocityScaleWidget.value = value;
+    }
     Row {
         anchors.fill: parent
         anchors.leftMargin: 2
         anchors.topMargin: 2
         anchors.bottomMargin: 2
+        VelocityScale {
+            id: velocityScaleWidget
+            height: parent.height
+            width: parent.height
+            onClicked: rootItem.velocityScaleRequested()
+        }
         TextField {
             id: nameField
             color: _focused ? "black" : Constants.trackHeaderTextColor
@@ -45,7 +55,7 @@ Rectangle {
             font.pixelSize: Constants.trackHeaderFontSize
             font.family: "monospace"
             height: parent.height
-            width: parent.width - muteSoloButtons.width
+            width: parent.width - muteSoloButtons.width - velocityScaleWidget.width
             verticalAlignment: Text.AlignVCenter
             horizontalAlignment: Text.AlignHCenter
             padding: 0  // Remove default padding

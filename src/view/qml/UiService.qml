@@ -9,6 +9,8 @@ QtObject {
     signal recentFilesDialogRequested
     signal settingsDialogRequested
     signal trackSettingsDialogRequested(int trackIndex)
+    signal columnVelocityScaleDialogRequested(int trackIndex, int columnIndex)
+    signal trackVelocityScaleDialogRequested(int trackIndex)
     property int _activeOctave: 3
     readonly property string _tag: "UiService"
     function activeOctave() {
@@ -92,6 +94,16 @@ QtObject {
     }
     function requestTrackSettingsDialog(trackIndex) {
         trackSettingsDialogRequested(trackIndex);
+    }
+    function requestColumnVelocityScaleDialog(trackIndex, columnIndex) {
+        if (!isPlaying()) {
+            columnVelocityScaleDialogRequested(trackIndex, columnIndex);
+        }
+    }
+    function requestTrackVelocityScaleDialog(trackIndex) {
+        if (!isPlaying()) {
+            trackVelocityScaleDialogRequested(trackIndex);
+        }
     }
     function requestFocusOnEditorView() {
         focusOnEditorViewRequested();

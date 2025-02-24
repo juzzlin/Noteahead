@@ -48,12 +48,19 @@ Item {
     function setSoloed(soloed) {
         columnHeader.setSoloed(soloed);
     }
+    function setVelocityScale(value) {
+        columnHeader.setVelocityScale(value);
+    }
+    function _triggerVolumeMeterAtPosition(position) {
+        if (UiService.isPlaying() && mixerService.shouldColumnPlay(_trackIndex, _index)) {
+            const velocity = editorService.velocityAtPosition(position.pattern, _trackIndex, _index, position.line);
+            volumeMeter.trigger(mixerService.effectiveVelocity(_trackIndex, _index, velocity) / 127);
+        }
+    }
     function setPosition(position) {
         _scrollOffset = position.line;
         _scrollLines();
-        if (UiService.isPlaying() && mixerService.shouldColumnPlay(_trackIndex, _index)) {
-            volumeMeter.trigger(editorService.effectiveVolumeAtPosition(position.pattern, _trackIndex, _index, position.line));
-        }
+        _triggerVolumeMeterAtPosition(position);
     }
     function setPositionBar(positionBar) {
         _positionBar = positionBar;
@@ -87,12 +94,12 @@ Item {
             return "#" + value.toString(16).padStart(2, "0").repeat(3);
         }
         _lines.forEach((line, index) => {
-            if (editorService.hasInstrumentSettings(_patternIndex, _trackIndex, _index, index)) {
-                line.color = Universal.color(Universal.Cobalt);
-            } else {
-                line.color = _scaledColor(_indexHighlightOpacity(index, editorService.linesPerBeat));
-            }
-        });
+                if (editorService.hasInstrumentSettings(_patternIndex, _trackIndex, _index, index)) {
+                    line.color = Universal.color(Universal.Cobalt);
+                } else {
+                    line.color = _scaledColor(_indexHighlightOpacity(index, editorService.linesPerBeat));
+                }
+            });
     }
     function _isPositionMe(position) {
         return position.pattern === _patternIndex && position.track === _trackIndex && position.column === _index;
@@ -108,11 +115,11 @@ Item {
         const noteAndVelocity = editorService.displayNoteAndVelocityAtPosition(_patternIndex, _trackIndex, _index, 0);
         for (let lineIndex = 0; lineIndex < lineCount; lineIndex++) {
             const line = noteColumnLineComponent.createObject(lineContainer, {
-                "width": lineContainer.width,
-                "height": lineHeight,
-                "x": 0,
-                "y": lineHeight * _scrolledLinePositionByLineIndex(lineIndex)
-            });
+                    "width": lineContainer.width,
+                    "height": lineHeight,
+                    "x": 0,
+                    "y": lineHeight * _scrolledLinePositionByLineIndex(lineIndex)
+                });
             line.setNoteData(noteAndVelocity[0], noteAndVelocity[1]);
             _lines.push(line);
         }
@@ -121,19 +128,19 @@ Item {
         for (let lineIndex = 0; lineIndex < lineCount; lineIndex++) {
             const noteAndVelocity = editorService.displayNoteAndVelocityAtPosition(_patternIndex, _trackIndex, _index, lineIndex);
             const line = noteColumnLineComponent.createObject(lineContainer, {
-                "width": lineContainer.width,
-                "height": lineHeight,
-                "x": 0,
-                "y": lineHeight * _scrolledLinePositionByLineIndex(lineIndex)
-            });
+                    "width": lineContainer.width,
+                    "height": lineHeight,
+                    "x": 0,
+                    "y": lineHeight * _scrolledLinePositionByLineIndex(lineIndex)
+                });
             line.setNoteData(noteAndVelocity[0], noteAndVelocity[1]);
             _lines.push(line);
         }
     }
     function _createLines() {
         _lines.forEach(line => {
-            line.destroy();
-        });
+                line.destroy();
+            });
         _lines.length = 0;
         const lineCount = editorService.lineCount(_patternIndex);
         const lineHeight = _lineHeight();
@@ -148,19 +155,19 @@ Item {
         const lineCount = editorService.lineCount(_patternIndex);
         const lineHeight = _lineHeight();
         _lines.forEach((line, index) => {
-            line.y = lineHeight * _scrolledLinePositionByLineIndex(index);
-            line.width = width;
-            line.height = lineHeight;
-        });
+                line.y = lineHeight * _scrolledLinePositionByLineIndex(index);
+                line.width = width;
+                line.height = lineHeight;
+            });
     }
     function _scrollLines() {
         const lineHeight = _lineHeight();
         const linesVisible = config.visibleLines;
         _lines.forEach((line, index) => {
-            const scrolledLinePosition = _scrolledLinePositionByLineIndex(index);
-            line.y = lineHeight * scrolledLinePosition;
-            line.visible = scrolledLinePosition >= 0 && scrolledLinePosition <= linesVisible;
-        });
+                const scrolledLinePosition = _scrolledLinePositionByLineIndex(index);
+                line.y = lineHeight * scrolledLinePosition;
+                line.visible = scrolledLinePosition >= 0 && scrolledLinePosition <= linesVisible;
+            });
     }
     function _setLineFocused(lineIndex, lineColumnIndex, focused) {
         if (!focused) {
@@ -173,10 +180,10 @@ Item {
     function _lineIndexAtPosition(y) {
         let bestIndex = 0;
         _lines.forEach((line, index) => {
-            if (y >= line.y) {
-                bestIndex = index;
-            }
-        });
+                if (y >= line.y) {
+                    bestIndex = index;
+                }
+            });
         return bestIndex;
     }
     NoteColumnHeader {
@@ -255,5 +262,6 @@ Item {
         columnHeader.unmuteRequested.connect(() => mixerService.muteColumn(_trackIndex, _index, false));
         columnHeader.unsoloRequested.connect(() => mixerService.soloColumn(_trackIndex, _index, false));
         columnHeader.nameChanged.connect(name => editorService.setColumnName(_trackIndex, _index, name));
+        columnHeader.velocityScaleRequested.connect(() => UiService.requestColumnVelocityScaleDialog(_trackIndex, _index));
     }
 }

@@ -36,6 +36,10 @@ private slots:
     void test_columnShouldNotPlayIfParentTrackMuted();
 
     void test_clear_shouldSendConfigurationChange();
+
+    void test_setColumnVelocityScale_shouldAffectEffectiveVelocity();
+    void test_setTrackVelocityScale_shouldAffectEffectiveVelocity();
+    void test_effectiveVelocity_shouldCombineScales();
 };
 
 } // namespace noteahead

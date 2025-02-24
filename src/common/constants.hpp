@@ -82,9 +82,11 @@ QString xmlKeyMixer();
 QString xmlKeyColumnAttr();
 QString xmlKeyColumnMuted();
 QString xmlKeyColumnSoloed();
+QString xmlKeyColumnVelocityScale();
 QString xmlKeyTrackAttr();
 QString xmlKeyTrackMuted();
 QString xmlKeyTrackSoloed();
+QString xmlKeyTrackVelocityScale();
 
 QString xmlKeyName();
 

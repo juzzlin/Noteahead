@@ -84,7 +84,8 @@ void PlayerWorker::handleEvent(const Event & event) const
             juzzlin::L(TAG).trace() << noteData->toString();
             if (auto && instrument = event.instrument(); instrument) {
                 if (noteData->type() == NoteData::Type::NoteOn && noteData->note().has_value()) {
-                    m_midiService->playNote(instrument, *noteData->note(), noteData->velocity());
+                    const auto effectiveVelocity = m_mixerService->effectiveVelocity(noteData->track(), noteData->column(), noteData->velocity());
+                    m_midiService->playNote(instrument, *noteData->note(), effectiveVelocity);
                 } else if (noteData->type() == NoteData::Type::NoteOff) {
                     m_midiService->stopNote(instrument, *noteData->note());
                 }

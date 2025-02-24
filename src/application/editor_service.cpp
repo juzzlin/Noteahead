@@ -415,10 +415,10 @@ QStringList EditorService::displayNoteAndVelocityAtPosition(size_t patternId, si
     };
 }
 
-double EditorService::effectiveVolumeAtPosition(size_t pattern, size_t track, size_t column, size_t line) const
+double EditorService::velocityAtPosition(size_t pattern, size_t track, size_t column, size_t line) const
 {
     if (const auto noteData = m_song->noteDataAtPosition({ pattern, track, column, line }); noteData->type() != NoteData::Type::None) {
-        return noteData->type() == NoteData::Type::NoteOff ? 0 : static_cast<double>(noteData->velocity()) / 127;
+        return noteData->type() == NoteData::Type::NoteOff ? 0 : static_cast<double>(noteData->velocity());
     } else {
         return 0;
     }

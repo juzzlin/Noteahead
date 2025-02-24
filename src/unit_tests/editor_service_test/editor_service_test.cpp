@@ -1206,6 +1206,8 @@ void EditorServiceTest::test_toXmlFromXml_mixerService_shouldLoadMixerService()
     mixerServiceOut.soloTrack(2, true);
     mixerServiceOut.muteColumn(3, 0, true);
     mixerServiceOut.soloColumn(4, 1, true);
+    mixerServiceOut.setColumnVelocityScale(1, 2, 42);
+    mixerServiceOut.setTrackVelocityScale(3, 66);
 
     MixerService mixerServiceIn;
     EditorService editorService;
@@ -1218,6 +1220,8 @@ void EditorServiceTest::test_toXmlFromXml_mixerService_shouldLoadMixerService()
     QVERIFY(mixerServiceIn.isTrackSoloed(2));
     QVERIFY(mixerServiceIn.isColumnMuted(3, 0));
     QVERIFY(mixerServiceIn.isColumnSoloed(4, 1));
+    QCOMPARE(mixerServiceIn.columnVelocityScale(1, 2), 42);
+    QCOMPARE(mixerServiceIn.trackVelocityScale(3), 66);
 }
 
 void EditorServiceTest::test_toXmlFromXml_instrumentSettings_shouldParseInstrumentSettings()
@@ -1440,6 +1444,20 @@ void EditorServiceTest::test_toXmlFromXml_removeTrack_shouldLoadSong()
 
     QCOMPARE(editorServiceIn.trackCount(), editorServiceOut.trackCount());
     QCOMPARE(editorServiceIn.trackIndices(), editorServiceOut.trackIndices());
+}
+
+void EditorServiceTest::test_velocityAtPosition_shouldReturnCorrectVelocity()
+{
+    EditorService editorService;
+
+    editorService.requestPosition(0, 0, 0, 0, 0);
+    editorService.requestNoteOnAtCurrentPosition(1, 1, 50);
+    QCOMPARE(editorService.velocityAtPosition(0, 0, 0, 0), 50);
+
+    editorService.requestNoteOffAtCurrentPosition();
+    QCOMPARE(editorService.velocityAtPosition(0, 0, 0, 0), 0);
+
+    QCOMPARE(editorService.velocityAtPosition(0, 1, 0, 0), 0);
 }
 
 } // namespace noteahead

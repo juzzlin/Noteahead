@@ -106,6 +106,7 @@ set(QML_SOURCE_FILES
     ${QML_BASE_DIR}/Constants.qml
     ${QML_BASE_DIR}/Dialogs/AboutDialog.qml
     ${QML_BASE_DIR}/Dialogs/EventSelectionDialog.qml
+    ${QML_BASE_DIR}/Dialogs/IntegerInputDialog.qml
     ${QML_BASE_DIR}/Dialogs/MidiCcSelector.qml
     ${QML_BASE_DIR}/Dialogs/RecentFilesDialog.qml
     ${QML_BASE_DIR}/Dialogs/SettingsDialog.qml
@@ -126,6 +127,7 @@ set(QML_SOURCE_FILES
     ${QML_BASE_DIR}/Editor/Track.qml
     ${QML_BASE_DIR}/Editor/TrackHeader.qml
     ${QML_BASE_DIR}/Editor/TrackHeaderColumnButtons.qml
+    ${QML_BASE_DIR}/Editor/VelocityScale.qml
     ${QML_BASE_DIR}/Editor/VolumeMeter.qml
     ${QML_BASE_DIR}/MainMenu.qml
     ${QML_BASE_DIR}/MainMenuItemDelegate.qml

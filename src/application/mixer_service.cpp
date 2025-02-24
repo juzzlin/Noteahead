@@ -67,6 +67,21 @@ bool MixerService::isColumnSoloed(size_t trackIndex, size_t columnIndex) const
     return m_soloedColumns.contains({ trackIndex, columnIndex }) && m_soloedColumns.at({ trackIndex, columnIndex });
 }
 
+uint8_t MixerService::columnVelocityScale(size_t trackIndex, size_t columnIndex) const
+{
+    if (m_columnVelocityScaleMap.contains({ trackIndex, columnIndex })) {
+        return m_columnVelocityScaleMap.at({ trackIndex, columnIndex });
+    } else {
+        return 100;
+    }
+}
+
+void MixerService::setColumnVelocityScale(size_t trackIndex, size_t columnIndex, uint8_t scale)
+{
+    m_columnVelocityScaleMap[{ trackIndex, columnIndex }] = scale;
+    update();
+}
+
 bool MixerService::hasSoloedColumns() const
 {
     return std::ranges::any_of(m_soloedColumns, [](const auto & pair) {
@@ -114,6 +129,26 @@ bool MixerService::isTrackSoloed(size_t trackIndex) const
     return m_soloedTracks.contains(trackIndex) && m_soloedTracks.at(trackIndex);
 }
 
+uint8_t MixerService::trackVelocityScale(size_t trackIndex) const
+{
+    if (m_trackVelocityScaleMap.contains(trackIndex)) {
+        return m_trackVelocityScaleMap.at(trackIndex);
+    } else {
+        return 100;
+    }
+}
+
+void MixerService::setTrackVelocityScale(size_t trackIndex, uint8_t scale)
+{
+    m_trackVelocityScaleMap[trackIndex] = scale;
+    update();
+}
+
+uint8_t MixerService::effectiveVelocity(size_t trackIndex, size_t columnIndex, uint8_t velocity) const
+{
+    return trackVelocityScale(trackIndex) * columnVelocityScale(trackIndex, columnIndex) * velocity / (100 * 100);
+}
+
 void MixerService::update()
 {
     for (auto && [trackIndex, state] : m_mutedTracks) {
@@ -132,6 +167,14 @@ void MixerService::update()
         emit columnSoloed(key.first, key.second, state);
     }
 
+    for (auto && [key, value] : m_columnVelocityScaleMap) {
+        emit columnVelocityScaleChanged(key.first, key.second, value);
+    }
+
+    for (auto && [trackIndex, value] : m_trackVelocityScaleMap) {
+        emit trackVelocityScaleChanged(trackIndex, value);
+    }
+
     emit configurationChanged();
 }
 
@@ -144,6 +187,9 @@ void MixerService::clear()
     m_mutedTracks.clear();
     m_soloedTracks.clear();
 
+    m_columnVelocityScaleMap.clear();
+    m_trackVelocityScaleMap.clear();
+
     emit cleared();
 }
 
@@ -155,7 +201,6 @@ void MixerService::deserializeFromXml(QXmlStreamReader & reader)
 
     while (!(reader.isEndElement() && !reader.name().compare(Constants::xmlKeyMixer()))) {
         juzzlin::L(TAG).trace() << "Current element: " << reader.name().toString().toStdString();
-
         if (reader.isStartElement()) {
             if (!reader.name().compare(Constants::xmlKeyColumnMuted())) {
                 bool trackOk = false, columnOk = false;
@@ -182,6 +227,21 @@ void MixerService::deserializeFromXml(QXmlStreamReader & reader)
                 const size_t trackIndex = reader.attributes().value(Constants::xmlKeyIndex()).toUInt(&ok);
                 if (ok) {
                     m_soloedTracks[trackIndex] = true;
+                }
+            } else if (!reader.name().compare(Constants::xmlKeyColumnVelocityScale())) {
+                bool trackOk = false, columnOk = false, valueOk = false;
+                const size_t trackIndex = reader.attributes().value(Constants::xmlKeyTrackAttr()).toUInt(&trackOk);
+                const size_t columnIndex = reader.attributes().value(Constants::xmlKeyColumnAttr()).toUInt(&columnOk);
+                const uint8_t value = static_cast<uint8_t>(reader.attributes().value(Constants::xmlKeyValue()).toUInt(&valueOk));
+                if (trackOk && columnOk && valueOk) {
+                    m_columnVelocityScaleMap[{ trackIndex, columnIndex }] = value;
+                }
+            } else if (!reader.name().compare(Constants::xmlKeyTrackVelocityScale())) {
+                bool trackOk = false, valueOk = false;
+                const size_t trackIndex = reader.attributes().value(Constants::xmlKeyIndex()).toUInt(&trackOk);
+                const uint8_t value = static_cast<uint8_t>(reader.attributes().value(Constants::xmlKeyValue()).toUInt(&valueOk));
+                if (trackOk && valueOk) {
+                    m_trackVelocityScaleMap[trackIndex] = value;
                 }
             }
         }
@@ -231,6 +291,21 @@ void MixerService::serializeToXml(QXmlStreamWriter & writer) const
             writer.writeAttribute(Constants::xmlKeyIndex(), QString::number(trackIndex));
             writer.writeEndElement();
         }
+    }
+
+    for (auto && [key, value] : m_columnVelocityScaleMap) {
+        writer.writeStartElement(Constants::xmlKeyColumnVelocityScale());
+        writer.writeAttribute(Constants::xmlKeyTrackAttr(), QString::number(key.first));
+        writer.writeAttribute(Constants::xmlKeyColumnAttr(), QString::number(key.second));
+        writer.writeAttribute(Constants::xmlKeyValue(), QString::number(value));
+        writer.writeEndElement();
+    }
+
+    for (auto && [trackIndex, value] : m_trackVelocityScaleMap) {
+        writer.writeStartElement(Constants::xmlKeyTrackVelocityScale());
+        writer.writeAttribute(Constants::xmlKeyIndex(), QString::number(trackIndex));
+        writer.writeAttribute(Constants::xmlKeyValue(), QString::number(value));
+        writer.writeEndElement();
     }
 
     writer.writeEndElement(); // Mixer

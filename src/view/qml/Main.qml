@@ -164,6 +164,25 @@ ApplicationWindow {
         id: unsavedChangesDialog
         anchors.centerIn: parent
     }
+    IntegerInputDialog {
+        id: columnVelocityScaleDialog
+        anchors.centerIn: parent
+        width: parent.width * 0.5
+        property int trackIndex
+        property int columnIndex
+        onAccepted: {
+            mixerService.setColumnVelocityScale(trackIndex, columnIndex, value());
+        }
+    }
+    IntegerInputDialog {
+        id: trackVelocityScaleDialog
+        anchors.centerIn: parent
+        width: parent.width * 0.5
+        property int trackIndex
+        onAccepted: {
+            mixerService.setTrackVelocityScale(trackIndex, value());
+        }
+    }
     function _getWindowTitle() {
         const nameAndVersion = `${applicationService.applicationName()} MIDI tracker v${applicationService.applicationVersion()}`;
         const currentFileName = (editorService.currentFileName ? " - " + editorService.currentFileName : "");
@@ -207,6 +226,19 @@ ApplicationWindow {
         UiService.trackSettingsDialogRequested.connect(trackIndex => {
                 trackSettingsDialog.setTrackIndex(trackIndex);
                 trackSettingsDialog.open();
+            });
+        UiService.columnVelocityScaleDialogRequested.connect((trackIndex, columnIndex) => {
+                columnVelocityScaleDialog.setTitle(qsTr("Set velocity scale for column ") + columnIndex);
+                columnVelocityScaleDialog.setValue(mixerService.columnVelocityScale(columnIndex, trackIndex));
+                columnVelocityScaleDialog.trackIndex = trackIndex;
+                columnVelocityScaleDialog.columnIndex = columnIndex;
+                columnVelocityScaleDialog.open();
+            });
+        UiService.trackVelocityScaleDialogRequested.connect(trackIndex => {
+                trackVelocityScaleDialog.setTitle(qsTr("Set velocity scale for track ") + "'" + editorService.trackName(trackIndex) + "'");
+                trackVelocityScaleDialog.setValue(mixerService.trackVelocityScale(trackIndex));
+                trackVelocityScaleDialog.trackIndex = trackIndex;
+                trackVelocityScaleDialog.open();
             });
         UiService.quitRequested.connect(() => {
                 config.setWindowSize(Qt.size(mainWindow.width, mainWindow.height));

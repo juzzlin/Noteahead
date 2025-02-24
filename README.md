@@ -39,6 +39,8 @@ My first track composed with Noteahead:
 * Tracks with multiple note columns
 * Track settings with port, channel, bank, patch, volume, pan, cutoff
   - Can be easily changed on-the-fly via line events
+* Track and column-specific velocity scales
+  - Effective velocity is the product of track scale, column scale, and note velocity
 * Saves to a custom (but open!) XML-based **.nahd** format
 
 ##

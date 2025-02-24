@@ -52,15 +52,22 @@ Item {
     function setSoloed(soloed) {
         trackHeader.setSoloed(soloed);
     }
+    function setVelocityScale(value) {
+        trackHeader.setVelocityScale(value);
+    }
     function setColumnMuted(columnIndex, muted) {
         columnContainer.setColumnMuted(columnIndex, muted);
     }
     function setColumnSoloed(columnIndex, soloed) {
         columnContainer.setColumnSoloed(columnIndex, soloed);
     }
+    function setColumnVelocityScale(columnIndex, value) {
+        columnContainer.setColumnVelocityScale(columnIndex, value);
+    }
     function clearMixerSettings() {
         setMuted(false);
         setSoloed(false);
+        setVelocityScale(100);
         columnContainer.clearMixerSettings();
     }
     function updateData() {
@@ -131,39 +138,43 @@ Item {
         function setColumnSoloed(columnIndex, soloed) {
             _noteColumns[columnIndex].setSoloed(soloed);
         }
+        function setColumnVelocityScale(columnIndex, value) {
+            _noteColumns[columnIndex].setVelocityScale(value);
+        }
         function clearMixerSettings() {
             _noteColumns.forEach(noteColumn => {
-                noteColumn.setMuted(false);
-                noteColumn.setSoloed(false);
-            });
+                    noteColumn.setMuted(false);
+                    noteColumn.setSoloed(false);
+                    noteColumn.setVelocityScale(100);
+                });
         }
         function setFocused(columnIndex, focused) {
             _noteColumns[columnIndex].setFocused(focused);
         }
         function setPosition(position) {
             _noteColumns.forEach(noteColumn => {
-                noteColumn.setPosition(position);
-            });
+                    noteColumn.setPosition(position);
+                });
         }
         function setPositionBar(positionBar) {
             _noteColumns.forEach(noteColumn => {
-                noteColumn.setPositionBar(positionBar);
-            });
+                    noteColumn.setPositionBar(positionBar);
+                });
         }
         function updateColumnHeaders() {
             _noteColumns.forEach(noteColumn => {
-                noteColumn.setName(editorService.columnName(_index, noteColumn.index()));
-            });
+                    noteColumn.setName(editorService.columnName(_index, noteColumn.index()));
+                });
         }
         function updateIndexHighlights() {
             _noteColumns.forEach(noteColumn => {
-                noteColumn.updateIndexHighlights();
-            });
+                    noteColumn.updateIndexHighlights();
+                });
         }
         function updateNoteDataAtPosition(position) {
             _noteColumns.forEach(noteColumn => {
-                noteColumn.updateNoteDataAtPosition(position);
-            });
+                    noteColumn.updateNoteDataAtPosition(position);
+                });
         }
         function updateVisibility() {
             // Load column data if the column becomes visible or is visible but not yet loaded
@@ -195,13 +206,13 @@ Item {
             noteColumn.setPatternIndex(_patternIndex);
             noteColumn.setPositionBar(_positionBar);
             noteColumn.leftClicked.connect((x, y, lineIndex) => {
-                uiLogger.debug(_tag, `Track ${rootItem._index} left clicked`);
-                rootItem.leftClicked(noteColumn.index(), lineIndex, x, y);
-            });
+                    uiLogger.debug(_tag, `Track ${rootItem._index} left clicked`);
+                    rootItem.leftClicked(noteColumn.index(), lineIndex, x, y);
+                });
             noteColumn.rightClicked.connect((x, y, lineIndex) => {
-                uiLogger.debug(_tag, `Track ${rootItem._index} right clicked`);
-                rootItem.rightClicked(noteColumn.index(), lineIndex, x, y);
-            });
+                    uiLogger.debug(_tag, `Track ${rootItem._index} right clicked`);
+                    rootItem.rightClicked(noteColumn.index(), lineIndex, x, y);
+                });
             return noteColumn;
         }
         function _createNoteColumns() {
@@ -219,9 +230,9 @@ Item {
             const noteColumnWidth = _noteColumnWidth();
             const noteColumnHeight = height;
             _noteColumns.forEach(noteColumn => {
-                noteColumn.x = _noteColumnX(noteColumn.index());
-                noteColumn.resize(noteColumnWidth, noteColumnHeight);
-            });
+                    noteColumn.x = _noteColumnX(noteColumn.index());
+                    noteColumn.resize(noteColumnWidth, noteColumnHeight);
+                });
         }
         Component {
             id: noteColumnComponent
@@ -245,5 +256,6 @@ Item {
         trackHeader.trackSettingsDialogRequested.connect(() => UiService.requestTrackSettingsDialog(_index));
         trackHeader.unmuteRequested.connect(() => mixerService.muteTrack(_index, false));
         trackHeader.unsoloRequested.connect(() => mixerService.soloTrack(_index, false));
+        trackHeader.velocityScaleRequested.connect(() => UiService.requestTrackVelocityScaleDialog(_index));
     }
 }

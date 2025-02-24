@@ -139,6 +139,54 @@ void MixerServiceTest::test_clear_shouldSendConfigurationChange()
     QVERIFY(!mixerService.isColumnSoloed(4, 1));
 }
 
+void MixerServiceTest::test_setColumnVelocityScale_shouldAffectEffectiveVelocity()
+{
+    MixerService mixerService;
+    QSignalSpy configurationChangedSpy(&mixerService, &MixerService::configurationChanged);
+
+    mixerService.setColumnVelocityScale(0, 1, 50);
+    QCOMPARE(mixerService.columnVelocityScale(0, 1), 50);
+    QCOMPARE(mixerService.effectiveVelocity(0, 1, 100), 50);
+    QCOMPARE(configurationChangedSpy.count(), 1);
+
+    mixerService.setColumnVelocityScale(0, 1, 75);
+    QCOMPARE(mixerService.columnVelocityScale(0, 1), 75);
+    QCOMPARE(mixerService.effectiveVelocity(0, 1, 100), 75);
+    QCOMPARE(configurationChangedSpy.count(), 2);
+}
+
+void MixerServiceTest::test_setTrackVelocityScale_shouldAffectEffectiveVelocity()
+{
+    MixerService mixerService;
+    QSignalSpy configurationChangedSpy(&mixerService, &MixerService::configurationChanged);
+
+    mixerService.setTrackVelocityScale(0, 50);
+    QCOMPARE(mixerService.trackVelocityScale(0), 50);
+    QCOMPARE(mixerService.effectiveVelocity(0, 1, 100), 50);
+    QCOMPARE(configurationChangedSpy.count(), 1);
+
+    mixerService.setTrackVelocityScale(0, 25);
+    QCOMPARE(mixerService.trackVelocityScale(0), 25);
+    QCOMPARE(mixerService.effectiveVelocity(0, 1, 100), 25);
+    QCOMPARE(configurationChangedSpy.count(), 2);
+}
+
+void MixerServiceTest::test_effectiveVelocity_shouldCombineScales()
+{
+    MixerService mixerService;
+    QSignalSpy configurationChangedSpy(&mixerService, &MixerService::configurationChanged);
+
+    mixerService.setTrackVelocityScale(0, 80);
+    mixerService.setColumnVelocityScale(0, 1, 50);
+    QCOMPARE(mixerService.effectiveVelocity(0, 1, 100), 40); // (80 * 50 * 100) / (100 * 100) = 40
+    QCOMPARE(configurationChangedSpy.count(), 2);
+
+    mixerService.setTrackVelocityScale(0, 100);
+    mixerService.setColumnVelocityScale(0, 1, 100);
+    QCOMPARE(mixerService.effectiveVelocity(0, 1, 100), 100);
+    QCOMPARE(configurationChangedSpy.count(), 4);
+}
+
 } // namespace noteahead
 
 QTEST_GUILESS_MAIN(noteahead::MixerServiceTest)

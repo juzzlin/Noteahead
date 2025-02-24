@@ -93,8 +93,8 @@ FocusScope {
     }
     function _clearPatterns() {
         _patterns.forEach(pattern => {
-            pattern.destroy();
-        });
+                pattern.destroy();
+            });
         _patterns.length = 0;
     }
     function _setTrackDimensions(track) {
@@ -105,23 +105,23 @@ FocusScope {
     }
     function _connectTrack(track) {
         track.leftClicked.connect((columnIndex, lineIndex) => {
-            editorService.requestTrackFocus(track.index(), columnIndex, lineIndex);
-            rootItem.forceActiveFocus();
-        });
+                editorService.requestTrackFocus(track.index(), columnIndex, lineIndex);
+                rootItem.forceActiveFocus();
+            });
         track.rightClicked.connect((columnIndex, lineIndex, x, y) => {
-            editorService.requestTrackFocus(track.index(), columnIndex, lineIndex);
-            rootItem.forceActiveFocus();
-            contextMenu.x = track.x + x;
-            contextMenu.y = track.y + y;
-            contextMenu.open();
-        });
+                editorService.requestTrackFocus(track.index(), columnIndex, lineIndex);
+                rootItem.forceActiveFocus();
+                contextMenu.x = track.x + x;
+                contextMenu.y = track.y + y;
+                contextMenu.open();
+            });
     }
     function _createTracks(pattern) {
         pattern.createTracks(positionBar);
         pattern.tracks().forEach(track => {
-            _setTrackDimensions(track);
-            _connectTrack(track);
-        });
+                _setTrackDimensions(track);
+                _connectTrack(track);
+            });
     }
     function _createPattern(patternIndex) {
         uiLogger.debug(_tag, `Creating pattern index=${patternIndex}`);
@@ -176,8 +176,8 @@ FocusScope {
     function _updateTrackSizes() {
         const currentPattern = _patterns[editorService.currentPattern];
         currentPattern._tracks.forEach(track => {
-            _setTrackDimensions(track);
-        });
+                _setTrackDimensions(track);
+            });
     }
     function _updateFocus(newPosition, oldPosition) {
         rootItem.focus = true;
@@ -187,22 +187,22 @@ FocusScope {
     function _updatePosition(newPosition) {
         const currentPattern = _patterns[editorService.currentPattern];
         currentPattern._tracks.forEach(track => {
-            track.setPosition(newPosition);
-        });
+                track.setPosition(newPosition);
+            });
         lineNumberColumnLeft.setPosition(newPosition);
         lineNumberColumnRight.setPosition(newPosition);
     }
     function _updateNoteDataAtPosition(position) {
         const currentPattern = _patterns[editorService.currentPattern];
         currentPattern._tracks.forEach(track => {
-            track.updateNoteDataAtPosition(position);
-        });
+                track.updateNoteDataAtPosition(position);
+            });
     }
     function _updatePatternVisibility() {
         const currentPatternIndex = editorService.currentPattern;
         _patterns.forEach(pattern => {
-            pattern.visible = pattern.index() === currentPatternIndex;
-        });
+                pattern.visible = pattern.index() === currentPatternIndex;
+            });
     }
     function _updateTrackVisibility() {
         _patterns.forEach(pattern => pattern.updateTrackVisibility());
@@ -220,28 +220,28 @@ FocusScope {
     }
     function _addColumn(trackIndex) {
         _patterns.forEach(pattern => {
-            pattern.addColumn(trackIndex);
-        });
+                pattern.addColumn(trackIndex);
+            });
         _updateCurrentTrackDimensions();
     }
     function _deleteColumn(trackIndex) {
         _patterns.forEach(pattern => {
-            pattern.deleteColumn(trackIndex);
-        });
+                pattern.deleteColumn(trackIndex);
+            });
         _updateCurrentTrackDimensions();
         _updateTrackVisibility();
     }
     function _deleteTrack(trackIndex) {
         _patterns.forEach(pattern => {
-            pattern.deleteTrack(trackIndex);
-        });
+                pattern.deleteTrack(trackIndex);
+            });
         _updateCurrentTrackDimensions();
         _updateTrackVisibility();
     }
     function _clearMixerSettings() {
         _patterns.forEach(pattern => {
-            pattern.clearMixerSettings();
-        });
+                pattern.clearMixerSettings();
+            });
     }
     function _connectSignals() {
         editorService.columnAdded.connect(trackIndex => _addColumn(trackIndex));
@@ -259,32 +259,42 @@ FocusScope {
         editorService.trackNameChanged.connect(_updateTrackHeaders);
         editorService.patternCreated.connect(patternIndex => _createPattern(patternIndex));
         editorService.positionChanged.connect((newPosition, oldPosition) => {
-            if (newPosition.pattern !== oldPosition.pattern) {
-                _changePattern();
-            }
-            _updateFocus(newPosition, oldPosition);
-            _updatePosition(newPosition);
-        });
+                if (newPosition.pattern !== oldPosition.pattern) {
+                    _changePattern();
+                }
+                _updateFocus(newPosition, oldPosition);
+                _updatePosition(newPosition);
+            });
         mixerService.columnMuted.connect((trackIndex, columnIndex, muted) => {
-            _patterns.forEach(pattern => {
-                pattern.setColumnMuted(trackIndex, columnIndex, muted);
+                _patterns.forEach(pattern => {
+                        pattern.setColumnMuted(trackIndex, columnIndex, muted);
+                    });
             });
-        });
         mixerService.columnSoloed.connect((trackIndex, columnIndex, soloed) => {
-            _patterns.forEach(pattern => {
-                pattern.setColumnSoloed(trackIndex, columnIndex, soloed);
+                _patterns.forEach(pattern => {
+                        pattern.setColumnSoloed(trackIndex, columnIndex, soloed);
+                    });
             });
-        });
         mixerService.trackMuted.connect((trackIndex, muted) => {
-            _patterns.forEach(pattern => {
-                pattern.setTrackMuted(trackIndex, muted);
+                _patterns.forEach(pattern => {
+                        pattern.setTrackMuted(trackIndex, muted);
+                    });
             });
-        });
         mixerService.trackSoloed.connect((trackIndex, soloed) => {
-            _patterns.forEach(pattern => {
-                pattern.setTrackSoloed(trackIndex, soloed);
+                _patterns.forEach(pattern => {
+                        pattern.setTrackSoloed(trackIndex, soloed);
+                    });
             });
-        });
+        mixerService.columnVelocityScaleChanged.connect((trackIndex, columnIndex, value) => {
+                _patterns.forEach(pattern => {
+                        pattern.setColumnVelocityScale(trackIndex, columnIndex, value);
+                    });
+            });
+        mixerService.trackVelocityScaleChanged.connect((trackIndex, value) => {
+                _patterns.forEach(pattern => {
+                        pattern.setTrackVelocityScale(trackIndex, value);
+                    });
+            });
         mixerService.cleared.connect(_clearMixerSettings);
     }
     function _lineNumberColumnHeight() {
