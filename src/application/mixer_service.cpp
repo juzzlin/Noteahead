@@ -67,6 +67,20 @@ bool MixerService::isColumnSoloed(size_t trackIndex, size_t columnIndex) const
     return m_soloedColumns.contains({ trackIndex, columnIndex }) && m_soloedColumns.at({ trackIndex, columnIndex });
 }
 
+uint8_t MixerService::columnVelocityScale(size_t trackIndex, size_t columnIndex) const
+{
+    if (m_columnVelocityScaleMap.contains({ trackIndex, columnIndex })) {
+        return m_columnVelocityScaleMap.at({ trackIndex, columnIndex });
+    } else {
+        return 100;
+    }
+}
+
+void MixerService::setColumnVelocityScale(size_t trackIndex, size_t columnIndex, uint8_t scale)
+{
+    m_columnVelocityScaleMap[{ trackIndex, columnIndex }] = scale;
+}
+
 bool MixerService::hasSoloedColumns() const
 {
     return std::ranges::any_of(m_soloedColumns, [](const auto & pair) {
@@ -112,6 +126,20 @@ bool MixerService::isTrackMuted(size_t trackIndex) const
 bool MixerService::isTrackSoloed(size_t trackIndex) const
 {
     return m_soloedTracks.contains(trackIndex) && m_soloedTracks.at(trackIndex);
+}
+
+uint8_t MixerService::trackVelocityScale(size_t trackIndex) const
+{
+    if (m_trackVelocityScaleMap.contains(trackIndex)) {
+        return m_trackVelocityScaleMap.at(trackIndex);
+    } else {
+        return 100;
+    }
+}
+
+void MixerService::setTrackVelocityScale(size_t trackIndex, uint8_t scale)
+{
+    m_trackVelocityScaleMap[trackIndex] = scale;
 }
 
 void MixerService::update()

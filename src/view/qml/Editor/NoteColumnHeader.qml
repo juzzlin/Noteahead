@@ -34,6 +34,11 @@ Rectangle {
         anchors.leftMargin: 2
         anchors.topMargin: 2
         anchors.bottomMargin: 2
+        VelocityScale {
+            id: velocityScale
+            height: parent.height
+            width: parent.height
+        }
         TextField {
             id: nameField
             color: _focused ? "black" : Constants.trackHeaderTextColor
@@ -45,7 +50,7 @@ Rectangle {
             font.pixelSize: Constants.trackHeaderFontSize
             font.family: "monospace"
             height: parent.height
-            width: parent.width - muteSoloButtons.width
+            width: parent.width - muteSoloButtons.width - velocityScale.width
             verticalAlignment: Text.AlignVCenter
             horizontalAlignment: Text.AlignHCenter
             padding: 0  // Remove default padding

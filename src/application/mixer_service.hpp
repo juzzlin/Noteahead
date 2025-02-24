@@ -40,12 +40,16 @@ public:
     Q_INVOKABLE void soloColumn(size_t trackIndex, size_t columnIndex, bool solo);
     Q_INVOKABLE bool isColumnMuted(size_t trackIndex, size_t columnIndex) const;
     Q_INVOKABLE bool isColumnSoloed(size_t trackIndex, size_t columnIndex) const;
+    Q_INVOKABLE uint8_t columnVelocityScale(size_t trackIndex, size_t columnIndex) const;
+    Q_INVOKABLE void setColumnVelocityScale(size_t trackIndex, size_t columnIndex, uint8_t scale);
 
     Q_INVOKABLE void muteTrack(size_t trackIndex, bool mute);
     Q_INVOKABLE bool shouldTrackPlay(size_t trackIndex) const;
     Q_INVOKABLE void soloTrack(size_t trackIndex, bool solo);
     Q_INVOKABLE bool isTrackMuted(size_t trackIndex) const;
     Q_INVOKABLE bool isTrackSoloed(size_t trackIndex) const;
+    Q_INVOKABLE uint8_t trackVelocityScale(size_t trackIndex) const;
+    Q_INVOKABLE void setTrackVelocityScale(size_t trackIndex, uint8_t scale);
 
     Q_INVOKABLE void update();
 
@@ -69,13 +73,19 @@ private:
     bool hasSoloedTracks() const;
 
     using TrackAndColumn = std::pair<size_t, size_t>;
-    using TrackAndColumnMap = std::map<TrackAndColumn, bool>;
-    TrackAndColumnMap m_mutedColumns;
-    TrackAndColumnMap m_soloedColumns;
+    using TrackAndColumnMuteSoloMap = std::map<TrackAndColumn, bool>;
+    TrackAndColumnMuteSoloMap m_mutedColumns;
+    TrackAndColumnMuteSoloMap m_soloedColumns;
 
-    using TrackMap = std::unordered_map<size_t, bool>;
-    TrackMap m_mutedTracks;
-    TrackMap m_soloedTracks;
+    using TrackAndColumnVelocityScaleMap = std::map<TrackAndColumn, uint8_t>;
+    TrackAndColumnVelocityScaleMap m_columnVelocityScaleMap;
+
+    using TrackMuteSoloMap = std::unordered_map<size_t, bool>;
+    TrackMuteSoloMap m_mutedTracks;
+    TrackMuteSoloMap m_soloedTracks;
+
+    using TrackVelocityScaleMap = std::map<size_t, uint8_t>;
+    TrackVelocityScaleMap m_trackVelocityScaleMap;
 };
 
 } // namespace noteahead
