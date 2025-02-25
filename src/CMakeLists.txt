@@ -162,7 +162,7 @@ qt_add_qml_module(${BINARY_NAME}
 target_compile_definitions(${BINARY_NAME} PRIVATE $<$<OR:$<CONFIG:Debug>,$<CONFIG:RelWithDebInfo>>:QT_QML_DEBUG>)
 target_compile_definitions(${BINARY_NAME} PRIVATE QML_ROOT_DIR="${QML_ROOT_DIR}")
 target_compile_definitions(${BINARY_NAME} PRIVATE QML_ENTRY_POINT="${MAIN}")
-target_link_libraries(${BINARY_NAME} PRIVATE Qt6::Core Qt6::Quick rtmidi SimpleLogger Argengine)
+target_link_libraries(${BINARY_NAME} PRIVATE Qt6::Core Qt6::Quick rtmidi SimpleLogger_static Argengine_static)
 
 install(TARGETS ${BINARY_NAME} RUNTIME DESTINATION bin)
 install(FILES ${CMAKE_SOURCE_DIR}/data/linux/noteahead.desktop DESTINATION share/applications)
