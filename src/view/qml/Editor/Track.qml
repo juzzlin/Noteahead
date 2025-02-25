@@ -166,9 +166,14 @@ Item {
             });
         }
         function updateVisibility() {
+            // Load column data if the column becomes visible or is visible but not yet loaded
             _noteColumns.forEach(noteColumn => {
-                noteColumn.visible = editorService.isColumnVisible(_index, noteColumn.index());
-            });
+                    const prevVisible = noteColumn.visible;
+                    noteColumn.visible = editorService.isColumnVisible(_index, noteColumn.index());
+                    if ((!prevVisible || !noteColumn.dataUpdated()) && noteColumn.visible) {
+                        noteColumn.updateData();
+                    }
+                });
         }
         function _noteColumnX(index) {
             return _noteColumnWidth() * index;
@@ -176,6 +181,8 @@ Item {
         function _noteColumnWidth() {
             return width / _noteColumnCount;
         }
+        // Note!!: The actual line data objects are not yet created, but on-demand when updateVisibility() is called.
+        //         This will significantly reduce the load time of a song while providing a smooth playback animation.
         function _createNoteColumn(columnIndex) {
             const noteColumnWidth = _noteColumnWidth();
             const noteColumnHeight = columnContainer.height;
@@ -187,7 +194,6 @@ Item {
             noteColumn.setTrackIndex(_index);
             noteColumn.setPatternIndex(_patternIndex);
             noteColumn.setPositionBar(_positionBar);
-            noteColumn.updateData();
             noteColumn.leftClicked.connect((x, y, lineIndex) => {
                 uiLogger.debug(_tag, `Track ${rootItem._index} left clicked`);
                 rootItem.leftClicked(noteColumn.index(), lineIndex, x, y);

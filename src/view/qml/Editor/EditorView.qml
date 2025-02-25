@@ -130,6 +130,7 @@ FocusScope {
         _createTracks(pattern);
         pattern.updateIndexHighlights();
         pattern.updateColumnHeaders();
+        pattern.updateTrackVisibility();
         _patterns.push(pattern);
         mixerService.update();
     }

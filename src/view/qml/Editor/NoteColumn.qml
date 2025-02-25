@@ -12,6 +12,7 @@ Item {
     property int _scrollOffset: 0
     property Item _positionBar
     property var _lines: []
+    property bool _dataUpdated: false
     readonly property string _tag: "NoteColumn"
     function resize(width, height) {
         rootItem.width = width;
@@ -19,6 +20,9 @@ Item {
         lineContainer.width = width;
         lineContainer.height = height - columnHeader.height;
         _resizeLines();
+    }
+    function dataUpdated() {
+        return _dataUpdated;
     }
     function index() {
         return _index;
@@ -56,6 +60,7 @@ Item {
     }
     function updateData() {
         _createLines();
+        _dataUpdated = true;
     }
     function updateNoteDataAtPosition(position) {
         if (_isPositionMe(position)) {
