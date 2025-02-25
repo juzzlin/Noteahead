@@ -84,6 +84,13 @@ Several..? That was only two, come on!
 Noteahead's source code is licensed under **GNU GPLv3**. See COPYING for the complete license text.
 
 ##
+## Install instructions
+
+Currently Debian packages for Ubuntu 24.04 and Ubuntu 24.10 are provided. Installation, for example:
+
+    $ sudo apt install ./noteahead-0.0.1-ubuntu-24.04_amd64.deb
+
+##
 ## Build instructions
 
 Currently Noteahead depends on Qt >= 6.4. Actually that's the only thing that defines the Ubuntu version if stock Qt is to be used.
