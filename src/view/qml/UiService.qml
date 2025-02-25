@@ -6,6 +6,7 @@ QtObject {
     signal eventSelectionDialogRequested
     signal activeOctaveChanged(int activeOctave)
     signal focusOnEditorViewRequested
+    signal recentFilesDialogRequested
     signal settingsDialogRequested
     signal trackSettingsDialogRequested(int trackIndex)
     property int _activeOctave: 3
@@ -82,6 +83,9 @@ QtObject {
     }
     function requestEventSelectionDialog() {
         eventSelectionDialogRequested();
+    }
+    function requestRecentFilesDialog() {
+        recentFilesDialogRequested();
     }
     function requestSettingsDialog() {
         settingsDialogRequested();

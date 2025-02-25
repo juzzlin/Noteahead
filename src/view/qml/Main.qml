@@ -202,6 +202,7 @@ ApplicationWindow {
                 uiLogger.info(_tag, "Settings focus on editor view");
                 _editorView.focus = true;
             });
+        UiService.recentFilesDialogRequested.connect(recentFilesDialog.open);
         UiService.settingsDialogRequested.connect(settingsDialog.open);
         UiService.trackSettingsDialogRequested.connect(trackIndex => {
                 trackSettingsDialog.setTrackIndex(trackIndex);

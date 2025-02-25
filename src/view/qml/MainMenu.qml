@@ -17,6 +17,10 @@ MenuBar {
             shortcut: "Ctrl+O"
             onTriggered: applicationService.requestOpenProject()
         }
+        Action {
+            text: qsTr("Recent files")
+            onTriggered: UiService.requestRecentFilesDialog()
+        }
         MenuSeparator {
         }
         Action {
