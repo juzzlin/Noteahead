@@ -165,6 +165,10 @@ target_compile_definitions(${BINARY_NAME} PRIVATE QML_ENTRY_POINT="${MAIN}")
 target_link_libraries(${BINARY_NAME} PRIVATE Qt6::Core Qt6::Quick rtmidi SimpleLogger Argengine)
 
 install(TARGETS ${BINARY_NAME} RUNTIME DESTINATION bin)
+install(FILES ${CMAKE_SOURCE_DIR}/data/linux/noteahead.desktop DESTINATION share/applications)
+install(FILES ${CMAKE_SOURCE_DIR}/data/linux/noteahead.appdata.xml DESTINATION share/metainfo)
+install(FILES ${CMAKE_SOURCE_DIR}/data/linux/noteahead.png DESTINATION share/pixmaps)
+install(FILES ${CMAKE_SOURCE_DIR}/data/linux/noteahead.png DESTINATION share/icons/hicolor/256x256/apps)
 
 # Set up CPack for Debian packaging
 set(CPACK_PACKAGE_NAME "noteahead")

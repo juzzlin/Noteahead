@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop">
+  <id>noteahead.desktop</id>
+  <metadata_license>CC0-1.0</metadata_license>
+  <project_license>GPL-3.0</project_license>
+  <name>Noteahead</name>
+  <summary>A MIDI tracker and sequencer application.</summary>
+  <description>
+    <p>
+      Noteahead is an application for MIDI music creation, written in Qt/QML/C++.
+    </p>
+  </description>
+  <screenshots>
+  </screenshots>
+  <url type="homepage">https://github.com/juzzlin/Noteahead</url>
+  <update_contact>jussi.lind@iki.fi</update_contact>
+</component>

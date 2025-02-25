@@ -1,0 +1,10 @@
+[Desktop Entry]
+Name=Noteahead
+GenericName=MIDI tracker and sequencer application
+Comment=Music creation application
+Exec=noteahead
+Icon=noteahead
+Type=Application
+Categories=Audio;
+StartupNotify=true
+
