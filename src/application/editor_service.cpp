@@ -383,6 +383,19 @@ QString EditorService::displayNoteAtPosition(size_t patternId, size_t trackIndex
     }
 }
 
+EditorService::MidiNoteList EditorService::midiNotesAtPosition(size_t patternId, size_t trackIndex, size_t line) const
+{
+    EditorService::MidiNoteList midiNoteList;
+    for (size_t column = 0; column < m_song->columnCount(trackIndex); column++) {
+        if (const auto noteData = m_song->noteDataAtPosition({ patternId, trackIndex, column, line }); noteData->type() != NoteData::Type::None) {
+            if (noteData->type() == NoteData::Type::NoteOn) {
+                midiNoteList.push_back(*noteData->note());
+            }
+        }
+    }
+    return midiNoteList;
+}
+
 QString EditorService::noDataString() const
 {
     return "---";

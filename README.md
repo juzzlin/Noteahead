@@ -31,6 +31,7 @@ My first track composed with Noteahead:
 * Accurate internal timing
 * Fully scalable UI
 * Cool volume meters like in NoiseTracker
+* Cool note visualizer animation on the bottom bar
 * Easy-to-use track editing
 * Poor Man's MIDI Hot-Plug with automatic setup
   - Noteahead notices when a device goes online/offline

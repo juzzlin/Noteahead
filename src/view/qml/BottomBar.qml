@@ -17,6 +17,9 @@ Rectangle {
             _displayNextText();
         }
     }
+    function setPosition(position) {
+        contentSwitcher.setPosition(position);
+    }
     function _displayNextText() {
         if (_statusQueue.length > 0) {
             _isDisplaying = true;
@@ -30,26 +33,39 @@ Rectangle {
     function _fadeOutText() {
         fadeAnimation.running = true;
     }
-    Label {
-        id: statusText
-        text: _statusText
-        anchors.centerIn: parent
-        color: "white"
-        font.pixelSize: height
-        opacity: 1
-        NumberAnimation {
-            id: fadeAnimation
-            target: statusText
-            property: "opacity"
-            from: 1
-            to: 0
-            duration: 2500
-            easing.type: Easing.InQuad
-            running: false
-            onRunningChanged: {
-                uiLogger.debug(_tag, `onRunningChanged: ${running} ${opacity}`);
-                if (!running) {
-                    _displayNextText();
+    Item {
+        id: contentSwitcher
+        anchors.fill: parent
+        function setPosition(position) {
+            noteVisualizer.setPosition(position);
+        }
+        NoteVisualizer {
+            id: noteVisualizer
+            anchors.fill: parent
+            visible: UiService.isPlaying()
+        }
+        Label {
+            id: statusText
+            text: _statusText
+            anchors.centerIn: parent
+            color: "white"
+            font.pixelSize: height
+            opacity: 1
+            visible: !UiService.isPlaying()
+            NumberAnimation {
+                id: fadeAnimation
+                target: statusText
+                property: "opacity"
+                from: 1
+                to: 0
+                duration: 2500
+                easing.type: Easing.InQuad
+                running: false
+                onRunningChanged: {
+                    uiLogger.debug(_tag, `onRunningChanged: ${running} ${opacity}`);
+                    if (!running) {
+                        _displayNextText();
+                    }
                 }
             }
         }

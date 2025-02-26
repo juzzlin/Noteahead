@@ -210,6 +210,9 @@ ApplicationWindow {
                 errorDialog.open();
             });
         editorService.statusTextRequested.connect(bottomBar.setStatusText);
+        editorService.positionChanged.connect((newPosition, oldPosition) => {
+                bottomBar.setPosition(newPosition);
+            });
     }
     function _connectUiService() {
         UiService.aboutDialogRequested.connect(aboutDialog.open);
