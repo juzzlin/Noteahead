@@ -13,6 +13,9 @@ Dialog {
         spacing: 10
         Image {
             id: icon
+            height: 256
+            width: 256
+            sourceSize: Qt.size(height, width)
             fillMode: Image.PreserveAspectFit
             source: "../Graphics/icon.svg"
         }
