@@ -88,7 +88,7 @@ FocusScope {
     function resize(width, height) {
         rootItem.width = width;
         rootItem.height = height;
-        _updateTrackSizes();
+        _updateCurrentTrackDimensions();
         _updateLineColumns();
     }
     function _clearPatterns() {
@@ -118,8 +118,8 @@ FocusScope {
     }
     function _createTracks(pattern) {
         pattern.createTracks(positionBar);
+        pattern.updateTrackDimensions(trackArea.width, trackArea.height);
         pattern.tracks().forEach(track => {
-                _setTrackDimensions(track);
                 _connectTrack(track);
             });
     }
@@ -153,14 +153,10 @@ FocusScope {
         return _patterns[editorService.currentPattern];
     }
     function _updateCurrentTrackDimensions() {
-        for (const track of _currentPattern()._tracks) {
-            _setTrackDimensions(track);
-        }
+        _currentPattern().updateTrackDimensions(trackArea.width, trackArea.height);
     }
     function _updateCurrentTrackData() {
-        for (const track of _currentPattern()._tracks) {
-            track.updateData();
-        }
+        _currentPattern().updateTrackData();
     }
     function _setTrackFocused(position) {
         _currentPattern().setTrackFocused(position.track, position.column);
@@ -174,11 +170,6 @@ FocusScope {
     function _updateTrackHeaders() {
         _patterns.forEach(pattern => pattern.updateTrackHeaders());
     }
-    function _updateTrackSizes() {
-        _currentPattern()._tracks.forEach(track => {
-                _setTrackDimensions(track);
-            });
-    }
     function _updateFocus(newPosition, oldPosition) {
         rootItem.focus = true;
         _setTrackUnfocused(oldPosition);
@@ -190,9 +181,7 @@ FocusScope {
         lineNumberColumnRight.setPosition(newPosition);
     }
     function _updateNoteDataAtPosition(position) {
-        _currentPattern()._tracks.forEach(track => {
-                track.updateNoteDataAtPosition(position);
-            });
+        _currentPattern().updateNoteDataAtPosition(position);
     }
     function _updatePatternVisibility() {
         const currentPatternIndex = editorService.currentPattern;

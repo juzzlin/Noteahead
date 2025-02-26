@@ -141,9 +141,30 @@ Item {
                 track.updateColumnHeaders();
             });
     }
+    function updateNoteDataAtPosition(position) {
+        _tracks.forEach(track => {
+                track.updateNoteDataAtPosition(position);
+            });
+    }
     function updateTrackHeaders() {
         _tracks.forEach(track => {
                 track.setName(editorService.trackName(track.index()));
+            });
+    }
+    function updateTrackData() {
+        _tracks.forEach(track => {
+                track.updateData();
+            });
+    }
+    function _setTrackDimensions(track, trackAreaWidth, trackAreaHeight) {
+        const unitWidth = trackAreaWidth / editorService.visibleUnitCount();
+        track.resize(unitWidth * editorService.trackWidthInUnits(track.index()), trackAreaHeight);
+        track.x = unitWidth * editorService.trackPositionInUnits(track.index());
+        track.y = 0;
+    }
+    function updateTrackDimensions(trackAreaWidth, trackAreaHeight) {
+        _tracks.forEach(track => {
+                _setTrackDimensions(track, trackAreaWidth, trackAreaHeight);
             });
     }
     function updateTrackVisibility() {
