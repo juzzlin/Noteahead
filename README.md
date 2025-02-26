@@ -10,12 +10,11 @@ Noteahead is still a work in progress and there's **a lot of limitations and mis
 
 <table>
   <tr>
-    <td colspan="3"><img src="/screenshots/0.0.1/Noteahead_3.png" width="100%"></td>
+    <td colspan="3"><img src="/screenshots/0.2.0/Noteahead_1.png" width="100%"></td>
   </tr>
   <tr>
-    <td><img src="/screenshots/0.0.1/Noteahead_1.png" width="100%"></td>
-    <td><img src="/screenshots/0.0.1/Noteahead_2.png" width="100%"></td>
-    <td><img src="/screenshots/0.0.1/Noteahead_4.png" width="100%"></td>
+    <td><img src="/screenshots/0.2.0/Noteahead_2.png" width="100%"></td>
+    <td><img src="/screenshots/0.2.0/Noteahead_3.png" width="100%"></td>
   </tr>
  </table>
 
