@@ -209,6 +209,7 @@ FocusScope {
     }
     function _changePattern() {
         _updatePatternVisibility();
+        _updateTrackVisibility();
         _updateCurrentTrackDimensions();
     }
     function _updateCurrentLineCount(oldLineCount, newLineCount) {
