@@ -26,6 +26,8 @@ class EditorServiceTest : public QObject
 
 private slots:
 
+    void test_initialize_shouldInitializeCorrectly();
+
     void test_defaultSong_shouldReturnCorrectProperties();
     void test_defaultSong_shouldNotHaveNoteData();
 

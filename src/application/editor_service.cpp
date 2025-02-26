@@ -83,6 +83,8 @@ void EditorService::setSong(SongS song)
 
     setCurrentTime(0ms);
 
+    setSongPosition(0);
+
     updateDuration();
 
     notifyPositionChange(m_cursorPosition);

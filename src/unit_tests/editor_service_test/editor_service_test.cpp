@@ -25,6 +25,45 @@
 
 namespace noteahead {
 
+void EditorServiceTest::test_initialize_shouldInitializeCorrectly()
+{
+    EditorService editorService;
+
+    // Track emitted signals
+    QSignalSpy spyAboutToInitialize(&editorService, &EditorService::aboutToInitialize);
+    QSignalSpy spyInitialized(&editorService, &EditorService::initialized);
+    QSignalSpy spyStatusText(&editorService, &EditorService::statusTextRequested);
+    QSignalSpy spySongChanged(&editorService, &EditorService::songChanged);
+    QSignalSpy spyBpmChanged(&editorService, &EditorService::beatsPerMinuteChanged);
+    QSignalSpy spyLpbChanged(&editorService, &EditorService::linesPerBeatChanged);
+    QSignalSpy spyPatternChanged(&editorService, &EditorService::currentPatternChanged);
+
+    editorService.setSongPosition(1); // Alter song length and position
+
+    QSignalSpy spySongLengthChanged(&editorService, &EditorService::songLengthChanged);
+    QSignalSpy spySongPositionChanged(&editorService, &EditorService::songPositionChanged);
+
+    editorService.initialize();
+
+    // Assert: Check emitted signals
+    QCOMPARE(spyAboutToInitialize.count(), 1);
+    QCOMPARE(spyInitialized.count(), 1);
+    QCOMPARE(spySongChanged.count(), 1);
+    QCOMPARE(spyBpmChanged.count(), 1);
+    QCOMPARE(spyLpbChanged.count(), 1);
+    QCOMPARE(spyPatternChanged.count(), 1);
+    QCOMPARE(spySongLengthChanged.count(), 1);
+    QCOMPARE(spySongPositionChanged.count(), 1);
+
+    // Verify status message
+    QCOMPARE(spyStatusText.count(), 1);
+    QCOMPARE(spyStatusText.takeFirst().at(0).toString(), QStringLiteral("An empty song initialized"));
+
+    // Verify song initialization
+    QVERIFY(editorService.song());
+    QCOMPARE(editorService.songPosition(), 0);
+}
+
 void EditorServiceTest::test_defaultSong_shouldReturnCorrectProperties()
 {
     EditorService editorService;
