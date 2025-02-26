@@ -117,8 +117,7 @@ FocusScope {
             });
     }
     function _createTracks(pattern) {
-        pattern.createTracks(positionBar);
-        pattern.updateTrackDimensions(trackArea.width, trackArea.height);
+        pattern.createTracks(positionBar, trackArea.width, trackArea.height);
         pattern.tracks().forEach(track => {
                 _connectTrack(track);
             });
@@ -128,9 +127,6 @@ FocusScope {
         const pattern = patternComponent.createObject(trackArea);
         pattern.setIndex(patternIndex);
         _createTracks(pattern);
-        pattern.updateColumnHeaders();
-        pattern.updateTrackVisibility();
-        pattern.updateIndexHighlights();
         _patterns.push(pattern);
         mixerService.update();
     }
@@ -159,10 +155,10 @@ FocusScope {
         _currentPattern().updateTrackData();
     }
     function _setTrackFocused(position) {
-        _currentPattern().setTrackFocused(position.track, position.column);
+        _patterns[position.pattern].setTrackFocused(position.track, position.column);
     }
     function _setTrackUnfocused(position) {
-        _currentPattern().setTrackUnfocused(position.track, position.column);
+        _patterns[position.pattern].setTrackUnfocused(position.track, position.column);
     }
     function _updateColumnHeaders() {
         _patterns.forEach(pattern => pattern.updateColumnHeaders());

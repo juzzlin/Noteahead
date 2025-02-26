@@ -73,6 +73,9 @@ Item {
     function updateNoteDataAtPosition(position) {
         if (_isPositionMe(position)) {
             const noteAndVelocity = editorService.displayNoteAndVelocityAtPosition(_patternIndex, _trackIndex, _index, position.line);
+            if (!_lines[position.line]) {
+                _createLines();
+            }
             _lines[position.line].setNoteData(noteAndVelocity[0], noteAndVelocity[1]);
         }
     }
