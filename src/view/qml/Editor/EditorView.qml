@@ -128,9 +128,9 @@ FocusScope {
         const pattern = patternComponent.createObject(trackArea);
         pattern.setIndex(patternIndex);
         _createTracks(pattern);
-        pattern.updateIndexHighlights();
         pattern.updateColumnHeaders();
         pattern.updateTrackVisibility();
+        pattern.updateIndexHighlights();
         _patterns.push(pattern);
         mixerService.update();
     }
