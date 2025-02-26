@@ -115,6 +115,11 @@ Item {
                 }
             });
     }
+    function setPosition(newPosition) {
+        _tracks.forEach(track => {
+                track.setPosition(newPosition);
+            });
+    }
     function clearMixerSettings() {
         _tracks.forEach(track => {
                 track.clearMixerSettings();
