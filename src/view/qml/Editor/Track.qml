@@ -179,9 +179,7 @@ Item {
         function updateVisibility() {
             // Load column data if the column becomes visible or is visible but not yet loaded
             _noteColumns.forEach(noteColumn => {
-                    const prevVisible = noteColumn.visible;
-                    noteColumn.visible = editorService.isColumnVisible(_index, noteColumn.index());
-                    if ((!prevVisible || !noteColumn.dataUpdated()) && noteColumn.visible) {
+                    if (!noteColumn.dataUpdated() && editorService.isColumnVisible(_index, noteColumn.index())) {
                         noteColumn.updateData();
                     }
                 });
