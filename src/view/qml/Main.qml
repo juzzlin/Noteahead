@@ -229,7 +229,7 @@ ApplicationWindow {
             });
         UiService.columnVelocityScaleDialogRequested.connect((trackIndex, columnIndex) => {
                 columnVelocityScaleDialog.setTitle(qsTr("Set velocity scale for column ") + columnIndex);
-                columnVelocityScaleDialog.setValue(mixerService.columnVelocityScale(columnIndex, trackIndex));
+                columnVelocityScaleDialog.setValue(mixerService.columnVelocityScale(trackIndex, columnIndex));
                 columnVelocityScaleDialog.trackIndex = trackIndex;
                 columnVelocityScaleDialog.columnIndex = columnIndex;
                 columnVelocityScaleDialog.open();
