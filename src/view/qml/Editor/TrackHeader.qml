@@ -78,7 +78,7 @@ Rectangle {
                 color: _focused ? Constants.trackHeaderTextColor : "transparent"
                 radius: 12
             }
-            font.bold: _focused
+            font.bold: true
             font.pixelSize: Constants.trackHeaderFontSize
             font.family: "monospace"
             height: parent.height
