@@ -19,6 +19,7 @@ Item {
     }
     function setIndex(index) {
         _index = index;
+        trackHeader.setIndex(index);
     }
     function setPatternIndex(index) {
         _patternIndex = index;

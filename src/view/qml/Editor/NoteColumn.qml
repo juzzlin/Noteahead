@@ -35,6 +35,7 @@ Item {
     }
     function setTrackIndex(index) {
         _trackIndex = index;
+        columnHeader.setIndex(index);
     }
     function setFocused(focused) {
         _setLineFocused(editorService.position.line, editorService.position.lineColumn, focused);

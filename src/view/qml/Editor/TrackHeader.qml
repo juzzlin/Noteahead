@@ -21,8 +21,12 @@ Rectangle {
     signal unsoloRequested
     signal velocityScaleRequested
     property bool _focused: false
+    property int _index: 0
     function setFocused(focused) {
         _focused = focused;
+    }
+    function setIndex(index) {
+        _index = index;
     }
     function setName(name) {
         nameField.text = name;
@@ -73,9 +77,9 @@ Rectangle {
         TextField {
             id: nameField
             placeholderText: qsTr("Track name")
-            color: _focused ? "black" : Constants.trackHeaderTextColor
+            color: _focused ? "black" : Constants.trackHeaderTextColor(_index)
             background: Rectangle {
-                color: _focused ? Constants.trackHeaderTextColor : "transparent"
+                color: _focused ? Constants.trackHeaderTextColor(_index) : "transparent"
                 radius: 12
             }
             font.bold: true

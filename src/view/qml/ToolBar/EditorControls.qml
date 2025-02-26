@@ -184,7 +184,7 @@ Row {
                 height: patternLabel.height
                 padding: 0
                 background: null
-                color: Constants.trackHeaderTextColor
+                color: "orange"
                 font.bold: true
                 verticalAlignment: TextInput.AlignVCenter // Align text inside the field
                 Keys.onReturnPressed: {
