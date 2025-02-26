@@ -90,7 +90,7 @@ Noteahead's source code is licensed under **GNU GPLv3**. See COPYING for the com
 
 Currently Debian packages for Ubuntu 24.04 and Ubuntu 24.10 are provided. Installation, for example:
 
-    $ sudo apt install ./noteahead-0.0.1-ubuntu-24.04_amd64.deb
+    $ sudo apt install ./noteahead-0.1.0-ubuntu-24.04_amd64.deb
 
 ##
 ## Build instructions
