@@ -121,14 +121,7 @@ Item {
     function _initializeWithData(lineCount, lineHeight) {
         for (let lineIndex = 0; lineIndex < lineCount; lineIndex++) {
             const noteAndVelocity = editorService.displayNoteAndVelocityAtPosition(_patternIndex, _trackIndex, _index, lineIndex);
-            let line;
-            if (UiService.freeNoteColumnLines.length > 0) {
-                line = UiService.freeNoteColumnLines[UiService.freeNoteColumnLines.length - 1];
-                UiService.freeNoteColumnLines.pop();
-                line.parent = lineContainer;
-            } else {
-                line = noteColumnLineComponent.createObject(lineContainer);
-            }
+            const line = noteColumnLineComponent.createObject(lineContainer);
             line.width = lineContainer.width;
             line.height = lineHeight;
             line.x = 0;
@@ -140,14 +133,7 @@ Item {
     function _initializeWithNoData(lineCount, lineHeight) {
         const noteAndVelocity = editorService.displayNoteAndVelocityAtPosition(_patternIndex, _trackIndex, _index, 0);
         for (let lineIndex = 0; lineIndex < lineCount; lineIndex++) {
-            let line;
-            if (UiService.freeNoteColumnLines.length > 0) {
-                line = UiService.freeNoteColumnLines[UiService.freeNoteColumnLines.length - 1];
-                UiService.freeNoteColumnLines.pop();
-                line.parent = lineContainer;
-            } else {
-                line = noteColumnLineComponent.createObject(lineContainer);
-            }
+            const line = noteColumnLineComponent.createObject(lineContainer);
             line.width = lineContainer.width;
             line.height = lineHeight;
             line.x = 0;
@@ -159,7 +145,7 @@ Item {
     function _createLines() {
         uiLogger.debug(_tag, `Creating lines of pattern ${_patternIndex}, track ${_trackIndex}, column ${_index}`);
         _lines.forEach(line => {
-                UiService.freeNoteColumnLines.push(line);
+                line.destroy();
             });
         _lines.length = 0;
         const lineCount = editorService.lineCount(_patternIndex);

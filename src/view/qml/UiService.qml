@@ -12,7 +12,6 @@ QtObject {
     signal columnVelocityScaleDialogRequested(int trackIndex, int columnIndex)
     signal trackVelocityScaleDialogRequested(int trackIndex)
     property int _activeOctave: 3
-    property var freeNoteColumnLines: []
     readonly property string _tag: "UiService"
     function activeOctave() {
         return _activeOctave;
