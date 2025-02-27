@@ -24,6 +24,11 @@ UiLogger::UiLogger(QObject * parent)
 {
 }
 
+void UiLogger::trace(QString tag, QString message) const
+{
+    juzzlin::L(tag.toStdString()).trace() << message.toStdString();
+}
+
 void UiLogger::debug(QString tag, QString message) const
 {
     juzzlin::L(tag.toStdString()).debug() << message.toStdString();

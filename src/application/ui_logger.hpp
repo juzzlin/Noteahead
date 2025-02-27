@@ -27,6 +27,8 @@ class UiLogger : public QObject
 public:
     explicit UiLogger(QObject * parent = nullptr);
 
+    Q_INVOKABLE void trace(QString tag, QString message) const;
+
     Q_INVOKABLE void debug(QString tag, QString message) const;
 
     Q_INVOKABLE void info(QString tag, QString message) const;

@@ -80,7 +80,6 @@ Item {
         }
     }
     function updateIndexHighlights() {
-        uiLogger.debug(_tag, `Updating index highlights of track ${_trackIndex}, column ${_index}`);
         function _indexHighlightOpacity(index, linesPerBeat) {
             const _beatLine1 = linesPerBeat;
             const _beatLine2 = _beatLine1 % 3 ? _beatLine1 / 2 : _beatLine1 / 3;
@@ -142,6 +141,7 @@ Item {
         }
     }
     function _createLines() {
+        uiLogger.debug(_tag, `Creating lines of pattern ${_patternIndex}, track ${_trackIndex}, column ${_index}`);
         _lines.forEach(line => {
                 line.destroy();
             });
