@@ -12,6 +12,7 @@ Item {
     property int _scrollOffset: 0
     property Item _positionBar
     property var _lines: []
+    property var _freeLines: []
     property bool _dataUpdated: false
     readonly property string _tag: "NoteColumn"
     function resize(width, height) {
@@ -70,13 +71,17 @@ Item {
         _createLines();
         _dataUpdated = true;
     }
+    // Due to lazy loading, ensure that lines are created when requested
+    function _getLineAtIndex(index) {
+        if (!_lines[index]) {
+            _createLines();
+        }
+        return _lines[index];
+    }
     function updateNoteDataAtPosition(position) {
         if (_isPositionMe(position)) {
             const noteAndVelocity = editorService.displayNoteAndVelocityAtPosition(_patternIndex, _trackIndex, _index, position.line);
-            if (!_lines[position.line]) {
-                _createLines();
-            }
-            _lines[position.line].setNoteData(noteAndVelocity[0], noteAndVelocity[1]);
+            _getLineAtIndex(position.line).setNoteData(noteAndVelocity[0], noteAndVelocity[1]);
         }
     }
     function updateIndexHighlights() {
@@ -114,28 +119,38 @@ Item {
     function _scrolledLinePositionByLineIndex(lineIndex) {
         return lineIndex - _scrollOffset + editorService.positionBarLine();
     }
-    function _initializeWithNoData(lineCount, lineHeight) {
-        const noteAndVelocity = editorService.displayNoteAndVelocityAtPosition(_patternIndex, _trackIndex, _index, 0);
+    function _initializeWithData(lineCount, lineHeight) {
         for (let lineIndex = 0; lineIndex < lineCount; lineIndex++) {
-            const line = noteColumnLineComponent.createObject(lineContainer, {
-                    "width": lineContainer.width,
-                    "height": lineHeight,
-                    "x": 0,
-                    "y": lineHeight * _scrolledLinePositionByLineIndex(lineIndex)
-                });
+            const noteAndVelocity = editorService.displayNoteAndVelocityAtPosition(_patternIndex, _trackIndex, _index, lineIndex);
+            let line;
+            if (_freeLines.length > 0) {
+                line = _freeLines[_freeLines.length - 1];
+                _freeLines.pop();
+            } else {
+                line = noteColumnLineComponent.createObject(lineContainer);
+            }
+            line.width = lineContainer.width;
+            line.height = lineHeight;
+            line.x = 0;
+            line.y = lineHeight * _scrolledLinePositionByLineIndex(lineIndex);
             line.setNoteData(noteAndVelocity[0], noteAndVelocity[1]);
             _lines.push(line);
         }
     }
-    function _initializeWithData(lineCount, lineHeight) {
+    function _initializeWithNoData(lineCount, lineHeight) {
+        const noteAndVelocity = editorService.displayNoteAndVelocityAtPosition(_patternIndex, _trackIndex, _index, 0);
         for (let lineIndex = 0; lineIndex < lineCount; lineIndex++) {
-            const noteAndVelocity = editorService.displayNoteAndVelocityAtPosition(_patternIndex, _trackIndex, _index, lineIndex);
-            const line = noteColumnLineComponent.createObject(lineContainer, {
-                    "width": lineContainer.width,
-                    "height": lineHeight,
-                    "x": 0,
-                    "y": lineHeight * _scrolledLinePositionByLineIndex(lineIndex)
-                });
+            let line;
+            if (_freeLines.length > 0) {
+                line = _freeLines[_freeLines.length - 1];
+                _freeLines.pop();
+            } else {
+                line = noteColumnLineComponent.createObject(lineContainer);
+            }
+            line.width = lineContainer.width;
+            line.height = lineHeight;
+            line.x = 0;
+            line.y = lineHeight * _scrolledLinePositionByLineIndex(lineIndex);
             line.setNoteData(noteAndVelocity[0], noteAndVelocity[1]);
             _lines.push(line);
         }
@@ -143,7 +158,7 @@ Item {
     function _createLines() {
         uiLogger.debug(_tag, `Creating lines of pattern ${_patternIndex}, track ${_trackIndex}, column ${_index}`);
         _lines.forEach(line => {
-                line.destroy();
+                _freeLines.push(line);
             });
         _lines.length = 0;
         const lineCount = editorService.lineCount(_patternIndex);
@@ -177,7 +192,7 @@ Item {
         if (!focused) {
             lineCursor.visible = false;
         } else {
-            _lines[lineIndex].setCursor(lineCursor, lineColumnIndex);
+            _getLineAtIndex(lineIndex).setCursor(lineCursor, lineColumnIndex);
             lineCursor.visible = true;
         }
     }
