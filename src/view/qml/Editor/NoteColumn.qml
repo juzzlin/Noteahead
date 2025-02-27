@@ -12,7 +12,6 @@ Item {
     property int _scrollOffset: 0
     property Item _positionBar
     property var _lines: []
-    property var _freeLines: []
     property bool _dataUpdated: false
     readonly property string _tag: "NoteColumn"
     function resize(width, height) {
@@ -123,9 +122,10 @@ Item {
         for (let lineIndex = 0; lineIndex < lineCount; lineIndex++) {
             const noteAndVelocity = editorService.displayNoteAndVelocityAtPosition(_patternIndex, _trackIndex, _index, lineIndex);
             let line;
-            if (_freeLines.length > 0) {
-                line = _freeLines[_freeLines.length - 1];
-                _freeLines.pop();
+            if (UiService.freeNoteColumnLines.length > 0) {
+                line = UiService.freeNoteColumnLines[UiService.freeNoteColumnLines.length - 1];
+                UiService.freeNoteColumnLines.pop();
+                line.parent = lineContainer;
             } else {
                 line = noteColumnLineComponent.createObject(lineContainer);
             }
@@ -141,9 +141,10 @@ Item {
         const noteAndVelocity = editorService.displayNoteAndVelocityAtPosition(_patternIndex, _trackIndex, _index, 0);
         for (let lineIndex = 0; lineIndex < lineCount; lineIndex++) {
             let line;
-            if (_freeLines.length > 0) {
-                line = _freeLines[_freeLines.length - 1];
-                _freeLines.pop();
+            if (UiService.freeNoteColumnLines.length > 0) {
+                line = UiService.freeNoteColumnLines[UiService.freeNoteColumnLines.length - 1];
+                UiService.freeNoteColumnLines.pop();
+                line.parent = lineContainer;
             } else {
                 line = noteColumnLineComponent.createObject(lineContainer);
             }
@@ -158,7 +159,7 @@ Item {
     function _createLines() {
         uiLogger.debug(_tag, `Creating lines of pattern ${_patternIndex}, track ${_trackIndex}, column ${_index}`);
         _lines.forEach(line => {
-                _freeLines.push(line);
+                UiService.freeNoteColumnLines.push(line);
             });
         _lines.length = 0;
         const lineCount = editorService.lineCount(_patternIndex);
