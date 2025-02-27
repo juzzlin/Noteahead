@@ -155,7 +155,7 @@ Item {
         } else {
             _initializeWithNoData(lineCount, lineHeight);
         }
-        _updateIndexHighlights();
+        rootItem.updateIndexHighlights();
     }
     function _resizeLines() {
         const lineCount = editorService.lineCount(_patternIndex);
