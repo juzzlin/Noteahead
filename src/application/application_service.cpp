@@ -131,6 +131,12 @@ void ApplicationService::requestLiveNoteOn(uint8_t note, uint8_t octave, uint8_t
     }
 }
 
+void ApplicationService::requestInstrumentReset()
+{
+    juzzlin::L(TAG).info() << "Instrument reset requested";
+    emit applyAllTrackSettingsRequested();
+}
+
 void ApplicationService::requestLiveNoteOff(uint8_t note, uint8_t octave)
 {
     if (const auto instrument = m_editorService->instrument(m_editorService->position().track); instrument) {

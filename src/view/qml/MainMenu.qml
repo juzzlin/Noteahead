@@ -54,6 +54,12 @@ MenuBar {
         MenuSeparator {
         }
         Action {
+            text: qsTr("Reset instruments")
+            onTriggered: applicationService.requestInstrumentReset()
+        }
+        MenuSeparator {
+        }
+        Action {
             text: qsTr("Settings")
             onTriggered: UiService.requestSettingsDialog()
         }

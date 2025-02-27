@@ -41,13 +41,9 @@ public:
     ~ApplicationService() override;
 
     Q_INVOKABLE QString applicationName() const;
-
     Q_INVOKABLE QString applicationVersion() const;
-
     Q_INVOKABLE QString copyright() const;
-
     Q_INVOKABLE QString fileFormatExtension() const;
-
     Q_INVOKABLE QString license() const;
 
     Q_INVOKABLE QStringList recentFiles() const;
@@ -57,41 +53,32 @@ public:
     Q_INVOKABLE void applyAllTrackSettings();
 
     Q_INVOKABLE void cancelOpenProject();
-
     Q_INVOKABLE void cancelRecentFileDialog();
-
     Q_INVOKABLE void cancelSaveProjectAs();
 
     Q_INVOKABLE void discardUnsavedChangesDialog();
 
     Q_INVOKABLE void openProject(QUrl url);
-
     Q_INVOKABLE void openRecentProject(QString filePath);
 
     Q_INVOKABLE void rejectUnsavedChangesDialog();
 
     Q_INVOKABLE void requestLiveNoteOff(uint8_t note, uint8_t octave);
-
     Q_INVOKABLE void requestLiveNoteOn(uint8_t note, uint8_t octave, uint8_t velocity);
 
+    Q_INVOKABLE void requestInstrumentReset();
+
     Q_INVOKABLE void requestNewProject();
-
     Q_INVOKABLE void requestOpenProject();
-
     Q_INVOKABLE void requestQuit();
 
     Q_INVOKABLE void requestRecentFilesDialog();
-
     Q_INVOKABLE void requestSaveProject();
-
     Q_INVOKABLE void requestSaveProjectAs();
-
     Q_INVOKABLE void saveProjectAs(QUrl url);
 
     void requestUnsavedChangesDialog();
-
     void requestOpenDialog();
-
     void requestSaveAsDialog();
 
     using RecentFilesManagerS = std::shared_ptr<RecentFilesManager>;
@@ -113,11 +100,9 @@ signals:
     void applyAllTrackSettingsRequested();
 
     void liveNoteOnRequested(InstrumentS instrument, uint8_t midiNote, uint8_t velocity);
-
     void liveNoteOffRequested(InstrumentS instrument, uint8_t midiNote);
 
     void unsavedChangesDialogRequested();
-
     void openDialogRequested();
 
     void quitRequested();
