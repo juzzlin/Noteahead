@@ -91,6 +91,11 @@ QString InstrumentSettings::toString() const
     result += volume.has_value() ? QString { ", volume=%1" }.arg(*volume) : ", volume=None";
     result += sendMidiClock.has_value() ? QString { ", sendMidiClock=%1" }.arg(sendMidiClock.value() ? Constants::xmlValueTrue() : Constants::xmlValueFalse()) : ", sendMidiClock=None";
 
+    for (auto && midiCcSetting : midiCcSettings) {
+        result += " ";
+        result += midiCcSetting.toString();
+    }
+
     result += " )";
     return result;
 }
