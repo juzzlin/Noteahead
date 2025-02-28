@@ -7,6 +7,7 @@ set(SRC
     ../../application/position.hpp
     ../../domain/column.cpp
     ../../common/constants.cpp
+    ../../common/utils.cpp
     ../../domain/event.cpp
     ../../domain/instrument.cpp
     ../../domain/instrument_settings.cpp

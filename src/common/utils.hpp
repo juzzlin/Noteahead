@@ -16,10 +16,20 @@
 #ifndef UTILS_HPP
 #define UTILS_HPP
 
+#include <QString>
+#include <optional>
 #include <string>
+
+class QXmlStreamReader;
 
 namespace noteahead::Utils {
 double portNameMatchScore(const std::string & s1, const std::string & s2);
+namespace Xml {
+std::optional<bool> readBoolAttribute(QXmlStreamReader & reader, QString name, bool required = true);
+std::optional<size_t> readUIntAttribute(QXmlStreamReader & reader, QString name, bool required = true);
+std::optional<QString> readStringAttribute(QXmlStreamReader & reader, QString name, bool required = true);
+
+} // namespace Xml
 } // namespace noteahead::Utils
 
 #endif // UTILS_HPP

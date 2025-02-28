@@ -16,10 +16,15 @@
 #include "instrument.hpp"
 
 #include "../common/constants.hpp"
+#include "../common/utils.hpp"
+#include "../contrib/SimpleLogger/src/simple_logger.hpp"
 
+#include <QXmlStreamReader>
 #include <QXmlStreamWriter>
 
 namespace noteahead {
+
+static const auto TAG = "Instrument";
 
 Instrument::Instrument(QString portName)
   : device { portName }
@@ -41,6 +46,28 @@ void Instrument::serializeToXml(QXmlStreamWriter & writer) const
     settings.serializeToXml(writer);
 
     writer.writeEndElement(); // Instrument
+}
+
+Instrument::InstrumentU Instrument::deserializeFromXml(QXmlStreamReader & reader)
+{
+    juzzlin::L(TAG).trace() << "Reading Instrument";
+
+    // Read mandatory properties
+    const auto portName = *Utils::Xml::readStringAttribute(reader, Constants::xmlKeyPortName());
+    const auto channel = *Utils::Xml::readUIntAttribute(reader, Constants::xmlKeyChannel());
+    auto instrument = std::make_unique<Instrument>(portName);
+    instrument->device.channel = static_cast<uint8_t>(channel);
+    while (!(reader.isEndElement() && !reader.name().compare(Constants::xmlKeyInstrument()))) {
+        juzzlin::L(TAG).trace() << "Instrument: Current element: " << reader.name().toString().toStdString();
+        if (reader.isStartElement() && !reader.name().compare(Constants::xmlKeyInstrumentSettings())) {
+            if (const auto settings = InstrumentSettings::deserializeFromXml(reader); settings) {
+                instrument->settings = *settings;
+            }
+        }
+        reader.readNext();
+    }
+
+    return instrument;
 }
 
 QString Instrument::toString() const

@@ -10,6 +10,7 @@ set(SRC
     ../../application/note_converter.cpp
     ../../application/position.hpp
     ../../common/constants.cpp
+    ../../common/utils.cpp
     ../../domain/column.cpp
     ../../domain/event.cpp
     ../../domain/instrument.cpp

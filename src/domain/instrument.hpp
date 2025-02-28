@@ -17,12 +17,13 @@
 #define INSTRUMENT_HPP
 
 #include <cstdint>
-#include <optional>
+#include <memory>
 
 #include <QString>
 
 #include "instrument_settings.hpp"
 
+class QXmlStreamReader;
 class QXmlStreamWriter;
 
 namespace noteahead {
@@ -49,6 +50,8 @@ public:
     InstrumentSettings settings;
 
     void serializeToXml(QXmlStreamWriter & writer) const;
+    using InstrumentU = std::unique_ptr<Instrument>;
+    static InstrumentU deserializeFromXml(QXmlStreamReader & reader);
 
     QString toString() const;
 

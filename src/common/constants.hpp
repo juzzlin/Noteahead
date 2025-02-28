@@ -58,6 +58,8 @@ QString xmlKeyController();
 
 QString xmlKeyCutoff();
 
+QString xmlKeyDelay();
+
 QString xmlKeyIndex();
 
 QString xmlKeyInstrument();

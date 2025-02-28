@@ -203,11 +203,6 @@ private:
     LineEventS deserializeLineEvent(QXmlStreamReader & reader, size_t trackIndex, size_t columnIndex);
 
     NoteDataS deserializeNoteData(QXmlStreamReader & reader, size_t trackIndex, size_t columnIndex);
-    InstrumentS deserializeInstrument(QXmlStreamReader & reader);
-    InstrumentSettingsU deserializeInstrumentSettings(QXmlStreamReader & reader);
-
-    using MidiCcSettingU = std::unique_ptr<MidiCcSetting>;
-    MidiCcSettingU deserializeMidiCcSetting(QXmlStreamReader & reader);
 
     void initialize();
 

@@ -137,6 +137,11 @@ QString xmlKeyCutoff()
     return "cutoff";
 }
 
+QString xmlKeyDelay()
+{
+    return "delay";
+}
+
 QString xmlKeyIndex()
 {
     return "index";

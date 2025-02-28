@@ -16,10 +16,15 @@
 #include "instrument_settings.hpp"
 
 #include "../common/constants.hpp"
+#include "../common/utils.hpp"
+#include "../contrib/SimpleLogger/src/simple_logger.hpp"
 
+#include <QXmlStreamReader>
 #include <QXmlStreamWriter>
 
 namespace noteahead {
+
+static const auto TAG = "InstrumentSettings";
 
 size_t InstrumentSettings::track() const
 {
@@ -64,11 +69,50 @@ void InstrumentSettings::serializeToXml(QXmlStreamWriter & writer) const
         writer.writeAttribute(Constants::xmlKeySendMidiClock(), Constants::xmlValueTrue());
     }
 
+    writer.writeAttribute(Constants::xmlKeyDelay(), QString::number(delay.count()));
+
     for (auto && midiCcSetting : midiCcSettings) {
         midiCcSetting.serializeToXml(writer);
     }
 
     writer.writeEndElement(); // Settings
+}
+
+std::unique_ptr<MidiCcSetting> deserializeMidiCcSetting(QXmlStreamReader & reader)
+{
+    const auto controller = static_cast<uint8_t>(*Utils::Xml::readUIntAttribute(reader, Constants::xmlKeyController()));
+    const auto value = static_cast<uint8_t>(*Utils::Xml::readUIntAttribute(reader, Constants::xmlKeyValue()));
+    return std::make_unique<MidiCcSetting>(controller, value);
+}
+
+InstrumentSettings::InstrumentSettingsU InstrumentSettings::deserializeFromXml(QXmlStreamReader & reader)
+{
+    juzzlin::L(TAG).trace() << "Reading InstrumentSettings";
+
+    auto settings = std::make_unique<InstrumentSettings>();
+
+    settings->patch = Utils::Xml::readUIntAttribute(reader, Constants::xmlKeyPatch(), false);
+    if (const auto bankEnabled = Utils::Xml::readBoolAttribute(reader, Constants::xmlKeyBankEnabled(), false); bankEnabled.has_value() && *bankEnabled) {
+        const auto bankLsb = static_cast<uint8_t>(*Utils::Xml::readUIntAttribute(reader, Constants::xmlKeyBankLsb()));
+        const auto bankMsb = static_cast<uint8_t>(*Utils::Xml::readUIntAttribute(reader, Constants::xmlKeyBankMsb()));
+        const auto bankByteOrderSwapped = *Utils::Xml::readBoolAttribute(reader, Constants::xmlKeyBankByteOrderSwapped());
+        settings->bank = { bankLsb, bankMsb, bankByteOrderSwapped };
+    }
+    settings->cutoff = Utils::Xml::readUIntAttribute(reader, Constants::xmlKeyCutoff(), false);
+    settings->pan = Utils::Xml::readUIntAttribute(reader, Constants::xmlKeyPan(), false);
+    settings->volume = Utils::Xml::readUIntAttribute(reader, Constants::xmlKeyVolume(), false);
+    settings->sendMidiClock = Utils::Xml::readBoolAttribute(reader, Constants::xmlKeySendMidiClock(), false);
+    settings->delay = std::chrono::milliseconds { Utils::Xml::readUIntAttribute(reader, Constants::xmlKeyDelay(), false).value_or(0) };
+
+    while (!(reader.isEndElement() && !reader.name().compare(Constants::xmlKeyInstrumentSettings()))) {
+        juzzlin::L(TAG).trace() << "InstrumentSettings: Current element: " << reader.name().toString().toStdString();
+        if (reader.isStartElement() && !reader.name().compare(Constants::xmlKeyMidiCcSetting())) {
+            settings->midiCcSettings.push_back(*deserializeMidiCcSetting(reader));
+        }
+        reader.readNext();
+    }
+
+    return settings;
 }
 
 QString InstrumentSettings::toString() const
@@ -90,6 +134,7 @@ QString InstrumentSettings::toString() const
     result += pan.has_value() ? QString { ", pan=%1" }.arg(*pan) : ", pan=None";
     result += volume.has_value() ? QString { ", volume=%1" }.arg(*volume) : ", volume=None";
     result += sendMidiClock.has_value() ? QString { ", sendMidiClock=%1" }.arg(sendMidiClock.value() ? Constants::xmlValueTrue() : Constants::xmlValueFalse()) : ", sendMidiClock=None";
+    result += QString { ", delay=%1" }.arg(delay.count());
 
     for (auto && midiCcSetting : midiCcSettings) {
         result += " ";
