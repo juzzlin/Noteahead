@@ -389,7 +389,26 @@ Dialog {
             Layout.fillWidth: true
             width: parent.width
             ColumnLayout {
-                id: columnLayout
+                spacing: 8
+                width: parent.width
+                Repeater {
+                    id: midiCcRepeater
+                    model: trackSettingsModel.midiCcSlots
+                    MidiCcSelector {
+                    }
+                    onItemAdded: (index, item) => {
+                        item.index = index;
+                        _midiCcSelectors.push(item);
+                        item.settingsChanged.connect(rootItem._requestApplyAll);
+                    }
+                }
+            }
+        }
+        GroupBox {
+            title: qsTr("Miscellanous MIDI Settings")
+            Layout.fillWidth: true
+            width: parent.width
+            ColumnLayout {
                 spacing: 8
                 width: parent.width
                 GridLayout {
@@ -408,22 +427,6 @@ Dialog {
                         ToolTip.visible: hovered
                         ToolTip.text: qsTr("Send MIDI clock for this track")
                         onCheckedChanged: trackSettingsModel.sendMidiClock = checked
-                    }
-                }
-                Rectangle {
-                    height: 1
-                    color: "#888888"
-                    Layout.fillWidth: true
-                }
-                Repeater {
-                    id: midiCcRepeater
-                    model: trackSettingsModel.midiCcSlots
-                    MidiCcSelector {
-                    }
-                    onItemAdded: (index, item) => {
-                        item.index = index;
-                        _midiCcSelectors.push(item);
-                        item.settingsChanged.connect(rootItem._requestApplyAll);
                     }
                 }
             }
