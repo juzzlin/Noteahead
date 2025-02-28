@@ -211,6 +211,7 @@ FocusScope {
                 pattern.addColumn(trackIndex);
             });
         _updateCurrentTrackDimensions();
+        _updateTrackVisibility();
     }
     function _deleteColumn(trackIndex) {
         _patterns.forEach(pattern => {
