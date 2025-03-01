@@ -161,12 +161,15 @@ void EditorService::doVersionCheck(QString fileFormatVersion)
 EditorService::SongS EditorService::deserializeProject(QXmlStreamReader & reader)
 {
     try {
-        juzzlin::L(TAG).trace() << "Reading project started";
+        juzzlin::L(TAG).info() << "Reading project started";
         SongS song;
-        const auto applicationName = reader.attributes().value(Constants::xmlKeyApplicationName()).toString();
-        const auto applicationVersion = reader.attributes().value(Constants::xmlKeyApplicationVersion()).toString();
-        const auto createdDate = reader.attributes().value(Constants::xmlKeyCreatedDate()).toString();
         doVersionCheck(reader.attributes().value(Constants::xmlKeyFileFormatVersion()).toString());
+        const auto applicationName = reader.attributes().value(Constants::xmlKeyApplicationName()).toString();
+        juzzlin::L(TAG).info() << "Creator application name: " << applicationName.toStdString();
+        const auto applicationVersion = reader.attributes().value(Constants::xmlKeyApplicationVersion()).toString();
+        juzzlin::L(TAG).info() << "Creator application version: " << applicationVersion.toStdString();
+        const auto createdDate = reader.attributes().value(Constants::xmlKeyCreatedDate()).toString();
+        juzzlin::L(TAG).info() << "Created date: " << createdDate.toStdString();
         const auto mixerDeserializationCallback = [this](QXmlStreamReader & reader) {
             emit mixerDeserializationRequested(reader);
         };
@@ -177,7 +180,7 @@ EditorService::SongS EditorService::deserializeProject(QXmlStreamReader & reader
             }
             reader.readNext();
         }
-        juzzlin::L(TAG).trace() << "Reading project ended";
+        juzzlin::L(TAG).info() << "Reading project ended";
         return song;
     } catch (std::runtime_error & e) {
         juzzlin::L(TAG).error() << e.what();
