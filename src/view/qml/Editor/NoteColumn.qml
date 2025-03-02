@@ -222,7 +222,7 @@ Item {
             id: lineCursor
             color: "red"
             opacity: 0.5
-            anchors.verticalCenter: parent.verticalCenter
+            anchors.verticalCenter: parent ? parent.verticalCenter : null
             z: 3
             visible: false
         }

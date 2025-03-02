@@ -38,42 +38,29 @@ class EditorService : public QObject
     Q_OBJECT
 
     Q_PROPERTY(size_t beatsPerMinute READ beatsPerMinute NOTIFY beatsPerMinuteChanged)
-
     Q_PROPERTY(size_t linesPerBeat READ linesPerBeat NOTIFY linesPerBeatChanged)
 
     Q_PROPERTY(bool isModified READ isModified NOTIFY isModifiedChanged)
-
     Q_PROPERTY(bool canBeSaved READ canBeSaved NOTIFY canBeSavedChanged)
-
     Q_PROPERTY(QString currentFileName READ currentFileName NOTIFY currentFileNameChanged)
 
     Q_PROPERTY(size_t currentPattern READ currentPattern NOTIFY currentPatternChanged)
-
     Q_PROPERTY(QString currentPatternName READ currentPatternName NOTIFY currentPatternChanged)
-
     Q_PROPERTY(size_t currentLineCount READ currentLineCount NOTIFY currentLineCountChanged)
-
     Q_PROPERTY(QString currentTime READ currentTime NOTIFY currentTimeChanged)
-
     Q_PROPERTY(QString duration READ duration NOTIFY durationChanged)
 
     Q_PROPERTY(bool hasColumnToPaste READ hasColumnToPaste NOTIFY copyManagerStateChanged)
-
     Q_PROPERTY(bool hasTrackToPaste READ hasTrackToPaste NOTIFY copyManagerStateChanged)
-
     Q_PROPERTY(bool hasPatternToPaste READ hasPatternToPaste NOTIFY copyManagerStateChanged)
 
     Q_PROPERTY(Position position READ position NOTIFY positionChanged)
-
     Q_PROPERTY(size_t songPosition READ songPosition NOTIFY songPositionChanged)
-
     Q_PROPERTY(size_t patternAtCurrentSongPosition READ patternAtCurrentSongPosition NOTIFY patternAtCurrentSongPositionChanged)
+    Q_PROPERTY(size_t songLength READ songLength WRITE setSongLength NOTIFY songLengthChanged)
 
     Q_PROPERTY(double scrollBarSize READ scrollBarSize NOTIFY scrollBarSizeChanged)
-
     Q_PROPERTY(double scrollBarStepSize READ scrollBarStepSize NOTIFY scrollBarStepSizeChanged)
-
-    Q_PROPERTY(size_t songLength READ songLength WRITE setSongLength NOTIFY songLengthChanged)
 
 public:
     EditorService();
