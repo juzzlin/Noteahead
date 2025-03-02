@@ -22,6 +22,7 @@
 #include "instrument_request.hpp"
 
 #include <chrono>
+#include <thread>
 
 using namespace std::chrono_literals;
 
@@ -142,6 +143,7 @@ void MidiWorker::handleInstrumentRequest(const InstrumentRequest & instrumentReq
                 }
                 if (instrument.settings.patch.has_value()) {
                     m_midiBackend->sendPatchChange(device, instrument.device.channel, *instrument.settings.patch);
+                    std::this_thread::sleep_for(500ms); // Give some time to change patch before applying other settings
                 }
                 if (instrument.settings.pan.has_value()) {
                     m_midiBackend->sendCC(device, instrument.device.channel, static_cast<uint8_t>(MidiCc::Controller::PanMSB), *instrument.settings.pan);
