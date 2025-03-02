@@ -16,13 +16,16 @@
 #ifndef INSTRUMENT_SETTINGS_HPP
 #define INSTRUMENT_SETTINGS_HPP
 
+#include <chrono>
 #include <cstdint>
+#include <memory>
 #include <optional>
 
 #include <QString>
 
 #include "midi_cc_setting.hpp"
 
+class QXmlStreamReader;
 class QXmlStreamWriter;
 
 namespace noteahead {
@@ -51,6 +54,8 @@ public:
 
     std::optional<bool> sendMidiClock;
 
+    std::chrono::milliseconds delay { 0 };
+
     std::vector<MidiCcSetting> midiCcSettings;
 
     size_t track() const;
@@ -58,6 +63,8 @@ public:
     void setTrack(size_t track);
 
     void serializeToXml(QXmlStreamWriter & writer) const;
+    using InstrumentSettingsU = std::unique_ptr<InstrumentSettings>;
+    static InstrumentSettingsU deserializeFromXml(QXmlStreamReader & reader);
 
     QString toString() const;
 

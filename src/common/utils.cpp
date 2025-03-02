@@ -15,6 +15,10 @@
 
 #include "utils.hpp"
 
+#include "constants.hpp"
+
+#include <QXmlStreamReader>
+
 namespace noteahead::Utils {
 double portNameMatchScore(const std::string & s1, const std::string & s2)
 {
@@ -33,4 +37,42 @@ double portNameMatchScore(const std::string & s1, const std::string & s2)
 
     return static_cast<double>(count) / static_cast<double>(std::max(s1.size(), s2.size()));
 }
+namespace Xml {
+std::optional<bool> readBoolAttribute(QXmlStreamReader & reader, QString name, bool required)
+{
+    if (!reader.attributes().hasAttribute(name)) {
+        if (required) {
+            throw std::runtime_error { "Attribute '" + name.toStdString() + "' not found!" };
+        }
+        return {};
+    } else {
+        return reader.attributes().value(name).toString() == Constants::xmlValueTrue();
+    }
+}
+
+std::optional<size_t> readUIntAttribute(QXmlStreamReader & reader, QString name, bool required)
+{
+    if (!reader.attributes().hasAttribute(name)) {
+        if (required) {
+            throw std::runtime_error { "Attribute '" + name.toStdString() + "' not found!" };
+        }
+        return {};
+    } else {
+        return reader.attributes().value(name).toUInt();
+    }
+}
+
+std::optional<QString> readStringAttribute(QXmlStreamReader & reader, QString name, bool required)
+{
+    if (!reader.attributes().hasAttribute(name)) {
+        if (required) {
+
+            throw std::runtime_error { "Attribute '" + name.toStdString() + "' not found!" };
+        }
+        return {};
+    } else {
+        return reader.attributes().value(name).toString();
+    }
+}
+} // namespace Xml
 } // namespace noteahead::Utils

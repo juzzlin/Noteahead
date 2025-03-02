@@ -164,6 +164,26 @@ void SongTest::test_renderToEvents_clockEvents_shouldRenderClockEvents()
     QCOMPARE(events.size(), 386);
 }
 
+void SongTest::test_renderToEvents_delaySet_shouldApplyDelay()
+{
+    Song song;
+    song.setBeatsPerMinute(120);
+    song.setLinesPerBeat(8);
+
+    const auto instrument = std::make_shared<Instrument>("DelayedInstrument");
+    song.setInstrument(0, instrument);
+    instrument->settings.delay = 100ms;
+    const Position noteOnPosition = { 0, 0, 0, 0, 0 };
+    song.noteDataAtPosition(noteOnPosition)->setAsNoteOn(60, 100);
+
+    const auto events = song.renderToEvents(0);
+    QCOMPARE(events.size(), 4);
+    const auto noteOn = events.at(1);
+    const double msPerTick = 60000.0 / static_cast<double>(song.beatsPerMinute() * song.linesPerBeat() * song.ticksPerLine());
+    const auto delay = static_cast<size_t>(std::round(static_cast<double>(instrument->settings.delay.count()) / msPerTick));
+    QCOMPARE(noteOn->tick(), delay);
+}
+
 void SongTest::test_renderToEvents_noEvents_shouldAddStartAndEndOfSong()
 {
     Song song;

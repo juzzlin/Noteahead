@@ -235,6 +235,9 @@ void TrackSettingsModel::setInstrumentData(const Instrument & instrument)
         setVolume(*instrument.settings.volume);
     }
     setSendMidiClock(instrument.settings.sendMidiClock.has_value() && *instrument.settings.sendMidiClock);
+
+    setDelay(static_cast<int>(instrument.settings.delay.count()));
+
     setMidiCcSettings(instrument.settings.midiCcSettings);
 
     emit instrumentDataReceived();
@@ -265,6 +268,8 @@ void TrackSettingsModel::reset()
     m_pan = m_defaultPan;
     m_volumeEnabled = false;
     m_volume = m_defaultVolume;
+    m_sendMidiClock = false;
+    m_delay = 0;
 
     emit instrumentDataReceived();
 
@@ -295,6 +300,7 @@ TrackSettingsModel::InstrumentU TrackSettingsModel::toInstrument() const
         instrument->settings.volume = m_volume;
     }
     instrument->settings.sendMidiClock = m_sendMidiClock;
+    instrument->settings.delay = std::chrono::milliseconds { m_delay };
     instrument->settings.midiCcSettings = midiCcSettings();
     return instrument;
 }
@@ -424,6 +430,21 @@ void TrackSettingsModel::setSendMidiClock(bool enabled)
         m_sendMidiClock = enabled;
         emit sendMidiClockChanged();
         applyAll();
+    }
+}
+
+int TrackSettingsModel::delay() const
+{
+    return m_delay;
+}
+
+void TrackSettingsModel::setDelay(int delay)
+{
+    juzzlin::L(TAG).debug() << "Setting delay to " << delay;
+
+    if (m_delay != delay) {
+        m_delay = delay;
+        emit delayChanged();
     }
 }
 

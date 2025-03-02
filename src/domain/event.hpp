@@ -46,10 +46,11 @@ public:
     using InstrumentSettingsS = std::shared_ptr<InstrumentSettings>;
     Event(size_t tick, InstrumentSettingsS instrumentSettings);
 
+    //! Applies delay as ticks.
+    void applyDelay(size_t beatsPerMinute, size_t linesPerBeat, size_t ticksPerLine);
+
     void setAsMidiClockOut();
-
     void setAsStartOfSong();
-
     void setAsEndOfSong();
 
     size_t tick() const;
@@ -61,7 +62,6 @@ public:
     using InstrumentS = std::shared_ptr<Instrument>;
     InstrumentS instrument() const;
     void setInstrument(InstrumentS instrument);
-
     InstrumentSettingsS instrumentSettings() const;
     void setInstrumentSettings(InstrumentSettingsS instrumentSettings);
 

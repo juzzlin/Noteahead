@@ -30,6 +30,7 @@ Dialog {
         enableVolumeCheckbox.checked = trackSettingsModel.volumeEnabled;
         volumeSpinBox.value = trackSettingsModel.volume;
         sendMidiClockCheckbox.checked = trackSettingsModel.sendMidiClock;
+        delaySpinBox.value = trackSettingsModel.delay;
         initializeMidiCcSelectors();
     }
     function initializeMidiCcSelectors() {
@@ -413,7 +414,7 @@ Dialog {
                 width: parent.width
                 GridLayout {
                     columns: 9
-                    rows: 3
+                    rows: 1
                     width: parent.width
                     CheckBox {
                         id: sendMidiClockCheckbox
@@ -427,6 +428,29 @@ Dialog {
                         ToolTip.visible: hovered
                         ToolTip.text: qsTr("Send MIDI clock for this track")
                         onCheckedChanged: trackSettingsModel.sendMidiClock = checked
+                    }
+                    Label {
+                        text: qsTr("Delay (ms):")
+                        Layout.column: 5
+                        Layout.row: 0
+                        Layout.fillWidth: true
+                    }
+                    SpinBox {
+                        id: delaySpinBox
+                        from: 0
+                        to: 999
+                        editable: true
+                        Layout.column: 6
+                        Layout.row: 0
+                        Layout.fillWidth: true
+                        ToolTip.delay: Constants.toolTipDelay
+                        ToolTip.timeout: Constants.toolTipTimeout
+                        ToolTip.visible: hovered
+                        ToolTip.text: qsTr("Set delay for MIDI messages on this channel in milliseconds")
+                        onValueChanged: {
+                            trackSettingsModel.delay = value;
+                        }
+                        Keys.onReturnPressed: focus = false
                     }
                 }
             }

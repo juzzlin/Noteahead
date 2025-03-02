@@ -40,6 +40,14 @@ Event::Event(size_t tick)
 {
 }
 
+void Event::applyDelay(size_t beatsPerMinute, size_t linesPerBeat, size_t ticksPerLine)
+{
+    if (m_instrument) {
+        const double msPerTick = 60000.0 / static_cast<double>(beatsPerMinute * linesPerBeat * ticksPerLine);
+        m_tick += static_cast<size_t>(std::round(static_cast<double>(m_instrument->settings.delay.count()) / msPerTick));
+    }
+}
+
 void Event::setAsMidiClockOut()
 {
     m_type = Type::MidiClockOut;

@@ -44,6 +44,8 @@ private slots:
 
     void test_renderToEvents_clockEvents_shouldRenderClockEvents();
 
+    void test_renderToEvents_delaySet_shouldApplyDelay();
+
     void test_renderToEvents_noEvents_shouldAddStartAndEndOfSong();
 
     void test_renderToEvents_noteOff_shouldMapNoteOff();
