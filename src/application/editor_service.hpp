@@ -185,12 +185,16 @@ public:
     Q_INVOKABLE void requestPatternTranspose(int semitones);
     Q_INVOKABLE bool hasPatternToPaste() const;
 
+    Q_INVOKABLE void requestSelectionCut();
+    Q_INVOKABLE void requestSelectionCopy();
+    Q_INVOKABLE void requestSelectionPaste();
+    Q_INVOKABLE void requestSelectionTranspose(int semitones);
+    Q_INVOKABLE bool hasSelectionToPaste() const;
+
     bool requestPosition(const Position & position);
     Q_INVOKABLE bool requestPosition(size_t pattern, size_t track, size_t column, size_t line, size_t lineColumn);
     Q_INVOKABLE void requestScroll(int steps);
     Q_INVOKABLE void requestTrackFocus(size_t trackIndex, size_t column, size_t line);
-
-    Q_INVOKABLE void requestSelectionTranspose(int semitones);
 
     Q_INVOKABLE size_t beatsPerMinute() const;
     Q_INVOKABLE void setBeatsPerMinute(size_t beatsPerMinute);

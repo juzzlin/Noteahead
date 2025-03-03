@@ -202,6 +202,25 @@ Menu {
         height: rootItem.height
         width: rootItem.width
         Action {
+            text: qsTr("Cut")
+            shortcut: "Ctrl+X"
+            enabled: !UiService.isPlaying()
+            onTriggered: editorService.requestSelectionCut()
+        }
+        Action {
+            text: qsTr("Copy")
+            shortcut: "Ctrl+C"
+            onTriggered: editorService.requestSelectionCopy()
+        }
+        Action {
+            text: qsTr("Paste")
+            shortcut: "Ctrl+V"
+            enabled: !UiService.isPlaying() && editorService.hasSelectionToPaste
+            onTriggered: editorService.requestSelectionPaste()
+        }
+        MenuSeparator {
+        }
+        Action {
             text: qsTr("Transpose <b>+1</b> semitones")
             shortcut: "Alt+Shift+F10"
             enabled: !UiService.isPlaying()

@@ -38,29 +38,28 @@ public:
         None,
         Column,
         Track,
-        Pattern
+        Pattern,
+        Selection
     };
 
     Mode mode() const;
 
     using PositionList = std::vector<Position>;
-    PositionList pushSourcePattern(const Pattern & pattern);
+    PositionList pushSourceColumn(const Pattern & pattern, size_t trackIndex, size_t columnIndex);
+    using PatternW = std::weak_ptr<Pattern>;
+    PositionList pasteColumn(PatternW targetPattern, size_t trackIndex, size_t columnIndex);
 
     PositionList pushSourceTrack(const Pattern & pattern, size_t trackIndex);
+    PositionList pasteTrack(PatternW targetPattern, size_t trackIndex);
 
-    PositionList pushSourceColumn(const Pattern & pattern, size_t trackIndex, size_t columnIndex);
+    PositionList pushSourcePattern(const Pattern & pattern);
+    PositionList pastePattern(PatternW targetPattern);
 
-    using PatternS = std::shared_ptr<Pattern>;
-    PositionList pastePattern(PatternS targetPattern);
-
-    PositionList pasteTrack(PatternS targetPattern, size_t trackIndex);
-
-    PositionList pasteColumn(PatternS targetPattern, size_t trackIndex, size_t columnIndex);
+    PositionList pushSourceSelection(const Pattern & pattern, const PositionList & positions);
+    PositionList pasteSelection(PatternW targetPattern, const Position & targetPosition);
 
 private:
     Mode m_mode = Mode::None;
-
-    PatternS m_sourcePattern;
 
     std::vector<std::pair<Position, NoteData>> m_copiedData;
 };

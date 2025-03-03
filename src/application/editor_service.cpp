@@ -1198,6 +1198,61 @@ void EditorService::requestPatternTranspose(int semitones)
     setIsModified(true);
 }
 
+void EditorService::requestSelectionCut()
+{
+    juzzlin::L(TAG).info() << "Requesting selection cut";
+    for (auto && changedPosition : m_song->cutSelection(m_selectionService->selectedPositions(), *m_copyManager)) {
+        emit noteDataAtPositionChanged(changedPosition);
+    }
+    emit statusTextRequested(tr("Selection cut"));
+    emit copyManagerStateChanged();
+    setIsModified(true);
+}
+
+void EditorService::requestSelectionCopy()
+{
+    juzzlin::L(TAG).info() << "Requesting selection copy";
+    m_song->copySelection(m_selectionService->selectedPositions(), *m_copyManager);
+    emit copyManagerStateChanged();
+    emit statusTextRequested(tr("Selection copied"));
+}
+
+void EditorService::requestSelectionPaste()
+{
+    try {
+        juzzlin::L(TAG).info() << "Requesting paste for copied selection";
+        for (auto && changedPosition : m_song->pasteSelection(position(), *m_copyManager)) {
+            emit noteDataAtPositionChanged(changedPosition);
+        }
+        emit statusTextRequested(tr("Copied selection pasted"));
+        setIsModified(true);
+        updateDuration();
+    } catch (const std::runtime_error & e) {
+        emit statusTextRequested(tr("Failed to paste selection: ") + e.what());
+    }
+}
+
+bool EditorService::hasSelectionToPaste() const
+{
+    return m_copyManager->mode() == CopyManager::Mode::Selection;
+}
+
+void EditorService::requestSelectionTranspose(int semitones)
+{
+    juzzlin::L(TAG).info() << "Requesting selection transpose by " << semitones << " semitones";
+    if (m_selectionService->isValidSelection()) {
+        bool modified = false;
+        for (auto && position : m_selectionService->selectedPositions()) {
+            if (const auto noteData = m_song->noteDataAtPosition(position); noteData && noteData->type() == NoteData::Type::NoteOn) {
+                noteData->transpose(semitones);
+                emit noteDataAtPositionChanged(position);
+                modified = true;
+            }
+        }
+        setIsModified(modified);
+    }
+}
+
 bool EditorService::requestPosition(const Position & position)
 {
     return requestPosition(position.pattern, position.track, position.column, position.line, position.lineColumn);
@@ -1282,22 +1337,6 @@ void EditorService::requestTrackFocus(size_t trackIndex, size_t column, size_t l
             m_cursorPosition.line = line;
             notifyPositionChange(oldPosition);
         }
-    }
-}
-
-void EditorService::requestSelectionTranspose(int semitones)
-{
-    juzzlin::L(TAG).info() << "Requesting selection transpose by " << semitones << " semitones";
-    if (m_selectionService->isValidSelection()) {
-        bool modified = false;
-        for (auto && position : m_selectionService->selectedPositions()) {
-            if (const auto noteData = m_song->noteDataAtPosition(position); noteData && noteData->type() == NoteData::Type::NoteOn) {
-                noteData->transpose(semitones);
-                emit noteDataAtPositionChanged(position);
-                modified = true;
-            }
-        }
-        setIsModified(modified);
     }
 }
 

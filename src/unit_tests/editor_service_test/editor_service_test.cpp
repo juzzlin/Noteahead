@@ -129,100 +129,112 @@ void EditorServiceTest::test_removePattern_shouldRemovePattern()
     QCOMPARE(editorService.patternAtCurrentSongPosition(), 1);
 }
 
-void EditorServiceTest::test_patternCutPaste_equalSizes_shouldCopyPattern()
+void EditorServiceTest::test_columnCutPaste_equalSizes_shouldCopyColumn()
 {
     EditorService editorService;
     QSignalSpy noteDataChangedSpy { &editorService, &EditorService::noteDataAtPositionChanged };
-    const Position sourcePosition = { 0, 0, 0, 0, 0 };
+    const Position sourcePosition = { 0, 1, 0, 0, 0 };
     QVERIFY(editorService.requestPosition(sourcePosition));
     QVERIFY(editorService.requestNoteOnAtCurrentPosition(1, 3, 64));
     QCOMPARE(noteDataChangedSpy.count(), 1);
 
     editorService.setIsModified(false);
-    editorService.requestPatternCut();
+    editorService.requestColumnCut();
     QVERIFY(editorService.isModified());
-    QCOMPARE(noteDataChangedSpy.count(), 513);
+    QCOMPARE(noteDataChangedSpy.count(), 65);
     editorService.setCurrentPattern(1);
-    editorService.requestPatternPaste();
+    const Position targetPosition = { 1, 2, 0, 0, 0 };
+    QVERIFY(editorService.requestPosition(targetPosition));
+    editorService.requestColumnPaste();
 
-    QCOMPARE(noteDataChangedSpy.count(), 1025);
+    QCOMPARE(noteDataChangedSpy.count(), 129);
     QCOMPARE(editorService.displayNoteAtPosition(sourcePosition), editorService.noDataString());
     QCOMPARE(editorService.displayVelocityAtPosition(sourcePosition), editorService.noDataString());
-    const Position targetPosition = { 1, 0, 0, 0, 0 };
     QCOMPARE(editorService.displayNoteAtPosition(targetPosition), "C-3");
     QCOMPARE(editorService.displayVelocityAtPosition(targetPosition), "064");
+    QCOMPARE(editorService.song()->noteDataAtPosition(targetPosition)->column(), targetPosition.column);
+    QCOMPARE(editorService.song()->noteDataAtPosition(targetPosition)->track(), targetPosition.track);
 }
 
-void EditorServiceTest::test_patternCutPaste_shorterTarget_shouldCopyPattern()
+void EditorServiceTest::test_columnCutPaste_shorterTarget_shouldCopyColumn()
 {
     EditorService editorService;
     QSignalSpy noteDataChangedSpy { &editorService, &EditorService::noteDataAtPositionChanged };
-    const Position sourcePosition = { 0, 0, 0, 0, 0 };
+    const Position sourcePosition = { 0, 1, 0, 0, 0 };
     QVERIFY(editorService.requestPosition(sourcePosition));
     QVERIFY(editorService.requestNoteOnAtCurrentPosition(1, 3, 64));
     QCOMPARE(noteDataChangedSpy.count(), 1);
 
     editorService.setIsModified(false);
-    editorService.requestPatternCut();
+    editorService.requestColumnCut();
     QVERIFY(editorService.isModified());
-    QCOMPARE(noteDataChangedSpy.count(), 513);
+    QCOMPARE(noteDataChangedSpy.count(), 65);
     editorService.setCurrentPattern(1);
     editorService.setCurrentLineCount(32);
-    editorService.requestPatternPaste();
+    const Position targetPosition = { 1, 2, 0, 0, 0 };
+    QVERIFY(editorService.requestPosition(targetPosition));
+    editorService.requestColumnPaste();
 
-    QCOMPARE(noteDataChangedSpy.count(), 769);
+    QCOMPARE(noteDataChangedSpy.count(), 97);
     QCOMPARE(editorService.displayNoteAtPosition(sourcePosition), editorService.noDataString());
     QCOMPARE(editorService.displayVelocityAtPosition(sourcePosition), editorService.noDataString());
-    const Position targetPosition = { 1, 0, 0, 0, 0 };
     QCOMPARE(editorService.displayNoteAtPosition(targetPosition), "C-3");
     QCOMPARE(editorService.displayVelocityAtPosition(targetPosition), "064");
+    QCOMPARE(editorService.song()->noteDataAtPosition(targetPosition)->column(), targetPosition.column);
+    QCOMPARE(editorService.song()->noteDataAtPosition(targetPosition)->track(), targetPosition.track);
 }
 
-void EditorServiceTest::test_patternCopyPaste_equalSizes_shouldCopyPattern()
+void EditorServiceTest::test_columnCopyPaste_equalSizes_shouldCopyColumn()
 {
     EditorService editorService;
     QSignalSpy noteDataChangedSpy { &editorService, &EditorService::noteDataAtPositionChanged };
-    const Position sourcePosition = { 0, 0, 0, 0, 0 };
+    const Position sourcePosition = { 0, 1, 0, 0, 0 };
     QVERIFY(editorService.requestPosition(sourcePosition));
     QVERIFY(editorService.requestNoteOnAtCurrentPosition(1, 3, 64));
     QCOMPARE(noteDataChangedSpy.count(), 1);
 
     editorService.setIsModified(false);
-    editorService.requestPatternCopy();
+    editorService.requestColumnCopy();
     QVERIFY(!editorService.isModified());
     editorService.setCurrentPattern(1);
-    editorService.requestPatternPaste();
+    const Position targetPosition = { 1, 2, 0, 0, 0 };
+    QVERIFY(editorService.requestPosition(targetPosition));
+    editorService.requestColumnPaste();
 
-    QCOMPARE(noteDataChangedSpy.count(), 513);
+    QCOMPARE(noteDataChangedSpy.count(), 65);
     QCOMPARE(editorService.displayNoteAtPosition(sourcePosition), "C-3");
     QCOMPARE(editorService.displayVelocityAtPosition(sourcePosition), "064");
-    const Position targetPosition = { 1, 0, 0, 0, 0 };
     QCOMPARE(editorService.displayNoteAtPosition(targetPosition), "C-3");
     QCOMPARE(editorService.displayVelocityAtPosition(targetPosition), "064");
+    QCOMPARE(editorService.song()->noteDataAtPosition(targetPosition)->column(), targetPosition.column);
+    QCOMPARE(editorService.song()->noteDataAtPosition(targetPosition)->track(), targetPosition.track);
 }
 
-void EditorServiceTest::test_patternCopyPaste_shorterTarget_shouldCopyPattern()
+void EditorServiceTest::test_columnCopyPaste_shorterTarget_shouldCopyColumn()
 {
     EditorService editorService;
     QSignalSpy noteDataChangedSpy { &editorService, &EditorService::noteDataAtPositionChanged };
-    const Position sourcePosition = { 0, 0, 0, 0, 0 };
+    const Position sourcePosition = { 0, 1, 0, 0, 0 };
     QVERIFY(editorService.requestPosition(sourcePosition));
     QVERIFY(editorService.requestNoteOnAtCurrentPosition(1, 3, 64));
     QCOMPARE(noteDataChangedSpy.count(), 1);
 
     editorService.setIsModified(false);
-    editorService.requestPatternCopy();
+    editorService.requestColumnCopy();
     QVERIFY(!editorService.isModified());
     editorService.setCurrentPattern(1);
     editorService.setCurrentLineCount(32);
-    editorService.requestPatternPaste();
+    const Position targetPosition = { 1, 2, 0, 0, 0 };
+    QVERIFY(editorService.requestPosition(targetPosition));
+    editorService.requestColumnPaste();
 
-    QCOMPARE(noteDataChangedSpy.count(), 257);
+    QCOMPARE(noteDataChangedSpy.count(), 33);
     QCOMPARE(editorService.displayNoteAtPosition(sourcePosition), "C-3");
     QCOMPARE(editorService.displayVelocityAtPosition(sourcePosition), "064");
-    const Position targetPosition = { 1, 0, 0, 0, 0 };
     QCOMPARE(editorService.displayNoteAtPosition(targetPosition), "C-3");
     QCOMPARE(editorService.displayVelocityAtPosition(targetPosition), "064");
+    QCOMPARE(editorService.song()->noteDataAtPosition(targetPosition)->column(), targetPosition.column);
+    QCOMPARE(editorService.song()->noteDataAtPosition(targetPosition)->track(), targetPosition.track);
 }
 
 void EditorServiceTest::test_trackCutPaste_equalSizes_shouldCopyTrack()
@@ -333,112 +345,160 @@ void EditorServiceTest::test_trackCopyPaste_shorterTarget_shouldCopyTrack()
     QCOMPARE(editorService.song()->noteDataAtPosition(targetPosition)->track(), targetPosition.track);
 }
 
-void EditorServiceTest::test_columnCutPaste_equalSizes_shouldCopyColumn()
+void EditorServiceTest::test_patternCutPaste_equalSizes_shouldCopyPattern()
 {
     EditorService editorService;
     QSignalSpy noteDataChangedSpy { &editorService, &EditorService::noteDataAtPositionChanged };
-    const Position sourcePosition = { 0, 1, 0, 0, 0 };
+    const Position sourcePosition = { 0, 0, 0, 0, 0 };
     QVERIFY(editorService.requestPosition(sourcePosition));
     QVERIFY(editorService.requestNoteOnAtCurrentPosition(1, 3, 64));
     QCOMPARE(noteDataChangedSpy.count(), 1);
 
     editorService.setIsModified(false);
-    editorService.requestColumnCut();
+    editorService.requestPatternCut();
     QVERIFY(editorService.isModified());
-    QCOMPARE(noteDataChangedSpy.count(), 65);
+    QCOMPARE(noteDataChangedSpy.count(), 513);
     editorService.setCurrentPattern(1);
-    const Position targetPosition = { 1, 2, 0, 0, 0 };
-    QVERIFY(editorService.requestPosition(targetPosition));
-    editorService.requestColumnPaste();
+    editorService.requestPatternPaste();
 
-    QCOMPARE(noteDataChangedSpy.count(), 129);
+    QCOMPARE(noteDataChangedSpy.count(), 1025);
     QCOMPARE(editorService.displayNoteAtPosition(sourcePosition), editorService.noDataString());
     QCOMPARE(editorService.displayVelocityAtPosition(sourcePosition), editorService.noDataString());
+    const Position targetPosition = { 1, 0, 0, 0, 0 };
     QCOMPARE(editorService.displayNoteAtPosition(targetPosition), "C-3");
     QCOMPARE(editorService.displayVelocityAtPosition(targetPosition), "064");
-    QCOMPARE(editorService.song()->noteDataAtPosition(targetPosition)->column(), targetPosition.column);
-    QCOMPARE(editorService.song()->noteDataAtPosition(targetPosition)->track(), targetPosition.track);
 }
 
-void EditorServiceTest::test_columnCutPaste_shorterTarget_shouldCopyColumn()
+void EditorServiceTest::test_patternCutPaste_shorterTarget_shouldCopyPattern()
 {
     EditorService editorService;
     QSignalSpy noteDataChangedSpy { &editorService, &EditorService::noteDataAtPositionChanged };
-    const Position sourcePosition = { 0, 1, 0, 0, 0 };
+    const Position sourcePosition = { 0, 0, 0, 0, 0 };
     QVERIFY(editorService.requestPosition(sourcePosition));
     QVERIFY(editorService.requestNoteOnAtCurrentPosition(1, 3, 64));
     QCOMPARE(noteDataChangedSpy.count(), 1);
 
     editorService.setIsModified(false);
-    editorService.requestColumnCut();
+    editorService.requestPatternCut();
     QVERIFY(editorService.isModified());
-    QCOMPARE(noteDataChangedSpy.count(), 65);
+    QCOMPARE(noteDataChangedSpy.count(), 513);
     editorService.setCurrentPattern(1);
     editorService.setCurrentLineCount(32);
-    const Position targetPosition = { 1, 2, 0, 0, 0 };
-    QVERIFY(editorService.requestPosition(targetPosition));
-    editorService.requestColumnPaste();
+    editorService.requestPatternPaste();
 
-    QCOMPARE(noteDataChangedSpy.count(), 97);
+    QCOMPARE(noteDataChangedSpy.count(), 769);
     QCOMPARE(editorService.displayNoteAtPosition(sourcePosition), editorService.noDataString());
     QCOMPARE(editorService.displayVelocityAtPosition(sourcePosition), editorService.noDataString());
+    const Position targetPosition = { 1, 0, 0, 0, 0 };
     QCOMPARE(editorService.displayNoteAtPosition(targetPosition), "C-3");
     QCOMPARE(editorService.displayVelocityAtPosition(targetPosition), "064");
-    QCOMPARE(editorService.song()->noteDataAtPosition(targetPosition)->column(), targetPosition.column);
-    QCOMPARE(editorService.song()->noteDataAtPosition(targetPosition)->track(), targetPosition.track);
 }
 
-void EditorServiceTest::test_columnCopyPaste_equalSizes_shouldCopyColumn()
+void EditorServiceTest::test_patternCopyPaste_equalSizes_shouldCopyPattern()
 {
     EditorService editorService;
     QSignalSpy noteDataChangedSpy { &editorService, &EditorService::noteDataAtPositionChanged };
-    const Position sourcePosition = { 0, 1, 0, 0, 0 };
+    const Position sourcePosition = { 0, 0, 0, 0, 0 };
     QVERIFY(editorService.requestPosition(sourcePosition));
     QVERIFY(editorService.requestNoteOnAtCurrentPosition(1, 3, 64));
     QCOMPARE(noteDataChangedSpy.count(), 1);
 
     editorService.setIsModified(false);
-    editorService.requestColumnCopy();
+    editorService.requestPatternCopy();
     QVERIFY(!editorService.isModified());
     editorService.setCurrentPattern(1);
-    const Position targetPosition = { 1, 2, 0, 0, 0 };
-    QVERIFY(editorService.requestPosition(targetPosition));
-    editorService.requestColumnPaste();
+    editorService.requestPatternPaste();
 
-    QCOMPARE(noteDataChangedSpy.count(), 65);
+    QCOMPARE(noteDataChangedSpy.count(), 513);
     QCOMPARE(editorService.displayNoteAtPosition(sourcePosition), "C-3");
     QCOMPARE(editorService.displayVelocityAtPosition(sourcePosition), "064");
+    const Position targetPosition = { 1, 0, 0, 0, 0 };
     QCOMPARE(editorService.displayNoteAtPosition(targetPosition), "C-3");
     QCOMPARE(editorService.displayVelocityAtPosition(targetPosition), "064");
-    QCOMPARE(editorService.song()->noteDataAtPosition(targetPosition)->column(), targetPosition.column);
-    QCOMPARE(editorService.song()->noteDataAtPosition(targetPosition)->track(), targetPosition.track);
 }
 
-void EditorServiceTest::test_columnCopyPaste_shorterTarget_shouldCopyColumn()
+void EditorServiceTest::test_patternCopyPaste_shorterTarget_shouldCopyPattern()
 {
     EditorService editorService;
     QSignalSpy noteDataChangedSpy { &editorService, &EditorService::noteDataAtPositionChanged };
-    const Position sourcePosition = { 0, 1, 0, 0, 0 };
+    const Position sourcePosition = { 0, 0, 0, 0, 0 };
     QVERIFY(editorService.requestPosition(sourcePosition));
     QVERIFY(editorService.requestNoteOnAtCurrentPosition(1, 3, 64));
     QCOMPARE(noteDataChangedSpy.count(), 1);
 
     editorService.setIsModified(false);
-    editorService.requestColumnCopy();
+    editorService.requestPatternCopy();
     QVERIFY(!editorService.isModified());
     editorService.setCurrentPattern(1);
     editorService.setCurrentLineCount(32);
-    const Position targetPosition = { 1, 2, 0, 0, 0 };
-    QVERIFY(editorService.requestPosition(targetPosition));
-    editorService.requestColumnPaste();
+    editorService.requestPatternPaste();
 
-    QCOMPARE(noteDataChangedSpy.count(), 33);
+    QCOMPARE(noteDataChangedSpy.count(), 257);
     QCOMPARE(editorService.displayNoteAtPosition(sourcePosition), "C-3");
     QCOMPARE(editorService.displayVelocityAtPosition(sourcePosition), "064");
+    const Position targetPosition = { 1, 0, 0, 0, 0 };
     QCOMPARE(editorService.displayNoteAtPosition(targetPosition), "C-3");
     QCOMPARE(editorService.displayVelocityAtPosition(targetPosition), "064");
-    QCOMPARE(editorService.song()->noteDataAtPosition(targetPosition)->column(), targetPosition.column);
-    QCOMPARE(editorService.song()->noteDataAtPosition(targetPosition)->track(), targetPosition.track);
+}
+
+void EditorServiceTest::test_selectionCutPaste_shouldCopySelection()
+{
+    const auto selectionService = std::make_shared<SelectionService>();
+    EditorService editorService { selectionService };
+    QSignalSpy noteDataChangedSpy { &editorService, &EditorService::noteDataAtPositionChanged };
+    const Position sourcePosition = { 0, 1, 0, 8, 0 };
+    QVERIFY(editorService.requestPosition(sourcePosition));
+    QVERIFY(editorService.requestNoteOnAtCurrentPosition(1, 3, 64));
+    QCOMPARE(noteDataChangedSpy.count(), 1);
+
+    editorService.setIsModified(false);
+    selectionService->requestSelectionStart(0, 1, 0, 4);
+    selectionService->requestSelectionEnd(0, 1, 0, 12);
+    editorService.requestSelectionCut();
+    QVERIFY(editorService.isModified());
+    QCOMPARE(noteDataChangedSpy.count(), 10);
+    const Position targetPosition = { 0, 2, 0, 16, 0 };
+    QVERIFY(editorService.requestPosition(targetPosition));
+    editorService.requestSelectionPaste();
+
+    QCOMPARE(noteDataChangedSpy.count(), 19);
+    QCOMPARE(editorService.displayNoteAtPosition(sourcePosition), editorService.noDataString());
+    QCOMPARE(editorService.displayVelocityAtPosition(sourcePosition), editorService.noDataString());
+    const Position pastedNotePosition = { 0, 2, 0, targetPosition.line + sourcePosition.line - selectionService->selectedPositions().at(0).line, 0 };
+    QCOMPARE(editorService.displayNoteAtPosition(pastedNotePosition), "C-3");
+    QCOMPARE(editorService.displayVelocityAtPosition(pastedNotePosition), "064");
+    QCOMPARE(editorService.song()->noteDataAtPosition(pastedNotePosition)->column(), targetPosition.column);
+    QCOMPARE(editorService.song()->noteDataAtPosition(pastedNotePosition)->track(), targetPosition.track);
+}
+
+void EditorServiceTest::test_selectionCopyPaste_shouldCopySelection()
+{
+    const auto selectionService = std::make_shared<SelectionService>();
+    EditorService editorService { selectionService };
+    QSignalSpy noteDataChangedSpy { &editorService, &EditorService::noteDataAtPositionChanged };
+    const Position sourcePosition = { 0, 1, 0, 8, 0 };
+    QVERIFY(editorService.requestPosition(sourcePosition));
+    QVERIFY(editorService.requestNoteOnAtCurrentPosition(1, 3, 64));
+    QCOMPARE(noteDataChangedSpy.count(), 1);
+
+    editorService.setIsModified(false);
+    selectionService->requestSelectionStart(0, 1, 0, 4);
+    selectionService->requestSelectionEnd(0, 1, 0, 12);
+    editorService.requestSelectionCopy();
+    QVERIFY(!editorService.isModified());
+    QCOMPARE(noteDataChangedSpy.count(), 1);
+    const Position targetPosition = { 0, 2, 0, 16, 0 };
+    QVERIFY(editorService.requestPosition(targetPosition));
+    editorService.requestSelectionPaste();
+
+    QCOMPARE(noteDataChangedSpy.count(), 10);
+    QCOMPARE(editorService.displayNoteAtPosition(sourcePosition), "C-3");
+    QCOMPARE(editorService.displayVelocityAtPosition(sourcePosition), "064");
+    const Position pastedNotePosition = { 0, 2, 0, targetPosition.line + sourcePosition.line - selectionService->selectedPositions().at(0).line, 0 };
+    QCOMPARE(editorService.displayNoteAtPosition(pastedNotePosition), "C-3");
+    QCOMPARE(editorService.displayVelocityAtPosition(pastedNotePosition), "064");
+    QCOMPARE(editorService.song()->noteDataAtPosition(pastedNotePosition)->column(), targetPosition.column);
+    QCOMPARE(editorService.song()->noteDataAtPosition(pastedNotePosition)->track(), targetPosition.track);
 }
 
 void EditorServiceTest::test_requestDigitSetAtCurrentPosition_velocity_shouldChangeVelocity()

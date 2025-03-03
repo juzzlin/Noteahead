@@ -28,6 +28,7 @@
 
 #include <QString>
 
+#include "../application/position.hpp"
 #include "instrument.hpp"
 
 class QXmlStreamReader;
@@ -46,7 +47,6 @@ class NoteData;
 class Pattern;
 class PlayOrder;
 class Track;
-struct Position;
 
 using namespace std::chrono_literals;
 
@@ -54,30 +54,31 @@ class Song
 {
 public:
     Song();
-
     ~Song();
 
     std::chrono::milliseconds autoNoteOffOffset() const;
-
     void setAutoNoteOffOffset(std::chrono::milliseconds autoNoteOffOffset);
-
     size_t autoNoteOffOffsetTicks() const;
 
     using ChangedPositions = std::vector<Position>;
-    ChangedPositions cutPattern(size_t patternIndex, CopyManager & copyManager) const;
-    void copyPattern(size_t patternIndex, CopyManager & copyManager) const;
-    ChangedPositions pastePattern(size_t patternIndex, CopyManager & copyManager) const;
-    ChangedPositions transposePattern(const Position & position, int semitones) const;
+    ChangedPositions cutColumn(size_t patternIndex, size_t trackIndex, size_t columnIndex, CopyManager & copyManager) const;
+    void copyColumn(size_t patternIndex, size_t trackIndex, size_t columnIndex, CopyManager & copyManager) const;
+    ChangedPositions pasteColumn(size_t patternIndex, size_t trackIndex, size_t columnIndex, CopyManager & copyManager) const;
+    ChangedPositions transposeColumn(const Position & position, int semitones) const;
 
     ChangedPositions cutTrack(size_t patternIndex, size_t trackIndex, CopyManager & copyManager) const;
     void copyTrack(size_t patternIndex, size_t trackIndex, CopyManager & copyManager) const;
     ChangedPositions pasteTrack(size_t patternIndex, size_t trackIndex, CopyManager & copyManager) const;
     ChangedPositions transposeTrack(const Position & position, int semitones) const;
 
-    ChangedPositions cutColumn(size_t patternIndex, size_t trackIndex, size_t columnIndex, CopyManager & copyManager) const;
-    void copyColumn(size_t patternIndex, size_t trackIndex, size_t columnIndex, CopyManager & copyManager) const;
-    ChangedPositions pasteColumn(size_t patternIndex, size_t trackIndex, size_t columnIndex, CopyManager & copyManager) const;
-    ChangedPositions transposeColumn(const Position & position, int semitones) const;
+    ChangedPositions cutPattern(size_t patternIndex, CopyManager & copyManager) const;
+    void copyPattern(size_t patternIndex, CopyManager & copyManager) const;
+    ChangedPositions pastePattern(size_t patternIndex, CopyManager & copyManager) const;
+    ChangedPositions transposePattern(const Position & position, int semitones) const;
+
+    ChangedPositions cutSelection(const std::vector<Position> & positions, CopyManager & copyManager) const;
+    void copySelection(const std::vector<Position> & positions, CopyManager & copyManager) const;
+    ChangedPositions pasteSelection(const Position & position, CopyManager & copyManager) const;
 
     void createPattern(size_t patternIndex);
     bool hasPattern(size_t patternIndex) const;
@@ -229,15 +230,12 @@ private:
     std::chrono::milliseconds m_autoNoteOffOffset = 125ms;
 
     size_t m_beatsPerMinute = 120;
-
     size_t m_linesPerBeat = 8;
-
     size_t m_ticksPerLine = 24;
 
     std::map<size_t, PatternS> m_patterns;
 
     std::unique_ptr<PlayOrder> m_playOrder;
-
     size_t m_length = 1;
 
     std::unordered_map<size_t, SongPosition> m_tickToSongPositionMap;

@@ -34,20 +34,23 @@ private slots:
     void test_insertPattern_shouldInsertPattern();
     void test_removePattern_shouldRemovePattern();
 
-    void test_patternCutPaste_equalSizes_shouldCopyPattern();
-    void test_patternCutPaste_shorterTarget_shouldCopyPattern();
-    void test_patternCopyPaste_equalSizes_shouldCopyPattern();
-    void test_patternCopyPaste_shorterTarget_shouldCopyPattern();
+    void test_columnCutPaste_equalSizes_shouldCopyColumn();
+    void test_columnCutPaste_shorterTarget_shouldCopyColumn();
+    void test_columnCopyPaste_equalSizes_shouldCopyColumn();
+    void test_columnCopyPaste_shorterTarget_shouldCopyColumn();
 
     void test_trackCutPaste_equalSizes_shouldCopyTrack();
     void test_trackCutPaste_shorterTarget_shouldCopyTrack();
     void test_trackCopyPaste_equalSizes_shouldCopyTrack();
     void test_trackCopyPaste_shorterTarget_shouldCopyTrack();
 
-    void test_columnCutPaste_equalSizes_shouldCopyColumn();
-    void test_columnCutPaste_shorterTarget_shouldCopyColumn();
-    void test_columnCopyPaste_equalSizes_shouldCopyColumn();
-    void test_columnCopyPaste_shorterTarget_shouldCopyColumn();
+    void test_patternCutPaste_equalSizes_shouldCopyPattern();
+    void test_patternCutPaste_shorterTarget_shouldCopyPattern();
+    void test_patternCopyPaste_equalSizes_shouldCopyPattern();
+    void test_patternCopyPaste_shorterTarget_shouldCopyPattern();
+
+    void test_selectionCutPaste_shouldCopySelection();
+    void test_selectionCopyPaste_shouldCopySelection();
 
     void test_requestDigitSetAtCurrentPosition_velocity_shouldChangeVelocity();
 
