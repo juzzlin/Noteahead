@@ -19,7 +19,6 @@
 #include "state_machine.hpp"
 
 #include <memory>
-#include <set>
 
 #include <QObject>
 
@@ -36,6 +35,7 @@ class Instrument;
 class MidiService;
 class MixerService;
 class PlayerService;
+class SelectionService;
 class RecentFilesManager;
 class RecentFilesModel;
 class TrackSettingsModel;
@@ -72,25 +72,22 @@ private:
     std::unique_ptr<UiLogger> m_uiLogger;
 
     std::unique_ptr<QGuiApplication> m_application;
-
     std::shared_ptr<ApplicationService> m_applicationService;
 
     std::shared_ptr<Config> m_config;
 
+    std::shared_ptr<SelectionService> m_selectionService;
     std::shared_ptr<EditorService> m_editorService;
 
     std::shared_ptr<EventSelectionModel> m_eventSelectionModel;
 
     std::shared_ptr<MidiService> m_midiService;
-
     std::shared_ptr<MixerService> m_mixerService;
-
     std::shared_ptr<PlayerService> m_playerService;
 
     std::shared_ptr<StateMachine> m_stateMachine;
 
     std::shared_ptr<RecentFilesManager> m_recentFilesManager;
-
     std::unique_ptr<RecentFilesModel> m_recentFilesModel;
 
     std::unique_ptr<TrackSettingsModel> m_trackSettingsModel;

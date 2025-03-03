@@ -195,6 +195,39 @@ Menu {
         delegate: MainMenuItemDelegate {
         }
     }
+    MenuSeparator {
+    }
+    Menu {
+        title: qsTr("Selection")
+        height: rootItem.height
+        width: rootItem.width
+        Action {
+            text: qsTr("Transpose <b>+1</b> semitones")
+            shortcut: "Alt+Shift+F10"
+            enabled: !UiService.isPlaying()
+            onTriggered: editorService.requestSelectionTranspose(1)
+        }
+        Action {
+            text: qsTr("Transpose <b>-1</b> semitones")
+            shortcut: "Alt+Shift+F9"
+            enabled: !UiService.isPlaying()
+            onTriggered: editorService.requestSelectionTranspose(-1)
+        }
+        Action {
+            text: qsTr("Transpose <b>+12</b> semitones")
+            shortcut: "Alt+Shift+F12"
+            enabled: !UiService.isPlaying()
+            onTriggered: editorService.requestSelectionTranspose(12)
+        }
+        Action {
+            text: qsTr("Transpose <b>-12</b> semitones")
+            shortcut: "Alt+Shift+F11"
+            enabled: !UiService.isPlaying()
+            onTriggered: editorService.requestSelectionTranspose(-12)
+        }
+        delegate: MainMenuItemDelegate {
+        }
+    }
     delegate: MainMenuItemDelegate {
     }
 }

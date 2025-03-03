@@ -84,7 +84,22 @@ Item {
         }
     }
     function updateIndexHighlights() {
-        function _indexHighlightOpacity(index, linesPerBeat) {
+        const _blendColors = (baseColor, blendColor, blendFactor) => {
+            const hexToRgb = hex => {
+                const r = parseInt(hex.substring(1, 3), 16);
+                const g = parseInt(hex.substring(3, 5), 16);
+                const b = parseInt(hex.substring(5, 7), 16);
+                return Object.freeze([r, g, b]);
+            };
+            const rgbToHex = (r, g, b) => {
+                return "#" + [r, g, b].map(c => c.toString(16).padStart(2, "0")).join("");
+            };
+            const baseRgb = hexToRgb(baseColor);
+            const blendRgb = hexToRgb(blendColor);
+            const blendedRgb = [Math.round(baseRgb[0] * (1 - blendFactor) + blendRgb[0] * blendFactor), Math.round(baseRgb[1] * (1 - blendFactor) + blendRgb[1] * blendFactor), Math.round(baseRgb[2] * (1 - blendFactor) + blendRgb[2] * blendFactor)];
+            return rgbToHex(blendedRgb[0], blendedRgb[1], blendedRgb[2]);
+        };
+        const _indexHighlightOpacity = (index, linesPerBeat) => {
             const _beatLine1 = linesPerBeat;
             const _beatLine2 = _beatLine1 % 3 ? _beatLine1 / 2 : _beatLine1 / 3;
             const _beatLine3 = _beatLine1 % 6 ? _beatLine1 / 4 : _beatLine1 / 6;
@@ -95,16 +110,24 @@ Item {
             if (!(index % _beatLine3))
                 return 0.05;
             return 0;
-        }
-        function _scaledColor(opacity) {
+        };
+        const _scaledColor = opacity => {
             const value = Math.round(255 * opacity);
             return "#" + value.toString(16).padStart(2, "0").repeat(3);
-        }
+        };
         _lines.forEach((line, index) => {
-                if (editorService.hasInstrumentSettings(_patternIndex, _trackIndex, _index, index)) {
-                    line.color = Universal.color(Universal.Cobalt);
+                if (selectionService.isSelected(_patternIndex, _trackIndex, _index, index)) {
+                    const baseColor = _scaledColor(_indexHighlightOpacity(index, editorService.linesPerBeat));
+                    line.color = _blendColors(baseColor, "#ffa500", 0.5);  // Blend 50% with orange
+                    line.border.width = 0;
                 } else {
-                    line.color = _scaledColor(_indexHighlightOpacity(index, editorService.linesPerBeat));
+                    if (editorService.hasInstrumentSettings(_patternIndex, _trackIndex, _index, index)) {
+                        line.color = Universal.color(Universal.Cobalt);
+                        line.border.width = 1;
+                    } else {
+                        line.color = _scaledColor(_indexHighlightOpacity(index, editorService.linesPerBeat));
+                        line.border.width = 1;
+                    }
                 }
             });
     }

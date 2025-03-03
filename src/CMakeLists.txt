@@ -27,6 +27,7 @@ set(HEADER_FILES
   application/player_worker.hpp
   application/position.hpp
   application/recent_files_manager.hpp
+  application/selection_service.hpp
   application/state_machine.hpp
   application/ui_logger.hpp
   common/constants.hpp
@@ -69,6 +70,7 @@ set(SOURCE_FILES
   application/player_service.cpp
   application/player_worker.cpp
   application/recent_files_manager.cpp
+  application/selection_service.cpp
   application/state_machine.cpp
   application/ui_logger.cpp
   common/constants.cpp

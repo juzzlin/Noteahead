@@ -4,29 +4,25 @@ import ".."
 QtObject {
     function handleKeyPressed(event) {
         if (event.key === Qt.Key_Up) {
-            if (!UiService.isPlaying()) {
-                editorService.requestScroll(-1);
-            }
+            _handleUp(event);
             event.accepted = true;
         } else if (event.key === Qt.Key_Down) {
-            if (!UiService.isPlaying()) {
-                editorService.requestScroll(1);
-            }
+            _handleDown(event);
             event.accepted = true;
         } else if (event.key === Qt.Key_Left) {
-            editorService.requestCursorLeft();
+            _handleLeft();
             event.accepted = true;
         } else if (event.key === Qt.Key_Right) {
-            editorService.requestCursorRight();
+            _handleRight();
             event.accepted = true;
         } else if (event.key === Qt.Key_Tab) {
-            editorService.requestColumnRight();
+            _handleTab();
             event.accepted = true;
         } else if (event.key === Qt.Key_Delete) {
             _handleDelete();
             event.accepted = true;
         } else if (event.key === Qt.Key_Escape) {
-            UiService.toggleEditMode();
+            _handleEscape();
             event.accepted = true;
         } else if (event.key === Qt.Key_Insert) {
             _handleInsert();
@@ -35,7 +31,7 @@ QtObject {
             _handleBackspace();
             event.accepted = true;
         } else if (event.key === Qt.Key_Space) {
-            UiService.togglePlay();
+            _handleSpace();
             event.accepted = true;
         } else if (event.key === Qt.Key_F3) {
             UiService.setActiveOctave(UiService.activeOctave() - 1);
@@ -48,7 +44,48 @@ QtObject {
             _handleNoteTriggered(event);
         }
     }
+    function _handleUp(event) {
+        if (!UiService.isPlaying()) {
+            if (event.modifiers & Qt.ShiftModifier) {
+                let position = editorService.position;
+                selectionService.requestSelectionStart(position.pattern, position.track, position.column, position.line);
+                editorService.requestScroll(-1);
+                position = editorService.position;
+                selectionService.requestSelectionEnd(position.pattern, position.track, position.column, position.line);
+            } else {
+                selectionService.clear();
+                editorService.requestScroll(-1);
+            }
+        }
+    }
+    function _handleDown(event) {
+        if (!UiService.isPlaying()) {
+            if (event.modifiers & Qt.ShiftModifier) {
+                let position = editorService.position;
+                selectionService.requestSelectionStart(position.pattern, position.track, position.column, position.line);
+                editorService.requestScroll(1);
+                position = editorService.position;
+                selectionService.requestSelectionEnd(position.pattern, position.track, position.column, position.line);
+            } else {
+                selectionService.clear();
+                editorService.requestScroll(1);
+            }
+        }
+    }
+    function _handleLeft() {
+        selectionService.clear();
+        editorService.requestCursorLeft();
+    }
+    function _handleRight() {
+        selectionService.clear();
+        editorService.requestCursorRight();
+    }
+    function _handleTab() {
+        selectionService.clear();
+        editorService.requestColumnRight();
+    }
     function _handleDelete() {
+        selectionService.clear();
         if (UiService.editMode()) {
             if (editorService.isAtNoteColumn()) {
                 editorService.requestNoteDeletionAtCurrentPosition(false);
@@ -60,15 +97,25 @@ QtObject {
             }
         }
     }
+    function _handleEscape() {
+        selectionService.clear();
+        UiService.toggleEditMode();
+    }
     function _handleInsert() {
+        selectionService.clear();
         if (UiService.editMode()) {
             editorService.requestNoteInsertionAtCurrentPosition();
         }
     }
     function _handleBackspace() {
+        selectionService.clear();
         if (UiService.editMode()) {
             editorService.requestNoteDeletionAtCurrentPosition(true);
         }
+    }
+    function _handleSpace() {
+        selectionService.clear();
+        UiService.togglePlay();
     }
     function _handleNoteOff() {
         if (UiService.editMode()) {

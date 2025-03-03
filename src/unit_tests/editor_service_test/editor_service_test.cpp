@@ -17,6 +17,7 @@
 
 #include "../../application/editor_service.hpp"
 #include "../../application/mixer_service.hpp"
+#include "../../application/selection_service.hpp"
 #include "../../domain/instrument.hpp"
 #include "../../domain/note_data.hpp"
 #include "../../domain/song.hpp"
@@ -713,6 +714,7 @@ void EditorServiceTest::test_requestColumnTranspose_shouldTransposeColumn()
 
     editorService.requestColumnTranspose(1);
 
+    QCOMPARE(noteDataChangedSpy.count(), 3);
     QCOMPARE(editorService.displayNoteAtPosition(0, 0, 0, 0), "C-3");
     QCOMPARE(editorService.displayVelocityAtPosition(0, 0, 0, 0), "064");
     QCOMPARE(editorService.displayNoteAtPosition(0, 0, 1, 0), "D#3");
@@ -732,6 +734,7 @@ void EditorServiceTest::test_requestTrackTranspose_shouldTransposeTrack()
 
     editorService.requestTrackTranspose(1);
 
+    QCOMPARE(noteDataChangedSpy.count(), 4);
     QCOMPARE(editorService.displayNoteAtPosition(0, 0, 0, 0), "C#3");
     QCOMPARE(editorService.displayVelocityAtPosition(0, 0, 0, 0), "064");
     QCOMPARE(editorService.displayNoteAtPosition(0, 0, 1, 0), "D#3");
@@ -750,10 +753,49 @@ void EditorServiceTest::test_requestPatternTranspose_shouldTransposePattern()
 
     editorService.requestPatternTranspose(1);
 
+    QCOMPARE(noteDataChangedSpy.count(), 4);
     QCOMPARE(editorService.displayNoteAtPosition(0, 0, 0, 0), "C#3");
     QCOMPARE(editorService.displayVelocityAtPosition(0, 0, 0, 0), "064");
     QCOMPARE(editorService.displayNoteAtPosition(0, 1, 0, 0), "D#3");
     QCOMPARE(editorService.displayVelocityAtPosition(0, 1, 0, 0), "064");
+}
+
+void EditorServiceTest::test_requestSelectionTranspose_shouldTransposeSelection()
+{
+    const auto selectionService = std::make_shared<SelectionService>();
+    EditorService editorService { selectionService };
+    QSignalSpy noteDataChangedSpy { &editorService, &EditorService::noteDataAtPositionChanged };
+
+    editorService.requestNewColumn(0);
+
+    QVERIFY(editorService.requestPosition(0, 0, 1, 0, 0));
+    QVERIFY(editorService.requestNoteOnAtCurrentPosition(1, 3, 64));
+    QVERIFY(editorService.requestPosition(0, 0, 1, 4, 0));
+    QVERIFY(editorService.requestNoteOnAtCurrentPosition(1, 3, 64));
+    QVERIFY(editorService.requestPosition(0, 0, 1, 8, 0));
+    QVERIFY(editorService.requestNoteOnAtCurrentPosition(1, 3, 64));
+
+    editorService.requestSelectionTranspose(1); // No selection => should do nothing
+
+    QCOMPARE(editorService.displayNoteAtPosition(0, 0, 1, 0), "C-3");
+    QCOMPARE(editorService.displayVelocityAtPosition(0, 0, 1, 0), "064");
+    QCOMPARE(editorService.displayNoteAtPosition(0, 0, 1, 4), "C-3");
+    QCOMPARE(editorService.displayVelocityAtPosition(0, 0, 1, 4), "064");
+    QCOMPARE(editorService.displayNoteAtPosition(0, 0, 1, 8), "C-3");
+    QCOMPARE(editorService.displayVelocityAtPosition(0, 0, 1, 8), "064");
+
+    selectionService->requestSelectionStart(0, 0, 1, 0);
+    selectionService->requestSelectionEnd(0, 0, 1, 4);
+
+    editorService.requestSelectionTranspose(1);
+
+    QCOMPARE(noteDataChangedSpy.count(), 5);
+    QCOMPARE(editorService.displayNoteAtPosition(0, 0, 1, 0), "C#3");
+    QCOMPARE(editorService.displayVelocityAtPosition(0, 0, 1, 0), "064");
+    QCOMPARE(editorService.displayNoteAtPosition(0, 0, 1, 4), "C#3");
+    QCOMPARE(editorService.displayVelocityAtPosition(0, 0, 1, 4), "064");
+    QCOMPARE(editorService.displayNoteAtPosition(0, 0, 1, 8), "C-3");
+    QCOMPARE(editorService.displayVelocityAtPosition(0, 0, 1, 8), "064");
 }
 
 void EditorServiceTest::test_requestPosition_invalidPosition_shouldNotChangePosition()

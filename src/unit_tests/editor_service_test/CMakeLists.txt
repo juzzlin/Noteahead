@@ -9,6 +9,7 @@ set(SRC
     ../../application/mixer_service.cpp
     ../../application/note_converter.cpp
     ../../application/position.hpp
+    ../../application/selection_service.cpp
     ../../common/constants.cpp
     ../../common/utils.cpp
     ../../domain/column.cpp

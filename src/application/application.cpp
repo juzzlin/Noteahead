@@ -28,6 +28,7 @@
 #include "models/track_settings_model.hpp"
 #include "player_service.hpp"
 #include "recent_files_manager.hpp"
+#include "selection_service.hpp"
 #include "state_machine.hpp"
 #include "ui_logger.hpp"
 
@@ -44,7 +45,8 @@ Application::Application(int & argc, char ** argv)
   , m_application { std::make_unique<QGuiApplication>(argc, argv) }
   , m_applicationService { std::make_unique<ApplicationService>() }
   , m_config { std::make_unique<Config>() }
-  , m_editorService { std::make_unique<EditorService>() }
+  , m_selectionService { std::make_unique<SelectionService>() }
+  , m_editorService { std::make_unique<EditorService>(m_selectionService) }
   , m_eventSelectionModel { std::make_unique<EventSelectionModel>() }
   , m_midiService { std::make_unique<MidiService>() }
   , m_mixerService { std::make_unique<MixerService>() }
@@ -58,6 +60,7 @@ Application::Application(int & argc, char ** argv)
     qmlRegisterType<UiLogger>("Noteahead", 1, 0, "UiLogger");
     qmlRegisterType<ApplicationService>("Noteahead", 1, 0, "ApplicationService");
     qmlRegisterType<Config>("Noteahead", 1, 0, "Config");
+    qmlRegisterType<SelectionService>("Noteahead", 1, 0, "SelectionService");
     qmlRegisterType<EditorService>("Noteahead", 1, 0, "EditorService");
     qmlRegisterType<EditorService>("Noteahead", 1, 0, "EventSelectionModel");
     qmlRegisterType<MidiService>("Noteahead", 1, 0, "MidiService");
@@ -104,6 +107,7 @@ void Application::setContextProperties()
     m_engine->rootContext()->setContextProperty("playerService", m_playerService.get());
     m_engine->rootContext()->setContextProperty("uiLogger", m_uiLogger.get());
     m_engine->rootContext()->setContextProperty("recentFilesModel", m_recentFilesModel.get());
+    m_engine->rootContext()->setContextProperty("selectionService", m_selectionService.get());
     m_engine->rootContext()->setContextProperty("trackSettingsModel", m_trackSettingsModel.get());
 }
 

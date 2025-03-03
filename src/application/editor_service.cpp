@@ -22,6 +22,7 @@
 #include "copy_manager.hpp"
 #include "instrument_request.hpp"
 #include "note_converter.hpp"
+#include "selection_service.hpp"
 
 #include <QDateTime>
 #include <QFile>
@@ -35,7 +36,13 @@ using namespace std::chrono_literals;
 static const auto TAG = "EditorService";
 
 EditorService::EditorService()
+  : EditorService { std::make_shared<SelectionService>() }
+{
+}
+
+EditorService::EditorService(SelectionServiceS selectionService)
   : m_copyManager { std::make_unique<CopyManager>() }
+  , m_selectionService { selectionService }
 {
     initialize();
 }
@@ -888,6 +895,8 @@ void EditorService::requestColumnDeletion(size_t track)
 {
     juzzlin::L(TAG).debug() << "Column deletion requested on track " << track;
 
+    m_selectionService->clear();
+
     if (m_song->deleteColumn(track)) {
         const auto oldPosition = m_cursorPosition;
         if (oldPosition.track == track && m_cursorPosition.column >= m_song->columnCount(track)) {
@@ -912,6 +921,9 @@ void EditorService::requestNewTrackToRight()
 void EditorService::requestTrackDeletion()
 {
     juzzlin::L(TAG).debug() << "Deletion of track requested: " << position().track;
+
+    m_selectionService->clear();
+
     if (trackCount() > visibleUnitCount()) {
         const auto trackToDelete = position().track;
         moveCursorToPrevTrack();
@@ -1270,6 +1282,22 @@ void EditorService::requestTrackFocus(size_t trackIndex, size_t column, size_t l
             m_cursorPosition.line = line;
             notifyPositionChange(oldPosition);
         }
+    }
+}
+
+void EditorService::requestSelectionTranspose(int semitones)
+{
+    juzzlin::L(TAG).info() << "Requesting selection transpose by " << semitones << " semitones";
+    if (m_selectionService->isValidSelection()) {
+        bool modified = false;
+        for (auto && position : m_selectionService->selectedPositions()) {
+            if (const auto noteData = m_song->noteDataAtPosition(position); noteData && noteData->type() == NoteData::Type::NoteOn) {
+                noteData->transpose(semitones);
+                emit noteDataAtPositionChanged(position);
+                modified = true;
+            }
+        }
+        setIsModified(modified);
     }
 }
 

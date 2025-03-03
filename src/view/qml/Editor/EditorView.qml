@@ -284,6 +284,7 @@ FocusScope {
                     });
             });
         mixerService.cleared.connect(_clearMixerSettings);
+        selectionService.selectionChanged.connect(_updateIndexHighlights);
     }
     function _lineNumberColumnHeight() {
         return trackArea.height - Constants.trackHeaderHeight - Constants.columnHeaderHeight;

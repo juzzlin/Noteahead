@@ -32,6 +32,7 @@ class Song;
 class Instrument;
 class InstrumentRequest;
 class InstrumentSettings;
+class SelectionService;
 
 class EditorService : public QObject
 {
@@ -64,6 +65,9 @@ class EditorService : public QObject
 
 public:
     EditorService();
+
+    using SelectionServiceS = std::shared_ptr<SelectionService>;
+    EditorService(SelectionServiceS selectionService);
 
     ~EditorService() override;
 
@@ -185,6 +189,8 @@ public:
     Q_INVOKABLE bool requestPosition(size_t pattern, size_t track, size_t column, size_t line, size_t lineColumn);
     Q_INVOKABLE void requestScroll(int steps);
     Q_INVOKABLE void requestTrackFocus(size_t trackIndex, size_t column, size_t line);
+
+    Q_INVOKABLE void requestSelectionTranspose(int semitones);
 
     Q_INVOKABLE size_t beatsPerMinute() const;
     Q_INVOKABLE void setBeatsPerMinute(size_t beatsPerMinute);
@@ -326,14 +332,14 @@ private:
     Position m_cursorPosition;
 
     QString m_currentTime;
-
     QString m_duration;
 
     size_t m_horizontalScrollPosition = 0;
-
     size_t m_songPosition = 0;
 
     std::unique_ptr<CopyManager> m_copyManager;
+
+    SelectionServiceS m_selectionService;
 
     bool m_isModified = false;
 };
