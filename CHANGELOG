@@ -5,11 +5,40 @@ Release date:
 
 New features:
 
+* Add Edit menu entry to reset instruments
+
+* Implement adjustable delays
+
 * Implement initial note visualizer on the bottom bar
+
+* Implement cut/copy/paste for selected lines
+
+* Implement line selection and transpose
+
+* Set different color for each track
 
 Bug fixes:
 
+* Update index highlights after creating tracks
+
+* Fix already set column velocity not showing in the settings dialog
+
+* Fix blank tracks when changing a pattern
+
+* Fix song position not reset on initialize
+
+* Fix lazy load on pattern length change
+
+* Fix new columns not visible
+
 Other:
+
+* Always show track name as bold
+
+* Give some time to change patch before applying other settings
+  - For example Korg Minilogue XD was not fast enough to change patch
+
+* Log file metadata
 
 0.1.0
 =====
