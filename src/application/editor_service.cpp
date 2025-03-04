@@ -1397,13 +1397,13 @@ size_t EditorService::horizontalScrollPosition() const
     return m_horizontalScrollPosition;
 }
 
-void EditorService::requestHorizontalScrollPositionChange(double position)
+void EditorService::setHorizontalScrollPosition(double position)
 {
     const auto oldPosition = m_horizontalScrollPosition;
 
     if (visibleUnitCount() < totalUnitCount()) {
         const auto maxPosition = totalUnitCount() - visibleUnitCount();
-        m_horizontalScrollPosition = static_cast<size_t>(std::round(position * static_cast<double>(visibleUnitCount()) / scrollBarSize()));
+        m_horizontalScrollPosition = static_cast<size_t>(std::round(position * static_cast<double>(visibleUnitCount())));
         m_horizontalScrollPosition = std::min(m_horizontalScrollPosition, maxPosition);
     } else {
         m_horizontalScrollPosition = 0;
@@ -1413,6 +1413,11 @@ void EditorService::requestHorizontalScrollPositionChange(double position)
         emit horizontalScrollChanged();
         notifyPositionChange(m_cursorPosition); // Forces vertical scroll update
     }
+}
+
+void EditorService::requestHorizontalScrollBarPositionChange(double scrollBarPosition)
+{
+    setHorizontalScrollPosition(scrollBarPosition / scrollBarSize());
 }
 
 size_t EditorService::totalUnitCount() const

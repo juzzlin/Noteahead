@@ -210,9 +210,9 @@ public:
     Q_INVOKABLE size_t horizontalScrollPosition() const;
     Q_INVOKABLE size_t trackWidthInUnits(size_t trackIndex) const;
     Q_INVOKABLE int trackPositionInUnits(size_t trackIndex) const;
-    Q_INVOKABLE void requestHorizontalScrollPositionChange(double position);
     Q_INVOKABLE double scrollBarStepSize() const;
     Q_INVOKABLE double scrollBarSize() const;
+    Q_INVOKABLE void requestHorizontalScrollBarPositionChange(double scrollBarPosition);
 
     Q_INVOKABLE size_t songPosition() const;
     Q_INVOKABLE void setSongPosition(size_t songPosition);
@@ -325,6 +325,7 @@ private:
     void resetCursorPosition();
     void moveCursorToNextTrack();
     void moveCursorToPrevTrack();
+    void setHorizontalScrollPosition(double position);
 
     bool setVelocityAtCurrentPosition(uint8_t digit);
 

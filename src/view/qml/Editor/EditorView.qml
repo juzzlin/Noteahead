@@ -63,7 +63,7 @@ FocusScope {
         anchors.right: parent.right
         anchors.bottom: parent.bottom
         onPositionChanged: {
-            editorService.requestHorizontalScrollPositionChange(position);
+            editorService.requestHorizontalScrollBarPositionChange(position);
         }
     }
     MainContextMenu {

@@ -546,17 +546,17 @@ void EditorServiceTest::test_requestHorizontalScrollPositionChange_shouldChangeP
     QSignalSpy horizontalScrollChangeSpy(&editorService, &EditorService::horizontalScrollChanged);
     QSignalSpy positionChangedSpy { &editorService, &EditorService::positionChanged };
 
-    editorService.requestHorizontalScrollPositionChange(0);
+    editorService.requestHorizontalScrollBarPositionChange(0);
     QCOMPARE(editorService.horizontalScrollPosition(), 0);
     QVERIFY(editorService.isColumnVisible(0, 0));
 
-    editorService.requestHorizontalScrollPositionChange(0.5);
+    editorService.requestHorizontalScrollBarPositionChange(0.5);
     QCOMPARE(editorService.horizontalScrollPosition(), 2);
     QVERIFY(!editorService.isColumnVisible(0, 0));
 
     editorService.requestNewColumn(0);
     QCOMPARE(positionChangedSpy.count(), 2);
-    editorService.requestHorizontalScrollPositionChange(0.5); // Not the exact threshold, but "enough"
+    editorService.requestHorizontalScrollBarPositionChange(0.5); // Not the exact threshold, but "enough"
 
     QCOMPARE(editorService.horizontalScrollPosition(), 3);
     QCOMPARE(horizontalScrollChangeSpy.count(), 2);
