@@ -1,0 +1,103 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <base href="https://juzzlin.github.io">
+        <link rel="shortcut icon" type="image/x-icon" href="/Noteahead/favicon.ico">
+        <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Roboto+Condensed:400,700|Roboto:400,400i&amp;display=swap">
+        <link rel="stylesheet" href="/Noteahead/css/bootstrap-5.0.0-beta1-dist/css/bootstrap-grid.min.css"/>
+        <link rel="stylesheet" href="/Noteahead/css/style.css">
+        <title>Noteahead - A simple MIDI tracker and sequencer written in C++/Qt/QML</title>
+    </head>
+    <body onload = "main();">
+        <h1>Noteahead - A simple MIDI tracker and sequencer written in C++/Qt/QML</h1>
+        <article>
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="header-project-home col-md-3 col-sm-12">
+                        <a href="https://github.com/juzzlin/Noteahead">Project Home</a>
+                    </div>
+                    <div class="header-downloads col-md-3 col-sm-12">
+                        <a href="https://github.com/juzzlin/Noteahead/releases">Downloads</a>
+                    </div>
+                    <div class="col-md-3 col-sm-12"></div>
+                </div>
+                <div class="row">
+                    <div class="col-md-3 col-sm-12"></div>
+                    <div class="col-md-6 col-sm-12">
+                        <div class="image-container">
+                            <img id="animation-image-1"/>
+                            <img id="animation-image-2"/>
+                        </div>
+                        <img id="animation-image-dummy" src="/Noteahead/img/Noteahead_1.png"/>
+                    </div>
+                    <div class="col-md-3 col-sm-12"></div>
+                </div>
+                <div class="features row">
+                    <div class="col-md-4 col-sm-12">
+                        <ul>
+                            <li>Accurate internal timing</li>
+                            <li>Fully scalable UI</li>
+                            <li>Cool volume meters like in NoiseTracker</li>
+                            <li>Cool note visualizer animation on the bottom bar</li>
+                            <li>Easy-to-use track editing</li>
+                        </ul>
+                    </div>
+                    <div class="col-md-4 col-sm-12">
+                        <ul>
+                            <li>Poor Man's MIDI Hot-Plug with automatic setup</li>
+                            <li>Send MIDI clock on desired ports</li>
+                            <li>Tracks with multiple note columns</li>
+                            <li>Track settings with port, channel, bank, patch, volume, pan, cutoff</li>
+                            <li>Track settings with generic MIDI CC slots</li>
+                        </ul>
+                    </div>
+                    <div class="col-md-4 col-sm-12">
+                        <ul>
+                            <li>Track and column-specific velocity scales</li>
+                            <li>Saves to a custom (but open!) XML-based .nahd format</li>
+                            <li>Will always be 100% FREE</li>
+                            <li>...and more...</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </article>
+        <footer>
+            <p>© 2025 Jussi Lind &lt;jussi.lind@iki.fi&gt;</p>
+        </footer>
+        <script>
+            const imageFiles = ["/Noteahead/img/Noteahead_1.png", "/Noteahead/img/Noteahead_2.png", "/Noteahead/img/Noteahead_3.png"];
+            const updateImage = (image1, image2, imageIndex) => {
+                image1.setAttribute("src", imageFiles.at(imageIndex));
+            };
+            const main = () => {
+                const image1 = document.getElementById("animation-image-1");
+                const image2 = document.getElementById("animation-image-2");
+                let imageIndex = 0;
+                let tictoc = 0;
+                updateImage(image1, image2, imageIndex);
+                image1.classList.add("fade-in");
+                setInterval(() => {
+                    if (tictoc % 2 == 0) {
+                        if (image1.hasAttribute("src") && image1.getAttribute("src")) {
+                            image2.setAttribute("src", image1.getAttribute("src"));
+                        }
+                        if (image1.classList.contains("fade-in")) {
+                            image1.classList.remove("fade-in");
+                        }
+                    } else {
+                        imageIndex++;
+                        imageIndex = imageIndex % imageFiles.length;
+                        updateImage(image1, image2, imageIndex);
+                        if (!image1.classList.contains("fade-in")) {
+                            image1.classList.add("fade-in");
+                        }
+                    }
+                    tictoc++;
+                }, 2000);
+            };
+        </script>
+    </body>
+</html>

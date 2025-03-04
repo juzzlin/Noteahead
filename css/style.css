@@ -1,0 +1,105 @@
+body {
+    padding: 50px;
+    margin: 0;
+    font: 14px "Roboto", sans-serif;
+    font-weight: 700;
+    color: grey;
+}
+
+html {
+    padding: 0;
+    margin: 0;
+    position: relative;
+    min-height: 100%;
+}
+
+a {
+    color: white;
+    text-decoration: none;
+}
+
+a.link {
+    color: white;
+    text-decoration: none;
+}
+
+a.visited {
+    color: white;
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+h1 {
+      color: orange;
+}
+
+article {
+    margin-top: 10px;
+    margin-bottom: 25px;
+    min-height: 100%;
+}
+
+div.header-project-home {
+    background-color: orange;
+}
+
+div.header-downloads {
+    background-color: grey;
+}
+
+div.image-container {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    height: auto;
+    margin-top: 25px;
+}
+
+div.features {
+    margin-top: 25px;
+}
+
+img#animation-image-1, img#animation-image-2  {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: auto;
+}
+
+img#animation-image-1 {
+    z-index: 10001;
+    opacity: 0;
+}
+
+img#animation-image-2 {
+    z-index: 10000;
+    opacity: 1;
+}
+
+img#animation-image-dummy {
+    opacity: 0;
+    display: inline-block;
+    width: 100%;
+    height: auto;
+}
+
+img.fade-in {
+    opacity: 1 !important;
+    transition: opacity 1000ms;
+}
+
+footer {
+    display: flex;
+    justify-content: center;
+    background-color: orange;
+    color: #fff;
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+}
