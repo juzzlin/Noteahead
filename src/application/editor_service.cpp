@@ -688,7 +688,7 @@ bool EditorService::isAtVelocityColumn() const
 
 bool EditorService::isColumnVisible(size_t track, size_t column) const
 {
-    const int columnPosition = onScreenTrackPositionInUnits(track) + static_cast<int>(column);
+    const int columnPosition = onScreenColumnPositionInUnits(track, column);
     return columnPosition >= 0 && columnPosition < static_cast<int>(visibleUnitCount());
 }
 
@@ -1358,16 +1358,31 @@ void EditorService::moveCursorToNextTrack()
     }
 }
 
+void EditorService::ensureFocusedColumnIsVisible()
+{
+    const auto onScreenColumnPosition = onScreenColumnPositionInUnits(m_cursorPosition.track, m_cursorPosition.column);
+    if (onScreenColumnPosition < 0 || //
+        onScreenColumnPosition >= static_cast<int>(visibleUnitCount())) {
+        const auto columnPositionInUnits = this->columnPositionInUnits(m_cursorPosition.track, m_cursorPosition.column);
+        juzzlin::L(TAG).debug() << "Column position in units: " << columnPositionInUnits;
+        juzzlin::L(TAG).debug() << "Total unit count: " << totalUnitCount();
+        const auto newScroll = static_cast<double>(columnPositionInUnits) / static_cast<double>(totalUnitCount());
+        juzzlin::L(TAG).debug() << "Setting scroll position to: " << newScroll;
+        setHorizontalScrollPosition(newScroll);
+        updateScrollBar();
+    }
+}
+
 void EditorService::ensureFocusedTrackIsVisible()
 {
     const auto onScreenTrackPosition = onScreenTrackPositionInUnits(m_cursorPosition.track);
     if (onScreenTrackPosition < 0 || //
         onScreenTrackPosition >= static_cast<int>(visibleUnitCount())) {
         const auto trackPositionInUnits = this->trackPositionInUnits(m_cursorPosition.track);
-        juzzlin::L(TAG).info() << "Track position in units: " << trackPositionInUnits;
-        juzzlin::L(TAG).info() << "Total unit count: " << totalUnitCount();
+        juzzlin::L(TAG).debug() << "Track position in units: " << trackPositionInUnits;
+        juzzlin::L(TAG).debug() << "Total unit count: " << totalUnitCount();
         const auto newScroll = static_cast<double>(trackPositionInUnits) / static_cast<double>(totalUnitCount());
-        juzzlin::L(TAG).info() << "Setting scroll position to: " << newScroll;
+        juzzlin::L(TAG).debug() << "Setting scroll position to: " << newScroll;
         setHorizontalScrollPosition(newScroll);
         updateScrollBar();
     }
@@ -1386,9 +1401,9 @@ void EditorService::requestCursorLeft()
             m_cursorPosition.column--;
         } else {
             moveCursorToPrevTrack();
-            ensureFocusedTrackIsVisible();
         }
     }
+    ensureFocusedColumnIsVisible();
     notifyPositionChange(oldPosition);
 }
 
@@ -1405,10 +1420,10 @@ void EditorService::requestCursorRight()
             m_cursorPosition.column++;
         } else {
             moveCursorToNextTrack();
-            ensureFocusedTrackIsVisible();
         }
     }
     notifyPositionChange(oldPosition);
+    ensureFocusedColumnIsVisible();
 }
 
 void EditorService::requestTrackRight()
@@ -1416,8 +1431,8 @@ void EditorService::requestTrackRight()
     juzzlin::L(TAG).debug() << "Track right requested";
     const auto oldPosition = m_cursorPosition;
     moveCursorToNextTrack();
-    ensureFocusedTrackIsVisible();
     notifyPositionChange(oldPosition);
+    ensureFocusedTrackIsVisible();
 }
 
 void EditorService::requestColumnRight()
@@ -1428,10 +1443,9 @@ void EditorService::requestColumnRight()
         m_cursorPosition.column++;
     } else {
         moveCursorToNextTrack();
-        ensureFocusedTrackIsVisible();
     }
-
     notifyPositionChange(oldPosition);
+    ensureFocusedColumnIsVisible();
 }
 
 size_t EditorService::totalUnitCount() const
@@ -1448,6 +1462,11 @@ size_t EditorService::trackWidthInUnits(size_t trackIndex) const
     return m_song->columnCount(trackIndex);
 }
 
+size_t EditorService::columnPositionInUnits(size_t trackIndex, size_t columnIndex) const
+{
+    return trackPositionInUnits(trackIndex) + columnIndex;
+}
+
 size_t EditorService::trackPositionInUnits(size_t trackIndex) const
 {
     size_t unitPosition = 0;
@@ -1456,6 +1475,11 @@ size_t EditorService::trackPositionInUnits(size_t trackIndex) const
         unitPosition += m_song->columnCount(m_song->trackIndexByPosition(track).value_or(0));
     }
     return unitPosition;
+}
+
+int EditorService::onScreenColumnPositionInUnits(size_t trackIndex, size_t columnIndex) const
+{
+    return onScreenTrackPositionInUnits(trackIndex) + static_cast<int>(columnIndex);
 }
 
 int EditorService::onScreenTrackPositionInUnits(size_t trackIndex) const

@@ -205,7 +205,9 @@ public:
 
     Q_INVOKABLE size_t horizontalScrollPosition() const;
     Q_INVOKABLE size_t trackWidthInUnits(size_t trackIndex) const;
+    size_t columnPositionInUnits(size_t trackIndex, size_t columnIndex) const;
     size_t trackPositionInUnits(size_t trackIndex) const;
+    Q_INVOKABLE int onScreenColumnPositionInUnits(size_t trackIndex, size_t columnIndex) const;
     Q_INVOKABLE int onScreenTrackPositionInUnits(size_t trackIndex) const;
     Q_INVOKABLE double scrollBarStepSize() const;
     Q_INVOKABLE double scrollBarHandleSize() const;
@@ -329,6 +331,7 @@ private:
     void moveCursorToNextTrack();
     void moveCursorToPrevTrack();
     void setHorizontalScrollPosition(double position);
+    void ensureFocusedColumnIsVisible();
     void ensureFocusedTrackIsVisible();
 
     bool setVelocityAtCurrentPosition(uint8_t digit);
