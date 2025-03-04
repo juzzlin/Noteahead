@@ -45,6 +45,7 @@ public:
     Q_INVOKABLE QString copyright() const;
     Q_INVOKABLE QString fileFormatExtension() const;
     Q_INVOKABLE QString license() const;
+    Q_INVOKABLE QString webSiteUrl() const;
 
     Q_INVOKABLE QStringList recentFiles() const;
 

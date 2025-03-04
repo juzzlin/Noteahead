@@ -54,7 +54,7 @@ QString qSettingsCompanyName()
 
 QString webSiteUrl()
 {
-    return "https://github.com/juzzlin/Noteahead";
+    return "https://juzzlin.github.io/Noteahead";
 }
 
 QString qSettingSoftwareName()

@@ -34,7 +34,7 @@ Dialog {
             }
             Label {
                 id: link_Text
-                text: `${qsTr("Project website:")} <a href="https://github.com/juzzlin/Noteahead">https://github.com/juzzlin/Noteahead</a>`
+                text: `${qsTr("Project website:")} <a href="${applicationService.webSiteUrl()}">${applicationService.webSiteUrl()}</a>`
                 onLinkActivated: link => Qt.openUrlExternally(link)
                 MouseArea {
                     id: mouseArea

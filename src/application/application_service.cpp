@@ -58,6 +58,11 @@ QString ApplicationService::fileFormatExtension() const
     return Constants::fileFormatExtension();
 }
 
+QString ApplicationService::webSiteUrl() const
+{
+    return Constants::webSiteUrl();
+}
+
 void ApplicationService::acceptUnsavedChangesDialog()
 {
     juzzlin::L(TAG).info() << "Unsaved changes accepted";
