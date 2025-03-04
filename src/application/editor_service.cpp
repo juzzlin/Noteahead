@@ -1272,6 +1272,7 @@ void EditorService::requestTrackFocus(size_t trackIndex, size_t column, size_t l
             m_cursorPosition.track = trackIndex;
             m_cursorPosition.column = column;
             m_cursorPosition.line = line;
+            m_cursorPosition.lineColumn = 0;
             notifyPositionChange(oldPosition);
         }
     }
