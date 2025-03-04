@@ -13,32 +13,24 @@
 // You should have received a copy of the GNU General Public License
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef MIXER_UNIT_HPP
-#define MIXER_UNIT_HPP
+#ifndef NOTE_DATA_MANIPULATOR_HPP
+#define NOTE_DATA_MANIPULATOR_HPP
 
-#include <cstddef>
-#include <string>
+#include "../application/position.hpp"
+
+#include <vector>
 
 namespace noteahead {
 
-class MixerUnit
-{
-public:
-    MixerUnit(size_t index, std::string name);
+class Song;
 
-    virtual ~MixerUnit();
+namespace NoteDataManipulator {
 
-    size_t index() const;
+using SongW = std::weak_ptr<Song>;
+using ChangedPositions = std::vector<Position>;
+ChangedPositions interpolateVelocity(SongW song, const Position & start, const Position & end, uint8_t startValue, uint8_t endValue);
 
-    std::string name() const;
-    virtual void setName(const std::string & name);
-
-private:
-    size_t m_index = 0;
-
-    std::string m_name;
-};
-
+} // namespace NoteDataManipulator
 } // namespace noteahead
 
-#endif // MIXER_UNIT_HPP
+#endif // NOTE_DATA_MANIPULATOR_HPP

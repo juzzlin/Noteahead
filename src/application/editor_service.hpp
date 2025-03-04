@@ -188,8 +188,11 @@ public:
     Q_INVOKABLE void requestSelectionCut();
     Q_INVOKABLE void requestSelectionCopy();
     Q_INVOKABLE void requestSelectionPaste();
-    Q_INVOKABLE void requestSelectionTranspose(int semitones);
     Q_INVOKABLE bool hasSelectionToPaste() const;
+    Q_INVOKABLE void requestSelectionTranspose(int semitones);
+
+    //! Performs linear interpolation on velocity on current pattern, track, and column over given lines.
+    Q_INVOKABLE void requestLinearVelocityInterpolation(size_t startLine, size_t endLine, uint8_t startValue, uint8_t endValue);
 
     bool requestPosition(const Position & position);
     Q_INVOKABLE bool requestPosition(size_t pattern, size_t track, size_t column, size_t line, size_t lineColumn);

@@ -36,11 +36,13 @@ set(HEADER_FILES
   domain/event.hpp
   domain/instrument.hpp
   domain/instrument_settings.hpp
+  domain/interpolator.hpp
   domain/line.hpp
   domain/line_event.hpp
   domain/midi_cc_setting.hpp
   domain/mixer_unit.hpp
   domain/note_data.hpp
+  domain/note_data_manipulator.hpp
   domain/pattern.hpp
   domain/play_order.hpp
   domain/song.hpp
@@ -79,11 +81,13 @@ set(SOURCE_FILES
   domain/event.cpp
   domain/instrument.cpp
   domain/instrument_settings.cpp
+  domain/interpolator.cpp
   domain/line.cpp
   domain/line_event.cpp
   domain/midi_cc_setting.cpp
   domain/mixer_unit.cpp
   domain/note_data.cpp
+  domain/note_data_manipulator.cpp
   domain/pattern.cpp
   domain/play_order.cpp
   domain/song.cpp
@@ -109,6 +113,7 @@ set(QML_SOURCE_FILES
     ${QML_BASE_DIR}/Dialogs/AboutDialog.qml
     ${QML_BASE_DIR}/Dialogs/EventSelectionDialog.qml
     ${QML_BASE_DIR}/Dialogs/IntegerInputDialog.qml
+    ${QML_BASE_DIR}/Dialogs/InterpolationDialog.qml
     ${QML_BASE_DIR}/Dialogs/MidiCcSelector.qml
     ${QML_BASE_DIR}/Dialogs/RecentFilesDialog.qml
     ${QML_BASE_DIR}/Dialogs/SettingsDialog.qml

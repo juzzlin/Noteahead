@@ -23,6 +23,22 @@ static const auto TAG = "SelectionService";
 
 SelectionService::SelectionService() = default;
 
+size_t SelectionService::minLine() const
+{
+    const auto selectedPositions = this->selectedPositions();
+    const auto minLineIt = std::ranges::min_element(selectedPositions,
+                                                    [](const auto & a, const auto & b) { return a.line < b.line; });
+    return (minLineIt != selectedPositions.end()) ? minLineIt->line : 0;
+}
+
+size_t SelectionService::maxLine() const
+{
+    const auto selectedPositions = this->selectedPositions();
+    const auto maxLineIt = std::ranges::max_element(selectedPositions,
+                                                    [](const auto & a, const auto & b) { return a.line < b.line; });
+    return (maxLineIt != selectedPositions.end()) ? maxLineIt->line : 0;
+}
+
 SelectionService::PositionList SelectionService::selectedPositions() const
 {
     PositionList positions;
@@ -84,6 +100,7 @@ bool SelectionService::requestSelectionStart(size_t pattern, size_t track, size_
     const Position position = { pattern, track, column, line };
     m_startPosition = position;
     juzzlin::L(TAG).info() << "New selection start: " << position.toString();
+    emit isValidSelectionChanged();
     return true;
 }
 
@@ -96,6 +113,7 @@ bool SelectionService::requestSelectionEnd(size_t pattern, size_t track, size_t 
         m_endPosition = position;
         juzzlin::L(TAG).info() << "New selection end: " << position.toString();
         emit selectionChanged();
+        emit isValidSelectionChanged();
         return true;
     }
 
@@ -108,6 +126,7 @@ void SelectionService::clear()
     m_endPosition.reset();
 
     emit selectionChanged();
+    emit isValidSelectionChanged();
 }
 
 } // namespace noteahead

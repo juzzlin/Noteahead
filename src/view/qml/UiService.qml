@@ -3,13 +3,14 @@ import QtQuick 2.15
 
 QtObject {
     signal aboutDialogRequested
-    signal eventSelectionDialogRequested
     signal activeOctaveChanged(int activeOctave)
+    signal columnVelocityScaleDialogRequested(int trackIndex, int columnIndex)
+    signal eventSelectionDialogRequested
     signal focusOnEditorViewRequested
     signal recentFilesDialogRequested
+    signal selectionVelocityInterpolationDialogRequested
     signal settingsDialogRequested
     signal trackSettingsDialogRequested(int trackIndex)
-    signal columnVelocityScaleDialogRequested(int trackIndex, int columnIndex)
     signal trackVelocityScaleDialogRequested(int trackIndex)
     property int _activeOctave: 3
     readonly property string _tag: "UiService"
@@ -103,6 +104,11 @@ QtObject {
     function requestTrackVelocityScaleDialog(trackIndex) {
         if (!isPlaying()) {
             trackVelocityScaleDialogRequested(trackIndex);
+        }
+    }
+    function requestSelectionVelocityInterpolationDialog() {
+        if (!isPlaying()) {
+            selectionVelocityInterpolationDialogRequested();
         }
     }
     function requestFocusOnEditorView() {

@@ -244,6 +244,13 @@ Menu {
             enabled: !UiService.isPlaying()
             onTriggered: editorService.requestSelectionTranspose(-12)
         }
+        MenuSeparator {
+        }
+        Action {
+            text: qsTr("Interpolate velocity")
+            enabled: !UiService.isPlaying() && selectionService.isValidSelection
+            onTriggered: UiService.requestSelectionVelocityInterpolationDialog()
+        }
         delegate: MainMenuItemDelegate {
         }
     }

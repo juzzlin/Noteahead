@@ -13,32 +13,28 @@
 // You should have received a copy of the GNU General Public License
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef MIXER_UNIT_HPP
-#define MIXER_UNIT_HPP
+#ifndef INTERPOLATOR_HPP
+#define INTERPOLATOR_HPP
 
 #include <cstddef>
-#include <string>
 
 namespace noteahead {
 
-class MixerUnit
+class Interpolator
 {
 public:
-    MixerUnit(size_t index, std::string name);
+    Interpolator(size_t startLine, size_t endLine, double startValue, double endValue);
 
-    virtual ~MixerUnit();
-
-    size_t index() const;
-
-    std::string name() const;
-    virtual void setName(const std::string & name);
+    double getValue(size_t line) const;
 
 private:
-    size_t m_index = 0;
+    size_t m_startLine = 0;
+    size_t m_endLine = 0;
 
-    std::string m_name;
+    double m_startValue = 0;
+    double m_endValue = 0;
 };
 
 } // namespace noteahead
 
-#endif // MIXER_UNIT_HPP
+#endif // INTERPOLATOR_HPP

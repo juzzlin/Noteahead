@@ -183,6 +183,16 @@ ApplicationWindow {
             mixerService.setTrackVelocityScale(trackIndex, value());
         }
     }
+    InterpolationDialog {
+        id: velocityInterpolationDialog
+        anchors.centerIn: parent
+        width: parent.width * 0.5
+        property int trackIndex
+        property int columnIndex
+        onAccepted: {
+            editorService.requestLinearVelocityInterpolation(startLine(), endLine(), startValue(), endValue());
+        }
+    }
     function _getWindowTitle() {
         const nameAndVersion = `${applicationService.applicationName()} MIDI tracker v${applicationService.applicationVersion()}`;
         const currentFileName = (editorService.currentFileName ? " - " + editorService.currentFileName : "");
@@ -242,6 +252,14 @@ ApplicationWindow {
                 trackVelocityScaleDialog.setValue(mixerService.trackVelocityScale(trackIndex));
                 trackVelocityScaleDialog.trackIndex = trackIndex;
                 trackVelocityScaleDialog.open();
+            });
+        UiService.selectionVelocityInterpolationDialogRequested.connect(() => {
+                velocityInterpolationDialog.setTitle(qsTr("Interpolate velocity"));
+                velocityInterpolationDialog.setStartLine(selectionService.minLine());
+                velocityInterpolationDialog.setEndLine(selectionService.maxLine());
+                velocityInterpolationDialog.setStartValue(0);
+                velocityInterpolationDialog.setEndValue(100);
+                velocityInterpolationDialog.open();
             });
         UiService.quitRequested.connect(() => {
                 config.setWindowSize(Qt.size(mainWindow.width, mainWindow.height));

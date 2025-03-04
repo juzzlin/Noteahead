@@ -18,6 +18,7 @@
 #include "../common/constants.hpp"
 #include "../contrib/SimpleLogger/src/simple_logger.hpp"
 #include "../domain/note_data.hpp"
+#include "../domain/note_data_manipulator.hpp"
 #include "../domain/song.hpp"
 #include "copy_manager.hpp"
 #include "instrument_request.hpp"
@@ -1250,6 +1251,22 @@ void EditorService::requestSelectionTranspose(int semitones)
             }
         }
         setIsModified(modified);
+    }
+}
+
+void EditorService::requestLinearVelocityInterpolation(size_t startLine, size_t endLine, uint8_t startValue, uint8_t endValue)
+{
+    auto start = position();
+    start.line = startLine;
+
+    auto end = position();
+    end.line = endLine;
+
+    if (const auto changedPositions = NoteDataManipulator::interpolateVelocity(m_song, start, end, startValue, endValue); !changedPositions.empty()) {
+        for (auto && position : changedPositions) {
+            emit noteDataAtPositionChanged(position);
+        }
+        setIsModified(true);
     }
 }
 

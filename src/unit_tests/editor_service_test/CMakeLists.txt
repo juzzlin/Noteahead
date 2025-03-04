@@ -16,11 +16,13 @@ set(SRC
     ../../domain/event.cpp
     ../../domain/instrument.cpp
     ../../domain/instrument_settings.cpp
+    ../../domain/interpolator.cpp
     ../../domain/line.cpp
     ../../domain/line_event.cpp
     ../../domain/midi_cc_setting.cpp
     ../../domain/mixer_unit.cpp
     ../../domain/note_data.cpp
+    ../../domain/note_data_manipulator.cpp
     ../../domain/pattern.cpp
     ../../domain/play_order.cpp
     ../../domain/song.cpp

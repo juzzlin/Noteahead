@@ -28,19 +28,27 @@ class SelectionService : public QObject
 {
     Q_OBJECT
 
+    Q_PROPERTY(bool isValidSelection READ isValidSelection NOTIFY isValidSelectionChanged)
+
 public:
     SelectionService();
 
     Q_INVOKABLE bool isSelected(size_t pattern, size_t track, size_t column, size_t line) const;
     Q_INVOKABLE bool isValidSelection() const;
+
     Q_INVOKABLE bool requestSelectionEnd(size_t pattern, size_t track, size_t column, size_t line);
     Q_INVOKABLE bool requestSelectionStart(size_t pattern, size_t track, size_t column, size_t line);
+
     Q_INVOKABLE void clear();
+
+    Q_INVOKABLE size_t minLine() const;
+    Q_INVOKABLE size_t maxLine() const;
 
     using PositionList = std::vector<Position>;
     PositionList selectedPositions() const;
 
 signals:
+    void isValidSelectionChanged();
     void selectionChanged();
 
 private:

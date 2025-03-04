@@ -858,6 +858,29 @@ void EditorServiceTest::test_requestSelectionTranspose_shouldTransposeSelection(
     QCOMPARE(editorService.displayVelocityAtPosition(0, 0, 1, 8), "064");
 }
 
+void EditorServiceTest::test_requestLinearVelocityInterpolation_shouldInterpolateVelocities()
+{
+    EditorService editorService;
+    QSignalSpy noteDataChangedSpy { &editorService, &EditorService::noteDataAtPositionChanged };
+
+    QVERIFY(editorService.requestPosition(0, 0, 0, 0, 0));
+    QVERIFY(editorService.requestNoteOnAtCurrentPosition(1, 3, 64));
+    QVERIFY(editorService.requestPosition(0, 0, 0, 3, 0));
+    QVERIFY(editorService.requestNoteOnAtCurrentPosition(1, 3, 64));
+    QVERIFY(editorService.requestPosition(0, 0, 0, 7, 0));
+    QVERIFY(editorService.requestNoteOnAtCurrentPosition(1, 3, 64));
+
+    editorService.requestLinearVelocityInterpolation(0, 7, 0, 100);
+
+    QCOMPARE(noteDataChangedSpy.count(), 6);
+    QCOMPARE(editorService.displayNoteAtPosition(0, 0, 0, 0), "C-3");
+    QCOMPARE(editorService.displayVelocityAtPosition(0, 0, 0, 0), "000");
+    QCOMPARE(editorService.displayNoteAtPosition(0, 0, 0, 3), "C-3");
+    QCOMPARE(editorService.displayVelocityAtPosition(0, 0, 0, 3), "042");
+    QCOMPARE(editorService.displayNoteAtPosition(0, 0, 0, 7), "C-3");
+    QCOMPARE(editorService.displayVelocityAtPosition(0, 0, 0, 7), "100");
+}
+
 void EditorServiceTest::test_requestPosition_invalidPosition_shouldNotChangePosition()
 {
     EditorService editorService;
