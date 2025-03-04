@@ -163,7 +163,7 @@ Item {
     function _setTrackDimensions(track, trackAreaWidth, trackAreaHeight) {
         const unitWidth = trackAreaWidth / editorService.visibleUnitCount();
         track.resize(unitWidth * editorService.trackWidthInUnits(track.index()), trackAreaHeight);
-        track.x = unitWidth * editorService.trackPositionInUnits(track.index());
+        track.x = unitWidth * editorService.onScreenTrackPositionInUnits(track.index());
         track.y = 0;
     }
     function updateTrackDimensions(trackAreaWidth, trackAreaHeight) {

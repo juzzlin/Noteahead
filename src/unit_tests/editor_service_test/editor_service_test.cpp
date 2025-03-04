@@ -569,7 +569,7 @@ void EditorServiceTest::test_requestNewColumn_shouldAddNewColumn()
     QVERIFY(editorService.requestPosition(0, 0, 0, 0, 0));
     QSignalSpy positionChangedSpy { &editorService, &EditorService::positionChanged };
     QSignalSpy columnAddedSpy { &editorService, &EditorService::columnAdded };
-    QSignalSpy scrollBarSizeChangedSpy { &editorService, &EditorService::scrollBarSizeChanged };
+    QSignalSpy scrollBarSizeChangedSpy { &editorService, &EditorService::scrollBarHandleSizeChanged };
     QSignalSpy scrollBarStepSizeChangedSpy { &editorService, &EditorService::scrollBarStepSizeChanged };
 
     editorService.requestNewColumn(0);
@@ -588,7 +588,7 @@ void EditorServiceTest::test_requestColumnDeletion_shouldDeleteColumn()
     QVERIFY(editorService.requestPosition(0, 0, 0, 0, 0));
     QSignalSpy columnDeletedSpy { &editorService, &EditorService::columnDeleted };
     QSignalSpy positionChangedSpy { &editorService, &EditorService::positionChanged };
-    QSignalSpy scrollBarSizeChangedSpy { &editorService, &EditorService::scrollBarSizeChanged };
+    QSignalSpy scrollBarSizeChangedSpy { &editorService, &EditorService::scrollBarHandleSizeChanged };
     QSignalSpy scrollBarStepSizeChangedSpy { &editorService, &EditorService::scrollBarStepSizeChanged };
 
     editorService.requestNewColumn(0);
@@ -646,7 +646,7 @@ void EditorServiceTest::test_requestTrackDeletion_shouldDeleteTrack()
     const auto initialTrackCount = editorService.trackCount();
     QSignalSpy trackDeletedSpy { &editorService, &EditorService::trackDeleted };
     QSignalSpy positionChangedSpy { &editorService, &EditorService::positionChanged };
-    QSignalSpy scrollBarSizeChangedSpy { &editorService, &EditorService::scrollBarSizeChanged };
+    QSignalSpy scrollBarSizeChangedSpy { &editorService, &EditorService::scrollBarHandleSizeChanged };
     QSignalSpy scrollBarStepSizeChangedSpy { &editorService, &EditorService::scrollBarStepSizeChanged };
 
     QVERIFY(editorService.requestPosition(0, 0, 0, 0, 0));

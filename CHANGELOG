@@ -19,6 +19,9 @@ New features:
 
 * Set different color for each track
 
+* Scroll horizontally by tab/left/right if track not visible
+  - Fixes numerous issues with the horizontal scroll logic
+
 Bug fixes:
 
 * Update index highlights after creating tracks

@@ -56,7 +56,7 @@ FocusScope {
         hoverEnabled: true
         active: hovered || pressed
         orientation: Qt.Horizontal
-        size: editorService.scrollBarSize
+        size: editorService.scrollBarHandleSize
         stepSize: editorService.scrollBarStepSize
         snapMode: ScrollBar.SnapAlways
         anchors.left: parent.left
@@ -64,6 +64,12 @@ FocusScope {
         anchors.bottom: parent.bottom
         onPositionChanged: {
             editorService.requestHorizontalScrollBarPositionChange(position);
+        }
+        Component.onCompleted: {
+            // Keyboard commands like tab/left/right might force also scroll bar position
+            editorService.scrollBarPositionChanged.connect(() => {
+                    position = editorService.scrollBarPosition();
+                });
         }
     }
     MainContextMenu {

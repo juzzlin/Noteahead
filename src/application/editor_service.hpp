@@ -60,7 +60,7 @@ class EditorService : public QObject
     Q_PROPERTY(size_t patternAtCurrentSongPosition READ patternAtCurrentSongPosition NOTIFY patternAtCurrentSongPositionChanged)
     Q_PROPERTY(size_t songLength READ songLength WRITE setSongLength NOTIFY songLengthChanged)
 
-    Q_PROPERTY(double scrollBarSize READ scrollBarSize NOTIFY scrollBarSizeChanged)
+    Q_PROPERTY(double scrollBarHandleSize READ scrollBarHandleSize NOTIFY scrollBarHandleSizeChanged)
     Q_PROPERTY(double scrollBarStepSize READ scrollBarStepSize NOTIFY scrollBarStepSizeChanged)
 
 public:
@@ -150,10 +150,6 @@ public:
     Q_INVOKABLE size_t positionBarLine() const;
 
     Q_INVOKABLE void requestEventRemoval();
-    Q_INVOKABLE void requestCursorLeft();
-    Q_INVOKABLE void requestCursorRight();
-    Q_INVOKABLE void requestTrackRight();
-    Q_INVOKABLE void requestColumnRight();
 
     Q_INVOKABLE bool requestDigitSetAtCurrentPosition(uint8_t digit);
 
@@ -209,10 +205,16 @@ public:
 
     Q_INVOKABLE size_t horizontalScrollPosition() const;
     Q_INVOKABLE size_t trackWidthInUnits(size_t trackIndex) const;
-    Q_INVOKABLE int trackPositionInUnits(size_t trackIndex) const;
+    size_t trackPositionInUnits(size_t trackIndex) const;
+    Q_INVOKABLE int onScreenTrackPositionInUnits(size_t trackIndex) const;
     Q_INVOKABLE double scrollBarStepSize() const;
-    Q_INVOKABLE double scrollBarSize() const;
+    Q_INVOKABLE double scrollBarHandleSize() const;
+    Q_INVOKABLE double scrollBarPosition() const;
     Q_INVOKABLE void requestHorizontalScrollBarPositionChange(double scrollBarPosition);
+    Q_INVOKABLE void requestCursorLeft();
+    Q_INVOKABLE void requestCursorRight();
+    Q_INVOKABLE void requestTrackRight();
+    Q_INVOKABLE void requestColumnRight();
 
     Q_INVOKABLE size_t songPosition() const;
     Q_INVOKABLE void setSongPosition(size_t songPosition);
@@ -281,8 +283,9 @@ signals:
     void patternCreated(size_t patternIndex);
     void positionChanged(const Position & newPosition, const Position & oldPosition);
 
-    void scrollBarSizeChanged();
+    void scrollBarHandleSizeChanged();
     void scrollBarStepSizeChanged();
+    void scrollBarPositionChanged();
 
     void aboutToChangeSong();
     void songChanged();
@@ -326,6 +329,7 @@ private:
     void moveCursorToNextTrack();
     void moveCursorToPrevTrack();
     void setHorizontalScrollPosition(double position);
+    void ensureFocusedTrackIsVisible();
 
     bool setVelocityAtCurrentPosition(uint8_t digit);
 
