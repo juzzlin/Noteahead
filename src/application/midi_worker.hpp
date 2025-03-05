@@ -13,8 +13,8 @@
 // You should have received a copy of the GNU General Public License
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef MIDI_WORKER_H
-#define MIDI_WORKER_H
+#ifndef MIDI_WORKER_HPP
+#define MIDI_WORKER_HPP
 
 #include <QObject>
 #include <QTimer>
@@ -88,4 +88,4 @@ private:
 
 } // namespace noteahead
 
-#endif // MIDI_WORKER_H
+#endif // MIDI_WORKER_HPP
