@@ -45,9 +45,11 @@ public:
         uint8_t channel = 0;
     };
 
-    Device device;
+    const Device & device() const;
+    void setDevice(const Device & device);
 
-    InstrumentSettings settings;
+    const InstrumentSettings & settings() const;
+    void setSettings(const InstrumentSettings & settings);
 
     void serializeToXml(QXmlStreamWriter & writer) const;
     using InstrumentU = std::unique_ptr<Instrument>;
@@ -57,6 +59,10 @@ public:
 
 private:
     void serializeDevice(QXmlStreamWriter & writer) const;
+
+    Device m_device;
+
+    InstrumentSettings m_settings;
 };
 
 } // namespace noteahead

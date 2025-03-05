@@ -162,13 +162,13 @@ EventSelectionModel::InstrumentSettingsU EventSelectionModel::toInstrumentSettin
         };
     }
     if (m_cutoffEnabled) {
-        instrumentSettings->cutoff = m_cutoff;
+        instrumentSettings->predefinedMidiCcSettings.cutoff = m_cutoff;
     }
     if (m_panEnabled) {
-        instrumentSettings->pan = m_pan;
+        instrumentSettings->predefinedMidiCcSettings.pan = m_pan;
     }
     if (m_volumeEnabled) {
-        instrumentSettings->volume = m_volume;
+        instrumentSettings->predefinedMidiCcSettings.volume = m_volume;
     }
 
     return instrumentSettings;
@@ -188,19 +188,19 @@ void EventSelectionModel::fromInstrumentSettings(const InstrumentSettings & inst
         setBankByteOrderSwapped(instrumentSettings.bank->byteOrderSwapped);
     }
 
-    setCutoffEnabled(instrumentSettings.cutoff.has_value());
+    setCutoffEnabled(instrumentSettings.predefinedMidiCcSettings.cutoff.has_value());
     if (cutoffEnabled()) {
-        setCutoff(*instrumentSettings.cutoff);
+        setCutoff(*instrumentSettings.predefinedMidiCcSettings.cutoff);
     }
 
-    setPanEnabled(instrumentSettings.pan.has_value());
+    setPanEnabled(instrumentSettings.predefinedMidiCcSettings.pan.has_value());
     if (panEnabled()) {
-        setPan(*instrumentSettings.pan);
+        setPan(*instrumentSettings.predefinedMidiCcSettings.pan);
     }
 
-    setVolumeEnabled(instrumentSettings.volume.has_value());
+    setVolumeEnabled(instrumentSettings.predefinedMidiCcSettings.volume.has_value());
     if (volumeEnabled()) {
-        setVolume(*instrumentSettings.volume);
+        setVolume(*instrumentSettings.predefinedMidiCcSettings.volume);
     }
 
     emit dataReceived();

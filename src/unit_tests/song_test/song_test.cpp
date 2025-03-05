@@ -144,21 +144,27 @@ void SongTest::test_renderToEvents_clockEvents_shouldRenderClockEvents()
 
     const auto instrument1 = std::make_shared<Instrument>("MyPort");
     song.setInstrument(0, instrument1);
-    instrument1->settings.sendMidiClock = true;
+    auto settings = instrument1->settings();
+    settings.sendMidiClock = true;
+    instrument1->setSettings(settings);
 
     events = song.renderToEvents(0);
     QCOMPARE(events.size(), 194);
 
     const auto instrument2 = std::make_shared<Instrument>("MyPort");
     song.setInstrument(1, instrument2);
-    instrument2->settings.sendMidiClock = true;
+    settings = instrument2->settings();
+    settings.sendMidiClock = true;
+    instrument2->setSettings(settings);
 
     events = song.renderToEvents(0);
     QCOMPARE(events.size(), 194);
 
     const auto instrument3 = std::make_shared<Instrument>("MyOtherPort");
     song.setInstrument(2, instrument3);
-    instrument3->settings.sendMidiClock = true;
+    settings = instrument3->settings();
+    settings.sendMidiClock = true;
+    instrument3->setSettings(settings);
 
     events = song.renderToEvents(0);
     QCOMPARE(events.size(), 386);
@@ -172,7 +178,10 @@ void SongTest::test_renderToEvents_delaySet_shouldApplyDelay()
 
     const auto instrument = std::make_shared<Instrument>("DelayedInstrument");
     song.setInstrument(0, instrument);
-    instrument->settings.delay = 100ms;
+    auto settings = instrument->settings();
+    settings.delay = 100ms;
+    instrument->setSettings(settings);
+
     const Position noteOnPosition = { 0, 0, 0, 0, 0 };
     song.noteDataAtPosition(noteOnPosition)->setAsNoteOn(60, 100);
 
@@ -180,7 +189,7 @@ void SongTest::test_renderToEvents_delaySet_shouldApplyDelay()
     QCOMPARE(events.size(), 4);
     const auto noteOn = events.at(1);
     const double msPerTick = 60000.0 / static_cast<double>(song.beatsPerMinute() * song.linesPerBeat() * song.ticksPerLine());
-    const auto delay = static_cast<size_t>(std::round(static_cast<double>(instrument->settings.delay.count()) / msPerTick));
+    const auto delay = static_cast<size_t>(std::round(static_cast<double>(instrument->settings().delay.count()) / msPerTick));
     QCOMPARE(noteOn->tick(), delay);
 }
 

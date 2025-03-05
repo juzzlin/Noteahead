@@ -130,38 +130,38 @@ void MidiWorker::handleInstrumentRequest(const InstrumentRequest & instrumentReq
 
     try {
         auto && instrument = instrumentRequest.instrument();
-        juzzlin::L(TAG).info() << "Applying instrument " << instrument.toString().toStdString() << " for requested port " << instrument.device.portName.toStdString();
-        const auto requestedPortName = instrument.device.portName;
+        juzzlin::L(TAG).info() << "Applying instrument " << instrument.toString().toStdString() << " for requested port " << instrument.device().portName.toStdString();
+        const auto requestedPortName = instrument.device().portName;
         if (const auto device = m_midiBackend->deviceByPortName(requestedPortName.toStdString()); device) {
             m_midiBackend->openDevice(device);
             if (instrumentRequest.type() == InstrumentRequest::Type::ApplyAll) {
-                m_midiBackend->sendCC(device, instrument.device.channel, static_cast<uint8_t>(MidiCc::Controller::ResetAllControllers), 127);
-                if (instrument.settings.bank.has_value()) {
-                    m_midiBackend->sendBankChange(device, instrument.device.channel,
-                                                  instrument.settings.bank->byteOrderSwapped ? instrument.settings.bank->lsb : instrument.settings.bank->msb,
-                                                  instrument.settings.bank->byteOrderSwapped ? instrument.settings.bank->msb : instrument.settings.bank->lsb);
+                m_midiBackend->sendCC(device, instrument.device().channel, static_cast<uint8_t>(MidiCc::Controller::ResetAllControllers), 127);
+                if (instrument.settings().bank.has_value()) {
+                    m_midiBackend->sendBankChange(device, instrument.device().channel,
+                                                  instrument.settings().bank->byteOrderSwapped ? instrument.settings().bank->lsb : instrument.settings().bank->msb,
+                                                  instrument.settings().bank->byteOrderSwapped ? instrument.settings().bank->msb : instrument.settings().bank->lsb);
                 }
-                if (instrument.settings.patch.has_value()) {
-                    m_midiBackend->sendPatchChange(device, instrument.device.channel, *instrument.settings.patch);
+                if (instrument.settings().patch.has_value()) {
+                    m_midiBackend->sendPatchChange(device, instrument.device().channel, *instrument.settings().patch);
                     std::this_thread::sleep_for(500ms); // Give some time to change patch before applying other settings
                 }
-                if (instrument.settings.pan.has_value()) {
-                    m_midiBackend->sendCC(device, instrument.device.channel, static_cast<uint8_t>(MidiCc::Controller::PanMSB), *instrument.settings.pan);
-                    m_midiBackend->sendCC(device, instrument.device.channel, static_cast<uint8_t>(MidiCc::Controller::PanLSB), 0);
+                if (instrument.settings().predefinedMidiCcSettings.pan.has_value()) {
+                    m_midiBackend->sendCC(device, instrument.device().channel, static_cast<uint8_t>(MidiCc::Controller::PanMSB), *instrument.settings().predefinedMidiCcSettings.pan);
+                    m_midiBackend->sendCC(device, instrument.device().channel, static_cast<uint8_t>(MidiCc::Controller::PanLSB), 0);
                 }
-                if (instrument.settings.volume.has_value()) {
-                    m_midiBackend->sendCC(device, instrument.device.channel, static_cast<uint8_t>(MidiCc::Controller::ChannelVolumeMSB), *instrument.settings.volume);
-                    m_midiBackend->sendCC(device, instrument.device.channel, static_cast<uint8_t>(MidiCc::Controller::ChannelVolumeLSB), 0);
+                if (instrument.settings().predefinedMidiCcSettings.volume.has_value()) {
+                    m_midiBackend->sendCC(device, instrument.device().channel, static_cast<uint8_t>(MidiCc::Controller::ChannelVolumeMSB), *instrument.settings().predefinedMidiCcSettings.volume);
+                    m_midiBackend->sendCC(device, instrument.device().channel, static_cast<uint8_t>(MidiCc::Controller::ChannelVolumeLSB), 0);
                 }
-                if (instrument.settings.cutoff.has_value()) {
-                    m_midiBackend->sendCC(device, instrument.device.channel, static_cast<uint8_t>(MidiCc::Controller::SoundController5), *instrument.settings.cutoff);
+                if (instrument.settings().predefinedMidiCcSettings.cutoff.has_value()) {
+                    m_midiBackend->sendCC(device, instrument.device().channel, static_cast<uint8_t>(MidiCc::Controller::SoundController5), *instrument.settings().predefinedMidiCcSettings.cutoff);
                 }
-                for (auto && midiCcSetting : instrument.settings.midiCcSettings) {
-                    m_midiBackend->sendCC(device, instrument.device.channel, midiCcSetting.controller(), midiCcSetting.value());
+                for (auto && midiCcSetting : instrument.settings().midiCcSettings) {
+                    m_midiBackend->sendCC(device, instrument.device().channel, midiCcSetting.controller(), midiCcSetting.value());
                 }
             } else if (instrumentRequest.type() == InstrumentRequest::Type::ApplyPatch) {
-                if (instrument.settings.patch.has_value()) {
-                    m_midiBackend->sendPatchChange(device, instrument.device.channel, *instrument.settings.patch);
+                if (instrument.settings().patch.has_value()) {
+                    m_midiBackend->sendPatchChange(device, instrument.device().channel, *instrument.settings().patch);
                 }
             }
         } else {

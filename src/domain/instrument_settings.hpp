@@ -46,11 +46,16 @@ public:
 
     std::optional<Bank> bank;
 
-    std::optional<uint8_t> cutoff;
+    struct PredefinedMidiCcSettings
+    {
+        std::optional<uint8_t> cutoff;
 
-    std::optional<uint8_t> pan;
+        std::optional<uint8_t> pan;
 
-    std::optional<uint8_t> volume;
+        std::optional<uint8_t> volume;
+    };
+
+    PredefinedMidiCcSettings predefinedMidiCcSettings;
 
     std::optional<bool> sendMidiClock;
 

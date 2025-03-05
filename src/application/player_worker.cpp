@@ -94,7 +94,7 @@ void PlayerWorker::handleEvent(const Event & event) const
             juzzlin::L(TAG).trace() << instrumentSettings->toString().toStdString();
             if (auto && instrument = event.instrument(); instrument) {
                 auto tempInstrument = *instrument;
-                tempInstrument.settings = *instrumentSettings;
+                tempInstrument.setSettings(*instrumentSettings);
                 InstrumentRequest instrumentRequest { InstrumentRequest::Type::ApplyAll, tempInstrument };
                 m_midiService->handleInstrumentRequest(instrumentRequest);
             }

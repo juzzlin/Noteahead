@@ -53,16 +53,16 @@ void InstrumentSettings::serializeToXml(QXmlStreamWriter & writer) const
         writer.writeAttribute(Constants::xmlKeyBankEnabled(), Constants::xmlValueFalse());
     }
 
-    if (cutoff.has_value()) {
-        writer.writeAttribute(Constants::xmlKeyCutoff(), QString::number(*cutoff));
+    if (predefinedMidiCcSettings.cutoff.has_value()) {
+        writer.writeAttribute(Constants::xmlKeyCutoff(), QString::number(*predefinedMidiCcSettings.cutoff));
     }
 
-    if (pan.has_value()) {
-        writer.writeAttribute(Constants::xmlKeyPan(), QString::number(*pan));
+    if (predefinedMidiCcSettings.pan.has_value()) {
+        writer.writeAttribute(Constants::xmlKeyPan(), QString::number(*predefinedMidiCcSettings.pan));
     }
 
-    if (volume.has_value()) {
-        writer.writeAttribute(Constants::xmlKeyVolume(), QString::number(*volume));
+    if (predefinedMidiCcSettings.volume.has_value()) {
+        writer.writeAttribute(Constants::xmlKeyVolume(), QString::number(*predefinedMidiCcSettings.volume));
     }
 
     if (sendMidiClock.has_value()) {
@@ -98,9 +98,9 @@ InstrumentSettings::InstrumentSettingsU InstrumentSettings::deserializeFromXml(Q
         const auto bankByteOrderSwapped = *Utils::Xml::readBoolAttribute(reader, Constants::xmlKeyBankByteOrderSwapped());
         settings->bank = { bankLsb, bankMsb, bankByteOrderSwapped };
     }
-    settings->cutoff = Utils::Xml::readUIntAttribute(reader, Constants::xmlKeyCutoff(), false);
-    settings->pan = Utils::Xml::readUIntAttribute(reader, Constants::xmlKeyPan(), false);
-    settings->volume = Utils::Xml::readUIntAttribute(reader, Constants::xmlKeyVolume(), false);
+    settings->predefinedMidiCcSettings.cutoff = Utils::Xml::readUIntAttribute(reader, Constants::xmlKeyCutoff(), false);
+    settings->predefinedMidiCcSettings.pan = Utils::Xml::readUIntAttribute(reader, Constants::xmlKeyPan(), false);
+    settings->predefinedMidiCcSettings.volume = Utils::Xml::readUIntAttribute(reader, Constants::xmlKeyVolume(), false);
     settings->sendMidiClock = Utils::Xml::readBoolAttribute(reader, Constants::xmlKeySendMidiClock(), false);
     settings->delay = std::chrono::milliseconds { Utils::Xml::readUIntAttribute(reader, Constants::xmlKeyDelay(), false).value_or(0) };
 
@@ -130,9 +130,9 @@ QString InstrumentSettings::toString() const
         result += ", bank=None";
     }
 
-    result += cutoff.has_value() ? QString { ", cutoff=%1" }.arg(*cutoff) : ", cutoff=None";
-    result += pan.has_value() ? QString { ", pan=%1" }.arg(*pan) : ", pan=None";
-    result += volume.has_value() ? QString { ", volume=%1" }.arg(*volume) : ", volume=None";
+    result += predefinedMidiCcSettings.cutoff.has_value() ? QString { ", cutoff=%1" }.arg(*predefinedMidiCcSettings.cutoff) : ", cutoff=None";
+    result += predefinedMidiCcSettings.pan.has_value() ? QString { ", pan=%1" }.arg(*predefinedMidiCcSettings.pan) : ", pan=None";
+    result += predefinedMidiCcSettings.volume.has_value() ? QString { ", volume=%1" }.arg(*predefinedMidiCcSettings.volume) : ", volume=None";
     result += sendMidiClock.has_value() ? QString { ", sendMidiClock=%1" }.arg(sendMidiClock.value() ? Constants::xmlValueTrue() : Constants::xmlValueFalse()) : ", sendMidiClock=None";
     result += QString { ", delay=%1" }.arg(delay.count());
 

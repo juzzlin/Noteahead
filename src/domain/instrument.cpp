@@ -27,14 +27,34 @@ namespace noteahead {
 static const auto TAG = "Instrument";
 
 Instrument::Instrument(QString portName)
-  : device { portName }
+  : m_device { portName }
 {
+}
+
+const Instrument::Device & Instrument::device() const
+{
+    return m_device;
+}
+
+void Instrument::setDevice(const Device & device)
+{
+    m_device = device;
+}
+
+const InstrumentSettings & Instrument::settings() const
+{
+    return m_settings;
+}
+
+void Instrument::setSettings(const InstrumentSettings & settings)
+{
+    m_settings = settings;
 }
 
 void Instrument::serializeDevice(QXmlStreamWriter & writer) const
 {
-    writer.writeAttribute(Constants::xmlKeyPortName(), device.portName);
-    writer.writeAttribute(Constants::xmlKeyChannel(), QString::number(device.channel));
+    writer.writeAttribute(Constants::xmlKeyPortName(), m_device.portName);
+    writer.writeAttribute(Constants::xmlKeyChannel(), QString::number(m_device.channel));
 }
 
 void Instrument::serializeToXml(QXmlStreamWriter & writer) const
@@ -43,7 +63,7 @@ void Instrument::serializeToXml(QXmlStreamWriter & writer) const
 
     serializeDevice(writer);
 
-    settings.serializeToXml(writer);
+    m_settings.serializeToXml(writer);
 
     writer.writeEndElement(); // Instrument
 }
@@ -56,12 +76,12 @@ Instrument::InstrumentU Instrument::deserializeFromXml(QXmlStreamReader & reader
     const auto portName = *Utils::Xml::readStringAttribute(reader, Constants::xmlKeyPortName());
     const auto channel = *Utils::Xml::readUIntAttribute(reader, Constants::xmlKeyChannel());
     auto instrument = std::make_unique<Instrument>(portName);
-    instrument->device.channel = static_cast<uint8_t>(channel);
+    instrument->m_device.channel = static_cast<uint8_t>(channel);
     while (!(reader.isEndElement() && !reader.name().compare(Constants::xmlKeyInstrument()))) {
         juzzlin::L(TAG).trace() << "Instrument: Current element: " << reader.name().toString().toStdString();
         if (reader.isStartElement() && !reader.name().compare(Constants::xmlKeyInstrumentSettings())) {
             if (const auto settings = InstrumentSettings::deserializeFromXml(reader); settings) {
-                instrument->settings = *settings;
+                instrument->m_settings = *settings;
             }
         }
         reader.readNext();
@@ -72,8 +92,8 @@ Instrument::InstrumentU Instrument::deserializeFromXml(QXmlStreamReader & reader
 
 QString Instrument::toString() const
 {
-    auto result = QString { "Instrument ( portName='%1', channel=%2 " }.arg(device.portName).arg(device.channel);
-    result += settings.toString();
+    auto result = QString { "Instrument ( portName='%1', channel=%2 " }.arg(m_device.portName).arg(m_device.channel);
+    result += m_settings.toString();
     result += " )";
     return result;
 }

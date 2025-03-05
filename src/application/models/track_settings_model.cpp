@@ -207,38 +207,38 @@ void TrackSettingsModel::setInstrumentData(const Instrument & instrument)
 
     // Store the original instrument's port name as it might not be in the
     // list of currently available port names
-    m_instrumentPortName = instrument.device.portName;
+    m_instrumentPortName = instrument.device().portName;
     setAvailableMidiPorts(m_availableMidiPorts); // Update the list with instrument port name
 
-    setPortName(instrument.device.portName);
-    setChannel(instrument.device.channel);
-    setPatchEnabled(instrument.settings.patch.has_value());
+    setPortName(instrument.device().portName);
+    setChannel(instrument.device().channel);
+    setPatchEnabled(instrument.settings().patch.has_value());
     if (patchEnabled()) {
-        setPatch(*instrument.settings.patch);
+        setPatch(*instrument.settings().patch);
     }
-    setBankEnabled(instrument.settings.bank.has_value());
+    setBankEnabled(instrument.settings().bank.has_value());
     if (bankEnabled()) {
-        setBankLsb(instrument.settings.bank->lsb);
-        setBankMsb(instrument.settings.bank->msb);
-        setBankByteOrderSwapped(instrument.settings.bank->byteOrderSwapped);
+        setBankLsb(instrument.settings().bank->lsb);
+        setBankMsb(instrument.settings().bank->msb);
+        setBankByteOrderSwapped(instrument.settings().bank->byteOrderSwapped);
     }
-    setCutoffEnabled(instrument.settings.cutoff.has_value());
+    setCutoffEnabled(instrument.settings().predefinedMidiCcSettings.cutoff.has_value());
     if (cutoffEnabled()) {
-        setCutoff(*instrument.settings.cutoff);
+        setCutoff(*instrument.settings().predefinedMidiCcSettings.cutoff);
     }
-    setPanEnabled(instrument.settings.pan.has_value());
+    setPanEnabled(instrument.settings().predefinedMidiCcSettings.pan.has_value());
     if (panEnabled()) {
-        setPan(*instrument.settings.pan);
+        setPan(*instrument.settings().predefinedMidiCcSettings.pan);
     }
-    setVolumeEnabled(instrument.settings.volume.has_value());
+    setVolumeEnabled(instrument.settings().predefinedMidiCcSettings.volume.has_value());
     if (volumeEnabled()) {
-        setVolume(*instrument.settings.volume);
+        setVolume(*instrument.settings().predefinedMidiCcSettings.volume);
     }
-    setSendMidiClock(instrument.settings.sendMidiClock.has_value() && *instrument.settings.sendMidiClock);
+    setSendMidiClock(instrument.settings().sendMidiClock.has_value() && *instrument.settings().sendMidiClock);
 
-    setDelay(static_cast<int>(instrument.settings.delay.count()));
+    setDelay(static_cast<int>(instrument.settings().delay.count()));
 
-    setMidiCcSettings(instrument.settings.midiCcSettings);
+    setMidiCcSettings(instrument.settings().midiCcSettings);
 
     emit instrumentDataReceived();
 
@@ -279,29 +279,36 @@ void TrackSettingsModel::reset()
 TrackSettingsModel::InstrumentU TrackSettingsModel::toInstrument() const
 {
     auto instrument = std::make_unique<Instrument>(m_portName);
-    instrument->device.channel = m_channel;
+
+    auto device = instrument->device();
+    device.channel = m_channel;
+    instrument->setDevice(device);
+
+    auto settings = instrument->settings();
     if (m_patchEnabled) {
-        instrument->settings.patch = m_patch;
+        settings.patch = m_patch;
     }
     if (m_bankEnabled) {
-        instrument->settings.bank = {
+        settings.bank = {
             m_bankLsb,
             m_bankMsb,
             m_bankByteOrderSwapped
         };
     }
     if (m_cutoffEnabled) {
-        instrument->settings.cutoff = m_cutoff;
+        settings.predefinedMidiCcSettings.cutoff = m_cutoff;
     }
     if (m_panEnabled) {
-        instrument->settings.pan = m_pan;
+        settings.predefinedMidiCcSettings.pan = m_pan;
     }
     if (m_volumeEnabled) {
-        instrument->settings.volume = m_volume;
+        settings.predefinedMidiCcSettings.volume = m_volume;
     }
-    instrument->settings.sendMidiClock = m_sendMidiClock;
-    instrument->settings.delay = std::chrono::milliseconds { m_delay };
-    instrument->settings.midiCcSettings = midiCcSettings();
+    settings.sendMidiClock = m_sendMidiClock;
+    settings.delay = std::chrono::milliseconds { m_delay };
+    settings.midiCcSettings = midiCcSettings();
+    instrument->setSettings(settings);
+
     return instrument;
 }
 

@@ -643,8 +643,8 @@ Song::EventList Song::generateMidiClockEvents(Song::EventList eventList, size_t 
     while (static_cast<size_t>(currentTick) < endTick) {
         processedPortNames.clear();
         for (auto trackIndex : trackIndices()) {
-            if (const auto instrument = this->instrument(trackIndex); instrument && instrument->settings.sendMidiClock.has_value() && *instrument->settings.sendMidiClock) {
-                if (const auto portName = instrument->device.portName; !processedPortNames.contains(portName)) {
+            if (const auto instrument = this->instrument(trackIndex); instrument && instrument->settings().sendMidiClock.has_value() && *instrument->settings().sendMidiClock) {
+                if (const auto portName = instrument->device().portName; !processedPortNames.contains(portName)) {
                     auto midiClockEvent = std::make_shared<Event>(static_cast<size_t>(currentTick));
                     midiClockEvent->setAsMidiClockOut();
                     midiClockEvent->setInstrument(instrument);
