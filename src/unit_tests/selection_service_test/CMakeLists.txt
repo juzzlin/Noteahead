@@ -3,6 +3,7 @@ set(NAME selection_service_test)
 set(SRC
     ${NAME}.cpp
     ${NAME}.hpp
+    ../../application/position.hpp
     ../../application/selection_service.cpp
 )
 add_executable(${NAME} ${SRC} ${MOC_SRC})

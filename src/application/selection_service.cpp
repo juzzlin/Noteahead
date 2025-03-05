@@ -112,7 +112,7 @@ bool SelectionService::requestSelectionEnd(size_t pattern, size_t track, size_t 
         const Position position = { pattern, track, column, line };
         m_endPosition = position;
         juzzlin::L(TAG).info() << "New selection end: " << position.toString();
-        emit selectionChanged();
+        emit selectionChanged(*m_startPosition, *m_endPosition);
         emit isValidSelectionChanged();
         return true;
     }
@@ -122,10 +122,13 @@ bool SelectionService::requestSelectionEnd(size_t pattern, size_t track, size_t 
 
 void SelectionService::clear()
 {
+    const auto prevStart = *m_startPosition;
+    const auto prevEnd = *m_endPosition;
+
     m_startPosition.reset();
     m_endPosition.reset();
 
-    emit selectionChanged();
+    emit selectionCleared(prevStart, prevEnd);
     emit isValidSelectionChanged();
 }
 

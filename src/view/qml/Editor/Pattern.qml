@@ -140,6 +140,9 @@ Item {
                 track.updateIndexHighlights();
             });
     }
+    function updateSelectedLines(startPosition, endPosition) {
+        _tracks.filter(track => track.index() === startPosition.track).forEach(track => track.updateIndexHighlights());
+    }
     function updateColumnHeaders() {
         _tracks.forEach(track => {
                 track.updateColumnHeaders();

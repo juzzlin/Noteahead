@@ -49,7 +49,8 @@ public:
 
 signals:
     void isValidSelectionChanged();
-    void selectionChanged();
+    void selectionCleared(const Position & startPosition, const Position & endPosition);
+    void selectionChanged(const Position & startPosition, const Position & endPosition);
 
 private:
     std::optional<Position> m_startPosition;

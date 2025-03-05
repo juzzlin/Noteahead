@@ -212,6 +212,9 @@ FocusScope {
     function _updateIndexHighlights() {
         _patterns.forEach(pattern => pattern.updateIndexHighlights());
     }
+    function _updateSelectedLines(startPosition, endPosition) {
+        _patterns.filter(pattern => pattern.index() === startPosition.pattern).forEach(pattern => pattern.updateSelectedLines(startPosition, endPosition));
+    }
     function _addColumn(trackIndex) {
         _patterns.forEach(pattern => {
                 pattern.addColumn(trackIndex);
@@ -290,7 +293,8 @@ FocusScope {
                     });
             });
         mixerService.cleared.connect(_clearMixerSettings);
-        selectionService.selectionChanged.connect(_updateIndexHighlights);
+        selectionService.selectionChanged.connect(_updateSelectedLines);
+        selectionService.selectionCleared.connect(_updateSelectedLines);
     }
     function _lineNumberColumnHeight() {
         return trackArea.height - Constants.trackHeaderHeight - Constants.columnHeaderHeight;
