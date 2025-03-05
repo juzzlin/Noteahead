@@ -5,6 +5,19 @@ Release date:
 
 New features:
 
+Bug fixes:
+
+Other:
+
+0.2.0
+=====
+
+Release date:
+
+Wed, 05 Mar 2025 23:33:50 +0200
+
+New features:
+
 * Add Edit menu entry to reset instruments
 
 * Implement adjustable delays
