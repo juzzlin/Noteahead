@@ -69,7 +69,11 @@ All values are entered in decimal format, typically ranging from 0 to 127 to ali
 
 ### Internal timing strategy
 
-The song is rendered into events just before playing. Accurate timestamps are calculated for each event beforehand in order to achieve a drifting-free timing. The player thread syncs to these event timestamps. Wow, that's A-M-A-Z-I-N-G! \o/
+The song is rendered into events just before playing. Accurate timestamps are calculated for each event beforehand in order to achieve a drifting-free timing. The player thread syncs to these event timestamps.
+
+The timing accuracy is incredible when doing a multitrack recording (screenshot from Audacity):
+
+<img src="/screenshots/Timing.png" width="100%">
 
 ### Project file format
 
