@@ -115,8 +115,7 @@ QtObject {
         focusOnEditorViewRequested();
     }
     function rewindSong() {
-        editorService.setSongPosition(0);
-        editorService.requestPosition(0, 0, 0, 0, 0);
+        editorService.resetSongPosition();
         applicationService.applyAllTrackSettings();
     }
     signal quitRequested

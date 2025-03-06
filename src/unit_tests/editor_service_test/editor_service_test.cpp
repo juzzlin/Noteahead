@@ -1326,7 +1326,7 @@ void EditorServiceTest::test_toXmlFromXml_songProperties()
     editorServiceIn.fromXml(xml);
 
     QCOMPARE(songChangedSpy.count(), 1);
-    QCOMPARE(positionChangedSpy.count(), 1);
+    QCOMPARE(positionChangedSpy.count(), 2);
     QCOMPARE(beatsPerMinuteChangedSpy.count(), 1);
     QCOMPARE(linesPerBeatChangedSpy.count(), 1);
     QCOMPARE(editorServiceIn.beatsPerMinute(), editorServiceOut.beatsPerMinute());

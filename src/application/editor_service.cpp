@@ -70,14 +70,6 @@ void EditorService::setSong(SongS song)
 {
     m_song = song;
 
-    m_cursorPosition = {
-        0,
-        m_song->trackIndices().at(0),
-        0,
-        0,
-        0
-    };
-
     emit songChanged();
     emit beatsPerMinuteChanged();
     emit linesPerBeatChanged();
@@ -91,7 +83,7 @@ void EditorService::setSong(SongS song)
 
     setCurrentTime(0ms);
 
-    setSongPosition(0);
+    resetSongPosition();
 
     updateDuration();
 
@@ -1534,6 +1526,14 @@ void EditorService::setSongPosition(size_t songPosition)
             setSongLength(songPosition + 1);
         }
     }
+}
+
+void EditorService::resetSongPosition()
+{
+    setSongPosition(0);
+    const auto oldPosition = m_cursorPosition;
+    m_cursorPosition = { m_song->patternAtSongPosition(0), 0, 0, 0, 0 };
+    notifyPositionChange(oldPosition);
 }
 
 void EditorService::setPatternAtSongPosition(size_t songPosition, size_t pattern)

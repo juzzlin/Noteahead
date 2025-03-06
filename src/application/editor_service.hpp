@@ -220,6 +220,7 @@ public:
 
     Q_INVOKABLE size_t songPosition() const;
     Q_INVOKABLE void setSongPosition(size_t songPosition);
+    Q_INVOKABLE void resetSongPosition();
     Q_INVOKABLE size_t patternAtCurrentSongPosition() const;
     Q_INVOKABLE void insertPatternToPlayOrder();
     Q_INVOKABLE void removePatternFromPlayOrder();
