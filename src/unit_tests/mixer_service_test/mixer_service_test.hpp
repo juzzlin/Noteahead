@@ -33,7 +33,15 @@ private slots:
 
     void test_update_shouldUpdatePlaybackState();
 
-    void test_columnShouldNotPlayIfParentTrackMuted();
+    void test_shouldColumnPlay_oneOfSoloedColumns_shouldPlay();
+    void test_shouldColumnPlay_muted_shouldNotPlay();
+    void test_shouldColumnPlay_parentMuted_shouldNotPlay();
+    void test_shouldColumnPlay_siblingSoloed_shouldNotPlay();
+
+    void test_shouldTrackPlay_muted_shouldNotPlay();
+    void test_shouldTrackPlay_oneOfSoloedTracks_shouldPlay();
+    void test_shouldTrackPlay_oneOfSoloedTracks_siblingHasSoloedColumn_shouldPlay();
+    void test_shouldTrackPlay_siblingSoloed_shouldNotPlay();
 
     void test_clear_shouldSendConfigurationChange();
 

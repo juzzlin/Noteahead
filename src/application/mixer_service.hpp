@@ -73,7 +73,7 @@ signals:
     void configurationChanged();
 
 private:
-    bool hasSoloedColumns() const;
+    bool hasSoloedColumns(size_t trackIndex) const;
     bool hasSoloedTracks() const;
 
     using TrackAndColumn = std::pair<size_t, size_t>;

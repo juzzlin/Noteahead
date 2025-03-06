@@ -43,7 +43,7 @@ bool MixerService::shouldColumnPlay(size_t trackIndex, size_t columnIndex) const
         return false;
     }
 
-    if (hasSoloedColumns()) {
+    if (hasSoloedColumns(trackIndex)) {
         return isColumnSoloed(trackIndex, columnIndex) && !isColumnMuted(trackIndex, columnIndex);
     } else {
         return !isColumnMuted(trackIndex, columnIndex);
@@ -82,10 +82,10 @@ void MixerService::setColumnVelocityScale(size_t trackIndex, size_t columnIndex,
     update();
 }
 
-bool MixerService::hasSoloedColumns() const
+bool MixerService::hasSoloedColumns(size_t trackIndex) const
 {
-    return std::ranges::any_of(m_soloedColumns, [](const auto & pair) {
-        return pair.second;
+    return std::ranges::any_of(m_soloedColumns, [trackIndex](const auto & pair) {
+        return pair.first.first == trackIndex && pair.second;
     });
 }
 
