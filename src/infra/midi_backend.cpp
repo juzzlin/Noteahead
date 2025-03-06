@@ -37,6 +37,11 @@ MidiDeviceS MidiBackend::deviceByPortIndex(size_t index) const
     }
 }
 
+void MidiBackend::invalidatePortNameCache()
+{
+    m_portNameToDeviceCache.clear();
+}
+
 MidiDeviceS MidiBackend::deviceByPortName(const std::string & name) const
 {
     if (const auto device = m_portNameToDeviceCache.find(name); device != m_portNameToDeviceCache.end()) {

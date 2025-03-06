@@ -66,6 +66,8 @@ public:
 protected:
     void setDevices(MidiDeviceList devices);
 
+    void invalidatePortNameCache();
+
 private:
     MidiDeviceList m_devices;
 

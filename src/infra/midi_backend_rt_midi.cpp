@@ -31,6 +31,7 @@ void MidiBackendRtMidi::updateAvailableDevices()
         devices.push_back(std::make_shared<MidiDevice>(i, tempMidiOut.getPortName(i)));
     }
     setDevices(devices);
+    invalidatePortNameCache();
 }
 
 void MidiBackendRtMidi::openDevice(MidiDeviceW device)
