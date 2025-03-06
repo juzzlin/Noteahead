@@ -36,6 +36,7 @@ public:
     ~MixerService() override;
 
     Q_INVOKABLE void muteColumn(size_t trackIndex, size_t columnIndex, bool mute);
+    Q_INVOKABLE void invertMutedColumns(size_t trackIndex, size_t columnIndex);
     Q_INVOKABLE bool shouldColumnPlay(size_t trackIndex, size_t columnIndex) const;
     Q_INVOKABLE void soloColumn(size_t trackIndex, size_t columnIndex, bool solo);
     Q_INVOKABLE bool isColumnMuted(size_t trackIndex, size_t columnIndex) const;
@@ -44,6 +45,7 @@ public:
     Q_INVOKABLE void setColumnVelocityScale(size_t trackIndex, size_t columnIndex, uint8_t scale);
 
     Q_INVOKABLE void muteTrack(size_t trackIndex, bool mute);
+    Q_INVOKABLE void invertMutedTracks(size_t trackIndex);
     Q_INVOKABLE bool shouldTrackPlay(size_t trackIndex) const;
     Q_INVOKABLE void soloTrack(size_t trackIndex, bool solo);
     Q_INVOKABLE bool isTrackMuted(size_t trackIndex) const;
@@ -57,6 +59,10 @@ public:
 
     void clear();
 
+    void setColumnCount(size_t trackIndex, size_t count);
+    using TrackIndexList = std::vector<size_t>;
+    void setTrackIndices(TrackIndexList indices);
+
     void deserializeFromXml(QXmlStreamReader & reader);
     void serializeToXml(QXmlStreamWriter & writer) const;
 
@@ -64,16 +70,20 @@ signals:
     void columnMuted(size_t trackIndex, size_t columnIndex, bool muted);
     void columnSoloed(size_t trackIndex, size_t columnIndex, bool soloed);
     void columnVelocityScaleChanged(size_t trackIndex, size_t columnIndex, uint8_t velocityScale);
+    void columnCountOfTrackRequested(size_t trackIndex);
 
     void trackMuted(size_t trackIndex, bool muted);
     void trackSoloed(size_t trackIndex, bool soloed);
     void trackVelocityScaleChanged(size_t trackIndex, uint8_t velocityScale);
+    void trackIndicesRequested();
 
     void cleared();
     void configurationChanged();
 
 private:
+    bool hasMutedColumns(size_t trackIndex) const;
     bool hasSoloedColumns(size_t trackIndex) const;
+    bool hasMutedTracks() const;
     bool hasSoloedTracks() const;
 
     using TrackAndColumn = std::pair<size_t, size_t>;
@@ -90,6 +100,10 @@ private:
 
     using TrackVelocityScaleMap = std::map<size_t, uint8_t>;
     TrackVelocityScaleMap m_trackVelocityScaleMap;
+
+    using ColumnCountMap = std::map<size_t, size_t>;
+    ColumnCountMap m_columnCountMap;
+    TrackIndexList m_trackIndexList;
 };
 
 } // namespace noteahead

@@ -131,6 +131,9 @@ void Application::connectServices()
     connect(m_mixerService.get(), &MixerService::configurationChanged, this, [this]() {
         m_editorService->setIsModified(true);
     });
+    connect(m_mixerService.get(), &MixerService::columnCountOfTrackRequested, this, [this](size_t trackIndex) {
+        m_mixerService->setColumnCount(trackIndex, m_editorService->columnCount(trackIndex));
+    });
 
     connect(m_playerService.get(), &PlayerService::songRequested, this, [this] {
         m_playerService->setSong(m_editorService->song());

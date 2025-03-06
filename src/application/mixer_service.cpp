@@ -37,6 +37,27 @@ void MixerService::muteColumn(size_t trackIndex, size_t columnIndex, bool mute)
     update();
 }
 
+void MixerService::invertMutedColumns(size_t trackIndex, size_t columnIndex)
+{
+    emit columnCountOfTrackRequested(trackIndex);
+
+    if (!isColumnMuted(trackIndex, columnIndex)) {
+        if (!hasMutedColumns(trackIndex)) {
+            for (size_t targetColumnIndex = 0; targetColumnIndex < m_columnCountMap[trackIndex]; targetColumnIndex++) {
+                muteColumn(trackIndex, targetColumnIndex, columnIndex != targetColumnIndex);
+            }
+        } else {
+            for (size_t targetColumnIndex = 0; targetColumnIndex < m_columnCountMap[trackIndex]; targetColumnIndex++) {
+                muteColumn(trackIndex, targetColumnIndex, false);
+            }
+        }
+    } else {
+        for (size_t targetColumnIndex = 0; targetColumnIndex < m_columnCountMap[trackIndex]; targetColumnIndex++) {
+            muteColumn(trackIndex, targetColumnIndex, columnIndex != targetColumnIndex);
+        }
+    }
+}
+
 bool MixerService::shouldColumnPlay(size_t trackIndex, size_t columnIndex) const
 {
     if (!shouldTrackPlay(trackIndex)) {
@@ -82,6 +103,13 @@ void MixerService::setColumnVelocityScale(size_t trackIndex, size_t columnIndex,
     update();
 }
 
+bool MixerService::hasMutedColumns(size_t trackIndex) const
+{
+    return std::ranges::any_of(m_mutedColumns, [trackIndex](const auto & pair) {
+        return pair.first.first == trackIndex && pair.second;
+    });
+}
+
 bool MixerService::hasSoloedColumns(size_t trackIndex) const
 {
     return std::ranges::any_of(m_soloedColumns, [trackIndex](const auto & pair) {
@@ -94,6 +122,34 @@ void MixerService::muteTrack(size_t trackIndex, bool mute)
     juzzlin::L(TAG).info() << "Muting track " << trackIndex << ": " << mute;
     m_mutedTracks[trackIndex] = mute;
     update();
+}
+
+void MixerService::invertMutedTracks(size_t trackIndex)
+{
+    emit trackIndicesRequested();
+
+    if (!isTrackMuted(trackIndex)) {
+        if (!hasMutedTracks()) {
+            for (auto && targetTrackIndex : m_trackIndexList) {
+                muteTrack(targetTrackIndex, targetTrackIndex != trackIndex);
+            }
+        } else {
+            for (auto && targetTrackIndex : m_trackIndexList) {
+                muteTrack(targetTrackIndex, false);
+            }
+        }
+    } else {
+        for (auto && targetTrackIndex : m_trackIndexList) {
+            muteTrack(targetTrackIndex, targetTrackIndex != trackIndex);
+        }
+    }
+}
+
+bool MixerService::hasMutedTracks() const
+{
+    return std::ranges::any_of(m_mutedTracks, [](const auto & pair) {
+        return pair.second;
+    });
 }
 
 bool MixerService::hasSoloedTracks() const
@@ -191,6 +247,16 @@ void MixerService::clear()
     m_trackVelocityScaleMap.clear();
 
     emit cleared();
+}
+
+void MixerService::setColumnCount(size_t trackIndex, size_t count)
+{
+    m_columnCountMap[trackIndex] = count;
+}
+
+void MixerService::setTrackIndices(TrackIndexList indices)
+{
+    m_trackIndexList = indices;
 }
 
 void MixerService::deserializeFromXml(QXmlStreamReader & reader)

@@ -13,6 +13,8 @@ Button {
     property double _hoverScale: 1.0
     property string toolTipText
     property string _toggleColor: "red"
+    signal leftClicked
+    signal rightClicked
     function setImageSource(imageSource) {
         backgroundImage.source = imageSource;
     }
@@ -60,6 +62,18 @@ Button {
         NumberAnimation {
             properties: "_scale"
             duration: 50
+        }
+    }
+    MouseArea {
+        anchors.fill: parent
+        acceptedButtons: Qt.AllButtons
+        onClicked: mouse => {
+            if (mouse.button === Qt.LeftButton) {
+                rootItem.leftClicked();
+                rootItem.clicked();
+            } else if (mouse.button === Qt.RightButton) {
+                rootItem.rightClicked();
+            }
         }
     }
     ToolTip.delay: Constants.toolTipDelay

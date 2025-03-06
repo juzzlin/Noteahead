@@ -12,9 +12,11 @@ Rectangle {
     border.color: Constants.trackHeaderBorderColor
     border.width: 1
     signal muteRequested
+    signal muteAllRequested
     signal nameChanged(string name)
     signal soloRequested
     signal unmuteRequested
+    signal unmuteAllRequested
     signal unsoloRequested
     signal velocityScaleRequested
     property bool _focused: false
@@ -80,8 +82,10 @@ Rectangle {
         }
     }
     Component.onCompleted: {
+        muteSoloButtons.muteAllRequested.connect(rootItem.muteAllRequested);
         muteSoloButtons.muteRequested.connect(rootItem.muteRequested);
         muteSoloButtons.soloRequested.connect(rootItem.soloRequested);
+        muteSoloButtons.unmuteAllRequested.connect(rootItem.unmuteAllRequested);
         muteSoloButtons.unmuteRequested.connect(rootItem.unmuteRequested);
         muteSoloButtons.unsoloRequested.connect(rootItem.unsoloRequested);
     }

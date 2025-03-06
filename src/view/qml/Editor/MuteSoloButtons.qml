@@ -6,8 +6,10 @@ import "../ToolBar"
 
 Item {
     id: rootItem
+    signal muteAllRequested
     signal muteRequested
     signal soloRequested
+    signal unmuteAllRequested
     signal unmuteRequested
     signal unsoloRequested
     function setMuted(mute) {
@@ -23,11 +25,19 @@ Item {
         width: parent.height / 2
         height: width
         enabled: !UiService.isPlaying()
-        onClicked: {
+        onLeftClicked: {
             if (toggled()) {
                 rootItem.unmuteRequested();
             } else {
                 rootItem.muteRequested();
+            }
+            focus = false;
+        }
+        onRightClicked: {
+            if (toggled()) {
+                rootItem.unmuteAllRequested();
+            } else {
+                rootItem.muteAllRequested();
             }
             focus = false;
         }
@@ -53,7 +63,7 @@ Item {
         width: parent.height / 2
         height: width
         enabled: !UiService.isPlaying()
-        onClicked: {
+        onLeftClicked: {
             if (toggled()) {
                 rootItem.unsoloRequested();
             } else {
