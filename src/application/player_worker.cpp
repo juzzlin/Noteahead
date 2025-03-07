@@ -37,12 +37,13 @@ PlayerWorker::PlayerWorker(MidiServiceS midiService, MixerServiceS mixerService)
 
 void PlayerWorker::initialize(const EventList & events, const Timing & timing)
 {
+    juzzlin::L(TAG).info() << "Event count: " << events.size();
+
     if (!m_isPlaying) {
-        m_events = events;
         m_timing = timing;
         m_eventMap.clear();
         m_allInstruments.clear();
-        for (auto && event : m_events) {
+        for (auto && event : events) {
             m_eventMap[event->tick()].push_back(event);
             if (event->instrument()) {
                 m_allInstruments.insert(event->instrument());
@@ -55,7 +56,7 @@ void PlayerWorker::initialize(const EventList & events, const Timing & timing)
 
 void PlayerWorker::play()
 {
-    juzzlin::L(TAG).info() << "Starting playback, event count: " << m_events.size();
+    juzzlin::L(TAG).info() << "Starting playback";
 
     setIsPlaying(true);
 

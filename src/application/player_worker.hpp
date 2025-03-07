@@ -78,8 +78,6 @@ private:
     MidiServiceS m_midiService;
     MixerServiceS m_mixerService;
 
-    EventList m_events;
-
     Timing m_timing;
 
     using EventMap = std::unordered_map<size_t, EventList>;
