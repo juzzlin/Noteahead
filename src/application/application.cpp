@@ -17,6 +17,7 @@
 
 #include "../contrib/Argengine/src/argengine.hpp"
 #include "../contrib/SimpleLogger/src/simple_logger.hpp"
+#include "../infra/video_generator.hpp"
 #include "application_service.hpp"
 #include "common/utils.hpp"
 #include "config.hpp"
@@ -81,6 +82,45 @@ Application::Application(int & argc, char ** argv)
     m_recentFilesModel->setRecentFiles(m_recentFilesManager->recentFiles());
 }
 
+void Application::addVideoOptions(juzzlin::Argengine & ae)
+{
+    ae.addOption({ "--video-song" }, [this](const std::string & value) {
+        m_videoGeneratorEnabled = true;
+        m_videoConfig.songPath = value; }, false, "The .nahd song to create a video from.");
+
+    ae.addOption({ "--video-image" }, [this](const std::string & value) { m_videoConfig.imagePath = value; }, false, "An optional background image for the video.");
+    ae.addOption({ "--video-logo" }, [this](const std::string & value) { m_videoConfig.logoPath = value; }, false, "An optional logo for the video.");
+    ae.addOption({ "--video-logo-pos" }, [this](const std::string & value) {
+        const auto valueString = QString::fromStdString(value);
+        if (const auto splitString = valueString.split(","); splitString.size() == 2) {
+            m_videoConfig.logoX = std::stoi(splitString.at(0).toStdString());
+            m_videoConfig.logoY = std::stoi(splitString.at(1).toStdString());
+        } else {
+            throw std::runtime_error { std::string { "Invalid syntax for size: " } + value};
+        } }, false, "Position of the logo image. The default is 0,0.");
+
+    ae.addOption({ "--video-fps" }, [this](const std::string & value) { m_videoConfig.fps = std::stoul(value); }, false, "FPS of the generated video. The default is 60 fps.");
+    ae.addOption({ "--video-size" }, [this](const std::string & value) {
+        const auto valueString = QString::fromStdString(value);
+        if (const auto splitString = valueString.split("x"); splitString.size() == 2) {
+            m_videoConfig.width = std::stoi(splitString.at(0).toStdString());
+            m_videoConfig.height = std::stoi(splitString.at(1).toStdString());
+        } else {
+            throw std::runtime_error { std::string { "Invalid syntax for size: " } + value};
+        } }, false, "Size of the generated video. The default is 1920x1080.");
+
+    ae.addOption({ "--video-output-dir" }, [this](const std::string & value) { m_videoConfig.outputDir = value; }, false, "The output directory for the generated video frames. Will be created if doesn't exist.");
+
+    ae.addOption({ "--video-start-pos" }, [this](const std::string & value) { m_videoConfig.startPosition = std::stoul(value); }, false, "The song play order position to start the video generation at. The default is 0.");
+    ae.addOption({ "--video-length" }, [this](const std::string & value) { m_videoConfig.length = std::chrono::milliseconds { std::stoul(value) }; }, false, "The length of the video in milliseconds. The default is the whole song.");
+    ae.addOption({ "--video-lead-in-time" }, [this](const std::string & value) { m_videoConfig.leadInTime = std::chrono::milliseconds { std::stoul(value) }; }, false, "The lead-in time for the video to match audio in milliseconds. The default is 0 ms.");
+    ae.addOption({ "--video-lead-out-time" }, [this](const std::string & value) { m_videoConfig.leadOutTime = std::chrono::milliseconds { std::stoul(value) }; }, false, "The lead-out time for the video to match audio in milliseconds. The default is 0 ms.");
+
+    ae.addOption({ "--video-scrolling-text" }, [this](const std::string & value) { m_videoConfig.scrollingText = value; }, false, "An optional text to scroll during the video.");
+
+    ae.addOptionGroup({ "--video-song", "--video-output-dir" });
+}
+
 void Application::handleCommandLineArguments(int & argc, char ** argv)
 {
     juzzlin::Argengine ae { argc, argv };
@@ -92,6 +132,8 @@ void Application::handleCommandLineArguments(int & argc, char ** argv)
     ae.addOption({ "--trace" }, [] {
         juzzlin::SimpleLogger::setLoggingLevel(juzzlin::SimpleLogger::Level::Trace);
     });
+
+    addVideoOptions(ae);
 
     ae.parse();
 }
@@ -187,13 +229,36 @@ void Application::connectServices()
     });
 }
 
-void Application::initialize()
+int Application::initializeTracker()
 {
+    juzzlin::L(TAG).info() << "Initializing tracker";
+
     initializeApplicationEngine();
-
     connectServices();
-
     m_stateMachine->calculateState(StateMachine::Action::ApplicationInitialized);
+
+    return m_application->exec();
+}
+
+int Application::runVideoGenerator()
+{
+    juzzlin::L(TAG).info() << "Running video generator";
+    VideoGenerator videoGenerator { m_mixerService };
+    m_editorService->load(QString::fromStdString(m_videoConfig.songPath));
+    m_videoConfig.image = !m_videoConfig.imagePath.empty() ? QImage { QString::fromStdString(m_videoConfig.imagePath) } : QImage {};
+    m_videoConfig.logo = !m_videoConfig.logoPath.empty() ? QImage { QString::fromStdString(m_videoConfig.logoPath) } : QImage {};
+    videoGenerator.generateVideoFrames(m_editorService->song(), m_videoConfig);
+
+    return EXIT_SUCCESS;
+}
+
+int Application::initialize()
+{
+    if (m_videoGeneratorEnabled) {
+        return runVideoGenerator();
+    } else {
+        return initializeTracker();
+    }
 }
 
 void Application::initializeApplicationEngine()
@@ -223,9 +288,7 @@ void Application::requestInstruments(QStringList midiPorts)
 
 int Application::run()
 {
-    initialize();
-
-    return m_application->exec();
+    return initialize();
 }
 
 void Application::applyInstrument(const Instrument & instrument)

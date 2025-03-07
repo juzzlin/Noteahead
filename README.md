@@ -46,6 +46,7 @@ Tracks composed with Noteahead:
 * Track and column-specific velocity scales
   - Effective velocity is the product of track scale, column scale, and note velocity
 * Saves to a custom (but open!) XML-based **.nahd** format
+* Music video generator (**Experimental**)
 
 ##
 ## Future dreams (**NOT YET IMPLEMENTED**):
@@ -54,7 +55,6 @@ Tracks composed with Noteahead:
 * MIDI side-chaining (not sure if this is gonna work)
 * MIDI CC automation (channel volume, pan, cut-off)
 * Clock sync options: Internal, MIDI, Jack
-* Video generation
 
 ##
 ## Some important design choices

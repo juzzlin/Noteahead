@@ -19,6 +19,7 @@
 #include "../contrib/SimpleLogger/src/simple_logger.hpp"
 
 #include <algorithm>
+#include <ranges>
 
 #include <QXmlStreamWriter>
 
@@ -36,19 +37,26 @@ size_t PlayOrder::length() const
     return m_positionToPattern.size();
 }
 
-PlayOrder::PatternList PlayOrder::flatten(size_t songLength) const
+PlayOrder::PatternList PlayOrder::flatten(size_t songLength, size_t startPosition) const
 {
-    auto patternList = m_positionToPattern;
-    songLength = std::max(static_cast<size_t>(1), songLength);
-    if (songLength > patternList.size()) {
-        while (songLength > patternList.size()) {
-            patternList.push_back(0);
-        }
-    } else if (songLength < patternList.size()) {
-        while (songLength < patternList.size()) {
-            patternList.pop_back();
-        }
+    PatternList patternList;
+
+    // Ensure startPosition is within bounds
+    if (startPosition >= m_positionToPattern.size()) {
+        return patternList;
     }
+
+    // Use views to get the subrange of interest
+    const auto selectedPatterns = m_positionToPattern
+      | std::views::drop(startPosition)
+      | std::views::take(songLength);
+
+    // Copy selected patterns into patternList
+    std::ranges::copy(selectedPatterns, std::back_inserter(patternList));
+
+    // Extend with zeros if needed
+    patternList.resize(songLength, 0);
+
     return patternList;
 }
 

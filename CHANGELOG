@@ -5,6 +5,9 @@ Release date:
 
 New features:
 
+* Music video generator (**Experimental**)
+  - Generates note visualization with particle effects
+
 Bug fixes:
 
 0.3.0
