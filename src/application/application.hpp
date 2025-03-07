@@ -16,6 +16,7 @@
 #ifndef APPLICATION_HPP
 #define APPLICATION_HPP
 
+#include "../infra/video_generator.hpp"
 #include "state_machine.hpp"
 
 #include <memory>
@@ -61,9 +62,10 @@ private:
 
     void handleCommandLineArguments(int & argc, char ** argv);
 
-    void initialize();
-
+    int initialize();
     void initializeApplicationEngine();
+    int initializeTracker();
+    int runVideoGenerator();
 
     void requestInstruments(QStringList midiPorts);
 
@@ -93,6 +95,10 @@ private:
     std::unique_ptr<TrackSettingsModel> m_trackSettingsModel;
 
     std::unique_ptr<QQmlApplicationEngine> m_engine;
+
+    bool m_videoGeneratorEnabled = false;
+
+    VideoGenerator::Config m_videoConfig;
 };
 
 } // namespace noteahead

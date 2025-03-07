@@ -167,7 +167,7 @@ public:
     using SongPositionOpt = std::optional<SongPosition>;
     SongPositionOpt songPositionByTick(size_t tick) const;
     std::chrono::milliseconds lineToTime(size_t line) const;
-    std::chrono::milliseconds duration() const;
+    std::chrono::milliseconds duration(size_t startPosition = 0) const;
 
     size_t length() const;
     void setLength(size_t length);

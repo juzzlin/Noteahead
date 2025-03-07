@@ -32,7 +32,7 @@ public:
     size_t length() const;
 
     using PatternList = std::vector<size_t>;
-    PatternList flatten(size_t songLength) const;
+    PatternList flatten(size_t songLength, size_t startPosition = 0) const;
 
     void insertPattern(size_t position, size_t pattern);
 

@@ -52,6 +52,7 @@ set(HEADER_FILES
   infra/midi_cc.hpp
   infra/midi_device.hpp
   infra/settings.hpp
+  infra/video_generator.hpp
 )
 
 set(SOURCE_FILES
@@ -97,6 +98,7 @@ set(SOURCE_FILES
   infra/midi_backend_rt_midi.cpp
   infra/midi_device.cpp
   infra/settings.cpp
+  infra/video_generator.cpp
   main.cpp
 )
 
