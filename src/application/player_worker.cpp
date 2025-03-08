@@ -122,8 +122,8 @@ void PlayerWorker::processEvents()
     juzzlin::L(TAG).debug() << "Lines per beat: " << m_timing.linesPerBeat;
     juzzlin::L(TAG).debug() << "Ticks per line: " << m_timing.ticksPerLine;
 
-    const double tickDurationMs = 60.0 / (static_cast<double>(m_timing.beatsPerMinute * m_timing.linesPerBeat * m_timing.ticksPerLine));
-    const auto tickDuration = std::chrono::duration<double> { tickDurationMs };
+    const double tickDurationS = 60.0 / (static_cast<double>(m_timing.beatsPerMinute * m_timing.linesPerBeat * m_timing.ticksPerLine));
+    const auto tickDuration = std::chrono::duration<double> { tickDurationS };
     const auto startTime = std::chrono::steady_clock::now();
 
     for (auto tick = minTick; tick <= maxTick && m_isPlaying; tick++) {
