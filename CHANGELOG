@@ -7,7 +7,27 @@ New features:
 
 Bug fixes:
 
+0.3.0
+=====
+
+Release date:
+
+Sat, 08 Mar 2025 11:45:19 +0200
+
+New features:
+
+* Implement inverted mute states of columns/tracks by right-clicking
+
+Bug fixes:
+
+* Fix soloed columns of other tracks not playing
+
+* Fix incorrect pattern on song reset
+  - Position 0 doesn't always imply pattern 0
+
 Other:
+
+* Invalidate port name cache on new scan
 
 0.2.0
 =====
