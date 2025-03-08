@@ -18,7 +18,9 @@ Noteahead is still a work in progress and there's **a lot of limitations and mis
   </tr>
  </table>
 
-My first track composed with Noteahead:
+Tracks composed with Noteahead:
+
+<a href="https://soundcloud.com/jussilindplays/incredible-times">J.L.P - Incredible Times  (SoundCloud)</a>
 
 <a href="https://www.youtube.com/watch?feature=player_embedded&v=Y_hq6uGTx9M">J.L.P - Right To Castle (YouTube)</a>
 
