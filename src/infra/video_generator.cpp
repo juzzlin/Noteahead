@@ -53,8 +53,10 @@ void VideoGenerator::initialize(const Config & config)
     const auto [minTick, maxTick] = std::ranges::minmax(m_eventMap | std::views::keys);
     m_minTick = minTick;
     m_maxTick = maxTick + static_cast<size_t>(static_cast<double>(config.leadOutTime.count()) / tickDurationMs);
-    juzzlin::L(TAG).info() << "Min tick                   : " << m_minTick;
-    juzzlin::L(TAG).info() << "Max tick (+ lead-out time) : " << m_maxTick;
+    juzzlin::L(TAG).info() << "Min tick: " << m_minTick;
+    juzzlin::L(TAG).info() << "Max tick: " << m_maxTick;
+    m_maxTick += static_cast<size_t>(static_cast<double>(config.leadOutTime.count()) / tickDurationMs);
+    juzzlin::L(TAG).info() << "Max tick (+ lead-out time): " << m_maxTick;
 }
 
 bool VideoGenerator::shouldEventPlay(const Event & event) const
@@ -152,8 +154,8 @@ void VideoGenerator::generateVideoFrames(SongS song, const Config & config)
 
     const auto fps = m_config.fps;
     const auto totalFrames = config.length.has_value()
-      ? fps * static_cast<size_t>(config.length->count() + config.leadInTime.count()) / 1'000
-      : fps * static_cast<size_t>(song->duration(config.startPosition).count() + config.leadInTime.count()) / 1'000;
+      ? fps * static_cast<size_t>(config.length->count() + config.leadInTime.count() + config.leadOutTime.count()) / 1'000
+      : fps * static_cast<size_t>(song->duration(config.startPosition).count() + config.leadInTime.count() + config.leadOutTime.count()) / 1'000;
     const double frameDurationMs = 1'000.0 / static_cast<double>(fps);
 
     generateAnimationFrames(song, config);
