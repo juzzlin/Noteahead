@@ -22,7 +22,6 @@
 #include "instrument_request.hpp"
 
 #include <chrono>
-#include <thread>
 
 using namespace std::chrono_literals;
 
