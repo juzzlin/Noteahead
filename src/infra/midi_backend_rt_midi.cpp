@@ -32,6 +32,7 @@ void MidiBackendRtMidi::updateAvailableDevices()
     }
     setDevices(devices);
     invalidatePortNameCache();
+    m_midiPorts.clear();
 }
 
 void MidiBackendRtMidi::openDevice(MidiDeviceW device)
