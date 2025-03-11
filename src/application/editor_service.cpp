@@ -67,8 +67,9 @@ EditorService::SongS EditorService::song() const
 
 void EditorService::setSong(SongS song)
 {
-    m_song = song;
+    m_state = State {};
 
+    m_song = song;
     emit songChanged();
     emit beatsPerMinuteChanged();
     emit linesPerBeatChanged();
@@ -87,6 +88,8 @@ void EditorService::setSong(SongS song)
     updateDuration();
 
     notifyPositionChange(m_state.cursorPosition);
+    emit songPositionChanged(m_state.songPosition);
+    emit patternAtCurrentSongPositionChanged();
 
     setIsModified(false);
 }

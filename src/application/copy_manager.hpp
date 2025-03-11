@@ -31,8 +31,6 @@ class CopyManager
 public:
     CopyManager();
 
-    ~CopyManager();
-
     enum class Mode
     {
         None,

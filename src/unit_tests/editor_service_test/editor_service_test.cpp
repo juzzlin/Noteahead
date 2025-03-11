@@ -38,11 +38,14 @@ void EditorServiceTest::test_initialize_shouldInitializeCorrectly()
     QSignalSpy spyBpmChanged(&editorService, &EditorService::beatsPerMinuteChanged);
     QSignalSpy spyLpbChanged(&editorService, &EditorService::linesPerBeatChanged);
     QSignalSpy spyPatternChanged(&editorService, &EditorService::currentPatternChanged);
+    QSignalSpy spyPatternAtCurrentPositionChanged(&editorService, &EditorService::patternAtCurrentSongPositionChanged);
 
     editorService.setSongPosition(1); // Alter song length and position
 
     QSignalSpy spySongLengthChanged(&editorService, &EditorService::songLengthChanged);
     QSignalSpy spySongPositionChanged(&editorService, &EditorService::songPositionChanged);
+
+    QCOMPARE(spyPatternAtCurrentPositionChanged.count(), 1);
 
     editorService.initialize();
 
@@ -55,6 +58,7 @@ void EditorServiceTest::test_initialize_shouldInitializeCorrectly()
     QCOMPARE(spyPatternChanged.count(), 1);
     QCOMPARE(spySongLengthChanged.count(), 1);
     QCOMPARE(spySongPositionChanged.count(), 1);
+    QCOMPARE(spyPatternAtCurrentPositionChanged.count(), 2);
 
     // Verify status message
     QCOMPARE(spyStatusText.count(), 1);

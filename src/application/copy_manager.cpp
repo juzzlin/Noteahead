@@ -193,6 +193,4 @@ CopyManager::Mode CopyManager::mode() const
     return m_mode;
 }
 
-CopyManager::~CopyManager() = default;
-
 } // namespace noteahead
