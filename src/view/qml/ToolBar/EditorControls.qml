@@ -66,7 +66,7 @@ Row {
                 SpinBox {
                     id: songPatternIndexSpinBox
                     value: editorService.patternAtCurrentSongPosition
-                    editable: false
+                    editable: true
                     enabled: !UiService.isPlaying()
                     onValueChanged: {
                         editorService.setPatternAtSongPosition(songPositionSpinBox.value, value);
