@@ -847,19 +847,19 @@ void EditorService::requestNewColumn(size_t trackIndex)
     setIsModified(true);
 }
 
-void EditorService::requestColumnDeletion(size_t track)
+void EditorService::requestColumnDeletion(size_t trackIndex)
 {
-    juzzlin::L(TAG).debug() << "Column deletion requested on track " << track;
+    juzzlin::L(TAG).debug() << "Column deletion requested on track " << trackIndex;
 
     m_selectionService->clear();
 
-    if (m_song->deleteColumn(track)) {
+    if (m_song->deleteColumn(trackIndex)) {
         const auto oldPosition = m_state.cursorPosition;
-        if (oldPosition.track == track && m_state.cursorPosition.column >= m_song->columnCount(track)) {
+        if (oldPosition.track == trackIndex && m_state.cursorPosition.column >= m_song->columnCount(trackIndex)) {
             m_state.cursorPosition.column--;
         }
         notifyPositionChange(oldPosition);
-        emit columnDeleted(track);
+        emit columnDeleted(trackIndex);
         updateScrollBar();
         notifyPositionChange(m_state.cursorPosition); // Re-focuses the previous track
         setIsModified(true);

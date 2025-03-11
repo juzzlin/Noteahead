@@ -114,7 +114,7 @@ Item {
         property var _noteColumns: []
         property var _lineColumn
         function clearColumns() {
-            _noteColumns.forEach(noteColumn => noteColumn.destry());
+            _noteColumns.forEach(noteColumn => noteColumn.destroy());
             _noteColumns.length = 0;
         }
         function createColumns() {
@@ -129,6 +129,7 @@ Item {
             updateIndexHighlights();
         }
         function deleteColumn() {
+            _noteColumns[_noteColumns.length - 1].destroy();
             _noteColumns.pop();
             _noteColumnCount = editorService.columnCount(_index);
             _resize(width, height);
