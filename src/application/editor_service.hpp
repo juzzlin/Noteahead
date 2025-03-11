@@ -16,7 +16,9 @@
 #ifndef EDITOR_SERVICE_HPP
 #define EDITOR_SERVICE_HPP
 
+#include "copy_manager.hpp"
 #include "position.hpp"
+
 #include <QObject>
 
 #include <optional>
@@ -27,7 +29,6 @@ class QXmlStreamWriter;
 
 namespace noteahead {
 
-class CopyManager;
 class Song;
 class Instrument;
 class InstrumentRequest;
@@ -347,19 +348,24 @@ private:
 
     SongS m_song;
 
-    Position m_cursorPosition;
-
-    QString m_currentTime;
-    QString m_duration;
-
-    size_t m_horizontalScrollPosition = 0;
-    size_t m_songPosition = 0;
-
-    std::unique_ptr<CopyManager> m_copyManager;
-
     SelectionServiceS m_selectionService;
 
-    bool m_isModified = false;
+    struct State
+    {
+        Position cursorPosition;
+
+        QString currentTime;
+        QString duration;
+
+        size_t horizontalScrollPosition = 0;
+        size_t songPosition = 0;
+
+        CopyManager copyManager;
+
+        bool isModified = false;
+    };
+
+    State m_state;
 };
 
 } // namespace noteahead

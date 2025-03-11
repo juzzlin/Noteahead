@@ -42,8 +42,7 @@ EditorService::EditorService()
 }
 
 EditorService::EditorService(SelectionServiceS selectionService)
-  : m_copyManager { std::make_unique<CopyManager>() }
-  , m_selectionService { selectionService }
+  : m_selectionService { selectionService }
 {
     initialize();
 }
@@ -87,7 +86,7 @@ void EditorService::setSong(SongS song)
 
     updateDuration();
 
-    notifyPositionChange(m_cursorPosition);
+    notifyPositionChange(m_state.cursorPosition);
 
     setIsModified(false);
 }
@@ -210,8 +209,8 @@ void EditorService::fromXml(QString xml)
 
 void EditorService::resetCursorPosition()
 {
-    const auto oldPosition = m_cursorPosition;
-    m_cursorPosition = {};
+    const auto oldPosition = m_state.cursorPosition;
+    m_state.cursorPosition = {};
     notifyPositionChange(oldPosition);
 }
 
@@ -353,8 +352,8 @@ void EditorService::clampCursorLine(size_t oldLineCount, size_t newLineCount)
 {
     // Remove cursor focus from non-existent row before updating UI
     if (newLineCount < oldLineCount) {
-        if (const auto oldPosition = m_cursorPosition; m_cursorPosition.line >= newLineCount) {
-            m_cursorPosition.line = newLineCount - 1;
+        if (const auto oldPosition = m_state.cursorPosition; m_state.cursorPosition.line >= newLineCount) {
+            m_state.cursorPosition.line = newLineCount - 1;
             notifyPositionChange(oldPosition);
         }
     }
@@ -367,7 +366,7 @@ void EditorService::setCurrentLineCount(size_t lineCount)
         clampCursorLine(oldLineCount, currentLineCount());
         emit currentLineCountChanged();
         emit currentLineCountModified(oldLineCount, lineCount);
-        notifyPositionChange(m_cursorPosition); // Force focus after tracks are rebuilt
+        notifyPositionChange(m_state.cursorPosition); // Force focus after tracks are rebuilt
         setIsModified(true);
         updateDuration();
     }
@@ -406,7 +405,7 @@ size_t EditorService::maxSongPosition() const
 int EditorService::lineNumberAtViewLine(size_t line) const
 {
     // Encode underflow and overflow as negative numbers. The view will show "-64" as "64" but in a different color.
-    const int lineNumber = (static_cast<int>(line) + static_cast<int>(m_cursorPosition.line) - static_cast<int>(positionBarLine()));
+    const int lineNumber = (static_cast<int>(line) + static_cast<int>(m_state.cursorPosition.line) - static_cast<int>(positionBarLine()));
     const int lineCount = static_cast<int>(this->lineCount(currentPattern()));
     if (lineNumber < 0) {
         return -(lineCount + lineNumber);
@@ -606,17 +605,17 @@ void EditorService::setCurrentPatternName(QString patternName)
 
 size_t EditorService::currentPattern() const
 {
-    return m_cursorPosition.pattern;
+    return m_state.cursorPosition.pattern;
 }
 
 size_t EditorService::currentTrack() const
 {
-    return m_cursorPosition.track;
+    return m_state.cursorPosition.track;
 }
 
 size_t EditorService::currentColumn() const
 {
-    return m_cursorPosition.column;
+    return m_state.cursorPosition.column;
 }
 
 void EditorService::createPatternIfDoesNotExist(size_t patternIndex)
@@ -636,14 +635,14 @@ void EditorService::setCurrentPattern(size_t patternIndex)
         return;
     }
 
-    const auto oldPosition = m_cursorPosition;
-    m_cursorPosition.pattern = patternIndex;
+    const auto oldPosition = m_state.cursorPosition;
+    m_state.cursorPosition.pattern = patternIndex;
 
     const auto oldLineCount = m_song->lineCount(oldPosition.pattern);
 
     createPatternIfDoesNotExist(patternIndex);
 
-    if (const auto newLineCount = m_song->lineCount(m_cursorPosition.pattern); newLineCount != oldLineCount) {
+    if (const auto newLineCount = m_song->lineCount(m_state.cursorPosition.pattern); newLineCount != oldLineCount) {
         clampCursorLine(oldLineCount, newLineCount);
         emit currentLineCountChanged();
     }
@@ -653,12 +652,12 @@ void EditorService::setCurrentPattern(size_t patternIndex)
 
 QString EditorService::currentTime() const
 {
-    return m_currentTime;
+    return m_state.currentTime;
 }
 
 QString EditorService::duration() const
 {
-    return m_duration;
+    return m_state.duration;
 }
 
 // Return display time as "hh:mm:ss.sss"
@@ -685,8 +684,8 @@ static QString getFormattedTime(std::chrono::milliseconds currentTime)
 
 void EditorService::setCurrentTime(std::chrono::milliseconds currentTime)
 {
-    if (const QString newCurrentTime = getFormattedTime(currentTime); m_currentTime != newCurrentTime) {
-        m_currentTime = newCurrentTime;
+    if (const QString newCurrentTime = getFormattedTime(currentTime); m_state.currentTime != newCurrentTime) {
+        m_state.currentTime = newCurrentTime;
         emit currentTimeChanged();
     }
 }
@@ -698,8 +697,8 @@ void EditorService::updateDuration()
 
 void EditorService::setDuration(std::chrono::milliseconds duration)
 {
-    if (const QString newDuration = getFormattedTime(duration); m_duration != newDuration) {
-        m_duration = newDuration;
+    if (const QString newDuration = getFormattedTime(duration); m_state.duration != newDuration) {
+        m_state.duration = newDuration;
         emit durationChanged();
     }
 }
@@ -711,12 +710,12 @@ bool EditorService::hasData(size_t patternIndex, size_t trackIndex, size_t colum
 
 bool EditorService::isAtNoteColumn() const
 {
-    return !m_cursorPosition.lineColumn;
+    return !m_state.cursorPosition.lineColumn;
 }
 
 bool EditorService::isAtVelocityColumn() const
 {
-    return m_cursorPosition.lineColumn >= 1 && m_cursorPosition.lineColumn <= 3;
+    return m_state.cursorPosition.lineColumn >= 1 && m_state.cursorPosition.lineColumn <= 3;
 }
 
 bool EditorService::isColumnVisible(size_t track, size_t column) const
@@ -727,13 +726,13 @@ bool EditorService::isColumnVisible(size_t track, size_t column) const
 
 bool EditorService::isModified() const
 {
-    return m_isModified;
+    return m_state.isModified;
 }
 
 void EditorService::setIsModified(bool isModified)
 {
-    if (m_isModified != isModified) {
-        m_isModified = isModified;
+    if (m_state.isModified != isModified) {
+        m_state.isModified = isModified;
         emit isModifiedChanged();
         emit canBeSavedChanged();
         if (isModified) {
@@ -744,7 +743,7 @@ void EditorService::setIsModified(bool isModified)
 
 Position EditorService::position() const
 {
-    return m_cursorPosition;
+    return m_state.cursorPosition;
 }
 
 size_t EditorService::positionBarLine() const
@@ -771,9 +770,9 @@ EditorService::MidiNoteNameAndCodeOpt EditorService::editorNoteToMidiNote(size_t
 
 bool EditorService::setVelocityAtCurrentPosition(uint8_t digit)
 {
-    juzzlin::L(TAG).debug() << "Set velocity digit at position " << m_cursorPosition.toString() << ": " << static_cast<int>(digit);
+    juzzlin::L(TAG).debug() << "Set velocity digit at position " << m_state.cursorPosition.toString() << ": " << static_cast<int>(digit);
 
-    const auto noteData = m_song->noteDataAtPosition(m_cursorPosition);
+    const auto noteData = m_song->noteDataAtPosition(m_state.cursorPosition);
     if (!noteData) {
         return false;
     }
@@ -789,7 +788,7 @@ bool EditorService::setVelocityAtCurrentPosition(uint8_t digit)
         return false;
     }
 
-    if (m_cursorPosition.lineColumn == 1) {
+    if (m_state.cursorPosition.lineColumn == 1) {
         if (digit == 0 || digit == 1) {
             currentVelocity = (digit * 100) + (currentVelocity % 100);
             if (currentVelocity > 127) {
@@ -798,12 +797,12 @@ bool EditorService::setVelocityAtCurrentPosition(uint8_t digit)
         } else {
             return false; // Invalid digit for hundreds place
         }
-    } else if (m_cursorPosition.lineColumn == 2) {
+    } else if (m_state.cursorPosition.lineColumn == 2) {
         currentVelocity = (currentVelocity / 100) * 100 + (digit * 10) + (currentVelocity % 10);
         if (currentVelocity > 127) {
             currentVelocity -= 100;
         }
-    } else if (m_cursorPosition.lineColumn == 3) {
+    } else if (m_state.cursorPosition.lineColumn == 3) {
         currentVelocity = (currentVelocity / 10) * 10 + digit;
         if (currentVelocity > 127) {
             currentVelocity -= 10;
@@ -814,7 +813,7 @@ bool EditorService::setVelocityAtCurrentPosition(uint8_t digit)
 
     if (currentVelocity <= 127) {
         noteData->setVelocity(currentVelocity);
-        emit noteDataAtPositionChanged(m_cursorPosition);
+        emit noteDataAtPositionChanged(m_state.cursorPosition);
         setIsModified(true);
         return true;
     }
@@ -824,7 +823,7 @@ bool EditorService::setVelocityAtCurrentPosition(uint8_t digit)
 
 bool EditorService::requestDigitSetAtCurrentPosition(uint8_t digit)
 {
-    juzzlin::L(TAG).debug() << "Digit set requested at position " << m_cursorPosition.toString() << ": " << static_cast<int>(digit);
+    juzzlin::L(TAG).debug() << "Digit set requested at position " << m_state.cursorPosition.toString() << ": " << static_cast<int>(digit);
 
     if (isAtVelocityColumn()) {
         return setVelocityAtCurrentPosition(digit);
@@ -841,7 +840,7 @@ void EditorService::requestNewColumn(size_t trackIndex)
 
     emit columnAdded(trackIndex);
     updateScrollBar();
-    notifyPositionChange(m_cursorPosition); // Re-focuses the previous track
+    notifyPositionChange(m_state.cursorPosition); // Re-focuses the previous track
     setIsModified(true);
 }
 
@@ -852,14 +851,14 @@ void EditorService::requestColumnDeletion(size_t track)
     m_selectionService->clear();
 
     if (m_song->deleteColumn(track)) {
-        const auto oldPosition = m_cursorPosition;
-        if (oldPosition.track == track && m_cursorPosition.column >= m_song->columnCount(track)) {
-            m_cursorPosition.column--;
+        const auto oldPosition = m_state.cursorPosition;
+        if (oldPosition.track == track && m_state.cursorPosition.column >= m_song->columnCount(track)) {
+            m_state.cursorPosition.column--;
         }
         notifyPositionChange(oldPosition);
         emit columnDeleted(track);
         updateScrollBar();
-        notifyPositionChange(m_cursorPosition); // Re-focuses the previous track
+        notifyPositionChange(m_state.cursorPosition); // Re-focuses the previous track
         setIsModified(true);
     }
 }
@@ -881,7 +880,7 @@ void EditorService::requestTrackDeletion()
     if (trackCount() > visibleUnitCount()) {
         const auto trackToDelete = position().track;
         moveCursorToPrevTrack();
-        notifyPositionChange(m_cursorPosition); // Re-focuses the previous track
+        notifyPositionChange(m_state.cursorPosition); // Re-focuses the previous track
         if (m_song->deleteTrack(trackToDelete)) {
             emit trackDeleted(trackToDelete);
             updateScrollBar();
@@ -894,12 +893,12 @@ void EditorService::requestTrackDeletion()
 
 void EditorService::requestNoteInsertionAtCurrentPosition()
 {
-    insertNoteAtPosition(m_cursorPosition);
+    insertNoteAtPosition(m_state.cursorPosition);
 }
 
 void EditorService::requestNoteDeletionAtCurrentPosition(bool shiftNotes)
 {
-    deleteNoteDataAtPosition(m_cursorPosition, shiftNotes);
+    deleteNoteDataAtPosition(m_state.cursorPosition, shiftNotes);
 }
 
 void EditorService::insertNoteAtPosition(const Position & position)
@@ -941,18 +940,18 @@ void EditorService::deleteNoteDataAtPosition(const Position & position, bool shi
 
 bool EditorService::requestNoteOnAtCurrentPosition(uint8_t note, uint8_t octave, uint8_t velocity)
 {
-    if (m_cursorPosition.lineColumn) {
+    if (m_state.cursorPosition.lineColumn) {
         juzzlin::L(TAG).debug() << "Not on note column";
         return false;
     }
 
     if (const auto midiNote = editorNoteToMidiNote(note, octave); midiNote.has_value()) {
-        juzzlin::L(TAG).debug() << "Note ON requested at position " << m_cursorPosition.toString() << ": " << midiNote->first
+        juzzlin::L(TAG).debug() << "Note ON requested at position " << m_state.cursorPosition.toString() << ": " << midiNote->first
                                 << ", MIDI Note = " << static_cast<int>(midiNote->second) << ", Velocity = " << static_cast<int>(velocity);
-        NoteData noteData { m_cursorPosition.track, m_cursorPosition.column };
+        NoteData noteData { m_state.cursorPosition.track, m_state.cursorPosition.column };
         noteData.setAsNoteOn(midiNote->second, velocity);
-        m_song->setNoteDataAtPosition(noteData, m_cursorPosition);
-        emit noteDataAtPositionChanged(m_cursorPosition);
+        m_song->setNoteDataAtPosition(noteData, m_state.cursorPosition);
+        emit noteDataAtPositionChanged(m_state.cursorPosition);
         setIsModified(true);
         return true;
     }
@@ -963,12 +962,12 @@ bool EditorService::requestNoteOnAtCurrentPosition(uint8_t note, uint8_t octave,
 void EditorService::removeDuplicateNoteOffs()
 {
     juzzlin::L(TAG).debug() << "Removing duplicate note offs";
-    if (const auto prevNoteDataPosition = m_song->prevNoteDataOnSameColumn(m_cursorPosition); prevNoteDataPosition != m_cursorPosition) {
+    if (const auto prevNoteDataPosition = m_song->prevNoteDataOnSameColumn(m_state.cursorPosition); prevNoteDataPosition != m_state.cursorPosition) {
         if (const auto previousNoteData = m_song->noteDataAtPosition(prevNoteDataPosition); previousNoteData->type() == NoteData::Type::NoteOff) {
             deleteNoteDataAtPosition(prevNoteDataPosition, false);
         }
     }
-    if (const auto nextNoteDataPosition = m_song->nextNoteDataOnSameColumn(m_cursorPosition); nextNoteDataPosition != m_cursorPosition) {
+    if (const auto nextNoteDataPosition = m_song->nextNoteDataOnSameColumn(m_state.cursorPosition); nextNoteDataPosition != m_state.cursorPosition) {
         if (const auto nextNoteData = m_song->noteDataAtPosition(nextNoteDataPosition); nextNoteData->type() == NoteData::Type::NoteOff) {
             deleteNoteDataAtPosition(nextNoteDataPosition, false);
         }
@@ -977,15 +976,15 @@ void EditorService::removeDuplicateNoteOffs()
 
 bool EditorService::requestNoteOffAtCurrentPosition()
 {
-    if (m_cursorPosition.lineColumn) {
+    if (m_state.cursorPosition.lineColumn) {
         juzzlin::L(TAG).debug() << "Not on note column";
         return false;
     }
 
-    NoteData noteData { m_cursorPosition.track, m_cursorPosition.column };
+    NoteData noteData { m_state.cursorPosition.track, m_state.cursorPosition.column };
     noteData.setAsNoteOff();
-    m_song->setNoteDataAtPosition(noteData, m_cursorPosition);
-    emit noteDataAtPositionChanged(m_cursorPosition);
+    m_song->setNoteDataAtPosition(noteData, m_state.cursorPosition);
+    emit noteDataAtPositionChanged(m_state.cursorPosition);
     setIsModified(true);
 
     removeDuplicateNoteOffs();
@@ -996,7 +995,7 @@ bool EditorService::requestNoteOffAtCurrentPosition()
 void EditorService::logPosition() const
 {
 #ifdef NOTEAHEAD_DEBUG
-    juzzlin::L(TAG).trace() << "Position: " << m_cursorPosition.toString();
+    juzzlin::L(TAG).trace() << "Position: " << m_state.m_cursorPosition.toString();
 #endif
 }
 
@@ -1004,9 +1003,9 @@ void EditorService::notifyPositionChange(const Position & oldPosition)
 {
     logPosition();
 
-    emit positionChanged(m_cursorPosition, oldPosition);
+    emit positionChanged(m_state.cursorPosition, oldPosition);
 
-    if (m_cursorPosition.pattern != oldPosition.pattern) {
+    if (m_state.cursorPosition.pattern != oldPosition.pattern) {
         emit currentPatternChanged();
     }
 }
@@ -1014,7 +1013,7 @@ void EditorService::notifyPositionChange(const Position & oldPosition)
 void EditorService::requestColumnCut()
 {
     juzzlin::L(TAG).info() << "Requesting column cut";
-    for (auto && changedPosition : m_song->cutColumn(currentPattern(), currentTrack(), currentColumn(), *m_copyManager)) {
+    for (auto && changedPosition : m_song->cutColumn(currentPattern(), currentTrack(), currentColumn(), m_state.copyManager)) {
         emit noteDataAtPositionChanged(changedPosition);
     }
     emit copyManagerStateChanged();
@@ -1025,7 +1024,7 @@ void EditorService::requestColumnCut()
 void EditorService::requestColumnCopy()
 {
     juzzlin::L(TAG).info() << "Requesting column copy";
-    m_song->copyColumn(currentPattern(), currentTrack(), currentColumn(), *m_copyManager);
+    m_song->copyColumn(currentPattern(), currentTrack(), currentColumn(), m_state.copyManager);
     emit copyManagerStateChanged();
     emit statusTextRequested(tr("Column copied"));
 }
@@ -1034,7 +1033,7 @@ void EditorService::requestColumnPaste()
 {
     try {
         juzzlin::L(TAG).info() << "Requesting paste for copied column";
-        for (auto && changedPosition : m_song->pasteColumn(currentPattern(), currentTrack(), currentColumn(), *m_copyManager)) {
+        for (auto && changedPosition : m_song->pasteColumn(currentPattern(), currentTrack(), currentColumn(), m_state.copyManager)) {
             emit noteDataAtPositionChanged(changedPosition);
         }
         emit statusTextRequested(tr("Copied column pasted"));
@@ -1047,7 +1046,7 @@ void EditorService::requestColumnPaste()
 
 void EditorService::requestColumnTranspose(int semitones)
 {
-    for (auto && changedPosition : m_song->transposeColumn(m_cursorPosition, semitones)) {
+    for (auto && changedPosition : m_song->transposeColumn(m_state.cursorPosition, semitones)) {
         emit noteDataAtPositionChanged(changedPosition);
     }
     setIsModified(true);
@@ -1055,13 +1054,13 @@ void EditorService::requestColumnTranspose(int semitones)
 
 bool EditorService::hasColumnToPaste() const
 {
-    return m_copyManager->mode() == CopyManager::Mode::Column;
+    return m_state.copyManager.mode() == CopyManager::Mode::Column;
 }
 
 void EditorService::requestTrackCut()
 {
     juzzlin::L(TAG).info() << "Requesting track cut";
-    for (auto && changedPosition : m_song->cutTrack(currentPattern(), currentTrack(), *m_copyManager)) {
+    for (auto && changedPosition : m_song->cutTrack(currentPattern(), currentTrack(), m_state.copyManager)) {
         emit noteDataAtPositionChanged(changedPosition);
     }
     emit copyManagerStateChanged();
@@ -1072,7 +1071,7 @@ void EditorService::requestTrackCut()
 void EditorService::requestTrackCopy()
 {
     juzzlin::L(TAG).info() << "Requesting track copy";
-    m_song->copyTrack(currentPattern(), currentTrack(), *m_copyManager);
+    m_song->copyTrack(currentPattern(), currentTrack(), m_state.copyManager);
     emit copyManagerStateChanged();
     emit statusTextRequested(tr("Track copied"));
 }
@@ -1081,7 +1080,7 @@ void EditorService::requestTrackPaste()
 {
     try {
         juzzlin::L(TAG).info() << "Requesting paste for copied track";
-        for (auto && changedPosition : m_song->pasteTrack(currentPattern(), currentTrack(), *m_copyManager)) {
+        for (auto && changedPosition : m_song->pasteTrack(currentPattern(), currentTrack(), m_state.copyManager)) {
             emit noteDataAtPositionChanged(changedPosition);
         }
         emit statusTextRequested(tr("Copied track pasted"));
@@ -1094,12 +1093,12 @@ void EditorService::requestTrackPaste()
 
 bool EditorService::hasTrackToPaste() const
 {
-    return m_copyManager->mode() == CopyManager::Mode::Track;
+    return m_state.copyManager.mode() == CopyManager::Mode::Track;
 }
 
 void EditorService::requestTrackTranspose(int semitones)
 {
-    for (auto && changedPosition : m_song->transposeTrack(m_cursorPosition, semitones)) {
+    for (auto && changedPosition : m_song->transposeTrack(m_state.cursorPosition, semitones)) {
         emit noteDataAtPositionChanged(changedPosition);
     }
     setIsModified(true);
@@ -1108,7 +1107,7 @@ void EditorService::requestTrackTranspose(int semitones)
 void EditorService::requestPatternCut()
 {
     juzzlin::L(TAG).info() << "Requesting pattern cut";
-    for (auto && changedPosition : m_song->cutPattern(currentPattern(), *m_copyManager)) {
+    for (auto && changedPosition : m_song->cutPattern(currentPattern(), m_state.copyManager)) {
         emit noteDataAtPositionChanged(changedPosition);
     }
     emit statusTextRequested(tr("Pattern cut"));
@@ -1119,7 +1118,7 @@ void EditorService::requestPatternCut()
 void EditorService::requestPatternCopy()
 {
     juzzlin::L(TAG).info() << "Requesting pattern copy";
-    m_song->copyPattern(currentPattern(), *m_copyManager);
+    m_song->copyPattern(currentPattern(), m_state.copyManager);
     emit copyManagerStateChanged();
     emit statusTextRequested(tr("Pattern copied"));
 }
@@ -1128,7 +1127,7 @@ void EditorService::requestPatternPaste()
 {
     try {
         juzzlin::L(TAG).info() << "Requesting paste for copied pattern";
-        for (auto && changedPosition : m_song->pastePattern(currentPattern(), *m_copyManager)) {
+        for (auto && changedPosition : m_song->pastePattern(currentPattern(), m_state.copyManager)) {
             emit noteDataAtPositionChanged(changedPosition);
         }
         emit statusTextRequested(tr("Copied pattern pasted"));
@@ -1141,12 +1140,12 @@ void EditorService::requestPatternPaste()
 
 bool EditorService::hasPatternToPaste() const
 {
-    return m_copyManager->mode() == CopyManager::Mode::Pattern;
+    return m_state.copyManager.mode() == CopyManager::Mode::Pattern;
 }
 
 void EditorService::requestPatternTranspose(int semitones)
 {
-    for (auto && changedPosition : m_song->transposePattern(m_cursorPosition, semitones)) {
+    for (auto && changedPosition : m_song->transposePattern(m_state.cursorPosition, semitones)) {
         emit noteDataAtPositionChanged(changedPosition);
     }
     setIsModified(true);
@@ -1155,7 +1154,7 @@ void EditorService::requestPatternTranspose(int semitones)
 void EditorService::requestSelectionCut()
 {
     juzzlin::L(TAG).info() << "Requesting selection cut";
-    for (auto && changedPosition : m_song->cutSelection(m_selectionService->selectedPositions(), *m_copyManager)) {
+    for (auto && changedPosition : m_song->cutSelection(m_selectionService->selectedPositions(), m_state.copyManager)) {
         emit noteDataAtPositionChanged(changedPosition);
     }
     emit statusTextRequested(tr("Selection cut"));
@@ -1166,7 +1165,7 @@ void EditorService::requestSelectionCut()
 void EditorService::requestSelectionCopy()
 {
     juzzlin::L(TAG).info() << "Requesting selection copy";
-    m_song->copySelection(m_selectionService->selectedPositions(), *m_copyManager);
+    m_song->copySelection(m_selectionService->selectedPositions(), m_state.copyManager);
     emit copyManagerStateChanged();
     emit statusTextRequested(tr("Selection copied"));
 }
@@ -1175,7 +1174,7 @@ void EditorService::requestSelectionPaste()
 {
     try {
         juzzlin::L(TAG).info() << "Requesting paste for copied selection";
-        for (auto && changedPosition : m_song->pasteSelection(position(), *m_copyManager)) {
+        for (auto && changedPosition : m_song->pasteSelection(position(), m_state.copyManager)) {
             emit noteDataAtPositionChanged(changedPosition);
         }
         emit statusTextRequested(tr("Copied selection pasted"));
@@ -1188,7 +1187,7 @@ void EditorService::requestSelectionPaste()
 
 bool EditorService::hasSelectionToPaste() const
 {
-    return m_copyManager->mode() == CopyManager::Mode::Selection;
+    return m_state.copyManager.mode() == CopyManager::Mode::Selection;
 }
 
 void EditorService::requestSelectionTranspose(int semitones)
@@ -1257,15 +1256,15 @@ bool EditorService::requestPosition(size_t pattern, size_t track, size_t column,
         return false;
     }
 
-    const auto oldPosition = m_cursorPosition;
-    m_cursorPosition.pattern = pattern;
-    m_cursorPosition.track = track;
-    m_cursorPosition.column = column;
-    m_cursorPosition.line = line;
-    m_cursorPosition.lineColumn = lineColumn;
+    const auto oldPosition = m_state.cursorPosition;
+    m_state.cursorPosition.pattern = pattern;
+    m_state.cursorPosition.track = track;
+    m_state.cursorPosition.column = column;
+    m_state.cursorPosition.line = line;
+    m_state.cursorPosition.lineColumn = lineColumn;
     notifyPositionChange(oldPosition);
 
-    setCurrentTime(m_song->lineToTime(m_cursorPosition.line));
+    setCurrentTime(m_song->lineToTime(m_state.cursorPosition.line));
 
     return true;
 }
@@ -1277,10 +1276,10 @@ void EditorService::requestPositionByTick(size_t tick)
         return;
     }
 
-    const auto oldPosition = m_cursorPosition;
+    const auto oldPosition = m_state.cursorPosition;
     if (auto && songPosition = m_song->songPositionByTick(tick); songPosition.has_value()) {
-        m_cursorPosition.pattern = songPosition->pattern;
-        m_cursorPosition.line = songPosition->line;
+        m_state.cursorPosition.pattern = songPosition->pattern;
+        m_state.cursorPosition.line = songPosition->line;
         notifyPositionChange(oldPosition);
         setSongPosition(songPosition->position);
         setCurrentTime(songPosition->currentTime);
@@ -1289,10 +1288,10 @@ void EditorService::requestPositionByTick(size_t tick)
 
 void EditorService::requestScroll(int steps)
 {
-    const auto oldPosition = m_cursorPosition;
-    m_cursorPosition.line += static_cast<size_t>(steps);
-    m_cursorPosition.line %= m_song->lineCount(m_cursorPosition.pattern);
-    setCurrentTime(m_song->lineToTime(m_cursorPosition.line));
+    const auto oldPosition = m_state.cursorPosition;
+    m_state.cursorPosition.line += static_cast<size_t>(steps);
+    m_state.cursorPosition.line %= m_song->lineCount(m_state.cursorPosition.pattern);
+    setCurrentTime(m_song->lineToTime(m_state.cursorPosition.line));
     notifyPositionChange(oldPosition);
 }
 
@@ -1301,11 +1300,11 @@ void EditorService::requestTrackFocus(size_t trackIndex, size_t column, size_t l
     if (m_song->hasTrack(trackIndex)) {
         juzzlin::L(TAG).info() << "Focus for track " << trackIndex << " on column " << column << " on line " << line << " requested";
         if (column < m_song->columnCount(trackIndex) && line < currentLineCount()) {
-            const auto oldPosition = m_cursorPosition;
-            m_cursorPosition.track = trackIndex;
-            m_cursorPosition.column = column;
-            m_cursorPosition.line = line;
-            m_cursorPosition.lineColumn = 0;
+            const auto oldPosition = m_state.cursorPosition;
+            m_state.cursorPosition.track = trackIndex;
+            m_state.cursorPosition.column = column;
+            m_state.cursorPosition.line = line;
+            m_state.cursorPosition.lineColumn = 0;
             notifyPositionChange(oldPosition);
         }
     }
@@ -1348,55 +1347,55 @@ size_t EditorService::visibleUnitCount() const
 
 size_t EditorService::horizontalScrollPosition() const
 {
-    return m_horizontalScrollPosition;
+    return m_state.horizontalScrollPosition;
 }
 
 void EditorService::setHorizontalScrollPosition(double position)
 {
-    const auto oldPosition = m_horizontalScrollPosition;
+    const auto oldPosition = m_state.horizontalScrollPosition;
 
     if (visibleUnitCount() < totalUnitCount()) {
         const auto maxPosition = totalUnitCount() - visibleUnitCount();
-        m_horizontalScrollPosition = static_cast<size_t>(std::ceil(position * static_cast<double>(maxPosition)));
-        m_horizontalScrollPosition = std::min(m_horizontalScrollPosition, maxPosition);
+        m_state.horizontalScrollPosition = static_cast<size_t>(std::ceil(position * static_cast<double>(maxPosition)));
+        m_state.horizontalScrollPosition = std::min(m_state.horizontalScrollPosition, maxPosition);
     } else {
-        m_horizontalScrollPosition = 0;
+        m_state.horizontalScrollPosition = 0;
     }
 
-    if (m_horizontalScrollPosition != oldPosition) {
+    if (m_state.horizontalScrollPosition != oldPosition) {
         emit horizontalScrollChanged();
-        notifyPositionChange(m_cursorPosition); // Forces vertical scroll update
+        notifyPositionChange(m_state.cursorPosition); // Forces vertical scroll update
     }
 }
 
 void EditorService::moveCursorToPrevTrack()
 {
-    if (const auto currentTrack = m_song->trackPositionByIndex(m_cursorPosition.track); currentTrack.has_value()) {
+    if (const auto currentTrack = m_song->trackPositionByIndex(m_state.cursorPosition.track); currentTrack.has_value()) {
         size_t newTrack = *currentTrack - 1;
         newTrack %= m_song->trackIndices().size();
-        m_cursorPosition.track = m_song->trackIndices().at(newTrack);
-        m_cursorPosition.column = m_song->columnCount(m_cursorPosition.track) - 1;
-        m_cursorPosition.lineColumn = 3;
+        m_state.cursorPosition.track = m_song->trackIndices().at(newTrack);
+        m_state.cursorPosition.column = m_song->columnCount(m_state.cursorPosition.track) - 1;
+        m_state.cursorPosition.lineColumn = 3;
     }
 }
 
 void EditorService::moveCursorToNextTrack()
 {
-    if (const auto currentTrack = m_song->trackPositionByIndex(m_cursorPosition.track); currentTrack.has_value()) {
+    if (const auto currentTrack = m_song->trackPositionByIndex(m_state.cursorPosition.track); currentTrack.has_value()) {
         size_t newTrack = *currentTrack + 1;
         newTrack %= m_song->trackIndices().size();
-        m_cursorPosition.track = m_song->trackIndices().at(newTrack);
-        m_cursorPosition.column = 0;
-        m_cursorPosition.lineColumn = 0;
+        m_state.cursorPosition.track = m_song->trackIndices().at(newTrack);
+        m_state.cursorPosition.column = 0;
+        m_state.cursorPosition.lineColumn = 0;
     }
 }
 
 void EditorService::ensureFocusedColumnIsVisible()
 {
-    const auto onScreenColumnPosition = onScreenColumnPositionInUnits(m_cursorPosition.track, m_cursorPosition.column);
+    const auto onScreenColumnPosition = onScreenColumnPositionInUnits(m_state.cursorPosition.track, m_state.cursorPosition.column);
     if (onScreenColumnPosition < 0 || //
         onScreenColumnPosition >= static_cast<int>(visibleUnitCount())) {
-        const auto columnPositionInUnits = this->columnPositionInUnits(m_cursorPosition.track, m_cursorPosition.column);
+        const auto columnPositionInUnits = this->columnPositionInUnits(m_state.cursorPosition.track, m_state.cursorPosition.column);
         juzzlin::L(TAG).debug() << "Column position in units: " << columnPositionInUnits;
         juzzlin::L(TAG).debug() << "Total unit count: " << totalUnitCount();
         const auto newScroll = static_cast<double>(columnPositionInUnits) / static_cast<double>(totalUnitCount());
@@ -1408,10 +1407,10 @@ void EditorService::ensureFocusedColumnIsVisible()
 
 void EditorService::ensureFocusedTrackIsVisible()
 {
-    const auto onScreenTrackPosition = onScreenTrackPositionInUnits(m_cursorPosition.track);
+    const auto onScreenTrackPosition = onScreenTrackPositionInUnits(m_state.cursorPosition.track);
     if (onScreenTrackPosition < 0 || //
         onScreenTrackPosition >= static_cast<int>(visibleUnitCount())) {
-        const auto trackPositionInUnits = this->trackPositionInUnits(m_cursorPosition.track);
+        const auto trackPositionInUnits = this->trackPositionInUnits(m_state.cursorPosition.track);
         juzzlin::L(TAG).debug() << "Track position in units: " << trackPositionInUnits;
         juzzlin::L(TAG).debug() << "Total unit count: " << totalUnitCount();
         const auto newScroll = static_cast<double>(trackPositionInUnits) / static_cast<double>(totalUnitCount());
@@ -1424,14 +1423,14 @@ void EditorService::ensureFocusedTrackIsVisible()
 void EditorService::requestCursorLeft()
 {
     juzzlin::L(TAG).debug() << "Cursor left requested";
-    const auto oldPosition = m_cursorPosition;
+    const auto oldPosition = m_state.cursorPosition;
     // Switch line column => switch column => switch track
-    if (m_cursorPosition.lineColumn) {
-        m_cursorPosition.lineColumn--;
+    if (m_state.cursorPosition.lineColumn) {
+        m_state.cursorPosition.lineColumn--;
     } else {
-        m_cursorPosition.lineColumn = 3;
-        if (m_cursorPosition.column) {
-            m_cursorPosition.column--;
+        m_state.cursorPosition.lineColumn = 3;
+        if (m_state.cursorPosition.column) {
+            m_state.cursorPosition.column--;
         } else {
             moveCursorToPrevTrack();
         }
@@ -1443,14 +1442,14 @@ void EditorService::requestCursorLeft()
 void EditorService::requestCursorRight()
 {
     juzzlin::L(TAG).debug() << "Cursor right requested";
-    const auto oldPosition = m_cursorPosition;
+    const auto oldPosition = m_state.cursorPosition;
     // Switch line column => switch column => switch track
-    if (m_cursorPosition.lineColumn < 3) {
-        m_cursorPosition.lineColumn++;
+    if (m_state.cursorPosition.lineColumn < 3) {
+        m_state.cursorPosition.lineColumn++;
     } else {
-        m_cursorPosition.lineColumn = 0;
-        if (m_cursorPosition.column + 1 < m_song->columnCount(m_cursorPosition.track)) {
-            m_cursorPosition.column++;
+        m_state.cursorPosition.lineColumn = 0;
+        if (m_state.cursorPosition.column + 1 < m_song->columnCount(m_state.cursorPosition.track)) {
+            m_state.cursorPosition.column++;
         } else {
             moveCursorToNextTrack();
         }
@@ -1462,7 +1461,7 @@ void EditorService::requestCursorRight()
 void EditorService::requestTrackRight()
 {
     juzzlin::L(TAG).debug() << "Track right requested";
-    const auto oldPosition = m_cursorPosition;
+    const auto oldPosition = m_state.cursorPosition;
     moveCursorToNextTrack();
     notifyPositionChange(oldPosition);
     ensureFocusedTrackIsVisible();
@@ -1471,9 +1470,9 @@ void EditorService::requestTrackRight()
 void EditorService::requestColumnRight()
 {
     juzzlin::L(TAG).debug() << "Column right requested";
-    const auto oldPosition = m_cursorPosition;
+    const auto oldPosition = m_state.cursorPosition;
     if (oldPosition.column + 1 < m_song->columnCount(oldPosition.track)) {
-        m_cursorPosition.column++;
+        m_state.cursorPosition.column++;
     } else {
         moveCursorToNextTrack();
     }
@@ -1517,7 +1516,7 @@ int EditorService::onScreenColumnPositionInUnits(size_t trackIndex, size_t colum
 
 int EditorService::onScreenTrackPositionInUnits(size_t trackIndex) const
 {
-    int unitPosition = -static_cast<int>(m_horizontalScrollPosition);
+    int unitPosition = -static_cast<int>(m_state.horizontalScrollPosition);
     const auto trackPosition = m_song->trackPositionByIndex(trackIndex);
     for (size_t track = 0; track < trackPosition; track++) {
         unitPosition += m_song->columnCount(m_song->trackIndexByPosition(track).value_or(0));
@@ -1542,7 +1541,7 @@ double EditorService::scrollBarHandleSize() const
 
 double EditorService::scrollBarPosition() const
 {
-    return static_cast<double>(m_horizontalScrollPosition) * scrollBarStepSize() * (1.0 - scrollBarHandleSize());
+    return static_cast<double>(m_state.horizontalScrollPosition) * scrollBarStepSize() * (1.0 - scrollBarHandleSize());
 }
 
 void EditorService::updateScrollBar()
@@ -1554,13 +1553,13 @@ void EditorService::updateScrollBar()
 
 size_t EditorService::songPosition() const
 {
-    return m_songPosition;
+    return m_state.songPosition;
 }
 
 void EditorService::setSongPosition(size_t songPosition)
 {
-    if (m_songPosition != songPosition) {
-        m_songPosition = songPosition;
+    if (m_state.songPosition != songPosition) {
+        m_state.songPosition = songPosition;
         emit songPositionChanged(songPosition);
         emit patternAtCurrentSongPositionChanged();
         if (songPosition >= songLength()) {
@@ -1572,8 +1571,8 @@ void EditorService::setSongPosition(size_t songPosition)
 void EditorService::resetSongPosition()
 {
     setSongPosition(0);
-    const auto oldPosition = m_cursorPosition;
-    m_cursorPosition = { m_song->patternAtSongPosition(0), 0, 0, 0, 0 };
+    const auto oldPosition = m_state.cursorPosition;
+    m_state.cursorPosition = { m_song->patternAtSongPosition(0), 0, 0, 0, 0 };
     notifyPositionChange(oldPosition);
 }
 
@@ -1583,7 +1582,7 @@ void EditorService::setPatternAtSongPosition(size_t songPosition, size_t pattern
 
     if (m_song->patternAtSongPosition(songPosition) != pattern) {
         m_song->setPatternAtSongPosition(songPosition, pattern);
-        if (m_songPosition == songPosition) {
+        if (m_state.songPosition == songPosition) {
             emit patternAtCurrentSongPositionChanged();
         }
         if (songPosition >= songLength()) {
@@ -1596,13 +1595,13 @@ void EditorService::setPatternAtSongPosition(size_t songPosition, size_t pattern
 
 size_t EditorService::patternAtCurrentSongPosition() const
 {
-    return m_song->patternAtSongPosition(m_songPosition);
+    return m_song->patternAtSongPosition(m_state.songPosition);
 }
 
 void EditorService::insertPatternToPlayOrder()
 {
-    m_song->insertPatternToPlayOrder(m_songPosition);
-    emit songPositionChanged(m_songPosition);
+    m_song->insertPatternToPlayOrder(m_state.songPosition);
+    emit songPositionChanged(m_state.songPosition);
     emit patternAtCurrentSongPositionChanged();
     setSongLength(songLength() + 1);
     setIsModified(true);
@@ -1611,8 +1610,8 @@ void EditorService::insertPatternToPlayOrder()
 
 void EditorService::removePatternFromPlayOrder()
 {
-    m_song->removePatternFromPlayOrder(m_songPosition);
-    emit songPositionChanged(m_songPosition);
+    m_song->removePatternFromPlayOrder(m_state.songPosition);
+    emit songPositionChanged(m_state.songPosition);
     emit patternAtCurrentSongPositionChanged();
     setSongLength(songLength() - 1);
     setIsModified(true);
