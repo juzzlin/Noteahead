@@ -123,6 +123,19 @@ ApplicationWindow {
             applicationService.cancelSaveProjectAs();
         }
     }
+    FileDialog {
+        id: saveAsTemplateDialog
+        currentFolder: StandardPaths.standardLocations(StandardPaths.DocumentsLocation)[0]
+        fileMode: FileDialog.SaveFile
+        nameFilters: [qsTr("Noteahead files") + ` (*${applicationService.fileFormatExtension()})`]
+        onAccepted: {
+            uiLogger.info(_tag, "File selected to save: " + selectedFile);
+            applicationService.saveProjectAsTemplate(selectedFile);
+        }
+        onRejected: {
+            uiLogger.info(_tag, "Save As Template dialog canceled.");
+        }
+    }
     RecentFilesDialog {
         id: recentFilesDialog
         anchors.centerIn: parent
@@ -211,6 +224,7 @@ ApplicationWindow {
         applicationService.openDialogRequested.connect(openDialog.open);
         applicationService.recentFilesDialogRequested.connect(recentFilesDialog.open);
         applicationService.saveAsDialogRequested.connect(saveAsDialog.open);
+        applicationService.saveAsTemplateDialogRequested.connect(saveAsTemplateDialog.open);
         applicationService.statusTextRequested.connect(bottomBar.setStatusText);
         applicationService.unsavedChangesDialogRequested.connect(unsavedChangesDialog.open);
     }

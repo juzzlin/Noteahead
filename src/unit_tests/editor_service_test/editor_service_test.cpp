@@ -1615,6 +1615,47 @@ void EditorServiceTest::test_toXmlFromXml_removeTrack_shouldLoadSong()
     QCOMPARE(editorServiceIn.trackIndices(), editorServiceOut.trackIndices());
 }
 
+void EditorServiceTest::test_toXmlFromXml_template_shouldLoadTemplate()
+{
+    EditorService editorServiceOut;
+    editorServiceOut.setPatternAtSongPosition(0, 15);
+
+    const auto xml = editorServiceOut.toXmlAsTemplate();
+
+    EditorService editorServiceIn;
+    editorServiceIn.fromXml(xml);
+
+    QCOMPARE(editorServiceIn.patternAtSongPosition(0), 0);
+    QCOMPARE(editorServiceIn.patternCount(), 1);
+}
+
+void EditorServiceTest::test_toXmlFromXml_differentSongs_shouldLoadSongs()
+{
+    EditorService editorServiceOut;
+    auto xml = editorServiceOut.toXml();
+
+    EditorService editorServiceIn;
+    editorServiceIn.fromXml(xml);
+
+    QCOMPARE(editorServiceIn.patternAtSongPosition(0), 0);
+    QCOMPARE(editorServiceIn.patternCount(), 1);
+
+    editorServiceOut.setPatternAtSongPosition(0, 15);
+    xml = editorServiceOut.toXml();
+
+    editorServiceIn.fromXml(xml);
+
+    QCOMPARE(editorServiceIn.patternAtSongPosition(0), 15);
+    QCOMPARE(editorServiceIn.patternCount(), 2);
+
+    EditorService editorServiceOut2;
+    xml = editorServiceOut2.toXml();
+
+    editorServiceIn.fromXml(xml);
+    QCOMPARE(editorServiceIn.patternAtSongPosition(0), 0);
+    QCOMPARE(editorServiceIn.patternCount(), 1);
+}
+
 void EditorServiceTest::test_velocityAtPosition_shouldReturnCorrectVelocity()
 {
     EditorService editorService;

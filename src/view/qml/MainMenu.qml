@@ -34,6 +34,10 @@ MenuBar {
             shortcut: "Ctrl+A"
             onTriggered: applicationService.requestSaveProjectAs()
         }
+        Action {
+            text: qsTr("Save as a template...")
+            onTriggered: applicationService.requestSaveProjectAsTemplate()
+        }
         MenuSeparator {
         }
         Action {

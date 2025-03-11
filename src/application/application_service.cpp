@@ -124,6 +124,12 @@ void ApplicationService::requestSaveProjectAs()
     m_stateMachine->calculateState(StateMachine::Action::SaveProjectAsRequested);
 }
 
+void ApplicationService::requestSaveProjectAsTemplate()
+{
+    juzzlin::L(TAG).info() << "'Save file as template' requested";
+    m_stateMachine->calculateState(StateMachine::Action::SaveProjectAsTemplateRequested);
+}
+
 void ApplicationService::requestLiveNoteOn(uint8_t note, uint8_t octave, uint8_t velocity)
 {
     if (const auto instrument = m_editorService->instrument(m_editorService->position().track); instrument) {
@@ -206,6 +212,22 @@ void ApplicationService::saveProjectAs(QUrl url)
     }
 }
 
+void ApplicationService::saveProjectAsTemplate(QUrl url)
+{
+    try {
+        auto fileName = url.toLocalFile();
+        if (!fileName.endsWith(Constants::fileFormatExtension())) {
+            fileName += Constants::fileFormatExtension();
+        }
+        m_editorService->saveAsTemplate(fileName);
+        m_recentFilesManager->addRecentFile(fileName);
+    } catch (std::exception & e) {
+        const auto message = QString { "Failed to save project: %1 " }.arg(e.what());
+        juzzlin::L(TAG).error() << message.toStdString();
+        emit statusTextRequested(message);
+    }
+}
+
 QStringList ApplicationService::recentFiles() const
 {
     return m_recentFilesManager->recentFiles();
@@ -227,6 +249,12 @@ void ApplicationService::requestSaveAsDialog()
 {
     juzzlin::L(TAG).info() << "Save as dialog requested";
     emit saveAsDialogRequested();
+}
+
+void ApplicationService::requestSaveAsTemplateDialog()
+{
+    juzzlin::L(TAG).info() << "Save as template dialog requested";
+    emit saveAsTemplateDialogRequested();
 }
 
 void ApplicationService::setRecentFilesManager(RecentFilesManagerS recentFilesManager)

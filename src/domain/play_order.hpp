@@ -35,16 +35,17 @@ public:
     PatternList flatten(size_t songLength, size_t startPosition = 0) const;
 
     void insertPattern(size_t position, size_t pattern);
-
     void removePattern(size_t position);
 
     void setPatternAtPosition(size_t position, size_t pattern);
-
     size_t positionToPattern(size_t position) const;
 
     void serializeToXml(QXmlStreamWriter & writer) const;
+    void serializeToXml(QXmlStreamWriter & writer, size_t lastPosition) const;
 
 private:
+    void serializePosition(QXmlStreamWriter & writer, size_t position) const;
+
     std::vector<size_t> m_positionToPattern;
 };
 

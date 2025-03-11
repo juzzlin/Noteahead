@@ -76,11 +76,14 @@ public:
     Q_INVOKABLE void requestRecentFilesDialog();
     Q_INVOKABLE void requestSaveProject();
     Q_INVOKABLE void requestSaveProjectAs();
+    Q_INVOKABLE void requestSaveProjectAsTemplate();
     Q_INVOKABLE void saveProjectAs(QUrl url);
+    Q_INVOKABLE void saveProjectAsTemplate(QUrl url);
 
     void requestUnsavedChangesDialog();
     void requestOpenDialog();
     void requestSaveAsDialog();
+    void requestSaveAsTemplateDialog();
 
     using RecentFilesManagerS = std::shared_ptr<RecentFilesManager>;
     void setRecentFilesManager(RecentFilesManagerS recentFilesManager);
@@ -111,6 +114,7 @@ signals:
     void recentFilesDialogRequested();
 
     void saveAsDialogRequested();
+    void saveAsTemplateDialogRequested();
 
     void statusTextRequested(QString message);
 

@@ -80,9 +80,11 @@ public:
     void load(QString fileName);
     void save();
     void saveAs(QString fileName);
+    void saveAsTemplate(QString fileName);
 
     void fromXml(QString xml);
     QString toXml();
+    QString toXmlAsTemplate();
 
     Q_INVOKABLE bool canBeSaved() const;
 

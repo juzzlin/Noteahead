@@ -347,6 +347,9 @@ void Application::applyState(StateMachine::State state)
     case StateMachine::State::ShowSaveAsDialog:
         m_applicationService->requestSaveAsDialog();
         break;
+    case StateMachine::State::ShowSaveAsTemplateDialog:
+        m_applicationService->requestSaveAsTemplateDialog();
+        break;
     default:
         break;
     }

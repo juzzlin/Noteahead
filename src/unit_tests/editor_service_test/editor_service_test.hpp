@@ -111,6 +111,9 @@ private slots:
     void test_toXmlFromXml_songProperties();
     void test_toXmlFromXml_trackName_shouldLoadTrackName();
 
+    void test_toXmlFromXml_template_shouldLoadTemplate();
+    void test_toXmlFromXml_differentSongs_shouldLoadSongs();
+
     void test_velocityAtPosition_shouldReturnCorrectVelocity();
 };
 

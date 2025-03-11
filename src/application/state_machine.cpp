@@ -113,6 +113,10 @@ void StateMachine::calculateState(StateMachine::Action action)
         m_state = State::ShowSaveAsDialog;
         break;
 
+    case Action::SaveProjectAsTemplateRequested:
+        m_state = State::ShowSaveAsTemplateDialog;
+        break;
+
     case Action::RecentFileDialogCanceled:
         m_state = State::InitializeNewProject;
         break;

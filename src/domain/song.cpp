@@ -713,6 +713,26 @@ void Song::serializeToXml(QXmlStreamWriter & writer, MixerSerializationCallback 
     writer.writeEndElement(); // Song
 }
 
+void Song::serializeToXmlAsTemplate(QXmlStreamWriter & writer, MixerSerializationCallback mixerSerializationCallback) const
+{
+    writer.writeStartElement(Constants::xmlKeySong());
+
+    writer.writeAttribute(Constants::xmlKeyBeatsPerMinute(), QString::number(m_beatsPerMinute));
+    writer.writeAttribute(Constants::xmlKeyLinesPerBeat(), QString::number(m_linesPerBeat));
+    writer.writeAttribute(Constants::xmlKeyLength(), QString::number(1));
+
+    if (mixerSerializationCallback) {
+        mixerSerializationCallback(writer);
+    }
+
+    writer.writeStartElement(Constants::xmlKeyPatterns());
+
+    m_patterns.at(0)->serializeToXml(writer);
+
+    writer.writeEndElement(); // Patterns
+    writer.writeEndElement(); // Song
+}
+
 void Song::deserializeFromXml(QXmlStreamReader & reader, MixerDeserializationCallback mixerDeserializationCallback)
 {
     setBeatsPerMinute(*Utils::Xml::readUIntAttribute(reader, Constants::xmlKeyBeatsPerMinute()));

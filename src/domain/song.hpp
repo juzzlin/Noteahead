@@ -176,6 +176,7 @@ public:
     //! However, concept-wise the mixer settings should still be Song-specific as track configurations may vary.
     using MixerSerializationCallback = std::function<void(QXmlStreamWriter & writer)>;
     void serializeToXml(QXmlStreamWriter & writer, MixerSerializationCallback mixerSerializationCallback) const;
+    void serializeToXmlAsTemplate(QXmlStreamWriter & writer, MixerSerializationCallback mixerSerializationCallback) const;
     using MixerDeserializationCallback = std::function<void(QXmlStreamReader & reader)>;
     void deserializeFromXml(QXmlStreamReader & reader, MixerDeserializationCallback mixerDeserializationCallback);
 

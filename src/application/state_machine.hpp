@@ -47,6 +47,7 @@ public:
         ShowUnsavedChangesDialog,
         ShowOpenDialog,
         ShowSaveAsDialog,
+        ShowSaveAsTemplateDialog,
         TryCloseWindow
     };
 
@@ -71,6 +72,7 @@ public:
         RecentFileDialogCanceled,
         RecentFileSelected,
         SaveProjectAsRequested,
+        SaveProjectAsTemplateRequested,
         SaveProjectRequested
     };
 

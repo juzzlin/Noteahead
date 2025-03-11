@@ -258,6 +258,34 @@ QString EditorService::toXml()
     return xml;
 }
 
+QString EditorService::toXmlAsTemplate()
+{
+    QString xml;
+    QXmlStreamWriter writer { &xml };
+
+    writer.setAutoFormatting(true);
+    writer.setAutoFormattingIndent(1);
+
+    writer.writeStartDocument();
+
+    writer.writeStartElement(Constants::xmlKeyProject());
+    writer.writeAttribute(Constants::xmlKeyFileFormatVersion(), Constants::fileFormatVersion());
+    writer.writeAttribute(Constants::xmlKeyApplicationName(), Constants::applicationName());
+    writer.writeAttribute(Constants::xmlKeyApplicationVersion(), Constants::applicationVersion());
+    writer.writeAttribute(Constants::xmlKeyCreatedDate(), QDateTime::currentDateTime().toString(Qt::DateFormat::ISODateWithMs));
+
+    const auto mixerSerializationCallback = [this](QXmlStreamWriter & writer) {
+        emit mixerSerializationRequested(writer);
+    };
+
+    m_song->serializeToXmlAsTemplate(writer, mixerSerializationCallback);
+
+    writer.writeEndElement();
+    writer.writeEndDocument();
+
+    return xml;
+}
+
 void EditorService::save()
 {
     if (canBeSaved()) {
@@ -278,6 +306,19 @@ void EditorService::saveAs(QString fileName)
         m_song->setFileName(fileName.toStdString());
         emit currentFileNameChanged();
         setIsModified(false);
+    } else {
+        throw std::runtime_error("Failed to open file for writing: " + fileName.toStdString());
+    }
+}
+
+void EditorService::saveAsTemplate(QString fileName)
+{
+    if (QFile file { fileName }; file.open(QIODevice::WriteOnly | QIODevice::Text)) {
+        juzzlin::L(TAG).info() << "Saving as a template to " << fileName.toStdString();
+        file.write(toXmlAsTemplate().toUtf8());
+        const auto message = QString { "Project successfully saved to: %1 " }.arg(fileName);
+        juzzlin::L(TAG).info() << message.toStdString();
+        emit statusTextRequested(message);
     } else {
         throw std::runtime_error("Failed to open file for writing: " + fileName.toStdString());
     }
