@@ -42,6 +42,7 @@ void MidiService::initializeWorker()
 
     connect(m_midiWorker.get(), &MidiWorker::midiPortsAppeared, this, &MidiService::midiPortsAppeared);
     connect(m_midiWorker.get(), &MidiWorker::midiPortsDisappeared, this, &MidiService::midiPortsDisappeared);
+    connect(m_midiWorker.get(), &MidiWorker::statusTextRequested, this, &MidiService::statusTextRequested);
 
     m_midiWorker->moveToThread(&m_midiWorkerThread);
     m_midiWorkerThread.start(QThread::HighPriority);

@@ -169,6 +169,7 @@ void Application::connectServices()
 
     connect(m_midiService.get(), &MidiService::availableMidiPortsChanged, m_trackSettingsModel.get(), &TrackSettingsModel::setAvailableMidiPorts);
     connect(m_midiService.get(), &MidiService::midiPortsAppeared, this, &Application::requestInstruments);
+    connect(m_midiService.get(), &MidiService::statusTextRequested, m_applicationService.get(), &ApplicationService::statusTextRequested);
 
     connect(m_mixerService.get(), &MixerService::configurationChanged, this, [this]() {
         m_editorService->setIsModified(true);
