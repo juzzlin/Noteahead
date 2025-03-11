@@ -208,7 +208,7 @@ private:
 
     void initialize();
 
-    void assignInstruments(const EventList & events) const;
+    void assignInstruments(const EventList & events);
 
     using TrackAndColumn = std::pair<int, int>;
     using ActiveNoteMap = std::map<TrackAndColumn, std::set<uint8_t>>;

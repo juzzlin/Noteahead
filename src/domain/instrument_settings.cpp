@@ -102,7 +102,7 @@ InstrumentSettings::InstrumentSettingsU InstrumentSettings::deserializeFromXml(Q
     settings->predefinedMidiCcSettings.pan = Utils::Xml::readUIntAttribute(reader, Constants::xmlKeyPan(), false);
     settings->predefinedMidiCcSettings.volume = Utils::Xml::readUIntAttribute(reader, Constants::xmlKeyVolume(), false);
     settings->sendMidiClock = Utils::Xml::readBoolAttribute(reader, Constants::xmlKeySendMidiClock(), false);
-    settings->delay = std::chrono::milliseconds { Utils::Xml::readUIntAttribute(reader, Constants::xmlKeyDelay(), false).value_or(0) };
+    settings->delay = std::chrono::milliseconds { Utils::Xml::readIntAttribute(reader, Constants::xmlKeyDelay(), false).value_or(0) };
 
     while (!(reader.isEndElement() && !reader.name().compare(Constants::xmlKeyInstrumentSettings()))) {
         juzzlin::L(TAG).trace() << "InstrumentSettings: Current element: " << reader.name().toString().toStdString();

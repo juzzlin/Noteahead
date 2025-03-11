@@ -40,12 +40,9 @@ Event::Event(size_t tick)
 {
 }
 
-void Event::applyDelay(size_t beatsPerMinute, size_t linesPerBeat, size_t ticksPerLine)
+void Event::applyDelay(std::chrono::milliseconds delay, double msPerTick)
 {
-    if (m_instrument) {
-        const double msPerTick = 60000.0 / static_cast<double>(beatsPerMinute * linesPerBeat * ticksPerLine);
-        m_tick += static_cast<size_t>(std::round(static_cast<double>(m_instrument->settings().delay.count()) / msPerTick));
-    }
+    m_tick += static_cast<size_t>(std::round(static_cast<double>(delay.count()) / msPerTick));
 }
 
 void Event::setAsMidiClockOut()

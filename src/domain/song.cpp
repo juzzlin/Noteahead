@@ -587,15 +587,30 @@ void Song::updateTickToSongPositionMapping(size_t patternStartTick, size_t songP
     }
 }
 
-void Song::assignInstruments(const EventList & events) const
+void Song::assignInstruments(const EventList & events)
 {
-    std::ranges::for_each(events, [this](const auto & event) {
+    // Find the most negative delay
+    std::chrono::milliseconds delayOffset { 0 };
+    for (auto && trackIndex : trackIndices()) {
+        if (const auto instrument = this->instrument(trackIndex); instrument) {
+            delayOffset = std::min(delayOffset, instrument->settings().delay);
+        }
+    }
+
+    juzzlin::L(TAG).info() << "Delay offset: " << delayOffset.count() << " ms";
+
+    const double msPerTick = 60'000.0 / static_cast<double>(m_beatsPerMinute * m_linesPerBeat * m_ticksPerLine);
+    std::ranges::for_each(events, [this, delayOffset, msPerTick](const auto & event) {
         if (const auto noteData = event->noteData(); noteData) {
             event->setInstrument(instrument(noteData->track()));
-            event->applyDelay(m_beatsPerMinute, m_linesPerBeat, m_ticksPerLine);
+            if (event->instrument()) {
+                event->applyDelay(event->instrument()->settings().delay - delayOffset, msPerTick);
+            }
         } else if (const auto instrumentSettings = event->instrumentSettings(); instrumentSettings) {
             event->setInstrument(instrument(instrumentSettings->track()));
-            event->applyDelay(m_beatsPerMinute, m_linesPerBeat, m_ticksPerLine);
+            if (event->instrument()) {
+                event->applyDelay(event->instrument()->settings().delay - delayOffset, msPerTick);
+            }
         }
     });
 }

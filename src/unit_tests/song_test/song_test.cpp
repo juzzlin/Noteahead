@@ -170,17 +170,23 @@ void SongTest::test_renderToEvents_clockEvents_shouldRenderClockEvents()
     QCOMPARE(events.size(), 386);
 }
 
-void SongTest::test_renderToEvents_delaySet_shouldApplyDelay()
+void SongTest::test_renderToEvents_positiveDelaySet_shouldApplyDelay()
 {
     Song song;
     song.setBeatsPerMinute(120);
     song.setLinesPerBeat(8);
 
-    const auto instrument = std::make_shared<Instrument>("DelayedInstrument");
-    song.setInstrument(0, instrument);
-    auto settings = instrument->settings();
-    settings.delay = 100ms;
-    instrument->setSettings(settings);
+    const auto instrument1 = std::make_shared<Instrument>("DelayedInstrument1");
+    song.setInstrument(0, instrument1);
+    auto settings1 = instrument1->settings();
+    settings1.delay = 42ms;
+    instrument1->setSettings(settings1);
+
+    const auto instrument2 = std::make_shared<Instrument>("DelayedInstrument2");
+    song.setInstrument(1, instrument2);
+    auto settings2 = instrument2->settings();
+    settings2.delay = 666ms;
+    instrument2->setSettings(settings2);
 
     const Position noteOnPosition = { 0, 0, 0, 0, 0 };
     song.noteDataAtPosition(noteOnPosition)->setAsNoteOn(60, 100);
@@ -189,7 +195,36 @@ void SongTest::test_renderToEvents_delaySet_shouldApplyDelay()
     QCOMPARE(events.size(), 4);
     const auto noteOn = events.at(1);
     const double msPerTick = 60000.0 / static_cast<double>(song.beatsPerMinute() * song.linesPerBeat() * song.ticksPerLine());
-    const auto delay = static_cast<size_t>(std::round(static_cast<double>(instrument->settings().delay.count()) / msPerTick));
+    const auto delay = static_cast<size_t>(std::round(static_cast<double>(instrument1->settings().delay.count()) / msPerTick));
+    QCOMPARE(noteOn->tick(), delay);
+}
+
+void SongTest::test_renderToEvents_negativeDelaySet_shouldApplyShiftedDelay()
+{
+    Song song;
+    song.setBeatsPerMinute(120);
+    song.setLinesPerBeat(8);
+
+    const auto instrument1 = std::make_shared<Instrument>("DelayedInstrument1");
+    song.setInstrument(0, instrument1);
+    auto settings1 = instrument1->settings();
+    settings1.delay = 42ms;
+    instrument1->setSettings(settings1);
+
+    const auto instrument2 = std::make_shared<Instrument>("DelayedInstrument2");
+    song.setInstrument(1, instrument2);
+    auto settings2 = instrument2->settings();
+    settings2.delay = -666ms;
+    instrument2->setSettings(settings2);
+
+    const Position noteOnPosition = { 0, 0, 0, 0, 0 };
+    song.noteDataAtPosition(noteOnPosition)->setAsNoteOn(60, 100);
+
+    const auto events = song.renderToEvents(0);
+    QCOMPARE(events.size(), 4);
+    const auto noteOn = events.at(1);
+    const double msPerTick = 60000.0 / static_cast<double>(song.beatsPerMinute() * song.linesPerBeat() * song.ticksPerLine());
+    const auto delay = static_cast<size_t>(std::round(static_cast<double>(instrument1->settings().delay.count() - instrument2->settings().delay.count()) / msPerTick));
     QCOMPARE(noteOn->tick(), delay);
 }
 

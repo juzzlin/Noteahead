@@ -29,31 +29,22 @@ private slots:
     void test_createPattern_columnAdded_shouldCreatePattern();
 
     void test_hasData_emptySong_hasNoData();
-
     void test_hasData_noteOnAdded_shouldHaveData();
-
     void test_hasData_noteOffAdded_shouldHaveData();
 
     void test_nextNoteDataOnSameColumn_noteOn_shouldFindNoteData();
-
     void test_nextNoteDataOnSameColumn_noteOff_shouldFindNoteData();
 
     void test_prevNoteDataOnSameColumn_noteOn_shouldFindNoteData();
-
     void test_prevNoteDataOnSameColumn_noteOff_shouldFindNoteData();
 
     void test_renderToEvents_clockEvents_shouldRenderClockEvents();
-
-    void test_renderToEvents_delaySet_shouldApplyDelay();
-
+    void test_renderToEvents_positiveDelaySet_shouldApplyDelay();
+    void test_renderToEvents_negativeDelaySet_shouldApplyShiftedDelay();
     void test_renderToEvents_noEvents_shouldAddStartAndEndOfSong();
-
     void test_renderToEvents_noteOff_shouldMapNoteOff();
-
     void test_renderToEvents_playOrderSet_shouldRenderMultiplePatterns();
-
     void test_renderToEvents_singleEvent_shouldRenderEvent();
-
     void test_renderToEvents_sameColumn_shouldAddNoteOff();
 };
 

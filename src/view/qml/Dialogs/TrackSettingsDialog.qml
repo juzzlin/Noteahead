@@ -437,7 +437,7 @@ Dialog {
                     }
                     SpinBox {
                         id: delaySpinBox
-                        from: 0
+                        from: -999
                         to: 999
                         editable: true
                         Layout.column: 6

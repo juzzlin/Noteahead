@@ -1404,7 +1404,7 @@ void EditorServiceTest::test_toXmlFromXml_instrumentSettings_shouldParseInstrume
     instrumentSettingsOut->predefinedMidiCcSettings.pan = 64;
     instrumentSettingsOut->predefinedMidiCcSettings.volume = 100;
     instrumentSettingsOut->sendMidiClock = true;
-    instrumentSettingsOut->delay = std::chrono::milliseconds { 666 };
+    instrumentSettingsOut->delay = std::chrono::milliseconds { -666 };
     instrumentSettingsOut->midiCcSettings = {
         { 7, 80 },
         { 10, 127 }

@@ -50,6 +50,18 @@ std::optional<bool> readBoolAttribute(QXmlStreamReader & reader, QString name, b
     }
 }
 
+std::optional<int> readIntAttribute(QXmlStreamReader & reader, QString name, bool required)
+{
+    if (!reader.attributes().hasAttribute(name)) {
+        if (required) {
+            throw std::runtime_error { "Attribute '" + name.toStdString() + "' not found!" };
+        }
+        return {};
+    } else {
+        return reader.attributes().value(name).toInt();
+    }
+}
+
 std::optional<size_t> readUIntAttribute(QXmlStreamReader & reader, QString name, bool required)
 {
     if (!reader.attributes().hasAttribute(name)) {

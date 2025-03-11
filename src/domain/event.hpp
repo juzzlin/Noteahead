@@ -16,6 +16,7 @@
 #ifndef EVENT_HPP
 #define EVENT_HPP
 
+#include <chrono>
 #include <cstddef>
 #include <memory>
 
@@ -47,7 +48,7 @@ public:
     Event(size_t tick, InstrumentSettingsS instrumentSettings);
 
     //! Applies delay as ticks.
-    void applyDelay(size_t beatsPerMinute, size_t linesPerBeat, size_t ticksPerLine);
+    void applyDelay(std::chrono::milliseconds delay, double msPerTick);
 
     void setAsMidiClockOut();
     void setAsStartOfSong();
