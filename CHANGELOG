@@ -5,10 +5,41 @@ Release date:
 
 New features:
 
+Bug fixes:
+
+0.4.0
+=====
+
+Release date:
+
+Wed, 12 Mar 2025 22:55:47 +0200
+
+New features:
+
 * Music video generator (**Experimental**)
   - Generates note visualization with particle effects
 
+* Implement Save as template
+
+* Show status messages about MIDI devices
+
+* Support negative instrument delays
+
 Bug fixes:
+
+* Fix MIDI device not playing after re-detected
+
+* Properly destroy removed columns
+
+* Reset state properly before changing the song
+
+* Fix lead-out time not properly applied
+
+* Show track/column name as tool tip text, if set
+
+Other:
+
+* Make pattern index selector editable
 
 0.3.0
 =====
