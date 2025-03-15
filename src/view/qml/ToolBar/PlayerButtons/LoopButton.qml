@@ -6,13 +6,14 @@ ToolBarButtonBase {
     id: rootItem
     enabled: !UiService.isPlaying()
     Component.onCompleted: {
-        setImageSource("../Graphics/play.svg");
-        setScale(1.0);
+        setImageSource("../Graphics/replay.svg");
+        setScale(0.9);
     }
     onClicked: {
-        UiService.requestPlay();
+        setToggled(!toggled());
+        UiService.setIsLooping(toggled());
         focus = false;
         UiService.requestFocusOnEditorView();
     }
-    toolTipText: qsTr("Start playing from the current position")
+    toolTipText: qsTr("Loop the current pattern")
 }

@@ -5,7 +5,10 @@ import "../.."
 ToolBarButtonBase {
     id: rootItem
     enabled: !UiService.isPlaying()
-    Component.onCompleted: setImageSource("../Graphics/prev.svg")
+    Component.onCompleted: {
+        setImageSource("../Graphics/prev.svg");
+        setScale(1.0);
+    }
     onClicked: {
         UiService.rewindSong();
         focus = false;

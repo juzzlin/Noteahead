@@ -107,6 +107,19 @@ void PlayerWorker::handleEvent(const Event & event) const
     }
 }
 
+size_t PlayerWorker::effectiveTick(size_t tick, size_t minTick, size_t maxTick) const
+{
+    if (m_isLooping) {
+        if (const size_t range = maxTick - minTick + 1; range == 0) {
+            return minTick; // Avoid division by zero, return a default value
+        } else {
+            return minTick + (tick - minTick) % range;
+        }
+    } else {
+        return tick;
+    }
+}
+
 void PlayerWorker::processEvents()
 {
     if (m_eventMap.empty()) {
@@ -126,9 +139,11 @@ void PlayerWorker::processEvents()
     const auto tickDuration = std::chrono::duration<double> { tickDurationS };
     const auto startTime = std::chrono::steady_clock::now();
 
-    for (auto tick = minTick; tick <= maxTick && m_isPlaying; tick++) {
-        emit tickUpdated(static_cast<size_t>(tick));
-        if (auto && eventsAtTick = m_eventMap.find(tick); eventsAtTick != m_eventMap.end()) {
+    auto tick = minTick;
+    while (m_isPlaying && (tick <= maxTick || m_isLooping)) {
+        const auto effectiveTick = this->effectiveTick(tick, minTick, maxTick);
+        emit tickUpdated(static_cast<size_t>(effectiveTick));
+        if (auto && eventsAtTick = m_eventMap.find(effectiveTick); eventsAtTick != m_eventMap.end()) {
             for (auto && event : eventsAtTick->second) {
                 handleEvent(*event);
             }
@@ -136,14 +151,13 @@ void PlayerWorker::processEvents()
         // Calculate next tick's start time
         const auto nextTickTime = startTime + std::chrono::duration_cast<std::chrono::steady_clock::duration>((tick - minTick) * tickDuration);
         std::this_thread::sleep_until(nextTickTime);
+        tick++;
     }
 
     juzzlin::L(TAG).debug() << "All events processed";
-
     setIsPlaying(false);
 
     juzzlin::L(TAG).debug() << "Stopping all notes";
-
     stopAllNotes();
 
     emit songEnded();
@@ -166,6 +180,16 @@ void PlayerWorker::stopAllNotes()
 bool PlayerWorker::isPlaying() const
 {
     return m_isPlaying;
+}
+
+bool PlayerWorker::isLooping() const
+{
+    return m_isLooping;
+}
+
+void PlayerWorker::setIsLooping(bool isLooping)
+{
+    m_isLooping = isLooping;
 }
 
 PlayerWorker::~PlayerWorker()

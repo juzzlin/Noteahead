@@ -60,14 +60,17 @@ public:
     Q_INVOKABLE void stop();
     bool isPlaying() const;
 
+    bool isLooping() const;
+    void setIsLooping(bool isLooping);
+
 signals:
     void isPlayingChanged();
-
     void songEnded();
-
     void tickUpdated(size_t tick);
 
 private:
+    size_t effectiveTick(size_t tick, size_t minTick, size_t maxTick) const;
+
     void handleEvent(const Event & event) const;
     void processEvents();
 
@@ -87,6 +90,7 @@ private:
     std::set<InstrumentS> m_allInstruments;
 
     std::atomic_bool m_isPlaying = false;
+    std::atomic_bool m_isLooping = false;
 };
 
 } // namespace noteahead

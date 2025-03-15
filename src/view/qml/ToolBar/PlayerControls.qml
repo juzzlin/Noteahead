@@ -14,4 +14,6 @@ Row {
     }
     StopButton {
     }
+    LoopButton {
+    }
 }

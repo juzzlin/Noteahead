@@ -59,7 +59,11 @@ void PlayerService::initializeWorkerWithSongData()
 {
     const PlayerWorker::Timing timing { m_song->beatsPerMinute(), m_song->linesPerBeat(), m_song->ticksPerLine() };
     m_song->setAutoNoteOffOffset(std::chrono::milliseconds { m_config->autoNoteOffOffset() });
-    m_playerWorker->initialize(m_song->renderToEvents(m_songPosition), timing);
+    if (m_playerWorker->isLooping()) {
+        m_playerWorker->initialize(m_song->renderToEvents(m_songPosition, m_songPosition + 1), timing);
+    } else {
+        m_playerWorker->initialize(m_song->renderToEvents(m_songPosition), timing);
+    }
 }
 
 void PlayerService::startWorker()
@@ -105,6 +109,16 @@ void PlayerService::stop()
 void PlayerService::prev()
 {
     juzzlin::L(TAG).debug() << "Prev requested";
+}
+
+bool PlayerService::isLooping() const
+{
+    return m_playerWorker->isLooping();
+}
+
+void PlayerService::setIsLooping(bool isLooping)
+{
+    return m_playerWorker->setIsLooping(isLooping);
 }
 
 PlayerService::~PlayerService()

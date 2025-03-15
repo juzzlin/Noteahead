@@ -81,6 +81,10 @@ QtObject {
         uiLogger.debug(_tag, "Requesting stop");
         playerService.stop();
     }
+    function setIsLooping(isLooping) {
+        uiLogger.debug(_tag, `Setting pattern looping: ${isLooping}`);
+        playerService.setIsLooping(isLooping);
+    }
     function requestAboutDialog() {
         aboutDialogRequested();
     }

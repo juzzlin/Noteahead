@@ -540,11 +540,11 @@ Song::EventList Song::removeNonMappedNoteOffs(const EventList & events) const
     return processedEvents;
 }
 
-size_t Song::startPositionToTick(size_t startPosition) const
+size_t Song::positionToTick(size_t position) const
 {
     size_t tick = 0;
-    for (size_t position = 0; position < startPosition; position++) {
-        tick += m_patterns.at(m_playOrder->positionToPattern(position))->lineCount() * m_ticksPerLine;
+    for (size_t i = 0; i < position; i++) {
+        tick += m_patterns.at(m_playOrder->positionToPattern(i))->lineCount() * m_ticksPerLine;
     }
     return tick;
 }
@@ -632,11 +632,11 @@ Song::EventList Song::renderEndOfSong(Song::EventList eventList, size_t tick) co
     return eventList;
 }
 
-std::pair<Song::EventList, size_t> Song::renderPatterns(Song::EventList eventList, size_t tick, size_t startPosition)
+std::pair<Song::EventList, size_t> Song::renderPatterns(Song::EventList eventList, size_t tick, size_t startPosition, size_t endPosition)
 {
     m_tickToSongPositionMap.clear();
 
-    for (size_t songPosition = startPosition; songPosition < m_length; songPosition++) {
+    for (size_t songPosition = startPosition; songPosition < m_length && songPosition < endPosition; songPosition++) {
         const auto patternIndex = m_playOrder->positionToPattern(songPosition);
         juzzlin::L(TAG).debug() << "Rendering position " << songPosition << " as pattern " << patternIndex;
         const auto & pattern = m_patterns[patternIndex];
@@ -673,14 +673,14 @@ Song::EventList Song::generateMidiClockEvents(Song::EventList eventList, size_t 
     return eventList;
 }
 
-Song::EventList Song::renderContent(size_t startPosition)
+Song::EventList Song::renderContent(size_t startPosition, size_t endPosition)
 {
-    const size_t startTick = startPositionToTick(startPosition);
+    const size_t startTick = positionToTick(startPosition);
     size_t tick = startTick;
 
     auto eventList = renderStartOfSong(tick);
 
-    std::tie(eventList, tick) = renderPatterns(eventList, tick, startPosition);
+    std::tie(eventList, tick) = renderPatterns(eventList, tick, startPosition, endPosition);
 
     eventList = renderEndOfSong(eventList, tick);
 
@@ -695,10 +695,13 @@ Song::EventList Song::renderContent(size_t startPosition)
 
 Song::EventList Song::renderToEvents(size_t startPosition)
 {
-    const auto & eventList = renderContent(startPosition);
+    return renderToEvents(startPosition, m_length);
+}
 
+Song::EventList Song::renderToEvents(size_t startPosition, size_t endPosition)
+{
+    const auto & eventList = renderContent(startPosition, endPosition);
     assignInstruments(eventList);
-
     return eventList;
 }
 

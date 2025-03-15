@@ -143,6 +143,7 @@ set(QML_SOURCE_FILES
     ${QML_BASE_DIR}/NoteVisualizer.qml
     ${QML_BASE_DIR}/ToolBar/EditorControls.qml
     ${QML_BASE_DIR}/ToolBar/MainToolBar.qml
+    ${QML_BASE_DIR}/ToolBar/PlayerButtons/LoopButton.qml
     ${QML_BASE_DIR}/ToolBar/PlayerButtons/PlayButton.qml
     ${QML_BASE_DIR}/ToolBar/PlayerButtons/PrevButton.qml
     ${QML_BASE_DIR}/ToolBar/PlayerButtons/StopButton.qml
@@ -158,6 +159,7 @@ set(SVG_SOURCE_FILES
     ${QML_BASE_DIR}/Graphics/mute.svg
     ${QML_BASE_DIR}/Graphics/play.svg
     ${QML_BASE_DIR}/Graphics/prev.svg
+    ${QML_BASE_DIR}/Graphics/replay.svg
     ${QML_BASE_DIR}/Graphics/settings.svg
     ${QML_BASE_DIR}/Graphics/solo.svg
     ${QML_BASE_DIR}/Graphics/stop.svg

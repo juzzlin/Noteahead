@@ -46,6 +46,9 @@ public:
     Q_INVOKABLE void stop();
     Q_INVOKABLE void prev();
 
+    Q_INVOKABLE bool isLooping() const;
+    Q_INVOKABLE void setIsLooping(bool isLooping);
+
     void setSongPosition(size_t position);
 
     using SongS = std::shared_ptr<Song>;
