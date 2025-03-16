@@ -143,7 +143,6 @@ QtObject {
             if (editorService.requestNoteOnAtCurrentPosition(effectiveNote, effectiveOctave, UiService.activeVelocity())) {
                 editorService.requestScroll(UiService.activeStep());
             }
-            applicationService.requestLiveNoteOn(effectiveNote, effectiveOctave, UiService.activeVelocity());
         }
     }
     function _handleVelocityInserted(event) {
