@@ -98,6 +98,11 @@ void MidiWorker::initializeScanTimer()
     }
 }
 
+void portError(const std::string_view function, const std::string_view message)
+{
+    juzzlin::L(TAG).error() << function << ": No device found for portName '" << message << "'";
+}
+
 void MidiWorker::initializeStopTimer()
 {
     if (!m_midiStopTimer) {
@@ -111,7 +116,7 @@ void MidiWorker::initializeStopTimer()
                         m_midiBackend->openDevice(*device);
                         m_midiBackend->sendNoteOff(*device, stopTask.channel, 60);
                     } else {
-                        juzzlin::L(TAG).error() << "No device found for portName '" << stopTask.portName.toStdString() << "'";
+                        portError(__func__, stopTask.portName.toStdString());
                     }
                 } catch (const std::runtime_error & e) {
                     juzzlin::L(TAG).error() << e.what();
@@ -163,7 +168,7 @@ void MidiWorker::handleInstrumentRequest(const InstrumentRequest & instrumentReq
                 }
             }
         } else {
-            juzzlin::L(TAG).error() << "No device found for portName '" << requestedPortName.toStdString() << "'";
+            portError(__func__, requestedPortName.toStdString());
         }
     } catch (const std::runtime_error & e) {
         juzzlin::L(TAG).error() << e.what();
@@ -180,7 +185,7 @@ void MidiWorker::playAndStopMiddleC(QString portName, uint8_t channel, uint8_t v
             initializeStopTimer(); // Initialize here to end up in the correct thread
             m_midiStopTimer->start();
         } else {
-            juzzlin::L(TAG).error() << "No device found for portName '" << portName.toStdString() << "'";
+            portError(__func__, portName.toStdString());
         }
     } catch (const std::runtime_error & e) {
         juzzlin::L(TAG).error() << e.what();
@@ -194,7 +199,7 @@ void MidiWorker::playNote(QString portName, uint8_t channel, uint8_t midiNote, u
             m_midiBackend->openDevice(*device);
             m_midiBackend->sendNoteOn(*device, channel, midiNote, velocity);
         } else {
-            juzzlin::L(TAG).error() << "No device found for portName '" << portName.toStdString() << "'";
+            portError(__func__, portName.toStdString());
         }
     } catch (const std::runtime_error & e) {
         juzzlin::L(TAG).error() << e.what();
@@ -208,7 +213,7 @@ void MidiWorker::stopNote(QString portName, uint8_t channel, uint8_t midiNote)
             m_midiBackend->openDevice(*device);
             m_midiBackend->sendNoteOff(*device, channel, midiNote);
         } else {
-            juzzlin::L(TAG).error() << "No device found for portName '" << portName.toStdString() << "'";
+            portError(__func__, portName.toStdString());
         }
     } catch (const std::runtime_error & e) {
         juzzlin::L(TAG).error() << e.what();
@@ -222,7 +227,7 @@ void MidiWorker::stopAllNotes(QString portName, uint8_t channel)
             m_midiBackend->openDevice(*device);
             m_midiBackend->stopAllNotes(*device, channel);
         } else {
-            juzzlin::L(TAG).error() << "No device found for portName '" << portName.toStdString() << "'";
+            portError(__func__, portName.toStdString());
         }
     } catch (const std::runtime_error & e) {
         juzzlin::L(TAG).error() << e.what();
@@ -236,7 +241,7 @@ void MidiWorker::sendClock(QString portName)
             m_midiBackend->openDevice(*device);
             m_midiBackend->sendClock(*device);
         } else {
-            juzzlin::L(TAG).error() << "No device found for portName '" << portName.toStdString() << "'";
+            portError(__func__, portName.toStdString());
         }
     } catch (const std::runtime_error & e) {
         juzzlin::L(TAG).error() << e.what();
@@ -250,7 +255,7 @@ void MidiWorker::requestPatchChange(QString portName, uint8_t channel, uint8_t p
             m_midiBackend->openDevice(*device);
             m_midiBackend->sendPatchChange(*device, channel, patch);
         } else {
-            juzzlin::L(TAG).error() << "No device found for portName '" << portName.toStdString() << "'";
+            portError(__func__, portName.toStdString());
         }
     } catch (const std::runtime_error & e) {
         juzzlin::L(TAG).error() << e.what();
