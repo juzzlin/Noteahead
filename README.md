@@ -33,7 +33,8 @@ Tracks composed with Noteahead:
 ##
 ## Features
 
-* Accurate internal timing
+* **Very accurate internal timing**
+  - No jitter, no drift
 * Fully scalable UI
 * Cool volume meters like in NoiseTracker
 * Cool note visualizer animation on the bottom bar
