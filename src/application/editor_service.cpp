@@ -1012,6 +1012,7 @@ void EditorService::notifyPositionChange(const Position & oldPosition)
 
     if (m_state.cursorPosition.pattern != oldPosition.pattern) {
         emit currentPatternChanged();
+        emit currentLineCountChanged();
     }
 }
 
