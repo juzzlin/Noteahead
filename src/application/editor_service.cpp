@@ -170,8 +170,8 @@ EditorService::SongS EditorService::deserializeProject(QXmlStreamReader & reader
         juzzlin::L(TAG).info() << "Creator application name: " << applicationName.toStdString();
         const auto applicationVersion = reader.attributes().value(Constants::xmlKeyApplicationVersion()).toString();
         juzzlin::L(TAG).info() << "Creator application version: " << applicationVersion.toStdString();
-        const auto createdDate = reader.attributes().value(Constants::xmlKeyCreatedDate()).toString();
-        juzzlin::L(TAG).info() << "Created date: " << createdDate.toStdString();
+        m_state.createdDate = reader.attributes().value(Constants::xmlKeyCreatedDate()).toString();
+        juzzlin::L(TAG).info() << "Created date: " << m_state.createdDate.toStdString();
         const auto mixerDeserializationCallback = [this](QXmlStreamReader & reader) {
             emit mixerDeserializationRequested(reader);
         };
@@ -246,8 +246,10 @@ QString EditorService::toXml()
     writer.writeAttribute(Constants::xmlKeyFileFormatVersion(), Constants::fileFormatVersion());
     writer.writeAttribute(Constants::xmlKeyApplicationName(), Constants::applicationName());
     writer.writeAttribute(Constants::xmlKeyApplicationVersion(), Constants::applicationVersion());
-    writer.writeAttribute(Constants::xmlKeyCreatedDate(), QDateTime::currentDateTime().toString(Qt::DateFormat::ISODateWithMs));
-
+    if (m_state.createdDate.isEmpty()) {
+        m_state.createdDate = QDateTime::currentDateTime().toString(Qt::DateFormat::ISODateWithMs);
+    }
+    writer.writeAttribute(Constants::xmlKeyCreatedDate(), m_state.createdDate);
     const auto mixerSerializationCallback = [this](QXmlStreamWriter & writer) {
         emit mixerSerializationRequested(writer);
     };

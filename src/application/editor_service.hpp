@@ -354,6 +354,7 @@ private:
     {
         Position cursorPosition;
 
+        QString createdDate;
         QString currentTime;
         QString duration;
 
