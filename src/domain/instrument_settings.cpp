@@ -66,7 +66,7 @@ void InstrumentSettings::serializeToXml(QXmlStreamWriter & writer) const
     }
 
     if (sendMidiClock.has_value()) {
-        writer.writeAttribute(Constants::xmlKeySendMidiClock(), Constants::xmlValueTrue());
+        writer.writeAttribute(Constants::xmlKeySendMidiClock(), sendMidiClock.value() ? Constants::xmlValueTrue() : Constants::xmlValueFalse());
     }
 
     writer.writeAttribute(Constants::xmlKeyDelay(), QString::number(delay.count()));
