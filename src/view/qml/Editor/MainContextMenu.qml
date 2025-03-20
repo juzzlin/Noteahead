@@ -6,7 +6,6 @@ Menu {
     id: rootItem
     Menu {
         title: qsTr("Line")
-        height: rootItem.height
         width: rootItem.width
         Action {
             text: qsTr("Insert an event")
@@ -27,7 +26,6 @@ Menu {
     }
     Menu {
         title: qsTr("Column")
-        height: rootItem.height
         width: rootItem.width
         Action {
             text: qsTr("Cut")
@@ -96,7 +94,6 @@ Menu {
     }
     Menu {
         title: qsTr("Track")
-        height: rootItem.height
         width: rootItem.width
         Action {
             text: qsTr("Cut")
@@ -174,7 +171,6 @@ Menu {
     }
     Menu {
         title: "Pattern"
-        height: rootItem.height
         width: rootItem.width
         Action {
             text: qsTr("Cut")
@@ -236,7 +232,6 @@ Menu {
     }
     Menu {
         title: qsTr("Selection")
-        height: rootItem.height
         width: rootItem.width
         Action {
             text: qsTr("Cut")

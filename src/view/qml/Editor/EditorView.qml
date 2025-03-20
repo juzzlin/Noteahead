@@ -75,7 +75,6 @@ FocusScope {
     MainContextMenu {
         id: contextMenu
         width: parent.width * 0.25
-        height: parent.height * 0.5
     }
     Keys.onPressed: event => {
         keyboardHandler.handleKeyPressed(event);
