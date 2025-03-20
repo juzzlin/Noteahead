@@ -7,6 +7,8 @@ New features:
 
 * Make it possible to loop patterns
 
+* Implement velocity interpolation on a column
+
 Bug fixes:
 
 0.4.0

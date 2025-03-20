@@ -267,6 +267,14 @@ ApplicationWindow {
                 trackVelocityScaleDialog.trackIndex = trackIndex;
                 trackVelocityScaleDialog.open();
             });
+        UiService.columnVelocityInterpolationDialogRequested.connect(() => {
+                velocityInterpolationDialog.setTitle(qsTr("Interpolate velocity"));
+                velocityInterpolationDialog.setStartLine(0);
+                velocityInterpolationDialog.setEndLine(editorService.currentLineCount - 1);
+                velocityInterpolationDialog.setStartValue(0);
+                velocityInterpolationDialog.setEndValue(100);
+                velocityInterpolationDialog.open();
+            });
         UiService.selectionVelocityInterpolationDialogRequested.connect(() => {
                 velocityInterpolationDialog.setTitle(qsTr("Interpolate velocity"));
                 velocityInterpolationDialog.setStartLine(selectionService.minLine());

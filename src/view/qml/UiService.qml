@@ -8,6 +8,7 @@ QtObject {
     signal eventSelectionDialogRequested
     signal focusOnEditorViewRequested
     signal recentFilesDialogRequested
+    signal columnVelocityInterpolationDialogRequested
     signal selectionVelocityInterpolationDialogRequested
     signal settingsDialogRequested
     signal trackSettingsDialogRequested(int trackIndex)
@@ -108,6 +109,11 @@ QtObject {
     function requestTrackVelocityScaleDialog(trackIndex) {
         if (!isPlaying()) {
             trackVelocityScaleDialogRequested(trackIndex);
+        }
+    }
+    function requestColumnVelocityInterpolationDialog() {
+        if (!isPlaying()) {
+            columnVelocityInterpolationDialogRequested();
         }
     }
     function requestSelectionVelocityInterpolationDialog() {

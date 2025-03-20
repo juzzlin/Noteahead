@@ -82,6 +82,13 @@ Menu {
             enabled: !UiService.isPlaying()
             onTriggered: editorService.requestColumnTranspose(-12)
         }
+        MenuSeparator {
+        }
+        Action {
+            text: qsTr("Interpolate velocity")
+            enabled: !UiService.isPlaying()
+            onTriggered: UiService.requestColumnVelocityInterpolationDialog()
+        }
         delegate: MainMenuItemDelegate {
         }
     }
