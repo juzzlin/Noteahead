@@ -23,6 +23,7 @@
 
 #include <QString>
 
+#include "event_data.hpp"
 #include "midi_cc_setting.hpp"
 
 class QXmlStreamReader;
@@ -30,7 +31,7 @@ class QXmlStreamWriter;
 
 namespace noteahead {
 
-class InstrumentSettings
+class InstrumentSettings : public EventData
 {
 public:
     std::optional<uint8_t> patch;
@@ -61,17 +62,11 @@ public:
 
     std::vector<MidiCcSetting> midiCcSettings;
 
-    size_t track() const;
-    void setTrack(size_t track);
-
     void serializeToXml(QXmlStreamWriter & writer) const;
     using InstrumentSettingsU = std::unique_ptr<InstrumentSettings>;
     static InstrumentSettingsU deserializeFromXml(QXmlStreamReader & reader);
 
     QString toString() const;
-
-private:
-    size_t m_track; // Not part of settings, used to map instrument
 };
 
 } // namespace noteahead

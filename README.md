@@ -49,6 +49,8 @@ Some example tracks sequenced with Noteahead:
   - Initial MIDI CC values can be set directly via Track settings
 * Track and column-specific velocity scales
   - Effective velocity is the product of track scale, column scale, and note velocity
+* MIDI CC automation (linear interpolation)
+  - Select lines and add automation on the desired controller
 * Saves to a custom (but open!) XML-based **.nahd** format
 * Music video generator (**Experimental**)
 
@@ -57,7 +59,6 @@ Some example tracks sequenced with Noteahead:
 
 * Horizontal visualization
 * MIDI side-chaining (not sure if this is gonna work)
-* MIDI CC automation (channel volume, pan, cut-off)
 * Clock sync options: Internal, MIDI, Jack
 
 ##

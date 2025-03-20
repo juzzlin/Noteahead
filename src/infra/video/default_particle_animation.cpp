@@ -15,8 +15,8 @@
 
 #include "default_particle_animation.hpp"
 
-#include "../../application/mixer_service.hpp"
 #include "../../application/note_converter.hpp"
+#include "../../application/service/mixer_service.hpp"
 #include "../../contrib/SimpleLogger/src/simple_logger.hpp"
 #include "../../domain/event.hpp"
 #include "../../domain/note_data.hpp"

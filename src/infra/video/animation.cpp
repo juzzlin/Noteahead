@@ -15,7 +15,7 @@
 
 #include "animation.hpp"
 
-#include "../../application/mixer_service.hpp"
+#include "../../application/service/mixer_service.hpp"
 #include "../../domain/event.hpp"
 #include "../../domain/note_data.hpp"
 

@@ -36,6 +36,7 @@ class QXmlStreamWriter;
 
 namespace noteahead {
 
+class AutomationService;
 class Column;
 class CopyManager;
 class Event;
@@ -147,8 +148,9 @@ public:
 
     using EventS = std::shared_ptr<Event>;
     using EventList = std::vector<EventS>;
-    EventList renderToEvents(size_t startPosition);
-    EventList renderToEvents(size_t startPosition, size_t endPosition);
+    using AutomationServiceS = std::shared_ptr<AutomationService>;
+    EventList renderToEvents(AutomationServiceS automationService, size_t startPosition);
+    EventList renderToEvents(AutomationServiceS automationService, size_t startPosition, size_t endPosition);
 
     size_t beatsPerMinute() const;
     void setBeatsPerMinute(size_t bpm);
@@ -177,11 +179,14 @@ public:
 
     //! To decouple MiserService from Song. I don't want Song to know anything about MixerService.
     //! However, concept-wise the mixer settings should still be Song-specific as track configurations may vary.
+    //! The same applies to AutomationSerializationCallback.
     using MixerSerializationCallback = std::function<void(QXmlStreamWriter & writer)>;
-    void serializeToXml(QXmlStreamWriter & writer, MixerSerializationCallback mixerSerializationCallback) const;
-    void serializeToXmlAsTemplate(QXmlStreamWriter & writer, MixerSerializationCallback mixerSerializationCallback) const;
+    using AutomationSerializationCallback = std::function<void(QXmlStreamWriter & writer)>;
+    void serializeToXml(QXmlStreamWriter & writer, MixerSerializationCallback mixerSerializationCallback, AutomationSerializationCallback automationSerializationCallback) const;
+    void serializeToXmlAsTemplate(QXmlStreamWriter & writer, MixerSerializationCallback mixerSerializationCallback, AutomationSerializationCallback automationSerializationCallback) const;
     using MixerDeserializationCallback = std::function<void(QXmlStreamReader & reader)>;
-    void deserializeFromXml(QXmlStreamReader & reader, MixerDeserializationCallback mixerDeserializationCallback);
+    using AutomationDeserializationCallback = std::function<void(QXmlStreamReader & reader)>;
+    void deserializeFromXml(QXmlStreamReader & reader, MixerDeserializationCallback mixerDeserializationCallback, AutomationDeserializationCallback automationDeserializationCallback);
 
 private:
     void load(const std::string & filename);
@@ -205,8 +210,8 @@ private:
     EventList renderEndOfSong(EventListCR eventList, size_t tick) const;
 
     using EventsAndTick = std::pair<EventList, size_t>;
-    EventsAndTick renderPatterns(EventListCR eventList, size_t tick, size_t startPosition, size_t endPosition);
-    EventList renderContent(size_t startPosition, size_t endPosition);
+    EventsAndTick renderPatterns(AutomationServiceS automationService, EventListCR eventList, size_t tick, size_t startPosition, size_t endPosition);
+    EventList renderContent(AutomationServiceS automationService, size_t startPosition, size_t endPosition);
 
     size_t positionToTick(size_t position) const;
     std::chrono::milliseconds tickToTime(size_t tick) const;

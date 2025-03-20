@@ -259,6 +259,20 @@ void MidiWorker::sendClock(QString portName)
     }
 }
 
+void MidiWorker::sendCcData(QString portName, quint8 channel, quint8 controller, quint8 value)
+{
+    try {
+        if (const auto device = m_midiBackend->deviceByPortName(portName.toStdString()); device) {
+            m_midiBackend->openDevice(*device);
+            m_midiBackend->sendCC(*device, channel, controller, value);
+        } else {
+            portError(__func__, portName.toStdString());
+        }
+    } catch (const std::runtime_error & e) {
+        juzzlin::L(TAG).error() << e.what();
+    }
+}
+
 void MidiWorker::requestPatchChange(QString portName, quint8 channel, quint8 patch)
 {
     try {

@@ -20,7 +20,7 @@
 
 #include <optional>
 
-#include "position.hpp"
+#include "../position.hpp"
 
 namespace noteahead {
 

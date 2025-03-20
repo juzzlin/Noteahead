@@ -44,6 +44,7 @@ RowLayout {
     CheckBox {
         id: enableCcCheckbox
         text: qsTr("Enable MIDI CC #") + index
+        visible: showEnabled
         Layout.fillWidth: true
         ToolTip.delay: Constants.toolTipDelay
         ToolTip.timeout: Constants.toolTipTimeout
@@ -52,7 +53,7 @@ RowLayout {
         onCheckedChanged: _notify()
     }
     Label {
-        text: qsTr("Controller / Value:")
+        text: showValue ? qsTr("Controller and value:") : qsTr("Controller:")
         Layout.fillWidth: true
         elide: Text.ElideRight
     }
@@ -84,6 +85,7 @@ RowLayout {
         enabled: enableCcCheckbox.checked
         Layout.fillWidth: true
         editable: true
+        visible: showValue
         ToolTip.delay: Constants.toolTipDelay
         ToolTip.timeout: Constants.toolTipTimeout
         ToolTip.visible: hovered

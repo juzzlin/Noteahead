@@ -15,13 +15,13 @@
 
 #include "application_service.hpp"
 
-#include "../common/constants.hpp"
-#include "../contrib/SimpleLogger/src/simple_logger.hpp"
-#include "../domain/instrument.hpp"
+#include "../../common/constants.hpp"
+#include "../../contrib/SimpleLogger/src/simple_logger.hpp"
+#include "../../domain/instrument.hpp"
+#include "../recent_files_manager.hpp"
+#include "../state_machine.hpp"
 #include "editor_service.hpp"
 #include "player_service.hpp"
-#include "recent_files_manager.hpp"
-#include "state_machine.hpp"
 
 namespace noteahead {
 

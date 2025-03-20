@@ -26,16 +26,6 @@ namespace noteahead {
 
 static const auto TAG = "InstrumentSettings";
 
-size_t InstrumentSettings::track() const
-{
-    return m_track;
-}
-
-void InstrumentSettings::setTrack(size_t track)
-{
-    m_track = track;
-}
-
 void InstrumentSettings::serializeToXml(QXmlStreamWriter & writer) const
 {
     writer.writeStartElement(Constants::xmlKeyInstrumentSettings());

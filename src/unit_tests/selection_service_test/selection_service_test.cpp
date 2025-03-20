@@ -15,7 +15,7 @@
 
 #include "selection_service_test.hpp"
 
-#include "../../application/selection_service.hpp"
+#include "../../application/service/selection_service.hpp"
 
 #include <QSignalSpy>
 

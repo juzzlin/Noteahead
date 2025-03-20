@@ -4,7 +4,7 @@ set(SRC
     ${NAME}.cpp
     ${NAME}.hpp
     ../../application/position.hpp
-    ../../application/selection_service.cpp
+    ../../application/service/selection_service.cpp
 )
 add_executable(${NAME} ${SRC} ${MOC_SRC})
 set_target_properties(${NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${UNIT_TEST_BASE_DIR})

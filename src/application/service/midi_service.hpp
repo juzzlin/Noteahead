@@ -22,13 +22,14 @@
 #include <memory>
 #include <mutex>
 
-#include "instrument_request.hpp"
+#include "../instrument_request.hpp"
 
 namespace noteahead {
 
 class Instrument;
 class InstrumentRequest;
 class MidiBackend;
+class MidiCcData;
 class MidiWorker;
 
 class MidiService : public QObject
@@ -45,15 +46,14 @@ public:
     Q_INVOKABLE QStringList availableMidiPorts() const;
 
     Q_INVOKABLE void setIsPlaying(bool isPlaying);
-
     Q_INVOKABLE void playAndStopMiddleC(QString portName, quint8 channel, quint8 velocity);
 
     using InstrumentW = std::weak_ptr<Instrument>;
-
     Q_INVOKABLE void playNote(InstrumentW instrument, quint8 midiNote, quint8 velocity);
     Q_INVOKABLE void stopNote(InstrumentW instrument, quint8 midiNote);
     Q_INVOKABLE void stopAllNotes(InstrumentW instrument);
-
+    using MidiCcDataCR = const MidiCcData &;
+    Q_INVOKABLE void sendCcData(InstrumentW instrument, MidiCcDataCR midiCcData);
     Q_INVOKABLE void sendClock(InstrumentW instrument);
 
 public slots:

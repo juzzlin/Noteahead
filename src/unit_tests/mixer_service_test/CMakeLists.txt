@@ -3,7 +3,7 @@ set(NAME mixer_service_test)
 set(SRC
     ${NAME}.cpp
     ${NAME}.hpp
-    ../../application/mixer_service.cpp
+    ../../application/service/mixer_service.cpp
     ../../common/constants.cpp
 )
 add_executable(${NAME} ${SRC} ${MOC_SRC})

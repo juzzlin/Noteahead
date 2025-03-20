@@ -15,8 +15,8 @@
 
 #include "state_machine.hpp"
 
-#include "application_service.hpp"
-#include "editor_service.hpp"
+#include "service/application_service.hpp"
+#include "service/editor_service.hpp"
 
 namespace noteahead {
 

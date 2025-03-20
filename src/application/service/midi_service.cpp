@@ -15,10 +15,11 @@
 
 #include "midi_service.hpp"
 
-#include "../contrib/SimpleLogger/src/simple_logger.hpp"
-#include "../domain/instrument.hpp"
-#include "instrument_request.hpp"
-#include "midi_worker.hpp"
+#include "../../contrib/SimpleLogger/src/simple_logger.hpp"
+#include "../../domain/instrument.hpp"
+#include "../../domain/midi_cc_data.hpp"
+#include "../instrument_request.hpp"
+#include "../midi_worker.hpp"
 
 namespace noteahead {
 
@@ -108,6 +109,20 @@ void MidiService::stopAllNotes(InstrumentW instrument)
     if (const bool invoked = QMetaObject::invokeMethod(m_midiWorker.get(), "stopAllNotes",
                                                        Q_ARG(QString, instrument.lock()->device().portName),
                                                        Q_ARG(quint8, instrument.lock()->device().channel));
+        !invoked) {
+        juzzlin::L(TAG).error() << "Invoking a method failed!";
+    }
+}
+
+void MidiService::sendCcData(InstrumentW instrument, MidiCcDataCR midiCcData)
+{
+    std::lock_guard<std::mutex> lock { m_workerMutex };
+
+    if (const bool invoked = QMetaObject::invokeMethod(m_midiWorker.get(), "sendCcData",
+                                                       Q_ARG(QString, instrument.lock()->device().portName),
+                                                       Q_ARG(quint8, instrument.lock()->device().channel),
+                                                       Q_ARG(quint8, midiCcData.controller()),
+                                                       Q_ARG(quint8, midiCcData.value()));
         !invoked) {
         juzzlin::L(TAG).error() << "Invoking a method failed!";
     }

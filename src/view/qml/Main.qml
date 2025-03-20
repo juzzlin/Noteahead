@@ -94,20 +94,14 @@ ApplicationWindow {
             id: errorMessage
             anchors.centerIn: parent
         }
-        Component.onCompleted: {
-            visible = false;
-        }
+        Component.onCompleted: visible = false
     }
     EventSelectionDialog {
         id: eventSelectionDialog
         anchors.centerIn: parent
         width: parent.width * 0.5
-        onAccepted: {
-            uiLogger.info(_tag, "Event selection dialog accepted");
-        }
-        onRejected: {
-            uiLogger.info(_tag, "Event selection dialog rejected.");
-        }
+        onAccepted: uiLogger.info(_tag, "Event selection dialog accepted")
+        onRejected: uiLogger.info(_tag, "Event selection dialog rejected.")
     }
     FileDialog {
         id: saveAsDialog
@@ -132,9 +126,7 @@ ApplicationWindow {
             uiLogger.info(_tag, "File selected to save: " + selectedFile);
             applicationService.saveProjectAsTemplate(selectedFile);
         }
-        onRejected: {
-            uiLogger.info(_tag, "Save As Template dialog canceled.");
-        }
+        onRejected: uiLogger.info(_tag, "Save As Template dialog canceled.")
     }
     RecentFilesDialog {
         id: recentFilesDialog
@@ -155,23 +147,15 @@ ApplicationWindow {
         anchors.centerIn: parent
         height: parent.height * 0.5
         width: parent.width * 0.5
-        onAccepted: {
-            uiLogger.info(_tag, "Settings accepted");
-        }
-        onRejected: {
-            uiLogger.info(_tag, "Settings rejected");
-        }
+        onAccepted: uiLogger.info(_tag, "Settings accepted")
+        onRejected: uiLogger.info(_tag, "Settings rejected")
     }
     TrackSettingsDialog {
         id: trackSettingsDialog
         anchors.centerIn: parent
         width: parent.width * 0.5
-        onAccepted: {
-            uiLogger.info(_tag, "Track settings accepted");
-        }
-        onRejected: {
-            uiLogger.info(_tag, "Track settings rejected");
-        }
+        onAccepted: uiLogger.info(_tag, "Track settings accepted")
+        onRejected: uiLogger.info(_tag, "Track settings rejected")
     }
     UnsavedChangesDialog {
         id: unsavedChangesDialog
@@ -183,17 +167,13 @@ ApplicationWindow {
         width: parent.width * 0.5
         property int trackIndex
         property int columnIndex
-        onAccepted: {
-            mixerService.setColumnVelocityScale(trackIndex, columnIndex, value());
-        }
+        onAccepted: mixerService.setColumnVelocityScale(trackIndex, columnIndex, value())
     }
     IntegerInputDialog {
         id: lineDelayDialog
         anchors.centerIn: parent
         width: parent.width * 0.5
-        onAccepted: {
-            editorService.setDelayOnCurrentLine(value());
-        }
+        onAccepted: editorService.setDelayOnCurrentLine(value())
         Component.onCompleted: {
             setMinValue(0);
             setMaxValue(editorService.ticksPerLine());
@@ -204,19 +184,29 @@ ApplicationWindow {
         anchors.centerIn: parent
         width: parent.width * 0.5
         property int trackIndex
-        onAccepted: {
-            mixerService.setTrackVelocityScale(trackIndex, value());
-        }
+        onAccepted: mixerService.setTrackVelocityScale(trackIndex, value())
     }
     InterpolationDialog {
         id: velocityInterpolationDialog
         anchors.centerIn: parent
         width: parent.width * 0.5
-        property int trackIndex
-        property int columnIndex
+        onAccepted: editorService.requestLinearVelocityInterpolation(startLine(), endLine(), startValue(), endValue())
+    }
+    AddMidiCcAutomationDialog {
+        id: addMidiCcAutomationDialog
+        anchors.centerIn: parent
+        width: parent.width * 0.5
         onAccepted: {
-            editorService.requestLinearVelocityInterpolation(startLine(), endLine(), startValue(), endValue());
+            const position = editorService.position;
+            automationService.addMidiCcAutomation(position.pattern, position.track, position.column, controller(), startLine(), endLine(), startValue(), endValue(), comment());
         }
+    }
+    EditMidiCcAutomationsDialog {
+        id: editMidiCcAutomationsDialog
+        anchors.centerIn: parent
+        width: parent.width * 0.5
+        height: parent.height * 0.5
+        onAccepted: midiCcAutomationsModel.applyAll()
     }
     function _getWindowTitle() {
         const nameAndVersion = `${applicationService.applicationName()} MIDI tracker v${applicationService.applicationVersion()}`;
@@ -298,6 +288,29 @@ ApplicationWindow {
         UiService.lineDelayDialogRequested.connect(() => {
                 lineDelayDialog.setValue(editorService.delayAtCurrentPosition());
                 lineDelayDialog.open();
+            });
+        UiService.columnAddMidiCcAutomationDialogRequested.connect(() => {
+                addMidiCcAutomationDialog.setTitle(qsTr("Add MIDI CC automation"));
+                addMidiCcAutomationDialog.setStartLine(0);
+                addMidiCcAutomationDialog.setEndLine(editorService.currentLineCount - 1);
+                addMidiCcAutomationDialog.setStartValue(0);
+                addMidiCcAutomationDialog.setEndValue(100);
+                addMidiCcAutomationDialog.setComment("");
+                addMidiCcAutomationDialog.open();
+            });
+        UiService.selectionAddMidiCcAutomationDialogRequested.connect(() => {
+                addMidiCcAutomationDialog.setTitle(qsTr("Add MIDI CC automation"));
+                addMidiCcAutomationDialog.setStartLine(selectionService.minLine());
+                addMidiCcAutomationDialog.setEndLine(selectionService.maxLine());
+                addMidiCcAutomationDialog.setStartValue(0);
+                addMidiCcAutomationDialog.setEndValue(100);
+                addMidiCcAutomationDialog.setComment("");
+                addMidiCcAutomationDialog.open();
+            });
+        UiService.editMidiCcAutomationsDialogRequested.connect(() => {
+                midiCcAutomationsModel.requestMidiCcAutomations();
+                editMidiCcAutomationsDialog.setTitle(qsTr("Edit MIDI CC automations"));
+                editMidiCcAutomationsDialog.open();
             });
         UiService.quitRequested.connect(() => {
                 config.setWindowSize(Qt.size(mainWindow.width, mainWindow.height));

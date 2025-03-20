@@ -242,6 +242,7 @@ FocusScope {
             });
     }
     function _connectSignals() {
+        automationService.lineDataChanged.connect(_updateIndexHighlights);
         editorService.columnAdded.connect(trackIndex => _addColumn(trackIndex));
         editorService.columnDeleted.connect(trackIndex => _deleteColumn(trackIndex));
         editorService.columnNameChanged.connect(_updateColumnHeaders);

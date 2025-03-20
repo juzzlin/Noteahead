@@ -206,7 +206,7 @@ Track::EventList Track::renderToEvents(size_t startTick, size_t ticksPerLine) co
     for (size_t columnIndex = 0; columnIndex < m_virtualColumnCount; columnIndex++) {
         const auto column = m_columns.at(columnIndex);
         const auto columnList = column->renderToEvents(startTick, ticksPerLine);
-        std::copy(columnList.begin(), columnList.end(), std::back_inserter(eventList));
+        std::ranges::copy(columnList, std::back_inserter(eventList));
     }
     return eventList;
 }

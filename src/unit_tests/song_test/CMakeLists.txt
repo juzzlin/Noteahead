@@ -5,14 +5,19 @@ set(SRC
     ${NAME}.hpp
     ../../application/copy_manager.cpp
     ../../application/position.hpp
-    ../../domain/column.cpp
+    ../../application/service/automation_service.cpp
     ../../common/constants.cpp
     ../../common/utils.cpp
+    ../../domain/column.cpp
     ../../domain/event.cpp
+    ../../domain/event_data.cpp
     ../../domain/instrument.cpp
     ../../domain/instrument_settings.cpp
+    ../../domain/interpolator.cpp
     ../../domain/line.cpp
     ../../domain/line_event.cpp
+    ../../domain/midi_cc_automation.cpp
+    ../../domain/midi_cc_data.cpp
     ../../domain/midi_cc_setting.cpp
     ../../domain/mixer_unit.cpp
     ../../domain/note_data.cpp

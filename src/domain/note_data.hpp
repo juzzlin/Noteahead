@@ -16,6 +16,8 @@
 #ifndef NOTE_DATA_HPP
 #define NOTE_DATA_HPP
 
+#include "event_data.hpp"
+
 #include <cstdint>
 #include <memory>
 #include <optional>
@@ -26,7 +28,7 @@ class QXmlStreamReader;
 
 namespace noteahead {
 
-class NoteData
+class NoteData : public EventData
 {
 public:
     enum class Type
@@ -36,8 +38,8 @@ public:
         NoteOff
     };
 
-    NoteData() = default;
     NoteData(size_t track, size_t column);
+    NoteData();
 
     void setAsNoteOn(uint8_t note, uint8_t velocity);
     void setAsNoteOff(uint8_t note);
@@ -51,12 +53,6 @@ public:
 
     uint8_t velocity() const;
     void setVelocity(uint8_t velocity);
-
-    size_t track() const;
-    void setTrack(size_t track);
-
-    size_t column() const;
-    void setColumn(size_t column);
 
     uint8_t delay() const;
     void setDelay(uint8_t ticks);
@@ -72,9 +68,6 @@ private:
     std::optional<uint8_t> m_note;
     std::optional<uint8_t> m_delay; // In ticks per line
     uint8_t m_velocity = 0;
-
-    size_t m_track = 0;
-    size_t m_column = 0;
 };
 
 } // namespace noteahead

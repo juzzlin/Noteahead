@@ -15,9 +15,10 @@
 
 #include "editor_service_test.hpp"
 
-#include "../../application/editor_service.hpp"
-#include "../../application/mixer_service.hpp"
-#include "../../application/selection_service.hpp"
+#include "../../application/service/automation_service.hpp"
+#include "../../application/service/editor_service.hpp"
+#include "../../application/service/mixer_service.hpp"
+#include "../../application/service/selection_service.hpp"
 #include "../../domain/instrument.hpp"
 #include "../../domain/note_data.hpp"
 #include "../../domain/song.hpp"
@@ -1412,6 +1413,48 @@ void EditorServiceTest::test_toXmlFromXml_trackName_shouldLoadTrackName()
 
     QCOMPARE(editorServiceIn.trackName(0), editorServiceOut.trackName(0));
     QCOMPARE(editorServiceIn.trackName(1), editorServiceOut.trackName(1));
+}
+
+void EditorServiceTest::test_toXmlFromXml_automationService_shouldLoadAutomationService()
+{
+    quint8 controller = 64;
+    quint8 line0 = 4;
+    quint8 line1 = 12;
+    quint8 value0 = 0;
+    quint8 value1 = 100;
+    const auto comment = "MIDI CC Automation Test";
+
+    AutomationService automationServiceOut;
+    for (size_t pattern = 0; pattern < 10; pattern++) {
+        for (size_t track = 0; track < 8; track++) {
+            for (size_t column = 0; column < 3; column++) {
+                automationServiceOut.addMidiCcAutomation(pattern, track, column, controller, line0, line1, value0, value1, comment);
+            }
+        }
+    }
+
+    AutomationService automationServiceIn;
+    EditorService editorService;
+    connect(&editorService, &EditorService::automationSerializationRequested, &automationServiceOut, &AutomationService::serializeToXml);
+    connect(&editorService, &EditorService::automationDeserializationRequested, &automationServiceIn, &AutomationService::deserializeFromXml);
+
+    editorService.fromXml(editorService.toXml());
+
+    for (size_t pattern = 0; pattern < 10; pattern++) {
+        for (size_t track = 0; track < 8; track++) {
+            for (size_t column = 0; column < 3; column++) {
+                QVERIFY(automationServiceIn.hasAutomations(pattern, track, column, line0));
+                QVERIFY(automationServiceIn.hasAutomations(pattern, track, column, line1));
+                QCOMPARE(automationServiceIn.midiCcAutomationsByLine(pattern, track, column, line0).size(), 1);
+                QCOMPARE(automationServiceIn.midiCcAutomationsByLine(pattern, track, column, line0).at(0).controller(), controller);
+                QCOMPARE(automationServiceIn.midiCcAutomationsByLine(pattern, track, column, line0).at(0).interpolation().line0, line0);
+                QCOMPARE(automationServiceIn.midiCcAutomationsByLine(pattern, track, column, line0).at(0).interpolation().line1, line1);
+                QCOMPARE(automationServiceIn.midiCcAutomationsByLine(pattern, track, column, line0).at(0).interpolation().value0, value0);
+                QCOMPARE(automationServiceIn.midiCcAutomationsByLine(pattern, track, column, line0).at(0).interpolation().value1, value1);
+                QCOMPARE(automationServiceIn.midiCcAutomationsByLine(pattern, track, column, line0).at(0).comment(), comment);
+            }
+        }
+    }
 }
 
 void EditorServiceTest::test_toXmlFromXml_mixerService_shouldLoadMixerService()

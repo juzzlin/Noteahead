@@ -27,6 +27,13 @@ Event::Event(size_t tick, NoteDataCR noteData)
 {
 }
 
+Event::Event(size_t tick, MidiCcDataCR midiCcData)
+  : m_tick { tick }
+  , m_type { Event::Type::MidiCcData }
+  , m_midiCcData { midiCcData }
+{
+}
+
 Event::Event(size_t tick, InstrumentSettingsS instrumentSettings)
   : m_tick { tick }
   , m_type { Event::Type::InstrumentSettings }
@@ -80,6 +87,11 @@ Event::Type Event::type() const
 Event::NoteDataOpt Event::noteData() const
 {
     return m_noteData;
+}
+
+Event::MidiCcDataOpt Event::midiCcData() const
+{
+    return m_midiCcData;
 }
 
 Event::InstrumentS Event::instrument() const

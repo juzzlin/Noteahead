@@ -227,6 +227,56 @@ QString xmlKeyMixer()
     return "Mixer";
 }
 
+QString xmlKeyAutomation()
+{
+    return "Automation";
+}
+
+QString xmlKeyMidiCcAutomation()
+{
+    return "MidiCcAutomation";
+}
+
+QString xmlKeyInterpolation()
+{
+    return "Interpolation";
+}
+
+QString xmlKeyLocation()
+{
+    return "Location";
+}
+
+QString xmlKeyId()
+{
+    return "id";
+}
+
+QString xmlKeyLine0()
+{
+    return "line0";
+}
+
+QString xmlKeyLine1()
+{
+    return "line1";
+}
+
+QString xmlKeyValue0()
+{
+    return "value0";
+}
+
+QString xmlKeyValue1()
+{
+    return "value1";
+}
+
+QString xmlKeyComment()
+{
+    return "comment";
+}
+
 QString xmlKeyColumnAttr()
 {
     return "column";

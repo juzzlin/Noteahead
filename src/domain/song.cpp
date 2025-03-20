@@ -614,22 +614,30 @@ Song::EventList Song::assignInstruments(EventListCR events) const
     juzzlin::L(TAG).info() << "Delay offset: " << delayOffset.count() << " ms";
 
     const double msPerTick = 60'000.0 / static_cast<double>(m_beatsPerMinute * m_linesPerBeat * m_ticksPerLine);
-    std::ranges::for_each(events, [this, delayOffset, msPerTick, &processedEvents](const auto & event) {
-        if (const auto noteData = event->noteData(); noteData) {
-            event->setInstrument(instrument(noteData->track()));
-            if (event->instrument()) {
-                event->applyDelay(event->instrument()->settings().delay - delayOffset, msPerTick);
-                event->transpose(event->instrument()->settings().transpose);
+    for (auto && event : events) {
+        if (event->type() == Event::Type::NoteData) {
+            if (const auto noteData = event->noteData(); noteData) {
+                event->setInstrument(instrument(noteData->track()));
+                if (event->instrument()) {
+                    event->applyDelay(event->instrument()->settings().delay - delayOffset, msPerTick);
+                    event->transpose(event->instrument()->settings().transpose);
+                }
             }
-        } else if (const auto instrumentSettings = event->instrumentSettings(); instrumentSettings) {
-            event->setInstrument(instrument(instrumentSettings->track()));
-            if (event->instrument()) {
-                event->applyDelay(event->instrument()->settings().delay - delayOffset, msPerTick);
+        } else if (event->type() == Event::Type::MidiCcData) {
+            if (const auto midiCcData = event->midiCcData(); midiCcData) {
+                event->setInstrument(instrument(midiCcData->track()));
+            }
+        } else if (event->type() == Event::Type::InstrumentSettings) {
+            if (const auto instrumentSettings = event->instrumentSettings(); instrumentSettings) {
+                event->setInstrument(instrument(instrumentSettings->track()));
+                if (event->instrument()) {
+                    event->applyDelay(event->instrument()->settings().delay - delayOffset, msPerTick);
+                }
             }
         }
 
         processedEvents.push_back(event);
-    });
+    }
 
     return processedEvents;
 }
@@ -652,7 +660,7 @@ Song::EventList Song::renderEndOfSong(EventListCR eventList, size_t tick) const
     return processedEventList;
 }
 
-Song::EventsAndTick Song::renderPatterns(EventListCR eventList, size_t tick, size_t startPosition, size_t endPosition)
+Song::EventsAndTick Song::renderPatterns(AutomationServiceS automationService, EventListCR eventList, size_t tick, size_t startPosition, size_t endPosition)
 {
     m_tickToSongPositionMap.clear();
     Song::EventList processedEventList { eventList };
@@ -660,8 +668,8 @@ Song::EventsAndTick Song::renderPatterns(EventListCR eventList, size_t tick, siz
         const auto patternIndex = m_playOrder->positionToPattern(songPosition);
         juzzlin::L(TAG).debug() << "Rendering position " << songPosition << " as pattern " << patternIndex;
         const auto & pattern = m_patterns[patternIndex];
-        const auto patternEventList = pattern->renderToEvents(tick, m_ticksPerLine);
-        std::copy(patternEventList.begin(), patternEventList.end(), std::back_inserter(processedEventList));
+        const auto patternEventList = pattern->renderToEvents(automationService, tick, m_ticksPerLine);
+        std::ranges::copy(patternEventList, std::back_inserter(processedEventList));
         updateTickToSongPositionMapping(tick, songPosition, patternIndex, pattern->lineCount());
         tick += pattern->lineCount() * m_ticksPerLine;
     }
@@ -693,37 +701,33 @@ Song::EventList Song::generateMidiClockEvents(EventListCR eventList, size_t star
     return processedEventList;
 }
 
-Song::EventList Song::renderContent(size_t startPosition, size_t endPosition)
+Song::EventList Song::renderContent(AutomationServiceS automationService, size_t startPosition, size_t endPosition)
 {
     const size_t startTick = positionToTick(startPosition);
     size_t tick = startTick;
 
     auto eventList = renderStartOfSong(tick);
-
-    std::tie(eventList, tick) = renderPatterns(eventList, tick, startPosition, endPosition);
+    std::tie(eventList, tick) = renderPatterns(automationService, eventList, tick, startPosition, endPosition);
 
     eventList = renderEndOfSong(eventList, tick);
-
     eventList = generateNoteOffs(eventList);
-
     eventList = removeNonMappedNoteOffs(eventList);
-
     eventList = generateMidiClockEvents(eventList, startTick, tick);
 
     return eventList;
 }
 
-Song::EventList Song::renderToEvents(size_t startPosition)
+Song::EventList Song::renderToEvents(AutomationServiceS automationService, size_t startPosition)
 {
-    return renderToEvents(startPosition, m_length);
+    return renderToEvents(automationService, startPosition, m_length);
 }
 
-Song::EventList Song::renderToEvents(size_t startPosition, size_t endPosition)
+Song::EventList Song::renderToEvents(AutomationServiceS automationService, size_t startPosition, size_t endPosition)
 {
-    return assignInstruments(renderContent(startPosition, endPosition));
+    return assignInstruments(renderContent(automationService, startPosition, endPosition));
 }
 
-void Song::serializeToXml(QXmlStreamWriter & writer, MixerSerializationCallback mixerSerializationCallback) const
+void Song::serializeToXml(QXmlStreamWriter & writer, MixerSerializationCallback mixerSerializationCallback, AutomationSerializationCallback automationSerializationCallback) const
 {
     writer.writeStartElement(Constants::xmlKeySong());
 
@@ -735,6 +739,10 @@ void Song::serializeToXml(QXmlStreamWriter & writer, MixerSerializationCallback 
 
     if (mixerSerializationCallback) {
         mixerSerializationCallback(writer);
+    }
+
+    if (automationSerializationCallback) {
+        automationSerializationCallback(writer);
     }
 
     writer.writeStartElement(Constants::xmlKeyPatterns());
@@ -749,7 +757,7 @@ void Song::serializeToXml(QXmlStreamWriter & writer, MixerSerializationCallback 
     writer.writeEndElement(); // Song
 }
 
-void Song::serializeToXmlAsTemplate(QXmlStreamWriter & writer, MixerSerializationCallback mixerSerializationCallback) const
+void Song::serializeToXmlAsTemplate(QXmlStreamWriter & writer, MixerSerializationCallback mixerSerializationCallback, AutomationSerializationCallback automationSerializationCallback) const
 {
     writer.writeStartElement(Constants::xmlKeySong());
 
@@ -761,6 +769,10 @@ void Song::serializeToXmlAsTemplate(QXmlStreamWriter & writer, MixerSerializatio
         mixerSerializationCallback(writer);
     }
 
+    if (automationSerializationCallback) {
+        automationSerializationCallback(writer);
+    }
+
     writer.writeStartElement(Constants::xmlKeyPatterns());
 
     m_patterns.at(0)->serializeToXml(writer);
@@ -769,7 +781,7 @@ void Song::serializeToXmlAsTemplate(QXmlStreamWriter & writer, MixerSerializatio
     writer.writeEndElement(); // Song
 }
 
-void Song::deserializeFromXml(QXmlStreamReader & reader, MixerDeserializationCallback mixerDeserializationCallback)
+void Song::deserializeFromXml(QXmlStreamReader & reader, MixerDeserializationCallback mixerDeserializationCallback, AutomationDeserializationCallback automationDeserializationCallback)
 {
     setBeatsPerMinute(*Utils::Xml::readUIntAttribute(reader, Constants::xmlKeyBeatsPerMinute()));
     setLinesPerBeat(*Utils::Xml::readUIntAttribute(reader, Constants::xmlKeyLinesPerBeat()));
@@ -786,6 +798,10 @@ void Song::deserializeFromXml(QXmlStreamReader & reader, MixerDeserializationCal
             } else if (!reader.name().compare(Constants::xmlKeyMixer())) {
                 if (mixerDeserializationCallback) {
                     mixerDeserializationCallback(reader);
+                }
+            } else if (!reader.name().compare(Constants::xmlKeyAutomation())) {
+                if (automationDeserializationCallback) {
+                    automationDeserializationCallback(reader);
                 }
             }
         }

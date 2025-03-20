@@ -15,7 +15,7 @@
 
 #include "mixer_service_test.hpp"
 
-#include "../../application/mixer_service.hpp"
+#include "../../application/service/mixer_service.hpp"
 
 #include <QSignalSpy>
 

@@ -20,6 +20,7 @@
 #include <cstddef>
 #include <memory>
 
+#include "midi_cc_data.hpp"
 #include "note_data.hpp"
 
 namespace noteahead {
@@ -37,6 +38,7 @@ public:
     {
         None,
         NoteData,
+        MidiCcData,
         MidiClockOut,
         InstrumentSettings,
         StartOfSong,
@@ -49,6 +51,10 @@ public:
     //! Builds a MIDI note data event.
     using NoteDataCR = const NoteData &;
     Event(size_t tick, NoteDataCR noteData);
+
+    using MidiCcDataCR = const MidiCcData &;
+    //! Builds a MIDI CC data event.
+    Event(size_t tick, MidiCcDataCR midiCcData);
 
     //! Builds an instrument settings event.
     using InstrumentSettingsS = std::shared_ptr<InstrumentSettings>;
@@ -76,6 +82,9 @@ public:
     using NoteDataOpt = std::optional<NoteData>;
     NoteDataOpt noteData() const;
 
+    using MidiCcDataOpt = std::optional<MidiCcData>;
+    MidiCcDataOpt midiCcData() const;
+
     using InstrumentS = std::shared_ptr<Instrument>;
     InstrumentS instrument() const;
     void setInstrument(InstrumentS instrument);
@@ -90,6 +99,7 @@ private:
 
     //! Data for data-like events
     NoteDataOpt m_noteData;
+    MidiCcDataOpt m_midiCcData;
     InstrumentS m_instrument;
     InstrumentSettingsS m_instrumentSettings;
 };

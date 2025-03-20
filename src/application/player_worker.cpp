@@ -19,8 +19,8 @@
 #include "../domain/event.hpp"
 #include "../domain/instrument_settings.hpp"
 #include "../domain/note_data.hpp"
-#include "midi_service.hpp"
-#include "mixer_service.hpp"
+#include "service/midi_service.hpp"
+#include "service/mixer_service.hpp"
 
 #include <ranges>
 #include <thread>
@@ -81,27 +81,35 @@ bool PlayerWorker::shouldEventPlay(const Event & event) const
 void PlayerWorker::handleEvent(const Event & event) const
 {
     if (shouldEventPlay(event)) {
-        if (auto && noteData = event.noteData(); noteData) {
-            juzzlin::L(TAG).trace() << noteData->toString();
-            if (auto && instrument = event.instrument(); instrument) {
-                if (noteData->type() == NoteData::Type::NoteOn && noteData->note().has_value()) {
-                    const auto effectiveVelocity = m_mixerService->effectiveVelocity(noteData->track(), noteData->column(), noteData->velocity());
-                    m_midiService->playNote(instrument, *noteData->note(), effectiveVelocity);
-                } else if (noteData->type() == NoteData::Type::NoteOff) {
-                    m_midiService->stopNote(instrument, *noteData->note());
+        if (event.type() == Event::Type::NoteData) {
+            if (auto && noteData = event.noteData(); noteData) {
+                juzzlin::L(TAG).trace() << noteData->toString();
+                if (auto && instrument = event.instrument(); instrument) {
+                    if (noteData->type() == NoteData::Type::NoteOn && noteData->note().has_value()) {
+                        const auto effectiveVelocity = m_mixerService->effectiveVelocity(noteData->track(), noteData->column(), noteData->velocity());
+                        m_midiService->playNote(instrument, *noteData->note(), effectiveVelocity);
+                    } else if (noteData->type() == NoteData::Type::NoteOff) {
+                        m_midiService->stopNote(instrument, *noteData->note());
+                    }
                 }
             }
-        } else if (auto && instrumentSettings = event.instrumentSettings(); instrumentSettings) {
-            juzzlin::L(TAG).trace() << instrumentSettings->toString().toStdString();
-            if (auto && instrument = event.instrument(); instrument) {
-                auto tempInstrument = *instrument;
-                tempInstrument.setSettings(*instrumentSettings);
-                InstrumentRequest instrumentRequest { InstrumentRequest::Type::ApplyAll, tempInstrument };
-                m_midiService->handleInstrumentRequest(instrumentRequest);
+        } else if (event.type() == Event::Type::MidiCcData) {
+            if (event.midiCcData() && event.instrument()) {
+                m_midiService->sendCcData(event.instrument(), *event.midiCcData());
             }
         } else if (event.type() == Event::Type::MidiClockOut) {
             if (auto && instrument = event.instrument(); instrument) {
                 m_midiService->sendClock(instrument);
+            }
+        } else if (event.type() == Event::Type::InstrumentSettings) {
+            if (auto && instrumentSettings = event.instrumentSettings(); instrumentSettings) {
+                juzzlin::L(TAG).trace() << instrumentSettings->toString().toStdString();
+                if (auto && instrument = event.instrument(); instrument) {
+                    auto tempInstrument = *instrument;
+                    tempInstrument.setSettings(*instrumentSettings);
+                    InstrumentRequest instrumentRequest { InstrumentRequest::Type::ApplyAll, tempInstrument };
+                    m_midiService->handleInstrumentRequest(instrumentRequest);
+                }
             }
         }
     }

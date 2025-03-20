@@ -15,14 +15,14 @@
 
 #include "editor_service.hpp"
 
-#include "../common/constants.hpp"
-#include "../contrib/SimpleLogger/src/simple_logger.hpp"
-#include "../domain/note_data.hpp"
-#include "../domain/note_data_manipulator.hpp"
-#include "../domain/song.hpp"
-#include "copy_manager.hpp"
-#include "instrument_request.hpp"
-#include "note_converter.hpp"
+#include "../../common/constants.hpp"
+#include "../../contrib/SimpleLogger/src/simple_logger.hpp"
+#include "../../domain/note_data.hpp"
+#include "../../domain/note_data_manipulator.hpp"
+#include "../../domain/song.hpp"
+#include "../copy_manager.hpp"
+#include "../instrument_request.hpp"
+#include "../note_converter.hpp"
 #include "selection_service.hpp"
 
 #include <QDateTime>
@@ -175,10 +175,13 @@ EditorService::SongS EditorService::deserializeProject(QXmlStreamReader & reader
         const auto mixerDeserializationCallback = [this](QXmlStreamReader & reader) {
             emit mixerDeserializationRequested(reader);
         };
+        const auto automationDeserializationCallback = [this](QXmlStreamReader & reader) {
+            emit automationDeserializationRequested(reader);
+        };
         while (!(reader.isEndElement() && !reader.name().compare(Constants::xmlKeyProject()))) {
             if (reader.isStartElement() && !reader.name().compare(Constants::xmlKeySong())) {
                 song = std::make_unique<Song>();
-                song->deserializeFromXml(reader, mixerDeserializationCallback);
+                song->deserializeFromXml(reader, mixerDeserializationCallback, automationDeserializationCallback);
             }
             reader.readNext();
         }
@@ -253,8 +256,10 @@ QString EditorService::toXml()
     const auto mixerSerializationCallback = [this](QXmlStreamWriter & writer) {
         emit mixerSerializationRequested(writer);
     };
-
-    m_song->serializeToXml(writer, mixerSerializationCallback);
+    const auto automationSerializationCallback = [this](QXmlStreamWriter & writer) {
+        emit automationSerializationRequested(writer);
+    };
+    m_song->serializeToXml(writer, mixerSerializationCallback, automationSerializationCallback);
 
     writer.writeEndElement();
     writer.writeEndDocument();
@@ -281,8 +286,10 @@ QString EditorService::toXmlAsTemplate()
     const auto mixerSerializationCallback = [this](QXmlStreamWriter & writer) {
         emit mixerSerializationRequested(writer);
     };
-
-    m_song->serializeToXmlAsTemplate(writer, mixerSerializationCallback);
+    const auto automationSerializationCallback = [this](QXmlStreamWriter & writer) {
+        emit automationSerializationRequested(writer);
+    };
+    m_song->serializeToXmlAsTemplate(writer, mixerSerializationCallback, automationSerializationCallback);
 
     writer.writeEndElement();
     writer.writeEndDocument();

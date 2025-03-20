@@ -22,6 +22,7 @@
 
 namespace noteahead {
 
+class AutomationService;
 class Config;
 class MidiService;
 class MixerService;
@@ -37,7 +38,8 @@ public:
     using ConfigS = std::shared_ptr<Config>;
     using MidiServiceS = std::shared_ptr<MidiService>;
     using MixerServiceS = std::shared_ptr<MixerService>;
-    explicit PlayerService(MidiServiceS midiService, MixerServiceS mixerService, ConfigS config, QObject * parent = nullptr);
+    using AutomationServiceS = std::shared_ptr<AutomationService>;
+    explicit PlayerService(MidiServiceS midiService, MixerServiceS mixerService, AutomationServiceS automationService, ConfigS config, QObject * parent = nullptr);
 
     ~PlayerService() override;
 
@@ -75,6 +77,8 @@ private:
     SongS m_song;
 
     ConfigS m_config;
+
+    AutomationServiceS m_automationService;
 
     std::unique_ptr<PlayerWorker> m_playerWorker;
 

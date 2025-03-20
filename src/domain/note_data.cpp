@@ -26,10 +26,11 @@
 namespace noteahead {
 
 NoteData::NoteData(size_t track, size_t column)
-  : m_track { track }
-  , m_column { column }
+  : EventData { track, column }
 {
 }
+
+NoteData::NoteData() = default;
 
 void NoteData::setAsNoteOn(uint8_t note, uint8_t velocity)
 {
@@ -82,31 +83,11 @@ std::string NoteData::toString() const
     std::stringstream ss;
     ss << "[ "
        << "Type: " << (m_type == Type::NoteOn ? "NoteOn" : "NoteOff")
-       << " Track: " << static_cast<int>(m_track) << " Column: " << static_cast<int>(m_column)
+       << " Track: " << static_cast<int>(track()) << " Column: " << static_cast<int>(column())
        << " Note: " << (m_note.has_value() ? std::to_string(static_cast<int>(*m_note)) : "N/A")
        << " Velocity: " << static_cast<int>(m_velocity)
        << " Delay: " << static_cast<int>(m_delay.value_or(0)) << " ]";
     return ss.str();
-}
-
-size_t NoteData::track() const
-{
-    return m_track;
-}
-
-void NoteData::setTrack(size_t track)
-{
-    m_track = track;
-}
-
-size_t NoteData::column() const
-{
-    return m_column;
-}
-
-void NoteData::setColumn(size_t column)
-{
-    m_column = column;
 }
 
 uint8_t NoteData::delay() const

@@ -18,18 +18,21 @@
 #include "../contrib/Argengine/src/argengine.hpp"
 #include "../contrib/SimpleLogger/src/simple_logger.hpp"
 #include "../infra/video/video_generator.hpp"
-#include "application_service.hpp"
 #include "common/utils.hpp"
 #include "config.hpp"
-#include "editor_service.hpp"
-#include "midi_service.hpp"
-#include "mixer_service.hpp"
 #include "models/event_selection_model.hpp"
+#include "models/midi_cc_automations_model.hpp"
 #include "models/recent_files_model.hpp"
 #include "models/track_settings_model.hpp"
-#include "player_service.hpp"
 #include "recent_files_manager.hpp"
-#include "selection_service.hpp"
+#include "service/application_service.hpp"
+#include "service/automation_service.hpp"
+#include "service/editor_service.hpp"
+#include "service/midi_service.hpp"
+#include "service/mixer_service.hpp"
+#include "service/player_service.hpp"
+#include "service/selection_service.hpp"
+#include "service/util_service.hpp"
 #include "state_machine.hpp"
 #include "ui_logger.hpp"
 
@@ -45,32 +48,23 @@ Application::Application(int & argc, char ** argv)
   : m_uiLogger { std::make_unique<UiLogger>() }
   , m_application { std::make_unique<QGuiApplication>(argc, argv) }
   , m_applicationService { std::make_unique<ApplicationService>() }
+  , m_automationService { std::make_unique<AutomationService>() }
   , m_config { std::make_unique<Config>() }
   , m_selectionService { std::make_unique<SelectionService>() }
   , m_editorService { std::make_unique<EditorService>(m_selectionService) }
   , m_eventSelectionModel { std::make_unique<EventSelectionModel>() }
   , m_midiService { std::make_unique<MidiService>() }
   , m_mixerService { std::make_unique<MixerService>() }
-  , m_playerService { std::make_unique<PlayerService>(m_midiService, m_mixerService, m_config) }
+  , m_playerService { std::make_unique<PlayerService>(m_midiService, m_mixerService, m_automationService, m_config) }
   , m_stateMachine { std::make_unique<StateMachine>(m_applicationService, m_editorService) }
   , m_recentFilesManager { std::make_unique<RecentFilesManager>() }
   , m_recentFilesModel { std::make_unique<RecentFilesModel>() }
+  , m_midiCcAutomationsModel { std::make_unique<MidiCcAutomationsModel>() }
   , m_trackSettingsModel { std::make_unique<TrackSettingsModel>() }
+  , m_utilService { std::make_unique<UtilService>() }
   , m_engine { std::make_unique<QQmlApplicationEngine>() }
 {
-    qmlRegisterType<UiLogger>("Noteahead", 1, 0, "UiLogger");
-    qmlRegisterType<ApplicationService>("Noteahead", 1, 0, "ApplicationService");
-    qmlRegisterType<Config>("Noteahead", 1, 0, "Config");
-    qmlRegisterType<SelectionService>("Noteahead", 1, 0, "SelectionService");
-    qmlRegisterType<EditorService>("Noteahead", 1, 0, "EditorService");
-    qmlRegisterType<EditorService>("Noteahead", 1, 0, "EventSelectionModel");
-    qmlRegisterType<MidiService>("Noteahead", 1, 0, "MidiService");
-    qmlRegisterType<MixerService>("Noteahead", 1, 0, "MixerService");
-    qmlRegisterType<RecentFilesModel>("Noteahead", 1, 0, "RecentFilesModel");
-    qmlRegisterType<TrackSettingsModel>("Noteahead", 1, 0, "TrackSettingsModel");
-
-    qmlRegisterSingletonType(QUrl(QML_ROOT_DIR + QString { "/Constants.qml" }), "Noteahead", 1, 0, "Constants");
-    qmlRegisterSingletonType(QUrl(QML_ROOT_DIR + QString { "/UiService.qml" }), "Noteahead", 1, 0, "UiService");
+    registerTypes();
 
     handleCommandLineArguments(argc, argv); // Handle command-line arguments at initialization
 
@@ -80,6 +74,47 @@ Application::Application(int & argc, char ** argv)
     m_applicationService->setPlayerService(m_playerService);
 
     m_recentFilesModel->setRecentFiles(m_recentFilesManager->recentFiles());
+}
+
+void Application::registerTypes()
+{
+    const int majorVersion = 1;
+    const int minorVersion = 0;
+
+    qmlRegisterType<UiLogger>("Noteahead", majorVersion, minorVersion, "UiLogger");
+    qmlRegisterType<ApplicationService>("Noteahead", majorVersion, minorVersion, "ApplicationService");
+    qmlRegisterType<AutomationService>("Noteahead", majorVersion, minorVersion, "AutomationService");
+    qmlRegisterType<Config>("Noteahead", majorVersion, minorVersion, "Config");
+    qmlRegisterType<SelectionService>("Noteahead", majorVersion, minorVersion, "SelectionService");
+    qmlRegisterType<EditorService>("Noteahead", majorVersion, minorVersion, "EditorService");
+    qmlRegisterType<EditorService>("Noteahead", majorVersion, minorVersion, "EventSelectionModel");
+    qmlRegisterType<MidiCcAutomationsModel>("Noteahead", majorVersion, minorVersion, "MidiCcAutomationsModel");
+    qmlRegisterType<MidiService>("Noteahead", majorVersion, minorVersion, "MidiService");
+    qmlRegisterType<MixerService>("Noteahead", majorVersion, minorVersion, "MixerService");
+    qmlRegisterType<RecentFilesModel>("Noteahead", majorVersion, minorVersion, "RecentFilesModel");
+    qmlRegisterType<TrackSettingsModel>("Noteahead", majorVersion, minorVersion, "TrackSettingsModel");
+    qmlRegisterType<TrackSettingsModel>("Noteahead", majorVersion, minorVersion, "UtilService");
+
+    qmlRegisterSingletonType(QUrl(QML_ROOT_DIR + QString { "/Constants.qml" }), "Noteahead", majorVersion, minorVersion, "Constants");
+    qmlRegisterSingletonType(QUrl(QML_ROOT_DIR + QString { "/UiService.qml" }), "Noteahead", majorVersion, minorVersion, "UiService");
+}
+
+void Application::setContextProperties()
+{
+    m_engine->rootContext()->setContextProperty("applicationService", m_applicationService.get());
+    m_engine->rootContext()->setContextProperty("automationService", m_automationService.get());
+    m_engine->rootContext()->setContextProperty("config", m_config.get());
+    m_engine->rootContext()->setContextProperty("editorService", m_editorService.get());
+    m_engine->rootContext()->setContextProperty("eventSelectionModel", m_eventSelectionModel.get());
+    m_engine->rootContext()->setContextProperty("midiCcAutomationsModel", m_midiCcAutomationsModel.get());
+    m_engine->rootContext()->setContextProperty("midiService", m_midiService.get());
+    m_engine->rootContext()->setContextProperty("mixerService", m_mixerService.get());
+    m_engine->rootContext()->setContextProperty("playerService", m_playerService.get());
+    m_engine->rootContext()->setContextProperty("uiLogger", m_uiLogger.get());
+    m_engine->rootContext()->setContextProperty("recentFilesModel", m_recentFilesModel.get());
+    m_engine->rootContext()->setContextProperty("selectionService", m_selectionService.get());
+    m_engine->rootContext()->setContextProperty("trackSettingsModel", m_trackSettingsModel.get());
+    m_engine->rootContext()->setContextProperty("utilService", m_utilService.get());
 }
 
 void Application::addVideoOptions(juzzlin::Argengine & ae)
@@ -149,33 +184,32 @@ void Application::handleCommandLineArguments(int & argc, char ** argv)
     ae.parse();
 }
 
-void Application::setContextProperties()
-{
-    m_engine->rootContext()->setContextProperty("applicationService", m_applicationService.get());
-    m_engine->rootContext()->setContextProperty("config", m_config.get());
-    m_engine->rootContext()->setContextProperty("editorService", m_editorService.get());
-    m_engine->rootContext()->setContextProperty("eventSelectionModel", m_eventSelectionModel.get());
-    m_engine->rootContext()->setContextProperty("midiService", m_midiService.get());
-    m_engine->rootContext()->setContextProperty("mixerService", m_mixerService.get());
-    m_engine->rootContext()->setContextProperty("playerService", m_playerService.get());
-    m_engine->rootContext()->setContextProperty("uiLogger", m_uiLogger.get());
-    m_engine->rootContext()->setContextProperty("recentFilesModel", m_recentFilesModel.get());
-    m_engine->rootContext()->setContextProperty("selectionService", m_selectionService.get());
-    m_engine->rootContext()->setContextProperty("trackSettingsModel", m_trackSettingsModel.get());
-}
-
 void Application::connectServices()
 {
     connect(m_applicationService.get(), &ApplicationService::applyAllTrackSettingsRequested, this, &Application::applyAllInstruments);
-
     connect(m_applicationService.get(), &ApplicationService::liveNoteOnRequested, m_midiService.get(), &MidiService::playNote);
     connect(m_applicationService.get(), &ApplicationService::liveNoteOffRequested, m_midiService.get(), &MidiService::stopNote);
+
+    connect(m_automationService.get(), &AutomationService::lineDataChanged, this, [this] {
+        m_editorService->setIsModified(true);
+    });
+
+    connect(m_midiCcAutomationsModel.get(), &MidiCcAutomationsModel::midiCcAutomationsRequested, this, [this]() {
+        m_midiCcAutomationsModel->setMidiCcAutomations(m_automationService->midiCcAutomations());
+    });
+    connect(m_midiCcAutomationsModel.get(), &MidiCcAutomationsModel::midiCcAutomationChanged, this, [this](auto && midiCcAutomation) {
+        m_automationService->updateMidiCcAutomation(midiCcAutomation);
+    });
 
     connect(m_editorService.get(), &EditorService::aboutToChangeSong, m_mixerService.get(), &MixerService::clear);
     connect(m_editorService.get(), &EditorService::aboutToInitialize, m_mixerService.get(), &MixerService::clear);
     connect(m_editorService.get(), &EditorService::instrumentRequested, m_midiService.get(), &MidiService::handleInstrumentRequest);
+
+    connect(m_editorService.get(), &EditorService::automationDeserializationRequested, m_automationService.get(), &AutomationService::deserializeFromXml);
+    connect(m_editorService.get(), &EditorService::automationSerializationRequested, m_automationService.get(), &AutomationService::serializeToXml);
     connect(m_editorService.get(), &EditorService::mixerDeserializationRequested, m_mixerService.get(), &MixerService::deserializeFromXml);
     connect(m_editorService.get(), &EditorService::mixerSerializationRequested, m_mixerService.get(), &MixerService::serializeToXml);
+
     connect(m_editorService.get(), &EditorService::songPositionChanged, m_playerService.get(), &PlayerService::setSongPosition);
 
     connect(m_midiService.get(), &MidiService::availableMidiPortsChanged, m_trackSettingsModel.get(), &TrackSettingsModel::setAvailableMidiPorts);
@@ -359,6 +393,7 @@ void Application::applyState(StateMachine::State state)
         m_application->exit(EXIT_SUCCESS);
         break;
     case StateMachine::State::InitializeNewProject:
+        m_automationService->clear();
         m_trackSettingsModel->reset();
         m_editorService->initialize();
         break;

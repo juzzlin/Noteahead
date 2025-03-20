@@ -16,6 +16,7 @@
 #include "pattern.hpp"
 
 #include "../application/position.hpp"
+#include "../application/service/automation_service.hpp"
 #include "../common/constants.hpp"
 #include "../common/utils.hpp"
 #include "../contrib/SimpleLogger/src/simple_logger.hpp"
@@ -353,13 +354,26 @@ void Pattern::initialize(const PatternConfig & config)
     }
 }
 
-Pattern::EventList Pattern::renderToEvents(size_t startTick, size_t ticksPerLine) const
+Pattern::EventList Pattern::renderToEvents(AutomationServiceS automationService, size_t startTick, size_t ticksPerLine) const
 {
     Pattern::EventList eventList;
-    std::ranges::for_each(m_trackOrder, [&](auto && track) {
+
+    // Note data + events contained by tracks
+    for (auto && track : m_trackOrder) {
         const auto trackEvents = track->renderToEvents(startTick, ticksPerLine);
-        std::copy(trackEvents.begin(), trackEvents.end(), std::back_inserter(eventList));
-    });
+        std::ranges::copy(trackEvents, std::back_inserter(eventList));
+    }
+
+    // Midi CC events from AutomationService
+    for (auto && track : m_trackOrder) {
+        for (size_t column = 0; column < track->columnCount(); column++) {
+            for (size_t line = 0; line < lineCount(); line++) {
+                const auto midiCcEvents = automationService->renderToEventsByColumn(m_index, track->index(), column, startTick, ticksPerLine);
+                std::ranges::copy(midiCcEvents, std::back_inserter(eventList));
+            }
+        }
+    }
+
     return eventList;
 }
 

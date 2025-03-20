@@ -16,8 +16,8 @@
 #ifndef EDITOR_SERVICE_HPP
 #define EDITOR_SERVICE_HPP
 
-#include "copy_manager.hpp"
-#include "position.hpp"
+#include "../copy_manager.hpp"
+#include "../position.hpp"
 
 #include <QObject>
 
@@ -66,10 +66,8 @@ class EditorService : public QObject
 
 public:
     EditorService();
-
     using SelectionServiceS = std::shared_ptr<SelectionService>;
     EditorService(SelectionServiceS selectionService);
-
     ~EditorService() override;
 
     void initialize();
@@ -283,6 +281,8 @@ signals:
     void lineDataChanged(const Position & position);
     void linesPerBeatChanged();
 
+    void automationSerializationRequested(QXmlStreamWriter & xmlStreamWriter);
+    void automationDeserializationRequested(QXmlStreamReader & xmlStreamReader);
     void mixerSerializationRequested(QXmlStreamWriter & xmlStreamWriter);
     void mixerDeserializationRequested(QXmlStreamReader & xmlStreamReader);
 

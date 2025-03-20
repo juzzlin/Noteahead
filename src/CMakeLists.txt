@@ -10,35 +10,41 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 # These are needed only for the IDE
 set(HEADER_FILES
   application/application.hpp
-  application/application_service.hpp
   application/config.hpp
   application/copy_manager.hpp
-  application/editor_service.hpp
   application/instrument_request.hpp
-  application/midi_service.hpp
   application/midi_worker.hpp
-  application/mixer_service.hpp
   application/models/event_selection_model.hpp
+  application/models/midi_cc_automations_model.hpp
   application/models/midi_cc_selection_model.hpp
   application/models/recent_files_model.hpp
   application/models/track_settings_model.hpp
   application/note_converter.hpp
-  application/player_service.hpp
   application/player_worker.hpp
   application/position.hpp
   application/recent_files_manager.hpp
-  application/selection_service.hpp
+  application/service/application_service.hpp
+  application/service/automation_service.hpp
+  application/service/editor_service.hpp
+  application/service/midi_service.hpp
+  application/service/mixer_service.hpp
+  application/service/player_service.hpp
+  application/service/selection_service.hpp
+  application/service/util_service.hpp
   application/state_machine.hpp
   application/ui_logger.hpp
   common/constants.hpp
   common/utils.hpp
   domain/column.hpp
   domain/event.hpp
+  domain/event_data.hpp
   domain/instrument.hpp
   domain/instrument_settings.hpp
   domain/interpolator.hpp
   domain/line.hpp
   domain/line_event.hpp
+  domain/midi_cc_automation.hpp
+  domain/midi_cc_data.hpp
   domain/midi_cc_setting.hpp
   domain/mixer_unit.hpp
   domain/note_data.hpp
@@ -60,34 +66,40 @@ set(HEADER_FILES
 
 set(SOURCE_FILES
   application/application.cpp
-  application/application_service.cpp
   application/config.cpp
   application/copy_manager.cpp
-  application/editor_service.cpp
   application/instrument_request.cpp
-  application/midi_service.cpp
   application/midi_worker.cpp
-  application/mixer_service.cpp
   application/models/event_selection_model.cpp
+  application/models/midi_cc_automations_model.cpp
   application/models/midi_cc_selection_model.cpp
   application/models/recent_files_model.cpp
   application/models/track_settings_model.cpp
   application/note_converter.cpp
-  application/player_service.cpp
   application/player_worker.cpp
   application/recent_files_manager.cpp
-  application/selection_service.cpp
+  application/service/application_service.cpp
+  application/service/automation_service.cpp
+  application/service/editor_service.cpp
+  application/service/midi_service.cpp
+  application/service/mixer_service.cpp
+  application/service/player_service.cpp
+  application/service/selection_service.cpp
+  application/service/util_service.cpp
   application/state_machine.cpp
   application/ui_logger.cpp
-  common/constants.cpp
+  common/constants.cpp 
   common/utils.cpp
   domain/column.cpp
   domain/event.cpp
+  domain/event_data.cpp
   domain/instrument.cpp
   domain/instrument_settings.cpp
   domain/interpolator.cpp
   domain/line.cpp
   domain/line_event.cpp
+  domain/midi_cc_automation.cpp
+  domain/midi_cc_data.cpp
   domain/midi_cc_setting.cpp
   domain/mixer_unit.cpp
   domain/note_data.cpp
@@ -123,9 +135,13 @@ set(QML_SOURCE_FILES
     ${QML_BASE_DIR}/Components/LayoutSeparator.qml
     ${QML_BASE_DIR}/Constants.qml
     ${QML_BASE_DIR}/Dialogs/AboutDialog.qml
+    ${QML_BASE_DIR}/Dialogs/AddMidiCcAutomationDialog.qml
+    ${QML_BASE_DIR}/Dialogs/EditMidiCcAutomationsDelegate.qml
+    ${QML_BASE_DIR}/Dialogs/EditMidiCcAutomationsDialog.qml
     ${QML_BASE_DIR}/Dialogs/EventSelectionDialog.qml
     ${QML_BASE_DIR}/Dialogs/IntegerInputDialog.qml
     ${QML_BASE_DIR}/Dialogs/InterpolationDialog.qml
+    ${QML_BASE_DIR}/Dialogs/MidiCcAutomationModel.qml
     ${QML_BASE_DIR}/Dialogs/MidiCcSelector.qml
     ${QML_BASE_DIR}/Dialogs/RecentFilesDialog.qml
     ${QML_BASE_DIR}/Dialogs/SettingsDialog.qml

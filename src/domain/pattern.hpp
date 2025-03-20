@@ -26,6 +26,7 @@ class QXmlStreamWriter;
 
 namespace noteahead {
 
+class AutomationService;
 class Event;
 class Instrument;
 class InstrumentSettings;
@@ -106,7 +107,8 @@ public:
 
     using EventS = std::shared_ptr<Event>;
     using EventList = std::vector<EventS>;
-    EventList renderToEvents(size_t startTick, size_t ticksPerLine) const;
+    using AutomationServiceS = std::shared_ptr<AutomationService>;
+    EventList renderToEvents(AutomationServiceS automationService, size_t startTick, size_t ticksPerLine) const;
 
     void serializeToXml(QXmlStreamWriter & writer) const;
     using PatternU = std::unique_ptr<Pattern>;

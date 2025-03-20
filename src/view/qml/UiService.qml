@@ -4,13 +4,16 @@ import QtQuick 2.15
 QtObject {
     signal aboutDialogRequested
     signal activeOctaveChanged(int activeOctave)
+    signal columnAddMidiCcAutomationDialogRequested
+    signal columnVelocityInterpolationDialogRequested
     signal columnVelocityScaleDialogRequested(int trackIndex, int columnIndex)
+    signal editMidiCcAutomationsDialogRequested
     signal eventSelectionDialogRequested
     signal focusOnEditorViewRequested
-    signal recentFilesDialogRequested
-    signal columnVelocityInterpolationDialogRequested
-    signal selectionVelocityInterpolationDialogRequested
     signal lineDelayDialogRequested
+    signal recentFilesDialogRequested
+    signal selectionAddMidiCcAutomationDialogRequested
+    signal selectionVelocityInterpolationDialogRequested
     signal settingsDialogRequested
     signal trackSettingsDialogRequested(int trackIndex)
     signal trackVelocityScaleDialogRequested(int trackIndex)
@@ -124,6 +127,21 @@ QtObject {
     }
     function requestLineDelayDialog() {
         lineDelayDialogRequested();
+    }
+    function requestColumnAddMidiCcAutomationDialog() {
+        if (!isPlaying()) {
+            columnAddMidiCcAutomationDialogRequested();
+        }
+    }
+    function requestSelectionAddMidiCcAutomationDialog() {
+        if (!isPlaying()) {
+            selectionAddMidiCcAutomationDialogRequested();
+        }
+    }
+    function requestEditMidiCcAutomationsDialog() {
+        if (!isPlaying()) {
+            editMidiCcAutomationsDialogRequested();
+        }
     }
     function requestFocusOnEditorView() {
         focusOnEditorViewRequested();

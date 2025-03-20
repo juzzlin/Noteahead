@@ -15,8 +15,8 @@
 
 #include "mixer_service.hpp"
 
-#include "../common/constants.hpp"
-#include "../contrib/SimpleLogger/src/simple_logger.hpp"
+#include "../../common/constants.hpp"
+#include "../../contrib/SimpleLogger/src/simple_logger.hpp"
 
 #include <QXmlStreamReader>
 #include <QXmlStreamWriter>

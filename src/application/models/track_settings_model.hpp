@@ -69,9 +69,12 @@ public:
     Q_INVOKABLE void applyMidiCc();
 
     Q_INVOKABLE void requestInstrumentData();
+    void setInstrumentData(const Instrument &);
+
     Q_INVOKABLE void requestTestSound(quint8 velocity);
 
     Q_INVOKABLE void save();
+    void reset();
 
     QStringList availableMidiPorts() const;
     void setAvailableMidiPorts(QStringList portNames);
@@ -79,12 +82,7 @@ public:
     quint64 trackIndex() const;
     void setTrackIndex(quint64 trackIndex);
 
-    void setInstrumentData(const Instrument &);
-
-    void reset();
-
     using InstrumentU = std::unique_ptr<Instrument>;
-
     InstrumentU toInstrument() const;
 
     QString portName() const;

@@ -16,6 +16,7 @@
 #include "song_test.hpp"
 
 #include "../../application/position.hpp"
+#include "../../application/service/automation_service.hpp"
 #include "../../domain/event.hpp"
 #include "../../domain/note_data.hpp"
 #include "../../domain/song.hpp"
@@ -139,7 +140,7 @@ void SongTest::test_prevNoteDataOnSameColumn_noteOff_shouldFindNoteData()
 void SongTest::test_renderToEvents_clockEvents_shouldRenderClockEvents()
 {
     Song song;
-    auto events = song.renderToEvents(0);
+    auto events = song.renderToEvents(std::make_shared<AutomationService>(), 0);
     QCOMPARE(events.size(), 2);
 
     const auto instrument1 = std::make_shared<Instrument>("MyPort");
@@ -148,7 +149,7 @@ void SongTest::test_renderToEvents_clockEvents_shouldRenderClockEvents()
     settings.sendMidiClock = true;
     instrument1->setSettings(settings);
 
-    events = song.renderToEvents(0);
+    events = song.renderToEvents(std::make_shared<AutomationService>(), 0);
     QCOMPARE(events.size(), 194);
 
     const auto instrument2 = std::make_shared<Instrument>("MyPort");
@@ -157,7 +158,7 @@ void SongTest::test_renderToEvents_clockEvents_shouldRenderClockEvents()
     settings.sendMidiClock = true;
     instrument2->setSettings(settings);
 
-    events = song.renderToEvents(0);
+    events = song.renderToEvents(std::make_shared<AutomationService>(), 0);
     QCOMPARE(events.size(), 194);
 
     const auto instrument3 = std::make_shared<Instrument>("MyOtherPort");
@@ -166,7 +167,7 @@ void SongTest::test_renderToEvents_clockEvents_shouldRenderClockEvents()
     settings.sendMidiClock = true;
     instrument3->setSettings(settings);
 
-    events = song.renderToEvents(0);
+    events = song.renderToEvents(std::make_shared<AutomationService>(), 0);
     QCOMPARE(events.size(), 386);
 }
 
@@ -191,7 +192,7 @@ void SongTest::test_renderToEvents_positiveDelaySet_shouldApplyDelay()
     const Position noteOnPosition = { 0, 0, 0, 0, 0 };
     song.noteDataAtPosition(noteOnPosition)->setAsNoteOn(60, 100);
 
-    const auto events = song.renderToEvents(0);
+    const auto events = song.renderToEvents(std::make_shared<AutomationService>(), 0);
     QCOMPARE(events.size(), 4);
     const auto noteOn = events.at(1);
     const double msPerTick = 60000.0 / static_cast<double>(song.beatsPerMinute() * song.linesPerBeat() * song.ticksPerLine());
@@ -220,7 +221,7 @@ void SongTest::test_renderToEvents_negativeDelaySet_shouldApplyShiftedDelay()
     const Position noteOnPosition = { 0, 0, 0, 0, 0 };
     song.noteDataAtPosition(noteOnPosition)->setAsNoteOn(60, 100);
 
-    const auto events = song.renderToEvents(0);
+    const auto events = song.renderToEvents(std::make_shared<AutomationService>(), 0);
     QCOMPARE(events.size(), 4);
     const auto noteOn = events.at(1);
     const double msPerTick = 60000.0 / static_cast<double>(song.beatsPerMinute() * song.linesPerBeat() * song.ticksPerLine());
@@ -231,7 +232,7 @@ void SongTest::test_renderToEvents_negativeDelaySet_shouldApplyShiftedDelay()
 void SongTest::test_renderToEvents_noEvents_shouldAddStartAndEndOfSong()
 {
     Song song;
-    const auto events = song.renderToEvents(0);
+    const auto events = song.renderToEvents(std::make_shared<AutomationService>(), 0);
     QCOMPARE(events.size(), 2);
 
     const auto startOfSong = events.at(0);
@@ -251,7 +252,7 @@ void SongTest::test_renderToEvents_noteOff_shouldMapNoteOff()
     const Position noteOffPosition = { 0, 0, 0, 1, 0 };
     song.noteDataAtPosition(noteOffPosition)->setAsNoteOff();
 
-    const auto events = song.renderToEvents(0);
+    const auto events = song.renderToEvents(std::make_shared<AutomationService>(), 0);
     QCOMPARE(events.size(), 4);
 
     const auto noteOn = events.at(1);
@@ -281,11 +282,11 @@ void SongTest::test_renderToEvents_playOrderSet_shouldRenderMultiplePatterns()
     song.setPatternAtSongPosition(1, 0);
 
     song.setLength(1);
-    auto events = song.renderToEvents(0);
+    auto events = song.renderToEvents(std::make_shared<AutomationService>(), 0);
     QCOMPARE(events.size(), 4);
 
     song.setLength(2);
-    events = song.renderToEvents(0);
+    events = song.renderToEvents(std::make_shared<AutomationService>(), 0);
     QCOMPARE(events.size(), 6);
 
     auto noteOn = events.at(1);
@@ -322,7 +323,7 @@ void SongTest::test_renderToEvents_singleEvent_shouldRenderEvent()
     Song song;
     song.noteDataAtPosition({ 0, 0, 0, 42, 0 })->setAsNoteOn(60, 100);
 
-    const auto events = song.renderToEvents(0);
+    const auto events = song.renderToEvents(std::make_shared<AutomationService>(), 0);
     QCOMPARE(events.size(), 4);
 
     const auto startOfSong = events.at(0);
@@ -353,7 +354,7 @@ void SongTest::test_renderToEvents_sameColumn_shouldAddNoteOff()
     song.noteDataAtPosition({ 0, 0, 0, 21, 0 })->setAsNoteOn(60, 100);
     song.noteDataAtPosition({ 0, 0, 0, 42, 0 })->setAsNoteOn(60, 100);
 
-    const auto events = song.renderToEvents(0);
+    const auto events = song.renderToEvents(std::make_shared<AutomationService>(), 0);
     QCOMPARE(events.size(), 6);
 
     auto noteOn = events.at(1);
@@ -385,7 +386,7 @@ void SongTest::test_renderToEvents_transposeSet_shouldApplyTranspose()
     const Position noteOnPosition = { 0, 0, 0, 0, 0 };
     song.noteDataAtPosition(noteOnPosition)->setAsNoteOn(60, 100);
 
-    auto events = song.renderToEvents(0);
+    auto events = song.renderToEvents(std::make_shared<AutomationService>(), 0);
     QCOMPARE(events.size(), 4);
     auto noteOn = events.at(1);
     QCOMPARE(noteOn->noteData()->note(), 73);
@@ -393,7 +394,7 @@ void SongTest::test_renderToEvents_transposeSet_shouldApplyTranspose()
     settings1.transpose = -11;
     instrument1->setSettings(settings1);
 
-    events = song.renderToEvents(0);
+    events = song.renderToEvents(std::make_shared<AutomationService>(), 0);
     QCOMPARE(events.size(), 4);
     noteOn = events.at(1);
     QCOMPARE(noteOn->noteData()->note(), 49);

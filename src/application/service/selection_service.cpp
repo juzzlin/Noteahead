@@ -15,7 +15,7 @@
 
 #include "selection_service.hpp"
 
-#include "../contrib/SimpleLogger/src/simple_logger.hpp"
+#include "../../contrib/SimpleLogger/src/simple_logger.hpp"
 
 namespace noteahead {
 
@@ -91,7 +91,7 @@ bool SelectionService::isSelected(size_t pattern, size_t track, size_t column, s
 
 bool SelectionService::requestSelectionStart(size_t pattern, size_t track, size_t column, size_t line)
 {
-    juzzlin::L(TAG).info() << "Requesting selection start";
+    juzzlin::L(TAG).debug() << "Requesting selection start";
 
     if (m_startPosition.has_value()) {
         return false;
@@ -99,14 +99,14 @@ bool SelectionService::requestSelectionStart(size_t pattern, size_t track, size_
 
     const Position position = { pattern, track, column, line };
     m_startPosition = position;
-    juzzlin::L(TAG).info() << "New selection start: " << position.toString();
+    juzzlin::L(TAG).debug() << "New selection start: " << position.toString();
     emit isValidSelectionChanged();
     return true;
 }
 
 bool SelectionService::requestSelectionEnd(size_t pattern, size_t track, size_t column, size_t line)
 {
-    juzzlin::L(TAG).info() << "Requesting selection end";
+    juzzlin::L(TAG).debug() << "Requesting selection end";
 
     if (m_startPosition && pattern == m_startPosition->pattern && track == m_startPosition->track && column == m_startPosition->column) {
         const Position position = { pattern, track, column, line };

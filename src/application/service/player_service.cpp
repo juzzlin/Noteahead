@@ -15,10 +15,10 @@
 
 #include "player_service.hpp"
 
-#include "../contrib/SimpleLogger/src/simple_logger.hpp"
-#include "../domain/song.hpp"
-#include "config.hpp"
-#include "player_worker.hpp"
+#include "../../contrib/SimpleLogger/src/simple_logger.hpp"
+#include "../../domain/song.hpp"
+#include "../config.hpp"
+#include "../player_worker.hpp"
 
 #include <QThread>
 
@@ -26,9 +26,10 @@ namespace noteahead {
 
 static const auto TAG = "PlayerService";
 
-PlayerService::PlayerService(MidiServiceS midiService, MixerServiceS mixerService, ConfigS config, QObject * parent)
+PlayerService::PlayerService(MidiServiceS midiService, MixerServiceS mixerService, AutomationServiceS automationService, ConfigS config, QObject * parent)
   : QObject { parent }
   , m_config { config }
+  , m_automationService { automationService }
   , m_playerWorker { std::make_unique<PlayerWorker>(midiService, mixerService) }
 {
     initializeWorker();
@@ -60,9 +61,9 @@ void PlayerService::initializeWorkerWithSongData()
     const PlayerWorker::Timing timing { m_song->beatsPerMinute(), m_song->linesPerBeat(), m_song->ticksPerLine() };
     m_song->setAutoNoteOffOffset(std::chrono::milliseconds { m_config->autoNoteOffOffset() });
     if (m_playerWorker->isLooping()) {
-        m_playerWorker->initialize(m_song->renderToEvents(m_songPosition, m_songPosition + 1), timing);
+        m_playerWorker->initialize(m_song->renderToEvents(m_automationService, m_songPosition, m_songPosition + 1), timing);
     } else {
-        m_playerWorker->initialize(m_song->renderToEvents(m_songPosition), timing);
+        m_playerWorker->initialize(m_song->renderToEvents(m_automationService, m_songPosition), timing);
     }
 }
 

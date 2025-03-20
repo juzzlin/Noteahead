@@ -41,14 +41,13 @@ public:
     Q_INVOKABLE void handleInstrumentRequest(const InstrumentRequest & instrumentRequest);
 
     Q_INVOKABLE void playAndStopMiddleC(QString portName, quint8 channel, quint8 velocity);
-
     Q_INVOKABLE void playNote(QString portName, quint8 channel, quint8 midiNote, quint8 velocity);
 
     Q_INVOKABLE void stopNote(QString portName, quint8 channel, quint8 midiNote);
-
     Q_INVOKABLE void stopAllNotes(QString portName, quint8 channel);
 
     Q_INVOKABLE void sendClock(QString portName);
+    Q_INVOKABLE void sendCcData(QString portName, quint8 channel, quint8 controller, quint8 value);
 
     Q_INVOKABLE void requestPatchChange(QString portName, quint8 channel, quint8 patch);
 

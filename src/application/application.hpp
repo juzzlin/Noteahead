@@ -34,10 +34,12 @@ class Argengine;
 namespace noteahead {
 
 class ApplicationService;
+class AutomationService;
 class Config;
 class EditorService;
 class EventSelectionModel;
 class Instrument;
+class MidiCcAutomationsModel;
 class MidiService;
 class MixerService;
 class PlayerService;
@@ -46,6 +48,7 @@ class RecentFilesManager;
 class RecentFilesModel;
 class TrackSettingsModel;
 class UiLogger;
+class UtilService;
 
 class Application : public QObject
 {
@@ -53,7 +56,6 @@ class Application : public QObject
 
 public:
     Application(int & argc, char ** argv);
-
     ~Application() override;
 
     int run();
@@ -75,14 +77,17 @@ private:
     int initializeTracker();
     int runVideoGenerator();
 
-    void requestInstruments(QStringList midiPorts);
-
+    void registerTypes();
     void setContextProperties();
+
+    void requestInstruments(QStringList midiPorts);
 
     std::unique_ptr<UiLogger> m_uiLogger;
 
     std::unique_ptr<QGuiApplication> m_application;
     std::shared_ptr<ApplicationService> m_applicationService;
+
+    std::shared_ptr<AutomationService> m_automationService;
 
     std::shared_ptr<Config> m_config;
 
@@ -100,7 +105,10 @@ private:
     std::shared_ptr<RecentFilesManager> m_recentFilesManager;
     std::unique_ptr<RecentFilesModel> m_recentFilesModel;
 
+    std::unique_ptr<MidiCcAutomationsModel> m_midiCcAutomationsModel;
     std::unique_ptr<TrackSettingsModel> m_trackSettingsModel;
+
+    std::unique_ptr<UtilService> m_utilService;
 
     std::unique_ptr<QQmlApplicationEngine> m_engine;
 
