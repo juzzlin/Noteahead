@@ -10,6 +10,8 @@ QtObject {
     signal recentFilesDialogRequested
     signal columnVelocityInterpolationDialogRequested
     signal selectionVelocityInterpolationDialogRequested
+    signal columnAddMidiCcAutomationDialogRequested
+    signal selectionAddMidiCcAutomationDialogRequested
     signal settingsDialogRequested
     signal trackSettingsDialogRequested(int trackIndex)
     signal trackVelocityScaleDialogRequested(int trackIndex)
@@ -119,6 +121,16 @@ QtObject {
     function requestSelectionVelocityInterpolationDialog() {
         if (!isPlaying()) {
             selectionVelocityInterpolationDialogRequested();
+        }
+    }
+    function requestColumnAddMidiCcAutomationDialog() {
+        if (!isPlaying()) {
+            columnAddMidiCcAutomationDialogRequested();
+        }
+    }
+    function requestSelectionAddMidiCcAutomationDialog() {
+        if (!isPlaying()) {
+            selectionAddMidiCcAutomationDialogRequested();
         }
     }
     function requestFocusOnEditorView() {

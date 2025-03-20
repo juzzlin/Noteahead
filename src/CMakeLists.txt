@@ -39,6 +39,7 @@ set(HEADER_FILES
   domain/interpolator.hpp
   domain/line.hpp
   domain/line_event.hpp
+  domain/midi_cc_automation.hpp
   domain/midi_cc_setting.hpp
   domain/mixer_unit.hpp
   domain/note_data.hpp
@@ -85,6 +86,7 @@ set(SOURCE_FILES
   domain/interpolator.cpp
   domain/line.cpp
   domain/line_event.cpp
+  domain/midi_cc_automation.cpp
   domain/midi_cc_setting.cpp
   domain/mixer_unit.cpp
   domain/note_data.cpp
@@ -113,9 +115,11 @@ set(QML_SOURCE_FILES
     ${QML_BASE_DIR}/BottomBar.qml
     ${QML_BASE_DIR}/Constants.qml
     ${QML_BASE_DIR}/Dialogs/AboutDialog.qml
+    ${QML_BASE_DIR}/Dialogs/AddMidiCcAutomationDialog.qml
     ${QML_BASE_DIR}/Dialogs/EventSelectionDialog.qml
     ${QML_BASE_DIR}/Dialogs/IntegerInputDialog.qml
     ${QML_BASE_DIR}/Dialogs/InterpolationDialog.qml
+    ${QML_BASE_DIR}/Dialogs/MidiCcAutomationModel.qml
     ${QML_BASE_DIR}/Dialogs/MidiCcSelector.qml
     ${QML_BASE_DIR}/Dialogs/RecentFilesDialog.qml
     ${QML_BASE_DIR}/Dialogs/SettingsDialog.qml
