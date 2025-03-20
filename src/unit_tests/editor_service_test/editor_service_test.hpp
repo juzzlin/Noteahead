@@ -107,6 +107,7 @@ private slots:
     void test_toXmlFromXml_columnName_shouldLoadColumnName();
     void test_toXmlFromXml_instrumentSettings_shouldParseInstrumentSettings();
     void test_toXmlFromXml_instrument_shouldParseInstrument();
+    void test_toXmlFromXml_automationService_shouldLoadAutomationService();
     void test_toXmlFromXml_mixerService_shouldLoadMixerService();
     void test_toXmlFromXml_noteData_noteOff();
     void test_toXmlFromXml_noteData_noteOn();

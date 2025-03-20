@@ -11,6 +11,7 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 set(HEADER_FILES
   application/application.hpp
   application/application_service.hpp
+  application/automation_service.hpp
   application/config.hpp
   application/copy_manager.hpp
   application/editor_service.hpp
@@ -39,6 +40,7 @@ set(HEADER_FILES
   domain/interpolator.hpp
   domain/line.hpp
   domain/line_event.hpp
+  domain/midi_cc_automation.hpp
   domain/midi_cc_setting.hpp
   domain/mixer_unit.hpp
   domain/note_data.hpp
@@ -61,6 +63,7 @@ set(HEADER_FILES
 set(SOURCE_FILES
   application/application.cpp
   application/application_service.cpp
+  application/automation_service.cpp
   application/config.cpp
   application/copy_manager.cpp
   application/editor_service.cpp
@@ -88,6 +91,7 @@ set(SOURCE_FILES
   domain/interpolator.cpp
   domain/line.cpp
   domain/line_event.cpp
+  domain/midi_cc_automation.cpp
   domain/midi_cc_setting.cpp
   domain/mixer_unit.cpp
   domain/note_data.cpp
@@ -123,9 +127,11 @@ set(QML_SOURCE_FILES
     ${QML_BASE_DIR}/Components/LayoutSeparator.qml
     ${QML_BASE_DIR}/Constants.qml
     ${QML_BASE_DIR}/Dialogs/AboutDialog.qml
+    ${QML_BASE_DIR}/Dialogs/AddMidiCcAutomationDialog.qml
     ${QML_BASE_DIR}/Dialogs/EventSelectionDialog.qml
     ${QML_BASE_DIR}/Dialogs/IntegerInputDialog.qml
     ${QML_BASE_DIR}/Dialogs/InterpolationDialog.qml
+    ${QML_BASE_DIR}/Dialogs/MidiCcAutomationModel.qml
     ${QML_BASE_DIR}/Dialogs/MidiCcSelector.qml
     ${QML_BASE_DIR}/Dialogs/RecentFilesDialog.qml
     ${QML_BASE_DIR}/Dialogs/SettingsDialog.qml

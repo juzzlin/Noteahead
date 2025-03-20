@@ -1,4 +1,5 @@
 set(UNIT_TEST_BASE_DIR ${CMAKE_BINARY_DIR}/unit_tests)
+add_subdirectory(automation_service_test)
 add_subdirectory(editor_service_test)
 add_subdirectory(midi_cc_selection_model_test)
 add_subdirectory(mixer_service_test)

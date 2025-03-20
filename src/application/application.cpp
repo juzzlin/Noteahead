@@ -19,6 +19,7 @@
 #include "../contrib/SimpleLogger/src/simple_logger.hpp"
 #include "../infra/video/video_generator.hpp"
 #include "application_service.hpp"
+#include "automation_service.hpp"
 #include "common/utils.hpp"
 #include "config.hpp"
 #include "editor_service.hpp"
@@ -45,6 +46,7 @@ Application::Application(int & argc, char ** argv)
   : m_uiLogger { std::make_unique<UiLogger>() }
   , m_application { std::make_unique<QGuiApplication>(argc, argv) }
   , m_applicationService { std::make_unique<ApplicationService>() }
+  , m_automationService { std::make_unique<AutomationService>() }
   , m_config { std::make_unique<Config>() }
   , m_selectionService { std::make_unique<SelectionService>() }
   , m_editorService { std::make_unique<EditorService>(m_selectionService) }
@@ -60,6 +62,7 @@ Application::Application(int & argc, char ** argv)
 {
     qmlRegisterType<UiLogger>("Noteahead", 1, 0, "UiLogger");
     qmlRegisterType<ApplicationService>("Noteahead", 1, 0, "ApplicationService");
+    qmlRegisterType<AutomationService>("Noteahead", 1, 0, "AutomationService");
     qmlRegisterType<Config>("Noteahead", 1, 0, "Config");
     qmlRegisterType<SelectionService>("Noteahead", 1, 0, "SelectionService");
     qmlRegisterType<EditorService>("Noteahead", 1, 0, "EditorService");
@@ -152,6 +155,7 @@ void Application::handleCommandLineArguments(int & argc, char ** argv)
 void Application::setContextProperties()
 {
     m_engine->rootContext()->setContextProperty("applicationService", m_applicationService.get());
+    m_engine->rootContext()->setContextProperty("automationService", m_automationService.get());
     m_engine->rootContext()->setContextProperty("config", m_config.get());
     m_engine->rootContext()->setContextProperty("editorService", m_editorService.get());
     m_engine->rootContext()->setContextProperty("eventSelectionModel", m_eventSelectionModel.get());
@@ -174,8 +178,12 @@ void Application::connectServices()
     connect(m_editorService.get(), &EditorService::aboutToChangeSong, m_mixerService.get(), &MixerService::clear);
     connect(m_editorService.get(), &EditorService::aboutToInitialize, m_mixerService.get(), &MixerService::clear);
     connect(m_editorService.get(), &EditorService::instrumentRequested, m_midiService.get(), &MidiService::handleInstrumentRequest);
+
+    connect(m_editorService.get(), &EditorService::automationDeserializationRequested, m_automationService.get(), &AutomationService::deserializeFromXml);
+    connect(m_editorService.get(), &EditorService::automationSerializationRequested, m_automationService.get(), &AutomationService::serializeToXml);
     connect(m_editorService.get(), &EditorService::mixerDeserializationRequested, m_mixerService.get(), &MixerService::deserializeFromXml);
     connect(m_editorService.get(), &EditorService::mixerSerializationRequested, m_mixerService.get(), &MixerService::serializeToXml);
+
     connect(m_editorService.get(), &EditorService::songPositionChanged, m_playerService.get(), &PlayerService::setSongPosition);
 
     connect(m_midiService.get(), &MidiService::availableMidiPortsChanged, m_trackSettingsModel.get(), &TrackSettingsModel::setAvailableMidiPorts);

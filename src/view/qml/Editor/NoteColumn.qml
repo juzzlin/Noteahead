@@ -124,6 +124,9 @@ Item {
                     if (editorService.hasInstrumentSettings(_patternIndex, _trackIndex, _index, index)) {
                         line.color = Universal.color(Universal.Cobalt);
                         line.border.width = 1;
+                    } else if (automationService.hasAutomations(_patternIndex, _trackIndex, _index, index)) {
+                        line.color = Universal.color(Universal.Green);
+                        line.border.width = 1;
                     } else {
                         line.color = _scaledColor(_indexHighlightOpacity(index, editorService.linesPerBeat));
                         line.border.width = 1;

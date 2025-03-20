@@ -34,6 +34,7 @@ class Argengine;
 namespace noteahead {
 
 class ApplicationService;
+class AutomationService;
 class Config;
 class EditorService;
 class EventSelectionModel;
@@ -53,7 +54,6 @@ class Application : public QObject
 
 public:
     Application(int & argc, char ** argv);
-
     ~Application() override;
 
     int run();
@@ -83,6 +83,8 @@ private:
 
     std::unique_ptr<QGuiApplication> m_application;
     std::shared_ptr<ApplicationService> m_applicationService;
+
+    std::shared_ptr<AutomationService> m_automationService;
 
     std::shared_ptr<Config> m_config;
 

@@ -15,6 +15,7 @@
 
 #include "editor_service_test.hpp"
 
+#include "../../application/automation_service.hpp"
 #include "../../application/editor_service.hpp"
 #include "../../application/mixer_service.hpp"
 #include "../../application/selection_service.hpp"
@@ -1412,6 +1413,21 @@ void EditorServiceTest::test_toXmlFromXml_trackName_shouldLoadTrackName()
 
     QCOMPARE(editorServiceIn.trackName(0), editorServiceOut.trackName(0));
     QCOMPARE(editorServiceIn.trackName(1), editorServiceOut.trackName(1));
+}
+
+void EditorServiceTest::test_toXmlFromXml_automationService_shouldLoadAutomationService()
+{
+    AutomationService automationServiceOut;
+    automationServiceOut.addMidiCcAutomation(0, 1, 0, 64, 4, 8, 0, 100, "MIDI CC Automation Test");
+
+    AutomationService automationServiceIn;
+    EditorService editorService;
+    connect(&editorService, &EditorService::automationSerializationRequested, &automationServiceOut, &AutomationService::serializeToXml);
+    connect(&editorService, &EditorService::automationDeserializationRequested, &automationServiceIn, &AutomationService::deserializeFromXml);
+
+    editorService.fromXml(editorService.toXml());
+
+    QVERIFY(automationServiceIn.hasAutomations(0, 1, 0, 4));
 }
 
 void EditorServiceTest::test_toXmlFromXml_mixerService_shouldLoadMixerService()

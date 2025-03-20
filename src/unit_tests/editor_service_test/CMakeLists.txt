@@ -3,6 +3,7 @@ set(NAME editor_service_test)
 set(SRC
     ${NAME}.cpp
     ${NAME}.hpp
+    ../../application/automation_service.cpp
     ../../application/copy_manager.cpp
     ../../application/editor_service.cpp
     ../../application/instrument_request.cpp
@@ -19,6 +20,7 @@ set(SRC
     ../../domain/interpolator.cpp
     ../../domain/line.cpp
     ../../domain/line_event.cpp
+    ../../domain/midi_cc_automation.cpp
     ../../domain/midi_cc_setting.cpp
     ../../domain/mixer_unit.cpp
     ../../domain/note_data.cpp

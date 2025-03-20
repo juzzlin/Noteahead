@@ -83,6 +83,18 @@ QString xmlKeyLinesPerBeat();
 QString xmlKeyMidiCcSetting();
 
 QString xmlKeyMixer();
+
+QString xmlKeyAutomation();
+QString xmlKeyMidiCcAutomation();
+QString xmlKeyInterpolation();
+QString xmlKeyLocation();
+QString xmlKeyId();
+QString xmlKeyLine0();
+QString xmlKeyLine1();
+QString xmlKeyValue0();
+QString xmlKeyValue1();
+QString xmlKeyComment();
+
 QString xmlKeyColumnAttr();
 QString xmlKeyColumnMuted();
 QString xmlKeyColumnSoloed();

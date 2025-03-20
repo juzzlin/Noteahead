@@ -177,11 +177,14 @@ public:
 
     //! To decouple MiserService from Song. I don't want Song to know anything about MixerService.
     //! However, concept-wise the mixer settings should still be Song-specific as track configurations may vary.
+    //! The same applies to AutomationSerializationCallback.
     using MixerSerializationCallback = std::function<void(QXmlStreamWriter & writer)>;
-    void serializeToXml(QXmlStreamWriter & writer, MixerSerializationCallback mixerSerializationCallback) const;
-    void serializeToXmlAsTemplate(QXmlStreamWriter & writer, MixerSerializationCallback mixerSerializationCallback) const;
+    using AutomationSerializationCallback = std::function<void(QXmlStreamWriter & writer)>;
+    void serializeToXml(QXmlStreamWriter & writer, MixerSerializationCallback mixerSerializationCallback, AutomationSerializationCallback automationSerializationCallback) const;
+    void serializeToXmlAsTemplate(QXmlStreamWriter & writer, MixerSerializationCallback mixerSerializationCallback, AutomationSerializationCallback automationSerializationCallback) const;
     using MixerDeserializationCallback = std::function<void(QXmlStreamReader & reader)>;
-    void deserializeFromXml(QXmlStreamReader & reader, MixerDeserializationCallback mixerDeserializationCallback);
+    using AutomationDeserializationCallback = std::function<void(QXmlStreamReader & reader)>;
+    void deserializeFromXml(QXmlStreamReader & reader, MixerDeserializationCallback mixerDeserializationCallback, AutomationDeserializationCallback automationDeserializationCallback);
 
 private:
     void load(const std::string & filename);
