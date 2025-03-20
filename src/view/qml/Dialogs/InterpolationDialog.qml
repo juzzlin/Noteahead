@@ -75,44 +75,44 @@ Dialog {
             Layout.row: 0
             Layout.fillWidth: true
         }
-    }
-    Label {
-        text: qsTr("Start line:")
-        width: parent.width
-        Layout.column: 0
-        Layout.row: 1
-    }
-    SpinBox {
-        id: startLineSpinBox
-        width: parent.width * 0.3
-        from: 0
-        to: endLineSpinBox.value
-        value: 0
-        editable: true
-        Keys.onReturnPressed: {
-            focus = false;
+        Label {
+            text: qsTr("Start line:")
+            width: parent.width
+            Layout.column: 0
+            Layout.row: 1
         }
-        Layout.column: 1
-        Layout.row: 1
-        Layout.fillWidth: true
-    }
-    Label {
-        text: qsTr("End line:")
-        Layout.column: 2
-        Layout.row: 1
-    }
-    SpinBox {
-        id: endLineSpinBox
-        width: parent.width * 0.3
-        from: startLineSpinBox.value + 1
-        to: 999
-        value: 0
-        editable: true
-        Keys.onReturnPressed: {
-            focus = false;
+        SpinBox {
+            id: startLineSpinBox
+            width: parent.width * 0.3
+            from: 0
+            to: endLineSpinBox.value
+            value: 0
+            editable: true
+            Keys.onReturnPressed: {
+                focus = false;
+            }
+            Layout.column: 1
+            Layout.row: 1
+            Layout.fillWidth: true
         }
-        Layout.column: 3
-        Layout.row: 1
-        Layout.fillWidth: true
+        Label {
+            text: qsTr("End line:")
+            Layout.column: 2
+            Layout.row: 1
+        }
+        SpinBox {
+            id: endLineSpinBox
+            width: parent.width * 0.3
+            from: startLineSpinBox.value + 1
+            to: 999
+            value: 0
+            editable: true
+            Keys.onReturnPressed: {
+                focus = false;
+            }
+            Layout.column: 3
+            Layout.row: 1
+            Layout.fillWidth: true
+        }
     }
 }
