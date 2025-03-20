@@ -94,6 +94,13 @@ Menu {
             enabled: !UiService.isPlaying()
             onTriggered: UiService.requestColumnVelocityInterpolationDialog()
         }
+        MenuSeparator {
+        }
+        Action {
+            text: qsTr("Add MIDI CC automation")
+            enabled: !UiService.isPlaying()
+            onTriggered: UiService.requestColumnAddMidiCcAutomationDialog()
+        }
         delegate: MainMenuItemDelegate {
         }
     }
@@ -289,6 +296,13 @@ Menu {
             text: qsTr("Interpolate velocity")
             enabled: !UiService.isPlaying() && selectionService.isValidSelection
             onTriggered: UiService.requestSelectionVelocityInterpolationDialog()
+        }
+        MenuSeparator {
+        }
+        Action {
+            text: qsTr("Add MIDI CC automation")
+            enabled: !UiService.isPlaying() && selectionService.isValidSelection
+            onTriggered: UiService.requestSelectionAddMidiCcAutomationDialog()
         }
         delegate: MainMenuItemDelegate {
         }

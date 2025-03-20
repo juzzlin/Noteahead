@@ -212,10 +212,15 @@ ApplicationWindow {
         id: velocityInterpolationDialog
         anchors.centerIn: parent
         width: parent.width * 0.5
-        property int trackIndex
-        property int columnIndex
         onAccepted: {
             editorService.requestLinearVelocityInterpolation(startLine(), endLine(), startValue(), endValue());
+        }
+    }
+    AddMidiCcAutomationDialog {
+        id: addMidiCcAutomationDialog
+        anchors.centerIn: parent
+        width: parent.width * 0.5
+        onAccepted: {
         }
     }
     function _getWindowTitle() {
@@ -298,6 +303,22 @@ ApplicationWindow {
         UiService.lineDelayDialogRequested.connect(() => {
                 lineDelayDialog.setValue(editorService.delayAtCurrentPosition());
                 lineDelayDialog.open();
+            });
+        UiService.columnAddMidiCcAutomationDialogRequested.connect(() => {
+                addMidiCcAutomationDialog.setTitle(qsTr("Add MIDI CC automation"));
+                addMidiCcAutomationDialog.setStartLine(0);
+                addMidiCcAutomationDialog.setEndLine(editorService.currentLineCount - 1);
+                addMidiCcAutomationDialog.setStartValue(0);
+                addMidiCcAutomationDialog.setEndValue(100);
+                addMidiCcAutomationDialog.open();
+            });
+        UiService.selectionAddMidiCcAutomationDialogRequested.connect(() => {
+                addMidiCcAutomationDialog.setTitle(qsTr("Add MIDI CC automation"));
+                addMidiCcAutomationDialog.setStartLine(selectionService.minLine());
+                addMidiCcAutomationDialog.setEndLine(selectionService.maxLine());
+                addMidiCcAutomationDialog.setStartValue(0);
+                addMidiCcAutomationDialog.setEndValue(100);
+                addMidiCcAutomationDialog.open();
             });
         UiService.quitRequested.connect(() => {
                 config.setWindowSize(Qt.size(mainWindow.width, mainWindow.height));
