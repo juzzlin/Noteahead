@@ -5,11 +5,40 @@ Release date:
 
 New features:
 
+Bug fixes:
+
+Other:
+
+0.5.0
+=====
+
+Release date:
+
+Fri, 21 Mar 2025 21:04:32 +0200
+
+New features:
+
 * Make it possible to loop patterns
 
 * Implement velocity interpolation on a column
 
+* Add option to transpose by +/-6 semitones
+
 Bug fixes:
+
+* Fix double triggering of notes when editing
+
+* Fix 'Send MIDI clock' not saved if OFF
+
+* Fix current line count not updating on playback
+
+* Save created date only once
+
+* Update also column's mixer state when updating column headers
+
+* Link Argengine and SimpleLogger statically
+
+* Don't force the height of the main context menu
 
 0.4.0
 =====

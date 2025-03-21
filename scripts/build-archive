@@ -1,1 +1,1 @@
-git archive --format=tar.gz --prefix=noteahead-0.4.0/ HEAD > noteahead-0.4.0.tar.gz
+git archive --format=tar.gz --prefix=noteahead-0.5.0/ HEAD > noteahead-0.5.0.tar.gz
