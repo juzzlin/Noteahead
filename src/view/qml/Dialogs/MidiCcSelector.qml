@@ -8,6 +8,8 @@ RowLayout {
     Layout.fillWidth: true
     signal settingsChanged
     property int index
+    property bool showEnabled: true
+    property bool showValue: true
     function enabled() {
         return enableCcCheckbox.checked;
     }
@@ -29,6 +31,7 @@ RowLayout {
     CheckBox {
         id: enableCcCheckbox
         text: qsTr("Enable MIDI CC #") + index
+        visible: showEnabled
         Layout.fillWidth: true
         ToolTip.delay: Constants.toolTipDelay
         ToolTip.timeout: Constants.toolTipTimeout
@@ -39,7 +42,7 @@ RowLayout {
         }
     }
     Label {
-        text: qsTr("Controller / Value:")
+        text: showValue ? qsTr("Controller and value:") : qsTr("Controller:")
         Layout.fillWidth: true
         elide: Text.ElideRight
     }
@@ -73,6 +76,7 @@ RowLayout {
         enabled: enableCcCheckbox.checked
         Layout.fillWidth: true
         editable: true
+        visible: showValue
         ToolTip.delay: Constants.toolTipDelay
         ToolTip.timeout: Constants.toolTipTimeout
         ToolTip.visible: hovered

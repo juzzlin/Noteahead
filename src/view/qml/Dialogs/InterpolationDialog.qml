@@ -36,6 +36,7 @@ Dialog {
         endLineSpinBox.value = value;
     }
     contentItem: GridLayout {
+        rowSpacing: 10
         width: parent.width
         Label {
             text: qsTr("Start value:")
@@ -57,7 +58,7 @@ Dialog {
             Layout.fillWidth: true
         }
         Label {
-            text: qsTr("End value:")
+            text: " " + qsTr("End value:")
             Layout.column: 2
             Layout.row: 0
         }
@@ -96,7 +97,7 @@ Dialog {
             Layout.fillWidth: true
         }
         Label {
-            text: qsTr("End line:")
+            text: " " + qsTr("End line:")
             Layout.column: 2
             Layout.row: 1
         }
