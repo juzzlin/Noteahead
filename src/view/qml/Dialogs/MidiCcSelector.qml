@@ -8,10 +8,23 @@ RowLayout {
     Layout.fillWidth: true
     signal settingsChanged
     property int index
-    function initialize() {
-        enableCcCheckbox.checked = trackSettingsModel.midiCcEnabled(index);
-        midiCcControllerSpinBox.value = trackSettingsModel.midiCcController(index);
-        midiCcValueSpinBox.value = trackSettingsModel.midiCcValue(index);
+    function enabled() {
+        return enableCcCheckbox.checked;
+    }
+    function setEnabled(enabled) {
+        enableCcCheckbox.checked = enabled;
+    }
+    function controller() {
+        return midiCcControllerSpinBox.value;
+    }
+    function setController(value) {
+        midiCcControllerSpinBox.value = value;
+    }
+    function value() {
+        return midiCcValueSpinBox.value;
+    }
+    function setValue(value) {
+        midiCcValueSpinBox.value = value;
     }
     CheckBox {
         id: enableCcCheckbox
@@ -22,7 +35,6 @@ RowLayout {
         ToolTip.visible: hovered
         ToolTip.text: qsTr("Enable/disable MIDI Continuous Controller setting slot #") + index
         onCheckedChanged: {
-            trackSettingsModel.setMidiCcEnabled(index, checked);
             settingsChanged();
         }
     }
@@ -41,9 +53,8 @@ RowLayout {
         ToolTip.delay: Constants.toolTipDelay
         ToolTip.timeout: Constants.toolTipTimeout
         ToolTip.visible: hovered
-        ToolTip.text: qsTr("Set optional MIDI Continuous Controller number. See the MIDI CC implementation chart of your device.")
+        ToolTip.text: qsTr("Set MIDI Continuous Controller number. See the MIDI CC implementation chart of your device.")
         onValueChanged: {
-            trackSettingsModel.setMidiCcController(index, value);
             settingsChanged();
         }
         Keys.onReturnPressed: focus = false
@@ -65,9 +76,8 @@ RowLayout {
         ToolTip.delay: Constants.toolTipDelay
         ToolTip.timeout: Constants.toolTipTimeout
         ToolTip.visible: hovered
-        ToolTip.text: qsTr("Set optional MIDI Continuous Controller value")
+        ToolTip.text: qsTr("Set MIDI Continuous Controller value")
         onValueChanged: {
-            trackSettingsModel.setMidiCcValue(index, value);
             settingsChanged();
         }
         Keys.onReturnPressed: focus = false

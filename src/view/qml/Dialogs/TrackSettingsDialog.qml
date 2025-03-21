@@ -34,8 +34,10 @@ Dialog {
         initializeMidiCcSelectors();
     }
     function initializeMidiCcSelectors() {
-        for (const midiCcSeletor of _midiCcSelectors) {
-            midiCcSeletor.initialize();
+        for (const midiCcSelector of _midiCcSelectors) {
+            midiCcSelector.setEnabled(trackSettingsModel.midiCcEnabled(midiCcSelector.index));
+            midiCcSelector.setController(trackSettingsModel.midiCcController(midiCcSelector.index));
+            midiCcSelector.setValue(trackSettingsModel.midiCcValue(midiCcSelector.index));
         }
     }
     function saveSettings() {
@@ -400,7 +402,12 @@ Dialog {
                     onItemAdded: (index, item) => {
                         item.index = index;
                         _midiCcSelectors.push(item);
-                        item.settingsChanged.connect(rootItem._requestApplyAll);
+                        item.settingsChanged.connect(() => {
+                                trackSettingsModel.setMidiCcEnabled(item.index, item.enabled());
+                                trackSettingsModel.setMidiCcController(item.index, item.controller());
+                                trackSettingsModel.setMidiCcValue(item.index, item.value());
+                                rootItem._requestApplyAll();
+                            });
                     }
                 }
             }
