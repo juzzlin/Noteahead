@@ -29,95 +29,107 @@ Item {
     function setEndLine(value) {
         endLineSpinBox.value = value;
     }
-    GridLayout {
+    ColumnLayout {
         anchors.fill: parent
-        rowSpacing: 10
-        MidiCcSelector {
-            id: midiCcSelector
-            Layout.row: 0
-            Layout.columnSpan: 4
-            Component.onCompleted: {
-                showEnabled = false;
-                showValue = false;
-                setEnabled(true);
-            }
-        }
-        Label {
-            text: qsTr("Start value:")
-            Layout.column: 0
-            Layout.row: 1
-        }
-        SpinBox {
-            id: startValueSpinBox
-            width: parent.width * 0.3
-            from: 0
-            to: 127
-            value: 0
-            editable: true
-            Keys.onReturnPressed: {
-                focus = false;
-            }
-            Layout.column: 1
-            Layout.row: 1
+        spacing: 10
+        GroupBox {
             Layout.fillWidth: true
-        }
-        Label {
-            text: " " + qsTr("End value:")
-            Layout.column: 2
-            Layout.row: 1
-        }
-        SpinBox {
-            id: endValueSpinBox
-            width: parent.width * 0.3
-            from: 0
-            to: 127
-            value: 0
-            editable: true
-            Keys.onReturnPressed: {
-                focus = false;
+            MidiCcSelector {
+                id: midiCcSelector
+                Component.onCompleted: {
+                    showEnabled = false;
+                    showValue = false;
+                    setEnabled(true);
+                }
             }
-            Layout.column: 3
-            Layout.row: 1
+        }
+        Rectangle {
+            height: 1
+            width: midiCcSelector.width
+            color: "gray"
+        }
+        GroupBox {
             Layout.fillWidth: true
-        }
-        Label {
-            text: qsTr("Start line:")
-            width: parent.width
-            Layout.column: 0
-            Layout.row: 2
-        }
-        SpinBox {
-            id: startLineSpinBox
-            width: parent.width * 0.3
-            from: 0
-            to: endLineSpinBox.value
-            value: 0
-            editable: true
-            Keys.onReturnPressed: {
-                focus = false;
+            GridLayout {
+                rowSpacing: 10
+                Label {
+                    text: qsTr("Start value:")
+                    Layout.column: 0
+                    Layout.row: 1
+                }
+                SpinBox {
+                    id: startValueSpinBox
+                    width: parent.width * 0.3
+                    from: 0
+                    to: 127
+                    value: 0
+                    editable: true
+                    Keys.onReturnPressed: {
+                        focus = false;
+                    }
+                    Layout.column: 1
+                    Layout.row: 1
+                    Layout.fillWidth: true
+                }
+                Label {
+                    text: " " + qsTr("End value:")
+                    Layout.column: 2
+                    Layout.row: 1
+                }
+                SpinBox {
+                    id: endValueSpinBox
+                    width: parent.width * 0.3
+                    from: 0
+                    to: 127
+                    value: 0
+                    editable: true
+                    Keys.onReturnPressed: {
+                        focus = false;
+                    }
+                    Layout.column: 3
+                    Layout.row: 1
+                    Layout.fillWidth: true
+                }
+                Label {
+                    text: qsTr("Start line:")
+                    width: parent.width
+                    Layout.column: 0
+                    Layout.row: 2
+                }
+                SpinBox {
+                    id: startLineSpinBox
+                    width: parent.width * 0.3
+                    from: 0
+                    to: endLineSpinBox.value
+                    value: 0
+                    editable: true
+                    Keys.onReturnPressed: {
+                        focus = false;
+                    }
+                    Layout.column: 1
+                    Layout.row: 2
+                    Layout.fillWidth: true
+                }
+                Label {
+                    text: " " + qsTr("End line:")
+                    Layout.column: 2
+                    Layout.row: 2
+                }
+                SpinBox {
+                    id: endLineSpinBox
+                    width: parent.width * 0.3
+                    from: startLineSpinBox.value + 1
+                    to: 999
+                    value: 0
+                    editable: true
+                    Keys.onReturnPressed: {
+                        focus = false;
+                    }
+                    Layout.column: 3
+                    Layout.row: 2
+                    Layout.fillWidth: true
+                }
             }
-            Layout.column: 1
-            Layout.row: 2
-            Layout.fillWidth: true
-        }
-        Label {
-            text: " " + qsTr("End line:")
-            Layout.column: 2
-            Layout.row: 2
-        }
-        SpinBox {
-            id: endLineSpinBox
-            width: parent.width * 0.3
-            from: startLineSpinBox.value + 1
-            to: 999
-            value: 0
-            editable: true
-            Keys.onReturnPressed: {
-                focus = false;
-            }
-            Layout.column: 3
-            Layout.row: 2
-            Layout.fillWidth: true
         }
     }
 }
