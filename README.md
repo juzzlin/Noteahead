@@ -119,7 +119,7 @@ Packages needed for building:
 
 Additional packages needed to run:
 
-    qml6-module-qtqml qml6-module-qtcore qml6-module-qtquick-dialogs qml6-module-qtquick-templates
+    qml6-module-qtqml qml6-module-qtcore qml6-module-qtquick-dialogs qml6-module-qtquick-templates qml6-module-qtquick-window
 
 ###
 ### Build and run on CLI
