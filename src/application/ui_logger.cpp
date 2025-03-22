@@ -19,6 +19,8 @@
 
 namespace noteahead {
 
+static const auto TAG = "Ui: ";
+
 UiLogger::UiLogger(QObject * parent)
   : QObject { parent }
 {
@@ -26,27 +28,27 @@ UiLogger::UiLogger(QObject * parent)
 
 void UiLogger::trace(QString tag, QString message) const
 {
-    juzzlin::L(tag.toStdString()).trace() << message.toStdString();
+    juzzlin::L(TAG + tag.toStdString()).trace() << message.toStdString();
 }
 
 void UiLogger::debug(QString tag, QString message) const
 {
-    juzzlin::L(tag.toStdString()).debug() << message.toStdString();
+    juzzlin::L(TAG + tag.toStdString()).debug() << message.toStdString();
 }
 
 void UiLogger::info(QString tag, QString message) const
 {
-    juzzlin::L(tag.toStdString()).info() << message.toStdString();
+    juzzlin::L(TAG + tag.toStdString()).info() << message.toStdString();
 }
 
 void UiLogger::warning(QString tag, QString message) const
 {
-    juzzlin::L(tag.toStdString()).warning() << message.toStdString();
+    juzzlin::L(TAG + tag.toStdString()).warning() << message.toStdString();
 }
 
 void UiLogger::error(QString tag, QString message) const
 {
-    juzzlin::L(tag.toStdString()).error() << message.toStdString();
+    juzzlin::L(TAG + tag.toStdString()).error() << message.toStdString();
 }
 
 } // namespace noteahead
