@@ -16,7 +16,7 @@
 #ifndef APPLICATION_HPP
 #define APPLICATION_HPP
 
-#include "../infra/video_generator.hpp"
+#include "../infra/video/video_config.hpp"
 #include "state_machine.hpp"
 
 #include <memory>
@@ -103,7 +103,7 @@ private:
 
     bool m_videoGeneratorEnabled = false;
 
-    VideoGenerator::Config m_videoConfig;
+    VideoConfig m_videoConfig;
 };
 
 } // namespace noteahead

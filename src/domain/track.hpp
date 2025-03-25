@@ -17,6 +17,7 @@
 #define TRACK_HPP
 
 #include <memory>
+#include <optional>
 #include <vector>
 
 #include "mixer_unit.hpp"
@@ -44,6 +45,7 @@ public:
     void setColumn(ColumnS column);
     std::string columnName(size_t columnIndex) const;
     void setColumnName(size_t columnIndex, std::string name);
+    std::optional<size_t> columnByName(std::string_view name) const;
 
     size_t lineCount() const;
     void setLineCount(size_t lineCount);

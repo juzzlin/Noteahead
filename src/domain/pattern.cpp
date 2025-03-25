@@ -151,6 +151,22 @@ void Pattern::setColumnName(size_t trackIndex, size_t columnIndex, std::string n
     trackByIndexThrow(trackIndex)->setColumnName(columnIndex, name);
 }
 
+std::optional<size_t> Pattern::trackByName(std::string_view name) const
+{
+    const auto track = std::ranges::find_if(m_trackOrder, [=](auto && track) {
+        return track->name() == name;
+    });
+    return track != m_trackOrder.end() ? std::optional<size_t> { (*track)->index() } : std::optional<size_t> {};
+}
+
+std::optional<size_t> Pattern::columnByName(size_t trackIndex, std::string_view name) const
+{
+    if (const auto track = trackByIndex(trackIndex); track) {
+        return track->columnByName(name);
+    }
+    return {};
+}
+
 size_t Pattern::maxIndex() const
 {
     if (const auto it = std::ranges::max_element(m_trackOrder, [](auto && a, auto && b) { return a->index() < b->index(); }); it != m_trackOrder.end()) {

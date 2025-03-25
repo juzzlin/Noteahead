@@ -72,6 +72,8 @@ public:
     void setTrackName(size_t trackIndex, std::string name);
     std::string columnName(size_t trackIndex, size_t columnIndex) const;
     void setColumnName(size_t trackIndex, size_t columnIndex, std::string name);
+    std::optional<size_t> trackByName(std::string_view name) const;
+    std::optional<size_t> columnByName(size_t trackIndex, std::string_view name) const;
 
     using TrackS = std::shared_ptr<Track>;
     void setTrackAtPosition(size_t position, TrackS track);

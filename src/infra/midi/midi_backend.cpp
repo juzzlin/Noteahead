@@ -15,7 +15,7 @@
 
 #include "midi_backend.hpp"
 
-#include "../common/utils.hpp"
+#include "../../common/utils.hpp"
 
 #include <algorithm>
 

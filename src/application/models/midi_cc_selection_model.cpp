@@ -16,7 +16,7 @@
 #include "midi_cc_selection_model.hpp"
 
 #include "../../contrib/SimpleLogger/src/simple_logger.hpp"
-#include "../../infra/midi_cc.hpp"
+#include "../../infra/midi/midi_cc.hpp"
 
 namespace noteahead {
 

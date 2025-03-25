@@ -352,6 +352,16 @@ void Song::setColumnName(size_t trackIndex, size_t columnIndex, std::string name
     return m_patterns.at(0)->setColumnName(trackIndex, columnIndex, name);
 }
 
+std::optional<size_t> Song::trackByName(std::string_view name) const
+{
+    return !name.empty() ? m_patterns.at(0)->trackByName(name) : std::optional<size_t> {};
+}
+
+std::optional<size_t> Song::columnByName(size_t trackIndex, std::string_view name) const
+{
+    return !name.empty() ? m_patterns.at(0)->columnByName(trackIndex, name) : std::optional<size_t> {};
+}
+
 void Song::setInstrument(size_t trackIndex, InstrumentS instrument)
 {
     m_patterns.at(0)->setInstrument(trackIndex, instrument);

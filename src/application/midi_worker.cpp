@@ -17,8 +17,8 @@
 
 #include "../contrib/SimpleLogger/src/simple_logger.hpp"
 #include "../domain/instrument.hpp"
-#include "../infra/midi_backend_rt_midi.hpp"
-#include "../infra/midi_cc.hpp"
+#include "../infra/midi/midi_backend_rt_midi.hpp"
+#include "../infra/midi/midi_cc.hpp"
 #include "instrument_request.hpp"
 
 #include <chrono>

@@ -15,20 +15,18 @@
 
 #include "video_generator.hpp"
 
-#include "../application/mixer_service.hpp"
-#include "../contrib/SimpleLogger/src/simple_logger.hpp"
-#include "../domain/instrument.hpp"
-#include "../domain/note_data.hpp"
+#include "../../contrib/SimpleLogger/src/simple_logger.hpp"
+#include "default_particle_animation.hpp"
 
 #include <algorithm>
 #include <future>
+#include <iomanip>
 #include <ranges>
 #include <semaphore>
 
 #include <QDir>
 #include <QPainter>
 #include <QProcess>
-#include <QRandomGenerator>
 
 namespace noteahead {
 
@@ -39,16 +37,12 @@ VideoGenerator::VideoGenerator(MixerServiceS mixerService)
 {
 }
 
-void VideoGenerator::initialize(const Config & config)
+void VideoGenerator::initialize(const VideoConfig & config)
 {
     m_config = config;
     m_eventMap.clear();
-    m_allInstruments.clear();
     for (auto && event : m_song->renderToEvents(config.startPosition)) {
         m_eventMap[event->tick()].push_back(event);
-        if (event->instrument()) {
-            m_allInstruments.insert(event->instrument());
-        }
     }
     const double tickDurationMs = 60'000 / (static_cast<double>(m_song->beatsPerMinute() * m_song->linesPerBeat() * m_song->ticksPerLine()));
     const auto [minTick, maxTick] = std::ranges::minmax(m_eventMap | std::views::keys);
@@ -60,92 +54,7 @@ void VideoGenerator::initialize(const Config & config)
     juzzlin::L(TAG).info() << "Max tick (+ lead-out time): " << m_maxTick;
 }
 
-bool VideoGenerator::shouldEventPlay(const Event & event) const
-{
-    if (auto && noteData = event.noteData(); noteData) {
-        return m_mixerService->shouldColumnPlay(noteData->track(), noteData->column());
-    }
-    return true;
-}
-
-void VideoGenerator::integrate(AnimationFrame & animationFrame, double dt, double floor)
-{
-    for (auto && particle : animationFrame.particles) {
-        particle.r *= particle.a;
-        particle.vX += particle.aX * dt;
-        particle.vY += particle.aY * dt;
-        particle.x += particle.vX * dt;
-        particle.y += particle.vY * dt;
-        if (particle.y > floor) {
-            particle.y = floor;
-            particle.vY = -particle.vY * 0.5;
-            particle.vX += particle.vY * 0.5 * (QRandomGenerator::global()->bounded(100) - 50) / 100;
-        }
-    }
-}
-
-void VideoGenerator::generateAnimationFrames(SongS song, const Config & config)
-{
-    juzzlin::L(TAG).info() << "Generating animation frames..";
-
-    const int numNotes = 88;
-    const int numTracks = static_cast<int>(song->trackIndices().size());
-
-    AnimationFrameS previousFrame = std::make_shared<AnimationFrame>();
-
-    const double tickDurationS = 60 / (static_cast<double>(song->beatsPerMinute() * song->linesPerBeat() * song->ticksPerLine()));
-
-    for (auto tick = m_minTick; tick <= m_maxTick; tick++) {
-        const auto newAnimationFrame = std::make_shared<AnimationFrame>(*previousFrame);
-        // Integrate previous frame
-        integrate(*newAnimationFrame, tickDurationS, config.height);
-        // Remove small-radius particles
-        newAnimationFrame->particles.erase(std::ranges::remove_if(newAnimationFrame->particles, [](const auto & particle) { return particle.r < 0.001; }).begin(), newAnimationFrame->particles.end());
-
-        // Create new particles for new notes
-        if (auto && eventsAtTick = m_eventMap.find(tick); eventsAtTick != m_eventMap.end()) {
-            for (auto && event : eventsAtTick->second) {
-                if (shouldEventPlay(*event)) {
-                    if (auto && noteData = event->noteData(); noteData) {
-                        if (noteData->type() == NoteData::Type::NoteOn && noteData->note().has_value()) {
-                            const double effectiveVelocity = m_mixerService->effectiveVelocity(noteData->track(), noteData->column(), noteData->velocity());
-                            const auto note = *event->noteData()->note() - 21; // Map MIDI note to 0-87 range
-                            if (const auto track = song->trackPositionByIndex(event->noteData()->track()); track.has_value()) {
-                                AnimationFrame::Particle particle;
-                                const auto noteParticleX = note * config.width / numNotes + config.width / numNotes / 2;
-                                particle.x = noteParticleX;
-                                const auto noteParticleY = static_cast<int>(*track) * config.height / numTracks + config.height / numTracks / 2;
-                                particle.y = noteParticleY;
-                                particle.r = effectiveVelocity / 127;
-                                particle.midiNote = note;
-                                particle.a = 0.99;
-                                juzzlin::L(TAG).debug() << "x: " << particle.x << " y: " << particle.y << " r: " << particle.r;
-                                newAnimationFrame->particles.push_back(particle);
-
-                                for (int i = 0; i < 5; i++) {
-                                    AnimationFrame::Particle particle;
-                                    particle.x = noteParticleX + QRandomGenerator::global()->bounded(10) - 5;
-                                    particle.y = noteParticleY;
-                                    particle.aY = 90 + QRandomGenerator::global()->bounded(10);
-                                    particle.r = 0.125;
-                                    particle.midiNote = note;
-                                    particle.a = 0.999;
-                                    juzzlin::L(TAG).debug() << "x: " << particle.x << " y: " << particle.y << " r: " << particle.r;
-                                    newAnimationFrame->particles.push_back(particle);
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        m_animationFrames[tick] = newAnimationFrame;
-        previousFrame = newAnimationFrame;
-    }
-}
-
-void VideoGenerator::generateVideoFrames(SongS song, const Config & config)
+void VideoGenerator::generateVideoFrames(SongS song, const VideoConfig & config)
 {
     const auto fps = m_config.fps;
     const auto totalFrames = config.length.has_value()
@@ -168,9 +77,9 @@ void VideoGenerator::generateVideoFrames(SongS song, const Config & config)
                            << std::setw(3) << std::setfill('0') << millis;
 
     const auto outputDir = QString::fromStdString(config.outputDir);
-    juzzlin::L(TAG).debug() << "Writing frames to '" << outputDir.toStdString() << "'";
+    juzzlin::L(TAG).debug() << "Writing frames to " << std::quoted(outputDir.toStdString());
     if (QDir dir { outputDir }; !dir.exists()) {
-        juzzlin::L(TAG).info() << "Creating '" << outputDir.toStdString() << "'";
+        juzzlin::L(TAG).info() << "Creating " << std::quoted(outputDir.toStdString());
         dir.mkpath(outputDir);
     }
 
@@ -212,7 +121,7 @@ void VideoGenerator::runCommand(const QStringList & args) const
     juzzlin::L(TAG).info() << "Process finished with exit code:" << process.exitCode();
 }
 
-void VideoGenerator::renderVideo(const Config & config)
+void VideoGenerator::renderVideo(const VideoConfig & config)
 {
     juzzlin::L(TAG).info() << "Rendering video..";
 
@@ -229,13 +138,13 @@ void VideoGenerator::renderVideo(const Config & config)
         "-c:a", QString::fromStdString(config.audioCodec),
         "-b:a", "320k",
         "-ar", "48000",
-        QString::fromStdString(config.songPath) + ".youtube.mp4"
+        QString::fromStdString(config.songPath) + ".mp4"
     };
 
     runCommand(ffmpegArgs);
 }
 
-void VideoGenerator::run(SongS song, const Config & config)
+void VideoGenerator::run(SongS song, const VideoConfig & config)
 {
     if (m_song = song; !m_song) {
         return;
@@ -243,7 +152,8 @@ void VideoGenerator::run(SongS song, const Config & config)
 
     initialize(config);
 
-    generateAnimationFrames(song, config);
+    m_animation = std::make_unique<DefaultParticleAnimation>(song, config, m_mixerService, m_minTick, m_maxTick);
+    m_animation->generateAnimationFrames(m_eventMap);
 
     generateVideoFrames(song, config);
 
@@ -252,62 +162,56 @@ void VideoGenerator::run(SongS song, const Config & config)
     juzzlin::L(TAG).info() << "Done.";
 }
 
-QColor noteColor(int midiNote)
+void renderTrackBackgrounds(VideoGenerator::SongS song, const VideoConfig & config, QPainter & painter)
 {
-    const int minNote = 21;
-    const int maxNote = 108;
-    const int numKeys = maxNote - minNote + 1;
-
-    double normalized = static_cast<double>(midiNote - minNote) / (numKeys - 1);
-    double red = 1.0;
-    double green = 2.0 * normalized;
-    if (green > 1.0) {
-        red = 2.0 - 2.0 * normalized;
-        green = 1.0;
-    }
-
-    return QColor::fromRgbF(static_cast<float>(red), static_cast<float>(green), 0, 1);
-}
-
-void renderTrackBackgrounds(VideoGenerator::SongS song, const VideoGenerator::Config & config, QPainter & painter)
-{
+    painter.save();
     static const std::vector<QString> trackColors = {
-        "#202020", "#242424"
+        "#000000", "#ffffff"
     };
     const int trackHeight = config.height / static_cast<int>(song->trackCount());
     for (size_t trackIndex = 0; trackIndex < song->trackCount(); trackIndex++) {
         const QColor trackColor { trackColors.at(trackIndex % trackColors.size()) };
         QRect trackRect { 0, static_cast<int>(trackIndex) * trackHeight, static_cast<int>(config.width), static_cast<int>(trackHeight) };
+        painter.setOpacity(config.trackOpacity);
         painter.fillRect(trackRect, trackColor);
     }
+    painter.restore();
 }
 
-void renderImage(const VideoGenerator::Config & config, QPainter & painter)
+void renderImage(const VideoConfig & config, QPainter & painter, size_t frameIndex)
 {
+    painter.save();
     if (!config.image.isNull()) {
         const int imageHeight = config.height;
         const double aspectRatio = static_cast<double>(config.image.width()) / config.image.height();
         const int imageWidth = static_cast<int>(imageHeight * aspectRatio);
-        const int x = (config.width - imageWidth) / 2;
-        const int y = 0;
-        painter.setOpacity(0.25);
-        painter.drawImage(QRect { x, y, imageWidth, imageHeight }, config.image);
-        painter.setOpacity(1.0);
+        const double zoomFactor = 1.0 + static_cast<double>(frameIndex) * config.imageZoomSpeed;
+        const double zoomedWidth = imageWidth * zoomFactor;
+        const double zoomedHeight = imageHeight * zoomFactor;
+        const double x = (config.width - zoomedWidth) / 2.0;
+        const double y = (config.height - zoomedHeight) / 2.0;
+
+        painter.setOpacity(config.imageOpacity);
+        painter.drawImage(QRectF { x, y, zoomedWidth, zoomedHeight }, config.image);
     }
+    painter.restore();
 }
 
-void renderLogo(const VideoGenerator::Config & config, QPainter & painter)
+void renderLogo(const VideoConfig & config, QPainter & painter, size_t frameIndex)
 {
+    painter.save();
     if (!config.logo.isNull()) {
         const int x = config.logoX;
         const int y = config.logoY;
+        painter.setOpacity(1.0 * std::pow(config.logoFadeFactor, frameIndex));
         painter.drawImage(QRect { x, y, config.logo.width(), config.logo.height() }, config.logo);
-        painter.setOpacity(1.0);
     }
+    painter.restore();
 }
 
-void renderScrollingText(VideoGenerator::SongS song, const VideoGenerator::Config & config, QPainter & painter, double currentTimeMs)
+void renderScrollingText(VideoGenerator::SongS song, const VideoConfig & config, QPainter & painter, double currentTimeMs)
 {
+    painter.save();
     if (!config.scrollingText.empty()) {
         const int trackHeight = config.height / static_cast<int>(song->trackCount());
         const auto scrollText = QString::fromStdString(config.scrollingText);
@@ -316,6 +220,7 @@ void renderScrollingText(VideoGenerator::SongS song, const VideoGenerator::Confi
         auto font = QFont { "Arial", textHeight };
         font.setBold(true);
         font.setCapitalization(QFont::Capitalization::AllUppercase);
+        painter.setOpacity(config.scrollingTextOpacity);
         painter.setFont(font);
         const auto textWidth = painter.fontMetrics().horizontalAdvance(scrollText);
         const auto lastTrackIndex = song->trackCount() - 1;
@@ -327,41 +232,21 @@ void renderScrollingText(VideoGenerator::SongS song, const VideoGenerator::Confi
             painter.drawText(scrollTextX, scrollTextY + textHeight, scrollText);
         }
     }
+    painter.restore();
 }
 
-void VideoGenerator::renderAnimationFrame(const Config & config, QPainter & painter, size_t frameIndex, double currentTimeMs)
-{
-    const double tickDurationMs = 60'000.0 / (static_cast<double>(m_song->beatsPerMinute() * m_song->linesPerBeat() * m_song->ticksPerLine()));
-    const size_t currentTick = m_minTick + static_cast<size_t>((currentTimeMs - static_cast<double>(config.leadInTime.count())) / tickDurationMs);
-    if (currentTick <= m_maxTick) {
-        if (const auto it = m_animationFrames.find(currentTick); it != m_animationFrames.end()) {
-            juzzlin::L(TAG).info() << "Generating video frame " << frameIndex << " of animation frame " << currentTick;
-            const auto maxRadius = config.height / static_cast<int>(m_song->trackCount() + 1) / 3;
-            for (auto && particle : it->second->particles) {
-                const auto color = noteColor(particle.midiNote);
-                painter.setPen(color);
-                painter.setBrush(color);
-                const auto radius = static_cast<int>(particle.r * maxRadius); // Scale radius
-                painter.drawEllipse(QPoint { static_cast<int>(particle.x), static_cast<int>(particle.y) }, radius, radius);
-            }
-        } else {
-            juzzlin::L(TAG).warning() << "Animation frame for video frame " << frameIndex << " not found at tick " << currentTick;
-        }
-    }
-}
-
-void writeVideoFrame(const QImage & frame, const VideoGenerator::Config & config, size_t frameIndex)
+void writeVideoFrame(const QImage & frame, const VideoConfig & config, size_t frameIndex)
 {
     const auto outputDir = QString::fromStdString(config.outputDir);
     const auto filePath = QString { "%1/frame_%2.png" }.arg(outputDir).arg(frameIndex, 5, 10, QChar('0'));
     if (const auto success = frame.save(filePath); !success) {
-        throw std::runtime_error(
-          std::string {
-            "Cannot write file '" + filePath.toStdString() + "'" });
+        std::stringstream ss;
+        ss << "Cannot write file " << std::quoted(filePath.toStdString());
+        throw std::runtime_error(ss.str());
     }
 }
 
-void VideoGenerator::generateVideoFrame(SongS song, const Config & config, size_t frameIndex, double currentTimeMs)
+void VideoGenerator::generateVideoFrame(SongS song, const VideoConfig & config, size_t frameIndex, double currentTimeMs)
 {
     QImage frame { static_cast<int>(config.width), static_cast<int>(config.height), QImage::Format_ARGB32 };
     frame.fill("#222222");
@@ -369,13 +254,16 @@ void VideoGenerator::generateVideoFrame(SongS song, const Config & config, size_
     QPainter painter { &frame };
     painter.setRenderHint(QPainter::Antialiasing);
 
+    renderImage(config, painter, frameIndex);
     renderTrackBackgrounds(song, config, painter);
-    renderImage(config, painter);
-    renderLogo(config, painter);
+    renderLogo(config, painter, frameIndex);
     renderScrollingText(song, config, painter, currentTimeMs);
-    renderAnimationFrame(config, painter, frameIndex, currentTimeMs);
+
+    m_animation->renderAnimationFrame(painter, frameIndex, currentTimeMs);
 
     writeVideoFrame(frame, config, frameIndex);
 }
+
+VideoGenerator::~VideoGenerator() = default;
 
 } // namespace noteahead
