@@ -103,6 +103,12 @@ void Track::setColumnName(size_t columnIndex, std::string name)
     m_columns.at(columnIndex)->setName(name);
 }
 
+std::optional<size_t> Track::columnByName(std::string_view name) const
+{
+    const auto column = std::ranges::find_if(m_columns, [=](auto && column) { return column->name() == name; });
+    return column != m_columns.end() ? (*column)->index() : std::optional<size_t> {};
+}
+
 size_t Track::columnCount() const
 {
     return m_virtualColumnCount;

@@ -372,6 +372,31 @@ void SongTest::test_renderToEvents_sameColumn_shouldAddNoteOff()
     QCOMPARE(noteOn->noteData()->note(), 60);
 }
 
+void SongTest::test_trackByName_shouldReturnTrack()
+{
+    Song song;
+    song.setTrackName(1, "Foo");
+
+    QVERIFY(!song.trackByName("").has_value());
+    QVERIFY(!song.trackByName("Bar").has_value());
+    QVERIFY(song.trackByName("Foo").has_value());
+    QCOMPARE(song.trackByName("Foo").value(), 1);
+}
+
+void SongTest::test_columnByName_shouldReturnColumn()
+{
+    Song song;
+    song.setTrackName(1, "Foo");
+    song.setColumnName(1, 0, "Bar");
+
+    QVERIFY(!song.columnByName(0, "").has_value());
+    QVERIFY(!song.columnByName(0, "Bar").has_value());
+    QVERIFY(!song.columnByName(1, "Foo").has_value());
+    QVERIFY(!song.columnByName(1, "").has_value());
+    QVERIFY(song.columnByName(1, "Bar").has_value());
+    QCOMPARE(song.columnByName(1, "Bar").value(), 0);
+}
+
 } // namespace noteahead
 
 QTEST_GUILESS_MAIN(noteahead::SongTest)

@@ -47,12 +47,15 @@ set(HEADER_FILES
   domain/play_order.hpp
   domain/song.hpp
   domain/track.hpp
-  infra/midi_backend.hpp
-  infra/midi_backend_rt_midi.hpp
-  infra/midi_cc.hpp
-  infra/midi_device.hpp
+  infra/midi/midi_backend.hpp
+  infra/midi/midi_backend_rt_midi.hpp
+  infra/midi/midi_cc.hpp
+  infra/midi/midi_device.hpp
   infra/settings.hpp
-  infra/video_generator.hpp
+  infra/video/animation.hpp
+  infra/video/default_particle_animation.hpp
+  infra/video/video_config.hpp
+  infra/video/video_generator.hpp
 )
 
 set(SOURCE_FILES
@@ -93,12 +96,14 @@ set(SOURCE_FILES
   domain/play_order.cpp
   domain/song.cpp
   domain/track.cpp
-  infra/midi_backend.cpp
-  infra/midi_cc.cpp
-  infra/midi_backend_rt_midi.cpp
-  infra/midi_device.cpp
+  infra/midi/midi_backend.cpp
+  infra/midi/midi_cc.cpp
+  infra/midi/midi_backend_rt_midi.cpp
+  infra/midi/midi_device.cpp
   infra/settings.cpp
-  infra/video_generator.cpp
+  infra/video/animation.cpp
+  infra/video/default_particle_animation.cpp
+  infra/video/video_generator.cpp
   main.cpp
 )
 

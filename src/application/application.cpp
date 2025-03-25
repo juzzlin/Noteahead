@@ -17,7 +17,7 @@
 
 #include "../contrib/Argengine/src/argengine.hpp"
 #include "../contrib/SimpleLogger/src/simple_logger.hpp"
-#include "../infra/video_generator.hpp"
+#include "../infra/video/video_generator.hpp"
 #include "application_service.hpp"
 #include "common/utils.hpp"
 #include "config.hpp"
@@ -58,6 +58,8 @@ Application::Application(int & argc, char ** argv)
   , m_trackSettingsModel { std::make_unique<TrackSettingsModel>() }
   , m_engine { std::make_unique<QQmlApplicationEngine>() }
 {
+    std::setlocale(LC_NUMERIC, "en_US.UTF-8"); // Parse decimal values consistently in CLI options
+
     qmlRegisterType<UiLogger>("Noteahead", 1, 0, "UiLogger");
     qmlRegisterType<ApplicationService>("Noteahead", 1, 0, "ApplicationService");
     qmlRegisterType<Config>("Noteahead", 1, 0, "Config");
@@ -94,6 +96,8 @@ void Application::addVideoOptions(juzzlin::Argengine & ae)
         m_videoConfig.songPath = value; }, false, "The .nahd song to create a video from.");
 
     ae.addOption({ "--video-image" }, [this](const std::string & value) { m_videoConfig.imagePath = value; }, false, "An optional background image for the video.");
+    ae.addOption({ "--video-image-opacity" }, [this](const std::string & value) { m_videoConfig.imageOpacity = std::stod(value); }, false, "Opacity of the background image.");
+    ae.addOption({ "--video-image-zoom-speed" }, [this](const std::string & value) { m_videoConfig.imageZoomSpeed = std::stod(value); }, false, "Zoom speed for the background image, e.g. 0.0001. The default is zero.");
     ae.addOption({ "--video-logo" }, [this](const std::string & value) { m_videoConfig.logoPath = value; }, false, "An optional logo for the video.");
     ae.addOption({ "--video-logo-pos" }, [this](const std::string & value) {
         const auto valueString = QString::fromStdString(value);
@@ -103,6 +107,12 @@ void Application::addVideoOptions(juzzlin::Argengine & ae)
         } else {
             throw std::runtime_error { std::string { "Invalid syntax for size: " } + value};
         } }, false, "Position of the logo image. The default is 0,0.");
+    ae.addOption({ "--video-logo-fade-factor" }, [this](const std::string & value) { m_videoConfig.logoFadeFactor = std::stod(value); }, false, "Fade out factor for the logo, e.g. 0.99. The default is 1.0.");
+
+    ae.addOption({ "--video-track-opacity" }, [this](const std::string & value) { m_videoConfig.trackOpacity = std::stod(value); }, false, "Opacity of the track lanes.");
+
+    ae.addOption({ "--video-flash-track" }, [this](const std::string & value) { m_videoConfig.flashTrackName = value; }, false, "Source track name for a flash effect.");
+    ae.addOption({ "--video-flash-column" }, [this](const std::string & value) { m_videoConfig.flashColumnName = value; }, false, "Source column name for a flash effect.");
 
     ae.addOption({ "--video-fps" }, [this](const std::string & value) { m_videoConfig.fps = std::stoul(value); }, false, "FPS of the generated video. The default is 60 fps.");
     ae.addOption({ "--video-size" }, [this](const std::string & value) {
