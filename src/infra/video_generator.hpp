@@ -24,6 +24,7 @@
 #include <optional>
 #include <string>
 
+#include <QDateTime>
 #include <QImage>
 
 class QPainter;
@@ -46,17 +47,21 @@ public:
 
         size_t fps = 60;
 
-        std::string songPath;
+        std::string ffmpegPath = "ffmpeg";
+        std::string audioCodec = "libfdk_aac";
+        std::string videoCodec = "libx264";
 
+        std::string audioPath;
+        std::string songPath;
         std::string imagePath;
         QImage image;
 
         std::string logoPath;
-        int logoX = 0;
-        int logoY = 0;
+        int logoX = 16;
+        int logoY = 16;
         QImage logo;
 
-        std::string outputDir;
+        std::string outputDir = "Frames-" + std::to_string(QDateTime::currentSecsSinceEpoch());
 
         size_t startPosition = 0;
         std::chrono::milliseconds leadInTime;
@@ -67,15 +72,19 @@ public:
     };
 
     using SongS = std::shared_ptr<Song>;
-    void generateVideoFrames(SongS song, const Config & config);
+    void run(SongS song, const Config & config);
 
 private:
     void initialize(const Config & config);
 
     void generateAnimationFrames(SongS song, const Config & config);
     void generateVideoFrame(SongS song, const Config & config, size_t frameIndex, double currentTimeMs);
+    void generateVideoFrames(SongS song, const Config & config);
 
     void renderAnimationFrame(const Config & config, QPainter & painter, size_t frameIndex, double currentTimeMs);
+    void renderVideo(const Config & config);
+
+    void runCommand(const QStringList & args) const;
 
     bool shouldEventPlay(const Event & event) const;
 

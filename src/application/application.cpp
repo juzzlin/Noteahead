@@ -84,6 +84,11 @@ Application::Application(int & argc, char ** argv)
 
 void Application::addVideoOptions(juzzlin::Argengine & ae)
 {
+    ae.addOption({ "--video-ffmpeg" }, [this](const std::string & value) { m_videoConfig.ffmpegPath = value; }, false, "Custom path for ffmpeg executable.");
+
+    ae.addOption({ "--video-audio" }, [this](const std::string & value) { m_videoConfig.audioPath = value; }, false, "The audio file to create a video from.");
+    ae.addOption({ "--video-audio-codec" }, [this](const std::string & value) { m_videoConfig.audioCodec = value; }, false, "The audio codec given to ffmpeg.");
+    ae.addOption({ "--video-video-codec" }, [this](const std::string & value) { m_videoConfig.videoCodec = value; }, false, "The video codec given to ffmpeg.");
     ae.addOption({ "--video-song" }, [this](const std::string & value) {
         m_videoGeneratorEnabled = true;
         m_videoConfig.songPath = value; }, false, "The .nahd song to create a video from.");
@@ -109,7 +114,7 @@ void Application::addVideoOptions(juzzlin::Argengine & ae)
             throw std::runtime_error { std::string { "Invalid syntax for size: " } + value};
         } }, false, "Size of the generated video. The default is 1920x1080.");
 
-    ae.addOption({ "--video-output-dir" }, [this](const std::string & value) { m_videoConfig.outputDir = value; }, false, "The output directory for the generated video frames. Will be created if doesn't exist.");
+    ae.addOption({ "--video-output-dir" }, [this](const std::string & value) { m_videoConfig.outputDir = value + "-" + std::to_string(QDateTime::currentSecsSinceEpoch()); }, false, "The output directory for the generated video frames. Will be created if doesn't exist.");
 
     ae.addOption({ "--video-start-pos" }, [this](const std::string & value) { m_videoConfig.startPosition = std::stoul(value); }, false, "The song play order position to start the video generation at. The default is 0.");
     ae.addOption({ "--video-length" }, [this](const std::string & value) { m_videoConfig.length = std::chrono::milliseconds { std::stoul(value) }; }, false, "The length of the video in milliseconds. The default is the whole song.");
@@ -117,8 +122,6 @@ void Application::addVideoOptions(juzzlin::Argengine & ae)
     ae.addOption({ "--video-lead-out-time" }, [this](const std::string & value) { m_videoConfig.leadOutTime = std::chrono::milliseconds { std::stoul(value) }; }, false, "The lead-out time for the video to match audio in milliseconds. The default is 0 ms.");
 
     ae.addOption({ "--video-scrolling-text" }, [this](const std::string & value) { m_videoConfig.scrollingText = value; }, false, "An optional text to scroll during the video.");
-
-    ae.addOptionGroup({ "--video-song", "--video-output-dir" });
 }
 
 void Application::handleCommandLineArguments(int & argc, char ** argv)
@@ -248,7 +251,7 @@ int Application::runVideoGenerator()
     m_editorService->load(QString::fromStdString(m_videoConfig.songPath));
     m_videoConfig.image = !m_videoConfig.imagePath.empty() ? QImage { QString::fromStdString(m_videoConfig.imagePath) } : QImage {};
     m_videoConfig.logo = !m_videoConfig.logoPath.empty() ? QImage { QString::fromStdString(m_videoConfig.logoPath) } : QImage {};
-    videoGenerator.generateVideoFrames(m_editorService->song(), m_videoConfig);
+    videoGenerator.run(m_editorService->song(), m_videoConfig);
 
     return EXIT_SUCCESS;
 }

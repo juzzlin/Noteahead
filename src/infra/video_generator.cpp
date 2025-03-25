@@ -27,6 +27,7 @@
 
 #include <QDir>
 #include <QPainter>
+#include <QProcess>
 #include <QRandomGenerator>
 
 namespace noteahead {
@@ -146,19 +147,11 @@ void VideoGenerator::generateAnimationFrames(SongS song, const Config & config)
 
 void VideoGenerator::generateVideoFrames(SongS song, const Config & config)
 {
-    if (m_song = song; !m_song) {
-        return;
-    }
-
-    initialize(config);
-
     const auto fps = m_config.fps;
     const auto totalFrames = config.length.has_value()
       ? fps * static_cast<size_t>(config.length->count() + config.leadInTime.count() + config.leadOutTime.count()) / 1'000
       : fps * static_cast<size_t>(song->duration(config.startPosition).count() + config.leadInTime.count() + config.leadOutTime.count()) / 1'000;
     const double frameDurationMs = 1'000.0 / static_cast<double>(fps);
-
-    generateAnimationFrames(song, config);
 
     juzzlin::L(TAG).info() << "Generating " << totalFrames << " video frames at " << fps << " FPS";
 
@@ -174,6 +167,13 @@ void VideoGenerator::generateVideoFrames(SongS song, const Config & config)
                            << std::setw(2) << std::setfill('0') << seconds << "."
                            << std::setw(3) << std::setfill('0') << millis;
 
+    const auto outputDir = QString::fromStdString(config.outputDir);
+    juzzlin::L(TAG).debug() << "Writing frames to '" << outputDir.toStdString() << "'";
+    if (QDir dir { outputDir }; !dir.exists()) {
+        juzzlin::L(TAG).info() << "Creating '" << outputDir.toStdString() << "'";
+        dir.mkpath(outputDir);
+    }
+
     // Limit concurrent threads using a dynamically allocated semaphore
     const auto maxThreads = std::max(1u, std::thread::hardware_concurrency()); // At least 1 thread
     const auto semaphore = std::make_unique<std::counting_semaphore<>>(maxThreads);
@@ -182,8 +182,8 @@ void VideoGenerator::generateVideoFrames(SongS song, const Config & config)
         semaphore->acquire(); // Wait for a thread slot to be available
         futures.push_back(std::async(std::launch::async, [&, frameIndex]() {
             const double currentTimeMs = frameDurationMs * static_cast<double>(frameIndex);
-            generateVideoFrame(song, config, frameIndex, currentTimeMs);
             juzzlin::L(TAG).info() << "Frame " << frameIndex + 1 << "/" << totalFrames; // SimpleLogger is thread-safe
+            generateVideoFrame(song, config, frameIndex, currentTimeMs);
             semaphore->release(); // Release the thread slot when done
         }));
     }
@@ -192,6 +192,62 @@ void VideoGenerator::generateVideoFrames(SongS song, const Config & config)
     for (auto & future : futures) {
         future.get();
     }
+}
+
+void VideoGenerator::runCommand(const QStringList & args) const
+{
+    QProcess process;
+    process.setProcessChannelMode(QProcess::MergedChannels);
+    process.start(args[0], args.mid(1));
+
+    if (!process.waitForStarted()) {
+        throw std::runtime_error("Failed to start process: " + args.at(0).toStdString());
+    }
+
+    while (process.waitForReadyRead()) {
+        juzzlin::L(TAG).info() << process.readAll().toStdString();
+    }
+
+    process.waitForFinished();
+    juzzlin::L(TAG).info() << "Process finished with exit code:" << process.exitCode();
+}
+
+void VideoGenerator::renderVideo(const Config & config)
+{
+    juzzlin::L(TAG).info() << "Rendering video..";
+
+    // Run ffmpeg
+    QStringList ffmpegArgs {
+        QString::fromStdString(config.ffmpegPath),
+        "-y",
+        "-framerate", QString::number(config.fps),
+        "-i", QString::fromStdString(config.outputDir) + "/frame_%05d.png",
+        "-i", QString::fromStdString(config.audioPath),
+        "-c:v", QString::fromStdString(config.videoCodec),
+        "-r", QString::number(config.fps),
+        "-pix_fmt", "yuv420p",
+        "-c:a", QString::fromStdString(config.audioCodec),
+        "-b:a", "320k",
+        "-ar", "48000",
+        QString::fromStdString(config.songPath) + ".youtube.mp4"
+    };
+
+    runCommand(ffmpegArgs);
+}
+
+void VideoGenerator::run(SongS song, const Config & config)
+{
+    if (m_song = song; !m_song) {
+        return;
+    }
+
+    initialize(config);
+
+    generateAnimationFrames(song, config);
+
+    generateVideoFrames(song, config);
+
+    renderVideo(config);
 
     juzzlin::L(TAG).info() << "Done.";
 }
@@ -297,11 +353,6 @@ void VideoGenerator::renderAnimationFrame(const Config & config, QPainter & pain
 void writeVideoFrame(const QImage & frame, const VideoGenerator::Config & config, size_t frameIndex)
 {
     const auto outputDir = QString::fromStdString(config.outputDir);
-    if (QDir dir { outputDir }; !dir.exists()) {
-        juzzlin::L(TAG).info() << "Creating '" << outputDir.toStdString() << "'";
-        dir.mkpath(outputDir);
-    }
-
     const auto filePath = QString { "%1/frame_%2.png" }.arg(outputDir).arg(frameIndex, 5, 10, QChar('0'));
     if (const auto success = frame.save(filePath); !success) {
         throw std::runtime_error(
@@ -319,12 +370,9 @@ void VideoGenerator::generateVideoFrame(SongS song, const Config & config, size_
     painter.setRenderHint(QPainter::Antialiasing);
 
     renderTrackBackgrounds(song, config, painter);
-
     renderImage(config, painter);
     renderLogo(config, painter);
-
     renderScrollingText(song, config, painter, currentTimeMs);
-
     renderAnimationFrame(config, painter, frameIndex, currentTimeMs);
 
     writeVideoFrame(frame, config, frameIndex);
