@@ -242,6 +242,7 @@ void DefaultParticleAnimation::renderNoteParticle(QPainter & painter, AnimationF
         font.setBold(true);
         font.setCapitalization(QFont::Capitalization::AllUppercase);
         painter.setFont(font);
+        painter.setOpacity(2.0 * std::pow(particle.r, 2));
         const auto noteText = QString::fromStdString(NoteConverter::midiToString(static_cast<uint8_t>(particle.midiNote) + 21));
         QFontMetrics metrics(font);
         const QRect textRect = metrics.boundingRect(noteText);
