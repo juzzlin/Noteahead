@@ -57,6 +57,7 @@ private:
             double t = 0;
 
             int midiNote = 0;
+            size_t track = 0;
         };
 
         using ParticleList = std::vector<Particle>;
@@ -66,7 +67,7 @@ private:
     void integrate(AnimationFrame & animationFrame, double dt, double floor);
 
     DefaultParticleAnimation::AnimationFrame::Particle createFlashParticle() const;
-    DefaultParticleAnimation::AnimationFrame::Particle createNoteParticle(double x, double y, int note, double velocity) const;
+    DefaultParticleAnimation::AnimationFrame::Particle createNoteParticle(double x, double y, int note, double velocity, size_t track) const;
     DefaultParticleAnimation::AnimationFrame::Particle createPrimaryParticle(double x, double y, int note, double velocity) const;
     AnimationFrame::ParticleList createSecondaryParticles(double x, double y, int note) const;
 

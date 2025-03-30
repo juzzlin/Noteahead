@@ -53,7 +53,7 @@ void DefaultParticleAnimation::integrate(AnimationFrame & animationFrame, double
     }
 }
 
-DefaultParticleAnimation::AnimationFrame::Particle DefaultParticleAnimation::createNoteParticle(double x, double y, int note, double velocity) const
+DefaultParticleAnimation::AnimationFrame::Particle DefaultParticleAnimation::createNoteParticle(double x, double y, int note, double velocity, size_t track) const
 {
     AnimationFrame::Particle particle;
     particle.role = AnimationFrame::Particle::Role::Note;
@@ -62,6 +62,7 @@ DefaultParticleAnimation::AnimationFrame::Particle DefaultParticleAnimation::cre
     particle.r = velocity;
     particle.midiNote = note;
     particle.a = 0.997;
+    particle.track = track;
     return particle;
 }
 
@@ -158,7 +159,9 @@ void DefaultParticleAnimation::generateAnimationFrames(const EventMap & events)
                                 const auto noteParticleY = static_cast<int>(*track) * config().height / numTracks + config().height / numTracks / 2;
                                 const double effectiveVelocity = static_cast<double>(mixerService()->effectiveVelocity(noteData->track(), noteData->column(), noteData->velocity())) / 127;
                                 newAnimationFrame->particles.push_back(createPrimaryParticle(noteParticleX, noteParticleY, note, effectiveVelocity));
-                                newAnimationFrame->particles.push_back(createNoteParticle(noteParticleX, noteParticleY, note, effectiveVelocity));
+                                // Remove same notes on same track to clean up note text mess
+                                newAnimationFrame->particles.erase(std::ranges::remove_if(newAnimationFrame->particles, [&](const auto & particle) { return particle.midiNote == note && particle.track == *track; }).begin(), newAnimationFrame->particles.end());
+                                newAnimationFrame->particles.push_back(createNoteParticle(noteParticleX, noteParticleY, note, effectiveVelocity, *track));
                                 std::ranges::copy(createSecondaryParticles(noteParticleX, noteParticleY, note), std::back_inserter(newAnimationFrame->particles));
                                 if (flashTrack.has_value() && *flashTrack == event->noteData()->track()) {
                                     if (!flashColumn.has_value() || *flashColumn == event->noteData()->column()) {
