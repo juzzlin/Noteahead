@@ -44,15 +44,13 @@ find_package(PkgConfig REQUIRED)
 # Use pkg-config to find RtMidi
 pkg_check_modules(RTMIDI REQUIRED rtmidi)
 
-# Sadly Ubuntu 24.04 LTS has only Qt 6.4.2
+# Note: Sadly Ubuntu 24.04 LTS has only Qt 6.4.2 (compiles, but the UI has some issues)
 find_package(QT NAMES Qt6 COMPONENTS Core REQUIRED)
-find_package(Qt6 6.4 COMPONENTS Core Quick Xml LinguistTools Test REQUIRED)
-if(QT_VERSION_MAJOR EQUAL 6 AND QT_VERSION_MINOR GREATER_EQUAL 5)
-    qt_standard_project_setup(REQUIRES 6.5)
-    qt_policy(SET QTP0001 NEW)
-else()
-    qt_standard_project_setup(REQUIRES 6.4)
-endif()
+set(QT_MIN_VERSION 6.5)
+find_package(Qt6 ${QT_MIN_VERSION} COMPONENTS Core Quick Xml LinguistTools Test REQUIRED)
+qt_standard_project_setup(REQUIRES ${QT_MIN_VERSION})
+# See https://doc.qt.io/qt-6/qt-cmake-policy-qtp0001.html
+qt_policy(SET QTP0001 NEW)
 message(STATUS "Qt version found  : ${QT_VERSION_MAJOR}.${QT_VERSION_MINOR}.${QT_VERSION_PATCH}\n")
 
 add_definitions(-DVERSION="${VERSION}")

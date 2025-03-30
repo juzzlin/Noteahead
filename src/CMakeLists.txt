@@ -107,9 +107,6 @@ set(SOURCE_FILES
   main.cpp
 )
 
-# See https://doc.qt.io/qt-6/qt-cmake-policy-qtp0001.html
-qt_policy(SET QTP0001 NEW)
-
 qt_add_executable(${BINARY_NAME} ${HEADER_FILES} ${SOURCE_FILES})
 
 set(URI ${BINARY_NAME})
