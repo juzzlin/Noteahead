@@ -117,7 +117,7 @@ Currently Noteahead depends on Qt >= 6.5. Actually that's the only thing that de
 Noteahead is currently being developing on Ubuntu 22.04 LTS with the official Qt SDK and on Ubuntu 24.10 with the stock Qt from repositories.
 
 ###
-### Build dependencies on Ubuntu 24.04+
+### Build dependencies on Ubuntu 24.10+
 
 Packages needed for building:
 
