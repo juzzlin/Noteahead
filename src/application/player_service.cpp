@@ -34,7 +34,7 @@ PlayerService::PlayerService(MidiServiceS midiService, MixerServiceS mixerServic
     initializeWorker();
 }
 
-void PlayerService::setSongPosition(size_t position)
+void PlayerService::setSongPosition(quint64 position)
 {
     m_songPosition = position;
 }

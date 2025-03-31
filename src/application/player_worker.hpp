@@ -41,11 +41,11 @@ public:
 
     struct Timing
     {
-        size_t beatsPerMinute = 0;
+        quint64 beatsPerMinute = 0;
 
-        size_t linesPerBeat = 0;
+        quint64 linesPerBeat = 0;
 
-        size_t ticksPerLine = 0;
+        quint64 ticksPerLine = 0;
     };
 
     using MidiServiceS = std::shared_ptr<MidiService>;
@@ -66,10 +66,10 @@ public:
 signals:
     void isPlayingChanged();
     void songEnded();
-    void tickUpdated(size_t tick);
+    void tickUpdated(quint64 tick);
 
 private:
-    size_t effectiveTick(size_t tick, size_t minTick, size_t maxTick) const;
+    quint64 effectiveTick(quint64 tick, quint64 minTick, quint64 maxTick) const;
 
     void handleEvent(const Event & event) const;
     void processEvents();
@@ -83,7 +83,7 @@ private:
 
     Timing m_timing;
 
-    using EventMap = std::unordered_map<size_t, EventList>;
+    using EventMap = std::unordered_map<quint64, EventList>;
     EventMap m_eventMap;
 
     using InstrumentS = std::shared_ptr<Instrument>;

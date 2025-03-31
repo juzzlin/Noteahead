@@ -130,7 +130,7 @@ void ApplicationService::requestSaveProjectAsTemplate()
     m_stateMachine->calculateState(StateMachine::Action::SaveProjectAsTemplateRequested);
 }
 
-void ApplicationService::requestLiveNoteOn(uint8_t note, uint8_t octave, uint8_t velocity)
+void ApplicationService::requestLiveNoteOn(quint8 note, quint8 octave, quint8 velocity)
 {
     if (const auto instrument = m_editorService->instrument(m_editorService->position().track); instrument) {
         if (const auto midiNote = EditorService::editorNoteToMidiNote(note, octave); midiNote.has_value()) {
@@ -148,7 +148,7 @@ void ApplicationService::requestInstrumentReset()
     emit applyAllTrackSettingsRequested();
 }
 
-void ApplicationService::requestLiveNoteOff(uint8_t note, uint8_t octave)
+void ApplicationService::requestLiveNoteOff(quint8 note, quint8 octave)
 {
     if (const auto instrument = m_editorService->instrument(m_editorService->position().track); instrument) {
         if (const auto midiNote = EditorService::editorNoteToMidiNote(note, octave); midiNote.has_value()) {

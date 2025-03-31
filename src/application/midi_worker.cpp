@@ -139,7 +139,7 @@ void MidiWorker::handleInstrumentRequest(const InstrumentRequest & instrumentReq
         if (const auto device = m_midiBackend->deviceByPortName(requestedPortName.toStdString()); device) {
             m_midiBackend->openDevice(*device);
             if (instrumentRequest.type() == InstrumentRequest::Type::ApplyAll) {
-                m_midiBackend->sendCC(*device, instrument.device().channel, static_cast<uint8_t>(MidiCc::Controller::ResetAllControllers), 127);
+                m_midiBackend->sendCC(*device, instrument.device().channel, static_cast<quint8>(MidiCc::Controller::ResetAllControllers), 127);
                 if (instrument.settings().bank.has_value()) {
                     m_midiBackend->sendBankChange(*device, instrument.device().channel,
                                                   instrument.settings().bank->byteOrderSwapped ? instrument.settings().bank->lsb : instrument.settings().bank->msb,
@@ -149,15 +149,15 @@ void MidiWorker::handleInstrumentRequest(const InstrumentRequest & instrumentReq
                     m_midiBackend->sendPatchChange(*device, instrument.device().channel, *instrument.settings().patch);
                 }
                 if (instrument.settings().predefinedMidiCcSettings.pan.has_value()) {
-                    m_midiBackend->sendCC(*device, instrument.device().channel, static_cast<uint8_t>(MidiCc::Controller::PanMSB), *instrument.settings().predefinedMidiCcSettings.pan);
-                    m_midiBackend->sendCC(*device, instrument.device().channel, static_cast<uint8_t>(MidiCc::Controller::PanLSB), 0);
+                    m_midiBackend->sendCC(*device, instrument.device().channel, static_cast<quint8>(MidiCc::Controller::PanMSB), *instrument.settings().predefinedMidiCcSettings.pan);
+                    m_midiBackend->sendCC(*device, instrument.device().channel, static_cast<quint8>(MidiCc::Controller::PanLSB), 0);
                 }
                 if (instrument.settings().predefinedMidiCcSettings.volume.has_value()) {
-                    m_midiBackend->sendCC(*device, instrument.device().channel, static_cast<uint8_t>(MidiCc::Controller::ChannelVolumeMSB), *instrument.settings().predefinedMidiCcSettings.volume);
-                    m_midiBackend->sendCC(*device, instrument.device().channel, static_cast<uint8_t>(MidiCc::Controller::ChannelVolumeLSB), 0);
+                    m_midiBackend->sendCC(*device, instrument.device().channel, static_cast<quint8>(MidiCc::Controller::ChannelVolumeMSB), *instrument.settings().predefinedMidiCcSettings.volume);
+                    m_midiBackend->sendCC(*device, instrument.device().channel, static_cast<quint8>(MidiCc::Controller::ChannelVolumeLSB), 0);
                 }
                 if (instrument.settings().predefinedMidiCcSettings.cutoff.has_value()) {
-                    m_midiBackend->sendCC(*device, instrument.device().channel, static_cast<uint8_t>(MidiCc::Controller::SoundController5), *instrument.settings().predefinedMidiCcSettings.cutoff);
+                    m_midiBackend->sendCC(*device, instrument.device().channel, static_cast<quint8>(MidiCc::Controller::SoundController5), *instrument.settings().predefinedMidiCcSettings.cutoff);
                 }
                 for (auto && midiCcSetting : instrument.settings().midiCcSettings) {
                     m_midiBackend->sendCC(*device, instrument.device().channel, midiCcSetting.controller(), midiCcSetting.value());
@@ -175,7 +175,7 @@ void MidiWorker::handleInstrumentRequest(const InstrumentRequest & instrumentReq
     }
 }
 
-void MidiWorker::playAndStopMiddleC(QString portName, uint8_t channel, uint8_t velocity)
+void MidiWorker::playAndStopMiddleC(QString portName, quint8 channel, quint8 velocity)
 {
     try {
         if (const auto device = m_midiBackend->deviceByPortName(portName.toStdString()); device) {
@@ -192,7 +192,7 @@ void MidiWorker::playAndStopMiddleC(QString portName, uint8_t channel, uint8_t v
     }
 }
 
-void MidiWorker::playNote(QString portName, uint8_t channel, uint8_t midiNote, uint8_t velocity)
+void MidiWorker::playNote(QString portName, quint8 channel, quint8 midiNote, quint8 velocity)
 {
     try {
         if (const auto device = m_midiBackend->deviceByPortName(portName.toStdString()); device) {
@@ -206,7 +206,7 @@ void MidiWorker::playNote(QString portName, uint8_t channel, uint8_t midiNote, u
     }
 }
 
-void MidiWorker::stopNote(QString portName, uint8_t channel, uint8_t midiNote)
+void MidiWorker::stopNote(QString portName, quint8 channel, quint8 midiNote)
 {
     try {
         if (const auto device = m_midiBackend->deviceByPortName(portName.toStdString()); device) {
@@ -220,7 +220,7 @@ void MidiWorker::stopNote(QString portName, uint8_t channel, uint8_t midiNote)
     }
 }
 
-void MidiWorker::stopAllNotes(QString portName, uint8_t channel)
+void MidiWorker::stopAllNotes(QString portName, quint8 channel)
 {
     try {
         if (const auto device = m_midiBackend->deviceByPortName(portName.toStdString()); device) {
@@ -248,7 +248,7 @@ void MidiWorker::sendClock(QString portName)
     }
 }
 
-void MidiWorker::requestPatchChange(QString portName, uint8_t channel, uint8_t patch)
+void MidiWorker::requestPatchChange(QString portName, quint8 channel, quint8 patch)
 {
     try {
         if (const auto device = m_midiBackend->deviceByPortName(portName.toStdString()); device) {

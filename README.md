@@ -121,11 +121,11 @@ Noteahead is currently being developing on Ubuntu 22.04 LTS with the official Qt
 
 Packages needed for building:
 
-    build-essential cmake pkg-config ninja-build qt6-base-dev qt6-declarative-dev qt6-tools-dev librtmidi-dev
+    $ sudo apt install build-essential cmake pkg-config ninja-build qt6-base-dev qt6-declarative-dev qt6-tools-dev librtmidi-dev
 
 Additional packages needed to run:
 
-    qml6-module-qtqml qml6-module-qtcore qml6-module-qtquick-dialogs qml6-module-qtquick-templates qml6-module-qtquick-window
+    $ sudo apt install qml6-module-qtcore qml6-module-qtqml qml6-module-qtqml-workerscript qml6-module-qtquick qml6-module-qtquick-controls qml6-module-qtquick-dialogs qml6-module-qtquick-layouts  qml6-module-qtquick-templates qml6-module-qtquick-window
 
 ###
 ### Build and run on CLI

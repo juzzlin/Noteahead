@@ -107,10 +107,10 @@ void PlayerWorker::handleEvent(const Event & event) const
     }
 }
 
-size_t PlayerWorker::effectiveTick(size_t tick, size_t minTick, size_t maxTick) const
+quint64 PlayerWorker::effectiveTick(quint64 tick, quint64 minTick, quint64 maxTick) const
 {
     if (m_isLooping) {
-        if (const size_t range = maxTick - minTick + 1; range == 0) {
+        if (const quint64 range = maxTick - minTick + 1; range == 0) {
             return minTick; // Avoid division by zero, return a default value
         } else {
             return minTick + (tick - minTick) % range;
@@ -142,7 +142,7 @@ void PlayerWorker::processEvents()
     auto tick = minTick;
     while (m_isPlaying && (tick <= maxTick || m_isLooping)) {
         const auto effectiveTick = this->effectiveTick(tick, minTick, maxTick);
-        emit tickUpdated(static_cast<size_t>(effectiveTick));
+        emit tickUpdated(static_cast<quint64>(effectiveTick));
         if (auto && eventsAtTick = m_eventMap.find(effectiveTick); eventsAtTick != m_eventMap.end()) {
             for (auto && event : eventsAtTick->second) {
                 handleEvent(*event);

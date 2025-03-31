@@ -39,16 +39,16 @@ class EditorService : public QObject
 {
     Q_OBJECT
 
-    Q_PROPERTY(size_t beatsPerMinute READ beatsPerMinute NOTIFY beatsPerMinuteChanged)
-    Q_PROPERTY(size_t linesPerBeat READ linesPerBeat NOTIFY linesPerBeatChanged)
+    Q_PROPERTY(quint64 beatsPerMinute READ beatsPerMinute NOTIFY beatsPerMinuteChanged)
+    Q_PROPERTY(quint64 linesPerBeat READ linesPerBeat NOTIFY linesPerBeatChanged)
 
     Q_PROPERTY(bool isModified READ isModified NOTIFY isModifiedChanged)
     Q_PROPERTY(bool canBeSaved READ canBeSaved NOTIFY canBeSavedChanged)
     Q_PROPERTY(QString currentFileName READ currentFileName NOTIFY currentFileNameChanged)
 
-    Q_PROPERTY(size_t currentPattern READ currentPattern NOTIFY currentPatternChanged)
+    Q_PROPERTY(quint64 currentPattern READ currentPattern NOTIFY currentPatternChanged)
     Q_PROPERTY(QString currentPatternName READ currentPatternName NOTIFY currentPatternChanged)
-    Q_PROPERTY(size_t currentLineCount READ currentLineCount NOTIFY currentLineCountChanged)
+    Q_PROPERTY(quint64 currentLineCount READ currentLineCount NOTIFY currentLineCountChanged)
     Q_PROPERTY(QString currentTime READ currentTime NOTIFY currentTimeChanged)
     Q_PROPERTY(QString duration READ duration NOTIFY durationChanged)
 
@@ -57,9 +57,9 @@ class EditorService : public QObject
     Q_PROPERTY(bool hasPatternToPaste READ hasPatternToPaste NOTIFY copyManagerStateChanged)
 
     Q_PROPERTY(Position position READ position NOTIFY positionChanged)
-    Q_PROPERTY(size_t songPosition READ songPosition NOTIFY songPositionChanged)
-    Q_PROPERTY(size_t patternAtCurrentSongPosition READ patternAtCurrentSongPosition NOTIFY patternAtCurrentSongPositionChanged)
-    Q_PROPERTY(size_t songLength READ songLength WRITE setSongLength NOTIFY songLengthChanged)
+    Q_PROPERTY(quint64 songPosition READ songPosition NOTIFY songPositionChanged)
+    Q_PROPERTY(quint64 patternAtCurrentSongPosition READ patternAtCurrentSongPosition NOTIFY patternAtCurrentSongPositionChanged)
+    Q_PROPERTY(quint64 songLength READ songLength WRITE setSongLength NOTIFY songLengthChanged)
 
     Q_PROPERTY(double scrollBarHandleSize READ scrollBarHandleSize NOTIFY scrollBarHandleSizeChanged)
     Q_PROPERTY(double scrollBarStepSize READ scrollBarStepSize NOTIFY scrollBarStepSizeChanged)
@@ -89,13 +89,13 @@ public:
 
     Q_INVOKABLE bool canBeSaved() const;
 
-    Q_INVOKABLE size_t columnCount(size_t trackIndex) const;
-    Q_INVOKABLE size_t lineCount(size_t patternId) const;
+    Q_INVOKABLE quint64 columnCount(quint64 trackIndex) const;
+    Q_INVOKABLE quint64 lineCount(quint64 patternId) const;
 
     Q_INVOKABLE QString currentFileName() const;
 
-    Q_INVOKABLE size_t currentLineCount() const;
-    Q_INVOKABLE void setCurrentLineCount(size_t lineCount);
+    Q_INVOKABLE quint64 currentLineCount() const;
+    Q_INVOKABLE void setCurrentLineCount(quint64 lineCount);
 
     Q_INVOKABLE QString currentPatternName() const;
     Q_INVOKABLE void setCurrentPatternName(QString patternName);
@@ -103,61 +103,61 @@ public:
     Q_INVOKABLE QString currentTime() const;
     Q_INVOKABLE QString duration() const;
 
-    Q_INVOKABLE size_t minLineCount() const;
-    Q_INVOKABLE size_t maxLineCount() const;
+    Q_INVOKABLE quint64 minLineCount() const;
+    Q_INVOKABLE quint64 maxLineCount() const;
 
-    Q_INVOKABLE size_t minPatternIndex() const;
-    Q_INVOKABLE size_t maxPatternIndex() const;
+    Q_INVOKABLE quint64 minPatternIndex() const;
+    Q_INVOKABLE quint64 maxPatternIndex() const;
 
-    Q_INVOKABLE size_t minSongPosition() const;
-    Q_INVOKABLE size_t maxSongPosition() const;
+    Q_INVOKABLE quint64 minSongPosition() const;
+    Q_INVOKABLE quint64 maxSongPosition() const;
 
-    Q_INVOKABLE int lineNumberAtViewLine(size_t line) const;
+    Q_INVOKABLE int lineNumberAtViewLine(quint64 line) const;
 
     QString displayNoteAtPosition(const Position & position) const;
-    Q_INVOKABLE QString displayNoteAtPosition(size_t patternId, size_t trackIndex, size_t columnId, size_t line) const;
+    Q_INVOKABLE QString displayNoteAtPosition(quint64 patternId, quint64 trackIndex, quint64 columnId, quint64 line) const;
     using MidiNoteList = std::vector<uint8_t>;
-    Q_INVOKABLE MidiNoteList midiNotesAtPosition(size_t pattern, size_t track, size_t line) const;
+    Q_INVOKABLE MidiNoteList midiNotesAtPosition(quint64 pattern, quint64 track, quint64 line) const;
     QString displayVelocityAtPosition(const Position & position) const;
-    Q_INVOKABLE QString displayVelocityAtPosition(size_t pattern, size_t track, size_t column, size_t line) const;
-    Q_INVOKABLE QStringList displayNoteAndVelocityAtPosition(size_t patternId, size_t trackIndex, size_t columnId, size_t line) const;
-    Q_INVOKABLE double velocityAtPosition(size_t pattern, size_t track, size_t column, size_t line) const;
+    Q_INVOKABLE QString displayVelocityAtPosition(quint64 pattern, quint64 track, quint64 column, quint64 line) const;
+    Q_INVOKABLE QStringList displayNoteAndVelocityAtPosition(quint64 patternId, quint64 trackIndex, quint64 columnId, quint64 line) const;
+    Q_INVOKABLE double velocityAtPosition(quint64 pattern, quint64 track, quint64 column, quint64 line) const;
 
     Q_INVOKABLE QString noDataString() const;
 
-    Q_INVOKABLE size_t patternCount() const;
-    Q_INVOKABLE size_t trackCount() const;
-    using TrackIndexList = std::vector<size_t>;
+    Q_INVOKABLE quint64 patternCount() const;
+    Q_INVOKABLE quint64 trackCount() const;
+    using TrackIndexList = std::vector<quint64>;
     Q_INVOKABLE TrackIndexList trackIndices() const;
-    Q_INVOKABLE size_t trackPositionByIndex(size_t trackIndex) const;
-    size_t trackIndexByPosition(size_t track) const;
+    Q_INVOKABLE quint64 trackPositionByIndex(quint64 trackIndex) const;
+    quint64 trackIndexByPosition(quint64 track) const;
 
-    Q_INVOKABLE QString patternName(size_t patternIndex) const;
-    Q_INVOKABLE void setPatternName(size_t patternIndex, QString name);
-    Q_INVOKABLE QString trackName(size_t trackIndex) const;
-    Q_INVOKABLE void setTrackName(size_t trackIndex, QString name);
-    Q_INVOKABLE QString columnName(size_t trackIndex, size_t columnIndex) const;
-    Q_INVOKABLE void setColumnName(size_t trackIndex, size_t columnIndex, QString name);
+    Q_INVOKABLE QString patternName(quint64 patternIndex) const;
+    Q_INVOKABLE void setPatternName(quint64 patternIndex, QString name);
+    Q_INVOKABLE QString trackName(quint64 trackIndex) const;
+    Q_INVOKABLE void setTrackName(quint64 trackIndex, QString name);
+    Q_INVOKABLE QString columnName(quint64 trackIndex, quint64 columnIndex) const;
+    Q_INVOKABLE void setColumnName(quint64 trackIndex, quint64 columnIndex, QString name);
 
-    Q_INVOKABLE size_t currentPattern() const;
-    Q_INVOKABLE void setCurrentPattern(size_t currentPattern);
+    Q_INVOKABLE quint64 currentPattern() const;
+    Q_INVOKABLE void setCurrentPattern(quint64 currentPattern);
 
-    Q_INVOKABLE bool hasData(size_t patternIndex, size_t trackIndex, size_t columnIndex) const;
+    Q_INVOKABLE bool hasData(quint64 patternIndex, quint64 trackIndex, quint64 columnIndex) const;
 
     Q_INVOKABLE bool isAtNoteColumn() const;
     Q_INVOKABLE bool isAtVelocityColumn() const;
-    Q_INVOKABLE bool isColumnVisible(size_t track, size_t column) const;
+    Q_INVOKABLE bool isColumnVisible(quint64 track, quint64 column) const;
     Q_INVOKABLE bool isModified() const;
 
     Q_INVOKABLE Position position() const;
-    Q_INVOKABLE size_t positionBarLine() const;
+    Q_INVOKABLE quint64 positionBarLine() const;
 
     Q_INVOKABLE void requestEventRemoval();
 
     Q_INVOKABLE bool requestDigitSetAtCurrentPosition(uint8_t digit);
 
-    Q_INVOKABLE void requestNewColumn(size_t trackIndex);
-    Q_INVOKABLE void requestColumnDeletion(size_t trackIndex);
+    Q_INVOKABLE void requestNewColumn(quint64 trackIndex);
+    Q_INVOKABLE void requestColumnDeletion(quint64 trackIndex);
     Q_INVOKABLE void requestNewTrackToRight();
     Q_INVOKABLE void requestTrackDeletion();
 
@@ -191,27 +191,27 @@ public:
     Q_INVOKABLE void requestSelectionTranspose(int semitones);
 
     //! Performs linear interpolation on velocity on current pattern, track, and column over given lines.
-    Q_INVOKABLE void requestLinearVelocityInterpolation(size_t startLine, size_t endLine, uint8_t startValue, uint8_t endValue);
+    Q_INVOKABLE void requestLinearVelocityInterpolation(quint64 startLine, quint64 endLine, uint8_t startValue, uint8_t endValue);
 
     bool requestPosition(const Position & position);
-    Q_INVOKABLE bool requestPosition(size_t pattern, size_t track, size_t column, size_t line, size_t lineColumn);
+    Q_INVOKABLE bool requestPosition(quint64 pattern, quint64 track, quint64 column, quint64 line, quint64 lineColumn);
     Q_INVOKABLE void requestScroll(int steps);
-    Q_INVOKABLE void requestTrackFocus(size_t trackIndex, size_t column, size_t line);
+    Q_INVOKABLE void requestTrackFocus(quint64 trackIndex, quint64 column, quint64 line);
 
-    Q_INVOKABLE size_t beatsPerMinute() const;
-    Q_INVOKABLE void setBeatsPerMinute(size_t beatsPerMinute);
-    Q_INVOKABLE size_t linesPerBeat() const;
-    Q_INVOKABLE void setLinesPerBeat(size_t linesPerBeat);
+    Q_INVOKABLE quint64 beatsPerMinute() const;
+    Q_INVOKABLE void setBeatsPerMinute(quint64 beatsPerMinute);
+    Q_INVOKABLE quint64 linesPerBeat() const;
+    Q_INVOKABLE void setLinesPerBeat(quint64 linesPerBeat);
 
-    Q_INVOKABLE size_t visibleUnitCount() const;
-    Q_INVOKABLE size_t totalUnitCount() const;
+    Q_INVOKABLE quint64 visibleUnitCount() const;
+    Q_INVOKABLE quint64 totalUnitCount() const;
 
-    Q_INVOKABLE size_t horizontalScrollPosition() const;
-    Q_INVOKABLE size_t trackWidthInUnits(size_t trackIndex) const;
-    size_t columnPositionInUnits(size_t trackIndex, size_t columnIndex) const;
-    size_t trackPositionInUnits(size_t trackIndex) const;
-    Q_INVOKABLE int onScreenColumnPositionInUnits(size_t trackIndex, size_t columnIndex) const;
-    Q_INVOKABLE int onScreenTrackPositionInUnits(size_t trackIndex) const;
+    Q_INVOKABLE quint64 horizontalScrollPosition() const;
+    Q_INVOKABLE quint64 trackWidthInUnits(quint64 trackIndex) const;
+    quint64 columnPositionInUnits(quint64 trackIndex, quint64 columnIndex) const;
+    quint64 trackPositionInUnits(quint64 trackIndex) const;
+    Q_INVOKABLE int onScreenColumnPositionInUnits(quint64 trackIndex, quint64 columnIndex) const;
+    Q_INVOKABLE int onScreenTrackPositionInUnits(quint64 trackIndex) const;
     Q_INVOKABLE double scrollBarStepSize() const;
     Q_INVOKABLE double scrollBarHandleSize() const;
     Q_INVOKABLE double scrollBarPosition() const;
@@ -221,48 +221,48 @@ public:
     Q_INVOKABLE void requestTrackRight();
     Q_INVOKABLE void requestColumnRight();
 
-    Q_INVOKABLE size_t songPosition() const;
-    Q_INVOKABLE void setSongPosition(size_t songPosition);
+    Q_INVOKABLE quint64 songPosition() const;
+    Q_INVOKABLE void setSongPosition(quint64 songPosition);
     Q_INVOKABLE void resetSongPosition();
-    Q_INVOKABLE size_t patternAtCurrentSongPosition() const;
+    Q_INVOKABLE quint64 patternAtCurrentSongPosition() const;
     Q_INVOKABLE void insertPatternToPlayOrder();
     Q_INVOKABLE void removePatternFromPlayOrder();
-    Q_INVOKABLE size_t patternAtSongPosition(size_t songPosition) const;
-    Q_INVOKABLE void setPatternAtSongPosition(size_t songPosition, size_t pattern);
-    Q_INVOKABLE size_t songLength() const;
-    Q_INVOKABLE void setSongLength(size_t songLength);
-    Q_INVOKABLE size_t maxSongLength() const;
+    Q_INVOKABLE quint64 patternAtSongPosition(quint64 songPosition) const;
+    Q_INVOKABLE void setPatternAtSongPosition(quint64 songPosition, quint64 pattern);
+    Q_INVOKABLE quint64 songLength() const;
+    Q_INVOKABLE void setSongLength(quint64 songLength);
+    Q_INVOKABLE quint64 maxSongLength() const;
 
     using InstrumentS = std::shared_ptr<Instrument>;
-    InstrumentS instrument(size_t trackIndex) const;
-    void setInstrument(size_t trackIndex, InstrumentS instrument);
+    InstrumentS instrument(quint64 trackIndex) const;
+    void setInstrument(quint64 trackIndex, InstrumentS instrument);
 
     using InstrumentSettingsS = std::shared_ptr<InstrumentSettings>;
     InstrumentSettingsS instrumentSettingsAtCurrentPosition() const;
     void setInstrumentSettingsAtCurrentPosition(InstrumentSettingsS instrument);
     void removeInstrumentSettingsAtCurrentPosition();
-    Q_INVOKABLE bool hasInstrumentSettings(size_t pattern, size_t track, size_t column, size_t line) const;
+    Q_INVOKABLE bool hasInstrumentSettings(quint64 pattern, quint64 track, quint64 column, quint64 line) const;
 
     void setIsModified(bool isModified);
 
     using MidiNoteNameAndCode = std::pair<std::string, uint8_t>;
     using MidiNoteNameAndCodeOpt = std::optional<MidiNoteNameAndCode>;
-    static MidiNoteNameAndCodeOpt editorNoteToMidiNote(size_t note, size_t octave);
+    static MidiNoteNameAndCodeOpt editorNoteToMidiNote(quint64 note, quint64 octave);
 
 signals:
     void beatsPerMinuteChanged();
 
     void canBeSavedChanged();
 
-    void columnAdded(size_t track);
-    void columnDeleted(size_t track);
+    void columnAdded(quint64 track);
+    void columnDeleted(quint64 track);
     void columnNameChanged();
 
     void copyManagerStateChanged();
 
     void currentFileNameChanged();
     void currentLineCountChanged(); // For the pattern length widget
-    void currentLineCountModified(size_t oldLineCount, size_t newLineCount);
+    void currentLineCountModified(quint64 oldLineCount, quint64 newLineCount);
     void currentPatternChanged(); // For the pattern index widget
 
     void currentTimeChanged();
@@ -285,8 +285,8 @@ signals:
 
     void noteDataAtPositionChanged(const Position & position);
     void patternAtCurrentSongPositionChanged(); // For the play order widget
-    void songPositionChanged(size_t position); // For the play order widget
-    void patternCreated(size_t patternIndex);
+    void songPositionChanged(quint64 position); // For the play order widget
+    void patternCreated(quint64 patternIndex);
     void positionChanged(const Position & newPosition, const Position & oldPosition);
 
     void scrollBarHandleSizeChanged();
@@ -301,19 +301,19 @@ signals:
     void statusTextRequested(QString text);
 
     void trackConfigurationChanged();
-    void trackDeleted(size_t trackIndex);
+    void trackDeleted(quint64 trackIndex);
     void trackNameChanged();
 
 public slots:
-    void requestPositionByTick(size_t tick);
+    void requestPositionByTick(quint64 tick);
 
 private:
-    void clampCursorLine(size_t oldLineCount, size_t newLineCount);
+    void clampCursorLine(quint64 oldLineCount, quint64 newLineCount);
 
-    void createPatternIfDoesNotExist(size_t patternIndex);
+    void createPatternIfDoesNotExist(quint64 patternIndex);
 
-    size_t currentTrack() const;
-    size_t currentColumn() const;
+    quint64 currentTrack() const;
+    quint64 currentColumn() const;
 
     void deleteNoteDataAtPosition(const Position & position, bool shiftNotes);
     void insertNoteAtPosition(const Position & position);
@@ -358,8 +358,8 @@ private:
         QString currentTime;
         QString duration;
 
-        size_t horizontalScrollPosition = 0;
-        size_t songPosition = 0;
+        quint64 horizontalScrollPosition = 0;
+        quint64 songPosition = 0;
 
         CopyManager copyManager;
 

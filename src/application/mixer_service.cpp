@@ -30,35 +30,35 @@ MixerService::MixerService(QObject * parent)
 {
 }
 
-void MixerService::muteColumn(size_t trackIndex, size_t columnIndex, bool mute)
+void MixerService::muteColumn(quint64 trackIndex, quint64 columnIndex, bool mute)
 {
     juzzlin::L(TAG).info() << "Muting column " << columnIndex << " on track " << trackIndex << ": " << mute;
     m_mutedColumns[{ trackIndex, columnIndex }] = mute;
     update();
 }
 
-void MixerService::invertMutedColumns(size_t trackIndex, size_t columnIndex)
+void MixerService::invertMutedColumns(quint64 trackIndex, quint64 columnIndex)
 {
     emit columnCountOfTrackRequested(trackIndex);
 
     if (!isColumnMuted(trackIndex, columnIndex)) {
         if (!hasMutedColumns(trackIndex)) {
-            for (size_t targetColumnIndex = 0; targetColumnIndex < m_columnCountMap[trackIndex]; targetColumnIndex++) {
+            for (quint64 targetColumnIndex = 0; targetColumnIndex < m_columnCountMap[trackIndex]; targetColumnIndex++) {
                 muteColumn(trackIndex, targetColumnIndex, columnIndex != targetColumnIndex);
             }
         } else {
-            for (size_t targetColumnIndex = 0; targetColumnIndex < m_columnCountMap[trackIndex]; targetColumnIndex++) {
+            for (quint64 targetColumnIndex = 0; targetColumnIndex < m_columnCountMap[trackIndex]; targetColumnIndex++) {
                 muteColumn(trackIndex, targetColumnIndex, false);
             }
         }
     } else {
-        for (size_t targetColumnIndex = 0; targetColumnIndex < m_columnCountMap[trackIndex]; targetColumnIndex++) {
+        for (quint64 targetColumnIndex = 0; targetColumnIndex < m_columnCountMap[trackIndex]; targetColumnIndex++) {
             muteColumn(trackIndex, targetColumnIndex, columnIndex != targetColumnIndex);
         }
     }
 }
 
-bool MixerService::shouldColumnPlay(size_t trackIndex, size_t columnIndex) const
+bool MixerService::shouldColumnPlay(quint64 trackIndex, quint64 columnIndex) const
 {
     if (!shouldTrackPlay(trackIndex)) {
         return false;
@@ -71,24 +71,24 @@ bool MixerService::shouldColumnPlay(size_t trackIndex, size_t columnIndex) const
     }
 }
 
-void MixerService::soloColumn(size_t trackIndex, size_t columnIndex, bool solo)
+void MixerService::soloColumn(quint64 trackIndex, quint64 columnIndex, bool solo)
 {
     juzzlin::L(TAG).info() << "Soloing column " << columnIndex << " on track " << trackIndex << ": " << solo;
     m_soloedColumns[{ trackIndex, columnIndex }] = solo;
     update();
 }
 
-bool MixerService::isColumnMuted(size_t trackIndex, size_t columnIndex) const
+bool MixerService::isColumnMuted(quint64 trackIndex, quint64 columnIndex) const
 {
     return m_mutedColumns.contains({ trackIndex, columnIndex }) && m_mutedColumns.at({ trackIndex, columnIndex });
 }
 
-bool MixerService::isColumnSoloed(size_t trackIndex, size_t columnIndex) const
+bool MixerService::isColumnSoloed(quint64 trackIndex, quint64 columnIndex) const
 {
     return m_soloedColumns.contains({ trackIndex, columnIndex }) && m_soloedColumns.at({ trackIndex, columnIndex });
 }
 
-uint8_t MixerService::columnVelocityScale(size_t trackIndex, size_t columnIndex) const
+quint8 MixerService::columnVelocityScale(quint64 trackIndex, quint64 columnIndex) const
 {
     if (m_columnVelocityScaleMap.contains({ trackIndex, columnIndex })) {
         return m_columnVelocityScaleMap.at({ trackIndex, columnIndex });
@@ -97,34 +97,34 @@ uint8_t MixerService::columnVelocityScale(size_t trackIndex, size_t columnIndex)
     }
 }
 
-void MixerService::setColumnVelocityScale(size_t trackIndex, size_t columnIndex, uint8_t scale)
+void MixerService::setColumnVelocityScale(quint64 trackIndex, quint64 columnIndex, quint8 scale)
 {
     m_columnVelocityScaleMap[{ trackIndex, columnIndex }] = scale;
     update();
 }
 
-bool MixerService::hasMutedColumns(size_t trackIndex) const
+bool MixerService::hasMutedColumns(quint64 trackIndex) const
 {
     return std::ranges::any_of(m_mutedColumns, [trackIndex](const auto & pair) {
         return pair.first.first == trackIndex && pair.second;
     });
 }
 
-bool MixerService::hasSoloedColumns(size_t trackIndex) const
+bool MixerService::hasSoloedColumns(quint64 trackIndex) const
 {
     return std::ranges::any_of(m_soloedColumns, [trackIndex](const auto & pair) {
         return pair.first.first == trackIndex && pair.second;
     });
 }
 
-void MixerService::muteTrack(size_t trackIndex, bool mute)
+void MixerService::muteTrack(quint64 trackIndex, bool mute)
 {
     juzzlin::L(TAG).info() << "Muting track " << trackIndex << ": " << mute;
     m_mutedTracks[trackIndex] = mute;
     update();
 }
 
-void MixerService::invertMutedTracks(size_t trackIndex)
+void MixerService::invertMutedTracks(quint64 trackIndex)
 {
     emit trackIndicesRequested();
 
@@ -159,7 +159,7 @@ bool MixerService::hasSoloedTracks() const
     });
 }
 
-bool MixerService::shouldTrackPlay(size_t trackIndex) const
+bool MixerService::shouldTrackPlay(quint64 trackIndex) const
 {
     if (hasSoloedTracks()) {
         return isTrackSoloed(trackIndex) && !isTrackMuted(trackIndex);
@@ -168,24 +168,24 @@ bool MixerService::shouldTrackPlay(size_t trackIndex) const
     }
 }
 
-void MixerService::soloTrack(size_t trackIndex, bool solo)
+void MixerService::soloTrack(quint64 trackIndex, bool solo)
 {
     juzzlin::L(TAG).info() << "Soloing track " << trackIndex << ": " << solo;
     m_soloedTracks[trackIndex] = solo;
     update();
 }
 
-bool MixerService::isTrackMuted(size_t trackIndex) const
+bool MixerService::isTrackMuted(quint64 trackIndex) const
 {
     return m_mutedTracks.contains(trackIndex) && m_mutedTracks.at(trackIndex);
 }
 
-bool MixerService::isTrackSoloed(size_t trackIndex) const
+bool MixerService::isTrackSoloed(quint64 trackIndex) const
 {
     return m_soloedTracks.contains(trackIndex) && m_soloedTracks.at(trackIndex);
 }
 
-uint8_t MixerService::trackVelocityScale(size_t trackIndex) const
+quint8 MixerService::trackVelocityScale(quint64 trackIndex) const
 {
     if (m_trackVelocityScaleMap.contains(trackIndex)) {
         return m_trackVelocityScaleMap.at(trackIndex);
@@ -194,13 +194,13 @@ uint8_t MixerService::trackVelocityScale(size_t trackIndex) const
     }
 }
 
-void MixerService::setTrackVelocityScale(size_t trackIndex, uint8_t scale)
+void MixerService::setTrackVelocityScale(quint64 trackIndex, quint8 scale)
 {
     m_trackVelocityScaleMap[trackIndex] = scale;
     update();
 }
 
-uint8_t MixerService::effectiveVelocity(size_t trackIndex, size_t columnIndex, uint8_t velocity) const
+quint8 MixerService::effectiveVelocity(quint64 trackIndex, quint64 columnIndex, quint8 velocity) const
 {
     return trackVelocityScale(trackIndex) * columnVelocityScale(trackIndex, columnIndex) * velocity / (100 * 100);
 }
@@ -249,7 +249,7 @@ void MixerService::clear()
     emit cleared();
 }
 
-void MixerService::setColumnCount(size_t trackIndex, size_t count)
+void MixerService::setColumnCount(quint64 trackIndex, quint64 count)
 {
     m_columnCountMap[trackIndex] = count;
 }
@@ -270,42 +270,42 @@ void MixerService::deserializeFromXml(QXmlStreamReader & reader)
         if (reader.isStartElement()) {
             if (!reader.name().compare(Constants::xmlKeyColumnMuted())) {
                 bool trackOk = false, columnOk = false;
-                const size_t trackIndex = reader.attributes().value(Constants::xmlKeyTrackAttr()).toUInt(&trackOk);
-                const size_t columnIndex = reader.attributes().value(Constants::xmlKeyColumnAttr()).toUInt(&columnOk);
+                const quint64 trackIndex = reader.attributes().value(Constants::xmlKeyTrackAttr()).toUInt(&trackOk);
+                const quint64 columnIndex = reader.attributes().value(Constants::xmlKeyColumnAttr()).toUInt(&columnOk);
                 if (trackOk && columnOk) {
                     m_mutedColumns[{ trackIndex, columnIndex }] = true;
                 }
             } else if (!reader.name().compare(Constants::xmlKeyColumnSoloed())) {
                 bool trackOk = false, columnOk = false;
-                const size_t trackIndex = reader.attributes().value(Constants::xmlKeyTrackAttr()).toUInt(&trackOk);
-                const size_t columnIndex = reader.attributes().value(Constants::xmlKeyColumnAttr()).toUInt(&columnOk);
+                const quint64 trackIndex = reader.attributes().value(Constants::xmlKeyTrackAttr()).toUInt(&trackOk);
+                const quint64 columnIndex = reader.attributes().value(Constants::xmlKeyColumnAttr()).toUInt(&columnOk);
                 if (trackOk && columnOk) {
                     m_soloedColumns[{ trackIndex, columnIndex }] = true;
                 }
             } else if (!reader.name().compare(Constants::xmlKeyTrackMuted())) {
                 bool ok = false;
-                const size_t trackIndex = reader.attributes().value(Constants::xmlKeyIndex()).toUInt(&ok);
+                const quint64 trackIndex = reader.attributes().value(Constants::xmlKeyIndex()).toUInt(&ok);
                 if (ok) {
                     m_mutedTracks[trackIndex] = true;
                 }
             } else if (!reader.name().compare(Constants::xmlKeyTrackSoloed())) {
                 bool ok = false;
-                const size_t trackIndex = reader.attributes().value(Constants::xmlKeyIndex()).toUInt(&ok);
+                const quint64 trackIndex = reader.attributes().value(Constants::xmlKeyIndex()).toUInt(&ok);
                 if (ok) {
                     m_soloedTracks[trackIndex] = true;
                 }
             } else if (!reader.name().compare(Constants::xmlKeyColumnVelocityScale())) {
                 bool trackOk = false, columnOk = false, valueOk = false;
-                const size_t trackIndex = reader.attributes().value(Constants::xmlKeyTrackAttr()).toUInt(&trackOk);
-                const size_t columnIndex = reader.attributes().value(Constants::xmlKeyColumnAttr()).toUInt(&columnOk);
-                const uint8_t value = static_cast<uint8_t>(reader.attributes().value(Constants::xmlKeyValue()).toUInt(&valueOk));
+                const quint64 trackIndex = reader.attributes().value(Constants::xmlKeyTrackAttr()).toUInt(&trackOk);
+                const quint64 columnIndex = reader.attributes().value(Constants::xmlKeyColumnAttr()).toUInt(&columnOk);
+                const quint8 value = static_cast<quint8>(reader.attributes().value(Constants::xmlKeyValue()).toUInt(&valueOk));
                 if (trackOk && columnOk && valueOk) {
                     m_columnVelocityScaleMap[{ trackIndex, columnIndex }] = value;
                 }
             } else if (!reader.name().compare(Constants::xmlKeyTrackVelocityScale())) {
                 bool trackOk = false, valueOk = false;
-                const size_t trackIndex = reader.attributes().value(Constants::xmlKeyIndex()).toUInt(&trackOk);
-                const uint8_t value = static_cast<uint8_t>(reader.attributes().value(Constants::xmlKeyValue()).toUInt(&valueOk));
+                const quint64 trackIndex = reader.attributes().value(Constants::xmlKeyIndex()).toUInt(&trackOk);
+                const quint8 value = static_cast<quint8>(reader.attributes().value(Constants::xmlKeyValue()).toUInt(&valueOk));
                 if (trackOk && valueOk) {
                     m_trackVelocityScaleMap[trackIndex] = value;
                 }

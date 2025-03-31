@@ -49,7 +49,7 @@ public:
     Q_INVOKABLE bool isLooping() const;
     Q_INVOKABLE void setIsLooping(bool isLooping);
 
-    void setSongPosition(size_t position);
+    void setSongPosition(quint64 position);
 
     using SongS = std::shared_ptr<Song>;
     void setSong(SongS song);
@@ -61,7 +61,7 @@ signals:
 
     void songRequested();
 
-    void tickUpdated(size_t tick);
+    void tickUpdated(quint64 tick);
 
 private:
     void initializeWorker();
@@ -80,7 +80,7 @@ private:
 
     QThread m_playerWorkerThread;
 
-    size_t m_songPosition = 0;
+    quint64 m_songPosition = 0;
 };
 
 } // namespace noteahead

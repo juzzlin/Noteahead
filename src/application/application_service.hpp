@@ -64,8 +64,8 @@ public:
 
     Q_INVOKABLE void rejectUnsavedChangesDialog();
 
-    Q_INVOKABLE void requestLiveNoteOff(uint8_t note, uint8_t octave);
-    Q_INVOKABLE void requestLiveNoteOn(uint8_t note, uint8_t octave, uint8_t velocity);
+    Q_INVOKABLE void requestLiveNoteOff(quint8 note, quint8 octave);
+    Q_INVOKABLE void requestLiveNoteOn(quint8 note, quint8 octave, quint8 velocity);
 
     Q_INVOKABLE void requestInstrumentReset();
 
@@ -103,8 +103,8 @@ signals:
 
     void applyAllTrackSettingsRequested();
 
-    void liveNoteOnRequested(InstrumentS instrument, uint8_t midiNote, uint8_t velocity);
-    void liveNoteOffRequested(InstrumentS instrument, uint8_t midiNote);
+    void liveNoteOnRequested(InstrumentS instrument, quint8 midiNote, quint8 velocity);
+    void liveNoteOffRequested(InstrumentS instrument, quint8 midiNote);
 
     void unsavedChangesDialogRequested();
     void openDialogRequested();

@@ -44,17 +44,17 @@ public:
 
     Q_INVOKABLE QStringList availableMidiPorts() const;
 
-    void setIsPlaying(bool isPlaying);
+    Q_INVOKABLE void setIsPlaying(bool isPlaying);
 
-    void playAndStopMiddleC(QString portName, uint8_t channel, uint8_t velocity);
+    Q_INVOKABLE void playAndStopMiddleC(QString portName, quint8 channel, quint8 velocity);
 
     using InstrumentW = std::weak_ptr<Instrument>;
 
-    void playNote(InstrumentW instrument, uint8_t midiNote, uint8_t velocity);
-    void stopNote(InstrumentW instrument, uint8_t midiNote);
-    void stopAllNotes(InstrumentW instrument);
+    Q_INVOKABLE void playNote(InstrumentW instrument, quint8 midiNote, quint8 velocity);
+    Q_INVOKABLE void stopNote(InstrumentW instrument, quint8 midiNote);
+    Q_INVOKABLE void stopAllNotes(InstrumentW instrument);
 
-    void sendClock(InstrumentW instrument);
+    Q_INVOKABLE void sendClock(InstrumentW instrument);
 
 public slots:
     void handleInstrumentRequest(const InstrumentRequest & instrumentRequest);

@@ -65,37 +65,37 @@ void MidiService::setIsPlaying(bool isPlaying)
     m_midiWorker->setIsPlaying(isPlaying);
 }
 
-void MidiService::playAndStopMiddleC(QString portName, uint8_t channel, uint8_t velocity)
+void MidiService::playAndStopMiddleC(QString portName, quint8 channel, quint8 velocity)
 {
     std::lock_guard<std::mutex> lock { m_workerMutex };
 
-    if (const bool invoked = QMetaObject::invokeMethod(m_midiWorker.get(), "playAndStopMiddleC", Q_ARG(QString, portName), Q_ARG(uint8_t, channel), Q_ARG(uint8_t, velocity)); !invoked) {
+    if (const bool invoked = QMetaObject::invokeMethod(m_midiWorker.get(), "playAndStopMiddleC", Q_ARG(QString, portName), Q_ARG(quint8, channel), Q_ARG(quint8, velocity)); !invoked) {
         juzzlin::L(TAG).error() << "Invoking a method failed!";
     }
 }
 
-void MidiService::playNote(InstrumentW instrument, uint8_t midiNote, uint8_t velocity)
+void MidiService::playNote(InstrumentW instrument, quint8 midiNote, quint8 velocity)
 {
     std::lock_guard<std::mutex> lock { m_workerMutex };
 
     if (const bool invoked = QMetaObject::invokeMethod(m_midiWorker.get(), "playNote",
                                                        Q_ARG(QString, instrument.lock()->device().portName),
-                                                       Q_ARG(uint8_t, instrument.lock()->device().channel),
-                                                       Q_ARG(uint8_t, midiNote),
-                                                       Q_ARG(uint8_t, velocity));
+                                                       Q_ARG(quint8, instrument.lock()->device().channel),
+                                                       Q_ARG(quint8, midiNote),
+                                                       Q_ARG(quint8, velocity));
         !invoked) {
         juzzlin::L(TAG).error() << "Invoking a method failed!";
     }
 }
 
-void MidiService::stopNote(InstrumentW instrument, uint8_t midiNote)
+void MidiService::stopNote(InstrumentW instrument, quint8 midiNote)
 {
     std::lock_guard<std::mutex> lock { m_workerMutex };
 
     if (const bool invoked = QMetaObject::invokeMethod(m_midiWorker.get(), "stopNote",
                                                        Q_ARG(QString, instrument.lock()->device().portName),
-                                                       Q_ARG(uint8_t, instrument.lock()->device().channel),
-                                                       Q_ARG(uint8_t, midiNote));
+                                                       Q_ARG(quint8, instrument.lock()->device().channel),
+                                                       Q_ARG(quint8, midiNote));
         !invoked) {
         juzzlin::L(TAG).error() << "Invoking a method failed!";
     }
@@ -107,7 +107,7 @@ void MidiService::stopAllNotes(InstrumentW instrument)
 
     if (const bool invoked = QMetaObject::invokeMethod(m_midiWorker.get(), "stopAllNotes",
                                                        Q_ARG(QString, instrument.lock()->device().portName),
-                                                       Q_ARG(uint8_t, instrument.lock()->device().channel));
+                                                       Q_ARG(quint8, instrument.lock()->device().channel));
         !invoked) {
         juzzlin::L(TAG).error() << "Invoking a method failed!";
     }

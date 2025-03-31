@@ -39,17 +39,17 @@ public:
 
     Q_INVOKABLE void handleInstrumentRequest(const InstrumentRequest & instrumentRequest);
 
-    Q_INVOKABLE void playAndStopMiddleC(QString portName, uint8_t channel, uint8_t velocity);
+    Q_INVOKABLE void playAndStopMiddleC(QString portName, quint8 channel, quint8 velocity);
 
-    Q_INVOKABLE void playNote(QString portName, uint8_t channel, uint8_t midiNote, uint8_t velocity);
+    Q_INVOKABLE void playNote(QString portName, quint8 channel, quint8 midiNote, quint8 velocity);
 
-    Q_INVOKABLE void stopNote(QString portName, uint8_t channel, uint8_t midiNote);
+    Q_INVOKABLE void stopNote(QString portName, quint8 channel, quint8 midiNote);
 
-    Q_INVOKABLE void stopAllNotes(QString portName, uint8_t channel);
+    Q_INVOKABLE void stopAllNotes(QString portName, quint8 channel);
 
     Q_INVOKABLE void sendClock(QString portName);
 
-    Q_INVOKABLE void requestPatchChange(QString portName, uint8_t channel, uint8_t patch);
+    Q_INVOKABLE void requestPatchChange(QString portName, quint8 channel, quint8 patch);
 
     Q_INVOKABLE void setIsPlaying(bool isPlaying);
 
@@ -74,9 +74,9 @@ private:
     {
         QString portName;
 
-        uint8_t channel = 0;
+        quint8 channel = 0;
 
-        uint8_t note = 0;
+        quint8 note = 0;
     };
 
     std::vector<StopTask> m_stopTasks;

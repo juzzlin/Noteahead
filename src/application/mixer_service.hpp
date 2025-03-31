@@ -35,73 +35,73 @@ public:
 
     ~MixerService() override;
 
-    Q_INVOKABLE void muteColumn(size_t trackIndex, size_t columnIndex, bool mute);
-    Q_INVOKABLE void invertMutedColumns(size_t trackIndex, size_t columnIndex);
-    Q_INVOKABLE bool shouldColumnPlay(size_t trackIndex, size_t columnIndex) const;
-    Q_INVOKABLE void soloColumn(size_t trackIndex, size_t columnIndex, bool solo);
-    Q_INVOKABLE bool isColumnMuted(size_t trackIndex, size_t columnIndex) const;
-    Q_INVOKABLE bool isColumnSoloed(size_t trackIndex, size_t columnIndex) const;
-    Q_INVOKABLE uint8_t columnVelocityScale(size_t trackIndex, size_t columnIndex) const;
-    Q_INVOKABLE void setColumnVelocityScale(size_t trackIndex, size_t columnIndex, uint8_t scale);
+    Q_INVOKABLE void muteColumn(quint64 trackIndex, quint64 columnIndex, bool mute);
+    Q_INVOKABLE void invertMutedColumns(quint64 trackIndex, quint64 columnIndex);
+    Q_INVOKABLE bool shouldColumnPlay(quint64 trackIndex, quint64 columnIndex) const;
+    Q_INVOKABLE void soloColumn(quint64 trackIndex, quint64 columnIndex, bool solo);
+    Q_INVOKABLE bool isColumnMuted(quint64 trackIndex, quint64 columnIndex) const;
+    Q_INVOKABLE bool isColumnSoloed(quint64 trackIndex, quint64 columnIndex) const;
+    Q_INVOKABLE quint8 columnVelocityScale(quint64 trackIndex, quint64 columnIndex) const;
+    Q_INVOKABLE void setColumnVelocityScale(quint64 trackIndex, quint64 columnIndex, quint8 scale);
 
-    Q_INVOKABLE void muteTrack(size_t trackIndex, bool mute);
-    Q_INVOKABLE void invertMutedTracks(size_t trackIndex);
-    Q_INVOKABLE bool shouldTrackPlay(size_t trackIndex) const;
-    Q_INVOKABLE void soloTrack(size_t trackIndex, bool solo);
-    Q_INVOKABLE bool isTrackMuted(size_t trackIndex) const;
-    Q_INVOKABLE bool isTrackSoloed(size_t trackIndex) const;
-    Q_INVOKABLE uint8_t trackVelocityScale(size_t trackIndex) const;
-    Q_INVOKABLE void setTrackVelocityScale(size_t trackIndex, uint8_t scale);
+    Q_INVOKABLE void muteTrack(quint64 trackIndex, bool mute);
+    Q_INVOKABLE void invertMutedTracks(quint64 trackIndex);
+    Q_INVOKABLE bool shouldTrackPlay(quint64 trackIndex) const;
+    Q_INVOKABLE void soloTrack(quint64 trackIndex, bool solo);
+    Q_INVOKABLE bool isTrackMuted(quint64 trackIndex) const;
+    Q_INVOKABLE bool isTrackSoloed(quint64 trackIndex) const;
+    Q_INVOKABLE quint8 trackVelocityScale(quint64 trackIndex) const;
+    Q_INVOKABLE void setTrackVelocityScale(quint64 trackIndex, quint8 scale);
 
-    Q_INVOKABLE uint8_t effectiveVelocity(size_t trackIndex, size_t columnIndex, uint8_t velocity) const;
+    Q_INVOKABLE quint8 effectiveVelocity(quint64 trackIndex, quint64 columnIndex, quint8 velocity) const;
 
     Q_INVOKABLE void update();
 
     void clear();
 
-    void setColumnCount(size_t trackIndex, size_t count);
-    using TrackIndexList = std::vector<size_t>;
+    void setColumnCount(quint64 trackIndex, quint64 count);
+    using TrackIndexList = std::vector<quint64>;
     void setTrackIndices(TrackIndexList indices);
 
     void deserializeFromXml(QXmlStreamReader & reader);
     void serializeToXml(QXmlStreamWriter & writer) const;
 
 signals:
-    void columnMuted(size_t trackIndex, size_t columnIndex, bool muted);
-    void columnSoloed(size_t trackIndex, size_t columnIndex, bool soloed);
-    void columnVelocityScaleChanged(size_t trackIndex, size_t columnIndex, uint8_t velocityScale);
-    void columnCountOfTrackRequested(size_t trackIndex);
+    void columnMuted(quint64 trackIndex, quint64 columnIndex, bool muted);
+    void columnSoloed(quint64 trackIndex, quint64 columnIndex, bool soloed);
+    void columnVelocityScaleChanged(quint64 trackIndex, quint64 columnIndex, quint8 velocityScale);
+    void columnCountOfTrackRequested(quint64 trackIndex);
 
-    void trackMuted(size_t trackIndex, bool muted);
-    void trackSoloed(size_t trackIndex, bool soloed);
-    void trackVelocityScaleChanged(size_t trackIndex, uint8_t velocityScale);
+    void trackMuted(quint64 trackIndex, bool muted);
+    void trackSoloed(quint64 trackIndex, bool soloed);
+    void trackVelocityScaleChanged(quint64 trackIndex, quint8 velocityScale);
     void trackIndicesRequested();
 
     void cleared();
     void configurationChanged();
 
 private:
-    bool hasMutedColumns(size_t trackIndex) const;
-    bool hasSoloedColumns(size_t trackIndex) const;
+    bool hasMutedColumns(quint64 trackIndex) const;
+    bool hasSoloedColumns(quint64 trackIndex) const;
     bool hasMutedTracks() const;
     bool hasSoloedTracks() const;
 
-    using TrackAndColumn = std::pair<size_t, size_t>;
+    using TrackAndColumn = std::pair<quint64, quint64>;
     using TrackAndColumnMuteSoloMap = std::map<TrackAndColumn, bool>;
     TrackAndColumnMuteSoloMap m_mutedColumns;
     TrackAndColumnMuteSoloMap m_soloedColumns;
 
-    using TrackAndColumnVelocityScaleMap = std::map<TrackAndColumn, uint8_t>;
+    using TrackAndColumnVelocityScaleMap = std::map<TrackAndColumn, quint8>;
     TrackAndColumnVelocityScaleMap m_columnVelocityScaleMap;
 
-    using TrackMuteSoloMap = std::unordered_map<size_t, bool>;
+    using TrackMuteSoloMap = std::unordered_map<quint64, bool>;
     TrackMuteSoloMap m_mutedTracks;
     TrackMuteSoloMap m_soloedTracks;
 
-    using TrackVelocityScaleMap = std::map<size_t, uint8_t>;
+    using TrackVelocityScaleMap = std::map<quint64, quint8>;
     TrackVelocityScaleMap m_trackVelocityScaleMap;
 
-    using ColumnCountMap = std::map<size_t, size_t>;
+    using ColumnCountMap = std::map<quint64, quint64>;
     ColumnCountMap m_columnCountMap;
     TrackIndexList m_trackIndexList;
 };

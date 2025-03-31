@@ -107,14 +107,15 @@ set(SOURCE_FILES
   main.cpp
 )
 
-# See https://doc.qt.io/qt-6/qt-cmake-policy-qtp0001.html
-qt_policy(SET QTP0001 NEW)
-
 qt_add_executable(${BINARY_NAME} ${HEADER_FILES} ${SOURCE_FILES})
 
 set(URI ${BINARY_NAME})
 set(QML_BASE_DIR view/qml)
-set(QML_ROOT_DIR "qrc:/qt/qml/${URI}/${QML_BASE_DIR}")
+if(QT_VERSION_MAJOR EQUAL 6 AND QT_VERSION_MINOR GREATER_EQUAL 5)
+  set(QML_ROOT_DIR "qrc:/qt/qml/${URI}/${QML_BASE_DIR}")
+else()
+  set(QML_ROOT_DIR "qrc:/${URI}/${QML_BASE_DIR}")
+endif()
 set(MAIN Main.qml)
 set(QML_SOURCE_FILES
     ${QML_BASE_DIR}/${MAIN}
@@ -203,7 +204,17 @@ set(CPACK_VERBATIM_VARIABLES ON)
 set(CPACK_DEBIAN_PACKAGE_MAINTAINER "Jussi Lind <jussi.lind@iki.fi>")
 set(CPACK_DEBIAN_PACKAGE_ARCHITECTURE "amd64")
 set(CPACK_DEBIAN_PACKAGE_SHLIBDEPS YES)
-set(QML_RUNTIME_PACKAGES qml6-module-qtqml qml6-module-qtcore qml6-module-qtquick-dialogs qml6-module-qtquick-templates qml6-module-qtquick-window)
+set(QML_RUNTIME_PACKAGES
+    qml6-module-qtcore
+    qml6-module-qtqml
+    qml6-module-qtqml-workerscript
+    qml6-module-qtquick
+    qml6-module-qtquick-controls
+    qml6-module-qtquick-dialogs
+    qml6-module-qtquick-layouts
+    qml6-module-qtquick-templates
+    qml6-module-qtquick-window
+)
 set(CPACK_DEBIAN_PACKAGE_DEPENDS ${QML_RUNTIME_PACKAGES})
 set(CPACK_DEBIAN_PACKAGE_VERSION ${APPLICATION_VERSION})
 
