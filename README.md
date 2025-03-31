@@ -114,7 +114,7 @@ Currently Debian packages for Ubuntu 24.04 and Ubuntu 24.10 are provided. Instal
 
 Currently Noteahead depends on Qt >= 6.4. Actually that's the only thing that defines the Ubuntu version if stock Qt is to be used.
 
-Noteahead is currently being developing on Ubuntu 22.04 LTS with the official Qt SDK and on Ubuntu 24.10 with the stock Qt from repositories.
+Noteahead is currently being developed on Ubuntu 24.04 LTS and on Ubuntu 24.10 with the stock Qt 6 from repositories.
 
 ###
 ### Build dependencies on Ubuntu 24.10+
