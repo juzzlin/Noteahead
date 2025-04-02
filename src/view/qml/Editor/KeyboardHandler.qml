@@ -24,6 +24,9 @@ QtObject {
         } else if (event.key === Qt.Key_Escape) {
             _handleEscape();
             event.accepted = true;
+        } else if (event.key === Qt.Key_Home) {
+            _handleHome();
+            event.accepted = true;
         } else if (event.key === Qt.Key_Insert) {
             _handleInsert();
             event.accepted = true;
@@ -100,6 +103,13 @@ QtObject {
     function _handleEscape() {
         selectionService.clear();
         UiService.toggleEditMode();
+    }
+    function _handleHome() {
+        selectionService.clear();
+        if (!UiService.isPlaying()) {
+            const position = editorService.position;
+            editorService.requestPosition(position.pattern, 0, 0, 0, 0);
+        }
     }
     function _handleInsert() {
         selectionService.clear();
