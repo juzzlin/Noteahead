@@ -15,6 +15,12 @@ QtObject {
         } else if (event.key === Qt.Key_Right) {
             _handleRight();
             event.accepted = true;
+        } else if (event.key === Qt.Key_PageUp) {
+            _handlePageUp(event);
+            event.accepted = true;
+        } else if (event.key === Qt.Key_PageDown) {
+            _handlePageDown(event);
+            event.accepted = true;
         } else if (event.key === Qt.Key_Tab) {
             _handleTab();
             event.accepted = true;
@@ -47,33 +53,31 @@ QtObject {
             _handleNoteTriggered(event);
         }
     }
-    function _handleUp(event) {
+    function _handleScrollCommon(event, scrollAmount) {
         if (!UiService.isPlaying()) {
             if (event.modifiers & Qt.ShiftModifier) {
                 let position = editorService.position;
                 selectionService.requestSelectionStart(position.pattern, position.track, position.column, position.line);
-                editorService.requestScroll(-1);
+                editorService.requestScroll(scrollAmount);
                 position = editorService.position;
                 selectionService.requestSelectionEnd(position.pattern, position.track, position.column, position.line);
             } else {
                 selectionService.clear();
-                editorService.requestScroll(-1);
+                editorService.requestScroll(scrollAmount);
             }
         }
     }
+    function _handleUp(event) {
+        _handleScrollCommon(event, -1);
+    }
     function _handleDown(event) {
-        if (!UiService.isPlaying()) {
-            if (event.modifiers & Qt.ShiftModifier) {
-                let position = editorService.position;
-                selectionService.requestSelectionStart(position.pattern, position.track, position.column, position.line);
-                editorService.requestScroll(1);
-                position = editorService.position;
-                selectionService.requestSelectionEnd(position.pattern, position.track, position.column, position.line);
-            } else {
-                selectionService.clear();
-                editorService.requestScroll(1);
-            }
-        }
+        _handleScrollCommon(event, 1);
+    }
+    function _handlePageUp(event) {
+        _handleScrollCommon(event, -editorService.linesPerBeat);
+    }
+    function _handlePageDown(event) {
+        _handleScrollCommon(event, editorService.linesPerBeat);
     }
     function _handleLeft() {
         selectionService.clear();
