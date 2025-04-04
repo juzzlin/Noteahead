@@ -918,6 +918,10 @@ void EditorServiceTest::test_requestPosition_validPosition_shouldChangePosition(
 void EditorServiceTest::test_requestScroll_shouldChangePosition()
 {
     EditorService editorService;
+
+    editorService.setCurrentLineCount(65);
+    editorService.requestPosition(0, 0, 0, 0, 0);
+
     QSignalSpy positionChangedSpy { &editorService, &EditorService::positionChanged };
 
     QCOMPARE(editorService.position().line, 0);

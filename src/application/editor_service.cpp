@@ -1298,8 +1298,20 @@ void EditorService::requestPositionByTick(quint64 tick)
 void EditorService::requestScroll(int steps)
 {
     const auto oldPosition = m_state.cursorPosition;
-    m_state.cursorPosition.line += static_cast<quint64>(steps);
-    m_state.cursorPosition.line %= m_song->lineCount(m_state.cursorPosition.pattern);
+
+    // Work in signed domain to handle negative steps correctly
+    qint64 newLine = static_cast<qint64>(m_state.cursorPosition.line) + steps;
+    const qint64 lineCount = static_cast<qint64>(m_song->lineCount(m_state.cursorPosition.pattern));
+
+    // Wrap around correctly
+    if (newLine < 0) {
+        newLine = (newLine % lineCount + lineCount) % lineCount; // Proper modulo for negatives
+    } else {
+        newLine %= lineCount;
+    }
+
+    m_state.cursorPosition.line = static_cast<quint64>(newLine);
+
     setCurrentTime(m_song->lineToTime(m_state.cursorPosition.line));
     notifyPositionChange(oldPosition);
 }
