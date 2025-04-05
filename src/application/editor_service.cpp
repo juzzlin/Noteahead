@@ -1413,9 +1413,11 @@ void EditorService::setHorizontalScrollPosition(double position)
 void EditorService::moveCursorToPrevTrack()
 {
     if (const auto currentTrack = m_song->trackPositionByIndex(m_state.cursorPosition.track); currentTrack.has_value()) {
-        quint64 newTrack = *currentTrack - 1;
-        newTrack %= m_song->trackIndices().size();
-        m_state.cursorPosition.track = m_song->trackIndices().at(newTrack);
+        const qint64 trackCount = static_cast<qint64>(m_song->trackIndices().size());
+        qint64 newTrack = static_cast<qint64>(*currentTrack) - 1;
+        // Wrap around correctly for negative index
+        newTrack = (newTrack % trackCount + trackCount) % trackCount;
+        m_state.cursorPosition.track = m_song->trackIndices().at(static_cast<quint64>(newTrack));
         m_state.cursorPosition.column = m_song->columnCount(m_state.cursorPosition.track) - 1;
         m_state.cursorPosition.lineColumn = 3;
     }

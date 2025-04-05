@@ -505,6 +505,15 @@ void EditorServiceTest::test_selectionCopyPaste_shouldCopySelection()
     QCOMPARE(editorService.song()->noteDataAtPosition(pastedNotePosition)->track(), targetPosition.track);
 }
 
+void EditorServiceTest::test_requestCursorLeft_shouldWrapCorrectly()
+{
+    EditorService editorService;
+    editorService.requestPosition({ 0, 0, 0, 0, 0 });
+    editorService.requestCursorLeft();
+
+    QCOMPARE(editorService.position().track, editorService.trackIndices().back());
+}
+
 void EditorServiceTest::test_requestDigitSetAtCurrentPosition_velocity_shouldChangeVelocity()
 {
     EditorService editorService;

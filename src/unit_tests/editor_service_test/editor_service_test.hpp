@@ -52,6 +52,8 @@ private slots:
     void test_selectionCutPaste_shouldCopySelection();
     void test_selectionCopyPaste_shouldCopySelection();
 
+    void test_requestCursorLeft_shouldWrapCorrectly();
+
     void test_requestDigitSetAtCurrentPosition_velocity_shouldChangeVelocity();
 
     void test_requestHorizontalScrollPositionChange_shouldChangePosition();
