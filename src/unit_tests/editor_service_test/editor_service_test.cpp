@@ -1490,6 +1490,25 @@ void EditorServiceTest::test_toXmlFromXml_noteData_noteOn()
     QCOMPARE(editorServiceIn.displayVelocityAtPosition(0, 1, 0, 2), "127");
 }
 
+void EditorServiceTest::test_toXmlFromXml_noteData_delay_shouldSaveAndLoadDelay()
+{
+    EditorService editorServiceOut;
+    editorServiceOut.requestPosition(0, 0, 0, 0, 0);
+    editorServiceOut.requestNoteOnAtCurrentPosition(1, 3, 64);
+    editorServiceOut.setDelayOnCurrentLine(12);
+
+    const auto xml = editorServiceOut.toXml();
+    EditorService editorServiceIn;
+    editorServiceIn.fromXml(xml);
+    QCOMPARE(editorServiceIn.song()->noteDataAtPosition({ 0, 0, 0, 0, 0 })->delay(), 12);
+
+    editorServiceIn.requestPosition(0, 0, 0, 0, 0);
+    QCOMPARE(editorServiceIn.delayAtCurrentPosition(), 12);
+
+    editorServiceIn.requestPosition(0, 0, 0, 1, 0);
+    QCOMPARE(editorServiceIn.delayAtCurrentPosition(), 0);
+}
+
 void EditorServiceTest::test_toXmlFromXml_noteData_noteOff()
 {
     EditorService editorServiceOut;

@@ -106,6 +106,7 @@ private slots:
     void test_toXmlFromXml_mixerService_shouldLoadMixerService();
     void test_toXmlFromXml_noteData_noteOff();
     void test_toXmlFromXml_noteData_noteOn();
+    void test_toXmlFromXml_noteData_delay_shouldSaveAndLoadDelay();
     void test_toXmlFromXml_playOrder();
     void test_toXmlFromXml_removeTrack_shouldLoadSong();
     void test_toXmlFromXml_songProperties();

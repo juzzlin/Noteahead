@@ -178,8 +178,8 @@ Column::EventList Column::renderToEvents(size_t startTick, size_t ticksPerLine) 
                     eventList.push_back(event);
                 }
             }
-            if (line->noteData()->type() != NoteData::Type::None) {
-                const auto event = std::make_shared<Event>(tick, line->noteData());
+            if (const auto noteData = line->noteData(); noteData->type() != NoteData::Type::None) {
+                const auto event = std::make_shared<Event>(tick + noteData->delay(), noteData);
                 eventList.push_back(event);
             }
         }

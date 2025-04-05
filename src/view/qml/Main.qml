@@ -188,6 +188,18 @@ ApplicationWindow {
         }
     }
     IntegerInputDialog {
+        id: lineDelayDialog
+        anchors.centerIn: parent
+        width: parent.width * 0.5
+        onAccepted: {
+            editorService.setDelayOnCurrentLine(value());
+        }
+        Component.onCompleted: {
+            setMinValue(0);
+            setMaxValue(editorService.ticksPerLine());
+        }
+    }
+    IntegerInputDialog {
         id: trackVelocityScaleDialog
         anchors.centerIn: parent
         width: parent.width * 0.5
@@ -282,6 +294,10 @@ ApplicationWindow {
                 velocityInterpolationDialog.setStartValue(0);
                 velocityInterpolationDialog.setEndValue(100);
                 velocityInterpolationDialog.open();
+            });
+        UiService.lineDelayDialogRequested.connect(() => {
+                lineDelayDialog.setValue(editorService.delayAtCurrentPosition());
+                lineDelayDialog.open();
             });
         UiService.quitRequested.connect(() => {
                 config.setWindowSize(Qt.size(mainWindow.width, mainWindow.height));

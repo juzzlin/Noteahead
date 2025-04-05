@@ -27,7 +27,7 @@ Dialog {
         spacing: 10
         width: parent.width
         Label {
-            text: qsTr("Choose a value:")
+            text: qsTr("Choose a value (%1-%2):").arg(spinBox.from).arg(spinBox.to)
             width: parent.width
         }
         SpinBox {

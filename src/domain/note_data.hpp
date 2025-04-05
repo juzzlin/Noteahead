@@ -17,10 +17,12 @@
 #define NOTE_DATA_HPP
 
 #include <cstdint>
+#include <memory>
 #include <optional>
 #include <string>
 
 class QXmlStreamWriter;
+class QXmlStreamReader;
 
 namespace noteahead {
 
@@ -35,13 +37,10 @@ public:
     };
 
     NoteData() = default;
-
     NoteData(size_t track, size_t column);
 
     void setAsNoteOn(uint8_t note, uint8_t velocity);
-
     void setAsNoteOff(uint8_t note);
-
     void setAsNoteOff();
 
     void transpose(int semitones);
@@ -51,30 +50,30 @@ public:
     std::optional<uint8_t> note() const;
 
     uint8_t velocity() const;
-
     void setVelocity(uint8_t velocity);
 
-    std::string toString() const;
-
     size_t track() const;
-
     void setTrack(size_t track);
 
     size_t column() const;
-
     void setColumn(size_t column);
 
+    uint8_t delay() const;
+    void setDelay(uint8_t ticks);
+
+    std::string toString() const;
     void serializeToXml(QXmlStreamWriter & writer) const;
+    using NoteDataS = std::shared_ptr<NoteData>;
+    static NoteDataS deserializeFromXml(QXmlStreamReader & reader, size_t trackIndex, size_t columnIndex);
 
 private:
     Type m_type = Type::None;
 
     std::optional<uint8_t> m_note;
-
+    std::optional<uint8_t> m_delay; // In ticks per line
     uint8_t m_velocity = 0;
 
     size_t m_track = 0;
-
     size_t m_column = 0;
 };
 

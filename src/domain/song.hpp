@@ -207,8 +207,6 @@ private:
     using LineEventS = std::shared_ptr<LineEvent>;
     LineEventS deserializeLineEvent(QXmlStreamReader & reader, size_t trackIndex, size_t columnIndex);
 
-    NoteDataS deserializeNoteData(QXmlStreamReader & reader, size_t trackIndex, size_t columnIndex);
-
     void initialize();
 
     void assignInstruments(const EventList & events);

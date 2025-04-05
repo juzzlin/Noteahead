@@ -191,13 +191,16 @@ public:
     Q_INVOKABLE void requestSelectionTranspose(int semitones);
 
     //! Performs linear interpolation on velocity on current pattern, track, and column over given lines.
-    Q_INVOKABLE void requestLinearVelocityInterpolation(quint64 startLine, quint64 endLine, uint8_t startValue, uint8_t endValue);
+    Q_INVOKABLE void requestLinearVelocityInterpolation(quint64 startLine, quint64 endLine, quint8 startValue, quint8 endValue);
+    Q_INVOKABLE void setDelayOnCurrentLine(quint8 ticks);
+    Q_INVOKABLE quint8 delayAtCurrentPosition() const;
 
     bool requestPosition(const Position & position);
     Q_INVOKABLE bool requestPosition(quint64 pattern, quint64 track, quint64 column, quint64 line, quint64 lineColumn);
     Q_INVOKABLE void requestScroll(int steps);
     Q_INVOKABLE void requestTrackFocus(quint64 trackIndex, quint64 column, quint64 line);
 
+    Q_INVOKABLE quint64 ticksPerLine() const;
     Q_INVOKABLE quint64 beatsPerMinute() const;
     Q_INVOKABLE void setBeatsPerMinute(quint64 beatsPerMinute);
     Q_INVOKABLE quint64 linesPerBeat() const;

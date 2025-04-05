@@ -19,6 +19,13 @@ Menu {
             enabled: !UiService.isPlaying()
             onTriggered: editorService.requestEventRemoval()
         }
+        MenuSeparator {
+        }
+        Action {
+            text: qsTr("Set delay")
+            enabled: !UiService.isPlaying()
+            onTriggered: UiService.requestLineDelayDialog()
+        }
         delegate: MainMenuItemDelegate {
         }
     }

@@ -1215,7 +1215,7 @@ void EditorService::requestSelectionTranspose(int semitones)
     }
 }
 
-void EditorService::requestLinearVelocityInterpolation(quint64 startLine, quint64 endLine, uint8_t startValue, uint8_t endValue)
+void EditorService::requestLinearVelocityInterpolation(quint64 startLine, quint64 endLine, quint8 startValue, quint8 endValue)
 {
     auto start = position();
     start.line = startLine;
@@ -1229,6 +1229,22 @@ void EditorService::requestLinearVelocityInterpolation(quint64 startLine, quint6
         }
         setIsModified(true);
     }
+}
+
+void EditorService::setDelayOnCurrentLine(quint8 ticks)
+{
+    if (const auto noteData = m_song->noteDataAtPosition(position()); noteData) {
+        noteData->setDelay(ticks);
+    }
+}
+
+quint8 EditorService::delayAtCurrentPosition() const
+{
+    if (const auto noteData = m_song->noteDataAtPosition(position()); noteData) {
+        return noteData->delay();
+    }
+
+    return 0;
 }
 
 bool EditorService::requestPosition(const Position & position)
@@ -1329,6 +1345,11 @@ void EditorService::requestTrackFocus(quint64 trackIndex, quint64 column, quint6
             notifyPositionChange(oldPosition);
         }
     }
+}
+
+quint64 EditorService::ticksPerLine() const
+{
+    return m_song->ticksPerLine();
 }
 
 quint64 EditorService::beatsPerMinute() const
