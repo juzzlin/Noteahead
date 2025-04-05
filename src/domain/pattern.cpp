@@ -36,30 +36,24 @@ Pattern::Pattern(size_t index, size_t lineCount, size_t trackCount)
     initialize(lineCount, trackCount);
 }
 
-Pattern::Pattern(size_t index, PatternConfig config)
+Pattern::Pattern(size_t index, const PatternConfig & config)
   : m_index { index }
 {
-    initialize(config.lineCount, config.columnConfig.size());
-
-    std::ranges::for_each(m_trackOrder, [&](auto && track) {
-        while (track->columnCount() < config.columnConfig.at(track->index())) {
-            track->addColumn();
-        }
-    });
+    initialize(config);
 }
 
-std::unique_ptr<Pattern> Pattern::copyWithoutData(size_t index) const
+std::unique_ptr<Pattern> Pattern::copyWithoutData(size_t newPatternIndex) const
 {
-    return std::make_unique<Pattern>(index, patternConfig());
+    return std::make_unique<Pattern>(newPatternIndex, patternConfig());
 }
 
 Pattern::PatternConfig Pattern::patternConfig() const
 {
     PatternConfig config;
     config.lineCount = m_trackOrder.at(0)->lineCount();
-    std::ranges::for_each(m_trackOrder, [&](auto && track) {
-        config.columnConfig[track->index()] = track->columnCount();
-    });
+    for (auto && track : m_trackOrder) {
+        config.trackToColumnCountMap[track->index()] = track->columnCount();
+    }
     return config;
 }
 
@@ -344,6 +338,17 @@ void Pattern::initialize(size_t lineCount, size_t trackCount)
 {
     for (size_t i = 0; i < trackCount; i++) {
         m_trackOrder.push_back(std::make_shared<Track>(i, "Track " + std::to_string(i + 1), lineCount, 1));
+    }
+}
+
+void Pattern::initialize(const PatternConfig & config)
+{
+    for (auto && [trackIndex, columnCount] : config.trackToColumnCountMap) {
+        const auto newTrack = std::make_shared<Track>(trackIndex, "Track " + std::to_string(trackIndex + 1), config.lineCount, 1);
+        m_trackOrder.push_back(newTrack);
+        while (newTrack->columnCount() < columnCount) {
+            newTrack->addColumn();
+        }
     }
 }
 

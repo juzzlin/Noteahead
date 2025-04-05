@@ -629,6 +629,7 @@ quint64 EditorService::currentColumn() const
 void EditorService::createPatternIfDoesNotExist(quint64 patternIndex)
 {
     if (!m_song->hasPattern(patternIndex)) {
+        juzzlin::L(TAG).debug() << "Creating pattern, index=" << patternIndex;
         m_song->createPattern(patternIndex);
         emit patternCreated(patternIndex);
         emit statusTextRequested(tr("A new pattern created!"));
@@ -639,23 +640,21 @@ void EditorService::createPatternIfDoesNotExist(quint64 patternIndex)
 
 void EditorService::setCurrentPattern(quint64 patternIndex)
 {
-    if (currentPattern() == patternIndex) {
-        return;
+    if (currentPattern() != patternIndex) {
+
+        const auto oldPosition = m_state.cursorPosition;
+        m_state.cursorPosition.pattern = patternIndex;
+
+        const auto oldLineCount = m_song->lineCount(oldPosition.pattern);
+        createPatternIfDoesNotExist(patternIndex);
+
+        if (const auto newLineCount = m_song->lineCount(m_state.cursorPosition.pattern); newLineCount != oldLineCount) {
+            clampCursorLine(oldLineCount, newLineCount);
+            emit currentLineCountChanged();
+        }
+
+        notifyPositionChange(oldPosition);
     }
-
-    const auto oldPosition = m_state.cursorPosition;
-    m_state.cursorPosition.pattern = patternIndex;
-
-    const auto oldLineCount = m_song->lineCount(oldPosition.pattern);
-
-    createPatternIfDoesNotExist(patternIndex);
-
-    if (const auto newLineCount = m_song->lineCount(m_state.cursorPosition.pattern); newLineCount != oldLineCount) {
-        clampCursorLine(oldLineCount, newLineCount);
-        emit currentLineCountChanged();
-    }
-
-    notifyPositionChange(oldPosition);
 }
 
 QString EditorService::currentTime() const

@@ -174,7 +174,9 @@ void Song::createPattern(size_t patternIndex)
     if (m_patterns.empty()) {
         initialize();
     } else {
-        const auto previousPattern = m_patterns.at(m_patterns.rbegin()->first);
+        const auto previousPatternIndex = m_patterns.rbegin()->first;
+        juzzlin::L(TAG).debug() << "Copying pattern index=" << patternIndex << " from pattern index=" << previousPatternIndex;
+        const auto previousPattern = m_patterns.at(previousPatternIndex);
         m_patterns[patternIndex] = previousPattern->copyWithoutData(patternIndex);
     }
 }

@@ -17,7 +17,6 @@
 #define PLAY_ORDER_HPP
 
 #include <cstddef>
-#include <map>
 #include <vector>
 
 class QXmlStreamWriter;

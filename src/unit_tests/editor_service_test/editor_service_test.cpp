@@ -1266,6 +1266,15 @@ void EditorServiceTest::test_setSongPosition_shouldChangePattern()
     QCOMPARE(songPositionChangedSpy.count(), 2);
 }
 
+void EditorServiceTest::test_setSongPosition_trackDeleted_shouldCreatePattern()
+{
+    EditorService editorService;
+    editorService.setPatternAtSongPosition(0, 0);
+    editorService.requestTrackDeletion();
+    editorService.setPatternAtSongPosition(1, 1);
+    QCOMPARE(editorService.patternCount(), 2);
+}
+
 void EditorServiceTest::test_setPatternName_shouldChangePatternName()
 {
     EditorService editorService;

@@ -37,16 +37,16 @@ class Pattern
 public:
     Pattern(size_t index, size_t lineCount, size_t trackCount);
 
-    using ColumnConfig = std::map<size_t, size_t>;
+    using TrackToColumnCount = std::map<size_t, size_t>;
 
     struct PatternConfig
     {
         size_t lineCount = 0;
 
-        ColumnConfig columnConfig;
+        TrackToColumnCount trackToColumnCountMap;
     };
 
-    Pattern(size_t index, PatternConfig config);
+    Pattern(size_t index, const PatternConfig & config);
 
     size_t index() const;
 
@@ -109,12 +109,13 @@ public:
 
     void serializeToXml(QXmlStreamWriter & writer) const;
 
-    std::unique_ptr<Pattern> copyWithoutData(size_t index) const;
+    std::unique_ptr<Pattern> copyWithoutData(size_t newPatternIndex) const;
 
     PatternConfig patternConfig() const;
 
 private:
     void initialize(size_t lineCount, size_t trackCount);
+    void initialize(const PatternConfig & config);
 
     size_t maxIndex() const;
     TrackS trackByIndex(size_t index) const;

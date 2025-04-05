@@ -96,6 +96,7 @@ private slots:
 
     void test_setPatternAtSongPosition_shouldCreatePattern();
     void test_setSongPosition_shouldChangePattern();
+    void test_setSongPosition_trackDeleted_shouldCreatePattern();
 
     void test_setPatternName_shouldChangePatternName();
     void test_setTrackName_shouldChangeTrackName();
