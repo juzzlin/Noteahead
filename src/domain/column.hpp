@@ -69,6 +69,8 @@ public:
     void serializeToXml(QXmlStreamWriter & writer) const;
 
 private:
+    PositionList addChangedPosition(const Column::PositionList & changedPositions, const Position & position, size_t line) const;
+
     void initialize(size_t length);
 
     size_t m_virtualLineCount = 0;

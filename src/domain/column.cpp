@@ -115,20 +115,28 @@ void Column::setNoteDataAtPosition(const NoteData & noteData, const Position & p
     m_lines.at(static_cast<size_t>(position.line))->setNoteData(newNoteData);
 }
 
-using PositionList = std::vector<Position>;
+Column::PositionList Column::addChangedPosition(const Column::PositionList & changedPositions, const Position & position, size_t line) const
+{
+    Column::PositionList newChangedPositions = changedPositions;
+    auto changedPosition = position;
+    changedPosition.line = line;
+    if (hasPosition(changedPosition)) {
+        newChangedPositions.push_back(changedPosition);
+    }
+    return newChangedPositions;
+}
+
 Column::PositionList Column::deleteNoteDataAtPosition(const Position & position)
 {
     juzzlin::L(TAG).debug() << "Delete note data at position: " << position.toString();
     Column::PositionList changedPositions;
     for (size_t i = position.line; i < m_lines.size(); i++) {
-        auto changedPosition = position;
-        changedPosition.line = i;
-        changedPositions.push_back(changedPosition);
         if (i + 1 < m_lines.size()) {
             m_lines.at(i)->setNoteData(*m_lines.at(i + 1)->noteData());
         } else {
             m_lines.at(i)->setNoteData({});
         }
+        changedPositions = addChangedPosition(changedPositions, position, i);
     }
     return changedPositions;
 }
@@ -144,9 +152,7 @@ Column::PositionList Column::insertNoteDataAtPosition(const NoteData & noteData,
     for (size_t i = 0; i < m_lines.size(); i++) {
         if (i >= newIndex) {
             m_lines.at(i)->setIndex(i);
-            auto changedPosition = position;
-            changedPosition.line = i;
-            changedPositions.push_back(changedPosition);
+            changedPositions = addChangedPosition(changedPositions, position, i);
         }
     }
     return changedPositions;
@@ -158,9 +164,7 @@ Column::PositionList Column::transposeColumn(const Position & position, int semi
     for (size_t i = 0; i < m_lines.size(); i++) {
         if (m_lines.at(i)->noteData()->type() == NoteData::Type::NoteOn) {
             m_lines.at(i)->noteData()->transpose(semitones);
-            auto changedPosition = position;
-            changedPosition.line = i;
-            changedPositions.push_back(changedPosition);
+            changedPositions = addChangedPosition(changedPositions, position, i);
         }
     }
     return changedPositions;
