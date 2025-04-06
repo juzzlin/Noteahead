@@ -421,6 +421,31 @@ void EditorServiceTest::test_patternCopyPaste_equalSizes_shouldCopyPattern()
     QCOMPARE(editorService.displayVelocityAtPosition(targetPosition), "064");
 }
 
+void EditorServiceTest::test_patternCopyPaste_trackDeleted_shouldCopyPattern()
+{
+    EditorService editorService;
+    QSignalSpy noteDataChangedSpy { &editorService, &EditorService::noteDataAtPositionChanged };
+    const Position sourcePosition = { 0, 0, 0, 0, 0 };
+    QVERIFY(editorService.requestPosition(sourcePosition));
+    QVERIFY(editorService.requestNoteOnAtCurrentPosition(1, 3, 64));
+    QCOMPARE(noteDataChangedSpy.count(), 1);
+    QVERIFY(editorService.requestPosition({ 0, 1, 0, 0, 0 }));
+    editorService.requestTrackDeletion();
+
+    editorService.setIsModified(false);
+    editorService.requestPatternCopy();
+    QVERIFY(!editorService.isModified());
+    editorService.setCurrentPattern(1);
+    editorService.requestPatternPaste();
+
+    QCOMPARE(noteDataChangedSpy.count(), 449);
+    QCOMPARE(editorService.displayNoteAtPosition(sourcePosition), "C-3");
+    QCOMPARE(editorService.displayVelocityAtPosition(sourcePosition), "064");
+    const Position targetPosition = { 1, 0, 0, 0, 0 };
+    QCOMPARE(editorService.displayNoteAtPosition(targetPosition), "C-3");
+    QCOMPARE(editorService.displayVelocityAtPosition(targetPosition), "064");
+}
+
 void EditorServiceTest::test_patternCopyPaste_shorterTarget_shouldCopyPattern()
 {
     EditorService editorService;

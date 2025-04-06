@@ -48,6 +48,7 @@ private slots:
     void test_patternCutPaste_shorterTarget_shouldCopyPattern();
     void test_patternCopyPaste_equalSizes_shouldCopyPattern();
     void test_patternCopyPaste_shorterTarget_shouldCopyPattern();
+    void test_patternCopyPaste_trackDeleted_shouldCopyPattern();
 
     void test_selectionCutPaste_shouldCopySelection();
     void test_selectionCopyPaste_shouldCopySelection();
