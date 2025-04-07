@@ -27,36 +27,36 @@ MidiCcSelectionModel::MidiCcSelectionModel(QObject * parent)
 {
 }
 
-uint8_t MidiCcSelectionModel::midiCcController(uint8_t index) const
+quint8 MidiCcSelectionModel::midiCcController(quint8 index) const
 {
     return m_indexToSetting.contains(index) ? m_indexToSetting.at(index).controller() : 0;
 }
 
-void MidiCcSelectionModel::setMidiCcController(uint8_t index, uint8_t controller)
+void MidiCcSelectionModel::setMidiCcController(quint8 index, quint8 controller)
 {
     juzzlin::L(TAG).info() << "Setting controller number " << static_cast<int>(controller) << " for slot " << static_cast<int>(index);
 
     m_indexToSetting[index].setController(controller);
 }
 
-uint8_t MidiCcSelectionModel::midiCcValue(uint8_t index) const
+quint8 MidiCcSelectionModel::midiCcValue(quint8 index) const
 {
     return m_indexToSetting.contains(index) ? m_indexToSetting.at(index).value() : 0;
 }
 
-void MidiCcSelectionModel::setMidiCcValue(uint8_t index, uint8_t value)
+void MidiCcSelectionModel::setMidiCcValue(quint8 index, quint8 value)
 {
     juzzlin::L(TAG).info() << "Setting value " << static_cast<int>(value) << " for slot " << static_cast<int>(index);
 
     m_indexToSetting[index].setValue(value);
 }
 
-bool MidiCcSelectionModel::midiCcEnabled(uint8_t index) const
+bool MidiCcSelectionModel::midiCcEnabled(quint8 index) const
 {
     return m_indexToSetting.contains(index);
 }
 
-void MidiCcSelectionModel::setMidiCcEnabled(uint8_t index, bool enabled)
+void MidiCcSelectionModel::setMidiCcEnabled(quint8 index, bool enabled)
 {
     juzzlin::L(TAG).info() << "Setting slot " << static_cast<int>(index) << " enabled: " << static_cast<int>(enabled);
 
@@ -69,12 +69,12 @@ void MidiCcSelectionModel::setMidiCcEnabled(uint8_t index, bool enabled)
     }
 }
 
-QString MidiCcSelectionModel::midiCcToString(uint8_t controller) const
+QString MidiCcSelectionModel::midiCcToString(quint8 controller) const
 {
     return MidiCc::controllerToString(static_cast<MidiCc::Controller>(controller));
 }
 
-uint8_t MidiCcSelectionModel::midiCcSlots() const
+quint8 MidiCcSelectionModel::midiCcSlots() const
 {
     return 4;
 }
@@ -91,7 +91,7 @@ void MidiCcSelectionModel::setMidiCcSettings(const MidiCcSettingList & midiCcSet
 {
     m_indexToSetting.clear();
     for (auto && setting : midiCcSettings) {
-        m_indexToSetting[static_cast<uint8_t>(m_indexToSetting.size())] = setting;
+        m_indexToSetting[static_cast<quint8>(m_indexToSetting.size())] = setting;
     }
 }
 

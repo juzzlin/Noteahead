@@ -26,23 +26,23 @@ class MidiCcSelectionModel : public QObject
 {
     Q_OBJECT
 
-    Q_PROPERTY(uint8_t midiCcSlots READ midiCcSlots NOTIFY midiCcSlotsChanged)
+    Q_PROPERTY(quint8 midiCcSlots READ midiCcSlots NOTIFY midiCcSlotsChanged)
 
 public:
     explicit MidiCcSelectionModel(QObject * parent = nullptr);
 
-    Q_INVOKABLE uint8_t midiCcController(uint8_t index) const;
-    Q_INVOKABLE void setMidiCcController(uint8_t index, uint8_t controller);
+    Q_INVOKABLE quint8 midiCcController(quint8 index) const;
+    Q_INVOKABLE void setMidiCcController(quint8 index, quint8 controller);
 
-    Q_INVOKABLE uint8_t midiCcValue(uint8_t index) const;
-    Q_INVOKABLE void setMidiCcValue(uint8_t index, uint8_t value);
+    Q_INVOKABLE quint8 midiCcValue(quint8 index) const;
+    Q_INVOKABLE void setMidiCcValue(quint8 index, quint8 value);
 
-    Q_INVOKABLE bool midiCcEnabled(uint8_t index) const;
-    Q_INVOKABLE void setMidiCcEnabled(uint8_t index, bool enabled);
+    Q_INVOKABLE bool midiCcEnabled(quint8 index) const;
+    Q_INVOKABLE void setMidiCcEnabled(quint8 index, bool enabled);
 
-    Q_INVOKABLE QString midiCcToString(uint8_t controller) const;
+    Q_INVOKABLE QString midiCcToString(quint8 controller) const;
 
-    uint8_t midiCcSlots() const;
+    quint8 midiCcSlots() const;
 
     using MidiCcSettingList = std::vector<MidiCcSetting>;
     MidiCcSettingList midiCcSettings() const;
@@ -52,7 +52,7 @@ signals:
     void midiCcSlotsChanged();
 
 private:
-    std::map<uint8_t, MidiCcSetting> m_indexToSetting;
+    std::map<quint8, MidiCcSetting> m_indexToSetting;
 };
 
 } // namespace noteahead
