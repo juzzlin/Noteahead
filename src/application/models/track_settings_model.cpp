@@ -34,6 +34,13 @@ void TrackSettingsModel::applyAll()
     }
 }
 
+void TrackSettingsModel::applyMidiCc()
+{
+    if (!m_applyDisabled && !m_portName.isEmpty()) {
+        emit applyMidiCcRequested();
+    }
+}
+
 void TrackSettingsModel::requestInstrumentData()
 {
     emit instrumentDataRequested();
@@ -270,6 +277,8 @@ void TrackSettingsModel::reset()
     m_volume = m_defaultVolume;
     m_sendMidiClock = false;
     m_delay = 0;
+
+    setMidiCcSettings({});
 
     emit instrumentDataReceived();
 

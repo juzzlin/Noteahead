@@ -10,11 +10,14 @@ Dialog {
     title: "<strong>" + qsTr("Settings for track") + ` '${editorService.trackName(trackSettingsModel.trackIndex)}'` + "</strong>"
     modal: true
     property var _midiCcSelectors: []
+    property bool _initializing: false
+    readonly property string _tag: "TrackSettingsDialog"
     function setTrackIndex(trackIndex) {
         trackSettingsModel.trackIndex = trackIndex;
         trackSettingsModel.requestInstrumentData();
     }
     function initialize() {
+        uiLogger.info(_tag, "Initializing");
         portNameDropdown.setSelected(trackSettingsModel.portName);
         channelDropdown.setSelected(trackSettingsModel.channel + 1);
         enableBankCheckbox.checked = trackSettingsModel.bankEnabled;
@@ -34,8 +37,8 @@ Dialog {
         initializeMidiCcSelectors();
     }
     function initializeMidiCcSelectors() {
-        for (const midiCcSeletor of _midiCcSelectors) {
-            midiCcSeletor.initialize();
+        for (const midiCcSelector of _midiCcSelectors) {
+            midiCcSelector.initialize(trackSettingsModel.midiCcEnabled(midiCcSelector.index), trackSettingsModel.midiCcController(midiCcSelector.index), trackSettingsModel.midiCcValue(midiCcSelector.index));
         }
     }
     function saveSettings() {
@@ -44,6 +47,9 @@ Dialog {
     }
     function _requestApplyAll() {
         trackSettingsModel.applyAll();
+    }
+    function _requestApplyMidiCc() {
+        trackSettingsModel.applyMidiCc();
     }
     function _requestTestSound() {
         if (rootItem.visible) {
@@ -64,7 +70,6 @@ Dialog {
             DialogButtonBox.buttonRole: DialogButtonBox.AcceptRole
             onClicked: {
                 saveSettings();
-                rootItem.accepted();
             }
             ToolTip.delay: Constants.toolTipDelay
             ToolTip.timeout: Constants.toolTipTimeout
@@ -400,7 +405,12 @@ Dialog {
                     onItemAdded: (index, item) => {
                         item.index = index;
                         _midiCcSelectors.push(item);
-                        item.settingsChanged.connect(rootItem._requestApplyAll);
+                        item.settingsChanged.connect(() => {
+                                trackSettingsModel.setMidiCcEnabled(item.index, item.enabled());
+                                trackSettingsModel.setMidiCcController(item.index, item.controller());
+                                trackSettingsModel.setMidiCcValue(item.index, item.value());
+                                rootItem._requestApplyAll();
+                            });
                     }
                 }
             }

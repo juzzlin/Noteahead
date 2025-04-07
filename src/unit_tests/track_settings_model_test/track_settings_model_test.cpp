@@ -227,6 +227,25 @@ void TrackSettingsModelTest::test_toInstrument_shouldApplyMidiClockAndDelayWhenE
     QCOMPARE(instrument->settings().delay, std::chrono::milliseconds { 200 });
 }
 
+void TrackSettingsModelTest::test_toInstrument_setMidiCc_shouldEnableMidiCcSetting()
+{
+    TrackSettingsModel model;
+    model.setMidiCcController(0, 1);
+    model.setMidiCcValue(0, 42);
+
+    auto instrument = model.toInstrument();
+
+    QCOMPARE(instrument->settings().midiCcSettings.at(0).enabled(), false);
+    QCOMPARE(instrument->settings().midiCcSettings.at(0).controller(), 1);
+    QCOMPARE(instrument->settings().midiCcSettings.at(0).value(), 42);
+
+    model.setMidiCcEnabled(0, true);
+
+    instrument = model.toInstrument();
+
+    QCOMPARE(instrument->settings().midiCcSettings.at(0).enabled(), true);
+}
+
 } // namespace noteahead
 
 QTEST_GUILESS_MAIN(noteahead::TrackSettingsModelTest)

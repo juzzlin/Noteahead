@@ -40,6 +40,7 @@ private slots:
     void test_toInstrument_shouldApplyPanWhenPanEnabled();
     void test_toInstrument_shouldApplyVolumeWhenVolumeEnabled();
     void test_toInstrument_shouldApplyMidiClockAndDelayWhenEnabled();
+    void test_toInstrument_setMidiCc_shouldEnableMidiCcSetting();
 };
 
 } // namespace noteahead

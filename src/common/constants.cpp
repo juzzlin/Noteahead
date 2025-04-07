@@ -132,6 +132,11 @@ QString xmlKeyController()
     return "controller";
 }
 
+QString xmlKeyEnabled()
+{
+    return "enabled";
+}
+
 QString xmlKeyCutoff()
 {
     return "cutoff";

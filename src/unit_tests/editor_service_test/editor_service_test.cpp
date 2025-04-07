@@ -1453,8 +1453,8 @@ void EditorServiceTest::test_toXmlFromXml_instrumentSettings_shouldParseInstrume
     instrumentSettingsOut->sendMidiClock = true;
     instrumentSettingsOut->delay = std::chrono::milliseconds { -666 };
     instrumentSettingsOut->midiCcSettings = {
-        { 7, 80 },
-        { 10, 127 }
+        { true, 7, 80 },
+        { false, 10, 127 }
     };
 
     editorServiceOut.setInstrumentSettingsAtCurrentPosition(instrumentSettingsOut);
@@ -1482,6 +1482,7 @@ void EditorServiceTest::test_toXmlFromXml_instrumentSettings_shouldParseInstrume
     QCOMPARE(instrumentSettingsIn->midiCcSettings.size(), instrumentSettingsOut->midiCcSettings.size());
 
     for (size_t i = 0; i < instrumentSettingsOut->midiCcSettings.size(); ++i) {
+        QCOMPARE(instrumentSettingsIn->midiCcSettings.at(i).enabled(), instrumentSettingsOut->midiCcSettings.at(i).enabled());
         QCOMPARE(instrumentSettingsIn->midiCcSettings.at(i).controller(), instrumentSettingsOut->midiCcSettings.at(i).controller());
         QCOMPARE(instrumentSettingsIn->midiCcSettings.at(i).value(), instrumentSettingsOut->midiCcSettings.at(i).value());
     }

@@ -53,19 +53,17 @@ void MidiCcSelectionModel::setMidiCcValue(quint8 index, quint8 value)
 
 bool MidiCcSelectionModel::midiCcEnabled(quint8 index) const
 {
-    return m_indexToSetting.contains(index);
+    return m_indexToSetting.contains(index) && m_indexToSetting.at(index).enabled();
 }
 
 void MidiCcSelectionModel::setMidiCcEnabled(quint8 index, bool enabled)
 {
     juzzlin::L(TAG).info() << "Setting slot " << static_cast<int>(index) << " enabled: " << static_cast<int>(enabled);
 
-    if (enabled) {
-        if (!m_indexToSetting.contains(index)) {
-            m_indexToSetting[index] = { 0, 0 };
-        }
+    if (!m_indexToSetting.contains(index)) {
+        m_indexToSetting[index] = { enabled, 0, 0 };
     } else {
-        m_indexToSetting.erase(index);
+        m_indexToSetting.at(index).setEnabled(enabled);
     }
 }
 

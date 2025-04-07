@@ -78,13 +78,6 @@ void InstrumentSettings::serializeToXml(QXmlStreamWriter & writer) const
     writer.writeEndElement(); // Settings
 }
 
-std::unique_ptr<MidiCcSetting> deserializeMidiCcSetting(QXmlStreamReader & reader)
-{
-    const auto controller = static_cast<uint8_t>(*Utils::Xml::readUIntAttribute(reader, Constants::xmlKeyController()));
-    const auto value = static_cast<uint8_t>(*Utils::Xml::readUIntAttribute(reader, Constants::xmlKeyValue()));
-    return std::make_unique<MidiCcSetting>(controller, value);
-}
-
 InstrumentSettings::InstrumentSettingsU InstrumentSettings::deserializeFromXml(QXmlStreamReader & reader)
 {
     juzzlin::L(TAG).trace() << "Reading InstrumentSettings";
@@ -107,7 +100,7 @@ InstrumentSettings::InstrumentSettingsU InstrumentSettings::deserializeFromXml(Q
     while (!(reader.isEndElement() && !reader.name().compare(Constants::xmlKeyInstrumentSettings()))) {
         juzzlin::L(TAG).trace() << "InstrumentSettings: Current element: " << reader.name().toString().toStdString();
         if (reader.isStartElement() && !reader.name().compare(Constants::xmlKeyMidiCcSetting())) {
-            settings->midiCcSettings.push_back(*deserializeMidiCcSetting(reader));
+            settings->midiCcSettings.push_back(*MidiCcSetting::deserializeFromXml(reader));
         }
         reader.readNext();
     }

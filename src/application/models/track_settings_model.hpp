@@ -65,6 +65,7 @@ public:
     ~TrackSettingsModel() override;
 
     Q_INVOKABLE void applyAll();
+    Q_INVOKABLE void applyMidiCc();
 
     Q_INVOKABLE void requestInstrumentData();
     Q_INVOKABLE void requestTestSound(quint8 velocity);
@@ -134,6 +135,7 @@ public:
 
 signals:
     void applyAllRequested();
+    void applyMidiCcRequested();
     void applyPatchRequested();
 
     void availableMidiPortsChanged();

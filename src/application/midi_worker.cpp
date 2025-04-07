@@ -143,7 +143,9 @@ void MidiWorker::sendMidiCcSettings(const MidiDevice & midiDevice, const Instrum
         m_midiBackend->sendCC(midiDevice, channel, static_cast<quint8>(MidiCc::Controller::SoundController5), *predefinedMidiCcSettings.cutoff);
     }
     for (auto && midiCcSetting : instrument.settings().midiCcSettings) {
-        m_midiBackend->sendCC(midiDevice, channel, midiCcSetting.controller(), midiCcSetting.value());
+        if (midiCcSetting.enabled()) {
+            m_midiBackend->sendCC(midiDevice, channel, midiCcSetting.controller(), midiCcSetting.value());
+        }
     }
 }
 

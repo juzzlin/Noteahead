@@ -62,18 +62,19 @@ void MidiCcSelectionModelTest::test_toString_shouldReturnNonEmptyString()
 void MidiCcSelectionModelTest::test_settings_shouldRoundTripCorrectly()
 {
     MidiCcSelectionModel::MidiCcSettingList settings = {
-        MidiCcSetting { 10, 64 },
-        MidiCcSetting { 74, 127 },
+        MidiCcSetting { true, 10, 64 },
+        MidiCcSetting { false, 74, 127 },
     };
 
     model->setMidiCcSettings(settings);
 
-    const auto fetched = model->midiCcSettings();
-    QCOMPARE(fetched.size(), 2);
-    QCOMPARE(fetched.at(0).controller(), 10);
-    QCOMPARE(fetched.at(0).value(), 64);
-    QCOMPARE(fetched.at(1).controller(), 74);
-    QCOMPARE(fetched.at(1).value(), 127);
+    QCOMPARE(model->midiCcSettings().size(), 2);
+    for (size_t i = 0; i < model->midiCcSettings().size(); i++) {
+        const auto setting = model->midiCcSettings().at(i);
+        QCOMPARE(setting.enabled(), settings.at(i).enabled());
+        QCOMPARE(setting.controller(), settings.at(i).controller());
+        QCOMPARE(setting.value(), settings.at(i).value());
+    }
 }
 
 } // namespace noteahead

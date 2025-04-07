@@ -226,6 +226,12 @@ void Application::connectServices()
         m_midiService->handleInstrumentRequest(instrumentRequest);
     });
 
+    connect(m_trackSettingsModel.get(), &TrackSettingsModel::applyMidiCcRequested, this, [this]() {
+        const InstrumentRequest instrumentRequest { InstrumentRequest::Type::ApplyMidiCc, *m_trackSettingsModel->toInstrument() };
+        juzzlin::L(TAG).info() << "Applying MIDI CC: " << instrumentRequest.instrument().toString().toStdString();
+        m_midiService->handleInstrumentRequest(instrumentRequest);
+    });
+
     connect(m_trackSettingsModel.get(), &TrackSettingsModel::applyPatchRequested, this, [this]() {
         const InstrumentRequest instrumentRequest { InstrumentRequest::Type::ApplyPatch, *m_trackSettingsModel->toInstrument() };
         juzzlin::L(TAG).info() << "Applying PATCH: " << instrumentRequest.instrument().toString().toStdString();

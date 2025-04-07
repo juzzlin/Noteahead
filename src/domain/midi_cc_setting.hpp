@@ -20,15 +20,18 @@
 #include <cstdint>
 
 class QXmlStreamWriter;
+class QXmlStreamReader;
 
 namespace noteahead {
 
 class MidiCcSetting
 {
 public:
-    MidiCcSetting(uint8_t controller, uint8_t value);
-
+    MidiCcSetting(bool enabled, uint8_t controller, uint8_t value);
     MidiCcSetting();
+
+    bool enabled() const;
+    void setEnabled(bool enabled);
 
     uint8_t controller() const;
     void setController(uint8_t controller);
@@ -37,12 +40,13 @@ public:
     void setValue(uint8_t value);
 
     void serializeToXml(QXmlStreamWriter & writer) const;
+    static std::unique_ptr<MidiCcSetting> deserializeFromXml(QXmlStreamReader & reader);
 
     QString toString() const;
 
 private:
+    bool m_enabled = false;
     uint8_t m_controller = 0;
-
     uint8_t m_value = 0;
 };
 
