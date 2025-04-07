@@ -166,7 +166,7 @@ Item {
         }
     }
     function _createLines() {
-        uiLogger.debug(_tag, `Creating lines of pattern ${_patternIndex}, track ${_trackIndex}, column ${_index}`);
+        uiLogger.trace(_tag, `Creating lines of pattern ${_patternIndex}, track ${_trackIndex}, column ${_index}`);
         _lines.forEach(line => {
                 line.destroy();
             });

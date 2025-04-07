@@ -54,7 +54,7 @@ void Line::clear()
 
 void Line::setNoteData(const NoteData & noteData)
 {
-    juzzlin::L(TAG).debug() << "Set note data " << noteData.toString();
+    juzzlin::L(TAG).trace() << "Set note data " << noteData.toString();
     *m_noteData = noteData;
 }
 

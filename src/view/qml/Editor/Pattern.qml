@@ -19,7 +19,7 @@ Item {
                     });
                 track.updateData();
                 _tracks.push(track);
-                uiLogger.debug(_tag, `Added track index=${trackIndex}, width=${track.width}, height=${track.height}, x=${track.x}, y=${track.y}`);
+                uiLogger.trace(_tag, `Added track index=${trackIndex}, width=${track.width}, height=${track.height}, x=${track.x}, y=${track.y}`);
             }
         }
         updateTrackDimensions(trackAreaWidth, trackAreaHeight);
@@ -90,7 +90,7 @@ Item {
     function setColumnVelocityScale(trackIndex, columnIndex, value) {
         _tracks.forEach(track => {
                 if (track.index() === trackIndex) {
-                    uiLogger.debug(_tag, `Setting velocity scale for column ${columnIndex} of track ${trackIndex}: ${value}`);
+                    uiLogger.trace(_tag, `Setting velocity scale for column ${columnIndex} of track ${trackIndex}: ${value}`);
                     track.setColumnVelocityScale(columnIndex, value);
                 }
             });
@@ -114,7 +114,7 @@ Item {
     function setTrackVelocityScale(trackIndex, value) {
         _tracks.forEach(track => {
                 if (track.index() === trackIndex) {
-                    uiLogger.debug(_tag, `Setting velocity scale for track ${trackIndex}: ${value}`);
+                    uiLogger.trace(_tag, `Setting velocity scale for track ${trackIndex}: ${value}`);
                     track.setVelocityScale(value);
                 }
             });
