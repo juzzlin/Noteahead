@@ -39,7 +39,7 @@ void TrackSettingsModel::requestInstrumentData()
     emit instrumentDataRequested();
 }
 
-void TrackSettingsModel::requestTestSound(uint8_t velocity)
+void TrackSettingsModel::requestTestSound(quint8 velocity)
 {
     emit testSoundRequested(velocity);
 }
@@ -72,17 +72,17 @@ void TrackSettingsModel::setAvailableMidiPorts(QStringList portNames)
     popApplyDisabled();
 }
 
-size_t TrackSettingsModel::trackIndex() const
+quint64 TrackSettingsModel::trackIndex() const
 {
     return m_trackIndex;
 }
 
-uint8_t TrackSettingsModel::channel() const
+quint8 TrackSettingsModel::channel() const
 {
     return m_channel;
 }
 
-void TrackSettingsModel::setChannel(uint8_t channel)
+void TrackSettingsModel::setChannel(quint8 channel)
 {
     juzzlin::L(TAG).debug() << "Setting channel to " << static_cast<int>(channel);
 
@@ -93,12 +93,12 @@ void TrackSettingsModel::setChannel(uint8_t channel)
     }
 }
 
-uint8_t TrackSettingsModel::cutoff() const
+quint8 TrackSettingsModel::cutoff() const
 {
     return m_cutoff;
 }
 
-void TrackSettingsModel::setCutoff(uint8_t cutoff)
+void TrackSettingsModel::setCutoff(quint8 cutoff)
 {
     juzzlin::L(TAG).debug() << "Setting cutoff to " << static_cast<int>(cutoff);
 
@@ -141,12 +141,12 @@ void TrackSettingsModel::setBankEnabled(bool enabled)
     }
 }
 
-uint8_t TrackSettingsModel::bankLsb() const
+quint8 TrackSettingsModel::bankLsb() const
 {
     return m_bankLsb;
 }
 
-void TrackSettingsModel::setBankLsb(uint8_t lsb)
+void TrackSettingsModel::setBankLsb(quint8 lsb)
 {
     juzzlin::L(TAG).debug() << "Setting bank LSB to " << static_cast<int>(lsb);
 
@@ -157,12 +157,12 @@ void TrackSettingsModel::setBankLsb(uint8_t lsb)
     }
 }
 
-uint8_t TrackSettingsModel::bankMsb() const
+quint8 TrackSettingsModel::bankMsb() const
 {
     return m_bankMsb;
 }
 
-void TrackSettingsModel::setBankMsb(uint8_t msb)
+void TrackSettingsModel::setBankMsb(quint8 msb)
 {
     juzzlin::L(TAG).debug() << "Setting bank MSB to " << static_cast<int>(msb);
 
@@ -189,7 +189,7 @@ void TrackSettingsModel::setBankByteOrderSwapped(bool swapped)
     }
 }
 
-void TrackSettingsModel::setTrackIndex(size_t trackIndex)
+void TrackSettingsModel::setTrackIndex(quint64 trackIndex)
 {
     juzzlin::L(TAG).info() << "Setting track index to " << trackIndex;
 
@@ -344,12 +344,12 @@ void TrackSettingsModel::setPatchEnabled(bool enabled)
     }
 }
 
-uint8_t TrackSettingsModel::patch() const
+quint8 TrackSettingsModel::patch() const
 {
     return m_patch;
 }
 
-void TrackSettingsModel::setPatch(uint8_t patch)
+void TrackSettingsModel::setPatch(quint8 patch)
 {
     juzzlin::L(TAG).debug() << "Setting patch to " << static_cast<int>(patch);
 
@@ -360,12 +360,12 @@ void TrackSettingsModel::setPatch(uint8_t patch)
     }
 }
 
-uint8_t TrackSettingsModel::pan() const
+quint8 TrackSettingsModel::pan() const
 {
     return m_pan;
 }
 
-void TrackSettingsModel::setPan(uint8_t pan)
+void TrackSettingsModel::setPan(quint8 pan)
 {
     juzzlin::L(TAG).debug() << "Setting pan to " << static_cast<int>(pan);
 
@@ -392,12 +392,12 @@ void TrackSettingsModel::setPanEnabled(bool enabled)
     }
 }
 
-uint8_t TrackSettingsModel::volume() const
+quint8 TrackSettingsModel::volume() const
 {
     return m_volume;
 }
 
-void TrackSettingsModel::setVolume(uint8_t volume)
+void TrackSettingsModel::setVolume(quint8 volume)
 {
     juzzlin::L(TAG).debug() << "Setting volume to " << static_cast<int>(volume);
 

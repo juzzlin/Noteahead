@@ -32,28 +32,28 @@ class TrackSettingsModel : public MidiCcSelectionModel
 {
     Q_OBJECT
 
-    Q_PROPERTY(size_t trackIndex READ trackIndex WRITE setTrackIndex NOTIFY trackIndexChanged)
+    Q_PROPERTY(quint64 trackIndex READ trackIndex WRITE setTrackIndex NOTIFY trackIndexChanged)
 
     Q_PROPERTY(QStringList availableMidiPorts READ availableMidiPorts NOTIFY availableMidiPortsChanged)
     Q_PROPERTY(QString portName READ portName WRITE setPortName NOTIFY portNameChanged)
 
-    Q_PROPERTY(uint8_t channel READ channel WRITE setChannel NOTIFY channelChanged)
+    Q_PROPERTY(quint8 channel READ channel WRITE setChannel NOTIFY channelChanged)
 
-    Q_PROPERTY(uint8_t cutoff READ cutoff WRITE setCutoff NOTIFY cutoffChanged)
+    Q_PROPERTY(quint8 cutoff READ cutoff WRITE setCutoff NOTIFY cutoffChanged)
     Q_PROPERTY(bool cutoffEnabled READ cutoffEnabled WRITE setCutoffEnabled NOTIFY cutoffEnabledChanged)
 
     Q_PROPERTY(bool patchEnabled READ patchEnabled WRITE setPatchEnabled NOTIFY patchEnabledChanged)
-    Q_PROPERTY(uint8_t patch READ patch WRITE setPatch NOTIFY patchChanged)
+    Q_PROPERTY(quint8 patch READ patch WRITE setPatch NOTIFY patchChanged)
 
     Q_PROPERTY(bool bankEnabled READ bankEnabled WRITE setBankEnabled NOTIFY bankEnabledChanged)
-    Q_PROPERTY(uint8_t bankLsb READ bankLsb WRITE setBankLsb NOTIFY bankLsbChanged)
-    Q_PROPERTY(uint8_t bankMsb READ bankMsb WRITE setBankMsb NOTIFY bankMsbChanged)
+    Q_PROPERTY(quint8 bankLsb READ bankLsb WRITE setBankLsb NOTIFY bankLsbChanged)
+    Q_PROPERTY(quint8 bankMsb READ bankMsb WRITE setBankMsb NOTIFY bankMsbChanged)
     Q_PROPERTY(bool bankByteOrderSwapped READ bankByteOrderSwapped WRITE setBankByteOrderSwapped NOTIFY bankByteOrderSwappedChanged)
 
-    Q_PROPERTY(uint8_t pan READ pan WRITE setPan NOTIFY panChanged)
+    Q_PROPERTY(quint8 pan READ pan WRITE setPan NOTIFY panChanged)
     Q_PROPERTY(bool panEnabled READ panEnabled WRITE setPanEnabled NOTIFY panEnabledChanged)
 
-    Q_PROPERTY(uint8_t volume READ volume WRITE setVolume NOTIFY volumeChanged)
+    Q_PROPERTY(quint8 volume READ volume WRITE setVolume NOTIFY volumeChanged)
     Q_PROPERTY(bool volumeEnabled READ volumeEnabled WRITE setVolumeEnabled NOTIFY volumeEnabledChanged)
 
     Q_PROPERTY(bool sendMidiClock READ sendMidiClock WRITE setSendMidiClock NOTIFY sendMidiClockChanged)
@@ -67,15 +67,15 @@ public:
     Q_INVOKABLE void applyAll();
 
     Q_INVOKABLE void requestInstrumentData();
-    Q_INVOKABLE void requestTestSound(uint8_t velocity);
+    Q_INVOKABLE void requestTestSound(quint8 velocity);
 
     Q_INVOKABLE void save();
 
     QStringList availableMidiPorts() const;
     void setAvailableMidiPorts(QStringList portNames);
 
-    size_t trackIndex() const;
-    void setTrackIndex(size_t trackIndex);
+    quint64 trackIndex() const;
+    void setTrackIndex(quint64 trackIndex);
 
     void setInstrumentData(const Instrument &);
 
@@ -97,32 +97,32 @@ public:
     bool patchEnabled() const;
     void setPatchEnabled(bool enabled);
 
-    uint8_t bankLsb() const;
-    void setBankLsb(uint8_t lsb);
+    quint8 bankLsb() const;
+    void setBankLsb(quint8 lsb);
 
-    uint8_t bankMsb() const;
-    void setBankMsb(uint8_t msb);
+    quint8 bankMsb() const;
+    void setBankMsb(quint8 msb);
 
-    uint8_t channel() const;
-    void setChannel(uint8_t channel);
+    quint8 channel() const;
+    void setChannel(quint8 channel);
 
-    uint8_t cutoff() const;
-    void setCutoff(uint8_t cutoff);
+    quint8 cutoff() const;
+    void setCutoff(quint8 cutoff);
 
     bool cutoffEnabled() const;
     void setCutoffEnabled(bool enabled);
 
-    uint8_t pan() const;
-    void setPan(uint8_t volume);
+    quint8 pan() const;
+    void setPan(quint8 volume);
 
     bool panEnabled() const;
     void setPanEnabled(bool enabled);
 
-    uint8_t patch() const;
-    void setPatch(uint8_t patch);
+    quint8 patch() const;
+    void setPatch(quint8 patch);
 
-    uint8_t volume() const;
-    void setVolume(uint8_t volume);
+    quint8 volume() const;
+    void setVolume(quint8 volume);
     bool volumeEnabled() const;
     void setVolumeEnabled(bool enabled);
 
@@ -161,7 +161,7 @@ signals:
 
     void saveRequested();
 
-    void testSoundRequested(uint8_t velocity);
+    void testSoundRequested(quint8 velocity);
 
     void trackIndexChanged();
 
@@ -190,25 +190,25 @@ private:
     bool m_volumeEnabled { false };
     bool m_sendMidiClock { false };
 
-    size_t m_trackIndex { 0 };
+    quint64 m_trackIndex { 0 };
 
     std::vector<bool> m_applyDisabledStack;
 
-    uint8_t m_bankLsb { 0 };
-    uint8_t m_bankMsb { 0 };
+    quint8 m_bankLsb { 0 };
+    quint8 m_bankMsb { 0 };
 
-    uint8_t m_channel { 0 };
+    quint8 m_channel { 0 };
 
-    const uint8_t m_defaultCutoff { 127 };
-    uint8_t m_cutoff { m_defaultCutoff };
+    const quint8 m_defaultCutoff { 127 };
+    quint8 m_cutoff { m_defaultCutoff };
 
-    uint8_t m_patch { 0 };
+    quint8 m_patch { 0 };
 
-    const uint8_t m_defaultPan { 64 };
-    uint8_t m_pan { m_defaultPan };
+    const quint8 m_defaultPan { 64 };
+    quint8 m_pan { m_defaultPan };
 
-    const uint8_t m_defaultVolume { 127 };
-    uint8_t m_volume { m_defaultVolume };
+    const quint8 m_defaultVolume { 127 };
+    quint8 m_volume { m_defaultVolume };
 
     int m_delay { 0 };
 };
