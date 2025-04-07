@@ -28,6 +28,7 @@ public:
         None,
         ApplyAll,
         ApplyPatch,
+        ApplyMidiCc,
     };
 
     InstrumentRequest();

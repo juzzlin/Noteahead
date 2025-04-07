@@ -312,11 +312,33 @@ void Application::applyInstrument(const Instrument & instrument)
     m_midiService->handleInstrumentRequest(instrumentRequest);
 }
 
+void Application::applyMidiCcSettings(const Instrument & instrument)
+{
+    const InstrumentRequest instrumentRequest { InstrumentRequest::Type::ApplyMidiCc, instrument };
+    juzzlin::L(TAG).info() << "Applying MIDI CC settings: " << instrumentRequest.instrument().toString().toStdString();
+    m_midiService->handleInstrumentRequest(instrumentRequest);
+}
+
 void Application::applyAllInstruments()
 {
     for (auto trackIndex : m_editorService->trackIndices()) {
         if (const auto instrument = m_editorService->instrument(trackIndex); instrument) {
             applyInstrument(*instrument);
+        }
+    }
+
+    m_instrumentTimer = std::make_unique<QTimer>();
+    m_instrumentTimer->setSingleShot(true);
+    m_instrumentTimer->setInterval(1000);
+    connect(m_instrumentTimer.get(), &QTimer::timeout, this, &Application::applyAllMidiCcSettings);
+    m_instrumentTimer->start();
+}
+
+void Application::applyAllMidiCcSettings()
+{
+    for (auto trackIndex : m_editorService->trackIndices()) {
+        if (const auto instrument = m_editorService->instrument(trackIndex); instrument) {
+            applyMidiCcSettings(*instrument);
         }
     }
 }

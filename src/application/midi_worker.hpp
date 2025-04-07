@@ -29,6 +29,7 @@ namespace noteahead {
 class Instrument;
 class InstrumentRequest;
 class MidiBackend;
+class MidiDevice;
 
 class MidiWorker : public QObject
 {
@@ -63,6 +64,8 @@ signals:
 private:
     void initializeScanTimer();
     void initializeStopTimer();
+
+    void sendMidiCcSettings(const MidiDevice & midiDevice, const Instrument & instrument);
 
     std::shared_ptr<MidiBackend> m_midiBackend;
 

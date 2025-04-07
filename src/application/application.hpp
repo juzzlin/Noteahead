@@ -25,6 +25,7 @@
 
 class QGuiApplication;
 class QQmlApplicationEngine;
+class QTimer;
 
 namespace juzzlin {
 class Argengine;
@@ -59,7 +60,9 @@ public:
 
 private:
     void applyAllInstruments();
+    void applyAllMidiCcSettings();
     void applyInstrument(const Instrument & instrument);
+    void applyMidiCcSettings(const Instrument & instrument);
     void applyState(StateMachine::State state);
 
     void connectServices();
@@ -104,6 +107,8 @@ private:
     bool m_videoGeneratorEnabled = false;
 
     VideoConfig m_videoConfig;
+
+    std::unique_ptr<QTimer> m_instrumentTimer;
 };
 
 } // namespace noteahead
