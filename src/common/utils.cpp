@@ -17,6 +17,8 @@
 
 #include "constants.hpp"
 
+#include <charconv>
+
 #include <QXmlStreamReader>
 
 namespace noteahead::Utils {
@@ -87,4 +89,13 @@ std::optional<QString> readStringAttribute(QXmlStreamReader & reader, QString na
     }
 }
 } // namespace Xml
+
+std::optional<double> parseDecimal(std::string_view str)
+{
+    double value;
+    if (const auto [ptr, ec] = std::from_chars(str.begin(), str.end(), value); ec == std::errc()) {
+        return value;
+    }
+    return std::nullopt;
+}
 } // namespace noteahead::Utils

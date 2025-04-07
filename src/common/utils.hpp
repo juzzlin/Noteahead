@@ -29,8 +29,8 @@ std::optional<bool> readBoolAttribute(QXmlStreamReader & reader, QString name, b
 std::optional<int> readIntAttribute(QXmlStreamReader & reader, QString name, bool required = true);
 std::optional<size_t> readUIntAttribute(QXmlStreamReader & reader, QString name, bool required = true);
 std::optional<QString> readStringAttribute(QXmlStreamReader & reader, QString name, bool required = true);
-
 } // namespace Xml
+std::optional<double> parseDecimal(std::string_view string);
 } // namespace noteahead::Utils
 
 #endif // UTILS_HPP
