@@ -37,12 +37,12 @@ void EventSelectionModel::save()
     emit saveRequested();
 }
 
-uint8_t EventSelectionModel::cutoff() const
+quint8 EventSelectionModel::cutoff() const
 {
     return m_cutoff;
 }
 
-void EventSelectionModel::setCutoff(uint8_t cutoff)
+void EventSelectionModel::setCutoff(quint8 cutoff)
 {
     juzzlin::L(TAG).debug() << "Setting cutoff to " << static_cast<int>(cutoff);
 
@@ -82,12 +82,12 @@ void EventSelectionModel::setBankEnabled(bool enabled)
     }
 }
 
-uint8_t EventSelectionModel::bankLsb() const
+quint8 EventSelectionModel::bankLsb() const
 {
     return m_bankLsb;
 }
 
-void EventSelectionModel::setBankLsb(uint8_t lsb)
+void EventSelectionModel::setBankLsb(quint8 lsb)
 {
     juzzlin::L(TAG).debug() << "Setting bank LSB to " << static_cast<int>(lsb);
 
@@ -97,12 +97,12 @@ void EventSelectionModel::setBankLsb(uint8_t lsb)
     }
 }
 
-uint8_t EventSelectionModel::bankMsb() const
+quint8 EventSelectionModel::bankMsb() const
 {
     return m_bankMsb;
 }
 
-void EventSelectionModel::setBankMsb(uint8_t msb)
+void EventSelectionModel::setBankMsb(quint8 msb)
 {
     juzzlin::L(TAG).debug() << "Setting bank MSB to " << static_cast<int>(msb);
 
@@ -221,12 +221,12 @@ void EventSelectionModel::setPatchEnabled(bool enabled)
     }
 }
 
-uint8_t EventSelectionModel::patch() const
+quint8 EventSelectionModel::patch() const
 {
     return m_patch;
 }
 
-void EventSelectionModel::setPatch(uint8_t patch)
+void EventSelectionModel::setPatch(quint8 patch)
 {
     juzzlin::L(TAG).debug() << "Setting patch to " << static_cast<int>(patch);
 
@@ -236,12 +236,12 @@ void EventSelectionModel::setPatch(uint8_t patch)
     }
 }
 
-uint8_t EventSelectionModel::pan() const
+quint8 EventSelectionModel::pan() const
 {
     return m_pan;
 }
 
-void EventSelectionModel::setPan(uint8_t pan)
+void EventSelectionModel::setPan(quint8 pan)
 {
     juzzlin::L(TAG).debug() << "Setting pan to " << static_cast<int>(pan);
 
@@ -266,12 +266,12 @@ void EventSelectionModel::setPanEnabled(bool enabled)
     }
 }
 
-uint8_t EventSelectionModel::volume() const
+quint8 EventSelectionModel::volume() const
 {
     return m_volume;
 }
 
-void EventSelectionModel::setVolume(uint8_t volume)
+void EventSelectionModel::setVolume(quint8 volume)
 {
     juzzlin::L(TAG).debug() << "Setting volume to " << static_cast<int>(volume);
 
