@@ -75,7 +75,7 @@ void MidiCcSetting::serializeToXml(QXmlStreamWriter & writer) const
 
 std::unique_ptr<MidiCcSetting> MidiCcSetting::deserializeFromXml(QXmlStreamReader & reader)
 {
-    const auto enabled = static_cast<bool>(Utils::Xml::readBoolAttribute(reader, Constants::xmlKeyEnabled()).value_or(false));
+    const auto enabled = static_cast<bool>(Utils::Xml::readBoolAttribute(reader, Constants::xmlKeyEnabled(), false).value_or(false));
     const auto controller = static_cast<uint8_t>(*Utils::Xml::readUIntAttribute(reader, Constants::xmlKeyController()));
     const auto value = static_cast<uint8_t>(*Utils::Xml::readUIntAttribute(reader, Constants::xmlKeyValue()));
     return std::make_unique<MidiCcSetting>(enabled, controller, value);
