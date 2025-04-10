@@ -9,6 +9,52 @@ Bug fixes:
 
 Other:
 
+0.6.0
+=====
+
+Release date:
+
+Thu, 10 Apr 2025 21:05:49 +0300
+
+New features:
+
+* Jump to the start of the current pattern on Home key pressed
+
+* Scroll by linesPerBeat on Page Up / Page Down pressed
+
+* Implement note delay
+  - Context menu => Line => Set delay
+
+* Improve video generation functionality
+  - Zoom animation for the background image
+  - Fade out for the logo
+  - Show note names
+  - Flash effect
+
+Bug fixes:
+
+* Fix MIDI CC settings
+
+* Fix pattern copy when pattern has a deleted track
+
+* Fix excessive changed positions when operating on a shortened pattern
+
+* Fix pattern creation when a track has been deleted
+
+* Fix track wrapping when moving cursor left
+
+* Fix line wrapping when scrolling to a negative line
+
+* Fix C++ <-> QML interface on Qt 6.4
+  - The main problem is that some standard types like size_t not
+    fully supported before Qt 6.5 and this breaks the UI
+
+Other:
+
+* Separately send initial MIDI CC settings
+
+* CPack: Add qml6-module-qtquick-window as a dependency
+
 0.5.0
 =====
 
