@@ -13,6 +13,7 @@ Noteahead is still a work in progress and there's **a lot of limitations and mis
     <td colspan="3"><img src="/screenshots/0.2.0/Noteahead_1.png" width="100%"></td>
   </tr>
   <tr>
+    <td><img src="/screenshots/0.6.0/Noteahead_1.png" width="100%"></td>
     <td><img src="/screenshots/0.2.0/Noteahead_2.png" width="100%"></td>
     <td><img src="/screenshots/0.2.0/Noteahead_3.png" width="100%"></td>
   </tr>
