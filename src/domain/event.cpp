@@ -20,7 +20,7 @@
 
 namespace noteahead {
 
-Event::Event(size_t tick, NoteDataS noteData)
+Event::Event(size_t tick, NoteDataCR noteData)
   : m_tick { tick }
   , m_type { Event::Type::NoteData }
   , m_noteData { noteData }
@@ -43,6 +43,13 @@ Event::Event(size_t tick)
 void Event::applyDelay(std::chrono::milliseconds delay, double msPerTick)
 {
     m_tick += static_cast<size_t>(std::round(static_cast<double>(delay.count()) / msPerTick));
+}
+
+void Event::transpose(int semitones)
+{
+    if (m_noteData.has_value()) {
+        m_noteData->transpose(semitones);
+    }
 }
 
 void Event::setAsMidiClockOut()
@@ -70,7 +77,7 @@ Event::Type Event::type() const
     return m_type;
 }
 
-Event::NoteDataS Event::noteData() const
+Event::NoteDataOpt Event::noteData() const
 {
     return m_noteData;
 }

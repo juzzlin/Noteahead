@@ -70,6 +70,7 @@ void InstrumentSettings::serializeToXml(QXmlStreamWriter & writer) const
     }
 
     writer.writeAttribute(Constants::xmlKeyDelay(), QString::number(delay.count()));
+    writer.writeAttribute(Constants::xmlKeyTranspose(), QString::number(transpose));
 
     for (auto && midiCcSetting : midiCcSettings) {
         midiCcSetting.serializeToXml(writer);
@@ -96,6 +97,7 @@ InstrumentSettings::InstrumentSettingsU InstrumentSettings::deserializeFromXml(Q
     settings->predefinedMidiCcSettings.volume = Utils::Xml::readUIntAttribute(reader, Constants::xmlKeyVolume(), false);
     settings->sendMidiClock = Utils::Xml::readBoolAttribute(reader, Constants::xmlKeySendMidiClock(), false);
     settings->delay = std::chrono::milliseconds { Utils::Xml::readIntAttribute(reader, Constants::xmlKeyDelay(), false).value_or(0) };
+    settings->transpose = Utils::Xml::readIntAttribute(reader, Constants::xmlKeyTranspose(), false).value_or(0);
 
     while (!(reader.isEndElement() && !reader.name().compare(Constants::xmlKeyInstrumentSettings()))) {
         juzzlin::L(TAG).trace() << "InstrumentSettings: Current element: " << reader.name().toString().toStdString();
@@ -128,6 +130,7 @@ QString InstrumentSettings::toString() const
     result += predefinedMidiCcSettings.volume.has_value() ? QString { ", volume=%1" }.arg(*predefinedMidiCcSettings.volume) : ", volume=None";
     result += sendMidiClock.has_value() ? QString { ", sendMidiClock=%1" }.arg(sendMidiClock.value() ? Constants::xmlValueTrue() : Constants::xmlValueFalse()) : ", sendMidiClock=None";
     result += QString { ", delay=%1" }.arg(delay.count());
+    result += QString { ", transpose=%1" }.arg(transpose);
 
     for (auto && midiCcSetting : midiCcSettings) {
         result += " ";

@@ -4,6 +4,7 @@ import QtQuick.Controls.Universal 2.15
 import QtQuick.Dialogs
 import QtQuick.Layouts
 import ".."
+import "../Components"
 
 Dialog {
     id: rootItem
@@ -34,6 +35,7 @@ Dialog {
         volumeSpinBox.value = trackSettingsModel.volume;
         sendMidiClockCheckbox.checked = trackSettingsModel.sendMidiClock;
         delaySpinBox.value = trackSettingsModel.delay;
+        transposeSpinBox.value = trackSettingsModel.transpose;
         initializeMidiCcSelectors();
     }
     function initializeMidiCcSelectors() {
@@ -424,7 +426,7 @@ Dialog {
                 width: parent.width
                 GridLayout {
                     columns: 9
-                    rows: 1
+                    rows: 2
                     width: parent.width
                     CheckBox {
                         id: sendMidiClockCheckbox
@@ -459,6 +461,32 @@ Dialog {
                         ToolTip.text: qsTr("Set delay for MIDI messages on this channel in milliseconds")
                         onValueChanged: {
                             trackSettingsModel.delay = value;
+                        }
+                        Keys.onReturnPressed: focus = false
+                    }
+                    LayoutSeparator {
+                        Layout.row: 1
+                    }
+                    Label {
+                        text: qsTr("Transpose (semitones):")
+                        Layout.column: 5
+                        Layout.row: 2
+                        Layout.fillWidth: true
+                    }
+                    SpinBox {
+                        id: transposeSpinBox
+                        from: -24
+                        to: 24
+                        editable: true
+                        Layout.column: 6
+                        Layout.row: 2
+                        Layout.fillWidth: true
+                        ToolTip.delay: Constants.toolTipDelay
+                        ToolTip.timeout: Constants.toolTipTimeout
+                        ToolTip.visible: hovered
+                        ToolTip.text: qsTr("Set transposition for MIDI notes on this channel in semitones")
+                        onValueChanged: {
+                            trackSettingsModel.transpose = value;
                         }
                         Keys.onReturnPressed: focus = false
                     }

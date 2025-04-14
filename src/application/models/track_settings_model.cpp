@@ -244,6 +244,7 @@ void TrackSettingsModel::setInstrumentData(const Instrument & instrument)
     setSendMidiClock(instrument.settings().sendMidiClock.has_value() && *instrument.settings().sendMidiClock);
 
     setDelay(static_cast<int>(instrument.settings().delay.count()));
+    setTranspose(instrument.settings().transpose);
 
     setMidiCcSettings(instrument.settings().midiCcSettings);
 
@@ -277,6 +278,7 @@ void TrackSettingsModel::reset()
     m_volume = m_defaultVolume;
     m_sendMidiClock = false;
     m_delay = 0;
+    m_transpose = 0;
 
     setMidiCcSettings({});
 
@@ -315,6 +317,7 @@ TrackSettingsModel::InstrumentU TrackSettingsModel::toInstrument() const
     }
     settings.sendMidiClock = m_sendMidiClock;
     settings.delay = std::chrono::milliseconds { m_delay };
+    settings.transpose = m_transpose;
     settings.midiCcSettings = midiCcSettings();
     instrument->setSettings(settings);
 
@@ -461,6 +464,21 @@ void TrackSettingsModel::setDelay(int delay)
     if (m_delay != delay) {
         m_delay = delay;
         emit delayChanged();
+    }
+}
+
+int TrackSettingsModel::transpose() const
+{
+    return m_transpose;
+}
+
+void TrackSettingsModel::setTranspose(int transpose)
+{
+    juzzlin::L(TAG).debug() << "Setting transposition to " << transpose;
+
+    if (m_transpose != transpose) {
+        m_transpose = transpose;
+        emit transposeChanged();
     }
 }
 

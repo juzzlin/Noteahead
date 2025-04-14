@@ -147,6 +147,11 @@ QString xmlKeyDelay()
     return "delay";
 }
 
+QString xmlKeyTranspose()
+{
+    return "transpose";
+}
+
 QString xmlKeyIndex()
 {
     return "index";

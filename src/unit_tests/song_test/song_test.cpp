@@ -372,6 +372,33 @@ void SongTest::test_renderToEvents_sameColumn_shouldAddNoteOff()
     QCOMPARE(noteOn->noteData()->note(), 60);
 }
 
+void SongTest::test_renderToEvents_transposeSet_shouldApplyTranspose()
+{
+    Song song;
+
+    const auto instrument1 = std::make_shared<Instrument>("TransposedInstrument1");
+    song.setInstrument(0, instrument1);
+    auto settings1 = instrument1->settings();
+    settings1.transpose = 13;
+    instrument1->setSettings(settings1);
+
+    const Position noteOnPosition = { 0, 0, 0, 0, 0 };
+    song.noteDataAtPosition(noteOnPosition)->setAsNoteOn(60, 100);
+
+    auto events = song.renderToEvents(0);
+    QCOMPARE(events.size(), 4);
+    auto noteOn = events.at(1);
+    QCOMPARE(noteOn->noteData()->note(), 73);
+
+    settings1.transpose = -11;
+    instrument1->setSettings(settings1);
+
+    events = song.renderToEvents(0);
+    QCOMPARE(events.size(), 4);
+    noteOn = events.at(1);
+    QCOMPARE(noteOn->noteData()->note(), 49);
+}
+
 void SongTest::test_trackByName_shouldReturnTrack()
 {
     Song song;

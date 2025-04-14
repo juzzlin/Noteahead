@@ -120,6 +120,7 @@ set(MAIN Main.qml)
 set(QML_SOURCE_FILES
     ${QML_BASE_DIR}/${MAIN}
     ${QML_BASE_DIR}/BottomBar.qml
+    ${QML_BASE_DIR}/Components/LayoutSeparator.qml
     ${QML_BASE_DIR}/Constants.qml
     ${QML_BASE_DIR}/Dialogs/AboutDialog.qml
     ${QML_BASE_DIR}/Dialogs/EventSelectionDialog.qml

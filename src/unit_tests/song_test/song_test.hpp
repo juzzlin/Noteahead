@@ -46,6 +46,7 @@ private slots:
     void test_renderToEvents_playOrderSet_shouldRenderMultiplePatterns();
     void test_renderToEvents_singleEvent_shouldRenderEvent();
     void test_renderToEvents_sameColumn_shouldAddNoteOff();
+    void test_renderToEvents_transposeSet_shouldApplyTranspose();
 
     void test_trackByName_shouldReturnTrack();
     void test_columnByName_shouldReturnColumn();

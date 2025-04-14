@@ -58,6 +58,7 @@ class TrackSettingsModel : public MidiCcSelectionModel
 
     Q_PROPERTY(bool sendMidiClock READ sendMidiClock WRITE setSendMidiClock NOTIFY sendMidiClockChanged)
     Q_PROPERTY(int delay READ delay WRITE setDelay NOTIFY delayChanged)
+    Q_PROPERTY(int transpose READ transpose WRITE setTranspose NOTIFY transposeChanged)
 
 public:
     explicit TrackSettingsModel(QObject * parent = nullptr);
@@ -132,6 +133,8 @@ public:
 
     int delay() const;
     void setDelay(int delay);
+    int transpose() const;
+    void setTranspose(int transpose);
 
 signals:
     void applyAllRequested();
@@ -173,6 +176,7 @@ signals:
     void sendMidiClockChanged();
 
     void delayChanged();
+    void transposeChanged();
 
 private:
     void pushApplyDisabled();
@@ -200,19 +204,17 @@ private:
     quint8 m_bankMsb { 0 };
 
     quint8 m_channel { 0 };
+    quint8 m_patch { 0 };
 
     const quint8 m_defaultCutoff { 127 };
     quint8 m_cutoff { m_defaultCutoff };
-
-    quint8 m_patch { 0 };
-
     const quint8 m_defaultPan { 64 };
     quint8 m_pan { m_defaultPan };
-
     const quint8 m_defaultVolume { 127 };
     quint8 m_volume { m_defaultVolume };
 
     int m_delay { 0 };
+    int m_transpose { 0 };
 };
 
 } // namespace noteahead

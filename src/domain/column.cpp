@@ -178,13 +178,11 @@ Column::EventList Column::renderToEvents(size_t startTick, size_t ticksPerLine) 
         if (auto && line = m_lines.at(i)) {
             if (line->lineEvent()) {
                 if (line->lineEvent()->instrumentSettings()) {
-                    const auto event = std::make_shared<Event>(tick, line->lineEvent()->instrumentSettings());
-                    eventList.push_back(event);
+                    eventList.push_back(std::make_shared<Event>(tick, line->lineEvent()->instrumentSettings()));
                 }
             }
             if (const auto noteData = line->noteData(); noteData->type() != NoteData::Type::None) {
-                const auto event = std::make_shared<Event>(tick + noteData->delay(), noteData);
-                eventList.push_back(event);
+                eventList.push_back(std::make_shared<Event>(tick + noteData->delay(), *noteData));
             }
         }
         tick += ticksPerLine;

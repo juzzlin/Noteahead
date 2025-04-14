@@ -38,7 +38,6 @@ public:
     struct Bank
     {
         uint8_t lsb = 0;
-
         uint8_t msb = 0;
 
         bool byteOrderSwapped = false;
@@ -49,9 +48,7 @@ public:
     struct PredefinedMidiCcSettings
     {
         std::optional<uint8_t> cutoff;
-
         std::optional<uint8_t> pan;
-
         std::optional<uint8_t> volume;
     };
 
@@ -60,11 +57,11 @@ public:
     std::optional<bool> sendMidiClock;
 
     std::chrono::milliseconds delay { 0 };
+    int transpose { 0 };
 
     std::vector<MidiCcSetting> midiCcSettings;
 
     size_t track() const;
-
     void setTrack(size_t track);
 
     void serializeToXml(QXmlStreamWriter & writer) const;

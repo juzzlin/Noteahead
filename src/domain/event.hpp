@@ -20,6 +20,8 @@
 #include <cstddef>
 #include <memory>
 
+#include "note_data.hpp"
+
 namespace noteahead {
 
 class Instrument;
@@ -39,16 +41,16 @@ public:
         EndOfSong
     };
 
-    Event(size_t tick);
-
-    using NoteDataS = std::shared_ptr<NoteData>;
-    Event(size_t tick, NoteDataS noteData);
-
+    explicit Event(size_t tick);
+    using NoteDataCR = const NoteData &;
+    Event(size_t tick, NoteDataCR noteData);
     using InstrumentSettingsS = std::shared_ptr<InstrumentSettings>;
     Event(size_t tick, InstrumentSettingsS instrumentSettings);
 
     //! Applies delay as ticks.
     void applyDelay(std::chrono::milliseconds delay, double msPerTick);
+    //! Convenience function to transpose note data (if set).
+    void transpose(int semitones);
 
     void setAsMidiClockOut();
     void setAsStartOfSong();
@@ -58,7 +60,8 @@ public:
 
     Type type() const;
 
-    NoteDataS noteData() const;
+    using NoteDataOpt = std::optional<NoteData>;
+    NoteDataOpt noteData() const;
 
     using InstrumentS = std::shared_ptr<Instrument>;
     InstrumentS instrument() const;
@@ -71,10 +74,9 @@ private:
 
     Type m_type;
 
-    NoteDataS m_noteData;
+    NoteDataOpt m_noteData;
 
     InstrumentS m_instrument;
-
     InstrumentSettingsS m_instrumentSettings;
 };
 

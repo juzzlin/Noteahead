@@ -209,20 +209,20 @@ private:
 
     void initialize();
 
-    void assignInstruments(const EventList & events);
-
     using TrackAndColumn = std::pair<int, int>;
     using ActiveNoteMap = std::map<TrackAndColumn, std::set<uint8_t>>;
-
+    using EventListCR = const EventList &;
+    EventList assignInstruments(EventListCR events) const;
     EventList generateNoteOffsForActiveNotes(TrackAndColumn trackAndcolumn, size_t tick, ActiveNoteMap & activeNotes) const;
     EventList generateAutoNoteOffsForDanglingNotes(size_t tick, ActiveNoteMap & activeNotes) const;
-    EventList generateNoteOffs(const EventList & events) const;
-    EventList generateMidiClockEvents(Song::EventList eventList, size_t startTick, size_t endTick);
-    EventList removeNonMappedNoteOffs(const EventList & events) const;
+    EventList generateNoteOffs(EventListCR events) const;
+    EventList generateMidiClockEvents(EventListCR eventList, size_t startTick, size_t endTick);
+    EventList removeNonMappedNoteOffs(EventListCR events) const;
     EventList renderStartOfSong(size_t tick) const;
-    EventList renderEndOfSong(Song::EventList eventList, size_t tick) const;
+    EventList renderEndOfSong(EventListCR eventList, size_t tick) const;
 
-    std::pair<Song::EventList, size_t> renderPatterns(Song::EventList eventList, size_t tick, size_t startPosition, size_t endPosition);
+    using EventsAndTick = std::pair<EventList, size_t>;
+    EventsAndTick renderPatterns(EventListCR eventList, size_t tick, size_t startPosition, size_t endPosition);
     EventList renderContent(size_t startPosition, size_t endPosition);
 
     size_t positionToTick(size_t position) const;

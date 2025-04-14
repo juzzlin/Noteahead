@@ -60,6 +60,7 @@ QString xmlKeyEnabled();
 QString xmlKeyCutoff();
 
 QString xmlKeyDelay();
+QString xmlKeyTranspose();
 
 QString xmlKeyIndex();
 
