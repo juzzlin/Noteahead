@@ -16,12 +16,15 @@
 #include "track.hpp"
 
 #include "../application/position.hpp"
+#include "../common/constants.hpp"
+#include "../common/utils.hpp"
 #include "../contrib/SimpleLogger/src/simple_logger.hpp"
 #include "../domain/instrument.hpp"
 #include "../domain/note_data.hpp"
 #include "../domain/track.hpp"
 #include "column.hpp"
 
+#include <QXmlStreamReader>
 #include <QXmlStreamWriter>
 
 #include <algorithm>
@@ -232,6 +235,42 @@ void Track::serializeToXml(QXmlStreamWriter & writer) const
     }
 
     writer.writeEndElement(); // Track
+}
+
+Track::TrackU Track::deserializeFromXml(QXmlStreamReader & reader)
+{
+    juzzlin::L(TAG).trace() << "Reading Track started";
+    const auto index = *Utils::Xml::readUIntAttribute(reader, Constants::xmlKeyIndex());
+    const auto name = *Utils::Xml::readStringAttribute(reader, Constants::xmlKeyName());
+    const auto columnCount = *Utils::Xml::readUIntAttribute(reader, Constants::xmlKeyColumnCount());
+    const auto lineCount = *Utils::Xml::readUIntAttribute(reader, Constants::xmlKeyLineCount());
+    auto track = std::make_unique<Track>(index, name.toStdString(), lineCount, columnCount);
+    while (!(reader.isEndElement() && !reader.name().compare(Constants::xmlKeyTrack()))) {
+        juzzlin::L(TAG).trace() << "Track: Current element: " << reader.name().toString().toStdString();
+        if (reader.isStartElement() && !reader.name().compare(Constants::xmlKeyColumns())) {
+            deserializeColumns(reader, *track);
+        } else if (reader.isStartElement() && !reader.name().compare(Constants::xmlKeyInstrument())) {
+            if (auto instrument = Instrument::deserializeFromXml(reader); instrument) {
+                track->setInstrument(std::move(instrument));
+            }
+        }
+        reader.readNext();
+    }
+    juzzlin::L(TAG).trace() << "Reading Track ended";
+    return track;
+}
+
+void Track::deserializeColumns(QXmlStreamReader & reader, Track & track)
+{
+    juzzlin::L(TAG).trace() << "Reading Columns started";
+    while (!(reader.isEndElement() && !reader.name().compare(Constants::xmlKeyColumns()))) {
+        juzzlin::L(TAG).trace() << "Columns: Current element: " << reader.name().toString().toStdString();
+        if (reader.isStartElement() && !reader.name().compare(Constants::xmlKeyColumn())) {
+            track.setColumn(Column::deserializeFromXml(reader, track.index()));
+        }
+        reader.readNext();
+    }
+    juzzlin::L(TAG).trace() << "Reading Columns ended";
 }
 
 } // namespace noteahead

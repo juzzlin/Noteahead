@@ -17,6 +17,7 @@
 
 #include "../application/position.hpp"
 #include "../common/constants.hpp"
+#include "../common/utils.hpp"
 #include "../contrib/SimpleLogger/src/simple_logger.hpp"
 #include "../domain/note_data.hpp"
 #include "track.hpp"
@@ -382,6 +383,40 @@ void Pattern::serializeToXml(QXmlStreamWriter & writer) const
     writer.writeEndElement(); // Tracks
 
     writer.writeEndElement(); // Pattern
+}
+
+Pattern::PatternU Pattern::deserializeFromXml(QXmlStreamReader & reader)
+{
+    juzzlin::L(TAG).trace() << "Reading Pattern started";
+    const auto index = *Utils::Xml::readUIntAttribute(reader, Constants::xmlKeyIndex());
+    const auto name = *Utils::Xml::readStringAttribute(reader, Constants::xmlKeyName());
+    const auto lineCount = *Utils::Xml::readUIntAttribute(reader, Constants::xmlKeyLineCount());
+    const auto trackCount = *Utils::Xml::readUIntAttribute(reader, Constants::xmlKeyTrackCount());
+    auto pattern = std::make_unique<Pattern>(index, lineCount, trackCount);
+    pattern->setName(name.toStdString());
+    while (!(reader.isEndElement() && !reader.name().compare(Constants::xmlKeyPattern()))) {
+        juzzlin::L(TAG).trace() << "Pattern: Current element: " << reader.name().toString().toStdString();
+        if (reader.isStartElement() && !reader.name().compare(Constants::xmlKeyTracks())) {
+            deserializeTracks(reader, *pattern);
+        }
+        reader.readNext();
+    }
+    juzzlin::L(TAG).trace() << "Reading Pattern ended";
+    return pattern;
+}
+
+void Pattern::deserializeTracks(QXmlStreamReader & reader, Pattern & pattern)
+{
+    juzzlin::L(TAG).trace() << "Reading Tracks started";
+    size_t position = 0;
+    while (!(reader.isEndElement() && !reader.name().compare(Constants::xmlKeyTracks()))) {
+        juzzlin::L(TAG).trace() << "Tracks: Current element: " << reader.name().toString().toStdString();
+        if (reader.isStartElement() && !reader.name().compare(Constants::xmlKeyTrack())) {
+            pattern.setTrackAtPosition(position++, Track::deserializeFromXml(reader));
+        }
+        reader.readNext();
+    }
+    juzzlin::L(TAG).trace() << "Reading Tracks ended";
 }
 
 } // namespace noteahead

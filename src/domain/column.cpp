@@ -17,12 +17,14 @@
 
 #include "../application/position.hpp"
 #include "../common/constants.hpp"
+#include "../common/utils.hpp"
 #include "../contrib/SimpleLogger/src/simple_logger.hpp"
 #include "../domain/event.hpp"
 #include "../domain/note_data.hpp"
 #include "line.hpp"
 #include "line_event.hpp"
 
+#include <QXmlStreamReader>
 #include <QXmlStreamWriter>
 
 #include <algorithm>
@@ -220,6 +222,40 @@ void Column::serializeToXml(QXmlStreamWriter & writer) const
 
     writer.writeEndElement(); // Lines
     writer.writeEndElement(); // Column
+}
+
+Column::ColumnU Column::deserializeFromXml(QXmlStreamReader & reader, size_t trackIndex)
+{
+    juzzlin::L(TAG).trace() << "Reading Column started";
+    const auto index = *Utils::Xml::readUIntAttribute(reader, Constants::xmlKeyIndex());
+    const auto lineCount = *Utils::Xml::readUIntAttribute(reader, Constants::xmlKeyLineCount());
+    auto column = std::make_unique<Column>(index, lineCount);
+    if (const auto name = Utils::Xml::readStringAttribute(reader, Constants::xmlKeyName(), false); name.has_value()) {
+        juzzlin::L(TAG).trace() << "Setting column index=" << index << " name to '" << name->toStdString() << "'";
+        column->setName(name->toStdString());
+    }
+    while (!(reader.isEndElement() && !reader.name().compare(Constants::xmlKeyColumn()))) {
+        juzzlin::L(TAG).trace() << "Current element: " << reader.name().toString().toStdString();
+        if (reader.isStartElement() && !reader.name().compare(Constants::xmlKeyLines())) {
+            deserializeLines(reader, trackIndex, *column);
+        }
+        reader.readNext();
+    }
+    juzzlin::L(TAG).trace() << "Reading Column ended";
+    return column;
+}
+
+void Column::deserializeLines(QXmlStreamReader & reader, size_t trackIndex, Column & column)
+{
+    juzzlin::L(TAG).trace() << "Reading Lines started";
+    while (!(reader.isEndElement() && !reader.name().compare(Constants::xmlKeyLines()))) {
+        juzzlin::L(TAG).trace() << "Deserializing Line: " << reader.name().toString().toStdString();
+        if (reader.isStartElement() && !reader.name().compare(Constants::xmlKeyLine())) {
+            column.addOrReplaceLine(Line::deserializeFromXml(reader, trackIndex, column.index()));
+        }
+        reader.readNext();
+    }
+    juzzlin::L(TAG).trace() << "Reading Lines ended";
 }
 
 } // namespace noteahead

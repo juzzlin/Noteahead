@@ -16,9 +16,11 @@
 #include "line.hpp"
 
 #include "../common/constants.hpp"
+#include "../common/utils.hpp"
 #include "../contrib/SimpleLogger/src/simple_logger.hpp"
 #include "instrument_settings.hpp"
 
+#include <QXmlStreamReader>
 #include <QXmlStreamWriter>
 
 namespace noteahead {
@@ -98,6 +100,24 @@ void Line::serializeToXml(QXmlStreamWriter & writer) const
         }
         writer.writeEndElement(); // Line
     }
+}
+
+Line::LineU Line::deserializeFromXml(QXmlStreamReader & reader, size_t trackIndex, size_t columnIndex)
+{
+    juzzlin::L(TAG).trace() << "Reading Line started";
+    const auto index = *Utils::Xml::readUIntAttribute(reader, Constants::xmlKeyIndex());
+    auto line = std::make_unique<Line>(index);
+    while (!(reader.isEndElement() && !reader.name().compare(Constants::xmlKeyLine()))) {
+        juzzlin::L(TAG).trace() << "Current element: " << reader.name().toString().toStdString();
+        if (reader.isStartElement() && !reader.name().compare(Constants::xmlKeyNoteData())) {
+            line->setNoteData(*NoteData::deserializeFromXml(reader, trackIndex, columnIndex));
+        } else if (reader.isStartElement() && !reader.name().compare(Constants::xmlKeyLineEvent())) {
+            line->setLineEvent(*LineEvent::deserializeFromXml(reader, trackIndex, columnIndex));
+        }
+        reader.readNext();
+    }
+    juzzlin::L(TAG).trace() << "Reading Line ended";
+    return line;
 }
 
 } // namespace noteahead

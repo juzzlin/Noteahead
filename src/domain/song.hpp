@@ -190,23 +190,6 @@ private:
     void deserializePosition(QXmlStreamReader & reader);
     void deserializePatterns(QXmlStreamReader & reader);
 
-    using PatternS = std::shared_ptr<Pattern>;
-    PatternS deserializePattern(QXmlStreamReader & reader);
-    void deserializeTracks(QXmlStreamReader & reader, PatternS pattern);
-
-    using TrackS = std::shared_ptr<Track>;
-    TrackS deserializeTrack(QXmlStreamReader & reader);
-    void deserializeColumns(QXmlStreamReader & reader, TrackS track);
-
-    using ColumnS = std::shared_ptr<Column>;
-    ColumnS deserializeColumn(QXmlStreamReader & reader, size_t trackIndex);
-    void deserializeLines(QXmlStreamReader & reader, size_t trackIndex, ColumnS column);
-
-    using LineS = std::shared_ptr<Line>;
-    LineS deserializeLine(QXmlStreamReader & reader, size_t trackIndex, size_t columnIndex);
-    using LineEventS = std::shared_ptr<LineEvent>;
-    LineEventS deserializeLineEvent(QXmlStreamReader & reader, size_t trackIndex, size_t columnIndex);
-
     void initialize();
 
     using TrackAndColumn = std::pair<int, int>;
@@ -235,6 +218,7 @@ private:
     size_t m_linesPerBeat = 8;
     size_t m_ticksPerLine = 24;
 
+    using PatternS = std::shared_ptr<Pattern>;
     std::map<size_t, PatternS> m_patterns;
 
     std::unique_ptr<PlayOrder> m_playOrder;

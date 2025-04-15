@@ -22,6 +22,7 @@
 
 #include "mixer_unit.hpp"
 
+class QXmlStreamReader;
 class QXmlStreamWriter;
 
 namespace noteahead {
@@ -81,8 +82,12 @@ public:
     EventList renderToEvents(size_t startTick, size_t ticksPerLine) const;
 
     void serializeToXml(QXmlStreamWriter & writer) const;
+    using TrackU = std::unique_ptr<Track>;
+    static TrackU deserializeFromXml(QXmlStreamReader & reader);
 
 private:
+    static void deserializeColumns(QXmlStreamReader & reader, Track & track);
+
     void initialize(size_t length, size_t columnCount);
 
     std::vector<ColumnS> m_columns;

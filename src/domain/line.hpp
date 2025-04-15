@@ -22,7 +22,8 @@
 #include <memory>
 #include <optional>
 
-#include <QXmlStreamWriter>
+class QXmlStreamReader;
+class QXmlStreamWriter;
 
 namespace noteahead {
 
@@ -50,6 +51,8 @@ public:
     void setLineEvent(LineEventOpt lineEvent);
 
     void serializeToXml(QXmlStreamWriter & writer) const;
+    using LineU = std::unique_ptr<Line>;
+    static LineU deserializeFromXml(QXmlStreamReader & reader, size_t trackIndex, size_t columnIndex);
 
 private:
     size_t m_index = 0;

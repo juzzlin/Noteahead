@@ -21,6 +21,7 @@
 
 #include "mixer_unit.hpp"
 
+class QXmlStreamReader;
 class QXmlStreamWriter;
 
 namespace noteahead {
@@ -67,9 +68,13 @@ public:
     void setInstrumentSettings(const Position & position, InstrumentSettingsS instrumentSettings);
 
     void serializeToXml(QXmlStreamWriter & writer) const;
+    using ColumnU = std::unique_ptr<Column>;
+    static ColumnU deserializeFromXml(QXmlStreamReader & reader, size_t trackIndex);
 
 private:
     PositionList addChangedPosition(const Column::PositionList & changedPositions, const Position & position, size_t line) const;
+
+    static void deserializeLines(QXmlStreamReader & reader, size_t trackIndex, Column & column);
 
     void initialize(size_t length);
 

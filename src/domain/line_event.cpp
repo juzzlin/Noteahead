@@ -16,11 +16,14 @@
 #include "line_event.hpp"
 
 #include "../common/constants.hpp"
+#include "../contrib/SimpleLogger/src/simple_logger.hpp"
 #include "instrument_settings.hpp"
 
 #include <QXmlStreamWriter>
 
 namespace noteahead {
+
+static const auto TAG = "LineEvent";
 
 LineEvent::LineEvent(size_t trackIndex, size_t columnIndex)
   : m_trackIndex { trackIndex }
@@ -55,6 +58,23 @@ void LineEvent::serializeToXml(QXmlStreamWriter & writer) const
         }
         writer.writeEndElement(); // LineEvent
     }
+}
+
+LineEvent::LineEventU LineEvent::deserializeFromXml(QXmlStreamReader & reader, size_t trackIndex, size_t columnIndex)
+{
+    juzzlin::L(TAG).trace() << "Reading LineEvent started";
+    auto lineEvent = std::make_unique<LineEvent>(trackIndex, columnIndex);
+    while (!(reader.isEndElement() && !reader.name().compare(Constants::xmlKeyLineEvent()))) {
+        juzzlin::L(TAG).trace() << "Current element: " << reader.name().toString().toStdString();
+        if (reader.isStartElement() && !reader.name().compare(Constants::xmlKeyInstrumentSettings())) {
+            if (auto settings = InstrumentSettings::deserializeFromXml(reader); settings) {
+                lineEvent->setInstrumentSettings(std::move(settings));
+            }
+        }
+        reader.readNext();
+    }
+    juzzlin::L(TAG).trace() << "Reading LineEvent ended";
+    return lineEvent;
 }
 
 } // namespace noteahead

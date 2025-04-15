@@ -21,6 +21,7 @@
 #include <optional>
 #include <vector>
 
+class QXmlStreamReader;
 class QXmlStreamWriter;
 
 namespace noteahead {
@@ -108,12 +109,16 @@ public:
     EventList renderToEvents(size_t startTick, size_t ticksPerLine) const;
 
     void serializeToXml(QXmlStreamWriter & writer) const;
+    using PatternU = std::unique_ptr<Pattern>;
+    static PatternU deserializeFromXml(QXmlStreamReader & reader);
 
     std::unique_ptr<Pattern> copyWithoutData(size_t newPatternIndex) const;
 
     PatternConfig patternConfig() const;
 
 private:
+    static void deserializeTracks(QXmlStreamReader & reader, Pattern & pattern);
+
     void initialize(size_t lineCount, size_t trackCount);
     void initialize(const PatternConfig & config);
 
