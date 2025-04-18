@@ -28,6 +28,8 @@ class Instrument;
 class InstrumentSettings;
 class NoteData;
 
+//! A MIDI event class - but works at a higher level and drives the actual player.
+//! Can have optional data attached or just a valueless event, e.g. EndOfSong.
 class Event
 {
 public:
@@ -41,24 +43,35 @@ public:
         EndOfSong
     };
 
+    //! Builds a default None event.
     explicit Event(size_t tick);
+
+    //! Builds a MIDI note data event.
     using NoteDataCR = const NoteData &;
     Event(size_t tick, NoteDataCR noteData);
+
+    //! Builds an instrument settings event.
     using InstrumentSettingsS = std::shared_ptr<InstrumentSettings>;
     Event(size_t tick, InstrumentSettingsS instrumentSettings);
-
-    //! Applies delay as ticks.
-    void applyDelay(std::chrono::milliseconds delay, double msPerTick);
-    //! Convenience function to transpose note data (if set).
-    void transpose(int semitones);
-
-    void setAsMidiClockOut();
-    void setAsStartOfSong();
-    void setAsEndOfSong();
 
     size_t tick() const;
 
     Type type() const;
+
+    //! Applies delay as ticks.
+    void applyDelay(std::chrono::milliseconds delay, double msPerTick);
+
+    //! Convenience function to transpose note data (if set).
+    void transpose(int semitones);
+
+    //! Set as a MIDI clock event.
+    void setAsMidiClockOut();
+
+    //! Set as a StartOfSong event.
+    void setAsStartOfSong();
+
+    //! Set as an EndOfSong event.
+    void setAsEndOfSong();
 
     using NoteDataOpt = std::optional<NoteData>;
     NoteDataOpt noteData() const;
@@ -66,6 +79,7 @@ public:
     using InstrumentS = std::shared_ptr<Instrument>;
     InstrumentS instrument() const;
     void setInstrument(InstrumentS instrument);
+
     InstrumentSettingsS instrumentSettings() const;
     void setInstrumentSettings(InstrumentSettingsS instrumentSettings);
 
@@ -74,8 +88,8 @@ private:
 
     Type m_type;
 
+    //! Data for data-like events
     NoteDataOpt m_noteData;
-
     InstrumentS m_instrument;
     InstrumentSettingsS m_instrumentSettings;
 };
