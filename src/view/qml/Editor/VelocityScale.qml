@@ -7,11 +7,12 @@ Item {
     readonly property int minValue: 0
     readonly property int maxValue: 100
     property int value: 100
+    property string toolTipText
     signal clicked
     ToolTip.delay: Constants.toolTipDelay
     ToolTip.timeout: Constants.toolTipTimeout
     ToolTip.visible: hoverHandler.hovered
-    ToolTip.text: qsTr("Set velocity scale 0-100 %. All note velocities will be scaled according to this setting.")
+    ToolTip.text: toolTipText
     Rectangle {
         color: "transparent"
         border.color: "white"

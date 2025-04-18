@@ -49,6 +49,7 @@ Rectangle {
             height: parent.height
             width: parent.height
             onClicked: rootItem.velocityScaleRequested()
+            toolTipText: qsTr("Set velocity scale for this COLUMN, 0-100 %. All note velocities will be scaled according to this setting, taking into account the track-level scale.")
         }
         TextField {
             id: nameField

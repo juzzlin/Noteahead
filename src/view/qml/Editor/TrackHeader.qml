@@ -50,6 +50,7 @@ Rectangle {
             height: parent.height
             width: parent.height
             onClicked: rootItem.velocityScaleRequested()
+            toolTipText: qsTr("Set velocity scale for this TRACK, 0-100 %. All note velocities will be scaled according to this setting.")
         }
         ToolBarButtonBase {
             id: trackSettingsButton
