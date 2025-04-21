@@ -112,6 +112,7 @@ FocusScope {
         track.leftClicked.connect((columnIndex, lineIndex) => {
                 editorService.requestTrackFocus(track.index(), columnIndex, lineIndex);
                 rootItem.forceActiveFocus();
+                selectionService.clear();
             });
         track.rightClicked.connect((columnIndex, lineIndex, x, y) => {
                 editorService.requestTrackFocus(track.index(), columnIndex, lineIndex);
