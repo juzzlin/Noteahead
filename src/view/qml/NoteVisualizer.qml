@@ -6,7 +6,7 @@ Item {
     height: 100
     readonly property int _numKeys: 88
     property int _keyWidth: width / _numKeys
-    function setPosition(position) {
+    function setPosition(position: var): void {
         for (const trackIndex of editorService.trackIndices()) {
             const midiNotesAtPosition = editorService.midiNotesAtPosition(position.pattern, trackIndex, position.line);
             for (const note of midiNotesAtPosition) {
@@ -14,13 +14,13 @@ Item {
             }
         }
     }
-    function triggerNoteAnimation(midiNote) {
+    function triggerNoteAnimation(midiNote: int): void {
         const noteCircle = noteLayer.children[midiNote - 21];
         if (noteCircle) {
             noteCircle.startAnimation();
         }
     }
-    function noteColor(midiNote) {
+    function noteColor(midiNote: int): color {
         const normalized = (midiNote - 21) / (_numKeys - 1); // Scale from 0 to 1
         let red = 1.0;
         let green = 2.0 * normalized;
@@ -63,7 +63,7 @@ Item {
                         }
                     }
                 }
-                function startAnimation() {
+                function startAnimation(): void {
                     width = noteLayer.height * 0.85;
                     height = width;
                     opacity = 1;
