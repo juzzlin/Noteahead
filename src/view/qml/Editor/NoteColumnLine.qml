@@ -5,11 +5,11 @@ Rectangle {
     color: "#000000"
     border.color: "#222222"
     border.width: 1
-    function setNoteData(note, velocity) {
+    function setNoteData(note: int, velocity: int): void {
         noteVelocityText.text = `${note} ${velocity.padStart(3, "-")}`;
         noteVelocityText.color = note && note !== "---" ? "#ffffff" : "#888888";
     }
-    function setCursor(lineCursor, columnIndex) {
+    function setCursor(lineCursor: var, columnIndex: int): void {
         lineCursor.parent = rootItem;
         lineCursor.width = columnIndex === 0 ? 3 * noteVelocityText.contentWidth / 7 : noteVelocityText.contentWidth / 7;
         lineCursor.height = noteVelocityText.contentHeight;
