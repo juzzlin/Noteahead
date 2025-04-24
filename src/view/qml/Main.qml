@@ -208,12 +208,12 @@ ApplicationWindow {
         height: parent.height * 0.5
         onAccepted: midiCcAutomationsModel.applyAll()
     }
-    function _getWindowTitle() {
+    function _getWindowTitle(): string {
         const nameAndVersion = `${applicationService.applicationName()} MIDI tracker v${applicationService.applicationVersion()}`;
         const currentFileName = (editorService.currentFileName ? " - " + editorService.currentFileName : "");
         return `${nameAndVersion}${currentFileName}`;
     }
-    function _setWindowSizeAndPosition() {
+    function _setWindowSizeAndPosition(): void {
         const defaultWindowScale = Constants.defaultWindowScale;
         width = config.windowSize(Qt.size(mainWindow.screen.width * defaultWindowScale, mainWindow.screen.height * defaultWindowScale)).width;
         width = Math.max(width, Constants.minWindowWidth);
@@ -222,7 +222,7 @@ ApplicationWindow {
         setX(mainWindow.screen.width / 2 - width / 2);
         setY(mainWindow.screen.height / 2 - height / 2);
     }
-    function _connectApplicationService() {
+    function _connectApplicationService(): void {
         applicationService.openDialogRequested.connect(openDialog.open);
         applicationService.recentFilesDialogRequested.connect(recentFilesDialog.open);
         applicationService.saveAsDialogRequested.connect(saveAsDialog.open);
@@ -230,7 +230,7 @@ ApplicationWindow {
         applicationService.statusTextRequested.connect(bottomBar.setStatusText);
         applicationService.unsavedChangesDialogRequested.connect(unsavedChangesDialog.open);
     }
-    function _connectEditorService() {
+    function _connectEditorService(): void {
         editorService.errorTextRequested.connect(errorText => {
                 errorDialog.errorMessage = "ERROR!!: " + errorText;
                 errorDialog.open();
@@ -240,7 +240,7 @@ ApplicationWindow {
                 bottomBar.setPosition(newPosition);
             });
     }
-    function _connectUiService() {
+    function _connectUiService(): void {
         UiService.aboutDialogRequested.connect(aboutDialog.open);
         UiService.eventSelectionDialogRequested.connect(() => {
                 eventSelectionDialog.requestData();
@@ -317,12 +317,12 @@ ApplicationWindow {
                 applicationService.requestQuit();
             });
     }
-    function _connectServices() {
+    function _connectServices(): void {
         _connectApplicationService();
         _connectEditorService();
         _connectUiService();
     }
-    function _initialize() {
+    function _initialize(): void {
         _setWindowSizeAndPosition();
         _editorView = editorViewComponent.createObject(contentArea, {
                 "height": contentArea.height,
@@ -330,7 +330,7 @@ ApplicationWindow {
             });
         _connectServices();
     }
-    function _resize() {
+    function _resize(): void {
         _editorView.resize(contentArea.width, contentArea.height);
     }
     Component.onCompleted: {
