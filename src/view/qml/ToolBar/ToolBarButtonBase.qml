@@ -15,20 +15,20 @@ Button {
     property string _toggleColor: "red"
     signal leftClicked
     signal rightClicked
-    function setImageSource(imageSource) {
+    function setImageSource(imageSource: string): void {
         backgroundImage.source = imageSource;
     }
-    function setScale(scale) {
+    function setScale(scale: double): void {
         _scale = scale;
         _hoverScale = scale * 1.1;
     }
-    function toggled() {
+    function toggled(): bool {
         return _toggled;
     }
-    function setToggled(toggled) {
+    function setToggled(toggled: bool): void {
         _toggled = toggled;
     }
-    function setToggleColor(toggleColor) {
+    function setToggleColor(toggleColor: color): void {
         _toggleColor = toggleColor;
     }
     background: Rectangle {
