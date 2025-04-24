@@ -5,7 +5,7 @@ Item {
     property int _index: 0
     property var _tracks: []
     readonly property string _tag: "Pattern"
-    function createTracks(positionBar, trackAreaWidth, trackAreaHeight) {
+    function createTracks(positionBar: var, trackAreaWidth: int, trackAreaHeight: int): void {
         _tracks.length = 0;
         for (let trackIndex of editorService.trackIndices()) {
             const track = trackComponent.createObject(this);
@@ -27,19 +27,19 @@ Item {
         updateTrackVisibility();
         updateIndexHighlights();
     }
-    function addColumn(trackIndex) {
+    function addColumn(trackIndex: int): void {
         const track = trackByIndex(trackIndex);
         if (track) {
             track.addColumn();
         }
     }
-    function deleteColumn(trackIndex) {
+    function deleteColumn(trackIndex: int): void {
         const track = trackByIndex(trackIndex);
         if (track) {
             track.deleteColumn();
         }
     }
-    function deleteTrack(trackIndex) {
+    function deleteTrack(trackIndex: int): void {
         const track = trackByIndex(trackIndex);
         if (track) {
             _tracks = _tracks.filter(t => t !== track); // Remove the track from the array
@@ -49,13 +49,13 @@ Item {
             uiLogger.error(_tag, `No such track: index=${trackIndex}`);
         }
     }
-    function index() {
+    function index(): int {
         return _index;
     }
-    function setIndex(index) {
+    function setIndex(index: int): void {
         _index = index;
     }
-    function setTrackFocused(trackIndex, column) {
+    function setTrackFocused(trackIndex: int, column: int): void {
         const track = trackByIndex(trackIndex);
         if (track) {
             track.setFocused(column, true);
@@ -63,7 +63,7 @@ Item {
             uiLogger.error(_tag, `No such track: index=${trackIndex}`);
         }
     }
-    function setTrackUnfocused(trackIndex, column) {
+    function setTrackUnfocused(trackIndex: int, column: int): void {
         const track = trackByIndex(trackIndex);
         if (track) {
             track.setFocused(column, false);
@@ -71,7 +71,7 @@ Item {
             uiLogger.error(_tag, `No such track: index=${trackIndex}`);
         }
     }
-    function setColumnMuted(trackIndex, columnIndex, muted) {
+    function setColumnMuted(trackIndex: int, columnIndex: int, muted: bool): void {
         _tracks.forEach(track => {
                 if (track.index() === trackIndex) {
                     uiLogger.debug(_tag, `Muting column ${columnIndex} of track ${trackIndex}: ${muted}`);
@@ -79,7 +79,7 @@ Item {
                 }
             });
     }
-    function setColumnSoloed(trackIndex, columnIndex, soloed) {
+    function setColumnSoloed(trackIndex: int, columnIndex: int, soloed: bool): void {
         _tracks.forEach(track => {
                 if (track.index() === trackIndex) {
                     uiLogger.debug(_tag, `Soloing column ${columnIndex} of track ${trackIndex}: ${soloed}`);
@@ -87,7 +87,7 @@ Item {
                 }
             });
     }
-    function setColumnVelocityScale(trackIndex, columnIndex, value) {
+    function setColumnVelocityScale(trackIndex: int, columnIndex: int, value: int): void {
         _tracks.forEach(track => {
                 if (track.index() === trackIndex) {
                     uiLogger.trace(_tag, `Setting velocity scale for column ${columnIndex} of track ${trackIndex}: ${value}`);
@@ -95,7 +95,7 @@ Item {
                 }
             });
     }
-    function setTrackMuted(trackIndex, muted) {
+    function setTrackMuted(trackIndex: int, muted: bool): void {
         _tracks.forEach(track => {
                 if (track.index() === trackIndex) {
                     uiLogger.debug(_tag, `Muting track ${trackIndex}: ${muted}`);
@@ -103,7 +103,7 @@ Item {
                 }
             });
     }
-    function setTrackSoloed(trackIndex, soloed) {
+    function setTrackSoloed(trackIndex: int, soloed: bool): void {
         _tracks.forEach(track => {
                 if (track.index() === trackIndex) {
                     uiLogger.debug(_tag, `Soloing track ${trackIndex}: ${soloed}`);
@@ -111,7 +111,7 @@ Item {
                 }
             });
     }
-    function setTrackVelocityScale(trackIndex, value) {
+    function setTrackVelocityScale(trackIndex: int, value: int): void {
         _tracks.forEach(track => {
                 if (track.index() === trackIndex) {
                     uiLogger.trace(_tag, `Setting velocity scale for track ${trackIndex}: ${value}`);
@@ -119,62 +119,62 @@ Item {
                 }
             });
     }
-    function setPosition(newPosition) {
+    function setPosition(newPosition: var): void {
         _tracks.forEach(track => {
                 track.setPosition(newPosition);
             });
     }
-    function clearMixerSettings() {
+    function clearMixerSettings(): void {
         _tracks.forEach(track => {
                 track.clearMixerSettings();
             });
     }
-    function tracks() {
+    function tracks(): var {
         return _tracks;
     }
-    function trackByIndex(trackIndex) {
+    function trackByIndex(trackIndex: int): var {
         return _tracks.find(track => track.index() === trackIndex) || null;
     }
-    function updateIndexHighlights() {
+    function updateIndexHighlights(): void {
         _tracks.forEach(track => {
                 track.updateIndexHighlights();
             });
     }
-    function updateSelectedLines(startPosition, endPosition) {
+    function updateSelectedLines(startPosition: var, endPosition: var): void {
         _tracks.filter(track => track.index() === startPosition.track).forEach(track => track.updateIndexHighlights());
     }
-    function updateColumnHeaders() {
+    function updateColumnHeaders(): void {
         _tracks.forEach(track => {
                 track.updateColumnHeaders();
             });
     }
-    function updateNoteDataAtPosition(position) {
+    function updateNoteDataAtPosition(position: var): void {
         _tracks.forEach(track => {
                 track.updateNoteDataAtPosition(position);
             });
     }
-    function updateTrackHeaders() {
+    function updateTrackHeaders(): void {
         _tracks.forEach(track => {
                 track.setName(editorService.trackName(track.index()));
             });
     }
-    function updateTrackData() {
+    function updateTrackData(): void {
         _tracks.forEach(track => {
                 track.updateData();
             });
     }
-    function _setTrackDimensions(track, trackAreaWidth, trackAreaHeight) {
+    function _setTrackDimensions(track: var, trackAreaWidth: int, trackAreaHeight: int): void {
         const unitWidth = trackAreaWidth / editorService.visibleUnitCount();
         track.resize(unitWidth * editorService.trackWidthInUnits(track.index()), trackAreaHeight);
         track.x = unitWidth * editorService.onScreenTrackPositionInUnits(track.index());
         track.y = 0;
     }
-    function updateTrackDimensions(trackAreaWidth, trackAreaHeight) {
+    function updateTrackDimensions(trackAreaWidth: int, trackAreaHeight: int): void {
         _tracks.forEach(track => {
                 _setTrackDimensions(track, trackAreaWidth, trackAreaHeight);
             });
     }
-    function updateTrackVisibility() {
+    function updateTrackVisibility(): void {
         _tracks.forEach(track => track.updateColumnVisibility());
     }
     Component {
