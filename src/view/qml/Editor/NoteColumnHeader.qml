@@ -21,22 +21,22 @@ Rectangle {
     signal velocityScaleRequested
     property bool _focused: false
     property int _index: 0
-    function setFocused(focused) {
+    function setFocused(focused: bool): void {
         _focused = focused;
     }
-    function setIndex(index) {
+    function setIndex(index: int): void {
         _index = index;
     }
-    function setName(name) {
+    function setName(name: string): void {
         nameField.text = name;
     }
-    function setMuted(mute) {
+    function setMuted(mute: bool): void {
         muteSoloButtons.setMuted(mute);
     }
-    function setSoloed(solo) {
+    function setSoloed(solo: bool): void {
         muteSoloButtons.setSoloed(solo);
     }
-    function setVelocityScale(value) {
+    function setVelocityScale(value: int): void {
         velocityScaleWidget.value = value;
     }
     Row {
