@@ -14,76 +14,76 @@ Item {
     property var _lines: []
     property bool _dataUpdated: false
     readonly property string _tag: "NoteColumn"
-    function resize(width, height) {
+    function resize(width: int, height: int): void {
         rootItem.width = width;
         rootItem.height = height;
         lineContainer.width = width;
         lineContainer.height = height - columnHeader.height;
         _resizeLines();
     }
-    function dataUpdated() {
+    function dataUpdated(): bool {
         return _dataUpdated;
     }
-    function index() {
+    function index(): int {
         return _index;
     }
-    function setIndex(index) {
+    function setIndex(index: int): void {
         _index = index;
     }
-    function setPatternIndex(index) {
+    function setPatternIndex(index: int): void {
         _patternIndex = index;
     }
-    function setTrackIndex(index) {
+    function setTrackIndex(index: int): void {
         _trackIndex = index;
         columnHeader.setIndex(index);
     }
-    function setFocused(focused) {
+    function setFocused(focused: bool): void {
         _setLineFocused(editorService.position.line, editorService.position.lineColumn, focused);
     }
-    function setName(name) {
+    function setName(name: string): void {
         columnHeader.setName(name);
     }
-    function setMuted(muted) {
+    function setMuted(muted: bool): void {
         columnHeader.setMuted(muted);
     }
-    function setSoloed(soloed) {
+    function setSoloed(soloed: bool): void {
         columnHeader.setSoloed(soloed);
     }
-    function setVelocityScale(value) {
+    function setVelocityScale(value: int): void {
         columnHeader.setVelocityScale(value);
     }
-    function _triggerVolumeMeterAtPosition(position) {
+    function _triggerVolumeMeterAtPosition(position: var): void {
         if (UiService.isPlaying() && mixerService.shouldColumnPlay(_trackIndex, _index)) {
             const velocity = editorService.velocityAtPosition(position.pattern, _trackIndex, _index, position.line);
             volumeMeter.trigger(mixerService.effectiveVelocity(_trackIndex, _index, velocity) / 127);
         }
     }
-    function setPosition(position) {
+    function setPosition(position: var): void {
         _scrollOffset = position.line;
         _scrollLines();
         _triggerVolumeMeterAtPosition(position);
     }
-    function setPositionBar(positionBar) {
+    function setPositionBar(positionBar: var): void {
         _positionBar = positionBar;
     }
-    function updateData() {
+    function updateData(): void {
         _createLines();
         _dataUpdated = true;
     }
     // Due to lazy loading, ensure that lines are created when requested
-    function _getLineAtIndex(index) {
+    function _getLineAtIndex(index: int): var {
         if (!_lines[index]) {
             _createLines();
         }
         return _lines[index];
     }
-    function updateNoteDataAtPosition(position) {
+    function updateNoteDataAtPosition(position: var): void {
         if (_isPositionMe(position)) {
             const noteAndVelocity = editorService.displayNoteAndVelocityAtPosition(_patternIndex, _trackIndex, _index, position.line);
             _getLineAtIndex(position.line).setNoteData(noteAndVelocity[0], noteAndVelocity[1]);
         }
     }
-    function updateIndexHighlights() {
+    function updateIndexHighlights(): void {
         _lines.forEach((line, index) => {
                 if (selectionService.isSelected(_patternIndex, _trackIndex, _index, index)) {
                     const baseColor = utilService.scaledColor("#ffffff", utilService.indexHighlightOpacity(index, editorService.linesPerBeat));
@@ -106,17 +106,17 @@ Item {
                 }
             });
     }
-    function _isPositionMe(position) {
+    function _isPositionMe(position: var): bool {
         return position.pattern === _patternIndex && position.track === _trackIndex && position.column === _index;
     }
-    function _lineHeight() {
+    function _lineHeight(): int {
         const lineCount = config.visibleLines;
         return lineContainer.height / lineCount;
     }
-    function _scrolledLinePositionByLineIndex(lineIndex) {
+    function _scrolledLinePositionByLineIndex(lineIndex: int): int {
         return lineIndex - _scrollOffset + editorService.positionBarLine();
     }
-    function _initializeWithData(lineCount, lineHeight) {
+    function _initializeWithData(lineCount: int, lineHeight: int): void {
         for (let lineIndex = 0; lineIndex < lineCount; lineIndex++) {
             const noteAndVelocity = editorService.displayNoteAndVelocityAtPosition(_patternIndex, _trackIndex, _index, lineIndex);
             const line = noteColumnLineComponent.createObject(lineContainer);
@@ -128,7 +128,7 @@ Item {
             _lines.push(line);
         }
     }
-    function _initializeWithNoData(lineCount, lineHeight) {
+    function _initializeWithNoData(lineCount: int, lineHeight: int): void {
         const noteAndVelocity = editorService.displayNoteAndVelocityAtPosition(_patternIndex, _trackIndex, _index, 0);
         for (let lineIndex = 0; lineIndex < lineCount; lineIndex++) {
             const line = noteColumnLineComponent.createObject(lineContainer);
@@ -140,7 +140,7 @@ Item {
             _lines.push(line);
         }
     }
-    function _createLines() {
+    function _createLines(): void {
         uiLogger.trace(_tag, `Creating lines of pattern ${_patternIndex}, track ${_trackIndex}, column ${_index}`);
         _lines.forEach(line => {
                 line.destroy();
@@ -155,7 +155,7 @@ Item {
         }
         rootItem.updateIndexHighlights();
     }
-    function _resizeLines() {
+    function _resizeLines(): void {
         const lineCount = editorService.lineCount(_patternIndex);
         const lineHeight = _lineHeight();
         _lines.forEach((line, index) => {
@@ -164,7 +164,7 @@ Item {
                 line.height = lineHeight;
             });
     }
-    function _scrollLines() {
+    function _scrollLines(): void {
         const lineHeight = _lineHeight();
         const linesVisible = config.visibleLines;
         _lines.forEach((line, index) => {
@@ -173,7 +173,7 @@ Item {
                 line.visible = scrolledLinePosition >= 0 && scrolledLinePosition <= linesVisible;
             });
     }
-    function _setLineFocused(lineIndex, lineColumnIndex, focused) {
+    function _setLineFocused(lineIndex: int, lineColumnIndex: int, focused: bool): void {
         if (!focused) {
             lineCursor.visible = false;
         } else {
@@ -181,7 +181,7 @@ Item {
             lineCursor.visible = true;
         }
     }
-    function _lineIndexAtPosition(y) {
+    function _lineIndexAtPosition(y: int): int {
         let bestIndex = 0;
         _lines.forEach((line, index) => {
                 if (y >= line.y) {
