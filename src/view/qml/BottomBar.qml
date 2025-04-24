@@ -10,17 +10,17 @@ Rectangle {
     property var _statusQueue: []
     property bool _isDisplaying: false
     property string _tag: "BottomBar"
-    function setStatusText(text) {
+    function setStatusText(text: string): void {
         uiLogger.debug(_tag, `Pushing new text '${text}'`);
         _statusQueue.push(text);
         if (!_isDisplaying) {
             _displayNextText();
         }
     }
-    function setPosition(position) {
+    function setPosition(position: var): void {
         contentSwitcher.setPosition(position);
     }
-    function _displayNextText() {
+    function _displayNextText(): void {
         if (_statusQueue.length > 0) {
             _isDisplaying = true;
             _statusText = _statusQueue.shift();
@@ -30,13 +30,13 @@ Rectangle {
             _isDisplaying = false;
         }
     }
-    function _fadeOutText() {
+    function _fadeOutText(): void {
         fadeAnimation.running = true;
     }
     Item {
         id: contentSwitcher
         anchors.fill: parent
-        function setPosition(position) {
+        function setPosition(position: var): void {
             noteVisualizer.setPosition(position);
         }
         NoteVisualizer {
