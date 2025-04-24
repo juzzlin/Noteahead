@@ -14,89 +14,89 @@ Item {
     signal leftClicked(int columnIndex, int lineIndex, int x, int y)
     signal rightClicked(int columnIndex, int lineIndex, int x, int y)
     signal nameChanged(string name)
-    function index() {
+    function index(): int {
         return _index;
     }
-    function setIndex(index) {
+    function setIndex(index: int): void {
         _index = index;
         trackHeader.setIndex(index);
     }
-    function setPatternIndex(index) {
+    function setPatternIndex(index: int): void {
         _patternIndex = index;
     }
-    function resize(width, height) {
+    function resize(width: int, height: int): void {
         rootItem.width = width;
         rootItem.height = height;
         columnContainer.resize(rootItem.width, rootItem.height - trackHeader.height);
     }
-    function focused() {
+    function focused(): bool {
         return _focused;
     }
-    function setFocused(columnIndex, focused) {
+    function setFocused(columnIndex: int, focused: bool): void {
         _focused = focused;
         trackHeader.setFocused(focused);
         columnContainer.setFocused(columnIndex, focused);
     }
-    function setName(name) {
+    function setName(name: string): void {
         trackHeader.setName(name);
     }
-    function setPosition(position) {
+    function setPosition(position: var): void {
         columnContainer.setPosition(position);
     }
-    function setPositionBar(positionBar) {
+    function setPositionBar(positionBar: var): void {
         _positionBar = positionBar;
         columnContainer.setPositionBar(positionBar);
     }
-    function setMuted(muted) {
+    function setMuted(muted: bool): void {
         trackHeader.setMuted(muted);
     }
-    function setSoloed(soloed) {
+    function setSoloed(soloed: bool): void {
         trackHeader.setSoloed(soloed);
     }
-    function setVelocityScale(value) {
+    function setVelocityScale(value: int): void {
         trackHeader.setVelocityScale(value);
     }
-    function setColumnMuted(columnIndex, muted) {
+    function setColumnMuted(columnIndex: int, muted: bool): void {
         columnContainer.setColumnMuted(columnIndex, muted);
     }
-    function setColumnSoloed(columnIndex, soloed) {
+    function setColumnSoloed(columnIndex: int, soloed: bool): void {
         columnContainer.setColumnSoloed(columnIndex, soloed);
     }
-    function setColumnVelocityScale(columnIndex, value) {
+    function setColumnVelocityScale(columnIndex: int, value: int): void {
         columnContainer.setColumnVelocityScale(columnIndex, value);
     }
-    function clearMixerSettings() {
+    function clearMixerSettings(): void {
         setMuted(false);
         setSoloed(false);
         setVelocityScale(100);
         columnContainer.clearMixerSettings();
     }
-    function updateData() {
+    function updateData(): void {
         _clearColumns();
         _createColumns();
     }
-    function updateNoteDataAtPosition(position) {
+    function updateNoteDataAtPosition(position: var): void {
         columnContainer.updateNoteDataAtPosition(position);
     }
-    function updateColumnHeaders() {
+    function updateColumnHeaders(): void {
         columnContainer.updateColumnHeaders();
     }
-    function updateColumnVisibility() {
+    function updateColumnVisibility(): void {
         columnContainer.updateVisibility();
     }
-    function updateIndexHighlights() {
+    function updateIndexHighlights(): void {
         columnContainer.updateIndexHighlights();
     }
-    function addColumn() {
+    function addColumn(): void {
         columnContainer.addColumn();
     }
-    function deleteColumn() {
+    function deleteColumn(): void {
         columnContainer.deleteColumn();
     }
-    function _clearColumns() {
+    function _clearColumns(): void {
         columnContainer.clearColumns();
     }
-    function _createColumns() {
+    function _createColumns(): void {
         columnContainer.createColumns();
     }
     TrackHeader {
@@ -113,57 +113,57 @@ Item {
         property int _noteColumnCount
         property var _noteColumns: []
         property var _lineColumn
-        function clearColumns() {
+        function clearColumns(): void {
             _noteColumns.forEach(noteColumn => noteColumn.destroy());
             _noteColumns.length = 0;
         }
-        function createColumns() {
+        function createColumns(): void {
             _noteColumnCount = editorService.columnCount(_index);
             _createNoteColumns();
         }
-        function addColumn() {
+        function addColumn(): void {
             _noteColumnCount = editorService.columnCount(_index);
             const noteColumn = _createNoteColumn(_noteColumnCount - 1);
             _noteColumns.push(noteColumn);
             _resize(width, height);
             updateIndexHighlights();
         }
-        function deleteColumn() {
+        function deleteColumn(): void {
             _noteColumns[_noteColumns.length - 1].destroy();
             _noteColumns.pop();
             _noteColumnCount = editorService.columnCount(_index);
             _resize(width, height);
         }
-        function setColumnMuted(columnIndex, muted) {
+        function setColumnMuted(columnIndex: int, muted: bool): void {
             _noteColumns[columnIndex].setMuted(muted);
         }
-        function setColumnSoloed(columnIndex, soloed) {
+        function setColumnSoloed(columnIndex: int, soloed: bool): void {
             _noteColumns[columnIndex].setSoloed(soloed);
         }
-        function setColumnVelocityScale(columnIndex, value) {
+        function setColumnVelocityScale(columnIndex: int, value: int): void {
             _noteColumns[columnIndex].setVelocityScale(value);
         }
-        function clearMixerSettings() {
+        function clearMixerSettings(): void {
             _noteColumns.forEach(noteColumn => {
                     noteColumn.setMuted(false);
                     noteColumn.setSoloed(false);
                     noteColumn.setVelocityScale(100);
                 });
         }
-        function setFocused(columnIndex, focused) {
+        function setFocused(columnIndex: int, focused: bool): void {
             _noteColumns[columnIndex].setFocused(focused);
         }
-        function setPosition(position) {
+        function setPosition(position: var): void {
             _noteColumns.forEach(noteColumn => {
                     noteColumn.setPosition(position);
                 });
         }
-        function setPositionBar(positionBar) {
+        function setPositionBar(positionBar: var): void {
             _noteColumns.forEach(noteColumn => {
                     noteColumn.setPositionBar(positionBar);
                 });
         }
-        function updateColumnHeaders() {
+        function updateColumnHeaders(): void {
             _noteColumns.forEach(noteColumn => {
                     noteColumn.setName(editorService.columnName(_index, noteColumn.index()));
                     noteColumn.setMuted(mixerService.isColumnMuted(_index, noteColumn.index()));
@@ -171,17 +171,17 @@ Item {
                     noteColumn.setVelocityScale(mixerService.columnVelocityScale(_index, noteColumn.index()));
                 });
         }
-        function updateIndexHighlights() {
+        function updateIndexHighlights(): void {
             _noteColumns.forEach(noteColumn => {
                     noteColumn.updateIndexHighlights();
                 });
         }
-        function updateNoteDataAtPosition(position) {
+        function updateNoteDataAtPosition(position: var): void {
             _noteColumns.forEach(noteColumn => {
                     noteColumn.updateNoteDataAtPosition(position);
                 });
         }
-        function updateVisibility() {
+        function updateVisibility(): void {
             // Load column data if the column becomes visible or is visible but not yet loaded
             _noteColumns.forEach(noteColumn => {
                     if (!noteColumn.dataUpdated() && editorService.isColumnVisible(_index, noteColumn.index())) {
@@ -189,15 +189,15 @@ Item {
                     }
                 });
         }
-        function _noteColumnX(index) {
+        function _noteColumnX(index: int): int {
             return _noteColumnWidth() * index;
         }
-        function _noteColumnWidth() {
+        function _noteColumnWidth(): int {
             return width / _noteColumnCount;
         }
         // Note!!: The actual line data objects are not yet created, but on-demand when updateVisibility() is called.
         //         This will significantly reduce the load time of a song while providing a smooth playback animation.
-        function _createNoteColumn(columnIndex) {
+        function _createNoteColumn(columnIndex: int): var {
             const noteColumnWidth = _noteColumnWidth();
             const noteColumnHeight = columnContainer.height;
             const noteColumn = noteColumnComponent.createObject(columnContainer);
@@ -218,7 +218,7 @@ Item {
                 });
             return noteColumn;
         }
-        function _createNoteColumns() {
+        function _createNoteColumns(): void {
             _noteColumns = [];
             const noteColumnWidth = _noteColumnWidth();
             const noteColumnHeight = columnContainer.height;
@@ -227,7 +227,7 @@ Item {
                 _noteColumns.push(noteColumn);
             }
         }
-        function resize(width, height) {
+        function resize(width: int, height: int): void {
             columnContainer.width = width;
             columnContainer.height = height;
             const noteColumnWidth = _noteColumnWidth();
