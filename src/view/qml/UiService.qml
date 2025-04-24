@@ -19,10 +19,10 @@ QtObject {
     signal trackVelocityScaleDialogRequested(int trackIndex)
     property int _activeOctave: 3
     readonly property string _tag: "UiService"
-    function activeOctave() {
+    function activeOctave(): int {
         return _activeOctave;
     }
-    function setActiveOctave(octave) {
+    function setActiveOctave(octave: int): void {
         if (0 >= octave <= 8 && _activeOctave !== octave) {
             _activeOctave = octave;
             activeOctaveChanged(_activeOctave);
@@ -30,10 +30,10 @@ QtObject {
     }
     signal activeStepChanged(int activeStep)
     property int _activeStep: config.step(1)
-    function activeStep() {
+    function activeStep(): int {
         return _activeStep;
     }
-    function setActiveStep(step) {
+    function setActiveStep(step): void {
         if (_activeStep !== step) {
             _activeStep = step;
             config.setStep(step);
@@ -42,10 +42,10 @@ QtObject {
     }
     signal activeVelocityChanged(int activeVelocity)
     property int _activeVelocity: config.velocity(100)
-    function activeVelocity() {
+    function activeVelocity(): int {
         return _activeVelocity;
     }
-    function setActiveVelocity(velocity) {
+    function setActiveVelocity(velocity): void {
         if (_activeVelocity !== velocity) {
             _activeVelocity = velocity;
             config.setVelocity(velocity);
@@ -54,22 +54,22 @@ QtObject {
     }
     signal editModeChanged(int editMode)
     property bool _editMode: false
-    function editMode() {
+    function editMode(): bool {
         return _editMode;
     }
-    function setEditMode(editMode) {
+    function setEditMode(editMode): void {
         if (_editMode !== editMode && (!editMode || !isPlaying())) {
             _editMode = editMode;
             editModeChanged(_editMode);
         }
     }
-    function toggleEditMode() {
+    function toggleEditMode(): void {
         setEditMode(!editMode());
     }
-    function isPlaying() {
+    function isPlaying(): bool {
         return playerService.isPlaying;
     }
-    function togglePlay() {
+    function togglePlay(): void {
         if (!isPlaying()) {
             if (requestPlay()) {
                 setEditMode(false);
@@ -78,80 +78,80 @@ QtObject {
             requestStop();
         }
     }
-    function requestPlay() {
+    function requestPlay(): bool {
         uiLogger.debug(_tag, "Requesting play");
         return playerService.play();
     }
-    function requestStop() {
+    function requestStop(): void {
         uiLogger.debug(_tag, "Requesting stop");
         playerService.stop();
     }
-    function setIsLooping(isLooping) {
+    function setIsLooping(isLooping): void {
         uiLogger.debug(_tag, `Setting pattern looping: ${isLooping}`);
         playerService.setIsLooping(isLooping);
     }
-    function requestAboutDialog() {
+    function requestAboutDialog(): void {
         aboutDialogRequested();
     }
-    function requestEventSelectionDialog() {
+    function requestEventSelectionDialog(): void {
         eventSelectionDialogRequested();
     }
-    function requestRecentFilesDialog() {
+    function requestRecentFilesDialog(): void {
         recentFilesDialogRequested();
     }
-    function requestSettingsDialog() {
+    function requestSettingsDialog(): void {
         settingsDialogRequested();
     }
-    function requestTrackSettingsDialog(trackIndex) {
+    function requestTrackSettingsDialog(trackIndex): void {
         trackSettingsDialogRequested(trackIndex);
     }
-    function requestColumnVelocityScaleDialog(trackIndex, columnIndex) {
+    function requestColumnVelocityScaleDialog(trackIndex, columnIndex): void {
         if (!isPlaying()) {
             columnVelocityScaleDialogRequested(trackIndex, columnIndex);
         }
     }
-    function requestTrackVelocityScaleDialog(trackIndex) {
+    function requestTrackVelocityScaleDialog(trackIndex): void {
         if (!isPlaying()) {
             trackVelocityScaleDialogRequested(trackIndex);
         }
     }
-    function requestColumnVelocityInterpolationDialog() {
+    function requestColumnVelocityInterpolationDialog(): void {
         if (!isPlaying()) {
             columnVelocityInterpolationDialogRequested();
         }
     }
-    function requestSelectionVelocityInterpolationDialog() {
+    function requestSelectionVelocityInterpolationDialog(): void {
         if (!isPlaying()) {
             selectionVelocityInterpolationDialogRequested();
         }
     }
-    function requestLineDelayDialog() {
+    function requestLineDelayDialog(): void {
         lineDelayDialogRequested();
     }
-    function requestColumnAddMidiCcAutomationDialog() {
+    function requestColumnAddMidiCcAutomationDialog(): void {
         if (!isPlaying()) {
             columnAddMidiCcAutomationDialogRequested();
         }
     }
-    function requestSelectionAddMidiCcAutomationDialog() {
+    function requestSelectionAddMidiCcAutomationDialog(): void {
         if (!isPlaying()) {
             selectionAddMidiCcAutomationDialogRequested();
         }
     }
-    function requestEditMidiCcAutomationsDialog() {
+    function requestEditMidiCcAutomationsDialog(): void {
         if (!isPlaying()) {
             editMidiCcAutomationsDialogRequested();
         }
     }
-    function requestFocusOnEditorView() {
+    function requestFocusOnEditorView(): void {
         focusOnEditorViewRequested();
     }
-    function rewindSong() {
+    function rewindSong(): void {
         editorService.resetSongPosition();
         applicationService.applyAllTrackSettings();
     }
     signal quitRequested
-    function requestQuit() {
+    function requestQuit(): void {
         quitRequested();
     }
 }
