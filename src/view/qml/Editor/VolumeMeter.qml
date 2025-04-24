@@ -66,7 +66,7 @@ Item {
             }
         }
     }
-    function trigger(normalizedVolume) {
+    function trigger(normalizedVolume: double): void {
         if (normalizedVolume >= 0.0 && normalizedVolume <= 1.0) {
             _volume = normalizedVolume;
             if (_volume > 0) {
