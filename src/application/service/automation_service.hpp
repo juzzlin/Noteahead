@@ -69,6 +69,7 @@ signals:
 private:
     void notifyChangedLines(quint64 pattern, quint64 track, quint64 column, quint64 line0, quint64 line1);
     void notifyChangedLines(const MidiCcAutomation & midiCcAutomation);
+    void notifyChangedLinesMerged(const MidiCcAutomation & midiCcAutomation1, const MidiCcAutomation & midiCcAutomation2);
 
     MidiCcAutomationList m_midiCcAutomations;
 };

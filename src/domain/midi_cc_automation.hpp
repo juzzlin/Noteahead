@@ -34,6 +34,16 @@ public:
         size_t pattern = 0;
         size_t track = 0;
         size_t column = 0;
+
+        bool operator==(const Location & other) const
+        {
+            return pattern == other.pattern && track == other.track && column == other.column;
+        }
+
+        bool operator!=(const Location & other) const
+        {
+            return !(*this == other);
+        }
     };
 
     struct Interpolation
@@ -42,10 +52,23 @@ public:
         size_t line1 = 0;
         uint8_t value0 = 0;
         uint8_t value1 = 0;
+
+        bool operator==(const Interpolation & other) const
+        {
+            return line0 == other.line0 && line1 == other.line1 && value0 == other.value0 && value1 == other.value1;
+        }
+
+        bool operator!=(const Interpolation & other) const
+        {
+            return !(*this == other);
+        }
     };
 
     MidiCcAutomation(size_t id, Location location, uint8_t controller, Interpolation interpolation, QString comment);
     MidiCcAutomation();
+
+    bool operator==(const MidiCcAutomation & other) const;
+    bool operator!=(const MidiCcAutomation & other) const;
 
     size_t id() const;
     void setId(size_t id);

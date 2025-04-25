@@ -52,11 +52,15 @@ void AutomationService::updateMidiCcAutomation(const MidiCcAutomation & updatedM
             return updatedMidiCcAutomation.id() == existingMidiCcAutomation.id();
         });
         iter != m_midiCcAutomations.end()) {
-        const auto oldAutomation = *iter;
-        *iter = updatedMidiCcAutomation;
-        notifyChangedLines(oldAutomation);
-        notifyChangedLines(updatedMidiCcAutomation);
-        juzzlin::L(TAG).info() << "MIDI CC Automation updated: " << updatedMidiCcAutomation.toString().toStdString();
+        if (const auto oldAutomation = *iter; oldAutomation != updatedMidiCcAutomation) {
+            *iter = updatedMidiCcAutomation;
+            if (oldAutomation.interpolation() != updatedMidiCcAutomation.interpolation()) {
+                notifyChangedLinesMerged(oldAutomation, updatedMidiCcAutomation);
+            }
+            juzzlin::L(TAG).info() << "MIDI CC Automation updated: " << updatedMidiCcAutomation.toString().toStdString();
+        } else {
+            juzzlin::L(TAG).info() << "No changes for MIDI CC Automation: " << updatedMidiCcAutomation.toString().toStdString();
+        }
     } else {
         juzzlin::L(TAG).error() << "No such automation id: " << updatedMidiCcAutomation.id();
     }
@@ -209,6 +213,14 @@ void AutomationService::notifyChangedLines(const MidiCcAutomation & midiCcAutoma
     const auto location = midiCcAutomation.location();
     const auto interpolation = midiCcAutomation.interpolation();
     notifyChangedLines(location.pattern, location.track, location.column, interpolation.line0, interpolation.line1);
+}
+
+void AutomationService::notifyChangedLinesMerged(const MidiCcAutomation & midiCcAutomation1, const MidiCcAutomation & midiCcAutomation2)
+{
+    const auto location = midiCcAutomation1.location();
+    const auto interpolation1 = midiCcAutomation1.interpolation();
+    const auto interpolation2 = midiCcAutomation2.interpolation();
+    notifyChangedLines(location.pattern, location.track, location.column, std::min(interpolation1.line0, interpolation2.line0), std::max(interpolation1.line1, interpolation2.line1));
 }
 
 void AutomationService::deserializeFromXml(QXmlStreamReader & reader)

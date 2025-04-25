@@ -32,6 +32,16 @@ MidiCcAutomation::MidiCcAutomation(size_t id, Location location, uint8_t control
 {
 }
 
+bool MidiCcAutomation::operator==(const MidiCcAutomation & other) const
+{
+    return m_id == other.m_id && m_controller == other.m_controller && m_location == other.m_location && m_interpolation == other.m_interpolation && m_comment == other.m_comment;
+}
+
+bool MidiCcAutomation::operator!=(const MidiCcAutomation & other) const
+{
+    return !(*this == other);
+}
+
 size_t MidiCcAutomation::id() const
 {
     return m_id;
