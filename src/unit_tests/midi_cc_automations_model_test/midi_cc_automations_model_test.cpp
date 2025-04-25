@@ -55,6 +55,7 @@ void MidiCcAutomationsModelTest::test_setData_shouldUpdateAutomationData()
 
     MidiCcAutomationsModel model;
     model.setMidiCcAutomations({ midiCcAutomation });
+    QSignalSpy midiCcAutomationChangedSpy { &model, &MidiCcAutomationsModel::midiCcAutomationChanged };
 
     QModelIndex index = model.index(0);
 
@@ -102,6 +103,26 @@ void MidiCcAutomationsModelTest::test_setData_shouldUpdateAutomationData()
     QCOMPARE(model.data(index, static_cast<int>(Role::Column)).toUInt(), midiCcAutomation.location().column);
     QVERIFY(!model.setData(index, 99u, static_cast<int>(Role::Id)));
     QCOMPARE(model.data(index, static_cast<int>(Role::Id)).toUInt(), midiCcAutomation.id());
+
+    model.applyAll();
+    QCOMPARE(midiCcAutomationChangedSpy.count(), 1);
+}
+
+void MidiCcAutomationsModelTest::test_removeAt_shouldRemoveAutomationData()
+{
+    const MidiCcAutomation::Location location { 1, 2, 3 };
+    const MidiCcAutomation::Interpolation interpolation { 11, 22, 33, 44 };
+    MidiCcAutomation midiCcAutomation { 42, location, 7, interpolation, "Old Comment" };
+
+    MidiCcAutomationsModel model;
+    model.setMidiCcAutomations({ midiCcAutomation });
+    QSignalSpy midiCcAutomationDeletedSpy { &model, &MidiCcAutomationsModel::midiCcAutomationDeleted };
+
+    model.removeAt(0);
+    QCOMPARE(model.rowCount(), 0);
+
+    model.applyAll();
+    QCOMPARE(midiCcAutomationDeletedSpy.count(), 1);
 }
 
 } // namespace noteahead

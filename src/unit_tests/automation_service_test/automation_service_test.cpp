@@ -65,11 +65,24 @@ void MidiCcAutomationsModelTest::test_addMidiCcAutomation_shouldAddAutomation()
     QVERIFY(automationService.hasAutomations(pattern, track, column, (line0 + line1) / 2));
 }
 
+void MidiCcAutomationsModelTest::test_deleteMidiCcAutomation_shouldDeleteAutomation()
+{
+    AutomationService automationService;
+
+    automationService.addMidiCcAutomation(0, 0, 0, 0, 0, 1, 0, 1, {});
+    QVERIFY(!automationService.midiCcAutomations().empty());
+    auto automation = automationService.midiCcAutomations().at(0);
+    QSignalSpy lineDataChangedSpy { &automationService, &AutomationService::lineDataChanged };
+    automationService.deleteMidiCcAutomation(automation);
+
+    QVERIFY(automationService.midiCcAutomations().empty());
+    QCOMPARE(lineDataChangedSpy.count(), automation.interpolation().line1 - automation.interpolation().line0 + 1);
+}
+
 void MidiCcAutomationsModelTest::test_automationWeight_shouldCalculateCorrectWeight()
 {
     AutomationService automationService;
 
-    QSignalSpy lineDataChangedSpy { &automationService, &AutomationService::lineDataChanged };
     quint64 pattern = 0;
     quint64 track = 1;
     quint64 column = 2;

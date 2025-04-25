@@ -34,6 +34,8 @@ void MidiCcAutomationsModel::setMidiCcAutomations(MidiCcAutomationList midiCcAut
 {
     juzzlin::L(TAG).info() << "Setting MIDI CC automations: " << midiCcAutomations.size() << " found";
     beginResetModel();
+    m_midiCcAutomationsChanged.clear();
+    m_midiCcAutomationsDeleted.clear();
     m_midiCcAutomations = midiCcAutomations;
     endResetModel();
 }
@@ -144,11 +146,30 @@ bool MidiCcAutomationsModel::setData(const QModelIndex & index, const QVariant &
     }
 
     if (changed) {
+        m_midiCcAutomationsChanged.insert(midiCcAutomation);
         emit dataChanged(index, index, { role });
         return true;
     }
 
     return false;
+}
+
+bool MidiCcAutomationsModel::removeAt(int row)
+{
+    return removeRows(row, 1);
+}
+
+bool MidiCcAutomationsModel::removeRows(int row, int count, const QModelIndex & parent)
+{
+    if (row < 0 || row + count > static_cast<int>(m_midiCcAutomations.size())) {
+        return false;
+    }
+    beginRemoveRows(parent, row, row + count - 1);
+    m_midiCcAutomationsDeleted.insert(m_midiCcAutomations.at(static_cast<size_t>(row)));
+    m_midiCcAutomations.erase(m_midiCcAutomations.begin() + row,
+                              m_midiCcAutomations.begin() + row + count);
+    endRemoveRows();
+    return true;
 }
 
 QHash<int, QByteArray> MidiCcAutomationsModel::roleNames() const
@@ -169,9 +190,14 @@ QHash<int, QByteArray> MidiCcAutomationsModel::roleNames() const
 
 void MidiCcAutomationsModel::applyAll()
 {
-    for (auto && midiCcAutomation : m_midiCcAutomations) {
+    for (auto && midiCcAutomation : m_midiCcAutomationsChanged) {
         emit midiCcAutomationChanged(midiCcAutomation);
     }
+    m_midiCcAutomationsChanged.clear();
+    for (auto && midiCcAutomation : m_midiCcAutomationsDeleted) {
+        emit midiCcAutomationDeleted(midiCcAutomation);
+    }
+    m_midiCcAutomationsDeleted.clear();
 }
 
 } // namespace noteahead

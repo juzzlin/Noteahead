@@ -54,6 +54,11 @@ bool MidiCcAutomation::operator!=(const MidiCcAutomation & other) const
     return !(*this == other);
 }
 
+bool MidiCcAutomation::operator<(const MidiCcAutomation & other) const
+{
+    return m_id < other.m_id;
+}
+
 size_t MidiCcAutomation::id() const
 {
     return m_id;

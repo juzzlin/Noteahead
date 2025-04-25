@@ -51,6 +51,20 @@ void AutomationService::addMidiCcAutomation(quint64 pattern, quint64 track, quin
     addMidiCcAutomation(pattern, track, column, controller, line0, line1, value0, value1, comment, true);
 }
 
+void AutomationService::deleteMidiCcAutomation(const MidiCcAutomation & midiCcAutomationToDelete)
+{
+    if (const auto iter = std::ranges::find_if(m_midiCcAutomations, [&](auto && existingMidiCcAutomation) {
+            return midiCcAutomationToDelete.id() == existingMidiCcAutomation.id();
+        });
+        iter != m_midiCcAutomations.end()) {
+        m_midiCcAutomations.erase(iter);
+        notifyChangedLines(midiCcAutomationToDelete);
+        juzzlin::L(TAG).info() << "MIDI CC Automation deleted: " << midiCcAutomationToDelete.toString().toStdString();
+    } else {
+        juzzlin::L(TAG).error() << "No such automation id to delete: " << midiCcAutomationToDelete.id();
+    }
+}
+
 void AutomationService::updateMidiCcAutomation(const MidiCcAutomation & updatedMidiCcAutomation)
 {
     if (const auto iter = std::ranges::find_if(m_midiCcAutomations, [&](auto && existingMidiCcAutomation) {

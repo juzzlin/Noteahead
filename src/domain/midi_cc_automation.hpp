@@ -70,6 +70,7 @@ public:
 
     bool operator==(const MidiCcAutomation & other) const;
     bool operator!=(const MidiCcAutomation & other) const;
+    bool operator<(const MidiCcAutomation & other) const;
 
     size_t id() const;
     void setId(size_t id);

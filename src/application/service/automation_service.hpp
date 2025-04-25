@@ -62,6 +62,7 @@ public:
     void serializeToXml(QXmlStreamWriter & writer) const;
 
 public slots:
+    void deleteMidiCcAutomation(const MidiCcAutomation & midiCcAutomationToDelete);
     void updateMidiCcAutomation(const MidiCcAutomation & updatedMidiCcAutomation);
 
 signals:

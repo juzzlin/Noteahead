@@ -20,6 +20,7 @@
 
 #include <QAbstractListModel>
 
+#include <set>
 #include <vector>
 
 namespace noteahead {
@@ -52,17 +53,23 @@ public:
 
     Q_INVOKABLE int rowCount(const QModelIndex & parent = QModelIndex()) const override;
     Q_INVOKABLE QVariant data(const QModelIndex & index, int role = Qt::DisplayRole) const override;
-    Q_INVOKABLE virtual bool setData(const QModelIndex & index, const QVariant & value, int role = Qt::EditRole) override;
+    Q_INVOKABLE bool setData(const QModelIndex & index, const QVariant & value, int role = Qt::EditRole) override;
+    Q_INVOKABLE bool removeAt(int row);
+    bool removeRows(int row, int count, const QModelIndex & parent = QModelIndex()) override;
     Q_INVOKABLE QHash<int, QByteArray> roleNames() const override;
 
     Q_INVOKABLE void applyAll();
 
 signals:
     void midiCcAutomationChanged(const MidiCcAutomation & midiCcAutomation);
+    void midiCcAutomationDeleted(const MidiCcAutomation & midiCcAutomation);
     void midiCcAutomationsRequested();
 
 private:
     MidiCcAutomationList m_midiCcAutomations;
+    using MidiCcAutomationSet = std::set<MidiCcAutomation>;
+    MidiCcAutomationSet m_midiCcAutomationsChanged;
+    MidiCcAutomationSet m_midiCcAutomationsDeleted;
 };
 
 } // namespace noteahead

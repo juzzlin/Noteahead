@@ -197,6 +197,10 @@ void Application::connectServices()
         m_automationService->updateMidiCcAutomation(midiCcAutomation);
         m_editorService->setIsModified(true);
     });
+    connect(m_midiCcAutomationsModel.get(), &MidiCcAutomationsModel::midiCcAutomationDeleted, this, [this](auto && midiCcAutomation) {
+        m_automationService->deleteMidiCcAutomation(midiCcAutomation);
+        m_editorService->setIsModified(true);
+    });
 
     connect(m_editorService.get(), &EditorService::aboutToChangeSong, m_mixerService.get(), &MixerService::clear);
     connect(m_editorService.get(), &EditorService::aboutToInitialize, m_mixerService.get(), &MixerService::clear);

@@ -27,6 +27,7 @@ class MidiCcAutomationsModelTest : public QObject
 private slots:
 
     void test_addMidiCcAutomation_shouldAddAutomation();
+    void test_deleteMidiCcAutomation_shouldDeleteAutomation();
 
     void test_automationWeight_shouldCalculateCorrectWeight();
 
