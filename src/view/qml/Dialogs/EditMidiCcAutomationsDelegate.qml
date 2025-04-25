@@ -8,6 +8,25 @@ GroupBox {
     title: `Pattern: ${model.pattern}, Track: ${model.track}, Column: ${model.column}`
     GridLayout {
         anchors.fill: parent
+        CheckBox {
+            id: enableCheckbox
+            text: qsTr("Enabled")
+            checked: model.enabled
+            Layout.row: 1
+            Layout.column: 0
+            Layout.fillWidth: true
+            ToolTip.delay: Constants.toolTipDelay
+            ToolTip.timeout: Constants.toolTipTimeout
+            ToolTip.visible: hovered
+            ToolTip.text: qsTr("Enable/disable the automation")
+            onCheckedChanged: model.enabled = checked
+        }
+        Label {
+            text: qsTr("Controller")
+            Layout.row: 0
+            Layout.column: 1
+            Layout.fillWidth: true
+        }
         SpinBox {
             id: controllerSpinBox
             from: 0
@@ -16,48 +35,20 @@ GroupBox {
             value: model.controller
             Keys.onReturnPressed: focus = false
             Layout.row: 1
-            Layout.column: 0
-            Layout.fillWidth: true
-            ToolTip.delay: Constants.toolTipDelay
-            ToolTip.timeout: Constants.toolTipTimeout
-            ToolTip.visible: hovered
-            ToolTip.text: qsTr("Controller")
-            onValueChanged: {
-                model.controller = value;
-            }
-            onActiveFocusChanged: editing = activeFocus
-        }
-        SpinBox {
-            id: startValueSpinBox
-            from: 0
-            to: 127
-            value: model.value0
-            editable: true
-            Keys.onReturnPressed: focus = false
-            Layout.row: 1
             Layout.column: 1
             Layout.fillWidth: true
             ToolTip.delay: Constants.toolTipDelay
             ToolTip.timeout: Constants.toolTipTimeout
             ToolTip.visible: hovered
-            ToolTip.text: qsTr("Start value")
-            onValueChanged: model.value0 = value
+            ToolTip.text: qsTr("Controller")
+            onValueChanged: model.controller = value
+            onActiveFocusChanged: editing = activeFocus
         }
-        SpinBox {
-            id: endValueSpinBox
-            from: 0
-            to: 127
-            value: model.value1
-            editable: true
-            Keys.onReturnPressed: focus = false
-            Layout.row: 1
+        Label {
+            text: qsTr("Start line")
+            Layout.row: 0
             Layout.column: 2
             Layout.fillWidth: true
-            ToolTip.delay: Constants.toolTipDelay
-            ToolTip.timeout: Constants.toolTipTimeout
-            ToolTip.visible: hovered
-            ToolTip.text: qsTr("End value")
-            onValueChanged: model.value1 = value
         }
         SpinBox {
             id: startLineSpinBox
@@ -67,13 +58,19 @@ GroupBox {
             editable: true
             Keys.onReturnPressed: focus = false
             Layout.row: 1
-            Layout.column: 3
+            Layout.column: 2
             Layout.fillWidth: true
             ToolTip.delay: Constants.toolTipDelay
             ToolTip.timeout: Constants.toolTipTimeout
             ToolTip.visible: hovered
             ToolTip.text: qsTr("Start line")
             onValueChanged: model.line0 = value
+        }
+        Label {
+            text: qsTr("End line")
+            Layout.row: 0
+            Layout.column: 3
+            Layout.fillWidth: true
         }
         SpinBox {
             id: endLineSpinBox
@@ -83,7 +80,7 @@ GroupBox {
             editable: true
             Keys.onReturnPressed: focus = false
             Layout.row: 1
-            Layout.column: 4
+            Layout.column: 3
             Layout.fillWidth: true
             ToolTip.delay: Constants.toolTipDelay
             ToolTip.timeout: Constants.toolTipTimeout
@@ -91,13 +88,57 @@ GroupBox {
             ToolTip.text: qsTr("End line")
             onValueChanged: model.line1 = value
         }
+        Label {
+            text: qsTr("Start value")
+            Layout.row: 0
+            Layout.column: 4
+            Layout.fillWidth: true
+        }
+        SpinBox {
+            id: startValueSpinBox
+            from: 0
+            to: 127
+            value: model.value0
+            editable: true
+            Keys.onReturnPressed: focus = false
+            Layout.row: 1
+            Layout.column: 4
+            Layout.fillWidth: true
+            ToolTip.delay: Constants.toolTipDelay
+            ToolTip.timeout: Constants.toolTipTimeout
+            ToolTip.visible: hovered
+            ToolTip.text: qsTr("Start value")
+            onValueChanged: model.value0 = value
+        }
+        Label {
+            text: qsTr("End value")
+            Layout.row: 0
+            Layout.column: 5
+            Layout.fillWidth: true
+        }
+        SpinBox {
+            id: endValueSpinBox
+            from: 0
+            to: 127
+            value: model.value1
+            editable: true
+            Keys.onReturnPressed: focus = false
+            Layout.row: 1
+            Layout.column: 5
+            Layout.fillWidth: true
+            ToolTip.delay: Constants.toolTipDelay
+            ToolTip.timeout: Constants.toolTipTimeout
+            ToolTip.visible: hovered
+            ToolTip.text: qsTr("End value")
+            onValueChanged: model.value1 = value
+        }
         TextField {
             id: commentEdit
             readOnly: false
             text: model.comment
             placeholderText: qsTr("Comment")
             Layout.row: 2
-            Layout.columnSpan: 5
+            Layout.columnSpan: 6
             Layout.fillWidth: true
             Keys.onReturnPressed: focus = false
             ToolTip.delay: Constants.toolTipDelay

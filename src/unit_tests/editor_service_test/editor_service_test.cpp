@@ -1428,7 +1428,7 @@ void EditorServiceTest::test_toXmlFromXml_automationService_shouldLoadAutomation
     for (size_t pattern = 0; pattern < 10; pattern++) {
         for (size_t track = 0; track < 8; track++) {
             for (size_t column = 0; column < 3; column++) {
-                automationServiceOut.addMidiCcAutomation(pattern, track, column, controller, line0, line1, value0, value1, comment);
+                automationServiceOut.addMidiCcAutomation(pattern, track, column, controller, line0, line1, value0, value1, comment, track % 2 == 0);
             }
         }
     }
@@ -1452,6 +1452,7 @@ void EditorServiceTest::test_toXmlFromXml_automationService_shouldLoadAutomation
                 QCOMPARE(automationServiceIn.midiCcAutomationsByLine(pattern, track, column, line0).at(0).interpolation().value0, value0);
                 QCOMPARE(automationServiceIn.midiCcAutomationsByLine(pattern, track, column, line0).at(0).interpolation().value1, value1);
                 QCOMPARE(automationServiceIn.midiCcAutomationsByLine(pattern, track, column, line0).at(0).comment(), comment);
+                QCOMPARE(automationServiceIn.midiCcAutomationsByLine(pattern, track, column, line0).at(0).enabled(), track % 2 == 0);
             }
         }
     }

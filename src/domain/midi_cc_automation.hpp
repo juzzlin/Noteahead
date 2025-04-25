@@ -64,6 +64,7 @@ public:
         }
     };
 
+    MidiCcAutomation(size_t id, Location location, uint8_t controller, Interpolation interpolation, QString comment, bool enabled);
     MidiCcAutomation(size_t id, Location location, uint8_t controller, Interpolation interpolation, QString comment);
     MidiCcAutomation();
 
@@ -85,6 +86,9 @@ public:
     QString comment() const;
     void setComment(QString comment);
 
+    bool enabled() const;
+    void setEnabled(bool enabled);
+
     void serializeToXml(QXmlStreamWriter & writer) const;
     using MidiCcAutomationU = std::unique_ptr<MidiCcAutomation>;
     static MidiCcAutomationU deserializeFromXml(QXmlStreamReader & reader);
@@ -101,6 +105,8 @@ private:
     Interpolation m_interpolation;
 
     QString m_comment;
+
+    bool m_enabled = true;
 };
 
 } // namespace noteahead

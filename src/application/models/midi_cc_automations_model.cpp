@@ -54,6 +54,8 @@ QVariant MidiCcAutomationsModel::data(const QModelIndex & index, int role) const
             return midiCcAutomation.comment();
         case DataRole::Controller:
             return midiCcAutomation.controller();
+        case DataRole::Enabled:
+            return midiCcAutomation.enabled();
         case DataRole::Id:
             return static_cast<quint64>(midiCcAutomation.id());
         case DataRole::Line0:
@@ -85,13 +87,20 @@ bool MidiCcAutomationsModel::setData(const QModelIndex & index, const QVariant &
 
     switch (static_cast<DataRole>(role)) {
     case DataRole::Comment:
-        juzzlin::L(TAG).info() << "Setting comment to " << value.toString().toStdString();
-        midiCcAutomation.setComment(value.toString());
-        changed = true;
+        if (midiCcAutomation.comment() != value.toString()) {
+            midiCcAutomation.setComment(value.toString());
+            changed = true;
+        }
         break;
     case DataRole::Controller:
         if (const auto newController = static_cast<uint8_t>(value.toInt()); midiCcAutomation.controller() != newController) {
             midiCcAutomation.setController(newController);
+            changed = true;
+        }
+        break;
+    case DataRole::Enabled:
+        if (midiCcAutomation.enabled() != value.toBool()) {
+            midiCcAutomation.setEnabled(value.toBool());
             changed = true;
         }
         break;
@@ -148,6 +157,7 @@ QHash<int, QByteArray> MidiCcAutomationsModel::roleNames() const
         { static_cast<int>(DataRole::Column), "column" },
         { static_cast<int>(DataRole::Comment), "comment" },
         { static_cast<int>(DataRole::Controller), "controller" },
+        { static_cast<int>(DataRole::Enabled), "enabled" },
         { static_cast<int>(DataRole::Line0), "line0" },
         { static_cast<int>(DataRole::Line1), "line1" },
         { static_cast<int>(DataRole::Pattern), "pattern" },

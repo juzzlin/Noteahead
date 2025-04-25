@@ -16,6 +16,7 @@
 #include "midi_cc_automation.hpp"
 
 #include "../common/constants.hpp"
+#include "../common/utils.hpp"
 
 #include <QXmlStreamWriter>
 
@@ -23,18 +24,29 @@ namespace noteahead {
 
 MidiCcAutomation::MidiCcAutomation() = default;
 
-MidiCcAutomation::MidiCcAutomation(size_t id, Location location, uint8_t controller, Interpolation interpolation, QString comment)
+MidiCcAutomation::MidiCcAutomation(size_t id, Location location, uint8_t controller, Interpolation interpolation, QString comment, bool enabled)
   : m_id { id }
   , m_controller { controller }
   , m_location { location }
   , m_interpolation { interpolation }
   , m_comment { comment }
+  , m_enabled { enabled }
+{
+}
+
+MidiCcAutomation::MidiCcAutomation(size_t id, Location location, uint8_t controller, Interpolation interpolation, QString comment)
+  : MidiCcAutomation { id, location, controller, interpolation, comment, true }
 {
 }
 
 bool MidiCcAutomation::operator==(const MidiCcAutomation & other) const
 {
-    return m_id == other.m_id && m_controller == other.m_controller && m_location == other.m_location && m_interpolation == other.m_interpolation && m_comment == other.m_comment;
+    return m_id == other.m_id && //
+      m_controller == other.m_controller && //
+      m_location == other.m_location && //
+      m_interpolation == other.m_interpolation && //
+      m_comment == other.m_comment && //
+      m_enabled == other.m_enabled;
 }
 
 bool MidiCcAutomation::operator!=(const MidiCcAutomation & other) const
@@ -92,10 +104,20 @@ void MidiCcAutomation::setInterpolation(const Interpolation & interpolation)
     m_interpolation = interpolation;
 }
 
+bool MidiCcAutomation::enabled() const
+{
+    return m_enabled;
+}
+
+void MidiCcAutomation::setEnabled(bool enabled)
+{
+    m_enabled = enabled;
+}
+
 QString MidiCcAutomation::toString() const
 {
     return QString("MidiCcAutomation(id=%1, controller=%2, pattern=%3, track=%4, column=%5, "
-                   "line: %6 -> %7, value: %8 -> %9)")
+                   "line: %6 -> %7, value: %8 -> %9), enabled=%10")
       .arg(QString::number(m_id),
            QString::number(m_controller),
            QString::number(m_location.pattern),
@@ -104,7 +126,8 @@ QString MidiCcAutomation::toString() const
            QString::number(m_interpolation.line0),
            QString::number(m_interpolation.line1),
            QString::number(m_interpolation.value0),
-           QString::number(m_interpolation.value1));
+           QString::number(m_interpolation.value1),
+           QString::number(m_enabled));
 }
 
 void MidiCcAutomation::serializeToXml(QXmlStreamWriter & writer) const
@@ -112,6 +135,7 @@ void MidiCcAutomation::serializeToXml(QXmlStreamWriter & writer) const
     writer.writeStartElement(Constants::xmlKeyMidiCcAutomation());
     writer.writeAttribute(Constants::xmlKeyController(), QString::number(m_controller));
     writer.writeAttribute(Constants::xmlKeyComment(), m_comment);
+    writer.writeAttribute(Constants::xmlKeyEnabled(), m_enabled ? Constants::xmlValueTrue() : Constants::xmlValueFalse());
 
     writer.writeStartElement(Constants::xmlKeyLocation());
     writer.writeAttribute(Constants::xmlKeyPatternAttr(), QString::number(m_location.pattern));
@@ -131,8 +155,9 @@ void MidiCcAutomation::serializeToXml(QXmlStreamWriter & writer) const
 
 MidiCcAutomation::MidiCcAutomationU MidiCcAutomation::deserializeFromXml(QXmlStreamReader & reader)
 {
-    quint8 controller = static_cast<quint8>(reader.attributes().value(Constants::xmlKeyController()).toUInt());
-    QString comment = reader.attributes().value(Constants::xmlKeyComment()).toString();
+    const quint8 controller = static_cast<quint8>(reader.attributes().value(Constants::xmlKeyController()).toUInt());
+    const QString comment = reader.attributes().value(Constants::xmlKeyComment()).toString();
+    const bool enabled = Utils::Xml::readBoolAttribute(reader, Constants::xmlKeyEnabled(), false).value_or(true);
     MidiCcAutomation::Location location {};
     MidiCcAutomation::Interpolation interpolation {};
     while (!(reader.isEndElement() && !reader.name().compare(Constants::xmlKeyMidiCcAutomation()))) {
@@ -152,7 +177,7 @@ MidiCcAutomation::MidiCcAutomationU MidiCcAutomation::deserializeFromXml(QXmlStr
             }
         }
     }
-    return std::make_unique<MidiCcAutomation>(0, location, controller, interpolation, comment);
+    return std::make_unique<MidiCcAutomation>(0, location, controller, interpolation, comment, enabled);
 }
 
 } // namespace noteahead

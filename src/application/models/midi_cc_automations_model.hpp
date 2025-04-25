@@ -34,6 +34,7 @@ public:
         Column,
         Comment,
         Controller,
+        Enabled,
         Id,
         Line0,
         Line1,

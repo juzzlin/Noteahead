@@ -190,15 +190,12 @@ void Application::connectServices()
     connect(m_applicationService.get(), &ApplicationService::liveNoteOnRequested, m_midiService.get(), &MidiService::playNote);
     connect(m_applicationService.get(), &ApplicationService::liveNoteOffRequested, m_midiService.get(), &MidiService::stopNote);
 
-    connect(m_automationService.get(), &AutomationService::lineDataChanged, this, [this] {
-        m_editorService->setIsModified(true);
-    });
-
     connect(m_midiCcAutomationsModel.get(), &MidiCcAutomationsModel::midiCcAutomationsRequested, this, [this]() {
         m_midiCcAutomationsModel->setMidiCcAutomations(m_automationService->midiCcAutomations());
     });
     connect(m_midiCcAutomationsModel.get(), &MidiCcAutomationsModel::midiCcAutomationChanged, this, [this](auto && midiCcAutomation) {
         m_automationService->updateMidiCcAutomation(midiCcAutomation);
+        m_editorService->setIsModified(true);
     });
 
     connect(m_editorService.get(), &EditorService::aboutToChangeSong, m_mixerService.get(), &MixerService::clear);

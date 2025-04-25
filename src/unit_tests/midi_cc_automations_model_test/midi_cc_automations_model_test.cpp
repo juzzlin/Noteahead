@@ -26,7 +26,7 @@ void MidiCcAutomationsModelTest::test_addMidiCcAutomations_shouldAddAutomations(
 {
     const MidiCcAutomation::Location location { 1, 2, 3 };
     const MidiCcAutomation::Interpolation interpolation { 11, 22, 33, 44 };
-    MidiCcAutomation midiCcAutomation { 42, location, 7, interpolation, "Comment" };
+    MidiCcAutomation midiCcAutomation { 42, location, 7, interpolation, "Comment", true };
 
     MidiCcAutomationsModel midiCcAutomationsModel;
     midiCcAutomationsModel.setMidiCcAutomations({ midiCcAutomation });
@@ -35,6 +35,7 @@ void MidiCcAutomationsModelTest::test_addMidiCcAutomations_shouldAddAutomations(
     QCOMPARE(midiCcAutomationsModel.data(midiCcAutomationsModel.index(0), static_cast<int>(MidiCcAutomationsModel::DataRole::Column)), static_cast<quint64>(midiCcAutomation.location().column));
     QCOMPARE(midiCcAutomationsModel.data(midiCcAutomationsModel.index(0), static_cast<int>(MidiCcAutomationsModel::DataRole::Comment)), midiCcAutomation.comment());
     QCOMPARE(midiCcAutomationsModel.data(midiCcAutomationsModel.index(0), static_cast<int>(MidiCcAutomationsModel::DataRole::Controller)), midiCcAutomation.controller());
+    QCOMPARE(midiCcAutomationsModel.data(midiCcAutomationsModel.index(0), static_cast<int>(MidiCcAutomationsModel::DataRole::Enabled)), midiCcAutomation.enabled());
     QCOMPARE(midiCcAutomationsModel.data(midiCcAutomationsModel.index(0), static_cast<int>(MidiCcAutomationsModel::DataRole::Id)), static_cast<quint64>(midiCcAutomation.id()));
     QCOMPARE(midiCcAutomationsModel.data(midiCcAutomationsModel.index(0), static_cast<int>(MidiCcAutomationsModel::DataRole::Line0)), static_cast<quint64>(midiCcAutomation.interpolation().line0));
     QCOMPARE(midiCcAutomationsModel.data(midiCcAutomationsModel.index(0), static_cast<int>(MidiCcAutomationsModel::DataRole::Line1)), static_cast<quint64>(midiCcAutomation.interpolation().line1));
@@ -61,23 +62,36 @@ void MidiCcAutomationsModelTest::test_setData_shouldUpdateAutomationData()
     const QString newComment = "New Comment";
     QVERIFY(model.setData(index, newComment, static_cast<int>(Role::Comment)));
     QCOMPARE(model.data(index, static_cast<int>(Role::Comment)).toString(), newComment);
+    QVERIFY(!model.setData(index, newComment, static_cast<int>(Role::Comment)));
 
     // Try setting a new controller value
     const int newController = 99;
     QVERIFY(model.setData(index, newController, static_cast<int>(Role::Controller)));
     QCOMPARE(model.data(index, static_cast<int>(Role::Controller)).toInt(), newController);
+    QVERIFY(!model.setData(index, newController, static_cast<int>(Role::Controller)));
+
+    // Try setting enabled
+    QVERIFY(model.setData(index, false, static_cast<int>(Role::Enabled)));
+    QCOMPARE(model.data(index, static_cast<int>(Role::Enabled)).toBool(), false);
+    QVERIFY(model.setData(index, true, static_cast<int>(Role::Enabled)));
+    QCOMPARE(model.data(index, static_cast<int>(Role::Enabled)).toBool(), true);
+    QVERIFY(!model.setData(index, true, static_cast<int>(Role::Enabled)));
 
     // Try setting new line0 and line1 values
     QVERIFY(model.setData(index, 123u, static_cast<int>(Role::Line0)));
     QCOMPARE(model.data(index, static_cast<int>(Role::Line0)).toUInt(), 123u);
+    QVERIFY(!model.setData(index, 123u, static_cast<int>(Role::Line0)));
     QVERIFY(model.setData(index, 321u, static_cast<int>(Role::Line1)));
     QCOMPARE(model.data(index, static_cast<int>(Role::Line1)).toUInt(), 321u);
+    QVERIFY(!model.setData(index, 321u, static_cast<int>(Role::Line1)));
 
     // Try setting new value0 and value1
     QVERIFY(model.setData(index, 75u, static_cast<int>(Role::Value0)));
     QCOMPARE(model.data(index, static_cast<int>(Role::Value0)).toUInt(), 75u);
+    QVERIFY(!model.setData(index, 75u, static_cast<int>(Role::Value0)));
     QVERIFY(model.setData(index, 25u, static_cast<int>(Role::Value1)));
     QCOMPARE(model.data(index, static_cast<int>(Role::Value1)).toUInt(), 25u);
+    QVERIFY(!model.setData(index, 25u, static_cast<int>(Role::Value1)));
 
     // These should not be settable
     QVERIFY(!model.setData(index, 8u, static_cast<int>(Role::Pattern)));

@@ -26,6 +26,7 @@ namespace noteahead {
 void MidiCcAutomationsModelTest::test_addMidiCcAutomation_shouldAddAutomation()
 {
     AutomationService automationService;
+
     QSignalSpy lineDataChangedSpy { &automationService, &AutomationService::lineDataChanged };
     quint64 pattern = 0;
     quint64 track = 1;
@@ -67,6 +68,7 @@ void MidiCcAutomationsModelTest::test_addMidiCcAutomation_shouldAddAutomation()
 void MidiCcAutomationsModelTest::test_automationWeight_shouldCalculateCorrectWeight()
 {
     AutomationService automationService;
+
     QSignalSpy lineDataChangedSpy { &automationService, &AutomationService::lineDataChanged };
     quint64 pattern = 0;
     quint64 track = 1;
@@ -85,13 +87,13 @@ void MidiCcAutomationsModelTest::test_automationWeight_shouldCalculateCorrectWei
 
 void MidiCcAutomationsModelTest::test_renderToEventsByLine_shouldRenderToEvents()
 {
+    AutomationService automationService;
+
     quint8 controller = 64;
     quint8 line0 = 4;
     quint8 line1 = 12;
     quint8 value0 = 0;
     quint8 value1 = 100;
-
-    AutomationService automationService;
     for (size_t pattern = 0; pattern < 10; pattern++) {
         for (size_t track = 0; track < 8; track++) {
             for (size_t column = 0; column < 3; column++) {
@@ -117,8 +119,21 @@ void MidiCcAutomationsModelTest::test_renderToEventsByLine_shouldRenderToEvents(
     }
 }
 
+void MidiCcAutomationsModelTest::test_renderToEventsByLine_disableAutomation_shouldNotRenderEvents()
+{
+    AutomationService automationService;
+    automationService.addMidiCcAutomation(0, 0, 0, 0, 0, 1, 0, 1, {});
+    QVERIFY(!automationService.renderToEventsByLine(0, 0, 0, 0, 0).empty());
+    auto automation = automationService.midiCcAutomations().at(0);
+    automation.setEnabled(false);
+    automationService.updateMidiCcAutomation(automation);
+    QVERIFY(automationService.renderToEventsByLine(0, 0, 0, 0, 0).empty());
+}
+
 void MidiCcAutomationsModelTest::test_renderToEventsByColumn_shouldRenderToEvents()
 {
+    AutomationService automationService;
+
     quint64 pattern = 0;
     quint64 track = 1;
     quint64 column = 2;
@@ -127,8 +142,6 @@ void MidiCcAutomationsModelTest::test_renderToEventsByColumn_shouldRenderToEvent
     quint8 line1 = 12;
     quint8 value0 = 0;
     quint8 value1 = 100;
-
-    AutomationService automationService;
     automationService.addMidiCcAutomation(pattern, track, column, controller, line0, line1, value0, value1, {});
 
     const auto tick = 666;
@@ -154,22 +167,28 @@ void MidiCcAutomationsModelTest::test_renderToEventsByColumn_shouldRenderToEvent
 
 void MidiCcAutomationsModelTest::test_renderToEventsByColumn_shouldPruneRepeatingEvents()
 {
+    AutomationService automationService;
+
     quint64 pattern = 0;
     quint64 track = 1;
     quint64 column = 2;
-    quint8 controller = 64;
-    quint8 line0 = 0;
-    quint8 line1 = 128;
-    quint8 value0 = 10;
-    quint8 value1 = 20;
-
-    AutomationService automationService;
-    automationService.addMidiCcAutomation(pattern, track, column, controller, line0, line1, value0, value1, {});
+    automationService.addMidiCcAutomation(pattern, track, column, 64, 0, 120, 10, 20, {});
 
     const auto tick = 666;
     const auto ticksPerLine = 24;
     const auto events = automationService.renderToEventsByColumn(pattern, track, column, tick, ticksPerLine);
     QCOMPARE(automationService.renderToEventsByColumn(pattern, track, column, tick, tick).size(), 11);
+}
+
+void MidiCcAutomationsModelTest::test_renderToEventsByColumn_disableAutomation_shouldNotRenderEvents()
+{
+    AutomationService automationService;
+    automationService.addMidiCcAutomation(0, 0, 0, 0, 0, 1, 0, 1, {});
+    QVERIFY(!automationService.renderToEventsByColumn(0, 0, 0, 0, 24).empty());
+    auto automation = automationService.midiCcAutomations().at(0);
+    automation.setEnabled(false);
+    automationService.updateMidiCcAutomation(automation);
+    QVERIFY(automationService.renderToEventsByColumn(0, 0, 0, 0, 24).empty());
 }
 
 } // namespace noteahead

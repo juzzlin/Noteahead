@@ -5,6 +5,7 @@ set(SRC
     ${NAME}.hpp
     ../../application/models/midi_cc_automations_model.cpp
     ../../common/constants.cpp
+    ../../common/utils.cpp
     ../../domain/midi_cc_automation.cpp
 )
 add_executable(${NAME} ${SRC} ${MOC_SRC})

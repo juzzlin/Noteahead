@@ -34,16 +34,21 @@ AutomationService::AutomationService()
 {
 }
 
-void AutomationService::addMidiCcAutomation(quint64 pattern, quint64 track, quint64 column, quint8 controller, quint64 line0, quint64 line1, quint8 value0, quint8 value1, QString comment)
+void AutomationService::addMidiCcAutomation(quint64 pattern, quint64 track, quint64 column, quint8 controller, quint64 line0, quint64 line1, quint8 value0, quint8 value1, QString comment, bool enabled)
 {
     const auto maxIdItem = std::max_element(m_midiCcAutomations.begin(), m_midiCcAutomations.end(), [](auto && lhs, auto && rhs) { return lhs.id() > rhs.id(); });
     const auto id = maxIdItem != m_midiCcAutomations.end() ? (*maxIdItem).id() : 1;
     MidiCcAutomation::Location location = { pattern, track, column };
     MidiCcAutomation::Interpolation interpolation = { line0, line1, value0, value1 };
-    const auto automation = MidiCcAutomation { id, location, controller, interpolation, comment };
+    const auto automation = MidiCcAutomation { id, location, controller, interpolation, comment, enabled };
     m_midiCcAutomations.push_back(automation);
     notifyChangedLines(pattern, track, column, line0, line1);
     juzzlin::L(TAG).info() << "MIDI CC Automation added: " << automation.toString().toStdString();
+}
+
+void AutomationService::addMidiCcAutomation(quint64 pattern, quint64 track, quint64 column, quint8 controller, quint64 line0, quint64 line1, quint8 value0, quint8 value1, QString comment)
+{
+    addMidiCcAutomation(pattern, track, column, controller, line0, line1, value0, value1, comment, true);
 }
 
 void AutomationService::updateMidiCcAutomation(const MidiCcAutomation & updatedMidiCcAutomation)
@@ -54,7 +59,8 @@ void AutomationService::updateMidiCcAutomation(const MidiCcAutomation & updatedM
         iter != m_midiCcAutomations.end()) {
         if (const auto oldAutomation = *iter; oldAutomation != updatedMidiCcAutomation) {
             *iter = updatedMidiCcAutomation;
-            if (oldAutomation.interpolation() != updatedMidiCcAutomation.interpolation()) {
+            if (oldAutomation.interpolation() != updatedMidiCcAutomation.interpolation() || //
+                oldAutomation.enabled() != updatedMidiCcAutomation.enabled()) {
                 notifyChangedLinesMerged(oldAutomation, updatedMidiCcAutomation);
             }
             juzzlin::L(TAG).info() << "MIDI CC Automation updated: " << updatedMidiCcAutomation.toString().toStdString();
@@ -146,18 +152,20 @@ AutomationService::EventList AutomationService::renderToEventsByLine(size_t patt
 {
     EventList events;
     for (const auto & automation : m_midiCcAutomations) {
-        const auto & location = automation.location();
-        const auto & interpolation = automation.interpolation();
-        if (location.pattern == pattern && location.track == track && location.column == column && line >= interpolation.line0 && line <= interpolation.line1) {
-            Interpolator interpolator {
-                static_cast<size_t>(interpolation.line0),
-                static_cast<size_t>(interpolation.line1),
-                static_cast<double>(interpolation.value0),
-                static_cast<double>(interpolation.value1)
-            };
-            const auto clampedValue = std::clamp(static_cast<int>(interpolator.getValue(static_cast<size_t>(line))), 0, 127); // MIDI CC value range
-            const auto event = std::make_shared<Event>(tick, MidiCcData { track, column, automation.controller(), static_cast<uint8_t>(clampedValue) });
-            events.push_back(event);
+        if (automation.enabled()) {
+            const auto & location = automation.location();
+            const auto & interpolation = automation.interpolation();
+            if (location.pattern == pattern && location.track == track && location.column == column && line >= interpolation.line0 && line <= interpolation.line1) {
+                Interpolator interpolator {
+                    static_cast<size_t>(interpolation.line0),
+                    static_cast<size_t>(interpolation.line1),
+                    static_cast<double>(interpolation.value0),
+                    static_cast<double>(interpolation.value1)
+                };
+                const auto clampedValue = std::clamp(static_cast<int>(interpolator.getValue(static_cast<size_t>(line))), 0, 127); // MIDI CC value range
+                const auto event = std::make_shared<Event>(tick, MidiCcData { track, column, automation.controller(), static_cast<uint8_t>(clampedValue) });
+                events.push_back(event);
+            }
         }
     }
     return events;
@@ -167,21 +175,23 @@ AutomationService::EventList AutomationService::renderToEventsByColumn(size_t pa
 {
     EventList events;
     for (const auto & automation : m_midiCcAutomations) {
-        const auto & location = automation.location();
-        const auto & interpolation = automation.interpolation();
-        if (location.pattern == pattern && location.track == track && location.column == column) {
-            Interpolator interpolator {
-                static_cast<size_t>(interpolation.line0),
-                static_cast<size_t>(interpolation.line1),
-                static_cast<double>(interpolation.value0),
-                static_cast<double>(interpolation.value1)
-            };
-            std::optional<uint8_t> prevValue;
-            for (size_t line = interpolation.line0; line <= interpolation.line1; line++) {
-                const auto clampedValue = std::clamp(static_cast<int>(interpolator.getValue(static_cast<size_t>(line))), 0, 127); // MIDI CC value range
-                if (!prevValue || *prevValue != clampedValue) {
-                    events.push_back(std::make_shared<Event>(tick + line * ticksPerLine, MidiCcData { track, column, automation.controller(), static_cast<uint8_t>(clampedValue) }));
-                    prevValue = clampedValue;
+        if (automation.enabled()) {
+            const auto & location = automation.location();
+            const auto & interpolation = automation.interpolation();
+            if (location.pattern == pattern && location.track == track && location.column == column) {
+                Interpolator interpolator {
+                    static_cast<size_t>(interpolation.line0),
+                    static_cast<size_t>(interpolation.line1),
+                    static_cast<double>(interpolation.value0),
+                    static_cast<double>(interpolation.value1)
+                };
+                std::optional<uint8_t> prevValue;
+                for (size_t line = interpolation.line0; line <= interpolation.line1; line++) {
+                    const auto clampedValue = std::clamp(static_cast<int>(interpolator.getValue(static_cast<size_t>(line))), 0, 127); // MIDI CC value range
+                    if (!prevValue || *prevValue != clampedValue) {
+                        events.push_back(std::make_shared<Event>(tick + line * ticksPerLine, MidiCcData { track, column, automation.controller(), static_cast<uint8_t>(clampedValue) }));
+                        prevValue = clampedValue;
+                    }
                 }
             }
         }
