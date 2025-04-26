@@ -179,6 +179,14 @@ void Application::handleCommandLineArguments(int & argc, char ** argv)
         juzzlin::SimpleLogger::setLoggingLevel(juzzlin::SimpleLogger::Level::Trace);
     });
 
+    ae.addOption({ "--window-size" }, [this](const std::string & value) {
+        const auto valueString = QString::fromStdString(value);
+        if (const auto splitString = valueString.split("x"); splitString.size() == 2) {
+            m_config->setWindowSize({std::stoi(splitString.at(0).toStdString()), std::stoi(splitString.at(1).toStdString()) });
+        } else {
+            throw std::runtime_error { std::string { "Invalid syntax for size: " } + value};
+        } }, false, "Force the window size, e.g. '1920x1080'.");
+
     addVideoOptions(ae);
 
     ae.parse();
