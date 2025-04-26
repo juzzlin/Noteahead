@@ -28,21 +28,75 @@ void MidiCcAutomationsModelTest::test_addMidiCcAutomations_shouldAddAutomations(
     const MidiCcAutomation::Interpolation interpolation { 11, 22, 33, 44 };
     MidiCcAutomation midiCcAutomation { 42, location, 7, interpolation, "Comment", true };
 
-    MidiCcAutomationsModel midiCcAutomationsModel;
-    midiCcAutomationsModel.setMidiCcAutomations({ midiCcAutomation });
+    MidiCcAutomationsModel model;
+    model.setMidiCcAutomations({ midiCcAutomation });
 
-    QCOMPARE(midiCcAutomationsModel.rowCount(), 1);
-    QCOMPARE(midiCcAutomationsModel.data(midiCcAutomationsModel.index(0), static_cast<int>(MidiCcAutomationsModel::DataRole::Column)), static_cast<quint64>(midiCcAutomation.location().column));
-    QCOMPARE(midiCcAutomationsModel.data(midiCcAutomationsModel.index(0), static_cast<int>(MidiCcAutomationsModel::DataRole::Comment)), midiCcAutomation.comment());
-    QCOMPARE(midiCcAutomationsModel.data(midiCcAutomationsModel.index(0), static_cast<int>(MidiCcAutomationsModel::DataRole::Controller)), midiCcAutomation.controller());
-    QCOMPARE(midiCcAutomationsModel.data(midiCcAutomationsModel.index(0), static_cast<int>(MidiCcAutomationsModel::DataRole::Enabled)), midiCcAutomation.enabled());
-    QCOMPARE(midiCcAutomationsModel.data(midiCcAutomationsModel.index(0), static_cast<int>(MidiCcAutomationsModel::DataRole::Id)), static_cast<quint64>(midiCcAutomation.id()));
-    QCOMPARE(midiCcAutomationsModel.data(midiCcAutomationsModel.index(0), static_cast<int>(MidiCcAutomationsModel::DataRole::Line0)), static_cast<quint64>(midiCcAutomation.interpolation().line0));
-    QCOMPARE(midiCcAutomationsModel.data(midiCcAutomationsModel.index(0), static_cast<int>(MidiCcAutomationsModel::DataRole::Line1)), static_cast<quint64>(midiCcAutomation.interpolation().line1));
-    QCOMPARE(midiCcAutomationsModel.data(midiCcAutomationsModel.index(0), static_cast<int>(MidiCcAutomationsModel::DataRole::Pattern)), static_cast<quint64>(midiCcAutomation.location().pattern));
-    QCOMPARE(midiCcAutomationsModel.data(midiCcAutomationsModel.index(0), static_cast<int>(MidiCcAutomationsModel::DataRole::Track)), static_cast<quint64>(midiCcAutomation.location().track));
-    QCOMPARE(midiCcAutomationsModel.data(midiCcAutomationsModel.index(0), static_cast<int>(MidiCcAutomationsModel::DataRole::Value0)), static_cast<quint64>(midiCcAutomation.interpolation().value0));
-    QCOMPARE(midiCcAutomationsModel.data(midiCcAutomationsModel.index(0), static_cast<int>(MidiCcAutomationsModel::DataRole::Value1)), static_cast<quint64>(midiCcAutomation.interpolation().value1));
+    QCOMPARE(model.rowCount(), 1);
+    QCOMPARE(model.data(model.index(0), static_cast<int>(MidiCcAutomationsModel::DataRole::Column)), static_cast<quint64>(midiCcAutomation.location().column));
+    QCOMPARE(model.data(model.index(0), static_cast<int>(MidiCcAutomationsModel::DataRole::Comment)), midiCcAutomation.comment());
+    QCOMPARE(model.data(model.index(0), static_cast<int>(MidiCcAutomationsModel::DataRole::Controller)), midiCcAutomation.controller());
+    QCOMPARE(model.data(model.index(0), static_cast<int>(MidiCcAutomationsModel::DataRole::Enabled)), midiCcAutomation.enabled());
+    QCOMPARE(model.data(model.index(0), static_cast<int>(MidiCcAutomationsModel::DataRole::Id)), static_cast<quint64>(midiCcAutomation.id()));
+    QCOMPARE(model.data(model.index(0), static_cast<int>(MidiCcAutomationsModel::DataRole::Line0)), static_cast<quint64>(midiCcAutomation.interpolation().line0));
+    QCOMPARE(model.data(model.index(0), static_cast<int>(MidiCcAutomationsModel::DataRole::Line1)), static_cast<quint64>(midiCcAutomation.interpolation().line1));
+    QCOMPARE(model.data(model.index(0), static_cast<int>(MidiCcAutomationsModel::DataRole::Pattern)), static_cast<quint64>(midiCcAutomation.location().pattern));
+    QCOMPARE(model.data(model.index(0), static_cast<int>(MidiCcAutomationsModel::DataRole::Track)), static_cast<quint64>(midiCcAutomation.location().track));
+    QCOMPARE(model.data(model.index(0), static_cast<int>(MidiCcAutomationsModel::DataRole::Value0)), static_cast<quint64>(midiCcAutomation.interpolation().value0));
+    QCOMPARE(model.data(model.index(0), static_cast<int>(MidiCcAutomationsModel::DataRole::Value1)), static_cast<quint64>(midiCcAutomation.interpolation().value1));
+}
+
+void MidiCcAutomationsModelTest::test_requestMidiCcAutomations_shouldFilterAutomations()
+{
+    const MidiCcAutomation::Location location { 1, 2, 3 };
+    const MidiCcAutomation::Interpolation interpolation { 11, 22, 33, 44 };
+    MidiCcAutomation midiCcAutomation { 42, location, 7, interpolation, {} };
+
+    MidiCcAutomationsModel model;
+    QSignalSpy midiCcAutomationsRequestedSpy { &model, &MidiCcAutomationsModel::midiCcAutomationsRequested };
+    model.requestMidiCcAutomationsByColumn(1, 2, 3);
+    model.setMidiCcAutomations({ midiCcAutomation });
+    QCOMPARE(model.rowCount(), 1);
+    QCOMPARE(midiCcAutomationsRequestedSpy.count(), 1);
+
+    model.requestMidiCcAutomationsByColumn(1, 2, 4);
+    model.setMidiCcAutomations({ midiCcAutomation });
+    QCOMPARE(model.rowCount(), 0);
+    QCOMPARE(midiCcAutomationsRequestedSpy.count(), 2);
+
+    model.requestMidiCcAutomationsByColumn(2, 2, 3);
+    model.setMidiCcAutomations({ midiCcAutomation });
+    QCOMPARE(model.rowCount(), 0);
+    QCOMPARE(midiCcAutomationsRequestedSpy.count(), 3);
+
+    model.requestMidiCcAutomationsByTrack(1, 2);
+    model.setMidiCcAutomations({ midiCcAutomation });
+    QCOMPARE(model.rowCount(), 1);
+    QCOMPARE(midiCcAutomationsRequestedSpy.count(), 4);
+
+    model.requestMidiCcAutomationsByTrack(1, 3);
+    model.setMidiCcAutomations({ midiCcAutomation });
+    QCOMPARE(model.rowCount(), 0);
+    QCOMPARE(midiCcAutomationsRequestedSpy.count(), 5);
+
+    model.requestMidiCcAutomationsByTrack(2, 2);
+    model.setMidiCcAutomations({ midiCcAutomation });
+    QCOMPARE(model.rowCount(), 0);
+    QCOMPARE(midiCcAutomationsRequestedSpy.count(), 6);
+
+    model.requestMidiCcAutomationsByPattern(1);
+    model.setMidiCcAutomations({ midiCcAutomation });
+    QCOMPARE(model.rowCount(), 1);
+    QCOMPARE(midiCcAutomationsRequestedSpy.count(), 7);
+
+    model.requestMidiCcAutomationsByPattern(2);
+    model.setMidiCcAutomations({ midiCcAutomation });
+    QCOMPARE(model.rowCount(), 0);
+    QCOMPARE(midiCcAutomationsRequestedSpy.count(), 8);
+
+    model.requestMidiCcAutomations();
+    model.setMidiCcAutomations({ midiCcAutomation });
+    QCOMPARE(model.rowCount(), 1);
+    QCOMPARE(midiCcAutomationsRequestedSpy.count(), 9);
 }
 
 void MidiCcAutomationsModelTest::test_setData_shouldUpdateAutomationData()

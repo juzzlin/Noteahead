@@ -312,6 +312,24 @@ ApplicationWindow {
                 editMidiCcAutomationsDialog.setTitle(qsTr("Edit MIDI CC automations"));
                 editMidiCcAutomationsDialog.open();
             });
+        UiService.editMidiCcAutomationsDialogByColumnRequested.connect(() => {
+                const position = editorService.position;
+                midiCcAutomationsModel.requestMidiCcAutomationsByColumn(position.pattern, position.track, position.column);
+                editMidiCcAutomationsDialog.setTitle(qsTr("Edit MIDI CC automations by column"));
+                editMidiCcAutomationsDialog.open();
+            });
+        UiService.editMidiCcAutomationsDialogByTrackRequested.connect(() => {
+                const position = editorService.position;
+                midiCcAutomationsModel.requestMidiCcAutomationsByTrack(position.pattern, position.track);
+                editMidiCcAutomationsDialog.setTitle(qsTr("Edit MIDI CC automations by track"));
+                editMidiCcAutomationsDialog.open();
+            });
+        UiService.editMidiCcAutomationsDialogByPatternRequested.connect(() => {
+                const position = editorService.position;
+                midiCcAutomationsModel.requestMidiCcAutomationsByPattern(position.pattern);
+                editMidiCcAutomationsDialog.setTitle(qsTr("Edit MIDI CC automations by pattern"));
+                editMidiCcAutomationsDialog.open();
+            });
         UiService.quitRequested.connect(() => {
                 config.setWindowSize(Qt.size(mainWindow.width, mainWindow.height));
                 applicationService.requestQuit();

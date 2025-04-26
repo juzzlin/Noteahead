@@ -48,6 +48,9 @@ public:
     MidiCcAutomationsModel();
 
     Q_INVOKABLE void requestMidiCcAutomations();
+    Q_INVOKABLE void requestMidiCcAutomationsByPattern(quint64 pattern);
+    Q_INVOKABLE void requestMidiCcAutomationsByTrack(quint64 pattern, quint64 track);
+    Q_INVOKABLE void requestMidiCcAutomationsByColumn(quint64 pattern, quint64 track, quint64 column);
     using MidiCcAutomationList = std::vector<MidiCcAutomation>;
     void setMidiCcAutomations(MidiCcAutomationList midiCcAutomations);
 
@@ -66,10 +69,21 @@ signals:
     void midiCcAutomationsRequested();
 
 private:
+    MidiCcAutomationList filteredMidiCcAutomations(const MidiCcAutomationList & midiCcAutomations) const;
+
     MidiCcAutomationList m_midiCcAutomations;
     using MidiCcAutomationSet = std::set<MidiCcAutomation>;
     MidiCcAutomationSet m_midiCcAutomationsChanged;
     MidiCcAutomationSet m_midiCcAutomationsDeleted;
+
+    struct Filter
+    {
+        std::optional<quint64> pattern;
+        std::optional<quint64> track;
+        std::optional<quint64> column;
+    };
+
+    Filter m_filter;
 };
 
 } // namespace noteahead

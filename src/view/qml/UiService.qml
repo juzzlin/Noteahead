@@ -8,6 +8,9 @@ QtObject {
     signal columnVelocityInterpolationDialogRequested
     signal columnVelocityScaleDialogRequested(int trackIndex, int columnIndex)
     signal editMidiCcAutomationsDialogRequested
+    signal editMidiCcAutomationsDialogByColumnRequested
+    signal editMidiCcAutomationsDialogByTrackRequested
+    signal editMidiCcAutomationsDialogByPatternRequested
     signal eventSelectionDialogRequested
     signal focusOnEditorViewRequested
     signal lineDelayDialogRequested
@@ -141,6 +144,21 @@ QtObject {
     function requestEditMidiCcAutomationsDialog(): void {
         if (!isPlaying()) {
             editMidiCcAutomationsDialogRequested();
+        }
+    }
+    function requestEditMidiCcAutomationsDialogByColumn(): void {
+        if (!isPlaying()) {
+            editMidiCcAutomationsDialogByColumnRequested();
+        }
+    }
+    function requestEditMidiCcAutomationsDialogByTrack(): void {
+        if (!isPlaying()) {
+            editMidiCcAutomationsDialogByTrackRequested();
+        }
+    }
+    function requestEditMidiCcAutomationsDialogByPattern(): void {
+        if (!isPlaying()) {
+            editMidiCcAutomationsDialogByPatternRequested();
         }
     }
     function requestFocusOnEditorView(): void {

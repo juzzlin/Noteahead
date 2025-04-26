@@ -101,6 +101,11 @@ Menu {
             enabled: !UiService.isPlaying()
             onTriggered: UiService.requestColumnAddMidiCcAutomationDialog()
         }
+        Action {
+            text: qsTr("Edit MIDI CC automations")
+            enabled: !UiService.isPlaying()
+            onTriggered: UiService.requestEditMidiCcAutomationsDialogByColumn()
+        }
         delegate: MainMenuItemDelegate {
         }
     }
@@ -180,6 +185,13 @@ Menu {
             enabled: !UiService.isPlaying()
             onTriggered: editorService.requestTrackDeletion()
         }
+        MenuSeparator {
+        }
+        Action {
+            text: qsTr("Edit MIDI CC automations")
+            enabled: !UiService.isPlaying()
+            onTriggered: UiService.requestEditMidiCcAutomationsDialogByTrack()
+        }
     }
     MenuSeparator {
     }
@@ -238,6 +250,13 @@ Menu {
             shortcut: "Ctrl+F11"
             enabled: !UiService.isPlaying()
             onTriggered: editorService.requestPatternTranspose(-12)
+        }
+        MenuSeparator {
+        }
+        Action {
+            text: qsTr("Edit MIDI CC automations")
+            enabled: !UiService.isPlaying()
+            onTriggered: UiService.requestEditMidiCcAutomationsDialogByPattern()
         }
         delegate: MainMenuItemDelegate {
         }

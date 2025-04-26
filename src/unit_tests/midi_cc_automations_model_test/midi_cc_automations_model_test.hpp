@@ -27,8 +27,10 @@ class MidiCcAutomationsModelTest : public QObject
 private slots:
 
     void test_addMidiCcAutomations_shouldAddAutomations();
-    void test_setData_shouldUpdateAutomationData();
 
+    void test_requestMidiCcAutomations_shouldFilterAutomations();
+
+    void test_setData_shouldUpdateAutomationData();
     void test_removeAt_shouldRemoveAutomationData();
 };
 

@@ -27,7 +27,56 @@ MidiCcAutomationsModel::MidiCcAutomationsModel()
 
 void MidiCcAutomationsModel::requestMidiCcAutomations()
 {
+    m_filter = {};
+
     emit midiCcAutomationsRequested();
+}
+
+void MidiCcAutomationsModel::requestMidiCcAutomationsByPattern(quint64 pattern)
+{
+    m_filter = {};
+    m_filter.pattern = pattern;
+
+    emit midiCcAutomationsRequested();
+}
+
+void MidiCcAutomationsModel::requestMidiCcAutomationsByTrack(quint64 pattern, quint64 track)
+{
+    m_filter = {};
+    m_filter.pattern = pattern;
+    m_filter.track = track;
+
+    emit midiCcAutomationsRequested();
+}
+
+void MidiCcAutomationsModel::requestMidiCcAutomationsByColumn(quint64 pattern, quint64 track, quint64 column)
+{
+    m_filter = {};
+    m_filter.pattern = pattern;
+    m_filter.track = track;
+    m_filter.column = column;
+
+    emit midiCcAutomationsRequested();
+}
+
+MidiCcAutomationsModel::MidiCcAutomationList MidiCcAutomationsModel::filteredMidiCcAutomations(const MidiCcAutomationList & midiCcAutomations) const
+{
+    MidiCcAutomationList filtered;
+    std::ranges::copy_if(midiCcAutomations, std::back_inserter(filtered),
+                         [this](const auto & automation) {
+                             const auto & loc = automation.location();
+                             if (m_filter.pattern.has_value() && loc.pattern != m_filter.pattern.value()) {
+                                 return false;
+                             }
+                             if (m_filter.track.has_value() && loc.track != m_filter.track.value()) {
+                                 return false;
+                             }
+                             if (m_filter.column.has_value() && loc.column != m_filter.column.value()) {
+                                 return false;
+                             }
+                             return true;
+                         });
+    return filtered;
 }
 
 void MidiCcAutomationsModel::setMidiCcAutomations(MidiCcAutomationList midiCcAutomations)
@@ -36,7 +85,7 @@ void MidiCcAutomationsModel::setMidiCcAutomations(MidiCcAutomationList midiCcAut
     beginResetModel();
     m_midiCcAutomationsChanged.clear();
     m_midiCcAutomationsDeleted.clear();
-    m_midiCcAutomations = midiCcAutomations;
+    m_midiCcAutomations = filteredMidiCcAutomations(midiCcAutomations);
     endResetModel();
 }
 
