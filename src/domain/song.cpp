@@ -818,7 +818,7 @@ Song::EventList Song::renderContent(AutomationServiceS automationService, SideCh
     std::tie(eventList, tick) = renderPatterns(automationService, eventList, tick, startPosition, endPosition);
     eventList = renderEndOfSong(eventList, tick);
     juzzlin::L(TAG).debug() << "Rendering side-chains";
-    eventList = sideChainService->renderToEvents(*this, eventList, endPosition);
+    eventList = sideChainService->renderToEvents(*this, eventList, startPosition, endPosition);
     juzzlin::L(TAG).debug() << "Rendering note-off's";
     eventList = generateNoteOffs(eventList);
     juzzlin::L(TAG).debug() << "Removing non-mapped note-off's";

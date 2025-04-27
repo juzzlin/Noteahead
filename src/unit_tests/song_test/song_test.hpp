@@ -52,6 +52,7 @@ private slots:
 
     void test_renderToEvents_midiSideChain_shouldGenerateEvents();
     void test_renderToEvents_midiSideChain_shouldClampReleaseEvents();
+    void test_renderToEvents_midiSideChain_shouldClampAttackEvents();
 
     void test_renderToEvents_chordAutomation_shouldRenderChordNotes();
 

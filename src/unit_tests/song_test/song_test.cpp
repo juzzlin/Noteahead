@@ -688,6 +688,52 @@ void SongTest::test_renderToEvents_midiSideChain_shouldClampReleaseEvents()
     QVERIFY(releaseEventFound);
 }
 
+void SongTest::test_renderToEvents_midiSideChain_shouldClampAttackEvents()
+{
+    Song song;
+    song.setBeatsPerMinute(120);
+    song.setLinesPerBeat(4);
+    song.createPattern(1);
+    song.setPatternAtSongPosition(1, 1);
+    song.setLength(2);
+
+    const auto automationService = std::make_shared<AutomationService>();
+    const auto sideChainService = std::make_shared<SideChainService>();
+
+    SideChainSettings sideChainSettings;
+    sideChainSettings.enabled = true;
+    sideChainSettings.sourceTrackIndex = 0;
+    sideChainSettings.sourceColumnIndex = 0;
+    sideChainSettings.lookahead = 200ms;
+    sideChainSettings.release = 0ms;
+    sideChainSettings.targets.push_back({ true, 80, 127, 0 });
+    sideChainService->setSettings(1, sideChainSettings);
+
+    const size_t startPosition = 1; // Start rendering from the second pattern
+    const size_t endPosition = 2;
+
+    // Place a note at the beginning of the second pattern
+    const Position triggerPosition = { 1, 0, 0, 0, 0 };
+    song.noteDataAtPosition(triggerPosition)->setAsNoteOn(60, 100);
+
+    const auto events = song.renderToEvents(automationService, sideChainService, startPosition, endPosition);
+    const size_t startTick = song.positionToTick(startPosition);
+    bool targetEventFound = false;
+
+    for (const auto& event : events) {
+        if (auto ccData = event->midiCcData()) {
+            if (ccData->track() == 1 && ccData->controller() == sideChainSettings.targets.at(0).controller) {
+                if (ccData->value() == sideChainSettings.targets.at(0).targetValue) {
+                    targetEventFound = true;
+                    QCOMPARE(event->tick(), startTick);
+                }
+            }
+        }
+    }
+
+    QVERIFY(targetEventFound);
+}
+
 } // namespace noteahead
 
 QTEST_GUILESS_MAIN(noteahead::SongTest)

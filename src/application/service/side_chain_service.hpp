@@ -43,7 +43,7 @@ class SideChainService : public QObject
 public:
     explicit SideChainService(QObject * parent = nullptr);
 
-    Song::EventList renderToEvents(const Song & song, const Song::EventList & events, size_t endPosition);
+    Song::EventList renderToEvents(const Song & song, const Song::EventList & events, size_t startPosition, size_t endPosition);
 
     void setSettings(quint64 trackIndex, const SideChainSettings & settings);
     SideChainSettings settings(quint64 trackIndex) const;

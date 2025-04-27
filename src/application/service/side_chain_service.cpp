@@ -35,11 +35,12 @@ SideChainService::SideChainService(QObject * parent)
 {
 }
 
-Song::EventList SideChainService::renderToEvents(const Song & song, const Song::EventList & events, size_t endPosition)
+Song::EventList SideChainService::renderToEvents(const Song & song, const Song::EventList & events, size_t startPosition, size_t endPosition)
 {
     Song::EventList processedEvents { events };
     Song::EventList sideChainEvents;
 
+    const auto startTick = song.positionToTick(startPosition);
     const auto maxTick = song.positionToTick(endPosition);
     const double msPerTick = 60'000.0 / static_cast<double>(song.beatsPerMinute() * song.linesPerBeat() * song.ticksPerLine());
 
@@ -53,7 +54,8 @@ Song::EventList SideChainService::renderToEvents(const Song & song, const Song::
                         const auto addTargetEvents = [&](const SideChainSettings::Target & target) {
                             if (target.enabled) {
                                 const auto lookaheadTicks = static_cast<size_t>(sideChainSettings.lookahead.count() / msPerTick);
-                                const size_t targetTick = event->tick() > lookaheadTicks ? event->tick() - lookaheadTicks : 0;
+                                const size_t proposedTargetTick = event->tick() > lookaheadTicks ? event->tick() - lookaheadTicks : 0;
+                                const size_t targetTick = std::max(startTick, proposedTargetTick);
                                 const auto targetEvent = std::make_shared<Event>(targetTick, MidiCcData(trackIndex, sideChainSettings.sourceColumnIndex, target.controller, target.targetValue));
                                 sideChainEvents.push_back(targetEvent);
 
