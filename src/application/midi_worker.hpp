@@ -48,6 +48,7 @@ public:
 
     Q_INVOKABLE void sendClock(QString portName);
     Q_INVOKABLE void sendCcData(QString portName, quint8 channel, quint8 controller, quint8 value);
+    Q_INVOKABLE void sendPitchBendData(QString portName, quint8 channel, quint8 msb, quint8 lsb);
 
     Q_INVOKABLE void requestPatchChange(QString portName, quint8 channel, quint8 patch);
 

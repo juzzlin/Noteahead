@@ -18,7 +18,7 @@
 #include "../contrib/SimpleLogger/src/simple_logger.hpp"
 #include "../domain/instrument.hpp"
 #include "../infra/midi/midi_backend_rt_midi.hpp"
-#include "../infra/midi/midi_cc.hpp"
+#include "../infra/midi/midi_cc_mapping.hpp"
 #include "instrument_request.hpp"
 
 #include <chrono>
@@ -130,21 +130,21 @@ void MidiWorker::sendMidiCcSettings(const MidiDevice & midiDevice, const Instrum
 {
     const auto channel = instrument.device().channel;
     const auto predefinedMidiCcSettings = instrument.settings().predefinedMidiCcSettings;
-    m_midiBackend->sendCC(midiDevice, channel, static_cast<quint8>(MidiCc::Controller::ResetAllControllers), 127);
+    m_midiBackend->sendCcData(midiDevice, channel, static_cast<quint8>(MidiCcMapping::Controller::ResetAllControllers), 127);
     if (predefinedMidiCcSettings.pan.has_value()) {
-        m_midiBackend->sendCC(midiDevice, channel, static_cast<quint8>(MidiCc::Controller::PanMSB), *predefinedMidiCcSettings.pan);
-        m_midiBackend->sendCC(midiDevice, channel, static_cast<quint8>(MidiCc::Controller::PanLSB), 0);
+        m_midiBackend->sendCcData(midiDevice, channel, static_cast<quint8>(MidiCcMapping::Controller::PanMSB), *predefinedMidiCcSettings.pan);
+        m_midiBackend->sendCcData(midiDevice, channel, static_cast<quint8>(MidiCcMapping::Controller::PanLSB), 0);
     }
     if (predefinedMidiCcSettings.volume.has_value()) {
-        m_midiBackend->sendCC(midiDevice, channel, static_cast<quint8>(MidiCc::Controller::ChannelVolumeMSB), *predefinedMidiCcSettings.volume);
-        m_midiBackend->sendCC(midiDevice, channel, static_cast<quint8>(MidiCc::Controller::ChannelVolumeLSB), 0);
+        m_midiBackend->sendCcData(midiDevice, channel, static_cast<quint8>(MidiCcMapping::Controller::ChannelVolumeMSB), *predefinedMidiCcSettings.volume);
+        m_midiBackend->sendCcData(midiDevice, channel, static_cast<quint8>(MidiCcMapping::Controller::ChannelVolumeLSB), 0);
     }
     if (predefinedMidiCcSettings.cutoff.has_value()) {
-        m_midiBackend->sendCC(midiDevice, channel, static_cast<quint8>(MidiCc::Controller::SoundController5), *predefinedMidiCcSettings.cutoff);
+        m_midiBackend->sendCcData(midiDevice, channel, static_cast<quint8>(MidiCcMapping::Controller::SoundController5), *predefinedMidiCcSettings.cutoff);
     }
     for (auto && midiCcSetting : instrument.settings().midiCcSettings) {
         if (midiCcSetting.enabled()) {
-            m_midiBackend->sendCC(midiDevice, channel, midiCcSetting.controller(), midiCcSetting.value());
+            m_midiBackend->sendCcData(midiDevice, channel, midiCcSetting.controller(), midiCcSetting.value());
         }
     }
 }
@@ -250,7 +250,7 @@ void MidiWorker::sendClock(QString portName)
     try {
         if (const auto device = m_midiBackend->deviceByPortName(portName.toStdString()); device) {
             m_midiBackend->openDevice(*device);
-            m_midiBackend->sendClock(*device);
+            m_midiBackend->sendClockPulse(*device);
         } else {
             portError(__func__, portName.toStdString());
         }
@@ -264,7 +264,21 @@ void MidiWorker::sendCcData(QString portName, quint8 channel, quint8 controller,
     try {
         if (const auto device = m_midiBackend->deviceByPortName(portName.toStdString()); device) {
             m_midiBackend->openDevice(*device);
-            m_midiBackend->sendCC(*device, channel, controller, value);
+            m_midiBackend->sendCcData(*device, channel, controller, value);
+        } else {
+            portError(__func__, portName.toStdString());
+        }
+    } catch (const std::runtime_error & e) {
+        juzzlin::L(TAG).error() << e.what();
+    }
+}
+
+void MidiWorker::sendPitchBendData(QString portName, quint8 channel, quint8 msb, quint8 lsb)
+{
+    try {
+        if (const auto device = m_midiBackend->deviceByPortName(portName.toStdString()); device) {
+            m_midiBackend->openDevice(*device);
+            m_midiBackend->sendPitchBendData(*device, channel, msb, lsb);
         } else {
             portError(__func__, portName.toStdString());
         }

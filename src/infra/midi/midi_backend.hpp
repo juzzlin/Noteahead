@@ -33,11 +33,8 @@ public:
     virtual ~MidiBackend();
 
     using MidiDeviceList = std::vector<MidiDeviceS>;
-
     virtual MidiDeviceList listDevices() const;
-
     virtual MidiDeviceS deviceByPortIndex(size_t index) const;
-
     virtual MidiDeviceS deviceByPortName(const std::string & name) const;
 
     //! \returns e.g. "ALSA"
@@ -48,22 +45,20 @@ public:
     using MidiDeviceCR = const MidiDevice &;
 
     virtual void openDevice(MidiDeviceCR device);
-
     virtual void closeDevice(MidiDeviceCR device);
+    virtual void stopAllNotes(MidiDeviceCR device, uint8_t channel) const;
 
-    virtual void sendCC(MidiDeviceCR device, uint8_t channel, uint8_t controller, uint8_t value) const;
+    virtual void sendCcData(MidiDeviceCR device, uint8_t channel, uint8_t controller, uint8_t value) const;
 
     virtual void sendNoteOn(MidiDeviceCR device, uint8_t channel, uint8_t note, uint8_t velocity) const;
-
     virtual void sendNoteOff(MidiDeviceCR device, uint8_t channel, uint8_t note) const;
 
     virtual void sendPatchChange(MidiDeviceCR device, uint8_t channel, uint8_t patch) const;
-
     virtual void sendBankChange(MidiDeviceCR device, uint8_t channel, uint8_t msb, uint8_t lsb) const;
 
-    virtual void stopAllNotes(MidiDeviceCR device, uint8_t channel) const;
+    virtual void sendPitchBendData(MidiDeviceCR device, uint8_t channel, uint8_t msb, uint8_t lsb) const;
 
-    virtual void sendClock(MidiDeviceCR device) const;
+    virtual void sendClockPulse(MidiDeviceCR device) const;
 
 protected:
     void setDevices(MidiDeviceList devices);

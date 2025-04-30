@@ -13,6 +13,7 @@ set(SRC
     ../../application/service/selection_service.cpp
     ../../common/constants.cpp
     ../../common/utils.cpp
+    ../../domain/automation.cpp
     ../../domain/column.cpp
     ../../domain/event.cpp
     ../../domain/event_data.cpp
@@ -28,6 +29,8 @@ set(SRC
     ../../domain/note_data.cpp
     ../../domain/note_data_manipulator.cpp
     ../../domain/pattern.cpp
+    ../../domain/pitch_bend_automation.cpp
+    ../../domain/pitch_bend_data.cpp
     ../../domain/play_order.cpp
     ../../domain/song.cpp
     ../../domain/track.cpp

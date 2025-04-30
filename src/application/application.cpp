@@ -22,6 +22,7 @@
 #include "config.hpp"
 #include "models/event_selection_model.hpp"
 #include "models/midi_cc_automations_model.hpp"
+#include "models/pitch_bend_automations_model.hpp"
 #include "models/recent_files_model.hpp"
 #include "models/track_settings_model.hpp"
 #include "recent_files_manager.hpp"
@@ -60,6 +61,7 @@ Application::Application(int & argc, char ** argv)
   , m_recentFilesManager { std::make_unique<RecentFilesManager>() }
   , m_recentFilesModel { std::make_unique<RecentFilesModel>() }
   , m_midiCcAutomationsModel { std::make_unique<MidiCcAutomationsModel>() }
+  , m_pitchBendAutomationsModel { std::make_unique<PitchBendAutomationsModel>() }
   , m_trackSettingsModel { std::make_unique<TrackSettingsModel>() }
   , m_utilService { std::make_unique<UtilService>() }
   , m_engine { std::make_unique<QQmlApplicationEngine>() }
@@ -81,19 +83,20 @@ void Application::registerTypes()
     const int majorVersion = 1;
     const int minorVersion = 0;
 
-    qmlRegisterType<UiLogger>("Noteahead", majorVersion, minorVersion, "UiLogger");
     qmlRegisterType<ApplicationService>("Noteahead", majorVersion, minorVersion, "ApplicationService");
     qmlRegisterType<AutomationService>("Noteahead", majorVersion, minorVersion, "AutomationService");
     qmlRegisterType<Config>("Noteahead", majorVersion, minorVersion, "Config");
-    qmlRegisterType<SelectionService>("Noteahead", majorVersion, minorVersion, "SelectionService");
     qmlRegisterType<EditorService>("Noteahead", majorVersion, minorVersion, "EditorService");
     qmlRegisterType<EditorService>("Noteahead", majorVersion, minorVersion, "EventSelectionModel");
     qmlRegisterType<MidiCcAutomationsModel>("Noteahead", majorVersion, minorVersion, "MidiCcAutomationsModel");
     qmlRegisterType<MidiService>("Noteahead", majorVersion, minorVersion, "MidiService");
     qmlRegisterType<MixerService>("Noteahead", majorVersion, minorVersion, "MixerService");
+    qmlRegisterType<PitchBendAutomationsModel>("Noteahead", majorVersion, minorVersion, "PitchBendAutomationsModel");
     qmlRegisterType<RecentFilesModel>("Noteahead", majorVersion, minorVersion, "RecentFilesModel");
+    qmlRegisterType<SelectionService>("Noteahead", majorVersion, minorVersion, "SelectionService");
     qmlRegisterType<TrackSettingsModel>("Noteahead", majorVersion, minorVersion, "TrackSettingsModel");
     qmlRegisterType<TrackSettingsModel>("Noteahead", majorVersion, minorVersion, "UtilService");
+    qmlRegisterType<UiLogger>("Noteahead", majorVersion, minorVersion, "UiLogger");
 
     qmlRegisterSingletonType(QUrl(QML_ROOT_DIR + QString { "/Constants.qml" }), "Noteahead", majorVersion, minorVersion, "Constants");
     qmlRegisterSingletonType(QUrl(QML_ROOT_DIR + QString { "/UiService.qml" }), "Noteahead", majorVersion, minorVersion, "UiService");
@@ -109,11 +112,12 @@ void Application::setContextProperties()
     m_engine->rootContext()->setContextProperty("midiCcAutomationsModel", m_midiCcAutomationsModel.get());
     m_engine->rootContext()->setContextProperty("midiService", m_midiService.get());
     m_engine->rootContext()->setContextProperty("mixerService", m_mixerService.get());
+    m_engine->rootContext()->setContextProperty("pitchBendAutomationsModel", m_pitchBendAutomationsModel.get());
     m_engine->rootContext()->setContextProperty("playerService", m_playerService.get());
-    m_engine->rootContext()->setContextProperty("uiLogger", m_uiLogger.get());
     m_engine->rootContext()->setContextProperty("recentFilesModel", m_recentFilesModel.get());
     m_engine->rootContext()->setContextProperty("selectionService", m_selectionService.get());
     m_engine->rootContext()->setContextProperty("trackSettingsModel", m_trackSettingsModel.get());
+    m_engine->rootContext()->setContextProperty("uiLogger", m_uiLogger.get());
     m_engine->rootContext()->setContextProperty("utilService", m_utilService.get());
 }
 
@@ -198,15 +202,31 @@ void Application::connectServices()
     connect(m_applicationService.get(), &ApplicationService::liveNoteOnRequested, m_midiService.get(), &MidiService::playNote);
     connect(m_applicationService.get(), &ApplicationService::liveNoteOffRequested, m_midiService.get(), &MidiService::stopNote);
 
+    connect(m_automationService.get(), &AutomationService::lineDataChanged, this, [this]() {
+        m_editorService->setIsModified(true);
+    });
+
     connect(m_midiCcAutomationsModel.get(), &MidiCcAutomationsModel::midiCcAutomationsRequested, this, [this]() {
         m_midiCcAutomationsModel->setMidiCcAutomations(m_automationService->midiCcAutomations());
     });
-    connect(m_midiCcAutomationsModel.get(), &MidiCcAutomationsModel::midiCcAutomationChanged, this, [this](auto && midiCcAutomation) {
-        m_automationService->updateMidiCcAutomation(midiCcAutomation);
+    connect(m_midiCcAutomationsModel.get(), &MidiCcAutomationsModel::midiCcAutomationChanged, this, [this](auto && item) {
+        m_automationService->updateMidiCcAutomation(item);
         m_editorService->setIsModified(true);
     });
-    connect(m_midiCcAutomationsModel.get(), &MidiCcAutomationsModel::midiCcAutomationDeleted, this, [this](auto && midiCcAutomation) {
-        m_automationService->deleteMidiCcAutomation(midiCcAutomation);
+    connect(m_midiCcAutomationsModel.get(), &MidiCcAutomationsModel::midiCcAutomationDeleted, this, [this](auto && item) {
+        m_automationService->deleteMidiCcAutomation(item);
+        m_editorService->setIsModified(true);
+    });
+
+    connect(m_pitchBendAutomationsModel.get(), &PitchBendAutomationsModel::pitchBendAutomationsRequested, this, [this]() {
+        m_pitchBendAutomationsModel->setPitchBendAutomations(m_automationService->pitchBendAutomations());
+    });
+    connect(m_pitchBendAutomationsModel.get(), &PitchBendAutomationsModel::pitchBendAutomationChanged, this, [this](auto && item) {
+        m_automationService->updatePitchBendAutomation(item);
+        m_editorService->setIsModified(true);
+    });
+    connect(m_pitchBendAutomationsModel.get(), &PitchBendAutomationsModel::pitchBendAutomationDeleted, this, [this](auto && item) {
+        m_automationService->deletePitchBendAutomation(item);
         m_editorService->setIsModified(true);
     });
 

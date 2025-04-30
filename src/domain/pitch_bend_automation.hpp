@@ -13,12 +13,11 @@
 // You should have received a copy of the GNU General Public License
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef MIDI_CC_AUTOMATION_HPP
-#define MIDI_CC_AUTOMATION_HPP
+#ifndef PITCH_BEND_AUTOMATION_HPP
+#define PITCH_BEND_AUTOMATION_HPP
 
 #include "automation.hpp"
 
-#include <cstdint>
 #include <memory>
 
 class QXmlStreamReader;
@@ -26,15 +25,15 @@ class QXmlStreamWriter;
 
 namespace noteahead {
 
-class MidiCcAutomation : public Automation
+class PitchBendAutomation : public Automation
 {
 public:
     struct InterpolationParameters
     {
         size_t line0 = 0;
         size_t line1 = 0;
-        uint8_t value0 = 0;
-        uint8_t value1 = 0;
+        int value0 = 0; // -100%..+100%
+        int value1 = 0; // -100%..+100%
 
         bool operator==(const InterpolationParameters & other) const
         {
@@ -47,32 +46,28 @@ public:
         }
     };
 
-    MidiCcAutomation(size_t id, AutomationLocation location, uint8_t controller, InterpolationParameters interpolation, QString comment, bool enabled);
-    MidiCcAutomation(size_t id, AutomationLocation location, uint8_t controller, InterpolationParameters interpolation, QString comment);
-    MidiCcAutomation();
+    PitchBendAutomation(size_t id, AutomationLocation location, InterpolationParameters interpolation, QString comment, bool enabled);
+    PitchBendAutomation(size_t id, AutomationLocation location, InterpolationParameters interpolation, QString comment);
+    PitchBendAutomation();
 
-    bool operator==(const MidiCcAutomation & other) const;
-    bool operator!=(const MidiCcAutomation & other) const;
-    bool operator<(const MidiCcAutomation & other) const;
+    bool operator==(const PitchBendAutomation & other) const;
+    bool operator!=(const PitchBendAutomation & other) const;
+    bool operator<(const PitchBendAutomation & other) const;
 
     const InterpolationParameters & interpolation() const;
     void setInterpolation(const InterpolationParameters & parameters);
 
-    uint8_t controller() const;
-    void setController(uint8_t controller);
-
     void serializeToXml(QXmlStreamWriter & writer) const;
-    using MidiCcAutomationU = std::unique_ptr<MidiCcAutomation>;
-    static MidiCcAutomationU deserializeFromXml(QXmlStreamReader & reader);
+    using PitchBendAutomationU = std::unique_ptr<PitchBendAutomation>;
+    static PitchBendAutomationU deserializeFromXml(QXmlStreamReader & reader);
 
     QString toString() const;
 
 private:
-    uint8_t m_controller = 0;
 
     InterpolationParameters m_interpolation;
 };
 
 } // namespace noteahead
 
-#endif // MIDI_CC_AUTOMATION_HPP
+#endif // PITCH_BEND_AUTOMATION_HPP

@@ -31,6 +31,7 @@ class InstrumentRequest;
 class MidiBackend;
 class MidiCcData;
 class MidiWorker;
+class PitchBendData;
 
 class MidiService : public QObject
 {
@@ -53,8 +54,10 @@ public:
     Q_INVOKABLE void stopNote(InstrumentW instrument, quint8 midiNote);
     Q_INVOKABLE void stopAllNotes(InstrumentW instrument);
     using MidiCcDataCR = const MidiCcData &;
-    Q_INVOKABLE void sendCcData(InstrumentW instrument, MidiCcDataCR midiCcData);
+    Q_INVOKABLE void sendCcData(InstrumentW instrument, MidiCcDataCR data);
     Q_INVOKABLE void sendClock(InstrumentW instrument);
+    using PitchBendDataCR = const PitchBendData &;
+    Q_INVOKABLE void sendPitchBendData(InstrumentW instrument, PitchBendDataCR data);
 
 public slots:
     void handleInstrumentRequest(const InstrumentRequest & instrumentRequest);

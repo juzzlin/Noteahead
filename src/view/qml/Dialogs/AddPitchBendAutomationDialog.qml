@@ -11,9 +11,6 @@ Dialog {
     function setTitle(text) {
         title = "<strong>" + text + "</strong>";
     }
-    function controller() {
-        return model.controller();
-    }
     function startValue() {
         return model.startValue();
     }
@@ -44,7 +41,7 @@ Dialog {
     function setComment(comment) {
         model.setComment(comment);
     }
-    contentItem: MidiCcAutomationModel {
+    contentItem: PitchBendAutomationModel {
         id: model
     }
 }

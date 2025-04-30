@@ -208,6 +208,22 @@ ApplicationWindow {
         height: parent.height * 0.5
         onAccepted: midiCcAutomationsModel.applyAll()
     }
+    AddPitchBendAutomationDialog {
+        id: addPitchBendAutomationDialog
+        anchors.centerIn: parent
+        width: parent.width * 0.5
+        onAccepted: {
+            const position = editorService.position;
+            automationService.addPitchBendAutomation(position.pattern, position.track, position.column, startLine(), endLine(), startValue(), endValue(), comment());
+        }
+    }
+    EditPitchBendAutomationsDialog {
+        id: editPitchBendAutomationsDialog
+        anchors.centerIn: parent
+        width: parent.width * 0.5
+        height: parent.height * 0.5
+        onAccepted: pitchBendAutomationsModel.applyAll()
+    }
     function _getWindowTitle(): string {
         const nameAndVersion = `${applicationService.applicationName()} MIDI tracker v${applicationService.applicationVersion()}`;
         const currentFileName = (editorService.currentFileName ? " - " + editorService.currentFileName : "");
@@ -329,6 +345,47 @@ ApplicationWindow {
                 midiCcAutomationsModel.requestMidiCcAutomationsByPattern(position.pattern);
                 editMidiCcAutomationsDialog.setTitle(qsTr("Edit MIDI CC automations by pattern"));
                 editMidiCcAutomationsDialog.open();
+            });
+        UiService.columnAddPitchBendAutomationDialogRequested.connect(() => {
+                addPitchBendAutomationDialog.setTitle(qsTr("Add Pitch Bend automation"));
+                addPitchBendAutomationDialog.setStartLine(0);
+                addPitchBendAutomationDialog.setEndLine(editorService.currentLineCount - 1);
+                addPitchBendAutomationDialog.setStartValue(0);
+                addPitchBendAutomationDialog.setEndValue(100);
+                addPitchBendAutomationDialog.setComment("");
+                addPitchBendAutomationDialog.open();
+            });
+        UiService.selectionAddPitchBendAutomationDialogRequested.connect(() => {
+                addPitchBendAutomationDialog.setTitle(qsTr("Add Pitch Bend automation"));
+                addPitchBendAutomationDialog.setStartLine(selectionService.minLine());
+                addPitchBendAutomationDialog.setEndLine(selectionService.maxLine());
+                addPitchBendAutomationDialog.setStartValue(0);
+                addPitchBendAutomationDialog.setEndValue(100);
+                addPitchBendAutomationDialog.setComment("");
+                addPitchBendAutomationDialog.open();
+            });
+        UiService.editPitchBendAutomationsDialogRequested.connect(() => {
+                pitchBendAutomationsModel.requestPitchBendAutomations();
+                editPitchBendAutomationsDialog.setTitle(qsTr("Edit Pitch Bend automations"));
+                editPitchBendAutomationsDialog.open();
+            });
+        UiService.editPitchBendAutomationsDialogByColumnRequested.connect(() => {
+                const position = editorService.position;
+                pitchBendAutomationsModel.requestPitchBendAutomationsByColumn(position.pattern, position.track, position.column);
+                editPitchBendAutomationsDialog.setTitle(qsTr("Edit Pitch Bend automations by column"));
+                editPitchBendAutomationsDialog.open();
+            });
+        UiService.editPitchBendAutomationsDialogByTrackRequested.connect(() => {
+                const position = editorService.position;
+                pitchBendAutomationsModel.requestPitchBendAutomationsByTrack(position.pattern, position.track);
+                editPitchBendAutomationsDialog.setTitle(qsTr("Edit Pitch Bend automations by track"));
+                editPitchBendAutomationsDialog.open();
+            });
+        UiService.editPitchBendAutomationsDialogByPatternRequested.connect(() => {
+                const position = editorService.position;
+                pitchBendAutomationsModel.requestPitchBendAutomationsByPattern(position.pattern);
+                editPitchBendAutomationsDialog.setTitle(qsTr("Edit Pitch Bend automations by pattern"));
+                editPitchBendAutomationsDialog.open();
             });
         UiService.quitRequested.connect(() => {
                 config.setWindowSize(Qt.size(mainWindow.width, mainWindow.height));

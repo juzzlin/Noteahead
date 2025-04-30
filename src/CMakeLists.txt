@@ -17,6 +17,7 @@ set(HEADER_FILES
   application/models/event_selection_model.hpp
   application/models/midi_cc_automations_model.hpp
   application/models/midi_cc_selection_model.hpp
+  application/models/pitch_bend_automations_model.hpp
   application/models/recent_files_model.hpp
   application/models/track_settings_model.hpp
   application/note_converter.hpp
@@ -35,6 +36,8 @@ set(HEADER_FILES
   application/ui_logger.hpp
   common/constants.hpp
   common/utils.hpp
+  domain/automation.hpp
+  domain/automation_location.hpp
   domain/column.hpp
   domain/event.hpp
   domain/event_data.hpp
@@ -50,12 +53,14 @@ set(HEADER_FILES
   domain/note_data.hpp
   domain/note_data_manipulator.hpp
   domain/pattern.hpp
+  domain/pitch_bend_automation.hpp
+  domain/pitch_bend_data.hpp
   domain/play_order.hpp
   domain/song.hpp
   domain/track.hpp
   infra/midi/midi_backend.hpp
   infra/midi/midi_backend_rt_midi.hpp
-  infra/midi/midi_cc.hpp
+  infra/midi/midi_cc_mapping.hpp
   infra/midi/midi_device.hpp
   infra/settings.hpp
   infra/video/animation.hpp
@@ -73,6 +78,7 @@ set(SOURCE_FILES
   application/models/event_selection_model.cpp
   application/models/midi_cc_automations_model.cpp
   application/models/midi_cc_selection_model.cpp
+  application/models/pitch_bend_automations_model.cpp
   application/models/recent_files_model.cpp
   application/models/track_settings_model.cpp
   application/note_converter.cpp
@@ -88,8 +94,9 @@ set(SOURCE_FILES
   application/service/util_service.cpp
   application/state_machine.cpp
   application/ui_logger.cpp
-  common/constants.cpp 
+  common/constants.cpp
   common/utils.cpp
+  domain/automation.cpp
   domain/column.cpp
   domain/event.cpp
   domain/event_data.cpp
@@ -105,12 +112,14 @@ set(SOURCE_FILES
   domain/note_data.cpp
   domain/note_data_manipulator.cpp
   domain/pattern.cpp
+  domain/pitch_bend_automation.cpp
+  domain/pitch_bend_data.cpp
   domain/play_order.cpp
   domain/song.cpp
   domain/track.cpp
   infra/midi/midi_backend.cpp
-  infra/midi/midi_cc.cpp
   infra/midi/midi_backend_rt_midi.cpp
+  infra/midi/midi_cc_mapping.cpp
   infra/midi/midi_device.cpp
   infra/settings.cpp
   infra/video/animation.cpp
@@ -136,13 +145,17 @@ set(QML_SOURCE_FILES
     ${QML_BASE_DIR}/Constants.qml
     ${QML_BASE_DIR}/Dialogs/AboutDialog.qml
     ${QML_BASE_DIR}/Dialogs/AddMidiCcAutomationDialog.qml
+    ${QML_BASE_DIR}/Dialogs/AddPitchBendAutomationDialog.qml
     ${QML_BASE_DIR}/Dialogs/EditMidiCcAutomationsDelegate.qml
     ${QML_BASE_DIR}/Dialogs/EditMidiCcAutomationsDialog.qml
+    ${QML_BASE_DIR}/Dialogs/EditPitchBendAutomationsDelegate.qml
+    ${QML_BASE_DIR}/Dialogs/EditPitchBendAutomationsDialog.qml
     ${QML_BASE_DIR}/Dialogs/EventSelectionDialog.qml
     ${QML_BASE_DIR}/Dialogs/IntegerInputDialog.qml
     ${QML_BASE_DIR}/Dialogs/InterpolationDialog.qml
     ${QML_BASE_DIR}/Dialogs/MidiCcAutomationModel.qml
     ${QML_BASE_DIR}/Dialogs/MidiCcSelector.qml
+    ${QML_BASE_DIR}/Dialogs/PitchBendAutomationModel.qml
     ${QML_BASE_DIR}/Dialogs/RecentFilesDialog.qml
     ${QML_BASE_DIR}/Dialogs/SettingsDialog.qml
     ${QML_BASE_DIR}/Dialogs/TrackSettingsDialog.qml

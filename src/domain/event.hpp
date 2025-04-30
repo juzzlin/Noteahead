@@ -22,6 +22,7 @@
 
 #include "midi_cc_data.hpp"
 #include "note_data.hpp"
+#include "pitch_bend_data.hpp"
 
 namespace noteahead {
 
@@ -36,13 +37,14 @@ class Event
 public:
     enum class Type
     {
-        None,
-        NoteData,
+        EndOfSong,
+        InstrumentSettings,
         MidiCcData,
         MidiClockOut,
-        InstrumentSettings,
+        None,
+        NoteData,
+        PitchBendData,
         StartOfSong,
-        EndOfSong
     };
 
     //! Builds a default None event.
@@ -55,6 +57,10 @@ public:
     using MidiCcDataCR = const MidiCcData &;
     //! Builds a MIDI CC data event.
     Event(size_t tick, MidiCcDataCR midiCcData);
+
+    using PitchBendDataCR = const PitchBendData &;
+    //! Builds a Pitch Bend data event.
+    Event(size_t tick, PitchBendDataCR pitchBendData);
 
     //! Builds an instrument settings event.
     using InstrumentSettingsS = std::shared_ptr<InstrumentSettings>;
@@ -85,6 +91,9 @@ public:
     using MidiCcDataOpt = std::optional<MidiCcData>;
     MidiCcDataOpt midiCcData() const;
 
+    using PitchBendDataOpt = std::optional<PitchBendData>;
+    PitchBendDataOpt pitchBendData() const;
+
     using InstrumentS = std::shared_ptr<Instrument>;
     InstrumentS instrument() const;
     void setInstrument(InstrumentS instrument);
@@ -100,6 +109,7 @@ private:
     //! Data for data-like events
     NoteDataOpt m_noteData;
     MidiCcDataOpt m_midiCcData;
+    PitchBendDataOpt m_pitchBendData;
     InstrumentS m_instrument;
     InstrumentSettingsS m_instrumentSettings;
 };

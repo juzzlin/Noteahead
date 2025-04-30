@@ -237,6 +237,11 @@ QString xmlKeyMidiCcAutomation()
     return "MidiCcAutomation";
 }
 
+QString xmlKeyPitchBendAutomation()
+{
+    return "PitchBendAutomation";
+}
+
 QString xmlKeyInterpolation()
 {
     return "Interpolation";

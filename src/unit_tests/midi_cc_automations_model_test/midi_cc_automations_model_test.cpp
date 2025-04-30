@@ -24,8 +24,8 @@ namespace noteahead {
 
 void MidiCcAutomationsModelTest::test_addMidiCcAutomations_shouldAddAutomations()
 {
-    const MidiCcAutomation::Location location { 1, 2, 3 };
-    const MidiCcAutomation::Interpolation interpolation { 11, 22, 33, 44 };
+    const AutomationLocation location { 1, 2, 3 };
+    const MidiCcAutomation::InterpolationParameters interpolation { 11, 22, 33, 44 };
     MidiCcAutomation midiCcAutomation { 42, location, 7, interpolation, "Comment", true };
 
     MidiCcAutomationsModel model;
@@ -47,9 +47,8 @@ void MidiCcAutomationsModelTest::test_addMidiCcAutomations_shouldAddAutomations(
 
 void MidiCcAutomationsModelTest::test_requestMidiCcAutomations_shouldFilterAutomations()
 {
-    const MidiCcAutomation::Location location { 1, 2, 3 };
-    const MidiCcAutomation::Interpolation interpolation { 11, 22, 33, 44 };
-    MidiCcAutomation midiCcAutomation { 42, location, 7, interpolation, {} };
+    const MidiCcAutomation::InterpolationParameters interpolation { 11, 22, 33, 44 };
+    MidiCcAutomation midiCcAutomation { 42, { 1, 2, 3 }, 7, interpolation, {} };
 
     MidiCcAutomationsModel model;
     QSignalSpy midiCcAutomationsRequestedSpy { &model, &MidiCcAutomationsModel::midiCcAutomationsRequested };
@@ -103,8 +102,8 @@ void MidiCcAutomationsModelTest::test_setData_shouldUpdateAutomationData()
 {
     using Role = MidiCcAutomationsModel::DataRole;
 
-    const MidiCcAutomation::Location location { 1, 2, 3 };
-    const MidiCcAutomation::Interpolation interpolation { 11, 22, 33, 44 };
+    const AutomationLocation location { 1, 2, 3 };
+    const MidiCcAutomation::InterpolationParameters interpolation { 11, 22, 33, 44 };
     MidiCcAutomation midiCcAutomation { 42, location, 7, interpolation, "Old Comment" };
 
     MidiCcAutomationsModel model;
@@ -164,9 +163,8 @@ void MidiCcAutomationsModelTest::test_setData_shouldUpdateAutomationData()
 
 void MidiCcAutomationsModelTest::test_removeAt_shouldRemoveAutomationData()
 {
-    const MidiCcAutomation::Location location { 1, 2, 3 };
-    const MidiCcAutomation::Interpolation interpolation { 11, 22, 33, 44 };
-    MidiCcAutomation midiCcAutomation { 42, location, 7, interpolation, "Old Comment" };
+    const MidiCcAutomation::InterpolationParameters interpolation { 11, 22, 33, 44 };
+    MidiCcAutomation midiCcAutomation { 42, { 1, 2, 3 }, 7, interpolation, "Old Comment" };
 
     MidiCcAutomationsModel model;
     model.setMidiCcAutomations({ midiCcAutomation });

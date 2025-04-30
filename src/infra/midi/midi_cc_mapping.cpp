@@ -13,11 +13,11 @@
 // You should have received a copy of the GNU General Public License
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
-#include "midi_cc.hpp"
+#include "midi_cc_mapping.hpp"
 
 #include <map>
 
-namespace noteahead::MidiCc {
+namespace noteahead::MidiCcMapping {
 
 QString controllerToString(Controller controller)
 {
@@ -101,4 +101,4 @@ QString controllerToString(Controller controller)
     return "Undefined";
 }
 
-} // namespace noteahead::MidiCc
+} // namespace noteahead::MidiCcMapping

@@ -15,7 +15,7 @@
 
 #include "midi_backend_rt_midi.hpp"
 
-#include "midi_cc.hpp"
+#include "midi_cc_mapping.hpp"
 
 #include <memory>
 #include <stdexcept>
@@ -68,7 +68,7 @@ void MidiBackendRtMidi::sendMessage(MidiDeviceCR device, const Message & message
     }
 }
 
-void MidiBackendRtMidi::sendCC(MidiDeviceCR device, uint8_t channel, uint8_t controller, uint8_t value) const
+void MidiBackendRtMidi::sendCcData(MidiDeviceCR device, uint8_t channel, uint8_t controller, uint8_t value) const
 {
     const Message message = { static_cast<unsigned char>(0xB0 | (channel & 0x0F)),
                               static_cast<unsigned char>(controller),
@@ -104,13 +104,24 @@ void MidiBackendRtMidi::sendPatchChange(MidiDeviceCR device, uint8_t channel, ui
 
 void MidiBackendRtMidi::sendBankChange(MidiDeviceCR device, uint8_t channel, uint8_t msb, uint8_t lsb) const
 {
-    sendCC(device, channel, static_cast<uint8_t>(MidiCc::Controller::BankSelectMSB), msb);
-    sendCC(device, channel, static_cast<uint8_t>(MidiCc::Controller::BankSelectLSB), lsb);
+    sendCcData(device, channel, static_cast<uint8_t>(MidiCcMapping::Controller::BankSelectMSB), msb);
+    sendCcData(device, channel, static_cast<uint8_t>(MidiCcMapping::Controller::BankSelectLSB), lsb);
+}
+
+void MidiBackendRtMidi::sendPitchBendData(MidiDeviceCR device, uint8_t channel, uint8_t msb, uint8_t lsb) const
+{
+    const Message message = {
+        static_cast<unsigned char>(0xE0 | (channel & 0x0F)),
+        static_cast<unsigned char>(lsb & 0x7F),
+        static_cast<unsigned char>(msb & 0x7F)
+    };
+
+    sendMessage(device, message);
 }
 
 void MidiBackendRtMidi::stopAllNotes(MidiDeviceCR device, uint8_t channel) const
 {
-    sendCC(device, channel, static_cast<uint8_t>(MidiCc::Controller::AllNotesOff), 0);
+    sendCcData(device, channel, static_cast<uint8_t>(MidiCcMapping::Controller::AllNotesOff), 0);
 
     // All devices won't obey CC #123: Manually stop all notes
     for (uint8_t note = 0; note < 128; note++) {
@@ -118,7 +129,7 @@ void MidiBackendRtMidi::stopAllNotes(MidiDeviceCR device, uint8_t channel) const
     }
 }
 
-void MidiBackendRtMidi::sendClock(MidiDeviceCR device) const
+void MidiBackendRtMidi::sendClockPulse(MidiDeviceCR device) const
 {
     const Message message = { 0xF8 };
     sendMessage(device, message);

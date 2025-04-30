@@ -13,30 +13,30 @@
 // You should have received a copy of the GNU General Public License
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
-#include "midi_cc_data.hpp"
+#ifndef AUTOMATION_LOCATION_HPP
+#define AUTOMATION_LOCATION_HPP
+
+#include <cstddef>
 
 namespace noteahead {
 
-MidiCcData::MidiCcData(size_t track, size_t column, uint8_t controller, uint8_t value)
-  : EventData { track, column }
-  , m_controller { controller }
-  , m_value { value }
+struct AutomationLocation
 {
-}
+    size_t pattern = 0;
+    size_t track = 0;
+    size_t column = 0;
 
-uint8_t MidiCcData::controller() const
-{
-    return m_controller;
-}
+    bool operator==(const AutomationLocation & other) const
+    {
+        return pattern == other.pattern && track == other.track && column == other.column;
+    }
 
-uint8_t MidiCcData::value() const
-{
-    return m_value;
-}
-
-double MidiCcData::normalizedValue() const
-{
-    return static_cast<double>(m_value) / 127;
-}
+    bool operator!=(const AutomationLocation & other) const
+    {
+        return !(*this == other);
+    }
+};
 
 } // namespace noteahead
+
+#endif // AUTOMATION_LOCATION_HPP

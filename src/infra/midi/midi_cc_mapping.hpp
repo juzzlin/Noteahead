@@ -13,13 +13,13 @@
 // You should have received a copy of the GNU General Public License
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef MIDI_CC_HPP
-#define MIDI_CC_HPP
+#ifndef MIDI_CC_MAPPING_H
+#define MIDI_CC_MAPPING_H
 
 #include <QString>
 #include <cstdint>
 
-namespace noteahead::MidiCc {
+namespace noteahead::MidiCcMapping {
 
 enum class Controller : uint8_t
 {
@@ -99,6 +99,6 @@ enum class Controller : uint8_t
 
 QString controllerToString(Controller controller);
 
-}; // namespace noteahead::MidiCc
+}; // namespace noteahead::MidiCcMapping
 
-#endif // MIDI_CC_HPP
+#endif // MIDI_CC_MAPPING_H

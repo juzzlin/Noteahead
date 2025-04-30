@@ -23,6 +23,7 @@
 
 #include "../../domain/event.hpp"
 #include "../../domain/midi_cc_automation.hpp"
+#include "../../domain/pitch_bend_automation.hpp"
 
 class QXmlStreamReader;
 class QXmlStreamWriter;
@@ -40,9 +41,19 @@ public:
 
     void clear();
 
-    //! API for QML/UI
+    // <-- API for QML/UI -->
+
+    //! Adds automation for MIDI CC events.
+    //! \param value0 Start value from 0 to 127.
+    //! \param value1 End value from 0 to 127.
     Q_INVOKABLE void addMidiCcAutomation(quint64 pattern, quint64 track, quint64 column, quint8 controller, quint64 line0, quint64 line1, quint8 value0, quint8 value1, QString comment, bool enabled);
     Q_INVOKABLE void addMidiCcAutomation(quint64 pattern, quint64 track, quint64 column, quint8 controller, quint64 line0, quint64 line1, quint8 value0, quint8 value1, QString comment);
+
+    //! Adds automation for MIDI pitch bend.
+    //! \param value0 Start value from -100% to +100%.
+    //! \param value1 End value from -100% to +100%.
+    Q_INVOKABLE void addPitchBendAutomation(quint64 pattern, quint64 track, quint64 column, quint64 line0, quint64 line1, int value0, int value1, QString comment, bool enabled);
+    Q_INVOKABLE void addPitchBendAutomation(quint64 pattern, quint64 track, quint64 column, quint64 line0, quint64 line1, int value0, int value1, QString comment);
     Q_INVOKABLE bool hasAutomations(quint64 pattern, quint64 track, quint64 column, quint64 line) const;
     Q_INVOKABLE double automationWeight(quint64 pattern, quint64 track, quint64 column, quint64 line) const;
 
@@ -53,6 +64,13 @@ public:
     MidiCcAutomationList midiCcAutomationsByPattern(quint64 pattern) const;
     MidiCcAutomationList midiCcAutomations() const;
 
+    using PitchBendAutomationList = std::vector<PitchBendAutomation>;
+    PitchBendAutomationList pitchBendAutomationsByLine(quint64 pattern, quint64 track, quint64 column, quint64 line) const;
+    PitchBendAutomationList pitchBendAutomationsByColumn(quint64 pattern, quint64 track, quint64 column) const;
+    PitchBendAutomationList pitchBendAutomationsByTrack(quint64 pattern, quint64 track) const;
+    PitchBendAutomationList pitchBendAutomationsByPattern(quint64 pattern) const;
+    PitchBendAutomationList pitchBendAutomations() const;
+
     using EventS = std::shared_ptr<Event>;
     using EventList = std::vector<EventS>;
     EventList renderToEventsByLine(size_t pattern, size_t track, size_t column, size_t line, size_t tick) const;
@@ -62,18 +80,36 @@ public:
     void serializeToXml(QXmlStreamWriter & writer) const;
 
 public slots:
-    void deleteMidiCcAutomation(const MidiCcAutomation & midiCcAutomationToDelete);
-    void updateMidiCcAutomation(const MidiCcAutomation & updatedMidiCcAutomation);
+    void deleteMidiCcAutomation(const MidiCcAutomation & automationToDelete);
+    void updateMidiCcAutomation(const MidiCcAutomation & updatedAutomation);
+    void deletePitchBendAutomation(const PitchBendAutomation & automationToDelete);
+    void updatePitchBendAutomation(const PitchBendAutomation & updatedAutomation);
 
 signals:
     void lineDataChanged(const Position & position);
 
 private:
+    bool hasMidiCcAutomations(quint64 pattern, quint64 track, quint64 column, quint64 line) const;
+    bool hasPitchBendAutomations(quint64 pattern, quint64 track, quint64 column, quint64 line) const;
+    double midiCcAutomationWeight(quint64 pattern, quint64 track, quint64 column, quint64 line) const;
+    double pitchBendAutomationWeight(quint64 pattern, quint64 track, quint64 column, quint64 line) const;
     void notifyChangedLines(quint64 pattern, quint64 track, quint64 column, quint64 line0, quint64 line1);
-    void notifyChangedLines(const MidiCcAutomation & midiCcAutomation);
-    void notifyChangedLinesMerged(const MidiCcAutomation & midiCcAutomation1, const MidiCcAutomation & midiCcAutomation2);
+    void notifyChangedLines(const MidiCcAutomation & automation);
+    void notifyChangedLinesMerged(const MidiCcAutomation & automation1, const MidiCcAutomation & automation2);
+    void notifyChangedLines(const PitchBendAutomation & automation);
+    void notifyChangedLinesMerged(const PitchBendAutomation & automation1, const PitchBendAutomation & automation2);
+    EventList renderMidiCcToEventsByLine(size_t pattern, size_t track, size_t column, size_t line, size_t tick) const;
+    EventList renderPitchBendToEventsByLine(size_t pattern, size_t track, size_t column, size_t line, size_t tick) const;
+    EventList renderMidiCcToEventsByColumn(size_t pattern, size_t track, size_t column, size_t tick, size_t ticksPerLine) const;
+    EventList renderPitchBendToEventsByColumn(size_t pattern, size_t track, size_t column, size_t tick, size_t ticksPerLine) const;
 
-    MidiCcAutomationList m_midiCcAutomations;
+    struct Automations
+    {
+        MidiCcAutomationList midiCc;
+        PitchBendAutomationList pitchBend;
+    };
+
+    Automations m_automations;
 };
 
 } // namespace noteahead

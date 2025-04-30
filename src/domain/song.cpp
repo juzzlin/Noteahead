@@ -624,8 +624,12 @@ Song::EventList Song::assignInstruments(EventListCR events) const
                 }
             }
         } else if (event->type() == Event::Type::MidiCcData) {
-            if (const auto midiCcData = event->midiCcData(); midiCcData) {
-                event->setInstrument(instrument(midiCcData->track()));
+            if (const auto data = event->midiCcData(); data) {
+                event->setInstrument(instrument(data->track()));
+            }
+        } else if (event->type() == Event::Type::PitchBendData) {
+            if (const auto data = event->pitchBendData(); data) {
+                event->setInstrument(instrument(data->track()));
             }
         } else if (event->type() == Event::Type::InstrumentSettings) {
             if (const auto instrumentSettings = event->instrumentSettings(); instrumentSettings) {

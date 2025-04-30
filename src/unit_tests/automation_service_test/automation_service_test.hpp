@@ -20,7 +20,7 @@
 
 namespace noteahead {
 
-class MidiCcAutomationsModelTest : public QObject
+class AutomationServiceTest : public QObject
 {
     Q_OBJECT
 
@@ -28,8 +28,12 @@ private slots:
 
     void test_addMidiCcAutomation_shouldAddAutomation();
     void test_deleteMidiCcAutomation_shouldDeleteAutomation();
+    void test_addPitchBendAutomation_shouldAddAutomation();
+    void test_deletePitchBendAutomation_shouldDeleteAutomation();
 
-    void test_automationWeight_shouldCalculateCorrectWeight();
+    void test_automationWeight_midiCc_shouldCalculateCorrectWeight();
+    void test_automationWeight_pitchBendUp_shouldCalculateCorrectWeight();
+    void test_automationWeight_pitchBendDown_shouldCalculateCorrectWeight();
 
     void test_renderToEventsByLine_shouldRenderToEvents();
     void test_renderToEventsByLine_disableAutomation_shouldNotRenderEvents();

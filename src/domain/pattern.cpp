@@ -364,12 +364,11 @@ Pattern::EventList Pattern::renderToEvents(AutomationServiceS automationService,
         std::ranges::copy(trackEvents, std::back_inserter(eventList));
     }
 
-    // Midi CC events from AutomationService
+    // Automation events from AutomationService
     for (auto && track : m_trackOrder) {
         for (size_t column = 0; column < track->columnCount(); column++) {
             for (size_t line = 0; line < lineCount(); line++) {
-                const auto midiCcEvents = automationService->renderToEventsByColumn(m_index, track->index(), column, startTick, ticksPerLine);
-                std::ranges::copy(midiCcEvents, std::back_inserter(eventList));
+                std::ranges::copy(automationService->renderToEventsByColumn(m_index, track->index(), column, startTick, ticksPerLine), std::back_inserter(eventList));
             }
         }
     }

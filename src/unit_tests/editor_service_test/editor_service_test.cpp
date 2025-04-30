@@ -1415,7 +1415,7 @@ void EditorServiceTest::test_toXmlFromXml_trackName_shouldLoadTrackName()
     QCOMPARE(editorServiceIn.trackName(1), editorServiceOut.trackName(1));
 }
 
-void EditorServiceTest::test_toXmlFromXml_automationService_shouldLoadAutomationService()
+void EditorServiceTest::test_toXmlFromXml_automationService_midiCc_shouldLoadAutomationService()
 {
     quint8 controller = 64;
     quint8 line0 = 4;
@@ -1453,6 +1453,47 @@ void EditorServiceTest::test_toXmlFromXml_automationService_shouldLoadAutomation
                 QCOMPARE(automationServiceIn.midiCcAutomationsByLine(pattern, track, column, line0).at(0).interpolation().value1, value1);
                 QCOMPARE(automationServiceIn.midiCcAutomationsByLine(pattern, track, column, line0).at(0).comment(), comment);
                 QCOMPARE(automationServiceIn.midiCcAutomationsByLine(pattern, track, column, line0).at(0).enabled(), track % 2 == 0);
+            }
+        }
+    }
+}
+
+void EditorServiceTest::test_toXmlFromXml_automationService_pitchBend_shouldLoadAutomationService()
+{
+    quint8 line0 = 4;
+    quint8 line1 = 12;
+    int value0 = -100;
+    int value1 = +100;
+    const auto comment = "Pitch Bend Automation Test";
+
+    AutomationService automationServiceOut;
+    for (size_t pattern = 0; pattern < 10; pattern++) {
+        for (size_t track = 0; track < 8; track++) {
+            for (size_t column = 0; column < 3; column++) {
+                automationServiceOut.addPitchBendAutomation(pattern, track, column, line0, line1, value0, value1, comment, track % 2 == 0);
+            }
+        }
+    }
+
+    AutomationService automationServiceIn;
+    EditorService editorService;
+    connect(&editorService, &EditorService::automationSerializationRequested, &automationServiceOut, &AutomationService::serializeToXml);
+    connect(&editorService, &EditorService::automationDeserializationRequested, &automationServiceIn, &AutomationService::deserializeFromXml);
+
+    editorService.fromXml(editorService.toXml());
+
+    for (size_t pattern = 0; pattern < 10; pattern++) {
+        for (size_t track = 0; track < 8; track++) {
+            for (size_t column = 0; column < 3; column++) {
+                QVERIFY(automationServiceIn.hasAutomations(pattern, track, column, line0));
+                QVERIFY(automationServiceIn.hasAutomations(pattern, track, column, line1));
+                QCOMPARE(automationServiceIn.pitchBendAutomationsByLine(pattern, track, column, line0).size(), 1);
+                QCOMPARE(automationServiceIn.pitchBendAutomationsByLine(pattern, track, column, line0).at(0).interpolation().line0, line0);
+                QCOMPARE(automationServiceIn.pitchBendAutomationsByLine(pattern, track, column, line0).at(0).interpolation().line1, line1);
+                QCOMPARE(automationServiceIn.pitchBendAutomationsByLine(pattern, track, column, line0).at(0).interpolation().value0, value0);
+                QCOMPARE(automationServiceIn.pitchBendAutomationsByLine(pattern, track, column, line0).at(0).interpolation().value1, value1);
+                QCOMPARE(automationServiceIn.pitchBendAutomationsByLine(pattern, track, column, line0).at(0).comment(), comment);
+                QCOMPARE(automationServiceIn.pitchBendAutomationsByLine(pattern, track, column, line0).at(0).enabled(), track % 2 == 0);
             }
         }
     }

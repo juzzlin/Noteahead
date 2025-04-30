@@ -13,30 +13,40 @@
 // You should have received a copy of the GNU General Public License
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
-#include "midi_cc_data.hpp"
+#include "pitch_bend_data.hpp"
 
 namespace noteahead {
 
-MidiCcData::MidiCcData(size_t track, size_t column, uint8_t controller, uint8_t value)
+PitchBendData::PitchBendData(size_t track, size_t column, uint8_t msb, uint8_t lsb)
   : EventData { track, column }
-  , m_controller { controller }
-  , m_value { value }
+  , m_msb { msb }
+  , m_lsb { lsb }
 {
 }
 
-uint8_t MidiCcData::controller() const
+PitchBendData::PitchBendData(size_t track, size_t column, uint16_t value)
+  : PitchBendData { track, column, static_cast<uint8_t>((value >> 7) & 0x7F), static_cast<uint8_t>(value & 0x7F) }
 {
-    return m_controller;
 }
 
-uint8_t MidiCcData::value() const
+PitchBendData::PitchBendData(size_t track, size_t column, double percentage)
+  : PitchBendData { track, column, static_cast<uint16_t>((percentage + 100.0) * (16383.0 / 200.0)) }
 {
-    return m_value;
 }
 
-double MidiCcData::normalizedValue() const
+double PitchBendData::normalizedValue() const
 {
-    return static_cast<double>(m_value) / 127;
+    return static_cast<double>((m_msb << 7) | m_lsb) / 16383.0;
+}
+
+uint8_t PitchBendData::msb() const
+{
+    return m_msb;
+}
+
+uint8_t PitchBendData::lsb() const
+{
+    return m_lsb;
 }
 
 } // namespace noteahead

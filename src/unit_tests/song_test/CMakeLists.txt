@@ -8,6 +8,7 @@ set(SRC
     ../../application/service/automation_service.cpp
     ../../common/constants.cpp
     ../../common/utils.cpp
+    ../../domain/automation.cpp
     ../../domain/column.cpp
     ../../domain/event.cpp
     ../../domain/event_data.cpp
@@ -22,6 +23,8 @@ set(SRC
     ../../domain/mixer_unit.cpp
     ../../domain/note_data.cpp
     ../../domain/pattern.cpp
+    ../../domain/pitch_bend_automation.cpp
+    ../../domain/pitch_bend_data.cpp
     ../../domain/play_order.cpp
     ../../domain/song.cpp
     ../../domain/track.cpp

@@ -42,10 +42,11 @@ class Instrument;
 class MidiCcAutomationsModel;
 class MidiService;
 class MixerService;
+class PitchBendAutomationsModel;
 class PlayerService;
-class SelectionService;
 class RecentFilesManager;
 class RecentFilesModel;
+class SelectionService;
 class TrackSettingsModel;
 class UiLogger;
 class UtilService;
@@ -106,6 +107,7 @@ private:
     std::unique_ptr<RecentFilesModel> m_recentFilesModel;
 
     std::unique_ptr<MidiCcAutomationsModel> m_midiCcAutomationsModel;
+    std::unique_ptr<PitchBendAutomationsModel> m_pitchBendAutomationsModel;
     std::unique_ptr<TrackSettingsModel> m_trackSettingsModel;
 
     std::unique_ptr<UtilService> m_utilService;

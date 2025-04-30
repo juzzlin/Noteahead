@@ -34,24 +34,22 @@ public:
     void updateAvailableDevices() override;
 
     void openDevice(MidiDeviceCR device) override;
-
     void closeDevice(MidiDeviceCR device) override;
 
     std::string midiApiName() const override;
 
-    void sendCC(MidiDeviceCR device, uint8_t channel, uint8_t controller, uint8_t value) const override;
+    void sendCcData(MidiDeviceCR device, uint8_t channel, uint8_t controller, uint8_t value) const override;
 
     void sendNoteOn(MidiDeviceCR device, uint8_t channel, uint8_t note, uint8_t velocity) const override;
-
     void sendNoteOff(MidiDeviceCR device, uint8_t channel, uint8_t note) const override;
-
-    void sendPatchChange(MidiDeviceCR device, uint8_t channel, uint8_t patch) const override;
-
-    void sendBankChange(MidiDeviceCR device, uint8_t channel, uint8_t msb, uint8_t lsb) const override;
-
     void stopAllNotes(MidiDeviceCR device, uint8_t channel) const override;
 
-    void sendClock(MidiDeviceCR device) const override;
+    void sendPatchChange(MidiDeviceCR device, uint8_t channel, uint8_t patch) const override;
+    void sendBankChange(MidiDeviceCR device, uint8_t channel, uint8_t msb, uint8_t lsb) const override;
+
+    void sendPitchBendData(MidiDeviceCR device, uint8_t channel, uint8_t msb, uint8_t lsb) const override;
+
+    void sendClockPulse(MidiDeviceCR device) const override;
 
 private:
     using Message = std::vector<unsigned char>;

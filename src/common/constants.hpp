@@ -86,6 +86,7 @@ QString xmlKeyMixer();
 
 QString xmlKeyAutomation();
 QString xmlKeyMidiCcAutomation();
+QString xmlKeyPitchBendAutomation();
 QString xmlKeyInterpolation();
 QString xmlKeyLocation();
 QString xmlKeyId();

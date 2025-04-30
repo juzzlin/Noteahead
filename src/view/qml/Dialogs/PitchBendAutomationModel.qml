@@ -5,12 +5,6 @@ import QtQuick.Layouts
 
 Item {
     id: rootItem
-    function controller() {
-        return midiCcSelector.controller();
-    }
-    function setController(controller) {
-        return midiCcSelector.setController(controller);
-    }
     function startValue() {
         return startValueSpinBox.value;
     }
@@ -45,18 +39,6 @@ Item {
         anchors.fill: parent
         spacing: 10
         GroupBox {
-            title: qsTr("Controller number")
-            Layout.fillWidth: true
-            MidiCcSelector {
-                id: midiCcSelector
-                Component.onCompleted: {
-                    showEnabled = false;
-                    showValue = false;
-                    setEnabled(true);
-                }
-            }
-        }
-        GroupBox {
             title: qsTr("Interpolation settings")
             Layout.fillWidth: true
             GridLayout {
@@ -64,7 +46,6 @@ Item {
                 width: parent.width
                 Label {
                     text: qsTr("Start line")
-                    width: parent.width
                     Layout.row: 0
                     Layout.column: 0
                 }
@@ -88,7 +69,7 @@ Item {
                 }
                 SpinBox {
                     id: endLineSpinBox
-                    from: startLineSpinBox.value
+                    from: 0
                     to: 999
                     value: 0
                     editable: true
@@ -100,32 +81,32 @@ Item {
                     Layout.fillWidth: true
                 }
                 Label {
-                    text: qsTr("Start value")
+                    text: qsTr("Start value (%)")
                     Layout.row: 0
                     Layout.column: 2
                 }
                 SpinBox {
                     id: startValueSpinBox
-                    from: 0
-                    to: 127
+                    from: -100
+                    to: 100
                     value: 0
                     editable: true
                     Keys.onReturnPressed: {
                         focus = false;
                     }
-                    Layout.fillWidth: true
                     Layout.row: 1
                     Layout.column: 2
+                    Layout.fillWidth: true
                 }
                 Label {
-                    text: qsTr("End value")
+                    text: " " + qsTr("End value (%)")
                     Layout.row: 0
                     Layout.column: 3
                 }
                 SpinBox {
                     id: endValueSpinBox
-                    from: 0
-                    to: 127
+                    from: -100
+                    to: 100
                     value: 0
                     editable: true
                     Keys.onReturnPressed: {
@@ -140,6 +121,8 @@ Item {
         GroupBox {
             title: qsTr("Comment")
             Layout.fillWidth: true
+            Layout.row: 2
+            Layout.column: 0
             TextField {
                 id: commentEdit
                 readOnly: false

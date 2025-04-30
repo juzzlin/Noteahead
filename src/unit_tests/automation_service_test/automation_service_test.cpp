@@ -23,7 +23,7 @@
 
 namespace noteahead {
 
-void MidiCcAutomationsModelTest::test_addMidiCcAutomation_shouldAddAutomation()
+void AutomationServiceTest::test_addMidiCcAutomation_shouldAddAutomation()
 {
     AutomationService automationService;
 
@@ -65,7 +65,7 @@ void MidiCcAutomationsModelTest::test_addMidiCcAutomation_shouldAddAutomation()
     QVERIFY(automationService.hasAutomations(pattern, track, column, (line0 + line1) / 2));
 }
 
-void MidiCcAutomationsModelTest::test_deleteMidiCcAutomation_shouldDeleteAutomation()
+void AutomationServiceTest::test_deleteMidiCcAutomation_shouldDeleteAutomation()
 {
     AutomationService automationService;
 
@@ -79,7 +79,61 @@ void MidiCcAutomationsModelTest::test_deleteMidiCcAutomation_shouldDeleteAutomat
     QCOMPARE(lineDataChangedSpy.count(), automation.interpolation().line1 - automation.interpolation().line0 + 1);
 }
 
-void MidiCcAutomationsModelTest::test_automationWeight_shouldCalculateCorrectWeight()
+void AutomationServiceTest::test_addPitchBendAutomation_shouldAddAutomation()
+{
+    AutomationService automationService;
+
+    QSignalSpy lineDataChangedSpy { &automationService, &AutomationService::lineDataChanged };
+    quint64 pattern = 0;
+    quint64 track = 1;
+    quint64 column = 2;
+    quint8 line0 = 4;
+    quint8 line1 = 12;
+    int value0 = -100;
+    int value1 = +100;
+    const auto comment = "Pitch Bend Automation Test";
+
+    automationService.addPitchBendAutomation(pattern, track, column, line0, line1, value0, value1, comment);
+
+    QCOMPARE(lineDataChangedSpy.count(), line1 - line0 + 1);
+    QCOMPARE(automationService.pitchBendAutomationsByLine(pattern, track, column, line0).size(), 1);
+    QCOMPARE(automationService.pitchBendAutomationsByLine(pattern, track, column, line0).at(0).id(), 1);
+    QCOMPARE(automationService.pitchBendAutomationsByLine(pattern, track, column, line0).at(0).interpolation().line0, line0);
+    QCOMPARE(automationService.pitchBendAutomationsByLine(pattern, track, column, line0).at(0).interpolation().line1, line1);
+    QCOMPARE(automationService.pitchBendAutomationsByLine(pattern, track, column, line0).at(0).interpolation().value0, value0);
+    QCOMPARE(automationService.pitchBendAutomationsByLine(pattern, track, column, line0).at(0).interpolation().value1, value1);
+    QCOMPARE(automationService.pitchBendAutomationsByLine(pattern, track, column, line0).at(0).comment(), comment);
+
+    QCOMPARE(automationService.pitchBendAutomationsByLine(pattern, track, column, line1).size(), 1);
+    QCOMPARE(automationService.pitchBendAutomationsByLine(pattern, track, column, line1 + 1).size(), 0);
+    QCOMPARE(automationService.pitchBendAutomationsByColumn(pattern, track, column).size(), 1);
+    QCOMPARE(automationService.pitchBendAutomationsByColumn(pattern, track, column + 1).size(), 0);
+    QCOMPARE(automationService.pitchBendAutomationsByTrack(pattern, track).size(), 1);
+    QCOMPARE(automationService.pitchBendAutomationsByTrack(pattern, track).size(), 1);
+    QCOMPARE(automationService.pitchBendAutomationsByPattern(pattern).size(), 1);
+    QCOMPARE(automationService.pitchBendAutomationsByPattern(pattern + 1).size(), 0);
+    QCOMPARE(automationService.pitchBendAutomations().size(), 1);
+
+    QVERIFY(automationService.hasAutomations(pattern, track, column, line0));
+    QVERIFY(automationService.hasAutomations(pattern, track, column, line1));
+    QVERIFY(automationService.hasAutomations(pattern, track, column, (line0 + line1) / 2));
+}
+
+void AutomationServiceTest::test_deletePitchBendAutomation_shouldDeleteAutomation()
+{
+    AutomationService automationService;
+
+    automationService.addPitchBendAutomation(0, 0, 0, 0, 1, 0, 1, {});
+    QVERIFY(!automationService.pitchBendAutomations().empty());
+    auto automation = automationService.pitchBendAutomations().at(0);
+    QSignalSpy lineDataChangedSpy { &automationService, &AutomationService::lineDataChanged };
+    automationService.deletePitchBendAutomation(automation);
+
+    QVERIFY(automationService.pitchBendAutomations().empty());
+    QCOMPARE(lineDataChangedSpy.count(), automation.interpolation().line1 - automation.interpolation().line0 + 1);
+}
+
+void AutomationServiceTest::test_automationWeight_midiCc_shouldCalculateCorrectWeight()
 {
     AutomationService automationService;
 
@@ -95,10 +149,49 @@ void MidiCcAutomationsModelTest::test_automationWeight_shouldCalculateCorrectWei
     automationService.addMidiCcAutomation(pattern, track, column, controller, line0, line1, value0, value1, {});
 
     QCOMPARE(automationService.automationWeight(pattern, track, column, line0), 0);
+    QVERIFY(std::fabs(automationService.automationWeight(pattern, track, column, (line0 + line1) / 2) - 0.5) < 0.01);
     QCOMPARE(automationService.automationWeight(pattern, track, column, line1), 1);
 }
 
-void MidiCcAutomationsModelTest::test_renderToEventsByLine_shouldRenderToEvents()
+void AutomationServiceTest::test_automationWeight_pitchBendUp_shouldCalculateCorrectWeight()
+{
+    AutomationService automationService;
+
+    quint64 pattern = 0;
+    quint64 track = 1;
+    quint64 column = 2;
+    quint8 line0 = 0;
+    quint8 line1 = 16;
+    int value0 = 0;
+    int value1 = 100;
+
+    automationService.addPitchBendAutomation(pattern, track, column, line0, line1, value0, value1, {});
+
+    QVERIFY(std::fabs(automationService.automationWeight(pattern, track, column, line0) - 0.5) < 0.01);
+    QVERIFY(std::fabs(automationService.automationWeight(pattern, track, column, (line0 + line1) / 2) - 0.75) < 0.01);
+    QCOMPARE(automationService.automationWeight(pattern, track, column, line1), 1);
+}
+
+void AutomationServiceTest::test_automationWeight_pitchBendDown_shouldCalculateCorrectWeight()
+{
+    AutomationService automationService;
+
+    quint64 pattern = 0;
+    quint64 track = 1;
+    quint64 column = 2;
+    quint8 line0 = 0;
+    quint8 line1 = 16;
+    int value0 = 0;
+    int value1 = -100;
+
+    automationService.addPitchBendAutomation(pattern, track, column, line0, line1, value0, value1, {});
+
+    QVERIFY(std::fabs(automationService.automationWeight(pattern, track, column, line0) - 0.5) < 0.01);
+    QVERIFY(std::fabs(automationService.automationWeight(pattern, track, column, (line0 + line1) / 2) - 0.25) < 0.01);
+    QCOMPARE(automationService.automationWeight(pattern, track, column, line1), 0);
+}
+
+void AutomationServiceTest::test_renderToEventsByLine_shouldRenderToEvents()
 {
     AutomationService automationService;
 
@@ -132,7 +225,7 @@ void MidiCcAutomationsModelTest::test_renderToEventsByLine_shouldRenderToEvents(
     }
 }
 
-void MidiCcAutomationsModelTest::test_renderToEventsByLine_disableAutomation_shouldNotRenderEvents()
+void AutomationServiceTest::test_renderToEventsByLine_disableAutomation_shouldNotRenderEvents()
 {
     AutomationService automationService;
     automationService.addMidiCcAutomation(0, 0, 0, 0, 0, 1, 0, 1, {});
@@ -143,7 +236,7 @@ void MidiCcAutomationsModelTest::test_renderToEventsByLine_disableAutomation_sho
     QVERIFY(automationService.renderToEventsByLine(0, 0, 0, 0, 0).empty());
 }
 
-void MidiCcAutomationsModelTest::test_renderToEventsByColumn_shouldRenderToEvents()
+void AutomationServiceTest::test_renderToEventsByColumn_shouldRenderToEvents()
 {
     AutomationService automationService;
 
@@ -178,7 +271,7 @@ void MidiCcAutomationsModelTest::test_renderToEventsByColumn_shouldRenderToEvent
     }
 }
 
-void MidiCcAutomationsModelTest::test_renderToEventsByColumn_shouldPruneRepeatingEvents()
+void AutomationServiceTest::test_renderToEventsByColumn_shouldPruneRepeatingEvents()
 {
     AutomationService automationService;
 
@@ -193,7 +286,7 @@ void MidiCcAutomationsModelTest::test_renderToEventsByColumn_shouldPruneRepeatin
     QCOMPARE(automationService.renderToEventsByColumn(pattern, track, column, tick, tick).size(), 11);
 }
 
-void MidiCcAutomationsModelTest::test_renderToEventsByColumn_disableAutomation_shouldNotRenderEvents()
+void AutomationServiceTest::test_renderToEventsByColumn_disableAutomation_shouldNotRenderEvents()
 {
     AutomationService automationService;
     automationService.addMidiCcAutomation(0, 0, 0, 0, 0, 1, 0, 1, {});
@@ -206,4 +299,4 @@ void MidiCcAutomationsModelTest::test_renderToEventsByColumn_disableAutomation_s
 
 } // namespace noteahead
 
-QTEST_GUILESS_MAIN(noteahead::MidiCcAutomationsModelTest)
+QTEST_GUILESS_MAIN(noteahead::AutomationServiceTest)

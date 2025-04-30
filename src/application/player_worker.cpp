@@ -101,6 +101,10 @@ void PlayerWorker::handleEvent(const Event & event) const
             if (auto && instrument = event.instrument(); instrument) {
                 m_midiService->sendClock(instrument);
             }
+        } else if (event.type() == Event::Type::PitchBendData) {
+            if (event.pitchBendData() && event.instrument()) {
+                m_midiService->sendPitchBendData(event.instrument(), *event.pitchBendData());
+            }
         } else if (event.type() == Event::Type::InstrumentSettings) {
             if (auto && instrumentSettings = event.instrumentSettings(); instrumentSettings) {
                 juzzlin::L(TAG).trace() << instrumentSettings->toString().toStdString();

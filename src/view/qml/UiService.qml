@@ -5,17 +5,23 @@ QtObject {
     signal aboutDialogRequested
     signal activeOctaveChanged(int activeOctave)
     signal columnAddMidiCcAutomationDialogRequested
+    signal columnAddPitchBendAutomationDialogRequested
     signal columnVelocityInterpolationDialogRequested
     signal columnVelocityScaleDialogRequested(int trackIndex, int columnIndex)
-    signal editMidiCcAutomationsDialogRequested
     signal editMidiCcAutomationsDialogByColumnRequested
-    signal editMidiCcAutomationsDialogByTrackRequested
     signal editMidiCcAutomationsDialogByPatternRequested
+    signal editMidiCcAutomationsDialogByTrackRequested
+    signal editMidiCcAutomationsDialogRequested
+    signal editPitchBendAutomationsDialogByColumnRequested
+    signal editPitchBendAutomationsDialogByPatternRequested
+    signal editPitchBendAutomationsDialogByTrackRequested
+    signal editPitchBendAutomationsDialogRequested
     signal eventSelectionDialogRequested
     signal focusOnEditorViewRequested
     signal lineDelayDialogRequested
     signal recentFilesDialogRequested
     signal selectionAddMidiCcAutomationDialogRequested
+    signal selectionAddPitchBendAutomationDialogRequested
     signal selectionVelocityInterpolationDialogRequested
     signal settingsDialogRequested
     signal trackSettingsDialogRequested(int trackIndex)
@@ -159,6 +165,36 @@ QtObject {
     function requestEditMidiCcAutomationsDialogByPattern(): void {
         if (!isPlaying()) {
             editMidiCcAutomationsDialogByPatternRequested();
+        }
+    }
+    function requestColumnAddPitchBendAutomationDialog(): void {
+        if (!isPlaying()) {
+            columnAddPitchBendAutomationDialogRequested();
+        }
+    }
+    function requestSelectionAddPitchBendAutomationDialog(): void {
+        if (!isPlaying()) {
+            selectionAddPitchBendAutomationDialogRequested();
+        }
+    }
+    function requestEditPitchBendAutomationsDialog(): void {
+        if (!isPlaying()) {
+            editPitchBendAutomationsDialogRequested();
+        }
+    }
+    function requestEditPitchBendAutomationsDialogByColumn(): void {
+        if (!isPlaying()) {
+            editPitchBendAutomationsDialogByColumnRequested();
+        }
+    }
+    function requestEditPitchBendAutomationsDialogByTrack(): void {
+        if (!isPlaying()) {
+            editPitchBendAutomationsDialogByTrackRequested();
+        }
+    }
+    function requestEditPitchBendAutomationsDialogByPattern(): void {
+        if (!isPlaying()) {
+            editPitchBendAutomationsDialogByPatternRequested();
         }
     }
     function requestFocusOnEditorView(): void {

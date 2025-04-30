@@ -18,6 +18,8 @@
 #include "../../common/constants.hpp"
 #include "../../contrib/SimpleLogger/src/simple_logger.hpp"
 #include "../../domain/interpolator.hpp"
+#include "../../domain/midi_cc_data.hpp"
+#include "../../domain/pitch_bend_data.hpp"
 #include "../position.hpp"
 
 #include <algorithm>
@@ -36,12 +38,12 @@ AutomationService::AutomationService()
 
 void AutomationService::addMidiCcAutomation(quint64 pattern, quint64 track, quint64 column, quint8 controller, quint64 line0, quint64 line1, quint8 value0, quint8 value1, QString comment, bool enabled)
 {
-    const auto maxIdItem = std::max_element(m_midiCcAutomations.begin(), m_midiCcAutomations.end(), [](auto && lhs, auto && rhs) { return lhs.id() > rhs.id(); });
-    const auto id = maxIdItem != m_midiCcAutomations.end() ? (*maxIdItem).id() : 1;
-    MidiCcAutomation::Location location = { pattern, track, column };
-    MidiCcAutomation::Interpolation interpolation = { line0, line1, value0, value1 };
-    const auto automation = MidiCcAutomation { id, location, controller, interpolation, comment, enabled };
-    m_midiCcAutomations.push_back(automation);
+    const auto maxIdItem = std::max_element(m_automations.midiCc.begin(), m_automations.midiCc.end(), [](auto && lhs, auto && rhs) { return lhs.id() > rhs.id(); });
+    const auto id = maxIdItem != m_automations.midiCc.end() ? (*maxIdItem).id() : 1;
+    const AutomationLocation location = { pattern, track, column };
+    const MidiCcAutomation::InterpolationParameters parameters = { line0, line1, value0, value1 };
+    const auto automation = MidiCcAutomation { id, location, controller, parameters, comment, enabled };
+    m_automations.midiCc.push_back(automation);
     notifyChangedLines(pattern, track, column, line0, line1);
     juzzlin::L(TAG).info() << "MIDI CC Automation added: " << automation.toString().toStdString();
 }
@@ -51,58 +53,142 @@ void AutomationService::addMidiCcAutomation(quint64 pattern, quint64 track, quin
     addMidiCcAutomation(pattern, track, column, controller, line0, line1, value0, value1, comment, true);
 }
 
-void AutomationService::deleteMidiCcAutomation(const MidiCcAutomation & midiCcAutomationToDelete)
+void AutomationService::deleteMidiCcAutomation(const MidiCcAutomation & automationToDelete)
 {
-    if (const auto iter = std::ranges::find_if(m_midiCcAutomations, [&](auto && existingMidiCcAutomation) {
-            return midiCcAutomationToDelete.id() == existingMidiCcAutomation.id();
+    if (const auto iter = std::ranges::find_if(m_automations.midiCc, [&](auto && existingAutomation) {
+            return automationToDelete.id() == existingAutomation.id();
         });
-        iter != m_midiCcAutomations.end()) {
-        m_midiCcAutomations.erase(iter);
-        notifyChangedLines(midiCcAutomationToDelete);
-        juzzlin::L(TAG).info() << "MIDI CC Automation deleted: " << midiCcAutomationToDelete.toString().toStdString();
+        iter != m_automations.midiCc.end()) {
+        m_automations.midiCc.erase(iter);
+        notifyChangedLines(automationToDelete);
+        juzzlin::L(TAG).info() << "MIDI CC Automation deleted: " << automationToDelete.toString().toStdString();
     } else {
-        juzzlin::L(TAG).error() << "No such automation id to delete: " << midiCcAutomationToDelete.id();
+        juzzlin::L(TAG).error() << "No such automation id to delete: " << automationToDelete.id();
     }
 }
 
-void AutomationService::updateMidiCcAutomation(const MidiCcAutomation & updatedMidiCcAutomation)
+void AutomationService::updateMidiCcAutomation(const MidiCcAutomation & updatedAutomation)
 {
-    if (const auto iter = std::ranges::find_if(m_midiCcAutomations, [&](auto && existingMidiCcAutomation) {
-            return updatedMidiCcAutomation.id() == existingMidiCcAutomation.id();
+    if (const auto iter = std::ranges::find_if(m_automations.midiCc, [&](auto && existingAutomation) {
+            return updatedAutomation.id() == existingAutomation.id();
         });
-        iter != m_midiCcAutomations.end()) {
-        if (const auto oldAutomation = *iter; oldAutomation != updatedMidiCcAutomation) {
-            *iter = updatedMidiCcAutomation;
-            if (oldAutomation.interpolation() != updatedMidiCcAutomation.interpolation() || //
-                oldAutomation.enabled() != updatedMidiCcAutomation.enabled()) {
-                notifyChangedLinesMerged(oldAutomation, updatedMidiCcAutomation);
+        iter != m_automations.midiCc.end()) {
+        if (const auto oldAutomation = *iter; oldAutomation != updatedAutomation) {
+            *iter = updatedAutomation;
+            if (oldAutomation.interpolation() != updatedAutomation.interpolation() || //
+                oldAutomation.enabled() != updatedAutomation.enabled()) {
+                notifyChangedLinesMerged(oldAutomation, updatedAutomation);
             }
-            juzzlin::L(TAG).info() << "MIDI CC Automation updated: " << updatedMidiCcAutomation.toString().toStdString();
+            juzzlin::L(TAG).info() << "MIDI CC Automation updated: " << updatedAutomation.toString().toStdString();
         } else {
-            juzzlin::L(TAG).info() << "No changes for MIDI CC Automation: " << updatedMidiCcAutomation.toString().toStdString();
+            juzzlin::L(TAG).info() << "No changes for MIDI CC Automation: " << updatedAutomation.toString().toStdString();
         }
     } else {
-        juzzlin::L(TAG).error() << "No such automation id: " << updatedMidiCcAutomation.id();
+        juzzlin::L(TAG).error() << "No such automation id: " << updatedAutomation.id();
+    }
+}
+
+void AutomationService::addPitchBendAutomation(quint64 pattern, quint64 track, quint64 column, quint64 line0, quint64 line1, int value0, int value1, QString comment)
+{
+    addPitchBendAutomation(pattern, track, column, line0, line1, value0, value1, comment, true);
+}
+
+void AutomationService::addPitchBendAutomation(quint64 pattern, quint64 track, quint64 column, quint64 line0, quint64 line1, int value0, int value1, QString comment, bool enabled)
+{
+    const auto maxIdItem = std::max_element(m_automations.pitchBend.begin(), m_automations.pitchBend.end(), [](auto && lhs, auto && rhs) { return lhs.id() > rhs.id(); });
+    const auto id = maxIdItem != m_automations.pitchBend.end() ? (*maxIdItem).id() : 1;
+    const AutomationLocation location = { pattern, track, column };
+    const PitchBendAutomation::InterpolationParameters parameters = { line0, line1, value0, value1 };
+    const auto automation = PitchBendAutomation { id, location, parameters, comment, enabled };
+    m_automations.pitchBend.push_back(automation);
+    notifyChangedLines(pattern, track, column, line0, line1);
+    juzzlin::L(TAG).info() << "Pitch Bend Automation added: " << automation.toString().toStdString();
+}
+
+void AutomationService::deletePitchBendAutomation(const PitchBendAutomation & automationToDelete)
+{
+    if (const auto iter = std::ranges::find_if(m_automations.pitchBend, [&](auto && existingAutomation) {
+            return automationToDelete.id() == existingAutomation.id();
+        });
+        iter != m_automations.pitchBend.end()) {
+        m_automations.pitchBend.erase(iter);
+        notifyChangedLines(automationToDelete);
+        juzzlin::L(TAG).info() << "Pitch Bend Automation deleted: " << automationToDelete.toString().toStdString();
+    } else {
+        juzzlin::L(TAG).error() << "No such automation id to delete: " << automationToDelete.id();
+    }
+}
+
+void AutomationService::updatePitchBendAutomation(const PitchBendAutomation & updatedAutomation)
+{
+    if (const auto iter = std::ranges::find_if(m_automations.pitchBend, [&](auto && existingAutomation) {
+            return updatedAutomation.id() == existingAutomation.id();
+        });
+        iter != m_automations.pitchBend.end()) {
+        if (const auto oldAutomation = *iter; oldAutomation != updatedAutomation) {
+            *iter = updatedAutomation;
+            if (oldAutomation.interpolation() != updatedAutomation.interpolation() || //
+                oldAutomation.enabled() != updatedAutomation.enabled()) {
+                notifyChangedLinesMerged(oldAutomation, updatedAutomation);
+            }
+            juzzlin::L(TAG).info() << "Pitch Bend Automation updated: " << updatedAutomation.toString().toStdString();
+        } else {
+            juzzlin::L(TAG).info() << "No changes for Pitch Bend Automation: " << updatedAutomation.toString().toStdString();
+        }
+    } else {
+        juzzlin::L(TAG).error() << "No such automation id: " << updatedAutomation.id();
     }
 }
 
 bool AutomationService::hasAutomations(quint64 pattern, quint64 track, quint64 column, quint64 line) const
 {
-    const auto match = std::ranges::find_if(m_midiCcAutomations, [&](auto && automation) {
+    return hasMidiCcAutomations(pattern, track, column, line) || hasPitchBendAutomations(pattern, track, column, line);
+}
+
+bool AutomationService::hasMidiCcAutomations(quint64 pattern, quint64 track, quint64 column, quint64 line) const
+{
+    const auto match = std::ranges::find_if(m_automations.midiCc, [&](auto && automation) {
         auto && location = automation.location();
         auto && interpolation = automation.interpolation();
         return location.pattern == pattern && location.track == track && location.column == column && line >= interpolation.line0 && line <= interpolation.line1;
     });
-    return match != m_midiCcAutomations.end();
+    return match != m_automations.midiCc.end();
+}
+
+bool AutomationService::hasPitchBendAutomations(quint64 pattern, quint64 track, quint64 column, quint64 line) const
+{
+    const auto match = std::ranges::find_if(m_automations.pitchBend, [&](auto && automation) {
+        auto && location = automation.location();
+        auto && interpolation = automation.interpolation();
+        return location.pattern == pattern && location.track == track && location.column == column && line >= interpolation.line0 && line <= interpolation.line1;
+    });
+    return match != m_automations.pitchBend.end();
 }
 
 double AutomationService::automationWeight(quint64 pattern, quint64 track, quint64 column, quint64 line) const
 {
-    if (const auto events = renderToEventsByLine(pattern, track, column, line, 0); !events.empty()) {
-        const double sum = std::accumulate(events.begin(), events.end(), 0, [](double acc, auto && event) {
-            return acc + (event->midiCcData() ? event->midiCcData()->value() : 0);
+    return std::max(midiCcAutomationWeight(pattern, track, column, line), pitchBendAutomationWeight(pattern, track, column, line));
+}
+
+double AutomationService::midiCcAutomationWeight(quint64 pattern, quint64 track, quint64 column, quint64 line) const
+{
+    if (const auto events = renderMidiCcToEventsByLine(pattern, track, column, line, 0); !events.empty()) {
+        const double sum = std::accumulate(events.begin(), events.end(), 0.0, [](double acc, auto && event) {
+            return acc + (event->midiCcData() ? event->midiCcData()->normalizedValue() : 0);
         });
-        return sum / (static_cast<int>(events.size()) * 127);
+        return sum / static_cast<int>(events.size());
+    } else {
+        return 0;
+    }
+}
+
+double AutomationService::pitchBendAutomationWeight(quint64 pattern, quint64 track, quint64 column, quint64 line) const
+{
+    if (const auto events = renderPitchBendToEventsByLine(pattern, track, column, line, 0); !events.empty()) {
+        const double sum = std::accumulate(events.begin(), events.end(), 0.0, [](double acc, auto && event) {
+            return acc + (event->pitchBendData() ? event->pitchBendData()->normalizedValue() : 0);
+        });
+        return sum / static_cast<int>(events.size());
     } else {
         return 0;
     }
@@ -110,62 +196,125 @@ double AutomationService::automationWeight(quint64 pattern, quint64 track, quint
 
 AutomationService::MidiCcAutomationList AutomationService::midiCcAutomationsByLine(quint64 pattern, quint64 track, quint64 column, quint64 line) const
 {
-    MidiCcAutomationList midiCcAutomations;
-    std::ranges::copy(m_midiCcAutomations
+    MidiCcAutomationList automations;
+    std::ranges::copy(m_automations.midiCc
                         | std::views::filter([&](auto && automation) {
                               auto && location = automation.location();
                               auto && interpolation = automation.interpolation();
                               return location.pattern == pattern && location.track == track && location.column == column && line >= interpolation.line0 && line <= interpolation.line1;
                           }),
-                      std::back_inserter(midiCcAutomations));
-    return midiCcAutomations;
+                      std::back_inserter(automations));
+    return automations;
 }
 
 AutomationService::MidiCcAutomationList AutomationService::midiCcAutomationsByColumn(quint64 pattern, quint64 track, quint64 column) const
 {
-    MidiCcAutomationList midiCcAutomations;
-    std::ranges::copy(m_midiCcAutomations
+    MidiCcAutomationList automations;
+    std::ranges::copy(m_automations.midiCc
                         | std::views::filter([&](auto && automation) {
                               auto && location = automation.location();
                               return location.pattern == pattern && location.track == track && location.column == column;
                           }),
-                      std::back_inserter(midiCcAutomations));
-    return midiCcAutomations;
+                      std::back_inserter(automations));
+    return automations;
 }
 
 AutomationService::MidiCcAutomationList AutomationService::midiCcAutomationsByTrack(quint64 pattern, quint64 track) const
 {
-    MidiCcAutomationList midiCcAutomations;
-    std::ranges::copy(m_midiCcAutomations
+    MidiCcAutomationList automations;
+    std::ranges::copy(m_automations.midiCc
                         | std::views::filter([&](auto && automation) {
                               auto && location = automation.location();
                               return location.pattern == pattern && location.track == track;
                           }),
-                      std::back_inserter(midiCcAutomations));
-    return midiCcAutomations;
+                      std::back_inserter(automations));
+    return automations;
 }
 
 AutomationService::MidiCcAutomationList AutomationService::midiCcAutomationsByPattern(quint64 pattern) const
 {
-    MidiCcAutomationList midiCcAutomations;
-    std::ranges::copy(m_midiCcAutomations
+    MidiCcAutomationList automations;
+    std::ranges::copy(m_automations.midiCc
                         | std::views::filter([&](auto && automation) {
                               auto && location = automation.location();
                               return location.pattern == pattern;
                           }),
-                      std::back_inserter(midiCcAutomations));
-    return midiCcAutomations;
+                      std::back_inserter(automations));
+    return automations;
 }
 
 AutomationService::MidiCcAutomationList AutomationService::midiCcAutomations() const
 {
-    return m_midiCcAutomations;
+    return m_automations.midiCc;
+}
+
+AutomationService::PitchBendAutomationList AutomationService::pitchBendAutomationsByLine(quint64 pattern, quint64 track, quint64 column, quint64 line) const
+{
+    PitchBendAutomationList automations;
+    std::ranges::copy(m_automations.pitchBend
+                        | std::views::filter([&](auto && automation) {
+                              auto && location = automation.location();
+                              auto && interpolation = automation.interpolation();
+                              return location.pattern == pattern && location.track == track && location.column == column && line >= interpolation.line0 && line <= interpolation.line1;
+                          }),
+                      std::back_inserter(automations));
+    return automations;
+}
+
+AutomationService::PitchBendAutomationList AutomationService::pitchBendAutomationsByColumn(quint64 pattern, quint64 track, quint64 column) const
+{
+    PitchBendAutomationList automations;
+    std::ranges::copy(m_automations.pitchBend
+                        | std::views::filter([&](auto && automation) {
+                              auto && location = automation.location();
+                              return location.pattern == pattern && location.track == track && location.column == column;
+                          }),
+                      std::back_inserter(automations));
+    return automations;
+}
+
+AutomationService::PitchBendAutomationList AutomationService::pitchBendAutomationsByTrack(quint64 pattern, quint64 track) const
+{
+    PitchBendAutomationList automations;
+    std::ranges::copy(m_automations.pitchBend
+                        | std::views::filter([&](auto && automation) {
+                              auto && location = automation.location();
+                              return location.pattern == pattern && location.track == track;
+                          }),
+                      std::back_inserter(automations));
+    return automations;
+}
+
+AutomationService::PitchBendAutomationList AutomationService::pitchBendAutomationsByPattern(quint64 pattern) const
+{
+    PitchBendAutomationList automations;
+    std::ranges::copy(m_automations.pitchBend
+                        | std::views::filter([&](auto && automation) {
+                              auto && location = automation.location();
+                              return location.pattern == pattern;
+                          }),
+                      std::back_inserter(automations));
+    return automations;
+}
+
+AutomationService::PitchBendAutomationList AutomationService::pitchBendAutomations() const
+{
+    return m_automations.pitchBend;
 }
 
 AutomationService::EventList AutomationService::renderToEventsByLine(size_t pattern, size_t track, size_t column, size_t line, size_t tick) const
 {
     EventList events;
-    for (const auto & automation : m_midiCcAutomations) {
+    std::ranges::copy(renderMidiCcToEventsByLine(pattern, track, column, line, tick), std::back_inserter(events));
+    std::ranges::copy(renderPitchBendToEventsByLine(pattern, track, column, line, tick), std::back_inserter(events));
+    return events;
+}
+
+AutomationService::EventList AutomationService::renderMidiCcToEventsByLine(size_t pattern, size_t track, size_t column, size_t line, size_t tick) const
+{
+    EventList events;
+
+    for (const auto & automation : m_automations.midiCc) {
         if (automation.enabled()) {
             const auto & location = automation.location();
             const auto & interpolation = automation.interpolation();
@@ -177,18 +326,51 @@ AutomationService::EventList AutomationService::renderToEventsByLine(size_t patt
                     static_cast<double>(interpolation.value1)
                 };
                 const auto clampedValue = std::clamp(static_cast<int>(interpolator.getValue(static_cast<size_t>(line))), 0, 127); // MIDI CC value range
-                const auto event = std::make_shared<Event>(tick, MidiCcData { track, column, automation.controller(), static_cast<uint8_t>(clampedValue) });
-                events.push_back(event);
+                events.push_back(std::make_shared<Event>(tick, MidiCcData { track, column, automation.controller(), static_cast<uint8_t>(clampedValue) }));
             }
         }
     }
+
+    return events;
+}
+
+AutomationService::EventList AutomationService::renderPitchBendToEventsByLine(size_t pattern, size_t track, size_t column, size_t line, size_t tick) const
+{
+    EventList events;
+
+    for (const auto & automation : m_automations.pitchBend) {
+        if (automation.enabled()) {
+            const auto & location = automation.location();
+            const auto & interpolation = automation.interpolation();
+            if (location.pattern == pattern && location.track == track && location.column == column && line >= interpolation.line0 && line <= interpolation.line1) {
+                Interpolator interpolator {
+                    static_cast<size_t>(interpolation.line0),
+                    static_cast<size_t>(interpolation.line1),
+                    static_cast<double>(interpolation.value0),
+                    static_cast<double>(interpolation.value1)
+                };
+                const auto percentage = std::clamp(static_cast<int>(interpolator.getValue(static_cast<size_t>(line))), -100, 100);
+                events.push_back(std::make_shared<Event>(tick, PitchBendData { track, column, static_cast<double>(percentage) }));
+            }
+        }
+    }
+
     return events;
 }
 
 AutomationService::EventList AutomationService::renderToEventsByColumn(size_t pattern, size_t track, size_t column, size_t tick, size_t ticksPerLine) const
 {
     EventList events;
-    for (const auto & automation : m_midiCcAutomations) {
+    std::ranges::copy(renderMidiCcToEventsByColumn(pattern, track, column, tick, ticksPerLine), std::back_inserter(events));
+    std::ranges::copy(renderPitchBendToEventsByColumn(pattern, track, column, tick, ticksPerLine), std::back_inserter(events));
+    return events;
+}
+
+AutomationService::EventList AutomationService::renderMidiCcToEventsByColumn(size_t pattern, size_t track, size_t column, size_t tick, size_t ticksPerLine) const
+{
+    EventList events;
+
+    for (const auto & automation : m_automations.midiCc) {
         if (automation.enabled()) {
             const auto & location = automation.location();
             const auto & interpolation = automation.interpolation();
@@ -210,6 +392,38 @@ AutomationService::EventList AutomationService::renderToEventsByColumn(size_t pa
             }
         }
     }
+
+    return events;
+}
+
+AutomationService::EventList AutomationService::renderPitchBendToEventsByColumn(size_t pattern, size_t track, size_t column, size_t tick, size_t ticksPerLine) const
+{
+    EventList events;
+
+    for (const auto & automation : m_automations.pitchBend) {
+        if (automation.enabled()) {
+            const auto & location = automation.location();
+            const auto & interpolation = automation.interpolation();
+            if (location.pattern == pattern && location.track == track && location.column == column) {
+                Interpolator interpolator {
+                    static_cast<size_t>(interpolation.line0),
+                    static_cast<size_t>(interpolation.line1),
+                    static_cast<double>(interpolation.value0),
+                    static_cast<double>(interpolation.value1)
+                };
+                std::optional<double> prevValue;
+                for (size_t line = interpolation.line0; line <= interpolation.line1; line++) {
+                    const auto percentage = std::clamp(static_cast<int>(interpolator.getValue(static_cast<size_t>(line))), -100, 100);
+                    const double minDiff = 200.0 / 16383;
+                    if (!prevValue || std::fabs(*prevValue - percentage) > minDiff) {
+                        events.push_back(std::make_shared<Event>(tick + line * ticksPerLine, PitchBendData { track, column, static_cast<double>(percentage) }));
+                        prevValue = percentage;
+                    }
+                }
+            }
+        }
+    }
+
     return events;
 }
 
@@ -217,7 +431,7 @@ void AutomationService::clear()
 {
     juzzlin::L(TAG).info() << "Clearing";
 
-    m_midiCcAutomations.clear();
+    m_automations = {};
 }
 
 void AutomationService::notifyChangedLines(quint64 pattern, quint64 track, quint64 column, quint64 line0, quint64 line1)
@@ -232,31 +446,50 @@ void AutomationService::notifyChangedLines(quint64 pattern, quint64 track, quint
     }
 }
 
-void AutomationService::notifyChangedLines(const MidiCcAutomation & midiCcAutomation)
+void AutomationService::notifyChangedLines(const MidiCcAutomation & automation)
 {
-    const auto location = midiCcAutomation.location();
-    const auto interpolation = midiCcAutomation.interpolation();
+    const auto location = automation.location();
+    const auto interpolation = automation.interpolation();
     notifyChangedLines(location.pattern, location.track, location.column, interpolation.line0, interpolation.line1);
 }
 
-void AutomationService::notifyChangedLinesMerged(const MidiCcAutomation & midiCcAutomation1, const MidiCcAutomation & midiCcAutomation2)
+void AutomationService::notifyChangedLinesMerged(const MidiCcAutomation & automation1, const MidiCcAutomation & automation2)
 {
-    const auto location = midiCcAutomation1.location();
-    const auto interpolation1 = midiCcAutomation1.interpolation();
-    const auto interpolation2 = midiCcAutomation2.interpolation();
+    const auto location = automation1.location();
+    const auto interpolation1 = automation1.interpolation();
+    const auto interpolation2 = automation2.interpolation();
+    notifyChangedLines(location.pattern, location.track, location.column, std::min(interpolation1.line0, interpolation2.line0), std::max(interpolation1.line1, interpolation2.line1));
+}
+
+void AutomationService::notifyChangedLines(const PitchBendAutomation & automation)
+{
+    const auto location = automation.location();
+    const auto interpolation = automation.interpolation();
+    notifyChangedLines(location.pattern, location.track, location.column, interpolation.line0, interpolation.line1);
+}
+
+void AutomationService::notifyChangedLinesMerged(const PitchBendAutomation & automation1, const PitchBendAutomation & automation2)
+{
+    const auto location = automation1.location();
+    const auto interpolation1 = automation1.interpolation();
+    const auto interpolation2 = automation2.interpolation();
     notifyChangedLines(location.pattern, location.track, location.column, std::min(interpolation1.line0, interpolation2.line0), std::max(interpolation1.line1, interpolation2.line1));
 }
 
 void AutomationService::deserializeFromXml(QXmlStreamReader & reader)
 {
     juzzlin::L(TAG).info() << "Deserializing";
-
-    m_midiCcAutomations.clear();
+    m_automations = {};
     while (!(reader.isEndElement() && !reader.name().compare(Constants::xmlKeyAutomation()))) {
         if (reader.isStartElement() && !reader.name().compare(Constants::xmlKeyMidiCcAutomation())) {
-            if (const auto midiCcAutomation = MidiCcAutomation::deserializeFromXml(reader); midiCcAutomation) {
-                midiCcAutomation->setId(m_midiCcAutomations.size() + 1); // Assign id on-the-fly
-                m_midiCcAutomations.push_back(*midiCcAutomation);
+            if (const auto automation = MidiCcAutomation::deserializeFromXml(reader); automation) {
+                automation->setId(m_automations.midiCc.size() + 1); // Assign id on-the-fly
+                m_automations.midiCc.push_back(*automation);
+            }
+        } else if (reader.isStartElement() && !reader.name().compare(Constants::xmlKeyPitchBendAutomation())) {
+            if (const auto automation = PitchBendAutomation::deserializeFromXml(reader); automation) {
+                automation->setId(m_automations.pitchBend.size() + 1); // Assign id on-the-fly
+                m_automations.pitchBend.push_back(*automation);
             }
         }
         reader.readNext();
@@ -269,7 +502,11 @@ void AutomationService::serializeToXml(QXmlStreamWriter & writer) const
 
     writer.writeStartElement(Constants::xmlKeyAutomation());
 
-    for (const auto & automation : m_midiCcAutomations) {
+    for (const auto & automation : m_automations.midiCc) {
+        automation.serializeToXml(writer);
+    }
+
+    for (const auto & automation : m_automations.pitchBend) {
         automation.serializeToXml(writer);
     }
 

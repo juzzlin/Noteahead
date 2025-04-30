@@ -34,6 +34,13 @@ Event::Event(size_t tick, MidiCcDataCR midiCcData)
 {
 }
 
+Event::Event(size_t tick, PitchBendDataCR pitchBendData)
+  : m_tick { tick }
+  , m_type { Event::Type::PitchBendData }
+  , m_pitchBendData { pitchBendData }
+{
+}
+
 Event::Event(size_t tick, InstrumentSettingsS instrumentSettings)
   : m_tick { tick }
   , m_type { Event::Type::InstrumentSettings }
@@ -92,6 +99,11 @@ Event::NoteDataOpt Event::noteData() const
 Event::MidiCcDataOpt Event::midiCcData() const
 {
     return m_midiCcData;
+}
+
+Event::PitchBendDataOpt Event::pitchBendData() const
+{
+    return m_pitchBendData;
 }
 
 Event::InstrumentS Event::instrument() const

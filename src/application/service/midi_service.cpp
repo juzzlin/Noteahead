@@ -18,6 +18,7 @@
 #include "../../contrib/SimpleLogger/src/simple_logger.hpp"
 #include "../../domain/instrument.hpp"
 #include "../../domain/midi_cc_data.hpp"
+#include "../../domain/pitch_bend_data.hpp"
 #include "../instrument_request.hpp"
 #include "../midi_worker.hpp"
 
@@ -114,15 +115,15 @@ void MidiService::stopAllNotes(InstrumentW instrument)
     }
 }
 
-void MidiService::sendCcData(InstrumentW instrument, MidiCcDataCR midiCcData)
+void MidiService::sendCcData(InstrumentW instrument, MidiCcDataCR data)
 {
     std::lock_guard<std::mutex> lock { m_workerMutex };
 
     if (const bool invoked = QMetaObject::invokeMethod(m_midiWorker.get(), "sendCcData",
                                                        Q_ARG(QString, instrument.lock()->device().portName),
                                                        Q_ARG(quint8, instrument.lock()->device().channel),
-                                                       Q_ARG(quint8, midiCcData.controller()),
-                                                       Q_ARG(quint8, midiCcData.value()));
+                                                       Q_ARG(quint8, data.controller()),
+                                                       Q_ARG(quint8, data.value()));
         !invoked) {
         juzzlin::L(TAG).error() << "Invoking a method failed!";
     }
@@ -134,6 +135,20 @@ void MidiService::sendClock(MidiService::InstrumentW instrument)
 
     if (const bool invoked = QMetaObject::invokeMethod(m_midiWorker.get(), "sendClock",
                                                        Q_ARG(QString, instrument.lock()->device().portName));
+        !invoked) {
+        juzzlin::L(TAG).error() << "Invoking a method failed!";
+    }
+}
+
+void MidiService::sendPitchBendData(InstrumentW instrument, MidiService::PitchBendDataCR data)
+{
+    std::lock_guard<std::mutex> lock { m_workerMutex };
+
+    if (const bool invoked = QMetaObject::invokeMethod(m_midiWorker.get(), "sendPitchBendData",
+                                                       Q_ARG(QString, instrument.lock()->device().portName),
+                                                       Q_ARG(quint8, instrument.lock()->device().channel),
+                                                       Q_ARG(quint8, data.msb()),
+                                                       Q_ARG(quint8, data.lsb()));
         !invoked) {
         juzzlin::L(TAG).error() << "Invoking a method failed!";
     }

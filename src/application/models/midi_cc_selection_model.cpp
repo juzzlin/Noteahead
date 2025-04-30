@@ -16,7 +16,7 @@
 #include "midi_cc_selection_model.hpp"
 
 #include "../../contrib/SimpleLogger/src/simple_logger.hpp"
-#include "../../infra/midi/midi_cc.hpp"
+#include "../../infra/midi/midi_cc_mapping.hpp"
 
 namespace noteahead {
 
@@ -69,7 +69,7 @@ void MidiCcSelectionModel::setMidiCcEnabled(quint8 index, bool enabled)
 
 QString MidiCcSelectionModel::midiCcToString(quint8 controller) const
 {
-    return MidiCc::controllerToString(static_cast<MidiCc::Controller>(controller));
+    return MidiCcMapping::controllerToString(static_cast<MidiCcMapping::Controller>(controller));
 }
 
 quint8 MidiCcSelectionModel::midiCcSlots() const

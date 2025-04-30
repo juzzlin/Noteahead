@@ -106,6 +106,18 @@ Menu {
             enabled: !UiService.isPlaying()
             onTriggered: UiService.requestEditMidiCcAutomationsDialogByColumn()
         }
+        MenuSeparator {
+        }
+        Action {
+            text: qsTr("Add Pitch Bend automation")
+            enabled: !UiService.isPlaying()
+            onTriggered: UiService.requestColumnAddPitchBendAutomationDialog()
+        }
+        Action {
+            text: qsTr("Edit Pitch Bend automations")
+            enabled: !UiService.isPlaying()
+            onTriggered: UiService.requestEditPitchBendAutomationsDialogByColumn()
+        }
         delegate: MainMenuItemDelegate {
         }
     }
@@ -192,6 +204,13 @@ Menu {
             enabled: !UiService.isPlaying()
             onTriggered: UiService.requestEditMidiCcAutomationsDialogByTrack()
         }
+        MenuSeparator {
+        }
+        Action {
+            text: qsTr("Edit Pitch Bend automations")
+            enabled: !UiService.isPlaying()
+            onTriggered: UiService.requestEditPitchBendAutomationsDialogByTrack()
+        }
     }
     MenuSeparator {
     }
@@ -258,6 +277,13 @@ Menu {
             enabled: !UiService.isPlaying()
             onTriggered: UiService.requestEditMidiCcAutomationsDialogByPattern()
         }
+        MenuSeparator {
+        }
+        Action {
+            text: qsTr("Edit Pitch Bend automations")
+            enabled: !UiService.isPlaying()
+            onTriggered: UiService.requestEditPitchBendAutomationsDialogByPattern()
+        }
         delegate: MainMenuItemDelegate {
         }
     }
@@ -323,6 +349,13 @@ Menu {
             enabled: !UiService.isPlaying() && selectionService.isValidSelection
             onTriggered: UiService.requestSelectionAddMidiCcAutomationDialog()
         }
+        MenuSeparator {
+        }
+        Action {
+            text: qsTr("Add Pitch Bend automation")
+            enabled: !UiService.isPlaying() && selectionService.isValidSelection
+            onTriggered: UiService.requestSelectionAddPitchBendAutomationDialog()
+        }
         delegate: MainMenuItemDelegate {
         }
     }
@@ -332,6 +365,13 @@ Menu {
         text: qsTr("Edit MIDI CC automations (ALL)")
         enabled: !UiService.isPlaying()
         onTriggered: UiService.requestEditMidiCcAutomationsDialog()
+    }
+    MenuSeparator {
+    }
+    Action {
+        text: qsTr("Edit PItch Bend automations (ALL)")
+        enabled: !UiService.isPlaying()
+        onTriggered: UiService.requestEditPitchBendAutomationsDialog()
     }
     delegate: MainMenuItemDelegate {
     }

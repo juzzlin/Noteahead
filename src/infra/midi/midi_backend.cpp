@@ -79,7 +79,7 @@ void MidiBackend::closeDevice(MidiDeviceCR)
 {
 }
 
-void MidiBackend::sendCC(MidiDeviceCR, uint8_t, uint8_t, uint8_t) const
+void MidiBackend::sendCcData(MidiDeviceCR, uint8_t, uint8_t, uint8_t) const
 {
 }
 
@@ -99,11 +99,15 @@ void MidiBackend::sendBankChange(MidiDeviceCR, uint8_t, uint8_t, uint8_t) const
 {
 }
 
+void MidiBackend::sendPitchBendData(MidiDeviceCR, uint8_t, uint8_t, uint8_t) const
+{
+}
+
 void MidiBackend::stopAllNotes(MidiDeviceCR, uint8_t) const
 {
 }
 
-void MidiBackend::sendClock(MidiDeviceCR) const
+void MidiBackend::sendClockPulse(MidiDeviceCR) const
 {
 }
 

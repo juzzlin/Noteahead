@@ -13,7 +13,7 @@
 // You should have received a copy of the GNU General Public License
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
-#include "midi_cc_automation.hpp"
+#include "pitch_bend_automation.hpp"
 
 #include "../common/constants.hpp"
 #include "../common/utils.hpp"
@@ -23,66 +23,53 @@
 
 namespace noteahead {
 
-MidiCcAutomation::MidiCcAutomation() = default;
+PitchBendAutomation::PitchBendAutomation() = default;
 
-MidiCcAutomation::MidiCcAutomation(size_t id, AutomationLocation location, uint8_t controller, InterpolationParameters interpolation, QString comment, bool enabled)
+PitchBendAutomation::PitchBendAutomation(size_t id, AutomationLocation location, InterpolationParameters interpolation, QString comment, bool enabled)
   : Automation { id, location, comment, enabled }
-  , m_controller { controller }
   , m_interpolation { interpolation }
 {
 }
 
-MidiCcAutomation::MidiCcAutomation(size_t id, AutomationLocation location, uint8_t controller, InterpolationParameters interpolation, QString comment)
-  : MidiCcAutomation { id, location, controller, interpolation, comment, true }
+PitchBendAutomation::PitchBendAutomation(size_t id, AutomationLocation location, InterpolationParameters interpolation, QString comment)
+  : PitchBendAutomation { id, location, interpolation, comment, true }
 {
 }
 
-bool MidiCcAutomation::operator==(const MidiCcAutomation & other) const
+bool PitchBendAutomation::operator==(const PitchBendAutomation & other) const
 {
     return id() == other.id() && //
-      m_controller == other.m_controller && //
       location() == other.location() && //
       m_interpolation == other.m_interpolation && //
       comment() == other.comment() && //
       enabled() == other.enabled();
 }
 
-bool MidiCcAutomation::operator!=(const MidiCcAutomation & other) const
+bool PitchBendAutomation::operator!=(const PitchBendAutomation & other) const
 {
     return !(*this == other);
 }
 
-bool MidiCcAutomation::operator<(const MidiCcAutomation & other) const
+bool PitchBendAutomation::operator<(const PitchBendAutomation & other) const
 {
     return id() < other.id();
 }
 
-uint8_t MidiCcAutomation::controller() const
-{
-    return m_controller;
-}
-
-void MidiCcAutomation::setController(uint8_t controller)
-{
-    m_controller = controller;
-}
-
-const MidiCcAutomation::InterpolationParameters & MidiCcAutomation::interpolation() const
+const PitchBendAutomation::InterpolationParameters & PitchBendAutomation::interpolation() const
 {
     return m_interpolation;
 }
 
-void MidiCcAutomation::setInterpolation(const InterpolationParameters & interpolation)
+void PitchBendAutomation::setInterpolation(const InterpolationParameters & interpolation)
 {
     m_interpolation = interpolation;
 }
 
-QString MidiCcAutomation::toString() const
+QString PitchBendAutomation::toString() const
 {
-    return QString("MidiCcAutomation(id=%1, controller=%2, pattern=%3, track=%4, column=%5, "
+    return QString("PitchBendAutomation(id=%1, controller=%2, pattern=%3, track=%4, column=%5, "
                    "line: %6 -> %7, value: %8 -> %9), enabled=%10")
       .arg(QString::number(id()),
-           QString::number(m_controller),
            QString::number(location().pattern),
            QString::number(location().track),
            QString::number(location().column),
@@ -93,10 +80,9 @@ QString MidiCcAutomation::toString() const
            QString::number(enabled()));
 }
 
-void MidiCcAutomation::serializeToXml(QXmlStreamWriter & writer) const
+void PitchBendAutomation::serializeToXml(QXmlStreamWriter & writer) const
 {
-    writer.writeStartElement(Constants::xmlKeyMidiCcAutomation());
-    writer.writeAttribute(Constants::xmlKeyController(), QString::number(m_controller));
+    writer.writeStartElement(Constants::xmlKeyPitchBendAutomation());
     writer.writeAttribute(Constants::xmlKeyComment(), comment());
     writer.writeAttribute(Constants::xmlKeyEnabled(), enabled() ? Constants::xmlValueTrue() : Constants::xmlValueFalse());
 
@@ -116,14 +102,13 @@ void MidiCcAutomation::serializeToXml(QXmlStreamWriter & writer) const
     writer.writeEndElement(); // Automation
 }
 
-MidiCcAutomation::MidiCcAutomationU MidiCcAutomation::deserializeFromXml(QXmlStreamReader & reader)
+PitchBendAutomation::PitchBendAutomationU PitchBendAutomation::deserializeFromXml(QXmlStreamReader & reader)
 {
-    const quint8 controller = static_cast<quint8>(reader.attributes().value(Constants::xmlKeyController()).toUInt());
     const QString comment = reader.attributes().value(Constants::xmlKeyComment()).toString();
     const bool enabled = Utils::Xml::readBoolAttribute(reader, Constants::xmlKeyEnabled(), false).value_or(true);
     AutomationLocation location {};
-    MidiCcAutomation::InterpolationParameters parameters {};
-    while (!(reader.isEndElement() && !reader.name().compare(Constants::xmlKeyMidiCcAutomation()))) {
+    PitchBendAutomation::InterpolationParameters parameters {};
+    while (!(reader.isEndElement() && !reader.name().compare(Constants::xmlKeyPitchBendAutomation()))) {
         reader.readNext();
         if (reader.isStartElement()) {
             if (!reader.name().compare(Constants::xmlKeyLocation())) {
@@ -135,12 +120,12 @@ MidiCcAutomation::MidiCcAutomationU MidiCcAutomation::deserializeFromXml(QXmlStr
                 const auto attributes = reader.attributes();
                 parameters.line0 = attributes.value(Constants::xmlKeyLine0()).toULongLong();
                 parameters.line1 = attributes.value(Constants::xmlKeyLine1()).toULongLong();
-                parameters.value0 = static_cast<quint8>(attributes.value(Constants::xmlKeyValue0()).toUInt());
-                parameters.value1 = static_cast<quint8>(attributes.value(Constants::xmlKeyValue1()).toUInt());
+                parameters.value0 = attributes.value(Constants::xmlKeyValue0()).toInt();
+                parameters.value1 = attributes.value(Constants::xmlKeyValue1()).toInt();
             }
         }
     }
-    return std::make_unique<MidiCcAutomation>(0, location, controller, parameters, comment, enabled);
+    return std::make_unique<PitchBendAutomation>(0, location, parameters, comment, enabled);
 }
 
 } // namespace noteahead

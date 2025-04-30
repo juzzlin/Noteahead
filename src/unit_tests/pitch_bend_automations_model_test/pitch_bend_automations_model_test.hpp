@@ -13,30 +13,27 @@
 // You should have received a copy of the GNU General Public License
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
-#include "midi_cc_data.hpp"
+#ifndef PITCH_BEND_AUTOMATIONS_MODEL_TEST_HPP
+#define PITCH_BEND_AUTOMATIONS_MODEL_TEST_HPP
+
+#include <QTest>
 
 namespace noteahead {
 
-MidiCcData::MidiCcData(size_t track, size_t column, uint8_t controller, uint8_t value)
-  : EventData { track, column }
-  , m_controller { controller }
-  , m_value { value }
+class PitchBendAutomationsModelTest : public QObject
 {
-}
+    Q_OBJECT
 
-uint8_t MidiCcData::controller() const
-{
-    return m_controller;
-}
+private slots:
 
-uint8_t MidiCcData::value() const
-{
-    return m_value;
-}
+    void test_addPitchBendAutomations_shouldAddAutomations();
 
-double MidiCcData::normalizedValue() const
-{
-    return static_cast<double>(m_value) / 127;
-}
+    void test_requestPitchBendAutomations_shouldFilterAutomations();
+
+    void test_setData_shouldUpdateAutomationData();
+    void test_removeAt_shouldRemoveAutomationData();
+};
 
 } // namespace noteahead
+
+#endif // PITCH_BEND_AUTOMATIONS_MODEL_TEST_HPP
