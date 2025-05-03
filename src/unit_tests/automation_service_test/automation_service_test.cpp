@@ -38,8 +38,8 @@ void AutomationServiceTest::test_addMidiCcAutomation_shouldAddAutomation()
     quint8 value1 = 100;
     const auto comment = "MIDI CC Automation Test";
 
-    automationService.addMidiCcAutomation(pattern, track, column, controller, line0, line1, value0, value1, comment);
-
+    auto id = automationService.addMidiCcAutomation(pattern, track, column, controller, line0, line1, value0, value1, comment);
+    QCOMPARE(id, 1);
     QCOMPARE(lineDataChangedSpy.count(), line1 - line0 + 1);
     QCOMPARE(automationService.midiCcAutomationsByLine(pattern, track, column, line0).size(), 1);
     QCOMPARE(automationService.midiCcAutomationsByLine(pattern, track, column, line0).at(0).controller(), controller);
@@ -63,6 +63,11 @@ void AutomationServiceTest::test_addMidiCcAutomation_shouldAddAutomation()
     QVERIFY(automationService.hasAutomations(pattern, track, column, line0));
     QVERIFY(automationService.hasAutomations(pattern, track, column, line1));
     QVERIFY(automationService.hasAutomations(pattern, track, column, (line0 + line1) / 2));
+
+    id = automationService.addMidiCcAutomation(pattern, track, column, controller, line0, line1, value0, value1, comment);
+    QCOMPARE(id, 2);
+    id = automationService.addMidiCcAutomation(pattern, track, column, controller, line0, line1, value0, value1, comment);
+    QCOMPARE(id, 3);
 }
 
 void AutomationServiceTest::test_deleteMidiCcAutomation_shouldDeleteAutomation()
@@ -93,8 +98,8 @@ void AutomationServiceTest::test_addPitchBendAutomation_shouldAddAutomation()
     int value1 = +100;
     const auto comment = "Pitch Bend Automation Test";
 
-    automationService.addPitchBendAutomation(pattern, track, column, line0, line1, value0, value1, comment);
-
+    auto id = automationService.addPitchBendAutomation(pattern, track, column, line0, line1, value0, value1, comment);
+    QCOMPARE(id, 1);
     QCOMPARE(lineDataChangedSpy.count(), line1 - line0 + 1);
     QCOMPARE(automationService.pitchBendAutomationsByLine(pattern, track, column, line0).size(), 1);
     QCOMPARE(automationService.pitchBendAutomationsByLine(pattern, track, column, line0).at(0).id(), 1);
@@ -117,6 +122,11 @@ void AutomationServiceTest::test_addPitchBendAutomation_shouldAddAutomation()
     QVERIFY(automationService.hasAutomations(pattern, track, column, line0));
     QVERIFY(automationService.hasAutomations(pattern, track, column, line1));
     QVERIFY(automationService.hasAutomations(pattern, track, column, (line0 + line1) / 2));
+
+    id = automationService.addPitchBendAutomation(pattern, track, column, line0, line1, value0, value1, comment);
+    QCOMPARE(id, 2);
+    id = automationService.addPitchBendAutomation(pattern, track, column, line0, line1, value0, value1, comment);
+    QCOMPARE(id, 3);
 }
 
 void AutomationServiceTest::test_deletePitchBendAutomation_shouldDeleteAutomation()

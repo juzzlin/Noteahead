@@ -36,21 +36,22 @@ AutomationService::AutomationService()
 {
 }
 
-void AutomationService::addMidiCcAutomation(quint64 pattern, quint64 track, quint64 column, quint8 controller, quint64 line0, quint64 line1, quint8 value0, quint8 value1, QString comment, bool enabled)
+quint64 AutomationService::addMidiCcAutomation(quint64 pattern, quint64 track, quint64 column, quint8 controller, quint64 line0, quint64 line1, quint8 value0, quint8 value1, QString comment, bool enabled)
 {
-    const auto maxIdItem = std::max_element(m_automations.midiCc.begin(), m_automations.midiCc.end(), [](auto && lhs, auto && rhs) { return lhs.id() > rhs.id(); });
-    const auto id = maxIdItem != m_automations.midiCc.end() ? (*maxIdItem).id() : 1;
+    const auto maxIdItem = std::max_element(m_automations.midiCc.begin(), m_automations.midiCc.end(), [](auto && lhs, auto && rhs) { return lhs.id() < rhs.id(); });
+    const auto id = maxIdItem != m_automations.midiCc.end() ? (*maxIdItem).id() + 1 : 1;
     const AutomationLocation location = { pattern, track, column };
     const MidiCcAutomation::InterpolationParameters parameters = { line0, line1, value0, value1 };
     const auto automation = MidiCcAutomation { id, location, controller, parameters, comment, enabled };
     m_automations.midiCc.push_back(automation);
     notifyChangedLines(pattern, track, column, line0, line1);
     juzzlin::L(TAG).info() << "MIDI CC Automation added: " << automation.toString().toStdString();
+    return automation.id();
 }
 
-void AutomationService::addMidiCcAutomation(quint64 pattern, quint64 track, quint64 column, quint8 controller, quint64 line0, quint64 line1, quint8 value0, quint8 value1, QString comment)
+quint64 AutomationService::addMidiCcAutomation(quint64 pattern, quint64 track, quint64 column, quint8 controller, quint64 line0, quint64 line1, quint8 value0, quint8 value1, QString comment)
 {
-    addMidiCcAutomation(pattern, track, column, controller, line0, line1, value0, value1, comment, true);
+    return addMidiCcAutomation(pattern, track, column, controller, line0, line1, value0, value1, comment, true);
 }
 
 void AutomationService::deleteMidiCcAutomation(const MidiCcAutomation & automationToDelete)
@@ -88,21 +89,22 @@ void AutomationService::updateMidiCcAutomation(const MidiCcAutomation & updatedA
     }
 }
 
-void AutomationService::addPitchBendAutomation(quint64 pattern, quint64 track, quint64 column, quint64 line0, quint64 line1, int value0, int value1, QString comment)
+quint64 AutomationService::addPitchBendAutomation(quint64 pattern, quint64 track, quint64 column, quint64 line0, quint64 line1, int value0, int value1, QString comment)
 {
-    addPitchBendAutomation(pattern, track, column, line0, line1, value0, value1, comment, true);
+    return addPitchBendAutomation(pattern, track, column, line0, line1, value0, value1, comment, true);
 }
 
-void AutomationService::addPitchBendAutomation(quint64 pattern, quint64 track, quint64 column, quint64 line0, quint64 line1, int value0, int value1, QString comment, bool enabled)
+quint64 AutomationService::addPitchBendAutomation(quint64 pattern, quint64 track, quint64 column, quint64 line0, quint64 line1, int value0, int value1, QString comment, bool enabled)
 {
-    const auto maxIdItem = std::max_element(m_automations.pitchBend.begin(), m_automations.pitchBend.end(), [](auto && lhs, auto && rhs) { return lhs.id() > rhs.id(); });
-    const auto id = maxIdItem != m_automations.pitchBend.end() ? (*maxIdItem).id() : 1;
+    const auto maxIdItem = std::max_element(m_automations.pitchBend.begin(), m_automations.pitchBend.end(), [](auto && lhs, auto && rhs) { return lhs.id() < rhs.id(); });
+    const auto id = maxIdItem != m_automations.pitchBend.end() ? (*maxIdItem).id() + 1 : 1;
     const AutomationLocation location = { pattern, track, column };
     const PitchBendAutomation::InterpolationParameters parameters = { line0, line1, value0, value1 };
     const auto automation = PitchBendAutomation { id, location, parameters, comment, enabled };
     m_automations.pitchBend.push_back(automation);
     notifyChangedLines(pattern, track, column, line0, line1);
     juzzlin::L(TAG).info() << "Pitch Bend Automation added: " << automation.toString().toStdString();
+    return automation.id();
 }
 
 void AutomationService::deletePitchBendAutomation(const PitchBendAutomation & automationToDelete)

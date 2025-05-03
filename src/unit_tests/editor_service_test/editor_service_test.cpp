@@ -1425,10 +1425,13 @@ void EditorServiceTest::test_toXmlFromXml_automationService_midiCc_shouldLoadAut
     const auto comment = "MIDI CC Automation Test";
 
     AutomationService automationServiceOut;
+    size_t id = 1;
     for (size_t pattern = 0; pattern < 10; pattern++) {
         for (size_t track = 0; track < 8; track++) {
             for (size_t column = 0; column < 3; column++) {
-                automationServiceOut.addMidiCcAutomation(pattern, track, column, controller, line0, line1, value0, value1, comment, track % 2 == 0);
+                const auto newId = automationServiceOut.addMidiCcAutomation(pattern, track, column, controller, line0, line1, value0, value1, comment, track % 2 == 0);
+                QCOMPARE(newId, id);
+                id++;
             }
         }
     }
@@ -1467,10 +1470,13 @@ void EditorServiceTest::test_toXmlFromXml_automationService_pitchBend_shouldLoad
     const auto comment = "Pitch Bend Automation Test";
 
     AutomationService automationServiceOut;
+    size_t id = 1;
     for (size_t pattern = 0; pattern < 10; pattern++) {
         for (size_t track = 0; track < 8; track++) {
             for (size_t column = 0; column < 3; column++) {
-                automationServiceOut.addPitchBendAutomation(pattern, track, column, line0, line1, value0, value1, comment, track % 2 == 0);
+                const auto newId = automationServiceOut.addPitchBendAutomation(pattern, track, column, line0, line1, value0, value1, comment, track % 2 == 0);
+                QCOMPARE(newId, id);
+                id++;
             }
         }
     }
