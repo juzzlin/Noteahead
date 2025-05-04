@@ -144,7 +144,7 @@ Item {
         _tracks.filter(track => track.index() === position.track).forEach(track => track.updateIndexHighlightsAtPosition(position));
     }
     function updateSelectedLines(startPosition: var, endPosition: var): void {
-        _tracks.filter(track => track.index() === startPosition.track).forEach(track => track.updateIndexHighlights());
+        _tracks.filter(track => track.index() === startPosition.track).forEach(track => track.updateSelectedLines(startPosition, endPosition));
     }
     function updateColumnHeaders(): void {
         _tracks.forEach(track => {

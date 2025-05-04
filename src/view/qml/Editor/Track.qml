@@ -90,6 +90,9 @@ Item {
     function updateIndexHighlightsAtPosition(position: var): void {
         columnContainer.updateIndexHighlightsAtPosition(position);
     }
+    function updateSelectedLines(startPosition: var, endPosition: var): void {
+        columnContainer.updateSelectedLines(startPosition, endPosition);
+    }
     function addColumn(): void {
         columnContainer.addColumn();
     }
@@ -182,6 +185,11 @@ Item {
         function updateIndexHighlightsAtPosition(position: var): void {
             _noteColumns.filter(noteColumn => noteColumn.index() === position.column).forEach(noteColumn => {
                     noteColumn.updateIndexHighlightsAtPosition(position);
+                });
+        }
+        function updateSelectedLines(startPosition: var, endPosition: var): void {
+            _noteColumns.filter(noteColumn => noteColumn.index() === startPosition.column).forEach(noteColumn => {
+                    noteColumn.updateIndexHighlights();
                 });
         }
         function updateNoteDataAtPosition(position: var): void {
