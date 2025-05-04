@@ -87,6 +87,9 @@ Item {
     function updateIndexHighlights(): void {
         columnContainer.updateIndexHighlights();
     }
+    function updateIndexHighlightsAtPosition(position: var): void {
+        columnContainer.updateIndexHighlightsAtPosition(position);
+    }
     function addColumn(): void {
         columnContainer.addColumn();
     }
@@ -174,6 +177,11 @@ Item {
         function updateIndexHighlights(): void {
             _noteColumns.forEach(noteColumn => {
                     noteColumn.updateIndexHighlights();
+                });
+        }
+        function updateIndexHighlightsAtPosition(position: var): void {
+            _noteColumns.filter(noteColumn => noteColumn.index() === position.column).forEach(noteColumn => {
+                    noteColumn.updateIndexHighlightsAtPosition(position);
                 });
         }
         function updateNoteDataAtPosition(position: var): void {

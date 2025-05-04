@@ -83,28 +83,37 @@ Item {
             _getLineAtIndex(position.line).setNoteData(noteAndVelocity[0], noteAndVelocity[1]);
         }
     }
+    function _updateIndexHighlightsOnLine(line: NoteColumnLine, index: int): void {
+        if (selectionService.isSelected(_patternIndex, _trackIndex, _index, index)) {
+            const baseColor = utilService.scaledColor("#ffffff", utilService.indexHighlightOpacity(index, editorService.linesPerBeat));
+            line.color = utilService.blendColors(baseColor, "#ffa500", 0.5); // Blend 50% with orange
+            line.border.width = 0;
+        } else {
+            if (editorService.hasInstrumentSettings(_patternIndex, _trackIndex, _index, index)) {
+                const baseColor = utilService.scaledColor("#ffffff", utilService.indexHighlightOpacity(index, editorService.linesPerBeat));
+                line.color = utilService.blendColors(baseColor, "#3e65ff", 0.5); // Universal.Cobalt
+                line.border.width = 1;
+            } else if (automationService.hasAutomations(_patternIndex, _trackIndex, _index, index)) {
+                const automationWeight = automationService.automationWeight(_patternIndex, _trackIndex, _index, index);
+                const baseColor = utilService.scaledColor("#ffffff", utilService.indexHighlightOpacity(index, editorService.linesPerBeat));
+                line.color = utilService.blendColors(baseColor, "#60a917", automationWeight); // Universal.Green
+                line.border.width = 1;
+            } else {
+                line.color = utilService.scaledColor("#ffffff", utilService.indexHighlightOpacity(index, editorService.linesPerBeat));
+                line.border.width = 1;
+            }
+        }
+    }
     function updateIndexHighlights(): void {
         _lines.forEach((line, index) => {
-                if (selectionService.isSelected(_patternIndex, _trackIndex, _index, index)) {
-                    const baseColor = utilService.scaledColor("#ffffff", utilService.indexHighlightOpacity(index, editorService.linesPerBeat));
-                    line.color = utilService.blendColors(baseColor, "#ffa500", 0.5); // Blend 50% with orange
-                    line.border.width = 0;
-                } else {
-                    if (editorService.hasInstrumentSettings(_patternIndex, _trackIndex, _index, index)) {
-                        const baseColor = utilService.scaledColor("#ffffff", utilService.indexHighlightOpacity(index, editorService.linesPerBeat));
-                        line.color = utilService.blendColors(baseColor, "#3e65ff", 0.5); // Universal.Cobalt
-                        line.border.width = 1;
-                    } else if (automationService.hasAutomations(_patternIndex, _trackIndex, _index, index)) {
-                        const automationWeight = automationService.automationWeight(_patternIndex, _trackIndex, _index, index);
-                        const baseColor = utilService.scaledColor("#ffffff", utilService.indexHighlightOpacity(index, editorService.linesPerBeat));
-                        line.color = utilService.blendColors(baseColor, "#60a917", automationWeight); // Universal.Green
-                        line.border.width = 1;
-                    } else {
-                        line.color = utilService.scaledColor("#ffffff", utilService.indexHighlightOpacity(index, editorService.linesPerBeat));
-                        line.border.width = 1;
-                    }
-                }
+                _updateIndexHighlightsOnLine(line, index);
             });
+    }
+    function updateIndexHighlightsAtPosition(position: var): void {
+        const line = _getLineAtIndex(position.line);
+        if (line) {
+            _updateIndexHighlightsOnLine(line, position.line);
+        }
     }
     function _isPositionMe(position: var): bool {
         return position.pattern === _patternIndex && position.track === _trackIndex && position.column === _index;
