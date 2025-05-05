@@ -199,6 +199,7 @@ ApplicationWindow {
         onAccepted: {
             const position = editorService.position;
             automationService.addMidiCcAutomation(position.pattern, position.track, position.column, controller(), startLine(), endLine(), startValue(), endValue(), comment());
+            selectionService.clear();
         }
     }
     EditMidiCcAutomationsDialog {
@@ -215,6 +216,7 @@ ApplicationWindow {
         onAccepted: {
             const position = editorService.position;
             automationService.addPitchBendAutomation(position.pattern, position.track, position.column, startLine(), endLine(), startValue(), endValue(), comment());
+            selectionService.clear();
         }
     }
     EditPitchBendAutomationsDialog {
