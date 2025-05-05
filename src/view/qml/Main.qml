@@ -200,6 +200,7 @@ ApplicationWindow {
             const position = editorService.position;
             automationService.addMidiCcAutomation(position.pattern, position.track, position.column, controller(), startLine(), endLine(), startValue(), endValue(), comment());
             selectionService.clear();
+            bottomBar.setStatusText(qsTr("MIDI CC automation added"));
         }
     }
     EditMidiCcAutomationsDialog {
@@ -217,6 +218,7 @@ ApplicationWindow {
             const position = editorService.position;
             automationService.addPitchBendAutomation(position.pattern, position.track, position.column, startLine(), endLine(), startValue(), endValue(), comment());
             selectionService.clear();
+            bottomBar.setStatusText(qsTr("Pitch Bend automation added"));
         }
     }
     EditPitchBendAutomationsDialog {
