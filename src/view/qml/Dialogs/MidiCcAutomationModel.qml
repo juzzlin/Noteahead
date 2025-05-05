@@ -88,7 +88,7 @@ Item {
                 }
                 SpinBox {
                     id: endLineSpinBox
-                    from: startLineSpinBox.value
+                    from: 0
                     to: 999
                     value: 0
                     editable: true
