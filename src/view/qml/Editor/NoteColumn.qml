@@ -94,9 +94,10 @@ Item {
                 line.color = utilService.blendColors(baseColor, "#3e65ff", 0.5); // Universal.Cobalt
                 line.border.width = 1;
             } else if (automationService.hasAutomations(_patternIndex, _trackIndex, _index, index)) {
-                const automationWeight = automationService.automationWeight(_patternIndex, _trackIndex, _index, index);
                 const baseColor = utilService.scaledColor("#ffffff", utilService.indexHighlightOpacity(index, editorService.linesPerBeat));
-                line.color = utilService.blendColors(baseColor, "#60a917", automationWeight); // Universal.Green
+                const automationWeight = automationService.automationWeight(_patternIndex, _trackIndex, _index, index);
+                const automationColor = utilService.blendColors("#e51400", "#60a917", automationWeight); // Universal.Red -> Universal.Green
+                line.color = utilService.blendColors(baseColor, automationColor, 0.75);
                 line.border.width = 1;
             } else {
                 line.color = utilService.scaledColor("#ffffff", utilService.indexHighlightOpacity(index, editorService.linesPerBeat));
