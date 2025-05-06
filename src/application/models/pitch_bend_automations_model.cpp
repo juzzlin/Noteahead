@@ -187,6 +187,7 @@ bool PitchBendAutomationsModel::setData(const QModelIndex & index, const QVarian
     }
 
     if (changed) {
+        m_pitchBendAutomationsChanged.erase(PitchBendAutomation);
         m_pitchBendAutomationsChanged.insert(PitchBendAutomation);
         emit dataChanged(index, index, { role });
         return true;

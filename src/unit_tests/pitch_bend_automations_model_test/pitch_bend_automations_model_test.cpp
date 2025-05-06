@@ -104,11 +104,13 @@ void PitchBendAutomationsModelTest::test_setData_shouldUpdateAutomationData()
     const AutomationLocation location { 1, 2, 3 };
     const PitchBendAutomation::InterpolationParameters interpolation { 11, 22, 33, 44 };
     PitchBendAutomation automation { 42, location, interpolation, "Old Comment" };
-
+    std::optional<PitchBendAutomation> updatedAutomation;
     PitchBendAutomationsModel model;
     model.setPitchBendAutomations({ automation });
-    QSignalSpy PitchBendAutomationChangedSpy { &model, &PitchBendAutomationsModel::pitchBendAutomationChanged };
-
+    QSignalSpy pitchBendAutomationChangedSpy { &model, &PitchBendAutomationsModel::pitchBendAutomationChanged };
+    connect(&model, &PitchBendAutomationsModel::pitchBendAutomationChanged, this, [&updatedAutomation](auto && automation) {
+        updatedAutomation = automation;
+    });
     QModelIndex index = model.index(0);
 
     // Try setting a new comment
@@ -150,8 +152,19 @@ void PitchBendAutomationsModelTest::test_setData_shouldUpdateAutomationData()
     QVERIFY(!model.setData(index, 99u, static_cast<int>(Role::Id)));
     QCOMPARE(model.data(index, static_cast<int>(Role::Id)).toUInt(), automation.id());
 
+    // Verify that correct automation data gets emitted on apply
     model.applyAll();
-    QCOMPARE(PitchBendAutomationChangedSpy.count(), 1);
+    QVERIFY(updatedAutomation.has_value());
+    QCOMPARE(pitchBendAutomationChangedSpy.count(), 1);
+    QCOMPARE(updatedAutomation->comment(), model.data(index, static_cast<int>(Role::Comment)).toString());
+    QCOMPARE(updatedAutomation->enabled(), model.data(index, static_cast<int>(Role::Enabled)).toBool());
+    QCOMPARE(updatedAutomation->interpolation().line0, model.data(index, static_cast<int>(Role::Line0)).toUInt());
+    QCOMPARE(updatedAutomation->interpolation().line1, model.data(index, static_cast<int>(Role::Line1)).toUInt());
+    QCOMPARE(updatedAutomation->interpolation().value0, model.data(index, static_cast<int>(Role::Value0)).toUInt());
+    QCOMPARE(updatedAutomation->interpolation().value1, model.data(index, static_cast<int>(Role::Value1)).toUInt());
+    QCOMPARE(updatedAutomation->location().pattern, model.data(index, static_cast<int>(Role::Pattern)).toUInt());
+    QCOMPARE(updatedAutomation->location().track, model.data(index, static_cast<int>(Role::Track)).toUInt());
+    QCOMPARE(updatedAutomation->location().column, model.data(index, static_cast<int>(Role::Column)).toUInt());
 }
 
 void PitchBendAutomationsModelTest::test_removeAt_shouldRemoveAutomationData()
