@@ -86,7 +86,7 @@ Dialog {
             id: startLineSpinBox
             width: parent.width * 0.3
             from: 0
-            to: endLineSpinBox.value
+            to: 999
             value: 0
             editable: true
             Keys.onReturnPressed: {
@@ -104,7 +104,7 @@ Dialog {
         SpinBox {
             id: endLineSpinBox
             width: parent.width * 0.3
-            from: startLineSpinBox.value + 1
+            from: 0
             to: 999
             value: 0
             editable: true
