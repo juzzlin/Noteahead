@@ -96,6 +96,8 @@ public:
     void setLineCount(size_t patternIndex, size_t lineCount);
 
     size_t patternCount() const;
+    using PatternIndexList = std::vector<size_t>;
+    PatternIndexList patternIndices() const;
     size_t patternAtSongPosition(size_t position) const;
     void setPatternAtSongPosition(size_t position, size_t pattern);
     void insertPatternToPlayOrder(size_t position);

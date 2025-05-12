@@ -95,9 +95,6 @@ public:
     Q_INVOKABLE quint64 currentLineCount() const;
     Q_INVOKABLE void setCurrentLineCount(quint64 lineCount);
 
-    Q_INVOKABLE QString currentPatternName() const;
-    Q_INVOKABLE void setCurrentPatternName(QString patternName);
-
     Q_INVOKABLE QString currentTime() const;
     Q_INVOKABLE QString duration() const;
 
@@ -123,22 +120,26 @@ public:
 
     Q_INVOKABLE QString noDataString() const;
 
-    Q_INVOKABLE quint64 patternCount() const;
     Q_INVOKABLE quint64 trackCount() const;
     using TrackIndexList = std::vector<quint64>;
     Q_INVOKABLE TrackIndexList trackIndices() const;
     Q_INVOKABLE quint64 trackPositionByIndex(quint64 trackIndex) const;
     quint64 trackIndexByPosition(quint64 track) const;
 
-    Q_INVOKABLE QString patternName(quint64 patternIndex) const;
-    Q_INVOKABLE void setPatternName(quint64 patternIndex, QString name);
     Q_INVOKABLE QString trackName(quint64 trackIndex) const;
     Q_INVOKABLE void setTrackName(quint64 trackIndex, QString name);
     Q_INVOKABLE QString columnName(quint64 trackIndex, quint64 columnIndex) const;
     Q_INVOKABLE void setColumnName(quint64 trackIndex, quint64 columnIndex, QString name);
 
+    Q_INVOKABLE quint64 patternCount() const;
+    using PatternIndexList = std::vector<quint64>;
+    Q_INVOKABLE PatternIndexList patternIndices() const;
     Q_INVOKABLE quint64 currentPattern() const;
     Q_INVOKABLE void setCurrentPattern(quint64 currentPattern);
+    Q_INVOKABLE QString patternName(quint64 patternIndex) const;
+    Q_INVOKABLE void setPatternName(quint64 patternIndex, QString name);
+    Q_INVOKABLE QString currentPatternName() const;
+    Q_INVOKABLE void setCurrentPatternName(QString patternName);
 
     Q_INVOKABLE bool hasData(quint64 patternIndex, quint64 trackIndex, quint64 columnIndex) const;
 

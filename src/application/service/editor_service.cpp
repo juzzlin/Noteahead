@@ -499,6 +499,14 @@ quint64 EditorService::patternCount() const
     return m_song->patternCount();
 }
 
+EditorService::PatternIndexList EditorService::patternIndices() const
+{
+    EditorService::PatternIndexList result;
+    std::ranges::transform(m_song->patternIndices(), std::back_inserter(result),
+                           [](std::size_t index) { return static_cast<quint64>(index); });
+    return result;
+}
+
 quint64 EditorService::trackCount() const
 {
     return m_song->trackCount();

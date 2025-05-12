@@ -139,7 +139,7 @@ FocusScope {
     function _createPatterns() {
         uiLogger.info(_tag, `Track count: ${editorService.trackCount()}`);
         uiLogger.debug(_tag, `Editor view width: ${rootItem.width}`);
-        for (let patternIndex = 0; patternIndex < editorService.patternCount(); patternIndex++) {
+        for (const patternIndex of editorService.patternIndices()) {
             _createPattern(patternIndex);
         }
     }
@@ -151,20 +151,24 @@ FocusScope {
         _updateTrackVisibility();
         _updateIndexHighlights();
     }
+    function _patternByIndex(index: int): var {
+        return _patterns.find(pattern => pattern.index() === index) || null;
+    }
     function _currentPattern() {
-        return _patterns[editorService.currentPattern];
+        return _patternByIndex(editorService.currentPattern);
     }
     function _updateCurrentTrackDimensions() {
+        uiLogger.debug(_tag, `Updating current track dimensions of the current pattern..`);
         _currentPattern().updateTrackDimensions(trackArea.width, trackArea.height);
     }
     function _updateCurrentTrackData() {
         _currentPattern().updateTrackData();
     }
     function _setTrackFocused(position) {
-        _patterns[position.pattern].setTrackFocused(position.track, position.column);
+        _patternByIndex(position.pattern).setTrackFocused(position.track, position.column);
     }
     function _setTrackUnfocused(position) {
-        _patterns[position.pattern].setTrackUnfocused(position.track, position.column);
+        _patternByIndex(position.pattern).setTrackUnfocused(position.track, position.column);
     }
     function _updateColumnHeaders() {
         _patterns.forEach(pattern => pattern.updateColumnHeaders());
@@ -261,6 +265,7 @@ FocusScope {
         editorService.patternCreated.connect(patternIndex => _createPattern(patternIndex));
         editorService.positionChanged.connect((newPosition, oldPosition) => {
                 if (newPosition.pattern !== oldPosition.pattern) {
+                    uiLogger.debug(_tag, `Changing pattern from index=${oldPosition.pattern} to index=${newPosition.pattern}`);
                     _changePattern();
                 }
                 _updateFocus(newPosition, oldPosition);

@@ -244,6 +244,15 @@ size_t Song::patternCount() const
     return static_cast<size_t>(m_patterns.size());
 }
 
+Song::PatternIndexList Song::patternIndices() const
+{
+    Song::PatternIndexList indices;
+    for (auto && [index, pattern] : m_patterns) {
+        indices.push_back(index);
+    }
+    return indices;
+}
+
 size_t Song::patternAtSongPosition(size_t position) const
 {
     return m_playOrder->positionToPattern(position);
