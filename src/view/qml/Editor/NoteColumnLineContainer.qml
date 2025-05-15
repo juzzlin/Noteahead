@@ -42,9 +42,6 @@ Rectangle {
             _listView.positionViewAtIndex(_scrollOffset, ListView.Beginning);
         }
     }
-    function _isPositionMe(position: var): bool {
-        return position.pattern === _patternIndex && position.track === _trackIndex && position.column === _index;
-    }
     function _triggerVolumeMeterAtPosition(position: var): void {
         if (UiService.isPlaying() && mixerService.shouldColumnPlay(_trackIndex, _index)) {
             const velocity = editorService.velocityAtPosition(position.pattern, _trackIndex, _index, position.line);
