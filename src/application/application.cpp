@@ -71,11 +71,12 @@ Application::Application(int & argc, char ** argv)
     handleCommandLineArguments(argc, argv); // Handle command-line arguments at initialization
 
     m_applicationService->setRecentFilesManager(m_recentFilesManager);
+    m_recentFilesModel->setRecentFiles(m_recentFilesManager->recentFiles());
+    connect(m_recentFilesManager.get(), &RecentFilesManager::recentFilesChanged, m_recentFilesModel.get(), &RecentFilesModel::setRecentFiles);
+
     m_applicationService->setStateMachine(m_stateMachine);
     m_applicationService->setEditorService(m_editorService);
     m_applicationService->setPlayerService(m_playerService);
-
-    m_recentFilesModel->setRecentFiles(m_recentFilesManager->recentFiles());
 }
 
 void Application::registerTypes()

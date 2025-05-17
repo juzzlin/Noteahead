@@ -26,25 +26,26 @@ namespace noteahead {
 
 class RecentFilesManager : public QObject
 {
+    Q_OBJECT
+
 public:
     RecentFilesManager();
 
     std::optional<QString> recentFile() const;
-
     QStringList recentFiles() const;
-
     bool hasRecentFiles() const;
 
     QString selectedFile() const;
 
+signals:
+    void recentFilesChanged(const QStringList & recentFiles);
+
 public slots:
     void addRecentFile(QString filePath);
-
     void setSelectedFile(QString filePath);
 
 private:
     QStringList m_recentFiles;
-
     QString m_selectedFile;
 };
 

@@ -49,6 +49,8 @@ void RecentFilesManager::addRecentFile(QString filePath)
     juzzlin::L(TAG).debug() << "Recent file count: " << m_recentFiles.size();
 
     settings::setRecentFiles(m_recentFiles);
+
+    emit recentFilesChanged(m_recentFiles);
 }
 
 std::optional<QString> RecentFilesManager::recentFile() const
