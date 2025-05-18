@@ -3,6 +3,7 @@ set(NAME automation_service_test)
 set(SRC
     ${NAME}.cpp
     ${NAME}.hpp
+    ../../application/position.hpp
     ../../application/service/automation_service.cpp
     ../../common/constants.cpp
     ../../common/utils.cpp

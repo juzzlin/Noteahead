@@ -26,6 +26,8 @@ class AutomationServiceTest : public QObject
 
 private slots:
 
+    void initTestCase();
+
     void test_addMidiCcAutomation_shouldAddAutomation();
     void test_deleteMidiCcAutomation_shouldDeleteAutomation();
     void test_addPitchBendAutomation_shouldAddAutomation();

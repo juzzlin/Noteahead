@@ -15,13 +15,21 @@
 
 #include "automation_service_test.hpp"
 
+#include "../../application/position.hpp"
 #include "../../application/service/automation_service.hpp"
 #include "../../domain/interpolator.hpp"
 #include "../../domain/midi_cc_automation.hpp"
 
 #include <QSignalSpy>
 
+Q_DECLARE_METATYPE(noteahead::Position)
+
 namespace noteahead {
+
+void AutomationServiceTest::initTestCase()
+{
+    qRegisterMetaType<noteahead::Position>("Position");
+}
 
 void AutomationServiceTest::test_addMidiCcAutomation_shouldAddAutomation()
 {
