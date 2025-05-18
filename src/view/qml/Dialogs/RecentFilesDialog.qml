@@ -23,7 +23,7 @@ Dialog {
                 anchors.fill: parent
                 delegate: Item {
                     id: recentFileItem
-                    width: parent.width
+                    width: recentFilesList.width
                     height: recentFileText.height + 20
                     Label {
                         id: recentFileText
