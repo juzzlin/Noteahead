@@ -41,6 +41,8 @@
 #include <QQmlApplicationEngine>
 #include <QQmlContext>
 
+Q_DECLARE_METATYPE(noteahead::Position)
+
 namespace noteahead {
 
 static const auto TAG = "Application";
@@ -83,6 +85,8 @@ void Application::registerTypes()
 {
     const int majorVersion = 1;
     const int minorVersion = 0;
+
+    qRegisterMetaType<noteahead::Position>("Position");
 
     qmlRegisterType<ApplicationService>("Noteahead", majorVersion, minorVersion, "ApplicationService");
     qmlRegisterType<AutomationService>("Noteahead", majorVersion, minorVersion, "AutomationService");
