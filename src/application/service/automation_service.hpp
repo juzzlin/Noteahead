@@ -30,7 +30,7 @@ class QXmlStreamWriter;
 
 namespace noteahead {
 
-class Position;
+struct Position;
 
 class AutomationService : public QObject
 {
