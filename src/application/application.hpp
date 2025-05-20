@@ -64,7 +64,7 @@ public:
 private:
     void applyAllInstruments();
     void applyAllMidiCcSettings();
-    void applyInstrument(const Instrument & instrument);
+    void applyInstrument(size_t trackIndex, const Instrument & instrument);
     void applyMidiCcSettings(const Instrument & instrument);
     void applyState(StateMachine::State state);
 

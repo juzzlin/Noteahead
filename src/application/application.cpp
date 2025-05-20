@@ -365,7 +365,7 @@ void Application::requestInstruments(QStringList midiPorts)
         for (auto && trackIndex : m_editorService->trackIndices()) {
             if (const auto instrument = m_editorService->instrument(trackIndex); instrument) {
                 if (Utils::portNameMatchScore(instrument->device().portName.toStdString(), midiPort.toStdString()) > 0.75) {
-                    applyInstrument(*instrument);
+                    applyInstrument(trackIndex, *instrument);
                 }
             }
         }
@@ -377,10 +377,10 @@ int Application::run()
     return initialize();
 }
 
-void Application::applyInstrument(const Instrument & instrument)
+void Application::applyInstrument(size_t trackIndex, const Instrument & instrument)
 {
     const InstrumentRequest instrumentRequest { InstrumentRequest::Type::ApplyAll, instrument };
-    juzzlin::L(TAG).info() << "Applying instrument: " << instrumentRequest.instrument().toString().toStdString();
+    juzzlin::L(TAG).info() << "Applying instrument on track " << trackIndex << ": " << instrumentRequest.instrument().toString().toStdString();
     m_midiService->handleInstrumentRequest(instrumentRequest);
 }
 
@@ -395,7 +395,7 @@ void Application::applyAllInstruments()
 {
     for (auto trackIndex : m_editorService->trackIndices()) {
         if (const auto instrument = m_editorService->instrument(trackIndex); instrument) {
-            applyInstrument(*instrument);
+            applyInstrument(trackIndex, *instrument);
         }
     }
 
