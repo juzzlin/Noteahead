@@ -39,6 +39,8 @@ void MixerService::muteColumn(quint64 trackIndex, quint64 columnIndex, bool mute
 
 void MixerService::invertMutedColumns(quint64 trackIndex, quint64 columnIndex)
 {
+    juzzlin::L(TAG).info() << "Inverting muted columns on track " << trackIndex;
+
     emit columnCountOfTrackRequested(trackIndex);
 
     if (!isColumnMuted(trackIndex, columnIndex)) {
@@ -54,6 +56,29 @@ void MixerService::invertMutedColumns(quint64 trackIndex, quint64 columnIndex)
     } else {
         for (quint64 targetColumnIndex = 0; targetColumnIndex < m_columnCountMap[trackIndex]; targetColumnIndex++) {
             muteColumn(trackIndex, targetColumnIndex, columnIndex != targetColumnIndex);
+        }
+    }
+}
+
+void MixerService::invertSoloedColumns(quint64 trackIndex, quint64 columnIndex)
+{
+    juzzlin::L(TAG).info() << "Inverting soloed columns on track " << trackIndex;
+
+    emit columnCountOfTrackRequested(trackIndex);
+
+    if (!isColumnSoloed(trackIndex, columnIndex)) {
+        if (!hasSoloedColumns(trackIndex)) {
+            for (quint64 targetColumnIndex = 0; targetColumnIndex < m_columnCountMap[trackIndex]; targetColumnIndex++) {
+                soloColumn(trackIndex, targetColumnIndex, columnIndex != targetColumnIndex);
+            }
+        } else {
+            for (quint64 targetColumnIndex = 0; targetColumnIndex < m_columnCountMap[trackIndex]; targetColumnIndex++) {
+                soloColumn(trackIndex, targetColumnIndex, false);
+            }
+        }
+    } else {
+        for (quint64 targetColumnIndex = 0; targetColumnIndex < m_columnCountMap[trackIndex]; targetColumnIndex++) {
+            soloColumn(trackIndex, targetColumnIndex, columnIndex != targetColumnIndex);
         }
     }
 }
@@ -126,6 +151,8 @@ void MixerService::muteTrack(quint64 trackIndex, bool mute)
 
 void MixerService::invertMutedTracks(quint64 trackIndex)
 {
+    juzzlin::L(TAG).info() << "Inverting muted tracks";
+
     emit trackIndicesRequested();
 
     if (!isTrackMuted(trackIndex)) {
@@ -141,6 +168,29 @@ void MixerService::invertMutedTracks(quint64 trackIndex)
     } else {
         for (auto && targetTrackIndex : m_trackIndexList) {
             muteTrack(targetTrackIndex, targetTrackIndex != trackIndex);
+        }
+    }
+}
+
+void MixerService::invertSoloedTracks(quint64 trackIndex)
+{
+    juzzlin::L(TAG).info() << "Inverting soloed tracks";
+
+    emit trackIndicesRequested();
+
+    if (!isTrackSoloed(trackIndex)) {
+        if (!hasSoloedTracks()) {
+            for (auto && targetTrackIndex : m_trackIndexList) {
+                soloTrack(targetTrackIndex, targetTrackIndex != trackIndex);
+            }
+        } else {
+            for (auto && targetTrackIndex : m_trackIndexList) {
+                soloTrack(targetTrackIndex, false);
+            }
+        }
+    } else {
+        for (auto && targetTrackIndex : m_trackIndexList) {
+            soloTrack(targetTrackIndex, targetTrackIndex != trackIndex);
         }
     }
 }

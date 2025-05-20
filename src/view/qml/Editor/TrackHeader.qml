@@ -12,6 +12,8 @@ Rectangle {
     border.color: Constants.trackHeaderBorderColor
     border.width: 1
     signal columnDeletionRequested
+    signal invertedMuteRequested
+    signal invertedSoloRequested
     signal muteRequested
     signal nameChanged(string name)
     signal newColumnRequested
@@ -115,6 +117,8 @@ Rectangle {
     Component.onCompleted: {
         trackHeaderColumnButtons.columnDeletionRequested.connect(rootItem.columnDeletionRequested);
         trackHeaderColumnButtons.newColumnRequested.connect(rootItem.newColumnRequested);
+        muteSoloButtons.invertedMuteRequested.connect(rootItem.invertedMuteRequested);
+        muteSoloButtons.invertedSoloRequested.connect(rootItem.invertedSoloRequested);
         muteSoloButtons.muteRequested.connect(rootItem.muteRequested);
         muteSoloButtons.soloRequested.connect(rootItem.soloRequested);
         muteSoloButtons.unmuteRequested.connect(rootItem.unmuteRequested);

@@ -203,14 +203,38 @@ void Application::handleCommandLineArguments(int & argc, char ** argv)
 
 void Application::connectServices()
 {
+    connectApplicationService();
+
+    connectAutomationService();
+    connectEditorService();
+    connectMidiService();
+    connectMixerService();
+    connectPlayerService();
+
+    connectStateMachine();
+
+    connectEventSelectionModel();
+    connectMidiCcAutomationsModel();
+    connectPitchBendAutomationsModel();
+    connectTrackSettingsModel();
+}
+
+void Application::connectApplicationService()
+{
     connect(m_applicationService.get(), &ApplicationService::applyAllTrackSettingsRequested, this, &Application::applyAllInstruments);
     connect(m_applicationService.get(), &ApplicationService::liveNoteOnRequested, m_midiService.get(), &MidiService::playNote);
     connect(m_applicationService.get(), &ApplicationService::liveNoteOffRequested, m_midiService.get(), &MidiService::stopNote);
+}
 
+void Application::connectAutomationService()
+{
     connect(m_automationService.get(), &AutomationService::lineDataChanged, this, [this]() {
         m_editorService->setIsModified(true);
     });
+}
 
+void Application::connectMidiCcAutomationsModel()
+{
     connect(m_midiCcAutomationsModel.get(), &MidiCcAutomationsModel::midiCcAutomationsRequested, this, [this]() {
         m_midiCcAutomationsModel->setMidiCcAutomations(m_automationService->midiCcAutomations());
     });
@@ -222,7 +246,10 @@ void Application::connectServices()
         m_automationService->deleteMidiCcAutomation(item);
         m_editorService->setIsModified(true);
     });
+}
 
+void Application::connectPitchBendAutomationsModel()
+{
     connect(m_pitchBendAutomationsModel.get(), &PitchBendAutomationsModel::pitchBendAutomationsRequested, this, [this]() {
         m_pitchBendAutomationsModel->setPitchBendAutomations(m_automationService->pitchBendAutomations());
     });
@@ -234,7 +261,10 @@ void Application::connectServices()
         m_automationService->deletePitchBendAutomation(item);
         m_editorService->setIsModified(true);
     });
+}
 
+void Application::connectEditorService()
+{
     connect(m_editorService.get(), &EditorService::aboutToChangeSong, m_mixerService.get(), &MixerService::clear);
     connect(m_editorService.get(), &EditorService::aboutToInitialize, m_mixerService.get(), &MixerService::clear);
     connect(m_editorService.get(), &EditorService::instrumentRequested, m_midiService.get(), &MidiService::handleInstrumentRequest);
@@ -245,18 +275,35 @@ void Application::connectServices()
     connect(m_editorService.get(), &EditorService::mixerSerializationRequested, m_mixerService.get(), &MixerService::serializeToXml);
 
     connect(m_editorService.get(), &EditorService::songPositionChanged, m_playerService.get(), &PlayerService::setSongPosition);
+}
 
+void Application::connectMidiService()
+{
     connect(m_midiService.get(), &MidiService::availableMidiPortsChanged, m_trackSettingsModel.get(), &TrackSettingsModel::setAvailableMidiPorts);
     connect(m_midiService.get(), &MidiService::midiPortsAppeared, this, &Application::requestInstruments);
     connect(m_midiService.get(), &MidiService::statusTextRequested, m_applicationService.get(), &ApplicationService::statusTextRequested);
+}
 
+void Application::connectMixerService()
+{
     connect(m_mixerService.get(), &MixerService::configurationChanged, this, [this]() {
         m_editorService->setIsModified(true);
     });
     connect(m_mixerService.get(), &MixerService::columnCountOfTrackRequested, this, [this](size_t trackIndex) {
         m_mixerService->setColumnCount(trackIndex, m_editorService->columnCount(trackIndex));
     });
+    connect(m_mixerService.get(), &MixerService::trackIndicesRequested, this, [this] {
+        m_mixerService->setTrackIndices(m_editorService->trackIndices());
+    });
+}
 
+void Application::connectStateMachine()
+{
+    connect(m_stateMachine.get(), &StateMachine::stateChanged, this, &Application::applyState);
+}
+
+void Application::connectPlayerService()
+{
     connect(m_playerService.get(), &PlayerService::songRequested, this, [this] {
         m_playerService->setSong(m_editorService->song());
     });
@@ -265,9 +312,10 @@ void Application::connectServices()
     connect(m_playerService.get(), &PlayerService::isPlayingChanged, this, [this]() {
         m_midiService->setIsPlaying(m_playerService->isPlaying());
     });
+}
 
-    connect(m_stateMachine.get(), &StateMachine::stateChanged, this, &Application::applyState);
-
+void Application::connectEventSelectionModel()
+{
     connect(m_eventSelectionModel.get(), &EventSelectionModel::dataRequested, this, [this]() {
         if (const auto instrumentSettings = m_editorService->instrumentSettingsAtCurrentPosition(); instrumentSettings) {
             m_eventSelectionModel->fromInstrumentSettings(*instrumentSettings);
@@ -279,7 +327,10 @@ void Application::connectServices()
     connect(m_eventSelectionModel.get(), &EventSelectionModel::saveRequested, this, [this]() {
         m_editorService->setInstrumentSettingsAtCurrentPosition(m_eventSelectionModel->toInstrumentSettings());
     });
+}
 
+void Application::connectTrackSettingsModel()
+{
     connect(m_trackSettingsModel.get(), &TrackSettingsModel::instrumentDataRequested, this, [this]() {
         if (const auto instrument = m_editorService->instrument(m_trackSettingsModel->trackIndex()); instrument) {
             m_trackSettingsModel->setInstrumentData(*instrument);

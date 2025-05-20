@@ -28,17 +28,47 @@ void MixerServiceTest::test_muteColumn_shouldSetColumnMuted()
     QSignalSpy columnMutedSpy(&mixerService, &MixerService::columnMuted);
 
     mixerService.muteColumn(0, 1, true);
-    QCOMPARE(mixerService.isColumnMuted(0, 1), true);
-    QCOMPARE(mixerService.shouldColumnPlay(0, 1), false);
-    QCOMPARE(mixerService.shouldTrackPlay(0), true);
+    QVERIFY(mixerService.isColumnMuted(0, 1));
+    QVERIFY(!mixerService.shouldColumnPlay(0, 1));
+    QVERIFY(mixerService.shouldTrackPlay(0));
     QCOMPARE(configurationChangedSpy.count(), 1);
     QCOMPARE(columnMutedSpy.count(), 1);
 
     mixerService.muteColumn(0, 1, false);
-    QCOMPARE(mixerService.isColumnMuted(0, 1), false);
-    QCOMPARE(mixerService.shouldColumnPlay(0, 1), true);
-    QCOMPARE(mixerService.shouldTrackPlay(0), true);
+    QVERIFY(!mixerService.isColumnMuted(0, 1));
+    QVERIFY(mixerService.shouldColumnPlay(0, 1));
+    QVERIFY(mixerService.shouldTrackPlay(0));
     QCOMPARE(columnMutedSpy.count(), 2);
+}
+
+void MixerServiceTest::test_invertMutedColumns_shouldInvertMutedColumns()
+{
+    MixerService mixerService;
+
+    connect(&mixerService, &MixerService::trackIndicesRequested, this, [&] {
+        mixerService.setTrackIndices({ 0 });
+    });
+
+    connect(&mixerService, &MixerService::columnCountOfTrackRequested, this, [&](auto trackIndex) {
+        QCOMPARE(trackIndex, 0);
+        mixerService.setColumnCount(0, 3);
+    });
+
+    mixerService.muteColumn(0, 0, true);
+    mixerService.muteColumn(0, 1, true);
+    mixerService.muteColumn(0, 2, true);
+
+    mixerService.invertMutedColumns(0, 1);
+
+    QVERIFY(mixerService.isColumnMuted(0, 0));
+    QVERIFY(!mixerService.isColumnMuted(0, 1));
+    QVERIFY(mixerService.isColumnMuted(0, 2));
+
+    mixerService.invertMutedColumns(0, 1);
+
+    QVERIFY(!mixerService.isColumnMuted(0, 0));
+    QVERIFY(!mixerService.isColumnMuted(0, 1));
+    QVERIFY(!mixerService.isColumnMuted(0, 2));
 }
 
 void MixerServiceTest::test_soloColumn_shouldSetColumnSoloed()
@@ -48,15 +78,45 @@ void MixerServiceTest::test_soloColumn_shouldSetColumnSoloed()
     QSignalSpy columnSoloedSpy(&mixerService, &MixerService::columnSoloed);
 
     mixerService.soloColumn(0, 1, true);
-    QCOMPARE(mixerService.isColumnSoloed(0, 1), true);
-    QCOMPARE(mixerService.shouldColumnPlay(0, 1), true);
+    QVERIFY(mixerService.isColumnSoloed(0, 1));
+    QVERIFY(mixerService.shouldColumnPlay(0, 1));
     QCOMPARE(configurationChangedSpy.count(), 1);
     QCOMPARE(columnSoloedSpy.count(), 1);
 
     mixerService.soloColumn(0, 1, false);
-    QCOMPARE(mixerService.isColumnSoloed(0, 1), false);
-    QCOMPARE(mixerService.shouldColumnPlay(0, 1), true);
+    QVERIFY(!mixerService.isColumnSoloed(0, 1));
+    QVERIFY(mixerService.shouldColumnPlay(0, 1));
     QCOMPARE(columnSoloedSpy.count(), 2);
+}
+
+void MixerServiceTest::test_invertSoloedColumns_shouldInvertSoloedColumns()
+{
+    MixerService mixerService;
+
+    connect(&mixerService, &MixerService::trackIndicesRequested, this, [&] {
+        mixerService.setTrackIndices({ 0 });
+    });
+
+    connect(&mixerService, &MixerService::columnCountOfTrackRequested, this, [&](auto trackIndex) {
+        QCOMPARE(trackIndex, 0);
+        mixerService.setColumnCount(0, 3);
+    });
+
+    mixerService.soloColumn(0, 0, true);
+    mixerService.soloColumn(0, 1, true);
+    mixerService.soloColumn(0, 2, true);
+
+    mixerService.invertSoloedColumns(0, 1);
+
+    QVERIFY(mixerService.isColumnSoloed(0, 0));
+    QVERIFY(!mixerService.isColumnSoloed(0, 1));
+    QVERIFY(mixerService.isColumnSoloed(0, 2));
+
+    mixerService.invertSoloedColumns(0, 1);
+
+    QVERIFY(!mixerService.isColumnSoloed(0, 0));
+    QVERIFY(!mixerService.isColumnSoloed(0, 1));
+    QVERIFY(!mixerService.isColumnSoloed(0, 2));
 }
 
 void MixerServiceTest::test_muteTrack_shouldSetTrackMuted()
@@ -66,17 +126,42 @@ void MixerServiceTest::test_muteTrack_shouldSetTrackMuted()
     QSignalSpy trackMutedSpy(&mixerService, &MixerService::trackMuted);
 
     mixerService.muteTrack(0, true);
-    QCOMPARE(mixerService.isTrackMuted(0), true);
-    QCOMPARE(mixerService.shouldTrackPlay(0), false);
-    QCOMPARE(mixerService.shouldColumnPlay(0, 1), false);
+    QVERIFY(mixerService.isTrackMuted(0));
+    QVERIFY(!mixerService.shouldTrackPlay(0));
+    QVERIFY(!mixerService.shouldColumnPlay(0, 1));
     QCOMPARE(configurationChangedSpy.count(), 1);
     QCOMPARE(trackMutedSpy.count(), 1);
 
     mixerService.muteTrack(0, false);
-    QCOMPARE(mixerService.isTrackMuted(0), false);
-    QCOMPARE(mixerService.shouldTrackPlay(0), true);
-    QCOMPARE(mixerService.shouldColumnPlay(0, 1), true);
+    QVERIFY(!mixerService.isTrackMuted(0));
+    QVERIFY(mixerService.shouldTrackPlay(0));
+    QVERIFY(mixerService.shouldColumnPlay(0, 1));
     QCOMPARE(trackMutedSpy.count(), 2);
+}
+
+void MixerServiceTest::test_invertMutedTracks_shouldInvertMutedTracks()
+{
+    MixerService mixerService;
+
+    connect(&mixerService, &MixerService::trackIndicesRequested, this, [&] {
+        mixerService.setTrackIndices({ 0, 1, 2 });
+    });
+
+    mixerService.muteTrack(0, true);
+    mixerService.muteTrack(1, true);
+    mixerService.muteTrack(2, true);
+
+    mixerService.invertMutedTracks(1);
+
+    QVERIFY(mixerService.isTrackMuted(0));
+    QVERIFY(!mixerService.isTrackMuted(1));
+    QVERIFY(mixerService.isTrackMuted(2));
+
+    mixerService.invertMutedTracks(1);
+
+    QVERIFY(!mixerService.isTrackMuted(0));
+    QVERIFY(!mixerService.isTrackMuted(1));
+    QVERIFY(!mixerService.isTrackMuted(2));
 }
 
 void MixerServiceTest::test_soloTrack_shouldSetTrackSoloed()
@@ -86,17 +171,42 @@ void MixerServiceTest::test_soloTrack_shouldSetTrackSoloed()
     QSignalSpy trackSoloedSpy(&mixerService, &MixerService::trackSoloed);
 
     mixerService.soloTrack(0, true);
-    QCOMPARE(mixerService.isTrackSoloed(0), true);
-    QCOMPARE(mixerService.shouldTrackPlay(0), true);
-    QCOMPARE(mixerService.shouldColumnPlay(0, 1), true);
+    QVERIFY(mixerService.isTrackSoloed(0));
+    QVERIFY(mixerService.shouldTrackPlay(0));
+    QVERIFY(mixerService.shouldColumnPlay(0, 1));
     QCOMPARE(configurationChangedSpy.count(), 1);
     QCOMPARE(trackSoloedSpy.count(), 1);
 
     mixerService.soloTrack(0, false);
-    QCOMPARE(mixerService.isTrackSoloed(0), false);
-    QCOMPARE(mixerService.shouldTrackPlay(0), true);
-    QCOMPARE(mixerService.shouldColumnPlay(0, 1), true);
+    QVERIFY(!mixerService.isTrackSoloed(0));
+    QVERIFY(mixerService.shouldTrackPlay(0));
+    QVERIFY(mixerService.shouldColumnPlay(0, 1));
     QCOMPARE(trackSoloedSpy.count(), 2);
+}
+
+void MixerServiceTest::test_invertSoloedTracks_shouldInvertSoloedTracks()
+{
+    MixerService mixerService;
+
+    connect(&mixerService, &MixerService::trackIndicesRequested, this, [&] {
+        mixerService.setTrackIndices({ 0, 1, 2 });
+    });
+
+    mixerService.soloTrack(0, true);
+    mixerService.soloTrack(1, true);
+    mixerService.soloTrack(2, true);
+
+    mixerService.invertSoloedTracks(1);
+
+    QVERIFY(mixerService.isTrackSoloed(0));
+    QVERIFY(!mixerService.isTrackSoloed(1));
+    QVERIFY(mixerService.isTrackSoloed(2));
+
+    mixerService.invertSoloedTracks(1);
+
+    QVERIFY(!mixerService.isTrackSoloed(0));
+    QVERIFY(!mixerService.isTrackSoloed(1));
+    QVERIFY(!mixerService.isTrackSoloed(2));
 }
 
 void MixerServiceTest::test_update_shouldUpdatePlaybackState()
@@ -104,8 +214,8 @@ void MixerServiceTest::test_update_shouldUpdatePlaybackState()
     MixerService mixerService;
     mixerService.soloColumn(0, 1, true);
     mixerService.update();
-    QCOMPARE(mixerService.shouldColumnPlay(0, 1), true);
-    QCOMPARE(mixerService.shouldTrackPlay(0), true);
+    QVERIFY(mixerService.shouldColumnPlay(0, 1));
+    QVERIFY(mixerService.shouldTrackPlay(0));
 }
 
 void MixerServiceTest::test_shouldColumnPlay_muted_shouldNotPlay()
@@ -119,12 +229,12 @@ void MixerServiceTest::test_shouldColumnPlay_parentMuted_shouldNotPlay()
 {
     MixerService mixerService;
     mixerService.muteTrack(0, true);
-    QCOMPARE(mixerService.shouldTrackPlay(0), false);
-    QCOMPARE(mixerService.shouldColumnPlay(0, 1), false);
+    QVERIFY(!mixerService.shouldTrackPlay(0));
+    QVERIFY(!mixerService.shouldColumnPlay(0, 1));
 
     mixerService.muteTrack(0, false);
-    QCOMPARE(mixerService.shouldTrackPlay(0), true);
-    QCOMPARE(mixerService.shouldColumnPlay(0, 1), true);
+    QVERIFY(mixerService.shouldTrackPlay(0));
+    QVERIFY(mixerService.shouldColumnPlay(0, 1));
 }
 
 void MixerServiceTest::test_shouldColumnPlay_siblingSoloed_shouldNotPlay()
@@ -132,8 +242,8 @@ void MixerServiceTest::test_shouldColumnPlay_siblingSoloed_shouldNotPlay()
     MixerService mixerService;
     mixerService.soloColumn(0, 0, true);
 
-    QCOMPARE(mixerService.shouldColumnPlay(0, 0), true); // Soloed column should play
-    QCOMPARE(mixerService.shouldColumnPlay(0, 1), false); // Other columns in the same track should not play
+    QVERIFY(mixerService.shouldColumnPlay(0, 0)); // Soloed column should play
+    QVERIFY(!mixerService.shouldColumnPlay(0, 1)); // Other columns in the same track should not play
 }
 
 void MixerServiceTest::test_shouldColumnPlay_oneOfSoloedColumns_shouldPlay()
@@ -142,27 +252,27 @@ void MixerServiceTest::test_shouldColumnPlay_oneOfSoloedColumns_shouldPlay()
     mixerService.soloColumn(0, 0, true);
     mixerService.soloColumn(0, 1, true);
 
-    QCOMPARE(mixerService.shouldColumnPlay(0, 0), true); // Soloed column should play
-    QCOMPARE(mixerService.shouldColumnPlay(0, 1), true); // Another soloed column should also play
-    QCOMPARE(mixerService.shouldColumnPlay(0, 2), false); // Non-soloed columns should not play
+    QVERIFY(mixerService.shouldColumnPlay(0, 0)); // Soloed column should play
+    QVERIFY(mixerService.shouldColumnPlay(0, 1)); // Another soloed column should also play
+    QVERIFY(!mixerService.shouldColumnPlay(0, 2)); // Non-soloed columns should not play
 }
 
 void MixerServiceTest::test_shouldTrackPlay_muted_shouldNotPlay()
 {
     MixerService mixerService;
     mixerService.muteTrack(0, true);
-    QCOMPARE(mixerService.shouldTrackPlay(0), false);
-    QCOMPARE(mixerService.shouldColumnPlay(0, 1), false);
+    QVERIFY(!mixerService.shouldTrackPlay(0));
+    QVERIFY(!mixerService.shouldColumnPlay(0, 1));
 }
 
 void MixerServiceTest::test_shouldTrackPlay_siblingSoloed_shouldNotPlay()
 {
     MixerService mixerService;
     mixerService.soloTrack(1, true);
-    QCOMPARE(mixerService.shouldTrackPlay(0), false);
-    QCOMPARE(mixerService.shouldColumnPlay(0, 0), false);
-    QCOMPARE(mixerService.shouldTrackPlay(1), true);
-    QCOMPARE(mixerService.shouldColumnPlay(1, 0), true);
+    QVERIFY(!mixerService.shouldTrackPlay(0));
+    QVERIFY(!mixerService.shouldColumnPlay(0, 0));
+    QVERIFY(mixerService.shouldTrackPlay(1));
+    QVERIFY(mixerService.shouldColumnPlay(1, 0));
 }
 
 void MixerServiceTest::test_shouldTrackPlay_oneOfSoloedTracks_shouldPlay()
@@ -170,11 +280,11 @@ void MixerServiceTest::test_shouldTrackPlay_oneOfSoloedTracks_shouldPlay()
     MixerService mixerService;
     mixerService.soloTrack(0, true);
     mixerService.soloTrack(1, true);
-    QCOMPARE(mixerService.shouldTrackPlay(0), true);
-    QCOMPARE(mixerService.shouldColumnPlay(0, 0), true);
-    QCOMPARE(mixerService.shouldTrackPlay(1), true);
-    QCOMPARE(mixerService.shouldColumnPlay(1, 0), true);
-    QCOMPARE(mixerService.shouldTrackPlay(2), false);
+    QVERIFY(mixerService.shouldTrackPlay(0));
+    QVERIFY(mixerService.shouldColumnPlay(0, 0));
+    QVERIFY(mixerService.shouldTrackPlay(1));
+    QVERIFY(mixerService.shouldColumnPlay(1, 0));
+    QVERIFY(!mixerService.shouldTrackPlay(2));
 }
 
 void MixerServiceTest::test_shouldTrackPlay_oneOfSoloedTracks_siblingHasSoloedColumn_shouldPlay()
@@ -183,11 +293,11 @@ void MixerServiceTest::test_shouldTrackPlay_oneOfSoloedTracks_siblingHasSoloedCo
     mixerService.soloTrack(0, true);
     mixerService.soloColumn(0, 0, true);
     mixerService.soloTrack(1, true);
-    QCOMPARE(mixerService.shouldTrackPlay(0), true);
-    QCOMPARE(mixerService.shouldColumnPlay(0, 0), true);
-    QCOMPARE(mixerService.shouldTrackPlay(1), true);
-    QCOMPARE(mixerService.shouldColumnPlay(1, 0), true);
-    QCOMPARE(mixerService.shouldTrackPlay(2), false);
+    QVERIFY(mixerService.shouldTrackPlay(0));
+    QVERIFY(mixerService.shouldColumnPlay(0, 0));
+    QVERIFY(mixerService.shouldTrackPlay(1));
+    QVERIFY(mixerService.shouldColumnPlay(1, 0));
+    QVERIFY(!mixerService.shouldTrackPlay(2));
 }
 
 void MixerServiceTest::test_clear_shouldSendConfigurationChange()

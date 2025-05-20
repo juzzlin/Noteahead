@@ -6,10 +6,10 @@ import "../ToolBar"
 
 Item {
     id: rootItem
-    signal muteAllRequested
+    signal invertedMuteRequested
+    signal invertedSoloRequested
     signal muteRequested
     signal soloRequested
-    signal unmuteAllRequested
     signal unmuteRequested
     signal unsoloRequested
     function setMuted(mute) {
@@ -34,11 +34,7 @@ Item {
             focus = false;
         }
         onRightClicked: {
-            if (toggled()) {
-                rootItem.unmuteAllRequested();
-            } else {
-                rootItem.muteAllRequested();
-            }
+            rootItem.invertedMuteRequested();
             focus = false;
         }
         Keys.onPressed: event => {
@@ -69,6 +65,10 @@ Item {
             } else {
                 rootItem.soloRequested();
             }
+            focus = false;
+        }
+        onRightClicked: {
+            rootItem.invertedSoloRequested();
             focus = false;
         }
         Keys.onPressed: event => {

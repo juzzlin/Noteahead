@@ -268,6 +268,8 @@ Item {
     }
     Component.onCompleted: {
         trackHeader.columnDeletionRequested.connect(() => editorService.requestColumnDeletion(_index));
+        trackHeader.invertedMuteRequested.connect(() => mixerService.invertMutedTracks(_index));
+        trackHeader.invertedSoloRequested.connect(() => mixerService.invertSoloedTracks(_index));
         trackHeader.muteRequested.connect(() => mixerService.muteTrack(_index, true));
         trackHeader.nameChanged.connect(name => rootItem.nameChanged(name));
         trackHeader.newColumnRequested.connect(() => editorService.requestNewColumn(_index));

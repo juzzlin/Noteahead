@@ -37,6 +37,7 @@ public:
 
     Q_INVOKABLE void muteColumn(quint64 trackIndex, quint64 columnIndex, bool mute);
     Q_INVOKABLE void invertMutedColumns(quint64 trackIndex, quint64 columnIndex);
+    Q_INVOKABLE void invertSoloedColumns(quint64 trackIndex, quint64 columnIndex);
     Q_INVOKABLE bool shouldColumnPlay(quint64 trackIndex, quint64 columnIndex) const;
     Q_INVOKABLE void soloColumn(quint64 trackIndex, quint64 columnIndex, bool solo);
     Q_INVOKABLE bool isColumnMuted(quint64 trackIndex, quint64 columnIndex) const;
@@ -46,6 +47,7 @@ public:
 
     Q_INVOKABLE void muteTrack(quint64 trackIndex, bool mute);
     Q_INVOKABLE void invertMutedTracks(quint64 trackIndex);
+    Q_INVOKABLE void invertSoloedTracks(quint64 trackIndex);
     Q_INVOKABLE bool shouldTrackPlay(quint64 trackIndex) const;
     Q_INVOKABLE void soloTrack(quint64 trackIndex, bool solo);
     Q_INVOKABLE bool isTrackMuted(quint64 trackIndex) const;

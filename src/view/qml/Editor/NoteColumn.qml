@@ -271,10 +271,10 @@ Item {
     }
     Component.onCompleted: {
         config.visibleLinesChanged.connect(_resizeLines);
-        columnHeader.muteAllRequested.connect(() => mixerService.muteAllColumnsExcept(_trackIndex, _index, true));
+        columnHeader.invertedMuteRequested.connect(() => mixerService.invertMutedColumns(_trackIndex, _index));
+        columnHeader.invertedSoloRequested.connect(() => mixerService.invertSoloedColumns(_trackIndex, _index));
         columnHeader.muteRequested.connect(() => mixerService.muteColumn(_trackIndex, _index, true));
         columnHeader.soloRequested.connect(() => mixerService.soloColumn(_trackIndex, _index, true));
-        columnHeader.unmuteAllRequested.connect(() => mixerService.muteAllColumnsExcept(_trackIndex, _index, false));
         columnHeader.unmuteRequested.connect(() => mixerService.muteColumn(_trackIndex, _index, false));
         columnHeader.unsoloRequested.connect(() => mixerService.soloColumn(_trackIndex, _index, false));
         columnHeader.nameChanged.connect(name => editorService.setColumnName(_trackIndex, _index, name));

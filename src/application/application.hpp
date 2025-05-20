@@ -69,6 +69,17 @@ private:
     void applyState(StateMachine::State state);
 
     void connectServices();
+    void connectApplicationService();
+    void connectAutomationService();
+    void connectEditorService();
+    void connectMidiCcAutomationsModel();
+    void connectMidiService();
+    void connectMixerService();
+    void connectPlayerService();
+    void connectStateMachine();
+    void connectEventSelectionModel();
+    void connectPitchBendAutomationsModel();
+    void connectTrackSettingsModel();
 
     void addVideoOptions(juzzlin::Argengine & ae);
     void handleCommandLineArguments(int & argc, char ** argv);

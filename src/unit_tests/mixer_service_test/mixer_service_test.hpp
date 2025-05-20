@@ -26,10 +26,14 @@ class MixerServiceTest : public QObject
 
 private slots:
     void test_muteColumn_shouldSetColumnMuted();
+    void test_invertMutedColumns_shouldInvertMutedColumns();
     void test_soloColumn_shouldSetColumnSoloed();
+    void test_invertSoloedColumns_shouldInvertSoloedColumns();
 
     void test_muteTrack_shouldSetTrackMuted();
+    void test_invertMutedTracks_shouldInvertMutedTracks();
     void test_soloTrack_shouldSetTrackSoloed();
+    void test_invertSoloedTracks_shouldInvertSoloedTracks();
 
     void test_update_shouldUpdatePlaybackState();
 
