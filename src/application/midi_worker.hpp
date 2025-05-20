@@ -62,6 +62,9 @@ signals:
     void statusTextRequested(QString message);
 
 private:
+    using MidiDeviceS = std::shared_ptr<MidiDevice>;
+    void applyBank(const Instrument & instrument, MidiDeviceS midiDevice);
+    void applyPatch(const Instrument & instrument, MidiDeviceS midiDevice);
     void initializeScanTimer();
     void initializeStopTimer();
 

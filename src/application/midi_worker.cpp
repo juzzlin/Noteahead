@@ -149,6 +149,24 @@ void MidiWorker::sendMidiCcSettings(const MidiDevice & midiDevice, const Instrum
     }
 }
 
+void MidiWorker::applyBank(const Instrument & instrument, MidiDeviceS midiDevice)
+{
+    if (instrument.settings().bank.has_value()) {
+        juzzlin::L(TAG).info() << "Setting bank to " << static_cast<int>(instrument.settings().bank->msb) << ":" << static_cast<int>(instrument.settings().bank->lsb);
+        m_midiBackend->sendBankChange(*midiDevice, instrument.device().channel,
+                                      instrument.settings().bank->byteOrderSwapped ? instrument.settings().bank->lsb : instrument.settings().bank->msb,
+                                      instrument.settings().bank->byteOrderSwapped ? instrument.settings().bank->msb : instrument.settings().bank->lsb);
+    }
+}
+
+void MidiWorker::applyPatch(const Instrument & instrument, MidiDeviceS midiDevice)
+{
+    if (instrument.settings().patch.has_value()) {
+        juzzlin::L(TAG).info() << "Setting patch to " << static_cast<int>(*instrument.settings().patch);
+        m_midiBackend->sendPatchChange(*midiDevice, instrument.device().channel, *instrument.settings().patch);
+    }
+}
+
 void MidiWorker::handleInstrumentRequest(const InstrumentRequest & instrumentRequest)
 {
     if (instrumentRequest.type() == InstrumentRequest::Type::None) {
@@ -162,19 +180,11 @@ void MidiWorker::handleInstrumentRequest(const InstrumentRequest & instrumentReq
         if (const auto midiDevice = m_midiBackend->deviceByPortName(requestedPortName.toStdString()); midiDevice) {
             m_midiBackend->openDevice(*midiDevice);
             if (instrumentRequest.type() == InstrumentRequest::Type::ApplyAll) {
-                if (instrument.settings().bank.has_value()) {
-                    m_midiBackend->sendBankChange(*midiDevice, instrument.device().channel,
-                                                  instrument.settings().bank->byteOrderSwapped ? instrument.settings().bank->lsb : instrument.settings().bank->msb,
-                                                  instrument.settings().bank->byteOrderSwapped ? instrument.settings().bank->msb : instrument.settings().bank->lsb);
-                }
-                if (instrument.settings().patch.has_value()) {
-                    m_midiBackend->sendPatchChange(*midiDevice, instrument.device().channel, *instrument.settings().patch);
-                }
+                applyBank(instrument, midiDevice);
+                applyPatch(instrument, midiDevice);
                 sendMidiCcSettings(*midiDevice, instrument);
             } else if (instrumentRequest.type() == InstrumentRequest::Type::ApplyPatch) {
-                if (instrument.settings().patch.has_value()) {
-                    m_midiBackend->sendPatchChange(*midiDevice, instrument.device().channel, *instrument.settings().patch);
-                }
+                applyPatch(instrument, midiDevice);
             } else if (instrumentRequest.type() == InstrumentRequest::Type::ApplyMidiCc) {
                 sendMidiCcSettings(*midiDevice, instrument);
             }

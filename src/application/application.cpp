@@ -393,6 +393,8 @@ void Application::applyMidiCcSettings(const Instrument & instrument)
 
 void Application::applyAllInstruments()
 {
+    juzzlin::L(TAG).info() << "Applying all instruments";
+
     for (auto trackIndex : m_editorService->trackIndices()) {
         if (const auto instrument = m_editorService->instrument(trackIndex); instrument) {
             applyInstrument(trackIndex, *instrument);
