@@ -66,7 +66,7 @@ public:
     void setTrackIndices(TrackIndexList indices);
 
     void deserializeFromXml(QXmlStreamReader & reader);
-    void serializeToXml(QXmlStreamWriter & writer) const;
+    void serializeToXml(QXmlStreamWriter & writer);
 
 signals:
     void columnMuted(quint64 trackIndex, quint64 columnIndex, bool muted);
@@ -85,8 +85,11 @@ signals:
 private:
     bool hasMutedColumns(quint64 trackIndex) const;
     bool hasSoloedColumns(quint64 trackIndex) const;
+    bool hasTrack(quint64 trackIndex) const;
+    bool hasColumn(quint64 trackIndex, quint64 columnindex) const;
     bool hasMutedTracks() const;
     bool hasSoloedTracks() const;
+    void updateTrackAndColumnConfiguration();
 
     using TrackAndColumn = std::pair<quint64, quint64>;
     using TrackAndColumnMuteSoloMap = std::map<TrackAndColumn, bool>;

@@ -142,6 +142,16 @@ bool MixerService::hasSoloedColumns(quint64 trackIndex) const
     });
 }
 
+bool MixerService::hasTrack(quint64 trackIndex) const
+{
+    return std::ranges::find(m_trackIndexList, trackIndex) != m_trackIndexList.end();
+}
+
+bool MixerService::hasColumn(quint64 trackIndex, quint64 columnindex) const
+{
+    return m_columnCountMap.contains(trackIndex) && columnindex < m_columnCountMap.at(trackIndex);
+}
+
 void MixerService::muteTrack(quint64 trackIndex, bool mute)
 {
     juzzlin::L(TAG).info() << "Muting track " << trackIndex << ": " << mute;
@@ -371,57 +381,80 @@ void MixerService::deserializeFromXml(QXmlStreamReader & reader)
     juzzlin::L(TAG).trace() << "Reading Mixer ended";
 }
 
-void MixerService::serializeToXml(QXmlStreamWriter & writer) const
+void MixerService::updateTrackAndColumnConfiguration()
 {
+    emit trackIndicesRequested();
+    const auto trackIndexList = m_trackIndexList;
+    for (auto && trackIndex : trackIndexList) {
+        emit columnCountOfTrackRequested(trackIndex);
+    }
+}
+
+void MixerService::serializeToXml(QXmlStreamWriter & writer)
+{
+    updateTrackAndColumnConfiguration();
+
     writer.writeStartElement(Constants::xmlKeyMixer());
 
     for (const auto & [key, state] : m_mutedColumns) {
-        if (state) {
-            writer.writeStartElement(Constants::xmlKeyColumnMuted());
-            writer.writeAttribute(Constants::xmlKeyTrackAttr(), QString::number(key.first));
-            writer.writeAttribute(Constants::xmlKeyColumnAttr(), QString::number(key.second));
-            writer.writeEndElement();
+        if (hasColumn(key.first, key.second)) {
+            if (state) {
+                writer.writeStartElement(Constants::xmlKeyColumnMuted());
+                writer.writeAttribute(Constants::xmlKeyTrackAttr(), QString::number(key.first));
+                writer.writeAttribute(Constants::xmlKeyColumnAttr(), QString::number(key.second));
+                writer.writeEndElement();
+            }
         }
     }
 
     for (const auto & [key, state] : m_soloedColumns) {
-        if (state) {
-            writer.writeStartElement(Constants::xmlKeyColumnSoloed());
-            writer.writeAttribute(Constants::xmlKeyTrackAttr(), QString::number(key.first));
-            writer.writeAttribute(Constants::xmlKeyColumnAttr(), QString::number(key.second));
-            writer.writeEndElement();
+        if (hasColumn(key.first, key.second)) {
+            if (state) {
+                writer.writeStartElement(Constants::xmlKeyColumnSoloed());
+                writer.writeAttribute(Constants::xmlKeyTrackAttr(), QString::number(key.first));
+                writer.writeAttribute(Constants::xmlKeyColumnAttr(), QString::number(key.second));
+                writer.writeEndElement();
+            }
         }
     }
 
     for (auto && [trackIndex, state] : m_mutedTracks) {
-        if (state) {
-            writer.writeStartElement(Constants::xmlKeyTrackMuted());
-            writer.writeAttribute(Constants::xmlKeyIndex(), QString::number(trackIndex));
-            writer.writeEndElement();
+        if (hasTrack(trackIndex)) {
+            if (state) {
+                writer.writeStartElement(Constants::xmlKeyTrackMuted());
+                writer.writeAttribute(Constants::xmlKeyIndex(), QString::number(trackIndex));
+                writer.writeEndElement();
+            }
         }
     }
 
     for (auto && [trackIndex, state] : m_soloedTracks) {
-        if (state) {
-            writer.writeStartElement(Constants::xmlKeyTrackSoloed());
-            writer.writeAttribute(Constants::xmlKeyIndex(), QString::number(trackIndex));
-            writer.writeEndElement();
+        if (hasTrack(trackIndex)) {
+            if (state) {
+                writer.writeStartElement(Constants::xmlKeyTrackSoloed());
+                writer.writeAttribute(Constants::xmlKeyIndex(), QString::number(trackIndex));
+                writer.writeEndElement();
+            }
         }
     }
 
     for (auto && [key, value] : m_columnVelocityScaleMap) {
-        writer.writeStartElement(Constants::xmlKeyColumnVelocityScale());
-        writer.writeAttribute(Constants::xmlKeyTrackAttr(), QString::number(key.first));
-        writer.writeAttribute(Constants::xmlKeyColumnAttr(), QString::number(key.second));
-        writer.writeAttribute(Constants::xmlKeyValue(), QString::number(value));
-        writer.writeEndElement();
+        if (hasColumn(key.first, key.second)) {
+            writer.writeStartElement(Constants::xmlKeyColumnVelocityScale());
+            writer.writeAttribute(Constants::xmlKeyTrackAttr(), QString::number(key.first));
+            writer.writeAttribute(Constants::xmlKeyColumnAttr(), QString::number(key.second));
+            writer.writeAttribute(Constants::xmlKeyValue(), QString::number(value));
+            writer.writeEndElement();
+        }
     }
 
     for (auto && [trackIndex, value] : m_trackVelocityScaleMap) {
-        writer.writeStartElement(Constants::xmlKeyTrackVelocityScale());
-        writer.writeAttribute(Constants::xmlKeyIndex(), QString::number(trackIndex));
-        writer.writeAttribute(Constants::xmlKeyValue(), QString::number(value));
-        writer.writeEndElement();
+        if (hasTrack(trackIndex)) {
+            writer.writeStartElement(Constants::xmlKeyTrackVelocityScale());
+            writer.writeAttribute(Constants::xmlKeyIndex(), QString::number(trackIndex));
+            writer.writeAttribute(Constants::xmlKeyValue(), QString::number(value));
+            writer.writeEndElement();
+        }
     }
 
     writer.writeEndElement(); // Mixer

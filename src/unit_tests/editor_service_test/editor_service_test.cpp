@@ -1514,6 +1514,12 @@ void EditorServiceTest::test_toXmlFromXml_mixerService_shouldLoadMixerService()
     mixerServiceOut.soloColumn(4, 1, true);
     mixerServiceOut.setColumnVelocityScale(1, 2, 42);
     mixerServiceOut.setTrackVelocityScale(3, 66);
+    connect(&mixerServiceOut, &MixerService::trackIndicesRequested, this, [&]() {
+        mixerServiceOut.setTrackIndices({ 0, 1, 2, 3, 4 });
+    });
+    connect(&mixerServiceOut, &MixerService::columnCountOfTrackRequested, this, [&](auto && trackIndex) {
+        mixerServiceOut.setColumnCount(trackIndex, 3);
+    });
 
     MixerService mixerServiceIn;
     EditorService editorService;
