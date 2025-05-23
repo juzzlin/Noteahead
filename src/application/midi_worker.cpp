@@ -261,8 +261,6 @@ void MidiWorker::sendClock(QString portName)
         if (const auto device = m_midiBackend->deviceByPortName(portName.toStdString()); device) {
             m_midiBackend->openDevice(*device);
             m_midiBackend->sendClockPulse(*device);
-        } else {
-            portError(__func__, portName.toStdString());
         }
     } catch (const std::runtime_error & e) {
         juzzlin::L(TAG).error() << e.what();
@@ -275,8 +273,6 @@ void MidiWorker::sendCcData(QString portName, quint8 channel, quint8 controller,
         if (const auto device = m_midiBackend->deviceByPortName(portName.toStdString()); device) {
             m_midiBackend->openDevice(*device);
             m_midiBackend->sendCcData(*device, channel, controller, value);
-        } else {
-            portError(__func__, portName.toStdString());
         }
     } catch (const std::runtime_error & e) {
         juzzlin::L(TAG).error() << e.what();
@@ -289,8 +285,6 @@ void MidiWorker::sendPitchBendData(QString portName, quint8 channel, quint8 msb,
         if (const auto device = m_midiBackend->deviceByPortName(portName.toStdString()); device) {
             m_midiBackend->openDevice(*device);
             m_midiBackend->sendPitchBendData(*device, channel, msb, lsb);
-        } else {
-            portError(__func__, portName.toStdString());
         }
     } catch (const std::runtime_error & e) {
         juzzlin::L(TAG).error() << e.what();
