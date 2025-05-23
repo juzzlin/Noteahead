@@ -170,6 +170,7 @@ set(QML_SOURCE_FILES
     ${QML_BASE_DIR}/Editor/NoteColumn.qml
     ${QML_BASE_DIR}/Editor/NoteColumnHeader.qml
     ${QML_BASE_DIR}/Editor/NoteColumnLine.qml
+    ${QML_BASE_DIR}/Editor/NoteColumnLineContainer.qml
     ${QML_BASE_DIR}/Editor/Pattern.qml
     ${QML_BASE_DIR}/Editor/PositionBar.qml
     ${QML_BASE_DIR}/Editor/Track.qml
