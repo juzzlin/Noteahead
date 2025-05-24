@@ -5,11 +5,63 @@ Release date:
 
 New features:
 
+Bug fixes:
+
+Other:
+
+0.7.0
+=====
+
+Release date:
+
+Sat, 24 May 2025 22:17:33 +0300
+
+New features:
+
+* Add an example project file
+
+* Immediately update recent files on save as and save as template
+
+* Set status bar message when automations added
+
+* Implement basic Pitch Bend automations with linear interpolation
+  - Select lines => Right click => Add Pitch Bend automation
+  - Edit via Right click => Edit Pitch Bend automations
+
+* Make it possible to force window size with --window-size
+
+* Implement filtering for MIDI CC automations
+  - Context Menu => Pattern/Track/Column => Edit MIDI CC automations
+
+* Implement deletion of MIDI CC automations
+
+* Implement enabling/disabling of MIDI CC automations
+
+* Optimize the performance of MIDI CC automation edits
+
+* Implement basic MIDI CC automations with linear interpolation
+  - Select lines => Right click => Add Midi CC automation
+  - Edit via Right click => Edit MIDI CC automations
+
+* Clear selection on left-click
+
+* Improve tool tips on velocity scales
+
 * Implement on-the-fly transposition via instrument settings
 
 Bug fixes:
 
-Other:
+* Fix saving of deleted muted/soloed tracks/columns
+
+* Fix inversion of muted/soloed tracks/columns
+
+* Fix editor crashing when creating a pattern with a non-continuous index
+
+* Fix wrong start line on InterpolationDialog
+
+* Fix editing of Pitch Bend automations
+
+* Fix editing of MIDI CC automations
 
 0.6.0
 =====
