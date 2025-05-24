@@ -236,18 +236,6 @@ set(CPACK_VERBATIM_VARIABLES ON)
 set(CPACK_DEBIAN_PACKAGE_MAINTAINER "Jussi Lind <jussi.lind@iki.fi>")
 set(CPACK_DEBIAN_PACKAGE_ARCHITECTURE "amd64")
 set(CPACK_DEBIAN_PACKAGE_SHLIBDEPS YES)
-set(QML_RUNTIME_PACKAGES
-    qml6-module-qtcore
-    qml6-module-qtqml
-    qml6-module-qtqml-workerscript
-    qml6-module-qtquick
-    qml6-module-qtquick-controls
-    qml6-module-qtquick-dialogs
-    qml6-module-qtquick-layouts
-    qml6-module-qtquick-templates
-    qml6-module-qtquick-window
-)
-set(CPACK_DEBIAN_PACKAGE_DEPENDS ${QML_RUNTIME_PACKAGES})
 set(CPACK_DEBIAN_PACKAGE_VERSION ${APPLICATION_VERSION})
 set(CPACK_PACKAGING_INSTALL_PREFIX "${CMAKE_INSTALL_PREFIX}")
 
