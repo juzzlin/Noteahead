@@ -24,21 +24,17 @@ Some example tracks sequenced with Noteahead:
 <a href="https://soundcloud.com/jussilindplays/i-want-my-life-back">J.L.P - I Want My Life Back (SoundCloud)</a>
 
 <a href="https://soundcloud.com/jussilindplays/right-to-castle-queenside-remix">J.L.P - Right To Castle [Queenside Remix] (SoundCloud)</a>
+<a href="https://open.spotify.com/track/1HsLwVEtiJHyUj1PYzlHRe">J.L.P - Right To Castle [Queenside Remix] (Spotify)</a>
+<a href="https://music.youtube.com/watch?v=n2u3Lmt4WLw">J.L.P - Right To Castle [Queenside Remix] (YouTube Music)</a>
 
 <a href="https://open.spotify.com/track/2M2Ulh4rCrQJpKgPb7CvnM">J.L.P - Incredible Times [Incredible Remix] (Spotify)</a>
-
 <a href="https://music.youtube.com/watch?v=l7y7nirO4eI">J.L.P - Incredible Times [Incredible Remix] (YouTube Music)</a>
-
 <a href="https://soundcloud.com/jussilindplays/incredible-times-incredible-remix">J.L.P - Incredible Times [Incredible Remix] (SoundCloud)</a>
-
 <a href="https://jussilindplays.bandcamp.com/track/incredible-times-incredible-remix">J.L.P - Incredible Times [Incredible Remix] (BandCamp)</a>
 
 <a href="https://open.spotify.com/track/5LV4oR82Ak4uA0kkKB6McX">J.L.P - This Planet (Spotify)</a>
-
 <a href="https://music.youtube.com/watch?v=si6Nz-OzKPw">J.L.P - This Planet (YouTube Music)</a>
-
 <a href="https://soundcloud.com/jussilindplays/this-planet">J.L.P - This Planet (SoundCloud)</a>
-
 <a href="https://www.youtube.com/watch?v=f_Cf_84eXcA">J.L.P - This Planet - Note Visualization Video (YouTube)</a>
 
 ##
