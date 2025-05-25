@@ -65,11 +65,19 @@ Some example tracks sequenced with Noteahead:
 * Music video generator (**Experimental**)
 
 ##
+## Known issues
+
+* The UI can be a bit laggy during playback with Qt older than 6.5.3
+  - Unfortunately Ubuntu 24.04 LTS has only Qt 6.4.2 in the repositories
+  - However, this doesn't affect the accuracy of MIDI events
+
+##
 ## Future dreams (**NOT YET IMPLEMENTED**):
 
 * Horizontal visualization
-* MIDI side-chaining (not sure if this is gonna work)
-* Clock sync options: Internal, MIDI, Jack
+* MIDI file export
+* Recording from keyboard / MIDI
+* Sync options: MIDI, Jack
 
 ##
 ## Some important design choices
