@@ -80,7 +80,7 @@ Rectangle {
     // Due to lazy loading, ensure that lines are created when requested
     function _getLineAtIndex(index: int): var {
         if (!_lines[index]) {
-            _createLines();
+            createLines();
         }
         return _lines[index];
     }
