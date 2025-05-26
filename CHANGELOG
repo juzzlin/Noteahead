@@ -7,6 +7,10 @@ New features:
 
 Bug fixes:
 
+* When stopping all notes, stop only the notes that are actually playing
+  - Noticed that e.g. Behringer Solina Ensemble goes crazy if a bunch of
+    non-playing notes are stopped
+
 Other:
 
 0.7.0

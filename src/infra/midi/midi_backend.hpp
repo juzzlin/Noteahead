@@ -19,6 +19,7 @@
 #include "midi_device.hpp"
 
 #include <cstdint>
+#include <set>
 #include <unordered_map>
 #include <vector>
 
@@ -65,10 +66,18 @@ protected:
 
     void invalidatePortNameCache();
 
+    using NotesOnList = std::vector<uint8_t>;
+    NotesOnList notesOn(MidiDeviceCR device, uint8_t channel) const;
+
 private:
     MidiDeviceList m_devices;
 
-    mutable std::unordered_map<std::string, MidiDeviceS> m_portNameToDeviceCache;
+    using ChannelAndNote = std::pair<uint8_t, uint8_t>;
+    using DeviceToChannelAndNote = std::unordered_map<size_t, std::set<ChannelAndNote>>;
+    mutable DeviceToChannelAndNote m_notesOn;
+
+    using PortNameToDevice = std::unordered_map<std::string, MidiDeviceS>;
+    mutable PortNameToDevice m_portNameToDeviceCache;
 };
 
 } // namespace noteahead

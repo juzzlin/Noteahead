@@ -17,10 +17,14 @@
 
 #include "midi_cc_mapping.hpp"
 
+#include "../../contrib/SimpleLogger/src/simple_logger.hpp"
+
 #include <memory>
 #include <stdexcept>
 
 namespace noteahead {
+
+static const auto TAG = "MidiBackendRtMidi";
 
 void MidiBackendRtMidi::updateAvailableDevices()
 {
@@ -83,6 +87,8 @@ void MidiBackendRtMidi::sendNoteOn(MidiDeviceCR device, uint8_t channel, uint8_t
                               static_cast<unsigned char>(velocity) };
 
     sendMessage(device, message);
+
+    MidiBackend::sendNoteOn(device, channel, note, velocity);
 }
 
 void MidiBackendRtMidi::sendNoteOff(MidiDeviceCR device, uint8_t channel, uint8_t note) const
@@ -92,6 +98,8 @@ void MidiBackendRtMidi::sendNoteOff(MidiDeviceCR device, uint8_t channel, uint8_
                               static_cast<unsigned char>(0) };
 
     sendMessage(device, message);
+
+    MidiBackend::sendNoteOff(device, channel, note);
 }
 
 void MidiBackendRtMidi::sendPatchChange(MidiDeviceCR device, uint8_t channel, uint8_t patch) const
@@ -123,8 +131,10 @@ void MidiBackendRtMidi::stopAllNotes(MidiDeviceCR device, uint8_t channel) const
 {
     sendCcData(device, channel, static_cast<uint8_t>(MidiCcMapping::Controller::AllNotesOff), 0);
 
-    // All devices won't obey CC #123: Manually stop all notes
-    for (uint8_t note = 0; note < 128; note++) {
+    // All devices won't obey CC #123: Manually stop all notes. Stop only the notes that are actually playing
+    // as there are some devices that go crazy if non-playing notes are stopped.
+    for (auto && note : notesOn(device, channel)) {
+        juzzlin::L(TAG).info() << "Stopping note " << static_cast<int>(note) << " on channel " << static_cast<int>(channel) << " of device " << device.portName();
         sendNoteOff(device, channel, note);
     }
 }

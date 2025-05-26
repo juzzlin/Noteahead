@@ -83,12 +83,25 @@ void MidiBackend::sendCcData(MidiDeviceCR, uint8_t, uint8_t, uint8_t) const
 {
 }
 
-void MidiBackend::sendNoteOn(MidiDeviceCR, uint8_t, uint8_t, uint8_t) const
+void MidiBackend::sendNoteOn(MidiDeviceCR device, uint8_t channel, uint8_t note, uint8_t) const
 {
+    m_notesOn[device.portIndex()].insert({ channel, note });
 }
 
-void MidiBackend::sendNoteOff(MidiDeviceCR, uint8_t, uint8_t) const
+MidiBackend::NotesOnList MidiBackend::notesOn(MidiDeviceCR device, uint8_t channel) const
 {
+    MidiBackend::NotesOnList notesOnList;
+    for (auto && channelAndNote : m_notesOn[device.portIndex()]) {
+        if (channelAndNote.first == channel) {
+            notesOnList.push_back(channelAndNote.second);
+        }
+    }
+    return notesOnList;
+}
+
+void MidiBackend::sendNoteOff(MidiDeviceCR device, uint8_t channel, uint8_t note) const
+{
+    m_notesOn[device.portIndex()].erase({ channel, note });
 }
 
 void MidiBackend::sendPatchChange(MidiDeviceCR, uint8_t, uint8_t) const
