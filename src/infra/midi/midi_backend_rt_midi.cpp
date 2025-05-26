@@ -141,8 +141,7 @@ void MidiBackendRtMidi::stopAllNotes(MidiDeviceCR device, uint8_t channel) const
 
 void MidiBackendRtMidi::sendClockPulse(MidiDeviceCR device) const
 {
-    const Message message = { 0xF8 };
-    sendMessage(device, message);
+    sendMessage(device, { 0xF8 });
 }
 
 } // namespace noteahead
