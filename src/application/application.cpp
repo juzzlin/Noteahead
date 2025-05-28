@@ -417,7 +417,7 @@ void Application::requestInstruments(QStringList midiPorts)
 {
     for (auto && midiPort : midiPorts) {
         for (auto && [trackIndex, instrument] : m_editorService->instruments()) {
-            if (Utils::portNameMatchScore(instrument->device().portName.toStdString(), midiPort.toStdString()) > 0.75) {
+            if (Utils::portNameMatchScore(instrument->midiAddress().portName().toStdString(), midiPort.toStdString()) > 0.75) {
                 applyInstrument(trackIndex, *instrument);
             }
         }

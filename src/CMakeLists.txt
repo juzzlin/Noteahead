@@ -46,6 +46,7 @@ set(HEADER_FILES
   domain/interpolator.hpp
   domain/line.hpp
   domain/line_event.hpp
+  domain/midi_address.hpp
   domain/midi_cc_automation.hpp
   domain/midi_cc_data.hpp
   domain/midi_cc_setting.hpp
@@ -106,6 +107,7 @@ set(SOURCE_FILES
   domain/interpolator.cpp
   domain/line.cpp
   domain/line_event.cpp
+  domain/midi_address.cpp
   domain/midi_cc_automation.cpp
   domain/midi_cc_data.cpp
   domain/midi_cc_setting.cpp

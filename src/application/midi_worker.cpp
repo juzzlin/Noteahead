@@ -128,7 +128,7 @@ void MidiWorker::initializeStopTimer()
 
 void MidiWorker::sendMidiCcSettings(const MidiDevice & midiDevice, const Instrument & instrument)
 {
-    const auto channel = instrument.device().channel;
+    const auto channel = instrument.midiAddress().channel();
     const auto predefinedMidiCcSettings = instrument.settings().predefinedMidiCcSettings;
     m_midiBackend->sendCcData(midiDevice, channel, static_cast<quint8>(MidiCcMapping::Controller::ResetAllControllers), 127);
     if (predefinedMidiCcSettings.pan.has_value()) {
@@ -153,7 +153,7 @@ void MidiWorker::applyBank(const Instrument & instrument, MidiDeviceS midiDevice
 {
     if (instrument.settings().bank.has_value()) {
         juzzlin::L(TAG).info() << "Setting bank to " << static_cast<int>(instrument.settings().bank->msb) << ":" << static_cast<int>(instrument.settings().bank->lsb);
-        m_midiBackend->sendBankChange(*midiDevice, instrument.device().channel,
+        m_midiBackend->sendBankChange(*midiDevice, instrument.midiAddress().channel(),
                                       instrument.settings().bank->byteOrderSwapped ? instrument.settings().bank->lsb : instrument.settings().bank->msb,
                                       instrument.settings().bank->byteOrderSwapped ? instrument.settings().bank->msb : instrument.settings().bank->lsb);
     }
@@ -163,7 +163,7 @@ void MidiWorker::applyPatch(const Instrument & instrument, MidiDeviceS midiDevic
 {
     if (instrument.settings().patch.has_value()) {
         juzzlin::L(TAG).info() << "Setting patch to " << static_cast<int>(*instrument.settings().patch);
-        m_midiBackend->sendPatchChange(*midiDevice, instrument.device().channel, *instrument.settings().patch);
+        m_midiBackend->sendPatchChange(*midiDevice, instrument.midiAddress().channel(), *instrument.settings().patch);
     }
 }
 
@@ -175,8 +175,8 @@ void MidiWorker::handleInstrumentRequest(const InstrumentRequest & instrumentReq
 
     try {
         auto && instrument = instrumentRequest.instrument();
-        juzzlin::L(TAG).info() << "Applying instrument " << instrument.toString().toStdString() << " for requested port " << instrument.device().portName.toStdString();
-        const auto requestedPortName = instrument.device().portName;
+        juzzlin::L(TAG).info() << "Applying instrument " << instrument.toString().toStdString() << " for requested port " << instrument.midiAddress().portName().toStdString();
+        const auto requestedPortName = instrument.midiAddress().portName();
         if (const auto midiDevice = m_midiBackend->deviceByPortName(requestedPortName.toStdString()); midiDevice) {
             m_midiBackend->openDevice(*midiDevice);
             if (instrumentRequest.type() == InstrumentRequest::Type::ApplyAll) {

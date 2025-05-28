@@ -82,8 +82,8 @@ void MidiService::playNote(InstrumentW instrument, MidiNoteDataCR data)
     std::lock_guard<std::mutex> lock { m_workerMutex };
 
     if (const bool invoked = QMetaObject::invokeMethod(m_midiWorker.get(), "playNote",
-                                                       Q_ARG(QString, instrument.lock()->device().portName),
-                                                       Q_ARG(quint8, instrument.lock()->device().channel),
+                                                       Q_ARG(QString, instrument.lock()->midiAddress().portName()),
+                                                       Q_ARG(quint8, instrument.lock()->midiAddress().channel()),
                                                        Q_ARG(quint8, data.note()),
                                                        Q_ARG(quint8, data.velocity()));
         !invoked) {
@@ -96,8 +96,8 @@ void MidiService::stopNote(InstrumentW instrument, MidiNoteDataCR data)
     std::lock_guard<std::mutex> lock { m_workerMutex };
 
     if (const bool invoked = QMetaObject::invokeMethod(m_midiWorker.get(), "stopNote",
-                                                       Q_ARG(QString, instrument.lock()->device().portName),
-                                                       Q_ARG(quint8, instrument.lock()->device().channel),
+                                                       Q_ARG(QString, instrument.lock()->midiAddress().portName()),
+                                                       Q_ARG(quint8, instrument.lock()->midiAddress().channel()),
                                                        Q_ARG(quint8, data.note()));
         !invoked) {
         juzzlin::L(TAG).error() << "Invoking a method failed!";
@@ -109,8 +109,8 @@ void MidiService::stopAllNotes(InstrumentW instrument)
     std::lock_guard<std::mutex> lock { m_workerMutex };
 
     if (const bool invoked = QMetaObject::invokeMethod(m_midiWorker.get(), "stopAllNotes",
-                                                       Q_ARG(QString, instrument.lock()->device().portName),
-                                                       Q_ARG(quint8, instrument.lock()->device().channel));
+                                                       Q_ARG(QString, instrument.lock()->midiAddress().portName()),
+                                                       Q_ARG(quint8, instrument.lock()->midiAddress().channel()));
         !invoked) {
         juzzlin::L(TAG).error() << "Invoking a method failed!";
     }
@@ -121,8 +121,8 @@ void MidiService::sendCcData(InstrumentW instrument, MidiCcDataCR data)
     std::lock_guard<std::mutex> lock { m_workerMutex };
 
     if (const bool invoked = QMetaObject::invokeMethod(m_midiWorker.get(), "sendCcData",
-                                                       Q_ARG(QString, instrument.lock()->device().portName),
-                                                       Q_ARG(quint8, instrument.lock()->device().channel),
+                                                       Q_ARG(QString, instrument.lock()->midiAddress().portName()),
+                                                       Q_ARG(quint8, instrument.lock()->midiAddress().channel()),
                                                        Q_ARG(quint8, data.controller()),
                                                        Q_ARG(quint8, data.value()));
         !invoked) {
@@ -135,7 +135,7 @@ void MidiService::sendClock(MidiService::InstrumentW instrument)
     std::lock_guard<std::mutex> lock { m_workerMutex };
 
     if (const bool invoked = QMetaObject::invokeMethod(m_midiWorker.get(), "sendClock",
-                                                       Q_ARG(QString, instrument.lock()->device().portName));
+                                                       Q_ARG(QString, instrument.lock()->midiAddress().portName()));
         !invoked) {
         juzzlin::L(TAG).error() << "Invoking a method failed!";
     }
@@ -146,8 +146,8 @@ void MidiService::sendPitchBendData(InstrumentW instrument, MidiService::PitchBe
     std::lock_guard<std::mutex> lock { m_workerMutex };
 
     if (const bool invoked = QMetaObject::invokeMethod(m_midiWorker.get(), "sendPitchBendData",
-                                                       Q_ARG(QString, instrument.lock()->device().portName),
-                                                       Q_ARG(quint8, instrument.lock()->device().channel),
+                                                       Q_ARG(QString, instrument.lock()->midiAddress().portName()),
+                                                       Q_ARG(quint8, instrument.lock()->midiAddress().channel()),
                                                        Q_ARG(quint8, data.msb()),
                                                        Q_ARG(quint8, data.lsb()));
         !invoked) {

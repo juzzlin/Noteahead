@@ -214,11 +214,11 @@ void TrackSettingsModel::setInstrumentData(const Instrument & instrument)
 
     // Store the original instrument's port name as it might not be in the
     // list of currently available port names
-    m_instrumentPortName = instrument.device().portName;
+    m_instrumentPortName = instrument.midiAddress().portName();
     setAvailableMidiPorts(m_availableMidiPorts); // Update the list with instrument port name
 
-    setPortName(instrument.device().portName);
-    setChannel(instrument.device().channel);
+    setPortName(instrument.midiAddress().portName());
+    setChannel(instrument.midiAddress().channel());
     setPatchEnabled(instrument.settings().patch.has_value());
     if (patchEnabled()) {
         setPatch(*instrument.settings().patch);
@@ -291,9 +291,9 @@ TrackSettingsModel::InstrumentU TrackSettingsModel::toInstrument() const
 {
     auto instrument = std::make_unique<Instrument>(m_portName);
 
-    auto device = instrument->device();
-    device.channel = m_channel;
-    instrument->setDevice(device);
+    auto address = instrument->midiAddress();
+    address.setChannel(m_channel);
+    instrument->setMidiAddress(address);
 
     auto settings = instrument->settings();
     if (m_patchEnabled) {

@@ -22,6 +22,7 @@ set(SRC
     ../../domain/interpolator.cpp
     ../../domain/line.cpp
     ../../domain/line_event.cpp
+    ../../domain/midi_address.cpp
     ../../domain/midi_cc_automation.cpp
     ../../domain/midi_cc_data.cpp
     ../../domain/midi_cc_setting.cpp

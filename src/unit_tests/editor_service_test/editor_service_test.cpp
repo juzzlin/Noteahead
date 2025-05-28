@@ -1695,9 +1695,9 @@ void EditorServiceTest::test_toXmlFromXml_instrument_shouldParseInstrument()
 
     // Set up the instrument with all possible properties
     const auto instrumentOut = std::make_shared<Instrument>("Test Port");
-    auto device = instrumentOut->device();
-    device.channel = 10; // Example channel
-    instrumentOut->setDevice(device);
+    auto address = instrumentOut->midiAddress();
+    address.setChannel(10); // Example channel
+    instrumentOut->setMidiAddress(address);
     auto settings = instrumentOut->settings();
     settings.predefinedMidiCcSettings.cutoff = 64; // Optional cutoff
     settings.predefinedMidiCcSettings.pan = 32; // Optional pan
@@ -1723,8 +1723,8 @@ void EditorServiceTest::test_toXmlFromXml_instrument_shouldParseInstrument()
 
     // Validate the instrument
     QVERIFY(instrumentIn);
-    QCOMPARE(instrumentIn->device().portName, instrumentOut->device().portName);
-    QCOMPARE(instrumentIn->device().channel, instrumentOut->device().channel);
+    QCOMPARE(instrumentIn->midiAddress().portName(), instrumentOut->midiAddress().portName());
+    QCOMPARE(instrumentIn->midiAddress().channel(), instrumentOut->midiAddress().channel());
 
     // Validate optional properties
     QCOMPARE(instrumentIn->settings().patch.has_value(), instrumentOut->settings().patch.has_value());

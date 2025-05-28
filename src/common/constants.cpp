@@ -112,6 +112,11 @@ QString xmlKeyChannel()
     return "channel";
 }
 
+QString xmlKeyGroup()
+{
+    return "group";
+}
+
 QString xmlKeyColumn()
 {
     return "Column";

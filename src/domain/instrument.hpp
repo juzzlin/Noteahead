@@ -22,6 +22,7 @@
 #include <QString>
 
 #include "instrument_settings.hpp"
+#include "midi_address.hpp"
 
 class QXmlStreamReader;
 class QXmlStreamWriter;
@@ -31,22 +32,11 @@ namespace noteahead {
 class Instrument
 {
 public:
-    explicit Instrument(QString portName);
+    explicit Instrument(const QString & portName);
+    explicit Instrument(const MidiAddress & midiAddress);
 
-    struct Device
-    {
-        Device(QString portName)
-          : portName { portName }
-        {
-        }
-
-        QString portName;
-
-        uint8_t channel = 0;
-    };
-
-    const Device & device() const;
-    void setDevice(const Device & device);
+    const MidiAddress & midiAddress() const;
+    void setMidiAddress(const MidiAddress & midiAddress);
 
     const InstrumentSettings & settings() const;
     void setSettings(const InstrumentSettings & settings);
@@ -58,9 +48,7 @@ public:
     QString toString() const;
 
 private:
-    void serializeDevice(QXmlStreamWriter & writer) const;
-
-    Device m_device;
+    MidiAddress m_midiAddress;
 
     InstrumentSettings m_settings;
 };

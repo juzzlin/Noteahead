@@ -84,9 +84,9 @@ void TrackSettingsModelTest::test_setInstrumentData_shouldUpdateRelevantFields()
     TrackSettingsModel model;
 
     Instrument instrument { "TestPort" };
-    auto device = instrument.device();
-    device.channel = 5;
-    instrument.setDevice(device);
+    auto address = instrument.midiAddress();
+    address.setChannel(5);
+    instrument.setMidiAddress(address);
 
     InstrumentSettings instrumentSettings;
     instrumentSettings.patch = 42;
@@ -132,7 +132,7 @@ void TrackSettingsModelTest::test_toInstrument_shouldReturnInstrumentWithDefault
     const auto instrument = model.toInstrument();
 
     // Check if the instrument was created correctly
-    QCOMPARE(instrument->device().channel, 1); // Check channel
+    QCOMPARE(instrument->midiAddress().channel(), 1); // Check channel
     QVERIFY(!instrument->settings().patch.has_value()); // Check default patch
     QVERIFY(!instrument->settings().bank.has_value()); // Check bank values
 }

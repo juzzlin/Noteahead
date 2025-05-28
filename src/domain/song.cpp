@@ -700,7 +700,7 @@ Song::EventList Song::generateMidiClockEvents(EventListCR eventList, size_t star
         processedPortNames.clear();
         for (auto trackIndex : trackIndices()) {
             if (const auto instrument = this->instrument(trackIndex); instrument && instrument->settings().sendMidiClock.has_value() && *instrument->settings().sendMidiClock) {
-                if (const auto portName = instrument->device().portName; !processedPortNames.contains(portName)) {
+                if (const auto portName = instrument->midiAddress().portName(); !processedPortNames.contains(portName)) {
                     auto midiClockEvent = std::make_shared<Event>(static_cast<size_t>(currentTick));
                     midiClockEvent->setAsMidiClockOut();
                     midiClockEvent->setInstrument(instrument);

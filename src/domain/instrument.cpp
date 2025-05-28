@@ -26,19 +26,24 @@ namespace noteahead {
 
 static const auto TAG = "Instrument";
 
-Instrument::Instrument(QString portName)
-  : m_device { portName }
+Instrument::Instrument(const QString & portName)
+  : m_midiAddress { portName }
 {
 }
 
-const Instrument::Device & Instrument::device() const
+Instrument::Instrument(const MidiAddress & midiAddress)
+  : m_midiAddress { midiAddress }
 {
-    return m_device;
 }
 
-void Instrument::setDevice(const Device & device)
+const MidiAddress & Instrument::midiAddress() const
 {
-    m_device = device;
+    return m_midiAddress;
+}
+
+void Instrument::setMidiAddress(const MidiAddress & device)
+{
+    m_midiAddress = device;
 }
 
 const InstrumentSettings & Instrument::settings() const
@@ -51,17 +56,11 @@ void Instrument::setSettings(const InstrumentSettings & settings)
     m_settings = settings;
 }
 
-void Instrument::serializeDevice(QXmlStreamWriter & writer) const
-{
-    writer.writeAttribute(Constants::xmlKeyPortName(), m_device.portName);
-    writer.writeAttribute(Constants::xmlKeyChannel(), QString::number(m_device.channel));
-}
-
 void Instrument::serializeToXml(QXmlStreamWriter & writer) const
 {
     writer.writeStartElement(Constants::xmlKeyInstrument());
 
-    serializeDevice(writer);
+    m_midiAddress.serializeToXml(writer);
 
     m_settings.serializeToXml(writer);
 
@@ -73,10 +72,7 @@ Instrument::InstrumentU Instrument::deserializeFromXml(QXmlStreamReader & reader
     juzzlin::L(TAG).trace() << "Reading Instrument";
 
     // Read mandatory properties
-    const auto portName = *Utils::Xml::readStringAttribute(reader, Constants::xmlKeyPortName());
-    const auto channel = *Utils::Xml::readUIntAttribute(reader, Constants::xmlKeyChannel());
-    auto instrument = std::make_unique<Instrument>(portName);
-    instrument->m_device.channel = static_cast<uint8_t>(channel);
+    auto instrument = std::make_unique<Instrument>(*MidiAddress::deserializeFromXml(reader));
     while (!(reader.isEndElement() && !reader.name().compare(Constants::xmlKeyInstrument()))) {
         juzzlin::L(TAG).trace() << "Instrument: Current element: " << reader.name().toString().toStdString();
         if (reader.isStartElement() && !reader.name().compare(Constants::xmlKeyInstrumentSettings())) {
@@ -92,7 +88,7 @@ Instrument::InstrumentU Instrument::deserializeFromXml(QXmlStreamReader & reader
 
 QString Instrument::toString() const
 {
-    auto result = QString { "Instrument ( portName='%1', channel=%2 " }.arg(m_device.portName).arg(m_device.channel);
+    auto result = QString { "Instrument ( portName='%1', channel=%2, group=%3 " }.arg(m_midiAddress.portName()).arg(m_midiAddress.channel()).arg(m_midiAddress.group());
     result += m_settings.toString();
     result += " )";
     return result;

@@ -49,6 +49,7 @@ QString xmlKeyBankByteOrderSwapped();
 QString xmlKeyBeatsPerMinute();
 
 QString xmlKeyChannel();
+QString xmlKeyGroup();
 
 QString xmlKeyColumn();
 QString xmlKeyColumns();
