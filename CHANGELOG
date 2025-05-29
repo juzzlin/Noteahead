@@ -5,6 +5,19 @@ Release date:
 
 New features:
 
+Bug fixes:
+
+Other:
+
+0.8.0
+=====
+
+Release date:
+
+Thu, 29 May 2025 21:04:33 +0300
+
+New features:
+
 * Add menu action to stop all notes
 
 Bug fixes:
@@ -13,7 +26,11 @@ Bug fixes:
   - Noticed that e.g. Behringer Solina Ensemble goes crazy if a bunch of
     non-playing notes are stopped
 
+* Fix incorrect call to _createLines()
+
 Other:
+
+* CMake: Move Debian packaging to cmake/DebianPackagingDefaultQt.cmake
 
 0.7.0
 =====
