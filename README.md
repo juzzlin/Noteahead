@@ -256,6 +256,27 @@ An example command to generate a video:
 Run `noteahead -h` for all options.
 
 ##
+## Real-world test cases
+
+I have tested Noteahead with at least these devices:
+
+* Behringer DeepMind 6
+* Behringer Model D
+* Behringer RD-6
+* Behringer RD-8 MK II
+* Behringer RD-9
+* Behringer Solina String Ensemble
+* Behringer TD-3-MO
+* Behringer VC340
+* Korg Electribe 2
+* Korg KROSS
+* Korg Minilogue XD
+* Korg Monologue
+* Novation Bass Station II
+* Roland SP-404 MK II
+* Yamaha CP4
+
+##
 ## Why am I doing this?
 
 First of all, I'm a tracker musician and also a professional software engineer.
