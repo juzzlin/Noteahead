@@ -42,8 +42,9 @@ public:
 
     size_t lineCount() const;
     void setLineCount(size_t lineCount);
-
     using LineS = std::shared_ptr<Line>;
+    using LineList = std::vector<LineS>;
+    LineList lines() const;
     void addOrReplaceLine(LineS line);
 
     Position nextNoteDataOnSameColumn(const Position & position) const;
@@ -79,8 +80,7 @@ private:
     void initialize(size_t length);
 
     size_t m_virtualLineCount = 0;
-
-    std::vector<LineS> m_lines;
+    LineList m_lines;
 };
 
 } // namespace noteahead

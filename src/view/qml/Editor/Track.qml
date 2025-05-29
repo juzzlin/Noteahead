@@ -33,7 +33,6 @@ Item {
     function setFocused(columnIndex: int, focused: bool): void {
         _focused = focused;
         trackHeader.setFocused(focused);
-        columnContainer.setFocused(columnIndex, focused);
     }
     function setName(name: string): void {
         trackHeader.setName(name);
@@ -79,18 +78,6 @@ Item {
     function updateColumnHeaders(): void {
         columnContainer.updateColumnHeaders();
     }
-    function updateColumnVisibility(): void {
-        columnContainer.updateVisibility();
-    }
-    function updateIndexHighlights(): void {
-        columnContainer.updateIndexHighlights();
-    }
-    function updateIndexHighlightsAtPosition(position: var): void {
-        columnContainer.updateIndexHighlightsAtPosition(position);
-    }
-    function updateSelectedLines(startPosition: var, endPosition: var): void {
-        columnContainer.updateSelectedLines(startPosition, endPosition);
-    }
     function addColumn(): void {
         columnContainer.addColumn();
     }
@@ -130,7 +117,6 @@ Item {
             const noteColumn = _createNoteColumn(_noteColumnCount - 1);
             _noteColumns.push(noteColumn);
             _resize(width, height);
-            updateIndexHighlights();
         }
         function deleteColumn(): void {
             _noteColumns[_noteColumns.length - 1].destroy();
@@ -154,9 +140,6 @@ Item {
                     noteColumn.setVelocityScale(100);
                 });
         }
-        function setFocused(columnIndex: int, focused: bool): void {
-            _noteColumns[columnIndex].setFocused(focused);
-        }
         function setPosition(position: var): void {
             _noteColumns.forEach(noteColumn => {
                     noteColumn.setPosition(position);
@@ -175,42 +158,12 @@ Item {
                     noteColumn.setVelocityScale(mixerService.columnVelocityScale(_index, noteColumn.index()));
                 });
         }
-        function updateIndexHighlights(): void {
-            _noteColumns.forEach(noteColumn => {
-                    noteColumn.updateIndexHighlights();
-                });
-        }
-        function updateIndexHighlightsAtPosition(position: var): void {
-            _noteColumns.filter(noteColumn => noteColumn.index() === position.column).forEach(noteColumn => {
-                    noteColumn.updateIndexHighlightsAtPosition(position);
-                });
-        }
-        function updateSelectedLines(startPosition: var, endPosition: var): void {
-            _noteColumns.filter(noteColumn => noteColumn.index() === startPosition.column).forEach(noteColumn => {
-                    noteColumn.updateIndexHighlights();
-                });
-        }
-        function updateNoteDataAtPosition(position: var): void {
-            _noteColumns.forEach(noteColumn => {
-                    noteColumn.updateNoteDataAtPosition(position);
-                });
-        }
-        function updateVisibility(): void {
-            // Load column data if the column becomes visible or is visible but not yet loaded
-            _noteColumns.forEach(noteColumn => {
-                    if (!noteColumn.dataUpdated() && editorService.isColumnVisible(_index, noteColumn.index())) {
-                        noteColumn.updateData();
-                    }
-                });
-        }
         function _noteColumnX(index: int): int {
             return _noteColumnWidth() * index;
         }
         function _noteColumnWidth(): int {
             return width / _noteColumnCount;
         }
-        // Note!!: The actual line data objects are not yet created, but on-demand when updateVisibility() is called.
-        //         This will significantly reduce the load time of a song while providing a smooth playback animation.
         function _createNoteColumn(columnIndex: int): var {
             const noteColumnWidth = _noteColumnWidth();
             const noteColumnHeight = columnContainer.height;

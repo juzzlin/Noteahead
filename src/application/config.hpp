@@ -29,27 +29,21 @@ class Config : public QObject
 
 public:
     Config();
-
     ~Config() override;
 
     Q_INVOKABLE int autoNoteOffOffset() const;
-
     Q_INVOKABLE void setAutoNoteOffOffset(int autoNoteOffOffset);
 
     Q_INVOKABLE QSize windowSize(QSize defaultSize) const;
-
     Q_INVOKABLE void setWindowSize(QSize size);
 
     Q_INVOKABLE int step(int defaultStep) const;
-
     Q_INVOKABLE void setStep(int step);
 
     Q_INVOKABLE int velocity(int defaultVelocity) const;
-
     Q_INVOKABLE void setVelocity(int velocity);
 
     Q_INVOKABLE int visibleLines() const;
-
     Q_INVOKABLE void setVisibleLines(int visibleLines);
 
 signals:

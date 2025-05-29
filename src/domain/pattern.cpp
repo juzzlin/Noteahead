@@ -91,6 +91,11 @@ void Pattern::setLineCount(size_t lineCount)
     }
 }
 
+Pattern::LineList Pattern::lines(const Position & position) const
+{
+    return trackByIndexThrow(position.track)->lines(position);
+}
+
 size_t Pattern::trackCount() const
 {
     return static_cast<size_t>(m_trackOrder.size());
@@ -295,6 +300,12 @@ Pattern::NoteDataS Pattern::noteDataAtPosition(const Position & position) const
     return trackByIndexThrow(position.track)->noteDataAtPosition(position);
 }
 
+void Pattern::setNoteDataAtPosition(const NoteData & noteData, const Position & position) const
+{
+    juzzlin::L(TAG).debug() << "Set note data at position: " << noteData.toString() << " @ " << position.toString();
+    trackByIndexThrow(position.track)->setNoteDataAtPosition(noteData, position);
+}
+
 Position Pattern::nextNoteDataOnSameColumn(const Position & position) const
 {
     return trackByIndexThrow(position.track)->nextNoteDataOnSameColumn(position);
@@ -303,12 +314,6 @@ Position Pattern::nextNoteDataOnSameColumn(const Position & position) const
 Position Pattern::prevNoteDataOnSameColumn(const Position & position) const
 {
     return trackByIndexThrow(position.track)->prevNoteDataOnSameColumn(position);
-}
-
-void Pattern::setNoteDataAtPosition(const NoteData & noteData, const Position & position) const
-{
-    juzzlin::L(TAG).debug() << "Set note data at position: " << noteData.toString() << " @ " << position.toString();
-    trackByIndexThrow(position.track)->setNoteDataAtPosition(noteData, position);
 }
 
 Pattern::PositionList Pattern::deleteNoteDataAtPosition(const Position & position)

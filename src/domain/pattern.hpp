@@ -30,6 +30,7 @@ class AutomationService;
 class Event;
 class Instrument;
 class InstrumentSettings;
+class Line;
 class Track;
 class NoteData;
 struct Position;
@@ -58,6 +59,10 @@ public:
 
     size_t lineCount() const;
     void setLineCount(size_t lineCount);
+    using LineS = std::shared_ptr<Line>;
+    using LineList = std::vector<LineS>;
+    LineList lines(const Position & position) const;
+
     size_t trackCount() const;
     using TrackIndexList = std::vector<size_t>;
     TrackIndexList trackIndices() const;

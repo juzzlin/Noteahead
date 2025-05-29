@@ -23,8 +23,6 @@ Item {
         }
         updateTrackDimensions(trackAreaWidth, trackAreaHeight);
         updateColumnHeaders();
-        updateTrackVisibility();
-        updateIndexHighlights();
     }
     function addColumn(trackIndex: int): void {
         const track = trackByIndex(trackIndex);
@@ -134,25 +132,9 @@ Item {
     function trackByIndex(trackIndex: int): var {
         return _tracks.find(track => track.index() === trackIndex) || null;
     }
-    function updateIndexHighlights(): void {
-        _tracks.forEach(track => {
-                track.updateIndexHighlights();
-            });
-    }
-    function updateIndexHighlightsAtPosition(position: var): void {
-        _tracks.filter(track => track.index() === position.track).forEach(track => track.updateIndexHighlightsAtPosition(position));
-    }
-    function updateSelectedLines(startPosition: var, endPosition: var): void {
-        _tracks.filter(track => track.index() === startPosition.track).forEach(track => track.updateSelectedLines(startPosition, endPosition));
-    }
     function updateColumnHeaders(): void {
         _tracks.forEach(track => {
                 track.updateColumnHeaders();
-            });
-    }
-    function updateNoteDataAtPosition(position: var): void {
-        _tracks.forEach(track => {
-                track.updateNoteDataAtPosition(position);
             });
     }
     function updateTrackHeaders(): void {
@@ -175,9 +157,6 @@ Item {
         _tracks.forEach(track => {
                 _setTrackDimensions(track, trackAreaWidth, trackAreaHeight);
             });
-    }
-    function updateTrackVisibility(): void {
-        _tracks.forEach(track => track.updateColumnVisibility());
     }
     Component {
         id: trackComponent

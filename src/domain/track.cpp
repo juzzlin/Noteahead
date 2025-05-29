@@ -129,6 +129,11 @@ void Track::setLineCount(size_t lineCount)
     }
 }
 
+Track::LineList Track::lines(const Position & position) const
+{
+    return m_columns.at(position.column)->lines();
+}
+
 bool Track::hasData() const
 {
     return std::ranges::any_of(m_columns, [this](auto && column) {

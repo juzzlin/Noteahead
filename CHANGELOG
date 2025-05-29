@@ -5,6 +5,11 @@ Release date:
 
 New features:
 
+* Render lines in a ListView instead of manually managed objects
+  - This is a big and fundamental refactoring effort and makes scrolling
+    way smoother also on older Qt version. Also the update logic is now less
+    prone to bugs as more stuff is handled by the view model in C++.
+
 Bug fixes:
 
 Other:

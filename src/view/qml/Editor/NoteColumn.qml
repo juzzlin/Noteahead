@@ -17,7 +17,6 @@ Item {
         rootItem.height = height;
         lineContainer.width = width;
         lineContainer.height = height - columnHeader.height;
-        lineContainer.resizeLines();
     }
     function dataUpdated(): bool {
         return _dataUpdated;
@@ -31,9 +30,6 @@ Item {
         _index = columnIndex;
         columnHeader.setIndex(_trackIndex); // Uses some color as the parent track
         lineContainer.setLocation(patternIndex, trackIndex, columnIndex);
-    }
-    function setFocused(focused: bool): void {
-        lineContainer.setLineFocused(editorService.position.line, editorService.position.lineColumn, focused);
     }
     function setName(name: string): void {
         columnHeader.setName(name);
@@ -53,25 +49,12 @@ Item {
     function setPositionBar(positionBar: var): void {
         _positionBar = positionBar;
     }
-    function updateData(): void {
-        lineContainer.createLines();
-        _dataUpdated = true;
-    }
-    function updateNoteDataAtPosition(position: var): void {
-        lineContainer.updateNoteDataAtPosition(position);
-    }
-    function updateIndexHighlights(): void {
-        lineContainer.updateIndexHighlights();
-    }
-    function updateIndexHighlightsAtPosition(position: var): void {
-        lineContainer.updateIndexHighlightsAtPosition(position);
-    }
     NoteColumnHeader {
         id: columnHeader
         anchors.top: parent.top
         width: parent.width
     }
-    NoteColumnLineContainer {
+    NoteColumnLineContainerV2 {
         id: lineContainer
         anchors.top: columnHeader.bottom
         anchors.bottom: parent.bottom
@@ -79,7 +62,6 @@ Item {
         anchors.right: parent.right
     }
     Component.onCompleted: {
-        config.visibleLinesChanged.connect(lineContainer.resizeLines);
         columnHeader.invertedMuteRequested.connect(() => mixerService.invertMutedColumns(_trackIndex, _index));
         columnHeader.invertedSoloRequested.connect(() => mixerService.invertSoloedColumns(_trackIndex, _index));
         columnHeader.muteRequested.connect(() => mixerService.muteColumn(_trackIndex, _index, true));
@@ -92,7 +74,6 @@ Item {
         lineContainer.rightClicked.connect(rightClicked);
     }
     Component.onDestruction: {
-        config.visibleLinesChanged.disconnect(lineContainer.resizeLines);
         lineContainer.leftClicked.disconnect(leftClicked);
         lineContainer.rightClicked.disconnect(rightClicked);
     }

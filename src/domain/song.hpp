@@ -94,6 +94,9 @@ public:
 
     size_t lineCount(size_t patternIndex) const;
     void setLineCount(size_t patternIndex, size_t lineCount);
+    using LineS = std::shared_ptr<Line>;
+    using LineList = std::vector<LineS>;
+    LineList lines(const Position & position) const;
 
     size_t patternCount() const;
     using PatternIndexList = std::vector<size_t>;
@@ -138,7 +141,6 @@ public:
     void setFileName(std::string fileName);
 
     using NoteDataS = std::shared_ptr<NoteData>;
-
     NoteDataS noteDataAtPosition(const Position & position) const;
     void setNoteDataAtPosition(const NoteData & noteData, const Position & position);
     using PositionList = std::vector<Position>;

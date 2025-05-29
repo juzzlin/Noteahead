@@ -18,6 +18,8 @@ set(HEADER_FILES
   application/models/midi_cc_automations_model.hpp
   application/models/midi_cc_selection_model.hpp
   application/models/note_column_line_container_helper.hpp
+  application/models/note_column_model.hpp
+  application/models/note_column_model_handler.hpp
   application/models/pitch_bend_automations_model.hpp
   application/models/recent_files_model.hpp
   application/models/track_settings_model.hpp
@@ -82,6 +84,8 @@ set(SOURCE_FILES
   application/models/midi_cc_automations_model.cpp
   application/models/midi_cc_selection_model.cpp
   application/models/note_column_line_container_helper.cpp
+  application/models/note_column_model.cpp
+  application/models/note_column_model_handler.cpp
   application/models/pitch_bend_automations_model.cpp
   application/models/recent_files_model.cpp
   application/models/track_settings_model.cpp
@@ -175,8 +179,8 @@ set(QML_SOURCE_FILES
     ${QML_BASE_DIR}/Editor/MuteSoloButtons.qml
     ${QML_BASE_DIR}/Editor/NoteColumn.qml
     ${QML_BASE_DIR}/Editor/NoteColumnHeader.qml
-    ${QML_BASE_DIR}/Editor/NoteColumnLine.qml
-    ${QML_BASE_DIR}/Editor/NoteColumnLineContainer.qml
+    ${QML_BASE_DIR}/Editor/NoteColumnLineContainerV2.qml
+    ${QML_BASE_DIR}/Editor/NoteColumnLineDelegate.qml
     ${QML_BASE_DIR}/Editor/Pattern.qml
     ${QML_BASE_DIR}/Editor/PositionBar.qml
     ${QML_BASE_DIR}/Editor/Track.qml

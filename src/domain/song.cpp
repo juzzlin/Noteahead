@@ -239,6 +239,11 @@ void Song::setLineCount(size_t patternIndex, size_t lineCount)
     m_patterns.at(patternIndex)->setLineCount(lineCount);
 }
 
+Song::LineList Song::lines(const Position & position) const
+{
+    return hasPosition(position) ? m_patterns.at(position.pattern)->lines(position) : Song::LineList {};
+}
+
 size_t Song::patternCount() const
 {
     return static_cast<size_t>(m_patterns.size());
