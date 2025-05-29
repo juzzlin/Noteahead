@@ -219,45 +219,6 @@ target_compile_definitions(${BINARY_NAME} PRIVATE QML_ROOT_DIR="${QML_ROOT_DIR}"
 target_compile_definitions(${BINARY_NAME} PRIVATE QML_ENTRY_POINT="${MAIN}")
 target_link_libraries(${BINARY_NAME} PRIVATE Qt6::Core Qt6::Quick rtmidi SimpleLogger_static Argengine_static)
 
-install(TARGETS ${BINARY_NAME} RUNTIME DESTINATION bin)
-install(FILES ${CMAKE_SOURCE_DIR}/data/linux/noteahead.desktop DESTINATION share/applications)
-install(FILES ${CMAKE_SOURCE_DIR}/data/linux/noteahead.appdata.xml DESTINATION share/metainfo)
-install(FILES ${CMAKE_SOURCE_DIR}/data/linux/noteahead.png DESTINATION share/pixmaps)
-install(FILES ${CMAKE_SOURCE_DIR}/data/linux/noteahead.png DESTINATION share/icons/hicolor/256x256/apps)
-
-# Set up CPack for Debian packaging
-set(CPACK_PACKAGE_NAME "noteahead")
-set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "Noteahead MIDI Tracker")
-set(CPACK_PACKAGE_VERSION_MAJOR ${VERSION_MAJOR})
-set(CPACK_PACKAGE_VERSION_MINOR ${VERSION_MINOR})
-set(CPACK_PACKAGE_VERSION_PATCH ${VERSION_PATCH})
-set(CPACK_PACKAGE_VENDOR Juzzlin)
-set(CPACK_PACKAGE_INSTALL_DIRECTORY ${CPACK_PACKAGE_NAME})
-set(CPACK_VERBATIM_VARIABLES ON)
-
-set(CPACK_DEBIAN_PACKAGE_MAINTAINER "Jussi Lind <jussi.lind@iki.fi>")
-set(CPACK_DEBIAN_PACKAGE_ARCHITECTURE "amd64")
-set(CPACK_DEBIAN_PACKAGE_SHLIBDEPS YES)
-set(QML_RUNTIME_PACKAGES
-    qml6-module-qtcore
-    qml6-module-qtqml
-    qml6-module-qtqml-workerscript
-    qml6-module-qtquick
-    qml6-module-qtquick-controls
-    qml6-module-qtquick-dialogs
-    qml6-module-qtquick-layouts
-    qml6-module-qtquick-templates
-    qml6-module-qtquick-window
-)
-set(CPACK_DEBIAN_PACKAGE_DEPENDS ${QML_RUNTIME_PACKAGES})
-set(CPACK_DEBIAN_PACKAGE_VERSION ${APPLICATION_VERSION})
-set(CPACK_PACKAGING_INSTALL_PREFIX "${CMAKE_INSTALL_PREFIX}")
-
-if(DISTRO_VERSION)
-    message(STATUS "Distro version: ${DISTRO_VERSION}")
-    set(CPACK_PACKAGE_FILE_NAME ${CPACK_PACKAGE_NAME}-${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}.${CPACK_PACKAGE_VERSION_PATCH}-${DISTRO_VERSION}_${CPACK_DEBIAN_PACKAGE_ARCHITECTURE})
-else()
-    set(CPACK_PACKAGE_FILE_NAME ${CPACK_PACKAGE_NAME}-${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}.${CPACK_PACKAGE_VERSION_PATCH}_${CPACK_DEBIAN_PACKAGE_ARCHITECTURE})
-endif()
+include(${CMAKE_SOURCE_DIR}/cmake/DebianPackagingDefaultQt.cmake)
 
 include(CPack)
