@@ -57,21 +57,12 @@ Item {
         lineContainer.createLines();
         _dataUpdated = true;
     }
-    function updateNoteDataAtPosition(position: var): void {
-        lineContainer.updateNoteDataAtPosition(position);
-    }
-    function updateIndexHighlights(): void {
-        lineContainer.updateIndexHighlights();
-    }
-    function updateIndexHighlightsAtPosition(position: var): void {
-        lineContainer.updateIndexHighlightsAtPosition(position);
-    }
     NoteColumnHeader {
         id: columnHeader
         anchors.top: parent.top
         width: parent.width
     }
-    NoteColumnLineContainer {
+    NoteColumnLineContainerV2 {
         id: lineContainer
         anchors.top: columnHeader.bottom
         anchors.bottom: parent.bottom

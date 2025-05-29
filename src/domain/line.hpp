@@ -31,15 +31,12 @@ class Line
 {
 public:
     explicit Line(size_t index);
-
     Line(size_t index, const NoteData & noteData);
 
     size_t index() const;
-
     void setIndex(size_t index);
 
     void clear();
-
     bool hasData() const;
 
     using NoteDataS = std::shared_ptr<NoteData>;

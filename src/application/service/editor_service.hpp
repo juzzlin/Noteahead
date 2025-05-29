@@ -33,6 +33,7 @@ class Song;
 class Instrument;
 class InstrumentRequest;
 class InstrumentSettings;
+class Line;
 class SelectionService;
 
 class EditorService : public QObject
@@ -235,6 +236,10 @@ public:
     Q_INVOKABLE void setSongLength(quint64 songLength);
     Q_INVOKABLE quint64 maxSongLength() const;
 
+    // V2
+    using PatternTrackColumn = std::tuple<quint64, quint64, quint64>;
+    void requestColumnData(PatternTrackColumn location);
+
     using InstrumentS = std::shared_ptr<Instrument>;
     InstrumentS instrument(quint64 trackIndex) const;
     void setInstrument(quint64 trackIndex, InstrumentS instrument);
@@ -252,6 +257,10 @@ public:
     using MidiNoteNameAndCode = std::pair<std::string, uint8_t>;
     using MidiNoteNameAndCodeOpt = std::optional<MidiNoteNameAndCode>;
     static MidiNoteNameAndCodeOpt editorNoteToMidiNote(quint64 note, quint64 octave);
+
+    using LineS = std::shared_ptr<Line>;
+    using LineList = std::vector<LineS>;
+    using LineListCR = const LineList &;
 
 signals:
     void beatsPerMinuteChanged();
@@ -309,6 +318,9 @@ signals:
     void trackConfigurationChanged();
     void trackDeleted(quint64 trackIndex);
     void trackNameChanged();
+
+    // V2
+    void columnDataUpdated(PatternTrackColumn location, LineListCR lines);
 
 public slots:
     void requestPositionByTick(quint64 tick);
