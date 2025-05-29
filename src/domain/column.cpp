@@ -117,6 +117,14 @@ void Column::setNoteDataAtPosition(const NoteData & noteData, const Position & p
     m_lines.at(static_cast<size_t>(position.line))->setNoteData(newNoteData);
 }
 
+Column::LineList Column::lines() const
+{
+    return {
+        m_lines.begin(),
+        m_lines.begin() + static_cast<long>(m_virtualLineCount)
+    };
+}
+
 Column::PositionList Column::addChangedPosition(const Column::PositionList & changedPositions, const Position & position, size_t line) const
 {
     Column::PositionList newChangedPositions = changedPositions;

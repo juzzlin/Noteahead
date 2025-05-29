@@ -150,6 +150,7 @@ FocusScope {
         _updatePatternVisibility();
         _updateTrackVisibility();
         _updateIndexHighlights();
+        noteColumnModelHandler.updateColumnData();
     }
     function _patternByIndex(index: int): var {
         return _patterns.find(pattern => pattern.index() === index) || null;

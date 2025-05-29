@@ -23,6 +23,7 @@
 #include "models/event_selection_model.hpp"
 #include "models/midi_cc_automations_model.hpp"
 #include "models/note_column_line_container_helper.hpp"
+#include "models/note_column_model_handler.hpp"
 #include "models/pitch_bend_automations_model.hpp"
 #include "models/recent_files_model.hpp"
 #include "models/track_settings_model.hpp"
@@ -64,6 +65,7 @@ Application::Application(int & argc, char ** argv)
   , m_stateMachine { std::make_unique<StateMachine>(m_applicationService, m_editorService) }
   , m_recentFilesManager { std::make_unique<RecentFilesManager>() }
   , m_recentFilesModel { std::make_unique<RecentFilesModel>() }
+  , m_noteColumnModelHandler { std::make_unique<NoteColumnModelHandler>(m_editorService) }
   , m_midiCcAutomationsModel { std::make_unique<MidiCcAutomationsModel>() }
   , m_pitchBendAutomationsModel { std::make_unique<PitchBendAutomationsModel>() }
   , m_trackSettingsModel { std::make_unique<TrackSettingsModel>() }
@@ -124,6 +126,7 @@ void Application::setContextProperties()
     m_engine->rootContext()->setContextProperty("midiService", m_midiService.get());
     m_engine->rootContext()->setContextProperty("mixerService", m_mixerService.get());
     m_engine->rootContext()->setContextProperty("noteColumnLineContainerHelper", m_noteColumnLineContainerHelper.get());
+    m_engine->rootContext()->setContextProperty("noteColumnModelHandler", m_noteColumnModelHandler.get());
     m_engine->rootContext()->setContextProperty("pitchBendAutomationsModel", m_pitchBendAutomationsModel.get());
     m_engine->rootContext()->setContextProperty("playerService", m_playerService.get());
     m_engine->rootContext()->setContextProperty("recentFilesModel", m_recentFilesModel.get());
@@ -283,6 +286,7 @@ void Application::connectEditorService()
     connect(m_editorService.get(), &EditorService::mixerSerializationRequested, m_mixerService.get(), &MixerService::serializeToXml);
 
     connect(m_editorService.get(), &EditorService::songPositionChanged, m_playerService.get(), &PlayerService::setSongPosition);
+    connect(m_editorService.get(), &EditorService::songChanged, this, &Application::updateColumnModels);
 }
 
 void Application::connectMidiService()
@@ -436,6 +440,11 @@ void Application::stopAllNotes() const
     for (auto && [trackIndex, instrument] : m_editorService->instruments()) {
         m_midiService->stopAllNotes(instrument);
     }
+}
+
+void Application::updateColumnModels()
+{
+    // m_noteColumnModelHandler->updateColumnData();
 }
 
 int Application::run()

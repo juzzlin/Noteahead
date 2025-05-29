@@ -31,6 +31,7 @@ class Column;
 class Event;
 class Instrument;
 class InstrumentSettings;
+class Line;
 class NoteData;
 struct Position;
 
@@ -50,6 +51,9 @@ public:
 
     size_t lineCount() const;
     void setLineCount(size_t lineCount);
+    using LineS = std::shared_ptr<Line>;
+    using LineList = std::vector<LineS>;
+    LineList lines(const Position & position) const;
     size_t columnCount() const;
 
     bool hasData() const;

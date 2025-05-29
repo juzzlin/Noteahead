@@ -71,7 +71,7 @@ Item {
         anchors.top: parent.top
         width: parent.width
     }
-    NoteColumnLineContainer {
+    NoteColumnLineContainerV2 {
         id: lineContainer
         anchors.top: columnHeader.bottom
         anchors.bottom: parent.bottom

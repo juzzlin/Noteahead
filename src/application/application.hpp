@@ -43,6 +43,7 @@ class MidiCcAutomationsModel;
 class MidiService;
 class MixerService;
 class NoteColumnLineContainerHelper;
+class NoteColumnModelHandler;
 class PitchBendAutomationsModel;
 class PlayerService;
 class RecentFilesManager;
@@ -96,6 +97,8 @@ private:
     void requestInstruments(QStringList midiPorts);
     void stopAllNotes() const;
 
+    void updateColumnModels();
+
     std::unique_ptr<UiLogger> m_uiLogger;
 
     std::unique_ptr<QGuiApplication> m_application;
@@ -119,6 +122,7 @@ private:
     std::shared_ptr<RecentFilesManager> m_recentFilesManager;
     std::unique_ptr<RecentFilesModel> m_recentFilesModel;
 
+    std::unique_ptr<NoteColumnModelHandler> m_noteColumnModelHandler;
     std::unique_ptr<MidiCcAutomationsModel> m_midiCcAutomationsModel;
     std::unique_ptr<PitchBendAutomationsModel> m_pitchBendAutomationsModel;
     std::unique_ptr<TrackSettingsModel> m_trackSettingsModel;

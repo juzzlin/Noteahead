@@ -1086,6 +1086,13 @@ void EditorService::requestColumnTranspose(int semitones)
     setIsModified(true);
 }
 
+void EditorService::requestColumnData(PatternTrackColumn location)
+{
+    const auto [patternIndex, trackIndex, columnIndex] = location;
+    juzzlin::L(TAG).info() << "Requesting line data for patternIndex=" << patternIndex << ", trackIndex=" << trackIndex << ", columnIndex=" << columnIndex;
+    emit columnDataUpdated(location, m_song->lines({ patternIndex, trackIndex, columnIndex, 0 }));
+}
+
 bool EditorService::hasColumnToPaste() const
 {
     return m_state.copyManager.mode() == CopyManager::Mode::Column;
