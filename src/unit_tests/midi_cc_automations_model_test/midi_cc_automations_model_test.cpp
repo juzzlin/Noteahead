@@ -32,15 +32,15 @@ void MidiCcAutomationsModelTest::test_addMidiCcAutomations_shouldAddAutomations(
     model.setMidiCcAutomations({ midiCcAutomation });
 
     QCOMPARE(model.rowCount(), 1);
-    QCOMPARE(model.data(model.index(0), static_cast<int>(MidiCcAutomationsModel::DataRole::Column)), static_cast<quint64>(midiCcAutomation.location().column));
+    QCOMPARE(model.data(model.index(0), static_cast<int>(MidiCcAutomationsModel::DataRole::Column)), static_cast<quint64>(midiCcAutomation.location().column()));
     QCOMPARE(model.data(model.index(0), static_cast<int>(MidiCcAutomationsModel::DataRole::Comment)), midiCcAutomation.comment());
     QCOMPARE(model.data(model.index(0), static_cast<int>(MidiCcAutomationsModel::DataRole::Controller)), midiCcAutomation.controller());
     QCOMPARE(model.data(model.index(0), static_cast<int>(MidiCcAutomationsModel::DataRole::Enabled)), midiCcAutomation.enabled());
     QCOMPARE(model.data(model.index(0), static_cast<int>(MidiCcAutomationsModel::DataRole::Id)), static_cast<quint64>(midiCcAutomation.id()));
     QCOMPARE(model.data(model.index(0), static_cast<int>(MidiCcAutomationsModel::DataRole::Line0)), static_cast<quint64>(midiCcAutomation.interpolation().line0));
     QCOMPARE(model.data(model.index(0), static_cast<int>(MidiCcAutomationsModel::DataRole::Line1)), static_cast<quint64>(midiCcAutomation.interpolation().line1));
-    QCOMPARE(model.data(model.index(0), static_cast<int>(MidiCcAutomationsModel::DataRole::Pattern)), static_cast<quint64>(midiCcAutomation.location().pattern));
-    QCOMPARE(model.data(model.index(0), static_cast<int>(MidiCcAutomationsModel::DataRole::Track)), static_cast<quint64>(midiCcAutomation.location().track));
+    QCOMPARE(model.data(model.index(0), static_cast<int>(MidiCcAutomationsModel::DataRole::Pattern)), static_cast<quint64>(midiCcAutomation.location().pattern()));
+    QCOMPARE(model.data(model.index(0), static_cast<int>(MidiCcAutomationsModel::DataRole::Track)), static_cast<quint64>(midiCcAutomation.location().track()));
     QCOMPARE(model.data(model.index(0), static_cast<int>(MidiCcAutomationsModel::DataRole::Value0)), static_cast<quint64>(midiCcAutomation.interpolation().value0));
     QCOMPARE(model.data(model.index(0), static_cast<int>(MidiCcAutomationsModel::DataRole::Value1)), static_cast<quint64>(midiCcAutomation.interpolation().value1));
 }
@@ -176,11 +176,11 @@ void MidiCcAutomationsModelTest::test_setData_shouldUpdateAutomationData()
 
     // These should not be settable
     QVERIFY(!model.setData(index, 8u, static_cast<int>(Role::Pattern)));
-    QCOMPARE(model.data(index, static_cast<int>(Role::Pattern)).toUInt(), midiCcAutomation.location().pattern);
+    QCOMPARE(model.data(index, static_cast<int>(Role::Pattern)).toUInt(), midiCcAutomation.location().pattern());
     QVERIFY(!model.setData(index, 5u, static_cast<int>(Role::Track)));
-    QCOMPARE(model.data(index, static_cast<int>(Role::Track)).toUInt(), midiCcAutomation.location().track);
+    QCOMPARE(model.data(index, static_cast<int>(Role::Track)).toUInt(), midiCcAutomation.location().track());
     QVERIFY(!model.setData(index, 2u, static_cast<int>(Role::Column)));
-    QCOMPARE(model.data(index, static_cast<int>(Role::Column)).toUInt(), midiCcAutomation.location().column);
+    QCOMPARE(model.data(index, static_cast<int>(Role::Column)).toUInt(), midiCcAutomation.location().column());
     QVERIFY(!model.setData(index, 99u, static_cast<int>(Role::Id)));
     QCOMPARE(model.data(index, static_cast<int>(Role::Id)).toUInt(), midiCcAutomation.id());
 
@@ -195,9 +195,9 @@ void MidiCcAutomationsModelTest::test_setData_shouldUpdateAutomationData()
     QCOMPARE(updatedAutomation->interpolation().line1, model.data(index, static_cast<int>(Role::Line1)).toUInt());
     QCOMPARE(updatedAutomation->interpolation().value0, model.data(index, static_cast<int>(Role::Value0)).toUInt());
     QCOMPARE(updatedAutomation->interpolation().value1, model.data(index, static_cast<int>(Role::Value1)).toUInt());
-    QCOMPARE(updatedAutomation->location().pattern, model.data(index, static_cast<int>(Role::Pattern)).toUInt());
-    QCOMPARE(updatedAutomation->location().track, model.data(index, static_cast<int>(Role::Track)).toUInt());
-    QCOMPARE(updatedAutomation->location().column, model.data(index, static_cast<int>(Role::Column)).toUInt());
+    QCOMPARE(updatedAutomation->location().pattern(), model.data(index, static_cast<int>(Role::Pattern)).toUInt());
+    QCOMPARE(updatedAutomation->location().track(), model.data(index, static_cast<int>(Role::Track)).toUInt());
+    QCOMPARE(updatedAutomation->location().column(), model.data(index, static_cast<int>(Role::Column)).toUInt());
 }
 
 void MidiCcAutomationsModelTest::test_removeAt_shouldRemoveAutomationData()

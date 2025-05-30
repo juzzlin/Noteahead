@@ -15,6 +15,10 @@
 
 #include "automation.hpp"
 
+#include "../common/constants.hpp"
+
+#include <QXmlStreamWriter>
+
 namespace noteahead {
 
 Automation::Automation() = default;

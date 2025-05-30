@@ -17,24 +17,39 @@
 #define AUTOMATION_LOCATION_HPP
 
 #include <cstddef>
+#include <memory>
+
+class QXmlStreamReader;
+class QXmlStreamWriter;
 
 namespace noteahead {
 
-struct AutomationLocation
+class AutomationLocation
 {
-    size_t pattern = 0;
-    size_t track = 0;
-    size_t column = 0;
+public:
+    AutomationLocation();
+    AutomationLocation(size_t pattern, size_t track, size_t column);
 
-    bool operator==(const AutomationLocation & other) const
-    {
-        return pattern == other.pattern && track == other.track && column == other.column;
-    }
+    bool operator==(const AutomationLocation & other) const;
+    bool operator!=(const AutomationLocation & other) const;
 
-    bool operator!=(const AutomationLocation & other) const
-    {
-        return !(*this == other);
-    }
+    void serializeToXml(QXmlStreamWriter & writer) const;
+    using AutomationLocationU = std::unique_ptr<AutomationLocation>;
+    static AutomationLocationU deserializeFromXml(QXmlStreamReader & reader);
+
+    size_t pattern() const;
+    void setPattern(size_t pattern);
+
+    size_t track() const;
+    void setTrack(size_t track);
+
+    size_t column() const;
+    void setColumn(size_t column);
+
+private:
+    size_t m_pattern = 0;
+    size_t m_track = 0;
+    size_t m_column = 0;
 };
 
 } // namespace noteahead

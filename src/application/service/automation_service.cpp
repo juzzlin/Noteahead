@@ -152,7 +152,7 @@ bool AutomationService::hasMidiCcAutomations(quint64 pattern, quint64 track, qui
     const auto match = std::ranges::find_if(m_automations.midiCc, [&](auto && automation) {
         auto && location = automation.location();
         auto && interpolation = automation.interpolation();
-        return location.pattern == pattern && location.track == track && location.column == column && line >= interpolation.line0 && line <= interpolation.line1;
+        return location.pattern() == pattern && location.track() == track && location.column() == column && line >= interpolation.line0 && line <= interpolation.line1;
     });
     return match != m_automations.midiCc.end();
 }
@@ -162,7 +162,7 @@ bool AutomationService::hasPitchBendAutomations(quint64 pattern, quint64 track, 
     const auto match = std::ranges::find_if(m_automations.pitchBend, [&](auto && automation) {
         auto && location = automation.location();
         auto && interpolation = automation.interpolation();
-        return location.pattern == pattern && location.track == track && location.column == column && line >= interpolation.line0 && line <= interpolation.line1;
+        return location.pattern() == pattern && location.track() == track && location.column() == column && line >= interpolation.line0 && line <= interpolation.line1;
     });
     return match != m_automations.pitchBend.end();
 }
@@ -203,7 +203,7 @@ AutomationService::MidiCcAutomationList AutomationService::midiCcAutomationsByLi
                         | std::views::filter([&](auto && automation) {
                               auto && location = automation.location();
                               auto && interpolation = automation.interpolation();
-                              return location.pattern == pattern && location.track == track && location.column == column && line >= interpolation.line0 && line <= interpolation.line1;
+                              return location.pattern() == pattern && location.track() == track && location.column() == column && line >= interpolation.line0 && line <= interpolation.line1;
                           }),
                       std::back_inserter(automations));
     return automations;
@@ -215,7 +215,7 @@ AutomationService::MidiCcAutomationList AutomationService::midiCcAutomationsByCo
     std::ranges::copy(m_automations.midiCc
                         | std::views::filter([&](auto && automation) {
                               auto && location = automation.location();
-                              return location.pattern == pattern && location.track == track && location.column == column;
+                              return location.pattern() == pattern && location.track() == track && location.column() == column;
                           }),
                       std::back_inserter(automations));
     return automations;
@@ -227,7 +227,7 @@ AutomationService::MidiCcAutomationList AutomationService::midiCcAutomationsByTr
     std::ranges::copy(m_automations.midiCc
                         | std::views::filter([&](auto && automation) {
                               auto && location = automation.location();
-                              return location.pattern == pattern && location.track == track;
+                              return location.pattern() == pattern && location.track() == track;
                           }),
                       std::back_inserter(automations));
     return automations;
@@ -239,7 +239,7 @@ AutomationService::MidiCcAutomationList AutomationService::midiCcAutomationsByPa
     std::ranges::copy(m_automations.midiCc
                         | std::views::filter([&](auto && automation) {
                               auto && location = automation.location();
-                              return location.pattern == pattern;
+                              return location.pattern() == pattern;
                           }),
                       std::back_inserter(automations));
     return automations;
@@ -257,7 +257,7 @@ AutomationService::PitchBendAutomationList AutomationService::pitchBendAutomatio
                         | std::views::filter([&](auto && automation) {
                               auto && location = automation.location();
                               auto && interpolation = automation.interpolation();
-                              return location.pattern == pattern && location.track == track && location.column == column && line >= interpolation.line0 && line <= interpolation.line1;
+                              return location.pattern() == pattern && location.track() == track && location.column() == column && line >= interpolation.line0 && line <= interpolation.line1;
                           }),
                       std::back_inserter(automations));
     return automations;
@@ -269,7 +269,7 @@ AutomationService::PitchBendAutomationList AutomationService::pitchBendAutomatio
     std::ranges::copy(m_automations.pitchBend
                         | std::views::filter([&](auto && automation) {
                               auto && location = automation.location();
-                              return location.pattern == pattern && location.track == track && location.column == column;
+                              return location.pattern() == pattern && location.track() == track && location.column() == column;
                           }),
                       std::back_inserter(automations));
     return automations;
@@ -281,7 +281,7 @@ AutomationService::PitchBendAutomationList AutomationService::pitchBendAutomatio
     std::ranges::copy(m_automations.pitchBend
                         | std::views::filter([&](auto && automation) {
                               auto && location = automation.location();
-                              return location.pattern == pattern && location.track == track;
+                              return location.pattern() == pattern && location.track() == track;
                           }),
                       std::back_inserter(automations));
     return automations;
@@ -293,7 +293,7 @@ AutomationService::PitchBendAutomationList AutomationService::pitchBendAutomatio
     std::ranges::copy(m_automations.pitchBend
                         | std::views::filter([&](auto && automation) {
                               auto && location = automation.location();
-                              return location.pattern == pattern;
+                              return location.pattern() == pattern;
                           }),
                       std::back_inserter(automations));
     return automations;
@@ -320,7 +320,7 @@ AutomationService::EventList AutomationService::renderMidiCcToEventsByLine(size_
         if (automation.enabled()) {
             const auto & location = automation.location();
             const auto & interpolation = automation.interpolation();
-            if (location.pattern == pattern && location.track == track && location.column == column && line >= interpolation.line0 && line <= interpolation.line1) {
+            if (location.pattern() == pattern && location.track() == track && location.column() == column && line >= interpolation.line0 && line <= interpolation.line1) {
                 Interpolator interpolator {
                     static_cast<size_t>(interpolation.line0),
                     static_cast<size_t>(interpolation.line1),
@@ -344,7 +344,7 @@ AutomationService::EventList AutomationService::renderPitchBendToEventsByLine(si
         if (automation.enabled()) {
             const auto & location = automation.location();
             const auto & interpolation = automation.interpolation();
-            if (location.pattern == pattern && location.track == track && location.column == column && line >= interpolation.line0 && line <= interpolation.line1) {
+            if (location.pattern() == pattern && location.track() == track && location.column() == column && line >= interpolation.line0 && line <= interpolation.line1) {
                 Interpolator interpolator {
                     static_cast<size_t>(interpolation.line0),
                     static_cast<size_t>(interpolation.line1),
@@ -376,7 +376,7 @@ AutomationService::EventList AutomationService::renderMidiCcToEventsByColumn(siz
         if (automation.enabled()) {
             const auto & location = automation.location();
             const auto & interpolation = automation.interpolation();
-            if (location.pattern == pattern && location.track == track && location.column == column) {
+            if (location.pattern() == pattern && location.track() == track && location.column() == column) {
                 Interpolator interpolator {
                     static_cast<size_t>(interpolation.line0),
                     static_cast<size_t>(interpolation.line1),
@@ -406,7 +406,7 @@ AutomationService::EventList AutomationService::renderPitchBendToEventsByColumn(
         if (automation.enabled()) {
             const auto & location = automation.location();
             const auto & interpolation = automation.interpolation();
-            if (location.pattern == pattern && location.track == track && location.column == column) {
+            if (location.pattern() == pattern && location.track() == track && location.column() == column) {
                 Interpolator interpolator {
                     static_cast<size_t>(interpolation.line0),
                     static_cast<size_t>(interpolation.line1),
@@ -452,7 +452,7 @@ void AutomationService::notifyChangedLines(const MidiCcAutomation & automation)
 {
     const auto location = automation.location();
     const auto interpolation = automation.interpolation();
-    notifyChangedLines(location.pattern, location.track, location.column, interpolation.line0, interpolation.line1);
+    notifyChangedLines(location.pattern(), location.track(), location.column(), interpolation.line0, interpolation.line1);
 }
 
 void AutomationService::notifyChangedLinesMerged(const MidiCcAutomation & automation1, const MidiCcAutomation & automation2)
@@ -460,14 +460,14 @@ void AutomationService::notifyChangedLinesMerged(const MidiCcAutomation & automa
     const auto location = automation1.location();
     const auto interpolation1 = automation1.interpolation();
     const auto interpolation2 = automation2.interpolation();
-    notifyChangedLines(location.pattern, location.track, location.column, std::min(interpolation1.line0, interpolation2.line0), std::max(interpolation1.line1, interpolation2.line1));
+    notifyChangedLines(location.pattern(), location.track(), location.column(), std::min(interpolation1.line0, interpolation2.line0), std::max(interpolation1.line1, interpolation2.line1));
 }
 
 void AutomationService::notifyChangedLines(const PitchBendAutomation & automation)
 {
     const auto location = automation.location();
     const auto interpolation = automation.interpolation();
-    notifyChangedLines(location.pattern, location.track, location.column, interpolation.line0, interpolation.line1);
+    notifyChangedLines(location.pattern(), location.track(), location.column(), interpolation.line0, interpolation.line1);
 }
 
 void AutomationService::notifyChangedLinesMerged(const PitchBendAutomation & automation1, const PitchBendAutomation & automation2)
@@ -475,7 +475,7 @@ void AutomationService::notifyChangedLinesMerged(const PitchBendAutomation & aut
     const auto location = automation1.location();
     const auto interpolation1 = automation1.interpolation();
     const auto interpolation2 = automation2.interpolation();
-    notifyChangedLines(location.pattern, location.track, location.column, std::min(interpolation1.line0, interpolation2.line0), std::max(interpolation1.line1, interpolation2.line1));
+    notifyChangedLines(location.pattern(), location.track(), location.column(), std::min(interpolation1.line0, interpolation2.line0), std::max(interpolation1.line1, interpolation2.line1));
 }
 
 void AutomationService::deserializeFromXml(QXmlStreamReader & reader)

@@ -70,9 +70,9 @@ QString PitchBendAutomation::toString() const
     return QString("PitchBendAutomation(id=%1, controller=%2, pattern=%3, track=%4, column=%5, "
                    "line: %6 -> %7, value: %8 -> %9), enabled=%10")
       .arg(QString::number(id()),
-           QString::number(location().pattern),
-           QString::number(location().track),
-           QString::number(location().column),
+           QString::number(location().pattern()),
+           QString::number(location().track()),
+           QString::number(location().column()),
            QString::number(m_interpolation.line0),
            QString::number(m_interpolation.line1),
            QString::number(m_interpolation.value0),
@@ -86,11 +86,7 @@ void PitchBendAutomation::serializeToXml(QXmlStreamWriter & writer) const
     writer.writeAttribute(Constants::NahdXml::xmlKeyComment(), comment());
     writer.writeAttribute(Constants::NahdXml::xmlKeyEnabled(), enabled() ? Constants::NahdXml::xmlValueTrue() : Constants::NahdXml::xmlValueFalse());
 
-    writer.writeStartElement(Constants::NahdXml::xmlKeyLocation());
-    writer.writeAttribute(Constants::NahdXml::xmlKeyPatternAttr(), QString::number(location().pattern));
-    writer.writeAttribute(Constants::NahdXml::xmlKeyTrackAttr(), QString::number(location().track));
-    writer.writeAttribute(Constants::NahdXml::xmlKeyColumnAttr(), QString::number(location().column));
-    writer.writeEndElement(); // Location
+    location().serializeToXml(writer);
 
     writer.writeStartElement(Constants::NahdXml::xmlKeyInterpolation());
     writer.writeAttribute(Constants::NahdXml::xmlKeyLine0(), QString::number(m_interpolation.line0));
@@ -106,16 +102,13 @@ PitchBendAutomation::PitchBendAutomationU PitchBendAutomation::deserializeFromXm
 {
     const QString comment = reader.attributes().value(Constants::NahdXml::xmlKeyComment()).toString();
     const bool enabled = Utils::Xml::readBoolAttribute(reader, Constants::NahdXml::xmlKeyEnabled(), false).value_or(true);
-    AutomationLocation location {};
+    AutomationLocation::AutomationLocationU location = std::make_unique<AutomationLocation>();
     PitchBendAutomation::InterpolationParameters parameters {};
     while (!(reader.isEndElement() && !reader.name().compare(Constants::NahdXml::xmlKeyPitchBendAutomation()))) {
         reader.readNext();
         if (reader.isStartElement()) {
             if (!reader.name().compare(Constants::NahdXml::xmlKeyLocation())) {
-                const auto attributes = reader.attributes();
-                location.pattern = attributes.value(Constants::NahdXml::xmlKeyPatternAttr()).toULongLong();
-                location.track = attributes.value(Constants::NahdXml::xmlKeyTrackAttr()).toULongLong();
-                location.column = attributes.value(Constants::NahdXml::xmlKeyColumnAttr()).toULongLong();
+                location = AutomationLocation::deserializeFromXml(reader);
             } else if (!reader.name().compare(Constants::NahdXml::xmlKeyInterpolation())) {
                 const auto attributes = reader.attributes();
                 parameters.line0 = attributes.value(Constants::NahdXml::xmlKeyLine0()).toULongLong();
@@ -125,7 +118,7 @@ PitchBendAutomation::PitchBendAutomationU PitchBendAutomation::deserializeFromXm
             }
         }
     }
-    return std::make_unique<PitchBendAutomation>(0, location, parameters, comment, enabled);
+    return std::make_unique<PitchBendAutomation>(0, *location, parameters, comment, enabled);
 }
 
 } // namespace noteahead

@@ -75,14 +75,13 @@ MidiCcAutomationsModel::MidiCcAutomationList MidiCcAutomationsModel::filteredMid
     MidiCcAutomationList filtered;
     std::ranges::copy_if(midiCcAutomations, std::back_inserter(filtered),
                          [this](const auto & automation) {
-                             const auto & loc = automation.location();
-                             if (m_filter.pattern.has_value() && loc.pattern != m_filter.pattern.value()) {
+                             if (m_filter.pattern.has_value() && automation.location().pattern() != m_filter.pattern.value()) {
                                  return false;
                              }
-                             if (m_filter.track.has_value() && loc.track != m_filter.track.value()) {
+                             if (m_filter.track.has_value() && automation.location().track() != m_filter.track.value()) {
                                  return false;
                              }
-                             if (m_filter.column.has_value() && loc.column != m_filter.column.value()) {
+                             if (m_filter.column.has_value() && automation.location().column() != m_filter.column.value()) {
                                  return false;
                              }
                              if (m_filter.line.has_value()) {
@@ -134,11 +133,11 @@ QVariant MidiCcAutomationsModel::data(const QModelIndex & index, int role) const
         case DataRole::Value1:
             return midiCcAutomation.interpolation().value1;
         case DataRole::Pattern:
-            return static_cast<quint64>(midiCcAutomation.location().pattern);
+            return static_cast<quint64>(midiCcAutomation.location().pattern());
         case DataRole::Track:
-            return static_cast<quint64>(midiCcAutomation.location().track);
+            return static_cast<quint64>(midiCcAutomation.location().track());
         case DataRole::Column:
-            return static_cast<quint64>(midiCcAutomation.location().column);
+            return static_cast<quint64>(midiCcAutomation.location().column());
         }
     }
     return "N/A";

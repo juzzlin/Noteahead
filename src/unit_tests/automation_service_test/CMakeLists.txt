@@ -9,6 +9,7 @@ set(SRC
     ../../common/constants.cpp
     ../../common/utils.cpp
     ../../domain/automation.cpp
+    ../../domain/automation_location.cpp
     ../../domain/event.cpp
     ../../domain/event_data.cpp
     ../../domain/interpolator.cpp

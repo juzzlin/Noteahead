@@ -120,6 +120,7 @@ set(SOURCE_FILES
   common/constants.cpp
   common/utils.cpp
   domain/automation.cpp
+  domain/automation_location.cpp
   domain/column.cpp
   domain/event.cpp
   domain/event_data.cpp

@@ -32,14 +32,14 @@ void PitchBendAutomationsModelTest::test_addPitchBendAutomations_shouldAddAutoma
     model.setPitchBendAutomations({ automation });
 
     QCOMPARE(model.rowCount(), 1);
-    QCOMPARE(model.data(model.index(0), static_cast<int>(PitchBendAutomationsModel::DataRole::Column)), static_cast<quint64>(automation.location().column));
+    QCOMPARE(model.data(model.index(0), static_cast<int>(PitchBendAutomationsModel::DataRole::Column)), static_cast<quint64>(automation.location().column()));
     QCOMPARE(model.data(model.index(0), static_cast<int>(PitchBendAutomationsModel::DataRole::Comment)), automation.comment());
     QCOMPARE(model.data(model.index(0), static_cast<int>(PitchBendAutomationsModel::DataRole::Enabled)), automation.enabled());
     QCOMPARE(model.data(model.index(0), static_cast<int>(PitchBendAutomationsModel::DataRole::Id)), static_cast<quint64>(automation.id()));
     QCOMPARE(model.data(model.index(0), static_cast<int>(PitchBendAutomationsModel::DataRole::Line0)), static_cast<quint64>(automation.interpolation().line0));
     QCOMPARE(model.data(model.index(0), static_cast<int>(PitchBendAutomationsModel::DataRole::Line1)), static_cast<quint64>(automation.interpolation().line1));
-    QCOMPARE(model.data(model.index(0), static_cast<int>(PitchBendAutomationsModel::DataRole::Pattern)), static_cast<quint64>(automation.location().pattern));
-    QCOMPARE(model.data(model.index(0), static_cast<int>(PitchBendAutomationsModel::DataRole::Track)), static_cast<quint64>(automation.location().track));
+    QCOMPARE(model.data(model.index(0), static_cast<int>(PitchBendAutomationsModel::DataRole::Pattern)), static_cast<quint64>(automation.location().pattern()));
+    QCOMPARE(model.data(model.index(0), static_cast<int>(PitchBendAutomationsModel::DataRole::Track)), static_cast<quint64>(automation.location().track()));
     QCOMPARE(model.data(model.index(0), static_cast<int>(PitchBendAutomationsModel::DataRole::Value0)), static_cast<quint64>(automation.interpolation().value0));
     QCOMPARE(model.data(model.index(0), static_cast<int>(PitchBendAutomationsModel::DataRole::Value1)), static_cast<quint64>(automation.interpolation().value1));
 }
@@ -169,11 +169,11 @@ void PitchBendAutomationsModelTest::test_setData_shouldUpdateAutomationData()
 
     // These should not be settable
     QVERIFY(!model.setData(index, 8u, static_cast<int>(Role::Pattern)));
-    QCOMPARE(model.data(index, static_cast<int>(Role::Pattern)).toUInt(), automation.location().pattern);
+    QCOMPARE(model.data(index, static_cast<int>(Role::Pattern)).toUInt(), automation.location().pattern());
     QVERIFY(!model.setData(index, 5u, static_cast<int>(Role::Track)));
-    QCOMPARE(model.data(index, static_cast<int>(Role::Track)).toUInt(), automation.location().track);
+    QCOMPARE(model.data(index, static_cast<int>(Role::Track)).toUInt(), automation.location().track());
     QVERIFY(!model.setData(index, 2u, static_cast<int>(Role::Column)));
-    QCOMPARE(model.data(index, static_cast<int>(Role::Column)).toUInt(), automation.location().column);
+    QCOMPARE(model.data(index, static_cast<int>(Role::Column)).toUInt(), automation.location().column());
     QVERIFY(!model.setData(index, 99u, static_cast<int>(Role::Id)));
     QCOMPARE(model.data(index, static_cast<int>(Role::Id)).toUInt(), automation.id());
 
@@ -187,9 +187,9 @@ void PitchBendAutomationsModelTest::test_setData_shouldUpdateAutomationData()
     QCOMPARE(updatedAutomation->interpolation().line1, model.data(index, static_cast<int>(Role::Line1)).toUInt());
     QCOMPARE(updatedAutomation->interpolation().value0, model.data(index, static_cast<int>(Role::Value0)).toUInt());
     QCOMPARE(updatedAutomation->interpolation().value1, model.data(index, static_cast<int>(Role::Value1)).toUInt());
-    QCOMPARE(updatedAutomation->location().pattern, model.data(index, static_cast<int>(Role::Pattern)).toUInt());
-    QCOMPARE(updatedAutomation->location().track, model.data(index, static_cast<int>(Role::Track)).toUInt());
-    QCOMPARE(updatedAutomation->location().column, model.data(index, static_cast<int>(Role::Column)).toUInt());
+    QCOMPARE(updatedAutomation->location().pattern(), model.data(index, static_cast<int>(Role::Pattern)).toUInt());
+    QCOMPARE(updatedAutomation->location().track(), model.data(index, static_cast<int>(Role::Track)).toUInt());
+    QCOMPARE(updatedAutomation->location().column(), model.data(index, static_cast<int>(Role::Column)).toUInt());
 }
 
 void PitchBendAutomationsModelTest::test_removeAt_shouldRemoveAutomationData()
