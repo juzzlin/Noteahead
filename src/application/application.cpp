@@ -102,7 +102,7 @@ void Application::registerTypes()
     qmlRegisterType<RecentFilesModel>("Noteahead", majorVersion, minorVersion, "RecentFilesModel");
     qmlRegisterType<SelectionService>("Noteahead", majorVersion, minorVersion, "SelectionService");
     qmlRegisterType<TrackSettingsModel>("Noteahead", majorVersion, minorVersion, "TrackSettingsModel");
-    qmlRegisterType<TrackSettingsModel>("Noteahead", majorVersion, minorVersion, "UtilService");
+    qmlRegisterType<UtilService>("Noteahead", majorVersion, minorVersion, "UtilService");
     qmlRegisterType<UiLogger>("Noteahead", majorVersion, minorVersion, "UiLogger");
 
     qmlRegisterSingletonType(QUrl(QML_ROOT_DIR + QString { "/Constants.qml" }), "Noteahead", majorVersion, minorVersion, "Constants");
