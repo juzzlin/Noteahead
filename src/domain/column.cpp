@@ -95,13 +95,13 @@ Position Column::nextNoteDataOnSameColumn(const Position & position) const
 
 Position Column::prevNoteDataOnSameColumn(const Position & position) const
 {
-    auto nextNoteDataPosition = position;
+    auto prevNoteDataPosition = position;
     for (size_t line = 0; line < position.line; line++) {
         if (const auto noteData = m_lines.at(line)->noteData(); noteData->type() != NoteData::Type::None) {
-            nextNoteDataPosition.line = line;
+            prevNoteDataPosition.line = line;
         }
     }
-    return nextNoteDataPosition;
+    return prevNoteDataPosition;
 }
 
 Column::NoteDataS Column::noteDataAtPosition(const Position & position) const
