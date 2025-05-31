@@ -91,4 +91,9 @@ Item {
         lineContainer.leftClicked.connect(leftClicked);
         lineContainer.rightClicked.connect(rightClicked);
     }
+    Component.onDestruction: {
+        config.visibleLinesChanged.disconnect(lineContainer.resizeLines);
+        lineContainer.leftClicked.disconnect(leftClicked);
+        lineContainer.rightClicked.disconnect(rightClicked);
+    }
 }
