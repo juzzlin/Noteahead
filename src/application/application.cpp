@@ -22,6 +22,7 @@
 #include "config.hpp"
 #include "models/event_selection_model.hpp"
 #include "models/midi_cc_automations_model.hpp"
+#include "models/note_column_line_container_helper.hpp"
 #include "models/pitch_bend_automations_model.hpp"
 #include "models/recent_files_model.hpp"
 #include "models/track_settings_model.hpp"
@@ -67,6 +68,8 @@ Application::Application(int & argc, char ** argv)
   , m_pitchBendAutomationsModel { std::make_unique<PitchBendAutomationsModel>() }
   , m_trackSettingsModel { std::make_unique<TrackSettingsModel>() }
   , m_utilService { std::make_unique<UtilService>() }
+  , m_noteColumnLineContainerHelper { std::make_unique<NoteColumnLineContainerHelper>(
+      m_automationService, m_editorService, m_selectionService, m_utilService) }
   , m_engine { std::make_unique<QQmlApplicationEngine>() }
 {
     registerTypes();
@@ -98,6 +101,7 @@ void Application::registerTypes()
     qmlRegisterType<MidiCcAutomationsModel>("Noteahead", majorVersion, minorVersion, "MidiCcAutomationsModel");
     qmlRegisterType<MidiService>("Noteahead", majorVersion, minorVersion, "MidiService");
     qmlRegisterType<MixerService>("Noteahead", majorVersion, minorVersion, "MixerService");
+    qmlRegisterType<NoteColumnLineContainerHelper>("Noteahead", majorVersion, minorVersion, "NoteColumnLineContainerHelper");
     qmlRegisterType<PitchBendAutomationsModel>("Noteahead", majorVersion, minorVersion, "PitchBendAutomationsModel");
     qmlRegisterType<RecentFilesModel>("Noteahead", majorVersion, minorVersion, "RecentFilesModel");
     qmlRegisterType<SelectionService>("Noteahead", majorVersion, minorVersion, "SelectionService");
@@ -119,6 +123,7 @@ void Application::setContextProperties()
     m_engine->rootContext()->setContextProperty("midiCcAutomationsModel", m_midiCcAutomationsModel.get());
     m_engine->rootContext()->setContextProperty("midiService", m_midiService.get());
     m_engine->rootContext()->setContextProperty("mixerService", m_mixerService.get());
+    m_engine->rootContext()->setContextProperty("noteColumnLineContainerHelper", m_noteColumnLineContainerHelper.get());
     m_engine->rootContext()->setContextProperty("pitchBendAutomationsModel", m_pitchBendAutomationsModel.get());
     m_engine->rootContext()->setContextProperty("playerService", m_playerService.get());
     m_engine->rootContext()->setContextProperty("recentFilesModel", m_recentFilesModel.get());

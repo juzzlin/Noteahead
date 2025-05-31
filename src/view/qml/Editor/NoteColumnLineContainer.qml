@@ -139,26 +139,9 @@ Rectangle {
         }
     }
     function _updateIndexHighlightsOnLine(line: NoteColumnLine, index: int): void {
-        if (selectionService.isSelected(_patternIndex, _trackIndex, _index, index)) {
-            const baseColor = utilService.scaledColor("#ffffff", utilService.indexHighlightOpacity(index, editorService.linesPerBeat));
-            line.color = utilService.blendColors(baseColor, "#ffa500", 0.5); // Blend 50% with orange
-            line.border.width = 0;
-        } else {
-            if (editorService.hasInstrumentSettings(_patternIndex, _trackIndex, _index, index)) {
-                const baseColor = utilService.scaledColor("#ffffff", utilService.indexHighlightOpacity(index, editorService.linesPerBeat));
-                line.color = utilService.blendColors(baseColor, "#3e65ff", 0.5); // Universal.Cobalt
-                line.border.width = 1;
-            } else if (automationService.hasAutomations(_patternIndex, _trackIndex, _index, index)) {
-                const baseColor = utilService.scaledColor("#ffffff", utilService.indexHighlightOpacity(index, editorService.linesPerBeat));
-                const automationWeight = automationService.automationWeight(_patternIndex, _trackIndex, _index, index);
-                const automationColor = utilService.blendColors("#e51400", "#60a917", automationWeight); // Universal.Red -> Universal.Green
-                line.color = utilService.blendColors(baseColor, automationColor, 0.75);
-                line.border.width = 1;
-            } else {
-                line.color = utilService.scaledColor("#ffffff", utilService.indexHighlightOpacity(index, editorService.linesPerBeat));
-                line.border.width = 1;
-            }
-        }
+        const colorAndBorder = noteColumnLineContainerHelper.lineColorAndBorderWidth(_patternIndex, _trackIndex, _index, index);
+        line.color = colorAndBorder[0];
+        line.border.width = colorAndBorder[1];
     }
     Component {
         id: noteColumnLineComponent

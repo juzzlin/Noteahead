@@ -42,6 +42,7 @@ class Instrument;
 class MidiCcAutomationsModel;
 class MidiService;
 class MixerService;
+class NoteColumnLineContainerHelper;
 class PitchBendAutomationsModel;
 class PlayerService;
 class RecentFilesManager;
@@ -122,7 +123,9 @@ private:
     std::unique_ptr<PitchBendAutomationsModel> m_pitchBendAutomationsModel;
     std::unique_ptr<TrackSettingsModel> m_trackSettingsModel;
 
-    std::unique_ptr<UtilService> m_utilService;
+    std::shared_ptr<UtilService> m_utilService;
+
+    std::unique_ptr<NoteColumnLineContainerHelper> m_noteColumnLineContainerHelper;
 
     std::unique_ptr<QQmlApplicationEngine> m_engine;
 

@@ -17,6 +17,7 @@ set(HEADER_FILES
   application/models/event_selection_model.hpp
   application/models/midi_cc_automations_model.hpp
   application/models/midi_cc_selection_model.hpp
+  application/models/note_column_line_container_helper.hpp
   application/models/pitch_bend_automations_model.hpp
   application/models/recent_files_model.hpp
   application/models/track_settings_model.hpp
@@ -80,6 +81,7 @@ set(SOURCE_FILES
   application/models/event_selection_model.cpp
   application/models/midi_cc_automations_model.cpp
   application/models/midi_cc_selection_model.cpp
+  application/models/note_column_line_container_helper.cpp
   application/models/pitch_bend_automations_model.cpp
   application/models/recent_files_model.cpp
   application/models/track_settings_model.cpp
