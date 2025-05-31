@@ -27,12 +27,10 @@ Item {
     }
     function setLocation(patternIndex: int, trackIndex: int, columnIndex: int): void {
         _patternIndex = patternIndex;
-        lineContainer.setPatternIndex(_patternIndex);
         _trackIndex = trackIndex;
-        columnHeader.setIndex(_trackIndex);
-        lineContainer.setTrackIndex(_trackIndex);
         _index = columnIndex;
-        lineContainer.setIndex(_index);
+        columnHeader.setIndex(_index);
+        lineContainer.setLocation(patternIndex, trackIndex, columnIndex);
     }
     function setFocused(focused: bool): void {
         lineContainer.setLineFocused(editorService.position.line, editorService.position.lineColumn, focused);

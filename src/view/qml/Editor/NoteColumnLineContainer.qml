@@ -14,14 +14,10 @@ Rectangle {
     property int _scrollOffset: 0
     readonly property string _tag: "NoteColumnLineContainer"
     property var _lines: []
-    function setIndex(index: int): void {
-        _index = index;
-    }
-    function setPatternIndex(index: int): void {
-        _patternIndex = index;
-    }
-    function setTrackIndex(index: int): void {
-        _trackIndex = index;
+    function setLocation(patternIndex: int, trackIndex: int, columnIndex: int): void {
+        _patternIndex = patternIndex;
+        _trackIndex = trackIndex;
+        _index = columnIndex;
     }
     function createLines(): void {
         uiLogger.trace(_tag, `Creating lines of pattern ${_patternIndex}, track ${_trackIndex}, column ${_index}`);
