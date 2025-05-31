@@ -81,11 +81,10 @@ Rectangle {
         return _lines[index];
     }
     function _scrollLines(): void {
-        const lineHeight = _lineHeight();
         const linesVisible = config.visibleLines;
         _lines.forEach((line, index) => {
                 const scrolledLinePosition = _scrolledLinePositionByLineIndex(index);
-                line.y = lineHeight * scrolledLinePosition;
+                line.y = rootItem.height * scrolledLinePosition / linesVisible;
                 line.visible = scrolledLinePosition >= 0 && scrolledLinePosition <= linesVisible;
             });
     }
