@@ -119,7 +119,15 @@ bool Pattern::hasData(size_t trackIndex, size_t columnIndex) const
 
 bool Pattern::hasPosition(const Position & position) const
 {
-    return position.pattern == m_index && trackByIndex(position.track)->hasPosition(position);
+    if (position.pattern != m_index) {
+        return false;
+    }
+
+    if (const auto track = trackByIndex(position.track); track) {
+        return track->hasPosition(position);
+    }
+
+    return false;
 }
 
 std::string Pattern::name() const
