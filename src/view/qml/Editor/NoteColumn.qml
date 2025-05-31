@@ -25,18 +25,14 @@ Item {
     function index(): int {
         return _index;
     }
-    function setIndex(index: int): void {
-        _index = index;
-        lineContainer.setIndex(index);
-    }
-    function setPatternIndex(index: int): void {
-        _patternIndex = index;
-        lineContainer.setPatternIndex(index);
-    }
-    function setTrackIndex(index: int): void {
-        _trackIndex = index;
-        columnHeader.setIndex(index);
-        lineContainer.setTrackIndex(index);
+    function setLocation(patternIndex: int, trackIndex: int, columnIndex: int): void {
+        _patternIndex = patternIndex;
+        lineContainer.setPatternIndex(_patternIndex);
+        _trackIndex = trackIndex;
+        columnHeader.setIndex(_trackIndex);
+        lineContainer.setTrackIndex(_trackIndex);
+        _index = columnIndex;
+        lineContainer.setIndex(_index);
     }
     function setFocused(focused: bool): void {
         lineContainer.setLineFocused(editorService.position.line, editorService.position.lineColumn, focused);

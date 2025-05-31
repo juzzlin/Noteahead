@@ -17,12 +17,10 @@ Item {
     function index(): int {
         return _index;
     }
-    function setIndex(index: int): void {
-        _index = index;
-        trackHeader.setIndex(index);
-    }
-    function setPatternIndex(index: int): void {
-        _patternIndex = index;
+    function setLocation(patternIndex: int, trackIndex: int): void {
+        _patternIndex = patternIndex;
+        _index = trackIndex;
+        trackHeader.setIndex(trackIndex);
     }
     function resize(width: int, height: int): void {
         rootItem.width = width;
@@ -220,9 +218,7 @@ Item {
             noteColumn.width = noteColumnWidth;
             noteColumn.height = noteColumnHeight;
             noteColumn.x = _noteColumnX(columnIndex);
-            noteColumn.setIndex(columnIndex);
-            noteColumn.setTrackIndex(_index);
-            noteColumn.setPatternIndex(_patternIndex);
+            noteColumn.setLocation(_patternIndex, _index, columnIndex);
             noteColumn.setPositionBar(_positionBar);
             noteColumn.leftClicked.connect((x, y, lineIndex) => {
                     uiLogger.debug(_tag, `Track ${rootItem._index} left clicked`);

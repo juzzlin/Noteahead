@@ -10,8 +10,7 @@ Item {
         for (let trackIndex of editorService.trackIndices()) {
             const track = trackComponent.createObject(this);
             if (track) {
-                track.setIndex(trackIndex);
-                track.setPatternIndex(_index);
+                track.setLocation(_index, trackIndex);
                 track.setName(editorService.trackName(trackIndex));
                 track.setPositionBar(positionBar);
                 track.nameChanged.connect(name => {
