@@ -29,7 +29,7 @@ Item {
         _patternIndex = patternIndex;
         _trackIndex = trackIndex;
         _index = columnIndex;
-        columnHeader.setIndex(_index);
+        columnHeader.setIndex(_trackIndex); // Uses some color as the parent track
         lineContainer.setLocation(patternIndex, trackIndex, columnIndex);
     }
     function setFocused(focused: bool): void {
