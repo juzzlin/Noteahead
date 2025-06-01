@@ -33,7 +33,6 @@ Item {
     function setFocused(columnIndex: int, focused: bool): void {
         _focused = focused;
         trackHeader.setFocused(focused);
-        columnContainer.setFocused(columnIndex, focused);
     }
     function setName(name: string): void {
         trackHeader.setName(name);
@@ -144,9 +143,6 @@ Item {
                     noteColumn.setSoloed(false);
                     noteColumn.setVelocityScale(100);
                 });
-        }
-        function setFocused(columnIndex: int, focused: bool): void {
-            _noteColumns[columnIndex].setFocused(focused);
         }
         function setPosition(position: var): void {
             _noteColumns.forEach(noteColumn => {

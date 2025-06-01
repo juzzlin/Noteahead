@@ -26,6 +26,7 @@ NoteColumnModelHandler::NoteColumnModelHandler(EditorServiceS editorService, Sel
 
     connect(m_editorService.get(), &EditorService::lineDataChanged, this, &NoteColumnModelHandler::updateIndexHighlightAtPosition);
     connect(m_editorService.get(), &EditorService::noteDataAtPositionChanged, this, &NoteColumnModelHandler::updateNoteDataAtPosition);
+    connect(m_editorService.get(), &EditorService::positionChanged, this, &NoteColumnModelHandler::updatePosition);
 
     connect(m_selectionService.get(), &SelectionService::selectionCleared, this, &NoteColumnModelHandler::updateIndexHighlightRange);
     connect(m_selectionService.get(), &SelectionService::selectionChanged, this, &NoteColumnModelHandler::updateIndexHighlightRange);
@@ -59,11 +60,17 @@ void NoteColumnModelHandler::updateNoteDataAtPosition(const Position & position)
     }
 }
 
-NoteColumnModelHandler::PatternTrackColumn NoteColumnModelHandler::positionToColumnAddress(const Position & position) const
+void NoteColumnModelHandler::updatePosition(const Position & newPosition, const Position & oldPosition)
 {
-    return {
-        position.pattern, position.track, position.column
-    };
+    if (const auto columnAddress = positionToColumnAddress(oldPosition); m_noteColumnModels.contains(columnAddress)) {
+        juzzlin::L(TAG).info() << "Unfocusing position " << oldPosition.toString();
+        m_noteColumnModels.at(columnAddress)->setLineUnfocused(oldPosition.line);
+    }
+
+    if (const auto columnAddress = positionToColumnAddress(newPosition); m_noteColumnModels.contains(columnAddress)) {
+        juzzlin::L(TAG).info() << "Focusing position " << newPosition.toString();
+        m_noteColumnModels.at(columnAddress)->setLineFocused(newPosition.line, newPosition.lineColumn);
+    }
 }
 
 QAbstractListModel * NoteColumnModelHandler::columnModel(quint64 pattern, quint64 track, quint64 column)

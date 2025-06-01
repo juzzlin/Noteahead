@@ -6,20 +6,34 @@ Rectangle {
     border.color: "#222222"
     border.width: model.border
     opacity: !model.isVirtualRow
-    function setCursor(lineCursor: var, columnIndex: int): void {
-        lineCursor.parent = rootItem;
-        lineCursor.width = columnIndex === 0 ? 3 * text.contentWidth / 7 : text.contentWidth / 7;
-        lineCursor.height = text.contentHeight;
-        lineCursor.x = columnIndex === 0 ? text.x : text.x + (3 + columnIndex) * text.contentWidth / 7;
-    }
     Text {
-        id: text
+        id: textElement
         font.pixelSize: parent.height * 0.8
         font.family: "monospace"
-        anchors.verticalCenter: parent.verticalCenter
-        anchors.horizontalCenter: parent.horizontalCenter
+        anchors.centerIn: parent
         text: note ? `${model.note} ${model.velocity.padStart(3, "-")}` : ""
         color: note && note !== "---" ? "#ffffff" : "#888888"
+    }
+    Loader {
+        id: cursorLoader
+        anchors.verticalCenter: parent.verticalCenter
+        active: model.isFocused
+        visible: active
+        sourceComponent: cursorComponent
+        property alias textElement: textElement
+        property int lineColumn: model.lineColumn
+    }
+    Component {
+        id: cursorComponent
+        Rectangle {
+            property int lineColumn: cursorLoader.lineColumn
+            property Item textElement: cursorLoader.textElement
+            width: lineColumn === 0 ? 3 * (textElement ? textElement.contentWidth : 0) / 7 : (textElement ? textElement.contentWidth : 0) / 7
+            height: textElement ? textElement.contentHeight : 0
+            x: lineColumn === 0 ? (textElement ? textElement.x : 0) : (textElement ? textElement.x + (3 + lineColumn) * textElement.contentWidth / 7 : 0)
+            color: "red"
+            opacity: 0.5
+        }
     }
     MouseArea {
         anchors.fill: parent

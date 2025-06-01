@@ -17,6 +17,7 @@
 #define NOTE_COLUMN_MODEL_HPP
 
 #include <tuple>
+#include <unordered_set>
 
 #include <QAbstractListModel>
 #include <QObject>
@@ -37,7 +38,9 @@ public:
         Note = Qt::UserRole + 1,
         Border,
         Color,
+        IsFocused,
         IsVirtualRow,
+        LineColumn,
         Velocity,
     };
     Q_ENUM(DataRole)
@@ -58,6 +61,9 @@ public:
     void requestColumnData();
     void setColumnData(PatternTrackColumn location, LineListCR lines);
     void clear();
+
+    void setLineFocused(quint64 line, quint64 column);
+    void setLineUnfocused(quint64 line);
 
     void updateIndexHighlights();
     void updateIndexHighlightAtPosition(quint64 line);
@@ -80,6 +86,7 @@ private:
     NoteColumnLineContainerHelperS m_helper;
 
     LineList m_lines;
+    std::unordered_map<quint64, quint64> m_focusedLines;
 };
 
 } // namespace noteahead

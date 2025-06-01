@@ -91,10 +91,14 @@ QVariant NoteColumnModel::data(const QModelIndex & index, int role) const
             return 0;
         case Color:
             return QColor { Qt::black };
+        case LineColumn:
+            return 0;
         case Note:
             return "";
         case Velocity:
             return "";
+        case IsFocused:
+            return false;
         case IsVirtualRow:
             return true;
         }
@@ -106,10 +110,14 @@ QVariant NoteColumnModel::data(const QModelIndex & index, int role) const
             return borderWidth(static_cast<size_t>(shiftedIndex));
         case Color:
             return lineColor(static_cast<size_t>(shiftedIndex));
+        case LineColumn:
+            return m_focusedLines.contains(static_cast<size_t>(index.row())) ? m_focusedLines.at(static_cast<size_t>(index.row())) : 0;
         case Note:
             return displayNote(*line);
         case Velocity:
             return displayVelocity(*line);
+        case IsFocused:
+            return m_focusedLines.contains(static_cast<size_t>(index.row()));
         case IsVirtualRow:
             return false;
         }
@@ -130,9 +138,11 @@ QHash<int, QByteArray> NoteColumnModel::roleNames() const
     return {
         { static_cast<int>(Border), "border" },
         { static_cast<int>(Color), "color" },
+        { static_cast<int>(IsFocused), "isFocused" },
+        { static_cast<int>(IsVirtualRow), "isVirtualRow" },
+        { static_cast<int>(LineColumn), "lineColumn" },
         { static_cast<int>(Note), "note" },
         { static_cast<int>(Velocity), "velocity" },
-        { static_cast<int>(IsVirtualRow), "isVirtualRow" },
     };
 }
 
@@ -146,6 +156,7 @@ void NoteColumnModel::setColumnData(PatternTrackColumn location, LineListCR line
     if (m_location == location) {
         beginResetModel();
         m_lines = lines;
+        m_focusedLines.clear();
         endResetModel();
     }
 }
@@ -154,6 +165,7 @@ void NoteColumnModel::clear()
 {
     beginResetModel();
     m_lines.clear();
+    m_focusedLines.clear();
     endResetModel();
 }
 
@@ -201,6 +213,30 @@ void NoteColumnModel::updateNoteDataAtPosition(quint64 line)
 
     const auto lineIndex = index(static_cast<int>(line + m_editorService->positionBarLine()), 0);
     emit dataChanged(lineIndex, lineIndex, { static_cast<int>(DataRole::Note), static_cast<int>(DataRole::Velocity) });
+}
+
+void NoteColumnModel::setLineFocused(quint64 line, quint64 column)
+{
+    if (m_lines.empty()) {
+        return;
+    }
+
+    const auto shiftedLine = line + m_editorService->positionBarLine();
+    m_focusedLines[shiftedLine] = column;
+    const auto lineIndex = index(static_cast<int>(shiftedLine), 0);
+    emit dataChanged(lineIndex, lineIndex, { static_cast<int>(DataRole::LineColumn), static_cast<int>(DataRole::IsFocused) });
+}
+
+void NoteColumnModel::setLineUnfocused(quint64 line)
+{
+    if (m_lines.empty()) {
+        return;
+    }
+
+    const auto shiftedLine = line + m_editorService->positionBarLine();
+    m_focusedLines.erase(shiftedLine);
+    const auto lineIndex = index(static_cast<int>(shiftedLine), 0);
+    emit dataChanged(lineIndex, lineIndex, { static_cast<int>(DataRole::LineColumn), static_cast<int>(DataRole::IsFocused) });
 }
 
 } // namespace noteahead

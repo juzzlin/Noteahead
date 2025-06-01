@@ -31,17 +31,6 @@ Rectangle {
             rootItem.rightClicked(mouse.x, mouse.y, lineIndex - editorService.positionBarLine());
         }
     }
-    function setLineFocused(lineIndex: int, lineColumnIndex: int, focused: bool): void {
-        if (!focused) {
-            lineCursor.visible = false;
-        } else if (_listView) {
-            const item = _listView.itemAtIndex(lineIndex + editorService.positionBarLine());
-            if (item) {
-                item.setCursor(lineCursor, lineColumnIndex);
-                lineCursor.visible = true;
-            }
-        }
-    }
     function createLines(): void {
     }
     function resizeLines(): void {
@@ -85,14 +74,6 @@ Rectangle {
         border.width: 1
         anchors.fill: parent
         z: 2
-    }
-    Rectangle {
-        id: lineCursor
-        color: "red"
-        opacity: 0.5
-        anchors.verticalCenter: parent ? parent.verticalCenter : null
-        z: 3
-        visible: false
     }
     VolumeMeter {
         id: volumeMeter

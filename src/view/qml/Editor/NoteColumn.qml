@@ -32,9 +32,6 @@ Item {
         columnHeader.setIndex(_trackIndex); // Uses some color as the parent track
         lineContainer.setLocation(patternIndex, trackIndex, columnIndex);
     }
-    function setFocused(focused: bool): void {
-        lineContainer.setLineFocused(editorService.position.line, editorService.position.lineColumn, focused);
-    }
     function setName(name: string): void {
         columnHeader.setName(name);
     }

@@ -46,6 +46,7 @@ private:
     void updateIndexHighlightAtPosition(const Position & position);
     void updateIndexHighlightRange(const Position & startPosition, const Position & endPosition);
     void updateNoteDataAtPosition(const Position & position);
+    void updatePosition(const Position & newPosition, const Position & oldPosition);
 
     EditorServiceS m_editorService;
     SelectionServiceS m_selectionService;
