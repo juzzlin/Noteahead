@@ -167,74 +167,52 @@ void NoteColumnModel::clear()
     endResetModel();
 }
 
+void NoteColumnModel::notifyDataChanged(int startLine, int endLine, const QList<int> & roles)
+{
+    if (!m_lines.empty()) {
+        if (startLine > endLine) {
+            std::swap(startLine, endLine);
+        }
+        const auto topIndex = index(startLine + static_cast<int>(m_editorService->positionBarLine()), 0);
+        const auto bottomIndex = index(endLine + static_cast<int>(m_editorService->positionBarLine()), 0);
+        emit dataChanged(topIndex, bottomIndex, roles);
+    }
+}
+
 void NoteColumnModel::updateIndexHighlights()
 {
-    if (m_lines.empty()) {
-        return;
-    }
-
-    const auto topIndex = index(0, 0);
-    const auto bottomIndex = index(rowCount() - 1, 0);
-    emit dataChanged(topIndex, bottomIndex, { static_cast<int>(DataRole::Color), static_cast<int>(DataRole::Border) });
+    notifyDataChanged(0, rowCount() - 1, { static_cast<int>(DataRole::Color), static_cast<int>(DataRole::Border) });
 }
 
 void NoteColumnModel::updateIndexHighlightAtPosition(quint64 line)
 {
-    if (m_lines.empty()) {
-        return;
-    }
-
-    const auto lineIndex = index(static_cast<int>(line + m_editorService->positionBarLine()), 0);
-    emit dataChanged(lineIndex, lineIndex, { static_cast<int>(DataRole::Color), static_cast<int>(DataRole::Border) });
+    notifyDataChanged(static_cast<int>(line), static_cast<int>(line), { static_cast<int>(DataRole::Color), static_cast<int>(DataRole::Border) });
 }
 
 void NoteColumnModel::updateIndexHighlightRange(quint64 startLine, quint64 endLine)
 {
-    if (m_lines.empty()) {
-        return;
-    }
-
-    if (startLine > endLine) {
-        std::swap(startLine, endLine);
-    }
-
-    const auto topIndex = index(static_cast<int>(startLine + m_editorService->positionBarLine()), 0);
-    const auto bottomIndex = index(static_cast<int>(endLine + m_editorService->positionBarLine()), 0);
-    emit dataChanged(topIndex, bottomIndex, { static_cast<int>(DataRole::Color), static_cast<int>(DataRole::Border) });
+    notifyDataChanged(static_cast<int>(startLine), static_cast<int>(endLine), { static_cast<int>(DataRole::Color), static_cast<int>(DataRole::Border) });
 }
 
 void NoteColumnModel::updateNoteDataAtPosition(quint64 line)
 {
-    if (m_lines.empty()) {
-        return;
-    }
-
-    const auto lineIndex = index(static_cast<int>(line + m_editorService->positionBarLine()), 0);
-    emit dataChanged(lineIndex, lineIndex, { static_cast<int>(DataRole::Note), static_cast<int>(DataRole::Velocity) });
+    notifyDataChanged(static_cast<int>(line), static_cast<int>(line), { static_cast<int>(DataRole::Note), static_cast<int>(DataRole::Velocity) });
 }
 
 void NoteColumnModel::setLineFocused(quint64 line, quint64 column)
 {
-    if (m_lines.empty()) {
-        return;
+    if (!m_lines.empty()) {
+        m_focusedLines[line + m_editorService->positionBarLine()] = column;
+        notifyDataChanged(static_cast<int>(line), static_cast<int>(line), { static_cast<int>(DataRole::LineColumn), static_cast<int>(DataRole::IsFocused) });
     }
-
-    const auto shiftedLine = line + m_editorService->positionBarLine();
-    m_focusedLines[shiftedLine] = column;
-    const auto lineIndex = index(static_cast<int>(shiftedLine), 0);
-    emit dataChanged(lineIndex, lineIndex, { static_cast<int>(DataRole::LineColumn), static_cast<int>(DataRole::IsFocused) });
 }
 
 void NoteColumnModel::setLineUnfocused(quint64 line)
 {
-    if (m_lines.empty()) {
-        return;
+    if (!m_lines.empty()) {
+        m_focusedLines.erase(line + m_editorService->positionBarLine());
+        notifyDataChanged(static_cast<int>(line), static_cast<int>(line), { static_cast<int>(DataRole::LineColumn), static_cast<int>(DataRole::IsFocused) });
     }
-
-    const auto shiftedLine = line + m_editorService->positionBarLine();
-    m_focusedLines.erase(shiftedLine);
-    const auto lineIndex = index(static_cast<int>(shiftedLine), 0);
-    emit dataChanged(lineIndex, lineIndex, { static_cast<int>(DataRole::LineColumn), static_cast<int>(DataRole::IsFocused) });
 }
 
 } // namespace noteahead

@@ -80,6 +80,8 @@ private:
     QVariant lineColor(quint64 lineIndex) const;
     QVariant borderWidth(quint64 lineIndex) const;
 
+    void notifyDataChanged(int startLine, int endLine, const QList<int> & roles = QList<int> {});
+
     ColumnAddress m_columnAddress;
     EditorServiceS m_editorService;
     NoteColumnLineContainerHelperS m_helper;
