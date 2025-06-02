@@ -21,6 +21,7 @@ Rectangle {
         _listView = listViewComponent.createObject(rootItem);
         _listView.model = noteColumnModelHandler.columnModel(_patternIndex, _trackIndex, _index);
         _listView.positionViewAtIndex(0, ListView.Beginning);
+        delayedPositioningTimer.start(); // Hack for Qt < 6.5
     }
     function clickOnDelegate(mouse: var, lineIndex: int): void {
         if (mouse.button === Qt.LeftButton) {
@@ -62,6 +63,16 @@ Rectangle {
                 width: listView.width
             }
             interactive: false
+        }
+    }
+    Timer {
+        id: delayedPositioningTimer
+        interval: 1
+        repeat: false
+        onTriggered: {
+            if (_listView) {
+                _listView.positionViewAtIndex(0, ListView.Beginning);
+            }
         }
     }
     Rectangle {
