@@ -175,6 +175,7 @@ set(QML_SOURCE_FILES
     ${QML_BASE_DIR}/Editor/IndexHighlight.qml
     ${QML_BASE_DIR}/Editor/KeyboardHandler.qml
     ${QML_BASE_DIR}/Editor/LineNumberColumn.qml
+    ${QML_BASE_DIR}/Editor/LineNumberDelegate.qml
     ${QML_BASE_DIR}/Editor/MainContextMenu.qml
     ${QML_BASE_DIR}/Editor/MuteSoloButtons.qml
     ${QML_BASE_DIR}/Editor/NoteColumn.qml
