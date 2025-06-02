@@ -88,27 +88,33 @@ QVariant NoteColumnModel::borderWidth(quint64 lineIndex) const
     return m_helper->lineColorAndBorderWidth(pattern, track, column, lineIndex).at(1);
 }
 
+QVariant NoteColumnModel::virtualLineData(int role) const
+{
+    using enum DataRole;
+    switch (static_cast<DataRole>(role)) {
+    case Border:
+        return 0;
+    case Color:
+        return QColor { Qt::black };
+    case LineColumn:
+        return 0;
+    case Note:
+        return "";
+    case Velocity:
+        return "";
+    case IsFocused:
+        return false;
+    case IsVirtualRow:
+        return true;
+    }
+    return {};
+}
+
 QVariant NoteColumnModel::data(const QModelIndex & index, int role) const
 {
-    const int shiftedIndex = index.row() - static_cast<int>(m_editorService->positionBarLine());
-    if (shiftedIndex < 0 || shiftedIndex >= static_cast<int>(m_lines.size())) {
-        using enum DataRole;
-        switch (static_cast<DataRole>(role)) {
-        case Border:
-            return 0;
-        case Color:
-            return QColor { Qt::black };
-        case LineColumn:
-            return 0;
-        case Note:
-            return "";
-        case Velocity:
-            return "";
-        case IsFocused:
-            return false;
-        case IsVirtualRow:
-            return true;
-        }
+    if (const int shiftedIndex = index.row() - static_cast<int>(m_editorService->positionBarLine());
+        shiftedIndex < 0 || shiftedIndex >= static_cast<int>(m_lines.size())) {
+        return virtualLineData(role);
     } else {
         const auto & line = m_lines.at(static_cast<size_t>(shiftedIndex));
         using enum DataRole;

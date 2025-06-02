@@ -81,6 +81,7 @@ private:
     QVariant borderWidth(quint64 lineIndex) const;
 
     void notifyDataChanged(int startLine, int endLine, const QList<int> & roles = QList<int> {});
+    QVariant virtualLineData(int role) const;
 
     ColumnAddress m_columnAddress;
     EditorServiceS m_editorService;
