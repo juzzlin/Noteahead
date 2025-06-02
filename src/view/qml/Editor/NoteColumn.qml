@@ -54,7 +54,7 @@ Item {
         anchors.top: parent.top
         width: parent.width
     }
-    NoteColumnLineContainerV2 {
+    NoteColumnLineContainer {
         id: lineContainer
         anchors.top: columnHeader.bottom
         anchors.bottom: parent.bottom
