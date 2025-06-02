@@ -17,7 +17,6 @@
 
 #include "../../application/config.hpp"
 #include "../../application/service/editor_service.hpp"
-#include "../../contrib/SimpleLogger/src/simple_logger.hpp"
 #include "../../domain/line.hpp"
 #include "../note_converter.hpp"
 #include "note_column_line_container_helper.hpp"
@@ -25,8 +24,6 @@
 #include <QColor>
 
 namespace noteahead {
-
-static const auto TAG = "NoteColumnModel";
 
 NoteColumnModel::NoteColumnModel(ColumnAddressCR columnAddress, EditorServiceS editorService, NoteColumnLineContainerHelperS helper, ConfigS config, QObject * parent)
   : QAbstractListModel { parent }
