@@ -32,10 +32,7 @@ NoteColumnModel::NoteColumnModel(ColumnAddressCR columnAddress, EditorServiceS e
   , m_helper { helper }
   , m_config { config }
 {
-    connect(m_config.get(), &Config::visibleLinesChanged, this, [this]() {
-        beginResetModel();
-        endResetModel();
-    });
+    connect(m_config.get(), &Config::visibleLinesChanged, this, &NoteColumnModel::updateRowCount);
 }
 
 int NoteColumnModel::rowCount(const QModelIndex & parent) const
@@ -200,6 +197,12 @@ void NoteColumnModel::updateIndexHighlightRange(quint64 startLine, quint64 endLi
 void NoteColumnModel::updateNoteDataAtPosition(quint64 line)
 {
     notifyDataChanged(static_cast<int>(line), static_cast<int>(line), { static_cast<int>(DataRole::Note), static_cast<int>(DataRole::Velocity) });
+}
+
+void NoteColumnModel::updateRowCount()
+{
+    beginResetModel();
+    endResetModel();
 }
 
 void NoteColumnModel::setLineFocused(quint64 line, quint64 column)
