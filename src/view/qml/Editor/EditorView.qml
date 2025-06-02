@@ -151,6 +151,10 @@ FocusScope {
         _createPatterns();
         _updatePatternVisibility();
     }
+    function _changeSong() {
+        uiLogger.debug(_tag, `Changing song..`);
+        _recreatePatterns();
+    }
     function _patternByIndex(index: int): var {
         return _patterns.find(pattern => pattern.index() === index) || null;
     }
@@ -199,9 +203,6 @@ FocusScope {
         _updatePatternVisibility();
         _updateCurrentTrackDimensions();
     }
-    function _updateCurrentLineCount(oldLineCount, newLineCount) {
-        _createTracks(_currentPattern());
-    }
     function _addColumn(trackIndex) {
         _patterns.forEach(pattern => {
                 pattern.addColumn(trackIndex);
@@ -230,9 +231,8 @@ FocusScope {
         editorService.columnAdded.connect(trackIndex => _addColumn(trackIndex));
         editorService.columnDeleted.connect(trackIndex => _deleteColumn(trackIndex));
         editorService.columnNameChanged.connect(_updateColumnHeaders);
-        editorService.currentLineCountModified.connect(_updateCurrentLineCount);
         editorService.horizontalScrollChanged.connect(_updateTracksOnHorizontalScroll);
-        editorService.songChanged.connect(_recreatePatterns);
+        editorService.songChanged.connect(_changeSong);
         editorService.trackConfigurationChanged.connect(_recreatePatterns);
         editorService.trackDeleted.connect(_deleteTrack);
         editorService.trackNameChanged.connect(_updateTrackHeaders);

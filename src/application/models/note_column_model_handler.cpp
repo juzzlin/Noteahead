@@ -24,12 +24,18 @@ NoteColumnModelHandler::NoteColumnModelHandler(EditorServiceS editorService, Sel
 {
     connect(m_automationService.get(), &AutomationService::lineDataChanged, this, &NoteColumnModelHandler::updateIndexHighlightAtPosition);
 
+    connect(m_editorService.get(), &EditorService::currentLineCountChanged, this, &NoteColumnModelHandler::updateCurrentLineCount);
     connect(m_editorService.get(), &EditorService::lineDataChanged, this, &NoteColumnModelHandler::updateIndexHighlightAtPosition);
     connect(m_editorService.get(), &EditorService::noteDataAtPositionChanged, this, &NoteColumnModelHandler::updateNoteDataAtPosition);
     connect(m_editorService.get(), &EditorService::positionChanged, this, &NoteColumnModelHandler::updatePosition);
 
     connect(m_selectionService.get(), &SelectionService::selectionCleared, this, &NoteColumnModelHandler::updateIndexHighlightRange);
     connect(m_selectionService.get(), &SelectionService::selectionChanged, this, &NoteColumnModelHandler::updateIndexHighlightRange);
+}
+
+void NoteColumnModelHandler::updateCurrentLineCount()
+{
+    updatePattern(m_editorService->position().pattern);
 }
 
 NoteColumnModelHandler::ColumnAddress NoteColumnModelHandler::positionToColumnAddress(const Position & position) const

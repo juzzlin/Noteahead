@@ -50,6 +50,7 @@ private:
     using ColumnAddress = std::tuple<quint64, quint64, quint64>; // Pattern, Track, Column
     ColumnAddress positionToColumnAddress(const Position & position) const;
 
+    void updateCurrentLineCount();
     void updateIndexHighlightAtPosition(const Position & position);
     void updateIndexHighlightRange(const Position & startPosition, const Position & endPosition);
     void updateNoteDataAtPosition(const Position & position);
