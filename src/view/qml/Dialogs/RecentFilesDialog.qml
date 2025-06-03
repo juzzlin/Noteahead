@@ -8,7 +8,7 @@ Dialog {
     id: rootItem
     title: qsTr("Open a recent project")
     modal: true
-    signal accepted(string filePath)
+    signal fileSelected(string filePath)
     property string selectedFile
     GroupBox {
         title: qsTr("Recent files")
@@ -39,7 +39,7 @@ Dialog {
                         onClicked: {
                             recentFilesDialog.close();
                             recentFilesDialog.selectedFile = model.display;
-                            recentFilesDialog.accepted(model.display);
+                            recentFilesDialog.fileSelected(model.display);
                         }
                         HoverHandler {
                             id: hoverHandler

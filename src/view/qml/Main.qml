@@ -133,7 +133,7 @@ ApplicationWindow {
         anchors.centerIn: parent
         width: parent.width * 0.5
         height: parent.height * 0.5
-        onAccepted: {
+        onFileSelected: {
             uiLogger.info(_tag, "Recent file accepted: " + selectedFile);
             applicationService.openRecentProject(selectedFile);
         }
