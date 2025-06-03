@@ -118,7 +118,8 @@ void StateMachine::calculateState(StateMachine::Action action)
         break;
 
     case Action::RecentFileDialogCanceled:
-        m_state = State::InitializeNewProject;
+        // The initial project should be already loaded
+        m_state = State::Edit;
         break;
 
     case Action::RecentFileSelected:
