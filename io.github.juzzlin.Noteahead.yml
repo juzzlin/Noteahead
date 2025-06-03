@@ -1,0 +1,49 @@
+app-id: io.github.juzzlin.Noteahead
+runtime: org.kde.Platform
+runtime-version: '6.5'
+sdk: org.kde.Sdk
+command: noteahead
+finish-args:
+  - --share=network
+  - --share=ipc
+  - --device=all
+  - --socket=pulseaudio
+  - --socket=x11
+  - --socket=wayland
+  - --socket=fallback-x11
+  - --filesystem=home
+
+modules:
+  - name: rtmidi
+    buildsystem: cmake-ninja
+    sources:
+      - type: archive
+        url: https://github.com/thestk/rtmidi/archive/refs/tags/6.0.0.tar.gz
+        sha256: ef7bcda27fee6936b651c29ebe9544c74959d0b1583b716ce80a1c6fea7617f0
+    builddir: true
+
+  - name: noteahead
+    buildsystem: cmake-ninja
+    config-opts:
+      - -DCMAKE_BUILD_TYPE=Release
+    sources:
+      - type: dir
+        path: .
+    build-options:
+      cxxflags: -O2
+    builddir: true
+    cleanup:
+      - /include
+      - /share/man
+      - /share/doc
+    post-install:
+      - mv /app/share/applications/noteahead.desktop /app/share/applications/io.github.juzzlin.Noteahead.desktop || true
+      - mv /app/share/icons/hicolor/256x256/apps/noteahead.png /app/share/icons/hicolor/256x256/apps/io.github.juzzlin.Noteahead.png || true
+      - mv /app/share/metainfo/noteahead.appdata.xml /app/share/metainfo/io.github.juzzlin.Noteahead.metainfo.xml || true   
+      - sed -i 's/^Icon=noteahead$/Icon=io.github.juzzlin.Noteahead/' /app/share/applications/io.github.juzzlin.Noteahead.desktop
+      - sed -i '/<filters/,/<\/filters>/d' /app/share/metainfo/io.github.juzzlin.Noteahead.metainfo.xml
+      - sed -i 's|<application|<component type="desktop-application"|' /app/share/metainfo/io.github.juzzlin.Noteahead.metainfo.xml
+      - sed -i 's|</application>|</component>|' /app/share/metainfo/io.github.juzzlin.Noteahead.metainfo.xml
+      - sed -i 's|<id>.*</id>|<id>io.github.juzzlin.Noteahead</id>|' /app/share/metainfo/io.github.juzzlin.Noteahead.metainfo.xml
+      - sed -i 's|<icon[^>]*>noteahead</icon>|<icon type="stock">io.github.juzzlin.Noteahead</icon>|' /app/share/metainfo/io.github.juzzlin.Noteahead.metainfo.xml
+      - sed -i 's|<launchable[^>]*>noteahead.desktop</launchable>|<launchable type="desktop-id">io.github.juzzlin.Noteahead.desktop</launchable>|' /app/share/metainfo/io.github.juzzlin.Noteahead.metainfo.xml
