@@ -26,7 +26,7 @@ Item {
         height: width
         enabled: !UiService.isPlaying()
         onLeftClicked: {
-            if (toggled()) {
+            if (isToggled()) {
                 rootItem.unmuteRequested();
             } else {
                 rootItem.muteRequested();
@@ -60,7 +60,7 @@ Item {
         height: width
         enabled: !UiService.isPlaying()
         onLeftClicked: {
-            if (toggled()) {
+            if (isToggled()) {
                 rootItem.unsoloRequested();
             } else {
                 rootItem.soloRequested();

@@ -10,8 +10,8 @@ ToolBarButtonBase {
         setScale(0.9);
     }
     onClicked: {
-        setToggled(!toggled());
-        UiService.setIsLooping(toggled());
+        setToggled(!isToggled());
+        UiService.setIsLooping(isToggled());
         focus = false;
         UiService.requestFocusOnEditorView();
     }

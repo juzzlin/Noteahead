@@ -22,7 +22,7 @@ Button {
         _scale = scale;
         _hoverScale = scale * 1.1;
     }
-    function toggled(): bool {
+    function isToggled(): bool { // Note!!: toggled() already in use in Qt 6.8
         return _toggled;
     }
     function setToggled(toggled: bool): void {
