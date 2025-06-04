@@ -128,6 +128,7 @@ Item {
                     to: 127
                     value: 0
                     editable: true
+                    enabled: startLine() !== endLine()
                     Keys.onReturnPressed: {
                         focus = false;
                     }

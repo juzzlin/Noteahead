@@ -35,6 +35,10 @@ double Interpolator::getValue(size_t line) const
         return m_endValue;
     }
 
+    if (m_startLine == m_endLine) {
+        return m_startValue;
+    }
+
     const double t = static_cast<double>(line - m_startLine) / static_cast<double>(m_endLine - m_startLine);
     const double d = m_endValue - m_startValue;
     return m_startValue + t * d;

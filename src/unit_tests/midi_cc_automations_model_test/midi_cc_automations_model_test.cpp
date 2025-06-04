@@ -52,50 +52,75 @@ void MidiCcAutomationsModelTest::test_requestMidiCcAutomations_shouldFilterAutom
 
     MidiCcAutomationsModel model;
     QSignalSpy midiCcAutomationsRequestedSpy { &model, &MidiCcAutomationsModel::midiCcAutomationsRequested };
-    model.requestMidiCcAutomationsByColumn(1, 2, 3);
+    model.requestMidiCcAutomationsByLine(1, 2, 3, 10);
     model.setMidiCcAutomations({ midiCcAutomation });
-    QCOMPARE(model.rowCount(), 1);
+    QCOMPARE(model.rowCount(), 0);
     QCOMPARE(midiCcAutomationsRequestedSpy.count(), 1);
 
-    model.requestMidiCcAutomationsByColumn(1, 2, 4);
+    model.requestMidiCcAutomationsByLine(1, 2, 3, 23);
     model.setMidiCcAutomations({ midiCcAutomation });
     QCOMPARE(model.rowCount(), 0);
     QCOMPARE(midiCcAutomationsRequestedSpy.count(), 2);
 
-    model.requestMidiCcAutomationsByColumn(2, 2, 3);
+    model.requestMidiCcAutomationsByLine(1, 2, 3, 11);
     model.setMidiCcAutomations({ midiCcAutomation });
-    QCOMPARE(model.rowCount(), 0);
+    QCOMPARE(model.rowCount(), 1);
     QCOMPARE(midiCcAutomationsRequestedSpy.count(), 3);
 
-    model.requestMidiCcAutomationsByTrack(1, 2);
+    model.requestMidiCcAutomationsByLine(1, 2, 3, 15);
     model.setMidiCcAutomations({ midiCcAutomation });
     QCOMPARE(model.rowCount(), 1);
     QCOMPARE(midiCcAutomationsRequestedSpy.count(), 4);
 
-    model.requestMidiCcAutomationsByTrack(1, 3);
-    model.setMidiCcAutomations({ midiCcAutomation });
-    QCOMPARE(model.rowCount(), 0);
-    QCOMPARE(midiCcAutomationsRequestedSpy.count(), 5);
-
-    model.requestMidiCcAutomationsByTrack(2, 2);
-    model.setMidiCcAutomations({ midiCcAutomation });
-    QCOMPARE(model.rowCount(), 0);
-    QCOMPARE(midiCcAutomationsRequestedSpy.count(), 6);
-
-    model.requestMidiCcAutomationsByPattern(1);
+    model.requestMidiCcAutomationsByLine(1, 2, 3, 22);
     model.setMidiCcAutomations({ midiCcAutomation });
     QCOMPARE(model.rowCount(), 1);
+    QCOMPARE(midiCcAutomationsRequestedSpy.count(), 5);
+
+    model.requestMidiCcAutomationsByColumn(1, 2, 3);
+    model.setMidiCcAutomations({ midiCcAutomation });
+    QCOMPARE(model.rowCount(), 1);
+    QCOMPARE(midiCcAutomationsRequestedSpy.count(), 6);
+
+    model.requestMidiCcAutomationsByColumn(1, 2, 4);
+    model.setMidiCcAutomations({ midiCcAutomation });
+    QCOMPARE(model.rowCount(), 0);
     QCOMPARE(midiCcAutomationsRequestedSpy.count(), 7);
 
-    model.requestMidiCcAutomationsByPattern(2);
+    model.requestMidiCcAutomationsByColumn(2, 2, 3);
     model.setMidiCcAutomations({ midiCcAutomation });
     QCOMPARE(model.rowCount(), 0);
     QCOMPARE(midiCcAutomationsRequestedSpy.count(), 8);
 
-    model.requestMidiCcAutomations();
+    model.requestMidiCcAutomationsByTrack(1, 2);
     model.setMidiCcAutomations({ midiCcAutomation });
     QCOMPARE(model.rowCount(), 1);
     QCOMPARE(midiCcAutomationsRequestedSpy.count(), 9);
+
+    model.requestMidiCcAutomationsByTrack(1, 3);
+    model.setMidiCcAutomations({ midiCcAutomation });
+    QCOMPARE(model.rowCount(), 0);
+    QCOMPARE(midiCcAutomationsRequestedSpy.count(), 10);
+
+    model.requestMidiCcAutomationsByTrack(2, 2);
+    model.setMidiCcAutomations({ midiCcAutomation });
+    QCOMPARE(model.rowCount(), 0);
+    QCOMPARE(midiCcAutomationsRequestedSpy.count(), 11);
+
+    model.requestMidiCcAutomationsByPattern(1);
+    model.setMidiCcAutomations({ midiCcAutomation });
+    QCOMPARE(model.rowCount(), 1);
+    QCOMPARE(midiCcAutomationsRequestedSpy.count(), 12);
+
+    model.requestMidiCcAutomationsByPattern(2);
+    model.setMidiCcAutomations({ midiCcAutomation });
+    QCOMPARE(model.rowCount(), 0);
+    QCOMPARE(midiCcAutomationsRequestedSpy.count(), 13);
+
+    model.requestMidiCcAutomations();
+    model.setMidiCcAutomations({ midiCcAutomation });
+    QCOMPARE(model.rowCount(), 1);
+    QCOMPARE(midiCcAutomationsRequestedSpy.count(), 14);
 }
 
 void MidiCcAutomationsModelTest::test_setData_shouldUpdateAutomationData()

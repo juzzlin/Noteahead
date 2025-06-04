@@ -309,6 +309,15 @@ ApplicationWindow {
                 lineDelayDialog.setValue(editorService.delayAtCurrentPosition());
                 lineDelayDialog.open();
             });
+        UiService.lineAddMidiCcAutomationDialogRequested.connect(() => {
+                addMidiCcAutomationDialog.setTitle(qsTr("Add MIDI CC automation"));
+                addMidiCcAutomationDialog.setStartLine(editorService.position.line);
+                addMidiCcAutomationDialog.setEndLine(editorService.position.line);
+                addMidiCcAutomationDialog.setStartValue(100);
+                addMidiCcAutomationDialog.setEndValue(0);
+                addMidiCcAutomationDialog.setComment("");
+                addMidiCcAutomationDialog.open();
+            });
         UiService.columnAddMidiCcAutomationDialogRequested.connect(() => {
                 addMidiCcAutomationDialog.setTitle(qsTr("Add MIDI CC automation"));
                 addMidiCcAutomationDialog.setStartLine(0);
@@ -332,6 +341,12 @@ ApplicationWindow {
                 editMidiCcAutomationsDialog.setTitle(qsTr("Edit MIDI CC automations"));
                 editMidiCcAutomationsDialog.open();
             });
+        UiService.editMidiCcAutomationsDialogByLineRequested.connect(() => {
+                const position = editorService.position;
+                midiCcAutomationsModel.requestMidiCcAutomationsByLine(position.pattern, position.track, position.column, position.line);
+                editMidiCcAutomationsDialog.setTitle(qsTr("Edit MIDI CC automations by line"));
+                editMidiCcAutomationsDialog.open();
+            });
         UiService.editMidiCcAutomationsDialogByColumnRequested.connect(() => {
                 const position = editorService.position;
                 midiCcAutomationsModel.requestMidiCcAutomationsByColumn(position.pattern, position.track, position.column);
@@ -349,6 +364,15 @@ ApplicationWindow {
                 midiCcAutomationsModel.requestMidiCcAutomationsByPattern(position.pattern);
                 editMidiCcAutomationsDialog.setTitle(qsTr("Edit MIDI CC automations by pattern"));
                 editMidiCcAutomationsDialog.open();
+            });
+        UiService.lineAddPitchBendAutomationDialogRequested.connect(() => {
+                addPitchBendAutomationDialog.setTitle(qsTr("Add Pitch Bend automation"));
+                addPitchBendAutomationDialog.setStartLine(editorService.position.line);
+                addPitchBendAutomationDialog.setEndLine(editorService.position.line);
+                addPitchBendAutomationDialog.setStartValue(0);
+                addPitchBendAutomationDialog.setEndValue(100);
+                addPitchBendAutomationDialog.setComment("");
+                addPitchBendAutomationDialog.open();
             });
         UiService.columnAddPitchBendAutomationDialogRequested.connect(() => {
                 addPitchBendAutomationDialog.setTitle(qsTr("Add Pitch Bend automation"));
@@ -371,6 +395,12 @@ ApplicationWindow {
         UiService.editPitchBendAutomationsDialogRequested.connect(() => {
                 pitchBendAutomationsModel.requestPitchBendAutomations();
                 editPitchBendAutomationsDialog.setTitle(qsTr("Edit Pitch Bend automations"));
+                editPitchBendAutomationsDialog.open();
+            });
+        UiService.editPitchBendAutomationsDialogByLineRequested.connect(() => {
+                const position = editorService.position;
+                pitchBendAutomationsModel.requestPitchBendAutomationsByLine(position.pattern, position.track, position.column, position.line);
+                editPitchBendAutomationsDialog.setTitle(qsTr("Edit Pitch Bend automations by line"));
                 editPitchBendAutomationsDialog.open();
             });
         UiService.editPitchBendAutomationsDialogByColumnRequested.connect(() => {

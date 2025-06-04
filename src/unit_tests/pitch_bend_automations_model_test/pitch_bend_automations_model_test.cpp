@@ -50,51 +50,76 @@ void PitchBendAutomationsModelTest::test_requestPitchBendAutomations_shouldFilte
     PitchBendAutomation automation { 42, { 1, 2, 3 }, interpolation, {} };
 
     PitchBendAutomationsModel model;
-    QSignalSpy PitchBendAutomationsRequestedSpy { &model, &PitchBendAutomationsModel::pitchBendAutomationsRequested };
+    QSignalSpy pitchBendAutomationsRequestedSpy { &model, &PitchBendAutomationsModel::pitchBendAutomationsRequested };
+    model.requestPitchBendAutomationsByLine(1, 2, 3, 10);
+    model.setPitchBendAutomations({ automation });
+    QCOMPARE(model.rowCount(), 0);
+    QCOMPARE(pitchBendAutomationsRequestedSpy.count(), 1);
+
+    model.requestPitchBendAutomationsByLine(1, 2, 3, 23);
+    model.setPitchBendAutomations({ automation });
+    QCOMPARE(model.rowCount(), 0);
+    QCOMPARE(pitchBendAutomationsRequestedSpy.count(), 2);
+
+    model.requestPitchBendAutomationsByLine(1, 2, 3, 11);
+    model.setPitchBendAutomations({ automation });
+    QCOMPARE(model.rowCount(), 1);
+    QCOMPARE(pitchBendAutomationsRequestedSpy.count(), 3);
+
+    model.requestPitchBendAutomationsByLine(1, 2, 3, 15);
+    model.setPitchBendAutomations({ automation });
+    QCOMPARE(model.rowCount(), 1);
+    QCOMPARE(pitchBendAutomationsRequestedSpy.count(), 4);
+
+    model.requestPitchBendAutomationsByLine(1, 2, 3, 22);
+    model.setPitchBendAutomations({ automation });
+    QCOMPARE(model.rowCount(), 1);
+    QCOMPARE(pitchBendAutomationsRequestedSpy.count(), 5);
+
     model.requestPitchBendAutomationsByColumn(1, 2, 3);
     model.setPitchBendAutomations({ automation });
     QCOMPARE(model.rowCount(), 1);
-    QCOMPARE(PitchBendAutomationsRequestedSpy.count(), 1);
+    QCOMPARE(pitchBendAutomationsRequestedSpy.count(), 6);
 
     model.requestPitchBendAutomationsByColumn(1, 2, 4);
     model.setPitchBendAutomations({ automation });
     QCOMPARE(model.rowCount(), 0);
-    QCOMPARE(PitchBendAutomationsRequestedSpy.count(), 2);
+    QCOMPARE(pitchBendAutomationsRequestedSpy.count(), 7);
 
     model.requestPitchBendAutomationsByColumn(2, 2, 3);
     model.setPitchBendAutomations({ automation });
     QCOMPARE(model.rowCount(), 0);
-    QCOMPARE(PitchBendAutomationsRequestedSpy.count(), 3);
+    QCOMPARE(pitchBendAutomationsRequestedSpy.count(), 8);
 
     model.requestPitchBendAutomationsByTrack(1, 2);
     model.setPitchBendAutomations({ automation });
     QCOMPARE(model.rowCount(), 1);
-    QCOMPARE(PitchBendAutomationsRequestedSpy.count(), 4);
+    QCOMPARE(pitchBendAutomationsRequestedSpy.count(), 9);
 
     model.requestPitchBendAutomationsByTrack(1, 3);
     model.setPitchBendAutomations({ automation });
     QCOMPARE(model.rowCount(), 0);
-    QCOMPARE(PitchBendAutomationsRequestedSpy.count(), 5);
+    QCOMPARE(pitchBendAutomationsRequestedSpy.count(), 10);
 
     model.requestPitchBendAutomationsByTrack(2, 2);
     model.setPitchBendAutomations({ automation });
     QCOMPARE(model.rowCount(), 0);
-    QCOMPARE(PitchBendAutomationsRequestedSpy.count(), 6);
+    QCOMPARE(pitchBendAutomationsRequestedSpy.count(), 11);
 
     model.requestPitchBendAutomationsByPattern(1);
     model.setPitchBendAutomations({ automation });
     QCOMPARE(model.rowCount(), 1);
-    QCOMPARE(PitchBendAutomationsRequestedSpy.count(), 7);
+    QCOMPARE(pitchBendAutomationsRequestedSpy.count(), 12);
 
     model.requestPitchBendAutomationsByPattern(2);
     model.setPitchBendAutomations({ automation });
     QCOMPARE(model.rowCount(), 0);
-    QCOMPARE(PitchBendAutomationsRequestedSpy.count(), 8);
+    QCOMPARE(pitchBendAutomationsRequestedSpy.count(), 13);
 
     model.requestPitchBendAutomations();
     model.setPitchBendAutomations({ automation });
     QCOMPARE(model.rowCount(), 1);
-    QCOMPARE(PitchBendAutomationsRequestedSpy.count(), 9);
+    QCOMPARE(pitchBendAutomationsRequestedSpy.count(), 14);
 }
 
 void PitchBendAutomationsModelTest::test_setData_shouldUpdateAutomationData()

@@ -10,6 +10,8 @@ New features:
     way smoother also on older Qt version. Also the update logic is now less
     prone to bugs as more stuff is handled by the view model in C++.
 
+* Implement Midi CC and Pitch Bend automations for single lines
+
 Bug fixes:
 
 Other:

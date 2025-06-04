@@ -123,6 +123,7 @@ GroupBox {
             to: 127
             value: model.value1
             editable: true
+            enabled: model.line0 !== model.line1
             Keys.onReturnPressed: focus = false
             Layout.row: 1
             Layout.column: 5

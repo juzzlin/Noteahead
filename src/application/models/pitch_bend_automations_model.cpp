@@ -59,6 +59,17 @@ void PitchBendAutomationsModel::requestPitchBendAutomationsByColumn(quint64 patt
     emit pitchBendAutomationsRequested();
 }
 
+void PitchBendAutomationsModel::requestPitchBendAutomationsByLine(quint64 pattern, quint64 track, quint64 column, quint64 line)
+{
+    m_filter = {};
+    m_filter.pattern = pattern;
+    m_filter.track = track;
+    m_filter.column = column;
+    m_filter.line = line;
+
+    emit pitchBendAutomationsRequested();
+}
+
 PitchBendAutomationsModel::PitchBendAutomationList PitchBendAutomationsModel::filteredPitchBendAutomations(const PitchBendAutomationList & PitchBendAutomations) const
 {
     PitchBendAutomationList filtered;
@@ -73,6 +84,11 @@ PitchBendAutomationsModel::PitchBendAutomationList PitchBendAutomationsModel::fi
                              }
                              if (m_filter.column.has_value() && loc.column != m_filter.column.value()) {
                                  return false;
+                             }
+                             if (m_filter.line.has_value()) {
+                                 if (automation.interpolation().line0 > m_filter.line.value() || automation.interpolation().line1 < m_filter.line.value()) {
+                                     return false;
+                                 }
                              }
                              return true;
                          });

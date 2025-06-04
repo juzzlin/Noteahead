@@ -50,6 +50,7 @@ public:
     Q_INVOKABLE void requestPitchBendAutomationsByPattern(quint64 pattern);
     Q_INVOKABLE void requestPitchBendAutomationsByTrack(quint64 pattern, quint64 track);
     Q_INVOKABLE void requestPitchBendAutomationsByColumn(quint64 pattern, quint64 track, quint64 column);
+    Q_INVOKABLE void requestPitchBendAutomationsByLine(quint64 pattern, quint64 track, quint64 column, quint64 line);
     using PitchBendAutomationList = std::vector<PitchBendAutomation>;
     void setPitchBendAutomations(PitchBendAutomationList PitchBendAutomations);
 
@@ -80,6 +81,7 @@ private:
         std::optional<quint64> pattern;
         std::optional<quint64> track;
         std::optional<quint64> column;
+        std::optional<quint64> line;
     };
 
     Filter m_filter;

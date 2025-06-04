@@ -51,6 +51,7 @@ public:
     Q_INVOKABLE void requestMidiCcAutomationsByPattern(quint64 pattern);
     Q_INVOKABLE void requestMidiCcAutomationsByTrack(quint64 pattern, quint64 track);
     Q_INVOKABLE void requestMidiCcAutomationsByColumn(quint64 pattern, quint64 track, quint64 column);
+    Q_INVOKABLE void requestMidiCcAutomationsByLine(quint64 pattern, quint64 track, quint64 column, quint64 line);
     using MidiCcAutomationList = std::vector<MidiCcAutomation>;
     void setMidiCcAutomations(MidiCcAutomationList midiCcAutomations);
 
@@ -81,6 +82,7 @@ private:
         std::optional<quint64> pattern;
         std::optional<quint64> track;
         std::optional<quint64> column;
+        std::optional<quint64> line;
     };
 
     Filter m_filter;

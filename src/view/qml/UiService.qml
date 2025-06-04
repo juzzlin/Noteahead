@@ -4,14 +4,18 @@ import QtQuick 2.15
 QtObject {
     signal aboutDialogRequested
     signal activeOctaveChanged(int activeOctave)
+    signal lineAddMidiCcAutomationDialogRequested
     signal columnAddMidiCcAutomationDialogRequested
+    signal lineAddPitchBendAutomationDialogRequested
     signal columnAddPitchBendAutomationDialogRequested
     signal columnVelocityInterpolationDialogRequested
     signal columnVelocityScaleDialogRequested(int trackIndex, int columnIndex)
+    signal editMidiCcAutomationsDialogByLineRequested
     signal editMidiCcAutomationsDialogByColumnRequested
     signal editMidiCcAutomationsDialogByPatternRequested
     signal editMidiCcAutomationsDialogByTrackRequested
     signal editMidiCcAutomationsDialogRequested
+    signal editPitchBendAutomationsDialogByLineRequested
     signal editPitchBendAutomationsDialogByColumnRequested
     signal editPitchBendAutomationsDialogByPatternRequested
     signal editPitchBendAutomationsDialogByTrackRequested
@@ -137,6 +141,11 @@ QtObject {
     function requestLineDelayDialog(): void {
         lineDelayDialogRequested();
     }
+    function requestLineAddMidiCcAutomationDialog(): void {
+        if (!isPlaying()) {
+            lineAddMidiCcAutomationDialogRequested();
+        }
+    }
     function requestColumnAddMidiCcAutomationDialog(): void {
         if (!isPlaying()) {
             columnAddMidiCcAutomationDialogRequested();
@@ -150,6 +159,11 @@ QtObject {
     function requestEditMidiCcAutomationsDialog(): void {
         if (!isPlaying()) {
             editMidiCcAutomationsDialogRequested();
+        }
+    }
+    function requestEditMidiCcAutomationsDialogByLine(): void {
+        if (!isPlaying()) {
+            editMidiCcAutomationsDialogByLineRequested();
         }
     }
     function requestEditMidiCcAutomationsDialogByColumn(): void {
@@ -167,6 +181,11 @@ QtObject {
             editMidiCcAutomationsDialogByPatternRequested();
         }
     }
+    function requestLineAddPitchBendAutomationDialog(): void {
+        if (!isPlaying()) {
+            lineAddPitchBendAutomationDialogRequested();
+        }
+    }
     function requestColumnAddPitchBendAutomationDialog(): void {
         if (!isPlaying()) {
             columnAddPitchBendAutomationDialogRequested();
@@ -180,6 +199,11 @@ QtObject {
     function requestEditPitchBendAutomationsDialog(): void {
         if (!isPlaying()) {
             editPitchBendAutomationsDialogRequested();
+        }
+    }
+    function requestEditPitchBendAutomationsDialogByLine(): void {
+        if (!isPlaying()) {
+            editPitchBendAutomationsDialogByLineRequested();
         }
     }
     function requestEditPitchBendAutomationsDialogByColumn(): void {

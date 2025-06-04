@@ -59,6 +59,17 @@ void MidiCcAutomationsModel::requestMidiCcAutomationsByColumn(quint64 pattern, q
     emit midiCcAutomationsRequested();
 }
 
+void MidiCcAutomationsModel::requestMidiCcAutomationsByLine(quint64 pattern, quint64 track, quint64 column, quint64 line)
+{
+    m_filter = {};
+    m_filter.pattern = pattern;
+    m_filter.track = track;
+    m_filter.column = column;
+    m_filter.line = line;
+
+    emit midiCcAutomationsRequested();
+}
+
 MidiCcAutomationsModel::MidiCcAutomationList MidiCcAutomationsModel::filteredMidiCcAutomations(const MidiCcAutomationList & midiCcAutomations) const
 {
     MidiCcAutomationList filtered;
@@ -73,6 +84,11 @@ MidiCcAutomationsModel::MidiCcAutomationList MidiCcAutomationsModel::filteredMid
                              }
                              if (m_filter.column.has_value() && loc.column != m_filter.column.value()) {
                                  return false;
+                             }
+                             if (m_filter.line.has_value()) {
+                                 if (automation.interpolation().line0 > m_filter.line.value() || automation.interpolation().line1 < m_filter.line.value()) {
+                                     return false;
+                                 }
                              }
                              return true;
                          });
