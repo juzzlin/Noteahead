@@ -122,19 +122,17 @@ bool SelectionService::requestSelectionEnd(size_t pattern, size_t track, size_t 
 
 void SelectionService::clear()
 {
-    juzzlin::L(TAG).debug() << "Clear";
-
-    const auto prevStart = m_startPosition;
-    const auto prevEnd = m_endPosition;
-
-    m_startPosition.reset();
-    m_endPosition.reset();
-
-    if (prevStart.has_value() && prevEnd.has_value()) {
-        emit selectionCleared(*prevStart, *prevEnd);
+    if (isValidSelection()) {
+        juzzlin::L(TAG).debug() << "Clear";
+        const auto prevStart = m_startPosition;
+        const auto prevEnd = m_endPosition;
+        m_startPosition.reset();
+        m_endPosition.reset();
+        if (prevStart.has_value() && prevEnd.has_value()) {
+            emit selectionCleared(*prevStart, *prevEnd);
+        }
+        emit isValidSelectionChanged();
     }
-
-    emit isValidSelectionChanged();
 }
 
 } // namespace noteahead
