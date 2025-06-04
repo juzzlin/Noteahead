@@ -43,19 +43,15 @@ SelectionService::PositionList SelectionService::selectedPositions() const
 {
     PositionList positions;
 
-    if (!isValidSelection()) {
-        return positions;
-    }
-
-    auto start = *m_startPosition;
-    auto end = *m_endPosition;
-
-    if (start.line > end.line) {
-        std::swap(start, end);
-    }
-
-    for (size_t line = start.line; line <= end.line; line++) {
-        positions.push_back({ start.pattern, start.track, start.column, line, start.lineColumn });
+    if (isValidSelection()) {
+        auto start = *m_startPosition;
+        auto end = *m_endPosition;
+        if (start.line > end.line) {
+            std::swap(start, end);
+        }
+        for (size_t line = start.line; line <= end.line; line++) {
+            positions.push_back({ start.pattern, start.track, start.column, line, start.lineColumn });
+        }
     }
 
     return positions;
@@ -63,7 +59,7 @@ SelectionService::PositionList SelectionService::selectedPositions() const
 
 bool SelectionService::isValidSelection() const
 {
-    if (!m_startPosition || !m_endPosition) {
+    if (!m_startPosition.has_value() || !m_endPosition.has_value()) {
         return false;
     }
 
@@ -108,7 +104,7 @@ bool SelectionService::requestSelectionEnd(size_t pattern, size_t track, size_t 
 {
     juzzlin::L(TAG).debug() << "Requesting selection end";
 
-    if (m_startPosition && pattern == m_startPosition->pattern && track == m_startPosition->track && column == m_startPosition->column) {
+    if (m_startPosition.has_value() && pattern == m_startPosition->pattern && track == m_startPosition->track && column == m_startPosition->column) {
         const Position position = { pattern, track, column, line };
         auto oldEndPosition = m_endPosition;
         m_endPosition = position;
@@ -126,13 +122,16 @@ bool SelectionService::requestSelectionEnd(size_t pattern, size_t track, size_t 
 
 void SelectionService::clear()
 {
-    const auto prevStart = *m_startPosition;
-    const auto prevEnd = *m_endPosition;
+    const auto prevStart = m_startPosition;
+    const auto prevEnd = m_endPosition;
 
     m_startPosition.reset();
     m_endPosition.reset();
 
-    emit selectionCleared(prevStart, prevEnd);
+    if (prevStart.has_value() && prevEnd.has_value()) {
+        emit selectionCleared(*prevStart, *prevEnd);
+    }
+
     emit isValidSelectionChanged();
 }
 
