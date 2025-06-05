@@ -153,18 +153,18 @@ Column::PositionList Column::deleteNoteDataAtPosition(const Position & position)
 
 Column::PositionList Column::insertNoteDataAtPosition(const NoteData & noteData, const Position & position)
 {
-    juzzlin::L(TAG).debug() << "Set note data at position: " << noteData.toString() << " @ " << position.toString();
+    juzzlin::L(TAG).debug() << "Insert note data at position: " << noteData.toString() << " @ " << position.toString();
     Column::PositionList changedPositions;
-    const auto newIndex = position.line;
-    const auto iter = m_lines.insert(m_lines.begin() + static_cast<long>(newIndex), m_lines.back());
-    (*iter)->setNoteData(noteData);
-    m_lines.pop_back();
-    for (size_t i = 0; i < m_lines.size(); i++) {
-        if (i >= newIndex) {
-            m_lines.at(i)->setIndex(i);
-            changedPositions = addChangedPosition(changedPositions, position, i);
-        }
+    const size_t newIndex = position.line;
+    if (newIndex >= m_lines.size()) {
+        return changedPositions;
     }
+    for (size_t i = m_lines.size() - 1; i > newIndex; i--) {
+        m_lines.at(i)->setNoteData(*m_lines.at(i - 1)->noteData());
+        changedPositions = addChangedPosition(changedPositions, position, i);
+    }
+    m_lines.at(newIndex)->setNoteData(noteData);
+    changedPositions = addChangedPosition(changedPositions, position, newIndex);
     return changedPositions;
 }
 
