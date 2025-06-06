@@ -34,10 +34,13 @@
 build*
 *.user
 
-#Flatpak
+# Flatpak
 .flatpak
 .flatpak-builder
 build-dir
 
-#VS Code
+# VS Code
 .vscode
+
+# Act
+.secrets

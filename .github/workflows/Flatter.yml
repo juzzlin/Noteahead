@@ -1,0 +1,73 @@
+name: Flatter (Deploy)
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+
+jobs:
+  flatter:
+    name: Flatter
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/adley-nastri/flatter/kde:6.5
+      options: --privileged
+    permissions:
+      contents: write
+    steps:
+      - name: Install node to Fedora (workaround for act)
+        run: dnf install -y nodejs
+
+      - name: Setup GPG
+        if: ${{ github.event_name != 'pull_request' }}
+        id: gpg
+        uses: crazy-max/ghaction-import-gpg@v5
+        with:
+          gpg_private_key: ${{ secrets.GPG_PRIVATE_KEY }}
+
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Clean flatpak output directories (for local runs)
+        run: rm -rf flatpak/
+
+
+      - name: Build
+        id: flatpak
+        uses: andyholmes/flatter@main
+        with:
+          files: |
+            io.github.juzzlin.Noteahead.yml
+          gpg-sign: ${{ steps.gpg.outputs.fingerprint }}
+
+      - name: Prepare flatpak output directories
+        run: |
+          mkdir -p flatpak/repo
+
+      - name: Move Flatpak repo files to flatpak/repo
+        run: |
+          cp -r "${{ steps.flatpak.outputs.repository }}/." flatpak/repo/
+
+      - name: Generate .flatpakref file
+        run: |
+          app_id="io.github.juzzlin.Noteahead"
+          app_name="${app_id##*.}"
+          REPO_NAME="${GITHUB_REPOSITORY#*/}"
+          url="https://${GITHUB_REPOSITORY_OWNER}.github.io/${REPO_NAME}/flatpak/repo"
+          cat <<EOF > "flatpak/${app_id}.flatpakref"
+          [Flatpak Ref]
+          Title=${app_name}
+          Name=${app_id}
+          Branch=${GITHUB_REF_NAME}
+          Url=${url}
+          GPGKey=${{ secrets.GPG_PUBLIC_KEY_BASE64 }}
+          IsRuntime=false
+          EOF
+
+      - name: Deploy Flatpak repo and ref
+        uses: JamesIves/github-pages-deploy-action@v4.7.3
+        with:
+          folder: flatpak
+          target-folder: flatpak
+          branch: gh-pages
+          clean: false  
