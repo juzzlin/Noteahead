@@ -21,13 +21,21 @@ Noteahead is still a work in progress and there's some limitations and missing f
 
 Some example tracks sequenced with Noteahead:
 
+<a href="https://open.spotify.com/track/7bLFSYkqQvm1L2WH4KiYMG">J.L.P - I Want My Life Back (Spotify)</a>
+
+<a href="https://music.youtube.com/watch?v=ZjTWwH0wywo">J.L.P - I Want My Life Back (YouTube Music)</a>
+
 <a href="https://soundcloud.com/jussilindplays/i-want-my-life-back">J.L.P - I Want My Life Back (SoundCloud)</a>
 
-<a href="https://soundcloud.com/jussilindplays/right-to-castle-queenside-remix">J.L.P - Right To Castle [Queenside Remix] (SoundCloud)</a>
+---
 
 <a href="https://open.spotify.com/track/1HsLwVEtiJHyUj1PYzlHRe">J.L.P - Right To Castle [Queenside Remix] (Spotify)</a>
 
 <a href="https://music.youtube.com/watch?v=n2u3Lmt4WLw">J.L.P - Right To Castle [Queenside Remix] (YouTube Music)</a>
+
+<a href="https://soundcloud.com/jussilindplays/right-to-castle-queenside-remix">J.L.P - Right To Castle [Queenside Remix] (SoundCloud)</a>
+
+---
 
 <a href="https://open.spotify.com/track/2M2Ulh4rCrQJpKgPb7CvnM">J.L.P - Incredible Times [Incredible Remix] (Spotify)</a>
 
@@ -35,7 +43,7 @@ Some example tracks sequenced with Noteahead:
 
 <a href="https://soundcloud.com/jussilindplays/incredible-times-incredible-remix">J.L.P - Incredible Times [Incredible Remix] (SoundCloud)</a>
 
-<a href="https://jussilindplays.bandcamp.com/track/incredible-times-incredible-remix">J.L.P - Incredible Times [Incredible Remix] (BandCamp)</a>
+---
 
 <a href="https://open.spotify.com/track/5LV4oR82Ak4uA0kkKB6McX">J.L.P - This Planet (Spotify)</a>
 
