@@ -21,6 +21,10 @@ Noteahead is still a work in progress and there's some limitations and missing f
 
 Some example tracks sequenced with Noteahead:
 
+<a href="https://soundcloud.com/jussilindplays/awesome">J.L.P - Awesome (SoundCloud)</a>
+
+---
+
 <a href="https://open.spotify.com/track/7bLFSYkqQvm1L2WH4KiYMG">J.L.P - I Want My Life Back (Spotify)</a>
 
 <a href="https://music.youtube.com/watch?v=ZjTWwH0wywo">J.L.P - I Want My Life Back (YouTube Music)</a>
