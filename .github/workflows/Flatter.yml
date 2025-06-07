@@ -39,28 +39,34 @@ jobs:
           files: |
             io.github.juzzlin.Noteahead.yml
           gpg-sign: ${{ steps.gpg.outputs.fingerprint }}
+          flatpak-builder-args: |
+            --default-branch=${{ github.ref_name }}
+            --skip-if-unchanged
+
 
       - name: Prepare flatpak output directories
         run: |
-          mkdir -p flatpak/repo
+          mkdir -p flatpak/${{ github.ref_name }}/repo
 
-      - name: Move Flatpak repo files to flatpak/repo
+      - name: Move Flatpak repo files to flatpak/${{ github.ref_name }}/repo
         run: |
-          cp -r "${{ steps.flatpak.outputs.repository }}/." flatpak/repo/
+          cp -r "${{ steps.flatpak.outputs.repository }}/." flatpak/${{ github.ref_name }}/repo/
 
       - name: Generate .flatpakref file
         run: |
           app_id="io.github.juzzlin.Noteahead"
           app_name="${app_id##*.}"
           REPO_NAME="${GITHUB_REPOSITORY#*/}"
-          url="https://${GITHUB_REPOSITORY_OWNER}.github.io/${REPO_NAME}/flatpak/repo"
-          cat <<EOF > "flatpak/${app_id}.flatpakref"
+          url="https://${GITHUB_REPOSITORY_OWNER}.github.io/${REPO_NAME}/flatpak/${{ github.ref_name }}/repo"
+          cat <<EOF > "flatpak/${{ github.ref_name }}/${app_id}.flatpakref"
           [Flatpak Ref]
           Title=${app_name}
+          SuggestRemoteName=${app_name}
           Name=${app_id}
-          Branch=${GITHUB_REF_NAME}
+          Branch=${{ github.ref_name }}
           Url=${url}
           GPGKey=${{ secrets.GPG_PUBLIC_KEY_BASE64 }}
+          RuntimeRepo=https://flathub.org/repo/flathub.flatpakrepo
           IsRuntime=false
           EOF
 
