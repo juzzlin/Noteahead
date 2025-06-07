@@ -21,7 +21,7 @@ Noteahead is still a work in progress and there's some limitations and missing f
 
 Some example tracks sequenced with Noteahead:
 
-<a href="https://soundcloud.com/jussilindplays/awesome">J.L.P - Awesome (SoundCloud)</a>
+<a href="https://soundcloud.com/arctic-music-project/awesome">Arctic Music Project - Awesome (SoundCloud)</a>
 
 ---
 
