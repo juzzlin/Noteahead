@@ -216,7 +216,7 @@ Row {
                     value: editorService.currentPattern
                     from: editorService.minPatternIndex()
                     to: editorService.maxPatternIndex()
-                    editable: false
+                    editable: true
                     enabled: !UiService.isPlaying()
                     onValueChanged: {
                         editorService.setCurrentPattern(patternIndexSpinBox.value);
