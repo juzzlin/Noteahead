@@ -5,6 +5,19 @@ Release date:
 
 New features:
 
+Bug fixes:
+
+Other:
+
+0.9.0
+=====
+
+Release date:
+
+Tue, 10 Jun 2025 22:14:09 +0300
+
+New features:
+
 * Render lines in a ListView instead of manually managed objects
   - This is a big and fundamental refactoring effort and makes scrolling
     way smoother also on older Qt version. Also the update logic is now less
@@ -14,9 +27,18 @@ New features:
 
 Bug fixes:
 
+* Fix duplicate signal names on Qt 6.8
+
 * Fix GitHub Issue #4: Crash in Flatpak: std::optional<noteahead::Position> not engaged
 
+* Don't reinitialize the project when RecentFilesDialog canceled
+  - A previously loaded project was also discarded without asking
+
 Other:
+
+* Make pattern spin box editable
+
+* Addition of Flatpak manifest
 
 0.8.0
 =====
