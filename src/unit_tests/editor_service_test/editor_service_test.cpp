@@ -679,7 +679,7 @@ void EditorServiceTest::test_requestNewTrackToRight_shouldAddNewTrack()
     QCOMPARE(editorService.trackCount(), initialTrackCount);
 }
 
-void EditorServiceTest::test_requestTrackDeletion_shouldDeleteTrack()
+void EditorServiceTest::test_requestTrackDeletion_firstTrack_shouldDeleteTrack()
 {
     EditorService editorService;
     const auto initialTrackCount = editorService.trackCount();
@@ -695,8 +695,32 @@ void EditorServiceTest::test_requestTrackDeletion_shouldDeleteTrack()
     QVERIFY(editorService.isModified());
     QCOMPARE(trackDeletedSpy.count(), 1);
     QCOMPARE(positionChangedSpy.count(), 2);
-    QCOMPARE(editorService.position().track, editorService.trackIndexByPosition(editorService.trackCount() - 1)); // Should wrap around to the last track
+    QCOMPARE(editorService.position().track, editorService.trackIndices().at(0));
     QCOMPARE(editorService.position().column, 0);
+    QCOMPARE(editorService.position().lineColumn, 0);
+    QCOMPARE(scrollBarSizeChangedSpy.count(), 1);
+    QCOMPARE(scrollBarStepSizeChangedSpy.count(), 1);
+}
+
+void EditorServiceTest::test_requestTrackDeletion_lastTrack_shouldDeleteTrack()
+{
+    EditorService editorService;
+    const auto initialTrackCount = editorService.trackCount();
+    QSignalSpy trackDeletedSpy { &editorService, &EditorService::trackDeleted };
+    QSignalSpy positionChangedSpy { &editorService, &EditorService::positionChanged };
+    QSignalSpy scrollBarSizeChangedSpy { &editorService, &EditorService::scrollBarHandleSizeChanged };
+    QSignalSpy scrollBarStepSizeChangedSpy { &editorService, &EditorService::scrollBarStepSizeChanged };
+
+    QVERIFY(editorService.requestPosition(0, editorService.trackCount() - 1, 0, 0, 0));
+    editorService.requestTrackDeletion();
+
+    QCOMPARE(editorService.trackCount(), initialTrackCount - 1);
+    QVERIFY(editorService.isModified());
+    QCOMPARE(trackDeletedSpy.count(), 1);
+    QCOMPARE(positionChangedSpy.count(), 2);
+    QCOMPARE(editorService.position().track, editorService.trackIndices().at(initialTrackCount - 2));
+    QCOMPARE(editorService.position().column, 0);
+    QCOMPARE(editorService.position().lineColumn, 0);
     QCOMPARE(scrollBarSizeChangedSpy.count(), 1);
     QCOMPARE(scrollBarStepSizeChangedSpy.count(), 1);
 }

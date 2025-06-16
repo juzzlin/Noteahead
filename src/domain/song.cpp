@@ -321,6 +321,12 @@ std::optional<size_t> Song::trackIndexByPosition(size_t trackPosition) const
     return m_patterns.at(0)->trackIndexByPosition(trackPosition);
 }
 
+bool Song::isFirstTrack(size_t trackIndex) const
+{
+    const auto position = trackPositionByIndex(trackIndex);
+    return position.has_value() && position.value() == 0;
+}
+
 bool Song::hasData() const
 {
     return std::ranges::any_of(m_patterns, [](auto && pattern) {

@@ -912,7 +912,12 @@ void EditorService::requestTrackDeletion()
 
     if (trackCount() > visibleUnitCount()) {
         const auto trackToDelete = position().track;
-        moveCursorToPrevTrack();
+        if (m_song->isFirstTrack(trackToDelete)) {
+            moveCursorToNextTrack();
+        } else {
+            moveCursorToPrevTrack();
+            m_state.cursorPosition.lineColumn = 0;
+        }
         notifyPositionChange(m_state.cursorPosition); // Re-focuses the previous track
         if (m_song->deleteTrack(trackToDelete)) {
             emit trackDeleted(trackToDelete);
@@ -1649,8 +1654,11 @@ void EditorService::resetSongPosition()
     setSongPosition(0);
     const auto oldPosition = m_state.cursorPosition;
     const quint64 firstPattern = m_song->patternAtSongPosition(0);
-    const quint64 firstTrack = m_song->trackIndexByPosition(0).value_or(0);
-    m_state.cursorPosition = { firstPattern, firstTrack, 0, 0, 0 };
+    quint64 track = oldPosition.track;
+    if (!m_song->trackPositionByIndex(track).has_value()) {
+        track = m_song->trackIndexByPosition(0).value_or(0);
+    }
+    m_state.cursorPosition = { firstPattern, track, 0, 0, 0 };
     notifyPositionChange(oldPosition);
 }
 
