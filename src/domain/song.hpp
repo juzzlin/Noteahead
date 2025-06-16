@@ -114,7 +114,7 @@ public:
     using TrackIndexList = std::vector<size_t>;
     TrackIndexList trackIndices() const;
     std::optional<size_t> trackPositionByIndex(size_t trackIndex) const;
-    std::optional<size_t> trackIndexByPosition(size_t track) const;
+    std::optional<size_t> trackIndexByPosition(size_t trackPosition) const;
 
     bool hasData() const;
     bool hasData(size_t pattern, size_t track, size_t column) const;

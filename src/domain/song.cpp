@@ -316,9 +316,9 @@ std::optional<size_t> Song::trackPositionByIndex(size_t trackIndex) const
     return m_patterns.at(0)->trackPositionByIndex(trackIndex);
 }
 
-std::optional<size_t> Song::trackIndexByPosition(size_t track) const
+std::optional<size_t> Song::trackIndexByPosition(size_t trackPosition) const
 {
-    return m_patterns.at(0)->trackIndexByPosition(track);
+    return m_patterns.at(0)->trackIndexByPosition(trackPosition);
 }
 
 bool Song::hasData() const

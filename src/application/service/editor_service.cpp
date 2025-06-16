@@ -1648,7 +1648,9 @@ void EditorService::resetSongPosition()
 {
     setSongPosition(0);
     const auto oldPosition = m_state.cursorPosition;
-    m_state.cursorPosition = { m_song->patternAtSongPosition(0), 0, 0, 0, 0 };
+    const quint64 firstPattern = m_song->patternAtSongPosition(0);
+    const quint64 firstTrack = m_song->trackIndexByPosition(0).value_or(0);
+    m_state.cursorPosition = { firstPattern, firstTrack, 0, 0, 0 };
     notifyPositionChange(oldPosition);
 }
 

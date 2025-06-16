@@ -7,6 +7,8 @@ New features:
 
 Bug fixes:
 
+* Fix GitHub Issue #14: Rewinding a song assumes that track with index 0 exists
+
 Other:
 
 0.9.0

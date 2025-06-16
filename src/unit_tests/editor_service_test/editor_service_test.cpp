@@ -950,6 +950,20 @@ void EditorServiceTest::test_requestPosition_validPosition_shouldChangePosition(
     QCOMPARE(currentTimeChangedSpy.count(), 3);
 }
 
+void EditorServiceTest::test_resetSongPosition_firstTrackRemoved_shouldResetPosition()
+{
+    EditorService editorService;
+
+    QVERIFY(editorService.requestPosition(0, 0, 0, 0, 0));
+    editorService.requestTrackDeletion();
+    editorService.resetSongPosition();
+
+    QCOMPARE(editorService.position().pattern, 0);
+    QCOMPARE(editorService.position().track, 1);
+    QCOMPARE(editorService.position().column, 0);
+    QCOMPARE(editorService.position().line, 0);
+}
+
 void EditorServiceTest::test_requestScroll_shouldChangePosition()
 {
     EditorService editorService;

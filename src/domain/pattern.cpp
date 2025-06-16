@@ -228,10 +228,10 @@ std::optional<size_t> Pattern::trackPositionByIndex(size_t index) const
     }
 }
 
-std::optional<size_t> Pattern::trackIndexByPosition(size_t track) const
+std::optional<size_t> Pattern::trackIndexByPosition(size_t trackPosition) const
 {
-    if (track <= m_trackOrder.size()) {
-        return m_trackOrder.at(track)->index();
+    if (trackPosition <= m_trackOrder.size()) {
+        return m_trackOrder.at(trackPosition)->index();
     } else {
         return {};
     }
