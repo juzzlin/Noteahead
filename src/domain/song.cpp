@@ -529,7 +529,7 @@ Song::EventList Song::generateNoteOffs(EventListCR events) const
     std::map<TrackAndColumn, std::set<uint8_t>> activeNotes; // Tracks active notes (key: {track, column}, value: note)
 
     const auto autoNoteOffOffset = this->autoNoteOffOffsetTicks();
-    juzzlin::L(TAG).debug() << "Auto note-off offset: " << autoNoteOffOffset << " ticks";
+    juzzlin::L(TAG).info() << "Auto note-off offset: " << autoNoteOffOffset << " ticks";
 
     for (const auto & event : events) {
         if (const auto noteData = event->noteData(); noteData) {
@@ -669,18 +669,46 @@ Song::EventList Song::assignInstruments(EventListCR events) const
 Song::EventList Song::renderStartOfSong(size_t tick) const
 {
     Song::EventList eventList;
-    const auto startOfSongEvent = std::make_shared<Event>(tick);
-    startOfSongEvent->setAsStartOfSong();
-    eventList.push_back(startOfSongEvent);
+    // Always add an anonymous Start event
+    const auto event = std::make_shared<Event>(tick);
+    event->setAsStartOfSong();
+    eventList.push_back(event);
+    // Add Start events per instrument, if enabled
+    std::set<QString> processedPortNames;
+    for (auto trackIndex : trackIndices()) {
+        if (const auto instrument = this->instrument(trackIndex); instrument && instrument->settings().sendTransport) {
+            if (const auto portName = instrument->midiAddress().portName(); !processedPortNames.contains(portName)) {
+                const auto event = std::make_shared<Event>(tick);
+                event->setAsStartOfSong();
+                event->setInstrument(instrument);
+                eventList.push_back(event);
+                processedPortNames.insert(portName);
+            }
+        }
+    }
     return eventList;
 }
 
 Song::EventList Song::renderEndOfSong(EventListCR eventList, size_t tick) const
 {
     Song::EventList processedEventList { eventList };
-    const auto endOfSongEvent = std::make_shared<Event>(tick);
-    endOfSongEvent->setAsEndOfSong();
-    processedEventList.push_back(endOfSongEvent);
+    // Always add an anonymous Stop event
+    const auto event = std::make_shared<Event>(tick);
+    event->setAsEndOfSong();
+    processedEventList.push_back(event);
+    // Add Stop events per instrument, if enabled
+    std::set<QString> processedPortNames;
+    for (auto trackIndex : trackIndices()) {
+        if (const auto instrument = this->instrument(trackIndex); instrument && instrument->settings().sendTransport) {
+            if (const auto portName = instrument->midiAddress().portName(); !processedPortNames.contains(portName)) {
+                const auto event = std::make_shared<Event>(tick);
+                event->setAsEndOfSong();
+                event->setInstrument(instrument);
+                processedEventList.push_back(event);
+                processedPortNames.insert(portName);
+            }
+        }
+    }
     return processedEventList;
 }
 

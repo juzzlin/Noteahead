@@ -50,6 +50,8 @@ public:
     void sendPitchBendData(MidiDeviceCR device, uint8_t channel, uint8_t msb, uint8_t lsb) const override;
 
     void sendClockPulse(MidiDeviceCR device) const override;
+    void sendStart(MidiDeviceCR device) const override;
+    void sendStop(MidiDeviceCR device) const override;
 
 private:
     using Message = std::vector<unsigned char>;

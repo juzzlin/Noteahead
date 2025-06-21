@@ -77,6 +77,7 @@ private:
     void setIsPlaying(bool isPlaying);
     bool shouldEventPlay(const Event & event) const;
     void stopAllNotes();
+    void stopTransport();
 
     MidiServiceS m_midiService;
     MixerServiceS m_mixerService;

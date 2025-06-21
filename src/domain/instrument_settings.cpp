@@ -58,6 +58,9 @@ void InstrumentSettings::serializeToXml(QXmlStreamWriter & writer) const
     if (sendMidiClock.has_value()) {
         writer.writeAttribute(Constants::xmlKeySendMidiClock(), sendMidiClock.value() ? Constants::xmlValueTrue() : Constants::xmlValueFalse());
     }
+    if (sendTransport.has_value()) {
+        writer.writeAttribute(Constants::xmlKeySendTransport(), sendTransport.value() ? Constants::xmlValueTrue() : Constants::xmlValueFalse());
+    }
 
     writer.writeAttribute(Constants::xmlKeyDelay(), QString::number(delay.count()));
     writer.writeAttribute(Constants::xmlKeyTranspose(), QString::number(transpose));
@@ -86,6 +89,7 @@ InstrumentSettings::InstrumentSettingsU InstrumentSettings::deserializeFromXml(Q
     settings->predefinedMidiCcSettings.pan = Utils::Xml::readUIntAttribute(reader, Constants::xmlKeyPan(), false);
     settings->predefinedMidiCcSettings.volume = Utils::Xml::readUIntAttribute(reader, Constants::xmlKeyVolume(), false);
     settings->sendMidiClock = Utils::Xml::readBoolAttribute(reader, Constants::xmlKeySendMidiClock(), false);
+    settings->sendTransport = Utils::Xml::readBoolAttribute(reader, Constants::xmlKeySendTransport(), false);
     settings->delay = std::chrono::milliseconds { Utils::Xml::readIntAttribute(reader, Constants::xmlKeyDelay(), false).value_or(0) };
     settings->transpose = Utils::Xml::readIntAttribute(reader, Constants::xmlKeyTranspose(), false).value_or(0);
 

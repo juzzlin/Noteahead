@@ -95,6 +95,7 @@ void TrackSettingsModelTest::test_setInstrumentData_shouldUpdateRelevantFields()
     instrumentSettings.predefinedMidiCcSettings.pan = 64;
     instrumentSettings.predefinedMidiCcSettings.volume = 100;
     instrumentSettings.sendMidiClock = true;
+    instrumentSettings.sendTransport = true;
     instrumentSettings.delay = std::chrono::milliseconds(120);
     instrument.setSettings(instrumentSettings);
 
@@ -117,6 +118,7 @@ void TrackSettingsModelTest::test_setInstrumentData_shouldUpdateRelevantFields()
     QCOMPARE(model.volumeEnabled(), true);
     QCOMPARE(model.volume(), static_cast<uint8_t>(100));
     QCOMPARE(model.sendMidiClock(), true);
+    QCOMPARE(model.sendTransport(), true);
     QCOMPARE(model.delay(), 120);
 
     QCOMPARE(spy.count(), 1);

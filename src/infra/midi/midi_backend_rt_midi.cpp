@@ -144,4 +144,14 @@ void MidiBackendRtMidi::sendClockPulse(MidiDeviceCR device) const
     sendMessage(device, { 0xF8 });
 }
 
+void MidiBackendRtMidi::sendStart(MidiDeviceCR device) const
+{
+    sendMessage(device, { 0xFA });
+}
+
+void MidiBackendRtMidi::sendStop(MidiDeviceCR device) const
+{
+    sendMessage(device, { 0xFC });
+}
+
 } // namespace noteahead

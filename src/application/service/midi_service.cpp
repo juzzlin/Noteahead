@@ -21,7 +21,7 @@
 #include "../../domain/midi_note_data.hpp"
 #include "../../domain/pitch_bend_data.hpp"
 #include "../instrument_request.hpp"
-#include "../midi_worker.hpp"
+#include "midi_worker.hpp"
 
 namespace noteahead {
 
@@ -130,15 +130,29 @@ void MidiService::sendCcData(InstrumentW instrument, MidiCcDataCR data)
     }
 }
 
-void MidiService::sendClock(MidiService::InstrumentW instrument)
+void MidiService::invokeSimpleFunction(MidiService::InstrumentW instrument, QString functionName)
 {
     std::lock_guard<std::mutex> lock { m_workerMutex };
-
-    if (const bool invoked = QMetaObject::invokeMethod(m_midiWorker.get(), "sendClock",
+    if (const bool invoked = QMetaObject::invokeMethod(m_midiWorker.get(), functionName.toStdString().c_str(),
                                                        Q_ARG(QString, instrument.lock()->midiAddress().portName()));
         !invoked) {
-        juzzlin::L(TAG).error() << "Invoking a method failed!";
+        juzzlin::L(TAG).error() << "Invoking a method failed!: " << functionName.toStdString();
     }
+}
+
+void MidiService::sendClock(MidiService::InstrumentW instrument)
+{
+    invokeSimpleFunction(instrument, "sendClock");
+}
+
+void MidiService::sendStart(MidiService::InstrumentW instrument)
+{
+    invokeSimpleFunction(instrument, "sendStart");
+}
+
+void MidiService::sendStop(MidiService::InstrumentW instrument)
+{
+    invokeSimpleFunction(instrument, "sendStop");
 }
 
 void MidiService::sendPitchBendData(InstrumentW instrument, MidiService::PitchBendDataCR data)

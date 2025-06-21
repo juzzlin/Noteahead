@@ -244,6 +244,32 @@ void SongTest::test_renderToEvents_noEvents_shouldAddStartAndEndOfSong()
     QCOMPARE(endOfSong->type(), Event::Type::EndOfSong);
 }
 
+void SongTest::test_renderToEvents_noEvents_transportEnabled_shouldAddStartAndEndOfSong()
+{
+    Song song;
+    const auto instrument1 = std::make_shared<Instrument>("");
+    song.setInstrument(0, instrument1);
+    auto settings = instrument1->settings();
+    settings.sendTransport = true;
+    instrument1->setSettings(settings);
+
+    const auto events = song.renderToEvents(std::make_shared<AutomationService>(), 0);
+    QCOMPARE(events.size(), 4);
+
+    auto event = events.at(0);
+    QCOMPARE(event->tick(), 0);
+    QCOMPARE(event->type(), Event::Type::StartOfSong);
+    event = events.at(1);
+    QCOMPARE(event->tick(), 0);
+    QCOMPARE(event->type(), Event::Type::StartOfSong);
+    event = events.at(2);
+    QCOMPARE(event->tick(), song.lineCount(0) * song.ticksPerLine());
+    QCOMPARE(event->type(), Event::Type::EndOfSong);
+    event = events.at(3);
+    QCOMPARE(event->tick(), song.lineCount(0) * song.ticksPerLine());
+    QCOMPARE(event->type(), Event::Type::EndOfSong);
+}
+
 void SongTest::test_renderToEvents_noteOff_shouldMapNoteOff()
 {
     Song song;

@@ -5,6 +5,9 @@ Release date:
 
 New features:
 
+* Implement MIDI transport events
+  - Noteahead now sends MIDI Start/Stop
+
 Bug fixes:
 
 * Fix GitHub Issue #14: Rewinding a song assumes that track with index 0 exists

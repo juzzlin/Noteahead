@@ -57,6 +57,7 @@ class TrackSettingsModel : public MidiCcSelectionModel
     Q_PROPERTY(bool volumeEnabled READ volumeEnabled WRITE setVolumeEnabled NOTIFY volumeEnabledChanged)
 
     Q_PROPERTY(bool sendMidiClock READ sendMidiClock WRITE setSendMidiClock NOTIFY sendMidiClockChanged)
+    Q_PROPERTY(bool sendTransport READ sendTransport WRITE setSendTransport NOTIFY sendTransportChanged)
     Q_PROPERTY(int delay READ delay WRITE setDelay NOTIFY delayChanged)
     Q_PROPERTY(int transpose READ transpose WRITE setTranspose NOTIFY transposeChanged)
 
@@ -128,6 +129,8 @@ public:
 
     bool sendMidiClock() const;
     void setSendMidiClock(bool enabled);
+    bool sendTransport() const;
+    void setSendTransport(bool enabled);
 
     int delay() const;
     void setDelay(int delay);
@@ -172,6 +175,7 @@ signals:
     void volumeEnabledChanged();
 
     void sendMidiClockChanged();
+    void sendTransportChanged();
 
     void delayChanged();
     void transposeChanged();
@@ -193,6 +197,7 @@ private:
     bool m_patchEnabled { false };
     bool m_volumeEnabled { false };
     bool m_sendMidiClock { false };
+    bool m_sendTransport { false };
 
     quint64 m_trackIndex { 0 };
 

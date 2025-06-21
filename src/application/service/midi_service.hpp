@@ -59,6 +59,8 @@ public:
     using MidiCcDataCR = const MidiCcData &;
     Q_INVOKABLE void sendCcData(InstrumentW instrument, MidiCcDataCR data);
     Q_INVOKABLE void sendClock(InstrumentW instrument);
+    Q_INVOKABLE void sendStart(InstrumentW instrument);
+    Q_INVOKABLE void sendStop(InstrumentW instrument);
     using PitchBendDataCR = const PitchBendData &;
     Q_INVOKABLE void sendPitchBendData(InstrumentW instrument, PitchBendDataCR data);
 
@@ -76,6 +78,7 @@ signals:
 
 private:
     void initializeWorker();
+    void invokeSimpleFunction(MidiService::InstrumentW instrument, QString functionName);
 
     std::mutex m_workerMutex; // Calls to this service may become directly from PlayerWorker and also live notes from other sources
     std::unique_ptr<MidiWorker> m_midiWorker;

@@ -60,6 +60,8 @@ public:
     virtual void sendPitchBendData(MidiDeviceCR device, uint8_t channel, uint8_t msb, uint8_t lsb) const;
 
     virtual void sendClockPulse(MidiDeviceCR device) const;
+    virtual void sendStart(MidiDeviceCR device) const;
+    virtual void sendStop(MidiDeviceCR device) const;
 
 protected:
     void setDevices(MidiDeviceList devices);

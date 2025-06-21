@@ -69,6 +69,7 @@ QString xmlKeyInstrument();
 QString xmlKeyInstrumentSettings();
 
 QString xmlKeySendMidiClock();
+QString xmlKeySendTransport();
 
 QString xmlKeyPlayOrder();
 QString xmlKeyPatternAttr();

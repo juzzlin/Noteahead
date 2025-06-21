@@ -22,7 +22,7 @@
 #include <memory>
 #include <vector>
 
-#include "instrument_request.hpp"
+#include "../instrument_request.hpp"
 
 namespace noteahead {
 
@@ -47,6 +47,9 @@ public:
     Q_INVOKABLE void stopAllNotes(QString portName, quint8 channel);
 
     Q_INVOKABLE void sendClock(QString portName);
+    Q_INVOKABLE void sendStart(QString portName);
+    Q_INVOKABLE void sendStop(QString portName);
+
     Q_INVOKABLE void sendCcData(QString portName, quint8 channel, quint8 controller, quint8 value);
     Q_INVOKABLE void sendPitchBendData(QString portName, quint8 channel, quint8 msb, quint8 lsb);
 

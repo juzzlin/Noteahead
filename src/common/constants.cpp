@@ -177,6 +177,11 @@ QString xmlKeySendMidiClock()
     return "sendMidiClock";
 }
 
+QString xmlKeySendTransport()
+{
+    return "sendTransport";
+}
+
 QString xmlKeyPatternAttr()
 {
     return "pattern";

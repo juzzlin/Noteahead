@@ -51,7 +51,7 @@ Some example tracks sequenced with Noteahead:
 * Poor Man's MIDI Hot-Plug with automatic setup
   - Noteahead notices when a device goes online/offline
   - Noteahead automatically sets channel, bank, and patch
-* Send MIDI clock on desired ports
+* Sends MIDI clock pulse and Start/Stop on desired ports
 * Tracks with multiple note columns
 * Track settings with port, channel, bank, patch, volume, pan, cutoff
   - Can be easily changed on-the-fly via line events

@@ -15,13 +15,13 @@
 
 #include "player_worker.hpp"
 
-#include "../contrib/SimpleLogger/src/simple_logger.hpp"
-#include "../domain/event.hpp"
-#include "../domain/instrument_settings.hpp"
-#include "../domain/midi_note_data.hpp"
-#include "../domain/note_data.hpp"
-#include "service/midi_service.hpp"
-#include "service/mixer_service.hpp"
+#include "../../contrib/SimpleLogger/src/simple_logger.hpp"
+#include "../../domain/event.hpp"
+#include "../../domain/instrument_settings.hpp"
+#include "../../domain/midi_note_data.hpp"
+#include "../../domain/note_data.hpp"
+#include "midi_service.hpp"
+#include "mixer_service.hpp"
 
 #include <ranges>
 #include <thread>
@@ -71,6 +71,7 @@ void PlayerWorker::stop()
     setIsPlaying(false);
 
     stopAllNotes();
+    stopTransport();
 }
 
 bool PlayerWorker::shouldEventPlay(const Event & event) const
@@ -103,6 +104,14 @@ void PlayerWorker::handleEvent(const Event & event) const
         } else if (event.type() == Event::Type::MidiClockOut) {
             if (auto && instrument = event.instrument(); instrument) {
                 m_midiService->sendClock(instrument);
+            }
+        } else if (event.type() == Event::Type::StartOfSong) {
+            if (auto && instrument = event.instrument(); instrument) {
+                m_midiService->sendStart(instrument);
+            }
+        } else if (event.type() == Event::Type::EndOfSong) {
+            if (auto && instrument = event.instrument(); instrument) {
+                m_midiService->sendStop(instrument);
             }
         } else if (event.type() == Event::Type::PitchBendData) {
             if (event.pitchBendData() && event.instrument()) {
@@ -186,9 +195,19 @@ void PlayerWorker::setIsPlaying(bool isPlaying)
 void PlayerWorker::stopAllNotes()
 {
     juzzlin::L(TAG).info() << "Stopping all notes";
-
     for (auto && instrument : m_allInstruments) {
         m_midiService->stopAllNotes(instrument);
+    }
+}
+
+void PlayerWorker::stopTransport()
+{
+    juzzlin::L(TAG).info() << "Stopping transport";
+    for (auto && instrument : m_allInstruments) {
+        if (instrument->settings().sendTransport) {
+            juzzlin::L(TAG).info() << "Sending stop to " << instrument->midiAddress().portName().toStdString();
+            m_midiService->sendStop(instrument);
+        }
     }
 }
 

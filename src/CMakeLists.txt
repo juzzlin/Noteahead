@@ -13,7 +13,6 @@ set(HEADER_FILES
   application/config.hpp
   application/copy_manager.hpp
   application/instrument_request.hpp
-  application/midi_worker.hpp
   application/models/event_selection_model.hpp
   application/models/midi_cc_automations_model.hpp
   application/models/midi_cc_selection_model.hpp
@@ -24,15 +23,16 @@ set(HEADER_FILES
   application/models/recent_files_model.hpp
   application/models/track_settings_model.hpp
   application/note_converter.hpp
-  application/player_worker.hpp
   application/position.hpp
   application/recent_files_manager.hpp
   application/service/application_service.hpp
   application/service/automation_service.hpp
   application/service/editor_service.hpp
   application/service/midi_service.hpp
+  application/service/midi_worker.hpp
   application/service/mixer_service.hpp
   application/service/player_service.hpp
+  application/service/player_worker.hpp
   application/service/selection_service.hpp
   application/service/util_service.hpp
   application/state_machine.hpp
@@ -79,7 +79,6 @@ set(SOURCE_FILES
   application/config.cpp
   application/copy_manager.cpp
   application/instrument_request.cpp
-  application/midi_worker.cpp
   application/models/event_selection_model.cpp
   application/models/midi_cc_automations_model.cpp
   application/models/midi_cc_selection_model.cpp
@@ -90,14 +89,15 @@ set(SOURCE_FILES
   application/models/recent_files_model.cpp
   application/models/track_settings_model.cpp
   application/note_converter.cpp
-  application/player_worker.cpp
   application/recent_files_manager.cpp
   application/service/application_service.cpp
   application/service/automation_service.cpp
   application/service/editor_service.cpp
   application/service/midi_service.cpp
+  application/service/midi_worker.cpp
   application/service/mixer_service.cpp
   application/service/player_service.cpp
+  application/service/player_worker.cpp
   application/service/selection_service.cpp
   application/service/util_service.cpp
   application/state_machine.cpp

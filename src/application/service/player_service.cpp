@@ -18,7 +18,7 @@
 #include "../../contrib/SimpleLogger/src/simple_logger.hpp"
 #include "../../domain/song.hpp"
 #include "../config.hpp"
-#include "../player_worker.hpp"
+#include "player_worker.hpp"
 
 #include <QThread>
 

@@ -56,6 +56,7 @@ public:
     PredefinedMidiCcSettings predefinedMidiCcSettings;
 
     std::optional<bool> sendMidiClock;
+    std::optional<bool> sendTransport;
 
     std::chrono::milliseconds delay { 0 };
     int transpose { 0 };

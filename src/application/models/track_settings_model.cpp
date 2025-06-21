@@ -242,6 +242,7 @@ void TrackSettingsModel::setInstrumentData(const Instrument & instrument)
         setVolume(*instrument.settings().predefinedMidiCcSettings.volume);
     }
     setSendMidiClock(instrument.settings().sendMidiClock.has_value() && *instrument.settings().sendMidiClock);
+    setSendTransport(instrument.settings().sendTransport.has_value() && *instrument.settings().sendTransport);
 
     setDelay(static_cast<int>(instrument.settings().delay.count()));
     setTranspose(instrument.settings().transpose);
@@ -277,6 +278,7 @@ void TrackSettingsModel::reset()
     m_volumeEnabled = false;
     m_volume = m_defaultVolume;
     m_sendMidiClock = false;
+    m_sendTransport = false;
     m_delay = 0;
     m_transpose = 0;
 
@@ -316,6 +318,7 @@ TrackSettingsModel::InstrumentU TrackSettingsModel::toInstrument() const
         settings.predefinedMidiCcSettings.volume = m_volume;
     }
     settings.sendMidiClock = m_sendMidiClock;
+    settings.sendTransport = m_sendTransport;
     settings.delay = std::chrono::milliseconds { m_delay };
     settings.transpose = m_transpose;
     settings.midiCcSettings = midiCcSettings();
@@ -448,6 +451,22 @@ void TrackSettingsModel::setSendMidiClock(bool enabled)
     if (m_sendMidiClock != enabled) {
         m_sendMidiClock = enabled;
         emit sendMidiClockChanged();
+        applyAll();
+    }
+}
+
+bool TrackSettingsModel::sendTransport() const
+{
+    return m_sendTransport;
+}
+
+void TrackSettingsModel::setSendTransport(bool enabled)
+{
+    juzzlin::L(TAG).debug() << "Enabling transport: " << static_cast<int>(enabled);
+
+    if (m_sendTransport != enabled) {
+        m_sendTransport = enabled;
+        emit sendTransportChanged();
         applyAll();
     }
 }

@@ -441,6 +441,19 @@ Dialog {
                         ToolTip.text: qsTr("Send MIDI clock for this track")
                         onCheckedChanged: trackSettingsModel.sendMidiClock = checked
                     }
+                    CheckBox {
+                        id: sendTransport
+                        text: qsTr("Send transport")
+                        Layout.column: 2
+                        Layout.columnSpan: 2
+                        Layout.row: 0
+                        Layout.fillWidth: true
+                        ToolTip.delay: Constants.toolTipDelay
+                        ToolTip.timeout: Constants.toolTipTimeout
+                        ToolTip.visible: hovered
+                        ToolTip.text: qsTr("Send transport events (Start/Stop)")
+                        onCheckedChanged: trackSettingsModel.sendTransport = checked
+                    }
                     Label {
                         text: qsTr("Delay (ms):")
                         Layout.column: 5

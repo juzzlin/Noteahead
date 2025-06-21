@@ -42,6 +42,7 @@ private slots:
     void test_renderToEvents_positiveDelaySet_shouldApplyDelay();
     void test_renderToEvents_negativeDelaySet_shouldApplyShiftedDelay();
     void test_renderToEvents_noEvents_shouldAddStartAndEndOfSong();
+    void test_renderToEvents_noEvents_transportEnabled_shouldAddStartAndEndOfSong();
     void test_renderToEvents_noteOff_shouldMapNoteOff();
     void test_renderToEvents_playOrderSet_shouldRenderMultiplePatterns();
     void test_renderToEvents_singleEvent_shouldRenderEvent();

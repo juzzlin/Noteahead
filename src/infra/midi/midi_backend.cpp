@@ -124,6 +124,14 @@ void MidiBackend::sendClockPulse(MidiDeviceCR) const
 {
 }
 
+void MidiBackend::sendStart(MidiDeviceCR) const
+{
+}
+
+void MidiBackend::sendStop(MidiDeviceCR) const
+{
+}
+
 MidiBackend::~MidiBackend() = default;
 
 } // namespace noteahead

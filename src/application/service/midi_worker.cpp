@@ -15,11 +15,11 @@
 
 #include "midi_worker.hpp"
 
-#include "../contrib/SimpleLogger/src/simple_logger.hpp"
-#include "../domain/instrument.hpp"
-#include "../infra/midi/midi_backend_rt_midi.hpp"
-#include "../infra/midi/midi_cc_mapping.hpp"
-#include "instrument_request.hpp"
+#include "../../contrib/SimpleLogger/src/simple_logger.hpp"
+#include "../../domain/instrument.hpp"
+#include "../../infra/midi/midi_backend_rt_midi.hpp"
+#include "../../infra/midi/midi_cc_mapping.hpp"
+#include "../instrument_request.hpp"
 
 #include <chrono>
 
@@ -261,6 +261,30 @@ void MidiWorker::sendClock(QString portName)
         if (const auto device = m_midiBackend->deviceByPortName(portName.toStdString()); device) {
             m_midiBackend->openDevice(*device);
             m_midiBackend->sendClockPulse(*device);
+        }
+    } catch (const std::runtime_error & e) {
+        juzzlin::L(TAG).error() << e.what();
+    }
+}
+
+void MidiWorker::sendStart(QString portName)
+{
+    try {
+        if (const auto device = m_midiBackend->deviceByPortName(portName.toStdString()); device) {
+            m_midiBackend->openDevice(*device);
+            m_midiBackend->sendStart(*device);
+        }
+    } catch (const std::runtime_error & e) {
+        juzzlin::L(TAG).error() << e.what();
+    }
+}
+
+void MidiWorker::sendStop(QString portName)
+{
+    try {
+        if (const auto device = m_midiBackend->deviceByPortName(portName.toStdString()); device) {
+            m_midiBackend->openDevice(*device);
+            m_midiBackend->sendStop(*device);
         }
     } catch (const std::runtime_error & e) {
         juzzlin::L(TAG).error() << e.what();
