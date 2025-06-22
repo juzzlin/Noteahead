@@ -47,9 +47,6 @@ void PlayerService::setSong(SongS song)
 
 void PlayerService::initializeWorker()
 {
-    connect(m_playerWorker.get(), &PlayerWorker::songEnded, this, [this] {
-        stop();
-    });
     connect(m_playerWorker.get(), &PlayerWorker::tickUpdated, this, &PlayerService::tickUpdated, Qt::QueuedConnection);
     connect(m_playerWorker.get(), &PlayerWorker::isPlayingChanged, this, &PlayerService::isPlayingChanged, Qt::QueuedConnection);
     m_playerWorker->moveToThread(&m_playerWorkerThread);
