@@ -184,6 +184,7 @@ void Application::addVideoOptions(juzzlin::Argengine & ae)
     ae.addOption({ "--video-lead-out-time" }, [this](const std::string & value) { m_videoConfig.leadOutTime = std::chrono::milliseconds { std::stoul(value) }; }, false, "The lead-out time for the video to match audio in milliseconds. The default is 0 ms.");
 
     ae.addOption({ "--video-scrolling-text" }, [this](const std::string & value) { m_videoConfig.scrollingText = value; }, false, "An optional text to scroll during the video.");
+    ae.addOption({ "--video-type" }, [this](const std::string & value) { m_videoConfig.type = (value == "bars" ? VideoConfig::Type::Bars : VideoConfig::Type::Default); }, false, "Animation type: [default, bars]");
 }
 
 void Application::handleCommandLineArguments(int & argc, char ** argv)

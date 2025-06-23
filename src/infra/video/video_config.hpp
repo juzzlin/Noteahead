@@ -63,6 +63,14 @@ struct VideoConfig
 
     std::string scrollingText;
     double scrollingTextOpacity = 0.5;
+
+    enum class Type
+    {
+        Default,
+        Bars
+    };
+
+    Type type = Type::Default;
 };
 
 } // namespace noteahead

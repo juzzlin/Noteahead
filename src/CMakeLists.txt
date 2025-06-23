@@ -69,7 +69,8 @@ set(HEADER_FILES
   infra/midi/midi_device.hpp
   infra/settings.hpp
   infra/video/animation.hpp
-  infra/video/default_particle_animation.hpp
+  infra/video/bars_animation.hpp
+  infra/video/default_animation.hpp
   infra/video/video_config.hpp
   infra/video/video_generator.hpp
 )
@@ -133,7 +134,8 @@ set(SOURCE_FILES
   infra/midi/midi_device.cpp
   infra/settings.cpp
   infra/video/animation.cpp
-  infra/video/default_particle_animation.cpp
+  infra/video/bars_animation.cpp
+  infra/video/default_animation.cpp
   infra/video/video_generator.cpp
   main.cpp
 )

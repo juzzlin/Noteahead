@@ -43,6 +43,37 @@ public:
     virtual void renderAnimationFrame(QPainter & painter, size_t frameIndex, double currentTimeMs) = 0;
 
 protected:
+    struct AnimationFrame
+    {
+        struct Particle
+        {
+            enum class Role
+            {
+                Note,
+                Sparkle,
+                Flash
+            };
+
+            Role role = Role::Sparkle;
+
+            double x = 0;
+            double y = 0;
+            double vX = 0;
+            double vY = 0;
+            double aX = 0;
+            double aY = 0;
+            double r = 1.0;
+            double a = 0.99;
+            double t = 0;
+
+            int midiNote = 0;
+            size_t track = 0;
+        };
+
+        using ParticleList = std::vector<Particle>;
+        ParticleList particles;
+    };
+
     bool shouldEventPlay(const Event & event) const;
 
     size_t minTick() const;

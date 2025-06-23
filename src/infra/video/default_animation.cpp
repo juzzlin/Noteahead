@@ -13,7 +13,7 @@
 // You should have received a copy of the GNU General Public License
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
-#include "default_particle_animation.hpp"
+#include "default_animation.hpp"
 
 #include "../../application/note_converter.hpp"
 #include "../../application/service/mixer_service.hpp"
@@ -29,14 +29,14 @@
 
 namespace noteahead {
 
-static const auto TAG = "DefaultParticleAnimation";
+static const auto TAG = "DefaultAnimation";
 
-DefaultParticleAnimation::DefaultParticleAnimation(SongS song, const VideoConfig & config, MixerServiceS mixerService, size_t minTick, size_t maxTick)
+DefaultAnimation::DefaultAnimation(SongS song, const VideoConfig & config, MixerServiceS mixerService, size_t minTick, size_t maxTick)
   : Animation { song, config, mixerService, minTick, maxTick }
 {
 }
 
-void DefaultParticleAnimation::integrate(AnimationFrame & animationFrame, double dt, double floor)
+void DefaultAnimation::integrate(AnimationFrame & animationFrame, double dt, double floor)
 {
     for (auto && particle : animationFrame.particles) {
         particle.r *= particle.a;
@@ -53,7 +53,7 @@ void DefaultParticleAnimation::integrate(AnimationFrame & animationFrame, double
     }
 }
 
-DefaultParticleAnimation::AnimationFrame::Particle DefaultParticleAnimation::createNoteParticle(double x, double y, int note, double velocity, size_t track) const
+DefaultAnimation::AnimationFrame::Particle DefaultAnimation::createNoteParticle(double x, double y, int note, double velocity, size_t track) const
 {
     AnimationFrame::Particle particle;
     particle.role = AnimationFrame::Particle::Role::Note;
@@ -66,7 +66,7 @@ DefaultParticleAnimation::AnimationFrame::Particle DefaultParticleAnimation::cre
     return particle;
 }
 
-DefaultParticleAnimation::AnimationFrame::Particle DefaultParticleAnimation::createPrimaryParticle(double x, double y, int note, double velocity) const
+DefaultAnimation::AnimationFrame::Particle DefaultAnimation::createPrimaryParticle(double x, double y, int note, double velocity) const
 {
     AnimationFrame::Particle particle;
     particle.role = AnimationFrame::Particle::Role::Sparkle;
@@ -78,9 +78,9 @@ DefaultParticleAnimation::AnimationFrame::Particle DefaultParticleAnimation::cre
     return particle;
 }
 
-DefaultParticleAnimation::AnimationFrame::ParticleList DefaultParticleAnimation::createSecondaryParticles(double x, double y, int note) const
+DefaultAnimation::AnimationFrame::ParticleList DefaultAnimation::createSecondaryParticles(double x, double y, int note) const
 {
-    DefaultParticleAnimation::AnimationFrame::ParticleList particles;
+    DefaultAnimation::AnimationFrame::ParticleList particles;
     for (int i = 0; i < 5; i++) {
         AnimationFrame::Particle particle;
         particle.role = AnimationFrame::Particle::Role::Sparkle;
@@ -95,7 +95,7 @@ DefaultParticleAnimation::AnimationFrame::ParticleList DefaultParticleAnimation:
     return particles;
 }
 
-DefaultParticleAnimation::AnimationFrame::Particle DefaultParticleAnimation::createFlashParticle() const
+DefaultAnimation::AnimationFrame::Particle DefaultAnimation::createFlashParticle() const
 {
     AnimationFrame::Particle particle;
     particle.role = AnimationFrame::Particle::Role::Flash;
@@ -106,7 +106,7 @@ DefaultParticleAnimation::AnimationFrame::Particle DefaultParticleAnimation::cre
     return particle;
 }
 
-void DefaultParticleAnimation::generateAnimationFrames(const EventMap & events)
+void DefaultAnimation::generateAnimationFrames(const EventMap & events)
 {
     juzzlin::L(TAG).info() << "Generating animation frames..";
 
@@ -180,7 +180,7 @@ void DefaultParticleAnimation::generateAnimationFrames(const EventMap & events)
     }
 }
 
-QColor noteColor(int midiNote)
+static QColor noteColor(int midiNote)
 {
     const int minNote = 21;
     const int maxNote = 108;
@@ -197,7 +197,7 @@ QColor noteColor(int midiNote)
     return QColor::fromRgbF(static_cast<float>(red), static_cast<float>(green), 0, 1);
 }
 
-void DefaultParticleAnimation::renderLinesBetweenParticlesOnSameTrack(QPainter & painter, AnimationFrame & animationFrame) const
+void DefaultAnimation::renderLinesBetweenParticlesOnSameTrack(QPainter & painter, AnimationFrame & animationFrame) const
 {
     const auto maxRadius = config().height / static_cast<int>(song()->trackCount() + 1) / 3;
     std::map<int, std::vector<AnimationFrame::Particle *>> trackMap;
@@ -223,7 +223,7 @@ void DefaultParticleAnimation::renderLinesBetweenParticlesOnSameTrack(QPainter &
     }
 }
 
-void DefaultParticleAnimation::renderSparkleParticle(QPainter & painter, AnimationFrame::Particle & particle) const
+void DefaultAnimation::renderSparkleParticle(QPainter & painter, AnimationFrame::Particle & particle) const
 {
     painter.save();
     const auto color = noteColor(particle.midiNote);
@@ -235,7 +235,7 @@ void DefaultParticleAnimation::renderSparkleParticle(QPainter & painter, Animati
     painter.restore();
 }
 
-void DefaultParticleAnimation::renderNoteParticle(QPainter & painter, AnimationFrame::Particle & particle) const
+void DefaultAnimation::renderNoteParticle(QPainter & painter, AnimationFrame::Particle & particle) const
 {
     const auto maxRadius = config().height / static_cast<int>(song()->trackCount() + 1) / 3;
     if (const int textSize = static_cast<int>(particle.r * maxRadius * 2); textSize >= 1) {
@@ -256,7 +256,7 @@ void DefaultParticleAnimation::renderNoteParticle(QPainter & painter, AnimationF
     }
 }
 
-void DefaultParticleAnimation::renderFlashParticle(QPainter & painter, AnimationFrame::Particle & particle) const
+void DefaultAnimation::renderFlashParticle(QPainter & painter, AnimationFrame::Particle & particle) const
 {
     painter.save();
     painter.setOpacity(particle.r);
@@ -264,7 +264,7 @@ void DefaultParticleAnimation::renderFlashParticle(QPainter & painter, Animation
     painter.restore();
 }
 
-void DefaultParticleAnimation::renderParticles(QPainter & painter, AnimationFrame & animationFrame) const
+void DefaultAnimation::renderParticles(QPainter & painter, AnimationFrame & animationFrame) const
 {
     for (auto && particle : animationFrame.particles) {
         if (particle.role == AnimationFrame::Particle::Role::Sparkle) {
@@ -277,7 +277,7 @@ void DefaultParticleAnimation::renderParticles(QPainter & painter, AnimationFram
     }
 }
 
-void DefaultParticleAnimation::renderAnimationFrame(QPainter & painter, size_t frameIndex, double currentTimeMs)
+void DefaultAnimation::renderAnimationFrame(QPainter & painter, size_t frameIndex, double currentTimeMs)
 {
     const double tickDurationMs = 60'000.0 / (static_cast<double>(song()->beatsPerMinute() * song()->linesPerBeat() * song()->ticksPerLine()));
     const size_t currentTick = minTick() + static_cast<size_t>((currentTimeMs - static_cast<double>(config().leadInTime.count())) / tickDurationMs);

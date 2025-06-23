@@ -17,7 +17,8 @@
 
 #include "../../application/service/automation_service.hpp"
 #include "../../contrib/SimpleLogger/src/simple_logger.hpp"
-#include "default_particle_animation.hpp"
+#include "bars_animation.hpp"
+#include "default_animation.hpp"
 
 #include <algorithm>
 #include <future>
@@ -153,7 +154,8 @@ void VideoGenerator::run(SongS song, const VideoConfig & config)
 
     initialize(config);
 
-    m_animation = std::make_unique<DefaultParticleAnimation>(song, config, m_mixerService, m_minTick, m_maxTick);
+    m_animation = config.type == VideoConfig::Type::Bars ? std::unique_ptr<Animation>(std::make_unique<BarsAnimation>(song, config, m_mixerService, m_minTick, m_maxTick))
+                                                         : std::unique_ptr<Animation>(std::make_unique<DefaultAnimation>(song, config, m_mixerService, m_minTick, m_maxTick));
     m_animation->generateAnimationFrames(m_eventMap);
 
     generateVideoFrames(song, config);

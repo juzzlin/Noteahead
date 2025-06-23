@@ -13,62 +13,30 @@
 // You should have received a copy of the GNU General Public License
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef DEFAULT_PARTICLE_ANIMATION_HPP
-#define DEFAULT_PARTICLE_ANIMATION_HPP
+#ifndef DEFAULT_ANIMATION_H
+#define DEFAULT_ANIMATION_H
 
 #include "animation.hpp"
 
 #include <map>
-#include <vector>
 
 namespace noteahead {
 
-class DefaultParticleAnimation : public Animation
+class DefaultAnimation : public Animation
 {
 public:
-    explicit DefaultParticleAnimation(SongS song, const VideoConfig & config, MixerServiceS mixerService, size_t minTick, size_t maxTick);
+    explicit DefaultAnimation(SongS song, const VideoConfig & config, MixerServiceS mixerService, size_t minTick, size_t maxTick);
 
     void generateAnimationFrames(const EventMap & events) override;
 
     void renderAnimationFrame(QPainter & painter, size_t frameIndex, double currentTimeMs) override;
 
 private:
-    struct AnimationFrame
-    {
-        struct Particle
-        {
-            enum class Role
-            {
-                Note,
-                Sparkle,
-                Flash
-            };
-
-            Role role = Role::Sparkle;
-
-            double x = 0;
-            double y = 0;
-            double vX = 0;
-            double vY = 0;
-            double aX = 0;
-            double aY = 0;
-            double r = 1.0;
-            double a = 0.99;
-            double t = 0;
-
-            int midiNote = 0;
-            size_t track = 0;
-        };
-
-        using ParticleList = std::vector<Particle>;
-        ParticleList particles;
-    };
-
     void integrate(AnimationFrame & animationFrame, double dt, double floor);
 
-    DefaultParticleAnimation::AnimationFrame::Particle createFlashParticle() const;
-    DefaultParticleAnimation::AnimationFrame::Particle createNoteParticle(double x, double y, int note, double velocity, size_t track) const;
-    DefaultParticleAnimation::AnimationFrame::Particle createPrimaryParticle(double x, double y, int note, double velocity) const;
+    DefaultAnimation::AnimationFrame::Particle createFlashParticle() const;
+    DefaultAnimation::AnimationFrame::Particle createNoteParticle(double x, double y, int note, double velocity, size_t track) const;
+    DefaultAnimation::AnimationFrame::Particle createPrimaryParticle(double x, double y, int note, double velocity) const;
     AnimationFrame::ParticleList createSecondaryParticles(double x, double y, int note) const;
 
     void renderLinesBetweenParticlesOnSameTrack(QPainter & painter, AnimationFrame & animationFrame) const;
@@ -86,4 +54,4 @@ private:
 
 } // namespace noteahead
 
-#endif // DEFAULT_PARTICLE_ANIMATION_HPP
+#endif // DEFAULT_ANIMATION_H
