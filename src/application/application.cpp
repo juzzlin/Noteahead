@@ -150,6 +150,7 @@ void Application::addVideoOptions(juzzlin::Argengine & ae)
     ae.addOption({ "--video-image" }, [this](const std::string & value) { m_videoConfig.imagePath = value; }, false, "An optional background image for the video.");
     ae.addOption({ "--video-image-opacity" }, [this](const std::string & value) { m_videoConfig.imageOpacity = Utils::parseDecimal(value).value_or(0); }, false, "Opacity of the background image.");
     ae.addOption({ "--video-image-zoom-speed" }, [this](const std::string & value) { m_videoConfig.imageZoomSpeed = Utils::parseDecimal(value).value_or(0); }, false, "Zoom speed for the background image, e.g. 0.0001. The default is zero.");
+    ae.addOption({ "--video-image-rotation-speed" }, [this](const std::string & value) { m_videoConfig.imageRotationSpeed = Utils::parseDecimal(value).value_or(0); }, false, "Rotation speed for the background image, e.g. 0.0001. The default is zero.");
     ae.addOption({ "--video-logo" }, [this](const std::string & value) { m_videoConfig.logoPath = value; }, false, "An optional logo for the video.");
     ae.addOption({ "--video-logo-pos" }, [this](const std::string & value) {
         const auto valueString = QString::fromStdString(value);

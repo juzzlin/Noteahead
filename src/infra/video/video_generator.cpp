@@ -199,17 +199,33 @@ void renderTrackBackgrounds(VideoGenerator::SongS song, const VideoConfig & conf
 void renderImage(const VideoConfig & config, QPainter & painter, size_t frameIndex)
 {
     painter.save();
+
     if (!config.image.isNull()) {
+
+        // Fill the entire area with black first
+        painter.setPen(Qt::NoPen);
+        painter.setBrush(Qt::black);
+        painter.drawRect(QRect(0, 0, config.width, config.height));
+
         const int imageHeight = config.height;
         const double aspectRatio = static_cast<double>(config.image.width()) / config.image.height();
         const int imageWidth = static_cast<int>(imageHeight * aspectRatio);
+
         const double zoomFactor = 1.0 + static_cast<double>(frameIndex) * config.imageZoomSpeed;
         const double zoomedWidth = imageWidth * zoomFactor;
         const double zoomedHeight = imageHeight * zoomFactor;
         const double x = (config.width - zoomedWidth) / 2.0;
         const double y = (config.height - zoomedHeight) / 2.0;
+        const QPointF center(x + zoomedWidth / 2.0, y + zoomedHeight / 2.0);
 
         painter.setOpacity(config.imageOpacity);
+
+        // Translate to center, rotate, then draw
+        painter.translate(center);
+        const double rotation = static_cast<double>(frameIndex) * config.imageRotationSpeed;
+        painter.rotate(rotation); // rotate around center
+        painter.translate(-center); // move back
+
         painter.drawImage(QRectF { x, y, zoomedWidth, zoomedHeight }, config.image);
     }
     painter.restore();

@@ -41,6 +41,7 @@ struct VideoConfig
     std::string imagePath;
     double imageOpacity = 0.5;
     double imageZoomSpeed = 0;
+    double imageRotationSpeed = 0;
     QImage image;
 
     std::optional<std::string> flashTrackName;
