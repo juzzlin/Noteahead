@@ -29,23 +29,27 @@ MidiSettingsModel::MidiSettingsModel(SettingsServiceS settingsService, QObject *
 {
 }
 
-QStringList MidiSettingsModel::availableMidiPorts() const
+QStringList MidiSettingsModel::midiInPorts() const
 {
-    return m_availableMidiPorts;
+    return m_midiInPorts;
 }
 
-void MidiSettingsModel::setAvailableMidiPorts(QStringList portNames)
+void MidiSettingsModel::setMidiInPorts(QStringList portNames)
 {
-    const auto oldMidiPorts = m_availableMidiPorts;
-    m_availableMidiPorts = portNames;
-    if (!m_controllerPort.isEmpty() && !m_availableMidiPorts.contains(m_controllerPort)) {
-        m_availableMidiPorts.append(m_controllerPort);
+    m_settingPorts = true;
+
+    const auto oldMidiPorts = m_midiInPorts;
+    m_midiInPorts = portNames;
+    if (!m_controllerPort.isEmpty() && !m_midiInPorts.contains(m_controllerPort)) {
+        m_midiInPorts.append(m_controllerPort);
     }
 
-    if (m_availableMidiPorts != oldMidiPorts) {
-        juzzlin::L(TAG).info() << "Setting available MIDI ports to '" << m_availableMidiPorts.join(", ").toStdString() << "'";
-        emit availableMidiPortsChanged();
+    if (m_midiInPorts != oldMidiPorts) {
+        juzzlin::L(TAG).info() << "Setting available MIDI IN ports to '" << m_midiInPorts.join(", ").toStdString() << "'";
+        emit midiInPortsChanged();
     }
+
+    m_settingPorts = false;
 }
 
 QString MidiSettingsModel::controllerPort() const
@@ -55,11 +59,15 @@ QString MidiSettingsModel::controllerPort() const
 
 void MidiSettingsModel::setControllerPort(const QString & name)
 {
+    if (m_settingPorts) {
+        return;
+    }
+
     juzzlin::L(TAG).debug() << "Setting port name to " << std::quoted(name.toStdString());
     if (m_controllerPort != name) {
         m_controllerPort = name;
         m_settingsService->setControllerPort(name);
-        emit controllerPortChanged();
+        emit controllerPortChanged(name);
     }
 }
 

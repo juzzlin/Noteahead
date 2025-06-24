@@ -30,7 +30,7 @@ class MidiSettingsModel : public QObject
 {
     Q_OBJECT
 
-    Q_PROPERTY(QStringList availableMidiPorts READ availableMidiPorts NOTIFY availableMidiPortsChanged)
+    Q_PROPERTY(QStringList midiInPorts READ midiInPorts NOTIFY midiInPortsChanged)
     Q_PROPERTY(QString controllerPort READ controllerPort WRITE setControllerPort NOTIFY controllerPortChanged)
 
 public:
@@ -38,21 +38,23 @@ public:
     explicit MidiSettingsModel(SettingsServiceS settingsService, QObject * parent = nullptr);
     ~MidiSettingsModel() override;
 
-    QStringList availableMidiPorts() const;
-    void setAvailableMidiPorts(QStringList portNames);
+    QStringList midiInPorts() const;
+    void setMidiInPorts(QStringList portNames);
 
     QString controllerPort() const;
     void setControllerPort(const QString & name);
 
 signals:
-    void availableMidiPortsChanged();
-    void controllerPortChanged();
+    void midiInPortsChanged();
+    void controllerPortChanged(const QString & portName);
 
 private:
     SettingsServiceS m_settingsService;
 
+    QStringList m_midiInPorts;
     QString m_controllerPort;
-    QStringList m_availableMidiPorts;
+
+    bool m_settingPorts = false;
 };
 
 } // namespace noteahead

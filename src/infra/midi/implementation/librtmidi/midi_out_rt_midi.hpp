@@ -13,10 +13,10 @@
 // You should have received a copy of the GNU General Public License
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef MIDI_BACKEND_RT_MIDI_HPP
-#define MIDI_BACKEND_RT_MIDI_HPP
+#ifndef MIDI_OUT_RT_MIDI_HPP
+#define MIDI_OUT_RT_MIDI_HPP
 
-#include "midi_backend.hpp"
+#include "../../midi_out.hpp"
 
 #include <memory>
 #include <unordered_map>
@@ -25,13 +25,13 @@
 
 namespace noteahead {
 
-//! MIDI backend implementation on the RtMidi library.
-class MidiBackendRtMidi : public MidiBackend
+//! Implementation of the MIDI output backend using the RtMidi library.
+class MidiOutRtMidi : public MidiOut
 {
 public:
-    MidiBackendRtMidi() = default;
+    MidiOutRtMidi() = default;
 
-    void updateAvailableDevices() override;
+    void updateDevices() override;
 
     void openDevice(MidiDeviceCR device) override;
     void closeDevice(MidiDeviceCR device) override;
@@ -58,9 +58,9 @@ private:
 
     void sendMessage(MidiDeviceCR device, const Message & message) const;
 
-    std::unordered_map<size_t, std::unique_ptr<RtMidiOut>> m_midiPorts;
+    std::unordered_map<size_t, std::unique_ptr<RtMidiOut>> m_ports;
 };
 
 } // namespace noteahead
 
-#endif // MIDI_BACKEND_RT_MIDI_HPP
+#endif // MIDI_OUT_RT_MIDI_HPP

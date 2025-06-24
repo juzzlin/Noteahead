@@ -152,9 +152,9 @@ void Application::addVideoOptions(juzzlin::Argengine & ae)
         m_videoConfig.songPath = value; }, false, "The .nahd song to create a video from.");
 
     ae.addOption({ "--video-image" }, [this](const std::string & value) { m_videoConfig.imagePath = value; }, false, "An optional background image for the video.");
-    ae.addOption({ "--video-image-opacity" }, [this](const std::string & value) { m_videoConfig.imageOpacity = Utils::parseDecimal(value).value_or(0); }, false, "Opacity of the background image.");
-    ae.addOption({ "--video-image-zoom-speed" }, [this](const std::string & value) { m_videoConfig.imageZoomSpeed = Utils::parseDecimal(value).value_or(0); }, false, "Zoom speed for the background image, e.g. 0.0001. The default is zero.");
-    ae.addOption({ "--video-image-rotation-speed" }, [this](const std::string & value) { m_videoConfig.imageRotationSpeed = Utils::parseDecimal(value).value_or(0); }, false, "Rotation speed for the background image, e.g. 0.0001. The default is zero.");
+    ae.addOption({ "--video-image-opacity" }, [this](const std::string & value) { m_videoConfig.imageOpacity = Utils::Misc::parseDecimal(value).value_or(0); }, false, "Opacity of the background image.");
+    ae.addOption({ "--video-image-zoom-speed" }, [this](const std::string & value) { m_videoConfig.imageZoomSpeed = Utils::Misc::parseDecimal(value).value_or(0); }, false, "Zoom speed for the background image, e.g. 0.0001. The default is zero.");
+    ae.addOption({ "--video-image-rotation-speed" }, [this](const std::string & value) { m_videoConfig.imageRotationSpeed = Utils::Misc::parseDecimal(value).value_or(0); }, false, "Rotation speed for the background image, e.g. 0.0001. The default is zero.");
     ae.addOption({ "--video-logo" }, [this](const std::string & value) { m_videoConfig.logoPath = value; }, false, "An optional logo for the video.");
     ae.addOption({ "--video-logo-pos" }, [this](const std::string & value) {
         const auto valueString = QString::fromStdString(value);
@@ -164,9 +164,9 @@ void Application::addVideoOptions(juzzlin::Argengine & ae)
         } else {
             throw std::runtime_error { std::string { "Invalid syntax for size: " } + value};
         } }, false, "Position of the logo image. The default is 0,0.");
-    ae.addOption({ "--video-logo-fade-factor" }, [this](const std::string & value) { m_videoConfig.logoFadeFactor = Utils::parseDecimal(value).value_or(1.0); }, false, "Fade out factor for the logo, e.g. 0.99. The default is 1.0.");
+    ae.addOption({ "--video-logo-fade-factor" }, [this](const std::string & value) { m_videoConfig.logoFadeFactor = Utils::Misc::parseDecimal(value).value_or(1.0); }, false, "Fade out factor for the logo, e.g. 0.99. The default is 1.0.");
 
-    ae.addOption({ "--video-track-opacity" }, [this](const std::string & value) { m_videoConfig.trackOpacity = Utils::parseDecimal(value).value_or(0); }, false, "Opacity of the track lanes.");
+    ae.addOption({ "--video-track-opacity" }, [this](const std::string & value) { m_videoConfig.trackOpacity = Utils::Misc::parseDecimal(value).value_or(0); }, false, "Opacity of the track lanes.");
 
     ae.addOption({ "--video-flash-track" }, [this](const std::string & value) { m_videoConfig.flashTrackName = value; }, false, "Source track name for a flash effect.");
     ae.addOption({ "--video-flash-column" }, [this](const std::string & value) { m_videoConfig.flashColumnName = value; }, false, "Source column name for a flash effect.");
@@ -233,6 +233,7 @@ void Application::connectServices()
     connectMidiCcAutomationsModel();
     connectPitchBendAutomationsModel();
     connectTrackSettingsModel();
+    connectMidiSettingsModel();
 }
 
 void Application::connectApplicationService()
@@ -296,10 +297,32 @@ void Application::connectEditorService()
 
 void Application::connectMidiService()
 {
-    connect(m_midiService.get(), &MidiService::availableMidiPortsChanged, m_midiSettingsModel.get(), &MidiSettingsModel::setAvailableMidiPorts);
-    connect(m_midiService.get(), &MidiService::availableMidiPortsChanged, m_trackSettingsModel.get(), &TrackSettingsModel::setAvailableMidiPorts);
-    connect(m_midiService.get(), &MidiService::midiPortsAppeared, this, &Application::requestInstruments);
+    connect(m_midiService.get(), &MidiService::inputPortsChanged, m_midiSettingsModel.get(), &MidiSettingsModel::setMidiInPorts);
+    connect(m_midiService.get(), &MidiService::inputPortsChanged, this, &Application::applyMidiController);
+    connect(m_midiService.get(), &MidiService::outputPortsChanged, m_trackSettingsModel.get(), &TrackSettingsModel::setAvailableMidiPorts);
+    connect(m_midiService.get(), &MidiService::outputPortsAppeared, this, &Application::requestInstruments);
     connect(m_midiService.get(), &MidiService::statusTextRequested, m_applicationService.get(), &ApplicationService::statusTextRequested);
+
+    connect(m_midiService.get(), &MidiService::noteOnReceived, this, [this](quint8 channel, quint8 note, quint8 velocity) {
+        if (const auto instrument = m_editorService->instrument(m_editorService->position().track); instrument) {
+            juzzlin::L(TAG).debug() << "Live note ON " << Utils::Midi::midiNoteToNoteName(note) << " requested on instrument " << instrument->toString().toStdString();
+        } else {
+            juzzlin::L(TAG).info() << "No instrument set on track!";
+        }
+    });
+
+    connect(m_midiService.get(), &MidiService::noteOffReceived, this, [this](quint8 channel, quint8 note) {
+        if (const auto instrument = m_editorService->instrument(m_editorService->position().track); instrument) {
+            juzzlin::L(TAG).debug() << "Live note OFF " << Utils::Midi::midiNoteToNoteName(note) << " requested on instrument " << instrument->toString().toStdString();
+        } else {
+            juzzlin::L(TAG).info() << "No instrument set on track!";
+        }
+    });
+}
+
+void Application::connectMidiSettingsModel()
+{
+    connect(m_midiSettingsModel.get(), &MidiSettingsModel::controllerPortChanged, m_midiService.get(), &MidiService::setControllerPort);
 }
 
 void Application::connectMixerService()
@@ -431,7 +454,7 @@ void Application::requestInstruments(QStringList midiPorts)
 {
     for (auto && midiPort : midiPorts) {
         for (auto && [trackIndex, instrument] : m_editorService->instruments()) {
-            if (Utils::portNameMatchScore(instrument->midiAddress().portName().toStdString(), midiPort.toStdString()) > 0.75) {
+            if (Utils::Midi::portNameMatchScore(instrument->midiAddress().portName().toStdString(), midiPort.toStdString()) > 0.75) {
                 applyInstrument(trackIndex, *instrument);
             }
         }
@@ -464,6 +487,14 @@ void Application::applyMidiCcSettings(const Instrument & instrument)
     const InstrumentRequest instrumentRequest { InstrumentRequest::Type::ApplyMidiCc, instrument };
     juzzlin::L(TAG).info() << "Applying MIDI CC settings: " << instrumentRequest.instrument().toString().toStdString();
     m_midiService->handleInstrumentRequest(instrumentRequest);
+}
+
+void Application::applyMidiController()
+{
+    if (!m_settingsService->controllerPort().isEmpty()) {
+        juzzlin::L(TAG).info() << "Applying MIDI controller: " << m_settingsService->controllerPort().toStdString();
+        m_midiService->setControllerPort(m_settingsService->controllerPort());
+    }
 }
 
 void Application::applyAllInstruments()

@@ -28,6 +28,8 @@ set(HEADER_FILES
   application/service/application_service.hpp
   application/service/automation_service.hpp
   application/service/editor_service.hpp
+  application/service/midi_in_worker.hpp
+  application/service/midi_out_worker.hpp
   application/service/midi_service.hpp
   application/service/midi_worker.hpp
   application/service/mixer_service.hpp
@@ -64,10 +66,13 @@ set(HEADER_FILES
   domain/play_order.hpp
   domain/song.hpp
   domain/track.hpp
-  infra/midi/midi_backend.hpp
-  infra/midi/midi_backend_rt_midi.hpp
+  infra/midi/midi.hpp
+  infra/midi/midi_in.hpp
+  infra/midi/midi_out.hpp
   infra/midi/midi_cc_mapping.hpp
   infra/midi/midi_device.hpp
+  infra/midi/implementation/librtmidi/midi_in_rt_midi.hpp
+  infra/midi/implementation/librtmidi/midi_out_rt_midi.hpp
   infra/settings.hpp
   infra/video/animation.hpp
   infra/video/bars_animation.hpp
@@ -95,6 +100,8 @@ set(SOURCE_FILES
   application/service/application_service.cpp
   application/service/automation_service.cpp
   application/service/editor_service.cpp
+  application/service/midi_in_worker.cpp
+  application/service/midi_out_worker.cpp
   application/service/midi_service.cpp
   application/service/midi_worker.cpp
   application/service/mixer_service.cpp
@@ -130,10 +137,13 @@ set(SOURCE_FILES
   domain/play_order.cpp
   domain/song.cpp
   domain/track.cpp
-  infra/midi/midi_backend.cpp
-  infra/midi/midi_backend_rt_midi.cpp
+  infra/midi/midi.cpp
+  infra/midi/midi_in.cpp
+  infra/midi/midi_out.cpp
   infra/midi/midi_cc_mapping.cpp
   infra/midi/midi_device.cpp
+  infra/midi/implementation/librtmidi/midi_in_rt_midi.cpp
+  infra/midi/implementation/librtmidi/midi_out_rt_midi.cpp
   infra/settings.cpp
   infra/video/animation.cpp
   infra/video/bars_animation.cpp

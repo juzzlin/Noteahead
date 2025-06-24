@@ -1,5 +1,5 @@
 // This file is part of Noteahead.
-// Copyright (C) 2025 Jussi Lind <jussi.lind@iki.fi>
+// Copyright (C) 2024 Jussi Lind <jussi.lind@iki.fi>
 //
 // Noteahead is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -13,37 +13,20 @@
 // You should have received a copy of the GNU General Public License
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef MIDI_WORKER_HPP
-#define MIDI_WORKER_HPP
-
-#include <QObject>
+#include "midi_in.hpp"
 
 namespace noteahead {
 
-class MidiWorker : public QObject
+MidiIn::MidiIn() = default;
+
+void MidiIn::setCallbackForPort(const MidiDevice &, InputCallback)
 {
-    Q_OBJECT
+}
 
-public:
-    explicit MidiWorker(QObject * parent = nullptr);
-    virtual ~MidiWorker() override;
+void MidiIn::clearCallbacks()
+{
+}
 
-    Q_INVOKABLE void setIsPlaying(bool isPlaying);
-
-signals:
-    void portsChanged(QStringList portNames);
-    void portsAppeared(QStringList portNames);
-    void portsDisappeared(QStringList portNames);
-
-    void statusTextRequested(QString message);
-
-protected:
-    bool isPlaying() const;
-
-private:
-    std::atomic_bool m_isPlaying = false;
-};
+MidiIn::~MidiIn() = default;
 
 } // namespace noteahead
-
-#endif // MIDI_WORKER_HPP
