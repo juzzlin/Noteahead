@@ -10,7 +10,6 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 # These are needed only for the IDE
 set(HEADER_FILES
   application/application.hpp
-  application/config.hpp
   application/copy_manager.hpp
   application/instrument_request.hpp
   application/models/event_selection_model.hpp
@@ -34,6 +33,7 @@ set(HEADER_FILES
   application/service/player_service.hpp
   application/service/player_worker.hpp
   application/service/selection_service.hpp
+  application/service/settings_service.hpp
   application/service/util_service.hpp
   application/state_machine.hpp
   application/ui_logger.hpp
@@ -77,7 +77,6 @@ set(HEADER_FILES
 
 set(SOURCE_FILES
   application/application.cpp
-  application/config.cpp
   application/copy_manager.cpp
   application/instrument_request.cpp
   application/models/event_selection_model.cpp
@@ -100,6 +99,7 @@ set(SOURCE_FILES
   application/service/player_service.cpp
   application/service/player_worker.cpp
   application/service/selection_service.cpp
+  application/service/settings_service.cpp
   application/service/util_service.cpp
   application/state_machine.cpp
   application/ui_logger.cpp

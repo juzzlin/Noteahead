@@ -17,22 +17,18 @@
 
 #include <QSettings>
 
-namespace noteahead::settings {
+namespace noteahead::Settings {
 
 const auto autoNoteOffOffsetKey = "autoNoteOffOffset";
 
 const auto recentFilesArrayKey = "recentFilesArray";
-
 const auto recentFilesFilePathKey = "filePath";
 
 const auto settingsGroupEditor = "Editor";
-
 const auto settingsGroupMainWindow = "MainWindow";
-
 const auto settingsGroupMidi = "Midi";
 
 const auto stepKey = "step";
-
 const auto velocityKey = "velocity";
 
 const auto visibleLinesKey = "visibleLines";
@@ -148,4 +144,4 @@ void setVisibleLines(int visibleLines)
     settings.endGroup();
 }
 
-} // namespace noteahead::settings
+} // namespace noteahead::Settings

@@ -53,9 +53,9 @@ Dialog {
                         Layout.columnSpan: 5
                         Layout.row: 0
                         Layout.fillWidth: true
-                        value: config.visibleLines
+                        value: settingsService.visibleLines
                         editable: true
-                        onValueChanged: config.setVisibleLines(value)
+                        onValueChanged: settingsService.setVisibleLines(value)
                         Keys.onReturnPressed: focus = false
                         ToolTip.delay: Constants.toolTipDelay
                         ToolTip.timeout: Constants.toolTipTimeout
@@ -87,9 +87,9 @@ Dialog {
                         Layout.columnSpan: 5
                         Layout.row: 0
                         Layout.fillWidth: true
-                        value: config.autoNoteOffOffset()
+                        value: settingsService.autoNoteOffOffset()
                         editable: true
-                        onValueChanged: config.setAutoNoteOffOffset(value)
+                        onValueChanged: settingsService.setAutoNoteOffOffset(value)
                         Keys.onReturnPressed: focus = false
                         ToolTip.delay: Constants.toolTipDelay
                         ToolTip.timeout: Constants.toolTipTimeout

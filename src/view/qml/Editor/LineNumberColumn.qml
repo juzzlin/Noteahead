@@ -20,7 +20,7 @@ Rectangle {
         _createLines();
     }
     function _lineHeight() {
-        const lineCount = config.visibleLines;
+        const lineCount = settingsService.visibleLines;
         return rootItem.height / lineCount;
     }
     function _createLines() {
@@ -65,6 +65,6 @@ Rectangle {
         z: 2
     }
     Component.onCompleted: {
-        config.visibleLinesChanged.connect(_resizeLines);
+        settingsService.visibleLinesChanged.connect(_resizeLines);
     }
 }

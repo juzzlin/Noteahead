@@ -18,7 +18,7 @@
 
 #include <QSize>
 
-namespace noteahead::settings {
+namespace noteahead::Settings {
 
 int autoNoteOffOffset(int defaultAutoNoteOffOffset);
 
@@ -44,6 +44,6 @@ int visibleLines(int defaultVisibleLines);
 
 void setVisibleLines(int visibleLines);
 
-} // namespace noteahead::settings
+} // namespace noteahead::Settings
 
 #endif // SETTINGS_HPP

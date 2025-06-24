@@ -19,7 +19,6 @@
 #include "../contrib/SimpleLogger/src/simple_logger.hpp"
 #include "../infra/video/video_generator.hpp"
 #include "common/utils.hpp"
-#include "config.hpp"
 #include "models/event_selection_model.hpp"
 #include "models/midi_cc_automations_model.hpp"
 #include "models/note_column_line_container_helper.hpp"
@@ -35,6 +34,7 @@
 #include "service/mixer_service.hpp"
 #include "service/player_service.hpp"
 #include "service/selection_service.hpp"
+#include "service/settings_service.hpp"
 #include "service/util_service.hpp"
 #include "state_machine.hpp"
 #include "ui_logger.hpp"
@@ -55,13 +55,13 @@ Application::Application(int & argc, char ** argv)
   , m_application { std::make_unique<QGuiApplication>(argc, argv) }
   , m_applicationService { std::make_unique<ApplicationService>() }
   , m_automationService { std::make_unique<AutomationService>() }
-  , m_config { std::make_unique<Config>() }
+  , m_settingsService { std::make_unique<SettingsService>() }
   , m_selectionService { std::make_unique<SelectionService>() }
   , m_editorService { std::make_unique<EditorService>(m_selectionService) }
   , m_eventSelectionModel { std::make_unique<EventSelectionModel>() }
   , m_midiService { std::make_unique<MidiService>() }
   , m_mixerService { std::make_unique<MixerService>() }
-  , m_playerService { std::make_unique<PlayerService>(m_midiService, m_mixerService, m_automationService, m_config) }
+  , m_playerService { std::make_unique<PlayerService>(m_midiService, m_mixerService, m_automationService, m_settingsService) }
   , m_stateMachine { std::make_unique<StateMachine>(m_applicationService, m_editorService) }
   , m_recentFilesManager { std::make_unique<RecentFilesManager>() }
   , m_recentFilesModel { std::make_unique<RecentFilesModel>() }
@@ -71,7 +71,7 @@ Application::Application(int & argc, char ** argv)
   , m_utilService { std::make_unique<UtilService>() }
   , m_noteColumnLineContainerHelper { std::make_unique<NoteColumnLineContainerHelper>(
       m_automationService, m_editorService, m_selectionService, m_utilService) }
-  , m_noteColumnModelHandler { std::make_unique<NoteColumnModelHandler>(m_editorService, m_selectionService, m_automationService, m_config) }
+  , m_noteColumnModelHandler { std::make_unique<NoteColumnModelHandler>(m_editorService, m_selectionService, m_automationService, m_settingsService) }
   , m_engine { std::make_unique<QQmlApplicationEngine>() }
 {
     registerTypes();
@@ -97,7 +97,7 @@ void Application::registerTypes()
 
     qmlRegisterType<ApplicationService>("Noteahead", majorVersion, minorVersion, "ApplicationService");
     qmlRegisterType<AutomationService>("Noteahead", majorVersion, minorVersion, "AutomationService");
-    qmlRegisterType<Config>("Noteahead", majorVersion, minorVersion, "Config");
+    qmlRegisterType<SettingsService>("Noteahead", majorVersion, minorVersion, "SettingsService");
     qmlRegisterType<EditorService>("Noteahead", majorVersion, minorVersion, "EditorService");
     qmlRegisterType<EditorService>("Noteahead", majorVersion, minorVersion, "EventSelectionModel");
     qmlRegisterType<MidiCcAutomationsModel>("Noteahead", majorVersion, minorVersion, "MidiCcAutomationsModel");
@@ -119,7 +119,7 @@ void Application::setContextProperties()
 {
     m_engine->rootContext()->setContextProperty("applicationService", m_applicationService.get());
     m_engine->rootContext()->setContextProperty("automationService", m_automationService.get());
-    m_engine->rootContext()->setContextProperty("config", m_config.get());
+    m_engine->rootContext()->setContextProperty("settingsService", m_settingsService.get());
     m_engine->rootContext()->setContextProperty("editorService", m_editorService.get());
     m_engine->rootContext()->setContextProperty("eventSelectionModel", m_eventSelectionModel.get());
     m_engine->rootContext()->setContextProperty("midiCcAutomationsModel", m_midiCcAutomationsModel.get());
@@ -202,7 +202,7 @@ void Application::handleCommandLineArguments(int & argc, char ** argv)
     ae.addOption({ "--window-size" }, [this](const std::string & value) {
         const auto valueString = QString::fromStdString(value);
         if (const auto splitString = valueString.split("x"); splitString.size() == 2) {
-            m_config->setWindowSize({std::stoi(splitString.at(0).toStdString()), std::stoi(splitString.at(1).toStdString()) });
+            m_settingsService->setWindowSize({ std::stoi(splitString.at(0).toStdString()), std::stoi(splitString.at(1).toStdString()) });
         } else {
             throw std::runtime_error { std::string { "Invalid syntax for size: " } + value};
         } }, false, "Force the window size, e.g. '1920x1080'.");

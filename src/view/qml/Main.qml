@@ -235,9 +235,9 @@ ApplicationWindow {
     }
     function _setWindowSizeAndPosition(): void {
         const defaultWindowScale = Constants.defaultWindowScale;
-        width = config.windowSize(Qt.size(mainWindow.screen.width * defaultWindowScale, mainWindow.screen.height * defaultWindowScale)).width;
+        width = settingsService.windowSize(Qt.size(mainWindow.screen.width * defaultWindowScale, mainWindow.screen.height * defaultWindowScale)).width;
         width = Math.max(width, Constants.minWindowWidth);
-        height = config.windowSize(Qt.size(mainWindow.screen.width * defaultWindowScale, mainWindow.screen.height * defaultWindowScale)).height;
+        height = settingsService.windowSize(Qt.size(mainWindow.screen.width * defaultWindowScale, mainWindow.screen.height * defaultWindowScale)).height;
         height = Math.max(height, Constants.minWindowHeight);
         setX(mainWindow.screen.width / 2 - width / 2);
         setY(mainWindow.screen.height / 2 - height / 2);
@@ -422,7 +422,7 @@ ApplicationWindow {
                 editPitchBendAutomationsDialog.open();
             });
         UiService.quitRequested.connect(() => {
-                config.setWindowSize(Qt.size(mainWindow.width, mainWindow.height));
+                settingsService.setWindowSize(Qt.size(mainWindow.width, mainWindow.height));
                 applicationService.requestQuit();
             });
     }

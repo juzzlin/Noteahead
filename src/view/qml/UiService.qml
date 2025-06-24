@@ -42,26 +42,26 @@ QtObject {
         }
     }
     signal activeStepChanged(int activeStep)
-    property int _activeStep: config.step(1)
+    property int _activeStep: settingsService.step(1)
     function activeStep(): int {
         return _activeStep;
     }
     function setActiveStep(step): void {
         if (_activeStep !== step) {
             _activeStep = step;
-            config.setStep(step);
+            settingsService.setStep(step);
             activeStepChanged(_activeStep);
         }
     }
     signal activeVelocityChanged(int activeVelocity)
-    property int _activeVelocity: config.velocity(100)
+    property int _activeVelocity: settingsService.velocity(100)
     function activeVelocity(): int {
         return _activeVelocity;
     }
     function setActiveVelocity(velocity): void {
         if (_activeVelocity !== velocity) {
             _activeVelocity = velocity;
-            config.setVelocity(velocity);
+            settingsService.setVelocity(velocity);
             activeVelocityChanged(_activeVelocity);
         }
     }

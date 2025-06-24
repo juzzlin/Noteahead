@@ -13,14 +13,14 @@ namespace noteahead {
 
 static const auto TAG = "NoteColumnModelHandler";
 
-NoteColumnModelHandler::NoteColumnModelHandler(EditorServiceS editorService, SelectionServiceS selectionService, AutomationServiceS automationService, ConfigS config, QObject * parent)
+NoteColumnModelHandler::NoteColumnModelHandler(EditorServiceS editorService, SelectionServiceS selectionService, AutomationServiceS automationService, SettingsServiceS settingsService, QObject * parent)
   : QObject { parent }
   , m_editorService { editorService }
   , m_selectionService { selectionService }
   , m_automationService { automationService }
   , m_helper { std::make_unique<NoteColumnLineContainerHelper>(
       m_automationService, m_editorService, m_selectionService, std::make_unique<UtilService>()) }
-  , m_config { config }
+  , m_settingsService { settingsService }
 {
     connect(m_automationService.get(), &AutomationService::lineDataChanged, this, &NoteColumnModelHandler::updateIndexHighlightAtPosition);
 
@@ -81,7 +81,7 @@ QAbstractListModel * NoteColumnModelHandler::columnModel(quint64 pattern, quint6
 {
     if (const auto columnAddress = ColumnAddress { pattern, track, column }; !m_noteColumnModels.contains(columnAddress)) {
         juzzlin::L(TAG).debug() << "Creating note column model for pattern=" << pattern << ", track=" << track << ", column=" << column;
-        const auto model = new NoteColumnModel { columnAddress, m_editorService, m_helper, m_config, this };
+        const auto model = new NoteColumnModel { columnAddress, m_editorService, m_helper, m_settingsService, this };
         connectColumnModel(model);
         m_noteColumnModels[columnAddress] = model;
         return model;

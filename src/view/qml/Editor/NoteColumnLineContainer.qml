@@ -56,7 +56,7 @@ Rectangle {
             cacheBuffer: 2
             clip: true
             delegate: NoteColumnLineDelegate {
-                height: rootItem.height / config.visibleLines
+                height: rootItem.height / settingsService.visibleLines
                 width: listView.width
             }
             interactive: false

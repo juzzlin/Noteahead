@@ -35,7 +35,6 @@ namespace noteahead {
 
 class ApplicationService;
 class AutomationService;
-class Config;
 class EditorService;
 class EventSelectionModel;
 class Instrument;
@@ -49,6 +48,7 @@ class PlayerService;
 class RecentFilesManager;
 class RecentFilesModel;
 class SelectionService;
+class SettingsService;
 class TrackSettingsModel;
 class UiLogger;
 class UtilService;
@@ -106,7 +106,7 @@ private:
 
     std::shared_ptr<AutomationService> m_automationService;
 
-    std::shared_ptr<Config> m_config;
+    std::shared_ptr<SettingsService> m_settingsService;
 
     std::shared_ptr<SelectionService> m_selectionService;
     std::shared_ptr<EditorService> m_editorService;

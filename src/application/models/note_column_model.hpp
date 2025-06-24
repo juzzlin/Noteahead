@@ -24,7 +24,7 @@
 
 namespace noteahead {
 
-class Config;
+class SettingsService;
 class EditorService;
 class Line;
 class NoteColumnLineContainerHelper;
@@ -48,10 +48,10 @@ public:
 
     using ColumnAddress = std::tuple<quint64, quint64, quint64>;
     using ColumnAddressCR = const ColumnAddress &;
-    using ConfigS = std::shared_ptr<Config>;
+    using SettingsServiceS = std::shared_ptr<SettingsService>;
     using EditorServiceS = std::shared_ptr<EditorService>;
     using NoteColumnLineContainerHelperS = std::shared_ptr<NoteColumnLineContainerHelper>;
-    explicit NoteColumnModel(ColumnAddressCR columnAddress, EditorServiceS editorService, NoteColumnLineContainerHelperS helper, ConfigS config, QObject * parent = nullptr);
+    explicit NoteColumnModel(ColumnAddressCR columnAddress, EditorServiceS editorService, NoteColumnLineContainerHelperS helper, SettingsServiceS settingsService, QObject * parent = nullptr);
 
     int rowCount(const QModelIndex & parent = QModelIndex()) const override;
     QVariant data(const QModelIndex & index, int role = Qt::DisplayRole) const override;
@@ -88,7 +88,7 @@ private:
     ColumnAddress m_columnAddress;
     EditorServiceS m_editorService;
     NoteColumnLineContainerHelperS m_helper;
-    ConfigS m_config;
+    SettingsServiceS m_settingsService;
 
     LineList m_lines;
     std::unordered_map<quint64, quint64> m_focusedLines;

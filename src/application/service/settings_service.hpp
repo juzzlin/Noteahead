@@ -13,23 +13,23 @@
 // You should have received a copy of the GNU General Public License
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef CONFIG_HPP
-#define CONFIG_HPP
+#ifndef SETTINGS_SERVICE_H
+#define SETTINGS_SERVICE_H
 
 #include <QObject>
 #include <QSize>
 
 namespace noteahead {
 
-class Config : public QObject
+class SettingsService : public QObject
 {
     Q_OBJECT
 
     Q_PROPERTY(int visibleLines READ visibleLines WRITE setVisibleLines NOTIFY visibleLinesChanged)
 
 public:
-    Config();
-    ~Config() override;
+    SettingsService();
+    ~SettingsService() override;
 
     Q_INVOKABLE int autoNoteOffOffset() const;
     Q_INVOKABLE void setAutoNoteOffOffset(int autoNoteOffOffset);
@@ -55,4 +55,4 @@ private:
 
 } // namespace noteahead
 
-#endif // CONFIG_HPP
+#endif // SETTINGS_SERVICE_H

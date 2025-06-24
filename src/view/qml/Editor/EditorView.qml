@@ -284,7 +284,7 @@ FocusScope {
         return Constants.lineNumberColumnWidth;
     }
     function _positionBarHeight() {
-        return _lineNumberColumnHeight() / config.visibleLines;
+        return _lineNumberColumnHeight() / settingsService.visibleLines;
     }
     function _positionBarY() {
         return editorService.positionBarLine() * _positionBarHeight() + Constants.trackHeaderHeight + Constants.columnHeaderHeight;

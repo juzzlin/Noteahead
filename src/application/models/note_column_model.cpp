@@ -15,8 +15,8 @@
 
 #include "note_column_model.hpp"
 
-#include "../../application/config.hpp"
 #include "../../application/service/editor_service.hpp"
+#include "../../application/service/settings_service.hpp"
 #include "../../domain/line.hpp"
 #include "../note_converter.hpp"
 #include "note_column_line_container_helper.hpp"
@@ -25,20 +25,20 @@
 
 namespace noteahead {
 
-NoteColumnModel::NoteColumnModel(ColumnAddressCR columnAddress, EditorServiceS editorService, NoteColumnLineContainerHelperS helper, ConfigS config, QObject * parent)
+NoteColumnModel::NoteColumnModel(ColumnAddressCR columnAddress, EditorServiceS editorService, NoteColumnLineContainerHelperS helper, SettingsServiceS settingsService, QObject * parent)
   : QAbstractListModel { parent }
   , m_columnAddress { columnAddress }
   , m_editorService { editorService }
   , m_helper { helper }
-  , m_config { config }
+  , m_settingsService { settingsService }
 {
-    connect(m_config.get(), &Config::visibleLinesChanged, this, &NoteColumnModel::updateRowCount);
+    connect(m_settingsService.get(), &SettingsService::visibleLinesChanged, this, &NoteColumnModel::updateRowCount);
 }
 
 int NoteColumnModel::rowCount(const QModelIndex & parent) const
 {
     // As ListView cannot scroll beyond its last line, we'll need a hack
-    const int virtualLineCount = m_config->visibleLines();
+    const int virtualLineCount = m_settingsService->visibleLines();
     return parent.isValid() ? 0 : static_cast<int>(m_lines.size()) + virtualLineCount;
 }
 

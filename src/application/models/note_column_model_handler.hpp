@@ -12,11 +12,12 @@ class QAbstractListModel;
 namespace noteahead {
 
 class AutomationService;
-class Config;
 class EditorService;
-class NoteColumnModel;
 class NoteColumnLineContainerHelper;
+class NoteColumnModel;
 class SelectionService;
+class SettingsService;
+
 struct Position;
 
 //! Manages all the note column models.
@@ -25,12 +26,12 @@ class NoteColumnModelHandler : public QObject
     Q_OBJECT
 
 public:
-    using ConfigS = std::shared_ptr<Config>;
+    using SettingsServiceS = std::shared_ptr<SettingsService>;
     using EditorServiceS = std::shared_ptr<EditorService>;
     using SelectionServiceS = std::shared_ptr<SelectionService>;
     using AutomationServiceS = std::shared_ptr<AutomationService>;
     using NoteColumnLineContainerHelperS = std::shared_ptr<NoteColumnLineContainerHelper>;
-    explicit NoteColumnModelHandler(EditorServiceS editorService, SelectionServiceS selectionService, AutomationServiceS automationService, ConfigS config, QObject * parent = nullptr);
+    explicit NoteColumnModelHandler(EditorServiceS editorService, SelectionServiceS selectionService, AutomationServiceS automationService, SettingsServiceS settingsService, QObject * parent = nullptr);
     virtual ~NoteColumnModelHandler() override;
 
     Q_INVOKABLE QAbstractListModel * columnModel(quint64 pattern, quint64 track, quint64 column);
@@ -60,7 +61,7 @@ private:
     SelectionServiceS m_selectionService;
     AutomationServiceS m_automationService;
     NoteColumnLineContainerHelperS m_helper;
-    ConfigS m_config;
+    SettingsServiceS m_settingsService;
 
     using NoteColumnModelMap = std::map<ColumnAddress, NoteColumnModelP>;
     NoteColumnModelMap m_noteColumnModels;

@@ -17,8 +17,8 @@
 
 #include "../../contrib/SimpleLogger/src/simple_logger.hpp"
 #include "../../domain/song.hpp"
-#include "../config.hpp"
 #include "player_worker.hpp"
+#include "settings_service.hpp"
 
 #include <QThread>
 
@@ -26,9 +26,9 @@ namespace noteahead {
 
 static const auto TAG = "PlayerService";
 
-PlayerService::PlayerService(MidiServiceS midiService, MixerServiceS mixerService, AutomationServiceS automationService, ConfigS config, QObject * parent)
+PlayerService::PlayerService(MidiServiceS midiService, MixerServiceS mixerService, AutomationServiceS automationService, SettingsServiceS settingsService, QObject * parent)
   : QObject { parent }
-  , m_config { config }
+  , m_settingsService { settingsService }
   , m_automationService { automationService }
   , m_playerWorker { std::make_unique<PlayerWorker>(midiService, mixerService) }
 {
@@ -56,7 +56,7 @@ void PlayerService::initializeWorker()
 void PlayerService::initializeWorkerWithSongData()
 {
     const PlayerWorker::Timing timing { m_song->beatsPerMinute(), m_song->linesPerBeat(), m_song->ticksPerLine() };
-    m_song->setAutoNoteOffOffset(std::chrono::milliseconds { m_config->autoNoteOffOffset() });
+    m_song->setAutoNoteOffOffset(std::chrono::milliseconds { m_settingsService->autoNoteOffOffset() });
     if (m_playerWorker->isLooping()) {
         m_playerWorker->initialize(m_song->renderToEvents(m_automationService, m_songPosition, m_songPosition + 1), timing);
     } else {
