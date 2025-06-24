@@ -70,10 +70,10 @@ void VideoGenerator::initialize(const VideoConfig & config, SongS song)
 
 void VideoGenerator::ensureInputFilesExist(const VideoConfig & config)
 {
-    Utils::ensureFileExists(config.audioPath);
-    Utils::ensureFileExists(config.imagePath);
-    Utils::ensureFileExists(config.logoPath);
-    Utils::ensureFileExists(config.songPath);
+    Utils::Misc::ensureFileExists(config.audioPath);
+    Utils::Misc::ensureFileExists(config.imagePath);
+    Utils::Misc::ensureFileExists(config.logoPath);
+    Utils::Misc::ensureFileExists(config.songPath);
 }
 
 void VideoGenerator::generateVideoFrames(SongS song, const VideoConfig & config)

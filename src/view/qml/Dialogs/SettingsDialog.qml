@@ -92,7 +92,7 @@ Dialog {
                             }
                             ComboBox {
                                 id: portNameDropdown
-                                model: midiSettingsModel.availableMidiPorts
+                                model: midiSettingsModel.midiInPorts
                                 currentIndex: 0
                                 Layout.column: 2
                                 Layout.columnSpan: 7
@@ -111,7 +111,7 @@ Dialog {
                                 onCurrentTextChanged: midiSettingsModel.controllerPort = currentText
                                 Connections {
                                     target: midiSettingsModel
-                                    function onAvailableMidiPortsChanged() {
+                                    function onMidiInPortsChanged() {
                                         portNameDropdown.updateSelection();
                                     }
                                 }

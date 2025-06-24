@@ -13,11 +13,10 @@
 // You should have received a copy of the GNU General Public License
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
-#include "midi_backend_rt_midi.hpp"
+#include "midi_out_rt_midi.hpp"
 
-#include "midi_cc_mapping.hpp"
-
-#include "../../contrib/SimpleLogger/src/simple_logger.hpp"
+#include "../../../contrib/SimpleLogger/src/simple_logger.hpp"
+#include "../../midi_cc_mapping.hpp"
 
 #include <memory>
 #include <stdexcept>
@@ -26,53 +25,53 @@ namespace noteahead {
 
 static const auto TAG = "MidiBackendRtMidi";
 
-void MidiBackendRtMidi::updateAvailableDevices()
+void MidiOutRtMidi::updateDevices()
 {
     RtMidiOut tempMidiOut; // Temporary instance to list devices
-    MidiDeviceList devices = {};
+    DeviceList devices = {};
     const size_t portCount = tempMidiOut.getPortCount();
     for (uint8_t i = 0; i < portCount; ++i) {
         devices.push_back(std::make_shared<MidiDevice>(i, tempMidiOut.getPortName(i)));
     }
     setDevices(devices);
     invalidatePortNameCache();
-    m_midiPorts.clear();
+    m_ports.clear();
 }
 
-void MidiBackendRtMidi::openDevice(MidiDeviceCR device)
+void MidiOutRtMidi::openDevice(MidiDeviceCR device)
 {
-    if (!m_midiPorts.contains(device.portIndex())) {
+    if (!m_ports.contains(device.portIndex())) {
         if (auto && midiOut = std::make_unique<RtMidiOut>(); device.portIndex() >= midiOut->getPortCount()) {
             throw std::runtime_error { "Invalid MIDI port index: " + std::to_string(device.portIndex()) };
         } else {
             midiOut->openPort(static_cast<uint8_t>(device.portIndex()));
-            m_midiPorts[device.portIndex()] = std::move(midiOut);
+            m_ports[device.portIndex()] = std::move(midiOut);
         }
     }
 }
 
-void MidiBackendRtMidi::closeDevice(MidiDeviceCR device)
+void MidiOutRtMidi::closeDevice(MidiDeviceCR device)
 {
-    if (auto && it = m_midiPorts.find(device.portIndex()); it != m_midiPorts.end()) {
-        m_midiPorts.erase(it);
+    if (auto && it = m_ports.find(device.portIndex()); it != m_ports.end()) {
+        m_ports.erase(it);
     }
 }
 
-std::string MidiBackendRtMidi::midiApiName() const
+std::string MidiOutRtMidi::midiApiName() const
 {
     return RtMidi::getApiDisplayName(RtMidiOut {}.getCurrentApi());
 }
 
-void MidiBackendRtMidi::sendMessage(MidiDeviceCR device, const Message & message) const
+void MidiOutRtMidi::sendMessage(MidiDeviceCR device, const Message & message) const
 {
-    if (auto && it = m_midiPorts.find(device.portIndex()); it == m_midiPorts.end()) {
+    if (auto && it = m_ports.find(device.portIndex()); it == m_ports.end()) {
         throw std::runtime_error { "Device not opened." };
     } else {
         it->second->sendMessage(&message);
     }
 }
 
-void MidiBackendRtMidi::sendCcData(MidiDeviceCR device, uint8_t channel, uint8_t controller, uint8_t value) const
+void MidiOutRtMidi::sendCcData(MidiDeviceCR device, uint8_t channel, uint8_t controller, uint8_t value) const
 {
     const Message message = { static_cast<unsigned char>(0xB0 | (channel & 0x0F)),
                               static_cast<unsigned char>(controller),
@@ -80,7 +79,7 @@ void MidiBackendRtMidi::sendCcData(MidiDeviceCR device, uint8_t channel, uint8_t
     sendMessage(device, message);
 }
 
-void MidiBackendRtMidi::sendNoteOn(MidiDeviceCR device, uint8_t channel, uint8_t note, uint8_t velocity) const
+void MidiOutRtMidi::sendNoteOn(MidiDeviceCR device, uint8_t channel, uint8_t note, uint8_t velocity) const
 {
     const Message message = { static_cast<unsigned char>(0x90 | (channel & 0x0F)),
                               static_cast<unsigned char>(note),
@@ -88,10 +87,10 @@ void MidiBackendRtMidi::sendNoteOn(MidiDeviceCR device, uint8_t channel, uint8_t
 
     sendMessage(device, message);
 
-    MidiBackend::sendNoteOn(device, channel, note, velocity);
+    MidiOut::sendNoteOn(device, channel, note, velocity);
 }
 
-void MidiBackendRtMidi::sendNoteOff(MidiDeviceCR device, uint8_t channel, uint8_t note) const
+void MidiOutRtMidi::sendNoteOff(MidiDeviceCR device, uint8_t channel, uint8_t note) const
 {
     const Message message = { static_cast<unsigned char>(0x80 | (channel & 0x0F)),
                               static_cast<unsigned char>(note),
@@ -99,10 +98,10 @@ void MidiBackendRtMidi::sendNoteOff(MidiDeviceCR device, uint8_t channel, uint8_
 
     sendMessage(device, message);
 
-    MidiBackend::sendNoteOff(device, channel, note);
+    MidiOut::sendNoteOff(device, channel, note);
 }
 
-void MidiBackendRtMidi::sendPatchChange(MidiDeviceCR device, uint8_t channel, uint8_t patch) const
+void MidiOutRtMidi::sendPatchChange(MidiDeviceCR device, uint8_t channel, uint8_t patch) const
 {
     const Message message = { static_cast<unsigned char>(0xC0 | (channel & 0x0F)),
                               static_cast<unsigned char>(patch) };
@@ -110,13 +109,13 @@ void MidiBackendRtMidi::sendPatchChange(MidiDeviceCR device, uint8_t channel, ui
     sendMessage(device, message);
 }
 
-void MidiBackendRtMidi::sendBankChange(MidiDeviceCR device, uint8_t channel, uint8_t msb, uint8_t lsb) const
+void MidiOutRtMidi::sendBankChange(MidiDeviceCR device, uint8_t channel, uint8_t msb, uint8_t lsb) const
 {
     sendCcData(device, channel, static_cast<uint8_t>(MidiCcMapping::Controller::BankSelectMSB), msb);
     sendCcData(device, channel, static_cast<uint8_t>(MidiCcMapping::Controller::BankSelectLSB), lsb);
 }
 
-void MidiBackendRtMidi::sendPitchBendData(MidiDeviceCR device, uint8_t channel, uint8_t msb, uint8_t lsb) const
+void MidiOutRtMidi::sendPitchBendData(MidiDeviceCR device, uint8_t channel, uint8_t msb, uint8_t lsb) const
 {
     const Message message = {
         static_cast<unsigned char>(0xE0 | (channel & 0x0F)),
@@ -127,7 +126,7 @@ void MidiBackendRtMidi::sendPitchBendData(MidiDeviceCR device, uint8_t channel, 
     sendMessage(device, message);
 }
 
-void MidiBackendRtMidi::stopAllNotes(MidiDeviceCR device, uint8_t channel) const
+void MidiOutRtMidi::stopAllNotes(MidiDeviceCR device, uint8_t channel) const
 {
     sendCcData(device, channel, static_cast<uint8_t>(MidiCcMapping::Controller::AllNotesOff), 0);
 
@@ -139,17 +138,17 @@ void MidiBackendRtMidi::stopAllNotes(MidiDeviceCR device, uint8_t channel) const
     }
 }
 
-void MidiBackendRtMidi::sendClockPulse(MidiDeviceCR device) const
+void MidiOutRtMidi::sendClockPulse(MidiDeviceCR device) const
 {
     sendMessage(device, { 0xF8 });
 }
 
-void MidiBackendRtMidi::sendStart(MidiDeviceCR device) const
+void MidiOutRtMidi::sendStart(MidiDeviceCR device) const
 {
     sendMessage(device, { 0xFA });
 }
 
-void MidiBackendRtMidi::sendStop(MidiDeviceCR device) const
+void MidiOutRtMidi::sendStop(MidiDeviceCR device) const
 {
     sendMessage(device, { 0xFC });
 }

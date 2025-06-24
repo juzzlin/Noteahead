@@ -27,24 +27,23 @@
 namespace noteahead {
 
 class Instrument;
-class MidiBackend;
+class MidiOut;
 class MidiCcData;
 class MidiNoteData;
-class MidiWorker;
+class MidiInWorker;
+class MidiOutWorker;
 class PitchBendData;
 
 class MidiService : public QObject
 {
     Q_OBJECT
 
-    Q_PROPERTY(QStringList availableMidiPorts READ availableMidiPorts NOTIFY availableMidiPortsChanged)
-
 public:
     explicit MidiService(QObject * parent = nullptr);
 
     ~MidiService() override;
 
-    Q_INVOKABLE QStringList availableMidiPorts() const;
+    Q_INVOKABLE QStringList outputPorts() const;
 
     // QML API
     Q_INVOKABLE void setIsPlaying(bool isPlaying);
@@ -66,25 +65,50 @@ public:
 
 public slots:
     void handleInstrumentRequest(const InstrumentRequest & instrumentRequest);
+    void setControllerPort(QString portName);
 
 signals:
-    void availableMidiPortsChanged(const QStringList & availableMidiPorts);
-    void midiPortsAppeared(const QStringList & midiPorts);
-    void midiPortsDisappeared(const QStringList & midiPorts);
 
+    //! MIDI OUT signals
+    void outputPortsChanged(const QStringList & portNames);
+    void outputPortsAppeared(const QStringList & portNames);
+    void outputPortsDisappeared(const QStringList & portNames);
+
+    //! MIDI IN signals
+    void inputPortsChanged(const QStringList & portNames);
+    void inputPortsAppeared(const QStringList & portNames);
+    void inputPortsDisappeared(const QStringList & portNames);
+    void controllerPortChanged(QString portName);
+
+    void noteOnReceived(quint8 channel, quint8 note, quint8 velocity);
+    void noteOffReceived(quint8 channel, quint8 note);
+    void polyAftertouchReceived(quint8 channel, quint8 note, quint8 pressure);
+    void aftertouchReceived(quint8 channel, quint8 pressure); // Channel pressure
+    void controlChangeReceived(quint8 channel, quint8 controller, quint8 value);
+    void programChangeReceived(quint8 channel, quint8 program);
+    void pitchBendReceived(quint8 channel, quint16 value); // 0–16383, center = 8192
+    void rpnReceived(quint8 channel, quint8 msb, quint8 lsb, quint16 value);
+    void nrpnReceived(quint8 channel, quint8 msb, quint8 lsb, quint16 value);
+    void sysExReceived(const QByteArray & data);
+
+    //! General signals
     void statusTextRequested(QString message);
-
     void instrumentRequestHandlingRequested(const InstrumentRequest & instrumentRequest);
 
 private:
-    void initializeWorker();
+    void initializeWorkers();
+    void initializeInputWorker();
+    void initializeOutputWorker();
     void invokeSimpleFunction(MidiService::InstrumentW instrument, QString functionName);
 
-    std::mutex m_workerMutex; // Calls to this service may become directly from PlayerWorker and also live notes from other sources
-    std::unique_ptr<MidiWorker> m_midiWorker;
-    QThread m_midiWorkerThread;
+    std::mutex m_outputWorkerMutex; // Calls to this service may become directly from PlayerWorker and also live notes from other sources
+    std::unique_ptr<MidiOutWorker> m_outputWorker;
+    QThread m_outputWorkerThread;
+    QStringList m_outputPorts;
 
-    QStringList m_availableMidiPorts;
+    std::unique_ptr<MidiInWorker> m_inputWorker;
+    QThread m_inputWorkerThread;
+    QStringList m_inputPorts;
 };
 
 } // namespace noteahead

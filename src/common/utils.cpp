@@ -17,35 +17,69 @@
 
 #include "constants.hpp"
 
+#include <algorithm>
+#include <array>
 #include <charconv>
+#include <string>
 
 #include <QXmlStreamReader>
 
 namespace noteahead::Utils {
-
+namespace Midi {
+double portNameMatchScore(const std::string & s1, const std::string & s2)
+{
+    if (s1.empty() || s2.empty()) {
+        return 0;
+    } else if (s1 == s2) {
+        return 1;
+    } else {
+        size_t count = 0;
+        while (count < s1.size() && count < s2.size() && s1.at(count) == s2.at(count)) {
+            count++;
+        }
+        return static_cast<double>(count) / static_cast<double>(std::max(s1.size(), s2.size()));
+    }
+}
+std::string midiNoteToNoteName(quint8 note)
+{
+    static const std::array<std::string, 12> noteNames = {
+        "C-", "C#", "D-", "D#", "E-", "F-",
+        "F#", "G-", "G#", "A-", "A#", "B-"
+    };
+    if (note > 127) {
+        return "N/A";
+    } else {
+        const size_t noteIndex = note % 12;
+        // NOTE!!: Negative octave for note = 0 is "industry standard"
+        const auto octave = (note / 12) - 1;
+        return noteNames.at(noteIndex) + std::to_string(octave);
+    }
+}
+} // namespace Midi
+namespace Misc {
 void ensureFileExists(const std::filesystem::path & filePath)
 {
     if (!filePath.empty() && !std::filesystem::exists(filePath)) {
         throw std::runtime_error("File does not exist: " + filePath.string());
     }
 }
-double portNameMatchScore(const std::string & s1, const std::string & s2)
+std::optional<double> parseDecimal(std::string_view str)
 {
-    if (s1.empty() || s2.empty()) {
-        return 0;
+    double value;
+    if (const auto [ptr, ec] = std::from_chars(str.begin(), str.end(), value); ec == std::errc()) {
+        return value;
+    } else {
+        return std::nullopt;
     }
-
-    if (s1 == s2) {
-        return 1;
-    }
-
-    size_t count = 0;
-    while (count < s1.size() && count < s2.size() && s1.at(count) == s2.at(count)) {
-        count++;
-    }
-
-    return static_cast<double>(count) / static_cast<double>(std::max(s1.size(), s2.size()));
 }
+QStringList stdStringVectorToQStringList(const std::vector<std::string> & stringVector)
+{
+    QStringList stringList;
+    std::ranges::transform(stringVector, std::back_inserter(stringList),
+                           [](const auto & string) { return QString::fromStdString(string); });
+    return stringList;
+}
+} // namespace Misc
 namespace Xml {
 std::optional<bool> readBoolAttribute(QXmlStreamReader & reader, QString name, bool required)
 {
@@ -87,7 +121,6 @@ std::optional<QString> readStringAttribute(QXmlStreamReader & reader, QString na
 {
     if (!reader.attributes().hasAttribute(name)) {
         if (required) {
-
             throw std::runtime_error { "Attribute '" + name.toStdString() + "' not found!" };
         }
         return {};
@@ -96,13 +129,4 @@ std::optional<QString> readStringAttribute(QXmlStreamReader & reader, QString na
     }
 }
 } // namespace Xml
-
-std::optional<double> parseDecimal(std::string_view str)
-{
-    double value;
-    if (const auto [ptr, ec] = std::from_chars(str.begin(), str.end(), value); ec == std::errc()) {
-        return value;
-    }
-    return std::nullopt;
-}
 } // namespace noteahead::Utils

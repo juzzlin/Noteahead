@@ -19,21 +19,29 @@
 #include <filesystem>
 #include <optional>
 #include <string>
+#include <vector>
 
 #include <QString>
+#include <QStringList>
 
 class QXmlStreamReader;
 
 namespace noteahead::Utils {
+namespace Misc {
 void ensureFileExists(const std::filesystem::path & filePath);
+QStringList stdStringVectorToQStringList(const std::vector<std::string> & stringVector);
+std::optional<double> parseDecimal(std::string_view string);
+} // namespace Misc
+namespace Midi {
 double portNameMatchScore(const std::string & s1, const std::string & s2);
+std::string midiNoteToNoteName(quint8 note);
+} // namespace Midi
 namespace Xml {
 std::optional<bool> readBoolAttribute(QXmlStreamReader & reader, QString name, bool required = true);
 std::optional<int> readIntAttribute(QXmlStreamReader & reader, QString name, bool required = true);
 std::optional<size_t> readUIntAttribute(QXmlStreamReader & reader, QString name, bool required = true);
 std::optional<QString> readStringAttribute(QXmlStreamReader & reader, QString name, bool required = true);
 } // namespace Xml
-std::optional<double> parseDecimal(std::string_view string);
 } // namespace noteahead::Utils
 
 #endif // UTILS_HPP
