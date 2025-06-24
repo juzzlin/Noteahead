@@ -334,7 +334,7 @@ QString TrackSettingsModel::portName() const
 
 void TrackSettingsModel::setPortName(const QString & name)
 {
-    juzzlin::L(TAG).debug() << "Setting port name to '" << name.toStdString() << "'";
+    juzzlin::L(TAG).debug() << "Setting port name to " << std::quoted(name.toStdString());
 
     if (m_portName != name) {
         m_portName = name;

@@ -21,6 +21,7 @@
 #include "common/utils.hpp"
 #include "models/event_selection_model.hpp"
 #include "models/midi_cc_automations_model.hpp"
+#include "models/midi_settings_model.hpp"
 #include "models/note_column_line_container_helper.hpp"
 #include "models/note_column_model_handler.hpp"
 #include "models/pitch_bend_automations_model.hpp"
@@ -68,6 +69,7 @@ Application::Application(int & argc, char ** argv)
   , m_midiCcAutomationsModel { std::make_unique<MidiCcAutomationsModel>() }
   , m_pitchBendAutomationsModel { std::make_unique<PitchBendAutomationsModel>() }
   , m_trackSettingsModel { std::make_unique<TrackSettingsModel>() }
+  , m_midiSettingsModel { std::make_unique<MidiSettingsModel>(m_settingsService) }
   , m_utilService { std::make_unique<UtilService>() }
   , m_noteColumnLineContainerHelper { std::make_unique<NoteColumnLineContainerHelper>(
       m_automationService, m_editorService, m_selectionService, m_utilService) }
@@ -97,19 +99,20 @@ void Application::registerTypes()
 
     qmlRegisterType<ApplicationService>("Noteahead", majorVersion, minorVersion, "ApplicationService");
     qmlRegisterType<AutomationService>("Noteahead", majorVersion, minorVersion, "AutomationService");
-    qmlRegisterType<SettingsService>("Noteahead", majorVersion, minorVersion, "SettingsService");
     qmlRegisterType<EditorService>("Noteahead", majorVersion, minorVersion, "EditorService");
     qmlRegisterType<EditorService>("Noteahead", majorVersion, minorVersion, "EventSelectionModel");
     qmlRegisterType<MidiCcAutomationsModel>("Noteahead", majorVersion, minorVersion, "MidiCcAutomationsModel");
     qmlRegisterType<MidiService>("Noteahead", majorVersion, minorVersion, "MidiService");
+    qmlRegisterType<MidiSettingsModel>("Noteahead", majorVersion, minorVersion, "MidiSettingsModel");
     qmlRegisterType<MixerService>("Noteahead", majorVersion, minorVersion, "MixerService");
     qmlRegisterType<NoteColumnLineContainerHelper>("Noteahead", majorVersion, minorVersion, "NoteColumnLineContainerHelper");
     qmlRegisterType<PitchBendAutomationsModel>("Noteahead", majorVersion, minorVersion, "PitchBendAutomationsModel");
     qmlRegisterType<RecentFilesModel>("Noteahead", majorVersion, minorVersion, "RecentFilesModel");
     qmlRegisterType<SelectionService>("Noteahead", majorVersion, minorVersion, "SelectionService");
+    qmlRegisterType<SettingsService>("Noteahead", majorVersion, minorVersion, "SettingsService");
     qmlRegisterType<TrackSettingsModel>("Noteahead", majorVersion, minorVersion, "TrackSettingsModel");
-    qmlRegisterType<UtilService>("Noteahead", majorVersion, minorVersion, "UtilService");
     qmlRegisterType<UiLogger>("Noteahead", majorVersion, minorVersion, "UiLogger");
+    qmlRegisterType<UtilService>("Noteahead", majorVersion, minorVersion, "UtilService");
 
     qmlRegisterSingletonType(QUrl(QML_ROOT_DIR + QString { "/Constants.qml" }), "Noteahead", majorVersion, minorVersion, "Constants");
     qmlRegisterSingletonType(QUrl(QML_ROOT_DIR + QString { "/UiService.qml" }), "Noteahead", majorVersion, minorVersion, "UiService");
@@ -119,11 +122,11 @@ void Application::setContextProperties()
 {
     m_engine->rootContext()->setContextProperty("applicationService", m_applicationService.get());
     m_engine->rootContext()->setContextProperty("automationService", m_automationService.get());
-    m_engine->rootContext()->setContextProperty("settingsService", m_settingsService.get());
     m_engine->rootContext()->setContextProperty("editorService", m_editorService.get());
     m_engine->rootContext()->setContextProperty("eventSelectionModel", m_eventSelectionModel.get());
     m_engine->rootContext()->setContextProperty("midiCcAutomationsModel", m_midiCcAutomationsModel.get());
     m_engine->rootContext()->setContextProperty("midiService", m_midiService.get());
+    m_engine->rootContext()->setContextProperty("midiSettingsModel", m_midiSettingsModel.get());
     m_engine->rootContext()->setContextProperty("mixerService", m_mixerService.get());
     m_engine->rootContext()->setContextProperty("noteColumnLineContainerHelper", m_noteColumnLineContainerHelper.get());
     m_engine->rootContext()->setContextProperty("noteColumnModelHandler", m_noteColumnModelHandler.get());
@@ -131,6 +134,7 @@ void Application::setContextProperties()
     m_engine->rootContext()->setContextProperty("playerService", m_playerService.get());
     m_engine->rootContext()->setContextProperty("recentFilesModel", m_recentFilesModel.get());
     m_engine->rootContext()->setContextProperty("selectionService", m_selectionService.get());
+    m_engine->rootContext()->setContextProperty("settingsService", m_settingsService.get());
     m_engine->rootContext()->setContextProperty("trackSettingsModel", m_trackSettingsModel.get());
     m_engine->rootContext()->setContextProperty("uiLogger", m_uiLogger.get());
     m_engine->rootContext()->setContextProperty("utilService", m_utilService.get());
@@ -292,6 +296,7 @@ void Application::connectEditorService()
 
 void Application::connectMidiService()
 {
+    connect(m_midiService.get(), &MidiService::availableMidiPortsChanged, m_midiSettingsModel.get(), &MidiSettingsModel::setAvailableMidiPorts);
     connect(m_midiService.get(), &MidiService::availableMidiPortsChanged, m_trackSettingsModel.get(), &TrackSettingsModel::setAvailableMidiPorts);
     connect(m_midiService.get(), &MidiService::midiPortsAppeared, this, &Application::requestInstruments);
     connect(m_midiService.get(), &MidiService::statusTextRequested, m_applicationService.get(), &ApplicationService::statusTextRequested);

@@ -21,27 +21,24 @@
 namespace noteahead::Settings {
 
 int autoNoteOffOffset(int defaultAutoNoteOffOffset);
-
 void setAutoNoteOffOffset(int autoNoteOffOffset);
 
-QSize windowSize(QSize defaultSize);
+QString controllerPort(QString defaultControllerPort);
+void setControllerPort(QString controllerPort);
 
+QSize windowSize(QSize defaultSize);
 void setWindowSize(QSize size);
 
 QStringList recentFiles();
-
 void setRecentFiles(const QStringList & fileList);
 
 int step(int defaultStep);
-
 void setStep(int step);
 
 int velocity(int defaultVelocity);
-
 void setVelocity(int velocity);
 
 int visibleLines(int defaultVisibleLines);
-
 void setVisibleLines(int visibleLines);
 
 } // namespace noteahead::Settings

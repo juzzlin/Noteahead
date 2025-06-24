@@ -15,6 +15,7 @@ set(HEADER_FILES
   application/models/event_selection_model.hpp
   application/models/midi_cc_automations_model.hpp
   application/models/midi_cc_selection_model.hpp
+  application/models/midi_settings_model.hpp
   application/models/note_column_line_container_helper.hpp
   application/models/note_column_model.hpp
   application/models/note_column_model_handler.hpp
@@ -82,6 +83,7 @@ set(SOURCE_FILES
   application/models/event_selection_model.cpp
   application/models/midi_cc_automations_model.cpp
   application/models/midi_cc_selection_model.cpp
+  application/models/midi_settings_model.cpp
   application/models/note_column_line_container_helper.cpp
   application/models/note_column_model.cpp
   application/models/note_column_model_handler.cpp

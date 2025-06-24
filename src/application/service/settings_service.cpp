@@ -14,6 +14,7 @@
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
 #include "settings_service.hpp"
+#include "../../contrib/SimpleLogger/src/simple_logger.hpp"
 #include "../../infra/settings.hpp"
 
 #include <QGuiApplication>
@@ -21,8 +22,11 @@
 
 namespace noteahead {
 
+static const auto TAG = "SettingsService";
+
 SettingsService::SettingsService()
-  : m_visibleLines { Settings::visibleLines(32) }
+  : m_controllerPort { Settings::controllerPort("") }
+  , m_visibleLines { Settings::visibleLines(32) }
 {
 }
 
@@ -34,6 +38,21 @@ int SettingsService::autoNoteOffOffset() const
 void SettingsService::setAutoNoteOffOffset(int autoNoteOffOffset)
 {
     Settings::setAutoNoteOffOffset(autoNoteOffOffset);
+}
+
+QString SettingsService::controllerPort() const
+{
+    return m_controllerPort;
+}
+
+void SettingsService::setControllerPort(QString controllerPort)
+{
+    if (m_controllerPort != controllerPort) {
+        juzzlin::L(TAG).info() << "Setting controller port: " << controllerPort.toStdString();
+        m_controllerPort = controllerPort;
+        Settings::setControllerPort(controllerPort);
+        emit controllerPortChanged();
+    }
 }
 
 QSize SettingsService::windowSize(QSize defaultSize) const
