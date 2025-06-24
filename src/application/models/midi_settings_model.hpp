@@ -46,7 +46,7 @@ public:
 
 signals:
     void availableMidiPortsChanged();
-    void controllerPortChanged();
+    void controllerPortChanged(const QString & portName);
 
 private:
     SettingsServiceS m_settingsService;

@@ -13,7 +13,7 @@
 // You should have received a copy of the GNU General Public License
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
-#include "midi_worker.hpp"
+#include "midi_output_worker.hpp"
 
 #include "../../contrib/SimpleLogger/src/simple_logger.hpp"
 #include "../../domain/instrument.hpp"
@@ -29,7 +29,7 @@ namespace noteahead {
 
 static const auto TAG = "MidiWorker";
 
-MidiWorker::MidiWorker(QObject * parent)
+MidiOutputWorker::MidiOutputWorker(QObject * parent)
   : QObject { parent }
   , m_midiBackend { std::make_unique<MidiBackendRtMidi>() }
 {
@@ -38,7 +38,7 @@ MidiWorker::MidiWorker(QObject * parent)
     initializeScanTimer();
 }
 
-void MidiWorker::initializeScanTimer()
+void MidiOutputWorker::initializeScanTimer()
 {
     if (!m_midiScanTimer) {
         m_midiScanTimer = std::make_unique<QTimer>();
@@ -103,7 +103,7 @@ void portError(const std::string_view function, const std::string_view message)
     juzzlin::L(TAG).error() << function << ": No device found for portName '" << message << "'";
 }
 
-void MidiWorker::initializeStopTimer()
+void MidiOutputWorker::initializeStopTimer()
 {
     if (!m_midiStopTimer) {
         m_midiStopTimer = std::make_unique<QTimer>();
@@ -126,7 +126,7 @@ void MidiWorker::initializeStopTimer()
     }
 }
 
-void MidiWorker::sendMidiCcSettings(const MidiDevice & midiDevice, const Instrument & instrument)
+void MidiOutputWorker::sendMidiCcSettings(const MidiDevice & midiDevice, const Instrument & instrument)
 {
     const auto channel = instrument.midiAddress().channel();
     const auto predefinedMidiCcSettings = instrument.settings().predefinedMidiCcSettings;
@@ -149,7 +149,7 @@ void MidiWorker::sendMidiCcSettings(const MidiDevice & midiDevice, const Instrum
     }
 }
 
-void MidiWorker::applyBank(const Instrument & instrument, MidiDeviceS midiDevice)
+void MidiOutputWorker::applyBank(const Instrument & instrument, MidiDeviceS midiDevice)
 {
     if (instrument.settings().bank.has_value()) {
         juzzlin::L(TAG).info() << "Setting bank to " << static_cast<int>(instrument.settings().bank->msb) << ":" << static_cast<int>(instrument.settings().bank->lsb);
@@ -159,7 +159,7 @@ void MidiWorker::applyBank(const Instrument & instrument, MidiDeviceS midiDevice
     }
 }
 
-void MidiWorker::applyPatch(const Instrument & instrument, MidiDeviceS midiDevice)
+void MidiOutputWorker::applyPatch(const Instrument & instrument, MidiDeviceS midiDevice)
 {
     if (instrument.settings().patch.has_value()) {
         juzzlin::L(TAG).info() << "Setting patch to " << static_cast<int>(*instrument.settings().patch);
@@ -167,7 +167,7 @@ void MidiWorker::applyPatch(const Instrument & instrument, MidiDeviceS midiDevic
     }
 }
 
-void MidiWorker::handleInstrumentRequest(const InstrumentRequest & instrumentRequest)
+void MidiOutputWorker::handleInstrumentRequest(const InstrumentRequest & instrumentRequest)
 {
     if (instrumentRequest.type() == InstrumentRequest::Type::None) {
         return;
@@ -196,7 +196,7 @@ void MidiWorker::handleInstrumentRequest(const InstrumentRequest & instrumentReq
     }
 }
 
-void MidiWorker::playAndStopMiddleC(QString portName, quint8 channel, quint8 velocity)
+void MidiOutputWorker::playAndStopMiddleC(QString portName, quint8 channel, quint8 velocity)
 {
     try {
         if (const auto device = m_midiBackend->deviceByPortName(portName.toStdString()); device) {
@@ -213,7 +213,7 @@ void MidiWorker::playAndStopMiddleC(QString portName, quint8 channel, quint8 vel
     }
 }
 
-void MidiWorker::playNote(QString portName, quint8 channel, quint8 midiNote, quint8 velocity)
+void MidiOutputWorker::playNote(QString portName, quint8 channel, quint8 midiNote, quint8 velocity)
 {
     try {
         if (const auto device = m_midiBackend->deviceByPortName(portName.toStdString()); device) {
@@ -227,7 +227,7 @@ void MidiWorker::playNote(QString portName, quint8 channel, quint8 midiNote, qui
     }
 }
 
-void MidiWorker::stopNote(QString portName, quint8 channel, quint8 midiNote)
+void MidiOutputWorker::stopNote(QString portName, quint8 channel, quint8 midiNote)
 {
     try {
         if (const auto device = m_midiBackend->deviceByPortName(portName.toStdString()); device) {
@@ -241,7 +241,7 @@ void MidiWorker::stopNote(QString portName, quint8 channel, quint8 midiNote)
     }
 }
 
-void MidiWorker::stopAllNotes(QString portName, quint8 channel)
+void MidiOutputWorker::stopAllNotes(QString portName, quint8 channel)
 {
     try {
         if (const auto device = m_midiBackend->deviceByPortName(portName.toStdString()); device) {
@@ -255,7 +255,7 @@ void MidiWorker::stopAllNotes(QString portName, quint8 channel)
     }
 }
 
-void MidiWorker::sendClock(QString portName)
+void MidiOutputWorker::sendClock(QString portName)
 {
     try {
         if (const auto device = m_midiBackend->deviceByPortName(portName.toStdString()); device) {
@@ -267,7 +267,7 @@ void MidiWorker::sendClock(QString portName)
     }
 }
 
-void MidiWorker::sendStart(QString portName)
+void MidiOutputWorker::sendStart(QString portName)
 {
     try {
         if (const auto device = m_midiBackend->deviceByPortName(portName.toStdString()); device) {
@@ -279,7 +279,7 @@ void MidiWorker::sendStart(QString portName)
     }
 }
 
-void MidiWorker::sendStop(QString portName)
+void MidiOutputWorker::sendStop(QString portName)
 {
     try {
         if (const auto device = m_midiBackend->deviceByPortName(portName.toStdString()); device) {
@@ -291,7 +291,7 @@ void MidiWorker::sendStop(QString portName)
     }
 }
 
-void MidiWorker::sendCcData(QString portName, quint8 channel, quint8 controller, quint8 value)
+void MidiOutputWorker::sendCcData(QString portName, quint8 channel, quint8 controller, quint8 value)
 {
     try {
         if (const auto device = m_midiBackend->deviceByPortName(portName.toStdString()); device) {
@@ -303,7 +303,7 @@ void MidiWorker::sendCcData(QString portName, quint8 channel, quint8 controller,
     }
 }
 
-void MidiWorker::sendPitchBendData(QString portName, quint8 channel, quint8 msb, quint8 lsb)
+void MidiOutputWorker::sendPitchBendData(QString portName, quint8 channel, quint8 msb, quint8 lsb)
 {
     try {
         if (const auto device = m_midiBackend->deviceByPortName(portName.toStdString()); device) {
@@ -315,7 +315,7 @@ void MidiWorker::sendPitchBendData(QString portName, quint8 channel, quint8 msb,
     }
 }
 
-void MidiWorker::requestPatchChange(QString portName, quint8 channel, quint8 patch)
+void MidiOutputWorker::requestPatchChange(QString portName, quint8 channel, quint8 patch)
 {
     try {
         if (const auto device = m_midiBackend->deviceByPortName(portName.toStdString()); device) {
@@ -329,7 +329,7 @@ void MidiWorker::requestPatchChange(QString portName, quint8 channel, quint8 pat
     }
 }
 
-void MidiWorker::setIsPlaying(bool isPlaying)
+void MidiOutputWorker::setIsPlaying(bool isPlaying)
 {
     m_isPlaying = isPlaying;
 }

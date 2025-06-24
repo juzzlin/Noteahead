@@ -232,6 +232,7 @@ void Application::connectServices()
     connectMidiCcAutomationsModel();
     connectPitchBendAutomationsModel();
     connectTrackSettingsModel();
+    connectMidiSettingsModel();
 }
 
 void Application::connectApplicationService()
@@ -296,10 +297,15 @@ void Application::connectEditorService()
 
 void Application::connectMidiService()
 {
-    connect(m_midiService.get(), &MidiService::availableMidiPortsChanged, m_midiSettingsModel.get(), &MidiSettingsModel::setAvailableMidiPorts);
-    connect(m_midiService.get(), &MidiService::availableMidiPortsChanged, m_trackSettingsModel.get(), &TrackSettingsModel::setAvailableMidiPorts);
-    connect(m_midiService.get(), &MidiService::midiPortsAppeared, this, &Application::requestInstruments);
+    connect(m_midiService.get(), &MidiService::availableMidiInputPortsChanged, m_midiSettingsModel.get(), &MidiSettingsModel::setAvailableMidiPorts);
+    connect(m_midiService.get(), &MidiService::availableMidiOutputPortsChanged, m_trackSettingsModel.get(), &TrackSettingsModel::setAvailableMidiPorts);
+    connect(m_midiService.get(), &MidiService::midiOutputPortsAppeared, this, &Application::requestInstruments);
     connect(m_midiService.get(), &MidiService::statusTextRequested, m_applicationService.get(), &ApplicationService::statusTextRequested);
+}
+
+void Application::connectMidiSettingsModel()
+{
+    connect(m_midiSettingsModel.get(), &MidiSettingsModel::controllerPortChanged, m_midiService.get(), &MidiService::setControllerPort);
 }
 
 void Application::connectMixerService()
