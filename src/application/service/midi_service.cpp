@@ -21,7 +21,8 @@
 #include "../../domain/midi_note_data.hpp"
 #include "../../domain/pitch_bend_data.hpp"
 #include "../instrument_request.hpp"
-#include "midi_worker.hpp"
+#include "midi_in_worker.hpp"
+#include "midi_out_worker.hpp"
 
 namespace noteahead {
 
@@ -29,60 +30,91 @@ static const auto TAG = "MidiService";
 
 MidiService::MidiService(QObject * parent)
   : QObject { parent }
-  , m_midiWorker { std::make_unique<MidiWorker>() }
+  , m_outputWorker { std::make_unique<MidiOutWorker>() }
+  , m_inputWorker { std::make_unique<MidiInWorker>() }
 {
-    initializeWorker();
+    initializeWorkers();
 }
 
-void MidiService::initializeWorker()
+void MidiService::initializeWorkers()
 {
-    connect(this, &MidiService::instrumentRequestHandlingRequested, m_midiWorker.get(), &MidiWorker::handleInstrumentRequest);
+    initializeInputWorker();
+    initializeOutputWorker();
+}
 
-    connect(m_midiWorker.get(), &MidiWorker::availableMidiPortsChanged, this, [this](const auto & midiPorts) {
-        m_availableMidiPorts = { "" };
-        m_availableMidiPorts.append(midiPorts);
-        emit availableMidiPortsChanged(m_availableMidiPorts);
+void MidiService::initializeInputWorker()
+{
+    connect(this, &MidiService::controllerPortChanged, m_inputWorker.get(), &MidiInWorker::setControllerPort);
+
+    connect(m_inputWorker.get(), &MidiInWorker::availablePortsChanged, this, [this](const auto & midiPorts) {
+        m_availableMidiInputPorts = { "" };
+        m_availableMidiInputPorts.append(midiPorts);
+        emit availableInputPortsChanged(m_availableMidiInputPorts);
     });
 
-    connect(m_midiWorker.get(), &MidiWorker::midiPortsAppeared, this, &MidiService::midiPortsAppeared);
-    connect(m_midiWorker.get(), &MidiWorker::midiPortsDisappeared, this, &MidiService::midiPortsDisappeared);
-    connect(m_midiWorker.get(), &MidiWorker::statusTextRequested, this, &MidiService::statusTextRequested);
+    connect(m_inputWorker.get(), &MidiInWorker::portsAppeared, this, &MidiService::inputPortsAppeared);
+    connect(m_inputWorker.get(), &MidiInWorker::portsDisappeared, this, &MidiService::inputPortsDisappeared);
+    connect(m_inputWorker.get(), &MidiInWorker::statusTextRequested, this, &MidiService::statusTextRequested);
 
-    m_midiWorker->moveToThread(&m_midiWorkerThread);
-    m_midiWorkerThread.start(QThread::HighPriority);
+    m_inputWorker->moveToThread(&m_inputWorkerThread);
+    m_inputWorkerThread.start(QThread::NormalPriority);
+}
+
+void MidiService::initializeOutputWorker()
+{
+    connect(this, &MidiService::instrumentRequestHandlingRequested, m_outputWorker.get(), &MidiOutWorker::handleInstrumentRequest);
+
+    connect(m_outputWorker.get(), &MidiOutWorker::availablePortsChanged, this, [this](const auto & midiPorts) {
+        m_availableMidiOutputPorts = { "" };
+        m_availableMidiOutputPorts.append(midiPorts);
+        emit availableOutputPortsChanged(m_availableMidiOutputPorts);
+    });
+
+    connect(m_outputWorker.get(), &MidiOutWorker::portsAppeared, this, &MidiService::outputPortsAppeared);
+    connect(m_outputWorker.get(), &MidiOutWorker::portsDisappeared, this, &MidiService::outputPortsDisappeared);
+    connect(m_outputWorker.get(), &MidiOutWorker::statusTextRequested, this, &MidiService::statusTextRequested);
+
+    m_outputWorker->moveToThread(&m_outputWorkerThread);
+    m_outputWorkerThread.start(QThread::HighPriority);
 }
 
 QStringList MidiService::availableMidiPorts() const
 {
-    return m_availableMidiPorts;
+    return m_availableMidiOutputPorts;
 }
 
 void MidiService::handleInstrumentRequest(const InstrumentRequest & instrumentRequest)
 {
-    std::lock_guard<std::mutex> lock { m_workerMutex };
+    std::lock_guard<std::mutex> lock { m_outputWorkerMutex };
 
     emit instrumentRequestHandlingRequested(instrumentRequest);
 }
 
+void MidiService::setControllerPort(QString portName)
+{
+    emit controllerPortChanged(portName);
+}
+
 void MidiService::setIsPlaying(bool isPlaying)
 {
-    m_midiWorker->setIsPlaying(isPlaying);
+    m_inputWorker->setIsPlaying(isPlaying);
+    m_outputWorker->setIsPlaying(isPlaying);
 }
 
 void MidiService::playAndStopMiddleC(QString portName, quint8 channel, quint8 velocity)
 {
-    std::lock_guard<std::mutex> lock { m_workerMutex };
+    std::lock_guard<std::mutex> lock { m_outputWorkerMutex };
 
-    if (const bool invoked = QMetaObject::invokeMethod(m_midiWorker.get(), "playAndStopMiddleC", Q_ARG(QString, portName), Q_ARG(quint8, channel), Q_ARG(quint8, velocity)); !invoked) {
+    if (const bool invoked = QMetaObject::invokeMethod(m_outputWorker.get(), "playAndStopMiddleC", Q_ARG(QString, portName), Q_ARG(quint8, channel), Q_ARG(quint8, velocity)); !invoked) {
         juzzlin::L(TAG).error() << "Invoking a method failed!";
     }
 }
 
 void MidiService::playNote(InstrumentW instrument, MidiNoteDataCR data)
 {
-    std::lock_guard<std::mutex> lock { m_workerMutex };
+    std::lock_guard<std::mutex> lock { m_outputWorkerMutex };
 
-    if (const bool invoked = QMetaObject::invokeMethod(m_midiWorker.get(), "playNote",
+    if (const bool invoked = QMetaObject::invokeMethod(m_outputWorker.get(), "playNote",
                                                        Q_ARG(QString, instrument.lock()->midiAddress().portName()),
                                                        Q_ARG(quint8, instrument.lock()->midiAddress().channel()),
                                                        Q_ARG(quint8, data.note()),
@@ -94,9 +126,9 @@ void MidiService::playNote(InstrumentW instrument, MidiNoteDataCR data)
 
 void MidiService::stopNote(InstrumentW instrument, MidiNoteDataCR data)
 {
-    std::lock_guard<std::mutex> lock { m_workerMutex };
+    std::lock_guard<std::mutex> lock { m_outputWorkerMutex };
 
-    if (const bool invoked = QMetaObject::invokeMethod(m_midiWorker.get(), "stopNote",
+    if (const bool invoked = QMetaObject::invokeMethod(m_outputWorker.get(), "stopNote",
                                                        Q_ARG(QString, instrument.lock()->midiAddress().portName()),
                                                        Q_ARG(quint8, instrument.lock()->midiAddress().channel()),
                                                        Q_ARG(quint8, data.note()));
@@ -107,9 +139,9 @@ void MidiService::stopNote(InstrumentW instrument, MidiNoteDataCR data)
 
 void MidiService::stopAllNotes(InstrumentW instrument)
 {
-    std::lock_guard<std::mutex> lock { m_workerMutex };
+    std::lock_guard<std::mutex> lock { m_outputWorkerMutex };
 
-    if (const bool invoked = QMetaObject::invokeMethod(m_midiWorker.get(), "stopAllNotes",
+    if (const bool invoked = QMetaObject::invokeMethod(m_outputWorker.get(), "stopAllNotes",
                                                        Q_ARG(QString, instrument.lock()->midiAddress().portName()),
                                                        Q_ARG(quint8, instrument.lock()->midiAddress().channel()));
         !invoked) {
@@ -119,9 +151,9 @@ void MidiService::stopAllNotes(InstrumentW instrument)
 
 void MidiService::sendCcData(InstrumentW instrument, MidiCcDataCR data)
 {
-    std::lock_guard<std::mutex> lock { m_workerMutex };
+    std::lock_guard<std::mutex> lock { m_outputWorkerMutex };
 
-    if (const bool invoked = QMetaObject::invokeMethod(m_midiWorker.get(), "sendCcData",
+    if (const bool invoked = QMetaObject::invokeMethod(m_outputWorker.get(), "sendCcData",
                                                        Q_ARG(QString, instrument.lock()->midiAddress().portName()),
                                                        Q_ARG(quint8, instrument.lock()->midiAddress().channel()),
                                                        Q_ARG(quint8, data.controller()),
@@ -133,8 +165,8 @@ void MidiService::sendCcData(InstrumentW instrument, MidiCcDataCR data)
 
 void MidiService::invokeSimpleFunction(MidiService::InstrumentW instrument, QString functionName)
 {
-    std::lock_guard<std::mutex> lock { m_workerMutex };
-    if (const bool invoked = QMetaObject::invokeMethod(m_midiWorker.get(), functionName.toStdString().c_str(),
+    std::lock_guard<std::mutex> lock { m_outputWorkerMutex };
+    if (const bool invoked = QMetaObject::invokeMethod(m_outputWorker.get(), functionName.toStdString().c_str(),
                                                        Q_ARG(QString, instrument.lock()->midiAddress().portName()));
         !invoked) {
         juzzlin::L(TAG).error() << "Invoking a method failed!: " << functionName.toStdString();
@@ -158,9 +190,9 @@ void MidiService::sendStop(MidiService::InstrumentW instrument)
 
 void MidiService::sendPitchBendData(InstrumentW instrument, MidiService::PitchBendDataCR data)
 {
-    std::lock_guard<std::mutex> lock { m_workerMutex };
+    std::lock_guard<std::mutex> lock { m_outputWorkerMutex };
 
-    if (const bool invoked = QMetaObject::invokeMethod(m_midiWorker.get(), "sendPitchBendData",
+    if (const bool invoked = QMetaObject::invokeMethod(m_outputWorker.get(), "sendPitchBendData",
                                                        Q_ARG(QString, instrument.lock()->midiAddress().portName()),
                                                        Q_ARG(quint8, instrument.lock()->midiAddress().channel()),
                                                        Q_ARG(quint8, data.msb()),
@@ -172,8 +204,13 @@ void MidiService::sendPitchBendData(InstrumentW instrument, MidiService::PitchBe
 
 MidiService::~MidiService()
 {
-    m_midiWorkerThread.exit();
-    m_midiWorkerThread.wait();
+    juzzlin::L(TAG).info() << "Stopping worker threads";
+
+    m_inputWorkerThread.exit();
+    m_inputWorkerThread.wait();
+
+    m_outputWorkerThread.exit();
+    m_outputWorkerThread.wait();
 }
 
 } // namespace noteahead

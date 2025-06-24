@@ -13,37 +13,46 @@
 // You should have received a copy of the GNU General Public License
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef MIDI_WORKER_HPP
-#define MIDI_WORKER_HPP
+#ifndef MIDI_IN_WORKER_H
+#define MIDI_IN_WORKER_H
+
+#include "midi_worker.hpp"
 
 #include <QObject>
+#include <QTimer>
+
+#include <memory>
 
 namespace noteahead {
 
-class MidiWorker : public QObject
+class MidiIn;
+class MidiDevice;
+
+class MidiInWorker : public MidiWorker
 {
     Q_OBJECT
 
 public:
-    explicit MidiWorker(QObject * parent = nullptr);
-    virtual ~MidiWorker() override;
+    explicit MidiInWorker(QObject * parent = nullptr);
 
-    Q_INVOKABLE void setIsPlaying(bool isPlaying);
-
-signals:
-    void availablePortsChanged(QStringList portNames);
-    void portsAppeared(QStringList portNames);
-    void portsDisappeared(QStringList portNames);
-
-    void statusTextRequested(QString message);
-
-protected:
-    bool isPlaying() const;
+public slots:
+    void setControllerPort(QString portName);
 
 private:
-    std::atomic_bool m_isPlaying = false;
+    void initializeScanTimer();
+
+    using Message = std::vector<unsigned char>;
+    using MessageCR = const Message &;
+    void handleIncomingMessage(double deltaTime, MessageCR message);
+
+    QString m_controllerPort;
+
+    std::shared_ptr<MidiIn> m_midiIn;
+    std::unique_ptr<QTimer> m_midiScanTimer;
+
+    QStringList m_availablePorts;
 };
 
 } // namespace noteahead
 
-#endif // MIDI_WORKER_HPP
+#endif // MIDI_IN_WORKER_H

@@ -13,10 +13,10 @@
 // You should have received a copy of the GNU General Public License
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef MIDI_BACKEND_HPP
-#define MIDI_BACKEND_HPP
+#ifndef MIDI_OUT_HPP
+#define MIDI_OUT_HPP
 
-#include "midi_device.hpp"
+#include "midi.hpp"
 
 #include <cstdint>
 #include <set>
@@ -25,28 +25,15 @@
 
 namespace noteahead {
 
-//! Base class for MIDI backend implementations.
-class MidiBackend
+//! Base class for MIDI output backend implementations.
+class MidiOut : public Midi
 {
 public:
-    MidiBackend();
-
-    virtual ~MidiBackend();
-
-    using MidiDeviceList = std::vector<MidiDeviceS>;
-    virtual MidiDeviceList listDevices() const;
-    virtual MidiDeviceS deviceByPortIndex(size_t index) const;
-    virtual MidiDeviceS deviceByPortName(const std::string & name) const;
-
-    //! \returns e.g. "ALSA"
-    virtual std::string midiApiName() const;
-
-    virtual void updateAvailableDevices();
+    MidiOut();
+    virtual ~MidiOut() override;
 
     using MidiDeviceCR = const MidiDevice &;
 
-    virtual void openDevice(MidiDeviceCR device);
-    virtual void closeDevice(MidiDeviceCR device);
     virtual void stopAllNotes(MidiDeviceCR device, uint8_t channel) const;
 
     virtual void sendCcData(MidiDeviceCR device, uint8_t channel, uint8_t controller, uint8_t value) const;
@@ -64,24 +51,15 @@ public:
     virtual void sendStop(MidiDeviceCR device) const;
 
 protected:
-    void setDevices(MidiDeviceList devices);
-
-    void invalidatePortNameCache();
-
     using NotesOnList = std::vector<uint8_t>;
     NotesOnList notesOn(MidiDeviceCR device, uint8_t channel) const;
 
 private:
-    MidiDeviceList m_devices;
-
     using ChannelAndNote = std::pair<uint8_t, uint8_t>;
     using DeviceToChannelAndNote = std::unordered_map<size_t, std::set<ChannelAndNote>>;
     mutable DeviceToChannelAndNote m_notesOn;
-
-    using PortNameToDevice = std::unordered_map<std::string, MidiDeviceS>;
-    mutable PortNameToDevice m_portNameToDeviceCache;
 };
 
 } // namespace noteahead
 
-#endif // MIDI_BACKEND_HPP
+#endif // MIDI_OUT_HPP

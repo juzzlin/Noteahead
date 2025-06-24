@@ -59,7 +59,7 @@ void MidiSettingsModel::setControllerPort(const QString & name)
     if (m_controllerPort != name) {
         m_controllerPort = name;
         m_settingsService->setControllerPort(name);
-        emit controllerPortChanged();
+        emit controllerPortChanged(name);
     }
 }
 

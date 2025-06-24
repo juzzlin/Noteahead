@@ -27,17 +27,16 @@
 namespace noteahead {
 
 class Instrument;
-class MidiBackend;
+class MidiOut;
 class MidiCcData;
 class MidiNoteData;
-class MidiWorker;
+class MidiInWorker;
+class MidiOutWorker;
 class PitchBendData;
 
 class MidiService : public QObject
 {
     Q_OBJECT
-
-    Q_PROPERTY(QStringList availableMidiPorts READ availableMidiPorts NOTIFY availableMidiPortsChanged)
 
 public:
     explicit MidiService(QObject * parent = nullptr);
@@ -66,25 +65,36 @@ public:
 
 public slots:
     void handleInstrumentRequest(const InstrumentRequest & instrumentRequest);
+    void setControllerPort(QString portName);
 
 signals:
-    void availableMidiPortsChanged(const QStringList & availableMidiPorts);
-    void midiPortsAppeared(const QStringList & midiPorts);
-    void midiPortsDisappeared(const QStringList & midiPorts);
+    void availableOutputPortsChanged(const QStringList & portNames);
+    void outputPortsAppeared(const QStringList & portNames);
+    void outputPortsDisappeared(const QStringList & portNames);
+
+    void availableInputPortsChanged(const QStringList & portNames);
+    void inputPortsAppeared(const QStringList & portNames);
+    void inputPortsDisappeared(const QStringList & portNames);
 
     void statusTextRequested(QString message);
 
     void instrumentRequestHandlingRequested(const InstrumentRequest & instrumentRequest);
+    void controllerPortChanged(QString portName);
 
 private:
-    void initializeWorker();
+    void initializeWorkers();
+    void initializeInputWorker();
+    void initializeOutputWorker();
     void invokeSimpleFunction(MidiService::InstrumentW instrument, QString functionName);
 
-    std::mutex m_workerMutex; // Calls to this service may become directly from PlayerWorker and also live notes from other sources
-    std::unique_ptr<MidiWorker> m_midiWorker;
-    QThread m_midiWorkerThread;
+    std::mutex m_outputWorkerMutex; // Calls to this service may become directly from PlayerWorker and also live notes from other sources
+    std::unique_ptr<MidiOutWorker> m_outputWorker;
+    QThread m_outputWorkerThread;
+    QStringList m_availableMidiOutputPorts;
 
-    QStringList m_availableMidiPorts;
+    std::unique_ptr<MidiInWorker> m_inputWorker;
+    QThread m_inputWorkerThread;
+    QStringList m_availableMidiInputPorts;
 };
 
 } // namespace noteahead

@@ -69,6 +69,7 @@ private:
     void applyAllMidiCcSettings();
     void applyInstrument(size_t trackIndex, const Instrument & instrument);
     void applyMidiCcSettings(const Instrument & instrument);
+    void applyMidiController();
     void applyState(StateMachine::State state);
 
     void connectServices();
@@ -77,6 +78,7 @@ private:
     void connectEditorService();
     void connectMidiCcAutomationsModel();
     void connectMidiService();
+    void connectMidiSettingsModel();
     void connectMixerService();
     void connectPlayerService();
     void connectStateMachine();

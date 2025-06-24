@@ -233,6 +233,7 @@ void Application::connectServices()
     connectMidiCcAutomationsModel();
     connectPitchBendAutomationsModel();
     connectTrackSettingsModel();
+    connectMidiSettingsModel();
 }
 
 void Application::connectApplicationService()
@@ -296,10 +297,16 @@ void Application::connectEditorService()
 
 void Application::connectMidiService()
 {
-    connect(m_midiService.get(), &MidiService::availableMidiPortsChanged, m_midiSettingsModel.get(), &MidiSettingsModel::setAvailableMidiPorts);
-    connect(m_midiService.get(), &MidiService::availableMidiPortsChanged, m_trackSettingsModel.get(), &TrackSettingsModel::setAvailableMidiPorts);
-    connect(m_midiService.get(), &MidiService::midiPortsAppeared, this, &Application::requestInstruments);
+    connect(m_midiService.get(), &MidiService::availableInputPortsChanged, m_midiSettingsModel.get(), &MidiSettingsModel::setAvailableMidiPorts);
+    connect(m_midiService.get(), &MidiService::availableInputPortsChanged, this, &Application::applyMidiController);
+    connect(m_midiService.get(), &MidiService::availableOutputPortsChanged, m_trackSettingsModel.get(), &TrackSettingsModel::setAvailableMidiPorts);
+    connect(m_midiService.get(), &MidiService::outputPortsAppeared, this, &Application::requestInstruments);
     connect(m_midiService.get(), &MidiService::statusTextRequested, m_applicationService.get(), &ApplicationService::statusTextRequested);
+}
+
+void Application::connectMidiSettingsModel()
+{
+    connect(m_midiSettingsModel.get(), &MidiSettingsModel::controllerPortChanged, m_midiService.get(), &MidiService::setControllerPort);
 }
 
 void Application::connectMixerService()
@@ -464,6 +471,12 @@ void Application::applyMidiCcSettings(const Instrument & instrument)
     const InstrumentRequest instrumentRequest { InstrumentRequest::Type::ApplyMidiCc, instrument };
     juzzlin::L(TAG).info() << "Applying MIDI CC settings: " << instrumentRequest.instrument().toString().toStdString();
     m_midiService->handleInstrumentRequest(instrumentRequest);
+}
+
+void Application::applyMidiController()
+{
+    juzzlin::L(TAG).info() << "Applying MIDI controller: " << m_settingsService->controllerPort().toStdString();
+    m_midiService->setControllerPort(m_settingsService->controllerPort());
 }
 
 void Application::applyAllInstruments()
