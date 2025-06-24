@@ -20,6 +20,7 @@
 namespace noteahead::Settings {
 
 const auto autoNoteOffOffsetKey = "autoNoteOffOffset";
+const auto controllerPortKey = "controllerPort";
 
 const auto recentFilesArrayKey = "recentFilesArray";
 const auto recentFilesFilePathKey = "filePath";
@@ -32,7 +33,6 @@ const auto stepKey = "step";
 const auto velocityKey = "velocity";
 
 const auto visibleLinesKey = "visibleLines";
-
 const auto windowSizeKey = "size";
 
 int autoNoteOffOffset(int defaultAutoNoteOffOffset)
@@ -49,6 +49,23 @@ void setAutoNoteOffOffset(int autoNoteOffOffset)
     QSettings settings;
     settings.beginGroup(settingsGroupMidi);
     settings.setValue(autoNoteOffOffsetKey, autoNoteOffOffset);
+    settings.endGroup();
+}
+
+QString controllerPort(QString defaultControllerPort)
+{
+    QSettings settings;
+    settings.beginGroup(settingsGroupMidi);
+    const auto port = settings.value(controllerPortKey, defaultControllerPort).toString();
+    settings.endGroup();
+    return port;
+}
+
+void setControllerPort(QString controllerPort)
+{
+    QSettings settings;
+    settings.beginGroup(settingsGroupMidi);
+    settings.setValue(controllerPortKey, controllerPort);
     settings.endGroup();
 }
 
