@@ -28,8 +28,9 @@ set(HEADER_FILES
   application/service/application_service.hpp
   application/service/automation_service.hpp
   application/service/editor_service.hpp
+  application/service/midi_input_worker.hpp
+  application/service/midi_output_worker.hpp
   application/service/midi_service.hpp
-  application/service/midi_worker.hpp
   application/service/mixer_service.hpp
   application/service/player_service.hpp
   application/service/player_worker.hpp
@@ -95,8 +96,9 @@ set(SOURCE_FILES
   application/service/application_service.cpp
   application/service/automation_service.cpp
   application/service/editor_service.cpp
+  application/service/midi_input_worker.cpp
+  application/service/midi_output_worker.cpp
   application/service/midi_service.cpp
-  application/service/midi_worker.cpp
   application/service/mixer_service.cpp
   application/service/player_service.cpp
   application/service/player_worker.cpp

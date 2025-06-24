@@ -77,6 +77,7 @@ private:
     void connectEditorService();
     void connectMidiCcAutomationsModel();
     void connectMidiService();
+    void connectMidiSettingsModel();
     void connectMixerService();
     void connectPlayerService();
     void connectStateMachine();

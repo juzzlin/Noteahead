@@ -13,8 +13,8 @@
 // You should have received a copy of the GNU General Public License
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef MIDI_WORKER_HPP
-#define MIDI_WORKER_HPP
+#ifndef MIDI_OUTPUT_WORKER_HPP
+#define MIDI_OUTPUT_WORKER_HPP
 
 #include <QObject>
 #include <QTimer>
@@ -31,12 +31,12 @@ class InstrumentRequest;
 class MidiBackend;
 class MidiDevice;
 
-class MidiWorker : public QObject
+class MidiOutputWorker : public QObject
 {
     Q_OBJECT
 
 public:
-    explicit MidiWorker(QObject * parent = nullptr);
+    explicit MidiOutputWorker(QObject * parent = nullptr);
 
     Q_INVOKABLE void handleInstrumentRequest(const InstrumentRequest & instrumentRequest);
 
@@ -97,4 +97,4 @@ private:
 
 } // namespace noteahead
 
-#endif // MIDI_WORKER_HPP
+#endif // MIDI_OUTPUT_WORKER_HPP
