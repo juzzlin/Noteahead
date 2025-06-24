@@ -40,6 +40,7 @@ class EventSelectionModel;
 class Instrument;
 class MidiCcAutomationsModel;
 class MidiService;
+class MidiSettingsModel;
 class MixerService;
 class NoteColumnLineContainerHelper;
 class NoteColumnModelHandler;
@@ -123,6 +124,7 @@ private:
     std::unique_ptr<MidiCcAutomationsModel> m_midiCcAutomationsModel;
     std::unique_ptr<PitchBendAutomationsModel> m_pitchBendAutomationsModel;
     std::unique_ptr<TrackSettingsModel> m_trackSettingsModel;
+    std::unique_ptr<MidiSettingsModel> m_midiSettingsModel;
 
     std::shared_ptr<UtilService> m_utilService;
 

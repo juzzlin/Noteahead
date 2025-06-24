@@ -25,6 +25,7 @@ class SettingsService : public QObject
 {
     Q_OBJECT
 
+    Q_PROPERTY(QString controllerPort READ controllerPort WRITE setControllerPort NOTIFY controllerPortChanged)
     Q_PROPERTY(int visibleLines READ visibleLines WRITE setVisibleLines NOTIFY visibleLinesChanged)
 
 public:
@@ -33,6 +34,9 @@ public:
 
     Q_INVOKABLE int autoNoteOffOffset() const;
     Q_INVOKABLE void setAutoNoteOffOffset(int autoNoteOffOffset);
+
+    Q_INVOKABLE QString controllerPort() const;
+    Q_INVOKABLE void setControllerPort(QString controllerPort);
 
     Q_INVOKABLE QSize windowSize(QSize defaultSize) const;
     Q_INVOKABLE void setWindowSize(QSize size);
@@ -47,9 +51,13 @@ public:
     Q_INVOKABLE void setVisibleLines(int visibleLines);
 
 signals:
+    void controllerPortChanged();
+
     void visibleLinesChanged();
 
 private:
+    QString m_controllerPort;
+
     int m_visibleLines;
 };
 

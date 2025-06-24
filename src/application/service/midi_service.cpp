@@ -39,7 +39,8 @@ void MidiService::initializeWorker()
     connect(this, &MidiService::instrumentRequestHandlingRequested, m_midiWorker.get(), &MidiWorker::handleInstrumentRequest);
 
     connect(m_midiWorker.get(), &MidiWorker::availableMidiPortsChanged, this, [this](const auto & midiPorts) {
-        m_availableMidiPorts = midiPorts;
+        m_availableMidiPorts = { "" };
+        m_availableMidiPorts.append(midiPorts);
         emit availableMidiPortsChanged(m_availableMidiPorts);
     });
 
