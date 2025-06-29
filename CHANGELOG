@@ -8,6 +8,9 @@ New features:
 * Implement MIDI transport events
   - Noteahead now sends MIDI Start/Stop
 
+* Implement a delay time calculator dialog
+  - Tools => Delay time calculator
+
 Bug fixes:
 
 * Fix GitHub Issue #14: Rewinding a song assumes that track with index 0 exists

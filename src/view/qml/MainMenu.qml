@@ -75,6 +75,15 @@ MenuBar {
         }
     }
     Menu {
+        title: qsTr("&Tools")
+        Action {
+            text: qsTr("Delay time calculator")
+            onTriggered: UiService.requestDelayCalculatorDialog()
+        }
+        delegate: MainMenuItemDelegate {
+        }
+    }
+    Menu {
         title: qsTr("&Help")
         Action {
             text: qsTr("About")

@@ -10,6 +10,7 @@ QtObject {
     signal columnAddPitchBendAutomationDialogRequested
     signal columnVelocityInterpolationDialogRequested
     signal columnVelocityScaleDialogRequested(int trackIndex, int columnIndex)
+    signal delayCalculatorDialogRequested
     signal editMidiCcAutomationsDialogByLineRequested
     signal editMidiCcAutomationsDialogByColumnRequested
     signal editMidiCcAutomationsDialogByPatternRequested
@@ -105,6 +106,9 @@ QtObject {
     }
     function requestAboutDialog(): void {
         aboutDialogRequested();
+    }
+    function requestDelayCalculatorDialog(): void {
+        delayCalculatorDialogRequested();
     }
     function requestEventSelectionDialog(): void {
         eventSelectionDialogRequested();

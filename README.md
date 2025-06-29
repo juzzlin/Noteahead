@@ -67,6 +67,8 @@ Some example tracks sequenced with Noteahead:
   - Select lines and add automation on the desired controller
 * Pitch Bend automation (linear interpolation)
   - Select lines and add automation on pitch bend
+* Tools
+  - Delay time calculator
 * Saves to a custom (but open!) XML-based **.nahd** format
 * Music video generator (**Experimental**):
 

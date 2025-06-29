@@ -228,6 +228,11 @@ ApplicationWindow {
         height: parent.height * 0.5
         onAccepted: pitchBendAutomationsModel.applyAll()
     }
+    DelayCalculatorDialog {
+        id: delayCalculatorDialog
+        anchors.centerIn: parent
+        height: parent.height * 0.25
+    }
     function _getWindowTitle(): string {
         const nameAndVersion = `${applicationService.applicationName()} MIDI tracker v${applicationService.applicationVersion()}`;
         const currentFileName = (editorService.currentFileName ? " - " + editorService.currentFileName : "");
@@ -420,6 +425,11 @@ ApplicationWindow {
                 pitchBendAutomationsModel.requestPitchBendAutomationsByPattern(position.pattern);
                 editPitchBendAutomationsDialog.setTitle(qsTr("Edit Pitch Bend automations by pattern"));
                 editPitchBendAutomationsDialog.open();
+            });
+        UiService.delayCalculatorDialogRequested.connect(() => {
+                delayCalculatorDialog.bpm = editorService.beatsPerMinute;
+                delayCalculatorDialog.calculateDelay();
+                delayCalculatorDialog.open();
             });
         UiService.quitRequested.connect(() => {
                 settingsService.setWindowSize(Qt.size(mainWindow.width, mainWindow.height));
