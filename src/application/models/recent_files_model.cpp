@@ -15,6 +15,8 @@
 
 #include "recent_files_model.hpp"
 
+#include <QFileInfo>
+
 namespace noteahead {
 
 RecentFilesModel::RecentFilesModel(QObject * parent)
@@ -41,10 +43,22 @@ QVariant RecentFilesModel::data(const QModelIndex & index, int role) const
     if (!index.isValid() || index.row() < 0 || index.row() >= m_recentFiles.size())
         return {};
 
-    if (role == Qt::DisplayRole || role == Qt::EditRole)
-        return m_recentFiles.at(index.row());
+    const auto path = m_recentFiles.at(index.row());
 
-    return {};
+    switch (static_cast<Role>(role)) {
+    case Role::FilePath:
+        return path;
+    case Role::Exists:
+        return QFileInfo::exists(path);
+    }
+}
+
+QHash<int, QByteArray> RecentFilesModel::roleNames() const
+{
+    return {
+        { static_cast<int>(Role::FilePath), "filePath" },
+        { static_cast<int>(Role::Exists), "exists" }
+    };
 }
 
 } // namespace noteahead

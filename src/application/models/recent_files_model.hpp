@@ -26,12 +26,19 @@ class RecentFilesModel : public QAbstractListModel
     Q_OBJECT
 
 public:
+    enum class Role
+    {
+        FilePath = Qt::UserRole + 1,
+        Exists
+    };
+
     explicit RecentFilesModel(QObject * parent = nullptr);
 
     void setRecentFiles(const QStringList & list);
 
     Q_INVOKABLE int rowCount(const QModelIndex & parent = QModelIndex()) const override;
     Q_INVOKABLE QVariant data(const QModelIndex & index, int role = Qt::DisplayRole) const override;
+    Q_INVOKABLE QHash<int, QByteArray> roleNames() const override;
 
 private:
     QStringList m_recentFiles;

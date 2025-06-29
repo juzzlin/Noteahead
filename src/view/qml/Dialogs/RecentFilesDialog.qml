@@ -27,7 +27,8 @@ Dialog {
                     height: recentFileText.height + 20
                     Label {
                         id: recentFileText
-                        text: model.display
+                        text: model.filePath
+                        font.strikeout: !model.exists
                         anchors.verticalCenter: parent.verticalCenter
                         anchors.left: parent.left
                         anchors.leftMargin: 10
@@ -36,10 +37,11 @@ Dialog {
                     }
                     MouseArea {
                         anchors.fill: parent
+                        enabled: model.exists
                         onClicked: {
                             recentFilesDialog.close();
-                            recentFilesDialog.selectedFile = model.display;
-                            recentFilesDialog.fileSelected(model.display);
+                            recentFilesDialog.selectedFile = model.filePath;
+                            recentFilesDialog.fileSelected(model.filePath);
                         }
                         HoverHandler {
                             id: hoverHandler
