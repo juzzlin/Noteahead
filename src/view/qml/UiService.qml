@@ -8,6 +8,10 @@ QtObject {
     signal columnAddPitchBendAutomationDialogRequested
     signal columnVelocityInterpolationDialogRequested
     signal columnVelocityScaleDialogRequested(int trackIndex, int columnIndex)
+    signal columnAddInstrumentLayerDialogRequested
+    signal columnEditInstrumentLayersDialogRequested
+    signal trackEditInstrumentLayersDialogRequested
+    signal editInstrumentLayersDialogRequested
     signal contextMenuRequested(int globalX, int globalY)
     signal delayCalculatorDialogRequested
     signal editMidiCcAutomationsDialogByColumnRequested
@@ -239,6 +243,26 @@ QtObject {
     function requestEditPitchBendAutomationsDialogByPattern(): void {
         if (!isPlaying()) {
             editPitchBendAutomationsDialogByPatternRequested();
+        }
+    }
+    function requestColumnAddInstrumentLayerDialog(): void {
+        if (!isPlaying()) {
+            columnAddInstrumentLayerDialogRequested();
+        }
+    }
+    function requestColumnEditInstrumentLayersDialog(): void {
+        if (!isPlaying()) {
+            columnEditInstrumentLayersDialogRequested();
+        }
+    }
+    function requestTrackEditInstrumentLayersDialog(): void {
+        if (!isPlaying()) {
+            trackEditInstrumentLayersDialogRequested();
+        }
+    }
+    function requestEditInstrumentLayersDialog(): void {
+        if (!isPlaying()) {
+            editInstrumentLayersDialogRequested();
         }
     }
     function requestFocusOnEditorView(): void {

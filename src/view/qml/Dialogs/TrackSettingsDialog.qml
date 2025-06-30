@@ -78,6 +78,10 @@ Dialog {
                 id: midiCcSettingsGeneric
                 Layout.fillWidth: true
             }
+            TrackSettingsDialog_Layers {
+                id: layers
+                Layout.fillWidth: true
+            }
         }
         TabBar {
             id: tabBar
@@ -96,6 +100,9 @@ Dialog {
             }
             TabButton {
                 text: qsTr("MIDI CC (Custom)")
+            }
+            TabButton {
+                text: qsTr("Layers")
             }
         }
     }

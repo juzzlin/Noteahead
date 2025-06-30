@@ -21,6 +21,7 @@
 #include "common/utils.hpp"
 #include "domain/midi_note_data.hpp"
 #include "models/event_selection_model.hpp"
+#include "models/instrument_layers_model.hpp"
 #include "models/midi_cc_automations_model.hpp"
 #include "models/midi_settings_model.hpp"
 #include "models/note_column_line_container_helper.hpp"
@@ -33,6 +34,7 @@
 #include "service/audio_service.hpp"
 #include "service/automation_service.hpp"
 #include "service/editor_service.hpp"
+#include "service/instrument_layer_service.hpp"
 #include "service/midi_service.hpp"
 #include "service/mixer_service.hpp"
 #include "service/player_service.hpp"
@@ -63,6 +65,7 @@ Application::Application(int & argc, char ** argv)
   , m_applicationService { std::make_unique<ApplicationService>() }
   , m_audioService { std::make_unique<AudioService>() }
   , m_automationService { std::make_unique<AutomationService>() }
+  , m_instrumentLayerService { std::make_unique<InstrumentLayerService>() }
   , m_settingsService { std::make_unique<SettingsService>() }
   , m_selectionService { std::make_unique<SelectionService>() }
   , m_editorService { std::make_unique<EditorService>(m_selectionService) }
@@ -77,6 +80,7 @@ Application::Application(int & argc, char ** argv)
   , m_pitchBendAutomationsModel { std::make_unique<PitchBendAutomationsModel>() }
   , m_trackSettingsModel { std::make_unique<TrackSettingsModel>() }
   , m_midiSettingsModel { std::make_unique<MidiSettingsModel>(m_settingsService) }
+  , m_instrumentLayersModel { std::make_unique<InstrumentLayersModel>() }
   , m_utilService { std::make_unique<UtilService>() }
   , m_noteColumnLineContainerHelper { std::make_unique<NoteColumnLineContainerHelper>(
       m_automationService, m_editorService, m_selectionService, m_utilService) }
@@ -112,6 +116,8 @@ void Application::registerTypes()
     qmlRegisterType<AutomationService>("Noteahead", majorVersion, minorVersion, "AutomationService");
     qmlRegisterType<EditorService>("Noteahead", majorVersion, minorVersion, "EditorService");
     qmlRegisterType<EditorService>("Noteahead", majorVersion, minorVersion, "EventSelectionModel");
+    qmlRegisterType<InstrumentLayerService>("Noteahead", majorVersion, minorVersion, "InstrumentLayerService");
+    qmlRegisterType<InstrumentLayersModel>("Noteahead", majorVersion, minorVersion, "InstrumentLayersModel");
     qmlRegisterType<MidiCcAutomationsModel>("Noteahead", majorVersion, minorVersion, "MidiCcAutomationsModel");
     qmlRegisterType<MidiService>("Noteahead", majorVersion, minorVersion, "MidiService");
     qmlRegisterType<MidiSettingsModel>("Noteahead", majorVersion, minorVersion, "MidiSettingsModel");
@@ -135,6 +141,8 @@ void Application::setContextProperties()
     m_engine->rootContext()->setContextProperty("automationService", m_automationService.get());
     m_engine->rootContext()->setContextProperty("editorService", m_editorService.get());
     m_engine->rootContext()->setContextProperty("eventSelectionModel", m_eventSelectionModel.get());
+    m_engine->rootContext()->setContextProperty("instrumentLayerService", m_instrumentLayerService.get());
+    m_engine->rootContext()->setContextProperty("instrumentLayersModel", m_instrumentLayersModel.get());
     m_engine->rootContext()->setContextProperty("midiCcAutomationsModel", m_midiCcAutomationsModel.get());
     m_engine->rootContext()->setContextProperty("midiService", m_midiService.get());
     m_engine->rootContext()->setContextProperty("midiSettingsModel", m_midiSettingsModel.get());
@@ -233,6 +241,7 @@ void Application::connectServices()
     connectApplicationService();
 
     connectAutomationService();
+    connectInstrumentLayerService();
     connectEditorService();
     connectMidiService();
     connectMixerService();
@@ -241,6 +250,7 @@ void Application::connectServices()
     connectStateMachine();
 
     connectEventSelectionModel();
+    connectInstrumentLayersModel();
     connectMidiCcAutomationsModel();
     connectPitchBendAutomationsModel();
     connectTrackSettingsModel();
@@ -263,6 +273,28 @@ void Application::connectApplicationService()
 void Application::connectAutomationService()
 {
     connect(m_automationService.get(), &AutomationService::lineDataChanged, this, [this]() {
+        m_editorService->setIsModified(true);
+    });
+}
+
+void Application::connectInstrumentLayerService()
+{
+    connect(m_instrumentLayerService.get(), &InstrumentLayerService::modified, this, [this]() {
+        m_editorService->setIsModified(true);
+    });
+}
+
+void Application::connectInstrumentLayersModel()
+{
+    connect(m_instrumentLayersModel.get(), &InstrumentLayersModel::layersRequested, this, [this]() {
+        m_instrumentLayersModel->setLayers(m_instrumentLayerService->layers());
+    });
+    connect(m_instrumentLayersModel.get(), &InstrumentLayersModel::layerChanged, this, [this](auto && item) {
+        m_instrumentLayerService->updateLayer(item);
+        m_editorService->setIsModified(true);
+    });
+    connect(m_instrumentLayersModel.get(), &InstrumentLayersModel::layerDeleted, this, [this](auto && item) {
+        m_instrumentLayerService->deleteLayer(item);
         m_editorService->setIsModified(true);
     });
 }

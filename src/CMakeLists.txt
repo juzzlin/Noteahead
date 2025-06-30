@@ -9,6 +9,7 @@ set(HEADER_FILES
   application/application.hpp
   application/instrument_request.hpp
   application/models/event_selection_model.hpp
+  application/models/instrument_layers_model.hpp
   application/models/midi_cc_automations_model.hpp
   application/models/midi_cc_selection_model.hpp
   application/models/midi_settings_model.hpp
@@ -26,6 +27,7 @@ set(HEADER_FILES
   application/service/automation_service.hpp
   application/service/copy_manager.hpp
   application/service/editor_service.hpp
+  application/service/instrument_layer_service.hpp
   application/service/midi_in_worker.hpp
   application/service/midi_out_worker.hpp
   application/service/midi_service.hpp
@@ -48,6 +50,7 @@ set(HEADER_FILES
   domain/event.hpp
   domain/event_data.hpp
   domain/instrument.hpp
+  domain/instrument_layer.hpp
   domain/instrument_settings.hpp
   domain/interpolator.hpp
   domain/line.hpp
@@ -87,6 +90,7 @@ set(SOURCE_FILES
   application/application.cpp
   application/instrument_request.cpp
   application/models/event_selection_model.cpp
+  application/models/instrument_layers_model.cpp
   application/models/midi_cc_automations_model.cpp
   application/models/midi_cc_selection_model.cpp
   application/models/midi_settings_model.cpp
@@ -103,6 +107,7 @@ set(SOURCE_FILES
   application/service/automation_service.cpp
   application/service/copy_manager.cpp
   application/service/editor_service.cpp
+  application/service/instrument_layer_service.cpp
   application/service/midi_in_worker.cpp
   application/service/midi_out_worker.cpp
   application/service/midi_service.cpp
@@ -125,6 +130,7 @@ set(SOURCE_FILES
   domain/event.cpp
   domain/event_data.cpp
   domain/instrument.cpp
+  domain/instrument_layer.cpp
   domain/instrument_settings.cpp
   domain/interpolator.cpp
   domain/line.cpp
@@ -178,14 +184,18 @@ set(QML_SOURCE_FILES
     ${QML_BASE_DIR}/Components/VirtualKeyboard.qml
     ${QML_BASE_DIR}/Constants.qml
     ${QML_BASE_DIR}/Dialogs/AboutDialog.qml
+    ${QML_BASE_DIR}/Dialogs/AddInstrumentLayerDialog.qml
     ${QML_BASE_DIR}/Dialogs/AddMidiCcAutomationDialog.qml
     ${QML_BASE_DIR}/Dialogs/AddPitchBendAutomationDialog.qml
     ${QML_BASE_DIR}/Dialogs/DelayCalculatorDialog.qml
+    ${QML_BASE_DIR}/Dialogs/EditInstrumentLayersDelegate.qml
+    ${QML_BASE_DIR}/Dialogs/EditInstrumentLayersDialog.qml
     ${QML_BASE_DIR}/Dialogs/EditMidiCcAutomationsDelegate.qml
     ${QML_BASE_DIR}/Dialogs/EditMidiCcAutomationsDialog.qml
     ${QML_BASE_DIR}/Dialogs/EditPitchBendAutomationsDelegate.qml
     ${QML_BASE_DIR}/Dialogs/EditPitchBendAutomationsDialog.qml
     ${QML_BASE_DIR}/Dialogs/EventSelectionDialog.qml
+    ${QML_BASE_DIR}/Dialogs/InstrumentLayerModel.qml
     ${QML_BASE_DIR}/Dialogs/IntegerInputDialog.qml
     ${QML_BASE_DIR}/Dialogs/InterpolationDialog.qml
     ${QML_BASE_DIR}/Dialogs/MidiCcAutomationModel.qml
@@ -200,6 +210,7 @@ set(QML_SOURCE_FILES
     ${QML_BASE_DIR}/Dialogs/ShortcutsDialog.qml
     ${QML_BASE_DIR}/Dialogs/TrackSettingsDialog.qml
     ${QML_BASE_DIR}/Dialogs/TrackSettingsDialog_InstrumentSettings.qml
+    ${QML_BASE_DIR}/Dialogs/TrackSettingsDialog_Layers.qml
     ${QML_BASE_DIR}/Dialogs/TrackSettingsDialog_MidiCcSettings_Custom.qml
     ${QML_BASE_DIR}/Dialogs/TrackSettingsDialog_MidiCcSettings_Standard.qml
     ${QML_BASE_DIR}/Dialogs/TrackSettingsDialog_MidiEffects.qml

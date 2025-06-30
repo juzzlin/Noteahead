@@ -17,6 +17,7 @@
 
 #include "../../application/service/automation_service.hpp"
 #include "../../application/service/editor_service.hpp"
+#include "../../application/service/instrument_layer_service.hpp"
 #include "../../application/service/mixer_service.hpp"
 #include "../../application/service/selection_service.hpp"
 #include "../../domain/instrument.hpp"
@@ -1491,6 +1492,62 @@ void EditorServiceTest::test_toXmlFromXml_trackName_shouldLoadTrackName()
 
     QCOMPARE(editorServiceIn.trackName(0), editorServiceOut.trackName(0));
     QCOMPARE(editorServiceIn.trackName(1), editorServiceOut.trackName(1));
+}
+
+void EditorServiceTest::test_toXmlFromXml_instrumentLayerService_shouldLoadInstrumentLayerService()
+{
+    const auto comment = "Instrument Layer Test";
+
+    InstrumentLayerService serviceOut;
+    size_t id = 1;
+
+    quint64 targetTrack = 42;
+    quint8 note = 60;
+    bool followSourceNote = true;
+    quint8 velocity = 17;
+    bool applyTargetVelocity = true;
+    bool followSourceVelocity = true;
+
+    for (size_t track = 0; track < 8; track++) {
+        for (size_t column = 0; column < 3; column++) {
+            const auto newId = serviceOut.addLayer(
+              track,
+              column,
+              targetTrack,
+              note,
+              followSourceNote,
+              velocity,
+              applyTargetVelocity,
+              followSourceVelocity,
+              comment,
+              track % 2 == 0);
+            QCOMPARE(newId, id);
+            id++;
+        }
+    }
+
+    InstrumentLayerService serviceIn;
+    EditorService editorService;
+    connect(&editorService, &EditorService::instrumentLayerSerializationRequested, &serviceOut, &InstrumentLayerService::serializeToXml);
+    connect(&editorService, &EditorService::instrumentLayerDeserializationRequested, &serviceIn, &InstrumentLayerService::deserializeFromXml);
+
+    editorService.fromXml(editorService.toXml());
+
+    for (size_t track = 0; track < 8; track++) {
+        for (size_t column = 0; column < 3; column++) {
+            QVERIFY(serviceIn.hasLayers(track, column));
+            QCOMPARE(serviceIn.layersByColumn(track, column).size(), 1);
+            const auto layer = serviceIn.layersByColumn(track, column).at(0);
+            QCOMPARE(layer.comment(), comment);
+            QCOMPARE(layer.enabled(), track % 2 == 0);
+            QCOMPARE(layer.parameters().targetTrack, targetTrack);
+            QCOMPARE(layer.parameters().note, note);
+            QCOMPARE(layer.parameters().followSourceNote, followSourceNote);
+            QCOMPARE(layer.parameters().velocity, velocity);
+            QCOMPARE(layer.parameters().applyTargetVelocity, applyTargetVelocity);
+            QCOMPARE(layer.parameters().followSourceVelocity, followSourceVelocity);
+        }
+    }
 }
 
 void EditorServiceTest::test_toXmlFromXml_automationService_midiCc_shouldLoadAutomationService()

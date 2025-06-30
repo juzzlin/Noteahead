@@ -184,16 +184,26 @@ public:
     size_t length() const;
     void setLength(size_t length);
 
-    //! To decouple MiserService from Song. I don't want Song to know anything about MixerService.
+    //! To decouple MixerService from Song. I don't want Song to know anything about MixerService.
     //! However, concept-wise the mixer settings should still be Song-specific as track configurations may vary.
-    //! The same applies to AutomationSerializationCallback.
+    //! The same applies to other similar services.
     using MixerSerializationCallback = std::function<void(QXmlStreamWriter & writer)>;
     using AutomationSerializationCallback = std::function<void(QXmlStreamWriter & writer)>;
-    void serializeToXml(QXmlStreamWriter & writer, MixerSerializationCallback mixerSerializationCallback, AutomationSerializationCallback automationSerializationCallback) const;
-    void serializeToXmlAsTemplate(QXmlStreamWriter & writer, MixerSerializationCallback mixerSerializationCallback, AutomationSerializationCallback automationSerializationCallback) const;
+    using InstrumentLayerSerializationCallback = std::function<void(QXmlStreamWriter & writer)>;
+    void serializeToXml(
+      QXmlStreamWriter & writer,
+      MixerSerializationCallback mixerSerializationCallback,
+      AutomationSerializationCallback automationSerializationCallback,
+      InstrumentLayerSerializationCallback instrumentLayerSerializationCallback) const;
+    void serializeToXmlAsTemplate(QXmlStreamWriter & writer, MixerSerializationCallback mixerSerializationCallback) const;
     using MixerDeserializationCallback = std::function<void(QXmlStreamReader & reader)>;
     using AutomationDeserializationCallback = std::function<void(QXmlStreamReader & reader)>;
-    void deserializeFromXml(QXmlStreamReader & reader, MixerDeserializationCallback mixerDeserializationCallback, AutomationDeserializationCallback automationDeserializationCallback);
+    using InstrumentLayerDeserializationCallback = std::function<void(QXmlStreamReader & reader)>;
+    void deserializeFromXml(
+      QXmlStreamReader & reader,
+      MixerDeserializationCallback mixerDeserializationCallback,
+      AutomationDeserializationCallback automationDeserializationCallback,
+      InstrumentLayerDeserializationCallback instrumentLayerDeserializationCallback);
 
 private:
     void load(const std::string & filename);

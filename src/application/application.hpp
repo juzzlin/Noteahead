@@ -39,6 +39,8 @@ class AutomationService;
 class EditorService;
 class EventSelectionModel;
 class Instrument;
+class InstrumentLayersModel;
+class InstrumentLayerService;
 class MidiCcAutomationsModel;
 class MidiService;
 class MidiSettingsModel;
@@ -78,14 +80,16 @@ private:
     void connectApplicationService();
     void connectAutomationService();
     void connectEditorService();
+    void connectEventSelectionModel();
+    void connectInstrumentLayerService();
+    void connectInstrumentLayersModel();
     void connectMidiCcAutomationsModel();
     void connectMidiService();
     void connectMidiSettingsModel();
     void connectMixerService();
+    void connectPitchBendAutomationsModel();
     void connectPlayerService();
     void connectStateMachine();
-    void connectEventSelectionModel();
-    void connectPitchBendAutomationsModel();
     void connectTrackSettingsModel();
 
     void addVideoOptions(juzzlin::Argengine & ae);
@@ -110,6 +114,7 @@ private:
     std::unique_ptr<AudioService> m_audioService;
 
     std::shared_ptr<AutomationService> m_automationService;
+    std::shared_ptr<InstrumentLayerService> m_instrumentLayerService;
 
     std::shared_ptr<SettingsService> m_settingsService;
 
@@ -131,6 +136,7 @@ private:
     std::unique_ptr<PitchBendAutomationsModel> m_pitchBendAutomationsModel;
     std::unique_ptr<TrackSettingsModel> m_trackSettingsModel;
     std::unique_ptr<MidiSettingsModel> m_midiSettingsModel;
+    std::unique_ptr<InstrumentLayersModel> m_instrumentLayersModel;
 
     std::shared_ptr<UtilService> m_utilService;
 

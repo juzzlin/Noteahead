@@ -179,6 +179,41 @@ QString xmlKeyInstrument()
     return "Instrument";
 }
 
+QString xmlKeyInstrumentLayer()
+{
+    return "InstrumentLayer";
+}
+
+QString xmlKeyInstrumentLayers()
+{
+    return "InstrumentLayers";
+}
+
+QString xmlKeyParameters()
+{
+    return "Parameters";
+}
+
+QString xmlKeyTargetTrack()
+{
+    return "targetTrack";
+}
+
+QString xmlKeyFollowSourceNote()
+{
+    return "followSourceNote";
+}
+
+QString xmlKeyApplyTargetVelocity()
+{
+    return "applyTargetVelocity";
+}
+
+QString xmlKeyFollowSourceVelocity()
+{
+    return "followSourceVelocity";
+}
+
 QString xmlKeyInstrumentSettings()
 {
     return "InstrumentSettings";

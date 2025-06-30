@@ -96,5 +96,16 @@ Menu {
         enabled: !UiService.isPlaying()
         onTriggered: UiService.requestEditPitchBendAutomationsDialogByColumn()
     }
+    MenuSeparator {}
+    Action {
+        text: qsTr("Add instrument layer")
+        enabled: !UiService.isPlaying()
+        onTriggered: UiService.requestColumnAddInstrumentLayerDialog()
+    }
+    Action {
+        text: qsTr("Edit instrument layers")
+        enabled: !UiService.isPlaying()
+        onTriggered: UiService.requestColumnEditInstrumentLayersDialog()
+    }
     delegate: MenuItemDelegate {}
 }

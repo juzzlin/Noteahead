@@ -24,6 +24,7 @@
 #include <QString>
 
 #include "event_data.hpp"
+#include "instrument_layer.hpp"
 #include "midi_cc_setting.hpp"
 
 class QXmlStreamReader;
@@ -78,6 +79,8 @@ public:
     StandardMidiCcSettings standardMidiCcSettings;
 
     std::vector<MidiCcSetting> midiCcSettings;
+
+    std::vector<InstrumentLayer> layers;
 
     void serializeToXml(QXmlStreamWriter & writer) const;
     using InstrumentSettingsU = std::unique_ptr<InstrumentSettings>;

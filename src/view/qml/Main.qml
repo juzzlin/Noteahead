@@ -241,6 +241,23 @@ ApplicationWindow {
         height: parent.height * Constants.defaultDialogScale
         onAccepted: pitchBendAutomationsModel.applyAll()
     }
+    AddInstrumentLayerDialog {
+        id: addInstrumentLayerDialog
+        anchors.centerIn: parent
+        width: parent.width * Constants.defaultDialogScale
+        onAccepted: {
+            const position = editorService.position;
+            instrumentLayerService.addLayer(position.track, position.column, comment());
+            bottomBar.setStatusText(qsTr("Instrument layer added"));
+        }
+    }
+    EditInstrumentLayersDialog {
+        id: editInstrumentLayersDialog
+        anchors.centerIn: parent
+        width: parent.width * Constants.defaultDialogScale
+        height: parent.height * Constants.defaultDialogScale
+        onAccepted: instrumentLayersModel.applyAll()
+    }
     DelayCalculatorDialog {
         id: delayCalculatorDialog
         anchors.centerIn: parent
@@ -460,6 +477,28 @@ ApplicationWindow {
             pitchBendAutomationsModel.requestPitchBendAutomationsByPattern(position.pattern);
             editPitchBendAutomationsDialog.setTitle(qsTr("Edit Pitch Bend automations by pattern"));
             editPitchBendAutomationsDialog.open();
+        });
+        UiService.columnAddInstrumentLayerDialogRequested.connect(() => {
+            addInstrumentLayerDialog.setTitle(qsTr("Add instrument layer"));
+            addInstrumentLayerDialog.setComment("");
+            addInstrumentLayerDialog.open();
+        });
+        UiService.editInstrumentLayersDialogRequested.connect(() => {
+            instrumentLayersModel.requestLayers();
+            editInstrumentLayersDialog.setTitle(qsTr("Edit instrument layers"));
+            editInstrumentLayersDialog.open();
+        });
+        UiService.columnEditInstrumentLayersDialogRequested.connect(() => {
+            const position = editorService.position;
+            instrumentLayersModel.requestLayersByColumn(position.track, position.column);
+            editInstrumentLayersDialog.setTitle(qsTr("Edit instrument layers by column"));
+            editInstrumentLayersDialog.open();
+        });
+        UiService.trackEditInstrumentLayersDialogRequested.connect(() => {
+            const position = editorService.position;
+            instrumentLayersModel.requestLayersByTrack(position.track);
+            editInstrumentLayersDialog.setTitle(qsTr("Edit instrument layers by track"));
+            editInstrumentLayersDialog.open();
         });
         UiService.delayCalculatorDialogRequested.connect(() => {
             delayCalculatorDialog.bpm = editorService.beatsPerMinute;

@@ -179,10 +179,13 @@ EditorService::SongS EditorService::deserializeProject(QXmlStreamReader & reader
         const auto automationDeserializationCallback = [this](QXmlStreamReader & reader) {
             emit automationDeserializationRequested(reader);
         };
+        const auto instrumentLayerDeserializationCallback = [this](QXmlStreamReader & reader) {
+            emit instrumentLayerDeserializationRequested(reader);
+        };
         while (!(reader.isEndElement() && !reader.name().compare(Constants::NahdXml::xmlKeyProject()))) {
             if (reader.isStartElement() && !reader.name().compare(Constants::NahdXml::xmlKeySong())) {
                 song = std::make_unique<Song>();
-                song->deserializeFromXml(reader, mixerDeserializationCallback, automationDeserializationCallback);
+                song->deserializeFromXml(reader, mixerDeserializationCallback, automationDeserializationCallback, instrumentLayerDeserializationCallback);
             }
             reader.readNext();
         }
@@ -260,7 +263,10 @@ QString EditorService::toXml()
     const auto automationSerializationCallback = [this](QXmlStreamWriter & writer) {
         emit automationSerializationRequested(writer);
     };
-    m_song->serializeToXml(writer, mixerSerializationCallback, automationSerializationCallback);
+    const auto instrumentLayerSerializationCallback = [this](QXmlStreamWriter & writer) {
+        emit instrumentLayerSerializationRequested(writer);
+    };
+    m_song->serializeToXml(writer, mixerSerializationCallback, automationSerializationCallback, instrumentLayerSerializationCallback);
 
     writer.writeEndElement();
     writer.writeEndDocument();
@@ -287,10 +293,7 @@ QString EditorService::toXmlAsTemplate()
     const auto mixerSerializationCallback = [this](QXmlStreamWriter & writer) {
         emit mixerSerializationRequested(writer);
     };
-    const auto automationSerializationCallback = [this](QXmlStreamWriter & writer) {
-        emit automationSerializationRequested(writer);
-    };
-    m_song->serializeToXmlAsTemplate(writer, mixerSerializationCallback, automationSerializationCallback);
+    m_song->serializeToXmlAsTemplate(writer, mixerSerializationCallback);
 
     writer.writeEndElement();
     writer.writeEndDocument();

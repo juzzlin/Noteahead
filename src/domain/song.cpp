@@ -795,7 +795,11 @@ Song::EventList Song::renderToEvents(AutomationServiceS automationService, size_
     return applyInstrumentsOnEvents(renderContent(automationService, startPosition, endPosition));
 }
 
-void Song::serializeToXml(QXmlStreamWriter & writer, MixerSerializationCallback mixerSerializationCallback, AutomationSerializationCallback automationSerializationCallback) const
+void Song::serializeToXml(
+  QXmlStreamWriter & writer,
+  MixerSerializationCallback mixerSerializationCallback,
+  AutomationSerializationCallback automationSerializationCallback,
+  InstrumentLayerSerializationCallback instrumentLayerSerializationCallback) const
 {
     writer.writeStartElement(Constants::NahdXml::xmlKeySong());
 
@@ -813,6 +817,10 @@ void Song::serializeToXml(QXmlStreamWriter & writer, MixerSerializationCallback 
         automationSerializationCallback(writer);
     }
 
+    if (instrumentLayerSerializationCallback) {
+        instrumentLayerSerializationCallback(writer);
+    }
+
     writer.writeStartElement(Constants::NahdXml::xmlKeyPatterns());
 
     std::ranges::for_each(m_patterns, [&writer](const auto & pattern) {
@@ -825,7 +833,7 @@ void Song::serializeToXml(QXmlStreamWriter & writer, MixerSerializationCallback 
     writer.writeEndElement(); // Song
 }
 
-void Song::serializeToXmlAsTemplate(QXmlStreamWriter & writer, MixerSerializationCallback mixerSerializationCallback, AutomationSerializationCallback automationSerializationCallback) const
+void Song::serializeToXmlAsTemplate(QXmlStreamWriter & writer, MixerSerializationCallback mixerSerializationCallback) const
 {
     writer.writeStartElement(Constants::NahdXml::xmlKeySong());
 
@@ -837,10 +845,6 @@ void Song::serializeToXmlAsTemplate(QXmlStreamWriter & writer, MixerSerializatio
         mixerSerializationCallback(writer);
     }
 
-    if (automationSerializationCallback) {
-        automationSerializationCallback(writer);
-    }
-
     writer.writeStartElement(Constants::NahdXml::xmlKeyPatterns());
 
     m_patterns.at(0)->serializeToXml(writer);
@@ -849,7 +853,11 @@ void Song::serializeToXmlAsTemplate(QXmlStreamWriter & writer, MixerSerializatio
     writer.writeEndElement(); // Song
 }
 
-void Song::deserializeFromXml(QXmlStreamReader & reader, MixerDeserializationCallback mixerDeserializationCallback, AutomationDeserializationCallback automationDeserializationCallback)
+void Song::deserializeFromXml(
+  QXmlStreamReader & reader,
+  MixerDeserializationCallback mixerDeserializationCallback,
+  AutomationDeserializationCallback automationDeserializationCallback,
+  InstrumentLayerDeserializationCallback instrumentLayerDeserializationCallback)
 {
     setBeatsPerMinute(*Utils::Xml::readUIntAttribute(reader, Constants::NahdXml::xmlKeyBeatsPerMinute()));
     setLinesPerBeat(*Utils::Xml::readUIntAttribute(reader, Constants::NahdXml::xmlKeyLinesPerBeat()));
@@ -870,6 +878,10 @@ void Song::deserializeFromXml(QXmlStreamReader & reader, MixerDeserializationCal
             } else if (!reader.name().compare(Constants::NahdXml::xmlKeyAutomation())) {
                 if (automationDeserializationCallback) {
                     automationDeserializationCallback(reader);
+                }
+            } else if (!reader.name().compare(Constants::NahdXml::xmlKeyInstrumentLayers())) {
+                if (instrumentLayerDeserializationCallback) {
+                    instrumentLayerDeserializationCallback(reader);
                 }
             }
         }

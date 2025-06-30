@@ -26,5 +26,11 @@ Menu {
         enabled: !UiService.isPlaying()
         onTriggered: UiService.requestEditPitchBendAutomationsDialog()
     }
+    MenuSeparator {}
+    Action {
+        text: qsTr("Edit instrument layers (ALL)")
+        enabled: !UiService.isPlaying()
+        onTriggered: UiService.requestEditInstrumentLayersDialog()
+    }
     delegate: MenuItemDelegate {}
 }

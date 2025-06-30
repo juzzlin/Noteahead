@@ -100,5 +100,11 @@ Menu {
         enabled: !UiService.isPlaying()
         onTriggered: UiService.requestEditPitchBendAutomationsDialogByTrack()
     }
+    MenuSeparator {}
+    Action {
+        text: qsTr("Edit instrument layers")
+        enabled: !UiService.isPlaying()
+        onTriggered: UiService.requestTrackEditInstrumentLayersDialog()
+    }
     delegate: MenuItemDelegate {}
 }

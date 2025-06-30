@@ -110,6 +110,7 @@ private slots:
     void test_toXmlFromXml_columnName_shouldLoadColumnName();
     void test_toXmlFromXml_instrumentSettings_shouldParseInstrumentSettings();
     void test_toXmlFromXml_instrument_shouldParseInstrument();
+    void test_toXmlFromXml_instrumentLayerService_shouldLoadInstrumentLayerService();
     void test_toXmlFromXml_automationService_midiCc_shouldLoadAutomationService();
     void test_toXmlFromXml_automationService_pitchBend_shouldLoadAutomationService();
     void test_toXmlFromXml_mixerService_shouldLoadMixerService();

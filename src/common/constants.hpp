@@ -70,6 +70,14 @@ QString xmlKeyAutoNoteOffOffset();
 
 QString xmlKeyIndex();
 
+QString xmlKeyInstrumentLayer();
+QString xmlKeyInstrumentLayers();
+QString xmlKeyParameters();
+QString xmlKeyTargetTrack();
+QString xmlKeyFollowSourceNote();
+QString xmlKeyApplyTargetVelocity();
+QString xmlKeyFollowSourceVelocity();
+
 QString xmlKeyInstrument();
 QString xmlKeyInstrumentSettings();
 

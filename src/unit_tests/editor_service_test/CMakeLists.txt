@@ -9,6 +9,7 @@ set(SRC
     ../../application/service/automation_service.cpp
     ../../application/service/copy_manager.cpp
     ../../application/service/editor_service.cpp
+    ../../application/service/instrument_layer_service.cpp
     ../../application/service/mixer_service.cpp
     ../../application/service/random_service.cpp
     ../../application/service/selection_service.cpp
@@ -20,6 +21,7 @@ set(SRC
     ../../domain/event.cpp
     ../../domain/event_data.cpp
     ../../domain/instrument.cpp
+    ../../domain/instrument_layer.cpp
     ../../domain/instrument_settings.cpp
     ../../domain/interpolator.cpp
     ../../domain/line.cpp

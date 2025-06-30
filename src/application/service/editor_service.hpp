@@ -295,6 +295,8 @@ signals:
 
     void automationSerializationRequested(QXmlStreamWriter & xmlStreamWriter);
     void automationDeserializationRequested(QXmlStreamReader & xmlStreamReader);
+    void instrumentLayerSerializationRequested(QXmlStreamWriter & xmlStreamWriter);
+    void instrumentLayerDeserializationRequested(QXmlStreamReader & xmlStreamReader);
     void mixerSerializationRequested(QXmlStreamWriter & xmlStreamWriter);
     void mixerDeserializationRequested(QXmlStreamReader & xmlStreamReader);
 
