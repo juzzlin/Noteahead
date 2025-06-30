@@ -56,7 +56,10 @@ Dialog {
             Label {
                 id: resultLabel
                 Layout.fillWidth: true
-                text: " = " + delayMs.toFixed(2) + qsTr(" ms")
+                text: {
+                    const hz = delayMs > 0 ? (1000 / delayMs).toFixed(2) : "--";
+                    return `= ${delayMs.toFixed(2)} ms (${hz} Hz)`;
+                }
                 font.bold: true
                 font.pixelSize: bpmSpinBox.height
             }
