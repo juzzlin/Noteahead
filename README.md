@@ -25,9 +25,15 @@ Some example tracks sequenced with Noteahead:
 
 ---
 
+<a href="https://open.spotify.com/track/04v9gwT7L0wKbrY8MbIRao">Arctic Music Project - Halla (Spotify)</a>
+
+<a href="https://www.youtube.com/watch?v=TBqsTLem6BM">Arctic Music Project - Halla (YouTube)</a>
+
 <a href="https://soundcloud.com/arctic-music-project/halla">Arctic Music Project - Halla (SoundCloud)</a>
 
 ---
+
+<a href="https://open.spotify.com/track/4Sz1Zpb14p9vn1NbtA9Gl9">Arctic Music Project - Awesome (Spotify)</a>
 
 <a href="https://www.youtube.com/watch?v=xRYCcsAtksU">Arctic Music Project - Awesome (YouTube)</a>
 
