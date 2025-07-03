@@ -76,6 +76,7 @@ void EditorService::setSong(SongS song)
     emit currentLineCountChanged();
     emit currentPatternChanged();
     emit songLengthChanged();
+    emit currentFileNameChanged();
 
     updateScrollBar();
 

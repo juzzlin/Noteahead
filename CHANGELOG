@@ -15,6 +15,8 @@ Bug fixes:
 
 * Fix GitHub Issue #14: Rewinding a song assumes that track with index 0 exists
 
+* Fix GitHub Issue #17: Window title not reset on a new song
+
 Other:
 
 0.9.0
