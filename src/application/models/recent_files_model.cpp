@@ -40,17 +40,16 @@ int RecentFilesModel::rowCount(const QModelIndex & parent) const
 
 QVariant RecentFilesModel::data(const QModelIndex & index, int role) const
 {
-    if (!index.isValid() || index.row() < 0 || index.row() >= m_recentFiles.size())
-        return {};
-
-    const auto path = m_recentFiles.at(index.row());
-
-    switch (static_cast<Role>(role)) {
-    case Role::FilePath:
-        return path;
-    case Role::Exists:
-        return QFileInfo::exists(path);
+    if (index.isValid() && index.row() >= 0 && index.row() < m_recentFiles.size()) {
+        const auto path = m_recentFiles.at(index.row());
+        switch (static_cast<Role>(role)) {
+        case Role::FilePath:
+            return path;
+        case Role::Exists:
+            return QFileInfo::exists(path);
+        }
     }
+    return {};
 }
 
 QHash<int, QByteArray> RecentFilesModel::roleNames() const
