@@ -40,14 +40,19 @@ VideoGenerator::VideoGenerator(MixerServiceS mixerService)
 {
 }
 
-void VideoGenerator::initialize(const VideoConfig & config)
+void VideoGenerator::initialize(const VideoConfig & config, SongS song)
 {
+    if (!song) {
+        throw std::runtime_error { "Song not set!" };
+    }
+
+    m_song = song;
+
     ensureInputFilesExist(config);
 
     m_config = config;
-
-    m_config.image = !m_config.imagePath.empty() ? QImage { QString::fromStdString(m_config.imagePath) } : QImage {};
-    m_config.logo = !m_config.logoPath.empty() ? QImage { QString::fromStdString(m_config.logoPath) } : QImage {};
+    m_config.image = !config.imagePath.empty() ? QImage { QString::fromStdString(config.imagePath) } : QImage {};
+    m_config.logo = !config.logoPath.empty() ? QImage { QString::fromStdString(config.logoPath) } : QImage {};
 
     m_eventMap.clear();
     for (auto && event : m_song->renderToEvents(std::make_shared<AutomationService>(), config.startPosition)) {
@@ -161,21 +166,15 @@ void VideoGenerator::renderVideo(const VideoConfig & config)
     runCommand(ffmpegArgs);
 }
 
-void VideoGenerator::run(SongS song, const VideoConfig & config)
+void VideoGenerator::run()
 {
-    if (m_song = song; !m_song) {
-        return;
-    }
-
-    initialize(config);
-
-    m_animation = config.type == VideoConfig::Type::Bars ? std::unique_ptr<Animation>(std::make_unique<BarsAnimation>(song, config, m_mixerService, m_minTick, m_maxTick))
-                                                         : std::unique_ptr<Animation>(std::make_unique<DefaultAnimation>(song, config, m_mixerService, m_minTick, m_maxTick));
+    m_animation = m_config.type == VideoConfig::Type::Bars ? std::unique_ptr<Animation>(std::make_unique<BarsAnimation>(m_song, m_config, m_mixerService, m_minTick, m_maxTick))
+                                                           : std::unique_ptr<Animation>(std::make_unique<DefaultAnimation>(m_song, m_config, m_mixerService, m_minTick, m_maxTick));
     m_animation->generateAnimationFrames(m_eventMap);
 
-    generateVideoFrames(song, config);
+    generateVideoFrames(m_song, m_config);
 
-    renderVideo(config);
+    renderVideo(m_config);
 
     juzzlin::L(TAG).info() << "Done.";
 }

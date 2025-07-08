@@ -40,10 +40,10 @@ public:
     ~VideoGenerator();
 
     using SongS = std::shared_ptr<Song>;
-    void run(SongS song, const VideoConfig & config);
+    void initialize(const VideoConfig & config, SongS song);
+    void run();
 
 private:
-    void initialize(const VideoConfig & config);
     void ensureInputFilesExist(const VideoConfig & config);
 
     void generateVideoFrame(SongS song, const VideoConfig & config, size_t frameIndex, double currentTimeMs);

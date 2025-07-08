@@ -396,7 +396,8 @@ int Application::runVideoGenerator()
     juzzlin::L(TAG).info() << "Running video generator";
     VideoGenerator videoGenerator { m_mixerService };
     m_editorService->load(QString::fromStdString(m_videoConfig.songPath));
-    videoGenerator.run(m_editorService->song(), m_videoConfig);
+    videoGenerator.initialize(m_videoConfig, m_editorService->song());
+    videoGenerator.run();
 
     return EXIT_SUCCESS;
 }
