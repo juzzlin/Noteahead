@@ -141,8 +141,9 @@ void BarsAnimation::renderNoteParticle(QPainter & painter, AnimationFrame::Parti
     if (particle.r > 0.001) {
         painter.save();
         const double barWidth = particle.r * config().width / NOTE_COUNT;
-        painter.setPen(Qt::white);
-        painter.setOpacity(2.0 * std::pow(particle.r, 2));
+        const auto opacityFactor = 2.0 * std::pow(particle.r, 2);
+        painter.setOpacity(opacityFactor);
+        painter.setPen(Qt::NoPen);
         painter.fillRect(QRectF { particle.x - barWidth / 2, 0, barWidth, static_cast<double>(config().height) }, Qt::white);
         painter.restore();
     }
