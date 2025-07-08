@@ -44,6 +44,7 @@ public:
 
 private:
     void initialize(const VideoConfig & config);
+    void ensureInputFilesExist(const VideoConfig & config);
 
     void generateVideoFrame(SongS song, const VideoConfig & config, size_t frameIndex, double currentTimeMs);
     void generateVideoFrames(SongS song, const VideoConfig & config);

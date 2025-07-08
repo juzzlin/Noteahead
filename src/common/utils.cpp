@@ -22,6 +22,13 @@
 #include <QXmlStreamReader>
 
 namespace noteahead::Utils {
+
+void ensureFileExists(const std::filesystem::path & filePath)
+{
+    if (!filePath.empty() && !std::filesystem::exists(filePath)) {
+        throw std::runtime_error("File does not exist: " + filePath.string());
+    }
+}
 double portNameMatchScore(const std::string & s1, const std::string & s2)
 {
     if (s1.empty() || s2.empty()) {

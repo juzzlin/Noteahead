@@ -16,13 +16,16 @@
 #ifndef UTILS_HPP
 #define UTILS_HPP
 
-#include <QString>
+#include <filesystem>
 #include <optional>
 #include <string>
+
+#include <QString>
 
 class QXmlStreamReader;
 
 namespace noteahead::Utils {
+void ensureFileExists(const std::filesystem::path & filePath);
 double portNameMatchScore(const std::string & s1, const std::string & s2);
 namespace Xml {
 std::optional<bool> readBoolAttribute(QXmlStreamReader & reader, QString name, bool required = true);

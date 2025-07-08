@@ -395,8 +395,6 @@ int Application::runVideoGenerator()
     juzzlin::L(TAG).info() << "Running video generator";
     VideoGenerator videoGenerator { m_mixerService };
     m_editorService->load(QString::fromStdString(m_videoConfig.songPath));
-    m_videoConfig.image = !m_videoConfig.imagePath.empty() ? QImage { QString::fromStdString(m_videoConfig.imagePath) } : QImage {};
-    m_videoConfig.logo = !m_videoConfig.logoPath.empty() ? QImage { QString::fromStdString(m_videoConfig.logoPath) } : QImage {};
     videoGenerator.run(m_editorService->song(), m_videoConfig);
 
     return EXIT_SUCCESS;

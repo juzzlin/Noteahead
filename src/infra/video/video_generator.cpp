@@ -16,6 +16,7 @@
 #include "video_generator.hpp"
 
 #include "../../application/service/automation_service.hpp"
+#include "../../common/utils.hpp"
 #include "../../contrib/SimpleLogger/src/simple_logger.hpp"
 #include "bars_animation.hpp"
 #include "default_animation.hpp"
@@ -41,7 +42,13 @@ VideoGenerator::VideoGenerator(MixerServiceS mixerService)
 
 void VideoGenerator::initialize(const VideoConfig & config)
 {
+    ensureInputFilesExist(config);
+
     m_config = config;
+
+    m_config.image = !m_config.imagePath.empty() ? QImage { QString::fromStdString(m_config.imagePath) } : QImage {};
+    m_config.logo = !m_config.logoPath.empty() ? QImage { QString::fromStdString(m_config.logoPath) } : QImage {};
+
     m_eventMap.clear();
     for (auto && event : m_song->renderToEvents(std::make_shared<AutomationService>(), config.startPosition)) {
         m_eventMap[event->tick()].push_back(event);
@@ -54,6 +61,14 @@ void VideoGenerator::initialize(const VideoConfig & config)
     juzzlin::L(TAG).info() << "Max tick: " << m_maxTick;
     m_maxTick += static_cast<size_t>(static_cast<double>(config.leadOutTime.count()) / tickDurationMs);
     juzzlin::L(TAG).info() << "Max tick (+ lead-out time): " << m_maxTick;
+}
+
+void VideoGenerator::ensureInputFilesExist(const VideoConfig & config)
+{
+    Utils::ensureFileExists(config.audioPath);
+    Utils::ensureFileExists(config.imagePath);
+    Utils::ensureFileExists(config.logoPath);
+    Utils::ensureFileExists(config.songPath);
 }
 
 void VideoGenerator::generateVideoFrames(SongS song, const VideoConfig & config)
