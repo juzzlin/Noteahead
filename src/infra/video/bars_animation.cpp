@@ -112,14 +112,14 @@ void BarsAnimation::generateAnimationFrames(const EventMap & events)
                     if (auto && noteData = event->noteData(); noteData) {
                         if (noteData->type() == NoteData::Type::NoteOn && noteData->note().has_value()) {
                             const auto note = *event->noteData()->note() - 21; // Map MIDI note to 0-87 range
-                            if (const auto track = song()->trackPositionByIndex(event->noteData()->track()); track.has_value()) {
+                            if (const auto trackPosition = song()->trackPositionByIndex(noteData->track()); trackPosition.has_value()) {
                                 const auto noteParticleX = note * config().width / NOTE_COUNT + config().width / NOTE_COUNT / 2;
                                 const auto noteParticleY = 0;
                                 const double effectiveVelocity = static_cast<double>(mixerService()->effectiveVelocity(noteData->track(), noteData->column(), noteData->velocity())) / 127;
                                 // Remove same notes on same track to clean up note mess
-                                newAnimationFrame->particles.erase(std::ranges::remove_if(newAnimationFrame->particles, [&](const auto & particle) { return particle.midiNote == note && particle.track == *track; }).begin(), newAnimationFrame->particles.end());
-                                newAnimationFrame->particles.push_back(createNoteParticle(noteParticleX, noteParticleY, note, effectiveVelocity, *track));
-                                if (flashTrack.has_value() && *flashTrack == event->noteData()->track()) {
+                                newAnimationFrame->particles.erase(std::ranges::remove_if(newAnimationFrame->particles, [&](const auto & particle) { return particle.midiNote == note && particle.track == *trackPosition; }).begin(), newAnimationFrame->particles.end());
+                                newAnimationFrame->particles.push_back(createNoteParticle(noteParticleX, noteParticleY, note, effectiveVelocity, *trackPosition));
+                                if (flashTrack.has_value() && *flashTrack == noteData->track()) {
                                     if (!flashColumn.has_value() || *flashColumn == event->noteData()->column()) {
                                         newAnimationFrame->particles.push_back(createFlashParticle());
                                     }
