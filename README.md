@@ -21,6 +21,10 @@ Noteahead is still a work in progress and there's some limitations and missing f
 
 Some example tracks sequenced with Noteahead:
 
+<a href="https://open.spotify.com/track/44W5FfZ450NSQYnbFvRCdW">Arctic Music Project - Amen To Coffee (Spotify)</a>
+
+<a href="https://www.youtube.com/watch?v=O6ITyyWxijo">Arctic Music Project - Amen To Coffee (YouTube)</a>
+
 <a href="https://soundcloud.com/arctic-music-project/amen-to-coffee">Arctic Music Project - Amen To Coffee (SoundCloud)</a>
 
 ---
