@@ -288,7 +288,6 @@ void Application::connectEditorService()
     connect(m_editorService.get(), &EditorService::mixerSerializationRequested, m_mixerService.get(), &MixerService::serializeToXml);
 
     connect(m_editorService.get(), &EditorService::songPositionChanged, m_playerService.get(), &PlayerService::setSongPosition);
-    connect(m_editorService.get(), &EditorService::songChanged, this, &Application::updateColumnModels);
 }
 
 void Application::connectMidiService()
@@ -441,11 +440,6 @@ void Application::stopAllNotes() const
     for (auto && [trackIndex, instrument] : m_editorService->instruments()) {
         m_midiService->stopAllNotes(instrument);
     }
-}
-
-void Application::updateColumnModels()
-{
-    // m_noteColumnModelHandler->updateColumnData();
 }
 
 int Application::run()

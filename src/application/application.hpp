@@ -97,8 +97,6 @@ private:
     void requestInstruments(QStringList midiPorts);
     void stopAllNotes() const;
 
-    void updateColumnModels();
-
     std::unique_ptr<UiLogger> m_uiLogger;
 
     std::unique_ptr<QGuiApplication> m_application;
