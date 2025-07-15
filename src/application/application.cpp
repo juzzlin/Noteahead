@@ -27,6 +27,7 @@
 #include "models/pitch_bend_automations_model.hpp"
 #include "models/recent_files_model.hpp"
 #include "models/track_settings_model.hpp"
+#include "note_converter.hpp"
 #include "recent_files_manager.hpp"
 #include "service/application_service.hpp"
 #include "service/automation_service.hpp"
@@ -305,7 +306,7 @@ void Application::connectMidiService()
 
     connect(m_midiService.get(), &MidiService::noteOnReceived, this, [this](quint8 channel, quint8 note, quint8 velocity) {
         if (const auto instrument = m_editorService->instrument(m_editorService->position().track); instrument) {
-            juzzlin::L(TAG).debug() << "Live note ON " << Utils::Midi::midiNoteToNoteName(note) << " requested on instrument " << instrument->toString().toStdString();
+            juzzlin::L(TAG).debug() << "Live note ON " << NoteConverter::midiToString(note) << " requested on instrument " << instrument->toString().toStdString();
         } else {
             juzzlin::L(TAG).info() << "No instrument set on track!";
         }
@@ -313,7 +314,7 @@ void Application::connectMidiService()
 
     connect(m_midiService.get(), &MidiService::noteOffReceived, this, [this](quint8 channel, quint8 note) {
         if (const auto instrument = m_editorService->instrument(m_editorService->position().track); instrument) {
-            juzzlin::L(TAG).debug() << "Live note OFF " << Utils::Midi::midiNoteToNoteName(note) << " requested on instrument " << instrument->toString().toStdString();
+            juzzlin::L(TAG).debug() << "Live note OFF " << NoteConverter::midiToString(note) << " requested on instrument " << instrument->toString().toStdString();
         } else {
             juzzlin::L(TAG).info() << "No instrument set on track!";
         }

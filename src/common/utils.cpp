@@ -40,21 +40,6 @@ double portNameMatchScore(const std::string & s1, const std::string & s2)
         return static_cast<double>(count) / static_cast<double>(std::max(s1.size(), s2.size()));
     }
 }
-std::string midiNoteToNoteName(quint8 note)
-{
-    static const std::array<std::string, 12> noteNames = {
-        "C-", "C#", "D-", "D#", "E-", "F-",
-        "F#", "G-", "G#", "A-", "A#", "B-"
-    };
-    if (note > 127) {
-        return "N/A";
-    } else {
-        const size_t noteIndex = note % 12;
-        // NOTE!!: Negative octave for note = 0 is "industry standard"
-        const auto octave = (note / 12) - 1;
-        return noteNames.at(noteIndex) + std::to_string(octave);
-    }
-}
 } // namespace Midi
 namespace Misc {
 void ensureFileExists(const std::filesystem::path & filePath)
