@@ -30,72 +30,10 @@ namespace noteahead {
 static const auto TAG = "MidiOutWorker";
 
 MidiOutWorker::MidiOutWorker(QObject * parent)
-  : MidiWorker { parent }
-  , m_midiOut { std::make_unique<MidiOutRtMidi>() }
+  : MidiWorker { std::make_unique<MidiOutRtMidi>(), "OUT", parent }
+  , m_midiOut { std::dynamic_pointer_cast<MidiOut>(midi()) }
 {
     juzzlin::L(TAG).info() << "Midi API name: " << m_midiOut->midiApiName();
-
-    initializeScanTimer();
-}
-
-void MidiOutWorker::initializeScanTimer()
-{
-    if (!m_midiScanTimer) {
-        m_midiScanTimer = std::make_unique<QTimer>();
-        m_midiScanTimer->setInterval(2500ms);
-        connect(m_midiScanTimer.get(), &QTimer::timeout, this, [this] {
-            if (!isPlaying()) {
-                m_midiOut->updateDevices();
-                QStringList updatedDeviceList;
-                std::ranges::transform(m_midiOut->devices(), std::back_inserter(updatedDeviceList),
-                                       [](const auto & device) { return QString::fromStdString(device->portName()); });
-                if (m_availablePorts != updatedDeviceList) {
-                    QStringList newDevices;
-                    for (auto && port : updatedDeviceList) {
-                        if (!m_availablePorts.contains(port)) {
-                            newDevices << port;
-                        }
-                    }
-                    QStringList offDevices;
-                    for (auto && port : m_availablePorts) {
-                        if (!updatedDeviceList.contains(port)) {
-                            offDevices << port;
-                        }
-                    }
-                    if (!newDevices.isEmpty()) {
-                        for (auto && portName : newDevices) {
-                            if (const auto device = m_midiOut->deviceByPortName(portName.toStdString()); device) {
-                                juzzlin::L(TAG).info() << "Detected MIDI OUT device " << portName.toStdString();
-                            }
-                        }
-                        if (newDevices.size() <= 3) {
-                            emit statusTextRequested(tr("New MIDI OUT devices found: ") + newDevices.join(","));
-                        } else {
-                            emit statusTextRequested(tr("New MIDI OUT device(s) found"));
-                        }
-                    }
-                    if (!offDevices.isEmpty()) {
-                        for (auto && portName : offDevices) {
-                            if (const auto device = m_midiOut->deviceByPortName(portName.toStdString()); device) {
-                                juzzlin::L(TAG).info() << "Closing MIDI OUT device " << portName.toStdString();
-                                m_midiOut->closeDevice(*device);
-                            }
-                        }
-                        if (newDevices.size() <= 3) {
-                            emit statusTextRequested(tr("MIDI OUT devices went offline: ") + offDevices.join(","));
-                        } else {
-                            emit statusTextRequested(tr("MIDI OUT device(s) went offline "));
-                        }
-                    }
-                    m_availablePorts = updatedDeviceList;
-                    emit portsChanged(m_availablePorts);
-                    emit portsAppeared(newDevices);
-                    emit portsDisappeared(offDevices);
-                }
-            }
-        });
-        m_midiScanTimer->start();
-    }
 }
 
 void portError(const std::string_view function, const std::string_view message)

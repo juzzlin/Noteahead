@@ -15,13 +15,8 @@
 
 #include "midi_in_worker.hpp"
 
-#include "../../common/utils.hpp"
 #include "../../contrib/SimpleLogger/src/simple_logger.hpp"
 #include "../../infra/midi/implementation/librtmidi/midi_in_rt_midi.hpp"
-
-#include <chrono>
-
-#include <QDebug>
 
 using namespace std::chrono_literals;
 
@@ -30,70 +25,15 @@ namespace noteahead {
 static const auto TAG = "MidiInWorker";
 
 MidiInWorker::MidiInWorker(QObject * parent)
-  : MidiWorker { parent }
-  , m_midiIn { std::make_unique<MidiInRtMidi>() }
+  : MidiWorker { std::make_unique<MidiInRtMidi>(), "IN", parent }
+  , m_midiIn { std::dynamic_pointer_cast<MidiIn>(midi()) }
 {
     juzzlin::L(TAG).info() << "Midi API name: " << m_midiIn->midiApiName();
-
-    initializeScanTimer();
 }
 
-void MidiInWorker::initializeScanTimer()
+void MidiInWorker::handlePortsChanged()
 {
-    if (!m_midiScanTimer) {
-        m_midiScanTimer = std::make_unique<QTimer>();
-        m_midiScanTimer->setInterval(2500ms);
-        connect(m_midiScanTimer.get(), &QTimer::timeout, this, [this] {
-            if (!isPlaying()) {
-                const auto oldPortNames = Utils::Misc::stdStringVectorToQStringList(m_midiIn->portNames());
-                const auto availablePortNames = Utils::Misc::stdStringVectorToQStringList(m_midiIn->availablePortNames());
-                if (oldPortNames != availablePortNames || oldPortNames.empty()) {
-                    m_midiIn->updateDevices();
-                    const auto updatedPortNames = Utils::Misc::stdStringVectorToQStringList(m_midiIn->portNames());
-                    QStringList newPortNames;
-                    for (auto && portName : updatedPortNames) {
-                        if (!oldPortNames.contains(portName)) {
-                            newPortNames << portName;
-                        }
-                    }
-                    QStringList offlinePortNames;
-                    for (auto && portName : oldPortNames) {
-                        if (!updatedPortNames.contains(portName)) {
-                            offlinePortNames << portName;
-                        }
-                    }
-                    if (!newPortNames.isEmpty()) {
-                        for (auto && portName : newPortNames) {
-                            juzzlin::L(TAG).info() << "Detected MIDI IN device " << portName.toStdString();
-                        }
-                        if (newPortNames.size() <= 3) {
-                            emit statusTextRequested(tr("New MIDI IN devices found: ") + newPortNames.join(","));
-                        } else {
-                            emit statusTextRequested(tr("New MIDI IN device(s) found"));
-                        }
-                    }
-                    if (!offlinePortNames.isEmpty()) {
-                        for (auto && portName : offlinePortNames) {
-                            if (const auto device = m_midiIn->deviceByPortName(portName.toStdString()); device) {
-                                juzzlin::L(TAG).info() << "Closing MIDI IN device " << portName.toStdString();
-                                m_midiIn->closeDevice(*device);
-                            }
-                        }
-                        if (newPortNames.size() <= 3) {
-                            emit statusTextRequested(tr("MIDI IN devices went offline: ") + offlinePortNames.join(","));
-                        } else {
-                            emit statusTextRequested(tr("MIDI IN device(s) went offline "));
-                        }
-                    }
-                    emit portsChanged(availablePortNames);
-                    emit portsAppeared(newPortNames);
-                    emit portsDisappeared(offlinePortNames);
-                    setControllerPort(m_controllerPort);
-                }
-            }
-        });
-        m_midiScanTimer->start();
-    }
+    setControllerPort(m_controllerPort);
 }
 
 void MidiInWorker::setControllerPort(QString portName)
@@ -101,7 +41,7 @@ void MidiInWorker::setControllerPort(QString portName)
     if (!portName.isEmpty()) {
         m_controllerPort = portName;
         try {
-            if (const auto device = m_midiIn->deviceByPortName(portName.toStdString()); device) {
+            if (const auto device = midi()->deviceByPortName(portName.toStdString()); device) {
                 juzzlin::L(TAG).info() << "Opening controller input port: " << portName.toStdString();
                 m_midiIn->openDevice(*device);
                 m_midiIn->clearCallbacks();

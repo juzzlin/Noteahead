@@ -60,13 +60,11 @@ private:
     using MidiDeviceS = std::shared_ptr<MidiDevice>;
     void applyBank(const Instrument & instrument, MidiDeviceS midiDevice);
     void applyPatch(const Instrument & instrument, MidiDeviceS midiDevice);
-    void initializeScanTimer();
     void initializeStopTimer();
 
     void sendMidiCcSettings(const MidiDevice & midiDevice, const Instrument & instrument);
 
     std::shared_ptr<MidiOut> m_midiOut;
-    std::unique_ptr<QTimer> m_midiScanTimer;
     std::unique_ptr<QTimer> m_midiStopTimer;
 
     struct StopTask
@@ -79,8 +77,6 @@ private:
     };
 
     std::vector<StopTask> m_stopTasks;
-
-    QStringList m_availablePorts;
 };
 
 } // namespace noteahead

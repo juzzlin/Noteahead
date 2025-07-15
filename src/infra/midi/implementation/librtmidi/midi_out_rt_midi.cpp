@@ -38,6 +38,18 @@ void MidiOutRtMidi::updateDevices()
     m_ports.clear();
 }
 
+Midi::PortNameList MidiOutRtMidi::availablePortNames() const
+{
+    PortNameList portNameList;
+    RtMidiOut tempMidiOut; // Temporary instance to list devices
+    const size_t portCount = tempMidiOut.getPortCount();
+    for (uint8_t i = 0; i < portCount; i++) {
+        portNameList.push_back(tempMidiOut.getPortName(i));
+    }
+    std::ranges::sort(portNameList);
+    return portNameList;
+}
+
 void MidiOutRtMidi::openDevice(MidiDeviceCR device)
 {
     if (!m_ports.contains(device.portIndex())) {
