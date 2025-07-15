@@ -68,16 +68,16 @@ void MidiAddress::setGroup(uint8_t group)
 
 void MidiAddress::serializeToXml(QXmlStreamWriter & writer) const
 {
-    writer.writeAttribute(Constants::xmlKeyPortName(), m_portName);
-    writer.writeAttribute(Constants::xmlKeyChannel(), QString::number(m_channel));
-    writer.writeAttribute(Constants::xmlKeyGroup(), QString::number(m_group));
+    writer.writeAttribute(Constants::NahdXml::xmlKeyPortName(), m_portName);
+    writer.writeAttribute(Constants::NahdXml::xmlKeyChannel(), QString::number(m_channel));
+    writer.writeAttribute(Constants::NahdXml::xmlKeyGroup(), QString::number(m_group));
 }
 
 MidiAddress::MidiAddressU MidiAddress::deserializeFromXml(QXmlStreamReader & reader)
 {
-    const auto portName = *Utils::Xml::readStringAttribute(reader, Constants::xmlKeyPortName());
-    const auto channel = Utils::Xml::readUIntAttribute(reader, Constants::xmlKeyChannel(), false).value_or(0);
-    const auto group = Utils::Xml::readUIntAttribute(reader, Constants::xmlKeyChannel(), false).value_or(0);
+    const auto portName = *Utils::Xml::readStringAttribute(reader, Constants::NahdXml::xmlKeyPortName());
+    const auto channel = Utils::Xml::readUIntAttribute(reader, Constants::NahdXml::xmlKeyChannel(), false).value_or(0);
+    const auto group = Utils::Xml::readUIntAttribute(reader, Constants::NahdXml::xmlKeyChannel(), false).value_or(0);
     return std::make_unique<MidiAddress>(portName, channel, group);
 }
 

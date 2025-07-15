@@ -245,16 +245,16 @@ void Track::serializeToXml(QXmlStreamWriter & writer) const
 Track::TrackU Track::deserializeFromXml(QXmlStreamReader & reader)
 {
     juzzlin::L(TAG).trace() << "Reading Track started";
-    const auto index = *Utils::Xml::readUIntAttribute(reader, Constants::xmlKeyIndex());
-    const auto name = *Utils::Xml::readStringAttribute(reader, Constants::xmlKeyName());
-    const auto columnCount = *Utils::Xml::readUIntAttribute(reader, Constants::xmlKeyColumnCount());
-    const auto lineCount = *Utils::Xml::readUIntAttribute(reader, Constants::xmlKeyLineCount());
+    const auto index = *Utils::Xml::readUIntAttribute(reader, Constants::NahdXml::xmlKeyIndex());
+    const auto name = *Utils::Xml::readStringAttribute(reader, Constants::NahdXml::xmlKeyName());
+    const auto columnCount = *Utils::Xml::readUIntAttribute(reader, Constants::NahdXml::xmlKeyColumnCount());
+    const auto lineCount = *Utils::Xml::readUIntAttribute(reader, Constants::NahdXml::xmlKeyLineCount());
     auto track = std::make_unique<Track>(index, name.toStdString(), lineCount, columnCount);
-    while (!(reader.isEndElement() && !reader.name().compare(Constants::xmlKeyTrack()))) {
+    while (!(reader.isEndElement() && !reader.name().compare(Constants::NahdXml::xmlKeyTrack()))) {
         juzzlin::L(TAG).trace() << "Track: Current element: " << reader.name().toString().toStdString();
-        if (reader.isStartElement() && !reader.name().compare(Constants::xmlKeyColumns())) {
+        if (reader.isStartElement() && !reader.name().compare(Constants::NahdXml::xmlKeyColumns())) {
             deserializeColumns(reader, *track);
-        } else if (reader.isStartElement() && !reader.name().compare(Constants::xmlKeyInstrument())) {
+        } else if (reader.isStartElement() && !reader.name().compare(Constants::NahdXml::xmlKeyInstrument())) {
             if (auto instrument = Instrument::deserializeFromXml(reader); instrument) {
                 track->setInstrument(std::move(instrument));
             }
@@ -268,9 +268,9 @@ Track::TrackU Track::deserializeFromXml(QXmlStreamReader & reader)
 void Track::deserializeColumns(QXmlStreamReader & reader, Track & track)
 {
     juzzlin::L(TAG).trace() << "Reading Columns started";
-    while (!(reader.isEndElement() && !reader.name().compare(Constants::xmlKeyColumns()))) {
+    while (!(reader.isEndElement() && !reader.name().compare(Constants::NahdXml::xmlKeyColumns()))) {
         juzzlin::L(TAG).trace() << "Columns: Current element: " << reader.name().toString().toStdString();
-        if (reader.isStartElement() && !reader.name().compare(Constants::xmlKeyColumn())) {
+        if (reader.isStartElement() && !reader.name().compare(Constants::NahdXml::xmlKeyColumn())) {
             track.setColumn(Column::deserializeFromXml(reader, track.index()));
         }
         reader.readNext();

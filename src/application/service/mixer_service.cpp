@@ -325,47 +325,47 @@ void MixerService::deserializeFromXml(QXmlStreamReader & reader)
 
     clear();
 
-    while (!(reader.isEndElement() && !reader.name().compare(Constants::xmlKeyMixer()))) {
+    while (!(reader.isEndElement() && !reader.name().compare(Constants::NahdXml::xmlKeyMixer()))) {
         juzzlin::L(TAG).trace() << "Current element: " << reader.name().toString().toStdString();
         if (reader.isStartElement()) {
-            if (!reader.name().compare(Constants::xmlKeyColumnMuted())) {
+            if (!reader.name().compare(Constants::NahdXml::xmlKeyColumnMuted())) {
                 bool trackOk = false, columnOk = false;
-                const quint64 trackIndex = reader.attributes().value(Constants::xmlKeyTrackAttr()).toUInt(&trackOk);
-                const quint64 columnIndex = reader.attributes().value(Constants::xmlKeyColumnAttr()).toUInt(&columnOk);
+                const quint64 trackIndex = reader.attributes().value(Constants::NahdXml::xmlKeyTrackAttr()).toUInt(&trackOk);
+                const quint64 columnIndex = reader.attributes().value(Constants::NahdXml::xmlKeyColumnAttr()).toUInt(&columnOk);
                 if (trackOk && columnOk) {
                     m_mutedColumns[{ trackIndex, columnIndex }] = true;
                 }
-            } else if (!reader.name().compare(Constants::xmlKeyColumnSoloed())) {
+            } else if (!reader.name().compare(Constants::NahdXml::xmlKeyColumnSoloed())) {
                 bool trackOk = false, columnOk = false;
-                const quint64 trackIndex = reader.attributes().value(Constants::xmlKeyTrackAttr()).toUInt(&trackOk);
-                const quint64 columnIndex = reader.attributes().value(Constants::xmlKeyColumnAttr()).toUInt(&columnOk);
+                const quint64 trackIndex = reader.attributes().value(Constants::NahdXml::xmlKeyTrackAttr()).toUInt(&trackOk);
+                const quint64 columnIndex = reader.attributes().value(Constants::NahdXml::xmlKeyColumnAttr()).toUInt(&columnOk);
                 if (trackOk && columnOk) {
                     m_soloedColumns[{ trackIndex, columnIndex }] = true;
                 }
-            } else if (!reader.name().compare(Constants::xmlKeyTrackMuted())) {
+            } else if (!reader.name().compare(Constants::NahdXml::xmlKeyTrackMuted())) {
                 bool ok = false;
-                const quint64 trackIndex = reader.attributes().value(Constants::xmlKeyIndex()).toUInt(&ok);
+                const quint64 trackIndex = reader.attributes().value(Constants::NahdXml::xmlKeyIndex()).toUInt(&ok);
                 if (ok) {
                     m_mutedTracks[trackIndex] = true;
                 }
-            } else if (!reader.name().compare(Constants::xmlKeyTrackSoloed())) {
+            } else if (!reader.name().compare(Constants::NahdXml::xmlKeyTrackSoloed())) {
                 bool ok = false;
-                const quint64 trackIndex = reader.attributes().value(Constants::xmlKeyIndex()).toUInt(&ok);
+                const quint64 trackIndex = reader.attributes().value(Constants::NahdXml::xmlKeyIndex()).toUInt(&ok);
                 if (ok) {
                     m_soloedTracks[trackIndex] = true;
                 }
-            } else if (!reader.name().compare(Constants::xmlKeyColumnVelocityScale())) {
+            } else if (!reader.name().compare(Constants::NahdXml::xmlKeyColumnVelocityScale())) {
                 bool trackOk = false, columnOk = false, valueOk = false;
-                const quint64 trackIndex = reader.attributes().value(Constants::xmlKeyTrackAttr()).toUInt(&trackOk);
-                const quint64 columnIndex = reader.attributes().value(Constants::xmlKeyColumnAttr()).toUInt(&columnOk);
-                const quint8 value = static_cast<quint8>(reader.attributes().value(Constants::xmlKeyValue()).toUInt(&valueOk));
+                const quint64 trackIndex = reader.attributes().value(Constants::NahdXml::xmlKeyTrackAttr()).toUInt(&trackOk);
+                const quint64 columnIndex = reader.attributes().value(Constants::NahdXml::xmlKeyColumnAttr()).toUInt(&columnOk);
+                const quint8 value = static_cast<quint8>(reader.attributes().value(Constants::NahdXml::xmlKeyValue()).toUInt(&valueOk));
                 if (trackOk && columnOk && valueOk) {
                     m_columnVelocityScaleMap[{ trackIndex, columnIndex }] = value;
                 }
-            } else if (!reader.name().compare(Constants::xmlKeyTrackVelocityScale())) {
+            } else if (!reader.name().compare(Constants::NahdXml::xmlKeyTrackVelocityScale())) {
                 bool trackOk = false, valueOk = false;
-                const quint64 trackIndex = reader.attributes().value(Constants::xmlKeyIndex()).toUInt(&trackOk);
-                const quint8 value = static_cast<quint8>(reader.attributes().value(Constants::xmlKeyValue()).toUInt(&valueOk));
+                const quint64 trackIndex = reader.attributes().value(Constants::NahdXml::xmlKeyIndex()).toUInt(&trackOk);
+                const quint8 value = static_cast<quint8>(reader.attributes().value(Constants::NahdXml::xmlKeyValue()).toUInt(&valueOk));
                 if (trackOk && valueOk) {
                     m_trackVelocityScaleMap[trackIndex] = value;
                 }
@@ -394,14 +394,14 @@ void MixerService::serializeToXml(QXmlStreamWriter & writer)
 {
     updateTrackAndColumnConfiguration();
 
-    writer.writeStartElement(Constants::xmlKeyMixer());
+    writer.writeStartElement(Constants::NahdXml::xmlKeyMixer());
 
     for (const auto & [key, state] : m_mutedColumns) {
         if (hasColumn(key.first, key.second)) {
             if (state) {
-                writer.writeStartElement(Constants::xmlKeyColumnMuted());
-                writer.writeAttribute(Constants::xmlKeyTrackAttr(), QString::number(key.first));
-                writer.writeAttribute(Constants::xmlKeyColumnAttr(), QString::number(key.second));
+                writer.writeStartElement(Constants::NahdXml::xmlKeyColumnMuted());
+                writer.writeAttribute(Constants::NahdXml::xmlKeyTrackAttr(), QString::number(key.first));
+                writer.writeAttribute(Constants::NahdXml::xmlKeyColumnAttr(), QString::number(key.second));
                 writer.writeEndElement();
             }
         }
@@ -410,9 +410,9 @@ void MixerService::serializeToXml(QXmlStreamWriter & writer)
     for (const auto & [key, state] : m_soloedColumns) {
         if (hasColumn(key.first, key.second)) {
             if (state) {
-                writer.writeStartElement(Constants::xmlKeyColumnSoloed());
-                writer.writeAttribute(Constants::xmlKeyTrackAttr(), QString::number(key.first));
-                writer.writeAttribute(Constants::xmlKeyColumnAttr(), QString::number(key.second));
+                writer.writeStartElement(Constants::NahdXml::xmlKeyColumnSoloed());
+                writer.writeAttribute(Constants::NahdXml::xmlKeyTrackAttr(), QString::number(key.first));
+                writer.writeAttribute(Constants::NahdXml::xmlKeyColumnAttr(), QString::number(key.second));
                 writer.writeEndElement();
             }
         }
@@ -421,8 +421,8 @@ void MixerService::serializeToXml(QXmlStreamWriter & writer)
     for (auto && [trackIndex, state] : m_mutedTracks) {
         if (hasTrack(trackIndex)) {
             if (state) {
-                writer.writeStartElement(Constants::xmlKeyTrackMuted());
-                writer.writeAttribute(Constants::xmlKeyIndex(), QString::number(trackIndex));
+                writer.writeStartElement(Constants::NahdXml::xmlKeyTrackMuted());
+                writer.writeAttribute(Constants::NahdXml::xmlKeyIndex(), QString::number(trackIndex));
                 writer.writeEndElement();
             }
         }
@@ -431,8 +431,8 @@ void MixerService::serializeToXml(QXmlStreamWriter & writer)
     for (auto && [trackIndex, state] : m_soloedTracks) {
         if (hasTrack(trackIndex)) {
             if (state) {
-                writer.writeStartElement(Constants::xmlKeyTrackSoloed());
-                writer.writeAttribute(Constants::xmlKeyIndex(), QString::number(trackIndex));
+                writer.writeStartElement(Constants::NahdXml::xmlKeyTrackSoloed());
+                writer.writeAttribute(Constants::NahdXml::xmlKeyIndex(), QString::number(trackIndex));
                 writer.writeEndElement();
             }
         }
@@ -440,19 +440,19 @@ void MixerService::serializeToXml(QXmlStreamWriter & writer)
 
     for (auto && [key, value] : m_columnVelocityScaleMap) {
         if (hasColumn(key.first, key.second)) {
-            writer.writeStartElement(Constants::xmlKeyColumnVelocityScale());
-            writer.writeAttribute(Constants::xmlKeyTrackAttr(), QString::number(key.first));
-            writer.writeAttribute(Constants::xmlKeyColumnAttr(), QString::number(key.second));
-            writer.writeAttribute(Constants::xmlKeyValue(), QString::number(value));
+            writer.writeStartElement(Constants::NahdXml::xmlKeyColumnVelocityScale());
+            writer.writeAttribute(Constants::NahdXml::xmlKeyTrackAttr(), QString::number(key.first));
+            writer.writeAttribute(Constants::NahdXml::xmlKeyColumnAttr(), QString::number(key.second));
+            writer.writeAttribute(Constants::NahdXml::xmlKeyValue(), QString::number(value));
             writer.writeEndElement();
         }
     }
 
     for (auto && [trackIndex, value] : m_trackVelocityScaleMap) {
         if (hasTrack(trackIndex)) {
-            writer.writeStartElement(Constants::xmlKeyTrackVelocityScale());
-            writer.writeAttribute(Constants::xmlKeyIndex(), QString::number(trackIndex));
-            writer.writeAttribute(Constants::xmlKeyValue(), QString::number(value));
+            writer.writeStartElement(Constants::NahdXml::xmlKeyTrackVelocityScale());
+            writer.writeAttribute(Constants::NahdXml::xmlKeyIndex(), QString::number(trackIndex));
+            writer.writeAttribute(Constants::NahdXml::xmlKeyValue(), QString::number(value));
             writer.writeEndElement();
         }
     }

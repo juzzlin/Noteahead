@@ -102,17 +102,17 @@ void NoteData::setDelay(uint8_t ticks)
 
 void NoteData::serializeToXml(QXmlStreamWriter & writer) const
 {
-    writer.writeStartElement(Constants::xmlKeyNoteData());
+    writer.writeStartElement(Constants::NahdXml::xmlKeyNoteData());
 
     if (m_type == Type::NoteOn) {
-        writer.writeAttribute(Constants::xmlKeyType(), Constants::xmlKeyNoteOn());
-        writer.writeAttribute(Constants::xmlKeyNote(), QString::number(*m_note));
-        writer.writeAttribute(Constants::xmlKeyVelocity(), QString::number(m_velocity));
+        writer.writeAttribute(Constants::NahdXml::xmlKeyType(), Constants::NahdXml::xmlKeyNoteOn());
+        writer.writeAttribute(Constants::NahdXml::xmlKeyNote(), QString::number(*m_note));
+        writer.writeAttribute(Constants::NahdXml::xmlKeyVelocity(), QString::number(m_velocity));
         if (m_delay.has_value()) {
-            writer.writeAttribute(Constants::xmlKeyDelay(), QString::number(*m_delay));
+            writer.writeAttribute(Constants::NahdXml::xmlKeyDelay(), QString::number(*m_delay));
         }
     } else {
-        writer.writeAttribute(Constants::xmlKeyType(), Constants::xmlKeyNoteOff());
+        writer.writeAttribute(Constants::NahdXml::xmlKeyType(), Constants::NahdXml::xmlKeyNoteOff());
     }
 
     writer.writeEndElement(); // NoteData
@@ -120,14 +120,14 @@ void NoteData::serializeToXml(QXmlStreamWriter & writer) const
 
 NoteData::NoteDataS NoteData::deserializeFromXml(QXmlStreamReader & reader, size_t trackIndex, size_t columnIndex)
 {
-    const auto typeString = Utils::Xml::readStringAttribute(reader, Constants::xmlKeyType());
-    const auto type = typeString == Constants::xmlKeyNoteOn() ? NoteData::Type::NoteOn : NoteData::Type::NoteOff;
+    const auto typeString = Utils::Xml::readStringAttribute(reader, Constants::NahdXml::xmlKeyType());
+    const auto type = typeString == Constants::NahdXml::xmlKeyNoteOn() ? NoteData::Type::NoteOn : NoteData::Type::NoteOff;
     auto noteData = std::make_unique<NoteData>(trackIndex, columnIndex);
     if (type == NoteData::Type::NoteOn) {
-        const auto note = *Utils::Xml::readUIntAttribute(reader, Constants::xmlKeyNote());
-        const auto velocity = *Utils::Xml::readUIntAttribute(reader, Constants::xmlKeyVelocity());
+        const auto note = *Utils::Xml::readUIntAttribute(reader, Constants::NahdXml::xmlKeyNote());
+        const auto velocity = *Utils::Xml::readUIntAttribute(reader, Constants::NahdXml::xmlKeyVelocity());
         noteData->setAsNoteOn(static_cast<uint8_t>(note), static_cast<uint8_t>(velocity));
-        if (const auto delay = Utils::Xml::readUIntAttribute(reader, Constants::xmlKeyDelay(), false); delay.has_value()) {
+        if (const auto delay = Utils::Xml::readUIntAttribute(reader, Constants::NahdXml::xmlKeyDelay(), false); delay.has_value()) {
             noteData->setDelay(static_cast<uint8_t>(*delay));
         }
     } else {

@@ -166,12 +166,12 @@ EditorService::SongS EditorService::deserializeProject(QXmlStreamReader & reader
     try {
         juzzlin::L(TAG).info() << "Reading project started";
         SongS song;
-        doVersionCheck(reader.attributes().value(Constants::xmlKeyFileFormatVersion()).toString());
-        const auto applicationName = reader.attributes().value(Constants::xmlKeyApplicationName()).toString();
+        doVersionCheck(reader.attributes().value(Constants::NahdXml::xmlKeyFileFormatVersion()).toString());
+        const auto applicationName = reader.attributes().value(Constants::NahdXml::xmlKeyApplicationName()).toString();
         juzzlin::L(TAG).info() << "Creator application name: " << applicationName.toStdString();
-        const auto applicationVersion = reader.attributes().value(Constants::xmlKeyApplicationVersion()).toString();
+        const auto applicationVersion = reader.attributes().value(Constants::NahdXml::xmlKeyApplicationVersion()).toString();
         juzzlin::L(TAG).info() << "Creator application version: " << applicationVersion.toStdString();
-        m_state.createdDate = reader.attributes().value(Constants::xmlKeyCreatedDate()).toString();
+        m_state.createdDate = reader.attributes().value(Constants::NahdXml::xmlKeyCreatedDate()).toString();
         juzzlin::L(TAG).info() << "Created date: " << m_state.createdDate.toStdString();
         const auto mixerDeserializationCallback = [this](QXmlStreamReader & reader) {
             emit mixerDeserializationRequested(reader);
@@ -179,8 +179,8 @@ EditorService::SongS EditorService::deserializeProject(QXmlStreamReader & reader
         const auto automationDeserializationCallback = [this](QXmlStreamReader & reader) {
             emit automationDeserializationRequested(reader);
         };
-        while (!(reader.isEndElement() && !reader.name().compare(Constants::xmlKeyProject()))) {
-            if (reader.isStartElement() && !reader.name().compare(Constants::xmlKeySong())) {
+        while (!(reader.isEndElement() && !reader.name().compare(Constants::NahdXml::xmlKeyProject()))) {
+            if (reader.isStartElement() && !reader.name().compare(Constants::NahdXml::xmlKeySong())) {
                 song = std::make_unique<Song>();
                 song->deserializeFromXml(reader, mixerDeserializationCallback, automationDeserializationCallback);
             }
@@ -205,7 +205,7 @@ void EditorService::fromXml(QString xml)
     QXmlStreamReader reader { xml };
     while (!(reader.atEnd())) {
         juzzlin::L(TAG).trace() << "Current element: " << reader.name().toString().toStdString();
-        if (reader.isStartElement() && !reader.name().compare(Constants::xmlKeyProject())) {
+        if (reader.isStartElement() && !reader.name().compare(Constants::NahdXml::xmlKeyProject())) {
             if (const auto song = deserializeProject(reader); song) {
                 setSong(song);
             }
@@ -246,14 +246,14 @@ QString EditorService::toXml()
 
     writer.writeStartDocument();
 
-    writer.writeStartElement(Constants::xmlKeyProject());
-    writer.writeAttribute(Constants::xmlKeyFileFormatVersion(), Constants::fileFormatVersion());
-    writer.writeAttribute(Constants::xmlKeyApplicationName(), Constants::applicationName());
-    writer.writeAttribute(Constants::xmlKeyApplicationVersion(), Constants::applicationVersion());
+    writer.writeStartElement(Constants::NahdXml::xmlKeyProject());
+    writer.writeAttribute(Constants::NahdXml::xmlKeyFileFormatVersion(), Constants::fileFormatVersion());
+    writer.writeAttribute(Constants::NahdXml::xmlKeyApplicationName(), Constants::applicationName());
+    writer.writeAttribute(Constants::NahdXml::xmlKeyApplicationVersion(), Constants::applicationVersion());
     if (m_state.createdDate.isEmpty()) {
         m_state.createdDate = QDateTime::currentDateTime().toString(Qt::DateFormat::ISODateWithMs);
     }
-    writer.writeAttribute(Constants::xmlKeyCreatedDate(), m_state.createdDate);
+    writer.writeAttribute(Constants::NahdXml::xmlKeyCreatedDate(), m_state.createdDate);
     const auto mixerSerializationCallback = [this](QXmlStreamWriter & writer) {
         emit mixerSerializationRequested(writer);
     };
@@ -278,11 +278,11 @@ QString EditorService::toXmlAsTemplate()
 
     writer.writeStartDocument();
 
-    writer.writeStartElement(Constants::xmlKeyProject());
-    writer.writeAttribute(Constants::xmlKeyFileFormatVersion(), Constants::fileFormatVersion());
-    writer.writeAttribute(Constants::xmlKeyApplicationName(), Constants::applicationName());
-    writer.writeAttribute(Constants::xmlKeyApplicationVersion(), Constants::applicationVersion());
-    writer.writeAttribute(Constants::xmlKeyCreatedDate(), QDateTime::currentDateTime().toString(Qt::DateFormat::ISODateWithMs));
+    writer.writeStartElement(Constants::NahdXml::xmlKeyProject());
+    writer.writeAttribute(Constants::NahdXml::xmlKeyFileFormatVersion(), Constants::fileFormatVersion());
+    writer.writeAttribute(Constants::NahdXml::xmlKeyApplicationName(), Constants::applicationName());
+    writer.writeAttribute(Constants::NahdXml::xmlKeyApplicationVersion(), Constants::applicationVersion());
+    writer.writeAttribute(Constants::NahdXml::xmlKeyCreatedDate(), QDateTime::currentDateTime().toString(Qt::DateFormat::ISODateWithMs));
 
     const auto mixerSerializationCallback = [this](QXmlStreamWriter & writer) {
         emit mixerSerializationRequested(writer);

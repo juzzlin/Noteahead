@@ -90,8 +90,8 @@ bool Line::hasData() const
 void Line::serializeToXml(QXmlStreamWriter & writer) const
 {
     if (hasData()) {
-        writer.writeStartElement(Constants::xmlKeyLine());
-        writer.writeAttribute(Constants::xmlKeyIndex(), QString::number(m_index));
+        writer.writeStartElement(Constants::NahdXml::xmlKeyLine());
+        writer.writeAttribute(Constants::NahdXml::xmlKeyIndex(), QString::number(m_index));
         if (m_noteData->type() != NoteData::Type::None) {
             m_noteData->serializeToXml(writer);
         }
@@ -105,13 +105,13 @@ void Line::serializeToXml(QXmlStreamWriter & writer) const
 Line::LineU Line::deserializeFromXml(QXmlStreamReader & reader, size_t trackIndex, size_t columnIndex)
 {
     juzzlin::L(TAG).trace() << "Reading Line started";
-    const auto index = *Utils::Xml::readUIntAttribute(reader, Constants::xmlKeyIndex());
+    const auto index = *Utils::Xml::readUIntAttribute(reader, Constants::NahdXml::xmlKeyIndex());
     auto line = std::make_unique<Line>(index);
-    while (!(reader.isEndElement() && !reader.name().compare(Constants::xmlKeyLine()))) {
+    while (!(reader.isEndElement() && !reader.name().compare(Constants::NahdXml::xmlKeyLine()))) {
         juzzlin::L(TAG).trace() << "Current element: " << reader.name().toString().toStdString();
-        if (reader.isStartElement() && !reader.name().compare(Constants::xmlKeyNoteData())) {
+        if (reader.isStartElement() && !reader.name().compare(Constants::NahdXml::xmlKeyNoteData())) {
             line->setNoteData(*NoteData::deserializeFromXml(reader, trackIndex, columnIndex));
-        } else if (reader.isStartElement() && !reader.name().compare(Constants::xmlKeyLineEvent())) {
+        } else if (reader.isStartElement() && !reader.name().compare(Constants::NahdXml::xmlKeyLineEvent())) {
             line->setLineEvent(*LineEvent::deserializeFromXml(reader, trackIndex, columnIndex));
         }
         reader.readNext();

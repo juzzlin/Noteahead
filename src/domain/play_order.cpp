@@ -98,15 +98,15 @@ size_t PlayOrder::positionToPattern(size_t position) const
 
 void PlayOrder::serializePosition(QXmlStreamWriter & writer, size_t position) const
 {
-    writer.writeStartElement(Constants::xmlKeyPosition());
-    writer.writeAttribute(Constants::xmlKeyIndex(), QString::number(position));
-    writer.writeAttribute(Constants::xmlKeyPatternAttr(), QString::number(m_positionToPattern.at(position)));
+    writer.writeStartElement(Constants::NahdXml::xmlKeyPosition());
+    writer.writeAttribute(Constants::NahdXml::xmlKeyIndex(), QString::number(position));
+    writer.writeAttribute(Constants::NahdXml::xmlKeyPatternAttr(), QString::number(m_positionToPattern.at(position)));
     writer.writeEndElement();
 }
 
 void PlayOrder::serializeToXml(QXmlStreamWriter & writer) const
 {
-    writer.writeStartElement(Constants::xmlKeyPlayOrder());
+    writer.writeStartElement(Constants::NahdXml::xmlKeyPlayOrder());
     for (size_t i = 0; i < m_positionToPattern.size(); i++) {
         serializePosition(writer, i);
     }
@@ -115,7 +115,7 @@ void PlayOrder::serializeToXml(QXmlStreamWriter & writer) const
 
 void PlayOrder::serializeToXml(QXmlStreamWriter & writer, size_t lastPosition) const
 {
-    writer.writeStartElement(Constants::xmlKeyPlayOrder());
+    writer.writeStartElement(Constants::NahdXml::xmlKeyPlayOrder());
     for (size_t i = 0; i <= lastPosition && i < m_positionToPattern.size(); i++) {
         serializePosition(writer, i);
     }

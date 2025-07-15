@@ -66,18 +66,18 @@ void MidiCcSetting::setValue(uint8_t value)
 
 void MidiCcSetting::serializeToXml(QXmlStreamWriter & writer) const
 {
-    writer.writeStartElement(Constants::xmlKeyMidiCcSetting());
-    writer.writeAttribute(Constants::xmlKeyEnabled(), m_enabled ? Constants::xmlValueTrue() : Constants::xmlValueFalse());
-    writer.writeAttribute(Constants::xmlKeyController(), QString::number(m_controller));
-    writer.writeAttribute(Constants::xmlKeyValue(), QString::number(m_value));
+    writer.writeStartElement(Constants::NahdXml::xmlKeyMidiCcSetting());
+    writer.writeAttribute(Constants::NahdXml::xmlKeyEnabled(), m_enabled ? Constants::NahdXml::xmlValueTrue() : Constants::NahdXml::xmlValueFalse());
+    writer.writeAttribute(Constants::NahdXml::xmlKeyController(), QString::number(m_controller));
+    writer.writeAttribute(Constants::NahdXml::xmlKeyValue(), QString::number(m_value));
     writer.writeEndElement();
 }
 
 std::unique_ptr<MidiCcSetting> MidiCcSetting::deserializeFromXml(QXmlStreamReader & reader)
 {
-    const auto enabled = static_cast<bool>(Utils::Xml::readBoolAttribute(reader, Constants::xmlKeyEnabled(), false).value_or(false));
-    const auto controller = static_cast<uint8_t>(*Utils::Xml::readUIntAttribute(reader, Constants::xmlKeyController()));
-    const auto value = static_cast<uint8_t>(*Utils::Xml::readUIntAttribute(reader, Constants::xmlKeyValue()));
+    const auto enabled = static_cast<bool>(Utils::Xml::readBoolAttribute(reader, Constants::NahdXml::xmlKeyEnabled(), false).value_or(false));
+    const auto controller = static_cast<uint8_t>(*Utils::Xml::readUIntAttribute(reader, Constants::NahdXml::xmlKeyController()));
+    const auto value = static_cast<uint8_t>(*Utils::Xml::readUIntAttribute(reader, Constants::NahdXml::xmlKeyValue()));
     return std::make_unique<MidiCcSetting>(enabled, controller, value);
 }
 

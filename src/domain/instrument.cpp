@@ -58,7 +58,7 @@ void Instrument::setSettings(const InstrumentSettings & settings)
 
 void Instrument::serializeToXml(QXmlStreamWriter & writer) const
 {
-    writer.writeStartElement(Constants::xmlKeyInstrument());
+    writer.writeStartElement(Constants::NahdXml::xmlKeyInstrument());
 
     m_midiAddress.serializeToXml(writer);
 
@@ -73,9 +73,9 @@ Instrument::InstrumentU Instrument::deserializeFromXml(QXmlStreamReader & reader
 
     // Read mandatory properties
     auto instrument = std::make_unique<Instrument>(*MidiAddress::deserializeFromXml(reader));
-    while (!(reader.isEndElement() && !reader.name().compare(Constants::xmlKeyInstrument()))) {
+    while (!(reader.isEndElement() && !reader.name().compare(Constants::NahdXml::xmlKeyInstrument()))) {
         juzzlin::L(TAG).trace() << "Instrument: Current element: " << reader.name().toString().toStdString();
-        if (reader.isStartElement() && !reader.name().compare(Constants::xmlKeyInstrumentSettings())) {
+        if (reader.isStartElement() && !reader.name().compare(Constants::NahdXml::xmlKeyInstrumentSettings())) {
             if (const auto settings = InstrumentSettings::deserializeFromXml(reader); settings) {
                 instrument->m_settings = *settings;
             }

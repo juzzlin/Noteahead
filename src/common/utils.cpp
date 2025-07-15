@@ -55,7 +55,7 @@ std::optional<bool> readBoolAttribute(QXmlStreamReader & reader, QString name, b
         }
         return {};
     } else {
-        return reader.attributes().value(name).toString() == Constants::xmlValueTrue();
+        return reader.attributes().value(name).toString() == Constants::NahdXml::xmlValueTrue();
     }
 }
 

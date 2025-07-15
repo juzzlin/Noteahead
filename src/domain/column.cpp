@@ -215,12 +215,12 @@ void Column::setInstrumentSettings(const Position & position, InstrumentSettings
 
 void Column::serializeToXml(QXmlStreamWriter & writer) const
 {
-    writer.writeStartElement(Constants::xmlKeyColumn());
-    writer.writeAttribute(Constants::xmlKeyIndex(), QString::number(index()));
-    writer.writeAttribute(Constants::xmlKeyName(), QString::fromStdString(name()));
-    writer.writeAttribute(Constants::xmlKeyLineCount(), QString::number(lineCount()));
+    writer.writeStartElement(Constants::NahdXml::xmlKeyColumn());
+    writer.writeAttribute(Constants::NahdXml::xmlKeyIndex(), QString::number(index()));
+    writer.writeAttribute(Constants::NahdXml::xmlKeyName(), QString::fromStdString(name()));
+    writer.writeAttribute(Constants::NahdXml::xmlKeyLineCount(), QString::number(lineCount()));
 
-    writer.writeStartElement(Constants::xmlKeyLines());
+    writer.writeStartElement(Constants::NahdXml::xmlKeyLines());
 
     for (size_t i = 0; i < m_virtualLineCount; i++) {
         if (auto && line = m_lines.at(i); line) {
@@ -235,16 +235,16 @@ void Column::serializeToXml(QXmlStreamWriter & writer) const
 Column::ColumnU Column::deserializeFromXml(QXmlStreamReader & reader, size_t trackIndex)
 {
     juzzlin::L(TAG).trace() << "Reading Column started";
-    const auto index = *Utils::Xml::readUIntAttribute(reader, Constants::xmlKeyIndex());
-    const auto lineCount = *Utils::Xml::readUIntAttribute(reader, Constants::xmlKeyLineCount());
+    const auto index = *Utils::Xml::readUIntAttribute(reader, Constants::NahdXml::xmlKeyIndex());
+    const auto lineCount = *Utils::Xml::readUIntAttribute(reader, Constants::NahdXml::xmlKeyLineCount());
     auto column = std::make_unique<Column>(index, lineCount);
-    if (const auto name = Utils::Xml::readStringAttribute(reader, Constants::xmlKeyName(), false); name.has_value()) {
+    if (const auto name = Utils::Xml::readStringAttribute(reader, Constants::NahdXml::xmlKeyName(), false); name.has_value()) {
         juzzlin::L(TAG).trace() << "Setting column index=" << index << " name to '" << name->toStdString() << "'";
         column->setName(name->toStdString());
     }
-    while (!(reader.isEndElement() && !reader.name().compare(Constants::xmlKeyColumn()))) {
+    while (!(reader.isEndElement() && !reader.name().compare(Constants::NahdXml::xmlKeyColumn()))) {
         juzzlin::L(TAG).trace() << "Current element: " << reader.name().toString().toStdString();
-        if (reader.isStartElement() && !reader.name().compare(Constants::xmlKeyLines())) {
+        if (reader.isStartElement() && !reader.name().compare(Constants::NahdXml::xmlKeyLines())) {
             deserializeLines(reader, trackIndex, *column);
         }
         reader.readNext();
@@ -256,9 +256,9 @@ Column::ColumnU Column::deserializeFromXml(QXmlStreamReader & reader, size_t tra
 void Column::deserializeLines(QXmlStreamReader & reader, size_t trackIndex, Column & column)
 {
     juzzlin::L(TAG).trace() << "Reading Lines started";
-    while (!(reader.isEndElement() && !reader.name().compare(Constants::xmlKeyLines()))) {
+    while (!(reader.isEndElement() && !reader.name().compare(Constants::NahdXml::xmlKeyLines()))) {
         juzzlin::L(TAG).trace() << "Deserializing Line: " << reader.name().toString().toStdString();
-        if (reader.isStartElement() && !reader.name().compare(Constants::xmlKeyLine())) {
+        if (reader.isStartElement() && !reader.name().compare(Constants::NahdXml::xmlKeyLine())) {
             column.addOrReplaceLine(Line::deserializeFromXml(reader, trackIndex, column.index()));
         }
         reader.readNext();

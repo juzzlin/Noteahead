@@ -391,14 +391,14 @@ Pattern::EventList Pattern::renderToEvents(AutomationServiceS automationService,
 
 void Pattern::serializeToXml(QXmlStreamWriter & writer) const
 {
-    writer.writeStartElement(Constants::xmlKeyPattern());
+    writer.writeStartElement(Constants::NahdXml::xmlKeyPattern());
 
-    writer.writeAttribute(Constants::xmlKeyIndex(), QString::number(m_index));
-    writer.writeAttribute(Constants::xmlKeyName(), QString::fromStdString(m_name));
-    writer.writeAttribute(Constants::xmlKeyLineCount(), QString::number(lineCount()));
-    writer.writeAttribute(Constants::xmlKeyTrackCount(), QString::number(trackCount()));
+    writer.writeAttribute(Constants::NahdXml::xmlKeyIndex(), QString::number(m_index));
+    writer.writeAttribute(Constants::NahdXml::xmlKeyName(), QString::fromStdString(m_name));
+    writer.writeAttribute(Constants::NahdXml::xmlKeyLineCount(), QString::number(lineCount()));
+    writer.writeAttribute(Constants::NahdXml::xmlKeyTrackCount(), QString::number(trackCount()));
 
-    writer.writeStartElement(Constants::xmlKeyTracks());
+    writer.writeStartElement(Constants::NahdXml::xmlKeyTracks());
 
     std::ranges::for_each(m_trackOrder, [&writer](auto && track) {
         if (track) {
@@ -414,15 +414,15 @@ void Pattern::serializeToXml(QXmlStreamWriter & writer) const
 Pattern::PatternU Pattern::deserializeFromXml(QXmlStreamReader & reader)
 {
     juzzlin::L(TAG).trace() << "Reading Pattern started";
-    const auto index = *Utils::Xml::readUIntAttribute(reader, Constants::xmlKeyIndex());
-    const auto name = *Utils::Xml::readStringAttribute(reader, Constants::xmlKeyName());
-    const auto lineCount = *Utils::Xml::readUIntAttribute(reader, Constants::xmlKeyLineCount());
-    const auto trackCount = *Utils::Xml::readUIntAttribute(reader, Constants::xmlKeyTrackCount());
+    const auto index = *Utils::Xml::readUIntAttribute(reader, Constants::NahdXml::xmlKeyIndex());
+    const auto name = *Utils::Xml::readStringAttribute(reader, Constants::NahdXml::xmlKeyName());
+    const auto lineCount = *Utils::Xml::readUIntAttribute(reader, Constants::NahdXml::xmlKeyLineCount());
+    const auto trackCount = *Utils::Xml::readUIntAttribute(reader, Constants::NahdXml::xmlKeyTrackCount());
     auto pattern = std::make_unique<Pattern>(index, lineCount, trackCount);
     pattern->setName(name.toStdString());
-    while (!(reader.isEndElement() && !reader.name().compare(Constants::xmlKeyPattern()))) {
+    while (!(reader.isEndElement() && !reader.name().compare(Constants::NahdXml::xmlKeyPattern()))) {
         juzzlin::L(TAG).trace() << "Pattern: Current element: " << reader.name().toString().toStdString();
-        if (reader.isStartElement() && !reader.name().compare(Constants::xmlKeyTracks())) {
+        if (reader.isStartElement() && !reader.name().compare(Constants::NahdXml::xmlKeyTracks())) {
             deserializeTracks(reader, *pattern);
         }
         reader.readNext();
@@ -435,9 +435,9 @@ void Pattern::deserializeTracks(QXmlStreamReader & reader, Pattern & pattern)
 {
     juzzlin::L(TAG).trace() << "Reading Tracks started";
     size_t position = 0;
-    while (!(reader.isEndElement() && !reader.name().compare(Constants::xmlKeyTracks()))) {
+    while (!(reader.isEndElement() && !reader.name().compare(Constants::NahdXml::xmlKeyTracks()))) {
         juzzlin::L(TAG).trace() << "Tracks: Current element: " << reader.name().toString().toStdString();
-        if (reader.isStartElement() && !reader.name().compare(Constants::xmlKeyTrack())) {
+        if (reader.isStartElement() && !reader.name().compare(Constants::NahdXml::xmlKeyTrack())) {
             pattern.setTrackAtPosition(position++, Track::deserializeFromXml(reader));
         }
         reader.readNext();

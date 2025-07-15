@@ -34,6 +34,8 @@ QString qSettingsCompanyName();
 QString qSettingSoftwareName();
 QString webSiteUrl();
 
+namespace NahdXml {
+
 QString xmlKeyFileFormatVersion();
 
 QString xmlKeyApplicationName();
@@ -138,6 +140,8 @@ QString xmlKeySong();
 
 QString xmlValueFalse();
 QString xmlValueTrue();
+
+} // namespace NahdXml
 
 } // namespace noteahead::Constants
 
