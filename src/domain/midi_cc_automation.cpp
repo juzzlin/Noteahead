@@ -95,22 +95,22 @@ QString MidiCcAutomation::toString() const
 
 void MidiCcAutomation::serializeToXml(QXmlStreamWriter & writer) const
 {
-    writer.writeStartElement(Constants::xmlKeyMidiCcAutomation());
-    writer.writeAttribute(Constants::xmlKeyController(), QString::number(m_controller));
-    writer.writeAttribute(Constants::xmlKeyComment(), comment());
-    writer.writeAttribute(Constants::xmlKeyEnabled(), enabled() ? Constants::xmlValueTrue() : Constants::xmlValueFalse());
+    writer.writeStartElement(Constants::NahdXml::xmlKeyMidiCcAutomation());
+    writer.writeAttribute(Constants::NahdXml::xmlKeyController(), QString::number(m_controller));
+    writer.writeAttribute(Constants::NahdXml::xmlKeyComment(), comment());
+    writer.writeAttribute(Constants::NahdXml::xmlKeyEnabled(), enabled() ? Constants::NahdXml::xmlValueTrue() : Constants::NahdXml::xmlValueFalse());
 
-    writer.writeStartElement(Constants::xmlKeyLocation());
-    writer.writeAttribute(Constants::xmlKeyPatternAttr(), QString::number(location().pattern));
-    writer.writeAttribute(Constants::xmlKeyTrackAttr(), QString::number(location().track));
-    writer.writeAttribute(Constants::xmlKeyColumnAttr(), QString::number(location().column));
+    writer.writeStartElement(Constants::NahdXml::xmlKeyLocation());
+    writer.writeAttribute(Constants::NahdXml::xmlKeyPatternAttr(), QString::number(location().pattern));
+    writer.writeAttribute(Constants::NahdXml::xmlKeyTrackAttr(), QString::number(location().track));
+    writer.writeAttribute(Constants::NahdXml::xmlKeyColumnAttr(), QString::number(location().column));
     writer.writeEndElement(); // Location
 
-    writer.writeStartElement(Constants::xmlKeyInterpolation());
-    writer.writeAttribute(Constants::xmlKeyLine0(), QString::number(m_interpolation.line0));
-    writer.writeAttribute(Constants::xmlKeyLine1(), QString::number(m_interpolation.line1));
-    writer.writeAttribute(Constants::xmlKeyValue0(), QString::number(m_interpolation.value0));
-    writer.writeAttribute(Constants::xmlKeyValue1(), QString::number(m_interpolation.value1));
+    writer.writeStartElement(Constants::NahdXml::xmlKeyInterpolation());
+    writer.writeAttribute(Constants::NahdXml::xmlKeyLine0(), QString::number(m_interpolation.line0));
+    writer.writeAttribute(Constants::NahdXml::xmlKeyLine1(), QString::number(m_interpolation.line1));
+    writer.writeAttribute(Constants::NahdXml::xmlKeyValue0(), QString::number(m_interpolation.value0));
+    writer.writeAttribute(Constants::NahdXml::xmlKeyValue1(), QString::number(m_interpolation.value1));
     writer.writeEndElement(); // Interpolation
 
     writer.writeEndElement(); // Automation
@@ -118,25 +118,25 @@ void MidiCcAutomation::serializeToXml(QXmlStreamWriter & writer) const
 
 MidiCcAutomation::MidiCcAutomationU MidiCcAutomation::deserializeFromXml(QXmlStreamReader & reader)
 {
-    const quint8 controller = static_cast<quint8>(reader.attributes().value(Constants::xmlKeyController()).toUInt());
-    const QString comment = reader.attributes().value(Constants::xmlKeyComment()).toString();
-    const bool enabled = Utils::Xml::readBoolAttribute(reader, Constants::xmlKeyEnabled(), false).value_or(true);
+    const quint8 controller = static_cast<quint8>(reader.attributes().value(Constants::NahdXml::xmlKeyController()).toUInt());
+    const QString comment = reader.attributes().value(Constants::NahdXml::xmlKeyComment()).toString();
+    const bool enabled = Utils::Xml::readBoolAttribute(reader, Constants::NahdXml::xmlKeyEnabled(), false).value_or(true);
     AutomationLocation location {};
     MidiCcAutomation::InterpolationParameters parameters {};
-    while (!(reader.isEndElement() && !reader.name().compare(Constants::xmlKeyMidiCcAutomation()))) {
+    while (!(reader.isEndElement() && !reader.name().compare(Constants::NahdXml::xmlKeyMidiCcAutomation()))) {
         reader.readNext();
         if (reader.isStartElement()) {
-            if (!reader.name().compare(Constants::xmlKeyLocation())) {
+            if (!reader.name().compare(Constants::NahdXml::xmlKeyLocation())) {
                 const auto attributes = reader.attributes();
-                location.pattern = attributes.value(Constants::xmlKeyPatternAttr()).toULongLong();
-                location.track = attributes.value(Constants::xmlKeyTrackAttr()).toULongLong();
-                location.column = attributes.value(Constants::xmlKeyColumnAttr()).toULongLong();
-            } else if (!reader.name().compare(Constants::xmlKeyInterpolation())) {
+                location.pattern = attributes.value(Constants::NahdXml::xmlKeyPatternAttr()).toULongLong();
+                location.track = attributes.value(Constants::NahdXml::xmlKeyTrackAttr()).toULongLong();
+                location.column = attributes.value(Constants::NahdXml::xmlKeyColumnAttr()).toULongLong();
+            } else if (!reader.name().compare(Constants::NahdXml::xmlKeyInterpolation())) {
                 const auto attributes = reader.attributes();
-                parameters.line0 = attributes.value(Constants::xmlKeyLine0()).toULongLong();
-                parameters.line1 = attributes.value(Constants::xmlKeyLine1()).toULongLong();
-                parameters.value0 = static_cast<quint8>(attributes.value(Constants::xmlKeyValue0()).toUInt());
-                parameters.value1 = static_cast<quint8>(attributes.value(Constants::xmlKeyValue1()).toUInt());
+                parameters.line0 = attributes.value(Constants::NahdXml::xmlKeyLine0()).toULongLong();
+                parameters.line1 = attributes.value(Constants::NahdXml::xmlKeyLine1()).toULongLong();
+                parameters.value0 = static_cast<quint8>(attributes.value(Constants::NahdXml::xmlKeyValue0()).toUInt());
+                parameters.value1 = static_cast<quint8>(attributes.value(Constants::NahdXml::xmlKeyValue1()).toUInt());
             }
         }
     }

@@ -781,11 +781,11 @@ Song::EventList Song::renderToEvents(AutomationServiceS automationService, size_
 
 void Song::serializeToXml(QXmlStreamWriter & writer, MixerSerializationCallback mixerSerializationCallback, AutomationSerializationCallback automationSerializationCallback) const
 {
-    writer.writeStartElement(Constants::xmlKeySong());
+    writer.writeStartElement(Constants::NahdXml::xmlKeySong());
 
-    writer.writeAttribute(Constants::xmlKeyBeatsPerMinute(), QString::number(m_beatsPerMinute));
-    writer.writeAttribute(Constants::xmlKeyLinesPerBeat(), QString::number(m_linesPerBeat));
-    writer.writeAttribute(Constants::xmlKeyLength(), QString::number(m_length));
+    writer.writeAttribute(Constants::NahdXml::xmlKeyBeatsPerMinute(), QString::number(m_beatsPerMinute));
+    writer.writeAttribute(Constants::NahdXml::xmlKeyLinesPerBeat(), QString::number(m_linesPerBeat));
+    writer.writeAttribute(Constants::NahdXml::xmlKeyLength(), QString::number(m_length));
 
     m_playOrder->serializeToXml(writer);
 
@@ -797,7 +797,7 @@ void Song::serializeToXml(QXmlStreamWriter & writer, MixerSerializationCallback 
         automationSerializationCallback(writer);
     }
 
-    writer.writeStartElement(Constants::xmlKeyPatterns());
+    writer.writeStartElement(Constants::NahdXml::xmlKeyPatterns());
 
     std::ranges::for_each(m_patterns, [&writer](const auto & pattern) {
         if (pattern.second) {
@@ -811,11 +811,11 @@ void Song::serializeToXml(QXmlStreamWriter & writer, MixerSerializationCallback 
 
 void Song::serializeToXmlAsTemplate(QXmlStreamWriter & writer, MixerSerializationCallback mixerSerializationCallback, AutomationSerializationCallback automationSerializationCallback) const
 {
-    writer.writeStartElement(Constants::xmlKeySong());
+    writer.writeStartElement(Constants::NahdXml::xmlKeySong());
 
-    writer.writeAttribute(Constants::xmlKeyBeatsPerMinute(), QString::number(m_beatsPerMinute));
-    writer.writeAttribute(Constants::xmlKeyLinesPerBeat(), QString::number(m_linesPerBeat));
-    writer.writeAttribute(Constants::xmlKeyLength(), QString::number(1));
+    writer.writeAttribute(Constants::NahdXml::xmlKeyBeatsPerMinute(), QString::number(m_beatsPerMinute));
+    writer.writeAttribute(Constants::NahdXml::xmlKeyLinesPerBeat(), QString::number(m_linesPerBeat));
+    writer.writeAttribute(Constants::NahdXml::xmlKeyLength(), QString::number(1));
 
     if (mixerSerializationCallback) {
         mixerSerializationCallback(writer);
@@ -825,7 +825,7 @@ void Song::serializeToXmlAsTemplate(QXmlStreamWriter & writer, MixerSerializatio
         automationSerializationCallback(writer);
     }
 
-    writer.writeStartElement(Constants::xmlKeyPatterns());
+    writer.writeStartElement(Constants::NahdXml::xmlKeyPatterns());
 
     m_patterns.at(0)->serializeToXml(writer);
 
@@ -835,23 +835,23 @@ void Song::serializeToXmlAsTemplate(QXmlStreamWriter & writer, MixerSerializatio
 
 void Song::deserializeFromXml(QXmlStreamReader & reader, MixerDeserializationCallback mixerDeserializationCallback, AutomationDeserializationCallback automationDeserializationCallback)
 {
-    setBeatsPerMinute(*Utils::Xml::readUIntAttribute(reader, Constants::xmlKeyBeatsPerMinute()));
-    setLinesPerBeat(*Utils::Xml::readUIntAttribute(reader, Constants::xmlKeyLinesPerBeat()));
-    setLength(*Utils::Xml::readUIntAttribute(reader, Constants::xmlKeyLength()));
+    setBeatsPerMinute(*Utils::Xml::readUIntAttribute(reader, Constants::NahdXml::xmlKeyBeatsPerMinute()));
+    setLinesPerBeat(*Utils::Xml::readUIntAttribute(reader, Constants::NahdXml::xmlKeyLinesPerBeat()));
+    setLength(*Utils::Xml::readUIntAttribute(reader, Constants::NahdXml::xmlKeyLength()));
 
     juzzlin::L(TAG).trace() << "Reading Song started";
-    while (!(reader.isEndElement() && !reader.name().compare(Constants::xmlKeySong()))) {
+    while (!(reader.isEndElement() && !reader.name().compare(Constants::NahdXml::xmlKeySong()))) {
         juzzlin::L(TAG).trace() << "Current element: " << reader.name().toString().toStdString();
         if (reader.isStartElement()) {
-            if (!reader.name().compare(Constants::xmlKeyPatterns())) {
+            if (!reader.name().compare(Constants::NahdXml::xmlKeyPatterns())) {
                 deserializePatterns(reader);
-            } else if (!reader.name().compare(Constants::xmlKeyPlayOrder())) {
+            } else if (!reader.name().compare(Constants::NahdXml::xmlKeyPlayOrder())) {
                 deserializePlayOrder(reader);
-            } else if (!reader.name().compare(Constants::xmlKeyMixer())) {
+            } else if (!reader.name().compare(Constants::NahdXml::xmlKeyMixer())) {
                 if (mixerDeserializationCallback) {
                     mixerDeserializationCallback(reader);
                 }
-            } else if (!reader.name().compare(Constants::xmlKeyAutomation())) {
+            } else if (!reader.name().compare(Constants::NahdXml::xmlKeyAutomation())) {
                 if (automationDeserializationCallback) {
                     automationDeserializationCallback(reader);
                 }
@@ -865,9 +865,9 @@ void Song::deserializeFromXml(QXmlStreamReader & reader, MixerDeserializationCal
 void Song::deserializePlayOrder(QXmlStreamReader & reader)
 {
     juzzlin::L(TAG).trace() << "Reading PlayOrder started";
-    while (!(reader.isEndElement() && !reader.name().compare(Constants::xmlKeyPlayOrder()))) {
+    while (!(reader.isEndElement() && !reader.name().compare(Constants::NahdXml::xmlKeyPlayOrder()))) {
         juzzlin::L(TAG).trace() << "PlayOrder: Current element: " << reader.name().toString().toStdString();
-        if (reader.isStartElement() && !reader.name().compare(Constants::xmlKeyPosition())) {
+        if (reader.isStartElement() && !reader.name().compare(Constants::NahdXml::xmlKeyPosition())) {
             deserializePosition(reader);
         }
         reader.readNext();
@@ -878,16 +878,16 @@ void Song::deserializePlayOrder(QXmlStreamReader & reader)
 void Song::deserializePosition(QXmlStreamReader & reader)
 {
     juzzlin::L(TAG).trace() << "Reading Position started";
-    setPatternAtSongPosition(*Utils::Xml::readUIntAttribute(reader, Constants::xmlKeyIndex()), *Utils::Xml::readUIntAttribute(reader, Constants::xmlKeyPatternAttr()));
+    setPatternAtSongPosition(*Utils::Xml::readUIntAttribute(reader, Constants::NahdXml::xmlKeyIndex()), *Utils::Xml::readUIntAttribute(reader, Constants::NahdXml::xmlKeyPatternAttr()));
     juzzlin::L(TAG).trace() << "Reading Position ended";
 }
 
 void Song::deserializePatterns(QXmlStreamReader & reader)
 {
     juzzlin::L(TAG).trace() << "Reading Patterns started";
-    while (!(reader.isEndElement() && !reader.name().compare(Constants::xmlKeyPatterns()))) {
+    while (!(reader.isEndElement() && !reader.name().compare(Constants::NahdXml::xmlKeyPatterns()))) {
         juzzlin::L(TAG).trace() << "Patterns: Current element: " << reader.name().toString().toStdString();
-        if (reader.isStartElement() && !reader.name().compare(Constants::xmlKeyPattern())) {
+        if (reader.isStartElement() && !reader.name().compare(Constants::NahdXml::xmlKeyPattern())) {
             auto pattern = Pattern::deserializeFromXml(reader);
             m_patterns[pattern->index()] = std::move(pattern);
         }

@@ -52,7 +52,7 @@ bool LineEvent::hasData() const
 void LineEvent::serializeToXml(QXmlStreamWriter & writer) const
 {
     if (hasData()) {
-        writer.writeStartElement(Constants::xmlKeyLineEvent());
+        writer.writeStartElement(Constants::NahdXml::xmlKeyLineEvent());
         if (m_instrumentSettings) {
             m_instrumentSettings->serializeToXml(writer);
         }
@@ -64,9 +64,9 @@ LineEvent::LineEventU LineEvent::deserializeFromXml(QXmlStreamReader & reader, s
 {
     juzzlin::L(TAG).trace() << "Reading LineEvent started";
     auto lineEvent = std::make_unique<LineEvent>(trackIndex, columnIndex);
-    while (!(reader.isEndElement() && !reader.name().compare(Constants::xmlKeyLineEvent()))) {
+    while (!(reader.isEndElement() && !reader.name().compare(Constants::NahdXml::xmlKeyLineEvent()))) {
         juzzlin::L(TAG).trace() << "Current element: " << reader.name().toString().toStdString();
-        if (reader.isStartElement() && !reader.name().compare(Constants::xmlKeyInstrumentSettings())) {
+        if (reader.isStartElement() && !reader.name().compare(Constants::NahdXml::xmlKeyInstrumentSettings())) {
             if (auto settings = InstrumentSettings::deserializeFromXml(reader); settings) {
                 lineEvent->setInstrumentSettings(std::move(settings));
             }

@@ -482,13 +482,13 @@ void AutomationService::deserializeFromXml(QXmlStreamReader & reader)
 {
     juzzlin::L(TAG).info() << "Deserializing";
     m_automations = {};
-    while (!(reader.isEndElement() && !reader.name().compare(Constants::xmlKeyAutomation()))) {
-        if (reader.isStartElement() && !reader.name().compare(Constants::xmlKeyMidiCcAutomation())) {
+    while (!(reader.isEndElement() && !reader.name().compare(Constants::NahdXml::xmlKeyAutomation()))) {
+        if (reader.isStartElement() && !reader.name().compare(Constants::NahdXml::xmlKeyMidiCcAutomation())) {
             if (const auto automation = MidiCcAutomation::deserializeFromXml(reader); automation) {
                 automation->setId(m_automations.midiCc.size() + 1); // Assign id on-the-fly
                 m_automations.midiCc.push_back(*automation);
             }
-        } else if (reader.isStartElement() && !reader.name().compare(Constants::xmlKeyPitchBendAutomation())) {
+        } else if (reader.isStartElement() && !reader.name().compare(Constants::NahdXml::xmlKeyPitchBendAutomation())) {
             if (const auto automation = PitchBendAutomation::deserializeFromXml(reader); automation) {
                 automation->setId(m_automations.pitchBend.size() + 1); // Assign id on-the-fly
                 m_automations.pitchBend.push_back(*automation);
@@ -502,7 +502,7 @@ void AutomationService::serializeToXml(QXmlStreamWriter & writer) const
 {
     juzzlin::L(TAG).info() << "Serializing";
 
-    writer.writeStartElement(Constants::xmlKeyAutomation());
+    writer.writeStartElement(Constants::NahdXml::xmlKeyAutomation());
 
     for (const auto & automation : m_automations.midiCc) {
         automation.serializeToXml(writer);

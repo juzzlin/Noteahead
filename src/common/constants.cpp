@@ -62,6 +62,8 @@ QString qSettingSoftwareName()
     return applicationName();
 }
 
+namespace NahdXml {
+
 QString xmlKeyFileFormatVersion()
 {
     return "fileFormatVersion";
@@ -436,5 +438,7 @@ QString xmlValueTrue()
 {
     return "true";
 }
+
+} // namespace NahdXml
 
 } // namespace noteahead::constants
