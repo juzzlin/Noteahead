@@ -34,7 +34,6 @@ std::optional<double> parseDecimal(std::string_view string);
 } // namespace Misc
 namespace Midi {
 double portNameMatchScore(const std::string & s1, const std::string & s2);
-std::string midiNoteToNoteName(quint8 note);
 } // namespace Midi
 namespace Xml {
 std::optional<bool> readBoolAttribute(QXmlStreamReader & reader, QString name, bool required = true);
