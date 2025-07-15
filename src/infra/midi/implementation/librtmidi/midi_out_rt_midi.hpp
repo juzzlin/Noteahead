@@ -38,6 +38,8 @@ public:
 
     std::string midiApiName() const override;
 
+    PortNameList availablePortNames() const override;
+
     void sendCcData(MidiDeviceCR device, uint8_t channel, uint8_t controller, uint8_t value) const override;
 
     void sendNoteOn(MidiDeviceCR device, uint8_t channel, uint8_t note, uint8_t velocity) const override;

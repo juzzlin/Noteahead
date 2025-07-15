@@ -52,10 +52,11 @@ public:
 
 protected:
     void setDevices(DeviceList devices);
-
     void invalidatePortNameCache();
 
 private:
+    void initializeScanTimer();
+
     DeviceList m_devices;
 
     using PortNameToDevice = std::unordered_map<std::string, MidiDeviceS>;

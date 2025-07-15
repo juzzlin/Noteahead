@@ -16,16 +16,23 @@
 #ifndef MIDI_WORKER_HPP
 #define MIDI_WORKER_HPP
 
+#include <memory>
+
 #include <QObject>
 
+class QTimer;
+
 namespace noteahead {
+
+class Midi;
 
 class MidiWorker : public QObject
 {
     Q_OBJECT
 
 public:
-    explicit MidiWorker(QObject * parent = nullptr);
+    using MidiS = std::shared_ptr<Midi>;
+    explicit MidiWorker(MidiS midi, QString role, QObject * parent = nullptr);
     virtual ~MidiWorker() override;
 
     Q_INVOKABLE void setIsPlaying(bool isPlaying);
@@ -38,10 +45,19 @@ signals:
     void statusTextRequested(QString message);
 
 protected:
+    virtual void handlePortsChanged();
+
     bool isPlaying() const;
 
+    MidiS midi() const;
+
 private:
+    void initializeScanTimer();
+
     std::atomic_bool m_isPlaying = false;
+    std::unique_ptr<QTimer> m_midiScanTimer;
+    MidiS m_midi;
+    QString m_role;
 };
 
 } // namespace noteahead

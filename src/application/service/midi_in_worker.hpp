@@ -19,7 +19,6 @@
 #include "midi_worker.hpp"
 
 #include <QObject>
-#include <QTimer>
 
 #include <memory>
 #include <unordered_map>
@@ -56,6 +55,9 @@ signals:
 
     void sysExReceived(const QByteArray & data);
 
+protected:
+    void handlePortsChanged() override;
+
 private:
     void initializeScanTimer();
 
@@ -87,7 +89,6 @@ private:
     QString m_controllerPort;
 
     std::shared_ptr<MidiIn> m_midiIn;
-    std::unique_ptr<QTimer> m_midiScanTimer;
 
     using RpnStateMap = std::unordered_map<quint8, std::optional<std::pair<quint8, quint8>>>;
     RpnStateMap m_rpnState;
