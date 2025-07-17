@@ -77,6 +77,8 @@ Some example tracks sequenced with Noteahead:
   - Select lines and add automation on the desired controller
 * Pitch Bend automation (linear interpolation)
   - Select lines and add automation on pitch bend
+* Step record / play notes via a MIDI controller (since 0.10.0)
+  - The MIDI controller is routed to the instrument of the selected track
 * Tools
   - Delay time calculator
 * Saves to a custom (but open!) XML-based **.nahd** format
@@ -96,7 +98,7 @@ Some example tracks sequenced with Noteahead:
 
 * Horizontal visualization
 * MIDI file export
-* Recording from keyboard / MIDI
+* Live recording via a MIDI controller
 * Sync options: MIDI, Jack
 
 ##
