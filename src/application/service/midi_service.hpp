@@ -81,6 +81,9 @@ signals:
     void inputPortsAppeared(const QStringList & portNames);
     void inputPortsDisappeared(const QStringList & portNames);
     void controllerPortChanged(QString portName);
+    void startReceived();
+    void stopReceived();
+    void continueReceived();
     void noteOnReceived(MidiAddressCR address, MidiNoteDataCR data);
     void noteOffReceived(MidiAddressCR address, MidiNoteDataCR data);
     void pitchBendReceived(MidiAddressCR address, quint16 value); // 0–16383, center = 8192

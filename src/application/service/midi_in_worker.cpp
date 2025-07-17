@@ -68,7 +68,24 @@ void MidiInWorker::setControllerPort(QString portName)
 void MidiInWorker::handleIncomingMessage(double deltaTime, MessageCR message)
 {
     if (!message.empty()) {
+
         const quint8 statusByte = message.at(0);
+
+        // Handle real-time messages directly
+        switch (statusByte) {
+        case 0xFA: // Start
+            emit startReceived();
+            return;
+        case 0xFC: // Stop
+            emit stopReceived();
+            return;
+        case 0xFB: // Continue (optional)
+            emit continueReceived();
+            return;
+        default:
+            break;
+        }
+
         const quint8 status = statusByte & 0xF0;
         const quint8 channel = statusByte & 0x0F;
         logMidiMessage(deltaTime, message);
@@ -149,6 +166,13 @@ void MidiInWorker::handleControlChange(quint8 channel, MessageCR message)
     const auto controller = message.at(1);
     const auto value = message.at(2);
     emit controlChangeReceived(currentAddress(channel), controller, value);
+
+    // Check if this CC is mapped to a transport action
+    if (value > 0) { // optional: ignore value==0
+        if (const auto it = m_transportMappings.find(controller); it != m_transportMappings.end() && it->second) {
+            it->second(); // Call the mapped action
+        }
+    }
 
     switch (controller) {
     case 6:
