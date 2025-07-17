@@ -17,6 +17,7 @@
 
 #include "../../contrib/SimpleLogger/src/simple_logger.hpp"
 #include "../../domain/midi_address.hpp"
+#include "../../domain/midi_note_data.hpp"
 #include "../../infra/midi/implementation/librtmidi/midi_in_rt_midi.hpp"
 
 using namespace std::chrono_literals;
@@ -109,7 +110,7 @@ void MidiInWorker::logMidiMessage(double deltaTime, MessageCR message)
 void MidiInWorker::handleNoteOff(quint8 channel, MessageCR message)
 {
     if (message.size() >= 3) {
-        emit noteOffReceived(MidiAddress { m_controllerPort, channel }, message.at(1));
+        emit noteOffReceived({ m_controllerPort, channel }, { message.at(1), 0 });
     }
 }
 
@@ -118,9 +119,9 @@ void MidiInWorker::handleNoteOn(quint8 channel, MessageCR message)
     if (message.size() >= 3) {
         const quint8 note = message.at(1);
         if (const quint8 velocity = message.at(2); velocity > 0) {
-            emit noteOnReceived(MidiAddress { m_controllerPort, channel }, note, velocity);
+            emit noteOnReceived({ m_controllerPort, channel }, { note, velocity });
         } else {
-            emit noteOffReceived(MidiAddress { m_controllerPort, channel }, note);
+            emit noteOffReceived({ m_controllerPort, channel }, { note, 0 });
         }
     }
 }
