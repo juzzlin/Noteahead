@@ -84,12 +84,12 @@ signals:
     void noteOnReceived(MidiAddressCR address, MidiNoteDataCR data);
     void noteOffReceived(MidiAddressCR address, MidiNoteDataCR data);
     void pitchBendReceived(MidiAddressCR address, quint16 value); // 0–16383, center = 8192
-    void polyAftertouchReceived(quint8 channel, quint8 note, quint8 pressure);
-    void aftertouchReceived(quint8 channel, quint8 pressure); // Channel pressure
-    void controlChangeReceived(quint8 channel, quint8 controller, quint8 value);
-    void programChangeReceived(quint8 channel, quint8 program);
-    void rpnReceived(quint8 channel, quint8 msb, quint8 lsb, quint16 value);
-    void nrpnReceived(quint8 channel, quint8 msb, quint8 lsb, quint16 value);
+    void polyAftertouchReceived(MidiAddressCR address, quint8 note, quint8 pressure);
+    void aftertouchReceived(MidiAddressCR address, quint8 pressure); // Channel pressure
+    void controlChangeReceived(MidiAddressCR address, quint8 controller, quint8 value);
+    void programChangeReceived(MidiAddressCR address, quint8 program);
+    void rpnReceived(MidiAddressCR address, quint8 msb, quint8 lsb, quint16 value);
+    void nrpnReceived(MidiAddressCR address, quint8 msb, quint8 lsb, quint16 value);
     void sysExReceived(const QByteArray & data);
 
     //! General signals
