@@ -22,6 +22,7 @@
 
 #include <QObject>
 
+#include <map>
 #include <memory>
 #include <unordered_map>
 
@@ -45,6 +46,10 @@ public slots:
     void setControllerPort(QString portName);
 
 signals:
+    void startReceived();
+    void stopReceived();
+    void continueReceived();
+
     void noteOnReceived(MidiAddressCR address, MidiNoteDataCR data);
     void noteOffReceived(MidiAddressCR address, MidiNoteDataCR data);
     void pitchBendReceived(MidiAddressCR address, quint16 value);
@@ -103,6 +108,13 @@ private:
     using RpnStateMap = std::unordered_map<quint8, std::optional<std::pair<quint8, quint8>>>;
     RpnStateMap m_rpnState;
     RpnStateMap m_nrpnState;
+
+    //! Custom transport mappings for PITA devices.
+    std::map<quint8, std::function<void()>> m_transportMappings = {
+        { 54, [this]() { emit startReceived(); } }, // Arturia Keystep Play/Pause
+        { 55, [this]() { emit stopReceived(); } }, // if Keystep sends Stop on a CC too
+        // Extend with more mappings as needed
+    };
 };
 
 } // namespace noteahead

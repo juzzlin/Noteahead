@@ -338,6 +338,10 @@ void Application::connectMidiService()
         }
     });
 
+    connect(m_midiService.get(), &MidiService::continueReceived, m_playerService.get(), &PlayerService::play);
+    connect(m_midiService.get(), &MidiService::startReceived, m_playerService.get(), &PlayerService::play);
+    connect(m_midiService.get(), &MidiService::stopReceived, m_playerService.get(), &PlayerService::stop);
+
     connect(m_midiService.get(), &MidiService::dataReceived, m_midiSettingsModel.get(), &MidiSettingsModel::setDebugData);
 }
 

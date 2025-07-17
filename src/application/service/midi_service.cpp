@@ -57,13 +57,18 @@ void MidiService::initializeInputWorker()
     connect(m_inputWorker.get(), &MidiInWorker::portsDisappeared, this, &MidiService::inputPortsDisappeared);
     connect(m_inputWorker.get(), &MidiInWorker::statusTextRequested, this, &MidiService::statusTextRequested);
 
+    connect(m_inputWorker.get(), &MidiInWorker::startReceived, this, &MidiService::startReceived);
+    connect(m_inputWorker.get(), &MidiInWorker::stopReceived, this, &MidiService::stopReceived);
+    connect(m_inputWorker.get(), &MidiInWorker::continueReceived, this, &MidiService::continueReceived);
+
     connect(m_inputWorker.get(), &MidiInWorker::noteOnReceived, this, &MidiService::noteOnReceived);
     connect(m_inputWorker.get(), &MidiInWorker::noteOffReceived, this, &MidiService::noteOffReceived);
+    connect(m_inputWorker.get(), &MidiInWorker::pitchBendReceived, this, &MidiService::pitchBendReceived);
+
     connect(m_inputWorker.get(), &MidiInWorker::polyAftertouchReceived, this, &MidiService::polyAftertouchReceived);
     connect(m_inputWorker.get(), &MidiInWorker::aftertouchReceived, this, &MidiService::aftertouchReceived);
     connect(m_inputWorker.get(), &MidiInWorker::controlChangeReceived, this, &MidiService::controlChangeReceived);
     connect(m_inputWorker.get(), &MidiInWorker::programChangeReceived, this, &MidiService::programChangeReceived);
-    connect(m_inputWorker.get(), &MidiInWorker::pitchBendReceived, this, &MidiService::pitchBendReceived);
     connect(m_inputWorker.get(), &MidiInWorker::rpnReceived, this, &MidiService::rpnReceived);
     connect(m_inputWorker.get(), &MidiInWorker::nrpnReceived, this, &MidiService::nrpnReceived);
     connect(m_inputWorker.get(), &MidiInWorker::sysExReceived, this, &MidiService::sysExReceived);
