@@ -25,6 +25,7 @@
 
 namespace noteahead {
 
+class MidiAddress;
 class MidiIn;
 class MidiDevice;
 
@@ -35,12 +36,14 @@ class MidiInWorker : public MidiWorker
 public:
     explicit MidiInWorker(QObject * parent = nullptr);
 
+    using MidiAddressCR = const MidiAddress &;
+
 public slots:
     void setControllerPort(QString portName);
 
 signals:
-    void noteOnReceived(quint8 channel, quint8 note, quint8 velocity);
-    void noteOffReceived(quint8 channel, quint8 note);
+    void noteOnReceived(MidiAddressCR address, quint8 note, quint8 velocity);
+    void noteOffReceived(MidiAddressCR address, quint8 note);
 
     void polyAftertouchReceived(quint8 channel, quint8 note, quint8 pressure);
     void aftertouchReceived(quint8 channel, quint8 pressure); // Channel pressure
