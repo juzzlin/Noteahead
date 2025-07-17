@@ -92,6 +92,9 @@ signals:
     void nrpnReceived(MidiAddressCR address, quint8 msb, quint8 lsb, quint16 value);
     void sysExReceived(const QByteArray & data);
 
+    //! For logging purposes
+    void dataReceived(const QString & data);
+
     //! General signals
     void statusTextRequested(QString message);
     void instrumentRequestHandlingRequested(const InstrumentRequest & instrumentRequest);

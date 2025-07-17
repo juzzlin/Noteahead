@@ -71,6 +71,19 @@ void MidiSettingsModel::setControllerPort(const QString & name)
     }
 }
 
+QString MidiSettingsModel::debugData() const
+{
+    return m_debugData;
+}
+
+void MidiSettingsModel::setDebugData(const QString & data)
+{
+    if (m_debugData != data) {
+        m_debugData = data;
+        emit debugDataChanged();
+    }
+}
+
 MidiSettingsModel::~MidiSettingsModel() = default;
 
 } // namespace noteahead

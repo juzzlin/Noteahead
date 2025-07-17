@@ -107,9 +107,11 @@ void MidiInWorker::logMidiMessage(double deltaTime, MessageCR message)
 {
     std::ostringstream oss;
     oss << std::hex << std::setfill('0');
-    for (auto byte : message)
+    for (auto byte : message) {
         oss << "0x" << std::setw(2) << static_cast<int>(byte) << " ";
+    }
     juzzlin::L(TAG).debug() << "Received MIDI message (" << deltaTime << "s): " << oss.str();
+    emit dataReceived(QString::fromStdString(oss.str()));
 }
 
 void MidiInWorker::handleNoteOff(quint8 channel, MessageCR message)

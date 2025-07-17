@@ -32,6 +32,7 @@ class MidiSettingsModel : public QObject
 
     Q_PROPERTY(QStringList midiInPorts READ midiInPorts NOTIFY midiInPortsChanged)
     Q_PROPERTY(QString controllerPort READ controllerPort WRITE setControllerPort NOTIFY controllerPortChanged)
+    Q_PROPERTY(QString debugData READ debugData WRITE setDebugData NOTIFY debugDataChanged)
 
 public:
     using SettingsServiceS = std::shared_ptr<SettingsService>;
@@ -44,15 +45,21 @@ public:
     QString controllerPort() const;
     void setControllerPort(const QString & name);
 
+    QString debugData() const;
+    void setDebugData(const QString & data);
+
 signals:
     void midiInPortsChanged();
     void controllerPortChanged(const QString & portName);
+    void debugDataChanged();
 
 private:
     SettingsServiceS m_settingsService;
 
     QStringList m_midiInPorts;
     QString m_controllerPort;
+
+    QString m_debugData;
 
     bool m_settingPorts = false;
 };

@@ -101,7 +101,7 @@ Dialog {
                                 ToolTip.delay: Constants.toolTipDelay
                                 ToolTip.timeout: Constants.toolTipTimeout
                                 ToolTip.visible: hovered
-                                ToolTip.text: qsTr("Set port of a MIDI controller keyboard")
+                                ToolTip.text: qsTr("Set the port of a MIDI controller keyboard")
                                 function updateSelection() {
                                     const index = find(midiSettingsModel.controllerPort);
                                     if (index !== -1) {
@@ -116,6 +116,25 @@ Dialog {
                                     }
                                 }
                                 Component.onCompleted: updateSelection()
+                            }
+                            Label {
+                                text: qsTr("Data:")
+                                Layout.column: 0
+                                Layout.columnSpan: 2
+                                Layout.row: 1
+                                Layout.fillWidth: true
+                            }
+                            TextField {
+                                text: midiSettingsModel.debugData
+                                readOnly: true
+                                Layout.column: 2
+                                Layout.columnSpan: 7
+                                Layout.row: 1
+                                Layout.fillWidth: true
+                                ToolTip.delay: Constants.toolTipDelay
+                                ToolTip.timeout: Constants.toolTipTimeout
+                                ToolTip.visible: hovered
+                                ToolTip.text: qsTr("Received MIDI data")
                             }
                         }
                     }
