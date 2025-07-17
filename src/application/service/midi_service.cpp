@@ -17,6 +17,7 @@
 
 #include "../../contrib/SimpleLogger/src/simple_logger.hpp"
 #include "../../domain/instrument.hpp"
+#include "../../domain/midi_address.hpp"
 #include "../../domain/midi_cc_data.hpp"
 #include "../../domain/midi_note_data.hpp"
 #include "../../domain/pitch_bend_data.hpp"

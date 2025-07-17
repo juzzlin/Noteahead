@@ -27,6 +27,7 @@
 namespace noteahead {
 
 class Instrument;
+class MidiAddress;
 class MidiOut;
 class MidiCcData;
 class MidiNoteData;
@@ -51,6 +52,7 @@ public:
 
     // Internal API
     using InstrumentW = std::weak_ptr<Instrument>;
+    using MidiAddressCR = const MidiAddress &;
     using MidiNoteDataCR = const MidiNoteData &;
     Q_INVOKABLE void playNote(InstrumentW instrument, MidiNoteDataCR data);
     Q_INVOKABLE void stopNote(InstrumentW instrument, MidiNoteDataCR data);
@@ -80,8 +82,8 @@ signals:
     void inputPortsDisappeared(const QStringList & portNames);
     void controllerPortChanged(QString portName);
 
-    void noteOnReceived(quint8 channel, quint8 note, quint8 velocity);
-    void noteOffReceived(quint8 channel, quint8 note);
+    void noteOnReceived(MidiAddressCR address, quint8 note, quint8 velocity);
+    void noteOffReceived(MidiAddressCR address, quint8 note);
     void polyAftertouchReceived(quint8 channel, quint8 note, quint8 pressure);
     void aftertouchReceived(quint8 channel, quint8 pressure); // Channel pressure
     void controlChangeReceived(quint8 channel, quint8 controller, quint8 value);

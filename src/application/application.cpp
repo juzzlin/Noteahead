@@ -305,7 +305,7 @@ void Application::connectMidiService()
     connect(m_midiService.get(), &MidiService::outputPortsAppeared, this, &Application::requestInstruments);
     connect(m_midiService.get(), &MidiService::statusTextRequested, m_applicationService.get(), &ApplicationService::statusTextRequested);
 
-    connect(m_midiService.get(), &MidiService::noteOnReceived, this, [this](quint8, quint8 note, quint8 velocity) {
+    connect(m_midiService.get(), &MidiService::noteOnReceived, this, [this](const auto &, quint8 note, quint8 velocity) {
         if (const auto instrument = m_editorService->instrument(m_editorService->position().track); instrument) {
             juzzlin::L(TAG).debug() << "Live note ON " << NoteConverter::midiToString(note) << " requested on instrument " << instrument->toString().toStdString();
             m_midiService->playNote(instrument, { note, velocity });
@@ -314,7 +314,7 @@ void Application::connectMidiService()
         }
     });
 
-    connect(m_midiService.get(), &MidiService::noteOffReceived, this, [this](quint8, quint8 note) {
+    connect(m_midiService.get(), &MidiService::noteOffReceived, this, [this](const auto &, quint8 note) {
         if (const auto instrument = m_editorService->instrument(m_editorService->position().track); instrument) {
             juzzlin::L(TAG).debug() << "Live note OFF " << NoteConverter::midiToString(note) << " requested on instrument " << instrument->toString().toStdString();
             m_midiService->stopNote(instrument, { note, 0 });
