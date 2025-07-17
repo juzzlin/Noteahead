@@ -68,6 +68,8 @@ void MidiService::initializeInputWorker()
     connect(m_inputWorker.get(), &MidiInWorker::nrpnReceived, this, &MidiService::nrpnReceived);
     connect(m_inputWorker.get(), &MidiInWorker::sysExReceived, this, &MidiService::sysExReceived);
 
+    connect(m_inputWorker.get(), &MidiInWorker::dataReceived, this, &MidiService::dataReceived);
+
     m_inputWorker->moveToThread(&m_inputWorkerThread);
     m_inputWorkerThread.start(QThread::NormalPriority);
 }

@@ -60,6 +60,9 @@ signals:
 
     void sysExReceived(const QByteArray & data);
 
+    //! For logging purposes
+    void dataReceived(const QString & data);
+
 protected:
     void handlePortsChanged() override;
 

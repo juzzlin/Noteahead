@@ -337,6 +337,8 @@ void Application::connectMidiService()
             juzzlin::L(TAG).info() << "No instrument set on track!";
         }
     });
+
+    connect(m_midiService.get(), &MidiService::dataReceived, m_midiSettingsModel.get(), &MidiSettingsModel::setDebugData);
 }
 
 void Application::connectMidiSettingsModel()
