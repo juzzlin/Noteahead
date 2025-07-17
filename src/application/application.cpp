@@ -19,6 +19,7 @@
 #include "../contrib/SimpleLogger/src/simple_logger.hpp"
 #include "../infra/video/video_generator.hpp"
 #include "common/utils.hpp"
+#include "domain/midi_note_data.hpp"
 #include "models/event_selection_model.hpp"
 #include "models/midi_cc_automations_model.hpp"
 #include "models/midi_settings_model.hpp"
@@ -304,17 +305,19 @@ void Application::connectMidiService()
     connect(m_midiService.get(), &MidiService::outputPortsAppeared, this, &Application::requestInstruments);
     connect(m_midiService.get(), &MidiService::statusTextRequested, m_applicationService.get(), &ApplicationService::statusTextRequested);
 
-    connect(m_midiService.get(), &MidiService::noteOnReceived, this, [this](quint8 channel, quint8 note, quint8 velocity) {
+    connect(m_midiService.get(), &MidiService::noteOnReceived, this, [this](quint8, quint8 note, quint8 velocity) {
         if (const auto instrument = m_editorService->instrument(m_editorService->position().track); instrument) {
             juzzlin::L(TAG).debug() << "Live note ON " << NoteConverter::midiToString(note) << " requested on instrument " << instrument->toString().toStdString();
+            m_midiService->playNote(instrument, { note, velocity });
         } else {
             juzzlin::L(TAG).info() << "No instrument set on track!";
         }
     });
 
-    connect(m_midiService.get(), &MidiService::noteOffReceived, this, [this](quint8 channel, quint8 note) {
+    connect(m_midiService.get(), &MidiService::noteOffReceived, this, [this](quint8, quint8 note) {
         if (const auto instrument = m_editorService->instrument(m_editorService->position().track); instrument) {
             juzzlin::L(TAG).debug() << "Live note OFF " << NoteConverter::midiToString(note) << " requested on instrument " << instrument->toString().toStdString();
+            m_midiService->stopNote(instrument, { note, 0 });
         } else {
             juzzlin::L(TAG).info() << "No instrument set on track!";
         }
