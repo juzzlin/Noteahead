@@ -205,7 +205,7 @@ void MidiInWorker::handleChannelAftertouch(quint8 channel, MessageCR message)
 void MidiInWorker::handlePitchBend(quint8 channel, MessageCR message)
 {
     if (message.size() >= 3) {
-        emit pitchBendReceived(channel, static_cast<quint16>(message.at(2) << 7) | message.at(1));
+        emit pitchBendReceived({ m_controllerPort, channel }, static_cast<quint16>(message.at(2) << 7) | message.at(1));
     }
 }
 
