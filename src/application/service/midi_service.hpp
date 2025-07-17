@@ -82,8 +82,8 @@ signals:
     void inputPortsDisappeared(const QStringList & portNames);
     void controllerPortChanged(QString portName);
 
-    void noteOnReceived(MidiAddressCR address, quint8 note, quint8 velocity);
-    void noteOffReceived(MidiAddressCR address, quint8 note);
+    void noteOnReceived(MidiAddressCR address, MidiNoteDataCR data);
+    void noteOffReceived(MidiAddressCR address, MidiNoteDataCR data);
     void polyAftertouchReceived(quint8 channel, quint8 note, quint8 pressure);
     void aftertouchReceived(quint8 channel, quint8 pressure); // Channel pressure
     void controlChangeReceived(quint8 channel, quint8 controller, quint8 value);
