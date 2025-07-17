@@ -38,6 +38,11 @@ void MidiInWorker::handlePortsChanged()
     setControllerPort(m_controllerPort);
 }
 
+MidiAddress MidiInWorker::currentAddress(uint8_t channel) const
+{
+    return { m_controllerPort, channel };
+}
+
 void MidiInWorker::setControllerPort(QString portName)
 {
     if (!portName.isEmpty()) {
@@ -110,7 +115,7 @@ void MidiInWorker::logMidiMessage(double deltaTime, MessageCR message)
 void MidiInWorker::handleNoteOff(quint8 channel, MessageCR message)
 {
     if (message.size() >= 3) {
-        emit noteOffReceived({ m_controllerPort, channel }, { message.at(1), 0 });
+        emit noteOffReceived(currentAddress(channel), { message.at(1), 0 });
     }
 }
 
@@ -119,9 +124,9 @@ void MidiInWorker::handleNoteOn(quint8 channel, MessageCR message)
     if (message.size() >= 3) {
         const quint8 note = message.at(1);
         if (const quint8 velocity = message.at(2); velocity > 0) {
-            emit noteOnReceived({ m_controllerPort, channel }, { note, velocity });
+            emit noteOnReceived(currentAddress(channel), { note, velocity });
         } else {
-            emit noteOffReceived({ m_controllerPort, channel }, { note, 0 });
+            emit noteOffReceived(currentAddress(channel), { note, 0 });
         }
     }
 }
@@ -129,7 +134,7 @@ void MidiInWorker::handleNoteOn(quint8 channel, MessageCR message)
 void MidiInWorker::handlePolyAftertouch(quint8 channel, MessageCR message)
 {
     if (message.size() >= 3) {
-        emit polyAftertouchReceived(channel, message.at(1), message.at(2));
+        emit polyAftertouchReceived(currentAddress(channel), message.at(1), message.at(2));
     }
 }
 
@@ -141,15 +146,15 @@ void MidiInWorker::handleControlChange(quint8 channel, MessageCR message)
 
     const auto controller = message.at(1);
     const auto value = message.at(2);
-    emit controlChangeReceived(channel, controller, value);
+    emit controlChangeReceived(currentAddress(channel), controller, value);
 
     switch (controller) {
     case 6:
     case 38:
         if (const auto rpnState = m_rpnState[channel]; rpnState) {
-            emit rpnReceived(channel, rpnState->first, rpnState->second, controller == 6 ? static_cast<quint8>(value << 7) : value);
+            emit rpnReceived(currentAddress(channel), rpnState->first, rpnState->second, controller == 6 ? static_cast<quint8>(value << 7) : value);
         } else if (const auto nrpnState = m_nrpnState[channel]; nrpnState) {
-            emit nrpnReceived(channel, nrpnState->first, nrpnState->second, controller == 6 ? static_cast<quint8>(value << 7) : value);
+            emit nrpnReceived(currentAddress(channel), nrpnState->first, nrpnState->second, controller == 6 ? static_cast<quint8>(value << 7) : value);
         }
         break;
     case 98:
@@ -191,21 +196,21 @@ void MidiInWorker::handleControlChange(quint8 channel, MessageCR message)
 void MidiInWorker::handleProgramChange(quint8 channel, MessageCR message)
 {
     if (message.size() >= 2) {
-        emit programChangeReceived(channel, message.at(1));
+        emit programChangeReceived(currentAddress(channel), message.at(1));
     }
 }
 
 void MidiInWorker::handleChannelAftertouch(quint8 channel, MessageCR message)
 {
     if (message.size() >= 2) {
-        emit aftertouchReceived(channel, message.at(1));
+        emit aftertouchReceived(currentAddress(channel), message.at(1));
     }
 }
 
 void MidiInWorker::handlePitchBend(quint8 channel, MessageCR message)
 {
     if (message.size() >= 3) {
-        emit pitchBendReceived({ m_controllerPort, channel }, static_cast<quint16>(message.at(2) << 7) | message.at(1));
+        emit pitchBendReceived(currentAddress(channel), static_cast<quint16>(message.at(2) << 7) | message.at(1));
     }
 }
 
