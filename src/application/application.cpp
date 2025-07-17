@@ -98,6 +98,10 @@ void Application::registerTypes()
 
     qRegisterMetaType<noteahead::Position>("Position");
     qRegisterMetaType<noteahead::InstrumentRequest>("InstrumentRequest");
+    qRegisterMetaType<noteahead::MidiAddress>("MidiAddress");
+    qRegisterMetaType<const noteahead::MidiAddress &>("MidiAddressCR");
+    qRegisterMetaType<noteahead::MidiNoteData>("MidiNoteData");
+    qRegisterMetaType<const noteahead::MidiNoteData &>("MidiNoteDataCR");
 
     qmlRegisterType<ApplicationService>("Noteahead", majorVersion, minorVersion, "ApplicationService");
     qmlRegisterType<AutomationService>("Noteahead", majorVersion, minorVersion, "AutomationService");
@@ -318,6 +322,17 @@ void Application::connectMidiService()
         if (const auto instrument = m_editorService->instrument(m_editorService->position().track); instrument) {
             juzzlin::L(TAG).debug() << "Live note OFF " << NoteConverter::midiToString(data.note()) << " requested on instrument " << instrument->toString().toStdString();
             m_midiService->stopNote(instrument, data);
+        } else {
+            juzzlin::L(TAG).info() << "No instrument set on track!";
+        }
+    });
+
+    connect(m_midiService.get(), &MidiService::pitchBendReceived, this, [this](const auto &, const auto & value) {
+        const auto track = m_editorService->position().track;
+        const auto column = m_editorService->position().column;
+        if (const auto instrument = m_editorService->instrument(track); instrument) {
+            juzzlin::L(TAG).debug() << "Pitch Bend " << value << " requested on instrument " << instrument->toString().toStdString();
+            m_midiService->sendPitchBendData(instrument, { track, column, value });
         } else {
             juzzlin::L(TAG).info() << "No instrument set on track!";
         }
