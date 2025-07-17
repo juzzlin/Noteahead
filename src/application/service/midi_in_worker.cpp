@@ -68,6 +68,7 @@ void MidiInWorker::setControllerPort(QString portName)
 void MidiInWorker::handleIncomingMessage(double deltaTime, MessageCR message)
 {
     if (!message.empty()) {
+        logMidiMessage(deltaTime, message);
 
         const quint8 statusByte = message.at(0);
 
@@ -88,7 +89,6 @@ void MidiInWorker::handleIncomingMessage(double deltaTime, MessageCR message)
 
         const quint8 status = statusByte & 0xF0;
         const quint8 channel = statusByte & 0x0F;
-        logMidiMessage(deltaTime, message);
         switch (status) {
         case 0x80:
             handleNoteOff(channel, message);
