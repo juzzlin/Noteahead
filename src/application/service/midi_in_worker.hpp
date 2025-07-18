@@ -53,11 +53,11 @@ signals:
     void noteOnReceived(MidiAddressCR address, MidiNoteDataCR data);
     void noteOffReceived(MidiAddressCR address, MidiNoteDataCR data);
     void pitchBendReceived(MidiAddressCR address, quint16 value);
+    void controlChangeReceived(MidiAddressCR address, quint8 controller, quint8 value);
 
     void polyAftertouchReceived(MidiAddressCR address, quint8 note, quint8 pressure);
     void aftertouchReceived(MidiAddressCR address, quint8 pressure); // Channel pressure
 
-    void controlChangeReceived(MidiAddressCR address, quint8 controller, quint8 value);
     void programChangeReceived(MidiAddressCR address, quint8 program);
 
     void rpnReceived(MidiAddressCR address, quint8 msb, quint8 lsb, quint16 value);

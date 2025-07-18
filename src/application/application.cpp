@@ -338,6 +338,17 @@ void Application::connectMidiService()
         }
     });
 
+    connect(m_midiService.get(), &MidiService::controlChangeReceived, this, [this](const auto &, const auto & controller, const auto & value) {
+        const auto track = m_editorService->position().track;
+        const auto column = m_editorService->position().column;
+        if (const auto instrument = m_editorService->instrument(track); instrument) {
+            juzzlin::L(TAG).debug() << "MIDI CC value " << std::hex << std::setfill('0') << value << " on controller " << std::hex << std::setfill('0') << controller << " requested on instrument " << instrument->toString().toStdString();
+            m_midiService->sendCcData(instrument, { track, column, controller, value });
+        } else {
+            juzzlin::L(TAG).info() << "No instrument set on track!";
+        }
+    });
+
     connect(m_midiService.get(), &MidiService::continueReceived, m_playerService.get(), &PlayerService::play);
     connect(m_midiService.get(), &MidiService::startReceived, m_playerService.get(), &PlayerService::play);
     connect(m_midiService.get(), &MidiService::stopReceived, m_playerService.get(), &PlayerService::stop);
