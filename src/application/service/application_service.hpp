@@ -66,8 +66,8 @@ public:
     Q_INVOKABLE void rejectUnsavedChangesDialog();
 
     Q_INVOKABLE void requestAllNotesOff();
-    Q_INVOKABLE void requestLiveNoteOff(quint8 note, quint8 octave);
-    Q_INVOKABLE void requestLiveNoteOn(quint8 note, quint8 octave, quint8 velocity);
+    Q_INVOKABLE void requestLiveNoteOff(quint8 key, quint8 octave);
+    Q_INVOKABLE void requestLiveNoteOn(quint8 key, quint8 octave, quint8 velocity);
 
     Q_INVOKABLE void requestInstrumentReset();
 
@@ -81,6 +81,9 @@ public:
     Q_INVOKABLE void requestSaveProjectAsTemplate();
     Q_INVOKABLE void saveProjectAs(QUrl url);
     Q_INVOKABLE void saveProjectAsTemplate(QUrl url);
+
+    Q_INVOKABLE bool editMode() const;
+    Q_INVOKABLE void setEditMode(bool editMode);
 
     void requestUnsavedChangesDialog();
     void requestOpenDialog();
@@ -131,6 +134,8 @@ private:
     EditorServiceS m_editorService;
 
     PlayerServiceS m_playerService;
+
+    bool m_editMode = false;
 };
 
 } // namespace noteahead

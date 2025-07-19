@@ -309,6 +309,7 @@ void Application::connectMidiService()
     connect(m_midiService.get(), &MidiService::outputPortsAppeared, this, &Application::requestInstruments);
     connect(m_midiService.get(), &MidiService::statusTextRequested, m_applicationService.get(), &ApplicationService::statusTextRequested);
 
+    // Play a note via a MIDI controller
     connect(m_midiService.get(), &MidiService::noteOnReceived, this, [this](const auto &, const auto & data) {
         if (const auto instrument = m_editorService->instrument(m_editorService->position().track); instrument) {
             juzzlin::L(TAG).debug() << "Live note ON " << NoteConverter::midiToString(data.note()) << " requested on instrument " << instrument->toString().toStdString();
@@ -318,6 +319,17 @@ void Application::connectMidiService()
         }
     });
 
+    // Note insertion via a MIDI controller
+    connect(m_midiService.get(), &MidiService::noteOnReceived, this, [this](const auto &, const auto & data) {
+        if (m_applicationService->editMode() && m_editorService->isAtNoteColumn()) {
+            const auto [key, octave] = NoteConverter::midiToKeyAndOctave(data.note());
+            if (m_editorService->requestNoteOnAtCurrentPosition(key, octave, m_settingsService->velocity(100))) {
+                m_editorService->requestScroll(m_settingsService->step(1));
+            }
+        }
+    });
+
+    // Stop a note via a MIDI controller
     connect(m_midiService.get(), &MidiService::noteOffReceived, this, [this](const auto &, const auto & data) {
         if (const auto instrument = m_editorService->instrument(m_editorService->position().track); instrument) {
             juzzlin::L(TAG).debug() << "Live note OFF " << NoteConverter::midiToString(data.note()) << " requested on instrument " << instrument->toString().toStdString();
@@ -327,6 +339,7 @@ void Application::connectMidiService()
         }
     });
 
+    // Apply pitch bend via a MIDI controller
     connect(m_midiService.get(), &MidiService::pitchBendReceived, this, [this](const auto &, const auto & value) {
         const auto track = m_editorService->position().track;
         const auto column = m_editorService->position().column;
@@ -338,6 +351,7 @@ void Application::connectMidiService()
         }
     });
 
+    // Apply MIDI CC via a MIDI controller
     connect(m_midiService.get(), &MidiService::controlChangeReceived, this, [this](const auto &, const auto & controller, const auto & value) {
         const auto track = m_editorService->position().track;
         const auto column = m_editorService->position().column;

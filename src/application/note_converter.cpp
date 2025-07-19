@@ -1,11 +1,15 @@
 #include "note_converter.hpp"
 
+#include "../contrib/SimpleLogger/src/simple_logger.hpp"
+
 #include <array>
 #include <stdexcept>
 #include <string>
 #include <unordered_map>
 
 namespace noteahead::NoteConverter {
+
+static const auto TAG = "NoteConverter";
 
 std::string midiToString(uint8_t midiNote)
 {
@@ -54,6 +58,28 @@ uint8_t stringToMidi(const std::string & noteString)
     } else {
         throw std::invalid_argument("Invalid note string: " + noteString);
     }
+}
+
+std::pair<uint8_t, uint8_t> midiToKeyAndOctave(uint8_t midiNote)
+{
+    return { midiNote % 12 + 1, midiNote / 12 };
+}
+
+NoteConverter::MidiNoteNameAndCodeOpt keyAndOctaveToMidiNote(uint8_t key, uint8_t octave)
+{
+    if (key < 1 || key > 12) {
+        juzzlin::L(TAG).error() << "Invalid key value: " << static_cast<int>(key) << ". Valid range is 1..12.";
+        return {};
+    }
+
+    static const std::array<std::string, 12> keyNames = {
+        "C-", "C#", "D-", "D#", "E-", "F-", "F#", "G-", "G#", "A-", "A#", "B-"
+    };
+
+    const auto midiNote = static_cast<uint8_t>(12 * octave + (key - 1));
+    const auto noteName = keyNames.at(key - 1) + std::to_string(octave);
+
+    return { { noteName, midiNote } };
 }
 
 } // namespace noteahead::NoteConverter

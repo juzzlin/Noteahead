@@ -74,6 +74,7 @@ QtObject {
     function setEditMode(editMode): void {
         if (_editMode !== editMode && (!editMode || !isPlaying())) {
             _editMode = editMode;
+            applicationService.setEditMode(editMode);
             editModeChanged(_editMode);
         }
     }

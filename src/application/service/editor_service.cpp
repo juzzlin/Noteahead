@@ -785,23 +785,6 @@ quint64 EditorService::positionBarLine() const
     return 8;
 }
 
-EditorService::MidiNoteNameAndCodeOpt EditorService::editorNoteToMidiNote(quint64 note, quint64 octave)
-{
-    if (note < 1 || note > 12) {
-        juzzlin::L(TAG).error() << "Invalid note value: " << note << ". Valid range is 1..12.";
-        return {};
-    }
-
-    static const std::array<std::string, 12> noteNames = {
-        "C-", "C#", "D-", "D#", "E-", "F-", "F#", "G-", "G#", "A-", "A#", "B-"
-    };
-
-    const auto midiNote = static_cast<uint8_t>(12 * octave + (note - 1));
-    const auto noteName = noteNames.at(note - 1) + std::to_string(octave);
-
-    return { { noteName, midiNote } };
-}
-
 bool EditorService::setVelocityAtCurrentPosition(uint8_t digit)
 {
     juzzlin::L(TAG).debug() << "Set velocity digit at position " << m_state.cursorPosition.toString() << ": " << static_cast<int>(digit);
@@ -977,14 +960,14 @@ void EditorService::deleteNoteDataAtPosition(const Position & position, bool shi
     }
 }
 
-bool EditorService::requestNoteOnAtCurrentPosition(uint8_t note, uint8_t octave, uint8_t velocity)
+bool EditorService::requestNoteOnAtCurrentPosition(quint8 key, quint8 octave, quint8 velocity)
 {
     if (m_state.cursorPosition.lineColumn) {
         juzzlin::L(TAG).debug() << "Not on note column";
         return false;
     }
 
-    if (const auto midiNote = editorNoteToMidiNote(note, octave); midiNote.has_value()) {
+    if (const auto midiNote = NoteConverter::keyAndOctaveToMidiNote(key, octave); midiNote.has_value()) {
         juzzlin::L(TAG).debug() << "Note ON requested at position " << m_state.cursorPosition.toString() << ": " << midiNote->first
                                 << ", MIDI Note = " << static_cast<int>(midiNote->second) << ", Velocity = " << static_cast<int>(velocity);
         NoteData noteData { m_state.cursorPosition.track, m_state.cursorPosition.column };
@@ -993,9 +976,9 @@ bool EditorService::requestNoteOnAtCurrentPosition(uint8_t note, uint8_t octave,
         emit noteDataAtPositionChanged(m_state.cursorPosition);
         setIsModified(true);
         return true;
+    } else {
+        return false;
     }
-
-    return false;
 }
 
 void EditorService::removeDuplicateNoteOffs()

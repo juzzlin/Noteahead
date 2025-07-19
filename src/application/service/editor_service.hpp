@@ -154,7 +154,7 @@ public:
 
     Q_INVOKABLE void requestEventRemoval();
 
-    Q_INVOKABLE bool requestDigitSetAtCurrentPosition(uint8_t digit);
+    Q_INVOKABLE bool requestDigitSetAtCurrentPosition(quint8 digit);
 
     Q_INVOKABLE void requestNewColumn(quint64 trackIndex);
     Q_INVOKABLE void requestColumnDeletion(quint64 trackIndex);
@@ -163,7 +163,7 @@ public:
 
     Q_INVOKABLE void requestNoteInsertionAtCurrentPosition();
     Q_INVOKABLE void requestNoteDeletionAtCurrentPosition(bool shiftNotes);
-    Q_INVOKABLE bool requestNoteOnAtCurrentPosition(uint8_t note, uint8_t octave, uint8_t velocity);
+    Q_INVOKABLE bool requestNoteOnAtCurrentPosition(quint8 key, quint8 octave, quint8 velocity);
     Q_INVOKABLE bool requestNoteOffAtCurrentPosition();
 
     Q_INVOKABLE void requestColumnCut();
@@ -255,10 +255,6 @@ public:
     Q_INVOKABLE bool hasInstrumentSettings(quint64 pattern, quint64 track, quint64 column, quint64 line) const;
 
     void setIsModified(bool isModified);
-
-    using MidiNoteNameAndCode = std::pair<std::string, uint8_t>;
-    using MidiNoteNameAndCodeOpt = std::optional<MidiNoteNameAndCode>;
-    static MidiNoteNameAndCodeOpt editorNoteToMidiNote(quint64 note, quint64 octave);
 
     using LineListCR = const LineList &;
 
