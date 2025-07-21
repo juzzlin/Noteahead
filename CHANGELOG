@@ -5,11 +5,35 @@ Release date:
 
 New features:
 
+Bug fixes:
+
+Other:
+
+0.10.0
+======
+
+Release date:
+
+Mon, 21 Jul 2025 20:31:52 +0300
+
+New features:
+
+* Fix GitHub Issue #10: Implement support for a MIDI controller keyboard
+  - Edit => Settings => MIDI => Controller
+  - Supports Note ON/OFF, Pitch Bend, MIDI CC (also modulation wheel), Transport (Play/Stop)
+
 * Implement MIDI transport events
   - Noteahead now sends MIDI Start/Stop
 
 * Implement a delay time calculator dialog
   - Tools => Delay time calculator
+
+* Strike out recent files that have been vanished
+
+* VideoGenerator
+  - Implement a new video animation type "Bars"
+  - Ensure that input files exist
+  - Support image rotation in video generation
 
 Bug fixes:
 
@@ -17,7 +41,11 @@ Bug fixes:
 
 * Fix GitHub Issue #17: Window title not reset on a new song
 
+* Eliminate a redundant call to PlayerWorker::stop()
+
 Other:
+
+* More logically maintain current track on track deletion
 
 0.9.0
 =====

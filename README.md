@@ -272,8 +272,9 @@ Run `noteahead -h` for all options.
 ##
 ## Real-world test cases
 
-I have tested Noteahead with at least these devices:
+I have tested Noteahead with at least these devices (USB MIDI):
 
+* Arturia Keystep
 * Behringer DeepMind 6
 * Behringer Model D
 * Behringer RD-6
