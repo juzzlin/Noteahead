@@ -22,7 +22,7 @@ Menu {
     title: qsTr("&Devices")
 
     Action {
-        text: qsTr("Rack...")
+        text: qsTr("Device Rack...")
         onTriggered: applicationService.requestDeviceRackDialog()
     }
 
