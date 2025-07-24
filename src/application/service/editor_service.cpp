@@ -1353,15 +1353,19 @@ void EditorService::requestScroll(int steps)
     notifyPositionChange(oldPosition);
 }
 
-void EditorService::requestTrackFocus(quint64 trackIndex, quint64 column, quint64 line)
+void EditorService::requestTrackFocus(quint64 trackIndex, quint64 column, int line)
 {
     if (m_song->hasTrack(trackIndex)) {
         juzzlin::L(TAG).info() << "Focus for track " << trackIndex << " on column " << column << " on line " << line << " requested";
-        if (column < m_song->columnCount(trackIndex) && line < currentLineCount()) {
+        if (column < m_song->columnCount(trackIndex)) {
+            // The requested line index can be outside the valid indices if clicked on the empty area of a column.
+            // In that case we'll just clamp to either zero or to the last index which is what the user very likely wants.
+            line = std::min(line, static_cast<int>(currentLineCount()) - 1);
+            line = std::max(line, 0);
             const auto oldPosition = m_state.cursorPosition;
             m_state.cursorPosition.track = trackIndex;
             m_state.cursorPosition.column = column;
-            m_state.cursorPosition.line = line;
+            m_state.cursorPosition.line = static_cast<quint64>(line);
             m_state.cursorPosition.lineColumn = 0;
             notifyPositionChange(oldPosition);
         }

@@ -198,7 +198,7 @@ public:
     bool requestPosition(const Position & position);
     Q_INVOKABLE bool requestPosition(quint64 pattern, quint64 track, quint64 column, quint64 line, quint64 lineColumn);
     Q_INVOKABLE void requestScroll(int steps);
-    Q_INVOKABLE void requestTrackFocus(quint64 trackIndex, quint64 column, quint64 line);
+    Q_INVOKABLE void requestTrackFocus(quint64 trackIndex, quint64 column, int line);
 
     Q_INVOKABLE quint64 ticksPerLine() const;
     Q_INVOKABLE quint64 beatsPerMinute() const;
