@@ -90,6 +90,16 @@ Menu {
             onTriggered: editorService.requestColumnTranspose(-1)
         }
         Action {
+            text: qsTr("Transpose <b>+2</b> semitones")
+            enabled: !UiService.isPlaying()
+            onTriggered: editorService.requestColumnTranspose(2)
+        }
+        Action {
+            text: qsTr("Transpose <b>-2</b> semitones")
+            enabled: !UiService.isPlaying()
+            onTriggered: editorService.requestColumnTranspose(-2)
+        }
+        Action {
             text: qsTr("Transpose <b>+6</b> semitones")
             enabled: !UiService.isPlaying()
             onTriggered: editorService.requestColumnTranspose(6)
@@ -182,6 +192,16 @@ Menu {
             onTriggered: editorService.requestTrackTranspose(-1)
         }
         Action {
+            text: qsTr("Transpose <b>+2</b> semitones")
+            enabled: !UiService.isPlaying()
+            onTriggered: editorService.requestTrackTranspose(2)
+        }
+        Action {
+            text: qsTr("Transpose <b>-2</b> semitones")
+            enabled: !UiService.isPlaying()
+            onTriggered: editorService.requestTrackTranspose(-2)
+        }
+        Action {
             text: qsTr("Transpose <b>+6</b> semitones")
             enabled: !UiService.isPlaying()
             onTriggered: editorService.requestTrackTranspose(6)
@@ -271,6 +291,16 @@ Menu {
             shortcut: "Ctrl+F9"
             enabled: !UiService.isPlaying()
             onTriggered: editorService.requestPatternTranspose(-1)
+        }
+        Action {
+            text: qsTr("Transpose <b>+2</b> semitones")
+            enabled: !UiService.isPlaying()
+            onTriggered: editorService.requestPatternTranspose(2)
+        }
+        Action {
+            text: qsTr("Transpose <b>-2</b> semitones")
+            enabled: !UiService.isPlaying()
+            onTriggered: editorService.requestPatternTranspose(-2)
         }
         Action {
             text: qsTr("Transpose <b>+6</b> semitones")
