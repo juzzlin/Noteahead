@@ -49,7 +49,7 @@ QtObject {
         } else if (event.key === Qt.Key_A) {
             _handleNoteOff();
             event.accepted = true;
-        } else {
+        } else if (!event.modifiers) {
             _handleNoteTriggered(event);
         }
     }
