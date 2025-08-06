@@ -20,8 +20,9 @@ Rectangle {
         _index = columnIndex;
         _listView = listViewComponent.createObject(rootItem);
         _listView.model = noteColumnModelHandler.columnModel(_patternIndex, _trackIndex, _index);
-        _listView.positionViewAtIndex(0, ListView.Beginning);
-        delayedPositioningTimer.start(); // Hack for Qt < 6.5
+        _scrollOffset = editorService.position.line;
+        _scrollLines();
+        delayedScrollTimer.start(); // Hack for Qt < 6.5
     }
     function clickOnDelegate(mouse: var, lineIndex: int): void {
         if (mouse.button === Qt.LeftButton) {
@@ -63,14 +64,10 @@ Rectangle {
         }
     }
     Timer {
-        id: delayedPositioningTimer
+        id: delayedScrollTimer
         interval: 1
         repeat: false
-        onTriggered: {
-            if (_listView) {
-                _listView.positionViewAtIndex(0, ListView.Beginning);
-            }
-        }
+        onTriggered: _scrollLines()
     }
     Rectangle {
         id: borderRectangle
