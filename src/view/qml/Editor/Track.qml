@@ -116,13 +116,13 @@ Item {
             _noteColumnCount = editorService.columnCount(_index);
             const noteColumn = _createNoteColumn(_noteColumnCount - 1);
             _noteColumns.push(noteColumn);
-            _resize(width, height);
+            columnContainer.resize(width, height);
         }
         function deleteColumn(): void {
             _noteColumns[_noteColumns.length - 1].destroy();
             _noteColumns.pop();
             _noteColumnCount = editorService.columnCount(_index);
-            _resize(width, height);
+            columnContainer.resize(width, height);
         }
         function setColumnMuted(columnIndex: int, muted: bool): void {
             _noteColumns[columnIndex].setMuted(muted);
@@ -193,13 +193,15 @@ Item {
             }
         }
         function resize(width: int, height: int): void {
-            columnContainer.width = width;
-            columnContainer.height = height;
-            const noteColumnWidth = _noteColumnWidth();
-            const noteColumnHeight = height;
-            _noteColumns.forEach(noteColumn => {
-                    noteColumn.x = _noteColumnX(noteColumn.index());
-                    noteColumn.resize(noteColumnWidth, noteColumnHeight);
+            Qt.callLater(() => {
+                    columnContainer.width = width;
+                    columnContainer.height = height;
+                    const noteColumnWidth = _noteColumnWidth();
+                    const noteColumnHeight = height;
+                    _noteColumns.forEach(noteColumn => {
+                            noteColumn.x = _noteColumnX(noteColumn.index());
+                            noteColumn.resize(noteColumnWidth, noteColumnHeight);
+                        });
                 });
         }
         Component {
