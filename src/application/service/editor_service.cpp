@@ -885,6 +885,8 @@ void EditorService::requestNewTrackToRight()
     juzzlin::L(TAG).debug() << "New track requested to the right of track " << position().track;
     m_song->addTrackToRightOf(position().track);
     emit trackConfigurationChanged();
+    updateScrollBar();
+    notifyPositionChange(m_state.cursorPosition); // Re-focuses the previous track
     setIsModified(true);
 }
 
