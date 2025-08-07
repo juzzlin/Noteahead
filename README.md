@@ -21,7 +21,7 @@ Noteahead is still a work in progress and there's some limitations and missing f
 
 Some example tracks sequenced with Noteahead (produced with Behringer X32 Producer and Audacity):
 
-<a href="https://soundcloud.com/arctic-music-project/epic-success-arctic-remix">Arctic Music Project - Epic Success (Arctic Remix) (SoundCloud)</a>
+<a href="https://soundcloud.com/arctic-music-project/epic-success">Arctic Music Project - Epic Success (SoundCloud)</a>
 
 ---
 
