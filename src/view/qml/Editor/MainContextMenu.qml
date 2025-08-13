@@ -378,6 +378,16 @@ Menu {
             onTriggered: editorService.requestSelectionTranspose(-1)
         }
         Action {
+            text: qsTr("Transpose <b>+2</b> semitones")
+            enabled: !UiService.isPlaying()
+            onTriggered: editorService.requestSelectionTranspose(2)
+        }
+        Action {
+            text: qsTr("Transpose <b>-2</b> semitones")
+            enabled: !UiService.isPlaying()
+            onTriggered: editorService.requestSelectionTranspose(-2)
+        }
+        Action {
             text: qsTr("Transpose <b>+12</b> semitones")
             shortcut: "Alt+Shift+F12"
             enabled: !UiService.isPlaying()
