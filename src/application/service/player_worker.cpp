@@ -102,15 +102,18 @@ void PlayerWorker::handleEvent(const Event & event) const
                 m_midiService->sendCcData(event.instrument(), *event.midiCcData());
             }
         } else if (event.type() == Event::Type::MidiClockOut) {
-            if (auto && instrument = event.instrument(); instrument) {
+            // There should not be any clock events generated if disabled, but double-checking won't make any harm
+            if (auto && instrument = event.instrument(); instrument && instrument->settings().sendMidiClock.has_value() && *instrument->settings().sendMidiClock) {
                 m_midiService->sendClock(instrument);
             }
         } else if (event.type() == Event::Type::StartOfSong) {
-            if (auto && instrument = event.instrument(); instrument) {
+            if (auto && instrument = event.instrument(); instrument && instrument->settings().sendTransport.has_value() && *instrument->settings().sendTransport) {
+                juzzlin::L(TAG).info() << "Sending start to " << instrument->midiAddress().portName().toStdString();
                 m_midiService->sendStart(instrument);
             }
         } else if (event.type() == Event::Type::EndOfSong) {
-            if (auto && instrument = event.instrument(); instrument) {
+            if (auto && instrument = event.instrument(); instrument && instrument->settings().sendTransport.has_value() && *instrument->settings().sendTransport) {
+                juzzlin::L(TAG).info() << "Sending stop to " << instrument->midiAddress().portName().toStdString();
                 m_midiService->sendStop(instrument);
             }
         } else if (event.type() == Event::Type::PitchBendData) {
@@ -204,7 +207,7 @@ void PlayerWorker::stopTransport()
 {
     juzzlin::L(TAG).info() << "Stopping transport";
     for (auto && instrument : m_allInstruments) {
-        if (instrument->settings().sendTransport) {
+        if (instrument->settings().sendTransport.has_value() && *instrument->settings().sendTransport) {
             juzzlin::L(TAG).info() << "Sending stop to " << instrument->midiAddress().portName().toStdString();
             m_midiService->sendStop(instrument);
         }

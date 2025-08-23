@@ -11,6 +11,8 @@ Bug fixes:
 
 * Fix GitHub Issue #21: Clicking on the empty area of a note column won't set focus
 
+* Fix GitHub Issue #22: MIDI transport events sent event if disabled
+
 Other:
 
 0.10.0
