@@ -7,6 +7,8 @@ New features:
 
 * Allow transposing by +2/-2 semitones
 
+* Fix GitHub Issue #24: Implement velocity interpolation on track-level
+
 Bug fixes:
 
 * Fix GitHub Issue #21: Clicking on the empty area of a note column won't set focus

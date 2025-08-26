@@ -190,8 +190,11 @@ public:
     Q_INVOKABLE bool hasSelectionToPaste() const;
     Q_INVOKABLE void requestSelectionTranspose(int semitones);
 
-    //! Performs linear interpolation on velocity on current pattern, track, and column over given lines.
-    Q_INVOKABLE void requestLinearVelocityInterpolation(quint64 startLine, quint64 endLine, quint8 startValue, quint8 endValue);
+    //! Performs linear interpolation on velocity on current column over given lines.
+    Q_INVOKABLE void requestLinearVelocityInterpolationOnColumn(quint64 startLine, quint64 endLine, quint8 startValue, quint8 endValue);
+    //! Performs linear interpolation on velocity on current column over given lines.
+    Q_INVOKABLE void requestLinearVelocityInterpolationOnTrack(quint64 startLine, quint64 endLine, quint8 startValue, quint8 endValue);
+
     Q_INVOKABLE void setDelayOnCurrentLine(quint8 ticks);
     Q_INVOKABLE quint8 delayAtCurrentPosition() const;
 

@@ -30,6 +30,7 @@ QtObject {
     signal selectionVelocityInterpolationDialogRequested
     signal settingsDialogRequested
     signal trackSettingsDialogRequested(int trackIndex)
+    signal trackVelocityInterpolationDialogRequested
     signal trackVelocityScaleDialogRequested(int trackIndex)
     property int _activeOctave: 3
     readonly property string _tag: "UiService"
@@ -136,6 +137,11 @@ QtObject {
     function requestColumnVelocityInterpolationDialog(): void {
         if (!isPlaying()) {
             columnVelocityInterpolationDialogRequested();
+        }
+    }
+    function requestTrackVelocityInterpolationDialog(): void {
+        if (!isPlaying()) {
+            trackVelocityInterpolationDialogRequested();
         }
     }
     function requestSelectionVelocityInterpolationDialog(): void {

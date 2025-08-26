@@ -28,7 +28,8 @@ namespace NoteDataManipulator {
 
 using SongW = std::weak_ptr<Song>;
 using ChangedPositions = std::vector<Position>;
-ChangedPositions interpolateVelocity(SongW song, const Position & start, const Position & end, uint8_t startValue, uint8_t endValue);
+ChangedPositions interpolateVelocityOnColumn(SongW song, const Position & start, const Position & end, uint8_t startValue, uint8_t endValue);
+ChangedPositions interpolateVelocityOnTrack(SongW song, const Position & start, const Position & end, uint8_t startValue, uint8_t endValue);
 
 } // namespace NoteDataManipulator
 } // namespace noteahead

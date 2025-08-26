@@ -25,9 +25,9 @@ namespace noteahead {
 
 static const auto TAG = "NoteDataManipulator";
 
-NoteDataManipulator::ChangedPositions NoteDataManipulator::interpolateVelocity(SongW song, const Position & start, const Position & end, uint8_t startValue, uint8_t endValue)
+NoteDataManipulator::ChangedPositions NoteDataManipulator::interpolateVelocityOnColumn(SongW song, const Position & start, const Position & end, uint8_t startValue, uint8_t endValue)
 {
-    juzzlin::L(TAG).info() << "Requesting linear velocity interpolation: " << start.toString() << " -> " << end.toString() << ", " << static_cast<int>(startValue) << " -> " << static_cast<int>(endValue);
+    juzzlin::L(TAG).info() << "Requesting linear velocity interpolation on a column: " << start.toString() << " -> " << end.toString() << ", " << static_cast<int>(startValue) << " -> " << static_cast<int>(endValue);
     NoteDataManipulator::ChangedPositions changedPositions;
     if (const auto locked = song.lock(); locked) {
         const Interpolator interpolator { start.line, end.line, static_cast<double>(startValue), static_cast<double>(endValue) };
@@ -37,6 +37,27 @@ NoteDataManipulator::ChangedPositions NoteDataManipulator::interpolateVelocity(S
             if (const auto noteData = locked->noteDataAtPosition(targetPosition); noteData && noteData->type() == NoteData::Type::NoteOn) {
                 noteData->setVelocity(static_cast<uint8_t>(interpolator.getValue(targetPosition.line)));
                 changedPositions.push_back(targetPosition);
+            }
+        }
+    }
+    return changedPositions;
+}
+
+NoteDataManipulator::ChangedPositions NoteDataManipulator::interpolateVelocityOnTrack(SongW song, const Position & start, const Position & end, uint8_t startValue, uint8_t endValue)
+{
+    juzzlin::L(TAG).info() << "Requesting linear velocity interpolation on a track: " << start.toString() << " -> " << end.toString() << ", " << static_cast<int>(startValue) << " -> " << static_cast<int>(endValue);
+    NoteDataManipulator::ChangedPositions changedPositions;
+    if (const auto locked = song.lock(); locked) {
+        const Interpolator interpolator { start.line, end.line, static_cast<double>(startValue), static_cast<double>(endValue) };
+        for (auto line = start.line; line <= end.line; line++) {
+            auto targetPosition = start;
+            for (size_t column = 0; column < locked->columnCount(targetPosition.track); column++) {
+                targetPosition.column = column;
+                targetPosition.line = line;
+                if (const auto noteData = locked->noteDataAtPosition(targetPosition); noteData && noteData->type() == NoteData::Type::NoteOn) {
+                    noteData->setVelocity(static_cast<uint8_t>(interpolator.getValue(targetPosition.line)));
+                    changedPositions.push_back(targetPosition);
+                }
             }
         }
     }

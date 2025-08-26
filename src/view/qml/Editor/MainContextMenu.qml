@@ -223,7 +223,12 @@ Menu {
             enabled: !UiService.isPlaying()
             onTriggered: editorService.requestTrackTranspose(-12)
         }
-        delegate: MainMenuItemDelegate {
+        MenuSeparator {
+        }
+        Action {
+            text: qsTr("Interpolate velocity")
+            enabled: !UiService.isPlaying()
+            onTriggered: UiService.requestTrackVelocityInterpolationDialog()
         }
         MenuSeparator {
         }
@@ -254,6 +259,8 @@ Menu {
             text: qsTr("Edit Pitch Bend automations")
             enabled: !UiService.isPlaying()
             onTriggered: UiService.requestEditPitchBendAutomationsDialogByTrack()
+        }
+        delegate: MainMenuItemDelegate {
         }
     }
     MenuSeparator {

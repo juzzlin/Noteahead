@@ -1238,7 +1238,7 @@ void EditorService::requestSelectionTranspose(int semitones)
     }
 }
 
-void EditorService::requestLinearVelocityInterpolation(quint64 startLine, quint64 endLine, quint8 startValue, quint8 endValue)
+void EditorService::requestLinearVelocityInterpolationOnColumn(quint64 startLine, quint64 endLine, quint8 startValue, quint8 endValue)
 {
     auto start = position();
     start.line = startLine;
@@ -1246,7 +1246,23 @@ void EditorService::requestLinearVelocityInterpolation(quint64 startLine, quint6
     auto end = position();
     end.line = endLine;
 
-    if (const auto changedPositions = NoteDataManipulator::interpolateVelocity(m_song, start, end, startValue, endValue); !changedPositions.empty()) {
+    if (const auto changedPositions = NoteDataManipulator::interpolateVelocityOnColumn(m_song, start, end, startValue, endValue); !changedPositions.empty()) {
+        for (auto && position : changedPositions) {
+            emit noteDataAtPositionChanged(position);
+        }
+        setIsModified(true);
+    }
+}
+
+void EditorService::requestLinearVelocityInterpolationOnTrack(quint64 startLine, quint64 endLine, quint8 startValue, quint8 endValue)
+{
+    auto start = position();
+    start.line = startLine;
+
+    auto end = position();
+    end.line = endLine;
+
+    if (const auto changedPositions = NoteDataManipulator::interpolateVelocityOnTrack(m_song, start, end, startValue, endValue); !changedPositions.empty()) {
         for (auto && position : changedPositions) {
             emit noteDataAtPositionChanged(position);
         }

@@ -187,10 +187,16 @@ ApplicationWindow {
         onAccepted: mixerService.setTrackVelocityScale(trackIndex, value())
     }
     InterpolationDialog {
-        id: velocityInterpolationDialog
+        id: columnVelocityInterpolationDialog
         anchors.centerIn: parent
         width: parent.width * 0.5
-        onAccepted: editorService.requestLinearVelocityInterpolation(startLine(), endLine(), startValue(), endValue())
+        onAccepted: editorService.requestLinearVelocityInterpolationOnColumn(startLine(), endLine(), startValue(), endValue())
+    }
+    InterpolationDialog {
+        id: trackVelocityInterpolationDialog
+        anchors.centerIn: parent
+        width: parent.width * 0.5
+        onAccepted: editorService.requestLinearVelocityInterpolationOnTrack(startLine(), endLine(), startValue(), endValue())
     }
     AddMidiCcAutomationDialog {
         id: addMidiCcAutomationDialog
@@ -295,20 +301,28 @@ ApplicationWindow {
                 trackVelocityScaleDialog.open();
             });
         UiService.columnVelocityInterpolationDialogRequested.connect(() => {
-                velocityInterpolationDialog.setTitle(qsTr("Interpolate velocity"));
-                velocityInterpolationDialog.setStartLine(0);
-                velocityInterpolationDialog.setEndLine(editorService.currentLineCount - 1);
-                velocityInterpolationDialog.setStartValue(0);
-                velocityInterpolationDialog.setEndValue(100);
-                velocityInterpolationDialog.open();
+                columnVelocityInterpolationDialog.setTitle(qsTr("Interpolate velocity"));
+                columnVelocityInterpolationDialog.setStartLine(0);
+                columnVelocityInterpolationDialog.setEndLine(editorService.currentLineCount - 1);
+                columnVelocityInterpolationDialog.setStartValue(0);
+                columnVelocityInterpolationDialog.setEndValue(100);
+                columnVelocityInterpolationDialog.open();
             });
         UiService.selectionVelocityInterpolationDialogRequested.connect(() => {
-                velocityInterpolationDialog.setTitle(qsTr("Interpolate velocity"));
-                velocityInterpolationDialog.setStartLine(selectionService.minLine());
-                velocityInterpolationDialog.setEndLine(selectionService.maxLine());
-                velocityInterpolationDialog.setStartValue(0);
-                velocityInterpolationDialog.setEndValue(100);
-                velocityInterpolationDialog.open();
+                columnVelocityInterpolationDialog.setTitle(qsTr("Interpolate velocity"));
+                columnVelocityInterpolationDialog.setStartLine(selectionService.minLine());
+                columnVelocityInterpolationDialog.setEndLine(selectionService.maxLine());
+                columnVelocityInterpolationDialog.setStartValue(0);
+                columnVelocityInterpolationDialog.setEndValue(100);
+                columnVelocityInterpolationDialog.open();
+            });
+        UiService.trackVelocityInterpolationDialogRequested.connect(() => {
+                trackVelocityInterpolationDialog.setTitle(qsTr("Interpolate velocity"));
+                trackVelocityInterpolationDialog.setStartLine(0);
+                trackVelocityInterpolationDialog.setEndLine(editorService.currentLineCount - 1);
+                trackVelocityInterpolationDialog.setStartValue(0);
+                trackVelocityInterpolationDialog.setEndValue(100);
+                trackVelocityInterpolationDialog.open();
             });
         UiService.lineDelayDialogRequested.connect(() => {
                 lineDelayDialog.setValue(editorService.delayAtCurrentPosition());
