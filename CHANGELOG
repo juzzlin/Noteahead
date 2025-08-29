@@ -5,6 +5,19 @@ Release date:
 
 New features:
 
+Bug fixes:
+
+Other:
+
+0.11.0
+======
+
+Release date:
+
+Fri, 29 Aug 2025 21:17:38 +0300
+
+New features:
+
 * Allow transposing by +2/-2 semitones
 
 * Fix GitHub Issue #24: Implement velocity interpolation on track-level
@@ -14,8 +27,6 @@ Bug fixes:
 * Fix GitHub Issue #21: Clicking on the empty area of a note column won't set focus
 
 * Fix GitHub Issue #22: MIDI transport events sent event if disabled
-
-Other:
 
 0.10.0
 ======
