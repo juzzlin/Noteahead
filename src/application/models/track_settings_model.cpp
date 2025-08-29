@@ -18,6 +18,8 @@
 #include "../../contrib/SimpleLogger/src/simple_logger.hpp"
 #include "../../domain/instrument.hpp"
 
+#include <iomanip>
+
 namespace noteahead {
 
 static const auto TAG = "TrackSettingsModel";

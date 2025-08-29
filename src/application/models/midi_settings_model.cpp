@@ -18,6 +18,8 @@
 #include "../../contrib/SimpleLogger/src/simple_logger.hpp"
 #include "../service/settings_service.hpp"
 
+#include <iomanip>
+
 namespace noteahead {
 
 static const auto TAG = "MidiSettingsModel";
