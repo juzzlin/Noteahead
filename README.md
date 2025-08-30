@@ -25,6 +25,10 @@ Some example tracks sequenced with Noteahead (produced with Behringer X32 Produc
 
 ---
 
+<a href="https://open.spotify.com/track/6YNoAeZbB49p2bxoJA7gc1">Arctic Music Project - Epic Success (Spotify)</a>
+
+<a href="https://music.youtube.com/watch?v=Tx_oNrJlvd0">Arctic Music Project - Epic Success (YouTube)</a>
+
 <a href="https://soundcloud.com/arctic-music-project/epic-success">Arctic Music Project - Epic Success (SoundCloud)</a>
 
 ---
