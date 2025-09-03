@@ -80,6 +80,10 @@ MenuBar {
             text: qsTr("Delay time calculator")
             onTriggered: UiService.requestDelayCalculatorDialog()
         }
+        Action {
+            text: qsTr("Note frequencies")
+            onTriggered: UiService.requestNoteFrequencyDialog()
+        }
         delegate: MainMenuItemDelegate {
         }
     }

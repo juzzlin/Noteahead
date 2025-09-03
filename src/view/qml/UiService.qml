@@ -4,26 +4,27 @@ import QtQuick 2.15
 QtObject {
     signal aboutDialogRequested
     signal activeOctaveChanged(int activeOctave)
-    signal lineAddMidiCcAutomationDialogRequested
     signal columnAddMidiCcAutomationDialogRequested
-    signal lineAddPitchBendAutomationDialogRequested
     signal columnAddPitchBendAutomationDialogRequested
     signal columnVelocityInterpolationDialogRequested
     signal columnVelocityScaleDialogRequested(int trackIndex, int columnIndex)
     signal delayCalculatorDialogRequested
-    signal editMidiCcAutomationsDialogByLineRequested
     signal editMidiCcAutomationsDialogByColumnRequested
+    signal editMidiCcAutomationsDialogByLineRequested
     signal editMidiCcAutomationsDialogByPatternRequested
     signal editMidiCcAutomationsDialogByTrackRequested
     signal editMidiCcAutomationsDialogRequested
-    signal editPitchBendAutomationsDialogByLineRequested
     signal editPitchBendAutomationsDialogByColumnRequested
+    signal editPitchBendAutomationsDialogByLineRequested
     signal editPitchBendAutomationsDialogByPatternRequested
     signal editPitchBendAutomationsDialogByTrackRequested
     signal editPitchBendAutomationsDialogRequested
     signal eventSelectionDialogRequested
     signal focusOnEditorViewRequested
+    signal lineAddMidiCcAutomationDialogRequested
+    signal lineAddPitchBendAutomationDialogRequested
     signal lineDelayDialogRequested
+    signal noteFrequencyDialogRequested
     signal recentFilesDialogRequested
     signal selectionAddMidiCcAutomationDialogRequested
     signal selectionAddPitchBendAutomationDialogRequested
@@ -114,6 +115,9 @@ QtObject {
     }
     function requestEventSelectionDialog(): void {
         eventSelectionDialogRequested();
+    }
+    function requestNoteFrequencyDialog(): void {
+        noteFrequencyDialogRequested();
     }
     function requestRecentFilesDialog(): void {
         recentFilesDialogRequested();

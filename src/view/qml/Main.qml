@@ -239,6 +239,11 @@ ApplicationWindow {
         anchors.centerIn: parent
         height: parent.height * 0.25
     }
+    NoteFrequencyDialog {
+        id: noteFrequencyDialog
+        anchors.centerIn: parent
+        height: parent.height * 0.5
+    }
     function _getWindowTitle(): string {
         const nameAndVersion = `${applicationService.applicationName()} MIDI tracker v${applicationService.applicationVersion()}`;
         const currentFileName = (editorService.currentFileName ? " - " + editorService.currentFileName : "");
@@ -444,6 +449,9 @@ ApplicationWindow {
                 delayCalculatorDialog.bpm = editorService.beatsPerMinute;
                 delayCalculatorDialog.calculateDelay();
                 delayCalculatorDialog.open();
+            });
+        UiService.noteFrequencyDialogRequested.connect(() => {
+                noteFrequencyDialog.open();
             });
         UiService.quitRequested.connect(() => {
                 settingsService.setWindowSize(Qt.size(mainWindow.width, mainWindow.height));
