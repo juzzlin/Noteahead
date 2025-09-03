@@ -54,8 +54,12 @@ void NoteColumnModelHandler::updateIndexHighlightAtPosition(const Position & pos
 
 void NoteColumnModelHandler::updateIndexHighlightRange(const Position & startPosition, const Position & endPosition)
 {
-    if (const auto columnAddress = positionToColumnAddress(startPosition); m_noteColumnModels.contains(columnAddress)) {
-        m_noteColumnModels.at(columnAddress)->updateIndexHighlightRange(startPosition.line, endPosition.line);
+    for (size_t column = std::min(startPosition.column, endPosition.column); column <= std::max(startPosition.column, endPosition.column); column++) {
+        auto currentStartPosition = startPosition;
+        currentStartPosition.column = column;
+        if (const auto columnAddress = positionToColumnAddress(currentStartPosition); m_noteColumnModels.contains(columnAddress)) {
+            m_noteColumnModels.at(columnAddress)->updateIndexHighlightRange(startPosition.line, endPosition.line);
+        }
     }
 }
 

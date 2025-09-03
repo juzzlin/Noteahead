@@ -8,6 +8,7 @@ QtObject {
     signal columnAddPitchBendAutomationDialogRequested
     signal columnVelocityInterpolationDialogRequested
     signal columnVelocityScaleDialogRequested(int trackIndex, int columnIndex)
+    signal contextMenuRequested(int globalX, int globalY)
     signal delayCalculatorDialogRequested
     signal editMidiCcAutomationsDialogByColumnRequested
     signal editMidiCcAutomationsDialogByLineRequested
@@ -238,6 +239,9 @@ QtObject {
     }
     function requestFocusOnEditorView(): void {
         focusOnEditorViewRequested();
+    }
+    function requestContextMenu(globalX: int, globalY: int): void {
+        contextMenuRequested(globalX, globalY);
     }
     function rewindSong(): void {
         editorService.resetSongPosition();

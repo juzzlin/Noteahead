@@ -77,8 +77,10 @@ public:
     ChangedPositions pastePattern(size_t patternIndex, CopyManager & copyManager) const;
     ChangedPositions transposePattern(const Position & position, int semitones) const;
 
-    ChangedPositions cutSelection(const std::vector<Position> & positions, CopyManager & copyManager) const;
-    void copySelection(const std::vector<Position> & positions, CopyManager & copyManager) const;
+    using PositionList = std::vector<Position>;
+    using PositionListCR = const PositionList &;
+    ChangedPositions cutSelection(PositionListCR positions, CopyManager & copyManager) const;
+    void copySelection(PositionListCR positions, CopyManager & copyManager) const;
     ChangedPositions pasteSelection(const Position & position, CopyManager & copyManager) const;
 
     void createPattern(size_t patternIndex);
@@ -144,7 +146,6 @@ public:
     using NoteDataS = std::shared_ptr<NoteData>;
     NoteDataS noteDataAtPosition(const Position & position) const;
     void setNoteDataAtPosition(const NoteData & noteData, const Position & position);
-    using PositionList = std::vector<Position>;
     PositionList deleteNoteDataAtPosition(const Position & position);
     PositionList insertNoteDataAtPosition(const NoteData & noteData, const Position & position);
 

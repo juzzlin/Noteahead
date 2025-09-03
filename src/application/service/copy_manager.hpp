@@ -19,8 +19,8 @@
 #include <memory>
 #include <vector>
 
-#include "../domain/note_data.hpp"
-#include "position.hpp"
+#include "../../domain/note_data.hpp"
+#include "../position.hpp"
 
 namespace noteahead {
 
@@ -57,6 +57,9 @@ public:
     PositionList pasteSelection(PatternW targetPattern, const Position & targetPosition);
 
 private:
+    size_t getMinLineIndex() const;
+    size_t getMinColumnIndex() const;
+
     Mode m_mode = Mode::None;
 
     std::vector<std::pair<Position, NoteData>> m_copiedData;

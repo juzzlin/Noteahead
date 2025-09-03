@@ -6,8 +6,13 @@ Rectangle {
     id: rootItem
     color: Constants.noteColumnBackgroundColor
     clip: true
-    signal leftClicked(int x, int y, int lineIndex)
-    signal rightClicked(int x, int y, int lineIndex)
+    signal leftClicked(int lineIndex, int x, int y)
+    signal rightClicked(int lineIndex, int x, int y)
+    signal leftPressed(int lineIndex, int x, int y)
+    signal rightPressed(int lineIndex, int x, int y)
+    signal leftReleased(int lineIndex, int x, int y)
+    signal rightReleased(int lineIndex, int x, int y)
+    signal mouseMoved(int lineIndex, int x, int y)
     property int _index: 0
     property int _patternIndex: 0
     property int _trackIndex: 0
@@ -24,14 +29,50 @@ Rectangle {
         _scrollLines();
         delayedScrollTimer.start(); // Hack for Qt < 6.5
     }
-    function clickOnDelegate(mouse: var, lineIndex: int): void {
+    function _getEffectiveLine(lineIndex: int): int {
+        return lineIndex - editorService.positionBarLine();
+    }
+    function _getGlobalX(delegate: var, mouse: var): int {
+        return delegate.mapToItem(delegate.Window.contentItem, Qt.point(mouse.x, mouse.y)).x;
+    }
+    function _getGlobalY(delegate: var, mouse: var): int {
+        return delegate.mapToItem(delegate.Window.contentItem, Qt.point(mouse.x, mouse.y)).y;
+    }
+    function handleClickOnDelegate(listItemIndex: int, delegate: var, mouse: var): void {
+        const effectiveLineIndex = _getEffectiveLine(listItemIndex);
         if (mouse.button === Qt.LeftButton) {
-            uiLogger.info(_tag, `Column ${rootItem._index} left clicked on line ${lineIndex}`);
-            rootItem.leftClicked(mouse.x, mouse.y, lineIndex - editorService.positionBarLine());
+            uiLogger.info(_tag, `Column ${rootItem._index} left clicked on line ${effectiveLineIndex}`);
+            rootItem.leftClicked(effectiveLineIndex, _getGlobalX(delegate, mouse), _getGlobalY(delegate, mouse));
         } else {
-            uiLogger.info(_tag, `Column ${rootItem._index} right clicked on line ${lineIndex}`);
-            rootItem.rightClicked(mouse.x, mouse.y, lineIndex - editorService.positionBarLine());
+            uiLogger.info(_tag, `Column ${rootItem._index} right clicked on line ${effectiveLineIndex}`);
+            rootItem.rightClicked(effectiveLineIndex, _getGlobalX(delegate, mouse), _getGlobalY(delegate, mouse));
         }
+    }
+    function handlePressOnDelegate(listItemIndex: int, delegate: var, mouse: var): void {
+        const effectiveLineIndex = _getEffectiveLine(listItemIndex);
+        if (mouse.button === Qt.LeftButton) {
+            uiLogger.info(_tag, `Column ${rootItem._index} left pressed on line ${effectiveLineIndex}`);
+            rootItem.leftPressed(effectiveLineIndex, _getGlobalX(delegate, mouse), _getGlobalY(delegate, mouse));
+        } else {
+            uiLogger.info(_tag, `Column ${rootItem._index} right pressed on line ${effectiveLineIndex}`);
+            rootItem.rightPressed(effectiveLineIndex, _getGlobalX(delegate, mouse), _getGlobalY(delegate, mouse));
+        }
+    }
+    function handleReleaseOnDelegate(listItemIndex: int, delegate: var, mouse: var): void {
+        const effectiveLineIndex = _getEffectiveLine(listItemIndex);
+        if (mouse.button === Qt.LeftButton) {
+            uiLogger.info(_tag, `Column ${rootItem._index} left released on line ${effectiveLineIndex}`);
+            rootItem.leftReleased(effectiveLineIndex, _getGlobalX(delegate, mouse), _getGlobalY(delegate, mouse));
+        } else {
+            uiLogger.info(_tag, `Column ${rootItem._index} right released on line ${effectiveLineIndex}`);
+            rootItem.rightReleased(effectiveLineIndex, _getGlobalX(delegate, mouse), _getGlobalY(delegate, mouse));
+        }
+    }
+    function handleMouseMoveOnDelegate(listItemIndex: int, delegate: var, mouse: var): void {
+        const offset = Math.floor(mouse.y / delegate.height);
+        const effectiveLineIndex = _getEffectiveLine(listItemIndex) + offset;
+        uiLogger.info(_tag, `Column ${rootItem._index} mouse moved on line ${effectiveLineIndex}`);
+        rootItem.mouseMoved(effectiveLineIndex, _getGlobalX(delegate, mouse), _getGlobalY(delegate, mouse));
     }
     function setPosition(position: var): void {
         _scrollOffset = position.line;

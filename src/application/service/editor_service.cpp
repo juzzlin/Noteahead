@@ -20,9 +20,9 @@
 #include "../../domain/note_data.hpp"
 #include "../../domain/note_data_manipulator.hpp"
 #include "../../domain/song.hpp"
-#include "../copy_manager.hpp"
 #include "../instrument_request.hpp"
 #include "../note_converter.hpp"
+#include "copy_manager.hpp"
 #include "selection_service.hpp"
 
 #include <QDateTime>
@@ -1554,13 +1554,24 @@ void EditorService::requestTrackRight()
     ensureFocusedTrackIsVisible();
 }
 
-void EditorService::requestColumnRight()
+void EditorService::requestColumnLeft()
+{
+    juzzlin::L(TAG).debug() << "Column left requested";
+    const auto oldPosition = m_state.cursorPosition;
+    if (oldPosition.column) {
+        m_state.cursorPosition.column--;
+        notifyPositionChange(oldPosition);
+        ensureFocusedColumnIsVisible();
+    }
+}
+
+void EditorService::requestColumnRight(bool isSelecting)
 {
     juzzlin::L(TAG).debug() << "Column right requested";
     const auto oldPosition = m_state.cursorPosition;
     if (oldPosition.column + 1 < m_song->columnCount(oldPosition.track)) {
         m_state.cursorPosition.column++;
-    } else {
+    } else if (!isSelecting) {
         moveCursorToNextTrack();
     }
     notifyPositionChange(oldPosition);

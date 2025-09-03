@@ -10,7 +10,6 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 # These are needed only for the IDE
 set(HEADER_FILES
   application/application.hpp
-  application/copy_manager.hpp
   application/instrument_request.hpp
   application/models/event_selection_model.hpp
   application/models/midi_cc_automations_model.hpp
@@ -24,9 +23,9 @@ set(HEADER_FILES
   application/models/track_settings_model.hpp
   application/note_converter.hpp
   application/position.hpp
-  application/recent_files_manager.hpp
   application/service/application_service.hpp
   application/service/automation_service.hpp
+  application/service/copy_manager.hpp
   application/service/editor_service.hpp
   application/service/midi_in_worker.hpp
   application/service/midi_out_worker.hpp
@@ -35,6 +34,7 @@ set(HEADER_FILES
   application/service/mixer_service.hpp
   application/service/player_service.hpp
   application/service/player_worker.hpp
+  application/service/recent_files_manager.hpp
   application/service/selection_service.hpp
   application/service/settings_service.hpp
   application/service/util_service.hpp
@@ -66,13 +66,13 @@ set(HEADER_FILES
   domain/play_order.hpp
   domain/song.hpp
   domain/track.hpp
-  infra/midi/midi.hpp
-  infra/midi/midi_in.hpp
-  infra/midi/midi_out.hpp
-  infra/midi/midi_cc_mapping.hpp
-  infra/midi/midi_device.hpp
   infra/midi/implementation/librtmidi/midi_in_rt_midi.hpp
   infra/midi/implementation/librtmidi/midi_out_rt_midi.hpp
+  infra/midi/midi.hpp
+  infra/midi/midi_cc_mapping.hpp
+  infra/midi/midi_device.hpp
+  infra/midi/midi_in.hpp
+  infra/midi/midi_out.hpp
   infra/settings.hpp
   infra/video/animation.hpp
   infra/video/bars_animation.hpp
@@ -83,7 +83,6 @@ set(HEADER_FILES
 
 set(SOURCE_FILES
   application/application.cpp
-  application/copy_manager.cpp
   application/instrument_request.cpp
   application/models/event_selection_model.cpp
   application/models/midi_cc_automations_model.cpp
@@ -96,9 +95,9 @@ set(SOURCE_FILES
   application/models/recent_files_model.cpp
   application/models/track_settings_model.cpp
   application/note_converter.cpp
-  application/recent_files_manager.cpp
   application/service/application_service.cpp
   application/service/automation_service.cpp
+  application/service/copy_manager.cpp
   application/service/editor_service.cpp
   application/service/midi_in_worker.cpp
   application/service/midi_out_worker.cpp
@@ -107,6 +106,7 @@ set(SOURCE_FILES
   application/service/mixer_service.cpp
   application/service/player_service.cpp
   application/service/player_worker.cpp
+  application/service/recent_files_manager.cpp
   application/service/selection_service.cpp
   application/service/settings_service.cpp
   application/service/util_service.cpp
@@ -137,13 +137,13 @@ set(SOURCE_FILES
   domain/play_order.cpp
   domain/song.cpp
   domain/track.cpp
-  infra/midi/midi.cpp
-  infra/midi/midi_in.cpp
-  infra/midi/midi_out.cpp
-  infra/midi/midi_cc_mapping.cpp
-  infra/midi/midi_device.cpp
   infra/midi/implementation/librtmidi/midi_in_rt_midi.cpp
   infra/midi/implementation/librtmidi/midi_out_rt_midi.cpp
+  infra/midi/midi.cpp
+  infra/midi/midi_cc_mapping.cpp
+  infra/midi/midi_device.cpp
+  infra/midi/midi_in.cpp
+  infra/midi/midi_out.cpp
   infra/settings.cpp
   infra/video/animation.cpp
   infra/video/bars_animation.cpp
@@ -193,6 +193,7 @@ set(QML_SOURCE_FILES
     ${QML_BASE_DIR}/Editor/LineNumberColumn.qml
     ${QML_BASE_DIR}/Editor/LineNumberDelegate.qml
     ${QML_BASE_DIR}/Editor/MainContextMenu.qml
+    ${QML_BASE_DIR}/Editor/MouseHandler.qml
     ${QML_BASE_DIR}/Editor/MuteSoloButtons.qml
     ${QML_BASE_DIR}/Editor/NoteColumn.qml
     ${QML_BASE_DIR}/Editor/NoteColumnHeader.qml

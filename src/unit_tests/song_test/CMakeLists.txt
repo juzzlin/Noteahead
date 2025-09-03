@@ -3,9 +3,9 @@ set(NAME song_test)
 set(SRC
     ${NAME}.cpp
     ${NAME}.hpp
-    ../../application/copy_manager.cpp
     ../../application/position.hpp
     ../../application/service/automation_service.cpp
+    ../../application/service/copy_manager.cpp
     ../../common/constants.cpp
     ../../common/utils.cpp
     ../../domain/automation.cpp

@@ -10,10 +10,10 @@ QtObject {
             _handleDown(event);
             event.accepted = true;
         } else if (event.key === Qt.Key_Left) {
-            _handleLeft();
+            _handleLeft(event);
             event.accepted = true;
         } else if (event.key === Qt.Key_Right) {
-            _handleRight();
+            _handleRight(event);
             event.accepted = true;
         } else if (event.key === Qt.Key_PageUp) {
             _handlePageUp(event);
@@ -79,13 +79,33 @@ QtObject {
     function _handlePageDown(event) {
         _handleScrollCommon(event, editorService.linesPerBeat);
     }
-    function _handleLeft() {
-        selectionService.clear();
-        editorService.requestCursorLeft();
+    function _handleLeft(event) {
+        if (event.modifiers & Qt.ShiftModifier) {
+            if (!UiService.isPlaying()) {
+                let position = editorService.position;
+                selectionService.requestSelectionStart(position.pattern, position.track, position.column, position.line);
+                editorService.requestColumnLeft();
+                position = editorService.position;
+                selectionService.requestSelectionEnd(position.pattern, position.track, position.column, position.line);
+            }
+        } else {
+            selectionService.clear();
+            editorService.requestCursorLeft();
+        }
     }
-    function _handleRight() {
-        selectionService.clear();
-        editorService.requestCursorRight();
+    function _handleRight(event) {
+        if (event.modifiers & Qt.ShiftModifier) {
+            if (!UiService.isPlaying()) {
+                let position = editorService.position;
+                selectionService.requestSelectionStart(position.pattern, position.track, position.column, position.line);
+                editorService.requestColumnRight(true);
+                position = editorService.position;
+                selectionService.requestSelectionEnd(position.pattern, position.track, position.column, position.line);
+            }
+        } else {
+            selectionService.clear();
+            editorService.requestCursorRight();
+        }
     }
     function _handleTab() {
         selectionService.clear();

@@ -15,8 +15,8 @@
 
 #include "song.hpp"
 
-#include "../application/copy_manager.hpp"
 #include "../application/position.hpp"
+#include "../application/service/copy_manager.hpp"
 #include "../common/constants.hpp"
 #include "../common/utils.hpp"
 #include "../contrib/SimpleLogger/src/simple_logger.hpp"
@@ -140,7 +140,7 @@ Song::ChangedPositions Song::transposePattern(const Position & position, int sem
     return m_patterns.contains(position.pattern) ? m_patterns.at(position.pattern)->transposePattern(position, semitones) : Song::ChangedPositions {};
 }
 
-Song::ChangedPositions Song::cutSelection(const std::vector<Position> & positions, CopyManager & copyManager) const
+Song::ChangedPositions Song::cutSelection(PositionListCR positions, CopyManager & copyManager) const
 {
     if (!positions.empty()) {
         if (const auto patternIndex = positions.at(0).pattern; m_patterns.contains(patternIndex)) {
@@ -155,7 +155,7 @@ Song::ChangedPositions Song::cutSelection(const std::vector<Position> & position
     return {};
 }
 
-void Song::copySelection(const std::vector<Position> & positions, CopyManager & copyManager) const
+void Song::copySelection(PositionListCR positions, CopyManager & copyManager) const
 {
     if (!positions.empty()) {
         if (const auto patternIndex = positions.at(0).pattern; m_patterns.contains(patternIndex)) {

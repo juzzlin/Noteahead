@@ -3,11 +3,11 @@ set(NAME editor_service_test)
 set(SRC
     ${NAME}.cpp
     ${NAME}.hpp
-    ../../application/copy_manager.cpp
     ../../application/instrument_request.cpp
     ../../application/note_converter.cpp
     ../../application/position.hpp
     ../../application/service/automation_service.cpp
+    ../../application/service/copy_manager.cpp
     ../../application/service/editor_service.cpp
     ../../application/service/mixer_service.cpp
     ../../application/service/selection_service.cpp

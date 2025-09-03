@@ -13,6 +13,11 @@ Item {
     readonly property string _tag: "Track"
     signal leftClicked(int columnIndex, int lineIndex, int x, int y)
     signal rightClicked(int columnIndex, int lineIndex, int x, int y)
+    signal leftPressed(int columnIndex, int lineIndex, int x, int y)
+    signal rightPressed(int columnIndex, int lineIndex, int x, int y)
+    signal leftReleased(int columnIndex, int lineIndex, int x, int y)
+    signal rightReleased(int columnIndex, int lineIndex, int x, int y)
+    signal mouseMoved(int columnIndex, int lineIndex, int x, int y)
     signal nameChanged(string name)
     function index(): int {
         return _index;
@@ -173,13 +178,33 @@ Item {
             noteColumn.x = _noteColumnX(columnIndex);
             noteColumn.setLocation(_patternIndex, _index, columnIndex);
             noteColumn.setPositionBar(_positionBar);
-            noteColumn.leftClicked.connect((x, y, lineIndex) => {
+            noteColumn.leftClicked.connect((lineIndex, x, y) => {
                     uiLogger.debug(_tag, `Track ${rootItem._index} left clicked`);
-                    rootItem.leftClicked(noteColumn.index(), lineIndex, x, y);
+                    rootItem.leftClicked(noteColumn.index(), lineIndex, x + rootItem.x, y + rootItem.y);
                 });
-            noteColumn.rightClicked.connect((x, y, lineIndex) => {
+            noteColumn.rightClicked.connect((lineIndex, x, y) => {
                     uiLogger.debug(_tag, `Track ${rootItem._index} right clicked`);
                     rootItem.rightClicked(noteColumn.index(), lineIndex, x, y);
+                });
+            noteColumn.leftPressed.connect((lineIndex, x, y) => {
+                    uiLogger.debug(_tag, `Track ${rootItem._index} left pressed`);
+                    rootItem.leftPressed(noteColumn.index(), lineIndex, x, y);
+                });
+            noteColumn.rightPressed.connect((lineIndex, x, y) => {
+                    uiLogger.debug(_tag, `Track ${rootItem._index} right pressed`);
+                    rootItem.rightPressed(noteColumn.index(), lineIndex, x, y);
+                });
+            noteColumn.leftReleased.connect((lineIndex, x, y) => {
+                    uiLogger.debug(_tag, `Track ${rootItem._index} left released`);
+                    rootItem.leftReleased(noteColumn.index(), lineIndex, x, y);
+                });
+            noteColumn.rightReleased.connect((lineIndex, x, y) => {
+                    uiLogger.debug(_tag, `Track ${rootItem._index} right released`);
+                    rootItem.rightReleased(noteColumn.index(), lineIndex, x, y);
+                });
+            noteColumn.mouseMoved.connect((lineIndex, x, y) => {
+                    uiLogger.debug(_tag, `Track ${rootItem._index} mouse moved`);
+                    rootItem.mouseMoved(noteColumn.index(), lineIndex, x, y);
                 });
             return noteColumn;
         }

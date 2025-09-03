@@ -20,10 +20,10 @@
 #include "../../domain/instrument.hpp"
 #include "../../domain/midi_note_data.hpp"
 #include "../note_converter.hpp"
-#include "../recent_files_manager.hpp"
 #include "../state_machine.hpp"
 #include "editor_service.hpp"
 #include "player_service.hpp"
+#include "recent_files_manager.hpp"
 
 namespace noteahead {
 

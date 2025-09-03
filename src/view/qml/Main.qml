@@ -244,6 +244,10 @@ ApplicationWindow {
         anchors.centerIn: parent
         height: parent.height * 0.5
     }
+    MainContextMenu {
+        id: contextMenu
+        width: parent.width * 0.25
+    }
     function _getWindowTitle(): string {
         const nameAndVersion = `${applicationService.applicationName()} MIDI tracker v${applicationService.applicationVersion()}`;
         const currentFileName = (editorService.currentFileName ? " - " + editorService.currentFileName : "");
@@ -456,6 +460,11 @@ ApplicationWindow {
         UiService.quitRequested.connect(() => {
                 settingsService.setWindowSize(Qt.size(mainWindow.width, mainWindow.height));
                 applicationService.requestQuit();
+            });
+        UiService.contextMenuRequested.connect((x, y) => {
+                contextMenu.x = x;
+                contextMenu.y = y;
+                contextMenu.open();
             });
     }
     function _connectServices(): void {

@@ -16,8 +16,8 @@
 #ifndef EDITOR_SERVICE_HPP
 #define EDITOR_SERVICE_HPP
 
-#include "../copy_manager.hpp"
 #include "../position.hpp"
+#include "copy_manager.hpp"
 
 #include <QObject>
 
@@ -225,7 +225,8 @@ public:
     Q_INVOKABLE void requestCursorLeft();
     Q_INVOKABLE void requestCursorRight();
     Q_INVOKABLE void requestTrackRight();
-    Q_INVOKABLE void requestColumnRight();
+    Q_INVOKABLE void requestColumnLeft();
+    Q_INVOKABLE void requestColumnRight(bool isSelecting = false);
 
     Q_INVOKABLE quint64 songPosition() const;
     Q_INVOKABLE void setSongPosition(quint64 songPosition);

@@ -39,6 +39,11 @@ size_t SelectionService::maxLine() const
     return (maxLineIt != selectedPositions.end()) ? maxLineIt->line : 0;
 }
 
+size_t SelectionService::track() const
+{
+    return m_startPosition.has_value() ? m_startPosition->track : 0;
+}
+
 SelectionService::PositionList SelectionService::selectedPositions() const
 {
     PositionList positions;
@@ -46,11 +51,10 @@ SelectionService::PositionList SelectionService::selectedPositions() const
     if (isValidSelection()) {
         auto start = *m_startPosition;
         auto end = *m_endPosition;
-        if (start.line > end.line) {
-            std::swap(start, end);
-        }
-        for (size_t line = start.line; line <= end.line; line++) {
-            positions.push_back({ start.pattern, start.track, start.column, line, start.lineColumn });
+        for (size_t column = std::min(start.column, end.column); column <= std::max(start.column, end.column); column++) {
+            for (size_t line = std::min(start.line, end.line); line <= std::max(start.line, end.line); line++) {
+                positions.push_back({ start.pattern, start.track, column, line, start.lineColumn });
+            }
         }
     }
 
@@ -68,10 +72,6 @@ bool SelectionService::isValidSelection() const
     }
 
     if (m_startPosition->track != m_endPosition->track) {
-        return false;
-    }
-
-    if (m_startPosition->column != m_endPosition->column) {
         return false;
     }
 
@@ -104,7 +104,7 @@ bool SelectionService::requestSelectionEnd(size_t pattern, size_t track, size_t 
 {
     juzzlin::L(TAG).debug() << "Requesting selection end";
 
-    if (m_startPosition.has_value() && pattern == m_startPosition->pattern && track == m_startPosition->track && column == m_startPosition->column) {
+    if (m_startPosition.has_value() && pattern == m_startPosition->pattern && track == m_startPosition->track) {
         const Position position = { pattern, track, column, line };
         auto oldEndPosition = m_endPosition;
         m_endPosition = position;

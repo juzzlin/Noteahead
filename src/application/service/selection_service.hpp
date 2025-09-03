@@ -44,6 +44,8 @@ public:
     Q_INVOKABLE size_t minLine() const;
     Q_INVOKABLE size_t maxLine() const;
 
+    Q_INVOKABLE size_t track() const;
+
     using PositionList = std::vector<Position>;
     PositionList selectedPositions() const;
 

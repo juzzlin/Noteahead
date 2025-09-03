@@ -15,9 +15,8 @@
 
 #include "recent_files_manager.hpp"
 
-#include "../infra/settings.hpp"
-
-#include "../contrib/SimpleLogger/src/simple_logger.hpp"
+#include "../../contrib/SimpleLogger/src/simple_logger.hpp"
+#include "../../infra/settings.hpp"
 
 #include <QFileInfo>
 #include <QSettings>

@@ -51,6 +51,9 @@ FocusScope {
     KeyboardHandler {
         id: keyboardHandler
     }
+    MouseHandler {
+        id: mouseHandler
+    }
     ScrollBar {
         id: horizontalScrollBar
         hoverEnabled: true
@@ -71,10 +74,6 @@ FocusScope {
                     position = editorService.scrollBarPosition();
                 });
         }
-    }
-    MainContextMenu {
-        id: contextMenu
-        width: parent.width * 0.25
     }
     Keys.onPressed: event => {
         keyboardHandler.handleKeyPressed(event);
@@ -109,17 +108,26 @@ FocusScope {
         track.y = 0;
     }
     function _connectTrack(track) {
-        track.leftClicked.connect((columnIndex, lineIndex) => {
-                editorService.requestTrackFocus(track.index(), columnIndex, lineIndex);
-                rootItem.forceActiveFocus();
-                selectionService.clear();
+        track.leftClicked.connect((columnIndex, lineIndex, x, y) => {
+                mouseHandler.handleLeftClicked(track, columnIndex, lineIndex, x, y);
             });
         track.rightClicked.connect((columnIndex, lineIndex, x, y) => {
-                editorService.requestTrackFocus(track.index(), columnIndex, lineIndex);
-                rootItem.forceActiveFocus();
-                contextMenu.x = track.x + x;
-                contextMenu.y = track.y + y;
-                contextMenu.open();
+                mouseHandler.handleRightClicked(track, columnIndex, lineIndex, x, y);
+            });
+        track.leftPressed.connect((columnIndex, lineIndex, x, y) => {
+                mouseHandler.handleLeftPressed(track, columnIndex, lineIndex, x, y);
+            });
+        track.leftReleased.connect((columnIndex, lineIndex, x, y) => {
+                mouseHandler.handleLeftReleased(track, columnIndex, lineIndex, x, y);
+            });
+        track.rightPressed.connect((columnIndex, lineIndex, x, y) => {
+                mouseHandler.handleRightPressed(track, columnIndex, lineIndex, x, y);
+            });
+        track.rightReleased.connect((columnIndex, lineIndex, x, y) => {
+                mouseHandler.handleRightReleased(track, columnIndex, lineIndex, x, y);
+            });
+        track.mouseMoved.connect((columnIndex, lineIndex, x, y) => {
+                mouseHandler.handleMouseMoved(track, columnIndex, lineIndex, x, y);
             });
     }
     function _createTracks(pattern) {
@@ -276,6 +284,7 @@ FocusScope {
                     });
             });
         mixerService.cleared.connect(_clearMixerSettings);
+        mouseHandler.editorFocusRequested.connect(forceActiveFocus);
     }
     function _lineNumberColumnHeight() {
         return trackArea.height - Constants.trackHeaderHeight - Constants.columnHeaderHeight;

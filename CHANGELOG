@@ -8,6 +8,10 @@ New features:
 * Implement a note frequency dialog
   - Tools => Note Frequencies
 
+* Improvements to column data selection
+  - Allow selecting data across multiple columns (keyboard only for now)
+  - Allow selecting data using the mouse
+
 Bug fixes:
 
 Other:

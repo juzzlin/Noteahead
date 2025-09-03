@@ -26,7 +26,16 @@ Rectangle {
         anchors.fill: parent
         acceptedButtons: Qt.LeftButton | Qt.RightButton
         onClicked: mouse => {
-            clickOnDelegate(mouse, index);
+            handleClickOnDelegate(index, rootItem, mouse);
+        }
+        onPressed: mouse => {
+            handlePressOnDelegate(index, rootItem, mouse);
+        }
+        onReleased: mouse => {
+            handleReleaseOnDelegate(index, rootItem, mouse);
+        }
+        onPositionChanged: mouse => {
+            handleMouseMoveOnDelegate(index, rootItem, mouse);
         }
     }
 }

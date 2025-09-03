@@ -4,8 +4,13 @@ import ".."
 
 Item {
     id: rootItem
-    signal leftClicked(int x, int y, int lineIndex)
-    signal rightClicked(int x, int y, int lineIndex)
+    signal leftClicked(int lineIndex, int x, int y)
+    signal rightClicked(int lineIndex, int x, int y)
+    signal leftPressed(int lineIndex, int x, int y)
+    signal rightPressed(int lineIndex, int x, int y)
+    signal leftReleased(int lineIndex, int x, int y)
+    signal rightReleased(int lineIndex, int x, int y)
+    signal mouseMoved(int lineIndex, int x, int y)
     property int _index: 0
     property int _patternIndex: 0
     property int _trackIndex: 0
@@ -72,9 +77,19 @@ Item {
         columnHeader.velocityScaleRequested.connect(() => UiService.requestColumnVelocityScaleDialog(_trackIndex, _index));
         lineContainer.leftClicked.connect(leftClicked);
         lineContainer.rightClicked.connect(rightClicked);
+        lineContainer.leftPressed.connect(leftPressed);
+        lineContainer.rightPressed.connect(rightPressed);
+        lineContainer.leftReleased.connect(leftReleased);
+        lineContainer.rightReleased.connect(rightReleased);
+        lineContainer.mouseMoved.connect(mouseMoved);
     }
     Component.onDestruction: {
         lineContainer.leftClicked.disconnect(leftClicked);
         lineContainer.rightClicked.disconnect(rightClicked);
+        lineContainer.leftPressed.disconnect(leftPressed);
+        lineContainer.rightPressed.disconnect(rightPressed);
+        lineContainer.leftReleased.disconnect(leftReleased);
+        lineContainer.rightReleased.disconnect(rightReleased);
+        lineContainer.mouseMoved.disconnect(mouseMoved);
     }
 }

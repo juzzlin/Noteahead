@@ -15,9 +15,9 @@
 
 #include "copy_manager.hpp"
 
-#include "../contrib/SimpleLogger/src/simple_logger.hpp"
-#include "../domain/pattern.hpp"
-#include "position.hpp"
+#include "../../contrib/SimpleLogger/src/simple_logger.hpp"
+#include "../../domain/pattern.hpp"
+#include "../position.hpp"
 
 namespace noteahead {
 
@@ -165,6 +165,20 @@ CopyManager::PositionList CopyManager::pushSourceSelection(const Pattern & patte
     return changedPositions;
 }
 
+size_t CopyManager::getMinLineIndex() const
+{
+    const auto it = std::ranges::min_element(m_copiedData,
+                                             [](const auto & a, const auto & b) { return a.first.line < b.first.line; });
+    return it != m_copiedData.end() ? it->first.line : 0;
+}
+
+size_t CopyManager::getMinColumnIndex() const
+{
+    const auto it = std::ranges::min_element(m_copiedData,
+                                             [](const auto & a, const auto & b) { return a.first.column < b.first.column; });
+    return it != m_copiedData.end() ? it->first.column : 0;
+}
+
 CopyManager::PositionList CopyManager::pasteSelection(PatternW targetPattern, const Position & targetPosition)
 {
     PositionList changedPositions;
@@ -172,13 +186,12 @@ CopyManager::PositionList CopyManager::pasteSelection(PatternW targetPattern, co
         throw std::runtime_error("Target pattern not set");
     } else if (!m_copiedData.empty()) {
         juzzlin::L(TAG).info() << "Pasting selection at " << targetPosition.toString();
-        // Find the minimum line index in m_copiedData
-        const auto minLineIt = std::ranges::min_element(m_copiedData,
-                                                        [](const auto & a, const auto & b) { return a.first.line < b.first.line; });
-        const auto minLine = (minLineIt != m_copiedData.end()) ? minLineIt->first.line : 0;
+        const auto minLine = getMinLineIndex();
+        const auto minColumn = getMinColumnIndex();
         for (const auto & [sourcePosition, noteData] : m_copiedData) {
             Position newTarget = targetPosition;
-            newTarget.line += sourcePosition.line - minLine; // Adjust relative to min line
+            newTarget.line += sourcePosition.line - minLine;
+            newTarget.column += sourcePosition.column - minColumn;
             if (locked->hasPosition(newTarget)) {
                 locked->setNoteDataAtPosition(noteData, newTarget);
                 changedPositions.push_back(newTarget);
