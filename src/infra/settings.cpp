@@ -25,6 +25,9 @@ const auto controllerPortKey = "controllerPort";
 const auto recentFilesArrayKey = "recentFilesArray";
 const auto recentFilesFilePathKey = "filePath";
 
+const auto recordingEnabledKey = "recordingEnabled";
+
+const auto settingsGroupAudio = "Audio";
 const auto settingsGroupEditor = "Editor";
 const auto settingsGroupMainWindow = "MainWindow";
 const auto settingsGroupMidi = "Midi";
@@ -158,6 +161,23 @@ void setVisibleLines(int visibleLines)
     QSettings settings;
     settings.beginGroup(settingsGroupEditor);
     settings.setValue(visibleLinesKey, visibleLines);
+    settings.endGroup();
+}
+
+bool recordingEnabled()
+{
+    QSettings settings;
+    settings.beginGroup(settingsGroupAudio);
+    const auto enabled = settings.value(recordingEnabledKey, false).toBool();
+    settings.endGroup();
+    return enabled;
+}
+
+void setRecordingEnabled(bool enabled)
+{
+    QSettings settings;
+    settings.beginGroup(settingsGroupAudio);
+    settings.setValue(recordingEnabledKey, enabled);
     settings.endGroup();
 }
 

@@ -50,6 +50,9 @@ public:
     Q_INVOKABLE int visibleLines() const;
     Q_INVOKABLE void setVisibleLines(int visibleLines);
 
+    Q_INVOKABLE bool recordingEnabled() const;
+    Q_INVOKABLE void setRecordingEnabled(bool enabled);
+
 signals:
     void controllerPortChanged();
 

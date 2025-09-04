@@ -41,6 +41,9 @@ void setVelocity(int velocity);
 int visibleLines(int defaultVisibleLines);
 void setVisibleLines(int visibleLines);
 
+bool recordingEnabled();
+void setRecordingEnabled(bool enabled);
+
 } // namespace noteahead::Settings
 
 #endif // SETTINGS_HPP

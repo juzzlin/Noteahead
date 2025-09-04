@@ -34,6 +34,7 @@ class Argengine;
 namespace noteahead {
 
 class ApplicationService;
+class AudioService;
 class AutomationService;
 class EditorService;
 class EventSelectionModel;
@@ -67,6 +68,7 @@ public:
 private:
     void applyAllInstruments();
     void applyAllMidiCcSettings();
+    void applyAudioRecording(bool isPlaying);
     void applyInstrument(size_t trackIndex, const Instrument & instrument);
     void applyMidiCcSettings(const Instrument & instrument);
     void applyMidiController();
@@ -104,6 +106,8 @@ private:
 
     std::unique_ptr<QGuiApplication> m_application;
     std::shared_ptr<ApplicationService> m_applicationService;
+
+    std::unique_ptr<AudioService> m_audioService;
 
     std::shared_ptr<AutomationService> m_automationService;
 

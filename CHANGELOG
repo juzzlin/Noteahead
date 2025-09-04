@@ -5,6 +5,10 @@ Release date:
 
 New features:
 
+* Experimental audio recoder
+  - Just enable recording in `Settings => Audio` and Noteahead will record from the default
+    audio source when the song starts and name the file according to active tracks
+
 * Implement a note frequency dialog
   - Tools => Note Frequencies
 

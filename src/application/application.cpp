@@ -30,6 +30,7 @@
 #include "models/track_settings_model.hpp"
 #include "note_converter.hpp"
 #include "service/application_service.hpp"
+#include "service/audio_service.hpp"
 #include "service/automation_service.hpp"
 #include "service/editor_service.hpp"
 #include "service/midi_service.hpp"
@@ -46,6 +47,9 @@
 #include <QQmlApplicationEngine>
 #include <QQmlContext>
 
+#include <iomanip>
+#include <regex>
+
 Q_DECLARE_METATYPE(noteahead::InstrumentRequest)
 Q_DECLARE_METATYPE(noteahead::Position)
 
@@ -57,6 +61,7 @@ Application::Application(int & argc, char ** argv)
   : m_uiLogger { std::make_unique<UiLogger>() }
   , m_application { std::make_unique<QGuiApplication>(argc, argv) }
   , m_applicationService { std::make_unique<ApplicationService>() }
+  , m_audioService { std::make_unique<AudioService>() }
   , m_automationService { std::make_unique<AutomationService>() }
   , m_settingsService { std::make_unique<SettingsService>() }
   , m_selectionService { std::make_unique<SelectionService>() }
@@ -401,8 +406,41 @@ void Application::connectPlayerService()
     connect(m_playerService.get(), &PlayerService::tickUpdated, m_editorService.get(), &EditorService::requestPositionByTick);
 
     connect(m_playerService.get(), &PlayerService::isPlayingChanged, this, [this]() {
-        m_midiService->setIsPlaying(m_playerService->isPlaying());
+        const auto isPlaying = m_playerService->isPlaying();
+        m_midiService->setIsPlaying(isPlaying);
+        if (m_settingsService->recordingEnabled()) {
+            applyAudioRecording(isPlaying);
+        }
     });
+}
+
+static QString sanitizeFileName(const QString & name)
+{
+    // Illegal filename characters (Windows safe set + space)
+    static const std::regex re(R"([\\\/:*?"<>|. ])");
+    return std::regex_replace(name.toStdString(), re, "_").c_str();
+}
+
+void Application::applyAudioRecording(bool isPlaying)
+{
+    if (isPlaying) {
+        if (const auto projectFileName = m_editorService->currentFileName(); !projectFileName.isEmpty()) {
+            QStringList activeTrackNames;
+            for (auto trackIndex : m_editorService->trackIndices()) {
+                if (m_mixerService->shouldTrackPlay(trackIndex)) {
+                    activeTrackNames << m_editorService->trackName(trackIndex);
+                }
+            }
+            const auto date = QDateTime::currentDateTime().toString("yyyyMMdd_HHmmss");
+            const auto audioFileName = QString { "%1_%2_%3.wav" }.arg(projectFileName, sanitizeFileName(activeTrackNames.join("_")), date);
+            juzzlin::L(TAG).info() << "Recording audio to " << std::quoted(audioFileName.toStdString());
+            m_audioService->startRecording(audioFileName);
+        } else {
+            m_applicationService->requestAlertDialog(tr("Save project before recording audio!"));
+        }
+    } else {
+        m_audioService->stopRecording();
+    }
 }
 
 void Application::connectEventSelectionModel()

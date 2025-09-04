@@ -1,8 +1,5 @@
 add_subdirectory(contrib/SimpleLogger EXCLUDE_FROM_ALL)
-include_directories(contrib/SimpleLogger/src)
-
 add_subdirectory(contrib/Argengine EXCLUDE_FROM_ALL)
-include_directories(contrib/Argengine/src)
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
@@ -24,6 +21,8 @@ set(HEADER_FILES
   application/note_converter.hpp
   application/position.hpp
   application/service/application_service.hpp
+  application/service/audio_service.hpp
+  application/service/audio_worker.hpp
   application/service/automation_service.hpp
   application/service/copy_manager.hpp
   application/service/editor_service.hpp
@@ -66,6 +65,8 @@ set(HEADER_FILES
   domain/play_order.hpp
   domain/song.hpp
   domain/track.hpp
+  infra/audio/audio_recorder.hpp
+  infra/audio/implementation/librtaudio/audio_recorder_rt_audio.hpp
   infra/midi/implementation/librtmidi/midi_in_rt_midi.hpp
   infra/midi/implementation/librtmidi/midi_out_rt_midi.hpp
   infra/midi/midi.hpp
@@ -96,6 +97,8 @@ set(SOURCE_FILES
   application/models/track_settings_model.cpp
   application/note_converter.cpp
   application/service/application_service.cpp
+  application/service/audio_service.cpp
+  application/service/audio_worker.cpp
   application/service/automation_service.cpp
   application/service/copy_manager.cpp
   application/service/editor_service.cpp
@@ -137,6 +140,8 @@ set(SOURCE_FILES
   domain/play_order.cpp
   domain/song.cpp
   domain/track.cpp
+  infra/audio/audio_recorder.cpp
+  infra/audio/implementation/librtaudio/audio_recorder_rt_audio.cpp
   infra/midi/implementation/librtmidi/midi_in_rt_midi.cpp
   infra/midi/implementation/librtmidi/midi_out_rt_midi.cpp
   infra/midi/midi.cpp
@@ -184,6 +189,9 @@ set(QML_SOURCE_FILES
     ${QML_BASE_DIR}/Dialogs/PitchBendAutomationModel.qml
     ${QML_BASE_DIR}/Dialogs/RecentFilesDialog.qml
     ${QML_BASE_DIR}/Dialogs/SettingsDialog.qml
+    ${QML_BASE_DIR}/Dialogs/SettingsDialogAudioSettings.qml
+    ${QML_BASE_DIR}/Dialogs/SettingsDialogGeneralSettings.qml
+    ${QML_BASE_DIR}/Dialogs/SettingsDialogMidiSettings.qml
     ${QML_BASE_DIR}/Dialogs/TrackSettingsDialog.qml
     ${QML_BASE_DIR}/Dialogs/UnsavedChangesDialog.qml
     ${QML_BASE_DIR}/Editor/Cursor.qml
@@ -240,10 +248,16 @@ qt_add_qml_module(${BINARY_NAME}
     RESOURCES ${SVG_SOURCE_FILES}
 )
 
+target_include_directories(${BINARY_NAME} PRIVATE contrib/SimpleLogger/src)
+target_include_directories(${BINARY_NAME} PRIVATE contrib/Argengine/src)
+target_include_directories(${BINARY_NAME} PRIVATE ${RTAUDIO_INCLUDE_DIRS})
+target_include_directories(${BINARY_NAME} PRIVATE ${SNDFILE_INCLUDE_DIRS})
+
 target_compile_definitions(${BINARY_NAME} PRIVATE $<$<OR:$<CONFIG:Debug>,$<CONFIG:RelWithDebInfo>>:QT_QML_DEBUG>)
 target_compile_definitions(${BINARY_NAME} PRIVATE QML_ROOT_DIR="${QML_ROOT_DIR}")
 target_compile_definitions(${BINARY_NAME} PRIVATE QML_ENTRY_POINT="${MAIN}")
-target_link_libraries(${BINARY_NAME} PRIVATE Qt6::Core Qt6::Quick rtmidi SimpleLogger_static Argengine_static)
+
+target_link_libraries(${BINARY_NAME} PRIVATE Qt6::Core Qt6::Quick rtmidi ${RTAUDIO_LIBRARIES} ${SNDFILE_LIBRARIES} SimpleLogger_static Argengine_static)
 
 include(${CMAKE_SOURCE_DIR}/cmake/DebianPackagingDefaultQt.cmake)
 

@@ -265,6 +265,16 @@ void ApplicationService::requestSaveAsTemplateDialog()
     emit saveAsTemplateDialogRequested();
 }
 
+void ApplicationService::requestAlertDialog(QString text)
+{
+    emit alertDialogRequested(text);
+}
+
+void ApplicationService::requestStatusText(QString text)
+{
+    emit statusTextRequested(text);
+}
+
 void ApplicationService::setRecentFilesManager(RecentFilesManagerS recentFilesManager)
 {
     m_recentFilesManager = recentFilesManager;

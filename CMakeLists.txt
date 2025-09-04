@@ -44,6 +44,12 @@ find_package(PkgConfig REQUIRED)
 # Use pkg-config to find RtMidi
 pkg_check_modules(RTMIDI REQUIRED rtmidi)
 
+# Use pkg-config to find RtAudio
+pkg_check_modules(RTAUDIO REQUIRED rtaudio)
+
+# Use pkg-config to find libsndfile
+pkg_check_modules(SNDFILE REQUIRED sndfile)
+
 # Sadly Ubuntu 24.04 LTS has only Qt 6.4.2
 find_package(QT NAMES Qt6 COMPONENTS Core REQUIRED)
 find_package(Qt6 6.4 COMPONENTS Core Quick Xml LinguistTools Test REQUIRED)

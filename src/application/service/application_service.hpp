@@ -90,6 +90,9 @@ public:
     void requestSaveAsDialog();
     void requestSaveAsTemplateDialog();
 
+    void requestAlertDialog(QString text);
+    void requestStatusText(QString text);
+
     using RecentFilesManagerS = std::shared_ptr<RecentFilesManager>;
     void setRecentFilesManager(RecentFilesManagerS recentFilesManager);
 
@@ -124,6 +127,7 @@ signals:
     void saveAsDialogRequested();
     void saveAsTemplateDialogRequested();
 
+    void alertDialogRequested(QString message);
     void statusTextRequested(QString message);
 
 private:

@@ -263,6 +263,10 @@ ApplicationWindow {
         setY(mainWindow.screen.height / 2 - height / 2);
     }
     function _connectApplicationService(): void {
+        applicationService.alertDialogRequested.connect(text => {
+                errorDialog.errorMessage = text;
+                errorDialog.open();
+            });
         applicationService.openDialogRequested.connect(openDialog.open);
         applicationService.recentFilesDialogRequested.connect(recentFilesDialog.open);
         applicationService.saveAsDialogRequested.connect(saveAsDialog.open);

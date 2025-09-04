@@ -99,6 +99,16 @@ void SettingsService::setVisibleLines(int visibleLines)
     }
 }
 
+bool SettingsService::recordingEnabled() const
+{
+    return Settings::recordingEnabled();
+}
+
+void SettingsService::setRecordingEnabled(bool enabled)
+{
+    return Settings::setRecordingEnabled(enabled);
+}
+
 SettingsService::~SettingsService() = default;
 
 } // namespace noteahead
