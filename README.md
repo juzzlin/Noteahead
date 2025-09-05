@@ -4,9 +4,17 @@ A simple MIDI tracker and sequencer for Linux focusing on ease of use. There are
 
 Written in Qt/QML/C++20 on top of RtMidi back-end. Builds with CMake and uses CTest + Qt Test framework for unit tests.
 
-Noteahead is designed to be especially a MIDI tracker so it has/will have features that make MIDI sequencing as easy as possible, e.g. setting filter cutoff or changing patch on-the-fly without entering cryptic hex values on a panning column.
+Noteahead is designed to be especially a MIDI tracker so it has/will have features that make MIDI sequencing as easy as possible, e.g. setting filter cutoff, changing patch on-the-fly or adding MIDI CC automations without entering cryptic hex values on a panning column.
 
-Noteahead is still a work in progress and there's some limitations and missing features. However, I'm already using it for my own music.
+Who is it for? What is the use-case?
+
+While it's all about DAWs today, Noteahead is for Linux musicians who enjoy the tracker workflow and want a lightweight, pattern-based MIDI sequencer instead of a full DAW. It’s built for fast, keyboard-driven sequencing of external synths and drum machines, with clear handling of patch changes, automation, and CCs — no cryptic hex values required. If you already use a DAW or mixer for audio, Noteahead can serve as the dedicated MIDI brain of your setup.
+
+Noteahead is still a work in progress and there's some limitations and missing features. However, I have already produced several songs with it, available on SoundCloud, YouTube Music, and Spotify (see some links below) and I'm quite happy with it.
+
+My own setup is such that I run Noteahead on Ubuntu 24.04 LTS and I have connected all my gear via USB-MIDI to hubs. The synths are routed to an external digital mixer which is connected to the PC also via USB. I record and master in Audacity with e.g. GVST plugins.
+
+I have tried to keep the scope of Noteahead very limited (only a MIDI sequencer), but I'm still working on an audio recorder feature so that I could record directly in Noteahead - either everything at once or track by track, which I seldom do as it's more work.
 
 <table>
   <tr>
@@ -27,42 +35,17 @@ Some example tracks sequenced with Noteahead (produced with Behringer X32 Produc
 
 <a href="https://open.spotify.com/track/6YNoAeZbB49p2bxoJA7gc1">Arctic Music Project - Epic Success (Spotify)</a>
 
-<a href="https://music.youtube.com/watch?v=Tx_oNrJlvd0">Arctic Music Project - Epic Success (YouTube)</a>
-
-<a href="https://soundcloud.com/arctic-music-project/epic-success">Arctic Music Project - Epic Success (SoundCloud)</a>
-
 ---
 
 <a href="https://open.spotify.com/track/3LRUJHsZFlk4Lj8qVeadX3">Arctic Music Project - Amen To Coffee (Spotify)</a>
-
-<a href="https://www.youtube.com/watch?v=ZuRyhguq3aE">Arctic Music Project - Amen To Coffee (YouTube)</a>
-
-<a href="https://soundcloud.com/arctic-music-project/amen-to-coffee-vodka-remix">Arctic Music Project - Amen To Coffee (SoundCloud)</a>
 
 ---
 
 <a href="https://open.spotify.com/track/04v9gwT7L0wKbrY8MbIRao">Arctic Music Project - Halla (Spotify)</a>
 
-<a href="https://www.youtube.com/watch?v=TBqsTLem6BM">Arctic Music Project - Halla (YouTube)</a>
-
-<a href="https://soundcloud.com/arctic-music-project/halla">Arctic Music Project - Halla (SoundCloud)</a>
-
----
-
-<a href="https://open.spotify.com/track/4Sz1Zpb14p9vn1NbtA9Gl9">Arctic Music Project - Awesome (Spotify)</a>
-
-<a href="https://www.youtube.com/watch?v=xRYCcsAtksU">Arctic Music Project - Awesome (YouTube)</a>
-
-<a href="https://soundcloud.com/arctic-music-project/awesome">Arctic Music Project - Awesome (SoundCloud)</a>
-
 ---
 
 <a href="https://open.spotify.com/track/5LV4oR82Ak4uA0kkKB6McX">J.L.P - This Planet (Spotify)</a>
-
-<a href="https://music.youtube.com/watch?v=si6Nz-OzKPw">J.L.P - This Planet (YouTube Music)</a>
-
-<a href="https://soundcloud.com/jussilindplays/this-planet">J.L.P - This Planet (SoundCloud)</a>
-
 <a href="https://www.youtube.com/watch?v=f_Cf_84eXcA">J.L.P - This Planet - Note Visualization Video (YouTube)</a>
 
 ##
