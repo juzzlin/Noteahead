@@ -51,6 +51,32 @@ AudioRecorderRtAudio::~AudioRecorderRtAudio()
     AudioRecorderRtAudio::stop();
 }
 
+void AudioRecorderRtAudio::initializeSoundFile(const std::string & fileName, unsigned int sampleRate, unsigned int channelCount)
+{
+    // Open WAV file: 24-bit PCM
+    m_sfInfo = {};
+    m_sfInfo.samplerate = static_cast<int>(sampleRate);
+    m_sfInfo.channels = static_cast<int>(channelCount);
+    m_sfInfo.format = SF_FORMAT_WAV | SF_FORMAT_PCM_24;
+
+    m_sndFile = sf_open(fileName.c_str(), SFM_WRITE, &m_sfInfo);
+    if (!m_sndFile) {
+        throw std::runtime_error("Error opening file: " + fileName);
+    }
+}
+
+void AudioRecorderRtAudio::initializeSoundStream(unsigned int deviceId, unsigned int channelCount, unsigned int sampleRate)
+{
+    RtAudio::StreamParameters iParams;
+    iParams.deviceId = deviceId;
+    iParams.nChannels = channelCount;
+    unsigned int bufferFrames = 256;
+    m_rtAudio.openStream(nullptr, &iParams, RTAUDIO_SINT32,
+                         sampleRate, &bufferFrames,
+                         &AudioRecorderRtAudio::recordCallback, this);
+    m_rtAudio.startStream();
+}
+
 void AudioRecorderRtAudio::start(const std::string & fileName)
 {
     if (!m_running) {
@@ -63,30 +89,14 @@ void AudioRecorderRtAudio::start(const std::string & fileName)
             const auto deviceId = m_rtAudio.getDefaultInputDevice();
             const auto deviceInfo = m_rtAudio.getDeviceInfo(deviceId);
             const unsigned int sampleRate = deviceInfo.preferredSampleRate ? deviceInfo.preferredSampleRate : 48000;
-            const unsigned int channels = std::min(deviceInfo.inputChannels, 2u);
+            const unsigned int channelCount = std::min(deviceInfo.inputChannels, 2u);
 
-            juzzlin::L(TAG).info() << "Recording from device: " << deviceInfo.name << ", " << sampleRate << " Hz, " << channels << " channels (24-bit WAV)";
+            juzzlin::L(TAG).info() << "Recording from device: " << deviceInfo.name << ", " << sampleRate << " Hz, " << channelCount << " channels (24-bit WAV)";
 
-            // Open WAV file: 24-bit PCM
-            m_sfInfo = {};
-            m_sfInfo.samplerate = static_cast<int>(sampleRate);
-            m_sfInfo.channels = static_cast<int>(channels);
-            m_sfInfo.format = SF_FORMAT_WAV | SF_FORMAT_PCM_24;
+            initializeSoundFile(fileName, sampleRate, channelCount);
 
-            m_sndFile = sf_open(fileName.c_str(), SFM_WRITE, &m_sfInfo);
-            if (!m_sndFile) {
-                throw std::runtime_error("Error opening file: " + fileName);
-            }
+            initializeSoundStream(deviceId, channelCount, sampleRate);
 
-            RtAudio::StreamParameters iParams;
-            iParams.deviceId = deviceId;
-            iParams.nChannels = channels;
-            unsigned int bufferFrames = 256;
-            m_rtAudio.openStream(nullptr, &iParams, RTAUDIO_SINT32,
-                                 sampleRate, &bufferFrames,
-                                 &AudioRecorderRtAudio::recordCallback, this);
-
-            m_rtAudio.startStream();
             m_running = true;
         } catch (std::exception & e) {
             juzzlin::L(TAG).error() << e.what();
@@ -99,10 +109,12 @@ void AudioRecorderRtAudio::stop()
 {
     if (m_running) {
         try {
-            if (m_rtAudio.isStreamRunning())
+            if (m_rtAudio.isStreamRunning()) {
                 m_rtAudio.stopStream();
-            if (m_rtAudio.isStreamOpen())
+            }
+            if (m_rtAudio.isStreamOpen()) {
                 m_rtAudio.closeStream();
+            }
         } catch (std::exception & e) {
             juzzlin::L(TAG).error() << e.what();
             stop();

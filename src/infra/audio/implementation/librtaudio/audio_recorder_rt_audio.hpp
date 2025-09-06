@@ -42,6 +42,10 @@ private:
                               unsigned int nFrames, double streamTime,
                               RtAudioStreamStatus status, void * userData);
 
+    void initializeSoundFile(const std::string & fileName, unsigned int sampleRate, unsigned int channelCount);
+
+    void initializeSoundStream(unsigned int deviceId, unsigned int channelCount, unsigned int sampleRate);
+
     RtAudio m_rtAudio;
 
     SNDFILE * m_sndFile = nullptr;
