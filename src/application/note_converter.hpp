@@ -21,7 +21,7 @@ using MidiNoteNameAndCode = std::pair<std::string, uint8_t>;
 using MidiNoteNameAndCodeOpt = std::optional<MidiNoteNameAndCode>;
 //! Converts key [1..12] and octave to a MIDI note [0..127] and "key-octave" code pair optional.
 //! \returns a nullopt on invalid key.
-MidiNoteNameAndCodeOpt keyAndOctaveToMidiNote(uint8_t key, uint8_t octave);
+MidiNoteNameAndCodeOpt keyAndOctaveToMidiNote(uint8_t key, uint8_t octave, int transpose = 0);
 
 } // namespace noteahead::NoteConverter
 

@@ -65,7 +65,7 @@ std::pair<uint8_t, uint8_t> midiToKeyAndOctave(uint8_t midiNote)
     return { midiNote % 12 + 1, midiNote / 12 };
 }
 
-NoteConverter::MidiNoteNameAndCodeOpt keyAndOctaveToMidiNote(uint8_t key, uint8_t octave)
+NoteConverter::MidiNoteNameAndCodeOpt keyAndOctaveToMidiNote(uint8_t key, uint8_t octave, int transpose)
 {
     if (key < 1 || key > 12) {
         juzzlin::L(TAG).error() << "Invalid key value: " << static_cast<int>(key) << ". Valid range is 1..12.";
@@ -76,8 +76,17 @@ NoteConverter::MidiNoteNameAndCodeOpt keyAndOctaveToMidiNote(uint8_t key, uint8_
         "C-", "C#", "D-", "D#", "E-", "F-", "F#", "G-", "G#", "A-", "A#", "B-"
     };
 
-    const auto midiNote = static_cast<uint8_t>(12 * octave + (key - 1));
+    // Calculate transposed note
+    int rawNote = 12 * octave + (key - 1) + transpose;
+
+    // If out of MIDI range, return nullopt
+    if (rawNote < 0 || rawNote > 127) {
+        juzzlin::L(TAG).warning() << "Note out of MIDI range: " << rawNote;
+        return {};
+    }
+
     const auto noteName = keyNames.at(key - 1) + std::to_string(octave);
+    const auto midiNote = static_cast<uint8_t>(rawNote);
 
     return { { noteName, midiNote } };
 }

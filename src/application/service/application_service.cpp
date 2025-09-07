@@ -135,7 +135,7 @@ void ApplicationService::requestSaveProjectAsTemplate()
 void ApplicationService::requestLiveNoteOn(quint8 key, quint8 octave, quint8 velocity)
 {
     if (const auto instrument = m_editorService->instrument(m_editorService->position().track); instrument) {
-        if (const auto midiNote = NoteConverter::keyAndOctaveToMidiNote(key, octave); midiNote.has_value()) {
+        if (const auto midiNote = NoteConverter::keyAndOctaveToMidiNote(key, octave, instrument->settings().transpose); midiNote.has_value()) {
             juzzlin::L(TAG).debug() << "Live note ON " << midiNote->first << " requested on instrument " << instrument->toString().toStdString();
             emit liveNoteOnRequested(instrument, { midiNote->second, velocity });
         }
@@ -159,7 +159,7 @@ void ApplicationService::requestAllNotesOff()
 void ApplicationService::requestLiveNoteOff(quint8 key, quint8 octave)
 {
     if (const auto instrument = m_editorService->instrument(m_editorService->position().track); instrument) {
-        if (const auto midiNote = NoteConverter::keyAndOctaveToMidiNote(key, octave); midiNote.has_value()) {
+        if (const auto midiNote = NoteConverter::keyAndOctaveToMidiNote(key, octave, instrument->settings().transpose); midiNote.has_value()) {
             juzzlin::L(TAG).debug() << "Live note OFF " << midiNote->first << " requested on instrument " << instrument->toString().toStdString();
             emit liveNoteOffRequested(instrument, { midiNote->second, 0 });
         }
