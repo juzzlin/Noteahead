@@ -70,7 +70,7 @@ void AudioRecorderRtAudio::initializeSoundStream(unsigned int deviceId, unsigned
     RtAudio::StreamParameters iParams;
     iParams.deviceId = deviceId;
     iParams.nChannels = channelCount;
-    unsigned int bufferFrames = 256;
+    unsigned int bufferFrames = 1024;
     m_rtAudio.openStream(nullptr, &iParams, RTAUDIO_SINT32,
                          sampleRate, &bufferFrames,
                          &AudioRecorderRtAudio::recordCallback, this);
