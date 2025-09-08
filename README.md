@@ -275,12 +275,14 @@ I have tested Noteahead with at least these devices (USB MIDI):
 * Behringer Solina String Ensemble
 * Behringer TD-3-MO
 * Behringer VC340
+* Eventide SPACE
 * Korg Electribe 2
 * Korg KROSS
 * Korg Minilogue XD
 * Korg Monologue
 * Novation Bass Station II
 * Roland SP-404 MK II
+* Roland TR-8S
 * Yamaha CP4
 
 ##
