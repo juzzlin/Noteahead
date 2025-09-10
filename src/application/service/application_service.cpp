@@ -144,6 +144,16 @@ void ApplicationService::requestLiveNoteOn(quint8 key, quint8 octave, quint8 vel
     }
 }
 
+void ApplicationService::requestLiveNoteOnAtCurrentPosition()
+{
+    if (const auto instrument = m_editorService->instrument(m_editorService->position().track); instrument) {
+        juzzlin::L(TAG).debug() << "Live note ON requested on instrument " << instrument->toString().toStdString();
+        emit liveNoteOnAtCurrentPositionRequested(instrument);
+    } else {
+        juzzlin::L(TAG).info() << "No instrument set on track!";
+    }
+}
+
 void ApplicationService::requestInstrumentReset()
 {
     juzzlin::L(TAG).info() << "Instrument reset requested";

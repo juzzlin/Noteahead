@@ -162,11 +162,16 @@ QtObject {
         if (UiService.editMode()) {
             if (editorService.isAtNoteColumn()) {
                 _handleNoteInserted(event);
+                if (!event.isAutoRepeat) {
+                    _handleLiveNoteTriggered(event);
+                }
             } else if (editorService.isAtVelocityColumn()) {
                 _handleVelocityInserted(event);
+                if (!event.isAutoRepeat) {
+                    applicationService.requestLiveNoteOnAtCurrentPosition();
+                }
             }
-        }
-        if (!event.isAutoRepeat) {
+        } else if (!event.isAutoRepeat) {
             _handleLiveNoteTriggered(event);
         }
     }

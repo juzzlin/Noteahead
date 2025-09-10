@@ -68,6 +68,7 @@ public:
     Q_INVOKABLE void requestAllNotesOff();
     Q_INVOKABLE void requestLiveNoteOff(quint8 key, quint8 octave);
     Q_INVOKABLE void requestLiveNoteOn(quint8 key, quint8 octave, quint8 velocity);
+    Q_INVOKABLE void requestLiveNoteOnAtCurrentPosition();
 
     Q_INVOKABLE void requestInstrumentReset();
 
@@ -114,6 +115,7 @@ signals:
     void applyAllTrackSettingsRequested();
 
     void allNotesOffRequested();
+    void liveNoteOnAtCurrentPositionRequested(InstrumentS instrument);
     void liveNoteOnRequested(InstrumentS instrument, MidiNoteDataCR data);
     void liveNoteOffRequested(InstrumentS instrument, MidiNoteDataCR data);
 

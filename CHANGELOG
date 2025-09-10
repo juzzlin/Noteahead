@@ -20,6 +20,8 @@ Bug fixes:
 
 * Take transpose into account when playing live notes
 
+* Play correct live note when editing velocity
+
 Other:
 
 0.11.0

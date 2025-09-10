@@ -250,6 +250,11 @@ void Application::connectServices()
 void Application::connectApplicationService()
 {
     connect(m_applicationService.get(), &ApplicationService::applyAllTrackSettingsRequested, this, &Application::applyAllInstruments);
+    connect(m_applicationService.get(), &ApplicationService::liveNoteOnAtCurrentPositionRequested, [this](std::shared_ptr<Instrument> instrument) {
+        if (const auto noteData = m_editorService->song()->noteDataAtPosition(m_editorService->position()); noteData && noteData->note().has_value() && instrument) {
+            m_midiService->playNote(instrument, { *noteData->note(), noteData->velocity() });
+        }
+    });
     connect(m_applicationService.get(), &ApplicationService::liveNoteOnRequested, m_midiService.get(), &MidiService::playNote);
     connect(m_applicationService.get(), &ApplicationService::liveNoteOffRequested, m_midiService.get(), &MidiService::stopNote);
     connect(m_applicationService.get(), &ApplicationService::allNotesOffRequested, this, &Application::stopAllNotes);
