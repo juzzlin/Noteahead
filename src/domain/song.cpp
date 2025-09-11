@@ -594,7 +594,7 @@ std::chrono::milliseconds Song::lineToTime(size_t line) const
 std::chrono::milliseconds Song::duration(size_t startPosition) const
 {
     std::chrono::milliseconds d {};
-    for (auto && pattern : m_playOrder->flatten(m_length - startPosition, startPosition)) {
+    for (auto && pattern : m_playOrder->getPatterns(m_length - startPosition, startPosition)) {
         d += tickToTime(m_patterns.at(pattern)->lineCount() * m_ticksPerLine);
     }
     return d;

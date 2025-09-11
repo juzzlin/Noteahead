@@ -37,7 +37,7 @@ size_t PlayOrder::length() const
     return m_positionToPattern.size();
 }
 
-PlayOrder::PatternList PlayOrder::flatten(size_t songLength, size_t startPosition) const
+PlayOrder::PatternList PlayOrder::getPatterns(size_t songLength, size_t startPosition) const
 {
     PatternList patternList;
 

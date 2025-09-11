@@ -42,15 +42,15 @@ void PlayOrderTest::test_insertPattern_shouldInsertPattern()
     QCOMPARE(playOrder.positionToPattern(3), 2);
 }
 
-void PlayOrderTest::test_flatten_shouldReturnCorrectMapping()
+void PlayOrderTest::test_getPatterns_shouldReturnCorrectPatterns()
 {
     PlayOrder playOrder;
     playOrder.setPatternAtPosition(0, 10);
     playOrder.setPatternAtPosition(1, 11);
 
-    QCOMPARE(playOrder.flatten(2).at(0), 10);
-    QCOMPARE(playOrder.flatten(2).at(1), 11);
-    QCOMPARE(playOrder.flatten(3).at(2), 0);
+    QCOMPARE(playOrder.getPatterns(2).at(0), 10);
+    QCOMPARE(playOrder.getPatterns(2).at(1), 11);
+    QCOMPARE(playOrder.getPatterns(3).at(2), 0);
 }
 
 void PlayOrderTest::test_length_shouldReturnCorrectLength()

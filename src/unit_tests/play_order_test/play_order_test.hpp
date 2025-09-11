@@ -30,7 +30,7 @@ private slots:
 
     void test_insertPattern_shouldInsertPattern();
 
-    void test_flatten_shouldReturnCorrectMapping();
+    void test_getPatterns_shouldReturnCorrectPatterns();
 
     void test_length_shouldReturnCorrectLength();
 
