@@ -27,6 +27,7 @@ My own setup runs Noteahead on Ubuntu 24.04 LTS with all gear connected via USB-
 
 Some example tracks sequenced with Noteahead (produced with Behringer X32 Producer and Audacity):
 
+- [Arctic Music Project - Headache (SoundCloud)](https://soundcloud.com/arctic-music-project/headache)
 - [Arctic Music Project - Endless (SoundCloud)](https://soundcloud.com/arctic-music-project/endless)
 - [Arctic Music Project - Epic Success (Spotify)](https://open.spotify.com/track/6YNoAeZbB49p2bxoJA7gc1)
 - [Arctic Music Project - Amen To Coffee (Spotify)](https://open.spotify.com/track/3LRUJHsZFlk4Lj8qVeadX3)
