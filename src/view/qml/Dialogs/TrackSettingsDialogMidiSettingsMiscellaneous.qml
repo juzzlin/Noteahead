@@ -9,6 +9,11 @@ GroupBox {
     title: qsTr("Miscellanous MIDI Settings")
     Layout.fillWidth: true
     width: parent.width
+    function initialize(): void {
+        sendMidiClockCheckbox.checked = trackSettingsModel.sendMidiClock;
+        delaySpinBox.value = trackSettingsModel.delay;
+        transposeSpinBox.value = trackSettingsModel.transpose;
+    }
     ColumnLayout {
         spacing: 8
         width: parent.width

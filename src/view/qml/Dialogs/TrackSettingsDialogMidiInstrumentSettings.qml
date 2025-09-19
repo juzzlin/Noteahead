@@ -6,6 +6,22 @@ import ".."
 
 GroupBox {
     title: qsTr("MIDI Instrument Settings")
+    function initialize(): void {
+        portNameDropdown.setSelected(trackSettingsModel.portName);
+        channelDropdown.setSelected(trackSettingsModel.channel + 1);
+        enableBankCheckbox.checked = trackSettingsModel.bankEnabled;
+        bankLsbSpinBox.value = trackSettingsModel.bankLsb;
+        bankMsbSpinBox.value = trackSettingsModel.bankMsb;
+        swapBankByteOrderCheckBox.checked = trackSettingsModel.bankByteOrderSwapped;
+        enablePatchCheckbox.checked = trackSettingsModel.patchEnabled;
+        patchSpinBox.value = trackSettingsModel.patch;
+    }
+    function _requestTestSound(): void {
+        if (visible) {
+            trackSettingsModel.applyAll();
+            testSoundTimer.restart();
+        }
+    }
     ColumnLayout {
         spacing: 8
         width: parent.width
