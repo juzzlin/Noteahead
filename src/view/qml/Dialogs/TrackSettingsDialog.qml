@@ -10,7 +10,6 @@ Dialog {
     id: rootItem
     title: "<strong>" + qsTr("Settings for track") + ` '${editorService.trackName(trackSettingsModel.trackIndex)}'` + "</strong>"
     modal: true
-    property var _midiCcSelectors: []
     property bool _initializing: false
     readonly property string _tag: "TrackSettingsDialog"
     function setTrackIndex(trackIndex) {
@@ -19,45 +18,14 @@ Dialog {
     }
     function initialize() {
         uiLogger.info(_tag, "Initializing");
-        portNameDropdown.setSelected(trackSettingsModel.portName);
-        channelDropdown.setSelected(trackSettingsModel.channel + 1);
-        enableBankCheckbox.checked = trackSettingsModel.bankEnabled;
-        bankLsbSpinBox.value = trackSettingsModel.bankLsb;
-        bankMsbSpinBox.value = trackSettingsModel.bankMsb;
-        swapBankByteOrderCheckBox.checked = trackSettingsModel.bankByteOrderSwapped;
-        enableCutoffCheckbox.checked = trackSettingsModel.cutoffEnabled;
-        cutoffSpinBox.value = trackSettingsModel.cutoff;
-        enablePatchCheckbox.checked = trackSettingsModel.patchEnabled;
-        patchSpinBox.value = trackSettingsModel.patch;
-        enablePanCheckbox.checked = trackSettingsModel.panEnabled;
-        panSpinBox.value = trackSettingsModel.pan;
-        enableVolumeCheckbox.checked = trackSettingsModel.volumeEnabled;
-        volumeSpinBox.value = trackSettingsModel.volume;
-        sendMidiClockCheckbox.checked = trackSettingsModel.sendMidiClock;
-        delaySpinBox.value = trackSettingsModel.delay;
-        transposeSpinBox.value = trackSettingsModel.transpose;
-        initializeMidiCcSelectors();
-    }
-    function initializeMidiCcSelectors() {
-        for (const midiCcSelector of _midiCcSelectors) {
-            midiCcSelector.initialize(trackSettingsModel.midiCcEnabled(midiCcSelector.index), trackSettingsModel.midiCcController(midiCcSelector.index), trackSettingsModel.midiCcValue(midiCcSelector.index));
-        }
+        midiInstrumentSettings.initialize();
+        midiCcSettingsPredefined.initialize();
+        midiCcSettingsMiscellaneous.initialize();
+        midiCcSettingsGeneric.initialize();
     }
     function saveSettings() {
         trackSettingsModel.applyAll();
         trackSettingsModel.save();
-    }
-    function _requestApplyAll() {
-        trackSettingsModel.applyAll();
-    }
-    function _requestApplyMidiCc() {
-        trackSettingsModel.applyMidiCc();
-    }
-    function _requestTestSound() {
-        if (rootItem.visible) {
-            _requestApplyAll();
-            testSoundTimer.restart();
-        }
     }
     Timer {
         id: testSoundTimer
@@ -92,15 +60,19 @@ Dialog {
         anchors.fill: parent
         spacing: 12
         TrackSettingsDialogMidiInstrumentSettings {
+            id: midiInstrumentSettings
             Layout.fillWidth: true
         }
         TrackSettingsDialogMidiCcSettingsPredefined {
+            id: midiCcSettingsPredefined
             Layout.fillWidth: true
         }
         TrackSettingsDialogMidiCcSettingsGeneric {
+            id: midiCcSettingsGeneric
             Layout.fillWidth: true
         }
         TrackSettingsDialogMidiSettingsMiscellaneous {
+            id: midiCcSettingsMiscellaneous
             Layout.fillWidth: true
         }
     }

@@ -7,6 +7,14 @@ import ".."
 GroupBox {
     title: qsTr("Pre-defined MIDI CC Settings")
     Layout.fillWidth: true
+    function initialize(): void {
+        enableCutoffCheckbox.checked = trackSettingsModel.cutoffEnabled;
+        cutoffSpinBox.value = trackSettingsModel.cutoff;
+        enablePanCheckbox.checked = trackSettingsModel.panEnabled;
+        panSpinBox.value = trackSettingsModel.pan;
+        enableVolumeCheckbox.checked = trackSettingsModel.volumeEnabled;
+        volumeSpinBox.value = trackSettingsModel.volume;
+    }
     ColumnLayout {
         spacing: 8
         width: parent.width

@@ -8,6 +8,12 @@ GroupBox {
     title: qsTr("Generic MIDI CC Settings")
     Layout.fillWidth: true
     width: parent.width
+    property var _midiCcSelectors: []
+    function initialize(): void {
+        for (const midiCcSelector of _midiCcSelectors) {
+            midiCcSelector.initialize(trackSettingsModel.midiCcEnabled(midiCcSelector.index), trackSettingsModel.midiCcController(midiCcSelector.index), trackSettingsModel.midiCcValue(midiCcSelector.index));
+        }
+    }
     ColumnLayout {
         spacing: 8
         width: parent.width
@@ -23,7 +29,7 @@ GroupBox {
                         trackSettingsModel.setMidiCcEnabled(item.index, item.enabled());
                         trackSettingsModel.setMidiCcController(item.index, item.controller());
                         trackSettingsModel.setMidiCcValue(item.index, item.value());
-                        rootItem._requestApplyAll();
+                        trackSettingsModel.applyAll();
                     });
             }
         }
