@@ -193,6 +193,10 @@ set(QML_SOURCE_FILES
     ${QML_BASE_DIR}/Dialogs/SettingsDialogGeneralSettings.qml
     ${QML_BASE_DIR}/Dialogs/SettingsDialogMidiSettings.qml
     ${QML_BASE_DIR}/Dialogs/TrackSettingsDialog.qml
+    ${QML_BASE_DIR}/Dialogs/TrackSettingsDialogMidiCcSettingsGeneric.qml
+    ${QML_BASE_DIR}/Dialogs/TrackSettingsDialogMidiCcSettingsPredefined.qml
+    ${QML_BASE_DIR}/Dialogs/TrackSettingsDialogMidiInstrumentSettings.qml
+    ${QML_BASE_DIR}/Dialogs/TrackSettingsDialogMidiSettingsMiscellaneous.qml
     ${QML_BASE_DIR}/Dialogs/UnsavedChangesDialog.qml
     ${QML_BASE_DIR}/Editor/Cursor.qml
     ${QML_BASE_DIR}/Editor/EditorView.qml
