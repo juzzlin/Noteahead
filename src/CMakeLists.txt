@@ -33,6 +33,7 @@ set(HEADER_FILES
   application/service/mixer_service.hpp
   application/service/player_service.hpp
   application/service/player_worker.hpp
+  application/service/random_service.hpp
   application/service/recent_files_manager.hpp
   application/service/selection_service.hpp
   application/service/settings_service.hpp
@@ -109,6 +110,7 @@ set(SOURCE_FILES
   application/service/mixer_service.cpp
   application/service/player_service.cpp
   application/service/player_worker.cpp
+  application/service/random_service.cpp
   application/service/recent_files_manager.cpp
   application/service/selection_service.cpp
   application/service/settings_service.cpp
@@ -260,6 +262,10 @@ target_include_directories(${BINARY_NAME} PRIVATE ${SNDFILE_INCLUDE_DIRS})
 target_compile_definitions(${BINARY_NAME} PRIVATE $<$<OR:$<CONFIG:Debug>,$<CONFIG:RelWithDebInfo>>:QT_QML_DEBUG>)
 target_compile_definitions(${BINARY_NAME} PRIVATE QML_ROOT_DIR="${QML_ROOT_DIR}")
 target_compile_definitions(${BINARY_NAME} PRIVATE QML_ENTRY_POINT="${MAIN}")
+
+if(ENABLE_MIDI_DEBUG)
+  target_compile_definitions(${BINARY_NAME} PRIVATE ENABLE_MIDI_DEBUG)
+endif()
 
 target_link_libraries(${BINARY_NAME} PRIVATE Qt6::Core Qt6::Quick rtmidi ${RTAUDIO_LIBRARIES} ${SNDFILE_LIBRARIES} SimpleLogger_static Argengine_static)
 

@@ -73,6 +73,9 @@ public:
     //! Applies delay as ticks.
     void applyDelay(std::chrono::milliseconds delay, double msPerTick);
 
+    //! Applies random velocity jitter.
+    void applyVelocityJitter(int percentage);
+
     //! Convenience function to transpose note data (if set).
     void transpose(int semitones);
 

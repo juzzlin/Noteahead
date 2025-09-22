@@ -61,6 +61,8 @@ class TrackSettingsModel : public MidiCcSelectionModel
     Q_PROPERTY(int delay READ delay WRITE setDelay NOTIFY delayChanged)
     Q_PROPERTY(int transpose READ transpose WRITE setTranspose NOTIFY transposeChanged)
 
+    Q_PROPERTY(int velocityJitter READ velocityJitter WRITE setVelocityJitter NOTIFY velocityJitterChanged)
+
 public:
     explicit TrackSettingsModel(QObject * parent = nullptr);
 
@@ -137,6 +139,9 @@ public:
     int transpose() const;
     void setTranspose(int transpose);
 
+    int velocityJitter() const;
+    void setVelocityJitter(int velocityJitter);
+
 signals:
     void applyAllRequested();
     void applyMidiCcRequested();
@@ -180,6 +185,8 @@ signals:
     void delayChanged();
     void transposeChanged();
 
+    void velocityJitterChanged();
+
 private:
     void pushApplyDisabled();
     void popApplyDisabled();
@@ -218,6 +225,8 @@ private:
 
     int m_delay { 0 };
     int m_transpose { 0 };
+
+    int m_velocityJitter { 0 };
 };
 
 } // namespace noteahead

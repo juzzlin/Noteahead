@@ -13,6 +13,7 @@ GroupBox {
         sendMidiClockCheckbox.checked = trackSettingsModel.sendMidiClock;
         delaySpinBox.value = trackSettingsModel.delay;
         transposeSpinBox.value = trackSettingsModel.transpose;
+        velocityJitterSpinBox.value = trackSettingsModel.velocityJitter;
     }
     ColumnLayout {
         spacing: 8
@@ -72,6 +73,29 @@ GroupBox {
             }
             LayoutSeparator {
                 Layout.row: 1
+            }
+            Label {
+                text: qsTr("Velocity jitter (%):")
+                Layout.column: 0
+                Layout.row: 2
+                Layout.fillWidth: true
+            }
+            SpinBox {
+                id: velocityJitterSpinBox
+                from: 0
+                to: 100
+                editable: true
+                Layout.column: 2
+                Layout.row: 2
+                Layout.fillWidth: true
+                ToolTip.delay: Constants.toolTipDelay
+                ToolTip.timeout: Constants.toolTipTimeout
+                ToolTip.visible: hovered
+                ToolTip.text: qsTr("Set jitter on MIDI velocity to simulate e.g. a more natural piano")
+                onValueChanged: {
+                    trackSettingsModel.velocityJitter = value;
+                }
+                Keys.onReturnPressed: focus = false
             }
             Label {
                 text: qsTr("Transpose (semitones):")

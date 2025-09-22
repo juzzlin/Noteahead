@@ -64,6 +64,7 @@ void InstrumentSettings::serializeToXml(QXmlStreamWriter & writer) const
 
     writer.writeAttribute(Constants::NahdXml::xmlKeyDelay(), QString::number(delay.count()));
     writer.writeAttribute(Constants::NahdXml::xmlKeyTranspose(), QString::number(transpose));
+    writer.writeAttribute(Constants::NahdXml::xmlKeyVelocityJitter(), QString::number(velocityJitter));
 
     for (auto && midiCcSetting : midiCcSettings) {
         midiCcSetting.serializeToXml(writer);
@@ -92,6 +93,7 @@ InstrumentSettings::InstrumentSettingsU InstrumentSettings::deserializeFromXml(Q
     settings->sendTransport = Utils::Xml::readBoolAttribute(reader, Constants::NahdXml::xmlKeySendTransport(), false);
     settings->delay = std::chrono::milliseconds { Utils::Xml::readIntAttribute(reader, Constants::NahdXml::xmlKeyDelay(), false).value_or(0) };
     settings->transpose = Utils::Xml::readIntAttribute(reader, Constants::NahdXml::xmlKeyTranspose(), false).value_or(0);
+    settings->velocityJitter = Utils::Xml::readIntAttribute(reader, Constants::NahdXml::xmlKeyVelocityJitter(), false).value_or(0);
 
     while (!(reader.isEndElement() && !reader.name().compare(Constants::NahdXml::xmlKeyInstrumentSettings()))) {
         juzzlin::L(TAG).trace() << "InstrumentSettings: Current element: " << reader.name().toString().toStdString();

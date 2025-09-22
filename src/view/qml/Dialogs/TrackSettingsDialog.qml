@@ -20,8 +20,8 @@ Dialog {
         uiLogger.info(_tag, "Initializing");
         midiInstrumentSettings.initialize();
         midiCcSettingsPredefined.initialize();
-        midiCcSettingsMiscellaneous.initialize();
         midiCcSettingsGeneric.initialize();
+        midiSettingsMiscellaneous.initialize();
     }
     function saveSettings() {
         trackSettingsModel.applyAll();
@@ -72,7 +72,7 @@ Dialog {
             Layout.fillWidth: true
         }
         TrackSettingsDialogMidiSettingsMiscellaneous {
-            id: midiCcSettingsMiscellaneous
+            id: midiSettingsMiscellaneous
             Layout.fillWidth: true
         }
     }

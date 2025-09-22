@@ -159,6 +159,11 @@ QString xmlKeyTranspose()
     return "transpose";
 }
 
+QString xmlKeyVelocityJitter()
+{
+    return "velocityJitter";
+}
+
 QString xmlKeyIndex()
 {
     return "index";

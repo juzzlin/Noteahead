@@ -248,6 +248,7 @@ void TrackSettingsModel::setInstrumentData(const Instrument & instrument)
 
     setDelay(static_cast<int>(instrument.settings().delay.count()));
     setTranspose(instrument.settings().transpose);
+    setVelocityJitter(instrument.settings().velocityJitter);
 
     setMidiCcSettings(instrument.settings().midiCcSettings);
 
@@ -283,6 +284,7 @@ void TrackSettingsModel::reset()
     m_sendTransport = false;
     m_delay = 0;
     m_transpose = 0;
+    m_velocityJitter = 0;
 
     setMidiCcSettings({});
 
@@ -323,6 +325,7 @@ TrackSettingsModel::InstrumentU TrackSettingsModel::toInstrument() const
     settings.sendTransport = m_sendTransport;
     settings.delay = std::chrono::milliseconds { m_delay };
     settings.transpose = m_transpose;
+    settings.velocityJitter = m_velocityJitter;
     settings.midiCcSettings = midiCcSettings();
     instrument->setSettings(settings);
 
@@ -500,6 +503,21 @@ void TrackSettingsModel::setTranspose(int transpose)
     if (m_transpose != transpose) {
         m_transpose = transpose;
         emit transposeChanged();
+    }
+}
+
+int TrackSettingsModel::velocityJitter() const
+{
+    return m_velocityJitter;
+}
+
+void TrackSettingsModel::setVelocityJitter(int velocityJitter)
+{
+    juzzlin::L(TAG).debug() << "Setting velocty jitter to " << velocityJitter;
+
+    if (m_velocityJitter != velocityJitter) {
+        m_velocityJitter = velocityJitter;
+        emit velocityJitterChanged();
     }
 }
 

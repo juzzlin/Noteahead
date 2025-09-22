@@ -622,7 +622,7 @@ void Song::updateTickToSongPositionMapping(size_t patternStartTick, size_t songP
     }
 }
 
-Song::EventList Song::assignInstruments(EventListCR events) const
+Song::EventList Song::applyInstrumentsOnEvents(EventListCR events) const
 {
     Song::EventList processedEvents;
 
@@ -643,6 +643,7 @@ Song::EventList Song::assignInstruments(EventListCR events) const
                 event->setInstrument(instrument(noteData->track()));
                 if (event->instrument()) {
                     event->applyDelay(event->instrument()->settings().delay - delayOffset, msPerTick);
+                    event->applyVelocityJitter(event->instrument()->settings().velocityJitter);
                     event->transpose(event->instrument()->settings().transpose);
                 }
             }
@@ -779,7 +780,7 @@ Song::EventList Song::renderToEvents(AutomationServiceS automationService, size_
 
 Song::EventList Song::renderToEvents(AutomationServiceS automationService, size_t startPosition, size_t endPosition)
 {
-    return assignInstruments(renderContent(automationService, startPosition, endPosition));
+    return applyInstrumentsOnEvents(renderContent(automationService, startPosition, endPosition));
 }
 
 void Song::serializeToXml(QXmlStreamWriter & writer, MixerSerializationCallback mixerSerializationCallback, AutomationSerializationCallback automationSerializationCallback) const

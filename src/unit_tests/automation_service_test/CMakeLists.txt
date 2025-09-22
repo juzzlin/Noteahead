@@ -5,6 +5,7 @@ set(SRC
     ${NAME}.hpp
     ../../application/position.hpp
     ../../application/service/automation_service.cpp
+    ../../application/service/random_service.cpp
     ../../common/constants.cpp
     ../../common/utils.cpp
     ../../domain/automation.cpp

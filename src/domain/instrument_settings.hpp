@@ -60,6 +60,7 @@ public:
 
     std::chrono::milliseconds delay { 0 };
     int transpose { 0 };
+    int velocityJitter { 0 };
 
     std::vector<MidiCcSetting> midiCcSettings;
 

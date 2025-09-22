@@ -206,7 +206,7 @@ private:
     using TrackAndColumn = std::pair<int, int>;
     using ActiveNoteMap = std::map<TrackAndColumn, std::set<uint8_t>>;
     using EventListCR = const EventList &;
-    EventList assignInstruments(EventListCR events) const;
+    EventList applyInstrumentsOnEvents(EventListCR events) const;
     EventList generateNoteOffsForActiveNotes(TrackAndColumn trackAndcolumn, size_t tick, ActiveNoteMap & activeNotes) const;
     EventList generateAutoNoteOffsForDanglingNotes(size_t tick, ActiveNoteMap & activeNotes) const;
     EventList generateNoteOffs(EventListCR events) const;

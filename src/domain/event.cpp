@@ -15,8 +15,7 @@
 
 #include "event.hpp"
 
-#include "instrument.hpp"
-#include "instrument_settings.hpp"
+#include "../application/service/random_service.hpp"
 
 namespace noteahead {
 
@@ -57,6 +56,22 @@ Event::Event(size_t tick)
 void Event::applyDelay(std::chrono::milliseconds delay, double msPerTick)
 {
     m_tick += static_cast<size_t>(std::round(static_cast<double>(delay.count()) / msPerTick));
+}
+
+void Event::applyVelocityJitter(int percentage)
+{
+    if (m_noteData.has_value() && percentage > 0) {
+
+        const int velocity = m_noteData->velocity();
+
+        // Jitter range in absolute velocity units
+        const int maxDelta = (velocity * percentage) / 100;
+
+        // Uniform distribution between -maxDelta and +maxDelta
+        std::uniform_int_distribution<int> dist { -maxDelta, 0 };
+        const int jittered = velocity + dist(RandomService::generator());
+        m_noteData->setVelocity(static_cast<uint8_t>(std::clamp(jittered, 0, 127)));
+    }
 }
 
 void Event::transpose(int semitones)

@@ -452,6 +452,25 @@ void SongTest::test_renderToEvents_transposeSet_shouldApplyTranspose()
     QCOMPARE(noteOn->noteData()->note(), 49);
 }
 
+void SongTest::test_renderToEvents_velocityJitterSet_shouldApplyVelocityJitter()
+{
+    Song song;
+
+    const auto instrument = std::make_shared<Instrument>("VelocityJitteredInstrument");
+    song.setInstrument(0, instrument);
+    auto settings = instrument->settings();
+    settings.velocityJitter = 50;
+    instrument->setSettings(settings);
+
+    const Position noteOnPosition = { 0, 0, 0, 0, 0 };
+    song.noteDataAtPosition(noteOnPosition)->setAsNoteOn(60, 100);
+
+    auto events = song.renderToEvents(std::make_shared<AutomationService>(), 0);
+    QCOMPARE(events.size(), 4);
+    auto noteOn = events.at(1);
+    QCOMPARE(noteOn->noteData()->velocity(), 77);
+}
+
 void SongTest::test_trackByName_shouldReturnTrack()
 {
     Song song;

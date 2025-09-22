@@ -201,7 +201,7 @@ void EditorService::fromXml(QString xml)
     emit aboutToChangeSong();
 
     juzzlin::L(TAG).info() << "Reading Project from XML";
-    juzzlin::L(TAG).debug() << xml.toStdString();
+    juzzlin::L(TAG).trace() << xml.toStdString();
     QXmlStreamReader reader { xml };
     while (!(reader.atEnd())) {
         juzzlin::L(TAG).trace() << "Current element: " << reader.name().toString().toStdString();

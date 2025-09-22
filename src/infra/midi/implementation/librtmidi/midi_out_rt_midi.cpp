@@ -93,6 +93,9 @@ void MidiOutRtMidi::sendCcData(MidiDeviceCR device, uint8_t channel, uint8_t con
 
 void MidiOutRtMidi::sendNoteOn(MidiDeviceCR device, uint8_t channel, uint8_t note, uint8_t velocity) const
 {
+#ifdef ENABLE_MIDI_DEBUG
+    juzzlin::L(TAG).debug() << "Playing note " << static_cast<int>(note) << " with velocity " << static_cast<int>(velocity) << " on channel " << static_cast<int>(channel) << " of device " << device.portName();
+#endif
     const Message message = { static_cast<unsigned char>(0x90 | (channel & 0x0F)),
                               static_cast<unsigned char>(note),
                               static_cast<unsigned char>(velocity) };
@@ -104,6 +107,9 @@ void MidiOutRtMidi::sendNoteOn(MidiDeviceCR device, uint8_t channel, uint8_t not
 
 void MidiOutRtMidi::sendNoteOff(MidiDeviceCR device, uint8_t channel, uint8_t note) const
 {
+#ifdef ENABLE_MIDI_DEBUG
+    juzzlin::L(TAG).debug() << "Stopping note " << static_cast<int>(note) << " on channel " << static_cast<int>(channel) << " of device " << device.portName();
+#endif
     const Message message = { static_cast<unsigned char>(0x80 | (channel & 0x0F)),
                               static_cast<unsigned char>(note),
                               static_cast<unsigned char>(0) };
