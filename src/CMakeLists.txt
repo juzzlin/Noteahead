@@ -8,6 +8,7 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 set(HEADER_FILES
   application/application.hpp
   application/instrument_request.hpp
+  application/models/column_settings_model.hpp
   application/models/event_selection_model.hpp
   application/models/midi_cc_automations_model.hpp
   application/models/midi_cc_selection_model.hpp
@@ -45,6 +46,7 @@ set(HEADER_FILES
   domain/automation.hpp
   domain/automation_location.hpp
   domain/column.hpp
+  domain/column_settings.hpp
   domain/event.hpp
   domain/event_data.hpp
   domain/instrument.hpp
@@ -87,6 +89,7 @@ set(HEADER_FILES
 set(SOURCE_FILES
   application/application.cpp
   application/instrument_request.cpp
+  application/models/column_settings_model.cpp
   application/models/event_selection_model.cpp
   application/models/midi_cc_automations_model.cpp
   application/models/midi_cc_selection_model.cpp
@@ -123,6 +126,7 @@ set(SOURCE_FILES
   domain/automation.cpp
   domain/automation_location.cpp
   domain/column.cpp
+  domain/column_settings.cpp
   domain/event.cpp
   domain/event_data.cpp
   domain/instrument.cpp
@@ -182,6 +186,8 @@ set(QML_SOURCE_FILES
     ${QML_BASE_DIR}/Dialogs/AboutDialog.qml
     ${QML_BASE_DIR}/Dialogs/AddMidiCcAutomationDialog.qml
     ${QML_BASE_DIR}/Dialogs/AddPitchBendAutomationDialog.qml
+    ${QML_BASE_DIR}/Dialogs/ColumnSettingsDialog.qml
+    ${QML_BASE_DIR}/Dialogs/ColumnSettingsDialog_MidiEffects.qml
     ${QML_BASE_DIR}/Dialogs/DelayCalculatorDialog.qml
     ${QML_BASE_DIR}/Dialogs/EditMidiCcAutomationsDelegate.qml
     ${QML_BASE_DIR}/Dialogs/EditMidiCcAutomationsDialog.qml

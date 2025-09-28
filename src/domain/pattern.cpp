@@ -21,6 +21,7 @@
 #include "../common/utils.hpp"
 #include "../contrib/SimpleLogger/src/simple_logger.hpp"
 #include "../domain/note_data.hpp"
+#include "column_settings.hpp"
 #include "track.hpp"
 
 #include <QXmlStreamWriter>
@@ -300,14 +301,14 @@ void Pattern::setInstrument(size_t trackIndex, InstrumentS instrument)
     trackByIndexThrow(trackIndex)->setInstrument(instrument);
 }
 
-Pattern::InstrumentSettingsS Pattern::instrumentSettings(const Position & position) const
+Pattern::ColumnSettingsS Pattern::columnSettings(size_t trackIndex, size_t columnIndex) const
 {
-    return trackByIndexThrow(position.track)->instrumentSettings(position);
+    return trackByIndexThrow(trackIndex)->columnSettings(columnIndex);
 }
 
-void Pattern::setInstrumentSettings(const Position & position, InstrumentSettingsS instrumentSettings)
+void Pattern::setColumnSettings(size_t trackIndex, size_t columnIndex, ColumnSettingsS settings)
 {
-    trackByIndexThrow(position.track)->setInstrumentSettings(position, instrumentSettings);
+    trackByIndexThrow(trackIndex)->setColumnSettings(columnIndex, settings);
 }
 
 Pattern::NoteDataS Pattern::noteDataAtPosition(const Position & position) const
@@ -319,6 +320,16 @@ void Pattern::setNoteDataAtPosition(const NoteData & noteData, const Position & 
 {
     juzzlin::L(TAG).debug() << "Set note data at position: " << noteData.toString() << " @ " << position.toString();
     trackByIndexThrow(position.track)->setNoteDataAtPosition(noteData, position);
+}
+
+Pattern::InstrumentSettingsS Pattern::instrumentSettingsAtPosition(const Position & position) const
+{
+    return trackByIndexThrow(position.track)->instrumentSettingsAtPosition(position);
+}
+
+void Pattern::setInstrumentSettingsAtPosition(const Position & position, InstrumentSettingsS instrumentSettings)
+{
+    trackByIndexThrow(position.track)->setInstrumentSettingsAtPosition(position, instrumentSettings);
 }
 
 Position Pattern::nextNoteDataOnSameColumn(const Position & position) const

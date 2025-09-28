@@ -36,6 +36,7 @@ namespace noteahead {
 class ApplicationService;
 class AudioService;
 class AutomationService;
+class ColumnSettingsModel;
 class EditorService;
 class EventSelectionModel;
 class Instrument;
@@ -89,6 +90,7 @@ private:
     void connectEventSelectionModel();
     void connectPitchBendAutomationsModel();
     void connectTrackSettingsModel();
+    void connectColumnSettingsModel();
 
     void addVideoOptions(juzzlin::Argengine & ae);
     void handleCommandLineArguments(int & argc, char ** argv);
@@ -134,6 +136,7 @@ private:
 
     std::unique_ptr<MidiCcAutomationsModel> m_midiCcAutomationsModel;
     std::unique_ptr<PitchBendAutomationsModel> m_pitchBendAutomationsModel;
+    std::unique_ptr<ColumnSettingsModel> m_columnSettingsModel;
     std::unique_ptr<TrackSettingsModel> m_trackSettingsModel;
     std::unique_ptr<MidiSettingsModel> m_midiSettingsModel;
 

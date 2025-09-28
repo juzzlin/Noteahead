@@ -19,6 +19,7 @@
 #include <memory>
 #include <vector>
 
+#include "column_settings.hpp"
 #include "mixer_unit.hpp"
 
 class QXmlStreamReader;
@@ -36,6 +37,10 @@ class Column : public MixerUnit
 {
 public:
     Column(size_t index, size_t length);
+
+    using ColumnSettingsS = std::shared_ptr<ColumnSettings>;
+    void setSettings(ColumnSettingsS settings);
+    ColumnSettingsS settings() const;
 
     bool hasData() const;
     bool hasPosition(const Position & position) const;
@@ -81,6 +86,7 @@ private:
 
     size_t m_virtualLineCount = 0;
     LineList m_lines;
+    ColumnSettingsS m_settings;
 };
 
 } // namespace noteahead

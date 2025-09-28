@@ -21,6 +21,8 @@
 #include "../infra/video/video_generator.hpp"
 #include "common/utils.hpp"
 #include "domain/midi_note_data.hpp"
+#include "domain/column_settings.hpp"
+#include "models/column_settings_model.hpp"
 #include "models/event_selection_model.hpp"
 #include "models/midi_cc_automations_model.hpp"
 #include "models/midi_settings_model.hpp"
@@ -77,6 +79,7 @@ Application::Application(int & argc, char ** argv)
   , m_recentFilesModel { std::make_unique<RecentFilesModel>() }
   , m_midiCcAutomationsModel { std::make_unique<MidiCcAutomationsModel>() }
   , m_pitchBendAutomationsModel { std::make_unique<PitchBendAutomationsModel>() }
+  , m_columnSettingsModel { std::make_unique<ColumnSettingsModel>() }
   , m_trackSettingsModel { std::make_unique<TrackSettingsModel>() }
   , m_midiSettingsModel { std::make_unique<MidiSettingsModel>(m_settingsService) }
   , m_utilService { std::make_unique<UtilService>() }
@@ -112,6 +115,7 @@ void Application::registerTypes()
 
     qmlRegisterType<ApplicationService>("Noteahead", majorVersion, minorVersion, "ApplicationService");
     qmlRegisterType<AutomationService>("Noteahead", majorVersion, minorVersion, "AutomationService");
+    qmlRegisterType<ColumnSettingsModel>("Noteahead", majorVersion, minorVersion, "ColumnSettingsModel");
     qmlRegisterType<EditorService>("Noteahead", majorVersion, minorVersion, "EditorService");
     qmlRegisterType<EventSelectionModel>("Noteahead", majorVersion, minorVersion, "EventSelectionModel");
     qmlRegisterType<MidiCcAutomationsModel>("Noteahead", majorVersion, minorVersion, "MidiCcAutomationsModel");
@@ -135,6 +139,7 @@ void Application::setContextProperties()
 {
     m_engine->rootContext()->setContextProperty("applicationService", m_applicationService.get());
     m_engine->rootContext()->setContextProperty("automationService", m_automationService.get());
+    m_engine->rootContext()->setContextProperty("columnSettingsModel", m_columnSettingsModel.get());
     m_engine->rootContext()->setContextProperty("editorService", m_editorService.get());
     m_engine->rootContext()->setContextProperty("eventSelectionModel", m_eventSelectionModel.get());
     m_engine->rootContext()->setContextProperty("midiCcAutomationsModel", m_midiCcAutomationsModel.get());
@@ -247,6 +252,7 @@ void Application::connectServices()
     connectPitchBendAutomationsModel();
     connectTrackSettingsModel();
     connectMidiSettingsModel();
+    connectColumnSettingsModel();
 }
 
 void Application::connectApplicationService()
@@ -314,6 +320,22 @@ void Application::connectPitchBendAutomationsModel()
     });
 }
 
+void Application::connectColumnSettingsModel()
+{
+    connect(m_columnSettingsModel.get(), &ColumnSettingsModel::saveRequested, this, [this](quint64 trackIndex, quint64 columnIndex, const ColumnSettings & settings) {
+        auto sharedSettings = std::make_shared<ColumnSettings>(settings);
+        m_editorService->setColumnSettings(trackIndex, columnIndex, sharedSettings);
+    });
+
+    connect(m_columnSettingsModel.get(), &ColumnSettingsModel::dataRequested, this, [this]() {
+        if (const auto settings = m_editorService->columnSettings(m_columnSettingsModel->trackIndex(), m_columnSettingsModel->columnIndex()); settings) {
+            m_columnSettingsModel->setColumnSettings(*settings);
+        } else {
+            m_columnSettingsModel->reset();
+        }
+    });
+}
+
 void Application::connectEditorService()
 {
     connect(m_editorService.get(), &EditorService::aboutToChangeSong, m_mixerService.get(), &MixerService::clear);
@@ -326,6 +348,14 @@ void Application::connectEditorService()
     connect(m_editorService.get(), &EditorService::mixerSerializationRequested, m_mixerService.get(), &MixerService::serializeToXml);
 
     connect(m_editorService.get(), &EditorService::songPositionChanged, m_playerService.get(), &PlayerService::setSongPosition);
+
+    connect(m_editorService.get(), &EditorService::positionChanged, this, [this](const auto & newPosition, const auto &) {
+        if (const auto settings = m_editorService->columnSettings(newPosition.track, newPosition.column); settings) {
+            m_columnSettingsModel->setColumnSettings(*settings);
+        } else {
+            // Reset or clear the model if no settings are found
+        }
+    });
 }
 
 void Application::connectMidiService()

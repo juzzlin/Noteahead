@@ -75,13 +75,14 @@ Item {
         anchors.right: parent.right
     }
     Component.onCompleted: {
+        columnHeader.columnSettingsDialogRequested.connect(() => UiService.requestColumnSettingsDialog(_trackIndex, _index));
         columnHeader.invertedMuteRequested.connect(() => mixerService.invertMutedColumns(_trackIndex, _index));
         columnHeader.invertedSoloRequested.connect(() => mixerService.invertSoloedColumns(_trackIndex, _index));
         columnHeader.muteRequested.connect(() => mixerService.muteColumn(_trackIndex, _index, true));
+        columnHeader.nameChanged.connect(name => editorService.setColumnName(_trackIndex, _index, name));
         columnHeader.soloRequested.connect(() => mixerService.soloColumn(_trackIndex, _index, true));
         columnHeader.unmuteRequested.connect(() => mixerService.muteColumn(_trackIndex, _index, false));
         columnHeader.unsoloRequested.connect(() => mixerService.soloColumn(_trackIndex, _index, false));
-        columnHeader.nameChanged.connect(name => editorService.setColumnName(_trackIndex, _index, name));
         columnHeader.velocityScaleRequested.connect(() => UiService.requestColumnVelocityScaleDialog(_trackIndex, _index));
         lineContainer.leftClicked.connect(leftClicked);
         lineContainer.rightClicked.connect(rightClicked);

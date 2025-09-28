@@ -34,6 +34,7 @@ class InstrumentSettings;
 class Line;
 class NoteData;
 struct Position;
+class ColumnSettings;
 
 class Track : public MixerUnit
 {
@@ -77,9 +78,13 @@ public:
     InstrumentS instrument() const;
     void setInstrument(InstrumentS instrument);
 
+    using ColumnSettingsS = std::shared_ptr<ColumnSettings>;
+    ColumnSettingsS columnSettings(size_t columnIndex) const;
+    void setColumnSettings(size_t columnIndex, ColumnSettingsS settings);
+
     using InstrumentSettingsS = std::shared_ptr<InstrumentSettings>;
-    InstrumentSettingsS instrumentSettings(const Position & position) const;
-    void setInstrumentSettings(const Position & position, InstrumentSettingsS instrumentSettings);
+    InstrumentSettingsS instrumentSettingsAtPosition(const Position & position) const;
+    void setInstrumentSettingsAtPosition(const Position & position, InstrumentSettingsS instrumentSettings);
 
     using EventS = std::shared_ptr<Event>;
     using EventList = std::vector<EventS>;

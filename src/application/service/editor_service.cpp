@@ -545,7 +545,12 @@ void EditorService::setPatternName(quint64 patternIndex, QString name)
 
 QString EditorService::trackName(quint64 trackIndex) const
 {
-    return QString::fromStdString(m_song->trackName(trackIndex));
+    try {
+        return QString::fromStdString(m_song->trackName(trackIndex));
+    } catch (...) {
+        juzzlin::L(TAG).warning() << "Cannot get name for track, index=" << trackIndex;
+        return {};
+    }
 }
 
 void EditorService::setTrackName(quint64 trackIndex, QString name)
@@ -559,7 +564,12 @@ void EditorService::setTrackName(quint64 trackIndex, QString name)
 
 QString EditorService::columnName(quint64 trackIndex, quint64 columnIndex) const
 {
-    return QString::fromStdString(m_song->columnName(trackIndex, columnIndex));
+    try {
+        return QString::fromStdString(m_song->columnName(trackIndex, columnIndex));
+    } catch (...) {
+        juzzlin::L(TAG).warning() << "Cannot get name for column, trackIndex=" << trackIndex << ", columnIndex=" << columnIndex;
+        return {};
+    }
 }
 
 void EditorService::setColumnName(quint64 trackIndex, quint64 columnIndex, QString name)
@@ -583,6 +593,18 @@ void EditorService::setInstrument(quint64 trackIndex, InstrumentS instrument)
     setIsModified(true);
 }
 
+EditorService::ColumnSettingsS EditorService::columnSettings(quint64 trackIndex, quint64 columnIndex) const
+{
+    return m_song->columnSettings(trackIndex, columnIndex);
+}
+
+void EditorService::setColumnSettings(quint64 trackIndex, quint64 columnIndex, ColumnSettingsS settings)
+{
+    m_song->setColumnSettings(trackIndex, columnIndex, settings);
+
+    setIsModified(true);
+}
+
 EditorService::InstrumentList EditorService::instruments() const
 {
     EditorService::InstrumentList instrumentList;
@@ -597,7 +619,7 @@ EditorService::InstrumentList EditorService::instruments() const
 EditorService::InstrumentSettingsS EditorService::instrumentSettingsAtCurrentPosition() const
 {
     if (m_song->hasPosition(position())) {
-        return m_song->instrumentSettings(position());
+        return m_song->instrumentSettingsAtPosition(position());
     } else {
         return {};
     }
@@ -605,14 +627,14 @@ EditorService::InstrumentSettingsS EditorService::instrumentSettingsAtCurrentPos
 
 void EditorService::removeInstrumentSettingsAtCurrentPosition()
 {
-    m_song->setInstrumentSettings(position(), {});
+    m_song->setInstrumentSettingsAtPosition(position(), {});
     emit lineDataChanged(position());
     setIsModified(true);
 }
 
 void EditorService::setInstrumentSettingsAtCurrentPosition(InstrumentSettingsS instrumentSettings)
 {
-    m_song->setInstrumentSettings(position(), instrumentSettings);
+    m_song->setInstrumentSettingsAtPosition(position(), instrumentSettings);
     emit lineDataChanged(position());
     setIsModified(true);
 }
@@ -620,7 +642,7 @@ void EditorService::setInstrumentSettingsAtCurrentPosition(InstrumentSettingsS i
 bool EditorService::hasInstrumentSettings(quint64 pattern, quint64 track, quint64 column, quint64 line) const
 {
     const Position testPosition { pattern, track, column, line };
-    return m_song->hasPosition(testPosition) && m_song->instrumentSettings(testPosition);
+    return m_song->hasPosition(testPosition) && m_song->instrumentSettingsAtPosition(testPosition);
 }
 
 void EditorService::requestEventRemoval()

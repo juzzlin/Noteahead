@@ -23,6 +23,7 @@
 #include "../domain/note_data.hpp"
 #include "../domain/track.hpp"
 #include "column.hpp"
+#include "column_settings.hpp"
 
 #include <QXmlStreamReader>
 #include <QXmlStreamWriter>
@@ -58,12 +59,22 @@ void Track::setInstrument(InstrumentS instrument)
     m_instrument = instrument;
 }
 
-Track::InstrumentSettingsS Track::instrumentSettings(const Position & position) const
+Track::ColumnSettingsS Track::columnSettings(size_t columnIndex) const
+{
+    return m_columns.at(columnIndex)->settings();
+}
+
+void Track::setColumnSettings(size_t columnIndex, ColumnSettingsS settings)
+{
+    m_columns.at(columnIndex)->setSettings(settings);
+}
+
+Track::InstrumentSettingsS Track::instrumentSettingsAtPosition(const Position & position) const
 {
     return m_columns.at(position.column)->instrumentSettings(position);
 }
 
-void Track::setInstrumentSettings(const Position & position, InstrumentSettingsS instrumentSettings)
+void Track::setInstrumentSettingsAtPosition(const Position & position, InstrumentSettingsS instrumentSettings)
 {
     if (instrumentSettings) {
         instrumentSettings->setTrack(index());

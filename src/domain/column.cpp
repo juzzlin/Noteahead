@@ -21,6 +21,7 @@
 #include "../contrib/SimpleLogger/src/simple_logger.hpp"
 #include "../domain/event.hpp"
 #include "../domain/note_data.hpp"
+#include "column_settings.hpp"
 #include "line.hpp"
 #include "line_event.hpp"
 
@@ -35,6 +36,7 @@ static const auto TAG = "Column";
 
 Column::Column(size_t index, size_t length)
   : MixerUnit { index, "" }
+  , m_settings { std::make_shared<ColumnSettings>() }
 {
     initialize(length);
 }
@@ -48,9 +50,19 @@ void Column::initialize(size_t length)
     m_virtualLineCount = m_lines.size();
 }
 
+void Column::setSettings(ColumnSettingsS settings)
+{
+    m_settings = settings;
+}
+
+Column::ColumnSettingsS Column::settings() const
+{
+    return m_settings;
+}
+
 bool Column::hasData() const
 {
-    return !name().empty() || std::ranges::any_of(m_lines, [](auto && line) {
+    return !name().empty() || m_settings->chordAutomationSettings.isEnabled() || std::ranges::any_of(m_lines, [](auto && line) {
         return line->hasData();
     });
 }
@@ -192,7 +204,27 @@ Column::EventList Column::renderToEvents(size_t startTick, size_t ticksPerLine) 
                     eventList.push_back(std::make_shared<Event>(tick, line->lineEvent()->instrumentSettings()));
                 }
             }
-            if (const auto noteData = line->noteData(); noteData->type() != NoteData::Type::None) {
+            if (const auto noteData = line->noteData(); noteData->type() == NoteData::Type::NoteOn) {
+                eventList.push_back(std::make_shared<Event>(tick + noteData->delay(), *noteData));
+
+                if (m_settings->chordAutomationSettings.isEnabled() && noteData->note().has_value()) {
+                    const auto & settings = m_settings->chordAutomationSettings;
+                    const auto rootNote = *noteData->note();
+                    const auto rootVelocity = noteData->velocity();
+
+                    auto addChordNote = [&](const ColumnSettings::ChordAutomationSettings::ChordNote & chordNote) {
+                        if (chordNote.offset != 0) {
+                            NoteData chordNoteData = *noteData;
+                            chordNoteData.setAsNoteOn(rootNote + chordNote.offset, static_cast<uint8_t>(static_cast<float>(rootVelocity) * (static_cast<float>(chordNote.velocity) / 100.f)));
+                            eventList.push_back(std::make_shared<Event>(tick + chordNoteData.delay(), chordNoteData));
+                        }
+                    };
+
+                    addChordNote(settings.note1);
+                    addChordNote(settings.note2);
+                    addChordNote(settings.note3);
+                }
+            } else if (noteData->type() != NoteData::Type::None) {
                 eventList.push_back(std::make_shared<Event>(tick + noteData->delay(), *noteData));
             }
         }
@@ -216,10 +248,18 @@ void Column::setInstrumentSettings(const Position & position, InstrumentSettings
 
 void Column::serializeToXml(QXmlStreamWriter & writer) const
 {
+    if (!hasData()) {
+        return;
+    }
+
     writer.writeStartElement(Constants::NahdXml::xmlKeyColumn());
     writer.writeAttribute(Constants::NahdXml::xmlKeyIndex(), QString::number(index()));
     writer.writeAttribute(Constants::NahdXml::xmlKeyName(), QString::fromStdString(name()));
     writer.writeAttribute(Constants::NahdXml::xmlKeyLineCount(), QString::number(lineCount()));
+
+    if (m_settings->chordAutomationSettings.isEnabled()) {
+        m_settings->serializeToXml(writer);
+    }
 
     writer.writeStartElement(Constants::NahdXml::xmlKeyLines());
 
@@ -245,8 +285,13 @@ Column::ColumnU Column::deserializeFromXml(QXmlStreamReader & reader, size_t tra
     }
     while (!(reader.isEndElement() && !reader.name().compare(Constants::NahdXml::xmlKeyColumn()))) {
         juzzlin::L(TAG).trace() << "Current element: " << reader.name().toString().toStdString();
-        if (reader.isStartElement() && !reader.name().compare(Constants::NahdXml::xmlKeyLines())) {
-            deserializeLines(reader, trackIndex, *column);
+
+        if (reader.isStartElement()) {
+            if (!reader.name().compare(Constants::NahdXml::xmlKeyLines())) {
+                deserializeLines(reader, trackIndex, *column);
+            } else if (!reader.name().compare(Constants::NahdXml::xmlKeyColumnSettings())) {
+                column->setSettings(ColumnSettings::deserializeFromXml(reader));
+            }
         }
         reader.readNext();
     }

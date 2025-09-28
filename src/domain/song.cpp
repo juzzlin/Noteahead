@@ -364,11 +364,6 @@ void Song::setTrackName(size_t trackIndex, std::string name)
     m_patterns.at(0)->setTrackName(trackIndex, name);
 }
 
-Song::InstrumentS Song::instrument(size_t trackIndex) const
-{
-    return m_patterns.at(0)->instrument(trackIndex);
-}
-
 std::string Song::columnName(size_t trackIndex, size_t columnIndex) const
 {
     return m_patterns.at(0)->columnName(trackIndex, columnIndex);
@@ -389,19 +384,24 @@ std::optional<size_t> Song::columnByName(size_t trackIndex, std::string_view nam
     return !name.empty() ? m_patterns.at(0)->columnByName(trackIndex, name) : std::optional<size_t> {};
 }
 
+Song::InstrumentS Song::instrument(size_t trackIndex) const
+{
+    return m_patterns.at(0)->instrument(trackIndex);
+}
+
 void Song::setInstrument(size_t trackIndex, InstrumentS instrument)
 {
     m_patterns.at(0)->setInstrument(trackIndex, instrument);
 }
 
-Song::InstrumentSettingsS Song::instrumentSettings(const Position & position) const
+Song::ColumnSettingsS Song::columnSettings(size_t trackIndex, size_t columnIndex) const
 {
-    return m_patterns.at(position.pattern)->instrumentSettings(position);
+    return m_patterns.at(0)->columnSettings(trackIndex, columnIndex);
 }
 
-void Song::setInstrumentSettings(const Position & position, InstrumentSettingsS instrumentSettings)
+void Song::setColumnSettings(size_t trackIndex, size_t columnIndex, ColumnSettingsS settings)
 {
-    m_patterns.at(position.pattern)->setInstrumentSettings(position, instrumentSettings);
+    m_patterns.at(0)->setColumnSettings(trackIndex, columnIndex, settings);
 }
 
 std::string Song::fileName() const
@@ -412,6 +412,16 @@ std::string Song::fileName() const
 void Song::setFileName(std::string fileName)
 {
     m_fileName = fileName;
+}
+
+Song::InstrumentSettingsS Song::instrumentSettingsAtPosition(const Position & position) const
+{
+    return m_patterns.at(position.pattern)->instrumentSettingsAtPosition(position);
+}
+
+void Song::setInstrumentSettingsAtPosition(const Position & position, InstrumentSettingsS instrumentSettings)
+{
+    m_patterns.at(position.pattern)->setInstrumentSettingsAtPosition(position, instrumentSettings);
 }
 
 Song::NoteDataS Song::noteDataAtPosition(const Position & position) const
@@ -540,6 +550,7 @@ Song::EventList Song::generateNoteOffs(EventListCR events) const
     Song::EventList processedEvents;
     using TrackAndColumn = std::pair<int, int>;
     std::map<TrackAndColumn, std::set<uint8_t>> activeNotes; // Tracks active notes (key: {track, column}, value: note)
+    std::map<TrackAndColumn, size_t> lastNoteOnTick;
 
     const auto autoNoteOffOffset = autoNoteOffOffsetTicks();
     juzzlin::L(TAG).info() << "Default auto note-off offset: " << autoNoteOffOffset << " ticks";
@@ -555,14 +566,22 @@ Song::EventList Song::generateNoteOffs(EventListCR events) const
                 }
             }
             if (noteData->type() == NoteData::Type::NoteOn) {
-                size_t noteOffTick = event->tick();
-                if (noteOffTick > instrumentAutoNoteOffOffset) {
-                    noteOffTick -= instrumentAutoNoteOffOffset;
-                } else {
-                    noteOffTick = 0;
+                // Note: Chord automation may generate multiple notes on the same column!
+                bool isNewTick = true;
+                if (lastNoteOnTick.contains(trackAndColumn) && lastNoteOnTick.at(trackAndColumn) == event->tick()) {
+                    isNewTick = false;
                 }
-                const auto noteOffEvents = generateNoteOffsForActiveNotes(trackAndColumn, noteOffTick, activeNotes);
-                std::ranges::copy(noteOffEvents, std::back_inserter(processedEvents));
+                lastNoteOnTick[trackAndColumn] = event->tick();
+                if (isNewTick) {
+                    size_t noteOffTick = event->tick();
+                    if (noteOffTick > instrumentAutoNoteOffOffset) {
+                        noteOffTick -= instrumentAutoNoteOffOffset;
+                    } else {
+                        noteOffTick = 0;
+                    }
+                    const auto noteOffEvents = generateNoteOffsForActiveNotes(trackAndColumn, noteOffTick, activeNotes);
+                    std::ranges::copy(noteOffEvents, std::back_inserter(processedEvents));
+                }
                 processedEvents.push_back(event); // Add original Note On event
                 activeNotes[trackAndColumn].insert(*noteData->note());
             } else if (noteData->type() == NoteData::Type::NoteOff) {

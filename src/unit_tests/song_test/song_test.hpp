@@ -50,6 +50,8 @@ private slots:
     void test_renderToEvents_singleEvent_shouldRenderEvent();
     void test_renderToEvents_sameColumn_shouldAddNoteOff();
 
+    void test_renderToEvents_chordAutomation_shouldRenderChordNotes();
+
     void test_renderToEvents_transposeSet_shouldApplyTranspose();
     void test_renderToEvents_velocityJitterSet_shouldApplyVelocityJitter();
     void test_renderToEvents_customNoteOffOffsetSet_shouldApplyCorrectOffset();

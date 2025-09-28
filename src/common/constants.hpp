@@ -57,6 +57,14 @@ QString xmlKeyGroup();
 QString xmlKeyColumn();
 QString xmlKeyColumns();
 QString xmlKeyColumnCount();
+QString xmlKeyColumnSettings();
+
+QString xmlKeyChordNote1Offset();
+QString xmlKeyChordNote1Velocity();
+QString xmlKeyChordNote2Offset();
+QString xmlKeyChordNote2Velocity();
+QString xmlKeyChordNote3Offset();
+QString xmlKeyChordNote3Velocity();
 
 QString xmlKeyController();
 QString xmlKeyEnabled();

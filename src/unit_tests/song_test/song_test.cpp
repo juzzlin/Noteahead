@@ -17,6 +17,7 @@
 
 #include "../../application/position.hpp"
 #include "../../application/service/automation_service.hpp"
+#include "../../domain/column_settings.hpp"
 #include "../../domain/event.hpp"
 #include "../../domain/note_data.hpp"
 #include "../../domain/pattern.hpp"
@@ -424,6 +425,47 @@ void SongTest::test_renderToEvents_sameColumn_shouldAddNoteOff()
     QCOMPARE(noteOn->tick(), 42 * song.ticksPerLine());
     QCOMPARE(noteOn->noteData()->type(), NoteData::Type::NoteOn);
     QCOMPARE(noteOn->noteData()->note(), 60);
+}
+
+void SongTest::test_renderToEvents_chordAutomation_shouldRenderChordNotes()
+{
+    Song song;
+    auto settings = std::make_shared<ColumnSettings>();
+    settings->chordAutomationSettings.note1.offset = 4;
+    settings->chordAutomationSettings.note1.velocity = 80;
+    settings->chordAutomationSettings.note2.offset = 7;
+    settings->chordAutomationSettings.note2.velocity = 60;
+    song.setColumnSettings(0, 0, settings);
+
+    song.noteDataAtPosition({ 0, 0, 0, 0, 0 })->setAsNoteOn(60, 100);
+    song.noteDataAtPosition({ 0, 0, 0, 1, 0 })->setAsNoteOff();
+
+    const auto events = song.renderToEvents(std::make_shared<AutomationService>(), 0);
+    QCOMPARE(events.size(), 8);
+
+    const auto rootNoteOn = events.at(1);
+    QCOMPARE(rootNoteOn->noteData()->note(), 60);
+    QCOMPARE(rootNoteOn->noteData()->velocity(), 100);
+
+    const auto chordNote1On = events.at(2);
+    QCOMPARE(chordNote1On->noteData()->note(), 64);
+    QCOMPARE(chordNote1On->noteData()->velocity(), 80);
+
+    const auto chordNote2On = events.at(3);
+    QCOMPARE(chordNote2On->noteData()->note(), 67);
+    QCOMPARE(chordNote2On->noteData()->velocity(), 60);
+
+    const auto rootNoteOff = events.at(4);
+    QCOMPARE(rootNoteOff->noteData()->note(), 60);
+    QCOMPARE(rootNoteOff->noteData()->type(), NoteData::Type::NoteOff);
+
+    const auto chordNote1Off = events.at(5);
+    QCOMPARE(chordNote1Off->noteData()->note(), 64);
+    QCOMPARE(chordNote1Off->noteData()->type(), NoteData::Type::NoteOff);
+
+    const auto chordNote2Off = events.at(6);
+    QCOMPARE(chordNote2Off->noteData()->note(), 67);
+    QCOMPARE(chordNote2Off->noteData()->type(), NoteData::Type::NoteOff);
 }
 
 void SongTest::test_renderToEvents_transposeSet_shouldApplyTranspose()

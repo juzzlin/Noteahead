@@ -6,6 +6,7 @@ QtObject {
     signal activeOctaveChanged(int activeOctave)
     signal columnAddMidiCcAutomationDialogRequested
     signal columnAddPitchBendAutomationDialogRequested
+    signal columnSettingsDialogRequested(int trackIndex, int columnIndex)
     signal columnVelocityInterpolationDialogRequested
     signal columnVelocityScaleDialogRequested(int trackIndex, int columnIndex)
     signal contextMenuRequested(int globalX, int globalY)
@@ -133,6 +134,9 @@ QtObject {
     }
     function requestSettingsDialog(): void {
         settingsDialogRequested();
+    }
+    function requestColumnSettingsDialog(trackIndex, columnIndex): void {
+        columnSettingsDialogRequested(trackIndex, columnIndex);
     }
     function requestTrackSettingsDialog(trackIndex): void {
         trackSettingsDialogRequested(trackIndex);

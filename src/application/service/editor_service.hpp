@@ -35,6 +35,7 @@ class InstrumentRequest;
 class InstrumentSettings;
 class Line;
 class SelectionService;
+class ColumnSettings;
 
 class EditorService : public QObject
 {
@@ -257,6 +258,10 @@ public:
     void setInstrumentSettingsAtCurrentPosition(InstrumentSettingsS instrument);
     void removeInstrumentSettingsAtCurrentPosition();
     Q_INVOKABLE bool hasInstrumentSettings(quint64 pattern, quint64 track, quint64 column, quint64 line) const;
+
+    using ColumnSettingsS = std::shared_ptr<ColumnSettings>;
+    ColumnSettingsS columnSettings(quint64 trackIndex, quint64 columnIndex) const;
+    void setColumnSettings(quint64 trackIndex, quint64 columnIndex, ColumnSettingsS settings);
 
     void setIsModified(bool isModified);
 

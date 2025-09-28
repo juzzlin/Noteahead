@@ -139,6 +139,41 @@ QString xmlKeyColumnCount()
     return "columnCount";
 }
 
+QString xmlKeyColumnSettings()
+{
+    return "ColumnSettings";
+}
+
+QString xmlKeyChordNote1Offset()
+{
+    return "chordNote1Offset";
+}
+
+QString xmlKeyChordNote1Velocity()
+{
+    return "chordNote1Velocity";
+}
+
+QString xmlKeyChordNote2Offset()
+{
+    return "chordNote2Offset";
+}
+
+QString xmlKeyChordNote2Velocity()
+{
+    return "chordNote2Velocity";
+}
+
+QString xmlKeyChordNote3Offset()
+{
+    return "chordNote3Offset";
+}
+
+QString xmlKeyChordNote3Velocity()
+{
+    return "chordNote3Velocity";
+}
+
 QString xmlKeyController()
 {
     return "controller";

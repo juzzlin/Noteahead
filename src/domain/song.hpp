@@ -38,6 +38,7 @@ namespace noteahead {
 
 class AutomationService;
 class Column;
+class ColumnSettings;
 class CopyManager;
 class Event;
 class Instrument;
@@ -138,10 +139,9 @@ public:
     InstrumentS instrument(size_t trackIndex) const;
     void setInstrument(size_t trackIndex, InstrumentS instrument);
 
-    using InstrumentSettingsS = std::shared_ptr<InstrumentSettings>;
-    using InstrumentSettingsU = std::unique_ptr<InstrumentSettings>;
-    InstrumentSettingsS instrumentSettings(const Position & position) const;
-    void setInstrumentSettings(const Position & position, InstrumentSettingsS instrumentSettings);
+    using ColumnSettingsS = std::shared_ptr<ColumnSettings>;
+    ColumnSettingsS columnSettings(size_t trackIndex, size_t columnIndex) const;
+    void setColumnSettings(size_t trackIndex, size_t columnIndex, ColumnSettingsS settings);
 
     std::string fileName() const;
     void setFileName(std::string fileName);
@@ -151,6 +151,11 @@ public:
     void setNoteDataAtPosition(const NoteData & noteData, const Position & position);
     PositionList deleteNoteDataAtPosition(const Position & position);
     PositionList insertNoteDataAtPosition(const NoteData & noteData, const Position & position);
+
+    using InstrumentSettingsS = std::shared_ptr<InstrumentSettings>;
+    using InstrumentSettingsU = std::unique_ptr<InstrumentSettings>;
+    InstrumentSettingsS instrumentSettingsAtPosition(const Position & position) const;
+    void setInstrumentSettingsAtPosition(const Position & position, InstrumentSettingsS instrumentSettings);
 
     Position nextNoteDataOnSameColumn(const Position & position) const;
     Position prevNoteDataOnSameColumn(const Position & position) const;

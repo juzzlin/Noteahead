@@ -17,6 +17,7 @@ set(SRC
     ../../domain/automation.cpp
     ../../domain/automation_location.cpp
     ../../domain/column.cpp
+    ../../domain/column_settings.cpp
     ../../domain/event.cpp
     ../../domain/event_data.cpp
     ../../domain/instrument.cpp

@@ -18,6 +18,7 @@ set(SRC
     ../../domain/play_order.cpp
     ../../domain/track.cpp
     ../../domain/column.cpp
+    ../../domain/column_settings.cpp
     ../../domain/line.cpp
     ../../domain/line_event.cpp
     ../../domain/midi_address.cpp

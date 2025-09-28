@@ -11,6 +11,7 @@ Rectangle {
     color: Constants.trackHeaderBackgroundColor
     border.color: Constants.trackHeaderBorderColor
     border.width: 1
+    signal columnSettingsDialogRequested
     signal invertedMuteRequested
     signal invertedSoloRequested
     signal muteRequested
@@ -50,6 +51,29 @@ Rectangle {
             width: parent.height
             onClicked: rootItem.velocityScaleRequested()
             toolTipText: qsTr("Set velocity scale for this COLUMN, 0-100 %. All note velocities will be scaled according to this setting, taking into account the track-level scale.")
+        }
+        ToolBarButtonBase {
+            id: columnSettingsButton
+            height: parent.height
+            width: height
+            enabled: !UiService.isPlaying()
+            onClicked: {
+                rootItem.columnSettingsDialogRequested();
+                focus = false;
+            }
+            Keys.onPressed: event => {
+                if (event.key === Qt.Key_Space) {
+                    event.accepted = true;
+                }
+            }
+            ToolTip.delay: Constants.toolTipDelay
+            ToolTip.timeout: Constants.toolTipTimeout
+            ToolTip.visible: hovered
+            ToolTip.text: qsTr("Open column settings")
+            Component.onCompleted: {
+                setScale(0.8);
+                setImageSource("../Graphics/settings.svg");
+            }
         }
         TextField {
             id: nameField

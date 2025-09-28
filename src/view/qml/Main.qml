@@ -178,6 +178,14 @@ ApplicationWindow {
         onAccepted: uiLogger.info(_tag, "Settings accepted")
         onRejected: uiLogger.info(_tag, "Settings rejected")
     }
+    ColumnSettingsDialog {
+        id: columnSettingsDialog
+        anchors.centerIn: parent
+        height: parent.height * Constants.defaultDialogScale
+        width: parent.width * Constants.defaultDialogScale
+        onAccepted: uiLogger.info(_tag, "Column settings accepted")
+        onRejected: uiLogger.info(_tag, "Column settings rejected")
+    }
     TrackSettingsDialog {
         id: trackSettingsDialog
         anchors.centerIn: parent
@@ -344,6 +352,10 @@ ApplicationWindow {
         });
         UiService.recentFilesDialogRequested.connect(recentFilesDialog.open);
         UiService.settingsDialogRequested.connect(settingsDialog.open);
+        UiService.columnSettingsDialogRequested.connect((trackIndex, columnIndex) => {
+            columnSettingsDialog.setColumn(trackIndex, columnIndex);
+            columnSettingsDialog.open();
+        });
         UiService.trackSettingsDialogRequested.connect(trackIndex => {
             trackSettingsDialog.setTrackIndex(trackIndex);
             trackSettingsDialog.open();

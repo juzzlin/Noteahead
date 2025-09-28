@@ -19,9 +19,12 @@
 #include "../../application/service/editor_service.hpp"
 #include "../../application/service/mixer_service.hpp"
 #include "../../application/service/selection_service.hpp"
+#include "../../domain/column_settings.hpp"
 #include "../../domain/instrument.hpp"
 #include "../../domain/note_data.hpp"
+#include "../../domain/pattern.hpp"
 #include "../../domain/song.hpp"
+#include "../../domain/track.hpp"
 
 #include <QSignalSpy>
 
@@ -1518,6 +1521,33 @@ void EditorServiceTest::test_toXmlFromXml_trackName_shouldLoadTrackName()
 
     QCOMPARE(editorServiceIn.trackName(0), editorServiceOut.trackName(0));
     QCOMPARE(editorServiceIn.trackName(1), editorServiceOut.trackName(1));
+}
+
+void EditorServiceTest::test_toXmlFromXml_columnSettings_shouldSaveAndLoad()
+{
+    EditorService editorServiceOut;
+    auto settingsOut = std::make_shared<ColumnSettings>();
+    settingsOut->chordAutomationSettings.note1.offset = 4;
+    settingsOut->chordAutomationSettings.note1.velocity = 80;
+    settingsOut->chordAutomationSettings.note2.offset = 7;
+    settingsOut->chordAutomationSettings.note2.velocity = 60;
+    settingsOut->chordAutomationSettings.note3.offset = 12;
+    settingsOut->chordAutomationSettings.note3.velocity = 90;
+    editorServiceOut.setColumnSettings(1, 0, settingsOut);
+
+    const auto xml = editorServiceOut.toXml();
+    EditorService editorServiceIn;
+    editorServiceIn.fromXml(xml);
+
+    const auto settingsIn = editorServiceIn.columnSettings(1, 0);
+
+    QVERIFY(settingsIn);
+    QCOMPARE(settingsIn->chordAutomationSettings.note1.offset, settingsOut->chordAutomationSettings.note1.offset);
+    QCOMPARE(settingsIn->chordAutomationSettings.note1.velocity, settingsOut->chordAutomationSettings.note1.velocity);
+    QCOMPARE(settingsIn->chordAutomationSettings.note2.offset, settingsOut->chordAutomationSettings.note2.offset);
+    QCOMPARE(settingsIn->chordAutomationSettings.note2.velocity, settingsOut->chordAutomationSettings.note2.velocity);
+    QCOMPARE(settingsIn->chordAutomationSettings.note3.offset, settingsOut->chordAutomationSettings.note3.offset);
+    QCOMPARE(settingsIn->chordAutomationSettings.note3.velocity, settingsOut->chordAutomationSettings.note3.velocity);
 }
 
 void EditorServiceTest::test_toXmlFromXml_automationService_midiCc_shouldLoadAutomationService()

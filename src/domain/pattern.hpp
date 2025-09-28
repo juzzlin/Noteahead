@@ -27,12 +27,13 @@ class QXmlStreamWriter;
 namespace noteahead {
 
 class AutomationService;
+class ColumnSettings;
 class Event;
 class Instrument;
 class InstrumentSettings;
 class Line;
-class Track;
 class NoteData;
+class Track;
 struct Position;
 
 class Pattern
@@ -91,13 +92,17 @@ public:
     InstrumentS instrument(size_t trackIndex) const;
     void setInstrument(size_t trackIndex, InstrumentS instrument);
 
-    using InstrumentSettingsS = std::shared_ptr<InstrumentSettings>;
-    InstrumentSettingsS instrumentSettings(const Position & position) const;
-    void setInstrumentSettings(const Position & position, InstrumentSettingsS instrumentSettings);
+    using ColumnSettingsS = std::shared_ptr<ColumnSettings>;
+    ColumnSettingsS columnSettings(size_t trackIndex, size_t columnIndex) const;
+    void setColumnSettings(size_t trackIndex, size_t columnIndex, ColumnSettingsS settings);
 
     using NoteDataS = std::shared_ptr<NoteData>;
     NoteDataS noteDataAtPosition(const Position & position) const;
     void setNoteDataAtPosition(const NoteData & noteData, const Position & position) const;
+
+    using InstrumentSettingsS = std::shared_ptr<InstrumentSettings>;
+    InstrumentSettingsS instrumentSettingsAtPosition(const Position & position) const;
+    void setInstrumentSettingsAtPosition(const Position & position, InstrumentSettingsS instrumentSettings);
 
     using PositionList = std::vector<Position>;
     PositionList deleteNoteDataAtPosition(const Position & position);
