@@ -25,6 +25,32 @@
 
 namespace noteahead {
 
+void SongTest::test_autoNoteOffOffset_shouldCalculateCorrectOffset()
+{
+    Song song;
+    song.setBeatsPerMinute(120);
+    song.setLinesPerBeat(4);
+    song.setAutoNoteOffOffset(125ms);
+
+    QCOMPARE(song.autoNoteOffOffsetTicks(), 24);
+
+    song.setAutoNoteOffOffset(250ms);
+
+    QCOMPARE(song.autoNoteOffOffsetTicks(), 48);
+
+    song.setBeatsPerMinute(240);
+
+    QCOMPARE(song.autoNoteOffOffsetTicks(), 96);
+
+    song.setLinesPerBeat(2);
+
+    QCOMPARE(song.autoNoteOffOffsetTicks(), 48);
+
+    song.setAutoNoteOffOffset(0ms);
+
+    QCOMPARE(song.autoNoteOffOffsetTicks(), 0);
+}
+
 void SongTest::test_createPattern_columnAdded_shouldCreatePattern()
 {
     Song song;

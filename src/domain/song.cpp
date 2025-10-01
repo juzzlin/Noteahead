@@ -494,7 +494,10 @@ void Song::setAutoNoteOffOffset(std::chrono::milliseconds autoNoteOffOffset)
 
 size_t Song::autoNoteOffOffsetTicks() const
 {
-    return static_cast<size_t>(static_cast<size_t>(m_autoNoteOffOffset.count()) * m_beatsPerMinute * m_linesPerBeat / 60 / 1000);
+    const double linesPerMinute = static_cast<double>(m_beatsPerMinute) * static_cast<double>(m_linesPerBeat);
+    const double offsetLines = static_cast<double>(m_autoNoteOffOffset.count()) * linesPerMinute / 60'000.0;
+    const double offsetTicks = offsetLines * static_cast<double>(m_ticksPerLine);
+    return static_cast<size_t>(offsetTicks);
 }
 
 Song::EventList Song::generateNoteOffsForActiveNotes(TrackAndColumn trackAndColumn, size_t tick, ActiveNoteMap & activeNotes) const
