@@ -7,9 +7,15 @@ New features:
 
 * Implement random velocity jitter in instrument settings
 
+* Show track index in the track settings dialog
+
+* Show track index in the track header tool tip
+
 Bug fixes:
 
 * Fix auto note-off offset calculation
+
+* Fix binding loops in EditMidiCcAutomationsDelegate.qml
 
 Other:
 
