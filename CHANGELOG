@@ -5,7 +5,11 @@ Release date:
 
 New features:
 
+* Implement random velocity jitter in instrument settings
+
 Bug fixes:
+
+* Fix auto note-off offset calculation
 
 Other:
 
