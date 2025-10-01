@@ -8,7 +8,7 @@ import "../Components"
 
 Dialog {
     id: rootItem
-    title: "<strong>" + qsTr("Settings for track") + ` '${editorService.trackName(trackSettingsModel.trackIndex)}'` + "</strong>"
+    title: "<strong>" + qsTr("Settings for track %1: '%2'").arg(trackSettingsModel.trackIndex + 1).arg(editorService.trackName(trackSettingsModel.trackIndex))
     modal: true
     property bool _initializing: false
     readonly property string _tag: "TrackSettingsDialog"
