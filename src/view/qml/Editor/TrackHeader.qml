@@ -101,7 +101,7 @@ Rectangle {
             ToolTip.delay: Constants.toolTipDelay
             ToolTip.timeout: Constants.toolTipTimeout
             ToolTip.visible: hovered
-            ToolTip.text: text || qsTr("Set track name")
+            ToolTip.text: text ? qsTr("Track %1: '%2'").arg(_index + 1).arg(text) : qsTr("Set name for track %1").arg(_index + 1)
         }
         TrackHeaderColumnButtons {
             id: trackHeaderColumnButtons
