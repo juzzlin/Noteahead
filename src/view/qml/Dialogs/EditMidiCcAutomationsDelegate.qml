@@ -12,7 +12,6 @@ GroupBox {
         CheckBox {
             id: enableCheckbox
             text: qsTr("Enabled")
-            checked: model.enabled
             Layout.row: 1
             Layout.column: 0
             Layout.fillWidth: true
@@ -21,6 +20,7 @@ GroupBox {
             ToolTip.visible: hovered
             ToolTip.text: qsTr("Enable/disable the automation")
             onCheckedChanged: model.enabled = checked
+            Component.onCompleted: checked = model.enabled
         }
         Label {
             text: qsTr("Controller")
@@ -33,7 +33,6 @@ GroupBox {
             from: 0
             to: 127
             editable: true
-            value: model.controller
             Keys.onReturnPressed: focus = false
             Layout.row: 1
             Layout.column: 1
@@ -44,6 +43,7 @@ GroupBox {
             ToolTip.text: qsTr("Controller")
             onValueChanged: model.controller = value
             onActiveFocusChanged: editing = activeFocus
+            Component.onCompleted: value = model.controller
         }
         Label {
             text: qsTr("Start line")
@@ -55,7 +55,6 @@ GroupBox {
             id: startLineSpinBox
             from: 0
             to: 999
-            value: model.line0
             editable: true
             Keys.onReturnPressed: focus = false
             Layout.row: 1
@@ -66,6 +65,7 @@ GroupBox {
             ToolTip.visible: hovered
             ToolTip.text: qsTr("Start line")
             onValueChanged: model.line0 = value
+            Component.onCompleted: value = model.line0
         }
         Label {
             text: qsTr("End line")
@@ -77,7 +77,6 @@ GroupBox {
             id: endLineSpinBox
             from: 0
             to: 999
-            value: model.line1
             editable: true
             Keys.onReturnPressed: focus = false
             Layout.row: 1
@@ -88,6 +87,7 @@ GroupBox {
             ToolTip.visible: hovered
             ToolTip.text: qsTr("End line")
             onValueChanged: model.line1 = value
+            Component.onCompleted: value = model.line1
         }
         Label {
             text: qsTr("Start value")
@@ -99,7 +99,6 @@ GroupBox {
             id: startValueSpinBox
             from: 0
             to: 127
-            value: model.value0
             editable: true
             Keys.onReturnPressed: focus = false
             Layout.row: 1
@@ -110,6 +109,7 @@ GroupBox {
             ToolTip.visible: hovered
             ToolTip.text: qsTr("Start value")
             onValueChanged: model.value0 = value
+            Component.onCompleted: value = model.value0
         }
         Label {
             text: qsTr("End value")
@@ -121,7 +121,6 @@ GroupBox {
             id: endValueSpinBox
             from: 0
             to: 127
-            value: model.value1
             editable: true
             enabled: model.line0 !== model.line1
             Keys.onReturnPressed: focus = false
@@ -133,6 +132,7 @@ GroupBox {
             ToolTip.visible: hovered
             ToolTip.text: qsTr("End value")
             onValueChanged: model.value1 = value
+            Component.onCompleted: value = model.value1
         }
         Button {
             id: rootItem
@@ -159,7 +159,6 @@ GroupBox {
         TextField {
             id: commentEdit
             readOnly: false
-            text: model.comment
             placeholderText: qsTr("Comment")
             Layout.row: 2
             Layout.columnSpan: 6
@@ -170,6 +169,7 @@ GroupBox {
             ToolTip.visible: hovered
             ToolTip.text: qsTr("Comment")
             onTextChanged: model.comment = text
+            Component.onCompleted: text = model.comment
         }
     }
 }
