@@ -11,6 +11,8 @@ New features:
 
 * Show track index in the track header tool tip
 
+* Adjustable audio buffer size
+
 Bug fixes:
 
 * Fix auto note-off offset calculation

@@ -19,17 +19,15 @@
 
 namespace noteahead {
 
-const auto TAG = "AudioWorker";
-
 AudioWorker::AudioWorker(QObject * parent)
   : QObject { parent }
   , m_audioRecorder { std::make_unique<AudioRecorderRtAudio>() }
 {
 }
 
-void AudioWorker::startRecording(QString filePath)
+void AudioWorker::startRecording(QString filePath, quint32 bufferSize)
 {
-    m_audioRecorder->start(filePath.toStdString());
+    m_audioRecorder->start(filePath.toStdString(), bufferSize);
 }
 
 void AudioWorker::stopRecording()

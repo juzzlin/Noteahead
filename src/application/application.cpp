@@ -439,7 +439,7 @@ void Application::applyAudioRecording(bool isPlaying)
             const auto date = QDateTime::currentDateTime().toString("yyyyMMdd_HHmmss");
             const auto audioFileName = QString { "%1_%2_%3.wav" }.arg(projectFileName, sanitizeFileName(activeTrackNames.join("_")), date);
             juzzlin::L(TAG).info() << "Recording audio to " << std::quoted(audioFileName.toStdString());
-            m_audioService->startRecording(audioFileName);
+            m_audioService->startRecording(audioFileName, static_cast<uint32_t>(m_settingsService->audioBufferSize()));
         } else {
             m_applicationService->requestAlertDialog(tr("Save project before recording audio!"));
         }

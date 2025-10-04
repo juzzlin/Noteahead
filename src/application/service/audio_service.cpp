@@ -35,10 +35,10 @@ void AudioService::initializeWorker()
     m_audioWorkerThread.start(QThread::HighPriority);
 }
 
-void AudioService::startRecording(QString filePath)
+void AudioService::startRecording(QString filePath, quint32 bufferSize)
 {
     const auto functionName = "startRecording";
-    if (const bool invoked = QMetaObject::invokeMethod(m_audioWorker.get(), functionName, Q_ARG(QString, filePath)); !invoked) {
+    if (const bool invoked = QMetaObject::invokeMethod(m_audioWorker.get(), functionName, Q_ARG(QString, filePath), Q_ARG(quint32, bufferSize)); !invoked) {
         juzzlin::L(TAG).error() << "Invoking a method failed!: " << functionName;
     }
 }

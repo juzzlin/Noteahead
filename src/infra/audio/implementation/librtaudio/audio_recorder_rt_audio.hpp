@@ -22,6 +22,7 @@
 #include <sndfile.h>
 
 #include <atomic>
+#include <cstdint>
 #include <string>
 
 namespace noteahead {
@@ -32,19 +33,18 @@ public:
     AudioRecorderRtAudio();
     ~AudioRecorderRtAudio() override;
 
-    void start(const std::string & fileName) override;
+    void start(const std::string & fileName, uint32_t bufferSize) override;
     void stop() override;
 
     bool isRunning() const;
 
 private:
     static int recordCallback(void * outputBuffer, void * inputBuffer,
-                              unsigned int nFrames, double streamTime,
+                              uint32_t nFrames, double streamTime,
                               RtAudioStreamStatus status, void * userData);
 
-    void initializeSoundFile(const std::string & fileName, unsigned int sampleRate, unsigned int channelCount);
-
-    void initializeSoundStream(unsigned int deviceId, unsigned int channelCount, unsigned int sampleRate);
+    void initializeSoundFile(const std::string & fileName, uint32_t sampleRate, uint32_t channelCount);
+    void initializeSoundStream(uint32_t deviceId, uint32_t channelCount, uint32_t sampleRate, uint32_t bufferSize);
 
     RtAudio m_rtAudio;
 

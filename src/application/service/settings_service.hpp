@@ -53,6 +53,9 @@ public:
     Q_INVOKABLE bool recordingEnabled() const;
     Q_INVOKABLE void setRecordingEnabled(bool enabled);
 
+    Q_INVOKABLE int audioBufferSize() const;
+    Q_INVOKABLE void setAudioBufferSize(int bufferSize);
+
 signals:
     void controllerPortChanged();
 

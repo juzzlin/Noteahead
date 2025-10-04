@@ -16,6 +16,8 @@
 #ifndef SETTINGS_HPP
 #define SETTINGS_HPP
 
+#include <cstddef>
+
 #include <QSize>
 
 namespace noteahead::Settings {
@@ -43,6 +45,9 @@ void setVisibleLines(int visibleLines);
 
 bool recordingEnabled();
 void setRecordingEnabled(bool enabled);
+
+int audioBufferSize();
+void setAudioBufferSize(int audioBufferSize);
 
 } // namespace noteahead::Settings
 

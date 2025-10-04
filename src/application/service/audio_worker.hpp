@@ -32,7 +32,7 @@ public:
     AudioWorker(QObject * parent = nullptr);
     ~AudioWorker() override;
 
-    Q_INVOKABLE void startRecording(QString filePath);
+    Q_INVOKABLE void startRecording(QString filePath, quint32 bufferSize);
     Q_INVOKABLE void stopRecording();
 
 private:

@@ -25,6 +25,7 @@ const auto controllerPortKey = "controllerPort";
 const auto recentFilesArrayKey = "recentFilesArray";
 const auto recentFilesFilePathKey = "filePath";
 
+const auto audioBufferSizeKey = "audioBufferSize";
 const auto recordingEnabledKey = "recordingEnabled";
 
 const auto settingsGroupAudio = "Audio";
@@ -178,6 +179,23 @@ void setRecordingEnabled(bool enabled)
     QSettings settings;
     settings.beginGroup(settingsGroupAudio);
     settings.setValue(recordingEnabledKey, enabled);
+    settings.endGroup();
+}
+
+int audioBufferSize()
+{
+    QSettings settings;
+    settings.beginGroup(settingsGroupAudio);
+    const auto audioBufferSize = settings.value(audioBufferSizeKey, 1024).toInt();
+    settings.endGroup();
+    return audioBufferSize;
+}
+
+void setAudioBufferSize(int bufferSize)
+{
+    QSettings settings;
+    settings.beginGroup(settingsGroupAudio);
+    settings.setValue(audioBufferSizeKey, bufferSize);
     settings.endGroup();
 }
 

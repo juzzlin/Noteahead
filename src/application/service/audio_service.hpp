@@ -32,7 +32,7 @@ public:
     AudioService(QObject * parent = nullptr);
     ~AudioService() override;
 
-    void startRecording(QString filePath);
+    void startRecording(QString filePath, quint32 bufferSize);
     void stopRecording();
 
 private:

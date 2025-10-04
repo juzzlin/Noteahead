@@ -21,7 +21,7 @@ AudioRecorder::AudioRecorder() = default;
 
 AudioRecorder::~AudioRecorder() = default;
 
-void AudioRecorder::start(const std::string &)
+void AudioRecorder::start(const std::string &, uint32_t)
 {
 }
 

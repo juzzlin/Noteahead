@@ -16,6 +16,7 @@
 #ifndef AUDIO_RECORDER_HPP
 #define AUDIO_RECORDER_HPP
 
+#include <cstdint>
 #include <string>
 
 namespace noteahead {
@@ -26,7 +27,7 @@ public:
     explicit AudioRecorder();
     virtual ~AudioRecorder();
 
-    virtual void start(const std::string & fileName);
+    virtual void start(const std::string & fileName, uint32_t bufferSize);
     virtual void stop();
 };
 

@@ -109,6 +109,16 @@ void SettingsService::setRecordingEnabled(bool enabled)
     return Settings::setRecordingEnabled(enabled);
 }
 
+int SettingsService::audioBufferSize() const
+{
+    return Settings::audioBufferSize();
+}
+
+void SettingsService::setAudioBufferSize(int samples)
+{
+    Settings::setAudioBufferSize(samples);
+}
+
 SettingsService::~SettingsService() = default;
 
 } // namespace noteahead

@@ -24,7 +24,7 @@ namespace noteahead {
 static const auto TAG = "AudioRecorderRtAudio";
 
 int AudioRecorderRtAudio::recordCallback(void *, void * inputBuffer,
-                                         unsigned int nFrames,
+                                         uint32_t nFrames,
                                          double, RtAudioStreamStatus status,
                                          void * userData)
 {
@@ -51,7 +51,7 @@ AudioRecorderRtAudio::~AudioRecorderRtAudio()
     AudioRecorderRtAudio::stop();
 }
 
-void AudioRecorderRtAudio::initializeSoundFile(const std::string & fileName, unsigned int sampleRate, unsigned int channelCount)
+void AudioRecorderRtAudio::initializeSoundFile(const std::string & fileName, uint32_t sampleRate, uint32_t channelCount)
 {
     // Open WAV file: 24-bit PCM
     m_sfInfo = {};
@@ -65,19 +65,19 @@ void AudioRecorderRtAudio::initializeSoundFile(const std::string & fileName, uns
     }
 }
 
-void AudioRecorderRtAudio::initializeSoundStream(unsigned int deviceId, unsigned int channelCount, unsigned int sampleRate)
+void AudioRecorderRtAudio::initializeSoundStream(uint32_t deviceId, uint32_t channelCount, uint32_t sampleRate, uint32_t bufferSize)
 {
     RtAudio::StreamParameters iParams;
     iParams.deviceId = deviceId;
     iParams.nChannels = channelCount;
-    unsigned int bufferFrames = 1024;
+    uint32_t bufferFrames = bufferSize;
     m_rtAudio.openStream(nullptr, &iParams, RTAUDIO_SINT32,
                          sampleRate, &bufferFrames,
                          &AudioRecorderRtAudio::recordCallback, this);
     m_rtAudio.startStream();
 }
 
-void AudioRecorderRtAudio::start(const std::string & fileName)
+void AudioRecorderRtAudio::start(const std::string & fileName, uint32_t bufferSize)
 {
     if (!m_running) {
 
@@ -88,14 +88,14 @@ void AudioRecorderRtAudio::start(const std::string & fileName)
 
             const auto deviceId = m_rtAudio.getDefaultInputDevice();
             const auto deviceInfo = m_rtAudio.getDeviceInfo(deviceId);
-            const unsigned int sampleRate = deviceInfo.preferredSampleRate ? deviceInfo.preferredSampleRate : 48000;
-            const unsigned int channelCount = std::min(deviceInfo.inputChannels, 2u);
+            const uint32_t sampleRate = deviceInfo.preferredSampleRate ? deviceInfo.preferredSampleRate : 48000;
+            const uint32_t channelCount = std::min(deviceInfo.inputChannels, 2u);
 
             juzzlin::L(TAG).info() << "Recording from device: " << deviceInfo.name << ", " << sampleRate << " Hz, " << channelCount << " channels (24-bit WAV)";
+            juzzlin::L(TAG).info() << "Buffer size: " << bufferSize;
 
             initializeSoundFile(fileName, sampleRate, channelCount);
-
-            initializeSoundStream(deviceId, channelCount, sampleRate);
+            initializeSoundStream(deviceId, channelCount, sampleRate, bufferSize);
 
             m_running = true;
         } catch (std::exception & e) {
