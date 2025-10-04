@@ -191,14 +191,14 @@ set(QML_SOURCE_FILES
     ${QML_BASE_DIR}/Dialogs/PitchBendAutomationModel.qml
     ${QML_BASE_DIR}/Dialogs/RecentFilesDialog.qml
     ${QML_BASE_DIR}/Dialogs/SettingsDialog.qml
-    ${QML_BASE_DIR}/Dialogs/SettingsDialogAudioSettings.qml
-    ${QML_BASE_DIR}/Dialogs/SettingsDialogGeneralSettings.qml
-    ${QML_BASE_DIR}/Dialogs/SettingsDialogMidiSettings.qml
+    ${QML_BASE_DIR}/Dialogs/SettingsDialog_AudioSettings.qml
+    ${QML_BASE_DIR}/Dialogs/SettingsDialog_GeneralSettings.qml
+    ${QML_BASE_DIR}/Dialogs/SettingsDialog_MidiSettings.qml
     ${QML_BASE_DIR}/Dialogs/TrackSettingsDialog.qml
-    ${QML_BASE_DIR}/Dialogs/TrackSettingsDialogMidiCcSettingsGeneric.qml
-    ${QML_BASE_DIR}/Dialogs/TrackSettingsDialogMidiCcSettingsPredefined.qml
-    ${QML_BASE_DIR}/Dialogs/TrackSettingsDialogMidiInstrumentSettings.qml
-    ${QML_BASE_DIR}/Dialogs/TrackSettingsDialogMidiSettingsMiscellaneous.qml
+    ${QML_BASE_DIR}/Dialogs/TrackSettingsDialog_MidiCcSettingsGeneric.qml
+    ${QML_BASE_DIR}/Dialogs/TrackSettingsDialog_MidiCcSettingsPredefined.qml
+    ${QML_BASE_DIR}/Dialogs/TrackSettingsDialog_MidiInstrumentSettings.qml
+    ${QML_BASE_DIR}/Dialogs/TrackSettingsDialog_MidiSettingsMiscellaneous.qml
     ${QML_BASE_DIR}/Dialogs/UnsavedChangesDialog.qml
     ${QML_BASE_DIR}/Editor/Cursor.qml
     ${QML_BASE_DIR}/Editor/EditorView.qml
@@ -210,14 +210,14 @@ set(QML_SOURCE_FILES
     ${QML_BASE_DIR}/Editor/MouseHandler.qml
     ${QML_BASE_DIR}/Editor/MuteSoloButtons.qml
     ${QML_BASE_DIR}/Editor/NoteColumn.qml
-    ${QML_BASE_DIR}/Editor/NoteColumnHeader.qml
-    ${QML_BASE_DIR}/Editor/NoteColumnLineContainer.qml
-    ${QML_BASE_DIR}/Editor/NoteColumnLineDelegate.qml
+    ${QML_BASE_DIR}/Editor/NoteColumn_Header.qml
+    ${QML_BASE_DIR}/Editor/NoteColumn_LineContainer.qml
+    ${QML_BASE_DIR}/Editor/NoteColumn_LineDelegate.qml
     ${QML_BASE_DIR}/Editor/Pattern.qml
     ${QML_BASE_DIR}/Editor/PositionBar.qml
     ${QML_BASE_DIR}/Editor/Track.qml
-    ${QML_BASE_DIR}/Editor/TrackHeader.qml
-    ${QML_BASE_DIR}/Editor/TrackHeaderColumnButtons.qml
+    ${QML_BASE_DIR}/Editor/Track_Header.qml
+    ${QML_BASE_DIR}/Editor/Track_Header_ColumnButtons.qml
     ${QML_BASE_DIR}/Editor/VelocityScale.qml
     ${QML_BASE_DIR}/Editor/VolumeMeter.qml
     ${QML_BASE_DIR}/MainMenu.qml

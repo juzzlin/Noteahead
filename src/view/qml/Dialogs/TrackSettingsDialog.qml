@@ -59,19 +59,19 @@ Dialog {
     ColumnLayout {
         anchors.fill: parent
         spacing: 12
-        TrackSettingsDialogMidiInstrumentSettings {
+        TrackSettingsDialog_MidiInstrumentSettings {
             id: midiInstrumentSettings
             Layout.fillWidth: true
         }
-        TrackSettingsDialogMidiCcSettingsPredefined {
+        TrackSettingsDialog_MidiCcSettingsPredefined {
             id: midiCcSettingsPredefined
             Layout.fillWidth: true
         }
-        TrackSettingsDialogMidiCcSettingsGeneric {
+        TrackSettingsDialog_MidiCcSettingsGeneric {
             id: midiCcSettingsGeneric
             Layout.fillWidth: true
         }
-        TrackSettingsDialogMidiSettingsMiscellaneous {
+        TrackSettingsDialog_MidiSettingsMiscellaneous {
             id: midiSettingsMiscellaneous
             Layout.fillWidth: true
         }

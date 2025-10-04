@@ -97,7 +97,7 @@ Rectangle {
             anchors.fill: parent
             cacheBuffer: 2
             clip: true
-            delegate: NoteColumnLineDelegate {
+            delegate: NoteColumn_LineDelegate {
                 height: rootItem.height / settingsService.visibleLines
                 width: listView.width
             }

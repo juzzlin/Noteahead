@@ -30,15 +30,15 @@ Dialog {
             height: parent.height - tabBar.height
             width: parent.width
             currentIndex: tabBar.currentIndex
-            SettingsDialogGeneralSettings {
+            SettingsDialog_GeneralSettings {
                 height: parent.height
                 width: parent.width
             }
-            SettingsDialogMidiSettings {
+            SettingsDialog_MidiSettings {
                 height: parent.height
                 width: parent.width
             }
-            SettingsDialogAudioSettings {
+            SettingsDialog_AudioSettings {
                 height: parent.height
                 width: parent.width
             }
