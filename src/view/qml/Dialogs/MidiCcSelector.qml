@@ -43,7 +43,7 @@ RowLayout {
     }
     CheckBox {
         id: enableCcCheckbox
-        text: qsTr("Enable MIDI CC #") + index
+        text: qsTr("Enable")
         visible: showEnabled
         Layout.fillWidth: true
         ToolTip.delay: Constants.toolTipDelay

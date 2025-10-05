@@ -63,11 +63,11 @@ Dialog {
             id: midiInstrumentSettings
             Layout.fillWidth: true
         }
-        TrackSettingsDialog_MidiCcSettingsPredefined {
+        TrackSettingsDialog_MidiCcSettings_Standard {
             id: midiCcSettingsPredefined
             Layout.fillWidth: true
         }
-        TrackSettingsDialog_MidiCcSettingsGeneric {
+        TrackSettingsDialog_MidiCcSettings_Custom {
             id: midiCcSettingsGeneric
             Layout.fillWidth: true
         }

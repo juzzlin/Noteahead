@@ -195,8 +195,8 @@ set(QML_SOURCE_FILES
     ${QML_BASE_DIR}/Dialogs/SettingsDialog_GeneralSettings.qml
     ${QML_BASE_DIR}/Dialogs/SettingsDialog_MidiSettings.qml
     ${QML_BASE_DIR}/Dialogs/TrackSettingsDialog.qml
-    ${QML_BASE_DIR}/Dialogs/TrackSettingsDialog_MidiCcSettingsGeneric.qml
-    ${QML_BASE_DIR}/Dialogs/TrackSettingsDialog_MidiCcSettingsPredefined.qml
+    ${QML_BASE_DIR}/Dialogs/TrackSettingsDialog_MidiCcSettings_Custom.qml
+    ${QML_BASE_DIR}/Dialogs/TrackSettingsDialog_MidiCcSettings_Standard.qml
     ${QML_BASE_DIR}/Dialogs/TrackSettingsDialog_MidiInstrumentSettings.qml
     ${QML_BASE_DIR}/Dialogs/TrackSettingsDialog_MidiSettingsMiscellaneous.qml
     ${QML_BASE_DIR}/Dialogs/UnsavedChangesDialog.qml

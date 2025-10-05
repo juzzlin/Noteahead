@@ -5,7 +5,7 @@ import QtQuick.Layouts
 import ".."
 
 GroupBox {
-    title: qsTr("Pre-defined MIDI CC Settings")
+    title: qsTr("Standard MIDI CC Settings")
     Layout.fillWidth: true
     function initialize(): void {
         enableCutoffCheckbox.checked = trackSettingsModel.cutoffEnabled;
@@ -24,7 +24,7 @@ GroupBox {
             width: parent.width
             CheckBox {
                 id: enableVolumeCheckbox
-                text: qsTr("Set Volume")
+                text: qsTr("Set Volume (CC #7)")
                 Layout.column: 0
                 Layout.columnSpan: 2
                 Layout.row: 0
@@ -53,7 +53,7 @@ GroupBox {
             }
             CheckBox {
                 id: enablePanCheckbox
-                text: qsTr("Set Panning")
+                text: qsTr("Set Panning (CC #10)")
                 Layout.column: 0
                 Layout.columnSpan: 2
                 Layout.row: 1
@@ -82,7 +82,7 @@ GroupBox {
             }
             CheckBox {
                 id: enableCutoffCheckbox
-                text: qsTr("Set Cutoff")
+                text: qsTr("Set Cutoff (CC #74)")
                 Layout.column: 0
                 Layout.columnSpan: 2
                 Layout.row: 2
