@@ -29,7 +29,7 @@ pipeline {
                 axes {
                     axis {
                         name 'UBUNTU_VERSION'
-                        values '24.04', '24.10'
+                        values '24.04', '24.10', '25.04'
                     }
                 }
                 stages {
