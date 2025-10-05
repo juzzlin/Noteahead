@@ -56,24 +56,45 @@ Dialog {
             ToolTip.text: qsTr("Don't save current settings")
         }
     }
-    ColumnLayout {
+    Column {
         anchors.fill: parent
-        spacing: 12
-        TrackSettingsDialog_MidiInstrumentSettings {
-            id: midiInstrumentSettings
-            Layout.fillWidth: true
+        spacing: 10
+        StackLayout {
+            height: parent.height - tabBar.height
+            width: parent.width
+            currentIndex: tabBar.currentIndex
+            TrackSettingsDialog_MidiInstrumentSettings {
+                id: midiInstrumentSettings
+                Layout.fillWidth: true
+            }
+            TrackSettingsDialog_MidiCcSettings_Standard {
+                id: midiCcSettingsPredefined
+                Layout.fillWidth: true
+            }
+            TrackSettingsDialog_MidiCcSettings_Custom {
+                id: midiCcSettingsGeneric
+                Layout.fillWidth: true
+            }
+            TrackSettingsDialog_MidiSettingsMiscellaneous {
+                id: midiSettingsMiscellaneous
+                Layout.fillWidth: true
+            }
         }
-        TrackSettingsDialog_MidiCcSettings_Standard {
-            id: midiCcSettingsPredefined
-            Layout.fillWidth: true
-        }
-        TrackSettingsDialog_MidiCcSettings_Custom {
-            id: midiCcSettingsGeneric
-            Layout.fillWidth: true
-        }
-        TrackSettingsDialog_MidiSettingsMiscellaneous {
-            id: midiSettingsMiscellaneous
-            Layout.fillWidth: true
+        TabBar {
+            id: tabBar
+            width: parent.width
+            TabButton {
+                text: qsTr("MIDI Instrument")
+            }
+            TabButton {
+                text: qsTr("Standard MIDI CC")
+            }
+            TabButton {
+                text: qsTr("Custom MIDI CC")
+            }
+            TabButton {
+                text: qsTr("Miscellaneous MIDI")
+            }
         }
     }
     Component.onCompleted: {

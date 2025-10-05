@@ -15,6 +15,8 @@ New features:
 
 * Adjustable track header font size
 
+* Add tabs to track settings dialog
+
 Bug fixes:
 
 * Fix auto note-off offset calculation

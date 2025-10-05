@@ -27,8 +27,7 @@ ApplicationWindow {
     id: mainWindow
     visible: true
     title: _getWindowTitle()
-    menuBar: MainMenu {
-    }
+    menuBar: MainMenu {}
     footer: BottomBar {
         id: bottomBar
         height: menuBar.height
@@ -79,8 +78,8 @@ ApplicationWindow {
     Dialog {
         id: errorDialog
         anchors.centerIn: parent
-        width: parent.width * 0.5
-        height: parent.height * 0.5
+        width: parent.width * Constants.defaultDialogScale
+        height: parent.height * Constants.defaultDialogScale
         title: "<strong>" + qsTr("Error") + "</strong>"
         modal: true
         footer: DialogButtonBox {
@@ -99,7 +98,7 @@ ApplicationWindow {
     EventSelectionDialog {
         id: eventSelectionDialog
         anchors.centerIn: parent
-        width: parent.width * 0.5
+        width: parent.width * Constants.defaultDialogScale
         onAccepted: uiLogger.info(_tag, "Event selection dialog accepted")
         onRejected: uiLogger.info(_tag, "Event selection dialog rejected.")
     }
@@ -131,8 +130,8 @@ ApplicationWindow {
     RecentFilesDialog {
         id: recentFilesDialog
         anchors.centerIn: parent
-        width: parent.width * 0.5
-        height: parent.height * 0.5
+        width: parent.width * Constants.defaultDialogScale
+        height: parent.height * Constants.defaultDialogScale
         onFileSelected: {
             uiLogger.info(_tag, "Recent file accepted: " + selectedFile);
             applicationService.openRecentProject(selectedFile);
@@ -145,15 +144,16 @@ ApplicationWindow {
     SettingsDialog {
         id: settingsDialog
         anchors.centerIn: parent
-        height: parent.height * 0.5
-        width: parent.width * 0.5
+        height: parent.height * Constants.defaultDialogScale
+        width: parent.width * Constants.defaultDialogScale
         onAccepted: uiLogger.info(_tag, "Settings accepted")
         onRejected: uiLogger.info(_tag, "Settings rejected")
     }
     TrackSettingsDialog {
         id: trackSettingsDialog
         anchors.centerIn: parent
-        width: parent.width * 0.5
+        height: parent.height * Constants.defaultDialogScale
+        width: parent.width * Constants.defaultDialogScale
         onAccepted: uiLogger.info(_tag, "Track settings accepted")
         onRejected: uiLogger.info(_tag, "Track settings rejected")
     }
@@ -164,7 +164,7 @@ ApplicationWindow {
     IntegerInputDialog {
         id: columnVelocityScaleDialog
         anchors.centerIn: parent
-        width: parent.width * 0.5
+        width: parent.width * Constants.defaultDialogScale
         property int trackIndex
         property int columnIndex
         onAccepted: mixerService.setColumnVelocityScale(trackIndex, columnIndex, value())
@@ -172,7 +172,7 @@ ApplicationWindow {
     IntegerInputDialog {
         id: lineDelayDialog
         anchors.centerIn: parent
-        width: parent.width * 0.5
+        width: parent.width * Constants.defaultDialogScale
         onAccepted: editorService.setDelayOnCurrentLine(value())
         Component.onCompleted: {
             setMinValue(0);
@@ -182,26 +182,26 @@ ApplicationWindow {
     IntegerInputDialog {
         id: trackVelocityScaleDialog
         anchors.centerIn: parent
-        width: parent.width * 0.5
+        width: parent.width * Constants.defaultDialogScale
         property int trackIndex
         onAccepted: mixerService.setTrackVelocityScale(trackIndex, value())
     }
     InterpolationDialog {
         id: columnVelocityInterpolationDialog
         anchors.centerIn: parent
-        width: parent.width * 0.5
+        width: parent.width * Constants.defaultDialogScale
         onAccepted: editorService.requestLinearVelocityInterpolationOnColumn(startLine(), endLine(), startValue(), endValue())
     }
     InterpolationDialog {
         id: trackVelocityInterpolationDialog
         anchors.centerIn: parent
-        width: parent.width * 0.5
+        width: parent.width * Constants.defaultDialogScale
         onAccepted: editorService.requestLinearVelocityInterpolationOnTrack(startLine(), endLine(), startValue(), endValue())
     }
     AddMidiCcAutomationDialog {
         id: addMidiCcAutomationDialog
         anchors.centerIn: parent
-        width: parent.width * 0.5
+        width: parent.width * Constants.defaultDialogScale
         onAccepted: {
             const position = editorService.position;
             automationService.addMidiCcAutomation(position.pattern, position.track, position.column, controller(), startLine(), endLine(), startValue(), endValue(), comment());
@@ -212,14 +212,14 @@ ApplicationWindow {
     EditMidiCcAutomationsDialog {
         id: editMidiCcAutomationsDialog
         anchors.centerIn: parent
-        width: parent.width * 0.5
-        height: parent.height * 0.5
+        width: parent.width * Constants.defaultDialogScale
+        height: parent.height * Constants.defaultDialogScale
         onAccepted: midiCcAutomationsModel.applyAll()
     }
     AddPitchBendAutomationDialog {
         id: addPitchBendAutomationDialog
         anchors.centerIn: parent
-        width: parent.width * 0.5
+        width: parent.width * Constants.defaultDialogScale
         onAccepted: {
             const position = editorService.position;
             automationService.addPitchBendAutomation(position.pattern, position.track, position.column, startLine(), endLine(), startValue(), endValue(), comment());
@@ -230,8 +230,8 @@ ApplicationWindow {
     EditPitchBendAutomationsDialog {
         id: editPitchBendAutomationsDialog
         anchors.centerIn: parent
-        width: parent.width * 0.5
-        height: parent.height * 0.5
+        width: parent.width * Constants.defaultDialogScale
+        height: parent.height * Constants.defaultDialogScale
         onAccepted: pitchBendAutomationsModel.applyAll()
     }
     DelayCalculatorDialog {
@@ -242,7 +242,7 @@ ApplicationWindow {
     NoteFrequencyDialog {
         id: noteFrequencyDialog
         anchors.centerIn: parent
-        height: parent.height * 0.5
+        height: parent.height * Constants.defaultDialogScale
     }
     MainContextMenu {
         id: contextMenu
@@ -264,9 +264,9 @@ ApplicationWindow {
     }
     function _connectApplicationService(): void {
         applicationService.alertDialogRequested.connect(text => {
-                errorDialog.errorMessage = text;
-                errorDialog.open();
-            });
+            errorDialog.errorMessage = text;
+            errorDialog.open();
+        });
         applicationService.openDialogRequested.connect(openDialog.open);
         applicationService.recentFilesDialogRequested.connect(recentFilesDialog.open);
         applicationService.saveAsDialogRequested.connect(saveAsDialog.open);
@@ -276,200 +276,200 @@ ApplicationWindow {
     }
     function _connectEditorService(): void {
         editorService.errorTextRequested.connect(errorText => {
-                errorDialog.errorMessage = "ERROR!!: " + errorText;
-                errorDialog.open();
-            });
+            errorDialog.errorMessage = "ERROR!!: " + errorText;
+            errorDialog.open();
+        });
         editorService.statusTextRequested.connect(bottomBar.setStatusText);
         editorService.positionChanged.connect((newPosition, oldPosition) => {
-                bottomBar.setPosition(newPosition);
-            });
+            bottomBar.setPosition(newPosition);
+        });
     }
     function _connectUiService(): void {
         UiService.aboutDialogRequested.connect(aboutDialog.open);
         UiService.eventSelectionDialogRequested.connect(() => {
-                eventSelectionDialog.requestData();
-                eventSelectionDialog.open();
-            });
+            eventSelectionDialog.requestData();
+            eventSelectionDialog.open();
+        });
         UiService.focusOnEditorViewRequested.connect(() => {
-                uiLogger.info(_tag, "Settings focus on editor view");
-                _editorView.focus = true;
-            });
+            uiLogger.info(_tag, "Settings focus on editor view");
+            _editorView.focus = true;
+        });
         UiService.recentFilesDialogRequested.connect(recentFilesDialog.open);
         UiService.settingsDialogRequested.connect(settingsDialog.open);
         UiService.trackSettingsDialogRequested.connect(trackIndex => {
-                trackSettingsDialog.setTrackIndex(trackIndex);
-                trackSettingsDialog.open();
-            });
+            trackSettingsDialog.setTrackIndex(trackIndex);
+            trackSettingsDialog.open();
+        });
         UiService.columnVelocityScaleDialogRequested.connect((trackIndex, columnIndex) => {
-                columnVelocityScaleDialog.setTitle(qsTr("Set velocity scale for column ") + columnIndex);
-                columnVelocityScaleDialog.setValue(mixerService.columnVelocityScale(trackIndex, columnIndex));
-                columnVelocityScaleDialog.trackIndex = trackIndex;
-                columnVelocityScaleDialog.columnIndex = columnIndex;
-                columnVelocityScaleDialog.open();
-            });
+            columnVelocityScaleDialog.setTitle(qsTr("Set velocity scale for column ") + columnIndex);
+            columnVelocityScaleDialog.setValue(mixerService.columnVelocityScale(trackIndex, columnIndex));
+            columnVelocityScaleDialog.trackIndex = trackIndex;
+            columnVelocityScaleDialog.columnIndex = columnIndex;
+            columnVelocityScaleDialog.open();
+        });
         UiService.trackVelocityScaleDialogRequested.connect(trackIndex => {
-                trackVelocityScaleDialog.setTitle(qsTr("Set velocity scale for track ") + "'" + editorService.trackName(trackIndex) + "'");
-                trackVelocityScaleDialog.setValue(mixerService.trackVelocityScale(trackIndex));
-                trackVelocityScaleDialog.trackIndex = trackIndex;
-                trackVelocityScaleDialog.open();
-            });
+            trackVelocityScaleDialog.setTitle(qsTr("Set velocity scale for track ") + "'" + editorService.trackName(trackIndex) + "'");
+            trackVelocityScaleDialog.setValue(mixerService.trackVelocityScale(trackIndex));
+            trackVelocityScaleDialog.trackIndex = trackIndex;
+            trackVelocityScaleDialog.open();
+        });
         UiService.columnVelocityInterpolationDialogRequested.connect(() => {
-                columnVelocityInterpolationDialog.setTitle(qsTr("Interpolate velocity"));
-                columnVelocityInterpolationDialog.setStartLine(0);
-                columnVelocityInterpolationDialog.setEndLine(editorService.currentLineCount - 1);
-                columnVelocityInterpolationDialog.setStartValue(0);
-                columnVelocityInterpolationDialog.setEndValue(100);
-                columnVelocityInterpolationDialog.open();
-            });
+            columnVelocityInterpolationDialog.setTitle(qsTr("Interpolate velocity"));
+            columnVelocityInterpolationDialog.setStartLine(0);
+            columnVelocityInterpolationDialog.setEndLine(editorService.currentLineCount - 1);
+            columnVelocityInterpolationDialog.setStartValue(0);
+            columnVelocityInterpolationDialog.setEndValue(100);
+            columnVelocityInterpolationDialog.open();
+        });
         UiService.selectionVelocityInterpolationDialogRequested.connect(() => {
-                columnVelocityInterpolationDialog.setTitle(qsTr("Interpolate velocity"));
-                columnVelocityInterpolationDialog.setStartLine(selectionService.minLine());
-                columnVelocityInterpolationDialog.setEndLine(selectionService.maxLine());
-                columnVelocityInterpolationDialog.setStartValue(0);
-                columnVelocityInterpolationDialog.setEndValue(100);
-                columnVelocityInterpolationDialog.open();
-            });
+            columnVelocityInterpolationDialog.setTitle(qsTr("Interpolate velocity"));
+            columnVelocityInterpolationDialog.setStartLine(selectionService.minLine());
+            columnVelocityInterpolationDialog.setEndLine(selectionService.maxLine());
+            columnVelocityInterpolationDialog.setStartValue(0);
+            columnVelocityInterpolationDialog.setEndValue(100);
+            columnVelocityInterpolationDialog.open();
+        });
         UiService.trackVelocityInterpolationDialogRequested.connect(() => {
-                trackVelocityInterpolationDialog.setTitle(qsTr("Interpolate velocity"));
-                trackVelocityInterpolationDialog.setStartLine(0);
-                trackVelocityInterpolationDialog.setEndLine(editorService.currentLineCount - 1);
-                trackVelocityInterpolationDialog.setStartValue(0);
-                trackVelocityInterpolationDialog.setEndValue(100);
-                trackVelocityInterpolationDialog.open();
-            });
+            trackVelocityInterpolationDialog.setTitle(qsTr("Interpolate velocity"));
+            trackVelocityInterpolationDialog.setStartLine(0);
+            trackVelocityInterpolationDialog.setEndLine(editorService.currentLineCount - 1);
+            trackVelocityInterpolationDialog.setStartValue(0);
+            trackVelocityInterpolationDialog.setEndValue(100);
+            trackVelocityInterpolationDialog.open();
+        });
         UiService.lineDelayDialogRequested.connect(() => {
-                lineDelayDialog.setValue(editorService.delayAtCurrentPosition());
-                lineDelayDialog.open();
-            });
+            lineDelayDialog.setValue(editorService.delayAtCurrentPosition());
+            lineDelayDialog.open();
+        });
         UiService.lineAddMidiCcAutomationDialogRequested.connect(() => {
-                addMidiCcAutomationDialog.setTitle(qsTr("Add MIDI CC automation"));
-                addMidiCcAutomationDialog.setStartLine(editorService.position.line);
-                addMidiCcAutomationDialog.setEndLine(editorService.position.line);
-                addMidiCcAutomationDialog.setStartValue(100);
-                addMidiCcAutomationDialog.setEndValue(0);
-                addMidiCcAutomationDialog.setComment("");
-                addMidiCcAutomationDialog.open();
-            });
+            addMidiCcAutomationDialog.setTitle(qsTr("Add MIDI CC automation"));
+            addMidiCcAutomationDialog.setStartLine(editorService.position.line);
+            addMidiCcAutomationDialog.setEndLine(editorService.position.line);
+            addMidiCcAutomationDialog.setStartValue(100);
+            addMidiCcAutomationDialog.setEndValue(0);
+            addMidiCcAutomationDialog.setComment("");
+            addMidiCcAutomationDialog.open();
+        });
         UiService.columnAddMidiCcAutomationDialogRequested.connect(() => {
-                addMidiCcAutomationDialog.setTitle(qsTr("Add MIDI CC automation"));
-                addMidiCcAutomationDialog.setStartLine(0);
-                addMidiCcAutomationDialog.setEndLine(editorService.currentLineCount - 1);
-                addMidiCcAutomationDialog.setStartValue(0);
-                addMidiCcAutomationDialog.setEndValue(100);
-                addMidiCcAutomationDialog.setComment("");
-                addMidiCcAutomationDialog.open();
-            });
+            addMidiCcAutomationDialog.setTitle(qsTr("Add MIDI CC automation"));
+            addMidiCcAutomationDialog.setStartLine(0);
+            addMidiCcAutomationDialog.setEndLine(editorService.currentLineCount - 1);
+            addMidiCcAutomationDialog.setStartValue(0);
+            addMidiCcAutomationDialog.setEndValue(100);
+            addMidiCcAutomationDialog.setComment("");
+            addMidiCcAutomationDialog.open();
+        });
         UiService.selectionAddMidiCcAutomationDialogRequested.connect(() => {
-                addMidiCcAutomationDialog.setTitle(qsTr("Add MIDI CC automation"));
-                addMidiCcAutomationDialog.setStartLine(selectionService.minLine());
-                addMidiCcAutomationDialog.setEndLine(selectionService.maxLine());
-                addMidiCcAutomationDialog.setStartValue(0);
-                addMidiCcAutomationDialog.setEndValue(100);
-                addMidiCcAutomationDialog.setComment("");
-                addMidiCcAutomationDialog.open();
-            });
+            addMidiCcAutomationDialog.setTitle(qsTr("Add MIDI CC automation"));
+            addMidiCcAutomationDialog.setStartLine(selectionService.minLine());
+            addMidiCcAutomationDialog.setEndLine(selectionService.maxLine());
+            addMidiCcAutomationDialog.setStartValue(0);
+            addMidiCcAutomationDialog.setEndValue(100);
+            addMidiCcAutomationDialog.setComment("");
+            addMidiCcAutomationDialog.open();
+        });
         UiService.editMidiCcAutomationsDialogRequested.connect(() => {
-                midiCcAutomationsModel.requestMidiCcAutomations();
-                editMidiCcAutomationsDialog.setTitle(qsTr("Edit MIDI CC automations"));
-                editMidiCcAutomationsDialog.open();
-            });
+            midiCcAutomationsModel.requestMidiCcAutomations();
+            editMidiCcAutomationsDialog.setTitle(qsTr("Edit MIDI CC automations"));
+            editMidiCcAutomationsDialog.open();
+        });
         UiService.editMidiCcAutomationsDialogByLineRequested.connect(() => {
-                const position = editorService.position;
-                midiCcAutomationsModel.requestMidiCcAutomationsByLine(position.pattern, position.track, position.column, position.line);
-                editMidiCcAutomationsDialog.setTitle(qsTr("Edit MIDI CC automations by line"));
-                editMidiCcAutomationsDialog.open();
-            });
+            const position = editorService.position;
+            midiCcAutomationsModel.requestMidiCcAutomationsByLine(position.pattern, position.track, position.column, position.line);
+            editMidiCcAutomationsDialog.setTitle(qsTr("Edit MIDI CC automations by line"));
+            editMidiCcAutomationsDialog.open();
+        });
         UiService.editMidiCcAutomationsDialogByColumnRequested.connect(() => {
-                const position = editorService.position;
-                midiCcAutomationsModel.requestMidiCcAutomationsByColumn(position.pattern, position.track, position.column);
-                editMidiCcAutomationsDialog.setTitle(qsTr("Edit MIDI CC automations by column"));
-                editMidiCcAutomationsDialog.open();
-            });
+            const position = editorService.position;
+            midiCcAutomationsModel.requestMidiCcAutomationsByColumn(position.pattern, position.track, position.column);
+            editMidiCcAutomationsDialog.setTitle(qsTr("Edit MIDI CC automations by column"));
+            editMidiCcAutomationsDialog.open();
+        });
         UiService.editMidiCcAutomationsDialogByTrackRequested.connect(() => {
-                const position = editorService.position;
-                midiCcAutomationsModel.requestMidiCcAutomationsByTrack(position.pattern, position.track);
-                editMidiCcAutomationsDialog.setTitle(qsTr("Edit MIDI CC automations by track"));
-                editMidiCcAutomationsDialog.open();
-            });
+            const position = editorService.position;
+            midiCcAutomationsModel.requestMidiCcAutomationsByTrack(position.pattern, position.track);
+            editMidiCcAutomationsDialog.setTitle(qsTr("Edit MIDI CC automations by track"));
+            editMidiCcAutomationsDialog.open();
+        });
         UiService.editMidiCcAutomationsDialogByPatternRequested.connect(() => {
-                const position = editorService.position;
-                midiCcAutomationsModel.requestMidiCcAutomationsByPattern(position.pattern);
-                editMidiCcAutomationsDialog.setTitle(qsTr("Edit MIDI CC automations by pattern"));
-                editMidiCcAutomationsDialog.open();
-            });
+            const position = editorService.position;
+            midiCcAutomationsModel.requestMidiCcAutomationsByPattern(position.pattern);
+            editMidiCcAutomationsDialog.setTitle(qsTr("Edit MIDI CC automations by pattern"));
+            editMidiCcAutomationsDialog.open();
+        });
         UiService.lineAddPitchBendAutomationDialogRequested.connect(() => {
-                addPitchBendAutomationDialog.setTitle(qsTr("Add Pitch Bend automation"));
-                addPitchBendAutomationDialog.setStartLine(editorService.position.line);
-                addPitchBendAutomationDialog.setEndLine(editorService.position.line);
-                addPitchBendAutomationDialog.setStartValue(0);
-                addPitchBendAutomationDialog.setEndValue(100);
-                addPitchBendAutomationDialog.setComment("");
-                addPitchBendAutomationDialog.open();
-            });
+            addPitchBendAutomationDialog.setTitle(qsTr("Add Pitch Bend automation"));
+            addPitchBendAutomationDialog.setStartLine(editorService.position.line);
+            addPitchBendAutomationDialog.setEndLine(editorService.position.line);
+            addPitchBendAutomationDialog.setStartValue(0);
+            addPitchBendAutomationDialog.setEndValue(100);
+            addPitchBendAutomationDialog.setComment("");
+            addPitchBendAutomationDialog.open();
+        });
         UiService.columnAddPitchBendAutomationDialogRequested.connect(() => {
-                addPitchBendAutomationDialog.setTitle(qsTr("Add Pitch Bend automation"));
-                addPitchBendAutomationDialog.setStartLine(0);
-                addPitchBendAutomationDialog.setEndLine(editorService.currentLineCount - 1);
-                addPitchBendAutomationDialog.setStartValue(0);
-                addPitchBendAutomationDialog.setEndValue(100);
-                addPitchBendAutomationDialog.setComment("");
-                addPitchBendAutomationDialog.open();
-            });
+            addPitchBendAutomationDialog.setTitle(qsTr("Add Pitch Bend automation"));
+            addPitchBendAutomationDialog.setStartLine(0);
+            addPitchBendAutomationDialog.setEndLine(editorService.currentLineCount - 1);
+            addPitchBendAutomationDialog.setStartValue(0);
+            addPitchBendAutomationDialog.setEndValue(100);
+            addPitchBendAutomationDialog.setComment("");
+            addPitchBendAutomationDialog.open();
+        });
         UiService.selectionAddPitchBendAutomationDialogRequested.connect(() => {
-                addPitchBendAutomationDialog.setTitle(qsTr("Add Pitch Bend automation"));
-                addPitchBendAutomationDialog.setStartLine(selectionService.minLine());
-                addPitchBendAutomationDialog.setEndLine(selectionService.maxLine());
-                addPitchBendAutomationDialog.setStartValue(0);
-                addPitchBendAutomationDialog.setEndValue(100);
-                addPitchBendAutomationDialog.setComment("");
-                addPitchBendAutomationDialog.open();
-            });
+            addPitchBendAutomationDialog.setTitle(qsTr("Add Pitch Bend automation"));
+            addPitchBendAutomationDialog.setStartLine(selectionService.minLine());
+            addPitchBendAutomationDialog.setEndLine(selectionService.maxLine());
+            addPitchBendAutomationDialog.setStartValue(0);
+            addPitchBendAutomationDialog.setEndValue(100);
+            addPitchBendAutomationDialog.setComment("");
+            addPitchBendAutomationDialog.open();
+        });
         UiService.editPitchBendAutomationsDialogRequested.connect(() => {
-                pitchBendAutomationsModel.requestPitchBendAutomations();
-                editPitchBendAutomationsDialog.setTitle(qsTr("Edit Pitch Bend automations"));
-                editPitchBendAutomationsDialog.open();
-            });
+            pitchBendAutomationsModel.requestPitchBendAutomations();
+            editPitchBendAutomationsDialog.setTitle(qsTr("Edit Pitch Bend automations"));
+            editPitchBendAutomationsDialog.open();
+        });
         UiService.editPitchBendAutomationsDialogByLineRequested.connect(() => {
-                const position = editorService.position;
-                pitchBendAutomationsModel.requestPitchBendAutomationsByLine(position.pattern, position.track, position.column, position.line);
-                editPitchBendAutomationsDialog.setTitle(qsTr("Edit Pitch Bend automations by line"));
-                editPitchBendAutomationsDialog.open();
-            });
+            const position = editorService.position;
+            pitchBendAutomationsModel.requestPitchBendAutomationsByLine(position.pattern, position.track, position.column, position.line);
+            editPitchBendAutomationsDialog.setTitle(qsTr("Edit Pitch Bend automations by line"));
+            editPitchBendAutomationsDialog.open();
+        });
         UiService.editPitchBendAutomationsDialogByColumnRequested.connect(() => {
-                const position = editorService.position;
-                pitchBendAutomationsModel.requestPitchBendAutomationsByColumn(position.pattern, position.track, position.column);
-                editPitchBendAutomationsDialog.setTitle(qsTr("Edit Pitch Bend automations by column"));
-                editPitchBendAutomationsDialog.open();
-            });
+            const position = editorService.position;
+            pitchBendAutomationsModel.requestPitchBendAutomationsByColumn(position.pattern, position.track, position.column);
+            editPitchBendAutomationsDialog.setTitle(qsTr("Edit Pitch Bend automations by column"));
+            editPitchBendAutomationsDialog.open();
+        });
         UiService.editPitchBendAutomationsDialogByTrackRequested.connect(() => {
-                const position = editorService.position;
-                pitchBendAutomationsModel.requestPitchBendAutomationsByTrack(position.pattern, position.track);
-                editPitchBendAutomationsDialog.setTitle(qsTr("Edit Pitch Bend automations by track"));
-                editPitchBendAutomationsDialog.open();
-            });
+            const position = editorService.position;
+            pitchBendAutomationsModel.requestPitchBendAutomationsByTrack(position.pattern, position.track);
+            editPitchBendAutomationsDialog.setTitle(qsTr("Edit Pitch Bend automations by track"));
+            editPitchBendAutomationsDialog.open();
+        });
         UiService.editPitchBendAutomationsDialogByPatternRequested.connect(() => {
-                const position = editorService.position;
-                pitchBendAutomationsModel.requestPitchBendAutomationsByPattern(position.pattern);
-                editPitchBendAutomationsDialog.setTitle(qsTr("Edit Pitch Bend automations by pattern"));
-                editPitchBendAutomationsDialog.open();
-            });
+            const position = editorService.position;
+            pitchBendAutomationsModel.requestPitchBendAutomationsByPattern(position.pattern);
+            editPitchBendAutomationsDialog.setTitle(qsTr("Edit Pitch Bend automations by pattern"));
+            editPitchBendAutomationsDialog.open();
+        });
         UiService.delayCalculatorDialogRequested.connect(() => {
-                delayCalculatorDialog.bpm = editorService.beatsPerMinute;
-                delayCalculatorDialog.calculateDelay();
-                delayCalculatorDialog.open();
-            });
+            delayCalculatorDialog.bpm = editorService.beatsPerMinute;
+            delayCalculatorDialog.calculateDelay();
+            delayCalculatorDialog.open();
+        });
         UiService.noteFrequencyDialogRequested.connect(() => {
-                noteFrequencyDialog.open();
-            });
+            noteFrequencyDialog.open();
+        });
         UiService.quitRequested.connect(() => {
-                settingsService.setWindowSize(Qt.size(mainWindow.width, mainWindow.height));
-                applicationService.requestQuit();
-            });
+            settingsService.setWindowSize(Qt.size(mainWindow.width, mainWindow.height));
+            applicationService.requestQuit();
+        });
         UiService.contextMenuRequested.connect((x, y) => {
-                contextMenu.x = x;
-                contextMenu.y = y;
-                contextMenu.open();
-            });
+            contextMenu.x = x;
+            contextMenu.y = y;
+            contextMenu.open();
+        });
     }
     function _connectServices(): void {
         _connectApplicationService();
@@ -479,9 +479,9 @@ ApplicationWindow {
     function _initialize(): void {
         _setWindowSizeAndPosition();
         _editorView = editorViewComponent.createObject(contentArea, {
-                "height": contentArea.height,
-                "width": contentArea.width
-            });
+            "height": contentArea.height,
+            "width": contentArea.width
+        });
         _connectServices();
     }
     function _resize(): void {
