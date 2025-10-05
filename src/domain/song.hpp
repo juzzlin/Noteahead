@@ -60,6 +60,7 @@ public:
     std::chrono::milliseconds autoNoteOffOffset() const;
     void setAutoNoteOffOffset(std::chrono::milliseconds autoNoteOffOffset);
     size_t autoNoteOffOffsetTicks() const;
+    size_t autoNoteOffOffsetTicks(std::chrono::milliseconds offset) const;
 
     using ChangedPositions = std::vector<Position>;
     ChangedPositions cutColumn(size_t patternIndex, size_t trackIndex, size_t columnIndex, CopyManager & copyManager) const;

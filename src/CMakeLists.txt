@@ -195,10 +195,11 @@ set(QML_SOURCE_FILES
     ${QML_BASE_DIR}/Dialogs/SettingsDialog_GeneralSettings.qml
     ${QML_BASE_DIR}/Dialogs/SettingsDialog_MidiSettings.qml
     ${QML_BASE_DIR}/Dialogs/TrackSettingsDialog.qml
+    ${QML_BASE_DIR}/Dialogs/TrackSettingsDialog_InstrumentSettings.qml
     ${QML_BASE_DIR}/Dialogs/TrackSettingsDialog_MidiCcSettings_Custom.qml
     ${QML_BASE_DIR}/Dialogs/TrackSettingsDialog_MidiCcSettings_Standard.qml
-    ${QML_BASE_DIR}/Dialogs/TrackSettingsDialog_MidiInstrumentSettings.qml
-    ${QML_BASE_DIR}/Dialogs/TrackSettingsDialog_MidiSettingsMiscellaneous.qml
+    ${QML_BASE_DIR}/Dialogs/TrackSettingsDialog_MidiEffects.qml
+    ${QML_BASE_DIR}/Dialogs/TrackSettingsDialog_TimingSettings.qml
     ${QML_BASE_DIR}/Dialogs/UnsavedChangesDialog.qml
     ${QML_BASE_DIR}/Editor/Cursor.qml
     ${QML_BASE_DIR}/Editor/EditorView.qml

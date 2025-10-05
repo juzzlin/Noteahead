@@ -46,21 +46,36 @@ public:
 
     std::optional<Bank> bank;
 
-    struct PredefinedMidiCcSettings
+    int transpose { 0 };
+
+    struct TimingSettings
+    {
+        std::optional<bool> sendMidiClock;
+        std::optional<bool> sendTransport;
+
+        std::chrono::milliseconds delay { 0 };
+
+        //! Overrides the global setting
+        std::optional<std::chrono::milliseconds> autoNoteOffOffset;
+    };
+
+    TimingSettings timing;
+
+    struct MidiEffects
+    {
+        int velocityJitter { 0 };
+    };
+
+    MidiEffects midiEffects;
+
+    struct StandardMidiCcSettings
     {
         std::optional<uint8_t> cutoff;
         std::optional<uint8_t> pan;
         std::optional<uint8_t> volume;
     };
 
-    PredefinedMidiCcSettings predefinedMidiCcSettings;
-
-    std::optional<bool> sendMidiClock;
-    std::optional<bool> sendTransport;
-
-    std::chrono::milliseconds delay { 0 };
-    int transpose { 0 };
-    int velocityJitter { 0 };
+    StandardMidiCcSettings standardMidiCcSettings;
 
     std::vector<MidiCcSetting> midiCcSettings;
 

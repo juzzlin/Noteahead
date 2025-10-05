@@ -91,12 +91,12 @@ void TrackSettingsModelTest::test_setInstrumentData_shouldUpdateRelevantFields()
     InstrumentSettings instrumentSettings;
     instrumentSettings.patch = 42;
     instrumentSettings.bank = InstrumentSettings::Bank { 1, 2, true };
-    instrumentSettings.predefinedMidiCcSettings.cutoff = 90;
-    instrumentSettings.predefinedMidiCcSettings.pan = 64;
-    instrumentSettings.predefinedMidiCcSettings.volume = 100;
-    instrumentSettings.sendMidiClock = true;
-    instrumentSettings.sendTransport = true;
-    instrumentSettings.delay = std::chrono::milliseconds(120);
+    instrumentSettings.standardMidiCcSettings.cutoff = 90;
+    instrumentSettings.standardMidiCcSettings.pan = 64;
+    instrumentSettings.standardMidiCcSettings.volume = 100;
+    instrumentSettings.timing.sendMidiClock = true;
+    instrumentSettings.timing.sendTransport = true;
+    instrumentSettings.timing.delay = std::chrono::milliseconds(120);
     instrument.setSettings(instrumentSettings);
 
     QSignalSpy spy { &model, &TrackSettingsModel::instrumentDataReceived };
@@ -183,7 +183,7 @@ void TrackSettingsModelTest::test_toInstrument_shouldApplyCutoffWhenCutoffEnable
     const auto instrument = model.toInstrument();
 
     // Verify cutoff setting
-    QCOMPARE(instrument->settings().predefinedMidiCcSettings.cutoff, 50);
+    QCOMPARE(instrument->settings().standardMidiCcSettings.cutoff, 50);
 }
 
 void TrackSettingsModelTest::test_toInstrument_shouldApplyPanWhenPanEnabled()
@@ -197,7 +197,7 @@ void TrackSettingsModelTest::test_toInstrument_shouldApplyPanWhenPanEnabled()
     const auto instrument = model.toInstrument();
 
     // Verify pan setting
-    QCOMPARE(instrument->settings().predefinedMidiCcSettings.pan, 100);
+    QCOMPARE(instrument->settings().standardMidiCcSettings.pan, 100);
 }
 
 void TrackSettingsModelTest::test_toInstrument_shouldApplyVolumeWhenVolumeEnabled()
@@ -211,7 +211,7 @@ void TrackSettingsModelTest::test_toInstrument_shouldApplyVolumeWhenVolumeEnable
     const auto instrument = model.toInstrument();
 
     // Verify volume setting
-    QCOMPARE(instrument->settings().predefinedMidiCcSettings.volume, 80);
+    QCOMPARE(instrument->settings().standardMidiCcSettings.volume, 80);
 }
 
 void TrackSettingsModelTest::test_toInstrument_shouldApplyMidiClockAndDelayWhenEnabled()
@@ -225,8 +225,8 @@ void TrackSettingsModelTest::test_toInstrument_shouldApplyMidiClockAndDelayWhenE
     const auto instrument = model.toInstrument();
 
     // Verify MIDI clock and delay settings
-    QCOMPARE(instrument->settings().sendMidiClock, true);
-    QCOMPARE(instrument->settings().delay, std::chrono::milliseconds { 200 });
+    QCOMPARE(instrument->settings().timing.sendMidiClock, true);
+    QCOMPARE(instrument->settings().timing.delay, std::chrono::milliseconds { 200 });
 }
 
 void TrackSettingsModelTest::test_toInstrument_setMidiCc_shouldEnableMidiCcSetting()

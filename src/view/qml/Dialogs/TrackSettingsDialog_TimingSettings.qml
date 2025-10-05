@@ -6,14 +6,14 @@ import ".."
 import "../Components"
 
 GroupBox {
-    title: qsTr("Miscellanous MIDI Settings")
+    title: qsTr("Timing")
     Layout.fillWidth: true
     width: parent.width
     function initialize(): void {
         sendMidiClockCheckbox.checked = trackSettingsModel.sendMidiClock;
         delaySpinBox.value = trackSettingsModel.delay;
-        transposeSpinBox.value = trackSettingsModel.transpose;
-        velocityJitterSpinBox.value = trackSettingsModel.velocityJitter;
+        autoNoteOffOffsetCheckbox.checked = trackSettingsModel.autoNoteOffOffsetEnabled;
+        autoNoteOffOffsetSpinBox.value = trackSettingsModel.autoNoteOffOffset;
     }
     ColumnLayout {
         spacing: 8
@@ -49,7 +49,7 @@ GroupBox {
                 onCheckedChanged: trackSettingsModel.sendTransport = checked
             }
             Label {
-                text: qsTr("Delay (ms):")
+                text: qsTr("Event delay (ms):")
                 Layout.column: 5
                 Layout.row: 0
                 Layout.fillWidth: true
@@ -66,59 +66,50 @@ GroupBox {
                 ToolTip.timeout: Constants.toolTipTimeout
                 ToolTip.visible: hovered
                 ToolTip.text: qsTr("Set delay for MIDI messages on this channel in milliseconds")
-                onValueChanged: {
-                    trackSettingsModel.delay = value;
-                }
+                onValueChanged: trackSettingsModel.delay = value
                 Keys.onReturnPressed: focus = false
             }
             LayoutSeparator {
-                Layout.row: 1
+                Layout.row: 3
             }
-            Label {
-                text: qsTr("Velocity jitter (%):")
+            CheckBox {
+                id: autoNoteOffOffsetCheckbox
+                text: qsTr("Custom auto note-off")
                 Layout.column: 0
-                Layout.row: 2
-                Layout.fillWidth: true
-            }
-            SpinBox {
-                id: velocityJitterSpinBox
-                from: 0
-                to: 100
-                editable: true
-                Layout.column: 2
-                Layout.row: 2
+                Layout.columnSpan: 2
+                Layout.row: 4
                 Layout.fillWidth: true
                 ToolTip.delay: Constants.toolTipDelay
                 ToolTip.timeout: Constants.toolTipTimeout
                 ToolTip.visible: hovered
-                ToolTip.text: qsTr("Set jitter on MIDI velocity to simulate e.g. a more natural piano")
-                onValueChanged: {
-                    trackSettingsModel.velocityJitter = value;
-                }
-                Keys.onReturnPressed: focus = false
+                ToolTip.text: qsTr("Override the default auto note-off offset")
+                onCheckedChanged: trackSettingsModel.autoNoteOffOffsetEnabled = checked
             }
             Label {
-                text: qsTr("Transpose (semitones):")
-                Layout.column: 5
-                Layout.row: 2
+                text: qsTr("Auto note-off offset (ms):")
+                Layout.column: 2
+                Layout.columnSpan: 2
+                Layout.row: 4
                 Layout.fillWidth: true
+                enabled: autoNoteOffOffsetCheckbox.checked
             }
             SpinBox {
-                id: transposeSpinBox
-                from: -24
-                to: 24
-                editable: true
-                Layout.column: 6
-                Layout.row: 2
+                id: autoNoteOffOffsetSpinBox
+                from: 0
+                to: 500
+                stepSize: 5
+                Layout.column: 4
+                Layout.columnSpan: 5
+                Layout.row: 4
                 Layout.fillWidth: true
+                editable: true
+                enabled: autoNoteOffOffsetCheckbox.checked
+                Keys.onReturnPressed: focus = false
                 ToolTip.delay: Constants.toolTipDelay
                 ToolTip.timeout: Constants.toolTipTimeout
                 ToolTip.visible: hovered
-                ToolTip.text: qsTr("Set transposition for MIDI notes on this channel in semitones")
-                onValueChanged: {
-                    trackSettingsModel.transpose = value;
-                }
-                Keys.onReturnPressed: focus = false
+                ToolTip.text: qsTr("Set offset for auto note-off events in milliseconds. This defines the time between a note-off and the following note-on in the same column.")
+                onValueChanged: trackSettingsModel.autoNoteOffOffset = value
             }
         }
     }

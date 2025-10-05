@@ -494,8 +494,13 @@ void Song::setAutoNoteOffOffset(std::chrono::milliseconds autoNoteOffOffset)
 
 size_t Song::autoNoteOffOffsetTicks() const
 {
+    return autoNoteOffOffsetTicks(m_autoNoteOffOffset);
+}
+
+size_t Song::autoNoteOffOffsetTicks(std::chrono::milliseconds offset) const
+{
     const double linesPerMinute = static_cast<double>(m_beatsPerMinute) * static_cast<double>(m_linesPerBeat);
-    const double offsetLines = static_cast<double>(m_autoNoteOffOffset.count()) * linesPerMinute / 60'000.0;
+    const double offsetLines = static_cast<double>(offset.count()) * linesPerMinute / 60'000.0;
     const double offsetTicks = offsetLines * static_cast<double>(m_ticksPerLine);
     return static_cast<size_t>(offsetTicks);
 }
@@ -531,14 +536,21 @@ Song::EventList Song::generateNoteOffs(EventListCR events) const
     using TrackAndColumn = std::pair<int, int>;
     std::map<TrackAndColumn, std::set<uint8_t>> activeNotes; // Tracks active notes (key: {track, column}, value: note)
 
-    const auto autoNoteOffOffset = this->autoNoteOffOffsetTicks();
-    juzzlin::L(TAG).info() << "Auto note-off offset: " << autoNoteOffOffset << " ticks";
+    const auto autoNoteOffOffset = autoNoteOffOffsetTicks();
+    juzzlin::L(TAG).info() << "Default auto note-off offset: " << autoNoteOffOffset << " ticks";
 
     for (const auto & event : events) {
         if (const auto noteData = event->noteData(); noteData) {
             const auto trackAndColumn = std::make_pair(noteData->track(), noteData->column());
+            auto instrumentAutoNoteOffOffset = autoNoteOffOffset;
+            if (const auto instrument = this->instrument(trackAndColumn.first); instrument) {
+                if (instrument->settings().timing.autoNoteOffOffset.has_value()) {
+                    instrumentAutoNoteOffOffset = autoNoteOffOffsetTicks(instrument->settings().timing.autoNoteOffOffset.value());
+                    juzzlin::L(TAG).info() << "Auto note-off offset override on track" << trackAndColumn.first << ": " << instrumentAutoNoteOffOffset << " ticks";
+                }
+            }
             if (noteData->type() == NoteData::Type::NoteOn) {
-                const auto noteOffEvents = generateNoteOffsForActiveNotes(trackAndColumn, event->tick() - autoNoteOffOffset, activeNotes);
+                const auto noteOffEvents = generateNoteOffsForActiveNotes(trackAndColumn, event->tick() - instrumentAutoNoteOffOffset, activeNotes);
                 std::ranges::copy(noteOffEvents, std::back_inserter(processedEvents));
                 activeNotes[trackAndColumn].insert(*noteData->note());
             } else if (noteData->type() == NoteData::Type::NoteOff) {
@@ -630,7 +642,7 @@ Song::EventList Song::applyInstrumentsOnEvents(EventListCR events) const
     std::chrono::milliseconds delayOffset { 0 };
     for (auto && trackIndex : trackIndices()) {
         if (const auto instrument = this->instrument(trackIndex); instrument) {
-            delayOffset = std::min(delayOffset, instrument->settings().delay);
+            delayOffset = std::min(delayOffset, instrument->settings().timing.delay);
         }
     }
 
@@ -642,8 +654,8 @@ Song::EventList Song::applyInstrumentsOnEvents(EventListCR events) const
             if (const auto noteData = event->noteData(); noteData) {
                 event->setInstrument(instrument(noteData->track()));
                 if (event->instrument()) {
-                    event->applyDelay(event->instrument()->settings().delay - delayOffset, msPerTick);
-                    event->applyVelocityJitter(event->instrument()->settings().velocityJitter);
+                    event->applyDelay(event->instrument()->settings().timing.delay - delayOffset, msPerTick);
+                    event->applyVelocityJitter(event->instrument()->settings().midiEffects.velocityJitter);
                     event->transpose(event->instrument()->settings().transpose);
                 }
             }
@@ -659,7 +671,7 @@ Song::EventList Song::applyInstrumentsOnEvents(EventListCR events) const
             if (const auto instrumentSettings = event->instrumentSettings(); instrumentSettings) {
                 event->setInstrument(instrument(instrumentSettings->track()));
                 if (event->instrument()) {
-                    event->applyDelay(event->instrument()->settings().delay - delayOffset, msPerTick);
+                    event->applyDelay(event->instrument()->settings().timing.delay - delayOffset, msPerTick);
                 }
             }
         }
@@ -680,7 +692,7 @@ Song::EventList Song::renderStartOfSong(size_t tick) const
     // Add Start events per instrument, if enabled
     std::set<QString> processedPortNames;
     for (auto trackIndex : trackIndices()) {
-        if (const auto instrument = this->instrument(trackIndex); instrument && instrument->settings().sendTransport) {
+        if (const auto instrument = this->instrument(trackIndex); instrument && instrument->settings().timing.sendTransport) {
             if (const auto portName = instrument->midiAddress().portName(); !processedPortNames.contains(portName)) {
                 const auto event = std::make_shared<Event>(tick);
                 event->setAsStartOfSong();
@@ -703,7 +715,7 @@ Song::EventList Song::renderEndOfSong(EventListCR eventList, size_t tick) const
     // Add Stop events per instrument, if enabled
     std::set<QString> processedPortNames;
     for (auto trackIndex : trackIndices()) {
-        if (const auto instrument = this->instrument(trackIndex); instrument && instrument->settings().sendTransport) {
+        if (const auto instrument = this->instrument(trackIndex); instrument && instrument->settings().timing.sendTransport) {
             if (const auto portName = instrument->midiAddress().portName(); !processedPortNames.contains(portName)) {
                 const auto event = std::make_shared<Event>(tick);
                 event->setAsEndOfSong();
@@ -742,7 +754,7 @@ Song::EventList Song::generateMidiClockEvents(EventListCR eventList, size_t star
     while (static_cast<size_t>(currentTick) < endTick) {
         processedPortNames.clear();
         for (auto trackIndex : trackIndices()) {
-            if (const auto instrument = this->instrument(trackIndex); instrument && instrument->settings().sendMidiClock.has_value() && *instrument->settings().sendMidiClock) {
+            if (const auto instrument = this->instrument(trackIndex); instrument && instrument->settings().timing.sendMidiClock.has_value() && *instrument->settings().timing.sendMidiClock) {
                 if (const auto portName = instrument->midiAddress().portName(); !processedPortNames.contains(portName)) {
                     auto midiClockEvent = std::make_shared<Event>(static_cast<size_t>(currentTick));
                     midiClockEvent->setAsMidiClockOut();

@@ -113,5 +113,18 @@ std::optional<QString> readStringAttribute(QXmlStreamReader & reader, QString na
         return reader.attributes().value(name).toString();
     }
 }
+
+std::optional<std::chrono::milliseconds> readMSecAttribute(QXmlStreamReader & reader, QString name, bool required)
+{
+    if (!reader.attributes().hasAttribute(name)) {
+        if (required) {
+            throw std::runtime_error { "Attribute '" + name.toStdString() + "' not found!" };
+        }
+        return {};
+    } else {
+        return static_cast<std::chrono::milliseconds>(reader.attributes().value(name).toInt());
+    }
+}
+
 } // namespace Xml
 } // namespace noteahead::Utils

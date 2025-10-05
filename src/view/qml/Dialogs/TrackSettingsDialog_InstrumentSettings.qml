@@ -3,9 +3,10 @@ import QtQuick.Controls 2.15
 import QtQuick.Controls.Universal 2.15
 import QtQuick.Layouts
 import ".."
+import "../Components"
 
 GroupBox {
-    title: qsTr("MIDI Instrument Settings")
+    title: qsTr("Instrument")
     function initialize(): void {
         portNameDropdown.setSelected(trackSettingsModel.portName);
         channelDropdown.setSelected(trackSettingsModel.channel + 1);
@@ -15,6 +16,7 @@ GroupBox {
         swapBankByteOrderCheckBox.checked = trackSettingsModel.bankByteOrderSwapped;
         enablePatchCheckbox.checked = trackSettingsModel.patchEnabled;
         patchSpinBox.value = trackSettingsModel.patch;
+        transposeSpinBox.value = trackSettingsModel.transpose;
     }
     function _requestTestSound(): void {
         if (visible) {
@@ -216,6 +218,32 @@ GroupBox {
                     trackSettingsModel.bankByteOrderSwapped = checked;
                     _requestTestSound();
                 }
+            }
+            LayoutSeparator {
+                Layout.row: 4
+            }
+            Label {
+                text: qsTr("Transpose (semitones):")
+                Layout.column: 0
+                Layout.row: 5
+                Layout.fillWidth: true
+            }
+            SpinBox {
+                id: transposeSpinBox
+                from: -24
+                to: 24
+                editable: true
+                Layout.column: 2
+                Layout.row: 5
+                Layout.fillWidth: true
+                ToolTip.delay: Constants.toolTipDelay
+                ToolTip.timeout: Constants.toolTipTimeout
+                ToolTip.visible: hovered
+                ToolTip.text: qsTr("Set transposition for MIDI notes on this channel in semitones")
+                onValueChanged: {
+                    trackSettingsModel.transpose = value;
+                }
+                Keys.onReturnPressed: focus = false
             }
         }
     }

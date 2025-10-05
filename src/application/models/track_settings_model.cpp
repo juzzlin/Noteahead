@@ -231,24 +231,30 @@ void TrackSettingsModel::setInstrumentData(const Instrument & instrument)
         setBankMsb(instrument.settings().bank->msb);
         setBankByteOrderSwapped(instrument.settings().bank->byteOrderSwapped);
     }
-    setCutoffEnabled(instrument.settings().predefinedMidiCcSettings.cutoff.has_value());
-    if (cutoffEnabled()) {
-        setCutoff(*instrument.settings().predefinedMidiCcSettings.cutoff);
-    }
-    setPanEnabled(instrument.settings().predefinedMidiCcSettings.pan.has_value());
-    if (panEnabled()) {
-        setPan(*instrument.settings().predefinedMidiCcSettings.pan);
-    }
-    setVolumeEnabled(instrument.settings().predefinedMidiCcSettings.volume.has_value());
-    if (volumeEnabled()) {
-        setVolume(*instrument.settings().predefinedMidiCcSettings.volume);
-    }
-    setSendMidiClock(instrument.settings().sendMidiClock.has_value() && *instrument.settings().sendMidiClock);
-    setSendTransport(instrument.settings().sendTransport.has_value() && *instrument.settings().sendTransport);
-
-    setDelay(static_cast<int>(instrument.settings().delay.count()));
     setTranspose(instrument.settings().transpose);
-    setVelocityJitter(instrument.settings().velocityJitter);
+
+    setCutoffEnabled(instrument.settings().standardMidiCcSettings.cutoff.has_value());
+    if (cutoffEnabled()) {
+        setCutoff(*instrument.settings().standardMidiCcSettings.cutoff);
+    }
+    setPanEnabled(instrument.settings().standardMidiCcSettings.pan.has_value());
+    if (panEnabled()) {
+        setPan(*instrument.settings().standardMidiCcSettings.pan);
+    }
+    setVolumeEnabled(instrument.settings().standardMidiCcSettings.volume.has_value());
+    if (volumeEnabled()) {
+        setVolume(*instrument.settings().standardMidiCcSettings.volume);
+    }
+
+    setSendMidiClock(instrument.settings().timing.sendMidiClock.has_value() && *instrument.settings().timing.sendMidiClock);
+    setSendTransport(instrument.settings().timing.sendTransport.has_value() && *instrument.settings().timing.sendTransport);
+    setAutoNoteOffOffsetEnabled(instrument.settings().timing.autoNoteOffOffset.has_value());
+    if (autoNoteOffOffsetEnabled()) {
+        setAutoNoteOffOffset(static_cast<int>(instrument.settings().timing.autoNoteOffOffset.value().count()));
+    }
+    setDelay(static_cast<int>(instrument.settings().timing.delay.count()));
+
+    setVelocityJitter(instrument.settings().midiEffects.velocityJitter);
 
     setMidiCcSettings(instrument.settings().midiCcSettings);
 
@@ -266,25 +272,27 @@ void TrackSettingsModel::reset()
     m_instrumentPortName = {};
     setAvailableMidiPorts(m_availableMidiPorts); // Update the list with instrument port name
 
-    m_portName = {};
-    m_channel = 0;
-    m_patchEnabled = false;
-    m_patch = 0;
+    m_autoNoteOffOffset = {};
+    m_autoNoteOffOffsetEnabled = false;
+    m_bankByteOrderSwapped = false;
     m_bankEnabled = false;
     m_bankLsb = 0;
     m_bankMsb = 0;
-    m_bankByteOrderSwapped = false;
-    m_cutoffEnabled = false;
+    m_channel = 0;
     m_cutoff = m_defaultCutoff;
-    m_panEnabled = false;
+    m_cutoffEnabled = false;
+    m_delay = 0;
     m_pan = m_defaultPan;
-    m_volumeEnabled = false;
-    m_volume = m_defaultVolume;
+    m_panEnabled = false;
+    m_patch = 0;
+    m_patchEnabled = false;
+    m_portName = {};
     m_sendMidiClock = false;
     m_sendTransport = false;
-    m_delay = 0;
     m_transpose = 0;
     m_velocityJitter = 0;
+    m_volume = m_defaultVolume;
+    m_volumeEnabled = false;
 
     setMidiCcSettings({});
 
@@ -312,20 +320,29 @@ TrackSettingsModel::InstrumentU TrackSettingsModel::toInstrument() const
             m_bankByteOrderSwapped
         };
     }
+
+    settings.transpose = m_transpose;
+
     if (m_cutoffEnabled) {
-        settings.predefinedMidiCcSettings.cutoff = m_cutoff;
+        settings.standardMidiCcSettings.cutoff = m_cutoff;
     }
     if (m_panEnabled) {
-        settings.predefinedMidiCcSettings.pan = m_pan;
+        settings.standardMidiCcSettings.pan = m_pan;
     }
     if (m_volumeEnabled) {
-        settings.predefinedMidiCcSettings.volume = m_volume;
+        settings.standardMidiCcSettings.volume = m_volume;
     }
-    settings.sendMidiClock = m_sendMidiClock;
-    settings.sendTransport = m_sendTransport;
-    settings.delay = std::chrono::milliseconds { m_delay };
-    settings.transpose = m_transpose;
-    settings.velocityJitter = m_velocityJitter;
+
+    settings.timing.sendMidiClock = m_sendMidiClock;
+    settings.timing.sendTransport = m_sendTransport;
+    settings.timing.delay = std::chrono::milliseconds { m_delay };
+
+    if (m_autoNoteOffOffsetEnabled) {
+        settings.timing.autoNoteOffOffset = std::chrono::milliseconds { m_autoNoteOffOffset };
+    }
+
+    settings.midiEffects.velocityJitter = m_velocityJitter;
+
     settings.midiCcSettings = midiCcSettings();
     instrument->setSettings(settings);
 
@@ -518,6 +535,37 @@ void TrackSettingsModel::setVelocityJitter(int velocityJitter)
     if (m_velocityJitter != velocityJitter) {
         m_velocityJitter = velocityJitter;
         emit velocityJitterChanged();
+    }
+}
+
+int TrackSettingsModel::autoNoteOffOffset() const
+{
+    return m_autoNoteOffOffset;
+}
+
+void TrackSettingsModel::setAutoNoteOffOffset(int autoNoteOffOffset)
+{
+    juzzlin::L(TAG).debug() << "Setting auto note-off offset to " << autoNoteOffOffset;
+
+    if (m_autoNoteOffOffset != autoNoteOffOffset) {
+        m_autoNoteOffOffset = autoNoteOffOffset;
+        emit autoNoteOffOffsetChanged();
+    }
+}
+
+bool TrackSettingsModel::autoNoteOffOffsetEnabled() const
+{
+    return m_autoNoteOffOffsetEnabled;
+}
+
+void TrackSettingsModel::setAutoNoteOffOffsetEnabled(bool enabled)
+{
+    juzzlin::L(TAG).debug() << "Enabling auto note-off offset: " << static_cast<int>(enabled);
+
+    if (m_autoNoteOffOffsetEnabled != enabled) {
+        m_autoNoteOffOffsetEnabled = enabled;
+        emit autoNoteOffOffsetEnabledChanged();
+        applyAll();
     }
 }
 

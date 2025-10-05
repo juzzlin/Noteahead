@@ -104,7 +104,7 @@ GroupBox {
                     ToolTip.delay: Constants.toolTipDelay
                     ToolTip.timeout: Constants.toolTipTimeout
                     ToolTip.visible: hovered
-                    ToolTip.text: qsTr("Set offset for auto note-off events in milliseconds")
+                    ToolTip.text: qsTr("Set offset for auto note-off events in milliseconds. This defines the time between a note-off and the following note-on in the same column.")
                 }
             }
         }

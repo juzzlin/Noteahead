@@ -164,6 +164,11 @@ QString xmlKeyVelocityJitter()
     return "velocityJitter";
 }
 
+QString xmlKeyAutoNoteOffOffset()
+{
+    return "autoNoteOffOffset";
+}
+
 QString xmlKeyIndex()
 {
     return "index";

@@ -43,28 +43,33 @@ void InstrumentSettings::serializeToXml(QXmlStreamWriter & writer) const
         writer.writeAttribute(Constants::NahdXml::xmlKeyBankEnabled(), Constants::NahdXml::xmlValueFalse());
     }
 
-    if (predefinedMidiCcSettings.cutoff.has_value()) {
-        writer.writeAttribute(Constants::NahdXml::xmlKeyCutoff(), QString::number(*predefinedMidiCcSettings.cutoff));
-    }
-
-    if (predefinedMidiCcSettings.pan.has_value()) {
-        writer.writeAttribute(Constants::NahdXml::xmlKeyPan(), QString::number(*predefinedMidiCcSettings.pan));
-    }
-
-    if (predefinedMidiCcSettings.volume.has_value()) {
-        writer.writeAttribute(Constants::NahdXml::xmlKeyVolume(), QString::number(*predefinedMidiCcSettings.volume));
-    }
-
-    if (sendMidiClock.has_value()) {
-        writer.writeAttribute(Constants::NahdXml::xmlKeySendMidiClock(), sendMidiClock.value() ? Constants::NahdXml::xmlValueTrue() : Constants::NahdXml::xmlValueFalse());
-    }
-    if (sendTransport.has_value()) {
-        writer.writeAttribute(Constants::NahdXml::xmlKeySendTransport(), sendTransport.value() ? Constants::NahdXml::xmlValueTrue() : Constants::NahdXml::xmlValueFalse());
-    }
-
-    writer.writeAttribute(Constants::NahdXml::xmlKeyDelay(), QString::number(delay.count()));
     writer.writeAttribute(Constants::NahdXml::xmlKeyTranspose(), QString::number(transpose));
-    writer.writeAttribute(Constants::NahdXml::xmlKeyVelocityJitter(), QString::number(velocityJitter));
+
+    if (standardMidiCcSettings.cutoff.has_value()) {
+        writer.writeAttribute(Constants::NahdXml::xmlKeyCutoff(), QString::number(*standardMidiCcSettings.cutoff));
+    }
+
+    if (standardMidiCcSettings.pan.has_value()) {
+        writer.writeAttribute(Constants::NahdXml::xmlKeyPan(), QString::number(*standardMidiCcSettings.pan));
+    }
+
+    if (standardMidiCcSettings.volume.has_value()) {
+        writer.writeAttribute(Constants::NahdXml::xmlKeyVolume(), QString::number(*standardMidiCcSettings.volume));
+    }
+
+    if (timing.sendMidiClock.has_value()) {
+        writer.writeAttribute(Constants::NahdXml::xmlKeySendMidiClock(), timing.sendMidiClock.value() ? Constants::NahdXml::xmlValueTrue() : Constants::NahdXml::xmlValueFalse());
+    }
+    if (timing.sendTransport.has_value()) {
+        writer.writeAttribute(Constants::NahdXml::xmlKeySendTransport(), timing.sendTransport.value() ? Constants::NahdXml::xmlValueTrue() : Constants::NahdXml::xmlValueFalse());
+    }
+
+    writer.writeAttribute(Constants::NahdXml::xmlKeyDelay(), QString::number(timing.delay.count()));
+    writer.writeAttribute(Constants::NahdXml::xmlKeyVelocityJitter(), QString::number(midiEffects.velocityJitter));
+
+    if (timing.autoNoteOffOffset.has_value()) {
+        writer.writeAttribute(Constants::NahdXml::xmlKeyAutoNoteOffOffset(), QString::number(timing.autoNoteOffOffset->count()));
+    }
 
     for (auto && midiCcSetting : midiCcSettings) {
         midiCcSetting.serializeToXml(writer);
@@ -86,14 +91,19 @@ InstrumentSettings::InstrumentSettingsU InstrumentSettings::deserializeFromXml(Q
         const auto bankByteOrderSwapped = *Utils::Xml::readBoolAttribute(reader, Constants::NahdXml::xmlKeyBankByteOrderSwapped());
         settings->bank = { bankLsb, bankMsb, bankByteOrderSwapped };
     }
-    settings->predefinedMidiCcSettings.cutoff = Utils::Xml::readUIntAttribute(reader, Constants::NahdXml::xmlKeyCutoff(), false);
-    settings->predefinedMidiCcSettings.pan = Utils::Xml::readUIntAttribute(reader, Constants::NahdXml::xmlKeyPan(), false);
-    settings->predefinedMidiCcSettings.volume = Utils::Xml::readUIntAttribute(reader, Constants::NahdXml::xmlKeyVolume(), false);
-    settings->sendMidiClock = Utils::Xml::readBoolAttribute(reader, Constants::NahdXml::xmlKeySendMidiClock(), false);
-    settings->sendTransport = Utils::Xml::readBoolAttribute(reader, Constants::NahdXml::xmlKeySendTransport(), false);
-    settings->delay = std::chrono::milliseconds { Utils::Xml::readIntAttribute(reader, Constants::NahdXml::xmlKeyDelay(), false).value_or(0) };
+
     settings->transpose = Utils::Xml::readIntAttribute(reader, Constants::NahdXml::xmlKeyTranspose(), false).value_or(0);
-    settings->velocityJitter = Utils::Xml::readIntAttribute(reader, Constants::NahdXml::xmlKeyVelocityJitter(), false).value_or(0);
+
+    settings->standardMidiCcSettings.cutoff = Utils::Xml::readUIntAttribute(reader, Constants::NahdXml::xmlKeyCutoff(), false);
+    settings->standardMidiCcSettings.pan = Utils::Xml::readUIntAttribute(reader, Constants::NahdXml::xmlKeyPan(), false);
+    settings->standardMidiCcSettings.volume = Utils::Xml::readUIntAttribute(reader, Constants::NahdXml::xmlKeyVolume(), false);
+
+    settings->timing.sendMidiClock = Utils::Xml::readBoolAttribute(reader, Constants::NahdXml::xmlKeySendMidiClock(), false);
+    settings->timing.sendTransport = Utils::Xml::readBoolAttribute(reader, Constants::NahdXml::xmlKeySendTransport(), false);
+    settings->timing.autoNoteOffOffset = Utils::Xml::readMSecAttribute(reader, Constants::NahdXml::xmlKeyAutoNoteOffOffset(), false);
+    settings->timing.delay = std::chrono::milliseconds { Utils::Xml::readIntAttribute(reader, Constants::NahdXml::xmlKeyDelay(), false).value_or(0) };
+
+    settings->midiEffects.velocityJitter = Utils::Xml::readIntAttribute(reader, Constants::NahdXml::xmlKeyVelocityJitter(), false).value_or(0);
 
     while (!(reader.isEndElement() && !reader.name().compare(Constants::NahdXml::xmlKeyInstrumentSettings()))) {
         juzzlin::L(TAG).trace() << "InstrumentSettings: Current element: " << reader.name().toString().toStdString();
@@ -121,12 +131,14 @@ QString InstrumentSettings::toString() const
         result += ", bank=None";
     }
 
-    result += predefinedMidiCcSettings.cutoff.has_value() ? QString { ", cutoff=%1" }.arg(*predefinedMidiCcSettings.cutoff) : ", cutoff=None";
-    result += predefinedMidiCcSettings.pan.has_value() ? QString { ", pan=%1" }.arg(*predefinedMidiCcSettings.pan) : ", pan=None";
-    result += predefinedMidiCcSettings.volume.has_value() ? QString { ", volume=%1" }.arg(*predefinedMidiCcSettings.volume) : ", volume=None";
-    result += sendMidiClock.has_value() ? QString { ", sendMidiClock=%1" }.arg(sendMidiClock.value() ? Constants::NahdXml::xmlValueTrue() : Constants::NahdXml::xmlValueFalse()) : ", sendMidiClock=None";
-    result += QString { ", delay=%1" }.arg(delay.count());
     result += QString { ", transpose=%1" }.arg(transpose);
+
+    result += timing.sendMidiClock.has_value() ? QString { ", sendMidiClock=%1" }.arg(timing.sendMidiClock.value() ? Constants::NahdXml::xmlValueTrue() : Constants::NahdXml::xmlValueFalse()) : ", sendMidiClock=None";
+    result += QString { ", delay=%1" }.arg(timing.delay.count());
+
+    result += standardMidiCcSettings.cutoff.has_value() ? QString { ", cutoff=%1" }.arg(*standardMidiCcSettings.cutoff) : ", cutoff=None";
+    result += standardMidiCcSettings.pan.has_value() ? QString { ", pan=%1" }.arg(*standardMidiCcSettings.pan) : ", pan=None";
+    result += standardMidiCcSettings.volume.has_value() ? QString { ", volume=%1" }.arg(*standardMidiCcSettings.volume) : ", volume=None";
 
     for (auto && midiCcSetting : midiCcSettings) {
         result += " ";

@@ -18,10 +18,12 @@ Dialog {
     }
     function initialize() {
         uiLogger.info(_tag, "Initializing");
-        midiInstrumentSettings.initialize();
+        instrumentSettings.initialize();
+        timingSettings.initialize();
+        midiEffects.initialize();
         midiCcSettingsPredefined.initialize();
         midiCcSettingsGeneric.initialize();
-        midiSettingsMiscellaneous.initialize();
+        tabBar.currentIndex = 0;
     }
     function saveSettings() {
         trackSettingsModel.applyAll();
@@ -63,8 +65,16 @@ Dialog {
             height: parent.height - tabBar.height
             width: parent.width
             currentIndex: tabBar.currentIndex
-            TrackSettingsDialog_MidiInstrumentSettings {
-                id: midiInstrumentSettings
+            TrackSettingsDialog_InstrumentSettings {
+                id: instrumentSettings
+                Layout.fillWidth: true
+            }
+            TrackSettingsDialog_TimingSettings {
+                id: timingSettings
+                Layout.fillWidth: true
+            }
+            TrackSettingsDialog_MidiEffects {
+                id: midiEffects
                 Layout.fillWidth: true
             }
             TrackSettingsDialog_MidiCcSettings_Standard {
@@ -75,25 +85,24 @@ Dialog {
                 id: midiCcSettingsGeneric
                 Layout.fillWidth: true
             }
-            TrackSettingsDialog_MidiSettingsMiscellaneous {
-                id: midiSettingsMiscellaneous
-                Layout.fillWidth: true
-            }
         }
         TabBar {
             id: tabBar
             width: parent.width
             TabButton {
-                text: qsTr("MIDI Instrument")
+                text: qsTr("Instrument")
             }
             TabButton {
-                text: qsTr("Standard MIDI CC")
+                text: qsTr("Timing")
             }
             TabButton {
-                text: qsTr("Custom MIDI CC")
+                text: qsTr("MIDI Effects")
             }
             TabButton {
-                text: qsTr("Miscellaneous MIDI")
+                text: qsTr("MIDI CC (Standard)")
+            }
+            TabButton {
+                text: qsTr("MIDI CC (Custom)")
             }
         }
     }

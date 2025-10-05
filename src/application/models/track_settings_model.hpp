@@ -58,10 +58,12 @@ class TrackSettingsModel : public MidiCcSelectionModel
 
     Q_PROPERTY(bool sendMidiClock READ sendMidiClock WRITE setSendMidiClock NOTIFY sendMidiClockChanged)
     Q_PROPERTY(bool sendTransport READ sendTransport WRITE setSendTransport NOTIFY sendTransportChanged)
+
     Q_PROPERTY(int delay READ delay WRITE setDelay NOTIFY delayChanged)
     Q_PROPERTY(int transpose READ transpose WRITE setTranspose NOTIFY transposeChanged)
-
     Q_PROPERTY(int velocityJitter READ velocityJitter WRITE setVelocityJitter NOTIFY velocityJitterChanged)
+    Q_PROPERTY(int autoNoteOffOffset READ autoNoteOffOffset WRITE setAutoNoteOffOffset NOTIFY autoNoteOffOffsetChanged)
+    Q_PROPERTY(bool autoNoteOffOffsetEnabled READ autoNoteOffOffsetEnabled WRITE setAutoNoteOffOffsetEnabled NOTIFY autoNoteOffOffsetEnabledChanged)
 
 public:
     explicit TrackSettingsModel(QObject * parent = nullptr);
@@ -138,9 +140,12 @@ public:
     void setDelay(int delay);
     int transpose() const;
     void setTranspose(int transpose);
-
     int velocityJitter() const;
     void setVelocityJitter(int velocityJitter);
+    int autoNoteOffOffset() const;
+    void setAutoNoteOffOffset(int autoNoteOffOffset);
+    bool autoNoteOffOffsetEnabled() const;
+    void setAutoNoteOffOffsetEnabled(bool enabled);
 
 signals:
     void applyAllRequested();
@@ -184,8 +189,9 @@ signals:
 
     void delayChanged();
     void transposeChanged();
-
     void velocityJitterChanged();
+    void autoNoteOffOffsetChanged();
+    void autoNoteOffOffsetEnabledChanged();
 
 private:
     void pushApplyDisabled();
@@ -196,7 +202,7 @@ private:
     QString m_portName;
     QStringList m_availableMidiPorts;
 
-    bool m_applyDisabled = false;
+    bool m_applyDisabled { false };
     bool m_bankByteOrderSwapped { false };
     bool m_bankEnabled { false };
     bool m_cutoffEnabled { false };
@@ -205,6 +211,7 @@ private:
     bool m_volumeEnabled { false };
     bool m_sendMidiClock { false };
     bool m_sendTransport { false };
+    bool m_autoNoteOffOffsetEnabled { false };
 
     quint64 m_trackIndex { 0 };
 
@@ -227,6 +234,7 @@ private:
     int m_transpose { 0 };
 
     int m_velocityJitter { 0 };
+    int m_autoNoteOffOffset { 0 };
 };
 
 } // namespace noteahead

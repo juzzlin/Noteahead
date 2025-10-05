@@ -52,6 +52,7 @@ private slots:
 
     void test_renderToEvents_transposeSet_shouldApplyTranspose();
     void test_renderToEvents_velocityJitterSet_shouldApplyVelocityJitter();
+    void test_renderToEvents_customNoteOffOffsetSet_shouldApplyCorrectOffset();
 
     void test_trackByName_shouldReturnTrack();
     void test_columnByName_shouldReturnColumn();

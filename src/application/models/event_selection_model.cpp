@@ -162,13 +162,13 @@ EventSelectionModel::InstrumentSettingsU EventSelectionModel::toInstrumentSettin
         };
     }
     if (m_cutoffEnabled) {
-        instrumentSettings->predefinedMidiCcSettings.cutoff = m_cutoff;
+        instrumentSettings->standardMidiCcSettings.cutoff = m_cutoff;
     }
     if (m_panEnabled) {
-        instrumentSettings->predefinedMidiCcSettings.pan = m_pan;
+        instrumentSettings->standardMidiCcSettings.pan = m_pan;
     }
     if (m_volumeEnabled) {
-        instrumentSettings->predefinedMidiCcSettings.volume = m_volume;
+        instrumentSettings->standardMidiCcSettings.volume = m_volume;
     }
 
     return instrumentSettings;
@@ -188,19 +188,19 @@ void EventSelectionModel::fromInstrumentSettings(const InstrumentSettings & inst
         setBankByteOrderSwapped(instrumentSettings.bank->byteOrderSwapped);
     }
 
-    setCutoffEnabled(instrumentSettings.predefinedMidiCcSettings.cutoff.has_value());
+    setCutoffEnabled(instrumentSettings.standardMidiCcSettings.cutoff.has_value());
     if (cutoffEnabled()) {
-        setCutoff(*instrumentSettings.predefinedMidiCcSettings.cutoff);
+        setCutoff(*instrumentSettings.standardMidiCcSettings.cutoff);
     }
 
-    setPanEnabled(instrumentSettings.predefinedMidiCcSettings.pan.has_value());
+    setPanEnabled(instrumentSettings.standardMidiCcSettings.pan.has_value());
     if (panEnabled()) {
-        setPan(*instrumentSettings.predefinedMidiCcSettings.pan);
+        setPan(*instrumentSettings.standardMidiCcSettings.pan);
     }
 
-    setVolumeEnabled(instrumentSettings.predefinedMidiCcSettings.volume.has_value());
+    setVolumeEnabled(instrumentSettings.standardMidiCcSettings.volume.has_value());
     if (volumeEnabled()) {
-        setVolume(*instrumentSettings.predefinedMidiCcSettings.volume);
+        setVolume(*instrumentSettings.standardMidiCcSettings.volume);
     }
 
     emit dataReceived();

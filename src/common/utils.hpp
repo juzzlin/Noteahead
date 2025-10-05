@@ -16,6 +16,7 @@
 #ifndef UTILS_HPP
 #define UTILS_HPP
 
+#include <chrono>
 #include <filesystem>
 #include <optional>
 #include <string>
@@ -40,6 +41,7 @@ std::optional<bool> readBoolAttribute(QXmlStreamReader & reader, QString name, b
 std::optional<int> readIntAttribute(QXmlStreamReader & reader, QString name, bool required = true);
 std::optional<size_t> readUIntAttribute(QXmlStreamReader & reader, QString name, bool required = true);
 std::optional<QString> readStringAttribute(QXmlStreamReader & reader, QString name, bool required = true);
+std::optional<std::chrono::milliseconds> readMSecAttribute(QXmlStreamReader & reader, QString name, bool required = true);
 } // namespace Xml
 } // namespace noteahead::Utils
 

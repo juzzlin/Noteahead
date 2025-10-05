@@ -17,6 +17,10 @@ New features:
 
 * Add tabs to track settings dialog
 
+* Implement custom auto note-off offset
+  - Auto note-off offset can be set per-instrument
+  - Adds tabs to the track settings dialog
+
 Bug fixes:
 
 * Fix auto note-off offset calculation

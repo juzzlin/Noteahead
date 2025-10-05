@@ -172,7 +172,7 @@ void SongTest::test_renderToEvents_clockEvents_shouldRenderClockEvents()
     const auto instrument1 = std::make_shared<Instrument>("MyPort");
     song.setInstrument(0, instrument1);
     auto settings = instrument1->settings();
-    settings.sendMidiClock = true;
+    settings.timing.sendMidiClock = true;
     instrument1->setSettings(settings);
 
     events = song.renderToEvents(std::make_shared<AutomationService>(), 0);
@@ -181,7 +181,7 @@ void SongTest::test_renderToEvents_clockEvents_shouldRenderClockEvents()
     const auto instrument2 = std::make_shared<Instrument>("MyPort");
     song.setInstrument(1, instrument2);
     settings = instrument2->settings();
-    settings.sendMidiClock = true;
+    settings.timing.sendMidiClock = true;
     instrument2->setSettings(settings);
 
     events = song.renderToEvents(std::make_shared<AutomationService>(), 0);
@@ -190,7 +190,7 @@ void SongTest::test_renderToEvents_clockEvents_shouldRenderClockEvents()
     const auto instrument3 = std::make_shared<Instrument>("MyOtherPort");
     song.setInstrument(2, instrument3);
     settings = instrument3->settings();
-    settings.sendMidiClock = true;
+    settings.timing.sendMidiClock = true;
     instrument3->setSettings(settings);
 
     events = song.renderToEvents(std::make_shared<AutomationService>(), 0);
@@ -206,13 +206,13 @@ void SongTest::test_renderToEvents_positiveDelaySet_shouldApplyDelay()
     const auto instrument1 = std::make_shared<Instrument>("DelayedInstrument1");
     song.setInstrument(0, instrument1);
     auto settings1 = instrument1->settings();
-    settings1.delay = 42ms;
+    settings1.timing.delay = 42ms;
     instrument1->setSettings(settings1);
 
     const auto instrument2 = std::make_shared<Instrument>("DelayedInstrument2");
     song.setInstrument(1, instrument2);
     auto settings2 = instrument2->settings();
-    settings2.delay = 666ms;
+    settings2.timing.delay = 666ms;
     instrument2->setSettings(settings2);
 
     const Position noteOnPosition = { 0, 0, 0, 0, 0 };
@@ -222,7 +222,7 @@ void SongTest::test_renderToEvents_positiveDelaySet_shouldApplyDelay()
     QCOMPARE(events.size(), 4);
     const auto noteOn = events.at(1);
     const double msPerTick = 60000.0 / static_cast<double>(song.beatsPerMinute() * song.linesPerBeat() * song.ticksPerLine());
-    const auto delay = static_cast<size_t>(std::round(static_cast<double>(instrument1->settings().delay.count()) / msPerTick));
+    const auto delay = static_cast<size_t>(std::round(static_cast<double>(instrument1->settings().timing.delay.count()) / msPerTick));
     QCOMPARE(noteOn->tick(), delay);
 }
 
@@ -235,13 +235,13 @@ void SongTest::test_renderToEvents_negativeDelaySet_shouldApplyShiftedDelay()
     const auto instrument1 = std::make_shared<Instrument>("DelayedInstrument1");
     song.setInstrument(0, instrument1);
     auto settings1 = instrument1->settings();
-    settings1.delay = 42ms;
+    settings1.timing.delay = 42ms;
     instrument1->setSettings(settings1);
 
     const auto instrument2 = std::make_shared<Instrument>("DelayedInstrument2");
     song.setInstrument(1, instrument2);
     auto settings2 = instrument2->settings();
-    settings2.delay = -666ms;
+    settings2.timing.delay = -666ms;
     instrument2->setSettings(settings2);
 
     const Position noteOnPosition = { 0, 0, 0, 0, 0 };
@@ -251,7 +251,7 @@ void SongTest::test_renderToEvents_negativeDelaySet_shouldApplyShiftedDelay()
     QCOMPARE(events.size(), 4);
     const auto noteOn = events.at(1);
     const double msPerTick = 60000.0 / static_cast<double>(song.beatsPerMinute() * song.linesPerBeat() * song.ticksPerLine());
-    const auto delay = static_cast<size_t>(std::round(static_cast<double>(instrument1->settings().delay.count() - instrument2->settings().delay.count()) / msPerTick));
+    const auto delay = static_cast<size_t>(std::round(static_cast<double>(instrument1->settings().timing.delay.count() - instrument2->settings().timing.delay.count()) / msPerTick));
     QCOMPARE(noteOn->tick(), delay);
 }
 
@@ -276,7 +276,7 @@ void SongTest::test_renderToEvents_noEvents_transportEnabled_shouldAddStartAndEn
     const auto instrument1 = std::make_shared<Instrument>("");
     song.setInstrument(0, instrument1);
     auto settings = instrument1->settings();
-    settings.sendTransport = true;
+    settings.timing.sendTransport = true;
     instrument1->setSettings(settings);
 
     const auto events = song.renderToEvents(std::make_shared<AutomationService>(), 0);
@@ -456,10 +456,10 @@ void SongTest::test_renderToEvents_velocityJitterSet_shouldApplyVelocityJitter()
 {
     Song song;
 
-    const auto instrument = std::make_shared<Instrument>("VelocityJitteredInstrument");
+    const auto instrument = std::make_shared<Instrument>("");
     song.setInstrument(0, instrument);
     auto settings = instrument->settings();
-    settings.velocityJitter = 50;
+    settings.midiEffects.velocityJitter = 50;
     instrument->setSettings(settings);
 
     const Position noteOnPosition = { 0, 0, 0, 0, 0 };
@@ -469,6 +469,33 @@ void SongTest::test_renderToEvents_velocityJitterSet_shouldApplyVelocityJitter()
     QCOMPARE(events.size(), 4);
     auto noteOn = events.at(1);
     QCOMPARE(noteOn->noteData()->velocity(), 77);
+}
+
+void SongTest::test_renderToEvents_customNoteOffOffsetSet_shouldApplyCorrectOffset()
+{
+    Song song;
+
+    const auto instrument = std::make_shared<Instrument>("");
+    song.setBeatsPerMinute(120);
+    song.setLinesPerBeat(4);
+    song.setInstrument(0, instrument);
+    song.setAutoNoteOffOffset(250ms); // Should not apply
+    auto settings = instrument->settings();
+    settings.timing.autoNoteOffOffset = 125ms;
+    instrument->setSettings(settings);
+
+    song.noteDataAtPosition({ 0, 0, 0, 0, 0 })->setAsNoteOn(60, 100);
+    song.noteDataAtPosition({ 0, 0, 0, 8, 0 })->setAsNoteOn(60, 100);
+
+    auto events = song.renderToEvents(std::make_shared<AutomationService>(), 0);
+    QCOMPARE(events.size(), 6);
+
+    auto noteOn = events.at(1);
+    QCOMPARE(noteOn->tick(), 0);
+
+    auto noteOff = events.at(2);
+    noteOn = events.at(3);
+    QCOMPARE(noteOn->tick() - noteOff->tick(), song.autoNoteOffOffsetTicks(settings.timing.autoNoteOffOffset.value()));
 }
 
 void SongTest::test_trackByName_shouldReturnTrack()

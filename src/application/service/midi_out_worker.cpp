@@ -67,7 +67,7 @@ void MidiOutWorker::initializeStopTimer()
 void MidiOutWorker::sendMidiCcSettings(const MidiDevice & midiDevice, const Instrument & instrument)
 {
     const auto channel = instrument.midiAddress().channel();
-    const auto predefinedMidiCcSettings = instrument.settings().predefinedMidiCcSettings;
+    const auto predefinedMidiCcSettings = instrument.settings().standardMidiCcSettings;
     m_midiOut->sendCcData(midiDevice, channel, static_cast<quint8>(MidiCcMapping::Controller::ResetAllControllers), 127);
     if (predefinedMidiCcSettings.pan.has_value()) {
         m_midiOut->sendCcData(midiDevice, channel, static_cast<quint8>(MidiCcMapping::Controller::PanMSB), *predefinedMidiCcSettings.pan);
