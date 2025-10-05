@@ -5,7 +5,7 @@ pipeline {
             matrix {
                 agent {
                     docker {
-                        image 'juzzlin/qt6-24.10:latest'
+                        image 'juzzlin/qt6-25.04:latest'
                         args '--privileged -t -v $WORKSPACE:/noteahead'
                     }
                 }
@@ -29,7 +29,7 @@ pipeline {
                 axes {
                     axis {
                         name 'UBUNTU_VERSION'
-                        values '24.04', '24.10', '25.04'
+                        values '24.04', '25.04'
                     }
                 }
                 stages {
@@ -56,7 +56,7 @@ pipeline {
         stage('Source .tar.gz') {
             agent {
                 docker {
-                    image 'juzzlin/qt6-24.10:latest'
+                    image 'juzzlin/qt6-24.04:latest'
                     args '--privileged -t -v $WORKSPACE:/noteahead'
                 }
             }
