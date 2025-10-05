@@ -37,6 +37,30 @@ GroupBox {
                 ToolTip.visible: hovered
                 ToolTip.text: qsTr("Set number of visible lines in the editor view")
             }
+            Label {
+                text: qsTr("Track header font size:")
+                Layout.column: 0
+                Layout.columnSpan: 2
+                Layout.row: 1
+                Layout.fillWidth: true
+            }
+            SpinBox {
+                id: trackHeaderFontSizeSpinBox
+                from: 8
+                to: 64
+                Layout.column: 4
+                Layout.columnSpan: 5
+                Layout.row: 1
+                Layout.fillWidth: true
+                value: settingsService.trackHeaderFontSize
+                editable: true
+                onValueChanged: settingsService.setTrackHeaderFontSize(value)
+                Keys.onReturnPressed: focus = false
+                ToolTip.delay: Constants.toolTipDelay
+                ToolTip.timeout: Constants.toolTipTimeout
+                ToolTip.visible: hovered
+                ToolTip.text: qsTr("Set font size for track/column headers")
+            }
         }
     }
 }

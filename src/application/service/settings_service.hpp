@@ -27,6 +27,7 @@ class SettingsService : public QObject
 
     Q_PROPERTY(QString controllerPort READ controllerPort WRITE setControllerPort NOTIFY controllerPortChanged)
     Q_PROPERTY(int visibleLines READ visibleLines WRITE setVisibleLines NOTIFY visibleLinesChanged)
+    Q_PROPERTY(int trackHeaderFontSize READ trackHeaderFontSize WRITE setTrackHeaderFontSize NOTIFY trackHeaderFontSizeChanged)
 
 public:
     SettingsService();
@@ -50,6 +51,9 @@ public:
     Q_INVOKABLE int visibleLines() const;
     Q_INVOKABLE void setVisibleLines(int visibleLines);
 
+    Q_INVOKABLE int trackHeaderFontSize() const;
+    Q_INVOKABLE void setTrackHeaderFontSize(int trackHeaderFontSize);
+
     Q_INVOKABLE bool recordingEnabled() const;
     Q_INVOKABLE void setRecordingEnabled(bool enabled);
 
@@ -60,11 +64,13 @@ signals:
     void controllerPortChanged();
 
     void visibleLinesChanged();
+    void trackHeaderFontSizeChanged();
 
 private:
     QString m_controllerPort;
 
     int m_visibleLines;
+    int m_trackHeaderFontSize;
 };
 
 } // namespace noteahead

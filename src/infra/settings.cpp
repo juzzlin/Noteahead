@@ -36,6 +36,7 @@ const auto settingsGroupMidi = "Midi";
 const auto stepKey = "step";
 const auto velocityKey = "velocity";
 
+const auto trackHeaderFontSizeKey = "trackHeaderFontSize";
 const auto visibleLinesKey = "visibleLines";
 const auto windowSizeKey = "size";
 
@@ -162,6 +163,23 @@ void setVisibleLines(int visibleLines)
     QSettings settings;
     settings.beginGroup(settingsGroupEditor);
     settings.setValue(visibleLinesKey, visibleLines);
+    settings.endGroup();
+}
+
+int trackHeaderFontSize(int defaultTrackHeaderFontSize)
+{
+    QSettings settings;
+    settings.beginGroup(settingsGroupEditor);
+    const auto trackHeaderFontSize = settings.value(trackHeaderFontSizeKey, defaultTrackHeaderFontSize).toInt();
+    settings.endGroup();
+    return trackHeaderFontSize;
+}
+
+void setTrackHeaderFontSize(int trackHeaderFontSize)
+{
+    QSettings settings;
+    settings.beginGroup(settingsGroupEditor);
+    settings.setValue(trackHeaderFontSizeKey, trackHeaderFontSize);
     settings.endGroup();
 }
 

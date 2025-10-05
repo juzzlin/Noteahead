@@ -43,6 +43,9 @@ void setVelocity(int velocity);
 int visibleLines(int defaultVisibleLines);
 void setVisibleLines(int visibleLines);
 
+int trackHeaderFontSize(int defaultTrackHeaderFontSize);
+void setTrackHeaderFontSize(int trackHeaderFontSize);
+
 bool recordingEnabled();
 void setRecordingEnabled(bool enabled);
 

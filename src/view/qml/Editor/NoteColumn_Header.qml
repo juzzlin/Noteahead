@@ -59,7 +59,7 @@ Rectangle {
                 radius: 12
             }
             font.bold: _focused
-            font.pixelSize: Constants.trackHeaderFontSize
+            font.pixelSize: settingsService.trackHeaderFontSize
             font.family: "monospace"
             height: parent.height
             width: parent.width - muteSoloButtons.width - velocityScaleWidget.width

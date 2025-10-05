@@ -13,6 +13,8 @@ New features:
 
 * Adjustable audio buffer size
 
+* Adjustable track header font size
+
 Bug fixes:
 
 * Fix auto note-off offset calculation

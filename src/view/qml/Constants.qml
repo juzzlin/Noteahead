@@ -41,7 +41,6 @@ QtObject {
     readonly property color trackHeaderBackgroundColor: "black"
     readonly property color trackHeaderBorderColor: "#222222"
     readonly property int trackHeaderHeight: 40
-    readonly property int trackHeaderFontSize: 24
     readonly property var trackHeaderTextColors: ["orange", "white", "#ff5555", "#55ff55", "#5555ff", "#ffff55", "#ff55ff", "#55ffff", "#aaaaaa", "#ff8800", "#88ff00", "#0088ff", "#ff0088", "#8800ff", "#00ff88", "#888888"]
     function trackHeaderTextColor(trackIndex: int): color {
         return trackHeaderTextColors[trackIndex % trackHeaderTextColors.length];

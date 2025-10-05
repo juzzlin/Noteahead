@@ -27,6 +27,7 @@ static const auto TAG = "SettingsService";
 SettingsService::SettingsService()
   : m_controllerPort { Settings::controllerPort("") }
   , m_visibleLines { Settings::visibleLines(32) }
+  , m_trackHeaderFontSize { Settings::trackHeaderFontSize(20) }
 {
 }
 
@@ -96,6 +97,20 @@ void SettingsService::setVisibleLines(int visibleLines)
         m_visibleLines = visibleLines;
         Settings::setVisibleLines(visibleLines);
         emit visibleLinesChanged();
+    }
+}
+
+int SettingsService::trackHeaderFontSize() const
+{
+    return m_trackHeaderFontSize;
+}
+
+void SettingsService::setTrackHeaderFontSize(int trackHeaderFontSize)
+{
+    if (m_trackHeaderFontSize != trackHeaderFontSize) {
+        m_trackHeaderFontSize = trackHeaderFontSize;
+        Settings::setTrackHeaderFontSize(trackHeaderFontSize);
+        emit trackHeaderFontSizeChanged();
     }
 }
 
