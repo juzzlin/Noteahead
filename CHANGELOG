@@ -5,6 +5,17 @@ Release date:
 
 New features:
 
+Bug fixes:
+
+0.13.0
+======
+
+Release date:
+
+Mon, 06 Oct 2025 21:25:24 +0300
+
+New features:
+
 * Implement random velocity jitter in instrument settings
 
 * Show track index in the track settings dialog
