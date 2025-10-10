@@ -10,7 +10,7 @@ Dialog {
     modal: true
     standardButtons: Dialog.Ok | Dialog.Cancel
     function setTitle(text) {
-        title = "<strong>" + text + "</strong>";
+        title = "<strong>" + text + "</strong>" + midiCcAutomationsModel.rowCount();
     }
     contentItem: ScrollView {
         ListView {
@@ -23,5 +23,11 @@ Dialog {
                 height: implicitHeight
             }
         }
+    }
+    Text {
+        text: qsTr("No MIDI CC automations added")
+        anchors.centerIn: parent
+        color: "white"
+        visible: !midiCcAutomationsList.count
     }
 }
