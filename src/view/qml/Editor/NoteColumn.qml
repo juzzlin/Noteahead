@@ -54,7 +54,7 @@ Item {
     function setPositionBar(positionBar: var): void {
         _positionBar = positionBar;
     }
-    NoteColumn_Header {
+    NoteColumnHeader {
         id: columnHeader
         anchors.top: parent.top
         width: parent.width

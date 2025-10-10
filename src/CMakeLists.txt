@@ -211,14 +211,14 @@ set(QML_SOURCE_FILES
     ${QML_BASE_DIR}/Editor/MouseHandler.qml
     ${QML_BASE_DIR}/Editor/MuteSoloButtons.qml
     ${QML_BASE_DIR}/Editor/NoteColumn.qml
-    ${QML_BASE_DIR}/Editor/NoteColumn_Header.qml
+    ${QML_BASE_DIR}/Editor/NoteColumnHeader.qml
     ${QML_BASE_DIR}/Editor/NoteColumn_LineContainer.qml
     ${QML_BASE_DIR}/Editor/NoteColumn_LineDelegate.qml
     ${QML_BASE_DIR}/Editor/Pattern.qml
     ${QML_BASE_DIR}/Editor/PositionBar.qml
     ${QML_BASE_DIR}/Editor/Track.qml
-    ${QML_BASE_DIR}/Editor/Track_Header.qml
-    ${QML_BASE_DIR}/Editor/Track_Header_ColumnButtons.qml
+    ${QML_BASE_DIR}/Editor/TrackHeader.qml
+    ${QML_BASE_DIR}/Editor/TrackHeader_ColumnButtons.qml
     ${QML_BASE_DIR}/Editor/VelocityScale.qml
     ${QML_BASE_DIR}/Editor/VolumeMeter.qml
     ${QML_BASE_DIR}/MainMenu.qml

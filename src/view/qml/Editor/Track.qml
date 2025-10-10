@@ -106,7 +106,7 @@ Item {
     function _createColumns(): void {
         columnContainer.createColumns();
     }
-    Track_Header {
+    TrackHeader {
         id: trackHeader
         anchors.top: parent.top
         width: parent.width
