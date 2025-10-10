@@ -210,6 +210,7 @@ set(QML_SOURCE_FILES
     ${QML_BASE_DIR}/Editor/MainContextMenu.qml
     ${QML_BASE_DIR}/Editor/MainContextMenu_Column.qml
     ${QML_BASE_DIR}/Editor/MainContextMenu_Line.qml
+    ${QML_BASE_DIR}/Editor/MainContextMenu_Track.qml
     ${QML_BASE_DIR}/Editor/MouseHandler.qml
     ${QML_BASE_DIR}/Editor/MuteSoloButtons.qml
     ${QML_BASE_DIR}/Editor/NoteColumn.qml
