@@ -24,4 +24,10 @@ Dialog {
             }
         }
     }
+    Text {
+        text: qsTr("No pitch bend automations added")
+        anchors.centerIn: parent
+        color: "white"
+        visible: !pitchBendAutomationsList.count
+    }
 }
