@@ -227,8 +227,12 @@ set(QML_SOURCE_FILES
     ${QML_BASE_DIR}/Editor/TrackHeader_ColumnButtons.qml
     ${QML_BASE_DIR}/Editor/VelocityScale.qml
     ${QML_BASE_DIR}/Editor/VolumeMeter.qml
-    ${QML_BASE_DIR}/MainMenu.qml
-    ${QML_BASE_DIR}/MainMenuItemDelegate.qml
+    ${QML_BASE_DIR}/MainMenu/MainMenu.qml
+    ${QML_BASE_DIR}/MainMenu/MainMenuItemDelegate.qml
+    ${QML_BASE_DIR}/MainMenu/MainMenu_Edit.qml
+    ${QML_BASE_DIR}/MainMenu/MainMenu_File.qml
+    ${QML_BASE_DIR}/MainMenu/MainMenu_Help.qml
+    ${QML_BASE_DIR}/MainMenu/MainMenu_Tools.qml
     ${QML_BASE_DIR}/NoteVisualizer.qml
     ${QML_BASE_DIR}/ToolBar/EditorControls.qml
     ${QML_BASE_DIR}/ToolBar/MainToolBar.qml

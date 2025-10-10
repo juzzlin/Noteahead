@@ -22,6 +22,7 @@ import Noteahead 1.0
 import "Dialogs"
 import "Editor"
 import "ToolBar"
+import "MainMenu"
 
 ApplicationWindow {
     id: mainWindow
