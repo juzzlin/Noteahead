@@ -147,16 +147,8 @@ Item {
                 track.updateData();
             });
     }
-    function _setTrackDimensions(track: var, trackAreaWidth: int, trackAreaHeight: int): void {
-        const unitWidth = trackAreaWidth / editorService.visibleUnitCount();
-        track.resize(unitWidth * editorService.trackWidthInUnits(track.index()), trackAreaHeight);
-        track.x = unitWidth * editorService.onScreenTrackPositionInUnits(track.index());
-        track.y = 0;
-    }
     function updateTrackDimensions(trackAreaWidth: int, trackAreaHeight: int): void {
-        _tracks.forEach(track => {
-                _setTrackDimensions(track, trackAreaWidth, trackAreaHeight);
-            });
+        _tracks.forEach(track => track.setDimensions(trackAreaWidth, trackAreaHeight));
     }
     Component {
         id: trackComponent

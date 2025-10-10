@@ -27,10 +27,22 @@ Item {
         _index = trackIndex;
         trackHeader.setIndex(trackIndex);
     }
+    function setDimensions(trackAreaWidth: int, trackAreaHeight: int): void {
+        const unitWidth = trackAreaWidth / editorService.visibleUnitCount();
+        resize(unitWidth * editorService.trackWidthInUnits(index()), trackAreaHeight);
+        const newX = unitWidth * editorService.onScreenTrackPositionInUnits(index());
+        const newY = 0;
+        if (x !== newX || y !== newY) {
+            x = newX;
+            y = newY;
+        }
+    }
     function resize(width: int, height: int): void {
-        rootItem.width = width;
-        rootItem.height = height;
-        columnContainer.resize(rootItem.width, rootItem.height - trackHeader.height);
+        if (rootItem.width !== width || rootItem.height !== height) {
+            rootItem.width = width;
+            rootItem.height = height;
+            columnContainer.resize(rootItem.width, rootItem.height - trackHeader.height);
+        }
     }
     function focused(): bool {
         return _focused;
