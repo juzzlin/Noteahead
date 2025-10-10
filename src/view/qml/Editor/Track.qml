@@ -27,8 +27,7 @@ Item {
         _index = trackIndex;
         trackHeader.setIndex(trackIndex);
     }
-    function setDimensions(trackAreaWidth: int, trackAreaHeight: int): void {
-        const unitWidth = trackAreaWidth / editorService.visibleUnitCount();
+    function setDimensions(trackAreaWidth: int, trackAreaHeight: int, unitWidth: double): void {
         resize(unitWidth * editorService.trackWidthInUnits(index()), trackAreaHeight);
         const newX = unitWidth * editorService.onScreenTrackPositionInUnits(index());
         const newY = 0;

@@ -148,7 +148,8 @@ Item {
             });
     }
     function updateTrackDimensions(trackAreaWidth: int, trackAreaHeight: int): void {
-        _tracks.forEach(track => track.setDimensions(trackAreaWidth, trackAreaHeight));
+        const unitWidth = trackAreaWidth / editorService.visibleUnitCount();
+        _tracks.forEach(track => track.setDimensions(trackAreaWidth, trackAreaHeight, unitWidth));
     }
     Component {
         id: trackComponent
