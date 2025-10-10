@@ -76,6 +76,8 @@ public:
     Q_INVOKABLE void requestInstrumentData();
     void setInstrumentData(const Instrument &);
 
+    Q_INVOKABLE void requestNoteOff(quint8 note);
+    Q_INVOKABLE void requestNoteOn(quint8 note, quint8 velocity);
     Q_INVOKABLE void requestTestSound(quint8 velocity);
 
     Q_INVOKABLE void save();
@@ -177,6 +179,8 @@ signals:
 
     void saveRequested();
 
+    void noteOffRequested(quint8 note);
+    void noteOnRequested(quint8 note, quint8 velocity);
     void testSoundRequested(quint8 velocity);
 
     void trackIndexChanged();

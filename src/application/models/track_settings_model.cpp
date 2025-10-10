@@ -48,6 +48,16 @@ void TrackSettingsModel::requestInstrumentData()
     emit instrumentDataRequested();
 }
 
+void TrackSettingsModel::requestNoteOff(quint8 note)
+{
+    emit noteOffRequested(note);
+}
+
+void TrackSettingsModel::requestNoteOn(quint8 note, quint8 velocity)
+{
+    emit noteOnRequested(note, velocity);
+}
+
 void TrackSettingsModel::requestTestSound(quint8 velocity)
 {
     emit testSoundRequested(velocity);

@@ -498,6 +498,18 @@ void Application::connectTrackSettingsModel()
     connect(m_trackSettingsModel.get(), &TrackSettingsModel::testSoundRequested, this, [this](uint8_t velocity) {
         m_midiService->playAndStopMiddleC(m_trackSettingsModel->portName(), m_trackSettingsModel->channel(), velocity);
     });
+
+    connect(m_trackSettingsModel.get(), &TrackSettingsModel::noteOnRequested, this, [this](uint8_t note, uint8_t velocity) {
+        if (const auto instrument = m_editorService->instrument(m_trackSettingsModel->trackIndex()); instrument) {
+            m_midiService->playNote(instrument, { note, velocity });
+        }
+    });
+
+    connect(m_trackSettingsModel.get(), &TrackSettingsModel::noteOffRequested, this, [this](uint8_t note) {
+        if (const auto instrument = m_editorService->instrument(m_trackSettingsModel->trackIndex()); instrument) {
+            m_midiService->stopNote(instrument, { note, 0 });
+        }
+    });
 }
 
 int Application::initializeTracker()

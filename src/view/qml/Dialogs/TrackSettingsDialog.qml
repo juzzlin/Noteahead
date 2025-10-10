@@ -29,13 +29,6 @@ Dialog {
         trackSettingsModel.applyAll();
         trackSettingsModel.save();
     }
-    Timer {
-        id: testSoundTimer
-        interval: 125
-        running: false
-        repeat: false
-        onTriggered: trackSettingsModel.requestTestSound(UiService._activeVelocity)
-    }
     footer: DialogButtonBox {
         Button {
             text: qsTr("Ok")
