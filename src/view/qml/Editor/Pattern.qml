@@ -117,14 +117,10 @@ Item {
             });
     }
     function setPosition(newPosition: var): void {
-        _tracks.forEach(track => {
-                track.setPosition(newPosition);
-            });
+        _tracks.forEach(track => track.setPosition(newPosition));
     }
     function clearMixerSettings(): void {
-        _tracks.forEach(track => {
-                track.clearMixerSettings();
-            });
+        _tracks.forEach(track => track.clearMixerSettings());
     }
     function tracks(): var {
         return _tracks;
@@ -133,19 +129,13 @@ Item {
         return _tracks.find(track => track.index() === trackIndex) || null;
     }
     function updateColumnHeaders(): void {
-        _tracks.forEach(track => {
-                track.updateColumnHeaders();
-            });
+        _tracks.forEach(track => track.updateColumnHeaders());
     }
     function updateTrackHeaders(): void {
-        _tracks.forEach(track => {
-                track.setName(editorService.trackName(track.index()));
-            });
+        _tracks.forEach(track => track.setName(editorService.trackName(track.index())));
     }
     function updateTrackData(): void {
-        _tracks.forEach(track => {
-                track.updateData();
-            });
+        _tracks.forEach(track => track.updateData());
     }
     function updateTrackDimensions(trackAreaWidth: int, trackAreaHeight: int): void {
         const unitWidth = trackAreaWidth / editorService.visibleUnitCount();
