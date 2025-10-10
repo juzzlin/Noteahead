@@ -229,15 +229,13 @@ Item {
             }
         }
         function resize(width: int, height: int): void {
-            Qt.callLater(() => {
-                    columnContainer.width = width;
-                    columnContainer.height = height;
-                    const noteColumnWidth = _noteColumnWidth();
-                    const noteColumnHeight = height;
-                    _noteColumns.forEach(noteColumn => {
-                            noteColumn.x = _noteColumnX(noteColumn.index());
-                            noteColumn.resize(noteColumnWidth, noteColumnHeight);
-                        });
+            columnContainer.width = width;
+            columnContainer.height = height;
+            const noteColumnWidth = _noteColumnWidth();
+            const noteColumnHeight = height;
+            _noteColumns.forEach(noteColumn => {
+                    noteColumn.x = _noteColumnX(noteColumn.index());
+                    noteColumn.resize(noteColumnWidth, noteColumnHeight);
                 });
         }
         Component {
