@@ -94,6 +94,14 @@ FocusScope {
         rootItem.height = height;
         _updateCurrentTrackDimensions();
         _updateLineColumns();
+        resizeTimer.restart();
+    }
+    readonly property int _resizeDelay: 500 // milliseconds
+    Timer {
+        id: resizeTimer
+        interval: _resizeDelay
+        repeat: false
+        onTriggered: _updateAllTrackDimensions()
     }
     function _clearPatterns() {
         _patterns.forEach(pattern => {
@@ -172,6 +180,12 @@ FocusScope {
     function _updateCurrentTrackDimensions() {
         uiLogger.debug(_tag, `Updating current track dimensions of the current pattern..`);
         _currentPattern().updateTrackDimensions(trackArea.width, trackArea.height);
+    }
+    function _updateAllTrackDimensions() {
+        uiLogger.debug(_tag, `Updating track dimensions of all patterns..`);
+        _patterns.forEach(pattern => {
+                pattern.updateTrackDimensions(trackArea.width, trackArea.height);
+            });
     }
     function _updateCurrentTrackData() {
         _currentPattern().updateTrackData();
