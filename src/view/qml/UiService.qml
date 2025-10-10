@@ -31,6 +31,7 @@ QtObject {
     signal selectionAddPitchBendAutomationDialogRequested
     signal selectionVelocityInterpolationDialogRequested
     signal settingsDialogRequested
+    signal shortcutsDialogRequested
     signal trackSettingsDialogRequested(int trackIndex)
     signal trackVelocityInterpolationDialogRequested
     signal trackVelocityScaleDialogRequested(int trackIndex)
@@ -110,6 +111,9 @@ QtObject {
     }
     function requestAboutDialog(): void {
         aboutDialogRequested();
+    }
+    function requestShortcutsDialog(): void {
+        shortcutsDialogRequested();
     }
     function requestDelayCalculatorDialog(): void {
         delayCalculatorDialogRequested();

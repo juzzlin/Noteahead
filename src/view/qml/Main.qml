@@ -62,6 +62,12 @@ ApplicationWindow {
         id: aboutDialog
         anchors.centerIn: parent
     }
+    ShortcutsDialog {
+        id: shortcutsDialog
+        anchors.centerIn: parent
+        width: parent.width * Constants.defaultDialogScale
+        height: parent.height * Constants.defaultDialogScale
+    }
     FileDialog {
         id: openDialog
         currentFolder: StandardPaths.standardLocations(StandardPaths.DocumentsLocation)[0]
@@ -287,6 +293,7 @@ ApplicationWindow {
     }
     function _connectUiService(): void {
         UiService.aboutDialogRequested.connect(aboutDialog.open);
+        UiService.shortcutsDialogRequested.connect(shortcutsDialog.open);
         UiService.eventSelectionDialogRequested.connect(() => {
             eventSelectionDialog.requestData();
             eventSelectionDialog.open();

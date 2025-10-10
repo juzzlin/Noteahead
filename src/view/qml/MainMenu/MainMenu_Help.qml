@@ -9,5 +9,9 @@ Menu {
         text: qsTr("About")
         onTriggered: UiService.requestAboutDialog()
     }
+    Action {
+        text: qsTr("Shortcuts")
+        onTriggered: UiService.requestShortcutsDialog()
+    }
     delegate: MainMenuItemDelegate {}
 }
