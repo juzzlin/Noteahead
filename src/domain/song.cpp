@@ -546,7 +546,7 @@ Song::EventList Song::generateNoteOffs(EventListCR events) const
             if (const auto instrument = this->instrument(trackAndColumn.first); instrument) {
                 if (instrument->settings().timing.autoNoteOffOffset.has_value()) {
                     instrumentAutoNoteOffOffset = autoNoteOffOffsetTicks(instrument->settings().timing.autoNoteOffOffset.value());
-                    juzzlin::L(TAG).info() << "Auto note-off offset override on track" << trackAndColumn.first << ": " << instrumentAutoNoteOffOffset << " ticks";
+                    juzzlin::L(TAG).trace() << "Auto note-off offset override on track" << trackAndColumn.first << ": " << instrumentAutoNoteOffOffset << " ticks";
                 }
             }
             if (noteData->type() == NoteData::Type::NoteOn) {
