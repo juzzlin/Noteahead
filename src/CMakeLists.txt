@@ -174,6 +174,7 @@ set(QML_SOURCE_FILES
     ${QML_BASE_DIR}/${MAIN}
     ${QML_BASE_DIR}/BottomBar.qml
     ${QML_BASE_DIR}/Components/LayoutSeparator.qml
+    ${QML_BASE_DIR}/Components/MenuItemDelegate.qml
     ${QML_BASE_DIR}/Components/VirtualKeyboard.qml
     ${QML_BASE_DIR}/Constants.qml
     ${QML_BASE_DIR}/Dialogs/AboutDialog.qml
@@ -230,7 +231,6 @@ set(QML_SOURCE_FILES
     ${QML_BASE_DIR}/Editor/VelocityScale.qml
     ${QML_BASE_DIR}/Editor/VolumeMeter.qml
     ${QML_BASE_DIR}/MainMenu/MainMenu.qml
-    ${QML_BASE_DIR}/MainMenu/MainMenuItemDelegate.qml
     ${QML_BASE_DIR}/MainMenu/MainMenu_Edit.qml
     ${QML_BASE_DIR}/MainMenu/MainMenu_File.qml
     ${QML_BASE_DIR}/MainMenu/MainMenu_Help.qml

@@ -2,6 +2,7 @@ import QtQuick 2.15
 import QtQuick.Controls 2.15
 import QtQuick.Controls.Universal 2.15
 import ".."
+import "../Components"
 
 Menu {
     title: qsTr("&File")
@@ -42,5 +43,5 @@ Menu {
         shortcut: "Ctrl+Q"
         onTriggered: UiService.requestQuit()
     }
-    delegate: MainMenuItemDelegate {}
+    delegate: MenuItemDelegate {}
 }

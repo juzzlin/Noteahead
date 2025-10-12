@@ -1,6 +1,7 @@
 import QtQuick.Controls 2.3
 import QtQuick.Controls.Universal 2.3
 import ".."
+import "../Components"
 
 Menu {
     title: qsTr("Line")
@@ -17,15 +18,13 @@ Menu {
         enabled: !UiService.isPlaying()
         onTriggered: editorService.requestEventRemoval()
     }
-    MenuSeparator {
-    }
+    MenuSeparator {}
     Action {
         text: qsTr("Set delay")
         enabled: !UiService.isPlaying()
         onTriggered: UiService.requestLineDelayDialog()
     }
-    MenuSeparator {
-    }
+    MenuSeparator {}
     Action {
         text: qsTr("Add MIDI CC automation")
         enabled: !UiService.isPlaying()
@@ -36,8 +35,7 @@ Menu {
         enabled: !UiService.isPlaying()
         onTriggered: UiService.requestEditMidiCcAutomationsDialogByLine()
     }
-    MenuSeparator {
-    }
+    MenuSeparator {}
     Action {
         text: qsTr("Add Pitch Bend automation")
         enabled: !UiService.isPlaying()
@@ -48,6 +46,5 @@ Menu {
         enabled: !UiService.isPlaying()
         onTriggered: UiService.requestEditPitchBendAutomationsDialogByLine()
     }
-    delegate: MainMenuItemDelegate {
-    }
+    delegate: MenuItemDelegate {}
 }

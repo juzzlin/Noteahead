@@ -1,6 +1,7 @@
 import QtQuick.Controls 2.3
 import QtQuick.Controls.Universal 2.3
 import ".."
+import "../Components"
 
 Menu {
     title: qsTr("Selection")
@@ -22,8 +23,7 @@ Menu {
         enabled: !UiService.isPlaying() && editorService.hasSelectionToPaste
         onTriggered: editorService.requestSelectionPaste()
     }
-    MenuSeparator {
-    }
+    MenuSeparator {}
     Action {
         text: qsTr("Transpose <b>+1</b> semitones")
         shortcut: "Alt+Shift+F10"
@@ -68,27 +68,23 @@ Menu {
         enabled: !UiService.isPlaying()
         onTriggered: editorService.requestSelectionTranspose(-12)
     }
-    MenuSeparator {
-    }
+    MenuSeparator {}
     Action {
         text: qsTr("Interpolate velocity")
         enabled: !UiService.isPlaying() && selectionService.isValidSelection
         onTriggered: UiService.requestSelectionVelocityInterpolationDialog()
     }
-    MenuSeparator {
-    }
+    MenuSeparator {}
     Action {
         text: qsTr("Add MIDI CC automation")
         enabled: !UiService.isPlaying() && selectionService.isValidSelection
         onTriggered: UiService.requestSelectionAddMidiCcAutomationDialog()
     }
-    MenuSeparator {
-    }
+    MenuSeparator {}
     Action {
         text: qsTr("Add Pitch Bend automation")
         enabled: !UiService.isPlaying() && selectionService.isValidSelection
         onTriggered: UiService.requestSelectionAddPitchBendAutomationDialog()
     }
-    delegate: MainMenuItemDelegate {
-    }
+    delegate: MenuItemDelegate {}
 }

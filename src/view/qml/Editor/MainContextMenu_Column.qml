@@ -1,6 +1,7 @@
 import QtQuick.Controls 2.3
 import QtQuick.Controls.Universal 2.3
 import ".."
+import "../Components"
 
 Menu {
     title: qsTr("Column")
@@ -22,8 +23,7 @@ Menu {
         enabled: !UiService.isPlaying() && editorService.hasColumnToPaste
         onTriggered: editorService.requestColumnPaste()
     }
-    MenuSeparator {
-    }
+    MenuSeparator {}
     Action {
         text: qsTr("Transpose <b>+1</b> semitones")
         shortcut: "Alt+F10"
@@ -68,15 +68,13 @@ Menu {
         enabled: !UiService.isPlaying()
         onTriggered: editorService.requestColumnTranspose(-12)
     }
-    MenuSeparator {
-    }
+    MenuSeparator {}
     Action {
         text: qsTr("Interpolate velocity")
         enabled: !UiService.isPlaying()
         onTriggered: UiService.requestColumnVelocityInterpolationDialog()
     }
-    MenuSeparator {
-    }
+    MenuSeparator {}
     Action {
         text: qsTr("Add MIDI CC automation")
         enabled: !UiService.isPlaying()
@@ -87,8 +85,7 @@ Menu {
         enabled: !UiService.isPlaying()
         onTriggered: UiService.requestEditMidiCcAutomationsDialogByColumn()
     }
-    MenuSeparator {
-    }
+    MenuSeparator {}
     Action {
         text: qsTr("Add Pitch Bend automation")
         enabled: !UiService.isPlaying()
@@ -99,6 +96,5 @@ Menu {
         enabled: !UiService.isPlaying()
         onTriggered: UiService.requestEditPitchBendAutomationsDialogByColumn()
     }
-    delegate: MainMenuItemDelegate {
-    }
+    delegate: MenuItemDelegate {}
 }

@@ -2,6 +2,7 @@ import QtQuick 2.15
 import QtQuick.Controls 2.15
 import QtQuick.Controls.Universal 2.15
 import ".."
+import "../Components"
 
 Menu {
     title: qsTr("&Edit")
@@ -24,5 +25,5 @@ Menu {
         text: qsTr("Settings")
         onTriggered: UiService.requestSettingsDialog()
     }
-    delegate: MainMenuItemDelegate {}
+    delegate: MenuItemDelegate {}
 }

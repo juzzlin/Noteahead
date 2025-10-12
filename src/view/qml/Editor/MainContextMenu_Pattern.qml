@@ -1,6 +1,7 @@
 import QtQuick.Controls 2.3
 import QtQuick.Controls.Universal 2.3
 import ".."
+import "../Components"
 
 Menu {
     title: "Pattern"
@@ -22,8 +23,7 @@ Menu {
         enabled: !UiService.isPlaying() && editorService.hasPatternToPaste
         onTriggered: editorService.requestPatternPaste()
     }
-    MenuSeparator {
-    }
+    MenuSeparator {}
     Action {
         text: qsTr("Transpose <b>+1</b> semitones")
         shortcut: "Ctrl+F10"
@@ -68,20 +68,17 @@ Menu {
         enabled: !UiService.isPlaying()
         onTriggered: editorService.requestPatternTranspose(-12)
     }
-    MenuSeparator {
-    }
+    MenuSeparator {}
     Action {
         text: qsTr("Edit MIDI CC automations")
         enabled: !UiService.isPlaying()
         onTriggered: UiService.requestEditMidiCcAutomationsDialogByPattern()
     }
-    MenuSeparator {
-    }
+    MenuSeparator {}
     Action {
         text: qsTr("Edit Pitch Bend automations")
         enabled: !UiService.isPlaying()
         onTriggered: UiService.requestEditPitchBendAutomationsDialogByPattern()
     }
-    delegate: MainMenuItemDelegate {
-    }
+    delegate: MenuItemDelegate {}
 }

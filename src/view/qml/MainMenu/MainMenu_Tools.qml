@@ -2,6 +2,7 @@ import QtQuick 2.15
 import QtQuick.Controls 2.15
 import QtQuick.Controls.Universal 2.15
 import ".."
+import "../Components"
 
 Menu {
     title: qsTr("&Tools")
@@ -13,5 +14,5 @@ Menu {
         text: qsTr("Note frequencies")
         onTriggered: UiService.requestNoteFrequencyDialog()
     }
-    delegate: MainMenuItemDelegate {}
+    delegate: MenuItemDelegate {}
 }

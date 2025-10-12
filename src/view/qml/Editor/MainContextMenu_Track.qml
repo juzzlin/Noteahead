@@ -1,6 +1,7 @@
 import QtQuick.Controls 2.3
 import QtQuick.Controls.Universal 2.3
 import ".."
+import "../Components"
 
 Menu {
     title: qsTr("Track")
@@ -22,8 +23,7 @@ Menu {
         enabled: !UiService.isPlaying() && editorService.hasTrackToPaste
         onTriggered: editorService.requestTrackPaste()
     }
-    MenuSeparator {
-    }
+    MenuSeparator {}
     Action {
         text: qsTr("Transpose <b>+1</b> semitones")
         shortcut: "Shift+F10"
@@ -68,43 +68,37 @@ Menu {
         enabled: !UiService.isPlaying()
         onTriggered: editorService.requestTrackTranspose(-12)
     }
-    MenuSeparator {
-    }
+    MenuSeparator {}
     Action {
         text: qsTr("Interpolate velocity")
         enabled: !UiService.isPlaying()
         onTriggered: UiService.requestTrackVelocityInterpolationDialog()
     }
-    MenuSeparator {
-    }
+    MenuSeparator {}
     Action {
         text: qsTr("Insert a new track to the right")
         shortcut: "Shift+I"
         enabled: !UiService.isPlaying()
         onTriggered: editorService.requestNewTrackToRight()
     }
-    MenuSeparator {
-    }
+    MenuSeparator {}
     Action {
         text: qsTr("Delete current track")
         shortcut: "Shift+D"
         enabled: !UiService.isPlaying()
         onTriggered: editorService.requestTrackDeletion()
     }
-    MenuSeparator {
-    }
+    MenuSeparator {}
     Action {
         text: qsTr("Edit MIDI CC automations")
         enabled: !UiService.isPlaying()
         onTriggered: UiService.requestEditMidiCcAutomationsDialogByTrack()
     }
-    MenuSeparator {
-    }
+    MenuSeparator {}
     Action {
         text: qsTr("Edit Pitch Bend automations")
         enabled: !UiService.isPlaying()
         onTriggered: UiService.requestEditPitchBendAutomationsDialogByTrack()
     }
-    delegate: MainMenuItemDelegate {
-    }
+    delegate: MenuItemDelegate {}
 }
