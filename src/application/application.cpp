@@ -500,13 +500,13 @@ void Application::connectTrackSettingsModel()
     });
 
     connect(m_trackSettingsModel.get(), &TrackSettingsModel::noteOnRequested, this, [this](uint8_t note, uint8_t velocity) {
-        if (const auto instrument = m_editorService->instrument(m_trackSettingsModel->trackIndex()); instrument) {
+        if (auto instrument = std::shared_ptr<Instrument> { m_trackSettingsModel->toInstrument() }; instrument) {
             m_midiService->playNote(instrument, { note, velocity });
         }
     });
 
     connect(m_trackSettingsModel.get(), &TrackSettingsModel::noteOffRequested, this, [this](uint8_t note) {
-        if (const auto instrument = m_editorService->instrument(m_trackSettingsModel->trackIndex()); instrument) {
+        if (auto instrument = std::shared_ptr<Instrument> { m_trackSettingsModel->toInstrument() }; instrument) {
             m_midiService->stopNote(instrument, { note, 0 });
         }
     });
