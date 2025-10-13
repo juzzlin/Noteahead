@@ -10,7 +10,7 @@ Dialog {
     modal: true
     standardButtons: Dialog.Ok | Dialog.Cancel
     function setTitle(text) {
-        title = "<strong>" + text + "</strong>" + midiCcAutomationsModel.rowCount();
+        title = "<strong>" + text + "</strong>";
     }
     contentItem: ScrollView {
         ListView {
