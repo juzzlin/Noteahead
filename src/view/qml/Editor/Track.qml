@@ -151,10 +151,10 @@ Item {
         }
         function clearMixerSettings(): void {
             _noteColumns.forEach(noteColumn => {
-                    noteColumn.setMuted(false);
-                    noteColumn.setSoloed(false);
-                    noteColumn.setVelocityScale(100);
-                });
+                noteColumn.setMuted(false);
+                noteColumn.setSoloed(false);
+                noteColumn.setVelocityScale(100);
+            });
         }
         function setPosition(position: var): void {
             _noteColumns.forEach(noteColumn => {
@@ -163,16 +163,16 @@ Item {
         }
         function setPositionBar(positionBar: var): void {
             _noteColumns.forEach(noteColumn => {
-                    noteColumn.setPositionBar(positionBar);
-                });
+                noteColumn.setPositionBar(positionBar);
+            });
         }
         function updateColumnHeaders(): void {
             _noteColumns.forEach(noteColumn => {
-                    noteColumn.setName(editorService.columnName(_index, noteColumn.index()));
-                    noteColumn.setMuted(mixerService.isColumnMuted(_index, noteColumn.index()));
-                    noteColumn.setSoloed(mixerService.isColumnSoloed(_index, noteColumn.index()));
-                    noteColumn.setVelocityScale(mixerService.columnVelocityScale(_index, noteColumn.index()));
-                });
+                noteColumn.setName(editorService.columnName(_index, noteColumn.index()));
+                noteColumn.setMuted(mixerService.isColumnMuted(_index, noteColumn.index()));
+                noteColumn.setSoloed(mixerService.isColumnSoloed(_index, noteColumn.index()));
+                noteColumn.setVelocityScale(mixerService.columnVelocityScale(_index, noteColumn.index()));
+            });
         }
         function _noteColumnX(index: int): int {
             return _noteColumnWidth() * index;
@@ -190,33 +190,33 @@ Item {
             noteColumn.setLocation(_patternIndex, _index, columnIndex);
             noteColumn.setPositionBar(_positionBar);
             noteColumn.leftClicked.connect((lineIndex, x, y) => {
-                    uiLogger.debug(_tag, `Track ${rootItem._index} left clicked`);
-                    rootItem.leftClicked(noteColumn.index(), lineIndex, x + rootItem.x, y + rootItem.y);
-                });
+                uiLogger.debug(_tag, `Track ${rootItem._index} left clicked`);
+                rootItem.leftClicked(noteColumn.index(), lineIndex, x + rootItem.x, y + rootItem.y);
+            });
             noteColumn.rightClicked.connect((lineIndex, x, y) => {
-                    uiLogger.debug(_tag, `Track ${rootItem._index} right clicked`);
-                    rootItem.rightClicked(noteColumn.index(), lineIndex, x, y);
-                });
+                uiLogger.debug(_tag, `Track ${rootItem._index} right clicked`);
+                rootItem.rightClicked(noteColumn.index(), lineIndex, x, y);
+            });
             noteColumn.leftPressed.connect((lineIndex, x, y) => {
-                    uiLogger.debug(_tag, `Track ${rootItem._index} left pressed`);
-                    rootItem.leftPressed(noteColumn.index(), lineIndex, x, y);
-                });
+                uiLogger.debug(_tag, `Track ${rootItem._index} left pressed`);
+                rootItem.leftPressed(noteColumn.index(), lineIndex, x, y);
+            });
             noteColumn.rightPressed.connect((lineIndex, x, y) => {
-                    uiLogger.debug(_tag, `Track ${rootItem._index} right pressed`);
-                    rootItem.rightPressed(noteColumn.index(), lineIndex, x, y);
-                });
+                uiLogger.debug(_tag, `Track ${rootItem._index} right pressed`);
+                rootItem.rightPressed(noteColumn.index(), lineIndex, x, y);
+            });
             noteColumn.leftReleased.connect((lineIndex, x, y) => {
-                    uiLogger.debug(_tag, `Track ${rootItem._index} left released`);
-                    rootItem.leftReleased(noteColumn.index(), lineIndex, x, y);
-                });
+                uiLogger.debug(_tag, `Track ${rootItem._index} left released`);
+                rootItem.leftReleased(noteColumn.index(), lineIndex, x, y);
+            });
             noteColumn.rightReleased.connect((lineIndex, x, y) => {
-                    uiLogger.debug(_tag, `Track ${rootItem._index} right released`);
-                    rootItem.rightReleased(noteColumn.index(), lineIndex, x, y);
-                });
+                uiLogger.debug(_tag, `Track ${rootItem._index} right released`);
+                rootItem.rightReleased(noteColumn.index(), lineIndex, x, y);
+            });
             noteColumn.mouseMoved.connect((lineIndex, x, y) => {
-                    uiLogger.debug(_tag, `Track ${rootItem._index} mouse moved`);
-                    rootItem.mouseMoved(noteColumn.index(), lineIndex, x, y);
-                });
+                uiLogger.debug(_tag, `Track ${rootItem._index} mouse moved`);
+                rootItem.mouseMoved(noteColumn.index(), lineIndex, x, y);
+            });
             return noteColumn;
         }
         function _createNoteColumns(): void {
@@ -234,14 +234,13 @@ Item {
             const noteColumnWidth = _noteColumnWidth();
             const noteColumnHeight = height;
             _noteColumns.forEach(noteColumn => {
-                    noteColumn.x = _noteColumnX(noteColumn.index());
-                    noteColumn.resize(noteColumnWidth, noteColumnHeight);
-                });
+                noteColumn.x = _noteColumnX(noteColumn.index());
+                noteColumn.resize(noteColumnWidth, noteColumnHeight);
+            });
         }
         Component {
             id: noteColumnComponent
-            NoteColumn {
-            }
+            NoteColumn {}
         }
     }
     Rectangle {
