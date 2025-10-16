@@ -2,9 +2,8 @@ import QtQuick 2.15
 import QtQuick.Controls.Universal 2.15
 import ".."
 
-Rectangle {
+Item {
     id: rootItem
-    color: Constants.noteColumnBackgroundColor
     clip: true
     signal leftClicked(int lineIndex, int x, int y)
     signal rightClicked(int lineIndex, int x, int y)
