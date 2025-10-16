@@ -29,6 +29,7 @@ FocusScope {
         anchors.left: lineNumberColumnLeft.right
         anchors.right: lineNumberColumnRight.left
         clip: true
+        color: "black"
     }
     PositionBar {
         id: positionBar
