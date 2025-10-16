@@ -78,8 +78,8 @@ Rectangle {
         if (_scrollOffset !== position.line) {
             _scrollOffset = position.line;
             _scrollLines();
-            _triggerVolumeMeterAtPosition(position);
         }
+        _triggerVolumeMeterAtPosition(position);
     }
     function _scrollLines(): void {
         if (_listView) {
