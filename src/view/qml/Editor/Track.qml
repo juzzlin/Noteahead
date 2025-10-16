@@ -158,8 +158,10 @@ Item {
         }
         function setPosition(position: var): void {
             _noteColumns.forEach(noteColumn => {
+                if (editorService.isColumnVisible(_index, noteColumn.index())) {
                     noteColumn.setPosition(position);
-                });
+                }
+            });
         }
         function setPositionBar(positionBar: var): void {
             _noteColumns.forEach(noteColumn => {
