@@ -9,6 +9,10 @@ New features:
 
 Bug fixes:
 
+Other:
+
+* Don't scroll columns that are not visible
+
 0.13.0
 ======
 
