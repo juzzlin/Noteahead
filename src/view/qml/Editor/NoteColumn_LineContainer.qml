@@ -111,14 +111,6 @@ Item {
         repeat: false
         onTriggered: _scrollLines()
     }
-    Rectangle {
-        id: borderRectangle
-        color: "transparent"
-        border.color: Constants.noteColumnBorderColor
-        border.width: 1
-        anchors.fill: parent
-        z: 2
-    }
     VolumeMeter {
         id: volumeMeter
         anchors.top: rootItem.top
