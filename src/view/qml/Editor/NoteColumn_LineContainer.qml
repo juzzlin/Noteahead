@@ -75,9 +75,11 @@ Rectangle {
         rootItem.mouseMoved(effectiveLineIndex, _getGlobalX(delegate, mouse), _getGlobalY(delegate, mouse));
     }
     function setPosition(position: var): void {
-        _scrollOffset = position.line;
-        _scrollLines();
-        _triggerVolumeMeterAtPosition(position);
+        if (_scrollOffset !== position.line) {
+            _scrollOffset = position.line;
+            _scrollLines();
+            _triggerVolumeMeterAtPosition(position);
+        }
     }
     function _scrollLines(): void {
         if (_listView) {
