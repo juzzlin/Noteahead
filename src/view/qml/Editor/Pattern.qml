@@ -14,8 +14,8 @@ Item {
                 track.setName(editorService.trackName(trackIndex));
                 track.setPositionBar(positionBar);
                 track.nameChanged.connect(name => {
-                        editorService.setTrackName(trackIndex, name);
-                    });
+                    editorService.setTrackName(trackIndex, name);
+                });
                 track.updateData();
                 _tracks.push(track);
                 uiLogger.trace(_tag, `Added track index=${trackIndex}, width=${track.width}, height=${track.height}, x=${track.x}, y=${track.y}`);
@@ -70,54 +70,56 @@ Item {
     }
     function setColumnMuted(trackIndex: int, columnIndex: int, muted: bool): void {
         _tracks.forEach(track => {
-                if (track.index() === trackIndex) {
-                    uiLogger.debug(_tag, `Muting column ${columnIndex} of track ${trackIndex}: ${muted}`);
-                    track.setColumnMuted(columnIndex, muted);
-                }
-            });
+            if (track.index() === trackIndex) {
+                uiLogger.debug(_tag, `Muting column ${columnIndex} of track ${trackIndex}: ${muted}`);
+                track.setColumnMuted(columnIndex, muted);
+            }
+        });
     }
     function setColumnSoloed(trackIndex: int, columnIndex: int, soloed: bool): void {
         _tracks.forEach(track => {
-                if (track.index() === trackIndex) {
-                    uiLogger.debug(_tag, `Soloing column ${columnIndex} of track ${trackIndex}: ${soloed}`);
-                    track.setColumnSoloed(columnIndex, soloed);
-                }
-            });
+            if (track.index() === trackIndex) {
+                uiLogger.debug(_tag, `Soloing column ${columnIndex} of track ${trackIndex}: ${soloed}`);
+                track.setColumnSoloed(columnIndex, soloed);
+            }
+        });
     }
     function setColumnVelocityScale(trackIndex: int, columnIndex: int, value: int): void {
         _tracks.forEach(track => {
-                if (track.index() === trackIndex) {
-                    uiLogger.trace(_tag, `Setting velocity scale for column ${columnIndex} of track ${trackIndex}: ${value}`);
-                    track.setColumnVelocityScale(columnIndex, value);
-                }
-            });
+            if (track.index() === trackIndex) {
+                uiLogger.trace(_tag, `Setting velocity scale for column ${columnIndex} of track ${trackIndex}: ${value}`);
+                track.setColumnVelocityScale(columnIndex, value);
+            }
+        });
     }
     function setTrackMuted(trackIndex: int, muted: bool): void {
         _tracks.forEach(track => {
-                if (track.index() === trackIndex) {
-                    uiLogger.debug(_tag, `Muting track ${trackIndex}: ${muted}`);
-                    track.setMuted(muted);
-                }
-            });
+            if (track.index() === trackIndex) {
+                uiLogger.debug(_tag, `Muting track ${trackIndex}: ${muted}`);
+                track.setMuted(muted);
+            }
+        });
     }
     function setTrackSoloed(trackIndex: int, soloed: bool): void {
         _tracks.forEach(track => {
-                if (track.index() === trackIndex) {
-                    uiLogger.debug(_tag, `Soloing track ${trackIndex}: ${soloed}`);
-                    track.setSoloed(soloed);
-                }
-            });
+            if (track.index() === trackIndex) {
+                uiLogger.debug(_tag, `Soloing track ${trackIndex}: ${soloed}`);
+                track.setSoloed(soloed);
+            }
+        });
     }
     function setTrackVelocityScale(trackIndex: int, value: int): void {
         _tracks.forEach(track => {
-                if (track.index() === trackIndex) {
-                    uiLogger.trace(_tag, `Setting velocity scale for track ${trackIndex}: ${value}`);
-                    track.setVelocityScale(value);
-                }
-            });
+            if (track.index() === trackIndex) {
+                uiLogger.trace(_tag, `Setting velocity scale for track ${trackIndex}: ${value}`);
+                track.setVelocityScale(value);
+            }
+        });
     }
     function setPosition(newPosition: var): void {
-        _tracks.forEach(track => track.setPosition(newPosition));
+        _tracks.forEach(track => {
+            track.setPosition(newPosition);
+        });
     }
     function clearMixerSettings(): void {
         _tracks.forEach(track => track.clearMixerSettings());

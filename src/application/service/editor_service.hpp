@@ -209,11 +209,10 @@ public:
     Q_INVOKABLE quint64 linesPerBeat() const;
     Q_INVOKABLE void setLinesPerBeat(quint64 linesPerBeat);
 
-    Q_INVOKABLE quint64 visibleUnitCount() const;
-    Q_INVOKABLE quint64 totalUnitCount() const;
-
     Q_INVOKABLE quint64 horizontalScrollPosition() const;
     Q_INVOKABLE quint64 trackWidthInUnits(quint64 trackIndex) const;
+    Q_INVOKABLE quint64 visibleUnitCount() const;
+    Q_INVOKABLE quint64 totalUnitCount() const;
     quint64 columnPositionInUnits(quint64 trackIndex, quint64 columnIndex) const;
     quint64 trackPositionInUnits(quint64 trackIndex) const;
     Q_INVOKABLE int onScreenColumnPositionInUnits(quint64 trackIndex, quint64 columnIndex) const;
