@@ -71,8 +71,8 @@ FocusScope {
         Component.onCompleted: {
             // Keyboard commands like tab/left/right might force also scroll bar position
             editorService.scrollBarPositionChanged.connect(() => {
-                    position = editorService.scrollBarPosition();
-                });
+                position = editorService.scrollBarPosition();
+            });
         }
     }
     Keys.onPressed: event => {
@@ -105,8 +105,8 @@ FocusScope {
     }
     function _clearPatterns() {
         _patterns.forEach(pattern => {
-                pattern.destroy();
-            });
+            pattern.destroy();
+        });
         _patterns.length = 0;
     }
     function _setTrackDimensions(track) {
@@ -117,32 +117,32 @@ FocusScope {
     }
     function _connectTrack(track) {
         track.leftClicked.connect((columnIndex, lineIndex, x, y) => {
-                mouseHandler.handleLeftClicked(track, columnIndex, lineIndex, x, y);
-            });
+            mouseHandler.handleLeftClicked(track, columnIndex, lineIndex, x, y);
+        });
         track.rightClicked.connect((columnIndex, lineIndex, x, y) => {
-                mouseHandler.handleRightClicked(track, columnIndex, lineIndex, x, y);
-            });
+            mouseHandler.handleRightClicked(track, columnIndex, lineIndex, x, y);
+        });
         track.leftPressed.connect((columnIndex, lineIndex, x, y) => {
-                mouseHandler.handleLeftPressed(track, columnIndex, lineIndex, x, y);
-            });
+            mouseHandler.handleLeftPressed(track, columnIndex, lineIndex, x, y);
+        });
         track.leftReleased.connect((columnIndex, lineIndex, x, y) => {
-                mouseHandler.handleLeftReleased(track, columnIndex, lineIndex, x, y);
-            });
+            mouseHandler.handleLeftReleased(track, columnIndex, lineIndex, x, y);
+        });
         track.rightPressed.connect((columnIndex, lineIndex, x, y) => {
-                mouseHandler.handleRightPressed(track, columnIndex, lineIndex, x, y);
-            });
+            mouseHandler.handleRightPressed(track, columnIndex, lineIndex, x, y);
+        });
         track.rightReleased.connect((columnIndex, lineIndex, x, y) => {
-                mouseHandler.handleRightReleased(track, columnIndex, lineIndex, x, y);
-            });
+            mouseHandler.handleRightReleased(track, columnIndex, lineIndex, x, y);
+        });
         track.mouseMoved.connect((columnIndex, lineIndex, x, y) => {
-                mouseHandler.handleMouseMoved(track, columnIndex, lineIndex, x, y);
-            });
+            mouseHandler.handleMouseMoved(track, columnIndex, lineIndex, x, y);
+        });
     }
     function _createTracks(pattern) {
         pattern.createTracks(positionBar, trackArea.width, trackArea.height);
         pattern.tracks().forEach(track => {
-                _connectTrack(track);
-            });
+            _connectTrack(track);
+        });
     }
     function _createPattern(patternIndex) {
         uiLogger.debug(_tag, `Creating pattern index=${patternIndex}`);
@@ -184,8 +184,8 @@ FocusScope {
     function _updateAllTrackDimensions() {
         uiLogger.debug(_tag, `Updating track dimensions of all patterns..`);
         _patterns.forEach(pattern => {
-                pattern.updateTrackDimensions(trackArea.width, trackArea.height);
-            });
+            pattern.updateTrackDimensions(trackArea.width, trackArea.height);
+        });
     }
     function _updateCurrentTrackData() {
         _currentPattern().updateTrackData();
@@ -217,8 +217,8 @@ FocusScope {
     function _updatePatternVisibility() {
         const currentPatternIndex = editorService.currentPattern;
         _patterns.forEach(pattern => {
-                pattern.visible = pattern.index() === currentPatternIndex;
-            });
+            pattern.visible = pattern.index() === currentPatternIndex;
+        });
     }
     function _updateTracksOnHorizontalScroll() {
         _updateCurrentTrackDimensions();
@@ -229,27 +229,27 @@ FocusScope {
     }
     function _addColumn(trackIndex) {
         _patterns.forEach(pattern => {
-                pattern.addColumn(trackIndex);
-            });
+            pattern.addColumn(trackIndex);
+        });
         _updateCurrentTrackDimensions();
         noteColumnModelHandler.updateColumns(trackIndex);
     }
     function _deleteColumn(trackIndex) {
         _patterns.forEach(pattern => {
-                pattern.deleteColumn(trackIndex);
-            });
+            pattern.deleteColumn(trackIndex);
+        });
         _updateCurrentTrackDimensions();
     }
     function _deleteTrack(trackIndex) {
         _patterns.forEach(pattern => {
-                pattern.deleteTrack(trackIndex);
-            });
+            pattern.deleteTrack(trackIndex);
+        });
         _updateCurrentTrackDimensions();
     }
     function _clearMixerSettings() {
         _patterns.forEach(pattern => {
-                pattern.clearMixerSettings();
-            });
+            pattern.clearMixerSettings();
+        });
     }
     function _connectSignals() {
         editorService.columnAdded.connect(trackIndex => _addColumn(trackIndex));
@@ -262,43 +262,43 @@ FocusScope {
         editorService.trackNameChanged.connect(_updateTrackHeaders);
         editorService.patternCreated.connect(patternIndex => _createPattern(patternIndex));
         editorService.positionChanged.connect((newPosition, oldPosition) => {
-                if (newPosition.pattern !== oldPosition.pattern) {
-                    uiLogger.debug(_tag, `Changing pattern from index=${oldPosition.pattern} to index=${newPosition.pattern}`);
-                    _changePattern();
-                }
-                _updateFocus(newPosition, oldPosition);
-                _setPosition(newPosition);
-            });
+            if (newPosition.pattern !== oldPosition.pattern) {
+                uiLogger.debug(_tag, `Changing pattern from index=${oldPosition.pattern} to index=${newPosition.pattern}`);
+                _changePattern();
+            }
+            _updateFocus(newPosition, oldPosition);
+            _setPosition(newPosition);
+        });
         mixerService.columnMuted.connect((trackIndex, columnIndex, muted) => {
-                _patterns.forEach(pattern => {
-                        pattern.setColumnMuted(trackIndex, columnIndex, muted);
-                    });
+            _patterns.forEach(pattern => {
+                pattern.setColumnMuted(trackIndex, columnIndex, muted);
             });
+        });
         mixerService.columnSoloed.connect((trackIndex, columnIndex, soloed) => {
-                _patterns.forEach(pattern => {
-                        pattern.setColumnSoloed(trackIndex, columnIndex, soloed);
-                    });
+            _patterns.forEach(pattern => {
+                pattern.setColumnSoloed(trackIndex, columnIndex, soloed);
             });
+        });
         mixerService.trackMuted.connect((trackIndex, muted) => {
-                _patterns.forEach(pattern => {
-                        pattern.setTrackMuted(trackIndex, muted);
-                    });
+            _patterns.forEach(pattern => {
+                pattern.setTrackMuted(trackIndex, muted);
             });
+        });
         mixerService.trackSoloed.connect((trackIndex, soloed) => {
-                _patterns.forEach(pattern => {
-                        pattern.setTrackSoloed(trackIndex, soloed);
-                    });
+            _patterns.forEach(pattern => {
+                pattern.setTrackSoloed(trackIndex, soloed);
             });
+        });
         mixerService.columnVelocityScaleChanged.connect((trackIndex, columnIndex, value) => {
-                _patterns.forEach(pattern => {
-                        pattern.setColumnVelocityScale(trackIndex, columnIndex, value);
-                    });
+            _patterns.forEach(pattern => {
+                pattern.setColumnVelocityScale(trackIndex, columnIndex, value);
             });
+        });
         mixerService.trackVelocityScaleChanged.connect((trackIndex, value) => {
-                _patterns.forEach(pattern => {
-                        pattern.setTrackVelocityScale(trackIndex, value);
-                    });
+            _patterns.forEach(pattern => {
+                pattern.setTrackVelocityScale(trackIndex, value);
             });
+        });
         mixerService.cleared.connect(_clearMixerSettings);
         mouseHandler.editorFocusRequested.connect(forceActiveFocus);
     }
