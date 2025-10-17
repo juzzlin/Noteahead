@@ -66,6 +66,14 @@ Item {
         anchors.left: parent.left
         anchors.right: parent.right
     }
+    Rectangle {
+        id: border
+        color: Constants.trackBorderColor
+        width: Constants.trackBorderWidth
+        height: parent.height
+        anchors.top: parent.top
+        anchors.right: parent.right
+    }
     Component.onCompleted: {
         columnHeader.invertedMuteRequested.connect(() => mixerService.invertMutedColumns(_trackIndex, _index));
         columnHeader.invertedSoloRequested.connect(() => mixerService.invertSoloedColumns(_trackIndex, _index));

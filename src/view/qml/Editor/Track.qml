@@ -3,8 +3,9 @@ import QtQuick.Controls 2.15
 import QtQuick.Controls.Universal 2.15
 import ".."
 
-Item {
+Rectangle {
     id: rootItem
+    color: "black"
     property int _index: 0
     property int _patternIndex: 0
     property bool _focused
@@ -245,12 +246,30 @@ Item {
             NoteColumn {}
         }
     }
-    Rectangle {
-        id: borderRectangle
+    Item {
+        id: trackBorder
         anchors.fill: parent
-        color: "transparent"
-        border.color: Constants.trackBorderColor
-        border.width: Constants.trackBorderWidth
+        z: 2
+        Rectangle {
+            id: borderFocusedL
+            color: Constants.trackHeaderTextColor(rootItem._index)
+            opacity: 0.5
+            width: Constants.trackBorderFocusedWidth
+            height: parent.height
+            anchors.top: parent.top
+            anchors.right: parent.left
+            visible: rootItem._focused
+        }
+        Rectangle {
+            id: borderFocusedR
+            color: Constants.trackHeaderTextColor(rootItem._index)
+            opacity: 0.5
+            width: Constants.trackBorderFocusedWidth
+            height: parent.height
+            anchors.top: parent.top
+            anchors.right: parent.right
+            visible: rootItem._focused
+        }
     }
     Component.onCompleted: {
         trackHeader.columnDeletionRequested.connect(() => editorService.requestColumnDeletion(_index));

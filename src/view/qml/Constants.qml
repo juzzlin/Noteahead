@@ -35,10 +35,10 @@ QtObject {
     readonly property color recentFileItemTextColor: "white"
     readonly property int toolTipDelay: 1000
     readonly property int toolTipTimeout: 5000
-    readonly property color trackBorderColor: "#888888"
+    readonly property color trackBorderColor: "#222222"
     readonly property color trackBorderFocusedColor: "orange"
     readonly property int trackBorderWidth: 1
-    readonly property int trackBorderFocusedWidth: 4
+    readonly property int trackBorderFocusedWidth: 2
     readonly property color trackHeaderBackgroundColor: "black"
     readonly property color trackHeaderBorderColor: "#222222"
     readonly property int trackHeaderHeight: 40
