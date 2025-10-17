@@ -249,21 +249,19 @@ Rectangle {
     Item {
         id: trackBorder
         anchors.fill: parent
-        z: 2
+        z: 5
         Rectangle {
             id: borderFocusedL
             color: Constants.trackHeaderTextColor(rootItem._index)
-            opacity: 0.5
             width: Constants.trackBorderFocusedWidth
             height: parent.height
             anchors.top: parent.top
-            anchors.right: parent.left
+            anchors.left: parent.left
             visible: rootItem._focused
         }
         Rectangle {
             id: borderFocusedR
             color: Constants.trackHeaderTextColor(rootItem._index)
-            opacity: 0.5
             width: Constants.trackBorderFocusedWidth
             height: parent.height
             anchors.top: parent.top
