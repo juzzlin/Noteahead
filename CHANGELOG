@@ -3,15 +3,34 @@ x.y.z
 
 Release date:
 
+Fri, 17 Oct 2025 20:11:55 +0300
+
 New features:
 
 * Add a virtual keyboard to the instrument settings
 
+* Improve track focus highlights
+
+* Implement help dialog for shortcuts
+
+* Make it possible to transpose selection by +6/-6 semitones
+
+* Show text if no pitch bend automations added
+
+* Show text if no MIDI CC automations added
+
 Bug fixes:
+
+* Fix graphical glitches due to not all patterns getting resized
 
 Other:
 
+* Optimize track resizing
+
 * Don't scroll columns that are not visible
+  - This greatly improves scrolling performance
+
+* Change header font family to sans
 
 0.13.0
 ======
