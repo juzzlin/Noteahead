@@ -87,7 +87,7 @@ Rectangle {
             }
             font.bold: true
             font.pixelSize: settingsService.trackHeaderFontSize
-            font.family: "monospace"
+            font.family: "sans"
             height: parent.height
             width: parent.width - trackSettingsButton.width - trackHeaderColumnButtons.width - muteSoloButtons.width - velocityScaleWidget.width
             verticalAlignment: Text.AlignVCenter

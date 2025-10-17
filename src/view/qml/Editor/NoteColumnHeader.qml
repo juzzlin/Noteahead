@@ -60,7 +60,7 @@ Rectangle {
             }
             font.bold: _focused
             font.pixelSize: settingsService.trackHeaderFontSize
-            font.family: "monospace"
+            font.family: "sans"
             height: parent.height
             width: parent.width - muteSoloButtons.width - velocityScaleWidget.width
             verticalAlignment: Text.AlignVCenter
