@@ -994,7 +994,6 @@ void EditorServiceTest::test_requestPosition_invalidPosition_shouldNotChangePosi
     QVERIFY(!editorService.requestPosition(neg, 0, 0, 0, 0));
     QVERIFY(!editorService.requestPosition(0, neg, 0, 0, 0));
     QVERIFY(!editorService.requestPosition(0, 0, neg, 0, 0));
-    QVERIFY(!editorService.requestPosition(0, 0, 0, neg, 0));
     QVERIFY(!editorService.requestPosition(0, 0, 0, 0, neg));
     QCOMPARE(positionChangedSpy.count(), 0);
     QCOMPARE(currentTimeChangedSpy.count(), 0);
@@ -1079,35 +1078,35 @@ void EditorServiceTest::test_requestScroll_shouldChangeCurrentTime()
     QCOMPARE(editorService.currentTime(), "00:00:00.062");
 }
 
-void EditorServiceTest::test_requestTrackFocus_shouldChangePosition()
+void EditorServiceTest::test_requestPosition_shouldChangePosition()
 {
     EditorService editorService;
     QSignalSpy positionChangedSpy { &editorService, &EditorService::positionChanged };
 
-    editorService.requestTrackFocus(0, 0, 0);
+    editorService.requestPosition(0, 0, 0, 0, 0);
     QCOMPARE(positionChangedSpy.count(), 1);
 
-    editorService.requestTrackFocus(0, 1, 0);
+    editorService.requestPosition(0, 0, 1, 0, 0);
     QCOMPARE(positionChangedSpy.count(), 1);
 
     editorService.requestNewColumn(0);
     QCOMPARE(positionChangedSpy.count(), 2);
-    editorService.requestTrackFocus(0, 1, 0);
+    editorService.requestPosition(0, 0, 1, 0, 0);
     QCOMPARE(positionChangedSpy.count(), 3);
     QCOMPARE(editorService.position().track, 0);
     QCOMPARE(editorService.position().column, 1);
 
-    editorService.requestTrackFocus(editorService.trackCount() - 1, 0, 0);
+    editorService.requestPosition(0, editorService.trackCount() - 1, 0, 0, 0);
     QCOMPARE(positionChangedSpy.count(), 4);
     QCOMPARE(editorService.position().track, editorService.trackCount() - 1);
 }
 
-void EditorServiceTest::test_requestTrackFocus_shouldNotChangePosition()
+void EditorServiceTest::test_requestPosition_shouldNotChangePosition()
 {
     EditorService editorService;
     QSignalSpy positionChangedSpy { &editorService, &EditorService::positionChanged };
 
-    editorService.requestTrackFocus(editorService.trackCount(), 0, 0);
+    editorService.requestPosition(0, editorService.trackCount(), 0, 0, 0);
 
     QCOMPARE(positionChangedSpy.count(), 0);
     QCOMPARE(editorService.position().track, 0);

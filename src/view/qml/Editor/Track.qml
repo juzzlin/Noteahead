@@ -23,6 +23,9 @@ Rectangle {
     function index(): int {
         return _index;
     }
+    function patternIndex(): int {
+        return _patternIndex;
+    }
     function setLocation(patternIndex: int, trackIndex: int): void {
         _patternIndex = patternIndex;
         _index = trackIndex;

@@ -1288,10 +1288,10 @@ quint8 EditorService::delayAtCurrentPosition() const
 
 bool EditorService::requestPosition(const Position & position)
 {
-    return requestPosition(position.pattern, position.track, position.column, position.line, position.lineColumn);
+    return requestPosition(position.pattern, position.track, position.column, static_cast<qint32>(position.line), position.lineColumn);
 }
 
-bool EditorService::requestPosition(quint64 pattern, quint64 track, quint64 column, quint64 line, quint64 lineColumn)
+bool EditorService::requestPosition(quint64 pattern, quint64 track, quint64 column, qint64 line, quint64 lineColumn)
 {
     juzzlin::L(TAG).debug() << "Requesting position: " << pattern << " " << track << " " << column << " " << line << " " << lineColumn;
 
@@ -1300,10 +1300,10 @@ bool EditorService::requestPosition(quint64 pattern, quint64 track, quint64 colu
         return false;
     }
 
-    if (line >= m_song->lineCount(pattern)) {
-        juzzlin::L(TAG).error() << "Invalid line index: " << line;
-        return false;
-    }
+    // The requested line index can be outside the valid indices if clicked on the empty area of a column.
+    // In that case we'll just clamp to either zero or to the last index which is what the user very likely wants.
+    line = std::min(static_cast<int>(line), static_cast<int>(m_song->lineCount(pattern)) - 1);
+    line = std::max(static_cast<int>(line), 0);
 
     if (!m_song->hasTrack(track)) {
         juzzlin::L(TAG).error() << "Invalid track index: " << track;
@@ -1324,11 +1324,11 @@ bool EditorService::requestPosition(quint64 pattern, quint64 track, quint64 colu
     m_state.cursorPosition.pattern = pattern;
     m_state.cursorPosition.track = track;
     m_state.cursorPosition.column = column;
-    m_state.cursorPosition.line = line;
+    m_state.cursorPosition.line = static_cast<quint64>(line);
     m_state.cursorPosition.lineColumn = lineColumn;
     notifyPositionChange(oldPosition);
 
-    setCurrentTime(m_song->lineToTime(m_state.cursorPosition.line));
+    setCurrentTime(m_song->lineToTime(static_cast<quint32>(m_state.cursorPosition.line)));
 
     return true;
 }
@@ -1343,7 +1343,7 @@ void EditorService::requestPositionByTick(quint64 tick)
     const auto oldPosition = m_state.cursorPosition;
     if (auto && songPosition = m_song->songPositionByTick(tick); songPosition.has_value()) {
         m_state.cursorPosition.pattern = songPosition->pattern;
-        m_state.cursorPosition.line = songPosition->line;
+        m_state.cursorPosition.line = static_cast<quint64>(songPosition->line);
         notifyPositionChange(oldPosition);
         setSongPosition(songPosition->position);
         setCurrentTime(songPosition->currentTime);
@@ -1355,8 +1355,8 @@ void EditorService::requestScroll(int steps)
     const auto oldPosition = m_state.cursorPosition;
 
     // Work in signed domain to handle negative steps correctly
-    qint64 newLine = static_cast<qint64>(m_state.cursorPosition.line) + steps;
-    const qint64 lineCount = static_cast<qint64>(m_song->lineCount(m_state.cursorPosition.pattern));
+    auto newLine = static_cast<qint64>(m_state.cursorPosition.line) + steps;
+    const auto lineCount = static_cast<qint64>(m_song->lineCount(m_state.cursorPosition.pattern));
 
     // Wrap around correctly
     if (newLine < 0) {
@@ -1369,25 +1369,6 @@ void EditorService::requestScroll(int steps)
 
     setCurrentTime(m_song->lineToTime(m_state.cursorPosition.line));
     notifyPositionChange(oldPosition);
-}
-
-void EditorService::requestTrackFocus(quint64 trackIndex, quint64 column, int line)
-{
-    if (m_song->hasTrack(trackIndex)) {
-        juzzlin::L(TAG).info() << "Focus for track " << trackIndex << " on column " << column << " on line " << line << " requested";
-        if (column < m_song->columnCount(trackIndex)) {
-            // The requested line index can be outside the valid indices if clicked on the empty area of a column.
-            // In that case we'll just clamp to either zero or to the last index which is what the user very likely wants.
-            line = std::min(line, static_cast<int>(currentLineCount()) - 1);
-            line = std::max(line, 0);
-            const auto oldPosition = m_state.cursorPosition;
-            m_state.cursorPosition.track = trackIndex;
-            m_state.cursorPosition.column = column;
-            m_state.cursorPosition.line = static_cast<quint64>(line);
-            m_state.cursorPosition.lineColumn = 0;
-            notifyPositionChange(oldPosition);
-        }
-    }
 }
 
 quint64 EditorService::ticksPerLine() const

@@ -82,13 +82,12 @@ private slots:
 
     void test_requestPosition_invalidPosition_shouldNotChangePosition();
     void test_requestPosition_validPosition_shouldChangePosition();
+    void test_requestPosition_shouldChangePosition();
+    void test_requestPosition_shouldNotChangePosition();
     void test_resetSongPosition_firstTrackRemoved_shouldResetPosition();
 
     void test_requestScroll_shouldChangePosition();
     void test_requestScroll_shouldChangeCurrentTime();
-
-    void test_requestTrackFocus_shouldChangePosition();
-    void test_requestTrackFocus_shouldNotChangePosition();
 
     void test_setCurrentLineCount_shouldSetLineCount();
 

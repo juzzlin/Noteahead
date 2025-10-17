@@ -9,11 +9,11 @@ QtObject {
     property int _selectionEndLine: 0
     property bool _isDragging: false
     function handleLeftClicked(track: var, columnIndex: int, lineIndex: int, x: int, y: int): void {
-        editorService.requestTrackFocus(track.index(), columnIndex, lineIndex);
+        editorService.requestPosition(track.patternIndex(), track.index(), columnIndex, lineIndex, 0);
         editorFocusRequested();
     }
     function handleRightClicked(track: var, columnIndex: int, lineIndex: int, x: int, y: int): void {
-        editorService.requestTrackFocus(track.index(), columnIndex, lineIndex);
+        editorService.requestPosition(track.patternIndex(), track.index(), columnIndex, lineIndex, 0);
         editorFocusRequested();
         UiService.requestContextMenu(x, y);
     }
