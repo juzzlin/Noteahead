@@ -74,10 +74,8 @@ Item {
         rootItem.mouseMoved(effectiveLineIndex, _getGlobalX(delegate, mouse), _getGlobalY(delegate, mouse));
     }
     function setPosition(position: var): void {
-        if (_scrollOffset !== position.line) {
-            _scrollOffset = position.line;
-            _scrollLines();
-        }
+        _scrollOffset = position.line;
+        _scrollLines();
         _triggerVolumeMeterAtPosition(position);
     }
     function _scrollLines(): void {
