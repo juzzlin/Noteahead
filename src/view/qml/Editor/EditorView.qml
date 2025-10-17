@@ -88,7 +88,7 @@ FocusScope {
         _connectSignals();
         _recreatePatterns();
         _createLineColumns();
-        editorService.requestTrackFocus(0, 0, 0);
+        editorService.requestPosition(0, 0, 0, 0, 0);
     }
     function resize(width, height) {
         rootItem.width = width;
