@@ -1295,7 +1295,9 @@ bool EditorService::requestPosition(quint64 pattern, quint64 track, quint64 colu
 {
     juzzlin::L(TAG).debug() << "Requesting position: " << pattern << " " << track << " " << column << " " << line << " " << lineColumn;
 
-    if (pattern >= m_song->patternCount()) {
+    const auto patternIndices = m_song->patternIndices();
+    if (const auto it = std::ranges::find(patternIndices, pattern);
+        it == patternIndices.end()) {
         juzzlin::L(TAG).error() << "Invalid pattern index: " << pattern;
         return false;
     }
