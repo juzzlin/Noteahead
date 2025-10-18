@@ -9,6 +9,19 @@ Bug fixes:
 
 Other:
 
+0.14.1
+======
+
+Release date:
+
+Sat, 18 Oct 2025 21:14:00 +0300
+
+New features:
+
+Bug fixes:
+
+* Fix incorrect check for pattern validity
+
 0.14.0
 ======
 
