@@ -66,9 +66,24 @@ Dialog {
         }
     }
     function calculateDelay(): void {
-        const beatDuration = 60000 / bpm; // duration of 1 beat in ms
-        const denominator = parseInt(noteDuration.split("/")[1]);
-        delayMs = denominator > 0 ? 4 * beatDuration / denominator : 0;
+        const beatDuration = 60000 / bpm; // duration of a 1/4 note beat in ms
+
+        // 1. Split the string (e.g., "3/4") into numerator and denominator
+        const parts = noteDuration.split("/");
+        const numerator = parseFloat(parts[0]);
+        const denominator = parseFloat(parts[1]);
+
+        let fraction = 0;
+        if (denominator > 0) {
+            // 2. Calculate the fractional value (e.g., 3/4 = 0.75, 1/8 = 0.125)
+            fraction = numerator / denominator;
+        }
+
+        // 3. The delay is the duration of a quarter note (beatDuration) multiplied by the fraction,
+        //    scaled by 4 to get the duration relative to a whole note,
+        //    OR, simply: delay = fraction * duration_of_whole_note
+        //    Since T_whole = 4 * T_1/4 = 4 * beatDuration:
+        delayMs = fraction * 4 * beatDuration;
         delayCalculated(delayMs);
     }
     Component.onCompleted: {
