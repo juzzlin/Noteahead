@@ -28,6 +28,11 @@ private slots:
     void test_runExecutesEveryTaskOnce_shouldCompleteAllTasks();
     void test_singleTaskUsesCallerThread_shouldExecuteOnCurrentThread();
     void test_defaultWorkerCount_envOverride_shouldBeRespected();
+    void test_run_varyingTaskCounts_shouldRunEveryTaskExactlyOnce();
+    void test_run_repeated_shouldNotLoseOrDuplicateTasks();
+    void test_run_afterIdlePeriod_shouldWakeSleepingWorkers();
+    void test_run_realisticCallbackDuration_shouldNotStall();
+    void test_hasRealTimeScheduling_withoutPrivileges_shouldBeFalseNotFatal();
 };
 
 } // namespace noteahead

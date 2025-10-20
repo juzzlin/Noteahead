@@ -208,6 +208,11 @@ Bug fixes:
 
 Other:
 
+* Speed up rendering and export by cutting the worker pool's synchronisation cost
+  - The pool spins briefly before blocking, so a busy render no longer pays a
+    syscall per worker per buffer
+  - Workers can now be given real-time scheduling, which playback will need
+
 * Make the Drum Synth's Clap darker at low Tune settings
   - The noise was only high-passed, so it stayed hissy and snare-like across
     the whole Tune range
