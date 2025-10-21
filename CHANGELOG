@@ -5,6 +5,10 @@ Release date:
 
 New features:
 
+* Fix GitHub Issue #29: Implement a pattern play order view
+  - Play order is now displayed below the main tool bar
+  - Clicking on a position will jump to the position
+
 Bug fixes:
 
 * Fix incorrect values in the delay calculator dialog

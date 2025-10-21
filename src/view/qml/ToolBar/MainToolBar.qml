@@ -5,6 +5,7 @@ import ".."
 
 Rectangle {
     id: rootItem
+    height: editorControlsContainer.height
     gradient: Gradient {
         GradientStop {
             position: 0.0
@@ -15,7 +16,6 @@ Rectangle {
             color: Constants.mainToolBarGradientStopColor
         }
     }
-
     ScrollView {
         id: editorControlsContainer
         anchors.left: parent.left
@@ -23,14 +23,15 @@ Rectangle {
         anchors.right: parent.right
         anchors.rightMargin: Constants.lineNumberColumnWidth
         anchors.top: parent.top
-        anchors.bottom: parent.bottom
+        height: editorControlsWrapper.height
         clip: true
         ScrollBar.vertical.policy: ScrollBar.AlwaysOff
         contentWidth: editorControls.width
         // Wrapper to allow vertical centering of content
         Item {
+            id: editorControlsWrapper
             width: rootItem.width
-            height: parent.height
+            height: editorControls.height + 40
             anchors.verticalCenter: parent.verticalCenter
             EditorControls {
                 id: editorControls

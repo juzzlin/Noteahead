@@ -111,7 +111,7 @@ void Application::registerTypes()
     qmlRegisterType<ApplicationService>("Noteahead", majorVersion, minorVersion, "ApplicationService");
     qmlRegisterType<AutomationService>("Noteahead", majorVersion, minorVersion, "AutomationService");
     qmlRegisterType<EditorService>("Noteahead", majorVersion, minorVersion, "EditorService");
-    qmlRegisterType<EditorService>("Noteahead", majorVersion, minorVersion, "EventSelectionModel");
+    qmlRegisterType<EventSelectionModel>("Noteahead", majorVersion, minorVersion, "EventSelectionModel");
     qmlRegisterType<MidiCcAutomationsModel>("Noteahead", majorVersion, minorVersion, "MidiCcAutomationsModel");
     qmlRegisterType<MidiService>("Noteahead", majorVersion, minorVersion, "MidiService");
     qmlRegisterType<MidiSettingsModel>("Noteahead", majorVersion, minorVersion, "MidiSettingsModel");

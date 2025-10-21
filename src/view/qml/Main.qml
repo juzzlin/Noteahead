@@ -36,18 +36,34 @@ ApplicationWindow {
     }
     property bool screenInit: false
     property var _editorView
+    property var _songView
     readonly property string _tag: "Main"
     Universal.theme: Universal.Dark
     MainToolBar {
         id: mainToolBar
-        height: menuBar.height * 4
         anchors.top: menuBar.bottom
         anchors.left: parent.left
         anchors.right: parent.right
     }
     Item {
-        id: contentArea
+        id: songViewContainer
+        height: 32
         anchors.top: mainToolBar.bottom
+        anchors.left: parent.left
+        anchors.leftMargin: Constants.lineNumberColumnWidth
+        anchors.right: parent.right
+        anchors.rightMargin: Constants.lineNumberColumnWidth
+    }
+    Component {
+        id: songViewComponent
+        SongView {
+            id: songView
+        }
+    }
+    Item {
+        id: editorViewContainer
+        anchors.top: songViewContainer.bottom
+        anchors.topMargin: 20
         anchors.bottom: parent.bottom
         anchors.left: parent.left
         anchors.right: parent.right
@@ -486,14 +502,20 @@ ApplicationWindow {
     }
     function _initialize(): void {
         _setWindowSizeAndPosition();
-        _editorView = editorViewComponent.createObject(contentArea, {
-            "height": contentArea.height,
-            "width": contentArea.width
+        _editorView = editorViewComponent.createObject(editorViewContainer, {
+            "height": editorViewContainer.height,
+            "width": editorViewContainer.width
+        });
+        _songView = songViewComponent.createObject(songViewContainer, {
+            "height": songViewContainer.height,
+            "width": songViewContainer.width
         });
         _connectServices();
     }
     function _resize(): void {
-        _editorView.resize(contentArea.width, contentArea.height);
+        _editorView.resize(editorViewContainer.width, editorViewContainer.height);
+        _songView.width = songViewContainer.width;
+        _songView.height = songViewContainer.height;
     }
     Component.onCompleted: {
         _initialize();
