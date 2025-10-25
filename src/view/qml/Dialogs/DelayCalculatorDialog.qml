@@ -7,6 +7,7 @@ Dialog {
     id: delayCalculatorDialog
     title: qsTr("Delay Time Calculator")
     modal: true
+    clip: true
     standardButtons: Dialog.Ok
     property real bpm: 120
     readonly property string _defaultNoteDuration: "1/4"
@@ -16,6 +17,7 @@ Dialog {
     ColumnLayout {
         anchors.fill: parent
         spacing: 10
+        clip: true
         RowLayout {
             Layout.fillWidth: true
             ComboBox {

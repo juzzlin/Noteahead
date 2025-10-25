@@ -260,11 +260,19 @@ ApplicationWindow {
     DelayCalculatorDialog {
         id: delayCalculatorDialog
         anchors.centerIn: parent
+        width: parent.width * Constants.defaultDialogScale * 0.75
+        height: parent.height * 0.25
+    }
+    GainConverterDialog {
+        id: gainConverterDialog
+        anchors.centerIn: parent
+        width: parent.width * Constants.defaultDialogScale * 0.75
         height: parent.height * 0.25
     }
     NoteFrequencyDialog {
         id: noteFrequencyDialog
         anchors.centerIn: parent
+        width: parent.width * Constants.defaultDialogScale
         height: parent.height * Constants.defaultDialogScale
     }
     MainContextMenu {
@@ -481,6 +489,9 @@ ApplicationWindow {
             delayCalculatorDialog.bpm = editorService.beatsPerMinute;
             delayCalculatorDialog.calculateDelay();
             delayCalculatorDialog.open();
+        });
+        UiService.gainConverterDialogRequested.connect(() => {
+            gainConverterDialog.open();
         });
         UiService.noteFrequencyDialogRequested.connect(() => {
             noteFrequencyDialog.open();

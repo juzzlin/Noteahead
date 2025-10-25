@@ -14,5 +14,9 @@ Menu {
         text: qsTr("Note frequencies")
         onTriggered: UiService.requestNoteFrequencyDialog()
     }
+    Action {
+        text: qsTr("Gain converter")
+        onTriggered: UiService.requestGainConverterDialog()
+    }
     delegate: MenuItemDelegate {}
 }

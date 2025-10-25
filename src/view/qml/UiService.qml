@@ -22,6 +22,7 @@ QtObject {
     signal editPitchBendAutomationsDialogRequested
     signal eventSelectionDialogRequested
     signal focusOnEditorViewRequested
+    signal gainConverterDialogRequested
     signal lineAddMidiCcAutomationDialogRequested
     signal lineAddPitchBendAutomationDialogRequested
     signal lineDelayDialogRequested
@@ -120,6 +121,9 @@ QtObject {
     }
     function requestEventSelectionDialog(): void {
         eventSelectionDialogRequested();
+    }
+    function requestGainConverterDialog(): void {
+        gainConverterDialogRequested();
     }
     function requestNoteFrequencyDialog(): void {
         noteFrequencyDialogRequested();

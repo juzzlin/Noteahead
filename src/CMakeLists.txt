@@ -186,6 +186,7 @@ set(QML_SOURCE_FILES
     ${QML_BASE_DIR}/Dialogs/EditPitchBendAutomationsDelegate.qml
     ${QML_BASE_DIR}/Dialogs/EditPitchBendAutomationsDialog.qml
     ${QML_BASE_DIR}/Dialogs/EventSelectionDialog.qml
+    ${QML_BASE_DIR}/Dialogs/GainConverterDialog.qml
     ${QML_BASE_DIR}/Dialogs/IntegerInputDialog.qml
     ${QML_BASE_DIR}/Dialogs/InterpolationDialog.qml
     ${QML_BASE_DIR}/Dialogs/MidiCcAutomationModel.qml
