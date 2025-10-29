@@ -101,7 +101,9 @@ public:
     using LineList = std::vector<LineS>;
     LineList lines(const Position & position) const;
 
+    using PatternS = std::shared_ptr<Pattern>;
     size_t patternCount() const;
+    PatternS pattern(size_t patternIndex) const;
     using PatternIndexList = std::vector<size_t>;
     PatternIndexList patternIndices() const;
     size_t patternAtSongPosition(size_t position) const;
@@ -230,7 +232,6 @@ private:
     size_t m_linesPerBeat = 8;
     size_t m_ticksPerLine = 24;
 
-    using PatternS = std::shared_ptr<Pattern>;
     std::map<size_t, PatternS> m_patterns;
 
     std::unique_ptr<PlayOrder> m_playOrder;

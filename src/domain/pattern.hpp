@@ -129,6 +129,7 @@ private:
     void initialize(size_t lineCount, size_t trackCount);
     void initialize(const PatternConfig & config);
 
+    size_t nextFreeTrackIndex() const;
     size_t maxIndex() const;
     TrackS trackByIndex(size_t index) const;
     TrackS trackByIndexThrow(size_t index) const;

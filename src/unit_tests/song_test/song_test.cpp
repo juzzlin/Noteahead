@@ -19,6 +19,7 @@
 #include "../../application/service/automation_service.hpp"
 #include "../../domain/event.hpp"
 #include "../../domain/note_data.hpp"
+#include "../../domain/pattern.hpp"
 #include "../../domain/song.hpp"
 
 #include <QXmlStreamWriter>
@@ -496,6 +497,34 @@ void SongTest::test_renderToEvents_customNoteOffOffsetSet_shouldApplyCorrectOffs
     auto noteOff = events.at(2);
     noteOn = events.at(3);
     QCOMPARE(noteOn->tick() - noteOff->tick(), song.autoNoteOffOffsetTicks(settings.timing.autoNoteOffOffset.value()));
+}
+
+void SongTest::test_addTrack_shouldUseSmallestFreeId()
+{
+    Song song;
+    // Initial state is 8 tracks (0-7)
+    QCOMPARE(song.trackCount(0), 8);
+
+    song.deleteTrack(1);
+    song.deleteTrack(3);
+    song.deleteTrack(5);
+
+    QCOMPARE(song.trackCount(0), 5);
+
+    song.addTrackToRightOf(0);
+    QCOMPARE(song.trackCount(0), 6);
+    auto indices = song.pattern(0)->trackIndices();
+    QVERIFY(std::find(indices.begin(), indices.end(), 1) != indices.end());
+
+    song.addTrackToRightOf(2);
+    QCOMPARE(song.trackCount(0), 7);
+    indices = song.pattern(0)->trackIndices();
+    QVERIFY(std::find(indices.begin(), indices.end(), 3) != indices.end());
+
+    song.addTrackToRightOf(4);
+    QCOMPARE(song.trackCount(0), 8);
+    indices = song.pattern(0)->trackIndices();
+    QVERIFY(std::find(indices.begin(), indices.end(), 5) != indices.end());
 }
 
 void SongTest::test_trackByName_shouldReturnTrack()

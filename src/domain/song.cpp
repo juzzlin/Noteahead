@@ -1,4 +1,4 @@
-// This fi777le is part of Noteahead.
+// This file is part of Noteahead.
 // Copyright (C) 2024 Jussi Lind <jussi.lind@iki.fi>
 //
 // Noteahead is free software: you can redistribute it and/or modify
@@ -242,6 +242,11 @@ void Song::setLineCount(size_t patternIndex, size_t lineCount)
 Song::LineList Song::lines(const Position & position) const
 {
     return hasPosition(position) ? m_patterns.at(position.pattern)->lines(position) : Song::LineList {};
+}
+
+Song::PatternS Song::pattern(size_t patternIndex) const
+{
+    return m_patterns.at(patternIndex);
 }
 
 size_t Song::patternCount() const

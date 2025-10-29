@@ -176,6 +176,20 @@ std::optional<size_t> Pattern::columnByName(size_t trackIndex, std::string_view 
     return {};
 }
 
+size_t Pattern::nextFreeTrackIndex() const
+{
+    auto indices = trackIndices();
+    std::ranges::sort(indices);
+    size_t expectedIndex = 0;
+    for (const auto & index : indices) {
+        if (index != expectedIndex) {
+            return expectedIndex;
+        }
+        expectedIndex++;
+    }
+    return expectedIndex;
+}
+
 size_t Pattern::maxIndex() const
 {
     if (const auto it = std::ranges::max_element(m_trackOrder, [](auto && a, auto && b) { return a->index() < b->index(); }); it != m_trackOrder.end()) {
@@ -248,9 +262,10 @@ void Pattern::addTrackToRightOf(size_t trackIndex)
 {
     if (const auto track = trackPositionByIndex(trackIndex); track.has_value()) {
         juzzlin::L(TAG).debug() << "Add track to the right of track position " << *track;
-        const auto newIndex = maxIndex() + 1;
+        const auto newIndex = nextFreeTrackIndex();
         const auto newTrack = std::make_shared<Track>(newIndex, "Track " + std::to_string(newIndex + 1), m_trackOrder.at(0)->lineCount(), 1);
         m_trackOrder.insert(m_trackOrder.begin() + static_cast<long>(*track) + 1, newTrack);
+        juzzlin::L(TAG).debug() << "Added track with index " << newIndex << ", new track count: " << m_trackOrder.size();
     } else {
         juzzlin::L(TAG).error() << "Invalid track position: " << *track;
     }
