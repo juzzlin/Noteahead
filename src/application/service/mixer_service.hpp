@@ -65,6 +65,8 @@ public:
     using TrackIndexList = std::vector<quint64>;
     void setTrackIndices(TrackIndexList indices);
 
+    bool hasSoloedColumns(quint64 trackIndex) const;
+
     void deserializeFromXml(QXmlStreamReader & reader);
     void serializeToXml(QXmlStreamWriter & writer);
 
@@ -84,7 +86,6 @@ signals:
 
 private:
     bool hasMutedColumns(quint64 trackIndex) const;
-    bool hasSoloedColumns(quint64 trackIndex) const;
     bool hasTrack(quint64 trackIndex) const;
     bool hasColumn(quint64 trackIndex, quint64 columnindex) const;
     bool hasMutedTracks() const;

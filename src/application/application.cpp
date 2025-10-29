@@ -426,20 +426,68 @@ static QString sanitizeFileName(const QString & name)
     return std::regex_replace(name.toStdString(), re, "_").c_str();
 }
 
+QString Application::buildAudioFileName() const
+{
+    if (const auto projectFileName = m_editorService->currentFileName(); !projectFileName.isEmpty()) {
+        QStringList activeTrackAndSoloedColumnNames;
+        for (auto trackIndex : m_editorService->trackIndices()) {
+            if (m_mixerService->shouldTrackPlay(trackIndex)) {
+                QStringList soloedColumnNames;
+                if (m_mixerService->hasSoloedColumns(trackIndex)) {
+                    for (quint64 columnIndex = 0; columnIndex < m_editorService->columnCount(trackIndex); columnIndex++) {
+                        if (m_mixerService->isColumnSoloed(trackIndex, columnIndex)) {
+                            if (const auto & columnName = m_editorService->columnName(trackIndex, columnIndex); !columnName.isEmpty()) {
+                                soloedColumnNames << columnName;
+                            }
+                        }
+                    }
+                }
+
+                auto trackName = m_editorService->trackName(trackIndex);
+                if (!soloedColumnNames.isEmpty()) {
+                    trackName += "_" + soloedColumnNames.join("_");
+                }
+                activeTrackAndSoloedColumnNames << trackName;
+            }
+        }
+        const auto date = QDateTime::currentDateTime().toString("yyyyMMdd_HHmmss");
+        return QString { "%1_%2_%3.wav" }.arg(projectFileName, sanitizeFileName(activeTrackAndSoloedColumnNames.join("_")), date);
+    }
+
+    return {};
+}
+
 void Application::applyAudioRecording(bool isPlaying)
 {
     if (isPlaying) {
         if (const auto projectFileName = m_editorService->currentFileName(); !projectFileName.isEmpty()) {
-            QStringList activeTrackNames;
+            QStringList activeTrackAndSoloedColumnNames;
             for (auto trackIndex : m_editorService->trackIndices()) {
                 if (m_mixerService->shouldTrackPlay(trackIndex)) {
-                    activeTrackNames << m_editorService->trackName(trackIndex);
+                    QStringList soloedColumnNames;
+                    if (m_mixerService->hasSoloedColumns(trackIndex)) {
+                        for (quint64 columnIndex = 0; columnIndex < m_editorService->columnCount(trackIndex); columnIndex++) {
+                            if (m_mixerService->isColumnSoloed(trackIndex, columnIndex)) {
+                                if (const auto & columnName = m_editorService->columnName(trackIndex, columnIndex); !columnName.isEmpty()) {
+                                    soloedColumnNames << columnName;
+                                }
+                            }
+                        }
+                    }
+
+                    auto trackName = m_editorService->trackName(trackIndex);
+                    if (!soloedColumnNames.isEmpty()) {
+                        trackName += "_" + soloedColumnNames.join("_");
+                    }
+                    activeTrackAndSoloedColumnNames << trackName;
                 }
             }
-            const auto date = QDateTime::currentDateTime().toString("yyyyMMdd_HHmmss");
-            const auto audioFileName = QString { "%1_%2_%3.wav" }.arg(projectFileName, sanitizeFileName(activeTrackNames.join("_")), date);
-            juzzlin::L(TAG).info() << "Recording audio to " << std::quoted(audioFileName.toStdString());
-            m_audioService->startRecording(audioFileName, static_cast<uint32_t>(m_settingsService->audioBufferSize()));
+            if (const auto audioFileName = buildAudioFileName(); !audioFileName.isEmpty()) {
+                juzzlin::L(TAG).info() << "Recording audio to " << std::quoted(audioFileName.toStdString());
+                m_audioService->startRecording(audioFileName, static_cast<uint32_t>(m_settingsService->audioBufferSize()));
+            } else {
+                juzzlin::L(TAG).error() << "Output audio filename is empty!";
+            }
         } else {
             m_applicationService->requestAlertDialog(tr("Save project before recording audio!"));
         }
