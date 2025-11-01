@@ -32,6 +32,7 @@ MixerService::MixerService(QObject * parent)
 
 void MixerService::muteColumn(quint64 trackIndex, quint64 columnIndex, bool mute)
 {
+    Lock lock { m_muteSoloMutex };
     juzzlin::L(TAG).info() << "Muting column " << columnIndex << " on track " << trackIndex << ": " << mute;
     m_mutedColumns[{ trackIndex, columnIndex }] = mute;
     update();
@@ -98,6 +99,7 @@ bool MixerService::shouldColumnPlay(quint64 trackIndex, quint64 columnIndex) con
 
 void MixerService::soloColumn(quint64 trackIndex, quint64 columnIndex, bool solo)
 {
+    Lock lock { m_muteSoloMutex };
     juzzlin::L(TAG).info() << "Soloing column " << columnIndex << " on track " << trackIndex << ": " << solo;
     m_soloedColumns[{ trackIndex, columnIndex }] = solo;
     update();
@@ -105,11 +107,13 @@ void MixerService::soloColumn(quint64 trackIndex, quint64 columnIndex, bool solo
 
 bool MixerService::isColumnMuted(quint64 trackIndex, quint64 columnIndex) const
 {
+    Lock lock { m_muteSoloMutex };
     return m_mutedColumns.contains({ trackIndex, columnIndex }) && m_mutedColumns.at({ trackIndex, columnIndex });
 }
 
 bool MixerService::isColumnSoloed(quint64 trackIndex, quint64 columnIndex) const
 {
+    Lock lock { m_muteSoloMutex };
     return m_soloedColumns.contains({ trackIndex, columnIndex }) && m_soloedColumns.at({ trackIndex, columnIndex });
 }
 
@@ -130,6 +134,7 @@ void MixerService::setColumnVelocityScale(quint64 trackIndex, quint64 columnInde
 
 bool MixerService::hasMutedColumns(quint64 trackIndex) const
 {
+    Lock lock { m_muteSoloMutex };
     return std::ranges::any_of(m_mutedColumns, [trackIndex](const auto & pair) {
         return pair.first.first == trackIndex && pair.second;
     });
@@ -137,6 +142,7 @@ bool MixerService::hasMutedColumns(quint64 trackIndex) const
 
 bool MixerService::hasSoloedColumns(quint64 trackIndex) const
 {
+    Lock lock { m_muteSoloMutex };
     return std::ranges::any_of(m_soloedColumns, [trackIndex](const auto & pair) {
         return pair.first.first == trackIndex && pair.second;
     });
@@ -154,6 +160,7 @@ bool MixerService::hasColumn(quint64 trackIndex, quint64 columnindex) const
 
 void MixerService::muteTrack(quint64 trackIndex, bool mute)
 {
+    Lock lock { m_muteSoloMutex };
     juzzlin::L(TAG).info() << "Muting track " << trackIndex << ": " << mute;
     m_mutedTracks[trackIndex] = mute;
     update();
@@ -207,6 +214,7 @@ void MixerService::invertSoloedTracks(quint64 trackIndex)
 
 bool MixerService::hasMutedTracks() const
 {
+    Lock lock { m_muteSoloMutex };
     return std::ranges::any_of(m_mutedTracks, [](const auto & pair) {
         return pair.second;
     });
@@ -214,6 +222,7 @@ bool MixerService::hasMutedTracks() const
 
 bool MixerService::hasSoloedTracks() const
 {
+    Lock lock { m_muteSoloMutex };
     return std::ranges::any_of(m_soloedTracks, [](const auto & pair) {
         return pair.second;
     });
@@ -230,6 +239,7 @@ bool MixerService::shouldTrackPlay(quint64 trackIndex) const
 
 void MixerService::soloTrack(quint64 trackIndex, bool solo)
 {
+    Lock lock { m_muteSoloMutex };
     juzzlin::L(TAG).info() << "Soloing track " << trackIndex << ": " << solo;
     m_soloedTracks[trackIndex] = solo;
     update();
@@ -237,11 +247,13 @@ void MixerService::soloTrack(quint64 trackIndex, bool solo)
 
 bool MixerService::isTrackMuted(quint64 trackIndex) const
 {
+    Lock lock { m_muteSoloMutex };
     return m_mutedTracks.contains(trackIndex) && m_mutedTracks.at(trackIndex);
 }
 
 bool MixerService::isTrackSoloed(quint64 trackIndex) const
 {
+    Lock lock { m_muteSoloMutex };
     return m_soloedTracks.contains(trackIndex) && m_soloedTracks.at(trackIndex);
 }
 

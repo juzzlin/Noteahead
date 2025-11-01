@@ -19,6 +19,7 @@
 #include <QObject>
 
 #include <map>
+#include <mutex>
 #include <unordered_map>
 
 class QXmlStreamReader;
@@ -110,6 +111,9 @@ private:
     using ColumnCountMap = std::map<quint64, quint64>;
     ColumnCountMap m_columnCountMap;
     TrackIndexList m_trackIndexList;
+
+    mutable std::mutex m_muteSoloMutex;
+    using Lock = std::lock_guard<std::mutex>;
 };
 
 } // namespace noteahead

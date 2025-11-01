@@ -71,11 +71,12 @@ signals:
 private:
     quint64 effectiveTick(quint64 tick, quint64 minTick, quint64 maxTick) const;
 
-    void handleEvent(const Event & event) const;
+    void handleEvent(const Event & event);
     void processEvents();
 
     void setIsPlaying(bool isPlaying);
-    bool shouldEventPlay(const Event & event) const;
+    bool shouldEventPlay(size_t track, size_t column) const;
+
     void stopAllNotes();
     void stopTransport();
 
@@ -89,6 +90,7 @@ private:
 
     using InstrumentS = std::shared_ptr<Instrument>;
     std::set<InstrumentS> m_allInstruments;
+    std::set<size_t> m_stopEventSentOnTrack;
 
     std::atomic_bool m_isPlaying = false;
     std::atomic_bool m_isLooping = false;

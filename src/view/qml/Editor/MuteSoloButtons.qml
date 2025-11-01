@@ -24,7 +24,6 @@ Item {
         anchors.horizontalCenter: parent.horizontalCenter
         width: parent.height / 2
         height: width
-        enabled: !UiService.isPlaying()
         onLeftClicked: {
             if (isToggled()) {
                 rootItem.unmuteRequested();
@@ -58,7 +57,6 @@ Item {
         anchors.horizontalCenter: parent.horizontalCenter
         width: parent.height / 2
         height: width
-        enabled: !UiService.isPlaying()
         onLeftClicked: {
             if (isToggled()) {
                 rootItem.unsoloRequested();

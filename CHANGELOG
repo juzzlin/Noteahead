@@ -19,6 +19,8 @@ Other:
 
 * Take the lowest free track index when adding a new track
 
+* Enable solo/mute during playback
+
 0.14.1
 ======
 

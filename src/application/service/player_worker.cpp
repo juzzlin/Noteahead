@@ -41,15 +41,19 @@ void PlayerWorker::initialize(const EventList & events, const Timing & timing)
     juzzlin::L(TAG).info() << "Event count: " << events.size();
 
     if (!m_isPlaying) {
+
         m_timing = timing;
         m_eventMap.clear();
         m_allInstruments.clear();
+        m_stopEventSentOnTrack.clear();
+
         for (auto && event : events) {
             m_eventMap[event->tick()].push_back(event);
             if (event->instrument()) {
                 m_allInstruments.insert(event->instrument());
             }
         }
+
     } else {
         juzzlin::L(TAG).error() << "Cannot initialize, because still playing!";
     }
@@ -74,61 +78,65 @@ void PlayerWorker::stop()
     stopTransport();
 }
 
-bool PlayerWorker::shouldEventPlay(const Event & event) const
+bool PlayerWorker::shouldEventPlay(size_t track, size_t column) const
 {
-    if (auto && noteData = event.noteData(); noteData) {
-        return m_mixerService->shouldColumnPlay(noteData->track(), noteData->column());
-    }
-    return true;
+    return m_mixerService->shouldColumnPlay(track, column);
 }
 
-void PlayerWorker::handleEvent(const Event & event) const
+void PlayerWorker::handleEvent(const Event & event)
 {
-    if (shouldEventPlay(event)) {
-        if (event.type() == Event::Type::NoteData) {
-            if (auto && noteData = event.noteData(); noteData) {
-                juzzlin::L(TAG).trace() << noteData->toString();
-                if (auto && instrument = event.instrument(); instrument) {
+    if (event.type() == Event::Type::NoteData) {
+        if (auto && noteData = event.noteData(); noteData) {
+            if (auto && instrument = event.instrument(); instrument) {
+                if (shouldEventPlay(noteData->track(), noteData->column())) {
+                    m_stopEventSentOnTrack.erase(noteData->track());
                     if (noteData->type() == NoteData::Type::NoteOn && noteData->note().has_value()) {
                         const auto effectiveVelocity = m_mixerService->effectiveVelocity(noteData->track(), noteData->column(), noteData->velocity());
                         m_midiService->playNote(instrument, { *noteData->note(), effectiveVelocity });
                     } else if (noteData->type() == NoteData::Type::NoteOff) {
                         m_midiService->stopNote(instrument, { *noteData->note(), 0 });
                     }
+                } else {
+                    // When user has muted a track (or soloed some other track) we need
+                    // to also stop possibly playing notes on the corresponding channel.
+                    if (!m_stopEventSentOnTrack.contains(noteData->track())) {
+                        m_midiService->stopAllNotes(instrument);
+                        m_stopEventSentOnTrack.insert(noteData->track());
+                    }
                 }
             }
-        } else if (event.type() == Event::Type::MidiCcData) {
-            if (event.midiCcData() && event.instrument()) {
-                m_midiService->sendCcData(event.instrument(), *event.midiCcData());
-            }
-        } else if (event.type() == Event::Type::MidiClockOut) {
-            // There should not be any clock events generated if disabled, but double-checking won't make any harm
-            if (auto && instrument = event.instrument(); instrument && instrument->settings().timing.sendMidiClock.has_value() && *instrument->settings().timing.sendMidiClock) {
-                m_midiService->sendClock(instrument);
-            }
-        } else if (event.type() == Event::Type::StartOfSong) {
-            if (auto && instrument = event.instrument(); instrument && instrument->settings().timing.sendTransport.has_value() && *instrument->settings().timing.sendTransport) {
-                juzzlin::L(TAG).info() << "Sending start to " << instrument->midiAddress().portName().toStdString();
-                m_midiService->sendStart(instrument);
-            }
-        } else if (event.type() == Event::Type::EndOfSong) {
-            if (auto && instrument = event.instrument(); instrument && instrument->settings().timing.sendTransport.has_value() && *instrument->settings().timing.sendTransport) {
-                juzzlin::L(TAG).info() << "Sending stop to " << instrument->midiAddress().portName().toStdString();
-                m_midiService->sendStop(instrument);
-            }
-        } else if (event.type() == Event::Type::PitchBendData) {
-            if (event.pitchBendData() && event.instrument()) {
-                m_midiService->sendPitchBendData(event.instrument(), *event.pitchBendData());
-            }
-        } else if (event.type() == Event::Type::InstrumentSettings) {
-            if (auto && instrumentSettings = event.instrumentSettings(); instrumentSettings) {
-                juzzlin::L(TAG).trace() << instrumentSettings->toString().toStdString();
-                if (auto && instrument = event.instrument(); instrument) {
-                    auto tempInstrument = *instrument;
-                    tempInstrument.setSettings(*instrumentSettings);
-                    InstrumentRequest instrumentRequest { InstrumentRequest::Type::ApplyAll, tempInstrument };
-                    m_midiService->handleInstrumentRequest(instrumentRequest);
-                }
+        }
+    } else if (event.type() == Event::Type::MidiCcData) {
+        if (event.midiCcData() && event.instrument()) {
+            m_midiService->sendCcData(event.instrument(), *event.midiCcData());
+        }
+    } else if (event.type() == Event::Type::MidiClockOut) {
+        // There should not be any clock events generated if disabled, but double-checking won't make any harm
+        if (auto && instrument = event.instrument(); instrument && instrument->settings().timing.sendMidiClock.has_value() && *instrument->settings().timing.sendMidiClock) {
+            m_midiService->sendClock(instrument);
+        }
+    } else if (event.type() == Event::Type::StartOfSong) {
+        if (auto && instrument = event.instrument(); instrument && instrument->settings().timing.sendTransport.has_value() && *instrument->settings().timing.sendTransport) {
+            juzzlin::L(TAG).info() << "Sending start to " << instrument->midiAddress().portName().toStdString();
+            m_midiService->sendStart(instrument);
+        }
+    } else if (event.type() == Event::Type::EndOfSong) {
+        if (auto && instrument = event.instrument(); instrument && instrument->settings().timing.sendTransport.has_value() && *instrument->settings().timing.sendTransport) {
+            juzzlin::L(TAG).info() << "Sending stop to " << instrument->midiAddress().portName().toStdString();
+            m_midiService->sendStop(instrument);
+        }
+    } else if (event.type() == Event::Type::PitchBendData) {
+        if (event.pitchBendData() && event.instrument()) {
+            m_midiService->sendPitchBendData(event.instrument(), *event.pitchBendData());
+        }
+    } else if (event.type() == Event::Type::InstrumentSettings) {
+        if (auto && instrumentSettings = event.instrumentSettings(); instrumentSettings) {
+            juzzlin::L(TAG).trace() << instrumentSettings->toString().toStdString();
+            if (auto && instrument = event.instrument(); instrument) {
+                auto tempInstrument = *instrument;
+                tempInstrument.setSettings(*instrumentSettings);
+                InstrumentRequest instrumentRequest { InstrumentRequest::Type::ApplyAll, tempInstrument };
+                m_midiService->handleInstrumentRequest(instrumentRequest);
             }
         }
     }
