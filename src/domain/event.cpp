@@ -17,6 +17,8 @@
 
 #include "../application/service/random_service.hpp"
 
+#include <algorithm>
+
 namespace noteahead {
 
 Event::Event(size_t tick, NoteDataCR noteData)

@@ -20,6 +20,8 @@
 #include "../../domain/midi_note_data.hpp"
 #include "../../infra/midi/implementation/librtmidi/midi_in_rt_midi.hpp"
 
+#include <iomanip>
+
 using namespace std::chrono_literals;
 
 namespace noteahead {
