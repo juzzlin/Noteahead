@@ -39,7 +39,7 @@ Rectangle {
     function setSoloed(solo): void {
         muteSoloButtons.setSoloed(solo);
     }
-    function setVelocityScale(value): void {
+    function setVelocityScale(value: int): void {
         velocityScaleWidget.value = value;
     }
     Row {
