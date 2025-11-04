@@ -13,6 +13,8 @@ New features:
 
 Bug fixes:
 
+* Fix velocity interpolation on a selection not applied on all columns
+
 * Fix incorrect values in the delay calculator dialog
 
 Other:

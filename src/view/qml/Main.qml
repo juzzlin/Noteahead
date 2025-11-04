@@ -221,6 +221,12 @@ ApplicationWindow {
         width: parent.width * Constants.defaultDialogScale
         onAccepted: editorService.requestLinearVelocityInterpolationOnTrack(startLine(), endLine(), startValue(), endValue())
     }
+    InterpolationDialog {
+        id: selectionVelocityInterpolationDialog
+        anchors.centerIn: parent
+        width: parent.width * Constants.defaultDialogScale
+        onAccepted: editorService.requestLinearVelocityInterpolationOnSelection(startLine(), endLine(), startValue(), endValue())
+    }
     AddMidiCcAutomationDialog {
         id: addMidiCcAutomationDialog
         anchors.centerIn: parent
@@ -354,12 +360,12 @@ ApplicationWindow {
             columnVelocityInterpolationDialog.open();
         });
         UiService.selectionVelocityInterpolationDialogRequested.connect(() => {
-            columnVelocityInterpolationDialog.setTitle(qsTr("Interpolate velocity"));
-            columnVelocityInterpolationDialog.setStartLine(selectionService.minLine());
-            columnVelocityInterpolationDialog.setEndLine(selectionService.maxLine());
-            columnVelocityInterpolationDialog.setStartValue(0);
-            columnVelocityInterpolationDialog.setEndValue(100);
-            columnVelocityInterpolationDialog.open();
+            selectionVelocityInterpolationDialog.setTitle(qsTr("Interpolate velocity"));
+            selectionVelocityInterpolationDialog.setStartLine(selectionService.minLine());
+            selectionVelocityInterpolationDialog.setEndLine(selectionService.maxLine());
+            selectionVelocityInterpolationDialog.setStartValue(0);
+            selectionVelocityInterpolationDialog.setEndValue(100);
+            selectionVelocityInterpolationDialog.open();
         });
         UiService.trackVelocityInterpolationDialogRequested.connect(() => {
             trackVelocityInterpolationDialog.setTitle(qsTr("Interpolate velocity"));

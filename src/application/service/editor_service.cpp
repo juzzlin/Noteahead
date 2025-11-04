@@ -1270,6 +1270,29 @@ void EditorService::requestLinearVelocityInterpolationOnTrack(quint64 startLine,
     }
 }
 
+void EditorService::requestLinearVelocityInterpolationOnSelection(quint64 startLine, quint64 endLine, quint8 startValue, quint8 endValue)
+{
+    if (m_selectionService->isValidSelection()) {
+        for (auto column = m_selectionService->minColumn(); column <= m_selectionService->maxColumn(); column++) {
+
+            auto start = position();
+            start.column = column;
+            start.line = startLine;
+
+            auto end = position();
+            end.column = column;
+            end.line = endLine;
+
+            if (const auto changedPositions = NoteDataManipulator::interpolateVelocityOnColumn(m_song, start, end, startValue, endValue); !changedPositions.empty()) {
+                for (auto && position : changedPositions) {
+                    emit noteDataAtPositionChanged(position);
+                }
+                setIsModified(true);
+            }
+        }
+    }
+}
+
 void EditorService::setDelayOnCurrentLine(quint8 ticks)
 {
     if (const auto noteData = m_song->noteDataAtPosition(position()); noteData) {

@@ -23,20 +23,36 @@ static const auto TAG = "SelectionService";
 
 SelectionService::SelectionService() = default;
 
+size_t SelectionService::minColumn() const
+{
+    const auto selectedPositions = this->selectedPositions();
+    const auto it = std::ranges::min_element(selectedPositions,
+                                             [](const auto & a, const auto & b) { return a.column < b.column; });
+    return (it != selectedPositions.end()) ? it->column : 0;
+}
+
+size_t SelectionService::maxColumn() const
+{
+    const auto selectedPositions = this->selectedPositions();
+    const auto it = std::ranges::max_element(selectedPositions,
+                                             [](const auto & a, const auto & b) { return a.column < b.column; });
+    return (it != selectedPositions.end()) ? it->column : 0;
+}
+
 size_t SelectionService::minLine() const
 {
     const auto selectedPositions = this->selectedPositions();
-    const auto minLineIt = std::ranges::min_element(selectedPositions,
-                                                    [](const auto & a, const auto & b) { return a.line < b.line; });
-    return (minLineIt != selectedPositions.end()) ? minLineIt->line : 0;
+    const auto it = std::ranges::min_element(selectedPositions,
+                                             [](const auto & a, const auto & b) { return a.line < b.line; });
+    return (it != selectedPositions.end()) ? it->line : 0;
 }
 
 size_t SelectionService::maxLine() const
 {
     const auto selectedPositions = this->selectedPositions();
-    const auto maxLineIt = std::ranges::max_element(selectedPositions,
-                                                    [](const auto & a, const auto & b) { return a.line < b.line; });
-    return (maxLineIt != selectedPositions.end()) ? maxLineIt->line : 0;
+    const auto it = std::ranges::max_element(selectedPositions,
+                                             [](const auto & a, const auto & b) { return a.line < b.line; });
+    return (it != selectedPositions.end()) ? it->line : 0;
 }
 
 size_t SelectionService::track() const

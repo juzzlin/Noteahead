@@ -41,6 +41,9 @@ public:
 
     Q_INVOKABLE void clear();
 
+    Q_INVOKABLE size_t minColumn() const;
+    Q_INVOKABLE size_t maxColumn() const;
+
     Q_INVOKABLE size_t minLine() const;
     Q_INVOKABLE size_t maxLine() const;
 
