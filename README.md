@@ -13,6 +13,11 @@ Noteahead is written in Qt/QML/C++20 on top of RtMidi back-end + RtAudio for the
     <td><img src="/screenshots/0.6.0/Noteahead_2.png" width="100%"></td>
     <td><img src="/screenshots/0.6.0/Noteahead_3.png" width="100%"></td>
   </tr>
+  <tr>
+    <td><img src="/screenshots/0.15.0/2b.png" width="100%"></td>
+    <td><img src="/screenshots/0.15.0/9b.png" width="100%"></td>
+    <td><img src="/screenshots/0.15.0/15b.png" width="100%"></td>
+  </tr>
 </table>
 
 ##

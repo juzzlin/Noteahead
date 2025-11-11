@@ -5,6 +5,19 @@ Release date:
 
 New features:
 
+Bug fixes:
+
+Other:
+
+0.15.0
+======
+
+Release date:
+
+Tue, 11 Nov 2025 19:07:20 +0200
+
+New features:
+
 * Fix GitHub Issue #29: Implement a pattern play order view
   - Play order is now displayed below the main tool bar
   - Clicking on a position will jump to the position
