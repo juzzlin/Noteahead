@@ -22,10 +22,21 @@ modules:
         sha256: ef7bcda27fee6936b651c29ebe9544c74959d0b1583b716ce80a1c6fea7617f0
     builddir: true
 
+  - name: rtaudio
+    buildsystem: cmake-ninja
+    sources:
+      - type: archive
+        url: https://github.com/thestk/rtaudio/archive/refs/tags/6.0.1.tar.gz
+        sha256: 7206c8b6cee43b474f43d64988fefaadfdcfc4264ed38d8de5f5d0e6ddb0a123
+    builddir: true
+
   - name: noteahead
     buildsystem: cmake-ninja
+    build-depends:
+      - rtaudio
     config-opts:
       - -DCMAKE_BUILD_TYPE=Release
+      - -DCMAKE_PREFIX_PATH=/app
     sources:
       - type: dir
         path: .
