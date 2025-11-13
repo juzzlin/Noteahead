@@ -933,7 +933,7 @@ void EditorServiceTest::test_requestLinearVelocityInterpolationOnColumn_shouldIn
     QVERIFY(editorService.requestPosition(0, 0, 0, 7, 0));
     QVERIFY(editorService.requestNoteOnAtCurrentPosition(1, 3, 64));
 
-    editorService.requestLinearVelocityInterpolationOnColumn(0, 7, 0, 100);
+    editorService.requestLinearVelocityInterpolationOnColumn(0, 7, 0, 100, false);
 
     QCOMPARE(noteDataChangedSpy.count(), 6);
     QCOMPARE(editorService.displayNoteAtPosition(0, 0, 0, 0), "C-3");
@@ -965,7 +965,7 @@ void EditorServiceTest::test_requestLinearVelocityInterpolationOnTrack_shouldInt
     QVERIFY(editorService.requestPosition(0, 0, 1, 7, 0));
     QVERIFY(editorService.requestNoteOnAtCurrentPosition(1, 3, 64));
 
-    editorService.requestLinearVelocityInterpolationOnTrack(0, 7, 0, 100);
+    editorService.requestLinearVelocityInterpolationOnTrack(0, 7, 0, 100, false);
 
     QCOMPARE(noteDataChangedSpy.count(), 12);
 
@@ -982,6 +982,34 @@ void EditorServiceTest::test_requestLinearVelocityInterpolationOnTrack_shouldInt
     QCOMPARE(editorService.displayVelocityAtPosition(0, 0, 1, 3), "042");
     QCOMPARE(editorService.displayNoteAtPosition(0, 0, 1, 7), "C-3");
     QCOMPARE(editorService.displayVelocityAtPosition(0, 0, 1, 7), "100");
+}
+
+void EditorServiceTest::test_requestLinearVelocityInterpolationOnColumn_shouldInterpolateVelocitiesAsPercentages()
+{
+    EditorService editorService;
+    QSignalSpy noteDataChangedSpy { &editorService, &EditorService::noteDataAtPositionChanged };
+
+    QVERIFY(editorService.requestPosition(0, 0, 0, 0, 0));
+    QVERIFY(editorService.requestNoteOnAtCurrentPosition(1, 3, 100)); // Initial velocity 100
+    QVERIFY(editorService.requestPosition(0, 0, 0, 3, 0));
+    QVERIFY(editorService.requestNoteOnAtCurrentPosition(1, 3, 50));  // Initial velocity 50
+    QVERIFY(editorService.requestPosition(0, 0, 0, 7, 0));
+    QVERIFY(editorService.requestNoteOnAtCurrentPosition(1, 3, 20));  // Initial velocity 20
+
+    // Interpolate from 50% to 150%
+    editorService.requestLinearVelocityInterpolationOnColumn(0, 7, 50, 150, true);
+
+    QCOMPARE(noteDataChangedSpy.count(), 6);
+    QCOMPARE(editorService.displayNoteAtPosition(0, 0, 0, 0), "C-3");
+    // Line 0: 100 * 0.50 = 50
+    QCOMPARE(editorService.displayVelocityAtPosition(0, 0, 0, 0), "050");
+    QCOMPARE(editorService.displayNoteAtPosition(0, 0, 0, 3), "C-3");
+    // Line 3: Interpolated percentage at line 3: 50 + (150 - 50) * (3.0 / 7.0) = 50 + 100 * 0.42857 = 50 + 42.857 = 92.857
+    //         Velocity at line 3: 50 * 92.857 / 100 = 46.4285 -> 46
+    QCOMPARE(editorService.displayVelocityAtPosition(0, 0, 0, 3), "046");
+    QCOMPARE(editorService.displayNoteAtPosition(0, 0, 0, 7), "C-3");
+    // Line 7: 20 * 1.50 = 30
+    QCOMPARE(editorService.displayVelocityAtPosition(0, 0, 0, 7), "030");
 }
 
 void EditorServiceTest::test_requestPosition_invalidPosition_shouldNotChangePosition()

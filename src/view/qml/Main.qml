@@ -213,19 +213,19 @@ ApplicationWindow {
         id: columnVelocityInterpolationDialog
         anchors.centerIn: parent
         width: parent.width * Constants.defaultDialogScale
-        onAccepted: editorService.requestLinearVelocityInterpolationOnColumn(startLine(), endLine(), startValue(), endValue())
+        onAccepted: editorService.requestLinearVelocityInterpolationOnColumn(startLine(), endLine(), startValue(), endValue(), usePercentages())
     }
     InterpolationDialog {
         id: trackVelocityInterpolationDialog
         anchors.centerIn: parent
         width: parent.width * Constants.defaultDialogScale
-        onAccepted: editorService.requestLinearVelocityInterpolationOnTrack(startLine(), endLine(), startValue(), endValue())
+        onAccepted: editorService.requestLinearVelocityInterpolationOnTrack(startLine(), endLine(), startValue(), endValue(), usePercentages())
     }
     InterpolationDialog {
         id: selectionVelocityInterpolationDialog
         anchors.centerIn: parent
         width: parent.width * Constants.defaultDialogScale
-        onAccepted: editorService.requestLinearVelocityInterpolationOnSelection(startLine(), endLine(), startValue(), endValue())
+        onAccepted: editorService.requestLinearVelocityInterpolationOnSelection(startLine(), endLine(), startValue(), endValue(), usePercentages())
     }
     AddMidiCcAutomationDialog {
         id: addMidiCcAutomationDialog

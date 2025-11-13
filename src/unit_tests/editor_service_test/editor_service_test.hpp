@@ -79,6 +79,7 @@ private slots:
 
     void test_requestLinearVelocityInterpolationOnColumn_shouldInterpolateVelocities();
     void test_requestLinearVelocityInterpolationOnTrack_shouldInterpolateVelocities();
+    void test_requestLinearVelocityInterpolationOnColumn_shouldInterpolateVelocitiesAsPercentages();
 
     void test_requestPosition_invalidPosition_shouldNotChangePosition();
     void test_requestPosition_validPosition_shouldChangePosition();

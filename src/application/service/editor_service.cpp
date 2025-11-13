@@ -1238,7 +1238,7 @@ void EditorService::requestSelectionTranspose(int semitones)
     }
 }
 
-void EditorService::requestLinearVelocityInterpolationOnColumn(quint64 startLine, quint64 endLine, quint8 startValue, quint8 endValue)
+void EditorService::requestLinearVelocityInterpolationOnColumn(quint64 startLine, quint64 endLine, quint8 startValue, quint8 endValue, bool usePercentages)
 {
     auto start = position();
     start.line = startLine;
@@ -1246,7 +1246,7 @@ void EditorService::requestLinearVelocityInterpolationOnColumn(quint64 startLine
     auto end = position();
     end.line = endLine;
 
-    if (const auto changedPositions = NoteDataManipulator::interpolateVelocityOnColumn(m_song, start, end, startValue, endValue); !changedPositions.empty()) {
+    if (const auto changedPositions = NoteDataManipulator::interpolateVelocityOnColumn(m_song, start, end, startValue, endValue, usePercentages); !changedPositions.empty()) {
         for (auto && position : changedPositions) {
             emit noteDataAtPositionChanged(position);
         }
@@ -1254,7 +1254,7 @@ void EditorService::requestLinearVelocityInterpolationOnColumn(quint64 startLine
     }
 }
 
-void EditorService::requestLinearVelocityInterpolationOnTrack(quint64 startLine, quint64 endLine, quint8 startValue, quint8 endValue)
+void EditorService::requestLinearVelocityInterpolationOnTrack(quint64 startLine, quint64 endLine, quint8 startValue, quint8 endValue, bool usePercentages)
 {
     auto start = position();
     start.line = startLine;
@@ -1262,7 +1262,7 @@ void EditorService::requestLinearVelocityInterpolationOnTrack(quint64 startLine,
     auto end = position();
     end.line = endLine;
 
-    if (const auto changedPositions = NoteDataManipulator::interpolateVelocityOnTrack(m_song, start, end, startValue, endValue); !changedPositions.empty()) {
+    if (const auto changedPositions = NoteDataManipulator::interpolateVelocityOnTrack(m_song, start, end, startValue, endValue, usePercentages); !changedPositions.empty()) {
         for (auto && position : changedPositions) {
             emit noteDataAtPositionChanged(position);
         }
@@ -1270,7 +1270,7 @@ void EditorService::requestLinearVelocityInterpolationOnTrack(quint64 startLine,
     }
 }
 
-void EditorService::requestLinearVelocityInterpolationOnSelection(quint64 startLine, quint64 endLine, quint8 startValue, quint8 endValue)
+void EditorService::requestLinearVelocityInterpolationOnSelection(quint64 startLine, quint64 endLine, quint8 startValue, quint8 endValue, bool usePercentages)
 {
     if (m_selectionService->isValidSelection()) {
         for (auto column = m_selectionService->minColumn(); column <= m_selectionService->maxColumn(); column++) {
@@ -1283,7 +1283,7 @@ void EditorService::requestLinearVelocityInterpolationOnSelection(quint64 startL
             end.column = column;
             end.line = endLine;
 
-            if (const auto changedPositions = NoteDataManipulator::interpolateVelocityOnColumn(m_song, start, end, startValue, endValue); !changedPositions.empty()) {
+            if (const auto changedPositions = NoteDataManipulator::interpolateVelocityOnColumn(m_song, start, end, startValue, endValue, usePercentages); !changedPositions.empty()) {
                 for (auto && position : changedPositions) {
                     emit noteDataAtPositionChanged(position);
                 }

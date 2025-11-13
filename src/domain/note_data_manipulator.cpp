@@ -25,9 +25,9 @@ namespace noteahead {
 
 static const auto TAG = "NoteDataManipulator";
 
-NoteDataManipulator::ChangedPositions NoteDataManipulator::interpolateVelocityOnColumn(SongW song, const Position & start, const Position & end, uint8_t startValue, uint8_t endValue)
+NoteDataManipulator::ChangedPositions NoteDataManipulator::interpolateVelocityOnColumn(SongW song, const Position & start, const Position & end, uint8_t startValue, uint8_t endValue, bool usePercentages)
 {
-    juzzlin::L(TAG).info() << "Requesting linear velocity interpolation on a column: " << start.toString() << " -> " << end.toString() << ", " << static_cast<int>(startValue) << " -> " << static_cast<int>(endValue);
+    juzzlin::L(TAG).info() << "Requesting linear velocity interpolation on a column: " << start.toString() << " -> " << end.toString() << ", " << static_cast<int>(startValue) << " -> " << static_cast<int>(endValue) << ", usePercentages=" << usePercentages;
     NoteDataManipulator::ChangedPositions changedPositions;
     if (const auto locked = song.lock(); locked) {
         const Interpolator interpolator { start.line, end.line, static_cast<double>(startValue), static_cast<double>(endValue) };
@@ -35,7 +35,14 @@ NoteDataManipulator::ChangedPositions NoteDataManipulator::interpolateVelocityOn
             auto targetPosition = start;
             targetPosition.line = line;
             if (const auto noteData = locked->noteDataAtPosition(targetPosition); noteData && noteData->type() == NoteData::Type::NoteOn) {
-                noteData->setVelocity(static_cast<uint8_t>(interpolator.getValue(targetPosition.line)));
+                if (usePercentages) {
+                    const double currentVelocity = static_cast<double>(noteData->velocity());
+                    const double percentage = interpolator.getValue(targetPosition.line); // This is 0-100
+                    const uint8_t newVelocity = static_cast<uint8_t>(std::clamp(currentVelocity * (percentage / 100.0), 0.0, 127.0));
+                    noteData->setVelocity(newVelocity);
+                } else {
+                    noteData->setVelocity(static_cast<uint8_t>(interpolator.getValue(targetPosition.line)));
+                }
                 changedPositions.push_back(targetPosition);
             }
         }
@@ -43,9 +50,9 @@ NoteDataManipulator::ChangedPositions NoteDataManipulator::interpolateVelocityOn
     return changedPositions;
 }
 
-NoteDataManipulator::ChangedPositions NoteDataManipulator::interpolateVelocityOnTrack(SongW song, const Position & start, const Position & end, uint8_t startValue, uint8_t endValue)
+NoteDataManipulator::ChangedPositions NoteDataManipulator::interpolateVelocityOnTrack(SongW song, const Position & start, const Position & end, uint8_t startValue, uint8_t endValue, bool usePercentages)
 {
-    juzzlin::L(TAG).info() << "Requesting linear velocity interpolation on a track: " << start.toString() << " -> " << end.toString() << ", " << static_cast<int>(startValue) << " -> " << static_cast<int>(endValue);
+    juzzlin::L(TAG).info() << "Requesting linear velocity interpolation on a track: " << start.toString() << " -> " << end.toString() << ", " << static_cast<int>(startValue) << " -> " << static_cast<int>(endValue) << ", usePercentages=" << usePercentages;
     NoteDataManipulator::ChangedPositions changedPositions;
     if (const auto locked = song.lock(); locked) {
         const Interpolator interpolator { start.line, end.line, static_cast<double>(startValue), static_cast<double>(endValue) };
@@ -55,7 +62,14 @@ NoteDataManipulator::ChangedPositions NoteDataManipulator::interpolateVelocityOn
                 targetPosition.column = column;
                 targetPosition.line = line;
                 if (const auto noteData = locked->noteDataAtPosition(targetPosition); noteData && noteData->type() == NoteData::Type::NoteOn) {
-                    noteData->setVelocity(static_cast<uint8_t>(interpolator.getValue(targetPosition.line)));
+                    if (usePercentages) {
+                        const double currentVelocity = static_cast<double>(noteData->velocity());
+                        const double percentage = interpolator.getValue(targetPosition.line); // This is 0-100
+                        const uint8_t newVelocity = static_cast<uint8_t>(std::clamp(currentVelocity * (percentage / 100.0), 0.0, 127.0));
+                        noteData->setVelocity(newVelocity);
+                    } else {
+                        noteData->setVelocity(static_cast<uint8_t>(interpolator.getValue(targetPosition.line)));
+                    }
                     changedPositions.push_back(targetPosition);
                 }
             }
