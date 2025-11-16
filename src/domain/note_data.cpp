@@ -137,4 +137,14 @@ NoteData::NoteDataS NoteData::deserializeFromXml(QXmlStreamReader & reader, size
     return noteData;
 }
 
+size_t NoteData::track() const
+{
+    return EventData::track();
+}
+
+size_t NoteData::column() const
+{
+    return EventData::column();
+}
+
 } // namespace noteahead

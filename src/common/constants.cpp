@@ -47,6 +47,11 @@ QString fileFormatExtension()
     return ".nahd";
 }
 
+QString midiFileExtension()
+{
+    return ".mid";
+}
+
 QString qSettingsCompanyName()
 {
     return applicationName();

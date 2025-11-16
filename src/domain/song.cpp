@@ -555,17 +555,25 @@ Song::EventList Song::generateNoteOffs(EventListCR events) const
                 }
             }
             if (noteData->type() == NoteData::Type::NoteOn) {
-                const auto noteOffEvents = generateNoteOffsForActiveNotes(trackAndColumn, event->tick() - instrumentAutoNoteOffOffset, activeNotes);
+                size_t noteOffTick = event->tick();
+                if (noteOffTick > instrumentAutoNoteOffOffset) {
+                    noteOffTick -= instrumentAutoNoteOffOffset;
+                } else {
+                    noteOffTick = 0;
+                }
+                const auto noteOffEvents = generateNoteOffsForActiveNotes(trackAndColumn, noteOffTick, activeNotes);
                 std::ranges::copy(noteOffEvents, std::back_inserter(processedEvents));
+                processedEvents.push_back(event); // Add original Note On event
                 activeNotes[trackAndColumn].insert(*noteData->note());
             } else if (noteData->type() == NoteData::Type::NoteOff) {
                 // Map anonymous note-off's to the playing notes
                 const auto noteOffEvents = generateNoteOffsForActiveNotes(trackAndColumn, event->tick(), activeNotes);
                 std::ranges::copy(noteOffEvents, std::back_inserter(processedEvents));
+                // Do NOT add the original NoteOff event, as we've generated one.
             }
+        } else {
+            processedEvents.push_back(event); // Add non-NoteData events
         }
-
-        processedEvents.push_back(event);
     }
 
     const auto noteOffEvents = generateAutoNoteOffsForDanglingNotes(events.back()->tick() + 1, activeNotes);
@@ -797,7 +805,9 @@ Song::EventList Song::renderToEvents(AutomationServiceS automationService, size_
 
 Song::EventList Song::renderToEvents(AutomationServiceS automationService, size_t startPosition, size_t endPosition)
 {
-    return applyInstrumentsOnEvents(renderContent(automationService, startPosition, endPosition));
+    auto eventList = applyInstrumentsOnEvents(renderContent(automationService, startPosition, endPosition));
+    juzzlin::L(TAG).info() << "Rendered event list size: " << eventList.size();
+    return eventList;
 }
 
 void Song::serializeToXml(QXmlStreamWriter & writer, MixerSerializationCallback mixerSerializationCallback, AutomationSerializationCallback automationSerializationCallback) const

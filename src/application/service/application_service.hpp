@@ -45,6 +45,7 @@ public:
     Q_INVOKABLE QString applicationVersion() const;
     Q_INVOKABLE QString copyright() const;
     Q_INVOKABLE QString fileFormatExtension() const;
+    Q_INVOKABLE QString midiFileExtension() const;
     Q_INVOKABLE QString license() const;
     Q_INVOKABLE QString webSiteUrl() const;
 
@@ -82,6 +83,9 @@ public:
     Q_INVOKABLE void requestSaveProjectAsTemplate();
     Q_INVOKABLE void saveProjectAs(QUrl url);
     Q_INVOKABLE void saveProjectAsTemplate(QUrl url);
+
+    Q_INVOKABLE void requestMidiExportDialog();
+    Q_INVOKABLE void exportAsMidi(QUrl url);
 
     Q_INVOKABLE bool editMode() const;
     Q_INVOKABLE void setEditMode(bool editMode);
@@ -128,6 +132,8 @@ signals:
 
     void saveAsDialogRequested();
     void saveAsTemplateDialogRequested();
+    void midiExportDialogRequested();
+    void midiExportRequested(QString fileName);
 
     void alertDialogRequested(QString message);
     void statusTextRequested(QString message);

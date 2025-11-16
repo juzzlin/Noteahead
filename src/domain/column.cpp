@@ -114,6 +114,7 @@ void Column::setNoteDataAtPosition(const NoteData & noteData, const Position & p
     juzzlin::L(TAG).debug() << "Set note data at position: " << noteData.toString() << " @ " << position.toString();
     auto newNoteData = noteData;
     newNoteData.setColumn(index());
+    newNoteData.setTrack(position.track); // Set the track from the position
     m_lines.at(static_cast<size_t>(position.line))->setNoteData(newNoteData);
 }
 

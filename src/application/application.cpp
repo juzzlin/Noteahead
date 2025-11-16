@@ -17,6 +17,7 @@
 
 #include "../contrib/Argengine/src/argengine.hpp"
 #include "../contrib/SimpleLogger/src/simple_logger.hpp"
+#include "../infra/midi/export/midi_exporter.hpp"
 #include "../infra/video/video_generator.hpp"
 #include "common/utils.hpp"
 #include "domain/midi_note_data.hpp"
@@ -67,6 +68,7 @@ Application::Application(int & argc, char ** argv)
   , m_selectionService { std::make_unique<SelectionService>() }
   , m_editorService { std::make_unique<EditorService>(m_selectionService) }
   , m_eventSelectionModel { std::make_unique<EventSelectionModel>() }
+  , m_midiExporter { std::make_unique<MidiExporter>(m_automationService) }
   , m_midiService { std::make_unique<MidiService>() }
   , m_mixerService { std::make_unique<MixerService>() }
   , m_playerService { std::make_unique<PlayerService>(m_midiService, m_mixerService, m_automationService, m_settingsService) }
@@ -258,6 +260,21 @@ void Application::connectApplicationService()
     connect(m_applicationService.get(), &ApplicationService::liveNoteOnRequested, m_midiService.get(), &MidiService::playNote);
     connect(m_applicationService.get(), &ApplicationService::liveNoteOffRequested, m_midiService.get(), &MidiService::stopNote);
     connect(m_applicationService.get(), &ApplicationService::allNotesOffRequested, this, &Application::stopAllNotes);
+
+    connect(m_applicationService.get(), &ApplicationService::midiExportRequested, this, &Application::exportToMidi);
+}
+
+void Application::exportToMidi(QString fileName)
+{
+    try {
+        m_midiExporter->exportTo(fileName.toStdString(), m_editorService->song());
+        const auto message = QString { "Exported the project to '%1' " }.arg(fileName);
+        m_applicationService->statusTextRequested(message);
+    } catch (std::exception & e) {
+        const auto message = QString { "Failed to export as MIDI: %1 " }.arg(e.what());
+        juzzlin::L(TAG).error() << message.toStdString();
+        m_applicationService->statusTextRequested(message);
+    }
 }
 
 void Application::connectAutomationService()

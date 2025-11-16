@@ -29,6 +29,7 @@ QString license();
 
 QString fileFormatVersion();
 QString fileFormatExtension();
+QString midiFileExtension();
 
 QString qSettingsCompanyName();
 QString qSettingSoftwareName();

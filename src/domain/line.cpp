@@ -60,10 +60,7 @@ void Line::setNoteData(const NoteData & noteData)
     *m_noteData = noteData;
 }
 
-Line::NoteDataS Line::noteData() const
-{
-    return m_noteData;
-}
+
 
 Line::LineEventOpt Line::lineEvent() const
 {
@@ -118,6 +115,11 @@ Line::LineU Line::deserializeFromXml(QXmlStreamReader & reader, size_t trackInde
     }
     juzzlin::L(TAG).trace() << "Reading Line ended";
     return line;
+}
+
+Line::NoteDataS Line::noteData() const
+{
+    return m_noteData;
 }
 
 } // namespace noteahead

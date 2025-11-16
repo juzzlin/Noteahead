@@ -39,6 +39,12 @@ Menu {
     }
     MenuSeparator {}
     Action {
+        text: qsTr("Export MIDI file")
+        shortcut: "Ctrl+E"
+        onTriggered: applicationService.requestMidiExportDialog()
+    }
+    MenuSeparator {}
+    Action {
         text: qsTr("Quit")
         shortcut: "Ctrl+Q"
         onTriggered: UiService.requestQuit()

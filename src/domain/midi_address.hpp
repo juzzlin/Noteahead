@@ -38,6 +38,7 @@ public:
     static MidiAddressU deserializeFromXml(QXmlStreamReader & reader);
 
     QString portName() const;
+    void setPort(QString portName);
 
     uint8_t channel() const;
     void setChannel(uint8_t channel);

@@ -62,6 +62,9 @@ public:
     using NoteDataS = std::shared_ptr<NoteData>;
     static NoteDataS deserializeFromXml(QXmlStreamReader & reader, size_t trackIndex, size_t columnIndex);
 
+    size_t track() const;
+    size_t column() const;
+
 private:
     Type m_type = Type::None;
 

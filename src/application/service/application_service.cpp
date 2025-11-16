@@ -60,6 +60,11 @@ QString ApplicationService::fileFormatExtension() const
     return Constants::fileFormatExtension();
 }
 
+QString ApplicationService::midiFileExtension() const
+{
+    return Constants::midiFileExtension();
+}
+
 QString ApplicationService::webSiteUrl() const
 {
     return Constants::webSiteUrl();
@@ -130,6 +135,22 @@ void ApplicationService::requestSaveProjectAsTemplate()
 {
     juzzlin::L(TAG).info() << "'Save file as template' requested";
     m_stateMachine->calculateState(StateMachine::Action::SaveProjectAsTemplateRequested);
+}
+
+void ApplicationService::requestMidiExportDialog()
+{
+    // No need to route through state machine as the current data can always be exported
+    juzzlin::L(TAG).info() << "MIDI export requested";
+    emit midiExportDialogRequested();
+}
+
+void ApplicationService::exportAsMidi(QUrl url)
+{
+    auto fileName = url.toLocalFile();
+    if (!fileName.endsWith(Constants::midiFileExtension())) {
+        fileName += Constants::midiFileExtension();
+    }
+    emit midiExportRequested(fileName);
 }
 
 void ApplicationService::requestLiveNoteOn(quint8 key, quint8 octave, quint8 velocity)

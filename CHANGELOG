@@ -5,6 +5,9 @@ Release date:
 
 New features:
 
+* Fix GitHub Issue #13: Implement MIDI file export
+  - Exports tempo track, note on/off, velocity
+
 * Add percentage interpolation to velocity dialog
 
 Bug fixes:

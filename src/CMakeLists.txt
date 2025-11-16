@@ -68,6 +68,7 @@ set(HEADER_FILES
   domain/track.hpp
   infra/audio/audio_recorder.hpp
   infra/audio/implementation/librtaudio/audio_recorder_rt_audio.hpp
+  infra/midi/export/midi_exporter.hpp
   infra/midi/implementation/librtmidi/midi_in_rt_midi.hpp
   infra/midi/implementation/librtmidi/midi_out_rt_midi.hpp
   infra/midi/midi.hpp
@@ -144,6 +145,7 @@ set(SOURCE_FILES
   domain/song.cpp
   domain/track.cpp
   infra/audio/audio_recorder.cpp
+  infra/midi/export/midi_exporter.cpp
   infra/audio/implementation/librtaudio/audio_recorder_rt_audio.cpp
   infra/midi/implementation/librtmidi/midi_in_rt_midi.cpp
   infra/midi/implementation/librtmidi/midi_out_rt_midi.cpp

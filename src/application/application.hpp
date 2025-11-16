@@ -40,6 +40,7 @@ class EditorService;
 class EventSelectionModel;
 class Instrument;
 class MidiCcAutomationsModel;
+class MidiExporter;
 class MidiService;
 class MidiSettingsModel;
 class MixerService;
@@ -103,6 +104,8 @@ private:
     void requestInstruments(QStringList midiPorts);
     void stopAllNotes() const;
 
+    void exportToMidi(QString fileName);
+
     std::unique_ptr<UiLogger> m_uiLogger;
 
     std::unique_ptr<QGuiApplication> m_application;
@@ -119,6 +122,7 @@ private:
 
     std::shared_ptr<EventSelectionModel> m_eventSelectionModel;
 
+    std::shared_ptr<MidiExporter> m_midiExporter;
     std::shared_ptr<MidiService> m_midiService;
     std::shared_ptr<MixerService> m_mixerService;
     std::shared_ptr<PlayerService> m_playerService;

@@ -46,6 +46,11 @@ QString MidiAddress::portName() const
     return m_portName;
 }
 
+void MidiAddress::setPort(QString portName)
+{
+    m_portName = portName;
+}
+
 uint8_t MidiAddress::channel() const
 {
     return m_channel;
