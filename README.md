@@ -32,6 +32,7 @@ My own setup runs Noteahead on Ubuntu 24.04 LTS with all gear connected via USB-
 
 Some example tracks sequenced with Noteahead (produced with Behringer X32 Producer and Audacity):
 
+- [Arctic Music Project - Halla Returns (SoundCloud)](https://soundcloud.com/arctic-music-project/halla-returns)
 - [Arctic Music Project - Triple Distilled (SoundCloud)](https://soundcloud.com/arctic-music-project/triple-distilled)
 - [Arctic Music Project - Ultimate (SoundCloud)](https://soundcloud.com/arctic-music-project/ultimate)
 - [Arctic Music Project - 0035AM (SoundCloud)](https://soundcloud.com/arctic-music-project/0035am)
@@ -74,6 +75,7 @@ Some example tracks sequenced with Noteahead (produced with Behringer X32 Produc
   - Select lines and add automation on pitch bend
 - Step record / play notes via a MIDI controller (since 0.10.0)
   - The MIDI controller is routed to the instrument of the selected track
+- Highly adjustable note-off's (global default in ms, per-instrument in ms, manual)
 
 ### Tools
 - Delay time calculator
