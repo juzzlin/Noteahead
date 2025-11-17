@@ -76,6 +76,7 @@ Some example tracks sequenced with Noteahead (produced with Behringer X32 Produc
 - Step record / play notes via a MIDI controller (since 0.10.0)
   - The MIDI controller is routed to the instrument of the selected track
 - Highly adjustable note-off's (global default in ms, per-instrument in ms, manual)
+- Exports in **MIDI File Format 1** (SMF Type 1) (since 0.16.0)
 
 ### Tools
 - Delay time calculator
