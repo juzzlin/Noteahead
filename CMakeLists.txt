@@ -3,8 +3,8 @@ cmake_minimum_required(VERSION 3.14)
 project(Noteahead LANGUAGES CXX)
 
 # Global version
-set(VERSION_MAJOR 0)
-set(VERSION_MINOR 15)
+set(VERSION_MAJOR 1)
+set(VERSION_MINOR 0)
 set(VERSION_PATCH 0)
 set(VERSION "${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}")
 
