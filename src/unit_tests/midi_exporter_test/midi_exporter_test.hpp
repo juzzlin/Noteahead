@@ -29,6 +29,7 @@ private slots:
     void test_exportTo_singleNote_shouldExportCorrectly();
     void test_exportTo_multipleNotesAndTracks_shouldExportCorrectly();
     void test_exportTo_timing_shouldBeCorrect();
+    void test_exportTo_mutedAndSoloedTracks_shouldExportCorrectly();
     // void test_readHalla2Mid();
 };
 

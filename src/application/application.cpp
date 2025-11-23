@@ -267,7 +267,7 @@ void Application::connectApplicationService()
 void Application::exportToMidi(QString fileName)
 {
     try {
-        m_midiExporter->exportTo(fileName.toStdString(), m_editorService->song());
+        m_midiExporter->exportTo(fileName.toStdString(), m_editorService->song(), m_mixerService);
         const auto message = QString { "Exported the project to '%1' " }.arg(fileName);
         m_applicationService->statusTextRequested(message);
     } catch (std::exception & e) {

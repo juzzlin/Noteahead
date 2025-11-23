@@ -31,10 +31,12 @@ class Event;
 class NoteData;
 class MidiCcData;
 class PitchBendData;
+class MixerService;
 
 class MidiExporter {
 public:
     using AutomationServiceS = std::shared_ptr<AutomationService>;
+    using MixerServiceS = std::shared_ptr<MixerService>;
     using ByteVector = std::vector<char>;
     using EventS = std::shared_ptr<Event>;
     using InstrumentS = std::shared_ptr<Instrument>;
@@ -49,7 +51,7 @@ public:
 
     MidiExporter(AutomationServiceS automationService);
 
-    void exportTo(std::string fileName, SongW songW) const;
+    void exportTo(std::string fileName, SongW songW, MixerServiceS mixerService) const;
 
 private:
     struct TrackProcessingState {
@@ -59,7 +61,9 @@ private:
     };
 
     void writeMidiHeader(std::ostream & out, const SongS & song, size_t numNoteTracks) const;
-    ActiveTracks discoverActiveTracks(const SongS& song) const;
+    ActiveTracks discoverActiveTracks(const SongS& song, const std::vector<EventS> & events) const;
+    
+    std::vector<EventS> filterEvents(const std::vector<EventS> & events, MixerServiceS mixerService) const;
     
     std::map<size_t, ByteVector> buildTrackData(const std::vector<EventS> & events, const ActiveTracks & activeTracks) const;
     TrackProcessingState initializeTracks(const ActiveTracks & activeTracks) const;

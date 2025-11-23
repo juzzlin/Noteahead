@@ -5,6 +5,8 @@ Release date:
 
 New features:
 
+* Take mute/solo into account when exporting as a MIDI file
+
 Bug fixes:
 
 Other:

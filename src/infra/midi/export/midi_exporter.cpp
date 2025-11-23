@@ -23,6 +23,7 @@
 #include <vector>
 #include <utility>
 
+#include "../../../application/service/mixer_service.hpp"
 #include "../../../contrib/SimpleLogger/src/simple_logger.hpp"
 #include "../../../domain/event.hpp"
 #include "../../../domain/instrument.hpp"
@@ -92,7 +93,7 @@ void MidiExporter::sortEvents(std::vector<EventS> & events)
     });
 }
 
-void MidiExporter::exportTo(std::string fileName, SongW songW) const
+void MidiExporter::exportTo(std::string fileName, SongW songW, MixerServiceS mixerService) const
 {
     auto song = songW.lock();
     if (!song) {
@@ -106,14 +107,39 @@ void MidiExporter::exportTo(std::string fileName, SongW songW) const
     }
 
     auto events = song->renderToEvents(m_automationService, 0);
-    sortEvents(events);
+    auto filteredEvents = filterEvents(events, mixerService);
+    sortEvents(filteredEvents);
 
-    const auto activeTracks = discoverActiveTracks(song);
-    const auto trackData = buildTrackData(events, activeTracks);
+    const auto activeTracks = discoverActiveTracks(song, filteredEvents);
+    const auto trackData = buildTrackData(filteredEvents, activeTracks);
 
     writeMidiHeader(out, song, activeTracks.trackToInstrument.size());
     writeTempoTrack(out, song);
     writeNoteTracks(out, trackData);
+}
+
+std::vector<MidiExporter::EventS> MidiExporter::filterEvents(const std::vector<EventS> & events, MixerServiceS mixerService) const
+{
+    std::vector<EventS> filteredEvents;
+    for (const auto & event : events) {
+        if (auto noteData = event->noteData()) {
+            if (mixerService->shouldColumnPlay(noteData->track(), noteData->column())) {
+                filteredEvents.push_back(event);
+            }
+        } else if (auto ccData = event->midiCcData()) {
+            if (mixerService->shouldColumnPlay(ccData->track(), ccData->column())) {
+                filteredEvents.push_back(event);
+            }
+        } else if (auto pitchBendData = event->pitchBendData()) {
+            if (mixerService->shouldColumnPlay(pitchBendData->track(), pitchBendData->column())) {
+                filteredEvents.push_back(event);
+            }
+        } else {
+            // Other events like tempo, etc, are not filtered
+            filteredEvents.push_back(event);
+        }
+    }
+    return filteredEvents;
 }
 
 void MidiExporter::writeMidiHeader(std::ostream & out, const SongS & song, size_t numNoteTracks) const
@@ -126,12 +152,23 @@ void MidiExporter::writeMidiHeader(std::ostream & out, const SongS & song, size_
     writeBeU16(out, ticksPerQuarterNote);
 }
 
-MidiExporter::ActiveTracks MidiExporter::discoverActiveTracks(const SongS & song) const
+MidiExporter::ActiveTracks MidiExporter::discoverActiveTracks(const SongS & song, const std::vector<EventS> & events) const
 {
     ActiveTracks activeTracks;
     std::set<std::string> portNames;
+    std::set<size_t> activeTrackIndices;
 
-    for (const auto & trackIndex : song->trackIndices()) {
+    for (const auto & event : events) {
+        if (auto noteData = event->noteData()) {
+            activeTrackIndices.insert(noteData->track());
+        } else if (auto ccData = event->midiCcData()) {
+            activeTrackIndices.insert(ccData->track());
+        } else if (auto pitchBendData = event->pitchBendData()) {
+            activeTrackIndices.insert(pitchBendData->track());
+        }
+    }
+
+    for (const auto & trackIndex : activeTrackIndices) {
         auto instrument = song->instrument(trackIndex);
         if (!instrument) {
             instrument = std::make_shared<Instrument>("Default Instrument");
@@ -143,8 +180,11 @@ MidiExporter::ActiveTracks MidiExporter::discoverActiveTracks(const SongS & song
         portNames.insert(port);
     }
 
+    std::vector<std::string> sortedPortNames(portNames.begin(), portNames.end());
+    std::sort(sortedPortNames.begin(), sortedPortNames.end());
+
     uint8_t nextPortIndex = 0;
-    for (const auto & name : portNames) {
+    for (const auto & name : sortedPortNames) {
         activeTracks.portNameToIndex[name] = nextPortIndex++;
     }
 
