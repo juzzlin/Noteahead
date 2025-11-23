@@ -106,8 +106,7 @@ void MidiExporter::exportTo(std::string fileName, SongW songW, MixerServiceS mix
         return;
     }
 
-    auto events = song->renderToEvents(m_automationService, 0);
-    auto filteredEvents = filterEvents(events, mixerService);
+    auto filteredEvents = filterEvents(song->renderToEvents(m_automationService, 0), mixerService);
     sortEvents(filteredEvents);
 
     const auto activeTracks = discoverActiveTracks(song, filteredEvents);
@@ -122,15 +121,15 @@ std::vector<MidiExporter::EventS> MidiExporter::filterEvents(const std::vector<E
 {
     std::vector<EventS> filteredEvents;
     for (const auto & event : events) {
-        if (auto noteData = event->noteData()) {
+        if (const auto noteData = event->noteData(); noteData) {
             if (mixerService->shouldColumnPlay(noteData->track(), noteData->column())) {
                 filteredEvents.push_back(event);
             }
-        } else if (auto ccData = event->midiCcData()) {
+        } else if (const auto ccData = event->midiCcData(); ccData) {
             if (mixerService->shouldColumnPlay(ccData->track(), ccData->column())) {
                 filteredEvents.push_back(event);
             }
-        } else if (auto pitchBendData = event->pitchBendData()) {
+        } else if (const auto pitchBendData = event->pitchBendData(); pitchBendData) {
             if (mixerService->shouldColumnPlay(pitchBendData->track(), pitchBendData->column())) {
                 filteredEvents.push_back(event);
             }
@@ -210,7 +209,7 @@ MidiExporter::ByteVector MidiExporter::initializeTrack(size_t trackIndex, const 
     data.push_back(static_cast<char>(0x00)); // Delta time
     data.push_back(static_cast<char>(META_EVENT));
     data.push_back(static_cast<char>(TRACK_NAME_EVENT));
-    std::string trackName = "Track " + std::to_string(trackIndex);
+    const std::string trackName = "Track " + std::to_string(trackIndex);
     writeVlq(data, static_cast<uint32_t>(trackName.length()));
     data.insert(data.end(), trackName.begin(), trackName.end());
 
@@ -280,37 +279,37 @@ MidiExporter::TrackProcessingState MidiExporter::processEvents(TrackProcessingSt
 {
     for (const auto & event : events) {
         size_t trackIndex = 0;
-        if (auto noteData = event->noteData()) {
+        if (const auto noteData = event->noteData(); noteData) {
             trackIndex = noteData->track();
-        } else if (auto ccData = event->midiCcData()) {
+        } else if (const auto ccData = event->midiCcData(); ccData) {
             trackIndex = ccData->track();
-        } else if (auto pitchBendData = event->pitchBendData()) {
+        } else if (const auto pitchBendData = event->pitchBendData(); pitchBendData) {
             trackIndex = pitchBendData->track();
         } else {
             continue;
         }
 
-        if (!state.allTracksData.count(trackIndex)) {
+        if (!state.allTracksData.contains(trackIndex)) {
             continue;
         }
 
         auto & currentTrackData = state.allTracksData.at(trackIndex);
-        uint32_t & lastTick = state.lastTicks.at(trackIndex);
-        uint8_t midiChannel = state.trackToChannelMap.at(trackIndex);
+        const uint32_t lastTick = state.lastTicks.at(trackIndex);
+        const uint8_t midiChannel = state.trackToChannelMap.at(trackIndex);
 
-        uint32_t deltaTick = static_cast<uint32_t>(event->tick()) - lastTick;
+        const uint32_t deltaTick = static_cast<uint32_t>(event->tick()) - lastTick;
         writeVlq(currentTrackData, deltaTick);
-        lastTick = static_cast<uint32_t>(event->tick());
+        state.lastTicks.at(trackIndex) = static_cast<uint32_t>(event->tick());
 
-        if (auto noteData = event->noteData()) {
+        if (const auto noteData = event->noteData(); noteData) {
             if (noteData->type() == NoteData::Type::NoteOn) {
                 writeNoteOnEvent(currentTrackData, midiChannel, *noteData);
             } else {
                 writeNoteOffEvent(currentTrackData, midiChannel, *noteData);
             }
-        } else if (auto ccData = event->midiCcData()) {
+        } else if (const auto ccData = event->midiCcData(); ccData) {
             writeControlChangeEvent(currentTrackData, midiChannel, *ccData);
-        } else if (auto pitchBendData = event->pitchBendData()) {
+        } else if (const auto pitchBendData = event->pitchBendData(); pitchBendData) {
             writePitchBendEvent(currentTrackData, midiChannel, *pitchBendData);
         }
     }
