@@ -67,6 +67,7 @@ public:
     Event(size_t tick, InstrumentSettingsS instrumentSettings);
 
     size_t tick() const;
+    void setTick(size_t tick);
 
     Type type() const;
 

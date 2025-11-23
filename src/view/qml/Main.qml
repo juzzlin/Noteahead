@@ -150,16 +150,11 @@ ApplicationWindow {
         }
         onRejected: uiLogger.info(_tag, "Save As Template dialog canceled.")
     }
-    FileDialog {
+    MidiExportDialog {
         id: midiExportDialog
-        currentFolder: StandardPaths.standardLocations(StandardPaths.DocumentsLocation)[0]
-        fileMode: FileDialog.SaveFile
-        nameFilters: [qsTr("MIDI files") + ` (*${applicationService.midiFileExtension()})`]
-        onAccepted: {
-            uiLogger.info(_tag, "MIDI export target selected: " + selectedFile);
-            applicationService.exportAsMidi(selectedFile);
-        }
-        onRejected: uiLogger.info(_tag, "MIDI export dialog canceled.")
+        anchors.centerIn: parent
+        width: parent.width * Constants.defaultDialogScale * 0.5
+        height: parent.height * Constants.defaultDialogScale * 0.5
     }
     RecentFilesDialog {
         id: recentFilesDialog

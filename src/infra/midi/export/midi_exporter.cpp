@@ -93,7 +93,7 @@ void MidiExporter::sortEvents(std::vector<EventS> & events)
     });
 }
 
-void MidiExporter::exportTo(std::string fileName, SongW songW, MixerServiceS mixerService) const
+void MidiExporter::exportTo(std::string fileName, SongW songW, MixerServiceS mixerService, size_t startPosition, size_t endPosition) const
 {
     auto song = songW.lock();
     if (!song) {
@@ -106,8 +106,17 @@ void MidiExporter::exportTo(std::string fileName, SongW songW, MixerServiceS mix
         return;
     }
 
-    auto filteredEvents = filterEvents(song->renderToEvents(m_automationService, 0), mixerService);
-    sortEvents(filteredEvents);
+    auto renderedEvents = song->renderToEvents(m_automationService, startPosition, endPosition);
+    sortEvents(renderedEvents);
+
+    if (startPosition > 0 && !renderedEvents.empty()) {
+        const auto startTick = renderedEvents.front()->tick();
+        for (auto & event : renderedEvents) {
+            event->setTick(event->tick() - startTick);
+        }
+    }
+
+    auto filteredEvents = filterEvents(renderedEvents, mixerService);
 
     const auto activeTracks = discoverActiveTracks(song, filteredEvents);
     const auto trackData = buildTrackData(filteredEvents, activeTracks);

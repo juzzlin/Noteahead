@@ -85,14 +85,14 @@ public:
     Q_INVOKABLE void saveProjectAsTemplate(QUrl url);
 
     Q_INVOKABLE void requestMidiExportDialog();
-    Q_INVOKABLE void exportAsMidi(QUrl url);
+    Q_INVOKABLE void exportMidiFile(QUrl url, quint64 startPosition, quint64 endPosition);
 
     Q_INVOKABLE bool editMode() const;
     Q_INVOKABLE void setEditMode(bool editMode);
 
     void requestUnsavedChangesDialog();
-    void requestOpenDialog();
-    void requestSaveAsDialog();
+    Q_INVOKABLE void requestOpenDialog();
+    Q_INVOKABLE void requestSaveAsDialog();
     void requestSaveAsTemplateDialog();
 
     void requestAlertDialog(QString text);
@@ -133,7 +133,7 @@ signals:
     void saveAsDialogRequested();
     void saveAsTemplateDialogRequested();
     void midiExportDialogRequested();
-    void midiExportRequested(QString fileName);
+    void midiExportRequested(QString fileName, quint64 startPosition, quint64 endPosition);
 
     void alertDialogRequested(QString message);
     void statusTextRequested(QString message);

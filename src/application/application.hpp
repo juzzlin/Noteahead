@@ -104,7 +104,7 @@ private:
     void requestInstruments(QStringList midiPorts);
     void stopAllNotes() const;
 
-    void exportToMidi(QString fileName);
+    void exportToMidi(QString fileName, quint64 startPosition, quint64 endPosition);
 
     std::unique_ptr<UiLogger> m_uiLogger;
 

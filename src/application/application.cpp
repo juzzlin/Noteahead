@@ -261,13 +261,13 @@ void Application::connectApplicationService()
     connect(m_applicationService.get(), &ApplicationService::liveNoteOffRequested, m_midiService.get(), &MidiService::stopNote);
     connect(m_applicationService.get(), &ApplicationService::allNotesOffRequested, this, &Application::stopAllNotes);
 
-    connect(m_applicationService.get(), &ApplicationService::midiExportRequested, this, &Application::exportToMidi);
+    connect(m_applicationService.get(), &ApplicationService::midiExportRequested, this, qOverload<QString, quint64, quint64>(&Application::exportToMidi));
 }
 
-void Application::exportToMidi(QString fileName)
+void Application::exportToMidi(QString fileName, quint64 startPosition, quint64 endPosition)
 {
     try {
-        m_midiExporter->exportTo(fileName.toStdString(), m_editorService->song(), m_mixerService);
+        m_midiExporter->exportTo(fileName.toStdString(), m_editorService->song(), m_mixerService, startPosition, endPosition);
         const auto message = QString { "Exported the project to '%1' " }.arg(fileName);
         m_applicationService->statusTextRequested(message);
     } catch (std::exception & e) {

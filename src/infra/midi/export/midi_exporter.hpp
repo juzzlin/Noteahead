@@ -16,11 +16,12 @@
 #ifndef MIDI_EXPORTER_HPP
 #define MIDI_EXPORTER_HPP
 
-#include <memory>
+#include <limits>
 #include <map>
+#include <memory>
+#include <ostream>
 #include <string>
 #include <vector>
-#include <ostream>
 
 namespace noteahead {
 
@@ -51,7 +52,11 @@ public:
 
     MidiExporter(AutomationServiceS automationService);
 
-    void exportTo(std::string fileName, SongW songW, MixerServiceS mixerService) const;
+    void exportTo(std::string fileName,
+        SongW songW,
+        MixerServiceS mixerService,
+        size_t startPosition = 0,
+        size_t endPosition = std::numeric_limits<size_t>::max()) const;
 
 private:
     struct TrackProcessingState {

@@ -144,13 +144,14 @@ void ApplicationService::requestMidiExportDialog()
     emit midiExportDialogRequested();
 }
 
-void ApplicationService::exportAsMidi(QUrl url)
+void ApplicationService::exportMidiFile(QUrl url, quint64 startPosition, quint64 endPosition)
 {
     auto fileName = url.toLocalFile();
+    juzzlin::L(TAG).info() << "MIDI export requested for " << fileName.toStdString() << " from " << startPosition << " to " << endPosition;
     if (!fileName.endsWith(Constants::midiFileExtension())) {
         fileName += Constants::midiFileExtension();
     }
-    emit midiExportRequested(fileName);
+    emit midiExportRequested(fileName, startPosition, endPosition);
 }
 
 void ApplicationService::requestLiveNoteOn(quint8 key, quint8 octave, quint8 velocity)
