@@ -31,6 +31,7 @@ private slots:
     void test_requestMidiCcAutomations_shouldFilterAutomations();
 
     void test_setData_shouldUpdateAutomationData();
+    void test_setData_shouldUpdateModulationData();
     void test_removeAt_shouldRemoveAutomationData();
 };
 

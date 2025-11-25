@@ -138,6 +138,12 @@ QVariant MidiCcAutomationsModel::data(const QModelIndex & index, int role) const
             return static_cast<quint64>(midiCcAutomation.location().track());
         case DataRole::Column:
             return static_cast<quint64>(midiCcAutomation.location().column());
+        case DataRole::Modulation_Sine_Cycles:
+            return static_cast<quint64>(midiCcAutomation.modulation().cycles);
+        case DataRole::Modulation_Sine_Amplitude:
+            return midiCcAutomation.modulation().amplitude;
+        case DataRole::Modulation_Sine_Inverted:
+            return midiCcAutomation.modulation().inverted;
         }
     }
     return "N/A";
@@ -199,6 +205,30 @@ bool MidiCcAutomationsModel::setData(const QModelIndex & index, const QVariant &
                 changed = true;
             }
         } break;
+        case DataRole::Modulation_Sine_Cycles: {
+            auto modulation = midiCcAutomation.modulation();
+            if (const auto newCycles = value.toFloat(); modulation.cycles != newCycles) {
+                modulation.cycles = newCycles;
+                midiCcAutomation.setModulation(modulation);
+                changed = true;
+            }
+        } break;
+        case DataRole::Modulation_Sine_Amplitude: {
+            auto modulation = midiCcAutomation.modulation();
+            if (const auto newAmplitude = value.toFloat(); modulation.amplitude != newAmplitude) {
+                modulation.amplitude = newAmplitude;
+                midiCcAutomation.setModulation(modulation);
+                changed = true;
+            }
+        } break;
+        case DataRole::Modulation_Sine_Inverted: {
+            auto modulation = midiCcAutomation.modulation();
+            if (const auto newInverted = value.toBool(); modulation.inverted != newInverted) {
+                modulation.inverted = newInverted;
+                midiCcAutomation.setModulation(modulation);
+                changed = true;
+            }
+        } break;
         case DataRole::Pattern:
         case DataRole::Track:
         case DataRole::Column:
@@ -249,7 +279,10 @@ QHash<int, QByteArray> MidiCcAutomationsModel::roleNames() const
         { static_cast<int>(DataRole::Pattern), "pattern" },
         { static_cast<int>(DataRole::Track), "track" },
         { static_cast<int>(DataRole::Value0), "value0" },
-        { static_cast<int>(DataRole::Value1), "value1" }
+        { static_cast<int>(DataRole::Value1), "value1" },
+        { static_cast<int>(DataRole::Modulation_Sine_Cycles), "modulationSineCycles" },
+        { static_cast<int>(DataRole::Modulation_Sine_Amplitude), "modulationSineAmplitude" },
+        { static_cast<int>(DataRole::Modulation_Sine_Inverted), "modulationSineInverted" }
     };
 }
 

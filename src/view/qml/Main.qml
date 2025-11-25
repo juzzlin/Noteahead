@@ -239,7 +239,10 @@ ApplicationWindow {
         width: parent.width * Constants.defaultDialogScale
         onAccepted: {
             const position = editorService.position;
-            automationService.addMidiCcAutomation(position.pattern, position.track, position.column, controller(), startLine(), endLine(), startValue(), endValue(), comment());
+            const automationId = automationService.addMidiCcAutomation(position.pattern, position.track, position.column, addMidiCcAutomationDialog.controller(), addMidiCcAutomationDialog.startLine(), addMidiCcAutomationDialog.endLine(), addMidiCcAutomationDialog.startValue(), addMidiCcAutomationDialog.endValue(), addMidiCcAutomationDialog.comment());
+            if (addMidiCcAutomationDialog.cycles() > 0 && addMidiCcAutomationDialog.amplitude() > 0) {
+                automationService.addMidiCcModulation(automationId, addMidiCcAutomationDialog.cycles(), addMidiCcAutomationDialog.amplitude(), addMidiCcAutomationDialog.inverted());
+            }
             selectionService.clear();
             bottomBar.setStatusText(qsTr("MIDI CC automation added"));
         }
@@ -393,6 +396,7 @@ ApplicationWindow {
             addMidiCcAutomationDialog.setStartValue(100);
             addMidiCcAutomationDialog.setEndValue(0);
             addMidiCcAutomationDialog.setComment("");
+            addMidiCcAutomationDialog.resetModulations();
             addMidiCcAutomationDialog.open();
         });
         UiService.columnAddMidiCcAutomationDialogRequested.connect(() => {
@@ -402,6 +406,7 @@ ApplicationWindow {
             addMidiCcAutomationDialog.setStartValue(0);
             addMidiCcAutomationDialog.setEndValue(100);
             addMidiCcAutomationDialog.setComment("");
+            addMidiCcAutomationDialog.resetModulations();
             addMidiCcAutomationDialog.open();
         });
         UiService.selectionAddMidiCcAutomationDialogRequested.connect(() => {
@@ -411,6 +416,7 @@ ApplicationWindow {
             addMidiCcAutomationDialog.setStartValue(0);
             addMidiCcAutomationDialog.setEndValue(100);
             addMidiCcAutomationDialog.setComment("");
+            addMidiCcAutomationDialog.resetModulations();
             addMidiCcAutomationDialog.open();
         });
         UiService.editMidiCcAutomationsDialogRequested.connect(() => {

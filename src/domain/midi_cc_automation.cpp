@@ -25,15 +25,21 @@ namespace noteahead {
 
 MidiCcAutomation::MidiCcAutomation() = default;
 
-MidiCcAutomation::MidiCcAutomation(size_t id, AutomationLocation location, uint8_t controller, InterpolationParameters interpolation, QString comment, bool enabled)
+MidiCcAutomation::MidiCcAutomation(size_t id, AutomationLocation location, uint8_t controller, InterpolationParameters interpolation, ModulationParameters modulation, QString comment, bool enabled)
   : Automation { id, location, comment, enabled }
   , m_controller { controller }
   , m_interpolation { interpolation }
+  , m_modulation { modulation }
+{
+}
+
+MidiCcAutomation::MidiCcAutomation(size_t id, AutomationLocation location, uint8_t controller, InterpolationParameters interpolation, QString comment, bool enabled)
+  : MidiCcAutomation { id, location, controller, interpolation, {}, comment, enabled }
 {
 }
 
 MidiCcAutomation::MidiCcAutomation(size_t id, AutomationLocation location, uint8_t controller, InterpolationParameters interpolation, QString comment)
-  : MidiCcAutomation { id, location, controller, interpolation, comment, true }
+  : MidiCcAutomation { id, location, controller, interpolation, {}, comment, true }
 {
 }
 
@@ -43,6 +49,7 @@ bool MidiCcAutomation::operator==(const MidiCcAutomation & other) const
       m_controller == other.m_controller && //
       location() == other.location() && //
       m_interpolation == other.m_interpolation && //
+      m_modulation == other.m_modulation && //
       comment() == other.comment() && //
       enabled() == other.enabled();
 }
@@ -77,6 +84,16 @@ void MidiCcAutomation::setInterpolation(const InterpolationParameters & interpol
     m_interpolation = interpolation;
 }
 
+const MidiCcAutomation::ModulationParameters & MidiCcAutomation::modulation() const
+{
+    return m_modulation;
+}
+
+void MidiCcAutomation::setModulation(const ModulationParameters & modulation)
+{
+    m_modulation = modulation;
+}
+
 QString MidiCcAutomation::toString() const
 {
     return QString("MidiCcAutomation(id=%1, controller=%2, pattern=%3, track=%4, column=%5, "
@@ -109,6 +126,14 @@ void MidiCcAutomation::serializeToXml(QXmlStreamWriter & writer) const
     writer.writeAttribute(Constants::NahdXml::xmlKeyValue1(), QString::number(m_interpolation.value1));
     writer.writeEndElement(); // Interpolation
 
+    if (m_modulation.cycles > 0.f || m_modulation.amplitude > 0.f) {
+        writer.writeStartElement(Constants::NahdXml::xmlKeyModulation());
+        writer.writeAttribute(Constants::NahdXml::xmlKeyCycles(), QString::number(m_modulation.cycles));
+        writer.writeAttribute(Constants::NahdXml::xmlKeyAmplitude(), QString::number(m_modulation.amplitude));
+        writer.writeAttribute(Constants::NahdXml::xmlKeyInverted(), m_modulation.inverted ? Constants::NahdXml::xmlValueTrue() : Constants::NahdXml::xmlValueFalse());
+        writer.writeEndElement(); // Modulation
+    }
+
     writer.writeEndElement(); // Automation
 }
 
@@ -118,7 +143,9 @@ MidiCcAutomation::MidiCcAutomationU MidiCcAutomation::deserializeFromXml(QXmlStr
     const QString comment = reader.attributes().value(Constants::NahdXml::xmlKeyComment()).toString();
     const bool enabled = Utils::Xml::readBoolAttribute(reader, Constants::NahdXml::xmlKeyEnabled(), false).value_or(true);
     AutomationLocation::AutomationLocationU location = std::make_unique<AutomationLocation>();
-    MidiCcAutomation::InterpolationParameters parameters {};
+    MidiCcAutomation::InterpolationParameters interpolationParameters {};
+    MidiCcAutomation::ModulationParameters modulationParameters {};
+
     while (!(reader.isEndElement() && !reader.name().compare(Constants::NahdXml::xmlKeyMidiCcAutomation()))) {
         reader.readNext();
         if (reader.isStartElement()) {
@@ -126,14 +153,19 @@ MidiCcAutomation::MidiCcAutomationU MidiCcAutomation::deserializeFromXml(QXmlStr
                 location = AutomationLocation::deserializeFromXml(reader);
             } else if (!reader.name().compare(Constants::NahdXml::xmlKeyInterpolation())) {
                 const auto attributes = reader.attributes();
-                parameters.line0 = attributes.value(Constants::NahdXml::xmlKeyLine0()).toULongLong();
-                parameters.line1 = attributes.value(Constants::NahdXml::xmlKeyLine1()).toULongLong();
-                parameters.value0 = static_cast<quint8>(attributes.value(Constants::NahdXml::xmlKeyValue0()).toUInt());
-                parameters.value1 = static_cast<quint8>(attributes.value(Constants::NahdXml::xmlKeyValue1()).toUInt());
+                interpolationParameters.line0 = attributes.value(Constants::NahdXml::xmlKeyLine0()).toULongLong();
+                interpolationParameters.line1 = attributes.value(Constants::NahdXml::xmlKeyLine1()).toULongLong();
+                interpolationParameters.value0 = static_cast<quint8>(attributes.value(Constants::NahdXml::xmlKeyValue0()).toUInt());
+                interpolationParameters.value1 = static_cast<quint8>(attributes.value(Constants::NahdXml::xmlKeyValue1()).toUInt());
+            } else if (!reader.name().compare(Constants::NahdXml::xmlKeyModulation())) {
+                const auto attributes = reader.attributes();
+                modulationParameters.cycles = attributes.value(Constants::NahdXml::xmlKeyCycles()).toFloat();
+                modulationParameters.amplitude = attributes.value(Constants::NahdXml::xmlKeyAmplitude()).toFloat();
+                modulationParameters.inverted = Utils::Xml::readBoolAttribute(reader, Constants::NahdXml::xmlKeyInverted(), false).value_or(false);
             }
         }
     }
-    return std::make_unique<MidiCcAutomation>(0, *location, controller, parameters, comment, enabled);
+    return std::make_unique<MidiCcAutomation>(0, *location, controller, interpolationParameters, modulationParameters, comment, enabled);
 }
 
 } // namespace noteahead

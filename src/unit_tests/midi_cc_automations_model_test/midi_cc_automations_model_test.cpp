@@ -200,6 +200,42 @@ void MidiCcAutomationsModelTest::test_setData_shouldUpdateAutomationData()
     QCOMPARE(updatedAutomation->location().column(), model.data(index, static_cast<int>(Role::Column)).toUInt());
 }
 
+void MidiCcAutomationsModelTest::test_setData_shouldUpdateModulationData()
+{
+    using Role = MidiCcAutomationsModel::DataRole;
+
+    const AutomationLocation location { 1, 2, 3 };
+    const MidiCcAutomation::InterpolationParameters interpolation { 11, 22, 33, 44 };
+    MidiCcAutomation midiCcAutomation { 42, location, 7, interpolation, "Old Comment" };
+    std::optional<MidiCcAutomation> updatedAutomation;
+    MidiCcAutomationsModel model;
+    model.setMidiCcAutomations({ midiCcAutomation });
+    QSignalSpy midiCcAutomationChangedSpy { &model, &MidiCcAutomationsModel::midiCcAutomationChanged };
+    connect(&model, &MidiCcAutomationsModel::midiCcAutomationChanged, this, [&updatedAutomation](auto && automation) {
+        updatedAutomation = automation;
+    });
+    QModelIndex index = model.index(0);
+
+    QVERIFY(model.setData(index, 10, static_cast<int>(Role::Modulation_Sine_Cycles)));
+    QCOMPARE(model.data(index, static_cast<int>(Role::Modulation_Sine_Cycles)).toInt(), 10);
+    QVERIFY(!model.setData(index, 10, static_cast<int>(Role::Modulation_Sine_Cycles)));
+
+    QVERIFY(model.setData(index, 50.0f, static_cast<int>(Role::Modulation_Sine_Amplitude)));
+    QCOMPARE(model.data(index, static_cast<int>(Role::Modulation_Sine_Amplitude)).toFloat(), 50.0f);
+    QVERIFY(!model.setData(index, 50.0f, static_cast<int>(Role::Modulation_Sine_Amplitude)));
+
+    QVERIFY(model.setData(index, true, static_cast<int>(Role::Modulation_Sine_Inverted)));
+    QCOMPARE(model.data(index, static_cast<int>(Role::Modulation_Sine_Inverted)).toBool(), true);
+    QVERIFY(!model.setData(index, true, static_cast<int>(Role::Modulation_Sine_Inverted)));
+
+    model.applyAll();
+    QVERIFY(updatedAutomation.has_value());
+    QCOMPARE(midiCcAutomationChangedSpy.count(), 1);
+    QCOMPARE(updatedAutomation->modulation().cycles, 10.0f);
+    QCOMPARE(updatedAutomation->modulation().amplitude, 50.0f);
+    QCOMPARE(updatedAutomation->modulation().inverted, true);
+}
+
 void MidiCcAutomationsModelTest::test_removeAt_shouldRemoveAutomationData()
 {
     const MidiCcAutomation::InterpolationParameters interpolation { 11, 22, 33, 44 };

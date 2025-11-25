@@ -48,6 +48,7 @@ public:
     //! \param value1 End value from 0 to 127.
     Q_INVOKABLE quint64 addMidiCcAutomation(quint64 pattern, quint64 track, quint64 column, quint8 controller, quint64 line0, quint64 line1, quint8 value0, quint8 value1, QString comment, bool enabled);
     Q_INVOKABLE quint64 addMidiCcAutomation(quint64 pattern, quint64 track, quint64 column, quint8 controller, quint64 line0, quint64 line1, quint8 value0, quint8 value1, QString comment);
+    Q_INVOKABLE void addMidiCcModulation(quint64 automationId, quint64 cycles, float amplitude, bool inverted);
 
     //! Adds automation for MIDI pitch bend.
     //! \param value0 Start value from -100% to +100%.

@@ -5,6 +5,8 @@ Release date:
 
 New features:
 
+* Fix GitHub Issue #33: Implement sine modulation for MIDI CC automation
+
 * Fix GitHub Issue #32: Implement virtual MIDI outs
   - Noteahead now opens "Noteahead Virtual MIDI OUT"
   - Tested with Surge XT that it actually works

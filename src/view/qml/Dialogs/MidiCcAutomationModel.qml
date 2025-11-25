@@ -5,42 +5,68 @@ import QtQuick.Layouts
 
 Item {
     id: rootItem
-    function controller() {
+    function controller(): int {
         return midiCcSelector.controller();
     }
-    function setController(controller) {
+    function setController(controller: int): void {
         return midiCcSelector.setController(controller);
     }
-    function startValue() {
+    function startValue(): int {
         return startValueSpinBox.value;
     }
-    function setStartValue(value) {
+    function setStartValue(value: int): void {
         startValueSpinBox.value = value;
     }
-    function endValue(value) {
+    function endValue(): int {
         return endValueSpinBox.value;
     }
-    function setEndValue(value) {
+    function setEndValue(value: int): void {
         endValueSpinBox.value = value;
     }
     function startLine() {
         return startLineSpinBox.value;
     }
-    function setStartLine(value) {
+    function setStartLine(value: int): void {
         startLineSpinBox.value = value;
     }
     function endLine() {
         return endLineSpinBox.value;
     }
-    function setEndLine(value) {
+    function setEndLine(value: int): void {
         endLineSpinBox.value = value;
     }
-    function comment() {
+
+    function resetModulations(): void {
+        setCycles(0);
+        setAmplitude(0);
+        setInverted(false);
+    }
+    function cycles(): int {
+        return cyclesSpinBox.value;
+    }
+    function setCycles(cycles: int): void {
+        cyclesSpinBox.value = cycles;
+    }
+    function amplitude(): int {
+        return amplitudeSpinBox.value;
+    }
+    function setAmplitude(amplitude: int): void {
+        amplitudeSpinBox.value = amplitude;
+    }
+    function inverted(): bool {
+        return invertedCheckBox.checked;
+    }
+    function setInverted(inverted: bool): void {
+        invertedCheckBox.checked = inverted;
+    }
+
+    function comment(): string {
         return commentEdit.text;
     }
-    function setComment(comment) {
+    function setComment(comment: string): void {
         commentEdit.text = comment;
     }
+
     ColumnLayout {
         anchors.fill: parent
         spacing: 10
@@ -135,6 +161,50 @@ Item {
                     Layout.row: 1
                     Layout.column: 3
                     Layout.fillWidth: true
+                }
+            }
+        }
+        GroupBox {
+            title: qsTr("Modulation (Sine Wave)")
+            Layout.fillWidth: true
+            GridLayout {
+                rowSpacing: 10
+                width: parent.width
+                columns: 3
+                Label {
+                    text: qsTr("Cycles")
+                }
+                Label {
+                    text: qsTr("Amplitude (%)")
+                }
+                Label {
+                    text: qsTr("Inverted")
+                }
+                SpinBox {
+                    id: cyclesSpinBox
+                    from: 0
+                    to: 127
+                    value: 0
+                    editable: true
+                    Keys.onReturnPressed: {
+                        focus = false;
+                    }
+                    Layout.fillWidth: true
+                }
+                SpinBox {
+                    id: amplitudeSpinBox
+                    from: 0
+                    to: 100
+                    value: 0
+                    editable: true
+                    stepSize: 1
+                    Keys.onReturnPressed: {
+                        focus = false;
+                    }
+                    Layout.fillWidth: true
+                }
+                CheckBox {
+                    id: invertedCheckBox
                 }
             }
         }

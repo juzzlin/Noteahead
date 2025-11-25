@@ -309,6 +309,26 @@ QString xmlKeyComment()
     return "comment";
 }
 
+QString xmlKeyModulation()
+{
+    return "Modulation";
+}
+
+QString xmlKeyCycles()
+{
+    return "cycles";
+}
+
+QString xmlKeyAmplitude()
+{
+    return "amplitude";
+}
+
+QString xmlKeyInverted()
+{
+    return "inverted";
+}
+
 QString xmlKeyColumnAttr()
 {
     return "column";

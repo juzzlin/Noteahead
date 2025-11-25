@@ -104,6 +104,12 @@ QString xmlKeyValue0();
 QString xmlKeyValue1();
 QString xmlKeyComment();
 
+QString xmlKeyModulation();
+QString xmlKeyCycles();
+QString xmlKeyAmplitude();
+
+QString xmlKeyInverted();
+
 QString xmlKeyColumnAttr();
 QString xmlKeyColumnMuted();
 QString xmlKeyColumnSoloed();

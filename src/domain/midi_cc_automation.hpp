@@ -47,6 +47,24 @@ public:
         }
     };
 
+    struct ModulationParameters
+    {
+        float cycles = 0.f;
+        float amplitude = 0.f;
+        bool inverted = false;
+
+        bool operator==(const ModulationParameters & other) const
+        {
+            return cycles == other.cycles && amplitude == other.amplitude && inverted == other.inverted;
+        }
+
+        bool operator!=(const ModulationParameters & other) const
+        {
+            return !(*this == other);
+        }
+    };
+
+    MidiCcAutomation(size_t id, AutomationLocation location, uint8_t controller, InterpolationParameters interpolation, ModulationParameters modulation, QString comment, bool enabled);
     MidiCcAutomation(size_t id, AutomationLocation location, uint8_t controller, InterpolationParameters interpolation, QString comment, bool enabled);
     MidiCcAutomation(size_t id, AutomationLocation location, uint8_t controller, InterpolationParameters interpolation, QString comment);
     MidiCcAutomation();
@@ -57,6 +75,9 @@ public:
 
     const InterpolationParameters & interpolation() const;
     void setInterpolation(const InterpolationParameters & parameters);
+
+    const ModulationParameters & modulation() const;
+    void setModulation(const ModulationParameters & modulation);
 
     uint8_t controller() const;
     void setController(uint8_t controller);
@@ -71,6 +92,7 @@ private:
     uint8_t m_controller = 0;
 
     InterpolationParameters m_interpolation;
+    ModulationParameters m_modulation;
 };
 
 } // namespace noteahead

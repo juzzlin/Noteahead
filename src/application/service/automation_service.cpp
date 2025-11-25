@@ -23,6 +23,7 @@
 #include "../position.hpp"
 
 #include <algorithm>
+#include <cmath> // For std::sin and M_PI
 #include <ranges>
 
 #include <QXmlStreamReader>
@@ -54,6 +55,21 @@ quint64 AutomationService::addMidiCcAutomation(quint64 pattern, quint64 track, q
     return addMidiCcAutomation(pattern, track, column, controller, line0, line1, value0, value1, comment, true);
 }
 
+void AutomationService::addMidiCcModulation(quint64 automationId, quint64 cycles, float amplitude, bool inverted)
+{
+    if (const auto iter = std::ranges::find_if(m_automations.midiCc, [&](auto && existingAutomation) {
+            return automationId == existingAutomation.id();
+        });
+        iter != m_automations.midiCc.end()) {
+        MidiCcAutomation::ModulationParameters modulation { static_cast<float>(cycles), amplitude, inverted };
+        iter->setModulation(modulation);
+        notifyChangedLines(*iter);
+        juzzlin::L(TAG).info() << "MIDI CC Modulation added to automation id " << automationId;
+    } else {
+        juzzlin::L(TAG).error() << "No such automation id to add modulation to: " << automationId;
+    }
+}
+
 void AutomationService::deleteMidiCcAutomation(const MidiCcAutomation & automationToDelete)
 {
     if (const auto iter = std::ranges::find_if(m_automations.midiCc, [&](auto && existingAutomation) {
@@ -77,7 +93,8 @@ void AutomationService::updateMidiCcAutomation(const MidiCcAutomation & updatedA
         if (const auto oldAutomation = *iter; oldAutomation != updatedAutomation) {
             *iter = updatedAutomation;
             if (oldAutomation.interpolation() != updatedAutomation.interpolation() || //
-                oldAutomation.enabled() != updatedAutomation.enabled()) {
+                oldAutomation.enabled() != updatedAutomation.enabled() ||
+                oldAutomation.modulation() != updatedAutomation.modulation()) {
                 notifyChangedLinesMerged(oldAutomation, updatedAutomation);
             }
             juzzlin::L(TAG).info() << "MIDI CC Automation updated: " << updatedAutomation.toString().toStdString();
@@ -320,6 +337,7 @@ AutomationService::EventList AutomationService::renderMidiCcToEventsByLine(size_
         if (automation.enabled()) {
             const auto & location = automation.location();
             const auto & interpolation = automation.interpolation();
+            const auto & modulation = automation.modulation();
             if (location.pattern() == pattern && location.track() == track && location.column() == column && line >= interpolation.line0 && line <= interpolation.line1) {
                 Interpolator interpolator {
                     static_cast<size_t>(interpolation.line0),
@@ -327,7 +345,16 @@ AutomationService::EventList AutomationService::renderMidiCcToEventsByLine(size_
                     static_cast<double>(interpolation.value0),
                     static_cast<double>(interpolation.value1)
                 };
-                const auto clampedValue = std::clamp(static_cast<int>(interpolator.getValue(static_cast<size_t>(line))), 0, 127); // MIDI CC value range
+                double interpolatedValue = interpolator.getValue(static_cast<size_t>(line));
+
+                if (modulation.cycles > 0.f && modulation.amplitude > 0.f) {
+                    const double phase = interpolation.line1 > interpolation.line0 ? static_cast<double>(line - interpolation.line0) / (static_cast<double>(interpolation.line1 - interpolation.line0)) : 0;
+                    const double sineWave = (modulation.inverted ? -1 : 1) * std::sin(phase * modulation.cycles * 2 * M_PI);
+                    const double modulationAmount = sineWave * modulation.amplitude / 100.0; // Amplitude is a percentage
+                    interpolatedValue += interpolatedValue * modulationAmount;
+                }
+
+                const auto clampedValue = std::clamp(static_cast<int>(std::round(interpolatedValue)), 0, 127); // MIDI CC value range
                 events.push_back(std::make_shared<Event>(tick, MidiCcData { track, column, automation.controller(), static_cast<uint8_t>(clampedValue) }));
             }
         }
@@ -376,6 +403,7 @@ AutomationService::EventList AutomationService::renderMidiCcToEventsByColumn(siz
         if (automation.enabled()) {
             const auto & location = automation.location();
             const auto & interpolation = automation.interpolation();
+            const auto & modulation = automation.modulation();
             if (location.pattern() == pattern && location.track() == track && location.column() == column) {
                 Interpolator interpolator {
                     static_cast<size_t>(interpolation.line0),
@@ -385,7 +413,16 @@ AutomationService::EventList AutomationService::renderMidiCcToEventsByColumn(siz
                 };
                 std::optional<uint8_t> prevValue;
                 for (size_t line = interpolation.line0; line <= interpolation.line1; line++) {
-                    const auto clampedValue = std::clamp(static_cast<int>(interpolator.getValue(static_cast<size_t>(line))), 0, 127); // MIDI CC value range
+                    double interpolatedValue = interpolator.getValue(static_cast<size_t>(line));
+
+                    if (modulation.cycles > 0.f || modulation.amplitude > 0.f) {
+                        const double phase = interpolation.line1 > interpolation.line0 ? static_cast<double>(line - interpolation.line0) / (static_cast<double>(interpolation.line1 - interpolation.line0)) : 0;
+                        const double sineWave = (modulation.inverted ? -1 : 1) * std::sin(phase * modulation.cycles * 2 * M_PI);
+                        const double modulationAmount = sineWave * modulation.amplitude / 100.0;
+                        interpolatedValue += interpolatedValue * modulationAmount;
+                    }
+
+                    const auto clampedValue = std::clamp(static_cast<int>(std::round(interpolatedValue)), 0, 127); // MIDI CC value range
                     if (!prevValue || *prevValue != clampedValue) {
                         events.push_back(std::make_shared<Event>(tick + line * ticksPerLine, MidiCcData { track, column, automation.controller(), static_cast<uint8_t>(clampedValue) }));
                         prevValue = clampedValue;

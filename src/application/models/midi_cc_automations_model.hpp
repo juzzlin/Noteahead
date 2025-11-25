@@ -42,7 +42,10 @@ public:
         Pattern,
         Track,
         Value0,
-        Value1
+        Value1,
+        Modulation_Sine_Cycles,
+        Modulation_Sine_Amplitude,
+        Modulation_Sine_Inverted
     };
 
     MidiCcAutomationsModel();

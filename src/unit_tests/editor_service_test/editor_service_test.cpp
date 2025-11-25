@@ -1566,6 +1566,44 @@ void EditorServiceTest::test_toXmlFromXml_automationService_midiCc_shouldLoadAut
     }
 }
 
+void EditorServiceTest::test_toXmlFromXml_automationService_midiCc_withModulation_shouldLoadAutomationService()
+{
+    AutomationService automationServiceOut;
+    const auto automationId = automationServiceOut.addMidiCcAutomation(0, 0, 0, 0, 0, 1, 0, 1, {});
+    automationServiceOut.addMidiCcModulation(automationId, 1, 50.0f, true);
+
+    AutomationService automationServiceIn;
+    EditorService editorService;
+    connect(&editorService, &EditorService::automationSerializationRequested, &automationServiceOut, &AutomationService::serializeToXml);
+    connect(&editorService, &EditorService::automationDeserializationRequested, &automationServiceIn, &AutomationService::deserializeFromXml);
+
+    editorService.fromXml(editorService.toXml());
+
+    const auto automation = automationServiceIn.midiCcAutomations().at(0);
+    QCOMPARE(automation.modulation().cycles, 1.0f);
+    QCOMPARE(automation.modulation().amplitude, 50.0f);
+    QCOMPARE(automation.modulation().inverted, true);
+}
+
+void EditorServiceTest::test_toXmlFromXml_automationService_midiCc_noModulation_shouldLoadAutomationService()
+{
+    AutomationService automationServiceOut;
+    automationServiceOut.addMidiCcAutomation(0, 0, 0, 0, 0, 1, 0, 1, {});
+
+    AutomationService automationServiceIn;
+    EditorService editorService;
+    connect(&editorService, &EditorService::automationSerializationRequested, &automationServiceOut, &AutomationService::serializeToXml);
+    connect(&editorService, &EditorService::automationDeserializationRequested, &automationServiceIn, &AutomationService::deserializeFromXml);
+
+    editorService.fromXml(editorService.toXml());
+
+    const auto automation = automationServiceIn.midiCcAutomations().at(0);
+    QCOMPARE(automation.modulation().cycles, 0.0f);
+    QCOMPARE(automation.modulation().amplitude, 0.0f);
+    QCOMPARE(automation.modulation().inverted, false);
+}
+
+
 void EditorServiceTest::test_toXmlFromXml_automationService_pitchBend_shouldLoadAutomationService()
 {
     quint8 line0 = 4;

@@ -8,42 +8,57 @@ Dialog {
     id: rootItem
     modal: true
     standardButtons: Dialog.Ok | Dialog.Cancel
-    function setTitle(text) {
-        title = "<strong>" + text + "</strong>";
+    function setTitle(text: var): void {
+        title = `<strong>${text}</strong>`;
     }
-    function controller() {
+    function controller(): var {
         return model.controller();
     }
-    function startValue() {
+    function startValue(): int {
         return model.startValue();
     }
-    function setStartValue(value) {
+    function setStartValue(value): void {
         model.setStartValue(value);
     }
-    function endValue(value) {
+    function endValue(): int {
         return model.endValue();
     }
-    function setEndValue(value) {
+    function setEndValue(value: int): void {
         model.setEndValue(value);
     }
-    function startLine() {
+    function startLine(): int {
         return model.startLine();
     }
-    function setStartLine(value) {
+    function setStartLine(value: int): void {
         model.setStartLine(value);
     }
-    function endLine() {
+    function endLine(): int {
         return model.endLine();
     }
-    function setEndLine(value) {
+    function setEndLine(value: int): void {
         model.setEndLine(value);
     }
-    function comment() {
+
+    function cycles(): int {
+        return model.cycles();
+    }
+    function amplitude(): int {
+        return model.amplitude();
+    }
+    function inverted(): bool {
+        return model.inverted();
+    }
+    function resetModulations(): void {
+        model.resetModulations();
+    }
+
+    function comment(): string {
         return model.comment();
     }
-    function setComment(comment) {
+    function setComment(comment: string): void {
         model.setComment(comment);
     }
+
     contentItem: MidiCcAutomationModel {
         id: model
     }
