@@ -285,7 +285,7 @@ if(ENABLE_MIDI_DEBUG)
   target_compile_definitions(${BINARY_NAME} PRIVATE ENABLE_MIDI_DEBUG)
 endif()
 
-target_link_libraries(${BINARY_NAME} PRIVATE Qt6::Core Qt6::Quick rtmidi ${RTAUDIO_LIBRARIES} ${SNDFILE_LIBRARIES} SimpleLogger_static Argengine_static)
+target_link_libraries(${BINARY_NAME} PRIVATE Qt6::Core Qt6::Quick ${RTMIDI_LIBRARIES} ${RTAUDIO_LIBRARIES} ${SNDFILE_LIBRARIES} SimpleLogger_static Argengine_static)
 
 include(${CMAKE_SOURCE_DIR}/cmake/DebianPackagingDefaultQt.cmake)
 
