@@ -13,8 +13,8 @@
 // You should have received a copy of the GNU General Public License
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef MIDI_DEVICE_HPP
-#define MIDI_DEVICE_HPP
+#ifndef MIDI_PORT_HPP
+#define MIDI_PORT_HPP
 
 #include <cstddef>
 #include <memory>
@@ -22,26 +22,24 @@
 
 namespace noteahead {
 
-class MidiDevice
+class MidiPort
 {
 public:
-    MidiDevice(size_t portIndex, std::string portName);
+    MidiPort(size_t index, std::string name);
 
-    size_t portIndex() const;
-
-    std::string portName() const;
+    size_t index() const;
+    std::string name() const;
 
     std::string toString() const;
 
 private:
-    size_t mPortIndex;
-
-    std::string mPortName;
+    size_t mIndex;
+    std::string mName;
 };
 
-using MidiDeviceS = std::shared_ptr<MidiDevice>;
-using MidiDeviceW = std::weak_ptr<MidiDevice>;
+using MidiPortS = std::shared_ptr<MidiPort>;
+using MidiPortW = std::weak_ptr<MidiPort>;
 
 } // namespace noteahead
 
-#endif // MIDI_DEVICE_HPP
+#endif // MIDI_PORT_HPP

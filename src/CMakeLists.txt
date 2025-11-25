@@ -73,9 +73,9 @@ set(HEADER_FILES
   infra/midi/implementation/librtmidi/midi_out_rt_midi.hpp
   infra/midi/midi.hpp
   infra/midi/midi_cc_mapping.hpp
-  infra/midi/midi_device.hpp
   infra/midi/midi_in.hpp
   infra/midi/midi_out.hpp
+  infra/midi/midi_port.hpp
   infra/settings.hpp
   infra/video/animation.hpp
   infra/video/bars_animation.hpp
@@ -151,9 +151,9 @@ set(SOURCE_FILES
   infra/midi/implementation/librtmidi/midi_out_rt_midi.cpp
   infra/midi/midi.cpp
   infra/midi/midi_cc_mapping.cpp
-  infra/midi/midi_device.cpp
   infra/midi/midi_in.cpp
   infra/midi/midi_out.cpp
+  infra/midi/midi_port.cpp
   infra/settings.cpp
   infra/video/animation.cpp
   infra/video/bars_animation.cpp

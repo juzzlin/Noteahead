@@ -30,7 +30,7 @@ namespace noteahead {
 class Instrument;
 class InstrumentRequest;
 class MidiOut;
-class MidiDevice;
+class MidiPort;
 
 class MidiOutWorker : public MidiWorker
 {
@@ -57,12 +57,12 @@ public:
     Q_INVOKABLE void requestPatchChange(QString portName, quint8 channel, quint8 patch);
 
 private:
-    using MidiDeviceS = std::shared_ptr<MidiDevice>;
-    void applyBank(const Instrument & instrument, MidiDeviceS midiDevice);
-    void applyPatch(const Instrument & instrument, MidiDeviceS midiDevice);
+    using MidiPortS = std::shared_ptr<MidiPort>;
+    void applyBank(const Instrument & instrument, MidiPortS port);
+    void applyPatch(const Instrument & instrument, MidiPortS port);
     void initializeStopTimer();
 
-    void sendMidiCcSettings(const MidiDevice & midiDevice, const Instrument & instrument);
+    void sendMidiCcSettings(const MidiPort & port, const Instrument & instrument);
 
     std::shared_ptr<MidiOut> m_midiOut;
     std::unique_ptr<QTimer> m_midiStopTimer;

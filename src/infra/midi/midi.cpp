@@ -23,14 +23,14 @@ namespace noteahead {
 
 Midi::Midi() = default;
 
-Midi::DeviceList Midi::devices() const
+Midi::PortList Midi::ports() const
 {
-    return m_devices;
+    return m_ports;
 }
 
-MidiDeviceS Midi::deviceByPortIndex(size_t index) const
+MidiPortS Midi::portByIndex(size_t index) const
 {
-    if (const auto device = std::ranges::find_if(m_devices, [&index](auto & device) { return device->portIndex() == index; }); device != m_devices.end()) {
+    if (const auto device = std::ranges::find_if(m_ports, [&index](auto & device) { return device->index() == index; }); device != m_ports.end()) {
         return *device;
     } else {
         return {};
@@ -39,18 +39,18 @@ MidiDeviceS Midi::deviceByPortIndex(size_t index) const
 
 void Midi::invalidatePortNameCache()
 {
-    m_portNameToDeviceCache.clear();
+    m_nameToPortCache.clear();
 }
 
-MidiDeviceS Midi::deviceByPortName(const std::string & name) const
+MidiPortS Midi::portByName(const std::string & name) const
 {
-    if (const auto device = m_portNameToDeviceCache.find(name); device != m_portNameToDeviceCache.end()) {
-        return device->second;
+    if (const auto port = m_nameToPortCache.find(name); port != m_nameToPortCache.end()) {
+        return port->second;
     }
 
-    const auto bestMatch = std::ranges::max_element(m_devices, {}, [&](const auto & device) { return Utils::Midi::portNameMatchScore(name, device->portName()); });
-    if (bestMatch != m_devices.end() && Utils::Midi::portNameMatchScore(name, (*bestMatch)->portName()) > 0.75) {
-        m_portNameToDeviceCache[name] = *bestMatch;
+    const auto bestMatch = std::ranges::max_element(m_ports, {}, [&](const auto & port) { return Utils::Midi::portNameMatchScore(name, port->name()); });
+    if (bestMatch != m_ports.end() && Utils::Midi::portNameMatchScore(name, (*bestMatch)->name()) > 0.75) {
+        m_nameToPortCache[name] = *bestMatch;
         return *bestMatch;
     }
 
@@ -62,28 +62,28 @@ std::string Midi::midiApiName() const
     return "";
 }
 
-void Midi::updateDevices()
+void Midi::updatePorts()
 {
 }
 
-void Midi::setDevices(DeviceList devices)
+void Midi::setPorts(PortList ports)
 {
-    m_devices = devices;
+    m_ports = ports;
 }
 
-void Midi::openDevice(MidiDeviceCR)
+void Midi::openPort(MidiPortCR)
 {
 }
 
-void Midi::closeDevice(MidiDeviceCR)
+void Midi::closePort(MidiPortCR)
 {
 }
 
 Midi::PortNameList Midi::portNames() const
 {
     Midi::PortNameList portNameList;
-    std::ranges::transform(m_devices, std::back_inserter(portNameList),
-                           [](const auto & device) { return device->portName(); });
+    std::ranges::transform(m_ports, std::back_inserter(portNameList),
+                           [](const auto & port) { return port->name(); });
     std::ranges::sort(portNameList);
     return portNameList;
 }

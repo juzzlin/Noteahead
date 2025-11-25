@@ -18,6 +18,7 @@
 #include "../../../contrib/SimpleLogger/src/simple_logger.hpp"
 #include "../../midi_cc_mapping.hpp"
 
+#include <iomanip>
 #include <memory>
 #include <stdexcept>
 
@@ -25,15 +26,27 @@ namespace noteahead {
 
 static const auto TAG = "MidiBackendRtMidi";
 
-void MidiOutRtMidi::updateDevices()
+MidiOutRtMidi::MidiOutRtMidi()
+  : MidiOut { { "Noteahead Virtual MIDI Out" } }
 {
-    RtMidiOut tempMidiOut; // Temporary instance to list devices
-    DeviceList devices = {};
+    for (auto && virtualPort : virtualPorts()) {
+        openVirtualPort(virtualPort);
+    }
+}
+
+void MidiOutRtMidi::updatePorts()
+{
+    RtMidiOut tempMidiOut; // Temporary instance to list ports
+    PortList ports = {};
     const size_t portCount = tempMidiOut.getPortCount();
     for (uint8_t i = 0; i < portCount; ++i) {
-        devices.push_back(std::make_shared<MidiDevice>(i, tempMidiOut.getPortName(i)));
+        ports.push_back(std::make_shared<MidiPort>(i, tempMidiOut.getPortName(i)));
     }
-    setDevices(devices);
+    auto virtualIndex = portCount;
+    for (auto && virtualPort : virtualPorts()) {
+        ports.push_back(std::make_shared<MidiPort>(virtualIndex++, virtualPort));
+    }
+    setPorts(ports);
     invalidatePortNameCache();
     m_ports.clear();
 }
@@ -41,30 +54,45 @@ void MidiOutRtMidi::updateDevices()
 Midi::PortNameList MidiOutRtMidi::availablePortNames() const
 {
     PortNameList portNameList;
-    RtMidiOut tempMidiOut; // Temporary instance to list devices
+    RtMidiOut tempMidiOut; // Temporary instance to list ports
     const size_t portCount = tempMidiOut.getPortCount();
     for (uint8_t i = 0; i < portCount; i++) {
         portNameList.push_back(tempMidiOut.getPortName(i));
+    }
+    for (auto && virtualPort : virtualPorts()) {
+        portNameList.push_back(virtualPort);
     }
     std::ranges::sort(portNameList);
     return portNameList;
 }
 
-void MidiOutRtMidi::openDevice(MidiDeviceCR device)
+void MidiOutRtMidi::openPort(MidiPortCR port)
 {
-    if (!m_ports.contains(device.portIndex())) {
-        if (auto && midiOut = std::make_unique<RtMidiOut>(); device.portIndex() >= midiOut->getPortCount()) {
-            throw std::runtime_error { "Invalid MIDI port index: " + std::to_string(device.portIndex()) };
+    if (isVirtualPort(port.name())) {
+        openVirtualPort(port.name());
+    } else if (!m_ports.contains(port.index())) {
+        if (auto && midiOut = std::make_unique<RtMidiOut>(); port.index() >= midiOut->getPortCount()) {
+            throw std::runtime_error { "Invalid MIDI port index: " + std::to_string(port.index()) };
         } else {
-            midiOut->openPort(static_cast<uint8_t>(device.portIndex()));
-            m_ports[device.portIndex()] = std::move(midiOut);
+            midiOut->openPort(static_cast<uint8_t>(port.index()));
+            m_ports[port.index()] = std::move(midiOut);
         }
     }
 }
 
-void MidiOutRtMidi::closeDevice(MidiDeviceCR device)
+void MidiOutRtMidi::openVirtualPort(const std::string & name)
 {
-    if (auto && it = m_ports.find(device.portIndex()); it != m_ports.end()) {
+    if (!m_virtualPorts.contains(name)) {
+        juzzlin::L(TAG).info() << "Opening virtual port " << std::quoted(name);
+        auto && midiOut = std::make_unique<RtMidiOut>();
+        midiOut->openVirtualPort(name);
+        m_virtualPorts[name] = std::move(midiOut);
+    }
+}
+
+void MidiOutRtMidi::closePort(MidiPortCR port)
+{
+    if (auto && it = m_ports.find(port.index()); it != m_ports.end()) {
         m_ports.erase(it);
     }
 }
@@ -74,66 +102,74 @@ std::string MidiOutRtMidi::midiApiName() const
     return RtMidi::getApiDisplayName(RtMidiOut {}.getCurrentApi());
 }
 
-void MidiOutRtMidi::sendMessage(MidiDeviceCR device, const Message & message) const
+void MidiOutRtMidi::sendMessage(MidiPortCR port, const Message & message) const
 {
-    if (auto && it = m_ports.find(device.portIndex()); it == m_ports.end()) {
-        throw std::runtime_error { "Device not opened." };
+    if (isVirtualPort(port.name())) {
+        if (auto && it = m_virtualPorts.find(port.name()); it == m_virtualPorts.end()) {
+            throw std::runtime_error { "virtual port not opened." };
+        } else {
+            it->second->sendMessage(&message);
+        }
     } else {
-        it->second->sendMessage(&message);
+        if (auto && it = m_ports.find(port.index()); it == m_ports.end()) {
+            throw std::runtime_error { "physical port not opened." };
+        } else {
+            it->second->sendMessage(&message);
+        }
     }
 }
 
-void MidiOutRtMidi::sendCcData(MidiDeviceCR device, uint8_t channel, uint8_t controller, uint8_t value) const
+void MidiOutRtMidi::sendCcData(MidiPortCR port, uint8_t channel, uint8_t controller, uint8_t value) const
 {
     const Message message = { static_cast<unsigned char>(0xB0 | (channel & 0x0F)),
                               static_cast<unsigned char>(controller),
                               static_cast<unsigned char>(value) };
-    sendMessage(device, message);
+    sendMessage(port, message);
 }
 
-void MidiOutRtMidi::sendNoteOn(MidiDeviceCR device, uint8_t channel, uint8_t note, uint8_t velocity) const
+void MidiOutRtMidi::sendNoteOn(MidiPortCR port, uint8_t channel, uint8_t note, uint8_t velocity) const
 {
 #ifdef ENABLE_MIDI_DEBUG
-    juzzlin::L(TAG).debug() << "Playing note " << static_cast<int>(note) << " with velocity " << static_cast<int>(velocity) << " on channel " << static_cast<int>(channel) << " of device " << device.portName();
+    juzzlin::L(TAG).debug() << "Playing note " << static_cast<int>(note) << " with velocity " << static_cast<int>(velocity) << " on channel " << static_cast<int>(channel) << " of port " << port.portName();
 #endif
     const Message message = { static_cast<unsigned char>(0x90 | (channel & 0x0F)),
                               static_cast<unsigned char>(note),
                               static_cast<unsigned char>(velocity) };
 
-    sendMessage(device, message);
+    sendMessage(port, message);
 
-    MidiOut::sendNoteOn(device, channel, note, velocity);
+    MidiOut::sendNoteOn(port, channel, note, velocity);
 }
 
-void MidiOutRtMidi::sendNoteOff(MidiDeviceCR device, uint8_t channel, uint8_t note) const
+void MidiOutRtMidi::sendNoteOff(MidiPortCR port, uint8_t channel, uint8_t note) const
 {
 #ifdef ENABLE_MIDI_DEBUG
-    juzzlin::L(TAG).debug() << "Stopping note " << static_cast<int>(note) << " on channel " << static_cast<int>(channel) << " of device " << device.portName();
+    juzzlin::L(TAG).debug() << "Stopping note " << static_cast<int>(note) << " on channel " << static_cast<int>(channel) << " of port " << port.portName();
 #endif
     const Message message = { static_cast<unsigned char>(0x80 | (channel & 0x0F)),
                               static_cast<unsigned char>(note),
                               static_cast<unsigned char>(0) };
 
-    sendMessage(device, message);
+    sendMessage(port, message);
 
-    MidiOut::sendNoteOff(device, channel, note);
+    MidiOut::sendNoteOff(port, channel, note);
 }
 
-void MidiOutRtMidi::sendPatchChange(MidiDeviceCR device, uint8_t channel, uint8_t patch) const
+void MidiOutRtMidi::sendPatchChange(MidiPortCR port, uint8_t channel, uint8_t patch) const
 {
     const Message message = { static_cast<unsigned char>(0xC0 | (channel & 0x0F)),
                               static_cast<unsigned char>(patch) };
 
-    sendMessage(device, message);
+    sendMessage(port, message);
 }
 
-void MidiOutRtMidi::sendBankChange(MidiDeviceCR device, uint8_t channel, uint8_t msb, uint8_t lsb) const
+void MidiOutRtMidi::sendBankChange(MidiPortCR port, uint8_t channel, uint8_t msb, uint8_t lsb) const
 {
-    sendCcData(device, channel, static_cast<uint8_t>(MidiCcMapping::Controller::BankSelectMSB), msb);
-    sendCcData(device, channel, static_cast<uint8_t>(MidiCcMapping::Controller::BankSelectLSB), lsb);
+    sendCcData(port, channel, static_cast<uint8_t>(MidiCcMapping::Controller::BankSelectMSB), msb);
+    sendCcData(port, channel, static_cast<uint8_t>(MidiCcMapping::Controller::BankSelectLSB), lsb);
 }
 
-void MidiOutRtMidi::sendPitchBendData(MidiDeviceCR device, uint8_t channel, uint8_t msb, uint8_t lsb) const
+void MidiOutRtMidi::sendPitchBendData(MidiPortCR port, uint8_t channel, uint8_t msb, uint8_t lsb) const
 {
     const Message message = {
         static_cast<unsigned char>(0xE0 | (channel & 0x0F)),
@@ -141,34 +177,44 @@ void MidiOutRtMidi::sendPitchBendData(MidiDeviceCR device, uint8_t channel, uint
         static_cast<unsigned char>(msb & 0x7F)
     };
 
-    sendMessage(device, message);
+    sendMessage(port, message);
 }
 
-void MidiOutRtMidi::stopAllNotes(MidiDeviceCR device, uint8_t channel) const
+void MidiOutRtMidi::stopAllNotes(MidiPortCR port, uint8_t channel) const
 {
-    sendCcData(device, channel, static_cast<uint8_t>(MidiCcMapping::Controller::AllNotesOff), 0);
+    sendCcData(port, channel, static_cast<uint8_t>(MidiCcMapping::Controller::AllNotesOff), 0);
 
-    // All devices won't obey CC #123: Manually stop all notes. Stop only the notes that are actually playing
-    // as there are some devices that go crazy if non-playing notes are stopped.
-    for (auto && note : notesOn(device, channel)) {
-        juzzlin::L(TAG).info() << "Stopping note " << static_cast<int>(note) << " on channel " << static_cast<int>(channel) << " of device " << device.portName();
-        sendNoteOff(device, channel, note);
+    // All ports won't obey CC #123: Manually stop all notes. Stop only the notes that are actually playing
+    // as there are some ports that go crazy if non-playing notes are stopped.
+    for (auto && note : notesOn(port, channel)) {
+        juzzlin::L(TAG).info() << "Stopping note " << static_cast<int>(note) << " on channel " << static_cast<int>(channel) << " of port " << port.name();
+        sendNoteOff(port, channel, note);
     }
 }
 
-void MidiOutRtMidi::sendClockPulse(MidiDeviceCR device) const
+void MidiOutRtMidi::sendClockPulse(MidiPortCR port) const
 {
-    sendMessage(device, { 0xF8 });
+    sendMessage(port, { 0xF8 });
 }
 
-void MidiOutRtMidi::sendStart(MidiDeviceCR device) const
+void MidiOutRtMidi::sendStart(MidiPortCR port) const
 {
-    sendMessage(device, { 0xFA });
+    sendMessage(port, { 0xFA });
 }
 
-void MidiOutRtMidi::sendStop(MidiDeviceCR device) const
+void MidiOutRtMidi::sendStop(MidiPortCR port) const
 {
-    sendMessage(device, { 0xFC });
+    sendMessage(port, { 0xFC });
+}
+
+MidiOutRtMidi::~MidiOutRtMidi()
+{
+    for (auto && port : m_ports) {
+        port.second->closePort();
+    }
+    for (auto && port : m_virtualPorts) {
+        port.second->closePort();
+    }
 }
 
 } // namespace noteahead

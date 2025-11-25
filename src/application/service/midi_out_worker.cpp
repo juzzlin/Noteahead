@@ -38,7 +38,7 @@ MidiOutWorker::MidiOutWorker(QObject * parent)
 
 void portError(const std::string_view function, const std::string_view message)
 {
-    juzzlin::L(TAG).error() << function << ": No device found for portName '" << message << "'";
+    juzzlin::L(TAG).error() << function << ": No port found for portName '" << message << "'";
 }
 
 void MidiOutWorker::initializeStopTimer()
@@ -50,9 +50,9 @@ void MidiOutWorker::initializeStopTimer()
         connect(m_midiStopTimer.get(), &QTimer::timeout, this, [this]() {
             for (auto && stopTask : m_stopTasks) {
                 try {
-                    if (const auto device = m_midiOut->deviceByPortName(stopTask.portName.toStdString()); device) {
-                        m_midiOut->openDevice(*device);
-                        m_midiOut->sendNoteOff(*device, stopTask.channel, 60);
+                    if (const auto port = m_midiOut->portByName(stopTask.portName.toStdString()); port) {
+                        m_midiOut->openPort(*port);
+                        m_midiOut->sendNoteOff(*port, stopTask.channel, 60);
                     } else {
                         portError(__func__, stopTask.portName.toStdString());
                     }
@@ -64,44 +64,44 @@ void MidiOutWorker::initializeStopTimer()
     }
 }
 
-void MidiOutWorker::sendMidiCcSettings(const MidiDevice & midiDevice, const Instrument & instrument)
+void MidiOutWorker::sendMidiCcSettings(const MidiPort & port, const Instrument & instrument)
 {
     const auto channel = instrument.midiAddress().channel();
     const auto predefinedMidiCcSettings = instrument.settings().standardMidiCcSettings;
-    m_midiOut->sendCcData(midiDevice, channel, static_cast<quint8>(MidiCcMapping::Controller::ResetAllControllers), 127);
+    m_midiOut->sendCcData(port, channel, static_cast<quint8>(MidiCcMapping::Controller::ResetAllControllers), 127);
     if (predefinedMidiCcSettings.pan.has_value()) {
-        m_midiOut->sendCcData(midiDevice, channel, static_cast<quint8>(MidiCcMapping::Controller::PanMSB), *predefinedMidiCcSettings.pan);
-        m_midiOut->sendCcData(midiDevice, channel, static_cast<quint8>(MidiCcMapping::Controller::PanLSB), 0);
+        m_midiOut->sendCcData(port, channel, static_cast<quint8>(MidiCcMapping::Controller::PanMSB), *predefinedMidiCcSettings.pan);
+        m_midiOut->sendCcData(port, channel, static_cast<quint8>(MidiCcMapping::Controller::PanLSB), 0);
     }
     if (predefinedMidiCcSettings.volume.has_value()) {
-        m_midiOut->sendCcData(midiDevice, channel, static_cast<quint8>(MidiCcMapping::Controller::ChannelVolumeMSB), *predefinedMidiCcSettings.volume);
-        m_midiOut->sendCcData(midiDevice, channel, static_cast<quint8>(MidiCcMapping::Controller::ChannelVolumeLSB), 0);
+        m_midiOut->sendCcData(port, channel, static_cast<quint8>(MidiCcMapping::Controller::ChannelVolumeMSB), *predefinedMidiCcSettings.volume);
+        m_midiOut->sendCcData(port, channel, static_cast<quint8>(MidiCcMapping::Controller::ChannelVolumeLSB), 0);
     }
     if (predefinedMidiCcSettings.cutoff.has_value()) {
-        m_midiOut->sendCcData(midiDevice, channel, static_cast<quint8>(MidiCcMapping::Controller::SoundController5), *predefinedMidiCcSettings.cutoff);
+        m_midiOut->sendCcData(port, channel, static_cast<quint8>(MidiCcMapping::Controller::SoundController5), *predefinedMidiCcSettings.cutoff);
     }
     for (auto && midiCcSetting : instrument.settings().midiCcSettings) {
         if (midiCcSetting.enabled()) {
-            m_midiOut->sendCcData(midiDevice, channel, midiCcSetting.controller(), midiCcSetting.value());
+            m_midiOut->sendCcData(port, channel, midiCcSetting.controller(), midiCcSetting.value());
         }
     }
 }
 
-void MidiOutWorker::applyBank(const Instrument & instrument, MidiDeviceS midiDevice)
+void MidiOutWorker::applyBank(const Instrument & instrument, MidiPortS port)
 {
     if (instrument.settings().bank.has_value()) {
         juzzlin::L(TAG).info() << "Setting bank to " << static_cast<int>(instrument.settings().bank->msb) << ":" << static_cast<int>(instrument.settings().bank->lsb);
-        m_midiOut->sendBankChange(*midiDevice, instrument.midiAddress().channel(),
+        m_midiOut->sendBankChange(*port, instrument.midiAddress().channel(),
                                   instrument.settings().bank->byteOrderSwapped ? instrument.settings().bank->lsb : instrument.settings().bank->msb,
                                   instrument.settings().bank->byteOrderSwapped ? instrument.settings().bank->msb : instrument.settings().bank->lsb);
     }
 }
 
-void MidiOutWorker::applyPatch(const Instrument & instrument, MidiDeviceS midiDevice)
+void MidiOutWorker::applyPatch(const Instrument & instrument, MidiPortS port)
 {
     if (instrument.settings().patch.has_value()) {
         juzzlin::L(TAG).info() << "Setting patch to " << static_cast<int>(*instrument.settings().patch);
-        m_midiOut->sendPatchChange(*midiDevice, instrument.midiAddress().channel(), *instrument.settings().patch);
+        m_midiOut->sendPatchChange(*port, instrument.midiAddress().channel(), *instrument.settings().patch);
     }
 }
 
@@ -115,16 +115,16 @@ void MidiOutWorker::handleInstrumentRequest(const InstrumentRequest & instrument
         auto && instrument = instrumentRequest.instrument();
         juzzlin::L(TAG).info() << "Applying instrument " << instrument.toString().toStdString() << " for requested port " << instrument.midiAddress().portName().toStdString();
         const auto requestedPortName = instrument.midiAddress().portName();
-        if (const auto midiDevice = m_midiOut->deviceByPortName(requestedPortName.toStdString()); midiDevice) {
-            m_midiOut->openDevice(*midiDevice);
+        if (const auto port = m_midiOut->portByName(requestedPortName.toStdString()); port) {
+            m_midiOut->openPort(*port);
             if (instrumentRequest.type() == InstrumentRequest::Type::ApplyAll) {
-                applyBank(instrument, midiDevice);
-                applyPatch(instrument, midiDevice);
-                sendMidiCcSettings(*midiDevice, instrument);
+                applyBank(instrument, port);
+                applyPatch(instrument, port);
+                sendMidiCcSettings(*port, instrument);
             } else if (instrumentRequest.type() == InstrumentRequest::Type::ApplyPatch) {
-                applyPatch(instrument, midiDevice);
+                applyPatch(instrument, port);
             } else if (instrumentRequest.type() == InstrumentRequest::Type::ApplyMidiCc) {
-                sendMidiCcSettings(*midiDevice, instrument);
+                sendMidiCcSettings(*port, instrument);
             }
         } else {
             portError(__func__, requestedPortName.toStdString());
@@ -137,9 +137,9 @@ void MidiOutWorker::handleInstrumentRequest(const InstrumentRequest & instrument
 void MidiOutWorker::playAndStopMiddleC(QString portName, quint8 channel, quint8 velocity)
 {
     try {
-        if (const auto device = m_midiOut->deviceByPortName(portName.toStdString()); device) {
-            m_midiOut->openDevice(*device);
-            m_midiOut->sendNoteOn(*device, channel, 60, velocity);
+        if (const auto port = m_midiOut->portByName(portName.toStdString()); port) {
+            m_midiOut->openPort(*port);
+            m_midiOut->sendNoteOn(*port, channel, 60, velocity);
             m_stopTasks.push_back({ portName, channel, 60 });
             initializeStopTimer(); // Initialize here to end up in the correct thread
             m_midiStopTimer->start();
@@ -154,9 +154,9 @@ void MidiOutWorker::playAndStopMiddleC(QString portName, quint8 channel, quint8 
 void MidiOutWorker::playNote(QString portName, quint8 channel, quint8 midiNote, quint8 velocity)
 {
     try {
-        if (const auto device = m_midiOut->deviceByPortName(portName.toStdString()); device) {
-            m_midiOut->openDevice(*device);
-            m_midiOut->sendNoteOn(*device, channel, midiNote, velocity);
+        if (const auto port = m_midiOut->portByName(portName.toStdString()); port) {
+            m_midiOut->openPort(*port);
+            m_midiOut->sendNoteOn(*port, channel, midiNote, velocity);
         } else {
             portError(__func__, portName.toStdString());
         }
@@ -168,9 +168,9 @@ void MidiOutWorker::playNote(QString portName, quint8 channel, quint8 midiNote, 
 void MidiOutWorker::stopNote(QString portName, quint8 channel, quint8 midiNote)
 {
     try {
-        if (const auto device = m_midiOut->deviceByPortName(portName.toStdString()); device) {
-            m_midiOut->openDevice(*device);
-            m_midiOut->sendNoteOff(*device, channel, midiNote);
+        if (const auto port = m_midiOut->portByName(portName.toStdString()); port) {
+            m_midiOut->openPort(*port);
+            m_midiOut->sendNoteOff(*port, channel, midiNote);
         } else {
             portError(__func__, portName.toStdString());
         }
@@ -182,9 +182,9 @@ void MidiOutWorker::stopNote(QString portName, quint8 channel, quint8 midiNote)
 void MidiOutWorker::stopAllNotes(QString portName, quint8 channel)
 {
     try {
-        if (const auto device = m_midiOut->deviceByPortName(portName.toStdString()); device) {
-            m_midiOut->openDevice(*device);
-            m_midiOut->stopAllNotes(*device, channel);
+        if (const auto port = m_midiOut->portByName(portName.toStdString()); port) {
+            m_midiOut->openPort(*port);
+            m_midiOut->stopAllNotes(*port, channel);
         } else {
             portError(__func__, portName.toStdString());
         }
@@ -196,9 +196,9 @@ void MidiOutWorker::stopAllNotes(QString portName, quint8 channel)
 void MidiOutWorker::sendClock(QString portName)
 {
     try {
-        if (const auto device = m_midiOut->deviceByPortName(portName.toStdString()); device) {
-            m_midiOut->openDevice(*device);
-            m_midiOut->sendClockPulse(*device);
+        if (const auto port = m_midiOut->portByName(portName.toStdString()); port) {
+            m_midiOut->openPort(*port);
+            m_midiOut->sendClockPulse(*port);
         }
     } catch (const std::runtime_error & e) {
         juzzlin::L(TAG).error() << e.what();
@@ -208,9 +208,9 @@ void MidiOutWorker::sendClock(QString portName)
 void MidiOutWorker::sendStart(QString portName)
 {
     try {
-        if (const auto device = m_midiOut->deviceByPortName(portName.toStdString()); device) {
-            m_midiOut->openDevice(*device);
-            m_midiOut->sendStart(*device);
+        if (const auto port = m_midiOut->portByName(portName.toStdString()); port) {
+            m_midiOut->openPort(*port);
+            m_midiOut->sendStart(*port);
         }
     } catch (const std::runtime_error & e) {
         juzzlin::L(TAG).error() << e.what();
@@ -220,9 +220,9 @@ void MidiOutWorker::sendStart(QString portName)
 void MidiOutWorker::sendStop(QString portName)
 {
     try {
-        if (const auto device = m_midiOut->deviceByPortName(portName.toStdString()); device) {
-            m_midiOut->openDevice(*device);
-            m_midiOut->sendStop(*device);
+        if (const auto port = m_midiOut->portByName(portName.toStdString()); port) {
+            m_midiOut->openPort(*port);
+            m_midiOut->sendStop(*port);
         }
     } catch (const std::runtime_error & e) {
         juzzlin::L(TAG).error() << e.what();
@@ -232,9 +232,9 @@ void MidiOutWorker::sendStop(QString portName)
 void MidiOutWorker::sendCcData(QString portName, quint8 channel, quint8 controller, quint8 value)
 {
     try {
-        if (const auto device = m_midiOut->deviceByPortName(portName.toStdString()); device) {
-            m_midiOut->openDevice(*device);
-            m_midiOut->sendCcData(*device, channel, controller, value);
+        if (const auto port = m_midiOut->portByName(portName.toStdString()); port) {
+            m_midiOut->openPort(*port);
+            m_midiOut->sendCcData(*port, channel, controller, value);
         }
     } catch (const std::runtime_error & e) {
         juzzlin::L(TAG).error() << e.what();
@@ -244,9 +244,9 @@ void MidiOutWorker::sendCcData(QString portName, quint8 channel, quint8 controll
 void MidiOutWorker::sendPitchBendData(QString portName, quint8 channel, quint8 msb, quint8 lsb)
 {
     try {
-        if (const auto device = m_midiOut->deviceByPortName(portName.toStdString()); device) {
-            m_midiOut->openDevice(*device);
-            m_midiOut->sendPitchBendData(*device, channel, msb, lsb);
+        if (const auto port = m_midiOut->portByName(portName.toStdString()); port) {
+            m_midiOut->openPort(*port);
+            m_midiOut->sendPitchBendData(*port, channel, msb, lsb);
         }
     } catch (const std::runtime_error & e) {
         juzzlin::L(TAG).error() << e.what();
@@ -256,9 +256,9 @@ void MidiOutWorker::sendPitchBendData(QString portName, quint8 channel, quint8 m
 void MidiOutWorker::requestPatchChange(QString portName, quint8 channel, quint8 patch)
 {
     try {
-        if (const auto device = m_midiOut->deviceByPortName(portName.toStdString()); device) {
-            m_midiOut->openDevice(*device);
-            m_midiOut->sendPatchChange(*device, channel, patch);
+        if (const auto port = m_midiOut->portByName(portName.toStdString()); port) {
+            m_midiOut->openPort(*port);
+            m_midiOut->sendPatchChange(*port, channel, patch);
         } else {
             portError(__func__, portName.toStdString());
         }

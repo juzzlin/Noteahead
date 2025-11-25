@@ -47,7 +47,7 @@ void MidiWorker::initializeScanTimer()
                 const auto oldPortNames = Utils::Misc::stdStringVectorToQStringList(m_midi->portNames());
                 const auto availablePortNames = Utils::Misc::stdStringVectorToQStringList(m_midi->availablePortNames());
                 if (oldPortNames != availablePortNames || oldPortNames.empty()) {
-                    m_midi->updateDevices();
+                    m_midi->updatePorts();
                     const auto updatedPortNames = Utils::Misc::stdStringVectorToQStringList(m_midi->portNames());
                     QStringList newPortNames;
                     for (auto && portName : updatedPortNames) {
@@ -63,25 +63,25 @@ void MidiWorker::initializeScanTimer()
                     }
                     if (!newPortNames.isEmpty()) {
                         for (auto && portName : newPortNames) {
-                            juzzlin::L(TAG).info() << QString { "Detected MIDI %1 device " }.arg(m_role).toStdString() << portName.toStdString();
+                            juzzlin::L(TAG).info() << QString { "Detected MIDI %1 port " }.arg(m_role).toStdString() << portName.toStdString();
                         }
                         if (newPortNames.size() <= 3) {
-                            emit statusTextRequested(tr("New MIDI %1 devices found: ").arg(m_role) + newPortNames.join(","));
+                            emit statusTextRequested(tr("New MIDI %1 ports found: ").arg(m_role) + newPortNames.join(","));
                         } else {
-                            emit statusTextRequested(tr("New MIDI %1 device(s) found").arg(m_role));
+                            emit statusTextRequested(tr("New MIDI %1 port(s) found").arg(m_role));
                         }
                     }
                     if (!offlinePortNames.isEmpty()) {
                         for (auto && portName : offlinePortNames) {
-                            if (const auto device = m_midi->deviceByPortName(portName.toStdString()); device) {
-                                juzzlin::L(TAG).info() << QString { "Closing MIDI %1 device " }.arg(m_role).toStdString() << portName.toStdString();
-                                m_midi->closeDevice(*device);
+                            if (const auto port = m_midi->portByName(portName.toStdString()); port) {
+                                juzzlin::L(TAG).info() << QString { "Closing MIDI %1 port " }.arg(m_role).toStdString() << portName.toStdString();
+                                m_midi->closePort(*port);
                             }
                         }
                         if (newPortNames.size() <= 3) {
-                            emit statusTextRequested(tr("MIDI %1 devices went offline: ").arg(m_role) + offlinePortNames.join(","));
+                            emit statusTextRequested(tr("MIDI %1 ports went offline: ").arg(m_role) + offlinePortNames.join(","));
                         } else {
-                            emit statusTextRequested(tr("MIDI %1 device(s) went offline ").arg(m_role));
+                            emit statusTextRequested(tr("MIDI %1 port(s) went offline ").arg(m_role));
                         }
                     }
 

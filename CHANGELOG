@@ -5,6 +5,10 @@ Release date:
 
 New features:
 
+* Fix GitHub Issue #32: Implement virtual MIDI outs
+  - Noteahead now opens "Noteahead Virtual MIDI OUT"
+  - Tested with Surge XT that it actually works
+
 * Take mute/solo into account when exporting as a MIDI file
 
 * Introduce MidiExportDialog with start and end positions

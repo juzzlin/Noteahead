@@ -16,7 +16,7 @@
 #ifndef MIDI_HPP
 #define MIDI_HPP
 
-#include "midi_device.hpp"
+#include "midi_port.hpp"
 
 #include <unordered_map>
 #include <vector>
@@ -28,39 +28,36 @@ class Midi
 {
 public:
     Midi();
-
     virtual ~Midi();
 
-    using DeviceList = std::vector<MidiDeviceS>;
-    virtual DeviceList devices() const;
-    virtual void updateDevices();
-
+    using PortList = std::vector<MidiPortS>;
+    virtual PortList ports() const;
+    virtual void updatePorts();
     using PortNameList = std::vector<std::string>;
     virtual PortNameList portNames() const;
     virtual PortNameList availablePortNames() const;
 
-    virtual MidiDeviceS deviceByPortIndex(size_t index) const;
-    virtual MidiDeviceS deviceByPortName(const std::string & name) const;
+    virtual MidiPortS portByIndex(size_t index) const;
+    virtual MidiPortS portByName(const std::string & name) const;
 
     //! \returns e.g. "ALSA"
     virtual std::string midiApiName() const;
 
-    using MidiDeviceCR = const MidiDevice &;
-
-    virtual void openDevice(MidiDeviceCR device);
-    virtual void closeDevice(MidiDeviceCR device);
+    using MidiPortCR = const MidiPort &;
+    virtual void openPort(MidiPortCR port);
+    virtual void closePort(MidiPortCR port);
 
 protected:
-    void setDevices(DeviceList devices);
+    void setPorts(PortList devices);
     void invalidatePortNameCache();
 
 private:
     void initializeScanTimer();
 
-    DeviceList m_devices;
+    PortList m_ports;
 
-    using PortNameToDevice = std::unordered_map<std::string, MidiDeviceS>;
-    mutable PortNameToDevice m_portNameToDeviceCache;
+    using NameToPort = std::unordered_map<std::string, MidiPortS>;
+    mutable NameToPort m_nameToPortCache;
 };
 
 } // namespace noteahead

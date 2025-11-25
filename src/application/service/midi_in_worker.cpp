@@ -50,16 +50,16 @@ void MidiInWorker::setControllerPort(QString portName)
     if (!portName.isEmpty()) {
         m_controllerPort = portName;
         try {
-            if (const auto device = midi()->deviceByPortName(portName.toStdString()); device) {
+            if (const auto port = midi()->portByName(portName.toStdString()); port) {
                 juzzlin::L(TAG).info() << "Opening controller input port: " << portName.toStdString();
-                m_midiIn->openDevice(*device);
+                m_midiIn->openPort(*port);
                 m_midiIn->clearCallbacks();
-                m_midiIn->setCallbackForPort(*device,
+                m_midiIn->setCallbackForPort(*port,
                                              [this](double deltaTime, MessageCR message) {
                                                  handleIncomingMessage(deltaTime, message);
                                              });
             } else {
-                juzzlin::L(TAG).warning() << "No device found for port name: " << portName.toStdString();
+                juzzlin::L(TAG).warning() << "No port found for port name: " << portName.toStdString();
             }
         } catch (std::runtime_error & e) {
             juzzlin::L(TAG).error() << e.what();

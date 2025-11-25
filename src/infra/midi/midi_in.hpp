@@ -30,7 +30,7 @@ public:
     virtual ~MidiIn() override;
 
     using InputCallback = std::function<void(double, const std::vector<unsigned char> &)>;
-    virtual void setCallbackForPort(const MidiDevice & device, InputCallback callback);
+    virtual void setCallbackForPort(const MidiPort & port, InputCallback callback);
     virtual void clearCallbacks();
 };
 

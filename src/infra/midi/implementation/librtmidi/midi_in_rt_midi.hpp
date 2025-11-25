@@ -31,15 +31,15 @@ class MidiInWorker;
 class MidiInRtMidi : public MidiIn
 {
 public:
-    void updateDevices() override;
+    void updatePorts() override;
 
-    void openDevice(MidiDeviceCR device) override;
-    void closeDevice(MidiDeviceCR device) override;
+    void openPort(MidiPortCR port) override;
+    void closePort(MidiPortCR port) override;
 
     std::string midiApiName() const override;
 
     void clearCallbacks() override;
-    void setCallbackForPort(const MidiDevice & device, InputCallback callback) override;
+    void setCallbackForPort(const MidiPort & port, InputCallback callback) override;
 
     PortNameList availablePortNames() const override;
 

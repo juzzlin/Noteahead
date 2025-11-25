@@ -29,35 +29,41 @@ namespace noteahead {
 class MidiOut : public Midi
 {
 public:
-    MidiOut();
+    using PortNameList = std::vector<std::string>;
+    MidiOut(PortNameList virtualPorts = {});
     virtual ~MidiOut() override;
 
-    using MidiDeviceCR = const MidiDevice &;
+    using MidiPortCR = const MidiPort &;
 
-    virtual void stopAllNotes(MidiDeviceCR device, uint8_t channel) const;
+    virtual void stopAllNotes(MidiPortCR port, uint8_t channel) const;
 
-    virtual void sendCcData(MidiDeviceCR device, uint8_t channel, uint8_t controller, uint8_t value) const;
+    virtual void sendCcData(MidiPortCR port, uint8_t channel, uint8_t controller, uint8_t value) const;
 
-    virtual void sendNoteOn(MidiDeviceCR device, uint8_t channel, uint8_t note, uint8_t velocity) const;
-    virtual void sendNoteOff(MidiDeviceCR device, uint8_t channel, uint8_t note) const;
+    virtual void sendNoteOn(MidiPortCR port, uint8_t channel, uint8_t note, uint8_t velocity) const;
+    virtual void sendNoteOff(MidiPortCR port, uint8_t channel, uint8_t note) const;
 
-    virtual void sendPatchChange(MidiDeviceCR device, uint8_t channel, uint8_t patch) const;
-    virtual void sendBankChange(MidiDeviceCR device, uint8_t channel, uint8_t msb, uint8_t lsb) const;
+    virtual void sendPatchChange(MidiPortCR port, uint8_t channel, uint8_t patch) const;
+    virtual void sendBankChange(MidiPortCR port, uint8_t channel, uint8_t msb, uint8_t lsb) const;
 
-    virtual void sendPitchBendData(MidiDeviceCR device, uint8_t channel, uint8_t msb, uint8_t lsb) const;
+    virtual void sendPitchBendData(MidiPortCR port, uint8_t channel, uint8_t msb, uint8_t lsb) const;
 
-    virtual void sendClockPulse(MidiDeviceCR device) const;
-    virtual void sendStart(MidiDeviceCR device) const;
-    virtual void sendStop(MidiDeviceCR device) const;
+    virtual void sendClockPulse(MidiPortCR port) const;
+    virtual void sendStart(MidiPortCR port) const;
+    virtual void sendStop(MidiPortCR port) const;
 
 protected:
     using NotesOnList = std::vector<uint8_t>;
-    NotesOnList notesOn(MidiDeviceCR device, uint8_t channel) const;
+    NotesOnList notesOn(MidiPortCR port, uint8_t channel) const;
+
+    PortNameList virtualPorts() const;
+    bool isVirtualPort(const std::string & name) const;
 
 private:
     using ChannelAndNote = std::pair<uint8_t, uint8_t>;
-    using DeviceToChannelAndNote = std::unordered_map<size_t, std::set<ChannelAndNote>>;
-    mutable DeviceToChannelAndNote m_notesOn;
+    using PortToChannelAndNote = std::unordered_map<size_t, std::set<ChannelAndNote>>;
+    mutable PortToChannelAndNote m_notesOn;
+
+    PortNameList m_virtualPorts;
 };
 
 } // namespace noteahead

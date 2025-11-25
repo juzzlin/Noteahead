@@ -29,7 +29,7 @@
 namespace noteahead {
 
 class MidiIn;
-class MidiDevice;
+class MidiPort;
 class MidiNoteData;
 
 class MidiInWorker : public MidiWorker

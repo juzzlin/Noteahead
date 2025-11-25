@@ -13,29 +13,29 @@
 // You should have received a copy of the GNU General Public License
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
-#include "midi_device.hpp"
+#include "midi_port.hpp"
 
 namespace noteahead {
 
-MidiDevice::MidiDevice(size_t portIndex, std::string portName)
-  : mPortIndex { portIndex }
-  , mPortName { portName }
+MidiPort::MidiPort(size_t portIndex, std::string portName)
+  : mIndex { portIndex }
+  , mName { portName }
 {
 }
 
-size_t MidiDevice::portIndex() const
+size_t MidiPort::index() const
 {
-    return mPortIndex;
+    return mIndex;
 }
 
-std::string MidiDevice::portName() const
+std::string MidiPort::name() const
 {
-    return mPortName;
+    return mName;
 }
 
-std::string MidiDevice::toString() const
+std::string MidiPort::toString() const
 {
-    return std::to_string(mPortIndex) + ": " + mPortName;
+    return std::to_string(mIndex) + ": " + mName;
 }
 
 } // namespace noteahead

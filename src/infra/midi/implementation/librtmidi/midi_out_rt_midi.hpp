@@ -29,38 +29,42 @@ namespace noteahead {
 class MidiOutRtMidi : public MidiOut
 {
 public:
-    MidiOutRtMidi() = default;
+    MidiOutRtMidi();
+    ~MidiOutRtMidi() override;
 
-    void updateDevices() override;
+    void updatePorts() override;
 
-    void openDevice(MidiDeviceCR device) override;
-    void closeDevice(MidiDeviceCR device) override;
+    void openPort(MidiPortCR port) override;
+    void closePort(MidiPortCR port) override;
 
     std::string midiApiName() const override;
 
     PortNameList availablePortNames() const override;
 
-    void sendCcData(MidiDeviceCR device, uint8_t channel, uint8_t controller, uint8_t value) const override;
+    void sendCcData(MidiPortCR port, uint8_t channel, uint8_t controller, uint8_t value) const override;
 
-    void sendNoteOn(MidiDeviceCR device, uint8_t channel, uint8_t note, uint8_t velocity) const override;
-    void sendNoteOff(MidiDeviceCR device, uint8_t channel, uint8_t note) const override;
-    void stopAllNotes(MidiDeviceCR device, uint8_t channel) const override;
+    void sendNoteOn(MidiPortCR port, uint8_t channel, uint8_t note, uint8_t velocity) const override;
+    void sendNoteOff(MidiPortCR port, uint8_t channel, uint8_t note) const override;
+    void stopAllNotes(MidiPortCR port, uint8_t channel) const override;
 
-    void sendPatchChange(MidiDeviceCR device, uint8_t channel, uint8_t patch) const override;
-    void sendBankChange(MidiDeviceCR device, uint8_t channel, uint8_t msb, uint8_t lsb) const override;
+    void sendPatchChange(MidiPortCR port, uint8_t channel, uint8_t patch) const override;
+    void sendBankChange(MidiPortCR port, uint8_t channel, uint8_t msb, uint8_t lsb) const override;
 
-    void sendPitchBendData(MidiDeviceCR device, uint8_t channel, uint8_t msb, uint8_t lsb) const override;
+    void sendPitchBendData(MidiPortCR port, uint8_t channel, uint8_t msb, uint8_t lsb) const override;
 
-    void sendClockPulse(MidiDeviceCR device) const override;
-    void sendStart(MidiDeviceCR device) const override;
-    void sendStop(MidiDeviceCR device) const override;
+    void sendClockPulse(MidiPortCR port) const override;
+    void sendStart(MidiPortCR port) const override;
+    void sendStop(MidiPortCR port) const override;
 
 private:
     using Message = std::vector<unsigned char>;
 
-    void sendMessage(MidiDeviceCR device, const Message & message) const;
+    void openVirtualPort(const std::string & name);
+
+    void sendMessage(MidiPortCR port, const Message & message) const;
 
     std::unordered_map<size_t, std::unique_ptr<RtMidiOut>> m_ports;
+    std::unordered_map<std::string, std::unique_ptr<RtMidiOut>> m_virtualPorts;
 };
 
 } // namespace noteahead

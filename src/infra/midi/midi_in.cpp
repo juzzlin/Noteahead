@@ -19,7 +19,7 @@ namespace noteahead {
 
 MidiIn::MidiIn() = default;
 
-void MidiIn::setCallbackForPort(const MidiDevice &, InputCallback)
+void MidiIn::setCallbackForPort(const MidiPort &, InputCallback)
 {
 }
 
