@@ -231,10 +231,8 @@ private:
     {
         bool cutoffEnabled { false };
         quint8 cutoff { 127 };
-
         bool panEnabled { false };
         quint8 pan { 64 };
-
         bool volumeEnabled { false };
         quint8 volume { 127 };
     };
