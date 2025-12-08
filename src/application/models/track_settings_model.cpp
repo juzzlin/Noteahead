@@ -284,15 +284,12 @@ void TrackSettingsModel::reset()
 
     m_instrumentSettings = {};
 
-    m_autoNoteOffOffset = {};
-    m_autoNoteOffOffsetEnabled = false;
+    m_timingSettings = {};
+
     m_cutoff = m_defaultCutoff;
     m_cutoffEnabled = false;
-    m_delay = 0;
     m_pan = m_defaultPan;
     m_panEnabled = false;
-    m_sendMidiClock = false;
-    m_sendTransport = false;
     m_velocityJitter = 0;
     m_volume = m_defaultVolume;
     m_volumeEnabled = false;
@@ -336,12 +333,12 @@ TrackSettingsModel::InstrumentU TrackSettingsModel::toInstrument() const
         settings.standardMidiCcSettings.volume = m_volume;
     }
 
-    settings.timing.sendMidiClock = m_sendMidiClock;
-    settings.timing.sendTransport = m_sendTransport;
-    settings.timing.delay = std::chrono::milliseconds { m_delay };
+    settings.timing.sendMidiClock = m_timingSettings.sendMidiClock;
+    settings.timing.sendTransport = m_timingSettings.sendTransport;
+    settings.timing.delay = std::chrono::milliseconds { m_timingSettings.delay };
 
-    if (m_autoNoteOffOffsetEnabled) {
-        settings.timing.autoNoteOffOffset = std::chrono::milliseconds { m_autoNoteOffOffset };
+    if (m_timingSettings.autoNoteOffOffsetEnabled) {
+        settings.timing.autoNoteOffOffset = std::chrono::milliseconds { m_timingSettings.autoNoteOffOffset };
     }
 
     settings.midiEffects.velocityJitter = m_velocityJitter;
@@ -466,15 +463,15 @@ void TrackSettingsModel::setVolumeEnabled(bool enabled)
 
 bool TrackSettingsModel::sendMidiClock() const
 {
-    return m_sendMidiClock;
+    return m_timingSettings.sendMidiClock;
 }
 
 void TrackSettingsModel::setSendMidiClock(bool enabled)
 {
     juzzlin::L(TAG).debug() << "Enabling MIDI clock: " << static_cast<int>(enabled);
 
-    if (m_sendMidiClock != enabled) {
-        m_sendMidiClock = enabled;
+    if (m_timingSettings.sendMidiClock != enabled) {
+        m_timingSettings.sendMidiClock = enabled;
         emit sendMidiClockChanged();
         applyAll();
     }
@@ -482,15 +479,15 @@ void TrackSettingsModel::setSendMidiClock(bool enabled)
 
 bool TrackSettingsModel::sendTransport() const
 {
-    return m_sendTransport;
+    return m_timingSettings.sendTransport;
 }
 
 void TrackSettingsModel::setSendTransport(bool enabled)
 {
     juzzlin::L(TAG).debug() << "Enabling transport: " << static_cast<int>(enabled);
 
-    if (m_sendTransport != enabled) {
-        m_sendTransport = enabled;
+    if (m_timingSettings.sendTransport != enabled) {
+        m_timingSettings.sendTransport = enabled;
         emit sendTransportChanged();
         applyAll();
     }
@@ -498,15 +495,15 @@ void TrackSettingsModel::setSendTransport(bool enabled)
 
 int TrackSettingsModel::delay() const
 {
-    return m_delay;
+    return m_timingSettings.delay;
 }
 
 void TrackSettingsModel::setDelay(int delay)
 {
     juzzlin::L(TAG).debug() << "Setting delay to " << delay;
 
-    if (m_delay != delay) {
-        m_delay = delay;
+    if (m_timingSettings.delay != delay) {
+        m_timingSettings.delay = delay;
         emit delayChanged();
     }
 }
@@ -543,30 +540,30 @@ void TrackSettingsModel::setVelocityJitter(int velocityJitter)
 
 int TrackSettingsModel::autoNoteOffOffset() const
 {
-    return m_autoNoteOffOffset;
+    return m_timingSettings.autoNoteOffOffset;
 }
 
 void TrackSettingsModel::setAutoNoteOffOffset(int autoNoteOffOffset)
 {
     juzzlin::L(TAG).debug() << "Setting auto note-off offset to " << autoNoteOffOffset;
 
-    if (m_autoNoteOffOffset != autoNoteOffOffset) {
-        m_autoNoteOffOffset = autoNoteOffOffset;
+    if (m_timingSettings.autoNoteOffOffset != autoNoteOffOffset) {
+        m_timingSettings.autoNoteOffOffset = autoNoteOffOffset;
         emit autoNoteOffOffsetChanged();
     }
 }
 
 bool TrackSettingsModel::autoNoteOffOffsetEnabled() const
 {
-    return m_autoNoteOffOffsetEnabled;
+    return m_timingSettings.autoNoteOffOffsetEnabled;
 }
 
 void TrackSettingsModel::setAutoNoteOffOffsetEnabled(bool enabled)
 {
     juzzlin::L(TAG).debug() << "Enabling auto note-off offset: " << static_cast<int>(enabled);
 
-    if (m_autoNoteOffOffsetEnabled != enabled) {
-        m_autoNoteOffOffsetEnabled = enabled;
+    if (m_timingSettings.autoNoteOffOffsetEnabled != enabled) {
+        m_timingSettings.autoNoteOffOffsetEnabled = enabled;
         emit autoNoteOffOffsetEnabledChanged();
         applyAll();
     }

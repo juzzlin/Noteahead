@@ -218,15 +218,23 @@ private:
 
     InstrumentSettings m_instrumentSettings;
 
+    struct TimingSettings
+    {
+        bool sendMidiClock { false };
+        bool sendTransport { false };
+        int delay { 0 };
+        bool autoNoteOffOffsetEnabled { false };
+        int autoNoteOffOffset { 0 };
+    };
+
+    TimingSettings m_timingSettings;
+
     QStringList m_availableMidiPorts;
 
     bool m_applyDisabled { false };
     bool m_cutoffEnabled { false };
     bool m_panEnabled { false };
     bool m_volumeEnabled { false };
-    bool m_sendMidiClock { false };
-    bool m_sendTransport { false };
-    bool m_autoNoteOffOffsetEnabled { false };
 
     quint64 m_trackIndex { 0 };
 
@@ -239,10 +247,7 @@ private:
     const quint8 m_defaultVolume { 127 };
     quint8 m_volume { m_defaultVolume };
 
-    int m_delay { 0 };
-
     int m_velocityJitter { 0 };
-    int m_autoNoteOffOffset { 0 };
 };
 
 } // namespace noteahead
