@@ -10,6 +10,8 @@ New features:
 
 Bug fixes:
 
+* Fix Send transport checkbox not initialized
+
 Other:
 
 1.1.0

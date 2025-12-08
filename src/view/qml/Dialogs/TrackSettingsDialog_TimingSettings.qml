@@ -11,6 +11,7 @@ GroupBox {
     width: parent.width
     function initialize(): void {
         sendMidiClockCheckbox.checked = trackSettingsModel.sendMidiClock;
+        sendTransportCheckbox.checked = trackSettingsModel.sendTransport;
         delaySpinBox.value = trackSettingsModel.delay;
         autoNoteOffOffsetCheckbox.checked = trackSettingsModel.autoNoteOffOffsetEnabled;
         autoNoteOffOffsetSpinBox.value = trackSettingsModel.autoNoteOffOffset;
@@ -36,7 +37,7 @@ GroupBox {
                 onCheckedChanged: trackSettingsModel.sendMidiClock = checked
             }
             CheckBox {
-                id: sendTransport
+                id: sendTransportCheckbox
                 text: qsTr("Send transport")
                 Layout.column: 2
                 Layout.columnSpan: 2
