@@ -201,8 +201,6 @@ private:
     void pushApplyDisabled();
     void popApplyDisabled();
 
-    QString m_instrumentPortName;
-
     struct InstrumentSettings
     {
         QString portName;
@@ -243,15 +241,20 @@ private:
 
     StandardMidiCcSettings m_standardMidiCcSettings;
 
+    struct MidiEffectSettings
+    {
+        int velocityJitter { 0 };
+    };
+
+    MidiEffectSettings m_midiEffectSettings;
+
+    QString m_instrumentPortName;
     QStringList m_availableMidiPorts;
 
     bool m_applyDisabled { false };
-
-    quint64 m_trackIndex { 0 };
-
     std::vector<bool> m_applyDisabledStack;
 
-    int m_velocityJitter { 0 };
+    quint64 m_trackIndex { 0 };
 };
 
 } // namespace noteahead

@@ -288,6 +288,8 @@ void TrackSettingsModel::reset()
 
     m_standardMidiCcSettings = {};
 
+    m_midiEffectSettings = {};
+
     setMidiCcSettings({});
 
     emit instrumentDataReceived();
@@ -335,7 +337,7 @@ TrackSettingsModel::InstrumentU TrackSettingsModel::toInstrument() const
         settings.timing.autoNoteOffOffset = std::chrono::milliseconds { m_timingSettings.autoNoteOffOffset };
     }
 
-    settings.midiEffects.velocityJitter = m_velocityJitter;
+    settings.midiEffects.velocityJitter = m_midiEffectSettings.velocityJitter;
 
     settings.midiCcSettings = midiCcSettings();
     instrument->setSettings(settings);
@@ -519,15 +521,15 @@ void TrackSettingsModel::setTranspose(int transpose)
 
 int TrackSettingsModel::velocityJitter() const
 {
-    return m_velocityJitter;
+    return m_midiEffectSettings.velocityJitter;
 }
 
 void TrackSettingsModel::setVelocityJitter(int velocityJitter)
 {
     juzzlin::L(TAG).debug() << "Setting velocty jitter to " << velocityJitter;
 
-    if (m_velocityJitter != velocityJitter) {
-        m_velocityJitter = velocityJitter;
+    if (m_midiEffectSettings.velocityJitter != velocityJitter) {
+        m_midiEffectSettings.velocityJitter = velocityJitter;
         emit velocityJitterChanged();
     }
 }
