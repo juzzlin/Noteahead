@@ -30,6 +30,7 @@ set(HEADER_FILES
   application/service/midi_in_worker.hpp
   application/service/midi_out_worker.hpp
   application/service/midi_service.hpp
+  application/service/midi_side_chain_service.hpp
   application/service/midi_worker.hpp
   application/service/mixer_service.hpp
   application/service/player_service.hpp
@@ -110,6 +111,7 @@ set(SOURCE_FILES
   application/service/midi_in_worker.cpp
   application/service/midi_out_worker.cpp
   application/service/midi_service.cpp
+  application/service/midi_side_chain_service.cpp
   application/service/midi_worker.cpp
   application/service/mixer_service.cpp
   application/service/player_service.cpp
@@ -208,6 +210,7 @@ set(QML_SOURCE_FILES
     ${QML_BASE_DIR}/Dialogs/SettingsDialog_GeneralSettings.qml
     ${QML_BASE_DIR}/Dialogs/SettingsDialog_MidiSettings.qml
     ${QML_BASE_DIR}/Dialogs/ShortcutsDialog.qml
+    ${QML_BASE_DIR}/Dialogs/SideChainTargetDelegate.qml
     ${QML_BASE_DIR}/Dialogs/TrackSettingsDialog.qml
     ${QML_BASE_DIR}/Dialogs/TrackSettingsDialog_InstrumentSettings.qml
     ${QML_BASE_DIR}/Dialogs/TrackSettingsDialog_MidiCcSettings_Custom.qml

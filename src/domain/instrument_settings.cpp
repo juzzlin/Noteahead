@@ -71,6 +71,25 @@ void InstrumentSettings::serializeToXml(QXmlStreamWriter & writer) const
         writer.writeAttribute(Constants::NahdXml::xmlKeyAutoNoteOffOffset(), QString::number(timing.autoNoteOffOffset->count()));
     }
 
+    writer.writeStartElement(Constants::NahdXml::xmlKeyMidiSideChain());
+    writer.writeAttribute(Constants::NahdXml::xmlKeyEnabled(), midiEffects.midiSideChain.enabled ? Constants::NahdXml::xmlValueTrue() : Constants::NahdXml::xmlValueFalse());
+    writer.writeAttribute(Constants::NahdXml::xmlKeySourceTrack(), QString::number(midiEffects.midiSideChain.sourceTrackIndex));
+    writer.writeAttribute(Constants::NahdXml::xmlKeySourceColumn(), QString::number(midiEffects.midiSideChain.sourceColumnIndex));
+    writer.writeAttribute(Constants::NahdXml::xmlKeyLookahead(), QString::number(midiEffects.midiSideChain.lookahead.count()));
+    writer.writeAttribute(Constants::NahdXml::xmlKeyRelease(), QString::number(midiEffects.midiSideChain.release.count()));
+
+    for(size_t i = 0; i < midiEffects.midiSideChain.targets.size(); ++i) {
+        const auto& target = midiEffects.midiSideChain.targets[i];
+        writer.writeStartElement(QStringLiteral("Target%1").arg(i));
+        writer.writeAttribute(Constants::NahdXml::xmlKeyEnabled(), target.enabled ? Constants::NahdXml::xmlValueTrue() : Constants::NahdXml::xmlValueFalse());
+        writer.writeAttribute(Constants::NahdXml::xmlKeyController(), QString::number(target.controller));
+        writer.writeAttribute(Constants::NahdXml::xmlKeyTargetValue(), QString::number(target.targetValue));
+        writer.writeAttribute(Constants::NahdXml::xmlKeyReleaseValue(), QString::number(target.releaseValue));
+        writer.writeEndElement();
+    }
+
+    writer.writeEndElement(); // MidiSideChain
+
     for (auto && midiCcSetting : midiCcSettings) {
         midiCcSetting.serializeToXml(writer);
     }
@@ -109,6 +128,29 @@ InstrumentSettings::InstrumentSettingsU InstrumentSettings::deserializeFromXml(Q
         juzzlin::L(TAG).trace() << "InstrumentSettings: Current element: " << reader.name().toString().toStdString();
         if (reader.isStartElement() && !reader.name().compare(Constants::NahdXml::xmlKeyMidiCcSetting())) {
             settings->midiCcSettings.push_back(*MidiCcSetting::deserializeFromXml(reader));
+        }
+        if (reader.isStartElement() && !reader.name().compare(Constants::NahdXml::xmlKeyMidiSideChain())) {
+            settings->midiEffects.midiSideChain.enabled = *Utils::Xml::readBoolAttribute(reader, Constants::NahdXml::xmlKeyEnabled());
+            settings->midiEffects.midiSideChain.sourceTrackIndex = *Utils::Xml::readUIntAttribute(reader, Constants::NahdXml::xmlKeySourceTrack());
+            settings->midiEffects.midiSideChain.sourceColumnIndex = *Utils::Xml::readUIntAttribute(reader, Constants::NahdXml::xmlKeySourceColumn());
+            settings->midiEffects.midiSideChain.lookahead = std::chrono::milliseconds(*Utils::Xml::readUIntAttribute(reader, Constants::NahdXml::xmlKeyLookahead()));
+            settings->midiEffects.midiSideChain.release = std::chrono::milliseconds(*Utils::Xml::readUIntAttribute(reader, Constants::NahdXml::xmlKeyRelease()));
+            reader.readNext();
+
+            // Loop until we find the end tag of MidiSideChain
+            while (!(reader.isEndElement() && !reader.name().compare(Constants::NahdXml::xmlKeyMidiSideChain()))) {
+                if (reader.isStartElement() && reader.name().toString().startsWith("Target")) {
+                    InstrumentSettings::MidiEffects::MidiSideChain::Target target;
+                    target.enabled = *Utils::Xml::readBoolAttribute(reader, Constants::NahdXml::xmlKeyEnabled());
+                    target.controller = *Utils::Xml::readUIntAttribute(reader, Constants::NahdXml::xmlKeyController());
+                    target.targetValue = *Utils::Xml::readUIntAttribute(reader, Constants::NahdXml::xmlKeyTargetValue());
+                    target.releaseValue = *Utils::Xml::readUIntAttribute(reader, Constants::NahdXml::xmlKeyReleaseValue());
+                    settings->midiEffects.midiSideChain.targets.push_back(target);
+                    reader.skipCurrentElement(); // This consumes the current <TargetX> element entirely
+                } else {
+                    reader.readNext(); // Move to the next token if it's not a Target start element
+                }
+            }
         }
         reader.readNext();
     }

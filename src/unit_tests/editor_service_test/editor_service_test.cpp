@@ -15,6 +15,9 @@
 
 #include "editor_service_test.hpp"
 
+#include <algorithm> // Required for std::sort
+#include <vector>    // Required for std::vector
+
 #include "../../application/service/automation_service.hpp"
 #include "../../application/service/editor_service.hpp"
 #include "../../application/service/mixer_service.hpp"
@@ -1768,6 +1771,72 @@ void EditorServiceTest::test_toXmlFromXml_instrumentSettings_shouldParseInstrume
         QCOMPARE(instrumentSettingsIn->midiCcSettings.at(i).value(), instrumentSettingsOut->midiCcSettings.at(i).value());
     }
 }
+
+void EditorServiceTest::test_toXmlFromXml_instrumentSettings_shouldParseMidiSideChain()
+{
+    EditorService editorServiceOut;
+    editorServiceOut.requestPosition(0, 0, 0, 0, 0);
+
+    auto instrumentSettingsOut = std::make_shared<InstrumentSettings>();
+    auto & midiSideChainOut = instrumentSettingsOut->midiEffects.midiSideChain;
+    midiSideChainOut.enabled = true;
+    midiSideChainOut.sourceTrackIndex = 1;
+    midiSideChainOut.sourceColumnIndex = 2;
+    midiSideChainOut.lookahead = std::chrono::milliseconds(10);
+    midiSideChainOut.release = std::chrono::milliseconds(100);
+    midiSideChainOut.targets.push_back({ true, 7, 127, 0 });
+    midiSideChainOut.targets.push_back({ false, 10, 100, 10 });
+    midiSideChainOut.targets.push_back({ true, 11, 80, 20 });
+    midiSideChainOut.targets.push_back({ false, 14, 60, 30 });
+
+    editorServiceOut.setInstrumentSettingsAtCurrentPosition(instrumentSettingsOut);
+
+    const auto xml = editorServiceOut.toXml();
+
+    EditorService editorServiceIn;
+    editorServiceIn.fromXml(xml);
+
+    editorServiceIn.requestPosition(0, 0, 0, 0, 0);
+    const auto instrumentSettingsIn = editorServiceIn.instrumentSettingsAtCurrentPosition();
+
+    QVERIFY(instrumentSettingsIn);
+
+    auto & midiSideChainIn = instrumentSettingsIn->midiEffects.midiSideChain;
+
+    // Sort the vectors to make the comparison order-independent
+    std::sort(midiSideChainOut.targets.begin(), midiSideChainOut.targets.end(),
+              [](const InstrumentSettings::MidiEffects::MidiSideChain::Target &a,
+                 const InstrumentSettings::MidiEffects::MidiSideChain::Target &b) {
+                  if (a.controller != b.controller) return a.controller < b.controller;
+                  if (a.targetValue != b.targetValue) return a.targetValue < b.targetValue;
+                  if (a.releaseValue != b.releaseValue) return a.releaseValue < b.releaseValue;
+                  return a.enabled < b.enabled;
+              });
+
+    std::sort(midiSideChainIn.targets.begin(), midiSideChainIn.targets.end(),
+              [](const InstrumentSettings::MidiEffects::MidiSideChain::Target &a,
+                 const InstrumentSettings::MidiEffects::MidiSideChain::Target &b) {
+                  if (a.controller != b.controller) return a.controller < b.controller;
+                  if (a.targetValue != b.targetValue) return a.targetValue < b.targetValue;
+                  if (a.releaseValue != b.releaseValue) return a.releaseValue < b.releaseValue;
+                  return a.enabled < b.enabled;
+              });
+
+    QCOMPARE(midiSideChainIn.enabled, midiSideChainOut.enabled);
+    QCOMPARE(midiSideChainIn.sourceTrackIndex, midiSideChainOut.sourceTrackIndex);
+    QCOMPARE(midiSideChainIn.sourceColumnIndex, midiSideChainOut.sourceColumnIndex);
+    QCOMPARE(midiSideChainIn.lookahead, midiSideChainOut.lookahead);
+    QCOMPARE(midiSideChainIn.release, midiSideChainOut.release);
+    QCOMPARE(midiSideChainIn.targets.size(), midiSideChainOut.targets.size());
+    for (size_t i = 0; i < midiSideChainOut.targets.size(); ++i) {
+        QCOMPARE(midiSideChainIn.targets.at(i).enabled, midiSideChainOut.targets.at(i).enabled);
+        QCOMPARE(midiSideChainIn.targets.at(i).controller, midiSideChainOut.targets.at(i).controller);
+        QCOMPARE(midiSideChainIn.targets.at(i).targetValue, midiSideChainOut.targets.at(i).targetValue);
+        QCOMPARE(midiSideChainIn.targets.at(i).releaseValue, midiSideChainOut.targets.at(i).releaseValue);
+    }
+}
+
+
 
 void EditorServiceTest::test_toXmlFromXml_noteData_noteOn()
 {

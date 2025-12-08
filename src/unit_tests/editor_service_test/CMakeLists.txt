@@ -9,6 +9,7 @@ set(SRC
     ../../application/service/automation_service.cpp
     ../../application/service/copy_manager.cpp
     ../../application/service/editor_service.cpp
+    ../../application/service/midi_side_chain_service.cpp
     ../../application/service/mixer_service.cpp
     ../../application/service/random_service.cpp
     ../../application/service/selection_service.cpp

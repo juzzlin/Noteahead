@@ -594,6 +594,62 @@ void SongTest::test_columnByName_shouldReturnColumn()
     QCOMPARE(song.columnByName(1, "Bar").value(), 0);
 }
 
+void SongTest::test_renderToEvents_midiSideChain_shouldGenerateEvents()
+{
+    Song song;
+    song.addTrackToRightOf(0); // Create track 1
+
+    auto instrument = std::make_shared<Instrument>("Test Instrument");
+    auto settings = instrument->settings();
+    auto& sideChain = settings.midiEffects.midiSideChain;
+
+    sideChain.enabled = true;
+    sideChain.sourceTrackIndex = 0;
+    sideChain.sourceColumnIndex = 0;
+    sideChain.lookahead = std::chrono::milliseconds(100);
+    sideChain.release = std::chrono::milliseconds(200);
+
+    sideChain.targets.push_back({true, 80, 127, 0});
+
+    instrument->setSettings(settings);
+    song.setInstrument(1, instrument);
+
+    Position triggerPosition = { 0, 0, 0, 10, 0 };
+    NoteData noteData(triggerPosition.track, triggerPosition.column);
+    noteData.setAsNoteOn(60, 100);
+    song.setNoteDataAtPosition(noteData, triggerPosition);
+
+    auto automationService = std::make_shared<AutomationService>();
+    auto events = song.renderToEvents(automationService, 0);
+
+    // Expected ticks
+    const double msPerTick = 60000.0 / static_cast<double>(song.beatsPerMinute() * song.linesPerBeat() * song.ticksPerLine());
+    const size_t triggerTick = triggerPosition.line * song.ticksPerLine();
+    const size_t lookaheadTicks = static_cast<size_t>(sideChain.lookahead.count() / msPerTick);
+    const size_t releaseTicks = static_cast<size_t>(sideChain.release.count() / msPerTick);
+    const size_t expectedTargetTick = triggerTick > lookaheadTicks ? triggerTick - lookaheadTicks : 0;
+    const size_t expectedReleaseTick = triggerTick + releaseTicks;
+
+    bool targetEventFound = false;
+    bool releaseEventFound = false;
+
+    for (const auto& event : events) {
+        if (auto ccData = event->midiCcData()) {
+            if (ccData->track() == 1 && ccData->controller() == sideChain.targets.at(0).controller) {
+                if (event->tick() == expectedTargetTick && ccData->value() == sideChain.targets.at(0).targetValue) {
+                    targetEventFound = true;
+                }
+                if (event->tick() == expectedReleaseTick && ccData->value() == sideChain.targets.at(0).releaseValue) {
+                    releaseEventFound = true;
+                }
+            }
+        }
+    }
+
+    QVERIFY(targetEventFound);
+    QVERIFY(releaseEventFound);
+}
+
 } // namespace noteahead
 
 QTEST_GUILESS_MAIN(noteahead::SongTest)

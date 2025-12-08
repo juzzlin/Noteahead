@@ -17,6 +17,7 @@
 
 #include "../application/position.hpp"
 #include "../application/service/copy_manager.hpp"
+#include "../application/service/midi_side_chain_service.hpp"
 #include "../common/constants.hpp"
 #include "../common/utils.hpp"
 #include "../contrib/SimpleLogger/src/simple_logger.hpp"
@@ -806,11 +807,17 @@ Song::EventList Song::renderContent(AutomationServiceS automationService, size_t
     const size_t startTick = positionToTick(startPosition);
     size_t tick = startTick;
 
-    auto eventList = renderStartOfSong(tick);
-    std::tie(eventList, tick) = renderPatterns(automationService, eventList, tick, startPosition, endPosition);
+        auto eventList = renderStartOfSong(tick);
 
-    eventList = renderEndOfSong(eventList, tick);
-    eventList = generateNoteOffs(eventList);
+        std::tie(eventList, tick) = renderPatterns(automationService, eventList, tick, startPosition, endPosition);
+
+            MidiSideChainService midiSideChainService;
+
+            eventList = midiSideChainService.process(*this, eventList);
+
+        eventList = renderEndOfSong(eventList, tick);
+
+        eventList = generateNoteOffs(eventList);
     eventList = removeNonMappedNoteOffs(eventList);
     eventList = generateMidiClockEvents(eventList, startTick, tick);
 

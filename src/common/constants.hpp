@@ -96,11 +96,15 @@ QString xmlKeyLines();
 QString xmlKeyLineCount();
 QString xmlKeyLinesPerBeat();
 
+QString xmlKeyLookahead();
+
 QString xmlKeyMidiCcSetting();
+QString xmlKeyMidiSideChain();
 
 QString xmlKeyMixer();
 
 QString xmlKeyAutomation();
+
 QString xmlKeyMidiCcAutomation();
 QString xmlKeyPitchBendAutomation();
 QString xmlKeyInterpolation();
@@ -143,18 +147,32 @@ QString xmlKeyPatterns();
 
 QString xmlKeyPortName();
 
+QString xmlKeyRelease();
+QString xmlKeyReleaseValue();
+
 QString xmlKeyTrack();
 QString xmlKeyTracks();
+
 QString xmlKeyTrackCount();
+
+QString xmlKeyTarget0();
+QString xmlKeyTarget1();
+QString xmlKeyTarget2();
+QString xmlKeyTarget3();
+QString xmlKeyTargetValue();
 
 QString xmlKeyType();
 QString xmlKeyValue();
+
 
 QString xmlKeyVelocity();
 QString xmlKeyVolume();
 
 QString xmlKeyProject();
 QString xmlKeySong();
+
+QString xmlKeySourceColumn();
+QString xmlKeySourceTrack();
 
 QString xmlValueFalse();
 QString xmlValueTrue();

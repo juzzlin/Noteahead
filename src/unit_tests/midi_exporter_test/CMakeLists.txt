@@ -6,6 +6,7 @@ set(SRC
     ${TEST_NAME}.cpp
     ../../infra/midi/export/midi_exporter.cpp
     ../../application/service/automation_service.cpp
+    ../../application/service/midi_side_chain_service.cpp
     ../../application/service/mixer_service.cpp
     ../../domain/song.cpp
     ../../domain/event.cpp

@@ -32,6 +32,7 @@ private slots:
     void test_setVolumeEnabled_shouldUpdateAndEmitSignal();
     void test_setTrackIndex_shouldUpdateTrackIndex();
     void test_setInstrumentData_shouldUpdateRelevantFields();
+    void test_setAndGet_sideChainSettings_shouldUpdateModel();
 
     void test_toInstrument_shouldReturnInstrumentWithDefaultSettings();
     void test_toInstrument_shouldApplyPatchWhenPatchEnabled();

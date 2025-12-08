@@ -8,6 +8,8 @@ New features:
 * Implement Chord Automation
   - Adds Column Settings with Chord Automation section
 
+* Fix GitHub Issue #30: Implement MIDI side-chain feature
+
 Bug fixes:
 
 * Fix Send transport checkbox not initialized

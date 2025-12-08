@@ -279,9 +279,19 @@ QString xmlKeyLinesPerBeat()
     return "linesPerBeat";
 }
 
+QString xmlKeyLookahead()
+{
+    return "lookahead";
+}
+
 QString xmlKeyMidiCcSetting()
 {
     return "MidiCcSetting";
+}
+
+QString xmlKeyMidiSideChain()
+{
+    return "MidiSideChain";
 }
 
 QString xmlKeyMixer()
@@ -454,6 +464,16 @@ QString xmlKeyPortName()
     return "portName";
 }
 
+QString xmlKeyRelease()
+{
+    return "release";
+}
+
+QString xmlKeyReleaseValue()
+{
+    return "releaseValue";
+}
+
 QString xmlKeyTrack()
 {
     return "Track";
@@ -467,6 +487,31 @@ QString xmlKeyTracks()
 QString xmlKeyTrackCount()
 {
     return "trackCount";
+}
+
+QString xmlKeyTarget0()
+{
+    return "Target0";
+}
+
+QString xmlKeyTarget1()
+{
+    return "Target1";
+}
+
+QString xmlKeyTarget2()
+{
+    return "Target2";
+}
+
+QString xmlKeyTarget3()
+{
+    return "Target3";
+}
+
+QString xmlKeyTargetValue()
+{
+    return "targetValue";
 }
 
 QString xmlKeyType()
@@ -497,6 +542,16 @@ QString xmlKeyProject()
 QString xmlKeySong()
 {
     return "Song";
+}
+
+QString xmlKeySourceColumn()
+{
+    return "sourceColumn";
+}
+
+QString xmlKeySourceTrack()
+{
+    return "sourceTrack";
 }
 
 QString xmlValueFalse()

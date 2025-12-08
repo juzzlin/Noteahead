@@ -6,6 +6,7 @@ set(SRC
     ../../application/position.hpp
     ../../application/service/automation_service.cpp
     ../../application/service/copy_manager.cpp
+    ../../application/service/midi_side_chain_service.cpp
     ../../application/service/random_service.cpp
     ../../common/constants.cpp
     ../../common/utils.cpp
