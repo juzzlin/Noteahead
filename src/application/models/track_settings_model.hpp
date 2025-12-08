@@ -203,15 +203,26 @@ private:
 
     QString m_instrumentPortName;
 
-    QString m_portName;
+    struct InstrumentSettings
+    {
+        QString portName;
+        quint8 channel { 0 };
+        bool patchEnabled { false };
+        quint8 patch { 0 };
+        bool bankEnabled { false };
+        quint8 bankLsb { 0 };
+        quint8 bankMsb { 0 };
+        bool bankByteOrderSwapped { false };
+        int transpose { 0 };
+    };
+
+    InstrumentSettings m_instrumentSettings;
+
     QStringList m_availableMidiPorts;
 
     bool m_applyDisabled { false };
-    bool m_bankByteOrderSwapped { false };
-    bool m_bankEnabled { false };
     bool m_cutoffEnabled { false };
     bool m_panEnabled { false };
-    bool m_patchEnabled { false };
     bool m_volumeEnabled { false };
     bool m_sendMidiClock { false };
     bool m_sendTransport { false };
@@ -221,12 +232,6 @@ private:
 
     std::vector<bool> m_applyDisabledStack;
 
-    quint8 m_bankLsb { 0 };
-    quint8 m_bankMsb { 0 };
-
-    quint8 m_channel { 0 };
-    quint8 m_patch { 0 };
-
     const quint8 m_defaultCutoff { 127 };
     quint8 m_cutoff { m_defaultCutoff };
     const quint8 m_defaultPan { 64 };
@@ -235,7 +240,6 @@ private:
     quint8 m_volume { m_defaultVolume };
 
     int m_delay { 0 };
-    int m_transpose { 0 };
 
     int m_velocityJitter { 0 };
     int m_autoNoteOffOffset { 0 };

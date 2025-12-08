@@ -31,14 +31,14 @@ TrackSettingsModel::TrackSettingsModel(QObject * parent)
 
 void TrackSettingsModel::applyAll()
 {
-    if (!m_applyDisabled && !m_portName.isEmpty()) {
+    if (!m_applyDisabled && !m_instrumentSettings.portName.isEmpty()) {
         emit applyAllRequested();
     }
 }
 
 void TrackSettingsModel::applyMidiCc()
 {
-    if (!m_applyDisabled && !m_portName.isEmpty()) {
+    if (!m_applyDisabled && !m_instrumentSettings.portName.isEmpty()) {
         emit applyMidiCcRequested();
     }
 }
@@ -98,15 +98,15 @@ quint64 TrackSettingsModel::trackIndex() const
 
 quint8 TrackSettingsModel::channel() const
 {
-    return m_channel;
+    return m_instrumentSettings.channel;
 }
 
 void TrackSettingsModel::setChannel(quint8 channel)
 {
     juzzlin::L(TAG).debug() << "Setting channel to " << static_cast<int>(channel);
 
-    if (m_channel != channel) {
-        m_channel = channel;
+    if (m_instrumentSettings.channel != channel) {
+        m_instrumentSettings.channel = channel;
         emit channelChanged();
         applyAll();
     }
@@ -146,15 +146,15 @@ void TrackSettingsModel::setCutoffEnabled(bool enabled)
 
 bool TrackSettingsModel::bankEnabled() const
 {
-    return m_bankEnabled;
+    return m_instrumentSettings.bankEnabled;
 }
 
 void TrackSettingsModel::setBankEnabled(bool enabled)
 {
     juzzlin::L(TAG).debug() << "Enabling bank: " << static_cast<int>(enabled);
 
-    if (m_bankEnabled != enabled) {
-        m_bankEnabled = enabled;
+    if (m_instrumentSettings.bankEnabled != enabled) {
+        m_instrumentSettings.bankEnabled = enabled;
         emit bankEnabledChanged();
         applyAll();
     }
@@ -162,15 +162,15 @@ void TrackSettingsModel::setBankEnabled(bool enabled)
 
 quint8 TrackSettingsModel::bankLsb() const
 {
-    return m_bankLsb;
+    return m_instrumentSettings.bankLsb;
 }
 
 void TrackSettingsModel::setBankLsb(quint8 lsb)
 {
     juzzlin::L(TAG).debug() << "Setting bank LSB to " << static_cast<int>(lsb);
 
-    if (m_bankLsb != lsb) {
-        m_bankLsb = lsb;
+    if (m_instrumentSettings.bankLsb != lsb) {
+        m_instrumentSettings.bankLsb = lsb;
         emit bankLsbChanged();
         applyAll();
     }
@@ -178,15 +178,15 @@ void TrackSettingsModel::setBankLsb(quint8 lsb)
 
 quint8 TrackSettingsModel::bankMsb() const
 {
-    return m_bankMsb;
+    return m_instrumentSettings.bankMsb;
 }
 
 void TrackSettingsModel::setBankMsb(quint8 msb)
 {
     juzzlin::L(TAG).debug() << "Setting bank MSB to " << static_cast<int>(msb);
 
-    if (m_bankMsb != msb) {
-        m_bankMsb = msb;
+    if (m_instrumentSettings.bankMsb != msb) {
+        m_instrumentSettings.bankMsb = msb;
         emit bankMsbChanged();
         applyAll();
     }
@@ -194,15 +194,15 @@ void TrackSettingsModel::setBankMsb(quint8 msb)
 
 bool TrackSettingsModel::bankByteOrderSwapped() const
 {
-    return m_bankByteOrderSwapped;
+    return m_instrumentSettings.bankByteOrderSwapped;
 }
 
 void TrackSettingsModel::setBankByteOrderSwapped(bool swapped)
 {
     juzzlin::L(TAG).debug() << "Enabling swapped bank byte order: " << static_cast<int>(swapped);
 
-    if (m_bankByteOrderSwapped != swapped) {
-        m_bankByteOrderSwapped = swapped;
+    if (m_instrumentSettings.bankByteOrderSwapped != swapped) {
+        m_instrumentSettings.bankByteOrderSwapped = swapped;
         emit bankByteOrderSwappedChanged();
         applyAll();
     }
@@ -282,24 +282,17 @@ void TrackSettingsModel::reset()
     m_instrumentPortName = {};
     setAvailableMidiPorts(m_availableMidiPorts); // Update the list with instrument port name
 
+    m_instrumentSettings = {};
+
     m_autoNoteOffOffset = {};
     m_autoNoteOffOffsetEnabled = false;
-    m_bankByteOrderSwapped = false;
-    m_bankEnabled = false;
-    m_bankLsb = 0;
-    m_bankMsb = 0;
-    m_channel = 0;
     m_cutoff = m_defaultCutoff;
     m_cutoffEnabled = false;
     m_delay = 0;
     m_pan = m_defaultPan;
     m_panEnabled = false;
-    m_patch = 0;
-    m_patchEnabled = false;
-    m_portName = {};
     m_sendMidiClock = false;
     m_sendTransport = false;
-    m_transpose = 0;
     m_velocityJitter = 0;
     m_volume = m_defaultVolume;
     m_volumeEnabled = false;
@@ -313,25 +306,25 @@ void TrackSettingsModel::reset()
 
 TrackSettingsModel::InstrumentU TrackSettingsModel::toInstrument() const
 {
-    auto instrument = std::make_unique<Instrument>(m_portName);
+    auto instrument = std::make_unique<Instrument>(m_instrumentSettings.portName);
 
     auto address = instrument->midiAddress();
-    address.setChannel(m_channel);
+    address.setChannel(m_instrumentSettings.channel);
     instrument->setMidiAddress(address);
 
     auto settings = instrument->settings();
-    if (m_patchEnabled) {
-        settings.patch = m_patch;
+    if (m_instrumentSettings.patchEnabled) {
+        settings.patch = m_instrumentSettings.patch;
     }
-    if (m_bankEnabled) {
+    if (m_instrumentSettings.bankEnabled) {
         settings.bank = {
-            m_bankLsb,
-            m_bankMsb,
-            m_bankByteOrderSwapped
+            m_instrumentSettings.bankLsb,
+            m_instrumentSettings.bankMsb,
+            m_instrumentSettings.bankByteOrderSwapped
         };
     }
 
-    settings.transpose = m_transpose;
+    settings.transpose = m_instrumentSettings.transpose;
 
     if (m_cutoffEnabled) {
         settings.standardMidiCcSettings.cutoff = m_cutoff;
@@ -361,15 +354,15 @@ TrackSettingsModel::InstrumentU TrackSettingsModel::toInstrument() const
 
 QString TrackSettingsModel::portName() const
 {
-    return m_portName;
+    return m_instrumentSettings.portName;
 }
 
 void TrackSettingsModel::setPortName(const QString & name)
 {
     juzzlin::L(TAG).debug() << "Setting port name to " << std::quoted(name.toStdString());
 
-    if (m_portName != name) {
-        m_portName = name;
+    if (m_instrumentSettings.portName != name) {
+        m_instrumentSettings.portName = name;
         emit portNameChanged();
         applyAll();
     }
@@ -377,15 +370,15 @@ void TrackSettingsModel::setPortName(const QString & name)
 
 bool TrackSettingsModel::patchEnabled() const
 {
-    return m_patchEnabled;
+    return m_instrumentSettings.patchEnabled;
 }
 
 void TrackSettingsModel::setPatchEnabled(bool enabled)
 {
     juzzlin::L(TAG).debug() << "Enabling patch: " << static_cast<int>(enabled);
 
-    if (m_patchEnabled != enabled) {
-        m_patchEnabled = enabled;
+    if (m_instrumentSettings.patchEnabled != enabled) {
+        m_instrumentSettings.patchEnabled = enabled;
         emit patchEnabledChanged();
         applyAll();
     }
@@ -393,15 +386,15 @@ void TrackSettingsModel::setPatchEnabled(bool enabled)
 
 quint8 TrackSettingsModel::patch() const
 {
-    return m_patch;
+    return m_instrumentSettings.patch;
 }
 
 void TrackSettingsModel::setPatch(quint8 patch)
 {
     juzzlin::L(TAG).debug() << "Setting patch to " << static_cast<int>(patch);
 
-    if (m_patch != patch) {
-        m_patch = patch;
+    if (m_instrumentSettings.patch != patch) {
+        m_instrumentSettings.patch = patch;
         emit patchChanged();
         applyAll();
     }
@@ -520,15 +513,15 @@ void TrackSettingsModel::setDelay(int delay)
 
 int TrackSettingsModel::transpose() const
 {
-    return m_transpose;
+    return m_instrumentSettings.transpose;
 }
 
 void TrackSettingsModel::setTranspose(int transpose)
 {
     juzzlin::L(TAG).debug() << "Setting transposition to " << transpose;
 
-    if (m_transpose != transpose) {
-        m_transpose = transpose;
+    if (m_instrumentSettings.transpose != transpose) {
+        m_instrumentSettings.transpose = transpose;
         emit transposeChanged();
     }
 }
