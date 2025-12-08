@@ -229,23 +229,27 @@ private:
 
     TimingSettings m_timingSettings;
 
+    struct StandardMidiCcSettings
+    {
+        bool cutoffEnabled { false };
+        quint8 cutoff { 127 };
+
+        bool panEnabled { false };
+        quint8 pan { 64 };
+
+        bool volumeEnabled { false };
+        quint8 volume { 127 };
+    };
+
+    StandardMidiCcSettings m_standardMidiCcSettings;
+
     QStringList m_availableMidiPorts;
 
     bool m_applyDisabled { false };
-    bool m_cutoffEnabled { false };
-    bool m_panEnabled { false };
-    bool m_volumeEnabled { false };
 
     quint64 m_trackIndex { 0 };
 
     std::vector<bool> m_applyDisabledStack;
-
-    const quint8 m_defaultCutoff { 127 };
-    quint8 m_cutoff { m_defaultCutoff };
-    const quint8 m_defaultPan { 64 };
-    quint8 m_pan { m_defaultPan };
-    const quint8 m_defaultVolume { 127 };
-    quint8 m_volume { m_defaultVolume };
 
     int m_velocityJitter { 0 };
 };

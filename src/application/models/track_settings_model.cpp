@@ -114,15 +114,15 @@ void TrackSettingsModel::setChannel(quint8 channel)
 
 quint8 TrackSettingsModel::cutoff() const
 {
-    return m_cutoff;
+    return m_standardMidiCcSettings.cutoff;
 }
 
 void TrackSettingsModel::setCutoff(quint8 cutoff)
 {
     juzzlin::L(TAG).debug() << "Setting cutoff to " << static_cast<int>(cutoff);
 
-    if (m_cutoff != cutoff) {
-        m_cutoff = cutoff;
+    if (m_standardMidiCcSettings.cutoff != cutoff) {
+        m_standardMidiCcSettings.cutoff = cutoff;
         emit cutoffChanged();
         applyAll();
     }
@@ -130,15 +130,15 @@ void TrackSettingsModel::setCutoff(quint8 cutoff)
 
 bool TrackSettingsModel::cutoffEnabled() const
 {
-    return m_cutoffEnabled;
+    return m_standardMidiCcSettings.cutoffEnabled;
 }
 
 void TrackSettingsModel::setCutoffEnabled(bool enabled)
 {
     juzzlin::L(TAG).debug() << "Enabling cutoff: " << static_cast<int>(enabled);
 
-    if (m_cutoffEnabled != enabled) {
-        m_cutoffEnabled = enabled;
+    if (m_standardMidiCcSettings.cutoffEnabled != enabled) {
+        m_standardMidiCcSettings.cutoffEnabled = enabled;
         emit cutoffEnabledChanged();
         applyAll();
     }
@@ -286,13 +286,7 @@ void TrackSettingsModel::reset()
 
     m_timingSettings = {};
 
-    m_cutoff = m_defaultCutoff;
-    m_cutoffEnabled = false;
-    m_pan = m_defaultPan;
-    m_panEnabled = false;
-    m_velocityJitter = 0;
-    m_volume = m_defaultVolume;
-    m_volumeEnabled = false;
+    m_standardMidiCcSettings = {};
 
     setMidiCcSettings({});
 
@@ -323,14 +317,14 @@ TrackSettingsModel::InstrumentU TrackSettingsModel::toInstrument() const
 
     settings.transpose = m_instrumentSettings.transpose;
 
-    if (m_cutoffEnabled) {
-        settings.standardMidiCcSettings.cutoff = m_cutoff;
+    if (m_standardMidiCcSettings.cutoffEnabled) {
+        settings.standardMidiCcSettings.cutoff = m_standardMidiCcSettings.cutoff;
     }
-    if (m_panEnabled) {
-        settings.standardMidiCcSettings.pan = m_pan;
+    if (m_standardMidiCcSettings.panEnabled) {
+        settings.standardMidiCcSettings.pan = m_standardMidiCcSettings.pan;
     }
-    if (m_volumeEnabled) {
-        settings.standardMidiCcSettings.volume = m_volume;
+    if (m_standardMidiCcSettings.volumeEnabled) {
+        settings.standardMidiCcSettings.volume = m_standardMidiCcSettings.volume;
     }
 
     settings.timing.sendMidiClock = m_timingSettings.sendMidiClock;
@@ -399,15 +393,15 @@ void TrackSettingsModel::setPatch(quint8 patch)
 
 quint8 TrackSettingsModel::pan() const
 {
-    return m_pan;
+    return m_standardMidiCcSettings.pan;
 }
 
 void TrackSettingsModel::setPan(quint8 pan)
 {
     juzzlin::L(TAG).debug() << "Setting pan to " << static_cast<int>(pan);
 
-    if (m_pan != pan) {
-        m_pan = pan;
+    if (m_standardMidiCcSettings.pan != pan) {
+        m_standardMidiCcSettings.pan = pan;
         emit panChanged();
         applyAll();
     }
@@ -415,15 +409,15 @@ void TrackSettingsModel::setPan(quint8 pan)
 
 bool TrackSettingsModel::panEnabled() const
 {
-    return m_panEnabled;
+    return m_standardMidiCcSettings.panEnabled;
 }
 
 void TrackSettingsModel::setPanEnabled(bool enabled)
 {
     juzzlin::L(TAG).debug() << "Enabling pan: " << static_cast<int>(enabled);
 
-    if (m_panEnabled != enabled) {
-        m_panEnabled = enabled;
+    if (m_standardMidiCcSettings.panEnabled != enabled) {
+        m_standardMidiCcSettings.panEnabled = enabled;
         emit panEnabledChanged();
         applyAll();
     }
@@ -431,15 +425,15 @@ void TrackSettingsModel::setPanEnabled(bool enabled)
 
 quint8 TrackSettingsModel::volume() const
 {
-    return m_volume;
+    return m_standardMidiCcSettings.volume;
 }
 
 void TrackSettingsModel::setVolume(quint8 volume)
 {
     juzzlin::L(TAG).debug() << "Setting volume to " << static_cast<int>(volume);
 
-    if (m_volume != volume) {
-        m_volume = volume;
+    if (m_standardMidiCcSettings.volume != volume) {
+        m_standardMidiCcSettings.volume = volume;
         emit volumeChanged();
         applyAll();
     }
@@ -447,15 +441,15 @@ void TrackSettingsModel::setVolume(quint8 volume)
 
 bool TrackSettingsModel::volumeEnabled() const
 {
-    return m_volumeEnabled;
+    return m_standardMidiCcSettings.volumeEnabled;
 }
 
 void TrackSettingsModel::setVolumeEnabled(bool enabled)
 {
     juzzlin::L(TAG).debug() << "Enabling volume: " << static_cast<int>(enabled);
 
-    if (m_volumeEnabled != enabled) {
-        m_volumeEnabled = enabled;
+    if (m_standardMidiCcSettings.volumeEnabled != enabled) {
+        m_standardMidiCcSettings.volumeEnabled = enabled;
         emit volumeEnabledChanged();
         applyAll();
     }
