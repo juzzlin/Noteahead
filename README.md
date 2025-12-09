@@ -71,12 +71,16 @@ Some example tracks sequenced with Noteahead (produced with Behringer X32 Produc
   - Noteahead notices when a device goes online/offline
   - Noteahead automatically sets channel, bank, and patch
 - Sends MIDI clock pulse and Start/Stop on desired ports
+- MIDI side-chain (since 1.2.0)
+  - In Track settings the user can select source track and column that triggers the desired MIDI CC event
 - MIDI CC automation
   - Select lines and add automation on the desired controller
   - Linear interpolation
   - Sine wave interpolation (since 1.0.0+)
 - Pitch Bend automation (linear interpolation)  
   - Select lines and add automation on pitch bend
+- Chord automation (since 1.2.0)
+  - In Column Settings the user can set offsets for three notes that are relative to the root note
 - Step record / play notes via a MIDI controller (since 0.10.0)
   - The MIDI controller is routed to the instrument of the selected track
 - Highly adjustable note-off's (global default in ms, per-instrument in ms, manual)
@@ -109,7 +113,6 @@ Some example tracks sequenced with Noteahead (produced with Behringer X32 Produc
 ## Future dreams (**NOT YET IMPLEMENTED**):
 
 * Horizontal visualization
-* MIDI file export
 * Live recording via a MIDI controller
 * Sync options: MIDI, Jack
 
