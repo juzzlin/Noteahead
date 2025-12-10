@@ -20,11 +20,9 @@
 
 namespace noteahead {
 
-class MidiSideChainService
-{
-public:
-    Song::EventList process(const Song & song, const Song::EventList & events);
-};
+namespace MidiSideChainService {
+Song::EventList renderToEvents(const Song & song, const Song::EventList & events, size_t endPosition);
+}
 
 } // namespace noteahead
 

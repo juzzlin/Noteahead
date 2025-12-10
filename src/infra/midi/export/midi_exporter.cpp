@@ -100,6 +100,13 @@ void MidiExporter::exportTo(std::string fileName, SongW songW, MixerServiceS mix
         return;
     }
 
+    if (endPosition >= song->length()) {
+        endPosition = song->length();
+    }
+
+    juzzlin::L(TAG).info() << "Start position: " << startPosition;
+    juzzlin::L(TAG).info() << "End position: " << endPosition;
+
     std::ofstream out(fileName, std::ios::binary);
     if (!out.is_open()) {
         juzzlin::L(TAG).error() << "Failed to open file for writing: " << fileName;

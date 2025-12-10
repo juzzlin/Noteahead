@@ -202,6 +202,10 @@ public:
     using AutomationDeserializationCallback = std::function<void(QXmlStreamReader & reader)>;
     void deserializeFromXml(QXmlStreamReader & reader, MixerDeserializationCallback mixerDeserializationCallback, AutomationDeserializationCallback automationDeserializationCallback);
 
+    size_t positionToTick(size_t position) const;
+    std::chrono::milliseconds tickToTime(size_t tick) const;
+    void updateTickToSongPositionMapping(size_t patternStartTick, size_t songPosition, size_t patternIndex, size_t lineCount);
+
 private:
     void load(const std::string & filename);
 
@@ -226,10 +230,6 @@ private:
     using EventsAndTick = std::pair<EventList, size_t>;
     EventsAndTick renderPatterns(AutomationServiceS automationService, EventListCR eventList, size_t tick, size_t startPosition, size_t endPosition);
     EventList renderContent(AutomationServiceS automationService, size_t startPosition, size_t endPosition);
-
-    size_t positionToTick(size_t position) const;
-    std::chrono::milliseconds tickToTime(size_t tick) const;
-    void updateTickToSongPositionMapping(size_t patternStartTick, size_t songPosition, size_t patternIndex, size_t lineCount);
 
     std::chrono::milliseconds m_autoNoteOffOffset = 125ms;
 

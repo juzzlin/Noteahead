@@ -804,21 +804,27 @@ Song::EventList Song::generateMidiClockEvents(EventListCR eventList, size_t star
 
 Song::EventList Song::renderContent(AutomationServiceS automationService, size_t startPosition, size_t endPosition)
 {
+    if (endPosition >= length()) {
+        endPosition = length();
+    }
+
+    juzzlin::L(TAG).info() << "Start position: " << startPosition;
+    juzzlin::L(TAG).info() << "End position: " << endPosition;
+
     const size_t startTick = positionToTick(startPosition);
     size_t tick = startTick;
 
-        auto eventList = renderStartOfSong(tick);
+    auto eventList = renderStartOfSong(tick);
+    std::tie(eventList, tick) = renderPatterns(automationService, eventList, tick, startPosition, endPosition);
+    eventList = renderEndOfSong(eventList, tick);
 
-        std::tie(eventList, tick) = renderPatterns(automationService, eventList, tick, startPosition, endPosition);
-
-            MidiSideChainService midiSideChainService;
-
-            eventList = midiSideChainService.process(*this, eventList);
-
-        eventList = renderEndOfSong(eventList, tick);
-
-        eventList = generateNoteOffs(eventList);
+    juzzlin::L(TAG).debug() << "Rendering side-chains";
+    eventList = MidiSideChainService::renderToEvents(*this, eventList, endPosition);
+    juzzlin::L(TAG).debug() << "Rendering note-off's";
+    eventList = generateNoteOffs(eventList);
+    juzzlin::L(TAG).debug() << "Removing non-mapped note-off's";
     eventList = removeNonMappedNoteOffs(eventList);
+    juzzlin::L(TAG).debug() << "Generating MIDI clock events";
     eventList = generateMidiClockEvents(eventList, startTick, tick);
 
     return eventList;

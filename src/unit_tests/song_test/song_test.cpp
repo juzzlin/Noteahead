@@ -597,30 +597,27 @@ void SongTest::test_columnByName_shouldReturnColumn()
 void SongTest::test_renderToEvents_midiSideChain_shouldGenerateEvents()
 {
     Song song;
-    song.addTrackToRightOf(0); // Create track 1
 
-    auto instrument = std::make_shared<Instrument>("Test Instrument");
+    const auto instrument = std::make_shared<Instrument>("Test Instrument");
     auto settings = instrument->settings();
-    auto& sideChain = settings.midiEffects.midiSideChain;
-
+    auto && sideChain = settings.midiEffects.midiSideChain;
     sideChain.enabled = true;
     sideChain.sourceTrackIndex = 0;
     sideChain.sourceColumnIndex = 0;
-    sideChain.lookahead = std::chrono::milliseconds(100);
-    sideChain.release = std::chrono::milliseconds(200);
-
-    sideChain.targets.push_back({true, 80, 127, 0});
+    sideChain.lookahead = 100ms;
+    sideChain.release = 200ms;
+    sideChain.targets.push_back({ true, 80, 127, 0 });
 
     instrument->setSettings(settings);
     song.setInstrument(1, instrument);
 
-    Position triggerPosition = { 0, 0, 0, 10, 0 };
-    NoteData noteData(triggerPosition.track, triggerPosition.column);
+    const Position triggerPosition = { 0, 0, 0, 10, 0 };
+    NoteData noteData { triggerPosition.track, triggerPosition.column };
     noteData.setAsNoteOn(60, 100);
     song.setNoteDataAtPosition(noteData, triggerPosition);
 
-    auto automationService = std::make_shared<AutomationService>();
-    auto events = song.renderToEvents(automationService, 0);
+    const auto automationService = std::make_shared<AutomationService>();
+    const auto events = song.renderToEvents(automationService, 0);
 
     // Expected ticks
     const double msPerTick = 60000.0 / static_cast<double>(song.beatsPerMinute() * song.linesPerBeat() * song.ticksPerLine());
@@ -647,6 +644,52 @@ void SongTest::test_renderToEvents_midiSideChain_shouldGenerateEvents()
     }
 
     QVERIFY(targetEventFound);
+    QVERIFY(releaseEventFound);
+}
+
+
+void SongTest::test_renderToEvents_midiSideChain_shouldClampReleaseEvents()
+{
+    Song song;
+
+    const auto instrument = std::make_shared<Instrument>("Test Instrument");
+    auto settings = instrument->settings();
+    auto && sideChain = settings.midiEffects.midiSideChain;
+    sideChain.enabled = true;
+    sideChain.sourceTrackIndex = 0;
+    sideChain.sourceColumnIndex = 0;
+    sideChain.lookahead = 0ms; // No lookahead
+    sideChain.release = 500ms; // Long release
+    sideChain.targets.push_back({ true, 80, 127, 0 });
+
+    instrument->setSettings(settings);
+    song.setInstrument(1, instrument);
+
+    // Place a note at the end of the first line of pattern 0
+    const Position triggerPosition = { 0, 0, 0, song.lineCount(0) -1, 0 };
+    NoteData noteData { triggerPosition.track, triggerPosition.column };
+    noteData.setAsNoteOn(60, 100);
+    song.setNoteDataAtPosition(noteData, triggerPosition);
+
+    // Define an end position that cuts off the release event
+    const size_t endPosition = 1; // End at the start of the second pattern position
+    const auto automationService = std::make_shared<AutomationService>();
+    const auto events = song.renderToEvents(automationService, 0, endPosition);
+
+    const size_t maxTick = song.positionToTick(endPosition);
+
+    // Find the release event and check its tick
+    bool releaseEventFound = false;
+    for (const auto& event : events) {
+        if (auto ccData = event->midiCcData()) {
+            if (ccData->track() == 1 && ccData->controller() == sideChain.targets.at(0).controller && ccData->value() == sideChain.targets.at(0).releaseValue) {
+                releaseEventFound = true;
+                QCOMPARE(event->tick(), maxTick > 0 ? maxTick - 1 : 0);
+                break;
+            }
+        }
+    }
+
     QVERIFY(releaseEventFound);
 }
 

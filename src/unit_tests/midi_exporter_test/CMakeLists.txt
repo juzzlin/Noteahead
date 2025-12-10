@@ -1,9 +1,9 @@
 cmake_minimum_required(VERSION 3.16)
 
-set(TEST_NAME midi_exporter_test)
+set(NAME midi_exporter_test)
 
 set(SRC
-    ${TEST_NAME}.cpp
+    ${NAME}.cpp
     ../../infra/midi/export/midi_exporter.cpp
     ../../application/service/automation_service.cpp
     ../../application/service/midi_side_chain_service.cpp
@@ -38,15 +38,9 @@ set(SRC
     ../../application/service/random_service.cpp
 )
 
-add_executable(${TEST_NAME} ${SRC})
-
-target_include_directories(${TEST_NAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/../..)
-target_include_directories(${TEST_NAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/../../contrib/SimpleLogger/src)
-
-target_link_libraries(${TEST_NAME}
-    PRIVATE
-        Qt6::Test
-        SimpleLogger
-)
-
-add_test(NAME ${TEST_NAME} COMMAND ${TEST_NAME})
+qt_add_executable(${NAME} ${SRC})
+set_target_properties(${NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${UNIT_TEST_BASE_DIR})
+target_include_directories(${NAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/../..)
+target_include_directories(${NAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/../../contrib/SimpleLogger/src)
+target_link_libraries(${NAME} PRIVATE Qt6::Test SimpleLogger)
+add_test(NAME ${NAME} COMMAND ${NAME})
