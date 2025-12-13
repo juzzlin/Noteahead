@@ -13,8 +13,8 @@
 // You should have received a copy of the GNU General Public License
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef MIDI_IN_WORKER_HPP
-#define MIDI_IN_WORKER_HPP
+#ifndef MIDI_WORKER_IN_HPP
+#define MIDI_WORKER_IN_HPP
 
 #include "midi_worker.hpp"
 
@@ -28,16 +28,16 @@
 
 namespace noteahead {
 
-class MidiIn;
-class MidiPort;
+class MidiBackendIn;
 class MidiNoteData;
+class MidiPort;
 
-class MidiInWorker : public MidiWorker
+class MidiWorkerIn : public MidiWorker
 {
     Q_OBJECT
 
 public:
-    explicit MidiInWorker(QObject * parent = nullptr);
+    explicit MidiWorkerIn(QObject * parent = nullptr);
 
     using MidiAddressCR = const MidiAddress &;
     using MidiNoteDataCR = const MidiNoteData &;
@@ -103,7 +103,7 @@ private:
 
     QString m_controllerPort;
 
-    std::shared_ptr<MidiIn> m_midiIn;
+    std::shared_ptr<MidiBackendIn> m_midiWorkerIn;
 
     using RpnStateMap = std::unordered_map<quint8, std::optional<std::pair<quint8, quint8>>>;
     RpnStateMap m_rpnState;
@@ -119,4 +119,4 @@ private:
 
 } // namespace noteahead
 
-#endif // MIDI_IN_WORKER_HPP
+#endif // MIDI_WORKER_IN_HPP

@@ -16,7 +16,7 @@
 #ifndef MIDI_OUT_RT_MIDI_HPP
 #define MIDI_OUT_RT_MIDI_HPP
 
-#include "../../midi_out.hpp"
+#include "../../midi_backend_out.hpp"
 
 #include <memory>
 #include <unordered_map>
@@ -26,7 +26,7 @@
 namespace noteahead {
 
 //! Implementation of the MIDI output backend using the RtMidi library.
-class MidiOutRtMidi : public MidiOut
+class MidiOutRtMidi : public MidiBackendOut
 {
 public:
     MidiOutRtMidi();

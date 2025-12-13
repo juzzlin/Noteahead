@@ -27,7 +27,7 @@ namespace noteahead {
 static const auto TAG = "MidiBackendRtMidi";
 
 MidiOutRtMidi::MidiOutRtMidi()
-  : MidiOut { { "Noteahead Virtual MIDI Out" } }
+  : MidiBackendOut { { "Noteahead Virtual MIDI Out" } }
 {
     for (auto && virtualPort : virtualPorts()) {
         openVirtualPort(virtualPort);
@@ -51,7 +51,7 @@ void MidiOutRtMidi::updatePorts()
     m_ports.clear();
 }
 
-Midi::PortNameList MidiOutRtMidi::availablePortNames() const
+MidiBackend::PortNameList MidiOutRtMidi::availablePortNames() const
 {
     PortNameList portNameList;
     RtMidiOut tempMidiOut; // Temporary instance to list ports
@@ -138,7 +138,7 @@ void MidiOutRtMidi::sendNoteOn(MidiPortCR port, uint8_t channel, uint8_t note, u
 
     sendMessage(port, message);
 
-    MidiOut::sendNoteOn(port, channel, note, velocity);
+    MidiBackendOut::sendNoteOn(port, channel, note, velocity);
 }
 
 void MidiOutRtMidi::sendNoteOff(MidiPortCR port, uint8_t channel, uint8_t note) const
@@ -152,7 +152,7 @@ void MidiOutRtMidi::sendNoteOff(MidiPortCR port, uint8_t channel, uint8_t note) 
 
     sendMessage(port, message);
 
-    MidiOut::sendNoteOff(port, channel, note);
+    MidiBackendOut::sendNoteOff(port, channel, note);
 }
 
 void MidiOutRtMidi::sendPatchChange(MidiPortCR port, uint8_t channel, uint8_t patch) const

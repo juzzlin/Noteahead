@@ -28,11 +28,11 @@ namespace noteahead {
 
 class Instrument;
 class MidiAddress;
-class MidiOut;
+class MidiBackendOut;
 class MidiCcData;
 class MidiNoteData;
-class MidiInWorker;
-class MidiOutWorker;
+class MidiWorkerIn;
+class MidiWorkerOut;
 class PitchBendData;
 
 class MidiService : public QObject
@@ -111,11 +111,11 @@ private:
     std::mutex m_outputWorkerMutex; // Calls to this service may become directly from PlayerWorker and also live notes from other sources
     using Lock = std::lock_guard<std::mutex>;
 
-    std::unique_ptr<MidiOutWorker> m_outputWorker;
+    std::unique_ptr<MidiWorkerOut> m_outputWorker;
     QThread m_outputWorkerThread;
     QStringList m_outputPorts;
 
-    std::unique_ptr<MidiInWorker> m_inputWorker;
+    std::unique_ptr<MidiWorkerIn> m_inputWorker;
     QThread m_inputWorkerThread;
     QStringList m_inputPorts;
 };

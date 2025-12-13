@@ -13,7 +13,7 @@
 // You should have received a copy of the GNU General Public License
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
-#include "midi.hpp"
+#include "midi_backend.hpp"
 
 #include "../../common/utils.hpp"
 
@@ -21,14 +21,14 @@
 
 namespace noteahead {
 
-Midi::Midi() = default;
+MidiBackend::MidiBackend() = default;
 
-Midi::PortList Midi::ports() const
+MidiBackend::PortList MidiBackend::ports() const
 {
     return m_ports;
 }
 
-MidiPortS Midi::portByIndex(size_t index) const
+MidiPortS MidiBackend::portByIndex(size_t index) const
 {
     if (const auto device = std::ranges::find_if(m_ports, [&index](auto & device) { return device->index() == index; }); device != m_ports.end()) {
         return *device;
@@ -37,12 +37,12 @@ MidiPortS Midi::portByIndex(size_t index) const
     }
 }
 
-void Midi::invalidatePortNameCache()
+void MidiBackend::invalidatePortNameCache()
 {
     m_nameToPortCache.clear();
 }
 
-MidiPortS Midi::portByName(const std::string & name) const
+MidiPortS MidiBackend::portByName(const std::string & name) const
 {
     if (const auto port = m_nameToPortCache.find(name); port != m_nameToPortCache.end()) {
         return port->second;
@@ -57,42 +57,42 @@ MidiPortS Midi::portByName(const std::string & name) const
     return {};
 }
 
-std::string Midi::midiApiName() const
+std::string MidiBackend::midiApiName() const
 {
     return "";
 }
 
-void Midi::updatePorts()
+void MidiBackend::updatePorts()
 {
 }
 
-void Midi::setPorts(PortList ports)
+void MidiBackend::setPorts(PortList ports)
 {
     m_ports = ports;
 }
 
-void Midi::openPort(MidiPortCR)
+void MidiBackend::openPort(MidiPortCR)
 {
 }
 
-void Midi::closePort(MidiPortCR)
+void MidiBackend::closePort(MidiPortCR)
 {
 }
 
-Midi::PortNameList Midi::portNames() const
+MidiBackend::PortNameList MidiBackend::portNames() const
 {
-    Midi::PortNameList portNameList;
+    MidiBackend::PortNameList portNameList;
     std::ranges::transform(m_ports, std::back_inserter(portNameList),
                            [](const auto & port) { return port->name(); });
     std::ranges::sort(portNameList);
     return portNameList;
 }
 
-Midi::PortNameList Midi::availablePortNames() const
+MidiBackend::PortNameList MidiBackend::availablePortNames() const
 {
     return {};
 }
 
-Midi::~Midi() = default;
+MidiBackend::~MidiBackend() = default;
 
 } // namespace noteahead

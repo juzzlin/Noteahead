@@ -13,27 +13,20 @@
 // You should have received a copy of the GNU General Public License
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef MIDI_IN_HPP
-#define MIDI_IN_HPP
-
-#include "midi.hpp"
-
-#include <functional>
+#include "midi_backend_in.hpp"
 
 namespace noteahead {
 
-//! Base class for MIDI input backend implementations.
-class MidiIn : public Midi
-{
-public:
-    MidiIn();
-    virtual ~MidiIn() override;
+MidiBackendIn::MidiBackendIn() = default;
 
-    using InputCallback = std::function<void(double, const std::vector<unsigned char> &)>;
-    virtual void setCallbackForPort(const MidiPort & port, InputCallback callback);
-    virtual void clearCallbacks();
-};
+void MidiBackendIn::setCallbackForPort(const MidiPort &, InputCallback)
+{
+}
+
+void MidiBackendIn::clearCallbacks()
+{
+}
+
+MidiBackendIn::~MidiBackendIn() = default;
 
 } // namespace noteahead
-
-#endif // MIDI_IN_HPP

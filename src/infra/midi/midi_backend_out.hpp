@@ -13,10 +13,10 @@
 // You should have received a copy of the GNU General Public License
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef MIDI_OUT_HPP
-#define MIDI_OUT_HPP
+#ifndef MIDI_BACKEND_OUT_HPP
+#define MIDI_BACKEND_OUT_HPP
 
-#include "midi.hpp"
+#include "midi_backend.hpp"
 
 #include <cstdint>
 #include <set>
@@ -26,12 +26,12 @@
 namespace noteahead {
 
 //! Base class for MIDI output backend implementations.
-class MidiOut : public Midi
+class MidiBackendOut : public MidiBackend
 {
 public:
     using PortNameList = std::vector<std::string>;
-    MidiOut(PortNameList virtualPorts = {});
-    virtual ~MidiOut() override;
+    MidiBackendOut(PortNameList virtualPorts = {});
+    virtual ~MidiBackendOut() override;
 
     using MidiPortCR = const MidiPort &;
 
@@ -68,4 +68,4 @@ private:
 
 } // namespace noteahead
 
-#endif // MIDI_OUT_HPP
+#endif // MIDI_BACKEND_OUT_HPP

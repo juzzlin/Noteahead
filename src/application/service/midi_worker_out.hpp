@@ -13,8 +13,8 @@
 // You should have received a copy of the GNU General Public License
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef MIDI_OUT_WORKER_HPP
-#define MIDI_OUT_WORKER_HPP
+#ifndef MIDI_WORKER_OUT_HPP
+#define MIDI_WORKER_OUT_HPP
 
 #include "midi_worker.hpp"
 
@@ -29,15 +29,15 @@ namespace noteahead {
 
 class Instrument;
 class InstrumentRequest;
-class MidiOut;
+class MidiBackendOut;
 class MidiPort;
 
-class MidiOutWorker : public MidiWorker
+class MidiWorkerOut : public MidiWorker
 {
     Q_OBJECT
 
 public:
-    explicit MidiOutWorker(QObject * parent = nullptr);
+    explicit MidiWorkerOut(QObject * parent = nullptr);
 
     Q_INVOKABLE void handleInstrumentRequest(const InstrumentRequest & instrumentRequest);
 
@@ -64,7 +64,7 @@ private:
 
     void sendMidiCcSettings(const MidiPort & port, const Instrument & instrument);
 
-    std::shared_ptr<MidiOut> m_midiOut;
+    std::shared_ptr<MidiBackendOut> m_midiBackendOut;
     std::unique_ptr<QTimer> m_midiStopTimer;
 
     struct StopTask
@@ -81,4 +81,4 @@ private:
 
 } // namespace noteahead
 
-#endif // MIDI_OUT_WORKER_HPP
+#endif // MIDI_WORKER_OUT_HPP

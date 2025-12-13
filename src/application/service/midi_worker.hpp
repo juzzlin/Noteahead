@@ -24,15 +24,15 @@ class QTimer;
 
 namespace noteahead {
 
-class Midi;
+class MidiBackend;
 
 class MidiWorker : public QObject
 {
     Q_OBJECT
 
 public:
-    using MidiS = std::shared_ptr<Midi>;
-    explicit MidiWorker(MidiS midi, QString role, QObject * parent = nullptr);
+    using MidiBackendS = std::shared_ptr<MidiBackend>;
+    explicit MidiWorker(MidiBackendS midiBackend, QString role, QObject * parent = nullptr);
     virtual ~MidiWorker() override;
 
     Q_INVOKABLE void setIsPlaying(bool isPlaying);
@@ -49,14 +49,14 @@ protected:
 
     bool isPlaying() const;
 
-    MidiS midi() const;
+    MidiBackendS midiBackend() const;
 
 private:
     void initializeScanTimer();
 
     std::atomic_bool m_isPlaying = false;
     std::unique_ptr<QTimer> m_midiScanTimer;
-    MidiS m_midi;
+    MidiBackendS m_midiBackend;
     QString m_role;
 };
 

@@ -13,7 +13,7 @@
 // You should have received a copy of the GNU General Public License
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
-#include "midi_in_worker.hpp"
+#include "midi_worker_in.hpp"
 
 #include "../../contrib/SimpleLogger/src/simple_logger.hpp"
 #include "../../domain/midi_address.hpp"
@@ -28,36 +28,36 @@ namespace noteahead {
 
 static const auto TAG = "MidiInWorker";
 
-MidiInWorker::MidiInWorker(QObject * parent)
+MidiWorkerIn::MidiWorkerIn(QObject * parent)
   : MidiWorker { std::make_unique<MidiInRtMidi>(), "IN", parent }
-  , m_midiIn { std::dynamic_pointer_cast<MidiIn>(midi()) }
+  , m_midiWorkerIn { std::dynamic_pointer_cast<MidiBackendIn>(midiBackend()) }
 {
-    juzzlin::L(TAG).info() << "Midi API name: " << m_midiIn->midiApiName();
+    juzzlin::L(TAG).info() << "Midi API name: " << m_midiWorkerIn->midiApiName();
 }
 
-void MidiInWorker::handlePortsChanged()
+void MidiWorkerIn::handlePortsChanged()
 {
     setControllerPort(m_controllerPort);
 }
 
-MidiAddress MidiInWorker::currentAddress(uint8_t channel) const
+MidiAddress MidiWorkerIn::currentAddress(uint8_t channel) const
 {
     return { m_controllerPort, channel };
 }
 
-void MidiInWorker::setControllerPort(QString portName)
+void MidiWorkerIn::setControllerPort(QString portName)
 {
     if (!portName.isEmpty()) {
         m_controllerPort = portName;
         try {
-            if (const auto port = midi()->portByName(portName.toStdString()); port) {
+            if (const auto port = midiBackend()->portByName(portName.toStdString()); port) {
                 juzzlin::L(TAG).info() << "Opening controller input port: " << portName.toStdString();
-                m_midiIn->openPort(*port);
-                m_midiIn->clearCallbacks();
-                m_midiIn->setCallbackForPort(*port,
-                                             [this](double deltaTime, MessageCR message) {
-                                                 handleIncomingMessage(deltaTime, message);
-                                             });
+                m_midiWorkerIn->openPort(*port);
+                m_midiWorkerIn->clearCallbacks();
+                m_midiWorkerIn->setCallbackForPort(*port,
+                                                   [this](double deltaTime, MessageCR message) {
+                                                       handleIncomingMessage(deltaTime, message);
+                                                   });
             } else {
                 juzzlin::L(TAG).warning() << "No port found for port name: " << portName.toStdString();
             }
@@ -67,7 +67,7 @@ void MidiInWorker::setControllerPort(QString portName)
     }
 }
 
-void MidiInWorker::handleIncomingMessage(double deltaTime, MessageCR message)
+void MidiWorkerIn::handleIncomingMessage(double deltaTime, MessageCR message)
 {
     if (!message.empty()) {
         logMidiMessage(deltaTime, message);
@@ -122,7 +122,7 @@ void MidiInWorker::handleIncomingMessage(double deltaTime, MessageCR message)
     }
 }
 
-void MidiInWorker::logMidiMessage(double deltaTime, MessageCR message)
+void MidiWorkerIn::logMidiMessage(double deltaTime, MessageCR message)
 {
     std::ostringstream oss;
     oss << std::hex << std::setfill('0');
@@ -133,14 +133,14 @@ void MidiInWorker::logMidiMessage(double deltaTime, MessageCR message)
     emit dataReceived(QString::fromStdString(oss.str()));
 }
 
-void MidiInWorker::handleNoteOff(quint8 channel, MessageCR message)
+void MidiWorkerIn::handleNoteOff(quint8 channel, MessageCR message)
 {
     if (message.size() >= 3) {
         emit noteOffReceived(currentAddress(channel), { message.at(1), 0 });
     }
 }
 
-void MidiInWorker::handleNoteOn(quint8 channel, MessageCR message)
+void MidiWorkerIn::handleNoteOn(quint8 channel, MessageCR message)
 {
     if (message.size() >= 3) {
         const quint8 note = message.at(1);
@@ -152,14 +152,14 @@ void MidiInWorker::handleNoteOn(quint8 channel, MessageCR message)
     }
 }
 
-void MidiInWorker::handlePolyAftertouch(quint8 channel, MessageCR message)
+void MidiWorkerIn::handlePolyAftertouch(quint8 channel, MessageCR message)
 {
     if (message.size() >= 3) {
         emit polyAftertouchReceived(currentAddress(channel), message.at(1), message.at(2));
     }
 }
 
-void MidiInWorker::handleControlChange(quint8 channel, MessageCR message)
+void MidiWorkerIn::handleControlChange(quint8 channel, MessageCR message)
 {
     if (message.size() < 3) {
         return;
@@ -221,28 +221,28 @@ void MidiInWorker::handleControlChange(quint8 channel, MessageCR message)
     }
 }
 
-void MidiInWorker::handleProgramChange(quint8 channel, MessageCR message)
+void MidiWorkerIn::handleProgramChange(quint8 channel, MessageCR message)
 {
     if (message.size() >= 2) {
         emit programChangeReceived(currentAddress(channel), message.at(1));
     }
 }
 
-void MidiInWorker::handleChannelAftertouch(quint8 channel, MessageCR message)
+void MidiWorkerIn::handleChannelAftertouch(quint8 channel, MessageCR message)
 {
     if (message.size() >= 2) {
         emit aftertouchReceived(currentAddress(channel), message.at(1));
     }
 }
 
-void MidiInWorker::handlePitchBend(quint8 channel, MessageCR message)
+void MidiWorkerIn::handlePitchBend(quint8 channel, MessageCR message)
 {
     if (message.size() >= 3) {
         emit pitchBendReceived(currentAddress(channel), static_cast<quint16>(message.at(2) << 7) | message.at(1));
     }
 }
 
-void MidiInWorker::handleSysEx(MessageCR message)
+void MidiWorkerIn::handleSysEx(MessageCR message)
 {
     if (message.at(0) == 0xF0 && message.back() == 0xF7 && message.size() >= 2) {
         emit sysExReceived(QByteArray { reinterpret_cast<const char *>(message.data()), static_cast<int>(message.size()) });

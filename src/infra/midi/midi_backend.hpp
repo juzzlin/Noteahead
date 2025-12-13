@@ -13,8 +13,8 @@
 // You should have received a copy of the GNU General Public License
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef MIDI_HPP
-#define MIDI_HPP
+#ifndef MIDI_BACKEND_HPP
+#define MIDI_BACKEND_HPP
 
 #include "midi_port.hpp"
 
@@ -23,12 +23,11 @@
 
 namespace noteahead {
 
-//! Base class for MIDI backend implementations.
-class Midi
+class MidiBackend
 {
 public:
-    Midi();
-    virtual ~Midi();
+    MidiBackend();
+    virtual ~MidiBackend();
 
     using PortList = std::vector<MidiPortS>;
     virtual PortList ports() const;
@@ -62,4 +61,4 @@ private:
 
 } // namespace noteahead
 
-#endif // MIDI_HPP
+#endif // MIDI_BACKEND_HPP

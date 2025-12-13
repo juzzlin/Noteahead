@@ -22,8 +22,8 @@
 #include "../../domain/midi_note_data.hpp"
 #include "../../domain/pitch_bend_data.hpp"
 #include "../instrument_request.hpp"
-#include "midi_in_worker.hpp"
-#include "midi_out_worker.hpp"
+#include "midi_worker_in.hpp"
+#include "midi_worker_out.hpp"
 
 namespace noteahead {
 
@@ -31,8 +31,8 @@ static const auto TAG = "MidiService";
 
 MidiService::MidiService(QObject * parent)
   : QObject { parent }
-  , m_outputWorker { std::make_unique<MidiOutWorker>() }
-  , m_inputWorker { std::make_unique<MidiInWorker>() }
+  , m_outputWorker { std::make_unique<MidiWorkerOut>() }
+  , m_inputWorker { std::make_unique<MidiWorkerIn>() }
 {
     initializeWorkers();
 }
@@ -45,35 +45,35 @@ void MidiService::initializeWorkers()
 
 void MidiService::initializeInputWorker()
 {
-    connect(this, &MidiService::controllerPortChanged, m_inputWorker.get(), &MidiInWorker::setControllerPort);
+    connect(this, &MidiService::controllerPortChanged, m_inputWorker.get(), &MidiWorkerIn::setControllerPort);
 
-    connect(m_inputWorker.get(), &MidiInWorker::portsChanged, this, [this](const auto & midiPorts) {
+    connect(m_inputWorker.get(), &MidiWorkerIn::portsChanged, this, [this](const auto & midiPorts) {
         m_inputPorts = { "" };
         m_inputPorts.append(midiPorts);
         emit inputPortsChanged(m_inputPorts);
     });
 
-    connect(m_inputWorker.get(), &MidiInWorker::portsAppeared, this, &MidiService::inputPortsAppeared);
-    connect(m_inputWorker.get(), &MidiInWorker::portsDisappeared, this, &MidiService::inputPortsDisappeared);
-    connect(m_inputWorker.get(), &MidiInWorker::statusTextRequested, this, &MidiService::statusTextRequested);
+    connect(m_inputWorker.get(), &MidiWorkerIn::portsAppeared, this, &MidiService::inputPortsAppeared);
+    connect(m_inputWorker.get(), &MidiWorkerIn::portsDisappeared, this, &MidiService::inputPortsDisappeared);
+    connect(m_inputWorker.get(), &MidiWorkerIn::statusTextRequested, this, &MidiService::statusTextRequested);
 
-    connect(m_inputWorker.get(), &MidiInWorker::startReceived, this, &MidiService::startReceived);
-    connect(m_inputWorker.get(), &MidiInWorker::stopReceived, this, &MidiService::stopReceived);
-    connect(m_inputWorker.get(), &MidiInWorker::continueReceived, this, &MidiService::continueReceived);
+    connect(m_inputWorker.get(), &MidiWorkerIn::startReceived, this, &MidiService::startReceived);
+    connect(m_inputWorker.get(), &MidiWorkerIn::stopReceived, this, &MidiService::stopReceived);
+    connect(m_inputWorker.get(), &MidiWorkerIn::continueReceived, this, &MidiService::continueReceived);
 
-    connect(m_inputWorker.get(), &MidiInWorker::noteOnReceived, this, &MidiService::noteOnReceived);
-    connect(m_inputWorker.get(), &MidiInWorker::noteOffReceived, this, &MidiService::noteOffReceived);
-    connect(m_inputWorker.get(), &MidiInWorker::pitchBendReceived, this, &MidiService::pitchBendReceived);
+    connect(m_inputWorker.get(), &MidiWorkerIn::noteOnReceived, this, &MidiService::noteOnReceived);
+    connect(m_inputWorker.get(), &MidiWorkerIn::noteOffReceived, this, &MidiService::noteOffReceived);
+    connect(m_inputWorker.get(), &MidiWorkerIn::pitchBendReceived, this, &MidiService::pitchBendReceived);
 
-    connect(m_inputWorker.get(), &MidiInWorker::polyAftertouchReceived, this, &MidiService::polyAftertouchReceived);
-    connect(m_inputWorker.get(), &MidiInWorker::aftertouchReceived, this, &MidiService::aftertouchReceived);
-    connect(m_inputWorker.get(), &MidiInWorker::controlChangeReceived, this, &MidiService::controlChangeReceived);
-    connect(m_inputWorker.get(), &MidiInWorker::programChangeReceived, this, &MidiService::programChangeReceived);
-    connect(m_inputWorker.get(), &MidiInWorker::rpnReceived, this, &MidiService::rpnReceived);
-    connect(m_inputWorker.get(), &MidiInWorker::nrpnReceived, this, &MidiService::nrpnReceived);
-    connect(m_inputWorker.get(), &MidiInWorker::sysExReceived, this, &MidiService::sysExReceived);
+    connect(m_inputWorker.get(), &MidiWorkerIn::polyAftertouchReceived, this, &MidiService::polyAftertouchReceived);
+    connect(m_inputWorker.get(), &MidiWorkerIn::aftertouchReceived, this, &MidiService::aftertouchReceived);
+    connect(m_inputWorker.get(), &MidiWorkerIn::controlChangeReceived, this, &MidiService::controlChangeReceived);
+    connect(m_inputWorker.get(), &MidiWorkerIn::programChangeReceived, this, &MidiService::programChangeReceived);
+    connect(m_inputWorker.get(), &MidiWorkerIn::rpnReceived, this, &MidiService::rpnReceived);
+    connect(m_inputWorker.get(), &MidiWorkerIn::nrpnReceived, this, &MidiService::nrpnReceived);
+    connect(m_inputWorker.get(), &MidiWorkerIn::sysExReceived, this, &MidiService::sysExReceived);
 
-    connect(m_inputWorker.get(), &MidiInWorker::dataReceived, this, &MidiService::dataReceived);
+    connect(m_inputWorker.get(), &MidiWorkerIn::dataReceived, this, &MidiService::dataReceived);
 
     m_inputWorker->moveToThread(&m_inputWorkerThread);
     m_inputWorkerThread.start(QThread::NormalPriority);
@@ -81,17 +81,17 @@ void MidiService::initializeInputWorker()
 
 void MidiService::initializeOutputWorker()
 {
-    connect(this, &MidiService::instrumentRequestHandlingRequested, m_outputWorker.get(), &MidiOutWorker::handleInstrumentRequest);
+    connect(this, &MidiService::instrumentRequestHandlingRequested, m_outputWorker.get(), &MidiWorkerOut::handleInstrumentRequest);
 
-    connect(m_outputWorker.get(), &MidiOutWorker::portsChanged, this, [this](const auto & midiPorts) {
+    connect(m_outputWorker.get(), &MidiWorkerOut::portsChanged, this, [this](const auto & midiPorts) {
         m_outputPorts = { "" };
         m_outputPorts.append(midiPorts);
         emit outputPortsChanged(m_outputPorts);
     });
 
-    connect(m_outputWorker.get(), &MidiOutWorker::portsAppeared, this, &MidiService::outputPortsAppeared);
-    connect(m_outputWorker.get(), &MidiOutWorker::portsDisappeared, this, &MidiService::outputPortsDisappeared);
-    connect(m_outputWorker.get(), &MidiOutWorker::statusTextRequested, this, &MidiService::statusTextRequested);
+    connect(m_outputWorker.get(), &MidiWorkerOut::portsAppeared, this, &MidiService::outputPortsAppeared);
+    connect(m_outputWorker.get(), &MidiWorkerOut::portsDisappeared, this, &MidiService::outputPortsDisappeared);
+    connect(m_outputWorker.get(), &MidiWorkerOut::statusTextRequested, this, &MidiService::statusTextRequested);
 
     m_outputWorker->moveToThread(&m_outputWorkerThread);
     m_outputWorkerThread.start(QThread::HighPriority);

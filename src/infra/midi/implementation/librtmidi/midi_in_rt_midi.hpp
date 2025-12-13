@@ -16,7 +16,7 @@
 #ifndef MIDI_IN_RT_MIDI_HPP
 #define MIDI_IN_RT_MIDI_HPP
 
-#include "../../midi_in.hpp"
+#include "../../midi_backend_in.hpp"
 
 #include <memory>
 #include <unordered_map>
@@ -25,10 +25,10 @@
 
 namespace noteahead {
 
-class MidiInWorker;
+class MidiWorkerIn;
 
 //! MIDI input backend implementation on the RtMidi library.
-class MidiInRtMidi : public MidiIn
+class MidiInRtMidi : public MidiBackendIn
 {
 public:
     void updatePorts() override;

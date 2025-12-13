@@ -39,7 +39,7 @@ void MidiInRtMidi::updatePorts()
     m_openedPorts.clear();
 }
 
-Midi::PortNameList MidiInRtMidi::availablePortNames() const
+MidiBackend::PortNameList MidiInRtMidi::availablePortNames() const
 {
     PortNameList portNameList;
     RtMidiIn tempMidiIn; // Temporary instance to list ports
