@@ -18,6 +18,7 @@
 #include "../../contrib/SimpleLogger/src/simple_logger.hpp"
 #include "../../domain/instrument.hpp"
 
+#include <QDebug>
 #include <iomanip>
 
 namespace noteahead {
@@ -75,6 +76,8 @@ QStringList TrackSettingsModel::availableMidiPorts() const
 
 void TrackSettingsModel::setAvailableMidiPorts(QStringList portNames)
 {
+    qDebug() << TAG << portNames;
+
     pushApplyDisabled();
 
     const auto oldMidiPorts = m_availableMidiPorts;

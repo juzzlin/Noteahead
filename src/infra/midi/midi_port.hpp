@@ -24,17 +24,18 @@ namespace noteahead {
 
 class MidiPort
 {
-public:
-    MidiPort(size_t index, const std::string & name);
+    MidiPort(size_t index, const std::string & name, const std::string & id);
 
     size_t index() const;
     const std::string & name() const;
+    const std::string & id() const; // New accessor for the unique ID
 
     std::string toString() const;
 
 private:
     size_t mIndex;
     std::string mName;
+    std::string mId; // New member to store the unique identifier
 };
 
 using MidiPortS = std::shared_ptr<MidiPort>;
