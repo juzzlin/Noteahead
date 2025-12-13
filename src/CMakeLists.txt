@@ -73,8 +73,6 @@ set(HEADER_FILES
   infra/audio/audio_recorder.hpp
   infra/audio/implementation/librtaudio/audio_recorder_rt_audio.hpp
   infra/midi/export/midi_exporter.hpp
-  infra/midi/implementation/librtmidi/midi_in_rt_midi.hpp
-  infra/midi/implementation/librtmidi/midi_out_rt_midi.hpp
   infra/midi/midi_backend.hpp
   infra/midi/midi_backend_in.hpp
   infra/midi/midi_backend_out.hpp
@@ -154,8 +152,6 @@ set(SOURCE_FILES
   infra/audio/audio_recorder.cpp
   infra/audio/implementation/librtaudio/audio_recorder_rt_audio.cpp
   infra/midi/export/midi_exporter.cpp
-  infra/midi/implementation/librtmidi/midi_in_rt_midi.cpp
-  infra/midi/implementation/librtmidi/midi_out_rt_midi.cpp
   infra/midi/midi_backend.cpp
   infra/midi/midi_backend_in.cpp
   infra/midi/midi_backend_out.cpp
@@ -168,6 +164,25 @@ set(SOURCE_FILES
   infra/video/video_generator.cpp
   main.cpp
 )
+
+set(MIDI_BACKEND_LIBRARIES) # Initialize variable
+
+if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+  find_package(ALSA REQUIRED)
+  list(APPEND SOURCE_FILES
+    infra/midi/implementation/alsa/midi_in_alsa.cpp
+    infra/midi/implementation/alsa/midi_out_alsa.cpp
+  )
+  set(MIDI_BACKEND_LIBRARIES ${ALSA_LIBRARIES})
+else()
+  list(APPEND SOURCE_FILES
+    infra/midi/implementation/librtmidi/midi_in_rt_midi.cpp
+    infra/midi/implementation/librtmidi/midi_out_rt_midi.cpp
+  )
+  # RTMIDI_LIBRARIES should be defined in a FindRtMidi.cmake or similar,
+  # or find_package(RtMidi) should be called. Assuming it's already available.
+  set(MIDI_BACKEND_LIBRARIES ${RTMIDI_LIBRARIES})
+endif()
 
 qt_add_executable(${BINARY_NAME} ${HEADER_FILES} ${SOURCE_FILES})
 
@@ -295,7 +310,7 @@ if(ENABLE_MIDI_DEBUG)
   target_compile_definitions(${BINARY_NAME} PRIVATE ENABLE_MIDI_DEBUG)
 endif()
 
-target_link_libraries(${BINARY_NAME} PRIVATE Qt6::Core Qt6::Quick ${RTMIDI_LIBRARIES} ${RTAUDIO_LIBRARIES} ${SNDFILE_LIBRARIES} SimpleLogger_static Argengine_static)
+target_link_libraries(${BINARY_NAME} PRIVATE Qt6::Core Qt6::Quick ${MIDI_BACKEND_LIBRARIES} ${RTAUDIO_LIBRARIES} ${SNDFILE_LIBRARIES} SimpleLogger_static Argengine_static)
 
 include(${CMAKE_SOURCE_DIR}/cmake/DebianPackagingDefaultQt.cmake)
 

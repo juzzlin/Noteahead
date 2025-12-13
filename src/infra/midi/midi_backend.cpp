@@ -64,6 +64,7 @@ std::string MidiBackend::midiApiName() const
 
 void MidiBackend::updatePorts()
 {
+    // Call setPorts() from the inherited backend.
 }
 
 void MidiBackend::setPorts(PortList ports)
@@ -90,7 +91,7 @@ MidiBackend::PortNameList MidiBackend::portNames() const
 
 MidiBackend::PortNameList MidiBackend::availablePortNames() const
 {
-    return {};
+    return portNames();
 }
 
 MidiBackend::~MidiBackend() = default;

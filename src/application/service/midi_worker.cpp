@@ -21,6 +21,7 @@
 
 #include <chrono>
 
+#include <QDebug>
 #include <QTimer>
 
 namespace noteahead {
@@ -45,9 +46,9 @@ void MidiWorker::initializeScanTimer()
         connect(m_midiScanTimer.get(), &QTimer::timeout, this, [this] {
             if (!isPlaying()) {
                 const auto oldPortNames = Utils::Misc::stdStringVectorToQStringList(m_midiBackend->portNames());
+                m_midiBackend->updatePorts();
                 const auto availablePortNames = Utils::Misc::stdStringVectorToQStringList(m_midiBackend->availablePortNames());
                 if (oldPortNames != availablePortNames || oldPortNames.empty()) {
-                    m_midiBackend->updatePorts();
                     const auto updatedPortNames = Utils::Misc::stdStringVectorToQStringList(m_midiBackend->portNames());
                     QStringList newPortNames;
                     for (auto && portName : updatedPortNames) {
@@ -84,10 +85,12 @@ void MidiWorker::initializeScanTimer()
                             emit statusTextRequested(tr("MIDI %1 port(s) went offline ").arg(m_role));
                         }
                     }
-
                     emit portsChanged(availablePortNames);
+                    qDebug() << "AVA" << availablePortNames;
                     emit portsAppeared(newPortNames);
+                    qDebug() << "APP" << newPortNames;
                     emit portsDisappeared(offlinePortNames);
+                    qDebug() << "DIS" << offlinePortNames;
 
                     handlePortsChanged();
                 }

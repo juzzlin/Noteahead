@@ -17,7 +17,11 @@
 
 #include "../../contrib/SimpleLogger/src/simple_logger.hpp"
 #include "../../domain/instrument.hpp"
+#ifdef __linux__
+#include "../../infra/midi/implementation/alsa/midi_out_alsa.hpp"
+#else
 #include "../../infra/midi/implementation/librtmidi/midi_out_rt_midi.hpp"
+#endif
 #include "../../infra/midi/midi_cc_mapping.hpp"
 #include "../instrument_request.hpp"
 
@@ -30,7 +34,11 @@ namespace noteahead {
 static const auto TAG = "MidiOutWorker";
 
 MidiWorkerOut::MidiWorkerOut(QObject * parent)
+#ifdef __linux__
+  : MidiWorker { std::make_unique<MidiOutAlsa>(), "OUT", parent }
+#else
   : MidiWorker { std::make_unique<MidiOutRtMidi>(), "OUT", parent }
+#endif
   , m_midiBackendOut { std::dynamic_pointer_cast<MidiBackendOut>(midiBackend()) }
 {
     juzzlin::L(TAG).info() << "Midi API name: " << m_midiBackendOut->midiApiName();
