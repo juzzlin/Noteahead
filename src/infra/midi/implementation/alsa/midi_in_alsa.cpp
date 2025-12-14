@@ -15,7 +15,6 @@
 
 #include "midi_in_alsa.hpp"
 
-#include "../../../common/utils.hpp"
 #include "../../../contrib/SimpleLogger/src/simple_logger.hpp"
 #include "../../../infra/midi/midi_port.hpp"
 
@@ -25,7 +24,6 @@
 #include <chrono>
 #include <cstring>
 #include <iomanip>
-#include <iostream>
 #include <optional>
 #include <vector>
 
@@ -51,17 +49,9 @@ MidiInAlsa::MidiInAlsa()
     m_thread = std::thread(&MidiInAlsa::eventLoop, this);
 }
 
-MidiInAlsa::~MidiInAlsa()
+std::string MidiInAlsa::midiApiName() const
 {
-    m_running = false;
-    if (m_thread.joinable()) {
-        m_thread.join();
-    }
-    if (m_seqHandle) {
-        snd_seq_close(m_seqHandle);
-    }
-    std::lock_guard<std::mutex> lock { m_mutex };
-    m_openPorts.clear();
+    return "ALSA";
 }
 
 void MidiInAlsa::updatePorts()
@@ -105,12 +95,12 @@ void MidiInAlsa::openPort(MidiPortCR port)
         std::memset(subscription, 0, snd_seq_port_subscribe_sizeof());
 
         snd_seq_addr_t senderAddr {};
-        senderAddr.client = parsedId->first;
-        senderAddr.port = parsedId->second;
+        senderAddr.client = static_cast<uint8_t>(parsedId->first);
+        senderAddr.port = static_cast<uint8_t>(parsedId->second);
         snd_seq_port_subscribe_set_sender(subscription, &senderAddr);
 
         snd_seq_addr_t destAddr {};
-        destAddr.client = snd_seq_client_id(m_seqHandle);
+        destAddr.client = static_cast<uint8_t>(snd_seq_client_id(m_seqHandle));
         destAddr.port = 0; // Our client's input port is 0
         snd_seq_port_subscribe_set_dest(subscription, &destAddr);
         if (snd_seq_subscribe_port(m_seqHandle, subscription) < 0) {
@@ -167,12 +157,12 @@ void MidiInAlsa::closePort(MidiPortCR port)
         std::memset(subscription, 0, snd_seq_port_subscribe_sizeof());
 
         snd_seq_addr_t senderAddr {};
-        senderAddr.client = parsedId->first;
-        senderAddr.port = parsedId->second;
+        senderAddr.client = static_cast<uint8_t>(parsedId->first);
+        senderAddr.port = static_cast<uint8_t>(parsedId->second);
         snd_seq_port_subscribe_set_sender(subscription, &senderAddr);
 
         snd_seq_addr_t destAddr {};
-        destAddr.client = snd_seq_client_id(m_seqHandle);
+        destAddr.client = static_cast<uint8_t>(snd_seq_client_id(m_seqHandle));
         destAddr.port = 0; // Our client's input port is 0
         snd_seq_port_subscribe_set_dest(subscription, &destAddr);
 
@@ -196,14 +186,14 @@ std::string MidiInAlsa::portName(MidiPortCR port) const
             return "";
         }
         // Get port info
-        snd_seq_port_info_t * pinfo = nullptr;
-        snd_seq_port_info_alloca(&pinfo);
-        snd_seq_port_info_set_client(pinfo, parsedId->first);
-        snd_seq_port_info_set_port(pinfo, parsedId->second);
-        if (snd_seq_get_any_port_info(m_seqHandle, parsedId->first, parsedId->second, pinfo) < 0) { // Using get_any_port_info
+        snd_seq_port_info_t * portInfo = nullptr;
+        snd_seq_port_info_alloca(&portInfo);
+        snd_seq_port_info_set_client(portInfo, parsedId->first);
+        snd_seq_port_info_set_port(portInfo, parsedId->second);
+        if (snd_seq_get_any_port_info(m_seqHandle, parsedId->first, parsedId->second, portInfo) < 0) { // Using get_any_port_info
             return "";
         }
-        return std::string { snd_seq_client_info_get_name(clientInfo = nullptr) } + std::string { ": " } + std::string { snd_seq_port_info_get_name(pinfo) };
+        return std::string { snd_seq_client_info_get_name(clientInfo = nullptr) } + std::string { ": " } + std::string { snd_seq_port_info_get_name(portInfo) };
     } else {
         juzzlin::L(TAG).error() << "Invalid port id format: " << std::quoted(port.id());
         return "";
@@ -218,7 +208,7 @@ void MidiInAlsa::eventLoop()
             continue;
         }
         if (event->type == SND_SEQ_EVENT_NOTEON || event->type == SND_SEQ_EVENT_NOTEOFF || event->type == SND_SEQ_EVENT_CONTROLLER || event->type == SND_SEQ_EVENT_PITCHBEND || event->type == SND_SEQ_EVENT_PGMCHANGE || event->type == SND_SEQ_EVENT_SYSEX) {
-            std::vector<unsigned char> message{};
+            std::vector<uint8_t> message {};
             const auto now = std::chrono::high_resolution_clock::now();
             const auto ns = std::chrono::time_point_cast<std::chrono::nanoseconds>(now);
             const auto epoch = ns.time_since_epoch();
@@ -230,23 +220,23 @@ void MidiInAlsa::eventLoop()
             if (m_callbacks.count(portId)) {
                 // Construct MIDI message from ALSA event
                 if (event->type == SND_SEQ_EVENT_NOTEON || event->type == SND_SEQ_EVENT_NOTEOFF) {
-                    message.push_back(static_cast<unsigned char>(event->type == SND_SEQ_EVENT_NOTEON ? 0x90 | event->data.note.channel : 0x80 | event->data.note.channel));
+                    message.push_back(static_cast<uint8_t>(event->type == SND_SEQ_EVENT_NOTEON ? 0x90 | event->data.note.channel : 0x80 | event->data.note.channel));
                     message.push_back(event->data.note.note);
                     message.push_back(event->data.note.velocity);
                 } else if (event->type == SND_SEQ_EVENT_CONTROLLER) {
-                    message.push_back(static_cast<unsigned char>(0xB0 | event->data.control.channel));
-                    message.push_back(event->data.control.param);
-                    message.push_back(event->data.control.value);
+                    message.push_back(static_cast<uint8_t>(0xB0 | event->data.control.channel));
+                    message.push_back(static_cast<uint8_t>(event->data.control.param));
+                    message.push_back(static_cast<uint8_t>(event->data.control.value));
                 } else if (event->type == SND_SEQ_EVENT_PITCHBEND) {
-                    message.push_back(static_cast<unsigned char>(0xE0 | event->data.control.channel));
-                    message.push_back(static_cast<unsigned char>(event->data.control.value & 0x7F));
-                    message.push_back(static_cast<unsigned char>((event->data.control.value >> 7) & 0x7F));
+                    message.push_back(static_cast<uint8_t>(0xE0 | event->data.control.channel));
+                    message.push_back(static_cast<uint8_t>(event->data.control.value & 0x7F));
+                    message.push_back(static_cast<uint8_t>((event->data.control.value >> 7) & 0x7F));
                 } else if (event->type == SND_SEQ_EVENT_PGMCHANGE) {
-                    message.push_back(static_cast<unsigned char>(0xC0 | event->data.control.channel));
+                    message.push_back(static_cast<uint8_t>(0xC0 | event->data.control.channel));
                     message.push_back(event->data.control.value);
                 } else if (event->type == SND_SEQ_EVENT_SYSEX) {
-                    for (unsigned int i = 0; i < event->data.ext.len; ++i) {
-                        message.push_back(static_cast<unsigned char>(reinterpret_cast<uint8_t *>(event->data.ext.ptr)[i]));
+                    for (unsigned int i = 0; i < event->data.ext.len; i++) {
+                        message.push_back(static_cast<uint8_t>(reinterpret_cast<uint8_t *>(event->data.ext.ptr)[i]));
                     }
                 }
                 m_callbacks[portId](timestamp, message);
@@ -258,6 +248,19 @@ void MidiInAlsa::eventLoop()
             event = nullptr;
         }
     }
+}
+
+MidiInAlsa::~MidiInAlsa()
+{
+    m_running = false;
+    if (m_thread.joinable()) {
+        m_thread.join();
+    }
+    if (m_seqHandle) {
+        snd_seq_close(m_seqHandle);
+    }
+    std::lock_guard<std::mutex> lock { m_mutex };
+    m_openPorts.clear();
 }
 
 } // namespace noteahead
