@@ -31,16 +31,12 @@ public:
     MidiOutAlsa();
     ~MidiOutAlsa() override;
 
-    // Implementation of MidiBackendOut virtual methods
     void updatePorts() override;
     void openPort(MidiPortCR port) override;
     bool isPortOpen(MidiPortCR port) const;
     void closePort(MidiPortCR port) override;
     std::string portName(MidiPortCR port) const;
-    std::string midiApiName() const override
-    {
-        return "ALSA";
-    }
+    std::string midiApiName() const override;
 
     void stopAllNotes(MidiPortCR port, uint8_t channel) const override;
     void sendCcData(MidiPortCR port, uint8_t channel, uint8_t controller, uint8_t value) const override;

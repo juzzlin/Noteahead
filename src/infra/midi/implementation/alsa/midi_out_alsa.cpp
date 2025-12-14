@@ -15,7 +15,6 @@
 
 #include "midi_out_alsa.hpp"
 
-#include "../../../common/utils.hpp"
 #include "../../../contrib/SimpleLogger/src/simple_logger.hpp"
 #include "../../../infra/midi/midi_port.hpp"
 #include "../../midi_cc_mapping.hpp"
@@ -23,11 +22,9 @@
 #include <alsa/seq.h>
 #include <alsa/seq_event.h>
 
-#include <chrono>
 #include <cstring>
 #include <iomanip>
 #include <iostream>
-#include <vector>
 
 namespace noteahead {
 
@@ -49,6 +46,11 @@ MidiOutAlsa::MidiOutAlsa()
     // Create a separate port for physical output instead of the default 0
     // so as not to mess with virtual ports.
     openPhysicalPort();
+}
+
+std::string MidiOutAlsa::midiApiName() const
+{
+    return "ALSA";
 }
 
 void MidiOutAlsa::openPhysicalPort()
@@ -86,12 +88,12 @@ std::optional<std::pair<int, int>> MidiOutAlsa::parsePortId(const std::string & 
         return std::nullopt;
     } else {
         try {
-            int client = std::stoi(portId.substr(0, colonPos));
-            int port = std::stoi(portId.substr(colonPos + 1));
+            const int client = std::stoi(portId.substr(0, colonPos));
+            const int port = std::stoi(portId.substr(colonPos + 1));
             return std::make_pair(client, port);
-        } catch (const std::invalid_argument & e) {
+        } catch (const std::invalid_argument &) {
             return std::nullopt;
-        } catch (const std::out_of_range & e) {
+        } catch (const std::out_of_range &) {
             return std::nullopt;
         }
     }
@@ -99,27 +101,27 @@ std::optional<std::pair<int, int>> MidiOutAlsa::parsePortId(const std::string & 
 
 void MidiOutAlsa::updatePorts()
 {
-    snd_seq_client_info_t* cinfo;
-    snd_seq_client_info_alloca(&cinfo);
-    snd_seq_port_info_t* pinfo;
-    snd_seq_port_info_alloca(&pinfo);
+    snd_seq_client_info_t * clientInfo = nullptr;
+    snd_seq_client_info_alloca(&clientInfo);
+    snd_seq_port_info_t * portInfo = nullptr;
+    snd_seq_port_info_alloca(&portInfo);
 
     int currentPortIndex = 0; // Assign a unique index for MidiPort
 
     PortList portsList;
-    snd_seq_client_info_set_client(cinfo, -1);
-    while (snd_seq_query_next_client(m_seqHandle, cinfo) >= 0) {
-        const int clientId = snd_seq_client_info_get_client(cinfo);
-        snd_seq_port_info_set_client(pinfo, clientId);
-        snd_seq_port_info_set_port(pinfo, -1);
-        while (snd_seq_query_next_port(m_seqHandle, pinfo) >= 0) {
-            const unsigned int caps = snd_seq_port_info_get_capability(pinfo);
-            const unsigned int type = snd_seq_port_info_get_type(pinfo);
+    snd_seq_client_info_set_client(clientInfo, -1);
+    while (snd_seq_query_next_client(m_seqHandle, clientInfo) >= 0) {
+        const int clientId = snd_seq_client_info_get_client(clientInfo);
+        snd_seq_port_info_set_client(portInfo, clientId);
+        snd_seq_port_info_set_port(portInfo, -1);
+        while (snd_seq_query_next_port(m_seqHandle, portInfo) >= 0) {
+            const unsigned int caps = snd_seq_port_info_get_capability(portInfo);
+            const unsigned int type = snd_seq_port_info_get_type(portInfo);
             const int ourClientId = snd_seq_client_id(m_seqHandle);
             if (clientId != ourClientId) {
                 if ((caps & SND_SEQ_PORT_CAP_WRITE) && (caps & SND_SEQ_PORT_CAP_SUBS_WRITE) && (type & SND_SEQ_PORT_TYPE_MIDI_GENERIC)) {
-                    const auto displayName = std::string { snd_seq_client_info_get_name(cinfo) } + std::string { ": " } + std::string { snd_seq_port_info_get_name(pinfo) };
-                    const auto portId = std::to_string(snd_seq_port_info_get_client(pinfo)) + ":" + std::to_string(snd_seq_port_info_get_port(pinfo));
+                    const auto displayName = std::string { snd_seq_client_info_get_name(clientInfo) } + std::string { ": " } + std::string { snd_seq_port_info_get_name(portInfo) };
+                    const auto portId = std::to_string(snd_seq_port_info_get_client(portInfo)) + ":" + std::to_string(snd_seq_port_info_get_port(portInfo));
                     portsList.push_back(std::make_shared<MidiPort>(currentPortIndex++, displayName, portId));
                 }
             }
@@ -145,22 +147,22 @@ void MidiOutAlsa::openPort(MidiPortCR port)
 
     if (const auto parsedId = parsePortId(port.id()); parsedId.has_value()) {
         juzzlin::L(TAG).debug() << "Opening output port " << parsedId->first << ":" << parsedId->second;
-        snd_seq_port_subscribe_t* subs;
-        snd_seq_port_subscribe_alloca(&subs);
-        std::memset(subs, 0, snd_seq_port_subscribe_sizeof());
+        snd_seq_port_subscribe_t * subscription = nullptr;
+        snd_seq_port_subscribe_alloca(&subscription);
+        std::memset(subscription, 0, snd_seq_port_subscribe_sizeof());
 
         // Source is our client's default port 0
-        snd_seq_addr_t senderAddr{};
+        snd_seq_addr_t senderAddr {};
         senderAddr.client = static_cast<uint8_t>(snd_seq_client_id(m_seqHandle));
         senderAddr.port = static_cast<uint8_t>(m_physicalOutPortId);
-        snd_seq_port_subscribe_set_sender(subs, &senderAddr);
+        snd_seq_port_subscribe_set_sender(subscription, &senderAddr);
 
         // Destination is the target port
-        snd_seq_addr_t destAddr{};
+        snd_seq_addr_t destAddr {};
         destAddr.client = static_cast<uint8_t>(parsedId->first);
         destAddr.port = static_cast<uint8_t>(parsedId->second);
-        snd_seq_port_subscribe_set_dest(subs, &destAddr);
-        if (snd_seq_subscribe_port(m_seqHandle, subs) < 0) {
+        snd_seq_port_subscribe_set_dest(subscription, &destAddr);
+        if (snd_seq_subscribe_port(m_seqHandle, subscription) < 0) {
             throw std::runtime_error { "Error subscribing to ALSA output port." };
         }
 
@@ -185,23 +187,23 @@ void MidiOutAlsa::closePort(MidiPortCR port)
     }
 
     if (const auto parsedId = parsePortId(port.id()); parsedId.has_value()) {
-        snd_seq_port_subscribe_t * subs;
-        snd_seq_port_subscribe_alloca(&subs);
-        std::memset(subs, 0, snd_seq_port_subscribe_sizeof());
+        snd_seq_port_subscribe_t * subscription = nullptr;
+        snd_seq_port_subscribe_alloca(&subscription);
+        std::memset(subscription, 0, snd_seq_port_subscribe_sizeof());
 
         // Source is our client's output port
         snd_seq_addr_t senderAddr {};
         senderAddr.client = static_cast<uint8_t>(snd_seq_client_id(m_seqHandle));
         senderAddr.port = static_cast<uint8_t>(m_physicalOutPortId);
-        snd_seq_port_subscribe_set_sender(subs, &senderAddr);
+        snd_seq_port_subscribe_set_sender(subscription, &senderAddr);
 
         // Destination is the target port
         snd_seq_addr_t destAddr {};
         destAddr.client = static_cast<uint8_t>(parsedId->first);
         destAddr.port = static_cast<uint8_t>(parsedId->second);
-        snd_seq_port_subscribe_set_dest(subs, &destAddr);
+        snd_seq_port_subscribe_set_dest(subscription, &destAddr);
 
-        snd_seq_unsubscribe_port(m_seqHandle, subs);
+        snd_seq_unsubscribe_port(m_seqHandle, subscription);
         std::lock_guard<std::mutex> lock { m_mutex };
         m_openPorts.erase(port.id());
     } else {

@@ -34,7 +34,6 @@ public:
     MidiInAlsa();
     ~MidiInAlsa() override;
 
-    // Implementation of MidiBackendIn virtual methods
     void updatePorts() override;
     void openPort(MidiPortCR port) override;
     void setCallbackForPort(MidiPortCR port, MidiBackendIn::InputCallback callback) override;
@@ -42,7 +41,7 @@ public:
     bool isPortOpen(MidiPortCR port) const;
     void closePort(MidiPortCR port) override;
     std::string portName(MidiPortCR port) const;
-    std::string midiApiName() const override { return "ALSA"; }
+    std::string midiApiName() const override;
 
 private:
     void eventLoop();
