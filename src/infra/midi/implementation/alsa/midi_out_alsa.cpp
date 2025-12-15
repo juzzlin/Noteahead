@@ -330,7 +330,8 @@ void MidiOutAlsa::sendEventToPhysicalPort(MidiPortCR port, snd_seq_event_t & eve
         event.dest.client = static_cast<uint8_t>(parsedId->first);
         event.dest.port = static_cast<uint8_t>(parsedId->second);
         snd_seq_ev_set_direct(&event);
-        snd_seq_event_output_direct(m_seqHandle, &event);
+        snd_seq_event_output(m_seqHandle, &event);
+        snd_seq_drain_output(m_seqHandle);
     } else {
         juzzlin::L(TAG).error() << "Invalid port ID format for sendEvent: " << std::quoted(port.id());
     }
