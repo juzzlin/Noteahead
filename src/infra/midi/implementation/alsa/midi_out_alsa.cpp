@@ -161,7 +161,6 @@ void MidiOutAlsa::openPort(MidiPortCR port)
     }
 
     if (isPortOpen(port)) {
-        juzzlin::L(TAG).trace() << "Port " << port.id() << " is already open.";
         return;
     }
 
