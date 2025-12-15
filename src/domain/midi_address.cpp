@@ -41,7 +41,7 @@ MidiAddress::MidiAddress(QString portName, uint8_t channel, uint8_t group)
 {
 }
 
-QString MidiAddress::portName() const
+const QString & MidiAddress::portName() const
 {
     return m_portName;
 }

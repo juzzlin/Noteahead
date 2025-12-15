@@ -37,7 +37,7 @@ public:
     using MidiAddressU = std::unique_ptr<MidiAddress>;
     static MidiAddressU deserializeFromXml(QXmlStreamReader & reader);
 
-    QString portName() const;
+    const QString & portName() const;
     void setPort(QString portName);
 
     uint8_t channel() const;
