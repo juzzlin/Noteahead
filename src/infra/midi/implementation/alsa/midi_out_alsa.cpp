@@ -112,6 +112,13 @@ std::optional<std::pair<int, int>> MidiOutAlsa::parsePortId(const std::string & 
 
 void MidiOutAlsa::updatePorts()
 {
+    snd_seq_t *infoHandle = nullptr;
+    if (snd_seq_open(&infoHandle, "default", SND_SEQ_OPEN_OUTPUT, 0) < 0) {
+        juzzlin::L(TAG).error() << "Error opening ALSA sequencer for port update.";
+        return;
+    }
+    snd_seq_set_client_name(infoHandle, "Noteahead Port Discovery");
+
     snd_seq_client_info_t * clientInfo = nullptr;
     snd_seq_client_info_alloca(&clientInfo);
     snd_seq_port_info_t * portInfo = nullptr;
@@ -121,11 +128,11 @@ void MidiOutAlsa::updatePorts()
 
     PortList portsList;
     snd_seq_client_info_set_client(clientInfo, -1);
-    while (snd_seq_query_next_client(m_seqHandle, clientInfo) >= 0) {
+    while (snd_seq_query_next_client(infoHandle, clientInfo) >= 0) {
         const int clientId = snd_seq_client_info_get_client(clientInfo);
         snd_seq_port_info_set_client(portInfo, clientId);
         snd_seq_port_info_set_port(portInfo, -1);
-        while (snd_seq_query_next_port(m_seqHandle, portInfo) >= 0) {
+        while (snd_seq_query_next_port(infoHandle, portInfo) >= 0) {
             const unsigned int caps = snd_seq_port_info_get_capability(portInfo);
             const unsigned int type = snd_seq_port_info_get_type(portInfo);
             const int ourClientId = snd_seq_client_id(m_seqHandle);
@@ -138,6 +145,8 @@ void MidiOutAlsa::updatePorts()
             }
         }
     }
+    snd_seq_close(infoHandle);
+
     for (const auto & virtualPort : virtualPorts()) {
         portsList.push_back(std::make_shared<MidiPort>(currentPortIndex++, virtualPort, virtualPort));
     }
