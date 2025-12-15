@@ -84,19 +84,30 @@ void MidiOutAlsa::openVirtualPort(const std::string & portName)
 
 std::optional<std::pair<int, int>> MidiOutAlsa::parsePortId(const std::string & portId) const
 {
-    if (const std::size_t colonPos = portId.find(':'); colonPos == std::string::npos) {
+    const std::size_t colonPos = portId.find(':');
+    if (colonPos == std::string::npos) {
         return std::nullopt;
-    } else {
-        try {
-            const int client = std::stoi(portId.substr(0, colonPos));
-            const int port = std::stoi(portId.substr(colonPos + 1));
-            return std::make_pair(client, port);
-        } catch (const std::invalid_argument &) {
-            return std::nullopt;
-        } catch (const std::out_of_range &) {
-            return std::nullopt;
-        }
     }
+
+    int client = 0;
+    int port = 0;
+    const char* str = portId.c_str();
+    char* end = nullptr;
+
+    // Parse client
+    client = std::strtol(str, &end, 10);
+    if (end != str + colonPos) { // Check if parsing stopped exactly at colon
+        return std::nullopt;
+    }
+
+    // Parse port
+    const char* portStr = str + colonPos + 1;
+    port = std::strtol(portStr, &end, 10);
+    if (end != str + portId.length()) { // Check if parsing consumed the rest of the string
+        return std::nullopt;
+    }
+
+    return std::make_pair(client, port);
 }
 
 void MidiOutAlsa::updatePorts()
