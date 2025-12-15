@@ -315,7 +315,6 @@ void MidiOutAlsa::sendStop(MidiPortCR port) const
 
 void MidiOutAlsa::sendEvent(MidiPortCR port, snd_seq_event_t & event) const
 {
-    std::lock_guard<std::mutex> lock { m_mutex };
     if (isVirtualPort(port.name())) {
         sendEventToVirtualPort(port, event);
     } else {
