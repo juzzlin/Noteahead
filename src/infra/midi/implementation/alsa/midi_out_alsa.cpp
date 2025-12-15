@@ -34,7 +34,7 @@ MidiOutAlsa::MidiOutAlsa()
     : MidiBackendOut { { "Noteahead Virtual MIDI Out" } }
     , m_seqHandle { nullptr }
 {
-    if (snd_seq_open(&m_seqHandle, "default", SND_SEQ_OPEN_OUTPUT, 0) < 0) {
+    if (snd_seq_open(&m_seqHandle, "default", SND_SEQ_OPEN_OUTPUT, SND_SEQ_NONBLOCK) < 0) {
         throw std::runtime_error { "Error opening ALSA sequencer for output." };
     }
     snd_seq_set_client_name(m_seqHandle, "Noteahead");
