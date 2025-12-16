@@ -17,6 +17,7 @@
 #define AUDIO_RECORDER_RT_AUDIO_HPP
 
 #include "../../audio_recorder.hpp"
+#include "../../ring_buffer.hpp"
 
 #include <RtAudio.h>
 #include <sndfile.h>
@@ -24,6 +25,8 @@
 #include <atomic>
 #include <cstdint>
 #include <string>
+#include <thread>
+#include <vector>
 
 namespace noteahead {
 
@@ -45,6 +48,7 @@ private:
 
     void initializeSoundFile(const std::string & fileName, uint32_t sampleRate, uint32_t channelCount);
     void initializeSoundStream(uint32_t deviceId, uint32_t channelCount, uint32_t sampleRate, uint32_t bufferSize);
+    void diskWriteLoop();
 
     RtAudio m_rtAudio;
 
@@ -53,6 +57,11 @@ private:
     SF_INFO m_sfInfo = {};
 
     std::atomic_bool m_running = false;
+
+    // Double buffering / Ring Buffer
+    RingBuffer<int32_t> m_ringBuffer;
+    std::thread m_diskWriteThread;
+    std::atomic<bool> m_stopThread { false };
 };
 
 } // namespace noteahead

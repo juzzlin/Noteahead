@@ -72,6 +72,7 @@ set(HEADER_FILES
   domain/track.hpp
   infra/audio/audio_recorder.hpp
   infra/audio/implementation/librtaudio/audio_recorder_rt_audio.hpp
+  infra/audio/ring_buffer.hpp
   infra/midi/export/midi_exporter.hpp
   infra/midi/implementation/librtmidi/midi_in_rt_midi.hpp
   infra/midi/implementation/librtmidi/midi_out_rt_midi.hpp

@@ -17,6 +17,7 @@
 
 #include "../../../contrib/SimpleLogger/src/simple_logger.hpp"
 
+#include <chrono>
 #include <iostream>
 
 namespace noteahead {
@@ -34,12 +35,17 @@ int AudioRecorderRtAudio::recordCallback(void *, void * inputBuffer,
         std::cerr << "Stream under/overflow detected!" << std::endl;
     }
 
-    if (!inputBuffer || !self->m_sndFile) {
+    if (!inputBuffer) {
         return 0;
     }
 
     const auto in = static_cast<int32_t *>(inputBuffer);
-    sf_writef_int(self->m_sndFile, in, nFrames);
+    const int channels = self->m_sfInfo.channels;
+    const size_t totalSamples = nFrames * channels;
+
+    if (!self->m_ringBuffer.push(in, totalSamples)) {
+        std::cerr << "RingBuffer Overflow!" << std::endl;
+    }
 
     return 0;
 }
@@ -77,6 +83,27 @@ void AudioRecorderRtAudio::initializeSoundStream(uint32_t deviceId, uint32_t cha
     m_rtAudio.startStream();
 }
 
+void AudioRecorderRtAudio::diskWriteLoop()
+{
+    std::vector<int32_t> tempBuffer(16384);
+
+    while (!m_stopThread || m_ringBuffer.readAvailable() > 0) {
+        const size_t available = m_ringBuffer.readAvailable();
+        if (available > 0) {
+            const size_t toRead = std::min(available, tempBuffer.size());
+            const size_t read = m_ringBuffer.pop(tempBuffer.data(), toRead);
+            if (read > 0 && m_sndFile) {
+                const int channels = m_sfInfo.channels;
+                if (channels > 0) {
+                    sf_writef_int(m_sndFile, tempBuffer.data(), read / channels);
+                }
+            }
+        } else {
+            std::this_thread::sleep_for(std::chrono::milliseconds(10));
+        }
+    }
+}
+
 void AudioRecorderRtAudio::start(const std::string & fileName, uint32_t bufferSize)
 {
     if (!m_running) {
@@ -95,6 +122,13 @@ void AudioRecorderRtAudio::start(const std::string & fileName, uint32_t bufferSi
             juzzlin::L(TAG).info() << "Buffer size: " << bufferSize;
 
             initializeSoundFile(fileName, sampleRate, channelCount);
+
+            // 2 seconds buffer
+            m_ringBuffer.resize(sampleRate * channelCount * 2);
+
+            m_stopThread = false;
+            m_diskWriteThread = std::thread(&AudioRecorderRtAudio::diskWriteLoop, this);
+
             initializeSoundStream(deviceId, channelCount, sampleRate, bufferSize);
 
             m_running = true;
@@ -117,7 +151,13 @@ void AudioRecorderRtAudio::stop()
             }
         } catch (std::exception & e) {
             juzzlin::L(TAG).error() << e.what();
-            stop();
+            // Avoid infinite recursion if stop() fails
+            m_running = false;
+        }
+
+        m_stopThread = true;
+        if (m_diskWriteThread.joinable()) {
+            m_diskWriteThread.join();
         }
 
         if (m_sndFile) {
@@ -128,11 +168,6 @@ void AudioRecorderRtAudio::stop()
         m_running = false;
         juzzlin::L(TAG).info() << "Recording stopped";
     }
-}
-
-bool AudioRecorderRtAudio::isRunning() const
-{
-    return m_running;
 }
 
 } // namespace noteahead
