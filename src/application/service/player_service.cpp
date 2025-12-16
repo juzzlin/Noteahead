@@ -57,7 +57,7 @@ void PlayerService::initializeWorker()
     connect(m_playerWorker.get(), &PlayerWorker::tickUpdated, this, &PlayerService::tickUpdated, Qt::QueuedConnection);
     connect(m_playerWorker.get(), &PlayerWorker::isPlayingChanged, this, &PlayerService::isPlayingChanged, Qt::QueuedConnection);
     m_playerWorker->moveToThread(&m_playerWorkerThread);
-    m_playerWorkerThread.start(QThread::HighPriority);
+    m_playerWorkerThread.start(QThread::HighestPriority);
 }
 
 void PlayerService::initializeWorkerWithSongData()
