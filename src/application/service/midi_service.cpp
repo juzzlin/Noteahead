@@ -104,8 +104,6 @@ QStringList MidiService::outputPorts() const
 
 void MidiService::handleInstrumentRequest(const InstrumentRequest & instrumentRequest)
 {
-    Lock lock { m_outputWorkerMutex };
-
     emit instrumentRequestHandlingRequested(instrumentRequest);
 }
 
@@ -122,8 +120,6 @@ void MidiService::setIsPlaying(bool isPlaying)
 
 void MidiService::playAndStopMiddleC(QString portName, quint8 channel, quint8 velocity)
 {
-    Lock lock { m_outputWorkerMutex };
-
     if (const bool invoked = QMetaObject::invokeMethod(m_outputWorker.get(), "playAndStopMiddleC", Q_ARG(QString, portName), Q_ARG(quint8, channel), Q_ARG(quint8, velocity)); !invoked) {
         juzzlin::L(TAG).error() << "Invoking a method failed!";
     }
@@ -131,8 +127,6 @@ void MidiService::playAndStopMiddleC(QString portName, quint8 channel, quint8 ve
 
 void MidiService::playNote(InstrumentW instrument, MidiNoteDataCR data)
 {
-    Lock lock { m_outputWorkerMutex };
-
     if (const bool invoked = QMetaObject::invokeMethod(m_outputWorker.get(), "playNote",
                                                        Q_ARG(QString, instrument.lock()->midiAddress().portName()),
                                                        Q_ARG(quint8, instrument.lock()->midiAddress().channel()),
@@ -145,8 +139,6 @@ void MidiService::playNote(InstrumentW instrument, MidiNoteDataCR data)
 
 void MidiService::stopNote(InstrumentW instrument, MidiNoteDataCR data)
 {
-    Lock lock { m_outputWorkerMutex };
-
     if (const bool invoked = QMetaObject::invokeMethod(m_outputWorker.get(), "stopNote",
                                                        Q_ARG(QString, instrument.lock()->midiAddress().portName()),
                                                        Q_ARG(quint8, instrument.lock()->midiAddress().channel()),
@@ -158,8 +150,6 @@ void MidiService::stopNote(InstrumentW instrument, MidiNoteDataCR data)
 
 void MidiService::stopAllNotes(InstrumentW instrument)
 {
-    Lock lock { m_outputWorkerMutex };
-
     if (const bool invoked = QMetaObject::invokeMethod(m_outputWorker.get(), "stopAllNotes",
                                                        Q_ARG(QString, instrument.lock()->midiAddress().portName()),
                                                        Q_ARG(quint8, instrument.lock()->midiAddress().channel()));
@@ -170,8 +160,6 @@ void MidiService::stopAllNotes(InstrumentW instrument)
 
 void MidiService::sendCcData(InstrumentW instrument, MidiCcDataCR data)
 {
-    Lock lock { m_outputWorkerMutex };
-
     if (const bool invoked = QMetaObject::invokeMethod(m_outputWorker.get(), "sendCcData",
                                                        Q_ARG(QString, instrument.lock()->midiAddress().portName()),
                                                        Q_ARG(quint8, instrument.lock()->midiAddress().channel()),
@@ -184,7 +172,6 @@ void MidiService::sendCcData(InstrumentW instrument, MidiCcDataCR data)
 
 void MidiService::invokeSimpleFunction(MidiService::InstrumentW instrument, QString functionName)
 {
-    Lock lock { m_outputWorkerMutex };
     if (const bool invoked = QMetaObject::invokeMethod(m_outputWorker.get(), functionName.toStdString().c_str(),
                                                        Q_ARG(QString, instrument.lock()->midiAddress().portName()));
         !invoked) {
@@ -209,8 +196,6 @@ void MidiService::sendStop(MidiService::InstrumentW instrument)
 
 void MidiService::sendPitchBendData(InstrumentW instrument, MidiService::PitchBendDataCR data)
 {
-    Lock lock { m_outputWorkerMutex };
-
     if (const bool invoked = QMetaObject::invokeMethod(m_outputWorker.get(), "sendPitchBendData",
                                                        Q_ARG(QString, instrument.lock()->midiAddress().portName()),
                                                        Q_ARG(quint8, instrument.lock()->midiAddress().channel()),

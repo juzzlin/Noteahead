@@ -20,7 +20,6 @@
 #include <QThread>
 
 #include <memory>
-#include <mutex>
 
 #include "../instrument_request.hpp"
 
@@ -107,9 +106,6 @@ private:
     void initializeInputWorker();
     void initializeOutputWorker();
     void invokeSimpleFunction(MidiService::InstrumentW instrument, QString functionName);
-
-    std::mutex m_outputWorkerMutex; // Calls to this service may become directly from PlayerWorker and also live notes from other sources
-    using Lock = std::lock_guard<std::mutex>;
 
     std::unique_ptr<MidiWorkerOut> m_outputWorker;
     QThread m_outputWorkerThread;
