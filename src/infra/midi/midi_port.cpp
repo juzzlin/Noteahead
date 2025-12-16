@@ -17,7 +17,7 @@
 
 namespace noteahead {
 
-MidiPort::MidiPort(size_t portIndex, std::string portName)
+MidiPort::MidiPort(size_t portIndex, const std::string & portName)
   : mIndex { portIndex }
   , mName { portName }
 {
@@ -28,7 +28,7 @@ size_t MidiPort::index() const
     return mIndex;
 }
 
-std::string MidiPort::name() const
+const std::string & MidiPort::name() const
 {
     return mName;
 }
