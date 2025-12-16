@@ -26,7 +26,6 @@
 #include <cstdint>
 #include <string>
 #include <thread>
-#include <vector>
 
 namespace noteahead {
 
