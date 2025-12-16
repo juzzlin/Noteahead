@@ -32,7 +32,7 @@ AudioService::AudioService(QObject * parent)
 void AudioService::initializeWorker()
 {
     m_audioWorker->moveToThread(&m_audioWorkerThread);
-    m_audioWorkerThread.start(QThread::HighPriority);
+    m_audioWorkerThread.start(QThread::HighestPriority);
 }
 
 void AudioService::startRecording(QString filePath, quint32 bufferSize)
