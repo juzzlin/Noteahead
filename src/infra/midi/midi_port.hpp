@@ -24,6 +24,7 @@ namespace noteahead {
 
 class MidiPort
 {
+public:
     MidiPort(size_t index, const std::string & name, const std::string & id);
 
     size_t index() const;
