@@ -32,16 +32,10 @@ My own setup runs Noteahead on Ubuntu 24.04 LTS with all gear connected via USB-
 
 Some example tracks sequenced with Noteahead (produced with Behringer X32 Producer and Audacity):
 
+- [Arctic Music Project - Pointless (SoundCloud)](https://soundcloud.com/arctic-music-project/pointless)
 - [Arctic Music Project - Why (SoundCloud)](https://soundcloud.com/arctic-music-project/why)
 - [Arctic Music Project - Halla Returns (SoundCloud)](https://soundcloud.com/arctic-music-project/halla-returns)
 - [Arctic Music Project - Triple Distilled (SoundCloud)](https://soundcloud.com/arctic-music-project/triple-distilled)
-- [Arctic Music Project - Ultimate (SoundCloud)](https://soundcloud.com/arctic-music-project/ultimate)
-- [Arctic Music Project - 0035AM (SoundCloud)](https://soundcloud.com/arctic-music-project/0035am)
-- [Arctic Music Project - Headache (Spotify)](https://open.spotify.com/track/4XeltaReGWcopx9vP464BV)
-- [Arctic Music Project - Endless (Spotify)](https://open.spotify.com/track/38SATXWn653hCt1DcpYFO4)
-- [Arctic Music Project - Epic Success (Spotify)](https://open.spotify.com/track/6YNoAeZbB49p2bxoJA7gc1)
-- [Arctic Music Project - Amen To Coffee (Spotify)](https://open.spotify.com/track/3LRUJHsZFlk4Lj8qVeadX3)
-- [Arctic Music Project - Halla (Spotify)](https://open.spotify.com/track/04v9gwT7L0wKbrY8MbIRao)
 - [J.L.P - This Planet (Spotify)](https://open.spotify.com/track/5LV4oR82Ak4uA0kkKB6McX)
 - [J.L.P - This Planet - Note Visualization Video (YouTube)](https://www.youtube.com/watch?v=f_Cf_84eXcA)
 
