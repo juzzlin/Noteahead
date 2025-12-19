@@ -5,6 +5,19 @@ Release date:
 
 New features:
 
+Bug fixes:
+
+Other:
+
+1.2.0
+=====
+
+Release date:
+
+Fri, 19 Dec 2025 19:57:49 +0200
+
+New features:
+
 * Implement Chord Automation
   - Adds Column Settings with Chord Automation section
 
@@ -15,6 +28,10 @@ Bug fixes:
 * Fix Send transport checkbox not initialized
 
 Other:
+
+* Improve audio I/O with a ring buffer
+
+* Improve MIDI timing with direct function calls to worker
 
 1.1.0
 =====
