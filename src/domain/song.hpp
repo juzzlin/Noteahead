@@ -225,6 +225,7 @@ private:
     EventList applyInstrumentsOnEvents(EventListCR events) const;
     EventList generateNoteOffsForActiveNotes(TrackAndColumn trackAndcolumn, size_t tick, ActiveNoteMap & activeNotes) const;
     EventList generateAutoNoteOffsForDanglingNotes(size_t tick, ActiveNoteMap & activeNotes) const;
+    EventList generateChordAutomations(EventListCR events) const;
     EventList generateNoteOffs(EventListCR events) const;
     EventList generateMidiClockEvents(EventListCR eventList, size_t startTick, size_t endTick);
     EventList removeNonMappedNoteOffs(EventListCR events) const;

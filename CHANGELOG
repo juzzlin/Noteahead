@@ -7,6 +7,8 @@ New features:
 
 Bug fixes:
 
+* Fix chord automation applied only on pattern 0
+
 Other:
 
 1.2.0

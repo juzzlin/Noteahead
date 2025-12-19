@@ -206,24 +206,6 @@ Column::EventList Column::renderToEvents(size_t startTick, size_t ticksPerLine) 
             }
             if (const auto noteData = line->noteData(); noteData->type() == NoteData::Type::NoteOn) {
                 eventList.push_back(std::make_shared<Event>(tick + noteData->delay(), *noteData));
-
-                if (m_settings->chordAutomationSettings.isEnabled() && noteData->note().has_value()) {
-                    const auto & settings = m_settings->chordAutomationSettings;
-                    const auto rootNote = *noteData->note();
-                    const auto rootVelocity = noteData->velocity();
-
-                    auto addChordNote = [&](const ColumnSettings::ChordAutomationSettings::ChordNote & chordNote) {
-                        if (chordNote.offset != 0) {
-                            NoteData chordNoteData = *noteData;
-                            chordNoteData.setAsNoteOn(rootNote + chordNote.offset, static_cast<uint8_t>(static_cast<float>(rootVelocity) * (static_cast<float>(chordNote.velocity) / 100.f)));
-                            eventList.push_back(std::make_shared<Event>(tick + chordNoteData.delay(), chordNoteData));
-                        }
-                    };
-
-                    addChordNote(settings.note1);
-                    addChordNote(settings.note2);
-                    addChordNote(settings.note3);
-                }
             } else if (noteData->type() != NoteData::Type::None) {
                 eventList.push_back(std::make_shared<Event>(tick + noteData->delay(), *noteData));
             }

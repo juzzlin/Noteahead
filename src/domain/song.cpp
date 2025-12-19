@@ -802,6 +802,37 @@ Song::EventList Song::generateMidiClockEvents(EventListCR eventList, size_t star
     return processedEventList;
 }
 
+Song::EventList Song::generateChordAutomations(EventListCR events) const
+{
+    Song::EventList processedEventList;
+    for (auto && event : events) {
+        processedEventList.push_back(event);
+        const auto noteData = event->noteData();
+        if (noteData.has_value()) {
+            const auto track = noteData->track();
+            const auto column = noteData->column();
+            const auto columnSettings = m_patterns.at(0)->columnSettings(track, column);
+            if (columnSettings->chordAutomationSettings.isEnabled() && noteData->note().has_value()) {
+                const auto & settings = columnSettings->chordAutomationSettings;
+                const auto rootNote = *noteData->note();
+                const auto rootVelocity = noteData->velocity();
+                auto addChordNote = [&](const ColumnSettings::ChordAutomationSettings::ChordNote & chordNote) {
+                    if (chordNote.offset != 0) {
+                        NoteData chordNoteData = *noteData;
+                        chordNoteData.setAsNoteOn(rootNote + chordNote.offset, static_cast<uint8_t>(static_cast<float>(rootVelocity) * (static_cast<float>(chordNote.velocity) / 100.f)));
+                        processedEventList.push_back(std::make_shared<Event>(event->tick(), chordNoteData));
+                    }
+                };
+                addChordNote(settings.note1);
+                addChordNote(settings.note2);
+                addChordNote(settings.note3);
+            }
+        }
+    }
+
+    return processedEventList;
+}
+
 Song::EventList Song::renderContent(AutomationServiceS automationService, SideChainServiceS sideChainService, size_t startPosition, size_t endPosition)
 {
     if (endPosition >= length()) {
@@ -819,6 +850,8 @@ Song::EventList Song::renderContent(AutomationServiceS automationService, SideCh
     eventList = renderEndOfSong(eventList, tick);
     juzzlin::L(TAG).debug() << "Rendering side-chains";
     eventList = sideChainService->renderToEvents(*this, eventList, startPosition, endPosition);
+    juzzlin::L(TAG).debug() << "Rendering chord automations";
+    eventList = generateChordAutomations(eventList);
     juzzlin::L(TAG).debug() << "Rendering note-off's";
     eventList = generateNoteOffs(eventList);
     juzzlin::L(TAG).debug() << "Removing non-mapped note-off's";
