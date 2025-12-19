@@ -177,7 +177,9 @@ void PlayerWorker::processEvents()
     auto tick = minTick;
     while (m_isPlaying && (tick <= maxTick || m_isLooping)) {
         const auto effectiveTick = this->effectiveTick(tick, minTick, maxTick);
-        emit tickUpdated(static_cast<quint64>(effectiveTick));
+        if (m_timing.ticksPerLine > 0 && effectiveTick % m_timing.ticksPerLine == 0) {
+            emit tickUpdated(static_cast<quint64>(effectiveTick));
+        }
         if (auto && eventsAtTick = m_eventMap.find(effectiveTick); eventsAtTick != m_eventMap.end()) {
             for (auto && event : eventsAtTick->second) {
                 handleEvent(*event);
