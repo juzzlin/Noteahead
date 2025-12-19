@@ -46,6 +46,7 @@ signals:
 
 protected:
     virtual void handlePortsChanged();
+    virtual void updatePorts();
 
     bool isPlaying() const;
 

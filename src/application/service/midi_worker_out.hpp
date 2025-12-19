@@ -21,6 +21,7 @@
 #include <QTimer>
 
 #include <memory>
+#include <mutex>
 #include <vector>
 
 #include "../instrument_request.hpp"
@@ -56,6 +57,9 @@ public:
 
     Q_INVOKABLE void requestPatchChange(QString portName, quint8 channel, quint8 patch);
 
+protected:
+    void updatePorts() override;
+
 private:
     using MidiPortS = std::shared_ptr<MidiPort>;
     void applyBank(const Instrument & instrument, MidiPortS port);
@@ -66,6 +70,7 @@ private:
 
     std::shared_ptr<MidiBackendOut> m_midiBackendOut;
     std::unique_ptr<QTimer> m_midiStopTimer;
+    mutable std::mutex m_mutex;
 
     struct StopTask
     {

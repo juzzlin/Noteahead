@@ -47,7 +47,7 @@ void MidiWorker::initializeScanTimer()
                 const auto oldPortNames = Utils::Misc::stdStringVectorToQStringList(m_midiBackend->portNames());
                 const auto availablePortNames = Utils::Misc::stdStringVectorToQStringList(m_midiBackend->availablePortNames());
                 if (oldPortNames != availablePortNames || oldPortNames.empty()) {
-                    m_midiBackend->updatePorts();
+                    updatePorts();
                     const auto updatedPortNames = Utils::Misc::stdStringVectorToQStringList(m_midiBackend->portNames());
                     QStringList newPortNames;
                     for (auto && portName : updatedPortNames) {
@@ -110,6 +110,11 @@ bool MidiWorker::isPlaying() const
 MidiWorker::MidiBackendS MidiWorker::midiBackend() const
 {
     return m_midiBackend;
+}
+
+void MidiWorker::updatePorts()
+{
+    m_midiBackend->updatePorts();
 }
 
 void MidiWorker::handlePortsChanged()

@@ -105,10 +105,8 @@ private:
     void initializeWorkers();
     void initializeInputWorker();
     void initializeOutputWorker();
-    void invokeSimpleFunction(MidiService::InstrumentW instrument, QString functionName);
 
     std::unique_ptr<MidiWorkerOut> m_outputWorker;
-    QThread m_outputWorkerThread;
     QStringList m_outputPorts;
 
     std::unique_ptr<MidiWorkerIn> m_inputWorker;

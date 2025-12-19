@@ -30,9 +30,8 @@ namespace noteahead {
 static const auto TAG = "MidiOutWorker";
 
 MidiWorkerOut::MidiWorkerOut(QObject * parent)
-  : MidiWorker { std::make_unique<MidiOutRtMidi>(), "OUT", parent }
-  , m_midiBackendOut { std::dynamic_pointer_cast<MidiBackendOut>(midiBackend()) }
-{
+    : MidiWorker { std::make_unique<MidiOutRtMidi>(), "OUT", parent },
+      m_midiBackendOut { std::dynamic_pointer_cast<MidiBackendOut>(midiBackend()) } {
     juzzlin::L(TAG).info() << "Midi API name: " << m_midiBackendOut->midiApiName();
 }
 
@@ -50,6 +49,7 @@ void MidiWorkerOut::initializeStopTimer()
         connect(m_midiStopTimer.get(), &QTimer::timeout, this, [this]() {
             for (auto && stopTask : m_stopTasks) {
                 try {
+                    std::lock_guard<std::mutex> lock { m_mutex };
                     if (const auto port = m_midiBackendOut->portByName(stopTask.portName.toStdString()); port) {
                         m_midiBackendOut->openPort(*port);
                         m_midiBackendOut->sendNoteOff(*port, stopTask.channel, 60);
@@ -64,8 +64,15 @@ void MidiWorkerOut::initializeStopTimer()
     }
 }
 
+void MidiWorkerOut::updatePorts()
+{
+    std::lock_guard<std::mutex> lock { m_mutex };
+    MidiWorker::updatePorts();
+}
+
 void MidiWorkerOut::sendMidiCcSettings(const MidiPort & port, const Instrument & instrument)
 {
+    // No lock here, it's called from handleInstrumentRequest which locks
     const auto channel = instrument.midiAddress().channel();
     const auto predefinedMidiCcSettings = instrument.settings().standardMidiCcSettings;
     m_midiBackendOut->sendCcData(port, channel, static_cast<quint8>(MidiCcMapping::Controller::ResetAllControllers), 127);
@@ -89,6 +96,7 @@ void MidiWorkerOut::sendMidiCcSettings(const MidiPort & port, const Instrument &
 
 void MidiWorkerOut::applyBank(const Instrument & instrument, MidiPortS port)
 {
+    // No lock here, it's called from handleInstrumentRequest which locks
     if (instrument.settings().bank.has_value()) {
         juzzlin::L(TAG).info() << "Setting bank to " << static_cast<int>(instrument.settings().bank->msb) << ":" << static_cast<int>(instrument.settings().bank->lsb);
         m_midiBackendOut->sendBankChange(*port, instrument.midiAddress().channel(),
@@ -99,6 +107,7 @@ void MidiWorkerOut::applyBank(const Instrument & instrument, MidiPortS port)
 
 void MidiWorkerOut::applyPatch(const Instrument & instrument, MidiPortS port)
 {
+    // No lock here, it's called from handleInstrumentRequest which locks
     if (instrument.settings().patch.has_value()) {
         juzzlin::L(TAG).info() << "Setting patch to " << static_cast<int>(*instrument.settings().patch);
         m_midiBackendOut->sendPatchChange(*port, instrument.midiAddress().channel(), *instrument.settings().patch);
@@ -112,6 +121,7 @@ void MidiWorkerOut::handleInstrumentRequest(const InstrumentRequest & instrument
     }
 
     try {
+        std::lock_guard<std::mutex> lock { m_mutex };
         auto && instrument = instrumentRequest.instrument();
         juzzlin::L(TAG).info() << "Applying instrument " << instrument.toString().toStdString() << " for requested port " << instrument.midiAddress().portName().toStdString();
         const auto requestedPortName = instrument.midiAddress().portName();
@@ -137,6 +147,7 @@ void MidiWorkerOut::handleInstrumentRequest(const InstrumentRequest & instrument
 void MidiWorkerOut::playAndStopMiddleC(QString portName, quint8 channel, quint8 velocity)
 {
     try {
+        std::lock_guard<std::mutex> lock { m_mutex };
         if (const auto port = m_midiBackendOut->portByName(portName.toStdString()); port) {
             m_midiBackendOut->openPort(*port);
             m_midiBackendOut->sendNoteOn(*port, channel, 60, velocity);
@@ -154,6 +165,7 @@ void MidiWorkerOut::playAndStopMiddleC(QString portName, quint8 channel, quint8 
 void MidiWorkerOut::playNote(QString portName, quint8 channel, quint8 midiNote, quint8 velocity)
 {
     try {
+        std::lock_guard<std::mutex> lock { m_mutex };
         if (const auto port = m_midiBackendOut->portByName(portName.toStdString()); port) {
             m_midiBackendOut->openPort(*port);
             m_midiBackendOut->sendNoteOn(*port, channel, midiNote, velocity);
@@ -168,6 +180,7 @@ void MidiWorkerOut::playNote(QString portName, quint8 channel, quint8 midiNote, 
 void MidiWorkerOut::stopNote(QString portName, quint8 channel, quint8 midiNote)
 {
     try {
+        std::lock_guard<std::mutex> lock { m_mutex };
         if (const auto port = m_midiBackendOut->portByName(portName.toStdString()); port) {
             m_midiBackendOut->openPort(*port);
             m_midiBackendOut->sendNoteOff(*port, channel, midiNote);
@@ -182,6 +195,7 @@ void MidiWorkerOut::stopNote(QString portName, quint8 channel, quint8 midiNote)
 void MidiWorkerOut::stopAllNotes(QString portName, quint8 channel)
 {
     try {
+        std::lock_guard<std::mutex> lock { m_mutex };
         if (const auto port = m_midiBackendOut->portByName(portName.toStdString()); port) {
             m_midiBackendOut->openPort(*port);
             m_midiBackendOut->stopAllNotes(*port, channel);
@@ -196,6 +210,7 @@ void MidiWorkerOut::stopAllNotes(QString portName, quint8 channel)
 void MidiWorkerOut::sendClock(QString portName)
 {
     try {
+        std::lock_guard<std::mutex> lock { m_mutex };
         if (const auto port = m_midiBackendOut->portByName(portName.toStdString()); port) {
             m_midiBackendOut->openPort(*port);
             m_midiBackendOut->sendClockPulse(*port);
@@ -208,6 +223,7 @@ void MidiWorkerOut::sendClock(QString portName)
 void MidiWorkerOut::sendStart(QString portName)
 {
     try {
+        std::lock_guard<std::mutex> lock { m_mutex };
         if (const auto port = m_midiBackendOut->portByName(portName.toStdString()); port) {
             m_midiBackendOut->openPort(*port);
             m_midiBackendOut->sendStart(*port);
@@ -220,6 +236,7 @@ void MidiWorkerOut::sendStart(QString portName)
 void MidiWorkerOut::sendStop(QString portName)
 {
     try {
+        std::lock_guard<std::mutex> lock { m_mutex };
         if (const auto port = m_midiBackendOut->portByName(portName.toStdString()); port) {
             m_midiBackendOut->openPort(*port);
             m_midiBackendOut->sendStop(*port);
@@ -232,6 +249,7 @@ void MidiWorkerOut::sendStop(QString portName)
 void MidiWorkerOut::sendCcData(QString portName, quint8 channel, quint8 controller, quint8 value)
 {
     try {
+        std::lock_guard<std::mutex> lock { m_mutex };
         if (const auto port = m_midiBackendOut->portByName(portName.toStdString()); port) {
             m_midiBackendOut->openPort(*port);
             m_midiBackendOut->sendCcData(*port, channel, controller, value);
@@ -244,6 +262,7 @@ void MidiWorkerOut::sendCcData(QString portName, quint8 channel, quint8 controll
 void MidiWorkerOut::sendPitchBendData(QString portName, quint8 channel, quint8 msb, quint8 lsb)
 {
     try {
+        std::lock_guard<std::mutex> lock { m_mutex };
         if (const auto port = m_midiBackendOut->portByName(portName.toStdString()); port) {
             m_midiBackendOut->openPort(*port);
             m_midiBackendOut->sendPitchBendData(*port, channel, msb, lsb);
@@ -256,6 +275,7 @@ void MidiWorkerOut::sendPitchBendData(QString portName, quint8 channel, quint8 m
 void MidiWorkerOut::requestPatchChange(QString portName, quint8 channel, quint8 patch)
 {
     try {
+        std::lock_guard<std::mutex> lock { m_mutex };
         if (const auto port = m_midiBackendOut->portByName(portName.toStdString()); port) {
             m_midiBackendOut->openPort(*port);
             m_midiBackendOut->sendPatchChange(*port, channel, patch);

@@ -81,8 +81,7 @@ void MidiService::initializeInputWorker()
 
 void MidiService::initializeOutputWorker()
 {
-    connect(this, &MidiService::instrumentRequestHandlingRequested, m_outputWorker.get(), &MidiWorkerOut::handleInstrumentRequest);
-
+    // Direct calls now, no need for signals/slots for requests, but we keep signals for port updates
     connect(m_outputWorker.get(), &MidiWorkerOut::portsChanged, this, [this](const auto & midiPorts) {
         m_outputPorts = { "" };
         m_outputPorts.append(midiPorts);
@@ -93,8 +92,7 @@ void MidiService::initializeOutputWorker()
     connect(m_outputWorker.get(), &MidiWorkerOut::portsDisappeared, this, &MidiService::outputPortsDisappeared);
     connect(m_outputWorker.get(), &MidiWorkerOut::statusTextRequested, this, &MidiService::statusTextRequested);
 
-    m_outputWorker->moveToThread(&m_outputWorkerThread);
-    m_outputWorkerThread.start(QThread::HighPriority);
+    // No thread moving for output worker
 }
 
 QStringList MidiService::outputPorts() const
@@ -104,7 +102,7 @@ QStringList MidiService::outputPorts() const
 
 void MidiService::handleInstrumentRequest(const InstrumentRequest & instrumentRequest)
 {
-    emit instrumentRequestHandlingRequested(instrumentRequest);
+    m_outputWorker->handleInstrumentRequest(instrumentRequest);
 }
 
 void MidiService::setControllerPort(QString portName)
@@ -120,89 +118,62 @@ void MidiService::setIsPlaying(bool isPlaying)
 
 void MidiService::playAndStopMiddleC(QString portName, quint8 channel, quint8 velocity)
 {
-    if (const bool invoked = QMetaObject::invokeMethod(m_outputWorker.get(), "playAndStopMiddleC", Q_ARG(QString, portName), Q_ARG(quint8, channel), Q_ARG(quint8, velocity)); !invoked) {
-        juzzlin::L(TAG).error() << "Invoking a method failed!";
-    }
+    m_outputWorker->playAndStopMiddleC(portName, channel, velocity);
 }
 
 void MidiService::playNote(InstrumentW instrument, MidiNoteDataCR data)
 {
-    if (const bool invoked = QMetaObject::invokeMethod(m_outputWorker.get(), "playNote",
-                                                       Q_ARG(QString, instrument.lock()->midiAddress().portName()),
-                                                       Q_ARG(quint8, instrument.lock()->midiAddress().channel()),
-                                                       Q_ARG(quint8, data.note()),
-                                                       Q_ARG(quint8, data.velocity()));
-        !invoked) {
-        juzzlin::L(TAG).error() << "Invoking a method failed!";
+    if (const auto instr = instrument.lock()) {
+        m_outputWorker->playNote(instr->midiAddress().portName(), instr->midiAddress().channel(), data.note(), data.velocity());
     }
 }
 
 void MidiService::stopNote(InstrumentW instrument, MidiNoteDataCR data)
 {
-    if (const bool invoked = QMetaObject::invokeMethod(m_outputWorker.get(), "stopNote",
-                                                       Q_ARG(QString, instrument.lock()->midiAddress().portName()),
-                                                       Q_ARG(quint8, instrument.lock()->midiAddress().channel()),
-                                                       Q_ARG(quint8, data.note()));
-        !invoked) {
-        juzzlin::L(TAG).error() << "Invoking a method failed!";
+    if (const auto instr = instrument.lock()) {
+        m_outputWorker->stopNote(instr->midiAddress().portName(), instr->midiAddress().channel(), data.note());
     }
 }
 
 void MidiService::stopAllNotes(InstrumentW instrument)
 {
-    if (const bool invoked = QMetaObject::invokeMethod(m_outputWorker.get(), "stopAllNotes",
-                                                       Q_ARG(QString, instrument.lock()->midiAddress().portName()),
-                                                       Q_ARG(quint8, instrument.lock()->midiAddress().channel()));
-        !invoked) {
-        juzzlin::L(TAG).error() << "Invoking a method failed!";
+    if (const auto instr = instrument.lock()) {
+        m_outputWorker->stopAllNotes(instr->midiAddress().portName(), instr->midiAddress().channel());
     }
 }
 
 void MidiService::sendCcData(InstrumentW instrument, MidiCcDataCR data)
 {
-    if (const bool invoked = QMetaObject::invokeMethod(m_outputWorker.get(), "sendCcData",
-                                                       Q_ARG(QString, instrument.lock()->midiAddress().portName()),
-                                                       Q_ARG(quint8, instrument.lock()->midiAddress().channel()),
-                                                       Q_ARG(quint8, data.controller()),
-                                                       Q_ARG(quint8, data.value()));
-        !invoked) {
-        juzzlin::L(TAG).error() << "Invoking a method failed!";
-    }
-}
-
-void MidiService::invokeSimpleFunction(MidiService::InstrumentW instrument, QString functionName)
-{
-    if (const bool invoked = QMetaObject::invokeMethod(m_outputWorker.get(), functionName.toStdString().c_str(),
-                                                       Q_ARG(QString, instrument.lock()->midiAddress().portName()));
-        !invoked) {
-        juzzlin::L(TAG).error() << "Invoking a method failed!: " << functionName.toStdString();
+    if (const auto instr = instrument.lock()) {
+        m_outputWorker->sendCcData(instr->midiAddress().portName(), instr->midiAddress().channel(), data.controller(), data.value());
     }
 }
 
 void MidiService::sendClock(MidiService::InstrumentW instrument)
 {
-    invokeSimpleFunction(instrument, "sendClock");
+    if (const auto instr = instrument.lock()) {
+        m_outputWorker->sendClock(instr->midiAddress().portName());
+    }
 }
 
 void MidiService::sendStart(MidiService::InstrumentW instrument)
 {
-    invokeSimpleFunction(instrument, "sendStart");
+    if (const auto instr = instrument.lock()) {
+        m_outputWorker->sendStart(instr->midiAddress().portName());
+    }
 }
 
 void MidiService::sendStop(MidiService::InstrumentW instrument)
 {
-    invokeSimpleFunction(instrument, "sendStop");
+    if (const auto instr = instrument.lock()) {
+        m_outputWorker->sendStop(instr->midiAddress().portName());
+    }
 }
 
 void MidiService::sendPitchBendData(InstrumentW instrument, MidiService::PitchBendDataCR data)
 {
-    if (const bool invoked = QMetaObject::invokeMethod(m_outputWorker.get(), "sendPitchBendData",
-                                                       Q_ARG(QString, instrument.lock()->midiAddress().portName()),
-                                                       Q_ARG(quint8, instrument.lock()->midiAddress().channel()),
-                                                       Q_ARG(quint8, data.msb()),
-                                                       Q_ARG(quint8, data.lsb()));
-        !invoked) {
-        juzzlin::L(TAG).error() << "Invoking a method failed!";
+    if (const auto instr = instrument.lock()) {
+        m_outputWorker->sendPitchBendData(instr->midiAddress().portName(), instr->midiAddress().channel(), data.msb(), data.lsb());
     }
 }
 
@@ -212,9 +183,6 @@ MidiService::~MidiService()
 
     m_inputWorkerThread.exit();
     m_inputWorkerThread.wait();
-
-    m_outputWorkerThread.exit();
-    m_outputWorkerThread.wait();
 }
 
 } // namespace noteahead
