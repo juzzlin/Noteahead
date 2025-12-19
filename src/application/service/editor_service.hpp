@@ -148,6 +148,7 @@ public:
     Q_INVOKABLE bool isAtNoteColumn() const;
     Q_INVOKABLE bool isAtVelocityColumn() const;
     Q_INVOKABLE bool isColumnVisible(quint64 track, quint64 column) const;
+    Q_INVOKABLE bool isTrackVisible(quint64 track) const;
     Q_INVOKABLE bool isModified() const;
 
     Q_INVOKABLE Position position() const;

@@ -118,7 +118,9 @@ Item {
     }
     function setPosition(newPosition: var): void {
         _tracks.forEach(track => {
-            track.setPosition(newPosition);
+            if (editorService.isTrackVisible(track.index())) {
+                track.setPosition(newPosition);
+            }
         });
     }
     function clearMixerSettings(): void {

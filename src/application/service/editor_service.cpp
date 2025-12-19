@@ -786,6 +786,16 @@ bool EditorService::isColumnVisible(quint64 track, quint64 column) const
     return columnPosition >= 0 && columnPosition < static_cast<int>(visibleUnitCount());
 }
 
+bool EditorService::isTrackVisible(quint64 track) const
+{
+    for (quint64 column = 0; column < m_song->columnCount(track); column++) {
+        if (isColumnVisible(track, column)) {
+            return true;
+        }
+    }
+    return false;
+}
+
 bool EditorService::isModified() const
 {
     return m_state.isModified;
