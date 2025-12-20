@@ -54,6 +54,18 @@ void SideChainServiceTest::test_setAndGet_sideChainSettings_shouldUpdateModel()
     QCOMPARE(model.sideChainTargetReleaseValue(0), quint8 { 0 });
 }
 
+void SideChainServiceTest::test_removeSettings_shouldRemoveEntry()
+{
+    SideChainService model;
+    SideChainSettings settings;
+    settings.enabled = true;
+    model.setSettings(1, settings);
+    QCOMPARE(model.settings(1).enabled, true);
+
+    model.removeSettings(1);
+    QCOMPARE(model.settings(1).enabled, false); // Default settings have enabled=false
+}
+
 void SideChainServiceTest::test_renderToEvents_deletedTrack_shouldNotCrash()
 {
     Song song;

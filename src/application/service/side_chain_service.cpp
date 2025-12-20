@@ -95,6 +95,15 @@ void SideChainService::setSettings(quint64 trackIndex, const SideChainSettings &
     emit settingsChanged(trackIndex);
 }
 
+void SideChainService::removeSettings(quint64 trackIndex)
+{
+    if (m_settings.contains(trackIndex)) {
+        juzzlin::L(TAG).debug() << "Removing settings for track " << trackIndex;
+        m_settings.erase(trackIndex);
+        emit settingsChanged(trackIndex);
+    }
+}
+
 SideChainSettings SideChainService::settings(quint64 trackIndex) const
 {
     if (m_settings.count(trackIndex)) {

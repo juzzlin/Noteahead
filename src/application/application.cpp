@@ -352,6 +352,7 @@ void Application::connectEditorService()
     connect(m_editorService.get(), &EditorService::mixerSerializationRequested, m_mixerService.get(), &MixerService::serializeToXml);
     connect(m_editorService.get(), &EditorService::sideChainDeserializationRequested, m_sideChainService.get(), &SideChainService::deserializeFromXml);
     connect(m_editorService.get(), &EditorService::sideChainSerializationRequested, m_sideChainService.get(), &SideChainService::serializeToXml);
+    connect(m_editorService.get(), &EditorService::trackDeleted, m_sideChainService.get(), &SideChainService::removeSettings);
 
     connect(m_editorService.get(), &EditorService::songPositionChanged, m_playerService.get(), &PlayerService::setSongPosition);
 

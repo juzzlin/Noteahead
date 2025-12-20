@@ -46,6 +46,7 @@ public:
     Song::EventList renderToEvents(const Song & song, const Song::EventList & events, size_t startPosition, size_t endPosition);
 
     void setSettings(quint64 trackIndex, const SideChainSettings & settings);
+    Q_INVOKABLE void removeSettings(quint64 trackIndex);
     SideChainSettings settings(quint64 trackIndex) const;
 
     quint64 trackIndex() const;
