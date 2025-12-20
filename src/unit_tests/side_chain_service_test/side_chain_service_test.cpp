@@ -15,7 +15,10 @@
 
 #include "side_chain_service_test.hpp"
 
+#include "../../application/service/automation_service.hpp"
 #include "../../application/service/side_chain_service.hpp"
+#include "../../domain/note_data.hpp"
+#include "../../domain/song.hpp"
 
 #include <QSignalSpy>
 
@@ -49,6 +52,34 @@ void SideChainServiceTest::test_setAndGet_sideChainSettings_shouldUpdateModel()
     QCOMPARE(model.sideChainTargetController(0), quint8 { 80 });
     QCOMPARE(model.sideChainTargetTargetValue(0), quint8 { 127 });
     QCOMPARE(model.sideChainTargetReleaseValue(0), quint8 { 0 });
+}
+
+void SideChainServiceTest::test_renderToEvents_deletedTrack_shouldNotCrash()
+{
+    Song song;
+    const auto automationService = std::make_shared<AutomationService>();
+    const auto sideChainService = std::make_shared<SideChainService>();
+
+    // Setup SideChain on Track 1 (index 1), triggered by Track 0 (index 0)
+    SideChainSettings sideChainSettings;
+    sideChainSettings.enabled = true;
+    sideChainSettings.sourceTrackIndex = 0;
+    sideChainSettings.sourceColumnIndex = 0;
+    sideChainSettings.targets.push_back({ true, 80, 127, 0 });
+    sideChainService->setSettings(1, sideChainSettings);
+
+    // Add a note on Track 0 to trigger the side chain
+    const Position triggerPosition = { 0, 0, 0, 0, 0 };
+    song.noteDataAtPosition(triggerPosition)->setAsNoteOn(60, 100);
+
+    // Verify it renders fine before deletion
+    song.renderToEvents(automationService, sideChainService, 0);
+
+    // Delete Track 1
+    song.deleteTrack(1);
+
+    // This should not crash
+    song.renderToEvents(automationService, sideChainService, 0);
 }
 
 } // namespace noteahead

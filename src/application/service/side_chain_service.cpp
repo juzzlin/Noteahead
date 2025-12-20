@@ -45,6 +45,9 @@ Song::EventList SideChainService::renderToEvents(const Song & song, const Song::
     const double msPerTick = 60'000.0 / static_cast<double>(song.beatsPerMinute() * song.linesPerBeat() * song.ticksPerLine());
 
     for (auto const& [trackIndex, sideChainSettings] : m_settings) {
+        if (!song.hasTrack(trackIndex)) {
+            continue;
+        }
         if (sideChainSettings.enabled) {
             juzzlin::L(TAG).debug() << "Side-chain enabled on track " << trackIndex;
             for (const auto & event : processedEvents) {

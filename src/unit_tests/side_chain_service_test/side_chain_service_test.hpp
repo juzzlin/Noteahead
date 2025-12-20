@@ -27,6 +27,7 @@ class SideChainServiceTest : public QObject
 
 private slots:
     void test_setAndGet_sideChainSettings_shouldUpdateModel();
+    void test_renderToEvents_deletedTrack_shouldNotCrash();
 };
 
 } // namespace noteahead
