@@ -11,6 +11,8 @@ Bug fixes:
 
 Other:
 
+* Implement keyboard handling logic in C++
+
 1.2.0
 =====
 

@@ -37,16 +37,14 @@ QtObject {
     signal trackSettingsDialogRequested(int trackIndex)
     signal trackVelocityInterpolationDialogRequested
     signal trackVelocityScaleDialogRequested(int trackIndex)
-    property int _activeOctave: 3
+    property int _activeOctave: keyboardService.activeOctave
+    on_ActiveOctaveChanged: activeOctaveChanged(_activeOctave)
     readonly property string _tag: "UiService"
     function activeOctave(): int {
         return _activeOctave;
     }
     function setActiveOctave(octave: int): void {
-        if (0 >= octave <= 8 && _activeOctave !== octave) {
-            _activeOctave = octave;
-            activeOctaveChanged(_activeOctave);
-        }
+        keyboardService.activeOctave = octave;
     }
     signal activeStepChanged(int activeStep)
     property int _activeStep: settingsService.step(1)

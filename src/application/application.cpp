@@ -36,6 +36,7 @@
 #include "service/audio_service.hpp"
 #include "service/automation_service.hpp"
 #include "service/editor_service.hpp"
+#include "service/keyboard_service.hpp"
 #include "service/midi_service.hpp"
 #include "service/mixer_service.hpp"
 #include "service/player_service.hpp"
@@ -75,6 +76,7 @@ Application::Application(int & argc, char ** argv)
   , m_mixerService { std::make_unique<MixerService>() }
   , m_sideChainService { std::make_unique<SideChainService>() }
   , m_playerService { std::make_unique<PlayerService>(m_midiService, m_mixerService, m_automationService, m_settingsService, m_sideChainService) }
+  , m_keyboardService { std::make_unique<KeyboardService>(m_applicationService, m_editorService, m_playerService, m_selectionService, m_settingsService) }
   , m_midiExporter { std::make_unique<MidiExporter>(m_automationService, m_mixerService, m_sideChainService) }
   , m_stateMachine { std::make_unique<StateMachine>(m_applicationService, m_editorService) }
   , m_recentFilesManager { std::make_unique<RecentFilesManager>() }
@@ -146,6 +148,7 @@ void Application::setContextProperties()
     m_engine->rootContext()->setContextProperty("editorService", m_editorService.get());
     m_engine->rootContext()->setContextProperty("eventSelectionModel", m_eventSelectionModel.get());
     m_engine->rootContext()->setContextProperty("midiCcAutomationsModel", m_midiCcAutomationsModel.get());
+    m_engine->rootContext()->setContextProperty("keyboardService", m_keyboardService.get());
     m_engine->rootContext()->setContextProperty("midiService", m_midiService.get());
     m_engine->rootContext()->setContextProperty("midiSettingsModel", m_midiSettingsModel.get());
     m_engine->rootContext()->setContextProperty("mixerService", m_mixerService.get());

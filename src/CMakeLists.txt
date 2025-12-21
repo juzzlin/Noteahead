@@ -27,6 +27,7 @@ set(HEADER_FILES
   application/service/automation_service.hpp
   application/service/copy_manager.hpp
   application/service/editor_service.hpp
+  application/service/keyboard_service.hpp
   application/service/midi_service.hpp
   application/service/midi_worker.hpp
   application/service/midi_worker_in.hpp
@@ -110,6 +111,7 @@ set(SOURCE_FILES
   application/service/automation_service.cpp
   application/service/copy_manager.cpp
   application/service/editor_service.cpp
+  application/service/keyboard_service.cpp
   application/service/midi_service.cpp
   application/service/midi_worker.cpp
   application/service/midi_worker_in.cpp

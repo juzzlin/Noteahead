@@ -40,6 +40,7 @@ class ColumnSettingsModel;
 class EditorService;
 class EventSelectionModel;
 class Instrument;
+class KeyboardService;
 class MidiCcAutomationsModel;
 class MidiExporter;
 class MidiService;
@@ -129,6 +130,7 @@ private:
     std::shared_ptr<MixerService> m_mixerService;
     std::shared_ptr<SideChainService> m_sideChainService;
     std::shared_ptr<PlayerService> m_playerService;
+    std::shared_ptr<KeyboardService> m_keyboardService;
 
     std::shared_ptr<MidiExporter> m_midiExporter;
 
