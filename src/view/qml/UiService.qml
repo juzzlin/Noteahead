@@ -70,29 +70,12 @@ QtObject {
             activeVelocityChanged(_activeVelocity);
         }
     }
-    signal editModeChanged(int editMode)
-    property bool _editMode: false
-    function editMode(): bool {
-        return _editMode;
-    }
-    function setEditMode(editMode): void {
-        if (_editMode !== editMode && (!editMode || !isPlaying())) {
-            _editMode = editMode;
-            applicationService.setEditMode(editMode);
-            editModeChanged(_editMode);
-        }
-    }
-    function toggleEditMode(): void {
-        setEditMode(!editMode());
-    }
     function isPlaying(): bool {
         return playerService.isPlaying;
     }
     function togglePlay(): void {
         if (!isPlaying()) {
-            if (requestPlay()) {
-                setEditMode(false);
-            }
+            requestPlay();
         } else {
             requestStop();
         }

@@ -39,7 +39,7 @@ Row {
                     from: editorService.minSongPosition()
                     to: editorService.maxSongPosition()
                     editable: false
-                    enabled: !UiService.isPlaying()
+                    enabled: !playerService.isPlaying
                     onValueChanged: {
                         editorService.setSongPosition(value);
                         ToolTip.hide();
@@ -66,7 +66,7 @@ Row {
                     id: songPatternIndexSpinBox
                     value: editorService.patternAtCurrentSongPosition
                     editable: true
-                    enabled: !UiService.isPlaying()
+                    enabled: !playerService.isPlaying
                     onValueChanged: {
                         editorService.setPatternAtSongPosition(songPositionSpinBox.value, value);
                         ToolTip.hide();
@@ -95,7 +95,7 @@ Row {
                     from: 1
                     to: editorService.maxSongLength()
                     editable: false
-                    enabled: !UiService.isPlaying()
+                    enabled: !playerService.isPlaying
                     onValueChanged: {
                         editorService.setSongLength(songLengthSpinBox.value);
                         ToolTip.hide();
@@ -120,7 +120,7 @@ Row {
                     anchors.horizontalCenter: parent.horizontalCenter
                     width: parent.height / 2
                     height: width
-                    enabled: !UiService.isPlaying()
+                    enabled: !playerService.isPlaying
                     onClicked: {
                         editorService.insertPatternToPlayOrder();
                         focus = false;
@@ -145,7 +145,7 @@ Row {
                     anchors.horizontalCenter: parent.horizontalCenter
                     width: parent.height / 2
                     height: width
-                    enabled: !UiService.isPlaying()
+                    enabled: !playerService.isPlaying
                     onClicked: {
                         editorService.removePatternFromPlayOrder();
                         focus = false;
@@ -216,7 +216,7 @@ Row {
                     from: editorService.minPatternIndex()
                     to: editorService.maxPatternIndex()
                     editable: true
-                    enabled: !UiService.isPlaying()
+                    enabled: !playerService.isPlaying
                     onValueChanged: {
                         editorService.setCurrentPattern(patternIndexSpinBox.value);
                         ToolTip.hide();
@@ -245,7 +245,7 @@ Row {
                     from: editorService.minLineCount()
                     to: editorService.maxLineCount()
                     editable: true
-                    enabled: !UiService.isPlaying()
+                    enabled: !playerService.isPlaying
                     onValueChanged: {
                         editorService.setCurrentLineCount(patternLengthSpinBox.value);
                         ToolTip.hide();
@@ -343,12 +343,12 @@ Row {
                 }
                 SpinBox {
                     id: octSpinBox
-                    value: UiService.activeOctave()
+                    value: keyboardService.activeOctave
                     from: 0
                     to: 8
                     editable: true
                     onValueChanged: {
-                        UiService.setActiveOctave(octSpinBox.value);
+                        keyboardService.activeOctave = octSpinBox.value;
                         ToolTip.hide();
                     }
                     Keys.onReturnPressed: {
@@ -392,7 +392,7 @@ Row {
                     from: 30
                     to: 300
                     editable: true
-                    enabled: !UiService.isPlaying()
+                    enabled: !playerService.isPlaying
                     onValueChanged: {
                         editorService.setBeatsPerMinute(value);
                         ToolTip.hide();
@@ -421,7 +421,7 @@ Row {
                     from: 1
                     to: 16
                     editable: true
-                    enabled: !UiService.isPlaying()
+                    enabled: !playerService.isPlaying
                     onValueChanged: {
                         editorService.setLinesPerBeat(value);
                         ToolTip.hide();

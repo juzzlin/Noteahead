@@ -36,6 +36,8 @@ class ApplicationService : public QObject
 {
     Q_OBJECT
 
+    Q_PROPERTY(bool editMode READ editMode WRITE setEditMode NOTIFY editModeChanged)
+
 public:
     ApplicationService();
 
@@ -89,6 +91,7 @@ public:
 
     Q_INVOKABLE bool editMode() const;
     Q_INVOKABLE void setEditMode(bool editMode);
+    Q_INVOKABLE void toggleEditMode();
 
     void requestUnsavedChangesDialog();
     Q_INVOKABLE void requestOpenDialog();
@@ -115,6 +118,7 @@ public:
     using MidiNoteDataCR = const MidiNoteData &;
 
 signals:
+    void editModeChanged(bool editMode);
 
     void applyAllTrackSettingsRequested();
 

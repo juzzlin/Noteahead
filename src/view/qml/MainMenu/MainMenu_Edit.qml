@@ -9,7 +9,7 @@ Menu {
     Action {
         text: qsTr("Toggle edit mode")
         shortcut: "Esc"
-        onTriggered: UiService.toggleEditMode()
+        onTriggered: applicationService.toggleEditMode()
     }
     MenuSeparator {}
     Action {

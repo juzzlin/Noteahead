@@ -247,9 +247,7 @@ void KeyboardService::handleSpace()
 {
     m_selectionService->clear();
     if (!m_playerService->isPlaying()) {
-        if (m_playerService->play()) {
-            m_applicationService->setEditMode(false);
-        }
+        m_playerService->play();
     } else {
         m_playerService->stop();
     }

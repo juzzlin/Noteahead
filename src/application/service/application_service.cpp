@@ -325,6 +325,11 @@ void ApplicationService::setEditorService(EditorServiceS editorService)
 void ApplicationService::setPlayerService(PlayerServiceS playerService)
 {
     m_playerService = playerService;
+    connect(m_playerService.get(), &PlayerService::isPlayingChanged, this, [this]() {
+        if (m_playerService->isPlaying()) {
+            setEditMode(false);
+        }
+    });
 }
 
 bool ApplicationService::editMode() const
@@ -334,7 +339,18 @@ bool ApplicationService::editMode() const
 
 void ApplicationService::setEditMode(bool editMode)
 {
-    m_editMode = editMode;
+    if (editMode && m_playerService->isPlaying()) {
+        return;
+    }
+    if (m_editMode != editMode) {
+        m_editMode = editMode;
+        emit editModeChanged(m_editMode);
+    }
+}
+
+void ApplicationService::toggleEditMode()
+{
+    setEditMode(!m_editMode);
 }
 
 ApplicationService::~ApplicationService() = default;
