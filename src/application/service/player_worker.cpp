@@ -23,7 +23,7 @@
 #include "midi_service.hpp"
 #include "mixer_service.hpp"
 
-#include <ranges>
+#include <algorithm>
 #include <thread>
 
 namespace noteahead {
@@ -165,7 +165,8 @@ void PlayerWorker::processEvents()
         return;
     }
 
-    const auto [minTick, maxTick] = std::ranges::minmax(m_eventMap | std::views::keys);
+    const auto minTick = m_eventMap.begin()->first;
+    const auto maxTick = m_eventMap.rbegin()->first;
 
     juzzlin::L(TAG).debug() << "Min tick: " << minTick;
     juzzlin::L(TAG).debug() << "Max tick: " << maxTick;
@@ -188,10 +189,36 @@ void PlayerWorker::processEvents()
                 handleEvent(*event);
             }
         }
+
+        quint64 step = 1;
+
+        quint64 distToNextLine = std::numeric_limits<quint64>::max();
+        if (m_timing.ticksPerLine > 0) {
+            const quint64 rem = effectiveTick % m_timing.ticksPerLine;
+            distToNextLine = m_timing.ticksPerLine - rem;
+        }
+
+        quint64 distToNextEvent = std::numeric_limits<quint64>::max();
+        if (auto it = m_eventMap.upper_bound(effectiveTick); it != m_eventMap.end()) {
+            distToNextEvent = it->first - effectiveTick;
+        }
+
+        quint64 distToLoopEnd = std::numeric_limits<quint64>::max();
+        // If looping, we must wrap around at maxTick.
+        // If not looping, we stop at maxTick (effectively), so we don't need to jump beyond it unless empty.
+        // But the loop condition is tick <= maxTick.
+        // If effectiveTick is near maxTick, distance to wrap is small.
+        distToLoopEnd = maxTick - effectiveTick + 1;
+
+        step = std::min({ distToNextLine, distToNextEvent, distToLoopEnd });
+        if (step < 1) {
+            step = 1;
+        }
+
         // Calculate next tick's start time
-        const auto nextTickTime = startTime + std::chrono::duration_cast<std::chrono::steady_clock::duration>((tick - minTick + 1) * tickDuration);
+        const auto nextTickTime = startTime + std::chrono::duration_cast<std::chrono::steady_clock::duration>((tick - minTick + step) * tickDuration);
         std::this_thread::sleep_until(nextTickTime);
-        tick++;
+        tick += step;
     }
 
     juzzlin::L(TAG).debug() << "All events processed";

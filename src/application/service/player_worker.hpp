@@ -18,6 +18,7 @@
 
 #include <QObject>
 #include <cstddef>
+#include <map>
 #include <memory>
 #include <set>
 #include <vector>
@@ -83,7 +84,7 @@ private:
 
     Timing m_timing;
 
-    using EventMap = std::unordered_map<quint64, EventList>;
+    using EventMap = std::map<quint64, EventList>;
     EventMap m_eventMap;
 
     using InstrumentS = std::shared_ptr<Instrument>;
