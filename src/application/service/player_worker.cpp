@@ -189,7 +189,7 @@ void PlayerWorker::processEvents()
             }
         }
         // Calculate next tick's start time
-        const auto nextTickTime = startTime + std::chrono::duration_cast<std::chrono::steady_clock::duration>((tick - minTick) * tickDuration);
+        const auto nextTickTime = startTime + std::chrono::duration_cast<std::chrono::steady_clock::duration>((tick - minTick + 1) * tickDuration);
         std::this_thread::sleep_until(nextTickTime);
         tick++;
     }
