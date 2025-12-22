@@ -88,20 +88,23 @@ void PlayerWorker::handleEvent(const Event & event)
     if (event.type() == Event::Type::NoteData) {
         if (auto && noteData = event.noteData(); noteData) {
             if (auto && instrument = event.instrument(); instrument) {
-                if (shouldEventPlay(noteData->track(), noteData->column())) {
-                    m_stopEventSentOnTrack.erase(noteData->track());
-                    if (noteData->type() == NoteData::Type::NoteOn && noteData->note().has_value()) {
+                if (noteData->type() == NoteData::Type::NoteOff) {
+                    m_midiService->stopNote(instrument, { *noteData->note(), 0 });
+                } else if (noteData->type() == NoteData::Type::NoteOn && noteData->note().has_value()) {
+                    if (shouldEventPlay(noteData->track(), noteData->column())) {
+                        m_stopEventSentOnTrack.erase(noteData->track());
                         const auto effectiveVelocity = m_mixerService->effectiveVelocity(noteData->track(), noteData->column(), noteData->velocity());
                         m_midiService->playNote(instrument, { *noteData->note(), effectiveVelocity });
-                    } else if (noteData->type() == NoteData::Type::NoteOff) {
-                        m_midiService->stopNote(instrument, { *noteData->note(), 0 });
-                    }
-                } else {
-                    // When user has muted a track (or soloed some other track) we need
-                    // to also stop possibly playing notes on the corresponding channel.
-                    if (!m_stopEventSentOnTrack.contains(noteData->track())) {
-                        m_midiService->stopAllNotes(instrument);
-                        m_stopEventSentOnTrack.insert(noteData->track());
+                    } else {
+                        // When user has muted a track (or soloed some other track) we need
+                        // to also stop possibly playing notes on the corresponding channel.
+                        // However, we must not do this if only a specific column is muted.
+                        if (!m_mixerService->shouldTrackPlay(noteData->track())) {
+                            if (!m_stopEventSentOnTrack.contains(noteData->track())) {
+                                m_midiService->stopAllNotes(instrument);
+                                m_stopEventSentOnTrack.insert(noteData->track());
+                            }
+                        }
                     }
                 }
             }
