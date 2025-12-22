@@ -53,9 +53,9 @@ public:
     using InstrumentW = std::weak_ptr<Instrument>;
     using MidiAddressCR = const MidiAddress &;
     using MidiNoteDataCR = const MidiNoteData &;
-    Q_INVOKABLE void playNote(InstrumentW instrument, MidiNoteDataCR data);
-    Q_INVOKABLE void stopNote(InstrumentW instrument, MidiNoteDataCR data);
-    Q_INVOKABLE void stopAllNotes(InstrumentW instrument);
+    virtual Q_INVOKABLE void playNote(InstrumentW instrument, MidiNoteDataCR data);
+    virtual Q_INVOKABLE void stopNote(InstrumentW instrument, MidiNoteDataCR data);
+    virtual Q_INVOKABLE void stopAllNotes(InstrumentW instrument);
     using MidiCcDataCR = const MidiCcData &;
     Q_INVOKABLE void sendCcData(InstrumentW instrument, MidiCcDataCR data);
     Q_INVOKABLE void sendClock(InstrumentW instrument);

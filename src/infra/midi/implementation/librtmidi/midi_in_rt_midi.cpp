@@ -15,7 +15,7 @@
 
 #include "midi_in_rt_midi.hpp"
 
-#include "../../../contrib/SimpleLogger/src/simple_logger.hpp"
+#include "../../../../contrib/SimpleLogger/src/simple_logger.hpp"
 
 #include <algorithm>
 #include <memory>

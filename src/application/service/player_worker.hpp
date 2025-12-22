@@ -71,11 +71,9 @@ signals:
 private:
     quint64 effectiveTick(quint64 tick, quint64 minTick, quint64 maxTick) const;
 
-    void handleEvent(const Event & event);
     void processEvents();
 
     void setIsPlaying(bool isPlaying);
-    bool shouldEventPlay(size_t track, size_t column) const;
 
     void stopAllNotes();
     void stopTransport();
@@ -94,6 +92,10 @@ private:
 
     std::atomic_bool m_isPlaying = false;
     std::atomic_bool m_isLooping = false;
+
+protected:
+    virtual void handleEvent(const Event & event);
+    virtual bool shouldEventPlay(size_t track, size_t column) const;
 };
 
 } // namespace noteahead
