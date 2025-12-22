@@ -30,11 +30,18 @@ namespace noteahead {
 static const auto TAG = "MidiService";
 
 MidiService::MidiService(QObject * parent)
-  : QObject { parent }
-  , m_outputWorker { std::make_unique<MidiWorkerOut>() }
-  , m_inputWorker { std::make_unique<MidiWorkerIn>() }
+  : MidiService(parent, true)
 {
-    initializeWorkers();
+}
+
+MidiService::MidiService(QObject * parent, bool initializeRealWorkers)
+  : QObject { parent }
+{
+    if (initializeRealWorkers) {
+        m_outputWorker = std::make_unique<MidiWorkerOut>();
+        m_inputWorker = std::make_unique<MidiWorkerIn>();
+        initializeWorkers();
+    }
 }
 
 void MidiService::initializeWorkers()

@@ -101,6 +101,9 @@ signals:
     void statusTextRequested(QString message);
     void instrumentRequestHandlingRequested(const InstrumentRequest & instrumentRequest);
 
+protected:
+    MidiService(QObject * parent, bool initializeRealWorkers);
+
 private:
     void initializeWorkers();
     void initializeInputWorker();

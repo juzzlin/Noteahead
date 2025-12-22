@@ -43,6 +43,11 @@ public:
 class MockMidiService : public MidiService
 {
 public:
+    MockMidiService()
+      : MidiService { nullptr, false }
+    {
+    }
+
     int stopAllNotesCallCount = 0;
     int playNoteCallCount = 0;
     int stopNoteCallCount = 0;
