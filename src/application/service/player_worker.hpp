@@ -91,8 +91,14 @@ private:
 
     using InstrumentS = std::shared_ptr<Instrument>;
     std::set<InstrumentS> m_allInstruments;
-    std::map<quint64, std::set<InstrumentS>> m_instrumentsByTrack;
-    std::set<size_t> m_stopEventSentOnTrack;
+
+    struct ActiveNote
+    {
+        size_t track;
+        size_t column;
+        quint8 note;
+    };
+    std::map<InstrumentS, std::vector<ActiveNote>> m_activeNotes;
 
     std::atomic_bool m_isPlaying = false;
     std::atomic_bool m_isLooping = false;

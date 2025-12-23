@@ -49,16 +49,12 @@ void PlayerWorker::initialize(const EventList & events, const Timing & timing)
         m_timing = timing;
         m_eventMap.clear();
         m_allInstruments.clear();
-        m_instrumentsByTrack.clear();
-        m_stopEventSentOnTrack.clear();
+        m_activeNotes.clear();
 
         for (auto && event : events) {
             m_eventMap[event->tick()].push_back(event);
             if (auto && instrument = event->instrument(); instrument) {
                 m_allInstruments.insert(instrument);
-                if (auto && noteData = event->noteData(); noteData) {
-                    m_instrumentsByTrack[noteData->track()].insert(instrument);
-                }
             }
         }
 
@@ -76,15 +72,14 @@ void PlayerWorker::onMixerChanged()
 
 void PlayerWorker::checkMixerState()
 {
-    for (auto && [track, instruments] : m_instrumentsByTrack) {
-        if (!m_mixerService->shouldTrackPlay(track)) {
-            if (!m_stopEventSentOnTrack.contains(track)) {
-                for (auto && instrument : instruments) {
-                    m_midiService->stopAllNotes(instrument);
-                }
-                m_stopEventSentOnTrack.insert(track);
+    for (auto & [instrument, notes] : m_activeNotes) {
+        std::erase_if(notes, [&](const ActiveNote & activeNote) {
+            if (!m_mixerService->shouldColumnPlay(activeNote.track, activeNote.column)) {
+                m_midiService->stopNote(instrument, { activeNote.note, 0 });
+                return true;
             }
-        }
+            return false;
+        });
     }
 }
 
@@ -120,21 +115,15 @@ void PlayerWorker::handleEvent(const Event & event)
             if (auto && instrument = event.instrument(); instrument) {
                 if (noteData->type() == NoteData::Type::NoteOff) {
                     m_midiService->stopNote(instrument, { *noteData->note(), 0 });
+                    auto & notes = m_activeNotes[instrument];
+                    std::erase_if(notes, [&](const ActiveNote & an) {
+                        return an.track == noteData->track() && an.column == noteData->column() && an.note == *noteData->note();
+                    });
                 } else if (noteData->type() == NoteData::Type::NoteOn && noteData->note().has_value()) {
                     if (shouldEventPlay(noteData->track(), noteData->column())) {
-                        m_stopEventSentOnTrack.erase(noteData->track());
                         const auto effectiveVelocity = m_mixerService->effectiveVelocity(noteData->track(), noteData->column(), noteData->velocity());
                         m_midiService->playNote(instrument, { *noteData->note(), effectiveVelocity });
-                    } else {
-                        // When user has muted a track (or soloed some other track) we need
-                        // to also stop possibly playing notes on the corresponding channel.
-                        // However, we must not do this if only a specific column is muted.
-                        if (!m_mixerService->shouldTrackPlay(noteData->track())) {
-                            if (!m_stopEventSentOnTrack.contains(noteData->track())) {
-                                m_midiService->stopAllNotes(instrument);
-                                m_stopEventSentOnTrack.insert(noteData->track());
-                            }
-                        }
+                        m_activeNotes[instrument].push_back({ noteData->track(), noteData->column(), *noteData->note() });
                     }
                 }
             }

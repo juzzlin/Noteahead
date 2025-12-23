@@ -98,14 +98,18 @@ void PlayerWorkerTest::test_mixerChange_shouldStopNotes()
 
     worker.initialize(events, timing);
 
+    // Simulate playback of the note to add it to m_activeNotes
+    worker.testHandleEvent(*event);
+
     // Act: Mute Track 0
     mixerService->muteTrack(0, true);
     
     // Simulate mixer change handling
     worker.callCheckMixerState();
 
-    // Assert: stopAllNotes should be called for the instrument on the muted track
-    QCOMPARE(midiService->stopAllNotesCallCount, 1);
+    // Assert: stopNote should be called for the active note on the muted track
+    QCOMPARE(midiService->stopNoteCallCount, 1);
+    QCOMPARE(midiService->stopAllNotesCallCount, 0);
 }
 
 void PlayerWorkerTest::test_columnMuteBehavior_shouldNotStopAllNotes()
@@ -143,8 +147,7 @@ void PlayerWorkerTest::test_columnMuteBehavior_shouldNotStopAllNotes()
     // 1. playNote should NOT be called (column is muted)
     QCOMPARE(midiService->playNoteCallCount, 0);
 
-    // 2. stopAllNotes should NOT be called (this was the bug!)
-    //    It should only be called if the TRACK is muted, not just the column.
+    // 2. stopAllNotes should NOT be called
     QCOMPARE(midiService->stopAllNotesCallCount, 0);
 
     // Test Note Off (should always be processed)
@@ -183,8 +186,43 @@ void PlayerWorkerTest::test_trackMuteBehavior_shouldStopAllNotes()
 
     // Assert
     QCOMPARE(midiService->playNoteCallCount, 0);
-    // Should call stopAllNotes because the track is effectively silent/disabled
-    QCOMPARE(midiService->stopAllNotesCallCount, 1);
+    // Should NOT call stopAllNotes anymore (new logic)
+    QCOMPARE(midiService->stopAllNotesCallCount, 0);
+}
+
+void PlayerWorkerTest::test_columnMute_shouldStopActiveNote()
+{
+    const auto midiService { std::make_shared<MockMidiService>() };
+    const auto mixerService { std::make_shared<MixerService>() };
+    TestablePlayerWorker worker { midiService, mixerService };
+
+    mixerService->setTrackIndices({ 0 });
+    mixerService->setColumnCount(0, 2);
+
+    auto instrument { std::make_shared<Instrument>("TestPort") };
+    instrument->setMidiAddress(MidiAddress { "TestPort", 0 });
+
+    NoteData noteData { 0, 0 }; // Track 0, Col 0
+    noteData.setAsNoteOn(60, 100);
+    const auto event { std::make_shared<Event>(0, noteData) };
+    event->setInstrument(instrument);
+
+    PlayerWorker::EventList events { event };
+    PlayerWorker::Timing timing { 120, 4, 6 };
+    worker.initialize(events, timing);
+
+    // Play note
+    worker.testHandleEvent(*event);
+
+    // Mute Column 0
+    mixerService->muteColumn(0, 0, true);
+
+    // Check mixer state
+    worker.callCheckMixerState();
+
+    // Assert
+    QCOMPARE(midiService->stopNoteCallCount, 1);
+    QCOMPARE(midiService->stopAllNotesCallCount, 0);
 }
 
 void PlayerWorkerTest::test_playback_shouldSendMidiEvents()
