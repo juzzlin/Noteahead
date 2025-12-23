@@ -80,11 +80,10 @@ private:
 
     void stopAllNotes();
     void stopTransport();
-    void checkMixerState();
 
     MidiServiceS m_midiService;
     MixerServiceS m_mixerService;
-
+    
     Timing m_timing;
 
     using EventMap = std::map<quint64, EventList>;
@@ -106,6 +105,7 @@ private slots:
     void onMixerChanged();
 
 protected:
+    void checkMixerState();
     virtual void handleEvent(const Event & event);
     virtual bool shouldEventPlay(size_t track, size_t column) const;
 };
