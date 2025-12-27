@@ -736,6 +736,23 @@ void DrumPadDevice::syncParameters()
     }
 }
 
+void DrumPadDevice::syncAutomatedParameter(const std::string & key)
+{
+    for (int voice = 0; voice < NumVoices; voice++) {
+        if (key.starts_with(voiceId(voice) + "_")) {
+            syncVoiceParameters(voice);
+            return;
+        }
+    }
+    // The channel strip is all the base syncs, and nothing of a kit's own sync reads it
+    namespace C = Constants::NahdXml;
+    if (key == C::xmlKeyFader().toStdString() || key == C::xmlKeyGain().toStdString() || key == C::xmlKeyPan().toStdString() || key == C::xmlKeyExpression().toStdString()) {
+        Device::syncParameters();
+        return;
+    }
+    syncParameters();
+}
+
 void DrumPadDevice::syncVoiceParameters(int index)
 {
     const std::string prefix { voiceId(index) + "_" };

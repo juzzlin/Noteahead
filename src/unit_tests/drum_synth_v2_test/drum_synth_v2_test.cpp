@@ -17,6 +17,7 @@
 
 #include "../../application/service/drum_voice_preview.hpp"
 #include "../../common/constants.hpp"
+#include "../../common/parameter_mapper.hpp"
 #include "../../domain/devices/drum_synth_device.hpp"
 #include "../../domain/devices/drum_synth_v2_constants.hpp"
 #include "../../domain/devices/drum_synth_v2_device.hpp"
@@ -960,6 +961,33 @@ void DrumSynthV2Test::test_drumSynthV2Device_xmlSerialization_shouldRestoreParam
     const auto snappy = restored.parameter(snappyKey);
     QVERIFY(snappy.has_value());
     QCOMPARE(snappy->get().value(), 0.25f);
+}
+
+void DrumSynthV2Test::test_applyParameterAutomation_voiceKey_shouldReachOnlyThatVoice()
+{
+    // An automation step syncs only the drum it belongs to, so it has to land there and nowhere else
+    const auto peakOf = [](const std::vector<double> & frames) {
+        double result = 0.0;
+        for (const double sample : frames) {
+            result = std::max(result, std::abs(sample));
+        }
+        return result;
+    };
+    const int kick = static_cast<int>(DrumSynthV2::VoiceIndex::Kick);
+    const int snare = static_cast<int>(DrumSynthV2::VoiceIndex::Snare);
+    DrumSynthV2Device device { "Drum Synth V2" };
+    const double kickBefore = peakOf(device.renderVoiceAlone(kick, 48000, 2.0));
+    const auto snareBefore = device.renderVoiceAlone(snare, 48000, 2.0);
+
+    const auto levelKey = DrumSynthV2::voiceId(kick) + "_" + Constants::NahdXml::xmlKeyLevel().toStdString();
+    QVERIFY(device.applyParameterAutomation(levelKey, ParameterAutomation::Mode::Absolute, 0.2));
+
+    QVERIFY(peakOf(device.renderVoiceAlone(kick, 48000, 2.0)) < kickBefore * 0.5);
+    QCOMPARE(device.renderVoiceAlone(snare, 48000, 2.0), snareBefore);
+
+    // And the channel strip, which a kit syncs on its own
+    QVERIFY(device.applyParameterAutomation(Constants::NahdXml::xmlKeyFader().toStdString(), ParameterAutomation::Mode::Absolute, 0.25));
+    QVERIFY(std::abs(device.faderGain() - ParameterMapper::mapFader(0.25)) < 1.0e-6);
 }
 
 } // namespace noteahead

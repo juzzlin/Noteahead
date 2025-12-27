@@ -123,12 +123,17 @@ bool Device::applyParameterAutomation(const std::string & key, ParameterAutomati
         } else {
             p->get().setAutomationValue(effective);
         }
-        syncParameters();
+        syncAutomatedParameter(key);
     }
     // Nothing is signalled: this runs on the audio thread, where posting an event allocates and
     // takes a lock, and every event used to re-read the whole dialog. The playback that scheduled
     // the change announces it instead. See DeviceService::notifyParameterAutomation().
     return true;
+}
+
+void Device::syncAutomatedParameter(const std::string &)
+{
+    syncParameters();
 }
 
 void Device::clearParameterAutomation()

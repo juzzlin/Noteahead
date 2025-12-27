@@ -487,6 +487,12 @@ protected:
     void deserializeAttributesFromXml(ProjectReader & reader);
 
     virtual void syncParameters();
+    //! Brings whatever depends on parameter @p key up to date after an automation step moved it.
+    //!
+    //! A full syncParameters() unless a device knows better. A step can come a thousand times a
+    //! second, and a full sync of the largest device costs over a hundred microseconds, so a device
+    //! whose sync is expensive narrows it down to the part @p key belongs to.
+    virtual void syncAutomatedParameter(const std::string & key);
 
     //! Clears automation without emitting, for callers that already hold the device mutex -- the
     //! MIDI CC handlers, which report the change themselves once the lock is gone. Returns whether

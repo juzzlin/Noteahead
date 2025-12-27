@@ -146,6 +146,9 @@ protected:
     virtual std::pair<float, float> defaultFilterCutoffs(int index) const;
 
     void syncParameters() override;
+    //! Only the drum @p key belongs to, or only the channel strip: a full sync of a kit is twelve
+    //! drums' worth of work, and FM Drums' over a hundred microseconds.
+    void syncAutomatedParameter(const std::string & key) override;
 
     bool writeVoiceParameter(int voiceIndex, const std::string & paramName, float value, bool authored);
 

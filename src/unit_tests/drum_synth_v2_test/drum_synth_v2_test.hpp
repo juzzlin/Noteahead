@@ -55,6 +55,7 @@ private slots:
     void test_rim_shouldBeAShortPitchedClick();
     void test_rim_shouldNotDisturbAProjectSavedWithoutIt();
     void test_drumSynthV2Device_xmlSerialization_shouldRestoreParameters();
+    void test_applyParameterAutomation_voiceKey_shouldReachOnlyThatVoice();
 };
 
 } // namespace noteahead
