@@ -1,0 +1,13 @@
+#!/usr/bin/env python3
+
+import datetime
+import pytz
+import email.utils
+
+# Set the timezone to Helsinki/Finland
+helsinki_tz = pytz.timezone('Europe/Helsinki')
+dt = datetime.datetime.now(tz=helsinki_tz)
+
+# Format the datetime using email.utils.format_datetime
+formatted_dt = email.utils.format_datetime(dt)
+print(formatted_dt)

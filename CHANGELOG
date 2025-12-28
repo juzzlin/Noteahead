@@ -7,11 +7,37 @@ New features:
 
 Bug fixes:
 
+Other:
+
+1.2.1
+=====
+
+Release date:
+
+Sun, 28 Dec 2025 14:00:44 +0200
+
+Bug fixes:
+
 * Fix chord automation applied only on pattern 0
+
+* Fix column muting not stopping active notes by implementing granular active note tracking
+
+* Fix muting a track not immediately stop playing notes in PlayerWorker
+
+* Fix timing inaccuracy in PlayerWorker by sleeping until next tick
+
+* Fix column mute stopping all notes on track
+
+*  Remove related settings from SideChainService when a track gets deleted
+
+*  Don't try to apply side-chain on a non-existing track
 
 Other:
 
 * Implement keyboard handling logic in C++
+
+* Performance improvements
+  - Optimize PlayerWorker to sleep until next event or line boundary
 
 1.2.0
 =====
