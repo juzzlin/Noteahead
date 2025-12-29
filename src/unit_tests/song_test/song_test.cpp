@@ -570,6 +570,45 @@ void SongTest::test_addTrack_shouldUseSmallestFreeId()
     QVERIFY(std::find(indices.begin(), indices.end(), 5) != indices.end());
 }
 
+void SongTest::test_addTrackToLeft_shouldUseSmallestFreeId()
+{
+    Song song;
+    song.addColumn(0);
+    song.addColumn(2);
+    song.addColumn(4);
+    song.addColumn(6);
+    song.addColumn(6);
+
+    song.deleteTrack(1);
+    song.deleteTrack(3);
+    song.deleteTrack(5);
+    song.deleteTrack(7);
+
+    // Should be 0, 2, 4, 6
+    QCOMPARE(song.trackCount(), 4);
+
+    song.addTrackToLeftOf(0);
+    // Should be 1, 0, 2, 4, 6
+    QCOMPARE(song.trackIndices().at(0), 1);
+
+    song.addTrackToLeftOf(2);
+    // Should be 1, 0, 3, 2, 4, 6
+    QCOMPARE(song.trackIndices().at(2), 3);
+
+    song.addTrackToLeftOf(4);
+    // Should be 1, 0, 3, 2, 5, 4, 6
+    QCOMPARE(song.trackIndices().at(4), 5);
+
+    QCOMPARE(song.trackCount(), 7);
+    QCOMPARE(song.trackIndices().at(0), 1);
+    QCOMPARE(song.trackIndices().at(1), 0);
+    QCOMPARE(song.trackIndices().at(2), 3);
+    QCOMPARE(song.trackIndices().at(3), 2);
+    QCOMPARE(song.trackIndices().at(4), 5);
+    QCOMPARE(song.trackIndices().at(5), 4);
+    QCOMPARE(song.trackIndices().at(6), 6);
+}
+
 void SongTest::test_trackByName_shouldReturnTrack()
 {
     Song song;

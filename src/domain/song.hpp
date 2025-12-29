@@ -114,6 +114,7 @@ public:
     void removePatternFromPlayOrder(size_t position);
 
     size_t addTrackToRightOf(size_t trackIndex);
+    size_t addTrackToLeftOf(size_t trackIndex);
     bool deleteTrack(size_t trackIndex);
     size_t trackCount() const;
     //! For testing purposes as track counts should be consistent over patterns.

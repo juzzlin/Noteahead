@@ -61,9 +61,11 @@ private slots:
 
     void test_requestNewColumn_shouldAddNewColumn();
     void test_requestColumnDeletion_shouldDeleteColumn();
-
     void test_requestNewTrackToRight_shouldAddNewTrack();
+    void test_requestNewTrackToLeft_shouldAddNewTrack();
+    void test_requestNewTrackToLeft_firstTrack_shouldAddNewTrack();
     void test_requestTrackDeletion_firstTrack_shouldDeleteTrack();
+
     void test_requestTrackDeletion_lastTrack_shouldDeleteTrack();
 
     void test_requestNoteDeletionAtCurrentPosition_shouldDeleteNoteData();

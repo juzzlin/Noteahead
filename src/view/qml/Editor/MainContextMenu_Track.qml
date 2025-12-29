@@ -76,6 +76,11 @@ Menu {
     }
     MenuSeparator {}
     Action {
+        text: qsTr("Insert a new track to the left")
+        enabled: !UiService.isPlaying()
+        onTriggered: editorService.requestNewTrackToLeft()
+    }
+    Action {
         text: qsTr("Insert a new track to the right")
         shortcut: "Shift+I"
         enabled: !UiService.isPlaying()

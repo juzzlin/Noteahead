@@ -161,6 +161,7 @@ public:
     Q_INVOKABLE void requestNewColumn(quint64 trackIndex);
     Q_INVOKABLE void requestColumnDeletion(quint64 trackIndex);
     Q_INVOKABLE void requestNewTrackToRight();
+    Q_INVOKABLE void requestNewTrackToLeft();
     Q_INVOKABLE void requestTrackDeletion();
 
     Q_INVOKABLE void requestNoteInsertionAtCurrentPosition();

@@ -688,6 +688,60 @@ void EditorServiceTest::test_requestNewTrackToRight_shouldAddNewTrack()
     QCOMPARE(editorService.trackCount(), initialTrackCount);
 }
 
+void EditorServiceTest::test_requestNewTrackToLeft_shouldAddNewTrack()
+{
+    EditorService editorService;
+    const auto initialTrackCount = editorService.trackCount();
+    QVERIFY(editorService.requestPosition(0, 1, 0, 0, 0));
+    QSignalSpy trackAddedSpy { &editorService, &EditorService::trackAdded };
+    editorService.requestNewTrackToLeft();
+
+    const auto newIndex = initialTrackCount;
+    QCOMPARE(editorService.trackCount(), initialTrackCount + 1);
+    QCOMPARE(editorService.trackName(newIndex), "Track " + QString::number(newIndex + 1));
+    QCOMPARE(editorService.trackPositionByIndex(newIndex), 1);
+    QCOMPARE(editorService.trackIndexByPosition(1), newIndex);
+    QCOMPARE(trackAddedSpy.count(), 1);
+    QCOMPARE(trackAddedSpy.at(0).at(0).toUInt(), newIndex);
+
+    editorService.requestNewColumn(newIndex);
+    QCOMPARE(editorService.columnCount(newIndex), 2);
+
+    QVERIFY(editorService.requestPosition(0, newIndex, 1, 0, 0));
+    QVERIFY(editorService.requestNoteOnAtCurrentPosition(1, 3, 64));
+    editorService.requestColumnTranspose(1);
+    editorService.requestTrackTranspose(1);
+    const auto noteAndVelocity = editorService.displayNoteAndVelocityAtPosition(0, newIndex, 1, 0);
+    QCOMPARE(noteAndVelocity.at(0), "D-3");
+    QCOMPARE(noteAndVelocity.at(1), "064");
+
+    editorService.requestColumnDeletion(newIndex);
+    QCOMPARE(editorService.columnCount(newIndex), 1);
+
+    editorService.initialize();
+    QCOMPARE(editorService.trackCount(), initialTrackCount);
+}
+
+void EditorServiceTest::test_requestNewTrackToLeft_firstTrack_shouldAddNewTrack()
+{
+    EditorService editorService;
+    const auto initialTrackCount = editorService.trackCount();
+    QVERIFY(editorService.requestPosition(0, 0, 0, 0, 0));
+    QSignalSpy trackAddedSpy { &editorService, &EditorService::trackAdded };
+    editorService.requestNewTrackToLeft();
+
+    const auto newIndex = initialTrackCount;
+    QCOMPARE(editorService.trackCount(), initialTrackCount + 1);
+    QCOMPARE(editorService.trackName(newIndex), "Track " + QString::number(newIndex + 1));
+    QCOMPARE(editorService.trackPositionByIndex(newIndex), 0);
+    QCOMPARE(editorService.trackIndexByPosition(0), newIndex);
+    QCOMPARE(trackAddedSpy.count(), 1);
+    QCOMPARE(trackAddedSpy.at(0).at(0).toUInt(), newIndex);
+
+    editorService.initialize();
+    QCOMPARE(editorService.trackCount(), initialTrackCount);
+}
+
 void EditorServiceTest::test_requestTrackDeletion_firstTrack_shouldDeleteTrack()
 {
     EditorService editorService;

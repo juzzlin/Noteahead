@@ -274,6 +274,21 @@ size_t Pattern::addTrackToRightOf(size_t trackIndex)
     }
 }
 
+size_t Pattern::addTrackToLeftOf(size_t trackIndex)
+{
+    if (const auto track = trackPositionByIndex(trackIndex); track.has_value()) {
+        juzzlin::L(TAG).debug() << "Add track to the left of track position " << *track;
+        const auto newIndex = nextFreeTrackIndex();
+        const auto newTrack = std::make_shared<Track>(newIndex, "Track " + std::to_string(newIndex + 1), m_trackOrder.at(0)->lineCount(), 1);
+        m_trackOrder.insert(m_trackOrder.begin() + static_cast<long>(*track), newTrack);
+        juzzlin::L(TAG).debug() << "Added track with index " << newIndex << ", new track count: " << m_trackOrder.size();
+        return newIndex;
+    } else {
+        juzzlin::L(TAG).error() << "Invalid track position: " << trackIndex;
+        return 0; // Should not happen
+    }
+}
+
 void Pattern::deleteTrack(size_t trackIndex)
 {
     if (const auto track = trackPositionByIndex(trackIndex); track.has_value()) {

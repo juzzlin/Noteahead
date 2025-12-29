@@ -293,6 +293,15 @@ size_t Song::addTrackToRightOf(size_t trackIndex)
     return newIndex;
 }
 
+size_t Song::addTrackToLeftOf(size_t trackIndex)
+{
+    size_t newIndex = 0;
+    std::ranges::for_each(m_patterns, [trackIndex, &newIndex](const auto & pattern) {
+        newIndex = pattern.second->addTrackToLeftOf(trackIndex);
+    });
+    return newIndex;
+}
+
 bool Song::deleteTrack(size_t trackIndex)
 {
     if (trackCount(0) > 1) {

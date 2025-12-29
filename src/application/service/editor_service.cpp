@@ -928,6 +928,16 @@ void EditorService::requestNewTrackToRight()
     setIsModified(true);
 }
 
+void EditorService::requestNewTrackToLeft()
+{
+    juzzlin::L(TAG).debug() << "New track requested to the left of track " << position().track;
+    const auto newTrackIndex = m_song->addTrackToLeftOf(position().track);
+    emit trackAdded(newTrackIndex);
+    updateScrollBar();
+    notifyPositionChange(m_state.cursorPosition); // Re-focuses the previous track
+    setIsModified(true);
+}
+
 void EditorService::requestTrackDeletion()
 {
     juzzlin::L(TAG).debug() << "Deletion of track requested: " << position().track;
