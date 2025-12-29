@@ -97,6 +97,7 @@ FocusScope {
                 patternCreationTimer.stop();
                 progressBar.fadeOut();
                 _updatePatternVisibility();
+                mixerService.update();
                 const currentPos = editorService.position;
                 _setPosition(currentPos);
                 _updateFocus(currentPos, currentPos);
@@ -190,7 +191,6 @@ FocusScope {
         pattern.setIndex(patternIndex);
         _createTracks(pattern);
         _patterns.push(pattern);
-        mixerService.update();
     }
     function _recreatePatterns() {
         uiLogger.debug(_tag, `Recreating track layout..`);
