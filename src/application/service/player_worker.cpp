@@ -34,6 +34,10 @@ PlayerWorker::PlayerWorker(MidiServiceS midiService, MixerServiceS mixerService)
   : m_midiService { midiService }
   , m_mixerService { mixerService }
 {
+    connect(m_mixerService.get(), &MixerService::trackMuted, this, &PlayerWorker::onMixerChanged, Qt::DirectConnection);
+    connect(m_mixerService.get(), &MixerService::trackSoloed, this, &PlayerWorker::onMixerChanged, Qt::DirectConnection);
+    connect(m_mixerService.get(), &MixerService::cleared, this, &PlayerWorker::onMixerChanged, Qt::DirectConnection);
+    connect(m_mixerService.get(), &MixerService::configurationChanged, this, &PlayerWorker::onMixerChanged, Qt::DirectConnection);
 }
 
 void PlayerWorker::initialize(const EventList & events, const Timing & timing)
@@ -45,17 +49,42 @@ void PlayerWorker::initialize(const EventList & events, const Timing & timing)
         m_timing = timing;
         m_eventMap.clear();
         m_allInstruments.clear();
+        m_instrumentsByTrack.clear();
         m_stopEventSentOnTrack.clear();
 
         for (auto && event : events) {
             m_eventMap[event->tick()].push_back(event);
-            if (event->instrument()) {
-                m_allInstruments.insert(event->instrument());
+            if (auto && instrument = event->instrument(); instrument) {
+                m_allInstruments.insert(instrument);
+                if (auto && noteData = event->noteData(); noteData) {
+                    m_instrumentsByTrack[noteData->track()].insert(instrument);
+                }
             }
         }
 
     } else {
         juzzlin::L(TAG).error() << "Cannot initialize, because still playing!";
+    }
+}
+
+void PlayerWorker::onMixerChanged()
+{
+    std::lock_guard<std::mutex> lock { m_mutex };
+    m_mixerChanged = true;
+    m_cv.notify_one();
+}
+
+void PlayerWorker::checkMixerState()
+{
+    for (auto && [track, instruments] : m_instrumentsByTrack) {
+        if (!m_mixerService->shouldTrackPlay(track)) {
+            if (!m_stopEventSentOnTrack.contains(track)) {
+                for (auto && instrument : instruments) {
+                    m_midiService->stopAllNotes(instrument);
+                }
+                m_stopEventSentOnTrack.insert(track);
+            }
+        }
     }
 }
 
@@ -73,6 +102,7 @@ void PlayerWorker::stop()
     juzzlin::L(TAG).info() << "Stopping playback";
 
     setIsPlaying(false);
+    m_cv.notify_one(); // Wake up wait loop if sleeping
 
     stopAllNotes();
     stopTransport();
@@ -217,7 +247,23 @@ void PlayerWorker::processEvents()
 
         // Calculate next tick's start time
         const auto nextTickTime = startTime + std::chrono::duration_cast<std::chrono::steady_clock::duration>((tick - minTick + step) * tickDuration);
-        std::this_thread::sleep_until(nextTickTime);
+
+        std::unique_lock<std::mutex> lock { m_mutex };
+        while (std::chrono::steady_clock::now() < nextTickTime && m_isPlaying) {
+            if (m_cv.wait_until(lock, nextTickTime, [this] { return m_mixerChanged || !m_isPlaying; })) {
+                if (!m_isPlaying) {
+                    break;
+                }
+                if (m_mixerChanged) {
+                    m_mixerChanged = false;
+                    lock.unlock();
+                    checkMixerState();
+                    lock.lock();
+                }
+            }
+        }
+        lock.unlock();
+
         tick += step;
     }
 

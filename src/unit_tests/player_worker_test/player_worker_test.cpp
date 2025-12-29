@@ -37,6 +37,11 @@ public:
     {
         handleEvent(event);
     }
+
+    void callCheckMixerState()
+    {
+        checkMixerState();
+    }
 };
 
 // Mock MidiService to capture calls
@@ -44,7 +49,7 @@ class MockMidiService : public MidiService
 {
 public:
     MockMidiService()
-      : MidiService { nullptr, false }
+      : MidiService(nullptr, false)
     {
     }
 
@@ -67,6 +72,41 @@ public:
         stopNoteCallCount++;
     }
 };
+
+void PlayerWorkerTest::test_mixerChange_shouldStopNotes()
+{
+    const auto midiService { std::make_shared<MockMidiService>() };
+    const auto mixerService { std::make_shared<MixerService>() };
+    TestablePlayerWorker worker { midiService, mixerService };
+
+    // Configure Mixer: Track 0 enabled
+    mixerService->setTrackIndices({ 0 });
+    mixerService->setColumnCount(0, 1);
+
+    // Create Instrument
+    const auto instrument { std::make_shared<Instrument>("TestPort") };
+    instrument->setMidiAddress(MidiAddress { "TestPort", 0 });
+
+    // Create Event on Track 0 to register instrument
+    NoteData noteData { 0, 0 };
+    noteData.setAsNoteOn(60, 100);
+    const auto event { std::make_shared<Event>(0, noteData) };
+    event->setInstrument(instrument);
+
+    PlayerWorker::EventList events { event };
+    PlayerWorker::Timing timing { 120, 4, 6 };
+
+    worker.initialize(events, timing);
+
+    // Act: Mute Track 0
+    mixerService->muteTrack(0, true);
+    
+    // Simulate mixer change handling
+    worker.callCheckMixerState();
+
+    // Assert: stopAllNotes should be called for the instrument on the muted track
+    QCOMPARE(midiService->stopAllNotesCallCount, 1);
+}
 
 void PlayerWorkerTest::test_columnMuteBehavior_shouldNotStopAllNotes()
 {

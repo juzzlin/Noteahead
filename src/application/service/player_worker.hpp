@@ -17,9 +17,11 @@
 #define PLAYER_WORKER_HPP
 
 #include <QObject>
+#include <condition_variable>
 #include <cstddef>
 #include <map>
 #include <memory>
+#include <mutex>
 #include <set>
 #include <vector>
 
@@ -78,6 +80,7 @@ private:
 
     void stopAllNotes();
     void stopTransport();
+    void checkMixerState();
 
     MidiServiceS m_midiService;
     MixerServiceS m_mixerService;
@@ -89,10 +92,18 @@ private:
 
     using InstrumentS = std::shared_ptr<Instrument>;
     std::set<InstrumentS> m_allInstruments;
+    std::map<quint64, std::set<InstrumentS>> m_instrumentsByTrack;
     std::set<size_t> m_stopEventSentOnTrack;
 
     std::atomic_bool m_isPlaying = false;
     std::atomic_bool m_isLooping = false;
+
+    std::condition_variable m_cv;
+    std::mutex m_mutex;
+    bool m_mixerChanged = false;
+
+private slots:
+    void onMixerChanged();
 
 protected:
     virtual void handleEvent(const Event & event);
