@@ -76,6 +76,50 @@ FocusScope {
             });
         }
     }
+    ProgressBar {
+        id: progressBar
+        anchors.centerIn: parent
+        width: parent.width * 0.5
+        visible: false
+        value: 0
+        from: 0
+        to: 1
+        z: 100
+    }
+    Timer {
+        id: patternCreationTimer
+        interval: 10
+        repeat: true
+        property var _patternsToCreate: []
+        property int _totalPatternsToCreate: 0
+        onTriggered: {
+            if (_patternsToCreate.length > 0) {
+                const patternIndex = _patternsToCreate.shift();
+                _createPattern(patternIndex);
+                progressBar.value = (_totalPatternsToCreate - _patternsToCreate.length) / _totalPatternsToCreate;
+            } else {
+                patternCreationTimer.stop();
+                progressBar.visible = false;
+                _updatePatternVisibility();
+                const currentPos = editorService.position;
+                _setPosition(currentPos);
+                _updateFocus(currentPos, currentPos);
+                _updateCurrentTrackDimensions();
+                editorService.resetModified();
+            }
+        }
+        function startCreation(patterns: var): void {
+            _patternsToCreate = patterns;
+            _totalPatternsToCreate = patterns.length;
+            if (_totalPatternsToCreate > 0) {
+                progressBar.value = 0;
+                progressBar.visible = true;
+                start();
+            } else {
+                _updatePatternVisibility();
+            }
+        }
+    }
     Keys.onPressed: event => {
         keyboardHandler.handleKeyPressed(event);
         event.accepted = true;
@@ -152,21 +196,16 @@ FocusScope {
         _createTracks(pattern);
         _patterns.push(pattern);
         mixerService.update();
-        noteColumnModelHandler.updatePattern(patternIndex);
-    }
-    function _createPatterns() {
-        uiLogger.info(_tag, `Track count: ${editorService.trackCount()}`);
-        uiLogger.debug(_tag, `Editor view width: ${rootItem.width}`);
-        for (const patternIndex of editorService.patternIndices()) {
-            _createPattern(patternIndex);
-        }
     }
     function _recreatePatterns() {
         uiLogger.debug(_tag, `Recreating track layout..`);
         noteColumnModelHandler.clear();
         _clearPatterns();
-        _createPatterns();
-        _updatePatternVisibility();
+
+        uiLogger.info(_tag, `Track count: ${editorService.trackCount()}`);
+        uiLogger.debug(_tag, `Editor view width: ${rootItem.width}`);
+
+        patternCreationTimer.startCreation(editorService.patternIndices());
     }
     function _changeSong() {
         uiLogger.debug(_tag, `Changing song..`);
@@ -180,7 +219,10 @@ FocusScope {
     }
     function _updateCurrentTrackDimensions() {
         uiLogger.debug(_tag, `Updating current track dimensions of the current pattern..`);
-        _currentPattern().updateTrackDimensions(trackArea.width, trackArea.height);
+        const pattern = _currentPattern();
+        if (pattern) {
+            pattern.updateTrackDimensions(trackArea.width, trackArea.height);
+        }
     }
     function _updateAllTrackDimensions() {
         uiLogger.debug(_tag, `Updating track dimensions of all patterns..`);
@@ -189,13 +231,22 @@ FocusScope {
         });
     }
     function _updateCurrentTrackData() {
-        _currentPattern().updateTrackData();
+        const pattern = _currentPattern();
+        if (pattern) {
+            pattern.updateTrackData();
+        }
     }
     function _setTrackFocused(position) {
-        _patternByIndex(position.pattern).setTrackFocused(position.track, position.column);
+        const pattern = _patternByIndex(position.pattern);
+        if (pattern) {
+            pattern.setTrackFocused(position.track, position.column);
+        }
     }
     function _setTrackUnfocused(position) {
-        _patternByIndex(position.pattern).setTrackUnfocused(position.track, position.column);
+        const pattern = _patternByIndex(position.pattern);
+        if (pattern) {
+            pattern.setTrackUnfocused(position.track, position.column);
+        }
     }
     function _updateColumnHeaders() {
         _patterns.forEach(pattern => pattern.updateColumnHeaders());
@@ -209,7 +260,10 @@ FocusScope {
         _setTrackFocused(newPosition);
     }
     function _setPosition(newPosition) {
-        _currentPattern().setPosition(newPosition);
+        const pattern = _currentPattern();
+        if (pattern) {
+            pattern.setPosition(newPosition);
+        }
         lineNumberColumnLeft.setPosition(newPosition);
         lineNumberColumnRight.setPosition(newPosition);
     }
@@ -270,6 +324,9 @@ FocusScope {
         editorService.trackNameChanged.connect(_updateTrackHeaders);
         editorService.patternCreated.connect(patternIndex => _createPattern(patternIndex));
         editorService.positionChanged.connect((newPosition, oldPosition) => {
+            if (progressBar.visible) {
+                return;
+            }
             if (newPosition.pattern !== oldPosition.pattern) {
                 uiLogger.debug(_tag, `Changing pattern from index=${oldPosition.pattern} to index=${newPosition.pattern}`);
                 _changePattern();

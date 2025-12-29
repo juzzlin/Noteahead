@@ -88,6 +88,12 @@ QAbstractListModel * NoteColumnModelHandler::columnModel(quint64 pattern, quint6
         const auto model = new NoteColumnModel { columnAddress, m_editorService, m_helper, m_settingsService, this };
         connectColumnModel(model);
         model->setColumnData(m_editorService->columnData(columnAddress));
+
+        const auto currentPos = m_editorService->position();
+        if (currentPos.pattern == pattern && currentPos.track == track && currentPos.column == column) {
+            model->setLineFocused(currentPos.line, currentPos.lineColumn);
+        }
+
         m_noteColumnModels[columnAddress] = model;
         return model;
     } else {

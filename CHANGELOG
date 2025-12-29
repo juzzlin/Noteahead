@@ -5,6 +5,8 @@ Release date:
 
 New features:
 
+* Implement asynchronous loading and show a progress bar
+
 * Implement individual delays for chord notes
 
 * Make it possible to insert a new track also to the left

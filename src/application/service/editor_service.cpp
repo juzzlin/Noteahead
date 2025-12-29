@@ -801,6 +801,11 @@ bool EditorService::isModified() const
     return m_state.isModified;
 }
 
+void EditorService::resetModified()
+{
+    setIsModified(false);
+}
+
 void EditorService::setIsModified(bool isModified)
 {
     if (m_state.isModified != isModified) {
