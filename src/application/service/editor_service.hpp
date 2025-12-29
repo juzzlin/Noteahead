@@ -323,7 +323,7 @@ signals:
     void errorTextRequested(QString text);
     void statusTextRequested(QString text);
 
-    void trackConfigurationChanged();
+    void trackAdded(quint64 trackIndex);
     void trackDeleted(quint64 trackIndex);
     void trackNameChanged();
 

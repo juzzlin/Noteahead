@@ -233,6 +233,15 @@ FocusScope {
         _updateCurrentTrackDimensions();
         noteColumnModelHandler.updateColumns(trackIndex);
     }
+    function _addTrack(trackIndex) {
+        _patterns.forEach(pattern => {
+            const track = pattern.addTrack(trackIndex);
+            if (track) {
+                _connectTrack(track);
+            }
+        });
+        _updateCurrentTrackDimensions();
+    }
     function _deleteColumn(trackIndex) {
         _patterns.forEach(pattern => {
             pattern.deleteColumn(trackIndex);
@@ -256,7 +265,7 @@ FocusScope {
         editorService.columnNameChanged.connect(_updateColumnHeaders);
         editorService.horizontalScrollChanged.connect(_updateTracksOnHorizontalScroll);
         editorService.songChanged.connect(_changeSong);
-        editorService.trackConfigurationChanged.connect(_recreatePatterns);
+        editorService.trackAdded.connect(_addTrack);
         editorService.trackDeleted.connect(_deleteTrack);
         editorService.trackNameChanged.connect(_updateTrackHeaders);
         editorService.patternCreated.connect(patternIndex => _createPattern(patternIndex));

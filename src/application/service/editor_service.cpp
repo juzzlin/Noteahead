@@ -921,8 +921,8 @@ void EditorService::requestColumnDeletion(quint64 trackIndex)
 void EditorService::requestNewTrackToRight()
 {
     juzzlin::L(TAG).debug() << "New track requested to the right of track " << position().track;
-    m_song->addTrackToRightOf(position().track);
-    emit trackConfigurationChanged();
+    const auto newTrackIndex = m_song->addTrackToRightOf(position().track);
+    emit trackAdded(newTrackIndex);
     updateScrollBar();
     notifyPositionChange(m_state.cursorPosition); // Re-focuses the previous track
     setIsModified(true);

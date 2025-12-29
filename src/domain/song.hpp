@@ -113,7 +113,7 @@ public:
     void insertPatternToPlayOrder(size_t position);
     void removePatternFromPlayOrder(size_t position);
 
-    void addTrackToRightOf(size_t trackIndex);
+    size_t addTrackToRightOf(size_t trackIndex);
     bool deleteTrack(size_t trackIndex);
     size_t trackCount() const;
     //! For testing purposes as track counts should be consistent over patterns.

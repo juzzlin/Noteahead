@@ -659,7 +659,7 @@ void EditorServiceTest::test_requestNewTrackToRight_shouldAddNewTrack()
     EditorService editorService;
     const auto initialTrackCount = editorService.trackCount();
     QVERIFY(editorService.requestPosition(0, 1, 0, 0, 0));
-    QSignalSpy trackConfigurationChangedSpy { &editorService, &EditorService::trackConfigurationChanged };
+    QSignalSpy trackAddedSpy { &editorService, &EditorService::trackAdded };
     editorService.requestNewTrackToRight();
 
     const auto newIndex = initialTrackCount;
@@ -667,7 +667,8 @@ void EditorServiceTest::test_requestNewTrackToRight_shouldAddNewTrack()
     QCOMPARE(editorService.trackName(newIndex), "Track " + QString::number(newIndex + 1));
     QCOMPARE(editorService.trackPositionByIndex(newIndex), 2);
     QCOMPARE(editorService.trackIndexByPosition(2), newIndex);
-    QCOMPARE(trackConfigurationChangedSpy.count(), 1);
+    QCOMPARE(trackAddedSpy.count(), 1);
+    QCOMPARE(trackAddedSpy.at(0).at(0).toUInt(), newIndex);
 
     editorService.requestNewColumn(newIndex);
     QCOMPARE(editorService.columnCount(newIndex), 2);

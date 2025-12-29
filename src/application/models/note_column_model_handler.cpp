@@ -87,6 +87,7 @@ QAbstractListModel * NoteColumnModelHandler::columnModel(quint64 pattern, quint6
         juzzlin::L(TAG).debug() << "Creating note column model for pattern=" << pattern << ", track=" << track << ", column=" << column;
         const auto model = new NoteColumnModel { columnAddress, m_editorService, m_helper, m_settingsService, this };
         connectColumnModel(model);
+        model->setColumnData(m_editorService->columnData(columnAddress));
         m_noteColumnModels[columnAddress] = model;
         return model;
     } else {

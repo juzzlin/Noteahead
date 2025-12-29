@@ -4,8 +4,10 @@ Item {
     id: rootItem
     property int _index: 0
     property var _tracks: []
+    property var _positionBar
     readonly property string _tag: "Pattern"
     function createTracks(positionBar: var, trackAreaWidth: int, trackAreaHeight: int): void {
+        _positionBar = positionBar
         _tracks.length = 0;
         for (let trackIndex of editorService.trackIndices()) {
             const track = trackComponent.createObject(this);
@@ -23,6 +25,23 @@ Item {
         }
         updateTrackDimensions(trackAreaWidth, trackAreaHeight);
         updateColumnHeaders();
+    }
+    function addTrack(trackIndex: int): var {
+        const track = trackComponent.createObject(this);
+        if (track) {
+            track.setLocation(_index, trackIndex);
+            track.setName(editorService.trackName(trackIndex));
+            track.setPositionBar(_positionBar);
+            track.nameChanged.connect(name => {
+                editorService.setTrackName(trackIndex, name);
+            });
+            track.updateData();
+            const position = editorService.trackPositionByIndex(trackIndex);
+            _tracks.splice(position, 0, track);
+            uiLogger.trace(_tag, `Added track index=${trackIndex} at position=${position}`);
+            return track;
+        }
+        return null;
     }
     function addColumn(trackIndex: int): void {
         const track = trackByIndex(trackIndex);
