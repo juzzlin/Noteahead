@@ -805,6 +805,8 @@ Song::EventList Song::generateMidiClockEvents(EventListCR eventList, size_t star
 Song::EventList Song::generateChordAutomations(EventListCR events) const
 {
     Song::EventList processedEventList;
+    const double msPerTick = 60'000.0 / static_cast<double>(m_beatsPerMinute * m_linesPerBeat * m_ticksPerLine);
+
     for (auto && event : events) {
         processedEventList.push_back(event);
         const auto noteData = event->noteData();
@@ -820,7 +822,8 @@ Song::EventList Song::generateChordAutomations(EventListCR events) const
                     if (chordNote.offset != 0) {
                         NoteData chordNoteData = *noteData;
                         chordNoteData.setAsNoteOn(rootNote + chordNote.offset, static_cast<uint8_t>(static_cast<float>(rootVelocity) * (static_cast<float>(chordNote.velocity) / 100.f)));
-                        processedEventList.push_back(std::make_shared<Event>(event->tick(), chordNoteData));
+                        const auto delayTicks = std::max(0.0, static_cast<double>(chordNote.delay) / msPerTick);
+                        processedEventList.push_back(std::make_shared<Event>(event->tick() + static_cast<size_t>(delayTicks), chordNoteData));
                     }
                 };
                 addChordNote(settings.note1);

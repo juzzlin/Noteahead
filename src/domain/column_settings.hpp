@@ -39,6 +39,8 @@ public:
             int8_t offset = 0;
             //! Percentage of root note's velocity.
             uint8_t velocity = 100;
+            //! Delay in milliseconds.
+            int16_t delay = 0;
         };
 
         ChordNote note1;

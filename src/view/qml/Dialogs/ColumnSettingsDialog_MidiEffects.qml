@@ -13,10 +13,13 @@ GroupBox {
     function initialize() {
         note1OffsetSpinBox.value = columnSettingsModel.chordNote1Offset;
         note1VelocitySpinBox.value = columnSettingsModel.chordNote1Velocity;
+        note1DelaySpinBox.value = columnSettingsModel.chordNote1Delay;
         note2OffsetSpinBox.value = columnSettingsModel.chordNote2Offset;
         note2VelocitySpinBox.value = columnSettingsModel.chordNote2Velocity;
+        note2DelaySpinBox.value = columnSettingsModel.chordNote2Delay;
         note3OffsetSpinBox.value = columnSettingsModel.chordNote3Offset;
         note3VelocitySpinBox.value = columnSettingsModel.chordNote3Velocity;
+        note3DelaySpinBox.value = columnSettingsModel.chordNote3Delay;
     }
     ColumnLayout {
         spacing: 8
@@ -54,6 +57,22 @@ GroupBox {
                 onValueChanged: columnSettingsModel.chordNote1Velocity = value
                 Layout.row: 0
                 Layout.column: 3
+                Layout.rightMargin: 10
+            }
+            Label {
+                text: qsTr("Delay (ms):")
+                Layout.row: 0
+                Layout.column: 4
+            }
+            SpinBox {
+                id: note1DelaySpinBox
+                from: 0
+                to: 1000
+                editable: true
+                Keys.onReturnPressed: focus = false
+                onValueChanged: columnSettingsModel.chordNote1Delay = value
+                Layout.row: 0
+                Layout.column: 5
             }
             Label {
                 text: qsTr("Note 2 Offset:")
@@ -84,6 +103,22 @@ GroupBox {
                 onValueChanged: columnSettingsModel.chordNote2Velocity = value
                 Layout.row: 1
                 Layout.column: 3
+                Layout.rightMargin: 10
+            }
+            Label {
+                text: qsTr("Delay (ms):")
+                Layout.row: 1
+                Layout.column: 4
+            }
+            SpinBox {
+                id: note2DelaySpinBox
+                from: 0
+                to: 1000
+                editable: true
+                Keys.onReturnPressed: focus = false
+                onValueChanged: columnSettingsModel.chordNote2Delay = value
+                Layout.row: 1
+                Layout.column: 5
             }
             Label {
                 text: qsTr("Note 3 Offset:")
@@ -114,6 +149,22 @@ GroupBox {
                 onValueChanged: columnSettingsModel.chordNote3Velocity = value
                 Layout.row: 2
                 Layout.column: 3
+                Layout.rightMargin: 10
+            }
+            Label {
+                text: qsTr("Delay (ms):")
+                Layout.row: 2
+                Layout.column: 4
+            }
+            SpinBox {
+                id: note3DelaySpinBox
+                from: 0
+                to: 1000
+                editable: true
+                Keys.onReturnPressed: focus = false
+                onValueChanged: columnSettingsModel.chordNote3Delay = value
+                Layout.row: 2
+                Layout.column: 5
             }
         }
     }

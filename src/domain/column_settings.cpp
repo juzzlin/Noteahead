@@ -36,10 +36,13 @@ void ColumnSettings::serializeToXml(QXmlStreamWriter & writer) const
 
     writer.writeAttribute(Constants::NahdXml::xmlKeyChordNote1Offset(), QString::number(chordAutomationSettings.note1.offset));
     writer.writeAttribute(Constants::NahdXml::xmlKeyChordNote1Velocity(), QString::number(chordAutomationSettings.note1.velocity));
+    writer.writeAttribute(Constants::NahdXml::xmlKeyChordNote1Delay(), QString::number(chordAutomationSettings.note1.delay));
     writer.writeAttribute(Constants::NahdXml::xmlKeyChordNote2Offset(), QString::number(chordAutomationSettings.note2.offset));
     writer.writeAttribute(Constants::NahdXml::xmlKeyChordNote2Velocity(), QString::number(chordAutomationSettings.note2.velocity));
+    writer.writeAttribute(Constants::NahdXml::xmlKeyChordNote2Delay(), QString::number(chordAutomationSettings.note2.delay));
     writer.writeAttribute(Constants::NahdXml::xmlKeyChordNote3Offset(), QString::number(chordAutomationSettings.note3.offset));
     writer.writeAttribute(Constants::NahdXml::xmlKeyChordNote3Velocity(), QString::number(chordAutomationSettings.note3.velocity));
+    writer.writeAttribute(Constants::NahdXml::xmlKeyChordNote3Delay(), QString::number(chordAutomationSettings.note3.delay));
 
     writer.writeEndElement();
 }
@@ -52,23 +55,29 @@ ColumnSettings::ColumnSettingsU ColumnSettings::deserializeFromXml(QXmlStreamRea
 
     settings->chordAutomationSettings.note1.offset = Utils::Xml::readIntAttribute(reader, Constants::NahdXml::xmlKeyChordNote1Offset(), false).value_or(0);
     settings->chordAutomationSettings.note1.velocity = Utils::Xml::readUIntAttribute(reader, Constants::NahdXml::xmlKeyChordNote1Velocity(), false).value_or(100);
+    settings->chordAutomationSettings.note1.delay = Utils::Xml::readIntAttribute(reader, Constants::NahdXml::xmlKeyChordNote1Delay(), false).value_or(0);
     settings->chordAutomationSettings.note2.offset = Utils::Xml::readIntAttribute(reader, Constants::NahdXml::xmlKeyChordNote2Offset(), false).value_or(0);
     settings->chordAutomationSettings.note2.velocity = Utils::Xml::readUIntAttribute(reader, Constants::NahdXml::xmlKeyChordNote2Velocity(), false).value_or(100);
+    settings->chordAutomationSettings.note2.delay = Utils::Xml::readIntAttribute(reader, Constants::NahdXml::xmlKeyChordNote2Delay(), false).value_or(0);
     settings->chordAutomationSettings.note3.offset = Utils::Xml::readIntAttribute(reader, Constants::NahdXml::xmlKeyChordNote3Offset(), false).value_or(0);
     settings->chordAutomationSettings.note3.velocity = Utils::Xml::readUIntAttribute(reader, Constants::NahdXml::xmlKeyChordNote3Velocity(), false).value_or(100);
+    settings->chordAutomationSettings.note3.delay = Utils::Xml::readIntAttribute(reader, Constants::NahdXml::xmlKeyChordNote3Delay(), false).value_or(0);
 
     return settings;
 }
 
 QString ColumnSettings::toString() const
 {
-    return QStringLiteral("ColumnSettings(chordAutomation: note1(offset=%1, velocity=%2), note2(offset=%3, velocity=%4), note3(offset=%5, velocity=%6))")
+    return QStringLiteral("ColumnSettings(chordAutomation: note1(offset=%1, velocity=%2, delay=%3), note2(offset=%4, velocity=%5, delay=%6), note3(offset=%7, velocity=%8, delay=%9))")
         .arg(chordAutomationSettings.note1.offset)
         .arg(chordAutomationSettings.note1.velocity)
+        .arg(chordAutomationSettings.note1.delay)
         .arg(chordAutomationSettings.note2.offset)
         .arg(chordAutomationSettings.note2.velocity)
+        .arg(chordAutomationSettings.note2.delay)
         .arg(chordAutomationSettings.note3.offset)
-        .arg(chordAutomationSettings.note3.velocity);
+        .arg(chordAutomationSettings.note3.velocity)
+        .arg(chordAutomationSettings.note3.delay);
 }
 
 } // namespace noteahead

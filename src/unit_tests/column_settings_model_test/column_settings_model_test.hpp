@@ -30,10 +30,13 @@ private slots:
     void test_setColumnIndex_shouldUpdateAndEmitSignal();
     void test_setChordNote1Offset_shouldUpdateAndEmitSignal();
     void test_setChordNote1Velocity_shouldUpdateAndEmitSignal();
+    void test_setChordNote1Delay_shouldUpdateAndEmitSignal();
     void test_setChordNote2Offset_shouldUpdateAndEmitSignal();
     void test_setChordNote2Velocity_shouldUpdateAndEmitSignal();
+    void test_setChordNote2Delay_shouldUpdateAndEmitSignal();
     void test_setChordNote3Offset_shouldUpdateAndEmitSignal();
     void test_setChordNote3Velocity_shouldUpdateAndEmitSignal();
+    void test_setChordNote3Delay_shouldUpdateAndEmitSignal();
     void test_save_shouldEmitSaveRequestedWithCorrectData();
 };
 

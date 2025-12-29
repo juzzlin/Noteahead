@@ -31,10 +31,13 @@ class ColumnSettingsModel : public QObject
 
     Q_PROPERTY(qint8 chordNote1Offset READ chordNote1Offset WRITE setChordNote1Offset NOTIFY chordNote1OffsetChanged)
     Q_PROPERTY(quint8 chordNote1Velocity READ chordNote1Velocity WRITE setChordNote1Velocity NOTIFY chordNote1VelocityChanged)
+    Q_PROPERTY(qint16 chordNote1Delay READ chordNote1Delay WRITE setChordNote1Delay NOTIFY chordNote1DelayChanged)
     Q_PROPERTY(qint8 chordNote2Offset READ chordNote2Offset WRITE setChordNote2Offset NOTIFY chordNote2OffsetChanged)
     Q_PROPERTY(quint8 chordNote2Velocity READ chordNote2Velocity WRITE setChordNote2Velocity NOTIFY chordNote2VelocityChanged)
+    Q_PROPERTY(qint16 chordNote2Delay READ chordNote2Delay WRITE setChordNote2Delay NOTIFY chordNote2DelayChanged)
     Q_PROPERTY(qint8 chordNote3Offset READ chordNote3Offset WRITE setChordNote3Offset NOTIFY chordNote3OffsetChanged)
     Q_PROPERTY(quint8 chordNote3Velocity READ chordNote3Velocity WRITE setChordNote3Velocity NOTIFY chordNote3VelocityChanged)
+    Q_PROPERTY(qint16 chordNote3Delay READ chordNote3Delay WRITE setChordNote3Delay NOTIFY chordNote3DelayChanged)
 
 public:
     explicit ColumnSettingsModel(QObject * parent = nullptr);
@@ -58,17 +61,26 @@ public:
     quint8 chordNote1Velocity() const;
     void setChordNote1Velocity(quint8 velocity);
 
+    qint16 chordNote1Delay() const;
+    void setChordNote1Delay(qint16 delay);
+
     qint8 chordNote2Offset() const;
     void setChordNote2Offset(qint8 offset);
 
     quint8 chordNote2Velocity() const;
     void setChordNote2Velocity(quint8 velocity);
 
+    qint16 chordNote2Delay() const;
+    void setChordNote2Delay(qint16 delay);
+
     qint8 chordNote3Offset() const;
     void setChordNote3Offset(qint8 offset);
 
     quint8 chordNote3Velocity() const;
     void setChordNote3Velocity(quint8 velocity);
+
+    qint16 chordNote3Delay() const;
+    void setChordNote3Delay(qint16 delay);
 
 signals:
     void dataRequested();
@@ -79,10 +91,13 @@ signals:
 
     void chordNote1OffsetChanged();
     void chordNote1VelocityChanged();
+    void chordNote1DelayChanged();
     void chordNote2OffsetChanged();
     void chordNote2VelocityChanged();
+    void chordNote2DelayChanged();
     void chordNote3OffsetChanged();
     void chordNote3VelocityChanged();
+    void chordNote3DelayChanged();
 
     void saveRequested(quint64 trackIndex, quint64 columnIndex, const ColumnSettings & settings);
 

@@ -154,6 +154,11 @@ QString xmlKeyChordNote1Velocity()
     return "chordNote1Velocity";
 }
 
+QString xmlKeyChordNote1Delay()
+{
+    return "chordNote1Delay";
+}
+
 QString xmlKeyChordNote2Offset()
 {
     return "chordNote2Offset";
@@ -164,6 +169,11 @@ QString xmlKeyChordNote2Velocity()
     return "chordNote2Velocity";
 }
 
+QString xmlKeyChordNote2Delay()
+{
+    return "chordNote2Delay";
+}
+
 QString xmlKeyChordNote3Offset()
 {
     return "chordNote3Offset";
@@ -172,6 +182,11 @@ QString xmlKeyChordNote3Offset()
 QString xmlKeyChordNote3Velocity()
 {
     return "chordNote3Velocity";
+}
+
+QString xmlKeyChordNote3Delay()
+{
+    return "chordNote3Delay";
 }
 
 QString xmlKeyController()

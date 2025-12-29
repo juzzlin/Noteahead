@@ -35,10 +35,13 @@ void ColumnSettingsModel::reset()
 
     emit chordNote1OffsetChanged();
     emit chordNote1VelocityChanged();
+    emit chordNote1DelayChanged();
     emit chordNote2OffsetChanged();
     emit chordNote2VelocityChanged();
+    emit chordNote2DelayChanged();
     emit chordNote3OffsetChanged();
     emit chordNote3VelocityChanged();
+    emit chordNote3DelayChanged();
 }
 
 void ColumnSettingsModel::requestData()
@@ -50,10 +53,13 @@ void ColumnSettingsModel::setColumnSettings(const ColumnSettings & settings)
 {
     const bool note1OffsetChanged = m_settings.chordAutomationSettings.note1.offset != settings.chordAutomationSettings.note1.offset;
     const bool note1VelocityChanged = m_settings.chordAutomationSettings.note1.velocity != settings.chordAutomationSettings.note1.velocity;
+    const bool note1DelayChanged = m_settings.chordAutomationSettings.note1.delay != settings.chordAutomationSettings.note1.delay;
     const bool note2OffsetChanged = m_settings.chordAutomationSettings.note2.offset != settings.chordAutomationSettings.note2.offset;
     const bool note2VelocityChanged = m_settings.chordAutomationSettings.note2.velocity != settings.chordAutomationSettings.note2.velocity;
+    const bool note2DelayChanged = m_settings.chordAutomationSettings.note2.delay != settings.chordAutomationSettings.note2.delay;
     const bool note3OffsetChanged = m_settings.chordAutomationSettings.note3.offset != settings.chordAutomationSettings.note3.offset;
     const bool note3VelocityChanged = m_settings.chordAutomationSettings.note3.velocity != settings.chordAutomationSettings.note3.velocity;
+    const bool note3DelayChanged = m_settings.chordAutomationSettings.note3.delay != settings.chordAutomationSettings.note3.delay;
 
     m_settings = settings;
 
@@ -63,17 +69,26 @@ void ColumnSettingsModel::setColumnSettings(const ColumnSettings & settings)
     if (note1VelocityChanged) {
         emit chordNote1VelocityChanged();
     }
+    if (note1DelayChanged) {
+        emit chordNote1DelayChanged();
+    }
     if (note2OffsetChanged) {
         emit chordNote2OffsetChanged();
     }
     if (note2VelocityChanged) {
         emit chordNote2VelocityChanged();
     }
+    if (note2DelayChanged) {
+        emit chordNote2DelayChanged();
+    }
     if (note3OffsetChanged) {
         emit chordNote3OffsetChanged();
     }
     if (note3VelocityChanged) {
         emit chordNote3VelocityChanged();
+    }
+    if (note3DelayChanged) {
+        emit chordNote3DelayChanged();
     }
 
     emit dataReceived();
@@ -131,6 +146,19 @@ void ColumnSettingsModel::setChordNote1Velocity(quint8 velocity)
     }
 }
 
+qint16 ColumnSettingsModel::chordNote1Delay() const
+{
+    return m_settings.chordAutomationSettings.note1.delay;
+}
+
+void ColumnSettingsModel::setChordNote1Delay(qint16 delay)
+{
+    if (m_settings.chordAutomationSettings.note1.delay != delay) {
+        m_settings.chordAutomationSettings.note1.delay = delay;
+        emit chordNote1DelayChanged();
+    }
+}
+
 qint8 ColumnSettingsModel::chordNote2Offset() const
 {
     return m_settings.chordAutomationSettings.note2.offset;
@@ -157,6 +185,19 @@ void ColumnSettingsModel::setChordNote2Velocity(quint8 velocity)
     }
 }
 
+qint16 ColumnSettingsModel::chordNote2Delay() const
+{
+    return m_settings.chordAutomationSettings.note2.delay;
+}
+
+void ColumnSettingsModel::setChordNote2Delay(qint16 delay)
+{
+    if (m_settings.chordAutomationSettings.note2.delay != delay) {
+        m_settings.chordAutomationSettings.note2.delay = delay;
+        emit chordNote2DelayChanged();
+    }
+}
+
 qint8 ColumnSettingsModel::chordNote3Offset() const
 {
     return m_settings.chordAutomationSettings.note3.offset;
@@ -180,6 +221,19 @@ void ColumnSettingsModel::setChordNote3Velocity(quint8 velocity)
     if (m_settings.chordAutomationSettings.note3.velocity != velocity) {
         m_settings.chordAutomationSettings.note3.velocity = velocity;
         emit chordNote3VelocityChanged();
+    }
+}
+
+qint16 ColumnSettingsModel::chordNote3Delay() const
+{
+    return m_settings.chordAutomationSettings.note3.delay;
+}
+
+void ColumnSettingsModel::setChordNote3Delay(qint16 delay)
+{
+    if (m_settings.chordAutomationSettings.note3.delay != delay) {
+        m_settings.chordAutomationSettings.note3.delay = delay;
+        emit chordNote3DelayChanged();
     }
 }
 

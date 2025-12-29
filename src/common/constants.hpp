@@ -61,10 +61,13 @@ QString xmlKeyColumnSettings();
 
 QString xmlKeyChordNote1Offset();
 QString xmlKeyChordNote1Velocity();
+QString xmlKeyChordNote1Delay();
 QString xmlKeyChordNote2Offset();
 QString xmlKeyChordNote2Velocity();
+QString xmlKeyChordNote2Delay();
 QString xmlKeyChordNote3Offset();
 QString xmlKeyChordNote3Velocity();
+QString xmlKeyChordNote3Delay();
 
 QString xmlKeyController();
 QString xmlKeyEnabled();
