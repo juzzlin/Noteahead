@@ -243,6 +243,7 @@ set(QML_SOURCE_FILES
     ${QML_BASE_DIR}/Editor/Pattern.qml
     ${QML_BASE_DIR}/Editor/PositionBar.qml
     ${QML_BASE_DIR}/Editor/SongView.qml
+    ${QML_BASE_DIR}/Editor/ThemedProgressBar.qml
     ${QML_BASE_DIR}/Editor/Track.qml
     ${QML_BASE_DIR}/Editor/TrackHeader.qml
     ${QML_BASE_DIR}/Editor/TrackHeader_ColumnButtons.qml

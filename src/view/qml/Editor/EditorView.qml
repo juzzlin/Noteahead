@@ -76,15 +76,11 @@ FocusScope {
             });
         }
     }
-    ProgressBar {
+    ThemedProgressBar {
         id: progressBar
         anchors.centerIn: parent
-        width: parent.width * 0.5
-        visible: false
-        value: 0
-        from: 0
-        to: 1
-        z: 100
+        width: rootItem.width * 0.5
+        height: 15
     }
     Timer {
         id: patternCreationTimer
@@ -99,7 +95,7 @@ FocusScope {
                 progressBar.value = (_totalPatternsToCreate - _patternsToCreate.length) / _totalPatternsToCreate;
             } else {
                 patternCreationTimer.stop();
-                progressBar.visible = false;
+                progressBar.fadeOut();
                 _updatePatternVisibility();
                 const currentPos = editorService.position;
                 _setPosition(currentPos);
@@ -112,8 +108,7 @@ FocusScope {
             _patternsToCreate = patterns;
             _totalPatternsToCreate = patterns.length;
             if (_totalPatternsToCreate > 0) {
-                progressBar.value = 0;
-                progressBar.visible = true;
+                progressBar.reset();
                 start();
             } else {
                 _updatePatternVisibility();
@@ -324,7 +319,7 @@ FocusScope {
         editorService.trackNameChanged.connect(_updateTrackHeaders);
         editorService.patternCreated.connect(patternIndex => _createPattern(patternIndex));
         editorService.positionChanged.connect((newPosition, oldPosition) => {
-            if (progressBar.visible) {
+            if (patternCreationTimer.running) {
                 return;
             }
             if (newPosition.pattern !== oldPosition.pattern) {
