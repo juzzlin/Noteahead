@@ -27,7 +27,7 @@ using namespace std::chrono_literals;
 
 namespace noteahead {
 
-static const auto TAG = "MidiOutWorker";
+static const auto TAG = "MidiWorkerOut";
 
 MidiWorkerOut::MidiWorkerOut(QObject * parent)
     : MidiWorker { std::make_unique<MidiOutRtMidi>(), "OUT", parent },

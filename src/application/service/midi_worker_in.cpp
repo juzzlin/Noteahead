@@ -26,7 +26,7 @@ using namespace std::chrono_literals;
 
 namespace noteahead {
 
-static const auto TAG = "MidiInWorker";
+static const auto TAG = "MidiWorkerIn";
 
 MidiWorkerIn::MidiWorkerIn(QObject * parent)
   : MidiWorker { std::make_unique<MidiInRtMidi>(), "IN", parent }
