@@ -1441,22 +1441,23 @@ void EditorServiceTest::test_setSongPosition_shouldChangePattern()
     QCOMPARE(currentPatternChangedSpy.count(), 1);
     QCOMPARE(patternAtCurrentSongPositionChangedSpy.count(), 1);
     QCOMPARE(patternCreatedChangedSpy.count(), 1);
-    QCOMPARE(positionChangedSpy.count(), 1);
+    QCOMPARE(positionChangedSpy.count(), 2);
     QCOMPARE(songPositionChangedSpy.count(), 1);
 
     editorService.setSongPosition(0);
 
-    QCOMPARE(editorService.currentPattern(), 1);
-    QCOMPARE(editorService.position().pattern, 1);
+    QCOMPARE(editorService.currentPattern(), 0);
+    QCOMPARE(editorService.position().pattern, 0);
+    QCOMPARE(editorService.position().line, 0);
     QCOMPARE(editorService.patternAtSongPosition(0), 0);
     QCOMPARE(editorService.patternAtSongPosition(1), 1);
     QCOMPARE(editorService.patternAtCurrentSongPosition(), 0);
     QCOMPARE(editorService.patternCount(), 2);
 
-    QCOMPARE(currentPatternChangedSpy.count(), 1);
+    QCOMPARE(currentPatternChangedSpy.count(), 3);
     QCOMPARE(patternAtCurrentSongPositionChangedSpy.count(), 2);
     QCOMPARE(patternCreatedChangedSpy.count(), 1);
-    QCOMPARE(positionChangedSpy.count(), 1);
+    QCOMPARE(positionChangedSpy.count(), 4);
     QCOMPARE(songPositionChangedSpy.count(), 2);
 }
 

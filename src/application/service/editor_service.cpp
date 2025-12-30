@@ -1731,6 +1731,11 @@ quint64 EditorService::songPosition() const
 
 void EditorService::setSongPosition(quint64 songPosition)
 {
+    const auto oldPosition = m_state.cursorPosition;
+    const auto newPattern = m_song->patternAtSongPosition(songPosition);
+    setCurrentPattern(newPattern);
+    m_state.cursorPosition.line = 0;
+    notifyPositionChange(oldPosition);
     setSongPositionInternal(songPosition, true);
 }
 
@@ -1751,15 +1756,11 @@ void EditorService::setSongPositionInternal(quint64 songPosition, bool updateTim
 
 void EditorService::resetSongPosition()
 {
-    setSongPosition(0);
-    const auto oldPosition = m_state.cursorPosition;
+    setSongPositionInternal(0, false);
     const quint64 firstPattern = m_song->patternAtSongPosition(0);
-    quint64 track = oldPosition.track;
-    if (!m_song->trackPositionByIndex(track).has_value()) {
-        track = m_song->trackIndexByPosition(0).value_or(0);
-    }
-    m_state.cursorPosition = { firstPattern, track, 0, 0, 0 };
-    notifyPositionChange(oldPosition);
+    const auto track = m_song->trackIndexByPosition(0).value_or(0);
+    createPatternIfDoesNotExist(firstPattern);
+    requestPosition(firstPattern, track, 0, 0, 0);
 }
 
 void EditorService::setPatternAtSongPosition(quint64 songPosition, quint64 pattern)
