@@ -779,6 +779,9 @@ void Application::applyState(StateMachine::State state)
     }
 }
 
-Application::~Application() = default;
+Application::~Application()
+{
+    juzzlin::SimpleLogger::flush();
+}
 
 } // namespace noteahead

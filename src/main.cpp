@@ -26,6 +26,8 @@
 
 static const auto TAG = "main";
 
+using namespace std::chrono_literals;
+
 static size_t tsMs()
 {
     using namespace std::chrono;
@@ -39,6 +41,8 @@ static void initLogger()
     const QString logPath { QDir::tempPath() + QDir::separator() + noteahead::Constants::applicationName() + "-" + QString::number(tsMs()) + ".log" };
     L::initialize(logPath.toStdString());
     L::enableEchoMode(true);
+    L::setBatchInterval(1000ms);
+    L::setCollapseRepeatedMessages(true);
     L::setTimestampMode(L::TimestampMode::ISODateTimeMilliseconds);
     L::setTimestampSeparator(" ");
     const std::map<L::Level, std::string> symbols = {
