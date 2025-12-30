@@ -51,6 +51,7 @@ class EditorService : public QObject
     Q_PROPERTY(quint64 currentPattern READ currentPattern NOTIFY currentPatternChanged)
     Q_PROPERTY(QString currentPatternName READ currentPatternName NOTIFY currentPatternChanged)
     Q_PROPERTY(quint64 currentLineCount READ currentLineCount NOTIFY currentLineCountChanged)
+    Q_PROPERTY(QString currentPatternTime READ currentPatternTime NOTIFY currentPatternTimeChanged)
     Q_PROPERTY(QString currentTime READ currentTime NOTIFY currentTimeChanged)
     Q_PROPERTY(QString duration READ duration NOTIFY durationChanged)
 
@@ -97,6 +98,7 @@ public:
     Q_INVOKABLE quint64 currentLineCount() const;
     Q_INVOKABLE void setCurrentLineCount(quint64 lineCount);
 
+    Q_INVOKABLE QString currentPatternTime() const;
     Q_INVOKABLE QString currentTime() const;
     Q_INVOKABLE QString duration() const;
 
@@ -286,6 +288,7 @@ signals:
     void currentLineCountModified(quint64 oldLineCount, quint64 newLineCount);
     void currentPatternChanged(); // For the pattern index widget
 
+    void currentPatternTimeChanged();
     void currentTimeChanged();
     void durationChanged();
 
@@ -335,6 +338,8 @@ public slots:
 private:
     void clampCursorLine(quint64 oldLineCount, quint64 newLineCount);
 
+    void setSongPositionInternal(quint64 songPosition, bool updateTime);
+
     void createPatternIfDoesNotExist(quint64 patternIndex);
 
     quint64 currentTrack() const;
@@ -365,7 +370,8 @@ private:
 
     bool setVelocityAtCurrentPosition(uint8_t digit);
 
-    void setCurrentTime(std::chrono::milliseconds currentTime);
+    void updateTimes(std::chrono::milliseconds songTime, std::chrono::milliseconds patternTime);
+    void updateTimesFromCurrentPosition();
     void setDuration(std::chrono::milliseconds duration);
     void updateDuration();
 
@@ -380,6 +386,7 @@ private:
         Position cursorPosition;
 
         QString createdDate;
+        QString currentPatternTime;
         QString currentTime;
         QString duration;
 

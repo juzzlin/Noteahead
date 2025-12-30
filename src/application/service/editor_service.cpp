@@ -82,7 +82,7 @@ void EditorService::setSong(SongS song)
 
     requestInstruments();
 
-    setCurrentTime(0ms);
+    updateTimes(0ms, 0ms);
 
     resetSongPosition();
 
@@ -712,6 +712,11 @@ void EditorService::setCurrentPattern(quint64 patternIndex)
     }
 }
 
+QString EditorService::currentPatternTime() const
+{
+    return m_state.currentPatternTime;
+}
+
 QString EditorService::currentTime() const
 {
     return m_state.currentTime;
@@ -744,12 +749,23 @@ static QString getFormattedTime(std::chrono::milliseconds currentTime)
       .arg(milliseconds, 3, 10, QChar('0'));
 }
 
-void EditorService::setCurrentTime(std::chrono::milliseconds currentTime)
+void EditorService::updateTimes(std::chrono::milliseconds songTime, std::chrono::milliseconds patternTime)
 {
-    if (const QString newCurrentTime = getFormattedTime(currentTime); m_state.currentTime != newCurrentTime) {
+    if (const QString newCurrentTime = getFormattedTime(songTime); m_state.currentTime != newCurrentTime) {
         m_state.currentTime = newCurrentTime;
         emit currentTimeChanged();
     }
+    if (const QString newCurrentPatternTime = getFormattedTime(patternTime); m_state.currentPatternTime != newCurrentPatternTime) {
+        m_state.currentPatternTime = newCurrentPatternTime;
+        emit currentPatternTimeChanged();
+    }
+}
+
+void EditorService::updateTimesFromCurrentPosition()
+{
+    const auto patternTime = m_song->lineToTime(static_cast<quint32>(m_state.cursorPosition.line));
+    const auto songTime = m_song->tickToTime(m_song->positionToTick(m_state.songPosition) + m_state.cursorPosition.line * m_song->ticksPerLine());
+    updateTimes(songTime, patternTime);
 }
 
 void EditorService::updateDuration()
@@ -1406,7 +1422,7 @@ bool EditorService::requestPosition(quint64 pattern, quint64 track, quint64 colu
     m_state.cursorPosition.lineColumn = lineColumn;
     notifyPositionChange(oldPosition);
 
-    setCurrentTime(m_song->lineToTime(static_cast<quint32>(m_state.cursorPosition.line)));
+    updateTimesFromCurrentPosition();
 
     return true;
 }
@@ -1423,8 +1439,8 @@ void EditorService::requestPositionByTick(quint64 tick)
         m_state.cursorPosition.pattern = songPosition->pattern;
         m_state.cursorPosition.line = static_cast<quint64>(songPosition->line);
         notifyPositionChange(oldPosition);
-        setSongPosition(songPosition->position);
-        setCurrentTime(songPosition->currentTime);
+        setSongPositionInternal(songPosition->position, false);
+        updateTimes(songPosition->currentTime, m_song->lineToTime(songPosition->line));
     }
 }
 
@@ -1445,7 +1461,7 @@ void EditorService::requestScroll(int steps)
 
     m_state.cursorPosition.line = static_cast<quint64>(newLine);
 
-    setCurrentTime(m_song->lineToTime(m_state.cursorPosition.line));
+    updateTimesFromCurrentPosition();
     notifyPositionChange(oldPosition);
 }
 
@@ -1715,12 +1731,20 @@ quint64 EditorService::songPosition() const
 
 void EditorService::setSongPosition(quint64 songPosition)
 {
+    setSongPositionInternal(songPosition, true);
+}
+
+void EditorService::setSongPositionInternal(quint64 songPosition, bool updateTime)
+{
     if (m_state.songPosition != songPosition) {
         m_state.songPosition = songPosition;
         emit songPositionChanged(songPosition);
         emit patternAtCurrentSongPositionChanged();
         if (songPosition >= songLength()) {
             setSongLength(songPosition + 1);
+        }
+        if (updateTime) {
+            updateTimesFromCurrentPosition();
         }
     }
 }
