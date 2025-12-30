@@ -25,6 +25,7 @@
 #ifndef JUZZLIN_SIMPLE_LOGGER_HPP
 #define JUZZLIN_SIMPLE_LOGGER_HPP
 
+#include <chrono>
 #include <memory>
 #include <sstream>
 
@@ -108,6 +109,17 @@ public:
     //! Set/enable timestamp separator.
     //! \param separator Separator string outputted after timestamp.
     static void setTimestampSeparator(std::string separator);
+
+    //! Set the batch interval.
+    //! \param interval The interval in milliseconds. 0 to disable.
+    static void setBatchInterval(std::chrono::milliseconds interval);
+
+    //! Flush the batch queue.
+    static void flush();
+
+    //! Enable/disable collapsing of repeated messages.
+    //! \param collapse If true, repeated messages in a batch will be collapsed.
+    static void setCollapseRepeatedMessages(bool collapse);
 
     //! Set specific stream.
     //! \param level The level.

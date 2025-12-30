@@ -1,3 +1,26 @@
+x.y.z
+=====
+
+New features:
+
+Bug fixes:
+
+Other:
+
+2.1.0
+=====
+
+New features:
+
+* Add support for ISO timestamps with milliseconds
+
+* Add option to batch/cache log messages for certain times
+  - SimpleLogger::setBatchInterval()
+  - SimpleLogger::flush()
+
+* Add option to collapse repeated messages within a batch
+  - SimpleLogger::setCollapseRepeatedMessages()
+
 2.0.0
 =====
 

@@ -6,7 +6,7 @@ pipeline {
                 axes {
                     axis {
                         name 'IMAGE'
-                        values 'qt5-20.04', 'qt6-22.04', 'qt6-24.04'
+                        values 'qt6-22.04', 'qt6-24.04'
                     }
                     axis {
                         name 'BUILD_TYPE'
