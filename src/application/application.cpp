@@ -283,11 +283,11 @@ void Application::exportToMidi(QString fileName, quint64 startPosition, quint64 
     try {
         m_midiExporter->exportTo(fileName.toStdString(), m_editorService->song(), startPosition, endPosition);
         const auto message = QString { "Exported the project to '%1' " }.arg(fileName);
-        m_applicationService->statusTextRequested(message);
+        m_applicationService->requestStatusText(message);
     } catch (std::exception & e) {
         const auto message = QString { "Failed to export as MIDI: %1 " }.arg(e.what());
         juzzlin::L(TAG).error() << message.toStdString();
-        m_applicationService->statusTextRequested(message);
+        m_applicationService->requestStatusText(message);
     }
 }
 
