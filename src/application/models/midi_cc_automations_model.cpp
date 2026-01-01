@@ -162,6 +162,7 @@ bool MidiCcAutomationsModel::setData(const QModelIndex & index, const QVariant &
             }
             break;
         case DataRole::Controller:
+            juzzlin::L(TAG).info() << "setData called for ControllerRole with value " << value.toInt();
             if (const auto newController = static_cast<uint8_t>(value.toInt()); midiCcAutomation.controller() != newController) {
                 midiCcAutomation.setController(newController);
                 changed = true;
@@ -298,6 +299,20 @@ void MidiCcAutomationsModel::applyAll()
         emit midiCcAutomationDeleted(midiCcAutomation);
     }
     m_midiCcAutomationsDeleted.clear();
+}
+
+void MidiCcAutomationsModel::changeController(int index, quint8 controller)
+{
+    if (index >= 0 && static_cast<size_t>(index) < m_midiCcAutomations.size()) {
+        auto& midiCcAutomation = m_midiCcAutomations[static_cast<size_t>(index)];
+        if (midiCcAutomation.controller() != controller) {
+            midiCcAutomation.setController(controller);
+            m_midiCcAutomationsChanged.erase(midiCcAutomation);
+            m_midiCcAutomationsChanged.insert(midiCcAutomation);
+            emit dataChanged(this->index(index), this->index(index), { static_cast<int>(DataRole::Controller) });
+            juzzlin::L(TAG).info() << "MIDI CC automation controller changed via invokable: " << midiCcAutomation.toString().toStdString();
+        }
+    }
 }
 
 } // namespace noteahead

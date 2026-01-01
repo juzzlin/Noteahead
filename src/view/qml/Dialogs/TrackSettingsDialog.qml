@@ -22,7 +22,6 @@ Dialog {
         timingSettings.initialize();
         midiEffects.initialize();
         midiCcSettingsPredefined.initialize();
-        midiCcSettingsGeneric.initialize();
         tabBar.currentIndex = 0;
     }
     function saveSettings() {

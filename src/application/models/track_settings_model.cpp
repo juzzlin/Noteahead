@@ -25,8 +25,14 @@ namespace noteahead {
 static const auto TAG = "TrackSettingsModel";
 
 TrackSettingsModel::TrackSettingsModel(QObject * parent)
-  : MidiCcSelectionModel { parent }
+  : QObject { parent }
+  , m_midiCcModel { new MidiCcSelectionModel(this) }
 {
+}
+
+MidiCcSelectionModel* TrackSettingsModel::midiCcModel() const
+{
+    return m_midiCcModel;
 }
 
 void TrackSettingsModel::applyAll()
@@ -224,10 +230,8 @@ void TrackSettingsModel::setInstrumentData(const Instrument & instrument)
 
     pushApplyDisabled();
 
-    // Store the original instrument's port name as it might not be in the
-    // list of currently available port names
     m_instrumentPortName = instrument.midiAddress().portName();
-    setAvailableMidiPorts(m_availableMidiPorts); // Update the list with instrument port name
+    setAvailableMidiPorts(m_availableMidiPorts);
 
     setPortName(instrument.midiAddress().portName());
     setChannel(instrument.midiAddress().channel());
@@ -266,7 +270,7 @@ void TrackSettingsModel::setInstrumentData(const Instrument & instrument)
 
     setVelocityJitter(instrument.settings().midiEffects.velocityJitter);
 
-    setMidiCcSettings(instrument.settings().midiCcSettings);
+    m_midiCcModel->setMidiCcSettings(instrument.settings().midiCcSettings);
 
     emit instrumentDataReceived();
 
@@ -280,7 +284,7 @@ void TrackSettingsModel::reset()
     pushApplyDisabled();
 
     m_instrumentPortName = {};
-    setAvailableMidiPorts(m_availableMidiPorts); // Update the list with instrument port name
+    setAvailableMidiPorts(m_availableMidiPorts); 
 
     m_instrumentSettings = {};
 
@@ -290,7 +294,7 @@ void TrackSettingsModel::reset()
 
     m_midiEffectSettings = {};
 
-    setMidiCcSettings({});
+    m_midiCcModel->setMidiCcSettings({});
 
     emit instrumentDataReceived();
 
@@ -339,7 +343,7 @@ TrackSettingsModel::InstrumentU TrackSettingsModel::toInstrument() const
 
     settings.midiEffects.velocityJitter = m_midiEffectSettings.velocityJitter;
 
-    settings.midiCcSettings = midiCcSettings();
+    settings.midiCcSettings = m_midiCcModel->midiCcSettings();
     instrument->setSettings(settings);
 
     return instrument;

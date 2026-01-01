@@ -16,43 +16,45 @@
 #ifndef MIDI_CC_SELECTION_MODEL_HPP
 #define MIDI_CC_SELECTION_MODEL_HPP
 
-#include <QObject>
-
 #include "../../domain/midi_cc_setting.hpp"
+
+#include <QAbstractListModel>
+
+#include <vector>
 
 namespace noteahead {
 
-class MidiCcSelectionModel : public QObject
+class MidiCcSelectionModel : public QAbstractListModel
 {
     Q_OBJECT
 
-    Q_PROPERTY(quint8 midiCcSlots READ midiCcSlots NOTIFY midiCcSlotsChanged)
-
 public:
+    enum class Roles
+    {
+        ControllerRole = Qt::UserRole + 1,
+        ValueRole,
+        EnabledRole
+    };
+
     explicit MidiCcSelectionModel(QObject * parent = nullptr);
 
-    Q_INVOKABLE quint8 midiCcController(quint8 index) const;
-    Q_INVOKABLE void setMidiCcController(quint8 index, quint8 controller);
+    // QAbstractListModel interface
+    int rowCount(const QModelIndex &parent = QModelIndex()) const override;
+    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
+    bool setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole) override;
+    QHash<int, QByteArray> roleNames() const override;
 
-    Q_INVOKABLE quint8 midiCcValue(quint8 index) const;
-    Q_INVOKABLE void setMidiCcValue(quint8 index, quint8 value);
+    Q_INVOKABLE void addMidiCcSetting(quint32 controller, quint32 value);
+    Q_INVOKABLE void removeMidiCcSetting(int index);
 
-    Q_INVOKABLE bool midiCcEnabled(quint8 index) const;
-    Q_INVOKABLE void setMidiCcEnabled(quint8 index, bool enabled);
-
-    Q_INVOKABLE QString midiCcToString(quint8 controller) const;
-
-    quint8 midiCcSlots() const;
+    Q_INVOKABLE QString midiCcToString(quint32 controller) const;
 
     using MidiCcSettingList = std::vector<MidiCcSetting>;
     MidiCcSettingList midiCcSettings() const;
     void setMidiCcSettings(const MidiCcSettingList & midiCcSettings);
 
-signals:
-    void midiCcSlotsChanged();
-
 private:
-    std::map<quint8, MidiCcSetting> m_indexToSetting;
+    std::vector<MidiCcSetting> m_settings;
 };
 
 } // namespace noteahead

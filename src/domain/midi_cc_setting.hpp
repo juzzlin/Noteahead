@@ -27,17 +27,17 @@ namespace noteahead {
 class MidiCcSetting
 {
 public:
-    MidiCcSetting(bool enabled, uint8_t controller, uint8_t value);
+    MidiCcSetting(bool enabled, uint32_t controller, uint32_t value);
     MidiCcSetting();
 
     bool enabled() const;
     void setEnabled(bool enabled);
 
-    uint8_t controller() const;
-    void setController(uint8_t controller);
+    uint32_t controller() const;
+    void setController(uint32_t controller);
 
-    uint8_t value() const;
-    void setValue(uint8_t value);
+    uint32_t value() const;
+    void setValue(uint32_t value);
 
     void serializeToXml(QXmlStreamWriter & writer) const;
     static std::unique_ptr<MidiCcSetting> deserializeFromXml(QXmlStreamReader & reader);
@@ -46,8 +46,8 @@ public:
 
 private:
     bool m_enabled = false;
-    uint8_t m_controller = 0;
-    uint8_t m_value = 0;
+    uint32_t m_controller = 0;
+    uint32_t m_value = 0;
 };
 
 } // namespace noteahead

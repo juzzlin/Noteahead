@@ -18,79 +18,149 @@
 #include "../../contrib/SimpleLogger/src/simple_logger.hpp"
 #include "../../infra/midi/midi_cc_mapping.hpp"
 
+#include <algorithm>
+#include <map>
+
 namespace noteahead {
 
 static const auto TAG = "MidiCcSelectionModel";
 
 MidiCcSelectionModel::MidiCcSelectionModel(QObject * parent)
-  : QObject { parent }
+  : QAbstractListModel { parent }
 {
 }
 
-quint8 MidiCcSelectionModel::midiCcController(quint8 index) const
+int MidiCcSelectionModel::rowCount(const QModelIndex &parent) const
 {
-    return m_indexToSetting.contains(index) ? m_indexToSetting.at(index).controller() : 0;
+    if (parent.isValid()) {
+        return 0;
+    }
+
+    return static_cast<int>(m_settings.size());
 }
 
-void MidiCcSelectionModel::setMidiCcController(quint8 index, quint8 controller)
+QVariant MidiCcSelectionModel::data(const QModelIndex &index, int role) const
 {
-    juzzlin::L(TAG).info() << "Setting controller number " << static_cast<int>(controller) << " for slot " << static_cast<int>(index);
+    if (!index.isValid()) {
+        return {};
+    }
 
-    m_indexToSetting[index].setController(controller);
+    const auto & setting = m_settings[static_cast<size_t>(index.row())];
+
+    switch (static_cast<Roles>(role)) {
+    case Roles::ControllerRole:
+        return setting.controller();
+    case Roles::ValueRole:
+        return setting.value();
+    case Roles::EnabledRole:
+        return setting.enabled();
+    }
+
+    return {};
 }
 
-quint8 MidiCcSelectionModel::midiCcValue(quint8 index) const
+bool MidiCcSelectionModel::setData(const QModelIndex &index, const QVariant &value, int role)
 {
-    return m_indexToSetting.contains(index) ? m_indexToSetting.at(index).value() : 0;
+    if (!index.isValid())
+        return false;
+
+    auto &setting = m_settings[static_cast<size_t>(index.row())];
+    bool changed = false;
+
+    switch (static_cast<Roles>(role)) {
+    case Roles::ControllerRole:
+        if (setting.controller() != value.toUInt()) {
+            setting.setController(value.toUInt());
+            changed = true;
+        }
+        break;
+    case Roles::ValueRole:
+        if (setting.value() != value.toUInt()) {
+            setting.setValue(value.toUInt());
+            changed = true;
+        }
+        break;
+    case Roles::EnabledRole:
+        if (setting.enabled() != value.toBool()) {
+            setting.setEnabled(value.toBool());
+            changed = true;
+        }
+        break;
+    }
+
+    if (changed) {
+        emit dataChanged(index, index, { role });
+        return true;
+    }
+    return false;
 }
 
-void MidiCcSelectionModel::setMidiCcValue(quint8 index, quint8 value)
+QHash<int, QByteArray> MidiCcSelectionModel::roleNames() const
 {
-    juzzlin::L(TAG).info() << "Setting value " << static_cast<int>(value) << " for slot " << static_cast<int>(index);
-
-    m_indexToSetting[index].setValue(value);
+    QHash<int, QByteArray> roles;
+    roles[static_cast<int>(Roles::ControllerRole)] = "controller";
+    roles[static_cast<int>(Roles::ValueRole)] = "value";
+    roles[static_cast<int>(Roles::EnabledRole)] = "enabled";
+    return roles;
 }
 
-bool MidiCcSelectionModel::midiCcEnabled(quint8 index) const
+void MidiCcSelectionModel::addMidiCcSetting(quint32 controller, quint32 value)
 {
-    return m_indexToSetting.contains(index) && m_indexToSetting.at(index).enabled();
-}
+    juzzlin::L(TAG).info() << "Adding MIDI CC setting: controller=" << static_cast<int>(controller) << ", value=" << static_cast<int>(value);
 
-void MidiCcSelectionModel::setMidiCcEnabled(quint8 index, bool enabled)
-{
-    juzzlin::L(TAG).info() << "Setting slot " << static_cast<int>(index) << " enabled: " << static_cast<int>(enabled);
+    auto it = std::find_if(m_settings.begin(), m_settings.end(), [controller](const auto & setting) {
+        return setting.controller() == controller;
+    });
 
-    if (!m_indexToSetting.contains(index)) {
-        m_indexToSetting[index] = { enabled, 0, 0 };
+    if (it != m_settings.end()) {
+        juzzlin::L(TAG).info() << "Updating existing MIDI CC setting for controller " << static_cast<int>(controller);
+        it->setValue(value);
+        it->setEnabled(true);
+        const int index = static_cast<int>(std::distance(m_settings.begin(), it));
+        emit dataChanged(this->index(index), this->index(index), { static_cast<int>(Roles::ValueRole), static_cast<int>(Roles::EnabledRole) });
     } else {
-        m_indexToSetting.at(index).setEnabled(enabled);
+        beginInsertRows(QModelIndex {}, rowCount(), rowCount());
+        m_settings.emplace_back(true, controller, value);
+        endInsertRows();
     }
 }
 
-QString MidiCcSelectionModel::midiCcToString(quint8 controller) const
+void MidiCcSelectionModel::removeMidiCcSetting(int index)
+{
+    juzzlin::L(TAG).info() << "Removing MIDI CC setting at index " << index;
+    if (index >= 0 && index < rowCount()) {
+        beginRemoveRows(QModelIndex(), index, index);
+        m_settings.erase(m_settings.begin() + index);
+        endRemoveRows();
+    }
+}
+
+QString MidiCcSelectionModel::midiCcToString(quint32 controller) const
 {
     return MidiCcMapping::controllerToString(static_cast<MidiCcMapping::Controller>(controller));
 }
 
-quint8 MidiCcSelectionModel::midiCcSlots() const
-{
-    return 8;
-}
-
 MidiCcSelectionModel::MidiCcSettingList MidiCcSelectionModel::midiCcSettings() const
 {
-    MidiCcSettingList settings;
-    std::ranges::transform(m_indexToSetting, std::back_inserter(settings),
-                           [](const auto & pair) { return pair.second; });
-    return settings;
+    return m_settings;
 }
 
 void MidiCcSelectionModel::setMidiCcSettings(const MidiCcSettingList & midiCcSettings)
 {
-    m_indexToSetting.clear();
-    for (auto && setting : midiCcSettings) {
-        m_indexToSetting[static_cast<quint8>(m_indexToSetting.size())] = setting;
+    beginResetModel();
+
+    std::map<quint32, MidiCcSetting> uniqueSettings;
+    for (const auto& setting : midiCcSettings) {
+        uniqueSettings[setting.controller()] = setting;
     }
+
+    m_settings.clear();
+    for (const auto & pair : uniqueSettings) {
+        m_settings.push_back(pair.second);
+    }
+    std::sort(m_settings.begin(), m_settings.end(), [](const auto& a, const auto& b){ return a.controller() < b.controller(); });
+
+    endResetModel();
 }
 
 } // namespace noteahead

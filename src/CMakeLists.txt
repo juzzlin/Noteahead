@@ -35,6 +35,7 @@ set(HEADER_FILES
   application/service/mixer_service.hpp
   application/service/player_service.hpp
   application/service/player_worker.hpp
+  application/service/property_service.hpp
   application/service/random_service.hpp
   application/service/recent_files_manager.hpp
   application/service/selection_service.hpp
@@ -119,6 +120,7 @@ set(SOURCE_FILES
   application/service/mixer_service.cpp
   application/service/player_service.cpp
   application/service/player_worker.cpp
+  application/service/property_service.cpp
   application/service/random_service.cpp
   application/service/recent_files_manager.cpp
   application/service/selection_service.cpp
@@ -191,6 +193,7 @@ set(QML_SOURCE_FILES
     ${QML_BASE_DIR}/Constants.qml
     ${QML_BASE_DIR}/Dialogs/AboutDialog.qml
     ${QML_BASE_DIR}/Dialogs/AddMidiCcAutomationDialog.qml
+    ${QML_BASE_DIR}/Dialogs/AddMidiCcSettingDialog.qml
     ${QML_BASE_DIR}/Dialogs/AddPitchBendAutomationDialog.qml
     ${QML_BASE_DIR}/Dialogs/ColumnSettingsDialog.qml
     ${QML_BASE_DIR}/Dialogs/ColumnSettingsDialog_MidiEffects.qml

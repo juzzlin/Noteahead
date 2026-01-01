@@ -31,30 +31,29 @@ void MidiCcSelectionModelTest::cleanupTestCase()
     delete model;
 }
 
-void MidiCcSelectionModelTest::test_controller_shouldBeSetAndRetrieved()
+void MidiCcSelectionModelTest::test_setData_shouldUpdateModel()
 {
-    model->setMidiCcController(0, 74);
-    QCOMPARE(model->midiCcController(0), 74);
-}
+    model->setMidiCcSettings({});
+    model->addMidiCcSetting(0, 0);
 
-void MidiCcSelectionModelTest::test_value_shouldBeSetAndRetrieved()
-{
-    model->setMidiCcValue(0, 127);
-    QCOMPARE(model->midiCcValue(0), 127);
-}
+    QCOMPARE(model->rowCount(), 1);
+    auto index = model->index(0, 0);
 
-void MidiCcSelectionModelTest::test_enabled_shouldBeSetAndRetrieved()
-{
-    model->setMidiCcEnabled(0, true);
-    QVERIFY(model->midiCcEnabled(0));
+    // Verify initial state from addMidiCcSetting
+    QCOMPARE(model->data(index, static_cast<int>(MidiCcSelectionModel::Roles::EnabledRole)).toBool(), true);
 
-    model->setMidiCcEnabled(0, false);
-    QVERIFY(!model->midiCcEnabled(0));
+    // Test changing values
+    QVERIFY(model->setData(index, 74, static_cast<int>(MidiCcSelectionModel::Roles::ControllerRole)));
+    QVERIFY(model->setData(index, 127, static_cast<int>(MidiCcSelectionModel::Roles::ValueRole)));
+    QVERIFY(model->setData(index, false, static_cast<int>(MidiCcSelectionModel::Roles::EnabledRole)));
+
+    QCOMPARE(model->data(index, static_cast<int>(MidiCcSelectionModel::Roles::ControllerRole)).toInt(), 74);
+    QCOMPARE(model->data(index, static_cast<int>(MidiCcSelectionModel::Roles::ValueRole)).toInt(), 127);
+    QCOMPARE(model->data(index, static_cast<int>(MidiCcSelectionModel::Roles::EnabledRole)).toBool(), false);
 }
 
 void MidiCcSelectionModelTest::test_toString_shouldReturnNonEmptyString()
 {
-    model->setMidiCcController(1, 1);
     const auto result = model->midiCcToString(1);
     QVERIFY(!result.isEmpty());
 }
@@ -68,20 +67,43 @@ void MidiCcSelectionModelTest::test_settings_shouldRoundTripCorrectly()
 
     model->setMidiCcSettings(settings);
 
-    QCOMPARE(model->midiCcSettings().size(), 2);
-    for (size_t i = 0; i < model->midiCcSettings().size(); i++) {
-        const auto setting = model->midiCcSettings().at(i);
-        QCOMPARE(setting.enabled(), settings.at(i).enabled());
-        QCOMPARE(setting.controller(), settings.at(i).controller());
-        QCOMPARE(setting.value(), settings.at(i).value());
+    QCOMPARE(model->rowCount(), 2);
+    const auto result = model->midiCcSettings();
+    for (size_t i = 0; i < result.size(); i++) {
+        bool found = false;
+        for(const auto& res : result) {
+            if(res.controller() == settings[i].controller() && res.value() == settings[i].value()) {
+                found = true;
+                break;
+            }
+        }
+        QVERIFY(found);
     }
 }
 
-void MidiCcSelectionModelTest::test_midiCcSlots_shouldReturnEight()
+void MidiCcSelectionModelTest::test_addAndRemoveSetting()
 {
-    QCOMPARE(model->midiCcSlots(), 8);
+    model->setMidiCcSettings({});
+    QCOMPARE(model->rowCount(), 0);
+
+    model->addMidiCcSetting(10, 20);
+    QCOMPARE(model->rowCount(), 1);
+    QCOMPARE(model->data(model->index(0), static_cast<int>(MidiCcSelectionModel::Roles::ControllerRole)).toInt(), 10);
+    QCOMPARE(model->data(model->index(0), static_cast<int>(MidiCcSelectionModel::Roles::ValueRole)).toInt(), 20);
+
+    model->removeMidiCcSetting(0);
+    QCOMPARE(model->rowCount(), 0);
 }
 
+void MidiCcSelectionModelTest::test_addDuplicateSetting()
+{
+    model->setMidiCcSettings({});
+    model->addMidiCcSetting(94, 0);
+    model->addMidiCcSetting(94, 4);
+    
+    QCOMPARE(model->rowCount(), 1);
+    QCOMPARE(model->data(model->index(0), static_cast<int>(MidiCcSelectionModel::Roles::ValueRole)).toInt(), 4);
+}
 
 } // namespace noteahead
 

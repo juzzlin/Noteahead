@@ -50,6 +50,7 @@ class NoteColumnLineContainerHelper;
 class NoteColumnModelHandler;
 class PitchBendAutomationsModel;
 class PlayerService;
+class PropertyService;
 class RecentFilesManager;
 class RecentFilesModel;
 class SelectionService;
@@ -146,6 +147,7 @@ private:
     std::unique_ptr<MidiSettingsModel> m_midiSettingsModel;
 
     std::shared_ptr<UtilService> m_utilService;
+    std::shared_ptr<PropertyService> m_propertyService;
 
     std::shared_ptr<NoteColumnLineContainerHelper> m_noteColumnLineContainerHelper;
     std::unique_ptr<NoteColumnModelHandler> m_noteColumnModelHandler;

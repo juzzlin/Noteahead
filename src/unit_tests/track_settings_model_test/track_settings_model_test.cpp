@@ -33,6 +33,7 @@ void TrackSettingsModelTest::test_initialState_shouldHaveExpectedDefaults()
     QVERIFY(!model.bankEnabled());
     QVERIFY(!model.volumeEnabled());
     QVERIFY(!model.cutoffEnabled());
+    QCOMPARE(model.midiCcModel()->rowCount(), 0);
 }
 
 void TrackSettingsModelTest::test_setPortName_shouldUpdatePortName()
@@ -97,6 +98,7 @@ void TrackSettingsModelTest::test_setInstrumentData_shouldUpdateRelevantFields()
     instrumentSettings.timing.sendMidiClock = true;
     instrumentSettings.timing.sendTransport = true;
     instrumentSettings.timing.delay = std::chrono::milliseconds(120);
+    instrumentSettings.midiCcSettings.emplace_back(true, 10, 20);
     instrument.setSettings(instrumentSettings);
 
     QSignalSpy spy { &model, &TrackSettingsModel::instrumentDataReceived };
@@ -120,6 +122,8 @@ void TrackSettingsModelTest::test_setInstrumentData_shouldUpdateRelevantFields()
     QCOMPARE(model.sendMidiClock(), true);
     QCOMPARE(model.sendTransport(), true);
     QCOMPARE(model.delay(), 120);
+    QCOMPARE(model.midiCcModel()->rowCount(), 1);
+    QCOMPARE(model.midiCcModel()->data(model.midiCcModel()->index(0), static_cast<int>(MidiCcSelectionModel::Roles::ControllerRole)).toInt(), 10);
 
     QCOMPARE(spy.count(), 1);
 }
@@ -127,16 +131,15 @@ void TrackSettingsModelTest::test_setInstrumentData_shouldUpdateRelevantFields()
 void TrackSettingsModelTest::test_toInstrument_shouldReturnInstrumentWithDefaultSettings()
 {
     TrackSettingsModel model;
-    // Setup default values for TrackSettingsModel (or use mock data)
     model.setPortName("Test Port");
     model.setChannel(1);
 
     const auto instrument = model.toInstrument();
 
-    // Check if the instrument was created correctly
-    QCOMPARE(instrument->midiAddress().channel(), 1); // Check channel
-    QVERIFY(!instrument->settings().patch.has_value()); // Check default patch
-    QVERIFY(!instrument->settings().bank.has_value()); // Check bank values
+    QCOMPARE(instrument->midiAddress().channel(), 1);
+    QVERIFY(!instrument->settings().patch.has_value());
+    QVERIFY(!instrument->settings().bank.has_value());
+    QVERIFY(instrument->settings().midiCcSettings.empty());
 }
 
 void TrackSettingsModelTest::test_toInstrument_shouldApplyPatchWhenPatchEnabled()
@@ -145,11 +148,10 @@ void TrackSettingsModelTest::test_toInstrument_shouldApplyPatchWhenPatchEnabled(
     model.setPortName("Test Port");
     model.setChannel(1);
     model.setPatchEnabled(true);
-    model.setPatch(5); // Set patch value to test
+    model.setPatch(5);
 
     const auto instrument = model.toInstrument();
 
-    // Verify patch is set correctly
     QCOMPARE(instrument->settings().patch, 5);
 }
 
@@ -165,7 +167,6 @@ void TrackSettingsModelTest::test_toInstrument_shouldApplyBankSettingsWhenBankEn
 
     const auto instrument = model.toInstrument();
 
-    // Verify bank settings
     QVERIFY(instrument->settings().bank.has_value());
     QCOMPARE(instrument->settings().bank->lsb, 10);
     QCOMPARE(instrument->settings().bank->msb, 20);
@@ -182,7 +183,6 @@ void TrackSettingsModelTest::test_toInstrument_shouldApplyCutoffWhenCutoffEnable
 
     const auto instrument = model.toInstrument();
 
-    // Verify cutoff setting
     QCOMPARE(instrument->settings().standardMidiCcSettings.cutoff, 50);
 }
 
@@ -196,7 +196,6 @@ void TrackSettingsModelTest::test_toInstrument_shouldApplyPanWhenPanEnabled()
 
     const auto instrument = model.toInstrument();
 
-    // Verify pan setting
     QCOMPARE(instrument->settings().standardMidiCcSettings.pan, 100);
 }
 
@@ -210,7 +209,6 @@ void TrackSettingsModelTest::test_toInstrument_shouldApplyVolumeWhenVolumeEnable
 
     const auto instrument = model.toInstrument();
 
-    // Verify volume setting
     QCOMPARE(instrument->settings().standardMidiCcSettings.volume, 80);
 }
 
@@ -224,7 +222,6 @@ void TrackSettingsModelTest::test_toInstrument_shouldApplyMidiClockAndDelayWhenE
 
     const auto instrument = model.toInstrument();
 
-    // Verify MIDI clock and delay settings
     QCOMPARE(instrument->settings().timing.sendMidiClock, true);
     QCOMPARE(instrument->settings().timing.delay, std::chrono::milliseconds { 200 });
 }
@@ -232,20 +229,21 @@ void TrackSettingsModelTest::test_toInstrument_shouldApplyMidiClockAndDelayWhenE
 void TrackSettingsModelTest::test_toInstrument_setMidiCc_shouldEnableMidiCcSetting()
 {
     TrackSettingsModel model;
-    model.setMidiCcController(0, 1);
-    model.setMidiCcValue(0, 42);
+    const auto ccModel = model.midiCcModel();
+
+    ccModel->addMidiCcSetting(0, 0);
+    ccModel->setData(ccModel->index(0), 1, static_cast<int>(MidiCcSelectionModel::Roles::ControllerRole));
+    ccModel->setData(ccModel->index(0), 42, static_cast<int>(MidiCcSelectionModel::Roles::ValueRole));
 
     auto instrument = model.toInstrument();
 
-    QCOMPARE(instrument->settings().midiCcSettings.at(0).enabled(), false);
+    QCOMPARE(instrument->settings().midiCcSettings.at(0).enabled(), true);
     QCOMPARE(instrument->settings().midiCcSettings.at(0).controller(), 1);
     QCOMPARE(instrument->settings().midiCcSettings.at(0).value(), 42);
 
-    model.setMidiCcEnabled(0, true);
-
+    ccModel->setData(ccModel->index(0), false, static_cast<int>(MidiCcSelectionModel::Roles::EnabledRole));
     instrument = model.toInstrument();
-
-    QCOMPARE(instrument->settings().midiCcSettings.at(0).enabled(), true);
+    QCOMPARE(instrument->settings().midiCcSettings.at(0).enabled(), false);
 }
 
 } // namespace noteahead

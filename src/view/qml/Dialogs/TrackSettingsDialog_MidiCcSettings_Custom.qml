@@ -7,30 +7,56 @@ import ".."
 GroupBox {
     title: qsTr("Custom MIDI CC Settings")
     Layout.fillWidth: true
-    width: parent.width
-    property var _midiCcSelectors: []
-    function initialize(): void {
-        for (const midiCcSelector of _midiCcSelectors) {
-            midiCcSelector.initialize(trackSettingsModel.midiCcEnabled(midiCcSelector.index), trackSettingsModel.midiCcController(midiCcSelector.index), trackSettingsModel.midiCcValue(midiCcSelector.index));
-        }
-    }
+    Layout.fillHeight: true // Allow the GroupBox to grow vertically
+
     ColumnLayout {
+        anchors.fill: parent // Make the layout fill the entire GroupBox
         spacing: 8
-        width: parent.width
-        Repeater {
-            id: midiCcRepeater
-            model: trackSettingsModel.midiCcSlots
-            MidiCcSelector {}
-            onItemAdded: (index, item) => {
-                item.index = index;
-                _midiCcSelectors.push(item);
-                item.settingsChanged.connect(() => {
-                    trackSettingsModel.setMidiCcEnabled(item.index, item.enabled());
-                    trackSettingsModel.setMidiCcController(item.index, item.controller());
-                    trackSettingsModel.setMidiCcValue(item.index, item.value());
-                    trackSettingsModel.applyAll();
-                });
+
+        ScrollView {
+            Layout.fillWidth: true
+            Layout.fillHeight: true // This makes the scrollable area take up all available space
+            clip: true
+
+            ListView {
+                id: midiCcListView
+                model: trackSettingsModel.midiCcModel
+                spacing: 4
+                delegate: MidiCcSelector {
+                    width: midiCcListView.width // Make delegate fill width
+                    showRemoveButton: true
+                    
+                    index: index 
+
+                    Component.onCompleted: {
+                        initialize(model.enabled, model.controller, model.value);
+                    }
+
+                    onSettingsChanged: {
+                        model.controller = controller();
+                        model.value = value();
+                        model.enabled = enabled();
+                        trackSettingsModel.applyAll();
+                    }
+
+                    onRemoveRequested: {
+                        trackSettingsModel.midiCcModel.removeMidiCcSetting(index);
+                        trackSettingsModel.applyAll();
+                    }
+                }
             }
         }
+
+        Button {
+            text: qsTr("Add MIDI CC Setting")
+            Layout.alignment: Qt.AlignRight
+            onClicked: addMidiCcSettingDialog.open()
+        }
+    }
+
+    AddMidiCcSettingDialog {
+        id: addMidiCcSettingDialog
+        anchors.centerIn: parent
+        width: parent.width * 0.5
     }
 }

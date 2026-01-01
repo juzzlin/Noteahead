@@ -14,6 +14,9 @@ Dialog {
     function controller(): var {
         return model.controller();
     }
+    function setController(controller: int): void {
+        model.setController(controller);
+    }
     function startValue(): int {
         return model.startValue();
     }

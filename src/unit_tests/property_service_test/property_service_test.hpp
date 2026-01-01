@@ -1,5 +1,5 @@
 // This file is part of Noteahead.
-// Copyright (C) 2025 Jussi Lind <jussi.lind@iki.fi>
+// Copyright (C) 2026 Jussi Lind <jussi.lind@iki.fi>
 //
 // Noteahead is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -13,33 +13,22 @@
 // You should have received a copy of the GNU General Public License
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef MIDI_CC_SELECTION_MODEL_TEST_HPP
-#define MIDI_CC_SELECTION_MODEL_TEST_HPP
+#ifndef PROPERTY_SERVICE_TEST_HPP
+#define PROPERTY_SERVICE_TEST_HPP
 
+#include <QObject>
 #include <QTest>
 
 namespace noteahead {
 
-class MidiCcSelectionModel;
-
-class MidiCcSelectionModelTest : public QObject
+class PropertyServiceTest : public QObject
 {
     Q_OBJECT
 
 private slots:
-    void initTestCase();
-    void cleanupTestCase();
-
-    void test_setData_shouldUpdateModel();
-    void test_toString_shouldReturnNonEmptyString();
-    void test_settings_shouldRoundTripCorrectly();
-    void test_addAndRemoveSetting();
-    void test_addDuplicateSetting();
-
-private:
-    MidiCcSelectionModel * model = nullptr;
+    void test_availableMidiControllers();
 };
 
 } // namespace noteahead
 
-#endif // MIDI_CC_SELECTION_MODEL_TEST_HPP
+#endif // PROPERTY_SERVICE_TEST_HPP

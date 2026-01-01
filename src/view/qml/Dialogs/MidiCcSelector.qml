@@ -7,16 +7,16 @@ import ".."
 RowLayout {
     Layout.fillWidth: true
     signal settingsChanged
+    signal removeRequested
     property int index
+    property bool showRemoveButton: false
     property bool showEnabled: true
     property bool showValue: true
-    property bool _initializing: false
+    readonly property alias currentController: midiCcControllerComboBox.currentValue
     function initialize(enabled, controller, value) {
-        _initializing = true;
         enableCcCheckbox.checked = enabled;
-        midiCcControllerSpinBox.value = controller;
+        midiCcControllerComboBox.currentIndex = midiCcControllerComboBox.indexOfValue(controller);
         midiCcValueSpinBox.value = value;
-        _initializing = false;
     }
     function enabled() {
         return enableCcCheckbox.checked;
@@ -25,21 +25,16 @@ RowLayout {
         enableCcCheckbox.checked = enabled;
     }
     function controller() {
-        return midiCcControllerSpinBox.value;
+        return midiCcControllerComboBox.currentValue;
     }
     function setController(value) {
-        midiCcControllerSpinBox.value = value;
+        midiCcControllerComboBox.currentIndex = midiCcControllerComboBox.indexOfValue(value);
     }
     function value() {
         return midiCcValueSpinBox.value;
     }
     function setValue(value) {
         midiCcValueSpinBox.value = value;
-    }
-    function _notify() {
-        if (!_initializing) {
-            settingsChanged();
-        }
     }
     CheckBox {
         id: enableCcCheckbox
@@ -50,33 +45,51 @@ RowLayout {
         ToolTip.timeout: Constants.toolTipTimeout
         ToolTip.visible: hovered
         ToolTip.text: qsTr("Enable/disable MIDI Continuous Controller setting slot #") + index
-        onCheckedChanged: _notify()
+        onToggled: settingsChanged()
     }
     Label {
         text: showValue ? qsTr("Controller and value:") : qsTr("Controller:")
         Layout.fillWidth: true
         elide: Text.ElideRight
     }
-    SpinBox {
-        id: midiCcControllerSpinBox
-        from: 0
-        to: 127
-        enabled: enableCcCheckbox.checked
+    ComboBox {
+        id: midiCcControllerComboBox
         Layout.fillWidth: true
+        Layout.preferredWidth: 300
+        model: propertyService.availableMidiControllers
+        textRole: "name"
+        valueRole: "number"
         editable: true
+        enabled: enableCcCheckbox.checked
         ToolTip.delay: Constants.toolTipDelay
         ToolTip.timeout: Constants.toolTipTimeout
         ToolTip.visible: hovered
-        ToolTip.text: qsTr("Set MIDI Continuous Controller number. See the MIDI CC implementation chart of your device.")
-        onValueChanged: _notify()
-        Keys.onReturnPressed: focus = false
-    }
-    Label {
-        text: `( ${trackSettingsModel.midiCcToString(midiCcControllerSpinBox.value)} )`
-        horizontalAlignment: Text.AlignHCenter
-        Layout.preferredWidth: 200
-        elide: Text.ElideRight
-        enabled: enableCcCheckbox.enabled
+        ToolTip.text: qsTr("Set MIDI Continuous Controller number. See the MIDI CC implementation chart of your device. Current selection: ") + midiCcControllerComboBox.currentText
+        onActivated: settingsChanged()
+        delegate: ItemDelegate {
+            text: modelData.name
+            highlighted: midiCcControllerComboBox.highlightedIndex === index
+            Universal.theme: Universal.Dark
+        }
+        popup: Popup {
+            y: midiCcControllerComboBox.height - 1
+            width: midiCcControllerComboBox.width
+            implicitHeight: contentItem.implicitHeight > 300 ? 300 : contentItem.implicitHeight
+            padding: 1
+            contentItem: ListView {
+                clip: true
+                implicitHeight: contentHeight
+                model: midiCcControllerComboBox.popup.visible ? midiCcControllerComboBox.delegateModel : null
+                currentIndex: midiCcControllerComboBox.highlightedIndex
+                ScrollBar.vertical: ScrollBar {
+                    policy: ScrollBar.AlwaysOn
+                }
+            }
+            background: Rectangle {
+                color: "#303030"
+                border.color: "#606060"
+            }
+        }
     }
     SpinBox {
         id: midiCcValueSpinBox
@@ -90,7 +103,17 @@ RowLayout {
         ToolTip.timeout: Constants.toolTipTimeout
         ToolTip.visible: hovered
         ToolTip.text: qsTr("Set optional MIDI Continuous Controller value")
-        onValueChanged: _notify()
+        onValueModified: settingsChanged()
         Keys.onReturnPressed: focus = false
+    }
+    Button {
+        text: "✕"
+        onClicked: removeRequested()
+        visible: showRemoveButton
+        Layout.preferredWidth: 40
+        ToolTip.delay: Constants.toolTipDelay
+        ToolTip.timeout: Constants.toolTipTimeout
+        ToolTip.visible: hovered
+        ToolTip.text: qsTr("Remove this MIDI CC setting")
     }
 }

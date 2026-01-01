@@ -23,7 +23,7 @@
 
 namespace noteahead {
 
-MidiCcSetting::MidiCcSetting(bool enabled, uint8_t controller, uint8_t value)
+MidiCcSetting::MidiCcSetting(bool enabled, uint32_t controller, uint32_t value)
   : m_enabled { enabled }
   , m_controller { controller }
   , m_value { value }
@@ -44,22 +44,22 @@ void MidiCcSetting::setEnabled(bool enabled)
     m_enabled = enabled;
 }
 
-uint8_t MidiCcSetting::controller() const
+uint32_t MidiCcSetting::controller() const
 {
     return m_controller;
 }
 
-void MidiCcSetting::setController(uint8_t controller)
+void MidiCcSetting::setController(uint32_t controller)
 {
     m_controller = controller;
 }
 
-uint8_t MidiCcSetting::value() const
+uint32_t MidiCcSetting::value() const
 {
     return m_value;
 }
 
-void MidiCcSetting::setValue(uint8_t value)
+void MidiCcSetting::setValue(uint32_t value)
 {
     m_value = value;
 }

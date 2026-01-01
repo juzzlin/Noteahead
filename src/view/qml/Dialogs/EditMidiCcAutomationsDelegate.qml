@@ -7,6 +7,14 @@ import "../ToolBar"
 
 GroupBox {
     title: `Pattern: ${model.pattern}, Track: ${model.track}, Column: ${model.column}`
+    function initialize(): void {
+        if (model && model.controller !== undefined) {
+            controllerComboBox.currentIndex = controllerComboBox.indexOfValue(model.controller);
+        } else {
+            // Fallback if model.controller is undefined (should not happen in practice if model is valid)
+            controllerComboBox.currentIndex = 0;
+        }
+    }
     GridLayout {
         anchors.fill: parent
         CheckBox {
@@ -32,22 +40,50 @@ GroupBox {
                     Layout.column: 1
                     Layout.fillWidth: true
                 }
-                SpinBox {
-                    id: controllerSpinBox
-                    from: 0
-                    to: 127
-                    editable: true
-                    Keys.onReturnPressed: focus = false
+                ComboBox {
+                    id: controllerComboBox
                     Layout.row: 1
                     Layout.column: 1
                     Layout.fillWidth: true
+                    model: propertyService.availableMidiControllers
+                    textRole: "name"
+                    valueRole: "number"
+                    editable: true
+                    // function() needed due to index binding
+                    onActivated: function () {
+                        midiCcAutomationsModel.changeController(index, currentValue);
+                    }
                     ToolTip.delay: Constants.toolTipDelay
                     ToolTip.timeout: Constants.toolTipTimeout
                     ToolTip.visible: hovered
-                    ToolTip.text: qsTr("Controller")
-                    onValueChanged: model.controller = value
-                    onActiveFocusChanged: editing = activeFocus
-                    Component.onCompleted: value = model.controller
+                    ToolTip.text: qsTr("Controller. Current selection: ") + controllerComboBox.currentText
+                    delegate: ItemDelegate {
+                        text: modelData.name
+                        highlighted: controllerComboBox.highlightedIndex === index
+                        Universal.theme: Universal.Dark
+                    }
+                    popup: Popup {
+                        y: controllerComboBox.height - 1
+                        width: controllerComboBox.width
+                        implicitHeight: contentItem.implicitHeight > 300 ? 300 : contentItem.implicitHeight
+                        padding: 1
+
+                        contentItem: ListView {
+                            clip: true
+                            implicitHeight: contentHeight
+                            model: controllerComboBox.popup.visible ? controllerComboBox.delegateModel : null
+                            currentIndex: controllerComboBox.highlightedIndex
+
+                            ScrollBar.vertical: ScrollBar {
+                                policy: ScrollBar.AlwaysOn
+                            }
+                        }
+
+                        background: Rectangle {
+                            color: "#303030"
+                            border.color: "#606060"
+                        }
+                    }
                 }
                 Label {
                     text: qsTr("Start line")
@@ -101,8 +137,8 @@ GroupBox {
                 }
                 SpinBox {
                     id: startValueSpinBox
-                    from: 0
-                    to: 127
+                    from: propertyService.minValue(model.controller)
+                    to: propertyService.maxValue(model.controller)
                     editable: true
                     Keys.onReturnPressed: focus = false
                     Layout.row: 1
@@ -123,8 +159,8 @@ GroupBox {
                 }
                 SpinBox {
                     id: endValueSpinBox
-                    from: 0
-                    to: 127
+                    from: propertyService.minValue(model.controller)
+                    to: propertyService.maxValue(model.controller)
                     editable: true
                     enabled: model.line0 !== model.line1
                     Keys.onReturnPressed: focus = false
@@ -238,4 +274,6 @@ GroupBox {
             Component.onCompleted: text = model.comment
         }
     }
+    // Ensure initial value is set on component creation
+    Component.onCompleted: initialize()
 }

@@ -21,7 +21,6 @@
 
 #include <memory>
 
-
 #include <QObject>
 
 namespace noteahead {
@@ -29,7 +28,7 @@ namespace noteahead {
 class EditorService;
 class Instrument;
 
-class TrackSettingsModel : public MidiCcSelectionModel
+class TrackSettingsModel : public QObject
 {
     Q_OBJECT
 
@@ -65,6 +64,8 @@ class TrackSettingsModel : public MidiCcSelectionModel
     Q_PROPERTY(int velocityJitter READ velocityJitter WRITE setVelocityJitter NOTIFY velocityJitterChanged)
     Q_PROPERTY(int autoNoteOffOffset READ autoNoteOffOffset WRITE setAutoNoteOffOffset NOTIFY autoNoteOffOffsetChanged)
     Q_PROPERTY(bool autoNoteOffOffsetEnabled READ autoNoteOffOffsetEnabled WRITE setAutoNoteOffOffsetEnabled NOTIFY autoNoteOffOffsetEnabledChanged)
+    
+    Q_PROPERTY(MidiCcSelectionModel* midiCcModel READ midiCcModel CONSTANT)
 
 public:
     explicit TrackSettingsModel(QObject * parent = nullptr);
@@ -148,6 +149,8 @@ public:
     void setAutoNoteOffOffset(int autoNoteOffOffset);
     bool autoNoteOffOffsetEnabled() const;
     void setAutoNoteOffOffsetEnabled(bool enabled);
+    
+    MidiCcSelectionModel* midiCcModel() const;
 
 signals:
     void applyAllRequested();
@@ -254,6 +257,8 @@ private:
     std::vector<bool> m_applyDisabledStack;
 
     quint64 m_trackIndex { 0 };
+    
+    MidiCcSelectionModel* m_midiCcModel;
 };
 
 } // namespace noteahead

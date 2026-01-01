@@ -66,6 +66,7 @@ public:
     Q_INVOKABLE QHash<int, QByteArray> roleNames() const override;
 
     Q_INVOKABLE void applyAll();
+    Q_INVOKABLE void changeController(int index, quint8 controller);
 
 signals:
     void midiCcAutomationChanged(const MidiCcAutomation & midiCcAutomation);
