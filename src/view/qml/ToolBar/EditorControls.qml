@@ -190,7 +190,9 @@ Row {
                     focus = false;
                     UiService.requestFocusOnEditorView();
                 }
-                onTextChanged: editorService.setCurrentPatternName(text)
+                onTextChanged: if (!playerService.isPlaying) {
+                    editorService.setCurrentPatternName(text);
+                }
                 ToolTip.delay: Constants.toolTipDelay
                 ToolTip.timeout: Constants.toolTipTimeout
                 ToolTip.visible: hovered
