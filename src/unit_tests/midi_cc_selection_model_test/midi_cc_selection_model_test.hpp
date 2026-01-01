@@ -35,6 +35,7 @@ private slots:
     void test_enabled_shouldBeSetAndRetrieved();
     void test_toString_shouldReturnNonEmptyString();
     void test_settings_shouldRoundTripCorrectly();
+    void test_midiCcSlots_shouldReturnEight();
 
 private:
     MidiCcSelectionModel * model = nullptr;

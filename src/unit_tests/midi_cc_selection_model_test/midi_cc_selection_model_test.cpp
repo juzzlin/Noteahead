@@ -77,6 +77,12 @@ void MidiCcSelectionModelTest::test_settings_shouldRoundTripCorrectly()
     }
 }
 
+void MidiCcSelectionModelTest::test_midiCcSlots_shouldReturnEight()
+{
+    QCOMPARE(model->midiCcSlots(), 8);
+}
+
+
 } // namespace noteahead
 
 QTEST_GUILESS_MAIN(noteahead::MidiCcSelectionModelTest)

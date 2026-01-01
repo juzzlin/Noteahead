@@ -74,7 +74,7 @@ QString MidiCcSelectionModel::midiCcToString(quint8 controller) const
 
 quint8 MidiCcSelectionModel::midiCcSlots() const
 {
-    return 4;
+    return 8;
 }
 
 MidiCcSelectionModel::MidiCcSettingList MidiCcSelectionModel::midiCcSettings() const
