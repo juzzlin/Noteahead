@@ -39,7 +39,7 @@ GroupBox {
             to: 127
             editable: true
             enabled: targetEnabledCheckBox.checked
-            onValueChanged: sideChainService.setSideChainTargetController(targetIndex, value)
+            onValueModified: sideChainService.setSideChainTargetController(targetIndex, value)
             Keys.onReturnPressed: focus = false
             Layout.fillWidth: true
             Layout.row: 1
@@ -60,7 +60,7 @@ GroupBox {
             to: 127
             editable: true
             enabled: targetEnabledCheckBox.checked
-            onValueChanged: sideChainService.setSideChainTargetTargetValue(targetIndex, value)
+            onValueModified: sideChainService.setSideChainTargetTargetValue(targetIndex, value)
             Keys.onReturnPressed: focus = false
             Layout.fillWidth: true
             Layout.row: 1
@@ -81,7 +81,7 @@ GroupBox {
             to: 127
             editable: true
             enabled: targetEnabledCheckBox.checked
-            onValueChanged: sideChainService.setSideChainTargetReleaseValue(targetIndex, value)
+            onValueModified: sideChainService.setSideChainTargetReleaseValue(targetIndex, value)
             Keys.onReturnPressed: focus = false
             Layout.columnSpan: 3
             Layout.fillWidth: true

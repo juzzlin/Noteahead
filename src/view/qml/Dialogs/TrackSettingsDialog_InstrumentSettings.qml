@@ -143,7 +143,7 @@ ColumnLayout {
                     ToolTip.timeout: Constants.toolTipTimeout
                     ToolTip.visible: hovered
                     ToolTip.text: qsTr("Set initial patch for this track. Note that some synths will add 1 to the chosen value so that 0 means 1.")
-                    onValueChanged: {
+                    onValueModified: {
                         trackSettingsModel.patch = value;
                         _requestTestSound();
                     }
@@ -191,7 +191,7 @@ ColumnLayout {
                     ToolTip.timeout: Constants.toolTipTimeout
                     ToolTip.visible: hovered
                     ToolTip.text: qsTr("Set initial bank for this track (MSB)")
-                    onValueChanged: {
+                    onValueModified: {
                         trackSettingsModel.bankMsb = value;
                         _requestTestSound();
                     }
@@ -209,7 +209,7 @@ ColumnLayout {
                     ToolTip.timeout: Constants.toolTipTimeout
                     ToolTip.visible: hovered
                     ToolTip.text: qsTr("Set initial bank for this track (LSB)")
-                    onValueChanged: {
+                    onValueModified: {
                         trackSettingsModel.bankLsb = value;
                         _requestTestSound();
                     }
@@ -253,7 +253,7 @@ ColumnLayout {
                     ToolTip.timeout: Constants.toolTipTimeout
                     ToolTip.visible: hovered
                     ToolTip.text: qsTr("Set transposition for MIDI notes on this channel in semitones")
-                    onValueChanged: trackSettingsModel.transpose = value
+                    onValueModified: trackSettingsModel.transpose = value
                     Keys.onReturnPressed: focus = false
                 }
             }

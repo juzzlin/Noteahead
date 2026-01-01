@@ -50,7 +50,7 @@ GroupBox {
                 ToolTip.timeout: Constants.toolTipTimeout
                 ToolTip.visible: hovered
                 ToolTip.text: qsTr("Set jitter on MIDI velocity to simulate e.g. a more natural piano")
-                onValueChanged: {
+                onValueModified: {
                     trackSettingsModel.velocityJitter = value;
                 }
                 Keys.onReturnPressed: focus = false
@@ -86,7 +86,7 @@ GroupBox {
                         from: 1
                         to: 255
                         editable: true
-                        onValueChanged: sideChainService.sideChainSourceTrack = value - 1
+                        onValueModified: sideChainService.sideChainSourceTrack = value - 1
                         Layout.fillWidth: true
                         ToolTip.delay: Constants.toolTipDelay
                         ToolTip.timeout: Constants.toolTipTimeout
@@ -101,7 +101,7 @@ GroupBox {
                         from: 1
                         to: 255
                         editable: true
-                        onValueChanged: sideChainService.sideChainSourceColumn = value - 1
+                        onValueModified: sideChainService.sideChainSourceColumn = value - 1
                         Layout.fillWidth: true
                         ToolTip.delay: Constants.toolTipDelay
                         ToolTip.timeout: Constants.toolTipTimeout
@@ -116,7 +116,7 @@ GroupBox {
                         from: 0
                         to: 1000
                         editable: true
-                        onValueChanged: sideChainService.sideChainLookahead = value
+                        onValueModified: sideChainService.sideChainLookahead = value
                         Layout.fillWidth: true
                         ToolTip.delay: Constants.toolTipDelay
                         ToolTip.timeout: Constants.toolTipTimeout
@@ -131,7 +131,7 @@ GroupBox {
                         from: 0
                         to: 1000
                         editable: true
-                        onValueChanged: sideChainService.sideChainRelease = value
+                        onValueModified: sideChainService.sideChainRelease = value
                         Layout.fillWidth: true
                         ToolTip.delay: Constants.toolTipDelay
                         ToolTip.timeout: Constants.toolTipTimeout

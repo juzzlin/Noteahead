@@ -38,7 +38,7 @@ GroupBox {
                 to: 36
                 editable: true
                 Keys.onReturnPressed: focus = false
-                onValueChanged: columnSettingsModel.chordNote1Offset = value
+                onValueModified: columnSettingsModel.chordNote1Offset = value
                 Layout.row: 0
                 Layout.column: 1
                 Layout.rightMargin: 10
@@ -54,7 +54,7 @@ GroupBox {
                 to: 200
                 editable: true
                 Keys.onReturnPressed: focus = false
-                onValueChanged: columnSettingsModel.chordNote1Velocity = value
+                onValueModified: columnSettingsModel.chordNote1Velocity = value
                 Layout.row: 0
                 Layout.column: 3
                 Layout.rightMargin: 10
@@ -70,7 +70,7 @@ GroupBox {
                 to: 1000
                 editable: true
                 Keys.onReturnPressed: focus = false
-                onValueChanged: columnSettingsModel.chordNote1Delay = value
+                onValueModified: columnSettingsModel.chordNote1Delay = value
                 Layout.row: 0
                 Layout.column: 5
             }
@@ -85,7 +85,7 @@ GroupBox {
                 to: 36
                 editable: true
                 Keys.onReturnPressed: focus = false
-                onValueChanged: columnSettingsModel.chordNote2Offset = value
+                onValueModified: columnSettingsModel.chordNote2Offset = value
                 Layout.row: 1
                 Layout.column: 1
             }
@@ -100,7 +100,7 @@ GroupBox {
                 to: 200
                 editable: true
                 Keys.onReturnPressed: focus = false
-                onValueChanged: columnSettingsModel.chordNote2Velocity = value
+                onValueModified: columnSettingsModel.chordNote2Velocity = value
                 Layout.row: 1
                 Layout.column: 3
                 Layout.rightMargin: 10
@@ -116,7 +116,7 @@ GroupBox {
                 to: 1000
                 editable: true
                 Keys.onReturnPressed: focus = false
-                onValueChanged: columnSettingsModel.chordNote2Delay = value
+                onValueModified: columnSettingsModel.chordNote2Delay = value
                 Layout.row: 1
                 Layout.column: 5
             }
@@ -131,7 +131,7 @@ GroupBox {
                 to: 36
                 editable: true
                 Keys.onReturnPressed: focus = false
-                onValueChanged: columnSettingsModel.chordNote3Offset = value
+                onValueModified: columnSettingsModel.chordNote3Offset = value
                 Layout.row: 2
                 Layout.column: 1
             }
@@ -146,7 +146,7 @@ GroupBox {
                 to: 200
                 editable: true
                 Keys.onReturnPressed: focus = false
-                onValueChanged: columnSettingsModel.chordNote3Velocity = value
+                onValueModified: columnSettingsModel.chordNote3Velocity = value
                 Layout.row: 2
                 Layout.column: 3
                 Layout.rightMargin: 10
@@ -162,7 +162,7 @@ GroupBox {
                 to: 1000
                 editable: true
                 Keys.onReturnPressed: focus = false
-                onValueChanged: columnSettingsModel.chordNote3Delay = value
+                onValueModified: columnSettingsModel.chordNote3Delay = value
                 Layout.row: 2
                 Layout.column: 5
             }

@@ -48,7 +48,7 @@ GroupBox {
                 ToolTip.timeout: Constants.toolTipTimeout
                 ToolTip.visible: hovered
                 ToolTip.text: qsTr("Set initial channel volume for this track")
-                onValueChanged: trackSettingsModel.volume = value
+                onValueModified: trackSettingsModel.volume = value
                 Keys.onReturnPressed: focus = false
             }
             CheckBox {
@@ -77,7 +77,7 @@ GroupBox {
                 ToolTip.timeout: Constants.toolTipTimeout
                 ToolTip.visible: hovered
                 ToolTip.text: qsTr("Set initial panning for this track (64 = center)")
-                onValueChanged: trackSettingsModel.pan = value
+                onValueModified: trackSettingsModel.pan = value
                 Keys.onReturnPressed: focus = false
             }
             CheckBox {
@@ -106,7 +106,7 @@ GroupBox {
                 ToolTip.timeout: Constants.toolTipTimeout
                 ToolTip.visible: hovered
                 ToolTip.text: qsTr("Set initial filter cutoff for this track")
-                onValueChanged: trackSettingsModel.cutoff = value
+                onValueModified: trackSettingsModel.cutoff = value
                 Keys.onReturnPressed: focus = false
             }
         }

@@ -40,7 +40,7 @@ Row {
                     to: editorService.maxSongPosition()
                     editable: false
                     enabled: !playerService.isPlaying
-                    onValueChanged: {
+                    onValueModified: {
                         editorService.setSongPosition(value);
                         ToolTip.hide();
                     }
@@ -67,7 +67,7 @@ Row {
                     value: editorService.patternAtCurrentSongPosition
                     editable: true
                     enabled: !playerService.isPlaying
-                    onValueChanged: {
+                    onValueModified: {
                         editorService.setPatternAtSongPosition(songPositionSpinBox.value, value);
                         ToolTip.hide();
                     }
@@ -96,7 +96,7 @@ Row {
                     to: editorService.maxSongLength()
                     editable: false
                     enabled: !playerService.isPlaying
-                    onValueChanged: {
+                    onValueModified: {
                         editorService.setSongLength(songLengthSpinBox.value);
                         ToolTip.hide();
                     }
@@ -217,7 +217,7 @@ Row {
                     to: editorService.maxPatternIndex()
                     editable: true
                     enabled: !playerService.isPlaying
-                    onValueChanged: {
+                    onValueModified: {
                         editorService.setCurrentPattern(patternIndexSpinBox.value);
                         ToolTip.hide();
                     }
@@ -246,7 +246,7 @@ Row {
                     to: editorService.maxLineCount()
                     editable: true
                     enabled: !playerService.isPlaying
-                    onValueChanged: {
+                    onValueModified: {
                         editorService.setCurrentLineCount(patternLengthSpinBox.value);
                         ToolTip.hide();
                     }
@@ -291,7 +291,7 @@ Row {
                     from: 0
                     to: 64
                     editable: true
-                    onValueChanged: {
+                    onValueModified: {
                         UiService.setActiveStep(stepSpinBox.value);
                         ToolTip.hide();
                     }
@@ -319,7 +319,7 @@ Row {
                     from: 0
                     to: 127
                     editable: true
-                    onValueChanged: {
+                    onValueModified: {
                         UiService.setActiveVelocity(velocitySpinBox.value);
                         ToolTip.hide();
                     }
@@ -347,7 +347,7 @@ Row {
                     from: 0
                     to: 8
                     editable: true
-                    onValueChanged: {
+                    onValueModified: {
                         keyboardService.activeOctave = octSpinBox.value;
                         ToolTip.hide();
                     }
@@ -393,7 +393,7 @@ Row {
                     to: 300
                     editable: true
                     enabled: !playerService.isPlaying
-                    onValueChanged: {
+                    onValueModified: {
                         editorService.setBeatsPerMinute(value);
                         ToolTip.hide();
                     }
@@ -422,7 +422,7 @@ Row {
                     to: 16
                     editable: true
                     enabled: !playerService.isPlaying
-                    onValueChanged: {
+                    onValueModified: {
                         editorService.setLinesPerBeat(value);
                         ToolTip.hide();
                     }

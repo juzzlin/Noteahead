@@ -67,7 +67,7 @@ GroupBox {
                 ToolTip.timeout: Constants.toolTipTimeout
                 ToolTip.visible: hovered
                 ToolTip.text: qsTr("Set delay for MIDI messages on this channel in milliseconds")
-                onValueChanged: trackSettingsModel.delay = value
+                onValueModified: trackSettingsModel.delay = value
                 Keys.onReturnPressed: focus = false
             }
             LayoutSeparator {
@@ -110,7 +110,7 @@ GroupBox {
                 ToolTip.timeout: Constants.toolTipTimeout
                 ToolTip.visible: hovered
                 ToolTip.text: qsTr("Set offset for auto note-off events in milliseconds. This defines the time between a note-off and the following note-on in the same column.")
-                onValueChanged: trackSettingsModel.autoNoteOffOffset = value
+                onValueModified: trackSettingsModel.autoNoteOffOffset = value
             }
         }
     }
