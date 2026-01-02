@@ -1,5 +1,5 @@
 // This file is part of Noteahead.
-// Copyright (C) 2025 Jussi Lind <jussi.lind@iki.fi>
+// Copyright (C) 2026 Jussi Lind <jussi.lind@iki.fi>
 //
 // Noteahead is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -13,27 +13,27 @@
 // You should have received a copy of the GNU General Public License
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef MIDI_NOTE_DATA_HPP
-#define MIDI_NOTE_DATA_HPP
+#ifndef APPLICATION_SERVICE_TEST_HPP
+#define APPLICATION_SERVICE_TEST_HPP
 
-#include <cstdint>
+#include <QTest>
 
 namespace noteahead {
 
-class MidiNoteData
+class ApplicationServiceTest : public QObject
 {
-public:
-    MidiNoteData(uint8_t note, uint8_t velocity);
-    MidiNoteData() = default;
+    Q_OBJECT
 
-    uint8_t note() const;
-    uint8_t velocity() const;
-
-private:
-    uint8_t m_note = 0;
-    uint8_t m_velocity = 0;
+private slots:
+    void initTestCase();
+    void test_initialState();
+    void test_applicationProperties();
+    void test_editMode();
+    void test_recentFiles();
+    void test_stateMachineInteractions();
+    void test_liveNoteLogic();
 };
 
 } // namespace noteahead
 
-#endif // MIDI_NOTE_DATA_HPP
+#endif // APPLICATION_SERVICE_TEST_HPP

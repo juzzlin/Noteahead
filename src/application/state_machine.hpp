@@ -85,7 +85,7 @@ public:
         Close
     };
 
-    void calculateState(StateMachine::Action action);
+    virtual void calculateState(StateMachine::Action action);
 
     static QString stateToString(StateMachine::State state);
 

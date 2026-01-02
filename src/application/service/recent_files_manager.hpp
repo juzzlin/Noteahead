@@ -31,18 +31,18 @@ class RecentFilesManager : public QObject
 public:
     RecentFilesManager();
 
-    std::optional<QString> recentFile() const;
-    QStringList recentFiles() const;
-    bool hasRecentFiles() const;
+    virtual std::optional<QString> recentFile() const;
+    virtual QStringList recentFiles() const;
+    virtual bool hasRecentFiles() const;
 
-    QString selectedFile() const;
+    virtual QString selectedFile() const;
 
 signals:
     void recentFilesChanged(const QStringList & recentFiles);
 
 public slots:
-    void addRecentFile(QString filePath);
-    void setSelectedFile(QString filePath);
+    virtual void addRecentFile(QString filePath);
+    virtual void setSelectedFile(QString filePath);
 
 private:
     QStringList m_recentFiles;

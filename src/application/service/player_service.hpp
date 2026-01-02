@@ -51,7 +51,7 @@ public:
     ~PlayerService() override;
 
     Q_INVOKABLE bool play();
-    Q_INVOKABLE bool isPlaying() const;
+    virtual Q_INVOKABLE bool isPlaying() const;
     Q_INVOKABLE void stop();
     Q_INVOKABLE void prev();
 

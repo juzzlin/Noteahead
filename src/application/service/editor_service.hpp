@@ -154,7 +154,7 @@ public:
     Q_INVOKABLE bool isModified() const;
     Q_INVOKABLE void resetModified();
 
-    Q_INVOKABLE Position position() const;
+    virtual Q_INVOKABLE Position position() const;
     Q_INVOKABLE quint64 positionBarLine() const;
 
     Q_INVOKABLE void requestEventRemoval();
@@ -253,7 +253,7 @@ public:
     LineList columnData(ColumnAddress columnAddress) const;
 
     using InstrumentS = std::shared_ptr<Instrument>;
-    InstrumentS instrument(quint64 trackIndex) const;
+    virtual InstrumentS instrument(quint64 trackIndex) const;
     void setInstrument(quint64 trackIndex, InstrumentS instrument);
     using InstrumentList = std::vector<std::pair<quint64, InstrumentS>>;
     InstrumentList instruments() const;
