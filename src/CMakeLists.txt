@@ -189,6 +189,7 @@ set(QML_SOURCE_FILES
     ${QML_BASE_DIR}/BottomBar.qml
     ${QML_BASE_DIR}/Components/LayoutSeparator.qml
     ${QML_BASE_DIR}/Components/MenuItemDelegate.qml
+    ${QML_BASE_DIR}/Components/MidiCcComboBox.qml
     ${QML_BASE_DIR}/Components/VirtualKeyboard.qml
     ${QML_BASE_DIR}/Constants.qml
     ${QML_BASE_DIR}/Dialogs/AboutDialog.qml

@@ -3,6 +3,7 @@ import QtQuick.Controls 2.15
 import QtQuick.Layouts
 import QtQuick.Controls.Universal
 import ".."
+import "../Components"
 
 RowLayout {
     Layout.fillWidth: true
@@ -13,27 +14,27 @@ RowLayout {
     property bool showEnabled: true
     property bool showValue: true
     readonly property alias currentController: midiCcControllerComboBox.currentValue
-    function initialize(enabled, controller, value) {
+    function initialize(enabled: bool, controller: int, value: int): void {
         enableCcCheckbox.checked = enabled;
-        midiCcControllerComboBox.currentIndex = midiCcControllerComboBox.indexOfValue(controller);
+        midiCcControllerComboBox.setController(controller);
         midiCcValueSpinBox.value = value;
     }
-    function enabled() {
+    function enabled(): bool {
         return enableCcCheckbox.checked;
     }
-    function setEnabled(enabled) {
+    function setEnabled(enabled: bool): void {
         enableCcCheckbox.checked = enabled;
     }
-    function controller() {
+    function controller(): int {
         return midiCcControllerComboBox.currentValue;
     }
-    function setController(value) {
-        midiCcControllerComboBox.currentIndex = midiCcControllerComboBox.indexOfValue(value);
+    function setController(value: int): void {
+        midiCcControllerComboBox.setController(value);
     }
-    function value() {
+    function value(): int {
         return midiCcValueSpinBox.value;
     }
-    function setValue(value) {
+    function setValue(value: int): void {
         midiCcValueSpinBox.value = value;
     }
     CheckBox {
@@ -52,44 +53,11 @@ RowLayout {
         Layout.fillWidth: true
         elide: Text.ElideRight
     }
-    ComboBox {
+    MidiCcComboBox {
         id: midiCcControllerComboBox
         Layout.fillWidth: true
         Layout.preferredWidth: 300
-        model: propertyService.availableMidiControllers
-        textRole: "name"
-        valueRole: "number"
-        editable: true
-        enabled: enableCcCheckbox.checked
-        ToolTip.delay: Constants.toolTipDelay
-        ToolTip.timeout: Constants.toolTipTimeout
-        ToolTip.visible: hovered
-        ToolTip.text: qsTr("Set MIDI Continuous Controller number. See the MIDI CC implementation chart of your device. Current selection: ") + midiCcControllerComboBox.currentText
         onActivated: settingsChanged()
-        delegate: ItemDelegate {
-            text: modelData.name
-            highlighted: midiCcControllerComboBox.highlightedIndex === index
-            Universal.theme: Universal.Dark
-        }
-        popup: Popup {
-            y: midiCcControllerComboBox.height - 1
-            width: midiCcControllerComboBox.width
-            implicitHeight: contentItem.implicitHeight > 300 ? 300 : contentItem.implicitHeight
-            padding: 1
-            contentItem: ListView {
-                clip: true
-                implicitHeight: contentHeight
-                model: midiCcControllerComboBox.popup.visible ? midiCcControllerComboBox.delegateModel : null
-                currentIndex: midiCcControllerComboBox.highlightedIndex
-                ScrollBar.vertical: ScrollBar {
-                    policy: ScrollBar.AlwaysOn
-                }
-            }
-            background: Rectangle {
-                color: "#303030"
-                border.color: "#606060"
-            }
-        }
     }
     SpinBox {
         id: midiCcValueSpinBox

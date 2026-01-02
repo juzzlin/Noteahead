@@ -3,6 +3,7 @@ import QtQuick.Controls 2.15
 import QtQuick.Controls.Universal 2.15
 import QtQuick.Layouts
 import ".."
+import "../Components"
 
 Dialog {
     id: rootItem
@@ -15,39 +16,9 @@ Dialog {
         Label {
             text: qsTr("Controller:")
         }
-        ComboBox {
+        MidiCcComboBox {
             id: controllerComboBox
             Layout.fillWidth: true
-            model: propertyService.availableMidiControllers
-            textRole: "name"
-            valueRole: "number"
-            currentIndex: 0
-            editable: true
-            delegate: ItemDelegate {
-                text: modelData.name
-                highlighted: controllerComboBox.highlightedIndex === index
-                Universal.theme: Universal.Dark
-            }
-            popup: Popup {
-                y: controllerComboBox.height - 1
-                width: controllerComboBox.width
-                implicitHeight: contentItem.implicitHeight > 300 ? 300 : contentItem.implicitHeight
-                padding: 1
-                contentItem: ListView {
-                    clip: true
-                    implicitHeight: contentHeight
-                    model: controllerComboBox.popup.visible ? controllerComboBox.delegateModel : null
-                    currentIndex: controllerComboBox.highlightedIndex
-
-                    ScrollBar.vertical: ScrollBar {
-                        policy: ScrollBar.AlwaysOn
-                    }
-                }
-                background: Rectangle {
-                    color: "#303030"
-                    border.color: "#606060"
-                }
-            }
         }
         Label {
             text: qsTr("Value:")

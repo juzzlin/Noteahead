@@ -229,10 +229,12 @@ void Application::handleCommandLineArguments(int & argc, char ** argv)
 
     ae.addOption({ "--debug" }, [] {
         juzzlin::SimpleLogger::setLoggingLevel(juzzlin::SimpleLogger::Level::Debug);
+        juzzlin::SimpleLogger::setBatchInterval(0ms);
     });
 
     ae.addOption({ "--trace" }, [] {
         juzzlin::SimpleLogger::setLoggingLevel(juzzlin::SimpleLogger::Level::Trace);
+        juzzlin::SimpleLogger::setBatchInterval(0ms);
     });
 
     ae.addOption({ "--window-size" }, [this](const std::string & value) {
