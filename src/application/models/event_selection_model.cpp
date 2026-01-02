@@ -37,36 +37,6 @@ void EventSelectionModel::save()
     emit saveRequested();
 }
 
-quint8 EventSelectionModel::cutoff() const
-{
-    return m_cutoff;
-}
-
-void EventSelectionModel::setCutoff(quint8 cutoff)
-{
-    juzzlin::L(TAG).debug() << "Setting cutoff to " << static_cast<int>(cutoff);
-
-    if (m_cutoff != cutoff) {
-        m_cutoff = cutoff;
-        emit cutoffChanged();
-    }
-}
-
-bool EventSelectionModel::cutoffEnabled() const
-{
-    return m_cutoffEnabled;
-}
-
-void EventSelectionModel::setCutoffEnabled(bool enabled)
-{
-    juzzlin::L(TAG).debug() << "Enabling cutoff: " << static_cast<int>(enabled);
-
-    if (m_cutoffEnabled != enabled) {
-        m_cutoffEnabled = enabled;
-        emit cutoffEnabledChanged();
-    }
-}
-
 bool EventSelectionModel::bankEnabled() const
 {
     return m_bankEnabled;
@@ -137,12 +107,6 @@ void EventSelectionModel::reset()
     m_bankLsb = 0;
     m_bankMsb = 0;
     m_bankByteOrderSwapped = false;
-    m_cutoffEnabled = false;
-    m_cutoff = m_defaultCutoff;
-    m_panEnabled = false;
-    m_pan = m_defaultPan;
-    m_volumeEnabled = false;
-    m_volume = m_defaultVolume;
 
     emit dataReceived();
 }
@@ -161,15 +125,6 @@ EventSelectionModel::InstrumentSettingsU EventSelectionModel::toInstrumentSettin
             m_bankByteOrderSwapped
         };
     }
-    if (m_cutoffEnabled) {
-        instrumentSettings->standardMidiCcSettings.cutoff = m_cutoff;
-    }
-    if (m_panEnabled) {
-        instrumentSettings->standardMidiCcSettings.pan = m_pan;
-    }
-    if (m_volumeEnabled) {
-        instrumentSettings->standardMidiCcSettings.volume = m_volume;
-    }
 
     return instrumentSettings;
 }
@@ -186,21 +141,6 @@ void EventSelectionModel::fromInstrumentSettings(const InstrumentSettings & inst
         setBankLsb(instrumentSettings.bank->lsb);
         setBankMsb(instrumentSettings.bank->msb);
         setBankByteOrderSwapped(instrumentSettings.bank->byteOrderSwapped);
-    }
-
-    setCutoffEnabled(instrumentSettings.standardMidiCcSettings.cutoff.has_value());
-    if (cutoffEnabled()) {
-        setCutoff(*instrumentSettings.standardMidiCcSettings.cutoff);
-    }
-
-    setPanEnabled(instrumentSettings.standardMidiCcSettings.pan.has_value());
-    if (panEnabled()) {
-        setPan(*instrumentSettings.standardMidiCcSettings.pan);
-    }
-
-    setVolumeEnabled(instrumentSettings.standardMidiCcSettings.volume.has_value());
-    if (volumeEnabled()) {
-        setVolume(*instrumentSettings.standardMidiCcSettings.volume);
     }
 
     emit dataReceived();
@@ -233,66 +173,6 @@ void EventSelectionModel::setPatch(quint8 patch)
     if (m_patch != patch) {
         m_patch = patch;
         emit patchChanged();
-    }
-}
-
-quint8 EventSelectionModel::pan() const
-{
-    return m_pan;
-}
-
-void EventSelectionModel::setPan(quint8 pan)
-{
-    juzzlin::L(TAG).debug() << "Setting pan to " << static_cast<int>(pan);
-
-    if (m_pan != pan) {
-        m_pan = pan;
-        emit panChanged();
-    }
-}
-
-bool EventSelectionModel::panEnabled() const
-{
-    return m_panEnabled;
-}
-
-void EventSelectionModel::setPanEnabled(bool enabled)
-{
-    juzzlin::L(TAG).debug() << "Enabling pan: " << static_cast<int>(enabled);
-
-    if (m_panEnabled != enabled) {
-        m_panEnabled = enabled;
-        emit panEnabledChanged();
-    }
-}
-
-quint8 EventSelectionModel::volume() const
-{
-    return m_volume;
-}
-
-void EventSelectionModel::setVolume(quint8 volume)
-{
-    juzzlin::L(TAG).debug() << "Setting volume to " << static_cast<int>(volume);
-
-    if (m_volume != volume) {
-        m_volume = volume;
-        emit volumeChanged();
-    }
-}
-
-bool EventSelectionModel::volumeEnabled() const
-{
-    return m_volumeEnabled;
-}
-
-void EventSelectionModel::setVolumeEnabled(bool enabled)
-{
-    juzzlin::L(TAG).debug() << "Enabling volume: " << static_cast<int>(enabled);
-
-    if (m_volumeEnabled != enabled) {
-        m_volumeEnabled = enabled;
-        emit volumeEnabledChanged();
     }
 }
 

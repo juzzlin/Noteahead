@@ -14,14 +14,8 @@ Dialog {
         bankLsbSpinBox.value = eventSelectionModel.bankLsb;
         bankMsbSpinBox.value = eventSelectionModel.bankMsb;
         swapBankByteOrderCheckBox.checked = eventSelectionModel.bankByteOrderSwapped;
-        enableCutoffCheckbox.checked = eventSelectionModel.cutoffEnabled;
-        cutoffSpinBox.value = eventSelectionModel.cutoff;
         enablePatchCheckbox.checked = eventSelectionModel.patchEnabled;
         patchSpinBox.value = eventSelectionModel.patch;
-        enablePanCheckbox.checked = eventSelectionModel.panEnabled;
-        panSpinBox.value = eventSelectionModel.pan;
-        enableVolumeCheckbox.checked = eventSelectionModel.volumeEnabled;
-        volumeSpinBox.value = eventSelectionModel.volume;
     }
     function requestData() {
         eventSelectionModel.requestData();
@@ -154,114 +148,6 @@ Dialog {
                         ToolTip.visible: hovered
                         ToolTip.text: qsTr("Swap the send order of LSB and MSB bytes")
                         onCheckedChanged: eventSelectionModel.bankByteOrderSwapped = checked
-                    }
-                    CheckBox {
-                        id: enableVolumeCheckbox
-                        text: qsTr("Set Volume")
-                        Layout.column: 0
-                        Layout.columnSpan: 2
-                        Layout.row: 4
-                        Layout.fillWidth: true
-                        ToolTip.delay: Constants.toolTipDelay
-                        ToolTip.timeout: Constants.toolTipTimeout
-                        ToolTip.visible: hovered
-                        ToolTip.text: qsTr("Enable/disable channel volume for this track")
-                        onCheckedChanged: eventSelectionModel.volumeEnabled = checked
-                    }
-                    Label {
-                        text: qsTr("MSB:")
-                        Layout.column: 4
-                        Layout.row: 4
-                        Layout.fillWidth: true
-                    }
-                    SpinBox {
-                        id: volumeSpinBox
-                        from: 0
-                        to: 127
-                        enabled: enableVolumeCheckbox.checked
-                        Layout.column: 5
-                        Layout.columnSpan: 1
-                        Layout.row: 4
-                        Layout.fillWidth: true
-                        editable: true
-                        ToolTip.delay: Constants.toolTipDelay
-                        ToolTip.timeout: Constants.toolTipTimeout
-                        ToolTip.visible: hovered
-                        ToolTip.text: qsTr("Set initial channel volume for this track")
-                        onValueChanged: eventSelectionModel.volume = value
-                        Keys.onReturnPressed: focus = false
-                    }
-                    CheckBox {
-                        id: enablePanCheckbox
-                        text: qsTr("Set Panning")
-                        Layout.column: 0
-                        Layout.columnSpan: 2
-                        Layout.row: 5
-                        Layout.fillWidth: true
-                        ToolTip.delay: Constants.toolTipDelay
-                        ToolTip.timeout: Constants.toolTipTimeout
-                        ToolTip.visible: hovered
-                        ToolTip.text: qsTr("Enable/disable panning for this track")
-                        onCheckedChanged: eventSelectionModel.panEnabled = checked
-                    }
-                    Label {
-                        text: qsTr("MSB:")
-                        Layout.column: 4
-                        Layout.row: 5
-                        Layout.fillWidth: true
-                    }
-                    SpinBox {
-                        id: panSpinBox
-                        from: 0
-                        to: 127
-                        enabled: enablePanCheckbox.checked
-                        Layout.column: 5
-                        Layout.columnSpan: 1
-                        Layout.row: 5
-                        Layout.fillWidth: true
-                        editable: true
-                        ToolTip.delay: Constants.toolTipDelay
-                        ToolTip.timeout: Constants.toolTipTimeout
-                        ToolTip.visible: hovered
-                        ToolTip.text: qsTr("Set initial panning for this track (64 = center)")
-                        onValueChanged: eventSelectionModel.pan = value
-                        Keys.onReturnPressed: focus = false
-                    }
-                    CheckBox {
-                        id: enableCutoffCheckbox
-                        text: qsTr("Set Cutoff")
-                        Layout.column: 0
-                        Layout.columnSpan: 2
-                        Layout.row: 6
-                        Layout.fillWidth: true
-                        ToolTip.delay: Constants.toolTipDelay
-                        ToolTip.timeout: Constants.toolTipTimeout
-                        ToolTip.visible: hovered
-                        ToolTip.text: qsTr("Enable/disable filter cutoff for this track")
-                        onCheckedChanged: eventSelectionModel.cutoffEnabled = checked
-                    }
-                    Label {
-                        text: qsTr("MSB:")
-                        Layout.column: 4
-                        Layout.row: 6
-                        Layout.fillWidth: true
-                    }
-                    SpinBox {
-                        id: cutoffSpinBox
-                        from: 0
-                        to: 127
-                        enabled: enableCutoffCheckbox.checked
-                        Layout.column: 5
-                        Layout.columnSpan: 1
-                        Layout.row: 6
-                        Layout.fillWidth: true
-                        editable: true
-                        ToolTip.delay: Constants.toolTipDelay
-                        ToolTip.timeout: Constants.toolTipTimeout
-                        ToolTip.visible: hovered
-                        ToolTip.text: qsTr("Set initial filter cutoff for this track")
-                        onValueChanged: eventSelectionModel.cutoff = value
-                        Keys.onReturnPressed: focus = false
                     }
                 }
             }

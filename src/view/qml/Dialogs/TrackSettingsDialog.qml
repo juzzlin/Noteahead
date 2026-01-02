@@ -21,7 +21,6 @@ Dialog {
         instrumentSettings.initialize();
         timingSettings.initialize();
         midiEffects.initialize();
-        midiCcSettingsPredefined.initialize();
         tabBar.currentIndex = 0;
     }
     function saveSettings() {
@@ -69,10 +68,6 @@ Dialog {
                 id: midiEffects
                 Layout.fillWidth: true
             }
-            TrackSettingsDialog_MidiCcSettings_Standard {
-                id: midiCcSettingsPredefined
-                Layout.fillWidth: true
-            }
             TrackSettingsDialog_MidiCcSettings_Custom {
                 id: midiCcSettingsGeneric
                 Layout.fillWidth: true
@@ -89,9 +84,6 @@ Dialog {
             }
             TabButton {
                 text: qsTr("MIDI Effects")
-            }
-            TabButton {
-                text: qsTr("MIDI CC (Standard)")
             }
             TabButton {
                 text: qsTr("MIDI CC (Custom)")

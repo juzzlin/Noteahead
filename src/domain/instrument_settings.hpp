@@ -68,15 +68,6 @@ public:
 
     MidiEffects midiEffects;
 
-    struct StandardMidiCcSettings
-    {
-        std::optional<uint8_t> cutoff;
-        std::optional<uint8_t> pan;
-        std::optional<uint8_t> volume;
-    };
-
-    StandardMidiCcSettings standardMidiCcSettings;
-
     std::vector<MidiCcSetting> midiCcSettings;
 
     void serializeToXml(QXmlStreamWriter & writer) const;

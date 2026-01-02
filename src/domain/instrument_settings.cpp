@@ -45,18 +45,6 @@ void InstrumentSettings::serializeToXml(QXmlStreamWriter & writer) const
 
     writer.writeAttribute(Constants::NahdXml::xmlKeyTranspose(), QString::number(transpose));
 
-    if (standardMidiCcSettings.cutoff.has_value()) {
-        writer.writeAttribute(Constants::NahdXml::xmlKeyCutoff(), QString::number(*standardMidiCcSettings.cutoff));
-    }
-
-    if (standardMidiCcSettings.pan.has_value()) {
-        writer.writeAttribute(Constants::NahdXml::xmlKeyPan(), QString::number(*standardMidiCcSettings.pan));
-    }
-
-    if (standardMidiCcSettings.volume.has_value()) {
-        writer.writeAttribute(Constants::NahdXml::xmlKeyVolume(), QString::number(*standardMidiCcSettings.volume));
-    }
-
     if (timing.sendMidiClock.has_value()) {
         writer.writeAttribute(Constants::NahdXml::xmlKeySendMidiClock(), timing.sendMidiClock.value() ? Constants::NahdXml::xmlValueTrue() : Constants::NahdXml::xmlValueFalse());
     }
@@ -94,9 +82,16 @@ InstrumentSettings::InstrumentSettingsU InstrumentSettings::deserializeFromXml(Q
 
     settings->transpose = Utils::Xml::readIntAttribute(reader, Constants::NahdXml::xmlKeyTranspose(), false).value_or(0);
 
-    settings->standardMidiCcSettings.cutoff = Utils::Xml::readUIntAttribute(reader, Constants::NahdXml::xmlKeyCutoff(), false);
-    settings->standardMidiCcSettings.pan = Utils::Xml::readUIntAttribute(reader, Constants::NahdXml::xmlKeyPan(), false);
-    settings->standardMidiCcSettings.volume = Utils::Xml::readUIntAttribute(reader, Constants::NahdXml::xmlKeyVolume(), false);
+    // Migration: Read old standard MIDI CC settings and convert to generic MIDI CC settings
+    if (const auto cutoff = Utils::Xml::readUIntAttribute(reader, Constants::NahdXml::xmlKeyCutoff(), false)) {
+        settings->midiCcSettings.emplace_back(true, 74, *cutoff);
+    }
+    if (const auto pan = Utils::Xml::readUIntAttribute(reader, Constants::NahdXml::xmlKeyPan(), false)) {
+        settings->midiCcSettings.emplace_back(true, 10, *pan);
+    }
+    if (const auto volume = Utils::Xml::readUIntAttribute(reader, Constants::NahdXml::xmlKeyVolume(), false)) {
+        settings->midiCcSettings.emplace_back(true, 7, *volume);
+    }
 
     settings->timing.sendMidiClock = Utils::Xml::readBoolAttribute(reader, Constants::NahdXml::xmlKeySendMidiClock(), false);
     settings->timing.sendTransport = Utils::Xml::readBoolAttribute(reader, Constants::NahdXml::xmlKeySendTransport(), false);
@@ -135,10 +130,6 @@ QString InstrumentSettings::toString() const
 
     result += timing.sendMidiClock.has_value() ? QString { ", sendMidiClock=%1" }.arg(timing.sendMidiClock.value() ? Constants::NahdXml::xmlValueTrue() : Constants::NahdXml::xmlValueFalse()) : ", sendMidiClock=None";
     result += QString { ", delay=%1" }.arg(timing.delay.count());
-
-    result += standardMidiCcSettings.cutoff.has_value() ? QString { ", cutoff=%1" }.arg(*standardMidiCcSettings.cutoff) : ", cutoff=None";
-    result += standardMidiCcSettings.pan.has_value() ? QString { ", pan=%1" }.arg(*standardMidiCcSettings.pan) : ", pan=None";
-    result += standardMidiCcSettings.volume.has_value() ? QString { ", volume=%1" }.arg(*standardMidiCcSettings.volume) : ", volume=None";
 
     for (auto && midiCcSetting : midiCcSettings) {
         result += " ";

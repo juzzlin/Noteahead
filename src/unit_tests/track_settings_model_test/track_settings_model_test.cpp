@@ -26,13 +26,8 @@ void TrackSettingsModelTest::test_initialState_shouldHaveExpectedDefaults()
     TrackSettingsModel model;
 
     QCOMPARE(model.channel(), static_cast<uint8_t>(0));
-    QCOMPARE(model.volume(), static_cast<uint8_t>(127));
-    QCOMPARE(model.cutoff(), static_cast<uint8_t>(127));
-    QCOMPARE(model.pan(), static_cast<uint8_t>(64));
     QCOMPARE(model.delay(), 0);
     QVERIFY(!model.bankEnabled());
-    QVERIFY(!model.volumeEnabled());
-    QVERIFY(!model.cutoffEnabled());
     QCOMPARE(model.midiCcModel()->rowCount(), 0);
 }
 
@@ -55,17 +50,6 @@ void TrackSettingsModelTest::test_setChannel_shouldUpdateChannel()
     model.setChannel(10);
 
     QCOMPARE(model.channel(), static_cast<uint8_t>(10));
-    QCOMPARE(spy.count(), 1);
-}
-
-void TrackSettingsModelTest::test_setVolumeEnabled_shouldUpdateAndEmitSignal()
-{
-    TrackSettingsModel model;
-
-    QSignalSpy spy { &model, &TrackSettingsModel::volumeEnabledChanged };
-    model.setVolumeEnabled(true);
-
-    QVERIFY(model.volumeEnabled());
     QCOMPARE(spy.count(), 1);
 }
 
@@ -92,9 +76,6 @@ void TrackSettingsModelTest::test_setInstrumentData_shouldUpdateRelevantFields()
     InstrumentSettings instrumentSettings;
     instrumentSettings.patch = 42;
     instrumentSettings.bank = InstrumentSettings::Bank { 1, 2, true };
-    instrumentSettings.standardMidiCcSettings.cutoff = 90;
-    instrumentSettings.standardMidiCcSettings.pan = 64;
-    instrumentSettings.standardMidiCcSettings.volume = 100;
     instrumentSettings.timing.sendMidiClock = true;
     instrumentSettings.timing.sendTransport = true;
     instrumentSettings.timing.delay = std::chrono::milliseconds(120);
@@ -113,12 +94,6 @@ void TrackSettingsModelTest::test_setInstrumentData_shouldUpdateRelevantFields()
     QCOMPARE(model.bankLsb(), static_cast<uint8_t>(1));
     QCOMPARE(model.bankMsb(), static_cast<uint8_t>(2));
     QCOMPARE(model.bankByteOrderSwapped(), true);
-    QCOMPARE(model.cutoffEnabled(), true);
-    QCOMPARE(model.cutoff(), static_cast<uint8_t>(90));
-    QCOMPARE(model.panEnabled(), true);
-    QCOMPARE(model.pan(), static_cast<uint8_t>(64));
-    QCOMPARE(model.volumeEnabled(), true);
-    QCOMPARE(model.volume(), static_cast<uint8_t>(100));
     QCOMPARE(model.sendMidiClock(), true);
     QCOMPARE(model.sendTransport(), true);
     QCOMPARE(model.delay(), 120);
@@ -171,45 +146,6 @@ void TrackSettingsModelTest::test_toInstrument_shouldApplyBankSettingsWhenBankEn
     QCOMPARE(instrument->settings().bank->lsb, 10);
     QCOMPARE(instrument->settings().bank->msb, 20);
     QCOMPARE(instrument->settings().bank->byteOrderSwapped, true);
-}
-
-void TrackSettingsModelTest::test_toInstrument_shouldApplyCutoffWhenCutoffEnabled()
-{
-    TrackSettingsModel model;
-    model.setPortName("Test Port");
-    model.setChannel(1);
-    model.setCutoffEnabled(true);
-    model.setCutoff(50);
-
-    const auto instrument = model.toInstrument();
-
-    QCOMPARE(instrument->settings().standardMidiCcSettings.cutoff, 50);
-}
-
-void TrackSettingsModelTest::test_toInstrument_shouldApplyPanWhenPanEnabled()
-{
-    TrackSettingsModel model;
-    model.setPortName("Test Port");
-    model.setChannel(1);
-    model.setPanEnabled(true);
-    model.setPan(100);
-
-    const auto instrument = model.toInstrument();
-
-    QCOMPARE(instrument->settings().standardMidiCcSettings.pan, 100);
-}
-
-void TrackSettingsModelTest::test_toInstrument_shouldApplyVolumeWhenVolumeEnabled()
-{
-    TrackSettingsModel model;
-    model.setPortName("Test Port");
-    model.setChannel(1);
-    model.setVolumeEnabled(true);
-    model.setVolume(80);
-
-    const auto instrument = model.toInstrument();
-
-    QCOMPARE(instrument->settings().standardMidiCcSettings.volume, 80);
 }
 
 void TrackSettingsModelTest::test_toInstrument_shouldApplyMidiClockAndDelayWhenEnabled()

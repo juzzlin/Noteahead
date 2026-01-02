@@ -74,19 +74,7 @@ void MidiWorkerOut::sendMidiCcSettings(const MidiPort & port, const Instrument &
 {
     // No lock here, it's called from handleInstrumentRequest which locks
     const auto channel = instrument.midiAddress().channel();
-    const auto predefinedMidiCcSettings = instrument.settings().standardMidiCcSettings;
     m_midiBackendOut->sendCcData(port, channel, static_cast<quint8>(MidiCcMapping::Controller::ResetAllControllers), 127);
-    if (predefinedMidiCcSettings.pan.has_value()) {
-        m_midiBackendOut->sendCcData(port, channel, static_cast<quint8>(MidiCcMapping::Controller::PanMSB), *predefinedMidiCcSettings.pan);
-        m_midiBackendOut->sendCcData(port, channel, static_cast<quint8>(MidiCcMapping::Controller::PanLSB), 0);
-    }
-    if (predefinedMidiCcSettings.volume.has_value()) {
-        m_midiBackendOut->sendCcData(port, channel, static_cast<quint8>(MidiCcMapping::Controller::ChannelVolumeMSB), *predefinedMidiCcSettings.volume);
-        m_midiBackendOut->sendCcData(port, channel, static_cast<quint8>(MidiCcMapping::Controller::ChannelVolumeLSB), 0);
-    }
-    if (predefinedMidiCcSettings.cutoff.has_value()) {
-        m_midiBackendOut->sendCcData(port, channel, static_cast<quint8>(MidiCcMapping::Controller::SoundController5), *predefinedMidiCcSettings.cutoff);
-    }
     for (auto && midiCcSetting : instrument.settings().midiCcSettings) {
         if (midiCcSetting.enabled()) {
             m_midiBackendOut->sendCcData(port, channel, midiCcSetting.controller(), midiCcSetting.value());

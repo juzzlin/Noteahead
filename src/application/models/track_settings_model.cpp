@@ -118,38 +118,6 @@ void TrackSettingsModel::setChannel(quint8 channel)
     }
 }
 
-quint8 TrackSettingsModel::cutoff() const
-{
-    return m_standardMidiCcSettings.cutoff;
-}
-
-void TrackSettingsModel::setCutoff(quint8 cutoff)
-{
-    juzzlin::L(TAG).debug() << "Setting cutoff to " << static_cast<int>(cutoff);
-
-    if (m_standardMidiCcSettings.cutoff != cutoff) {
-        m_standardMidiCcSettings.cutoff = cutoff;
-        emit cutoffChanged();
-        applyAll();
-    }
-}
-
-bool TrackSettingsModel::cutoffEnabled() const
-{
-    return m_standardMidiCcSettings.cutoffEnabled;
-}
-
-void TrackSettingsModel::setCutoffEnabled(bool enabled)
-{
-    juzzlin::L(TAG).debug() << "Enabling cutoff: " << static_cast<int>(enabled);
-
-    if (m_standardMidiCcSettings.cutoffEnabled != enabled) {
-        m_standardMidiCcSettings.cutoffEnabled = enabled;
-        emit cutoffEnabledChanged();
-        applyAll();
-    }
-}
-
 bool TrackSettingsModel::bankEnabled() const
 {
     return m_instrumentSettings.bankEnabled;
@@ -247,19 +215,6 @@ void TrackSettingsModel::setInstrumentData(const Instrument & instrument)
     }
     setTranspose(instrument.settings().transpose);
 
-    setCutoffEnabled(instrument.settings().standardMidiCcSettings.cutoff.has_value());
-    if (cutoffEnabled()) {
-        setCutoff(*instrument.settings().standardMidiCcSettings.cutoff);
-    }
-    setPanEnabled(instrument.settings().standardMidiCcSettings.pan.has_value());
-    if (panEnabled()) {
-        setPan(*instrument.settings().standardMidiCcSettings.pan);
-    }
-    setVolumeEnabled(instrument.settings().standardMidiCcSettings.volume.has_value());
-    if (volumeEnabled()) {
-        setVolume(*instrument.settings().standardMidiCcSettings.volume);
-    }
-
     setSendMidiClock(instrument.settings().timing.sendMidiClock.has_value() && *instrument.settings().timing.sendMidiClock);
     setSendTransport(instrument.settings().timing.sendTransport.has_value() && *instrument.settings().timing.sendTransport);
     setAutoNoteOffOffsetEnabled(instrument.settings().timing.autoNoteOffOffset.has_value());
@@ -289,8 +244,6 @@ void TrackSettingsModel::reset()
     m_instrumentSettings = {};
 
     m_timingSettings = {};
-
-    m_standardMidiCcSettings = {};
 
     m_midiEffectSettings = {};
 
@@ -322,16 +275,6 @@ TrackSettingsModel::InstrumentU TrackSettingsModel::toInstrument() const
     }
 
     settings.transpose = m_instrumentSettings.transpose;
-
-    if (m_standardMidiCcSettings.cutoffEnabled) {
-        settings.standardMidiCcSettings.cutoff = m_standardMidiCcSettings.cutoff;
-    }
-    if (m_standardMidiCcSettings.panEnabled) {
-        settings.standardMidiCcSettings.pan = m_standardMidiCcSettings.pan;
-    }
-    if (m_standardMidiCcSettings.volumeEnabled) {
-        settings.standardMidiCcSettings.volume = m_standardMidiCcSettings.volume;
-    }
 
     settings.timing.sendMidiClock = m_timingSettings.sendMidiClock;
     settings.timing.sendTransport = m_timingSettings.sendTransport;
@@ -393,70 +336,6 @@ void TrackSettingsModel::setPatch(quint8 patch)
     if (m_instrumentSettings.patch != patch) {
         m_instrumentSettings.patch = patch;
         emit patchChanged();
-        applyAll();
-    }
-}
-
-quint8 TrackSettingsModel::pan() const
-{
-    return m_standardMidiCcSettings.pan;
-}
-
-void TrackSettingsModel::setPan(quint8 pan)
-{
-    juzzlin::L(TAG).debug() << "Setting pan to " << static_cast<int>(pan);
-
-    if (m_standardMidiCcSettings.pan != pan) {
-        m_standardMidiCcSettings.pan = pan;
-        emit panChanged();
-        applyAll();
-    }
-}
-
-bool TrackSettingsModel::panEnabled() const
-{
-    return m_standardMidiCcSettings.panEnabled;
-}
-
-void TrackSettingsModel::setPanEnabled(bool enabled)
-{
-    juzzlin::L(TAG).debug() << "Enabling pan: " << static_cast<int>(enabled);
-
-    if (m_standardMidiCcSettings.panEnabled != enabled) {
-        m_standardMidiCcSettings.panEnabled = enabled;
-        emit panEnabledChanged();
-        applyAll();
-    }
-}
-
-quint8 TrackSettingsModel::volume() const
-{
-    return m_standardMidiCcSettings.volume;
-}
-
-void TrackSettingsModel::setVolume(quint8 volume)
-{
-    juzzlin::L(TAG).debug() << "Setting volume to " << static_cast<int>(volume);
-
-    if (m_standardMidiCcSettings.volume != volume) {
-        m_standardMidiCcSettings.volume = volume;
-        emit volumeChanged();
-        applyAll();
-    }
-}
-
-bool TrackSettingsModel::volumeEnabled() const
-{
-    return m_standardMidiCcSettings.volumeEnabled;
-}
-
-void TrackSettingsModel::setVolumeEnabled(bool enabled)
-{
-    juzzlin::L(TAG).debug() << "Enabling volume: " << static_cast<int>(enabled);
-
-    if (m_standardMidiCcSettings.volumeEnabled != enabled) {
-        m_standardMidiCcSettings.volumeEnabled = enabled;
-        emit volumeEnabledChanged();
         applyAll();
     }
 }

@@ -39,9 +39,6 @@ class TrackSettingsModel : public QObject
 
     Q_PROPERTY(quint8 channel READ channel WRITE setChannel NOTIFY channelChanged)
 
-    Q_PROPERTY(quint8 cutoff READ cutoff WRITE setCutoff NOTIFY cutoffChanged)
-    Q_PROPERTY(bool cutoffEnabled READ cutoffEnabled WRITE setCutoffEnabled NOTIFY cutoffEnabledChanged)
-
     Q_PROPERTY(bool patchEnabled READ patchEnabled WRITE setPatchEnabled NOTIFY patchEnabledChanged)
     Q_PROPERTY(quint8 patch READ patch WRITE setPatch NOTIFY patchChanged)
 
@@ -49,12 +46,6 @@ class TrackSettingsModel : public QObject
     Q_PROPERTY(quint8 bankLsb READ bankLsb WRITE setBankLsb NOTIFY bankLsbChanged)
     Q_PROPERTY(quint8 bankMsb READ bankMsb WRITE setBankMsb NOTIFY bankMsbChanged)
     Q_PROPERTY(bool bankByteOrderSwapped READ bankByteOrderSwapped WRITE setBankByteOrderSwapped NOTIFY bankByteOrderSwappedChanged)
-
-    Q_PROPERTY(quint8 pan READ pan WRITE setPan NOTIFY panChanged)
-    Q_PROPERTY(bool panEnabled READ panEnabled WRITE setPanEnabled NOTIFY panEnabledChanged)
-
-    Q_PROPERTY(quint8 volume READ volume WRITE setVolume NOTIFY volumeChanged)
-    Q_PROPERTY(bool volumeEnabled READ volumeEnabled WRITE setVolumeEnabled NOTIFY volumeEnabledChanged)
 
     Q_PROPERTY(bool sendMidiClock READ sendMidiClock WRITE setSendMidiClock NOTIFY sendMidiClockChanged)
     Q_PROPERTY(bool sendTransport READ sendTransport WRITE setSendTransport NOTIFY sendTransportChanged)
@@ -114,25 +105,8 @@ public:
     quint8 channel() const;
     void setChannel(quint8 channel);
 
-    quint8 cutoff() const;
-    void setCutoff(quint8 cutoff);
-
-    bool cutoffEnabled() const;
-    void setCutoffEnabled(bool enabled);
-
-    quint8 pan() const;
-    void setPan(quint8 volume);
-
-    bool panEnabled() const;
-    void setPanEnabled(bool enabled);
-
     quint8 patch() const;
     void setPatch(quint8 patch);
-
-    quint8 volume() const;
-    void setVolume(quint8 volume);
-    bool volumeEnabled() const;
-    void setVolumeEnabled(bool enabled);
 
     bool sendMidiClock() const;
     void setSendMidiClock(bool enabled);
@@ -167,14 +141,8 @@ signals:
 
     void channelChanged();
 
-    void cutoffChanged();
-    void cutoffEnabledChanged();
-
     void instrumentDataReceived();
     void instrumentDataRequested();
-
-    void panChanged();
-    void panEnabledChanged();
 
     void patchChanged();
     void patchEnabledChanged();
@@ -188,9 +156,6 @@ signals:
     void testSoundRequested(quint8 velocity);
 
     void trackIndexChanged();
-
-    void volumeChanged();
-    void volumeEnabledChanged();
 
     void sendMidiClockChanged();
     void sendTransportChanged();
@@ -230,18 +195,6 @@ private:
     };
 
     TimingSettings m_timingSettings;
-
-    struct StandardMidiCcSettings
-    {
-        bool cutoffEnabled { false };
-        quint8 cutoff { 127 };
-        bool panEnabled { false };
-        quint8 pan { 64 };
-        bool volumeEnabled { false };
-        quint8 volume { 127 };
-    };
-
-    StandardMidiCcSettings m_standardMidiCcSettings;
 
     struct MidiEffectSettings
     {

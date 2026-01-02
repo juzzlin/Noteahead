@@ -29,16 +29,12 @@ private slots:
 
     void test_setPortName_shouldUpdatePortName();
     void test_setChannel_shouldUpdateChannel();
-    void test_setVolumeEnabled_shouldUpdateAndEmitSignal();
     void test_setTrackIndex_shouldUpdateTrackIndex();
     void test_setInstrumentData_shouldUpdateRelevantFields();
 
     void test_toInstrument_shouldReturnInstrumentWithDefaultSettings();
     void test_toInstrument_shouldApplyPatchWhenPatchEnabled();
     void test_toInstrument_shouldApplyBankSettingsWhenBankEnabled();
-    void test_toInstrument_shouldApplyCutoffWhenCutoffEnabled();
-    void test_toInstrument_shouldApplyPanWhenPanEnabled();
-    void test_toInstrument_shouldApplyVolumeWhenVolumeEnabled();
     void test_toInstrument_shouldApplyMidiClockAndDelayWhenEnabled();
     void test_toInstrument_setMidiCc_shouldEnableMidiCcSetting();
 };

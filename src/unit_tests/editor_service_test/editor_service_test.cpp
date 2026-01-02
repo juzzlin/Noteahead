@@ -1779,9 +1779,6 @@ void EditorServiceTest::test_toXmlFromXml_instrumentSettings_shouldParseInstrume
     instrumentSettingsOut->patch = 42;
     instrumentSettingsOut->bank = { 10, 20, true };
     instrumentSettingsOut->transpose = -12;
-    instrumentSettingsOut->standardMidiCcSettings.cutoff = 127;
-    instrumentSettingsOut->standardMidiCcSettings.pan = 64;
-    instrumentSettingsOut->standardMidiCcSettings.volume = 100;
     instrumentSettingsOut->timing.sendMidiClock = true;
     instrumentSettingsOut->timing.autoNoteOffOffset = std::chrono::milliseconds { 666 };
     instrumentSettingsOut->timing.delay = std::chrono::milliseconds { -666 };
@@ -1817,10 +1814,6 @@ void EditorServiceTest::test_toXmlFromXml_instrumentSettings_shouldParseInstrume
     QCOMPARE(instrumentSettingsIn->timing.sendMidiClock, instrumentSettingsOut->timing.sendMidiClock);
 
     QCOMPARE(instrumentSettingsIn->midiEffects.velocityJitter, instrumentSettingsOut->midiEffects.velocityJitter);
-
-    QCOMPARE(instrumentSettingsIn->standardMidiCcSettings.cutoff, instrumentSettingsOut->standardMidiCcSettings.cutoff);
-    QCOMPARE(instrumentSettingsIn->standardMidiCcSettings.pan, instrumentSettingsOut->standardMidiCcSettings.pan);
-    QCOMPARE(instrumentSettingsIn->standardMidiCcSettings.volume, instrumentSettingsOut->standardMidiCcSettings.volume);
 
     QCOMPARE(instrumentSettingsIn->midiCcSettings.size(), instrumentSettingsOut->midiCcSettings.size());
     for (size_t i = 0; i < instrumentSettingsOut->midiCcSettings.size(); ++i) {
@@ -1978,9 +1971,6 @@ void EditorServiceTest::test_toXmlFromXml_instrument_shouldParseInstrument()
     address.setChannel(10); // Example channel
     instrumentOut->setMidiAddress(address);
     auto settings = instrumentOut->settings();
-    settings.standardMidiCcSettings.cutoff = 64; // Optional cutoff
-    settings.standardMidiCcSettings.pan = 32; // Optional pan
-    settings.standardMidiCcSettings.volume = 100; // Optional volume
     settings.patch = 42; // Optional patch
     settings.bank = {
         static_cast<uint8_t>(21), // Bank LSB
@@ -2009,21 +1999,6 @@ void EditorServiceTest::test_toXmlFromXml_instrument_shouldParseInstrument()
     QCOMPARE(instrumentIn->settings().patch.has_value(), instrumentOut->settings().patch.has_value());
     if (instrumentIn->settings().patch && instrumentOut->settings().patch) {
         QCOMPARE(*instrumentIn->settings().patch, *instrumentOut->settings().patch);
-    }
-
-    QCOMPARE(instrumentIn->settings().standardMidiCcSettings.volume.has_value(), instrumentOut->settings().standardMidiCcSettings.volume.has_value());
-    if (instrumentIn->settings().standardMidiCcSettings.volume && instrumentOut->settings().standardMidiCcSettings.volume) {
-        QCOMPARE(*instrumentIn->settings().standardMidiCcSettings.volume, *instrumentOut->settings().standardMidiCcSettings.volume);
-    }
-
-    QCOMPARE(instrumentIn->settings().standardMidiCcSettings.cutoff.has_value(), instrumentOut->settings().standardMidiCcSettings.cutoff.has_value());
-    if (instrumentIn->settings().standardMidiCcSettings.cutoff && instrumentOut->settings().standardMidiCcSettings.cutoff) {
-        QCOMPARE(*instrumentIn->settings().standardMidiCcSettings.cutoff, *instrumentOut->settings().standardMidiCcSettings.cutoff);
-    }
-
-    QCOMPARE(instrumentIn->settings().standardMidiCcSettings.pan.has_value(), instrumentOut->settings().standardMidiCcSettings.pan.has_value());
-    if (instrumentIn->settings().standardMidiCcSettings.pan && instrumentOut->settings().standardMidiCcSettings.pan) {
-        QCOMPARE(*instrumentIn->settings().standardMidiCcSettings.pan, *instrumentOut->settings().standardMidiCcSettings.pan);
     }
 
     QCOMPARE(instrumentIn->settings().bank.has_value(), instrumentOut->settings().bank.has_value());
