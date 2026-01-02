@@ -68,8 +68,8 @@ Dialog {
                 id: midiEffects
                 Layout.fillWidth: true
             }
-            TrackSettingsDialog_MidiCcSettings_Custom {
-                id: midiCcSettingsGeneric
+            TrackSettingsDialog_MidiCcSettings {
+                id: midiCcSettings
                 Layout.fillWidth: true
             }
         }
@@ -86,7 +86,7 @@ Dialog {
                 text: qsTr("MIDI Effects")
             }
             TabButton {
-                text: qsTr("MIDI CC (Custom)")
+                text: qsTr("MIDI CC Settings")
             }
         }
     }
