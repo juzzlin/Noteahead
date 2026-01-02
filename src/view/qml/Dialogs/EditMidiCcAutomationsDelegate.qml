@@ -45,11 +45,11 @@ GroupBox {
                     Layout.row: 1
                     Layout.column: 1
                     Layout.fillWidth: true
+                    Layout.preferredWidth: 300 // Added preferred width
                     model: propertyService.availableMidiControllers
                     textRole: "name"
                     valueRole: "number"
                     editable: true
-                    // function() needed due to index binding
                     onActivated: function () {
                         midiCcAutomationsModel.changeController(index, currentValue);
                     }
@@ -67,7 +67,6 @@ GroupBox {
                         width: controllerComboBox.width
                         implicitHeight: contentItem.implicitHeight > 300 ? 300 : contentItem.implicitHeight
                         padding: 1
-
                         contentItem: ListView {
                             clip: true
                             implicitHeight: contentHeight
@@ -78,7 +77,6 @@ GroupBox {
                                 policy: ScrollBar.AlwaysOn
                             }
                         }
-
                         background: Rectangle {
                             color: "#303030"
                             border.color: "#606060"
