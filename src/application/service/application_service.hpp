@@ -69,9 +69,9 @@ public:
     Q_INVOKABLE void rejectUnsavedChangesDialog();
 
     Q_INVOKABLE void requestAllNotesOff();
-    Q_INVOKABLE void requestLiveNoteOff(quint8 key, quint8 octave);
-    Q_INVOKABLE void requestLiveNoteOn(quint8 key, quint8 octave, quint8 velocity);
-    Q_INVOKABLE void requestLiveNoteOnAtCurrentPosition();
+    Q_INVOKABLE virtual void requestLiveNoteOff(quint8 key, quint8 octave);
+    Q_INVOKABLE virtual void requestLiveNoteOn(quint8 key, quint8 octave, quint8 velocity);
+    Q_INVOKABLE virtual void requestLiveNoteOnAtCurrentPosition();
 
     Q_INVOKABLE void requestInstrumentReset();
 
@@ -89,9 +89,9 @@ public:
     Q_INVOKABLE void requestMidiExportDialog();
     Q_INVOKABLE void exportMidiFile(QUrl url, quint64 startPosition, quint64 endPosition);
 
-    Q_INVOKABLE bool editMode() const;
-    Q_INVOKABLE void setEditMode(bool editMode);
-    Q_INVOKABLE void toggleEditMode();
+    Q_INVOKABLE virtual bool editMode() const;
+    Q_INVOKABLE virtual void setEditMode(bool editMode);
+    Q_INVOKABLE virtual void toggleEditMode();
 
     void requestUnsavedChangesDialog();
     Q_INVOKABLE void requestOpenDialog();

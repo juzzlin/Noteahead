@@ -33,32 +33,32 @@ public:
     SettingsService();
     ~SettingsService() override;
 
-    Q_INVOKABLE int autoNoteOffOffset() const;
-    Q_INVOKABLE void setAutoNoteOffOffset(int autoNoteOffOffset);
+    virtual Q_INVOKABLE int autoNoteOffOffset() const;
+    virtual Q_INVOKABLE void setAutoNoteOffOffset(int autoNoteOffOffset);
 
-    Q_INVOKABLE QString controllerPort() const;
-    Q_INVOKABLE void setControllerPort(QString controllerPort);
+    virtual Q_INVOKABLE QString controllerPort() const;
+    virtual Q_INVOKABLE void setControllerPort(QString controllerPort);
 
-    Q_INVOKABLE QSize windowSize(QSize defaultSize) const;
-    Q_INVOKABLE void setWindowSize(QSize size);
+    virtual Q_INVOKABLE QSize windowSize(QSize defaultSize) const;
+    virtual Q_INVOKABLE void setWindowSize(QSize size);
 
-    Q_INVOKABLE int step(int defaultStep) const;
-    Q_INVOKABLE void setStep(int step);
+    virtual Q_INVOKABLE int step(int defaultStep) const;
+    virtual Q_INVOKABLE void setStep(int step);
 
-    Q_INVOKABLE int velocity(int defaultVelocity) const;
-    Q_INVOKABLE void setVelocity(int velocity);
+    virtual Q_INVOKABLE int velocity(int defaultVelocity) const;
+    virtual Q_INVOKABLE void setVelocity(int velocity);
 
-    Q_INVOKABLE int visibleLines() const;
-    Q_INVOKABLE void setVisibleLines(int visibleLines);
+    virtual Q_INVOKABLE int visibleLines() const;
+    virtual Q_INVOKABLE void setVisibleLines(int visibleLines);
 
-    Q_INVOKABLE int trackHeaderFontSize() const;
-    Q_INVOKABLE void setTrackHeaderFontSize(int trackHeaderFontSize);
+    virtual Q_INVOKABLE int trackHeaderFontSize() const;
+    virtual Q_INVOKABLE void setTrackHeaderFontSize(int trackHeaderFontSize);
 
-    Q_INVOKABLE bool recordingEnabled() const;
-    Q_INVOKABLE void setRecordingEnabled(bool enabled);
+    virtual Q_INVOKABLE bool recordingEnabled() const;
+    virtual Q_INVOKABLE void setRecordingEnabled(bool enabled);
 
-    Q_INVOKABLE int audioBufferSize() const;
-    Q_INVOKABLE void setAudioBufferSize(int bufferSize);
+    virtual Q_INVOKABLE int audioBufferSize() const;
+    virtual Q_INVOKABLE void setAudioBufferSize(int bufferSize);
 
 signals:
     void controllerPortChanged();

@@ -33,13 +33,13 @@ class SelectionService : public QObject
 public:
     SelectionService();
 
-    Q_INVOKABLE bool isSelected(size_t pattern, size_t track, size_t column, size_t line) const;
-    Q_INVOKABLE bool isValidSelection() const;
+    virtual Q_INVOKABLE bool isSelected(size_t pattern, size_t track, size_t column, size_t line) const;
+    virtual Q_INVOKABLE bool isValidSelection() const;
 
-    Q_INVOKABLE bool requestSelectionEnd(size_t pattern, size_t track, size_t column, size_t line);
-    Q_INVOKABLE bool requestSelectionStart(size_t pattern, size_t track, size_t column, size_t line);
+    virtual Q_INVOKABLE bool requestSelectionEnd(size_t pattern, size_t track, size_t column, size_t line);
+    virtual Q_INVOKABLE bool requestSelectionStart(size_t pattern, size_t track, size_t column, size_t line);
 
-    Q_INVOKABLE void clear();
+    virtual Q_INVOKABLE void clear();
 
     Q_INVOKABLE size_t minColumn() const;
     Q_INVOKABLE size_t maxColumn() const;
