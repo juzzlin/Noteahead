@@ -16,6 +16,8 @@ set(SRC
     ../../application/service/side_chain_service.cpp
     ../../application/state_machine.cpp
     ../../application/note_converter.cpp
+    ../../application/command/note_edit_command.cpp
+    ../../application/command/undo_stack.cpp
     ../../application/position.hpp
     ../../application/instrument_request.cpp
     ../../application/service/midi_service.cpp

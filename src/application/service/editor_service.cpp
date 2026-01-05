@@ -20,6 +20,7 @@
 #include "../../domain/note_data.hpp"
 #include "../../domain/note_data_manipulator.hpp"
 #include "../../domain/song.hpp"
+#include "../command/note_edit_command.hpp"
 #include "../instrument_request.hpp"
 #include "../note_converter.hpp"
 #include "copy_manager.hpp"
@@ -42,9 +43,12 @@ EditorService::EditorService()
 }
 
 EditorService::EditorService(SelectionServiceS selectionService)
-  : m_selectionService { selectionService }
+  : m_undoStack { std::make_unique<UndoStack>() }
+  , m_selectionService { selectionService }
 {
     initialize();
+    m_undoStack->setCanUndoChangedCallback([this] { emit canUndoChanged(); });
+    m_undoStack->setCanRedoChangedCallback([this] { emit canRedoChanged(); });
 }
 
 void EditorService::initialize()
@@ -70,6 +74,7 @@ void EditorService::setSong(SongS song)
     m_state = State {};
 
     m_song = song;
+    m_undoStack->clear();
     emit songChanged();
     emit beatsPerMinuteChanged();
     emit linesPerBeatChanged();
@@ -345,6 +350,26 @@ void EditorService::saveAsTemplate(QString fileName)
 bool EditorService::canBeSaved() const
 {
     return isModified() && m_song && !m_song->fileName().empty() && QFile::exists(QString::fromStdString(m_song->fileName()));
+}
+
+bool EditorService::canUndo() const
+{
+    return m_undoStack->canUndo();
+}
+
+bool EditorService::canRedo() const
+{
+    return m_undoStack->canRedo();
+}
+
+void EditorService::undo()
+{
+    m_undoStack->undo();
+}
+
+void EditorService::redo()
+{
+    m_undoStack->redo();
 }
 
 quint64 EditorService::columnCount(quint64 trackIndex) const
@@ -888,9 +913,16 @@ bool EditorService::setVelocityAtCurrentPosition(uint8_t digit)
     }
 
     if (currentVelocity <= 127) {
-        noteData->setVelocity(currentVelocity);
-        emit noteDataAtPositionChanged(m_state.cursorPosition);
-        setIsModified(true);
+        NoteEditCommand::ChangeList changes;
+        auto newNoteData = *noteData;
+        newNoteData.setVelocity(currentVelocity);
+        changes.emplace_back(m_state.cursorPosition, *noteData, newNoteData);
+
+        m_undoStack->push(std::make_shared<NoteEditCommand>(m_song, std::move(changes), [this](const Position & pos) {
+            emit noteDataAtPositionChanged(pos);
+            setIsModified(true);
+        }));
+
         return true;
     }
 
@@ -1010,10 +1042,15 @@ void EditorService::deleteNoteDataAtPosition(const Position & position, bool shi
 {
     juzzlin::L(TAG).debug() << "Note deletion requested at position " << position.toString();
     if (!shiftNotes) {
-        m_song->setNoteDataAtPosition({}, position);
-        emit noteDataAtPositionChanged(position);
-        setIsModified(true);
-        updateDuration();
+        if (const auto oldNoteData = m_song->noteDataAtPosition(position); oldNoteData->type() != NoteData::Type::None) {
+            NoteEditCommand::ChangeList changes;
+            changes.emplace_back(position, *oldNoteData, NoteData { position.track, position.column });
+            m_undoStack->push(std::make_shared<NoteEditCommand>(m_song, std::move(changes), [this](const Position & pos) {
+                emit noteDataAtPositionChanged(pos);
+                setIsModified(true);
+                updateDuration();
+            }));
+        }
     } else {
         // For traditional backspace function we actually delete the previous line and shift
         auto positionToBeDeleted = position;
@@ -1043,9 +1080,19 @@ bool EditorService::requestNoteOnAtCurrentPosition(quint8 key, quint8 octave, qu
                                 << ", MIDI Note = " << static_cast<int>(midiNote->second) << ", Velocity = " << static_cast<int>(velocity);
         NoteData noteData { m_state.cursorPosition.track, m_state.cursorPosition.column };
         noteData.setAsNoteOn(midiNote->second, velocity);
-        m_song->setNoteDataAtPosition(noteData, m_state.cursorPosition);
-        emit noteDataAtPositionChanged(m_state.cursorPosition);
-        setIsModified(true);
+
+        NoteEditCommand::ChangeList changes;
+        if (const auto oldNoteData = m_song->noteDataAtPosition(m_state.cursorPosition); oldNoteData) {
+            changes.emplace_back(m_state.cursorPosition, *oldNoteData, noteData);
+        } else {
+            changes.emplace_back(m_state.cursorPosition, NoteData { m_state.cursorPosition.track, m_state.cursorPosition.column }, noteData);
+        }
+
+        m_undoStack->push(std::make_shared<NoteEditCommand>(m_song, std::move(changes), [this](const Position & pos) {
+            emit noteDataAtPositionChanged(pos);
+            setIsModified(true);
+        }));
+
         return true;
     } else {
         return false;
@@ -1076,11 +1123,19 @@ bool EditorService::requestNoteOffAtCurrentPosition()
 
     NoteData noteData { m_state.cursorPosition.track, m_state.cursorPosition.column };
     noteData.setAsNoteOff();
-    m_song->setNoteDataAtPosition(noteData, m_state.cursorPosition);
-    emit noteDataAtPositionChanged(m_state.cursorPosition);
-    setIsModified(true);
 
-    removeDuplicateNoteOffs();
+    NoteEditCommand::ChangeList changes;
+    if (const auto oldNoteData = m_song->noteDataAtPosition(m_state.cursorPosition); oldNoteData) {
+        changes.emplace_back(m_state.cursorPosition, *oldNoteData, noteData);
+    } else {
+        changes.emplace_back(m_state.cursorPosition, NoteData { m_state.cursorPosition.track, m_state.cursorPosition.column }, noteData);
+    }
+
+    m_undoStack->push(std::make_shared<NoteEditCommand>(m_song, std::move(changes), [this](const Position & pos) {
+        emit noteDataAtPositionChanged(pos);
+        setIsModified(true);
+        removeDuplicateNoteOffs(); // Should this be part of the command? Maybe not for undo/redo purity.
+    }));
 
     return true;
 }
@@ -1127,12 +1182,22 @@ void EditorService::requestColumnPaste()
 {
     try {
         juzzlin::L(TAG).info() << "Requesting paste for copied column";
-        for (auto && changedPosition : m_song->pasteColumn(currentPattern(), currentTrack(), currentColumn(), m_state.copyManager)) {
-            emit noteDataAtPositionChanged(changedPosition);
+        NoteEditCommand::ChangeList changes;
+        for (const auto & [pos, noteData] : m_state.copyManager.getPasteColumnChanges(*m_song->pattern(currentPattern()), currentTrack(), currentColumn())) {
+             if (const auto oldNoteData = m_song->noteDataAtPosition(pos); oldNoteData) {
+                changes.emplace_back(pos, *oldNoteData, noteData);
+            } else {
+                changes.emplace_back(pos, NoteData { pos.track, pos.column }, noteData);
+            }
         }
+
+        m_undoStack->push(std::make_shared<NoteEditCommand>(m_song, std::move(changes), [this](const Position & pos) {
+            emit noteDataAtPositionChanged(pos);
+            setIsModified(true);
+            updateDuration();
+        }));
+
         emit statusTextRequested(tr("Copied column pasted"));
-        setIsModified(true);
-        updateDuration();
     } catch (const std::runtime_error & e) {
         emit statusTextRequested(tr("Failed to paste column: ") + e.what());
     }
@@ -1181,12 +1246,22 @@ void EditorService::requestTrackPaste()
 {
     try {
         juzzlin::L(TAG).info() << "Requesting paste for copied track";
-        for (auto && changedPosition : m_song->pasteTrack(currentPattern(), currentTrack(), m_state.copyManager)) {
-            emit noteDataAtPositionChanged(changedPosition);
+        NoteEditCommand::ChangeList changes;
+        for (const auto & [pos, noteData] : m_state.copyManager.getPasteTrackChanges(*m_song->pattern(currentPattern()), currentTrack())) {
+             if (const auto oldNoteData = m_song->noteDataAtPosition(pos); oldNoteData) {
+                changes.emplace_back(pos, *oldNoteData, noteData);
+            } else {
+                changes.emplace_back(pos, NoteData { pos.track, pos.column }, noteData);
+            }
         }
+
+        m_undoStack->push(std::make_shared<NoteEditCommand>(m_song, std::move(changes), [this](const Position & pos) {
+            emit noteDataAtPositionChanged(pos);
+            setIsModified(true);
+            updateDuration();
+        }));
+
         emit statusTextRequested(tr("Copied track pasted"));
-        setIsModified(true);
-        updateDuration();
     } catch (const std::runtime_error & e) {
         emit statusTextRequested(tr("Failed to paste track: ") + e.what());
     }
@@ -1228,12 +1303,22 @@ void EditorService::requestPatternPaste()
 {
     try {
         juzzlin::L(TAG).info() << "Requesting paste for copied pattern";
-        for (auto && changedPosition : m_song->pastePattern(currentPattern(), m_state.copyManager)) {
-            emit noteDataAtPositionChanged(changedPosition);
+        NoteEditCommand::ChangeList changes;
+        for (const auto & [pos, noteData] : m_state.copyManager.getPastePatternChanges(*m_song->pattern(currentPattern()))) {
+             if (const auto oldNoteData = m_song->noteDataAtPosition(pos); oldNoteData) {
+                changes.emplace_back(pos, *oldNoteData, noteData);
+            } else {
+                changes.emplace_back(pos, NoteData { pos.track, pos.column }, noteData);
+            }
         }
+
+        m_undoStack->push(std::make_shared<NoteEditCommand>(m_song, std::move(changes), [this](const Position & pos) {
+            emit noteDataAtPositionChanged(pos);
+            setIsModified(true);
+            updateDuration();
+        }));
+
         emit statusTextRequested(tr("Copied pattern pasted"));
-        setIsModified(true);
-        updateDuration();
     } catch (const std::runtime_error & e) {
         emit statusTextRequested(tr("Failed to paste pattern: ") + e.what());
     }
@@ -1275,12 +1360,22 @@ void EditorService::requestSelectionPaste()
 {
     try {
         juzzlin::L(TAG).info() << "Requesting paste for copied selection";
-        for (auto && changedPosition : m_song->pasteSelection(position(), m_state.copyManager)) {
-            emit noteDataAtPositionChanged(changedPosition);
+        NoteEditCommand::ChangeList changes;
+        for (const auto & [pos, noteData] : m_state.copyManager.getPasteSelectionChanges(*m_song->pattern(currentPattern()), position())) {
+             if (const auto oldNoteData = m_song->noteDataAtPosition(pos); oldNoteData) {
+                changes.emplace_back(pos, *oldNoteData, noteData);
+            } else {
+                changes.emplace_back(pos, NoteData { pos.track, pos.column }, noteData);
+            }
         }
+
+        m_undoStack->push(std::make_shared<NoteEditCommand>(m_song, std::move(changes), [this](const Position & pos) {
+            emit noteDataAtPositionChanged(pos);
+            setIsModified(true);
+            updateDuration();
+        }));
+
         emit statusTextRequested(tr("Copied selection pasted"));
-        setIsModified(true);
-        updateDuration();
     } catch (const std::runtime_error & e) {
         emit statusTextRequested(tr("Failed to paste selection: ") + e.what());
     }

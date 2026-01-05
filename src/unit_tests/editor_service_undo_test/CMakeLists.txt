@@ -1,38 +1,20 @@
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
-set(NAME application_service_test)
+set(NAME editor_service_undo_test)
 set(SRC
     ${NAME}.cpp
     ${NAME}.hpp
-    ../../application/service/application_service.cpp
-    ../../application/service/editor_service.cpp
-    ../../application/service/player_service.cpp
-    ../../application/service/recent_files_manager.cpp
+    ../../application/instrument_request.cpp
+    ../../application/note_converter.cpp
+    ../../application/position.hpp
+    ../../application/command/note_edit_command.cpp
+    ../../application/command/undo_stack.cpp
     ../../application/service/automation_service.cpp
     ../../application/service/copy_manager.cpp
+    ../../application/service/editor_service.cpp
     ../../application/service/mixer_service.cpp
     ../../application/service/random_service.cpp
     ../../application/service/selection_service.cpp
     ../../application/service/side_chain_service.cpp
-    ../../application/state_machine.cpp
-    ../../application/note_converter.cpp
-    ../../application/position.hpp
-    ../../application/instrument_request.cpp
-    ../../application/command/note_edit_command.cpp
-    ../../application/command/undo_stack.cpp
-    ../../application/service/midi_service.cpp
-    ../../application/service/midi_worker.cpp
-    ../../application/service/midi_worker_in.cpp
-    ../../application/service/midi_worker_out.cpp
-    ../../application/service/player_worker.cpp
-    ../../application/service/settings_service.cpp
-    ../../infra/settings.cpp
-    ../../infra/midi/midi_backend.cpp
-    ../../infra/midi/midi_backend_in.cpp
-    ../../infra/midi/midi_backend_out.cpp
-    ../../infra/midi/midi_port.cpp
-    ../../infra/midi/midi_cc_mapping.cpp
-    ../../infra/midi/implementation/librtmidi/midi_in_rt_midi.cpp
-    ../../infra/midi/implementation/librtmidi/midi_out_rt_midi.cpp
     ../../common/constants.cpp
     ../../common/utils.cpp
     ../../domain/automation.cpp
@@ -50,7 +32,6 @@ set(SRC
     ../../domain/midi_cc_automation.cpp
     ../../domain/midi_cc_data.cpp
     ../../domain/midi_cc_setting.cpp
-    ../../domain/midi_note_data.cpp
     ../../domain/mixer_unit.cpp
     ../../domain/note_data.cpp
     ../../domain/note_data_manipulator.cpp
@@ -64,4 +45,4 @@ set(SRC
 qt_add_executable(${NAME} ${SRC})
 set_target_properties(${NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${UNIT_TEST_BASE_DIR})
 add_test(${NAME} ${UNIT_TEST_BASE_DIR}/${NAME})
-target_link_libraries(${NAME} PRIVATE Qt${QT_VERSION_MAJOR}::Test Qt${QT_VERSION_MAJOR}::Gui ${RTMIDI_LIBRARIES} SimpleLogger)
+target_link_libraries(${NAME} PRIVATE Qt${QT_VERSION_MAJOR}::Test SimpleLogger)

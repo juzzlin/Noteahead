@@ -23,6 +23,7 @@
 
 #include <optional>
 #include <utility>
+#include "../command/undo_stack.hpp"
 
 class QXmlStreamReader;
 class QXmlStreamWriter;
@@ -46,6 +47,8 @@ class EditorService : public QObject
 
     Q_PROPERTY(bool isModified READ isModified NOTIFY isModifiedChanged)
     Q_PROPERTY(bool canBeSaved READ canBeSaved NOTIFY canBeSavedChanged)
+    Q_PROPERTY(bool canUndo READ canUndo NOTIFY canUndoChanged)
+    Q_PROPERTY(bool canRedo READ canRedo NOTIFY canRedoChanged)
     Q_PROPERTY(QString currentFileName READ currentFileName NOTIFY currentFileNameChanged)
 
     Q_PROPERTY(quint64 currentPattern READ currentPattern NOTIFY currentPatternChanged)
@@ -270,12 +273,19 @@ public:
 
     virtual void setIsModified(bool isModified);
 
+    virtual Q_INVOKABLE bool canUndo() const;
+    virtual Q_INVOKABLE bool canRedo() const;
+    virtual Q_INVOKABLE void undo();
+    virtual Q_INVOKABLE void redo();
+
     using LineListCR = const LineList &;
 
 signals:
     void beatsPerMinuteChanged();
 
     void canBeSavedChanged();
+    void canUndoChanged();
+    void canRedoChanged();
 
     void columnAdded(quint64 track);
     void columnDeleted(quint64 track);
@@ -378,6 +388,7 @@ private:
     void updateScrollBar();
 
     SongS m_song;
+    std::unique_ptr<UndoStack> m_undoStack;
 
     SelectionServiceS m_selectionService;
 

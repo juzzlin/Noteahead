@@ -4,6 +4,8 @@ set(SRC
     ${NAME}.cpp
     ${NAME}.hpp
     ../../application/instrument_request.cpp
+    ../../application/command/note_edit_command.cpp
+    ../../application/command/undo_stack.cpp
     ../../application/note_converter.cpp
     ../../application/position.hpp
     ../../application/models/note_column_model.cpp

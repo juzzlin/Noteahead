@@ -53,11 +53,10 @@ CopyManager::PositionList CopyManager::pasteColumn(PatternW targetPattern, size_
         throw std::runtime_error("Target or source not set");
     } else {
         juzzlin::L(TAG).info() << "Pasting copied data on pattern " << locked->index() << ", track " << trackIndex << ", column " << columnIndex;
-        for (const auto & [sourcePosition, noteData] : m_copiedData) {
-            if (const Position targetPosition = { locked->index(), trackIndex, columnIndex, sourcePosition.line, 0 }; locked->hasPosition(targetPosition)) {
-                locked->setNoteDataAtPosition(noteData, targetPosition);
-                changedPositions.push_back(targetPosition);
-            }
+        const auto changes = getPasteColumnChanges(*locked, trackIndex, columnIndex);
+        for (const auto & [targetPosition, noteData] : changes) {
+            locked->setNoteDataAtPosition(noteData, targetPosition);
+            changedPositions.push_back(targetPosition);
         }
     }
     return changedPositions;
@@ -94,11 +93,10 @@ CopyManager::PositionList CopyManager::pasteTrack(PatternW targetPattern, size_t
         throw std::runtime_error("Target or source not set");
     } else {
         juzzlin::L(TAG).info() << "Pasting copied data on pattern " << locked->index() << ", track " << trackIndex;
-        for (const auto & [sourcePosition, noteData] : m_copiedData) {
-            if (const Position targetPosition = { locked->index(), trackIndex, sourcePosition.column, sourcePosition.line, 0 }; locked->hasPosition(targetPosition)) {
-                locked->setNoteDataAtPosition(noteData, targetPosition);
-                changedPositions.push_back(targetPosition);
-            }
+        const auto changes = getPasteTrackChanges(*locked, trackIndex);
+        for (const auto & [targetPosition, noteData] : changes) {
+            locked->setNoteDataAtPosition(noteData, targetPosition);
+            changedPositions.push_back(targetPosition);
         }
     }
     return changedPositions;
@@ -137,12 +135,10 @@ CopyManager::PositionList CopyManager::pastePattern(PatternW targetPattern)
         throw std::runtime_error("Target or source not set");
     } else {
         juzzlin::L(TAG).info() << "Pasting copied data on pattern " << locked->index();
-        for (const auto & [sourcePosition, newNoteData] : m_copiedData) {
-            const Position targetPosition = { locked->index(), sourcePosition.track, sourcePosition.column, sourcePosition.line, 0 };
-            if (locked->hasPosition(targetPosition)) {
-                locked->setNoteDataAtPosition(newNoteData, targetPosition);
-                changedPositions.push_back(targetPosition);
-            }
+        const auto changes = getPastePatternChanges(*locked);
+        for (const auto & [targetPosition, newNoteData] : changes) {
+            locked->setNoteDataAtPosition(newNoteData, targetPosition);
+            changedPositions.push_back(targetPosition);
         }
     }
     return changedPositions;
@@ -186,16 +182,10 @@ CopyManager::PositionList CopyManager::pasteSelection(PatternW targetPattern, co
         throw std::runtime_error("Target pattern not set");
     } else if (!m_copiedData.empty()) {
         juzzlin::L(TAG).info() << "Pasting selection at " << targetPosition.toString();
-        const auto minLine = getMinLineIndex();
-        const auto minColumn = getMinColumnIndex();
-        for (const auto & [sourcePosition, noteData] : m_copiedData) {
-            Position newTarget = targetPosition;
-            newTarget.line += sourcePosition.line - minLine;
-            newTarget.column += sourcePosition.column - minColumn;
-            if (locked->hasPosition(newTarget)) {
-                locked->setNoteDataAtPosition(noteData, newTarget);
-                changedPositions.push_back(newTarget);
-            }
+        const auto changes = getPasteSelectionChanges(*locked, targetPosition);
+        for (const auto & [newTarget, noteData] : changes) {
+            locked->setNoteDataAtPosition(noteData, newTarget);
+            changedPositions.push_back(newTarget);
         }
     }
     return changedPositions;
@@ -204,6 +194,58 @@ CopyManager::PositionList CopyManager::pasteSelection(PatternW targetPattern, co
 CopyManager::Mode CopyManager::mode() const
 {
     return m_mode;
+}
+
+CopyManager::PasteChangeList CopyManager::getPasteColumnChanges(const Pattern & targetPattern, size_t trackIndex, size_t columnIndex) const
+{
+    PasteChangeList changes;
+    for (const auto & [sourcePosition, noteData] : m_copiedData) {
+        if (const Position targetPosition = { targetPattern.index(), trackIndex, columnIndex, sourcePosition.line, 0 }; targetPattern.hasPosition(targetPosition)) {
+            changes.push_back({ targetPosition, noteData });
+        }
+    }
+    return changes;
+}
+
+CopyManager::PasteChangeList CopyManager::getPasteTrackChanges(const Pattern & targetPattern, size_t trackIndex) const
+{
+    PasteChangeList changes;
+    for (const auto & [sourcePosition, noteData] : m_copiedData) {
+        if (const Position targetPosition = { targetPattern.index(), trackIndex, sourcePosition.column, sourcePosition.line, 0 }; targetPattern.hasPosition(targetPosition)) {
+            changes.push_back({ targetPosition, noteData });
+        }
+    }
+    return changes;
+}
+
+CopyManager::PasteChangeList CopyManager::getPastePatternChanges(const Pattern & targetPattern) const
+{
+    PasteChangeList changes;
+    for (const auto & [sourcePosition, newNoteData] : m_copiedData) {
+        const Position targetPosition = { targetPattern.index(), sourcePosition.track, sourcePosition.column, sourcePosition.line, 0 };
+        if (targetPattern.hasPosition(targetPosition)) {
+            changes.push_back({ targetPosition, newNoteData });
+        }
+    }
+    return changes;
+}
+
+CopyManager::PasteChangeList CopyManager::getPasteSelectionChanges(const Pattern & targetPattern, const Position & targetPosition) const
+{
+    PasteChangeList changes;
+    if (!m_copiedData.empty()) {
+        const auto minLine = getMinLineIndex();
+        const auto minColumn = getMinColumnIndex();
+        for (const auto & [sourcePosition, noteData] : m_copiedData) {
+            Position newTarget = targetPosition;
+            newTarget.line += sourcePosition.line - minLine;
+            newTarget.column += sourcePosition.column - minColumn;
+            if (targetPattern.hasPosition(newTarget)) {
+                changes.push_back({ newTarget, noteData });
+            }
+        }
+    }
+    return changes;
 }
 
 } // namespace noteahead

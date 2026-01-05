@@ -8,6 +8,8 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 set(HEADER_FILES
   application/application.hpp
   application/instrument_request.hpp
+  application/command/note_edit_command.hpp
+  application/command/undo_stack.hpp
   application/models/column_settings_model.hpp
   application/models/event_selection_model.hpp
   application/models/midi_cc_automations_model.hpp
@@ -94,6 +96,8 @@ set(HEADER_FILES
 set(SOURCE_FILES
   application/application.cpp
   application/instrument_request.cpp
+  application/command/note_edit_command.cpp
+  application/command/undo_stack.cpp
   application/models/column_settings_model.cpp
   application/models/event_selection_model.cpp
   application/models/midi_cc_automations_model.cpp

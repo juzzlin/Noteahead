@@ -5,6 +5,8 @@ Release date:
 
 New features:
 
+* Fix GitHub Issue #27: Implement undo/redo for note data
+
 Bug fixes:
 
 Other:

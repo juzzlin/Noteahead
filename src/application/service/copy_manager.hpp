@@ -56,6 +56,14 @@ public:
     PositionList pushSourceSelection(const Pattern & pattern, const PositionList & positions);
     PositionList pasteSelection(PatternW targetPattern, const Position & targetPosition);
 
+    using PasteChange = std::pair<Position, NoteData>;
+    using PasteChangeList = std::vector<PasteChange>;
+
+    PasteChangeList getPasteColumnChanges(const Pattern & targetPattern, size_t trackIndex, size_t columnIndex) const;
+    PasteChangeList getPasteTrackChanges(const Pattern & targetPattern, size_t trackIndex) const;
+    PasteChangeList getPastePatternChanges(const Pattern & targetPattern) const;
+    PasteChangeList getPasteSelectionChanges(const Pattern & targetPattern, const Position & targetPosition) const;
+
 private:
     size_t getMinLineIndex() const;
     size_t getMinColumnIndex() const;

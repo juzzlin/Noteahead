@@ -13,6 +13,19 @@ Menu {
     }
     MenuSeparator {}
     Action {
+        text: qsTr("Undo")
+        shortcut: "Ctrl+Z"
+        enabled: editorService.canUndo
+        onTriggered: editorService.undo()
+    }
+    Action {
+        text: qsTr("Redo")
+        shortcut: "Ctrl+Y"
+        enabled: editorService.canRedo
+        onTriggered: editorService.redo()
+    }
+    MenuSeparator {}
+    Action {
         text: qsTr("Reset instruments")
         onTriggered: applicationService.requestInstrumentReset()
     }
