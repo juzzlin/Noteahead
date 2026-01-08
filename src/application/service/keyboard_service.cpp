@@ -93,7 +93,7 @@ bool KeyboardService::handleKeyPressed(int key, int modifiers, bool isAutoRepeat
         handleNoteOff();
         return true;
     } else if (modifiers == Qt::NoModifier) {
-        if (effectiveNote(key)) {
+        if (effectiveNote(key) || keyToDigit(key)) {
             handleNoteTriggered(key, modifiers, isAutoRepeat);
             return true;
         }

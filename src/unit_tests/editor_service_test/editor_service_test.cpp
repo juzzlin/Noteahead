@@ -587,6 +587,34 @@ void EditorServiceTest::test_requestDigitSetAtCurrentPosition_velocity_shouldCha
     QCOMPARE(editorService.displayVelocityAtPosition(0, 0, 0, 0), "050");
 }
 
+void EditorServiceTest::test_velocity_input_hundreds_digit()
+{
+    EditorService editorService;
+    QVERIFY(editorService.requestPosition(0, 0, 0, 0, 0));
+
+    // Move to Hundreds digit of velocity (LineColumn 1)
+    editorService.requestCursorRight();
+
+    // Helper to set velocity and try input '1'
+    auto checkInput = [&](uint8_t startVelocity, QString expectedDisplay) {
+        // Reset to start velocity using note on
+        editorService.requestCursorLeft(); // Back to note column
+        editorService.requestNoteOnAtCurrentPosition(1, 3, startVelocity);
+        editorService.requestCursorRight(); // Back to velocity hundreds
+
+        QVERIFY(editorService.requestDigitSetAtCurrentPosition(1));
+        QCOMPARE(editorService.displayVelocityAtPosition(0, 0, 0, 0), expectedDisplay);
+    };
+
+    checkInput(0, "100");
+    checkInput(27, "127");
+    checkInput(28, "127");
+    checkInput(50, "127");
+    checkInput(99, "127");
+    checkInput(100, "100");
+    checkInput(127, "127");
+}
+
 void EditorServiceTest::test_requestHorizontalScrollPositionChange_shouldChangePosition()
 {
     EditorService editorService;

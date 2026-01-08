@@ -55,9 +55,11 @@ private slots:
 
     void test_requestCursorLeft_shouldWrapCorrectly();
 
-    void test_requestDigitSetAtCurrentPosition_velocity_shouldChangeVelocity();
+        void test_requestDigitSetAtCurrentPosition_velocity_shouldChangeVelocity();
 
-    void test_requestHorizontalScrollPositionChange_shouldChangePosition();
+        void test_velocity_input_hundreds_digit();
+
+        void test_requestHorizontalScrollPositionChange_shouldChangePosition();
 
     void test_requestNewColumn_shouldAddNewColumn();
     void test_requestColumnDeletion_shouldDeleteColumn();
