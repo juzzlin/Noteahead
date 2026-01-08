@@ -999,13 +999,14 @@ void EditorService::requestTrackDeletion()
 
     if (trackCount() > visibleUnitCount()) {
         const auto trackToDelete = position().track;
+        const auto oldPosition = m_state.cursorPosition;
         if (m_song->isFirstTrack(trackToDelete)) {
             moveCursorToNextTrack();
         } else {
             moveCursorToPrevTrack();
             m_state.cursorPosition.lineColumn = 0;
         }
-        notifyPositionChange(m_state.cursorPosition); // Re-focuses the previous track
+        notifyPositionChange(oldPosition); // Re-focuses the previous track
         if (m_song->deleteTrack(trackToDelete)) {
             emit trackDeleted(trackToDelete);
             updateScrollBar();
