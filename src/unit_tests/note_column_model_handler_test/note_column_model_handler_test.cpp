@@ -15,6 +15,7 @@
 
 #include "note_column_model_handler_test.hpp"
 
+#include "../../application/models/note_column_model.hpp"
 #include "../../application/models/note_column_model_handler.hpp"
 #include "../../application/service/automation_service.hpp"
 #include "../../application/service/editor_service.hpp"
@@ -66,6 +67,31 @@ void NoteColumnModelHandlerTest::test_clear_shouldClearModels()
     // Since handler is cleared, it should create a new model for the same address
     auto newModel { handler.columnModel(0, 0, 0) };
     QVERIFY(newModel);
+}
+
+void NoteColumnModelHandlerTest::test_updatePattern_shouldPreserveFocus()
+{
+    const auto automationService { std::make_shared<AutomationService>() };
+    const auto selectionService { std::make_shared<SelectionService>() };
+    const auto editorService { std::make_shared<EditorService>(selectionService) };
+    const auto settingsService { std::make_shared<SettingsService>() };
+
+    NoteColumnModelHandler handler { editorService, selectionService, automationService, settingsService };
+
+    auto model { handler.columnModel(0, 0, 0) };
+    
+    // Set position
+    editorService->requestPosition(0, 0, 0, 10, 0);
+    
+    // Check if focused. Note: NoteColumnModel adds positionBarLine() to the row index.
+    const int row = 10 + static_cast<int>(editorService->positionBarLine());
+    QVERIFY(model->data(model->index(row, 0), static_cast<int>(NoteColumnModel::DataRole::IsFocused)).toBool());
+
+    // Update pattern - this used to clear the focus state in the model
+    handler.updatePattern(0);
+
+    // Verify focus is preserved
+    QVERIFY(model->data(model->index(row, 0), static_cast<int>(NoteColumnModel::DataRole::IsFocused)).toBool());
 }
 
 } // namespace noteahead

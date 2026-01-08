@@ -30,6 +30,7 @@ private slots:
 
     void test_columnModel_shouldCreateAndReturnModel();
     void test_clear_shouldClearModels();
+    void test_updatePattern_shouldPreserveFocus();
 };
 
 } // namespace noteahead
