@@ -263,6 +263,24 @@ void EditorServiceUndoTest::test_undoRedo_clearsOnNewSong()
     QVERIFY(!editorService.canRedo());
 }
 
+void EditorServiceUndoTest::test_undoRedo_clearsOnPositionChange()
+{
+    EditorService editorService;
+    // Ensure we have at least two tracks for testing track change
+    editorService.requestNewTrackToRight();
+    editorService.requestPosition(0, 0, 0, 0, 0);
+    editorService.requestNoteOnAtCurrentPosition(1, 3, 64);
+    QVERIFY(editorService.canUndo());
+
+    // Track change within same pattern: should NOT clear
+    editorService.requestPosition(0, 1, 0, 0, 0);
+    QVERIFY(editorService.canUndo());
+
+    // Pattern change: should clear
+    editorService.setCurrentPattern(1);
+    QVERIFY(!editorService.canUndo());
+}
+
 } // namespace noteahead
 
 QTEST_MAIN(noteahead::EditorServiceUndoTest)

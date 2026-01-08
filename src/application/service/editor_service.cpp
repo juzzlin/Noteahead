@@ -1152,6 +1152,10 @@ void EditorService::notifyPositionChange(const Position & oldPosition)
 {
     logPosition();
 
+    if (m_state.cursorPosition.pattern != oldPosition.pattern) {
+        m_undoStack->clear();
+    }
+
     emit positionChanged(m_state.cursorPosition, oldPosition);
 
     if (m_state.cursorPosition.pattern != oldPosition.pattern) {
