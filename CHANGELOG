@@ -13,6 +13,8 @@ New features:
 
 Bug fixes:
 
+* Fix track header not properly initialized when new pattern created
+
 Other:
 
 1.3.0

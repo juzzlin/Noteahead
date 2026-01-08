@@ -29,7 +29,13 @@ Rectangle {
     function setLocation(patternIndex: int, trackIndex: int): void {
         _patternIndex = patternIndex;
         _index = trackIndex;
-        trackHeader.setIndex(trackIndex);
+        _initializeTrackHeader();
+    }
+    function _initializeTrackHeader(): void {
+        trackHeader.setIndex(_index);
+        setMuted(mixerService.isTrackMuted(_index));
+        setSoloed(mixerService.isTrackSoloed(_index));
+        setVelocityScale(mixerService.trackVelocityScale(_index));
     }
     function setDimensions(trackAreaWidth: int, trackAreaHeight: int, unitWidth: double): void {
         resize(unitWidth * editorService.trackWidthInUnits(index()), trackAreaHeight);
