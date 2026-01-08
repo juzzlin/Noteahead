@@ -26,6 +26,16 @@
 
 namespace noteahead::Utils {
 namespace Midi {
+
+uint8_t scaleVelocityByKey(uint8_t velocity, uint8_t note, int keyTrackPercentage)
+{
+    if (keyTrackPercentage <= 0) {
+        return velocity;
+    }
+    const double factor = 1.0 - (static_cast<double>(keyTrackPercentage) / 100.0) * (static_cast<double>(note) / 127.0);
+    return static_cast<uint8_t>(static_cast<double>(velocity) * factor);
+}
+
 double portNameMatchScore(const std::string & s1, const std::string & s2)
 {
     if (s1.empty() || s2.empty()) {

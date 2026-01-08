@@ -77,6 +77,9 @@ public:
     //! Applies random velocity jitter.
     void applyVelocityJitter(int percentage);
 
+    //! Applies velocity key track scaling.
+    void applyVelocityKeyTrack(int percentage);
+
     //! Convenience function to transpose note data (if set).
     void transpose(int semitones);
 

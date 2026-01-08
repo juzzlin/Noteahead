@@ -7,6 +7,10 @@ New features:
 
 * Fix GitHub Issue #27: Implement undo/redo for note data
 
+* Implement velocity key track
+  - Set per-instrument in track settings (0-100%)
+  - Linearly reduces velocity for higher notes
+
 Bug fixes:
 
 Other:

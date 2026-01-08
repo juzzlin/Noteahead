@@ -16,6 +16,7 @@
 #include "application_service.hpp"
 
 #include "../../common/constants.hpp"
+#include "../../common/utils.hpp"
 #include "../../contrib/SimpleLogger/src/simple_logger.hpp"
 #include "../../domain/instrument.hpp"
 #include "../../domain/midi_note_data.hpp"
@@ -159,7 +160,8 @@ void ApplicationService::requestLiveNoteOn(quint8 key, quint8 octave, quint8 vel
     if (const auto instrument = m_editorService->instrument(m_editorService->position().track); instrument) {
         if (const auto midiNote = NoteConverter::keyAndOctaveToMidiNote(key, octave, instrument->settings().transpose); midiNote.has_value()) {
             juzzlin::L(TAG).debug() << "Live note ON " << midiNote->first << " requested on instrument " << instrument->toString().toStdString();
-            emit liveNoteOnRequested(instrument, { midiNote->second, velocity });
+            const auto scaledVelocity = Utils::Midi::scaleVelocityByKey(velocity, midiNote->second, instrument->settings().midiEffects.velocityKeyTrack);
+            emit liveNoteOnRequested(instrument, { midiNote->second, scaledVelocity });
         }
     } else {
         juzzlin::L(TAG).info() << "No instrument set on track!";

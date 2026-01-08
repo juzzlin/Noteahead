@@ -34,6 +34,7 @@ QStringList stdStringVectorToQStringList(const std::vector<std::string> & string
 std::optional<double> parseDecimal(std::string_view string);
 } // namespace Misc
 namespace Midi {
+uint8_t scaleVelocityByKey(uint8_t velocity, uint8_t note, int keyTrackPercentage);
 double portNameMatchScore(const std::string & s1, const std::string & s2);
 } // namespace Midi
 namespace Xml {

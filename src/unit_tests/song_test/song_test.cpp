@@ -515,6 +515,60 @@ void SongTest::test_renderToEvents_velocityJitterSet_shouldApplyVelocityJitter()
     QCOMPARE(noteOn->noteData()->velocity(), 77);
 }
 
+void SongTest::test_renderToEvents_velocityKeyTrackSet_shouldScaleVelocity()
+{
+    Song song;
+
+    const auto instrument = std::make_shared<Instrument>("TestInstrument");
+    song.setInstrument(0, instrument);
+    auto settings = instrument->settings();
+    settings.midiEffects.velocityKeyTrack = 50; // 50% scaling
+    instrument->setSettings(settings);
+
+    // Low note (MIDI 0) - Should have near original velocity
+    // Scaling factor: 1.0 - (0.5 * 0 / 127) = 1.0
+    const Position lowNotePosition = { 0, 0, 0, 0, 0 };
+    song.noteDataAtPosition(lowNotePosition)->setAsNoteOn(0, 100);
+
+    // Middle note (MIDI 64) - Should have reduced velocity
+    // Scaling factor: 1.0 - (0.5 * 64 / 127) ~= 1.0 - 0.252 = 0.748
+    // Velocity: 100 * 0.748 ~= 74.8 -> 74
+    const Position midNotePosition = { 0, 0, 0, 1, 0 };
+    song.noteDataAtPosition(midNotePosition)->setAsNoteOn(64, 100);
+
+    // High note (MIDI 127) - Should have most reduced velocity
+    // Scaling factor: 1.0 - (0.5 * 127 / 127) = 0.5
+    // Velocity: 100 * 0.5 = 50
+    const Position highNotePosition = { 0, 0, 0, 2, 0 };
+    song.noteDataAtPosition(highNotePosition)->setAsNoteOn(127, 100);
+
+    const auto events = song.renderToEvents(std::make_shared<AutomationService>(), std::make_shared<SideChainService>(), 0);
+
+    auto findNoteOn = [&](uint8_t note) {
+        for (auto && event : events) {
+            if (event->type() == Event::Type::NoteData && event->noteData()->type() == NoteData::Type::NoteOn && event->noteData()->note() == note) {
+                return event;
+            }
+        }
+        return Song::EventS {};
+    };
+
+    const auto lowNoteOn = findNoteOn(0);
+    QVERIFY(lowNoteOn);
+    QCOMPARE(lowNoteOn->noteData()->velocity(), 100);
+
+    const auto midNoteOn = findNoteOn(64);
+    QVERIFY(midNoteOn);
+    // Integer arithmetic: 1.0 - (50/100 * 64/127) -> 1.0 - (0.5 * 0.5039) -> 1.0 - 0.2519 -> 0.748
+    // 100 * 0.748 = 74.8
+    // We expect truncation to 74
+    QCOMPARE(midNoteOn->noteData()->velocity(), 74);
+
+    const auto highNoteOn = findNoteOn(127);
+    QVERIFY(highNoteOn);
+    QCOMPARE(highNoteOn->noteData()->velocity(), 50);
+}
+
 void SongTest::test_renderToEvents_customNoteOffOffsetSet_shouldApplyCorrectOffset()
 {
     Song song;

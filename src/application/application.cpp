@@ -609,12 +609,14 @@ void Application::connectTrackSettingsModel()
     });
 
     connect(m_trackSettingsModel.get(), &TrackSettingsModel::testSoundRequested, this, [this](uint8_t velocity) {
-        m_midiService->playAndStopMiddleC(m_trackSettingsModel->portName(), m_trackSettingsModel->channel(), velocity);
+        const auto scaledVelocity = Utils::Midi::scaleVelocityByKey(velocity, 60, m_trackSettingsModel->velocityKeyTrack());
+        m_midiService->playAndStopMiddleC(m_trackSettingsModel->portName(), m_trackSettingsModel->channel(), scaledVelocity);
     });
 
     connect(m_trackSettingsModel.get(), &TrackSettingsModel::noteOnRequested, this, [this](uint8_t note, uint8_t velocity) {
         if (auto instrument = std::shared_ptr<Instrument> { m_trackSettingsModel->toInstrument() }; instrument) {
-            m_midiService->playNote(instrument, { note, velocity });
+            const auto scaledVelocity = Utils::Midi::scaleVelocityByKey(velocity, note, instrument->settings().midiEffects.velocityKeyTrack);
+            m_midiService->playNote(instrument, { note, scaledVelocity });
         }
     });
 

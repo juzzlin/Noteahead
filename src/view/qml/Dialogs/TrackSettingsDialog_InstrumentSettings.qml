@@ -19,6 +19,7 @@ ColumnLayout {
         enablePatchCheckbox.checked = trackSettingsModel.patchEnabled;
         patchSpinBox.value = trackSettingsModel.patch;
         transposeSpinBox.value = trackSettingsModel.transpose;
+        velocityKeyTrackSpinBox.value = trackSettingsModel.velocityKeyTrack;
     }
     function _requestTestSound(): void {
         if (visible) {
@@ -254,6 +255,27 @@ ColumnLayout {
                     ToolTip.visible: hovered
                     ToolTip.text: qsTr("Set transposition for MIDI notes on this channel in semitones")
                     onValueModified: trackSettingsModel.transpose = value
+                    Keys.onReturnPressed: focus = false
+                }
+                Label {
+                    text: qsTr("Velocity Key Track (%):")
+                    Layout.column: 4
+                    Layout.row: 5
+                    Layout.fillWidth: true
+                }
+                SpinBox {
+                    id: velocityKeyTrackSpinBox
+                    from: 0
+                    to: 100
+                    editable: true
+                    Layout.column: 5
+                    Layout.row: 5
+                    Layout.fillWidth: true
+                    ToolTip.delay: Constants.toolTipDelay
+                    ToolTip.timeout: Constants.toolTipTimeout
+                    ToolTip.visible: hovered
+                    ToolTip.text: qsTr("Linearly reduce velocity for higher notes (0-100%)")
+                    onValueModified: trackSettingsModel.velocityKeyTrack = value
                     Keys.onReturnPressed: focus = false
                 }
             }

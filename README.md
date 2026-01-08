@@ -60,6 +60,8 @@ Some example tracks sequenced with Noteahead (produced with Behringer X32 Produc
   - Initial MIDI CC values can be set directly via Track settings
 - Track and column-specific velocity scales
   - Effective velocity is the product of track scale, column scale, and note velocity
+- Velocity key track scaling (since 1.4.0)
+  - Linearly turn velocity down on higher notes (0-100%)
 
 ### MIDI
 - Poor Man's MIDI Hot-Plug with automatic setup

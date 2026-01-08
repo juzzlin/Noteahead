@@ -700,6 +700,7 @@ Song::EventList Song::applyInstrumentsOnEvents(EventListCR events) const
                 if (event->instrument()) {
                     event->applyDelay(event->instrument()->settings().timing.delay - delayOffset, msPerTick);
                     event->applyVelocityJitter(event->instrument()->settings().midiEffects.velocityJitter);
+                    event->applyVelocityKeyTrack(event->instrument()->settings().midiEffects.velocityKeyTrack);
                     event->transpose(event->instrument()->settings().transpose);
                 }
             }

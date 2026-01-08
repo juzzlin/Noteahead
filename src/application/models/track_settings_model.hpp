@@ -53,6 +53,7 @@ class TrackSettingsModel : public QObject
     Q_PROPERTY(int delay READ delay WRITE setDelay NOTIFY delayChanged)
     Q_PROPERTY(int transpose READ transpose WRITE setTranspose NOTIFY transposeChanged)
     Q_PROPERTY(int velocityJitter READ velocityJitter WRITE setVelocityJitter NOTIFY velocityJitterChanged)
+    Q_PROPERTY(int velocityKeyTrack READ velocityKeyTrack WRITE setVelocityKeyTrack NOTIFY velocityKeyTrackChanged)
     Q_PROPERTY(int autoNoteOffOffset READ autoNoteOffOffset WRITE setAutoNoteOffOffset NOTIFY autoNoteOffOffsetChanged)
     Q_PROPERTY(bool autoNoteOffOffsetEnabled READ autoNoteOffOffsetEnabled WRITE setAutoNoteOffOffsetEnabled NOTIFY autoNoteOffOffsetEnabledChanged)
     
@@ -119,6 +120,8 @@ public:
     void setTranspose(int transpose);
     int velocityJitter() const;
     void setVelocityJitter(int velocityJitter);
+    int velocityKeyTrack() const;
+    void setVelocityKeyTrack(int velocityKeyTrack);
     int autoNoteOffOffset() const;
     void setAutoNoteOffOffset(int autoNoteOffOffset);
     bool autoNoteOffOffsetEnabled() const;
@@ -163,6 +166,7 @@ signals:
     void delayChanged();
     void transposeChanged();
     void velocityJitterChanged();
+    void velocityKeyTrackChanged();
     void autoNoteOffOffsetChanged();
     void autoNoteOffOffsetEnabledChanged();
 
@@ -199,6 +203,7 @@ private:
     struct MidiEffectSettings
     {
         int velocityJitter { 0 };
+        int velocityKeyTrack { 0 };
     };
 
     MidiEffectSettings m_midiEffectSettings;

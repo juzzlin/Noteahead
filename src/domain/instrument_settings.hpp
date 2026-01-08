@@ -64,6 +64,7 @@ public:
     struct MidiEffects
     {
         int velocityJitter { 0 };
+        int velocityKeyTrack { 0 };
     };
 
     MidiEffects midiEffects;

@@ -16,6 +16,7 @@
 #include "event.hpp"
 
 #include "../application/service/random_service.hpp"
+#include "../common/utils.hpp"
 
 #include <algorithm>
 
@@ -73,6 +74,13 @@ void Event::applyVelocityJitter(int percentage)
         std::uniform_int_distribution<int> dist { -maxDelta, 0 };
         const int jittered = velocity + dist(RandomService::generator());
         m_noteData->setVelocity(static_cast<uint8_t>(std::clamp(jittered, 0, 127)));
+    }
+}
+
+void Event::applyVelocityKeyTrack(int percentage)
+{
+    if (m_noteData.has_value() && percentage > 0 && m_noteData->type() == NoteData::Type::NoteOn && m_noteData->note().has_value()) {
+        m_noteData->setVelocity(Utils::Midi::scaleVelocityByKey(m_noteData->velocity(), *m_noteData->note(), percentage));
     }
 }
 
