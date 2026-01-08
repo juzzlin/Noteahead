@@ -113,25 +113,37 @@ void NoteColumnModelHandler::disconnectColumnModel(NoteColumnModelP noteColumnMo
 
 void NoteColumnModelHandler::updateAll()
 {
+    const auto currentPos = m_editorService->position();
     for (auto && [address, model] : m_noteColumnModels) {
         model->setColumnData(m_editorService->columnData(address));
+        if (address == ColumnAddress { currentPos.pattern, currentPos.track, currentPos.column }) {
+            model->setLineFocused(currentPos.line, currentPos.lineColumn);
+        }
     }
 }
 
 void NoteColumnModelHandler::updateColumns(quint64 track)
 {
+    const auto currentPos = m_editorService->position();
     for (auto && [address, model] : m_noteColumnModels) {
         if (std::get<1>(address) == track) {
             model->setColumnData(m_editorService->columnData(address));
+            if (address == ColumnAddress { currentPos.pattern, currentPos.track, currentPos.column }) {
+                model->setLineFocused(currentPos.line, currentPos.lineColumn);
+            }
         }
     }
 }
 
 void NoteColumnModelHandler::updatePattern(quint64 pattern)
 {
+    const auto currentPos = m_editorService->position();
     for (auto && [address, model] : m_noteColumnModels) {
         if (std::get<0>(address) == pattern) {
             model->setColumnData(m_editorService->columnData(address));
+            if (address == ColumnAddress { currentPos.pattern, currentPos.track, currentPos.column }) {
+                model->setLineFocused(currentPos.line, currentPos.lineColumn);
+            }
         }
     }
 }
