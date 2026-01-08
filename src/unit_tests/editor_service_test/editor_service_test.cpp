@@ -675,7 +675,7 @@ void EditorServiceTest::test_requestColumnDeletion_shouldDeleteColumn()
 
     QVERIFY(editorService.isModified());
     QCOMPARE(columnDeletedSpy.count(), 1);
-    QCOMPARE(positionChangedSpy.count(), 4);
+    QCOMPARE(positionChangedSpy.count(), 3);
     QCOMPARE(editorService.position().column, 0);
     QCOMPARE(scrollBarSizeChangedSpy.count(), 2);
     QCOMPARE(scrollBarStepSizeChangedSpy.count(), 2);

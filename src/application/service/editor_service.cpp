@@ -970,7 +970,6 @@ void EditorService::requestColumnDeletion(quint64 trackIndex)
         notifyPositionChange(oldPosition);
         emit columnDeleted(trackIndex);
         updateScrollBar();
-        notifyPositionChange(m_state.cursorPosition); // Re-focuses the previous track
         setIsModified(true);
     }
 }

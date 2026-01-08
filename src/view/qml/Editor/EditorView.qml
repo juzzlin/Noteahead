@@ -217,6 +217,7 @@ FocusScope {
         const pattern = _currentPattern();
         if (pattern) {
             pattern.updateTrackDimensions(trackArea.width, trackArea.height);
+            _setPosition(editorService.position);
         }
     }
     function _updateAllTrackDimensions() {
