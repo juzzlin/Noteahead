@@ -11,6 +11,8 @@ New features:
   - Set per-instrument in track settings (0-100%)
   - Linearly reduces velocity for higher notes
 
+* Enable live recording on the current column
+
 Bug fixes:
 
 * Fix track header not properly initialized when new pattern created

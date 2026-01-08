@@ -144,13 +144,16 @@ void ApplicationServiceTest::test_editMode()
     QVERIFY(!service.editMode());
     QCOMPARE(spy.count(), 2);
 
-    // If playing, edit mode should be set to false and cannot be set to true
+    // If playing, edit mode should NOT be set to false and can still be set to true
+    service.setEditMode(true);
     playerService->setIsPlaying(true);
-    // Connection in ApplicationService sets edit mode to false when playing
+    QVERIFY(service.editMode());
+
+    service.setEditMode(false);
     QVERIFY(!service.editMode());
 
     service.setEditMode(true);
-    QVERIFY(!service.editMode());
+    QVERIFY(service.editMode());
 }
 
 void ApplicationServiceTest::test_recentFiles()

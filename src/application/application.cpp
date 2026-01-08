@@ -399,7 +399,9 @@ void Application::connectMidiService()
         if (m_applicationService->editMode() && m_editorService->isAtNoteColumn()) {
             const auto [key, octave] = NoteConverter::midiToKeyAndOctave(data.note());
             if (m_editorService->requestNoteOnAtCurrentPosition(key, octave, m_settingsService->velocity(100))) {
-                m_editorService->requestScroll(m_settingsService->step(1));
+                if (!m_playerService->isPlaying()) {
+                    m_editorService->requestScroll(m_settingsService->step(1));
+                }
             }
         }
     });
