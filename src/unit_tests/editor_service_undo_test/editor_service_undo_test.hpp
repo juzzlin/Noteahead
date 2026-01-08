@@ -37,6 +37,7 @@ private slots:
     void test_undoRedo_canUndoRedoSignals();
     void test_undoRedo_clearsOnNewSong();
     void test_undoRedo_clearsOnPositionChange();
+    void test_undoRedo_clearsOnStructuralChange();
 };
 
 } // namespace noteahead

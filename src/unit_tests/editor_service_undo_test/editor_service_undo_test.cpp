@@ -281,6 +281,26 @@ void EditorServiceUndoTest::test_undoRedo_clearsOnPositionChange()
     QVERIFY(!editorService.canUndo());
 }
 
+void EditorServiceUndoTest::test_undoRedo_clearsOnStructuralChange()
+{
+    EditorService editorService;
+    editorService.requestPosition(0, 0, 0, 0, 0);
+    editorService.requestNoteOnAtCurrentPosition(1, 3, 64);
+    QVERIFY(editorService.canUndo());
+
+    // New column
+    editorService.requestNewColumn(0);
+    QVERIFY(!editorService.canUndo());
+
+    editorService.requestNoteOnAtCurrentPosition(1, 3, 64);
+    editorService.requestNewTrackToRight();
+    QVERIFY(!editorService.canUndo());
+
+    editorService.requestNoteOnAtCurrentPosition(1, 3, 64);
+    editorService.setCurrentLineCount(32);
+    QVERIFY(!editorService.canUndo());
+}
+
 } // namespace noteahead
 
 QTEST_MAIN(noteahead::EditorServiceUndoTest)

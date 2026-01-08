@@ -406,6 +406,7 @@ void EditorService::clampCursorLine(quint64 oldLineCount, quint64 newLineCount)
 void EditorService::setCurrentLineCount(quint64 lineCount)
 {
     if (const auto oldLineCount = currentLineCount(); lineCount != oldLineCount) {
+        m_undoStack->clear();
         m_song->setLineCount(currentPattern(), std::min(std::max(lineCount, minLineCount()), maxLineCount()));
         clampCursorLine(oldLineCount, currentLineCount());
         emit currentLineCountChanged();
@@ -944,6 +945,8 @@ void EditorService::requestNewColumn(quint64 trackIndex)
 {
     juzzlin::L(TAG).debug() << "New column requested on track " << trackIndex;
 
+    m_undoStack->clear();
+
     m_song->addColumn(trackIndex);
 
     emit columnAdded(trackIndex);
@@ -957,6 +960,7 @@ void EditorService::requestColumnDeletion(quint64 trackIndex)
     juzzlin::L(TAG).debug() << "Column deletion requested on track " << trackIndex;
 
     m_selectionService->clear();
+    m_undoStack->clear();
 
     if (m_song->deleteColumn(trackIndex)) {
         const auto oldPosition = m_state.cursorPosition;
@@ -974,6 +978,7 @@ void EditorService::requestColumnDeletion(quint64 trackIndex)
 void EditorService::requestNewTrackToRight()
 {
     juzzlin::L(TAG).debug() << "New track requested to the right of track " << position().track;
+    m_undoStack->clear();
     const auto newTrackIndex = m_song->addTrackToRightOf(position().track);
     emit trackAdded(newTrackIndex);
     updateScrollBar();
@@ -984,6 +989,7 @@ void EditorService::requestNewTrackToRight()
 void EditorService::requestNewTrackToLeft()
 {
     juzzlin::L(TAG).debug() << "New track requested to the left of track " << position().track;
+    m_undoStack->clear();
     const auto newTrackIndex = m_song->addTrackToLeftOf(position().track);
     emit trackAdded(newTrackIndex);
     updateScrollBar();
@@ -1887,6 +1893,7 @@ quint64 EditorService::patternAtCurrentSongPosition() const
 
 void EditorService::insertPatternToPlayOrder()
 {
+    m_undoStack->clear();
     m_song->insertPatternToPlayOrder(m_state.songPosition);
     emit songPositionChanged(m_state.songPosition);
     emit patternAtCurrentSongPositionChanged();
@@ -1897,6 +1904,7 @@ void EditorService::insertPatternToPlayOrder()
 
 void EditorService::removePatternFromPlayOrder()
 {
+    m_undoStack->clear();
     m_song->removePatternFromPlayOrder(m_state.songPosition);
     emit songPositionChanged(m_state.songPosition);
     emit patternAtCurrentSongPositionChanged();
