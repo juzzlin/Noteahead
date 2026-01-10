@@ -33,6 +33,7 @@ void ColumnSettingsModel::reset()
 {
     m_settings = {};
 
+    emit delayChanged();
     emit chordNote1OffsetChanged();
     emit chordNote1VelocityChanged();
     emit chordNote1DelayChanged();
@@ -51,6 +52,7 @@ void ColumnSettingsModel::requestData()
 
 void ColumnSettingsModel::setColumnSettings(const ColumnSettings & settings)
 {
+    const bool delayChanged = m_settings.delay != settings.delay;
     const bool note1OffsetChanged = m_settings.chordAutomationSettings.note1.offset != settings.chordAutomationSettings.note1.offset;
     const bool note1VelocityChanged = m_settings.chordAutomationSettings.note1.velocity != settings.chordAutomationSettings.note1.velocity;
     const bool note1DelayChanged = m_settings.chordAutomationSettings.note1.delay != settings.chordAutomationSettings.note1.delay;
@@ -63,6 +65,9 @@ void ColumnSettingsModel::setColumnSettings(const ColumnSettings & settings)
 
     m_settings = settings;
 
+    if (delayChanged) {
+        emit this->delayChanged();
+    }
     if (note1OffsetChanged) {
         emit chordNote1OffsetChanged();
     }
@@ -117,6 +122,19 @@ void ColumnSettingsModel::setColumnIndex(quint64 columnIndex)
     if (m_columnIndex != columnIndex) {
         m_columnIndex = columnIndex;
         emit columnIndexChanged();
+    }
+}
+
+int ColumnSettingsModel::delay() const
+{
+    return static_cast<int>(m_settings.delay.count());
+}
+
+void ColumnSettingsModel::setDelay(int delay)
+{
+    if (m_settings.delay.count() != delay) {
+        m_settings.delay = std::chrono::milliseconds { delay };
+        emit delayChanged();
     }
 }
 

@@ -27,6 +27,7 @@ void ColumnSettingsModelTest::test_initialState_shouldHaveExpectedDefaults()
     ColumnSettingsModel model;
     QCOMPARE(model.trackIndex(), quint64(0));
     QCOMPARE(model.columnIndex(), quint64(0));
+    QCOMPARE(model.delay(), 0);
     QCOMPARE(model.chordNote1Offset(), qint8(0));
     QCOMPARE(model.chordNote1Velocity(), quint8(100));
     QCOMPARE(model.chordNote1Delay(), qint16(0));
@@ -53,6 +54,15 @@ void ColumnSettingsModelTest::test_setColumnIndex_shouldUpdateAndEmitSignal()
     QSignalSpy spy { &model, &ColumnSettingsModel::columnIndexChanged };
     model.setColumnIndex(3);
     QCOMPARE(model.columnIndex(), quint64(3));
+    QCOMPARE(spy.count(), 1);
+}
+
+void ColumnSettingsModelTest::test_setDelay_shouldUpdateAndEmitSignal()
+{
+    ColumnSettingsModel model;
+    QSignalSpy spy { &model, &ColumnSettingsModel::delayChanged };
+    model.setDelay(666);
+    QCOMPARE(model.delay(), 666);
     QCOMPARE(spy.count(), 1);
 }
 
@@ -144,6 +154,7 @@ void ColumnSettingsModelTest::test_save_shouldEmitSaveRequestedWithCorrectData()
     ColumnSettingsModel model;
     model.setTrackIndex(1);
     model.setColumnIndex(2);
+    model.setDelay(666);
     model.setChordNote1Offset(4);
     model.setChordNote1Velocity(80);
     model.setChordNote1Delay(11);
@@ -163,6 +174,7 @@ void ColumnSettingsModelTest::test_save_shouldEmitSaveRequestedWithCorrectData()
     QCOMPARE(arguments.at(1).toULongLong(), 2);
 
     const auto settings = qvariant_cast<ColumnSettings>(arguments.at(2));
+    QCOMPARE(settings.delay.count(), 666);
     QCOMPARE(settings.chordAutomationSettings.note1.offset, 4);
     QCOMPARE(settings.chordAutomationSettings.note1.velocity, 80);
     QCOMPARE(settings.chordAutomationSettings.note1.delay, 11);

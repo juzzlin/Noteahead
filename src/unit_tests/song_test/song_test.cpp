@@ -258,6 +258,33 @@ void SongTest::test_renderToEvents_negativeDelaySet_shouldApplyShiftedDelay()
     QCOMPARE(noteOn->tick(), delay);
 }
 
+void SongTest::test_renderToEvents_columnDelaySet_shouldApplyDelay()
+{
+    Song song;
+    song.setBeatsPerMinute(120);
+    song.setLinesPerBeat(8);
+
+    const auto instrument1 = std::make_shared<Instrument>("DelayedInstrument1");
+    song.setInstrument(0, instrument1);
+    auto settings1 = instrument1->settings();
+    settings1.timing.delay = 10ms;
+    instrument1->setSettings(settings1);
+
+    auto columnSettings = std::make_shared<ColumnSettings>();
+    columnSettings->delay = 32ms;
+    song.setColumnSettings(0, 0, columnSettings);
+
+    const Position noteOnPosition = { 0, 0, 0, 0, 0 };
+    song.noteDataAtPosition(noteOnPosition)->setAsNoteOn(60, 100);
+
+    const auto events = song.renderToEvents(std::make_shared<AutomationService>(), std::make_shared<SideChainService>(), 0);
+    QCOMPARE(events.size(), 4);
+    const auto noteOn = events.at(1);
+    const double msPerTick = 60000.0 / static_cast<double>(song.beatsPerMinute() * song.linesPerBeat() * song.ticksPerLine());
+    const auto delay = static_cast<size_t>(std::round(static_cast<double>(instrument1->settings().timing.delay.count() + columnSettings->delay.count()) / msPerTick));
+    QCOMPARE(noteOn->tick(), delay);
+}
+
 void SongTest::test_renderToEvents_noEvents_shouldAddStartAndEndOfSong()
 {
     Song song;

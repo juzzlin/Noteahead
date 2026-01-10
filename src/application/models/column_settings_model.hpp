@@ -29,6 +29,8 @@ class ColumnSettingsModel : public QObject
     Q_PROPERTY(quint64 trackIndex READ trackIndex WRITE setTrackIndex NOTIFY trackIndexChanged)
     Q_PROPERTY(quint64 columnIndex READ columnIndex WRITE setColumnIndex NOTIFY columnIndexChanged)
 
+    Q_PROPERTY(int delay READ delay WRITE setDelay NOTIFY delayChanged)
+
     Q_PROPERTY(qint8 chordNote1Offset READ chordNote1Offset WRITE setChordNote1Offset NOTIFY chordNote1OffsetChanged)
     Q_PROPERTY(quint8 chordNote1Velocity READ chordNote1Velocity WRITE setChordNote1Velocity NOTIFY chordNote1VelocityChanged)
     Q_PROPERTY(qint16 chordNote1Delay READ chordNote1Delay WRITE setChordNote1Delay NOTIFY chordNote1DelayChanged)
@@ -54,6 +56,9 @@ public:
 
     quint64 columnIndex() const;
     void setColumnIndex(quint64 columnIndex);
+
+    int delay() const;
+    void setDelay(int delay);
 
     qint8 chordNote1Offset() const;
     void setChordNote1Offset(qint8 offset);
@@ -88,6 +93,8 @@ signals:
 
     void trackIndexChanged();
     void columnIndexChanged();
+
+    void delayChanged();
 
     void chordNote1OffsetChanged();
     void chordNote1VelocityChanged();

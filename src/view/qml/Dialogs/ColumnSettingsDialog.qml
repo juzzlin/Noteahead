@@ -11,6 +11,7 @@ Dialog {
     title: "<strong>" + qsTr("Column settings for track %1, column %2").arg(columnSettingsModel.trackIndex + 1).arg(columnSettingsModel.columnIndex + 1) + "</strong>"
     modal: true
     function initialize() {
+        delaySpinBox.value = columnSettingsModel.delay;
         midiEffects.initialize();
     }
     function saveSettings() {
@@ -39,6 +40,28 @@ Dialog {
     Column {
         anchors.fill: parent
         spacing: 10
+
+        GroupBox {
+            title: qsTr("Timing")
+            Layout.fillWidth: true
+            width: parent.width
+
+            RowLayout {
+                spacing: 10
+                Label {
+                    text: qsTr("Delay (ms):")
+                }
+                SpinBox {
+                    id: delaySpinBox
+                    from: -10000
+                    to: 10000
+                    editable: true
+                    Keys.onReturnPressed: focus = false
+                    onValueModified: columnSettingsModel.delay = value
+                }
+            }
+        }
+
         ColumnSettingsDialog_MidiEffects {
             id: midiEffects
             Layout.fillWidth: true

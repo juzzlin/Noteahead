@@ -13,6 +13,8 @@ New features:
 
 * Enable live recording on the current column
 
+* Implement adjustable delay per note column
+
 Bug fixes:
 
 * Fix track header not properly initialized when new pattern created

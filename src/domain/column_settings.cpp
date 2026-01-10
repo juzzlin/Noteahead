@@ -34,6 +34,8 @@ void ColumnSettings::serializeToXml(QXmlStreamWriter & writer) const
 {
     writer.writeStartElement(Constants::NahdXml::xmlKeyColumnSettings());
 
+    writer.writeAttribute(Constants::NahdXml::xmlKeyDelay(), QString::number(delay.count()));
+
     writer.writeAttribute(Constants::NahdXml::xmlKeyChordNote1Offset(), QString::number(chordAutomationSettings.note1.offset));
     writer.writeAttribute(Constants::NahdXml::xmlKeyChordNote1Velocity(), QString::number(chordAutomationSettings.note1.velocity));
     writer.writeAttribute(Constants::NahdXml::xmlKeyChordNote1Delay(), QString::number(chordAutomationSettings.note1.delay));
@@ -53,6 +55,8 @@ ColumnSettings::ColumnSettingsU ColumnSettings::deserializeFromXml(QXmlStreamRea
 
     auto settings = std::make_unique<ColumnSettings>();
 
+    settings->delay = std::chrono::milliseconds { Utils::Xml::readIntAttribute(reader, Constants::NahdXml::xmlKeyDelay(), false).value_or(0) };
+
     settings->chordAutomationSettings.note1.offset = Utils::Xml::readIntAttribute(reader, Constants::NahdXml::xmlKeyChordNote1Offset(), false).value_or(0);
     settings->chordAutomationSettings.note1.velocity = Utils::Xml::readUIntAttribute(reader, Constants::NahdXml::xmlKeyChordNote1Velocity(), false).value_or(100);
     settings->chordAutomationSettings.note1.delay = Utils::Xml::readIntAttribute(reader, Constants::NahdXml::xmlKeyChordNote1Delay(), false).value_or(0);
@@ -68,7 +72,8 @@ ColumnSettings::ColumnSettingsU ColumnSettings::deserializeFromXml(QXmlStreamRea
 
 QString ColumnSettings::toString() const
 {
-    return QStringLiteral("ColumnSettings(chordAutomation: note1(offset=%1, velocity=%2, delay=%3), note2(offset=%4, velocity=%5, delay=%6), note3(offset=%7, velocity=%8, delay=%9))")
+    return QStringLiteral("ColumnSettings(delay=%1, chordAutomation: note1(offset=%2, velocity=%3, delay=%4), note2(offset=%5, velocity=%6, delay=%7), note3(offset=%8, velocity=%9, delay=%10))")
+        .arg(delay.count())
         .arg(chordAutomationSettings.note1.offset)
         .arg(chordAutomationSettings.note1.velocity)
         .arg(chordAutomationSettings.note1.delay)

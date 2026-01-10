@@ -688,6 +688,12 @@ Song::EventList Song::applyInstrumentsOnEvents(EventListCR events) const
         if (const auto instrument = this->instrument(trackIndex); instrument) {
             delayOffset = std::min(delayOffset, instrument->settings().timing.delay);
         }
+        const auto numColumns = columnCount(trackIndex);
+        for (size_t columnIndex = 0; columnIndex < numColumns; ++columnIndex) {
+            if (const auto colSettings = columnSettings(trackIndex, columnIndex)) {
+                delayOffset = std::min(delayOffset, colSettings->delay);
+            }
+        }
     }
 
     juzzlin::L(TAG).info() << "Delay offset: " << delayOffset.count() << " ms";
@@ -698,7 +704,11 @@ Song::EventList Song::applyInstrumentsOnEvents(EventListCR events) const
             if (const auto noteData = event->noteData(); noteData) {
                 event->setInstrument(instrument(noteData->track()));
                 if (event->instrument()) {
-                    event->applyDelay(event->instrument()->settings().timing.delay - delayOffset, msPerTick);
+                    auto totalDelay = event->instrument()->settings().timing.delay;
+                    if (const auto colSettings = columnSettings(noteData->track(), noteData->column())) {
+                        totalDelay += colSettings->delay;
+                    }
+                    event->applyDelay(totalDelay - delayOffset, msPerTick);
                     event->applyVelocityJitter(event->instrument()->settings().midiEffects.velocityJitter);
                     event->applyVelocityKeyTrack(event->instrument()->settings().midiEffects.velocityKeyTrack);
                     event->transpose(event->instrument()->settings().transpose);

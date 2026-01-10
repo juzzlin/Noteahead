@@ -17,6 +17,7 @@
 #define COLUMN_SETTINGS_HPP
 
 #include <cstdint>
+#include <chrono>
 #include <memory>
 
 #include <QString>
@@ -30,6 +31,8 @@ class ColumnSettings
 {
 public:
     ColumnSettings();
+
+    std::chrono::milliseconds delay { 0 };
 
     struct ChordAutomationSettings
     {

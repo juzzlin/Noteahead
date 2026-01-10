@@ -28,6 +28,7 @@ private slots:
     void test_initialState_shouldHaveExpectedDefaults();
     void test_setTrackIndex_shouldUpdateAndEmitSignal();
     void test_setColumnIndex_shouldUpdateAndEmitSignal();
+    void test_setDelay_shouldUpdateAndEmitSignal();
     void test_setChordNote1Offset_shouldUpdateAndEmitSignal();
     void test_setChordNote1Velocity_shouldUpdateAndEmitSignal();
     void test_setChordNote1Delay_shouldUpdateAndEmitSignal();
