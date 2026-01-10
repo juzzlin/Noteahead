@@ -231,9 +231,37 @@ void MidiCcAutomationsModelTest::test_setData_shouldUpdateModulationData()
     model.applyAll();
     QVERIFY(updatedAutomation.has_value());
     QCOMPARE(midiCcAutomationChangedSpy.count(), 1);
-    QCOMPARE(updatedAutomation->modulation().cycles, 10.0f);
-    QCOMPARE(updatedAutomation->modulation().amplitude, 50.0f);
-    QCOMPARE(updatedAutomation->modulation().inverted, true);
+    QCOMPARE(model.data(index, static_cast<int>(Role::Modulation_Sine_Cycles)).toUInt(), updatedAutomation->modulation().cycles);
+    QCOMPARE(model.data(index, static_cast<int>(Role::Modulation_Sine_Amplitude)).toFloat(), updatedAutomation->modulation().amplitude);
+    QCOMPARE(model.data(index, static_cast<int>(Role::Modulation_Sine_Inverted)).toBool(), updatedAutomation->modulation().inverted);
+}
+
+void MidiCcAutomationsModelTest::test_setData_shouldUpdateOutputSettings()
+{
+    using Role = MidiCcAutomationsModel::DataRole;
+    const AutomationLocation location { 1, 2, 3 };
+    const MidiCcAutomation::InterpolationParameters interpolation { 11, 22, 33, 44 };
+    MidiCcAutomation midiCcAutomation { 42, location, 7, interpolation, "Old Comment" };
+    std::optional<MidiCcAutomation> updatedAutomation;
+    MidiCcAutomationsModel model;
+    model.setMidiCcAutomations({ midiCcAutomation });
+    QSignalSpy midiCcAutomationChangedSpy { &model, &MidiCcAutomationsModel::midiCcAutomationChanged };
+    connect(&model, &MidiCcAutomationsModel::midiCcAutomationChanged, this, [&updatedAutomation](auto && automation) {
+        updatedAutomation = automation;
+    });
+
+    const auto index = model.index(0);
+    QVERIFY(model.setData(index, 4, static_cast<int>(Role::EventsPerBeat)));
+    QVERIFY(model.setData(index, 2, static_cast<int>(Role::LineOffset)));
+
+    model.applyAll();
+
+    QCOMPARE(midiCcAutomationChangedSpy.count(), 1);
+    QVERIFY(updatedAutomation.has_value());
+    QCOMPARE(updatedAutomation->eventsPerBeat(), 4);
+    QCOMPARE(updatedAutomation->lineOffset(), 2);
+    QCOMPARE(model.data(index, static_cast<int>(Role::EventsPerBeat)).toUInt(), 4);
+    QCOMPARE(model.data(index, static_cast<int>(Role::LineOffset)).toUInt(), 2);
 }
 
 void MidiCcAutomationsModelTest::test_removeAt_shouldRemoveAutomationData()

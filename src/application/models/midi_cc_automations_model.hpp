@@ -29,6 +29,8 @@ class MidiCcAutomationsModel : public QAbstractListModel
 {
     Q_OBJECT
 
+    Q_PROPERTY(quint64 linesPerBeat READ linesPerBeat WRITE setLinesPerBeat NOTIFY linesPerBeatChanged)
+
 public:
     enum class DataRole
     {
@@ -45,7 +47,9 @@ public:
         Value1,
         Modulation_Sine_Cycles,
         Modulation_Sine_Amplitude,
-        Modulation_Sine_Inverted
+        Modulation_Sine_Inverted,
+        EventsPerBeat,
+        LineOffset
     };
 
     MidiCcAutomationsModel();
@@ -65,6 +69,9 @@ public:
     bool removeRows(int row, int count, const QModelIndex & parent = QModelIndex()) override;
     Q_INVOKABLE QHash<int, QByteArray> roleNames() const override;
 
+    quint64 linesPerBeat() const;
+    void setLinesPerBeat(quint64 linesPerBeat);
+
     Q_INVOKABLE void applyAll();
     Q_INVOKABLE void changeController(int index, quint8 controller);
 
@@ -72,6 +79,7 @@ signals:
     void midiCcAutomationChanged(const MidiCcAutomation & midiCcAutomation);
     void midiCcAutomationDeleted(const MidiCcAutomation & midiCcAutomation);
     void midiCcAutomationsRequested();
+    void linesPerBeatChanged();
 
 private:
     MidiCcAutomationList filteredMidiCcAutomations(const MidiCcAutomationList & midiCcAutomations) const;
@@ -90,6 +98,8 @@ private:
     };
 
     Filter m_filter;
+
+    quint64 m_linesPerBeat = 8;
 };
 
 } // namespace noteahead

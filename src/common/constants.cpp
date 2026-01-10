@@ -494,6 +494,16 @@ QString xmlKeyReleaseValue()
     return "releaseValue";
 }
 
+QString xmlKeyEventsPerBeat()
+{
+    return "eventsPerBeat";
+}
+
+QString xmlKeyLineOffset()
+{
+    return "lineOffset";
+}
+
 QString xmlKeyTrack()
 {
     return "Track";

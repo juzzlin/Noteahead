@@ -247,7 +247,7 @@ ApplicationWindow {
         width: parent.width * Constants.defaultDialogScale
         onAccepted: {
             const position = editorService.position;
-            const automationId = automationService.addMidiCcAutomation(position.pattern, position.track, position.column, addMidiCcAutomationDialog.controller(), addMidiCcAutomationDialog.startLine(), addMidiCcAutomationDialog.endLine(), addMidiCcAutomationDialog.startValue(), addMidiCcAutomationDialog.endValue(), addMidiCcAutomationDialog.comment());
+            const automationId = automationService.addMidiCcAutomation(position.pattern, position.track, position.column, addMidiCcAutomationDialog.controller(), addMidiCcAutomationDialog.startLine(), addMidiCcAutomationDialog.endLine(), addMidiCcAutomationDialog.startValue(), addMidiCcAutomationDialog.endValue(), addMidiCcAutomationDialog.comment(), true, addMidiCcAutomationDialog.eventsPerBeat(), addMidiCcAutomationDialog.lineOffset());
             if (addMidiCcAutomationDialog.cycles() > 0 && addMidiCcAutomationDialog.amplitude() > 0) {
                 automationService.addMidiCcModulation(automationId, addMidiCcAutomationDialog.cycles(), addMidiCcAutomationDialog.amplitude(), addMidiCcAutomationDialog.inverted());
             }
@@ -353,6 +353,7 @@ ApplicationWindow {
         UiService.recentFilesDialogRequested.connect(recentFilesDialog.open);
         UiService.settingsDialogRequested.connect(settingsDialog.open);
         UiService.columnSettingsDialogRequested.connect((trackIndex, columnIndex) => {
+            midiCcAutomationsModel.linesPerBeat = editorService.linesPerBeat;
             columnSettingsDialog.setColumn(trackIndex, columnIndex);
             columnSettingsDialog.open();
         });
@@ -402,6 +403,7 @@ ApplicationWindow {
             lineDelayDialog.open();
         });
         UiService.lineAddMidiCcAutomationDialogRequested.connect(() => {
+            midiCcAutomationsModel.linesPerBeat = editorService.linesPerBeat;
             addMidiCcAutomationDialog.setTitle(qsTr("Add MIDI CC automation"));
             addMidiCcAutomationDialog.setStartLine(editorService.position.line);
             addMidiCcAutomationDialog.setEndLine(editorService.position.line);
@@ -409,9 +411,11 @@ ApplicationWindow {
             addMidiCcAutomationDialog.setEndValue(0);
             addMidiCcAutomationDialog.setComment("");
             addMidiCcAutomationDialog.resetModulations();
+            addMidiCcAutomationDialog.resetOutput();
             addMidiCcAutomationDialog.open();
         });
         UiService.columnAddMidiCcAutomationDialogRequested.connect(() => {
+            midiCcAutomationsModel.linesPerBeat = editorService.linesPerBeat;
             addMidiCcAutomationDialog.setTitle(qsTr("Add MIDI CC automation"));
             addMidiCcAutomationDialog.setStartLine(0);
             addMidiCcAutomationDialog.setEndLine(editorService.currentLineCount - 1);
@@ -419,9 +423,11 @@ ApplicationWindow {
             addMidiCcAutomationDialog.setEndValue(100);
             addMidiCcAutomationDialog.setComment("");
             addMidiCcAutomationDialog.resetModulations();
+            addMidiCcAutomationDialog.resetOutput();
             addMidiCcAutomationDialog.open();
         });
         UiService.selectionAddMidiCcAutomationDialogRequested.connect(() => {
+            midiCcAutomationsModel.linesPerBeat = editorService.linesPerBeat;
             addMidiCcAutomationDialog.setTitle(qsTr("Add MIDI CC automation"));
             addMidiCcAutomationDialog.setStartLine(selectionService.minLine());
             addMidiCcAutomationDialog.setEndLine(selectionService.maxLine());
@@ -429,32 +435,38 @@ ApplicationWindow {
             addMidiCcAutomationDialog.setEndValue(100);
             addMidiCcAutomationDialog.setComment("");
             addMidiCcAutomationDialog.resetModulations();
+            addMidiCcAutomationDialog.resetOutput();
             addMidiCcAutomationDialog.open();
         });
         UiService.editMidiCcAutomationsDialogRequested.connect(() => {
+            midiCcAutomationsModel.linesPerBeat = editorService.linesPerBeat;
             midiCcAutomationsModel.requestMidiCcAutomations();
             editMidiCcAutomationsDialog.setTitle(qsTr("Edit MIDI CC automations"));
             editMidiCcAutomationsDialog.open();
         });
         UiService.editMidiCcAutomationsDialogByLineRequested.connect(() => {
+            midiCcAutomationsModel.linesPerBeat = editorService.linesPerBeat;
             const position = editorService.position;
             midiCcAutomationsModel.requestMidiCcAutomationsByLine(position.pattern, position.track, position.column, position.line);
             editMidiCcAutomationsDialog.setTitle(qsTr("Edit MIDI CC automations by line"));
             editMidiCcAutomationsDialog.open();
         });
         UiService.editMidiCcAutomationsDialogByColumnRequested.connect(() => {
+            midiCcAutomationsModel.linesPerBeat = editorService.linesPerBeat;
             const position = editorService.position;
             midiCcAutomationsModel.requestMidiCcAutomationsByColumn(position.pattern, position.track, position.column);
             editMidiCcAutomationsDialog.setTitle(qsTr("Edit MIDI CC automations by column"));
             editMidiCcAutomationsDialog.open();
         });
         UiService.editMidiCcAutomationsDialogByTrackRequested.connect(() => {
+            midiCcAutomationsModel.linesPerBeat = editorService.linesPerBeat;
             const position = editorService.position;
             midiCcAutomationsModel.requestMidiCcAutomationsByTrack(position.pattern, position.track);
             editMidiCcAutomationsDialog.setTitle(qsTr("Edit MIDI CC automations by track"));
             editMidiCcAutomationsDialog.open();
         });
         UiService.editMidiCcAutomationsDialogByPatternRequested.connect(() => {
+            midiCcAutomationsModel.linesPerBeat = editorService.linesPerBeat;
             const position = editorService.position;
             midiCcAutomationsModel.requestMidiCcAutomationsByPattern(position.pattern);
             editMidiCcAutomationsDialog.setTitle(qsTr("Edit MIDI CC automations by pattern"));

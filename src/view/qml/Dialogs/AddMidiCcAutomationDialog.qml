@@ -42,6 +42,19 @@ Dialog {
         model.setEndLine(value);
     }
 
+    function eventsPerBeat(): int {
+        return model.eventsPerBeat();
+    }
+    function setEventsPerBeat(value: int): void {
+        model.setEventsPerBeat(value);
+    }
+    function lineOffset(): int {
+        return model.lineOffset();
+    }
+    function setLineOffset(value: int): void {
+        model.setLineOffset(value);
+    }
+
     function cycles(): int {
         return model.cycles();
     }
@@ -53,6 +66,9 @@ Dialog {
     }
     function resetModulations(): void {
         model.resetModulations();
+    }
+    function resetOutput(): void {
+        model.resetOutput();
     }
 
     function comment(): string {

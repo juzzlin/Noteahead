@@ -144,6 +144,10 @@ QVariant MidiCcAutomationsModel::data(const QModelIndex & index, int role) const
             return midiCcAutomation.modulation().amplitude;
         case DataRole::Modulation_Sine_Inverted:
             return midiCcAutomation.modulation().inverted;
+        case DataRole::EventsPerBeat:
+            return static_cast<quint64>(midiCcAutomation.eventsPerBeat() > 0 ? midiCcAutomation.eventsPerBeat() : m_linesPerBeat);
+        case DataRole::LineOffset:
+            return static_cast<quint64>(midiCcAutomation.lineOffset());
         }
     }
     return "N/A";
@@ -230,6 +234,20 @@ bool MidiCcAutomationsModel::setData(const QModelIndex & index, const QVariant &
                 changed = true;
             }
         } break;
+        case DataRole::EventsPerBeat: {
+            const auto newEventsPerBeat = static_cast<uint8_t>(value.toUInt());
+            const auto targetValue = newEventsPerBeat == m_linesPerBeat ? 0 : newEventsPerBeat;
+            if (midiCcAutomation.eventsPerBeat() != targetValue) {
+                midiCcAutomation.setEventsPerBeat(targetValue);
+                changed = true;
+            }
+        } break;
+        case DataRole::LineOffset:
+            if (const auto newLineOffset = static_cast<uint8_t>(value.toUInt()); midiCcAutomation.lineOffset() != newLineOffset) {
+                midiCcAutomation.setLineOffset(newLineOffset);
+                changed = true;
+            }
+            break;
         case DataRole::Pattern:
         case DataRole::Track:
         case DataRole::Column:
@@ -283,8 +301,23 @@ QHash<int, QByteArray> MidiCcAutomationsModel::roleNames() const
         { static_cast<int>(DataRole::Value1), "value1" },
         { static_cast<int>(DataRole::Modulation_Sine_Cycles), "modulationSineCycles" },
         { static_cast<int>(DataRole::Modulation_Sine_Amplitude), "modulationSineAmplitude" },
-        { static_cast<int>(DataRole::Modulation_Sine_Inverted), "modulationSineInverted" }
+        { static_cast<int>(DataRole::Modulation_Sine_Inverted), "modulationSineInverted" },
+        { static_cast<int>(DataRole::EventsPerBeat), "eventsPerBeat" },
+        { static_cast<int>(DataRole::LineOffset), "lineOffset" }
     };
+}
+
+quint64 MidiCcAutomationsModel::linesPerBeat() const
+{
+    return m_linesPerBeat;
+}
+
+void MidiCcAutomationsModel::setLinesPerBeat(quint64 linesPerBeat)
+{
+    if (m_linesPerBeat != linesPerBeat) {
+        m_linesPerBeat = linesPerBeat;
+        emit linesPerBeatChanged();
+    }
 }
 
 void MidiCcAutomationsModel::applyAll()

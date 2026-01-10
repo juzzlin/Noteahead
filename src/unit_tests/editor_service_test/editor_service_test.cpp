@@ -1653,7 +1653,7 @@ void EditorServiceTest::test_toXmlFromXml_automationService_midiCc_shouldLoadAut
     for (size_t pattern = 0; pattern < 10; pattern++) {
         for (size_t track = 0; track < 8; track++) {
             for (size_t column = 0; column < 3; column++) {
-                const auto newId = automationServiceOut.addMidiCcAutomation(pattern, track, column, controller, line0, line1, value0, value1, comment, track % 2 == 0);
+                const auto newId = automationServiceOut.addMidiCcAutomation(pattern, track, column, controller, line0, line1, value0, value1, comment, track % 2 == 0, 8, 0);
                 QCOMPARE(newId, id);
                 id++;
             }
@@ -1688,7 +1688,7 @@ void EditorServiceTest::test_toXmlFromXml_automationService_midiCc_shouldLoadAut
 void EditorServiceTest::test_toXmlFromXml_automationService_midiCc_withModulation_shouldLoadAutomationService()
 {
     AutomationService automationServiceOut;
-    const auto automationId = automationServiceOut.addMidiCcAutomation(0, 0, 0, 0, 0, 1, 0, 1, {});
+    const auto automationId = automationServiceOut.addMidiCcAutomation(0, 0, 0, 0, 0, 1, 0, 1, {}, true, 8, 0);
     automationServiceOut.addMidiCcModulation(automationId, 1, 50.0f, true);
 
     AutomationService automationServiceIn;
@@ -1707,7 +1707,7 @@ void EditorServiceTest::test_toXmlFromXml_automationService_midiCc_withModulatio
 void EditorServiceTest::test_toXmlFromXml_automationService_midiCc_noModulation_shouldLoadAutomationService()
 {
     AutomationService automationServiceOut;
-    automationServiceOut.addMidiCcAutomation(0, 0, 0, 0, 0, 1, 0, 1, {});
+    automationServiceOut.addMidiCcAutomation(0, 0, 0, 0, 0, 1, 0, 1, {}, true, 8, 0);
 
     AutomationService automationServiceIn;
     EditorService editorService;

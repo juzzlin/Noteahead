@@ -37,22 +37,24 @@ AutomationService::AutomationService()
 {
 }
 
-quint64 AutomationService::addMidiCcAutomation(quint64 pattern, quint64 track, quint64 column, quint8 controller, quint64 line0, quint64 line1, quint8 value0, quint8 value1, QString comment, bool enabled)
+quint64 AutomationService::addMidiCcAutomation(quint64 pattern, quint64 track, quint64 column, quint8 controller, quint64 line0, quint64 line1, quint8 value0, quint8 value1, QString comment, bool enabled, quint8 eventsPerBeat, quint8 lineOffset)
 {
     const auto maxIdItem = std::max_element(m_automations.midiCc.begin(), m_automations.midiCc.end(), [](auto && lhs, auto && rhs) { return lhs.id() < rhs.id(); });
     const auto id = maxIdItem != m_automations.midiCc.end() ? (*maxIdItem).id() + 1 : 1;
     const AutomationLocation location = { pattern, track, column };
     const MidiCcAutomation::InterpolationParameters parameters = { line0, line1, value0, value1 };
-    const auto automation = MidiCcAutomation { id, location, controller, parameters, comment, enabled };
+    auto automation = MidiCcAutomation { id, location, controller, parameters, comment, enabled };
+    automation.setEventsPerBeat(eventsPerBeat);
+    automation.setLineOffset(lineOffset);
     m_automations.midiCc.push_back(automation);
     notifyChangedLines(pattern, track, column, line0, line1);
     juzzlin::L(TAG).info() << "MIDI CC Automation added: " << automation.toString().toStdString();
     return automation.id();
 }
 
-quint64 AutomationService::addMidiCcAutomation(quint64 pattern, quint64 track, quint64 column, quint8 controller, quint64 line0, quint64 line1, quint8 value0, quint8 value1, QString comment)
+quint64 AutomationService::addMidiCcAutomation(quint64 pattern, quint64 track, quint64 column, quint8 controller, quint64 line0, quint64 line1, quint8 value0, quint8 value1, QString comment, quint8 eventsPerBeat, quint8 lineOffset)
 {
-    return addMidiCcAutomation(pattern, track, column, controller, line0, line1, value0, value1, comment, true);
+    return addMidiCcAutomation(pattern, track, column, controller, line0, line1, value0, value1, comment, true, eventsPerBeat, lineOffset);
 }
 
 void AutomationService::addMidiCcModulation(quint64 automationId, quint64 cycles, float amplitude, bool inverted)
@@ -387,15 +389,15 @@ AutomationService::EventList AutomationService::renderPitchBendToEventsByLine(si
     return events;
 }
 
-AutomationService::EventList AutomationService::renderToEventsByColumn(size_t pattern, size_t track, size_t column, size_t tick, size_t ticksPerLine) const
+AutomationService::EventList AutomationService::renderToEventsByColumn(size_t pattern, size_t track, size_t column, size_t tick, size_t ticksPerLine, size_t linesPerBeat) const
 {
     EventList events;
-    std::ranges::copy(renderMidiCcToEventsByColumn(pattern, track, column, tick, ticksPerLine), std::back_inserter(events));
+    std::ranges::copy(renderMidiCcToEventsByColumn(pattern, track, column, tick, ticksPerLine, linesPerBeat), std::back_inserter(events));
     std::ranges::copy(renderPitchBendToEventsByColumn(pattern, track, column, tick, ticksPerLine), std::back_inserter(events));
     return events;
 }
 
-AutomationService::EventList AutomationService::renderMidiCcToEventsByColumn(size_t pattern, size_t track, size_t column, size_t tick, size_t ticksPerLine) const
+AutomationService::EventList AutomationService::renderMidiCcToEventsByColumn(size_t pattern, size_t track, size_t column, size_t tick, size_t ticksPerLine, size_t linesPerBeat) const
 {
     EventList events;
 
@@ -411,8 +413,32 @@ AutomationService::EventList AutomationService::renderMidiCcToEventsByColumn(siz
                     static_cast<double>(interpolation.value0),
                     static_cast<double>(interpolation.value1)
                 };
+
+                const uint8_t eventsPerBeat = automation.eventsPerBeat() > 0 ? std::min(automation.eventsPerBeat(), static_cast<uint8_t>(linesPerBeat)) : static_cast<uint8_t>(linesPerBeat);
+                const double interval = static_cast<double>(linesPerBeat) / static_cast<double>(eventsPerBeat);
+
+                juzzlin::L(TAG).debug() << "Rendering MidiCcAutomation " << automation.id() << ": eventsPerBeat=" << (int)eventsPerBeat << ", interval=" << interval << ", lineOffset=" << (int)automation.lineOffset();
+
                 std::optional<uint8_t> prevValue;
                 for (size_t line = interpolation.line0; line <= interpolation.line1; line++) {
+                    // Check if this line is an automated line based on Events Per Beat and Line Offset
+                    const size_t beatRelativeLine = line % linesPerBeat;
+                    bool shouldFire = false;
+
+                    for (int i = 0; i < eventsPerBeat; ++i) {
+                        const size_t fireLine = (static_cast<size_t>(std::round(i * interval)) + automation.lineOffset()) % linesPerBeat;
+                        if (beatRelativeLine == fireLine) {
+                            shouldFire = true;
+                            break;
+                        }
+                    }
+
+                    if (!shouldFire && line != interpolation.line1) {
+                        continue;
+                    }
+
+                    juzzlin::L(TAG).trace() << "Firing event for MidiCcAutomation " << automation.id() << " on line " << line;
+
                     double interpolatedValue = interpolator.getValue(static_cast<size_t>(line));
 
                     if (modulation.cycles > 0.f || modulation.amplitude > 0.f) {

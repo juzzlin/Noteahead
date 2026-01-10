@@ -68,7 +68,7 @@ void NoteColumnLineContainerHelperTest::test_lineColorAndBorderWidth_hasAutomati
 
     const NoteColumnLineContainerHelper helper { automationService, editorService, selectionService, utilService };
 
-    automationService->addMidiCcAutomation(0, 0, 0, 7, 0, 4, 0, 100, "Test");
+    automationService->addMidiCcAutomation(0, 0, 0, 7, 0, 4, 0, 100, "Test", true, 8, 0);
 
     const auto result = helper.lineColorAndBorderWidth(0, 0, 0, 0);
     QCOMPARE(result.size(), 2);

@@ -791,7 +791,7 @@ Song::EventsAndTick Song::renderPatterns(AutomationServiceS automationService, E
         const auto patternIndex = m_playOrder->positionToPattern(songPosition);
         juzzlin::L(TAG).debug() << "Rendering position " << songPosition << " as pattern " << patternIndex;
         const auto & pattern = m_patterns[patternIndex];
-        const auto patternEventList = pattern->renderToEvents(automationService, tick, m_ticksPerLine);
+        const auto patternEventList = pattern->renderToEvents(automationService, tick, m_ticksPerLine, m_linesPerBeat);
         std::ranges::copy(patternEventList, std::back_inserter(processedEventList));
         updateTickToSongPositionMapping(tick, songPosition, patternIndex, pattern->lineCount());
         tick += pattern->lineCount() * m_ticksPerLine;

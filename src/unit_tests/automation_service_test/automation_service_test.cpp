@@ -44,9 +44,8 @@ void AutomationServiceTest::test_addMidiCcAutomation_shouldAddAutomation()
     quint8 line1 = 12;
     quint8 value0 = 0;
     quint8 value1 = 100;
-    const auto comment = "MIDI CC Automation Test";
-
-    auto id = automationService.addMidiCcAutomation(pattern, track, column, controller, line0, line1, value0, value1, comment);
+    const auto comment = "Comment";
+    auto id = automationService.addMidiCcAutomation(pattern, track, column, controller, line0, line1, value0, value1, comment, true, 8, 0);
     QCOMPARE(id, 1);
     QCOMPARE(lineDataChangedSpy.count(), line1 - line0 + 1);
     QCOMPARE(automationService.midiCcAutomationsByLine(pattern, track, column, line0).size(), 1);
@@ -72,9 +71,9 @@ void AutomationServiceTest::test_addMidiCcAutomation_shouldAddAutomation()
     QVERIFY(automationService.hasAutomations(pattern, track, column, line1));
     QVERIFY(automationService.hasAutomations(pattern, track, column, (line0 + line1) / 2));
 
-    id = automationService.addMidiCcAutomation(pattern, track, column, controller, line0, line1, value0, value1, comment);
+    id = automationService.addMidiCcAutomation(pattern, track, column, controller, line0, line1, value0, value1, comment, true, 8, 0);
     QCOMPARE(id, 2);
-    id = automationService.addMidiCcAutomation(pattern, track, column, controller, line0, line1, value0, value1, comment);
+    id = automationService.addMidiCcAutomation(pattern, track, column, controller, line0, line1, value0, value1, comment, true, 8, 0);
     QCOMPARE(id, 3);
 }
 
@@ -82,7 +81,7 @@ void AutomationServiceTest::test_deleteMidiCcAutomation_shouldDeleteAutomation()
 {
     AutomationService automationService;
 
-    automationService.addMidiCcAutomation(0, 0, 0, 0, 0, 1, 0, 1, {});
+    automationService.addMidiCcAutomation(0, 0, 0, 0, 0, 1, 0, 1, {}, true, 8, 0);
     QVERIFY(!automationService.midiCcAutomations().empty());
     auto automation = automationService.midiCcAutomations().at(0);
     QSignalSpy lineDataChangedSpy { &automationService, &AutomationService::lineDataChanged };
@@ -164,7 +163,7 @@ void AutomationServiceTest::test_automationWeight_midiCc_shouldCalculateCorrectW
     quint8 value0 = 0;
     quint8 value1 = 127;
 
-    automationService.addMidiCcAutomation(pattern, track, column, controller, line0, line1, value0, value1, {});
+    automationService.addMidiCcAutomation(pattern, track, column, controller, line0, line1, value0, value1, {}, true, 8, 0);
 
     QCOMPARE(automationService.automationWeight(pattern, track, column, line0), 0);
     QVERIFY(std::fabs(automationService.automationWeight(pattern, track, column, (line0 + line1) / 2) - 0.5) < 0.01);
@@ -221,7 +220,7 @@ void AutomationServiceTest::test_renderToEventsByLine_shouldRenderToEvents()
     for (size_t pattern = 0; pattern < 10; pattern++) {
         for (size_t track = 0; track < 8; track++) {
             for (size_t column = 0; column < 3; column++) {
-                automationService.addMidiCcAutomation(pattern, track, column, controller, line0, line1, value0, value1, {});
+                automationService.addMidiCcAutomation(pattern, track, column, controller, line0, line1, value0, value1, {}, true, 8, 0);
             }
         }
     }
@@ -246,7 +245,7 @@ void AutomationServiceTest::test_renderToEventsByLine_shouldRenderToEvents()
 void AutomationServiceTest::test_renderToEventsByLine_disableAutomation_shouldNotRenderEvents()
 {
     AutomationService automationService;
-    automationService.addMidiCcAutomation(0, 0, 0, 0, 0, 1, 0, 1, {});
+    automationService.addMidiCcAutomation(0, 0, 0, 0, 0, 1, 0, 1, {}, true, 8, 0);
     QVERIFY(!automationService.renderToEventsByLine(0, 0, 0, 0, 0).empty());
     auto automation = automationService.midiCcAutomations().at(0);
     automation.setEnabled(false);
@@ -266,7 +265,7 @@ void AutomationServiceTest::test_renderMidiCcToEventsByLine_withModulation_shoul
     quint8 line1 = 4;
     quint8 value0 = 64;
     quint8 value1 = 64;
-    const auto automationId = automationService.addMidiCcAutomation(pattern, track, column, controller, line0, line1, value0, value1, {});
+    const auto automationId = automationService.addMidiCcAutomation(pattern, track, column, controller, line0, line1, value0, value1, {}, true, 8, 0);
     automationService.addMidiCcModulation(automationId, 1, 50.0f, false);
 
     const auto tick = 0;
@@ -294,7 +293,7 @@ void AutomationServiceTest::test_renderMidiCcToEventsByLine_withInvertedModulati
     quint8 line1 = 4;
     quint8 value0 = 64;
     quint8 value1 = 64;
-    const auto automationId = automationService.addMidiCcAutomation(pattern, track, column, controller, line0, line1, value0, value1, {});
+    const auto automationId = automationService.addMidiCcAutomation(pattern, track, column, controller, line0, line1, value0, value1, {}, true, 8, 0);
     automationService.addMidiCcModulation(automationId, 1, 50.0f, true);
 
     const auto tick = 0;
@@ -310,6 +309,40 @@ void AutomationServiceTest::test_renderMidiCcToEventsByLine_withInvertedModulati
     QCOMPARE(automationService.renderToEventsByLine(pattern, track, column, 4, tick).at(0)->midiCcData()->value(), 64);
 }
 
+void AutomationServiceTest::test_renderMidiCcToEventsByColumn_withEventsPerBeatAndLineOffset_shouldSkipEvents()
+{
+    AutomationService automationService;
+    // 0 to 15 lines (16 lines total)
+    // linesPerBeat = 8.
+    // eventsPerBeat = 1 -> should fire every 8 lines.
+    // lineOffset = 0 -> lines 0, 8. And last line 15.
+    automationService.addMidiCcAutomation(0, 0, 0, 1, 0, 15, 0, 100, {}, true, 1, 0);
+
+    const auto events = automationService.renderToEventsByColumn(0, 0, 0, 0, 1, 8);
+
+    QCOMPARE(events.size(), 3);
+    QCOMPARE(events.at(0)->tick(), 0);
+    QCOMPARE(events.at(1)->tick(), 8);
+    QCOMPARE(events.at(2)->tick(), 15);
+
+    // Now change lineOffset to 7 -> lines 7, 15.
+    auto automation = automationService.midiCcAutomations().at(0);
+    automation.setLineOffset(7);
+    automationService.updateMidiCcAutomation(automation);
+
+    const auto events2 = automationService.renderToEventsByColumn(0, 0, 0, 0, 1, 8);
+    QCOMPARE(events2.size(), 2);
+    QCOMPARE(events2.at(0)->tick(), 7);
+    QCOMPARE(events2.at(1)->tick(), 15);
+
+    // Test max events per beat
+    automation.setEventsPerBeat(8);
+    automation.setLineOffset(0);
+    automationService.updateMidiCcAutomation(automation);
+    const auto events3 = automationService.renderToEventsByColumn(0, 0, 0, 0, 1, 8);
+    QCOMPARE(events3.size(), 16);
+}
+
 void AutomationServiceTest::test_renderToEventsByColumn_shouldRenderToEvents()
 {
     AutomationService automationService;
@@ -322,12 +355,12 @@ void AutomationServiceTest::test_renderToEventsByColumn_shouldRenderToEvents()
     quint8 line1 = 12;
     quint8 value0 = 0;
     quint8 value1 = 100;
-    automationService.addMidiCcAutomation(pattern, track, column, controller, line0, line1, value0, value1, {});
+    automationService.addMidiCcAutomation(pattern, track, column, controller, line0, line1, value0, value1, {}, true, 8, 0);
 
     const auto tick = 666;
     const auto ticksPerLine = 24;
-    const auto events = automationService.renderToEventsByColumn(pattern, track, column, tick, ticksPerLine);
-    QCOMPARE(automationService.renderToEventsByColumn(pattern, track, column, tick, tick).size(), line1 - line0 + 1);
+    const auto events = automationService.renderToEventsByColumn(pattern, track, column, tick, ticksPerLine, 8);
+    QCOMPARE(automationService.renderToEventsByColumn(pattern, track, column, tick, tick, 8).size(), line1 - line0 + 1);
     Interpolator interpolator {
         static_cast<size_t>(line0),
         static_cast<size_t>(line1),
@@ -352,23 +385,23 @@ void AutomationServiceTest::test_renderToEventsByColumn_shouldPruneRepeatingEven
     quint64 pattern = 0;
     quint64 track = 1;
     quint64 column = 2;
-    automationService.addMidiCcAutomation(pattern, track, column, 64, 0, 120, 10, 20, {});
+    automationService.addMidiCcAutomation(pattern, track, column, 64, 0, 120, 10, 20, {}, true, 8, 0);
 
     const auto tick = 666;
     const auto ticksPerLine = 24;
-    const auto events = automationService.renderToEventsByColumn(pattern, track, column, tick, ticksPerLine);
-    QCOMPARE(automationService.renderToEventsByColumn(pattern, track, column, tick, tick).size(), 11);
+    const auto events = automationService.renderToEventsByColumn(pattern, track, column, tick, ticksPerLine, 8);
+    QCOMPARE(automationService.renderToEventsByColumn(pattern, track, column, tick, tick, 8).size(), 11);
 }
 
 void AutomationServiceTest::test_renderToEventsByColumn_disableAutomation_shouldNotRenderEvents()
 {
     AutomationService automationService;
-    automationService.addMidiCcAutomation(0, 0, 0, 0, 0, 1, 0, 1, {});
-    QVERIFY(!automationService.renderToEventsByColumn(0, 0, 0, 0, 24).empty());
+    automationService.addMidiCcAutomation(0, 0, 0, 0, 0, 1, 0, 1, {}, true, 8, 0);
+    QVERIFY(!automationService.renderToEventsByColumn(0, 0, 0, 0, 24, 8).empty());
     auto automation = automationService.midiCcAutomations().at(0);
     automation.setEnabled(false);
     automationService.updateMidiCcAutomation(automation);
-    QVERIFY(automationService.renderToEventsByColumn(0, 0, 0, 0, 24).empty());
+    QVERIFY(automationService.renderToEventsByColumn(0, 0, 0, 0, 24, 8).empty());
 }
 
 } // namespace noteahead

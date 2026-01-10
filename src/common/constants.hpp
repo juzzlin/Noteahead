@@ -153,6 +153,8 @@ QString xmlKeyPortName();
 
 QString xmlKeyRelease();
 QString xmlKeyReleaseValue();
+QString xmlKeyEventsPerBeat();
+QString xmlKeyLineOffset();
 
 QString xmlKeyTrack();
 QString xmlKeyTracks();

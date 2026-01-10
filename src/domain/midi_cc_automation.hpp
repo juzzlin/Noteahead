@@ -82,6 +82,12 @@ public:
     uint8_t controller() const;
     void setController(uint8_t controller);
 
+    uint8_t eventsPerBeat() const;
+    void setEventsPerBeat(uint8_t eventsPerBeat);
+
+    uint8_t lineOffset() const;
+    void setLineOffset(uint8_t lineOffset);
+
     void serializeToXml(QXmlStreamWriter & writer) const;
     using MidiCcAutomationU = std::unique_ptr<MidiCcAutomation>;
     static MidiCcAutomationU deserializeFromXml(QXmlStreamReader & reader);
@@ -90,6 +96,8 @@ public:
 
 private:
     uint8_t m_controller = 0;
+    uint8_t m_eventsPerBeat = 0;
+    uint8_t m_lineOffset = 0;
 
     InterpolationParameters m_interpolation;
     ModulationParameters m_modulation;

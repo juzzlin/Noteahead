@@ -35,11 +35,27 @@ Item {
     function setEndLine(value: int): void {
         endLineSpinBox.value = value;
     }
+    function eventsPerBeat(): int {
+        return eventsPerBeatSpinBox.value === midiCcAutomationsModel.linesPerBeat ? 0 : eventsPerBeatSpinBox.value;
+    }
+    function setEventsPerBeat(value: int): void {
+        eventsPerBeatSpinBox.value = value === 0 ? midiCcAutomationsModel.linesPerBeat : value;
+    }
+    function lineOffset(): int {
+        return lineOffsetSpinBox.value;
+    }
+    function setLineOffset(value: int): void {
+        lineOffsetSpinBox.value = value;
+    }
 
     function resetModulations(): void {
         setCycles(0);
         setAmplitude(0);
         setInverted(false);
+    }
+    function resetOutput(): void {
+        setEventsPerBeat(midiCcAutomationsModel.linesPerBeat);
+        setLineOffset(0);
     }
     function cycles(): int {
         return cyclesSpinBox.value;
@@ -160,6 +176,51 @@ Item {
                     }
                     Layout.row: 1
                     Layout.column: 3
+                    Layout.fillWidth: true
+                }
+            }
+        }
+        GroupBox {
+            title: qsTr("Output settings")
+            Layout.fillWidth: true
+            GridLayout {
+                rowSpacing: 10
+                width: parent.width
+                Label {
+                    text: qsTr("Events per beat")
+                    Layout.row: 0
+                    Layout.column: 0
+                }
+                SpinBox {
+                    id: eventsPerBeatSpinBox
+                    from: 1
+                    to: midiCcAutomationsModel.linesPerBeat
+                    value: midiCcAutomationsModel.linesPerBeat
+                    onToChanged: value = to
+                    editable: true
+                    Keys.onReturnPressed: {
+                        focus = false;
+                    }
+                    Layout.row: 1
+                    Layout.column: 0
+                    Layout.fillWidth: true
+                }
+                Label {
+                    text: qsTr("Line offset")
+                    Layout.row: 0
+                    Layout.column: 1
+                }
+                SpinBox {
+                    id: lineOffsetSpinBox
+                    from: 0
+                    to: midiCcAutomationsModel.linesPerBeat - 1
+                    value: 0
+                    editable: true
+                    Keys.onReturnPressed: {
+                        focus = false;
+                    }
+                    Layout.row: 1
+                    Layout.column: 1
                     Layout.fillWidth: true
                 }
             }

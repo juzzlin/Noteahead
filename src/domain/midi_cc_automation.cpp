@@ -47,6 +47,8 @@ bool MidiCcAutomation::operator==(const MidiCcAutomation & other) const
 {
     return id() == other.id() && //
       m_controller == other.m_controller && //
+      m_eventsPerBeat == other.m_eventsPerBeat && //
+      m_lineOffset == other.m_lineOffset && //
       location() == other.location() && //
       m_interpolation == other.m_interpolation && //
       m_modulation == other.m_modulation && //
@@ -74,6 +76,26 @@ void MidiCcAutomation::setController(uint8_t controller)
     m_controller = controller;
 }
 
+uint8_t MidiCcAutomation::eventsPerBeat() const
+{
+    return m_eventsPerBeat;
+}
+
+void MidiCcAutomation::setEventsPerBeat(uint8_t eventsPerBeat)
+{
+    m_eventsPerBeat = eventsPerBeat;
+}
+
+uint8_t MidiCcAutomation::lineOffset() const
+{
+    return m_lineOffset;
+}
+
+void MidiCcAutomation::setLineOffset(uint8_t lineOffset)
+{
+    m_lineOffset = lineOffset;
+}
+
 const MidiCcAutomation::InterpolationParameters & MidiCcAutomation::interpolation() const
 {
     return m_interpolation;
@@ -97,7 +119,7 @@ void MidiCcAutomation::setModulation(const ModulationParameters & modulation)
 QString MidiCcAutomation::toString() const
 {
     return QString("MidiCcAutomation(id=%1, controller=%2, pattern=%3, track=%4, column=%5, "
-                   "line: %6 -> %7, value: %8 -> %9), enabled=%10")
+                   "line: %6 -> %7, value: %8 -> %9, eventsPerBeat=%10, lineOffset=%11), enabled=%12")
       .arg(QString::number(id()),
            QString::number(m_controller),
            QString::number(location().pattern()),
@@ -107,6 +129,8 @@ QString MidiCcAutomation::toString() const
            QString::number(m_interpolation.line1),
            QString::number(m_interpolation.value0),
            QString::number(m_interpolation.value1),
+           QString::number(m_eventsPerBeat),
+           QString::number(m_lineOffset),
            QString::number(enabled()));
 }
 
@@ -114,6 +138,8 @@ void MidiCcAutomation::serializeToXml(QXmlStreamWriter & writer) const
 {
     writer.writeStartElement(Constants::NahdXml::xmlKeyMidiCcAutomation());
     writer.writeAttribute(Constants::NahdXml::xmlKeyController(), QString::number(m_controller));
+    writer.writeAttribute(Constants::NahdXml::xmlKeyEventsPerBeat(), QString::number(m_eventsPerBeat));
+    writer.writeAttribute(Constants::NahdXml::xmlKeyLineOffset(), QString::number(m_lineOffset));
     writer.writeAttribute(Constants::NahdXml::xmlKeyComment(), comment());
     writer.writeAttribute(Constants::NahdXml::xmlKeyEnabled(), enabled() ? Constants::NahdXml::xmlValueTrue() : Constants::NahdXml::xmlValueFalse());
 
@@ -140,6 +166,8 @@ void MidiCcAutomation::serializeToXml(QXmlStreamWriter & writer) const
 MidiCcAutomation::MidiCcAutomationU MidiCcAutomation::deserializeFromXml(QXmlStreamReader & reader)
 {
     const quint8 controller = static_cast<quint8>(reader.attributes().value(Constants::NahdXml::xmlKeyController()).toUInt());
+    const quint8 eventsPerBeat = static_cast<quint8>(reader.attributes().value(Constants::NahdXml::xmlKeyEventsPerBeat()).toUInt());
+    const quint8 lineOffset = static_cast<quint8>(reader.attributes().value(Constants::NahdXml::xmlKeyLineOffset()).toUInt());
     const QString comment = reader.attributes().value(Constants::NahdXml::xmlKeyComment()).toString();
     const bool enabled = Utils::Xml::readBoolAttribute(reader, Constants::NahdXml::xmlKeyEnabled(), false).value_or(true);
     AutomationLocation::AutomationLocationU location = std::make_unique<AutomationLocation>();
@@ -165,7 +193,10 @@ MidiCcAutomation::MidiCcAutomationU MidiCcAutomation::deserializeFromXml(QXmlStr
             }
         }
     }
-    return std::make_unique<MidiCcAutomation>(0, *location, controller, interpolationParameters, modulationParameters, comment, enabled);
+    auto automation = std::make_unique<MidiCcAutomation>(0, *location, controller, interpolationParameters, modulationParameters, comment, enabled);
+    automation->setEventsPerBeat(eventsPerBeat);
+    automation->setLineOffset(lineOffset);
+    return automation;
 }
 
 } // namespace noteahead

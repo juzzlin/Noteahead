@@ -46,8 +46,8 @@ public:
     //! Adds automation for MIDI CC events.
     //! \param value0 Start value from 0 to 127.
     //! \param value1 End value from 0 to 127.
-    Q_INVOKABLE quint64 addMidiCcAutomation(quint64 pattern, quint64 track, quint64 column, quint8 controller, quint64 line0, quint64 line1, quint8 value0, quint8 value1, QString comment, bool enabled);
-    Q_INVOKABLE quint64 addMidiCcAutomation(quint64 pattern, quint64 track, quint64 column, quint8 controller, quint64 line0, quint64 line1, quint8 value0, quint8 value1, QString comment);
+    Q_INVOKABLE quint64 addMidiCcAutomation(quint64 pattern, quint64 track, quint64 column, quint8 controller, quint64 line0, quint64 line1, quint8 value0, quint8 value1, QString comment, bool enabled, quint8 eventsPerBeat, quint8 lineOffset);
+    Q_INVOKABLE quint64 addMidiCcAutomation(quint64 pattern, quint64 track, quint64 column, quint8 controller, quint64 line0, quint64 line1, quint8 value0, quint8 value1, QString comment, quint8 eventsPerBeat, quint8 lineOffset);
     Q_INVOKABLE void addMidiCcModulation(quint64 automationId, quint64 cycles, float amplitude, bool inverted);
 
     //! Adds automation for MIDI pitch bend.
@@ -75,7 +75,7 @@ public:
     using EventS = std::shared_ptr<Event>;
     using EventList = std::vector<EventS>;
     EventList renderToEventsByLine(size_t pattern, size_t track, size_t column, size_t line, size_t tick) const;
-    EventList renderToEventsByColumn(size_t pattern, size_t track, size_t column, size_t tick, size_t ticksPerLine) const;
+    EventList renderToEventsByColumn(size_t pattern, size_t track, size_t column, size_t tick, size_t ticksPerLine, size_t linesPerBeat) const;
 
     void deserializeFromXml(QXmlStreamReader & reader);
     void serializeToXml(QXmlStreamWriter & writer) const;
@@ -101,7 +101,7 @@ private:
     void notifyChangedLinesMerged(const PitchBendAutomation & automation1, const PitchBendAutomation & automation2);
     EventList renderMidiCcToEventsByLine(size_t pattern, size_t track, size_t column, size_t line, size_t tick) const;
     EventList renderPitchBendToEventsByLine(size_t pattern, size_t track, size_t column, size_t line, size_t tick) const;
-    EventList renderMidiCcToEventsByColumn(size_t pattern, size_t track, size_t column, size_t tick, size_t ticksPerLine) const;
+    EventList renderMidiCcToEventsByColumn(size_t pattern, size_t track, size_t column, size_t tick, size_t ticksPerLine, size_t linesPerBeat) const;
     EventList renderPitchBendToEventsByColumn(size_t pattern, size_t track, size_t column, size_t tick, size_t ticksPerLine) const;
 
     struct Automations

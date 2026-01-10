@@ -15,6 +15,8 @@ New features:
 
 * Implement adjustable delay per note column
 
+* Implement rate reduction for MIDI CC automations
+
 Bug fixes:
 
 * Fix track header not properly initialized when new pattern created

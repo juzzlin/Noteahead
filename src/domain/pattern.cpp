@@ -410,7 +410,7 @@ void Pattern::initialize(const PatternConfig & config)
     }
 }
 
-Pattern::EventList Pattern::renderToEvents(AutomationServiceS automationService, size_t startTick, size_t ticksPerLine) const
+Pattern::EventList Pattern::renderToEvents(AutomationServiceS automationService, size_t startTick, size_t ticksPerLine, size_t linesPerBeat) const
 {
     Pattern::EventList eventList;
 
@@ -423,9 +423,7 @@ Pattern::EventList Pattern::renderToEvents(AutomationServiceS automationService,
     // Automation events from AutomationService
     for (auto && track : m_trackOrder) {
         for (size_t column = 0; column < track->columnCount(); column++) {
-            for (size_t line = 0; line < lineCount(); line++) {
-                std::ranges::copy(automationService->renderToEventsByColumn(m_index, track->index(), column, startTick, ticksPerLine), std::back_inserter(eventList));
-            }
+            std::ranges::copy(automationService->renderToEventsByColumn(m_index, track->index(), column, startTick, ticksPerLine, linesPerBeat), std::back_inserter(eventList));
         }
     }
 

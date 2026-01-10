@@ -11,6 +11,14 @@ GroupBox {
     function initialize(): void {
         if (model && model.controller !== undefined) {
             controllerComboBox.currentIndex = controllerComboBox.indexOfValue(model.controller);
+            startLineSpinBox.value = model.line0;
+            endLineSpinBox.value = model.line1;
+            startValueSpinBox.value = model.value0;
+            endValueSpinBox.value = model.value1;
+            eventsPerBeatSpinBox.value = model.eventsPerBeat;
+            lineOffsetSpinBox.value = model.lineOffset;
+            modulationSineCyclesSpinBox.value = model.modulationSineCycles;
+            modulationSineAmplitudeSpinBox.value = model.modulationSineAmplitude;
         } else {
             // Fallback if model.controller is undefined (should not happen in practice if model is valid)
             controllerComboBox.currentIndex = 0;
@@ -18,12 +26,13 @@ GroupBox {
     }
     GridLayout {
         anchors.fill: parent
+        columns: 10
+        rowSpacing: 10
         CheckBox {
             id: enableCheckbox
             text: qsTr("Enabled")
-            Layout.row: 1
+            Layout.row: 0
             Layout.column: 0
-            Layout.fillWidth: true
             ToolTip.delay: Constants.toolTipDelay
             ToolTip.timeout: Constants.toolTipTimeout
             ToolTip.visible: hovered
@@ -33,6 +42,10 @@ GroupBox {
         }
         GroupBox {
             title: qsTr("Interpolation")
+            Layout.row: 0
+            Layout.column: 1
+            Layout.columnSpan: 8
+            Layout.fillWidth: true
             GridLayout {
                 anchors.fill: parent
                 Label {
@@ -70,8 +83,7 @@ GroupBox {
                     ToolTip.timeout: Constants.toolTipTimeout
                     ToolTip.visible: hovered
                     ToolTip.text: qsTr("Start line")
-                    onValueChanged: model.line0 = value
-                    Component.onCompleted: value = model.line0
+                    onValueModified: model.line0 = value
                 }
                 Label {
                     text: qsTr("End line")
@@ -92,8 +104,7 @@ GroupBox {
                     ToolTip.timeout: Constants.toolTipTimeout
                     ToolTip.visible: hovered
                     ToolTip.text: qsTr("End line")
-                    onValueChanged: model.line1 = value
-                    Component.onCompleted: value = model.line1
+                    onValueModified: model.line1 = value
                 }
                 Label {
                     text: qsTr("Start value")
@@ -114,8 +125,7 @@ GroupBox {
                     ToolTip.timeout: Constants.toolTipTimeout
                     ToolTip.visible: hovered
                     ToolTip.text: qsTr("Start value")
-                    onValueChanged: model.value0 = value
-                    Component.onCompleted: value = model.value0
+                    onValueModified: model.value0 = value
                 }
                 Label {
                     text: qsTr("End value")
@@ -137,13 +147,70 @@ GroupBox {
                     ToolTip.timeout: Constants.toolTipTimeout
                     ToolTip.visible: hovered
                     ToolTip.text: qsTr("End value")
-                    onValueChanged: model.value1 = value
-                    Component.onCompleted: value = model.value1
+                    onValueModified: model.value1 = value
+                }
+            }
+        }
+        GroupBox {
+            title: qsTr("Output")
+            Layout.row: 1
+            Layout.column: 1
+            Layout.columnSpan: 4
+            Layout.fillWidth: true
+            GridLayout {
+                anchors.fill: parent
+                Label {
+                    text: qsTr("Events per beat")
+                    Layout.row: 0
+                    Layout.column: 0
+                    Layout.fillWidth: true
+                }
+                SpinBox {
+                    id: eventsPerBeatSpinBox
+                    from: 1
+                    to: midiCcAutomationsModel.linesPerBeat
+                    editable: true
+                    Keys.onReturnPressed: focus = false
+                    Layout.row: 1
+                    Layout.column: 0
+                    Layout.fillWidth: true
+                    ToolTip.delay: Constants.toolTipDelay
+                    ToolTip.timeout: Constants.toolTipTimeout
+                    ToolTip.visible: hovered
+                    ToolTip.text: qsTr("Number of events to send per beat")
+                    onValueModified: model.eventsPerBeat = value
+                    onToChanged: value = Math.min(value, to)
+                }
+                Label {
+                    text: qsTr("Line offset")
+                    Layout.row: 0
+                    Layout.column: 1
+                    Layout.fillWidth: true
+                }
+                SpinBox {
+                    id: lineOffsetSpinBox
+                    from: 0
+                    to: midiCcAutomationsModel.linesPerBeat - 1
+                    editable: true
+                    Keys.onReturnPressed: focus = false
+                    Layout.row: 1
+                    Layout.column: 1
+                    Layout.fillWidth: true
+                    ToolTip.delay: Constants.toolTipDelay
+                    ToolTip.timeout: Constants.toolTipTimeout
+                    ToolTip.visible: hovered
+                    ToolTip.text: qsTr("Line offset within the beat")
+                    onValueModified: model.lineOffset = value
+                    onToChanged: value = Math.min(value, to)
                 }
             }
         }
         GroupBox {
             title: qsTr("Modulation (Sine Wave)")
+            Layout.row: 1
+            Layout.column: 5
+            Layout.columnSpan: 4
+            Layout.fillWidth: true
             GridLayout {
                 anchors.fill: parent
                 Label {
@@ -153,6 +220,7 @@ GroupBox {
                     Layout.fillWidth: true
                 }
                 SpinBox {
+                    id: modulationSineCyclesSpinBox
                     from: 0
                     to: 127
                     editable: true
@@ -164,8 +232,7 @@ GroupBox {
                     ToolTip.timeout: Constants.toolTipTimeout
                     ToolTip.visible: hovered
                     ToolTip.text: qsTr("Cycles")
-                    onValueChanged: model.modulationSineCycles = value
-                    Component.onCompleted: value = model.modulationSineCycles
+                    onValueModified: model.modulationSineCycles = value
                 }
                 Label {
                     text: qsTr("Amplitude (%)")
@@ -174,6 +241,7 @@ GroupBox {
                     Layout.fillWidth: true
                 }
                 SpinBox {
+                    id: modulationSineAmplitudeSpinBox
                     from: 0
                     to: 100
                     editable: true
@@ -185,8 +253,7 @@ GroupBox {
                     ToolTip.timeout: Constants.toolTipTimeout
                     ToolTip.visible: hovered
                     ToolTip.text: qsTr("Amplitude")
-                    onValueChanged: model.modulationSineAmplitude = value
-                    Component.onCompleted: value = model.modulationSineAmplitude
+                    onValueModified: model.modulationSineAmplitude = value
                 }
                 CheckBox {
                     text: qsTr("Inverted")
@@ -203,11 +270,10 @@ GroupBox {
             }
         }
         Button {
-            id: rootItem
-            Layout.row: 1
+            id: deleteButton
+            Layout.row: 0
             Layout.rowSpan: 2
             Layout.column: 9
-            Layout.columnSpan: 2
             Layout.fillWidth: true
             ToolTip.delay: Constants.toolTipDelay
             ToolTip.timeout: Constants.toolTipTimeout
@@ -229,7 +295,8 @@ GroupBox {
             readOnly: false
             placeholderText: qsTr("Comment")
             Layout.row: 2
-            Layout.columnSpan: 9
+            Layout.column: 1
+            Layout.columnSpan: 8
             Layout.fillWidth: true
             Keys.onReturnPressed: focus = false
             ToolTip.delay: Constants.toolTipDelay

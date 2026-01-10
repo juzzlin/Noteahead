@@ -32,6 +32,7 @@ private slots:
 
     void test_setData_shouldUpdateAutomationData();
     void test_setData_shouldUpdateModulationData();
+    void test_setData_shouldUpdateOutputSettings();
     void test_removeAt_shouldRemoveAutomationData();
 };
 
