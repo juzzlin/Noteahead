@@ -32,6 +32,7 @@ My own setup runs Noteahead on Ubuntu 24.04 LTS with all gear connected via USB-
 
 Some example tracks sequenced with Noteahead (produced with Behringer X32 Producer and Audacity):
 
+- [Arctic Music Project - Black Winter (SoundCloud)](https://soundcloud.com/arctic-music-project/black-winter)
 - [Arctic Music Project - Pointless (YouTube)](https://www.youtube.com/watch?v=xXXgGbOZIV0)
 - [Arctic Music Project - Pointless (SoundCloud)](https://soundcloud.com/arctic-music-project/pointless)
 - [Arctic Music Project - Why (SoundCloud)](https://soundcloud.com/arctic-music-project/why)
@@ -39,6 +40,10 @@ Some example tracks sequenced with Noteahead (produced with Behringer X32 Produc
 - [Arctic Music Project - Triple Distilled (SoundCloud)](https://soundcloud.com/arctic-music-project/triple-distilled)
 - [J.L.P - This Planet (Spotify)](https://open.spotify.com/track/5LV4oR82Ak4uA0kkKB6McX)
 - [J.L.P - This Planet - Note Visualization Video (YouTube)](https://www.youtube.com/watch?v=f_Cf_84eXcA)
+
+All Arctic Music Project songs:
+
+- [Arctic Music Project](https://www.arcticmusicproject.com)
 
 ##
 ## Features
