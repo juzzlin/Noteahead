@@ -47,6 +47,7 @@ public:
         Value1,
         Modulation_Sine_Cycles,
         Modulation_Sine_Amplitude,
+        Modulation_Sine_Offset,
         Modulation_Sine_Inverted,
         EventsPerBeat,
         LineOffset

@@ -142,6 +142,8 @@ QVariant MidiCcAutomationsModel::data(const QModelIndex & index, int role) const
             return static_cast<quint64>(midiCcAutomation.modulation().cycles);
         case DataRole::Modulation_Sine_Amplitude:
             return midiCcAutomation.modulation().amplitude;
+        case DataRole::Modulation_Sine_Offset:
+            return midiCcAutomation.modulation().offset;
         case DataRole::Modulation_Sine_Inverted:
             return midiCcAutomation.modulation().inverted;
         case DataRole::EventsPerBeat:
@@ -226,6 +228,14 @@ bool MidiCcAutomationsModel::setData(const QModelIndex & index, const QVariant &
                 changed = true;
             }
         } break;
+        case DataRole::Modulation_Sine_Offset: {
+            auto modulation = midiCcAutomation.modulation();
+            if (const auto newOffset = value.toFloat(); modulation.offset != newOffset) {
+                modulation.offset = newOffset;
+                midiCcAutomation.setModulation(modulation);
+                changed = true;
+            }
+        } break;
         case DataRole::Modulation_Sine_Inverted: {
             auto modulation = midiCcAutomation.modulation();
             if (const auto newInverted = value.toBool(); modulation.inverted != newInverted) {
@@ -301,6 +311,7 @@ QHash<int, QByteArray> MidiCcAutomationsModel::roleNames() const
         { static_cast<int>(DataRole::Value1), "value1" },
         { static_cast<int>(DataRole::Modulation_Sine_Cycles), "modulationSineCycles" },
         { static_cast<int>(DataRole::Modulation_Sine_Amplitude), "modulationSineAmplitude" },
+        { static_cast<int>(DataRole::Modulation_Sine_Offset), "modulationSineOffset" },
         { static_cast<int>(DataRole::Modulation_Sine_Inverted), "modulationSineInverted" },
         { static_cast<int>(DataRole::EventsPerBeat), "eventsPerBeat" },
         { static_cast<int>(DataRole::LineOffset), "lineOffset" }

@@ -152,10 +152,11 @@ void MidiCcAutomation::serializeToXml(QXmlStreamWriter & writer) const
     writer.writeAttribute(Constants::NahdXml::xmlKeyValue1(), QString::number(m_interpolation.value1));
     writer.writeEndElement(); // Interpolation
 
-    if (m_modulation.cycles > 0.f || m_modulation.amplitude > 0.f) {
+    if (m_modulation.cycles > 0.f || m_modulation.amplitude > 0.f || m_modulation.offset != 0.f) {
         writer.writeStartElement(Constants::NahdXml::xmlKeyModulation());
-        writer.writeAttribute(Constants::NahdXml::xmlKeyCycles(), QString::number(m_modulation.cycles));
-        writer.writeAttribute(Constants::NahdXml::xmlKeyAmplitude(), QString::number(m_modulation.amplitude));
+        writer.writeAttribute(Constants::NahdXml::xmlKeyCycles(), QString::number(static_cast<int>(m_modulation.cycles)));
+        writer.writeAttribute(Constants::NahdXml::xmlKeyAmplitude(), QString::number(static_cast<int>(m_modulation.amplitude)));
+        writer.writeAttribute(Constants::NahdXml::xmlKeyOffset(), QString::number(static_cast<int>(m_modulation.offset)));
         writer.writeAttribute(Constants::NahdXml::xmlKeyInverted(), m_modulation.inverted ? Constants::NahdXml::xmlValueTrue() : Constants::NahdXml::xmlValueFalse());
         writer.writeEndElement(); // Modulation
     }
@@ -187,8 +188,9 @@ MidiCcAutomation::MidiCcAutomationU MidiCcAutomation::deserializeFromXml(QXmlStr
                 interpolationParameters.value1 = static_cast<quint8>(attributes.value(Constants::NahdXml::xmlKeyValue1()).toUInt());
             } else if (!reader.name().compare(Constants::NahdXml::xmlKeyModulation())) {
                 const auto attributes = reader.attributes();
-                modulationParameters.cycles = attributes.value(Constants::NahdXml::xmlKeyCycles()).toFloat();
-                modulationParameters.amplitude = attributes.value(Constants::NahdXml::xmlKeyAmplitude()).toFloat();
+                modulationParameters.cycles = static_cast<float>(attributes.value(Constants::NahdXml::xmlKeyCycles()).toInt());
+                modulationParameters.amplitude = static_cast<float>(attributes.value(Constants::NahdXml::xmlKeyAmplitude()).toInt());
+                modulationParameters.offset = static_cast<float>(attributes.value(Constants::NahdXml::xmlKeyOffset()).toInt());
                 modulationParameters.inverted = Utils::Xml::readBoolAttribute(reader, Constants::NahdXml::xmlKeyInverted(), false).value_or(false);
             }
         }

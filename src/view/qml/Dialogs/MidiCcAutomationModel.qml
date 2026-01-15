@@ -51,6 +51,7 @@ Item {
     function resetModulations(): void {
         setCycles(0);
         setAmplitude(0);
+        setOffset(0);
         setInverted(false);
     }
     function resetOutput(): void {
@@ -68,6 +69,12 @@ Item {
     }
     function setAmplitude(amplitude: int): void {
         amplitudeSpinBox.value = amplitude;
+    }
+    function offset(): int {
+        return offsetSpinBox.value;
+    }
+    function setOffset(value: int): void {
+        offsetSpinBox.value = value;
     }
     function inverted(): bool {
         return invertedCheckBox.checked;
@@ -231,12 +238,15 @@ Item {
             GridLayout {
                 rowSpacing: 10
                 width: parent.width
-                columns: 3
+                columns: 4
                 Label {
                     text: qsTr("Cycles")
                 }
                 Label {
                     text: qsTr("Amplitude (%)")
+                }
+                Label {
+                    text: qsTr("Offset (%)")
                 }
                 Label {
                     text: qsTr("Inverted")
@@ -255,6 +265,18 @@ Item {
                 SpinBox {
                     id: amplitudeSpinBox
                     from: 0
+                    to: 100
+                    value: 0
+                    editable: true
+                    stepSize: 1
+                    Keys.onReturnPressed: {
+                        focus = false;
+                    }
+                    Layout.fillWidth: true
+                }
+                SpinBox {
+                    id: offsetSpinBox
+                    from: -100
                     to: 100
                     value: 0
                     editable: true

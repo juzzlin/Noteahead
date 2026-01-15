@@ -248,8 +248,8 @@ ApplicationWindow {
         onAccepted: {
             const position = editorService.position;
             const automationId = automationService.addMidiCcAutomation(position.pattern, position.track, position.column, addMidiCcAutomationDialog.controller(), addMidiCcAutomationDialog.startLine(), addMidiCcAutomationDialog.endLine(), addMidiCcAutomationDialog.startValue(), addMidiCcAutomationDialog.endValue(), addMidiCcAutomationDialog.comment(), true, addMidiCcAutomationDialog.eventsPerBeat(), addMidiCcAutomationDialog.lineOffset());
-            if (addMidiCcAutomationDialog.cycles() > 0 && addMidiCcAutomationDialog.amplitude() > 0) {
-                automationService.addMidiCcModulation(automationId, addMidiCcAutomationDialog.cycles(), addMidiCcAutomationDialog.amplitude(), addMidiCcAutomationDialog.inverted());
+            if (addMidiCcAutomationDialog.cycles() > 0 || addMidiCcAutomationDialog.amplitude() > 0 || addMidiCcAutomationDialog.offset() !== 0) {
+                automationService.addMidiCcModulation(automationId, addMidiCcAutomationDialog.cycles(), addMidiCcAutomationDialog.amplitude(), addMidiCcAutomationDialog.offset(), addMidiCcAutomationDialog.inverted());
             }
             selectionService.clear();
             bottomBar.setStatusText(qsTr("MIDI CC automation added"));

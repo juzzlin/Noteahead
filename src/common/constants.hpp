@@ -125,6 +125,7 @@ QString xmlKeyCycles();
 QString xmlKeyAmplitude();
 
 QString xmlKeyInverted();
+QString xmlKeyOffset();
 
 QString xmlKeyColumnAttr();
 QString xmlKeyColumnMuted();

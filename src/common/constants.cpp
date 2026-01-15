@@ -394,6 +394,11 @@ QString xmlKeyInverted()
     return "inverted";
 }
 
+QString xmlKeyOffset()
+{
+    return "offset";
+}
+
 QString xmlKeyColumnAttr()
 {
     return "column";

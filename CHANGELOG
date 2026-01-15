@@ -17,6 +17,8 @@ New features:
 
 * Implement rate reduction for MIDI CC automations
 
+* Add offset parameter to MIDI CC modulation
+
 Bug fixes:
 
 * Fix track header not properly initialized when new pattern created

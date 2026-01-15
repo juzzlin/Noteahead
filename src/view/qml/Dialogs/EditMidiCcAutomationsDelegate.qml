@@ -19,6 +19,7 @@ GroupBox {
             lineOffsetSpinBox.value = model.lineOffset;
             modulationSineCyclesSpinBox.value = model.modulationSineCycles;
             modulationSineAmplitudeSpinBox.value = model.modulationSineAmplitude;
+            modulationSineOffsetSpinBox.value = model.modulationSineOffset;
         } else {
             // Fallback if model.controller is undefined (should not happen in practice if model is valid)
             controllerComboBox.currentIndex = 0;
@@ -255,10 +256,31 @@ GroupBox {
                     ToolTip.text: qsTr("Amplitude")
                     onValueModified: model.modulationSineAmplitude = value
                 }
+                Label {
+                    text: qsTr("Offset (%)")
+                    Layout.row: 0
+                    Layout.column: 8
+                    Layout.fillWidth: true
+                }
+                SpinBox {
+                    id: modulationSineOffsetSpinBox
+                    from: -100
+                    to: 100
+                    editable: true
+                    Keys.onReturnPressed: focus = false
+                    Layout.row: 1
+                    Layout.column: 8
+                    Layout.fillWidth: true
+                    ToolTip.delay: Constants.toolTipDelay
+                    ToolTip.timeout: Constants.toolTipTimeout
+                    ToolTip.visible: hovered
+                    ToolTip.text: qsTr("Offset")
+                    onValueModified: model.modulationSineOffset = value
+                }
                 CheckBox {
                     text: qsTr("Inverted")
                     Layout.row: 1
-                    Layout.column: 8
+                    Layout.column: 9
                     Layout.fillWidth: true
                     ToolTip.delay: Constants.toolTipDelay
                     ToolTip.timeout: Constants.toolTipTimeout

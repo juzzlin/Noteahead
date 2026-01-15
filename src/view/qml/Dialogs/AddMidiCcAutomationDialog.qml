@@ -61,6 +61,9 @@ Dialog {
     function amplitude(): int {
         return model.amplitude();
     }
+    function offset(): int {
+        return model.offset();
+    }
     function inverted(): bool {
         return model.inverted();
     }

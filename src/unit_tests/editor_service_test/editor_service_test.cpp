@@ -1689,7 +1689,7 @@ void EditorServiceTest::test_toXmlFromXml_automationService_midiCc_withModulatio
 {
     AutomationService automationServiceOut;
     const auto automationId = automationServiceOut.addMidiCcAutomation(0, 0, 0, 0, 0, 1, 0, 1, {}, true, 8, 0);
-    automationServiceOut.addMidiCcModulation(automationId, 1, 50.0f, true);
+    automationServiceOut.addMidiCcModulation(automationId, 1, 50.0f, 0.0f, true);
 
     AutomationService automationServiceIn;
     EditorService editorService;
