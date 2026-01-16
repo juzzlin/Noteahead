@@ -30,6 +30,9 @@ private slots:
     void test_undoRedo_noteOff();
     void test_undoRedo_velocityChange();
     void test_undoRedo_deleteNote();
+    void test_undoRedo_insertNote();
+    void test_undoRedo_backspaceNote();
+    void test_undoRedo_noteOffWithRedundantRemoval();
     void test_undoRedo_pasteColumn();
     void test_undoRedo_pasteTrack();
     void test_undoRedo_pastePattern();

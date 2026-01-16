@@ -48,6 +48,7 @@ public:
 private:
     std::vector<CommandS> m_commands;
     size_t m_index { 0 };
+    bool m_isExecuting { false };
 
     Callback m_canUndoChangedCallback;
     Callback m_canRedoChangedCallback;

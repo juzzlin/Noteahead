@@ -15,17 +15,25 @@
 
 #include "undo_stack.hpp"
 
+#include <stdexcept>
+
 namespace noteahead {
 
 UndoStack::UndoStack() = default;
 
 void UndoStack::push(CommandS command)
 {
+    if (m_isExecuting) {
+        throw std::runtime_error("UndoStack: Reentrancy detected.");
+    }
+
     if (m_index < m_commands.size()) {
         m_commands.erase(m_commands.begin() + static_cast<long>(m_index), m_commands.end());
     }
     m_commands.push_back(command);
+    m_isExecuting = true;
     command->redo();
+    m_isExecuting = false;
     m_index++;
     if (m_canUndoChangedCallback) {
         m_canUndoChangedCallback();
@@ -39,7 +47,9 @@ void UndoStack::undo()
 {
     if (canUndo()) {
         m_index--;
+        m_isExecuting = true;
         m_commands[m_index]->undo();
+        m_isExecuting = false;
         if (m_canUndoChangedCallback) {
             m_canUndoChangedCallback();
         }
@@ -52,7 +62,9 @@ void UndoStack::undo()
 void UndoStack::redo()
 {
     if (canRedo()) {
+        m_isExecuting = true;
         m_commands[m_index]->redo();
+        m_isExecuting = false;
         m_index++;
         if (m_canUndoChangedCallback) {
             m_canUndoChangedCallback();

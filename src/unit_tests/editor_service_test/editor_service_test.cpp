@@ -846,7 +846,7 @@ void EditorServiceTest::test_requestNoteDeletionAtCurrentPosition_shouldDeleteNo
 
     QVERIFY(editorService.isModified());
     QCOMPARE(noteDataChangedSpy.count(), 56);
-    QCOMPARE(positionChangedSpy.count(), 1);
+    QCOMPARE(positionChangedSpy.count(), 2);
     QCOMPARE(editorService.position().line, 9);
     QCOMPARE(editorService.displayNoteAtPosition(0, 0, 0, 9), "C-3");
     QCOMPARE(editorService.displayVelocityAtPosition(0, 0, 0, 9), "064");

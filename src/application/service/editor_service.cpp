@@ -919,7 +919,7 @@ bool EditorService::setVelocityAtCurrentPosition(uint8_t digit)
         newNoteData.setVelocity(currentVelocity);
         changes.emplace_back(m_state.cursorPosition, *noteData, newNoteData);
 
-        m_undoStack->push(std::make_shared<NoteEditCommand>(m_song, std::move(changes), m_state.cursorPosition, [this](const Position & pos) {
+        m_undoStack->push(std::make_shared<NoteEditCommand>(m_song, std::move(changes), m_state.cursorPosition, m_state.cursorPosition, [this](const Position & pos) {
             emit noteDataAtPositionChanged(pos);
             setIsModified(true);
         }, [this](const Position & pos) { requestPosition(pos); }));
@@ -1035,12 +1035,33 @@ void EditorService::requestNoteDeletionAtCurrentPosition(bool shiftNotes)
 void EditorService::insertNoteAtPosition(const Position & position)
 {
     juzzlin::L(TAG).debug() << "Note insertion requested at position " << position.toString();
-    if (const auto changedPositions = m_song->insertNoteDataAtPosition({}, position); !changedPositions.empty()) {
-        for (auto && changedPosition : changedPositions) {
-            emit noteDataAtPositionChanged(changedPosition);
+
+    const auto lineCount = this->lineCount(position.pattern);
+    std::vector<NoteData> oldData;
+    oldData.reserve(lineCount - position.line);
+    for (size_t line = position.line; line < lineCount; ++line) {
+        if (const auto noteData = m_song->noteDataAtPosition({ position.pattern, position.track, position.column, line }); noteData) {
+            oldData.push_back(*noteData);
+        } else {
+            oldData.push_back(NoteData { position.track, position.column });
         }
-        setIsModified(true);
-        updateDuration();
+    }
+
+    if (const auto changedPositions = m_song->insertNoteDataAtPosition({}, position); !changedPositions.empty()) {
+        NoteEditCommand::ChangeList changes;
+        for (size_t i = 0; i < oldData.size(); ++i) {
+            const size_t line = position.line + i;
+            const auto pos = Position { position.pattern, position.track, position.column, line };
+            const auto newNoteDataPtr = m_song->noteDataAtPosition(pos);
+            const auto newNoteData = newNoteDataPtr ? *newNoteDataPtr : NoteData { position.track, position.column };
+            changes.emplace_back(pos, oldData[i], newNoteData);
+        }
+
+        m_undoStack->push(std::make_shared<NoteEditCommand>(m_song, std::move(changes), m_state.cursorPosition, m_state.cursorPosition, [this](const Position & pos) {
+            emit noteDataAtPositionChanged(pos);
+            setIsModified(true);
+            updateDuration();
+        }, [this](const Position & pos) { requestPosition(pos); }));
     }
 }
 
@@ -1051,7 +1072,7 @@ void EditorService::deleteNoteDataAtPosition(const Position & position, bool shi
         if (const auto oldNoteData = m_song->noteDataAtPosition(position); oldNoteData->type() != NoteData::Type::None) {
             NoteEditCommand::ChangeList changes;
             changes.emplace_back(position, *oldNoteData, NoteData { position.track, position.column });
-            m_undoStack->push(std::make_shared<NoteEditCommand>(m_song, std::move(changes), m_state.cursorPosition, [this](const Position & pos) {
+            m_undoStack->push(std::make_shared<NoteEditCommand>(m_song, std::move(changes), m_state.cursorPosition, m_state.cursorPosition, [this](const Position & pos) {
                 emit noteDataAtPositionChanged(pos);
                 setIsModified(true);
                 updateDuration();
@@ -1062,13 +1083,36 @@ void EditorService::deleteNoteDataAtPosition(const Position & position, bool shi
         auto positionToBeDeleted = position;
         positionToBeDeleted.line = position.line - 1;
         if (m_song->hasPosition(positionToBeDeleted)) {
-            if (const auto changedPositions = m_song->deleteNoteDataAtPosition(positionToBeDeleted); !changedPositions.empty()) {
-                for (auto && changedPosition : changedPositions) {
-                    emit noteDataAtPositionChanged(changedPosition);
+            const auto lineCount = this->lineCount(positionToBeDeleted.pattern);
+            std::vector<NoteData> oldData;
+            oldData.reserve(lineCount - positionToBeDeleted.line);
+            for (size_t line = positionToBeDeleted.line; line < lineCount; ++line) {
+                if (const auto noteData = m_song->noteDataAtPosition({ positionToBeDeleted.pattern, positionToBeDeleted.track, positionToBeDeleted.column, line }); noteData) {
+                    oldData.push_back(*noteData);
+                } else {
+                    oldData.push_back(NoteData { positionToBeDeleted.track, positionToBeDeleted.column });
                 }
+            }
+
+            if (const auto changedPositions = m_song->deleteNoteDataAtPosition(positionToBeDeleted); !changedPositions.empty()) {
+                NoteEditCommand::ChangeList changes;
+                for (size_t i = 0; i < oldData.size(); ++i) {
+                    const size_t line = positionToBeDeleted.line + i;
+                    const auto pos = Position { positionToBeDeleted.pattern, positionToBeDeleted.track, positionToBeDeleted.column, line };
+                    const auto newNoteDataPtr = m_song->noteDataAtPosition(pos);
+                    const auto newNoteData = newNoteDataPtr ? *newNoteDataPtr : NoteData { positionToBeDeleted.track, positionToBeDeleted.column };
+                    changes.emplace_back(pos, oldData[i], newNoteData);
+                }
+
+                const auto undoPosition = m_state.cursorPosition;
                 requestScroll(-1);
-                setIsModified(true);
-                updateDuration();
+                const auto redoPosition = m_state.cursorPosition;
+
+                m_undoStack->push(std::make_shared<NoteEditCommand>(m_song, std::move(changes), undoPosition, redoPosition, [this](const Position & pos) {
+                    emit noteDataAtPositionChanged(pos);
+                    setIsModified(true);
+                    updateDuration();
+                }, [this](const Position & pos) { requestPosition(pos); }));
             }
         }
     }
@@ -1094,7 +1138,7 @@ bool EditorService::requestNoteOnAtCurrentPosition(quint8 key, quint8 octave, qu
             changes.emplace_back(m_state.cursorPosition, NoteData { m_state.cursorPosition.track, m_state.cursorPosition.column }, noteData);
         }
 
-        m_undoStack->push(std::make_shared<NoteEditCommand>(m_song, std::move(changes), m_state.cursorPosition, [this](const Position & pos) {
+        m_undoStack->push(std::make_shared<NoteEditCommand>(m_song, std::move(changes), m_state.cursorPosition, m_state.cursorPosition, [this](const Position & pos) {
             emit noteDataAtPositionChanged(pos);
             setIsModified(true);
         }, [this](const Position & pos) { requestPosition(pos); }));
@@ -1137,11 +1181,12 @@ bool EditorService::requestNoteOffAtCurrentPosition()
         changes.emplace_back(m_state.cursorPosition, NoteData { m_state.cursorPosition.track, m_state.cursorPosition.column }, noteData);
     }
 
-    m_undoStack->push(std::make_shared<NoteEditCommand>(m_song, std::move(changes), m_state.cursorPosition, [this](const Position & pos) {
+    m_undoStack->push(std::make_shared<NoteEditCommand>(m_song, std::move(changes), m_state.cursorPosition, m_state.cursorPosition, [this](const Position & pos) {
         emit noteDataAtPositionChanged(pos);
         setIsModified(true);
-        removeDuplicateNoteOffs(); // Should this be part of the command? Maybe not for undo/redo purity.
     }, [this](const Position & pos) { requestPosition(pos); }));
+
+    removeDuplicateNoteOffs(); // Should this be part of the command? Maybe not for undo/redo purity. But calling it inside the command callback causes a crash on undo.
 
     return true;
 }
@@ -1192,12 +1237,13 @@ void EditorService::requestColumnPaste()
         for (const auto & [pos, noteData] : m_state.copyManager.getPasteColumnChanges(*m_song->pattern(currentPattern()), currentTrack(), currentColumn())) {
              if (const auto oldNoteData = m_song->noteDataAtPosition(pos); oldNoteData) {
                 changes.emplace_back(pos, *oldNoteData, noteData);
-            } else {
+            }
+            else {
                 changes.emplace_back(pos, NoteData { pos.track, pos.column }, noteData);
             }
         }
 
-        m_undoStack->push(std::make_shared<NoteEditCommand>(m_song, std::move(changes), m_state.cursorPosition, [this](const Position & pos) {
+        m_undoStack->push(std::make_shared<NoteEditCommand>(m_song, std::move(changes), m_state.cursorPosition, m_state.cursorPosition, [this](const Position & pos) {
             emit noteDataAtPositionChanged(pos);
             setIsModified(true);
             updateDuration();
@@ -1262,7 +1308,7 @@ void EditorService::requestTrackPaste()
             }
         }
 
-        m_undoStack->push(std::make_shared<NoteEditCommand>(m_song, std::move(changes), m_state.cursorPosition, [this](const Position & pos) {
+        m_undoStack->push(std::make_shared<NoteEditCommand>(m_song, std::move(changes), m_state.cursorPosition, m_state.cursorPosition, [this](const Position & pos) {
             emit noteDataAtPositionChanged(pos);
             setIsModified(true);
             updateDuration();
@@ -1319,7 +1365,7 @@ void EditorService::requestPatternPaste()
             }
         }
 
-        m_undoStack->push(std::make_shared<NoteEditCommand>(m_song, std::move(changes), m_state.cursorPosition, [this](const Position & pos) {
+        m_undoStack->push(std::make_shared<NoteEditCommand>(m_song, std::move(changes), m_state.cursorPosition, m_state.cursorPosition, [this](const Position & pos) {
             emit noteDataAtPositionChanged(pos);
             setIsModified(true);
             updateDuration();
@@ -1376,7 +1422,7 @@ void EditorService::requestSelectionPaste()
             }
         }
 
-        m_undoStack->push(std::make_shared<NoteEditCommand>(m_song, std::move(changes), m_state.cursorPosition, [this](const Position & pos) {
+        m_undoStack->push(std::make_shared<NoteEditCommand>(m_song, std::move(changes), m_state.cursorPosition, m_state.cursorPosition, [this](const Position & pos) {
             emit noteDataAtPositionChanged(pos);
             setIsModified(true);
             updateDuration();

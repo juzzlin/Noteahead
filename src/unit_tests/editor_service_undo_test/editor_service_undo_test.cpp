@@ -117,6 +117,108 @@ void EditorServiceUndoTest::test_undoRedo_deleteNote()
     QCOMPARE(editorService.displayNoteAtPosition(0, 0, 0, 0), editorService.noDataString());
 }
 
+void EditorServiceUndoTest::test_undoRedo_insertNote()
+{
+    EditorService editorService;
+    editorService.requestPosition(0, 0, 0, 0, 0);
+    editorService.requestNoteOnAtCurrentPosition(1, 3, 64);
+    
+    // Action: Insert Note (shift down)
+    // Should push C-3 down to line 1
+    editorService.requestNoteInsertionAtCurrentPosition();
+    QCOMPARE(editorService.displayNoteAtPosition(0, 0, 0, 0), editorService.noDataString());
+    QCOMPARE(editorService.displayNoteAtPosition(0, 0, 0, 1), "C-3");
+    QVERIFY(editorService.canUndo());
+
+    // Undo
+    editorService.undo();
+    QCOMPARE(editorService.displayNoteAtPosition(0, 0, 0, 0), "C-3");
+    QCOMPARE(editorService.displayNoteAtPosition(0, 0, 0, 1), editorService.noDataString());
+
+    // Redo
+    editorService.redo();
+    QCOMPARE(editorService.displayNoteAtPosition(0, 0, 0, 0), editorService.noDataString());
+    QCOMPARE(editorService.displayNoteAtPosition(0, 0, 0, 1), "C-3");
+}
+
+void EditorServiceUndoTest::test_undoRedo_backspaceNote()
+{
+    EditorService editorService;
+    editorService.requestPosition(0, 0, 0, 1, 0);
+    editorService.requestNoteOnAtCurrentPosition(1, 3, 64);
+    
+    // Move to line 1 (where note is)
+    // But backspace deletes previous line (line 0) and pulls line 1 up to 0.
+    // So cursor should be at line 1.
+    editorService.requestPosition(0, 0, 0, 1, 0);
+
+    // Action: Backspace (shift up)
+    // Should delete line 0 (empty) and pull C-3 from line 1 to line 0
+    editorService.requestNoteDeletionAtCurrentPosition(true);
+    QCOMPARE(editorService.displayNoteAtPosition(0, 0, 0, 0), "C-3");
+    QCOMPARE(editorService.displayNoteAtPosition(0, 0, 0, 1), editorService.noDataString());
+    QVERIFY(editorService.canUndo());
+
+    // Undo
+    editorService.undo();
+    QCOMPARE(editorService.displayNoteAtPosition(0, 0, 0, 0), editorService.noDataString());
+    QCOMPARE(editorService.displayNoteAtPosition(0, 0, 0, 1), "C-3");
+
+    // Redo
+    editorService.redo();
+    QCOMPARE(editorService.displayNoteAtPosition(0, 0, 0, 0), "C-3");
+    QCOMPARE(editorService.displayNoteAtPosition(0, 0, 0, 1), editorService.noDataString());
+}
+
+void EditorServiceUndoTest::test_undoRedo_noteOffWithRedundantRemoval()
+{
+    EditorService editorService;
+    
+    // 1. Insert Note Off at Line 2
+    editorService.requestPosition(0, 0, 0, 2, 0);
+    editorService.requestNoteOffAtCurrentPosition();
+    QCOMPARE(editorService.displayNoteAtPosition(0, 0, 0, 2), "OFF");
+
+    // 2. Insert Note Off at Line 4
+    // This should trigger removal of Note Off at Line 2 because it's now redundant (previous event is also Note Off)
+    editorService.requestPosition(0, 0, 0, 4, 0);
+    editorService.requestNoteOffAtCurrentPosition();
+    
+    // Verify state after Action 2 (and automatic cleanup)
+    QCOMPARE(editorService.displayNoteAtPosition(0, 0, 0, 4), "OFF");
+    // Line 2 should be deleted
+    QCOMPARE(editorService.displayNoteAtPosition(0, 0, 0, 2), editorService.noDataString());
+
+    // 3. Undo Cleanup (Automatic Step)
+    // Should restore Note Off at Line 2
+    QVERIFY(editorService.canUndo());
+    editorService.undo();
+    QCOMPARE(editorService.displayNoteAtPosition(0, 0, 0, 2), "OFF");
+    QCOMPARE(editorService.displayNoteAtPosition(0, 0, 0, 4), "OFF"); // Line 4 Note Off still there
+
+    // 4. Undo Action 2 (Insert Note Off at Line 4)
+    QVERIFY(editorService.canUndo());
+    editorService.undo();
+    QCOMPARE(editorService.displayNoteAtPosition(0, 0, 0, 4), editorService.noDataString());
+    QCOMPARE(editorService.displayNoteAtPosition(0, 0, 0, 2), "OFF"); // Line 2 Note Off remains
+
+    // 5. Undo Action 1 (Insert Note Off at Line 2)
+    QVERIFY(editorService.canUndo());
+    editorService.undo();
+    QCOMPARE(editorService.displayNoteAtPosition(0, 0, 0, 2), editorService.noDataString());
+    
+    // Redo all
+    editorService.redo(); // Action 1
+    QCOMPARE(editorService.displayNoteAtPosition(0, 0, 0, 2), "OFF");
+    
+    editorService.redo(); // Action 2
+    QCOMPARE(editorService.displayNoteAtPosition(0, 0, 0, 4), "OFF");
+    
+    editorService.redo(); // Cleanup
+    QCOMPARE(editorService.displayNoteAtPosition(0, 0, 0, 2), editorService.noDataString());
+    QCOMPARE(editorService.displayNoteAtPosition(0, 0, 0, 4), "OFF");
+}
+
 void EditorServiceUndoTest::test_undoRedo_pasteColumn()
 {
     EditorService editorService;

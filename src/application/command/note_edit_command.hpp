@@ -39,7 +39,7 @@ public:
     using Callback = std::function<void(const Position &)>;
     using CursorCallback = std::function<void(const Position &)>;
 
-    NoteEditCommand(SongS song, ChangeList changes, Position cursorPosition, Callback callback, CursorCallback cursorCallback);
+    NoteEditCommand(SongS song, ChangeList changes, Position undoPosition, Position redoPosition, Callback callback, CursorCallback cursorCallback);
 
     void undo() override;
     void redo() override;
@@ -47,7 +47,8 @@ public:
 private:
     SongS m_song;
     ChangeList m_changes;
-    Position m_cursorPosition;
+    Position m_undoPosition;
+    Position m_redoPosition;
     Callback m_callback;
     CursorCallback m_cursorCallback;
 };
