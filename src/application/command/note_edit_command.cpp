@@ -18,10 +18,12 @@
 
 namespace noteahead {
 
-NoteEditCommand::NoteEditCommand(SongS song, ChangeList changes, Callback callback)
+NoteEditCommand::NoteEditCommand(SongS song, ChangeList changes, Position cursorPosition, Callback callback, CursorCallback cursorCallback)
     : m_song { std::move(song) }
     , m_changes { std::move(changes) }
+    , m_cursorPosition { cursorPosition }
     , m_callback { std::move(callback) }
+    , m_cursorCallback { std::move(cursorCallback) }
 {
 }
 
@@ -33,6 +35,9 @@ void NoteEditCommand::undo()
             m_callback(position);
         }
     }
+    if (m_cursorCallback) {
+        m_cursorCallback(m_cursorPosition);
+    }
 }
 
 void NoteEditCommand::redo()
@@ -42,6 +47,9 @@ void NoteEditCommand::redo()
         if (m_callback) {
             m_callback(position);
         }
+    }
+    if (m_cursorCallback) {
+        m_cursorCallback(m_cursorPosition);
     }
 }
 

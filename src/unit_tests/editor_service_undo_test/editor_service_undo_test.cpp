@@ -263,7 +263,7 @@ void EditorServiceUndoTest::test_undoRedo_clearsOnNewSong()
     QVERIFY(!editorService.canRedo());
 }
 
-void EditorServiceUndoTest::test_undoRedo_clearsOnPositionChange()
+void EditorServiceUndoTest::test_undoRedo_shouldNotClearOnPatternChange()
 {
     EditorService editorService;
     // Ensure we have at least two tracks for testing track change
@@ -276,9 +276,66 @@ void EditorServiceUndoTest::test_undoRedo_clearsOnPositionChange()
     editorService.requestPosition(0, 1, 0, 0, 0);
     QVERIFY(editorService.canUndo());
 
-    // Pattern change: should clear
+    // Pattern change: should NOT clear
     editorService.setCurrentPattern(1);
-    QVERIFY(!editorService.canUndo());
+    QVERIFY(editorService.canUndo());
+}
+
+void EditorServiceUndoTest::test_undoRedo_shouldRestorePosition()
+{
+    EditorService editorService;
+    editorService.requestPosition(0, 0, 0, 0, 0);
+    editorService.requestNoteOnAtCurrentPosition(1, 3, 64);
+
+    // Move away
+    editorService.requestPosition(0, 1, 0, 10, 0);
+    QCOMPARE(editorService.position().track, 1);
+    QCOMPARE(editorService.position().line, 10);
+
+    // Undo
+    editorService.undo();
+    QCOMPARE(editorService.position().pattern, 0);
+    QCOMPARE(editorService.position().track, 0);
+    QCOMPARE(editorService.position().column, 0);
+    QCOMPARE(editorService.position().line, 0);
+    QCOMPARE(editorService.position().lineColumn, 0);
+
+    // Move away again
+    editorService.requestPosition(0, 1, 0, 10, 0);
+
+    // Redo
+    editorService.redo();
+    QCOMPARE(editorService.position().pattern, 0);
+    QCOMPARE(editorService.position().track, 0);
+    QCOMPARE(editorService.position().column, 0);
+    QCOMPARE(editorService.position().line, 0);
+    QCOMPARE(editorService.position().lineColumn, 0);
+
+    // Test across patterns
+    editorService.requestPosition(0, 0, 0, 0, 0);
+    editorService.requestNoteOnAtCurrentPosition(1, 3, 64); // Action 1 in P0 (Undo/Redo stack: [Action 1])
+
+    editorService.setCurrentPattern(1);
+    editorService.requestPosition(1, 0, 0, 0, 0);
+    editorService.requestNoteOnAtCurrentPosition(1, 3, 64); // Action 2 in P1 (Undo/Redo stack: [Action 1, Action 2])
+
+    // Undo Action 2
+    editorService.undo();
+    QCOMPARE(editorService.position().pattern, 1);
+    QCOMPARE(editorService.position().line, 0);
+
+    // Undo Action 1 (should switch pattern back to 0)
+    editorService.undo();
+    QCOMPARE(editorService.position().pattern, 0);
+    QCOMPARE(editorService.position().line, 0);
+
+    // Redo Action 1
+    editorService.redo();
+    QCOMPARE(editorService.position().pattern, 0);
+
+    // Redo Action 2 (should switch pattern to 1)
+    editorService.redo();
+    QCOMPARE(editorService.position().pattern, 1);
 }
 
 void EditorServiceUndoTest::test_undoRedo_clearsOnStructuralChange()

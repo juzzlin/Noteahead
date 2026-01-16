@@ -37,8 +37,9 @@ public:
     using Change = std::tuple<Position, NoteData, NoteData>; // Position, Old, New
     using ChangeList = std::vector<Change>;
     using Callback = std::function<void(const Position &)>;
+    using CursorCallback = std::function<void(const Position &)>;
 
-    NoteEditCommand(SongS song, ChangeList changes, Callback callback);
+    NoteEditCommand(SongS song, ChangeList changes, Position cursorPosition, Callback callback, CursorCallback cursorCallback);
 
     void undo() override;
     void redo() override;
@@ -46,7 +47,9 @@ public:
 private:
     SongS m_song;
     ChangeList m_changes;
+    Position m_cursorPosition;
     Callback m_callback;
+    CursorCallback m_cursorCallback;
 };
 
 } // namespace noteahead

@@ -919,10 +919,10 @@ bool EditorService::setVelocityAtCurrentPosition(uint8_t digit)
         newNoteData.setVelocity(currentVelocity);
         changes.emplace_back(m_state.cursorPosition, *noteData, newNoteData);
 
-        m_undoStack->push(std::make_shared<NoteEditCommand>(m_song, std::move(changes), [this](const Position & pos) {
+        m_undoStack->push(std::make_shared<NoteEditCommand>(m_song, std::move(changes), m_state.cursorPosition, [this](const Position & pos) {
             emit noteDataAtPositionChanged(pos);
             setIsModified(true);
-        }));
+        }, [this](const Position & pos) { requestPosition(pos); }));
 
         return true;
     }
@@ -1051,11 +1051,11 @@ void EditorService::deleteNoteDataAtPosition(const Position & position, bool shi
         if (const auto oldNoteData = m_song->noteDataAtPosition(position); oldNoteData->type() != NoteData::Type::None) {
             NoteEditCommand::ChangeList changes;
             changes.emplace_back(position, *oldNoteData, NoteData { position.track, position.column });
-            m_undoStack->push(std::make_shared<NoteEditCommand>(m_song, std::move(changes), [this](const Position & pos) {
+            m_undoStack->push(std::make_shared<NoteEditCommand>(m_song, std::move(changes), m_state.cursorPosition, [this](const Position & pos) {
                 emit noteDataAtPositionChanged(pos);
                 setIsModified(true);
                 updateDuration();
-            }));
+            }, [this](const Position & pos) { requestPosition(pos); }));
         }
     } else {
         // For traditional backspace function we actually delete the previous line and shift
@@ -1094,10 +1094,10 @@ bool EditorService::requestNoteOnAtCurrentPosition(quint8 key, quint8 octave, qu
             changes.emplace_back(m_state.cursorPosition, NoteData { m_state.cursorPosition.track, m_state.cursorPosition.column }, noteData);
         }
 
-        m_undoStack->push(std::make_shared<NoteEditCommand>(m_song, std::move(changes), [this](const Position & pos) {
+        m_undoStack->push(std::make_shared<NoteEditCommand>(m_song, std::move(changes), m_state.cursorPosition, [this](const Position & pos) {
             emit noteDataAtPositionChanged(pos);
             setIsModified(true);
-        }));
+        }, [this](const Position & pos) { requestPosition(pos); }));
 
         return true;
     } else {
@@ -1137,11 +1137,11 @@ bool EditorService::requestNoteOffAtCurrentPosition()
         changes.emplace_back(m_state.cursorPosition, NoteData { m_state.cursorPosition.track, m_state.cursorPosition.column }, noteData);
     }
 
-    m_undoStack->push(std::make_shared<NoteEditCommand>(m_song, std::move(changes), [this](const Position & pos) {
+    m_undoStack->push(std::make_shared<NoteEditCommand>(m_song, std::move(changes), m_state.cursorPosition, [this](const Position & pos) {
         emit noteDataAtPositionChanged(pos);
         setIsModified(true);
         removeDuplicateNoteOffs(); // Should this be part of the command? Maybe not for undo/redo purity.
-    }));
+    }, [this](const Position & pos) { requestPosition(pos); }));
 
     return true;
 }
@@ -1156,10 +1156,6 @@ void EditorService::logPosition() const
 void EditorService::notifyPositionChange(const Position & oldPosition)
 {
     logPosition();
-
-    if (m_state.cursorPosition.pattern != oldPosition.pattern) {
-        m_undoStack->clear();
-    }
 
     emit positionChanged(m_state.cursorPosition, oldPosition);
 
@@ -1201,11 +1197,11 @@ void EditorService::requestColumnPaste()
             }
         }
 
-        m_undoStack->push(std::make_shared<NoteEditCommand>(m_song, std::move(changes), [this](const Position & pos) {
+        m_undoStack->push(std::make_shared<NoteEditCommand>(m_song, std::move(changes), m_state.cursorPosition, [this](const Position & pos) {
             emit noteDataAtPositionChanged(pos);
             setIsModified(true);
             updateDuration();
-        }));
+        }, [this](const Position & pos) { requestPosition(pos); }));
 
         emit statusTextRequested(tr("Copied column pasted"));
     } catch (const std::runtime_error & e) {
@@ -1260,16 +1256,17 @@ void EditorService::requestTrackPaste()
         for (const auto & [pos, noteData] : m_state.copyManager.getPasteTrackChanges(*m_song->pattern(currentPattern()), currentTrack())) {
              if (const auto oldNoteData = m_song->noteDataAtPosition(pos); oldNoteData) {
                 changes.emplace_back(pos, *oldNoteData, noteData);
-            } else {
+            }
+            else {
                 changes.emplace_back(pos, NoteData { pos.track, pos.column }, noteData);
             }
         }
 
-        m_undoStack->push(std::make_shared<NoteEditCommand>(m_song, std::move(changes), [this](const Position & pos) {
+        m_undoStack->push(std::make_shared<NoteEditCommand>(m_song, std::move(changes), m_state.cursorPosition, [this](const Position & pos) {
             emit noteDataAtPositionChanged(pos);
             setIsModified(true);
             updateDuration();
-        }));
+        }, [this](const Position & pos) { requestPosition(pos); }));
 
         emit statusTextRequested(tr("Copied track pasted"));
     } catch (const std::runtime_error & e) {
@@ -1322,11 +1319,11 @@ void EditorService::requestPatternPaste()
             }
         }
 
-        m_undoStack->push(std::make_shared<NoteEditCommand>(m_song, std::move(changes), [this](const Position & pos) {
+        m_undoStack->push(std::make_shared<NoteEditCommand>(m_song, std::move(changes), m_state.cursorPosition, [this](const Position & pos) {
             emit noteDataAtPositionChanged(pos);
             setIsModified(true);
             updateDuration();
-        }));
+        }, [this](const Position & pos) { requestPosition(pos); }));
 
         emit statusTextRequested(tr("Copied pattern pasted"));
     } catch (const std::runtime_error & e) {
@@ -1379,11 +1376,11 @@ void EditorService::requestSelectionPaste()
             }
         }
 
-        m_undoStack->push(std::make_shared<NoteEditCommand>(m_song, std::move(changes), [this](const Position & pos) {
+        m_undoStack->push(std::make_shared<NoteEditCommand>(m_song, std::move(changes), m_state.cursorPosition, [this](const Position & pos) {
             emit noteDataAtPositionChanged(pos);
             setIsModified(true);
             updateDuration();
-        }));
+        }, [this](const Position & pos) { requestPosition(pos); }));
 
         emit statusTextRequested(tr("Copied selection pasted"));
     } catch (const std::runtime_error & e) {
