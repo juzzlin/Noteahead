@@ -17,6 +17,7 @@
 #define AUDIO_WORKER_HPP
 
 #include <QObject>
+#include <QVariantList>
 
 #include <memory>
 
@@ -34,6 +35,9 @@ public:
 
     Q_INVOKABLE void startRecording(QString filePath, quint32 bufferSize);
     Q_INVOKABLE void stopRecording();
+
+    Q_INVOKABLE QVariantList getInputDevices() const;
+    Q_INVOKABLE void setInputDevice(int deviceId);
 
 private:
     std::unique_ptr<AudioRecorder> m_audioRecorder;

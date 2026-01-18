@@ -51,6 +51,24 @@ void AudioService::stopRecording()
     }
 }
 
+QVariantList AudioService::getInputDevices()
+{
+    const auto functionName = "getInputDevices";
+    QVariantList devices;
+    if (const bool invoked = QMetaObject::invokeMethod(m_audioWorker.get(), functionName, Qt::BlockingQueuedConnection, Q_RETURN_ARG(QVariantList, devices)); !invoked) {
+        juzzlin::L(TAG).error() << "Invoking a method failed!: " << functionName;
+    }
+    return devices;
+}
+
+void AudioService::setInputDevice(int deviceId)
+{
+    const auto functionName = "setInputDevice";
+    if (const bool invoked = QMetaObject::invokeMethod(m_audioWorker.get(), functionName, Q_ARG(int, deviceId)); !invoked) {
+        juzzlin::L(TAG).error() << "Invoking a method failed!: " << functionName;
+    }
+}
+
 AudioService::~AudioService()
 {
     juzzlin::L(TAG).info() << "Stopping worker threads";

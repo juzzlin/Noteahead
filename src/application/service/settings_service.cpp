@@ -134,6 +134,16 @@ void SettingsService::setAudioBufferSize(int samples)
     Settings::setAudioBufferSize(samples);
 }
 
+int SettingsService::audioInputDeviceId() const
+{
+    return Settings::audioInputDeviceId();
+}
+
+void SettingsService::setAudioInputDeviceId(int deviceId)
+{
+    Settings::setAudioInputDeviceId(deviceId);
+}
+
 SettingsService::~SettingsService() = default;
 
 } // namespace noteahead

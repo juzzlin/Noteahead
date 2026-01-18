@@ -60,6 +60,9 @@ public:
     virtual Q_INVOKABLE int audioBufferSize() const;
     virtual Q_INVOKABLE void setAudioBufferSize(int bufferSize);
 
+    virtual Q_INVOKABLE int audioInputDeviceId() const;
+    virtual Q_INVOKABLE void setAudioInputDeviceId(int deviceId);
+
 signals:
     void controllerPortChanged();
 

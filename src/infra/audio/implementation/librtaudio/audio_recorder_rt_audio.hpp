@@ -38,6 +38,9 @@ public:
     void start(const std::string & fileName, uint32_t bufferSize) override;
     void stop() override;
 
+    std::vector<AudioDevice> getInputDevices() override;
+    void setInputDevice(uint32_t deviceId) override;
+
     bool isRunning() const;
 
 private:
@@ -56,6 +59,7 @@ private:
     SF_INFO m_sfInfo = {};
 
     std::atomic_bool m_running = false;
+    std::atomic<uint32_t> m_inputDeviceId = 0;
 
     // Double buffering / Ring Buffer
     RingBuffer<int32_t> m_ringBuffer;

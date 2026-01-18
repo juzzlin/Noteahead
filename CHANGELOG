@@ -19,6 +19,8 @@ New features:
 
 * Add offset parameter to MIDI CC modulation
 
+* Make it possible to select audio source
+
 Bug fixes:
 
 * Fix track header not properly initialized when new pattern created

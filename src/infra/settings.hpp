@@ -52,6 +52,9 @@ void setRecordingEnabled(bool enabled);
 int audioBufferSize();
 void setAudioBufferSize(int audioBufferSize);
 
+int audioInputDeviceId();
+void setAudioInputDeviceId(int deviceId);
+
 } // namespace noteahead::Settings
 
 #endif // SETTINGS_HPP

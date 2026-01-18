@@ -52,6 +52,47 @@ GroupBox {
                 onValueChanged: settingsService.setAudioBufferSize(value)
                 Keys.onReturnPressed: focus = false
             }
+            LayoutSeparator {
+                Layout.row: 3
+            }
+            Label {
+                text: qsTr("Input Device:")
+                Layout.column: 0
+                Layout.columnSpan: 2
+                Layout.row: 4
+                Layout.fillWidth: true
+            }
+            ComboBox {
+                id: audioDeviceComboBox
+                Layout.column: 3
+                Layout.row: 4
+                Layout.fillWidth: true
+                enabled: enableAudioRecordingCheckbox.checked
+                model: audioSettingsModel.inputDevices
+                textRole: "name"
+                valueRole: "id"
+                Component.onCompleted: {
+                    currentIndex = indexOfValue(audioSettingsModel.selectedInputDeviceId);
+                }
+                onActivated: {
+                    audioSettingsModel.selectedInputDeviceId = currentValue;
+                }
+                Connections {
+                    target: audioSettingsModel
+                    function onInputDevicesChanged() {
+                        audioDeviceComboBox.currentIndex = audioDeviceComboBox.indexOfValue(audioSettingsModel.selectedInputDeviceId);
+                    }
+                }
+            }
+            Button {
+                text: qsTr("Refresh")
+                Layout.column: 4
+                Layout.row: 4
+                enabled: enableAudioRecordingCheckbox.checked
+                onClicked: audioSettingsModel.refreshInputDevices()
+                ToolTip.visible: hovered
+                ToolTip.text: qsTr("Refresh device list")
+            }
         }
     }
 }

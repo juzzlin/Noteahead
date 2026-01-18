@@ -35,6 +35,7 @@ namespace noteahead {
 
 class ApplicationService;
 class AudioService;
+class AudioSettingsModel;
 class AutomationService;
 class ColumnSettingsModel;
 class EditorService;
@@ -116,7 +117,7 @@ private:
     std::unique_ptr<QGuiApplication> m_application;
     std::shared_ptr<ApplicationService> m_applicationService;
 
-    std::unique_ptr<AudioService> m_audioService;
+    std::shared_ptr<AudioService> m_audioService;
 
     std::shared_ptr<AutomationService> m_automationService;
 
@@ -145,6 +146,7 @@ private:
     std::unique_ptr<ColumnSettingsModel> m_columnSettingsModel;
     std::unique_ptr<TrackSettingsModel> m_trackSettingsModel;
     std::unique_ptr<MidiSettingsModel> m_midiSettingsModel;
+    std::unique_ptr<AudioSettingsModel> m_audioSettingsModel;
 
     std::shared_ptr<UtilService> m_utilService;
     std::shared_ptr<PropertyService> m_propertyService;

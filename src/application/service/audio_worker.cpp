@@ -17,6 +17,8 @@
 
 #include "../../infra/audio/implementation/librtaudio/audio_recorder_rt_audio.hpp"
 
+#include <QVariantMap>
+
 namespace noteahead {
 
 AudioWorker::AudioWorker(QObject * parent)
@@ -33,6 +35,23 @@ void AudioWorker::startRecording(QString filePath, quint32 bufferSize)
 void AudioWorker::stopRecording()
 {
     m_audioRecorder->stop();
+}
+
+QVariantList AudioWorker::getInputDevices() const
+{
+    QVariantList list;
+    for (const auto & device : m_audioRecorder->getInputDevices()) {
+        QVariantMap map;
+        map["id"] = static_cast<int>(device.id);
+        map["name"] = QString::fromStdString(device.name);
+        list.append(map);
+    }
+    return list;
+}
+
+void AudioWorker::setInputDevice(int deviceId)
+{
+    m_audioRecorder->setInputDevice(static_cast<uint32_t>(deviceId));
 }
 
 AudioWorker::~AudioWorker() = default;

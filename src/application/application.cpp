@@ -22,6 +22,7 @@
 #include "common/utils.hpp"
 #include "domain/column_settings.hpp"
 #include "domain/midi_note_data.hpp"
+#include "models/audio_settings_model.hpp"
 #include "models/column_settings_model.hpp"
 #include "models/event_selection_model.hpp"
 #include "models/midi_cc_automations_model.hpp"
@@ -67,7 +68,7 @@ Application::Application(int & argc, char ** argv)
   : m_uiLogger { std::make_unique<UiLogger>() }
   , m_application { std::make_unique<QGuiApplication>(argc, argv) }
   , m_applicationService { std::make_unique<ApplicationService>() }
-  , m_audioService { std::make_unique<AudioService>() }
+  , m_audioService { std::make_shared<AudioService>() }
   , m_automationService { std::make_unique<AutomationService>() }
   , m_settingsService { std::make_unique<SettingsService>() }
   , m_selectionService { std::make_unique<SelectionService>() }
@@ -87,6 +88,7 @@ Application::Application(int & argc, char ** argv)
   , m_columnSettingsModel { std::make_unique<ColumnSettingsModel>() }
   , m_trackSettingsModel { std::make_unique<TrackSettingsModel>() }
   , m_midiSettingsModel { std::make_unique<MidiSettingsModel>(m_settingsService) }
+  , m_audioSettingsModel { std::make_unique<AudioSettingsModel>(m_audioService, m_settingsService) }
   , m_utilService { std::make_unique<UtilService>() }
   , m_propertyService { std::make_shared<PropertyService>() }
   , m_noteColumnLineContainerHelper { std::make_unique<NoteColumnLineContainerHelper>(
@@ -120,6 +122,7 @@ void Application::registerTypes()
     qRegisterMetaType<const noteahead::MidiNoteData &>("MidiNoteDataCR");
 
     qmlRegisterType<ApplicationService>("Noteahead", majorVersion, minorVersion, "ApplicationService");
+    qmlRegisterType<AudioSettingsModel>("Noteahead", majorVersion, minorVersion, "AudioSettingsModel");
     qmlRegisterType<AutomationService>("Noteahead", majorVersion, minorVersion, "AutomationService");
     qmlRegisterType<ColumnSettingsModel>("Noteahead", majorVersion, minorVersion, "ColumnSettingsModel");
     qmlRegisterType<EditorService>("Noteahead", majorVersion, minorVersion, "EditorService");
@@ -148,6 +151,7 @@ void Application::registerTypes()
 void Application::setContextProperties()
 {
     m_engine->rootContext()->setContextProperty("applicationService", m_applicationService.get());
+    m_engine->rootContext()->setContextProperty("audioSettingsModel", m_audioSettingsModel.get());
     m_engine->rootContext()->setContextProperty("automationService", m_automationService.get());
     m_engine->rootContext()->setContextProperty("columnSettingsModel", m_columnSettingsModel.get());
     m_engine->rootContext()->setContextProperty("editorService", m_editorService.get());

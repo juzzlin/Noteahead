@@ -29,4 +29,13 @@ void AudioRecorder::stop()
 {
 }
 
+std::vector<AudioDevice> AudioRecorder::getInputDevices()
+{
+    return {};
+}
+
+void AudioRecorder::setInputDevice(uint32_t)
+{
+}
+
 } // namespace noteahead

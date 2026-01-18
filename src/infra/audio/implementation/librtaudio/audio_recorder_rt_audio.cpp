@@ -50,7 +50,30 @@ int AudioRecorderRtAudio::recordCallback(void *, void * inputBuffer,
     return 0;
 }
 
-AudioRecorderRtAudio::AudioRecorderRtAudio() = default;
+AudioRecorderRtAudio::AudioRecorderRtAudio()
+{
+    if (m_rtAudio.getDeviceCount() > 0) {
+        m_inputDeviceId = m_rtAudio.getDefaultInputDevice();
+    }
+}
+
+void AudioRecorderRtAudio::setInputDevice(uint32_t deviceId)
+{
+    m_inputDeviceId = deviceId;
+}
+
+std::vector<AudioDevice> AudioRecorderRtAudio::getInputDevices()
+{
+    std::vector<AudioDevice> devices;
+    const unsigned int deviceCount = m_rtAudio.getDeviceCount();
+    for (unsigned int i = 0; i < deviceCount; ++i) {
+        const auto info = m_rtAudio.getDeviceInfo(i);
+        if (info.inputChannels > 0) {
+            devices.push_back({ i, info.name });
+        }
+    }
+    return devices;
+}
 
 AudioRecorderRtAudio::~AudioRecorderRtAudio()
 {
@@ -113,7 +136,7 @@ void AudioRecorderRtAudio::start(const std::string & fileName, uint32_t bufferSi
                 throw std::runtime_error("No audio devices found!");
             }
 
-            const auto deviceId = m_rtAudio.getDefaultInputDevice();
+            const auto deviceId = m_inputDeviceId.load();
             const auto deviceInfo = m_rtAudio.getDeviceInfo(deviceId);
             const uint32_t sampleRate = deviceInfo.preferredSampleRate ? deviceInfo.preferredSampleRate : 48000;
             const uint32_t channelCount = std::min(deviceInfo.inputChannels, 2u);

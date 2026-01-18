@@ -26,6 +26,7 @@ const auto recentFilesArrayKey = "recentFilesArray";
 const auto recentFilesFilePathKey = "filePath";
 
 const auto audioBufferSizeKey = "audioBufferSize";
+const auto audioInputDeviceIdKey = "audioInputDeviceId";
 const auto recordingEnabledKey = "recordingEnabled";
 
 const auto settingsGroupAudio = "Audio";
@@ -214,6 +215,23 @@ void setAudioBufferSize(int bufferSize)
     QSettings settings;
     settings.beginGroup(settingsGroupAudio);
     settings.setValue(audioBufferSizeKey, bufferSize);
+    settings.endGroup();
+}
+
+int audioInputDeviceId()
+{
+    QSettings settings;
+    settings.beginGroup(settingsGroupAudio);
+    const auto deviceId = settings.value(audioInputDeviceIdKey, 0).toInt();
+    settings.endGroup();
+    return deviceId;
+}
+
+void setAudioInputDeviceId(int deviceId)
+{
+    QSettings settings;
+    settings.beginGroup(settingsGroupAudio);
+    settings.setValue(audioInputDeviceIdKey, deviceId);
     settings.endGroup();
 }
 

@@ -18,8 +18,15 @@
 
 #include <cstdint>
 #include <string>
+#include <vector>
 
 namespace noteahead {
+
+struct AudioDevice
+{
+    uint32_t id;
+    std::string name;
+};
 
 class AudioRecorder
 {
@@ -29,6 +36,9 @@ public:
 
     virtual void start(const std::string & fileName, uint32_t bufferSize);
     virtual void stop();
+
+    virtual std::vector<AudioDevice> getInputDevices();
+    virtual void setInputDevice(uint32_t deviceId);
 };
 
 } // namespace noteahead

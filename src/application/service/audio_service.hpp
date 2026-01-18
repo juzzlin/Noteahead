@@ -18,7 +18,9 @@
 
 #include <memory>
 
+#include <QObject>
 #include <QThread>
+#include <QVariantList>
 
 namespace noteahead {
 
@@ -34,6 +36,9 @@ public:
 
     void startRecording(QString filePath, quint32 bufferSize);
     void stopRecording();
+
+    QVariantList getInputDevices();
+    void setInputDevice(int deviceId);
 
 private:
     void initializeWorker();
