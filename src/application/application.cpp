@@ -54,6 +54,7 @@
 #include <QQmlApplicationEngine>
 #include <QQmlContext>
 
+#include <iostream>
 #include <iomanip>
 #include <regex>
 
@@ -240,6 +241,10 @@ void Application::handleCommandLineArguments(int & argc, char ** argv)
         juzzlin::SimpleLogger::setLoggingLevel(juzzlin::SimpleLogger::Level::Trace);
         juzzlin::SimpleLogger::setBatchInterval(0ms);
     });
+
+    ae.addOption({ "-v", "--version" }, [] {
+        std::cout << "Noteahead version " << VERSION << std::endl;
+        std::exit(EXIT_SUCCESS); }, false, "Print the version and exit.");
 
     ae.addOption({ "--window-size" }, [this](const std::string & value) {
         const auto valueString = QString::fromStdString(value);
