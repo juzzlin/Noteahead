@@ -14,6 +14,7 @@ set(SRC
     ../../application/service/mixer_service.cpp
     ../../application/service/random_service.cpp
     ../../application/service/selection_service.cpp
+    ../../application/service/settings_service.cpp
     ../../application/service/side_chain_service.cpp
     ../../common/constants.cpp
     ../../common/utils.cpp
@@ -46,4 +47,4 @@ set(SRC
 qt_add_executable(${NAME} ${SRC})
 set_target_properties(${NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${UNIT_TEST_BASE_DIR})
 add_test(${NAME} ${UNIT_TEST_BASE_DIR}/${NAME})
-target_link_libraries(${NAME} PRIVATE Qt${QT_VERSION_MAJOR}::Test SimpleLogger)
+target_link_libraries(${NAME} PRIVATE Qt${QT_VERSION_MAJOR}::Test Qt${QT_VERSION_MAJOR}::Gui SimpleLogger)

@@ -23,6 +23,7 @@
 #include "../../application/service/mixer_service.hpp"
 #include "../../infra/settings.hpp"
 #include "../../application/service/selection_service.hpp"
+#include "../../application/service/settings_service.hpp"
 #include "../../application/service/side_chain_service.hpp"
 #include "../../domain/column_settings.hpp"
 #include "../../domain/instrument.hpp"
@@ -483,7 +484,8 @@ void EditorServiceTest::test_patternCopyPaste_shorterTarget_shouldCopyPattern()
 void EditorServiceTest::test_selectionCutPaste_shouldCopySelection()
 {
     const auto selectionService = std::make_shared<SelectionService>();
-    EditorService editorService { selectionService };
+    const auto settingsService = std::make_shared<SettingsService>();
+    EditorService editorService { selectionService, settingsService };
     QSignalSpy noteDataChangedSpy { &editorService, &EditorService::noteDataAtPositionChanged };
     const Position sourcePosition = { 0, 1, 0, 8, 0 };
     QVERIFY(editorService.requestPosition(sourcePosition));
@@ -513,7 +515,8 @@ void EditorServiceTest::test_selectionCutPaste_shouldCopySelection()
 void EditorServiceTest::test_selectionCopyPaste_shouldCopySelection()
 {
     const auto selectionService = std::make_shared<SelectionService>();
-    EditorService editorService { selectionService };
+    const auto settingsService = std::make_shared<SettingsService>();
+    EditorService editorService { selectionService, settingsService };
     QSignalSpy noteDataChangedSpy { &editorService, &EditorService::noteDataAtPositionChanged };
     const Position sourcePosition = { 0, 1, 0, 8, 0 };
     QVERIFY(editorService.requestPosition(sourcePosition));
@@ -978,7 +981,8 @@ void EditorServiceTest::test_requestPatternTranspose_shouldTransposePattern()
 void EditorServiceTest::test_requestSelectionTranspose_shouldTransposeSelection()
 {
     const auto selectionService = std::make_shared<SelectionService>();
-    EditorService editorService { selectionService };
+    const auto settingsService = std::make_shared<SettingsService>();
+    EditorService editorService { selectionService, settingsService };
     QSignalSpy noteDataChangedSpy { &editorService, &EditorService::noteDataAtPositionChanged };
 
     editorService.requestNewColumn(0);
@@ -2131,7 +2135,7 @@ void EditorServiceTest::test_requestPositionByTick_shouldRespectUiUpdatesDisable
     QSignalSpy songPositionChangedSpy { &editorService, &EditorService::songPositionChanged };
 
     // Enable disabling UI updates
-    Settings::setUiUpdatesDisabledDuringPlayback(true);
+    editorService.settingsService()->setUiUpdatesDisabledDuringPlayback(true);
 
     // Initial position
     QCOMPARE(editorService.songPosition(), 0);
@@ -2152,7 +2156,7 @@ void EditorServiceTest::test_requestPositionByTick_shouldRespectUiUpdatesDisable
     QCOMPARE(editorService.songPosition(), 0);
 
     // Reset setting
-    Settings::setUiUpdatesDisabledDuringPlayback(false);
+    editorService.settingsService()->setUiUpdatesDisabledDuringPlayback(false);
 
     // Another tick
     const auto nextTick = tick * 2;

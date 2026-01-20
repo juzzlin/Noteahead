@@ -40,8 +40,8 @@ void NoteColumnModelHandlerTest::test_columnModel_shouldCreateAndReturnModel()
 {
     const auto automationService { std::make_shared<AutomationService>() };
     const auto selectionService { std::make_shared<SelectionService>() };
-    const auto editorService { std::make_shared<EditorService>(selectionService) };
     const auto settingsService { std::make_shared<SettingsService>() };
+    const auto editorService { std::make_shared<EditorService>(selectionService, settingsService) };
 
     NoteColumnModelHandler handler { editorService, selectionService, automationService, settingsService };
 
@@ -56,8 +56,8 @@ void NoteColumnModelHandlerTest::test_clear_shouldClearModels()
 {
     const auto automationService { std::make_shared<AutomationService>() };
     const auto selectionService { std::make_shared<SelectionService>() };
-    const auto editorService { std::make_shared<EditorService>(selectionService) };
     const auto settingsService { std::make_shared<SettingsService>() };
+    const auto editorService { std::make_shared<EditorService>(selectionService, settingsService) };
 
     NoteColumnModelHandler handler { editorService, selectionService, automationService, settingsService };
 
@@ -73,8 +73,8 @@ void NoteColumnModelHandlerTest::test_updatePattern_shouldPreserveFocus()
 {
     const auto automationService { std::make_shared<AutomationService>() };
     const auto selectionService { std::make_shared<SelectionService>() };
-    const auto editorService { std::make_shared<EditorService>(selectionService) };
     const auto settingsService { std::make_shared<SettingsService>() };
+    const auto editorService { std::make_shared<EditorService>(selectionService, settingsService) };
 
     NoteColumnModelHandler handler { editorService, selectionService, automationService, settingsService };
 

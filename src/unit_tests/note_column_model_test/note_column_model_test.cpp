@@ -43,10 +43,10 @@ void NoteColumnModelTest::test_rowCount_shouldReturnCorrectValue()
 {
     const auto automationService { std::make_shared<AutomationService>() };
     const auto selectionService { std::make_shared<SelectionService>() };
-    const auto editorService { std::make_shared<EditorService>(selectionService) };
+    const auto settingsService { std::make_shared<SettingsService>() };
+    const auto editorService { std::make_shared<EditorService>(selectionService, settingsService) };
     const auto utilService { std::make_shared<UtilService>() };
     const auto helper { std::make_shared<NoteColumnLineContainerHelper>(automationService, editorService, selectionService, utilService) };
-    const auto settingsService { std::make_shared<SettingsService>() };
 
     NoteColumnModel model { { 0, 0, 0 }, editorService, helper, settingsService };
 
@@ -63,10 +63,10 @@ void NoteColumnModelTest::test_data_shouldReturnCorrectValues()
 {
     const auto automationService { std::make_shared<AutomationService>() };
     const auto selectionService { std::make_shared<SelectionService>() };
-    const auto editorService { std::make_shared<EditorService>(selectionService) };
+    const auto settingsService { std::make_shared<SettingsService>() };
+    const auto editorService { std::make_shared<EditorService>(selectionService, settingsService) };
     const auto utilService { std::make_shared<UtilService>() };
     const auto helper { std::make_shared<NoteColumnLineContainerHelper>(automationService, editorService, selectionService, utilService) };
-    const auto settingsService { std::make_shared<SettingsService>() };
 
     NoteColumnModel model { { 0, 0, 0 }, editorService, helper, settingsService };
 
@@ -87,10 +87,10 @@ void NoteColumnModelTest::test_setLineFocused_shouldUpdateData()
 {
     const auto automationService { std::make_shared<AutomationService>() };
     const auto selectionService { std::make_shared<SelectionService>() };
-    const auto editorService { std::make_shared<EditorService>(selectionService) };
+    const auto settingsService { std::make_shared<SettingsService>() };
+    const auto editorService { std::make_shared<EditorService>(selectionService, settingsService) };
     const auto utilService { std::make_shared<UtilService>() };
     const auto helper { std::make_shared<NoteColumnLineContainerHelper>(automationService, editorService, selectionService, utilService) };
-    const auto settingsService { std::make_shared<SettingsService>() };
 
     NoteColumnModel model { { 0, 0, 0 }, editorService, helper, settingsService };
 

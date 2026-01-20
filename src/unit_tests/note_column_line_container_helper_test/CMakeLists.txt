@@ -13,6 +13,7 @@ set(SRC
     ../../application/service/editor_service.cpp
     ../../application/service/mixer_service.cpp
     ../../application/service/selection_service.cpp
+    ../../application/service/settings_service.cpp
     ../../application/service/side_chain_service.cpp
     ../../application/service/util_service.cpp
     ../../application/service/random_service.cpp

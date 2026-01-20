@@ -73,7 +73,7 @@ Application::Application(int & argc, char ** argv)
   , m_automationService { std::make_unique<AutomationService>() }
   , m_settingsService { std::make_unique<SettingsService>() }
   , m_selectionService { std::make_unique<SelectionService>() }
-  , m_editorService { std::make_unique<EditorService>(m_selectionService) }
+  , m_editorService { std::make_unique<EditorService>(m_selectionService, m_settingsService) }
   , m_eventSelectionModel { std::make_unique<EventSelectionModel>() }
   , m_midiService { std::make_unique<MidiService>() }
   , m_mixerService { std::make_unique<MixerService>() }

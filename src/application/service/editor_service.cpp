@@ -26,6 +26,7 @@
 #include "../note_converter.hpp"
 #include "copy_manager.hpp"
 #include "selection_service.hpp"
+#include "settings_service.hpp"
 
 #include <QDateTime>
 #include <QFile>
@@ -39,13 +40,14 @@ using namespace std::chrono_literals;
 static const auto TAG = "EditorService";
 
 EditorService::EditorService()
-  : EditorService { std::make_shared<SelectionService>() }
+  : EditorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>() }
 {
 }
 
-EditorService::EditorService(SelectionServiceS selectionService)
+EditorService::EditorService(SelectionServiceS selectionService, SettingsServiceS settingsService)
   : m_undoStack { std::make_unique<UndoStack>() }
   , m_selectionService { selectionService }
+  , m_settingsService { settingsService }
 {
     initialize();
     m_undoStack->setCanUndoChangedCallback([this] { emit canUndoChanged(); });
@@ -1584,7 +1586,7 @@ void EditorService::requestPositionByTick(quint64 tick)
     }
 
     if (auto && songPosition = m_song->songPositionByTick(tick); songPosition.has_value()) {
-        if (Settings::uiUpdatesDisabledDuringPlayback()) {
+        if (m_settingsService->uiUpdatesDisabledDuringPlayback()) {
             setSongPositionInternal(songPosition->position, false);
             updateTimes(songPosition->currentTime, m_song->lineToTime(songPosition->line));
         } else {

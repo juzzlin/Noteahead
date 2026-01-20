@@ -36,6 +36,7 @@ class InstrumentRequest;
 class InstrumentSettings;
 class Line;
 class SelectionService;
+class SettingsService;
 class ColumnSettings;
 
 class EditorService : public QObject
@@ -73,7 +74,8 @@ class EditorService : public QObject
 public:
     EditorService();
     using SelectionServiceS = std::shared_ptr<SelectionService>;
-    EditorService(SelectionServiceS selectionService);
+    using SettingsServiceS = std::shared_ptr<SettingsService>;
+    EditorService(SelectionServiceS selectionService, SettingsServiceS settingsService);
     ~EditorService() override;
 
     void initialize();
@@ -81,6 +83,9 @@ public:
     using SongS = std::shared_ptr<Song>;
     SongS song() const;
     void setSong(SongS song);
+
+    SelectionServiceS selectionService() const { return m_selectionService; }
+    SettingsServiceS settingsService() const { return m_settingsService; }
 
     void load(QString fileName);
     void save();
@@ -391,6 +396,7 @@ private:
     std::unique_ptr<UndoStack> m_undoStack;
 
     SelectionServiceS m_selectionService;
+    SettingsServiceS m_settingsService;
 
     struct State
     {

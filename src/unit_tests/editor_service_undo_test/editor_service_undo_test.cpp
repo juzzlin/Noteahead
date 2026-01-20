@@ -17,6 +17,7 @@
 
 #include "../../application/service/editor_service.hpp"
 #include "../../application/service/selection_service.hpp"
+#include "../../application/service/settings_service.hpp"
 #include "../../domain/note_data.hpp"
 #include "../../domain/song.hpp"
 
@@ -297,8 +298,9 @@ void EditorServiceUndoTest::test_undoRedo_pastePattern()
 void EditorServiceUndoTest::test_undoRedo_pasteSelection()
 {
     auto selectionService = std::make_shared<SelectionService>();
-    EditorService editorService(selectionService);
-    
+    const auto settingsService = std::make_shared<SettingsService>();
+    EditorService editorService { selectionService, settingsService };
+
     editorService.requestPosition(0, 0, 0, 0, 0);
     editorService.requestNoteOnAtCurrentPosition(1, 3, 64);
     
@@ -462,4 +464,4 @@ void EditorServiceUndoTest::test_undoRedo_clearsOnStructuralChange()
 
 } // namespace noteahead
 
-QTEST_MAIN(noteahead::EditorServiceUndoTest)
+QTEST_GUILESS_MAIN(noteahead::EditorServiceUndoTest)
