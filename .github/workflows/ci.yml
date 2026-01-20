@@ -1,0 +1,74 @@
+name: Build and Test
+
+on:
+  push:
+    branches: [ "master", "main" ]
+  pull_request:
+    branches: [ "master", "main" ]
+
+jobs:
+  build:
+    name: ${{ matrix.name }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: Ubuntu 24.04
+            container: ubuntu:24.04
+          - name: Ubuntu 25.10
+            container: ubuntu:25.10
+          - name: Fedora 42
+            container: fedora:42
+          - name: Fedora 43
+            container: fedora:43
+
+    container: ${{ matrix.container }}
+    
+    env:
+      DEBIAN_FRONTEND: noninteractive
+      QT_QPA_PLATFORM: offscreen
+
+    steps:
+    - name: Install Git (Ubuntu)
+      if: contains(matrix.name, 'Ubuntu')
+      run: |
+        apt-get update
+        apt-get install -y git
+
+    - name: Install Git (Fedora)
+      if: contains(matrix.name, 'Fedora')
+      run: |
+        dnf install -y git
+
+    - uses: actions/checkout@v4
+      with:
+        submodules: recursive
+
+    - name: Install Dependencies (Ubuntu)
+      if: contains(matrix.name, 'Ubuntu')
+      run: |
+        apt-get update
+        apt-get install -y build-essential cmake pkg-config ninja-build \
+          qt6-base-dev qt6-declarative-dev qt6-tools-dev librtmidi-dev librtaudio-dev libsndfile-dev \
+          qml6-module-qtcore qml6-module-qtqml qml6-module-qtqml-workerscript qml6-module-qtquick \
+          qml6-module-qtquick-controls qml6-module-qtquick-dialogs qml6-module-qtquick-layouts \
+          qml6-module-qtquick-templates qml6-module-qtquick-window
+
+    - name: Install Dependencies (Fedora)
+      if: contains(matrix.name, 'Fedora')
+      run: |
+        dnf install -y gcc-c++ cmake ninja-build \
+          qt6-qtbase-devel qt6-qtdeclarative-devel qt6-qttools-devel rtmidi-devel rtaudio-devel libsndfile-devel \
+          qt6-qtdeclarative qt6-qtquickcontrols2
+
+    - name: Configure CMake
+      run: cmake -B build -G Ninja -DCMAKE_BUILD_TYPE=Release
+
+    - name: Build
+      run: cmake --build build
+
+    - name: Test
+      run: |
+        cd build
+        ctest --output-on-failure
