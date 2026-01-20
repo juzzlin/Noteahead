@@ -1,5 +1,7 @@
 # Noteahead
 
+![Build Status](https://github.com/juzzlin/Noteahead/actions/workflows/ci.yml/badge.svg)
+
 Noteahead is a "simple" MIDI tracker and sequencer for Linux focusing on ease of use. There are no audio tracks, only MIDI.
 
 Noteahead is designed to be especially a MIDI tracker, so it has/will have features that make MIDI sequencing as easy as possible.
