@@ -15,6 +15,7 @@
 
 #include "editor_service.hpp"
 
+#include "../../infra/settings.hpp"
 #include "../../common/constants.hpp"
 #include "../../contrib/SimpleLogger/src/simple_logger.hpp"
 #include "../../domain/note_data.hpp"
@@ -1582,13 +1583,18 @@ void EditorService::requestPositionByTick(quint64 tick)
         return;
     }
 
-    const auto oldPosition = m_state.cursorPosition;
     if (auto && songPosition = m_song->songPositionByTick(tick); songPosition.has_value()) {
-        m_state.cursorPosition.pattern = songPosition->pattern;
-        m_state.cursorPosition.line = static_cast<quint64>(songPosition->line);
-        notifyPositionChange(oldPosition);
-        setSongPositionInternal(songPosition->position, false);
-        updateTimes(songPosition->currentTime, m_song->lineToTime(songPosition->line));
+        if (Settings::uiUpdatesDisabledDuringPlayback()) {
+            setSongPositionInternal(songPosition->position, false);
+            updateTimes(songPosition->currentTime, m_song->lineToTime(songPosition->line));
+        } else {
+            const auto oldPosition = m_state.cursorPosition;
+            m_state.cursorPosition.pattern = songPosition->pattern;
+            m_state.cursorPosition.line = static_cast<quint64>(songPosition->line);
+            notifyPositionChange(oldPosition);
+            setSongPositionInternal(songPosition->position, false);
+            updateTimes(songPosition->currentTime, m_song->lineToTime(songPosition->line));
+        }
     }
 }
 

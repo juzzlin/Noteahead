@@ -26,6 +26,7 @@ static const auto TAG = "SettingsService";
 
 SettingsService::SettingsService()
   : m_controllerPort { Settings::controllerPort("") }
+  , m_uiUpdatesDisabledDuringPlayback { Settings::uiUpdatesDisabledDuringPlayback() }
   , m_visibleLines { Settings::visibleLines(32) }
   , m_trackHeaderFontSize { Settings::trackHeaderFontSize(20) }
 {
@@ -53,6 +54,20 @@ void SettingsService::setControllerPort(QString controllerPort)
         m_controllerPort = controllerPort;
         Settings::setControllerPort(controllerPort);
         emit controllerPortChanged();
+    }
+}
+
+bool SettingsService::uiUpdatesDisabledDuringPlayback() const
+{
+    return m_uiUpdatesDisabledDuringPlayback;
+}
+
+void SettingsService::setUiUpdatesDisabledDuringPlayback(bool disabled)
+{
+    if (m_uiUpdatesDisabledDuringPlayback != disabled) {
+        m_uiUpdatesDisabledDuringPlayback = disabled;
+        Settings::setUiUpdatesDisabledDuringPlayback(disabled);
+        emit uiUpdatesDisabledDuringPlaybackChanged();
     }
 }
 

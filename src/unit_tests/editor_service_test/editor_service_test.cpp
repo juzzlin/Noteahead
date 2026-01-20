@@ -21,6 +21,7 @@
 #include "../../application/service/automation_service.hpp"
 #include "../../application/service/editor_service.hpp"
 #include "../../application/service/mixer_service.hpp"
+#include "../../infra/settings.hpp"
 #include "../../application/service/selection_service.hpp"
 #include "../../application/service/side_chain_service.hpp"
 #include "../../domain/column_settings.hpp"
@@ -2120,6 +2121,48 @@ void EditorServiceTest::test_velocityAtPosition_shouldReturnCorrectVelocity()
     QCOMPARE(editorService.velocityAtPosition(0, 0, 0, 0), 0);
 
     QCOMPARE(editorService.velocityAtPosition(0, 1, 0, 0), 0);
+}
+
+void EditorServiceTest::test_requestPositionByTick_shouldRespectUiUpdatesDisabledSetting()
+{
+    EditorService editorService;
+    QSignalSpy positionChangedSpy { &editorService, &EditorService::positionChanged };
+    QSignalSpy currentTimeChangedSpy { &editorService, &EditorService::currentTimeChanged };
+    QSignalSpy songPositionChangedSpy { &editorService, &EditorService::songPositionChanged };
+
+    // Enable disabling UI updates
+    Settings::setUiUpdatesDisabledDuringPlayback(true);
+
+    // Initial position
+    QCOMPARE(editorService.songPosition(), 0);
+
+    // Populate song position map manually as we don't have a PlayerService rendering
+    editorService.song()->updateTickToSongPositionMapping(0, 0, 0, editorService.lineCount(0));
+
+    // Tick update that triggers a line change
+    const auto tick = editorService.ticksPerLine(); // Move to next line
+    editorService.requestPositionByTick(tick);
+
+    // Assert: Position should NOT change (UI update suppressed)
+    QCOMPARE(positionChangedSpy.count(), 0);
+    // Assert: Time should change
+    QCOMPARE(currentTimeChangedSpy.count(), 1);
+    // Assert: Song position should NOT change (we are still in the same pattern)
+    QCOMPARE(songPositionChangedSpy.count(), 0);
+    QCOMPARE(editorService.songPosition(), 0);
+
+    // Reset setting
+    Settings::setUiUpdatesDisabledDuringPlayback(false);
+
+    // Another tick
+    const auto nextTick = tick * 2;
+    editorService.requestPositionByTick(nextTick);
+
+    // Assert: Position should change now
+    QCOMPARE(positionChangedSpy.count(), 1);
+    QCOMPARE(currentTimeChangedSpy.count(), 2);
+    // Assert: Song position still 0
+    QCOMPARE(songPositionChangedSpy.count(), 0);
 }
 
 } // namespace noteahead

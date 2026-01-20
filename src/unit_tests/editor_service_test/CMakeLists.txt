@@ -41,6 +41,7 @@ set(SRC
     ../../domain/play_order.cpp
     ../../domain/song.cpp
     ../../domain/track.cpp
+    ../../infra/settings.cpp
 )
 qt_add_executable(${NAME} ${SRC})
 set_target_properties(${NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${UNIT_TEST_BASE_DIR})

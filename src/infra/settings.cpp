@@ -38,6 +38,7 @@ const auto stepKey = "step";
 const auto velocityKey = "velocity";
 
 const auto trackHeaderFontSizeKey = "trackHeaderFontSize";
+const auto uiUpdatesDisabledDuringPlaybackKey = "uiUpdatesDisabledDuringPlayback";
 const auto visibleLinesKey = "visibleLines";
 const auto windowSizeKey = "size";
 
@@ -181,6 +182,23 @@ void setTrackHeaderFontSize(int trackHeaderFontSize)
     QSettings settings;
     settings.beginGroup(settingsGroupEditor);
     settings.setValue(trackHeaderFontSizeKey, trackHeaderFontSize);
+    settings.endGroup();
+}
+
+bool uiUpdatesDisabledDuringPlayback()
+{
+    QSettings settings;
+    settings.beginGroup(settingsGroupEditor);
+    const auto disabled = settings.value(uiUpdatesDisabledDuringPlaybackKey, false).toBool();
+    settings.endGroup();
+    return disabled;
+}
+
+void setUiUpdatesDisabledDuringPlayback(bool disabled)
+{
+    QSettings settings;
+    settings.beginGroup(settingsGroupEditor);
+    settings.setValue(uiUpdatesDisabledDuringPlaybackKey, disabled);
     settings.endGroup();
 }
 

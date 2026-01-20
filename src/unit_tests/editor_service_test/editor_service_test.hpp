@@ -89,6 +89,7 @@ private slots:
     void test_requestPosition_validPosition_shouldChangePosition();
     void test_requestPosition_shouldChangePosition();
     void test_requestPosition_shouldNotChangePosition();
+    void test_requestPositionByTick_shouldRespectUiUpdatesDisabledSetting();
     void test_resetSongPosition_firstTrackRemoved_shouldResetPosition();
 
     void test_requestScroll_shouldChangePosition();

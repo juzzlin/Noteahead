@@ -26,6 +26,7 @@ class SettingsService : public QObject
     Q_OBJECT
 
     Q_PROPERTY(QString controllerPort READ controllerPort WRITE setControllerPort NOTIFY controllerPortChanged)
+    Q_PROPERTY(bool uiUpdatesDisabledDuringPlayback READ uiUpdatesDisabledDuringPlayback WRITE setUiUpdatesDisabledDuringPlayback NOTIFY uiUpdatesDisabledDuringPlaybackChanged)
     Q_PROPERTY(int visibleLines READ visibleLines WRITE setVisibleLines NOTIFY visibleLinesChanged)
     Q_PROPERTY(int trackHeaderFontSize READ trackHeaderFontSize WRITE setTrackHeaderFontSize NOTIFY trackHeaderFontSizeChanged)
 
@@ -38,6 +39,9 @@ public:
 
     virtual Q_INVOKABLE QString controllerPort() const;
     virtual Q_INVOKABLE void setControllerPort(QString controllerPort);
+
+    virtual Q_INVOKABLE bool uiUpdatesDisabledDuringPlayback() const;
+    virtual Q_INVOKABLE void setUiUpdatesDisabledDuringPlayback(bool disabled);
 
     virtual Q_INVOKABLE QSize windowSize(QSize defaultSize) const;
     virtual Q_INVOKABLE void setWindowSize(QSize size);
@@ -65,12 +69,14 @@ public:
 
 signals:
     void controllerPortChanged();
+    void uiUpdatesDisabledDuringPlaybackChanged();
 
     void visibleLinesChanged();
     void trackHeaderFontSizeChanged();
 
 private:
     QString m_controllerPort;
+    bool m_uiUpdatesDisabledDuringPlayback;
 
     int m_visibleLines;
     int m_trackHeaderFontSize;

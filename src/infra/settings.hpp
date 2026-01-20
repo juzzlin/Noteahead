@@ -46,6 +46,9 @@ void setVisibleLines(int visibleLines);
 int trackHeaderFontSize(int defaultTrackHeaderFontSize);
 void setTrackHeaderFontSize(int trackHeaderFontSize);
 
+bool uiUpdatesDisabledDuringPlayback();
+void setUiUpdatesDisabledDuringPlayback(bool disabled);
+
 bool recordingEnabled();
 void setRecordingEnabled(bool enabled);
 
