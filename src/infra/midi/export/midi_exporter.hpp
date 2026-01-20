@@ -16,6 +16,7 @@
 #ifndef MIDI_EXPORTER_HPP
 #define MIDI_EXPORTER_HPP
 
+#include <cstdint>
 #include <limits>
 #include <map>
 #include <memory>
