@@ -44,3 +44,7 @@ build-dir
 
 # Act
 .secrets
+
+# CTest
+Testing/
+
