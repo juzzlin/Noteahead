@@ -117,7 +117,6 @@ All Arctic Music Project songs:
 ## Future dreams (**NOT YET IMPLEMENTED**):
 
 * Horizontal visualization
-* Live recording via a MIDI controller
 * Sync options: MIDI, Jack
 
 ##
