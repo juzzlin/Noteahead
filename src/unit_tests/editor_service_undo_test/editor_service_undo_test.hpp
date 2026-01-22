@@ -16,8 +16,7 @@
 #ifndef EDITOR_SERVICE_UNDO_TEST_HPP
 #define EDITOR_SERVICE_UNDO_TEST_HPP
 
-#include <QObject>
-#include <QtTest>
+#include <QTest>
 
 namespace noteahead {
 
@@ -42,6 +41,7 @@ private slots:
     void test_undoRedo_shouldNotClearOnPatternChange();
     void test_undoRedo_shouldRestorePosition();
     void test_undoRedo_clearsOnStructuralChange();
+    void test_undoRedo_linearVelocityInterpolation();
 };
 
 } // namespace noteahead

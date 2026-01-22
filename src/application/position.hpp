@@ -18,6 +18,7 @@
 
 #include <QObject>
 #include <sstream>
+#include <tuple>
 
 namespace noteahead {
 
@@ -59,6 +60,11 @@ public:
     bool operator!=(const Position & other) const
     {
         return !(*this == other);
+    }
+
+    bool operator<(const Position & other) const
+    {
+        return std::tie(pattern, track, column, line, lineColumn) < std::tie(other.pattern, other.track, other.column, other.line, other.lineColumn);
     }
 
     std::string toString() const

@@ -11,6 +11,8 @@ New features:
 
 Bug fixes:
 
+* Fix velocity interpolation not undo'ed
+
 Other:
 
 * Busy wait in PlayerWorker for higher precision

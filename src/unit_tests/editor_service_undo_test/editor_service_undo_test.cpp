@@ -462,6 +462,54 @@ void EditorServiceUndoTest::test_undoRedo_clearsOnStructuralChange()
     QVERIFY(!editorService.canUndo());
 }
 
+void EditorServiceUndoTest::test_undoRedo_linearVelocityInterpolation()
+{
+    EditorService editorService;
+    
+    // Set up notes
+    editorService.requestPosition(0, 0, 0, 0, 0);
+    QVERIFY(editorService.requestNoteOnAtCurrentPosition(1, 3, 10)); // Line 0
+    editorService.requestPosition(0, 0, 0, 2, 0);
+    QVERIFY(editorService.requestNoteOnAtCurrentPosition(1, 3, 100)); // Line 2
+    editorService.requestPosition(0, 0, 0, 4, 0);
+    QVERIFY(editorService.requestNoteOnAtCurrentPosition(1, 3, 50)); // Line 4
+
+    editorService.requestLinearVelocityInterpolationOnColumn(0, 4, 10, 50, false);
+
+    // Check intermediate value at line 2
+    // 10 + (50 - 10) * (2 / 4) = 10 + 40 * 0.5 = 30
+    QCOMPARE(editorService.displayVelocityAtPosition(0, 0, 0, 2), "030");
+    QVERIFY(editorService.canUndo());
+
+    // Undo Interpolation
+    editorService.undo();
+    
+    // Redo to restore state
+    editorService.redo();
+    QCOMPARE(editorService.displayVelocityAtPosition(0, 0, 0, 2), "030");
+
+    // Reset and retry properly
+    editorService.initialize();
+    editorService.requestPosition(0, 0, 0, 0, 0);
+    editorService.requestNoteOnAtCurrentPosition(1, 3, 10); // Line 0
+    editorService.requestPosition(0, 0, 0, 2, 0);
+    editorService.requestNoteOnAtCurrentPosition(1, 3, 100); // Line 2, will be interpolated
+    editorService.requestPosition(0, 0, 0, 4, 0);
+    editorService.requestNoteOnAtCurrentPosition(1, 3, 50); // Line 4
+
+    editorService.requestLinearVelocityInterpolationOnColumn(0, 4, 10, 50, false);
+    
+    QCOMPARE(editorService.displayVelocityAtPosition(0, 0, 0, 2), "030");
+    
+    editorService.undo();
+
+    QCOMPARE(editorService.displayVelocityAtPosition(0, 0, 0, 2), "100");
+    
+    editorService.redo();
+
+    QCOMPARE(editorService.displayVelocityAtPosition(0, 0, 0, 2), "030");
+}
+
 } // namespace noteahead
 
 QTEST_GUILESS_MAIN(noteahead::EditorServiceUndoTest)

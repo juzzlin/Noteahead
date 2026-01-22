@@ -1466,11 +1466,40 @@ void EditorService::requestLinearVelocityInterpolationOnColumn(quint64 startLine
     auto end = position();
     end.line = endLine;
 
-    if (const auto changedPositions = NoteDataManipulator::interpolateVelocityOnColumn(m_song, start, end, startValue, endValue, usePercentages); !changedPositions.empty()) {
-        for (auto && position : changedPositions) {
-            emit noteDataAtPositionChanged(position);
+    std::map<Position, NoteData> oldNoteDataMap;
+    for (quint64 line = startLine; line <= endLine; ++line) {
+        Position pos = start;
+        pos.line = line;
+        if (const auto noteData = m_song->noteDataAtPosition(pos); noteData && noteData->type() == NoteData::Type::NoteOn) {
+            oldNoteDataMap[pos] = *noteData;
         }
-        setIsModified(true);
+    }
+
+    if (const auto changedPositions = NoteDataManipulator::interpolateVelocityOnColumn(m_song, start, end, startValue, endValue, usePercentages); !changedPositions.empty()) {
+        NoteEditCommand::ChangeList changes;
+        juzzlin::L(TAG).debug() << "Changed positions count: " << changedPositions.size();
+        juzzlin::L(TAG).debug() << "Old note data map size: " << oldNoteDataMap.size();
+        for (auto && position : changedPositions) {
+            if (oldNoteDataMap.count(position)) {
+                if (const auto newNoteData = m_song->noteDataAtPosition(position); newNoteData) {
+                    changes.emplace_back(position, oldNoteDataMap.at(position), *newNoteData);
+                    juzzlin::L(TAG).debug() << "Change: " << position.toString() << " Old: " << oldNoteDataMap.at(position).velocity() << " New: " << newNoteData->velocity();
+                }
+            } else {
+                juzzlin::L(TAG).debug() << "Position not found in old map: " << position.toString();
+            }
+        }
+
+        for (const auto & [pos, oldData, newData] : changes) {
+            juzzlin::L(TAG).debug() << "Reverting to: " << oldData.velocity() << " Type: " << static_cast<int>(oldData.type());
+            m_song->setNoteDataAtPosition(oldData, pos);
+        }
+        if (!changes.empty()) {
+            m_undoStack->push(std::make_shared<NoteEditCommand>(m_song, std::move(changes), m_state.cursorPosition, m_state.cursorPosition, [this](const Position & pos) {
+                emit noteDataAtPositionChanged(pos);
+                setIsModified(true);
+            }, [this](const Position & pos) { requestPosition(pos); }));
+        }
     }
 }
 
@@ -1482,17 +1511,59 @@ void EditorService::requestLinearVelocityInterpolationOnTrack(quint64 startLine,
     auto end = position();
     end.line = endLine;
 
-    if (const auto changedPositions = NoteDataManipulator::interpolateVelocityOnTrack(m_song, start, end, startValue, endValue, usePercentages); !changedPositions.empty()) {
-        for (auto && position : changedPositions) {
-            emit noteDataAtPositionChanged(position);
+    std::map<Position, NoteData> oldNoteDataMap;
+    for (quint64 column = 0; column < columnCount(start.track); ++column) {
+        for (quint64 line = startLine; line <= endLine; ++line) {
+            Position pos = start;
+            pos.column = column;
+            pos.line = line;
+            if (const auto noteData = m_song->noteDataAtPosition(pos); noteData && noteData->type() == NoteData::Type::NoteOn) {
+                oldNoteDataMap[pos] = *noteData;
+            }
         }
-        setIsModified(true);
+    }
+
+    if (const auto changedPositions = NoteDataManipulator::interpolateVelocityOnTrack(m_song, start, end, startValue, endValue, usePercentages); !changedPositions.empty()) {
+        NoteEditCommand::ChangeList changes;
+        for (auto && position : changedPositions) {
+            if (oldNoteDataMap.count(position)) {
+                if (const auto newNoteData = m_song->noteDataAtPosition(position); newNoteData) {
+                    changes.emplace_back(position, oldNoteDataMap.at(position), *newNoteData);
+                }
+            }
+        }
+
+        for (const auto & [pos, oldData, newData] : changes) {
+            m_song->setNoteDataAtPosition(oldData, pos);
+        }
+
+        if (!changes.empty()) {
+            m_undoStack->push(std::make_shared<NoteEditCommand>(m_song, std::move(changes), m_state.cursorPosition, m_state.cursorPosition, [this](const Position & pos) {
+                emit noteDataAtPositionChanged(pos);
+                setIsModified(true);
+            }, [this](const Position & pos) { requestPosition(pos); }));
+        }
     }
 }
 
 void EditorService::requestLinearVelocityInterpolationOnSelection(quint64 startLine, quint64 endLine, quint8 startValue, quint8 endValue, bool usePercentages)
 {
     if (m_selectionService->isValidSelection()) {
+        std::map<Position, NoteData> oldNoteDataMap;
+        for (auto column = m_selectionService->minColumn(); column <= m_selectionService->maxColumn(); column++) {
+            auto start = position();
+            start.column = column;
+            for (quint64 line = startLine; line <= endLine; ++line) {
+                Position pos = start;
+                pos.line = line;
+                if (const auto noteData = m_song->noteDataAtPosition(pos); noteData && noteData->type() == NoteData::Type::NoteOn) {
+                    oldNoteDataMap[pos] = *noteData;
+                }
+            }
+        }
+
+        NoteEditCommand::ChangeList changes;
+
         for (auto column = m_selectionService->minColumn(); column <= m_selectionService->maxColumn(); column++) {
 
             auto start = position();
@@ -1505,10 +1576,24 @@ void EditorService::requestLinearVelocityInterpolationOnSelection(quint64 startL
 
             if (const auto changedPositions = NoteDataManipulator::interpolateVelocityOnColumn(m_song, start, end, startValue, endValue, usePercentages); !changedPositions.empty()) {
                 for (auto && position : changedPositions) {
-                    emit noteDataAtPositionChanged(position);
+                    if (oldNoteDataMap.count(position)) {
+                        if (const auto newNoteData = m_song->noteDataAtPosition(position); newNoteData) {
+                            changes.emplace_back(position, oldNoteDataMap.at(position), *newNoteData);
+                        }
+                    }
                 }
-                setIsModified(true);
             }
+        }
+
+        for (const auto & [pos, oldData, newData] : changes) {
+            m_song->setNoteDataAtPosition(oldData, pos);
+        }
+
+        if (!changes.empty()) {
+            m_undoStack->push(std::make_shared<NoteEditCommand>(m_song, std::move(changes), m_state.cursorPosition, m_state.cursorPosition, [this](const Position & pos) {
+                emit noteDataAtPositionChanged(pos);
+                setIsModified(true);
+            }, [this](const Position & pos) { requestPosition(pos); }));
         }
     }
 }
