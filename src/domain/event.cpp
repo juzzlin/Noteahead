@@ -77,10 +77,10 @@ void Event::applyVelocityJitter(int percentage)
     }
 }
 
-void Event::applyVelocityKeyTrack(int percentage)
+void Event::applyVelocityKeyTrack(int percentage, int offset)
 {
     if (m_noteData.has_value() && percentage > 0 && m_noteData->type() == NoteData::Type::NoteOn && m_noteData->note().has_value()) {
-        m_noteData->setVelocity(Utils::Midi::scaleVelocityByKey(m_noteData->velocity(), *m_noteData->note(), percentage));
+        m_noteData->setVelocity(Utils::Midi::scaleVelocityByKey(m_noteData->velocity(), *m_noteData->note(), percentage, offset));
     }
 }
 

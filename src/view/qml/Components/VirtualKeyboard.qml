@@ -10,6 +10,21 @@ Item {
     signal noteOnRequested(int note)
     signal noteOffRequested(int note)
 
+    property int velocityKeyTrack: 0
+    property int velocityKeyTrackOffset: 0
+
+    function getVelocityColor(note: int, baseColor: color): color {
+        if (velocityKeyTrack <= 0) {
+            return baseColor;
+        }
+        const effectiveNote = Math.max(0, note - velocityKeyTrackOffset);
+        let factor = 1.0 - (velocityKeyTrack / 100.0) * (effectiveNote / 127.0);
+        factor = Math.max(0.0, Math.min(1.0, factor));
+        const c1 = Qt.color("orange");
+        const c2 = Qt.color(baseColor);
+        return Qt.rgba(c1.r + (c2.r - c1.r) * factor, c1.g + (c2.g - c1.g) * factor, c1.b + (c2.b - c1.b) * factor, 1.0);
+    }
+
     // Real piano range: A0 (21) => C8 (108)
     readonly property int baseNote: 21
     readonly property int topNote: 108
@@ -47,7 +62,7 @@ Item {
                     x: index * rootItem.whiteKeyWidth
                     width: rootItem.whiteKeyWidth
                     height: parent.height
-                    color: pressed ? "#e6e6e6" : "#ffffff"
+                    color: pressed ? "#e6e6e6" : rootItem.getVelocityColor(note, "#ffffff")
                     border.color: "#222"
                     border.width: 1
                     property bool pressed: false
@@ -86,7 +101,7 @@ Item {
                     width: rootItem.whiteKeyWidth * 0.6
                     height: parent.height * 0.6
                     radius: 3
-                    color: pressed ? "#222" : "#000"
+                    color: pressed ? "#222" : rootItem.getVelocityColor(note, "#000")
                     border.color: "#111"
                     x: (index + 1) * rootItem.whiteKeyWidth - width / 2
                     y: 0

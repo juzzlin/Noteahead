@@ -20,6 +20,7 @@ ColumnLayout {
         patchSpinBox.value = trackSettingsModel.patch;
         transposeSpinBox.value = trackSettingsModel.transpose;
         velocityKeyTrackSpinBox.value = trackSettingsModel.velocityKeyTrack;
+        velocityKeyTrackOffsetSpinBox.value = trackSettingsModel.velocityKeyTrackOffset;
     }
     function _requestTestSound(): void {
         if (visible) {
@@ -257,32 +258,58 @@ ColumnLayout {
                     onValueModified: trackSettingsModel.transpose = value
                     Keys.onReturnPressed: focus = false
                 }
-                Label {
-                    text: qsTr("Velocity Key Track (%):")
-                    Layout.column: 4
-                    Layout.row: 5
-                    Layout.fillWidth: true
-                }
-                SpinBox {
-                    id: velocityKeyTrackSpinBox
-                    from: 0
-                    to: 100
-                    editable: true
-                    Layout.column: 5
-                    Layout.row: 5
-                    Layout.fillWidth: true
-                    ToolTip.delay: Constants.toolTipDelay
-                    ToolTip.timeout: Constants.toolTipTimeout
-                    ToolTip.visible: hovered
-                    ToolTip.text: qsTr("Linearly reduce velocity for higher notes (0-100%)")
-                    onValueModified: trackSettingsModel.velocityKeyTrack = value
-                    Keys.onReturnPressed: focus = false
-                }
+            }
+        }
+    }
+    GroupBox {
+        title: qsTr("Velocity Key Track")
+        Layout.fillWidth: true
+        GridLayout {
+            columns: 5
+            width: parent.width
+            Label {
+                text: qsTr("Amount (%):")
+                Layout.fillWidth: true
+            }
+            SpinBox {
+                id: velocityKeyTrackSpinBox
+                from: 0
+                to: 100
+                editable: true
+                Layout.fillWidth: true
+                ToolTip.delay: Constants.toolTipDelay
+                ToolTip.timeout: Constants.toolTipTimeout
+                ToolTip.visible: hovered
+                ToolTip.text: qsTr("Linearly reduce velocity for higher notes (0-100%)")
+                onValueModified: trackSettingsModel.velocityKeyTrack = value
+                Keys.onReturnPressed: focus = false
+            }
+            Item {
+                Layout.preferredWidth: 20
+            }
+            Label {
+                text: qsTr("Offset (notes):")
+                Layout.fillWidth: true
+            }
+            SpinBox {
+                id: velocityKeyTrackOffsetSpinBox
+                from: 0
+                to: 127
+                editable: true
+                Layout.fillWidth: true
+                ToolTip.delay: Constants.toolTipDelay
+                ToolTip.timeout: Constants.toolTipTimeout
+                ToolTip.visible: hovered
+                ToolTip.text: qsTr("The note offset where velocity reduction starts")
+                onValueModified: trackSettingsModel.velocityKeyTrackOffset = value
+                Keys.onReturnPressed: focus = false
             }
         }
     }
     VirtualKeyboard {
         Layout.fillWidth: true
+        velocityKeyTrack: trackSettingsModel.velocityKeyTrack
+        velocityKeyTrackOffset: trackSettingsModel.velocityKeyTrackOffset
         onNoteOnRequested: note => trackSettingsModel.requestNoteOn(note, UiService._activeVelocity)
         onNoteOffRequested: note => trackSettingsModel.requestNoteOff(note)
     }

@@ -225,6 +225,7 @@ void TrackSettingsModel::setInstrumentData(const Instrument & instrument)
 
     setVelocityJitter(instrument.settings().midiEffects.velocityJitter);
     setVelocityKeyTrack(instrument.settings().midiEffects.velocityKeyTrack);
+    setVelocityKeyTrackOffset(instrument.settings().midiEffects.velocityKeyTrackOffset);
 
     m_midiCcModel->setMidiCcSettings(instrument.settings().midiCcSettings);
 
@@ -287,6 +288,7 @@ TrackSettingsModel::InstrumentU TrackSettingsModel::toInstrument() const
 
     settings.midiEffects.velocityJitter = m_midiEffectSettings.velocityJitter;
     settings.midiEffects.velocityKeyTrack = m_midiEffectSettings.velocityKeyTrack;
+    settings.midiEffects.velocityKeyTrackOffset = m_midiEffectSettings.velocityKeyTrackOffset;
 
     settings.midiCcSettings = m_midiCcModel->midiCcSettings();
     instrument->setSettings(settings);
@@ -431,6 +433,21 @@ void TrackSettingsModel::setVelocityKeyTrack(int velocityKeyTrack)
     if (m_midiEffectSettings.velocityKeyTrack != velocityKeyTrack) {
         m_midiEffectSettings.velocityKeyTrack = velocityKeyTrack;
         emit velocityKeyTrackChanged();
+    }
+}
+
+int TrackSettingsModel::velocityKeyTrackOffset() const
+{
+    return m_midiEffectSettings.velocityKeyTrackOffset;
+}
+
+void TrackSettingsModel::setVelocityKeyTrackOffset(int velocityKeyTrackOffset)
+{
+    juzzlin::L(TAG).debug() << "Setting velocty key track offset to " << velocityKeyTrackOffset;
+
+    if (m_midiEffectSettings.velocityKeyTrackOffset != velocityKeyTrackOffset) {
+        m_midiEffectSettings.velocityKeyTrackOffset = velocityKeyTrackOffset;
+        emit velocityKeyTrackOffsetChanged();
     }
 }
 

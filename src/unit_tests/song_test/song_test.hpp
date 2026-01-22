@@ -60,6 +60,7 @@ private slots:
     void test_renderToEvents_transposeSet_shouldApplyTranspose();
     void test_renderToEvents_velocityJitterSet_shouldApplyVelocityJitter();
     void test_renderToEvents_velocityKeyTrackSet_shouldScaleVelocity();
+    void test_renderToEvents_velocityKeyTrackOffsetSet_shouldScaleVelocity();
     void test_renderToEvents_customNoteOffOffsetSet_shouldApplyCorrectOffset();
 
     void test_addTrack_shouldUseSmallestFreeId();

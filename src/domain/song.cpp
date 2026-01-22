@@ -710,7 +710,7 @@ Song::EventList Song::applyInstrumentsOnEvents(EventListCR events) const
                     }
                     event->applyDelay(totalDelay - delayOffset, msPerTick);
                     event->applyVelocityJitter(event->instrument()->settings().midiEffects.velocityJitter);
-                    event->applyVelocityKeyTrack(event->instrument()->settings().midiEffects.velocityKeyTrack);
+                    event->applyVelocityKeyTrack(event->instrument()->settings().midiEffects.velocityKeyTrack, event->instrument()->settings().midiEffects.velocityKeyTrackOffset);
                     event->transpose(event->instrument()->settings().transpose);
                 }
             }

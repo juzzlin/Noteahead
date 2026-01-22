@@ -89,6 +89,8 @@ All Arctic Music Project songs:
   - The MIDI controller is routed to the instrument of the selected track
 - Highly adjustable note-off's (global default in ms, per-instrument in ms, manual)
 - Virtual MIDI out port (since 1.0.0+)
+- Velocity key track
+  - Make e.g. your piano have less velocity on higher notes. Super cool!
 
 ### Audio
 - Audio recorder

@@ -596,6 +596,58 @@ void SongTest::test_renderToEvents_velocityKeyTrackSet_shouldScaleVelocity()
     QCOMPARE(highNoteOn->noteData()->velocity(), 50);
 }
 
+void SongTest::test_renderToEvents_velocityKeyTrackOffsetSet_shouldScaleVelocity()
+{
+    Song song;
+
+    const auto instrument = std::make_shared<Instrument>("TestInstrument");
+    song.setInstrument(0, instrument);
+    auto settings = instrument->settings();
+    settings.midiEffects.velocityKeyTrack = 100; // 100% scaling
+    settings.midiEffects.velocityKeyTrackOffset = 60; // Scaling starts from middle C
+    instrument->setSettings(settings);
+
+    // Note at offset (60) - Should have original velocity
+    // Scaling factor: 1.0 - (1.0 * max(0, 60 - 60) / 127) = 1.0
+    const Position offsetNotePosition = { 0, 0, 0, 0, 0 };
+    song.noteDataAtPosition(offsetNotePosition)->setAsNoteOn(60, 100);
+
+    // Note below offset (40) - Should have original velocity
+    // Scaling factor: 1.0 - (1.0 * max(0, 40 - 60) / 127) = 1.0
+    const Position lowNotePosition = { 0, 0, 0, 1, 0 };
+    song.noteDataAtPosition(lowNotePosition)->setAsNoteOn(40, 100);
+
+    // High note (127) - Should have reduced velocity
+    // Scaling factor: 1.0 - (1.0 * (127 - 60) / 127) = 1.0 - 67/127 ~= 1.0 - 0.527 ~= 0.472
+    // Velocity: 100 * 0.472 ~= 47
+    const Position highNotePosition = { 0, 0, 0, 2, 0 };
+    song.noteDataAtPosition(highNotePosition)->setAsNoteOn(127, 100);
+
+    const auto events = song.renderToEvents(std::make_shared<AutomationService>(), std::make_shared<SideChainService>(), 0);
+
+    auto findNoteOn = [&](uint8_t note) {
+        for (auto && event : events) {
+            if (event->type() == Event::Type::NoteData && event->noteData()->type() == NoteData::Type::NoteOn && event->noteData()->note() == note) {
+                return event;
+            }
+        }
+        return Song::EventS {};
+    };
+
+    const auto offsetNoteOn = findNoteOn(60);
+    QVERIFY(offsetNoteOn);
+    QCOMPARE(offsetNoteOn->noteData()->velocity(), 100);
+
+    const auto lowNoteOn = findNoteOn(40);
+    QVERIFY(lowNoteOn);
+    QCOMPARE(lowNoteOn->noteData()->velocity(), 100);
+
+    const auto highNoteOn = findNoteOn(127);
+    QVERIFY(highNoteOn);
+    // 100 * (1.0 - 67.0/127.0) = 100 * (127-67)/127 = 100 * 60/127 = 6000 / 127 ~= 47.24
+    QCOMPARE(highNoteOn->noteData()->velocity(), 47);
+}
+
 void SongTest::test_renderToEvents_customNoteOffOffsetSet_shouldApplyCorrectOffset()
 {
     Song song;

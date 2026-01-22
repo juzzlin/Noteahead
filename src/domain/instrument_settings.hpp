@@ -65,6 +65,7 @@ public:
     {
         int velocityJitter { 0 };
         int velocityKeyTrack { 0 };
+        int velocityKeyTrackOffset { 0 };
     };
 
     MidiEffects midiEffects;

@@ -224,6 +224,11 @@ QString xmlKeyVelocityKeyTrack()
     return "velocityKeyTrack";
 }
 
+QString xmlKeyVelocityKeyTrackOffset()
+{
+    return "velocityKeyTrackOffset";
+}
+
 QString xmlKeyAutoNoteOffOffset()
 {
     return "autoNoteOffOffset";
