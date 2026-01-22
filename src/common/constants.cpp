@@ -2160,6 +2160,11 @@ QString xmlKeyVco1Sync()
     return "vco1Sync";
 }
 
+QString xmlKeyPhaseRandomness()
+{
+    return "phaseRandomness";
+}
+
 QString xmlKeyVco2Waveform()
 {
     return "vco2Waveform";

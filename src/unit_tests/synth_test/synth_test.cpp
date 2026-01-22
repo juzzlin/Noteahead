@@ -33,6 +33,7 @@
 #include <cmath>
 #include <format>
 #include <map>
+#include <memory>
 #include <numeric>
 #include <optional>
 #include <ranges>
@@ -3290,6 +3291,170 @@ void SynthTest::test_display_cutoffs_shouldMatchTheFilters()
             QVERIFY(std::abs(display->toUnits(position) - filterHz) < 1.0e-6 * filterHz);
         }
     }
+}
+
+namespace {
+
+//! A unison patch that lets every voice fall silent between notes, so each note starts its voices
+//! from nothing: the case Phase Randomness is about. Nothing else in it is random.
+std::unique_ptr<SynthDevice> unisonSynth(float phaseRandomness)
+{
+    auto synth = std::make_unique<SynthDevice>("Synth");
+    synth->setVoiceMode(SynthDevice::VoiceMode::Unison);
+    synth->setVoiceDepth(0.5f);
+    synth->setAmpSustain(1.0f);
+    synth->setAmpRelease(0.0f);
+    synth->setPhaseRandomness(phaseRandomness);
+    return synth;
+}
+
+//! The first 50 ms of a note, left channel, after which the note is released and left to go silent.
+std::vector<double> attackOf(SynthDevice & synth, uint8_t note)
+{
+    const auto rate = static_cast<uint32_t>(Constants::defaultSampleRate());
+    const auto frames = static_cast<uint32_t>(rate / 20);
+    std::vector<double> buffer(static_cast<size_t>(frames) * 2, 0.0);
+    AudioContext context { std::span(buffer.data(), buffer.size()), frames, rate };
+    synth.processMidiNoteOn(note, 100);
+    synth.processAudio(context);
+    synth.processMidiNoteOff(note);
+    std::vector<double> silence(2048 * 2, 0.0);
+    AudioContext silenceContext { std::span(silence.data(), silence.size()), 2048, rate };
+    for (int block = 0; block < 20; block++) {
+        std::fill(silence.begin(), silence.end(), 0.0);
+        synth.processAudio(silenceContext);
+    }
+    std::vector<double> left;
+    for (size_t frame = 0; frame < buffer.size(); frame += 2) {
+        left.push_back(buffer[frame]);
+    }
+    return left;
+}
+
+double attackDb(SynthDevice & synth, uint8_t note)
+{
+    const auto attack = attackOf(synth, note);
+    const double power = std::accumulate(attack.begin(), attack.end(), 0.0, [](double sum, double sample) { return sum + sample * sample; }) / static_cast<double>(attack.size());
+    return 10.0 * std::log10(power);
+}
+
+} // namespace
+
+void SynthTest::test_phaseRandomness_default_shouldBeFullyRandom()
+{
+    // Fully random, which is how every voice always started
+    QCOMPARE(SynthDevice { "Synth" }.phaseRandomness(), 1.0f);
+}
+
+void SynthTest::test_phaseRandomness_shouldRoundTrip()
+{
+    SynthDevice out { "Synth" };
+    out.setPhaseRandomness(0.3f);
+    QString xml;
+    {
+        NahdXmlWriter writer { xml };
+        out.serializeToXml(writer);
+    }
+    NahdXmlReader reader { xml };
+    while (reader.readNextStartElement() && reader.name() != Constants::NahdXml::xmlKeyDevice()) {
+    }
+    SynthDevice in { "Synth" };
+    in.deserializeFromXml(reader);
+
+    QVERIFY(std::abs(in.phaseRandomness() - 0.3f) < 0.001f);
+}
+
+void SynthTest::test_phaseRandomness_projectWithoutIt_shouldLoadFullyRandom()
+{
+    SynthDevice out { "Synth" };
+    out.setPhaseRandomness(0.0f);
+    QString xml;
+    {
+        NahdXmlWriter writer { xml };
+        out.serializeToXml(writer);
+    }
+    // As a project saved before the control existed has it
+    xml.remove(QRegularExpression { R"(<Parameter name="phaseRandomness"[^>]*/>)" });
+    QVERIFY(!xml.contains("phaseRandomness"));
+    NahdXmlReader reader { xml };
+    while (reader.readNextStartElement() && reader.name() != Constants::NahdXml::xmlKeyDevice()) {
+    }
+    // Freshly made, as a device being loaded is: a parameter the file does not mention keeps the
+    // value the device was made with
+    SynthDevice in { "Synth" };
+    in.deserializeFromXml(reader);
+
+    QCOMPARE(in.phaseRandomness(), 1.0f);
+}
+
+void SynthTest::test_phaseRandomness_zero_shouldStartEveryNoteTheSame()
+{
+    auto synth = unisonSynth(0.0f);
+    const auto first = attackOf(*synth, 64);
+    const auto second = attackOf(*synth, 64);
+    const auto third = attackOf(*synth, 64);
+
+    // Every voice from the same phase, so the same note is the same note, sample for sample
+    QCOMPARE(maxDifference(first, second), 0.0);
+    QCOMPARE(maxDifference(first, third), 0.0);
+}
+
+void SynthTest::test_phaseRandomness_full_shouldVaryFromNoteToNote()
+{
+    // What the control exists to take away: a fresh random stack per note, and so a different level
+    auto synth = unisonSynth(1.0f);
+    std::vector<double> levels;
+    for (int i = 0; i < 12; i++) {
+        levels.push_back(attackDb(*synth, 64));
+    }
+    const auto [low, high] = std::ranges::minmax(levels);
+    QVERIFY2(high - low > 2.0, qPrintable(QString::number(high - low)));
+}
+
+void SynthTest::test_phaseRandomness_zero_shouldStartAsLoudAsTheRandomAverage()
+{
+    // The fixed spread is meant to start where a randomly started note does on average, so turning
+    // the control down evens the notes out without changing the mix, and nowhere near the level of
+    // a stack started in phase, which is Phase Sync and its laser.
+    for (const uint8_t note : { 52, 64, 76 }) {
+        auto random = unisonSynth(1.0f);
+        double randomPower = 0.0;
+        constexpr int trials = 40;
+        for (int i = 0; i < trials; i++) {
+            randomPower += std::pow(10.0, attackDb(*random, note) / 10.0);
+        }
+        const double randomDb = 10.0 * std::log10(randomPower / trials);
+
+        auto spread = unisonSynth(0.0f);
+        const double spreadDb = attackDb(*spread, note);
+
+        auto synced = unisonSynth(1.0f);
+        synced->setVco1Sync(true);
+        const double syncedDb = attackDb(*synced, note);
+
+        QVERIFY2(std::abs(spreadDb - randomDb) < 1.5, qPrintable(QString { "note %1: spread %2 dB, random %3 dB" }.arg(note).arg(spreadDb).arg(randomDb)));
+        QVERIFY2(syncedDb - spreadDb > 3.0, qPrintable(QString { "note %1: synced %2 dB, spread %3 dB" }.arg(note).arg(syncedDb).arg(spreadDb)));
+    }
+}
+
+void SynthTest::test_phaseRandomness_partial_shouldRenderTheSameEveryTime()
+{
+    // Random only by the device's own seeded generator, so a render is reproducible at any setting
+    auto a = unisonSynth(0.4f);
+    auto b = unisonSynth(0.4f);
+    for (int i = 0; i < 4; i++) {
+        QCOMPARE(maxDifference(attackOf(*a, 64), attackOf(*b, 64)), 0.0);
+    }
+}
+
+void SynthTest::test_phaseRandomness_phaseSync_shouldMakeItIrrelevant()
+{
+    auto none = unisonSynth(0.0f);
+    none->setVco1Sync(true);
+    auto full = unisonSynth(1.0f);
+    full->setVco1Sync(true);
+
+    QCOMPARE(maxDifference(attackOf(*none, 64), attackOf(*full, 64)), 0.0);
 }
 
 } // namespace noteahead

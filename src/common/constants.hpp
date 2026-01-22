@@ -673,6 +673,7 @@ QString xmlKeyVco1Pitch();
 QString xmlKeyVco1Shape();
 QString xmlKeyVco1Roundness();
 QString xmlKeyVco1Sync();
+QString xmlKeyPhaseRandomness();
 QString xmlKeySideChainSourceDevice();
 QString xmlKeySideChainLpf();
 

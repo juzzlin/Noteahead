@@ -92,6 +92,15 @@ void SynthControllerTest::test_properties_shouldUpdateDeviceAndEmitSignals()
         QCOMPARE(controller.volume(), 800);
     }
 
+    // Phase Randomness: percent of the knob's travel, through to the device
+    {
+        QSignalSpy spy { &controller, &SynthController::phaseRandomnessChanged };
+        controller.setPhaseRandomness(400);
+        QCOMPARE(spy.count(), 1);
+        QCOMPARE(controller.phaseRandomness(), 400);
+        QVERIFY(std::abs(synth->phaseRandomness() - 0.4f) < 1.0e-6f);
+    }
+
     // VCO1
     {
         QSignalSpy spy { &controller, &SynthController::vco1WaveformChanged };

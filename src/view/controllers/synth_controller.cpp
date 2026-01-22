@@ -509,6 +509,18 @@ void SynthController::setVco1Sync(bool s)
     }
 }
 
+int SynthController::phaseRandomness() const
+{
+    return m_synth ? static_cast<int>(std::round(m_synth->phaseRandomness() * Constants::uiInternalScaling())) : 0;
+}
+
+void SynthController::setPhaseRandomness(int randomness)
+{
+    if (m_synth) {
+        m_synth->setPhaseRandomness(static_cast<float>(randomness) / Constants::uiInternalScaling());
+    }
+}
+
 // VCO2
 int SynthController::vco2Waveform() const
 {
@@ -1347,6 +1359,7 @@ void SynthController::requestSettings()
     emit vco1ShapeChanged();
     emit vco1RoundnessChanged();
     emit vco1SyncChanged();
+    emit phaseRandomnessChanged();
 
     emit vco2WaveformChanged();
     emit vco2OctaveChanged();

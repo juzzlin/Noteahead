@@ -146,6 +146,9 @@ SynthDevice::SynthDevice(std::string name)
     addParameter(Parameter { Constants::NahdXml::xmlKeyVco1Shape().toStdString(), 0.0f, 0, 10000, 0, 100 });
     addParameter(Parameter { Constants::NahdXml::xmlKeyVco1Roundness().toStdString(), 0.5f, 0, 10000, 5000, 100 });
     addParameter(Parameter { Constants::NahdXml::xmlKeyVco1Sync().toStdString(), 0.0f, 0, 1, 0, 1, Parameter::Type::Boolean });
+    // Fully random by default, which is how every voice always started: a project saved before this
+    // existed loads at 100% and renders sample for sample as it did.
+    addParameter(Parameter { Constants::NahdXml::xmlKeyPhaseRandomness().toStdString(), 1.0f, 0, 10000, 10000, 100 });
 
     addParameter(Parameter { Constants::NahdXml::xmlKeyVco2Waveform().toStdString(), 1.0f, 0, 3, 1, 1, Parameter::Type::Discrete });
     addParameter(Parameter { Constants::NahdXml::xmlKeyVco2Octave().toStdString(), 0.0f, -2, 2, 0, 1, Parameter::Type::Discrete });
@@ -996,8 +999,46 @@ void SynthDevice::startVoice(Voice & voice, const Trigger & trigger)
     if (m_vco1Sync) {
         voice.triggerSynced(trigger);
     } else {
-        voice.triggerFree(trigger, m_phaseDist(m_rng));
+        voice.triggerFree(trigger, startPhase(static_cast<size_t>(&voice - m_voices.data())));
     }
+}
+
+namespace {
+
+//! Where each voice of a stack starts at 0% Phase Randomness, as a fraction of a cycle.
+//!
+//! Every phase is a multiple of 1/31, and the six multiples form a perfect difference set modulo 31:
+//! each of the thirty differences between two of them occurs exactly once. Six copies of a wave at
+//! these phases therefore sum, at every harmonic but every 31st, to exactly 5/6 of the power six
+//! randomly phased copies give on average -- as even as six phases can be. A stack started from them
+//! is never in phase with itself, which is what Phase Sync is and why it sweeps like a laser as the
+//! detune pulls the copies apart, and never deep in cancellation, which is what makes one randomly
+//! started note quieter than the next.
+//!
+//! Which voice gets which phase matters as well: the detune moves the voices apart from the moment
+//! they start, and this assignment, chosen by measuring the first 50 ms of a saw, square, triangle and
+//! sine stack over the playable range at quarter, half and full depth, stays within half a decibel
+//! of what random phases give on average. The multiplier of 21 and the order are that search's pick.
+constexpr std::array<double, 6> stackStartPhases { 6.0 / 31.0, 13.0 / 31.0, 0.0 / 31.0, 1.0 / 31.0, 21.0 / 31.0, 4.0 / 31.0 };
+
+} // namespace
+
+double SynthDevice::startPhase(size_t index) const
+{
+    // Exactly the draw there always was, so that a project left at the default renders sample for
+    // sample as it did before the control existed: one draw fewer or more would move every later one.
+    if (m_phaseRandomness >= 1.0f) {
+        return m_phaseDist(m_rng);
+    }
+    const double fixed = stackStartPhases.at(index % stackStartPhases.size());
+    if (m_phaseRandomness <= 0.0f) {
+        return fixed;
+    }
+    // Part of the way from the fixed phase towards a random one, the short way round the cycle. The
+    // draw comes from the same seeded generator as ever, so any setting renders the same every time.
+    double offset = m_phaseDist(m_rng) - fixed;
+    offset -= std::round(offset);
+    return std::fmod(fixed + static_cast<double>(m_phaseRandomness) * offset + 1.0, 1.0);
 }
 
 void SynthDevice::handleNoteOff(uint8_t note)
@@ -1390,6 +1431,8 @@ void SynthDevice::syncParameters()
         m_vco1Roundness = p->get().value();
     if (const auto p = parameter(Constants::NahdXml::xmlKeyVco1Sync().toStdString()); p)
         m_vco1Sync = p->get().value() > 0.5f;
+    if (const auto p = parameter(Constants::NahdXml::xmlKeyPhaseRandomness().toStdString()); p)
+        m_phaseRandomness = std::clamp(p->get().value(), 0.0f, 1.0f);
 
     const double vco1PitchOffset = ParameterMapper::mapCubicCentered(m_vco1Pitch * 2.0 - 1.0, -2400, 2400);
     m_vco1BasePitchRatio = std::pow(2.0, (m_vco1Octave * 12.0 + vco1PitchOffset / 100.0) / 12.0);
@@ -1865,6 +1908,16 @@ bool SynthDevice::vco1Sync() const
 void SynthDevice::setVco1Sync(bool sync)
 {
     setContinuousParameterValue(Constants::NahdXml::xmlKeyVco1Sync().toStdString(), sync ? 1.0f : 0.0f);
+}
+
+float SynthDevice::phaseRandomness() const
+{
+    return m_phaseRandomness;
+}
+
+void SynthDevice::setPhaseRandomness(float randomness)
+{
+    setContinuousParameterValue(Constants::NahdXml::xmlKeyPhaseRandomness().toStdString(), randomness);
 }
 
 // Accessors (VCO2)

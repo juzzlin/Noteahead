@@ -213,6 +213,12 @@ public:
     bool vco1Sync() const;
     void setVco1Sync(bool sync);
 
+    //! How random the voices' starting phases are while Phase Sync is off: 1 is a fresh random
+    //! phase for every voice of every note, as there always was; 0 is the same fixed spread for
+    //! every note, so each one starts as loud as the next. See startPhase().
+    float phaseRandomness() const;
+    void setPhaseRandomness(float randomness);
+
     // Parameter accessors (VCO2)
     PolyBlepOscillator::Waveform vco2Waveform() const;
     void setVco2Waveform(PolyBlepOscillator::Waveform wave);
@@ -509,6 +515,7 @@ private:
     float m_vco1Shape { 0.0f };
     float m_vco1Roundness { 0.5f };
     bool m_vco1Sync { false };
+    float m_phaseRandomness { 1.0f };
 
     PolyBlepOscillator::Waveform m_vco2Waveform { PolyBlepOscillator::Waveform::Saw };
     int m_vco2Octave { 0 };
@@ -635,6 +642,9 @@ private:
     void handleNoteOn(uint8_t note, uint8_t velocity);
     //! Starts a note on the given voice through whichever path the Phase Sync switch selects.
     void startVoice(Voice & voice, const Trigger & trigger);
+    //! The phase a voice that starts from silence is given while Phase Sync is off. @p index is the
+    //! voice's place in m_voices, which is its place in the stack.
+    double startPhase(size_t index) const;
     //! Mono voice allocation: one voice, envelopes retriggered per note, pitch and phase carried over.
     void handleMonoNoteOn(uint8_t note, double frequency, float velocity);
     void handleNoteOff(uint8_t note);

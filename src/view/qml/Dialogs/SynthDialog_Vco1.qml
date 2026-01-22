@@ -99,6 +99,16 @@ ColumnLayout {
                 checked: synthController.vco1Sync
                 onToggled: synthController.vco1Sync = checked
             }
+            Knob {
+                label: qsTr("Phase Randomness")
+                // Phase Sync starts every voice at the same phase, which leaves nothing to randomise
+                enabled: !synthController.vco1Sync
+                value: synthController.phaseRandomness
+                onMoved: v => synthController.phaseRandomness = v
+                ToolTip.visible: hovered
+                ToolTip.text: qsTr("How random each note's starting phases are. 100% starts every voice somewhere new, so notes of a unison stack differ in loudness; 0% starts every note from the same spread, so each is as loud as the next. Off while Phase Sync is on.")
+                Layout.fillWidth: true
+            }
         }
 
         ColumnLayout {

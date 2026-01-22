@@ -25,6 +25,15 @@ class SynthTest : public QObject
     Q_OBJECT
 
 private slots:
+    void test_phaseRandomness_default_shouldBeFullyRandom();
+    void test_phaseRandomness_shouldRoundTrip();
+    void test_phaseRandomness_projectWithoutIt_shouldLoadFullyRandom();
+    void test_phaseRandomness_zero_shouldStartEveryNoteTheSame();
+    void test_phaseRandomness_full_shouldVaryFromNoteToNote();
+    void test_phaseRandomness_zero_shouldStartAsLoudAsTheRandomAverage();
+    void test_phaseRandomness_partial_shouldRenderTheSameEveryTime();
+    void test_phaseRandomness_phaseSync_shouldMakeItIrrelevant();
+
     void test_applyParameterAutomation_absolute_shouldDriveTheFilter();
     void test_applyParameterAutomation_relative_shouldScaleTheKnob();
     void test_applyParameterAutomation_unknownOrSwitch_shouldBeRefused();
