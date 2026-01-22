@@ -2,18 +2,14 @@ import QtQuick 2.15
 import ".."
 
 Rectangle {
-    color: lineNumber < 0 ? "transparent" : Constants.lineNumberColumnCellBackgroundColor
+    color: lineNumber < 0 || lineNumber >= editorService.currentLineCount ? "transparent" : Constants.lineNumberColumnCellBackgroundColor
     border.color: Constants.lineNumberColumnCellBorderColor
     border.width: 1
     property int index
-    property int lineNumber
-    function updateLineNumber() {
-        lineNumber = editorService.lineNumberAtViewLine(index);
-    }
+    readonly property int lineNumber: index - editorService.positionBarLine()
+    readonly property int _wrappedLineNumber: (lineNumber % editorService.currentLineCount + editorService.currentLineCount) % editorService.currentLineCount
     function _formattedLineNumber() {
-        const lineCount = editorService.currentLineCount;
-        const formattedLineNumber = Math.abs(lineNumber) % lineCount;
-        return formattedLineNumber < 10 ? `0${formattedLineNumber}` : formattedLineNumber;
+        return _wrappedLineNumber < 10 ? `0${_wrappedLineNumber}` : _wrappedLineNumber;
     }
     Text {
         color: lineNumber < 0 || lineNumber >= editorService.currentLineCount ? Constants.lineNumberColumnOverflowTextColor : Constants.lineNumberColumnTextColor
@@ -24,6 +20,6 @@ Rectangle {
     }
     IndexHighlight {
         anchors.fill: parent
-        index: lineNumber
+        index: _wrappedLineNumber
     }
 }

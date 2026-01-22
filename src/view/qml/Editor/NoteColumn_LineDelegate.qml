@@ -11,7 +11,7 @@ Rectangle {
         font.pixelSize: parent.height * 0.8
         font.family: "monospace"
         anchors.centerIn: parent
-        text: note ? `${model.note} ${model.velocity.padStart(3, "-")}` : ""
+        text: note ? note + " " + velocity : ""
         color: note && note !== "---" ? "#ffffff" : "#888888"
     }
     Rectangle {

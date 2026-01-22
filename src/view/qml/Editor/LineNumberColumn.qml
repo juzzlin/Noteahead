@@ -4,57 +4,36 @@ import ".."
 Rectangle {
     id: rootItem
     color: Constants.lineNumberColumnBackgroundColor
-    property var _lines: []
-    property int _scrollOffset: 0
+    clip: true
     function resize(width, height) {
         rootItem.width = width;
         rootItem.height = height;
-        _resizeLines();
     }
+    property int _currentLine: -1
     function setPosition(position) {
-        _lines.forEach(line => {
-                line.updateLineNumber();
-            });
+        if (_currentLine !== position.line) {
+            _currentLine = position.line;
+            if (listView) {
+                listView.positionViewAtIndex(position.line, ListView.Beginning);
+            }
+        }
     }
     function updateData() {
-        _createLines();
     }
     function _lineHeight() {
         const lineCount = settingsService.visibleLines;
         return rootItem.height / lineCount;
     }
-    function _createLines() {
-        _lines.forEach(line => {
-                line.destroy();
-            });
-        _lines = [];
-        const lineCount = editorService.lineCount(editorService.currentPattern);
-        const lineHeight = _lineHeight();
-        for (let lineIndex = 0; lineIndex < lineCount; lineIndex++) {
-            const line = textComponent.createObject(rootItem, {
-                    "index": lineIndex,
-                    "lineNumber": editorService.lineNumberAtViewLine(lineIndex),
-                    "width": rootItem.width,
-                    "height": lineHeight,
-                    "x": 0,
-                    "y": lineHeight * lineIndex
-                });
-            _lines.push(line);
+    ListView {
+        id: listView
+        anchors.fill: parent
+        model: editorService.currentLineCount + settingsService.visibleLines
+        delegate: LineNumberDelegate {
+            width: rootItem.width
+            height: _lineHeight()
+            index: model.index
         }
-    }
-    function _resizeLines() {
-        const lineCount = editorService.currentLineCount;
-        const lineHeight = _lineHeight();
-        _lines.forEach(line => {
-                line.y = lineHeight * (line.index + _scrollOffset);
-                line.width = width;
-                line.height = lineHeight;
-            });
-    }
-    Component {
-        id: textComponent
-        LineNumberDelegate {
-        }
+        interactive: false
     }
     Rectangle {
         id: borderRectangle
@@ -63,8 +42,5 @@ Rectangle {
         border.width: 1
         anchors.fill: parent
         z: 2
-    }
-    Component.onCompleted: {
-        settingsService.visibleLinesChanged.connect(_resizeLines);
     }
 }

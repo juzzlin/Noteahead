@@ -17,6 +17,11 @@ Other:
 
 * Busy wait in PlayerWorker for higher precision
 
+* UI performance improvements
+  - Optimized Volume Meter triggering
+  - LineNumberColums as ListView's
+  - SongView as a ListView
+
 1.4.0
 =====
 

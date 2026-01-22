@@ -74,9 +74,11 @@ Item {
         rootItem.mouseMoved(effectiveLineIndex, _getGlobalX(delegate, mouse), _getGlobalY(delegate, mouse));
     }
     function setPosition(position: var): void {
-        _scrollOffset = position.line;
-        _scrollLines();
-        _triggerVolumeMeterAtPosition(position);
+        if (_scrollOffset !== position.line) {
+            _scrollOffset = position.line;
+            _scrollLines();
+            _triggerVolumeMeterAtPosition(position);
+        }
     }
     function _scrollLines(): void {
         if (_listView) {
@@ -86,7 +88,9 @@ Item {
     function _triggerVolumeMeterAtPosition(position: var): void {
         if (UiService.isPlaying() && mixerService.shouldColumnPlay(_trackIndex, _index)) {
             const velocity = editorService.velocityAtPosition(position.pattern, _trackIndex, _index, position.line);
-            volumeMeter.trigger(mixerService.effectiveVelocity(_trackIndex, _index, velocity) / 127);
+            if (velocity > 0) {
+                volumeMeter.trigger(mixerService.effectiveVelocity(_trackIndex, _index, velocity) / 127);
+            }
         }
     }
     Component {
