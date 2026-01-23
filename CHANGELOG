@@ -5,6 +5,19 @@ Release date:
 
 New features:
 
+Bug fixes:
+
+Other:
+
+1.5.0
+=====
+
+Release date:
+
+Fri, 23 Jan 2026 22:08:32 +0200
+
+New features:
+
 * Add option to disable UI updates during playback
 
 * Add velocity key track visualization and offset
