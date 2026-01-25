@@ -38,6 +38,7 @@ private slots:
     void test_setChordNote3Offset_shouldUpdateAndEmitSignal();
     void test_setChordNote3Velocity_shouldUpdateAndEmitSignal();
     void test_setChordNote3Delay_shouldUpdateAndEmitSignal();
+    void test_reset_shouldResetToDefaults();
     void test_save_shouldEmitSaveRequestedWithCorrectData();
 };
 

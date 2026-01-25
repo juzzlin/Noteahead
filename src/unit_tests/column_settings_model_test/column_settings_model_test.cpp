@@ -148,6 +148,56 @@ void ColumnSettingsModelTest::test_setChordNote3Delay_shouldUpdateAndEmitSignal(
     QCOMPARE(spy.count(), 1);
 }
 
+void ColumnSettingsModelTest::test_reset_shouldResetToDefaults()
+{
+    ColumnSettingsModel model;
+    model.setDelay(666);
+    model.setChordNote1Offset(4);
+    model.setChordNote1Velocity(80);
+    model.setChordNote1Delay(11);
+    model.setChordNote2Offset(7);
+    model.setChordNote2Velocity(60);
+    model.setChordNote2Delay(22);
+    model.setChordNote3Offset(12);
+    model.setChordNote3Velocity(90);
+    model.setChordNote3Delay(33);
+
+    QSignalSpy delaySpy { &model, &ColumnSettingsModel::delayChanged };
+    QSignalSpy n1oSpy { &model, &ColumnSettingsModel::chordNote1OffsetChanged };
+    QSignalSpy n1vSpy { &model, &ColumnSettingsModel::chordNote1VelocityChanged };
+    QSignalSpy n1dSpy { &model, &ColumnSettingsModel::chordNote1DelayChanged };
+    QSignalSpy n2oSpy { &model, &ColumnSettingsModel::chordNote2OffsetChanged };
+    QSignalSpy n2vSpy { &model, &ColumnSettingsModel::chordNote2VelocityChanged };
+    QSignalSpy n2dSpy { &model, &ColumnSettingsModel::chordNote2DelayChanged };
+    QSignalSpy n3oSpy { &model, &ColumnSettingsModel::chordNote3OffsetChanged };
+    QSignalSpy n3vSpy { &model, &ColumnSettingsModel::chordNote3VelocityChanged };
+    QSignalSpy n3dSpy { &model, &ColumnSettingsModel::chordNote3DelayChanged };
+
+    model.reset();
+
+    QCOMPARE(model.delay(), 0);
+    QCOMPARE(model.chordNote1Offset(), 0);
+    QCOMPARE(model.chordNote1Velocity(), 100);
+    QCOMPARE(model.chordNote1Delay(), 0);
+    QCOMPARE(model.chordNote2Offset(), 0);
+    QCOMPARE(model.chordNote2Velocity(), 100);
+    QCOMPARE(model.chordNote2Delay(), 0);
+    QCOMPARE(model.chordNote3Offset(), 0);
+    QCOMPARE(model.chordNote3Velocity(), 100);
+    QCOMPARE(model.chordNote3Delay(), 0);
+
+    QCOMPARE(delaySpy.count(), 1);
+    QCOMPARE(n1oSpy.count(), 1);
+    QCOMPARE(n1vSpy.count(), 1);
+    QCOMPARE(n1dSpy.count(), 1);
+    QCOMPARE(n2oSpy.count(), 1);
+    QCOMPARE(n2vSpy.count(), 1);
+    QCOMPARE(n2dSpy.count(), 1);
+    QCOMPARE(n3oSpy.count(), 1);
+    QCOMPARE(n3vSpy.count(), 1);
+    QCOMPARE(n3dSpy.count(), 1);
+}
+
 void ColumnSettingsModelTest::test_save_shouldEmitSaveRequestedWithCorrectData()
 {
     qRegisterMetaType<ColumnSettings>("ColumnSettings");

@@ -8,6 +8,8 @@ New features:
 * Add a dedicated delay column
   - Now a note delay can be directly entered on the delay column (0-24 ticks)
 
+* Add chord automation presets
+
 Bug fixes:
 
 Other:
