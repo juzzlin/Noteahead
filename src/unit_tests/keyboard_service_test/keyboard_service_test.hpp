@@ -34,6 +34,8 @@ private slots:
     void test_handleKeyPressed_Escape_shouldToggleEditMode();
     void test_handleKeyPressed_Note_shouldTriggerNoteOn();
     void test_handleKeyReleased_Note_shouldTriggerNoteOff();
+    void test_handleKeyPressed_Digit_shouldSetDelay_whenAtDelayColumn();
+    void test_handleKeyPressed_Delete_shouldClearDelay_whenAtDelayColumn();
 };
 
 } // namespace noteahead

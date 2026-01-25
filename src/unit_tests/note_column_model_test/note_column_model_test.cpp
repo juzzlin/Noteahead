@@ -25,6 +25,10 @@
 #include "../../domain/line.hpp"
 #include "../../domain/note_data.hpp"
 
+#include <QSettings>
+#include <QSignalSpy>
+#include <QTest>
+
 namespace noteahead {
 
 void NoteColumnModelTest::initTestCase()
@@ -81,6 +85,64 @@ void NoteColumnModelTest::test_data_shouldReturnCorrectValues()
     const auto idx = model.index(editorService->positionBarLine(), 0);
     QCOMPARE(model.data(idx, static_cast<int>(NoteColumnModel::DataRole::Note)).toString(), QString { "C-5" });
     QCOMPARE(model.data(idx, static_cast<int>(NoteColumnModel::DataRole::Velocity)).toString(), QString { "100" });
+}
+
+void NoteColumnModelTest::test_data_LineRole_shouldReturnCorrectValue()
+{
+    const auto automationService { std::make_shared<AutomationService>() };
+    const auto selectionService { std::make_shared<SelectionService>() };
+    const auto settingsService { std::make_shared<SettingsService>() };
+    const auto editorService { std::make_shared<EditorService>(selectionService, settingsService) };
+    const auto utilService { std::make_shared<UtilService>() };
+    const auto helper { std::make_shared<NoteColumnLineContainerHelper>(automationService, editorService, selectionService, utilService) };
+
+    NoteColumnModel model { { 0, 0, 0 }, editorService, helper, settingsService };
+
+    auto line { std::make_shared<Line>(0) };
+    NoteData noteData {};
+    noteData.setAsNoteOn(60, 100); // C-5
+    noteData.setDelay(12);
+    line->setNoteData(noteData);
+
+    NoteColumnModel::LineList lines { line, std::make_shared<Line>(1) };
+    model.setColumnData(lines);
+
+    const int barLine = static_cast<int>(editorService->positionBarLine());
+    
+    // Test filled line
+    const auto idx0 = model.index(barLine, 0);
+    QCOMPARE(model.data(idx0, static_cast<int>(NoteColumnModel::DataRole::Line)).toString(), QString { "C-5 100 12" });
+
+    // Test empty line
+    const auto idx1 = model.index(barLine + 1, 0);
+    QCOMPARE(model.data(idx1, static_cast<int>(NoteColumnModel::DataRole::Line)).toString(), QString { "--- --- --" });
+}
+
+void NoteColumnModelTest::test_updateNoteDataAtPosition_shouldEmitDataChangedWithCorrectRoles()
+{
+    const auto automationService { std::make_shared<AutomationService>() };
+    const auto selectionService { std::make_shared<SelectionService>() };
+    const auto settingsService { std::make_shared<SettingsService>() };
+    const auto editorService { std::make_shared<EditorService>(selectionService, settingsService) };
+    const auto utilService { std::make_shared<UtilService>() };
+    const auto helper { std::make_shared<NoteColumnLineContainerHelper>(automationService, editorService, selectionService, utilService) };
+
+    NoteColumnModel model { { 0, 0, 0 }, editorService, helper, settingsService };
+
+    NoteColumnModel::LineList lines { std::make_shared<Line>(0) };
+    model.setColumnData(lines);
+
+    QSignalSpy spy { &model, &NoteColumnModel::dataChanged };
+    model.updateNoteDataAtPosition(0);
+
+    QCOMPARE(spy.count(), 1);
+    const auto arguments = spy.takeFirst();
+    const auto roles = arguments.at(2).value<QList<int>>();
+
+    QVERIFY(roles.contains(static_cast<int>(NoteColumnModel::DataRole::Note)));
+    QVERIFY(roles.contains(static_cast<int>(NoteColumnModel::DataRole::Velocity)));
+    QVERIFY(roles.contains(static_cast<int>(NoteColumnModel::DataRole::Delay)));
+    QVERIFY(roles.contains(static_cast<int>(NoteColumnModel::DataRole::Line)));
 }
 
 void NoteColumnModelTest::test_setLineFocused_shouldUpdateData()

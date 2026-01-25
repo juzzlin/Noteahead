@@ -44,6 +44,10 @@ public:
         MidiNoteData data;
         emit liveNoteOffRequested(nullptr, data);
     }
+    void requestLiveNoteOnAtCurrentPosition() override
+    {
+        emit liveNoteOnAtCurrentPositionRequested(nullptr);
+    }
 
 private:
     bool m_editMode = false;
@@ -58,12 +62,26 @@ public:
     quint64 linesPerBeat() const override { return 4; }
     bool isAtNoteColumn() const override { return m_isAtNoteColumn; }
     void setMockIsAtNoteColumn(bool val) { m_isAtNoteColumn = val; }
+    bool isAtVelocityColumn() const override { return m_isAtVelocityColumn; }
+    void setMockIsAtVelocityColumn(bool val) { m_isAtVelocityColumn = val; }
+    bool isAtDelayColumn() const override { return m_isAtDelayColumn; }
+    void setMockIsAtDelayColumn(bool val) { m_isAtDelayColumn = val; }
     bool requestNoteOnAtCurrentPosition(quint8, quint8, quint8) override { return true; }
+    bool requestDigitSetAtCurrentPosition(quint8 digit) override
+    {
+        m_digitSet = digit;
+        return true;
+    }
     bool requestPosition(quint64, quint64, quint64, qint64, quint64) override { return true; }
+
+    std::optional<quint8> digitSet() const { return m_digitSet; }
 
 private:
     Position m_position;
     bool m_isAtNoteColumn = true;
+    bool m_isAtVelocityColumn = false;
+    bool m_isAtDelayColumn = false;
+    std::optional<quint8> m_digitSet;
 };
 
 class MockPlayerService : public PlayerService
@@ -218,6 +236,47 @@ void KeyboardServiceTest::test_handleKeyReleased_Note_shouldTriggerNoteOff()
     QVERIFY(!keyboardService.handleKeyReleased(Qt::Key_Z, Qt::NoModifier, false));
 
     QCOMPARE(spy.count(), 1);
+}
+
+void KeyboardServiceTest::test_handleKeyPressed_Digit_shouldSetDelay_whenAtDelayColumn()
+{
+    const auto applicationService = std::make_shared<MockApplicationService>();
+    const auto editorService = std::make_shared<MockEditorService>();
+    const auto playerService = std::make_shared<MockPlayerService>();
+    const auto selectionService = std::make_shared<MockSelectionService>();
+    const auto settingsService = std::make_shared<MockSettingsService>();
+
+    KeyboardService keyboardService { applicationService, editorService, playerService, selectionService, settingsService };
+
+    applicationService->setEditMode(true);
+    editorService->setMockIsAtNoteColumn(false);
+    editorService->setMockIsAtDelayColumn(true);
+
+    // Press '5' key
+    QVERIFY(keyboardService.handleKeyPressed(Qt::Key_5, Qt::NoModifier, false));
+
+    QVERIFY(editorService->digitSet().has_value());
+    QCOMPARE(*editorService->digitSet(), quint8 { 5 });
+}
+
+void KeyboardServiceTest::test_handleKeyPressed_Delete_shouldClearDelay_whenAtDelayColumn()
+{
+    const auto applicationService = std::make_shared<MockApplicationService>();
+    const auto editorService = std::make_shared<MockEditorService>();
+    const auto playerService = std::make_shared<MockPlayerService>();
+    const auto selectionService = std::make_shared<MockSelectionService>();
+    const auto settingsService = std::make_shared<MockSettingsService>();
+
+    KeyboardService keyboardService { applicationService, editorService, playerService, selectionService, settingsService };
+
+    applicationService->setEditMode(true);
+    editorService->setMockIsAtNoteColumn(false);
+    editorService->setMockIsAtDelayColumn(true);
+
+    QVERIFY(keyboardService.handleKeyPressed(Qt::Key_Delete, Qt::NoModifier, false));
+
+    QVERIFY(editorService->digitSet().has_value());
+    QCOMPARE(*editorService->digitSet(), quint8 { 0 });
 }
 
 } // namespace noteahead

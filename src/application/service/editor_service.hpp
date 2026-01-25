@@ -157,6 +157,7 @@ public:
 
     virtual Q_INVOKABLE bool isAtNoteColumn() const;
     virtual Q_INVOKABLE bool isAtVelocityColumn() const;
+    virtual Q_INVOKABLE bool isAtDelayColumn() const;
     virtual Q_INVOKABLE bool isColumnVisible(quint64 track, quint64 column) const;
     virtual Q_INVOKABLE bool isTrackVisible(quint64 track) const;
     virtual Q_INVOKABLE bool isModified() const;
@@ -384,6 +385,7 @@ private:
     void ensureFocusedTrackIsVisible();
 
     bool setVelocityAtCurrentPosition(uint8_t digit);
+    bool setDelayAtCurrentPosition(uint8_t digit);
 
     void updateTimes(std::chrono::milliseconds songTime, std::chrono::milliseconds patternTime);
     void updateTimesFromCurrentPosition();

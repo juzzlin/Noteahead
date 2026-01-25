@@ -1,5 +1,5 @@
 // This file is part of Noteahead.
-// Copyright (C) 2025 Jussi Lind <jussi.lind@iki.fi>
+// Copyright (C) 2026 Jussi Lind <jussi.lind@iki.fi>
 //
 // Noteahead is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -13,33 +13,22 @@
 // You should have received a copy of the GNU General Public License
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef NOTE_COLUMN_MODEL_TEST_HPP
-#define NOTE_COLUMN_MODEL_TEST_HPP
+#ifndef EDITOR_SERVICE_DELAY_TEST_HPP
+#define EDITOR_SERVICE_DELAY_TEST_HPP
 
 #include <QObject>
 
 namespace noteahead {
 
-class NoteColumnModelTest : public QObject
+class EditorServiceDelayTest : public QObject
 {
     Q_OBJECT
 
 private slots:
-    void initTestCase();
-    void cleanupTestCase();
-
-    void test_rowCount_shouldReturnCorrectValue();
-
-    void test_data_shouldReturnCorrectValues();
-    void test_data_LineRole_shouldReturnCorrectValue();
-
-    void test_updateNoteDataAtPosition_shouldEmitDataChangedWithCorrectRoles();
-
-    void test_setLineFocused_shouldUpdateData();
-
-    void test_updateIndexHighlights_shouldEmitDataChangedWithCorrectRange();
+    void test_requestDigitSetAtCurrentPosition_shouldSetDelay_whenAtDelayColumn();
+    void test_cursorNavigation_shouldIncludeDelayColumns();
 };
 
 } // namespace noteahead
 
-#endif // NOTE_COLUMN_MODEL_TEST_HPP
+#endif // EDITOR_SERVICE_DELAY_TEST_HPP

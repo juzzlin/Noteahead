@@ -39,8 +39,10 @@ public:
         Note = Qt::UserRole + 1,
         Border,
         Color,
+        Delay,
         IsFocused,
         IsVirtualRow,
+        Line,
         LineColumn,
         Velocity,
     };
@@ -75,8 +77,11 @@ public:
 private:
     QString displayNote(const Line & line) const;
     QString displayVelocity(const Line & line) const;
+    QString displayDelay(const Line & line) const;
+    QString displayLine(const Line & line) const;
     QString noDataString() const;
     QString padVelocityToThreeDigits(const QString & velocity) const;
+    QString padDelayToTwoDigits(const QString & delay) const;
     QVariant lineColor(quint64 lineIndex) const;
     QVariant borderWidth(quint64 lineIndex) const;
 

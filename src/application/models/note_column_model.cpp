@@ -70,6 +70,25 @@ QString NoteColumnModel::displayVelocity(const Line & line) const
     }
 }
 
+QString NoteColumnModel::padDelayToTwoDigits(const QString & delay) const
+{
+    return delay.rightJustified(2, '0', true);
+}
+
+QString NoteColumnModel::displayDelay(const Line & line) const
+{
+    if (const auto noteData = line.noteData(); noteData->type() != NoteData::Type::None) {
+        return noteData->type() == NoteData::Type::NoteOff ? "--" : padDelayToTwoDigits(QString::number(noteData->delay()));
+    } else {
+        return "--";
+    }
+}
+
+QString NoteColumnModel::displayLine(const Line & line) const
+{
+    return displayNote(line) + " " + displayVelocity(line) + " " + displayDelay(line);
+}
+
 QVariant NoteColumnModel::lineColor(quint64 lineIndex) const
 {
     const auto [pattern, track, column] = m_columnAddress;
@@ -90,6 +109,10 @@ QVariant NoteColumnModel::virtualLineData(int role) const
         return 0;
     case Color:
         return QColor { Qt::black };
+    case Delay:
+        return "";
+    case Line:
+        return "";
     case LineColumn:
         return 0;
     case Note:
@@ -117,6 +140,10 @@ QVariant NoteColumnModel::data(const QModelIndex & index, int role) const
             return borderWidth(static_cast<size_t>(shiftedIndex));
         case Color:
             return lineColor(static_cast<size_t>(shiftedIndex));
+        case Delay:
+            return displayDelay(*line);
+        case Line:
+            return displayLine(*line);
         case LineColumn:
             return m_focusedLines.contains(static_cast<size_t>(index.row())) ? m_focusedLines.at(static_cast<size_t>(index.row())) : 0;
         case Note:
@@ -138,8 +165,10 @@ QHash<int, QByteArray> NoteColumnModel::roleNames() const
     return {
         { static_cast<int>(Border), "border" },
         { static_cast<int>(Color), "color" },
+        { static_cast<int>(Delay), "delay" },
         { static_cast<int>(IsFocused), "isFocused" },
         { static_cast<int>(IsVirtualRow), "isVirtualRow" },
+        { static_cast<int>(Line), "line" },
         { static_cast<int>(LineColumn), "lineColumn" },
         { static_cast<int>(Note), "note" },
         { static_cast<int>(Velocity), "velocity" },
@@ -198,7 +227,7 @@ void NoteColumnModel::updateIndexHighlightRange(quint64 startLine, quint64 endLi
 
 void NoteColumnModel::updateNoteDataAtPosition(quint64 line)
 {
-    notifyDataChanged(static_cast<int>(line), static_cast<int>(line), { static_cast<int>(DataRole::Note), static_cast<int>(DataRole::Velocity) });
+    notifyDataChanged(static_cast<int>(line), static_cast<int>(line), { static_cast<int>(DataRole::Note), static_cast<int>(DataRole::Velocity), static_cast<int>(DataRole::Delay), static_cast<int>(DataRole::Line) });
 }
 
 void NoteColumnModel::updateRowCount()

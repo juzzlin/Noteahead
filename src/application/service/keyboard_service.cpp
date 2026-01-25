@@ -207,8 +207,7 @@ void KeyboardService::handleDelete()
         if (m_editorService->isAtNoteColumn()) {
             m_editorService->requestNoteDeletionAtCurrentPosition(false);
             m_editorService->requestScroll(m_settingsService->step(1));
-        } else if (m_editorService->isAtVelocityColumn()) {
-            if (m_editorService->requestDigitSetAtCurrentPosition(0)) {
+                    } else if (m_editorService->isAtVelocityColumn() || m_editorService->isAtDelayColumn()) {            if (m_editorService->requestDigitSetAtCurrentPosition(0)) {
                 m_editorService->requestScroll(m_settingsService->step(1));
             }
         }
@@ -282,7 +281,7 @@ void KeyboardService::handleNoteTriggered(int key, int modifiers, bool isAutoRep
                     m_applicationService->requestLiveNoteOn(*note, static_cast<uint8_t>(*octave), static_cast<uint8_t>(m_settingsService->velocity(100)));
                 }
             }
-        } else if (m_editorService->isAtVelocityColumn()) {
+        } else if (m_editorService->isAtVelocityColumn() || m_editorService->isAtDelayColumn()) {
             if (const auto digit = keyToDigit(key)) {
                 if (m_editorService->requestDigitSetAtCurrentPosition(static_cast<uint8_t>(*digit))) {
                     m_editorService->requestScroll(m_settingsService->step(1));

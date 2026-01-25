@@ -48,3 +48,53 @@ qt_add_executable(${NAME} ${SRC})
 set_target_properties(${NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${UNIT_TEST_BASE_DIR})
 add_test(${NAME} ${UNIT_TEST_BASE_DIR}/${NAME})
 target_link_libraries(${NAME} PRIVATE Qt${QT_VERSION_MAJOR}::Test Qt${QT_VERSION_MAJOR}::Gui SimpleLogger)
+
+set(DELAY_TEST_NAME editor_service_delay_test)
+set(DELAY_TEST_SRC
+    ${DELAY_TEST_NAME}.cpp
+    ${DELAY_TEST_NAME}.hpp
+    ../../application/instrument_request.cpp
+    ../../application/command/note_edit_command.cpp
+    ../../application/command/undo_stack.cpp
+    ../../application/note_converter.cpp
+    ../../application/position.hpp
+    ../../application/service/automation_service.cpp
+    ../../application/service/copy_manager.cpp
+    ../../application/service/editor_service.cpp
+    ../../application/service/mixer_service.cpp
+    ../../application/service/random_service.cpp
+    ../../application/service/selection_service.cpp
+    ../../application/service/settings_service.cpp
+    ../../application/service/side_chain_service.cpp
+    ../../common/constants.cpp
+    ../../common/utils.cpp
+    ../../domain/automation.cpp
+    ../../domain/automation_location.cpp
+    ../../domain/column.cpp
+    ../../domain/column_settings.cpp
+    ../../domain/event.cpp
+    ../../domain/event_data.cpp
+    ../../domain/instrument.cpp
+    ../../domain/instrument_settings.cpp
+    ../../domain/interpolator.cpp
+    ../../domain/line.cpp
+    ../../domain/line_event.cpp
+    ../../domain/midi_address.cpp
+    ../../domain/midi_cc_automation.cpp
+    ../../domain/midi_cc_data.cpp
+    ../../domain/midi_cc_setting.cpp
+    ../../domain/mixer_unit.cpp
+    ../../domain/note_data.cpp
+    ../../domain/note_data_manipulator.cpp
+    ../../domain/pattern.cpp
+    ../../domain/pitch_bend_automation.cpp
+    ../../domain/pitch_bend_data.cpp
+    ../../domain/play_order.cpp
+    ../../domain/song.cpp
+    ../../domain/track.cpp
+    ../../infra/settings.cpp
+)
+qt_add_executable(${DELAY_TEST_NAME} ${DELAY_TEST_SRC})
+set_target_properties(${DELAY_TEST_NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${UNIT_TEST_BASE_DIR})
+add_test(${DELAY_TEST_NAME} ${UNIT_TEST_BASE_DIR}/${DELAY_TEST_NAME})
+target_link_libraries(${DELAY_TEST_NAME} PRIVATE Qt${QT_VERSION_MAJOR}::Test Qt${QT_VERSION_MAJOR}::Gui SimpleLogger)

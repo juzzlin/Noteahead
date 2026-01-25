@@ -825,6 +825,11 @@ bool EditorService::isAtVelocityColumn() const
     return m_state.cursorPosition.lineColumn >= 1 && m_state.cursorPosition.lineColumn <= 3;
 }
 
+bool EditorService::isAtDelayColumn() const
+{
+    return m_state.cursorPosition.lineColumn >= 4 && m_state.cursorPosition.lineColumn <= 5;
+}
+
 bool EditorService::isColumnVisible(quint64 track, quint64 column) const
 {
     const int columnPosition = onScreenColumnPositionInUnits(track, column);
@@ -933,12 +938,51 @@ bool EditorService::setVelocityAtCurrentPosition(uint8_t digit)
     return false;
 }
 
+bool EditorService::setDelayAtCurrentPosition(uint8_t digit)
+{
+    juzzlin::L(TAG).debug() << "Set delay digit at position " << m_state.cursorPosition.toString() << ": " << static_cast<int>(digit);
+
+    const auto noteData = m_song->noteDataAtPosition(m_state.cursorPosition);
+    if (!noteData) {
+        return false;
+    }
+
+    if (noteData->type() != NoteData::Type::NoteOn) {
+        return false;
+    }
+
+    auto currentDelay = noteData->delay();
+
+    if (digit > 9) {
+        juzzlin::L(TAG).error() << "Invalid digit: " << static_cast<int>(digit);
+        return false;
+    }
+
+    if (m_state.cursorPosition.lineColumn == 4) {
+        if (digit > 2) {
+            return false;
+        }
+        currentDelay = (digit * 10) + (currentDelay % 10);
+    } else if (m_state.cursorPosition.lineColumn == 5) {
+        currentDelay = (currentDelay / 10) * 10 + digit;
+    }
+
+    if (currentDelay > 24) {
+        currentDelay = 24; // Clamp max delay
+    }
+
+    setDelayOnCurrentLine(currentDelay);
+    return true;
+}
+
 bool EditorService::requestDigitSetAtCurrentPosition(uint8_t digit)
 {
     juzzlin::L(TAG).debug() << "Digit set requested at position " << m_state.cursorPosition.toString() << ": " << static_cast<int>(digit);
 
     if (isAtVelocityColumn()) {
         return setVelocityAtCurrentPosition(digit);
+    } else if (isAtDelayColumn()) {
+        return setDelayAtCurrentPosition(digit);
     }
 
     return false;
@@ -1601,7 +1645,15 @@ void EditorService::requestLinearVelocityInterpolationOnSelection(quint64 startL
 void EditorService::setDelayOnCurrentLine(quint8 ticks)
 {
     if (const auto noteData = m_song->noteDataAtPosition(position()); noteData) {
-        noteData->setDelay(ticks);
+        NoteEditCommand::ChangeList changes;
+        auto newNoteData = *noteData;
+        newNoteData.setDelay(ticks);
+        changes.emplace_back(m_state.cursorPosition, *noteData, newNoteData);
+
+        m_undoStack->push(std::make_shared<NoteEditCommand>(m_song, std::move(changes), m_state.cursorPosition, m_state.cursorPosition, [this](const Position & pos) {
+            emit noteDataAtPositionChanged(pos);
+            setIsModified(true);
+        }, [this](const Position & pos) { requestPosition(pos); }));
     }
 }
 
@@ -1645,7 +1697,7 @@ bool EditorService::requestPosition(quint64 pattern, quint64 track, quint64 colu
         return false;
     }
 
-    if (lineColumn > 3) {
+    if (lineColumn > 5) {
         juzzlin::L(TAG).error() << "Invalid line column index: " << lineColumn;
         return false;
     }
@@ -1778,7 +1830,7 @@ void EditorService::moveCursorToPrevTrack()
         newTrack = (newTrack % trackCount + trackCount) % trackCount;
         m_state.cursorPosition.track = m_song->trackIndices().at(static_cast<quint64>(newTrack));
         m_state.cursorPosition.column = m_song->columnCount(m_state.cursorPosition.track) - 1;
-        m_state.cursorPosition.lineColumn = 3;
+        m_state.cursorPosition.lineColumn = 5;
     }
 }
 
@@ -1831,7 +1883,7 @@ void EditorService::requestCursorLeft()
     if (m_state.cursorPosition.lineColumn) {
         m_state.cursorPosition.lineColumn--;
     } else {
-        m_state.cursorPosition.lineColumn = 3;
+        m_state.cursorPosition.lineColumn = 5;
         if (m_state.cursorPosition.column) {
             m_state.cursorPosition.column--;
         } else {
@@ -1847,7 +1899,7 @@ void EditorService::requestCursorRight()
     juzzlin::L(TAG).debug() << "Cursor right requested";
     const auto oldPosition = m_state.cursorPosition;
     // Switch line column => switch column => switch track
-    if (m_state.cursorPosition.lineColumn < 3) {
+    if (m_state.cursorPosition.lineColumn < 5) {
         m_state.cursorPosition.lineColumn++;
     } else {
         m_state.cursorPosition.lineColumn = 0;

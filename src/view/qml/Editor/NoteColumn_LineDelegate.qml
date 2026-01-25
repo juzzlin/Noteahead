@@ -11,13 +11,20 @@ Rectangle {
         font.pixelSize: parent.height * 0.8
         font.family: "monospace"
         anchors.centerIn: parent
-        text: note ? note + " " + velocity : ""
+        text: model.line
         color: note && note !== "---" ? "#ffffff" : "#888888"
     }
     Rectangle {
-        width: model.lineColumn === 0 ? 3 * (textElement ? textElement.contentWidth : 0) / 7 : (textElement ? textElement.contentWidth : 0) / 7
+        width: {
+            if (model.lineColumn === 0) return 3 * (textElement ? textElement.contentWidth : 0) / 10;
+            return (textElement ? textElement.contentWidth : 0) / 10;
+        }
         height: textElement.contentHeight
-        x: model.lineColumn === 0 ? (textElement ? textElement.x : 0) : (textElement ? textElement.x + (3 + model.lineColumn) * textElement.contentWidth / 7 : 0)
+        x: {
+            if (model.lineColumn === 0) return (textElement ? textElement.x : 0);
+            if (model.lineColumn <= 3) return (textElement ? textElement.x + (3 + model.lineColumn) * textElement.contentWidth / 10 : 0);
+            return (textElement ? textElement.x + (4 + model.lineColumn) * textElement.contentWidth / 10 : 0);
+        }
         color: "red"
         opacity: 0.5
         visible: model.isFocused
