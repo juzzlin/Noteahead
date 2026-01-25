@@ -12,6 +12,8 @@ New features:
 
 Bug fixes:
 
+* Fix volume meter not always triggered on line 0
+
 Other:
 
 1.5.0

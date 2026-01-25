@@ -16,6 +16,7 @@ Item {
     property int _patternIndex: 0
     property int _trackIndex: 0
     property double _scrollOffset: 0
+    property int _lastTriggeredLine: -1
     readonly property string _tag: "NoteColumnLineContainer"
     property ListView _listView
     function setLocation(patternIndex: int, trackIndex: int, columnIndex: int): void {
@@ -25,6 +26,7 @@ Item {
         _listView = listViewComponent.createObject(rootItem);
         _listView.model = noteColumnModelHandler.columnModel(_patternIndex, _trackIndex, _index);
         _scrollOffset = editorService.position.line;
+        _lastTriggeredLine = -1;
         _scrollLines();
         delayedScrollTimer.start(); // Hack for Qt < 6.5
     }
@@ -77,7 +79,15 @@ Item {
         if (_scrollOffset !== position.line) {
             _scrollOffset = position.line;
             _scrollLines();
-            _triggerVolumeMeterAtPosition(position);
+        }
+
+        if (UiService.isPlaying()) {
+            if (_lastTriggeredLine !== position.line) {
+                _triggerVolumeMeterAtPosition(position);
+                _lastTriggeredLine = position.line;
+            }
+        } else {
+            _lastTriggeredLine = -1;
         }
     }
     function _scrollLines(): void {
