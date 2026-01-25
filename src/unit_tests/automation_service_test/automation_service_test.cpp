@@ -21,6 +21,7 @@
 #include "../../domain/midi_cc_automation.hpp"
 
 #include <QSignalSpy>
+#include <QTest>
 
 Q_DECLARE_METATYPE(noteahead::Position)
 

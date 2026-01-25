@@ -16,7 +16,7 @@
 #ifndef MIXER_SERVICE_TEST_HPP
 #define MIXER_SERVICE_TEST_HPP
 
-#include <QTest>
+#include <QObject>
 
 namespace noteahead {
 

@@ -34,6 +34,7 @@
 #include "../../domain/track.hpp"
 
 #include <QSignalSpy>
+#include <QTest>
 
 namespace noteahead {
 

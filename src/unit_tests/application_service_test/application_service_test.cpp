@@ -27,6 +27,7 @@
 #include "../../domain/instrument.hpp"
 
 #include <QSignalSpy>
+#include <QTest>
 
 namespace noteahead {
 

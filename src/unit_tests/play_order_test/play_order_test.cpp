@@ -17,6 +17,8 @@
 
 #include "../../domain/play_order.hpp"
 
+#include <QTest>
+
 namespace noteahead {
 
 void PlayOrderTest::test_initialization_shouldReturnInitialMapping()

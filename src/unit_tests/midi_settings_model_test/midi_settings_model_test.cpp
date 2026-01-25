@@ -18,7 +18,9 @@
 #include "../../application/models/midi_settings_model.hpp"
 #include "../../application/service/settings_service.hpp"
 
+#include <QSettings>
 #include <QSignalSpy>
+#include <QTest>
 
 namespace noteahead {
 

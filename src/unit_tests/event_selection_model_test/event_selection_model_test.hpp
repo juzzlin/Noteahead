@@ -16,7 +16,7 @@
 #ifndef EVENT_SELECTION_MODEL_TEST_HPP
 #define EVENT_SELECTION_MODEL_TEST_HPP
 
-#include <QtTest>
+#include <QObject>
 
 namespace noteahead {
 

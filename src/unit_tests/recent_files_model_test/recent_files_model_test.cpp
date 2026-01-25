@@ -18,6 +18,7 @@
 #include "../../application/models/recent_files_model.hpp"
 
 #include <QSignalSpy>
+#include <QTest>
 
 namespace noteahead {
 

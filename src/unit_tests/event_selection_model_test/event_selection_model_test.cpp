@@ -19,6 +19,7 @@
 #include "../../domain/instrument_settings.hpp"
 
 #include <QSignalSpy>
+#include <QTest>
 
 namespace noteahead {
 

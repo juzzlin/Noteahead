@@ -17,7 +17,6 @@
 #define MIDI_EXPORTER_TEST_HPP
 
 #include <QObject>
-#include <QtTest/QTest>
 
 namespace noteahead {
 

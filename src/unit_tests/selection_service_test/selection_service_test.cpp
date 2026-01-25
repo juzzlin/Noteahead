@@ -18,6 +18,7 @@
 #include "../../application/service/selection_service.hpp"
 
 #include <QSignalSpy>
+#include <QTest>
 
 namespace noteahead {
 

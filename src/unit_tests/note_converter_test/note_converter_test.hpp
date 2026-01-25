@@ -16,7 +16,7 @@
 #ifndef NOTE_CONVERTER_TEST_HPP
 #define NOTE_CONVERTER_TEST_HPP
 
-#include <QTest>
+#include <QObject>
 
 namespace noteahead {
 

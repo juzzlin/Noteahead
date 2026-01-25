@@ -19,6 +19,7 @@
 #include "../../domain/pitch_bend_automation.hpp"
 
 #include <QSignalSpy>
+#include <QTest>
 
 namespace noteahead {
 

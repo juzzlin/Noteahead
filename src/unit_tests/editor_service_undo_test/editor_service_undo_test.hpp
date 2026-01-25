@@ -16,7 +16,7 @@
 #ifndef EDITOR_SERVICE_UNDO_TEST_HPP
 #define EDITOR_SERVICE_UNDO_TEST_HPP
 
-#include <QTest>
+#include <QObject>
 
 namespace noteahead {
 

@@ -16,7 +16,7 @@
 #ifndef PLAY_ORDER_TEST_HPP
 #define PLAY_ORDER_TEST_HPP
 
-#include <QTest>
+#include <QObject>
 
 namespace noteahead {
 

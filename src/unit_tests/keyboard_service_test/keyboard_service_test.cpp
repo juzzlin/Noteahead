@@ -23,7 +23,9 @@
 #include "../../application/service/settings_service.hpp"
 #include "../../domain/midi_note_data.hpp"
 
+#include <QSettings>
 #include <QSignalSpy>
+#include <QTest>
 
 namespace noteahead {
 

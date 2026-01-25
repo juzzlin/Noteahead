@@ -17,7 +17,6 @@
 #define PROPERTY_SERVICE_TEST_HPP
 
 #include <QObject>
-#include <QTest>
 
 namespace noteahead {
 

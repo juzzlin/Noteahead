@@ -25,6 +25,7 @@
 #include "../../domain/song.hpp"
 
 #include <QXmlStreamWriter>
+#include <QTest>
 
 namespace noteahead {
 

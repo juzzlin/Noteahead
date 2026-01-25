@@ -16,7 +16,7 @@
 #ifndef SELECTION_SERVICE_TEST_HPP
 #define SELECTION_SERVICE_TEST_HPP
 
-#include <QTest>
+#include <QObject>
 
 namespace noteahead {
 

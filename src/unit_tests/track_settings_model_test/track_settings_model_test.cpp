@@ -18,6 +18,7 @@
 #include "../../application/models/track_settings_model.hpp"
 
 #include <QSignalSpy>
+#include <QTest>
 
 namespace noteahead {
 

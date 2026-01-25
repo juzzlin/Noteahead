@@ -17,6 +17,7 @@
 
 #include <QFile>
 #include <QTemporaryFile>
+#include <QTest>
 
 namespace noteahead {
 

@@ -16,7 +16,7 @@
 #ifndef SONG_TEST_HPP
 #define SONG_TEST_HPP
 
-#include <QTest>
+#include <QObject>
 
 namespace noteahead {
 

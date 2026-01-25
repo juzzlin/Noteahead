@@ -16,7 +16,7 @@
 #ifndef APPLICATION_SERVICE_TEST_HPP
 #define APPLICATION_SERVICE_TEST_HPP
 
-#include <QTest>
+#include <QObject>
 
 namespace noteahead {
 

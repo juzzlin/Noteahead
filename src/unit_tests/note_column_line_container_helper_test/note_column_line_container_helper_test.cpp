@@ -23,6 +23,8 @@
 #include "../../application/service/util_service.hpp"
 #include "../../domain/instrument_settings.hpp"
 
+#include <QTest>
+
 namespace noteahead {
 
 void NoteColumnLineContainerHelperTest::test_lineColorAndBorderWidth_selected_shouldReturnSelectionColor()

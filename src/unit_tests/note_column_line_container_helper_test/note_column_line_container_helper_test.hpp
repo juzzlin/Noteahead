@@ -16,7 +16,7 @@
 #ifndef NOTE_COLUMN_LINE_CONTAINER_HELPER_TEST_HPP
 #define NOTE_COLUMN_LINE_CONTAINER_HELPER_TEST_HPP
 
-#include <QtTest>
+#include <QObject>
 
 namespace noteahead {
 

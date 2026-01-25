@@ -19,6 +19,7 @@
 #include "../../domain/column_settings.hpp"
 
 #include <QSignalSpy>
+#include <QTest>
 
 namespace noteahead {
 

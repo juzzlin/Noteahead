@@ -21,6 +21,7 @@
 #include "../../domain/song.hpp"
 
 #include <QSignalSpy>
+#include <QTest>
 
 namespace noteahead {
 

@@ -16,7 +16,7 @@
 #ifndef PLAYER_WORKER_TEST_HPP
 #define PLAYER_WORKER_TEST_HPP
 
-#include <QtTest>
+#include <QObject>
 
 namespace noteahead {
 

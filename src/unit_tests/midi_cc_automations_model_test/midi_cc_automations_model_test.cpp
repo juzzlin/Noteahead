@@ -19,6 +19,7 @@
 #include "../../domain/midi_cc_automation.hpp"
 
 #include <QSignalSpy>
+#include <QTest>
 
 namespace noteahead {
 

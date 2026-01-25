@@ -16,7 +16,7 @@
 #ifndef PITCH_BEND_AUTOMATIONS_MODEL_TEST_HPP
 #define PITCH_BEND_AUTOMATIONS_MODEL_TEST_HPP
 
-#include <QTest>
+#include <QObject>
 
 namespace noteahead {
 

@@ -16,7 +16,7 @@
 #ifndef RECENT_FILES_MODEL_TEST_HPP
 #define RECENT_FILES_MODEL_TEST_HPP
 
-#include <QtTest>
+#include <QObject>
 
 namespace noteahead {
 

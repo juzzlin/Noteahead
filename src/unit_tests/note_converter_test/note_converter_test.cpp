@@ -17,6 +17,8 @@
 
 #include "../../application/note_converter.hpp"
 
+#include <QTest>
+
 namespace noteahead {
 
 void NoteConverterTest::test_midiToString_shouldReturnCorrectString_data()

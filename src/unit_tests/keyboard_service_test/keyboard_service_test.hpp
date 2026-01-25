@@ -16,7 +16,7 @@
 #ifndef KEYBOARD_SERVICE_TEST_HPP
 #define KEYBOARD_SERVICE_TEST_HPP
 
-#include <QtTest>
+#include <QObject>
 
 namespace noteahead {
 

@@ -16,7 +16,7 @@
 #ifndef MIDI_CC_SELECTION_MODEL_TEST_HPP
 #define MIDI_CC_SELECTION_MODEL_TEST_HPP
 
-#include <QTest>
+#include <QObject>
 
 namespace noteahead {
 

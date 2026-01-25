@@ -16,7 +16,7 @@
 #ifndef AUTOMATION_SERVICE_TEST_HPP
 #define AUTOMATION_SERVICE_TEST_HPP
 
-#include <QTest>
+#include <QObject>
 
 namespace noteahead {
 

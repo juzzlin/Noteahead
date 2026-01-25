@@ -22,6 +22,9 @@
 #include "../../application/service/selection_service.hpp"
 #include "../../application/service/settings_service.hpp"
 
+#include <QSettings>
+#include <QTest>
+
 namespace noteahead {
 
 void NoteColumnModelHandlerTest::initTestCase()

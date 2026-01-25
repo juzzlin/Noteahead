@@ -16,7 +16,7 @@
 #ifndef TRACK_SETTINGS_MODEL_TEST_HPP
 #define TRACK_SETTINGS_MODEL_TEST_HPP
 
-#include <QTest>
+#include <QObject>
 
 namespace noteahead {
 

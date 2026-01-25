@@ -24,6 +24,7 @@
 #include "../../domain/note_data.hpp"
 
 #include <memory>
+#include <QTest>
 
 namespace noteahead {
 

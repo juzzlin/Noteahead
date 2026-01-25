@@ -17,6 +17,8 @@
 
 #include "../../application/service/property_service.hpp"
 
+#include <QTest>
+
 namespace noteahead {
 
 void PropertyServiceTest::test_availableMidiControllers()
