@@ -66,24 +66,24 @@ public:
 
     using ChangedPositions = std::vector<Position>;
     ChangedPositions cutColumn(size_t patternIndex, size_t trackIndex, size_t columnIndex, CopyManager & copyManager) const;
-    void copyColumn(size_t patternIndex, size_t trackIndex, size_t columnIndex, CopyManager & copyManager) const;
+    ChangedPositions copyColumn(size_t patternIndex, size_t trackIndex, size_t columnIndex, CopyManager & copyManager) const;
     ChangedPositions pasteColumn(size_t patternIndex, size_t trackIndex, size_t columnIndex, CopyManager & copyManager) const;
     ChangedPositions transposeColumn(const Position & position, int semitones) const;
 
     ChangedPositions cutTrack(size_t patternIndex, size_t trackIndex, CopyManager & copyManager) const;
-    void copyTrack(size_t patternIndex, size_t trackIndex, CopyManager & copyManager) const;
+    ChangedPositions copyTrack(size_t patternIndex, size_t trackIndex, CopyManager & copyManager) const;
     ChangedPositions pasteTrack(size_t patternIndex, size_t trackIndex, CopyManager & copyManager) const;
     ChangedPositions transposeTrack(const Position & position, int semitones) const;
 
     ChangedPositions cutPattern(size_t patternIndex, CopyManager & copyManager) const;
-    void copyPattern(size_t patternIndex, CopyManager & copyManager) const;
+    ChangedPositions copyPattern(size_t patternIndex, CopyManager & copyManager) const;
     ChangedPositions pastePattern(size_t patternIndex, CopyManager & copyManager) const;
     ChangedPositions transposePattern(const Position & position, int semitones) const;
 
     using PositionList = std::vector<Position>;
     using PositionListCR = const PositionList &;
     ChangedPositions cutSelection(PositionListCR positions, CopyManager & copyManager) const;
-    void copySelection(PositionListCR positions, CopyManager & copyManager) const;
+    ChangedPositions copySelection(PositionListCR positions, CopyManager & copyManager) const;
     ChangedPositions pasteSelection(const Position & position, CopyManager & copyManager) const;
 
     void createPattern(size_t patternIndex);

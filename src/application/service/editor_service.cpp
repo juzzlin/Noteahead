@@ -1260,12 +1260,23 @@ void EditorService::notifyPositionChange(const Position & oldPosition)
 void EditorService::requestColumnCut()
 {
     juzzlin::L(TAG).info() << "Requesting column cut";
-    for (auto && changedPosition : m_song->cutColumn(currentPattern(), currentTrack(), currentColumn(), m_state.copyManager)) {
-        emit noteDataAtPositionChanged(changedPosition);
+    NoteEditCommand::ChangeList changes;
+    for (auto && changedPosition : m_song->copyColumn(currentPattern(), currentTrack(), currentColumn(), m_state.copyManager)) {
+        if (const auto oldNoteData = m_song->noteDataAtPosition(changedPosition); oldNoteData) {
+            changes.emplace_back(changedPosition, *oldNoteData, NoteData { changedPosition.track, changedPosition.column });
+        }
     }
+
+    if (!changes.empty()) {
+        m_undoStack->push(std::make_shared<NoteEditCommand>(m_song, std::move(changes), m_state.cursorPosition, m_state.cursorPosition, [this](const Position & pos) {
+            emit noteDataAtPositionChanged(pos);
+            setIsModified(true);
+            updateDuration();
+        }, [this](const Position & pos) { requestPosition(pos); }));
+    }
+
     emit copyManagerStateChanged();
     emit statusTextRequested(tr("Column cut"));
-    setIsModified(true);
 }
 
 void EditorService::requestColumnCopy()
@@ -1325,12 +1336,23 @@ bool EditorService::hasColumnToPaste() const
 void EditorService::requestTrackCut()
 {
     juzzlin::L(TAG).info() << "Requesting track cut";
-    for (auto && changedPosition : m_song->cutTrack(currentPattern(), currentTrack(), m_state.copyManager)) {
-        emit noteDataAtPositionChanged(changedPosition);
+    NoteEditCommand::ChangeList changes;
+    for (auto && changedPosition : m_song->copyTrack(currentPattern(), currentTrack(), m_state.copyManager)) {
+        if (const auto oldNoteData = m_song->noteDataAtPosition(changedPosition); oldNoteData) {
+            changes.emplace_back(changedPosition, *oldNoteData, NoteData { changedPosition.track, changedPosition.column });
+        }
     }
+
+    if (!changes.empty()) {
+        m_undoStack->push(std::make_shared<NoteEditCommand>(m_song, std::move(changes), m_state.cursorPosition, m_state.cursorPosition, [this](const Position & pos) {
+            emit noteDataAtPositionChanged(pos);
+            setIsModified(true);
+            updateDuration();
+        }, [this](const Position & pos) { requestPosition(pos); }));
+    }
+
     emit copyManagerStateChanged();
     emit statusTextRequested(tr("Track cut"));
-    setIsModified(true);
 }
 
 void EditorService::requestTrackCopy()
@@ -1383,12 +1405,23 @@ void EditorService::requestTrackTranspose(int semitones)
 void EditorService::requestPatternCut()
 {
     juzzlin::L(TAG).info() << "Requesting pattern cut";
-    for (auto && changedPosition : m_song->cutPattern(currentPattern(), m_state.copyManager)) {
-        emit noteDataAtPositionChanged(changedPosition);
+    NoteEditCommand::ChangeList changes;
+    for (auto && changedPosition : m_song->copyPattern(currentPattern(), m_state.copyManager)) {
+        if (const auto oldNoteData = m_song->noteDataAtPosition(changedPosition); oldNoteData) {
+            changes.emplace_back(changedPosition, *oldNoteData, NoteData { changedPosition.track, changedPosition.column });
+        }
     }
+
+    if (!changes.empty()) {
+        m_undoStack->push(std::make_shared<NoteEditCommand>(m_song, std::move(changes), m_state.cursorPosition, m_state.cursorPosition, [this](const Position & pos) {
+            emit noteDataAtPositionChanged(pos);
+            setIsModified(true);
+            updateDuration();
+        }, [this](const Position & pos) { requestPosition(pos); }));
+    }
+
     emit statusTextRequested(tr("Pattern cut"));
     emit copyManagerStateChanged();
-    setIsModified(true);
 }
 
 void EditorService::requestPatternCopy()
@@ -1440,12 +1473,23 @@ void EditorService::requestPatternTranspose(int semitones)
 void EditorService::requestSelectionCut()
 {
     juzzlin::L(TAG).info() << "Requesting selection cut";
-    for (auto && changedPosition : m_song->cutSelection(m_selectionService->selectedPositions(), m_state.copyManager)) {
-        emit noteDataAtPositionChanged(changedPosition);
+    NoteEditCommand::ChangeList changes;
+    for (auto && changedPosition : m_song->copySelection(m_selectionService->selectedPositions(), m_state.copyManager)) {
+        if (const auto oldNoteData = m_song->noteDataAtPosition(changedPosition); oldNoteData) {
+            changes.emplace_back(changedPosition, *oldNoteData, NoteData { changedPosition.track, changedPosition.column });
+        }
     }
+
+    if (!changes.empty()) {
+        m_undoStack->push(std::make_shared<NoteEditCommand>(m_song, std::move(changes), m_state.cursorPosition, m_state.cursorPosition, [this](const Position & pos) {
+            emit noteDataAtPositionChanged(pos);
+            setIsModified(true);
+            updateDuration();
+        }, [this](const Position & pos) { requestPosition(pos); }));
+    }
+
     emit statusTextRequested(tr("Selection cut"));
     emit copyManagerStateChanged();
-    setIsModified(true);
 }
 
 void EditorService::requestSelectionCopy()

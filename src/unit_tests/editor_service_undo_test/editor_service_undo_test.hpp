@@ -36,6 +36,10 @@ private slots:
     void test_undoRedo_pasteTrack();
     void test_undoRedo_pastePattern();
     void test_undoRedo_pasteSelection();
+    void test_undoRedo_cutColumn();
+    void test_undoRedo_cutTrack();
+    void test_undoRedo_cutPattern();
+    void test_undoRedo_cutSelection();
     void test_undoRedo_canUndoRedoSignals();
     void test_undoRedo_clearsOnNewSong();
     void test_undoRedo_shouldNotClearOnPatternChange();

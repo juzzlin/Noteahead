@@ -326,6 +326,96 @@ void EditorServiceUndoTest::test_undoRedo_pasteSelection()
     QCOMPARE(editorService.displayNoteAtPosition(0, 0, 0, 2), "C-3");
 }
 
+void EditorServiceUndoTest::test_undoRedo_cutColumn()
+{
+    EditorService editorService;
+    editorService.requestPosition(0, 0, 0, 0, 0);
+    editorService.requestNoteOnAtCurrentPosition(1, 3, 64);
+    QCOMPARE(editorService.displayNoteAtPosition(0, 0, 0, 0), "C-3");
+
+    // Action: Cut Column
+    editorService.requestColumnCut();
+    QCOMPARE(editorService.displayNoteAtPosition(0, 0, 0, 0), editorService.noDataString());
+    QVERIFY(editorService.canUndo());
+
+    // Undo
+    editorService.undo();
+    QCOMPARE(editorService.displayNoteAtPosition(0, 0, 0, 0), "C-3");
+
+    // Redo
+    editorService.redo();
+    QCOMPARE(editorService.displayNoteAtPosition(0, 0, 0, 0), editorService.noDataString());
+}
+
+void EditorServiceUndoTest::test_undoRedo_cutTrack()
+{
+    EditorService editorService;
+    editorService.requestPosition(0, 0, 0, 0, 0);
+    editorService.requestNoteOnAtCurrentPosition(1, 3, 64);
+    QCOMPARE(editorService.displayNoteAtPosition(0, 0, 0, 0), "C-3");
+
+    // Action: Cut Track
+    editorService.requestTrackCut();
+    QCOMPARE(editorService.displayNoteAtPosition(0, 0, 0, 0), editorService.noDataString());
+    QVERIFY(editorService.canUndo());
+
+    // Undo
+    editorService.undo();
+    QCOMPARE(editorService.displayNoteAtPosition(0, 0, 0, 0), "C-3");
+
+    // Redo
+    editorService.redo();
+    QCOMPARE(editorService.displayNoteAtPosition(0, 0, 0, 0), editorService.noDataString());
+}
+
+void EditorServiceUndoTest::test_undoRedo_cutPattern()
+{
+    EditorService editorService;
+    editorService.requestPosition(0, 0, 0, 0, 0);
+    editorService.requestNoteOnAtCurrentPosition(1, 3, 64);
+    QCOMPARE(editorService.displayNoteAtPosition(0, 0, 0, 0), "C-3");
+
+    // Action: Cut Pattern
+    editorService.requestPatternCut();
+    QCOMPARE(editorService.displayNoteAtPosition(0, 0, 0, 0), editorService.noDataString());
+    QVERIFY(editorService.canUndo());
+
+    // Undo
+    editorService.undo();
+    QCOMPARE(editorService.displayNoteAtPosition(0, 0, 0, 0), "C-3");
+
+    // Redo
+    editorService.redo();
+    QCOMPARE(editorService.displayNoteAtPosition(0, 0, 0, 0), editorService.noDataString());
+}
+
+void EditorServiceUndoTest::test_undoRedo_cutSelection()
+{
+    auto selectionService = std::make_shared<SelectionService>();
+    const auto settingsService = std::make_shared<SettingsService>();
+    EditorService editorService { selectionService, settingsService };
+
+    editorService.requestPosition(0, 0, 0, 0, 0);
+    editorService.requestNoteOnAtCurrentPosition(1, 3, 64);
+    QCOMPARE(editorService.displayNoteAtPosition(0, 0, 0, 0), "C-3");
+
+    selectionService->requestSelectionStart(0, 0, 0, 0);
+    selectionService->requestSelectionEnd(0, 0, 0, 0);
+
+    // Action: Cut Selection
+    editorService.requestSelectionCut();
+    QCOMPARE(editorService.displayNoteAtPosition(0, 0, 0, 0), editorService.noDataString());
+    QVERIFY(editorService.canUndo());
+
+    // Undo
+    editorService.undo();
+    QCOMPARE(editorService.displayNoteAtPosition(0, 0, 0, 0), "C-3");
+
+    // Redo
+    editorService.redo();
+    QCOMPARE(editorService.displayNoteAtPosition(0, 0, 0, 0), editorService.noDataString());
+}
+
 void EditorServiceUndoTest::test_undoRedo_canUndoRedoSignals()
 {
     EditorService editorService;

@@ -62,11 +62,9 @@ Song::ChangedPositions Song::cutColumn(size_t patternIndex, size_t trackIndex, s
     }
 }
 
-void Song::copyColumn(size_t patternIndex, size_t trackIndex, size_t columnIndex, CopyManager & copyManager) const
+Song::ChangedPositions Song::copyColumn(size_t patternIndex, size_t trackIndex, size_t columnIndex, CopyManager & copyManager) const
 {
-    if (m_patterns.contains(patternIndex)) {
-        copyManager.pushSourceColumn(*m_patterns.at(patternIndex), trackIndex, columnIndex);
-    }
+    return m_patterns.contains(patternIndex) ? copyManager.pushSourceColumn(*m_patterns.at(patternIndex), trackIndex, columnIndex) : Song::ChangedPositions {};
 }
 
 Song::ChangedPositions Song::pasteColumn(size_t patternIndex, size_t trackIndex, size_t columnIndex, CopyManager & copyManager) const
@@ -93,11 +91,9 @@ Song::ChangedPositions Song::cutTrack(size_t patternIndex, size_t trackIndex, Co
     }
 }
 
-void Song::copyTrack(size_t patternIndex, size_t trackIndex, CopyManager & copyManager) const
+Song::ChangedPositions Song::copyTrack(size_t patternIndex, size_t trackIndex, CopyManager & copyManager) const
 {
-    if (m_patterns.contains(patternIndex)) {
-        copyManager.pushSourceTrack(*m_patterns.at(patternIndex), trackIndex);
-    }
+    return m_patterns.contains(patternIndex) ? copyManager.pushSourceTrack(*m_patterns.at(patternIndex), trackIndex) : Song::ChangedPositions {};
 }
 
 Song::ChangedPositions Song::pasteTrack(size_t patternIndex, size_t trackIndex, CopyManager & copyManager) const
@@ -124,11 +120,9 @@ Song::ChangedPositions Song::cutPattern(size_t patternIndex, CopyManager & copyM
     }
 }
 
-void Song::copyPattern(size_t patternIndex, CopyManager & copyManager) const
+Song::ChangedPositions Song::copyPattern(size_t patternIndex, CopyManager & copyManager) const
 {
-    if (m_patterns.contains(patternIndex)) {
-        copyManager.pushSourcePattern(*m_patterns.at(patternIndex));
-    }
+    return m_patterns.contains(patternIndex) ? copyManager.pushSourcePattern(*m_patterns.at(patternIndex)) : Song::ChangedPositions {};
 }
 
 Song::ChangedPositions Song::pastePattern(size_t patternIndex, CopyManager & copyManager) const
@@ -156,13 +150,14 @@ Song::ChangedPositions Song::cutSelection(PositionListCR positions, CopyManager 
     return {};
 }
 
-void Song::copySelection(PositionListCR positions, CopyManager & copyManager) const
+Song::ChangedPositions Song::copySelection(PositionListCR positions, CopyManager & copyManager) const
 {
     if (!positions.empty()) {
         if (const auto patternIndex = positions.at(0).pattern; m_patterns.contains(patternIndex)) {
-            copyManager.pushSourceSelection(*m_patterns.at(patternIndex), positions);
+            return copyManager.pushSourceSelection(*m_patterns.at(patternIndex), positions);
         }
     }
+    return {};
 }
 
 Song::ChangedPositions Song::pasteSelection(const Position & position, CopyManager & copyManager) const
