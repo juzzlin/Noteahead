@@ -53,20 +53,41 @@ Dialog {
         anchors.fill: parent
         spacing: 10
         StackLayout {
-            height: parent.height - tabBar.height
+            height: parent.height - tabBar.height - parent.spacing
             width: parent.width
             currentIndex: tabBar.currentIndex
-            TrackSettingsDialog_InstrumentSettings {
-                id: instrumentSettings
-                Layout.fillWidth: true
+            ScrollView {
+                id: instrumentScrollView
+                clip: true
+                ScrollBar.vertical.policy: ScrollBar.AsNeeded
+                ScrollBar.horizontal.policy: ScrollBar.AlwaysOff
+                rightPadding: 10
+                TrackSettingsDialog_InstrumentSettings {
+                    id: instrumentSettings
+                    width: instrumentScrollView.availableWidth
+                }
             }
-            TrackSettingsDialog_TimingSettings {
-                id: timingSettings
-                Layout.fillWidth: true
+            ScrollView {
+                id: timingScrollView
+                clip: true
+                ScrollBar.vertical.policy: ScrollBar.AsNeeded
+                ScrollBar.horizontal.policy: ScrollBar.AlwaysOff
+                rightPadding: 10
+                TrackSettingsDialog_TimingSettings {
+                    id: timingSettings
+                    width: timingScrollView.availableWidth
+                }
             }
-            TrackSettingsDialog_MidiEffects {
-                id: midiEffects
-                Layout.fillWidth: true
+            ScrollView {
+                id: midiEffectsScrollView
+                clip: true
+                ScrollBar.vertical.policy: ScrollBar.AsNeeded
+                ScrollBar.horizontal.policy: ScrollBar.AlwaysOff
+                rightPadding: 10
+                TrackSettingsDialog_MidiEffects {
+                    id: midiEffects
+                    width: midiEffectsScrollView.availableWidth
+                }
             }
             TrackSettingsDialog_MidiCcSettings {
                 id: midiCcSettings

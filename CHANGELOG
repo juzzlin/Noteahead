@@ -10,6 +10,8 @@ New features:
 
 * Add chord automation presets
 
+* Make contents in instrument setting tabs vertically scrollable
+
 Bug fixes:
 
 * Fix volume meter not always triggered on line 0

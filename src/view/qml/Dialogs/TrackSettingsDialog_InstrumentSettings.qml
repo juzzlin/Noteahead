@@ -38,7 +38,6 @@ ColumnLayout {
     GroupBox {
         title: qsTr("Instrument")
         Layout.fillWidth: true
-        Layout.fillHeight: true
         ColumnLayout {
             spacing: 8
             width: parent.width
