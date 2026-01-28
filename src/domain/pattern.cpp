@@ -371,23 +371,24 @@ Pattern::PositionList Pattern::insertNoteDataAtPosition(const NoteData & noteDat
     return trackByIndexThrow(position.track)->insertNoteDataAtPosition(noteData, position);
 }
 
-Pattern::PositionList Pattern::transposePattern(const Position & position, int semitones) const
+NoteChangeList Pattern::transposePattern(const Position & position, int semitones) const
 {
-    Pattern::PositionList changedPositions;
-    for (size_t track = 0; track < m_trackOrder.size(); track++) {
+    NoteChangeList changes;
+    for (const auto & track : m_trackOrder) {
         auto trackPosition = position;
-        trackPosition.track = track; // Need to set track because these positions will be returned back as changed positions.
-        std::ranges::copy(m_trackOrder.at(track)->transposeTrack(trackPosition, semitones), std::back_inserter(changedPositions));
+        trackPosition.track = track->index(); // Need to set track because these positions will be returned back as changed positions.
+        auto trackChanges = track->transposeTrack(trackPosition, semitones);
+        changes.insert(changes.end(), trackChanges.begin(), trackChanges.end());
     }
-    return changedPositions;
+    return changes;
 }
 
-Pattern::PositionList Pattern::transposeTrack(const Position & position, int semitones) const
+NoteChangeList Pattern::transposeTrack(const Position & position, int semitones) const
 {
     return trackByIndexThrow(position.track)->transposeTrack(position, semitones);
 }
 
-Pattern::PositionList Pattern::transposeColumn(const Position & position, int semitones) const
+NoteChangeList Pattern::transposeColumn(const Position & position, int semitones) const
 {
     return trackByIndexThrow(position.track)->transposeColumn(position, semitones);
 }

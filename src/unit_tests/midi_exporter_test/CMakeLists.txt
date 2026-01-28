@@ -4,6 +4,7 @@ set(NAME midi_exporter_test)
 
 set(SRC
     ${NAME}.cpp
+    ../../application/position.hpp
     ../../application/service/automation_service.cpp
     ../../application/service/copy_manager.cpp
     ../../application/service/mixer_service.cpp

@@ -30,6 +30,7 @@
 
 #include "../application/position.hpp"
 #include "instrument.hpp"
+#include "note_data.hpp"
 
 class QXmlStreamReader;
 class QXmlStreamWriter;
@@ -68,17 +69,17 @@ public:
     ChangedPositions cutColumn(size_t patternIndex, size_t trackIndex, size_t columnIndex, CopyManager & copyManager) const;
     ChangedPositions copyColumn(size_t patternIndex, size_t trackIndex, size_t columnIndex, CopyManager & copyManager) const;
     ChangedPositions pasteColumn(size_t patternIndex, size_t trackIndex, size_t columnIndex, CopyManager & copyManager) const;
-    ChangedPositions transposeColumn(const Position & position, int semitones) const;
+    NoteChangeList transposeColumn(const Position & position, int semitones) const;
 
     ChangedPositions cutTrack(size_t patternIndex, size_t trackIndex, CopyManager & copyManager) const;
     ChangedPositions copyTrack(size_t patternIndex, size_t trackIndex, CopyManager & copyManager) const;
     ChangedPositions pasteTrack(size_t patternIndex, size_t trackIndex, CopyManager & copyManager) const;
-    ChangedPositions transposeTrack(const Position & position, int semitones) const;
+    NoteChangeList transposeTrack(const Position & position, int semitones) const;
 
     ChangedPositions cutPattern(size_t patternIndex, CopyManager & copyManager) const;
     ChangedPositions copyPattern(size_t patternIndex, CopyManager & copyManager) const;
     ChangedPositions pastePattern(size_t patternIndex, CopyManager & copyManager) const;
-    ChangedPositions transposePattern(const Position & position, int semitones) const;
+    NoteChangeList transposePattern(const Position & position, int semitones) const;
 
     using PositionList = std::vector<Position>;
     using PositionListCR = const PositionList &;

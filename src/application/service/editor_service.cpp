@@ -1315,10 +1315,12 @@ void EditorService::requestColumnPaste()
 
 void EditorService::requestColumnTranspose(int semitones)
 {
-    for (auto && changedPosition : m_song->transposeColumn(m_state.cursorPosition, semitones)) {
-        emit noteDataAtPositionChanged(changedPosition);
+    if (auto changes = m_song->transposeColumn(m_state.cursorPosition, semitones); !changes.empty()) {
+        m_undoStack->push(std::make_shared<NoteEditCommand>(m_song, std::move(changes), m_state.cursorPosition, m_state.cursorPosition, [this](const Position & pos) {
+            emit noteDataAtPositionChanged(pos);
+            setIsModified(true);
+        }, [this](const Position & pos) { requestPosition(pos); }));
     }
-    setIsModified(true);
 }
 
 EditorService::LineList EditorService::columnData(ColumnAddress columnAddress) const
@@ -1396,10 +1398,12 @@ bool EditorService::hasTrackToPaste() const
 
 void EditorService::requestTrackTranspose(int semitones)
 {
-    for (auto && changedPosition : m_song->transposeTrack(m_state.cursorPosition, semitones)) {
-        emit noteDataAtPositionChanged(changedPosition);
+    if (auto changes = m_song->transposeTrack(m_state.cursorPosition, semitones); !changes.empty()) {
+        m_undoStack->push(std::make_shared<NoteEditCommand>(m_song, std::move(changes), m_state.cursorPosition, m_state.cursorPosition, [this](const Position & pos) {
+            emit noteDataAtPositionChanged(pos);
+            setIsModified(true);
+        }, [this](const Position & pos) { requestPosition(pos); }));
     }
-    setIsModified(true);
 }
 
 void EditorService::requestPatternCut()
@@ -1464,10 +1468,12 @@ bool EditorService::hasPatternToPaste() const
 
 void EditorService::requestPatternTranspose(int semitones)
 {
-    for (auto && changedPosition : m_song->transposePattern(m_state.cursorPosition, semitones)) {
-        emit noteDataAtPositionChanged(changedPosition);
+    if (auto changes = m_song->transposePattern(m_state.cursorPosition, semitones); !changes.empty()) {
+        m_undoStack->push(std::make_shared<NoteEditCommand>(m_song, std::move(changes), m_state.cursorPosition, m_state.cursorPosition, [this](const Position & pos) {
+            emit noteDataAtPositionChanged(pos);
+            setIsModified(true);
+        }, [this](const Position & pos) { requestPosition(pos); }));
     }
-    setIsModified(true);
 }
 
 void EditorService::requestSelectionCut()
@@ -1534,15 +1540,20 @@ void EditorService::requestSelectionTranspose(int semitones)
 {
     juzzlin::L(TAG).info() << "Requesting selection transpose by " << semitones << " semitones";
     if (m_selectionService->isValidSelection()) {
-        bool modified = false;
+        NoteEditCommand::ChangeList changes;
         for (auto && position : m_selectionService->selectedPositions()) {
             if (const auto noteData = m_song->noteDataAtPosition(position); noteData && noteData->type() == NoteData::Type::NoteOn) {
-                noteData->transpose(semitones);
-                emit noteDataAtPositionChanged(position);
-                modified = true;
+                auto newNoteData = *noteData;
+                newNoteData.transpose(semitones);
+                changes.emplace_back(position, *noteData, newNoteData);
             }
         }
-        setIsModified(modified);
+        if (!changes.empty()) {
+            m_undoStack->push(std::make_shared<NoteEditCommand>(m_song, std::move(changes), m_state.cursorPosition, m_state.cursorPosition, [this](const Position & pos) {
+                emit noteDataAtPositionChanged(pos);
+                setIsModified(true);
+            }, [this](const Position & pos) { requestPosition(pos); }));
+        }
     }
 }
 

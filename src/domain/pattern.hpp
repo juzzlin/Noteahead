@@ -21,6 +21,8 @@
 #include <optional>
 #include <vector>
 
+#include "note_data.hpp"
+
 class QXmlStreamReader;
 class QXmlStreamWriter;
 
@@ -32,7 +34,6 @@ class Event;
 class Instrument;
 class InstrumentSettings;
 class Line;
-class NoteData;
 class Track;
 struct Position;
 
@@ -109,9 +110,9 @@ public:
     PositionList deleteNoteDataAtPosition(const Position & position);
     PositionList insertNoteDataAtPosition(const NoteData & noteData, const Position & position);
 
-    PositionList transposePattern(const Position & position, int semitones) const;
-    PositionList transposeTrack(const Position & position, int semitones) const;
-    PositionList transposeColumn(const Position & position, int semitones) const;
+    NoteChangeList transposePattern(const Position & position, int semitones) const;
+    NoteChangeList transposeTrack(const Position & position, int semitones) const;
+    NoteChangeList transposeColumn(const Position & position, int semitones) const;
 
     Position nextNoteDataOnSameColumn(const Position & position) const;
     Position prevNoteDataOnSameColumn(const Position & position) const;

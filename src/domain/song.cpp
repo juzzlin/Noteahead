@@ -72,9 +72,9 @@ Song::ChangedPositions Song::pasteColumn(size_t patternIndex, size_t trackIndex,
     return m_patterns.contains(patternIndex) ? copyManager.pasteColumn(m_patterns.at(patternIndex), trackIndex, columnIndex) : Song::ChangedPositions {};
 }
 
-Song::ChangedPositions Song::transposeColumn(const Position & position, int semitones) const
+NoteChangeList Song::transposeColumn(const Position & position, int semitones) const
 {
-    return m_patterns.contains(position.pattern) ? m_patterns.at(position.pattern)->transposeColumn(position, semitones) : Song::ChangedPositions {};
+    return m_patterns.contains(position.pattern) ? m_patterns.at(position.pattern)->transposeColumn(position, semitones) : NoteChangeList {};
 }
 
 Song::ChangedPositions Song::cutTrack(size_t patternIndex, size_t trackIndex, CopyManager & copyManager) const
@@ -101,9 +101,9 @@ Song::ChangedPositions Song::pasteTrack(size_t patternIndex, size_t trackIndex, 
     return m_patterns.contains(patternIndex) ? copyManager.pasteTrack(m_patterns.at(patternIndex), trackIndex) : Song::ChangedPositions {};
 }
 
-Song::ChangedPositions Song::transposeTrack(const Position & position, int semitones) const
+NoteChangeList Song::transposeTrack(const Position & position, int semitones) const
 {
-    return m_patterns.contains(position.pattern) ? m_patterns.at(position.pattern)->transposeTrack(position, semitones) : Song::ChangedPositions {};
+    return m_patterns.contains(position.pattern) ? m_patterns.at(position.pattern)->transposeTrack(position, semitones) : NoteChangeList {};
 }
 
 Song::ChangedPositions Song::cutPattern(size_t patternIndex, CopyManager & copyManager) const
@@ -130,9 +130,9 @@ Song::ChangedPositions Song::pastePattern(size_t patternIndex, CopyManager & cop
     return m_patterns.contains(patternIndex) ? copyManager.pastePattern(m_patterns.at(patternIndex)) : Song::ChangedPositions {};
 }
 
-Song::ChangedPositions Song::transposePattern(const Position & position, int semitones) const
+NoteChangeList Song::transposePattern(const Position & position, int semitones) const
 {
-    return m_patterns.contains(position.pattern) ? m_patterns.at(position.pattern)->transposePattern(position, semitones) : Song::ChangedPositions {};
+    return m_patterns.contains(position.pattern) ? m_patterns.at(position.pattern)->transposePattern(position, semitones) : NoteChangeList {};
 }
 
 Song::ChangedPositions Song::cutSelection(PositionListCR positions, CopyManager & copyManager) const

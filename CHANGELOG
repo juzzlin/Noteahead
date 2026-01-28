@@ -12,6 +12,8 @@ New features:
 
 * Make contents in instrument setting tabs vertically scrollable
 
+* Make transpose undoable
+
 Bug fixes:
 
 * Fix volume meter not always triggered on line 0

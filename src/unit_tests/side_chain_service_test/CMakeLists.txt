@@ -3,6 +3,7 @@ set(NAME side_chain_service_test)
 set(SRC
     ${NAME}.cpp
     ${NAME}.hpp
+    ../../application/position.hpp
     ../../application/service/automation_service.cpp
     ../../application/service/copy_manager.cpp
     ../../application/service/random_service.cpp

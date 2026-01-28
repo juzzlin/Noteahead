@@ -34,8 +34,8 @@ class NoteEditCommand : public Command
 {
 public:
     using SongS = std::shared_ptr<Song>;
-    using Change = std::tuple<Position, NoteData, NoteData>; // Position, Old, New
-    using ChangeList = std::vector<Change>;
+    using Change = NoteChange;
+    using ChangeList = NoteChangeList;
     using Callback = std::function<void(const Position &)>;
     using CursorCallback = std::function<void(const Position &)>;
 

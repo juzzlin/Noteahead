@@ -45,6 +45,10 @@ private slots:
     void test_undoRedo_shouldNotClearOnPatternChange();
     void test_undoRedo_shouldRestorePosition();
     void test_undoRedo_clearsOnStructuralChange();
+    void test_undoRedo_transposeColumn();
+    void test_undoRedo_transposeTrack();
+    void test_undoRedo_transposePattern();
+    void test_undoRedo_transposeSelection();
     void test_undoRedo_linearVelocityInterpolation();
 };
 

@@ -200,18 +200,19 @@ Track::PositionList Track::insertNoteDataAtPosition(const NoteData & noteData, c
     return m_columns.at(position.column)->insertNoteDataAtPosition(noteData, position);
 }
 
-Track::PositionList Track::transposeTrack(const Position & position, int semitones) const
+NoteChangeList Track::transposeTrack(const Position & position, int semitones) const
 {
-    Track::PositionList changedPositions;
+    NoteChangeList changes;
     for (auto && column : m_columns) {
         auto columnPosition = position;
         columnPosition.column = column->index();
-        std::ranges::copy(column->transposeColumn(columnPosition, semitones), std::back_inserter(changedPositions));
+        auto columnChanges = column->transposeColumn(columnPosition, semitones);
+        changes.insert(changes.end(), columnChanges.begin(), columnChanges.end());
     }
-    return changedPositions;
+    return changes;
 }
 
-Track::PositionList Track::transposeColumn(const Position & position, int semitones) const
+NoteChangeList Track::transposeColumn(const Position & position, int semitones) const
 {
     return m_columns.at(position.column)->transposeColumn(position, semitones);
 }

@@ -17,11 +17,14 @@
 #define NOTE_DATA_HPP
 
 #include "event_data.hpp"
+#include "../application/position.hpp"
 
 #include <cstdint>
 #include <memory>
 #include <optional>
 #include <string>
+#include <tuple>
+#include <vector>
 
 class QXmlStreamWriter;
 class QXmlStreamReader;
@@ -72,6 +75,15 @@ private:
     std::optional<uint8_t> m_delay; // In ticks per line
     uint8_t m_velocity = 0;
 };
+
+struct NoteChange
+{
+    Position position;
+    NoteData oldNoteData;
+    NoteData newNoteData;
+};
+
+using NoteChangeList = std::vector<NoteChange>;
 
 } // namespace noteahead
 

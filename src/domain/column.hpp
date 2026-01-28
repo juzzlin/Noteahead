@@ -21,6 +21,7 @@
 
 #include "column_settings.hpp"
 #include "mixer_unit.hpp"
+#include "note_data.hpp"
 
 class QXmlStreamReader;
 class QXmlStreamWriter;
@@ -30,7 +31,6 @@ namespace noteahead {
 class Event;
 class InstrumentSettings;
 class Line;
-class NoteData;
 struct Position;
 
 class Column : public MixerUnit
@@ -63,7 +63,7 @@ public:
     PositionList deleteNoteDataAtPosition(const Position & position);
     PositionList insertNoteDataAtPosition(const NoteData & noteData, const Position & position);
 
-    PositionList transposeColumn(const Position & position, int semitones);
+    NoteChangeList transposeColumn(const Position & position, int semitones);
 
     using EventS = std::shared_ptr<Event>;
     using EventList = std::vector<EventS>;

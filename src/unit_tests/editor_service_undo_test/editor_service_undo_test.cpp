@@ -553,6 +553,118 @@ void EditorServiceUndoTest::test_undoRedo_clearsOnStructuralChange()
     QVERIFY(!editorService.canUndo());
 }
 
+void EditorServiceUndoTest::test_undoRedo_transposeColumn()
+{
+    EditorService editorService;
+    editorService.requestPosition(0, 0, 0, 0, 0);
+    editorService.requestNoteOnAtCurrentPosition(1, 3, 64);
+    QCOMPARE(editorService.displayNoteAtPosition(0, 0, 0, 0), "C-3");
+
+    // Action: Transpose Column
+    editorService.requestColumnTranspose(1);
+    QCOMPARE(editorService.displayNoteAtPosition(0, 0, 0, 0), "C#3");
+    QVERIFY(editorService.canUndo());
+
+    // Undo
+    editorService.undo();
+    QCOMPARE(editorService.displayNoteAtPosition(0, 0, 0, 0), "C-3");
+
+    // Redo
+    editorService.redo();
+    QCOMPARE(editorService.displayNoteAtPosition(0, 0, 0, 0), "C#3");
+}
+
+void EditorServiceUndoTest::test_undoRedo_transposeTrack()
+{
+    EditorService editorService;
+    editorService.requestPosition(0, 0, 0, 0, 0);
+    editorService.requestNoteOnAtCurrentPosition(1, 3, 64);
+    editorService.requestNewColumn(0);
+    editorService.requestPosition(0, 0, 1, 0, 0);
+    editorService.requestNoteOnAtCurrentPosition(1, 3, 64);
+    
+    QCOMPARE(editorService.displayNoteAtPosition(0, 0, 0, 0), "C-3");
+    QCOMPARE(editorService.displayNoteAtPosition(0, 0, 1, 0), "C-3");
+
+    // Action: Transpose Track
+    editorService.requestTrackTranspose(2);
+    QCOMPARE(editorService.displayNoteAtPosition(0, 0, 0, 0), "D-3");
+    QCOMPARE(editorService.displayNoteAtPosition(0, 0, 1, 0), "D-3");
+    QVERIFY(editorService.canUndo());
+
+    // Undo
+    editorService.undo();
+    QCOMPARE(editorService.displayNoteAtPosition(0, 0, 0, 0), "C-3");
+    QCOMPARE(editorService.displayNoteAtPosition(0, 0, 1, 0), "C-3");
+
+    // Redo
+    editorService.redo();
+    QCOMPARE(editorService.displayNoteAtPosition(0, 0, 0, 0), "D-3");
+    QCOMPARE(editorService.displayNoteAtPosition(0, 0, 1, 0), "D-3");
+}
+
+void EditorServiceUndoTest::test_undoRedo_transposePattern()
+{
+    EditorService editorService;
+    editorService.requestPosition(0, 0, 0, 0, 0);
+    editorService.requestNoteOnAtCurrentPosition(1, 3, 64);
+    
+    editorService.requestNewTrackToRight();
+    editorService.requestPosition(0, 1, 0, 0, 0);
+    editorService.requestNoteOnAtCurrentPosition(1, 3, 64);
+
+    QCOMPARE(editorService.displayNoteAtPosition(0, 0, 0, 0), "C-3");
+    QCOMPARE(editorService.displayNoteAtPosition(0, 1, 0, 0), "C-3");
+
+    // Action: Transpose Pattern
+    editorService.requestPatternTranspose(-1);
+    QCOMPARE(editorService.displayNoteAtPosition(0, 0, 0, 0), "B-2");
+    QCOMPARE(editorService.displayNoteAtPosition(0, 1, 0, 0), "B-2");
+    QVERIFY(editorService.canUndo());
+
+    // Undo
+    editorService.undo();
+    QCOMPARE(editorService.displayNoteAtPosition(0, 0, 0, 0), "C-3");
+    QCOMPARE(editorService.displayNoteAtPosition(0, 1, 0, 0), "C-3");
+
+    // Redo
+    editorService.redo();
+    QCOMPARE(editorService.displayNoteAtPosition(0, 0, 0, 0), "B-2");
+    QCOMPARE(editorService.displayNoteAtPosition(0, 1, 0, 0), "B-2");
+}
+
+void EditorServiceUndoTest::test_undoRedo_transposeSelection()
+{
+    auto selectionService = std::make_shared<SelectionService>();
+    const auto settingsService = std::make_shared<SettingsService>();
+    EditorService editorService { selectionService, settingsService };
+
+    editorService.requestPosition(0, 0, 0, 0, 0);
+    editorService.requestNoteOnAtCurrentPosition(1, 3, 64);
+    editorService.requestPosition(0, 0, 0, 2, 0);
+    editorService.requestNoteOnAtCurrentPosition(1, 3, 64);
+
+    selectionService->requestSelectionStart(0, 0, 0, 0);
+    selectionService->requestSelectionEnd(0, 0, 0, 0); // Only select first note
+
+    // Action: Transpose Selection
+    editorService.requestSelectionTranspose(1);
+    
+    QCOMPARE(editorService.displayNoteAtPosition(0, 0, 0, 0), "C#3");
+    QCOMPARE(editorService.displayNoteAtPosition(0, 0, 0, 2), "C-3"); // Unaffected
+    QVERIFY(editorService.canUndo());
+
+    // Undo
+    editorService.undo();
+    QCOMPARE(editorService.displayNoteAtPosition(0, 0, 0, 0), "C-3");
+    QCOMPARE(editorService.displayNoteAtPosition(0, 0, 0, 2), "C-3");
+
+    // Redo
+    editorService.redo();
+    QCOMPARE(editorService.displayNoteAtPosition(0, 0, 0, 0), "C#3");
+    QCOMPARE(editorService.displayNoteAtPosition(0, 0, 0, 2), "C-3");
+}
+
 void EditorServiceUndoTest::test_undoRedo_linearVelocityInterpolation()
 {
     EditorService editorService;

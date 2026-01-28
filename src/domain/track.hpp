@@ -21,6 +21,7 @@
 #include <vector>
 
 #include "mixer_unit.hpp"
+#include "note_data.hpp"
 
 class QXmlStreamReader;
 class QXmlStreamWriter;
@@ -32,7 +33,6 @@ class Event;
 class Instrument;
 class InstrumentSettings;
 class Line;
-class NoteData;
 struct Position;
 class ColumnSettings;
 
@@ -71,8 +71,8 @@ public:
     PositionList deleteNoteDataAtPosition(const Position & position);
     PositionList insertNoteDataAtPosition(const NoteData & noteData, const Position & position);
 
-    PositionList transposeTrack(const Position & position, int semitones) const;
-    PositionList transposeColumn(const Position & position, int semitones) const;
+    NoteChangeList transposeTrack(const Position & position, int semitones) const;
+    NoteChangeList transposeColumn(const Position & position, int semitones) const;
 
     using InstrumentS = std::shared_ptr<Instrument>;
     InstrumentS instrument() const;

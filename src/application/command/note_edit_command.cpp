@@ -30,10 +30,10 @@ NoteEditCommand::NoteEditCommand(SongS song, ChangeList changes, Position undoPo
 
 void NoteEditCommand::undo()
 {
-    for (const auto & [position, oldData, newData] : m_changes) {
-        m_song->setNoteDataAtPosition(oldData, position);
+    for (const auto & change : m_changes) {
+        m_song->setNoteDataAtPosition(change.oldNoteData, change.position);
         if (m_callback) {
-            m_callback(position);
+            m_callback(change.position);
         }
     }
     if (m_cursorCallback) {
@@ -43,10 +43,10 @@ void NoteEditCommand::undo()
 
 void NoteEditCommand::redo()
 {
-    for (const auto & [position, oldData, newData] : m_changes) {
-        m_song->setNoteDataAtPosition(newData, position);
+    for (const auto & change : m_changes) {
+        m_song->setNoteDataAtPosition(change.newNoteData, change.position);
         if (m_callback) {
-            m_callback(position);
+            m_callback(change.position);
         }
     }
     if (m_cursorCallback) {
