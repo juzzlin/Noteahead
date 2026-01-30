@@ -1652,6 +1652,11 @@ void SamplerDevice::setEmbedWaveData(bool enabled)
     emit dataChanged();
 }
 
+QString SamplerDevice::embeddedDataPath(const QString & filePath)
+{
+    return Constants::NahdXml::embeddedDataPathPrefix() + QFileInfo { filePath }.completeBaseName() + Constants::NahdXml::embeddedDataFileSuffix();
+}
+
 std::map<QString, QString> SamplerDevice::getFilesToEmbed() const
 {
     std::lock_guard<std::recursive_mutex> lock { mutex() };
@@ -1663,8 +1668,7 @@ std::map<QString, QString> SamplerDevice::getFilesToEmbed() const
     for (uint8_t note = 0; note < maxSamples; note++) {
         if (m_samples.at(note)) {
             const auto realPath = QString::fromStdString(absoluteFilePath(note));
-            const auto nahdPath = Constants::NahdXml::embeddedDataPathPrefix() + QFileInfo { realPath }.fileName();
-            files[nahdPath] = realPath;
+            files[embeddedDataPath(realPath)] = realPath;
         }
     }
     return files;
@@ -1776,7 +1780,7 @@ void SamplerDevice::serializeToXml(ProjectWriter & writer) const
             const auto path = [this, &s]() {
                 const auto p = QString::fromStdString(s->filePath);
                 if (m_embedWaveData) {
-                    return Constants::NahdXml::embeddedDataPathPrefix() + QFileInfo { p }.fileName();
+                    return embeddedDataPath(p);
                 }
                 if (!m_projectPath.empty() && QFileInfo { p }.isAbsolute()) {
                     return QDir { QString::fromStdString(m_projectPath) }.relativeFilePath(p);

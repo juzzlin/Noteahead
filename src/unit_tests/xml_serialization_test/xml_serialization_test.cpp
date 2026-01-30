@@ -1587,7 +1587,7 @@ void XmlSerializationTest::test_toXmlFromXml_samplerDevice_saveAs_shouldPreserve
 
     // Verify the second XML has the embedded data block
     QVERIFY(xml2.contains("<Data"));
-    QVERIFY(xml2.contains("nahd://kick.wav"));
+    QVERIFY(xml2.contains("nahd://kick.flac"));
 
     // Cleanup
     QFile::remove(QString::fromStdString(absolutePath));

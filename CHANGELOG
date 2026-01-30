@@ -127,6 +127,10 @@ New features:
   - Divides the rate by up to 64 in both modes, so a pan can sweep over several
     bars instead of stopping at one cycle per whole note
 
+* Embedded samples are stored as FLAC
+  - Lossless and about half the size. Re-saving an existing project converts
+    what it carries
+
 Bug fixes:
 
 * Audio stream failures are reported instead of swallowed

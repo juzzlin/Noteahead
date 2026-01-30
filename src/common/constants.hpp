@@ -832,6 +832,7 @@ QString xmlKeyShowGuides();
 QString xmlKeyFftRate();
 
 QString embeddedDataPathPrefix();
+QString embeddedDataFileSuffix();
 
 QString xmlValueFalse();
 QString xmlValueTrue();

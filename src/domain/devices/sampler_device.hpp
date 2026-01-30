@@ -334,6 +334,10 @@ public:
 
     std::map<QString, QString> getFilesToEmbed() const;
 
+    //! The nahd:// path the audio of \p filePath is embedded under, named after it but carrying the
+    //! suffix of the format it is embedded in rather than the one it came in.
+    static QString embeddedDataPath(const QString & filePath);
+
     //! Writes out every pad whose audio is ephemeral, and re-points it at the file it wrote.
     //!
     //! Saving without embedding would otherwise write a path with nothing behind it, and the

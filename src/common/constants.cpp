@@ -2750,6 +2750,15 @@ QString embeddedDataPathPrefix()
     return "nahd://";
 }
 
+QString embeddedDataFileSuffix()
+{
+    // Embedded audio is always stored as FLAC, whatever the file it came from was: it is lossless
+    // either way and roughly half the size. The name it is embedded under has to say so, because
+    // the file extracted out of a project is named after it, and so is the copy written beside the
+    // project when embedding is turned off.
+    return ".flac";
+}
+
 QString xmlValueFalse()
 {
     return "false";

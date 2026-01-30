@@ -27,6 +27,8 @@ class DataServiceTest : public QObject
 private slots:
     void test_extractAndResolve_shouldExtractFilesFromXml();
     void test_serializeDataToXml_shouldEmbedFilesAsBase64();
+    void test_serializeDataToXml_wav_shouldEmbedItAsFlac();
+    void test_serializeDataToXml_flac_shouldEmbedItVerbatim();
     void test_clear_shouldRemoveTempDirAndExtractedFiles();
     void test_resolvePath_shouldReturnOriginalPath_whenNotFound();
 };

@@ -1150,7 +1150,36 @@ void SamplerTest::test_embedWaveData_shouldBeOnByDefault()
         NahdXmlWriter writer { data };
         sampler.serializeToXml(writer);
     }
-    QVERIFY(QString::fromUtf8(data).contains("nahd://Kick.wav"));
+    // Named after the file it came from, but suffixed with the format it is embedded in.
+    QVERIFY(QString::fromUtf8(data).contains("nahd://Kick.flac"));
+}
+
+void SamplerTest::test_embedWaveData_fromAnOlderProject_shouldMoveThePadAndItsDataTogether()
+{
+    // A project saved before embedded audio was FLAC carries its pads as WAV, so the pad points at
+    // nahd://Kick.wav and resolves through the file extracted under that name. Re-saving re-encodes
+    // it, and the pad and the data it points at have to arrive at the same new name: one derives it
+    // from the extracted file, the other from the path the pad holds, and a project written with
+    // those two disagreeing points at data it does not carry.
+    SamplerDevice sampler { Constants::samplerDeviceName().toStdString(), std::make_unique<MockAudioFileReader>() };
+    const QString extractedPath { "/tmp/noteahead_extracted/Kick.wav" };
+    const QString oldNahdPath { "nahd://Kick.wav" };
+    sampler.setPathResolver([&](const QString & path) {
+        return path == oldNahdPath ? extractedPath : path;
+    });
+    sampler.loadSample(36, oldNahdPath.toStdString());
+
+    QByteArray data;
+    {
+        NahdXmlWriter writer { data };
+        sampler.serializeToXml(writer);
+    }
+
+    const auto filesToEmbed = sampler.getFilesToEmbed();
+    QCOMPARE(filesToEmbed.size(), static_cast<size_t>(1));
+    QCOMPARE(filesToEmbed.begin()->first, QString { "nahd://Kick.flac" });
+    QCOMPARE(filesToEmbed.begin()->second, extractedPath);
+    QVERIFY(QString::fromUtf8(data).contains(R"(path="nahd://Kick.flac")"));
 }
 
 void SamplerTest::test_serialize_sampleOutsideTheProject_shouldStoreItRelativeToTheProject()
