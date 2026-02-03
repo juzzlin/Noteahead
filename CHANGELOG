@@ -5,6 +5,19 @@ Release date:
 
 New features:
 
+Bug fixes:
+
+Other:
+
+1.6.0
+=====
+
+Release date:
+
+Tue, 03 Feb 2026 21:06:28 +0200
+
+New features:
+
 * Add a dedicated delay column
   - Now a note delay can be directly entered on the delay column (0-24 ticks)
 
@@ -17,8 +30,6 @@ New features:
 Bug fixes:
 
 * Fix volume meter not always triggered on line 0
-
-Other:
 
 1.5.0
 =====
