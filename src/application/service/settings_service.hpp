@@ -29,6 +29,7 @@ class SettingsService : public QObject
     Q_PROPERTY(bool uiUpdatesDisabledDuringPlayback READ uiUpdatesDisabledDuringPlayback WRITE setUiUpdatesDisabledDuringPlayback NOTIFY uiUpdatesDisabledDuringPlaybackChanged)
     Q_PROPERTY(int visibleLines READ visibleLines WRITE setVisibleLines NOTIFY visibleLinesChanged)
     Q_PROPERTY(int trackHeaderFontSize READ trackHeaderFontSize WRITE setTrackHeaderFontSize NOTIFY trackHeaderFontSizeChanged)
+    Q_PROPERTY(bool recordingEnabled READ recordingEnabled WRITE setRecordingEnabled NOTIFY recordingEnabledChanged)
 
 public:
     SettingsService();
@@ -73,6 +74,7 @@ signals:
 
     void visibleLinesChanged();
     void trackHeaderFontSizeChanged();
+    void recordingEnabledChanged();
 
 private:
     QString m_controllerPort;

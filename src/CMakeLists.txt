@@ -231,6 +231,7 @@ set(QML_SOURCE_FILES
     ${QML_BASE_DIR}/Dialogs/TrackSettingsDialog_MidiEffects.qml
     ${QML_BASE_DIR}/Dialogs/TrackSettingsDialog_TimingSettings.qml
     ${QML_BASE_DIR}/Dialogs/UnsavedChangesDialog.qml
+    ${QML_BASE_DIR}/Editor/AudioWaveView.qml
     ${QML_BASE_DIR}/Editor/Cursor.qml
     ${QML_BASE_DIR}/Editor/EditorView.qml
     ${QML_BASE_DIR}/Editor/IndexHighlight.qml
@@ -284,6 +285,7 @@ set(SVG_SOURCE_FILES
     ${QML_BASE_DIR}/Graphics/play.svg
     ${QML_BASE_DIR}/Graphics/prev.svg
     ${QML_BASE_DIR}/Graphics/replay.svg
+    ${QML_BASE_DIR}/Graphics/record.svg
     ${QML_BASE_DIR}/Graphics/settings.svg
     ${QML_BASE_DIR}/Graphics/solo.svg
     ${QML_BASE_DIR}/Graphics/stop.svg

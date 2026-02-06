@@ -64,7 +64,7 @@ ApplicationWindow {
         id: editorViewContainer
         anchors.top: songViewContainer.bottom
         anchors.topMargin: 20
-        anchors.bottom: parent.bottom
+        anchors.bottom: audioWaveView.top
         anchors.left: parent.left
         anchors.right: parent.right
     }
@@ -73,6 +73,13 @@ ApplicationWindow {
         EditorView {
             id: editorView
         }
+    }
+    AudioWaveView {
+        id: audioWaveView
+        height: bottomBar.height
+        anchors.bottom: parent.bottom
+        anchors.left: parent.left
+        anchors.right: parent.right
     }
     AboutDialog {
         id: aboutDialog

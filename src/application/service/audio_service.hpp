@@ -19,8 +19,10 @@
 #include <memory>
 
 #include <QObject>
+#include <QString>
 #include <QThread>
 #include <QVariantList>
+#include <QVector>
 
 namespace noteahead {
 
@@ -29,6 +31,8 @@ class AudioWorker;
 class AudioService : public QObject
 {
     Q_OBJECT
+    Q_PROPERTY(QString latestRecordingFileName READ latestRecordingFileName NOTIFY latestRecordingFileNameChanged)
+    Q_PROPERTY(bool isRecording READ isRecording NOTIFY isRecordingChanged)
 
 public:
     AudioService(QObject * parent = nullptr);
@@ -40,11 +44,22 @@ public:
     QVariantList getInputDevices();
     void setInputDevice(int deviceId);
 
+    QString latestRecordingFileName() const;
+    bool isRecording() const;
+    Q_INVOKABLE QVector<double> getWaveformData(int numPoints);
+
+signals:
+    void latestRecordingFileNameChanged();
+    void isRecordingChanged();
+
 private:
     void initializeWorker();
 
     std::unique_ptr<AudioWorker> m_audioWorker;
     QThread m_audioWorkerThread;
+    QString m_latestRecordingFileName;
+    QString m_currentRecordingFileName;
+    bool m_isRecording = false;
 };
 
 } // namespace noteahead

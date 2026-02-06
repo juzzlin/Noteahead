@@ -152,6 +152,7 @@ void Application::registerTypes()
 void Application::setContextProperties()
 {
     m_engine->rootContext()->setContextProperty("applicationService", m_applicationService.get());
+    m_engine->rootContext()->setContextProperty("audioService", m_audioService.get());
     m_engine->rootContext()->setContextProperty("audioSettingsModel", m_audioSettingsModel.get());
     m_engine->rootContext()->setContextProperty("automationService", m_automationService.get());
     m_engine->rootContext()->setContextProperty("columnSettingsModel", m_columnSettingsModel.get());

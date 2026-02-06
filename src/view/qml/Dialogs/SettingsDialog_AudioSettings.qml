@@ -15,14 +15,18 @@ GroupBox {
             CheckBox {
                 id: enableAudioRecordingCheckbox
                 text: qsTr("Enable audio recording from default source when playing.\nAudio files will appear next to the current project file.")
-                checked: settingsService.recordingEnabled()
+                checked: settingsService.recordingEnabled
                 Layout.row: 0
                 Layout.fillWidth: true
                 ToolTip.delay: Constants.toolTipDelay
                 ToolTip.timeout: Constants.toolTipTimeout
                 ToolTip.visible: hovered
                 ToolTip.text: qsTr("Enable/disable audio recording")
-                onCheckedChanged: settingsService.setRecordingEnabled(checked)
+                onCheckedChanged: {
+                    if (settingsService.recordingEnabled !== checked) {
+                        settingsService.recordingEnabled = checked
+                    }
+                }
             }
             LayoutSeparator {
                 Layout.row: 1

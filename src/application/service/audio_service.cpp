@@ -18,6 +18,8 @@
 #include "../../contrib/SimpleLogger/src/simple_logger.hpp"
 #include "audio_worker.hpp"
 
+#include <sndfile.h>
+
 namespace noteahead {
 
 static const auto TAG = "AudioService";
@@ -37,6 +39,9 @@ void AudioService::initializeWorker()
 
 void AudioService::startRecording(QString filePath, quint32 bufferSize)
 {
+    m_isRecording = true;
+    emit isRecordingChanged();
+    m_currentRecordingFileName = filePath;
     const auto functionName = "startRecording";
     if (const bool invoked = QMetaObject::invokeMethod(m_audioWorker.get(), functionName, Q_ARG(QString, filePath), Q_ARG(quint32, bufferSize)); !invoked) {
         juzzlin::L(TAG).error() << "Invoking a method failed!: " << functionName;
@@ -49,6 +54,13 @@ void AudioService::stopRecording()
     if (const bool invoked = QMetaObject::invokeMethod(m_audioWorker.get(), functionName); !invoked) {
         juzzlin::L(TAG).error() << "Invoking a method failed!: " << functionName;
     }
+    if (!m_currentRecordingFileName.isEmpty()) {
+        m_latestRecordingFileName = m_currentRecordingFileName;
+        m_currentRecordingFileName.clear();
+        emit latestRecordingFileNameChanged();
+    }
+    m_isRecording = false;
+    emit isRecordingChanged();
 }
 
 QVariantList AudioService::getInputDevices()
@@ -67,6 +79,56 @@ void AudioService::setInputDevice(int deviceId)
     if (const bool invoked = QMetaObject::invokeMethod(m_audioWorker.get(), functionName, Q_ARG(int, deviceId)); !invoked) {
         juzzlin::L(TAG).error() << "Invoking a method failed!: " << functionName;
     }
+}
+
+QString AudioService::latestRecordingFileName() const
+{
+    return m_latestRecordingFileName;
+}
+
+bool AudioService::isRecording() const
+{
+    return m_isRecording;
+}
+
+QVector<double> AudioService::getWaveformData(int numPoints)
+{
+    if (m_latestRecordingFileName.isEmpty()) {
+        return {};
+    }
+
+    SF_INFO sfInfo = {};
+    SNDFILE * sndFile = sf_open(m_latestRecordingFileName.toStdString().c_str(), SFM_READ, &sfInfo);
+    if (!sndFile) {
+        juzzlin::L(TAG).error() << "Could not open audio file: " << m_latestRecordingFileName.toStdString();
+        return {};
+    }
+
+    if (sfInfo.frames <= 0 || numPoints <= 0) {
+        sf_close(sndFile);
+        return {};
+    }
+
+    QVector<double> points;
+    points.reserve(numPoints);
+
+    const int channels = sfInfo.channels;
+    const qint64 framesPerPoint = std::max(1ll, static_cast<long long>(sfInfo.frames) / numPoints);
+    std::vector<double> buffer(framesPerPoint * channels);
+
+    for (int i = 0; i < numPoints; ++i) {
+        const auto readFrames = sf_readf_double(sndFile, buffer.data(), framesPerPoint);
+        if (readFrames <= 0) break;
+
+        double maxVal = 0.0;
+        for (int j = 0; j < readFrames * channels; ++j) {
+            maxVal = std::max(maxVal, std::abs(buffer[j]));
+        }
+        points.append(maxVal);
+    }
+
+    sf_close(sndFile);
+    return points;
 }
 
 AudioService::~AudioService()

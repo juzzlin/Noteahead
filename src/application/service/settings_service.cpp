@@ -136,7 +136,10 @@ bool SettingsService::recordingEnabled() const
 
 void SettingsService::setRecordingEnabled(bool enabled)
 {
-    return Settings::setRecordingEnabled(enabled);
+    if (recordingEnabled() != enabled) {
+        Settings::setRecordingEnabled(enabled);
+        emit recordingEnabledChanged();
+    }
 }
 
 int SettingsService::audioBufferSize() const
