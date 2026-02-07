@@ -52,6 +52,9 @@ void setUiUpdatesDisabledDuringPlayback(bool disabled);
 bool recordingEnabled();
 void setRecordingEnabled(bool enabled);
 
+bool waveViewEnabled();
+void setWaveViewEnabled(bool enabled);
+
 int audioBufferSize();
 void setAudioBufferSize(int audioBufferSize);
 

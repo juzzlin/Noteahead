@@ -67,6 +67,8 @@ ApplicationWindow {
         anchors.bottom: audioWaveView.top
         anchors.left: parent.left
         anchors.right: parent.right
+        onHeightChanged: _resize()
+        onWidthChanged: _resize()
     }
     Component {
         id: editorViewComponent
@@ -76,7 +78,8 @@ ApplicationWindow {
     }
     AudioWaveView {
         id: audioWaveView
-        height: bottomBar.height
+        height: settingsService.waveViewEnabled ? bottomBar.height : 0
+        visible: settingsService.waveViewEnabled
         anchors.bottom: parent.bottom
         anchors.left: parent.left
         anchors.right: parent.right
@@ -574,9 +577,13 @@ ApplicationWindow {
         _connectServices();
     }
     function _resize(): void {
-        _editorView.resize(editorViewContainer.width, editorViewContainer.height);
-        _songView.width = songViewContainer.width;
-        _songView.height = songViewContainer.height;
+        if (_editorView) {
+            _editorView.resize(editorViewContainer.width, editorViewContainer.height);
+        }
+        if (_songView) {
+            _songView.width = songViewContainer.width;
+            _songView.height = songViewContainer.height;
+        }
     }
     Component.onCompleted: {
         _initialize();

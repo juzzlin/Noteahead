@@ -28,6 +28,7 @@ const auto recentFilesFilePathKey = "filePath";
 const auto audioBufferSizeKey = "audioBufferSize";
 const auto audioInputDeviceIdKey = "audioInputDeviceId";
 const auto recordingEnabledKey = "recordingEnabled";
+const auto waveViewEnabledKey = "waveViewEnabled";
 
 const auto settingsGroupAudio = "Audio";
 const auto settingsGroupEditor = "Editor";
@@ -216,6 +217,23 @@ void setRecordingEnabled(bool enabled)
     QSettings settings;
     settings.beginGroup(settingsGroupAudio);
     settings.setValue(recordingEnabledKey, enabled);
+    settings.endGroup();
+}
+
+bool waveViewEnabled()
+{
+    QSettings settings;
+    settings.beginGroup(settingsGroupAudio);
+    const auto enabled = settings.value(waveViewEnabledKey, true).toBool();
+    settings.endGroup();
+    return enabled;
+}
+
+void setWaveViewEnabled(bool enabled)
+{
+    QSettings settings;
+    settings.beginGroup(settingsGroupAudio);
+    settings.setValue(waveViewEnabledKey, enabled);
     settings.endGroup();
 }
 

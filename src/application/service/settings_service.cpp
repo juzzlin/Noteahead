@@ -142,6 +142,19 @@ void SettingsService::setRecordingEnabled(bool enabled)
     }
 }
 
+bool SettingsService::waveViewEnabled() const
+{
+    return Settings::waveViewEnabled();
+}
+
+void SettingsService::setWaveViewEnabled(bool enabled)
+{
+    if (waveViewEnabled() != enabled) {
+        Settings::setWaveViewEnabled(enabled);
+        emit waveViewEnabledChanged();
+    }
+}
+
 int SettingsService::audioBufferSize() const
 {
     return Settings::audioBufferSize();

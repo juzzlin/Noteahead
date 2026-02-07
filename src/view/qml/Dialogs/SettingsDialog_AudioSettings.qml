@@ -28,14 +28,30 @@ GroupBox {
                     }
                 }
             }
-            LayoutSeparator {
+            CheckBox {
+                id: showWaveViewCheckbox
+                text: qsTr("Show recording wave view at the bottom of the editor.")
+                checked: settingsService.waveViewEnabled
                 Layout.row: 1
+                Layout.fillWidth: true
+                ToolTip.delay: Constants.toolTipDelay
+                ToolTip.timeout: Constants.toolTipTimeout
+                ToolTip.visible: hovered
+                ToolTip.text: qsTr("Show/hide the recording wave view")
+                onCheckedChanged: {
+                    if (settingsService.waveViewEnabled !== checked) {
+                        settingsService.waveViewEnabled = checked
+                    }
+                }
+            }
+            LayoutSeparator {
+                Layout.row: 2
             }
             Label {
                 text: qsTr("Buffer size (samples):")
                 Layout.column: 0
                 Layout.columnSpan: 2
-                Layout.row: 2
+                Layout.row: 3
                 Layout.fillWidth: true
             }
             SpinBox {
@@ -46,7 +62,7 @@ GroupBox {
                 enabled: enableAudioRecordingCheckbox.checked
                 value: settingsService.audioBufferSize()
                 Layout.column: 3
-                Layout.row: 2
+                Layout.row: 3
                 Layout.fillWidth: true
                 editable: true
                 ToolTip.delay: Constants.toolTipDelay
@@ -57,19 +73,19 @@ GroupBox {
                 Keys.onReturnPressed: focus = false
             }
             LayoutSeparator {
-                Layout.row: 3
+                Layout.row: 4
             }
             Label {
                 text: qsTr("Input Device:")
                 Layout.column: 0
                 Layout.columnSpan: 2
-                Layout.row: 4
+                Layout.row: 5
                 Layout.fillWidth: true
             }
             ComboBox {
                 id: audioDeviceComboBox
                 Layout.column: 3
-                Layout.row: 4
+                Layout.row: 5
                 Layout.fillWidth: true
                 enabled: enableAudioRecordingCheckbox.checked
                 model: audioSettingsModel.inputDevices
@@ -91,7 +107,7 @@ GroupBox {
             Button {
                 text: qsTr("Refresh")
                 Layout.column: 4
-                Layout.row: 4
+                Layout.row: 5
                 enabled: enableAudioRecordingCheckbox.checked
                 onClicked: audioSettingsModel.refreshInputDevices()
                 ToolTip.visible: hovered

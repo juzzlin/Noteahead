@@ -30,6 +30,7 @@ class SettingsService : public QObject
     Q_PROPERTY(int visibleLines READ visibleLines WRITE setVisibleLines NOTIFY visibleLinesChanged)
     Q_PROPERTY(int trackHeaderFontSize READ trackHeaderFontSize WRITE setTrackHeaderFontSize NOTIFY trackHeaderFontSizeChanged)
     Q_PROPERTY(bool recordingEnabled READ recordingEnabled WRITE setRecordingEnabled NOTIFY recordingEnabledChanged)
+    Q_PROPERTY(bool waveViewEnabled READ waveViewEnabled WRITE setWaveViewEnabled NOTIFY waveViewEnabledChanged)
 
 public:
     SettingsService();
@@ -62,6 +63,9 @@ public:
     virtual Q_INVOKABLE bool recordingEnabled() const;
     virtual Q_INVOKABLE void setRecordingEnabled(bool enabled);
 
+    virtual Q_INVOKABLE bool waveViewEnabled() const;
+    virtual Q_INVOKABLE void setWaveViewEnabled(bool enabled);
+
     virtual Q_INVOKABLE int audioBufferSize() const;
     virtual Q_INVOKABLE void setAudioBufferSize(int bufferSize);
 
@@ -75,6 +79,7 @@ signals:
     void visibleLinesChanged();
     void trackHeaderFontSizeChanged();
     void recordingEnabledChanged();
+    void waveViewEnabledChanged();
 
 private:
     QString m_controllerPort;
