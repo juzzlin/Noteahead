@@ -7,6 +7,8 @@ New features:
 
 * Add tooltips to Song View pattern buttons
 
+* Allow jumping to a new song position during playback by clicking on the Song View 
+
 * Implement view for the recorded audio
 
 Bug fixes:

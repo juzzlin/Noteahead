@@ -92,6 +92,15 @@ QtObject {
         uiLogger.debug(_tag, `Setting pattern looping: ${isLooping}`);
         playerService.setIsLooping(isLooping);
     }
+    function jumpToSongPosition(index: int): void {
+        if (isPlaying()) {
+            requestStop();
+            editorService.setSongPosition(index);
+            requestPlay();
+        } else {
+            editorService.setSongPosition(index);
+        }
+    }
     function requestAboutDialog(): void {
         aboutDialogRequested();
     }
