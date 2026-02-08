@@ -5,6 +5,19 @@ Release date:
 
 New features:
 
+Bug fixes:
+
+Other:
+
+1.7.0
+=====
+
+Release date:
+
+Sun, 08 Feb 2026 19:40:04 +0200
+
+New features:
+
 * Add tooltips to Song View pattern buttons
 
 * Allow jumping to a new song position during playback by clicking on the Song View 
@@ -14,8 +27,6 @@ New features:
 Bug fixes:
 
 * Fix GitHub Issue #36: Loss of icons
-
-Other:
 
 1.6.0
 =====
