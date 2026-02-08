@@ -72,7 +72,7 @@ Rectangle {
             ToolTip.text: qsTr("Open column settings")
             Component.onCompleted: {
                 setScale(0.8);
-                setImageSource("../Graphics/settings.svg");
+                setImageSource("../Graphics/settings.png");
             }
         }
         TextField {

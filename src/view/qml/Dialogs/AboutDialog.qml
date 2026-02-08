@@ -17,7 +17,7 @@ Dialog {
             width: 256
             sourceSize: Qt.size(height, width)
             fillMode: Image.PreserveAspectFit
-            source: "../Graphics/icon.svg"
+            source: "../Graphics/icon.png"
         }
         ColumnLayout {
             Label {

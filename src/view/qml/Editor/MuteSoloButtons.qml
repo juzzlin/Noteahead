@@ -47,7 +47,7 @@ Item {
         ToolTip.text: qsTr("Mute")
         Component.onCompleted: {
             setScale(0.9);
-            setImageSource("../Graphics/mute.svg");
+            setImageSource("../Graphics/mute.png");
             setToggleColor("#ff0000");
         }
     }
@@ -80,7 +80,7 @@ Item {
         ToolTip.text: qsTr("Solo")
         Component.onCompleted: {
             setScale(0.9);
-            setImageSource("../Graphics/solo.svg");
+            setImageSource("../Graphics/solo.png");
             setToggleColor("#00ff00");
         }
     }

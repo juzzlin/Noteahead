@@ -80,7 +80,8 @@ Rectangle {
             Image {
                 id: addPatternIcon
                 anchors.fill: parent
-                source: "../Graphics/add_box.svg"
+                sourceSize: Qt.size(width, height)
+                source: "../Graphics/add_box.png"
                 fillMode: Image.PreserveAspectFit
                 opacity: addPatternMouseArea.containsMouse ? 1.0 : 0.7
             }

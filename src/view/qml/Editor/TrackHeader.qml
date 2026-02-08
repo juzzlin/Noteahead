@@ -74,7 +74,7 @@ Rectangle {
             ToolTip.text: qsTr("Open track settings")
             Component.onCompleted: {
                 setScale(0.8);
-                setImageSource("../Graphics/settings.svg");
+                setImageSource("../Graphics/settings.png");
             }
         }
         TextField {

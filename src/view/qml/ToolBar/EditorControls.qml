@@ -136,7 +136,7 @@ Row {
                     ToolTip.text: qsTr("Insert pattern to the current position")
                     Component.onCompleted: {
                         setScale(0.9);
-                        setImageSource("../Graphics/add_box.svg");
+                        setImageSource("../Graphics/add_box.png");
                     }
                 }
                 ToolBarButtonBase {
@@ -161,7 +161,7 @@ Row {
                     ToolTip.text: qsTr("Remove pattern from the current position")
                     Component.onCompleted: {
                         setScale(0.9);
-                        setImageSource("../Graphics/del_box.svg");
+                        setImageSource("../Graphics/del_box.png");
                     }
                 }
             }

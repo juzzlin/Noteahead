@@ -124,7 +124,7 @@ GroupBox {
             ToolTip.text: qsTr("Delete")
             Image {
                 id: backgroundImage
-                source: "../Graphics/delete.svg"
+                source: "../Graphics/delete.png"
                 sourceSize: Qt.size(parent.width, parent.height)
                 width: parent.width
                 height: parent.height

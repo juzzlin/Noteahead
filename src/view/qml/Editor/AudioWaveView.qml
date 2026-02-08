@@ -136,11 +136,17 @@ Rectangle {
 
             contentItem: Item {
                 Image {
-                    anchors.centerIn: parent
-                    source: "../Graphics/record.svg"
-                    width: Math.min(parent.width, parent.height) * 0.6
+                    source: "../Graphics/record.png"
+                    width: {
+                        const s = Math.min(parent.width, parent.height) * 0.6;
+                        return Math.max(2, Math.floor(s / 2) * 2);
+                    }
                     height: width
+                    sourceSize.width: width
+                    sourceSize.height: height
                     fillMode: Image.PreserveAspectFit
+                    x: Math.floor((parent.width - width) / 2)
+                    y: Math.floor((parent.height - height) / 2)
                 }
             }
         }

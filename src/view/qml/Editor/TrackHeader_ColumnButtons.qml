@@ -30,7 +30,7 @@ Item {
         ToolTip.text: qsTr("Add a new note column")
         Component.onCompleted: {
             setScale(0.9);
-            setImageSource("../Graphics/add_box.svg");
+            setImageSource("../Graphics/add_box.png");
         }
     }
     ToolBarButtonBase {
@@ -55,7 +55,7 @@ Item {
         ToolTip.text: qsTr("Remove the last note column")
         Component.onCompleted: {
             setScale(0.9);
-            setImageSource("../Graphics/del_box.svg");
+            setImageSource("../Graphics/del_box.png");
         }
     }
 }

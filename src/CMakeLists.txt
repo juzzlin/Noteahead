@@ -276,25 +276,25 @@ set(QML_SOURCE_FILES
     ${QML_BASE_DIR}/ToolBar/ToolBarButtonBase.qml
     ${QML_BASE_DIR}/UiService.qml
 )
-set(SVG_SOURCE_FILES
-    ${QML_BASE_DIR}/Graphics/add_box.svg
-    ${QML_BASE_DIR}/Graphics/del_box.svg
-    ${QML_BASE_DIR}/Graphics/delete.svg
-    ${QML_BASE_DIR}/Graphics/icon.svg
-    ${QML_BASE_DIR}/Graphics/mute.svg
-    ${QML_BASE_DIR}/Graphics/play.svg
-    ${QML_BASE_DIR}/Graphics/prev.svg
-    ${QML_BASE_DIR}/Graphics/replay.svg
-    ${QML_BASE_DIR}/Graphics/record.svg
-    ${QML_BASE_DIR}/Graphics/settings.svg
-    ${QML_BASE_DIR}/Graphics/solo.svg
-    ${QML_BASE_DIR}/Graphics/stop.svg
+set(PNG_SOURCE_FILES
+    ${QML_BASE_DIR}/Graphics/add_box.png
+    ${QML_BASE_DIR}/Graphics/del_box.png
+    ${QML_BASE_DIR}/Graphics/delete.png
+    ${QML_BASE_DIR}/Graphics/icon.png
+    ${QML_BASE_DIR}/Graphics/mute.png
+    ${QML_BASE_DIR}/Graphics/play.png
+    ${QML_BASE_DIR}/Graphics/prev.png
+    ${QML_BASE_DIR}/Graphics/replay.png
+    ${QML_BASE_DIR}/Graphics/record.png
+    ${QML_BASE_DIR}/Graphics/settings.png
+    ${QML_BASE_DIR}/Graphics/solo.png
+    ${QML_BASE_DIR}/Graphics/stop.png
 )
 qt_add_qml_module(${BINARY_NAME}
     VERSION 1.0
     URI ${URI}
     QML_FILES ${QML_SOURCE_FILES}
-    RESOURCES ${SVG_SOURCE_FILES}
+    RESOURCES ${PNG_SOURCE_FILES}
 )
 
 target_include_directories(${BINARY_NAME} PRIVATE contrib/SimpleLogger/src)

@@ -41,8 +41,8 @@ Button {
         Image {
             id: backgroundImage
             sourceSize: Qt.size(parent.width, parent.height)
-            width: parent.width * rootItem._scale
-            height: parent.height * rootItem._scale
+            width: Math.floor(parent.width * rootItem._scale)
+            height: Math.floor(parent.height * rootItem._scale)
             anchors.centerIn: parent
             fillMode: Image.PreserveAspectFit
             opacity: rootItem.enabled ? 1.0 : 0.5

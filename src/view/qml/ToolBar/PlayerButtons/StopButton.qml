@@ -6,7 +6,7 @@ ToolBarButtonBase {
     id: rootItem
     enabled: UiService.isPlaying()
     Component.onCompleted: {
-        setImageSource("../Graphics/stop.svg");
+        setImageSource("../Graphics/stop.png");
         setScale(1.0);
     }
     onClicked: {
