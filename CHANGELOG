@@ -9,6 +9,8 @@ Bug fixes:
 
 * Fix graphical issues when adding a new column
 
+* Fix NoteVisualizer not taking mixer into account
+
 Other:
 
 1.7.0

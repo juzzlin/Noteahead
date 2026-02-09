@@ -38,6 +38,7 @@ class Line;
 class SelectionService;
 class SettingsService;
 class ColumnSettings;
+class MixerService;
 
 class EditorService : public QObject
 {
@@ -75,10 +76,13 @@ public:
     EditorService();
     using SelectionServiceS = std::shared_ptr<SelectionService>;
     using SettingsServiceS = std::shared_ptr<SettingsService>;
+    using MixerServiceS = std::shared_ptr<MixerService>;
     EditorService(SelectionServiceS selectionService, SettingsServiceS settingsService);
     ~EditorService() override;
 
     void initialize();
+
+    void setMixerService(MixerServiceS mixerService);
 
     using SongS = std::shared_ptr<Song>;
     SongS song() const;
@@ -399,6 +403,7 @@ private:
 
     SelectionServiceS m_selectionService;
     SettingsServiceS m_settingsService;
+    MixerServiceS m_mixerService;
 
     struct State
     {

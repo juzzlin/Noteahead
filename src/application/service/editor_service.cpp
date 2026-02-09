@@ -25,6 +25,7 @@
 #include "../instrument_request.hpp"
 #include "../note_converter.hpp"
 #include "copy_manager.hpp"
+#include "mixer_service.hpp"
 #include "selection_service.hpp"
 #include "settings_service.hpp"
 
@@ -65,6 +66,11 @@ void EditorService::initialize()
 
     emit initialized();
     emit statusTextRequested(tr("An empty song initialized"));
+}
+
+void EditorService::setMixerService(MixerServiceS mixerService)
+{
+    m_mixerService = mixerService;
 }
 
 EditorService::SongS EditorService::song() const
@@ -479,7 +485,16 @@ QString EditorService::displayNoteAtPosition(quint64 patternId, quint64 trackInd
 EditorService::MidiNoteList EditorService::midiNotesAtPosition(quint64 patternId, quint64 trackIndex, quint64 line) const
 {
     EditorService::MidiNoteList midiNoteList;
+
+    if (m_mixerService && !m_mixerService->shouldTrackPlay(trackIndex)) {
+        return midiNoteList;
+    }
+
     for (quint64 column = 0; column < m_song->columnCount(trackIndex); column++) {
+        if (m_mixerService && !m_mixerService->shouldColumnPlay(trackIndex, column)) {
+            continue;
+        }
+
         if (const auto noteData = m_song->noteDataAtPosition({ patternId, trackIndex, column, line }); noteData->type() != NoteData::Type::None) {
             if (noteData->type() == NoteData::Type::NoteOn) {
                 midiNoteList.push_back(*noteData->note());

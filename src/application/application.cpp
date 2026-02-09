@@ -97,6 +97,7 @@ Application::Application(int & argc, char ** argv)
   , m_noteColumnModelHandler { std::make_unique<NoteColumnModelHandler>(m_editorService, m_selectionService, m_automationService, m_settingsService) }
   , m_engine { std::make_unique<QQmlApplicationEngine>() }
 {
+    m_editorService->setMixerService(m_mixerService);
     registerTypes();
 
     handleCommandLineArguments(argc, argv); // Handle command-line arguments at initialization

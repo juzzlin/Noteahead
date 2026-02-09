@@ -134,6 +134,7 @@ private slots:
     void test_toXmlFromXml_differentSongs_shouldLoadSongs();
 
     void test_velocityAtPosition_shouldReturnCorrectVelocity();
+    void test_midiNotesAtPosition_shouldReturnCorrectNotes();
 };
 
 } // namespace noteahead

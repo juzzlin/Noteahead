@@ -2170,6 +2170,84 @@ void EditorServiceTest::test_requestPositionByTick_shouldRespectUiUpdatesDisable
     QCOMPARE(songPositionChangedSpy.count(), 0);
 }
 
+void EditorServiceTest::test_midiNotesAtPosition_shouldReturnCorrectNotes()
+{
+    auto selectionService = std::make_shared<SelectionService>();
+    auto settingsService = std::make_shared<SettingsService>();
+    auto mixerService = std::make_shared<MixerService>();
+    EditorService editorService(selectionService, settingsService);
+    editorService.setMixerService(mixerService);
+
+    // Create a pattern with notes on different tracks/columns
+    editorService.initialize();
+
+    // Track 0, Column 0: Note 60
+    editorService.requestPosition(0, 0, 0, 0, 0);
+    editorService.requestNoteOnAtCurrentPosition(1, 5, 100); // C5 -> 60
+
+    // Track 0, Column 1 (add column first)
+    editorService.requestNewColumn(0);
+    editorService.requestPosition(0, 0, 1, 0, 0);
+    editorService.requestNoteOnAtCurrentPosition(3, 5, 100); // D5 -> 62
+
+    // Track 1, Column 0: Note 64
+    editorService.requestPosition(0, 1, 0, 0, 0);
+    editorService.requestNoteOnAtCurrentPosition(5, 5, 100); // E5 -> 64
+
+    // 1. Verify all notes are returned initially
+    {
+        const auto notesTrack0 = editorService.midiNotesAtPosition(0, 0, 0);
+        QCOMPARE(notesTrack0.size(), 2);
+        // Ordering depends on implementation, but likely 60, 62
+        bool found60 = std::find(notesTrack0.begin(), notesTrack0.end(), 60) != notesTrack0.end();
+        bool found62 = std::find(notesTrack0.begin(), notesTrack0.end(), 62) != notesTrack0.end();
+        QVERIFY(found60);
+        QVERIFY(found62);
+
+        const auto notesTrack1 = editorService.midiNotesAtPosition(0, 1, 0);
+        QCOMPARE(notesTrack1.size(), 1);
+        QCOMPARE(notesTrack1[0], 64);
+    }
+
+    // 2. Mute Track 0 -> Should return empty list for Track 0
+    mixerService->muteTrack(0, true);
+    {
+        const auto notesTrack0 = editorService.midiNotesAtPosition(0, 0, 0);
+        QVERIFY(notesTrack0.empty());
+    }
+    mixerService->muteTrack(0, false);
+
+    // 3. Mute Track 0, Column 0 -> Should return only Note 62 (from Column 1)
+    mixerService->muteColumn(0, 0, true);
+    {
+        const auto notesTrack0 = editorService.midiNotesAtPosition(0, 0, 0);
+        QCOMPARE(notesTrack0.size(), 1);
+        QCOMPARE(notesTrack0[0], 62);
+    }
+    mixerService->muteColumn(0, 0, false);
+
+    // 4. Solo Track 0, Column 0 -> Should return only Note 60
+    mixerService->soloColumn(0, 0, true);
+    {
+        const auto notesTrack0 = editorService.midiNotesAtPosition(0, 0, 0);
+        QCOMPARE(notesTrack0.size(), 1);
+        QCOMPARE(notesTrack0[0], 60);
+    }
+    mixerService->soloColumn(0, 0, false);
+
+    // 5. Solo Track 1 -> Should return notes for Track 1, but Track 0 might still return notes if logic only checks "shouldTrackPlay" for THAT track.
+    // wait, mixerService->shouldTrackPlay(0) should be FALSE if Track 1 is soloed.
+    mixerService->soloTrack(1, true);
+    {
+        const auto notesTrack0 = editorService.midiNotesAtPosition(0, 0, 0);
+        QVERIFY(notesTrack0.empty());
+
+        const auto notesTrack1 = editorService.midiNotesAtPosition(0, 1, 0);
+        QCOMPARE(notesTrack1.size(), 1);
+        QCOMPARE(notesTrack1[0], 64);
+    }
+}
+
 } // namespace noteahead
 
 QTEST_GUILESS_MAIN(noteahead::EditorServiceTest)
