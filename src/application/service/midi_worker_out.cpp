@@ -60,6 +60,7 @@ void MidiWorkerOut::initializeStopTimer()
                     juzzlin::L(TAG).error() << e.what();
                 }
             }
+            m_stopTasks.clear();
         });
     }
 }
