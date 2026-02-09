@@ -20,8 +20,7 @@ Item {
     function resize(width: int, height: int): void {
         rootItem.width = width;
         rootItem.height = height;
-        lineContainer.width = width;
-        lineContainer.height = height - columnHeader.height;
+        lineContainer.resize(width, height - columnHeader.height);
     }
     function dataUpdated(): bool {
         return _dataUpdated;

@@ -19,6 +19,15 @@ Item {
     property int _lastTriggeredLine: -1
     readonly property string _tag: "NoteColumnLineContainer"
     property ListView _listView
+    function resize(width: int, height: int): void {
+        rootItem.width = width;
+        rootItem.height = height;
+        if (_listView) {
+            _listView.width = width;
+            _listView.height = height;
+            _scrollLines();
+        }
+    }
     function setLocation(patternIndex: int, trackIndex: int, columnIndex: int): void {
         _patternIndex = patternIndex;
         _trackIndex = trackIndex;

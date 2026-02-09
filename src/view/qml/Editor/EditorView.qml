@@ -281,7 +281,6 @@ FocusScope {
             pattern.addColumn(trackIndex);
         });
         _updateCurrentTrackDimensions();
-        noteColumnModelHandler.updateColumns(trackIndex);
     }
     function _addTrack(trackIndex) {
         _patterns.forEach(pattern => {

@@ -47,11 +47,9 @@ Rectangle {
         }
     }
     function resize(width: int, height: int): void {
-        if (rootItem.width !== width || rootItem.height !== height) {
-            rootItem.width = width;
-            rootItem.height = height;
-            columnContainer.resize(rootItem.width, rootItem.height - trackHeader.height);
-        }
+        rootItem.width = width;
+        rootItem.height = height;
+        columnContainer.resize(rootItem.width, rootItem.height - trackHeader.height);
     }
     function focused(): bool {
         return _focused;
@@ -142,13 +140,14 @@ Rectangle {
             _noteColumnCount = editorService.columnCount(_index);
             const noteColumn = _createNoteColumn(_noteColumnCount - 1);
             _noteColumns.push(noteColumn);
-            columnContainer.resize(width, height);
+            noteColumn.setPosition(editorService.position);
+            resize(rootItem.width, rootItem.height);
         }
         function deleteColumn(): void {
             _noteColumns[_noteColumns.length - 1].destroy();
             _noteColumns.pop();
             _noteColumnCount = editorService.columnCount(_index);
-            columnContainer.resize(width, height);
+            resize(rootItem.width, rootItem.height);
         }
         function setColumnMuted(columnIndex: int, muted: bool): void {
             _noteColumns[columnIndex].setMuted(muted);
