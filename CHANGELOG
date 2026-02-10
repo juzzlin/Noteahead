@@ -7,11 +7,20 @@ New features:
 
 Bug fixes:
 
+Other:
+
+1.7.1
+=====
+
+Release date:
+
+Tue, 10 Feb 2026 08:13:25 +0200
+
+Bug fixes:
+
 * Fix graphical issues when adding a new column
 
 * Fix NoteVisualizer not taking mixer into account
-
-Other:
 
 1.7.0
 =====

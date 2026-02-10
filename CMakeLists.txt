@@ -5,7 +5,7 @@ project(Noteahead LANGUAGES CXX)
 # Global version
 set(VERSION_MAJOR 1)
 set(VERSION_MINOR 7)
-set(VERSION_PATCH 0)
+set(VERSION_PATCH 1)
 set(VERSION "${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}")
 
 message("\n${CMAKE_PROJECT_NAME} ${VERSION}\n")
