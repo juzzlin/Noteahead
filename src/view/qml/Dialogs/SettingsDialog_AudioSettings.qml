@@ -10,6 +10,8 @@ GroupBox {
     ColumnLayout {
         anchors.fill: parent
         spacing: 10
+        enabled: !UiService.isPlaying()
+        opacity: enabled ? 1.0 : 0.5
         GridLayout {
             width: parent.width
             CheckBox {

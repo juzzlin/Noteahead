@@ -39,11 +39,13 @@ Rectangle {
             id: canvasContainer
             Layout.fillWidth: true
             Layout.fillHeight: true
+            opacity: !UiService.isPlaying() ? 1.0 : 0.5
 
             MouseArea {
                 anchors.fill: parent
                 hoverEnabled: true
-                cursorShape: audioService.latestRecordingFileName && !audioService.isRecording ? Qt.PointingHandCursor : Qt.ArrowCursor
+                enabled: !UiService.isPlaying()
+                cursorShape: audioService.latestRecordingFileName && !audioService.isRecording && !UiService.isPlaying() ? Qt.PointingHandCursor : Qt.ArrowCursor
                 onClicked: {
                     if (audioService.latestRecordingFileName && !audioService.isRecording) {
                         const fileUrl = "file://" + audioService.latestRecordingFileName.substring(0, audioService.latestRecordingFileName.lastIndexOf('/'));
@@ -118,6 +120,9 @@ Rectangle {
 
             checkable: true
             checked: settingsService.recordingEnabled
+            enabled: !UiService.isPlaying()
+            opacity: enabled ? 1.0 : 0.5
+            focusPolicy: Qt.NoFocus
             onClicked: {
                 if (settingsService.recordingEnabled !== checked) {
                     settingsService.recordingEnabled = checked;

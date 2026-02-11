@@ -7,6 +7,8 @@ New features:
 
 Bug fixes:
 
+* Don't allow interactions with AudioWaveView while playing
+
 Other:
 
 1.7.1
