@@ -21,6 +21,7 @@
 #include "../../common/xml/project_reader.hpp"
 #include "../../common/xml/project_writer.hpp"
 #include "../../infra/midi/midi_cc_mapping.hpp"
+#include "fm_synth_presets.hpp"
 
 #include <algorithm>
 #include <cmath>
@@ -863,6 +864,40 @@ void FmSynthDevice::handleNoteOff(uint8_t note)
 double FmSynthDevice::midiNoteToFreq(uint8_t note) const
 {
     return 440.0 * std::pow(2.0, (note - 69) / 12.0);
+}
+
+void FmSynthDevice::loadPreset(int index)
+{
+    const auto & presets = FmSynthPresets::presets();
+    if (index >= 0 && index < static_cast<int>(presets.size())) {
+        applyPreset(presets.at(static_cast<size_t>(index)).parameters);
+    }
+}
+
+void FmSynthDevice::loadRandomPatch(uint32_t seed)
+{
+    applyPreset(FmSynthPresets::randomPatch(seed).parameters);
+}
+
+void FmSynthDevice::applyPreset(const std::map<std::string, float> & values)
+{
+    {
+        const std::lock_guard<std::recursive_mutex> lock { mutex() };
+
+        // A preset is the whole panel, so everything it does not name goes back to its default
+        // first. Without this, whatever the previous patch had turned up stays turned up.
+        reset();
+
+        for (auto && [name, value] : values) {
+            if (const auto synthParameter = parameter(name); synthParameter) {
+                synthParameter->get().setValue(value);
+            }
+        }
+
+        syncParameters();
+    }
+
+    emit dataChanged();
 }
 
 double FmSynthDevice::voiceGlideFrequency(size_t index) const

@@ -64,6 +64,9 @@ AnimatedDialog {
         anchors.margins: 15
         spacing: 10
 
+        FmSynthDialog_Presets {
+        }
+
         RowLayout {
             id: mainRow
             Layout.fillWidth: true

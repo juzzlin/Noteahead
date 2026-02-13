@@ -27,6 +27,7 @@
 
 #include <array>
 #include <cstdint>
+#include <map>
 #include <optional>
 #include <random>
 #include <string>
@@ -129,6 +130,13 @@ public:
 
     void serializeToXml(ProjectWriter & writer) const override;
     void deserializeFromXml(ProjectReader & reader) override;
+
+    //! Loads factory preset @p index. A preset is the whole panel: everything it does not name
+    //! goes back to its default first, so nothing carries over from the patch that was there.
+    void loadPreset(int index);
+
+    //! Loads a patch assembled at random. @p seed selects it, so the same seed gives the same one.
+    void loadRandomPatch(uint32_t seed);
 
     //! Frequency voice @p index is currently gliding towards, or 0 if it has never been triggered.
     double voiceGlideFrequency(size_t index) const;
@@ -354,6 +362,7 @@ private:
 
     void handleNoteOn(uint8_t note, uint8_t velocity);
     void handleNoteOff(uint8_t note);
+    void applyPreset(const std::map<std::string, float> & values);
     void handleMonoNoteOn(uint8_t note, double frequency, float velocity);
     void releaseVoicesAbove(size_t count);
     double midiNoteToFreq(uint8_t note) const;

@@ -130,6 +130,7 @@ set(QML_SOURCE_FILES
     ${QML_BASE_DIR}/Dialogs/FmSynthDialog_Lfo2.qml
     ${QML_BASE_DIR}/Dialogs/FmSynthDialog_ModEg.qml
     ${QML_BASE_DIR}/Dialogs/FmSynthDialog_Operator.qml
+    ${QML_BASE_DIR}/Dialogs/FmSynthDialog_Presets.qml
     ${QML_BASE_DIR}/Dialogs/FmSynthDialog_Tab1.qml
     ${QML_BASE_DIR}/Dialogs/FmSynthDialog_Tab2.qml
     ${QML_BASE_DIR}/Dialogs/FmSynthDialog_Tab3.qml

@@ -17,10 +17,12 @@
 
 #include "../../common/constants.hpp"
 #include "../../domain/devices/fm_synth_device.hpp"
+#include "../../domain/devices/fm_synth_presets.hpp"
 #include "../../domain/dsp/lfo.hpp"
 #include "fm_operator_controller.hpp"
 
 #include <cmath>
+#include <random>
 
 namespace noteahead {
 
@@ -72,6 +74,49 @@ QVariantList FmSynthController::operators() const
         list << QVariant::fromValue(static_cast<QObject *>(op));
     }
     return list;
+}
+
+QStringList FmSynthController::presetNames() const
+{
+    QStringList list;
+    for (auto && preset : FmSynthPresets::presets()) {
+        list << QString::fromStdString(preset.name);
+    }
+    return list;
+}
+
+int FmSynthController::currentPresetIndex() const
+{
+    return m_currentPresetIndex;
+}
+
+void FmSynthController::setCurrentPresetIndex(int index)
+{
+    if (m_currentPresetIndex != index) {
+        m_currentPresetIndex = index;
+        emit currentPresetIndexChanged();
+    }
+}
+
+void FmSynthController::loadPreset(int index)
+{
+    if (m_synth) {
+        setCurrentPresetIndex(index);
+        m_synth->loadPreset(index);
+        requestSettings();
+    }
+}
+
+void FmSynthController::randomizePatch()
+{
+    if (m_synth) {
+        // Seeded from the system generator: the point is a different patch every time it is
+        // pressed. The device takes a seed rather than rolling its own, so a test can ask for a
+        // particular patch and get it back.
+        std::random_device device;
+        m_synth->loadRandomPatch(device());
+        requestSettings();
+    }
 }
 
 QStringList FmSynthController::algorithmNames() const
