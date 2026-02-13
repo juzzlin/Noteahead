@@ -705,10 +705,10 @@ Song::EventList Song::generateNoteOffs(EventListCR events) const
             }
             if (noteData->type() == NoteData::Type::NoteOn) {
                 // Note: Chord automation may generate multiple notes on the same column!
-                bool isNewTick = true;
-                if (lastNoteOnTick.contains(trackAndColumn) && lastNoteOnTick.at(trackAndColumn) == event->tick()) {
-                    isNewTick = false;
-                }
+                const auto previousNoteOnTick = lastNoteOnTick.contains(trackAndColumn)
+                  ? std::optional<size_t> { lastNoteOnTick.at(trackAndColumn) }
+                  : std::nullopt;
+                const bool isNewTick = !previousNoteOnTick.has_value() || previousNoteOnTick.value() != event->tick();
                 lastNoteOnTick[trackAndColumn] = event->tick();
                 if (isNewTick) {
                     size_t noteOffTick = event->tick();
@@ -716,6 +716,14 @@ Song::EventList Song::generateNoteOffs(EventListCR events) const
                         noteOffTick -= instrumentAutoNoteOffOffset;
                     } else {
                         noteOffTick = 0;
+                    }
+                    // The offset pulls the note-off ahead of the note that replaces it, but it must
+                    // never land before the note it is ending actually started. Notes played closer
+                    // together than the offset would otherwise be told to stop before they begin:
+                    // the event map is keyed by tick, so the note-off fires first, and the note-on
+                    // that follows plays forever with nothing left in activeNotes to end it.
+                    if (previousNoteOnTick.has_value()) {
+                        noteOffTick = std::max(noteOffTick, previousNoteOnTick.value());
                     }
                     const auto noteOffEvents = generateNoteOffsForActiveNotes(trackAndColumn, noteOffTick, activeNotes);
                     std::ranges::copy(noteOffEvents, std::back_inserter(processedEvents));

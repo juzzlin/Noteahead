@@ -28,6 +28,10 @@
 
 #include <QTest>
 
+#include <map>
+#include <set>
+#include <vector>
+
 namespace noteahead {
 
 void SongTest::test_autoNoteOffOffset_milliseconds_shouldCalculateCorrectOffset()
@@ -399,6 +403,58 @@ void SongTest::test_renderToEvents_noteOff_shouldMapNoteOff()
     QCOMPARE(noteOff->noteData()->type(), NoteData::Type::NoteOff);
     QCOMPARE(noteOff->noteData()->note(), 60);
     QCOMPARE(noteOff->noteData()->velocity(), 0);
+}
+
+void SongTest::test_renderToEvents_autoNoteOffOffsetLongerThanNoteGap_shouldNotLeaveNotesHanging()
+{
+    Song song;
+    song.setBeatsPerMinute(120);
+    song.setLinesPerBeat(4);
+
+    // A phrase whose notes sit one line apart. At this tempo a line is 125 ms, so the offset set
+    // below reaches back further than the previous note-on.
+    song.noteDataAtPosition({ 0, 0, 0, 0, 0 })->setAsNoteOn(57, 100);
+    song.noteDataAtPosition({ 0, 0, 0, 1, 0 })->setAsNoteOn(65, 100);
+    song.noteDataAtPosition({ 0, 0, 0, 2, 0 })->setAsNoteOn(67, 100);
+    song.noteDataAtPosition({ 0, 0, 0, 3, 0 })->setAsNoteOn(65, 100);
+    song.noteDataAtPosition({ 0, 0, 0, 4, 0 })->setAsNoteOff();
+
+    song.settings().setAutoNoteOffOffset(AutoNoteOffOffset { 250ms });
+
+    const auto events = song.renderToEvents(std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<SideChainService>(), 0);
+
+    // Replay the events the way PlayerWorker does: bucketed by tick, and in list order within a tick.
+    std::map<size_t, Song::EventList> eventsByTick;
+    for (const auto & event : events) {
+        eventsByTick[event->tick()].push_back(event);
+    }
+
+    std::set<uint8_t> sounding;
+    std::vector<uint8_t> strayNoteOffs;
+    for (const auto & [tick, tickEvents] : eventsByTick) {
+        for (const auto & event : tickEvents) {
+            const auto noteData = event->noteData();
+            if (!noteData || !noteData->note().has_value()) {
+                continue;
+            }
+            const auto note = static_cast<uint8_t>(noteData->note().value());
+            if (noteData->type() == NoteData::Type::NoteOn) {
+                sounding.insert(note);
+            } else if (noteData->type() == NoteData::Type::NoteOff) {
+                if (!sounding.erase(note)) {
+                    strayNoteOffs.push_back(note);
+                }
+            }
+        }
+    }
+
+    // A note-off placed before the note it ends is worse than useless: the tick map fires it first,
+    // so it stops nothing, and the note-on that follows sounds for good because the note has already
+    // been dropped from the active set and will never be given another note-off.
+    QVERIFY2(strayNoteOffs.empty(),
+             QString("%1 note-off(s) landed before the note they end, first was note %2").arg(strayNoteOffs.size()).arg(strayNoteOffs.empty() ? 0 : strayNoteOffs.front()).toUtf8().constData());
+    QVERIFY2(sounding.empty(),
+             QString("%1 note(s) were left hanging, first was note %2").arg(sounding.size()).arg(sounding.empty() ? 0 : *sounding.begin()).toUtf8().constData());
 }
 
 void SongTest::test_renderToEvents_playOrderSet_shouldRenderMultiplePatterns()
