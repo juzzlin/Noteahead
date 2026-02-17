@@ -98,7 +98,7 @@ set(HEADER_FILES
   domain/dsp/eq_8_band_parametric_effect.hpp
   domain/dsp/lfo.hpp
   domain/dsp/multi_engine.hpp
-  domain/dsp/polyblep_oscillator.hpp
+  domain/dsp/poly_blep_oscillator.hpp
   domain/dsp/reverb_effect.hpp
   domain/dsp/svf_filter.hpp
   domain/event.hpp
@@ -255,7 +255,7 @@ set(SOURCE_FILES
   domain/dsp/lfo.cpp
   domain/dsp/multi_engine.cpp
   domain/dsp/oversampler.cpp
-  domain/dsp/polyblep_oscillator.cpp
+  domain/dsp/poly_blep_oscillator.cpp
   domain/dsp/reverb_effect.cpp
   domain/dsp/svf_filter.cpp
   domain/event.cpp

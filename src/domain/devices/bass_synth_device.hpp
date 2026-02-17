@@ -20,7 +20,7 @@
 #include "../dsp/cascaded_svf.hpp"
 #include "../dsp/diode_ladder_filter.hpp"
 #include "../dsp/oversampler.hpp"
-#include "../dsp/polyblep_oscillator.hpp"
+#include "../dsp/poly_blep_oscillator.hpp"
 #include "device.hpp"
 
 #include <mutex>

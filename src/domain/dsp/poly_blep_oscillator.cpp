@@ -13,7 +13,7 @@
 // You should have received a copy of the GNU General Public License
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
-#include "polyblep_oscillator.hpp"
+#include "poly_blep_oscillator.hpp"
 
 #include <algorithm>
 #include <cmath>
@@ -88,6 +88,26 @@ double PolyBlepOscillator::nextSample()
 void PolyBlepOscillator::sync(double phase)
 {
     m_phase = phase;
+}
+
+double PolyBlepOscillator::frequency() const
+{
+    return m_frequency;
+}
+
+PolyBlepOscillator::Waveform PolyBlepOscillator::waveform() const
+{
+    return m_waveform;
+}
+
+double PolyBlepOscillator::pulseWidth() const
+{
+    return m_pulseWidth;
+}
+
+double PolyBlepOscillator::shape() const
+{
+    return m_shape;
 }
 
 double PolyBlepOscillator::phase() const

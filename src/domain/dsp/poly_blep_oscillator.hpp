@@ -13,8 +13,8 @@
 // You should have received a copy of the GNU General Public License
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef POLYBLEP_OSCILLATOR_HPP
-#define POLYBLEP_OSCILLATOR_HPP
+#ifndef POLY_BLEP_OSCILLATOR_HPP
+#define POLY_BLEP_OSCILLATOR_HPP
 
 #include "dsp_component.hpp"
 
@@ -39,6 +39,10 @@ public:
     double nextSample();
     void sync(double phase);
 
+    double frequency() const;
+    Waveform waveform() const;
+    double pulseWidth() const;
+    double shape() const;
     double phase() const;
 
 private:
@@ -55,4 +59,4 @@ private:
 
 } // namespace noteahead
 
-#endif // POLYBLEP_OSCILLATOR_HPP
+#endif // POLY_BLEP_OSCILLATOR_HPP

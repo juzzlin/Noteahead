@@ -21,7 +21,7 @@
 #include "../dsp/lfo.hpp"
 #include "../dsp/multi_engine.hpp"
 #include "../dsp/oversampler.hpp"
-#include "../dsp/polyblep_oscillator.hpp"
+#include "../dsp/poly_blep_oscillator.hpp"
 #include "delay_effect.hpp"
 #include "device.hpp"
 #include "synth_presets.hpp"

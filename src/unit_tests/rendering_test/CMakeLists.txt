@@ -45,7 +45,7 @@ set(SOURCE_FILES
     ../../domain/dsp/lfo.cpp
     ../../domain/dsp/multi_engine.cpp
     ../../domain/dsp/oversampler.cpp
-    ../../domain/dsp/polyblep_oscillator.cpp
+    ../../domain/dsp/poly_blep_oscillator.cpp
     ../../domain/dsp/reverb_effect.cpp
     ../../domain/parameter.cpp
     ../../domain/parameter_container.cpp
