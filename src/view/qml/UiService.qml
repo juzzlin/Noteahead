@@ -3,6 +3,7 @@ import QtQuick 2.15
 
 QtObject {
     signal aboutDialogRequested
+    signal manualDialogRequested
     signal activeOctaveChanged(int activeOctave)
     signal columnAddMidiCcAutomationDialogRequested
     signal columnAddPitchBendAutomationDialogRequested
@@ -103,6 +104,9 @@ QtObject {
     }
     function requestAboutDialog(): void {
         aboutDialogRequested();
+    }
+    function requestManualDialog(): void {
+        manualDialogRequested();
     }
     function requestShortcutsDialog(): void {
         shortcutsDialogRequested();

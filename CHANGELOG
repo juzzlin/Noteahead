@@ -5,6 +5,8 @@ Release date:
 
 New features:
 
+* Implement a user manual dialog
+
 Bug fixes:
 
 * Don't allow interactions with AudioWaveView while playing

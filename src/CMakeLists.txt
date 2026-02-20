@@ -213,6 +213,7 @@ set(QML_SOURCE_FILES
     ${QML_BASE_DIR}/Dialogs/GainConverterDialog.qml
     ${QML_BASE_DIR}/Dialogs/IntegerInputDialog.qml
     ${QML_BASE_DIR}/Dialogs/InterpolationDialog.qml
+    ${QML_BASE_DIR}/Dialogs/ManualDialog.qml
     ${QML_BASE_DIR}/Dialogs/MidiCcAutomationModel.qml
     ${QML_BASE_DIR}/Dialogs/MidiCcSelector.qml
     ${QML_BASE_DIR}/Dialogs/MidiExportDialog.qml
@@ -276,6 +277,9 @@ set(QML_SOURCE_FILES
     ${QML_BASE_DIR}/ToolBar/ToolBarButtonBase.qml
     ${QML_BASE_DIR}/UiService.qml
 )
+
+set(HTML_SOURCE_FILES ${QML_BASE_DIR}/Manual.html)
+
 set(PNG_SOURCE_FILES
     ${QML_BASE_DIR}/Graphics/add_box.png
     ${QML_BASE_DIR}/Graphics/del_box.png
@@ -290,11 +294,12 @@ set(PNG_SOURCE_FILES
     ${QML_BASE_DIR}/Graphics/solo.png
     ${QML_BASE_DIR}/Graphics/stop.png
 )
+
 qt_add_qml_module(${BINARY_NAME}
     VERSION 1.0
     URI ${URI}
     QML_FILES ${QML_SOURCE_FILES}
-    RESOURCES ${PNG_SOURCE_FILES}
+    RESOURCES ${PNG_SOURCE_FILES} ${HTML_SOURCE_FILES}
 )
 
 target_include_directories(${BINARY_NAME} PRIVATE contrib/SimpleLogger/src)

@@ -11,6 +11,10 @@ Menu {
         onTriggered: UiService.requestAboutDialog()
     }
     Action {
+        text: qsTr("Manual")
+        onTriggered: UiService.requestManualDialog()
+    }
+    Action {
         text: qsTr("Shortcuts")
         onTriggered: UiService.requestShortcutsDialog()
     }

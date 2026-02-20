@@ -90,11 +90,11 @@ Dialog {
             description: qsTr("Paste the copied pattern")
         },
         {
-            key: qsTr("Ctrl + C"),
+            key: qsTr("Ctrl + X"),
             description: qsTr("Cut the current selection")
         },
         {
-            key: qsTr("Ctrl + X"),
+            key: qsTr("Ctrl + C"),
             description: qsTr("Copy the current selection")
         },
         {
@@ -104,51 +104,51 @@ Dialog {
         // --- Transposition ---
         {
             key: qsTr("Alt + F9"),
-            description: qsTr("Transpose column by +1 semitone")
-        },
-        {
-            key: qsTr("Alt + F10"),
             description: qsTr("Transpose column by -1 semitone")
         },
         {
-            key: qsTr("Alt + F11"),
-            description: qsTr("Transpose column by +12 semitones")
+            key: qsTr("Alt + F10"),
+            description: qsTr("Transpose column by +1 semitone")
         },
         {
-            key: qsTr("Alt + F12"),
+            key: qsTr("Alt + F11"),
             description: qsTr("Transpose column by -12 semitones")
         },
         {
-            key: qsTr("Shift + F9"),
-            description: qsTr("Transpose track by +1 semitone")
+            key: qsTr("Alt + F12"),
+            description: qsTr("Transpose column by +12 semitones")
         },
         {
-            key: qsTr("Shift + F10"),
+            key: qsTr("Shift + F9"),
             description: qsTr("Transpose track by -1 semitone")
         },
         {
-            key: qsTr("Shift + F11"),
-            description: qsTr("Transpose track by +12 semitones")
+            key: qsTr("Shift + F10"),
+            description: qsTr("Transpose track by +1 semitone")
         },
         {
-            key: qsTr("Shift + F12"),
+            key: qsTr("Shift + F11"),
             description: qsTr("Transpose track by -12 semitones")
         },
         {
-            key: qsTr("Ctrl + F9"),
-            description: qsTr("Transpose pattern by +1 semitone")
+            key: qsTr("Shift + F12"),
+            description: qsTr("Transpose track by +12 semitones")
         },
         {
-            key: qsTr("Ctrl + F10"),
+            key: qsTr("Ctrl + F9"),
             description: qsTr("Transpose pattern by -1 semitone")
         },
         {
+            key: qsTr("Ctrl + F10"),
+            description: qsTr("Transpose pattern by +1 semitone")
+        },
+        {
             key: qsTr("Ctrl + F11"),
-            description: qsTr("Transpose pattern by +12 semitones")
+            description: qsTr("Transpose pattern by -12 semitones")
         },
         {
             key: qsTr("Ctrl + F12"),
-            description: qsTr("Transpose pattern by -12 semitones")
+            description: qsTr("Transpose pattern by +12 semitones")
         }
     ]
     ScrollView {

@@ -1,0 +1,116 @@
+<h1 style="color: orange; border-bottom: 2px solid orange;">Noteahead User Manual</h1>
+<p>Noteahead is a "simple" MIDI tracker and sequencer for Linux focusing on ease of use. It is designed for fast, keyboard-driven sequencing of external synths and drum machines, with clear handling of patch changes, automation, and CCs — no cryptic hex values required.</p>
+
+<h2 style="color: orange; border-bottom: 1px solid #444; margin-top: 20px;">The Toolbar</h2>
+<p>The toolbar at the top of the window provides essential controls for song structure, pattern editing, and global settings.</p>
+
+<h3 style="color: orange;">Song Section</h3>
+<ul>
+    <li><strong>Player Controls</strong>: Play, Previous, Stop, and Loop buttons.</li>
+    <li><strong>POS</strong>: The current position in the <strong>Song Play Order</strong> (0-indexed).</li>
+    <li><strong>PAT</strong>: The <strong>Pattern Index</strong> assigned to the current song position. Changing this allows you to reuse patterns throughout your song.</li>
+    <li><strong>LEN</strong>: The total length of the song (number of positions in the play order).</li>
+    <li><strong>[+] / [-]</strong>: Insert or remove a position in the song play order.</li>
+</ul>
+
+<h3 style="color: orange;">Pattern Section</h3>
+<ul>
+    <li><strong>Pattern Name</strong>: Click the orange text to rename the active pattern.</li>
+    <li><strong>PAT</strong>: The <strong>Active Pattern Index</strong> being edited. You can switch between patterns here to work on different parts of your project.</li>
+    <li><strong>LEN</strong>: The length of the <strong>current pattern</strong> in lines (e.g., 64). Each pattern can have a different length.</li>
+</ul>
+
+<h3 style="color: orange;">Edit Section</h3>
+<ul>
+    <li><strong>STEP</strong>: The edit step. When you enter a note, the cursor automatically moves down by this number of lines. Set to 0 to stay on the same line.</li>
+    <li><strong>VEL</strong>: The default velocity (0-127) assigned to new notes you input.</li>
+    <li><strong>OCT</strong>: The base octave (0-8) for note entry.</li>
+</ul>
+
+<h3 style="color: orange;">Tempo Section</h3>
+<ul>
+    <li><strong>BPM</strong>: Beats Per Minute. Sets the overall playback speed.</li>
+    <li><strong>LBP</strong>: Lines Per Beat. Defines how many tracker lines make up one musical beat (usually 4 for a standard 4/4 signature).</li>
+</ul>
+
+<h2 style="color: orange; border-bottom: 1px solid #444; margin-top: 20px;">Editor Columns</h2>
+<p>Each Note Column consists of three main data fields per line:</p>
+<p style="font-family: monospace; background-color: #333; padding: 10px; border-radius: 4px;">
+    <span style="color: #ffffff;">C-4</span> <span style="color: #ffffff;">100</span> <span style="color: #ffffff;">00</span>
+</p>
+<ol>
+    <li><strong>Note (e.g., C-4)</strong>: The musical pitch and octave. "OFF" indicates a Note Off event, which stops the playing note.</li>
+    <li><strong>Velocity (000-127)</strong>: How hard the note is struck. 127 is maximum, 0 is silent.</li>
+    <li><strong>Delay (00-XX)</strong>: Sub-line timing delay. This allows you to "humanize" your sequence by starting a note slightly after the line's exact beat. The maximum value depends on your <strong>Ticks Per Line</strong> setting.</li>
+</ol>
+
+<h2 style="color: orange; border-bottom: 1px solid #444; margin-top: 20px;">Core Concepts</h2>
+<h3 style="color: orange;">Tracks and Note Columns</h3>
+<p>Each track in Noteahead represents one MIDI instrument. While you can change patches on-the-fly, the track-based approach keeps your sequence organized.</p>
+<ul>
+    <li><strong>Track Settings</strong>: Set the MIDI port, channel, bank, patch, volume, pan, and cutoff.</li>
+    <li><strong>Note Columns</strong>: Use the <code>[+]</code> and <code>[-]</code> buttons in the track header to manage multiple note columns per track, allowing for polyphonic sequencing or complex layered parts.</li>
+    <li><strong>Velocity Scaling</strong>: Velocity is calculated as the product of track scale, column scale, and individual note velocity.</li>
+</ul>
+
+<h3 style="color: orange;">Internal Timing</h3>
+<p>Noteahead uses a high-precision internal timing strategy. The song is rendered into events just before playback, and the player thread syncs to these pre-calculated timestamps to ensure jitter-free and drift-free MIDI output.</p>
+
+<h2 style="color: orange; border-bottom: 1px solid #444; margin-top: 20px;">Basic Workflow</h2>
+<h3 style="color: orange;">Getting Started</h3>
+<ol>
+    <li><strong>Setup MIDI</strong>: Click the settings icon on a track header to select your MIDI output device and channel.</li>
+    <li><strong>Edit Mode</strong>: Press <strong>ESC</strong> to enter edit mode. The cursor will change color to indicate you can now input notes.</li>
+    <li><strong>Inputting Notes</strong>: Use your PC keyboard as a virtual piano (e.g., <code>Z</code> is C, <code>S</code> is C#, <code>X</code> is D).</li>
+    <li><strong>Playback</strong>: Press <strong>SPACE</strong> to start or stop playback.</li>
+</ol>
+
+<h2 style="color: orange; border-bottom: 1px solid #444; margin-top: 20px;">Keyboard Shortcuts</h2>
+
+<h3 style="color: orange;">Navigation & Editing</h3>
+<table width="100%">
+    <tr><th align="left" style="color: orange;">Key</th><th align="left" style="color: orange;">Action</th></tr>
+    <tr><td style="border-bottom: 1px solid #444;"><strong>ESC</strong></td><td style="border-bottom: 1px solid #444;">Toggle Edit Mode</td></tr>
+    <tr><td style="border-bottom: 1px solid #444;"><strong>SPACE</strong></td><td style="border-bottom: 1px solid #444;">Toggle Play/Stop</td></tr>
+    <tr><td style="border-bottom: 1px solid #444;"><strong>INSERT</strong></td><td style="border-bottom: 1px solid #444;">Insert empty line</td></tr>
+    <tr><td style="border-bottom: 1px solid #444;"><strong>BACKSPACE</strong></td><td style="border-bottom: 1px solid #444;">Delete current line (pulls subsequent lines up)</td></tr>
+    <tr><td style="border-bottom: 1px solid #444;"><strong>DELETE</strong></td><td style="border-bottom: 1px solid #444;">Clear current event</td></tr>
+    <tr><td style="border-bottom: 1px solid #444;"><strong>A</strong></td><td style="border-bottom: 1px solid #444;">Insert Note Off event</td></tr>
+    <tr><td style="border-bottom: 1px solid #444;"><strong>F3 / F4</strong></td><td style="border-bottom: 1px solid #444;">Decrease / Increase current octave</td></tr>
+</table>
+
+<h3 style="color: orange;">Clipboard Operations</h3>
+<table width="100%">
+    <tr><th align="left" style="color: orange;">Shortcut</th><th align="left" style="color: orange;">Action</th></tr>
+    <tr><td style="border-bottom: 1px solid #444;"><strong>Ctrl + X / C / V</strong></td><td style="border-bottom: 1px solid #444;">Cut / Copy / Paste selection</td></tr>
+    <tr><td style="border-bottom: 1px solid #444;"><strong>Alt + F3 / F4 / F5</strong></td><td style="border-bottom: 1px solid #444;">Cut / Copy / Paste current <strong>column</strong></td></tr>
+    <tr><td style="border-bottom: 1px solid #444;"><strong>Shift + F3 / F4 / F5</strong></td><td style="border-bottom: 1px solid #444;">Cut / Copy / Paste current <strong>track</strong></td></tr>
+    <tr><td style="border-bottom: 1px solid #444;"><strong>Ctrl + F3 / F4 / F5</strong></td><td style="border-bottom: 1px solid #444;">Cut / Copy / Paste current <strong>pattern</strong></td></tr>
+</table>
+
+<h3 style="color: orange;">Transposition</h3>
+<table width="100%">
+    <tr><th align="left" style="color: orange;">Scope</th><th align="left" style="color: orange;">-1 Semi</th><th align="left" style="color: orange;">+1 Semi</th><th align="left" style="color: orange;">-12 Semi</th><th align="left" style="color: orange;">+12 Semi</th></tr>
+    <tr><td style="border-bottom: 1px solid #444;">Column</td><td style="border-bottom: 1px solid #444;"><strong>Alt+F9</strong></td><td style="border-bottom: 1px solid #444;"><strong>Alt+F10</strong></td><td style="border-bottom: 1px solid #444;"><strong>Alt+F11</strong></td><td style="border-bottom: 1px solid #444;"><strong>Alt+F12</strong></td></tr>
+    <tr><td style="border-bottom: 1px solid #444;">Track</td><td style="border-bottom: 1px solid #444;"><strong>Shift+F9</strong></td><td style="border-bottom: 1px solid #444;"><strong>Shift+F10</strong></td><td style="border-bottom: 1px solid #444;"><strong>Shift+F11</strong></td><td style="border-bottom: 1px solid #444;"><strong>Shift+F12</strong></td></tr>
+    <tr><td style="border-bottom: 1px solid #444;">Pattern</td><td style="border-bottom: 1px solid #444;"><strong>Ctrl+F9</strong></td><td style="border-bottom: 1px solid #444;"><strong>Ctrl+F10</strong></td><td style="border-bottom: 1px solid #444;"><strong>Ctrl+F11</strong></td><td style="border-bottom: 1px solid #444;"><strong>Ctrl+F12</strong></td></tr>
+</table>
+
+<h2 style="color: orange; border-bottom: 1px solid #444; margin-top: 20px;">Advanced Features</h2>
+<h3 style="color: orange;">MIDI CC & Pitch Bend Automation</h3>
+<ul>
+    <li><strong>Add Automation</strong>: Select a range of lines, right-click, and choose "Add MIDI CC Automation" or "Add Pitch Bend Automation".</li>
+    <li><strong>Interpolation</strong>: Choose between <strong>Linear</strong> for steady changes or <strong>Sine</strong> for organic, oscillating movements.</li>
+</ul>
+
+<h3 style="color: orange;">MIDI Side-chain</h3>
+<p>Located in Track settings, this allows one track/column to trigger MIDI CC events on another, perfect for "pumping" effects or rhythmic modulation.</p>
+
+<h2 style="color: orange; border-bottom: 1px solid #444; margin-top: 20px;">Tools & Audio</h2>
+<ul>
+    <li><strong>Audio Recorder</strong>: Enable in <code>Settings => Audio</code> to capture your performance directly from your system's default audio input.</li>
+    <li><strong>Delay Calculator</strong>: Quickly find millisecond values for various beat divisions based on the current BPM.</li>
+    <li><strong>Note Frequency Calculator</strong>: Reference tool for sound design and tuning.</li>
+</ul>
+
+<p style="margin-top: 30px; font-size: 0.8em; color: #888;">Noteahead is licensed under the GNU GPLv3.</p>
