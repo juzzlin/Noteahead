@@ -155,6 +155,19 @@ void ApplicationService::exportMidiFile(QUrl url, quint64 startPosition, quint64
     emit midiExportRequested(fileName, startPosition, endPosition);
 }
 
+void ApplicationService::requestMidiImportDialog()
+{
+    juzzlin::L(TAG).info() << "MIDI import dialog requested";
+    emit midiImportDialogRequested();
+}
+
+void ApplicationService::importMidiFile(QUrl url, int importMode, int patternLength, bool quantizeNoteOn, bool quantizeNoteOff)
+{
+    const auto fileName = url.toLocalFile();
+    juzzlin::L(TAG).info() << "MIDI import requested for " << fileName.toStdString() << " mode: " << importMode << " length: " << patternLength << " quantizeNoteOn: " << quantizeNoteOn << " quantizeNoteOff: " << quantizeNoteOff;
+    emit midiImportRequested(fileName, importMode, patternLength, quantizeNoteOn, quantizeNoteOff);
+}
+
 void ApplicationService::requestLiveNoteOn(quint8 key, quint8 octave, quint8 velocity)
 {
     if (const auto instrument = m_editorService->instrument(m_editorService->position().track); instrument) {
@@ -273,6 +286,16 @@ void ApplicationService::saveProjectAsTemplate(QUrl url)
 QStringList ApplicationService::recentFiles() const
 {
     return m_recentFilesManager->recentFiles();
+}
+
+QString ApplicationService::lastImportDirectory() const
+{
+    return m_recentFilesManager->lastImportDirectory();
+}
+
+void ApplicationService::setLastImportDirectory(QString directory)
+{
+    m_recentFilesManager->setLastImportDirectory(directory);
 }
 
 void ApplicationService::requestUnsavedChangesDialog()

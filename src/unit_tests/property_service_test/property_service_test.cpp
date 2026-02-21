@@ -32,17 +32,17 @@ void PropertyServiceTest::test_availableMidiControllers()
     // Verify first element (BankSelectMSB)
     const auto first = controllers.first().toMap();
     QCOMPARE(first["number"].toInt(), 0);
-    QCOMPARE(first["name"].toString(), QString("0: BankSelectMSB"));
+    QCOMPARE(first["name"].toString(), QString { "0: BankSelectMSB" });
 
     // Verify an undefined element (CC 3)
     const auto third = controllers.at(3).toMap();
     QCOMPARE(third["number"].toInt(), 3);
-    QCOMPARE(third["name"].toString(), QString("3"));
+    QCOMPARE(third["name"].toString(), QString { "3" });
 
     // Verify last element (PolyModeOn)
     const auto last = controllers.last().toMap();
     QCOMPARE(last["number"].toInt(), 127);
-    QCOMPARE(last["name"].toString(), QString("127: PolyModeOn"));
+    QCOMPARE(last["name"].toString(), QString { "127: PolyModeOn" });
 }
 
 } // namespace noteahead

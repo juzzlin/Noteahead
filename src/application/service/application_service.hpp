@@ -52,6 +52,8 @@ public:
     Q_INVOKABLE QString webSiteUrl() const;
 
     Q_INVOKABLE QStringList recentFiles() const;
+    Q_INVOKABLE QString lastImportDirectory() const;
+    Q_INVOKABLE void setLastImportDirectory(QString directory);
 
     Q_INVOKABLE void acceptUnsavedChangesDialog();
 
@@ -88,6 +90,9 @@ public:
 
     Q_INVOKABLE void requestMidiExportDialog();
     Q_INVOKABLE void exportMidiFile(QUrl url, quint64 startPosition, quint64 endPosition);
+
+    Q_INVOKABLE void requestMidiImportDialog();
+    Q_INVOKABLE void importMidiFile(QUrl url, int importMode, int patternLength, bool quantizeNoteOn, bool quantizeNoteOff);
 
     Q_INVOKABLE virtual bool editMode() const;
     Q_INVOKABLE virtual void setEditMode(bool editMode);
@@ -138,6 +143,9 @@ signals:
     void saveAsTemplateDialogRequested();
     void midiExportDialogRequested();
     void midiExportRequested(QString fileName, quint64 startPosition, quint64 endPosition);
+
+    void midiImportDialogRequested();
+    void midiImportRequested(QString fileName, int importMode, int patternLength, bool quantizeNoteOn, bool quantizeNoteOff);
 
     void alertDialogRequested(QString message);
     void statusTextRequested(QString message);

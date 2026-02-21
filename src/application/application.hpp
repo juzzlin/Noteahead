@@ -16,6 +16,8 @@
 #ifndef APPLICATION_HPP
 #define APPLICATION_HPP
 
+#include "../infra/midi/export/midi_exporter.hpp"
+#include "../infra/midi/import/midi_importer.hpp"
 #include "../infra/video/video_config.hpp"
 #include "state_machine.hpp"
 
@@ -44,6 +46,7 @@ class Instrument;
 class KeyboardService;
 class MidiCcAutomationsModel;
 class MidiExporter;
+class MidiImporter;
 class MidiService;
 class MidiSettingsModel;
 class MixerService;
@@ -111,6 +114,7 @@ private:
     void stopAllNotes() const;
 
     void exportToMidi(QString fileName, quint64 startPosition, quint64 endPosition);
+    void importFromMidi(QString fileName, int importMode, int patternLength, bool quantizeNoteOn, bool quantizeNoteOff);
 
     std::unique_ptr<UiLogger> m_uiLogger;
 
@@ -135,6 +139,7 @@ private:
     std::shared_ptr<KeyboardService> m_keyboardService;
 
     std::shared_ptr<MidiExporter> m_midiExporter;
+    std::shared_ptr<MidiImporter> m_midiImporter;
 
     std::shared_ptr<StateMachine> m_stateMachine;
 

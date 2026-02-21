@@ -118,8 +118,8 @@ void MidiCcAutomation::setModulation(const ModulationParameters & modulation)
 
 QString MidiCcAutomation::toString() const
 {
-    return QString("MidiCcAutomation(id=%1, controller=%2, pattern=%3, track=%4, column=%5, "
-                   "line: %6 -> %7, value: %8 -> %9, eventsPerBeat=%10, lineOffset=%11), enabled=%12")
+    return QString { "MidiCcAutomation(id=%1, controller=%2, pattern=%3, track=%4, column=%5, "
+                     "line: %6 -> %7, value: %8 -> %9, eventsPerBeat=%10, lineOffset=%11), enabled=%12" }
       .arg(QString::number(id()),
            QString::number(m_controller),
            QString::number(location().pattern()),

@@ -78,7 +78,10 @@ QString NoteColumnModel::padDelayToTwoDigits(const QString & delay) const
 QString NoteColumnModel::displayDelay(const Line & line) const
 {
     if (const auto noteData = line.noteData(); noteData->type() != NoteData::Type::None) {
-        return noteData->type() == NoteData::Type::NoteOff ? "--" : padDelayToTwoDigits(QString::number(noteData->delay()));
+        if (noteData->type() == NoteData::Type::NoteOff && noteData->delay() == 0) {
+            return "--";
+        }
+        return padDelayToTwoDigits(QString::number(noteData->delay()));
     } else {
         return "--";
     }

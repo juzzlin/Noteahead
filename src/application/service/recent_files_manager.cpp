@@ -79,4 +79,14 @@ QString RecentFilesManager::selectedFile() const
     return m_selectedFile;
 }
 
+QString RecentFilesManager::lastImportDirectory() const
+{
+    return Settings::lastImportDirectory();
+}
+
+void RecentFilesManager::setLastImportDirectory(QString directory)
+{
+    Settings::setLastImportDirectory(directory);
+}
+
 } // namespace noteahead

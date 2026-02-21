@@ -212,14 +212,14 @@ public:
     std::chrono::milliseconds tickToTime(size_t tick) const;
     void updateTickToSongPositionMapping(size_t patternStartTick, size_t songPosition, size_t patternIndex, size_t lineCount);
 
+    void initialize();
+
 private:
     void load(const std::string & filename);
 
     void deserializePlayOrder(QXmlStreamReader & reader);
     void deserializePosition(QXmlStreamReader & reader);
     void deserializePatterns(QXmlStreamReader & reader);
-
-    void initialize();
 
     using TrackAndColumn = std::pair<int, int>;
     using ActiveNoteMap = std::map<TrackAndColumn, std::set<uint8_t>>;

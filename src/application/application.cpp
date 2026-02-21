@@ -81,6 +81,7 @@ Application::Application(int & argc, char ** argv)
   , m_playerService { std::make_unique<PlayerService>(m_midiService, m_mixerService, m_automationService, m_settingsService, m_sideChainService) }
   , m_keyboardService { std::make_unique<KeyboardService>(m_applicationService, m_editorService, m_playerService, m_selectionService, m_settingsService) }
   , m_midiExporter { std::make_unique<MidiExporter>(m_automationService, m_mixerService, m_sideChainService) }
+  , m_midiImporter { std::make_unique<MidiImporter>() }
   , m_stateMachine { std::make_unique<StateMachine>(m_applicationService, m_editorService) }
   , m_recentFilesManager { std::make_unique<RecentFilesManager>() }
   , m_recentFilesModel { std::make_unique<RecentFilesModel>() }
@@ -294,6 +295,7 @@ void Application::connectApplicationService()
     connect(m_applicationService.get(), &ApplicationService::allNotesOffRequested, this, &Application::stopAllNotes);
 
     connect(m_applicationService.get(), &ApplicationService::midiExportRequested, this, qOverload<QString, quint64, quint64>(&Application::exportToMidi));
+    connect(m_applicationService.get(), &ApplicationService::midiImportRequested, this, &Application::importFromMidi);
 }
 
 void Application::exportToMidi(QString fileName, quint64 startPosition, quint64 endPosition)
@@ -304,6 +306,23 @@ void Application::exportToMidi(QString fileName, quint64 startPosition, quint64 
         m_applicationService->requestStatusText(message);
     } catch (std::exception & e) {
         const auto message = QString { "Failed to export as MIDI: %1 " }.arg(e.what());
+        juzzlin::L(TAG).error() << message.toStdString();
+        m_applicationService->requestStatusText(message);
+    }
+}
+
+void Application::importFromMidi(QString fileName, int importMode, int patternLength, bool quantizeNoteOn, bool quantizeNoteOff)
+{
+    try {
+        const auto midiData = m_midiImporter->parseMidiFile(fileName.toStdString());
+        m_midiImporter->importTo(midiData, m_editorService->song(), importMode, patternLength, quantizeNoteOn, quantizeNoteOff);
+        const auto message = QString { "Imported MIDI file '%1' " }.arg(fileName);
+        m_applicationService->requestStatusText(message);
+        m_editorService->setSong(m_editorService->song());
+        emit m_editorService->beatsPerMinuteChanged();
+        m_editorService->setIsModified(true);
+    } catch (std::exception & e) {
+        const auto message = QString { "Failed to import MIDI: %1 " }.arg(e.what());
         juzzlin::L(TAG).error() << message.toStdString();
         m_applicationService->requestStatusText(message);
     }

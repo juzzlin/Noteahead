@@ -7,6 +7,10 @@ New features:
 
 * Implement a user manual dialog
 
+* Fix GitHub Issue #31: Add MIDI import
+  - Implements an experimental MIDI import
+  - Supports note on/off and velocity
+
 Bug fixes:
 
 * Don't allow interactions with AudioWaveView while playing

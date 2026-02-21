@@ -34,6 +34,9 @@ void setWindowSize(QSize size);
 QStringList recentFiles();
 void setRecentFiles(const QStringList & fileList);
 
+QString lastImportDirectory();
+void setLastImportDirectory(const QString & directory);
+
 int step(int defaultStep);
 void setStep(int step);
 

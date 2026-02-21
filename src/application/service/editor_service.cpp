@@ -168,7 +168,7 @@ void EditorService::doVersionCheck(QString fileFormatVersion)
     }
 
     if ((majorVersion == majorVersionSupported && minorVersion > minorVersionSupported) || (majorVersion > majorVersionSupported)) {
-        const auto errorText = QString(tr("File format version '%1' is greater than supported version '%2'. Project may not load correctly!"))
+        const auto errorText = QString { tr("File format version '%1' is greater than supported version '%2'. Project may not load correctly!") }
                                  .arg(fileFormatVersion, Constants::fileFormatVersion());
         emit errorTextRequested(errorText);
         juzzlin::L(TAG).error() << errorText.toStdString();
@@ -786,7 +786,7 @@ static QString getFormattedTime(std::chrono::milliseconds currentTime)
     const auto seconds = totalSeconds % 60;
     const auto milliseconds = currentTime.count() % 1000;
 
-    return QString("%1:%2:%3.%4")
+    return QString { "%1:%2:%3.%4" }
       .arg(hours, 2, 10, QChar('0'))
       .arg(minutes, 2, 10, QChar('0'))
       .arg(seconds, 2, 10, QChar('0'))

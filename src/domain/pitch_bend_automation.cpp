@@ -67,8 +67,8 @@ void PitchBendAutomation::setInterpolation(const InterpolationParameters & inter
 
 QString PitchBendAutomation::toString() const
 {
-    return QString("PitchBendAutomation(id=%1, controller=%2, pattern=%3, track=%4, column=%5, "
-                   "line: %6 -> %7, value: %8 -> %9), enabled=%10")
+    return QString { "PitchBendAutomation(id=%1, controller=%2, pattern=%3, track=%4, column=%5, "
+                     "line: %6 -> %7, value: %8 -> %9), enabled=%10" }
       .arg(QString::number(id()),
            QString::number(location().pattern()),
            QString::number(location().track()),

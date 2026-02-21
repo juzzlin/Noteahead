@@ -8,12 +8,12 @@
 #include "../../domain/song.hpp"
 #include "../../infra/midi/export/midi_exporter.hpp"
 
-#include <algorithm> // For std::ranges::sort
-#include <cstddef> // For size_t
+#include <algorithm>
+#include <cstddef>
 #include <fstream>
-#include <iostream> // For std::cerr and std::endl
-#include <memory> // For std::make_shared
-#include <vector> // For std::vector
+#include <iostream>
+#include <memory>
+#include <vector>
 
 #include <QFile>
 #include <QTemporaryFile>
@@ -192,11 +192,11 @@ auto readMidiFile(const std::string& fileName) -> std::vector<MidiTestEvent>
 
 void MidiExporterTest::test_exportTo_singleNote_shouldExportCorrectly()
 {
-    auto song = std::make_shared<Song>();
+    const auto song = std::make_shared<Song>();
     song->setBeatsPerMinute(120);
     song->setLinesPerBeat(4);
 
-    auto instrument = std::make_shared<Instrument>("TestInstrument");
+    const auto instrument = std::make_shared<Instrument>("TestInstrument");
     song->setInstrument(0, instrument);
 
     const Position noteOnPosition = { 0, 0, 0, 0, 0 };
@@ -238,17 +238,17 @@ void MidiExporterTest::test_exportTo_singleNote_shouldExportCorrectly()
 
 void MidiExporterTest::test_exportTo_multipleNotesAndTracks_shouldExportCorrectly()
 {
-    auto song = std::make_shared<Song>();
+    const auto song = std::make_shared<Song>();
     song->setBeatsPerMinute(120);
     song->setLinesPerBeat(4);
 
-    auto instrument0 = std::make_shared<Instrument>("Track0Instrument");
+    const auto instrument0 = std::make_shared<Instrument>("Track0Instrument");
     auto midiAddress0 = instrument0->midiAddress();
     midiAddress0.setPort("PortA");
     instrument0->setMidiAddress(midiAddress0);
     song->setInstrument(0, instrument0);
 
-    auto instrument1 = std::make_shared<Instrument>("Track1Instrument");
+    const auto instrument1 = std::make_shared<Instrument>("Track1Instrument");
     auto midiAddress1 = instrument1->midiAddress();
     midiAddress1.setPort("PortB");
     instrument1->setMidiAddress(midiAddress1);
@@ -311,11 +311,11 @@ void MidiExporterTest::test_exportTo_multipleNotesAndTracks_shouldExportCorrectl
 
 void MidiExporterTest::test_exportTo_timing_shouldBeCorrect()
 {
-    auto song = std::make_shared<Song>();
+    const auto song = std::make_shared<Song>();
     song->setBeatsPerMinute(120);
     song->setLinesPerBeat(4);
 
-    auto instrument = std::make_shared<Instrument>("TestInstrument");
+    const auto instrument = std::make_shared<Instrument>("TestInstrument");
     song->setInstrument(0, instrument);
 
     const Position noteOnPosition = { 0, 0, 0, 0, 0 };
@@ -361,17 +361,17 @@ void MidiExporterTest::test_exportTo_timing_shouldBeCorrect()
 
 void MidiExporterTest::test_exportTo_mutedAndSoloedTracks_shouldExportCorrectly()
 {
-    auto song = std::make_shared<Song>();
+    const auto song = std::make_shared<Song>();
     song->setBeatsPerMinute(120);
     song->setLinesPerBeat(4);
 
-    auto instrument0 = std::make_shared<Instrument>("Track0Instrument");
+    const auto instrument0 = std::make_shared<Instrument>("Track0Instrument");
     song->setInstrument(0, instrument0);
 
-    auto instrument1 = std::make_shared<Instrument>("Track1Instrument");
+    const auto instrument1 = std::make_shared<Instrument>("Track1Instrument");
     song->setInstrument(1, instrument1);
-    
-    auto instrument2 = std::make_shared<Instrument>("Track2Instrument");
+
+    const auto instrument2 = std::make_shared<Instrument>("Track2Instrument");
     song->setInstrument(2, instrument2);
 
     const auto ticksPerLine = static_cast<uint32_t>(song->ticksPerLine());
@@ -421,11 +421,11 @@ void MidiExporterTest::test_exportTo_mutedAndSoloedTracks_shouldExportCorrectly(
 
 void MidiExporterTest::test_exportTo_rangedExport_shouldExportCorrectRange()
 {
-    auto song = std::make_shared<Song>();
+    const auto song = std::make_shared<Song>();
     song->setBeatsPerMinute(120);
     song->setLinesPerBeat(4);
 
-    auto instrument = std::make_shared<Instrument>("TestInstrument");
+    const auto instrument = std::make_shared<Instrument>("TestInstrument");
     song->setInstrument(0, instrument);
 
     song->createPattern(1);

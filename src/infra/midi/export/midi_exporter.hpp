@@ -69,12 +69,12 @@ private:
     
     std::vector<EventS> filterEvents(const std::vector<EventS> & events, MixerServiceS mixerService) const;
     
-    std::map<size_t, ByteVector> buildTrackData(const std::vector<EventS> & events, const ActiveTracks & activeTracks) const;
-    TrackProcessingState initializeTracks(const ActiveTracks & activeTracks) const;
+    std::map<size_t, ByteVector> buildTrackData(const SongS& song, const std::vector<EventS> & events, const ActiveTracks & activeTracks) const;
+    TrackProcessingState initializeTracks(const SongS& song, const ActiveTracks & activeTracks) const;
     TrackProcessingState processEvents(TrackProcessingState state, const std::vector<EventS> & events) const;
     std::map<size_t, ByteVector> finalizeTracks(TrackProcessingState state) const;
 
-    ByteVector initializeTrack(size_t trackIndex, const ActiveTracks & activeTracks) const;
+    ByteVector initializeTrack(const SongS& song, size_t trackIndex, const ActiveTracks & activeTracks) const;
     void writeNoteOnEvent(ByteVector & data, uint8_t channel, const NoteData & noteData) const;
     void writeNoteOffEvent(ByteVector & data, uint8_t channel, const NoteData & noteData) const;
     void writeControlChangeEvent(ByteVector & data, uint8_t channel, const MidiCcData & ccData) const;

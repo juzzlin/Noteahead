@@ -43,6 +43,11 @@ Menu {
         shortcut: "Ctrl+E"
         onTriggered: applicationService.requestMidiExportDialog()
     }
+    Action {
+        text: qsTr("Import MIDI file")
+        shortcut: "Ctrl+I"
+        onTriggered: applicationService.requestMidiImportDialog()
+    }
     MenuSeparator {}
     Action {
         text: qsTr("Quit")

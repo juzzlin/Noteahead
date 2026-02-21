@@ -79,6 +79,7 @@ set(HEADER_FILES
   infra/audio/implementation/librtaudio/audio_recorder_rt_audio.hpp
   infra/audio/ring_buffer.hpp
   infra/midi/export/midi_exporter.hpp
+  infra/midi/import/midi_importer.hpp
   infra/midi/implementation/librtmidi/midi_in_rt_midi.hpp
   infra/midi/implementation/librtmidi/midi_out_rt_midi.hpp
   infra/midi/midi_backend.hpp
@@ -165,6 +166,7 @@ set(SOURCE_FILES
   infra/audio/audio_recorder.cpp
   infra/audio/implementation/librtaudio/audio_recorder_rt_audio.cpp
   infra/midi/export/midi_exporter.cpp
+  infra/midi/import/midi_importer.cpp
   infra/midi/implementation/librtmidi/midi_in_rt_midi.cpp
   infra/midi/implementation/librtmidi/midi_out_rt_midi.cpp
   infra/midi/midi_backend.cpp
@@ -217,6 +219,7 @@ set(QML_SOURCE_FILES
     ${QML_BASE_DIR}/Dialogs/MidiCcAutomationModel.qml
     ${QML_BASE_DIR}/Dialogs/MidiCcSelector.qml
     ${QML_BASE_DIR}/Dialogs/MidiExportDialog.qml
+    ${QML_BASE_DIR}/Dialogs/MidiImportDialog.qml
     ${QML_BASE_DIR}/Dialogs/NoteFrequencyDialog.qml
     ${QML_BASE_DIR}/Dialogs/PitchBendAutomationModel.qml
     ${QML_BASE_DIR}/Dialogs/RecentFilesDialog.qml

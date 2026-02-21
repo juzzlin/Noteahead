@@ -87,7 +87,7 @@ void TrackSettingsModelTest::test_setInstrumentData_shouldUpdateRelevantFields()
 
     model.setInstrumentData(instrument);
 
-    QCOMPARE(model.portName(), QString("TestPort"));
+    QCOMPARE(model.portName(), QString { "TestPort" });
     QCOMPARE(model.channel(), static_cast<uint8_t>(5));
     QCOMPARE(model.patchEnabled(), true);
     QCOMPARE(model.patch(), static_cast<uint8_t>(42));

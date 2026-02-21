@@ -1,5 +1,5 @@
 // This file is part of Noteahead.
-// Copyright (C) 2025 Jussi Lind <jussi.lind@iki.fi>
+// Copyright (C) 2026 Jussi Lind <jussi.lind@iki.fi>
 //
 // Noteahead is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -13,25 +13,24 @@
 // You should have received a copy of the GNU General Public License
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef MIDI_EXPORTER_TEST_HPP
-#define MIDI_EXPORTER_TEST_HPP
+#ifndef MIDI_IMPORTER_TEST_HPP
+#define MIDI_IMPORTER_TEST_HPP
 
 #include <QObject>
 
 namespace noteahead {
 
-class MidiExporterTest : public QObject
+class MidiImporterTest : public QObject
 {
     Q_OBJECT
 
 private slots:
-    void test_exportTo_singleNote_shouldExportCorrectly();
-    void test_exportTo_multipleNotesAndTracks_shouldExportCorrectly();
-    void test_exportTo_timing_shouldBeCorrect();
-    void test_exportTo_mutedAndSoloedTracks_shouldExportCorrectly();
-    void test_exportTo_rangedExport_shouldExportCorrectRange();
+    void test_import_exportedFile_shouldRestoreNotes();
+    void test_import_multipleTracksAndPatterns_shouldRestoreCorrectly();
+    void test_import_polyphony_shouldCreateNewColumns();
+    void test_import_quantization_shouldZeroDelays();
 };
 
 } // namespace noteahead
 
-#endif // MIDI_EXPORTER_TEST_HPP
+#endif // MIDI_IMPORTER_TEST_HPP

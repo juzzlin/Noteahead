@@ -24,6 +24,7 @@ const auto controllerPortKey = "controllerPort";
 
 const auto recentFilesArrayKey = "recentFilesArray";
 const auto recentFilesFilePathKey = "filePath";
+const auto lastImportDirectoryKey = "lastImportDirectory";
 
 const auto audioBufferSizeKey = "audioBufferSize";
 const auto audioInputDeviceIdKey = "audioInputDeviceId";
@@ -116,6 +117,23 @@ void setRecentFiles(const QStringList & fileList)
         settings.setValue(recentFilesFilePathKey, fileList.at(i));
     }
     settings.endArray();
+}
+
+QString lastImportDirectory()
+{
+    QSettings settings;
+    settings.beginGroup(settingsGroupEditor);
+    const auto directory = settings.value(lastImportDirectoryKey, QString {}).toString();
+    settings.endGroup();
+    return directory;
+}
+
+void setLastImportDirectory(const QString & directory)
+{
+    QSettings settings;
+    settings.beginGroup(settingsGroupEditor);
+    settings.setValue(lastImportDirectoryKey, directory);
+    settings.endGroup();
 }
 
 int step(int defaultStep)

@@ -166,6 +166,12 @@ ApplicationWindow {
         width: parent.width * Constants.defaultDialogScale * 0.5
         height: parent.height * Constants.defaultDialogScale * 0.5
     }
+    MidiImportDialog {
+        id: midiImportDialog
+        anchors.centerIn: parent
+        width: parent.width * Constants.defaultDialogScale * 0.5
+        height: parent.height * Constants.defaultDialogScale * 0.5
+    }
     RecentFilesDialog {
         id: recentFilesDialog
         anchors.centerIn: parent
@@ -344,6 +350,7 @@ ApplicationWindow {
         applicationService.saveAsTemplateDialogRequested.connect(saveAsTemplateDialog.open);
         applicationService.statusTextRequested.connect(bottomBar.setStatusText);
         applicationService.unsavedChangesDialogRequested.connect(unsavedChangesDialog.open);
+        applicationService.midiImportDialogRequested.connect(midiImportDialog.open);
     }
     function _connectEditorService(): void {
         editorService.errorTextRequested.connect(errorText => {

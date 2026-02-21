@@ -37,6 +37,9 @@ public:
 
     virtual QString selectedFile() const;
 
+    virtual QString lastImportDirectory() const;
+    virtual void setLastImportDirectory(QString directory);
+
 signals:
     void recentFilesChanged(const QStringList & recentFiles);
 
