@@ -641,10 +641,11 @@ private:
 
     void handleNoteOn(uint8_t note, uint8_t velocity);
     //! Starts a note on the given voice through whichever path the Phase Sync switch selects.
-    void startVoice(Voice & voice, const Trigger & trigger);
-    //! The phase a voice that starts from silence is given while Phase Sync is off. @p index is the
-    //! voice's place in m_voices, which is its place in the stack.
-    double startPhase(size_t index) const;
+    void startVoice(Voice & voice, const Trigger & trigger, size_t stackIndex);
+    //! The phase a voice that starts from silence is given while Phase Sync is off. @p stackIndex is
+    //! the voice's place among the voices playing its note: 0 or 1 in a Dual pair, whichever pair
+    //! that is, so that every note starts alike.
+    double startPhase(size_t stackIndex) const;
     //! Mono voice allocation: one voice, envelopes retriggered per note, pitch and phase carried over.
     void handleMonoNoteOn(uint8_t note, double frequency, float velocity);
     void handleNoteOff(uint8_t note);

@@ -88,6 +88,7 @@ class WavetableSynthController : public DeviceController
     // Global
     Q_PROPERTY(int voiceMode READ voiceMode WRITE setVoiceMode NOTIFY voiceModeChanged)
     Q_PROPERTY(int voiceDepth READ voiceDepth WRITE setVoiceDepth NOTIFY voiceDepthChanged)
+    Q_PROPERTY(int phaseRandomness READ phaseRandomness WRITE setPhaseRandomness NOTIFY phaseRandomnessChanged)
     Q_PROPERTY(int panSpread READ panSpread WRITE setPanSpread NOTIFY panSpreadChanged)
     Q_PROPERTY(int portamento READ portamento WRITE setPortamento NOTIFY portamentoChanged)
     Q_PROPERTY(int pitchBendRange READ pitchBendRange WRITE setPitchBendRange NOTIFY pitchBendRangeChanged)
@@ -213,6 +214,8 @@ public:
     void setVoiceMode(int mode);
     int voiceDepth() const;
     void setVoiceDepth(int depth);
+    int phaseRandomness() const;
+    void setPhaseRandomness(int randomness);
     int panSpread() const;
     void setPanSpread(int spread);
     int portamento() const;
@@ -282,6 +285,7 @@ signals:
     void lfo2FadeChanged();
     void voiceModeChanged();
     void voiceDepthChanged();
+    void phaseRandomnessChanged();
     void panSpreadChanged();
     void portamentoChanged();
     void pitchBendRangeChanged();

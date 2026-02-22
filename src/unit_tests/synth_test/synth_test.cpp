@@ -3399,6 +3399,17 @@ void SynthTest::test_phaseRandomness_zero_shouldStartEveryNoteTheSame()
     QCOMPARE(maxDifference(first, third), 0.0);
 }
 
+void SynthTest::test_phaseRandomness_zeroDual_shouldStartEveryPairTheSame()
+{
+    // Successive notes go round the pairs, and each pair has to start from the same two phases
+    auto synth = unisonSynth(0.0f);
+    synth->setVoiceMode(SynthDevice::VoiceMode::Dual);
+    const auto first = attackOf(*synth, 64);
+    for (int i = 0; i < 3; i++) {
+        QCOMPARE(maxDifference(first, attackOf(*synth, 64)), 0.0);
+    }
+}
+
 void SynthTest::test_phaseRandomness_full_shouldVaryFromNoteToNote()
 {
     // What the control exists to take away: a fresh random stack per note, and so a different level

@@ -22,6 +22,7 @@
 #include <algorithm>
 #include <array>
 #include <charconv>
+#include <cmath>
 #include <string>
 
 #include <QVariant>
@@ -196,6 +197,13 @@ double supersawCentreGain(double depth)
 double supersawSideGain(double depth)
 {
     return -0.73764 * depth * depth + 1.2841 * depth + 0.044372;
+}
+
+double partlyRandomPhase(double fixed, double random, float randomness)
+{
+    double offset = random - fixed;
+    offset -= std::round(offset);
+    return std::fmod(fixed + static_cast<double>(randomness) * offset + 1.0, 1.0);
 }
 } // namespace Dsp
 } // namespace noteahead::Utils

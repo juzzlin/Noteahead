@@ -49,6 +49,14 @@ ColumnLayout {
         Layout.fillWidth: true
     }
     Knob {
+        label: qsTr("Phase Randomness")
+        value: fmSynthController.phaseRandomness
+        onMoved: v => fmSynthController.phaseRandomness = v
+        ToolTip.visible: hovered
+        ToolTip.text: qsTr("How random each note's starting phases are. 100% starts every voice somewhere new, so notes of a unison stack differ in loudness; 0% starts every note from the same spread, so each is as loud as the next.")
+        Layout.fillWidth: true
+    }
+    Knob {
         label: qsTr("Portamento")
         value: fmSynthController.portamento
         onMoved: v => fmSynthController.portamento = v

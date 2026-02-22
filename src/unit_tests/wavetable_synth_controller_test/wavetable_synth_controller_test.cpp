@@ -36,6 +36,12 @@ void WavetableSynthControllerTest::test_properties_shouldUpdateDevice()
     const int cutoff = 500;
     controller.setLpfCutoff(cutoff);
     QCOMPARE(synth->lpfCutoff(), static_cast<float>(cutoff) / Constants::uiInternalScaling());
+
+    QSignalSpy spy { &controller, &WavetableSynthController::phaseRandomnessChanged };
+    controller.setPhaseRandomness(400);
+    QCOMPARE(spy.count(), 1);
+    QCOMPARE(controller.phaseRandomness(), 400);
+    QVERIFY(std::abs(synth->phaseRandomness() - 0.4f) < 1.0e-6f);
 }
 
 void WavetableSynthControllerTest::test_deviceChange_shouldRefreshProperties()

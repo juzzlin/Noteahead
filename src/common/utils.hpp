@@ -93,6 +93,29 @@ double supersawCentreGain(double depth);
 //! Level of every other voice, likewise. Near silent at zero detune, so a closed supersaw collapses
 //! to a single clean saw rather than a stack in unison.
 double supersawSideGain(double depth);
+
+//! Where each voice of an eight-voice stack starts at 0% Phase Randomness, as a fraction of a cycle,
+//! for the devices that share the eight-voice unison, supersaw and dual layouts.
+//!
+//! Every phase is a multiple of 1/57, and the eight multiples form a perfect difference set modulo
+//! 57: each of the 56 differences between two of them occurs exactly once, so eight copies of a wave
+//! at these phases sum, at every harmonic but every 57th, to 7/8 of the power eight randomly phased
+//! copies give on average. A stack started from them is never in phase with itself and never deep
+//! in cancellation.
+//!
+//! The multiplier of 20 and the order were chosen by measuring the first 50 ms of a saw, square,
+//! triangle and sine stack over the playable range at quarter, half and full depth, in all three
+//! layouts at once: the whole set as unison, the first seven as a supersaw and the first two as a
+//! dual pair. Seven phases cannot be spread as evenly as eight, so the supersaw is the hardest of
+//! the three; each stays within about two decibels of the power random phases give on average,
+//! the unison within one.
+inline constexpr std::array<double, 8> eightVoiceStackStartPhases {
+    20.0 / 57.0, 3.0 / 57.0, 14.0 / 57.0, 5.0 / 57.0, 13.0 / 57.0, 32.0 / 57.0, 36.0 / 57.0, 0.0 / 57.0
+};
+
+//! A start phase @p randomness of the way from @p fixed towards @p random, the short way round the
+//! cycle.
+double partlyRandomPhase(double fixed, double random, float randomness);
 } // namespace Dsp
 } // namespace noteahead::Utils
 

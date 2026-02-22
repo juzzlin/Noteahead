@@ -128,6 +128,11 @@ public:
     void setVoiceMode(VoiceMode mode);
     float voiceDepth() const;
     void setVoiceDepth(float depth);
+    //! How random the voices' starting phases are: 1 is a fresh random phase for every voice of every
+    //! note, as there always was; 0 is the same fixed spread for every note, so each one starts as
+    //! loud as the next. See startPhase().
+    float phaseRandomness() const;
+    void setPhaseRandomness(float randomness);
     float panSpread() const;
     void setPanSpread(float spread);
     float portamento() const;
@@ -344,6 +349,7 @@ private:
 
     VoiceMode m_voiceMode { VoiceMode::Poly };
     float m_voiceDepth { 0.1f };
+    float m_phaseRandomness { 1.0f };
     float m_panSpread { 0.5f };
     float m_portamento { 0.0f };
     float m_bpm { 120.0f };
@@ -355,6 +361,10 @@ private:
     double m_osc2BasePitchRatio { 1.0 };
 
     void handleNoteOn(uint8_t note, uint8_t velocity);
+    //! The phase a voice that starts from silence is given. @p stackIndex is the voice's place among
+    //! the voices playing its note: 0 or 1 in a Dual pair, whichever pair that is, so that every
+    //! note starts alike.
+    double startPhase(size_t stackIndex) const;
     void handleNoteOff(uint8_t note);
     double midiNoteToFreq(uint8_t note) const;
     void syncParameters() override;

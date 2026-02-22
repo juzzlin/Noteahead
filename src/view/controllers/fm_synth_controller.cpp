@@ -207,6 +207,7 @@ void FmSynthController::requestSettings()
     emit lfo2FadeChanged();
     emit voiceModeChanged();
     emit voiceDepthChanged();
+    emit phaseRandomnessChanged();
     emit panSpreadChanged();
     emit portamentoChanged();
     emit pitchBendRangeChanged();
@@ -656,6 +657,18 @@ void FmSynthController::setVoiceDepth(int value)
 {
     if (m_synth) {
         m_synth->setVoiceDepth(static_cast<float>(value) / Constants::uiInternalScaling());
+    }
+}
+
+int FmSynthController::phaseRandomness() const
+{
+    return m_synth ? static_cast<int>(std::round(m_synth->phaseRandomness() * Constants::uiInternalScaling())) : 0;
+}
+
+void FmSynthController::setPhaseRandomness(int randomness)
+{
+    if (m_synth) {
+        m_synth->setPhaseRandomness(static_cast<float>(randomness) / Constants::uiInternalScaling());
     }
 }
 

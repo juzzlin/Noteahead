@@ -907,14 +907,14 @@ void SynthDevice::handleNoteOn(uint8_t note, uint8_t velocity)
 
         if (bestVoice) {
             const Trigger trigger { note, m_nextTriggerId++, freq, voiceSpreadPan(bestVoice.value()), finalVel, m_portamento <= 0.001f };
-            startVoice(m_voices.at(bestVoice.value()), trigger);
+            startVoice(m_voices.at(bestVoice.value()), trigger, 0);
         }
     } else if (isStacked(m_voiceMode)) {
         const uint64_t tid { m_nextTriggerId++ };
         for (size_t i = 0; i < MaxVoices; i++) {
             const double voiceFreq = freq * std::pow(2.0, voiceDetuneSemitones(i) / 12.0);
             const Trigger trigger { note, tid, voiceFreq, voiceSpreadPan(i), finalVel, m_portamento <= 0.001f };
-            startVoice(m_voices.at(i), trigger);
+            startVoice(m_voices.at(i), trigger, i);
         }
     } else {
         // Dual: pair voices (0,1), (2,3), (4,5) — each pair plays one note with two detuned sub-voices
@@ -966,8 +966,8 @@ void SynthDevice::handleNoteOn(uint8_t note, uint8_t velocity)
             const float pan1 = voiceSpreadPan(v1 % 2);
             const bool resetGlide = m_portamento <= 0.001f;
 
-            startVoice(m_voices.at(v0), Trigger { note, tid, freq0, pan0, finalVel, resetGlide });
-            startVoice(m_voices.at(v1), Trigger { note, tid, freq1, pan1, finalVel, resetGlide });
+            startVoice(m_voices.at(v0), Trigger { note, tid, freq0, pan0, finalVel, resetGlide }, 0);
+            startVoice(m_voices.at(v1), Trigger { note, tid, freq1, pan1, finalVel, resetGlide }, 1);
         }
     }
 }
@@ -991,15 +991,15 @@ void SynthDevice::handleMonoNoteOn(uint8_t note, double frequency, float velocit
     // rather than jumping, and their phase runs on undisturbed. Phase Sync trades that continuity
     // for an identical start to every note, which is the point of the switch; the glide is unharmed
     // either way.
-    startVoice(voice, Trigger { note, m_nextTriggerId++, frequency, pan, velocity, m_portamento <= 0.001f });
+    startVoice(voice, Trigger { note, m_nextTriggerId++, frequency, pan, velocity, m_portamento <= 0.001f }, 0);
 }
 
-void SynthDevice::startVoice(Voice & voice, const Trigger & trigger)
+void SynthDevice::startVoice(Voice & voice, const Trigger & trigger, size_t stackIndex)
 {
     if (m_vco1Sync) {
         voice.triggerSynced(trigger);
     } else {
-        voice.triggerFree(trigger, startPhase(static_cast<size_t>(&voice - m_voices.data())));
+        voice.triggerFree(trigger, startPhase(stackIndex));
     }
 }
 
@@ -1023,22 +1023,20 @@ constexpr std::array<double, 6> stackStartPhases { 6.0 / 31.0, 13.0 / 31.0, 0.0 
 
 } // namespace
 
-double SynthDevice::startPhase(size_t index) const
+double SynthDevice::startPhase(size_t stackIndex) const
 {
     // Exactly the draw there always was, so that a project left at the default renders sample for
     // sample as it did before the control existed: one draw fewer or more would move every later one.
     if (m_phaseRandomness >= 1.0f) {
         return m_phaseDist(m_rng);
     }
-    const double fixed = stackStartPhases.at(index % stackStartPhases.size());
+    const double fixed = stackStartPhases.at(stackIndex % stackStartPhases.size());
     if (m_phaseRandomness <= 0.0f) {
         return fixed;
     }
     // Part of the way from the fixed phase towards a random one, the short way round the cycle. The
     // draw comes from the same seeded generator as ever, so any setting renders the same every time.
-    double offset = m_phaseDist(m_rng) - fixed;
-    offset -= std::round(offset);
-    return std::fmod(fixed + static_cast<double>(m_phaseRandomness) * offset + 1.0, 1.0);
+    return Utils::Dsp::partlyRandomPhase(fixed, m_phaseDist(m_rng), m_phaseRandomness);
 }
 
 void SynthDevice::handleNoteOff(uint8_t note)

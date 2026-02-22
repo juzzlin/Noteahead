@@ -29,6 +29,7 @@ private slots:
     void test_phaseRandomness_shouldRoundTrip();
     void test_phaseRandomness_projectWithoutIt_shouldLoadFullyRandom();
     void test_phaseRandomness_zero_shouldStartEveryNoteTheSame();
+    void test_phaseRandomness_zeroDual_shouldStartEveryPairTheSame();
     void test_phaseRandomness_full_shouldVaryFromNoteToNote();
     void test_phaseRandomness_zero_shouldStartAsLoudAsTheRandomAverage();
     void test_phaseRandomness_partial_shouldRenderTheSameEveryTime();

@@ -557,6 +557,18 @@ void WavetableSynthController::setVoiceDepth(int depth)
     }
 }
 
+int WavetableSynthController::phaseRandomness() const
+{
+    return m_synth ? static_cast<int>(std::round(m_synth->phaseRandomness() * Constants::uiInternalScaling())) : 0;
+}
+
+void WavetableSynthController::setPhaseRandomness(int randomness)
+{
+    if (m_synth) {
+        m_synth->setPhaseRandomness(static_cast<float>(randomness) / Constants::uiInternalScaling());
+    }
+}
+
 int WavetableSynthController::panSpread() const
 {
     return m_synth ? static_cast<int>(std::round(m_synth->panSpread() * Constants::uiInternalScaling())) : 0;
@@ -718,6 +730,7 @@ void WavetableSynthController::requestSettings()
 
     emit voiceModeChanged();
     emit voiceDepthChanged();
+    emit phaseRandomnessChanged();
     emit panSpreadChanged();
     emit portamentoChanged();
     emit pitchBendRangeChanged();

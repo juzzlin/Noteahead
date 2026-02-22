@@ -222,6 +222,7 @@ FmSynthDevice::FmSynthDevice(std::string name)
 
     addParameter(Parameter { NahdXml::xmlKeyVoiceMode().toStdString(), 0.0f, 0, 5, 0, 1, Parameter::Type::Discrete });
     addParameter(Parameter { NahdXml::xmlKeyVoiceDepth().toStdString(), 0.1f, 0, 10000, 1000, 100 });
+    addParameter(Parameter { NahdXml::xmlKeyPhaseRandomness().toStdString(), 1.0f, 0, 10000, 10000, 100 });
     addParameter(Parameter { NahdXml::xmlKeyPanSpread().toStdString(), 0.5f, 0, 10000, 5000, 100 });
     addParameter(Parameter { NahdXml::xmlKeyPortamento().toStdString(), 0.0f, 0, 10000, 0, 100 });
     addParameter(Parameter { NahdXml::xmlKeyPitchBendRange().toStdString(), 2.0f, 0, 24, 2, 1, Parameter::Type::Discrete });
@@ -789,7 +790,7 @@ void FmSynthDevice::handleNoteOn(uint8_t note, uint8_t velocity)
             if (m_portamento <= 0.001f) {
                 m_voices.at(i).glideFrequency = voiceFreq;
             }
-            m_voices.at(i).trigger(note, voiceFreq, voiceSpreadPan(i), finalVel, tid, m_phaseDist(m_rng));
+            m_voices.at(i).trigger(note, voiceFreq, voiceSpreadPan(i), finalVel, tid, startPhase(i));
         }
         return;
     }
@@ -839,8 +840,8 @@ void FmSynthDevice::handleNoteOn(uint8_t note, uint8_t velocity)
 
         const float pan0 = 0.5f - m_panSpread * 0.5f;
         const float pan1 = 0.5f + m_panSpread * 0.5f;
-        m_voices.at(v0).trigger(note, freq0, pan0, finalVel, tid, m_phaseDist(m_rng));
-        m_voices.at(v1).trigger(note, freq1, pan1, finalVel, tid, m_phaseDist(m_rng));
+        m_voices.at(v0).trigger(note, freq0, pan0, finalVel, tid, startPhase(0));
+        m_voices.at(v1).trigger(note, freq1, pan1, finalVel, tid, startPhase(1));
         return;
     }
 
@@ -888,7 +889,22 @@ void FmSynthDevice::handleMonoNoteOn(uint8_t note, double frequency, float veloc
         voice.glideFrequency = frequency;
     }
 
-    voice.trigger(note, frequency, voiceSpreadPan(m_monoPanSlot.value_or(0)), velocity, m_nextTriggerId++, m_phaseDist(m_rng));
+    voice.trigger(note, frequency, voiceSpreadPan(m_monoPanSlot.value_or(0)), velocity, m_nextTriggerId++, startPhase(0));
+}
+
+double FmSynthDevice::startPhase(size_t stackIndex) const
+{
+    // Exactly the draw there always was, so that a project left at the default renders sample for
+    // sample as it did before the control existed: one draw fewer or more would move every later one.
+    if (m_phaseRandomness >= 1.0f) {
+        return m_phaseDist(m_rng);
+    }
+    const double fixed = Utils::Dsp::eightVoiceStackStartPhases.at(stackIndex % Utils::Dsp::eightVoiceStackStartPhases.size());
+    if (m_phaseRandomness <= 0.0f) {
+        return fixed;
+    }
+    // The draw comes from the same seeded generator as ever, so any setting renders the same every time.
+    return Utils::Dsp::partlyRandomPhase(fixed, m_phaseDist(m_rng), m_phaseRandomness);
 }
 
 void FmSynthDevice::handleNoteOff(uint8_t note)
@@ -1048,6 +1064,8 @@ void FmSynthDevice::syncParameters()
 
     updateDiscreteParam(NahdXml::xmlKeyVoiceMode(), m_voiceMode);
     updateParam(NahdXml::xmlKeyVoiceDepth(), m_voiceDepth);
+    updateParam(NahdXml::xmlKeyPhaseRandomness(), m_phaseRandomness);
+    m_phaseRandomness = std::clamp(m_phaseRandomness, 0.0f, 1.0f);
     updateParam(NahdXml::xmlKeyPanSpread(), m_panSpread);
     updateParam(NahdXml::xmlKeyPortamento(), m_portamento);
     updateDiscreteParam(NahdXml::xmlKeyPitchBendRange(), m_pitchBendRange);
@@ -1754,6 +1772,16 @@ void FmSynthDevice::setVoiceDepth(float value)
         syncParameters();
         emit dataChanged();
     }
+}
+
+float FmSynthDevice::phaseRandomness() const
+{
+    return m_phaseRandomness;
+}
+
+void FmSynthDevice::setPhaseRandomness(float randomness)
+{
+    setContinuousParameterValue(Constants::NahdXml::xmlKeyPhaseRandomness().toStdString(), randomness);
 }
 
 float FmSynthDevice::panSpread() const
