@@ -29,6 +29,9 @@ const auto lastImportDirectoryKey = "lastImportDirectory";
 const auto audioBufferSizeKey = "audioBufferSize";
 const auto audioInputDeviceIdKey = "audioInputDeviceId";
 const auto recordingEnabledKey = "recordingEnabled";
+const auto jackSyncEnabledKey = "jackSyncEnabled";
+const auto jackBpmSyncEnabledKey = "jackBpmSyncEnabled";
+const auto midiSyncEnabledKey = "midiSyncEnabled";
 const auto waveViewEnabledKey = "waveViewEnabled";
 
 const auto settingsGroupAudio = "Audio";
@@ -235,6 +238,57 @@ void setRecordingEnabled(bool enabled)
     QSettings settings;
     settings.beginGroup(settingsGroupAudio);
     settings.setValue(recordingEnabledKey, enabled);
+    settings.endGroup();
+}
+
+bool jackSyncEnabled()
+{
+    QSettings settings;
+    settings.beginGroup(settingsGroupAudio);
+    const auto enabled = settings.value(jackSyncEnabledKey, false).toBool();
+    settings.endGroup();
+    return enabled;
+}
+
+void setJackSyncEnabled(bool enabled)
+{
+    QSettings settings;
+    settings.beginGroup(settingsGroupAudio);
+    settings.setValue(jackSyncEnabledKey, enabled);
+    settings.endGroup();
+}
+
+bool jackBpmSyncEnabled()
+{
+    QSettings settings;
+    settings.beginGroup(settingsGroupAudio);
+    const auto enabled = settings.value(jackBpmSyncEnabledKey, false).toBool();
+    settings.endGroup();
+    return enabled;
+}
+
+void setJackBpmSyncEnabled(bool enabled)
+{
+    QSettings settings;
+    settings.beginGroup(settingsGroupAudio);
+    settings.setValue(jackBpmSyncEnabledKey, enabled);
+    settings.endGroup();
+}
+
+bool midiSyncEnabled()
+{
+    QSettings settings;
+    settings.beginGroup(settingsGroupAudio);
+    const auto enabled = settings.value(midiSyncEnabledKey, false).toBool();
+    settings.endGroup();
+    return enabled;
+}
+
+void setMidiSyncEnabled(bool enabled)
+{
+    QSettings settings;
+    settings.beginGroup(settingsGroupAudio);
+    settings.setValue(midiSyncEnabledKey, enabled);
     settings.endGroup();
 }
 

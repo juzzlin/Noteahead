@@ -66,6 +66,8 @@ void MidiInRtMidi::openPort(MidiPortCR port)
 void MidiInRtMidi::closePort(MidiPortCR port)
 {
     if (auto && it = m_openedPorts.find(port.index()); it != m_openedPorts.end()) {
+        m_callbacks.erase(port.index());
+        m_callbackInfos.erase(port.index());
         m_openedPorts.erase(it);
     }
 }
@@ -79,7 +81,8 @@ void MidiInRtMidi::setCallbackForPort(const MidiPort & port, InputCallback callb
 {
     if (const auto index = port.index(); m_openedPorts.contains(index)) {
         m_callbacks[index] = std::move(callback);
-        m_openedPorts[index]->setCallback(&MidiInRtMidi::staticCallback, this);
+        m_callbackInfos[index] = std::make_unique<CallbackInfo>(this, index);
+        m_openedPorts[index]->setCallback(&MidiInRtMidi::staticCallback, m_callbackInfos[index].get());
         m_openedPorts[index]->ignoreTypes(false, false, false); // Enable all types
     } else {
         throw std::runtime_error("Port must be opened before setting callback!");
@@ -89,21 +92,22 @@ void MidiInRtMidi::setCallbackForPort(const MidiPort & port, InputCallback callb
 void MidiInRtMidi::clearCallbacks()
 {
     juzzlin::L(TAG).debug() << "Clearing callbacks";
+    for (auto & [index, midiIn] : m_openedPorts) {
+        midiIn->cancelCallback();
+    }
     m_callbacks.clear();
+    m_callbackInfos.clear();
 }
 
 void MidiInRtMidi::staticCallback(double deltaTime, MessageP message, void * userData)
 {
     juzzlin::L(TAG).debug() << "staticCallback called";
     if (userData && message) {
-        const auto self = static_cast<MidiInRtMidi *>(userData);
-        // RtMidi does NOT pass the port index, so this is a workaround:
-        for (auto & [index, midiIn] : self->m_openedPorts) {
-            if (midiIn && midiIn->isPortOpen()) {
-                if (self->m_callbacks.contains(index) && self->m_callbacks.at(index)) {
-                    self->m_callbacks.at(index)(deltaTime, *message);
-                }
-            }
+        const auto info = static_cast<CallbackInfo *>(userData);
+        const auto self = info->backend;
+        const auto index = info->index;
+        if (self->m_callbacks.contains(index) && self->m_callbacks.at(index)) {
+            self->m_callbacks.at(index)(deltaTime, *message);
         }
     }
 }

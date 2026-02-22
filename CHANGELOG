@@ -11,6 +11,8 @@ New features:
   - Implements an experimental MIDI import
   - Supports note on/off and velocity
 
+* Fix GitHub Issue #38: Implement support for Jack transport
+
 Bug fixes:
 
 * Don't allow interactions with AudioWaveView while playing

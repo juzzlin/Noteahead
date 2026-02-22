@@ -142,6 +142,45 @@ void SettingsService::setRecordingEnabled(bool enabled)
     }
 }
 
+bool SettingsService::jackSyncEnabled() const
+{
+    return Settings::jackSyncEnabled();
+}
+
+void SettingsService::setJackSyncEnabled(bool enabled)
+{
+    if (jackSyncEnabled() != enabled) {
+        Settings::setJackSyncEnabled(enabled);
+        emit jackSyncEnabledChanged();
+    }
+}
+
+bool SettingsService::jackBpmSyncEnabled() const
+{
+    return Settings::jackBpmSyncEnabled();
+}
+
+void SettingsService::setJackBpmSyncEnabled(bool enabled)
+{
+    if (jackBpmSyncEnabled() != enabled) {
+        Settings::setJackBpmSyncEnabled(enabled);
+        emit jackBpmSyncEnabledChanged();
+    }
+}
+
+bool SettingsService::midiSyncEnabled() const
+{
+    return Settings::midiSyncEnabled();
+}
+
+void SettingsService::setMidiSyncEnabled(bool enabled)
+{
+    if (midiSyncEnabled() != enabled) {
+        Settings::setMidiSyncEnabled(enabled);
+        emit midiSyncEnabledChanged();
+    }
+}
+
 bool SettingsService::waveViewEnabled() const
 {
     return Settings::waveViewEnabled();

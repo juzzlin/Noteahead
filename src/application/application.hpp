@@ -43,6 +43,7 @@ class ColumnSettingsModel;
 class EditorService;
 class EventSelectionModel;
 class Instrument;
+class JackService;
 class KeyboardService;
 class MidiCcAutomationsModel;
 class MidiExporter;
@@ -88,6 +89,7 @@ private:
     void connectApplicationService();
     void connectAutomationService();
     void connectEditorService();
+    void connectJackService();
     void connectMidiCcAutomationsModel();
     void connectMidiService();
     void connectMidiSettingsModel();
@@ -129,6 +131,8 @@ private:
 
     std::shared_ptr<SelectionService> m_selectionService;
     std::shared_ptr<EditorService> m_editorService;
+
+    std::shared_ptr<JackService> m_jackService;
 
     std::shared_ptr<EventSelectionModel> m_eventSelectionModel;
 

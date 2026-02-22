@@ -37,6 +37,7 @@
 #include "service/audio_service.hpp"
 #include "service/automation_service.hpp"
 #include "service/editor_service.hpp"
+#include "service/jack_service.hpp"
 #include "service/keyboard_service.hpp"
 #include "service/midi_service.hpp"
 #include "service/mixer_service.hpp"
@@ -74,11 +75,12 @@ Application::Application(int & argc, char ** argv)
   , m_settingsService { std::make_unique<SettingsService>() }
   , m_selectionService { std::make_unique<SelectionService>() }
   , m_editorService { std::make_unique<EditorService>(m_selectionService, m_settingsService) }
+  , m_jackService { std::make_shared<JackService>(m_settingsService) }
   , m_eventSelectionModel { std::make_unique<EventSelectionModel>() }
   , m_midiService { std::make_unique<MidiService>() }
   , m_mixerService { std::make_unique<MixerService>() }
   , m_sideChainService { std::make_unique<SideChainService>() }
-  , m_playerService { std::make_unique<PlayerService>(m_midiService, m_mixerService, m_automationService, m_settingsService, m_sideChainService) }
+  , m_playerService { std::make_unique<PlayerService>(m_midiService, m_mixerService, m_automationService, m_settingsService, m_sideChainService, m_jackService) }
   , m_keyboardService { std::make_unique<KeyboardService>(m_applicationService, m_editorService, m_playerService, m_selectionService, m_settingsService) }
   , m_midiExporter { std::make_unique<MidiExporter>(m_automationService, m_mixerService, m_sideChainService) }
   , m_midiImporter { std::make_unique<MidiImporter>() }
@@ -268,6 +270,7 @@ void Application::connectServices()
 
     connectAutomationService();
     connectEditorService();
+    connectJackService();
     connectMidiService();
     connectMixerService();
     connectPlayerService();
@@ -280,6 +283,21 @@ void Application::connectServices()
     connectTrackSettingsModel();
     connectMidiSettingsModel();
     connectColumnSettingsModel();
+}
+
+void Application::connectJackService()
+{
+    connect(m_jackService.get(), &JackService::errorOccurred, m_applicationService.get(), &ApplicationService::requestAlertDialog);
+    connect(m_jackService.get(), &JackService::rewindRequested, this, [this]() {
+        if (m_playerService->isPlaying()) {
+            m_playerService->stop();
+            m_editorService->requestPositionByTick(0);
+            m_playerService->play();
+        } else {
+            m_editorService->requestPositionByTick(0);
+        }
+    });
+    m_jackService->initialize();
 }
 
 void Application::connectApplicationService()
@@ -414,6 +432,10 @@ void Application::connectMidiService()
     connect(m_midiService.get(), &MidiService::outputPortsAppeared, this, &Application::requestInstruments);
     connect(m_midiService.get(), &MidiService::statusTextRequested, m_applicationService.get(), &ApplicationService::statusTextRequested);
 
+    connect(m_settingsService.get(), &SettingsService::midiSyncEnabledChanged, this, [this]() {
+        m_midiService->setMidiSyncEnabled(m_settingsService->midiSyncEnabled());
+    });
+
     // Play a note via a MIDI controller
     connect(m_midiService.get(), &MidiService::noteOnReceived, this, [this](const auto &, const auto & data) {
         if (const auto instrument = m_editorService->instrument(m_editorService->position().track); instrument) {
@@ -514,6 +536,9 @@ void Application::connectPlayerService()
             applyAudioRecording(isPlaying);
         }
     });
+
+    connect(m_jackService.get(), &JackService::playRequested, m_playerService.get(), &PlayerService::play, Qt::QueuedConnection);
+    connect(m_jackService.get(), &JackService::stopRequested, m_playerService.get(), &PlayerService::stop, Qt::QueuedConnection);
 }
 
 static QString sanitizeFileName(const QString & name)
@@ -665,6 +690,7 @@ int Application::initializeTracker()
 
     initializeApplicationEngine();
     connectServices();
+    m_jackService->initialize();
     m_stateMachine->calculateState(StateMachine::Action::ApplicationInitialized);
 
     return m_application->exec();
@@ -743,6 +769,8 @@ void Application::applyMidiCcSettings(const Instrument & instrument)
 
 void Application::applyMidiController()
 {
+    m_midiService->setMidiSyncEnabled(m_settingsService->midiSyncEnabled());
+
     if (!m_settingsService->controllerPort().isEmpty()) {
         juzzlin::L(TAG).info() << "Applying MIDI controller: " << m_settingsService->controllerPort().toStdString();
         m_midiService->setControllerPort(m_settingsService->controllerPort());

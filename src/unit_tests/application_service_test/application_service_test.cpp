@@ -55,7 +55,7 @@ class MockPlayerService : public PlayerService
 {
 public:
     MockPlayerService()
-      : PlayerService { nullptr, nullptr, nullptr, nullptr, nullptr }
+      : PlayerService { nullptr, nullptr, nullptr, nullptr, nullptr, nullptr }
     {
     }
     bool isPlaying() const override { return m_isPlaying; }

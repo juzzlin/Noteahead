@@ -23,6 +23,7 @@
 namespace noteahead {
 
 class AutomationService;
+class JackService;
 class MidiService;
 class MixerService;
 class PlayerWorker;
@@ -34,6 +35,8 @@ class PlayerService : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(bool isPlaying READ isPlaying NOTIFY isPlayingChanged)
+    Q_PROPERTY(bool isLooping READ isLooping WRITE setIsLooping NOTIFY isLoopingChanged)
+    Q_PROPERTY(double beatsPerMinute READ beatsPerMinute NOTIFY beatsPerMinuteChanged)
 
 public:
     using SettingsServiceS = std::shared_ptr<SettingsService>;
@@ -41,12 +44,15 @@ public:
     using MixerServiceS = std::shared_ptr<MixerService>;
     using AutomationServiceS = std::shared_ptr<AutomationService>;
     using SideChainServiceS = std::shared_ptr<SideChainService>;
+    using JackServiceS = std::shared_ptr<JackService>;
     explicit PlayerService(
       MidiServiceS midiService,
       MixerServiceS mixerService,
       AutomationServiceS automationService,
       SettingsServiceS settingsService,
-      SideChainServiceS sideChainService, QObject * parent = nullptr);
+      SideChainServiceS sideChainService,
+      JackServiceS jackService,
+      QObject * parent = nullptr);
 
     ~PlayerService() override;
 
@@ -58,6 +64,8 @@ public:
     Q_INVOKABLE bool isLooping() const;
     Q_INVOKABLE void setIsLooping(bool isLooping);
 
+    Q_INVOKABLE double beatsPerMinute() const;
+
     void setSongPosition(quint64 position);
 
     using SongS = std::shared_ptr<Song>;
@@ -65,12 +73,14 @@ public:
 
 signals:
     void isPlayingChanged();
+    void isLoopingChanged();
 
     void songEnded();
 
     void songRequested();
 
     void tickUpdated(quint64 tick);
+    void beatsPerMinuteChanged();
 
 private:
     void initializeWorker();
@@ -84,6 +94,7 @@ private:
     AutomationServiceS m_automationService;
     SettingsServiceS m_settingsService;
     SideChainServiceS m_sideChainService;
+    JackServiceS m_jackService;
 
     std::unique_ptr<PlayerWorker> m_playerWorker;
 

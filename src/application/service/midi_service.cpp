@@ -117,6 +117,11 @@ void MidiService::setControllerPort(QString portName)
     emit controllerPortChanged(portName);
 }
 
+void MidiService::setMidiSyncEnabled(bool enabled)
+{
+    m_inputWorker->setMidiSyncEnabled(enabled);
+}
+
 void MidiService::setIsPlaying(bool isPlaying)
 {
     m_inputWorker->setIsPlaying(isPlaying);

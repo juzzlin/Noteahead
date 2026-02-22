@@ -47,6 +47,17 @@ MidiAddress MidiWorkerIn::currentAddress(uint8_t channel) const
 
 void MidiWorkerIn::setControllerPort(QString portName)
 {
+    if (portName == m_controllerPort && !portName.isEmpty()) {
+        return;
+    }
+
+    if (!m_controllerPort.isEmpty()) {
+        if (const auto oldPort = midiBackend()->portByName(m_controllerPort.toStdString()); oldPort) {
+            juzzlin::L(TAG).info() << "Closing previous controller input port: " << m_controllerPort.toStdString();
+            m_midiWorkerIn->closePort(*oldPort);
+        }
+    }
+
     if (!portName.isEmpty()) {
         m_controllerPort = portName;
         try {
@@ -67,6 +78,11 @@ void MidiWorkerIn::setControllerPort(QString portName)
     }
 }
 
+void MidiWorkerIn::setMidiSyncEnabled(bool enabled)
+{
+    m_midiSyncEnabled = enabled;
+}
+
 void MidiWorkerIn::handleIncomingMessage(double deltaTime, MessageCR message)
 {
     if (!message.empty()) {
@@ -75,18 +91,20 @@ void MidiWorkerIn::handleIncomingMessage(double deltaTime, MessageCR message)
         const quint8 statusByte = message.at(0);
 
         // Handle real-time messages directly
-        switch (statusByte) {
-        case 0xFA: // Start
-            emit startReceived();
-            return;
-        case 0xFC: // Stop
-            emit stopReceived();
-            return;
-        case 0xFB: // Continue (optional)
-            emit continueReceived();
-            return;
-        default:
-            break;
+        if (m_midiSyncEnabled) {
+            switch (statusByte) {
+            case 0xFA: // Start
+                emit startReceived();
+                return;
+            case 0xFC: // Stop
+                emit stopReceived();
+                return;
+            case 0xFB: // Continue (optional)
+                emit continueReceived();
+                return;
+            default:
+                break;
+            }
         }
 
         const quint8 status = statusByte & 0xF0;
@@ -170,7 +188,7 @@ void MidiWorkerIn::handleControlChange(quint8 channel, MessageCR message)
     emit controlChangeReceived(currentAddress(channel), controller, value);
 
     // Check if this CC is mapped to a transport action
-    if (value > 0) { // optional: ignore value==0
+    if (m_midiSyncEnabled && value > 0) { // optional: ignore value==0
         if (const auto it = m_transportMappings.find(controller); it != m_transportMappings.end() && it->second) {
             it->second(); // Call the mapped action
         }

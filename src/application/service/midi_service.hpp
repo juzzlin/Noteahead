@@ -67,6 +67,7 @@ public:
 public slots:
     void handleInstrumentRequest(const InstrumentRequest & instrumentRequest);
     void setControllerPort(QString portName);
+    void setMidiSyncEnabled(bool enabled);
 
 signals:
 

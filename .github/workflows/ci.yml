@@ -50,7 +50,7 @@ jobs:
       run: |
         apt-get update
         apt-get install -y build-essential cmake pkg-config ninja-build \
-          qt6-base-dev qt6-declarative-dev qt6-tools-dev librtmidi-dev librtaudio-dev libsndfile-dev \
+          qt6-base-dev qt6-declarative-dev qt6-tools-dev librtmidi-dev librtaudio-dev libsndfile-dev libjack-jackd2-dev \
           qml6-module-qtcore qml6-module-qtqml qml6-module-qtqml-workerscript qml6-module-qtquick \
           qml6-module-qtquick-controls qml6-module-qtquick-dialogs qml6-module-qtquick-layouts \
           qml6-module-qtquick-templates qml6-module-qtquick-window
@@ -59,7 +59,7 @@ jobs:
       if: contains(matrix.name, 'Fedora')
       run: |
         dnf install -y gcc-c++ cmake ninja-build \
-          qt6-qtbase-devel qt6-qtdeclarative-devel qt6-qttools-devel rtmidi-devel rtaudio-devel libsndfile-devel \
+          qt6-qtbase-devel qt6-qtdeclarative-devel qt6-qttools-devel rtmidi-devel rtaudio-devel libsndfile-devel jack-audio-connection-kit-devel \
           qt6-qtdeclarative qt6-qtquickcontrols2
 
     - name: Configure CMake

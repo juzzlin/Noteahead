@@ -78,7 +78,7 @@ void PlayerWorkerTest::test_mixerChange_shouldStopNotes()
 {
     const auto midiService { std::make_shared<MockMidiService>() };
     const auto mixerService { std::make_shared<MixerService>() };
-    TestablePlayerWorker worker { midiService, mixerService };
+    TestablePlayerWorker worker { midiService, mixerService, nullptr };
 
     // Configure Mixer: Track 0 enabled
     mixerService->setTrackIndices({ 0 });
@@ -117,7 +117,7 @@ void PlayerWorkerTest::test_columnMuteBehavior_shouldNotStopAllNotes()
 {
     const auto midiService { std::make_shared<MockMidiService>() };
     const auto mixerService { std::make_shared<MixerService>() };
-    TestablePlayerWorker worker { midiService, mixerService };
+    TestablePlayerWorker worker { midiService, mixerService, nullptr };
 
     // Configure Mixer: Track 0 has 3 columns. Column 1 is muted.
     mixerService->setTrackIndices({ 0 });
@@ -164,7 +164,7 @@ void PlayerWorkerTest::test_trackMuteBehavior_shouldStopAllNotes()
 {
     const auto midiService { std::make_shared<MockMidiService>() };
     const auto mixerService { std::make_shared<MixerService>() };
-    TestablePlayerWorker worker { midiService, mixerService };
+    TestablePlayerWorker worker { midiService, mixerService, nullptr };
 
     // Configure Mixer: Track 0 is muted.
     mixerService->setTrackIndices({ 0 });
@@ -195,7 +195,7 @@ void PlayerWorkerTest::test_columnMute_shouldStopActiveNote()
 {
     const auto midiService { std::make_shared<MockMidiService>() };
     const auto mixerService { std::make_shared<MixerService>() };
-    TestablePlayerWorker worker { midiService, mixerService };
+    TestablePlayerWorker worker { midiService, mixerService, nullptr };
 
     mixerService->setTrackIndices({ 0 });
     mixerService->setColumnCount(0, 2);
@@ -230,7 +230,7 @@ void PlayerWorkerTest::test_playback_shouldSendMidiEvents()
 {
     const auto midiService { std::make_shared<MockMidiService>() };
     const auto mixerService { std::make_shared<MixerService>() };
-    TestablePlayerWorker worker { midiService, mixerService };
+    TestablePlayerWorker worker { midiService, mixerService, nullptr };
 
     // Configure Mixer: Track 0 enabled
     mixerService->setTrackIndices({ 0 });

@@ -44,8 +44,15 @@ public:
     PortNameList availablePortNames() const override;
 
 private:
+    struct CallbackInfo
+    {
+        MidiInRtMidi * backend;
+        size_t index;
+    };
+
     std::unordered_map<size_t, std::unique_ptr<RtMidiIn>> m_openedPorts;
     std::unordered_map<size_t, InputCallback> m_callbacks;
+    std::unordered_map<size_t, std::unique_ptr<CallbackInfo>> m_callbackInfos;
 
     using Message = std::vector<unsigned char>;
     using MessageP = Message *;

@@ -49,6 +49,9 @@ pkg_check_modules(RTMIDI REQUIRED rtmidi)
 # Use pkg-config to find RtAudio
 pkg_check_modules(RTAUDIO REQUIRED rtaudio)
 
+# Use pkg-config to find JACK
+pkg_check_modules(JACK jack)
+
 # Use pkg-config to find libsndfile
 pkg_check_modules(SNDFILE REQUIRED sndfile)
 

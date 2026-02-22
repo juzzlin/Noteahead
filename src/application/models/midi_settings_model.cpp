@@ -73,6 +73,45 @@ void MidiSettingsModel::setControllerPort(const QString & name)
     }
 }
 
+bool MidiSettingsModel::jackSyncEnabled() const
+{
+    return m_settingsService->jackSyncEnabled();
+}
+
+void MidiSettingsModel::setJackSyncEnabled(bool enabled)
+{
+    if (jackSyncEnabled() != enabled) {
+        m_settingsService->setJackSyncEnabled(enabled);
+        emit jackSyncEnabledChanged();
+    }
+}
+
+bool MidiSettingsModel::jackBpmSyncEnabled() const
+{
+    return m_settingsService->jackBpmSyncEnabled();
+}
+
+void MidiSettingsModel::setJackBpmSyncEnabled(bool enabled)
+{
+    if (jackBpmSyncEnabled() != enabled) {
+        m_settingsService->setJackBpmSyncEnabled(enabled);
+        emit jackBpmSyncEnabledChanged();
+    }
+}
+
+bool MidiSettingsModel::midiSyncEnabled() const
+{
+    return m_settingsService->midiSyncEnabled();
+}
+
+void MidiSettingsModel::setMidiSyncEnabled(bool enabled)
+{
+    if (midiSyncEnabled() != enabled) {
+        m_settingsService->setMidiSyncEnabled(enabled);
+        emit midiSyncEnabledChanged();
+    }
+}
+
 QString MidiSettingsModel::debugData() const
 {
     return m_debugData;

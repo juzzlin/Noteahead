@@ -44,6 +44,7 @@ public:
 
 public slots:
     void setControllerPort(QString portName);
+    void setMidiSyncEnabled(bool enabled);
 
 signals:
     void startReceived();
@@ -102,6 +103,7 @@ private:
     void logMidiMessage(double deltaTime, MessageCR message);
 
     QString m_controllerPort;
+    bool m_midiSyncEnabled = false;
 
     std::shared_ptr<MidiBackendIn> m_midiWorkerIn;
 
@@ -111,8 +113,12 @@ private:
 
     //! Custom transport mappings for PITA devices.
     std::map<quint8, std::function<void()>> m_transportMappings = {
+        { 51, [this]() { emit stopReceived(); } }, // Arturia Keystep Pro Stop
+        { 52, [this]() { emit startReceived(); } }, // Arturia Keystep Pro Play
         { 54, [this]() { emit startReceived(); } }, // Arturia Keystep Play/Pause
         { 55, [this]() { emit stopReceived(); } }, // if Keystep sends Stop on a CC too
+        { 93, [this]() { emit stopReceived(); } }, // Standard Mackie Control Stop
+        { 94, [this]() { emit startReceived(); } }, // Standard Mackie Control Play
         // Extend with more mappings as needed
     };
 };

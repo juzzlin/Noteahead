@@ -30,6 +30,7 @@ set(HEADER_FILES
   application/service/automation_service.hpp
   application/service/copy_manager.hpp
   application/service/editor_service.hpp
+  application/service/jack_service.hpp
   application/service/keyboard_service.hpp
   application/service/midi_service.hpp
   application/service/midi_worker.hpp
@@ -119,6 +120,7 @@ set(SOURCE_FILES
   application/service/automation_service.cpp
   application/service/copy_manager.cpp
   application/service/editor_service.cpp
+  application/service/jack_service.cpp
   application/service/keyboard_service.cpp
   application/service/midi_service.cpp
   application/service/midi_worker.cpp
@@ -285,6 +287,7 @@ set(HTML_SOURCE_FILES ${QML_BASE_DIR}/Manual.html)
 
 set(PNG_SOURCE_FILES
     ${QML_BASE_DIR}/Graphics/add_box.png
+    ${QML_BASE_DIR}/Graphics/alert.png
     ${QML_BASE_DIR}/Graphics/del_box.png
     ${QML_BASE_DIR}/Graphics/delete.png
     ${QML_BASE_DIR}/Graphics/icon.png
@@ -309,6 +312,10 @@ target_include_directories(${BINARY_NAME} PRIVATE contrib/SimpleLogger/src)
 target_include_directories(${BINARY_NAME} PRIVATE contrib/Argengine/src)
 target_include_directories(${BINARY_NAME} PRIVATE ${RTAUDIO_INCLUDE_DIRS})
 target_include_directories(${BINARY_NAME} PRIVATE ${SNDFILE_INCLUDE_DIRS})
+if(JACK_FOUND)
+  target_include_directories(${BINARY_NAME} PRIVATE ${JACK_INCLUDE_DIRS})
+  target_compile_definitions(${BINARY_NAME} PRIVATE HAVE_JACK)
+endif()
 
 target_compile_definitions(${BINARY_NAME} PRIVATE $<$<OR:$<CONFIG:Debug>,$<CONFIG:RelWithDebInfo>>:QT_QML_DEBUG>)
 target_compile_definitions(${BINARY_NAME} PRIVATE QML_ROOT_DIR="${QML_ROOT_DIR}")
@@ -319,6 +326,9 @@ if(ENABLE_MIDI_DEBUG)
 endif()
 
 target_link_libraries(${BINARY_NAME} PRIVATE Qt6::Core Qt6::Quick ${RTMIDI_LIBRARIES} ${RTAUDIO_LIBRARIES} ${SNDFILE_LIBRARIES} SimpleLogger_static Argengine_static)
+if(JACK_FOUND)
+  target_link_libraries(${BINARY_NAME} PRIVATE ${JACK_LIBRARIES})
+endif()
 
 include(${CMAKE_SOURCE_DIR}/cmake/DebianPackagingDefaultQt.cmake)
 

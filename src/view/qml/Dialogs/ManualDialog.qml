@@ -10,24 +10,32 @@ Dialog {
     standardButtons: DialogButtonBox.Ok
     visible: false
 
-    ScrollView {
+    Flickable {
         id: scrollView
         anchors.fill: parent
         clip: true
-        ScrollBar.horizontal.policy: ScrollBar.AlwaysOff
+        contentHeight: contentText.height
+        contentWidth: width
+        interactive: true
+        boundsBehavior: Flickable.StopAtBounds
 
         Text {
             id: contentText
-            width: scrollView.availableWidth
+            width: scrollView.width
             textFormat: Text.RichText
             wrapMode: Text.WordWrap
             color: "white"
             onLinkActivated: link => Qt.openUrlExternally(link)
             font.pointSize: 10
-            leftPadding: 10
-            rightPadding: 10
-            topPadding: 10
-            bottomPadding: 10
+            leftPadding: 20
+            rightPadding: 20
+            topPadding: 20
+            bottomPadding: 20
+        }
+
+        ScrollBar.vertical: ScrollBar {
+            policy: ScrollBar.AsNeeded
+            anchors.right: scrollView.right
         }
     }
 
