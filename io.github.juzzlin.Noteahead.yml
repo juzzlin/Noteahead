@@ -30,10 +30,23 @@ modules:
         sha256: 7206c8b6cee43b474f43d64988fefaadfdcfc4264ed38d8de5f5d0e6ddb0a123
     builddir: true
 
+  - name: libsndfile
+    buildsystem: cmake-ninja
+    config-opts:
+      - -DBUILD_SHARED_LIBS=ON
+      - -DBUILD_PROGRAMS=OFF
+      - -DBUILD_EXAMPLES=OFF
+      - -DBUILD_TESTING=OFF
+    sources:
+      - type: archive
+        url: https://github.com/libsndfile/libsndfile/releases/download/1.2.2/libsndfile-1.2.2.tar.xz
+        sha256: 3799ca9924d31250388a4e3152a11aa2185c7f0883e355d1455a4d5dcf11f74d
+
   - name: noteahead
     buildsystem: cmake-ninja
     build-depends:
       - rtaudio
+      - libsndfile
     config-opts:
       - -DCMAKE_BUILD_TYPE=Release
       - -DCMAKE_PREFIX_PATH=/app

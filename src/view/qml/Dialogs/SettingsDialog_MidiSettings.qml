@@ -75,6 +75,55 @@ GroupBox {
             }
         }
         GroupBox {
+            title: qsTr("Synchronization")
+            Layout.fillWidth: true
+            Layout.fillHeight: true
+            GridLayout {
+                columns: 9
+                rows: 2
+                width: parent.width
+                RowLayout {
+                    Layout.column: 0
+                    Layout.columnSpan: 9
+                    Layout.row: 0
+                    Layout.fillWidth: true
+                    spacing: 20
+                    CheckBox {
+                        text: qsTr("Jack transport sync")
+                        checked: midiSettingsModel.jackSyncEnabled
+                        onCheckedChanged: midiSettingsModel.jackSyncEnabled = checked
+                        ToolTip.delay: Constants.toolTipDelay
+                        ToolTip.timeout: Constants.toolTipTimeout
+                        ToolTip.visible: hovered
+                        ToolTip.text: qsTr("Sync Noteahead playback with Jack transport")
+                    }
+                    CheckBox {
+                        text: qsTr("Jack BPM sync")
+                        enabled: midiSettingsModel.jackSyncEnabled
+                        checked: midiSettingsModel.jackBpmSyncEnabled
+                        onCheckedChanged: midiSettingsModel.jackBpmSyncEnabled = checked
+                        ToolTip.delay: Constants.toolTipDelay
+                        ToolTip.timeout: Constants.toolTipTimeout
+                        ToolTip.visible: hovered
+                        ToolTip.text: qsTr("Sync Noteahead BPM with Jack")
+                    }
+                }
+                CheckBox {
+                    text: qsTr("MIDI transport sync")
+                    Layout.column: 0
+                    Layout.columnSpan: 9
+                    Layout.row: 1
+                    Layout.fillWidth: true
+                    checked: midiSettingsModel.midiSyncEnabled
+                    onCheckedChanged: midiSettingsModel.midiSyncEnabled = checked
+                    ToolTip.delay: Constants.toolTipDelay
+                    ToolTip.timeout: Constants.toolTipTimeout
+                    ToolTip.visible: hovered
+                    ToolTip.text: qsTr("Sync Noteahead playback with MIDI transport")
+                }
+            }
+        }
+        GroupBox {
             title: qsTr("Miscellaneous")
             Layout.fillWidth: true
             Layout.fillHeight: true

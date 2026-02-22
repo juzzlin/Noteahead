@@ -32,6 +32,9 @@ class MidiSettingsModel : public QObject
 
     Q_PROPERTY(QStringList midiInPorts READ midiInPorts NOTIFY midiInPortsChanged)
     Q_PROPERTY(QString controllerPort READ controllerPort WRITE setControllerPort NOTIFY controllerPortChanged)
+    Q_PROPERTY(bool jackSyncEnabled READ jackSyncEnabled WRITE setJackSyncEnabled NOTIFY jackSyncEnabledChanged)
+    Q_PROPERTY(bool jackBpmSyncEnabled READ jackBpmSyncEnabled WRITE setJackBpmSyncEnabled NOTIFY jackBpmSyncEnabledChanged)
+    Q_PROPERTY(bool midiSyncEnabled READ midiSyncEnabled WRITE setMidiSyncEnabled NOTIFY midiSyncEnabledChanged)
     Q_PROPERTY(QString debugData READ debugData WRITE setDebugData NOTIFY debugDataChanged)
 
 public:
@@ -45,12 +48,24 @@ public:
     QString controllerPort() const;
     void setControllerPort(const QString & name);
 
+    bool jackSyncEnabled() const;
+    void setJackSyncEnabled(bool enabled);
+
+    bool jackBpmSyncEnabled() const;
+    void setJackBpmSyncEnabled(bool enabled);
+
+    bool midiSyncEnabled() const;
+    void setMidiSyncEnabled(bool enabled);
+
     QString debugData() const;
     void setDebugData(const QString & data);
 
 signals:
     void midiInPortsChanged();
     void controllerPortChanged(const QString & portName);
+    void jackSyncEnabledChanged();
+    void jackBpmSyncEnabledChanged();
+    void midiSyncEnabledChanged();
     void debugDataChanged();
 
 private:

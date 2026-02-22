@@ -55,6 +55,15 @@ void setUiUpdatesDisabledDuringPlayback(bool disabled);
 bool recordingEnabled();
 void setRecordingEnabled(bool enabled);
 
+bool jackSyncEnabled();
+void setJackSyncEnabled(bool enabled);
+
+bool jackBpmSyncEnabled();
+void setJackBpmSyncEnabled(bool enabled);
+
+bool midiSyncEnabled();
+void setMidiSyncEnabled(bool enabled);
+
 bool waveViewEnabled();
 void setWaveViewEnabled(bool enabled);
 

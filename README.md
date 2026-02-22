@@ -92,6 +92,8 @@ All Arctic Music Project songs:
 - Virtual MIDI out port (since 1.0.0+)
 - Velocity key track
   - Make e.g. your piano have less velocity on higher notes. Super cool!
+- Optional Jack transport and BPM synchronization (since 1.8.0)
+- Optional MIDI transport synchronization (since 1.8.0)
 
 ### Audio
 - Audio recorder
@@ -121,7 +123,6 @@ All Arctic Music Project songs:
 ## Future dreams (**NOT YET IMPLEMENTED**):
 
 * Horizontal visualization
-* Sync options: MIDI, Jack
 
 ##
 ## Some important design choices
@@ -177,7 +178,7 @@ Noteahead is currently being developed on Ubuntu 24.04 LTS and on Ubuntu 24.10 w
 
 Packages needed for building:
 
-    $ sudo apt install build-essential cmake pkg-config ninja-build qt6-base-dev qt6-declarative-dev qt6-tools-dev librtmidi-dev librtaudio-dev libsndfile-dev
+    $ sudo apt install build-essential cmake pkg-config ninja-build qt6-base-dev qt6-declarative-dev qt6-tools-dev librtmidi-dev librtaudio-dev libsndfile-dev libjack-jackd2-dev
 
 Additional packages needed to run:
 

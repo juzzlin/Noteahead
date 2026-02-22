@@ -1,3 +1,12 @@
+<style>
+    body {
+        font-size: 1.1em;
+        line-height: 1.4;
+    }
+    li {
+        margin-bottom: 8px;
+    }
+</style>
 <h1 style="color: orange; border-bottom: 2px solid orange;">Noteahead User Manual</h1>
 <p>Noteahead is a "simple" MIDI tracker and sequencer for Linux focusing on ease of use. It is designed for fast, keyboard-driven sequencing of external synths and drum machines, with clear handling of patch changes, automation, and CCs — no cryptic hex values required.</p>
 
@@ -105,6 +114,14 @@
 
 <h3 style="color: orange;">MIDI Side-chain</h3>
 <p>Located in Track settings, this allows one track/column to trigger MIDI CC events on another, perfect for "pumping" effects or rhythmic modulation.</p>
+
+<h2 style="color: orange; border-bottom: 1px solid #444; margin-top: 20px;">Synchronization</h2>
+<p>Noteahead can be synchronized with external audio hosts and MIDI hardware. These options are available in <code>Settings => MIDI => Synchronization</code>.</p>
+<ul>
+    <li><strong>Jack Transport Sync</strong>: When enabled, Noteahead acts as a JACK client and will follow the Play, Stop, and Rewind commands from a JACK transport master (like Carla or QjackCtl).</li>
+    <li><strong>Jack BPM Sync</strong>: (Requires Jack Transport Sync) Noteahead will follow the BPM of the JACK host and synchronize its internal timeline to the JACK sample clock for drift-free, sample-accurate playback. The BPM display in the toolbar will update to reflect the host's tempo.</li>
+    <li><strong>MIDI Transport Sync</strong>: Allows Noteahead to be started and stopped by external MIDI controllers. Support is included for standard MIDI Start/Stop messages as well as common hardware CC mappings (e.g., Arturia Keystep).</li>
+</ul>
 
 <h2 style="color: orange; border-bottom: 1px solid #444; margin-top: 20px;">Tools & Audio</h2>
 <ul>

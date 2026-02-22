@@ -30,6 +30,9 @@ class SettingsService : public QObject
     Q_PROPERTY(int visibleLines READ visibleLines WRITE setVisibleLines NOTIFY visibleLinesChanged)
     Q_PROPERTY(int trackHeaderFontSize READ trackHeaderFontSize WRITE setTrackHeaderFontSize NOTIFY trackHeaderFontSizeChanged)
     Q_PROPERTY(bool recordingEnabled READ recordingEnabled WRITE setRecordingEnabled NOTIFY recordingEnabledChanged)
+    Q_PROPERTY(bool jackSyncEnabled READ jackSyncEnabled WRITE setJackSyncEnabled NOTIFY jackSyncEnabledChanged)
+    Q_PROPERTY(bool jackBpmSyncEnabled READ jackBpmSyncEnabled WRITE setJackBpmSyncEnabled NOTIFY jackBpmSyncEnabledChanged)
+    Q_PROPERTY(bool midiSyncEnabled READ midiSyncEnabled WRITE setMidiSyncEnabled NOTIFY midiSyncEnabledChanged)
     Q_PROPERTY(bool waveViewEnabled READ waveViewEnabled WRITE setWaveViewEnabled NOTIFY waveViewEnabledChanged)
 
 public:
@@ -63,6 +66,15 @@ public:
     virtual Q_INVOKABLE bool recordingEnabled() const;
     virtual Q_INVOKABLE void setRecordingEnabled(bool enabled);
 
+    virtual Q_INVOKABLE bool jackSyncEnabled() const;
+    virtual Q_INVOKABLE void setJackSyncEnabled(bool enabled);
+
+    virtual Q_INVOKABLE bool jackBpmSyncEnabled() const;
+    virtual Q_INVOKABLE void setJackBpmSyncEnabled(bool enabled);
+
+    virtual Q_INVOKABLE bool midiSyncEnabled() const;
+    virtual Q_INVOKABLE void setMidiSyncEnabled(bool enabled);
+
     virtual Q_INVOKABLE bool waveViewEnabled() const;
     virtual Q_INVOKABLE void setWaveViewEnabled(bool enabled);
 
@@ -79,6 +91,9 @@ signals:
     void visibleLinesChanged();
     void trackHeaderFontSizeChanged();
     void recordingEnabledChanged();
+    void jackSyncEnabledChanged();
+    void jackBpmSyncEnabledChanged();
+    void midiSyncEnabledChanged();
     void waveViewEnabledChanged();
 
 private:

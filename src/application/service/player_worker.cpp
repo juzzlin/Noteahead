@@ -20,6 +20,7 @@
 #include "../../domain/instrument_settings.hpp"
 #include "../../domain/midi_note_data.hpp"
 #include "../../domain/note_data.hpp"
+#include "jack_service.hpp"
 #include "midi_service.hpp"
 #include "mixer_service.hpp"
 
@@ -30,9 +31,10 @@ namespace noteahead {
 
 static const auto TAG = "PlayerWorker";
 
-PlayerWorker::PlayerWorker(MidiServiceS midiService, MixerServiceS mixerService)
+PlayerWorker::PlayerWorker(MidiServiceS midiService, MixerServiceS mixerService, JackServiceS jackService)
   : m_midiService { midiService }
   , m_mixerService { mixerService }
+  , m_jackService { jackService }
 {
     connect(m_mixerService.get(), &MixerService::trackMuted, this, &PlayerWorker::onMixerChanged, Qt::DirectConnection);
     connect(m_mixerService.get(), &MixerService::trackSoloed, this, &PlayerWorker::onMixerChanged, Qt::DirectConnection);
@@ -177,6 +179,11 @@ quint64 PlayerWorker::effectiveTick(quint64 tick, quint64 minTick, quint64 maxTi
     }
 }
 
+void PlayerWorker::setJackBpmSyncEnabled(bool enabled)
+{
+    m_jackBpmSyncEnabled = enabled;
+}
+
 void PlayerWorker::processEvents()
 {
     if (m_eventMap.empty()) {
@@ -193,8 +200,6 @@ void PlayerWorker::processEvents()
     juzzlin::L(TAG).debug() << "Lines per beat: " << m_timing.linesPerBeat;
     juzzlin::L(TAG).debug() << "Ticks per line: " << m_timing.ticksPerLine;
 
-    const double tickDurationS = 60.0 / (static_cast<double>(m_timing.beatsPerMinute * m_timing.linesPerBeat * m_timing.ticksPerLine));
-    const auto tickDuration = std::chrono::duration<double> { tickDurationS };
     const auto startTime = std::chrono::steady_clock::now();
 
     auto tick = minTick;
@@ -223,10 +228,6 @@ void PlayerWorker::processEvents()
         }
 
         quint64 distToLoopEnd = std::numeric_limits<quint64>::max();
-        // If looping, we must wrap around at maxTick.
-        // If not looping, we stop at maxTick (effectively), so we don't need to jump beyond it unless empty.
-        // But the loop condition is tick <= maxTick.
-        // If effectiveTick is near maxTick, distance to wrap is small.
         distToLoopEnd = maxTick - effectiveTick + 1;
 
         step = std::min({ distToNextLine, distToNextEvent, distToLoopEnd });
@@ -235,7 +236,22 @@ void PlayerWorker::processEvents()
         }
 
         // Calculate next tick's start time
-        const auto nextTickTime = startTime + std::chrono::duration_cast<std::chrono::steady_clock::duration>((tick - minTick + step) * tickDuration);
+        std::chrono::steady_clock::time_point nextTickTime;
+        if (m_jackBpmSyncEnabled) {
+            const double currentBpm = m_jackService->bpm();
+            const double jackSampleRate = m_jackService->sampleRate();
+            const double framesPerTick = (jackSampleRate * 60.0) / (currentBpm * m_timing.linesPerBeat * m_timing.ticksPerLine);
+            const double tickOffset = static_cast<double>(tick - minTick + step);
+            const auto framesToWait = static_cast<long long>(tickOffset * framesPerTick);
+            
+            // We sync Noteahead's steady_clock timeline to JACK's sample clock
+            nextTickTime = startTime + std::chrono::duration_cast<std::chrono::steady_clock::duration>(
+                                          std::chrono::duration<double>(framesToWait / jackSampleRate));
+        } else {
+            const double tickDurationS = 60.0 / (static_cast<double>(m_timing.beatsPerMinute * m_timing.linesPerBeat * m_timing.ticksPerLine));
+            const auto tickDuration = std::chrono::duration<double> { tickDurationS };
+            nextTickTime = startTime + std::chrono::duration_cast<std::chrono::steady_clock::duration>((tick - minTick + step) * tickDuration);
+        }
 
         std::unique_lock<std::mutex> lock { m_mutex };
 

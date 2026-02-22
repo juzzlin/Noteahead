@@ -18,6 +18,7 @@ import QtQuick 2.15
 import QtQuick.Controls 2.15
 import QtQuick.Controls.Universal 2.15
 import QtQuick.Dialogs
+import QtQuick.Layouts
 import Noteahead 1.0
 import "Dialogs"
 import "Editor"
@@ -122,9 +123,20 @@ ApplicationWindow {
             }
         }
         property alias errorMessage: errorMessage.text
-        Label {
-            id: errorMessage
-            anchors.centerIn: parent
+        RowLayout {
+            anchors.fill: parent
+            spacing: 20
+            Image {
+                Layout.preferredWidth: 48
+                Layout.preferredHeight: 48
+                sourceSize: Qt.size(48, 48)
+                source: "Graphics/alert.png"
+            }
+            Label {
+                id: errorMessage
+                Layout.fillWidth: true
+                wrapMode: Text.Wrap
+            }
         }
         Component.onCompleted: visible = false
     }

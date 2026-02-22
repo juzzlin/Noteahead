@@ -30,6 +30,7 @@ namespace noteahead {
 class Event;
 class Instrument;
 class InstrumentSettings;
+class JackService;
 class MidiService;
 class MixerService;
 class NoteData;
@@ -53,7 +54,8 @@ public:
 
     using MidiServiceS = std::shared_ptr<MidiService>;
     using MixerServiceS = std::shared_ptr<MixerService>;
-    PlayerWorker(MidiServiceS midiService, MixerServiceS mixerService);
+    using JackServiceS = std::shared_ptr<JackService>;
+    PlayerWorker(MidiServiceS midiService, MixerServiceS mixerService, JackServiceS jackService);
 
     ~PlayerWorker() override;
 
@@ -65,6 +67,8 @@ public:
 
     bool isLooping() const;
     void setIsLooping(bool isLooping);
+
+    void setJackBpmSyncEnabled(bool enabled);
 
 signals:
     void isPlayingChanged();
@@ -83,6 +87,7 @@ private:
 
     MidiServiceS m_midiService;
     MixerServiceS m_mixerService;
+    JackServiceS m_jackService;
     
     Timing m_timing;
 
@@ -102,11 +107,11 @@ private:
 
     std::atomic_bool m_isPlaying = false;
     std::atomic_bool m_isLooping = false;
+    std::atomic_bool m_jackBpmSyncEnabled = false;
 
     std::condition_variable m_cv;
     std::mutex m_mutex;
     bool m_mixerChanged = false;
-
 private slots:
     void onMixerChanged();
 

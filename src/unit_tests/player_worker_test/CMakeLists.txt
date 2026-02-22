@@ -8,6 +8,7 @@ set(SRC
     ../../application/service/mixer_service.cpp
     ../../application/service/midi_worker_in.cpp
     ../../application/service/midi_worker_out.cpp
+    ../../application/service/jack_service.cpp
     ../../application/service/midi_worker.cpp
     ../../application/instrument_request.cpp
     ../../common/constants.cpp
@@ -30,10 +31,14 @@ set(SRC
     ../../infra/midi/implementation/librtmidi/midi_out_rt_midi.cpp
     ../../infra/midi/midi_port.cpp
     ../../infra/settings.cpp
+    ../../application/service/settings_service.cpp
     ../../application/service/random_service.cpp
 )
 
 qt_add_executable(${NAME} ${SRC})
 set_target_properties(${NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${UNIT_TEST_BASE_DIR})
 add_test(${NAME} ${UNIT_TEST_BASE_DIR}/${NAME})
-target_link_libraries(${NAME} PRIVATE Qt${QT_VERSION_MAJOR}::Test SimpleLogger ${RTMIDI_LIBRARIES} ${RTAUDIO_LIBRARIES})
+target_link_libraries(${NAME} PRIVATE Qt${QT_VERSION_MAJOR}::Test Qt${QT_VERSION_MAJOR}::Gui SimpleLogger ${RTMIDI_LIBRARIES} ${RTAUDIO_LIBRARIES} ${JACK_LIBRARIES})
+if(JACK_FOUND)
+  target_compile_definitions(${NAME} PRIVATE HAVE_JACK)
+endif()

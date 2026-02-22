@@ -23,6 +23,7 @@ set(SRC
     ../../application/service/midi_worker.cpp
     ../../application/service/midi_worker_in.cpp
     ../../application/service/midi_worker_out.cpp
+    ../../application/service/jack_service.cpp
     ../../application/service/player_worker.cpp
     ../../application/service/settings_service.cpp
     ../../infra/settings.cpp
@@ -64,4 +65,7 @@ set(SRC
 qt_add_executable(${NAME} ${SRC})
 set_target_properties(${NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${UNIT_TEST_BASE_DIR})
 add_test(${NAME} ${UNIT_TEST_BASE_DIR}/${NAME})
-target_link_libraries(${NAME} PRIVATE Qt${QT_VERSION_MAJOR}::Test Qt${QT_VERSION_MAJOR}::Gui ${RTMIDI_LIBRARIES} SimpleLogger)
+target_link_libraries(${NAME} PRIVATE Qt${QT_VERSION_MAJOR}::Test Qt${QT_VERSION_MAJOR}::Gui ${RTMIDI_LIBRARIES} SimpleLogger ${JACK_LIBRARIES})
+if(JACK_FOUND)
+  target_compile_definitions(${NAME} PRIVATE HAVE_JACK)
+endif()

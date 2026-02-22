@@ -17,6 +17,7 @@
 
 #include "../../contrib/SimpleLogger/src/simple_logger.hpp"
 #include "../../domain/song.hpp"
+#include "jack_service.hpp"
 #include "player_worker.hpp"
 #include "settings_service.hpp"
 
@@ -32,14 +33,21 @@ PlayerService::PlayerService(
   AutomationServiceS automationService,
   SettingsServiceS settingsService,
   SideChainServiceS sideChainService,
+  JackServiceS jackService,
   QObject * parent)
   : QObject { parent }
   , m_automationService { automationService }
   , m_settingsService { settingsService }
   , m_sideChainService { sideChainService }
-  , m_playerWorker { std::make_unique<PlayerWorker>(midiService, mixerService) }
+  , m_jackService { jackService }
+  , m_playerWorker { std::make_unique<PlayerWorker>(midiService, mixerService, jackService) }
 {
     initializeWorker();
+    connect(m_jackService.get(), &JackService::bpmChanged, this, [this]() {
+        if (m_settingsService->jackBpmSyncEnabled()) {
+            emit beatsPerMinuteChanged();
+        }
+    });
 }
 
 void PlayerService::setSongPosition(quint64 position)
@@ -56,6 +64,7 @@ void PlayerService::initializeWorker()
 {
     connect(m_playerWorker.get(), &PlayerWorker::tickUpdated, this, &PlayerService::tickUpdated, Qt::QueuedConnection);
     connect(m_playerWorker.get(), &PlayerWorker::isPlayingChanged, this, &PlayerService::isPlayingChanged, Qt::QueuedConnection);
+    connect(m_playerWorker.get(), &PlayerWorker::songEnded, this, &PlayerService::songEnded, Qt::QueuedConnection);
     m_playerWorker->moveToThread(&m_playerWorkerThread);
     m_playerWorkerThread.start(QThread::HighestPriority);
 }
@@ -64,6 +73,7 @@ void PlayerService::initializeWorkerWithSongData()
 {
     const PlayerWorker::Timing timing { m_song->beatsPerMinute(), m_song->linesPerBeat(), m_song->ticksPerLine() };
     m_song->setAutoNoteOffOffset(std::chrono::milliseconds { m_settingsService->autoNoteOffOffset() });
+    m_playerWorker->setJackBpmSyncEnabled(m_settingsService->jackBpmSyncEnabled());
     if (m_playerWorker->isLooping()) {
         m_playerWorker->initialize(m_song->renderToEvents(m_automationService, m_sideChainService, m_songPosition, m_songPosition + 1), timing);
     } else {
@@ -86,6 +96,10 @@ void PlayerService::stopWorker()
 
 bool PlayerService::play()
 {
+    if (isPlaying()) {
+        return true;
+    }
+
     juzzlin::L(TAG).debug() << "Song for playback requested";
 
     emit songRequested();
@@ -123,7 +137,16 @@ bool PlayerService::isLooping() const
 
 void PlayerService::setIsLooping(bool isLooping)
 {
-    return m_playerWorker->setIsLooping(isLooping);
+    m_playerWorker->setIsLooping(isLooping);
+    emit isLoopingChanged();
+}
+
+double PlayerService::beatsPerMinute() const
+{
+    if (m_settingsService->jackBpmSyncEnabled()) {
+        return m_jackService->bpm();
+    }
+    return m_song ? m_song->beatsPerMinute() : 120.0;
 }
 
 PlayerService::~PlayerService()
