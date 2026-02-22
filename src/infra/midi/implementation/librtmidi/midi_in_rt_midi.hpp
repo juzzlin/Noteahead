@@ -35,6 +35,7 @@ public:
 
     void openPort(MidiPortCR port) override;
     void closePort(MidiPortCR port) override;
+    bool isPortOpen(MidiPortCR port) const override;
 
     std::string midiApiName() const override;
 

@@ -47,7 +47,15 @@ MidiAddress MidiWorkerIn::currentAddress(uint8_t channel) const
 
 void MidiWorkerIn::setControllerPort(QString portName)
 {
-    if (portName == m_controllerPort && !portName.isEmpty()) {
+    const bool isSamePort = portName == m_controllerPort && !portName.isEmpty();
+    bool isActuallyOpen = false;
+    if (isSamePort) {
+        if (const auto port = midiBackend()->portByName(portName.toStdString()); port) {
+            isActuallyOpen = m_midiWorkerIn->isPortOpen(*port);
+        }
+    }
+
+    if (isSamePort && isActuallyOpen) {
         return;
     }
 

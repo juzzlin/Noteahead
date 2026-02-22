@@ -45,6 +45,7 @@ public:
     using MidiPortCR = const MidiPort &;
     virtual void openPort(MidiPortCR port);
     virtual void closePort(MidiPortCR port);
+    virtual bool isPortOpen(MidiPortCR port) const;
 
 protected:
     void setPorts(PortList devices);

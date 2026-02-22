@@ -79,6 +79,11 @@ void MidiBackend::closePort(MidiPortCR)
 {
 }
 
+bool MidiBackend::isPortOpen(MidiPortCR) const
+{
+    return false;
+}
+
 MidiBackend::PortNameList MidiBackend::portNames() const
 {
     MidiBackend::PortNameList portNameList;

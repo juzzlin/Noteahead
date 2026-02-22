@@ -36,7 +36,6 @@ void MidiInRtMidi::updatePorts()
     }
     setPorts(ports);
     invalidatePortNameCache();
-    m_openedPorts.clear();
 }
 
 MidiBackend::PortNameList MidiInRtMidi::availablePortNames() const
@@ -72,6 +71,11 @@ void MidiInRtMidi::closePort(MidiPortCR port)
     }
 }
 
+bool MidiInRtMidi::isPortOpen(MidiPortCR port) const
+{
+    return m_openedPorts.contains(port.index());
+}
+
 std::string MidiInRtMidi::midiApiName() const
 {
     return RtMidi::getApiDisplayName(RtMidiIn {}.getCurrentApi());
@@ -80,6 +84,7 @@ std::string MidiInRtMidi::midiApiName() const
 void MidiInRtMidi::setCallbackForPort(const MidiPort & port, InputCallback callback)
 {
     if (const auto index = port.index(); m_openedPorts.contains(index)) {
+        m_openedPorts[index]->cancelCallback();
         m_callbacks[index] = std::move(callback);
         m_callbackInfos[index] = std::make_unique<CallbackInfo>(this, index);
         m_openedPorts[index]->setCallback(&MidiInRtMidi::staticCallback, m_callbackInfos[index].get());
