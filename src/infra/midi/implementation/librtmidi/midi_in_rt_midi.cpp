@@ -80,6 +80,7 @@ std::string MidiInRtMidi::midiApiName() const
 void MidiInRtMidi::setCallbackForPort(const MidiPort & port, InputCallback callback)
 {
     if (const auto index = port.index(); m_openedPorts.contains(index)) {
+        m_openedPorts[index]->cancelCallback();
         m_callbacks[index] = std::move(callback);
         m_callbackInfos[index] = std::make_unique<CallbackInfo>(this, index);
         m_openedPorts[index]->setCallback(&MidiInRtMidi::staticCallback, m_callbackInfos[index].get());

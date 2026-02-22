@@ -15,6 +15,8 @@ Bug fixes:
 
 * Don't allow interactions with AudioWaveView while playing
 
+* Fix GitHub Issue #37: Changing MIDI controller doesn't remove the previous handler
+
 Other:
 
 1.7.1
