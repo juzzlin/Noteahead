@@ -9539,6 +9539,14 @@ Un apostrofo indica la sillaba accentata: A&apos;merica</translation>
         <translation>Sincronizzazione di fase</translation>
     </message>
     <message>
+        <source>Phase Randomness</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>How random each note&apos;s starting phases are. 100% starts every voice somewhere new, so notes of a unison stack differ in loudness; 0% starts every note from the same spread, so each is as loud as the next. Off while Phase Sync is on.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>LPF Slope</source>
         <translation type="unfinished"></translation>
     </message>
