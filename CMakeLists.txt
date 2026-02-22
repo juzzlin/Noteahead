@@ -20,8 +20,8 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 option(BUILD_TESTS "Build unit tests." ON)
-
 option(ENABLE_MIDI_DEBUG "Enable MIDI debug messages." OFF)
+option(ENABLE_JACK_SUPPORT "Enable JACK support." ON)
 
 if(CMAKE_COMPILER_IS_GNUCXX OR MINGW OR ${CMAKE_CXX_COMPILER_ID} STREQUAL "Clang")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wpedantic")
@@ -50,7 +50,9 @@ pkg_check_modules(RTMIDI REQUIRED rtmidi)
 pkg_check_modules(RTAUDIO REQUIRED rtaudio)
 
 # Use pkg-config to find JACK
-pkg_check_modules(JACK jack)
+if(ENABLE_JACK_SUPPORT)
+    pkg_check_modules(JACK REQUIRED jack)
+endif()
 
 # Use pkg-config to find libsndfile
 pkg_check_modules(SNDFILE REQUIRED sndfile)
