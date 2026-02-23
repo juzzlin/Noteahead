@@ -42,7 +42,7 @@ GroupBox {
             ToolTip.timeout: Constants.toolTipTimeout
             ToolTip.visible: hovered
             ToolTip.text: qsTr("Start line")
-            onValueChanged: model.line0 = value
+            onValueModified: model.line0 = value
         }
         Label {
             text: qsTr("End line")
@@ -64,7 +64,7 @@ GroupBox {
             ToolTip.timeout: Constants.toolTipTimeout
             ToolTip.visible: hovered
             ToolTip.text: qsTr("End line")
-            onValueChanged: model.line1 = value
+            onValueModified: model.line1 = value
         }
         Label {
             text: qsTr("Start value")
@@ -74,8 +74,8 @@ GroupBox {
         }
         SpinBox {
             id: startValueSpinBox
-            from: 0
-            to: 127
+            from: -100
+            to: 100
             value: model.value0
             editable: true
             Keys.onReturnPressed: focus = false
@@ -86,18 +86,18 @@ GroupBox {
             ToolTip.timeout: Constants.toolTipTimeout
             ToolTip.visible: hovered
             ToolTip.text: qsTr("Start value")
-            onValueChanged: model.value0 = value
+            onValueModified: model.value0 = value
         }
         Label {
             text: qsTr("End value")
             Layout.row: 0
-            Layout.column: 5
+            Layout.column: 4
             Layout.fillWidth: true
         }
         SpinBox {
             id: endValueSpinBox
-            from: 0
-            to: 127
+            from: -100
+            to: 100
             value: model.value1
             editable: true
             enabled: model.line0 !== model.line1
@@ -109,7 +109,7 @@ GroupBox {
             ToolTip.timeout: Constants.toolTipTimeout
             ToolTip.visible: hovered
             ToolTip.text: qsTr("End value")
-            onValueChanged: model.value1 = value
+            onValueModified: model.value1 = value
         }
         Button {
             id: rootItem

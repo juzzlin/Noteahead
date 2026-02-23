@@ -180,7 +180,7 @@ bool PitchBendAutomationsModel::setData(const QModelIndex & index, const QVarian
     } break;
     case DataRole::Value0: {
         auto interpolation = PitchBendAutomation.interpolation();
-        if (const auto newValue0 = static_cast<uint8_t>(value.toUInt()); interpolation.value0 != newValue0) {
+        if (const auto newValue0 = value.toInt(); interpolation.value0 != newValue0) {
             interpolation.value0 = newValue0;
             PitchBendAutomation.setInterpolation(interpolation);
             changed = true;
@@ -188,7 +188,7 @@ bool PitchBendAutomationsModel::setData(const QModelIndex & index, const QVarian
     } break;
     case DataRole::Value1: {
         auto interpolation = PitchBendAutomation.interpolation();
-        if (const auto newValue1 = static_cast<uint8_t>(value.toUInt()); interpolation.value1 != newValue1) {
+        if (const auto newValue1 = value.toInt(); interpolation.value1 != newValue1) {
             interpolation.value1 = newValue1;
             PitchBendAutomation.setInterpolation(interpolation);
             changed = true;

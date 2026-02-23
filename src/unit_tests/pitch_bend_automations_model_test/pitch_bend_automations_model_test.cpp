@@ -41,8 +41,8 @@ void PitchBendAutomationsModelTest::test_addPitchBendAutomations_shouldAddAutoma
     QCOMPARE(model.data(model.index(0), static_cast<int>(PitchBendAutomationsModel::DataRole::Line1)), static_cast<quint64>(automation.interpolation().line1));
     QCOMPARE(model.data(model.index(0), static_cast<int>(PitchBendAutomationsModel::DataRole::Pattern)), static_cast<quint64>(automation.location().pattern()));
     QCOMPARE(model.data(model.index(0), static_cast<int>(PitchBendAutomationsModel::DataRole::Track)), static_cast<quint64>(automation.location().track()));
-    QCOMPARE(model.data(model.index(0), static_cast<int>(PitchBendAutomationsModel::DataRole::Value0)), static_cast<quint64>(automation.interpolation().value0));
-    QCOMPARE(model.data(model.index(0), static_cast<int>(PitchBendAutomationsModel::DataRole::Value1)), static_cast<quint64>(automation.interpolation().value1));
+    QCOMPARE(model.data(model.index(0), static_cast<int>(PitchBendAutomationsModel::DataRole::Value0)), automation.interpolation().value0);
+    QCOMPARE(model.data(model.index(0), static_cast<int>(PitchBendAutomationsModel::DataRole::Value1)), automation.interpolation().value1);
 }
 
 void PitchBendAutomationsModelTest::test_requestPitchBendAutomations_shouldFilterAutomations()
@@ -161,12 +161,12 @@ void PitchBendAutomationsModelTest::test_setData_shouldUpdateAutomationData()
     QVERIFY(!model.setData(index, 321u, static_cast<int>(Role::Line1)));
 
     // Try setting new value0 and value1
-    QVERIFY(model.setData(index, 75u, static_cast<int>(Role::Value0)));
-    QCOMPARE(model.data(index, static_cast<int>(Role::Value0)).toUInt(), 75u);
-    QVERIFY(!model.setData(index, 75u, static_cast<int>(Role::Value0)));
-    QVERIFY(model.setData(index, 25u, static_cast<int>(Role::Value1)));
-    QCOMPARE(model.data(index, static_cast<int>(Role::Value1)).toUInt(), 25u);
-    QVERIFY(!model.setData(index, 25u, static_cast<int>(Role::Value1)));
+    QVERIFY(model.setData(index, 75, static_cast<int>(Role::Value0)));
+    QCOMPARE(model.data(index, static_cast<int>(Role::Value0)).toInt(), 75);
+    QVERIFY(!model.setData(index, 75, static_cast<int>(Role::Value0)));
+    QVERIFY(model.setData(index, 25, static_cast<int>(Role::Value1)));
+    QCOMPARE(model.data(index, static_cast<int>(Role::Value1)).toInt(), 25);
+    QVERIFY(!model.setData(index, 25, static_cast<int>(Role::Value1)));
 
     // These should not be settable
     QVERIFY(!model.setData(index, 8u, static_cast<int>(Role::Pattern)));
@@ -186,11 +186,31 @@ void PitchBendAutomationsModelTest::test_setData_shouldUpdateAutomationData()
     QCOMPARE(updatedAutomation->enabled(), model.data(index, static_cast<int>(Role::Enabled)).toBool());
     QCOMPARE(updatedAutomation->interpolation().line0, model.data(index, static_cast<int>(Role::Line0)).toUInt());
     QCOMPARE(updatedAutomation->interpolation().line1, model.data(index, static_cast<int>(Role::Line1)).toUInt());
-    QCOMPARE(updatedAutomation->interpolation().value0, model.data(index, static_cast<int>(Role::Value0)).toUInt());
-    QCOMPARE(updatedAutomation->interpolation().value1, model.data(index, static_cast<int>(Role::Value1)).toUInt());
+    QCOMPARE(updatedAutomation->interpolation().value0, model.data(index, static_cast<int>(Role::Value0)).toInt());
+    QCOMPARE(updatedAutomation->interpolation().value1, model.data(index, static_cast<int>(Role::Value1)).toInt());
     QCOMPARE(updatedAutomation->location().pattern(), model.data(index, static_cast<int>(Role::Pattern)).toUInt());
     QCOMPARE(updatedAutomation->location().track(), model.data(index, static_cast<int>(Role::Track)).toUInt());
     QCOMPARE(updatedAutomation->location().column(), model.data(index, static_cast<int>(Role::Column)).toUInt());
+}
+
+void PitchBendAutomationsModelTest::test_setData_shouldHandleNegativeValues()
+{
+    using Role = PitchBendAutomationsModel::DataRole;
+
+    const AutomationLocation location { 1, 2, 3 };
+    const PitchBendAutomation::InterpolationParameters interpolation { 11, 22, 0, 0 };
+    PitchBendAutomation automation { 42, location, interpolation, "" };
+
+    PitchBendAutomationsModel model;
+    model.setPitchBendAutomations({ automation });
+    QModelIndex index = model.index(0);
+
+    // Try setting negative values
+    QVERIFY(model.setData(index, -50, static_cast<int>(Role::Value0)));
+    QCOMPARE(model.data(index, static_cast<int>(Role::Value0)).toInt(), -50);
+
+    QVERIFY(model.setData(index, -100, static_cast<int>(Role::Value1)));
+    QCOMPARE(model.data(index, static_cast<int>(Role::Value1)).toInt(), -100);
 }
 
 void PitchBendAutomationsModelTest::test_removeAt_shouldRemoveAutomationData()

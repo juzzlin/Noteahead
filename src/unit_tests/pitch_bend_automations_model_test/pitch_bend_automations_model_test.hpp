@@ -31,6 +31,7 @@ private slots:
     void test_requestPitchBendAutomations_shouldFilterAutomations();
 
     void test_setData_shouldUpdateAutomationData();
+    void test_setData_shouldHandleNegativeValues();
     void test_removeAt_shouldRemoveAutomationData();
 };
 
