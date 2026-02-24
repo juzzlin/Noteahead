@@ -690,7 +690,6 @@ int Application::initializeTracker()
 
     initializeApplicationEngine();
     connectServices();
-    m_jackService->initialize();
     m_stateMachine->calculateState(StateMachine::Action::ApplicationInitialized);
 
     return m_application->exec();
