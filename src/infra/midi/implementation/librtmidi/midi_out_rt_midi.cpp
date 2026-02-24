@@ -27,7 +27,7 @@ namespace noteahead {
 static const auto TAG = "MidiBackendRtMidi";
 
 MidiOutRtMidi::MidiOutRtMidi()
-  : MidiBackendOut { { "Noteahead Virtual MIDI Out" } }
+  : MidiBackendOut { { "Noteahead MIDI Out" } }
 {
     for (auto && virtualPort : virtualPorts()) {
         openVirtualPort(virtualPort);
