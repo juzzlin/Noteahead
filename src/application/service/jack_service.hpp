@@ -19,10 +19,15 @@
 #include <QObject>
 #include <QCoreApplication>
 #include <memory>
+#include <atomic>
+#include <thread>
 
 #ifdef HAVE_JACK
 #include <jack/jack.h>
 #endif
+
+#include <sndfile.h>
+#include "../../infra/audio/ring_buffer.hpp"
 
 namespace noteahead {
 
@@ -45,6 +50,10 @@ public:
     jack_nframes_t currentFrame() const;
 #endif
 
+    void startRecording(const QString & filePath);
+    void stopRecording();
+    bool isRecording() const;
+
 signals:
     void playRequested();
     void stopRequested();
@@ -57,14 +66,24 @@ private slots:
 
 private:
     void deinitialize();
+    void diskWriteLoop();
 
 #ifdef HAVE_JACK
     static int processCallback(jack_nframes_t nframes, void * arg);
     jack_client_t * m_client = nullptr;
+    jack_port_t * m_inputPortL = nullptr;
+    jack_port_t * m_inputPortR = nullptr;
     jack_transport_state_t m_lastState = JackTransportStopped;
     jack_nframes_t m_lastFrame = 0;
     double m_lastBpm = 120.0;
 #endif
+
+    std::atomic<bool> m_isRecording { false };
+    SNDFILE * m_sndFile = nullptr;
+    SF_INFO m_sfInfo = {};
+    RingBuffer<int32_t> m_recordingBuffer;
+    std::thread m_diskWriteThread;
+    std::atomic<bool> m_stopThread { false };
 
     SettingsServiceS m_settingsService;
 };

@@ -16,6 +16,8 @@
 #include "audio_service.hpp"
 
 #include "../../contrib/SimpleLogger/src/simple_logger.hpp"
+#include "../../infra/audio/implementation/jack/audio_recorder_jack.hpp"
+#include "../../infra/audio/implementation/librtaudio/audio_recorder_rt_audio.hpp"
 #include "audio_worker.hpp"
 #include "settings_service.hpp"
 
@@ -26,11 +28,18 @@ namespace noteahead {
 
 static const auto TAG = "AudioService";
 
-AudioService::AudioService(SettingsServiceS settingsService, QObject * parent)
+AudioService::AudioService(SettingsServiceS settingsService, JackServiceS jackService, QObject * parent)
   : QObject { parent }
 {
-    const auto api = settingsService->jackSyncEnabled() ? RtAudio::UNSPECIFIED : RtAudio::LINUX_ALSA;
-    m_audioWorker = std::make_unique<AudioWorker>(api);
+    std::unique_ptr<AudioRecorder> audioRecorder;
+
+    if (settingsService->jackSyncEnabled()) {
+        audioRecorder = std::make_unique<AudioRecorderJack>(jackService);
+    } else {
+        audioRecorder = std::make_unique<AudioRecorderRtAudio>(RtAudio::UNSPECIFIED);
+    }
+
+    m_audioWorker = std::make_unique<AudioWorker>(std::move(audioRecorder));
     initializeWorker();
 }
 

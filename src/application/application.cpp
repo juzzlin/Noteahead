@@ -71,11 +71,11 @@ Application::Application(int & argc, char ** argv)
   , m_application { std::make_unique<QGuiApplication>(argc, argv) }
   , m_applicationService { std::make_shared<ApplicationService>() }
   , m_settingsService { std::make_shared<SettingsService>() }
-  , m_audioService { std::make_shared<AudioService>(m_settingsService) }
-  , m_automationService { std::make_shared<AutomationService>() }
   , m_selectionService { std::make_shared<SelectionService>() }
   , m_editorService { std::make_shared<EditorService>(m_selectionService, m_settingsService) }
   , m_jackService { std::make_shared<JackService>(m_settingsService) }
+  , m_audioService { std::make_shared<AudioService>(m_settingsService, m_jackService) }
+  , m_automationService { std::make_shared<AutomationService>() }
   , m_eventSelectionModel { std::make_shared<EventSelectionModel>() }
   , m_midiService { std::make_shared<MidiService>() }
   , m_mixerService { std::make_shared<MixerService>() }
@@ -582,36 +582,11 @@ QString Application::buildAudioFileName() const
 void Application::applyAudioRecording(bool isPlaying)
 {
     if (isPlaying) {
-        if (const auto projectFileName = m_editorService->currentFileName(); !projectFileName.isEmpty()) {
-            QStringList activeTrackAndSoloedColumnNames;
-            for (auto trackIndex : m_editorService->trackIndices()) {
-                if (m_mixerService->shouldTrackPlay(trackIndex)) {
-                    QStringList soloedColumnNames;
-                    if (m_mixerService->hasSoloedColumns(trackIndex)) {
-                        for (quint64 columnIndex = 0; columnIndex < m_editorService->columnCount(trackIndex); columnIndex++) {
-                            if (m_mixerService->isColumnSoloed(trackIndex, columnIndex)) {
-                                if (const auto & columnName = m_editorService->columnName(trackIndex, columnIndex); !columnName.isEmpty()) {
-                                    soloedColumnNames << columnName;
-                                }
-                            }
-                        }
-                    }
-
-                    auto trackName = m_editorService->trackName(trackIndex);
-                    if (!soloedColumnNames.isEmpty()) {
-                        trackName += "_" + soloedColumnNames.join("_");
-                    }
-                    activeTrackAndSoloedColumnNames << trackName;
-                }
-            }
-            if (const auto audioFileName = buildAudioFileName(); !audioFileName.isEmpty()) {
-                juzzlin::L(TAG).info() << "Recording audio to " << std::quoted(audioFileName.toStdString());
-                m_audioService->startRecording(audioFileName, static_cast<uint32_t>(m_settingsService->audioBufferSize()));
-            } else {
-                juzzlin::L(TAG).error() << "Output audio filename is empty!";
-            }
+        if (const auto audioFileName = buildAudioFileName(); !audioFileName.isEmpty()) {
+            juzzlin::L(TAG).info() << "Recording audio to " << std::quoted(audioFileName.toStdString());
+            m_audioService->startRecording(audioFileName, static_cast<uint32_t>(m_settingsService->audioBufferSize()));
         } else {
-            m_applicationService->requestAlertDialog(tr("Save project before recording audio!"));
+            juzzlin::L(TAG).error() << "Output audio filename is empty!";
         }
     } else {
         m_audioService->stopRecording();

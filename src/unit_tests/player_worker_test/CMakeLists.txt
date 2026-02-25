@@ -38,7 +38,7 @@ set(SRC
 qt_add_executable(${NAME} ${SRC})
 set_target_properties(${NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${UNIT_TEST_BASE_DIR})
 add_test(${NAME} ${UNIT_TEST_BASE_DIR}/${NAME})
-target_link_libraries(${NAME} PRIVATE Qt${QT_VERSION_MAJOR}::Test Qt${QT_VERSION_MAJOR}::Gui SimpleLogger ${RTMIDI_LIBRARIES} ${RTAUDIO_LIBRARIES} ${JACK_LIBRARIES})
+target_link_libraries(${NAME} PRIVATE Qt${QT_VERSION_MAJOR}::Test Qt${QT_VERSION_MAJOR}::Gui SimpleLogger ${RTMIDI_LIBRARIES} ${RTAUDIO_LIBRARIES} ${JACK_LIBRARIES} ${SNDFILE_LIBRARIES})
 if(JACK_FOUND)
   target_compile_definitions(${NAME} PRIVATE HAVE_JACK)
 endif()

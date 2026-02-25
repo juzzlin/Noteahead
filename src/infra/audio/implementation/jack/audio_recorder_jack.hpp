@@ -1,5 +1,5 @@
 // This file is part of Noteahead.
-// Copyright (C) 2025 Jussi Lind <jussi.lind@iki.fi>
+// Copyright (C) 2026 Jussi Lind <jussi.lind@iki.fi>
 //
 // Noteahead is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -13,37 +13,35 @@
 // You should have received a copy of the GNU General Public License
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef AUDIO_WORKER_HPP
-#define AUDIO_WORKER_HPP
+#ifndef AUDIO_RECORDER_JACK_HPP
+#define AUDIO_RECORDER_JACK_HPP
 
-#include <QObject>
-#include <QVariantList>
-
-#include <RtAudio.h>
+#include "../../audio_recorder.hpp"
 #include <memory>
 
 namespace noteahead {
 
-class AudioRecorder;
+class JackService;
 
-class AudioWorker : public QObject
+class AudioRecorderJack : public AudioRecorder
 {
-    Q_OBJECT
-
 public:
-    AudioWorker(std::unique_ptr<AudioRecorder> audioRecorder, QObject * parent = nullptr);
-    ~AudioWorker() override;
+    using JackServiceS = std::shared_ptr<JackService>;
+    explicit AudioRecorderJack(JackServiceS jackService);
+    ~AudioRecorderJack() override;
 
-    Q_INVOKABLE void startRecording(QString filePath, quint32 bufferSize);
-    Q_INVOKABLE void stopRecording();
+    void start(const std::string & fileName, uint32_t bufferSize) override;
+    void stop() override;
 
-    Q_INVOKABLE QVariantList getInputDevices() const;
-    Q_INVOKABLE void setInputDevice(int deviceId);
+    std::vector<AudioDevice> getInputDevices() override;
+    void setInputDevice(uint32_t deviceId) override;
+
+    uint32_t sampleRate() override;
 
 private:
-    std::unique_ptr<AudioRecorder> m_audioRecorder;
+    JackServiceS m_jackService;
 };
 
 } // namespace noteahead
 
-#endif // AUDIO_WORKER_HPP
+#endif // AUDIO_RECORDER_JACK_HPP

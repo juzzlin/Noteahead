@@ -28,6 +28,7 @@ namespace noteahead {
 
 class AudioWorker;
 class SettingsService;
+class JackService;
 
 class AudioService : public QObject
 {
@@ -37,7 +38,8 @@ class AudioService : public QObject
 
 public:
     using SettingsServiceS = std::shared_ptr<SettingsService>;
-    AudioService(SettingsServiceS settingsService, QObject * parent = nullptr);
+    using JackServiceS = std::shared_ptr<JackService>;
+    AudioService(SettingsServiceS settingsService, JackServiceS jackService, QObject * parent = nullptr);
     ~AudioService() override;
 
     void startRecording(QString filePath, quint32 bufferSize);

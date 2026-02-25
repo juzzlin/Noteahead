@@ -77,6 +77,7 @@ set(HEADER_FILES
   domain/song.hpp
   domain/track.hpp
   infra/audio/audio_recorder.hpp
+  infra/audio/implementation/jack/audio_recorder_jack.hpp
   infra/audio/implementation/librtaudio/audio_recorder_rt_audio.hpp
   infra/audio/ring_buffer.hpp
   infra/midi/export/midi_exporter.hpp
@@ -166,6 +167,7 @@ set(SOURCE_FILES
   domain/song.cpp
   domain/track.cpp
   infra/audio/audio_recorder.cpp
+  infra/audio/implementation/jack/audio_recorder_jack.cpp
   infra/audio/implementation/librtaudio/audio_recorder_rt_audio.cpp
   infra/midi/export/midi_exporter.cpp
   infra/midi/import/midi_importer.cpp

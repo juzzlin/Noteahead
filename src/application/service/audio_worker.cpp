@@ -14,16 +14,15 @@
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
 #include "audio_worker.hpp"
-
-#include "../../infra/audio/implementation/librtaudio/audio_recorder_rt_audio.hpp"
+#include "../../infra/audio/audio_recorder.hpp"
 
 #include <QVariantMap>
 
 namespace noteahead {
 
-AudioWorker::AudioWorker(RtAudio::Api api, QObject * parent)
+AudioWorker::AudioWorker(std::unique_ptr<AudioRecorder> audioRecorder, QObject * parent)
   : QObject { parent }
-  , m_audioRecorder { std::make_unique<AudioRecorderRtAudio>(api) }
+  , m_audioRecorder { std::move(audioRecorder) }
 {
 }
 

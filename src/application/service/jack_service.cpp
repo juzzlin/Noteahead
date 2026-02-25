@@ -95,6 +95,9 @@ void JackService::initialize()
     if (m_client) {
         juzzlin::L(TAG).info() << "JACK client opened: " << jack_get_client_name(m_client);
 
+        m_inputPortL = jack_port_register(m_client, "input_1", JACK_DEFAULT_AUDIO_TYPE, JackPortIsInput, 0);
+        m_inputPortR = jack_port_register(m_client, "input_2", JACK_DEFAULT_AUDIO_TYPE, JackPortIsInput, 0);
+
         jack_position_t pos;
         jack_transport_query(m_client, &pos);
         m_lastFrame = pos.frame;
@@ -125,8 +128,11 @@ void JackService::deinitialize()
 {
 #ifdef HAVE_JACK
     if (m_client) {
+        stopRecording();
         jack_client_close(m_client);
         m_client = nullptr;
+        m_inputPortL = nullptr;
+        m_inputPortR = nullptr;
         juzzlin::L(TAG).info() << "JACK client closed";
     }
 #endif
@@ -148,9 +154,96 @@ jack_nframes_t JackService::currentFrame() const
     return m_lastFrame;
 }
 
-int JackService::processCallback(jack_nframes_t, void * arg)
+void JackService::startRecording(const QString & filePath)
+{
+    if (m_isRecording || !m_client) {
+        return;
+    }
+
+    m_sfInfo = {};
+    m_sfInfo.samplerate = static_cast<int>(sampleRate());
+    m_sfInfo.channels = 2;
+    m_sfInfo.format = SF_FORMAT_WAV | SF_FORMAT_PCM_24;
+
+    m_sndFile = sf_open(filePath.toStdString().c_str(), SFM_WRITE, &m_sfInfo);
+    if (!m_sndFile) {
+        juzzlin::L(TAG).error() << "Could not open audio file for recording: " << filePath.toStdString();
+        return;
+    }
+
+    // 2 seconds buffer
+    m_recordingBuffer.resize(sampleRate() * 2 * 2);
+
+    m_stopThread = false;
+    m_diskWriteThread = std::thread(&JackService::diskWriteLoop, this);
+
+    m_isRecording = true;
+    juzzlin::L(TAG).info() << "JACK recording started: " << filePath.toStdString();
+}
+
+void JackService::stopRecording()
+{
+    if (!m_isRecording) {
+        return;
+    }
+
+    m_isRecording = false;
+    m_stopThread = true;
+
+    if (m_diskWriteThread.joinable()) {
+        m_diskWriteThread.join();
+    }
+
+    if (m_sndFile) {
+        sf_close(m_sndFile);
+        m_sndFile = nullptr;
+    }
+
+    juzzlin::L(TAG).info() << "JACK recording stopped";
+}
+
+bool JackService::isRecording() const
+{
+    return m_isRecording;
+}
+
+void JackService::diskWriteLoop()
+{
+    std::vector<int32_t> tempBuffer(16384);
+
+    while (!m_stopThread || m_recordingBuffer.readAvailable() > 0) {
+        const size_t available = m_recordingBuffer.readAvailable();
+        if (available > 0) {
+            const size_t toRead = std::min(available, tempBuffer.size());
+            const size_t read = m_recordingBuffer.pop(tempBuffer.data(), toRead);
+            if (read > 0 && m_sndFile) {
+                sf_writef_int(m_sndFile, tempBuffer.data(), read / 2);
+            }
+        } else {
+            std::this_thread::sleep_for(std::chrono::milliseconds(10));
+        }
+    }
+}
+
+int JackService::processCallback(jack_nframes_t nframes, void * arg)
 {
     auto self = static_cast<JackService *>(arg);
+
+    if (self->m_isRecording) {
+        auto inL = static_cast<jack_default_audio_sample_t *>(jack_port_get_buffer(self->m_inputPortL, nframes));
+        auto inR = static_cast<jack_default_audio_sample_t *>(jack_port_get_buffer(self->m_inputPortR, nframes));
+
+        // Interleave and convert to int32_t (24-bit PCM scaled to 32-bit range)
+        std::vector<int32_t> interleaved(nframes * 2);
+        for (jack_nframes_t i = 0; i < nframes; ++i) {
+            interleaved[i * 2] = static_cast<int32_t>(inL[i] * 2147483647.0f);
+            interleaved[i * 2 + 1] = static_cast<int32_t>(inR[i] * 2147483647.0f);
+        }
+
+        if (!self->m_recordingBuffer.push(interleaved.data(), interleaved.size())) {
+            // Under PipeWire, we might want to log this but very carefully (not in RT thread)
+        }
+    }
 
     jack_position_t pos;
     jack_transport_state_t state = jack_transport_query(self->m_client, &pos);
