@@ -131,6 +131,9 @@
 <ul>
     <li><strong>Jack Transport Sync</strong>: When enabled, Noteahead acts as a JACK client and will follow the Play, Stop, and Rewind commands from a JACK transport master (like Carla or QjackCtl).</li>
     <li><strong>Jack BPM Sync</strong>: (Requires Jack Transport Sync) Noteahead will follow the BPM of the JACK host and synchronize its internal timeline to the JACK sample clock for drift-free, sample-accurate playback. The BPM display in the toolbar will update to reflect the host's tempo.</li>
+    <p style="background-color: #333; padding: 10px; border-left: 4px solid orange; margin-top: 10px; font-size: 0.9em;">
+        <strong>Note on Audio Recording:</strong> When <strong>Jack Transport Sync</strong> is enabled, Noteahead switches its audio recorder to a specialized JACK mode. This ensures stable, slaved recording that is immune to system buffer size changes (PipeWire quantum changes). In this mode, Noteahead provides virtual input ports (<code>input_1</code> and <code>input_2</code>) in your JACK graph. Use a patchbay like <strong>Carla</strong> or <strong>qpwgraph</strong> to route your audio sources (e.g., <code>system:capture</code>) to Noteahead's inputs to capture audio.
+    </p>
     <li><strong>MIDI Transport Sync</strong>: Allows Noteahead to be started and stopped by external MIDI controllers. Support is included for standard MIDI Start/Stop messages as well as common hardware CC mappings (e.g., Arturia Keystep).</li>
 </ul>
 
