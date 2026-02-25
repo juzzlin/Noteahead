@@ -80,7 +80,7 @@ GroupBox {
             Layout.fillHeight: true
             GridLayout {
                 columns: 9
-                rows: 2
+                rows: 3
                 width: parent.width
                 RowLayout {
                     Layout.column: 0
@@ -120,6 +120,17 @@ GroupBox {
                     ToolTip.timeout: Constants.toolTipTimeout
                     ToolTip.visible: hovered
                     ToolTip.text: qsTr("Sync Noteahead playback with MIDI transport")
+                }
+                Label {
+                    Layout.column: 0
+                    Layout.columnSpan: 9
+                    Layout.row: 2
+                    Layout.fillWidth: true
+                    horizontalAlignment: Text.AlignHCenter
+                    wrapMode: Text.WordWrap
+                    color: "orange"
+                    text: qsTr("Enabling Jack sync switches audio recorder to JACK mode (input_1/input_2). Use a patchbay like Carla to route audio to Noteahead.")
+                    visible: midiSettingsModel.jackSyncEnabled
                 }
             }
         }
