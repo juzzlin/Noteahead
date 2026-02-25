@@ -39,6 +39,8 @@ public:
 
     virtual std::vector<AudioDevice> getInputDevices();
     virtual void setInputDevice(uint32_t deviceId);
+
+    virtual uint32_t sampleRate();
 };
 
 } // namespace noteahead

@@ -76,6 +76,14 @@ std::vector<AudioDevice> AudioRecorderRtAudio::getInputDevices()
     return devices;
 }
 
+uint32_t AudioRecorderRtAudio::sampleRate()
+{
+    if (m_rtAudio.isStreamOpen()) {
+        return m_rtAudio.getStreamSampleRate();
+    }
+    return 48000;
+}
+
 AudioRecorderRtAudio::~AudioRecorderRtAudio()
 {
     AudioRecorderRtAudio::stop();
@@ -137,10 +145,15 @@ void AudioRecorderRtAudio::start(const std::string & fileName, uint32_t bufferSi
             uint32_t channelCount = 2;
             uint32_t deviceId = 0;
             std::string deviceName = "JACK System";
+            uint32_t actualBufferSize = bufferSize;
 
             if (m_rtAudio.getCurrentApi() == RtAudio::UNIX_JACK) {
                 juzzlin::L(TAG).info() << "JACK backend detected, skipping device probe.";
                 deviceId = m_rtAudio.getDefaultInputDevice();
+                const auto deviceInfo = m_rtAudio.getDeviceInfo(deviceId);
+                sampleRate = deviceInfo.preferredSampleRate;
+                deviceName = deviceInfo.name;
+                actualBufferSize = 0; // Let JACK decide
             } else {
                 if (m_rtAudio.getDeviceCount() < 1) {
                     throw std::runtime_error("No audio devices found!");
@@ -154,7 +167,7 @@ void AudioRecorderRtAudio::start(const std::string & fileName, uint32_t bufferSi
             }
 
             juzzlin::L(TAG).info() << "Recording from device: " << deviceName << ", " << sampleRate << " Hz, " << channelCount << " channels (24-bit WAV)";
-            juzzlin::L(TAG).info() << "Buffer size: " << bufferSize;
+            juzzlin::L(TAG).info() << "Buffer size: " << (actualBufferSize == 0 ? "Default" : std::to_string(actualBufferSize));
 
             initializeSoundFile(fileName, sampleRate, channelCount);
 
@@ -164,7 +177,7 @@ void AudioRecorderRtAudio::start(const std::string & fileName, uint32_t bufferSi
             m_stopThread = false;
             m_diskWriteThread = std::thread(&AudioRecorderRtAudio::diskWriteLoop, this);
 
-            initializeSoundStream(deviceId, channelCount, sampleRate, bufferSize);
+            initializeSoundStream(deviceId, channelCount, sampleRate, actualBufferSize);
 
             m_running = true;
         } catch (std::exception & e) {

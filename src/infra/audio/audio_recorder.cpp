@@ -38,4 +38,9 @@ void AudioRecorder::setInputDevice(uint32_t)
 {
 }
 
+uint32_t AudioRecorder::sampleRate()
+{
+    return 48000;
+}
+
 } // namespace noteahead

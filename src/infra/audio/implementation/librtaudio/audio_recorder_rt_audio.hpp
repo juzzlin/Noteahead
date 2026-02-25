@@ -41,6 +41,8 @@ public:
     std::vector<AudioDevice> getInputDevices() override;
     void setInputDevice(uint32_t deviceId) override;
 
+    uint32_t sampleRate() override;
+
     bool isRunning() const;
 
 private:
