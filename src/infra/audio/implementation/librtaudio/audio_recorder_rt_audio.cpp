@@ -133,16 +133,27 @@ void AudioRecorderRtAudio::start(const std::string & fileName, uint32_t bufferSi
     if (!m_running) {
 
         try {
-            if (m_rtAudio.getDeviceCount() < 1) {
-                throw std::runtime_error("No audio devices found!");
+            uint32_t sampleRate = 48000;
+            uint32_t channelCount = 2;
+            uint32_t deviceId = 0;
+            std::string deviceName = "JACK System";
+
+            if (m_rtAudio.getCurrentApi() == RtAudio::UNIX_JACK) {
+                juzzlin::L(TAG).info() << "JACK backend detected, skipping device probe.";
+                deviceId = m_rtAudio.getDefaultInputDevice();
+            } else {
+                if (m_rtAudio.getDeviceCount() < 1) {
+                    throw std::runtime_error("No audio devices found!");
+                }
+
+                deviceId = m_inputDeviceId.load();
+                const auto deviceInfo = m_rtAudio.getDeviceInfo(deviceId);
+                sampleRate = deviceInfo.preferredSampleRate ? deviceInfo.preferredSampleRate : 48000;
+                channelCount = std::min(deviceInfo.inputChannels, 2u);
+                deviceName = deviceInfo.name;
             }
 
-            const auto deviceId = m_inputDeviceId.load();
-            const auto deviceInfo = m_rtAudio.getDeviceInfo(deviceId);
-            const uint32_t sampleRate = deviceInfo.preferredSampleRate ? deviceInfo.preferredSampleRate : 48000;
-            const uint32_t channelCount = std::min(deviceInfo.inputChannels, 2u);
-
-            juzzlin::L(TAG).info() << "Recording from device: " << deviceInfo.name << ", " << sampleRate << " Hz, " << channelCount << " channels (24-bit WAV)";
+            juzzlin::L(TAG).info() << "Recording from device: " << deviceName << ", " << sampleRate << " Hz, " << channelCount << " channels (24-bit WAV)";
             juzzlin::L(TAG).info() << "Buffer size: " << bufferSize;
 
             initializeSoundFile(fileName, sampleRate, channelCount);
