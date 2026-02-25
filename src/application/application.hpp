@@ -123,11 +123,11 @@ private:
     std::unique_ptr<QGuiApplication> m_application;
     std::shared_ptr<ApplicationService> m_applicationService;
 
+    std::shared_ptr<SettingsService> m_settingsService;
+
     std::shared_ptr<AudioService> m_audioService;
 
     std::shared_ptr<AutomationService> m_automationService;
-
-    std::shared_ptr<SettingsService> m_settingsService;
 
     std::shared_ptr<SelectionService> m_selectionService;
     std::shared_ptr<EditorService> m_editorService;

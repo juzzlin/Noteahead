@@ -69,23 +69,23 @@ static const auto TAG = "Application";
 Application::Application(int & argc, char ** argv)
   : m_uiLogger { std::make_unique<UiLogger>() }
   , m_application { std::make_unique<QGuiApplication>(argc, argv) }
-  , m_applicationService { std::make_unique<ApplicationService>() }
-  , m_audioService { std::make_shared<AudioService>() }
-  , m_automationService { std::make_unique<AutomationService>() }
-  , m_settingsService { std::make_unique<SettingsService>() }
-  , m_selectionService { std::make_unique<SelectionService>() }
-  , m_editorService { std::make_unique<EditorService>(m_selectionService, m_settingsService) }
+  , m_applicationService { std::make_shared<ApplicationService>() }
+  , m_settingsService { std::make_shared<SettingsService>() }
+  , m_audioService { std::make_shared<AudioService>(m_settingsService) }
+  , m_automationService { std::make_shared<AutomationService>() }
+  , m_selectionService { std::make_shared<SelectionService>() }
+  , m_editorService { std::make_shared<EditorService>(m_selectionService, m_settingsService) }
   , m_jackService { std::make_shared<JackService>(m_settingsService) }
-  , m_eventSelectionModel { std::make_unique<EventSelectionModel>() }
-  , m_midiService { std::make_unique<MidiService>() }
-  , m_mixerService { std::make_unique<MixerService>() }
-  , m_sideChainService { std::make_unique<SideChainService>() }
-  , m_playerService { std::make_unique<PlayerService>(m_midiService, m_mixerService, m_automationService, m_settingsService, m_sideChainService, m_jackService) }
-  , m_keyboardService { std::make_unique<KeyboardService>(m_applicationService, m_editorService, m_playerService, m_selectionService, m_settingsService) }
-  , m_midiExporter { std::make_unique<MidiExporter>(m_automationService, m_mixerService, m_sideChainService) }
-  , m_midiImporter { std::make_unique<MidiImporter>() }
-  , m_stateMachine { std::make_unique<StateMachine>(m_applicationService, m_editorService) }
-  , m_recentFilesManager { std::make_unique<RecentFilesManager>() }
+  , m_eventSelectionModel { std::make_shared<EventSelectionModel>() }
+  , m_midiService { std::make_shared<MidiService>() }
+  , m_mixerService { std::make_shared<MixerService>() }
+  , m_sideChainService { std::make_shared<SideChainService>() }
+  , m_playerService { std::make_shared<PlayerService>(m_midiService, m_mixerService, m_automationService, m_settingsService, m_sideChainService, m_jackService) }
+  , m_keyboardService { std::make_shared<KeyboardService>(m_applicationService, m_editorService, m_playerService, m_selectionService, m_settingsService) }
+  , m_midiExporter { std::make_shared<MidiExporter>(m_automationService, m_mixerService, m_sideChainService) }
+  , m_midiImporter { std::make_shared<MidiImporter>() }
+  , m_stateMachine { std::make_shared<StateMachine>(m_applicationService, m_editorService) }
+  , m_recentFilesManager { std::make_shared<RecentFilesManager>() }
   , m_recentFilesModel { std::make_unique<RecentFilesModel>() }
   , m_midiCcAutomationsModel { std::make_unique<MidiCcAutomationsModel>() }
   , m_pitchBendAutomationsModel { std::make_unique<PitchBendAutomationsModel>() }
@@ -93,9 +93,9 @@ Application::Application(int & argc, char ** argv)
   , m_trackSettingsModel { std::make_unique<TrackSettingsModel>() }
   , m_midiSettingsModel { std::make_unique<MidiSettingsModel>(m_settingsService) }
   , m_audioSettingsModel { std::make_unique<AudioSettingsModel>(m_audioService, m_settingsService) }
-  , m_utilService { std::make_unique<UtilService>() }
+  , m_utilService { std::make_shared<UtilService>() }
   , m_propertyService { std::make_shared<PropertyService>() }
-  , m_noteColumnLineContainerHelper { std::make_unique<NoteColumnLineContainerHelper>(
+  , m_noteColumnLineContainerHelper { std::make_shared<NoteColumnLineContainerHelper>(
       m_automationService, m_editorService, m_selectionService, m_utilService) }
   , m_noteColumnModelHandler { std::make_unique<NoteColumnModelHandler>(m_editorService, m_selectionService, m_automationService, m_settingsService) }
   , m_engine { std::make_unique<QQmlApplicationEngine>() }

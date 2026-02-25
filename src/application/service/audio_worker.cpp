@@ -21,9 +21,9 @@
 
 namespace noteahead {
 
-AudioWorker::AudioWorker(QObject * parent)
+AudioWorker::AudioWorker(RtAudio::Api api, QObject * parent)
   : QObject { parent }
-  , m_audioRecorder { std::make_unique<AudioRecorderRtAudio>() }
+  , m_audioRecorder { std::make_unique<AudioRecorderRtAudio>(api) }
 {
 }
 

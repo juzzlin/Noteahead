@@ -19,6 +19,7 @@
 #include <QObject>
 #include <QVariantList>
 
+#include <RtAudio.h>
 #include <memory>
 
 namespace noteahead {
@@ -30,7 +31,7 @@ class AudioWorker : public QObject
     Q_OBJECT
 
 public:
-    AudioWorker(QObject * parent = nullptr);
+    AudioWorker(RtAudio::Api api, QObject * parent = nullptr);
     ~AudioWorker() override;
 
     Q_INVOKABLE void startRecording(QString filePath, quint32 bufferSize);

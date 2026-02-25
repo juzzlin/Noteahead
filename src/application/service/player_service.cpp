@@ -44,7 +44,7 @@ PlayerService::PlayerService(
 {
     initializeWorker();
     connect(m_jackService.get(), &JackService::bpmChanged, this, [this]() {
-        if (m_settingsService->jackBpmSyncEnabled()) {
+        if (m_settingsService->jackSyncEnabled() && m_settingsService->jackBpmSyncEnabled()) {
             emit beatsPerMinuteChanged();
         }
     });

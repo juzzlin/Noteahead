@@ -27,6 +27,7 @@
 namespace noteahead {
 
 class AudioWorker;
+class SettingsService;
 
 class AudioService : public QObject
 {
@@ -35,7 +36,8 @@ class AudioService : public QObject
     Q_PROPERTY(bool isRecording READ isRecording NOTIFY isRecordingChanged)
 
 public:
-    AudioService(QObject * parent = nullptr);
+    using SettingsServiceS = std::shared_ptr<SettingsService>;
+    AudioService(SettingsServiceS settingsService, QObject * parent = nullptr);
     ~AudioService() override;
 
     void startRecording(QString filePath, quint32 bufferSize);

@@ -32,7 +32,7 @@ namespace noteahead {
 class AudioRecorderRtAudio : public AudioRecorder
 {
 public:
-    AudioRecorderRtAudio();
+    explicit AudioRecorderRtAudio(RtAudio::Api api = RtAudio::UNSPECIFIED);
     ~AudioRecorderRtAudio() override;
 
     void start(const std::string & fileName, uint32_t bufferSize) override;

@@ -17,17 +17,20 @@
 
 #include "../../contrib/SimpleLogger/src/simple_logger.hpp"
 #include "audio_worker.hpp"
+#include "settings_service.hpp"
 
+#include <RtAudio.h>
 #include <sndfile.h>
 
 namespace noteahead {
 
 static const auto TAG = "AudioService";
 
-AudioService::AudioService(QObject * parent)
+AudioService::AudioService(SettingsServiceS settingsService, QObject * parent)
   : QObject { parent }
-  , m_audioWorker { std::make_unique<AudioWorker>() }
 {
+    const auto api = settingsService->jackSyncEnabled() ? RtAudio::UNSPECIFIED : RtAudio::LINUX_ALSA;
+    m_audioWorker = std::make_unique<AudioWorker>(api);
     initializeWorker();
 }
 

@@ -50,7 +50,8 @@ int AudioRecorderRtAudio::recordCallback(void *, void * inputBuffer,
     return 0;
 }
 
-AudioRecorderRtAudio::AudioRecorderRtAudio()
+AudioRecorderRtAudio::AudioRecorderRtAudio(RtAudio::Api api)
+  : m_rtAudio { api }
 {
     if (m_rtAudio.getDeviceCount() > 0) {
         m_inputDeviceId = m_rtAudio.getDefaultInputDevice();
