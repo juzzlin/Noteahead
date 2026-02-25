@@ -61,7 +61,7 @@ GroupBox {
                 from: 32
                 to: 4096
                 stepSize: 32
-                enabled: enableAudioRecordingCheckbox.checked
+                enabled: enableAudioRecordingCheckbox.checked && !settingsService.jackSyncEnabled
                 value: settingsService.audioBufferSize()
                 Layout.column: 3
                 Layout.row: 3
@@ -70,7 +70,7 @@ GroupBox {
                 ToolTip.delay: Constants.toolTipDelay
                 ToolTip.timeout: Constants.toolTipTimeout
                 ToolTip.visible: hovered
-                ToolTip.text: qsTr("Set buffer size for audio recording")
+                ToolTip.text: settingsService.jackSyncEnabled ? qsTr("Buffer size is managed by JACK server") : qsTr("Set buffer size for audio recording")
                 onValueChanged: settingsService.setAudioBufferSize(value)
                 Keys.onReturnPressed: focus = false
             }
@@ -89,10 +89,14 @@ GroupBox {
                 Layout.column: 3
                 Layout.row: 5
                 Layout.fillWidth: true
-                enabled: enableAudioRecordingCheckbox.checked
+                enabled: enableAudioRecordingCheckbox.checked && !settingsService.jackSyncEnabled
                 model: audioSettingsModel.inputDevices
                 textRole: "name"
                 valueRole: "id"
+                ToolTip.delay: Constants.toolTipDelay
+                ToolTip.timeout: Constants.toolTipTimeout
+                ToolTip.visible: hovered
+                ToolTip.text: settingsService.jackSyncEnabled ? qsTr("Device selection is managed by JACK routing") : qsTr("Select audio input device")
                 Component.onCompleted: {
                     currentIndex = indexOfValue(audioSettingsModel.selectedInputDeviceId);
                 }
@@ -110,7 +114,7 @@ GroupBox {
                 text: qsTr("Refresh")
                 Layout.column: 4
                 Layout.row: 5
-                enabled: enableAudioRecordingCheckbox.checked
+                enabled: enableAudioRecordingCheckbox.checked && !settingsService.jackSyncEnabled
                 onClicked: audioSettingsModel.refreshInputDevices()
                 ToolTip.visible: hovered
                 ToolTip.text: qsTr("Refresh device list")
