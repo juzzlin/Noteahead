@@ -48,6 +48,8 @@ PlayerService::PlayerService(
             emit beatsPerMinuteChanged();
         }
     });
+    connect(m_settingsService.get(), &SettingsService::jackSyncEnabledChanged, this, &PlayerService::beatsPerMinuteChanged);
+    connect(m_settingsService.get(), &SettingsService::jackBpmSyncEnabledChanged, this, &PlayerService::beatsPerMinuteChanged);
 }
 
 void PlayerService::setSongPosition(quint64 position)
