@@ -32,6 +32,8 @@ AudioSettingsModel::AudioSettingsModel(AudioServiceS audioService, SettingsServi
     // Ensure the audio service knows about the saved device ID
     m_audioService->setInputDevice(m_selectedInputDeviceId);
     refreshInputDevices();
+
+    connect(m_audioService.get(), &AudioService::reinitialized, this, &AudioSettingsModel::refreshInputDevices);
 }
 
 AudioSettingsModel::~AudioSettingsModel() = default;

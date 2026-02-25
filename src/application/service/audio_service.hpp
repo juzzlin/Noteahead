@@ -42,6 +42,10 @@ public:
     AudioService(SettingsServiceS settingsService, JackServiceS jackService, QObject * parent = nullptr);
     ~AudioService() override;
 
+public slots:
+    void reinitialize();
+
+public:
     void startRecording(QString filePath, quint32 bufferSize);
     void stopRecording();
 
@@ -55,6 +59,7 @@ public:
 signals:
     void latestRecordingFileNameChanged();
     void isRecordingChanged();
+    void reinitialized();
 
 private:
     void initializeWorker();
@@ -64,6 +69,9 @@ private:
     QString m_latestRecordingFileName;
     QString m_currentRecordingFileName;
     bool m_isRecording = false;
+
+    SettingsServiceS m_settingsService;
+    JackServiceS m_jackService;
 };
 
 } // namespace noteahead

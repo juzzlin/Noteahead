@@ -30,17 +30,39 @@ static const auto TAG = "AudioService";
 
 AudioService::AudioService(SettingsServiceS settingsService, JackServiceS jackService, QObject * parent)
   : QObject { parent }
+  , m_settingsService { settingsService }
+  , m_jackService { jackService }
 {
+    reinitialize();
+    connect(m_settingsService.get(), &SettingsService::jackSyncEnabledChanged, this, &AudioService::reinitialize);
+}
+
+void AudioService::reinitialize()
+{
+    juzzlin::L(TAG).info() << "Reinitializing audio engine...";
+
+    if (m_isRecording) {
+        stopRecording();
+    }
+
+    if (m_audioWorker) {
+        m_audioWorkerThread.quit();
+        m_audioWorkerThread.wait();
+        m_audioWorker.reset();
+    }
+
     std::unique_ptr<AudioRecorder> audioRecorder;
 
-    if (settingsService->jackSyncEnabled()) {
-        audioRecorder = std::make_unique<AudioRecorderJack>(jackService);
+    if (m_settingsService->jackSyncEnabled()) {
+        audioRecorder = std::make_unique<AudioRecorderJack>(m_jackService);
     } else {
         audioRecorder = std::make_unique<AudioRecorderRtAudio>(RtAudio::UNSPECIFIED);
     }
 
     m_audioWorker = std::make_unique<AudioWorker>(std::move(audioRecorder));
     initializeWorker();
+
+    emit reinitialized();
 }
 
 void AudioService::initializeWorker()
