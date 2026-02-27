@@ -224,6 +224,7 @@ void AudioEngine::process(float * output, uint32_t frameCount, uint32_t sampleRa
     };
     m_workerPool.run(m_deviceSnapshot.size(), &deviceContext, processDeviceTask);
 
+    // Sum parallel results into the main output and send buses
     for (const auto & workBuffer : m_workBuffers) {
         for (uint32_t i = 0; i < bufferSize; ++i) {
             output[i] += workBuffer.outputBuffer[i];

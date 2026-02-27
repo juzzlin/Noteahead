@@ -14,8 +14,10 @@
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
 #include "real_time_worker_pool.hpp"
+#include "../../contrib/SimpleLogger/src/simple_logger.hpp"
 
 #include <algorithm>
+#include <pthread.h>
 
 namespace noteahead {
 
@@ -30,6 +32,17 @@ RealTimeWorkerPool::RealTimeWorkerPool(size_t workerCount)
 
     for (size_t i = 0; i < workerCount; ++i) {
         m_workers.emplace_back([this, i] {
+            // Set thread name for easier debugging
+            const std::string threadName = "AudioWorker-" + std::to_string(i);
+            pthread_setname_np(pthread_self(), threadName.c_str());
+
+            // Set real-time priority
+            struct sched_param param;
+            param.sched_priority = 80; // High priority for audio
+            if (pthread_setschedparam(pthread_self(), SCHED_FIFO, &param) != 0) {
+                juzzlin::L("RealTimeWorkerPool").warning() << "Failed to set RT priority for " << threadName;
+            }
+
             workerLoop(i);
         });
     }
