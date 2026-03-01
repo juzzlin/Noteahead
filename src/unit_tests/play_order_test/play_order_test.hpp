@@ -39,6 +39,8 @@ private slots:
     void test_setAndGetPattern_shouldReturnCorrectValues();
 
     void test_positionToPattern_shouldReturnCorrectValues();
+
+    void test_skipped_shouldReturnCorrectValues();
 };
 
 } // namespace noteahead

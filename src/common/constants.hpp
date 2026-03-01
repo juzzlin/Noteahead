@@ -92,6 +92,7 @@ QString xmlKeySendTransport();
 QString xmlKeyPlayOrder();
 QString xmlKeyPatternAttr();
 QString xmlKeyPosition();
+QString xmlKeySkipped();
 QString xmlKeyLength();
 
 QString xmlKeyLine();

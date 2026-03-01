@@ -255,6 +255,8 @@ public:
     virtual Q_INVOKABLE void removePatternFromPlayOrder();
     virtual Q_INVOKABLE quint64 patternAtSongPosition(quint64 songPosition) const;
     virtual Q_INVOKABLE void setPatternAtSongPosition(quint64 songPosition, quint64 pattern);
+    virtual Q_INVOKABLE bool isSkipped(quint64 songPosition) const;
+    virtual Q_INVOKABLE void setSkipped(quint64 songPosition, bool skipped);
     virtual Q_INVOKABLE quint64 songLength() const;
     virtual Q_INVOKABLE void setSongLength(quint64 songLength);
     virtual Q_INVOKABLE quint64 maxSongLength() const;
@@ -344,6 +346,7 @@ signals:
     void aboutToChangeSong();
     void songChanged();
     void songLengthChanged();
+    void skippedChanged();
 
     void errorTextRequested(QString text);
     void statusTextRequested(QString text);

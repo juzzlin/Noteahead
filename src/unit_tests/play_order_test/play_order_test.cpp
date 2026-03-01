@@ -102,6 +102,20 @@ void PlayOrderTest::test_positionToPattern_shouldReturnCorrectValues()
     QCOMPARE(playOrder.positionToPattern(6), size_t(0)); // Nonexistent position
 }
 
+void PlayOrderTest::test_skipped_shouldReturnCorrectValues()
+{
+    PlayOrder playOrder;
+    QCOMPARE(playOrder.isSkipped(0), false);
+    playOrder.setSkipped(0, true);
+    QCOMPARE(playOrder.isSkipped(0), true);
+    playOrder.setSkipped(0, false);
+    QCOMPARE(playOrder.isSkipped(0), false);
+
+    playOrder.setSkipped(5, true);
+    QCOMPARE(playOrder.isSkipped(5), true);
+    QCOMPARE(playOrder.isSkipped(4), false);
+}
+
 } // namespace noteahead
 
 QTEST_GUILESS_MAIN(noteahead::PlayOrderTest)

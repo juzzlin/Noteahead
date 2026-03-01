@@ -34,7 +34,7 @@ PlayOrder::PlayOrder()
 
 size_t PlayOrder::length() const
 {
-    return m_positionToPattern.size();
+    return m_playOrder.size();
 }
 
 PlayOrder::PatternList PlayOrder::getPatterns(size_t songLength, size_t startPosition) const
@@ -42,17 +42,19 @@ PlayOrder::PatternList PlayOrder::getPatterns(size_t songLength, size_t startPos
     PatternList patternList;
 
     // Ensure startPosition is within bounds
-    if (startPosition >= m_positionToPattern.size()) {
+    if (startPosition >= m_playOrder.size()) {
         return patternList;
     }
 
     // Use views to get the subrange of interest
-    const auto selectedPatterns = m_positionToPattern
+    const auto selectedPatterns = m_playOrder
       | std::views::drop(startPosition)
       | std::views::take(songLength);
 
-    // Copy selected patterns into patternList
-    std::ranges::copy(selectedPatterns, std::back_inserter(patternList));
+    // Copy selected pattern indices into patternList
+    for (auto && item : selectedPatterns) {
+        patternList.push_back(item.first);
+    }
 
     // Extend with zeros if needed
     patternList.resize(songLength, 0);
@@ -64,19 +66,19 @@ void PlayOrder::insertPattern(size_t position, size_t pattern)
 {
     juzzlin::L(TAG).info() << "Inserting pattern " << pattern << " at position " << position;
 
-    while (m_positionToPattern.size() <= position) {
-        m_positionToPattern.push_back(0);
+    while (m_playOrder.size() <= position) {
+        m_playOrder.push_back({ 0, false });
     }
 
-    m_positionToPattern.insert(m_positionToPattern.begin() + position, pattern);
+    m_playOrder.insert(m_playOrder.begin() + position, { pattern, false });
 }
 
 void PlayOrder::removePattern(size_t position)
 {
     juzzlin::L(TAG).info() << "Removing pattern at position " << position;
 
-    if (position < m_positionToPattern.size()) {
-        m_positionToPattern.erase(m_positionToPattern.begin() + position);
+    if (position < m_playOrder.size()) {
+        m_playOrder.erase(m_playOrder.begin() + position);
     }
 }
 
@@ -84,30 +86,49 @@ void PlayOrder::setPatternAtPosition(size_t position, size_t pattern)
 {
     juzzlin::L(TAG).info() << "Position " << position << " mapped to pattern " << pattern;
 
-    while (m_positionToPattern.size() <= position) {
-        m_positionToPattern.push_back(0);
+    while (m_playOrder.size() <= position) {
+        m_playOrder.push_back({ 0, false });
     }
 
-    m_positionToPattern[position] = pattern;
+    m_playOrder[position].first = pattern;
 }
 
 size_t PlayOrder::positionToPattern(size_t position) const
 {
-    return position < m_positionToPattern.size() ? m_positionToPattern.at(position) : 0;
+    return position < m_playOrder.size() ? m_playOrder.at(position).first : 0;
+}
+
+bool PlayOrder::isSkipped(size_t position) const
+{
+    return position < m_playOrder.size() ? m_playOrder.at(position).second : false;
+}
+
+void PlayOrder::setSkipped(size_t position, bool skipped)
+{
+    juzzlin::L(TAG).info() << "Position " << position << " skipped state: " << skipped;
+
+    while (m_playOrder.size() <= position) {
+        m_playOrder.push_back({ 0, false });
+    }
+
+    m_playOrder[position].second = skipped;
 }
 
 void PlayOrder::serializePosition(QXmlStreamWriter & writer, size_t position) const
 {
     writer.writeStartElement(Constants::NahdXml::xmlKeyPosition());
     writer.writeAttribute(Constants::NahdXml::xmlKeyIndex(), QString::number(position));
-    writer.writeAttribute(Constants::NahdXml::xmlKeyPatternAttr(), QString::number(m_positionToPattern.at(position)));
+    writer.writeAttribute(Constants::NahdXml::xmlKeyPatternAttr(), QString::number(m_playOrder.at(position).first));
+    if (m_playOrder.at(position).second) {
+        writer.writeAttribute(Constants::NahdXml::xmlKeySkipped(), Constants::NahdXml::xmlValueTrue());
+    }
     writer.writeEndElement();
 }
 
 void PlayOrder::serializeToXml(QXmlStreamWriter & writer) const
 {
     writer.writeStartElement(Constants::NahdXml::xmlKeyPlayOrder());
-    for (size_t i = 0; i < m_positionToPattern.size(); i++) {
+    for (size_t i = 0; i < m_playOrder.size(); i++) {
         serializePosition(writer, i);
     }
     writer.writeEndElement();
@@ -116,7 +137,7 @@ void PlayOrder::serializeToXml(QXmlStreamWriter & writer) const
 void PlayOrder::serializeToXml(QXmlStreamWriter & writer, size_t lastPosition) const
 {
     writer.writeStartElement(Constants::NahdXml::xmlKeyPlayOrder());
-    for (size_t i = 0; i <= lastPosition && i < m_positionToPattern.size(); i++) {
+    for (size_t i = 0; i <= lastPosition && i < m_playOrder.size(); i++) {
         serializePosition(writer, i);
     }
     writer.writeEndElement();

@@ -39,13 +39,17 @@ public:
     void setPatternAtPosition(size_t position, size_t pattern);
     size_t positionToPattern(size_t position) const;
 
+    bool isSkipped(size_t position) const;
+    void setSkipped(size_t position, bool skipped);
+
     void serializeToXml(QXmlStreamWriter & writer) const;
     void serializeToXml(QXmlStreamWriter & writer, size_t lastPosition) const;
 
 private:
     void serializePosition(QXmlStreamWriter & writer, size_t position) const;
 
-    std::vector<size_t> m_positionToPattern;
+    using PlayOrderItem = std::pair<size_t, bool>;
+    std::vector<PlayOrderItem> m_playOrder;
 };
 
 } // namespace noteahead

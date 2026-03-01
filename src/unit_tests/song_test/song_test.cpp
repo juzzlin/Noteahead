@@ -907,6 +907,23 @@ void SongTest::test_renderToEvents_midiSideChain_shouldClampAttackEvents()
     QVERIFY(targetEventFound);
 }
 
+void SongTest::test_duration_skippedPattern_shouldReturnCorrectDuration()
+{
+    Song song;
+    song.setBeatsPerMinute(120);
+    song.setLinesPerBeat(8); // 120 BPM, 8 LPB => 16 lines per second
+    song.setLineCount(0, 64); // 4 seconds
+    song.setLength(2);
+    song.setPatternAtSongPosition(1, 0);
+
+    const auto fullDuration = song.duration();
+    QCOMPARE(fullDuration.count(), 8000); // 2 * 4 seconds
+
+    song.setSkipped(1, true);
+    const auto skippedDuration = song.duration();
+    QCOMPARE(skippedDuration.count(), 4000); // 1 * 4 seconds
+}
+
 } // namespace noteahead
 
 QTEST_GUILESS_MAIN(noteahead::SongTest)

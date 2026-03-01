@@ -274,6 +274,11 @@ QString xmlKeyPosition()
     return "Position";
 }
 
+QString xmlKeySkipped()
+{
+    return "skipped";
+}
+
 QString xmlKeyLength()
 {
     return "length";

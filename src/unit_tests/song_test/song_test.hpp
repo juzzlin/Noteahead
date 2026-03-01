@@ -67,6 +67,8 @@ private slots:
     void test_addTrackToLeft_shouldUseSmallestFreeId();
     void test_trackByName_shouldReturnTrack();
     void test_columnByName_shouldReturnColumn();
+
+    void test_duration_skippedPattern_shouldReturnCorrectDuration();
 };
 
 } // namespace noteahead

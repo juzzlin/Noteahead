@@ -111,6 +111,8 @@ public:
     PatternIndexList patternIndices() const;
     size_t patternAtSongPosition(size_t position) const;
     void setPatternAtSongPosition(size_t position, size_t pattern);
+    bool isSkipped(size_t position) const;
+    void setSkipped(size_t position, bool skipped);
     void insertPatternToPlayOrder(size_t position);
     void removePatternFromPlayOrder(size_t position);
 

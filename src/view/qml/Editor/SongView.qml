@@ -27,7 +27,8 @@ Rectangle {
                 id: patternRect
                 width: songListView.height
                 height: songListView.height
-                color: index % 4 < 2 ? "#4A4A4A" : "#5A5A5A"
+                property bool skipped: editorService.isSkipped(index)
+                color: skipped ? "#AA2222" : (index % 4 < 2 ? "#4A4A4A" : "#5A5A5A")
                 border.color: "#888888"
                 border.width: 1
                 ToolTip.visible: patternMouseArea.containsMouse
@@ -46,16 +47,23 @@ Rectangle {
                     id: patternMouseArea
                     anchors.fill: parent
                     hoverEnabled: true
+                    acceptedButtons: Qt.LeftButton | Qt.RightButton
                     cursorShape: Qt.PointingHandCursor
                     onClicked: {
-                        UiService.jumpToSongPosition(index);
+                        if (mouse.button === Qt.RightButton) {
+                            if (!UiService.isPlaying()) {
+                                editorService.setSkipped(index, !editorService.isSkipped(index));
+                            }
+                        } else {
+                            UiService.jumpToSongPosition(index);
+                        }
                     }
                     states: [
                         State {
                             when: patternMouseArea.containsMouse
                             PropertyChanges {
                                 target: patternRect
-                                color: "#777777"
+                                color: patternRect.skipped ? "#CC4444" : "#777777"
                             }
                         }
                     ]
@@ -66,6 +74,9 @@ Rectangle {
                         if (editorService.songPosition === index) {
                             textField.text = editorService.patternAtSongPosition(index);
                         }
+                    }
+                    function onSkippedChanged() {
+                        patternRect.skipped = editorService.isSkipped(index)
                     }
                 }
             }

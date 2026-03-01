@@ -269,6 +269,16 @@ void Song::setPatternAtSongPosition(size_t position, size_t pattern)
     m_playOrder->setPatternAtPosition(position, pattern);
 }
 
+bool Song::isSkipped(size_t position) const
+{
+    return m_playOrder->isSkipped(position);
+}
+
+void Song::setSkipped(size_t position, bool skipped)
+{
+    m_playOrder->setSkipped(position, skipped);
+}
+
 void Song::insertPatternToPlayOrder(size_t position)
 {
     m_playOrder->insertPattern(position, 0);
@@ -648,8 +658,11 @@ std::chrono::milliseconds Song::lineToTime(size_t line) const
 std::chrono::milliseconds Song::duration(size_t startPosition) const
 {
     std::chrono::milliseconds d {};
-    for (auto && pattern : m_playOrder->getPatterns(m_length - startPosition, startPosition)) {
-        d += tickToTime(m_patterns.at(pattern)->lineCount() * m_ticksPerLine);
+    for (size_t i = startPosition; i < m_length; ++i) {
+        if (!m_playOrder->isSkipped(i)) {
+            const auto pattern = m_playOrder->positionToPattern(i);
+            d += tickToTime(m_patterns.at(pattern)->lineCount() * m_ticksPerLine);
+        }
     }
     return d;
 }
@@ -783,6 +796,9 @@ Song::EventsAndTick Song::renderPatterns(AutomationServiceS automationService, E
     m_tickToSongPositionMap.clear();
     Song::EventList processedEventList { eventList };
     for (size_t songPosition = startPosition; songPosition < m_length && songPosition < endPosition; songPosition++) {
+        if (m_playOrder->isSkipped(songPosition)) {
+            continue;
+        }
         const auto patternIndex = m_playOrder->positionToPattern(songPosition);
         juzzlin::L(TAG).debug() << "Rendering position " << songPosition << " as pattern " << patternIndex;
         const auto & pattern = m_patterns[patternIndex];
@@ -1001,7 +1017,11 @@ void Song::deserializePlayOrder(QXmlStreamReader & reader)
 void Song::deserializePosition(QXmlStreamReader & reader)
 {
     juzzlin::L(TAG).trace() << "Reading Position started";
-    setPatternAtSongPosition(*Utils::Xml::readUIntAttribute(reader, Constants::NahdXml::xmlKeyIndex()), *Utils::Xml::readUIntAttribute(reader, Constants::NahdXml::xmlKeyPatternAttr()));
+    const auto index = *Utils::Xml::readUIntAttribute(reader, Constants::NahdXml::xmlKeyIndex());
+    const auto pattern = *Utils::Xml::readUIntAttribute(reader, Constants::NahdXml::xmlKeyPatternAttr());
+    const auto skipped = Utils::Xml::readBoolAttribute(reader, Constants::NahdXml::xmlKeySkipped(), false).value_or(false);
+    setPatternAtSongPosition(index, pattern);
+    m_playOrder->setSkipped(index, skipped);
     juzzlin::L(TAG).trace() << "Reading Position ended";
 }
 

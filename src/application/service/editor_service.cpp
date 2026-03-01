@@ -2175,6 +2175,21 @@ quint64 EditorService::patternAtSongPosition(quint64 songPosition) const
     return m_song->patternAtSongPosition(songPosition);
 }
 
+bool EditorService::isSkipped(quint64 songPosition) const
+{
+    return m_song->isSkipped(songPosition);
+}
+
+void EditorService::setSkipped(quint64 songPosition, bool skipped)
+{
+    if (m_song->isSkipped(songPosition) != skipped) {
+        m_song->setSkipped(songPosition, skipped);
+        setIsModified(true);
+        updateDuration();
+        emit skippedChanged();
+    }
+}
+
 quint64 EditorService::songLength() const
 {
     return m_song->length();
