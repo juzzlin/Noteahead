@@ -175,15 +175,17 @@ Currently Noteahead depends on Qt >= 6.4. Actually that's the only thing that de
 Noteahead is currently being developed on Ubuntu 24.04 LTS and on Ubuntu 24.10 with the stock Qt 6 from repositories.
 
 ###
-### Build dependencies on Ubuntu 24.10+
+### Build dependencies on Ubuntu (>= 24.04)
 
 Packages needed for building:
 
     $ sudo apt install build-essential cmake pkg-config ninja-build qt6-base-dev qt6-declarative-dev qt6-tools-dev librtmidi-dev librtaudio-dev libsndfile-dev libjack-jackd2-dev
 
+**Note**: As we are in the middle of the PipeWire transition, the Jack development files might not be needed.
+
 Additional packages needed to run:
 
-    $ sudo apt install qml6-module-qtcore qml6-module-qtqml qml6-module-qtqml-workerscript qml6-module-qtquick qml6-module-qtquick-controls qml6-module-qtquick-dialogs qml6-module-qtquick-layouts  qml6-module-qtquick-templates qml6-module-qtquick-window
+    $ sudo apt install qml6-module-qtcore qml6-module-qtqml qml6-module-qtqml-workerscript qml6-module-qtquick qml6-module-qtquick-controls qml6-module-qtquick-dialogs qml6-module-qtquick-layouts qml6-module-qtquick-templates qml6-module-qtquick-window
 
 ###
 ### Build and run on CLI
