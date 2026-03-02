@@ -20,6 +20,7 @@
 
 #include <QtTest>
 #include <mutex>
+#include <condition_variable>
 
 namespace noteahead {
 
@@ -28,6 +29,7 @@ class MockAudioFileIO : public AudioFileReader
 public:
     bool open(const std::string &, Mode mode, Info & info) override
     {
+        std::lock_guard<std::mutex> lock(m_mutex);
         m_mode = mode;
         if (mode == Mode::Read) {
             info = m_info;
@@ -37,10 +39,16 @@ public:
         }
         m_isOpen = true;
         m_pos = 0;
+        m_cv.notify_all();
         return true;
     }
 
-    void close() override { m_isOpen = false; }
+    void close() override
+    {
+        std::lock_guard<std::mutex> lock(m_mutex);
+        m_isOpen = false;
+        m_cv.notify_all();
+    }
 
     int64_t readFloat(std::span<float>) override { return 0; }
     int64_t readDouble(std::span<double>) override { return 0; }
@@ -53,6 +61,8 @@ public:
         if (toRead == 0) return 0;
         std::copy(m_data.begin() + m_pos, m_data.begin() + m_pos + toRead, data.begin());
         m_pos += toRead;
+        m_readCount++;
+        m_cv.notify_all();
         return static_cast<int64_t>(toRead / static_cast<size_t>(m_info.channels));
     }
 
@@ -64,6 +74,8 @@ public:
         if (!m_isOpen || m_mode != Mode::Write) return 0;
         m_data.insert(m_data.end(), data.begin(), data.end());
         m_info.frames += static_cast<int64_t>(data.size() / static_cast<size_t>(m_info.channels));
+        m_writeCount++;
+        m_cv.notify_all();
         return static_cast<int64_t>(data.size() / static_cast<size_t>(m_info.channels));
     }
 
@@ -71,6 +83,8 @@ public:
     {
         std::lock_guard<std::mutex> lock(m_mutex);
         m_pos = static_cast<size_t>(frames * m_info.channels);
+        m_seekCount++;
+        m_cv.notify_all();
         return true;
     }
 
@@ -80,10 +94,34 @@ public:
     // Helper for testing
     void setData(const std::vector<int32_t> & data, const Info & info)
     {
+        std::lock_guard<std::mutex> lock(m_mutex);
         m_data = data;
         m_info = info;
     }
-    const std::vector<int32_t> & data() const { return m_data; }
+
+    const std::vector<int32_t> & data() const
+    {
+        std::lock_guard<std::mutex> lock(m_mutex);
+        return m_data;
+    }
+
+    bool waitForWriteSize(size_t expectedSize, std::chrono::milliseconds timeout)
+    {
+        std::unique_lock<std::mutex> lock(m_mutex);
+        return m_cv.wait_for(lock, timeout, [this, expectedSize] { return m_data.size() >= expectedSize; });
+    }
+
+    bool waitForReadCount(int expectedCount, std::chrono::milliseconds timeout)
+    {
+        std::unique_lock<std::mutex> lock(m_mutex);
+        return m_cv.wait_for(lock, timeout, [this, expectedCount] { return m_readCount >= expectedCount; });
+    }
+
+    bool waitForSeekCount(int expectedCount, std::chrono::milliseconds timeout)
+    {
+        std::unique_lock<std::mutex> lock(m_mutex);
+        return m_cv.wait_for(lock, timeout, [this, expectedCount] { return m_seekCount >= expectedCount; });
+    }
 
 private:
     std::vector<int32_t> m_data;
@@ -91,7 +129,11 @@ private:
     bool m_isOpen = false;
     Mode m_mode = Mode::Read;
     size_t m_pos = 0;
+    int m_readCount = 0;
+    int m_writeCount = 0;
+    int m_seekCount = 0;
     mutable std::mutex m_mutex;
+    std::condition_variable m_cv;
 };
 
 void AudioFileIoTest::testRecordingAndStreaming()
@@ -114,15 +156,10 @@ void AudioFileIoTest::testRecordingAndStreaming()
             testData[i] = static_cast<int32_t>(i);
         }
 
-        // Push in smaller chunks to ensure ring buffer doesn't overflow
         QVERIFY(recorder.push(testData.data(), testData.size()));
 
         // Wait for background thread to process the ring buffer
-        int attempts = 0;
-        while (mockWriterPtr->data().size() < 1000 && attempts < 100) {
-            QThread::msleep(10);
-            attempts++;
-        }
+        QVERIFY(mockWriterPtr->waitForWriteSize(1000, std::chrono::milliseconds(1000)));
 
         recorder.stop();
         recordedData = mockWriterPtr->data();
@@ -132,6 +169,7 @@ void AudioFileIoTest::testRecordingAndStreaming()
 
     // 2. Stream it back and verify using Mock
     auto mockReader = std::make_unique<MockAudioFileIO>();
+    auto mockReaderPtr = mockReader.get();
     AudioFileReader::Info info;
     info.samplerate = sampleRate;
     info.channels = channels;
@@ -145,8 +183,8 @@ void AudioFileIoTest::testRecordingAndStreaming()
         QCOMPARE(streamer.sampleRate(), static_cast<int>(sampleRate));
         QCOMPARE(streamer.channels(), static_cast<int>(channels));
 
-        // Wait for disk read thread to fill ring buffer
-        QThread::msleep(100);
+        // Wait for disk read thread to fill ring buffer (at least one read operation)
+        QVERIFY(mockReaderPtr->waitForReadCount(1, std::chrono::milliseconds(1000)));
 
         std::vector<int32_t> readData(1000);
         size_t totalRead = 0;
@@ -154,7 +192,8 @@ void AudioFileIoTest::testRecordingAndStreaming()
         while (totalRead < 1000 && attempts < 100) {
             size_t read = streamer.pop(readData.data() + totalRead, readData.size() - totalRead);
             if (read == 0) {
-                QThread::msleep(10);
+                // If the ring buffer was empty, we might need to wait for another read from mock
+                mockReaderPtr->waitForReadCount(attempts + 2, std::chrono::milliseconds(100));
                 attempts++;
                 continue;
             }
@@ -176,6 +215,7 @@ void AudioFileIoTest::testPosition()
     const size_t bufferSize = 4096;
 
     auto mockReader = std::make_unique<MockAudioFileIO>();
+    auto mockReaderPtr = mockReader.get();
     AudioFileReader::Info info;
     info.samplerate = sampleRate;
     info.channels = channels;
@@ -186,13 +226,16 @@ void AudioFileIoTest::testPosition()
     {
         AudioFileStreamer streamer(std::move(mockReader));
         streamer.start("dummy", bufferSize);
-        QThread::msleep(100);
+        
+        // Wait for initial fill
+        QVERIFY(mockReaderPtr->waitForReadCount(1, std::chrono::milliseconds(1000)));
 
         streamer.setPosition(0.5);
         QCOMPARE(streamer.position(), 0.5);
+        QVERIFY(mockReaderPtr->waitForSeekCount(1, std::chrono::milliseconds(1000)));
 
         // Wait for background thread to fill ring buffer from new position
-        QThread::msleep(100);
+        QVERIFY(mockReaderPtr->waitForReadCount(2, std::chrono::milliseconds(1000)));
 
         std::vector<int32_t> dummy(100);
         size_t read = streamer.pop(dummy.data(), dummy.size());
