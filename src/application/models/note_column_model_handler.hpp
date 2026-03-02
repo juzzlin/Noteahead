@@ -5,6 +5,7 @@
 
 #include <map>
 #include <memory>
+#include <set>
 #include <tuple>
 
 class QAbstractListModel;
@@ -38,6 +39,7 @@ public:
     Q_INVOKABLE void updateAll();
     Q_INVOKABLE void updateColumns(quint64 track);
     Q_INVOKABLE void updatePattern(quint64 pattern);
+    void deletePatterns(const std::set<size_t> & patternsToDelete);
     Q_INVOKABLE void clear();
 
 signals:

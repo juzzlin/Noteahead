@@ -182,6 +182,16 @@ bool Song::hasPattern(size_t patternIndex) const
     return m_patterns.contains(patternIndex);
 }
 
+bool Song::hasPatternInPlayOrder(size_t patternIndex) const
+{
+    for (size_t i = 0; i < m_length; ++i) {
+        if (m_playOrder->positionToPattern(i) == patternIndex) {
+            return true;
+        }
+    }
+    return false;
+}
+
 bool Song::hasPosition(const Position & position) const
 {
     if (m_patterns.contains(position.pattern)) {
@@ -257,6 +267,36 @@ Song::PatternIndexList Song::patternIndices() const
         indices.push_back(index);
     }
     return indices;
+}
+
+std::set<size_t> Song::unusedPatternIndices() const
+{
+    std::set<size_t> usedPatterns;
+    for (size_t i = 0; i < m_length; ++i) {
+        usedPatterns.insert(m_playOrder->positionToPattern(i));
+    }
+
+    std::set<size_t> unusedPatterns;
+    for (auto && [index, pattern] : m_patterns) {
+        if (!usedPatterns.contains(index)) {
+            unusedPatterns.insert(index);
+        }
+    }
+    return unusedPatterns;
+}
+
+void Song::deleteUnusedPatterns()
+{
+    const auto patternsToDelete = unusedPatternIndices();
+
+    for (const auto index : patternsToDelete) {
+        juzzlin::L(TAG).info() << "Deleting unused pattern: " << index;
+        m_patterns.erase(index);
+    }
+
+    if (m_patterns.empty()) {
+        initialize();
+    }
 }
 
 size_t Song::patternAtSongPosition(size_t position) const

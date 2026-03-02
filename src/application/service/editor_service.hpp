@@ -22,6 +22,7 @@
 #include <QObject>
 
 #include <optional>
+#include <set>
 #include <utility>
 #include "../command/undo_stack.hpp"
 
@@ -150,8 +151,10 @@ public:
     virtual Q_INVOKABLE quint64 patternCount() const;
     using PatternIndexList = std::vector<quint64>;
     virtual Q_INVOKABLE PatternIndexList patternIndices() const;
+    virtual Q_INVOKABLE bool isPatternUsed(quint64 patternIndex) const;
     virtual Q_INVOKABLE quint64 currentPattern() const;
     virtual Q_INVOKABLE void setCurrentPattern(quint64 currentPattern);
+    virtual Q_INVOKABLE void deleteUnusedPatterns();
     virtual Q_INVOKABLE QString patternName(quint64 patternIndex) const;
     virtual Q_INVOKABLE void setPatternName(quint64 patternIndex, QString name);
     virtual Q_INVOKABLE QString currentPatternName() const;
@@ -309,6 +312,7 @@ signals:
     void currentLineCountChanged(); // For the pattern length widget
     void currentLineCountModified(quint64 oldLineCount, quint64 newLineCount);
     void currentPatternChanged(); // For the pattern index widget
+    void patternsDeleted(const std::set<size_t> & patterns);
 
     void currentPatternTimeChanged();
     void currentTimeChanged();

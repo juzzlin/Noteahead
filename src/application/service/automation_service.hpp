@@ -19,6 +19,7 @@
 #include <QObject>
 
 #include <memory>
+#include <set>
 #include <vector>
 
 #include "../../domain/event.hpp"
@@ -40,6 +41,8 @@ public:
     AutomationService();
 
     void clear();
+
+    void deletePatterns(const std::set<size_t> & patternsToDelete);
 
     // <-- API for QML/UI -->
 

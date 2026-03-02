@@ -924,6 +924,64 @@ void SongTest::test_duration_skippedPattern_shouldReturnCorrectDuration()
     QCOMPARE(skippedDuration.count(), 4000); // 1 * 4 seconds
 }
 
+void SongTest::test_deleteUnusedPatterns_shouldRemoveUnusedPatterns()
+{
+    Song song;
+    song.createPattern(1);
+    song.createPattern(2);
+    QCOMPARE(song.patternCount(), 3);
+
+    song.setLength(2);
+    song.setPatternAtSongPosition(0, 0);
+    song.setPatternAtSongPosition(1, 2);
+
+    // Pattern 1 is unused, 0 and 2 are used
+    song.deleteUnusedPatterns();
+
+    QCOMPARE(song.patternCount(), 2);
+    QVERIFY(song.hasPattern(0));
+    QVERIFY(song.hasPattern(2));
+    QVERIFY(!song.hasPattern(1));
+}
+
+void SongTest::test_deleteUnusedPatterns_skippedButUsed_shouldNotBeRemoved()
+{
+    Song song;
+    song.setLength(1);
+    song.setPatternAtSongPosition(0, 0);
+    song.setSkipped(0, true);
+
+    QCOMPARE(song.patternCount(), 1);
+    song.deleteUnusedPatterns();
+    QCOMPARE(song.patternCount(), 1);
+    QVERIFY(song.hasPattern(0));
+}
+
+void SongTest::test_hasPatternInPlayOrder_shouldReturnCorrectValue()
+{
+    Song song;
+    song.createPattern(1);
+    song.setLength(2);
+    song.setPatternAtSongPosition(0, 0);
+    song.setPatternAtSongPosition(1, 0);
+
+    QVERIFY(song.hasPatternInPlayOrder(0));
+    QVERIFY(!song.hasPatternInPlayOrder(1));
+
+    song.setPatternAtSongPosition(1, 1);
+    QVERIFY(song.hasPatternInPlayOrder(1));
+}
+
+void SongTest::test_duration_allPatternsSkipped_shouldReturnZero()
+{
+    Song song;
+    song.setLength(2);
+    song.setSkipped(0, true);
+    song.setSkipped(1, true);
+
+    QCOMPARE(song.duration().count(), 0);
+}
+
 } // namespace noteahead
 
 QTEST_GUILESS_MAIN(noteahead::SongTest)

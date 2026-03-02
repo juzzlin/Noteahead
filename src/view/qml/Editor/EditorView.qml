@@ -116,6 +116,56 @@ FocusScope {
             }
         }
     }
+    Timer {
+        id: patternDeletionTimer
+        interval: 10
+        repeat: true
+        property var _patternsToCheck: []
+        property int _totalPatternsToCheck: 0
+        onTriggered: {
+            if (_patternsToCheck.length > 0) {
+                const patternIndex = _patternsToCheck.shift();
+                if (!editorService.isPatternUsed(patternIndex)) {
+                    uiLogger.info(_tag, `Pattern ${patternIndex} is unused, deleting..`);
+                    _deletePattern(patternIndex);
+                } else {
+                    uiLogger.debug(_tag, `Pattern ${patternIndex} is used, skipping..`);
+                }
+                progressBar.value = (_totalPatternsToCheck - _patternsToCheck.length) / _totalPatternsToCheck;
+            } else {
+                uiLogger.info(_tag, "Pattern deletion finished");
+                patternDeletionTimer.stop();
+                progressBar.fadeOut();
+                editorService.deleteUnusedPatterns(); // Finalize deletion in C++ side
+                _updatePatternVisibility();
+            }
+        }
+        function startDeletion(patterns: var): void {
+            _patternsToCheck = patterns;
+            _totalPatternsToCheck = patterns.length;
+            if (_totalPatternsToCheck > 0) {
+                progressBar.reset();
+                start();
+            }
+        }
+    }
+    function _deletePattern(patternIndex) {
+        uiLogger.debug(_tag, `Deleting pattern index=${patternIndex}`);
+        const pattern = _patternByIndex(patternIndex);
+        if (pattern) {
+            const index = _patterns.indexOf(pattern);
+            if (index !== -1) {
+                _patterns.splice(index, 1);
+            }
+            pattern.destroy();
+        }
+    }
+    function deleteUnusedPatterns() {
+        uiLogger.info(_tag, "Deleting unused patterns..");
+        const patterns = editorService.patternIndices();
+        uiLogger.info(_tag, `Found ${patterns.length} patterns total`);
+        patternDeletionTimer.startDeletion(patterns);
+    }
     Keys.onPressed: event => {
         keyboardHandler.handleKeyPressed(event);
         event.accepted = true;
@@ -360,6 +410,7 @@ FocusScope {
             });
         });
         mixerService.cleared.connect(_clearMixerSettings);
+        UiService.deleteUnusedPatternsConfirmed.connect(deleteUnusedPatterns);
         mouseHandler.editorFocusRequested.connect(forceActiveFocus);
     }
     function _lineNumberColumnHeight() {

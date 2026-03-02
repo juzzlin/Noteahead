@@ -24,6 +24,11 @@ Menu {
         enabled: editorService.canRedo
         onTriggered: editorService.redo()
     }
+    Action {
+        text: qsTr("Delete unused patterns")
+        enabled: !UiService.isPlaying()
+        onTriggered: UiService.requestDeleteUnusedPatterns()
+    }
     MenuSeparator {}
     Action {
         text: qsTr("Reset instruments")

@@ -10,6 +10,8 @@ New features:
 * Implement integrated Jack recorder
   - Now it's possible to connect Noteahead e.g. in Carla
 
+* Implement option to delete unused patterns
+
 * Fix GitHub Issue #31: Add MIDI import
   - Implements an experimental MIDI import
   - Supports note on/off and velocity

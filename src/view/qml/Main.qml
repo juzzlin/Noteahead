@@ -332,6 +332,10 @@ ApplicationWindow {
         width: parent.width * Constants.defaultDialogScale
         height: parent.height * Constants.defaultDialogScale
     }
+    DeleteUnusedPatternsDialog {
+        id: deleteUnusedPatternsDialog
+        anchors.centerIn: parent
+    }
     MainContextMenu {
         id: contextMenu
         width: parent.width * 0.25
@@ -583,6 +587,9 @@ ApplicationWindow {
             contextMenu.x = x;
             contextMenu.y = y;
             contextMenu.open();
+        });
+        UiService.deleteUnusedPatternsRequested.connect(() => {
+            deleteUnusedPatternsDialog.open();
         });
     }
     function _connectServices(): void {

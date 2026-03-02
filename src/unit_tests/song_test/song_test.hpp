@@ -69,6 +69,11 @@ private slots:
     void test_columnByName_shouldReturnColumn();
 
     void test_duration_skippedPattern_shouldReturnCorrectDuration();
+
+    void test_deleteUnusedPatterns_shouldRemoveUnusedPatterns();
+    void test_deleteUnusedPatterns_skippedButUsed_shouldNotBeRemoved();
+    void test_hasPatternInPlayOrder_shouldReturnCorrectValue();
+    void test_duration_allPatternsSkipped_shouldReturnZero();
 };
 
 } // namespace noteahead

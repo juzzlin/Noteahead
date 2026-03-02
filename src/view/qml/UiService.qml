@@ -11,6 +11,8 @@ QtObject {
     signal columnVelocityInterpolationDialogRequested
     signal columnVelocityScaleDialogRequested(int trackIndex, int columnIndex)
     signal contextMenuRequested(int globalX, int globalY)
+    signal deleteUnusedPatternsRequested
+    signal deleteUnusedPatternsConfirmed
     signal delayCalculatorDialogRequested
     signal editMidiCcAutomationsDialogByColumnRequested
     signal editMidiCcAutomationsDialogByLineRequested
@@ -252,6 +254,15 @@ QtObject {
     function rewindSong(): void {
         editorService.resetSongPosition();
         applicationService.applyAllTrackSettings();
+    }
+    function requestDeleteUnusedPatterns(): void {
+        if (!isPlaying()) {
+            deleteUnusedPatternsRequested();
+        }
+    }
+    function confirmDeleteUnusedPatterns(): void {
+        uiLogger.info("UiService", "Confirming unused pattern deletion");
+        deleteUnusedPatternsConfirmed();
     }
     signal quitRequested
     function requestQuit(): void {

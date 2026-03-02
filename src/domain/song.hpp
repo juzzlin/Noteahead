@@ -89,6 +89,7 @@ public:
 
     void createPattern(size_t patternIndex);
     bool hasPattern(size_t patternIndex) const;
+    bool hasPatternInPlayOrder(size_t patternIndex) const;
     bool hasPosition(const Position & position) const;
     bool hasTrack(size_t trackIndex) const;
 
@@ -109,6 +110,10 @@ public:
     PatternS pattern(size_t patternIndex) const;
     using PatternIndexList = std::vector<size_t>;
     PatternIndexList patternIndices() const;
+    std::set<size_t> unusedPatternIndices() const;
+    void deleteUnusedPatterns();
+
+    void patternsDeleted(const std::set<size_t> & patterns);
     size_t patternAtSongPosition(size_t position) const;
     void setPatternAtSongPosition(size_t position, size_t pattern);
     bool isSkipped(size_t position) const;

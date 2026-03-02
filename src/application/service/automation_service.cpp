@@ -503,6 +503,19 @@ void AutomationService::clear()
     m_automations = {};
 }
 
+void AutomationService::deletePatterns(const std::set<size_t> & patternsToDelete)
+{
+    juzzlin::L(TAG).info() << "Deleting automations for patterns: " << patternsToDelete.size();
+
+    std::erase_if(m_automations.midiCc, [&](auto && automation) {
+        return patternsToDelete.contains(automation.location().pattern());
+    });
+
+    std::erase_if(m_automations.pitchBend, [&](auto && automation) {
+        return patternsToDelete.contains(automation.location().pattern());
+    });
+}
+
 void AutomationService::notifyChangedLines(quint64 pattern, quint64 track, quint64 column, quint64 line0, quint64 line1)
 {
     for (auto line = line0; line <= line1; line++) {

@@ -148,6 +148,20 @@ void NoteColumnModelHandler::updatePattern(quint64 pattern)
     }
 }
 
+void NoteColumnModelHandler::deletePatterns(const std::set<size_t> & patternsToDelete)
+{
+    juzzlin::L(TAG).info() << "Deleting models for patterns: " << patternsToDelete.size();
+
+    std::erase_if(m_noteColumnModels, [&](auto && item) {
+        auto && [address, model] = item;
+        if (patternsToDelete.contains(std::get<0>(address))) {
+            delete model;
+            return true;
+        }
+        return false;
+    });
+}
+
 void NoteColumnModelHandler::clear()
 {
     for (auto && [address, model] : m_noteColumnModels) {

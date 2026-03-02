@@ -558,6 +558,11 @@ EditorService::PatternIndexList EditorService::patternIndices() const
     return result;
 }
 
+bool EditorService::isPatternUsed(quint64 patternIndex) const
+{
+    return m_song->hasPatternInPlayOrder(patternIndex);
+}
+
 quint64 EditorService::trackCount() const
 {
     return m_song->trackCount();
@@ -754,6 +759,15 @@ void EditorService::setCurrentPattern(quint64 patternIndex)
 
         notifyPositionChange(oldPosition);
     }
+}
+
+void EditorService::deleteUnusedPatterns()
+{
+    const auto unusedIndices = m_song->unusedPatternIndices();
+    emit patternsDeleted(unusedIndices);
+    m_song->deleteUnusedPatterns();
+    setIsModified(true);
+    emit currentPatternChanged();
 }
 
 QString EditorService::currentPatternTime() const
