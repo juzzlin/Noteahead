@@ -97,7 +97,8 @@ All Arctic Music Project songs:
 
 ### Audio
 - Audio recorder
-  - Just enable recording in `Settings => Audio` and Noteahead will record from the default audio source when the song starts and name the file according to active tracks
+  - Just enable recording in `Settings => Audio` and Noteahead will record from the selected audio source when the song starts and name the file according to active tracks
+  - Records audio from Jack if Jack Transport is enabled (since 1.8.0)
 
 ### Tools
 - Delay time calculator
