@@ -12,6 +12,8 @@ New features:
 
 * Implement option to delete unused patterns
 
+* Add option to skip patterns by right-clicking on the play order
+
 * Fix GitHub Issue #31: Add MIDI import
   - Implements an experimental MIDI import
   - Supports note on/off and velocity
