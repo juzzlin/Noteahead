@@ -315,10 +315,6 @@ target_include_directories(${BINARY_NAME} PRIVATE contrib/SimpleLogger/src)
 target_include_directories(${BINARY_NAME} PRIVATE contrib/Argengine/src)
 target_include_directories(${BINARY_NAME} PRIVATE ${RTAUDIO_INCLUDE_DIRS})
 target_include_directories(${BINARY_NAME} PRIVATE ${SNDFILE_INCLUDE_DIRS})
-if(JACK_FOUND)
-  target_include_directories(${BINARY_NAME} PRIVATE ${JACK_INCLUDE_DIRS})
-  target_compile_definitions(${BINARY_NAME} PRIVATE HAVE_JACK)
-endif()
 
 target_compile_definitions(${BINARY_NAME} PRIVATE $<$<OR:$<CONFIG:Debug>,$<CONFIG:RelWithDebInfo>>:QT_QML_DEBUG>)
 target_compile_definitions(${BINARY_NAME} PRIVATE QML_ROOT_DIR="${QML_ROOT_DIR}")
@@ -329,7 +325,10 @@ if(ENABLE_MIDI_DEBUG)
 endif()
 
 target_link_libraries(${BINARY_NAME} PRIVATE Qt6::Core Qt6::Quick ${RTMIDI_LIBRARIES} ${RTAUDIO_LIBRARIES} ${SNDFILE_LIBRARIES} SimpleLogger_static Argengine_static)
+
 if(JACK_FOUND)
+  target_include_directories(${BINARY_NAME} PRIVATE ${JACK_INCLUDE_DIRS})
+  target_compile_definitions(${BINARY_NAME} PRIVATE HAVE_JACK)
   target_link_libraries(${BINARY_NAME} PRIVATE ${JACK_LIBRARIES})
 endif()
 
