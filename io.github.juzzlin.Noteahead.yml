@@ -44,9 +44,6 @@ modules:
 
   - name: noteahead
     buildsystem: cmake-ninja
-    build-depends:
-      - rtaudio
-      - libsndfile
     config-opts:
       - -DCMAKE_BUILD_TYPE=Release
       - -DCMAKE_PREFIX_PATH=/app
