@@ -431,7 +431,7 @@ int DrumPadDialogModel::voiceCount() const
 
 QString DrumPadDialogModel::voiceName(int index) const
 {
-    return DrumSynthV2::voiceName(index);
+    return m_device ? QString::fromStdString(m_device->voiceName(index)) : DrumSynthV2::voiceName(index);
 }
 
 std::string DrumPadDialogModel::currentVoicePrefix() const

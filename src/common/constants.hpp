@@ -134,6 +134,7 @@ QString stringEnsembleDeviceName();
 QString speechDeviceName();
 QString fmSynthDeviceName();
 QString fmDrumsDeviceName();
+QString drumSynth808DeviceName();
 QString drumSynth909DeviceName();
 QString lfoDeviceName();
 QString xyPadDeviceName();
@@ -963,6 +964,8 @@ QString xmlKeyTune();
 QString xmlKeyClick();
 QString xmlKeyClickTune();
 QString xmlKeySnappy();
+//! A drum machine channel's switch between its two voices, as the RD-8's tom/conga ones
+QString xmlKeyVoiceSwitch();
 QString xmlKeySnareDecay();
 QString xmlKeySnareTension();
 QString xmlKeySnareBuzz();

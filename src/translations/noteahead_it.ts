@@ -346,7 +346,7 @@
     </message>
     <message>
         <source>Close</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Vicino</translation>
     </message>
     <message>
         <source>A</source>
@@ -1556,7 +1556,7 @@
     <name>CopyAutomationDialog</name>
     <message>
         <source>Pitch Bend</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Pitch Bend</translation>
     </message>
     <message>
         <source>No automations to copy.</source>
@@ -2406,6 +2406,96 @@
     </message>
 </context>
 <context>
+    <name>DrumSynth808Dialog</name>
+    <message>
+        <source>Ok</source>
+        <translation>OK</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>Annulla</translation>
+    </message>
+    <message>
+        <source>Voices</source>
+        <translation>Voci</translation>
+    </message>
+    <message>
+        <source>Voice Settings</source>
+        <translation>Impostazioni voce</translation>
+    </message>
+    <message>
+        <source>Level</source>
+        <translation>Livello</translation>
+    </message>
+    <message>
+        <source>Pan</source>
+        <translation>Panning</translation>
+    </message>
+    <message>
+        <source>LPF</source>
+        <translation>LPF</translation>
+    </message>
+    <message>
+        <source>HPF</source>
+        <translation>HPF</translation>
+    </message>
+    <message>
+        <source>The RD-8&apos;s switch: plays the channel&apos;s other voice</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Global</source>
+        <translation>Globale</translation>
+    </message>
+    <message>
+        <source>Gain</source>
+        <translation>Guadagno</translation>
+    </message>
+    <message>
+        <source>Fader</source>
+        <translation>Fader</translation>
+    </message>
+    <message>
+        <source>LPF Slope</source>
+        <translation>Pendenza LPF</translation>
+    </message>
+    <message>
+        <source>How steeply every voice&apos;s low pass rolls off. The steeper one clears more out of the way at the same cutoff.</source>
+        <translation>Quanto ripidamente scende il passa-basso di ogni voce. Quello più ripido toglie di più a parità di taglio.</translation>
+    </message>
+    <message>
+        <source>HPF Slope</source>
+        <translation>Pendenza HPF</translation>
+    </message>
+    <message>
+        <source>How steeply every voice&apos;s high pass rolls off. The steeper one clears more out of the way at the same cutoff.</source>
+        <translation>Quanto ripidamente scende il passa-alto di ogni voce. Quello più ripido toglie di più a parità di taglio.</translation>
+    </message>
+</context>
+<context>
+    <name>DrumSynth808Dialog_Presets</name>
+    <message>
+        <source>Kit:</source>
+        <translation>Kit:</translation>
+    </message>
+    <message>
+        <source>Save</source>
+        <translation>Salva</translation>
+    </message>
+    <message>
+        <source>Save the current settings as a preset of your own</source>
+        <translation>Salva le impostazioni attuali come preset personale</translation>
+    </message>
+    <message>
+        <source>Delete</source>
+        <translation>Elimina</translation>
+    </message>
+    <message>
+        <source>Delete the selected preset of your own</source>
+        <translation>Elimina il preset personale selezionato</translation>
+    </message>
+</context>
+<context>
     <name>DrumSynth909Dialog</name>
     <message>
         <source>Ok</source>
@@ -2523,7 +2613,7 @@
     </message>
     <message>
         <source>How steeply every voice&apos;s low pass rolls off. The steeper one clears more out of the way at the same cutoff.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Quanto ripidamente scende il passa-basso di ogni voce. Quello più ripido toglie di più a parità di taglio.</translation>
     </message>
     <message>
         <source>HPF Slope</source>
@@ -2531,7 +2621,7 @@
     </message>
     <message>
         <source>How steeply every voice&apos;s high pass rolls off. The steeper one clears more out of the way at the same cutoff.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Quanto ripidamente scende il passa-alto di ogni voce. Quello più ripido toglie di più a parità di taglio.</translation>
     </message>
     <message>
         <source>Voices</source>
@@ -2626,7 +2716,7 @@
     </message>
     <message>
         <source>How steeply every voice&apos;s low pass rolls off. The steeper one clears more out of the way at the same cutoff.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Quanto ripidamente scende il passa-basso di ogni voce. Quello più ripido toglie di più a parità di taglio.</translation>
     </message>
     <message>
         <source>HPF Slope</source>
@@ -2634,7 +2724,7 @@
     </message>
     <message>
         <source>How steeply every voice&apos;s high pass rolls off. The steeper one clears more out of the way at the same cutoff.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Quanto ripidamente scende il passa-alto di ogni voce. Quello più ripido toglie di più a parità di taglio.</translation>
     </message>
     <message>
         <source>Voices</source>
@@ -2701,7 +2791,7 @@
     <name>DrumSynthV2Dialog_Presets</name>
     <message>
         <source>Kit:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Kit:</translation>
     </message>
     <message>
         <source>Save</source>
@@ -4254,7 +4344,7 @@
     </message>
     <message>
         <source>How steeply every voice&apos;s low pass rolls off. The steeper one clears more out of the way at the same cutoff.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Quanto ripidamente scende il passa-basso di ogni voce. Quello più ripido toglie di più a parità di taglio.</translation>
     </message>
     <message>
         <source>HPF Slope</source>
@@ -4262,7 +4352,7 @@
     </message>
     <message>
         <source>How steeply every voice&apos;s high pass rolls off. The steeper one clears more out of the way at the same cutoff.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Quanto ripidamente scende il passa-alto di ogni voce. Quello più ripido toglie di più a parità di taglio.</translation>
     </message>
 </context>
 <context>
@@ -4355,7 +4445,7 @@
     <name>FmDrumsDialog_Presets</name>
     <message>
         <source>Kit:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Kit:</translation>
     </message>
     <message>
         <source>Save</source>
@@ -5851,16 +5941,16 @@
         <translation>Attacco</translation>
     </message>
     <message>
-        <source>The click at the start of the drum and the noise over it. The lower half is the 909&apos;s own; the top half goes beyond it, to a hard click.</source>
-        <translation>Il clic all&apos;inizio della cassa e il rumore sopra di esso. La metà inferiore è quella della 909; la metà superiore va oltre, fino a un clic duro.</translation>
+        <source>The click at the start of the drum, from a subtle tick at 0 to a hard click 6.7 dB over the body at 10.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>How long the drum sounds: about a quarter of a second at 0, 0.4 s at 5 and 1.7 s at 10. Use the amp envelope for longer.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Decay</source>
         <translation>Decadimento</translation>
-    </message>
-    <message>
-        <source>How long the drum sounds: about a tenth of a second at 0, half a second at 10. Use the amp envelope for longer.</source>
-        <translation>Quanto suona la cassa: circa un decimo di secondo a 0, mezzo secondo a 10. Usa l&apos;inviluppo d&apos;ampiezza per suoni più lunghi.</translation>
     </message>
 </context>
 <context>
@@ -9955,6 +10045,10 @@
         <source>Far Angle</source>
         <translation>Angolo lontano</translation>
     </message>
+    <message>
+        <source>Offset</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>PerformancePanel</name>
@@ -10853,7 +10947,7 @@
     </message>
     <message>
         <source>Room</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Stanza</translation>
     </message>
     <message>
         <source>How much of the space the system is heard in: the cabin, the club, the hall</source>

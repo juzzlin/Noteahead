@@ -346,7 +346,7 @@
     </message>
     <message>
         <source>Close</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Proche</translation>
     </message>
     <message>
         <source>A</source>
@@ -1556,7 +1556,7 @@
     <name>CopyAutomationDialog</name>
     <message>
         <source>Pitch Bend</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Pitch Bend</translation>
     </message>
     <message>
         <source>No automations to copy.</source>
@@ -2406,6 +2406,96 @@
     </message>
 </context>
 <context>
+    <name>DrumSynth808Dialog</name>
+    <message>
+        <source>Ok</source>
+        <translation>OK</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>Annuler</translation>
+    </message>
+    <message>
+        <source>Voices</source>
+        <translation>Voix</translation>
+    </message>
+    <message>
+        <source>Voice Settings</source>
+        <translation>Paramètres de voix</translation>
+    </message>
+    <message>
+        <source>Level</source>
+        <translation>Niveau</translation>
+    </message>
+    <message>
+        <source>Pan</source>
+        <translation>Panoramique</translation>
+    </message>
+    <message>
+        <source>LPF</source>
+        <translation>LPF</translation>
+    </message>
+    <message>
+        <source>HPF</source>
+        <translation>HPF</translation>
+    </message>
+    <message>
+        <source>The RD-8&apos;s switch: plays the channel&apos;s other voice</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Global</source>
+        <translation>Global</translation>
+    </message>
+    <message>
+        <source>Gain</source>
+        <translation>Gain</translation>
+    </message>
+    <message>
+        <source>Fader</source>
+        <translation>Fader</translation>
+    </message>
+    <message>
+        <source>LPF Slope</source>
+        <translation>Pente du LPF</translation>
+    </message>
+    <message>
+        <source>How steeply every voice&apos;s low pass rolls off. The steeper one clears more out of the way at the same cutoff.</source>
+        <translation>La pente du passe-bas de chaque voix. La plus raide dégage davantage à la même fréquence de coupure.</translation>
+    </message>
+    <message>
+        <source>HPF Slope</source>
+        <translation>Pente du HPF</translation>
+    </message>
+    <message>
+        <source>How steeply every voice&apos;s high pass rolls off. The steeper one clears more out of the way at the same cutoff.</source>
+        <translation>La pente du passe-haut de chaque voix. La plus raide dégage davantage à la même fréquence de coupure.</translation>
+    </message>
+</context>
+<context>
+    <name>DrumSynth808Dialog_Presets</name>
+    <message>
+        <source>Kit:</source>
+        <translation>Kit :</translation>
+    </message>
+    <message>
+        <source>Save</source>
+        <translation>Enregistrer</translation>
+    </message>
+    <message>
+        <source>Save the current settings as a preset of your own</source>
+        <translation>Enregistrer les réglages actuels comme préréglage personnel</translation>
+    </message>
+    <message>
+        <source>Delete</source>
+        <translation>Supprimer</translation>
+    </message>
+    <message>
+        <source>Delete the selected preset of your own</source>
+        <translation>Supprimer le préréglage personnel sélectionné</translation>
+    </message>
+</context>
+<context>
     <name>DrumSynth909Dialog</name>
     <message>
         <source>Ok</source>
@@ -2523,7 +2613,7 @@
     </message>
     <message>
         <source>How steeply every voice&apos;s low pass rolls off. The steeper one clears more out of the way at the same cutoff.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">La pente du passe-bas de chaque voix. La plus raide dégage davantage à la même fréquence de coupure.</translation>
     </message>
     <message>
         <source>HPF Slope</source>
@@ -2531,7 +2621,7 @@
     </message>
     <message>
         <source>How steeply every voice&apos;s high pass rolls off. The steeper one clears more out of the way at the same cutoff.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">La pente du passe-haut de chaque voix. La plus raide dégage davantage à la même fréquence de coupure.</translation>
     </message>
     <message>
         <source>Voices</source>
@@ -2626,7 +2716,7 @@
     </message>
     <message>
         <source>How steeply every voice&apos;s low pass rolls off. The steeper one clears more out of the way at the same cutoff.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">La pente du passe-bas de chaque voix. La plus raide dégage davantage à la même fréquence de coupure.</translation>
     </message>
     <message>
         <source>HPF Slope</source>
@@ -2634,7 +2724,7 @@
     </message>
     <message>
         <source>How steeply every voice&apos;s high pass rolls off. The steeper one clears more out of the way at the same cutoff.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">La pente du passe-haut de chaque voix. La plus raide dégage davantage à la même fréquence de coupure.</translation>
     </message>
     <message>
         <source>Voices</source>
@@ -2701,7 +2791,7 @@
     <name>DrumSynthV2Dialog_Presets</name>
     <message>
         <source>Kit:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Kit :</translation>
     </message>
     <message>
         <source>Save</source>
@@ -4254,7 +4344,7 @@
     </message>
     <message>
         <source>How steeply every voice&apos;s low pass rolls off. The steeper one clears more out of the way at the same cutoff.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">La pente du passe-bas de chaque voix. La plus raide dégage davantage à la même fréquence de coupure.</translation>
     </message>
     <message>
         <source>HPF Slope</source>
@@ -4262,7 +4352,7 @@
     </message>
     <message>
         <source>How steeply every voice&apos;s high pass rolls off. The steeper one clears more out of the way at the same cutoff.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">La pente du passe-haut de chaque voix. La plus raide dégage davantage à la même fréquence de coupure.</translation>
     </message>
 </context>
 <context>
@@ -4355,7 +4445,7 @@
     <name>FmDrumsDialog_Presets</name>
     <message>
         <source>Kit:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Kit :</translation>
     </message>
     <message>
         <source>Save</source>
@@ -5851,16 +5941,16 @@
         <translation>Attaque</translation>
     </message>
     <message>
-        <source>The click at the start of the drum and the noise over it. The lower half is the 909&apos;s own; the top half goes beyond it, to a hard click.</source>
-        <translation>Le clic au début de la grosse caisse et le bruit par-dessus. La moitié basse est celle de la 909 ; la moitié haute va au-delà, jusqu&apos;à un clic dur.</translation>
+        <source>The click at the start of the drum, from a subtle tick at 0 to a hard click 6.7 dB over the body at 10.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>How long the drum sounds: about a quarter of a second at 0, 0.4 s at 5 and 1.7 s at 10. Use the amp envelope for longer.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Decay</source>
         <translation>Déclin</translation>
-    </message>
-    <message>
-        <source>How long the drum sounds: about a tenth of a second at 0, half a second at 10. Use the amp envelope for longer.</source>
-        <translation>La durée de la grosse caisse : environ un dixième de seconde à 0, une demi-seconde à 10. Utilisez l&apos;enveloppe d&apos;amplitude pour plus long.</translation>
     </message>
 </context>
 <context>
@@ -9955,6 +10045,10 @@
         <source>Far Angle</source>
         <translation>Angle lointain</translation>
     </message>
+    <message>
+        <source>Offset</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>PerformancePanel</name>
@@ -10853,7 +10947,7 @@
     </message>
     <message>
         <source>Room</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Pièce</translation>
     </message>
     <message>
         <source>How much of the space the system is heard in: the cabin, the club, the hall</source>

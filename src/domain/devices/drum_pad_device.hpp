@@ -124,6 +124,10 @@ public:
     //! made from, since a device is copied by reading what another one saved.
     virtual std::unique_ptr<DrumPadDevice> newInstance(std::string name) const = 0;
 
+    //! What pad @p index is called where it is listed, as in MIDI CC and automation lists. Drum
+    //! Synth V2's names unless the device plays something else on a pad.
+    virtual std::string voiceName(int index) const;
+
 protected:
     //! Sets up everything around the engines. The subclass constructor then puts an engine on every
     //! pad with setVoiceEngine(), registers the parameters with addVoiceParameters() and syncs: those
