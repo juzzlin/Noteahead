@@ -40,7 +40,7 @@ modules:
     sources:
       - type: archive
         url: https://github.com/libsndfile/libsndfile/releases/download/1.2.2/libsndfile-1.2.2.tar.xz
-        sha256: 3799ca9924d31250388a4e3152a11aa2185c7f0883e355d1455a4d5dcf11f74d
+        sha256: 3799ca9924d3125038880367bf1468e53a1b7e3686a934f098b7e1d286cdb80e
 
   - name: noteahead
     buildsystem: cmake-ninja
