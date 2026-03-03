@@ -9,7 +9,7 @@ Noteahead is designed to be especially a MIDI tracker, so it has/will have featu
 Noteahead is written in Qt/QML/C++20 on top of RtMidi back-end + RtAudio for the audio recorder. It builds with CMake and uses CTest + Qt Test framework for unit tests.
 
 <table>
-  <tr><td colspan="3"><img src="/screenshots/0.2.0/Noteahead_1.png" width="100%"></td></tr>
+  <tr><td colspan="3"><img src="/screenshots/1.8.0/1.png" width="100%"></td></tr>
   <tr>
     <td><img src="/screenshots/0.6.0/Noteahead_1.png" width="100%"></td>
     <td><img src="/screenshots/0.6.0/Noteahead_2.png" width="100%"></td>
