@@ -346,7 +346,7 @@
     </message>
     <message>
         <source>Close</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">近距</translation>
     </message>
     <message>
         <source>A</source>
@@ -1556,7 +1556,7 @@
     <name>CopyAutomationDialog</name>
     <message>
         <source>Pitch Bend</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Pitch Bend</translation>
     </message>
     <message>
         <source>No automations to copy.</source>
@@ -2405,6 +2405,96 @@
     </message>
 </context>
 <context>
+    <name>DrumSynth808Dialog</name>
+    <message>
+        <source>Ok</source>
+        <translation>确定</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>取消</translation>
+    </message>
+    <message>
+        <source>Voices</source>
+        <translation>复音数</translation>
+    </message>
+    <message>
+        <source>Voice Settings</source>
+        <translation>声部设置</translation>
+    </message>
+    <message>
+        <source>Level</source>
+        <translation>电平</translation>
+    </message>
+    <message>
+        <source>Pan</source>
+        <translation>声像</translation>
+    </message>
+    <message>
+        <source>LPF</source>
+        <translation>LPF</translation>
+    </message>
+    <message>
+        <source>HPF</source>
+        <translation>HPF</translation>
+    </message>
+    <message>
+        <source>The RD-8&apos;s switch: plays the channel&apos;s other voice</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Global</source>
+        <translation>全局</translation>
+    </message>
+    <message>
+        <source>Gain</source>
+        <translation>增益</translation>
+    </message>
+    <message>
+        <source>Fader</source>
+        <translation>推子</translation>
+    </message>
+    <message>
+        <source>LPF Slope</source>
+        <translation>低通斜率</translation>
+    </message>
+    <message>
+        <source>How steeply every voice&apos;s low pass rolls off. The steeper one clears more out of the way at the same cutoff.</source>
+        <translation>每个声部低通滤波器的衰减陡度。在相同截止频率下，越陡清除得越多。</translation>
+    </message>
+    <message>
+        <source>HPF Slope</source>
+        <translation>高通斜率</translation>
+    </message>
+    <message>
+        <source>How steeply every voice&apos;s high pass rolls off. The steeper one clears more out of the way at the same cutoff.</source>
+        <translation>每个声部高通滤波器的衰减陡度。在相同截止频率下，越陡清除得越多。</translation>
+    </message>
+</context>
+<context>
+    <name>DrumSynth808Dialog_Presets</name>
+    <message>
+        <source>Kit:</source>
+        <translation>套件：</translation>
+    </message>
+    <message>
+        <source>Save</source>
+        <translation>保存</translation>
+    </message>
+    <message>
+        <source>Save the current settings as a preset of your own</source>
+        <translation>将当前设置保存为自定义预设</translation>
+    </message>
+    <message>
+        <source>Delete</source>
+        <translation>删除</translation>
+    </message>
+    <message>
+        <source>Delete the selected preset of your own</source>
+        <translation>删除所选的自定义预设</translation>
+    </message>
+</context>
+<context>
     <name>DrumSynth909Dialog</name>
     <message>
         <source>Ok</source>
@@ -2522,7 +2612,7 @@
     </message>
     <message>
         <source>How steeply every voice&apos;s low pass rolls off. The steeper one clears more out of the way at the same cutoff.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">每个声部低通滤波器的衰减陡度。在相同截止频率下，越陡清除得越多。</translation>
     </message>
     <message>
         <source>HPF Slope</source>
@@ -2530,7 +2620,7 @@
     </message>
     <message>
         <source>How steeply every voice&apos;s high pass rolls off. The steeper one clears more out of the way at the same cutoff.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">每个声部高通滤波器的衰减陡度。在相同截止频率下，越陡清除得越多。</translation>
     </message>
     <message>
         <source>Voices</source>
@@ -2625,7 +2715,7 @@
     </message>
     <message>
         <source>How steeply every voice&apos;s low pass rolls off. The steeper one clears more out of the way at the same cutoff.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">每个声部低通滤波器的衰减陡度。在相同截止频率下，越陡清除得越多。</translation>
     </message>
     <message>
         <source>HPF Slope</source>
@@ -2633,7 +2723,7 @@
     </message>
     <message>
         <source>How steeply every voice&apos;s high pass rolls off. The steeper one clears more out of the way at the same cutoff.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">每个声部高通滤波器的衰减陡度。在相同截止频率下，越陡清除得越多。</translation>
     </message>
     <message>
         <source>Voices</source>
@@ -2700,7 +2790,7 @@
     <name>DrumSynthV2Dialog_Presets</name>
     <message>
         <source>Kit:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">套件：</translation>
     </message>
     <message>
         <source>Save</source>
@@ -4253,7 +4343,7 @@
     </message>
     <message>
         <source>How steeply every voice&apos;s low pass rolls off. The steeper one clears more out of the way at the same cutoff.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">每个声部低通滤波器的衰减陡度。在相同截止频率下，越陡清除得越多。</translation>
     </message>
     <message>
         <source>HPF Slope</source>
@@ -4261,7 +4351,7 @@
     </message>
     <message>
         <source>How steeply every voice&apos;s high pass rolls off. The steeper one clears more out of the way at the same cutoff.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">每个声部高通滤波器的衰减陡度。在相同截止频率下，越陡清除得越多。</translation>
     </message>
 </context>
 <context>
@@ -4354,7 +4444,7 @@
     <name>FmDrumsDialog_Presets</name>
     <message>
         <source>Kit:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">套件：</translation>
     </message>
     <message>
         <source>Save</source>
@@ -5850,16 +5940,16 @@
         <translation>起音</translation>
     </message>
     <message>
-        <source>The click at the start of the drum and the noise over it. The lower half is the 909&apos;s own; the top half goes beyond it, to a hard click.</source>
-        <translation>底鼓开头的咔嗒声及其上的噪声。下半段是 909 本身的；上半段超出它，直到清脆有力的咔嗒声。</translation>
+        <source>The click at the start of the drum, from a subtle tick at 0 to a hard click 6.7 dB over the body at 10.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>How long the drum sounds: about a quarter of a second at 0, 0.4 s at 5 and 1.7 s at 10. Use the amp envelope for longer.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Decay</source>
         <translation>衰减</translation>
-    </message>
-    <message>
-        <source>How long the drum sounds: about a tenth of a second at 0, half a second at 10. Use the amp envelope for longer.</source>
-        <translation>底鼓发声多长时间：0 时约十分之一秒，10 时半秒。更长请使用振幅包络。</translation>
     </message>
 </context>
 <context>
@@ -9954,6 +10044,10 @@
         <source>Far Angle</source>
         <translation>远距角度</translation>
     </message>
+    <message>
+        <source>Offset</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>PerformancePanel</name>
@@ -10852,7 +10946,7 @@
     </message>
     <message>
         <source>Room</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">房间</translation>
     </message>
     <message>
         <source>How much of the space the system is heard in: the cabin, the club, the hall</source>

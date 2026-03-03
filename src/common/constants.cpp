@@ -189,6 +189,11 @@ QString fmDrumsDeviceName()
     return "Noteahead FmDrums";
 }
 
+QString drumSynth808DeviceName()
+{
+    return "Noteahead DrumSynth808";
+}
+
 QString drumSynth909DeviceName()
 {
     return "Noteahead DrumSynth909";
@@ -3270,6 +3275,11 @@ QString xmlKeyClickTune()
 QString xmlKeySnappy()
 {
     return "snappy";
+}
+
+QString xmlKeyVoiceSwitch()
+{
+    return "voiceSwitch";
 }
 
 QString xmlKeySnareDecay()

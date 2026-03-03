@@ -1,0 +1,13 @@
+noteahead_add_device(
+    DOMAIN_SOURCES
+        drum_synth_808_device.cpp
+        drum_synth_808_device.hpp
+        drum_synth_808_registration.cpp
+    VIEW_SOURCES
+        drum_synth_808_dialog_model.cpp
+        drum_synth_808_dialog_model.hpp
+        drum_synth_808_view_registration.cpp
+    QML_FILES
+        DrumSynth808Dialog.qml
+        DrumSynth808Dialog_Presets.qml
+)

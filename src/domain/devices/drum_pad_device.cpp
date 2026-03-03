@@ -83,7 +83,7 @@ Device::AutomatableParameterList DrumPadDevice::automatableParameters() const
     auto list = Device::automatableParameters();
     for (auto && entry : list) {
         if (const auto voice = voiceOf(entry.key); voice >= 0) {
-            entry.groupName = DrumSynthV2::voiceName(voice).toStdString();
+            entry.groupName = voiceName(voice);
         }
     }
     std::ranges::stable_sort(list, {}, [&voiceOf](auto && entry) { return voiceOf(entry.key); });
@@ -112,22 +112,27 @@ std::vector<MidiCcController> DrumPadDevice::deviceMidiCcControllers() const
     // Range 1: Voices 0-5
     for (int voice { 0 }; voice < NumVoicesRange1; voice++) {
         const uint8_t baseCc = CcStartRange1 + (voice * 3);
-        const std::string voiceName = DrumSynthV2::voiceName(voice).toStdString();
-        list.push_back({ baseCc, voiceName + " Pan" });
-        list.push_back({ static_cast<uint8_t>(baseCc + 1), voiceName + " LPF" });
-        list.push_back({ static_cast<uint8_t>(baseCc + 2), voiceName + " HPF" });
+        const std::string name = voiceName(voice);
+        list.push_back({ baseCc, name + " Pan" });
+        list.push_back({ static_cast<uint8_t>(baseCc + 1), name + " LPF" });
+        list.push_back({ static_cast<uint8_t>(baseCc + 2), name + " HPF" });
     }
 
     // Range 2: Voices 6-10
     for (int voice { 0 }; voice < NumVoicesRange2; voice++) {
         const uint8_t baseCc = CcStartRange2 + (voice * 3);
-        const std::string voiceName = DrumSynthV2::voiceName(static_cast<int>(NumVoicesRange1) + voice).toStdString();
-        list.push_back({ baseCc, voiceName + " Pan" });
-        list.push_back({ static_cast<uint8_t>(baseCc + 1), voiceName + " LPF" });
-        list.push_back({ static_cast<uint8_t>(baseCc + 2), voiceName + " HPF" });
+        const std::string name = voiceName(static_cast<int>(NumVoicesRange1) + voice);
+        list.push_back({ baseCc, name + " Pan" });
+        list.push_back({ static_cast<uint8_t>(baseCc + 1), name + " LPF" });
+        list.push_back({ static_cast<uint8_t>(baseCc + 2), name + " HPF" });
     }
 
     return list;
+}
+
+std::string DrumPadDevice::voiceName(int index) const
+{
+    return DrumSynthV2::voiceName(index).toStdString();
 }
 
 bool DrumPadDevice::supportsOctave() const
