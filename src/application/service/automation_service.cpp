@@ -57,6 +57,25 @@ quint64 AutomationService::addMidiCcAutomation(quint64 pattern, quint64 track, q
     return addMidiCcAutomation(pattern, track, column, controller, line0, line1, value0, value1, comment, true, eventsPerBeat, lineOffset);
 }
 
+quint64 AutomationService::addMidiCcAutomation(const MidiCcAutomation & automation)
+{
+    const auto maxIdItem = std::max_element(m_automations.midiCc.begin(), m_automations.midiCc.end(), [](auto && lhs, auto && rhs) { return lhs.id() < rhs.id(); });
+    const auto id = maxIdItem != m_automations.midiCc.end() ? (*maxIdItem).id() + 1 : 1;
+    auto newAutomation = automation;
+    newAutomation.setId(id);
+    m_automations.midiCc.push_back(newAutomation);
+    notifyChangedLines(newAutomation);
+    juzzlin::L(TAG).info() << "MIDI CC Automation added (from object): " << newAutomation.toString().toStdString();
+    return newAutomation.id();
+}
+
+void AutomationService::addMidiCcAutomationWithId(const MidiCcAutomation & automation)
+{
+    m_automations.midiCc.push_back(automation);
+    notifyChangedLines(automation);
+    juzzlin::L(TAG).info() << "MIDI CC Automation added (with ID): " << automation.toString().toStdString();
+}
+
 void AutomationService::addMidiCcModulation(quint64 automationId, quint64 cycles, float amplitude, float offset, bool inverted)
 {
     if (const auto iter = std::ranges::find_if(m_automations.midiCc, [&](auto && existingAutomation) {
@@ -159,6 +178,25 @@ void AutomationService::updatePitchBendAutomation(const PitchBendAutomation & up
     } else {
         juzzlin::L(TAG).error() << "No such automation id: " << updatedAutomation.id();
     }
+}
+
+quint64 AutomationService::addPitchBendAutomation(const PitchBendAutomation & automation)
+{
+    const auto maxIdItem = std::max_element(m_automations.pitchBend.begin(), m_automations.pitchBend.end(), [](auto && lhs, auto && rhs) { return lhs.id() < rhs.id(); });
+    const auto id = maxIdItem != m_automations.pitchBend.end() ? (*maxIdItem).id() + 1 : 1;
+    auto newAutomation = automation;
+    newAutomation.setId(id);
+    m_automations.pitchBend.push_back(newAutomation);
+    notifyChangedLines(newAutomation);
+    juzzlin::L(TAG).info() << "Pitch Bend Automation added (from object): " << newAutomation.toString().toStdString();
+    return newAutomation.id();
+}
+
+void AutomationService::addPitchBendAutomationWithId(const PitchBendAutomation & automation)
+{
+    m_automations.pitchBend.push_back(automation);
+    notifyChangedLines(automation);
+    juzzlin::L(TAG).info() << "Pitch Bend Automation added (with ID): " << automation.toString().toStdString();
 }
 
 bool AutomationService::hasAutomations(quint64 pattern, quint64 track, quint64 column, quint64 line) const

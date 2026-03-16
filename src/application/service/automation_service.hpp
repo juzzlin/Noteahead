@@ -51,6 +51,8 @@ public:
     //! \param value1 End value from 0 to 127.
     Q_INVOKABLE quint64 addMidiCcAutomation(quint64 pattern, quint64 track, quint64 column, quint8 controller, quint64 line0, quint64 line1, quint8 value0, quint8 value1, QString comment, bool enabled, quint8 eventsPerBeat, quint8 lineOffset);
     Q_INVOKABLE quint64 addMidiCcAutomation(quint64 pattern, quint64 track, quint64 column, quint8 controller, quint64 line0, quint64 line1, quint8 value0, quint8 value1, QString comment, quint8 eventsPerBeat, quint8 lineOffset);
+    quint64 addMidiCcAutomation(const MidiCcAutomation & automation);
+    void addMidiCcAutomationWithId(const MidiCcAutomation & automation);
     Q_INVOKABLE void addMidiCcModulation(quint64 automationId, quint64 cycles, float amplitude, float offset, bool inverted);
 
     //! Adds automation for MIDI pitch bend.
@@ -58,6 +60,8 @@ public:
     //! \param value1 End value from -100% to +100%.
     Q_INVOKABLE quint64 addPitchBendAutomation(quint64 pattern, quint64 track, quint64 column, quint64 line0, quint64 line1, int value0, int value1, QString comment, bool enabled);
     Q_INVOKABLE quint64 addPitchBendAutomation(quint64 pattern, quint64 track, quint64 column, quint64 line0, quint64 line1, int value0, int value1, QString comment);
+    quint64 addPitchBendAutomation(const PitchBendAutomation & automation);
+    void addPitchBendAutomationWithId(const PitchBendAutomation & automation);
     Q_INVOKABLE bool hasAutomations(quint64 pattern, quint64 track, quint64 column, quint64 line) const;
     Q_INVOKABLE double automationWeight(quint64 pattern, quint64 track, quint64 column, quint64 line) const;
 

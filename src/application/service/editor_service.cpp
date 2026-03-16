@@ -13,6 +13,8 @@
 // You should have received a copy of the GNU General Public License
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
+#include "automation_service.hpp"
+#include "../../domain/pattern.hpp"
 #include "editor_service.hpp"
 
 #include "../../infra/settings.hpp"
@@ -22,6 +24,8 @@
 #include "../../domain/note_data_manipulator.hpp"
 #include "../../domain/song.hpp"
 #include "../command/note_edit_command.hpp"
+#include "../command/automation_command.hpp"
+#include "../command/composite_command.hpp"
 #include "../instrument_request.hpp"
 #include "../note_converter.hpp"
 #include "copy_manager.hpp"
@@ -49,6 +53,7 @@ EditorService::EditorService(SelectionServiceS selectionService, SettingsService
   : m_undoStack { std::make_unique<UndoStack>() }
   , m_selectionService { selectionService }
   , m_settingsService { settingsService }
+  , m_automationService { std::make_shared<AutomationService>() }
 {
     initialize();
     m_undoStack->setCanUndoChangedCallback([this] { emit canUndoChanged(); });
@@ -71,6 +76,11 @@ void EditorService::initialize()
 void EditorService::setMixerService(MixerServiceS mixerService)
 {
     m_mixerService = mixerService;
+}
+
+void EditorService::setAutomationService(AutomationServiceS automationService)
+{
+    m_automationService = automationService;
 }
 
 EditorService::SongS EditorService::song() const
@@ -111,7 +121,7 @@ void EditorService::setSong(SongS song)
 
 void EditorService::requestInstruments()
 {
-    for (quint64 trackIndex : m_song->trackIndices()) {
+    for (auto && trackIndex : m_song->trackIndices()) {
         if (const auto instrument = m_song->instrument(trackIndex); instrument) {
             juzzlin::L(TAG).info() << "Requesting instrument for track index=" << trackIndex;
             emit instrumentRequested({ InstrumentRequest::Type::ApplyAll, *instrument });
@@ -1290,18 +1300,38 @@ void EditorService::requestColumnCut()
 {
     juzzlin::L(TAG).info() << "Requesting column cut";
     NoteEditCommand::ChangeList changes;
-    for (auto && changedPosition : m_song->copyColumn(currentPattern(), currentTrack(), currentColumn(), m_state.copyManager)) {
+    for (auto && changedPosition : m_song->copyColumn(currentPattern(), currentTrack(), currentColumn(), m_state.copyManager, *m_automationService)) {
         if (const auto oldNoteData = m_song->noteDataAtPosition(changedPosition); oldNoteData) {
-            changes.emplace_back(changedPosition, *oldNoteData, NoteData { changedPosition.track, changedPosition.column });
+            changes.emplace_back(changedPosition, *oldNoteData, NoteData { static_cast<size_t>(changedPosition.track), static_cast<size_t>(changedPosition.column) });
         }
     }
 
-    if (!changes.empty()) {
-        m_undoStack->push(std::make_shared<NoteEditCommand>(m_song, std::move(changes), m_state.cursorPosition, m_state.cursorPosition, [this](const Position & pos) {
-            emit noteDataAtPositionChanged(pos);
-            setIsModified(true);
-            updateDuration();
-        }, [this](const Position & pos) { requestPosition(pos); }));
+    if (changes.empty()) {
+        return;
+    }
+
+    auto noteEditCommand = std::make_shared<NoteEditCommand>(m_song, std::move(changes), m_state.cursorPosition, m_state.cursorPosition, [this](const Position & pos) {
+        emit noteDataAtPositionChanged(pos);
+        setIsModified(true);
+        updateDuration();
+    }, [this](const Position & pos) { requestPosition(pos); });
+
+    if (m_automationService) {
+        const auto midiCcDeletions = m_state.copyManager.getPasteColumnMidiCcAutomationChanges(*m_song->pattern(currentPattern()), currentTrack(), currentColumn());
+        const auto pitchBendDeletions = m_state.copyManager.getPasteColumnPitchBendAutomationChanges(*m_song->pattern(currentPattern()), currentTrack(), currentColumn());
+
+        if (midiCcDeletions.empty() && pitchBendDeletions.empty()) {
+            m_undoStack->push(std::move(noteEditCommand));
+        } else {
+            auto automationCommand = std::make_shared<AutomationCommand>(m_automationService, AutomationCommand::MidiCcAutomationList {}, AutomationCommand::PitchBendAutomationList {}, std::move(midiCcDeletions), std::move(pitchBendDeletions));
+
+            CompositeCommand::CommandList commands;
+            commands.push_back(std::move(noteEditCommand));
+            commands.push_back(std::move(automationCommand));
+            m_undoStack->push(std::make_shared<CompositeCommand>(std::move(commands)));
+        }
+    } else {
+        m_undoStack->push(std::move(noteEditCommand));
     }
 
     emit copyManagerStateChanged();
@@ -1311,7 +1341,11 @@ void EditorService::requestColumnCut()
 void EditorService::requestColumnCopy()
 {
     juzzlin::L(TAG).info() << "Requesting column copy";
-    m_song->copyColumn(currentPattern(), currentTrack(), currentColumn(), m_state.copyManager);
+    if (m_automationService) {
+        m_song->copyColumn(currentPattern(), currentTrack(), currentColumn(), m_state.copyManager, *m_automationService);
+    } else {
+        juzzlin::L(TAG).error() << "Automation service not set!";
+    }
     emit copyManagerStateChanged();
     emit statusTextRequested(tr("Column copied"));
 }
@@ -1321,20 +1355,42 @@ void EditorService::requestColumnPaste()
     try {
         juzzlin::L(TAG).info() << "Requesting paste for copied column";
         NoteEditCommand::ChangeList changes;
-        for (const auto & [pos, noteData] : m_state.copyManager.getPasteColumnChanges(*m_song->pattern(currentPattern()), currentTrack(), currentColumn())) {
+        const auto targetPattern = *m_song->pattern(currentPattern());
+        for (const auto & [pos, noteData] : m_state.copyManager.getPasteColumnChanges(targetPattern, currentTrack(), currentColumn())) {
              if (const auto oldNoteData = m_song->noteDataAtPosition(pos); oldNoteData) {
                 changes.emplace_back(pos, *oldNoteData, noteData);
             }
             else {
-                changes.emplace_back(pos, NoteData { pos.track, pos.column }, noteData);
+                changes.emplace_back(pos, NoteData { static_cast<size_t>(pos.track), static_cast<size_t>(pos.column) }, noteData);
             }
         }
 
-        m_undoStack->push(std::make_shared<NoteEditCommand>(m_song, std::move(changes), m_state.cursorPosition, m_state.cursorPosition, [this](const Position & pos) {
+        auto noteEditCommand = std::make_shared<NoteEditCommand>(m_song, std::move(changes), m_state.cursorPosition, m_state.cursorPosition, [this](const Position & pos) {
             emit noteDataAtPositionChanged(pos);
             setIsModified(true);
             updateDuration();
-        }, [this](const Position & pos) { requestPosition(pos); }));
+        }, [this](const Position & pos) { requestPosition(pos); });
+
+        if (m_automationService) {
+            const auto midiCcDeletions = m_automationService->midiCcAutomationsByColumn(currentPattern(), currentTrack(), currentColumn());
+            const auto pitchBendDeletions = m_automationService->pitchBendAutomationsByColumn(currentPattern(), currentTrack(), currentColumn());
+
+            const auto midiCcAdditions = m_state.copyManager.getPasteColumnMidiCcAutomationChanges(targetPattern, currentTrack(), currentColumn());
+            const auto pitchBendAdditions = m_state.copyManager.getPasteColumnPitchBendAutomationChanges(targetPattern, currentTrack(), currentColumn());
+
+            if (midiCcDeletions.empty() && pitchBendDeletions.empty() && midiCcAdditions.empty() && pitchBendAdditions.empty()) {
+                m_undoStack->push(std::move(noteEditCommand));
+            } else {
+                auto automationCommand = std::make_shared<AutomationCommand>(m_automationService, std::move(midiCcAdditions), std::move(pitchBendAdditions), std::move(midiCcDeletions), std::move(pitchBendDeletions));
+
+                CompositeCommand::CommandList commands;
+                commands.push_back(std::move(noteEditCommand));
+                commands.push_back(std::move(automationCommand));
+                m_undoStack->push(std::make_shared<CompositeCommand>(std::move(commands)));
+            }
+        } else {
+            m_undoStack->push(std::move(noteEditCommand));
+        }
 
         emit statusTextRequested(tr("Copied column pasted"));
     } catch (const std::runtime_error & e) {
@@ -1368,18 +1424,38 @@ void EditorService::requestTrackCut()
 {
     juzzlin::L(TAG).info() << "Requesting track cut";
     NoteEditCommand::ChangeList changes;
-    for (auto && changedPosition : m_song->copyTrack(currentPattern(), currentTrack(), m_state.copyManager)) {
+    for (auto && changedPosition : m_song->copyTrack(currentPattern(), currentTrack(), m_state.copyManager, *m_automationService)) {
         if (const auto oldNoteData = m_song->noteDataAtPosition(changedPosition); oldNoteData) {
-            changes.emplace_back(changedPosition, *oldNoteData, NoteData { changedPosition.track, changedPosition.column });
+            changes.emplace_back(changedPosition, *oldNoteData, NoteData { static_cast<size_t>(changedPosition.track), static_cast<size_t>(changedPosition.column) });
         }
     }
 
-    if (!changes.empty()) {
-        m_undoStack->push(std::make_shared<NoteEditCommand>(m_song, std::move(changes), m_state.cursorPosition, m_state.cursorPosition, [this](const Position & pos) {
-            emit noteDataAtPositionChanged(pos);
-            setIsModified(true);
-            updateDuration();
-        }, [this](const Position & pos) { requestPosition(pos); }));
+    if (changes.empty()) {
+        return;
+    }
+
+    auto noteEditCommand = std::make_shared<NoteEditCommand>(m_song, std::move(changes), m_state.cursorPosition, m_state.cursorPosition, [this](const Position & pos) {
+        emit noteDataAtPositionChanged(pos);
+        setIsModified(true);
+        updateDuration();
+    }, [this](const Position & pos) { requestPosition(pos); });
+
+    if (m_automationService) {
+        const auto midiCcDeletions = m_state.copyManager.getPasteTrackMidiCcAutomationChanges(*m_song->pattern(currentPattern()), currentTrack());
+        const auto pitchBendDeletions = m_state.copyManager.getPasteTrackPitchBendAutomationChanges(*m_song->pattern(currentPattern()), currentTrack());
+
+        if (midiCcDeletions.empty() && pitchBendDeletions.empty()) {
+            m_undoStack->push(std::move(noteEditCommand));
+        } else {
+            auto automationCommand = std::make_shared<AutomationCommand>(m_automationService, AutomationCommand::MidiCcAutomationList {}, AutomationCommand::PitchBendAutomationList {}, std::move(midiCcDeletions), std::move(pitchBendDeletions));
+
+            CompositeCommand::CommandList commands;
+            commands.push_back(std::move(noteEditCommand));
+            commands.push_back(std::move(automationCommand));
+            m_undoStack->push(std::make_shared<CompositeCommand>(std::move(commands)));
+        }
+    } else {
+        m_undoStack->push(std::move(noteEditCommand));
     }
 
     emit copyManagerStateChanged();
@@ -1389,7 +1465,11 @@ void EditorService::requestTrackCut()
 void EditorService::requestTrackCopy()
 {
     juzzlin::L(TAG).info() << "Requesting track copy";
-    m_song->copyTrack(currentPattern(), currentTrack(), m_state.copyManager);
+    if (m_automationService) {
+        m_song->copyTrack(currentPattern(), currentTrack(), m_state.copyManager, *m_automationService);
+    } else {
+        juzzlin::L(TAG).error() << "Automation service not set!";
+    }
     emit copyManagerStateChanged();
     emit statusTextRequested(tr("Track copied"));
 }
@@ -1399,20 +1479,42 @@ void EditorService::requestTrackPaste()
     try {
         juzzlin::L(TAG).info() << "Requesting paste for copied track";
         NoteEditCommand::ChangeList changes;
-        for (const auto & [pos, noteData] : m_state.copyManager.getPasteTrackChanges(*m_song->pattern(currentPattern()), currentTrack())) {
+        const auto targetPattern = *m_song->pattern(currentPattern());
+        for (const auto & [pos, noteData] : m_state.copyManager.getPasteTrackChanges(targetPattern, currentTrack())) {
              if (const auto oldNoteData = m_song->noteDataAtPosition(pos); oldNoteData) {
                 changes.emplace_back(pos, *oldNoteData, noteData);
             }
             else {
-                changes.emplace_back(pos, NoteData { pos.track, pos.column }, noteData);
+                changes.emplace_back(pos, NoteData { static_cast<size_t>(pos.track), static_cast<size_t>(pos.column) }, noteData);
             }
         }
 
-        m_undoStack->push(std::make_shared<NoteEditCommand>(m_song, std::move(changes), m_state.cursorPosition, m_state.cursorPosition, [this](const Position & pos) {
+        auto noteEditCommand = std::make_shared<NoteEditCommand>(m_song, std::move(changes), m_state.cursorPosition, m_state.cursorPosition, [this](const Position & pos) {
             emit noteDataAtPositionChanged(pos);
             setIsModified(true);
             updateDuration();
-        }, [this](const Position & pos) { requestPosition(pos); }));
+        }, [this](const Position & pos) { requestPosition(pos); });
+
+        if (m_automationService) {
+            const auto midiCcDeletions = m_automationService->midiCcAutomationsByTrack(currentPattern(), currentTrack());
+            const auto pitchBendDeletions = m_automationService->pitchBendAutomationsByTrack(currentPattern(), currentTrack());
+
+            const auto midiCcAdditions = m_state.copyManager.getPasteTrackMidiCcAutomationChanges(targetPattern, currentTrack());
+            const auto pitchBendAdditions = m_state.copyManager.getPasteTrackPitchBendAutomationChanges(targetPattern, currentTrack());
+
+            if (midiCcDeletions.empty() && pitchBendDeletions.empty() && midiCcAdditions.empty() && pitchBendAdditions.empty()) {
+                m_undoStack->push(std::move(noteEditCommand));
+            } else {
+                auto automationCommand = std::make_shared<AutomationCommand>(m_automationService, std::move(midiCcAdditions), std::move(pitchBendAdditions), std::move(midiCcDeletions), std::move(pitchBendDeletions));
+
+                CompositeCommand::CommandList commands;
+                commands.push_back(std::move(noteEditCommand));
+                commands.push_back(std::move(automationCommand));
+                m_undoStack->push(std::make_shared<CompositeCommand>(std::move(commands)));
+            }
+        } else {
+            m_undoStack->push(std::move(noteEditCommand));
+        }
 
         emit statusTextRequested(tr("Copied track pasted"));
     } catch (const std::runtime_error & e) {
@@ -1439,18 +1541,38 @@ void EditorService::requestPatternCut()
 {
     juzzlin::L(TAG).info() << "Requesting pattern cut";
     NoteEditCommand::ChangeList changes;
-    for (auto && changedPosition : m_song->copyPattern(currentPattern(), m_state.copyManager)) {
+    for (auto && changedPosition : m_song->copyPattern(currentPattern(), m_state.copyManager, *m_automationService)) {
         if (const auto oldNoteData = m_song->noteDataAtPosition(changedPosition); oldNoteData) {
-            changes.emplace_back(changedPosition, *oldNoteData, NoteData { changedPosition.track, changedPosition.column });
+            changes.emplace_back(changedPosition, *oldNoteData, NoteData { static_cast<size_t>(changedPosition.track), static_cast<size_t>(changedPosition.column) });
         }
     }
 
-    if (!changes.empty()) {
-        m_undoStack->push(std::make_shared<NoteEditCommand>(m_song, std::move(changes), m_state.cursorPosition, m_state.cursorPosition, [this](const Position & pos) {
-            emit noteDataAtPositionChanged(pos);
-            setIsModified(true);
-            updateDuration();
-        }, [this](const Position & pos) { requestPosition(pos); }));
+    if (changes.empty()) {
+        return;
+    }
+
+    auto noteEditCommand = std::make_shared<NoteEditCommand>(m_song, std::move(changes), m_state.cursorPosition, m_state.cursorPosition, [this](const Position & pos) {
+        emit noteDataAtPositionChanged(pos);
+        setIsModified(true);
+        updateDuration();
+    }, [this](const Position & pos) { requestPosition(pos); });
+
+    if (m_automationService) {
+        auto midiCcDeletions = m_state.copyManager.getPastePatternMidiCcAutomationChanges(*m_song->pattern(currentPattern()));
+        auto pitchBendDeletions = m_state.copyManager.getPastePatternPitchBendAutomationChanges(*m_song->pattern(currentPattern()));
+
+        if (midiCcDeletions.empty() && pitchBendDeletions.empty()) {
+            m_undoStack->push(std::move(noteEditCommand));
+        } else {
+            auto automationCommand = std::make_shared<AutomationCommand>(m_automationService, AutomationCommand::MidiCcAutomationList {}, AutomationCommand::PitchBendAutomationList {}, std::move(midiCcDeletions), std::move(pitchBendDeletions));
+
+            CompositeCommand::CommandList commands;
+            commands.push_back(std::move(noteEditCommand));
+            commands.push_back(std::move(automationCommand));
+            m_undoStack->push(std::make_shared<CompositeCommand>(std::move(commands)));
+        }
+    } else {
+        m_undoStack->push(std::move(noteEditCommand));
     }
 
     emit statusTextRequested(tr("Pattern cut"));
@@ -1460,7 +1582,11 @@ void EditorService::requestPatternCut()
 void EditorService::requestPatternCopy()
 {
     juzzlin::L(TAG).info() << "Requesting pattern copy";
-    m_song->copyPattern(currentPattern(), m_state.copyManager);
+    if (m_automationService) {
+        m_song->copyPattern(currentPattern(), m_state.copyManager, *m_automationService);
+    } else {
+        juzzlin::L(TAG).error() << "Automation service not set!";
+    }
     emit copyManagerStateChanged();
     emit statusTextRequested(tr("Pattern copied"));
 }
@@ -1470,19 +1596,41 @@ void EditorService::requestPatternPaste()
     try {
         juzzlin::L(TAG).info() << "Requesting paste for copied pattern";
         NoteEditCommand::ChangeList changes;
-        for (const auto & [pos, noteData] : m_state.copyManager.getPastePatternChanges(*m_song->pattern(currentPattern()))) {
+        const auto targetPattern = *m_song->pattern(currentPattern());
+        for (const auto & [pos, noteData] : m_state.copyManager.getPastePatternChanges(targetPattern)) {
              if (const auto oldNoteData = m_song->noteDataAtPosition(pos); oldNoteData) {
                 changes.emplace_back(pos, *oldNoteData, noteData);
             } else {
-                changes.emplace_back(pos, NoteData { pos.track, pos.column }, noteData);
+                changes.emplace_back(pos, NoteData { static_cast<size_t>(pos.track), static_cast<size_t>(pos.column) }, noteData);
             }
         }
 
-        m_undoStack->push(std::make_shared<NoteEditCommand>(m_song, std::move(changes), m_state.cursorPosition, m_state.cursorPosition, [this](const Position & pos) {
+        auto noteEditCommand = std::make_shared<NoteEditCommand>(m_song, std::move(changes), m_state.cursorPosition, m_state.cursorPosition, [this](const Position & pos) {
             emit noteDataAtPositionChanged(pos);
             setIsModified(true);
             updateDuration();
-        }, [this](const Position & pos) { requestPosition(pos); }));
+        }, [this](const Position & pos) { requestPosition(pos); });
+
+        if (m_automationService) {
+            const auto midiCcDeletions = m_automationService->midiCcAutomationsByPattern(currentPattern());
+            const auto pitchBendDeletions = m_automationService->pitchBendAutomationsByPattern(currentPattern());
+
+            const auto midiCcAdditions = m_state.copyManager.getPastePatternMidiCcAutomationChanges(targetPattern);
+            const auto pitchBendAdditions = m_state.copyManager.getPastePatternPitchBendAutomationChanges(targetPattern);
+
+            if (midiCcDeletions.empty() && pitchBendDeletions.empty() && midiCcAdditions.empty() && pitchBendAdditions.empty()) {
+                m_undoStack->push(std::move(noteEditCommand));
+            } else {
+                auto automationCommand = std::make_shared<AutomationCommand>(m_automationService, std::move(midiCcAdditions), std::move(pitchBendAdditions), std::move(midiCcDeletions), std::move(pitchBendDeletions));
+
+                CompositeCommand::CommandList commands;
+                commands.push_back(std::move(noteEditCommand));
+                commands.push_back(std::move(automationCommand));
+                m_undoStack->push(std::make_shared<CompositeCommand>(std::move(commands)));
+            }
+        } else {
+            m_undoStack->push(std::move(noteEditCommand));
+        }
 
         emit statusTextRequested(tr("Copied pattern pasted"));
     } catch (const std::runtime_error & e) {
@@ -1509,18 +1657,38 @@ void EditorService::requestSelectionCut()
 {
     juzzlin::L(TAG).info() << "Requesting selection cut";
     NoteEditCommand::ChangeList changes;
-    for (auto && changedPosition : m_song->copySelection(m_selectionService->selectedPositions(), m_state.copyManager)) {
+    for (auto && changedPosition : m_song->copySelection(m_selectionService->selectedPositions(), m_state.copyManager, *m_automationService)) {
         if (const auto oldNoteData = m_song->noteDataAtPosition(changedPosition); oldNoteData) {
-            changes.emplace_back(changedPosition, *oldNoteData, NoteData { changedPosition.track, changedPosition.column });
+            changes.emplace_back(changedPosition, *oldNoteData, NoteData { static_cast<size_t>(changedPosition.track), static_cast<size_t>(changedPosition.column) });
         }
     }
 
-    if (!changes.empty()) {
-        m_undoStack->push(std::make_shared<NoteEditCommand>(m_song, std::move(changes), m_state.cursorPosition, m_state.cursorPosition, [this](const Position & pos) {
-            emit noteDataAtPositionChanged(pos);
-            setIsModified(true);
-            updateDuration();
-        }, [this](const Position & pos) { requestPosition(pos); }));
+    if (changes.empty()) {
+        return;
+    }
+
+    auto noteEditCommand = std::make_shared<NoteEditCommand>(m_song, std::move(changes), m_state.cursorPosition, m_state.cursorPosition, [this](const Position & pos) {
+        emit noteDataAtPositionChanged(pos);
+        setIsModified(true);
+        updateDuration();
+    }, [this](const Position & pos) { requestPosition(pos); });
+
+    if (m_automationService) {
+        const auto midiCcDeletions = m_state.copyManager.getPasteSelectionMidiCcAutomationChanges(*m_song->pattern(currentPattern()), position());
+        const auto pitchBendDeletions = m_state.copyManager.getPasteSelectionPitchBendAutomationChanges(*m_song->pattern(currentPattern()), position());
+
+        if (midiCcDeletions.empty() && pitchBendDeletions.empty()) {
+            m_undoStack->push(std::move(noteEditCommand));
+        } else {
+            auto automationCommand = std::make_shared<AutomationCommand>(m_automationService, AutomationCommand::MidiCcAutomationList {}, AutomationCommand::PitchBendAutomationList {}, std::move(midiCcDeletions), std::move(pitchBendDeletions));
+
+            CompositeCommand::CommandList commands;
+            commands.push_back(std::move(noteEditCommand));
+            commands.push_back(std::move(automationCommand));
+            m_undoStack->push(std::make_shared<CompositeCommand>(std::move(commands)));
+        }
+    } else {
+        m_undoStack->push(std::move(noteEditCommand));
     }
 
     emit statusTextRequested(tr("Selection cut"));
@@ -1530,7 +1698,11 @@ void EditorService::requestSelectionCut()
 void EditorService::requestSelectionCopy()
 {
     juzzlin::L(TAG).info() << "Requesting selection copy";
-    m_song->copySelection(m_selectionService->selectedPositions(), m_state.copyManager);
+    if (m_automationService) {
+        m_song->copySelection(m_selectionService->selectedPositions(), m_state.copyManager, *m_automationService);
+    } else {
+        juzzlin::L(TAG).error() << "Automation service not set!";
+    }
     emit copyManagerStateChanged();
     emit statusTextRequested(tr("Selection copied"));
 }
@@ -1540,19 +1712,67 @@ void EditorService::requestSelectionPaste()
     try {
         juzzlin::L(TAG).info() << "Requesting paste for copied selection";
         NoteEditCommand::ChangeList changes;
-        for (const auto & [pos, noteData] : m_state.copyManager.getPasteSelectionChanges(*m_song->pattern(currentPattern()), position())) {
+        const auto targetPattern = *m_song->pattern(currentPattern());
+        for (const auto & [pos, noteData] : m_state.copyManager.getPasteSelectionChanges(targetPattern, position())) {
              if (const auto oldNoteData = m_song->noteDataAtPosition(pos); oldNoteData) {
                 changes.emplace_back(pos, *oldNoteData, noteData);
             } else {
-                changes.emplace_back(pos, NoteData { pos.track, pos.column }, noteData);
+                changes.emplace_back(pos, NoteData { static_cast<size_t>(pos.track), static_cast<size_t>(pos.column) }, noteData);
             }
         }
 
-        m_undoStack->push(std::make_shared<NoteEditCommand>(m_song, std::move(changes), m_state.cursorPosition, m_state.cursorPosition, [this](const Position & pos) {
+        auto noteEditCommand = std::make_shared<NoteEditCommand>(m_song, std::move(changes), m_state.cursorPosition, m_state.cursorPosition, [this](const Position & pos) {
             emit noteDataAtPositionChanged(pos);
             setIsModified(true);
             updateDuration();
-        }, [this](const Position & pos) { requestPosition(pos); }));
+        }, [this](const Position & pos) { requestPosition(pos); });
+
+        if (m_automationService) {
+            const auto targetAreaMidiCc = m_state.copyManager.getPasteSelectionMidiCcAutomationChanges(targetPattern, position());
+            const auto targetAreaPitchBend = m_state.copyManager.getPasteSelectionPitchBendAutomationChanges(targetPattern, position());
+
+            AutomationCommand::MidiCcAutomationList midiCcDeletions;
+            AutomationCommand::PitchBendAutomationList pitchBendDeletions;
+
+            for (const auto & automation : targetAreaMidiCc) {
+                const auto & location = automation.location();
+                const auto & interpolation = automation.interpolation();
+                for (size_t line = interpolation.line0; line <= interpolation.line1; ++line) {
+                    const auto existing = m_automationService->midiCcAutomationsByLine(location.pattern(), location.track(), location.column(), line);
+                    for (auto && ex : existing) {
+                        if (std::ranges::find(midiCcDeletions, ex) == midiCcDeletions.end()) {
+                            midiCcDeletions.push_back(ex);
+                        }
+                    }
+                }
+            }
+
+            for (const auto & automation : targetAreaPitchBend) {
+                const auto & location = automation.location();
+                const auto & interpolation = automation.interpolation();
+                for (size_t line = interpolation.line0; line <= interpolation.line1; ++line) {
+                    const auto existing = m_automationService->pitchBendAutomationsByLine(location.pattern(), location.track(), location.column(), line);
+                    for (auto && ex : existing) {
+                        if (std::ranges::find(pitchBendDeletions, ex) == pitchBendDeletions.end()) {
+                            pitchBendDeletions.push_back(ex);
+                        }
+                    }
+                }
+            }
+
+            if (midiCcDeletions.empty() && pitchBendDeletions.empty() && targetAreaMidiCc.empty() && targetAreaPitchBend.empty()) {
+                m_undoStack->push(std::move(noteEditCommand));
+            } else {
+                auto automationCommand = std::make_shared<AutomationCommand>(m_automationService, targetAreaMidiCc, targetAreaPitchBend, std::move(midiCcDeletions), std::move(pitchBendDeletions));
+
+                CompositeCommand::CommandList commands;
+                commands.push_back(std::move(noteEditCommand));
+                commands.push_back(std::move(automationCommand));
+                m_undoStack->push(std::make_shared<CompositeCommand>(std::move(commands)));
+            }
+        } else {
+            m_undoStack->push(std::move(noteEditCommand));
+        }
 
         emit statusTextRequested(tr("Copied selection pasted"));
     } catch (const std::runtime_error & e) {

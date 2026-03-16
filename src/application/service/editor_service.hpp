@@ -32,6 +32,7 @@ class QXmlStreamWriter;
 namespace noteahead {
 
 class Song;
+class AutomationService;
 class Instrument;
 class InstrumentRequest;
 class InstrumentSettings;
@@ -78,12 +79,14 @@ public:
     using SelectionServiceS = std::shared_ptr<SelectionService>;
     using SettingsServiceS = std::shared_ptr<SettingsService>;
     using MixerServiceS = std::shared_ptr<MixerService>;
+    using AutomationServiceS = std::shared_ptr<AutomationService>;
     EditorService(SelectionServiceS selectionService, SettingsServiceS settingsService);
     ~EditorService() override;
 
     void initialize();
 
     void setMixerService(MixerServiceS mixerService);
+    void setAutomationService(AutomationServiceS automationService);
 
     using SongS = std::shared_ptr<Song>;
     SongS song() const;
@@ -411,6 +414,7 @@ private:
     SelectionServiceS m_selectionService;
     SettingsServiceS m_settingsService;
     MixerServiceS m_mixerService;
+    AutomationServiceS m_automationService;
 
     struct State
     {

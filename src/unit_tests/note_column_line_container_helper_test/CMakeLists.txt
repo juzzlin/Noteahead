@@ -6,6 +6,8 @@ set(SRC
     ../../application/instrument_request.cpp
     ../../application/command/note_edit_command.cpp
     ../../application/command/undo_stack.cpp
+    ../../application/command/automation_command.cpp
+    ../../application/command/composite_command.cpp
     ../../application/note_converter.cpp
     ../../application/position.hpp
     ../../application/models/note_column_line_container_helper.cpp

@@ -48,11 +48,11 @@ Song::Song()
     initialize();
 }
 
-Song::ChangedPositions Song::cutColumn(size_t patternIndex, size_t trackIndex, size_t columnIndex, CopyManager & copyManager) const
+Song::ChangedPositions Song::cutColumn(size_t patternIndex, size_t trackIndex, size_t columnIndex, CopyManager & copyManager, const AutomationService & automationService) const
 {
     if (m_patterns.contains(patternIndex)) {
         const auto sourcePattern = m_patterns.at(patternIndex);
-        const auto changedPositions = copyManager.pushSourceColumn(*sourcePattern, trackIndex, columnIndex);
+        const auto changedPositions = copyManager.pushSourceColumn(*sourcePattern, trackIndex, columnIndex, automationService);
         for (auto && changedPosition : changedPositions) {
             sourcePattern->setNoteDataAtPosition(NoteData {}, changedPosition);
         }
@@ -62,9 +62,9 @@ Song::ChangedPositions Song::cutColumn(size_t patternIndex, size_t trackIndex, s
     }
 }
 
-Song::ChangedPositions Song::copyColumn(size_t patternIndex, size_t trackIndex, size_t columnIndex, CopyManager & copyManager) const
+Song::ChangedPositions Song::copyColumn(size_t patternIndex, size_t trackIndex, size_t columnIndex, CopyManager & copyManager, const AutomationService & automationService) const
 {
-    return m_patterns.contains(patternIndex) ? copyManager.pushSourceColumn(*m_patterns.at(patternIndex), trackIndex, columnIndex) : Song::ChangedPositions {};
+    return m_patterns.contains(patternIndex) ? copyManager.pushSourceColumn(*m_patterns.at(patternIndex), trackIndex, columnIndex, automationService) : Song::ChangedPositions {};
 }
 
 Song::ChangedPositions Song::pasteColumn(size_t patternIndex, size_t trackIndex, size_t columnIndex, CopyManager & copyManager) const
@@ -77,11 +77,11 @@ NoteChangeList Song::transposeColumn(const Position & position, int semitones) c
     return m_patterns.contains(position.pattern) ? m_patterns.at(position.pattern)->transposeColumn(position, semitones) : NoteChangeList {};
 }
 
-Song::ChangedPositions Song::cutTrack(size_t patternIndex, size_t trackIndex, CopyManager & copyManager) const
+Song::ChangedPositions Song::cutTrack(size_t patternIndex, size_t trackIndex, CopyManager & copyManager, const AutomationService & automationService) const
 {
     if (m_patterns.contains(patternIndex)) {
         const auto sourcePattern = m_patterns.at(patternIndex);
-        const auto changedPositions = copyManager.pushSourceTrack(*sourcePattern, trackIndex);
+        const auto changedPositions = copyManager.pushSourceTrack(*sourcePattern, trackIndex, automationService);
         for (auto && changedPosition : changedPositions) {
             sourcePattern->setNoteDataAtPosition(NoteData {}, changedPosition);
         }
@@ -91,9 +91,9 @@ Song::ChangedPositions Song::cutTrack(size_t patternIndex, size_t trackIndex, Co
     }
 }
 
-Song::ChangedPositions Song::copyTrack(size_t patternIndex, size_t trackIndex, CopyManager & copyManager) const
+Song::ChangedPositions Song::copyTrack(size_t patternIndex, size_t trackIndex, CopyManager & copyManager, const AutomationService & automationService) const
 {
-    return m_patterns.contains(patternIndex) ? copyManager.pushSourceTrack(*m_patterns.at(patternIndex), trackIndex) : Song::ChangedPositions {};
+    return m_patterns.contains(patternIndex) ? copyManager.pushSourceTrack(*m_patterns.at(patternIndex), trackIndex, automationService) : Song::ChangedPositions {};
 }
 
 Song::ChangedPositions Song::pasteTrack(size_t patternIndex, size_t trackIndex, CopyManager & copyManager) const
@@ -106,11 +106,11 @@ NoteChangeList Song::transposeTrack(const Position & position, int semitones) co
     return m_patterns.contains(position.pattern) ? m_patterns.at(position.pattern)->transposeTrack(position, semitones) : NoteChangeList {};
 }
 
-Song::ChangedPositions Song::cutPattern(size_t patternIndex, CopyManager & copyManager) const
+Song::ChangedPositions Song::cutPattern(size_t patternIndex, CopyManager & copyManager, const AutomationService & automationService) const
 {
     if (m_patterns.contains(patternIndex)) {
         const auto sourcePattern = m_patterns.at(patternIndex);
-        const auto changedPositions = copyManager.pushSourcePattern(*sourcePattern);
+        const auto changedPositions = copyManager.pushSourcePattern(*sourcePattern, automationService);
         for (auto && changedPosition : changedPositions) {
             sourcePattern->setNoteDataAtPosition(NoteData {}, changedPosition);
         }
@@ -120,9 +120,9 @@ Song::ChangedPositions Song::cutPattern(size_t patternIndex, CopyManager & copyM
     }
 }
 
-Song::ChangedPositions Song::copyPattern(size_t patternIndex, CopyManager & copyManager) const
+Song::ChangedPositions Song::copyPattern(size_t patternIndex, CopyManager & copyManager, const AutomationService & automationService) const
 {
-    return m_patterns.contains(patternIndex) ? copyManager.pushSourcePattern(*m_patterns.at(patternIndex)) : Song::ChangedPositions {};
+    return m_patterns.contains(patternIndex) ? copyManager.pushSourcePattern(*m_patterns.at(patternIndex), automationService) : Song::ChangedPositions {};
 }
 
 Song::ChangedPositions Song::pastePattern(size_t patternIndex, CopyManager & copyManager) const
@@ -135,12 +135,12 @@ NoteChangeList Song::transposePattern(const Position & position, int semitones) 
     return m_patterns.contains(position.pattern) ? m_patterns.at(position.pattern)->transposePattern(position, semitones) : NoteChangeList {};
 }
 
-Song::ChangedPositions Song::cutSelection(PositionListCR positions, CopyManager & copyManager) const
+Song::ChangedPositions Song::cutSelection(PositionListCR positions, CopyManager & copyManager, const AutomationService & automationService) const
 {
     if (!positions.empty()) {
         if (const auto patternIndex = positions.at(0).pattern; m_patterns.contains(patternIndex)) {
             const auto sourcePattern = m_patterns.at(patternIndex);
-            const auto changedPositions = copyManager.pushSourceSelection(*sourcePattern, positions);
+            const auto changedPositions = copyManager.pushSourceSelection(*sourcePattern, positions, automationService);
             for (auto && changedPosition : changedPositions) {
                 sourcePattern->setNoteDataAtPosition(NoteData {}, changedPosition);
             }
@@ -150,11 +150,11 @@ Song::ChangedPositions Song::cutSelection(PositionListCR positions, CopyManager 
     return {};
 }
 
-Song::ChangedPositions Song::copySelection(PositionListCR positions, CopyManager & copyManager) const
+Song::ChangedPositions Song::copySelection(PositionListCR positions, CopyManager & copyManager, const AutomationService & automationService) const
 {
     if (!positions.empty()) {
         if (const auto patternIndex = positions.at(0).pattern; m_patterns.contains(patternIndex)) {
-            return copyManager.pushSourceSelection(*m_patterns.at(patternIndex), positions);
+            return copyManager.pushSourceSelection(*m_patterns.at(patternIndex), positions, automationService);
         }
     }
     return {};

@@ -19,7 +19,9 @@
 #include <memory>
 #include <vector>
 
+#include "../../domain/midi_cc_automation.hpp"
 #include "../../domain/note_data.hpp"
+#include "../../domain/pitch_bend_automation.hpp"
 #include "../position.hpp"
 
 namespace noteahead {
@@ -43,17 +45,17 @@ public:
     Mode mode() const;
 
     using PositionList = std::vector<Position>;
-    PositionList pushSourceColumn(const Pattern & pattern, size_t trackIndex, size_t columnIndex);
+    PositionList pushSourceColumn(const Pattern & pattern, size_t trackIndex, size_t columnIndex, const class AutomationService & automationService);
     using PatternW = std::weak_ptr<Pattern>;
     PositionList pasteColumn(PatternW targetPattern, size_t trackIndex, size_t columnIndex);
 
-    PositionList pushSourceTrack(const Pattern & pattern, size_t trackIndex);
+    PositionList pushSourceTrack(const Pattern & pattern, size_t trackIndex, const class AutomationService & automationService);
     PositionList pasteTrack(PatternW targetPattern, size_t trackIndex);
 
-    PositionList pushSourcePattern(const Pattern & pattern);
+    PositionList pushSourcePattern(const Pattern & pattern, const class AutomationService & automationService);
     PositionList pastePattern(PatternW targetPattern);
 
-    PositionList pushSourceSelection(const Pattern & pattern, const PositionList & positions);
+    PositionList pushSourceSelection(const Pattern & pattern, const PositionList & positions, const class AutomationService & automationService);
     PositionList pasteSelection(PatternW targetPattern, const Position & targetPosition);
 
     using PasteChange = std::pair<Position, NoteData>;
@@ -64,13 +66,32 @@ public:
     PasteChangeList getPastePatternChanges(const Pattern & targetPattern) const;
     PasteChangeList getPasteSelectionChanges(const Pattern & targetPattern, const Position & targetPosition) const;
 
+    using MidiCcAutomationList = std::vector<MidiCcAutomation>;
+    using PitchBendAutomationList = std::vector<PitchBendAutomation>;
+
+    MidiCcAutomationList getPasteColumnMidiCcAutomationChanges(const Pattern & targetPattern, size_t trackIndex, size_t columnIndex) const;
+    PitchBendAutomationList getPasteColumnPitchBendAutomationChanges(const Pattern & targetPattern, size_t trackIndex, size_t columnIndex) const;
+
+    MidiCcAutomationList getPasteTrackMidiCcAutomationChanges(const Pattern & targetPattern, size_t trackIndex) const;
+    PitchBendAutomationList getPasteTrackPitchBendAutomationChanges(const Pattern & targetPattern, size_t trackIndex) const;
+
+    MidiCcAutomationList getPastePatternMidiCcAutomationChanges(const Pattern & targetPattern) const;
+    PitchBendAutomationList getPastePatternPitchBendAutomationChanges(const Pattern & targetPattern) const;
+
+    MidiCcAutomationList getPasteSelectionMidiCcAutomationChanges(const Pattern & targetPattern, const Position & targetPosition) const;
+    PitchBendAutomationList getPasteSelectionPitchBendAutomationChanges(const Pattern & targetPattern, const Position & targetPosition) const;
+
 private:
     size_t getMinLineIndex() const;
     size_t getMinColumnIndex() const;
+    size_t getMinTrackIndex() const;
 
     Mode m_mode = Mode::None;
 
     std::vector<std::pair<Position, NoteData>> m_copiedData;
+
+    MidiCcAutomationList m_copiedMidiCcAutomations;
+    PitchBendAutomationList m_copiedPitchBendAutomations;
 };
 
 } // namespace noteahead

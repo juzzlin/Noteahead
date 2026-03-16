@@ -43,6 +43,7 @@ private slots:
     void test_trackCutPaste_shorterTarget_shouldCopyTrack();
     void test_trackCopyPaste_equalSizes_shouldCopyTrack();
     void test_trackCopyPaste_shorterTarget_shouldCopyTrack();
+    void test_trackCopyPaste_withAutomations();
 
     void test_patternCutPaste_equalSizes_shouldCopyPattern();
     void test_patternCutPaste_shorterTarget_shouldCopyPattern();

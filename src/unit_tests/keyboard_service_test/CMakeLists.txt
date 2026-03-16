@@ -18,6 +18,8 @@ set(SRC
     ../../application/note_converter.cpp
     ../../application/command/note_edit_command.cpp
     ../../application/command/undo_stack.cpp
+    ../../application/command/automation_command.cpp
+    ../../application/command/composite_command.cpp
     ../../application/position.hpp
     ../../application/instrument_request.cpp
     ../../application/service/midi_service.cpp

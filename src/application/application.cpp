@@ -101,6 +101,7 @@ Application::Application(int & argc, char ** argv)
   , m_engine { std::make_unique<QQmlApplicationEngine>() }
 {
     m_editorService->setMixerService(m_mixerService);
+    m_editorService->setAutomationService(m_automationService);
     registerTypes();
 
     handleCommandLineArguments(argc, argv); // Handle command-line arguments at initialization

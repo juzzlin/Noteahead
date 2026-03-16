@@ -18,6 +18,7 @@
 #include "../../contrib/SimpleLogger/src/simple_logger.hpp"
 #include "../../domain/pattern.hpp"
 #include "../position.hpp"
+#include "automation_service.hpp"
 
 namespace noteahead {
 
@@ -25,9 +26,11 @@ static const auto TAG = "CopyManager";
 
 CopyManager::CopyManager() = default;
 
-CopyManager::PositionList CopyManager::pushSourceColumn(const Pattern & pattern, size_t trackIndex, size_t columnIndex)
+CopyManager::PositionList CopyManager::pushSourceColumn(const Pattern & pattern, size_t trackIndex, size_t columnIndex, const AutomationService & automationService)
 {
     m_copiedData.clear();
+    m_copiedMidiCcAutomations.clear();
+    m_copiedPitchBendAutomations.clear();
     CopyManager::PositionList changedPositions;
     juzzlin::L(TAG).debug() << "Pushing data of pattern " << pattern.index();
     const auto lineCount = pattern.lineCount();
@@ -42,6 +45,8 @@ CopyManager::PositionList CopyManager::pushSourceColumn(const Pattern & pattern,
             juzzlin::L(TAG).error() << "Invalid position: " << position.toString();
         }
     }
+    m_copiedMidiCcAutomations = automationService.midiCcAutomationsByColumn(pattern.index(), trackIndex, columnIndex);
+    m_copiedPitchBendAutomations = automationService.pitchBendAutomationsByColumn(pattern.index(), trackIndex, columnIndex);
     m_mode = Mode::Column;
     return changedPositions;
 }
@@ -62,9 +67,11 @@ CopyManager::PositionList CopyManager::pasteColumn(PatternW targetPattern, size_
     return changedPositions;
 }
 
-CopyManager::PositionList CopyManager::pushSourceTrack(const Pattern & pattern, size_t trackIndex)
+CopyManager::PositionList CopyManager::pushSourceTrack(const Pattern & pattern, size_t trackIndex, const AutomationService & automationService)
 {
     m_copiedData.clear();
+    m_copiedMidiCcAutomations.clear();
+    m_copiedPitchBendAutomations.clear();
     CopyManager::PositionList changedPositions;
     juzzlin::L(TAG).debug() << "Pushing data of pattern " << pattern.index();
     const auto lineCount = pattern.lineCount();
@@ -82,6 +89,8 @@ CopyManager::PositionList CopyManager::pushSourceTrack(const Pattern & pattern, 
             }
         }
     }
+    m_copiedMidiCcAutomations = automationService.midiCcAutomationsByTrack(pattern.index(), trackIndex);
+    m_copiedPitchBendAutomations = automationService.pitchBendAutomationsByTrack(pattern.index(), trackIndex);
     m_mode = Mode::Track;
     return changedPositions;
 }
@@ -102,9 +111,11 @@ CopyManager::PositionList CopyManager::pasteTrack(PatternW targetPattern, size_t
     return changedPositions;
 }
 
-CopyManager::PositionList CopyManager::pushSourcePattern(const Pattern & pattern)
+CopyManager::PositionList CopyManager::pushSourcePattern(const Pattern & pattern, const AutomationService & automationService)
 {
     m_copiedData.clear();
+    m_copiedMidiCcAutomations.clear();
+    m_copiedPitchBendAutomations.clear();
     CopyManager::PositionList changedPositions;
     juzzlin::L(TAG).info() << "Pushing data of pattern " << pattern.index();
     const auto lineCount = pattern.lineCount();
@@ -124,6 +135,8 @@ CopyManager::PositionList CopyManager::pushSourcePattern(const Pattern & pattern
             }
         }
     }
+    m_copiedMidiCcAutomations = automationService.midiCcAutomationsByPattern(pattern.index());
+    m_copiedPitchBendAutomations = automationService.pitchBendAutomationsByPattern(pattern.index());
     m_mode = Mode::Pattern;
     return changedPositions;
 }
@@ -144,9 +157,11 @@ CopyManager::PositionList CopyManager::pastePattern(PatternW targetPattern)
     return changedPositions;
 }
 
-CopyManager::PositionList CopyManager::pushSourceSelection(const Pattern & pattern, const PositionList & positions)
+CopyManager::PositionList CopyManager::pushSourceSelection(const Pattern & pattern, const PositionList & positions, const AutomationService & automationService)
 {
     m_copiedData.clear();
+    m_copiedMidiCcAutomations.clear();
+    m_copiedPitchBendAutomations.clear();
     CopyManager::PositionList changedPositions;
     juzzlin::L(TAG).info() << "Pushing selected positions on pattern " << pattern.index();
     for (const auto & position : positions) {
@@ -155,6 +170,20 @@ CopyManager::PositionList CopyManager::pushSourceSelection(const Pattern & patte
             changedPositions.push_back(position);
         } else {
             juzzlin::L(TAG).error() << "Invalid position: " << position.toString();
+        }
+
+        const auto midiCc = automationService.midiCcAutomationsByLine(position.pattern, position.track, position.column, position.line);
+        for (auto && automation : midiCc) {
+            if (std::ranges::find(m_copiedMidiCcAutomations, automation) == m_copiedMidiCcAutomations.end()) {
+                m_copiedMidiCcAutomations.push_back(automation);
+            }
+        }
+
+        const auto pitchBend = automationService.pitchBendAutomationsByLine(position.pattern, position.track, position.column, position.line);
+        for (auto && automation : pitchBend) {
+            if (std::ranges::find(m_copiedPitchBendAutomations, automation) == m_copiedPitchBendAutomations.end()) {
+                m_copiedPitchBendAutomations.push_back(automation);
+            }
         }
     }
     m_mode = Mode::Selection;
@@ -165,14 +194,60 @@ size_t CopyManager::getMinLineIndex() const
 {
     const auto it = std::ranges::min_element(m_copiedData,
                                              [](const auto & a, const auto & b) { return a.first.line < b.first.line; });
-    return it != m_copiedData.end() ? it->first.line : 0;
+    const auto itMidiCc = std::ranges::min_element(m_copiedMidiCcAutomations,
+                                                   [](const auto & a, const auto & b) { return a.interpolation().line0 < b.interpolation().line0; });
+    const auto itPitchBend = std::ranges::min_element(m_copiedPitchBendAutomations,
+                                                      [](const auto & a, const auto & b) { return a.interpolation().line0 < b.interpolation().line0; });
+
+    size_t minLine = (it != m_copiedData.end() ? it->first.line : std::numeric_limits<size_t>::max());
+    if (itMidiCc != m_copiedMidiCcAutomations.end()) {
+        minLine = std::min(minLine, itMidiCc->interpolation().line0);
+    }
+    if (itPitchBend != m_copiedPitchBendAutomations.end()) {
+        minLine = std::min(minLine, itPitchBend->interpolation().line0);
+    }
+
+    return minLine != std::numeric_limits<size_t>::max() ? minLine : 0;
 }
 
 size_t CopyManager::getMinColumnIndex() const
 {
     const auto it = std::ranges::min_element(m_copiedData,
                                              [](const auto & a, const auto & b) { return a.first.column < b.first.column; });
-    return it != m_copiedData.end() ? it->first.column : 0;
+    const auto itMidiCc = std::ranges::min_element(m_copiedMidiCcAutomations,
+                                                   [](const auto & a, const auto & b) { return a.location().column() < b.location().column(); });
+    const auto itPitchBend = std::ranges::min_element(m_copiedPitchBendAutomations,
+                                                      [](const auto & a, const auto & b) { return a.location().column() < b.location().column(); });
+
+    size_t minColumn = (it != m_copiedData.end() ? it->first.column : std::numeric_limits<size_t>::max());
+    if (itMidiCc != m_copiedMidiCcAutomations.end()) {
+        minColumn = std::min(minColumn, static_cast<size_t>(itMidiCc->location().column()));
+    }
+    if (itPitchBend != m_copiedPitchBendAutomations.end()) {
+        minColumn = std::min(minColumn, static_cast<size_t>(itPitchBend->location().column()));
+    }
+
+    return minColumn != std::numeric_limits<size_t>::max() ? minColumn : 0;
+}
+
+size_t CopyManager::getMinTrackIndex() const
+{
+    const auto it = std::ranges::min_element(m_copiedData,
+                                             [](const auto & a, const auto & b) { return a.first.track < b.first.track; });
+    const auto itMidiCc = std::ranges::min_element(m_copiedMidiCcAutomations,
+                                                   [](const auto & a, const auto & b) { return a.location().track() < b.location().track(); });
+    const auto itPitchBend = std::ranges::min_element(m_copiedPitchBendAutomations,
+                                                      [](const auto & a, const auto & b) { return a.location().track() < b.location().track(); });
+
+    size_t minTrack = (it != m_copiedData.end() ? it->first.track : std::numeric_limits<size_t>::max());
+    if (itMidiCc != m_copiedMidiCcAutomations.end()) {
+        minTrack = std::min(minTrack, static_cast<size_t>(itMidiCc->location().track()));
+    }
+    if (itPitchBend != m_copiedPitchBendAutomations.end()) {
+        minTrack = std::min(minTrack, static_cast<size_t>(itPitchBend->location().track()));
+    }
+
+    return minTrack != std::numeric_limits<size_t>::max() ? minTrack : 0;
 }
 
 CopyManager::PositionList CopyManager::pasteSelection(PatternW targetPattern, const Position & targetPosition)
@@ -236,14 +311,138 @@ CopyManager::PasteChangeList CopyManager::getPasteSelectionChanges(const Pattern
     if (!m_copiedData.empty()) {
         const auto minLine = getMinLineIndex();
         const auto minColumn = getMinColumnIndex();
+        const auto minTrack = getMinTrackIndex();
         for (const auto & [sourcePosition, noteData] : m_copiedData) {
             Position newTarget = targetPosition;
             newTarget.line += sourcePosition.line - minLine;
             newTarget.column += sourcePosition.column - minColumn;
+            newTarget.track += sourcePosition.track - minTrack;
             if (targetPattern.hasPosition(newTarget)) {
                 changes.push_back({ newTarget, noteData });
             }
         }
+    }
+    return changes;
+}
+
+CopyManager::MidiCcAutomationList CopyManager::getPasteColumnMidiCcAutomationChanges(const Pattern & targetPattern, size_t trackIndex, size_t columnIndex) const
+{
+    MidiCcAutomationList changes;
+    for (const auto & automation : m_copiedMidiCcAutomations) {
+        auto updated = automation;
+        updated.setLocation({ targetPattern.index(), trackIndex, columnIndex });
+        changes.push_back(updated);
+    }
+    return changes;
+}
+
+CopyManager::PitchBendAutomationList CopyManager::getPasteColumnPitchBendAutomationChanges(const Pattern & targetPattern, size_t trackIndex, size_t columnIndex) const
+{
+    PitchBendAutomationList changes;
+    for (const auto & automation : m_copiedPitchBendAutomations) {
+        auto updated = automation;
+        updated.setLocation({ targetPattern.index(), trackIndex, columnIndex });
+        changes.push_back(updated);
+    }
+    return changes;
+}
+
+CopyManager::MidiCcAutomationList CopyManager::getPasteTrackMidiCcAutomationChanges(const Pattern & targetPattern, size_t trackIndex) const
+{
+    MidiCcAutomationList changes;
+    const auto minTrack = getMinTrackIndex();
+    for (const auto & automation : m_copiedMidiCcAutomations) {
+        auto updated = automation;
+        const auto trackOffset = automation.location().track() - minTrack;
+        updated.setLocation({ targetPattern.index(), trackIndex + trackOffset, automation.location().column() });
+        changes.push_back(updated);
+    }
+    return changes;
+}
+
+CopyManager::PitchBendAutomationList CopyManager::getPasteTrackPitchBendAutomationChanges(const Pattern & targetPattern, size_t trackIndex) const
+{
+    PitchBendAutomationList changes;
+    const auto minTrack = getMinTrackIndex();
+    for (const auto & automation : m_copiedPitchBendAutomations) {
+        auto updated = automation;
+        const auto trackOffset = automation.location().track() - minTrack;
+        updated.setLocation({ targetPattern.index(), trackIndex + trackOffset, automation.location().column() });
+        changes.push_back(updated);
+    }
+    return changes;
+}
+
+CopyManager::MidiCcAutomationList CopyManager::getPastePatternMidiCcAutomationChanges(const Pattern & targetPattern) const
+{
+    MidiCcAutomationList changes;
+    for (const auto & automation : m_copiedMidiCcAutomations) {
+        auto updated = automation;
+        updated.setLocation({ targetPattern.index(), automation.location().track(), automation.location().column() });
+        changes.push_back(updated);
+    }
+    return changes;
+}
+
+CopyManager::PitchBendAutomationList CopyManager::getPastePatternPitchBendAutomationChanges(const Pattern & targetPattern) const
+{
+    PitchBendAutomationList changes;
+    for (const auto & automation : m_copiedPitchBendAutomations) {
+        auto updated = automation;
+        updated.setLocation({ targetPattern.index(), automation.location().track(), automation.location().column() });
+        changes.push_back(updated);
+    }
+    return changes;
+}
+
+CopyManager::MidiCcAutomationList CopyManager::getPasteSelectionMidiCcAutomationChanges(const Pattern & targetPattern, const Position & targetPosition) const
+{
+    MidiCcAutomationList changes;
+    const auto minLine = getMinLineIndex();
+    const auto minColumn = getMinColumnIndex();
+    const auto minTrack = getMinTrackIndex();
+
+    for (const auto & automation : m_copiedMidiCcAutomations) {
+        auto updated = automation;
+        auto location = automation.location();
+        auto interpolation = automation.interpolation();
+
+        const auto lineOffset = targetPosition.line - minLine;
+        interpolation.line0 += lineOffset;
+        interpolation.line1 += lineOffset;
+        updated.setInterpolation(interpolation);
+
+        const auto trackOffset = location.track() - minTrack;
+        const auto columnOffset = location.column() - minColumn;
+        updated.setLocation({ targetPattern.index(), targetPosition.track + trackOffset, targetPosition.column + columnOffset });
+
+        changes.push_back(updated);
+    }
+    return changes;
+}
+
+CopyManager::PitchBendAutomationList CopyManager::getPasteSelectionPitchBendAutomationChanges(const Pattern & targetPattern, const Position & targetPosition) const
+{
+    PitchBendAutomationList changes;
+    const auto minLine = getMinLineIndex();
+    const auto minColumn = getMinColumnIndex();
+    const auto minTrack = getMinTrackIndex();
+
+    for (const auto & automation : m_copiedPitchBendAutomations) {
+        auto updated = automation;
+        auto location = automation.location();
+        auto interpolation = automation.interpolation();
+
+        const auto lineOffset = targetPosition.line - minLine;
+        interpolation.line0 += lineOffset;
+        interpolation.line1 += lineOffset;
+        updated.setInterpolation(interpolation);
+
+        const auto trackOffset = location.track() - minTrack;
+        const auto columnOffset = location.column() - minColumn;
+        updated.setLocation({ targetPattern.index(), targetPosition.track + trackOffset, targetPosition.column + columnOffset });
+
+        changes.push_back(updated);
     }
     return changes;
 }

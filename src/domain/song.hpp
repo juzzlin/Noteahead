@@ -66,25 +66,25 @@ public:
     size_t autoNoteOffOffsetTicks(std::chrono::milliseconds offset) const;
 
     using ChangedPositions = std::vector<Position>;
-    ChangedPositions cutColumn(size_t patternIndex, size_t trackIndex, size_t columnIndex, CopyManager & copyManager) const;
-    ChangedPositions copyColumn(size_t patternIndex, size_t trackIndex, size_t columnIndex, CopyManager & copyManager) const;
+    ChangedPositions cutColumn(size_t patternIndex, size_t trackIndex, size_t columnIndex, CopyManager & copyManager, const AutomationService & automationService) const;
+    ChangedPositions copyColumn(size_t patternIndex, size_t trackIndex, size_t columnIndex, CopyManager & copyManager, const AutomationService & automationService) const;
     ChangedPositions pasteColumn(size_t patternIndex, size_t trackIndex, size_t columnIndex, CopyManager & copyManager) const;
     NoteChangeList transposeColumn(const Position & position, int semitones) const;
 
-    ChangedPositions cutTrack(size_t patternIndex, size_t trackIndex, CopyManager & copyManager) const;
-    ChangedPositions copyTrack(size_t patternIndex, size_t trackIndex, CopyManager & copyManager) const;
+    ChangedPositions cutTrack(size_t patternIndex, size_t trackIndex, CopyManager & copyManager, const AutomationService & automationService) const;
+    ChangedPositions copyTrack(size_t patternIndex, size_t trackIndex, CopyManager & copyManager, const AutomationService & automationService) const;
     ChangedPositions pasteTrack(size_t patternIndex, size_t trackIndex, CopyManager & copyManager) const;
     NoteChangeList transposeTrack(const Position & position, int semitones) const;
 
-    ChangedPositions cutPattern(size_t patternIndex, CopyManager & copyManager) const;
-    ChangedPositions copyPattern(size_t patternIndex, CopyManager & copyManager) const;
+    ChangedPositions cutPattern(size_t patternIndex, CopyManager & copyManager, const AutomationService & automationService) const;
+    ChangedPositions copyPattern(size_t patternIndex, CopyManager & copyManager, const AutomationService & automationService) const;
     ChangedPositions pastePattern(size_t patternIndex, CopyManager & copyManager) const;
     NoteChangeList transposePattern(const Position & position, int semitones) const;
 
     using PositionList = std::vector<Position>;
     using PositionListCR = const PositionList &;
-    ChangedPositions cutSelection(PositionListCR positions, CopyManager & copyManager) const;
-    ChangedPositions copySelection(PositionListCR positions, CopyManager & copyManager) const;
+    ChangedPositions cutSelection(PositionListCR positions, CopyManager & copyManager, const AutomationService & automationService) const;
+    ChangedPositions copySelection(PositionListCR positions, CopyManager & copyManager, const AutomationService & automationService) const;
     ChangedPositions pasteSelection(const Position & position, CopyManager & copyManager) const;
 
     void createPattern(size_t patternIndex);

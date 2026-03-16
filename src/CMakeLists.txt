@@ -9,6 +9,8 @@ set(HEADER_FILES
   application/application.hpp
   application/instrument_request.hpp
   application/command/note_edit_command.hpp
+  application/command/automation_command.hpp
+  application/command/composite_command.hpp
   application/command/undo_stack.hpp
   application/models/audio_settings_model.hpp
   application/models/column_settings_model.hpp
@@ -101,6 +103,8 @@ set(SOURCE_FILES
   application/application.cpp
   application/instrument_request.cpp
   application/command/note_edit_command.cpp
+  application/command/automation_command.cpp
+  application/command/composite_command.cpp
   application/command/undo_stack.cpp
   application/models/audio_settings_model.cpp
   application/models/column_settings_model.cpp

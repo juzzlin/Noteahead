@@ -8,6 +8,8 @@ set(SRC
     ../../application/position.hpp
     ../../application/command/note_edit_command.cpp
     ../../application/command/undo_stack.cpp
+    ../../application/command/automation_command.cpp
+    ../../application/command/composite_command.cpp
     ../../application/service/automation_service.cpp
     ../../application/service/copy_manager.cpp
     ../../application/service/editor_service.cpp

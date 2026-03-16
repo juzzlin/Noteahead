@@ -361,6 +361,52 @@ void EditorServiceTest::test_trackCopyPaste_shorterTarget_shouldCopyTrack()
     QCOMPARE(editorService.song()->noteDataAtPosition(targetPosition)->track(), targetPosition.track);
 }
 
+void EditorServiceTest::test_trackCopyPaste_withAutomations()
+{
+    EditorService editorService;
+    auto automationService = std::make_shared<AutomationService>();
+    editorService.setAutomationService(automationService);
+
+    const quint64 sourcePattern = 0;
+    const quint64 sourceTrack = 1;
+    const quint64 sourceColumn = 0;
+    const quint64 sourceLine = 0;
+
+    const Position sourcePosition = { sourcePattern, sourceTrack, sourceColumn, sourceLine, 0 };
+    QVERIFY(editorService.requestPosition(sourcePosition));
+    QVERIFY(editorService.requestNoteOnAtCurrentPosition(1, 3, 64));
+
+    // Add MIDI CC automation
+    automationService->addMidiCcAutomation(sourcePattern, sourceTrack, sourceColumn, 7, 0, 8, 0, 127, "Test CC", true, 8, 0);
+    QCOMPARE(automationService->midiCcAutomationsByTrack(sourcePattern, sourceTrack).size(), 1);
+
+    editorService.requestTrackCopy();
+
+    const quint64 targetPattern = 1;
+    const quint64 targetTrack = 2;
+    editorService.setCurrentPattern(targetPattern);
+    const Position targetPosition = { targetPattern, targetTrack, 0, 0, 0 };
+    QVERIFY(editorService.requestPosition(targetPosition));
+
+    editorService.requestTrackPaste();
+
+    // Verify automation is pasted
+    auto pastedAutomations = automationService->midiCcAutomationsByTrack(targetPattern, targetTrack);
+    QCOMPARE(pastedAutomations.size(), 1);
+    QCOMPARE(pastedAutomations.at(0).location().pattern(), targetPattern);
+    QCOMPARE(pastedAutomations.at(0).location().track(), targetTrack);
+    QCOMPARE(pastedAutomations.at(0).controller(), 7);
+    QCOMPARE(pastedAutomations.at(0).comment(), "Test CC");
+
+    // Test Undo
+    editorService.undo();
+    QCOMPARE(automationService->midiCcAutomationsByTrack(targetPattern, targetTrack).size(), 0);
+
+    // Test Redo
+    editorService.redo();
+    QCOMPARE(automationService->midiCcAutomationsByTrack(targetPattern, targetTrack).size(), 1);
+}
+
 void EditorServiceTest::test_patternCutPaste_equalSizes_shouldCopyPattern()
 {
     EditorService editorService;

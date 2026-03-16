@@ -19,6 +19,8 @@ set(SRC
     ../../application/instrument_request.cpp
     ../../application/command/note_edit_command.cpp
     ../../application/command/undo_stack.cpp
+    ../../application/command/automation_command.cpp
+    ../../application/command/composite_command.cpp
     ../../application/service/midi_service.cpp
     ../../application/service/midi_worker.cpp
     ../../application/service/midi_worker_in.cpp

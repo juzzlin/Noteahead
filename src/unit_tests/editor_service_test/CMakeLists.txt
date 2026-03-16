@@ -5,6 +5,8 @@ set(SRC
     ${NAME}.hpp
     ../../application/instrument_request.cpp
     ../../application/command/note_edit_command.cpp
+    ../../application/command/automation_command.cpp
+    ../../application/command/composite_command.cpp
     ../../application/command/undo_stack.cpp
     ../../application/note_converter.cpp
     ../../application/position.hpp
@@ -55,6 +57,8 @@ set(DELAY_TEST_SRC
     ${DELAY_TEST_NAME}.hpp
     ../../application/instrument_request.cpp
     ../../application/command/note_edit_command.cpp
+    ../../application/command/automation_command.cpp
+    ../../application/command/composite_command.cpp
     ../../application/command/undo_stack.cpp
     ../../application/note_converter.cpp
     ../../application/position.hpp
