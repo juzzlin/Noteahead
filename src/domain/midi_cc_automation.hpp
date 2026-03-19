@@ -49,6 +49,13 @@ public:
 
     struct ModulationParameters
     {
+        enum class ModulationType
+        {
+            SineWave,
+            Random
+        };
+
+        ModulationType type = ModulationType::SineWave;
         float cycles = 0.f;
         float amplitude = 0.f;
         float offset = 0.f;
@@ -56,7 +63,7 @@ public:
 
         bool operator==(const ModulationParameters & other) const
         {
-            return cycles == other.cycles && amplitude == other.amplitude && offset == other.offset && inverted == other.inverted;
+            return type == other.type && cycles == other.cycles && amplitude == other.amplitude && offset == other.offset && inverted == other.inverted;
         }
 
         bool operator!=(const ModulationParameters & other) const

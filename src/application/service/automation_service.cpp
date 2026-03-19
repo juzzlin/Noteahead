@@ -24,6 +24,7 @@
 
 #include <algorithm>
 #include <cmath> // For std::sin and M_PI
+#include <random>
 #include <ranges>
 
 #include <QXmlStreamReader>
@@ -76,13 +77,13 @@ void AutomationService::addMidiCcAutomationWithId(const MidiCcAutomation & autom
     juzzlin::L(TAG).info() << "MIDI CC Automation added (with ID): " << automation.toString().toStdString();
 }
 
-void AutomationService::addMidiCcModulation(quint64 automationId, quint64 cycles, float amplitude, float offset, bool inverted)
+void AutomationService::addMidiCcModulation(quint64 automationId, int type, quint64 cycles, float amplitude, float offset, bool inverted)
 {
     if (const auto iter = std::ranges::find_if(m_automations.midiCc, [&](auto && existingAutomation) {
             return automationId == existingAutomation.id();
         });
         iter != m_automations.midiCc.end()) {
-        MidiCcAutomation::ModulationParameters modulation { static_cast<float>(cycles), amplitude, offset, inverted };
+        MidiCcAutomation::ModulationParameters modulation { static_cast<MidiCcAutomation::ModulationParameters::ModulationType>(type), static_cast<float>(cycles), amplitude, offset, inverted };
         iter->setModulation(modulation);
         notifyChangedLines(*iter);
         juzzlin::L(TAG).info() << "MIDI CC Modulation added to automation id " << automationId;
@@ -388,10 +389,15 @@ AutomationService::EventList AutomationService::renderMidiCcToEventsByLine(size_
                 double interpolatedValue = interpolator.getValue(static_cast<size_t>(line));
 
                 double totalModulation = 0.0;
-                if (modulation.cycles > 0.f && modulation.amplitude > 0.f) {
+                if (modulation.cycles > 0.f || modulation.amplitude > 0.f) {
                     const double phase = interpolation.line1 > interpolation.line0 ? static_cast<double>(line - interpolation.line0) / (static_cast<double>(interpolation.line1 - interpolation.line0)) : 0;
-                    const double sineWave = (modulation.inverted ? -1 : 1) * std::sin(phase * modulation.cycles * 2 * M_PI);
-                    totalModulation = sineWave * modulation.amplitude / 100.0; // Amplitude is a percentage
+                    double modulationValue = 0.0;
+                    if (modulation.type == MidiCcAutomation::ModulationParameters::ModulationType::SineWave) {
+                        modulationValue = sineModulationValue(modulation, phase);
+                    } else if (modulation.type == MidiCcAutomation::ModulationParameters::ModulationType::Random) {
+                        modulationValue = randomModulationValue(automation.id(), modulation, phase);
+                    }
+                    totalModulation = modulationValue * modulation.amplitude / 100.0; // Amplitude is a percentage
                 }
                 totalModulation += modulation.offset / 100.0;
                 interpolatedValue += interpolatedValue * totalModulation;
@@ -403,6 +409,22 @@ AutomationService::EventList AutomationService::renderMidiCcToEventsByLine(size_
     }
 
     return events;
+}
+
+double AutomationService::sineModulationValue(const MidiCcAutomation::ModulationParameters & modulation, double phase) const
+{
+    return (modulation.inverted ? -1 : 1) * std::sin(phase * modulation.cycles * 2 * M_PI);
+}
+
+double AutomationService::randomModulationValue(size_t automationId, const MidiCcAutomation::ModulationParameters & modulation, double phase) const
+{
+    const int sampleIndex = static_cast<int>(std::floor(phase * modulation.cycles));
+    if (sampleIndex < modulation.cycles) {
+        std::mt19937 gen(static_cast<uint32_t>(automationId + sampleIndex));
+        std::uniform_real_distribution<double> dist(-1.0, 1.0);
+        return (modulation.inverted ? -1 : 1) * dist(gen);
+    }
+    return 0.0; // Return to 0
 }
 
 AutomationService::EventList AutomationService::renderPitchBendToEventsByLine(size_t pattern, size_t track, size_t column, size_t line, size_t tick) const
@@ -484,8 +506,13 @@ AutomationService::EventList AutomationService::renderMidiCcToEventsByColumn(siz
                     double totalModulation = 0.0;
                     if (modulation.cycles > 0.f || modulation.amplitude > 0.f) {
                         const double phase = interpolation.line1 > interpolation.line0 ? static_cast<double>(line - interpolation.line0) / (static_cast<double>(interpolation.line1 - interpolation.line0)) : 0;
-                        const double sineWave = (modulation.inverted ? -1 : 1) * std::sin(phase * modulation.cycles * 2 * M_PI);
-                        totalModulation = sineWave * modulation.amplitude / 100.0;
+                        double modulationValue = 0.0;
+                        if (modulation.type == MidiCcAutomation::ModulationParameters::ModulationType::SineWave) {
+                            modulationValue = sineModulationValue(modulation, phase);
+                        } else if (modulation.type == MidiCcAutomation::ModulationParameters::ModulationType::Random) {
+                            modulationValue = randomModulationValue(automation.id(), modulation, phase);
+                        }
+                        totalModulation = modulationValue * modulation.amplitude / 100.0;
                     }
                     totalModulation += modulation.offset / 100.0;
                     interpolatedValue += interpolatedValue * totalModulation;

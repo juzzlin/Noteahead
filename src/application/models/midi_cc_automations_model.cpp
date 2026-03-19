@@ -146,6 +146,8 @@ QVariant MidiCcAutomationsModel::data(const QModelIndex & index, int role) const
             return midiCcAutomation.modulation().offset;
         case DataRole::Modulation_Sine_Inverted:
             return midiCcAutomation.modulation().inverted;
+        case DataRole::Modulation_Type:
+            return static_cast<int>(midiCcAutomation.modulation().type);
         case DataRole::EventsPerBeat:
             return static_cast<quint64>(midiCcAutomation.eventsPerBeat() > 0 ? midiCcAutomation.eventsPerBeat() : m_linesPerBeat);
         case DataRole::LineOffset:
@@ -244,6 +246,14 @@ bool MidiCcAutomationsModel::setData(const QModelIndex & index, const QVariant &
                 changed = true;
             }
         } break;
+        case DataRole::Modulation_Type: {
+            auto modulation = midiCcAutomation.modulation();
+            if (const auto newType = static_cast<MidiCcAutomation::ModulationParameters::ModulationType>(value.toInt()); modulation.type != newType) {
+                modulation.type = newType;
+                midiCcAutomation.setModulation(modulation);
+                changed = true;
+            }
+        } break;
         case DataRole::EventsPerBeat: {
             const auto newEventsPerBeat = static_cast<uint8_t>(value.toUInt());
             const auto targetValue = newEventsPerBeat == m_linesPerBeat ? 0 : newEventsPerBeat;
@@ -313,6 +323,7 @@ QHash<int, QByteArray> MidiCcAutomationsModel::roleNames() const
         { static_cast<int>(DataRole::Modulation_Sine_Amplitude), "modulationSineAmplitude" },
         { static_cast<int>(DataRole::Modulation_Sine_Offset), "modulationSineOffset" },
         { static_cast<int>(DataRole::Modulation_Sine_Inverted), "modulationSineInverted" },
+        { static_cast<int>(DataRole::Modulation_Type), "modulationType" },
         { static_cast<int>(DataRole::EventsPerBeat), "eventsPerBeat" },
         { static_cast<int>(DataRole::LineOffset), "lineOffset" }
     };
@@ -348,13 +359,29 @@ void MidiCcAutomationsModel::applyAll()
 void MidiCcAutomationsModel::changeController(int index, quint8 controller)
 {
     if (index >= 0 && static_cast<size_t>(index) < m_midiCcAutomations.size()) {
-        auto& midiCcAutomation = m_midiCcAutomations[static_cast<size_t>(index)];
+        auto && midiCcAutomation = m_midiCcAutomations[static_cast<size_t>(index)];
         if (midiCcAutomation.controller() != controller) {
             midiCcAutomation.setController(controller);
             m_midiCcAutomationsChanged.erase(midiCcAutomation);
             m_midiCcAutomationsChanged.insert(midiCcAutomation);
             emit dataChanged(this->index(index), this->index(index), { static_cast<int>(DataRole::Controller) });
             juzzlin::L(TAG).info() << "MIDI CC automation controller changed via invokable: " << midiCcAutomation.toString().toStdString();
+        }
+    }
+}
+
+void MidiCcAutomationsModel::changeModulationType(int index, int type)
+{
+    if (index >= 0 && static_cast<size_t>(index) < m_midiCcAutomations.size()) {
+        auto && midiCcAutomation = m_midiCcAutomations[static_cast<size_t>(index)];
+        auto modulation = midiCcAutomation.modulation();
+        if (static_cast<int>(modulation.type) != type) {
+            modulation.type = static_cast<MidiCcAutomation::ModulationParameters::ModulationType>(type);
+            midiCcAutomation.setModulation(modulation);
+            m_midiCcAutomationsChanged.erase(midiCcAutomation);
+            m_midiCcAutomationsChanged.insert(midiCcAutomation);
+            emit dataChanged(this->index(index), this->index(index), { static_cast<int>(DataRole::Modulation_Type) });
+            juzzlin::L(TAG).info() << "MIDI CC automation modulation type changed via invokable: " << midiCcAutomation.toString().toStdString();
         }
     }
 }

@@ -182,6 +182,8 @@ QString xmlKeySideChainSettings();
 
 QString xmlValueFalse();
 QString xmlValueTrue();
+QString xmlValueSineWave();
+QString xmlValueRandom();
 
 } // namespace NahdXml
 } // namespace noteahead::Constants

@@ -40,6 +40,7 @@ private slots:
     void test_renderToEventsByLine_shouldRenderToEvents();
     void test_renderToEventsByLine_disableAutomation_shouldNotRenderEvents();
     void test_renderMidiCcToEventsByLine_withModulation_shouldRenderModulatedEvents();
+    void test_renderMidiCcToEventsByLine_withRandomModulation_shouldRenderModulatedEvents();
     void test_renderMidiCcToEventsByLine_withInvertedModulation_shouldRenderModulatedEvents();
     void test_renderMidiCcToEventsByLine_withOffset_shouldRenderOffsetEvents();
     void test_renderMidiCcToEventsByColumn_withEventsPerBeatAndLineOffset_shouldSkipEvents();

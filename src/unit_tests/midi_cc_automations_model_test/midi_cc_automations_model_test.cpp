@@ -229,12 +229,17 @@ void MidiCcAutomationsModelTest::test_setData_shouldUpdateModulationData()
     QCOMPARE(model.data(index, static_cast<int>(Role::Modulation_Sine_Inverted)).toBool(), true);
     QVERIFY(!model.setData(index, true, static_cast<int>(Role::Modulation_Sine_Inverted)));
 
+    QVERIFY(model.setData(index, 1, static_cast<int>(Role::Modulation_Type)));
+    QCOMPARE(model.data(index, static_cast<int>(Role::Modulation_Type)).toInt(), 1);
+    QVERIFY(!model.setData(index, 1, static_cast<int>(Role::Modulation_Type)));
+
     model.applyAll();
     QVERIFY(updatedAutomation.has_value());
     QCOMPARE(midiCcAutomationChangedSpy.count(), 1);
     QCOMPARE(model.data(index, static_cast<int>(Role::Modulation_Sine_Cycles)).toUInt(), updatedAutomation->modulation().cycles);
     QCOMPARE(model.data(index, static_cast<int>(Role::Modulation_Sine_Amplitude)).toFloat(), updatedAutomation->modulation().amplitude);
     QCOMPARE(model.data(index, static_cast<int>(Role::Modulation_Sine_Inverted)).toBool(), updatedAutomation->modulation().inverted);
+    QCOMPARE(model.data(index, static_cast<int>(Role::Modulation_Type)).toInt(), static_cast<int>(updatedAutomation->modulation().type));
 }
 
 void MidiCcAutomationsModelTest::test_setData_shouldUpdateOutputSettings()
@@ -279,6 +284,56 @@ void MidiCcAutomationsModelTest::test_removeAt_shouldRemoveAutomationData()
 
     model.applyAll();
     QCOMPARE(midiCcAutomationDeletedSpy.count(), 1);
+}
+
+void MidiCcAutomationsModelTest::test_changeModulationType_shouldUpdateModulationType()
+{
+    using Role = MidiCcAutomationsModel::DataRole;
+
+    const AutomationLocation location { 1, 2, 3 };
+    const MidiCcAutomation::InterpolationParameters interpolation { 11, 22, 33, 44 };
+    MidiCcAutomation midiCcAutomation { 42, location, 7, interpolation, "Old Comment" };
+    std::optional<MidiCcAutomation> updatedAutomation;
+    MidiCcAutomationsModel model;
+    model.setMidiCcAutomations({ midiCcAutomation });
+    QSignalSpy midiCcAutomationChangedSpy { &model, &MidiCcAutomationsModel::midiCcAutomationChanged };
+    connect(&model, &MidiCcAutomationsModel::midiCcAutomationChanged, this, [&updatedAutomation](auto && automation) {
+        updatedAutomation = automation;
+    });
+
+    // Change to Random (1)
+    model.changeModulationType(0, 1);
+    QCOMPARE(model.data(model.index(0), static_cast<int>(Role::Modulation_Type)).toInt(), 1);
+
+    model.applyAll();
+    QVERIFY(updatedAutomation.has_value());
+    QCOMPARE(midiCcAutomationChangedSpy.count(), 1);
+    QCOMPARE(static_cast<int>(updatedAutomation->modulation().type), 1);
+}
+
+void MidiCcAutomationsModelTest::test_changeController_shouldUpdateController()
+{
+    using Role = MidiCcAutomationsModel::DataRole;
+
+    const AutomationLocation location { 1, 2, 3 };
+    const MidiCcAutomation::InterpolationParameters interpolation { 11, 22, 33, 44 };
+    MidiCcAutomation midiCcAutomation { 42, location, 7, interpolation, "Old Comment" };
+    std::optional<MidiCcAutomation> updatedAutomation;
+    MidiCcAutomationsModel model;
+    model.setMidiCcAutomations({ midiCcAutomation });
+    QSignalSpy midiCcAutomationChangedSpy { &model, &MidiCcAutomationsModel::midiCcAutomationChanged };
+    connect(&model, &MidiCcAutomationsModel::midiCcAutomationChanged, this, [&updatedAutomation](auto && automation) {
+        updatedAutomation = automation;
+    });
+
+    // Change controller to 10
+    model.changeController(0, 10);
+    QCOMPARE(model.data(model.index(0), static_cast<int>(Role::Controller)).toInt(), 10);
+
+    model.applyAll();
+    QVERIFY(updatedAutomation.has_value());
+    QCOMPARE(midiCcAutomationChangedSpy.count(), 1);
+    QCOMPARE(updatedAutomation->controller(), 10);
 }
 
 } // namespace noteahead

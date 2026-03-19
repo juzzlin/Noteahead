@@ -53,7 +53,7 @@ public:
     Q_INVOKABLE quint64 addMidiCcAutomation(quint64 pattern, quint64 track, quint64 column, quint8 controller, quint64 line0, quint64 line1, quint8 value0, quint8 value1, QString comment, quint8 eventsPerBeat, quint8 lineOffset);
     quint64 addMidiCcAutomation(const MidiCcAutomation & automation);
     void addMidiCcAutomationWithId(const MidiCcAutomation & automation);
-    Q_INVOKABLE void addMidiCcModulation(quint64 automationId, quint64 cycles, float amplitude, float offset, bool inverted);
+    Q_INVOKABLE void addMidiCcModulation(quint64 automationId, int type, quint64 cycles, float amplitude, float offset, bool inverted);
 
     //! Adds automation for MIDI pitch bend.
     //! \param value0 Start value from -100% to +100%.
@@ -110,6 +110,9 @@ private:
     EventList renderPitchBendToEventsByLine(size_t pattern, size_t track, size_t column, size_t line, size_t tick) const;
     EventList renderMidiCcToEventsByColumn(size_t pattern, size_t track, size_t column, size_t tick, size_t ticksPerLine, size_t linesPerBeat) const;
     EventList renderPitchBendToEventsByColumn(size_t pattern, size_t track, size_t column, size_t tick, size_t ticksPerLine) const;
+
+    double sineModulationValue(const MidiCcAutomation::ModulationParameters & modulation, double phase) const;
+    double randomModulationValue(size_t automationId, const MidiCcAutomation::ModulationParameters & modulation, double phase) const;
 
     struct Automations
     {

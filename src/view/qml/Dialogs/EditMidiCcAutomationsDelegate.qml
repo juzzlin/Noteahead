@@ -17,6 +17,7 @@ GroupBox {
             endValueSpinBox.value = model.value1;
             eventsPerBeatSpinBox.value = model.eventsPerBeat;
             lineOffsetSpinBox.value = model.lineOffset;
+            modulationTypeComboBox.currentIndex = model.modulationType;
             modulationSineCyclesSpinBox.value = model.modulationSineCycles;
             modulationSineAmplitudeSpinBox.value = model.modulationSineAmplitude;
             modulationSineOffsetSpinBox.value = model.modulationSineOffset;
@@ -207,17 +208,34 @@ GroupBox {
             }
         }
         GroupBox {
-            title: qsTr("Modulation (Sine Wave)")
+            title: qsTr("Modulation")
             Layout.row: 1
             Layout.column: 5
             Layout.columnSpan: 4
             Layout.fillWidth: true
             GridLayout {
                 anchors.fill: parent
+                columns: 5
+                Label {
+                    text: qsTr("Type")
+                    Layout.row: 0
+                    Layout.column: 0
+                    Layout.fillWidth: true
+                }
+                ComboBox {
+                    id: modulationTypeComboBox
+                    model: [qsTr("Sine Wave"), qsTr("Random")]
+                    Layout.row: 1
+                    Layout.column: 0
+                    Layout.fillWidth: true
+                    onActivated: function (comboBoxIndex) {
+                        midiCcAutomationsModel.changeModulationType(index, comboBoxIndex);
+                    }
+                }
                 Label {
                     text: qsTr("Cycles")
                     Layout.row: 0
-                    Layout.column: 6
+                    Layout.column: 1
                     Layout.fillWidth: true
                 }
                 SpinBox {
@@ -227,7 +245,7 @@ GroupBox {
                     editable: true
                     Keys.onReturnPressed: focus = false
                     Layout.row: 1
-                    Layout.column: 6
+                    Layout.column: 1
                     Layout.fillWidth: true
                     ToolTip.delay: Constants.toolTipDelay
                     ToolTip.timeout: Constants.toolTipTimeout
@@ -238,7 +256,7 @@ GroupBox {
                 Label {
                     text: qsTr("Amplitude (%)")
                     Layout.row: 0
-                    Layout.column: 7
+                    Layout.column: 2
                     Layout.fillWidth: true
                 }
                 SpinBox {
@@ -248,7 +266,7 @@ GroupBox {
                     editable: true
                     Keys.onReturnPressed: focus = false
                     Layout.row: 1
-                    Layout.column: 7
+                    Layout.column: 2
                     Layout.fillWidth: true
                     ToolTip.delay: Constants.toolTipDelay
                     ToolTip.timeout: Constants.toolTipTimeout
@@ -259,7 +277,7 @@ GroupBox {
                 Label {
                     text: qsTr("Offset (%)")
                     Layout.row: 0
-                    Layout.column: 8
+                    Layout.column: 3
                     Layout.fillWidth: true
                 }
                 SpinBox {
@@ -269,7 +287,7 @@ GroupBox {
                     editable: true
                     Keys.onReturnPressed: focus = false
                     Layout.row: 1
-                    Layout.column: 8
+                    Layout.column: 3
                     Layout.fillWidth: true
                     ToolTip.delay: Constants.toolTipDelay
                     ToolTip.timeout: Constants.toolTipTimeout
@@ -280,7 +298,7 @@ GroupBox {
                 CheckBox {
                     text: qsTr("Inverted")
                     Layout.row: 1
-                    Layout.column: 9
+                    Layout.column: 4
                     Layout.fillWidth: true
                     ToolTip.delay: Constants.toolTipDelay
                     ToolTip.timeout: Constants.toolTipTimeout

@@ -604,6 +604,16 @@ QString xmlValueTrue()
     return "true";
 }
 
+QString xmlValueSineWave()
+{
+    return "SineWave";
+}
+
+QString xmlValueRandom()
+{
+    return "Random";
+}
+
 } // namespace NahdXml
 
 } // namespace noteahead::Constants

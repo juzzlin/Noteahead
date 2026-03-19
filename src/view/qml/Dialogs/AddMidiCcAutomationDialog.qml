@@ -55,6 +55,13 @@ Dialog {
         model.setLineOffset(value);
     }
 
+    function modulationType(): int {
+        return model.modulationType();
+    }
+    function setModulationType(value: int): void {
+        model.setModulationType(value);
+    }
+
     function cycles(): int {
         return model.cycles();
     }

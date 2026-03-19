@@ -49,6 +49,7 @@ public:
         Modulation_Sine_Amplitude,
         Modulation_Sine_Offset,
         Modulation_Sine_Inverted,
+        Modulation_Type,
         EventsPerBeat,
         LineOffset
     };
@@ -75,6 +76,7 @@ public:
 
     Q_INVOKABLE void applyAll();
     Q_INVOKABLE void changeController(int index, quint8 controller);
+    Q_INVOKABLE void changeModulationType(int index, int type);
 
 signals:
     void midiCcAutomationChanged(const MidiCcAutomation & midiCcAutomation);

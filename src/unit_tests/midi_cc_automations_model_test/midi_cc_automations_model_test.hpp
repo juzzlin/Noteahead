@@ -34,6 +34,8 @@ private slots:
     void test_setData_shouldUpdateModulationData();
     void test_setData_shouldUpdateOutputSettings();
     void test_removeAt_shouldRemoveAutomationData();
+    void test_changeModulationType_shouldUpdateModulationType();
+    void test_changeController_shouldUpdateController();
 };
 
 } // namespace noteahead

@@ -49,6 +49,7 @@ Item {
     }
 
     function resetModulations(): void {
+        setModulationType(0);
         setCycles(0);
         setAmplitude(0);
         setOffset(0);
@@ -57,6 +58,12 @@ Item {
     function resetOutput(): void {
         setEventsPerBeat(midiCcAutomationsModel.linesPerBeat);
         setLineOffset(0);
+    }
+    function modulationType(): int {
+        return modulationTypeComboBox.currentIndex;
+    }
+    function setModulationType(type: int): void {
+        modulationTypeComboBox.currentIndex = type;
     }
     function cycles(): int {
         return cyclesSpinBox.value;
@@ -233,12 +240,15 @@ Item {
             }
         }
         GroupBox {
-            title: qsTr("Modulation (Sine Wave)")
+            title: qsTr("Modulation")
             Layout.fillWidth: true
             GridLayout {
                 rowSpacing: 10
                 width: parent.width
-                columns: 4
+                columns: 5
+                Label {
+                    text: qsTr("Type")
+                }
                 Label {
                     text: qsTr("Cycles")
                 }
@@ -250,6 +260,11 @@ Item {
                 }
                 Label {
                     text: qsTr("Inverted")
+                }
+                ComboBox {
+                    id: modulationTypeComboBox
+                    model: [qsTr("Sine Wave"), qsTr("Random")]
+                    Layout.fillWidth: true
                 }
                 SpinBox {
                     id: cyclesSpinBox

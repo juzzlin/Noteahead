@@ -267,7 +267,7 @@ void AutomationServiceTest::test_renderMidiCcToEventsByLine_withModulation_shoul
     quint8 value0 = 64;
     quint8 value1 = 64;
     const auto automationId = automationService.addMidiCcAutomation(pattern, track, column, controller, line0, line1, value0, value1, {}, true, 8, 0);
-    automationService.addMidiCcModulation(automationId, 1, 50.0f, 0.0f, false);
+    automationService.addMidiCcModulation(automationId, 0, 1, 50.0f, 0.0f, false);
 
     const auto tick = 0;
     // Line 0: Base 64, Phase 0, Sine 0, Modulation 0
@@ -279,6 +279,39 @@ void AutomationServiceTest::test_renderMidiCcToEventsByLine_withModulation_shoul
     // Line 3: Base 64, Phase 0.75, Sine -1, Modulation -32
     QCOMPARE(automationService.renderToEventsByLine(pattern, track, column, 3, tick).at(0)->midiCcData()->value(), 32);
     // Line 4: Base 64, Phase 1, Sine 0, Modulation 0
+    QCOMPARE(automationService.renderToEventsByLine(pattern, track, column, 4, tick).at(0)->midiCcData()->value(), 64);
+}
+
+void AutomationServiceTest::test_renderMidiCcToEventsByLine_withRandomModulation_shouldRenderModulatedEvents()
+{
+    AutomationService automationService;
+
+    quint64 pattern = 0;
+    quint64 track = 1;
+    quint64 column = 2;
+    quint8 controller = 64;
+    quint8 line0 = 0;
+    quint8 line1 = 4;
+    quint8 value0 = 64;
+    quint8 value1 = 64;
+    // ID will be 1
+    const auto automationId = automationService.addMidiCcAutomation(pattern, track, column, controller, line0, line1, value0, value1, {}, true, 8, 0);
+    // Type 1 = Random, 1 cycle, 100% amplitude
+    automationService.addMidiCcModulation(automationId, 1, 1, 100.0f, 0.0f, false);
+
+    const auto tick = 0;
+    // For automationId = 1 and sampleIndex = 0, std::mt19937 seeded with 1:
+    // first value from dist(-1, 1) is roughly -0.131538
+    // value = 64 + 64 * (-0.131538) = 64 - 8.4 = 55.6 -> 56
+    const auto val0 = automationService.renderToEventsByLine(pattern, track, column, 0, tick).at(0)->midiCcData()->value();
+    QVERIFY(val0 != 64);
+
+    // Should stay same for line 1, 2, 3 (within same cycle)
+    QCOMPARE(automationService.renderToEventsByLine(pattern, track, column, 1, tick).at(0)->midiCcData()->value(), val0);
+    QCOMPARE(automationService.renderToEventsByLine(pattern, track, column, 2, tick).at(0)->midiCcData()->value(), val0);
+    QCOMPARE(automationService.renderToEventsByLine(pattern, track, column, 3, tick).at(0)->midiCcData()->value(), val0);
+
+    // Return to 0 at the end (line 4, phase 1.0)
     QCOMPARE(automationService.renderToEventsByLine(pattern, track, column, 4, tick).at(0)->midiCcData()->value(), 64);
 }
 
@@ -295,7 +328,7 @@ void AutomationServiceTest::test_renderMidiCcToEventsByLine_withInvertedModulati
     quint8 value0 = 64;
     quint8 value1 = 64;
     const auto automationId = automationService.addMidiCcAutomation(pattern, track, column, controller, line0, line1, value0, value1, {}, true, 8, 0);
-    automationService.addMidiCcModulation(automationId, 1, 50.0f, 0.0f, true);
+    automationService.addMidiCcModulation(automationId, 0, 1, 50.0f, 0.0f, true);
 
     const auto tick = 0;
     // Line 0: Base 64, Phase 0, Sine 0, Modulation 0
@@ -325,13 +358,13 @@ void AutomationServiceTest::test_renderMidiCcToEventsByLine_withOffset_shouldRen
     const auto automationId = automationService.addMidiCcAutomation(pattern, track, column, controller, line0, line1, value0, value1, {}, true, 8, 0);
 
     // Test positive offset (+50%)
-    automationService.addMidiCcModulation(automationId, 0, 0.0f, 50.0f, false);
+    automationService.addMidiCcModulation(automationId, 0, 0, 0.0f, 50.0f, false);
     const auto tick = 0;
     // 64 + 64 * 0.5 = 96
     QCOMPARE(automationService.renderToEventsByLine(pattern, track, column, 0, tick).at(0)->midiCcData()->value(), 96);
 
     // Test negative offset (-50%)
-    automationService.addMidiCcModulation(automationId, 0, 0.0f, -50.0f, false);
+    automationService.addMidiCcModulation(automationId, 0, 0, 0.0f, -50.0f, false);
     // 64 + 64 * -0.5 = 32
     QCOMPARE(automationService.renderToEventsByLine(pattern, track, column, 0, tick).at(0)->midiCcData()->value(), 32);
 }
