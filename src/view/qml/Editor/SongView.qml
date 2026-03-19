@@ -49,7 +49,7 @@ Rectangle {
                     hoverEnabled: true
                     acceptedButtons: Qt.LeftButton | Qt.RightButton
                     cursorShape: Qt.PointingHandCursor
-                    onClicked: {
+                    onClicked: mouse => {
                         if (mouse.button === Qt.RightButton) {
                             if (!UiService.isPlaying()) {
                                 editorService.setSkipped(index, !editorService.isSkipped(index));
@@ -76,7 +76,7 @@ Rectangle {
                         }
                     }
                     function onSkippedChanged() {
-                        patternRect.skipped = editorService.isSkipped(index)
+                        patternRect.skipped = editorService.isSkipped(index);
                     }
                 }
             }
