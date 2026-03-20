@@ -248,7 +248,7 @@ bool MidiCcAutomationsModel::setData(const QModelIndex & index, const QVariant &
         } break;
         case DataRole::Modulation_Type: {
             auto modulation = midiCcAutomation.modulation();
-            if (const auto newType = static_cast<MidiCcAutomation::ModulationParameters::ModulationType>(value.toInt()); modulation.type != newType) {
+            if (const auto newType = static_cast<ModulationParameters::ModulationType>(value.toInt()); modulation.type != newType) {
                 modulation.type = newType;
                 midiCcAutomation.setModulation(modulation);
                 changed = true;
@@ -376,7 +376,7 @@ void MidiCcAutomationsModel::changeModulationType(int index, int type)
         auto && midiCcAutomation = m_midiCcAutomations[static_cast<size_t>(index)];
         auto modulation = midiCcAutomation.modulation();
         if (static_cast<int>(modulation.type) != type) {
-            modulation.type = static_cast<MidiCcAutomation::ModulationParameters::ModulationType>(type);
+            modulation.type = static_cast<ModulationParameters::ModulationType>(type);
             midiCcAutomation.setModulation(modulation);
             m_midiCcAutomationsChanged.erase(midiCcAutomation);
             m_midiCcAutomationsChanged.insert(midiCcAutomation);

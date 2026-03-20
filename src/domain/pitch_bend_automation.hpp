@@ -17,6 +17,7 @@
 #define PITCH_BEND_AUTOMATION_HPP
 
 #include "automation.hpp"
+#include "modulation.hpp"
 
 #include <memory>
 
@@ -46,6 +47,7 @@ public:
         }
     };
 
+    PitchBendAutomation(size_t id, AutomationLocation location, InterpolationParameters interpolation, ModulationParameters modulation, QString comment, bool enabled);
     PitchBendAutomation(size_t id, AutomationLocation location, InterpolationParameters interpolation, QString comment, bool enabled);
     PitchBendAutomation(size_t id, AutomationLocation location, InterpolationParameters interpolation, QString comment);
     PitchBendAutomation();
@@ -57,6 +59,9 @@ public:
     const InterpolationParameters & interpolation() const;
     void setInterpolation(const InterpolationParameters & parameters);
 
+    const ModulationParameters & modulation() const;
+    void setModulation(const ModulationParameters & modulation);
+
     void serializeToXml(QXmlStreamWriter & writer) const;
     using PitchBendAutomationU = std::unique_ptr<PitchBendAutomation>;
     static PitchBendAutomationU deserializeFromXml(QXmlStreamReader & reader);
@@ -66,6 +71,7 @@ public:
 private:
 
     InterpolationParameters m_interpolation;
+    ModulationParameters m_modulation;
 };
 
 } // namespace noteahead

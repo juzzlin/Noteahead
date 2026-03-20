@@ -96,7 +96,7 @@ PitchBendAutomationsModel::PitchBendAutomationList PitchBendAutomationsModel::fi
 
 void PitchBendAutomationsModel::setPitchBendAutomations(PitchBendAutomationList PitchBendAutomations)
 {
-    juzzlin::L(TAG).info() << "Setting MIDI CC automations: " << PitchBendAutomations.size() << " found";
+    juzzlin::L(TAG).info() << "Setting pitch bend automations: " << PitchBendAutomations.size() << " found";
     beginResetModel();
     m_pitchBendAutomationsChanged.clear();
     m_pitchBendAutomationsDeleted.clear();
@@ -136,6 +136,16 @@ QVariant PitchBendAutomationsModel::data(const QModelIndex & index, int role) co
             return static_cast<quint64>(PitchBendAutomation.location().track());
         case DataRole::Column:
             return static_cast<quint64>(PitchBendAutomation.location().column());
+        case DataRole::Modulation_Sine_Cycles:
+            return PitchBendAutomation.modulation().cycles;
+        case DataRole::Modulation_Sine_Amplitude:
+            return PitchBendAutomation.modulation().amplitude;
+        case DataRole::Modulation_Sine_Offset:
+            return PitchBendAutomation.modulation().offset;
+        case DataRole::Modulation_Sine_Inverted:
+            return PitchBendAutomation.modulation().inverted;
+        case DataRole::Modulation_Type:
+            return static_cast<int>(PitchBendAutomation.modulation().type);
         }
     }
     return "N/A";
@@ -194,6 +204,46 @@ bool PitchBendAutomationsModel::setData(const QModelIndex & index, const QVarian
             changed = true;
         }
     } break;
+    case DataRole::Modulation_Sine_Cycles: {
+        auto modulation = PitchBendAutomation.modulation();
+        if (const auto newCycles = value.toUInt(); modulation.cycles != newCycles) {
+            modulation.cycles = newCycles;
+            PitchBendAutomation.setModulation(modulation);
+            changed = true;
+        }
+    } break;
+    case DataRole::Modulation_Sine_Amplitude: {
+        auto modulation = PitchBendAutomation.modulation();
+        if (const auto newAmplitude = value.toFloat(); modulation.amplitude != newAmplitude) {
+            modulation.amplitude = newAmplitude;
+            PitchBendAutomation.setModulation(modulation);
+            changed = true;
+        }
+    } break;
+    case DataRole::Modulation_Sine_Offset: {
+        auto modulation = PitchBendAutomation.modulation();
+        if (const auto newOffset = value.toFloat(); modulation.offset != newOffset) {
+            modulation.offset = newOffset;
+            PitchBendAutomation.setModulation(modulation);
+            changed = true;
+        }
+    } break;
+    case DataRole::Modulation_Sine_Inverted: {
+        auto modulation = PitchBendAutomation.modulation();
+        if (const auto newInverted = value.toBool(); modulation.inverted != newInverted) {
+            modulation.inverted = newInverted;
+            PitchBendAutomation.setModulation(modulation);
+            changed = true;
+        }
+    } break;
+    case DataRole::Modulation_Type: {
+        auto modulation = PitchBendAutomation.modulation();
+        if (const auto newType = static_cast<ModulationParameters::ModulationType>(value.toInt()); modulation.type != newType) {
+            modulation.type = newType;
+            PitchBendAutomation.setModulation(modulation);
+            changed = true;
+        }
+    } break;
     case DataRole::Pattern:
     case DataRole::Track:
     case DataRole::Column:
@@ -202,6 +252,7 @@ bool PitchBendAutomationsModel::setData(const QModelIndex & index, const QVarian
     }
 
     if (changed) {
+        m_pitchBendAutomations[static_cast<size_t>(index.row())] = PitchBendAutomation;
         m_pitchBendAutomationsChanged.erase(PitchBendAutomation);
         m_pitchBendAutomationsChanged.insert(PitchBendAutomation);
         emit dataChanged(index, index, { role });
@@ -240,7 +291,12 @@ QHash<int, QByteArray> PitchBendAutomationsModel::roleNames() const
         { static_cast<int>(DataRole::Pattern), "pattern" },
         { static_cast<int>(DataRole::Track), "track" },
         { static_cast<int>(DataRole::Value0), "value0" },
-        { static_cast<int>(DataRole::Value1), "value1" }
+        { static_cast<int>(DataRole::Value1), "value1" },
+        { static_cast<int>(DataRole::Modulation_Sine_Cycles), "modulationSineCycles" },
+        { static_cast<int>(DataRole::Modulation_Sine_Amplitude), "modulationSineAmplitude" },
+        { static_cast<int>(DataRole::Modulation_Sine_Offset), "modulationSineOffset" },
+        { static_cast<int>(DataRole::Modulation_Sine_Inverted), "modulationSineInverted" },
+        { static_cast<int>(DataRole::Modulation_Type), "modulationType" }
     };
 }
 
@@ -254,6 +310,23 @@ void PitchBendAutomationsModel::applyAll()
         emit pitchBendAutomationDeleted(PitchBendAutomation);
     }
     m_pitchBendAutomationsDeleted.clear();
+}
+
+void PitchBendAutomationsModel::changeModulationType(int index, int type)
+{
+    if (index >= 0 && static_cast<size_t>(index) < m_pitchBendAutomations.size()) {
+        auto && pitchBendAutomation = m_pitchBendAutomations[static_cast<size_t>(index)];
+        auto modulation = pitchBendAutomation.modulation();
+        if (static_cast<int>(modulation.type) != type) {
+            modulation.type = static_cast<ModulationParameters::ModulationType>(type);
+            pitchBendAutomation.setModulation(modulation);
+            m_pitchBendAutomations[static_cast<size_t>(index)] = pitchBendAutomation;
+            m_pitchBendAutomationsChanged.erase(pitchBendAutomation);
+            m_pitchBendAutomationsChanged.insert(pitchBendAutomation);
+            emit dataChanged(this->index(index), this->index(index), { static_cast<int>(DataRole::Modulation_Type) });
+            juzzlin::L(TAG).info() << "Pitch bend automation modulation type changed via invokable: " << pitchBendAutomation.toString().toStdString();
+        }
+    }
 }
 
 } // namespace noteahead

@@ -1819,6 +1819,27 @@ void EditorServiceTest::test_toXmlFromXml_automationService_pitchBend_shouldLoad
     }
 }
 
+void EditorServiceTest::test_toXmlFromXml_automationService_pitchBend_withModulation_shouldLoadAutomationService()
+{
+    AutomationService automationServiceOut;
+    const auto automationId = automationServiceOut.addPitchBendAutomation(0, 0, 0, 0, 1, 0, 1, {}, true);
+    automationServiceOut.addPitchBendModulation(automationId, 1, 5, 25.0f, 10.0f, true);
+
+    AutomationService automationServiceIn;
+    EditorService editorService;
+    connect(&editorService, &EditorService::automationSerializationRequested, &automationServiceOut, &AutomationService::serializeToXml);
+    connect(&editorService, &EditorService::automationDeserializationRequested, &automationServiceIn, &AutomationService::deserializeFromXml);
+
+    editorService.fromXml(editorService.toXml());
+
+    const auto automation = automationServiceIn.pitchBendAutomations().at(0);
+    QCOMPARE(static_cast<int>(automation.modulation().type), 1);
+    QCOMPARE(automation.modulation().cycles, 5.0f);
+    QCOMPARE(automation.modulation().amplitude, 25.0f);
+    QCOMPARE(automation.modulation().offset, 10.0f);
+    QCOMPARE(automation.modulation().inverted, true);
+}
+
 void EditorServiceTest::test_toXmlFromXml_mixerService_shouldLoadMixerService()
 {
     MixerService mixerServiceOut;

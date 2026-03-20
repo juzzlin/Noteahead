@@ -17,7 +17,7 @@ Dialog {
     function setStartValue(value) {
         model.setStartValue(value);
     }
-    function endValue(value) {
+    function endValue() {
         return model.endValue();
     }
     function setEndValue(value) {
@@ -34,6 +34,21 @@ Dialog {
     }
     function setEndLine(value) {
         model.setEndLine(value);
+    }
+    function modulationType() {
+        return model.modulationType();
+    }
+    function cycles() {
+        return model.cycles();
+    }
+    function amplitude() {
+        return model.amplitude();
+    }
+    function offset() {
+        return model.offset();
+    }
+    function inverted() {
+        return model.inverted();
     }
     function comment() {
         return model.comment();

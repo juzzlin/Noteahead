@@ -122,6 +122,7 @@ private slots:
     void test_toXmlFromXml_automationService_midiCc_withModulation_shouldLoadAutomationService();
     void test_toXmlFromXml_automationService_midiCc_noModulation_shouldLoadAutomationService();
     void test_toXmlFromXml_automationService_pitchBend_shouldLoadAutomationService();
+    void test_toXmlFromXml_automationService_pitchBend_withModulation_shouldLoadAutomationService();
     void test_toXmlFromXml_mixerService_shouldLoadMixerService();
     void test_toXmlFromXml_noteData_noteOff();
     void test_toXmlFromXml_noteData_noteOn();

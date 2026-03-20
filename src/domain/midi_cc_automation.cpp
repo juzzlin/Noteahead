@@ -106,7 +106,7 @@ void MidiCcAutomation::setInterpolation(const InterpolationParameters & interpol
     m_interpolation = interpolation;
 }
 
-const MidiCcAutomation::ModulationParameters & MidiCcAutomation::modulation() const
+const ModulationParameters & MidiCcAutomation::modulation() const
 {
     return m_modulation;
 }
@@ -174,7 +174,7 @@ MidiCcAutomation::MidiCcAutomationU MidiCcAutomation::deserializeFromXml(QXmlStr
     const bool enabled = Utils::Xml::readBoolAttribute(reader, Constants::NahdXml::xmlKeyEnabled(), false).value_or(true);
     AutomationLocation::AutomationLocationU location = std::make_unique<AutomationLocation>();
     MidiCcAutomation::InterpolationParameters interpolationParameters {};
-    MidiCcAutomation::ModulationParameters modulationParameters {};
+    ModulationParameters modulationParameters {};
 
     while (!(reader.isEndElement() && !reader.name().compare(Constants::NahdXml::xmlKeyMidiCcAutomation()))) {
         reader.readNext();

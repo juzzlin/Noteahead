@@ -9,6 +9,8 @@ New features:
 
 * Implement Random modulation for MIDI CC automations
 
+* Implement Random modulation for pitch bend automations
+
 Bug fixes:
 
 Other:

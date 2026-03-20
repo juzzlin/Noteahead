@@ -35,6 +35,38 @@ Item {
     function setComment(comment) {
         commentEdit.text = comment;
     }
+
+    function modulationType(): int {
+        return modulationGroupBox.modulationType;
+    }
+    function setModulationType(type: int): void {
+        modulationGroupBox.modulationType = type;
+    }
+    function cycles(): int {
+        return modulationGroupBox.cycles;
+    }
+    function setCycles(cycles: int): void {
+        modulationGroupBox.cycles = cycles;
+    }
+    function amplitude(): int {
+        return modulationGroupBox.amplitude;
+    }
+    function setAmplitude(amplitude: int): void {
+        modulationGroupBox.amplitude = amplitude;
+    }
+    function offset(): int {
+        return modulationGroupBox.offset;
+    }
+    function setOffset(value: int): void {
+        modulationGroupBox.offset = value;
+    }
+    function inverted(): bool {
+        return modulationGroupBox.inverted;
+    }
+    function setInverted(inverted: bool): void {
+        modulationGroupBox.inverted = inverted;
+    }
+
     ColumnLayout {
         anchors.fill: parent
         spacing: 10
@@ -118,6 +150,9 @@ Item {
                     Layout.fillWidth: true
                 }
             }
+        }
+        ModulationGroupBox {
+            id: modulationGroupBox
         }
         GroupBox {
             title: qsTr("Comment")

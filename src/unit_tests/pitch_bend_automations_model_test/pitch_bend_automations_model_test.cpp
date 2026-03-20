@@ -193,6 +193,47 @@ void PitchBendAutomationsModelTest::test_setData_shouldUpdateAutomationData()
     QCOMPARE(updatedAutomation->location().column(), model.data(index, static_cast<int>(Role::Column)).toUInt());
 }
 
+void PitchBendAutomationsModelTest::test_setData_shouldUpdateModulationData()
+{
+    using Role = PitchBendAutomationsModel::DataRole;
+
+    const AutomationLocation location { 1, 2, 3 };
+    const PitchBendAutomation::InterpolationParameters interpolation { 11, 22, 33, 44 };
+    PitchBendAutomation automation { 42, location, interpolation, "Old Comment" };
+    std::optional<PitchBendAutomation> updatedAutomation;
+    PitchBendAutomationsModel model;
+    model.setPitchBendAutomations({ automation });
+    QSignalSpy pitchBendAutomationChangedSpy { &model, &PitchBendAutomationsModel::pitchBendAutomationChanged };
+    connect(&model, &PitchBendAutomationsModel::pitchBendAutomationChanged, this, [&updatedAutomation](auto && automation) {
+        updatedAutomation = automation;
+    });
+    QModelIndex index = model.index(0);
+
+    QVERIFY(model.setData(index, 10u, static_cast<int>(Role::Modulation_Sine_Cycles)));
+    QCOMPARE(model.data(index, static_cast<int>(Role::Modulation_Sine_Cycles)).toUInt(), 10u);
+    QVERIFY(!model.setData(index, 10u, static_cast<int>(Role::Modulation_Sine_Cycles)));
+
+    QVERIFY(model.setData(index, 50.0f, static_cast<int>(Role::Modulation_Sine_Amplitude)));
+    QCOMPARE(model.data(index, static_cast<int>(Role::Modulation_Sine_Amplitude)).toFloat(), 50.0f);
+    QVERIFY(!model.setData(index, 50.0f, static_cast<int>(Role::Modulation_Sine_Amplitude)));
+
+    QVERIFY(model.setData(index, true, static_cast<int>(Role::Modulation_Sine_Inverted)));
+    QCOMPARE(model.data(index, static_cast<int>(Role::Modulation_Sine_Inverted)).toBool(), true);
+    QVERIFY(!model.setData(index, true, static_cast<int>(Role::Modulation_Sine_Inverted)));
+
+    QVERIFY(model.setData(index, 1, static_cast<int>(Role::Modulation_Type)));
+    QCOMPARE(model.data(index, static_cast<int>(Role::Modulation_Type)).toInt(), 1);
+    QVERIFY(!model.setData(index, 1, static_cast<int>(Role::Modulation_Type)));
+
+    model.applyAll();
+    QVERIFY(updatedAutomation.has_value());
+    QCOMPARE(pitchBendAutomationChangedSpy.count(), 1);
+    QCOMPARE(model.data(index, static_cast<int>(Role::Modulation_Sine_Cycles)).toUInt(), static_cast<uint>(updatedAutomation->modulation().cycles));
+    QCOMPARE(model.data(index, static_cast<int>(Role::Modulation_Sine_Amplitude)).toFloat(), updatedAutomation->modulation().amplitude);
+    QCOMPARE(model.data(index, static_cast<int>(Role::Modulation_Sine_Inverted)).toBool(), updatedAutomation->modulation().inverted);
+    QCOMPARE(model.data(index, static_cast<int>(Role::Modulation_Type)).toInt(), static_cast<int>(updatedAutomation->modulation().type));
+}
+
 void PitchBendAutomationsModelTest::test_setData_shouldHandleNegativeValues()
 {
     using Role = PitchBendAutomationsModel::DataRole;
@@ -227,6 +268,31 @@ void PitchBendAutomationsModelTest::test_removeAt_shouldRemoveAutomationData()
 
     model.applyAll();
     QCOMPARE(PitchBendAutomationDeletedSpy.count(), 1);
+}
+
+void PitchBendAutomationsModelTest::test_changeModulationType_shouldUpdateModulationType()
+{
+    using Role = PitchBendAutomationsModel::DataRole;
+
+    const AutomationLocation location { 1, 2, 3 };
+    const PitchBendAutomation::InterpolationParameters interpolation { 11, 22, 33, 44 };
+    PitchBendAutomation automation { 42, location, interpolation, "Old Comment" };
+    std::optional<PitchBendAutomation> updatedAutomation;
+    PitchBendAutomationsModel model;
+    model.setPitchBendAutomations({ automation });
+    QSignalSpy pitchBendAutomationChangedSpy { &model, &PitchBendAutomationsModel::pitchBendAutomationChanged };
+    connect(&model, &PitchBendAutomationsModel::pitchBendAutomationChanged, this, [&updatedAutomation](auto && automation) {
+        updatedAutomation = automation;
+    });
+
+    // Change to Random (1)
+    model.changeModulationType(0, 1);
+    QCOMPARE(model.data(model.index(0), static_cast<int>(Role::Modulation_Type)).toInt(), 1);
+
+    model.applyAll();
+    QVERIFY(updatedAutomation.has_value());
+    QCOMPARE(pitchBendAutomationChangedSpy.count(), 1);
+    QCOMPARE(static_cast<int>(updatedAutomation->modulation().type), 1);
 }
 
 } // namespace noteahead

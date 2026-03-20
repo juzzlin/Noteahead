@@ -41,7 +41,12 @@ public:
         Pattern,
         Track,
         Value0,
-        Value1
+        Value1,
+        Modulation_Sine_Cycles,
+        Modulation_Sine_Amplitude,
+        Modulation_Sine_Offset,
+        Modulation_Sine_Inverted,
+        Modulation_Type
     };
 
     PitchBendAutomationsModel();
@@ -62,6 +67,7 @@ public:
     Q_INVOKABLE QHash<int, QByteArray> roleNames() const override;
 
     Q_INVOKABLE void applyAll();
+    Q_INVOKABLE void changeModulationType(int index, int type);
 
 signals:
     void pitchBendAutomationChanged(const PitchBendAutomation & PitchBendAutomation);

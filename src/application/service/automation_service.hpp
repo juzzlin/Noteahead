@@ -62,6 +62,7 @@ public:
     Q_INVOKABLE quint64 addPitchBendAutomation(quint64 pattern, quint64 track, quint64 column, quint64 line0, quint64 line1, int value0, int value1, QString comment);
     quint64 addPitchBendAutomation(const PitchBendAutomation & automation);
     void addPitchBendAutomationWithId(const PitchBendAutomation & automation);
+    Q_INVOKABLE void addPitchBendModulation(quint64 automationId, int type, quint64 cycles, float amplitude, float offset, bool inverted);
     Q_INVOKABLE bool hasAutomations(quint64 pattern, quint64 track, quint64 column, quint64 line) const;
     Q_INVOKABLE double automationWeight(quint64 pattern, quint64 track, quint64 column, quint64 line) const;
 
@@ -111,8 +112,8 @@ private:
     EventList renderMidiCcToEventsByColumn(size_t pattern, size_t track, size_t column, size_t tick, size_t ticksPerLine, size_t linesPerBeat) const;
     EventList renderPitchBendToEventsByColumn(size_t pattern, size_t track, size_t column, size_t tick, size_t ticksPerLine) const;
 
-    double sineModulationValue(const MidiCcAutomation::ModulationParameters & modulation, double phase) const;
-    double randomModulationValue(size_t automationId, const MidiCcAutomation::ModulationParameters & modulation, double phase) const;
+    double sineModulationValue(const ModulationParameters & modulation, double phase) const;
+    double randomModulationValue(size_t automationId, const ModulationParameters & modulation, double phase) const;
 
     struct Automations
     {

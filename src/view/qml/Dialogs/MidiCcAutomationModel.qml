@@ -60,34 +60,34 @@ Item {
         setLineOffset(0);
     }
     function modulationType(): int {
-        return modulationTypeComboBox.currentIndex;
+        return modulationGroupBox.modulationType;
     }
     function setModulationType(type: int): void {
-        modulationTypeComboBox.currentIndex = type;
+        modulationGroupBox.modulationType = type;
     }
     function cycles(): int {
-        return cyclesSpinBox.value;
+        return modulationGroupBox.cycles;
     }
     function setCycles(cycles: int): void {
-        cyclesSpinBox.value = cycles;
+        modulationGroupBox.cycles = cycles;
     }
     function amplitude(): int {
-        return amplitudeSpinBox.value;
+        return modulationGroupBox.amplitude;
     }
     function setAmplitude(amplitude: int): void {
-        amplitudeSpinBox.value = amplitude;
+        modulationGroupBox.amplitude = amplitude;
     }
     function offset(): int {
-        return offsetSpinBox.value;
+        return modulationGroupBox.offset;
     }
     function setOffset(value: int): void {
-        offsetSpinBox.value = value;
+        modulationGroupBox.offset = value;
     }
     function inverted(): bool {
-        return invertedCheckBox.checked;
+        return modulationGroupBox.inverted;
     }
     function setInverted(inverted: bool): void {
-        invertedCheckBox.checked = inverted;
+        modulationGroupBox.inverted = inverted;
     }
 
     function comment(): string {
@@ -239,72 +239,8 @@ Item {
                 }
             }
         }
-        GroupBox {
-            title: qsTr("Modulation")
-            Layout.fillWidth: true
-            GridLayout {
-                rowSpacing: 10
-                width: parent.width
-                columns: 5
-                Label {
-                    text: qsTr("Type")
-                }
-                Label {
-                    text: qsTr("Cycles")
-                }
-                Label {
-                    text: qsTr("Amplitude (%)")
-                }
-                Label {
-                    text: qsTr("Offset (%)")
-                }
-                Label {
-                    text: qsTr("Inverted")
-                }
-                ComboBox {
-                    id: modulationTypeComboBox
-                    model: [qsTr("Sine Wave"), qsTr("Random")]
-                    Layout.fillWidth: true
-                }
-                SpinBox {
-                    id: cyclesSpinBox
-                    from: 0
-                    to: 127
-                    value: 0
-                    editable: true
-                    Keys.onReturnPressed: {
-                        focus = false;
-                    }
-                    Layout.fillWidth: true
-                }
-                SpinBox {
-                    id: amplitudeSpinBox
-                    from: 0
-                    to: 100
-                    value: 0
-                    editable: true
-                    stepSize: 1
-                    Keys.onReturnPressed: {
-                        focus = false;
-                    }
-                    Layout.fillWidth: true
-                }
-                SpinBox {
-                    id: offsetSpinBox
-                    from: -100
-                    to: 100
-                    value: 0
-                    editable: true
-                    stepSize: 1
-                    Keys.onReturnPressed: {
-                        focus = false;
-                    }
-                    Layout.fillWidth: true
-                }
-                CheckBox {
-                    id: invertedCheckBox
-                }
-            }
+        ModulationGroupBox {
+            id: modulationGroupBox
         }
         GroupBox {
             title: qsTr("Comment")

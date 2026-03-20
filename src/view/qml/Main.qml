@@ -302,7 +302,10 @@ ApplicationWindow {
         width: parent.width * Constants.defaultDialogScale
         onAccepted: {
             const position = editorService.position;
-            automationService.addPitchBendAutomation(position.pattern, position.track, position.column, startLine(), endLine(), startValue(), endValue(), comment());
+            const automationId = automationService.addPitchBendAutomation(position.pattern, position.track, position.column, startLine(), endLine(), startValue(), endValue(), comment());
+            if (addPitchBendAutomationDialog.cycles() > 0 || addPitchBendAutomationDialog.amplitude() > 0 || addPitchBendAutomationDialog.offset() !== 0) {
+                automationService.addPitchBendModulation(automationId, addPitchBendAutomationDialog.modulationType(), addPitchBendAutomationDialog.cycles(), addPitchBendAutomationDialog.amplitude(), addPitchBendAutomationDialog.offset(), addPitchBendAutomationDialog.inverted());
+            }
             selectionService.clear();
             bottomBar.setStatusText(qsTr("Pitch Bend automation added"));
         }

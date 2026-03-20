@@ -6,117 +6,245 @@ import ".."
 import "../ToolBar"
 
 GroupBox {
+    id: delegateRoot
     title: `Pattern: ${model.pattern}, Track: ${model.track}, Column: ${model.column}`
+
+    function initialize(): void {
+        if (model) {
+            startLineSpinBox.value = model.line0;
+            endLineSpinBox.value = model.line1;
+            startValueSpinBox.value = model.value0;
+            endValueSpinBox.value = model.value1;
+            modulationTypeComboBox.currentIndex = model.modulationType;
+            modulationSineCyclesSpinBox.value = model.modulationSineCycles;
+            modulationSineAmplitudeSpinBox.value = model.modulationSineAmplitude;
+            modulationSineOffsetSpinBox.value = model.modulationSineOffset;
+            modulationSineInvertedCheckBox.checked = model.modulationSineInverted;
+            commentEdit.text = model.comment;
+            enableCheckbox.checked = model.enabled;
+        }
+    }
+
     GridLayout {
         anchors.fill: parent
+        columns: 10
+        rowSpacing: 10
         CheckBox {
             id: enableCheckbox
             text: qsTr("Enabled")
-            checked: model.enabled
-            Layout.row: 1
+            Layout.row: 0
             Layout.column: 0
-            Layout.fillWidth: true
             ToolTip.delay: Constants.toolTipDelay
             ToolTip.timeout: Constants.toolTipTimeout
             ToolTip.visible: hovered
             ToolTip.text: qsTr("Enable/disable the automation")
             onCheckedChanged: model.enabled = checked
+            Component.onCompleted: checked = model.enabled
         }
-        Label {
-            text: qsTr("Start line")
+        GroupBox {
+            title: qsTr("Interpolation")
             Layout.row: 0
             Layout.column: 1
+            Layout.columnSpan: 8
             Layout.fillWidth: true
+            GridLayout {
+                anchors.fill: parent
+                columns: 4
+                Label {
+                    text: qsTr("Start line")
+                    Layout.row: 0
+                    Layout.column: 0
+                    Layout.fillWidth: true
+                }
+                SpinBox {
+                    id: startLineSpinBox
+                    from: 0
+                    to: 999
+                    editable: true
+                    Keys.onReturnPressed: focus = false
+                    Layout.row: 1
+                    Layout.column: 0
+                    Layout.fillWidth: true
+                    ToolTip.delay: Constants.toolTipDelay
+                    ToolTip.timeout: Constants.toolTipTimeout
+                    ToolTip.visible: hovered
+                    ToolTip.text: qsTr("Start line")
+                    onValueModified: model.line0 = value
+                }
+                Label {
+                    text: qsTr("End line")
+                    Layout.row: 0
+                    Layout.column: 1
+                    Layout.fillWidth: true
+                }
+                SpinBox {
+                    id: endLineSpinBox
+                    from: 0
+                    to: 999
+                    editable: true
+                    Keys.onReturnPressed: focus = false
+                    Layout.row: 1
+                    Layout.column: 1
+                    Layout.fillWidth: true
+                    ToolTip.delay: Constants.toolTipDelay
+                    ToolTip.timeout: Constants.toolTipTimeout
+                    ToolTip.visible: hovered
+                    ToolTip.text: qsTr("End line")
+                    onValueModified: model.line1 = value
+                }
+                Label {
+                    text: qsTr("Start value")
+                    Layout.row: 0
+                    Layout.column: 2
+                    Layout.fillWidth: true
+                }
+                SpinBox {
+                    id: startValueSpinBox
+                    from: -100
+                    to: 100
+                    editable: true
+                    Keys.onReturnPressed: focus = false
+                    Layout.row: 1
+                    Layout.column: 2
+                    Layout.fillWidth: true
+                    ToolTip.delay: Constants.toolTipDelay
+                    ToolTip.timeout: Constants.toolTipTimeout
+                    ToolTip.visible: hovered
+                    ToolTip.text: qsTr("Start value")
+                    onValueModified: model.value0 = value
+                }
+                Label {
+                    text: qsTr("End value")
+                    Layout.row: 0
+                    Layout.column: 3
+                    Layout.fillWidth: true
+                }
+                SpinBox {
+                    id: endValueSpinBox
+                    from: -100
+                    to: 100
+                    editable: true
+                    enabled: model.line0 !== model.line1
+                    Keys.onReturnPressed: focus = false
+                    Layout.row: 1
+                    Layout.column: 3
+                    Layout.fillWidth: true
+                    ToolTip.delay: Constants.toolTipDelay
+                    ToolTip.timeout: Constants.toolTipTimeout
+                    ToolTip.visible: hovered
+                    ToolTip.text: qsTr("End value")
+                    onValueModified: model.value1 = value
+                }
+            }
         }
-        SpinBox {
-            id: startLineSpinBox
-            from: 0
-            to: 999
-            value: model.line0
-            editable: true
-            Keys.onReturnPressed: focus = false
+        GroupBox {
+            title: qsTr("Modulation")
             Layout.row: 1
             Layout.column: 1
+            Layout.columnSpan: 8
             Layout.fillWidth: true
-            ToolTip.delay: Constants.toolTipDelay
-            ToolTip.timeout: Constants.toolTipTimeout
-            ToolTip.visible: hovered
-            ToolTip.text: qsTr("Start line")
-            onValueModified: model.line0 = value
-        }
-        Label {
-            text: qsTr("End line")
-            Layout.row: 0
-            Layout.column: 2
-            Layout.fillWidth: true
-        }
-        SpinBox {
-            id: endLineSpinBox
-            from: 0
-            to: 999
-            value: model.line1
-            editable: true
-            Keys.onReturnPressed: focus = false
-            Layout.row: 1
-            Layout.column: 2
-            Layout.fillWidth: true
-            ToolTip.delay: Constants.toolTipDelay
-            ToolTip.timeout: Constants.toolTipTimeout
-            ToolTip.visible: hovered
-            ToolTip.text: qsTr("End line")
-            onValueModified: model.line1 = value
-        }
-        Label {
-            text: qsTr("Start value")
-            Layout.row: 0
-            Layout.column: 3
-            Layout.fillWidth: true
-        }
-        SpinBox {
-            id: startValueSpinBox
-            from: -100
-            to: 100
-            value: model.value0
-            editable: true
-            Keys.onReturnPressed: focus = false
-            Layout.row: 1
-            Layout.column: 3
-            Layout.fillWidth: true
-            ToolTip.delay: Constants.toolTipDelay
-            ToolTip.timeout: Constants.toolTipTimeout
-            ToolTip.visible: hovered
-            ToolTip.text: qsTr("Start value")
-            onValueModified: model.value0 = value
-        }
-        Label {
-            text: qsTr("End value")
-            Layout.row: 0
-            Layout.column: 4
-            Layout.fillWidth: true
-        }
-        SpinBox {
-            id: endValueSpinBox
-            from: -100
-            to: 100
-            value: model.value1
-            editable: true
-            enabled: model.line0 !== model.line1
-            Keys.onReturnPressed: focus = false
-            Layout.row: 1
-            Layout.column: 4
-            Layout.fillWidth: true
-            ToolTip.delay: Constants.toolTipDelay
-            ToolTip.timeout: Constants.toolTipTimeout
-            ToolTip.visible: hovered
-            ToolTip.text: qsTr("End value")
-            onValueModified: model.value1 = value
+            GridLayout {
+                anchors.fill: parent
+                columns: 5
+                Label {
+                    text: qsTr("Type")
+                    Layout.row: 0
+                    Layout.column: 0
+                    Layout.fillWidth: true
+                }
+                ComboBox {
+                    id: modulationTypeComboBox
+                    model: [qsTr("Sine Wave"), qsTr("Random")]
+                    Layout.row: 1
+                    Layout.column: 0
+                    Layout.fillWidth: true
+                    onActivated: function (comboBoxIndex) {
+                        pitchBendAutomationsModel.changeModulationType(index, comboBoxIndex);
+                    }
+                }
+                Label {
+                    text: qsTr("Cycles")
+                    Layout.row: 0
+                    Layout.column: 1
+                    Layout.fillWidth: true
+                }
+                SpinBox {
+                    id: modulationSineCyclesSpinBox
+                    from: 0
+                    to: 127
+                    editable: true
+                    Keys.onReturnPressed: focus = false
+                    Layout.row: 1
+                    Layout.column: 1
+                    Layout.fillWidth: true
+                    ToolTip.delay: Constants.toolTipDelay
+                    ToolTip.timeout: Constants.toolTipTimeout
+                    ToolTip.visible: hovered
+                    ToolTip.text: qsTr("Cycles")
+                    onValueModified: model.modulationSineCycles = value
+                }
+                Label {
+                    text: qsTr("Amplitude (%)")
+                    Layout.row: 0
+                    Layout.column: 2
+                    Layout.fillWidth: true
+                }
+                SpinBox {
+                    id: modulationSineAmplitudeSpinBox
+                    from: 0
+                    to: 100
+                    editable: true
+                    Keys.onReturnPressed: focus = false
+                    Layout.row: 1
+                    Layout.column: 2
+                    Layout.fillWidth: true
+                    ToolTip.delay: Constants.toolTipDelay
+                    ToolTip.timeout: Constants.toolTipTimeout
+                    ToolTip.visible: hovered
+                    ToolTip.text: qsTr("Amplitude")
+                    onValueModified: model.modulationSineAmplitude = value
+                }
+                Label {
+                    text: qsTr("Offset (%)")
+                    Layout.row: 0
+                    Layout.column: 3
+                    Layout.fillWidth: true
+                }
+                SpinBox {
+                    id: modulationSineOffsetSpinBox
+                    from: -100
+                    to: 100
+                    editable: true
+                    Keys.onReturnPressed: focus = false
+                    Layout.row: 1
+                    Layout.column: 3
+                    Layout.fillWidth: true
+                    ToolTip.delay: Constants.toolTipDelay
+                    ToolTip.timeout: Constants.toolTipTimeout
+                    ToolTip.visible: hovered
+                    ToolTip.text: qsTr("Offset")
+                    onValueModified: model.modulationSineOffset = value
+                }
+                CheckBox {
+                    id: modulationSineInvertedCheckBox
+                    text: qsTr("Inverted")
+                    Layout.row: 1
+                    Layout.column: 4
+                    Layout.fillWidth: true
+                    ToolTip.delay: Constants.toolTipDelay
+                    ToolTip.timeout: Constants.toolTipTimeout
+                    ToolTip.visible: hovered
+                    ToolTip.text: qsTr("Invert the phase of the sine wave")
+                    onCheckedChanged: model.modulationSineInverted = checked
+                    Component.onCompleted: checked = model.modulationSineInverted
+                }
+            }
         }
         Button {
-            id: rootItem
-            Layout.row: 1
+            id: deleteButton
+            Layout.row: 0
             Layout.rowSpan: 2
-            Layout.column: 5
-            Layout.columnSpan: 2
+            Layout.column: 9
             Layout.fillWidth: true
             ToolTip.delay: Constants.toolTipDelay
             ToolTip.timeout: Constants.toolTipTimeout
@@ -136,10 +264,10 @@ GroupBox {
         TextField {
             id: commentEdit
             readOnly: false
-            text: model.comment
             placeholderText: qsTr("Comment")
             Layout.row: 2
-            Layout.columnSpan: 5
+            Layout.column: 1
+            Layout.columnSpan: 8
             Layout.fillWidth: true
             Keys.onReturnPressed: focus = false
             ToolTip.delay: Constants.toolTipDelay
@@ -147,6 +275,8 @@ GroupBox {
             ToolTip.visible: hovered
             ToolTip.text: qsTr("Comment")
             onTextChanged: model.comment = text
+            Component.onCompleted: text = model.comment
         }
     }
+    Component.onCompleted: initialize()
 }

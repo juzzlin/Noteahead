@@ -17,6 +17,7 @@
 #define MIDI_CC_AUTOMATION_HPP
 
 #include "automation.hpp"
+#include "modulation.hpp"
 
 #include <cstdint>
 #include <memory>
@@ -42,31 +43,6 @@ public:
         }
 
         bool operator!=(const InterpolationParameters & other) const
-        {
-            return !(*this == other);
-        }
-    };
-
-    struct ModulationParameters
-    {
-        enum class ModulationType
-        {
-            SineWave,
-            Random
-        };
-
-        ModulationType type = ModulationType::SineWave;
-        float cycles = 0.f;
-        float amplitude = 0.f;
-        float offset = 0.f;
-        bool inverted = false;
-
-        bool operator==(const ModulationParameters & other) const
-        {
-            return type == other.type && cycles == other.cycles && amplitude == other.amplitude && offset == other.offset && inverted == other.inverted;
-        }
-
-        bool operator!=(const ModulationParameters & other) const
         {
             return !(*this == other);
         }
