@@ -18,9 +18,10 @@ GroupBox {
             eventsPerBeatSpinBox.value = model.eventsPerBeat;
             lineOffsetSpinBox.value = model.lineOffset;
             modulationTypeComboBox.currentIndex = model.modulationType;
-            modulationSineCyclesSpinBox.value = model.modulationSineCycles;
-            modulationSineAmplitudeSpinBox.value = model.modulationSineAmplitude;
-            modulationSineOffsetSpinBox.value = model.modulationSineOffset;
+            modulationCyclesSpinBox.value = model.modulationCycles;
+            modulationAmplitudeSpinBox.value = model.modulationAmplitude;
+            modulationOffsetSpinBox.value = model.modulationOffset;
+            modulationInvertedCheckBox.checked = model.modulationInverted;
         } else {
             // Fallback if model.controller is undefined (should not happen in practice if model is valid)
             controllerComboBox.currentIndex = 0;
@@ -239,7 +240,7 @@ GroupBox {
                     Layout.fillWidth: true
                 }
                 SpinBox {
-                    id: modulationSineCyclesSpinBox
+                    id: modulationCyclesSpinBox
                     from: 0
                     to: 127
                     editable: true
@@ -251,7 +252,7 @@ GroupBox {
                     ToolTip.timeout: Constants.toolTipTimeout
                     ToolTip.visible: hovered
                     ToolTip.text: qsTr("Cycles")
-                    onValueModified: model.modulationSineCycles = value
+                    onValueModified: model.modulationCycles = value
                 }
                 Label {
                     text: qsTr("Amplitude (%)")
@@ -260,7 +261,7 @@ GroupBox {
                     Layout.fillWidth: true
                 }
                 SpinBox {
-                    id: modulationSineAmplitudeSpinBox
+                    id: modulationAmplitudeSpinBox
                     from: 0
                     to: 100
                     editable: true
@@ -272,7 +273,7 @@ GroupBox {
                     ToolTip.timeout: Constants.toolTipTimeout
                     ToolTip.visible: hovered
                     ToolTip.text: qsTr("Amplitude")
-                    onValueModified: model.modulationSineAmplitude = value
+                    onValueModified: model.modulationAmplitude = value
                 }
                 Label {
                     text: qsTr("Offset (%)")
@@ -281,7 +282,7 @@ GroupBox {
                     Layout.fillWidth: true
                 }
                 SpinBox {
-                    id: modulationSineOffsetSpinBox
+                    id: modulationOffsetSpinBox
                     from: -100
                     to: 100
                     editable: true
@@ -293,9 +294,10 @@ GroupBox {
                     ToolTip.timeout: Constants.toolTipTimeout
                     ToolTip.visible: hovered
                     ToolTip.text: qsTr("Offset")
-                    onValueModified: model.modulationSineOffset = value
+                    onValueModified: model.modulationOffset = value
                 }
                 CheckBox {
+                    id: modulationInvertedCheckBox
                     text: qsTr("Inverted")
                     Layout.row: 1
                     Layout.column: 4
@@ -303,9 +305,9 @@ GroupBox {
                     ToolTip.delay: Constants.toolTipDelay
                     ToolTip.timeout: Constants.toolTipTimeout
                     ToolTip.visible: hovered
-                    ToolTip.text: qsTr("Invert the phase of the sine wave")
-                    onCheckedChanged: model.modulationSineInverted = checked
-                    Component.onCompleted: checked = model.modulationSineInverted
+                    ToolTip.text: qsTr("Invert the phase")
+                    onCheckedChanged: model.modulationInverted = checked
+                    Component.onCompleted: checked = model.modulationInverted
                 }
             }
         }

@@ -155,10 +155,31 @@ PitchBendAutomation::PitchBendAutomationU PitchBendAutomation::deserializeFromXm
                 } else {
                     modulationParameters.type = ModulationParameters::ModulationType::SineWave;
                 }
-                modulationParameters.cycles = static_cast<float>(attributes.value(Constants::NahdXml::xmlKeyCycles()).toInt());
-                modulationParameters.amplitude = static_cast<float>(attributes.value(Constants::NahdXml::xmlKeyAmplitude()).toInt());
-                modulationParameters.offset = static_cast<float>(attributes.value(Constants::NahdXml::xmlKeyOffset()).toInt());
-                modulationParameters.inverted = Utils::Xml::readBoolAttribute(reader, Constants::NahdXml::xmlKeyInverted(), false).value_or(false);
+
+                if (attributes.hasAttribute(Constants::NahdXml::xmlKeyCycles())) {
+                    modulationParameters.cycles = static_cast<float>(attributes.value(Constants::NahdXml::xmlKeyCycles()).toInt());
+                } else if (attributes.hasAttribute("sineCycles")) {
+                    modulationParameters.cycles = static_cast<float>(attributes.value("sineCycles").toInt());
+                }
+
+                if (attributes.hasAttribute(Constants::NahdXml::xmlKeyAmplitude())) {
+                    modulationParameters.amplitude = static_cast<float>(attributes.value(Constants::NahdXml::xmlKeyAmplitude()).toInt());
+                } else if (attributes.hasAttribute("sineAmplitude")) {
+                    modulationParameters.amplitude = static_cast<float>(attributes.value("sineAmplitude").toInt());
+                }
+
+                if (attributes.hasAttribute(Constants::NahdXml::xmlKeyOffset())) {
+                    modulationParameters.offset = static_cast<float>(attributes.value(Constants::NahdXml::xmlKeyOffset()).toInt());
+                } else if (attributes.hasAttribute("sineOffset")) {
+                    modulationParameters.offset = static_cast<float>(attributes.value("sineOffset").toInt());
+                }
+
+                const auto inverted = Utils::Xml::readBoolAttribute(reader, Constants::NahdXml::xmlKeyInverted(), false);
+                if (inverted.has_value()) {
+                    modulationParameters.inverted = inverted.value();
+                } else {
+                    modulationParameters.inverted = Utils::Xml::readBoolAttribute(reader, "sineInverted", false).value_or(false);
+                }
             }
         }
     }

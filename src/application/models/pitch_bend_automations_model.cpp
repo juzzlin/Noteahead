@@ -136,13 +136,13 @@ QVariant PitchBendAutomationsModel::data(const QModelIndex & index, int role) co
             return static_cast<quint64>(PitchBendAutomation.location().track());
         case DataRole::Column:
             return static_cast<quint64>(PitchBendAutomation.location().column());
-        case DataRole::Modulation_Sine_Cycles:
+        case DataRole::Modulation_Cycles:
             return PitchBendAutomation.modulation().cycles;
-        case DataRole::Modulation_Sine_Amplitude:
+        case DataRole::Modulation_Amplitude:
             return PitchBendAutomation.modulation().amplitude;
-        case DataRole::Modulation_Sine_Offset:
+        case DataRole::Modulation_Offset:
             return PitchBendAutomation.modulation().offset;
-        case DataRole::Modulation_Sine_Inverted:
+        case DataRole::Modulation_Inverted:
             return PitchBendAutomation.modulation().inverted;
         case DataRole::Modulation_Type:
             return static_cast<int>(PitchBendAutomation.modulation().type);
@@ -204,7 +204,7 @@ bool PitchBendAutomationsModel::setData(const QModelIndex & index, const QVarian
             changed = true;
         }
     } break;
-    case DataRole::Modulation_Sine_Cycles: {
+    case DataRole::Modulation_Cycles: {
         auto modulation = PitchBendAutomation.modulation();
         if (const auto newCycles = value.toUInt(); modulation.cycles != newCycles) {
             modulation.cycles = newCycles;
@@ -212,7 +212,7 @@ bool PitchBendAutomationsModel::setData(const QModelIndex & index, const QVarian
             changed = true;
         }
     } break;
-    case DataRole::Modulation_Sine_Amplitude: {
+    case DataRole::Modulation_Amplitude: {
         auto modulation = PitchBendAutomation.modulation();
         if (const auto newAmplitude = value.toFloat(); modulation.amplitude != newAmplitude) {
             modulation.amplitude = newAmplitude;
@@ -220,7 +220,7 @@ bool PitchBendAutomationsModel::setData(const QModelIndex & index, const QVarian
             changed = true;
         }
     } break;
-    case DataRole::Modulation_Sine_Offset: {
+    case DataRole::Modulation_Offset: {
         auto modulation = PitchBendAutomation.modulation();
         if (const auto newOffset = value.toFloat(); modulation.offset != newOffset) {
             modulation.offset = newOffset;
@@ -228,7 +228,7 @@ bool PitchBendAutomationsModel::setData(const QModelIndex & index, const QVarian
             changed = true;
         }
     } break;
-    case DataRole::Modulation_Sine_Inverted: {
+    case DataRole::Modulation_Inverted: {
         auto modulation = PitchBendAutomation.modulation();
         if (const auto newInverted = value.toBool(); modulation.inverted != newInverted) {
             modulation.inverted = newInverted;
@@ -292,10 +292,10 @@ QHash<int, QByteArray> PitchBendAutomationsModel::roleNames() const
         { static_cast<int>(DataRole::Track), "track" },
         { static_cast<int>(DataRole::Value0), "value0" },
         { static_cast<int>(DataRole::Value1), "value1" },
-        { static_cast<int>(DataRole::Modulation_Sine_Cycles), "modulationSineCycles" },
-        { static_cast<int>(DataRole::Modulation_Sine_Amplitude), "modulationSineAmplitude" },
-        { static_cast<int>(DataRole::Modulation_Sine_Offset), "modulationSineOffset" },
-        { static_cast<int>(DataRole::Modulation_Sine_Inverted), "modulationSineInverted" },
+        { static_cast<int>(DataRole::Modulation_Cycles), "modulationCycles" },
+        { static_cast<int>(DataRole::Modulation_Amplitude), "modulationAmplitude" },
+        { static_cast<int>(DataRole::Modulation_Offset), "modulationOffset" },
+        { static_cast<int>(DataRole::Modulation_Inverted), "modulationInverted" },
         { static_cast<int>(DataRole::Modulation_Type), "modulationType" }
     };
 }

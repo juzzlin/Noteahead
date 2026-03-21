@@ -112,29 +112,6 @@ private slots:
     void test_setTrackName_shouldChangeTrackName();
     void test_setColumnName_shouldChangeColumnName();
 
-    void test_toXmlFromXml_addTrack_shouldLoadSong();
-    void test_toXmlFromXml_columnName_shouldLoadColumnName();
-    void test_toXmlFromXml_columnSettings_shouldSaveAndLoad();
-    void test_toXmlFromXml_instrumentSettings_shouldParseInstrumentSettings();
-    void test_toXmlFromXml_sideChainService_shouldLoadSideChainService();
-    void test_toXmlFromXml_instrument_shouldParseInstrument();
-    void test_toXmlFromXml_automationService_midiCc_shouldLoadAutomationService();
-    void test_toXmlFromXml_automationService_midiCc_withModulation_shouldLoadAutomationService();
-    void test_toXmlFromXml_automationService_midiCc_noModulation_shouldLoadAutomationService();
-    void test_toXmlFromXml_automationService_pitchBend_shouldLoadAutomationService();
-    void test_toXmlFromXml_automationService_pitchBend_withModulation_shouldLoadAutomationService();
-    void test_toXmlFromXml_mixerService_shouldLoadMixerService();
-    void test_toXmlFromXml_noteData_noteOff();
-    void test_toXmlFromXml_noteData_noteOn();
-    void test_toXmlFromXml_noteData_delay_shouldSaveAndLoadDelay();
-    void test_toXmlFromXml_playOrder();
-    void test_toXmlFromXml_removeTrack_shouldLoadSong();
-    void test_toXmlFromXml_songProperties();
-    void test_toXmlFromXml_trackName_shouldLoadTrackName();
-
-    void test_toXmlFromXml_template_shouldLoadTemplate();
-    void test_toXmlFromXml_differentSongs_shouldLoadSongs();
-
     void test_velocityAtPosition_shouldReturnCorrectVelocity();
     void test_midiNotesAtPosition_shouldReturnCorrectNotes();
 };

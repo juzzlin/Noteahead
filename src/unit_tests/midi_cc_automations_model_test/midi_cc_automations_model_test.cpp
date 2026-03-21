@@ -217,17 +217,17 @@ void MidiCcAutomationsModelTest::test_setData_shouldUpdateModulationData()
     });
     QModelIndex index = model.index(0);
 
-    QVERIFY(model.setData(index, 10, static_cast<int>(Role::Modulation_Sine_Cycles)));
-    QCOMPARE(model.data(index, static_cast<int>(Role::Modulation_Sine_Cycles)).toInt(), 10);
-    QVERIFY(!model.setData(index, 10, static_cast<int>(Role::Modulation_Sine_Cycles)));
+    QVERIFY(model.setData(index, 10, static_cast<int>(Role::Modulation_Cycles)));
+    QCOMPARE(model.data(index, static_cast<int>(Role::Modulation_Cycles)).toInt(), 10);
+    QVERIFY(!model.setData(index, 10, static_cast<int>(Role::Modulation_Cycles)));
 
-    QVERIFY(model.setData(index, 50.0f, static_cast<int>(Role::Modulation_Sine_Amplitude)));
-    QCOMPARE(model.data(index, static_cast<int>(Role::Modulation_Sine_Amplitude)).toFloat(), 50.0f);
-    QVERIFY(!model.setData(index, 50.0f, static_cast<int>(Role::Modulation_Sine_Amplitude)));
+    QVERIFY(model.setData(index, 50.0f, static_cast<int>(Role::Modulation_Amplitude)));
+    QCOMPARE(model.data(index, static_cast<int>(Role::Modulation_Amplitude)).toFloat(), 50.0f);
+    QVERIFY(!model.setData(index, 50.0f, static_cast<int>(Role::Modulation_Amplitude)));
 
-    QVERIFY(model.setData(index, true, static_cast<int>(Role::Modulation_Sine_Inverted)));
-    QCOMPARE(model.data(index, static_cast<int>(Role::Modulation_Sine_Inverted)).toBool(), true);
-    QVERIFY(!model.setData(index, true, static_cast<int>(Role::Modulation_Sine_Inverted)));
+    QVERIFY(model.setData(index, true, static_cast<int>(Role::Modulation_Inverted)));
+    QCOMPARE(model.data(index, static_cast<int>(Role::Modulation_Inverted)).toBool(), true);
+    QVERIFY(!model.setData(index, true, static_cast<int>(Role::Modulation_Inverted)));
 
     QVERIFY(model.setData(index, 1, static_cast<int>(Role::Modulation_Type)));
     QCOMPARE(model.data(index, static_cast<int>(Role::Modulation_Type)).toInt(), 1);
@@ -236,9 +236,9 @@ void MidiCcAutomationsModelTest::test_setData_shouldUpdateModulationData()
     model.applyAll();
     QVERIFY(updatedAutomation.has_value());
     QCOMPARE(midiCcAutomationChangedSpy.count(), 1);
-    QCOMPARE(model.data(index, static_cast<int>(Role::Modulation_Sine_Cycles)).toUInt(), updatedAutomation->modulation().cycles);
-    QCOMPARE(model.data(index, static_cast<int>(Role::Modulation_Sine_Amplitude)).toFloat(), updatedAutomation->modulation().amplitude);
-    QCOMPARE(model.data(index, static_cast<int>(Role::Modulation_Sine_Inverted)).toBool(), updatedAutomation->modulation().inverted);
+    QCOMPARE(model.data(index, static_cast<int>(Role::Modulation_Cycles)).toUInt(), updatedAutomation->modulation().cycles);
+    QCOMPARE(model.data(index, static_cast<int>(Role::Modulation_Amplitude)).toFloat(), updatedAutomation->modulation().amplitude);
+    QCOMPARE(model.data(index, static_cast<int>(Role::Modulation_Inverted)).toBool(), updatedAutomation->modulation().inverted);
     QCOMPARE(model.data(index, static_cast<int>(Role::Modulation_Type)).toInt(), static_cast<int>(updatedAutomation->modulation().type));
 }
 
