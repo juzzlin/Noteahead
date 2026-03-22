@@ -21,6 +21,7 @@
 #include "../../domain/midi_cc_data.hpp"
 #include "../../domain/midi_note_data.hpp"
 #include "../../domain/pitch_bend_data.hpp"
+#include "../../infra/midi/midi_cc_mapping.hpp"
 #include "../instrument_request.hpp"
 #include "device_service.hpp"
 #include "midi_worker_in.hpp"
@@ -185,6 +186,7 @@ void MidiService::stopAllNotes(InstrumentW instrument)
         const auto portName = instr->midiAddress().portName();
         if (m_deviceService && m_deviceService->isInternalDevice(portName)) {
             m_deviceService->processMidiAllNotesOff(portName);
+            m_deviceService->processMidiCc(portName, static_cast<uint8_t>(MidiCcMapping::Controller::ResetAllControllers), 127, instr->midiAddress().channel());
         } else {
             m_outputWorker->stopAllNotes(portName, instr->midiAddress().channel());
         }
@@ -195,6 +197,9 @@ void MidiService::stopAllNotes()
 {
     if (m_deviceService) {
         m_deviceService->processMidiAllNotesOff();
+        for (const auto & name : m_deviceService->internalDeviceNamesQt()) {
+            m_deviceService->processMidiCc(name, static_cast<uint8_t>(MidiCcMapping::Controller::ResetAllControllers), 127, 0);
+        }
     }
 }
 
