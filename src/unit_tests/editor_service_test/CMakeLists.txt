@@ -11,6 +11,7 @@ set(SRC
     ../../application/note_converter.cpp
     ../../application/position.hpp
     ../../application/service/automation_service.cpp
+    ../../application/service/property_service.cpp
     ../../application/service/copy_manager.cpp
     ../../application/service/editor_service.cpp
     ../../application/service/mixer_service.cpp
@@ -45,6 +46,7 @@ set(SRC
     ../../domain/song.cpp
     ../../domain/track.cpp
     ../../infra/settings.cpp
+    ../../infra/midi/midi_cc_mapping.cpp
 )
 qt_add_executable(${NAME} ${SRC})
 set_target_properties(${NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${UNIT_TEST_BASE_DIR})
@@ -63,6 +65,7 @@ set(DELAY_TEST_SRC
     ../../application/note_converter.cpp
     ../../application/position.hpp
     ../../application/service/automation_service.cpp
+    ../../application/service/property_service.cpp
     ../../application/service/copy_manager.cpp
     ../../application/service/editor_service.cpp
     ../../application/service/mixer_service.cpp
@@ -97,6 +100,7 @@ set(DELAY_TEST_SRC
     ../../domain/song.cpp
     ../../domain/track.cpp
     ../../infra/settings.cpp
+    ../../infra/midi/midi_cc_mapping.cpp
 )
 qt_add_executable(${DELAY_TEST_NAME} ${DELAY_TEST_SRC})
 set_target_properties(${DELAY_TEST_NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${UNIT_TEST_BASE_DIR})

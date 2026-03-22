@@ -15,6 +15,8 @@
 
 #include "pitch_bend_data.hpp"
 
+#include <cmath>
+
 namespace noteahead {
 
 PitchBendData::PitchBendData(size_t track, size_t column, uint8_t msb, uint8_t lsb)
@@ -30,7 +32,7 @@ PitchBendData::PitchBendData(size_t track, size_t column, uint16_t value)
 }
 
 PitchBendData::PitchBendData(size_t track, size_t column, double percentage)
-  : PitchBendData { track, column, static_cast<uint16_t>((percentage + 100.0) * (16383.0 / 200.0)) }
+  : PitchBendData { track, column, static_cast<uint16_t>(std::round((percentage + 100.0) * (16383.0 / 200.0))) }
 {
 }
 

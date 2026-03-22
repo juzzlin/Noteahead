@@ -63,6 +63,10 @@ GroupBox {
                     Layout.column: 1
                     Layout.fillWidth: true
                     Layout.preferredWidth: 300
+                    ToolTip.delay: Constants.toolTipDelay
+                    ToolTip.timeout: Constants.toolTipTimeout
+                    ToolTip.visible: hovered
+                    ToolTip.text: qsTr("The MIDI CC controller to automate")
                     onControllerChanged: function (newController) {
                         midiCcAutomationsModel.changeController(index, newController);
                     }
@@ -85,7 +89,7 @@ GroupBox {
                     ToolTip.delay: Constants.toolTipDelay
                     ToolTip.timeout: Constants.toolTipTimeout
                     ToolTip.visible: hovered
-                    ToolTip.text: qsTr("Start line")
+                    ToolTip.text: qsTr("The line where the interpolation starts")
                     onValueModified: model.line0 = value
                 }
                 Label {
@@ -106,7 +110,7 @@ GroupBox {
                     ToolTip.delay: Constants.toolTipDelay
                     ToolTip.timeout: Constants.toolTipTimeout
                     ToolTip.visible: hovered
-                    ToolTip.text: qsTr("End line")
+                    ToolTip.text: qsTr("The line where the interpolation ends")
                     onValueModified: model.line1 = value
                 }
                 Label {
@@ -127,7 +131,7 @@ GroupBox {
                     ToolTip.delay: Constants.toolTipDelay
                     ToolTip.timeout: Constants.toolTipTimeout
                     ToolTip.visible: hovered
-                    ToolTip.text: qsTr("Start value")
+                    ToolTip.text: qsTr("The controller value at the start line")
                     onValueModified: model.value0 = value
                 }
                 Label {
@@ -149,7 +153,7 @@ GroupBox {
                     ToolTip.delay: Constants.toolTipDelay
                     ToolTip.timeout: Constants.toolTipTimeout
                     ToolTip.visible: hovered
-                    ToolTip.text: qsTr("End value")
+                    ToolTip.text: qsTr("The controller value at the end line")
                     onValueModified: model.value1 = value
                 }
             }
@@ -229,6 +233,10 @@ GroupBox {
                     Layout.row: 1
                     Layout.column: 0
                     Layout.fillWidth: true
+                    ToolTip.delay: Constants.toolTipDelay
+                    ToolTip.timeout: Constants.toolTipTimeout
+                    ToolTip.visible: hovered
+                    ToolTip.text: qsTr("The type of modulation to apply (Sine Wave or Random)")
                     onActivated: function (comboBoxIndex) {
                         midiCcAutomationsModel.changeModulationType(index, comboBoxIndex);
                     }
@@ -251,7 +259,7 @@ GroupBox {
                     ToolTip.delay: Constants.toolTipDelay
                     ToolTip.timeout: Constants.toolTipTimeout
                     ToolTip.visible: hovered
-                    ToolTip.text: qsTr("Cycles")
+                    ToolTip.text: qsTr("The number of modulation cycles over the automation range")
                     onValueModified: model.modulationCycles = value
                 }
                 Label {
@@ -272,7 +280,7 @@ GroupBox {
                     ToolTip.delay: Constants.toolTipDelay
                     ToolTip.timeout: Constants.toolTipTimeout
                     ToolTip.visible: hovered
-                    ToolTip.text: qsTr("Amplitude")
+                    ToolTip.text: qsTr("The strength of the modulation as a percentage of the total controller range")
                     onValueModified: model.modulationAmplitude = value
                 }
                 Label {
@@ -293,7 +301,7 @@ GroupBox {
                     ToolTip.delay: Constants.toolTipDelay
                     ToolTip.timeout: Constants.toolTipTimeout
                     ToolTip.visible: hovered
-                    ToolTip.text: qsTr("Offset")
+                    ToolTip.text: qsTr("An additive constant value applied to the modulation")
                     onValueModified: model.modulationOffset = value
                 }
                 CheckBox {
@@ -305,7 +313,7 @@ GroupBox {
                     ToolTip.delay: Constants.toolTipDelay
                     ToolTip.timeout: Constants.toolTipTimeout
                     ToolTip.visible: hovered
-                    ToolTip.text: qsTr("Invert the phase")
+                    ToolTip.text: qsTr("Invert the phase of the modulation")
                     onCheckedChanged: model.modulationInverted = checked
                     Component.onCompleted: checked = model.modulationInverted
                 }
@@ -320,7 +328,7 @@ GroupBox {
             ToolTip.delay: Constants.toolTipDelay
             ToolTip.timeout: Constants.toolTipTimeout
             ToolTip.visible: hovered
-            ToolTip.text: qsTr("Delete")
+            ToolTip.text: qsTr("Delete this automation")
             Image {
                 id: backgroundImage
                 source: "../Graphics/delete.png"
@@ -344,7 +352,7 @@ GroupBox {
             ToolTip.delay: Constants.toolTipDelay
             ToolTip.timeout: Constants.toolTipTimeout
             ToolTip.visible: hovered
-            ToolTip.text: qsTr("Comment")
+            ToolTip.text: qsTr("Optional comment for this automation")
             onTextChanged: model.comment = text
             Component.onCompleted: text = model.comment
         }

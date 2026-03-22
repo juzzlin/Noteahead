@@ -80,7 +80,7 @@ public:
     using SettingsServiceS = std::shared_ptr<SettingsService>;
     using MixerServiceS = std::shared_ptr<MixerService>;
     using AutomationServiceS = std::shared_ptr<AutomationService>;
-    EditorService(SelectionServiceS selectionService, SettingsServiceS settingsService);
+    EditorService(SelectionServiceS selectionService, SettingsServiceS settingsService, AutomationServiceS automationService);
     ~EditorService() override;
 
     void initialize();

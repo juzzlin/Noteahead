@@ -2,6 +2,7 @@ import QtQuick 2.15
 import QtQuick.Controls 2.15
 import QtQuick.Controls.Universal 2.15
 import QtQuick.Layouts
+import ".."
 
 GroupBox {
     title: qsTr("Modulation")
@@ -29,6 +30,10 @@ GroupBox {
             Layout.row: 1
             Layout.column: 0
             Layout.fillWidth: true
+            ToolTip.delay: Constants.toolTipDelay
+            ToolTip.timeout: Constants.toolTipTimeout
+            ToolTip.visible: hovered
+            ToolTip.text: qsTr("The type of modulation to apply (Sine Wave or Random)")
         }
 
         Label {
@@ -48,6 +53,10 @@ GroupBox {
             Layout.row: 1
             Layout.column: 1
             Layout.fillWidth: true
+            ToolTip.delay: Constants.toolTipDelay
+            ToolTip.timeout: Constants.toolTipTimeout
+            ToolTip.visible: hovered
+            ToolTip.text: qsTr("The number of modulation cycles over the automation range")
         }
 
         Label {
@@ -58,7 +67,7 @@ GroupBox {
         SpinBox {
             id: amplitudeSpinBox
             from: 0
-            to: 100
+            to: 200
             value: 0
             editable: true
             stepSize: 1
@@ -68,6 +77,10 @@ GroupBox {
             Layout.row: 1
             Layout.column: 2
             Layout.fillWidth: true
+            ToolTip.delay: Constants.toolTipDelay
+            ToolTip.timeout: Constants.toolTipTimeout
+            ToolTip.visible: hovered
+            ToolTip.text: qsTr("The strength of the modulation")
         }
 
         Label {
@@ -88,6 +101,10 @@ GroupBox {
             Layout.row: 1
             Layout.column: 3
             Layout.fillWidth: true
+            ToolTip.delay: Constants.toolTipDelay
+            ToolTip.timeout: Constants.toolTipTimeout
+            ToolTip.visible: hovered
+            ToolTip.text: qsTr("An additive constant value applied to the modulation")
         }
 
         Label {
@@ -99,6 +116,10 @@ GroupBox {
             id: invertedCheckBox
             Layout.row: 1
             Layout.column: 4
+            ToolTip.delay: Constants.toolTipDelay
+            ToolTip.timeout: Constants.toolTipTimeout
+            ToolTip.visible: hovered
+            ToolTip.text: qsTr("Invert the phase of the modulation")
         }
     }
 }

@@ -5,6 +5,7 @@ set(SRC
     ${NAME}.hpp
     ../../application/position.hpp
     ../../application/service/automation_service.cpp
+    ../../application/service/property_service.cpp
     ../../application/service/random_service.cpp
     ../../common/constants.cpp
     ../../common/utils.cpp
@@ -18,6 +19,7 @@ set(SRC
     ../../domain/note_data.cpp
     ../../domain/pitch_bend_automation.cpp
     ../../domain/pitch_bend_data.cpp
+    ../../infra/midi/midi_cc_mapping.cpp
 )
 qt_add_executable(${NAME} ${SRC})
 set_target_properties(${NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${UNIT_TEST_BASE_DIR})

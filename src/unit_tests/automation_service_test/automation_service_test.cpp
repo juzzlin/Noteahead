@@ -17,6 +17,7 @@
 
 #include "../../application/position.hpp"
 #include "../../application/service/automation_service.hpp"
+#include "../../application/service/property_service.hpp"
 #include "../../domain/interpolator.hpp"
 #include "../../domain/midi_cc_automation.hpp"
 
@@ -34,7 +35,7 @@ void AutomationServiceTest::initTestCase()
 
 void AutomationServiceTest::test_addMidiCcAutomation_shouldAddAutomation()
 {
-    AutomationService automationService;
+    AutomationService automationService { std::make_shared<PropertyService>() };
 
     QSignalSpy lineDataChangedSpy { &automationService, &AutomationService::lineDataChanged };
     quint64 pattern = 0;
@@ -80,7 +81,7 @@ void AutomationServiceTest::test_addMidiCcAutomation_shouldAddAutomation()
 
 void AutomationServiceTest::test_deleteMidiCcAutomation_shouldDeleteAutomation()
 {
-    AutomationService automationService;
+    AutomationService automationService { std::make_shared<PropertyService>() };
 
     automationService.addMidiCcAutomation(0, 0, 0, 0, 0, 1, 0, 1, {}, true, 8, 0);
     QVERIFY(!automationService.midiCcAutomations().empty());
@@ -94,7 +95,7 @@ void AutomationServiceTest::test_deleteMidiCcAutomation_shouldDeleteAutomation()
 
 void AutomationServiceTest::test_addPitchBendAutomation_shouldAddAutomation()
 {
-    AutomationService automationService;
+    AutomationService automationService { std::make_shared<PropertyService>() };
 
     QSignalSpy lineDataChangedSpy { &automationService, &AutomationService::lineDataChanged };
     quint64 pattern = 0;
@@ -139,7 +140,7 @@ void AutomationServiceTest::test_addPitchBendAutomation_shouldAddAutomation()
 
 void AutomationServiceTest::test_deletePitchBendAutomation_shouldDeleteAutomation()
 {
-    AutomationService automationService;
+    AutomationService automationService { std::make_shared<PropertyService>() };
 
     automationService.addPitchBendAutomation(0, 0, 0, 0, 1, 0, 1, {});
     QVERIFY(!automationService.pitchBendAutomations().empty());
@@ -153,7 +154,7 @@ void AutomationServiceTest::test_deletePitchBendAutomation_shouldDeleteAutomatio
 
 void AutomationServiceTest::test_automationWeight_midiCc_shouldCalculateCorrectWeight()
 {
-    AutomationService automationService;
+    AutomationService automationService { std::make_shared<PropertyService>() };
 
     quint64 pattern = 0;
     quint64 track = 1;
@@ -173,7 +174,7 @@ void AutomationServiceTest::test_automationWeight_midiCc_shouldCalculateCorrectW
 
 void AutomationServiceTest::test_automationWeight_pitchBendUp_shouldCalculateCorrectWeight()
 {
-    AutomationService automationService;
+    AutomationService automationService { std::make_shared<PropertyService>() };
 
     quint64 pattern = 0;
     quint64 track = 1;
@@ -192,7 +193,7 @@ void AutomationServiceTest::test_automationWeight_pitchBendUp_shouldCalculateCor
 
 void AutomationServiceTest::test_automationWeight_pitchBendDown_shouldCalculateCorrectWeight()
 {
-    AutomationService automationService;
+    AutomationService automationService { std::make_shared<PropertyService>() };
 
     quint64 pattern = 0;
     quint64 track = 1;
@@ -211,7 +212,7 @@ void AutomationServiceTest::test_automationWeight_pitchBendDown_shouldCalculateC
 
 void AutomationServiceTest::test_renderToEventsByLine_shouldRenderToEvents()
 {
-    AutomationService automationService;
+    AutomationService automationService { std::make_shared<PropertyService>() };
 
     quint8 controller = 64;
     quint8 line0 = 4;
@@ -245,7 +246,7 @@ void AutomationServiceTest::test_renderToEventsByLine_shouldRenderToEvents()
 
 void AutomationServiceTest::test_renderToEventsByLine_disableAutomation_shouldNotRenderEvents()
 {
-    AutomationService automationService;
+    AutomationService automationService { std::make_shared<PropertyService>() };
     automationService.addMidiCcAutomation(0, 0, 0, 0, 0, 1, 0, 1, {}, true, 8, 0);
     QVERIFY(!automationService.renderToEventsByLine(0, 0, 0, 0, 0).empty());
     auto automation = automationService.midiCcAutomations().at(0);
@@ -256,7 +257,7 @@ void AutomationServiceTest::test_renderToEventsByLine_disableAutomation_shouldNo
 
 void AutomationServiceTest::test_renderMidiCcToEventsByLine_withModulation_shouldRenderModulatedEvents()
 {
-    AutomationService automationService;
+    AutomationService automationService { std::make_shared<PropertyService>() };
 
     quint64 pattern = 0;
     quint64 track = 1;
@@ -272,19 +273,21 @@ void AutomationServiceTest::test_renderMidiCcToEventsByLine_withModulation_shoul
     const auto tick = 0;
     // Line 0: Base 64, Phase 0, Sine 0, Modulation 0
     QCOMPARE(automationService.renderToEventsByLine(pattern, track, column, 0, tick).at(0)->midiCcData()->value(), 64);
-    // Line 1: Base 64, Phase 0.25, Sine 1, Modulation 32
-    QCOMPARE(automationService.renderToEventsByLine(pattern, track, column, 1, tick).at(0)->midiCcData()->value(), 96);
+    // Line 1: Base 64, Phase 0.25, Sine 1, Modulation 0.5 * 127 = 63.5
+    // 64 + 63.5 = 127.5 -> 128 (clamped to 127)
+    QCOMPARE(automationService.renderToEventsByLine(pattern, track, column, 1, tick).at(0)->midiCcData()->value(), 127);
     // Line 2: Base 64, Phase 0.5, Sine 0, Modulation 0
     QCOMPARE(automationService.renderToEventsByLine(pattern, track, column, 2, tick).at(0)->midiCcData()->value(), 64);
-    // Line 3: Base 64, Phase 0.75, Sine -1, Modulation -32
-    QCOMPARE(automationService.renderToEventsByLine(pattern, track, column, 3, tick).at(0)->midiCcData()->value(), 32);
+    // Line 3: Base 64, Phase 0.75, Sine -1, Modulation -0.5 * 127 = -63.5
+    // 64 - 63.5 = 0.5 -> 1
+    QCOMPARE(automationService.renderToEventsByLine(pattern, track, column, 3, tick).at(0)->midiCcData()->value(), 1);
     // Line 4: Base 64, Phase 1, Sine 0, Modulation 0
     QCOMPARE(automationService.renderToEventsByLine(pattern, track, column, 4, tick).at(0)->midiCcData()->value(), 64);
 }
 
 void AutomationServiceTest::test_renderMidiCcToEventsByLine_withRandomModulation_shouldRenderModulatedEvents()
 {
-    AutomationService automationService;
+    AutomationService automationService { std::make_shared<PropertyService>() };
 
     quint64 pattern = 0;
     quint64 track = 1;
@@ -302,7 +305,7 @@ void AutomationServiceTest::test_renderMidiCcToEventsByLine_withRandomModulation
     const auto tick = 0;
     // For automationId = 1 and sampleIndex = 0, std::mt19937 seeded with 1:
     // first value from dist(-1, 1) is roughly -0.131538
-    // value = 64 + 64 * (-0.131538) = 64 - 8.4 = 55.6 -> 56
+    // value = 64 + (-0.131538) * 127 = 64 - 16.7 = 47.3 -> 47
     const auto val0 = automationService.renderToEventsByLine(pattern, track, column, 0, tick).at(0)->midiCcData()->value();
     QVERIFY(val0 != 64);
 
@@ -317,7 +320,7 @@ void AutomationServiceTest::test_renderMidiCcToEventsByLine_withRandomModulation
 
 void AutomationServiceTest::test_renderMidiCcToEventsByLine_withInvertedModulation_shouldRenderModulatedEvents()
 {
-    AutomationService automationService;
+    AutomationService automationService { std::make_shared<PropertyService>() };
 
     quint64 pattern = 0;
     quint64 track = 1;
@@ -333,19 +336,21 @@ void AutomationServiceTest::test_renderMidiCcToEventsByLine_withInvertedModulati
     const auto tick = 0;
     // Line 0: Base 64, Phase 0, Sine 0, Modulation 0
     QCOMPARE(automationService.renderToEventsByLine(pattern, track, column, 0, tick).at(0)->midiCcData()->value(), 64);
-    // Line 1: Base 64, Phase 0.25, Sine -1, Modulation -32
-    QCOMPARE(automationService.renderToEventsByLine(pattern, track, column, 1, tick).at(0)->midiCcData()->value(), 32);
+    // Line 1: Base 64, Phase 0.25, Sine -1, Modulation -0.5 * 127 = -63.5
+    // 64 - 63.5 = 0.5 -> 1
+    QCOMPARE(automationService.renderToEventsByLine(pattern, track, column, 1, tick).at(0)->midiCcData()->value(), 1);
     // Line 2: Base 64, Phase 0.5, Sine 0, Modulation 0
     QCOMPARE(automationService.renderToEventsByLine(pattern, track, column, 2, tick).at(0)->midiCcData()->value(), 64);
-    // Line 3: Base 64, Phase 0.75, Sine 1, Modulation 32
-    QCOMPARE(automationService.renderToEventsByLine(pattern, track, column, 3, tick).at(0)->midiCcData()->value(), 96);
+    // Line 3: Base 64, Phase 0.75, Sine 1, Modulation 0.5 * 127 = 63.5
+    // 64 + 63.5 = 127.5 -> 128 (clamped to 127)
+    QCOMPARE(automationService.renderToEventsByLine(pattern, track, column, 3, tick).at(0)->midiCcData()->value(), 127);
     // Line 4: Base 64, Phase 1, Sine 0, Modulation 0
     QCOMPARE(automationService.renderToEventsByLine(pattern, track, column, 4, tick).at(0)->midiCcData()->value(), 64);
 }
 
 void AutomationServiceTest::test_renderMidiCcToEventsByLine_withOffset_shouldRenderOffsetEvents()
 {
-    AutomationService automationService;
+    AutomationService automationService { std::make_shared<PropertyService>() };
 
     quint64 pattern = 0;
     quint64 track = 1;
@@ -360,18 +365,45 @@ void AutomationServiceTest::test_renderMidiCcToEventsByLine_withOffset_shouldRen
     // Test positive offset (+50%)
     automationService.addMidiCcModulation(automationId, 0, 0, 0.0f, 50.0f, false);
     const auto tick = 0;
-    // 64 + 64 * 0.5 = 96
-    QCOMPARE(automationService.renderToEventsByLine(pattern, track, column, 0, tick).at(0)->midiCcData()->value(), 96);
+    // 64 + 0.5 * 127 = 64 + 63.5 = 127.5 -> 128 (clamped to 127)
+    QCOMPARE(automationService.renderToEventsByLine(pattern, track, column, 0, tick).at(0)->midiCcData()->value(), 127);
 
     // Test negative offset (-50%)
     automationService.addMidiCcModulation(automationId, 0, 0, 0.0f, -50.0f, false);
-    // 64 + 64 * -0.5 = 32
-    QCOMPARE(automationService.renderToEventsByLine(pattern, track, column, 0, tick).at(0)->midiCcData()->value(), 32);
+    // 64 - 0.5 * 127 = 64 - 63.5 = 0.5 -> 1
+    QCOMPARE(automationService.renderToEventsByLine(pattern, track, column, 0, tick).at(0)->midiCcData()->value(), 1);
+}
+
+void AutomationServiceTest::test_renderPitchBendToEventsByLine_withModulation_shouldRenderModulatedEvents()
+{
+    AutomationService automationService { std::make_shared<PropertyService>() };
+
+    quint64 pattern = 0;
+    quint64 track = 1;
+    quint64 column = 2;
+    quint8 line0 = 0;
+    quint8 line1 = 4;
+    int value0 = 0;
+    int value1 = 0;
+    const auto automationId = automationService.addPitchBendAutomation(pattern, track, column, line0, line1, value0, value1, {});
+    automationService.addPitchBendModulation(automationId, 0, 1, 50.0f, 0.0f, false);
+
+    const auto tick = 0;
+    // Line 0: Base 0, Phase 0, Sine 0, Modulation 0 -> percentage 0 -> normalized 8192 / 16383
+    QCOMPARE(automationService.renderToEventsByLine(pattern, track, column, 0, tick).at(0)->pitchBendData()->normalizedValue(), 8192.0 / 16383.0);
+    // Line 1: Base 0, Phase 0.25, Sine 1, Modulation 0.5 * 100 = 50 -> percentage 50 -> normalized 12287 / 16383
+    QCOMPARE(automationService.renderToEventsByLine(pattern, track, column, 1, tick).at(0)->pitchBendData()->normalizedValue(), 12287.0 / 16383.0);
+    // Line 2: Base 0, Phase 0.5, Sine 0, Modulation 0 -> percentage 0 -> normalized 8192 / 16383
+    QCOMPARE(automationService.renderToEventsByLine(pattern, track, column, 2, tick).at(0)->pitchBendData()->normalizedValue(), 8192.0 / 16383.0);
+    // Line 3: Base 0, Phase 0.75, Sine -1, Modulation -0.5 * 100 = -50 -> percentage -50 -> normalized 4096 / 16383
+    QCOMPARE(automationService.renderToEventsByLine(pattern, track, column, 3, tick).at(0)->pitchBendData()->normalizedValue(), 4096.0 / 16383.0);
+    // Line 4: Base 0, Phase 1, Sine 0, Modulation 0 -> percentage 0 -> normalized 8192 / 16383
+    QCOMPARE(automationService.renderToEventsByLine(pattern, track, column, 4, tick).at(0)->pitchBendData()->normalizedValue(), 8192.0 / 16383.0);
 }
 
 void AutomationServiceTest::test_renderMidiCcToEventsByColumn_withEventsPerBeatAndLineOffset_shouldSkipEvents()
 {
-    AutomationService automationService;
+    AutomationService automationService { std::make_shared<PropertyService>() };
     // 0 to 15 lines (16 lines total)
     // linesPerBeat = 8.
     // eventsPerBeat = 1 -> should fire every 8 lines.
@@ -405,7 +437,7 @@ void AutomationServiceTest::test_renderMidiCcToEventsByColumn_withEventsPerBeatA
 
 void AutomationServiceTest::test_renderToEventsByColumn_shouldRenderToEvents()
 {
-    AutomationService automationService;
+    AutomationService automationService { std::make_shared<PropertyService>() };
 
     quint64 pattern = 0;
     quint64 track = 1;
@@ -440,7 +472,7 @@ void AutomationServiceTest::test_renderToEventsByColumn_shouldRenderToEvents()
 
 void AutomationServiceTest::test_renderToEventsByColumn_shouldPruneRepeatingEvents()
 {
-    AutomationService automationService;
+    AutomationService automationService { std::make_shared<PropertyService>() };
 
     quint64 pattern = 0;
     quint64 track = 1;
@@ -455,7 +487,7 @@ void AutomationServiceTest::test_renderToEventsByColumn_shouldPruneRepeatingEven
 
 void AutomationServiceTest::test_renderToEventsByColumn_disableAutomation_shouldNotRenderEvents()
 {
-    AutomationService automationService;
+    AutomationService automationService { std::make_shared<PropertyService>() };
     automationService.addMidiCcAutomation(0, 0, 0, 0, 0, 1, 0, 1, {}, true, 8, 0);
     QVERIFY(!automationService.renderToEventsByColumn(0, 0, 0, 0, 24, 8).empty());
     auto automation = automationService.midiCcAutomations().at(0);

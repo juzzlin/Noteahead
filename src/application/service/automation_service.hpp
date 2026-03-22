@@ -33,12 +33,14 @@ namespace noteahead {
 
 struct Position;
 
+class PropertyService;
+
 class AutomationService : public QObject
 {
     Q_OBJECT
 
 public:
-    AutomationService();
+    AutomationService(std::shared_ptr<PropertyService> propertyService);
 
     void clear();
 
@@ -122,6 +124,7 @@ private:
     };
 
     Automations m_automations;
+    std::shared_ptr<PropertyService> m_propertyService;
 };
 
 } // namespace noteahead

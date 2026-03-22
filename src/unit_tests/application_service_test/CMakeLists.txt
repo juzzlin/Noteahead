@@ -5,6 +5,7 @@ set(SRC
     ${NAME}.hpp
     ../../application/service/application_service.cpp
     ../../application/service/editor_service.cpp
+    ../../application/service/property_service.cpp
     ../../application/service/player_service.cpp
     ../../application/service/recent_files_manager.cpp
     ../../application/service/automation_service.cpp

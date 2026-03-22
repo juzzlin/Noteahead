@@ -9,6 +9,7 @@ set(SRC
     ../../application/service/player_service.cpp
     ../../application/service/recent_files_manager.cpp
     ../../application/service/automation_service.cpp
+    ../../application/service/property_service.cpp
     ../../application/service/copy_manager.cpp
     ../../application/service/mixer_service.cpp
     ../../application/service/random_service.cpp

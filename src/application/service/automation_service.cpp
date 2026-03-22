@@ -21,6 +21,7 @@
 #include "../../domain/midi_cc_data.hpp"
 #include "../../domain/pitch_bend_data.hpp"
 #include "../position.hpp"
+#include "property_service.hpp"
 
 #include <algorithm>
 #include <cmath> // For std::sin and M_PI
@@ -34,7 +35,8 @@ namespace noteahead {
 
 static const auto TAG = "AutomationService";
 
-AutomationService::AutomationService()
+AutomationService::AutomationService(std::shared_ptr<PropertyService> propertyService) :
+    m_propertyService { propertyService }
 {
 }
 
@@ -416,9 +418,9 @@ AutomationService::EventList AutomationService::renderMidiCcToEventsByLine(size_
                     totalModulation = modulationValue * modulation.amplitude / 100.0; // Amplitude is a percentage
                 }
                 totalModulation += modulation.offset / 100.0;
-                interpolatedValue += interpolatedValue * totalModulation;
+                interpolatedValue += totalModulation * m_propertyService->maxValue(automation.controller());
 
-                const auto clampedValue = std::clamp(static_cast<int>(std::round(interpolatedValue)), 0, 127); // MIDI CC value range
+                const auto clampedValue = std::clamp(static_cast<int>(std::round(interpolatedValue)), 0, m_propertyService->maxValue(automation.controller())); // MIDI CC value range
                 events.push_back(std::make_shared<Event>(tick, MidiCcData { track, column, automation.controller(), static_cast<uint8_t>(clampedValue) }));
             }
         }
@@ -473,7 +475,7 @@ AutomationService::EventList AutomationService::renderPitchBendToEventsByLine(si
                     totalModulation = modulationValue * modulation.amplitude / 100.0; // Amplitude is a percentage
                 }
                 totalModulation += modulation.offset / 100.0;
-                interpolatedValue += interpolatedValue * totalModulation;
+                interpolatedValue += totalModulation * 100.0;
 
                 const auto percentage = std::clamp(static_cast<int>(std::round(interpolatedValue)), -100, 100);
                 events.push_back(std::make_shared<Event>(tick, PitchBendData { track, column, static_cast<double>(percentage) }));
@@ -548,9 +550,9 @@ AutomationService::EventList AutomationService::renderMidiCcToEventsByColumn(siz
                         totalModulation = modulationValue * modulation.amplitude / 100.0;
                     }
                     totalModulation += modulation.offset / 100.0;
-                    interpolatedValue += interpolatedValue * totalModulation;
+                    interpolatedValue += totalModulation * m_propertyService->maxValue(automation.controller());
 
-                    const auto clampedValue = std::clamp(static_cast<int>(std::round(interpolatedValue)), 0, 127); // MIDI CC value range
+                    const auto clampedValue = std::clamp(static_cast<int>(std::round(interpolatedValue)), 0, m_propertyService->maxValue(automation.controller())); // MIDI CC value range
                     if (!prevValue || *prevValue != clampedValue) {
                         events.push_back(std::make_shared<Event>(tick + line * ticksPerLine, MidiCcData { track, column, automation.controller(), static_cast<uint8_t>(clampedValue) }));
                         prevValue = clampedValue;
@@ -595,7 +597,7 @@ AutomationService::EventList AutomationService::renderPitchBendToEventsByColumn(
                         totalModulation = modulationValue * modulation.amplitude / 100.0;
                     }
                     totalModulation += modulation.offset / 100.0;
-                    interpolatedValue += interpolatedValue * totalModulation;
+                    interpolatedValue += totalModulation * 100.0;
 
                     const auto percentage = std::clamp(static_cast<int>(std::round(interpolatedValue)), -100, 100);
                     const double minDiff = 200.0 / 16383;

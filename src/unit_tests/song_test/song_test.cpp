@@ -17,6 +17,7 @@
 
 #include "../../application/position.hpp"
 #include "../../application/service/automation_service.hpp"
+#include "../../application/service/property_service.hpp"
 #include "../../application/service/side_chain_service.hpp"
 #include "../../domain/column_settings.hpp"
 #include "../../domain/event.hpp"
@@ -170,7 +171,7 @@ void SongTest::test_prevNoteDataOnSameColumn_noteOff_shouldFindNoteData()
 void SongTest::test_renderToEvents_clockEvents_shouldRenderClockEvents()
 {
     Song song;
-    auto events = song.renderToEvents(std::make_shared<AutomationService>(), std::make_shared<SideChainService>(), 0);
+    auto events = song.renderToEvents(std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<SideChainService>(), 0);
     QCOMPARE(events.size(), 2);
 
     const auto instrument1 = std::make_shared<Instrument>("MyPort");
@@ -179,7 +180,7 @@ void SongTest::test_renderToEvents_clockEvents_shouldRenderClockEvents()
     settings.timing.sendMidiClock = true;
     instrument1->setSettings(settings);
 
-    events = song.renderToEvents(std::make_shared<AutomationService>(), std::make_shared<SideChainService>(), 0);
+    events = song.renderToEvents(std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<SideChainService>(), 0);
     QCOMPARE(events.size(), 194);
 
     const auto instrument2 = std::make_shared<Instrument>("MyPort");
@@ -188,7 +189,7 @@ void SongTest::test_renderToEvents_clockEvents_shouldRenderClockEvents()
     settings.timing.sendMidiClock = true;
     instrument2->setSettings(settings);
 
-    events = song.renderToEvents(std::make_shared<AutomationService>(), std::make_shared<SideChainService>(), 0);
+    events = song.renderToEvents(std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<SideChainService>(), 0);
     QCOMPARE(events.size(), 194);
 
     const auto instrument3 = std::make_shared<Instrument>("MyOtherPort");
@@ -197,7 +198,7 @@ void SongTest::test_renderToEvents_clockEvents_shouldRenderClockEvents()
     settings.timing.sendMidiClock = true;
     instrument3->setSettings(settings);
 
-    events = song.renderToEvents(std::make_shared<AutomationService>(), std::make_shared<SideChainService>(), 0);
+    events = song.renderToEvents(std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<SideChainService>(), 0);
     QCOMPARE(events.size(), 386);
 }
 
@@ -222,7 +223,7 @@ void SongTest::test_renderToEvents_positiveDelaySet_shouldApplyDelay()
     const Position noteOnPosition = { 0, 0, 0, 0, 0 };
     song.noteDataAtPosition(noteOnPosition)->setAsNoteOn(60, 100);
 
-    const auto events = song.renderToEvents(std::make_shared<AutomationService>(), std::make_shared<SideChainService>(), 0);
+    const auto events = song.renderToEvents(std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<SideChainService>(), 0);
     QCOMPARE(events.size(), 4);
     const auto noteOn = events.at(1);
     const double msPerTick = 60000.0 / static_cast<double>(song.beatsPerMinute() * song.linesPerBeat() * song.ticksPerLine());
@@ -251,7 +252,7 @@ void SongTest::test_renderToEvents_negativeDelaySet_shouldApplyShiftedDelay()
     const Position noteOnPosition = { 0, 0, 0, 0, 0 };
     song.noteDataAtPosition(noteOnPosition)->setAsNoteOn(60, 100);
 
-    const auto events = song.renderToEvents(std::make_shared<AutomationService>(), std::make_shared<SideChainService>(), 0);
+    const auto events = song.renderToEvents(std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<SideChainService>(), 0);
     QCOMPARE(events.size(), 4);
     const auto noteOn = events.at(1);
     const double msPerTick = 60000.0 / static_cast<double>(song.beatsPerMinute() * song.linesPerBeat() * song.ticksPerLine());
@@ -278,7 +279,7 @@ void SongTest::test_renderToEvents_columnDelaySet_shouldApplyDelay()
     const Position noteOnPosition = { 0, 0, 0, 0, 0 };
     song.noteDataAtPosition(noteOnPosition)->setAsNoteOn(60, 100);
 
-    const auto events = song.renderToEvents(std::make_shared<AutomationService>(), std::make_shared<SideChainService>(), 0);
+    const auto events = song.renderToEvents(std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<SideChainService>(), 0);
     QCOMPARE(events.size(), 4);
     const auto noteOn = events.at(1);
     const double msPerTick = 60000.0 / static_cast<double>(song.beatsPerMinute() * song.linesPerBeat() * song.ticksPerLine());
@@ -289,7 +290,7 @@ void SongTest::test_renderToEvents_columnDelaySet_shouldApplyDelay()
 void SongTest::test_renderToEvents_noEvents_shouldAddStartAndEndOfSong()
 {
     Song song;
-    const auto events = song.renderToEvents(std::make_shared<AutomationService>(), std::make_shared<SideChainService>(), 0);
+    const auto events = song.renderToEvents(std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<SideChainService>(), 0);
     QCOMPARE(events.size(), 2);
 
     const auto startOfSong = events.at(0);
@@ -310,7 +311,7 @@ void SongTest::test_renderToEvents_noEvents_transportEnabled_shouldAddStartAndEn
     settings.timing.sendTransport = true;
     instrument1->setSettings(settings);
 
-    const auto events = song.renderToEvents(std::make_shared<AutomationService>(), std::make_shared<SideChainService>(), 0);
+    const auto events = song.renderToEvents(std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<SideChainService>(), 0);
     QCOMPARE(events.size(), 4);
 
     auto event = events.at(0);
@@ -335,7 +336,7 @@ void SongTest::test_renderToEvents_noteOff_shouldMapNoteOff()
     const Position noteOffPosition = { 0, 0, 0, 1, 0 };
     song.noteDataAtPosition(noteOffPosition)->setAsNoteOff();
 
-    const auto events = song.renderToEvents(std::make_shared<AutomationService>(), std::make_shared<SideChainService>(), 0);
+    const auto events = song.renderToEvents(std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<SideChainService>(), 0);
     QCOMPARE(events.size(), 4);
 
     const auto noteOn = events.at(1);
@@ -365,11 +366,11 @@ void SongTest::test_renderToEvents_playOrderSet_shouldRenderMultiplePatterns()
     song.setPatternAtSongPosition(1, 0);
 
     song.setLength(1);
-    auto events = song.renderToEvents(std::make_shared<AutomationService>(), std::make_shared<SideChainService>(), 0);
+    auto events = song.renderToEvents(std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<SideChainService>(), 0);
     QCOMPARE(events.size(), 4);
 
     song.setLength(2);
-    events = song.renderToEvents(std::make_shared<AutomationService>(), std::make_shared<SideChainService>(), 0);
+    events = song.renderToEvents(std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<SideChainService>(), 0);
     QCOMPARE(events.size(), 6);
 
     auto noteOn = events.at(1);
@@ -406,7 +407,7 @@ void SongTest::test_renderToEvents_singleEvent_shouldRenderEvent()
     Song song;
     song.noteDataAtPosition({ 0, 0, 0, 42, 0 })->setAsNoteOn(60, 100);
 
-    const auto events = song.renderToEvents(std::make_shared<AutomationService>(), std::make_shared<SideChainService>(), 0);
+    const auto events = song.renderToEvents(std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<SideChainService>(), 0);
     QCOMPARE(events.size(), 4);
 
     const auto startOfSong = events.at(0);
@@ -437,7 +438,7 @@ void SongTest::test_renderToEvents_sameColumn_shouldAddNoteOff()
     song.noteDataAtPosition({ 0, 0, 0, 21, 0 })->setAsNoteOn(60, 100);
     song.noteDataAtPosition({ 0, 0, 0, 42, 0 })->setAsNoteOn(60, 100);
 
-    const auto events = song.renderToEvents(std::make_shared<AutomationService>(), std::make_shared<SideChainService>(), 0);
+    const auto events = song.renderToEvents(std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<SideChainService>(), 0);
     QCOMPARE(events.size(), 6);
 
     auto noteOn = events.at(1);
@@ -469,7 +470,7 @@ void SongTest::test_renderToEvents_chordAutomation_shouldRenderChordNotes()
     song.noteDataAtPosition({ 0, 0, 0, 0, 0 })->setAsNoteOn(60, 100);
     song.noteDataAtPosition({ 0, 0, 0, 1, 0 })->setAsNoteOff();
 
-    const auto events = song.renderToEvents(std::make_shared<AutomationService>(), std::make_shared<SideChainService>(), 0);
+    const auto events = song.renderToEvents(std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<SideChainService>(), 0);
     QCOMPARE(events.size(), 8);
 
     const auto rootNoteOn = events.at(1);
@@ -510,7 +511,7 @@ void SongTest::test_renderToEvents_transposeSet_shouldApplyTranspose()
     const Position noteOnPosition = { 0, 0, 0, 0, 0 };
     song.noteDataAtPosition(noteOnPosition)->setAsNoteOn(60, 100);
 
-    auto events = song.renderToEvents(std::make_shared<AutomationService>(), std::make_shared<SideChainService>(), 0);
+    auto events = song.renderToEvents(std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<SideChainService>(), 0);
     QCOMPARE(events.size(), 4);
     auto noteOn = events.at(1);
     QCOMPARE(noteOn->noteData()->note(), 73);
@@ -518,7 +519,7 @@ void SongTest::test_renderToEvents_transposeSet_shouldApplyTranspose()
     settings1.transpose = -11;
     instrument1->setSettings(settings1);
 
-    events = song.renderToEvents(std::make_shared<AutomationService>(), std::make_shared<SideChainService>(), 0);
+    events = song.renderToEvents(std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<SideChainService>(), 0);
     QCOMPARE(events.size(), 4);
     noteOn = events.at(1);
     QCOMPARE(noteOn->noteData()->note(), 49);
@@ -537,7 +538,7 @@ void SongTest::test_renderToEvents_velocityJitterSet_shouldApplyVelocityJitter()
     const Position noteOnPosition = { 0, 0, 0, 0, 0 };
     song.noteDataAtPosition(noteOnPosition)->setAsNoteOn(60, 100);
 
-    auto events = song.renderToEvents(std::make_shared<AutomationService>(), std::make_shared<SideChainService>(), 0);
+    auto events = song.renderToEvents(std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<SideChainService>(), 0);
     QCOMPARE(events.size(), 4);
     auto noteOn = events.at(1);
     QCOMPARE(noteOn->noteData()->velocity(), 77);
@@ -570,7 +571,7 @@ void SongTest::test_renderToEvents_velocityKeyTrackSet_shouldScaleVelocity()
     const Position highNotePosition = { 0, 0, 0, 2, 0 };
     song.noteDataAtPosition(highNotePosition)->setAsNoteOn(127, 100);
 
-    const auto events = song.renderToEvents(std::make_shared<AutomationService>(), std::make_shared<SideChainService>(), 0);
+    const auto events = song.renderToEvents(std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<SideChainService>(), 0);
 
     auto findNoteOn = [&](uint8_t note) {
         for (auto && event : events) {
@@ -624,7 +625,7 @@ void SongTest::test_renderToEvents_velocityKeyTrackOffsetSet_shouldScaleVelocity
     const Position highNotePosition = { 0, 0, 0, 2, 0 };
     song.noteDataAtPosition(highNotePosition)->setAsNoteOn(127, 100);
 
-    const auto events = song.renderToEvents(std::make_shared<AutomationService>(), std::make_shared<SideChainService>(), 0);
+    const auto events = song.renderToEvents(std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<SideChainService>(), 0);
 
     auto findNoteOn = [&](uint8_t note) {
         for (auto && event : events) {
@@ -665,7 +666,7 @@ void SongTest::test_renderToEvents_customNoteOffOffsetSet_shouldApplyCorrectOffs
     song.noteDataAtPosition({ 0, 0, 0, 0, 0 })->setAsNoteOn(60, 100);
     song.noteDataAtPosition({ 0, 0, 0, 8, 0 })->setAsNoteOn(60, 100);
 
-    auto events = song.renderToEvents(std::make_shared<AutomationService>(), std::make_shared<SideChainService>(), 0);
+    auto events = song.renderToEvents(std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<SideChainService>(), 0);
     QCOMPARE(events.size(), 6);
 
     auto noteOn = events.at(1);
@@ -771,7 +772,7 @@ void SongTest::test_columnByName_shouldReturnColumn()
 void SongTest::test_renderToEvents_midiSideChain_shouldGenerateEvents()
 {
     Song song;
-    const auto automationService = std::make_shared<AutomationService>();
+    const auto automationService = std::make_shared<AutomationService>(std::make_shared<PropertyService>());
     const auto sideChainService = std::make_shared<SideChainService>();
 
     SideChainSettings sideChainSettings;
@@ -822,7 +823,7 @@ void SongTest::test_renderToEvents_midiSideChain_shouldGenerateEvents()
 void SongTest::test_renderToEvents_midiSideChain_shouldClampReleaseEvents()
 {
     Song song;
-    const auto automationService = std::make_shared<AutomationService>();
+    const auto automationService = std::make_shared<AutomationService>(std::make_shared<PropertyService>());
     const auto sideChainService = std::make_shared<SideChainService>();
 
     SideChainSettings sideChainSettings;
@@ -870,7 +871,7 @@ void SongTest::test_renderToEvents_midiSideChain_shouldClampAttackEvents()
     song.setPatternAtSongPosition(1, 1);
     song.setLength(2);
 
-    const auto automationService = std::make_shared<AutomationService>();
+    const auto automationService = std::make_shared<AutomationService>(std::make_shared<PropertyService>());
     const auto sideChainService = std::make_shared<SideChainService>();
 
     SideChainSettings sideChainSettings;

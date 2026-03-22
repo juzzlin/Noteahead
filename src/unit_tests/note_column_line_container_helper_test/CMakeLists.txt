@@ -12,6 +12,7 @@ set(SRC
     ../../application/position.hpp
     ../../application/models/note_column_line_container_helper.cpp
     ../../application/service/automation_service.cpp
+    ../../application/service/property_service.cpp
     ../../application/service/editor_service.cpp
     ../../application/service/mixer_service.cpp
     ../../application/service/selection_service.cpp
@@ -47,6 +48,7 @@ set(SRC
     ../../domain/song.cpp
     ../../domain/track.cpp
     ../../infra/settings.cpp
+    ../../infra/midi/midi_cc_mapping.cpp
 )
 qt_add_executable(${NAME} ${SRC})
 set_target_properties(${NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${UNIT_TEST_BASE_DIR})

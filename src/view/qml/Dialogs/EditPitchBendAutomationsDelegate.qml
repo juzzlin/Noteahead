@@ -68,7 +68,7 @@ GroupBox {
                     ToolTip.delay: Constants.toolTipDelay
                     ToolTip.timeout: Constants.toolTipTimeout
                     ToolTip.visible: hovered
-                    ToolTip.text: qsTr("Start line")
+                    ToolTip.text: qsTr("The line where the interpolation starts")
                     onValueModified: model.line0 = value
                 }
                 Label {
@@ -89,11 +89,11 @@ GroupBox {
                     ToolTip.delay: Constants.toolTipDelay
                     ToolTip.timeout: Constants.toolTipTimeout
                     ToolTip.visible: hovered
-                    ToolTip.text: qsTr("End line")
+                    ToolTip.text: qsTr("The line where the interpolation ends")
                     onValueModified: model.line1 = value
                 }
                 Label {
-                    text: qsTr("Start value")
+                    text: qsTr("Start value (%)")
                     Layout.row: 0
                     Layout.column: 2
                     Layout.fillWidth: true
@@ -110,11 +110,11 @@ GroupBox {
                     ToolTip.delay: Constants.toolTipDelay
                     ToolTip.timeout: Constants.toolTipTimeout
                     ToolTip.visible: hovered
-                    ToolTip.text: qsTr("Start value")
+                    ToolTip.text: qsTr("The pitch bend value at the start line (-100% to 100%)")
                     onValueModified: model.value0 = value
                 }
                 Label {
-                    text: qsTr("End value")
+                    text: qsTr("End value (%)")
                     Layout.row: 0
                     Layout.column: 3
                     Layout.fillWidth: true
@@ -132,7 +132,7 @@ GroupBox {
                     ToolTip.delay: Constants.toolTipDelay
                     ToolTip.timeout: Constants.toolTipTimeout
                     ToolTip.visible: hovered
-                    ToolTip.text: qsTr("End value")
+                    ToolTip.text: qsTr("The pitch bend value at the end line (-100% to 100%)")
                     onValueModified: model.value1 = value
                 }
             }
@@ -158,6 +158,10 @@ GroupBox {
                     Layout.row: 1
                     Layout.column: 0
                     Layout.fillWidth: true
+                    ToolTip.delay: Constants.toolTipDelay
+                    ToolTip.timeout: Constants.toolTipTimeout
+                    ToolTip.visible: hovered
+                    ToolTip.text: qsTr("The type of modulation to apply (Sine Wave or Random)")
                     onActivated: function (comboBoxIndex) {
                         pitchBendAutomationsModel.changeModulationType(index, comboBoxIndex);
                     }
@@ -180,7 +184,7 @@ GroupBox {
                     ToolTip.delay: Constants.toolTipDelay
                     ToolTip.timeout: Constants.toolTipTimeout
                     ToolTip.visible: hovered
-                    ToolTip.text: qsTr("Cycles")
+                    ToolTip.text: qsTr("The number of modulation cycles over the automation range")
                     onValueModified: model.modulationCycles = value
                 }
                 Label {
@@ -192,7 +196,7 @@ GroupBox {
                 SpinBox {
                     id: modulationAmplitudeSpinBox
                     from: 0
-                    to: 100
+                    to: 200
                     editable: true
                     Keys.onReturnPressed: focus = false
                     Layout.row: 1
@@ -201,7 +205,7 @@ GroupBox {
                     ToolTip.delay: Constants.toolTipDelay
                     ToolTip.timeout: Constants.toolTipTimeout
                     ToolTip.visible: hovered
-                    ToolTip.text: qsTr("Amplitude")
+                    ToolTip.text: qsTr("The strength of the modulation as a percentage of the pitch bend half-range")
                     onValueModified: model.modulationAmplitude = value
                 }
                 Label {
@@ -222,7 +226,7 @@ GroupBox {
                     ToolTip.delay: Constants.toolTipDelay
                     ToolTip.timeout: Constants.toolTipTimeout
                     ToolTip.visible: hovered
-                    ToolTip.text: qsTr("Offset")
+                    ToolTip.text: qsTr("An additive constant value applied to the modulation")
                     onValueModified: model.modulationOffset = value
                 }
                 CheckBox {
@@ -234,7 +238,7 @@ GroupBox {
                     ToolTip.delay: Constants.toolTipDelay
                     ToolTip.timeout: Constants.toolTipTimeout
                     ToolTip.visible: hovered
-                    ToolTip.text: qsTr("Invert the phase")
+                    ToolTip.text: qsTr("Invert the phase of the modulation")
                     onCheckedChanged: model.modulationInverted = checked
                     Component.onCompleted: checked = model.modulationInverted
                 }
@@ -249,7 +253,7 @@ GroupBox {
             ToolTip.delay: Constants.toolTipDelay
             ToolTip.timeout: Constants.toolTipTimeout
             ToolTip.visible: hovered
-            ToolTip.text: qsTr("Delete")
+            ToolTip.text: qsTr("Delete this automation")
             Image {
                 id: backgroundImage
                 source: "../Graphics/delete.png"
@@ -273,7 +277,7 @@ GroupBox {
             ToolTip.delay: Constants.toolTipDelay
             ToolTip.timeout: Constants.toolTipTimeout
             ToolTip.visible: hovered
-            ToolTip.text: qsTr("Comment")
+            ToolTip.text: qsTr("Optional comment for this automation")
             onTextChanged: model.comment = text
             Component.onCompleted: text = model.comment
         }

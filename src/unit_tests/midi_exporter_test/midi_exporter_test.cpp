@@ -3,6 +3,7 @@
 #include "../../application/position.hpp"
 #include "../../application/service/automation_service.hpp"
 #include "../../application/service/mixer_service.hpp"
+#include "../../application/service/property_service.hpp"
 #include "../../application/service/side_chain_service.hpp"
 #include "../../domain/note_data.hpp"
 #include "../../domain/song.hpp"
@@ -214,7 +215,7 @@ void MidiExporterTest::test_exportTo_singleNote_shouldExportCorrectly()
     const auto fileName = tempFile.fileName();
     tempFile.close();
 
-    const auto automationService = std::make_shared<AutomationService>();
+    const auto automationService = std::make_shared<AutomationService>(std::make_shared<PropertyService>());
     const auto mixerService = std::make_shared<MixerService>();
     const auto sideChainService = std::make_shared<SideChainService>();
     MidiExporter exporter { automationService, mixerService, sideChainService };
@@ -281,7 +282,7 @@ void MidiExporterTest::test_exportTo_multipleNotesAndTracks_shouldExportCorrectl
     const auto fileName = tempFile.fileName();
     tempFile.close();
 
-    const auto automationService = std::make_shared<AutomationService>();
+    const auto automationService = std::make_shared<AutomationService>(std::make_shared<PropertyService>());
     const auto mixerService = std::make_shared<MixerService>();
     const auto sideChainService = std::make_shared<SideChainService>();
     MidiExporter exporter { automationService, mixerService, sideChainService };
@@ -333,7 +334,7 @@ void MidiExporterTest::test_exportTo_timing_shouldBeCorrect()
     const auto fileName = tempFile.fileName();
     tempFile.close();
 
-    const auto automationService = std::make_shared<AutomationService>();
+    const auto automationService = std::make_shared<AutomationService>(std::make_shared<PropertyService>());
     const auto mixerService = std::make_shared<MixerService>();
     const auto sideChainService = std::make_shared<SideChainService>();
     MidiExporter exporter { automationService, mixerService, sideChainService };
@@ -392,7 +393,7 @@ void MidiExporterTest::test_exportTo_mutedAndSoloedTracks_shouldExportCorrectly(
     noteData.setAsNoteOff(64);
     song->setNoteDataAtPosition(noteData, { 0, 2, 0, 1, 0 });
 
-    const auto automationService = std::make_shared<AutomationService>();
+    const auto automationService = std::make_shared<AutomationService>(std::make_shared<PropertyService>());
     const auto mixerService = std::make_shared<MixerService>();
     mixerService->muteTrack(1, true);
     mixerService->soloTrack(2, true);
@@ -454,7 +455,7 @@ void MidiExporterTest::test_exportTo_rangedExport_shouldExportCorrectRange()
     const auto fileName = tempFile.fileName();
     tempFile.close();
 
-    const auto automationService = std::make_shared<AutomationService>();
+    const auto automationService = std::make_shared<AutomationService>(std::make_shared<PropertyService>());
     const auto mixerService = std::make_shared<MixerService>();
     const auto sideChainService = std::make_shared<SideChainService>();
     MidiExporter exporter { automationService, mixerService, sideChainService };

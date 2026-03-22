@@ -72,10 +72,12 @@ Application::Application(int & argc, char ** argv)
   , m_applicationService { std::make_shared<ApplicationService>() }
   , m_settingsService { std::make_shared<SettingsService>() }
   , m_selectionService { std::make_shared<SelectionService>() }
-  , m_editorService { std::make_shared<EditorService>(m_selectionService, m_settingsService) }
+  , m_utilService { std::make_shared<UtilService>() }
+  , m_propertyService { std::make_shared<PropertyService>() }
+  , m_automationService { std::make_shared<AutomationService>(m_propertyService) }
+  , m_editorService { std::make_shared<EditorService>(m_selectionService, m_settingsService, m_automationService) }
   , m_jackService { std::make_shared<JackService>(m_settingsService) }
   , m_audioService { std::make_shared<AudioService>(m_settingsService, m_jackService) }
-  , m_automationService { std::make_shared<AutomationService>() }
   , m_eventSelectionModel { std::make_shared<EventSelectionModel>() }
   , m_midiService { std::make_shared<MidiService>() }
   , m_mixerService { std::make_shared<MixerService>() }
@@ -93,15 +95,12 @@ Application::Application(int & argc, char ** argv)
   , m_trackSettingsModel { std::make_unique<TrackSettingsModel>() }
   , m_midiSettingsModel { std::make_unique<MidiSettingsModel>(m_settingsService) }
   , m_audioSettingsModel { std::make_unique<AudioSettingsModel>(m_audioService, m_settingsService) }
-  , m_utilService { std::make_shared<UtilService>() }
-  , m_propertyService { std::make_shared<PropertyService>() }
   , m_noteColumnLineContainerHelper { std::make_shared<NoteColumnLineContainerHelper>(
       m_automationService, m_editorService, m_selectionService, m_utilService) }
   , m_noteColumnModelHandler { std::make_unique<NoteColumnModelHandler>(m_editorService, m_selectionService, m_automationService, m_settingsService) }
   , m_engine { std::make_unique<QQmlApplicationEngine>() }
 {
     m_editorService->setMixerService(m_mixerService);
-    m_editorService->setAutomationService(m_automationService);
     registerTypes();
 
     handleCommandLineArguments(argc, argv); // Handle command-line arguments at initialization

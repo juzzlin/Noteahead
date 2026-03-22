@@ -6,6 +6,7 @@ set(SRC
     ${NAME}.cpp
     ../../application/position.hpp
     ../../application/service/automation_service.cpp
+    ../../application/service/property_service.cpp
     ../../application/service/copy_manager.cpp
     ../../application/service/mixer_service.cpp
     ../../application/service/random_service.cpp
@@ -37,6 +38,7 @@ set(SRC
     ../../domain/song.cpp
     ../../domain/track.cpp
     ../../infra/midi/export/midi_exporter.cpp
+    ../../infra/midi/midi_cc_mapping.cpp
 )
 
 qt_add_executable(${NAME} ${SRC})

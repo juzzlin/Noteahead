@@ -16,6 +16,7 @@
 #include "side_chain_service_test.hpp"
 
 #include "../../application/service/automation_service.hpp"
+#include "../../application/service/property_service.hpp"
 #include "../../application/service/side_chain_service.hpp"
 #include "../../domain/note_data.hpp"
 #include "../../domain/song.hpp"
@@ -70,7 +71,7 @@ void SideChainServiceTest::test_removeSettings_shouldRemoveEntry()
 void SideChainServiceTest::test_renderToEvents_deletedTrack_shouldNotCrash()
 {
     Song song;
-    const auto automationService = std::make_shared<AutomationService>();
+    const auto automationService = std::make_shared<AutomationService>(std::make_shared<PropertyService>());
     const auto sideChainService = std::make_shared<SideChainService>();
 
     // Setup SideChain on Track 1 (index 1), triggered by Track 0 (index 0)

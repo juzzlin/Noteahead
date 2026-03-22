@@ -17,6 +17,7 @@
 
 #include "../../application/service/automation_service.hpp"
 #include "../../application/service/mixer_service.hpp"
+#include "../../application/service/property_service.hpp"
 #include "../../application/service/side_chain_service.hpp"
 #include "../../domain/note_data.hpp"
 #include "../../domain/song.hpp"
@@ -32,7 +33,7 @@ namespace noteahead {
 
 void MidiImporterTest::test_import_exportedFile_shouldRestoreNotes()
 {
-    const auto automationService = std::make_shared<AutomationService>();
+    const auto automationService = std::make_shared<AutomationService>(std::make_shared<PropertyService>());
     const auto mixerService = std::make_shared<MixerService>();
     const auto sideChainService = std::make_shared<SideChainService>();
     const MidiExporter exporter { automationService, mixerService, sideChainService };
@@ -83,7 +84,7 @@ void MidiImporterTest::test_import_exportedFile_shouldRestoreNotes()
 
 void MidiImporterTest::test_import_multipleTracksAndPatterns_shouldRestoreCorrectly()
 {
-    const auto automationService = std::make_shared<AutomationService>();
+    const auto automationService = std::make_shared<AutomationService>(std::make_shared<PropertyService>());
     const auto mixerService = std::make_shared<MixerService>();
     const auto sideChainService = std::make_shared<SideChainService>();
     const MidiExporter exporter { automationService, mixerService, sideChainService };
@@ -145,7 +146,7 @@ void MidiImporterTest::test_import_multipleTracksAndPatterns_shouldRestoreCorrec
 
 void MidiImporterTest::test_import_polyphony_shouldCreateNewColumns()
 {
-    const auto automationService = std::make_shared<AutomationService>();
+    const auto automationService = std::make_shared<AutomationService>(std::make_shared<PropertyService>());
     const auto mixerService = std::make_shared<MixerService>();
     const auto sideChainService = std::make_shared<SideChainService>();
     const MidiExporter exporter { automationService, mixerService, sideChainService };
@@ -203,7 +204,7 @@ void MidiImporterTest::test_import_polyphony_shouldCreateNewColumns()
 
 void MidiImporterTest::test_import_quantization_shouldZeroDelays()
 {
-    const auto automationService = std::make_shared<AutomationService>();
+    const auto automationService = std::make_shared<AutomationService>(std::make_shared<PropertyService>());
     const auto mixerService = std::make_shared<MixerService>();
     const auto sideChainService = std::make_shared<SideChainService>();
     const MidiExporter exporter { automationService, mixerService, sideChainService };

@@ -13,7 +13,6 @@
 // You should have received a copy of the GNU General Public License
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
-#include "automation_service.hpp"
 #include "../../domain/pattern.hpp"
 #include "editor_service.hpp"
 
@@ -28,8 +27,10 @@
 #include "../command/composite_command.hpp"
 #include "../instrument_request.hpp"
 #include "../note_converter.hpp"
+#include "automation_service.hpp"
 #include "copy_manager.hpp"
 #include "mixer_service.hpp"
+#include "property_service.hpp"
 #include "selection_service.hpp"
 #include "settings_service.hpp"
 
@@ -45,15 +46,15 @@ using namespace std::chrono_literals;
 static const auto TAG = "EditorService";
 
 EditorService::EditorService()
-  : EditorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>() }
+  : EditorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()) }
 {
 }
 
-EditorService::EditorService(SelectionServiceS selectionService, SettingsServiceS settingsService)
+EditorService::EditorService(SelectionServiceS selectionService, SettingsServiceS settingsService, AutomationServiceS automationService)
   : m_undoStack { std::make_unique<UndoStack>() }
   , m_selectionService { selectionService }
   , m_settingsService { settingsService }
-  , m_automationService { std::make_shared<AutomationService>() }
+  , m_automationService { automationService }
 {
     initialize();
     m_undoStack->setCanUndoChangedCallback([this] { emit canUndoChanged(); });

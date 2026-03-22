@@ -16,6 +16,9 @@
 #include "xml_serialization_test.hpp"
 
 #include "../../application/service/automation_service.hpp"
+#include "../../application/service/property_service.hpp"
+#include "../../application/service/selection_service.hpp"
+#include "../../application/service/settings_service.hpp"
 #include "../../application/service/editor_service.hpp"
 #include "../../application/service/mixer_service.hpp"
 #include "../../application/service/side_chain_service.hpp"
@@ -31,14 +34,14 @@ namespace noteahead {
 
 void XmlSerializationTest::test_toXmlFromXml_playOrder()
 {
-    EditorService editorServiceOut;
+    EditorService editorServiceOut { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
     editorServiceOut.setPatternAtSongPosition(1, 11);
     editorServiceOut.setPatternAtSongPosition(2, 22);
     editorServiceOut.setPatternAtSongPosition(3, 33);
 
     const auto xml = editorServiceOut.toXml();
 
-    EditorService editorServiceIn;
+    EditorService editorServiceIn { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
     editorServiceIn.fromXml(xml);
 
     QCOMPARE(editorServiceIn.patternAtSongPosition(0), 0);
@@ -49,7 +52,7 @@ void XmlSerializationTest::test_toXmlFromXml_playOrder()
 
 void XmlSerializationTest::test_toXmlFromXml_songProperties()
 {
-    EditorService editorServiceOut;
+    EditorService editorServiceOut { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
     editorServiceOut.setBeatsPerMinute(666);
     editorServiceOut.setLinesPerBeat(42);
     editorServiceOut.setPatternName(0, "patternName");
@@ -57,7 +60,7 @@ void XmlSerializationTest::test_toXmlFromXml_songProperties()
 
     const auto xml = editorServiceOut.toXml();
 
-    EditorService editorServiceIn;
+    EditorService editorServiceIn { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
     QSignalSpy songChangedSpy { &editorServiceIn, &EditorService::songChanged };
     QSignalSpy positionChangedSpy { &editorServiceIn, &EditorService::positionChanged };
     QSignalSpy beatsPerMinuteChangedSpy { &editorServiceIn, &EditorService::beatsPerMinuteChanged };
@@ -76,12 +79,12 @@ void XmlSerializationTest::test_toXmlFromXml_songProperties()
 
 void XmlSerializationTest::test_toXmlFromXml_columnName_shouldLoadColumnName()
 {
-    EditorService editorServiceOut;
+    EditorService editorServiceOut { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
     editorServiceOut.setColumnName(0, 0, "columnName0_0");
     editorServiceOut.setColumnName(1, 0, "columnName1_0");
 
     const auto xml = editorServiceOut.toXml();
-    EditorService editorServiceIn;
+    EditorService editorServiceIn { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
     editorServiceIn.fromXml(xml);
 
     QCOMPARE(editorServiceIn.columnName(0, 0), editorServiceOut.columnName(0, 0));
@@ -90,12 +93,12 @@ void XmlSerializationTest::test_toXmlFromXml_columnName_shouldLoadColumnName()
 
 void XmlSerializationTest::test_toXmlFromXml_trackName_shouldLoadTrackName()
 {
-    EditorService editorServiceOut;
+    EditorService editorServiceOut { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
     editorServiceOut.setTrackName(0, "trackName0");
     editorServiceOut.setTrackName(1, "trackName1");
 
     const auto xml = editorServiceOut.toXml();
-    EditorService editorServiceIn;
+    EditorService editorServiceIn { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
     editorServiceIn.fromXml(xml);
 
     QCOMPARE(editorServiceIn.trackName(0), editorServiceOut.trackName(0));
@@ -104,7 +107,7 @@ void XmlSerializationTest::test_toXmlFromXml_trackName_shouldLoadTrackName()
 
 void XmlSerializationTest::test_toXmlFromXml_columnSettings_shouldSaveAndLoad()
 {
-    EditorService editorServiceOut;
+    EditorService editorServiceOut { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
     auto settingsOut = std::make_shared<ColumnSettings>();
     settingsOut->chordAutomationSettings.note1.offset = 4;
     settingsOut->chordAutomationSettings.note1.velocity = 80;
@@ -115,7 +118,7 @@ void XmlSerializationTest::test_toXmlFromXml_columnSettings_shouldSaveAndLoad()
     editorServiceOut.setColumnSettings(1, 0, settingsOut);
 
     const auto xml = editorServiceOut.toXml();
-    EditorService editorServiceIn;
+    EditorService editorServiceIn { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
     editorServiceIn.fromXml(xml);
 
     const auto settingsIn = editorServiceIn.columnSettings(1, 0);
@@ -138,7 +141,7 @@ void XmlSerializationTest::test_toXmlFromXml_automationService_midiCc_shouldLoad
     quint8 value1 = 100;
     const auto comment = "MIDI CC Automation Test";
 
-    AutomationService automationServiceOut;
+    AutomationService automationServiceOut { std::make_shared<PropertyService>() };
     size_t id = 1;
     for (size_t pattern = 0; pattern < 10; pattern++) {
         for (size_t track = 0; track < 8; track++) {
@@ -150,8 +153,8 @@ void XmlSerializationTest::test_toXmlFromXml_automationService_midiCc_shouldLoad
         }
     }
 
-    AutomationService automationServiceIn;
-    EditorService editorService;
+    AutomationService automationServiceIn { std::make_shared<PropertyService>() };
+    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
     connect(&editorService, &EditorService::automationSerializationRequested, &automationServiceOut, &AutomationService::serializeToXml);
     connect(&editorService, &EditorService::automationDeserializationRequested, &automationServiceIn, &AutomationService::deserializeFromXml);
 
@@ -177,12 +180,12 @@ void XmlSerializationTest::test_toXmlFromXml_automationService_midiCc_shouldLoad
 
 void XmlSerializationTest::test_toXmlFromXml_automationService_midiCc_withModulation_shouldLoadAutomationService()
 {
-    AutomationService automationServiceOut;
+    AutomationService automationServiceOut { std::make_shared<PropertyService>() };
     const auto automationId = automationServiceOut.addMidiCcAutomation(0, 0, 0, 0, 0, 1, 0, 1, {}, true, 8, 0);
     automationServiceOut.addMidiCcModulation(automationId, 0, 1, 50.0f, 0.0f, true);
 
-    AutomationService automationServiceIn;
-    EditorService editorService;
+    AutomationService automationServiceIn { std::make_shared<PropertyService>() };
+    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
     connect(&editorService, &EditorService::automationSerializationRequested, &automationServiceOut, &AutomationService::serializeToXml);
     connect(&editorService, &EditorService::automationDeserializationRequested, &automationServiceIn, &AutomationService::deserializeFromXml);
 
@@ -196,11 +199,11 @@ void XmlSerializationTest::test_toXmlFromXml_automationService_midiCc_withModula
 
 void XmlSerializationTest::test_toXmlFromXml_automationService_midiCc_noModulation_shouldLoadAutomationService()
 {
-    AutomationService automationServiceOut;
+    AutomationService automationServiceOut { std::make_shared<PropertyService>() };
     automationServiceOut.addMidiCcAutomation(0, 0, 0, 0, 0, 1, 0, 1, {}, true, 8, 0);
 
-    AutomationService automationServiceIn;
-    EditorService editorService;
+    AutomationService automationServiceIn { std::make_shared<PropertyService>() };
+    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
     connect(&editorService, &EditorService::automationSerializationRequested, &automationServiceOut, &AutomationService::serializeToXml);
     connect(&editorService, &EditorService::automationDeserializationRequested, &automationServiceIn, &AutomationService::deserializeFromXml);
 
@@ -220,7 +223,7 @@ void XmlSerializationTest::test_toXmlFromXml_automationService_pitchBend_shouldL
     int value1 = +100;
     const auto comment = "Pitch Bend Automation Test";
 
-    AutomationService automationServiceOut;
+    AutomationService automationServiceOut { std::make_shared<PropertyService>() };
     size_t id = 1;
     for (size_t pattern = 0; pattern < 10; pattern++) {
         for (size_t track = 0; track < 8; track++) {
@@ -232,8 +235,8 @@ void XmlSerializationTest::test_toXmlFromXml_automationService_pitchBend_shouldL
         }
     }
 
-    AutomationService automationServiceIn;
-    EditorService editorService;
+    AutomationService automationServiceIn { std::make_shared<PropertyService>() };
+    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
     connect(&editorService, &EditorService::automationSerializationRequested, &automationServiceOut, &AutomationService::serializeToXml);
     connect(&editorService, &EditorService::automationDeserializationRequested, &automationServiceIn, &AutomationService::deserializeFromXml);
 
@@ -258,12 +261,12 @@ void XmlSerializationTest::test_toXmlFromXml_automationService_pitchBend_shouldL
 
 void XmlSerializationTest::test_toXmlFromXml_automationService_pitchBend_withModulation_shouldLoadAutomationService()
 {
-    AutomationService automationServiceOut;
+    AutomationService automationServiceOut { std::make_shared<PropertyService>() };
     const auto automationId = automationServiceOut.addPitchBendAutomation(0, 0, 0, 0, 1, 0, 1, {}, true);
     automationServiceOut.addPitchBendModulation(automationId, 1, 5, 25.0f, 10.0f, true);
 
-    AutomationService automationServiceIn;
-    EditorService editorService;
+    AutomationService automationServiceIn { std::make_shared<PropertyService>() };
+    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
     connect(&editorService, &EditorService::automationSerializationRequested, &automationServiceOut, &AutomationService::serializeToXml);
     connect(&editorService, &EditorService::automationDeserializationRequested, &automationServiceIn, &AutomationService::deserializeFromXml);
 
@@ -294,7 +297,7 @@ void XmlSerializationTest::test_toXmlFromXml_mixerService_shouldLoadMixerService
     });
 
     MixerService mixerServiceIn;
-    EditorService editorService;
+    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
     connect(&editorService, &EditorService::mixerSerializationRequested, &mixerServiceOut, &MixerService::serializeToXml);
     connect(&editorService, &EditorService::mixerDeserializationRequested, &mixerServiceIn, &MixerService::deserializeFromXml);
 
@@ -310,7 +313,7 @@ void XmlSerializationTest::test_toXmlFromXml_mixerService_shouldLoadMixerService
 
 void XmlSerializationTest::test_toXmlFromXml_instrumentSettings_shouldParseInstrumentSettings()
 {
-    EditorService editorServiceOut;
+    EditorService editorServiceOut { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
     editorServiceOut.requestPosition(0, 0, 0, 0, 0);
 
     auto instrumentSettingsOut = std::make_shared<InstrumentSettings>();
@@ -330,7 +333,7 @@ void XmlSerializationTest::test_toXmlFromXml_instrumentSettings_shouldParseInstr
 
     const auto xml = editorServiceOut.toXml();
 
-    EditorService editorServiceIn;
+    EditorService editorServiceIn { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
     editorServiceIn.fromXml(xml);
 
     editorServiceIn.requestPosition(0, 0, 0, 0, 0);
@@ -375,7 +378,7 @@ void XmlSerializationTest::test_toXmlFromXml_sideChainService_shouldLoadSideChai
     sideChainServiceOut.setSettings(0, settings);
 
     SideChainService sideChainServiceIn;
-    EditorService editorService;
+    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
     connect(&editorService, &EditorService::sideChainSerializationRequested, &sideChainServiceOut, &SideChainService::serializeToXml);
     connect(&editorService, &EditorService::sideChainDeserializationRequested, &sideChainServiceIn, &SideChainService::deserializeFromXml);
 
@@ -399,7 +402,7 @@ void XmlSerializationTest::test_toXmlFromXml_sideChainService_shouldLoadSideChai
 
 void XmlSerializationTest::test_toXmlFromXml_noteData_noteOn()
 {
-    EditorService editorServiceOut;
+    EditorService editorServiceOut { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
 
     editorServiceOut.requestPosition(0, 0, 0, 0, 0);
     editorServiceOut.requestNoteOnAtCurrentPosition(1, 3, 64);
@@ -415,7 +418,7 @@ void XmlSerializationTest::test_toXmlFromXml_noteData_noteOn()
 
     const auto xml = editorServiceOut.toXml();
 
-    EditorService editorServiceIn;
+    EditorService editorServiceIn { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
     editorServiceIn.fromXml(xml);
 
     auto noteData = editorServiceIn.song()->noteDataAtPosition({ 0, 0, 0, 0, 0 });
@@ -445,13 +448,13 @@ void XmlSerializationTest::test_toXmlFromXml_noteData_noteOn()
 
 void XmlSerializationTest::test_toXmlFromXml_noteData_delay_shouldSaveAndLoadDelay()
 {
-    EditorService editorServiceOut;
+    EditorService editorServiceOut { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
     editorServiceOut.requestPosition(0, 0, 0, 0, 0);
     editorServiceOut.requestNoteOnAtCurrentPosition(1, 3, 64);
     editorServiceOut.setDelayOnCurrentLine(12);
 
     const auto xml = editorServiceOut.toXml();
-    EditorService editorServiceIn;
+    EditorService editorServiceIn { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
     editorServiceIn.fromXml(xml);
     QCOMPARE(editorServiceIn.song()->noteDataAtPosition({ 0, 0, 0, 0, 0 })->delay(), 12);
 
@@ -464,7 +467,7 @@ void XmlSerializationTest::test_toXmlFromXml_noteData_delay_shouldSaveAndLoadDel
 
 void XmlSerializationTest::test_toXmlFromXml_noteData_noteOff()
 {
-    EditorService editorServiceOut;
+    EditorService editorServiceOut { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
 
     editorServiceOut.requestPosition(0, 0, 0, 0, 0);
     editorServiceOut.requestNoteOffAtCurrentPosition();
@@ -477,7 +480,7 @@ void XmlSerializationTest::test_toXmlFromXml_noteData_noteOff()
 
     const auto xml = editorServiceOut.toXml();
 
-    EditorService editorServiceIn;
+    EditorService editorServiceIn { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
     editorServiceIn.fromXml(xml);
 
     auto noteData = editorServiceIn.song()->noteDataAtPosition({ 0, 0, 0, 0, 0 });
@@ -501,7 +504,7 @@ void XmlSerializationTest::test_toXmlFromXml_noteData_noteOff()
 
 void XmlSerializationTest::test_toXmlFromXml_instrument_shouldParseInstrument()
 {
-    EditorService editorServiceOut;
+    EditorService editorServiceOut { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
 
     // Set up the instrument with all possible properties
     const auto instrumentOut = std::make_shared<Instrument>("Test Port");
@@ -522,7 +525,7 @@ void XmlSerializationTest::test_toXmlFromXml_instrument_shouldParseInstrument()
     const auto xml = editorServiceOut.toXml();
 
     // Deserialize from XML
-    EditorService editorServiceIn;
+    EditorService editorServiceIn { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
     editorServiceIn.fromXml(xml);
 
     // Retrieve the instrument
@@ -549,13 +552,13 @@ void XmlSerializationTest::test_toXmlFromXml_instrument_shouldParseInstrument()
 
 void XmlSerializationTest::test_toXmlFromXml_addTrack_shouldLoadSong()
 {
-    EditorService editorServiceOut;
+    EditorService editorServiceOut { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
     editorServiceOut.requestPosition(0, 0, 0, 0, 0);
     editorServiceOut.requestNewTrackToRight();
 
     const auto xml = editorServiceOut.toXml();
 
-    EditorService editorServiceIn;
+    EditorService editorServiceIn { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
     editorServiceIn.fromXml(xml);
 
     QCOMPARE(editorServiceIn.trackCount(), editorServiceOut.trackCount());
@@ -564,13 +567,13 @@ void XmlSerializationTest::test_toXmlFromXml_addTrack_shouldLoadSong()
 
 void XmlSerializationTest::test_toXmlFromXml_removeTrack_shouldLoadSong()
 {
-    EditorService editorServiceOut;
+    EditorService editorServiceOut { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
     editorServiceOut.requestPosition(0, 0, 0, 0, 0);
     editorServiceOut.requestTrackDeletion();
 
     const auto xml = editorServiceOut.toXml();
 
-    EditorService editorServiceIn;
+    EditorService editorServiceIn { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
     editorServiceIn.fromXml(xml);
 
     QCOMPARE(editorServiceIn.trackCount(), editorServiceOut.trackCount());
@@ -579,12 +582,12 @@ void XmlSerializationTest::test_toXmlFromXml_removeTrack_shouldLoadSong()
 
 void XmlSerializationTest::test_toXmlFromXml_template_shouldLoadTemplate()
 {
-    EditorService editorServiceOut;
+    EditorService editorServiceOut { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
     editorServiceOut.setPatternAtSongPosition(0, 15);
 
     const auto xml = editorServiceOut.toXmlAsTemplate();
 
-    EditorService editorServiceIn;
+    EditorService editorServiceIn { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
     editorServiceIn.fromXml(xml);
 
     QCOMPARE(editorServiceIn.patternAtSongPosition(0), 0);
@@ -593,10 +596,10 @@ void XmlSerializationTest::test_toXmlFromXml_template_shouldLoadTemplate()
 
 void XmlSerializationTest::test_toXmlFromXml_differentSongs_shouldLoadSongs()
 {
-    EditorService editorServiceOut;
+    EditorService editorServiceOut { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
     auto xml = editorServiceOut.toXml();
 
-    EditorService editorServiceIn;
+    EditorService editorServiceIn { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
     editorServiceIn.fromXml(xml);
 
     QCOMPARE(editorServiceIn.patternAtSongPosition(0), 0);
@@ -610,7 +613,7 @@ void XmlSerializationTest::test_toXmlFromXml_differentSongs_shouldLoadSongs()
     QCOMPARE(editorServiceIn.patternAtSongPosition(0), 15);
     QCOMPARE(editorServiceIn.patternCount(), 2);
 
-    EditorService editorServiceOut2;
+    EditorService editorServiceOut2 { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
     xml = editorServiceOut2.toXml();
 
     editorServiceIn.fromXml(xml);

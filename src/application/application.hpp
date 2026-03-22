@@ -126,13 +126,16 @@ private:
     std::shared_ptr<SettingsService> m_settingsService;
 
     std::shared_ptr<SelectionService> m_selectionService;
+
+    std::shared_ptr<UtilService> m_utilService;
+    std::shared_ptr<PropertyService> m_propertyService;
+    std::shared_ptr<AutomationService> m_automationService;
+
     std::shared_ptr<EditorService> m_editorService;
 
     std::shared_ptr<JackService> m_jackService;
 
     std::shared_ptr<AudioService> m_audioService;
-
-    std::shared_ptr<AutomationService> m_automationService;
 
     std::shared_ptr<EventSelectionModel> m_eventSelectionModel;
 
@@ -156,9 +159,6 @@ private:
     std::unique_ptr<TrackSettingsModel> m_trackSettingsModel;
     std::unique_ptr<MidiSettingsModel> m_midiSettingsModel;
     std::unique_ptr<AudioSettingsModel> m_audioSettingsModel;
-
-    std::shared_ptr<UtilService> m_utilService;
-    std::shared_ptr<PropertyService> m_propertyService;
 
     std::shared_ptr<NoteColumnLineContainerHelper> m_noteColumnLineContainerHelper;
     std::unique_ptr<NoteColumnModelHandler> m_noteColumnModelHandler;

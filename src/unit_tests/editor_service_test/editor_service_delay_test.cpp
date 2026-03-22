@@ -15,6 +15,8 @@
 
 #include "editor_service_delay_test.hpp"
 
+#include "../../application/service/automation_service.hpp"
+#include "../../application/service/property_service.hpp"
 #include "../../application/service/editor_service.hpp"
 #include "../../domain/note_data.hpp"
 #include "../../domain/song.hpp"
@@ -27,7 +29,7 @@ namespace noteahead {
 
 void EditorServiceDelayTest::test_requestDigitSetAtCurrentPosition_shouldSetDelay_whenAtDelayColumn()
 {
-    EditorService editorService;
+    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
     editorService.requestNewTrackToRight(); // Ensure we have a track
     editorService.requestNewColumn(0);      // Ensure we have a column
 
@@ -59,7 +61,7 @@ void EditorServiceDelayTest::test_requestDigitSetAtCurrentPosition_shouldSetDela
 
 void EditorServiceDelayTest::test_cursorNavigation_shouldIncludeDelayColumns()
 {
-    EditorService editorService;
+    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
     editorService.requestNewTrackToRight();
 
     // Start at note column
