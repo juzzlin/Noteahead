@@ -32,7 +32,9 @@ Item {
         _patternIndex = patternIndex;
         _trackIndex = trackIndex;
         _index = columnIndex;
-        _listView = listViewComponent.createObject(rootItem);
+        if (!_listView) {
+            _listView = listViewComponent.createObject(rootItem);
+        }
         _listView.model = noteColumnModelHandler.columnModel(_patternIndex, _trackIndex, _index);
         _scrollOffset = editorService.position.line;
         _lastTriggeredLine = -1;

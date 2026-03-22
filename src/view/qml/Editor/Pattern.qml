@@ -5,10 +5,12 @@ Item {
     property int _index: 0
     property var _tracks: []
     property var _positionBar
+    property bool _dirty: false
     readonly property string _tag: "Pattern"
     function createTracks(positionBar: var, trackAreaWidth: int, trackAreaHeight: int): void {
         _positionBar = positionBar
-        _tracks.length = 0;
+        _clearTracks();
+        const unitWidth = trackAreaWidth / editorService.visibleUnitCount();
         for (let trackIndex of editorService.trackIndices()) {
             const track = trackComponent.createObject(this);
             if (track) {
@@ -18,52 +20,17 @@ Item {
                 track.nameChanged.connect(name => {
                     editorService.setTrackName(trackIndex, name);
                 });
+                track.setDimensions(trackAreaWidth, trackAreaHeight, unitWidth);
                 track.updateData();
                 _tracks.push(track);
                 uiLogger.trace(_tag, `Added track index=${trackIndex}, width=${track.width}, height=${track.height}, x=${track.x}, y=${track.y}`);
             }
         }
-        updateTrackDimensions(trackAreaWidth, trackAreaHeight);
         updateColumnHeaders();
     }
-    function addTrack(trackIndex: int): var {
-        const track = trackComponent.createObject(this);
-        if (track) {
-            track.setLocation(_index, trackIndex);
-            track.setName(editorService.trackName(trackIndex));
-            track.setPositionBar(_positionBar);
-            track.nameChanged.connect(name => {
-                editorService.setTrackName(trackIndex, name);
-            });
-            track.updateData();
-            const position = editorService.trackPositionByIndex(trackIndex);
-            _tracks.splice(position, 0, track);
-            uiLogger.trace(_tag, `Added track index=${trackIndex} at position=${position}`);
-            return track;
-        }
-        return null;
-    }
-    function addColumn(trackIndex: int): void {
-        const track = trackByIndex(trackIndex);
-        if (track) {
-            track.addColumn();
-        }
-    }
-    function deleteColumn(trackIndex: int): void {
-        const track = trackByIndex(trackIndex);
-        if (track) {
-            track.deleteColumn();
-        }
-    }
-    function deleteTrack(trackIndex: int): void {
-        const track = trackByIndex(trackIndex);
-        if (track) {
-            _tracks = _tracks.filter(t => t !== track); // Remove the track from the array
-            track.destroy(); // Destroy the track object
-            uiLogger.debug(_tag, `Deleted track index=${trackIndex}`);
-        } else {
-            uiLogger.error(_tag, `No such track: index=${trackIndex}`);
-        }
+    function _clearTracks(): void {
+        _tracks.forEach(track => track.destroy());
+        _tracks.length = 0;
     }
     function index(): int {
         return _index;
