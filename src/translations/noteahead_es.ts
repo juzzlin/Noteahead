@@ -3368,6 +3368,14 @@
         <translation>Profundidad de voces</translation>
     </message>
     <message>
+        <source>Phase Randomness</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>How random each note&apos;s starting phases are. 100% starts every voice somewhere new, so notes of a unison stack differ in loudness; 0% starts every note from the same spread, so each is as loud as the next.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Portamento</source>
         <translation>Portamento</translation>
     </message>
@@ -10379,6 +10387,14 @@ Un apóstrofo marca la sílaba tónica: A&apos;merica</translation>
     <message>
         <source>Voice Depth</source>
         <translation>Profundidad de voces</translation>
+    </message>
+    <message>
+        <source>Phase Randomness</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>How random each note&apos;s starting phases are. 100% starts every voice somewhere new, so notes of a unison stack differ in loudness; 0% starts every note from the same spread, so each is as loud as the next.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Portamento</source>
