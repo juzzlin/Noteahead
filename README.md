@@ -82,9 +82,10 @@ All Arctic Music Project songs:
 - MIDI CC automation
   - Select lines and add automation on the desired controller
   - Linear interpolation
-  - Sine wave interpolation (since 1.0.0+)
-- Pitch Bend automation (linear interpolation)  
+  - Sine wave (since 1.0.0+) and Random modulation (since 1.8.0+)
+- Pitch Bend automation
   - Select lines and add automation on pitch bend
+  - Linear, Sine wave, and Random modulation (since 1.8.0+)
 - Chord automation (since 1.2.0)
   - In Column Settings the user can set offsets for three notes that are relative to the root note
 - Step record / play notes via a MIDI controller (since 0.10.0)
