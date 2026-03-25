@@ -5,15 +5,28 @@ Release date:
 
 New features:
 
+Bug fixes:
+
+Other:
+
+1.8.1
+=====
+
+Release date:
+
+Wed, 25 Mar 2026 21:59:27 +0200
+
+New features:
+
 * Apply track cut/copy/paste also for MIDI CC and PB automations
 
 * Implement Random modulation for MIDI CC automations
 
 * Implement Random modulation for pitch bend automations
 
-Bug fixes:
-
 Other:
+
+* Calculate CC/PB modulation amplitudes from the full/half range
 
 * Optimize track and column creation
 
