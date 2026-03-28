@@ -32,7 +32,7 @@ namespace noteahead {
 static const auto TAG = "MidiService";
 
 MidiService::MidiService(DeviceServiceS deviceService, QObject * parent)
-  : MidiService(std::move(deviceService), parent, true)
+  : MidiService { std::move(deviceService), parent, true }
 {
 }
 
@@ -197,8 +197,8 @@ void MidiService::stopAllNotes()
 {
     if (m_deviceService) {
         m_deviceService->processMidiAllNotesOff();
-        for (const auto & name : m_deviceService->internalDeviceNamesQt()) {
-            m_deviceService->processMidiCc(name, static_cast<uint8_t>(MidiCcMapping::Controller::ResetAllControllers), 127, 0);
+        for (auto && name : m_deviceService->internalDeviceNames()) {
+            m_deviceService->processMidiCc(name.c_str(), static_cast<uint8_t>(MidiCcMapping::Controller::ResetAllControllers), 127, 0);
         }
     }
 }
