@@ -68,6 +68,8 @@ private slots:
     void test_trackByName_shouldReturnTrack();
     void test_columnByName_shouldReturnColumn();
 
+    void test_transposePattern_drumTrackSet_shouldNotTransposeDrumTrack();
+
     void test_duration_skippedPattern_shouldReturnCorrectDuration();
 
     void test_deleteUnusedPatterns_shouldRemoveUnusedPatterns();

@@ -621,6 +621,23 @@ void XmlSerializationTest::test_toXmlFromXml_differentSongs_shouldLoadSongs()
     QCOMPARE(editorServiceIn.patternCount(), 1);
 }
 
+void XmlSerializationTest::test_toXmlFromXml_trackDrumTrack_shouldLoadTrackDrumTrack()
+{
+    EditorService editorServiceOut { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
+    auto instrument = std::make_shared<Instrument>("");
+    auto settings = instrument->settings();
+    settings.drumTrack = true;
+    instrument->setSettings(settings);
+    editorServiceOut.setInstrument(0, instrument);
+
+    const auto xml = editorServiceOut.toXml();
+
+    EditorService editorServiceIn { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
+    editorServiceIn.fromXml(xml);
+
+    QCOMPARE(editorServiceIn.instrument(0)->settings().drumTrack, true);
+}
+
 } // namespace noteahead
 
 QTEST_GUILESS_MAIN(noteahead::XmlSerializationTest)

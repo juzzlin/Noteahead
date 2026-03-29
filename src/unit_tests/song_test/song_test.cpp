@@ -908,6 +908,47 @@ void SongTest::test_renderToEvents_midiSideChain_shouldClampAttackEvents()
     QVERIFY(targetEventFound);
 }
 
+void SongTest::test_transposePattern_drumTrackSet_shouldNotTransposeDrumTrack()
+{
+    Song song;
+    
+    // Setup Track 0 as Drum Track
+    auto drumInstrument = std::make_shared<Instrument>("");
+    auto drumSettings = drumInstrument->settings();
+    drumSettings.drumTrack = true;
+    drumInstrument->setSettings(drumSettings);
+    song.setInstrument(0, drumInstrument);
+    
+    // Setup Track 1 as normal track
+    auto normalInstrument = std::make_shared<Instrument>("");
+    song.setInstrument(1, normalInstrument);
+
+    // Add note to Track 0 (should NOT be transposed)
+    const Position pos0 = { 0, 0, 0, 0, 0 };
+    song.noteDataAtPosition(pos0)->setAsNoteOn(60, 100);
+
+    // Add note to Track 1 (should be transposed)
+    const Position pos1 = { 0, 1, 0, 0, 0 };
+    song.noteDataAtPosition(pos1)->setAsNoteOn(60, 100);
+
+    // Transpose pattern by 1 semitone
+    const auto changes = song.transposePattern({ 0, 0, 0, 0, 0 }, 1);
+
+    // Check results
+    // pos0 (Drum Track) should NOT be in changes
+    const auto it0 = std::find_if(changes.begin(), changes.end(), [&](auto && change) {
+        return change.position == pos0;
+    });
+    QVERIFY(it0 == changes.end());
+
+    // pos1 (Normal Track) SHOULD be in changes
+    const auto it1 = std::find_if(changes.begin(), changes.end(), [&](auto && change) {
+        return change.position == pos1;
+    });
+    QVERIFY(it1 != changes.end());
+    QCOMPARE(it1->newNoteData.note().value(), 61);
+}
+
 void SongTest::test_duration_skippedPattern_shouldReturnCorrectDuration()
 {
     Song song;

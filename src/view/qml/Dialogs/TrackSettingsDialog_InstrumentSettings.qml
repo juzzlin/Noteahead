@@ -19,6 +19,7 @@ ColumnLayout {
         enablePatchCheckbox.checked = trackSettingsModel.patchEnabled;
         patchSpinBox.value = trackSettingsModel.patch;
         transposeSpinBox.value = trackSettingsModel.transpose;
+        drumTrackCheckbox.checked = trackSettingsModel.drumTrack;
         velocityKeyTrackSpinBox.value = trackSettingsModel.velocityKeyTrack;
         velocityKeyTrackOffsetSpinBox.value = trackSettingsModel.velocityKeyTrackOffset;
     }
@@ -256,6 +257,19 @@ ColumnLayout {
                     ToolTip.text: qsTr("Set transposition for MIDI notes on this channel in semitones")
                     onValueModified: trackSettingsModel.transpose = value
                     Keys.onReturnPressed: focus = false
+                }
+                CheckBox {
+                    id: drumTrackCheckbox
+                    text: qsTr("Drum track")
+                    Layout.column: 4
+                    Layout.columnSpan: 5
+                    Layout.row: 5
+                    Layout.fillWidth: true
+                    ToolTip.delay: Constants.toolTipDelay
+                    ToolTip.timeout: Constants.toolTipTimeout
+                    ToolTip.visible: hovered
+                    ToolTip.text: qsTr("When enabled, the track will not be transposed by pattern-wide transpose commands")
+                    onCheckedChanged: trackSettingsModel.drumTrack = checked
                 }
             }
         }

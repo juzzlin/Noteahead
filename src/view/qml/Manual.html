@@ -59,6 +59,7 @@
 <p>Each track in Noteahead represents one MIDI instrument. While you can change patches on-the-fly, the track-based approach keeps your sequence organized.</p>
 <ul>
     <li><strong>Track Settings</strong>: Set the MIDI port, channel, bank, patch, volume, pan, and cutoff.</li>
+    <li><strong>Drum track</strong>: When enabled in Track Settings, the track is excluded from pattern-wide transposition commands. This is useful for tracks triggering drum kits where transposition would change the instrument instead of the pitch.</li>
     <li><strong>Note Columns</strong>: Use the <code>[+]</code> and <code>[-]</code> buttons in the track header to manage multiple note columns per track, allowing for polyphonic sequencing or complex layered parts.</li>
     <li><strong>Velocity Scaling</strong>: Velocity is calculated as the product of track scale, column scale, and individual note velocity.</li>
 </ul>

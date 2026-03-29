@@ -48,6 +48,8 @@ public:
 
     int transpose { 0 };
 
+    bool drumTrack = false;
+
     struct TimingSettings
     {
         std::optional<bool> sendMidiClock;

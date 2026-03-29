@@ -22,6 +22,7 @@
 #include "../contrib/SimpleLogger/src/simple_logger.hpp"
 #include "../domain/note_data.hpp"
 #include "column_settings.hpp"
+#include "instrument.hpp"
 #include "track.hpp"
 
 #include <QXmlStreamWriter>
@@ -375,6 +376,9 @@ NoteChangeList Pattern::transposePattern(const Position & position, int semitone
 {
     NoteChangeList changes;
     for (const auto & track : m_trackOrder) {
+        if (track->instrument() && track->instrument()->settings().drumTrack) {
+            continue;
+        }
         auto trackPosition = position;
         trackPosition.track = track->index(); // Need to set track because these positions will be returned back as changed positions.
         auto trackChanges = track->transposeTrack(trackPosition, semitones);

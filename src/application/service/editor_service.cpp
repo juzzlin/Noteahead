@@ -621,7 +621,7 @@ QString EditorService::trackName(quint64 trackIndex) const
 
 void EditorService::setTrackName(quint64 trackIndex, QString name)
 {
-    if (m_song->trackName(trackIndex) != name.toStdString()) {
+    if (trackName(trackIndex) != name) {
         m_song->setTrackName(trackIndex, name.toStdString());
         emit trackNameChanged();
         setIsModified(true);

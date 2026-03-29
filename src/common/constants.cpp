@@ -214,6 +214,11 @@ QString xmlKeyTranspose()
     return "transpose";
 }
 
+QString xmlKeyDrumTrack()
+{
+    return "drumTrack";
+}
+
 QString xmlKeyVelocityJitter()
 {
     return "velocityJitter";

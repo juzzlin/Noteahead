@@ -25,7 +25,6 @@
 
 namespace noteahead {
 
-class EditorService;
 class Instrument;
 
 class TrackSettingsModel : public QObject
@@ -57,6 +56,7 @@ class TrackSettingsModel : public QObject
     Q_PROPERTY(int velocityKeyTrackOffset READ velocityKeyTrackOffset WRITE setVelocityKeyTrackOffset NOTIFY velocityKeyTrackOffsetChanged)
     Q_PROPERTY(int autoNoteOffOffset READ autoNoteOffOffset WRITE setAutoNoteOffOffset NOTIFY autoNoteOffOffsetChanged)
     Q_PROPERTY(bool autoNoteOffOffsetEnabled READ autoNoteOffOffsetEnabled WRITE setAutoNoteOffOffsetEnabled NOTIFY autoNoteOffOffsetEnabledChanged)
+    Q_PROPERTY(bool drumTrack READ drumTrack WRITE setDrumTrack NOTIFY drumTrackChanged)
     
     Q_PROPERTY(MidiCcSelectionModel* midiCcModel READ midiCcModel CONSTANT)
 
@@ -129,6 +129,9 @@ public:
     void setAutoNoteOffOffset(int autoNoteOffOffset);
     bool autoNoteOffOffsetEnabled() const;
     void setAutoNoteOffOffsetEnabled(bool enabled);
+
+    bool drumTrack() const;
+    void setDrumTrack(bool enabled);
     
     MidiCcSelectionModel* midiCcModel() const;
 
@@ -173,6 +176,7 @@ signals:
     void velocityKeyTrackOffsetChanged();
     void autoNoteOffOffsetChanged();
     void autoNoteOffOffsetEnabledChanged();
+    void drumTrackChanged();
 
 private:
     void pushApplyDisabled();
@@ -189,6 +193,7 @@ private:
         quint8 bankMsb { 0 };
         bool bankByteOrderSwapped { false };
         int transpose { 0 };
+        bool drumTrack { false };
     };
 
     InstrumentSettings m_instrumentSettings;

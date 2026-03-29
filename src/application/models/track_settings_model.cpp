@@ -214,6 +214,7 @@ void TrackSettingsModel::setInstrumentData(const Instrument & instrument)
         setBankByteOrderSwapped(instrument.settings().bank->byteOrderSwapped);
     }
     setTranspose(instrument.settings().transpose);
+    setDrumTrack(instrument.settings().drumTrack);
 
     setSendMidiClock(instrument.settings().timing.sendMidiClock.has_value() && *instrument.settings().timing.sendMidiClock);
     setSendTransport(instrument.settings().timing.sendTransport.has_value() && *instrument.settings().timing.sendTransport);
@@ -277,6 +278,7 @@ TrackSettingsModel::InstrumentU TrackSettingsModel::toInstrument() const
     }
 
     settings.transpose = m_instrumentSettings.transpose;
+    settings.drumTrack = m_instrumentSettings.drumTrack;
 
     settings.timing.sendMidiClock = m_timingSettings.sendMidiClock;
     settings.timing.sendTransport = m_timingSettings.sendTransport;
@@ -479,6 +481,21 @@ void TrackSettingsModel::setAutoNoteOffOffsetEnabled(bool enabled)
         m_timingSettings.autoNoteOffOffsetEnabled = enabled;
         emit autoNoteOffOffsetEnabledChanged();
         applyAll();
+    }
+}
+
+bool TrackSettingsModel::drumTrack() const
+{
+    return m_instrumentSettings.drumTrack;
+}
+
+void TrackSettingsModel::setDrumTrack(bool enabled)
+{
+    juzzlin::L(TAG).debug() << "Setting drum track: " << static_cast<int>(enabled);
+
+    if (m_instrumentSettings.drumTrack != enabled) {
+        m_instrumentSettings.drumTrack = enabled;
+        emit drumTrackChanged();
     }
 }
 

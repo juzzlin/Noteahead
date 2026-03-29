@@ -44,6 +44,7 @@ void InstrumentSettings::serializeToXml(QXmlStreamWriter & writer) const
     }
 
     writer.writeAttribute(Constants::NahdXml::xmlKeyTranspose(), QString::number(transpose));
+    writer.writeAttribute(Constants::NahdXml::xmlKeyDrumTrack(), drumTrack ? Constants::NahdXml::xmlValueTrue() : Constants::NahdXml::xmlValueFalse());
 
     if (timing.sendMidiClock.has_value()) {
         writer.writeAttribute(Constants::NahdXml::xmlKeySendMidiClock(), timing.sendMidiClock.value() ? Constants::NahdXml::xmlValueTrue() : Constants::NahdXml::xmlValueFalse());
@@ -83,6 +84,7 @@ InstrumentSettings::InstrumentSettingsU InstrumentSettings::deserializeFromXml(Q
     }
 
     settings->transpose = Utils::Xml::readIntAttribute(reader, Constants::NahdXml::xmlKeyTranspose(), false).value_or(0);
+    settings->drumTrack = Utils::Xml::readBoolAttribute(reader, Constants::NahdXml::xmlKeyDrumTrack(), false).value_or(false);
 
     // Migration: Read old standard MIDI CC settings and convert to generic MIDI CC settings
     if (const auto cutoff = Utils::Xml::readUIntAttribute(reader, Constants::NahdXml::xmlKeyCutoff(), false)) {

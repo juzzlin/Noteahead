@@ -76,6 +76,7 @@ QString xmlKeyCutoff();
 
 QString xmlKeyDelay();
 QString xmlKeyTranspose();
+QString xmlKeyDrumTrack();
 
     QString xmlKeyVelocityJitter();
     QString xmlKeyVelocityKeyTrack();
