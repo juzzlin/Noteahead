@@ -579,6 +579,31 @@ void SynthTest::test_projectLoadMidiCcReset_shouldRestoreLoadedValues()
     }
 }
 
+void SynthTest::test_adsrEnvelope_shouldUpdateStepsOnSampleRateChange()
+{
+    ADSREnvelope env;
+    env.setSampleRate(44100.0);
+    env.setAttackTime(1.0); // 1 second attack
+    env.setDecayTime(1.0);
+    env.setSustainLevel(1.0);
+    env.setReleaseTime(1.0);
+
+    env.trigger();
+    // At 44.1kHz, 1 second attack means the step is 1.0 / 44100.0
+    // After 1 sample, level should be 1.0 / 44100.0
+    double val44 = env.nextSample();
+    QVERIFY(std::abs(val44 - (1.0 / 44100.0)) < 0.000001);
+
+    // Change sample rate to 96kHz
+    env.reset();
+    env.setSampleRate(96000.0);
+    env.trigger();
+
+    // Now, after 1 sample, level should be 1.0 / 96000.0
+    double val96 = env.nextSample();
+    QVERIFY(std::abs(val96 - (1.0 / 96000.0)) < 0.000001);
+}
+
 } // namespace noteahead
 
 QTEST_GUILESS_MAIN(noteahead::SynthTest)

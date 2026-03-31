@@ -39,6 +39,8 @@ public:
     void setSustainLevel(double level);
     void setReleaseTime(double seconds);
 
+    void setSampleRate(double sampleRate) override;
+
     void trigger();
     void release();
     void reset();

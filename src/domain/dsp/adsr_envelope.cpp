@@ -43,6 +43,15 @@ void ADSREnvelope::setReleaseTime(double seconds)
     calculateSteps();
 }
 
+void ADSREnvelope::setSampleRate(double sampleRate)
+{
+    if (std::abs(m_sampleRate - sampleRate) < 0.1) {
+        return;
+    }
+    DspComponent::setSampleRate(sampleRate);
+    calculateSteps();
+}
+
 void ADSREnvelope::trigger()
 {
     m_state = State::Attack;

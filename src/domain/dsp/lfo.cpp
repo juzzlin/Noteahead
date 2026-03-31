@@ -22,6 +22,9 @@ namespace noteahead {
 
 void LFO::setSampleRate(double sampleRate)
 {
+    if (std::abs(m_sampleRate - sampleRate) < 0.1) {
+        return;
+    }
     DspComponent::setSampleRate(sampleRate);
     updatePhaseStep();
 }

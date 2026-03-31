@@ -22,6 +22,9 @@ namespace noteahead {
 
 void PolyBLEPOscillator::setSampleRate(double sampleRate)
 {
+    if (std::abs(m_sampleRate - sampleRate) < 0.1) {
+        return;
+    }
     DspComponent::setSampleRate(sampleRate);
     updatePhaseStep();
 }
