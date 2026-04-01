@@ -11,6 +11,7 @@ set(SRC
     ../../application/service/side_chain_service.cpp
     ../../common/constants.cpp
     ../../common/utils.cpp
+    ../../domain/arpeggiator.cpp
     ../../domain/automation.cpp
     ../../domain/automation_location.cpp
     ../../domain/column.cpp

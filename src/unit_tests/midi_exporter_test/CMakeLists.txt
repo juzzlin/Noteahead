@@ -15,6 +15,7 @@ set(SRC
     ../../common/utils.cpp
     ../../domain/automation.cpp
     ../../domain/automation_location.cpp
+    ../../domain/arpeggiator.cpp
     ../../domain/column.cpp
     ../../domain/column_settings.cpp
     ../../domain/event.cpp

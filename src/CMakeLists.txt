@@ -54,6 +54,7 @@ set(HEADER_FILES
   common/utils.hpp
   domain/automation.hpp
   domain/automation_location.hpp
+  domain/arpeggiator.hpp
   domain/column.hpp
   domain/column_settings.hpp
   domain/event.hpp
@@ -147,6 +148,7 @@ set(SOURCE_FILES
   common/utils.cpp
   domain/automation.cpp
   domain/automation_location.cpp
+  domain/arpeggiator.cpp
   domain/column.cpp
   domain/column_settings.cpp
   domain/event.cpp

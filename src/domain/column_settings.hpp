@@ -22,6 +22,8 @@
 
 #include <QString>
 
+#include "arpeggiator.hpp"
+
 class QXmlStreamReader;
 class QXmlStreamWriter;
 
@@ -50,9 +52,11 @@ public:
         ChordNote note2;
         ChordNote note3;
 
+        Arpeggiator::Settings arpeggiator;
+
         bool isEnabled() const
         {
-            return note1.offset || note2.offset || note3.offset;
+            return note1.offset || note2.offset || note3.offset || arpeggiator.enabled;
         }
     };
 

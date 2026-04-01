@@ -115,6 +115,9 @@ void XmlSerializationTest::test_toXmlFromXml_columnSettings_shouldSaveAndLoad()
     settingsOut->chordAutomationSettings.note2.velocity = 60;
     settingsOut->chordAutomationSettings.note3.offset = 12;
     settingsOut->chordAutomationSettings.note3.velocity = 90;
+    settingsOut->chordAutomationSettings.arpeggiator.enabled = true;
+    settingsOut->chordAutomationSettings.arpeggiator.pattern = Arpeggiator::Pattern::Down;
+    settingsOut->chordAutomationSettings.arpeggiator.eventsPerBeat = 8;
     editorServiceOut.setColumnSettings(1, 0, settingsOut);
 
     const auto xml = editorServiceOut.toXml();
@@ -130,6 +133,9 @@ void XmlSerializationTest::test_toXmlFromXml_columnSettings_shouldSaveAndLoad()
     QCOMPARE(settingsIn->chordAutomationSettings.note2.velocity, settingsOut->chordAutomationSettings.note2.velocity);
     QCOMPARE(settingsIn->chordAutomationSettings.note3.offset, settingsOut->chordAutomationSettings.note3.offset);
     QCOMPARE(settingsIn->chordAutomationSettings.note3.velocity, settingsOut->chordAutomationSettings.note3.velocity);
+    QCOMPARE(settingsIn->chordAutomationSettings.arpeggiator.enabled, settingsOut->chordAutomationSettings.arpeggiator.enabled);
+    QCOMPARE(settingsIn->chordAutomationSettings.arpeggiator.pattern, settingsOut->chordAutomationSettings.arpeggiator.pattern);
+    QCOMPARE(settingsIn->chordAutomationSettings.arpeggiator.eventsPerBeat, settingsOut->chordAutomationSettings.arpeggiator.eventsPerBeat);
 }
 
 void XmlSerializationTest::test_toXmlFromXml_automationService_midiCc_shouldLoadAutomationService()

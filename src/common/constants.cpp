@@ -189,6 +189,21 @@ QString xmlKeyChordNote3Delay()
     return "chordNote3Delay";
 }
 
+QString xmlKeyArpeggiatorEnabled()
+{
+    return "arpeggiatorEnabled";
+}
+
+QString xmlKeyArpeggiatorPattern()
+{
+    return "arpeggiatorPattern";
+}
+
+QString xmlKeyArpeggiatorEventsPerBeat()
+{
+    return "arpeggiatorEventsPerBeat";
+}
+
 QString xmlKeyController()
 {
     return "controller";

@@ -43,6 +43,10 @@ void ColumnSettingsModel::reset()
     emit chordNote3OffsetChanged();
     emit chordNote3VelocityChanged();
     emit chordNote3DelayChanged();
+
+    emit arpeggiatorEnabledChanged();
+    emit arpeggiatorPatternChanged();
+    emit arpeggiatorEventsPerBeatChanged();
 }
 
 void ColumnSettingsModel::requestData()
@@ -62,6 +66,10 @@ void ColumnSettingsModel::setColumnSettings(const ColumnSettings & settings)
     const bool note3OffsetChanged = m_settings.chordAutomationSettings.note3.offset != settings.chordAutomationSettings.note3.offset;
     const bool note3VelocityChanged = m_settings.chordAutomationSettings.note3.velocity != settings.chordAutomationSettings.note3.velocity;
     const bool note3DelayChanged = m_settings.chordAutomationSettings.note3.delay != settings.chordAutomationSettings.note3.delay;
+
+    const bool arpeggiatorEnabledChanged = m_settings.chordAutomationSettings.arpeggiator.enabled != settings.chordAutomationSettings.arpeggiator.enabled;
+    const bool arpeggiatorPatternChanged = m_settings.chordAutomationSettings.arpeggiator.pattern != settings.chordAutomationSettings.arpeggiator.pattern;
+    const bool arpeggiatorEventsPerBeatChanged = m_settings.chordAutomationSettings.arpeggiator.eventsPerBeat != settings.chordAutomationSettings.arpeggiator.eventsPerBeat;
 
     m_settings = settings;
 
@@ -94,6 +102,16 @@ void ColumnSettingsModel::setColumnSettings(const ColumnSettings & settings)
     }
     if (note3DelayChanged) {
         emit chordNote3DelayChanged();
+    }
+
+    if (arpeggiatorEnabledChanged) {
+        emit this->arpeggiatorEnabledChanged();
+    }
+    if (arpeggiatorPatternChanged) {
+        emit this->arpeggiatorPatternChanged();
+    }
+    if (arpeggiatorEventsPerBeatChanged) {
+        emit this->arpeggiatorEventsPerBeatChanged();
     }
 
     emit dataReceived();
@@ -252,6 +270,45 @@ void ColumnSettingsModel::setChordNote3Delay(qint16 delay)
     if (m_settings.chordAutomationSettings.note3.delay != delay) {
         m_settings.chordAutomationSettings.note3.delay = delay;
         emit chordNote3DelayChanged();
+    }
+}
+
+bool ColumnSettingsModel::arpeggiatorEnabled() const
+{
+    return m_settings.chordAutomationSettings.arpeggiator.enabled;
+}
+
+void ColumnSettingsModel::setArpeggiatorEnabled(bool enabled)
+{
+    if (m_settings.chordAutomationSettings.arpeggiator.enabled != enabled) {
+        m_settings.chordAutomationSettings.arpeggiator.enabled = enabled;
+        emit arpeggiatorEnabledChanged();
+    }
+}
+
+int ColumnSettingsModel::arpeggiatorPattern() const
+{
+    return static_cast<int>(m_settings.chordAutomationSettings.arpeggiator.pattern);
+}
+
+void ColumnSettingsModel::setArpeggiatorPattern(int pattern)
+{
+    if (static_cast<int>(m_settings.chordAutomationSettings.arpeggiator.pattern) != pattern) {
+        m_settings.chordAutomationSettings.arpeggiator.pattern = static_cast<Arpeggiator::Pattern>(pattern);
+        emit arpeggiatorPatternChanged();
+    }
+}
+
+uint8_t ColumnSettingsModel::arpeggiatorEventsPerBeat() const
+{
+    return m_settings.chordAutomationSettings.arpeggiator.eventsPerBeat;
+}
+
+void ColumnSettingsModel::setArpeggiatorEventsPerBeat(uint8_t eventsPerBeat)
+{
+    if (m_settings.chordAutomationSettings.arpeggiator.eventsPerBeat != eventsPerBeat) {
+        m_settings.chordAutomationSettings.arpeggiator.eventsPerBeat = eventsPerBeat;
+        emit arpeggiatorEventsPerBeatChanged();
     }
 }
 

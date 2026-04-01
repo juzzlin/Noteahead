@@ -41,6 +41,10 @@ class ColumnSettingsModel : public QObject
     Q_PROPERTY(quint8 chordNote3Velocity READ chordNote3Velocity WRITE setChordNote3Velocity NOTIFY chordNote3VelocityChanged)
     Q_PROPERTY(qint16 chordNote3Delay READ chordNote3Delay WRITE setChordNote3Delay NOTIFY chordNote3DelayChanged)
 
+    Q_PROPERTY(bool arpeggiatorEnabled READ arpeggiatorEnabled WRITE setArpeggiatorEnabled NOTIFY arpeggiatorEnabledChanged)
+    Q_PROPERTY(int arpeggiatorPattern READ arpeggiatorPattern WRITE setArpeggiatorPattern NOTIFY arpeggiatorPatternChanged)
+    Q_PROPERTY(uint8_t arpeggiatorEventsPerBeat READ arpeggiatorEventsPerBeat WRITE setArpeggiatorEventsPerBeat NOTIFY arpeggiatorEventsPerBeatChanged)
+
 public:
     explicit ColumnSettingsModel(QObject * parent = nullptr);
     ~ColumnSettingsModel() override;
@@ -87,6 +91,15 @@ public:
     qint16 chordNote3Delay() const;
     void setChordNote3Delay(qint16 delay);
 
+    bool arpeggiatorEnabled() const;
+    void setArpeggiatorEnabled(bool enabled);
+
+    int arpeggiatorPattern() const;
+    void setArpeggiatorPattern(int pattern);
+
+    uint8_t arpeggiatorEventsPerBeat() const;
+    void setArpeggiatorEventsPerBeat(uint8_t eventsPerBeat);
+
 signals:
     void dataRequested();
     void dataReceived();
@@ -105,6 +118,10 @@ signals:
     void chordNote3OffsetChanged();
     void chordNote3VelocityChanged();
     void chordNote3DelayChanged();
+
+    void arpeggiatorEnabledChanged();
+    void arpeggiatorPatternChanged();
+    void arpeggiatorEventsPerBeatChanged();
 
     void saveRequested(quint64 trackIndex, quint64 columnIndex, const ColumnSettings & settings);
 

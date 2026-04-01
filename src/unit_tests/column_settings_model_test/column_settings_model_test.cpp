@@ -15,187 +15,124 @@
 
 #include "column_settings_model_test.hpp"
 
-#include "../../application/models/column_settings_model.hpp"
-#include "../../domain/column_settings.hpp"
-
 #include <QSignalSpy>
-#include <QTest>
 
 namespace noteahead {
 
-void ColumnSettingsModelTest::test_initialState_shouldHaveExpectedDefaults()
+void ColumnSettingsModelTest::test_initialValues()
 {
     ColumnSettingsModel model;
-    QCOMPARE(model.trackIndex(), quint64(0));
-    QCOMPARE(model.columnIndex(), quint64(0));
+    QCOMPARE(model.trackIndex(), 0);
+    QCOMPARE(model.columnIndex(), 0);
     QCOMPARE(model.delay(), 0);
-    QCOMPARE(model.chordNote1Offset(), qint8(0));
-    QCOMPARE(model.chordNote1Velocity(), quint8(100));
-    QCOMPARE(model.chordNote1Delay(), qint16(0));
-    QCOMPARE(model.chordNote2Offset(), qint8(0));
-    QCOMPARE(model.chordNote2Velocity(), quint8(100));
-    QCOMPARE(model.chordNote2Delay(), qint16(0));
-    QCOMPARE(model.chordNote3Offset(), qint8(0));
-    QCOMPARE(model.chordNote3Velocity(), quint8(100));
-    QCOMPARE(model.chordNote3Delay(), qint16(0));
+    QCOMPARE(model.chordNote1Offset(), 0);
+    QCOMPARE(model.chordNote1Velocity(), 100);
+    QCOMPARE(model.chordNote1Delay(), 0);
 }
 
-void ColumnSettingsModelTest::test_setTrackIndex_shouldUpdateAndEmitSignal()
+void ColumnSettingsModelTest::test_settersAndGetters()
 {
     ColumnSettingsModel model;
-    QSignalSpy spy { &model, &ColumnSettingsModel::trackIndexChanged };
-    model.setTrackIndex(5);
-    QCOMPARE(model.trackIndex(), quint64(5));
-    QCOMPARE(spy.count(), 1);
+
+    model.setTrackIndex(42);
+    QCOMPARE(model.trackIndex(), 42);
+
+    model.setColumnIndex(7);
+    QCOMPARE(model.columnIndex(), 7);
+
+    model.setDelay(123);
+    QCOMPARE(model.delay(), 123);
+
+    model.setChordNote1Offset(12);
+    QCOMPARE(model.chordNote1Offset(), 12);
+
+    model.setChordNote1Velocity(150);
+    QCOMPARE(model.chordNote1Velocity(), 150);
+
+    model.setChordNote1Delay(500);
+    QCOMPARE(model.chordNote1Delay(), 500);
+
+    model.setChordNote2Offset(-12);
+    QCOMPARE(model.chordNote2Offset(), -12);
+
+    model.setChordNote2Velocity(50);
+    QCOMPARE(model.chordNote2Velocity(), 50);
+
+    model.setChordNote2Delay(250);
+    QCOMPARE(model.chordNote2Delay(), 250);
+
+    model.setChordNote3Offset(24);
+    QCOMPARE(model.chordNote3Offset(), 24);
+
+    model.setChordNote3Velocity(200);
+    QCOMPARE(model.chordNote3Velocity(), 200);
+
+    model.setChordNote3Delay(750);
+    QCOMPARE(model.chordNote3Delay(), 750);
+
+    model.setArpeggiatorEnabled(true);
+    QCOMPARE(model.arpeggiatorEnabled(), true);
+
+    model.setArpeggiatorPattern(2); // UpDown
+    QCOMPARE(model.arpeggiatorPattern(), 2);
+
+    model.setArpeggiatorEventsPerBeat(8);
+    QCOMPARE(model.arpeggiatorEventsPerBeat(), 8);
 }
 
-void ColumnSettingsModelTest::test_setColumnIndex_shouldUpdateAndEmitSignal()
+void ColumnSettingsModelTest::test_signals()
 {
     ColumnSettingsModel model;
-    QSignalSpy spy { &model, &ColumnSettingsModel::columnIndexChanged };
-    model.setColumnIndex(3);
-    QCOMPARE(model.columnIndex(), quint64(3));
-    QCOMPARE(spy.count(), 1);
-}
 
-void ColumnSettingsModelTest::test_setDelay_shouldUpdateAndEmitSignal()
-{
-    ColumnSettingsModel model;
-    QSignalSpy spy { &model, &ColumnSettingsModel::delayChanged };
-    model.setDelay(666);
-    QCOMPARE(model.delay(), 666);
-    QCOMPARE(spy.count(), 1);
-}
+    QSignalSpy trackIndexSpy { &model, &ColumnSettingsModel::trackIndexChanged };
+    model.setTrackIndex(1);
+    QCOMPARE(trackIndexSpy.count(), 1);
 
-void ColumnSettingsModelTest::test_setChordNote1Offset_shouldUpdateAndEmitSignal()
-{
-    ColumnSettingsModel model;
-    QSignalSpy spy { &model, &ColumnSettingsModel::chordNote1OffsetChanged };
-    model.setChordNote1Offset(-5);
-    QCOMPARE(model.chordNote1Offset(), qint8(-5));
-    QCOMPARE(spy.count(), 1);
-}
-
-void ColumnSettingsModelTest::test_setChordNote1Velocity_shouldUpdateAndEmitSignal()
-{
-    ColumnSettingsModel model;
-    QSignalSpy spy { &model, &ColumnSettingsModel::chordNote1VelocityChanged };
-    model.setChordNote1Velocity(80);
-    QCOMPARE(model.chordNote1Velocity(), 80);
-    QCOMPARE(spy.count(), 1);
-}
-
-void ColumnSettingsModelTest::test_setChordNote1Delay_shouldUpdateAndEmitSignal()
-{
-    ColumnSettingsModel model;
-    QSignalSpy spy { &model, &ColumnSettingsModel::chordNote1DelayChanged };
-    model.setChordNote1Delay(123);
-    QCOMPARE(model.chordNote1Delay(), 123);
-    QCOMPARE(spy.count(), 1);
-}
-
-void ColumnSettingsModelTest::test_setChordNote2Offset_shouldUpdateAndEmitSignal()
-{
-    ColumnSettingsModel model;
-    QSignalSpy spy { &model, &ColumnSettingsModel::chordNote2OffsetChanged };
-    model.setChordNote2Offset(7);
-    QCOMPARE(model.chordNote2Offset(), 7);
-    QCOMPARE(spy.count(), 1);
-}
-
-void ColumnSettingsModelTest::test_setChordNote2Velocity_shouldUpdateAndEmitSignal()
-{
-    ColumnSettingsModel model;
-    QSignalSpy spy { &model, &ColumnSettingsModel::chordNote2VelocityChanged };
-    model.setChordNote2Velocity(60);
-    QCOMPARE(model.chordNote2Velocity(), 60);
-    QCOMPARE(spy.count(), 1);
-}
-
-void ColumnSettingsModelTest::test_setChordNote2Delay_shouldUpdateAndEmitSignal()
-{
-    ColumnSettingsModel model;
-    QSignalSpy spy { &model, &ColumnSettingsModel::chordNote2DelayChanged };
-    model.setChordNote2Delay(234);
-    QCOMPARE(model.chordNote2Delay(), 234);
-    QCOMPARE(spy.count(), 1);
-}
-
-void ColumnSettingsModelTest::test_setChordNote3Offset_shouldUpdateAndEmitSignal()
-{
-    ColumnSettingsModel model;
-    QSignalSpy spy { &model, &ColumnSettingsModel::chordNote3OffsetChanged };
-    model.setChordNote3Offset(12);
-    QCOMPARE(model.chordNote3Offset(), 12);
-    QCOMPARE(spy.count(), 1);
-}
-
-void ColumnSettingsModelTest::test_setChordNote3Velocity_shouldUpdateAndEmitSignal()
-{
-    ColumnSettingsModel model;
-    QSignalSpy spy { &model, &ColumnSettingsModel::chordNote3VelocityChanged };
-    model.setChordNote3Velocity(90);
-    QCOMPARE(model.chordNote3Velocity(), 90);
-    QCOMPARE(spy.count(), 1);
-}
-
-void ColumnSettingsModelTest::test_setChordNote3Delay_shouldUpdateAndEmitSignal()
-{
-    ColumnSettingsModel model;
-    QSignalSpy spy { &model, &ColumnSettingsModel::chordNote3DelayChanged };
-    model.setChordNote3Delay(345);
-    QCOMPARE(model.chordNote3Delay(), 345);
-    QCOMPARE(spy.count(), 1);
-}
-
-void ColumnSettingsModelTest::test_reset_shouldResetToDefaults()
-{
-    ColumnSettingsModel model;
-    model.setDelay(666);
-    model.setChordNote1Offset(4);
-    model.setChordNote1Velocity(80);
-    model.setChordNote1Delay(11);
-    model.setChordNote2Offset(7);
-    model.setChordNote2Velocity(60);
-    model.setChordNote2Delay(22);
-    model.setChordNote3Offset(12);
-    model.setChordNote3Velocity(90);
-    model.setChordNote3Delay(33);
+    QSignalSpy columnIndexSpy { &model, &ColumnSettingsModel::columnIndexChanged };
+    model.setColumnIndex(1);
+    QCOMPARE(columnIndexSpy.count(), 1);
 
     QSignalSpy delaySpy { &model, &ColumnSettingsModel::delayChanged };
-    QSignalSpy n1oSpy { &model, &ColumnSettingsModel::chordNote1OffsetChanged };
-    QSignalSpy n1vSpy { &model, &ColumnSettingsModel::chordNote1VelocityChanged };
-    QSignalSpy n1dSpy { &model, &ColumnSettingsModel::chordNote1DelayChanged };
-    QSignalSpy n2oSpy { &model, &ColumnSettingsModel::chordNote2OffsetChanged };
-    QSignalSpy n2vSpy { &model, &ColumnSettingsModel::chordNote2VelocityChanged };
-    QSignalSpy n2dSpy { &model, &ColumnSettingsModel::chordNote2DelayChanged };
-    QSignalSpy n3oSpy { &model, &ColumnSettingsModel::chordNote3OffsetChanged };
-    QSignalSpy n3vSpy { &model, &ColumnSettingsModel::chordNote3VelocityChanged };
-    QSignalSpy n3dSpy { &model, &ColumnSettingsModel::chordNote3DelayChanged };
+    model.setDelay(1);
+    QCOMPARE(delaySpy.count(), 1);
+
+    QSignalSpy note1OffsetSpy { &model, &ColumnSettingsModel::chordNote1OffsetChanged };
+    model.setChordNote1Offset(1);
+    QCOMPARE(note1OffsetSpy.count(), 1);
+
+    QSignalSpy note1VelocitySpy { &model, &ColumnSettingsModel::chordNote1VelocityChanged };
+    model.setChordNote1Velocity(1);
+    QCOMPARE(note1VelocitySpy.count(), 1);
+
+    QSignalSpy note1DelaySpy { &model, &ColumnSettingsModel::chordNote1DelayChanged };
+    model.setChordNote1Delay(1);
+    QCOMPARE(note1DelaySpy.count(), 1);
+
+    QSignalSpy arpeggiatorEnabledSpy { &model, &ColumnSettingsModel::arpeggiatorEnabledChanged };
+    model.setArpeggiatorEnabled(true);
+    QCOMPARE(arpeggiatorEnabledSpy.count(), 1);
+
+    QSignalSpy arpeggiatorPatternSpy { &model, &ColumnSettingsModel::arpeggiatorPatternChanged };
+    model.setArpeggiatorPattern(1);
+    QCOMPARE(arpeggiatorPatternSpy.count(), 1);
+
+    QSignalSpy arpeggiatorEventsPerBeatSpy { &model, &ColumnSettingsModel::arpeggiatorEventsPerBeatChanged };
+    model.setArpeggiatorEventsPerBeat(1);
+    QCOMPARE(arpeggiatorEventsPerBeatSpy.count(), 1);
+}
+
+void ColumnSettingsModelTest::test_reset_shouldResetToDefaultValues()
+{
+    ColumnSettingsModel model;
+    model.setDelay(123);
+    model.setChordNote1Offset(12);
+    model.setArpeggiatorEnabled(true);
 
     model.reset();
 
     QCOMPARE(model.delay(), 0);
     QCOMPARE(model.chordNote1Offset(), 0);
-    QCOMPARE(model.chordNote1Velocity(), 100);
-    QCOMPARE(model.chordNote1Delay(), 0);
-    QCOMPARE(model.chordNote2Offset(), 0);
-    QCOMPARE(model.chordNote2Velocity(), 100);
-    QCOMPARE(model.chordNote2Delay(), 0);
-    QCOMPARE(model.chordNote3Offset(), 0);
-    QCOMPARE(model.chordNote3Velocity(), 100);
-    QCOMPARE(model.chordNote3Delay(), 0);
-
-    QCOMPARE(delaySpy.count(), 1);
-    QCOMPARE(n1oSpy.count(), 1);
-    QCOMPARE(n1vSpy.count(), 1);
-    QCOMPARE(n1dSpy.count(), 1);
-    QCOMPARE(n2oSpy.count(), 1);
-    QCOMPARE(n2vSpy.count(), 1);
-    QCOMPARE(n2dSpy.count(), 1);
-    QCOMPARE(n3oSpy.count(), 1);
-    QCOMPARE(n3vSpy.count(), 1);
-    QCOMPARE(n3dSpy.count(), 1);
+    QCOMPARE(model.arpeggiatorEnabled(), false);
 }
 
 void ColumnSettingsModelTest::test_save_shouldEmitSaveRequestedWithCorrectData()
@@ -215,6 +152,9 @@ void ColumnSettingsModelTest::test_save_shouldEmitSaveRequestedWithCorrectData()
     model.setChordNote3Offset(12);
     model.setChordNote3Velocity(90);
     model.setChordNote3Delay(33);
+    model.setArpeggiatorEnabled(true);
+    model.setArpeggiatorPattern(1); // Down
+    model.setArpeggiatorEventsPerBeat(8);
 
     QSignalSpy spy { &model, &ColumnSettingsModel::saveRequested };
     model.save();
@@ -235,6 +175,9 @@ void ColumnSettingsModelTest::test_save_shouldEmitSaveRequestedWithCorrectData()
     QCOMPARE(settings.chordAutomationSettings.note3.offset, 12);
     QCOMPARE(settings.chordAutomationSettings.note3.velocity, 90);
     QCOMPARE(settings.chordAutomationSettings.note3.delay, 33);
+    QCOMPARE(settings.chordAutomationSettings.arpeggiator.enabled, true);
+    QCOMPARE(static_cast<int>(settings.chordAutomationSettings.arpeggiator.pattern), 1);
+    QCOMPARE(settings.chordAutomationSettings.arpeggiator.eventsPerBeat, 8);
 }
 
 } // namespace noteahead

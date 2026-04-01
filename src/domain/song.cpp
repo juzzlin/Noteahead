@@ -880,29 +880,78 @@ Song::EventList Song::generateChordAutomations(EventListCR events) const
     Song::EventList processedEventList;
     const double msPerTick = 60'000.0 / static_cast<double>(m_beatsPerMinute * m_linesPerBeat * m_ticksPerLine);
 
-    for (auto && event : events) {
-        processedEventList.push_back(event);
+    for (size_t eventIndex = 0; eventIndex < events.size(); ++eventIndex) {
+        auto && event = events[eventIndex];
         const auto noteData = event->noteData();
-        if (noteData.has_value()) {
-            const auto track = noteData->track();
-            const auto column = noteData->column();
-            const auto columnSettings = m_patterns.at(0)->columnSettings(track, column);
-            if (columnSettings->chordAutomationSettings.isEnabled() && noteData->note().has_value()) {
-                const auto & settings = columnSettings->chordAutomationSettings;
-                const auto rootNote = *noteData->note();
-                const auto rootVelocity = noteData->velocity();
-                auto addChordNote = [&](const ColumnSettings::ChordAutomationSettings::ChordNote & chordNote) {
-                    if (chordNote.offset != 0) {
-                        NoteData chordNoteData = *noteData;
-                        chordNoteData.setAsNoteOn(rootNote + chordNote.offset, static_cast<uint8_t>(static_cast<float>(rootVelocity) * (static_cast<float>(chordNote.velocity) / 100.f)));
-                        const auto delayTicks = std::max(0.0, static_cast<double>(chordNote.delay) / msPerTick);
-                        processedEventList.push_back(std::make_shared<Event>(event->tick() + static_cast<size_t>(delayTicks), chordNoteData));
-                    }
-                };
-                addChordNote(settings.note1);
-                addChordNote(settings.note2);
-                addChordNote(settings.note3);
+        if (!noteData.has_value() || !noteData->note().has_value() || noteData->type() != NoteData::Type::NoteOn) {
+            processedEventList.push_back(event);
+            continue;
+        }
+
+        const auto track = noteData->track();
+        const auto column = noteData->column();
+        const auto columnSettings = m_patterns.at(0)->columnSettings(track, column);
+        const auto & settings = columnSettings->chordAutomationSettings;
+
+        if (!settings.isEnabled()) {
+            processedEventList.push_back(event);
+            continue;
+        }
+
+        const auto rootNote = *noteData->note();
+        const auto rootVelocity = noteData->velocity();
+
+        std::vector<Arpeggiator::NoteInfo> chordNotes;
+        chordNotes.push_back({ rootNote, rootVelocity });
+
+        auto addChordNoteInfo = [&](const ColumnSettings::ChordAutomationSettings::ChordNote & chordNote) {
+            if (chordNote.offset != 0) {
+                const uint8_t velocity = static_cast<uint8_t>(static_cast<float>(rootVelocity) * (static_cast<float>(chordNote.velocity) / 100.f));
+                chordNotes.push_back({ static_cast<uint8_t>(rootNote + chordNote.offset), velocity });
             }
+        };
+        addChordNoteInfo(settings.note1);
+        addChordNoteInfo(settings.note2);
+        addChordNoteInfo(settings.note3);
+
+        if (settings.arpeggiator.enabled) {
+            const auto arpeggioSequence = Arpeggiator::generate(settings.arpeggiator.pattern, chordNotes);
+            const size_t ticksPerBeat = m_linesPerBeat * m_ticksPerLine;
+            const size_t ticksPerNote = ticksPerBeat / std::max(uint8_t(1), settings.arpeggiator.eventsPerBeat);
+
+            size_t nextEventTick = positionToTick(m_length);
+            for (size_t i = eventIndex + 1; i < events.size(); ++i) {
+                const auto nextNoteData = events[i]->noteData();
+                if (nextNoteData.has_value() && nextNoteData->track() == track && nextNoteData->column() == column) {
+                    nextEventTick = events[i]->tick();
+                    break;
+                }
+            }
+
+            size_t currentArpTick = event->tick();
+            size_t arpIndex = 0;
+            while (currentArpTick < nextEventTick) {
+                NoteData arpNoteData = *noteData;
+                arpNoteData.setAsNoteOn(arpeggioSequence[arpIndex % arpeggioSequence.size()].note, arpeggioSequence[arpIndex % arpeggioSequence.size()].velocity);
+                processedEventList.push_back(std::make_shared<Event>(currentArpTick, arpNoteData));
+                currentArpTick += ticksPerNote;
+                arpIndex++;
+            }
+        } else {
+            processedEventList.push_back(event);
+            auto addChordNoteEvent = [&](const ColumnSettings::ChordAutomationSettings::ChordNote & chordNote) {
+                if (chordNote.offset != 0) {
+                    NoteData chordNoteData = *noteData;
+                    const uint8_t note = static_cast<uint8_t>(rootNote + chordNote.offset);
+                    const uint8_t velocity = static_cast<uint8_t>(static_cast<float>(rootVelocity) * (static_cast<float>(chordNote.velocity) / 100.f));
+                    chordNoteData.setAsNoteOn(note, velocity);
+                    const auto delayTicks = std::max(0.0, static_cast<double>(chordNote.delay) / msPerTick);
+                    processedEventList.push_back(std::make_shared<Event>(event->tick() + static_cast<size_t>(delayTicks), chordNoteData));
+                }
+            };
+            addChordNoteEvent(settings.note1);
+            addChordNoteEvent(settings.note2);
+            addChordNoteEvent(settings.note3);
         }
     }
 

@@ -8,6 +8,8 @@ New features:
 * Implement the concept of a 'drum track'
   - Drum tracks are not transposed by pattern => transpose
 
+* Extend chord automation with an arpeggiator
+
 Bug fixes:
 
 Other:

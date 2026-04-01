@@ -1,5 +1,5 @@
 // This file is part of Noteahead.
-// Copyright (C) 2025 Jussi Lind <jussi.lind@iki.fi>
+// Copyright (C) 2026 Jussi Lind <jussi.lind@iki.fi>
 //
 // Noteahead is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -13,26 +13,26 @@
 // You should have received a copy of the GNU General Public License
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef COLUMN_SETTINGS_MODEL_TEST_HPP
-#define COLUMN_SETTINGS_MODEL_TEST_HPP
+#ifndef ARPEGGIATOR_TEST_HPP
+#define ARPEGGIATOR_TEST_HPP
 
 #include <QtTest>
-#include "../../application/models/column_settings_model.hpp"
 
 namespace noteahead {
 
-class ColumnSettingsModelTest : public QObject
+class ArpeggiatorTest : public QObject
 {
     Q_OBJECT
 
 private slots:
-    void test_initialValues();
-    void test_settersAndGetters();
-    void test_signals();
-    void test_reset_shouldResetToDefaultValues();
-    void test_save_shouldEmitSaveRequestedWithCorrectData();
+    void test_generate_singleNote_shouldReturnInput();
+    void test_generate_up_shouldSortNotes();
+    void test_generate_down_shouldSortNotesDescending();
+    void test_generate_upDown_shouldFollowPattern();
+    void test_generate_downUp_shouldFollowPattern();
+    void test_generate_random_shouldReturnPermutation();
 };
 
 } // namespace noteahead
 
-#endif // COLUMN_SETTINGS_MODEL_TEST_HPP
+#endif // ARPEGGIATOR_TEST_HPP

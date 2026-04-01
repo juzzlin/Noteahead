@@ -46,7 +46,11 @@ void ColumnSettings::serializeToXml(QXmlStreamWriter & writer) const
     writer.writeAttribute(Constants::NahdXml::xmlKeyChordNote3Velocity(), QString::number(chordAutomationSettings.note3.velocity));
     writer.writeAttribute(Constants::NahdXml::xmlKeyChordNote3Delay(), QString::number(chordAutomationSettings.note3.delay));
 
-    writer.writeEndElement();
+    writer.writeAttribute(Constants::NahdXml::xmlKeyArpeggiatorEnabled(), chordAutomationSettings.arpeggiator.enabled ? Constants::NahdXml::xmlValueTrue() : Constants::NahdXml::xmlValueFalse());
+    writer.writeAttribute(Constants::NahdXml::xmlKeyArpeggiatorPattern(), QString::number(static_cast<int>(chordAutomationSettings.arpeggiator.pattern)));
+    writer.writeAttribute(Constants::NahdXml::xmlKeyArpeggiatorEventsPerBeat(), QString::number(chordAutomationSettings.arpeggiator.eventsPerBeat));
+
+    writer.writeEndElement(); // ColumnSettings
 }
 
 ColumnSettings::ColumnSettingsU ColumnSettings::deserializeFromXml(QXmlStreamReader & reader)
@@ -66,6 +70,10 @@ ColumnSettings::ColumnSettingsU ColumnSettings::deserializeFromXml(QXmlStreamRea
     settings->chordAutomationSettings.note3.offset = Utils::Xml::readIntAttribute(reader, Constants::NahdXml::xmlKeyChordNote3Offset(), false).value_or(0);
     settings->chordAutomationSettings.note3.velocity = Utils::Xml::readUIntAttribute(reader, Constants::NahdXml::xmlKeyChordNote3Velocity(), false).value_or(100);
     settings->chordAutomationSettings.note3.delay = Utils::Xml::readIntAttribute(reader, Constants::NahdXml::xmlKeyChordNote3Delay(), false).value_or(0);
+
+    settings->chordAutomationSettings.arpeggiator.enabled = Utils::Xml::readBoolAttribute(reader, Constants::NahdXml::xmlKeyArpeggiatorEnabled(), false).value_or(false);
+    settings->chordAutomationSettings.arpeggiator.pattern = static_cast<Arpeggiator::Pattern>(Utils::Xml::readIntAttribute(reader, Constants::NahdXml::xmlKeyArpeggiatorPattern(), false).value_or(0));
+    settings->chordAutomationSettings.arpeggiator.eventsPerBeat = static_cast<uint8_t>(Utils::Xml::readUIntAttribute(reader, Constants::NahdXml::xmlKeyArpeggiatorEventsPerBeat(), false).value_or(4));
 
     return settings;
 }

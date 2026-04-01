@@ -1,14 +1,10 @@
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
-set(NAME column_settings_model_test)
+set(NAME arpeggiator_test)
 set(SRC
     ${NAME}.cpp
     ${NAME}.hpp
-    ../../application/models/column_settings_model.cpp
-    ../../application/service/random_service.cpp
     ../../domain/arpeggiator.cpp
-    ../../domain/column_settings.cpp
-    ../../common/constants.cpp
-    ../../common/utils.cpp
+    ../../application/service/random_service.cpp
 )
 qt_add_executable(${NAME} ${SRC})
 set_target_properties(${NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${UNIT_TEST_BASE_DIR})

@@ -23,6 +23,7 @@ set(SRC
     ../../application/service/copy_manager.cpp
     ../../common/constants.cpp
     ../../common/utils.cpp
+    ../../domain/arpeggiator.cpp
     ../../domain/automation.cpp
     ../../domain/automation_location.cpp
     ../../domain/column.cpp

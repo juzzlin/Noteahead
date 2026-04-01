@@ -88,6 +88,10 @@ All Arctic Music Project songs:
   - Linear, Sine wave, and Random modulation (since 1.8.0+)
 - Chord automation (since 1.2.0)
   - In Column Settings the user can set offsets for three notes that are relative to the root note
+- Arpeggiator (since 1.9.0)
+  - Extend chord automation with an arpeggiator
+  - Patterns: Up, Down, Up-Down, Down-Up, Random
+  - Adjustable events per beat (1-32)
 - Step record / play notes via a MIDI controller (since 0.10.0)
   - The MIDI controller is routed to the instrument of the selected track
 - Highly adjustable note-off's (global default in ms, per-instrument in ms, manual)

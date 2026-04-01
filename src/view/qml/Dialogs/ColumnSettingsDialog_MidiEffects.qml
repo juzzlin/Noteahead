@@ -248,5 +248,47 @@ GroupBox {
                 onClicked: columnSettingsModel.reset()
             }
         }
+        LayoutSeparator {
+            Layout.fillWidth: true
+        }
+        GridLayout {
+            columns: 6
+            width: parent.width
+            Layout.fillWidth: true
+            CheckBox {
+                id: arpeggiatorEnabledCheckBox
+                text: qsTr("Enable Arpeggiator")
+                checked: columnSettingsModel.arpeggiatorEnabled
+                onCheckedChanged: columnSettingsModel.arpeggiatorEnabled = checked
+                Layout.columnSpan: 2
+            }
+            Label {
+                text: qsTr("Pattern:")
+                enabled: arpeggiatorEnabledCheckBox.checked
+            }
+            ComboBox {
+                id: arpeggiatorPatternComboBox
+                model: [qsTr("Up"), qsTr("Down"), qsTr("Up-Down"), qsTr("Down-Up"), qsTr("Random")]
+                currentIndex: columnSettingsModel.arpeggiatorPattern
+                enabled: arpeggiatorEnabledCheckBox.checked
+                onActivated: index => columnSettingsModel.arpeggiatorPattern = index
+                Layout.fillWidth: true
+            }
+            Label {
+                text: qsTr("Events per beat:")
+                enabled: arpeggiatorEnabledCheckBox.checked
+            }
+            SpinBox {
+                id: arpeggiatorEventsPerBeatSpinBox
+                from: 1
+                to: 32
+                value: columnSettingsModel.arpeggiatorEventsPerBeat
+                enabled: arpeggiatorEnabledCheckBox.checked
+                editable: true
+                Keys.onReturnPressed: focus = false
+                onValueModified: columnSettingsModel.arpeggiatorEventsPerBeat = value
+                Layout.fillWidth: true
+            }
+        }
     }
 }

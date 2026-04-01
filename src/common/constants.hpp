@@ -68,6 +68,9 @@ QString xmlKeyChordNote2Delay();
 QString xmlKeyChordNote3Offset();
 QString xmlKeyChordNote3Velocity();
 QString xmlKeyChordNote3Delay();
+QString xmlKeyArpeggiatorEnabled();
+QString xmlKeyArpeggiatorPattern();
+QString xmlKeyArpeggiatorEventsPerBeat();
 
 QString xmlKeyController();
 QString xmlKeyEnabled();

@@ -1,5 +1,5 @@
 // This file is part of Noteahead.
-// Copyright (C) 2025 Jussi Lind <jussi.lind@iki.fi>
+// Copyright (C) 2026 Jussi Lind <jussi.lind@iki.fi>
 //
 // Noteahead is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -13,26 +13,43 @@
 // You should have received a copy of the GNU General Public License
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef COLUMN_SETTINGS_MODEL_TEST_HPP
-#define COLUMN_SETTINGS_MODEL_TEST_HPP
+#ifndef ARPEGGIATOR_HPP
+#define ARPEGGIATOR_HPP
 
-#include <QtTest>
-#include "../../application/models/column_settings_model.hpp"
+#include <cstdint>
+#include <vector>
 
 namespace noteahead {
 
-class ColumnSettingsModelTest : public QObject
+class Arpeggiator
 {
-    Q_OBJECT
+public:
+    enum class Pattern
+    {
+        Up,
+        Down,
+        UpDown,
+        DownUp,
+        Random
+    };
 
-private slots:
-    void test_initialValues();
-    void test_settersAndGetters();
-    void test_signals();
-    void test_reset_shouldResetToDefaultValues();
-    void test_save_shouldEmitSaveRequestedWithCorrectData();
+    struct Settings
+    {
+        bool enabled = false;
+        Pattern pattern = Pattern::Up;
+        uint8_t eventsPerBeat = 4;
+    };
+
+    struct NoteInfo
+    {
+        uint8_t note = 0;
+        uint8_t velocity = 0;
+    };
+
+    using NoteInfoList = std::vector<NoteInfo>;
+    static NoteInfoList generate(Pattern pattern, const NoteInfoList & inputNotes);
 };
 
 } // namespace noteahead
 
-#endif // COLUMN_SETTINGS_MODEL_TEST_HPP
+#endif // ARPEGGIATOR_HPP
