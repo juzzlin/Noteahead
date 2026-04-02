@@ -10,6 +10,8 @@ New features:
 
 * Extend chord automation with an arpeggiator
 
+* Make velocity interpolation dialog remember the previous values
+
 Bug fixes:
 
 Other:

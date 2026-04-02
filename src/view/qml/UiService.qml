@@ -264,6 +264,12 @@ QtObject {
         uiLogger.info("UiService", "Confirming unused pattern deletion");
         deleteUnusedPatternsConfirmed();
     }
+    property int interpolationStartLine: 0
+    property int interpolationEndLine: 0
+    property int interpolationStartValue: 0
+    property int interpolationEndValue: 100
+    property bool interpolationUsePercentages: false
+
     signal quitRequested
     function requestQuit(): void {
         quitRequested();

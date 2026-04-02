@@ -261,19 +261,40 @@ ApplicationWindow {
         id: columnVelocityInterpolationDialog
         anchors.centerIn: parent
         width: parent.width * Constants.defaultDialogScale
-        onAccepted: editorService.requestLinearVelocityInterpolationOnColumn(startLine(), endLine(), startValue(), endValue(), usePercentages())
+        onAccepted: {
+            UiService.interpolationStartLine = startLine();
+            UiService.interpolationEndLine = endLine();
+            UiService.interpolationStartValue = startValue();
+            UiService.interpolationEndValue = endValue();
+            UiService.interpolationUsePercentages = usePercentages();
+            editorService.requestLinearVelocityInterpolationOnColumn(startLine(), endLine(), startValue(), endValue(), usePercentages());
+        }
     }
     InterpolationDialog {
         id: trackVelocityInterpolationDialog
         anchors.centerIn: parent
         width: parent.width * Constants.defaultDialogScale
-        onAccepted: editorService.requestLinearVelocityInterpolationOnTrack(startLine(), endLine(), startValue(), endValue(), usePercentages())
+        onAccepted: {
+            UiService.interpolationStartLine = startLine();
+            UiService.interpolationEndLine = endLine();
+            UiService.interpolationStartValue = startValue();
+            UiService.interpolationEndValue = endValue();
+            UiService.interpolationUsePercentages = usePercentages();
+            editorService.requestLinearVelocityInterpolationOnTrack(startLine(), endLine(), startValue(), endValue(), usePercentages());
+        }
     }
     InterpolationDialog {
         id: selectionVelocityInterpolationDialog
         anchors.centerIn: parent
         width: parent.width * Constants.defaultDialogScale
-        onAccepted: editorService.requestLinearVelocityInterpolationOnSelection(startLine(), endLine(), startValue(), endValue(), usePercentages())
+        onAccepted: {
+            UiService.interpolationStartLine = startLine();
+            UiService.interpolationEndLine = endLine();
+            UiService.interpolationStartValue = startValue();
+            UiService.interpolationEndValue = endValue();
+            UiService.interpolationUsePercentages = usePercentages();
+            editorService.requestLinearVelocityInterpolationOnSelection(startLine(), endLine(), startValue(), endValue(), usePercentages());
+        }
     }
     AddMidiCcAutomationDialog {
         id: addMidiCcAutomationDialog
@@ -419,26 +440,39 @@ ApplicationWindow {
         });
         UiService.columnVelocityInterpolationDialogRequested.connect(() => {
             columnVelocityInterpolationDialog.setTitle(qsTr("Interpolate velocity"));
-            columnVelocityInterpolationDialog.setStartLine(0);
-            columnVelocityInterpolationDialog.setEndLine(editorService.currentLineCount - 1);
-            columnVelocityInterpolationDialog.setStartValue(0);
-            columnVelocityInterpolationDialog.setEndValue(100);
+            if (UiService.interpolationEndLine === 0) {
+                UiService.interpolationEndLine = editorService.currentLineCount - 1;
+            }
+            columnVelocityInterpolationDialog.setStartLine(UiService.interpolationStartLine);
+            columnVelocityInterpolationDialog.setEndLine(UiService.interpolationEndLine);
+            columnVelocityInterpolationDialog.setStartValue(UiService.interpolationStartValue);
+            columnVelocityInterpolationDialog.setEndValue(UiService.interpolationEndValue);
+            columnVelocityInterpolationDialog.setUsePercentages(UiService.interpolationUsePercentages);
             columnVelocityInterpolationDialog.open();
         });
         UiService.selectionVelocityInterpolationDialogRequested.connect(() => {
             selectionVelocityInterpolationDialog.setTitle(qsTr("Interpolate velocity"));
-            selectionVelocityInterpolationDialog.setStartLine(selectionService.minLine());
-            selectionVelocityInterpolationDialog.setEndLine(selectionService.maxLine());
-            selectionVelocityInterpolationDialog.setStartValue(0);
-            selectionVelocityInterpolationDialog.setEndValue(100);
+            if (UiService.interpolationEndLine === 0) {
+                UiService.interpolationStartLine = selectionService.minLine();
+                UiService.interpolationEndLine = selectionService.maxLine();
+            }
+            selectionVelocityInterpolationDialog.setStartLine(UiService.interpolationStartLine);
+            selectionVelocityInterpolationDialog.setEndLine(UiService.interpolationEndLine);
+            selectionVelocityInterpolationDialog.setStartValue(UiService.interpolationStartValue);
+            selectionVelocityInterpolationDialog.setEndValue(UiService.interpolationEndValue);
+            selectionVelocityInterpolationDialog.setUsePercentages(UiService.interpolationUsePercentages);
             selectionVelocityInterpolationDialog.open();
         });
         UiService.trackVelocityInterpolationDialogRequested.connect(() => {
             trackVelocityInterpolationDialog.setTitle(qsTr("Interpolate velocity"));
-            trackVelocityInterpolationDialog.setStartLine(0);
-            trackVelocityInterpolationDialog.setEndLine(editorService.currentLineCount - 1);
-            trackVelocityInterpolationDialog.setStartValue(0);
-            trackVelocityInterpolationDialog.setEndValue(100);
+            if (UiService.interpolationEndLine === 0) {
+                UiService.interpolationEndLine = editorService.currentLineCount - 1;
+            }
+            trackVelocityInterpolationDialog.setStartLine(UiService.interpolationStartLine);
+            trackVelocityInterpolationDialog.setEndLine(UiService.interpolationEndLine);
+            trackVelocityInterpolationDialog.setStartValue(UiService.interpolationStartValue);
+            trackVelocityInterpolationDialog.setEndValue(UiService.interpolationEndValue);
+            trackVelocityInterpolationDialog.setUsePercentages(UiService.interpolationUsePercentages);
             trackVelocityInterpolationDialog.open();
         });
         UiService.lineDelayDialogRequested.connect(() => {

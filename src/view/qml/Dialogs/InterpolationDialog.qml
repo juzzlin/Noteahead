@@ -20,11 +20,14 @@ Dialog {
     function setStartValue(value) {
         startValueSpinBox.value = value;
     }
-    function endValue(value) {
+    function endValue() {
         return endValueSpinBox.value;
     }
     function setEndValue(value) {
         endValueSpinBox.value = value;
+    }
+    function setUsePercentages(value) {
+        percentageCheckBox.checked = value;
     }
     function startLine() {
         return startLineSpinBox.value;
