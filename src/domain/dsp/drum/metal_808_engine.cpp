@@ -47,15 +47,19 @@ constexpr Drum808::KnobCurve ToneDb { SweptKnobs, { 3.10, 2.72, 0.0, -7.51, -15.
 constexpr Drum808::KnobCurve ToneQ { SweptKnobs, { 2.999, 2.994, 2.0, 1.086, 1.144 } };
 } // namespace ClosedHat
 
-// The open hat with both knobs at noon, within 2.1 dB: a narrow band, held and then closed
+// The open hat with both knobs at noon, fitted against RD-8 V3 recordings: a broader band with
+// subtle filtered noise so it breathes instead of ringing metallically, held and then closed.
 namespace OpenHat {
-constexpr double BandHz = 6497.05;
-constexpr double BandQ = 17.6102;
-constexpr double HighPassHz = 1802.26;
+constexpr double BandHz = 6530.19;
+constexpr double BandQ = 6.215;
+constexpr double HighPassHz = 1885.28;
+constexpr double NoiseLevel = 0.031;
+constexpr double NoiseHz = 7843.16;
+constexpr double NoiseQ = 4.076;
 constexpr double Seconds = 0.26947;
 constexpr double HoldSeconds = 0.318563;
 constexpr double ReleaseSeconds = 0.0171341;
-constexpr double Gain = 58.6929;
+constexpr double Gain = 28.9181;
 //! Tone, the same shelf as the closed hat's, fitted within 1.9 to 2.2 dB
 constexpr Drum808::KnobCurve ToneHz { SweptKnobs, { 5363.0, 5433.0, 6300.0, 7180.0, 8836.0 } };
 constexpr Drum808::KnobCurve ToneDb { SweptKnobs, { 3.61, 3.19, 0.0, -6.75, -13.81 } };
@@ -193,6 +197,7 @@ void Metal808Engine::trigger(float velocity)
         m_toneShelf.setLowShelf(ClosedHat::ToneHz.ratioAt(m_tone), ClosedHat::ToneDb.at(m_tone), ClosedHat::ToneQ.ratioAt(m_tone), rate);
         break;
     case Sound::OpenHat:
+        m_noiseBand.setBandPass(OpenHat::NoiseHz, OpenHat::NoiseQ, rate);
         m_band.setBandPass(OpenHat::BandHz, OpenHat::BandQ, rate);
         m_highPass1.setHighPass(OpenHat::HighPassHz, ButterworthQ, rate);
         m_highPass2.setHighPass(OpenHat::HighPassHz, ButterworthQ, rate);
@@ -229,9 +234,11 @@ float Metal808Engine::nextSample()
         y = m_toneShelf.process(m_highPass2.process(m_highPass1.process(m_band.process(source))) * ClosedHat::Gain * envelope(t));
         break;
     }
-    case Sound::OpenHat:
-        y = m_toneShelf.process(m_highPass2.process(m_highPass1.process(m_band.process(squares))) * OpenHat::Gain * envelope(t));
+    case Sound::OpenHat: {
+        const double source = squares + OpenHat::NoiseLevel * m_noiseBand.process(m_noise.next());
+        y = m_toneShelf.process(m_highPass2.process(m_highPass1.process(m_band.process(source))) * OpenHat::Gain * envelope(t));
         break;
+    }
     case Sound::Cowbell:
         y = m_highPass2.process(m_highPass1.process(m_band.process(squares))) * Cowbell::Gain * envelope(t);
         break;
