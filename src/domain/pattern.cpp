@@ -296,7 +296,7 @@ void Pattern::deleteTrack(size_t trackIndex)
         juzzlin::L(TAG).debug() << "Deleting track at position " << *track;
         m_trackOrder.erase(m_trackOrder.begin() + static_cast<long>(*track));
     } else {
-        juzzlin::L(TAG).error() << "Invalid track position: " << *track;
+        juzzlin::L(TAG).error() << "Invalid track index: " << trackIndex;
     }
 }
 

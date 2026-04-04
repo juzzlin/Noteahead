@@ -14,6 +14,8 @@ New features:
 
 Bug fixes:
 
+* Fix crash when resizing after track deletion
+
 Other:
 
 1.8.1

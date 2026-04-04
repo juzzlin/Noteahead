@@ -394,7 +394,12 @@ void EditorService::redo()
 
 quint64 EditorService::columnCount(quint64 trackIndex) const
 {
-    return m_song->columnCount(trackIndex);
+    try {
+        return m_song->columnCount(trackIndex);
+    } catch (...) {
+        juzzlin::L(TAG).warning() << "Cannot get column count for track, index=" << trackIndex;
+        return 0;
+    }
 }
 
 quint64 EditorService::lineCount(quint64 patternId) const
@@ -878,7 +883,7 @@ bool EditorService::isColumnVisible(quint64 track, quint64 column) const
 
 bool EditorService::isTrackVisible(quint64 track) const
 {
-    for (quint64 column = 0; column < m_song->columnCount(track); column++) {
+    for (quint64 column = 0; column < columnCount(track); column++) {
         if (isColumnVisible(track, column)) {
             return true;
         }
@@ -2253,16 +2258,21 @@ void EditorService::requestColumnRight(bool isSelecting)
 
 quint64 EditorService::totalUnitCount() const
 {
-    quint64 columnCount = 0;
+    quint64 totalColumnCount = 0;
     for (auto && trackIndex : m_song->trackIndices()) {
-        columnCount += m_song->columnCount(trackIndex);
+        totalColumnCount += columnCount(trackIndex);
     }
-    return columnCount;
+    return totalColumnCount;
 }
 
 quint64 EditorService::trackWidthInUnits(quint64 trackIndex) const
 {
-    return m_song->columnCount(trackIndex);
+    try {
+        return m_song->columnCount(trackIndex);
+    } catch (...) {
+        juzzlin::L(TAG).warning() << "Cannot get width for track, index=" << trackIndex;
+        return 0;
+    }
 }
 
 quint64 EditorService::columnPositionInUnits(quint64 trackIndex, quint64 columnIndex) const
@@ -2275,7 +2285,7 @@ quint64 EditorService::trackPositionInUnits(quint64 trackIndex) const
     quint64 unitPosition = 0;
     const auto trackPosition = m_song->trackPositionByIndex(trackIndex);
     for (quint64 track = 0; track < trackPosition; track++) {
-        unitPosition += m_song->columnCount(m_song->trackIndexByPosition(track).value_or(0));
+        unitPosition += columnCount(m_song->trackIndexByPosition(track).value_or(0));
     }
     return unitPosition;
 }
@@ -2290,7 +2300,7 @@ int EditorService::onScreenTrackPositionInUnits(quint64 trackIndex) const
     int unitPosition = -static_cast<int>(m_state.horizontalScrollPosition);
     const auto trackPosition = m_song->trackPositionByIndex(trackIndex);
     for (quint64 track = 0; track < trackPosition; track++) {
-        unitPosition += m_song->columnCount(m_song->trackIndexByPosition(track).value_or(0));
+        unitPosition += columnCount(m_song->trackIndexByPosition(track).value_or(0));
     }
     return unitPosition;
 }

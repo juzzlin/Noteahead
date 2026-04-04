@@ -273,7 +273,9 @@ FocusScope {
     function _updateAllTrackDimensions() {
         uiLogger.debug(_tag, `Updating track dimensions of all patterns..`);
         _patterns.forEach(pattern => {
-            pattern.updateTrackDimensions(trackArea.width, trackArea.height);
+            if (!pattern._dirty) {
+                pattern.updateTrackDimensions(trackArea.width, trackArea.height);
+            }
         });
     }
     function _updateCurrentTrackData() {
