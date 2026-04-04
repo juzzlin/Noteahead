@@ -630,12 +630,7 @@ Song::EventList Song::generateNoteOffs(EventListCR events) const
                 }
                 lastNoteOnTick[trackAndColumn] = event->tick();
                 if (isNewTick) {
-                    size_t noteOffTick = event->tick();
-                    if (noteOffTick > instrumentAutoNoteOffOffset) {
-                        noteOffTick -= instrumentAutoNoteOffOffset;
-                    } else {
-                        noteOffTick = 0;
-                    }
+                    const size_t noteOffTick = event->tick() + instrumentAutoNoteOffOffset;
                     const auto noteOffEvents = generateNoteOffsForActiveNotes(trackAndColumn, noteOffTick, activeNotes);
                     std::ranges::copy(noteOffEvents, std::back_inserter(processedEvents));
                 }

@@ -266,6 +266,12 @@ void MidiExporter::writePitchBendEvent(ByteVector & dataOut, uint8_t channel, co
     dataOut.push_back(static_cast<char>(pitchBendData.msb()));
 }
 
+void MidiExporter::writeProgramChangeEvent(ByteVector & dataOut, uint8_t channel, uint8_t patch) const
+{
+    dataOut.push_back(static_cast<char>(0xC0 | channel));
+    dataOut.push_back(static_cast<char>(patch));
+}
+
 std::map<size_t, MidiExporter::ByteVector> MidiExporter::buildTrackData(const SongS & song, const std::vector<EventS> & events, const ActiveTracks & activeTracks) const
 {
     auto initialState = initializeTracks(song, activeTracks);
@@ -281,14 +287,30 @@ MidiExporter::TrackProcessingState MidiExporter::initializeTracks(const SongS & 
     for (const auto & [trackIndex, instrument] : activeTracks.trackToInstrument) {
         state.lastTicks[trackIndex] = 0;
 
-        const auto & portName = activeTracks.trackToPortName.at(trackIndex);
-        uint8_t & channel = portChannelCounters[portName];
-        if (channel == 9) { // Skip drum channel 10
-            channel++;
-        }
-        state.trackToChannelMap[trackIndex] = channel++;
+        uint8_t midiChannel = instrument->midiAddress().channel();
 
+        state.trackToChannelMap[trackIndex] = midiChannel;
         state.allTracksData[trackIndex] = initializeTrack(song, trackIndex, activeTracks);
+
+        auto & data = state.allTracksData[trackIndex];
+
+        if (instrument->settings().bank.has_value()) {
+            const auto & bank = *instrument->settings().bank;
+            const uint8_t msb = bank.byteOrderSwapped ? bank.lsb : bank.msb;
+            const uint8_t lsb = bank.byteOrderSwapped ? bank.msb : bank.lsb;
+            data.push_back(static_cast<char>(0x00));
+            data.push_back(static_cast<char>(0xB0 | midiChannel));
+            data.push_back(static_cast<char>(0x00));
+            data.push_back(static_cast<char>(msb));
+            data.push_back(static_cast<char>(0x00));
+            data.push_back(static_cast<char>(0xB0 | midiChannel));
+            data.push_back(static_cast<char>(0x20));
+            data.push_back(static_cast<char>(lsb));
+        }
+        if (instrument->settings().patch.has_value()) {
+            data.push_back(static_cast<char>(0x00));
+            writeProgramChangeEvent(data, midiChannel, *instrument->settings().patch);
+        }
     }
     return state;
 }
