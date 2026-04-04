@@ -1,5 +1,5 @@
 // This file is part of Noteahead.
-// Copyright (C) 2025 Jussi Lind <jussi.lind@iki.fi>
+// Copyright (C) 2026 Jussi Lind <jussi.lind@iki.fi>
 //
 // Noteahead is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -30,6 +30,8 @@ private slots:
     void test_exportTo_timing_shouldBeCorrect();
     void test_exportTo_mutedAndSoloedTracks_shouldExportCorrectly();
     void test_exportTo_rangedExport_shouldExportCorrectRange();
+    void test_exportTo_bankAndProgramChange_shouldExportCorrectly();
+    void test_exportTo_noNotesButSettings_shouldExportSettings();
 };
 
 } // namespace noteahead

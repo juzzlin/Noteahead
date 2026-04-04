@@ -19,6 +19,7 @@
 #include "../../application/service/mixer_service.hpp"
 #include "../../application/service/property_service.hpp"
 #include "../../application/service/side_chain_service.hpp"
+#include "../../application/service/midi_service.hpp"
 #include "../../domain/note_data.hpp"
 #include "../../domain/song.hpp"
 #include "../../infra/midi/export/midi_exporter.hpp"
@@ -30,6 +31,21 @@
 #include <QTest>
 
 namespace noteahead {
+
+class MockMidiService : public MidiService
+{
+public:
+    MockMidiService()
+      : MidiService(nullptr, false)
+    {
+    }
+
+    QStringList outputPorts() const { return m_mockPorts; }
+    void setMockPorts(const QStringList & ports) { m_mockPorts = ports; }
+
+private:
+    QStringList m_mockPorts;
+};
 
 void MidiImporterTest::test_import_exportedFile_shouldRestoreNotes()
 {
@@ -59,14 +75,14 @@ void MidiImporterTest::test_import_exportedFile_shouldRestoreNotes()
     const auto fileName = tempFile.fileName();
     tempFile.close();
 
-    exporter.exportTo(fileName.toStdString(), song);
+    exporter.exportTo(fileName.toStdString(), song, 0, std::numeric_limits<size_t>::max(), MidiExportOptions());
 
     const auto importedSong = std::make_shared<Song>();
     importedSong->setBeatsPerMinute(120);
     importedSong->setLinesPerBeat(4);
 
     const auto midiData = importer.parseMidiFile(fileName.toStdString());
-    importer.importTo(midiData, importedSong, 0, 64, false, false);
+    importer.importTo(midiData, importedSong, 0, 64, false, false, nullptr);
 
     QCOMPARE(importedSong->beatsPerMinute(), 140);
     // Noteahead initializes with 8 tracks by default
@@ -118,7 +134,7 @@ void MidiImporterTest::test_import_multipleTracksAndPatterns_shouldRestoreCorrec
     const auto fileName = tempFile.fileName();
     tempFile.close();
 
-    exporter.exportTo(fileName.toStdString(), song);
+    exporter.exportTo(fileName.toStdString(), song, 0, std::numeric_limits<size_t>::max(), MidiExportOptions());
 
     const auto importedSong = std::make_shared<Song>();
     importedSong->setBeatsPerMinute(120);
@@ -126,7 +142,7 @@ void MidiImporterTest::test_import_multipleTracksAndPatterns_shouldRestoreCorrec
 
     const auto midiData = importer.parseMidiFile(fileName.toStdString());
     // Use pattern length 4 to match original structure
-    importer.importTo(midiData, importedSong, 0, 4, false, false);
+    importer.importTo(midiData, importedSong, 0, 4, false, false, nullptr);
 
     QCOMPARE(importedSong->trackCount(), 8);
     QCOMPARE(QString::fromStdString(importedSong->trackName(0)), QString { "Melody" });
@@ -176,14 +192,14 @@ void MidiImporterTest::test_import_polyphony_shouldCreateNewColumns()
     const auto fileName = tempFile.fileName();
     tempFile.close();
 
-    exporter.exportTo(fileName.toStdString(), song);
+    exporter.exportTo(fileName.toStdString(), song, 0, std::numeric_limits<size_t>::max(), MidiExportOptions());
 
     const auto importedSong = std::make_shared<Song>();
     importedSong->setBeatsPerMinute(120);
     importedSong->setLinesPerBeat(4);
 
     const auto midiData = importer.parseMidiFile(fileName.toStdString());
-    importer.importTo(midiData, importedSong, 0, 64, false, false);
+    importer.importTo(midiData, importedSong, 0, 64, false, false, nullptr);
 
     // Should have 3 columns on track 0
     QCOMPARE(importedSong->columnCount(0), 3);
@@ -230,7 +246,7 @@ void MidiImporterTest::test_import_quantization_shouldZeroDelays()
     const auto fileName = tempFile.fileName();
     tempFile.close();
 
-    exporter.exportTo(fileName.toStdString(), song);
+    exporter.exportTo(fileName.toStdString(), song, 0, std::numeric_limits<size_t>::max(), MidiExportOptions());
 
     const auto importedSong = std::make_shared<Song>();
     importedSong->setBeatsPerMinute(120);
@@ -238,7 +254,7 @@ void MidiImporterTest::test_import_quantization_shouldZeroDelays()
     const auto midiData = importer.parseMidiFile(fileName.toStdString());
 
     // Import with quantization enabled
-    importer.importTo(midiData, importedSong, 0, 64, true, true);
+    importer.importTo(midiData, importedSong, 0, 64, true, true, nullptr);
 
     const auto noteOnQuantized = importedSong->noteDataAtPosition({ 0, 0, 0, 0 });
     const auto noteOffQuantized = importedSong->noteDataAtPosition({ 0, 0, 0, 1 });
@@ -250,13 +266,64 @@ void MidiImporterTest::test_import_quantization_shouldZeroDelays()
     const auto importedSongNoQuantize = std::make_shared<Song>();
     importedSongNoQuantize->setBeatsPerMinute(120);
     importedSongNoQuantize->setLinesPerBeat(4);
-    importer.importTo(midiData, importedSongNoQuantize, 0, 64, false, false);
+    importer.importTo(midiData, importedSongNoQuantize, 0, 64, false, false, nullptr);
 
     const auto noteOnNotQuantized = importedSongNoQuantize->noteDataAtPosition({ 0, 0, 0, 0 });
     const auto noteOffNotQuantized = importedSongNoQuantize->noteDataAtPosition({ 0, 0, 0, 1 });
 
     QCOMPARE(noteOnNotQuantized->delay(), 10);
     QCOMPARE(noteOffNotQuantized->delay(), 5);
+}
+
+void MidiImporterTest::test_import_bankAndProgramChange_shouldRestoreSettings()
+{
+    const auto automationService = std::make_shared<AutomationService>(std::make_shared<PropertyService>());
+    const auto mixerService = std::make_shared<MixerService>();
+    const auto sideChainService = std::make_shared<SideChainService>();
+    const MidiExporter exporter { automationService, mixerService, sideChainService };
+    const MidiImporter importer;
+    const auto midiService = std::make_shared<MockMidiService>();
+    midiService->setMockPorts({ "TestPort", "AnotherPort" });
+
+    const auto song = std::make_shared<Song>();
+    const auto instrument = std::make_shared<Instrument>("TestInstrument");
+    auto addr = instrument->midiAddress();
+    addr.setPort("TestPort");
+    instrument->setMidiAddress(addr);
+    song->setInstrument(0, instrument);
+    song->setTrackName(0, "TestTrack");
+
+    auto settings = instrument->settings();
+    settings.bank = InstrumentSettings::Bank { .lsb = 11, .msb = 21 };
+    settings.patch = 31;
+    instrument->setSettings(settings);
+    song->setInstrument(0, instrument);
+
+    // Add a note so track is active
+    NoteData n1;
+    n1.setAsNoteOn(60, 100);
+    song->setNoteDataAtPosition(n1, { 0, 0, 0, 0 });
+
+    QTemporaryFile tempFile;
+    QVERIFY(tempFile.open());
+    const auto fileName = tempFile.fileName();
+    tempFile.close();
+
+    exporter.exportTo(fileName.toStdString(), song, 0, std::numeric_limits<size_t>::max(), MidiExportOptions());
+
+    const auto importedSong = std::make_shared<Song>();
+    const auto midiData = importer.parseMidiFile(fileName.toStdString());
+    importer.importTo(midiData, importedSong, 0, 64, false, false, midiService);
+
+    const auto importedInstrument = importedSong->instrument(0);
+    QVERIFY(importedInstrument != nullptr);
+    QCOMPARE(importedInstrument->midiAddress().portName(), QString { "TestPort" });
+    const auto & impSettings = importedInstrument->settings();
+    QVERIFY(impSettings.bank.has_value());
+    QCOMPARE(impSettings.bank->msb, 21);
+    QCOMPARE(impSettings.bank->lsb, 11);
+    QVERIFY(impSettings.patch.has_value());
+    QCOMPARE(*impSettings.patch, 31);
 }
 
 } // namespace noteahead

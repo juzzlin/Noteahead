@@ -29,6 +29,7 @@ private slots:
     void test_import_multipleTracksAndPatterns_shouldRestoreCorrectly();
     void test_import_polyphony_shouldCreateNewColumns();
     void test_import_quantization_shouldZeroDelays();
+    void test_import_bankAndProgramChange_shouldRestoreSettings();
 };
 
 } // namespace noteahead

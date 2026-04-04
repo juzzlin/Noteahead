@@ -6,16 +6,16 @@ set(SRC
     ${NAME}.cpp
     ../../application/position.hpp
     ../../application/service/automation_service.cpp
-    ../../application/service/property_service.cpp
     ../../application/service/copy_manager.cpp
     ../../application/service/mixer_service.cpp
+    ../../application/service/property_service.cpp
     ../../application/service/random_service.cpp
     ../../application/service/side_chain_service.cpp
     ../../common/constants.cpp
     ../../common/utils.cpp
+    ../../domain/arpeggiator.cpp
     ../../domain/automation.cpp
     ../../domain/automation_location.cpp
-    ../../domain/arpeggiator.cpp
     ../../domain/column.cpp
     ../../domain/column_settings.cpp
     ../../domain/event.cpp

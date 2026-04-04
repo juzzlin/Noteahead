@@ -312,14 +312,14 @@ void Application::connectApplicationService()
     connect(m_applicationService.get(), &ApplicationService::liveNoteOffRequested, m_midiService.get(), &MidiService::stopNote);
     connect(m_applicationService.get(), &ApplicationService::allNotesOffRequested, this, &Application::stopAllNotes);
 
-    connect(m_applicationService.get(), &ApplicationService::midiExportRequested, this, qOverload<QString, quint64, quint64>(&Application::exportToMidi));
+    connect(m_applicationService.get(), &ApplicationService::midiExportRequested, this, &Application::exportToMidi);
     connect(m_applicationService.get(), &ApplicationService::midiImportRequested, this, &Application::importFromMidi);
 }
 
-void Application::exportToMidi(QString fileName, quint64 startPosition, quint64 endPosition)
+void Application::exportToMidi(QString fileName, quint64 startPosition, quint64 endPosition, MidiExportOptions options)
 {
     try {
-        m_midiExporter->exportTo(fileName.toStdString(), m_editorService->song(), startPosition, endPosition);
+        m_midiExporter->exportTo(fileName.toStdString(), m_editorService->song(), startPosition, endPosition, options);
         const auto message = QString { "Exported the project to '%1' " }.arg(fileName);
         m_applicationService->requestStatusText(message);
     } catch (std::exception & e) {
@@ -328,12 +328,11 @@ void Application::exportToMidi(QString fileName, quint64 startPosition, quint64 
         m_applicationService->requestStatusText(message);
     }
 }
-
-void Application::importFromMidi(QString fileName, int importMode, int patternLength, bool quantizeNoteOn, bool quantizeNoteOff)
+void Application::importFromMidi(QString fileName, int importMode, int patternLength, bool quantizeNoteOn, bool quantizeNoteOff, bool connectMidiPorts)
 {
     try {
         const auto midiData = m_midiImporter->parseMidiFile(fileName.toStdString());
-        m_midiImporter->importTo(midiData, m_editorService->song(), importMode, patternLength, quantizeNoteOn, quantizeNoteOff);
+        m_midiImporter->importTo(midiData, m_editorService->song(), importMode, patternLength, quantizeNoteOn, quantizeNoteOff, connectMidiPorts ? m_midiService : nullptr);
         const auto message = QString { "Imported MIDI file '%1' " }.arg(fileName);
         m_applicationService->requestStatusText(message);
         m_editorService->setSong(m_editorService->song());

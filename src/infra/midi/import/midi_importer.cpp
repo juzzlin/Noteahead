@@ -15,6 +15,7 @@
 
 #include "midi_importer.hpp"
 
+#include "../../../application/service/midi_service.hpp"
 #include "../../../contrib/SimpleLogger/src/simple_logger.hpp"
 #include "../../../domain/event.hpp"
 #include "../../../domain/midi_cc_data.hpp"
@@ -41,12 +42,17 @@ constexpr uint8_t META_EVENT = 0xff;
 constexpr uint8_t MIDI_PORT_EVENT = 0x21;
 constexpr uint8_t TRACK_NAME_EVENT = 0x03;
 constexpr uint8_t END_OF_TRACK_EVENT = 0x2f;
+constexpr uint8_t DEVICE_NAME_EVENT = 0x09;
 constexpr uint8_t SET_TEMPO_EVENT = 0x51;
 
 constexpr uint8_t NOTE_ON_STATUS = 0x90;
 constexpr uint8_t NOTE_OFF_STATUS = 0x80;
 constexpr uint8_t CONTROL_CHANGE_STATUS = 0xb0;
+constexpr uint8_t PROGRAM_CHANGE_STATUS = 0xc0;
 constexpr uint8_t PITCH_BEND_STATUS = 0xe0;
+
+constexpr uint8_t BANK_SELECT_MSB = 0x00;
+constexpr uint8_t BANK_SELECT_LSB = 0x20;
 
 constexpr uint8_t MIDI_CHANNEL_MASK = 0x0f;
 constexpr uint8_t MIDI_STATUS_MASK = 0xf0;
@@ -166,6 +172,8 @@ MidiImporter::MidiTrack MidiImporter::parseTrack(std::istream & in, uint32_t tra
 
             if (event.metaType == TRACK_NAME_EVENT) {
                 track.name = std::string(reinterpret_cast<char *>(event.data.data()), length);
+            } else if (event.metaType == DEVICE_NAME_EVENT) {
+                track.portName = std::string(reinterpret_cast<char *>(event.data.data()), length);
             } else if (event.metaType == MIDI_PORT_EVENT && length >= 1) {
                 track.port = event.data[0];
             } else if (event.metaType == SET_TEMPO_EVENT && length >= 3) {
@@ -276,7 +284,7 @@ void MidiImporter::finalizePlayOrder(SongS song, size_t maxPatternIndex, int imp
     }
 }
 
-void MidiImporter::importTo(const MidiFileData & data, SongS song, int importMode, int patternLength, bool quantizeNoteOn, bool quantizeNoteOff) const
+void MidiImporter::importTo(const MidiFileData & data, SongS song, int importMode, int patternLength, bool quantizeNoteOn, bool quantizeNoteOff, MidiServiceS midiService) const
 {
     initializeSong(song, data, importMode, patternLength);
 
@@ -302,15 +310,65 @@ void MidiImporter::importTo(const MidiFileData & data, SongS song, int importMod
                 song->addTrackToRightOf(song->trackCount() - 1);
             }
 
-            song->setTrackName(trackIndex, midiTrack.name.empty() ? "Imported " + std::to_string(trackIndex) : midiTrack.name);
+            const QString trackName = midiTrack.name.empty() ? QString("Imported %1").arg(trackIndex) : QString::fromStdString(midiTrack.name);
+            song->setTrackName(trackIndex, trackName.toStdString());
+
+            auto instrument = song->instrument(trackIndex);
+            if (!instrument) {
+                instrument = std::make_shared<Instrument>(trackName);
+                song->setInstrument(trackIndex, instrument);
+            }
+
+            // Port matching
+            if (midiService) {
+                const auto availablePorts = midiService->outputPorts();
+                const QString targetPortName = midiTrack.portName.empty() ? trackName : QString::fromStdString(midiTrack.portName);
+                if (availablePorts.contains(targetPortName)) {
+                    auto addr = instrument->midiAddress();
+                    addr.setPort(targetPortName);
+                    instrument->setMidiAddress(addr);
+                } else {
+                    // Try to find a port that contains the target port name
+                    for (const auto & port : availablePorts) {
+                        if (port.contains(targetPortName, Qt::CaseInsensitive)) {
+                            auto addr = instrument->midiAddress();
+                            addr.setPort(port);
+                            instrument->setMidiAddress(addr);
+                            break;
+                        }
+                    }
+                }
+            }
+
+            auto settings = instrument->settings();
 
             std::map<uint8_t, size_t> activeNotes;
 
             for (const auto & midiEvent : midiTrack.events) {
                 const auto type = static_cast<uint8_t>(midiEvent.status & MIDI_STATUS_MASK);
                 const auto scaledTick = static_cast<uint32_t>(midiEvent.tick * scaleFactor);
-                const auto [patternIndex, lineIndex] = getPatternLine(song, scaledTick, patternLength);
 
+                if (midiEvent.tick == 0) {
+                    if (type == CONTROL_CHANGE_STATUS && midiEvent.data.size() >= 2) {
+                        const auto controller = midiEvent.data[0];
+                        const auto value = midiEvent.data[1];
+                        if (controller == BANK_SELECT_MSB) {
+                            if (!settings.bank.has_value()) {
+                                settings.bank = InstrumentSettings::Bank {};
+                            }
+                            settings.bank->msb = value;
+                        } else if (controller == BANK_SELECT_LSB) {
+                            if (!settings.bank.has_value()) {
+                                settings.bank = InstrumentSettings::Bank {};
+                            }
+                            settings.bank->lsb = value;
+                        }
+                    } else if (type == PROGRAM_CHANGE_STATUS && midiEvent.data.size() >= 1) {
+                        settings.patch = midiEvent.data[0];
+                    }
+                }
+
+                const auto [patternIndex, lineIndex] = getPatternLine(song, scaledTick, patternLength);
                 maxPatternIndex = std::max(maxPatternIndex, patternIndex);
 
                 if (type == NOTE_ON_STATUS && midiEvent.data.size() >= 2 && midiEvent.data[1] > 0) {
@@ -336,6 +394,8 @@ void MidiImporter::importTo(const MidiFileData & data, SongS song, int importMod
                     }
                 }
             }
+
+            instrument->setSettings(settings);
 
             if (!tryExtractTrackIndex(midiTrack.name).has_value()) {
                 nextImportTrackIndex++;

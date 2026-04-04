@@ -23,6 +23,8 @@
 
 #include <memory>
 
+#include "../../infra/midi/export/midi_exporter.hpp"
+
 namespace noteahead {
 
 class EditorService;
@@ -89,10 +91,10 @@ public:
     Q_INVOKABLE void saveProjectAsTemplate(QUrl url);
 
     Q_INVOKABLE void requestMidiExportDialog();
-    Q_INVOKABLE void exportMidiFile(QUrl url, quint64 startPosition, quint64 endPosition);
+    Q_INVOKABLE void exportMidiFile(QUrl url, quint64 startPosition, quint64 endPosition, bool exportBank, bool exportProgramChange);
 
     Q_INVOKABLE void requestMidiImportDialog();
-    Q_INVOKABLE void importMidiFile(QUrl url, int importMode, int patternLength, bool quantizeNoteOn, bool quantizeNoteOff);
+    Q_INVOKABLE void importMidiFile(QUrl url, int importMode, int patternLength, bool quantizeNoteOn, bool quantizeNoteOff, bool connectMidiPorts);
 
     Q_INVOKABLE virtual bool editMode() const;
     Q_INVOKABLE virtual void setEditMode(bool editMode);
@@ -142,10 +144,10 @@ signals:
     void saveAsDialogRequested();
     void saveAsTemplateDialogRequested();
     void midiExportDialogRequested();
-    void midiExportRequested(QString fileName, quint64 startPosition, quint64 endPosition);
+    void midiExportRequested(QString fileName, quint64 startPosition, quint64 endPosition, MidiExportOptions options);
 
     void midiImportDialogRequested();
-    void midiImportRequested(QString fileName, int importMode, int patternLength, bool quantizeNoteOn, bool quantizeNoteOff);
+    void midiImportRequested(QString fileName, int importMode, int patternLength, bool quantizeNoteOn, bool quantizeNoteOff, bool connectMidiPorts);
 
     void alertDialogRequested(QString message);
     void statusTextRequested(QString message);

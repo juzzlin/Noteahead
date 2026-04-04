@@ -27,7 +27,7 @@ Dialog {
                 const dir = path.substring(7, lastSlash); // Remove file:// prefix and keep directory
                 applicationService.setLastImportDirectory(dir);
             }
-            applicationService.importMidiFile(selectedFile, importModeComboBox.currentIndex, patternLengthSpinBox.value, quantizeNoteOnCheckBox.checked, quantizeNoteOffCheckBox.checked)
+            applicationService.importMidiFile(selectedFile, importModeComboBox.currentIndex, patternLengthSpinBox.value, quantizeNoteOnCheckBox.checked, quantizeNoteOffCheckBox.checked, connectMidiPortsCheckBox.checked)
             rootItem.close()
         }
     }
@@ -62,42 +62,59 @@ Dialog {
             }
         }
 
-        RowLayout {
-            spacing: 10
-            Label {
-                text: qsTr("New pattern length:")
-            }
-            SpinBox {
-                id: patternLengthSpinBox
-                from: 4
-                to: 999
-                value: 64
-                editable: true
-                ToolTip.delay: Constants.toolTipDelay
-                ToolTip.timeout: Constants.toolTipTimeout
-                ToolTip.visible: hovered
-                ToolTip.text: qsTr("Set the default length (number of lines) for newly created patterns.")
-            }
-        }
+        GroupBox {
+            title: qsTr("Options")
+            Layout.fillWidth: true
+            ColumnLayout {
+                anchors.fill: parent
+                RowLayout {
+                    spacing: 10
+                    Label {
+                        text: qsTr("New pattern length:")
+                    }
+                    SpinBox {
+                        id: patternLengthSpinBox
+                        from: 4
+                        to: 999
+                        value: 64
+                        editable: true
+                        ToolTip.delay: Constants.toolTipDelay
+                        ToolTip.timeout: Constants.toolTipTimeout
+                        ToolTip.visible: hovered
+                        ToolTip.text: qsTr("Set the default length (number of lines) for newly created patterns.")
+                    }
+                }
 
-        CheckBox {
-            id: quantizeNoteOnCheckBox
-            text: qsTr("Quantize Note ON")
-            checked: false
-            ToolTip.delay: Constants.toolTipDelay
-            ToolTip.timeout: Constants.toolTipTimeout
-            ToolTip.visible: hovered
-            ToolTip.text: qsTr("If enabled, Note ON events will be aligned exactly to the line timestamp (zero delay).")
-        }
+                CheckBox {
+                    id: quantizeNoteOnCheckBox
+                    text: qsTr("Quantize Note ON")
+                    checked: false
+                    ToolTip.delay: Constants.toolTipDelay
+                    ToolTip.timeout: Constants.toolTipTimeout
+                    ToolTip.visible: hovered
+                    ToolTip.text: qsTr("If enabled, Note ON events will be aligned exactly to the line timestamp (zero delay).")
+                }
 
-        CheckBox {
-            id: quantizeNoteOffCheckBox
-            text: qsTr("Quantize Note OFF")
-            checked: false
-            ToolTip.delay: Constants.toolTipDelay
-            ToolTip.timeout: Constants.toolTipTimeout
-            ToolTip.visible: hovered
-            ToolTip.text: qsTr("If enabled, Note OFF events will be aligned exactly to the line timestamp (zero delay).")
+                CheckBox {
+                    id: quantizeNoteOffCheckBox
+                    text: qsTr("Quantize Note OFF")
+                    checked: false
+                    ToolTip.delay: Constants.toolTipDelay
+                    ToolTip.timeout: Constants.toolTipTimeout
+                    ToolTip.visible: hovered
+                    ToolTip.text: qsTr("If enabled, Note OFF events will be aligned exactly to the line timestamp (zero delay).")
+                }
+
+                CheckBox {
+                    id: connectMidiPortsCheckBox
+                    text: qsTr("Connect MIDI ports")
+                    checked: true
+                    ToolTip.delay: Constants.toolTipDelay
+                    ToolTip.timeout: Constants.toolTipTimeout
+                    ToolTip.visible: hovered
+                    ToolTip.text: qsTr("Automatically try to match track names with available MIDI output ports.")
+                }
+            }
         }
 
         Label {

@@ -51,6 +51,23 @@ Dialog {
                 to: editorService.songLength
             }
         }
+        GroupBox {
+            title: qsTr("Options")
+            Layout.fillWidth: true
+            ColumnLayout {
+                anchors.fill: parent
+                CheckBox {
+                    id: exportBankCheckBox
+                    text: qsTr("Export Bank")
+                    checked: true
+                }
+                CheckBox {
+                    id: exportProgramChangeCheckBox
+                    text: qsTr("Export Program Change")
+                    checked: true
+                }
+            }
+        }
     }
     footer: DialogButtonBox {
         Button {
@@ -61,7 +78,7 @@ Dialog {
             text: qsTr("Export")
             enabled: rootItem.outputFileName
             onClicked: {
-                applicationService.exportMidiFile(rootItem.outputFileName, startPositionSpinBox.value, endPositionSpinBox.value);
+                applicationService.exportMidiFile(rootItem.outputFileName, startPositionSpinBox.value, endPositionSpinBox.value, exportBankCheckBox.checked, exportProgramChangeCheckBox.checked);
                 rootItem.accept();
             }
         }

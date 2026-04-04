@@ -43,7 +43,7 @@ public:
 
     ~MidiService() override;
 
-    Q_INVOKABLE QStringList outputPorts() const;
+    virtual Q_INVOKABLE QStringList outputPorts() const;
 
     // QML API
     Q_INVOKABLE void setIsPlaying(bool isPlaying);

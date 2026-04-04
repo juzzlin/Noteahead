@@ -1,3 +1,18 @@
+// This file is part of Noteahead.
+// Copyright (C) 2026 Jussi Lind <jussi.lind@iki.fi>
+//
+// Noteahead is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+// Noteahead is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
+
 #include "midi_exporter_test.hpp"
 
 #include "../../application/position.hpp"
@@ -27,6 +42,9 @@ struct MidiTestEvent
 {
     enum class Type
     {
+        BankMsb,
+        BankLsb,
+        ProgramChange,
         NoteOff,
         NoteOn
     };
@@ -35,10 +53,13 @@ struct MidiTestEvent
 
     Type type;
 
-    uint8_t note;
-    uint8_t velocity;
-    uint8_t channel;
-    uint8_t port; // Added to verify port assignment
+    uint8_t note = 0;
+    uint8_t velocity = 0;
+    uint8_t bankMsb = 0;
+    uint8_t bankLsb = 0;
+    uint8_t patch = 0;
+    uint8_t channel = 0;
+    uint8_t port = 0;
 
     auto operator<=>(const MidiTestEvent&) const = default;
 };
@@ -164,18 +185,31 @@ auto readMidiFile(const std::string& fileName) -> std::vector<MidiTestEvent>
                 const auto note = static_cast<uint8_t>(in.get());
                 const auto velocity = static_cast<uint8_t>(in.get());
                 if (velocity > 0) {
-                    events.push_back({ currentTrackTick, MidiTestEvent::Type::NoteOn, note, velocity, channel, currentPort });
+                    events.push_back({ .tick = currentTrackTick, .type = MidiTestEvent::Type::NoteOn, .note = note, .velocity = velocity, .channel = channel, .port = currentPort });
                 } else {
-                    events.push_back({ currentTrackTick, MidiTestEvent::Type::NoteOff, note, velocity, channel, currentPort });
+                    events.push_back({ .tick = currentTrackTick, .type = MidiTestEvent::Type::NoteOff, .note = note, .velocity = velocity, .channel = channel, .port = currentPort });
                 }
             } else if ((statusByte & 0xF0) == 0x80) { // Note Off
                 const auto channel = static_cast<uint8_t>(statusByte & 0x0F);
                 const auto note = static_cast<uint8_t>(in.get());
                 const auto velocity = static_cast<uint8_t>(in.get());
-                events.push_back({ currentTrackTick, MidiTestEvent::Type::NoteOff, note, velocity, channel, currentPort });
-            } else if ((statusByte & 0xF0) == 0xC0 || (statusByte & 0xF0) == 0xD0) {
+                events.push_back({ .tick = currentTrackTick, .type = MidiTestEvent::Type::NoteOff, .note = note, .velocity = velocity, .channel = channel, .port = currentPort });
+            } else if ((statusByte & 0xF0) == 0xB0) { // Control Change
+                const auto channel = static_cast<uint8_t>(statusByte & 0x0F);
+                const auto controller = static_cast<uint8_t>(in.get());
+                const auto value = static_cast<uint8_t>(in.get());
+                if (controller == 0x00) { // Bank Select MSB
+                    events.push_back({ .tick = currentTrackTick, .type = MidiTestEvent::Type::BankMsb, .bankMsb = value, .channel = channel, .port = currentPort });
+                } else if (controller == 0x20) { // Bank Select LSB
+                    events.push_back({ .tick = currentTrackTick, .type = MidiTestEvent::Type::BankLsb, .bankLsb = value, .channel = channel, .port = currentPort });
+                }
+            } else if ((statusByte & 0xF0) == 0xC0) { // Program Change
+                const auto channel = static_cast<uint8_t>(statusByte & 0x0F);
+                const auto patch = static_cast<uint8_t>(in.get());
+                events.push_back({ .tick = currentTrackTick, .type = MidiTestEvent::Type::ProgramChange, .patch = patch, .channel = channel, .port = currentPort });
+            } else if ((statusByte & 0xF0) == 0xD0) {
                 in.seekg(1, std::ios_base::cur);
-            } else if ((statusByte & 0xF0) == 0xA0 || (statusByte & 0xF0) == 0xB0 || (statusByte & 0xF0) == 0xE0) {
+            } else if ((statusByte & 0xF0) == 0xA0 || (statusByte & 0xF0) == 0xE0) {
                 in.seekg(2, std::ios_base::cur);
             }
         }
@@ -219,7 +253,7 @@ void MidiExporterTest::test_exportTo_singleNote_shouldExportCorrectly()
     const auto mixerService = std::make_shared<MixerService>();
     const auto sideChainService = std::make_shared<SideChainService>();
     MidiExporter exporter { automationService, mixerService, sideChainService };
-    exporter.exportTo(fileName.toStdString(), song);
+    exporter.exportTo(fileName.toStdString(), song, 0, std::numeric_limits<size_t>::max(), MidiExportOptions());
 
     QVERIFY(QFile::exists(fileName));
     QVERIFY(QFile { fileName }.size() > 0);
@@ -227,8 +261,8 @@ void MidiExporterTest::test_exportTo_singleNote_shouldExportCorrectly()
     const auto exportedEvents = readMidiFile(fileName.toStdString());
 
     const std::vector<MidiTestEvent> expectedEvents = {
-        { 0, MidiTestEvent::Type::NoteOn, 60, 100, 0, 0 },
-        { static_cast<uint32_t>(song->ticksPerLine()), MidiTestEvent::Type::NoteOff, 60, 0, 0, 0 }
+        { .tick = 0, .type = MidiTestEvent::Type::NoteOn, .note = 60, .velocity = 100, .channel = 0, .port = 0 },
+        { .tick = static_cast<uint32_t>(song->ticksPerLine()), .type = MidiTestEvent::Type::NoteOff, .note = 60, .velocity = 0, .channel = 0, .port = 0 }
     };
 
     QCOMPARE(exportedEvents.size(), expectedEvents.size());
@@ -286,7 +320,7 @@ void MidiExporterTest::test_exportTo_multipleNotesAndTracks_shouldExportCorrectl
     const auto mixerService = std::make_shared<MixerService>();
     const auto sideChainService = std::make_shared<SideChainService>();
     MidiExporter exporter { automationService, mixerService, sideChainService };
-    exporter.exportTo(fileName.toStdString(), song);
+    exporter.exportTo(fileName.toStdString(), song, 0, std::numeric_limits<size_t>::max(), MidiExportOptions());
 
     QVERIFY(QFile::exists(fileName));
     QVERIFY(QFile { fileName }.size() > 0);
@@ -294,14 +328,14 @@ void MidiExporterTest::test_exportTo_multipleNotesAndTracks_shouldExportCorrectl
     const auto exportedEvents = readMidiFile(fileName.toStdString());
 
     const std::vector<MidiTestEvent> expectedEvents = {
-        { 0, MidiTestEvent::Type::NoteOn, 60, 100, 0, 0 }, // PortA, Chan0
-        { ticksPerLine, MidiTestEvent::Type::NoteOff, 60, 0, 0, 0 }, // PortA, Chan0
-        { ticksPerLine, MidiTestEvent::Type::NoteOn, 64, 80, 0, 1 }, // PortB, Chan0
-        { 2 * ticksPerLine, MidiTestEvent::Type::NoteOff, 64, 0, 0, 1 }, // PortB, Chan0
-        { 2 * ticksPerLine, MidiTestEvent::Type::NoteOn, 62, 90, 0, 0 }, // PortA, Chan0
-        { 3 * ticksPerLine, MidiTestEvent::Type::NoteOn, 65, 70, 0, 1 }, // PortB, Chan0
-        { 4 * ticksPerLine, MidiTestEvent::Type::NoteOff, 62, 0, 0, 0 }, // PortA, Chan0
-        { 4 * ticksPerLine, MidiTestEvent::Type::NoteOff, 65, 0, 0, 1 } // PortB, Chan0
+        { .tick = 0, .type = MidiTestEvent::Type::NoteOn, .note = 60, .velocity = 100, .channel = 0, .port = 0 }, // PortA, Chan0
+        { .tick = ticksPerLine, .type = MidiTestEvent::Type::NoteOff, .note = 60, .velocity = 0, .channel = 0, .port = 0 }, // PortA, Chan0
+        { .tick = ticksPerLine, .type = MidiTestEvent::Type::NoteOn, .note = 64, .velocity = 80, .channel = 0, .port = 1 }, // PortB, Chan0
+        { .tick = 2 * ticksPerLine, .type = MidiTestEvent::Type::NoteOff, .note = 64, .velocity = 0, .channel = 0, .port = 1 }, // PortB, Chan0
+        { .tick = 2 * ticksPerLine, .type = MidiTestEvent::Type::NoteOn, .note = 62, .velocity = 90, .channel = 0, .port = 0 }, // PortA, Chan0
+        { .tick = 3 * ticksPerLine, .type = MidiTestEvent::Type::NoteOn, .note = 65, .velocity = 70, .channel = 0, .port = 1 }, // PortB, Chan0
+        { .tick = 4 * ticksPerLine, .type = MidiTestEvent::Type::NoteOff, .note = 62, .velocity = 0, .channel = 0, .port = 0 }, // PortA, Chan0
+        { .tick = 4 * ticksPerLine, .type = MidiTestEvent::Type::NoteOff, .note = 65, .velocity = 0, .channel = 0, .port = 1 } // PortB, Chan0
     };
 
     QCOMPARE(exportedEvents.size(), expectedEvents.size());
@@ -338,7 +372,7 @@ void MidiExporterTest::test_exportTo_timing_shouldBeCorrect()
     const auto mixerService = std::make_shared<MixerService>();
     const auto sideChainService = std::make_shared<SideChainService>();
     MidiExporter exporter { automationService, mixerService, sideChainService };
-    exporter.exportTo(fileName.toStdString(), song);
+    exporter.exportTo(fileName.toStdString(), song, 0, std::numeric_limits<size_t>::max(), MidiExportOptions());
 
     QVERIFY(QFile::exists(fileName));
     QVERIFY(QFile(fileName).size() > 0);
@@ -350,8 +384,8 @@ void MidiExporterTest::test_exportTo_timing_shouldBeCorrect()
     const auto ticksPerBeat = static_cast<uint32_t>(ticksPerLine * linesPerBeat);
 
     const std::vector<MidiTestEvent> expectedEvents = {
-        { 0, MidiTestEvent::Type::NoteOn, 60, 100, 0, 0 },
-        { ticksPerBeat, MidiTestEvent::Type::NoteOff, 60, 0, 0, 0 }
+        { .tick = 0, .type = MidiTestEvent::Type::NoteOn, .note = 60, .velocity = 100, .channel = 0, .port = 0 },
+        { .tick = ticksPerBeat, .type = MidiTestEvent::Type::NoteOff, .note = 60, .velocity = 0, .channel = 0, .port = 0 }
     };
 
     QCOMPARE(exportedEvents.size(), expectedEvents.size());
@@ -405,13 +439,13 @@ void MidiExporterTest::test_exportTo_mutedAndSoloedTracks_shouldExportCorrectly(
 
     const auto sideChainService = std::make_shared<SideChainService>();
     MidiExporter exporter { automationService, mixerService, sideChainService };
-    exporter.exportTo(fileName.toStdString(), song);
+    exporter.exportTo(fileName.toStdString(), song, 0, std::numeric_limits<size_t>::max(), MidiExportOptions());
 
     const auto exportedEvents = readMidiFile(fileName.toStdString());
 
     const std::vector<MidiTestEvent> expectedEvents = {
-        { 0, MidiTestEvent::Type::NoteOn, 64, 80, 0, 0 },
-        { ticksPerLine, MidiTestEvent::Type::NoteOff, 64, 0, 0, 0 }
+        { .tick = 0, .type = MidiTestEvent::Type::NoteOn, .note = 64, .velocity = 80, .channel = 0, .port = 0 },
+        { .tick = ticksPerLine, .type = MidiTestEvent::Type::NoteOff, .note = 64, .velocity = 0, .channel = 0, .port = 0 }
     };
 
     QCOMPARE(exportedEvents.size(), expectedEvents.size());
@@ -459,11 +493,11 @@ void MidiExporterTest::test_exportTo_rangedExport_shouldExportCorrectRange()
     const auto mixerService = std::make_shared<MixerService>();
     const auto sideChainService = std::make_shared<SideChainService>();
     MidiExporter exporter { automationService, mixerService, sideChainService };
-    exporter.exportTo(fileName.toStdString(), song);
+    exporter.exportTo(fileName.toStdString(), song, 0, std::numeric_limits<size_t>::max(), MidiExportOptions());
 
     const auto startPosition = 1;
     const auto endPosition = 2;
-    exporter.exportTo(fileName.toStdString(), song, startPosition, endPosition);
+    exporter.exportTo(fileName.toStdString(), song, startPosition, endPosition, MidiExportOptions());
 
     QVERIFY(QFile::exists(fileName));
     QVERIFY(QFile { fileName }.size() > 0);
@@ -472,8 +506,8 @@ void MidiExporterTest::test_exportTo_rangedExport_shouldExportCorrectRange()
     const auto ticksPerLine = song->ticksPerLine();
 
     const std::vector<MidiTestEvent> expectedEvents = {
-        { 0, MidiTestEvent::Type::NoteOn, 62, 100, 0, 0 },
-        { static_cast<uint32_t>(ticksPerLine), MidiTestEvent::Type::NoteOff, 62, 0, 0, 0 },
+        { .tick = 0, .type = MidiTestEvent::Type::NoteOn, .note = 62, .velocity = 100, .channel = 0, .port = 0 },
+        { .tick = static_cast<uint32_t>(ticksPerLine), .type = MidiTestEvent::Type::NoteOff, .note = 62, .velocity = 0, .channel = 0, .port = 0 },
     };
 
     QCOMPARE(exportedEvents.size(), expectedEvents.size());
@@ -482,6 +516,141 @@ void MidiExporterTest::test_exportTo_rangedExport_shouldExportCorrectRange()
     }
 }
 
-} // namespace noteahead
+void MidiExporterTest::test_exportTo_bankAndProgramChange_shouldExportCorrectly()
+{
+    const auto song = std::make_shared<Song>();
+    song->setBeatsPerMinute(120);
+    song->setLinesPerBeat(4);
+
+    const auto instrument = std::make_shared<Instrument>("TestInstrument");
+    auto settings = instrument->settings();
+    settings.bank = InstrumentSettings::Bank { .lsb = 10, .msb = 20 };
+    settings.patch = 30;
+    instrument->setSettings(settings);
+    song->setInstrument(0, instrument);
+
+    // Add a note so the track is considered active
+    NoteData noteData;
+    noteData.setAsNoteOn(60, 100);
+    song->setNoteDataAtPosition(noteData, { 0, 0, 0, 0, 0 });
+
+    const auto automationService = std::make_shared<AutomationService>(std::make_shared<PropertyService>());
+    const auto mixerService = std::make_shared<MixerService>();
+    const auto sideChainService = std::make_shared<SideChainService>();
+    MidiExporter exporter { automationService, mixerService, sideChainService };
+
+    {
+        QTemporaryFile tempFile;
+        QVERIFY(tempFile.open());
+        const auto fileName = tempFile.fileName();
+        tempFile.close();
+
+        MidiExportOptions options;
+        options.exportBank = true;
+        options.exportProgramChange = true;
+        exporter.exportTo(fileName.toStdString(), song, 0, song->length(), options);
+
+        const auto exportedEvents = readMidiFile(fileName.toStdString());
+
+        // Expected at tick 0: Bank MSB (20), Bank LSB (10), Program Change (30), then Note On
+        QVERIFY(exportedEvents.size() >= 4);
+        QCOMPARE(exportedEvents[0].type, MidiTestEvent::Type::BankMsb);
+        QCOMPARE(exportedEvents[0].bankMsb, 20);
+        QCOMPARE(exportedEvents[1].type, MidiTestEvent::Type::BankLsb);
+        QCOMPARE(exportedEvents[1].bankLsb, 10);
+        QCOMPARE(exportedEvents[2].type, MidiTestEvent::Type::ProgramChange);
+        QCOMPARE(exportedEvents[2].patch, 30);
+    }
+
+    {
+        QTemporaryFile tempFile;
+        QVERIFY(tempFile.open());
+        const auto fileName = tempFile.fileName();
+        tempFile.close();
+
+        MidiExportOptions options;
+        options.exportBank = false;
+        options.exportProgramChange = true;
+        exporter.exportTo(fileName.toStdString(), song, 0, song->length(), options);
+
+        const auto exportedEvents = readMidiFile(fileName.toStdString());
+        
+        // Expected at tick 0: Program Change (30), then Note On
+        QVERIFY(exportedEvents.size() >= 2);
+        QCOMPARE(exportedEvents[0].type, MidiTestEvent::Type::ProgramChange);
+        QCOMPARE(exportedEvents[0].patch, 30);
+        QCOMPARE(exportedEvents[1].type, MidiTestEvent::Type::NoteOn);
+    }
+
+    {
+        QTemporaryFile tempFile;
+        QVERIFY(tempFile.open());
+        const auto fileName = tempFile.fileName();
+        tempFile.close();
+
+        MidiExportOptions options;
+        options.exportBank = true;
+        options.exportProgramChange = false;
+        exporter.exportTo(fileName.toStdString(), song, 0, song->length(), options);
+
+        const auto exportedEvents = readMidiFile(fileName.toStdString());
+        
+        // Expected at tick 0: Bank MSB (20), Bank LSB (10), then Note On
+        QVERIFY(exportedEvents.size() >= 3);
+        QCOMPARE(exportedEvents[0].type, MidiTestEvent::Type::BankMsb);
+        QCOMPARE(exportedEvents[0].bankMsb, 20);
+        QCOMPARE(exportedEvents[1].type, MidiTestEvent::Type::BankLsb);
+        QCOMPARE(exportedEvents[1].bankLsb, 10);
+        QCOMPARE(exportedEvents[2].type, MidiTestEvent::Type::NoteOn);
+    }
+}
+
+void MidiExporterTest::test_exportTo_noNotesButSettings_shouldExportSettings()
+{
+    const auto song = std::make_shared<Song>();
+    song->setBeatsPerMinute(120);
+    song->setLinesPerBeat(4);
+
+    // Track 0 has settings but NO notes
+    const auto instrument = std::make_shared<Instrument>("TestInstrument");
+    auto settings = instrument->settings();
+    settings.bank = InstrumentSettings::Bank { .lsb = 15, .msb = 25 };
+    settings.patch = 35;
+    instrument->setSettings(settings);
+    song->setInstrument(0, instrument);
+
+    const auto automationService = std::make_shared<AutomationService>(std::make_shared<PropertyService>());
+    const auto mixerService = std::make_shared<MixerService>();
+    const auto sideChainService = std::make_shared<SideChainService>();
+    MidiExporter exporter { automationService, mixerService, sideChainService };
+
+    QTemporaryFile tempFile;
+    QVERIFY(tempFile.open());
+    const auto fileName = tempFile.fileName();
+    tempFile.close();
+
+    MidiExportOptions options;
+    options.exportBank = true;
+    options.exportProgramChange = true;
+    exporter.exportTo(fileName.toStdString(), song, 0, song->length(), options);
+
+    const auto exportedEvents = readMidiFile(fileName.toStdString());
+    
+    // Expected at tick 0: Bank MSB (25), Bank LSB (15), Program Change (35)
+    // No NoteOn should be present
+    QVERIFY(exportedEvents.size() >= 3);
+    QCOMPARE(exportedEvents[0].type, MidiTestEvent::Type::BankMsb);
+    QCOMPARE(exportedEvents[0].bankMsb, 25);
+    QCOMPARE(exportedEvents[1].type, MidiTestEvent::Type::BankLsb);
+    QCOMPARE(exportedEvents[1].bankLsb, 15);
+    QCOMPARE(exportedEvents[2].type, MidiTestEvent::Type::ProgramChange);
+    QCOMPARE(exportedEvents[2].patch, 35);
+
+    for (const auto & event : exportedEvents) {
+        QVERIFY(event.type != MidiTestEvent::Type::NoteOn);
+    }
+}
+
+        } // namespace noteahead
 
 QTEST_GUILESS_MAIN(noteahead::MidiExporterTest)

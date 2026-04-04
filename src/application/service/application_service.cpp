@@ -145,14 +145,17 @@ void ApplicationService::requestMidiExportDialog()
     emit midiExportDialogRequested();
 }
 
-void ApplicationService::exportMidiFile(QUrl url, quint64 startPosition, quint64 endPosition)
+void ApplicationService::exportMidiFile(QUrl url, quint64 startPosition, quint64 endPosition, bool exportBank, bool exportProgramChange)
 {
     auto fileName = url.toLocalFile();
     juzzlin::L(TAG).info() << "MIDI export requested for " << fileName.toStdString() << " from " << startPosition << " to " << endPosition;
     if (!fileName.endsWith(Constants::midiFileExtension())) {
         fileName += Constants::midiFileExtension();
     }
-    emit midiExportRequested(fileName, startPosition, endPosition);
+    MidiExportOptions options;
+    options.exportBank = exportBank;
+    options.exportProgramChange = exportProgramChange;
+    emit midiExportRequested(fileName, startPosition, endPosition, options);
 }
 
 void ApplicationService::requestMidiImportDialog()
@@ -161,11 +164,11 @@ void ApplicationService::requestMidiImportDialog()
     emit midiImportDialogRequested();
 }
 
-void ApplicationService::importMidiFile(QUrl url, int importMode, int patternLength, bool quantizeNoteOn, bool quantizeNoteOff)
+void ApplicationService::importMidiFile(QUrl url, int importMode, int patternLength, bool quantizeNoteOn, bool quantizeNoteOff, bool connectMidiPorts)
 {
     const auto fileName = url.toLocalFile();
-    juzzlin::L(TAG).info() << "MIDI import requested for " << fileName.toStdString() << " mode: " << importMode << " length: " << patternLength << " quantizeNoteOn: " << quantizeNoteOn << " quantizeNoteOff: " << quantizeNoteOff;
-    emit midiImportRequested(fileName, importMode, patternLength, quantizeNoteOn, quantizeNoteOff);
+    juzzlin::L(TAG).info() << "MIDI import requested for " << fileName.toStdString() << " mode: " << importMode << " length: " << patternLength << " quantizeNoteOn: " << quantizeNoteOn << " quantizeNoteOff: " << quantizeNoteOff << " connectMidiPorts: " << connectMidiPorts;
+    emit midiImportRequested(fileName, importMode, patternLength, quantizeNoteOn, quantizeNoteOff, connectMidiPorts);
 }
 
 void ApplicationService::requestLiveNoteOn(quint8 key, quint8 octave, quint8 velocity)

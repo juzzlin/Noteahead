@@ -42,12 +42,17 @@ namespace {
     constexpr uint8_t MIDI_PORT_EVENT = 0x21;
     constexpr uint8_t TRACK_NAME_EVENT = 0x03;
     constexpr uint8_t END_OF_TRACK_EVENT = 0x2f;
+    constexpr uint8_t DEVICE_NAME_EVENT = 0x09;
     constexpr uint8_t SET_TEMPO_EVENT = 0x51;
 
     constexpr uint8_t NOTE_ON_STATUS = 0x90;
     constexpr uint8_t NOTE_OFF_STATUS = 0x80;
     constexpr uint8_t CONTROL_CHANGE_STATUS = 0xb0;
+    constexpr uint8_t PROGRAM_CHANGE_STATUS = 0xc0;
     constexpr uint8_t PITCH_BEND_STATUS = 0xe0;
+
+    constexpr uint8_t BANK_SELECT_MSB = 0x00;
+    constexpr uint8_t BANK_SELECT_LSB = 0x20;
 
     void writeBeU32(std::ostream & out, uint32_t value)
     {
@@ -95,7 +100,7 @@ void MidiExporter::sortEvents(std::vector<EventS> & events)
     });
 }
 
-void MidiExporter::exportTo(std::string fileName, SongW songW, size_t startPosition, size_t endPosition) const
+void MidiExporter::exportTo(std::string fileName, SongW songW, size_t startPosition, size_t endPosition, MidiExportOptions options) const
 {
     auto song = songW.lock();
     if (!song) {
@@ -127,8 +132,8 @@ void MidiExporter::exportTo(std::string fileName, SongW songW, size_t startPosit
 
     auto filteredEvents = filterEvents(renderedEvents, m_mixerService);
 
-    const auto activeTracks = discoverActiveTracks(song, filteredEvents);
-    const auto trackData = buildTrackData(song, filteredEvents, activeTracks);
+    const auto activeTracks = discoverActiveTracks(song, filteredEvents, options);
+    const auto trackData = buildTrackData(song, filteredEvents, activeTracks, options);
 
     writeMidiHeader(out, song, activeTracks.trackToInstrument.size());
     writeTempoTrack(out, song);
@@ -169,7 +174,7 @@ void MidiExporter::writeMidiHeader(std::ostream & out, const SongS & song, size_
     writeBeU16(out, ticksPerQuarterNote);
 }
 
-MidiExporter::ActiveTracks MidiExporter::discoverActiveTracks(const SongS & song, const std::vector<EventS> & events) const
+MidiExporter::ActiveTracks MidiExporter::discoverActiveTracks(const SongS & song, const std::vector<EventS> & events, MidiExportOptions options) const
 {
     ActiveTracks activeTracks;
     std::set<std::string> portNames;
@@ -182,6 +187,18 @@ MidiExporter::ActiveTracks MidiExporter::discoverActiveTracks(const SongS & song
             activeTrackIndices.insert(ccData->track());
         } else if (auto pitchBendData = event->pitchBendData()) {
             activeTrackIndices.insert(pitchBendData->track());
+        }
+    }
+
+    // Also add tracks that have Bank or Program settings if enabled
+    for (size_t i = 0; i < song->trackCount(); ++i) {
+        if (auto instrument = song->instrument(i)) {
+            const auto & settings = instrument->settings();
+            const bool hasBank = options.exportBank && settings.bank.has_value();
+            const bool hasPatch = options.exportProgramChange && settings.patch.has_value();
+            if (hasBank || hasPatch) {
+                activeTrackIndices.insert(i);
+            }
         }
     }
 
@@ -208,7 +225,7 @@ MidiExporter::ActiveTracks MidiExporter::discoverActiveTracks(const SongS & song
     return activeTracks;
 }
 
-MidiExporter::ByteVector MidiExporter::initializeTrack(const SongS & song, size_t trackIndex, const ActiveTracks & activeTracks) const
+MidiExporter::ByteVector MidiExporter::initializeTrack(const SongS & song, size_t trackIndex, uint8_t channel, const ActiveTracks & activeTracks, MidiExportOptions options) const
 {
     ByteVector data;
 
@@ -223,6 +240,13 @@ MidiExporter::ByteVector MidiExporter::initializeTrack(const SongS & song, size_
     data.push_back(static_cast<char>(portIndex));
     juzzlin::L(TAG).info() << "Writing MIDI Port Meta-Event for track " << trackIndex << ", portIndex: " << static_cast<int>(portIndex);
 
+    // Add Device Name Meta-Event (Port Name)
+    data.push_back(static_cast<char>(0x00)); // Delta time
+    data.push_back(static_cast<char>(META_EVENT));
+    data.push_back(static_cast<char>(DEVICE_NAME_EVENT));
+    writeVlq(data, static_cast<uint32_t>(portName.length()));
+    data.insert(data.end(), portName.begin(), portName.end());
+
     // Add Track Name Meta-Event
     data.push_back(static_cast<char>(0x00)); // Delta time
     data.push_back(static_cast<char>(META_EVENT));
@@ -230,6 +254,27 @@ MidiExporter::ByteVector MidiExporter::initializeTrack(const SongS & song, size_
     const std::string trackName = song->trackName(trackIndex);
     writeVlq(data, static_cast<uint32_t>(trackName.length()));
     data.insert(data.end(), trackName.begin(), trackName.end());
+
+    const auto instrument = activeTracks.trackToInstrument.at(trackIndex);
+    const auto & settings = instrument->settings();
+
+    if (options.exportBank && settings.bank.has_value()) {
+        data.push_back(static_cast<char>(0x00)); // Delta time
+        data.push_back(static_cast<char>(CONTROL_CHANGE_STATUS | channel));
+        data.push_back(static_cast<char>(BANK_SELECT_MSB));
+        data.push_back(static_cast<char>(settings.bank->msb));
+
+        data.push_back(static_cast<char>(0x00)); // Delta time
+        data.push_back(static_cast<char>(CONTROL_CHANGE_STATUS | channel));
+        data.push_back(static_cast<char>(BANK_SELECT_LSB));
+        data.push_back(static_cast<char>(settings.bank->lsb));
+    }
+
+    if (options.exportProgramChange && settings.patch.has_value()) {
+        data.push_back(static_cast<char>(0x00)); // Delta time
+        data.push_back(static_cast<char>(PROGRAM_CHANGE_STATUS | channel));
+        data.push_back(static_cast<char>(*settings.patch));
+    }
 
     return data;
 }
@@ -266,14 +311,14 @@ void MidiExporter::writePitchBendEvent(ByteVector & dataOut, uint8_t channel, co
     dataOut.push_back(static_cast<char>(pitchBendData.msb()));
 }
 
-std::map<size_t, MidiExporter::ByteVector> MidiExporter::buildTrackData(const SongS & song, const std::vector<EventS> & events, const ActiveTracks & activeTracks) const
+std::map<size_t, MidiExporter::ByteVector> MidiExporter::buildTrackData(const SongS & song, const std::vector<EventS> & events, const ActiveTracks & activeTracks, MidiExportOptions options) const
 {
-    auto initialState = initializeTracks(song, activeTracks);
+    auto initialState = initializeTracks(song, activeTracks, options);
     auto processedState = processEvents(std::move(initialState), events);
     return finalizeTracks(std::move(processedState));
 }
 
-MidiExporter::TrackProcessingState MidiExporter::initializeTracks(const SongS & song, const ActiveTracks & activeTracks) const
+MidiExporter::TrackProcessingState MidiExporter::initializeTracks(const SongS & song, const ActiveTracks & activeTracks, MidiExportOptions options) const
 {
     TrackProcessingState state;
     std::map<std::string, uint8_t> portChannelCounters;
@@ -286,9 +331,10 @@ MidiExporter::TrackProcessingState MidiExporter::initializeTracks(const SongS & 
         if (channel == 9) { // Skip drum channel 10
             channel++;
         }
-        state.trackToChannelMap[trackIndex] = channel++;
+        const uint8_t trackChannel = channel++;
+        state.trackToChannelMap[trackIndex] = trackChannel;
 
-        state.allTracksData[trackIndex] = initializeTrack(song, trackIndex, activeTracks);
+        state.allTracksData[trackIndex] = initializeTrack(song, trackIndex, trackChannel, activeTracks, options);
     }
     return state;
 }

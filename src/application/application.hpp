@@ -115,8 +115,8 @@ private:
     void requestInstruments(QStringList midiPorts);
     void stopAllNotes() const;
 
-    void exportToMidi(QString fileName, quint64 startPosition, quint64 endPosition);
-    void importFromMidi(QString fileName, int importMode, int patternLength, bool quantizeNoteOn, bool quantizeNoteOff);
+    void exportToMidi(QString fileName, quint64 startPosition, quint64 endPosition, MidiExportOptions options);
+    void importFromMidi(QString fileName, int importMode, int patternLength, bool quantizeNoteOn, bool quantizeNoteOff, bool connectMidiPorts);
 
     std::unique_ptr<UiLogger> m_uiLogger;
 

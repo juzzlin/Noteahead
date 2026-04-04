@@ -36,6 +36,11 @@ class PitchBendData;
 class SideChainService;
 class Song;
 
+struct MidiExportOptions {
+    bool exportBank = true;
+    bool exportProgramChange = true;
+};
+
 class MidiExporter {
 public:
     using AutomationServiceS = std::shared_ptr<AutomationService>;
@@ -55,7 +60,7 @@ public:
 
     MidiExporter(AutomationServiceS automationService, MixerServiceS mixerService, SideChainServiceS sidechainService);
 
-    void exportTo(std::string fileName, SongW songW, size_t startPosition = 0, size_t endPosition = std::numeric_limits<size_t>::max()) const;
+    void exportTo(std::string fileName, SongW songW, size_t startPosition = 0, size_t endPosition = std::numeric_limits<size_t>::max(), MidiExportOptions options = MidiExportOptions()) const;
 
 private:
     struct TrackProcessingState {
@@ -65,16 +70,15 @@ private:
     };
 
     void writeMidiHeader(std::ostream & out, const SongS & song, size_t numNoteTracks) const;
-    ActiveTracks discoverActiveTracks(const SongS& song, const std::vector<EventS> & events) const;
-    
+    ActiveTracks discoverActiveTracks(const SongS & song, const std::vector<EventS> & events, MidiExportOptions options) const;
     std::vector<EventS> filterEvents(const std::vector<EventS> & events, MixerServiceS mixerService) const;
     
-    std::map<size_t, ByteVector> buildTrackData(const SongS& song, const std::vector<EventS> & events, const ActiveTracks & activeTracks) const;
-    TrackProcessingState initializeTracks(const SongS& song, const ActiveTracks & activeTracks) const;
+    std::map<size_t, ByteVector> buildTrackData(const SongS& song, const std::vector<EventS> & events, const ActiveTracks & activeTracks, MidiExportOptions options) const;
+    TrackProcessingState initializeTracks(const SongS& song, const ActiveTracks & activeTracks, MidiExportOptions options) const;
     TrackProcessingState processEvents(TrackProcessingState state, const std::vector<EventS> & events) const;
     std::map<size_t, ByteVector> finalizeTracks(TrackProcessingState state) const;
 
-    ByteVector initializeTrack(const SongS& song, size_t trackIndex, const ActiveTracks & activeTracks) const;
+    ByteVector initializeTrack(const SongS& song, size_t trackIndex, uint8_t channel, const ActiveTracks & activeTracks, MidiExportOptions options) const;
     void writeNoteOnEvent(ByteVector & data, uint8_t channel, const NoteData & noteData) const;
     void writeNoteOffEvent(ByteVector & data, uint8_t channel, const NoteData & noteData) const;
     void writeControlChangeEvent(ByteVector & data, uint8_t channel, const MidiCcData & ccData) const;

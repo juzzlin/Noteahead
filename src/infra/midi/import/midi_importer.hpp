@@ -27,6 +27,7 @@ namespace noteahead {
 
 class Event;
 class MidiCcData;
+class MidiService;
 class NoteData;
 class PitchBendData;
 class Song;
@@ -35,6 +36,7 @@ class MidiImporter
 {
 public:
     using EventS = std::shared_ptr<Event>;
+    using MidiServiceS = std::shared_ptr<MidiService>;
     using SongS = std::shared_ptr<Song>;
 
     struct MidiEvent
@@ -49,6 +51,7 @@ public:
     struct MidiTrack
     {
         std::string name;
+        std::string portName;
         std::vector<MidiEvent> events;
         uint8_t port = 0;
     };
@@ -66,7 +69,7 @@ public:
 
     MidiFileData parseMidiFile(const std::string & fileName) const;
 
-    void importTo(const MidiFileData & data, SongS song, int importMode, int patternLength, bool quantizeNoteOn, bool quantizeNoteOff) const;
+    void importTo(const MidiFileData & data, SongS song, int importMode, int patternLength, bool quantizeNoteOn, bool quantizeNoteOff, MidiServiceS midiService) const;
 
 private:
     struct PatternLine

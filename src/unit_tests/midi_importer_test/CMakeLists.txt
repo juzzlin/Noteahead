@@ -11,6 +11,14 @@ set(SRC
     ../../application/service/mixer_service.cpp
     ../../application/service/random_service.cpp
     ../../application/service/side_chain_service.cpp
+    ../../application/service/midi_service.cpp
+    ../../application/service/midi_worker_in.cpp
+    ../../application/service/midi_worker_out.cpp
+    ../../application/service/jack_service.cpp
+    ../../application/service/midi_worker.cpp
+    ../../application/service/settings_service.cpp
+    ../../application/instrument_request.cpp
+    ../../domain/midi_note_data.cpp
     ../../common/constants.cpp
     ../../common/utils.cpp
     ../../domain/arpeggiator.cpp
@@ -38,6 +46,13 @@ set(SRC
     ../../domain/play_order.cpp
     ../../domain/song.cpp
     ../../domain/track.cpp
+    ../../infra/midi/midi_backend.cpp
+    ../../infra/midi/midi_backend_in.cpp
+    ../../infra/midi/midi_backend_out.cpp
+    ../../infra/midi/implementation/librtmidi/midi_in_rt_midi.cpp
+    ../../infra/midi/implementation/librtmidi/midi_out_rt_midi.cpp
+    ../../infra/midi/midi_port.cpp
+    ../../infra/settings.cpp
     ../../infra/midi/export/midi_exporter.cpp
     ../../infra/midi/import/midi_importer.cpp
     ../../infra/midi/midi_cc_mapping.cpp
@@ -47,5 +62,9 @@ qt_add_executable(${NAME} ${SRC})
 set_target_properties(${NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${UNIT_TEST_BASE_DIR})
 target_include_directories(${NAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/../..)
 target_include_directories(${NAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/../../contrib/SimpleLogger/src)
-target_link_libraries(${NAME} PRIVATE Qt6::Test SimpleLogger)
+target_include_directories(${NAME} PRIVATE ${RTMIDI_INCLUDE_DIRS} ${RTAUDIO_INCLUDE_DIRS} ${JACK_INCLUDE_DIRS} ${SNDFILE_INCLUDE_DIRS})
+target_link_libraries(${NAME} PRIVATE Qt6::Test Qt6::Gui SimpleLogger ${RTMIDI_LIBRARIES} ${RTAUDIO_LIBRARIES} ${JACK_LIBRARIES} ${SNDFILE_LIBRARIES})
+if(JACK_FOUND)
+  target_compile_definitions(${NAME} PRIVATE HAVE_JACK)
+endif()
 add_test(NAME ${NAME} COMMAND ${NAME})
