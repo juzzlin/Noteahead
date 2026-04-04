@@ -79,6 +79,7 @@ private:
     void writeNoteOffEvent(ByteVector & data, uint8_t channel, const NoteData & noteData) const;
     void writeControlChangeEvent(ByteVector & data, uint8_t channel, const MidiCcData & ccData) const;
     void writePitchBendEvent(ByteVector & data, uint8_t channel, const PitchBendData & pitchBendData) const;
+    void writeProgramChangeEvent(ByteVector & data, uint8_t channel, uint8_t patch) const;
     void writeTempoTrack(std::ostream& out, const SongS& song) const;
     void writeNoteTracks(std::ostream & out, const std::map<size_t, ByteVector> & allTracksData) const;
 
