@@ -262,8 +262,6 @@ ApplicationWindow {
         anchors.centerIn: parent
         width: parent.width * Constants.defaultDialogScale
         onAccepted: {
-            UiService.interpolationStartLine = startLine();
-            UiService.interpolationEndLine = endLine();
             UiService.interpolationStartValue = startValue();
             UiService.interpolationEndValue = endValue();
             UiService.interpolationUsePercentages = usePercentages();
@@ -288,8 +286,6 @@ ApplicationWindow {
         anchors.centerIn: parent
         width: parent.width * Constants.defaultDialogScale
         onAccepted: {
-            UiService.interpolationStartLine = startLine();
-            UiService.interpolationEndLine = endLine();
             UiService.interpolationStartValue = startValue();
             UiService.interpolationEndValue = endValue();
             UiService.interpolationUsePercentages = usePercentages();
@@ -440,11 +436,8 @@ ApplicationWindow {
         });
         UiService.columnVelocityInterpolationDialogRequested.connect(() => {
             columnVelocityInterpolationDialog.setTitle(qsTr("Interpolate velocity"));
-            if (UiService.interpolationEndLine === 0) {
-                UiService.interpolationEndLine = editorService.currentLineCount - 1;
-            }
-            columnVelocityInterpolationDialog.setStartLine(UiService.interpolationStartLine);
-            columnVelocityInterpolationDialog.setEndLine(UiService.interpolationEndLine);
+            columnVelocityInterpolationDialog.setStartLine(0);
+            columnVelocityInterpolationDialog.setEndLine(editorService.currentLineCount - 1);
             columnVelocityInterpolationDialog.setStartValue(UiService.interpolationStartValue);
             columnVelocityInterpolationDialog.setEndValue(UiService.interpolationEndValue);
             columnVelocityInterpolationDialog.setUsePercentages(UiService.interpolationUsePercentages);
@@ -452,12 +445,8 @@ ApplicationWindow {
         });
         UiService.selectionVelocityInterpolationDialogRequested.connect(() => {
             selectionVelocityInterpolationDialog.setTitle(qsTr("Interpolate velocity"));
-            if (UiService.interpolationEndLine === 0) {
-                UiService.interpolationStartLine = selectionService.minLine();
-                UiService.interpolationEndLine = selectionService.maxLine();
-            }
-            selectionVelocityInterpolationDialog.setStartLine(UiService.interpolationStartLine);
-            selectionVelocityInterpolationDialog.setEndLine(UiService.interpolationEndLine);
+            selectionVelocityInterpolationDialog.setStartLine(selectionService.minLine());
+            selectionVelocityInterpolationDialog.setEndLine(selectionService.maxLine());
             selectionVelocityInterpolationDialog.setStartValue(UiService.interpolationStartValue);
             selectionVelocityInterpolationDialog.setEndValue(UiService.interpolationEndValue);
             selectionVelocityInterpolationDialog.setUsePercentages(UiService.interpolationUsePercentages);
@@ -465,11 +454,8 @@ ApplicationWindow {
         });
         UiService.trackVelocityInterpolationDialogRequested.connect(() => {
             trackVelocityInterpolationDialog.setTitle(qsTr("Interpolate velocity"));
-            if (UiService.interpolationEndLine === 0) {
-                UiService.interpolationEndLine = editorService.currentLineCount - 1;
-            }
             trackVelocityInterpolationDialog.setStartLine(UiService.interpolationStartLine);
-            trackVelocityInterpolationDialog.setEndLine(UiService.interpolationEndLine);
+            trackVelocityInterpolationDialog.setEndLine(UiService.interpolationEndLine === 0 ? editorService.currentLineCount - 1 : UiService.interpolationEndLine);
             trackVelocityInterpolationDialog.setStartValue(UiService.interpolationStartValue);
             trackVelocityInterpolationDialog.setEndValue(UiService.interpolationEndValue);
             trackVelocityInterpolationDialog.setUsePercentages(UiService.interpolationUsePercentages);
