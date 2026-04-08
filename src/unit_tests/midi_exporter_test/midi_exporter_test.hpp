@@ -25,13 +25,14 @@ class MidiExporterTest : public QObject
     Q_OBJECT
 
 private slots:
-    void test_exportTo_singleNote_shouldExportCorrectly();
-    void test_exportTo_multipleNotesAndTracks_shouldExportCorrectly();
-    void test_exportTo_timing_shouldBeCorrect();
-    void test_exportTo_mutedAndSoloedTracks_shouldExportCorrectly();
-    void test_exportTo_rangedExport_shouldExportCorrectRange();
     void test_exportTo_bankAndProgramChange_shouldExportCorrectly();
+    void test_exportTo_midiCcAndPitchBend_shouldExportCorrectly();
+    void test_exportTo_multipleNotesAndTracks_shouldExportCorrectly();
+    void test_exportTo_mutedAndSoloedTracks_shouldExportCorrectly();
     void test_exportTo_noNotesButSettings_shouldExportSettings();
+    void test_exportTo_rangedExport_shouldExportCorrectRange();
+    void test_exportTo_singleNote_shouldExportCorrectly();
+    void test_exportTo_timing_shouldBeCorrect();
 };
 
 } // namespace noteahead

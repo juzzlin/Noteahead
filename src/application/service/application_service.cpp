@@ -145,7 +145,7 @@ void ApplicationService::requestMidiExportDialog()
     emit midiExportDialogRequested();
 }
 
-void ApplicationService::exportMidiFile(QUrl url, quint64 startPosition, quint64 endPosition, bool exportBank, bool exportProgramChange)
+void ApplicationService::exportMidiFile(QUrl url, quint64 startPosition, quint64 endPosition, bool exportBank, bool exportProgramChange, bool exportMidiCc, bool exportPitchBend)
 {
     auto fileName = url.toLocalFile();
     juzzlin::L(TAG).info() << "MIDI export requested for " << fileName.toStdString() << " from " << startPosition << " to " << endPosition;
@@ -155,6 +155,8 @@ void ApplicationService::exportMidiFile(QUrl url, quint64 startPosition, quint64
     MidiExportOptions options;
     options.exportBank = exportBank;
     options.exportProgramChange = exportProgramChange;
+    options.exportMidiCc = exportMidiCc;
+    options.exportPitchBend = exportPitchBend;
     emit midiExportRequested(fileName, startPosition, endPosition, options);
 }
 

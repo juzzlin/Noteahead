@@ -39,6 +39,8 @@ class Song;
 struct MidiExportOptions {
     bool exportBank = true;
     bool exportProgramChange = true;
+    bool exportMidiCc = true;
+    bool exportPitchBend = true;
 };
 
 class MidiExporter {
@@ -71,7 +73,7 @@ private:
 
     void writeMidiHeader(std::ostream & out, const SongS & song, size_t numNoteTracks) const;
     ActiveTracks discoverActiveTracks(const SongS & song, const std::vector<EventS> & events, MidiExportOptions options) const;
-    std::vector<EventS> filterEvents(const std::vector<EventS> & events, MixerServiceS mixerService) const;
+    std::vector<EventS> filterEvents(const std::vector<EventS> & events, MixerServiceS mixerService, MidiExportOptions options) const;
     
     std::map<size_t, ByteVector> buildTrackData(const SongS& song, const std::vector<EventS> & events, const ActiveTracks & activeTracks, MidiExportOptions options) const;
     TrackProcessingState initializeTracks(const SongS& song, const ActiveTracks & activeTracks, MidiExportOptions options) const;

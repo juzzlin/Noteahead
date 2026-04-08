@@ -91,7 +91,7 @@ public:
     Q_INVOKABLE void saveProjectAsTemplate(QUrl url);
 
     Q_INVOKABLE void requestMidiExportDialog();
-    Q_INVOKABLE void exportMidiFile(QUrl url, quint64 startPosition, quint64 endPosition, bool exportBank, bool exportProgramChange);
+    Q_INVOKABLE void exportMidiFile(QUrl url, quint64 startPosition, quint64 endPosition, bool exportBank, bool exportProgramChange, bool exportMidiCc, bool exportPitchBend);
 
     Q_INVOKABLE void requestMidiImportDialog();
     Q_INVOKABLE void importMidiFile(QUrl url, int importMode, int patternLength, bool quantizeNoteOn, bool quantizeNoteOff, bool connectMidiPorts);

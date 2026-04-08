@@ -114,6 +114,7 @@ All Arctic Music Project songs:
 ### File Formats
 - Saves to a custom (but open!) XML-based **.nahd** format
 - Exports in **MIDI File Format 1** (SMF Type 1) (since 1.0.0)
+  - Supports optional export of MIDI CC and Pitch Bend automations (since 1.9.0)
 
 ### Experimental
 - Imports in **MIDI File Format 1** (SMF Type 1) (since 1.8.0)

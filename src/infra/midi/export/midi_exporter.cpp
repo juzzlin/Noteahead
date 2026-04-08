@@ -130,7 +130,7 @@ void MidiExporter::exportTo(std::string fileName, SongW songW, size_t startPosit
         }
     }
 
-    auto filteredEvents = filterEvents(renderedEvents, m_mixerService);
+    auto filteredEvents = filterEvents(renderedEvents, m_mixerService, options);
 
     const auto activeTracks = discoverActiveTracks(song, filteredEvents, options);
     const auto trackData = buildTrackData(song, filteredEvents, activeTracks, options);
@@ -140,7 +140,7 @@ void MidiExporter::exportTo(std::string fileName, SongW songW, size_t startPosit
     writeNoteTracks(out, trackData);
 }
 
-std::vector<MidiExporter::EventS> MidiExporter::filterEvents(const std::vector<EventS> & events, MixerServiceS mixerService) const
+std::vector<MidiExporter::EventS> MidiExporter::filterEvents(const std::vector<EventS> & events, MixerServiceS mixerService, MidiExportOptions options) const
 {
     std::vector<EventS> filteredEvents;
     for (const auto & event : events) {
@@ -149,11 +149,11 @@ std::vector<MidiExporter::EventS> MidiExporter::filterEvents(const std::vector<E
                 filteredEvents.push_back(event);
             }
         } else if (const auto ccData = event->midiCcData(); ccData) {
-            if (mixerService->shouldColumnPlay(ccData->track(), ccData->column())) {
+            if (options.exportMidiCc && mixerService->shouldColumnPlay(ccData->track(), ccData->column())) {
                 filteredEvents.push_back(event);
             }
         } else if (const auto pitchBendData = event->pitchBendData(); pitchBendData) {
-            if (mixerService->shouldColumnPlay(pitchBendData->track(), pitchBendData->column())) {
+            if (options.exportPitchBend && mixerService->shouldColumnPlay(pitchBendData->track(), pitchBendData->column())) {
                 filteredEvents.push_back(event);
             }
         } else {

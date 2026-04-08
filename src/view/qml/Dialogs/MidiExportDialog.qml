@@ -66,6 +66,16 @@ Dialog {
                     text: qsTr("Export Program Change")
                     checked: true
                 }
+                CheckBox {
+                    id: exportMidiCcCheckBox
+                    text: qsTr("Export MIDI CC")
+                    checked: true
+                }
+                CheckBox {
+                    id: exportPitchBendCheckBox
+                    text: qsTr("Export Pitch Bend")
+                    checked: true
+                }
             }
         }
     }
@@ -78,7 +88,7 @@ Dialog {
             text: qsTr("Export")
             enabled: rootItem.outputFileName
             onClicked: {
-                applicationService.exportMidiFile(rootItem.outputFileName, startPositionSpinBox.value, endPositionSpinBox.value, exportBankCheckBox.checked, exportProgramChangeCheckBox.checked);
+                applicationService.exportMidiFile(rootItem.outputFileName, startPositionSpinBox.value, endPositionSpinBox.value, exportBankCheckBox.checked, exportProgramChangeCheckBox.checked, exportMidiCcCheckBox.checked, exportPitchBendCheckBox.checked);
                 rootItem.accept();
             }
         }

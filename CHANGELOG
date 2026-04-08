@@ -15,6 +15,12 @@ New features:
 * Fix GitHub Issue #39: Save patch changes in midi export
   - Optionally exports and imports program change and bank settings
 
+* Fix GitHub Issue #41: MIDI export: Export MIDI CC events
+  - Add optional export of MIDI CC data
+
+* Fix GitHub Issue #42: MIDI export: Export Pitch Bend events
+  - Add optional export of Pitch Bend data
+
 Bug fixes:
 
 * Fix crash when resizing after track deletion

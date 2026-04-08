@@ -46,7 +46,9 @@ struct MidiTestEvent
         BankLsb,
         ProgramChange,
         NoteOff,
-        NoteOn
+        NoteOn,
+        ControlChange,
+        PitchBend
     };
 
     uint32_t tick;
@@ -60,6 +62,9 @@ struct MidiTestEvent
     uint8_t patch = 0;
     uint8_t channel = 0;
     uint8_t port = 0;
+    uint8_t controller = 0;
+    uint8_t value = 0;
+    int16_t pitchBend = 0;
 
     auto operator<=>(const MidiTestEvent&) const = default;
 };
@@ -202,6 +207,8 @@ auto readMidiFile(const std::string& fileName) -> std::vector<MidiTestEvent>
                     events.push_back({ .tick = currentTrackTick, .type = MidiTestEvent::Type::BankMsb, .bankMsb = value, .channel = channel, .port = currentPort });
                 } else if (controller == 0x20) { // Bank Select LSB
                     events.push_back({ .tick = currentTrackTick, .type = MidiTestEvent::Type::BankLsb, .bankLsb = value, .channel = channel, .port = currentPort });
+                } else {
+                    events.push_back({ .tick = currentTrackTick, .type = MidiTestEvent::Type::ControlChange, .channel = channel, .port = currentPort, .controller = controller, .value = value });
                 }
             } else if ((statusByte & 0xF0) == 0xC0) { // Program Change
                 const auto channel = static_cast<uint8_t>(statusByte & 0x0F);
@@ -209,7 +216,13 @@ auto readMidiFile(const std::string& fileName) -> std::vector<MidiTestEvent>
                 events.push_back({ .tick = currentTrackTick, .type = MidiTestEvent::Type::ProgramChange, .patch = patch, .channel = channel, .port = currentPort });
             } else if ((statusByte & 0xF0) == 0xD0) {
                 in.seekg(1, std::ios_base::cur);
-            } else if ((statusByte & 0xF0) == 0xA0 || (statusByte & 0xF0) == 0xE0) {
+            } else if ((statusByte & 0xF0) == 0xE0) { // Pitch Bend
+                const auto channel = static_cast<uint8_t>(statusByte & 0x0F);
+                const auto lsb = static_cast<uint8_t>(in.get());
+                const auto msb = static_cast<uint8_t>(in.get());
+                const auto value = static_cast<int16_t>((msb << 7) | lsb);
+                events.push_back({ .tick = currentTrackTick, .type = MidiTestEvent::Type::PitchBend, .channel = channel, .port = currentPort, .pitchBend = value });
+            } else if ((statusByte & 0xF0) == 0xA0) {
                 in.seekg(2, std::ios_base::cur);
             }
         }
@@ -648,6 +661,85 @@ void MidiExporterTest::test_exportTo_noNotesButSettings_shouldExportSettings()
 
     for (const auto & event : exportedEvents) {
         QVERIFY(event.type != MidiTestEvent::Type::NoteOn);
+    }
+}
+
+void MidiExporterTest::test_exportTo_midiCcAndPitchBend_shouldExportCorrectly()
+{
+    const auto song = std::make_shared<Song>();
+    song->setBeatsPerMinute(120);
+    song->setLinesPerBeat(4);
+
+    const auto instrument = std::make_shared<Instrument>("TestInstrument");
+    song->setInstrument(0, instrument);
+
+    const auto automationService = std::make_shared<AutomationService>(std::make_shared<PropertyService>());
+
+    // Add MIDI CC automation: Pattern 0, Track 0, Column 0, Controller 7, Line 0 to 1, Value 100 to 110
+    automationService->addMidiCcAutomation(0, 0, 0, 7, 0, 1, 100, 110, "Test CC", true, 4, 0);
+
+    // Add Pitch Bend automation: Pattern 0, Track 0, Column 0, Line 2 to 3, Value 50 to 60
+    automationService->addPitchBendAutomation(0, 0, 0, 2, 3, 50, 60, "Test PB", true);
+
+    const auto mixerService = std::make_shared<MixerService>();
+    const auto sideChainService = std::make_shared<SideChainService>();
+    MidiExporter exporter { automationService, mixerService, sideChainService };
+
+    const auto ticksPerLine = static_cast<uint32_t>(song->ticksPerLine());
+
+    {
+        QTemporaryFile tempFile;
+        QVERIFY(tempFile.open());
+        const auto fileName = tempFile.fileName();
+        tempFile.close();
+
+        MidiExportOptions options;
+        options.exportMidiCc = true;
+        options.exportPitchBend = true;
+        exporter.exportTo(fileName.toStdString(), song, 0, song->length(), options);
+
+        const auto exportedEvents = readMidiFile(fileName.toStdString());
+
+        // Expected:
+        // CC 7 value 100 at tick 0
+        // CC 7 value 110 at tick ticksPerLine
+        // Pitch Bend 50% at tick 2*ticksPerLine
+        // Pitch Bend 60% at tick 3*ticksPerLine
+
+        QVERIFY(exportedEvents.size() >= 4);
+
+        QCOMPARE(exportedEvents[0].type, MidiTestEvent::Type::ControlChange);
+        QCOMPARE(exportedEvents[0].tick, 0u);
+        QCOMPARE(exportedEvents[0].controller, 7);
+        QCOMPARE(exportedEvents[0].value, 100);
+
+        QCOMPARE(exportedEvents[1].type, MidiTestEvent::Type::ControlChange);
+        QCOMPARE(exportedEvents[1].tick, ticksPerLine);
+        QCOMPARE(exportedEvents[1].controller, 7);
+        QCOMPARE(exportedEvents[1].value, 110);
+
+        QCOMPARE(exportedEvents[2].type, MidiTestEvent::Type::PitchBend);
+        QCOMPARE(exportedEvents[2].tick, 2 * ticksPerLine);
+        QCOMPARE(exportedEvents[2].pitchBend, 12287);
+
+        QCOMPARE(exportedEvents[3].type, MidiTestEvent::Type::PitchBend);
+        QCOMPARE(exportedEvents[3].tick, 3 * ticksPerLine);
+        QCOMPARE(exportedEvents[3].pitchBend, 13106);
+    }
+
+    {
+        QTemporaryFile tempFile;
+        QVERIFY(tempFile.open());
+        const auto fileName = tempFile.fileName();
+        tempFile.close();
+
+        MidiExportOptions options;
+        options.exportMidiCc = false;
+        options.exportPitchBend = false;
+        exporter.exportTo(fileName.toStdString(), song, 0, song->length(), options);
+
+        const auto exportedEvents = readMidiFile(fileName.toStdString());
+        QCOMPARE(exportedEvents.size(), 0u);
     }
 }
 
