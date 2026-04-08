@@ -33,6 +33,8 @@ private slots:
     void test_exportTo_rangedExport_shouldExportCorrectRange();
     void test_exportTo_singleNote_shouldExportCorrectly();
     void test_exportTo_timing_shouldBeCorrect();
+    void test_exportTo_emptySong_shouldExportValidMidi();
+    void test_exportTo_nonSequentialTracks_shouldExportCorrectly();
 };
 
 } // namespace noteahead

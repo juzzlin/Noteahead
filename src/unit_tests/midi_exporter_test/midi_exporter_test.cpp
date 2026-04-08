@@ -743,6 +743,69 @@ void MidiExporterTest::test_exportTo_midiCcAndPitchBend_shouldExportCorrectly()
     }
 }
 
+void MidiExporterTest::test_exportTo_emptySong_shouldExportValidMidi()
+{
+    const auto song = std::make_shared<Song>();
+    song->initialize();
+
+    QTemporaryFile tempFile;
+    QVERIFY(tempFile.open());
+    const auto fileName = tempFile.fileName();
+    tempFile.close();
+
+    const auto automationService = std::make_shared<AutomationService>(std::make_shared<PropertyService>());
+    const auto mixerService = std::make_shared<MixerService>();
+    const auto sideChainService = std::make_shared<SideChainService>();
+    MidiExporter exporter { automationService, mixerService, sideChainService };
+    exporter.exportTo(fileName.toStdString(), song, 0, std::numeric_limits<size_t>::max(), MidiExportOptions());
+
+    QVERIFY(QFile::exists(fileName));
+    // Header (14) + Tempo track header (8) + Tempo track data (11) = 33 bytes
+    QVERIFY(QFile { fileName }.size() >= 33);
+}
+
+void MidiExporterTest::test_exportTo_nonSequentialTracks_shouldExportCorrectly()
+{
+    const auto song = std::make_shared<Song>();
+    song->initialize();
+
+    // Default song has 8 tracks (0-7). Let's add more and delete some.
+    const auto track8 = song->addTrackToRightOf(7);
+    song->addTrackToRightOf(track8);
+
+    // Indices should be 0-9. Let's delete 8.
+    song->deleteTrack(track8);
+
+    // trackCount() should return 9.
+    QCOMPARE(song->trackCount(), 9u);
+    const auto indices = song->trackIndices();
+    QVERIFY(indices.size() == 9);
+    // Index 8 should be missing
+    QVERIFY(std::ranges::find(indices, 8) == indices.end());
+    QVERIFY(std::ranges::find(indices, 9) != indices.end());
+
+    // Add note to track 9
+    NoteData noteData;
+    noteData.setAsNoteOn(60, 100);
+    song->setNoteDataAtPosition(noteData, { 0, 9, 0, 0, 0 });
+
+    QTemporaryFile tempFile;
+    QVERIFY(tempFile.open());
+    const auto fileName = tempFile.fileName();
+    tempFile.close();
+
+    const auto automationService = std::make_shared<AutomationService>(std::make_shared<PropertyService>());
+    const auto mixerService = std::make_shared<MixerService>();
+    const auto sideChainService = std::make_shared<SideChainService>();
+    MidiExporter exporter { automationService, mixerService, sideChainService };
+
+    // This should not throw!
+    exporter.exportTo(fileName.toStdString(), song, 0, std::numeric_limits<size_t>::max(), MidiExportOptions());
+
+    QVERIFY(QFile::exists(fileName));
+    QVERIFY(QFile { fileName }.size() > 0);
+}
+
         } // namespace noteahead
 
 QTEST_GUILESS_MAIN(noteahead::MidiExporterTest)

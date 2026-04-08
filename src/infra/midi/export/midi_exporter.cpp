@@ -20,6 +20,7 @@
 #include <iostream>
 #include <map>
 #include <optional>
+#include <set>
 #include <vector>
 #include <utility>
 
@@ -191,7 +192,7 @@ MidiExporter::ActiveTracks MidiExporter::discoverActiveTracks(const SongS & song
     }
 
     // Also add tracks that have Bank or Program settings if enabled
-    for (size_t i = 0; i < song->trackCount(); ++i) {
+    for (auto i : song->trackIndices()) {
         if (auto instrument = song->instrument(i)) {
             const auto & settings = instrument->settings();
             const bool hasBank = options.exportBank && settings.bank.has_value();
