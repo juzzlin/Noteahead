@@ -32,6 +32,9 @@ Rectangle {
         _initializeTrackHeader();
     }
     function _initializeTrackHeader(): void {
+        if (!trackHeader) {
+            return;
+        }
         trackHeader.setIndex(_index);
         setMuted(mixerService.isTrackMuted(_index));
         setSoloed(mixerService.isTrackSoloed(_index));
@@ -49,17 +52,21 @@ Rectangle {
     function resize(width: int, height: int): void {
         rootItem.width = width;
         rootItem.height = height;
-        columnContainer.resize(rootItem.width, rootItem.height - trackHeader.height);
+        columnContainer.resize(rootItem.width, rootItem.height - (trackHeader ? trackHeader.height : 0));
     }
     function focused(): bool {
         return _focused;
     }
     function setFocused(columnIndex: int, focused: bool): void {
         _focused = focused;
-        trackHeader.setFocused(focused);
+        if (trackHeader) {
+            trackHeader.setFocused(focused);
+        }
     }
     function setName(name: string): void {
-        trackHeader.setName(name);
+        if (trackHeader) {
+            trackHeader.setName(name);
+        }
     }
     function setPosition(position: var): void {
         columnContainer.setPosition(position);
@@ -69,13 +76,19 @@ Rectangle {
         columnContainer.setPositionBar(positionBar);
     }
     function setMuted(muted: bool): void {
-        trackHeader.setMuted(muted);
+        if (trackHeader) {
+            trackHeader.setMuted(muted);
+        }
     }
     function setSoloed(soloed: bool): void {
-        trackHeader.setSoloed(soloed);
+        if (trackHeader) {
+            trackHeader.setSoloed(soloed);
+        }
     }
     function setVelocityScale(value: int): void {
-        trackHeader.setVelocityScale(value);
+        if (trackHeader) {
+            trackHeader.setVelocityScale(value);
+        }
     }
     function setColumnMuted(columnIndex: int, muted: bool): void {
         columnContainer.setColumnMuted(columnIndex, muted);
@@ -278,16 +291,19 @@ Rectangle {
         }
     }
     Component.onCompleted: {
-        trackHeader.columnDeletionRequested.connect(() => editorService.requestColumnDeletion(_index));
-        trackHeader.invertedMuteRequested.connect(() => mixerService.invertMutedTracks(_index));
-        trackHeader.invertedSoloRequested.connect(() => mixerService.invertSoloedTracks(_index));
-        trackHeader.muteRequested.connect(() => mixerService.muteTrack(_index, true));
-        trackHeader.nameChanged.connect(name => rootItem.nameChanged(name));
-        trackHeader.newColumnRequested.connect(() => editorService.requestNewColumn(_index));
-        trackHeader.soloRequested.connect(() => mixerService.soloTrack(_index, true));
-        trackHeader.trackSettingsDialogRequested.connect(() => UiService.requestTrackSettingsDialog(_index));
-        trackHeader.unmuteRequested.connect(() => mixerService.muteTrack(_index, false));
-        trackHeader.unsoloRequested.connect(() => mixerService.soloTrack(_index, false));
-        trackHeader.velocityScaleRequested.connect(() => UiService.requestTrackVelocityScaleDialog(_index));
+        _initializeTrackHeader();
+        if (trackHeader) {
+            trackHeader.columnDeletionRequested.connect(() => editorService.requestColumnDeletion(_index));
+            trackHeader.invertedMuteRequested.connect(() => mixerService.invertMutedTracks(_index));
+            trackHeader.invertedSoloRequested.connect(() => mixerService.invertSoloedTracks(_index));
+            trackHeader.muteRequested.connect(() => mixerService.muteTrack(_index, true));
+            trackHeader.nameChanged.connect(name => rootItem.nameChanged(name));
+            trackHeader.newColumnRequested.connect(() => editorService.requestNewColumn(_index));
+            trackHeader.soloRequested.connect(() => mixerService.soloTrack(_index, true));
+            trackHeader.trackSettingsDialogRequested.connect(() => UiService.requestTrackSettingsDialog(_index));
+            trackHeader.unmuteRequested.connect(() => mixerService.muteTrack(_index, false));
+            trackHeader.unsoloRequested.connect(() => mixerService.soloTrack(_index, false));
+            trackHeader.velocityScaleRequested.connect(() => UiService.requestTrackVelocityScaleDialog(_index));
+        }
     }
 }
