@@ -176,13 +176,13 @@ ApplicationWindow {
         id: midiExportDialog
         anchors.centerIn: parent
         width: parent.width * Constants.defaultDialogScale * 0.5
-        height: parent.height * Constants.defaultDialogScale * 0.5
+        height: parent.height * Constants.defaultDialogScale * 0.7
     }
     MidiImportDialog {
         id: midiImportDialog
         anchors.centerIn: parent
         width: parent.width * Constants.defaultDialogScale * 0.5
-        height: parent.height * Constants.defaultDialogScale * 0.5
+        height: parent.height * Constants.defaultDialogScale * 0.7
     }
     RecentFilesDialog {
         id: recentFilesDialog

@@ -15,66 +15,74 @@ Dialog {
         startPositionSpinBox.value = editorService.songPosition;
         endPositionSpinBox.value = editorService.songLength;
     }
-    ColumnLayout {
+    ScrollView {
+        id: exportScrollView
         anchors.fill: parent
-        spacing: 10
-        RowLayout {
-            Layout.fillWidth: true
-            TextField {
-                id: fileNameTextField
-                Layout.fillWidth: true
-                placeholderText: qsTr("Select output file")
-                text: rootItem.outputFileName
-            }
-            Button {
-                text: qsTr("Browse...")
-                onClicked: midiExportFileNameDialog.open()
-            }
-        }
-        RowLayout {
-            Layout.fillWidth: true
+        clip: true
+        ScrollBar.vertical.policy: ScrollBar.AsNeeded
+        ScrollBar.horizontal.policy: ScrollBar.AlwaysOff
+        rightPadding: 10
+        ColumnLayout {
+            width: exportScrollView.availableWidth
             spacing: 10
-            Label {
-                text: qsTr("Start position:")
-            }
-            SpinBox {
-                id: startPositionSpinBox
-                from: 0
-                to: editorService.songLength - 1
-            }
-            Label {
-                text: qsTr("End position:")
-            }
-            SpinBox {
-                id: endPositionSpinBox
-                from: 1
-                to: editorService.songLength
-            }
-        }
-        GroupBox {
-            title: qsTr("Options")
-            Layout.fillWidth: true
-            ColumnLayout {
-                anchors.fill: parent
-                CheckBox {
-                    id: exportBankCheckBox
-                    text: qsTr("Export Bank")
-                    checked: true
+            RowLayout {
+                Layout.fillWidth: true
+                TextField {
+                    id: fileNameTextField
+                    Layout.fillWidth: true
+                    placeholderText: qsTr("Select output file")
+                    text: rootItem.outputFileName
                 }
-                CheckBox {
-                    id: exportProgramChangeCheckBox
-                    text: qsTr("Export Program Change")
-                    checked: true
+                Button {
+                    text: qsTr("Browse...")
+                    onClicked: midiExportFileNameDialog.open()
                 }
-                CheckBox {
-                    id: exportMidiCcCheckBox
-                    text: qsTr("Export MIDI CC")
-                    checked: true
+            }
+            RowLayout {
+                Layout.fillWidth: true
+                spacing: 10
+                Label {
+                    text: qsTr("Start position:")
                 }
-                CheckBox {
-                    id: exportPitchBendCheckBox
-                    text: qsTr("Export Pitch Bend")
-                    checked: true
+                SpinBox {
+                    id: startPositionSpinBox
+                    from: 0
+                    to: editorService.songLength - 1
+                }
+                Label {
+                    text: qsTr("End position:")
+                }
+                SpinBox {
+                    id: endPositionSpinBox
+                    from: 1
+                    to: editorService.songLength
+                }
+            }
+            GroupBox {
+                title: qsTr("Options")
+                Layout.fillWidth: true
+                ColumnLayout {
+                    anchors.fill: parent
+                    CheckBox {
+                        id: exportBankCheckBox
+                        text: qsTr("Export Bank")
+                        checked: true
+                    }
+                    CheckBox {
+                        id: exportProgramChangeCheckBox
+                        text: qsTr("Export Program Change")
+                        checked: true
+                    }
+                    CheckBox {
+                        id: exportMidiCcCheckBox
+                        text: qsTr("Export MIDI CC")
+                        checked: true
+                    }
+                    CheckBox {
+                        id: exportPitchBendCheckBox
+                        text: qsTr("Export Pitch Bend")
+                        checked: true
+                    }
                 }
             }
         }
