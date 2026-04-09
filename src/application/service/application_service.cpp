@@ -148,6 +148,9 @@ void ApplicationService::requestMidiExportDialog()
 void ApplicationService::exportMidiFile(QUrl url, quint64 startPosition, quint64 endPosition, bool exportBank, bool exportProgramChange, bool exportMidiCc, bool exportPitchBend)
 {
     auto fileName = url.toLocalFile();
+    if (fileName.isEmpty()) {
+        fileName = url.toString();
+    }
     juzzlin::L(TAG).info() << "MIDI export requested for " << fileName.toStdString() << " from " << startPosition << " to " << endPosition;
     if (!fileName.endsWith(Constants::midiFileExtension())) {
         fileName += Constants::midiFileExtension();
@@ -168,7 +171,10 @@ void ApplicationService::requestMidiImportDialog()
 
 void ApplicationService::importMidiFile(QUrl url, int importMode, int patternLength, bool quantizeNoteOn, bool quantizeNoteOff, bool connectMidiPorts)
 {
-    const auto fileName = url.toLocalFile();
+    auto fileName = url.toLocalFile();
+    if (fileName.isEmpty()) {
+        fileName = url.toString();
+    }
     juzzlin::L(TAG).info() << "MIDI import requested for " << fileName.toStdString() << " mode: " << importMode << " length: " << patternLength << " quantizeNoteOn: " << quantizeNoteOn << " quantizeNoteOff: " << quantizeNoteOff << " connectMidiPorts: " << connectMidiPorts;
     emit midiImportRequested(fileName, importMode, patternLength, quantizeNoteOn, quantizeNoteOff, connectMidiPorts);
 }
@@ -373,6 +379,16 @@ void ApplicationService::setEditMode(bool editMode)
 void ApplicationService::toggleEditMode()
 {
     setEditMode(!m_editMode);
+}
+
+QString ApplicationService::initialFilePath() const
+{
+    return m_initialFilePath;
+}
+
+void ApplicationService::setInitialFilePath(QString initialFilePath)
+{
+    m_initialFilePath = initialFilePath;
 }
 
 ApplicationService::~ApplicationService() = default;

@@ -9,8 +9,13 @@ Dialog {
     id: rootItem
     title: qsTr("Import MIDI file")
     modal: true
-    standardButtons: DialogButtonBox.Open | DialogButtonBox.Cancel
     visible: false
+
+    property string inputFileName
+
+    onOpened: {
+        rootItem.inputFileName = applicationService.initialFilePath();
+    }
 
     FileDialog {
         id: fileDialog
@@ -21,19 +26,8 @@ Dialog {
             return lastDir ? "file://" + lastDir : StandardPaths.standardLocations(StandardPaths.DocumentsLocation)[0];
         }
         onAccepted: {
-            const path = selectedFile.toString();
-            const lastSlash = path.lastIndexOf("/");
-            if (lastSlash !== -1) {
-                const dir = path.substring(7, lastSlash); // Remove file:// prefix and keep directory
-                applicationService.setLastImportDirectory(dir);
-            }
-            applicationService.importMidiFile(selectedFile, importModeComboBox.currentIndex, patternLengthSpinBox.value, quantizeNoteOnCheckBox.checked, quantizeNoteOffCheckBox.checked, connectMidiPortsCheckBox.checked)
-            rootItem.close()
+            rootItem.inputFileName = selectedFile.toString();
         }
-    }
-
-    onAccepted: {
-        fileDialog.open()
     }
 
     ScrollView {
@@ -46,6 +40,20 @@ Dialog {
         ColumnLayout {
             width: importScrollView.availableWidth
             spacing: 20
+
+            RowLayout {
+                Layout.fillWidth: true
+                TextField {
+                    id: fileNameTextField
+                    Layout.fillWidth: true
+                    placeholderText: qsTr("Select MIDI file to import")
+                    text: rootItem.inputFileName
+                }
+                Button {
+                    text: qsTr("Browse...")
+                    onClicked: fileDialog.open()
+                }
+            }
 
             Label {
                 text: qsTr("Select import options:")
@@ -129,6 +137,27 @@ Dialog {
                 font.italic: true
                 wrapMode: Text.WordWrap
                 Layout.fillWidth: true
+            }
+        }
+    }
+
+    footer: DialogButtonBox {
+        Button {
+            text: qsTr("Cancel")
+            onClicked: rootItem.reject()
+        }
+        Button {
+            text: qsTr("Import")
+            enabled: rootItem.inputFileName
+            onClicked: {
+                const path = rootItem.inputFileName.toString();
+                const lastSlash = path.lastIndexOf("/");
+                if (lastSlash !== -1) {
+                    const dir = path.substring(7, lastSlash); // Remove file:// prefix and keep directory
+                    applicationService.setLastImportDirectory(dir);
+                }
+                applicationService.importMidiFile(rootItem.inputFileName, importModeComboBox.currentIndex, patternLengthSpinBox.value, quantizeNoteOnCheckBox.checked, quantizeNoteOffCheckBox.checked, connectMidiPortsCheckBox.checked)
+                rootItem.accept()
             }
         }
     }

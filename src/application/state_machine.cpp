@@ -41,11 +41,23 @@ void StateMachine::calculateState(StateMachine::Action action)
         break;
 
     case Action::ApplicationInitialized:
-        if (!m_applicationService->recentFiles().isEmpty()) {
+        if (!m_applicationService->initialFilePath().isEmpty()) {
+            const auto filePath = m_applicationService->initialFilePath();
+            if (filePath.endsWith(".mid", Qt::CaseInsensitive) || filePath.endsWith(".midi", Qt::CaseInsensitive)) {
+                m_state = State::ShowMidiImportDialog;
+            } else {
+                m_applicationService->openRecentProject(filePath);
+                return; // openRecentProject calls calculateState recursively
+            }
+        } else if (!m_applicationService->recentFiles().isEmpty()) {
             m_state = State::ShowRecentFilesDialog;
         } else {
             m_state = State::InitializeNewProject;
         }
+        break;
+
+    case Action::MidiImportRequested:
+        m_state = State::ShowMidiImportDialog;
         break;
 
     case Action::UnsavedChangesDialogDiscarded:
@@ -145,6 +157,7 @@ QString StateMachine::stateToString(State state)
         { State::OpenRecent, "OpenRecent" },
         { State::Save, "Save" },
         { State::ShowRecentFilesDialog, "ShowRecentFilesDialog" },
+        { State::ShowMidiImportDialog, "ShowMidiImportDialog" },
         { State::ShowUnsavedChangesDialog, "ShowUnsavedChangesDialog" },
         { State::ShowOpenDialog, "ShowOpenDialog" },
         { State::ShowSaveAsDialog, "ShowSaveAsDialog" },

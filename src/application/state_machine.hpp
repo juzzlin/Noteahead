@@ -44,6 +44,7 @@ public:
         OpenRecent,
         Save,
         ShowRecentFilesDialog,
+        ShowMidiImportDialog,
         ShowUnsavedChangesDialog,
         ShowOpenDialog,
         ShowSaveAsDialog,
@@ -54,6 +55,7 @@ public:
     enum class Action
     {
         ApplicationInitialized,
+        MidiImportRequested,
         NewProjectInitialized,
         NewProjectRequested,
         UnsavedChangesDialogAccepted,

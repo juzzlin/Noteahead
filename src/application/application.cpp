@@ -54,6 +54,7 @@
 #include <QGuiApplication>
 #include <QQmlApplicationEngine>
 #include <QQmlContext>
+#include <QFileInfo>
 
 #include <iostream>
 #include <iomanip>
@@ -258,6 +259,13 @@ void Application::handleCommandLineArguments(int & argc, char ** argv)
         } else {
             throw std::runtime_error { std::string { "Invalid syntax for size: " } + value};
         } }, false, "Force the window size, e.g. '1920x1080'.");
+
+    ae.setPositionalArgumentCallback([this](const std::vector<std::string> & args) {
+        if (!args.empty()) {
+            const QString path = QString::fromStdString(args.front());
+            m_applicationService->setInitialFilePath(QFileInfo { path }.absoluteFilePath());
+        }
+    });
 
     addVideoOptions(ae);
 
@@ -805,6 +813,9 @@ void Application::applyState(StateMachine::State state)
         break;
     case StateMachine::State::ShowRecentFilesDialog:
         m_applicationService->requestRecentFilesDialog();
+        break;
+    case StateMachine::State::ShowMidiImportDialog:
+        m_applicationService->requestMidiImportDialog();
         break;
     case StateMachine::State::ShowUnsavedChangesDialog:
         m_applicationService->requestUnsavedChangesDialog();

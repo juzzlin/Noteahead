@@ -12,6 +12,8 @@ New features:
 
 * Make velocity interpolation dialog remember the previous values
 
+* Fix GitHub Issue #19: Make it possible to open a project directly via CLI
+
 * Fix GitHub Issue #39: Save patch changes in midi export
   - Optionally exports and imports program change and bank settings
 

@@ -100,6 +100,9 @@ public:
     Q_INVOKABLE virtual void setEditMode(bool editMode);
     Q_INVOKABLE virtual void toggleEditMode();
 
+    Q_INVOKABLE QString initialFilePath() const;
+    void setInitialFilePath(QString initialFilePath);
+
     void requestUnsavedChangesDialog();
     Q_INVOKABLE void requestOpenDialog();
     Q_INVOKABLE void requestSaveAsDialog();
@@ -160,6 +163,8 @@ private:
     EditorServiceS m_editorService;
 
     PlayerServiceS m_playerService;
+
+    QString m_initialFilePath;
 
     bool m_editMode = false;
 };
