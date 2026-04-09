@@ -67,6 +67,7 @@ private slots:
     void test_addTrackToLeft_shouldUseSmallestFreeId();
     void test_trackByName_shouldReturnTrack();
     void test_columnByName_shouldReturnColumn();
+    void test_trackIndexByPosition_and_trackPositionByIndex();
 
     void test_transposePattern_drumTrackSet_shouldNotTransposeDrumTrack();
 

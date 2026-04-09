@@ -769,6 +769,47 @@ void SongTest::test_columnByName_shouldReturnColumn()
     QCOMPARE(song.columnByName(1, "Bar").value(), 0);
 }
 
+void SongTest::test_trackIndexByPosition_and_trackPositionByIndex()
+{
+    Song song;
+    // Initial: 8 tracks [0, 1, 2, 3, 4, 5, 6, 7]
+    QCOMPARE(song.trackCount(), 8u);
+
+    // Test initial mapping
+    for (size_t i = 0; i < 8; ++i) {
+        QCOMPARE(song.trackIndexByPosition(i).value_or(999), i);
+        QCOMPARE(song.trackPositionByIndex(i).value_or(999), i);
+    }
+
+    // Delete track at index 3 (position 3)
+    // Remaining: [0, 1, 2, 4, 5, 6, 7]
+    song.deleteTrack(3);
+    QCOMPARE(song.trackCount(), 7u);
+    QCOMPARE(song.trackIndexByPosition(0).value_or(999), 0u);
+    QCOMPARE(song.trackIndexByPosition(2).value_or(999), 2u);
+    QCOMPARE(song.trackIndexByPosition(3).value_or(999), 4u);
+    QCOMPARE(song.trackIndexByPosition(6).value_or(999), 7u);
+    QVERIFY(!song.trackIndexByPosition(7).has_value());
+
+    QCOMPARE(song.trackPositionByIndex(0).value_or(999), 0u);
+    QCOMPARE(song.trackPositionByIndex(2).value_or(999), 2u);
+    QCOMPARE(song.trackPositionByIndex(4).value_or(999), 3u);
+    QCOMPARE(song.trackPositionByIndex(7).value_or(999), 6u);
+    QVERIFY(!song.trackPositionByIndex(3).has_value());
+
+    // Add track to right of index 4 (current position 3)
+    // New track will get index 3 (smallest free)
+    // New order: [0, 1, 2, 4, 3, 5, 6, 7]
+    song.addTrackToRightOf(4);
+    QCOMPARE(song.trackCount(), 8u);
+    QCOMPARE(song.trackIndexByPosition(3).value_or(999), 4u);
+    QCOMPARE(song.trackIndexByPosition(4).value_or(999), 3u);
+    QCOMPARE(song.trackIndexByPosition(5).value_or(999), 5u);
+
+    QCOMPARE(song.trackPositionByIndex(4).value_or(999), 3u);
+    QCOMPARE(song.trackPositionByIndex(3).value_or(999), 4u);
+}
+
 void SongTest::test_renderToEvents_midiSideChain_shouldGenerateEvents()
 {
     Song song;

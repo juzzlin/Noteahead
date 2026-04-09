@@ -246,7 +246,7 @@ std::optional<size_t> Pattern::trackPositionByIndex(size_t index) const
 
 std::optional<size_t> Pattern::trackIndexByPosition(size_t trackPosition) const
 {
-    if (trackPosition <= m_trackOrder.size()) {
+    if (trackPosition < m_trackOrder.size()) {
         return m_trackOrder.at(trackPosition)->index();
     } else {
         return {};
@@ -270,7 +270,7 @@ size_t Pattern::addTrackToRightOf(size_t trackIndex)
         juzzlin::L(TAG).debug() << "Added track with index " << newIndex << ", new track count: " << m_trackOrder.size();
         return newIndex;
     } else {
-        juzzlin::L(TAG).error() << "Invalid track position: " << *track;
+        juzzlin::L(TAG).error() << "Invalid track index: " << trackIndex;
         return 0; // Should not happen
     }
 }

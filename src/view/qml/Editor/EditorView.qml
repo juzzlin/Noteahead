@@ -297,10 +297,18 @@ FocusScope {
         }
     }
     function _updateColumnHeaders() {
-        _patterns.forEach(pattern => pattern.updateColumnHeaders());
+        _patterns.forEach(pattern => {
+            if (!pattern._dirty) {
+                pattern.updateColumnHeaders();
+            }
+        });
     }
     function _updateTrackHeaders() {
-        _patterns.forEach(pattern => pattern.updateTrackHeaders());
+        _patterns.forEach(pattern => {
+            if (!pattern._dirty) {
+                pattern.updateTrackHeaders();
+            }
+        });
     }
     function _updateFocus(newPosition, oldPosition) {
         rootItem.focus = true;
@@ -380,32 +388,44 @@ FocusScope {
         });
         mixerService.columnMuted.connect((trackIndex, columnIndex, muted) => {
             _patterns.forEach(pattern => {
-                pattern.setColumnMuted(trackIndex, columnIndex, muted);
+                if (!pattern._dirty) {
+                    pattern.setColumnMuted(trackIndex, columnIndex, muted);
+                }
             });
         });
         mixerService.columnSoloed.connect((trackIndex, columnIndex, soloed) => {
             _patterns.forEach(pattern => {
-                pattern.setColumnSoloed(trackIndex, columnIndex, soloed);
+                if (!pattern._dirty) {
+                    pattern.setColumnSoloed(trackIndex, columnIndex, soloed);
+                }
             });
         });
         mixerService.trackMuted.connect((trackIndex, muted) => {
             _patterns.forEach(pattern => {
-                pattern.setTrackMuted(trackIndex, muted);
+                if (!pattern._dirty) {
+                    pattern.setTrackMuted(trackIndex, muted);
+                }
             });
         });
         mixerService.trackSoloed.connect((trackIndex, soloed) => {
             _patterns.forEach(pattern => {
-                pattern.setTrackSoloed(trackIndex, soloed);
+                if (!pattern._dirty) {
+                    pattern.setTrackSoloed(trackIndex, soloed);
+                }
             });
         });
         mixerService.columnVelocityScaleChanged.connect((trackIndex, columnIndex, value) => {
             _patterns.forEach(pattern => {
-                pattern.setColumnVelocityScale(trackIndex, columnIndex, value);
+                if (!pattern._dirty) {
+                    pattern.setColumnVelocityScale(trackIndex, columnIndex, value);
+                }
             });
         });
         mixerService.trackVelocityScaleChanged.connect((trackIndex, value) => {
             _patterns.forEach(pattern => {
-                pattern.setTrackVelocityScale(trackIndex, value);
+                if (!pattern._dirty) {
+                    pattern.setTrackVelocityScale(trackIndex, value);
+                }
             });
         });
         mixerService.cleared.connect(_clearMixerSettings);
