@@ -233,6 +233,29 @@ void ApplicationServiceTest::test_liveNoteLogic()
     QCOMPARE(currentSpy.takeFirst().at(0).value<std::shared_ptr<Instrument>>(), instrument);
 }
 
+void ApplicationServiceTest::test_importMidiFile_shouldAddRecentFile()
+{
+    ApplicationService service;
+    auto recentFilesManager = std::make_shared<MockRecentFilesManager>();
+    service.setRecentFilesManager(recentFilesManager);
+
+    const auto filePath = QDir::current().absoluteFilePath("test.mid");
+    service.addRecentFile(filePath);
+    QCOMPARE(service.recentFiles(), QStringList { filePath });
+}
+
+void ApplicationServiceTest::test_isMidiFile()
+{
+    ApplicationService service;
+    QVERIFY(service.isMidiFile("test.mid"));
+    QVERIFY(service.isMidiFile("test.midi"));
+    QVERIFY(service.isMidiFile("TEST.MID"));
+    QVERIFY(service.isMidiFile("TEST.MIDI"));
+    QVERIFY(!service.isMidiFile("test.nahd"));
+    QVERIFY(!service.isMidiFile("test.txt"));
+    QVERIFY(!service.isMidiFile(""));
+}
+
 } // namespace noteahead
 
 QTEST_GUILESS_MAIN(noteahead::ApplicationServiceTest)

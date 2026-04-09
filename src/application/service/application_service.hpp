@@ -50,10 +50,13 @@ public:
     Q_INVOKABLE QString copyright() const;
     Q_INVOKABLE QString fileFormatExtension() const;
     Q_INVOKABLE QString midiFileExtension() const;
+    Q_INVOKABLE bool isMidiFile(const QString & filePath) const;
     Q_INVOKABLE QString license() const;
     Q_INVOKABLE QString webSiteUrl() const;
 
     Q_INVOKABLE QStringList recentFiles() const;
+    Q_INVOKABLE void addRecentFile(QString filePath);
+    Q_INVOKABLE QString selectedFile() const;
     Q_INVOKABLE QString lastImportDirectory() const;
     Q_INVOKABLE void setLastImportDirectory(QString directory);
 

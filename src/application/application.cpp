@@ -346,6 +346,7 @@ void Application::importFromMidi(QString fileName, int importMode, int patternLe
         m_editorService->setSong(m_editorService->song());
         emit m_editorService->beatsPerMinuteChanged();
         m_editorService->setIsModified(true);
+        m_recentFilesManager->addRecentFile(fileName);
     } catch (std::exception & e) {
         const auto message = QString { "Failed to import MIDI: %1 " }.arg(e.what());
         juzzlin::L(TAG).error() << message.toStdString();
@@ -800,9 +801,14 @@ void Application::applyState(StateMachine::State state)
         break;
     case StateMachine::State::OpenRecent:
         try {
-            m_editorService->load(m_recentFilesManager->selectedFile());
-            m_recentFilesManager->addRecentFile(m_recentFilesManager->selectedFile()); // Moves the loaded file to top
-            m_stateMachine->calculateState(StateMachine::Action::ProjectOpened);
+            const auto filePath = m_recentFilesManager->selectedFile();
+            if (m_applicationService->isMidiFile(filePath)) {
+                m_stateMachine->calculateState(StateMachine::Action::MidiImportRequested);
+            } else {
+                m_editorService->load(filePath);
+                m_recentFilesManager->addRecentFile(filePath); // Moves the loaded file to top
+                m_stateMachine->calculateState(StateMachine::Action::ProjectOpened);
+            }
         } catch (...) {
             m_stateMachine->calculateState(StateMachine::Action::OpeningProjectFailed);
         }

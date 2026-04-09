@@ -14,7 +14,15 @@ Dialog {
     property string inputFileName
 
     onOpened: {
-        rootItem.inputFileName = applicationService.initialFilePath();
+        const initialPath = applicationService.initialFilePath();
+        if (initialPath) {
+            rootItem.inputFileName = initialPath;
+        } else {
+            const selectedFile = applicationService.selectedFile();
+            if (applicationService.isMidiFile(selectedFile)) {
+                rootItem.inputFileName = selectedFile;
+            }
+        }
     }
 
     FileDialog {

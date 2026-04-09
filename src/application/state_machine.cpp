@@ -43,7 +43,8 @@ void StateMachine::calculateState(StateMachine::Action action)
     case Action::ApplicationInitialized:
         if (!m_applicationService->initialFilePath().isEmpty()) {
             const auto filePath = m_applicationService->initialFilePath();
-            if (filePath.endsWith(".mid", Qt::CaseInsensitive) || filePath.endsWith(".midi", Qt::CaseInsensitive)) {
+            if (m_applicationService->isMidiFile(filePath)) {
+                m_applicationService->addRecentFile(filePath);
                 m_state = State::ShowMidiImportDialog;
             } else {
                 m_applicationService->openRecentProject(filePath);

@@ -66,6 +66,11 @@ QString ApplicationService::midiFileExtension() const
     return Constants::midiFileExtension();
 }
 
+bool ApplicationService::isMidiFile(const QString & filePath) const
+{
+    return filePath.endsWith(".mid", Qt::CaseInsensitive) || filePath.endsWith(".midi", Qt::CaseInsensitive);
+}
+
 QString ApplicationService::webSiteUrl() const
 {
     return Constants::webSiteUrl();
@@ -297,6 +302,16 @@ void ApplicationService::saveProjectAsTemplate(QUrl url)
 QStringList ApplicationService::recentFiles() const
 {
     return m_recentFilesManager->recentFiles();
+}
+
+void ApplicationService::addRecentFile(QString filePath)
+{
+    m_recentFilesManager->addRecentFile(filePath);
+}
+
+QString ApplicationService::selectedFile() const
+{
+    return m_recentFilesManager->selectedFile();
 }
 
 QString ApplicationService::lastImportDirectory() const
