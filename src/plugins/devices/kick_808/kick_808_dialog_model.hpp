@@ -17,6 +17,7 @@
 #define KICK_808_DIALOG_MODEL_HPP
 
 #include "../../../view/controllers/device_dialog_model.hpp"
+#include "../../../view/controllers/drum_hit_waveform_model.hpp"
 #include <memory>
 
 namespace noteahead {
@@ -37,6 +38,15 @@ class Kick808DialogModel : public DeviceDialogModel
     Q_PROPERTY(bool keyTrack READ keyTrack WRITE setKeyTrack NOTIFY keyTrackChanged)
     Q_PROPERTY(int lpfCutoff READ lpfCutoff WRITE setLpfCutoff NOTIFY lpfCutoffChanged)
     Q_PROPERTY(int hpfCutoff READ hpfCutoff WRITE setHpfCutoff NOTIFY hpfCutoffChanged)
+    // The amp envelope's knobs change together on a preset or a reload, so they share one signal
+    Q_PROPERTY(int ampAttack READ ampAttack WRITE setAmpAttack NOTIFY ampChanged)
+    Q_PROPERTY(int ampHold READ ampHold WRITE setAmpHold NOTIFY ampChanged)
+    Q_PROPERTY(int ampDecay READ ampDecay WRITE setAmpDecay NOTIFY ampChanged)
+    Q_PROPERTY(int ampSustain READ ampSustain WRITE setAmpSustain NOTIFY ampChanged)
+    Q_PROPERTY(int ampRelease READ ampRelease WRITE setAmpRelease NOTIFY ampChanged)
+    Q_PROPERTY(int ampCurve READ ampCurve WRITE setAmpCurve NOTIFY ampChanged)
+    //! One hit rendered for the waveform view, with the envelope and the playhead over it
+    Q_PROPERTY(QObject * waveform READ waveform CONSTANT)
 
 public:
     explicit Kick808DialogModel(std::shared_ptr<Kick808Device> device, QObject * parent = nullptr);
@@ -65,6 +75,23 @@ public:
     void setLpfCutoff(int value);
     int hpfCutoff() const;
     void setHpfCutoff(int value);
+    int ampAttack() const;
+    void setAmpAttack(int value);
+    int ampHold() const;
+    void setAmpHold(int value);
+    int ampDecay() const;
+    void setAmpDecay(int value);
+    int ampSustain() const;
+    void setAmpSustain(int value);
+    int ampRelease() const;
+    void setAmpRelease(int value);
+    int ampCurve() const;
+    void setAmpCurve(int value);
+
+    QObject * waveform() const;
+
+    QStringList factoryPresetNames() const override;
+    void loadFactoryPreset(int index) override;
 
     Q_INVOKABLE void requestSettings() override;
 
@@ -80,12 +107,17 @@ signals:
     void keyTrackChanged();
     void lpfCutoffChanged();
     void hpfCutoffChanged();
+    void ampChanged();
 
 public:
     void setDevice(std::shared_ptr<Kick808Device> device);
 
 private:
+    int knob(const QString & key) const;
+    void setKnob(const QString & key, int value);
+
     std::shared_ptr<Kick808Device> m_device;
+    DrumHitWaveformModel * m_waveform { nullptr };
 };
 
 } // namespace noteahead

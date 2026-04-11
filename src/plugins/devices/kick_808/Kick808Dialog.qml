@@ -71,6 +71,23 @@ AnimatedDialog {
         anchors.margins: 15
         spacing: 15
 
+        Kick808Dialog_Presets {
+            Layout.fillWidth: true
+        }
+
+        // Under the presets, as Kick 909 has its own: what the knobs below are being set against,
+        // so it stays put while they scroll
+        DrumHitWaveformView {
+            model: kick808Controller.waveform
+            dialogVisible: root.visible
+        }
+
+        Rectangle {
+            Layout.fillWidth: true
+            Layout.preferredHeight: 1
+            color: Theme.separator
+        }
+
         RowLayout {
             Layout.fillWidth: true
             Layout.fillHeight: true
@@ -129,6 +146,27 @@ AnimatedDialog {
 
                 Kick808Dialog_Pitch {
                     width: pitchScrollView.availableWidth
+                }
+            }
+
+            // Vertical separator
+            Rectangle {
+                Layout.preferredWidth: 1
+                Layout.fillHeight: true
+                color: Theme.separator
+            }
+
+            // Amp envelope section
+            ScrollView {
+                id: envelopeScrollView
+                Layout.fillWidth: true
+                Layout.fillHeight: true
+                clip: true
+                ScrollBar.vertical.policy: ScrollBar.AsNeeded
+                ScrollBar.horizontal.policy: ScrollBar.AlwaysOff
+
+                Kick808Dialog_Envelope {
+                    width: envelopeScrollView.availableWidth
                 }
             }
         }

@@ -41,10 +41,10 @@ constexpr double MaxChromaticOctaves = 3.0;
 constexpr double OutputGain = 0.662;
 
 //! The amp envelope's ranges, the drum machines' own
-constexpr double AmpMaxAttackSeconds = 1.0;
-constexpr double AmpMaxHoldSeconds = 8.0;
-constexpr double AmpMinDecaySeconds = 0.005;
-constexpr double AmpMaxDecaySeconds = 8.0;
+constexpr double AmpMaxAttackSeconds = DrumAmpEnvelope::KnobMaxAttackSeconds;
+constexpr double AmpMaxHoldSeconds = DrumAmpEnvelope::KnobMaxHoldSeconds;
+constexpr double AmpMinDecaySeconds = DrumAmpEnvelope::KnobMinDecaySeconds;
+constexpr double AmpMaxDecaySeconds = DrumAmpEnvelope::KnobMaxDecaySeconds;
 
 struct CcParameter
 {
