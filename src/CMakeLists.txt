@@ -12,6 +12,7 @@ set(HEADER_FILES
   application/command/automation_command.hpp
   application/command/composite_command.hpp
   application/command/undo_stack.hpp
+  view/qml/Editor/line_number_renderer.hpp
   application/models/audio_settings_model.hpp
   application/models/column_settings_model.hpp
   application/models/event_selection_model.hpp
@@ -25,6 +26,7 @@ set(HEADER_FILES
   application/models/recent_files_model.hpp
   application/models/track_settings_model.hpp
   application/note_converter.hpp
+  view/qml/Editor/note_column_renderer.hpp
   application/position.hpp
   application/service/application_service.hpp
   application/service/audio_service.hpp
@@ -107,6 +109,7 @@ set(SOURCE_FILES
   application/command/automation_command.cpp
   application/command/composite_command.cpp
   application/command/undo_stack.cpp
+  view/qml/Editor/line_number_renderer.cpp
   application/models/audio_settings_model.cpp
   application/models/column_settings_model.cpp
   application/models/event_selection_model.cpp
@@ -120,6 +123,7 @@ set(SOURCE_FILES
   application/models/recent_files_model.cpp
   application/models/track_settings_model.cpp
   application/note_converter.cpp
+  view/qml/Editor/note_column_renderer.cpp
   application/service/application_service.cpp
   application/service/audio_service.cpp
   application/service/audio_worker.cpp

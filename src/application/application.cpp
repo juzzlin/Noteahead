@@ -50,6 +50,8 @@
 #include "service/util_service.hpp"
 #include "state_machine.hpp"
 #include "ui_logger.hpp"
+#include "view/qml/Editor/line_number_renderer.hpp"
+#include "view/qml/Editor/note_column_renderer.hpp"
 
 #include <QGuiApplication>
 #include <QQmlApplicationEngine>
@@ -134,12 +136,14 @@ void Application::registerTypes()
     qmlRegisterType<EditorService>("Noteahead", majorVersion, minorVersion, "EditorService");
     qmlRegisterType<EventSelectionModel>("Noteahead", majorVersion, minorVersion, "EventSelectionModel");
     qmlRegisterType<KeyboardService>("Noteahead", majorVersion, minorVersion, "KeyboardService");
+    qmlRegisterType<LineNumberRenderer>("Noteahead", majorVersion, minorVersion, "LineNumberRenderer");
     qmlRegisterType<MidiCcAutomationsModel>("Noteahead", majorVersion, minorVersion, "MidiCcAutomationsModel");
     qmlRegisterType<MidiCcSelectionModel>("Noteahead", majorVersion, minorVersion, "MidiCcSelectionModel");
     qmlRegisterType<MidiService>("Noteahead", majorVersion, minorVersion, "MidiService");
     qmlRegisterType<MidiSettingsModel>("Noteahead", majorVersion, minorVersion, "MidiSettingsModel");
     qmlRegisterType<MixerService>("Noteahead", majorVersion, minorVersion, "MixerService");
     qmlRegisterType<NoteColumnLineContainerHelper>("Noteahead", majorVersion, minorVersion, "NoteColumnLineContainerHelper");
+    qmlRegisterType<NoteColumnRenderer>("Noteahead", majorVersion, minorVersion, "NoteColumnRenderer");
     qmlRegisterType<PitchBendAutomationsModel>("Noteahead", majorVersion, minorVersion, "PitchBendAutomationsModel");
     qmlRegisterType<PropertyService>("Noteahead", majorVersion, minorVersion, "PropertyService");
     qmlRegisterType<RecentFilesModel>("Noteahead", majorVersion, minorVersion, "RecentFilesModel");

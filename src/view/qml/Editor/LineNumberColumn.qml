@@ -1,4 +1,5 @@
 import QtQuick 2.15
+import Noteahead 1.0
 import ".."
 
 Rectangle {
@@ -13,27 +14,23 @@ Rectangle {
     function setPosition(position) {
         if (_currentLine !== position.line) {
             _currentLine = position.line;
-            if (listView) {
-                listView.positionViewAtIndex(position.line, ListView.Beginning);
+            if (renderer) {
+                renderer.scrollOffset = position.line;
             }
         }
     }
     function updateData() {
     }
-    function _lineHeight() {
-        const lineCount = settingsService.visibleLines;
-        return rootItem.height / lineCount;
-    }
-    ListView {
-        id: listView
+    LineNumberRenderer {
+        id: renderer
         anchors.fill: parent
-        model: editorService.currentLineCount + settingsService.visibleLines
-        delegate: LineNumberDelegate {
-            width: rootItem.width
-            height: _lineHeight()
-            index: model.index
-        }
-        interactive: false
+        visibleLines: settingsService.visibleLines
+        currentLineCount: editorService.currentLineCount
+        linesPerBeat: editorService.linesPerBeat
+        positionBarLine: editorService.positionBarLine()
+        scrollOffset: editorService.position.line
+        backgroundColor: Constants.lineNumberColumnCellBackgroundColor
+        textColor: Constants.lineNumberColumnTextColor
     }
     Rectangle {
         id: borderRectangle

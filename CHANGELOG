@@ -29,6 +29,9 @@ Bug fixes:
 
 Other:
 
+* Optimize UI performance during playback and pattern changes
+  - Replaces heavy QML ListViews with custom C++ renderers (QQuickPaintedItem)
+
 1.8.1
 =====
 

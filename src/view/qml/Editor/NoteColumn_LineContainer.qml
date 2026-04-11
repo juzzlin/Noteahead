@@ -1,5 +1,6 @@
 import QtQuick 2.15
 import QtQuick.Controls.Universal 2.15
+import Noteahead 1.0
 import ".."
 
 Item {
@@ -18,78 +19,36 @@ Item {
     property double _scrollOffset: 0
     property int _lastTriggeredLine: -1
     readonly property string _tag: "NoteColumnLineContainer"
-    property ListView _listView
+    property NoteColumnRenderer _renderer
     function resize(width: int, height: int): void {
         rootItem.width = width;
         rootItem.height = height;
-        if (_listView) {
-            _listView.width = width;
-            _listView.height = height;
-            _scrollLines();
+        if (_renderer) {
+            _renderer.width = width;
+            _renderer.height = height;
         }
     }
     function setLocation(patternIndex: int, trackIndex: int, columnIndex: int): void {
         _patternIndex = patternIndex;
         _trackIndex = trackIndex;
         _index = columnIndex;
-        if (!_listView) {
-            _listView = listViewComponent.createObject(rootItem);
+        if (!_renderer) {
+            _renderer = rendererComponent.createObject(rootItem);
         }
-        _listView.model = noteColumnModelHandler.columnModel(_patternIndex, _trackIndex, _index);
+        _renderer.model = noteColumnModelHandler.columnModel(_patternIndex, _trackIndex, _index);
         _scrollOffset = editorService.position.line;
         _lastTriggeredLine = -1;
-        _scrollLines();
-        delayedScrollTimer.start(); // Hack for Qt < 6.5
+        _renderer.scrollOffset = _scrollOffset;
     }
     function _getEffectiveLine(lineIndex: int): int {
         return lineIndex - editorService.positionBarLine();
     }
-    function _getGlobalX(delegate: var, mouse: var): int {
-        return delegate.mapToItem(delegate.Window.contentItem, Qt.point(mouse.x, mouse.y)).x;
-    }
-    function _getGlobalY(delegate: var, mouse: var): int {
-        return delegate.mapToItem(delegate.Window.contentItem, Qt.point(mouse.x, mouse.y)).y;
-    }
-    function handleClickOnDelegate(listItemIndex: int, delegate: var, mouse: var): void {
-        const effectiveLineIndex = _getEffectiveLine(listItemIndex);
-        if (mouse.button === Qt.LeftButton) {
-            uiLogger.info(_tag, `Column ${rootItem._index} left clicked on line ${effectiveLineIndex}`);
-            rootItem.leftClicked(effectiveLineIndex, _getGlobalX(delegate, mouse), _getGlobalY(delegate, mouse));
-        } else {
-            uiLogger.info(_tag, `Column ${rootItem._index} right clicked on line ${effectiveLineIndex}`);
-            rootItem.rightClicked(effectiveLineIndex, _getGlobalX(delegate, mouse), _getGlobalY(delegate, mouse));
-        }
-    }
-    function handlePressOnDelegate(listItemIndex: int, delegate: var, mouse: var): void {
-        const effectiveLineIndex = _getEffectiveLine(listItemIndex);
-        if (mouse.button === Qt.LeftButton) {
-            uiLogger.info(_tag, `Column ${rootItem._index} left pressed on line ${effectiveLineIndex}`);
-            rootItem.leftPressed(effectiveLineIndex, _getGlobalX(delegate, mouse), _getGlobalY(delegate, mouse));
-        } else {
-            uiLogger.info(_tag, `Column ${rootItem._index} right pressed on line ${effectiveLineIndex}`);
-            rootItem.rightPressed(effectiveLineIndex, _getGlobalX(delegate, mouse), _getGlobalY(delegate, mouse));
-        }
-    }
-    function handleReleaseOnDelegate(listItemIndex: int, delegate: var, mouse: var): void {
-        const effectiveLineIndex = _getEffectiveLine(listItemIndex);
-        if (mouse.button === Qt.LeftButton) {
-            uiLogger.info(_tag, `Column ${rootItem._index} left released on line ${effectiveLineIndex}`);
-            rootItem.leftReleased(effectiveLineIndex, _getGlobalX(delegate, mouse), _getGlobalY(delegate, mouse));
-        } else {
-            uiLogger.info(_tag, `Column ${rootItem._index} right released on line ${effectiveLineIndex}`);
-            rootItem.rightReleased(effectiveLineIndex, _getGlobalX(delegate, mouse), _getGlobalY(delegate, mouse));
-        }
-    }
-    function handleMouseMoveOnDelegate(listItemIndex: int, delegate: var, mouse: var): void {
-        const offset = Math.floor(mouse.y / delegate.height);
-        const effectiveLineIndex = _getEffectiveLine(listItemIndex) + offset;
-        uiLogger.info(_tag, `Column ${rootItem._index} mouse moved on line ${effectiveLineIndex}`);
-        rootItem.mouseMoved(effectiveLineIndex, _getGlobalX(delegate, mouse), _getGlobalY(delegate, mouse));
-    }
     function setPosition(position: var): void {
         if (_scrollOffset !== position.line) {
             _scrollOffset = position.line;
-            _scrollLines();
+            if (_renderer) {
+                _renderer.scrollOffset = _scrollOffset;
+            }
         }
 
         if (UiService.isPlaying()) {
@@ -101,11 +60,6 @@ Item {
             _lastTriggeredLine = -1;
         }
     }
-    function _scrollLines(): void {
-        if (_listView) {
-            _listView.positionViewAtIndex(_scrollOffset, ListView.Beginning);
-        }
-    }
     function _triggerVolumeMeterAtPosition(position: var): void {
         if (UiService.isPlaying() && mixerService.shouldColumnPlay(_trackIndex, _index)) {
             const velocity = editorService.velocityAtPosition(position.pattern, _trackIndex, _index, position.line);
@@ -115,24 +69,11 @@ Item {
         }
     }
     Component {
-        id: listViewComponent
-        ListView {
-            id: listView
+        id: rendererComponent
+        NoteColumnRenderer {
             anchors.fill: parent
-            cacheBuffer: 2
-            clip: true
-            delegate: NoteColumn_LineDelegate {
-                height: rootItem.height / settingsService.visibleLines
-                width: listView.width
-            }
-            interactive: false
+            visibleLines: settingsService.visibleLines
         }
-    }
-    Timer {
-        id: delayedScrollTimer
-        interval: 1
-        repeat: false
-        onTriggered: _scrollLines()
     }
     VolumeMeter {
         id: volumeMeter
@@ -143,8 +84,9 @@ Item {
         z: 5
     }
     MouseArea {
-        id: wheelHandler
+        id: inputHandler
         anchors.fill: parent
+        acceptedButtons: Qt.LeftButton | Qt.RightButton
         onWheel: event => {
             if (!UiService.isPlaying()) {
                 if (event.angleDelta.y > 0) {
@@ -155,6 +97,53 @@ Item {
                     event.accepted = true;
                 }
             }
+        }
+        onClicked: mouse => {
+            const rowHeight = height / settingsService.visibleLines;
+            const rowIndex = Math.floor(mouse.y / rowHeight) + Math.floor(_scrollOffset);
+            const effectiveLineIndex = _getEffectiveLine(rowIndex);
+            const globalPos = mapToItem(Window.contentItem, Qt.point(mouse.x, mouse.y));
+            if (mouse.button === Qt.LeftButton) {
+                uiLogger.info(_tag, `Column ${rootItem._index} left clicked on line ${effectiveLineIndex}`);
+                rootItem.leftClicked(effectiveLineIndex, globalPos.x, globalPos.y);
+            } else {
+                uiLogger.info(_tag, `Column ${rootItem._index} right clicked on line ${effectiveLineIndex}`);
+                rootItem.rightClicked(effectiveLineIndex, globalPos.x, globalPos.y);
+            }
+        }
+        onPressed: mouse => {
+            const rowHeight = height / settingsService.visibleLines;
+            const rowIndex = Math.floor(mouse.y / rowHeight) + Math.floor(_scrollOffset);
+            const effectiveLineIndex = _getEffectiveLine(rowIndex);
+            const globalPos = mapToItem(Window.contentItem, Qt.point(mouse.x, mouse.y));
+            if (mouse.button === Qt.LeftButton) {
+                uiLogger.info(_tag, `Column ${rootItem._index} left pressed on line ${effectiveLineIndex}`);
+                rootItem.leftPressed(effectiveLineIndex, globalPos.x, globalPos.y);
+            } else {
+                uiLogger.info(_tag, `Column ${rootItem._index} right pressed on line ${effectiveLineIndex}`);
+                rootItem.rightPressed(effectiveLineIndex, globalPos.x, globalPos.y);
+            }
+        }
+        onReleased: mouse => {
+            const rowHeight = height / settingsService.visibleLines;
+            const rowIndex = Math.floor(mouse.y / rowHeight) + Math.floor(_scrollOffset);
+            const effectiveLineIndex = _getEffectiveLine(rowIndex);
+            const globalPos = mapToItem(Window.contentItem, Qt.point(mouse.x, mouse.y));
+            if (mouse.button === Qt.LeftButton) {
+                uiLogger.info(_tag, `Column ${rootItem._index} left released on line ${effectiveLineIndex}`);
+                rootItem.leftReleased(effectiveLineIndex, globalPos.x, globalPos.y);
+            } else {
+                uiLogger.info(_tag, `Column ${rootItem._index} right released on line ${effectiveLineIndex}`);
+                rootItem.rightReleased(effectiveLineIndex, globalPos.x, globalPos.y);
+            }
+        }
+        onPositionChanged: mouse => {
+            const rowHeight = height / settingsService.visibleLines;
+            const rowIndex = Math.floor(mouse.y / rowHeight) + Math.floor(_scrollOffset);
+            const effectiveLineIndex = _getEffectiveLine(rowIndex);
+            const globalPos = mapToItem(Window.contentItem, Qt.point(mouse.x, mouse.y));
+            uiLogger.info(_tag, `Column ${rootItem._index} mouse moved on line ${effectiveLineIndex}`);
+            rootItem.mouseMoved(effectiveLineIndex, globalPos.x, globalPos.y);
         }
     }
 }
