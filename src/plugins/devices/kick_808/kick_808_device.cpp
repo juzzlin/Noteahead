@@ -14,11 +14,13 @@
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
 #include "kick_808_device.hpp"
+#include "kick_808_presets.hpp"
 
 #include "../../../domain/devices/device_parameter_display.hpp"
 #include <QtGlobal>
 
 #include "../../../common/constants.hpp"
+#include "../../../common/parameter_mapper.hpp"
 #include "../../../common/xml/project_reader.hpp"
 #include "../../../common/xml/project_writer.hpp"
 #include "../../../infra/midi/midi_cc_mapping.hpp"
@@ -60,6 +62,14 @@ const std::vector<CcParameter> & ccParameters()
     return parameters;
 }
 
+namespace Xml = Constants::NahdXml;
+
+//! Zero is no release stage at all, as DrumAmpEnvelope reads it: the kick rings out
+double releaseSeconds(float position)
+{
+    return position > 0.0f ? ParameterMapper::mapExponential(position, DrumAmpEnvelope::KnobMinDecaySeconds, DrumAmpEnvelope::KnobMaxDecaySeconds) : 0.0;
+}
+
 } // namespace
 
 Kick808Device::Kick808Device(std::string name)
@@ -75,6 +85,13 @@ Kick808Device::Kick808Device(std::string name)
     addParameter(Parameter { Constants::NahdXml::xmlKeyKeyTrack().toStdString(), 1.0f, 0, 1, 1, 1, Parameter::Type::Boolean });
     addParameter(Parameter(Constants::NahdXml::xmlKeyLpfCutoff().toStdString(), 1.0f, 0, 10000, 10000, 100));
     addParameter(Parameter(Constants::NahdXml::xmlKeyHpfCutoff().toStdString(), 0.0f, 0, 10000, 0, 100));
+    // The amp envelope, at defaults that leave the kick as it is
+    addParameter(Parameter(Xml::xmlKeyAmpAttack().toStdString(), 0.0f, 0, 10000, 0, 100));
+    addParameter(Parameter(Xml::xmlKeyAmpHold().toStdString(), 0.0f, 0, 10000, 0, 100));
+    addParameter(Parameter(Xml::xmlKeyAmpDecay().toStdString(), 0.0f, 0, 10000, 0, 100));
+    addParameter(Parameter(Xml::xmlKeyAmpSustain().toStdString(), 1.0f, 0, 10000, 10000, 100));
+    addParameter(Parameter(Xml::xmlKeyAmpRelease().toStdString(), 0.0f, 0, 10000, 0, 100));
+    addParameter(Parameter(Xml::xmlKeyAmpCurve().toStdString(), 0.0f, 0, 10000, 0, 100));
 
     m_lpf.setMode(CascadedSvf::Mode::LowPass);
     m_hpf.setMode(CascadedSvf::Mode::HighPass);
@@ -91,6 +108,12 @@ Kick808Device::Kick808Device(std::string name)
     DeviceParameterDisplay::percent(*this, Constants::NahdXml::xmlKeyPitchDepth(), QT_TRANSLATE_NOOP("ParameterDisplay", "Pitch Depth"));
     DeviceParameterDisplay::percent(*this, Constants::NahdXml::xmlKeyPitchDecay(), QT_TRANSLATE_NOOP("ParameterDisplay", "Pitch Decay"));
     DeviceParameterDisplay::percent(*this, Constants::NahdXml::xmlKeyPortamento(), QT_TRANSLATE_NOOP("ParameterDisplay", "Glide"));
+    setParameterDisplay(Xml::xmlKeyAmpAttack().toStdString(), { .mapping = ParameterDisplay::Mapping::Cubic, .unit = "s", .min = 0.0, .max = DrumAmpEnvelope::KnobMaxAttackSeconds, .label = QT_TRANSLATE_NOOP("ParameterDisplay", "Amp Attack") });
+    setParameterDisplay(Xml::xmlKeyAmpHold().toStdString(), { .mapping = ParameterDisplay::Mapping::Cubic, .unit = "s", .min = 0.0, .max = DrumAmpEnvelope::KnobMaxHoldSeconds, .label = QT_TRANSLATE_NOOP("ParameterDisplay", "Amp Hold") });
+    setParameterDisplay(Xml::xmlKeyAmpDecay().toStdString(), { .mapping = ParameterDisplay::Mapping::Exponential, .unit = "s", .min = DrumAmpEnvelope::KnobMinDecaySeconds, .max = DrumAmpEnvelope::KnobMaxDecaySeconds, .label = QT_TRANSLATE_NOOP("ParameterDisplay", "Amp Decay") });
+    DeviceParameterDisplay::percent(*this, Xml::xmlKeyAmpSustain(), QT_TRANSLATE_NOOP("ParameterDisplay", "Amp Sustain"));
+    setParameterDisplay(Xml::xmlKeyAmpRelease().toStdString(), { .mapping = ParameterDisplay::Mapping::Exponential, .unit = "s", .min = DrumAmpEnvelope::KnobMinDecaySeconds, .max = DrumAmpEnvelope::KnobMaxDecaySeconds, .label = QT_TRANSLATE_NOOP("ParameterDisplay", "Amp Release") });
+    DeviceParameterDisplay::percent(*this, Xml::xmlKeyAmpCurve(), QT_TRANSLATE_NOOP("ParameterDisplay", "Amp Curve"));
 }
 
 Kick808Device::~Kick808Device() = default;
@@ -139,12 +162,23 @@ void Kick808Device::processDeviceMidiNoteOn(uint8_t note, uint8_t velocity)
     m_engine.setSampleRate(sampleRate());
     // Off, Key Track pins the kick where the hardware's single tuned voice sits
     m_engine.setNote(m_keyTrack ? static_cast<float>(note) : Kick808Engine::ReferenceNote);
-    m_engine.trigger(static_cast<float>(velocity) / 127.0f);
+    m_elapsedFrames = 0;
+    const float vel = static_cast<float>(velocity) / 127.0f;
+    if (m_ampEnvelopeEnabled) {
+        m_strike.strike(m_engine, m_ampEnvelope, vel);
+    } else {
+        m_engine.trigger(vel);
+    }
 }
 
 void Kick808Device::processDeviceMidiNoteOff(uint8_t)
 {
-    // One-shot by design: the tail is owned by Decay, not by note length.
+    // One-shot by design: the tail is owned by Decay, not by note length. Only the amp envelope's
+    // release has anything to do with a note ending.
+    const std::lock_guard<std::recursive_mutex> lock { mutex() };
+    if (m_ampEnvelopeEnabled) {
+        m_ampEnvelope.release();
+    }
 }
 
 void Kick808Device::processDeviceMidiCc(uint8_t controller, uint8_t value, uint8_t)
@@ -201,11 +235,16 @@ void Kick808Device::processAudio(AudioContext & context)
     m_lpf.setCutoff(static_cast<double>(m_lpfCutoff));
     m_hpf.setCutoff(static_cast<double>(m_hpfCutoff));
     m_panner.setPan(static_cast<double>(panInternal()));
+    m_ampEnvelope.setSampleRate(static_cast<double>(context.sampleRate));
 
     const double gain = linearGainInternal();
 
     for (uint32_t i = 0; i < context.frameCount; i++) {
-        double sample = static_cast<double>(m_engine.nextSample()) * gain;
+        if (m_ampEnvelopeEnabled) {
+            m_strike.advance(m_engine, m_ampEnvelope);
+        }
+        const double amp = m_ampEnvelopeEnabled ? m_ampEnvelope.nextSample() : 1.0;
+        double sample = static_cast<double>(m_engine.nextSample()) * gain * amp;
         sample = m_hpf.process(m_lpf.process(sample));
 
         double outL = 0.0;
@@ -215,12 +254,22 @@ void Kick808Device::processAudio(AudioContext & context)
         context.buffer[i * 2] += m_dcBlockerL.process(outL);
         context.buffer[i * 2 + 1] += m_dcBlockerR.process(outR);
     }
+    m_elapsedFrames += context.frameCount;
 }
 
 bool Kick808Device::hasActiveAudio() const
 {
     const std::lock_guard<std::recursive_mutex> lock { mutex() };
-    return m_engine.isActive();
+    return m_engine.isActive() && (!m_ampEnvelopeEnabled || m_ampEnvelope.isActive());
+}
+
+std::optional<double> Kick808Device::elapsedSeconds() const
+{
+    const std::lock_guard<std::recursive_mutex> lock { mutex() };
+    if (!hasActiveAudio() || sampleRate() == 0) {
+        return {};
+    }
+    return static_cast<double>(m_elapsedFrames) / sampleRate();
 }
 
 void Kick808Device::reset()
@@ -235,6 +284,8 @@ void Kick808Device::resetDeviceAudio()
 {
     const std::lock_guard<std::recursive_mutex> lock { mutex() };
     m_engine.reset();
+    m_ampEnvelope.reset();
+    m_strike.reset();
     m_lpf.reset();
     m_hpf.reset();
     m_dcBlockerL.reset();
@@ -332,6 +383,114 @@ void Kick808Device::syncParameters()
     m_engine.setPitchDecay(m_pitchDecay);
     m_engine.setDrive(m_drive);
     m_engine.setGlide(m_glide);
+
+    syncAmpEnvelope();
+}
+
+void Kick808Device::syncAmpEnvelope()
+{
+    m_ampEnvelope.setAttackTime(ampAttackSeconds());
+    m_ampEnvelope.setHoldTime(ampHoldSeconds());
+    m_ampEnvelope.setDecayTime(ampDecaySeconds());
+    const auto sustain = value(Xml::xmlKeyAmpSustain());
+    m_ampEnvelope.setSustainLevel(static_cast<double>(sustain));
+    m_ampEnvelope.setReleaseTime(ampReleaseSeconds());
+    m_ampEnvelope.setCurve(static_cast<double>(value(Xml::xmlKeyAmpCurve())));
+
+    const bool enabled = value(Xml::xmlKeyAmpAttack()) > 0.0f || sustain < 1.0f || value(Xml::xmlKeyAmpRelease()) > 0.0f;
+    if (enabled && !m_ampEnvelopeEnabled && m_engine.isActive()) {
+        // Turned on under a ringing kick: the envelope picks it up rather than cutting it
+        m_ampEnvelope.trigger();
+    }
+    if (!enabled && m_ampEnvelopeEnabled) {
+        // Switched off during a retrigger's fade: the hit it held back is struck now
+        m_strike.strikeNow(m_engine);
+    }
+    m_ampEnvelopeEnabled = enabled;
+}
+
+float Kick808Device::value(const QString & key) const
+{
+    const auto p = parameter(key.toStdString());
+    return p ? p->get().value() : 0.0f;
+}
+
+float Kick808Device::knob(const QString & key) const
+{
+    return shownParameterValue(key, value(key));
+}
+
+void Kick808Device::setKnob(const QString & key, float value)
+{
+    setContinuousParameterValue(key.toStdString(), value);
+}
+
+double Kick808Device::ampAttackSeconds() const
+{
+    return ParameterMapper::mapCubic(value(Xml::xmlKeyAmpAttack()), 0.0, DrumAmpEnvelope::KnobMaxAttackSeconds);
+}
+
+double Kick808Device::ampHoldSeconds() const
+{
+    return ParameterMapper::mapCubic(value(Xml::xmlKeyAmpHold()), 0.0, DrumAmpEnvelope::KnobMaxHoldSeconds);
+}
+
+double Kick808Device::ampDecaySeconds() const
+{
+    return ParameterMapper::mapExponential(value(Xml::xmlKeyAmpDecay()), DrumAmpEnvelope::KnobMinDecaySeconds, DrumAmpEnvelope::KnobMaxDecaySeconds);
+}
+
+double Kick808Device::ampReleaseSeconds() const
+{
+    return releaseSeconds(value(Xml::xmlKeyAmpRelease()));
+}
+
+bool Kick808Device::ampEnvelopeEnabled() const
+{
+    return m_ampEnvelopeEnabled;
+}
+
+void Kick808Device::loadPreset(int index)
+{
+    applyPreset(index, true);
+}
+
+void Kick808Device::applyPreset(int index, bool authored)
+{
+    {
+        const std::lock_guard<std::recursive_mutex> lock { mutex() };
+
+        const auto & presets = Kick808Presets::presets();
+        if (index < 0 || index >= static_cast<int>(presets.size())) {
+            return;
+        }
+
+        if (authored) {
+            reset();
+        } else {
+            for (auto && [name, p] : parameters()) {
+                p.setAutomationValue(p.defaultValue());
+            }
+        }
+
+        for (auto && [name, value] : presets[index].parameters) {
+            if (const auto p = parameter(name); p) {
+                if (authored) {
+                    p->get().setValue(value);
+                } else {
+                    p->get().setAutomationValue(value);
+                }
+            }
+        }
+
+        syncParameters();
+    }
+
+    if (authored) {
+        emit dataChanged();
+    } else {
+        emit parametersChanged();
+    }
 }
 
 float Kick808Device::tune() const

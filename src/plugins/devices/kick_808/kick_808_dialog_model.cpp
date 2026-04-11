@@ -17,6 +17,9 @@
 
 #include "../../../common/constants.hpp"
 #include "kick_808_device.hpp"
+#include "kick_808_presets.hpp"
+
+#include "../../../application/service/drum_hit_preview.hpp"
 
 #include <cmath>
 
@@ -26,6 +29,43 @@ Kick808DialogModel::Kick808DialogModel(std::shared_ptr<Kick808Device> device, QO
   : DeviceDialogModel { parent }
   , m_device { std::move(device) }
 {
+    namespace Xml = Constants::NahdXml;
+    m_waveform = new DrumHitWaveformModel {
+        {
+          .render = [this](int peakCount) -> DrumHitPreview::Preview {
+              if (!m_device) {
+                  return {};
+              }
+              const auto createCopy = [this] { return std::make_unique<Kick808Device>(m_device->name()); };
+              const auto bypassEnvelope = [](Device & copy) {
+                  auto && kick = static_cast<Kick808Device &>(copy);
+                  kick.setKnob(Xml::xmlKeyAmpAttack(), 0.0f);
+                  kick.setKnob(Xml::xmlKeyAmpSustain(), 1.0f);
+                  kick.setKnob(Xml::xmlKeyAmpRelease(), 0.0f);
+              };
+              // At the reference note, where the kick sounds at its Tuning with Key Track on or off
+              const auto note = static_cast<uint8_t>(Kick808Engine::ReferenceNote);
+              return DrumHitPreview::render(*m_device, createCopy, bypassEnvelope, note, peakCount, Constants::defaultSampleRate());
+          },
+          .envelope = [this]() -> DrumHitWaveformModel::Envelope {
+              if (!m_device) {
+                  return {};
+              }
+              return {
+                  .attack = m_device->ampAttackSeconds(),
+                  .hold = m_device->ampHoldSeconds(),
+                  .decay = m_device->ampDecaySeconds(),
+                  .sustain = static_cast<double>(m_device->knob(Xml::xmlKeyAmpSustain())),
+                  .release = m_device->ampReleaseSeconds(),
+                  .curve = static_cast<double>(m_device->knob(Xml::xmlKeyAmpCurve())),
+              };
+          },
+          .elapsedSeconds = [this]() -> std::optional<double> {
+              return m_device ? m_device->elapsedSeconds() : std::nullopt;
+          },
+        },
+        this
+    };
     connectDeviceSignals();
 }
 
@@ -165,8 +205,104 @@ void Kick808DialogModel::setHpfCutoff(int value)
     }
 }
 
+int Kick808DialogModel::knob(const QString & key) const
+{
+    return m_device ? static_cast<int>(std::round(m_device->knob(key) * Constants::uiInternalScaling())) : 0;
+}
+
+void Kick808DialogModel::setKnob(const QString & key, int value)
+{
+    if (m_device) {
+        m_device->setKnob(key, static_cast<float>(value) / Constants::uiInternalScaling());
+    }
+}
+
+int Kick808DialogModel::ampAttack() const
+{
+    return knob(Constants::NahdXml::xmlKeyAmpAttack());
+}
+
+void Kick808DialogModel::setAmpAttack(int value)
+{
+    setKnob(Constants::NahdXml::xmlKeyAmpAttack(), value);
+}
+
+int Kick808DialogModel::ampHold() const
+{
+    return knob(Constants::NahdXml::xmlKeyAmpHold());
+}
+
+void Kick808DialogModel::setAmpHold(int value)
+{
+    setKnob(Constants::NahdXml::xmlKeyAmpHold(), value);
+}
+
+int Kick808DialogModel::ampDecay() const
+{
+    return knob(Constants::NahdXml::xmlKeyAmpDecay());
+}
+
+void Kick808DialogModel::setAmpDecay(int value)
+{
+    setKnob(Constants::NahdXml::xmlKeyAmpDecay(), value);
+}
+
+int Kick808DialogModel::ampSustain() const
+{
+    return knob(Constants::NahdXml::xmlKeyAmpSustain());
+}
+
+void Kick808DialogModel::setAmpSustain(int value)
+{
+    setKnob(Constants::NahdXml::xmlKeyAmpSustain(), value);
+}
+
+int Kick808DialogModel::ampRelease() const
+{
+    return knob(Constants::NahdXml::xmlKeyAmpRelease());
+}
+
+void Kick808DialogModel::setAmpRelease(int value)
+{
+    setKnob(Constants::NahdXml::xmlKeyAmpRelease(), value);
+}
+
+int Kick808DialogModel::ampCurve() const
+{
+    return knob(Constants::NahdXml::xmlKeyAmpCurve());
+}
+
+void Kick808DialogModel::setAmpCurve(int value)
+{
+    setKnob(Constants::NahdXml::xmlKeyAmpCurve(), value);
+}
+
+QObject * Kick808DialogModel::waveform() const
+{
+    return m_waveform;
+}
+
+QStringList Kick808DialogModel::factoryPresetNames() const
+{
+    QStringList names;
+    for (const auto & preset : Kick808Presets::presets()) {
+        names.append(QString::fromStdString(preset.name));
+    }
+    return names;
+}
+
+void Kick808DialogModel::loadFactoryPreset(int index)
+{
+    if (m_device) {
+        m_device->loadPreset(index);
+        requestSettings();
+    }
+}
+
 void Kick808DialogModel::requestSettings()
 {
+    m_waveform->schedule();
+    emit ampChanged();
     emit tuneChanged();
     emit toneChanged();
     emit decayChanged();

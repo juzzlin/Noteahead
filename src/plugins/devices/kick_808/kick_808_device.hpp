@@ -19,8 +19,12 @@
 #include "../../../domain/devices/device.hpp"
 #include "../../../domain/dsp/cascaded_svf.hpp"
 #include "../../../domain/dsp/dc_blocker.hpp"
+#include "../../../domain/dsp/drum/drum_amp_envelope.hpp"
+#include "../../../domain/dsp/drum/drum_strike.hpp"
 #include "../../../domain/dsp/drum/kick_808_engine.hpp"
 #include "../../../domain/dsp/true_stereo_panner.hpp"
+
+#include <QString>
 
 #include <optional>
 #include <string>
@@ -88,11 +92,40 @@ public:
     float hpfCutoff() const;
     void setHpfCutoff(float cutoff);
 
+    //! A knob, by its key, 0..1 as stored
+    float knob(const QString & key) const;
+    void setKnob(const QString & key, float value);
+
+    //! The envelope's times as the knobs set them, for the waveform overlay
+    double ampAttackSeconds() const;
+    double ampHoldSeconds() const;
+    double ampDecaySeconds() const;
+    double ampReleaseSeconds() const;
+    //! False at the defaults: Sustain at full with no attack or release leaves the kick as it is.
+    bool ampEnvelopeEnabled() const;
+
+    //! How far into the hit sounding now, in seconds, or nothing when the kick is silent. What the
+    //! waveform view's playhead runs on.
+    std::optional<double> elapsedSeconds() const;
+
+    void loadPreset(int index);
+    void applyPreset(int index, bool authored);
+
 protected:
     void syncParameters() override;
 
 private:
+    void syncAmpEnvelope();
+    float value(const QString & key) const;
+
     Kick808Engine m_engine;
+    //! Shapes what the engine plays, after it and ahead of the filters. Bypassed at its defaults,
+    //! so a kick that never touches it plays as it did before the envelope existed.
+    DrumAmpEnvelope m_ampEnvelope;
+    DrumStrike m_strike;
+    bool m_ampEnvelopeEnabled { false };
+    //! Output frames since the kick was last struck, for the playhead
+    size_t m_elapsedFrames { 0 };
     // The voice is mono, so one filter each is enough: filtering ahead of the panner is equivalent
     // to a per-channel pair after it, at half the cost.
     CascadedSvf m_lpf;

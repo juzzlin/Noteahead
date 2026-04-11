@@ -19,6 +19,8 @@ New features:
 
 * Room Mics: records a device again in a room, its source and three mic pairs placed by dragging
 
+* Kick 808: waveform with a playhead, an amp envelope and 8 factory presets
+
 Bug fixes:
 
 * Fix GitHub Issue #78: Crash when lines per beat is below 4

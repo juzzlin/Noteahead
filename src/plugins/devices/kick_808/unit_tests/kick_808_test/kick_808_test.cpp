@@ -18,8 +18,12 @@
 #include "../../../../../common/constants.hpp"
 #include "../../../../../infra/xml/nahd_xml_reader.hpp"
 #include "../../../../../infra/xml/nahd_xml_writer.hpp"
+#include "../../../../../view/controllers/drum_hit_waveform_model.hpp"
 #include "../../kick_808_device.hpp"
+#include "../../kick_808_dialog_model.hpp"
+#include "../../kick_808_presets.hpp"
 
+#include <QSignalSpy>
 #include <QTest>
 #include <algorithm>
 #include <cmath>
@@ -637,6 +641,85 @@ void Kick808Test::test_serialization_shouldRestoreParameters()
     QCOMPARE(restored.keyTrack(), false);
     QCOMPARE(restored.lpfCutoff(), 0.7f);
     QCOMPARE(restored.hpfCutoff(), 0.25f);
+}
+
+void Kick808Test::test_presets_shouldLoadAndPlay()
+{
+    const auto & presets = Kick808Presets::presets();
+    QCOMPARE(presets.size(), size_t { 8 });
+    QCOMPARE(presets.front().name, std::string { "Init" });
+    for (int i = 0; i < static_cast<int>(presets.size()); i++) {
+        Kick808Device kick { "Kick" };
+        for (auto && [key, value] : presets.at(i).parameters) {
+            QVERIFY2(kick.parameter(key), key.c_str());
+        }
+        kick.loadPreset(i);
+        kick.processMidiNoteOn(36, 100);
+        // Trimmed to about Init's peak, at -9 dBFS
+        const double peakDb = 20.0 * std::log10(peakLevel(renderMono(kick, SampleRate)));
+        QVERIFY2(peakDb > -14.0 && peakDb < -8.0, qPrintable(QString::fromStdString(presets.at(i).name) + ": " + QString::number(peakDb)));
+    }
+}
+
+void Kick808Test::test_ampEnvelope_defaults_shouldBeBypassed()
+{
+    // A kick saved before the envelope existed loads with it at its defaults, and plays as before
+    Kick808Device kick { "Kick" };
+    QVERIFY(!kick.ampEnvelopeEnabled());
+}
+
+void Kick808Test::test_ampEnvelope_shouldShortenTheHit()
+{
+    namespace Xml = Constants::NahdXml;
+    Kick808Device open { "Kick" };
+    Kick808Device gated { "Kick" };
+    // A long kick, so the open one is still ringing half a second in
+    open.setDecay(1.0f);
+    gated.setDecay(1.0f);
+    gated.setKnob(Xml::xmlKeyAmpSustain(), 0.0f);
+    gated.setKnob(Xml::xmlKeyAmpDecay(), 0.2f);
+    QVERIFY(gated.ampEnvelopeEnabled());
+    open.processMidiNoteOn(36, 100);
+    gated.processMidiNoteOn(36, 100);
+    const auto openTail = renderMono(open, SampleRate);
+    const auto gatedTail = renderMono(gated, SampleRate);
+    // Half a second in, the open kick still rings and the gated one is gone
+    const std::vector<double> openLate(openTail.begin() + SampleRate / 2, openTail.end());
+    const std::vector<double> gatedLate(gatedTail.begin() + SampleRate / 2, gatedTail.end());
+    QVERIFY(peakLevel(openLate) > 0.01);
+    QVERIFY2(peakLevel(gatedLate) < peakLevel(openLate) * 0.01, qPrintable(QString::number(peakLevel(gatedLate))));
+}
+
+void Kick808Test::test_preview_render_shouldDrawTheHit()
+{
+    const auto device = std::make_shared<Kick808Device>("Kick");
+    Kick808DialogModel model { device };
+    const auto waveform = qobject_cast<DrumHitWaveformModel *>(model.waveform());
+    QVERIFY(waveform);
+    QSignalSpy spy { waveform, &DrumHitWaveformModel::waveformChanged };
+    waveform->setRequest(200, true);
+    QVERIFY(spy.wait(2000));
+    QCOMPARE(waveform->waveformData().size(), 200);
+    QVERIFY(waveform->waveformDuration() > 0.2);
+    // Drawn on a copy: the device in the rack was never struck
+    QVERIFY(!device->hasActiveAudio());
+}
+
+void Kick808Test::test_preview_playhead_shouldFollowTheHit()
+{
+    const auto device = std::make_shared<Kick808Device>("Kick");
+    Kick808DialogModel model { device };
+    const auto waveform = qobject_cast<DrumHitWaveformModel *>(model.waveform());
+    QSignalSpy spy { waveform, &DrumHitWaveformModel::waveformChanged };
+    waveform->setRequest(200, true);
+    QVERIFY(spy.wait(2000));
+    QVERIFY(!waveform->sounding());
+
+    device->processMidiNoteOn(36, 100);
+    renderMono(*device, SampleRate / 10);
+    QVERIFY(waveform->sounding());
+    const double expected = 0.1 / waveform->waveformDuration();
+    QVERIFY2(std::abs(waveform->playbackPosition() - expected) < 0.01, qPrintable(QString::number(waveform->playbackPosition()) + " vs " + QString::number(expected)));
 }
 
 } // namespace noteahead

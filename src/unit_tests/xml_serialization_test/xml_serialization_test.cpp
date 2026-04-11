@@ -3857,6 +3857,12 @@ void XmlSerializationTest::test_toXmlFromXml_kick808Device_shouldLoadCorrectly()
     kick->setKeyTrack(false);
     kick->setLpfCutoff(0.65f);
     kick->setHpfCutoff(0.2f);
+    kick->setKnob(Constants::NahdXml::xmlKeyAmpAttack(), 0.3f);
+    kick->setKnob(Constants::NahdXml::xmlKeyAmpHold(), 0.1f);
+    kick->setKnob(Constants::NahdXml::xmlKeyAmpDecay(), 0.4f);
+    kick->setKnob(Constants::NahdXml::xmlKeyAmpSustain(), 0.25f);
+    kick->setKnob(Constants::NahdXml::xmlKeyAmpRelease(), 0.2f);
+    kick->setKnob(Constants::NahdXml::xmlKeyAmpCurve(), 0.5f);
     kick->setFaderPosition(Device::FaderPosition::PostInserts);
     kick->setSendTap(Device::SendTap::PreFader);
     deviceServiceOut.setDevice(1, kick);
@@ -3887,6 +3893,13 @@ void XmlSerializationTest::test_toXmlFromXml_kick808Device_shouldLoadCorrectly()
     QCOMPARE(restored->keyTrack(), false);
     QVERIFY(std::abs(restored->lpfCutoff() - 0.65f) < 0.001f);
     QVERIFY(std::abs(restored->hpfCutoff() - 0.2f) < 0.001f);
+    QVERIFY(std::abs(restored->knob(Constants::NahdXml::xmlKeyAmpAttack()) - 0.3f) < 0.001f);
+    QVERIFY(std::abs(restored->knob(Constants::NahdXml::xmlKeyAmpHold()) - 0.1f) < 0.001f);
+    QVERIFY(std::abs(restored->knob(Constants::NahdXml::xmlKeyAmpDecay()) - 0.4f) < 0.001f);
+    QVERIFY(std::abs(restored->knob(Constants::NahdXml::xmlKeyAmpSustain()) - 0.25f) < 0.001f);
+    QVERIFY(std::abs(restored->knob(Constants::NahdXml::xmlKeyAmpRelease()) - 0.2f) < 0.001f);
+    QVERIFY(std::abs(restored->knob(Constants::NahdXml::xmlKeyAmpCurve()) - 0.5f) < 0.001f);
+    QVERIFY(restored->ampEnvelopeEnabled());
 
     QCOMPARE(static_cast<int>(restored->faderPosition()), static_cast<int>(Device::FaderPosition::PostInserts));
     QCOMPARE(static_cast<int>(restored->sendTap()), static_cast<int>(Device::SendTap::PreFader));

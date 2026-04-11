@@ -52,6 +52,12 @@ private slots:
     void test_resetAllControllers_shouldRestoreAuthoredValue();
     void test_drive_full_shouldLeaveHeadroom();
     void test_serialization_shouldRestoreParameters();
+
+    void test_presets_shouldLoadAndPlay();
+    void test_ampEnvelope_defaults_shouldBeBypassed();
+    void test_ampEnvelope_shouldShortenTheHit();
+    void test_preview_render_shouldDrawTheHit();
+    void test_preview_playhead_shouldFollowTheHit();
 };
 
 } // namespace noteahead

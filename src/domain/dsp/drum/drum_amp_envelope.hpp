@@ -32,6 +32,12 @@ public:
     //! Curvature at the top of the curve knob.
     static constexpr double MaxCurvature { 6.0 };
 
+    //! The ranges of the single drums' knobs, Kick 808's and Kick 909's: the drum machines' own
+    static constexpr double KnobMaxAttackSeconds { 1.0 };
+    static constexpr double KnobMaxHoldSeconds { 8.0 };
+    static constexpr double KnobMinDecaySeconds { 0.005 };
+    static constexpr double KnobMaxDecaySeconds { 8.0 };
+
     enum class State
     {
         Idle,
