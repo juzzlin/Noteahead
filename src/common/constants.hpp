@@ -35,6 +35,9 @@ QString qSettingsCompanyName();
 QString qSettingSoftwareName();
 QString webSiteUrl();
 
+size_t defaultPatternLineCount();
+size_t defaultTrackCount();
+
 namespace NahdXml {
 
 QString xmlKeyFileFormatVersion();

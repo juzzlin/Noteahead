@@ -30,6 +30,7 @@ Rectangle {
         _patternIndex = patternIndex;
         _index = trackIndex;
         _initializeTrackHeader();
+        columnContainer.setLocation(patternIndex, trackIndex);
     }
     function _initializeTrackHeader(): void {
         if (!trackHeader) {
@@ -188,6 +189,11 @@ Rectangle {
         function setPositionBar(positionBar: var): void {
             _noteColumns.forEach(noteColumn => {
                 noteColumn.setPositionBar(positionBar);
+            });
+        }
+        function setLocation(patternIndex: int, trackIndex: int): void {
+            _noteColumns.forEach(noteColumn => {
+                noteColumn.setLocation(patternIndex, trackIndex, noteColumn.index());
             });
         }
         function updateColumnHeaders(): void {

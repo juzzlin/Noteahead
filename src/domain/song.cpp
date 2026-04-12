@@ -227,17 +227,17 @@ bool Song::deleteColumn(size_t trackIndex)
 
 size_t Song::columnCount(size_t trackIndex) const
 {
-    return m_patterns.at(0)->columnCount(trackIndex);
+    return m_patterns.contains(0) ? m_patterns.at(0)->columnCount(trackIndex) : 1;
 }
 
 size_t Song::columnCount(size_t patternIndex, size_t trackIndex) const
 {
-    return m_patterns.at(patternIndex)->columnCount(trackIndex);
+    return m_patterns.contains(patternIndex) ? m_patterns.at(patternIndex)->columnCount(trackIndex) : columnCount(trackIndex);
 }
 
 size_t Song::lineCount(size_t patternIndex) const
 {
-    return m_patterns.at(patternIndex)->lineCount();
+    return m_patterns.contains(patternIndex) ? m_patterns.at(patternIndex)->lineCount() : Constants::defaultPatternLineCount();
 }
 
 void Song::setLineCount(size_t patternIndex, size_t lineCount)
@@ -517,7 +517,7 @@ Position Song::prevNoteDataOnSameColumn(const Position & position) const
 void Song::initialize()
 {
     m_patterns.clear();
-    m_patterns[0] = std::make_shared<Pattern>(0, 64, 8);
+    m_patterns[0] = std::make_shared<Pattern>(0, Constants::defaultPatternLineCount(), Constants::defaultTrackCount());
 }
 
 size_t Song::linesPerBeat() const

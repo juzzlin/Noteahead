@@ -765,7 +765,7 @@ void EditorService::setCurrentPattern(quint64 patternIndex)
         const auto oldPosition = m_state.cursorPosition;
         m_state.cursorPosition.pattern = patternIndex;
 
-        const auto oldLineCount = m_song->lineCount(oldPosition.pattern);
+        const auto oldLineCount = m_song->hasPattern(oldPosition.pattern) ? m_song->lineCount(oldPosition.pattern) : Constants::defaultPatternLineCount();
         createPatternIfDoesNotExist(patternIndex);
 
         if (const auto newLineCount = m_song->lineCount(m_state.cursorPosition.pattern); newLineCount != oldLineCount) {

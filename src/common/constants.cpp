@@ -67,6 +67,16 @@ QString qSettingSoftwareName()
     return applicationName();
 }
 
+size_t defaultPatternLineCount()
+{
+    return 64;
+}
+
+size_t defaultTrackCount()
+{
+    return 8;
+}
+
 namespace NahdXml {
 
 QString xmlKeyFileFormatVersion()

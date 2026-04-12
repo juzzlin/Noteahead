@@ -20,8 +20,8 @@ Item {
                 track.nameChanged.connect(name => {
                     editorService.setTrackName(trackIndex, name);
                 });
-                track.setDimensions(trackAreaWidth, trackAreaHeight, unitWidth);
                 track.updateData();
+                track.setDimensions(trackAreaWidth, trackAreaHeight, unitWidth);
                 _tracks.push(track);
                 uiLogger.trace(_tag, `Added track index=${trackIndex}, width=${track.width}, height=${track.height}, x=${track.x}, y=${track.y}`);
             }
@@ -37,6 +37,12 @@ Item {
     }
     function setIndex(index: int): void {
         _index = index;
+    }
+    function updateLocation(newPatternIndex: int): void {
+        _index = newPatternIndex;
+        _tracks.forEach(track => {
+            track.setLocation(_index, track.index());
+        });
     }
     function setTrackFocused(trackIndex: int, column: int): void {
         const track = trackByIndex(trackIndex);

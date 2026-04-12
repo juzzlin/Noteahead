@@ -16,6 +16,7 @@
 #ifndef NOTE_COLUMN_RENDERER_HPP
 #define NOTE_COLUMN_RENDERER_HPP
 
+#include <QPointer>
 #include <QQuickPaintedItem>
 
 class QAbstractListModel;
@@ -49,7 +50,7 @@ signals:
     void visibleLinesChanged();
 
 private:
-    QAbstractListModel * m_model { nullptr };
+    QPointer<QAbstractListModel> m_model { nullptr };
     double m_scrollOffset { 0.0 };
     int m_visibleLines { 0 };
 };

@@ -31,6 +31,7 @@ Other:
 
 * Optimize UI performance during playback and pattern changes
   - Replaces heavy QML ListViews with custom C++ renderers (QQuickPaintedItem)
+  - Virtualizes the pattern view to massively reduce memory usage and loading times
 
 1.8.1
 =====

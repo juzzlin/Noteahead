@@ -80,7 +80,7 @@ Item {
         anchors.top: rootItem.top
         anchors.left: rootItem.left
         anchors.right: rootItem.right
-        height: _positionBar ? _positionBar.y - rootItem.parent.y - 2 * columnHeader.height : 0
+        height: _positionBar ? _positionBar.y - rootItem.parent.y - 2 * Constants.columnHeaderHeight : 0
         z: 5
     }
     MouseArea {
