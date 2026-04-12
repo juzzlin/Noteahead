@@ -70,6 +70,7 @@ set(HEADER_FILES
   domain/midi_cc_automation.hpp
   domain/midi_cc_data.hpp
   domain/midi_cc_setting.hpp
+  domain/midi_import_mode.hpp
   domain/midi_note_data.hpp
   domain/mixer_unit.hpp
   domain/note_data.hpp

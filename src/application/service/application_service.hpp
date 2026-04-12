@@ -23,6 +23,7 @@
 
 #include <memory>
 
+#include "../../domain/midi_import_mode.hpp"
 #include "../../infra/midi/export/midi_exporter.hpp"
 
 namespace noteahead {
@@ -153,7 +154,7 @@ signals:
     void midiExportRequested(QString fileName, quint64 startPosition, quint64 endPosition, MidiExportOptions options);
 
     void midiImportDialogRequested();
-    void midiImportRequested(QString fileName, int importMode, int patternLength, bool quantizeNoteOn, bool quantizeNoteOff, bool connectMidiPorts);
+    void midiImportRequested(QString fileName, MidiImportMode importMode, int patternLength, bool quantizeNoteOn, bool quantizeNoteOff, bool connectMidiPorts);
 
     void alertDialogRequested(QString message);
     void statusTextRequested(QString message);

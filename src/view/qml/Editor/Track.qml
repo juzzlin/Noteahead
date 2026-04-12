@@ -164,13 +164,19 @@ Rectangle {
             resize(rootItem.width, rootItem.height);
         }
         function setColumnMuted(columnIndex: int, muted: bool): void {
-            _noteColumns[columnIndex].setMuted(muted);
+            if (_noteColumns[columnIndex]) {
+                _noteColumns[columnIndex].setMuted(muted);
+            }
         }
         function setColumnSoloed(columnIndex: int, soloed: bool): void {
-            _noteColumns[columnIndex].setSoloed(soloed);
+            if (_noteColumns[columnIndex]) {
+                _noteColumns[columnIndex].setSoloed(soloed);
+            }
         }
         function setColumnVelocityScale(columnIndex: int, value: int): void {
-            _noteColumns[columnIndex].setVelocityScale(value);
+            if (_noteColumns[columnIndex]) {
+                _noteColumns[columnIndex].setVelocityScale(value);
+            }
         }
         function clearMixerSettings(): void {
             _noteColumns.forEach(noteColumn => {

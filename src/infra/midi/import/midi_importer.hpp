@@ -16,6 +16,8 @@
 #ifndef MIDI_IMPORTER_HPP
 #define MIDI_IMPORTER_HPP
 
+#include "../../../domain/midi_import_mode.hpp"
+
 #include <cstdint>
 #include <istream>
 #include <map>
@@ -69,7 +71,7 @@ public:
 
     MidiFileData parseMidiFile(const std::string & fileName) const;
 
-    void importTo(const MidiFileData & data, SongS song, int importMode, int patternLength, bool quantizeNoteOn, bool quantizeNoteOff, MidiServiceS midiService) const;
+    void importTo(const MidiFileData & data, SongS song, MidiImportMode importMode, int patternLength, bool quantizeNoteOn, bool quantizeNoteOff, MidiServiceS midiService) const;
 
 private:
     struct PatternLine
@@ -78,10 +80,10 @@ private:
         size_t lineIndex;
     };
 
-    void initializeSong(SongS song, const MidiFileData & data, int importMode, int patternLength) const;
+    void initializeSong(SongS song, const MidiFileData & data, MidiImportMode importMode, int patternLength) const;
     PatternLine getPatternLine(SongS song, size_t scaledTick, int patternLength) const;
     size_t getFreeColumn(SongS song, size_t patternIndex, size_t trackIndex, size_t lineIndex, const std::map<uint8_t, size_t> & activeNotes) const;
-    void finalizePlayOrder(SongS song, size_t maxPatternIndex, int importMode, int patternLength) const;
+    void finalizePlayOrder(SongS song, size_t maxPatternIndex, MidiImportMode importMode, int patternLength) const;
 
     uint32_t readBeU32(std::istream & in) const;
     uint16_t readBeU16(std::istream & in) const;

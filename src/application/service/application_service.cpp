@@ -181,7 +181,7 @@ void ApplicationService::importMidiFile(QUrl url, int importMode, int patternLen
         fileName = url.toString();
     }
     juzzlin::L(TAG).info() << "MIDI import requested for " << fileName.toStdString() << " mode: " << importMode << " length: " << patternLength << " quantizeNoteOn: " << quantizeNoteOn << " quantizeNoteOff: " << quantizeNoteOff << " connectMidiPorts: " << connectMidiPorts;
-    emit midiImportRequested(fileName, importMode, patternLength, quantizeNoteOn, quantizeNoteOff, connectMidiPorts);
+    emit midiImportRequested(fileName, static_cast<MidiImportMode>(importMode), patternLength, quantizeNoteOn, quantizeNoteOff, connectMidiPorts);
 }
 
 void ApplicationService::requestLiveNoteOn(quint8 key, quint8 octave, quint8 velocity)

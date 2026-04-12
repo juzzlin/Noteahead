@@ -116,7 +116,7 @@ private:
     void stopAllNotes() const;
 
     void exportToMidi(QString fileName, quint64 startPosition, quint64 endPosition, MidiExportOptions options);
-    void importFromMidi(QString fileName, int importMode, int patternLength, bool quantizeNoteOn, bool quantizeNoteOff, bool connectMidiPorts);
+    void importFromMidi(QString fileName, MidiImportMode importMode, int patternLength, bool quantizeNoteOn, bool quantizeNoteOff, bool connectMidiPorts);
 
     std::unique_ptr<UiLogger> m_uiLogger;
 

@@ -340,10 +340,14 @@ void Application::exportToMidi(QString fileName, quint64 startPosition, quint64 
         m_applicationService->requestStatusText(message);
     }
 }
-void Application::importFromMidi(QString fileName, int importMode, int patternLength, bool quantizeNoteOn, bool quantizeNoteOff, bool connectMidiPorts)
+void Application::importFromMidi(QString fileName, MidiImportMode importMode, int patternLength, bool quantizeNoteOn, bool quantizeNoteOff, bool connectMidiPorts)
 {
     try {
         const auto midiData = m_midiImporter->parseMidiFile(fileName.toStdString());
+        if (importMode == MidiImportMode::Overwrite) {
+            m_mixerService->clear();
+            m_automationService->clear();
+        }
         m_midiImporter->importTo(midiData, m_editorService->song(), importMode, patternLength, quantizeNoteOn, quantizeNoteOff, connectMidiPorts ? m_midiService : nullptr);
         const auto message = QString { "Imported MIDI file '%1' " }.arg(fileName);
         m_applicationService->requestStatusText(message);

@@ -200,9 +200,9 @@ MidiImporter::MidiTrack MidiImporter::parseTrack(std::istream & in, uint32_t tra
     return track;
 }
 
-void MidiImporter::initializeSong(SongS song, const MidiFileData & data, int importMode, int patternLength) const
+void MidiImporter::initializeSong(SongS song, const MidiFileData & data, MidiImportMode importMode, int patternLength) const
 {
-    if (!importMode) {
+    if (importMode == MidiImportMode::Overwrite) {
         song->initialize();
         song->setBeatsPerMinute(data.initialTempoBpm);
         if (patternLength > 0) {
@@ -274,9 +274,9 @@ size_t MidiImporter::getFreeColumn(SongS song, size_t patternIndex, size_t track
     return col;
 }
 
-void MidiImporter::finalizePlayOrder(SongS song, size_t maxPatternIndex, int importMode, [[maybe_unused]] int patternLength) const
+void MidiImporter::finalizePlayOrder(SongS song, size_t maxPatternIndex, MidiImportMode importMode, [[maybe_unused]] int patternLength) const
 {
-    if (!importMode) {
+    if (importMode == MidiImportMode::Overwrite) {
         song->setLength(maxPatternIndex + 1);
         for (size_t i = 0; i <= maxPatternIndex; ++i) {
             song->setPatternAtSongPosition(i, i);
@@ -284,7 +284,7 @@ void MidiImporter::finalizePlayOrder(SongS song, size_t maxPatternIndex, int imp
     }
 }
 
-void MidiImporter::importTo(const MidiFileData & data, SongS song, int importMode, int patternLength, bool quantizeNoteOn, bool quantizeNoteOff, MidiServiceS midiService) const
+void MidiImporter::importTo(const MidiFileData & data, SongS song, MidiImportMode importMode, int patternLength, bool quantizeNoteOn, bool quantizeNoteOff, MidiServiceS midiService) const
 {
     initializeSong(song, data, importMode, patternLength);
 

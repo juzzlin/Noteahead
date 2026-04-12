@@ -82,7 +82,7 @@ void MidiImporterTest::test_import_exportedFile_shouldRestoreNotes()
     importedSong->setLinesPerBeat(4);
 
     const auto midiData = importer.parseMidiFile(fileName.toStdString());
-    importer.importTo(midiData, importedSong, 0, 64, false, false, nullptr);
+    importer.importTo(midiData, importedSong, MidiImportMode::Overwrite, 64, false, false, nullptr);
 
     QCOMPARE(importedSong->beatsPerMinute(), 140);
     // Noteahead initializes with 8 tracks by default
@@ -142,7 +142,7 @@ void MidiImporterTest::test_import_multipleTracksAndPatterns_shouldRestoreCorrec
 
     const auto midiData = importer.parseMidiFile(fileName.toStdString());
     // Use pattern length 4 to match original structure
-    importer.importTo(midiData, importedSong, 0, 4, false, false, nullptr);
+    importer.importTo(midiData, importedSong, MidiImportMode::Overwrite, 4, false, false, nullptr);
 
     QCOMPARE(importedSong->trackCount(), 8);
     QCOMPARE(QString::fromStdString(importedSong->trackName(0)), QString { "Melody" });
@@ -199,7 +199,7 @@ void MidiImporterTest::test_import_polyphony_shouldCreateNewColumns()
     importedSong->setLinesPerBeat(4);
 
     const auto midiData = importer.parseMidiFile(fileName.toStdString());
-    importer.importTo(midiData, importedSong, 0, 64, false, false, nullptr);
+    importer.importTo(midiData, importedSong, MidiImportMode::Overwrite, 64, false, false, nullptr);
 
     // Should have 3 columns on track 0
     QCOMPARE(importedSong->columnCount(0), 3);
@@ -254,7 +254,7 @@ void MidiImporterTest::test_import_quantization_shouldZeroDelays()
     const auto midiData = importer.parseMidiFile(fileName.toStdString());
 
     // Import with quantization enabled
-    importer.importTo(midiData, importedSong, 0, 64, true, true, nullptr);
+    importer.importTo(midiData, importedSong, MidiImportMode::Overwrite, 64, true, true, nullptr);
 
     const auto noteOnQuantized = importedSong->noteDataAtPosition({ 0, 0, 0, 0 });
     const auto noteOffQuantized = importedSong->noteDataAtPosition({ 0, 0, 0, 1 });
@@ -266,7 +266,7 @@ void MidiImporterTest::test_import_quantization_shouldZeroDelays()
     const auto importedSongNoQuantize = std::make_shared<Song>();
     importedSongNoQuantize->setBeatsPerMinute(120);
     importedSongNoQuantize->setLinesPerBeat(4);
-    importer.importTo(midiData, importedSongNoQuantize, 0, 64, false, false, nullptr);
+    importer.importTo(midiData, importedSongNoQuantize, MidiImportMode::Overwrite, 64, false, false, nullptr);
 
     const auto noteOnNotQuantized = importedSongNoQuantize->noteDataAtPosition({ 0, 0, 0, 0 });
     const auto noteOffNotQuantized = importedSongNoQuantize->noteDataAtPosition({ 0, 0, 0, 1 });
@@ -313,7 +313,7 @@ void MidiImporterTest::test_import_bankAndProgramChange_shouldRestoreSettings()
 
     const auto importedSong = std::make_shared<Song>();
     const auto midiData = importer.parseMidiFile(fileName.toStdString());
-    importer.importTo(midiData, importedSong, 0, 64, false, false, midiService);
+    importer.importTo(midiData, importedSong, MidiImportMode::Overwrite, 64, false, false, midiService);
 
     const auto importedInstrument = importedSong->instrument(0);
     QVERIFY(importedInstrument != nullptr);
