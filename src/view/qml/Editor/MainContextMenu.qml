@@ -15,6 +15,8 @@ Menu {
     MenuSeparator {}
     MainContextMenu_Selection {}
     MenuSeparator {}
+    MainContextMenu_Song {}
+    MenuSeparator {}
     Action {
         text: qsTr("Edit MIDI CC automations (ALL)")
         enabled: !UiService.isPlaying()

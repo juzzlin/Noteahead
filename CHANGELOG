@@ -5,6 +5,9 @@ Release date:
 
 New features:
 
+* Add song transposition feature
+  - Fixes also drum track not taken into account properly
+
 Bug fixes:
 
 Other:

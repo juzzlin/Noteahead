@@ -51,6 +51,22 @@ std::unique_ptr<Pattern> Pattern::copyWithoutData(size_t newPatternIndex) const
     return std::make_unique<Pattern>(newPatternIndex, patternConfig());
 }
 
+void Pattern::copySettingsFrom(const Pattern & other)
+{
+    for (const auto & track : other.m_trackOrder) {
+        if (auto myTrack = trackByIndex(track->index()); myTrack) {
+            myTrack->setName(track->name());
+            myTrack->setInstrument(track->instrument());
+            for (size_t column = 0; column < track->columnCount(); ++column) {
+                if (column < myTrack->columnCount()) {
+                    myTrack->setColumnName(column, track->columnName(column));
+                    myTrack->setColumnSettings(column, track->columnSettings(column));
+                }
+            }
+        }
+    }
+}
+
 Pattern::PatternConfig Pattern::patternConfig() const
 {
     PatternConfig config;
@@ -372,11 +388,14 @@ Pattern::PositionList Pattern::insertNoteDataAtPosition(const NoteData & noteDat
     return trackByIndexThrow(position.track)->insertNoteDataAtPosition(noteData, position);
 }
 
-NoteChangeList Pattern::transposePattern(const Position & position, int semitones) const
+NoteChangeList Pattern::transposePattern(const Position & position, int semitones, const DrumTracks & drumTracks) const
 {
     NoteChangeList changes;
     for (const auto & track : m_trackOrder) {
-        if (track->instrument() && track->instrument()->settings().drumTrack) {
+        if (drumTracks.contains(track->index())) {
+            continue;
+        }
+        if (drumTracks.empty() && track->instrument() && track->instrument()->settings().drumTrack) {
             continue;
         }
         auto trackPosition = position;

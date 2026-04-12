@@ -80,6 +80,7 @@ public:
     ChangedPositions copyPattern(size_t patternIndex, CopyManager & copyManager, const AutomationService & automationService) const;
     ChangedPositions pastePattern(size_t patternIndex, CopyManager & copyManager) const;
     NoteChangeList transposePattern(const Position & position, int semitones) const;
+    NoteChangeList transposeSong(int semitones) const;
 
     using PositionList = std::vector<Position>;
     using PositionListCR = const PositionList &;

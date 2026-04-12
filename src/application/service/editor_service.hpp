@@ -207,6 +207,7 @@ public:
     virtual Q_INVOKABLE void requestPatternCopy();
     virtual Q_INVOKABLE void requestPatternPaste();
     virtual Q_INVOKABLE void requestPatternTranspose(int semitones);
+    virtual Q_INVOKABLE void requestSongTranspose(int semitones);
     virtual Q_INVOKABLE bool hasPatternToPaste() const;
 
     virtual Q_INVOKABLE void requestSelectionCut();

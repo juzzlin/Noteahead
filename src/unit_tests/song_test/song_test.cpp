@@ -990,6 +990,50 @@ void SongTest::test_transposePattern_drumTrackSet_shouldNotTransposeDrumTrack()
     QCOMPARE(it1->newNoteData.note().value(), 61);
 }
 
+void SongTest::test_transposeSong_drumTrackSet_shouldNotTransposeDrumTrack()
+{
+    Song song;
+
+    // Setup Track 0 as Drum Track
+    auto drumInstrument = std::make_shared<Instrument>("");
+    auto drumSettings = drumInstrument->settings();
+    drumSettings.drumTrack = true;
+    drumInstrument->setSettings(drumSettings);
+    song.setInstrument(0, drumInstrument);
+
+    // Setup Track 1 as normal track
+    auto normalInstrument = std::make_shared<Instrument>("");
+    song.setInstrument(1, normalInstrument);
+
+    // Create a second pattern
+    song.createPattern(1);
+
+    // Add note to Track 0 (should NOT be transposed) in pattern 0
+    const Position pos0p0 = { 0, 0, 0, 0, 0 };
+    song.noteDataAtPosition(pos0p0)->setAsNoteOn(60, 100);
+
+    // Add note to Track 1 (should be transposed) in pattern 1
+    const Position pos1p1 = { 1, 1, 0, 0, 0 };
+    song.noteDataAtPosition(pos1p1)->setAsNoteOn(60, 100);
+
+    // Transpose song by 1 semitone
+    const auto changes = song.transposeSong(1);
+
+    // Check results
+    // pos0p0 (Drum Track) should NOT be in changes
+    const auto it0 = std::find_if(changes.begin(), changes.end(), [&](auto && change) {
+        return change.position == pos0p0;
+    });
+    QVERIFY(it0 == changes.end());
+
+    // pos1p1 (Normal Track) SHOULD be in changes
+    const auto it1 = std::find_if(changes.begin(), changes.end(), [&](auto && change) {
+        return change.position == pos1p1;
+    });
+    QVERIFY(it1 != changes.end());
+    QCOMPARE(it1->newNoteData.note().value(), 61);
+}
+
 void SongTest::test_duration_skippedPattern_shouldReturnCorrectDuration()
 {
     Song song;

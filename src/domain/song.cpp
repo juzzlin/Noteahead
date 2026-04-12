@@ -74,6 +74,11 @@ Song::ChangedPositions Song::pasteColumn(size_t patternIndex, size_t trackIndex,
 
 NoteChangeList Song::transposeColumn(const Position & position, int semitones) const
 {
+    if (m_patterns.contains(0)) {
+        if (auto inst = m_patterns.at(0)->instrument(position.track); inst && inst->settings().drumTrack) {
+            return {};
+        }
+    }
     return m_patterns.contains(position.pattern) ? m_patterns.at(position.pattern)->transposeColumn(position, semitones) : NoteChangeList {};
 }
 
@@ -103,6 +108,11 @@ Song::ChangedPositions Song::pasteTrack(size_t patternIndex, size_t trackIndex, 
 
 NoteChangeList Song::transposeTrack(const Position & position, int semitones) const
 {
+    if (m_patterns.contains(0)) {
+        if (auto inst = m_patterns.at(0)->instrument(position.track); inst && inst->settings().drumTrack) {
+            return {};
+        }
+    }
     return m_patterns.contains(position.pattern) ? m_patterns.at(position.pattern)->transposeTrack(position, semitones) : NoteChangeList {};
 }
 
@@ -132,7 +142,34 @@ Song::ChangedPositions Song::pastePattern(size_t patternIndex, CopyManager & cop
 
 NoteChangeList Song::transposePattern(const Position & position, int semitones) const
 {
-    return m_patterns.contains(position.pattern) ? m_patterns.at(position.pattern)->transposePattern(position, semitones) : NoteChangeList {};
+    Pattern::DrumTracks drumTracks;
+    const auto masterPattern = m_patterns.at(0);
+    for (size_t trackIndex : masterPattern->trackIndices()) {
+        if (auto inst = masterPattern->instrument(trackIndex); inst && inst->settings().drumTrack) {
+            drumTracks.insert(trackIndex);
+        }
+    }
+    return m_patterns.contains(position.pattern) ? m_patterns.at(position.pattern)->transposePattern(position, semitones, drumTracks) : NoteChangeList {};
+}
+
+NoteChangeList Song::transposeSong(int semitones) const
+{
+    Pattern::DrumTracks drumTracks;
+    const auto masterPattern = m_patterns.at(0);
+    for (size_t trackIndex : masterPattern->trackIndices()) {
+        if (auto inst = masterPattern->instrument(trackIndex); inst && inst->settings().drumTrack) {
+            drumTracks.insert(trackIndex);
+        }
+    }
+
+    NoteChangeList changes;
+    for (auto && [index, pattern] : m_patterns) {
+        Position position;
+        position.pattern = index;
+        auto patternChanges = pattern->transposePattern(position, semitones, drumTracks);
+        changes.insert(changes.end(), patternChanges.begin(), patternChanges.end());
+    }
+    return changes;
 }
 
 Song::ChangedPositions Song::cutSelection(PositionListCR positions, CopyManager & copyManager, const AutomationService & automationService) const

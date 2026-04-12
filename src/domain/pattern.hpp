@@ -19,6 +19,7 @@
 #include <map>
 #include <memory>
 #include <optional>
+#include <set>
 #include <vector>
 
 #include "note_data.hpp"
@@ -110,7 +111,8 @@ public:
     PositionList deleteNoteDataAtPosition(const Position & position);
     PositionList insertNoteDataAtPosition(const NoteData & noteData, const Position & position);
 
-    NoteChangeList transposePattern(const Position & position, int semitones) const;
+    using DrumTracks = std::set<size_t>;
+    NoteChangeList transposePattern(const Position & position, int semitones, const DrumTracks & drumTracks = {}) const;
     NoteChangeList transposeTrack(const Position & position, int semitones) const;
     NoteChangeList transposeColumn(const Position & position, int semitones) const;
 
@@ -127,6 +129,7 @@ public:
     static PatternU deserializeFromXml(QXmlStreamReader & reader);
 
     std::unique_ptr<Pattern> copyWithoutData(size_t newPatternIndex) const;
+    void copySettingsFrom(const Pattern & other);
 
     PatternConfig patternConfig() const;
 

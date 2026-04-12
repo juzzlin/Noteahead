@@ -1026,6 +1026,24 @@ void EditorServiceTest::test_requestPatternTranspose_shouldTransposePattern()
     QCOMPARE(editorService.displayVelocityAtPosition(0, 1, 0, 0), "064");
 }
 
+void EditorServiceTest::test_requestSongTranspose_shouldTransposeSong()
+{
+    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
+    QSignalSpy noteDataChangedSpy { &editorService, &EditorService::noteDataAtPositionChanged };
+
+    QVERIFY(editorService.requestPosition(0, 0, 0, 0, 0));
+    QVERIFY(editorService.requestNoteOnAtCurrentPosition(1, 3, 64)); // C-3
+
+    editorService.setCurrentPattern(1);
+    QVERIFY(editorService.requestPosition(1, 1, 0, 0, 0));
+    QVERIFY(editorService.requestNoteOnAtCurrentPosition(3, 3, 64)); // D-3
+
+    editorService.requestSongTranspose(1);
+
+    QCOMPARE(editorService.displayNoteAtPosition(0, 0, 0, 0), "C#3");
+    QCOMPARE(editorService.displayNoteAtPosition(1, 1, 0, 0), "D#3");
+}
+
 void EditorServiceTest::test_requestSelectionTranspose_shouldTransposeSelection()
 {
     const auto selectionService = std::make_shared<SelectionService>();

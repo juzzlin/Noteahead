@@ -1659,6 +1659,16 @@ void EditorService::requestPatternTranspose(int semitones)
     }
 }
 
+void EditorService::requestSongTranspose(int semitones)
+{
+    if (auto changes = m_song->transposeSong(semitones); !changes.empty()) {
+        m_undoStack->push(std::make_shared<NoteEditCommand>(m_song, std::move(changes), m_state.cursorPosition, m_state.cursorPosition, [this](const Position & pos) {
+            emit noteDataAtPositionChanged(pos);
+            setIsModified(true);
+        }, [this](const Position & pos) { requestPosition(pos); }));
+    }
+}
+
 void EditorService::requestSelectionCut()
 {
     juzzlin::L(TAG).info() << "Requesting selection cut";

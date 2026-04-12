@@ -70,6 +70,7 @@ private slots:
     void test_trackIndexByPosition_and_trackPositionByIndex();
 
     void test_transposePattern_drumTrackSet_shouldNotTransposeDrumTrack();
+    void test_transposeSong_drumTrackSet_shouldNotTransposeDrumTrack();
 
     void test_duration_skippedPattern_shouldReturnCorrectDuration();
 
