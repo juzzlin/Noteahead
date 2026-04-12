@@ -34,12 +34,20 @@ ColumnLayout {
 
     Knob {
         label: qsTr("Pitch Depth")
+        mapping: "value"
+        mapMin: 0
+        mapMax: 10
+        suffix: ""
         value: kick808Controller.pitchDepth
         onMoved: v => kick808Controller.pitchDepth = v
         Layout.fillWidth: true
     }
     Knob {
         label: qsTr("Pitch Decay")
+        mapping: "value"
+        mapMin: 0
+        mapMax: 10
+        suffix: ""
         value: kick808Controller.pitchDecay
         onMoved: v => kick808Controller.pitchDecay = v
         Layout.fillWidth: true

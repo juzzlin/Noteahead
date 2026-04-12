@@ -198,6 +198,11 @@ AnimatedDialog {
                                 required property var modelData
 
                                 label: modelData.label
+                                // The panel's own scale, 0 to 10 as printed on the machine
+                                mapping: "value"
+                                mapMin: 0
+                                mapMax: 10
+                                suffix: ""
                                 value: {
                                     drumSynth909Controller.knobRevision;
                                     return drumSynth909Controller.knob(modelData.key);

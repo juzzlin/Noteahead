@@ -45,6 +45,8 @@ Bug fixes:
 
 * Kick 909: the waveform shows a playhead while the drum sounds
 
+* Kick 808, Drum Synth 808 and 909: the sound knobs read 0–10, as on the machines
+
 * Mixer: meters no longer stay still when it is opened from the Device Rack with Ctrl+M
 
 * Device scopes and the Phase Scope draw their traces about twenty times faster, so they no longer stutter
