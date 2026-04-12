@@ -34,24 +34,40 @@ ColumnLayout {
 
     Knob {
         label: qsTr("Tuning")
+        mapping: "value"
+        mapMin: 0
+        mapMax: 10
+        suffix: ""
         value: kick808Controller.tune
         onMoved: v => kick808Controller.tune = v
         Layout.fillWidth: true
     }
     Knob {
         label: qsTr("Tone")
+        mapping: "value"
+        mapMin: 0
+        mapMax: 10
+        suffix: ""
         value: kick808Controller.tone
         onMoved: v => kick808Controller.tone = v
         Layout.fillWidth: true
     }
     Knob {
         label: qsTr("Decay")
+        mapping: "value"
+        mapMin: 0
+        mapMax: 10
+        suffix: ""
         value: kick808Controller.decay
         onMoved: v => kick808Controller.decay = v
         Layout.fillWidth: true
     }
     Knob {
         label: qsTr("Drive")
+        mapping: "value"
+        mapMin: 0
+        mapMax: 10
+        suffix: ""
         value: kick808Controller.drive
         onMoved: v => kick808Controller.drive = v
         Layout.fillWidth: true
