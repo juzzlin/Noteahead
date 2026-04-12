@@ -5,6 +5,19 @@ Release date:
 
 New features:
 
+Bug fixes:
+
+Other:
+
+2.0.0
+=====
+
+Release date:
+
+Sun, 12 Apr 2026 23:12:09 +0300
+
+New features:
+
 * Implement the concept of a 'drum track'
   - Drum tracks are not transposed by pattern => transpose
 
