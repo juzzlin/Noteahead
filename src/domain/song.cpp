@@ -754,6 +754,11 @@ void Song::setLength(size_t length)
     m_length = length ? length : 1;
 }
 
+size_t Song::totalTicks() const
+{
+    return positionToTick(m_length);
+}
+
 void Song::updateTickToSongPositionMapping(size_t patternStartTick, size_t songPosition, size_t patternIndex, size_t lineCount)
 {
     for (size_t lineIndex = 0; lineIndex < lineCount; lineIndex++) {
@@ -1036,7 +1041,7 @@ Song::EventList Song::renderToEvents(AutomationServiceS automationService, SideC
     return eventList;
 }
 
-void Song::serializeToXml(QXmlStreamWriter & writer, MixerSerializationCallback mixerSerializationCallback, AutomationSerializationCallback automationSerializationCallback, SideChainSerializationCallback sideChainSerializationCallback) const
+void Song::serializeToXml(QXmlStreamWriter & writer, MixerSerializationCallback mixerSerializationCallback, AutomationSerializationCallback automationSerializationCallback, SideChainSerializationCallback sideChainSerializationCallback, AudioRecorderSerializationCallback audioRecorderSerializationCallback) const
 {
     writer.writeStartElement(Constants::NahdXml::xmlKeySong());
 
@@ -1056,6 +1061,10 @@ void Song::serializeToXml(QXmlStreamWriter & writer, MixerSerializationCallback 
 
     if (sideChainSerializationCallback) {
         sideChainSerializationCallback(writer);
+    }
+
+    if (audioRecorderSerializationCallback) {
+        audioRecorderSerializationCallback(writer);
     }
 
     writer.writeStartElement(Constants::NahdXml::xmlKeyPatterns());
@@ -1094,7 +1103,7 @@ void Song::serializeToXmlAsTemplate(QXmlStreamWriter & writer, MixerSerializatio
     writer.writeEndElement(); // Song
 }
 
-void Song::deserializeFromXml(QXmlStreamReader & reader, MixerDeserializationCallback mixerDeserializationCallback, AutomationDeserializationCallback automationDeserializationCallback, SideChainDeserializationCallback sideChainDeserializationCallback)
+void Song::deserializeFromXml(QXmlStreamReader & reader, MixerDeserializationCallback mixerDeserializationCallback, AutomationDeserializationCallback automationDeserializationCallback, SideChainDeserializationCallback sideChainDeserializationCallback, AudioRecorderDeserializationCallback audioRecorderDeserializationCallback)
 {
     setBeatsPerMinute(*Utils::Xml::readUIntAttribute(reader, Constants::NahdXml::xmlKeyBeatsPerMinute()));
     setLinesPerBeat(*Utils::Xml::readUIntAttribute(reader, Constants::NahdXml::xmlKeyLinesPerBeat()));
@@ -1119,6 +1128,10 @@ void Song::deserializeFromXml(QXmlStreamReader & reader, MixerDeserializationCal
             } else if (!reader.name().compare(Constants::NahdXml::xmlKeySideChain())) {
                 if (sideChainDeserializationCallback) {
                     sideChainDeserializationCallback(reader);
+                }
+            } else if (!reader.name().compare(Constants::NahdXml::xmlKeyAudioRecorder())) {
+                if (audioRecorderDeserializationCallback) {
+                    audioRecorderDeserializationCallback(reader);
                 }
             }
         }

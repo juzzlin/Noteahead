@@ -16,14 +16,14 @@ GroupBox {
             width: parent.width
             CheckBox {
                 id: enableAudioRecordingCheckbox
-                text: qsTr("Enable audio recording from default source when playing.\nAudio files will appear next to the current project file.")
+                text: qsTr("Enable audio recording and playback from default source when playing.\nAudio files will appear next to the current project file.")
                 checked: settingsService.recordingEnabled
                 Layout.row: 0
                 Layout.fillWidth: true
                 ToolTip.delay: Constants.toolTipDelay
                 ToolTip.timeout: Constants.toolTipTimeout
                 ToolTip.visible: hovered
-                ToolTip.text: qsTr("Enable/disable audio recording")
+                ToolTip.text: qsTr("Enable/disable audio recording and playback")
                 onCheckedChanged: {
                     if (settingsService.recordingEnabled !== checked) {
                         settingsService.recordingEnabled = checked
@@ -32,14 +32,14 @@ GroupBox {
             }
             CheckBox {
                 id: showWaveViewCheckbox
-                text: qsTr("Show recording wave view at the bottom of the editor.")
+                text: qsTr("Show recording and playback wave view at the bottom of the editor.")
                 checked: settingsService.waveViewEnabled
                 Layout.row: 1
                 Layout.fillWidth: true
                 ToolTip.delay: Constants.toolTipDelay
                 ToolTip.timeout: Constants.toolTipTimeout
                 ToolTip.visible: hovered
-                ToolTip.text: qsTr("Show/hide the recording wave view")
+                ToolTip.text: qsTr("Show/hide the wave view")
                 onCheckedChanged: {
                     if (settingsService.waveViewEnabled !== checked) {
                         settingsService.waveViewEnabled = checked
@@ -85,7 +85,7 @@ GroupBox {
                 Layout.fillWidth: true
             }
             ComboBox {
-                id: audioDeviceComboBox
+                id: audioInputDeviceComboBox
                 Layout.column: 3
                 Layout.row: 5
                 Layout.fillWidth: true
@@ -106,7 +106,7 @@ GroupBox {
                 Connections {
                     target: audioSettingsModel
                     function onInputDevicesChanged() {
-                        audioDeviceComboBox.currentIndex = audioDeviceComboBox.indexOfValue(audioSettingsModel.selectedInputDeviceId);
+                        audioInputDeviceComboBox.currentIndex = audioInputDeviceComboBox.indexOfValue(audioSettingsModel.selectedInputDeviceId);
                     }
                 }
             }
@@ -117,7 +117,50 @@ GroupBox {
                 enabled: enableAudioRecordingCheckbox.checked && !settingsService.jackSyncEnabled
                 onClicked: audioSettingsModel.refreshInputDevices()
                 ToolTip.visible: hovered
-                ToolTip.text: qsTr("Refresh device list")
+                ToolTip.text: qsTr("Refresh input device list")
+            }
+
+            Label {
+                text: qsTr("Output Device:")
+                Layout.column: 0
+                Layout.columnSpan: 2
+                Layout.row: 6
+                Layout.fillWidth: true
+            }
+            ComboBox {
+                id: audioOutputDeviceComboBox
+                Layout.column: 3
+                Layout.row: 6
+                Layout.fillWidth: true
+                enabled: enableAudioRecordingCheckbox.checked && !settingsService.jackSyncEnabled
+                model: audioSettingsModel.outputDevices
+                textRole: "name"
+                valueRole: "id"
+                ToolTip.delay: Constants.toolTipDelay
+                ToolTip.timeout: Constants.toolTipTimeout
+                ToolTip.visible: hovered
+                ToolTip.text: settingsService.jackSyncEnabled ? qsTr("Device selection is managed by JACK routing") : qsTr("Select audio output device")
+                Component.onCompleted: {
+                    currentIndex = indexOfValue(audioSettingsModel.selectedOutputDeviceId);
+                }
+                onActivated: {
+                    audioSettingsModel.selectedOutputDeviceId = currentValue;
+                }
+                Connections {
+                    target: audioSettingsModel
+                    function onOutputDevicesChanged() {
+                        audioOutputDeviceComboBox.currentIndex = audioOutputDeviceComboBox.indexOfValue(audioSettingsModel.selectedOutputDeviceId);
+                    }
+                }
+            }
+            Button {
+                text: qsTr("Refresh")
+                Layout.column: 4
+                Layout.row: 6
+                enabled: enableAudioRecordingCheckbox.checked && !settingsService.jackSyncEnabled
+                onClicked: audioSettingsModel.refreshOutputDevices()
+                ToolTip.visible: hovered
+                ToolTip.text: qsTr("Refresh output device list")
             }
         }
     }

@@ -115,6 +115,11 @@ QString xmlKeyMidiSideChain();
 
 QString xmlKeyMixer();
 
+QString xmlKeyAudioRecorder();
+QString xmlKeyLatestRecordingFilePath();
+QString xmlKeyLatestRecordingStartTick();
+QString xmlKeyLatestRecordingEndTick();
+
 QString xmlKeyAutomation();
 
 QString xmlKeyMidiCcAutomation();

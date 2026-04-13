@@ -32,6 +32,8 @@ class AudioSettingsModel : public QObject
 
     Q_PROPERTY(QVariantList inputDevices READ inputDevices NOTIFY inputDevicesChanged)
     Q_PROPERTY(int selectedInputDeviceId READ selectedInputDeviceId WRITE setSelectedInputDeviceId NOTIFY selectedInputDeviceIdChanged)
+    Q_PROPERTY(QVariantList outputDevices READ outputDevices NOTIFY outputDevicesChanged)
+    Q_PROPERTY(int selectedOutputDeviceId READ selectedOutputDeviceId WRITE setSelectedOutputDeviceId NOTIFY selectedOutputDeviceIdChanged)
 
 public:
     using AudioServiceS = std::shared_ptr<AudioService>;
@@ -41,15 +43,21 @@ public:
     ~AudioSettingsModel() override;
 
     QVariantList inputDevices() const;
-    
     int selectedInputDeviceId() const;
     void setSelectedInputDeviceId(int deviceId);
-    
+
+    QVariantList outputDevices() const;
+    int selectedOutputDeviceId() const;
+    void setSelectedOutputDeviceId(int deviceId);
+
     Q_INVOKABLE void refreshInputDevices();
+    Q_INVOKABLE void refreshOutputDevices();
 
 signals:
     void inputDevicesChanged();
     void selectedInputDeviceIdChanged(int deviceId);
+    void outputDevicesChanged();
+    void selectedOutputDeviceIdChanged(int deviceId);
 
 private:
     AudioServiceS m_audioService;
@@ -57,6 +65,8 @@ private:
 
     QVariantList m_inputDevices;
     int m_selectedInputDeviceId = 0;
+    QVariantList m_outputDevices;
+    int m_selectedOutputDeviceId = 0;
 };
 
 } // namespace noteahead

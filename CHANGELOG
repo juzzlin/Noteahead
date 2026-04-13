@@ -8,6 +8,11 @@ New features:
 * Add song transposition feature
   - Fixes also drum track not taken into account properly
 
+* Implement audio playback for the audio recorder
+  - Output device can be selected in the audio settings
+  - Clicking on the waveform will make the editor jump to the corresponding location
+  - The last recorded file path is saved and loaded along the project
+
 Bug fixes:
 
 Other:

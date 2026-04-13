@@ -14,15 +14,17 @@
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
 #include "audio_worker.hpp"
+#include "../../infra/audio/audio_player.hpp"
 #include "../../infra/audio/audio_recorder.hpp"
 
 #include <QVariantMap>
 
 namespace noteahead {
 
-AudioWorker::AudioWorker(std::unique_ptr<AudioRecorder> audioRecorder, QObject * parent)
+AudioWorker::AudioWorker(std::unique_ptr<AudioRecorder> audioRecorder, std::unique_ptr<AudioPlayer> audioPlayer, QObject * parent)
   : QObject { parent }
   , m_audioRecorder { std::move(audioRecorder) }
+  , m_audioPlayer { std::move(audioPlayer) }
 {
 }
 
@@ -34,6 +36,31 @@ void AudioWorker::startRecording(QString filePath, quint32 bufferSize)
 void AudioWorker::stopRecording()
 {
     m_audioRecorder->stop();
+}
+
+void AudioWorker::startPlayback(QString filePath, quint32 bufferSize)
+{
+    m_audioPlayer->start(filePath.toStdString(), bufferSize);
+}
+
+void AudioWorker::stopPlayback()
+{
+    m_audioPlayer->stop();
+}
+
+bool AudioWorker::isPlaybackFinished() const
+{
+    return m_audioPlayer->isFinished();
+}
+
+void AudioWorker::setPlaybackPosition(double position)
+{
+    m_audioPlayer->setPosition(position);
+}
+
+double AudioWorker::playbackPosition() const
+{
+    return m_audioPlayer->position();
 }
 
 QVariantList AudioWorker::getInputDevices() const
@@ -51,6 +78,23 @@ QVariantList AudioWorker::getInputDevices() const
 void AudioWorker::setInputDevice(int deviceId)
 {
     m_audioRecorder->setInputDevice(static_cast<uint32_t>(deviceId));
+}
+
+QVariantList AudioWorker::getOutputDevices() const
+{
+    QVariantList list;
+    for (const auto & device : m_audioPlayer->getOutputDevices()) {
+        QVariantMap map;
+        map["id"] = static_cast<int>(device.id);
+        map["name"] = QString::fromStdString(device.name);
+        list.append(map);
+    }
+    return list;
+}
+
+void AudioWorker::setOutputDevice(int deviceId)
+{
+    m_audioPlayer->setOutputDevice(static_cast<uint32_t>(deviceId));
 }
 
 AudioWorker::~AudioWorker() = default;

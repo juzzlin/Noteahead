@@ -427,6 +427,8 @@ void Application::connectEditorService()
     connect(m_editorService.get(), &EditorService::mixerSerializationRequested, m_mixerService.get(), &MixerService::serializeToXml);
     connect(m_editorService.get(), &EditorService::sideChainDeserializationRequested, m_sideChainService.get(), &SideChainService::deserializeFromXml);
     connect(m_editorService.get(), &EditorService::sideChainSerializationRequested, m_sideChainService.get(), &SideChainService::serializeToXml);
+    connect(m_editorService.get(), &EditorService::audioRecorderDeserializationRequested, m_audioService.get(), &AudioService::deserializeFromXml);
+    connect(m_editorService.get(), &EditorService::audioRecorderSerializationRequested, m_audioService.get(), &AudioService::serializeToXml);
     connect(m_editorService.get(), &EditorService::patternsDeleted, m_automationService.get(), &AutomationService::deletePatterns);
     connect(m_editorService.get(), &EditorService::patternsDeleted, m_noteColumnModelHandler.get(), &NoteColumnModelHandler::deletePatterns);
     connect(m_editorService.get(), &EditorService::trackDeleted, m_sideChainService.get(), &SideChainService::removeSettings);
@@ -551,7 +553,7 @@ void Application::connectPlayerService()
         const auto isPlaying = m_playerService->isPlaying();
         m_midiService->setIsPlaying(isPlaying);
         if (m_settingsService->recordingEnabled()) {
-            applyAudioRecording(isPlaying);
+            applyAudioRecording(isPlaying, m_playerService->tick());
         }
     });
 
@@ -597,17 +599,17 @@ QString Application::buildAudioFileName() const
     return {};
 }
 
-void Application::applyAudioRecording(bool isPlaying)
+void Application::applyAudioRecording(bool isPlaying, quint64 startTick)
 {
     if (isPlaying) {
         if (const auto audioFileName = buildAudioFileName(); !audioFileName.isEmpty()) {
             juzzlin::L(TAG).info() << "Recording audio to " << std::quoted(audioFileName.toStdString());
-            m_audioService->startRecording(audioFileName, static_cast<uint32_t>(m_settingsService->audioBufferSize()));
+            m_audioService->startRecording(audioFileName, static_cast<uint32_t>(m_settingsService->audioBufferSize()), startTick);
         } else {
             juzzlin::L(TAG).error() << "Output audio filename is empty!";
         }
     } else {
-        m_audioService->stopRecording();
+        m_audioService->stopRecording(startTick);
     }
 }
 

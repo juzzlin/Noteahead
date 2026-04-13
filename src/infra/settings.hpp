@@ -73,6 +73,9 @@ void setAudioBufferSize(int audioBufferSize);
 int audioInputDeviceId();
 void setAudioInputDeviceId(int deviceId);
 
+int audioOutputDeviceId();
+void setAudioOutputDeviceId(int deviceId);
+
 } // namespace noteahead::Settings
 
 #endif // SETTINGS_HPP

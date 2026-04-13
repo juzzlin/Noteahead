@@ -22,12 +22,15 @@
 #include "../../application/service/editor_service.hpp"
 #include "../../application/service/mixer_service.hpp"
 #include "../../application/service/side_chain_service.hpp"
+#include "../../application/service/audio_service.hpp"
+#include "../../application/service/jack_service.hpp"
 #include "../../domain/column_settings.hpp"
 #include "../../domain/instrument.hpp"
 #include "../../domain/note_data.hpp"
 #include "../../domain/song.hpp"
 
 #include <QSignalSpy>
+#include <QTemporaryFile>
 #include <QTest>
 
 namespace noteahead {
@@ -642,6 +645,35 @@ void XmlSerializationTest::test_toXmlFromXml_trackDrumTrack_shouldLoadTrackDrumT
     editorServiceIn.fromXml(xml);
 
     QCOMPARE(editorServiceIn.instrument(0)->settings().drumTrack, true);
+}
+
+void XmlSerializationTest::test_toXmlFromXml_audioRecorder_shouldLoadAudioRecorder()
+{
+    QTemporaryFile tempFile;
+    QVERIFY(tempFile.open());
+    const auto fileName = tempFile.fileName();
+    const quint64 startTick = 480;
+    const quint64 endTick = 960;
+
+    auto settingsService = std::make_shared<SettingsService>();
+    auto jackService = std::make_shared<JackService>(settingsService);
+    auto audioServiceOut = std::make_shared<AudioService>(settingsService, jackService);
+    audioServiceOut->setLatestRecordingInfo(fileName, startTick, endTick);
+
+    EditorService editorServiceOut { std::make_shared<SelectionService>(), settingsService, std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
+    QObject::connect(&editorServiceOut, &EditorService::audioRecorderSerializationRequested, audioServiceOut.get(), &AudioService::serializeToXml);
+
+    const auto xml = editorServiceOut.toXml();
+
+    auto audioServiceIn = std::make_shared<AudioService>(settingsService, jackService);
+    EditorService editorServiceIn { std::make_shared<SelectionService>(), settingsService, std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
+    QObject::connect(&editorServiceIn, &EditorService::audioRecorderDeserializationRequested, audioServiceIn.get(), &AudioService::deserializeFromXml);
+
+    editorServiceIn.fromXml(xml);
+
+    QCOMPARE(audioServiceIn->latestRecordingFileName(), fileName);
+    QCOMPARE(audioServiceIn->latestRecordingStartTick(), startTick);
+    QCOMPARE(audioServiceIn->latestRecordingEndTick(), endTick);
 }
 
 } // namespace noteahead

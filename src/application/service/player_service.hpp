@@ -66,6 +66,8 @@ public:
 
     Q_INVOKABLE double beatsPerMinute() const;
 
+    quint64 tick() const;
+
     void setSongPosition(quint64 position);
 
     using SongS = std::shared_ptr<Song>;
@@ -101,6 +103,7 @@ private:
     QThread m_playerWorkerThread;
 
     quint64 m_songPosition = 0;
+    quint64 m_tick = 0;
 };
 
 } // namespace noteahead

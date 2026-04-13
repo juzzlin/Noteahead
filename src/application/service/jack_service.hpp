@@ -54,6 +54,13 @@ public:
     void stopRecording();
     bool isRecording() const;
 
+    void startPlayback(const QString & filePath);
+    void stopPlayback();
+    bool isPlayingPlayback() const;
+    bool isPlayingPlaybackFinished() const;
+    void setPlaybackPosition(double position);
+    double playbackPosition() const;
+
 signals:
     void playRequested();
     void stopRequested();
@@ -67,12 +74,15 @@ private slots:
 private:
     void deinitialize();
     void diskWriteLoop();
+    void diskReadLoop();
 
 #ifdef HAVE_JACK
     static int processCallback(jack_nframes_t nframes, void * arg);
     jack_client_t * m_client = nullptr;
     jack_port_t * m_inputPortL = nullptr;
     jack_port_t * m_inputPortR = nullptr;
+    jack_port_t * m_outputPortL = nullptr;
+    jack_port_t * m_outputPortR = nullptr;
     jack_transport_state_t m_lastState = JackTransportStopped;
     jack_nframes_t m_lastFrame = 0;
     double m_lastBpm = 120.0;
@@ -84,6 +94,16 @@ private:
     RingBuffer<int32_t> m_recordingBuffer;
     std::thread m_diskWriteThread;
     std::atomic<bool> m_stopThread { false };
+
+    std::atomic<bool> m_isPlayingPlayback { false };
+    SNDFILE * m_playbackSndFile = nullptr;
+    SF_INFO m_playbackSfInfo = {};
+    RingBuffer<int32_t> m_playbackBuffer;
+    std::thread m_diskReadThread;
+    std::atomic<bool> m_stopPlaybackThread { false };
+    std::atomic<uint64_t> m_playedPlaybackFrames { 0 };
+    std::atomic<double> m_playbackPosition { 0.0 };
+    std::atomic<bool> m_isPlayingPlaybackFinished { false };
 
     SettingsServiceS m_settingsService;
 };

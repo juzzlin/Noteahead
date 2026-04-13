@@ -147,14 +147,22 @@
     <li><strong>Jack Transport Sync</strong>: When enabled, Noteahead acts as a JACK client and will follow the Play, Stop, and Rewind commands from a JACK transport master (like Carla or QjackCtl).</li>
     <li><strong>Jack BPM Sync</strong>: (Requires Jack Transport Sync) Noteahead will follow the BPM of the JACK host and synchronize its internal timeline to the JACK sample clock for drift-free, sample-accurate playback. The BPM display in the toolbar will update to reflect the host's tempo.</li>
     <p style="background-color: #333; padding: 10px; border-left: 4px solid orange; margin-top: 10px; font-size: 0.9em;">
-        <strong>Note on Audio Recording:</strong> When <strong>Jack Transport Sync</strong> is enabled, Noteahead switches its audio recorder to a specialized JACK mode. This ensures stable, slaved recording that is immune to system buffer size changes (PipeWire quantum changes). In this mode, Noteahead provides virtual input ports (<code>input_1</code> and <code>input_2</code>) in your JACK graph. Use a patchbay like <strong>Carla</strong> or <strong>qpwgraph</strong> to route your audio sources (e.g., <code>system:capture</code>) to Noteahead's inputs to capture audio.
+        <strong>Note on Audio Recording & Playback:</strong> When <strong>Jack Transport Sync</strong> is enabled, Noteahead switches its audio recorder and player to a specialized JACK mode. This ensures stable, slaved recording and playback that is immune to system buffer size changes (PipeWire quantum changes). In this mode, Noteahead provides virtual input ports (<code>input_1</code> and <code>input_2</code>) and output ports (<code>output_1</code> and <code>output_2</code>) in your JACK graph. Use a patchbay like <strong>Carla</strong> or <strong>qpwgraph</strong> to route your audio sources (e.g., <code>system:capture</code>) to Noteahead's inputs and its outputs to your speakers or mixer.
     </p>
     <li><strong>MIDI Transport Sync</strong>: Allows Noteahead to be started and stopped by external MIDI controllers. Support is included for standard MIDI Start/Stop messages as well as common hardware CC mappings (e.g., Arturia Keystep).</li>
 </ul>
 
 <h2 style="color: orange; border-bottom: 1px solid #444; margin-top: 20px;">Tools & Audio</h2>
 <ul>
-    <li><strong>Audio Recorder</strong>: Enable in <code>Settings => Audio</code> to capture your performance directly from your system's default audio input.</li>
+    <li><strong>Audio Recorder & Player</strong>: Enable in <code>Settings => Audio</code> to capture your performance directly from your system's default audio input and play back recorded files.
+        <ul>
+            <li><strong>Wave View</strong>: When enabled, a waveform of the recording is shown at the bottom of the editor.</li>
+            <li><strong>Playback</strong>: Use the play button next to the waveform to start or stop audio playback.</li>
+            <li><strong>Navigation</strong>: <strong>Left-click</strong> on the wave view to seek both the audio playback and the main sequencer to that position. <strong>Right-click</strong> to open the folder containing the recorded file.</li>
+            <li><strong>Output Device</strong>: Select your preferred playback device in the audio settings. When JACK is enabled, routing is managed via external JACK tools.</li>
+            <li><strong>Persistence</strong>: The path to the last recorded file is saved with your project, allowing for seamless workflow across sessions.</li>
+        </ul>
+    </li>
     <li><strong>Delay Calculator</strong>: Quickly find millisecond values for various beat divisions based on the current BPM.</li>
     <li><strong>Note Frequency Calculator</strong>: Reference tool for sound design and tuning.</li>
 </ul>

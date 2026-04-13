@@ -178,8 +178,11 @@ set(SOURCE_FILES
   domain/song.cpp
   domain/track.cpp
   infra/audio/audio_recorder.cpp
+  infra/audio/audio_player.cpp
   infra/audio/implementation/jack/audio_recorder_jack.cpp
+  infra/audio/implementation/jack/audio_player_jack.cpp
   infra/audio/implementation/librtaudio/audio_recorder_rt_audio.cpp
+  infra/audio/implementation/librtaudio/audio_player_rt_audio.cpp
   infra/midi/export/midi_exporter.cpp
   infra/midi/import/midi_importer.cpp
   infra/midi/implementation/librtmidi/midi_in_rt_midi.cpp

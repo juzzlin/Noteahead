@@ -214,6 +214,16 @@ void SettingsService::setAudioInputDeviceId(int deviceId)
     Settings::setAudioInputDeviceId(deviceId);
 }
 
+int SettingsService::audioOutputDeviceId() const
+{
+    return Settings::audioOutputDeviceId();
+}
+
+void SettingsService::setAudioOutputDeviceId(int deviceId)
+{
+    Settings::setAudioOutputDeviceId(deviceId);
+}
+
 SettingsService::~SettingsService() = default;
 
 } // namespace noteahead

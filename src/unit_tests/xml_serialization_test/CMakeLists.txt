@@ -1,20 +1,23 @@
-include_directories(${CMAKE_CURRENT_SOURCE_DIR})
+include_directories(${CMAKE_CURRENT_SOURCE_DIR} ${RTAUDIO_INCLUDE_DIRS} ${PROJECT_SOURCE_DIR}/src ${PROJECT_SOURCE_DIR}/src/contrib/SimpleLogger/src)
 set(NAME xml_serialization_test)
 set(SRC
     ${NAME}.cpp
     ${NAME}.hpp
-    ../../application/instrument_request.cpp
-    ../../application/command/note_edit_command.cpp
     ../../application/command/automation_command.cpp
     ../../application/command/composite_command.cpp
+    ../../application/command/note_edit_command.cpp
     ../../application/command/undo_stack.cpp
+    ../../application/instrument_request.cpp
     ../../application/note_converter.cpp
     ../../application/position.hpp
+    ../../application/service/audio_service.cpp
+    ../../application/service/audio_worker.cpp
     ../../application/service/automation_service.cpp
-    ../../application/service/property_service.cpp
     ../../application/service/copy_manager.cpp
     ../../application/service/editor_service.cpp
+    ../../application/service/jack_service.cpp
     ../../application/service/mixer_service.cpp
+    ../../application/service/property_service.cpp
     ../../application/service/random_service.cpp
     ../../application/service/selection_service.cpp
     ../../application/service/settings_service.cpp
@@ -37,6 +40,7 @@ set(SRC
     ../../domain/midi_cc_automation.cpp
     ../../domain/midi_cc_data.cpp
     ../../domain/midi_cc_setting.cpp
+    ../../domain/midi_note_data.cpp
     ../../domain/mixer_unit.cpp
     ../../domain/note_data.cpp
     ../../domain/note_data_manipulator.cpp
@@ -46,10 +50,19 @@ set(SRC
     ../../domain/play_order.cpp
     ../../domain/song.cpp
     ../../domain/track.cpp
-    ../../infra/settings.cpp
+    ../../infra/audio/audio_player.cpp
+    ../../infra/audio/audio_recorder.cpp
+    ../../infra/audio/implementation/jack/audio_player_jack.cpp
+    ../../infra/audio/implementation/jack/audio_recorder_jack.cpp
+    ../../infra/audio/implementation/librtaudio/audio_player_rt_audio.cpp
+    ../../infra/audio/implementation/librtaudio/audio_recorder_rt_audio.cpp
     ../../infra/midi/midi_cc_mapping.cpp
+    ../../infra/settings.cpp
 )
 qt_add_executable(${NAME} ${SRC})
 set_target_properties(${NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${UNIT_TEST_BASE_DIR})
 add_test(${NAME} ${UNIT_TEST_BASE_DIR}/${NAME})
-target_link_libraries(${NAME} PRIVATE Qt${QT_VERSION_MAJOR}::Test Qt${QT_VERSION_MAJOR}::Gui SimpleLogger)
+target_link_libraries(${NAME} PRIVATE Qt${QT_VERSION_MAJOR}::Test Qt${QT_VERSION_MAJOR}::Gui SimpleLogger ${RTMIDI_LIBRARIES} ${JACK_LIBRARIES} ${SNDFILE_LIBRARIES} ${RTAUDIO_LIBRARIES})
+if(JACK_FOUND)
+  target_compile_definitions(${NAME} PRIVATE HAVE_JACK)
+endif()

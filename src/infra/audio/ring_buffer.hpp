@@ -104,6 +104,22 @@ public:
         return (capacity + head - tail) % capacity;
     }
 
+    size_t writeAvailable() const
+    {
+        const size_t head = m_head.load(std::memory_order_relaxed);
+        const size_t tail = m_tail.load(std::memory_order_acquire);
+        const size_t capacity = m_buffer.size();
+        if (capacity == 0) return 0;
+        // One slot is kept empty
+        return (capacity + tail - head - 1) % capacity;
+    }
+
+    void clear()
+    {
+        m_head.store(0);
+        m_tail.store(0);
+    }
+
 private:
     std::vector<T> m_buffer;
     std::atomic<size_t> m_head { 0 };

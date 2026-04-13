@@ -28,6 +28,7 @@ const auto lastImportDirectoryKey = "lastImportDirectory";
 
 const auto audioBufferSizeKey = "audioBufferSize";
 const auto audioInputDeviceIdKey = "audioInputDeviceId";
+const auto audioOutputDeviceIdKey = "audioOutputDeviceId";
 const auto recordingEnabledKey = "recordingEnabled";
 const auto jackSyncEnabledKey = "jackSyncEnabled";
 const auto jackBpmSyncEnabledKey = "jackBpmSyncEnabled";
@@ -342,5 +343,23 @@ void setAudioInputDeviceId(int deviceId)
     settings.setValue(audioInputDeviceIdKey, deviceId);
     settings.endGroup();
 }
+
+int audioOutputDeviceId()
+{
+    QSettings settings;
+    settings.beginGroup(settingsGroupAudio);
+    const auto deviceId = settings.value(audioOutputDeviceIdKey, 0).toInt();
+    settings.endGroup();
+    return deviceId;
+}
+
+void setAudioOutputDeviceId(int deviceId)
+{
+    QSettings settings;
+    settings.beginGroup(settingsGroupAudio);
+    settings.setValue(audioOutputDeviceIdKey, deviceId);
+    settings.endGroup();
+}
+
 
 } // namespace noteahead::Settings

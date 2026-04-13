@@ -107,6 +107,10 @@ All Arctic Music Project songs:
 - Audio recorder
   - Just enable recording in `Settings => Audio` and Noteahead will record from the selected audio source when the song starts and name the file according to active tracks
   - Records audio from Jack if Jack Transport is enabled (since 1.8.0)
+  - Clicking on the waveform will make the editor jump to the corresponding location (since 2.1.0)
+  - The last recorded audio file path is saved and loaded along the project (since 2.1.0)
+- Audio player (since 2.1.0)
+  - Output device can be selected in the audio settings
 
 ### Tools
 - Delay time calculator

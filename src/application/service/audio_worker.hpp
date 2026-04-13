@@ -25,23 +25,33 @@
 namespace noteahead {
 
 class AudioRecorder;
+class AudioPlayer;
 
 class AudioWorker : public QObject
 {
     Q_OBJECT
 
 public:
-    AudioWorker(std::unique_ptr<AudioRecorder> audioRecorder, QObject * parent = nullptr);
+    AudioWorker(std::unique_ptr<AudioRecorder> audioRecorder, std::unique_ptr<AudioPlayer> audioPlayer, QObject * parent = nullptr);
     ~AudioWorker() override;
 
     Q_INVOKABLE void startRecording(QString filePath, quint32 bufferSize);
     Q_INVOKABLE void stopRecording();
 
+    Q_INVOKABLE void startPlayback(QString filePath, quint32 bufferSize);
+    Q_INVOKABLE void stopPlayback();
+    Q_INVOKABLE bool isPlaybackFinished() const;
+    Q_INVOKABLE void setPlaybackPosition(double position);
+    Q_INVOKABLE double playbackPosition() const;
+
     Q_INVOKABLE QVariantList getInputDevices() const;
     Q_INVOKABLE void setInputDevice(int deviceId);
+    Q_INVOKABLE QVariantList getOutputDevices() const;
+    Q_INVOKABLE void setOutputDevice(int deviceId);
 
 private:
     std::unique_ptr<AudioRecorder> m_audioRecorder;
+    std::unique_ptr<AudioPlayer> m_audioPlayer;
 };
 
 } // namespace noteahead

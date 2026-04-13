@@ -59,6 +59,11 @@ Adherence to these standards is mandatory for all contributions:
 - **Execution**: Run tests using `ctest` from the build directory.
 - **Framework**: Uses the Qt Test framework.
 
+## 🚀 Build & Test
+
+- **Build**: Use `cmake --build build` to build the project.
+- **Run Tests**: Use `ctest --test-dir build` to run all tests.
+
 ## 🚀 Performance & Timing
 
 - **Accuracy**: Noteahead renders events just before playback to ensure jitter-free, drift-free timing.

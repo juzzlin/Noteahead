@@ -24,6 +24,9 @@
 #include <QVariantList>
 #include <QVector>
 
+class QXmlStreamReader;
+class QXmlStreamWriter;
+
 namespace noteahead {
 
 class AudioWorker;
@@ -35,6 +38,10 @@ class AudioService : public QObject
     Q_OBJECT
     Q_PROPERTY(QString latestRecordingFileName READ latestRecordingFileName NOTIFY latestRecordingFileNameChanged)
     Q_PROPERTY(bool isRecording READ isRecording NOTIFY isRecordingChanged)
+    Q_PROPERTY(bool isPlayingPlayback READ isPlayingPlayback NOTIFY isPlayingPlaybackChanged)
+    Q_PROPERTY(double playbackPosition READ playbackPosition WRITE setPlaybackPosition NOTIFY playbackPositionChanged)
+    Q_PROPERTY(quint64 latestRecordingStartTick READ latestRecordingStartTick NOTIFY latestRecordingStartTickChanged)
+    Q_PROPERTY(quint64 latestRecordingEndTick READ latestRecordingEndTick NOTIFY latestRecordingEndTickChanged)
 
 public:
     using SettingsServiceS = std::shared_ptr<SettingsService>;
@@ -46,19 +53,37 @@ public slots:
     void reinitialize();
 
 public:
-    void startRecording(QString filePath, quint32 bufferSize);
-    void stopRecording();
+    Q_INVOKABLE void startRecording(QString filePath, quint32 bufferSize, quint64 startTick);
+    Q_INVOKABLE void stopRecording(quint64 stopTick);
 
-    QVariantList getInputDevices();
-    void setInputDevice(int deviceId);
+    Q_INVOKABLE void startPlayback(QString filePath, quint32 bufferSize);
+    Q_INVOKABLE void stopPlayback();
+    Q_INVOKABLE void setLatestRecordingInfo(QString filePath, quint64 startTick, quint64 endTick);
+    Q_INVOKABLE bool isPlayingPlayback() const;
+    Q_INVOKABLE void setPlaybackPosition(double position);
+    Q_INVOKABLE double playbackPosition() const;
 
-    QString latestRecordingFileName() const;
-    bool isRecording() const;
-    Q_INVOKABLE QVector<double> getWaveformData(int numPoints);
+    Q_INVOKABLE QVariantList getInputDevices();
+    Q_INVOKABLE void setInputDevice(int deviceId);
+    Q_INVOKABLE QVariantList getOutputDevices();
+    Q_INVOKABLE void setOutputDevice(int deviceId);
+
+    Q_INVOKABLE QString latestRecordingFileName() const;
+    Q_INVOKABLE bool isRecording() const;
+    Q_INVOKABLE QVariantList getWaveformData(int numPoints);
+    Q_INVOKABLE quint64 latestRecordingStartTick() const;
+    Q_INVOKABLE quint64 latestRecordingEndTick() const;
+
+    void serializeToXml(QXmlStreamWriter & writer) const;
+    void deserializeFromXml(QXmlStreamReader & reader);
 
 signals:
     void latestRecordingFileNameChanged();
     void isRecordingChanged();
+    void isPlayingPlaybackChanged();
+    void playbackPositionChanged();
+    void latestRecordingStartTickChanged();
+    void latestRecordingEndTickChanged();
     void reinitialized();
 
 private:
@@ -69,6 +94,12 @@ private:
     QString m_latestRecordingFileName;
     QString m_currentRecordingFileName;
     bool m_isRecording = false;
+    bool m_isPlayingPlayback = false;
+    double m_playbackPosition = 0.0;
+    quint64 m_latestRecordingStartTick = 0;
+    quint64 m_currentRecordingStartTick = 0;
+    quint64 m_latestRecordingEndTick = 0;
+    quint64 m_currentRecordingEndTick = 0;
 
     SettingsServiceS m_settingsService;
     JackServiceS m_jackService;

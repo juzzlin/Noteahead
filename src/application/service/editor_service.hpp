@@ -41,6 +41,7 @@ class SelectionService;
 class SettingsService;
 class ColumnSettings;
 class MixerService;
+class AudioService;
 
 class EditorService : public QObject
 {
@@ -267,6 +268,7 @@ public:
     virtual Q_INVOKABLE quint64 songLength() const;
     virtual Q_INVOKABLE void setSongLength(quint64 songLength);
     virtual Q_INVOKABLE quint64 maxSongLength() const;
+    virtual Q_INVOKABLE quint64 totalTicks() const;
 
     // API V2
     using ColumnAddress = std::tuple<quint64, quint64, quint64>;
@@ -340,6 +342,8 @@ signals:
     void mixerDeserializationRequested(QXmlStreamReader & xmlStreamReader);
     void sideChainSerializationRequested(QXmlStreamWriter & xmlStreamWriter);
     void sideChainDeserializationRequested(QXmlStreamReader & xmlStreamReader);
+    void audioRecorderSerializationRequested(QXmlStreamWriter & xmlStreamWriter);
+    void audioRecorderDeserializationRequested(QXmlStreamReader & xmlStreamReader);
 
     void noteDataAtPositionChanged(const Position & position);
     void patternAtCurrentSongPositionChanged(); // For the play order widget

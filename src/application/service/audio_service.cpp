@@ -15,14 +15,21 @@
 
 #include "audio_service.hpp"
 
+#include "../../common/constants.hpp"
 #include "../../contrib/SimpleLogger/src/simple_logger.hpp"
 #include "../../infra/audio/implementation/jack/audio_recorder_jack.hpp"
+#include "../../infra/audio/implementation/jack/audio_player_jack.hpp"
 #include "../../infra/audio/implementation/librtaudio/audio_recorder_rt_audio.hpp"
+#include "../../infra/audio/implementation/librtaudio/audio_player_rt_audio.hpp"
 #include "audio_worker.hpp"
 #include "settings_service.hpp"
 
 #include <RtAudio.h>
 #include <sndfile.h>
+#include <QFile>
+#include <QTimer>
+#include <QXmlStreamReader>
+#include <QXmlStreamWriter>
 
 namespace noteahead {
 
@@ -35,6 +42,29 @@ AudioService::AudioService(SettingsServiceS settingsService, JackServiceS jackSe
 {
     reinitialize();
     connect(m_settingsService.get(), &SettingsService::jackSyncEnabledChanged, this, &AudioService::reinitialize);
+
+    auto timer = new QTimer(this);
+    connect(timer, &QTimer::timeout, this, [this]() {
+        if (m_isPlayingPlayback) {
+            bool finished = false;
+            if (const bool invoked = QMetaObject::invokeMethod(m_audioWorker.get(), "isPlaybackFinished", Qt::BlockingQueuedConnection, Q_RETURN_ARG(bool, finished)); invoked) {
+                if (finished) {
+                    stopPlayback();
+                    return;
+                }
+            }
+
+            const auto functionName = "playbackPosition";
+            double pos = 0.0;
+            if (const bool invoked = QMetaObject::invokeMethod(m_audioWorker.get(), functionName, Qt::BlockingQueuedConnection, Q_RETURN_ARG(double, pos)); invoked) {
+                if (std::abs(m_playbackPosition - pos) > 0.0001) {
+                    m_playbackPosition = pos;
+                    emit playbackPositionChanged();
+                }
+            }
+        }
+    });
+    timer->start(50);
 }
 
 void AudioService::reinitialize()
@@ -42,7 +72,11 @@ void AudioService::reinitialize()
     juzzlin::L(TAG).info() << "Reinitializing audio engine...";
 
     if (m_isRecording) {
-        stopRecording();
+        stopRecording(m_currentRecordingStartTick);
+    }
+
+    if (m_isPlayingPlayback) {
+        stopPlayback();
     }
 
     if (m_audioWorker) {
@@ -52,14 +86,17 @@ void AudioService::reinitialize()
     }
 
     std::unique_ptr<AudioRecorder> audioRecorder;
+    std::unique_ptr<AudioPlayer> audioPlayer;
 
     if (m_settingsService->jackSyncEnabled()) {
         audioRecorder = std::make_unique<AudioRecorderJack>(m_jackService);
+        audioPlayer = std::make_unique<AudioPlayerJack>(m_jackService);
     } else {
         audioRecorder = std::make_unique<AudioRecorderRtAudio>(RtAudio::UNSPECIFIED);
+        audioPlayer = std::make_unique<AudioPlayerRtAudio>(RtAudio::UNSPECIFIED);
     }
 
-    m_audioWorker = std::make_unique<AudioWorker>(std::move(audioRecorder));
+    m_audioWorker = std::make_unique<AudioWorker>(std::move(audioRecorder), std::move(audioPlayer));
     initializeWorker();
 
     emit reinitialized();
@@ -71,18 +108,19 @@ void AudioService::initializeWorker()
     m_audioWorkerThread.start(QThread::HighPriority);
 }
 
-void AudioService::startRecording(QString filePath, quint32 bufferSize)
+void AudioService::startRecording(QString filePath, quint32 bufferSize, quint64 startTick)
 {
     m_isRecording = true;
     emit isRecordingChanged();
     m_currentRecordingFileName = filePath;
+    m_currentRecordingStartTick = startTick;
     const auto functionName = "startRecording";
     if (const bool invoked = QMetaObject::invokeMethod(m_audioWorker.get(), functionName, Q_ARG(QString, filePath), Q_ARG(quint32, bufferSize)); !invoked) {
         juzzlin::L(TAG).error() << "Invoking a method failed!: " << functionName;
     }
 }
 
-void AudioService::stopRecording()
+void AudioService::stopRecording(quint64 stopTick)
 {
     const auto functionName = "stopRecording";
     if (const bool invoked = QMetaObject::invokeMethod(m_audioWorker.get(), functionName); !invoked) {
@@ -91,10 +129,64 @@ void AudioService::stopRecording()
     if (!m_currentRecordingFileName.isEmpty()) {
         m_latestRecordingFileName = m_currentRecordingFileName;
         m_currentRecordingFileName.clear();
+        m_latestRecordingStartTick = m_currentRecordingStartTick;
+        m_latestRecordingEndTick = stopTick;
         emit latestRecordingFileNameChanged();
+        emit latestRecordingStartTickChanged();
+        emit latestRecordingEndTickChanged();
     }
     m_isRecording = false;
     emit isRecordingChanged();
+}
+
+void AudioService::startPlayback(QString filePath, quint32 bufferSize)
+{
+    m_isPlayingPlayback = true;
+    emit isPlayingPlaybackChanged();
+    const auto functionName = "startPlayback";
+    if (const bool invoked = QMetaObject::invokeMethod(m_audioWorker.get(), functionName, Q_ARG(QString, filePath), Q_ARG(quint32, bufferSize)); !invoked) {
+        juzzlin::L(TAG).error() << "Invoking a method failed!: " << functionName;
+    }
+}
+
+void AudioService::stopPlayback()
+{
+    const auto functionName = "stopPlayback";
+    if (const bool invoked = QMetaObject::invokeMethod(m_audioWorker.get(), functionName); !invoked) {
+        juzzlin::L(TAG).error() << "Invoking a method failed!: " << functionName;
+    }
+    m_isPlayingPlayback = false;
+    emit isPlayingPlaybackChanged();
+}
+
+void AudioService::setLatestRecordingInfo(QString filePath, quint64 startTick, quint64 endTick)
+{
+    m_latestRecordingFileName = filePath;
+    m_latestRecordingStartTick = startTick;
+    m_latestRecordingEndTick = endTick;
+    emit latestRecordingFileNameChanged();
+    emit latestRecordingStartTickChanged();
+    emit latestRecordingEndTickChanged();
+}
+
+bool AudioService::isPlayingPlayback() const
+{
+    return m_isPlayingPlayback;
+}
+
+void AudioService::setPlaybackPosition(double position)
+{
+    const auto functionName = "setPlaybackPosition";
+    if (const bool invoked = QMetaObject::invokeMethod(m_audioWorker.get(), functionName, Q_ARG(double, position)); !invoked) {
+        juzzlin::L(TAG).error() << "Invoking a method failed!: " << functionName;
+    }
+    m_playbackPosition = position;
+    emit playbackPositionChanged();
+}
+
+double AudioService::playbackPosition() const
+{
+    return m_playbackPosition;
 }
 
 QVariantList AudioService::getInputDevices()
@@ -115,6 +207,24 @@ void AudioService::setInputDevice(int deviceId)
     }
 }
 
+QVariantList AudioService::getOutputDevices()
+{
+    const auto functionName = "getOutputDevices";
+    QVariantList devices;
+    if (const bool invoked = QMetaObject::invokeMethod(m_audioWorker.get(), functionName, Qt::BlockingQueuedConnection, Q_RETURN_ARG(QVariantList, devices)); !invoked) {
+        juzzlin::L(TAG).error() << "Invoking a method failed!: " << functionName;
+    }
+    return devices;
+}
+
+void AudioService::setOutputDevice(int deviceId)
+{
+    const auto functionName = "setOutputDevice";
+    if (const bool invoked = QMetaObject::invokeMethod(m_audioWorker.get(), functionName, Q_ARG(int, deviceId)); !invoked) {
+        juzzlin::L(TAG).error() << "Invoking a method failed!: " << functionName;
+    }
+}
+
 QString AudioService::latestRecordingFileName() const
 {
     return m_latestRecordingFileName;
@@ -125,7 +235,7 @@ bool AudioService::isRecording() const
     return m_isRecording;
 }
 
-QVector<double> AudioService::getWaveformData(int numPoints)
+QVariantList AudioService::getWaveformData(int numPoints)
 {
     if (m_latestRecordingFileName.isEmpty()) {
         return {};
@@ -143,11 +253,12 @@ QVector<double> AudioService::getWaveformData(int numPoints)
         return {};
     }
 
-    QVector<double> points;
+    QVariantList points;
     points.reserve(numPoints);
 
     const int channels = sfInfo.channels;
-    const qint64 framesPerPoint = std::max(1ll, static_cast<long long>(sfInfo.frames) / numPoints);
+    const qint64 totalFrames = sfInfo.frames;
+    const qint64 framesPerPoint = std::max(1ll, static_cast<long long>(totalFrames) / numPoints);
     std::vector<double> buffer(framesPerPoint * channels);
 
     for (int i = 0; i < numPoints; ++i) {
@@ -163,6 +274,37 @@ QVector<double> AudioService::getWaveformData(int numPoints)
 
     sf_close(sndFile);
     return points;
+}
+
+quint64 AudioService::latestRecordingStartTick() const
+{
+    return m_latestRecordingStartTick;
+}
+
+quint64 AudioService::latestRecordingEndTick() const
+{
+    return m_latestRecordingEndTick;
+}
+
+void AudioService::serializeToXml(QXmlStreamWriter & writer) const
+{
+    if (!m_latestRecordingFileName.isEmpty()) {
+        writer.writeStartElement(Constants::NahdXml::xmlKeyAudioRecorder());
+        writer.writeAttribute(Constants::NahdXml::xmlKeyLatestRecordingFilePath(), m_latestRecordingFileName);
+        writer.writeAttribute(Constants::NahdXml::xmlKeyLatestRecordingStartTick(), QString::number(m_latestRecordingStartTick));
+        writer.writeAttribute(Constants::NahdXml::xmlKeyLatestRecordingEndTick(), QString::number(m_latestRecordingEndTick));
+        writer.writeEndElement();
+    }
+}
+
+void AudioService::deserializeFromXml(QXmlStreamReader & reader)
+{
+    const auto filePath = reader.attributes().value(Constants::NahdXml::xmlKeyLatestRecordingFilePath()).toString();
+    const auto startTick = reader.attributes().value(Constants::NahdXml::xmlKeyLatestRecordingStartTick()).toULongLong();
+    const auto endTick = reader.attributes().value(Constants::NahdXml::xmlKeyLatestRecordingEndTick()).toULongLong();
+    if (QFile::exists(filePath)) {
+        setLatestRecordingInfo(filePath, startTick, endTick);
+    }
 }
 
 AudioService::~AudioService()

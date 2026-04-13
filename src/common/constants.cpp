@@ -359,6 +359,26 @@ QString xmlKeyMixer()
     return "Mixer";
 }
 
+QString xmlKeyAudioRecorder()
+{
+    return "AudioRecorder";
+}
+
+QString xmlKeyLatestRecordingFilePath()
+{
+    return "latestRecordingFilePath";
+}
+
+QString xmlKeyLatestRecordingStartTick()
+{
+    return "latestRecordingStartTick";
+}
+
+QString xmlKeyLatestRecordingEndTick()
+{
+    return "latestRecordingEndTick";
+}
+
 QString xmlKeyAutomation()
 {
     return "Automation";

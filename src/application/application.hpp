@@ -78,7 +78,7 @@ public:
 private:
     void applyAllInstruments();
     void applyAllMidiCcSettings();
-    void applyAudioRecording(bool isPlaying);
+    void applyAudioRecording(bool isPlaying, quint64 startTick);
     QString buildAudioFileName() const;
     void applyInstrument(size_t trackIndex, const Instrument & instrument);
     void applyMidiCcSettings(const Instrument & instrument);

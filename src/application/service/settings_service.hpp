@@ -84,6 +84,9 @@ public:
     virtual Q_INVOKABLE int audioInputDeviceId() const;
     virtual Q_INVOKABLE void setAudioInputDeviceId(int deviceId);
 
+    virtual Q_INVOKABLE int audioOutputDeviceId() const;
+    virtual Q_INVOKABLE void setAudioOutputDeviceId(int deviceId);
+
 signals:
     void controllerPortChanged();
     void uiUpdatesDisabledDuringPlaybackChanged();

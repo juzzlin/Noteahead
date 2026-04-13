@@ -27,6 +27,7 @@
 #include "../command/composite_command.hpp"
 #include "../instrument_request.hpp"
 #include "../note_converter.hpp"
+#include "audio_service.hpp"
 #include "automation_service.hpp"
 #include "copy_manager.hpp"
 #include "mixer_service.hpp"
@@ -207,10 +208,13 @@ EditorService::SongS EditorService::deserializeProject(QXmlStreamReader & reader
         const auto sideChainDeserializationCallback = [this](QXmlStreamReader & reader) {
             emit sideChainDeserializationRequested(reader);
         };
+        const auto audioRecorderDeserializationCallback = [this](QXmlStreamReader & reader) {
+            emit audioRecorderDeserializationRequested(reader);
+        };
         while (!(reader.isEndElement() && !reader.name().compare(Constants::NahdXml::xmlKeyProject()))) {
             if (reader.isStartElement() && !reader.name().compare(Constants::NahdXml::xmlKeySong())) {
                 song = std::make_unique<Song>();
-                song->deserializeFromXml(reader, mixerDeserializationCallback, automationDeserializationCallback, sideChainDeserializationCallback);
+                song->deserializeFromXml(reader, mixerDeserializationCallback, automationDeserializationCallback, sideChainDeserializationCallback, audioRecorderDeserializationCallback);
             }
             reader.readNext();
         }
@@ -291,7 +295,10 @@ QString EditorService::toXml()
     const auto sideChainSerializationCallback = [this](QXmlStreamWriter & writer) {
         emit sideChainSerializationRequested(writer);
     };
-    m_song->serializeToXml(writer, mixerSerializationCallback, automationSerializationCallback, sideChainSerializationCallback);
+    const auto audioRecorderSerializationCallback = [this](QXmlStreamWriter & writer) {
+        emit audioRecorderSerializationRequested(writer);
+    };
+    m_song->serializeToXml(writer, mixerSerializationCallback, automationSerializationCallback, sideChainSerializationCallback, audioRecorderSerializationCallback);
 
     writer.writeEndElement();
     writer.writeEndDocument();
@@ -2037,12 +2044,10 @@ bool EditorService::requestPosition(quint64 pattern, quint64 track, quint64 colu
 
 void EditorService::requestPositionByTick(quint64 tick)
 {
-    // Skip unnecessary updates
-    if (tick % m_song->ticksPerLine()) {
-        return;
-    }
+    const auto ticksPerLine = m_song->ticksPerLine();
+    const auto roundedTick = (tick / ticksPerLine) * ticksPerLine;
 
-    if (auto && songPosition = m_song->songPositionByTick(tick); songPosition.has_value()) {
+    if (auto && songPosition = m_song->songPositionByTick(roundedTick); songPosition.has_value()) {
         if (m_settingsService->uiUpdatesDisabledDuringPlayback()) {
             setSongPositionInternal(songPosition->position, false);
             updateTimes(songPosition->currentTime, m_song->lineToTime(songPosition->line));
@@ -2465,8 +2470,17 @@ void EditorService::setSongLength(quint64 songLength)
 
 quint64 EditorService::maxSongLength() const
 {
-    return 999;
+    return 1024;
 }
+
+quint64 EditorService::totalTicks() const
+{
+    if (m_song) {
+        return m_song->totalTicks();
+    }
+    return 0;
+}
+
 
 EditorService::~EditorService() = default;
 

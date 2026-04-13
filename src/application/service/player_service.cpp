@@ -52,9 +52,17 @@ PlayerService::PlayerService(
     connect(m_settingsService.get(), &SettingsService::jackBpmSyncEnabledChanged, this, &PlayerService::beatsPerMinuteChanged);
 }
 
+quint64 PlayerService::tick() const
+{
+    return m_tick;
+}
+
 void PlayerService::setSongPosition(quint64 position)
 {
     m_songPosition = position;
+    if (m_song) {
+        m_tick = m_song->positionToTick(m_songPosition);
+    }
 }
 
 void PlayerService::setSong(SongS song)
@@ -64,7 +72,10 @@ void PlayerService::setSong(SongS song)
 
 void PlayerService::initializeWorker()
 {
-    connect(m_playerWorker.get(), &PlayerWorker::tickUpdated, this, &PlayerService::tickUpdated, Qt::QueuedConnection);
+    connect(m_playerWorker.get(), &PlayerWorker::tickUpdated, this, [this](quint64 tick) {
+        m_tick = tick;
+        emit tickUpdated(tick);
+    }, Qt::QueuedConnection);
     connect(m_playerWorker.get(), &PlayerWorker::isPlayingChanged, this, &PlayerService::isPlayingChanged, Qt::QueuedConnection);
     connect(m_playerWorker.get(), &PlayerWorker::songEnded, this, &PlayerService::songEnded, Qt::QueuedConnection);
     m_playerWorker->moveToThread(&m_playerWorkerThread);

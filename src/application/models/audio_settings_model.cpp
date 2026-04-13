@@ -29,11 +29,17 @@ AudioSettingsModel::AudioSettingsModel(AudioServiceS audioService, SettingsServi
   , m_settingsService { std::move(settingsService) }
 {
     m_selectedInputDeviceId = m_settingsService->audioInputDeviceId();
-    // Ensure the audio service knows about the saved device ID
     m_audioService->setInputDevice(m_selectedInputDeviceId);
     refreshInputDevices();
 
-    connect(m_audioService.get(), &AudioService::reinitialized, this, &AudioSettingsModel::refreshInputDevices);
+    m_selectedOutputDeviceId = m_settingsService->audioOutputDeviceId();
+    m_audioService->setOutputDevice(m_selectedOutputDeviceId);
+    refreshOutputDevices();
+
+    connect(m_audioService.get(), &AudioService::reinitialized, this, [this]() {
+        refreshInputDevices();
+        refreshOutputDevices();
+    });
 }
 
 AudioSettingsModel::~AudioSettingsModel() = default;
@@ -59,11 +65,39 @@ void AudioSettingsModel::setSelectedInputDeviceId(int deviceId)
     }
 }
 
+QVariantList AudioSettingsModel::outputDevices() const
+{
+    return m_outputDevices;
+}
+
+int AudioSettingsModel::selectedOutputDeviceId() const
+{
+    return m_selectedOutputDeviceId;
+}
+
+void AudioSettingsModel::setSelectedOutputDeviceId(int deviceId)
+{
+    if (m_selectedOutputDeviceId != deviceId) {
+        juzzlin::L(TAG).info() << "Selecting audio output device ID: " << deviceId;
+        m_selectedOutputDeviceId = deviceId;
+        m_settingsService->setAudioOutputDeviceId(deviceId);
+        m_audioService->setOutputDevice(deviceId);
+        emit selectedOutputDeviceIdChanged(deviceId);
+    }
+}
+
 void AudioSettingsModel::refreshInputDevices()
 {
     juzzlin::L(TAG).info() << "Refreshing input devices...";
     m_inputDevices = m_audioService->getInputDevices();
     emit inputDevicesChanged();
+}
+
+void AudioSettingsModel::refreshOutputDevices()
+{
+    juzzlin::L(TAG).info() << "Refreshing output devices...";
+    m_outputDevices = m_audioService->getOutputDevices();
+    emit outputDevicesChanged();
 }
 
 } // namespace noteahead

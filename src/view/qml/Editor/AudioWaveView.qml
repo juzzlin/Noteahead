@@ -1,5 +1,6 @@
 import QtQuick 2.15
 import QtQuick.Controls 2.15
+import QtQuick.Controls.Universal 2.15
 import QtQuick.Layouts 1.15
 import ".."
 
@@ -24,8 +25,26 @@ Rectangle {
         if (width > 0) {
             const availableWidth = canvasContainer.width;
             if (availableWidth > 0) {
-                waveformData = audioService.getWaveformData(availableWidth);
+                const data = audioService.getWaveformData(availableWidth);
+                waveformData = data || [];
                 canvas.requestPaint();
+            } else {
+                waveformData = [];
+                canvas.requestPaint();
+            }
+        }
+    }
+
+    Menu {
+        id: contextMenu
+        MenuItem {
+            text: qsTr("Open location...")
+            enabled: audioService.latestRecordingFileName && !audioService.isRecording
+            onTriggered: {
+                if (audioService.latestRecordingFileName) {
+                    const fileUrl = "file://" + audioService.latestRecordingFileName.substring(0, audioService.latestRecordingFileName.lastIndexOf('/'));
+                    Qt.openUrlExternally(fileUrl);
+                }
             }
         }
     }
@@ -45,11 +64,28 @@ Rectangle {
                 anchors.fill: parent
                 hoverEnabled: true
                 enabled: !UiService.isPlaying()
+                acceptedButtons: Qt.LeftButton | Qt.RightButton
                 cursorShape: audioService.latestRecordingFileName && !audioService.isRecording && !UiService.isPlaying() ? Qt.PointingHandCursor : Qt.ArrowCursor
-                onClicked: {
-                    if (audioService.latestRecordingFileName && !audioService.isRecording) {
-                        const fileUrl = "file://" + audioService.latestRecordingFileName.substring(0, audioService.latestRecordingFileName.lastIndexOf('/'));
-                        Qt.openUrlExternally(fileUrl);
+                onClicked: mouse => {
+                    if (mouse.button === Qt.RightButton) {
+                        contextMenu.popup();
+                    } else if (mouse.button === Qt.LeftButton) {
+                        const totalTicks = editorService.totalTicks();
+                        if (audioService.latestRecordingFileName && !audioService.isRecording && totalTicks > 0) {
+                            const pos = mouse.x / width;
+                            audioService.playbackPosition = pos;
+
+                            // Seek main sequencer
+                            // Calculate target tick based on the actual recorded range
+                            const startTick = audioService.latestRecordingStartTick;
+                            const endTick = audioService.latestRecordingEndTick;
+                            const recordedTicks = (endTick > startTick) ? (endTick - startTick) : 0;
+
+                            if (recordedTicks > 0) {
+                                const targetTick = startTick + Math.floor(pos * recordedTicks);
+                                editorService.requestPositionByTick(targetTick);
+                            }
+                        }
                     }
                 }
             }
@@ -62,7 +98,7 @@ Rectangle {
                     const ctx = getContext("2d");
                     ctx.clearRect(0, 0, width, height);
 
-                    if (rootItem.waveformData.length === 0)
+                    if (!rootItem.waveformData || rootItem.waveformData.length === 0)
                         return;
 
                     let maxPeak = 0;
@@ -93,6 +129,16 @@ Rectangle {
                 }
             }
 
+            Rectangle {
+                id: playhead
+                width: 2
+                height: parent.height
+                color: "white"
+                opacity: 0.8
+                x: audioService.playbackPosition * (parent.width - width)
+                visible: audioService.latestRecordingFileName && !audioService.isRecording
+            }
+
             Text {
                 anchors.centerIn: parent
                 text: qsTr("Recording...")
@@ -110,6 +156,45 @@ Rectangle {
                 color: "white"
                 font.pixelSize: 10
                 visible: text !== "" && !audioService.isRecording
+            }
+        }
+
+        Button {
+            id: playbackButton
+            Layout.fillHeight: true
+            Layout.preferredWidth: height
+            enabled: audioService.latestRecordingFileName && !audioService.isRecording && !UiService.isPlaying()
+            opacity: enabled ? 1.0 : 0.5
+            focusPolicy: Qt.NoFocus
+            onClicked: {
+                if (audioService.isPlayingPlayback) {
+                    audioService.stopPlayback();
+                } else {
+                    audioService.startPlayback(audioService.latestRecordingFileName, settingsService.audioBufferSize());
+                }
+            }
+
+            ToolTip.visible: hovered
+            ToolTip.text: audioService.isPlayingPlayback ? qsTr("Stop playback") : qsTr("Start playback")
+
+            background: Rectangle {
+                radius: height / 2
+                color: audioService.isPlayingPlayback ? "#004400" : "#333333"
+                border.color: audioService.isPlayingPlayback ? "#00FF00" : "#555555"
+                border.width: 1
+            }
+
+            contentItem: Item {
+                Image {
+                    source: audioService.isPlayingPlayback ? "../Graphics/stop.png" : "../Graphics/play.png"
+                    width: parent.height * 0.8
+                    height: width
+                    sourceSize.width: width
+                    sourceSize.height: height
+                    fillMode: Image.PreserveAspectFit
+                    x: Math.floor((parent.width - width) / 2)
+                    y: Math.floor((parent.height - height) / 2)
+                }
             }
         }
 
@@ -142,10 +227,7 @@ Rectangle {
             contentItem: Item {
                 Image {
                     source: "../Graphics/record.png"
-                    width: {
-                        const s = Math.min(parent.width, parent.height) * 0.6;
-                        return Math.max(2, Math.floor(s / 2) * 2);
-                    }
+                    width: parent.height * 0.8
                     height: width
                     sourceSize.width: width
                     sourceSize.height: height
