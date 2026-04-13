@@ -159,3 +159,31 @@ are in `CONTRIBUTING.md`; this is why it is built the way it is.
 - **Rack controllers are split by subject.** Parameter keys come from the `NahdXml` singleton. The
   mixer, the meters, the MIDI mappings and the sends each have a controller of their own, so
   `EffectRackController` and `DeviceRackController` keep only the rack.
+
+## Drums
+
+What the drum devices share, and why. Drum Synth V2, 909 and 808 and FM Drums are `DrumPadDevice`s
+with a pad per voice; Kick 808, Kick 909, Kick Synth and Snare Synth are single drums.
+
+- **Knob scales follow what a device copies.** Where a device copies a hardware panel (Kick 808,
+  Kick 909, Drum Synth 808 and 909), its sound knobs read 0–10 as printed on the machine, and the
+  fits are measured at those marks. Our own designs read in percent. Real units beat both: seconds
+  for an envelope, Hz for a filter, dB for a gain. The scale is only the readout: every knob is
+  still saved as its 0…1 position, so changing a readout never changes a project.
+- **A drum strikes after the old hit has faded.** A pad has one voice, so a hit during the last
+  one's tail reuses the envelope still riding on it. `DrumAmpEnvelope` walks the level to zero over
+  1 ms before the new attack, and `DrumStrike` holds the engine's strike back until then. Striking
+  at once would play the new attack into the fade and then jump back to full level: a click on
+  every retrigger, loudest on a kick.
+- **A single drum's envelope is bypassed at its defaults.** Sustain at full with no attack or
+  release is no envelope at all, so the device skips it. An existing project, saved before the
+  envelope existed, plays exactly as before, and so does a retrigger without one.
+- **The waveform is a hit rendered on a copy.** `DrumHitPreview` and `DrumVoicePreview` copy the
+  device through its own XML, so striking the copy never touches the one in the rack. The hit is
+  rendered twice, with the envelope to know how long it is heard and without it for the picture,
+  so the envelope is drawn over the drum rather than counted twice. The playhead counts the frames
+  played since the strike, and the view polls it only while the dialog is open.
+- **Kick 808 and the 808 kit's kick are one engine.** Drum Synth 808 plays `Kick808Engine` with the
+  RD-8's Tuning range and Pitch Depth and Pitch Decay fixed at Kick 808's defaults. Kick 808 adds
+  those two knobs, Glide, Key Track and Tuning over ±2 octaves. With Key Track on, Kick 808 follows
+  the note column: one octave up is twice every frequency on an analyzer.
