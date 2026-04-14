@@ -47,6 +47,7 @@
 #include "service/selection_service.hpp"
 #include "service/settings_service.hpp"
 #include "service/side_chain_service.hpp"
+#include "service/theme_service.hpp"
 #include "service/util_service.hpp"
 #include "state_machine.hpp"
 #include "ui_logger.hpp"
@@ -74,6 +75,7 @@ Application::Application(int & argc, char ** argv)
   , m_application { std::make_unique<QGuiApplication>(argc, argv) }
   , m_applicationService { std::make_shared<ApplicationService>() }
   , m_settingsService { std::make_shared<SettingsService>() }
+  , m_themeService { std::make_shared<ThemeService>() }
   , m_selectionService { std::make_shared<SelectionService>() }
   , m_utilService { std::make_shared<UtilService>() }
   , m_propertyService { std::make_shared<PropertyService>() }
@@ -180,6 +182,7 @@ void Application::setContextProperties()
     m_engine->rootContext()->setContextProperty("recentFilesModel", m_recentFilesModel.get());
     m_engine->rootContext()->setContextProperty("selectionService", m_selectionService.get());
     m_engine->rootContext()->setContextProperty("settingsService", m_settingsService.get());
+    m_engine->rootContext()->setContextProperty("themeService", m_themeService.get());
     m_engine->rootContext()->setContextProperty("sideChainService", m_sideChainService.get());
     m_engine->rootContext()->setContextProperty("trackSettingsModel", m_trackSettingsModel.get());
     m_engine->rootContext()->setContextProperty("uiLogger", m_uiLogger.get());
@@ -856,3 +859,4 @@ Application::~Application()
 }
 
 } // namespace noteahead
+

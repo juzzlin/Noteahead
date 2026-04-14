@@ -39,7 +39,7 @@ Rectangle {
                     id: textField
                     anchors.centerIn: parent
                     text: editorService.patternAtSongPosition(index)
-                    color: editorService.songPosition === index ? "orange" : "white"
+                    color: editorService.songPosition === index ? themeService.accentColor : "white"
                     font.pixelSize: 14
                     font.bold: true
                 }

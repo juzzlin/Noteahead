@@ -168,7 +168,7 @@ Dialog {
                     Label {
                         text: modelData.key
                         font.family: "monospace"
-                        color: "orange"
+                        color: themeService.accentColor
                         wrapMode: Text.WrapAnywhere
                     }
                     Label {

@@ -39,6 +39,7 @@ const auto settingsGroupAudio = "Audio";
 const auto settingsGroupEditor = "Editor";
 const auto settingsGroupMainWindow = "MainWindow";
 const auto settingsGroupMidi = "Midi";
+const auto settingsGroupTheme = "Theme";
 
 const auto stepKey = "step";
 const auto velocityKey = "velocity";
@@ -47,6 +48,8 @@ const auto trackHeaderFontSizeKey = "trackHeaderFontSize";
 const auto uiUpdatesDisabledDuringPlaybackKey = "uiUpdatesDisabledDuringPlayback";
 const auto visibleLinesKey = "visibleLines";
 const auto windowSizeKey = "size";
+
+const auto accentColorKey = "accentColor";
 
 int autoNoteOffOffset(int defaultAutoNoteOffOffset)
 {
@@ -358,6 +361,23 @@ void setAudioOutputDeviceId(int deviceId)
     QSettings settings;
     settings.beginGroup(settingsGroupAudio);
     settings.setValue(audioOutputDeviceIdKey, deviceId);
+    settings.endGroup();
+}
+
+QColor accentColor(QColor defaultAccentColor)
+{
+    QSettings settings;
+    settings.beginGroup(settingsGroupTheme);
+    const auto color = settings.value(accentColorKey, defaultAccentColor).value<QColor>();
+    settings.endGroup();
+    return color;
+}
+
+void setAccentColor(QColor accentColor)
+{
+    QSettings settings;
+    settings.beginGroup(settingsGroupTheme);
+    settings.setValue(accentColorKey, accentColor);
     settings.endGroup();
 }
 

@@ -128,7 +128,7 @@ GroupBox {
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignHCenter
                     wrapMode: Text.WordWrap
-                    color: "orange"
+                    color: themeService.accentColor
                     text: qsTr("Enabling Jack sync switches audio recorder to JACK mode (input_1/input_2). Use a patchbay like Carla to route audio to Noteahead.")
                     visible: midiSettingsModel.jackSyncEnabled
                 }

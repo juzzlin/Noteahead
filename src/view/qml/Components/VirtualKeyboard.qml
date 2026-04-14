@@ -20,7 +20,7 @@ Item {
         const effectiveNote = Math.max(0, note - velocityKeyTrackOffset);
         let factor = 1.0 - (velocityKeyTrack / 100.0) * (effectiveNote / 127.0);
         factor = Math.max(0.0, Math.min(1.0, factor));
-        const c1 = Qt.color("orange");
+        const c1 = themeService.accentColor;
         const c2 = Qt.color(baseColor);
         return Qt.rgba(c1.r + (c2.r - c1.r) * factor, c1.g + (c2.g - c1.g) * factor, c1.b + (c2.b - c1.b) * factor, 1.0);
     }

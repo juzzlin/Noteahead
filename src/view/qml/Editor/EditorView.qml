@@ -39,7 +39,7 @@ FocusScope {
         y: _positionBarY()
         z: 10
         border.width: applicationService.editMode ? 2 : 0
-        border.color: Constants.positionBarBorderColorEditMode
+        border.color: themeService.positionBarBorderColorEditMode
     }
     LineNumberColumn {
         id: lineNumberColumnRight

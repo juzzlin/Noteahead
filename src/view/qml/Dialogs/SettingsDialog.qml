@@ -42,6 +42,10 @@ Dialog {
                 height: parent.height
                 width: parent.width
             }
+            SettingsDialog_ThemeSettings {
+                height: parent.height
+                width: parent.width
+            }
         }
         TabBar {
             id: tabBar
@@ -54,6 +58,9 @@ Dialog {
             }
             TabButton {
                 text: qsTr("Audio")
+            }
+            TabButton {
+                text: qsTr("Theme")
             }
         }
     }

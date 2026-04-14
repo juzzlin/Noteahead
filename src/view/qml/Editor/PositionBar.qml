@@ -5,10 +5,10 @@ Rectangle {
     id: rootItem
     color: "transparent"
     border.width: Constants.positionBarBorderWidth
-    border.color: Constants.positionBarBorderColor
+    border.color: themeService.positionBarBorderColor
     Rectangle {
         anchors.fill: parent
-        color: Constants.positionBarColor
+        color: themeService.accentColor
         opacity: Constants.positionBarOpacity
     }
 }

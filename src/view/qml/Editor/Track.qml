@@ -285,7 +285,7 @@ Rectangle {
         z: 5
         Rectangle {
             id: borderFocusedL
-            color: Constants.trackHeaderTextColor(rootItem._index)
+            color: themeService.trackHeaderTextColors[rootItem._index % themeService.trackHeaderTextColors.length]
             width: Constants.trackBorderFocusedWidth
             height: parent.height
             anchors.top: parent.top
@@ -294,7 +294,7 @@ Rectangle {
         }
         Rectangle {
             id: borderFocusedR
-            color: Constants.trackHeaderTextColor(rootItem._index)
+            color: themeService.trackHeaderTextColors[rootItem._index % themeService.trackHeaderTextColors.length]
             width: Constants.trackBorderFocusedWidth
             height: parent.height
             anchors.top: parent.top

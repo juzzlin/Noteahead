@@ -22,7 +22,7 @@ Item {
         id: shadowRect
         anchors.fill: parent
         anchors.margins: -20
-        color: Constants.progressBarBackgroundColor
+        color: themeService.progressBarBackgroundColor
         radius: 10
         opacity: 0.9
     }
@@ -35,7 +35,7 @@ Item {
         background: Rectangle {
             implicitWidth: 200
             implicitHeight: 6
-            color: Constants.progressBarBackgroundColor
+            color: themeService.progressBarBackgroundColor
             radius: 3
         }
         contentItem: Item {
@@ -45,7 +45,7 @@ Item {
                 width: control.visualPosition * parent.width
                 height: parent.height
                 radius: 3
-                color: Constants.progressBarForegroundColor
+                color: themeService.accentColor
             }
         }
     }

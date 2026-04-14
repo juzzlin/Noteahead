@@ -33,7 +33,7 @@ Dialog {
                         anchors.left: parent.left
                         anchors.leftMargin: 10
                         elide: Text.ElideRight
-                        color: hoverHandler.hovered ? Constants.recentFileItemHoveredTextColor : Constants.recentFileItemTextColor
+                        color: hoverHandler.hovered ? themeService.accentColor : themeService.recentFileItemTextColor
                     }
                     MouseArea {
                         anchors.fill: parent

@@ -67,7 +67,7 @@ Item {
     }
     Rectangle {
         id: border
-        color: Constants.trackBorderColor
+        color: themeService.trackBorderColor
         width: Constants.trackBorderWidth
         height: parent.height
         anchors.top: parent.top

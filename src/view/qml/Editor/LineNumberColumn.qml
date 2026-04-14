@@ -4,7 +4,7 @@ import ".."
 
 Rectangle {
     id: rootItem
-    color: Constants.lineNumberColumnBackgroundColor
+    color: themeService.lineNumberColumnBackgroundColor
     clip: true
     function resize(width, height) {
         rootItem.width = width;
@@ -29,13 +29,13 @@ Rectangle {
         linesPerBeat: editorService.linesPerBeat
         positionBarLine: editorService.positionBarLine()
         scrollOffset: editorService.position.line
-        backgroundColor: Constants.lineNumberColumnCellBackgroundColor
-        textColor: Constants.lineNumberColumnTextColor
+        backgroundColor: themeService.lineNumberColumnCellBackgroundColor
+        textColor: themeService.accentColor
     }
     Rectangle {
         id: borderRectangle
         color: "transparent"
-        border.color: Constants.lineNumberColumnBorderColor
+        border.color: themeService.lineNumberColumnBorderColor
         border.width: 1
         anchors.fill: parent
         z: 2

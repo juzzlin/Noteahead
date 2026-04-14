@@ -146,6 +146,7 @@ set(SOURCE_FILES
   application/service/selection_service.cpp
   application/service/settings_service.cpp
   application/service/side_chain_service.cpp
+  application/service/theme_service.cpp
   application/service/util_service.cpp
   application/state_machine.cpp
   application/ui_logger.cpp
@@ -247,6 +248,7 @@ set(QML_SOURCE_FILES
     ${QML_BASE_DIR}/Dialogs/SettingsDialog_AudioSettings.qml
     ${QML_BASE_DIR}/Dialogs/SettingsDialog_GeneralSettings.qml
     ${QML_BASE_DIR}/Dialogs/SettingsDialog_MidiSettings.qml
+    ${QML_BASE_DIR}/Dialogs/SettingsDialog_ThemeSettings.qml
     ${QML_BASE_DIR}/Dialogs/ShortcutsDialog.qml
     ${QML_BASE_DIR}/Dialogs/SideChainTargetDelegate.qml
     ${QML_BASE_DIR}/Dialogs/TrackSettingsDialog.qml

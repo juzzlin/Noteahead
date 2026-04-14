@@ -8,9 +8,9 @@ Rectangle {
     id: rootItem
     height: Constants.trackHeaderHeight
     width: parent.width
-    color: Constants.trackHeaderBackgroundColor
-    border.color: Constants.trackHeaderBorderColor
-    border.width: 1
+    color: themeService.trackHeaderBackgroundColor
+    border.color: themeService.trackHeaderBorderColor
+    border.width: Constants.trackBorderWidth
     signal columnDeletionRequested
     signal invertedMuteRequested
     signal invertedSoloRequested
@@ -80,9 +80,9 @@ Rectangle {
         TextField {
             id: nameField
             placeholderText: qsTr("Track name")
-            color: _focused ? "black" : Constants.trackHeaderTextColor(_index)
+            color: _focused ? "black" : themeService.trackHeaderTextColors[_index % themeService.trackHeaderTextColors.length]
             background: Rectangle {
-                color: _focused ? Constants.trackHeaderTextColor(_index) : "transparent"
+                color: _focused ? themeService.trackHeaderTextColors[_index % themeService.trackHeaderTextColors.length] : "transparent"
                 radius: 12
             }
             font.bold: true

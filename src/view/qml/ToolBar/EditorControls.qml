@@ -183,7 +183,7 @@ Row {
                 height: patternLabel.height
                 padding: 0
                 background: null
-                color: "orange"
+                color: themeService.accentColor
                 font.bold: true
                 verticalAlignment: TextInput.AlignVCenter // Align text inside the field
                 Keys.onReturnPressed: {

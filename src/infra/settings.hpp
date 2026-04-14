@@ -18,6 +18,7 @@
 
 #include <cstddef>
 
+#include <QColor>
 #include <QSize>
 
 namespace noteahead::Settings {
@@ -75,6 +76,9 @@ void setAudioInputDeviceId(int deviceId);
 
 int audioOutputDeviceId();
 void setAudioOutputDeviceId(int deviceId);
+
+QColor accentColor(QColor defaultAccentColor);
+void setAccentColor(QColor accentColor);
 
 } // namespace noteahead::Settings
 

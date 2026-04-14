@@ -21,6 +21,13 @@ Rectangle {
         }
     }
 
+    Connections {
+        target: themeService
+        function onAccentColorChanged() {
+            canvas.requestPaint();
+        }
+    }
+
     function requestWaveform() {
         if (width > 0) {
             const availableWidth = canvasContainer.width;
@@ -106,7 +113,7 @@ Rectangle {
                         maxPeak = Math.max(maxPeak, rootItem.waveformData[i]);
                     }
 
-                    ctx.strokeStyle = "orange";
+                    ctx.strokeStyle = themeService.accentColor;
                     ctx.lineWidth = 1;
                     ctx.beginPath();
 

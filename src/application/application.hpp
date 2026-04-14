@@ -61,6 +61,7 @@ class RecentFilesModel;
 class SelectionService;
 class SettingsService;
 class SideChainService;
+class ThemeService;
 class TrackSettingsModel;
 class UiLogger;
 class UtilService;
@@ -124,6 +125,7 @@ private:
     std::shared_ptr<ApplicationService> m_applicationService;
 
     std::shared_ptr<SettingsService> m_settingsService;
+    std::shared_ptr<ThemeService> m_themeService;
 
     std::shared_ptr<SelectionService> m_selectionService;
 
