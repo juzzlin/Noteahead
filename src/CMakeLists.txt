@@ -224,7 +224,9 @@ set(QML_SOURCE_FILES
     ${QML_BASE_DIR}/Dialogs/AddMidiCcSettingDialog.qml
     ${QML_BASE_DIR}/Dialogs/AddPitchBendAutomationDialog.qml
     ${QML_BASE_DIR}/Dialogs/ColumnSettingsDialog.qml
+    ${QML_BASE_DIR}/Dialogs/ColumnSettingsDialog_InstrumentSettings.qml
     ${QML_BASE_DIR}/Dialogs/ColumnSettingsDialog_MidiEffects.qml
+    ${QML_BASE_DIR}/Dialogs/ColumnSettingsDialog_TimingSettings.qml
     ${QML_BASE_DIR}/Dialogs/DelayCalculatorDialog.qml
     ${QML_BASE_DIR}/Dialogs/DeleteUnusedPatternsDialog.qml
     ${QML_BASE_DIR}/Dialogs/EditMidiCcAutomationsDelegate.qml

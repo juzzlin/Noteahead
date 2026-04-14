@@ -7,6 +7,11 @@ Menu {
     title: qsTr("Column")
     width: rootItem.width
     Action {
+        text: qsTr("Settings")
+        onTriggered: UiService.requestColumnSettingsDialog(editorService.position.track, editorService.position.column)
+    }
+    MenuSeparator {}
+    Action {
         text: qsTr("Cut")
         shortcut: "Alt+F3"
         enabled: !UiService.isPlaying()

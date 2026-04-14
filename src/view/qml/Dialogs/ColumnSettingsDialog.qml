@@ -11,9 +11,10 @@ Dialog {
     title: "<strong>" + qsTr("Column settings for track %1, column %2").arg(columnSettingsModel.trackIndex + 1).arg(columnSettingsModel.columnIndex + 1) + "</strong>"
     modal: true
     function initialize() {
-        delaySpinBox.value = columnSettingsModel.delay;
-        transposeSpinBox.value = columnSettingsModel.transpose;
+        instrumentSettings.initialize();
+        timingSettings.initialize();
         midiEffects.initialize();
+        tabBar.currentIndex = 0;
     }
     function saveSettings() {
         columnSettingsModel.save();
@@ -42,51 +43,60 @@ Dialog {
         anchors.fill: parent
         spacing: 10
 
-        GroupBox {
-            title: qsTr("General")
-            Layout.fillWidth: true
+        StackLayout {
+            height: parent.height - tabBar.height - parent.spacing
             width: parent.width
+            currentIndex: tabBar.currentIndex
 
-            RowLayout {
-                spacing: 10
-                Label {
-                    text: qsTr("Transpose:")
+            ScrollView {
+                id: instrumentScrollView
+                clip: true
+                ScrollBar.vertical.policy: ScrollBar.AsNeeded
+                ScrollBar.horizontal.policy: ScrollBar.AlwaysOff
+                rightPadding: 10
+                ColumnSettingsDialog_InstrumentSettings {
+                    id: instrumentSettings
+                    width: instrumentScrollView.availableWidth
                 }
-                SpinBox {
-                    id: transposeSpinBox
-                    from: -48
-                    to: 48
-                    editable: true
-                    Keys.onReturnPressed: focus = false
-                    onValueModified: columnSettingsModel.transpose = value
+            }
+
+            ScrollView {
+                id: timingScrollView
+                clip: true
+                ScrollBar.vertical.policy: ScrollBar.AsNeeded
+                ScrollBar.horizontal.policy: ScrollBar.AlwaysOff
+                rightPadding: 10
+                ColumnSettingsDialog_TimingSettings {
+                    id: timingSettings
+                    width: timingScrollView.availableWidth
+                }
+            }
+
+            ScrollView {
+                id: midiEffectsScrollView
+                clip: true
+                ScrollBar.vertical.policy: ScrollBar.AsNeeded
+                ScrollBar.horizontal.policy: ScrollBar.AlwaysOff
+                rightPadding: 10
+                ColumnSettingsDialog_MidiEffects {
+                    id: midiEffects
+                    width: midiEffectsScrollView.availableWidth
                 }
             }
         }
 
-        GroupBox {
-            title: qsTr("Timing")
-            Layout.fillWidth: true
+        TabBar {
+            id: tabBar
             width: parent.width
-
-            RowLayout {
-                spacing: 10
-                Label {
-                    text: qsTr("Delay (ms):")
-                }
-                SpinBox {
-                    id: delaySpinBox
-                    from: -10000
-                    to: 10000
-                    editable: true
-                    Keys.onReturnPressed: focus = false
-                    onValueModified: columnSettingsModel.delay = value
-                }
+            TabButton {
+                text: qsTr("Instrument")
             }
-        }
-
-        ColumnSettingsDialog_MidiEffects {
-            id: midiEffects
-            Layout.fillWidth: true
+            TabButton {
+                text: qsTr("Timing")
+            }
+            TabButton {
+                text: qsTr("MIDI Effects")
+            }
         }
     }
 

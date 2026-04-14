@@ -7,6 +7,11 @@ Menu {
     title: qsTr("Track")
     width: rootItem.width
     Action {
+        text: qsTr("Settings")
+        onTriggered: UiService.requestTrackSettingsDialog(editorService.position.track)
+    }
+    MenuSeparator {}
+    Action {
         text: qsTr("Cut")
         shortcut: "Shift+F3"
         enabled: !UiService.isPlaying()

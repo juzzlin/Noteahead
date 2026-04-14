@@ -38,6 +38,9 @@ QString webSiteUrl();
 size_t defaultPatternLineCount();
 size_t defaultTrackCount();
 
+int transposeMin();
+int transposeMax();
+
 namespace NahdXml {
 
 QString xmlKeyFileFormatVersion();

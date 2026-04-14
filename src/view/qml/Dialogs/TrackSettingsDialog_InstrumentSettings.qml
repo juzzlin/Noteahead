@@ -245,8 +245,8 @@ ColumnLayout {
                 }
                 SpinBox {
                     id: transposeSpinBox
-                    from: -24
-                    to: 24
+                    from: Constants.transposeMin
+                    to: Constants.transposeMax
                     editable: true
                     Layout.column: 2
                     Layout.row: 5

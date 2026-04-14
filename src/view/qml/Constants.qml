@@ -16,6 +16,9 @@ QtObject {
     readonly property int trackBorderFocusedWidth: 2
     readonly property int trackHeaderHeight: 40
 
+    readonly property int transposeMin: -48
+    readonly property int transposeMax: 48
+
     readonly property int positionBarBorderWidth: 1
     readonly property double positionBarOpacity: 0.25
 }
