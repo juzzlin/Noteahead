@@ -234,6 +234,21 @@ QString xmlKeyDelay()
     return "delay";
 }
 
+QString xmlKeyMidiDelayLines()
+{
+    return "midiDelayLines";
+}
+
+QString xmlKeyMidiDelayFeedback()
+{
+    return "midiDelayFeedback";
+}
+
+QString xmlKeyMidiDelayMaxRepetitions()
+{
+    return "midiDelayMaxRepetitions";
+}
+
 QString xmlKeyTranspose()
 {
     return "transpose";

@@ -9,6 +9,10 @@ New features:
   - Located in column settings
   - The value is added to the track-level transpose
 
+* Add MIDI delay for note columns
+  - Located in column settings (MIDI Effects tab)
+  - Configurable delay (in lines), feedback, and max repetitions
+
 * Add song transposition feature
   - Fixes also drum track not taken into account properly
 
@@ -16,6 +20,9 @@ New features:
   - Output device can be selected in the audio settings
   - Clicking on the waveform will make the editor jump to the corresponding location
   - The last recorded file path is saved and loaded along the project
+
+* Implement a MIDI delay effect
+  - Column settings => MIDI Effects
 
 * Theming: Add option to change the accent color
   - Settings => Theme

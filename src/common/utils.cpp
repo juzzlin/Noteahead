@@ -101,6 +101,18 @@ std::optional<int> readIntAttribute(QXmlStreamReader & reader, QString name, boo
     }
 }
 
+std::optional<double> readDoubleAttribute(QXmlStreamReader & reader, QString name, bool required)
+{
+    if (!reader.attributes().hasAttribute(name)) {
+        if (required) {
+            throw std::runtime_error { "Attribute '" + name.toStdString() + "' not found!" };
+        }
+        return {};
+    } else {
+        return reader.attributes().value(name).toDouble();
+    }
+}
+
 std::optional<size_t> readUIntAttribute(QXmlStreamReader & reader, QString name, bool required)
 {
     if (!reader.attributes().hasAttribute(name)) {

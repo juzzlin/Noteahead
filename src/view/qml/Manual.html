@@ -125,21 +125,28 @@
 <ul>
     <li><strong>Instrument</strong>: Set the <strong>Transpose</strong> value for all notes in the column. This value is added to the track-level transpose.</li>
     <li><strong>Timing</strong>: Adjust the <strong>Delay (ms)</strong> to shift all notes in the column forward or backward in time.</li>
-    <li><strong>MIDI Effects</strong>: Manage <strong>Chord Automation</strong> and the <strong>Arpeggiator</strong> for the column.</li>
-</ul>
+    <li><strong>MIDI Effects</strong>: Manage <strong>Chord Automation</strong>, the <strong>Arpeggiator</strong>, and <strong>MIDI Delay</strong> for the column.</li>
+    </ul>
 
-<h3 style="color: orange;">Chord Automation & Arpeggiator</h3>
-<p>Located in the <strong>MIDI Effects</strong> tab of the Column Settings, these tools allow you to generate complex harmony and movement from a single note.</p>
-<ul>
+    <h3 style="color: orange;">Chord Automation & Arpeggiator</h3>
+    <p>Located in the <strong>MIDI Effects</strong> tab of the Column Settings, these tools allow you to generate complex harmony and movement from a single note.</p>
+    <ul>
     <li><strong>Chord Automation</strong>: Set semi-tone offsets for up to three additional notes relative to your root note. Each chord note has its own velocity and delay settings, allowing for thick, humanized chords.</li>
     <li><strong>Arpeggiator</strong>: When enabled, the chord notes (including the root note) are played sequentially.
         <ul>
-            <li><strong>Patterns</strong>: Choose from <strong>Up</strong>, <strong>Down</strong>, <strong>Up-Down</strong>, <strong>Down-Up</strong>, or <strong>Random</strong>.</li>
-            <li><strong>Events per beat</strong>: Control the speed of the arpeggio by setting how many notes are played per musical beat (1-32).</li>
+            <li><strong>Patterns</strong>: Choose from <strong>Up</strong>, <strong>Down</strong>, <strong>Up-Down</strong>, or <strong>Random</strong>.</li>
+            <li><strong>Events per beat</strong>: Determine the speed of the arpeggio relative to the BPM.</li>
         </ul>
     </li>
-</ul>
+    </ul>
 
+    <h3 style="color: orange;">MIDI Delay</h3>
+    <p>Also located in the <strong>MIDI Effects</strong> tab, this effect adds delayed echoes to all notes in the column.</p>
+    <ul>
+        <li><strong>Lines</strong>: Set the delay time between echoes in musical lines (e.g., 1.5 lines).</li>
+        <li><strong>Feedback (%)</strong>: Adjust the velocity of each subsequent echo relative to the previous one (0-100%).</li>
+        <li><strong>Max repetitions</strong>: Set the maximum number of echoes to generate.</li>
+    </ul>
 <h3 style="color: orange;">MIDI CC & Pitch Bend Automation</h3>
 <ul>
     <li><strong>Add Automation</strong>: Select a range of lines, right-click, and choose "Add MIDI CC Automation" or "Add Pitch Bend Automation".</li>

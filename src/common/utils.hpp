@@ -40,6 +40,7 @@ double portNameMatchScore(const std::string & s1, const std::string & s2);
 namespace Xml {
 std::optional<bool> readBoolAttribute(QXmlStreamReader & reader, QString name, bool required = true);
 std::optional<int> readIntAttribute(QXmlStreamReader & reader, QString name, bool required = true);
+std::optional<double> readDoubleAttribute(QXmlStreamReader & reader, QString name, bool required = true);
 std::optional<size_t> readUIntAttribute(QXmlStreamReader & reader, QString name, bool required = true);
 std::optional<QString> readStringAttribute(QXmlStreamReader & reader, QString name, bool required = true);
 std::optional<std::chrono::milliseconds> readMSecAttribute(QXmlStreamReader & reader, QString name, bool required = true);

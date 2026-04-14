@@ -549,6 +549,43 @@ void SongTest::test_renderToEvents_columnTransposeSet_shouldApplyTranspose()
     QCOMPARE(noteOn->noteData()->note(), 72);
 }
 
+void SongTest::test_renderToEvents_midiDelaySet_shouldApplyDelay()
+{
+    Song song;
+
+    const auto instrument1 = std::make_shared<Instrument>("Instrument1");
+    song.setInstrument(0, instrument1);
+
+    const auto colSettings = std::make_shared<ColumnSettings>();
+    colSettings->midiDelayLines = 1.0;
+    colSettings->midiDelayFeedback = 50;
+    colSettings->midiDelayMaxRepetitions = 2;
+    song.setColumnSettings(0, 0, colSettings);
+
+    const Position noteOnPosition = { 0, 0, 0, 0, 0 };
+    song.noteDataAtPosition(noteOnPosition)->setAsNoteOn(60, 100);
+
+    const auto events = song.renderToEvents(std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<SideChainService>(), 0);
+    // StartOfSong, NoteOn (0), NoteOn (1 line), NoteOn (2 lines), EndOfSong, ...
+    size_t noteOnCount = 0;
+    for (auto && event : events) {
+        if (event->type() == Event::Type::NoteData && event->noteData()->type() == NoteData::Type::NoteOn) {
+            noteOnCount++;
+            if (noteOnCount == 1) {
+                QCOMPARE(event->tick(), 0);
+                QCOMPARE(event->noteData()->velocity(), 100);
+            } else if (noteOnCount == 2) {
+                QCOMPARE(event->tick(), song.ticksPerLine());
+                QCOMPARE(event->noteData()->velocity(), 50);
+            } else if (noteOnCount == 3) {
+                QCOMPARE(event->tick(), 2 * song.ticksPerLine());
+                QCOMPARE(event->noteData()->velocity(), 25);
+            }
+        }
+    }
+    QCOMPARE(noteOnCount, 3);
+}
+
 void SongTest::test_renderToEvents_velocityJitterSet_shouldApplyVelocityJitter()
 {
     Song song;

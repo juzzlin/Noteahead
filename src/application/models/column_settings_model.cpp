@@ -34,6 +34,9 @@ void ColumnSettingsModel::reset()
     m_settings = {};
 
     emit delayChanged();
+    emit midiDelayLinesChanged();
+    emit midiDelayFeedbackChanged();
+    emit midiDelayMaxRepetitionsChanged();
     emit transposeChanged();
     emit chordNote1OffsetChanged();
     emit chordNote1VelocityChanged();
@@ -58,6 +61,9 @@ void ColumnSettingsModel::requestData()
 void ColumnSettingsModel::setColumnSettings(const ColumnSettings & settings)
 {
     const bool delayChanged = m_settings.delay != settings.delay;
+    const bool midiDelayLinesChanged = m_settings.midiDelayLines != settings.midiDelayLines;
+    const bool midiDelayFeedbackChanged = m_settings.midiDelayFeedback != settings.midiDelayFeedback;
+    const bool midiDelayMaxRepetitionsChanged = m_settings.midiDelayMaxRepetitions != settings.midiDelayMaxRepetitions;
     const bool transposeChanged = m_settings.transpose != settings.transpose;
     const bool note1OffsetChanged = m_settings.chordAutomationSettings.note1.offset != settings.chordAutomationSettings.note1.offset;
     const bool note1VelocityChanged = m_settings.chordAutomationSettings.note1.velocity != settings.chordAutomationSettings.note1.velocity;
@@ -77,6 +83,15 @@ void ColumnSettingsModel::setColumnSettings(const ColumnSettings & settings)
 
     if (delayChanged) {
         emit this->delayChanged();
+    }
+    if (midiDelayLinesChanged) {
+        emit this->midiDelayLinesChanged();
+    }
+    if (midiDelayFeedbackChanged) {
+        emit this->midiDelayFeedbackChanged();
+    }
+    if (midiDelayMaxRepetitionsChanged) {
+        emit this->midiDelayMaxRepetitionsChanged();
     }
     if (transposeChanged) {
         emit this->transposeChanged();
@@ -158,6 +173,45 @@ void ColumnSettingsModel::setDelay(int delay)
     if (m_settings.delay.count() != delay) {
         m_settings.delay = std::chrono::milliseconds { delay };
         emit delayChanged();
+    }
+}
+
+double ColumnSettingsModel::midiDelayLines() const
+{
+    return m_settings.midiDelayLines;
+}
+
+void ColumnSettingsModel::setMidiDelayLines(double midiDelayLines)
+{
+    if (m_settings.midiDelayLines != midiDelayLines) {
+        m_settings.midiDelayLines = midiDelayLines;
+        emit midiDelayLinesChanged();
+    }
+}
+
+int ColumnSettingsModel::midiDelayFeedback() const
+{
+    return m_settings.midiDelayFeedback;
+}
+
+void ColumnSettingsModel::setMidiDelayFeedback(int feedback)
+{
+    if (m_settings.midiDelayFeedback != feedback) {
+        m_settings.midiDelayFeedback = feedback;
+        emit midiDelayFeedbackChanged();
+    }
+}
+
+int ColumnSettingsModel::midiDelayMaxRepetitions() const
+{
+    return m_settings.midiDelayMaxRepetitions;
+}
+
+void ColumnSettingsModel::setMidiDelayMaxRepetitions(int repetitions)
+{
+    if (m_settings.midiDelayMaxRepetitions != repetitions) {
+        m_settings.midiDelayMaxRepetitions = repetitions;
+        emit midiDelayMaxRepetitionsChanged();
     }
 }
 

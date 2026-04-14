@@ -637,9 +637,55 @@ Song::EventList Song::generateAutoNoteOffsForDanglingNotes(size_t tick, ActiveNo
         std::ranges::copy(noteOffEvents, std::back_inserter(processedEvents));
     }
     return processedEvents;
-}
+    }
 
-Song::EventList Song::generateNoteOffs(EventListCR events) const
+    Song::EventList Song::applyMidiDelay(EventListCR events) const
+    {
+        Song::EventList processedEventList;
+        const size_t maxTick = totalTicks();
+
+        for (auto && event : events) {
+            processedEventList.push_back(event);
+
+            if (event->type() != Event::Type::NoteData) {
+                continue;
+            }
+
+            const auto noteData = event->noteData();
+            if (!noteData || noteData->type() != NoteData::Type::NoteOn) {
+                continue;
+            }
+
+            const auto settings = columnSettings(noteData->track(), noteData->column());
+            if (!settings || settings->midiDelayLines <= 0.0) {
+                continue;
+            }
+
+            const size_t delayTicks = static_cast<size_t>(std::round(settings->midiDelayLines * m_ticksPerLine));
+            if (delayTicks == 0) {
+                continue;
+            }
+
+            for (int i = 1; i <= settings->midiDelayMaxRepetitions; ++i) {
+                const size_t delayedTick = event->tick() + i * delayTicks;
+                if (delayedTick >= maxTick) {
+                    break;
+                }
+
+                NoteData delayedNoteData = *noteData;
+                const double feedbackFactor = std::pow(settings->midiDelayFeedback / 100.0, i);
+                const uint8_t feedbackVelocity = static_cast<uint8_t>(std::clamp(static_cast<int>(noteData->velocity() * feedbackFactor), 0, 127));
+
+                if (feedbackVelocity == 0) {
+                    break;
+                }
+
+                delayedNoteData.setVelocity(feedbackVelocity);
+                processedEventList.push_back(std::make_shared<Event>(delayedTick, delayedNoteData));
+            }        }
+
+        return processedEventList;
+    }    Song::EventList Song::generateNoteOffs(EventListCR events) const
 {
     Song::EventList processedEvents;
     using TrackAndColumn = std::pair<int, int>;
@@ -1022,6 +1068,8 @@ Song::EventList Song::renderContent(AutomationServiceS automationService, SideCh
     eventList = sideChainService->renderToEvents(*this, eventList, startPosition, endPosition);
     juzzlin::L(TAG).debug() << "Rendering chord automations";
     eventList = generateChordAutomations(eventList);
+    juzzlin::L(TAG).debug() << "Applying MIDI delay";
+    eventList = applyMidiDelay(eventList);
     juzzlin::L(TAG).debug() << "Rendering note-off's";
     eventList = generateNoteOffs(eventList);
     juzzlin::L(TAG).debug() << "Removing non-mapped note-off's";

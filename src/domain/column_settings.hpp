@@ -38,6 +38,10 @@ public:
 
     int transpose { 0 };
 
+    double midiDelayLines { 0.0 };
+    int midiDelayFeedback { 100 };
+    int midiDelayMaxRepetitions { 8 };
+
     struct ChordAutomationSettings
     {
         struct ChordNote
@@ -66,7 +70,7 @@ public:
 
     bool isEnabled() const
     {
-        return delay.count() || transpose || chordAutomationSettings.isEnabled();
+        return delay.count() || transpose || midiDelayLines != 0.0 || chordAutomationSettings.isEnabled();
     }
 
     void serializeToXml(QXmlStreamWriter & writer) const;

@@ -84,6 +84,9 @@ QString xmlKeyEnabled();
 QString xmlKeyCutoff();
 
 QString xmlKeyDelay();
+QString xmlKeyMidiDelayLines();
+QString xmlKeyMidiDelayFeedback();
+QString xmlKeyMidiDelayMaxRepetitions();
 QString xmlKeyTranspose();
 QString xmlKeyDrumTrack();
 

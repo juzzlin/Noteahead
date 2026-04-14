@@ -30,6 +30,9 @@ class ColumnSettingsModel : public QObject
     Q_PROPERTY(quint64 columnIndex READ columnIndex WRITE setColumnIndex NOTIFY columnIndexChanged)
 
     Q_PROPERTY(int delay READ delay WRITE setDelay NOTIFY delayChanged)
+    Q_PROPERTY(double midiDelayLines READ midiDelayLines WRITE setMidiDelayLines NOTIFY midiDelayLinesChanged)
+    Q_PROPERTY(int midiDelayFeedback READ midiDelayFeedback WRITE setMidiDelayFeedback NOTIFY midiDelayFeedbackChanged)
+    Q_PROPERTY(int midiDelayMaxRepetitions READ midiDelayMaxRepetitions WRITE setMidiDelayMaxRepetitions NOTIFY midiDelayMaxRepetitionsChanged)
     Q_PROPERTY(int transpose READ transpose WRITE setTranspose NOTIFY transposeChanged)
 
     Q_PROPERTY(qint8 chordNote1Offset READ chordNote1Offset WRITE setChordNote1Offset NOTIFY chordNote1OffsetChanged)
@@ -64,6 +67,15 @@ public:
 
     int delay() const;
     void setDelay(int delay);
+
+    double midiDelayLines() const;
+    void setMidiDelayLines(double midiDelayLines);
+
+    int midiDelayFeedback() const;
+    void setMidiDelayFeedback(int feedback);
+
+    int midiDelayMaxRepetitions() const;
+    void setMidiDelayMaxRepetitions(int repetitions);
 
     int transpose() const;
     void setTranspose(int transpose);
@@ -112,6 +124,9 @@ signals:
     void columnIndexChanged();
 
     void delayChanged();
+    void midiDelayLinesChanged();
+    void midiDelayFeedbackChanged();
+    void midiDelayMaxRepetitionsChanged();
     void transposeChanged();
 
     void chordNote1OffsetChanged();
