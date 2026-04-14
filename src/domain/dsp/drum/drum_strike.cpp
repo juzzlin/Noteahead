@@ -48,6 +48,9 @@ void DrumStrike::advance(DrumEngine & engine, DrumAmpEnvelope & envelope)
         envelope.reset();
         envelope.trigger();
     }
+    // What the engine still holds of the last hit has been faded out, and must not come back
+    // under the new one
+    engine.reset();
     engine.trigger(*m_pendingVelocity);
     m_pendingVelocity.reset();
 }
