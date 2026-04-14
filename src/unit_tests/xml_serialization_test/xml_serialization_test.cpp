@@ -111,7 +111,9 @@ void XmlSerializationTest::test_toXmlFromXml_trackName_shouldLoadTrackName()
 void XmlSerializationTest::test_toXmlFromXml_columnSettings_shouldSaveAndLoad()
 {
     EditorService editorServiceOut { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
-    auto settingsOut = std::make_shared<ColumnSettings>();
+    const auto settingsOut = std::make_shared<ColumnSettings>();
+    settingsOut->delay = std::chrono::milliseconds { 123 };
+    settingsOut->transpose = -12;
     settingsOut->chordAutomationSettings.note1.offset = 4;
     settingsOut->chordAutomationSettings.note1.velocity = 80;
     settingsOut->chordAutomationSettings.note2.offset = 7;
@@ -130,6 +132,8 @@ void XmlSerializationTest::test_toXmlFromXml_columnSettings_shouldSaveAndLoad()
     const auto settingsIn = editorServiceIn.columnSettings(1, 0);
 
     QVERIFY(settingsIn);
+    QCOMPARE(settingsIn->delay, settingsOut->delay);
+    QCOMPARE(settingsIn->transpose, settingsOut->transpose);
     QCOMPARE(settingsIn->chordAutomationSettings.note1.offset, settingsOut->chordAutomationSettings.note1.offset);
     QCOMPARE(settingsIn->chordAutomationSettings.note1.velocity, settingsOut->chordAutomationSettings.note1.velocity);
     QCOMPARE(settingsIn->chordAutomationSettings.note2.offset, settingsOut->chordAutomationSettings.note2.offset);

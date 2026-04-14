@@ -62,7 +62,7 @@ Column::ColumnSettingsS Column::settings() const
 
 bool Column::hasData() const
 {
-    return !name().empty() || m_settings->chordAutomationSettings.isEnabled() || std::ranges::any_of(m_lines, [](auto && line) {
+    return !name().empty() || m_settings->isEnabled() || std::ranges::any_of(m_lines, [](auto && line) {
         return line->hasData();
     });
 }
@@ -243,7 +243,7 @@ void Column::serializeToXml(QXmlStreamWriter & writer) const
     writer.writeAttribute(Constants::NahdXml::xmlKeyName(), QString::fromStdString(name()));
     writer.writeAttribute(Constants::NahdXml::xmlKeyLineCount(), QString::number(lineCount()));
 
-    if (m_settings->chordAutomationSettings.isEnabled()) {
+    if (m_settings->isEnabled()) {
         m_settings->serializeToXml(writer);
     }
 

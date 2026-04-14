@@ -5,6 +5,10 @@ Release date:
 
 New features:
 
+* Add transpose per note column
+  - Located in column settings
+  - The value is added to the track-level transpose
+
 * Add song transposition feature
   - Fixes also drum track not taken into account properly
 

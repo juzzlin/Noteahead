@@ -801,7 +801,10 @@ Song::EventList Song::applyInstrumentsOnEvents(EventListCR events) const
                     event->applyDelay(totalDelay - delayOffset, msPerTick);
                     event->applyVelocityJitter(event->instrument()->settings().midiEffects.velocityJitter);
                     event->applyVelocityKeyTrack(event->instrument()->settings().midiEffects.velocityKeyTrack, event->instrument()->settings().midiEffects.velocityKeyTrackOffset);
-                    event->transpose(event->instrument()->settings().transpose);
+                    const int instrumentTranspose = event->instrument()->settings().transpose;
+                    const auto colSettings = columnSettings(noteData->track(), noteData->column());
+                    const int columnTranspose = colSettings ? colSettings->transpose : 0;
+                    event->transpose(instrumentTranspose + columnTranspose);
                 }
             }
         } else if (event->type() == Event::Type::MidiCcData) {

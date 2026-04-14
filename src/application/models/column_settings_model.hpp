@@ -30,6 +30,7 @@ class ColumnSettingsModel : public QObject
     Q_PROPERTY(quint64 columnIndex READ columnIndex WRITE setColumnIndex NOTIFY columnIndexChanged)
 
     Q_PROPERTY(int delay READ delay WRITE setDelay NOTIFY delayChanged)
+    Q_PROPERTY(int transpose READ transpose WRITE setTranspose NOTIFY transposeChanged)
 
     Q_PROPERTY(qint8 chordNote1Offset READ chordNote1Offset WRITE setChordNote1Offset NOTIFY chordNote1OffsetChanged)
     Q_PROPERTY(quint8 chordNote1Velocity READ chordNote1Velocity WRITE setChordNote1Velocity NOTIFY chordNote1VelocityChanged)
@@ -63,6 +64,9 @@ public:
 
     int delay() const;
     void setDelay(int delay);
+
+    int transpose() const;
+    void setTranspose(int transpose);
 
     qint8 chordNote1Offset() const;
     void setChordNote1Offset(qint8 offset);
@@ -108,6 +112,7 @@ signals:
     void columnIndexChanged();
 
     void delayChanged();
+    void transposeChanged();
 
     void chordNote1OffsetChanged();
     void chordNote1VelocityChanged();

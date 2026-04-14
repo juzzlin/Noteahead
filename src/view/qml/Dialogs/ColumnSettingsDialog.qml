@@ -12,6 +12,7 @@ Dialog {
     modal: true
     function initialize() {
         delaySpinBox.value = columnSettingsModel.delay;
+        transposeSpinBox.value = columnSettingsModel.transpose;
         midiEffects.initialize();
     }
     function saveSettings() {
@@ -40,6 +41,27 @@ Dialog {
     Column {
         anchors.fill: parent
         spacing: 10
+
+        GroupBox {
+            title: qsTr("General")
+            Layout.fillWidth: true
+            width: parent.width
+
+            RowLayout {
+                spacing: 10
+                Label {
+                    text: qsTr("Transpose:")
+                }
+                SpinBox {
+                    id: transposeSpinBox
+                    from: -48
+                    to: 48
+                    editable: true
+                    Keys.onReturnPressed: focus = false
+                    onValueModified: columnSettingsModel.transpose = value
+                }
+            }
+        }
 
         GroupBox {
             title: qsTr("Timing")

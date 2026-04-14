@@ -36,6 +36,8 @@ public:
 
     std::chrono::milliseconds delay { 0 };
 
+    int transpose { 0 };
+
     struct ChordAutomationSettings
     {
         struct ChordNote
@@ -61,6 +63,11 @@ public:
     };
 
     ChordAutomationSettings chordAutomationSettings;
+
+    bool isEnabled() const
+    {
+        return delay.count() || transpose || chordAutomationSettings.isEnabled();
+    }
 
     void serializeToXml(QXmlStreamWriter & writer) const;
     using ColumnSettingsU = std::unique_ptr<ColumnSettings>;

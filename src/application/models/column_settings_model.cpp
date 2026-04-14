@@ -34,6 +34,7 @@ void ColumnSettingsModel::reset()
     m_settings = {};
 
     emit delayChanged();
+    emit transposeChanged();
     emit chordNote1OffsetChanged();
     emit chordNote1VelocityChanged();
     emit chordNote1DelayChanged();
@@ -57,6 +58,7 @@ void ColumnSettingsModel::requestData()
 void ColumnSettingsModel::setColumnSettings(const ColumnSettings & settings)
 {
     const bool delayChanged = m_settings.delay != settings.delay;
+    const bool transposeChanged = m_settings.transpose != settings.transpose;
     const bool note1OffsetChanged = m_settings.chordAutomationSettings.note1.offset != settings.chordAutomationSettings.note1.offset;
     const bool note1VelocityChanged = m_settings.chordAutomationSettings.note1.velocity != settings.chordAutomationSettings.note1.velocity;
     const bool note1DelayChanged = m_settings.chordAutomationSettings.note1.delay != settings.chordAutomationSettings.note1.delay;
@@ -75,6 +77,9 @@ void ColumnSettingsModel::setColumnSettings(const ColumnSettings & settings)
 
     if (delayChanged) {
         emit this->delayChanged();
+    }
+    if (transposeChanged) {
+        emit this->transposeChanged();
     }
     if (note1OffsetChanged) {
         emit chordNote1OffsetChanged();
@@ -153,6 +158,19 @@ void ColumnSettingsModel::setDelay(int delay)
     if (m_settings.delay.count() != delay) {
         m_settings.delay = std::chrono::milliseconds { delay };
         emit delayChanged();
+    }
+}
+
+int ColumnSettingsModel::transpose() const
+{
+    return m_settings.transpose;
+}
+
+void ColumnSettingsModel::setTranspose(int transpose)
+{
+    if (m_settings.transpose != transpose) {
+        m_settings.transpose = transpose;
+        emit transposeChanged();
     }
 }
 

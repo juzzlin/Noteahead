@@ -58,6 +58,7 @@ private slots:
     void test_renderToEvents_chordAutomation_shouldRenderChordNotes();
 
     void test_renderToEvents_transposeSet_shouldApplyTranspose();
+    void test_renderToEvents_columnTransposeSet_shouldApplyTranspose();
     void test_renderToEvents_velocityJitterSet_shouldApplyVelocityJitter();
     void test_renderToEvents_velocityKeyTrackSet_shouldScaleVelocity();
     void test_renderToEvents_velocityKeyTrackOffsetSet_shouldScaleVelocity();
