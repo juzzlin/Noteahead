@@ -30,6 +30,7 @@ class ColumnSettingsModel : public QObject
     Q_PROPERTY(quint64 columnIndex READ columnIndex WRITE setColumnIndex NOTIFY columnIndexChanged)
 
     Q_PROPERTY(int delay READ delay WRITE setDelay NOTIFY delayChanged)
+    Q_PROPERTY(bool midiDelayEnabled READ midiDelayEnabled WRITE setMidiDelayEnabled NOTIFY midiDelayEnabledChanged)
     Q_PROPERTY(double midiDelayLines READ midiDelayLines WRITE setMidiDelayLines NOTIFY midiDelayLinesChanged)
     Q_PROPERTY(int midiDelayFeedback READ midiDelayFeedback WRITE setMidiDelayFeedback NOTIFY midiDelayFeedbackChanged)
     Q_PROPERTY(int midiDelayMaxRepetitions READ midiDelayMaxRepetitions WRITE setMidiDelayMaxRepetitions NOTIFY midiDelayMaxRepetitionsChanged)
@@ -67,6 +68,9 @@ public:
 
     int delay() const;
     void setDelay(int delay);
+
+    bool midiDelayEnabled() const;
+    void setMidiDelayEnabled(bool enabled);
 
     double midiDelayLines() const;
     void setMidiDelayLines(double midiDelayLines);
@@ -124,6 +128,7 @@ signals:
     void columnIndexChanged();
 
     void delayChanged();
+    void midiDelayEnabledChanged();
     void midiDelayLinesChanged();
     void midiDelayFeedbackChanged();
     void midiDelayMaxRepetitionsChanged();

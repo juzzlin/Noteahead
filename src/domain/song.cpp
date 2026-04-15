@@ -657,7 +657,7 @@ Song::EventList Song::generateAutoNoteOffsForDanglingNotes(size_t tick, ActiveNo
             }
 
             const auto settings = columnSettings(noteData->track(), noteData->column());
-            if (!settings || settings->midiDelayLines <= 0.0) {
+            if (!settings || !settings->midiDelayEnabled || settings->midiDelayLines <= 0.0) {
                 continue;
             }
 

@@ -38,6 +38,7 @@ public:
 
     int transpose { 0 };
 
+    bool midiDelayEnabled { false };
     double midiDelayLines { 0.0 };
     int midiDelayFeedback { 100 };
     int midiDelayMaxRepetitions { 8 };
@@ -70,7 +71,7 @@ public:
 
     bool isEnabled() const
     {
-        return delay.count() || transpose || midiDelayLines != 0.0 || chordAutomationSettings.isEnabled();
+        return delay.count() || transpose || midiDelayEnabled || chordAutomationSettings.isEnabled();
     }
 
     void serializeToXml(QXmlStreamWriter & writer) const;

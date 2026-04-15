@@ -234,6 +234,11 @@ QString xmlKeyDelay()
     return "delay";
 }
 
+QString xmlKeyMidiDelayEnabled()
+{
+    return "midiDelayEnabled";
+}
+
 QString xmlKeyMidiDelayLines()
 {
     return "midiDelayLines";

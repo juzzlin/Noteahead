@@ -557,6 +557,7 @@ void SongTest::test_renderToEvents_midiDelaySet_shouldApplyDelay()
     song.setInstrument(0, instrument1);
 
     const auto colSettings = std::make_shared<ColumnSettings>();
+    colSettings->midiDelayEnabled = true;
     colSettings->midiDelayLines = 1.0;
     colSettings->midiDelayFeedback = 50;
     colSettings->midiDelayMaxRepetitions = 2;

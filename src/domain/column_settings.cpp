@@ -35,6 +35,7 @@ void ColumnSettings::serializeToXml(QXmlStreamWriter & writer) const
     writer.writeStartElement(Constants::NahdXml::xmlKeyColumnSettings());
 
     writer.writeAttribute(Constants::NahdXml::xmlKeyDelay(), QString::number(delay.count()));
+    writer.writeAttribute(Constants::NahdXml::xmlKeyMidiDelayEnabled(), midiDelayEnabled ? Constants::NahdXml::xmlValueTrue() : Constants::NahdXml::xmlValueFalse());
     writer.writeAttribute(Constants::NahdXml::xmlKeyMidiDelayLines(), QString::number(midiDelayLines));
     writer.writeAttribute(Constants::NahdXml::xmlKeyMidiDelayFeedback(), QString::number(midiDelayFeedback));
     writer.writeAttribute(Constants::NahdXml::xmlKeyMidiDelayMaxRepetitions(), QString::number(midiDelayMaxRepetitions));
@@ -64,6 +65,7 @@ ColumnSettings::ColumnSettingsU ColumnSettings::deserializeFromXml(QXmlStreamRea
     auto settings = std::make_unique<ColumnSettings>();
 
     settings->delay = std::chrono::milliseconds { Utils::Xml::readIntAttribute(reader, Constants::NahdXml::xmlKeyDelay(), false).value_or(0) };
+    settings->midiDelayEnabled = Utils::Xml::readBoolAttribute(reader, Constants::NahdXml::xmlKeyMidiDelayEnabled(), false).value_or(false);
     settings->midiDelayLines = Utils::Xml::readDoubleAttribute(reader, Constants::NahdXml::xmlKeyMidiDelayLines(), false).value_or(0.0);
     settings->midiDelayFeedback = Utils::Xml::readIntAttribute(reader, Constants::NahdXml::xmlKeyMidiDelayFeedback(), false).value_or(100);
     settings->midiDelayMaxRepetitions = Utils::Xml::readIntAttribute(reader, Constants::NahdXml::xmlKeyMidiDelayMaxRepetitions(), false).value_or(8);
@@ -88,8 +90,9 @@ ColumnSettings::ColumnSettingsU ColumnSettings::deserializeFromXml(QXmlStreamRea
 
 QString ColumnSettings::toString() const
 {
-    return QStringLiteral("ColumnSettings(delay=%1, midiDelayLines=%2, midiDelayFeedback=%3, midiDelayMaxRepetitions=%4, transpose=%5, chordAutomation: note1(offset=%6, velocity=%7, delay=%8), note2(offset=%9, velocity=%10, delay=%11), note3(offset=%12, velocity=%13, delay=%14))")
+    return QStringLiteral("ColumnSettings(delay=%1, midiDelayEnabled=%2, midiDelayLines=%3, midiDelayFeedback=%4, midiDelayMaxRepetitions=%5, transpose=%6, chordAutomation: note1(offset=%7, velocity=%8, delay=%9), note2(offset=%10, velocity=%11, delay=%12), note3(offset=%13, velocity=%14, delay=%15))")
         .arg(delay.count())
+        .arg(midiDelayEnabled)
         .arg(midiDelayLines)
         .arg(midiDelayFeedback)
         .arg(midiDelayMaxRepetitions)

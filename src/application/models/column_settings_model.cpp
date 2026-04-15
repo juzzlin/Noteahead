@@ -34,6 +34,7 @@ void ColumnSettingsModel::reset()
     m_settings = {};
 
     emit delayChanged();
+    emit midiDelayEnabledChanged();
     emit midiDelayLinesChanged();
     emit midiDelayFeedbackChanged();
     emit midiDelayMaxRepetitionsChanged();
@@ -61,6 +62,7 @@ void ColumnSettingsModel::requestData()
 void ColumnSettingsModel::setColumnSettings(const ColumnSettings & settings)
 {
     const bool delayChanged = m_settings.delay != settings.delay;
+    const bool midiDelayEnabledChanged = m_settings.midiDelayEnabled != settings.midiDelayEnabled;
     const bool midiDelayLinesChanged = m_settings.midiDelayLines != settings.midiDelayLines;
     const bool midiDelayFeedbackChanged = m_settings.midiDelayFeedback != settings.midiDelayFeedback;
     const bool midiDelayMaxRepetitionsChanged = m_settings.midiDelayMaxRepetitions != settings.midiDelayMaxRepetitions;
@@ -83,6 +85,9 @@ void ColumnSettingsModel::setColumnSettings(const ColumnSettings & settings)
 
     if (delayChanged) {
         emit this->delayChanged();
+    }
+    if (midiDelayEnabledChanged) {
+        emit this->midiDelayEnabledChanged();
     }
     if (midiDelayLinesChanged) {
         emit this->midiDelayLinesChanged();
@@ -173,6 +178,19 @@ void ColumnSettingsModel::setDelay(int delay)
     if (m_settings.delay.count() != delay) {
         m_settings.delay = std::chrono::milliseconds { delay };
         emit delayChanged();
+    }
+}
+
+bool ColumnSettingsModel::midiDelayEnabled() const
+{
+    return m_settings.midiDelayEnabled;
+}
+
+void ColumnSettingsModel::setMidiDelayEnabled(bool enabled)
+{
+    if (m_settings.midiDelayEnabled != enabled) {
+        m_settings.midiDelayEnabled = enabled;
+        emit midiDelayEnabledChanged();
     }
 }
 

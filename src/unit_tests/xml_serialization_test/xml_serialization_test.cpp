@@ -113,6 +113,7 @@ void XmlSerializationTest::test_toXmlFromXml_columnSettings_shouldSaveAndLoad()
     EditorService editorServiceOut { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
     const auto settingsOut = std::make_shared<ColumnSettings>();
     settingsOut->delay = std::chrono::milliseconds { 123 };
+    settingsOut->midiDelayEnabled = true;
     settingsOut->midiDelayLines = 1.5;
     settingsOut->midiDelayFeedback = 75;
     settingsOut->midiDelayMaxRepetitions = 12;
@@ -136,6 +137,7 @@ void XmlSerializationTest::test_toXmlFromXml_columnSettings_shouldSaveAndLoad()
 
     QVERIFY(settingsIn);
     QCOMPARE(settingsIn->delay, settingsOut->delay);
+    QCOMPARE(settingsIn->midiDelayEnabled, settingsOut->midiDelayEnabled);
     QCOMPARE(settingsIn->midiDelayLines, settingsOut->midiDelayLines);
     QCOMPARE(settingsIn->midiDelayFeedback, settingsOut->midiDelayFeedback);
     QCOMPARE(settingsIn->midiDelayMaxRepetitions, settingsOut->midiDelayMaxRepetitions);

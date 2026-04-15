@@ -10,6 +10,7 @@ ColumnLayout {
     spacing: 10
     width: parent.width
     function initialize() {
+        midiDelayEnabledCheckBox.checked = columnSettingsModel.midiDelayEnabled
         midiDelaySpinBox.value = columnSettingsModel.midiDelayLines * midiDelaySpinBox.factor
         midiDelayFeedbackSpinBox.value = columnSettingsModel.midiDelayFeedback
         midiDelayMaxRepetitionsSpinBox.value = columnSettingsModel.midiDelayMaxRepetitions
@@ -299,62 +300,73 @@ ColumnLayout {
     GroupBox {
         title: qsTr("MIDI Delay")
         Layout.fillWidth: true
-        RowLayout {
-            spacing: 10
-            Label {
-                text: qsTr("Lines:")
+        ColumnLayout {
+            spacing: 8
+            Layout.fillWidth: true
+            CheckBox {
+                id: midiDelayEnabledCheckBox
+                text: qsTr("Enable Delay")
+                checked: columnSettingsModel.midiDelayEnabled
+                onCheckedChanged: columnSettingsModel.midiDelayEnabled = checked
             }
-            SpinBox {
-                id: midiDelaySpinBox
-                readonly property int decimals: 2
-                readonly property int factor: Math.pow(10, decimals)
-                from: 0
-                to: 64 * factor
-                value: columnSettingsModel.midiDelayLines * factor
-                stepSize: 0.25 * factor
-                editable: true
-                Keys.onReturnPressed: focus = false
-                onValueModified: columnSettingsModel.midiDelayLines = value / factor
-                Layout.fillWidth: false
-
-                validator: DoubleValidator {
-                    bottom: midiDelaySpinBox.from / midiDelaySpinBox.factor
-                    top: midiDelaySpinBox.to / midiDelaySpinBox.factor
+            RowLayout {
+                spacing: 10
+                enabled: midiDelayEnabledCheckBox.checked
+                Label {
+                    text: qsTr("Lines:")
                 }
+                SpinBox {
+                    id: midiDelaySpinBox
+                    readonly property int decimals: 2
+                    readonly property int factor: Math.pow(10, decimals)
+                    from: 0
+                    to: 64 * factor
+                    value: columnSettingsModel.midiDelayLines * factor
+                    stepSize: 0.25 * factor
+                    editable: true
+                    Keys.onReturnPressed: focus = false
+                    onValueModified: columnSettingsModel.midiDelayLines = value / factor
+                    Layout.fillWidth: false
 
-                textFromValue: function(value, locale) {
-                    return Number(value / factor).toLocaleString(locale, 'f', decimals)
-                }
+                    validator: DoubleValidator {
+                        bottom: midiDelaySpinBox.from / midiDelaySpinBox.factor
+                        top: midiDelaySpinBox.to / midiDelaySpinBox.factor
+                    }
 
-                valueFromText: function(text, locale) {
-                    return Number.fromLocaleString(locale, text) * factor
+                    textFromValue: function(value, locale) {
+                        return Number(value / factor).toLocaleString(locale, 'f', decimals)
+                    }
+
+                    valueFromText: function(text, locale) {
+                        return Number.fromLocaleString(locale, text) * factor
+                    }
                 }
-            }
-            Label {
-                text: qsTr("Feedback (%):")
-            }
-            SpinBox {
-                id: midiDelayFeedbackSpinBox
-                from: 0
-                to: 100
-                value: columnSettingsModel.midiDelayFeedback
-                editable: true
-                Keys.onReturnPressed: focus = false
-                onValueModified: columnSettingsModel.midiDelayFeedback = value
-                Layout.fillWidth: false
-            }
-            Label {
-                text: qsTr("Max repetitions:")
-            }
-            SpinBox {
-                id: midiDelayMaxRepetitionsSpinBox
-                from: 1
-                to: 64
-                value: columnSettingsModel.midiDelayMaxRepetitions
-                editable: true
-                Keys.onReturnPressed: focus = false
-                onValueModified: columnSettingsModel.midiDelayMaxRepetitions = value
-                Layout.fillWidth: false
+                Label {
+                    text: qsTr("Feedback (%):")
+                }
+                SpinBox {
+                    id: midiDelayFeedbackSpinBox
+                    from: 0
+                    to: 100
+                    value: columnSettingsModel.midiDelayFeedback
+                    editable: true
+                    Keys.onReturnPressed: focus = false
+                    onValueModified: columnSettingsModel.midiDelayFeedback = value
+                    Layout.fillWidth: false
+                }
+                Label {
+                    text: qsTr("Max repetitions:")
+                }
+                SpinBox {
+                    id: midiDelayMaxRepetitionsSpinBox
+                    from: 1
+                    to: 64
+                    value: columnSettingsModel.midiDelayMaxRepetitions
+                    editable: true
+                    Keys.onReturnPressed: focus = false
+                    onValueModified: columnSettingsModel.midiDelayMaxRepetitions = value
+                    Layout.fillWidth: false
+                }
             }
         }
     }

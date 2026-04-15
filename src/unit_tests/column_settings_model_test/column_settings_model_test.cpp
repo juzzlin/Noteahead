@@ -25,6 +25,7 @@ void ColumnSettingsModelTest::test_initialValues()
     QCOMPARE(model.trackIndex(), 0);
     QCOMPARE(model.columnIndex(), 0);
     QCOMPARE(model.delay(), 0);
+    QCOMPARE(model.midiDelayEnabled(), false);
     QCOMPARE(model.chordNote1Offset(), 0);
     QCOMPARE(model.chordNote1Velocity(), 100);
     QCOMPARE(model.chordNote1Delay(), 0);
@@ -42,6 +43,9 @@ void ColumnSettingsModelTest::test_settersAndGetters()
 
     model.setDelay(123);
     QCOMPARE(model.delay(), 123);
+
+    model.setMidiDelayEnabled(true);
+    QCOMPARE(model.midiDelayEnabled(), true);
 
     model.setChordNote1Offset(12);
     QCOMPARE(model.chordNote1Offset(), 12);
@@ -96,6 +100,10 @@ void ColumnSettingsModelTest::test_signals()
     model.setDelay(1);
     QCOMPARE(delaySpy.count(), 1);
 
+    QSignalSpy midiDelayEnabledSpy { &model, &ColumnSettingsModel::midiDelayEnabledChanged };
+    model.setMidiDelayEnabled(true);
+    QCOMPARE(midiDelayEnabledSpy.count(), 1);
+
     QSignalSpy note1OffsetSpy { &model, &ColumnSettingsModel::chordNote1OffsetChanged };
     model.setChordNote1Offset(1);
     QCOMPARE(note1OffsetSpy.count(), 1);
@@ -125,12 +133,14 @@ void ColumnSettingsModelTest::test_reset_shouldResetToDefaultValues()
 {
     ColumnSettingsModel model;
     model.setDelay(123);
+    model.setMidiDelayEnabled(true);
     model.setChordNote1Offset(12);
     model.setArpeggiatorEnabled(true);
 
     model.reset();
 
     QCOMPARE(model.delay(), 0);
+    QCOMPARE(model.midiDelayEnabled(), false);
     QCOMPARE(model.chordNote1Offset(), 0);
     QCOMPARE(model.arpeggiatorEnabled(), false);
 }
@@ -143,6 +153,7 @@ void ColumnSettingsModelTest::test_save_shouldEmitSaveRequestedWithCorrectData()
     model.setTrackIndex(1);
     model.setColumnIndex(2);
     model.setDelay(666);
+    model.setMidiDelayEnabled(true);
     model.setChordNote1Offset(4);
     model.setChordNote1Velocity(80);
     model.setChordNote1Delay(11);
@@ -166,6 +177,7 @@ void ColumnSettingsModelTest::test_save_shouldEmitSaveRequestedWithCorrectData()
 
     const auto settings = qvariant_cast<ColumnSettings>(arguments.at(2));
     QCOMPARE(settings.delay.count(), 666);
+    QCOMPARE(settings.midiDelayEnabled, true);
     QCOMPARE(settings.chordAutomationSettings.note1.offset, 4);
     QCOMPARE(settings.chordAutomationSettings.note1.velocity, 80);
     QCOMPARE(settings.chordAutomationSettings.note1.delay, 11);
