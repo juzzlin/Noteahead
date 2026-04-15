@@ -188,9 +188,7 @@ public:
     struct SongPosition
     {
         size_t position = 0;
-
         size_t pattern = 0;
-
         size_t line = 0;
 
         std::chrono::milliseconds currentTime;
@@ -250,6 +248,8 @@ private:
     EventsAndTick renderPatterns(AutomationServiceS automationService, EventListCR eventList, size_t tick, size_t startPosition, size_t endPosition);
     EventList renderContent(AutomationServiceS automationService, SideChainServiceS sideChainService, size_t startPosition, size_t endPosition);
 
+    PatternS masterPattern() const;
+
     std::chrono::milliseconds m_autoNoteOffOffset = 125ms;
 
     size_t m_beatsPerMinute = 120;
@@ -257,9 +257,8 @@ private:
     size_t m_ticksPerLine = 24;
 
     std::map<size_t, PatternS> m_patterns;
-
     std::unique_ptr<PlayOrder> m_playOrder;
-    size_t m_length = 1;
+    size_t m_masterPatternIndex = 0;
 
     std::unordered_map<size_t, SongPosition> m_tickToSongPositionMap;
 

@@ -2410,22 +2410,31 @@ quint64 EditorService::patternAtCurrentSongPosition() const
 
 void EditorService::insertPatternToPlayOrder()
 {
+    if (songLength() >= maxSongLength()) {
+        return;
+    }
     m_undoStack->clear();
     m_song->insertPatternToPlayOrder(m_state.songPosition);
+    emit songLengthChanged();
     emit songPositionChanged(m_state.songPosition);
     emit patternAtCurrentSongPositionChanged();
-    setSongLength(songLength() + 1);
     setIsModified(true);
     updateDuration();
 }
 
 void EditorService::removePatternFromPlayOrder()
 {
+    if (songLength() <= 1) {
+        return;
+    }
     m_undoStack->clear();
     m_song->removePatternFromPlayOrder(m_state.songPosition);
+    if (songPosition() >= m_song->length()) {
+        setSongPosition(m_song->length() - 1);
+    }
+    emit songLengthChanged();
     emit songPositionChanged(m_state.songPosition);
     emit patternAtCurrentSongPositionChanged();
-    setSongLength(songLength() - 1);
     setIsModified(true);
     updateDuration();
 }

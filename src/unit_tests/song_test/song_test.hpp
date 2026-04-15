@@ -80,6 +80,10 @@ private slots:
     void test_deleteUnusedPatterns_skippedButUsed_shouldNotBeRemoved();
     void test_hasPatternInPlayOrder_shouldReturnCorrectValue();
     void test_duration_allPatternsSkipped_shouldReturnZero();
+
+    void test_insertPatternToPlayOrder_atEnd_shouldIncreaseLengthByOne();
+    void test_insertPatternToPlayOrder_inMiddle_shouldIncreaseLengthByOne();
+    void test_removePatternFromPlayOrder_shouldDecreaseLengthByOne();
 };
 
 } // namespace noteahead

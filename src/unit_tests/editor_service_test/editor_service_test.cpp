@@ -146,6 +146,35 @@ void EditorServiceTest::test_removePattern_shouldRemovePattern()
     QCOMPARE(editorService.patternAtCurrentSongPosition(), 1);
 }
 
+void EditorServiceTest::test_removePatternFromMiddle_shouldNotRemoveLastPattern()
+{
+    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
+
+    // Initial length is 1.
+    // Add two more patterns to have 3 patterns in total.
+    editorService.setSongPosition(0);
+    editorService.insertPatternToPlayOrder(); // Now 2
+    editorService.insertPatternToPlayOrder(); // Now 3
+
+    QCOMPARE(editorService.songLength(), 3);
+
+    // Set some distinct patterns to verify they are still there
+    editorService.setPatternAtSongPosition(0, 0);
+    editorService.setPatternAtSongPosition(1, 1);
+    editorService.setPatternAtSongPosition(2, 2);
+
+    // Remove pattern at position 1 (the middle one)
+    editorService.setSongPosition(1);
+    editorService.removePatternFromPlayOrder();
+
+    // Expect length to be 2 (original 3 - 1)
+    QCOMPARE(editorService.songLength(), 2);
+
+    // Verify remaining patterns: position 0 should be 0, position 1 should be 2
+    QCOMPARE(editorService.patternAtSongPosition(0), 0);
+    QCOMPARE(editorService.patternAtSongPosition(1), 2);
+}
+
 void EditorServiceTest::test_columnCutPaste_equalSizes_shouldCopyColumn()
 {
     EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };

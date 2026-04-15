@@ -68,3 +68,4 @@ Adherence to these standards is mandatory for all contributions:
 
 - **Accuracy**: Noteahead renders events just before playback to ensure jitter-free, drift-free timing.
 - **Thread Safety**: The player runs in a dedicated thread (`PlayerWorker`). Use safe synchronization primitives when interacting between the UI and player threads.
+- Always use post-increment (i++) instead of pre-increment (++i) for loop counters.

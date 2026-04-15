@@ -1171,6 +1171,45 @@ void SongTest::test_duration_allPatternsSkipped_shouldReturnZero()
     QCOMPARE(song.duration().count(), 0);
 }
 
+void SongTest::test_insertPatternToPlayOrder_atEnd_shouldIncreaseLengthByOne()
+{
+    Song song;
+    QCOMPARE(song.length(), 1);
+
+    song.insertPatternToPlayOrder(1);
+    QCOMPARE(song.length(), 2);
+    QCOMPARE(song.patternAtSongPosition(0), 0);
+    QCOMPARE(song.patternAtSongPosition(1), 0);
+}
+
+void SongTest::test_insertPatternToPlayOrder_inMiddle_shouldIncreaseLengthByOne()
+{
+    Song song;
+    song.setLength(2);
+    song.setPatternAtSongPosition(0, 0);
+    song.setPatternAtSongPosition(1, 1);
+    QCOMPARE(song.length(), 2);
+
+    song.insertPatternToPlayOrder(1); // Inserts pattern 0 at pos 1
+    QCOMPARE(song.length(), 3);
+    QCOMPARE(song.patternAtSongPosition(0), 0);
+    QCOMPARE(song.patternAtSongPosition(1), 0);
+    QCOMPARE(song.patternAtSongPosition(2), 1);
+}
+
+void SongTest::test_removePatternFromPlayOrder_shouldDecreaseLengthByOne()
+{
+    Song song;
+    song.setLength(2);
+    song.setPatternAtSongPosition(0, 0);
+    song.setPatternAtSongPosition(1, 1);
+    QCOMPARE(song.length(), 2);
+
+    song.removePatternFromPlayOrder(0);
+    QCOMPARE(song.length(), 1);
+    QCOMPARE(song.patternAtSongPosition(0), 1);
+}
+
 } // namespace noteahead
 
 QTEST_GUILESS_MAIN(noteahead::SongTest)

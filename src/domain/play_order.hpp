@@ -17,6 +17,7 @@
 #define PLAY_ORDER_HPP
 
 #include <cstddef>
+#include <set>
 #include <vector>
 
 class QXmlStreamWriter;
@@ -26,7 +27,7 @@ namespace noteahead {
 class PlayOrder
 {
 public:
-    PlayOrder();
+    PlayOrder(size_t defaultPatternIndex = 0);
 
     size_t length() const;
 
@@ -35,6 +36,9 @@ public:
 
     void insertPattern(size_t position, size_t pattern);
     void removePattern(size_t position);
+    bool hasPattern(size_t pattern) const;
+
+    void setLength(size_t length, size_t defaultPattern);
 
     void setPatternAtPosition(size_t position, size_t pattern);
     size_t positionToPattern(size_t position) const;
@@ -42,12 +46,16 @@ public:
     bool isSkipped(size_t position) const;
     void setSkipped(size_t position, bool skipped);
 
+    using PatternSet = std::set<size_t>;
+    void removeMissingPatterns(const PatternSet & validPatterns);
+
     void serializeToXml(QXmlStreamWriter & writer) const;
     void serializeToXml(QXmlStreamWriter & writer, size_t lastPosition) const;
 
 private:
     void serializePosition(QXmlStreamWriter & writer, size_t position) const;
 
+    size_t m_defaultPatternIndex;
     using PlayOrderItem = std::pair<size_t, bool>;
     std::vector<PlayOrderItem> m_playOrder;
 };

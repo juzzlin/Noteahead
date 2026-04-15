@@ -33,6 +33,7 @@ private slots:
 
     void test_insertPattern_shouldInsertPattern();
     void test_removePattern_shouldRemovePattern();
+    void test_removePatternFromMiddle_shouldNotRemoveLastPattern();
 
     void test_columnCutPaste_equalSizes_shouldCopyColumn();
     void test_columnCutPaste_shorterTarget_shouldCopyColumn();

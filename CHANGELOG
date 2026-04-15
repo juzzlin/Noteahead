@@ -33,6 +33,10 @@ Other:
 
 * Divide column settings into Instrument, Timing, and MIDI Effects tabs
 
+* Improve file format integrity
+  - Don't serialize song length anymore, but rely on play order
+  - Remove possibly missing patterns indices from play order
+
 2.0.0
 =====
 

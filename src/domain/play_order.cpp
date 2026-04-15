@@ -27,9 +27,10 @@ namespace noteahead {
 
 static const auto TAG = "PlayOrder";
 
-PlayOrder::PlayOrder()
+PlayOrder::PlayOrder(size_t defaultPatternIndex)
+  : m_defaultPatternIndex { defaultPatternIndex }
 {
-    setPatternAtPosition(0, 0);
+    setPatternAtPosition(0, m_defaultPatternIndex);
 }
 
 size_t PlayOrder::length() const
@@ -56,8 +57,8 @@ PlayOrder::PatternList PlayOrder::getPatterns(size_t songLength, size_t startPos
         patternList.push_back(item.first);
     }
 
-    // Extend with zeros if needed
-    patternList.resize(songLength, 0);
+    // Extend if needed
+    patternList.resize(songLength, m_defaultPatternIndex);
 
     return patternList;
 }
@@ -66,11 +67,11 @@ void PlayOrder::insertPattern(size_t position, size_t pattern)
 {
     juzzlin::L(TAG).info() << "Inserting pattern " << pattern << " at position " << position;
 
-    while (m_playOrder.size() <= position) {
-        m_playOrder.push_back({ 0, false });
+    while (m_playOrder.size() < position) {
+        m_playOrder.push_back({ m_defaultPatternIndex, false });
     }
 
-    m_playOrder.insert(m_playOrder.begin() + position, { pattern, false });
+    m_playOrder.insert(m_playOrder.begin() + static_cast<int>(position), { pattern, false });
 }
 
 void PlayOrder::removePattern(size_t position)
@@ -78,7 +79,25 @@ void PlayOrder::removePattern(size_t position)
     juzzlin::L(TAG).info() << "Removing pattern at position " << position;
 
     if (position < m_playOrder.size()) {
-        m_playOrder.erase(m_playOrder.begin() + position);
+        m_playOrder.erase(m_playOrder.begin() + static_cast<int>(position));
+    }
+}
+
+bool PlayOrder::hasPattern(size_t pattern) const
+{
+    return std::ranges::any_of(m_playOrder, [pattern](const auto & item) {
+        return item.first == pattern;
+    });
+}
+
+void PlayOrder::setLength(size_t length, size_t defaultPattern)
+{
+    juzzlin::L(TAG).info() << "Setting length to " << length;
+
+    if (length > m_playOrder.size()) {
+        m_playOrder.resize(length, { defaultPattern, false });
+    } else {
+        m_playOrder.resize(length);
     }
 }
 
@@ -87,7 +106,7 @@ void PlayOrder::setPatternAtPosition(size_t position, size_t pattern)
     juzzlin::L(TAG).info() << "Position " << position << " mapped to pattern " << pattern;
 
     while (m_playOrder.size() <= position) {
-        m_playOrder.push_back({ 0, false });
+        m_playOrder.push_back({ m_defaultPatternIndex, false });
     }
 
     m_playOrder[position].first = pattern;
@@ -95,7 +114,7 @@ void PlayOrder::setPatternAtPosition(size_t position, size_t pattern)
 
 size_t PlayOrder::positionToPattern(size_t position) const
 {
-    return position < m_playOrder.size() ? m_playOrder.at(position).first : 0;
+    return position < m_playOrder.size() ? m_playOrder.at(position).first : m_defaultPatternIndex;
 }
 
 bool PlayOrder::isSkipped(size_t position) const
@@ -108,10 +127,22 @@ void PlayOrder::setSkipped(size_t position, bool skipped)
     juzzlin::L(TAG).info() << "Position " << position << " skipped state: " << skipped;
 
     while (m_playOrder.size() <= position) {
-        m_playOrder.push_back({ 0, false });
+        m_playOrder.push_back({ m_defaultPatternIndex, false });
     }
 
     m_playOrder[position].second = skipped;
+}
+
+void PlayOrder::removeMissingPatterns(const PatternSet & validPatterns)
+{
+    auto it = std::remove_if(m_playOrder.begin(), m_playOrder.end(), [&validPatterns](const auto & item) {
+        if (!validPatterns.contains(item.first)) {
+            juzzlin::L(TAG).warning() << "Removing missing pattern " << item.first << " from play order";
+            return true;
+        }
+        return false;
+    });
+    m_playOrder.erase(it, m_playOrder.end());
 }
 
 void PlayOrder::serializePosition(QXmlStreamWriter & writer, size_t position) const

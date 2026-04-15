@@ -688,6 +688,55 @@ void XmlSerializationTest::test_toXmlFromXml_audioRecorder_shouldLoadAudioRecord
     QCOMPARE(audioServiceIn->latestRecordingEndTick(), endTick);
 }
 
+void XmlSerializationTest::test_fromXml_missingPatterns_shouldRemoveThemFromPlayOrder()
+{
+    // Construct XML with PlayOrder pointing to pattern 1, but pattern 1 is missing
+    const auto xml = QString(R"XML(
+<Project applicationName="Noteahead" applicationVersion="2.0.0" fileFormatVersion="1.0">
+    <Song beatsPerMinute="120" linesPerBeat="8">
+        <PlayOrder>
+            <Position index="0" pattern="0"/>
+            <Position index="1" pattern="1"/>
+        </PlayOrder>
+        <Patterns>
+            <Pattern index="0" lineCount="64" name="" trackCount="8">
+                <Tracks/>
+            </Pattern>
+        </Patterns>
+    </Song>
+</Project>
+)XML");
+
+    EditorService editorServiceIn { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
+    editorServiceIn.fromXml(xml);
+
+    // Pattern 1 should be removed from PlayOrder, so length should be 1
+    QCOMPARE(editorServiceIn.songLength(), 1);
+    QCOMPARE(editorServiceIn.patternAtSongPosition(0), 0);
+}
+
+void XmlSerializationTest::test_fromXml_legacyLength_shouldBeSupported()
+{
+    // Construct XML with legacy 'length' attribute
+    const auto xml = QString(R"XML(
+<Project applicationName="Noteahead" applicationVersion="2.0.0" fileFormatVersion="1.0">
+    <Song beatsPerMinute="120" linesPerBeat="8" length="5">
+        <Patterns>
+            <Pattern index="0" lineCount="64" name="" trackCount="8">
+                <Tracks/>
+            </Pattern>
+        </Patterns>
+    </Song>
+</Project>
+)XML");
+
+    EditorService editorServiceIn { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
+    editorServiceIn.fromXml(xml);
+
+    // length="5" should be respected
+    QCOMPARE(editorServiceIn.songLength(), 5);
+}
+
 } // namespace noteahead
 
 QTEST_GUILESS_MAIN(noteahead::XmlSerializationTest)

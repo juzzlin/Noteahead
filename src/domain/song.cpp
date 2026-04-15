@@ -43,7 +43,6 @@ namespace noteahead {
 static const auto TAG = "Song";
 
 Song::Song()
-  : m_playOrder { std::make_unique<PlayOrder>() }
 {
     initialize();
 }
@@ -74,8 +73,8 @@ Song::ChangedPositions Song::pasteColumn(size_t patternIndex, size_t trackIndex,
 
 NoteChangeList Song::transposeColumn(const Position & position, int semitones) const
 {
-    if (m_patterns.contains(0)) {
-        if (auto inst = m_patterns.at(0)->instrument(position.track); inst && inst->settings().drumTrack) {
+    if (!m_patterns.empty()) {
+        if (auto inst = masterPattern()->instrument(position.track); inst && inst->settings().drumTrack) {
             return {};
         }
     }
@@ -108,8 +107,8 @@ Song::ChangedPositions Song::pasteTrack(size_t patternIndex, size_t trackIndex, 
 
 NoteChangeList Song::transposeTrack(const Position & position, int semitones) const
 {
-    if (m_patterns.contains(0)) {
-        if (auto inst = m_patterns.at(0)->instrument(position.track); inst && inst->settings().drumTrack) {
+    if (!m_patterns.empty()) {
+        if (auto inst = masterPattern()->instrument(position.track); inst && inst->settings().drumTrack) {
             return {};
         }
     }
@@ -143,9 +142,8 @@ Song::ChangedPositions Song::pastePattern(size_t patternIndex, CopyManager & cop
 NoteChangeList Song::transposePattern(const Position & position, int semitones) const
 {
     Pattern::DrumTracks drumTracks;
-    const auto masterPattern = m_patterns.at(0);
-    for (size_t trackIndex : masterPattern->trackIndices()) {
-        if (auto inst = masterPattern->instrument(trackIndex); inst && inst->settings().drumTrack) {
+    for (size_t trackIndex : masterPattern()->trackIndices()) {
+        if (auto inst = masterPattern()->instrument(trackIndex); inst && inst->settings().drumTrack) {
             drumTracks.insert(trackIndex);
         }
     }
@@ -155,9 +153,8 @@ NoteChangeList Song::transposePattern(const Position & position, int semitones) 
 NoteChangeList Song::transposeSong(int semitones) const
 {
     Pattern::DrumTracks drumTracks;
-    const auto masterPattern = m_patterns.at(0);
-    for (size_t trackIndex : masterPattern->trackIndices()) {
-        if (auto inst = masterPattern->instrument(trackIndex); inst && inst->settings().drumTrack) {
+    for (size_t trackIndex : masterPattern()->trackIndices()) {
+        if (auto inst = masterPattern()->instrument(trackIndex); inst && inst->settings().drumTrack) {
             drumTracks.insert(trackIndex);
         }
     }
@@ -221,12 +218,7 @@ bool Song::hasPattern(size_t patternIndex) const
 
 bool Song::hasPatternInPlayOrder(size_t patternIndex) const
 {
-    for (size_t i = 0; i < m_length; ++i) {
-        if (m_playOrder->positionToPattern(i) == patternIndex) {
-            return true;
-        }
-    }
-    return false;
+    return m_playOrder->hasPattern(patternIndex);
 }
 
 bool Song::hasPosition(const Position & position) const
@@ -264,7 +256,7 @@ bool Song::deleteColumn(size_t trackIndex)
 
 size_t Song::columnCount(size_t trackIndex) const
 {
-    return m_patterns.contains(0) ? m_patterns.at(0)->columnCount(trackIndex) : 1;
+    return !m_patterns.empty() ? masterPattern()->columnCount(trackIndex) : 1;
 }
 
 size_t Song::columnCount(size_t patternIndex, size_t trackIndex) const
@@ -292,6 +284,11 @@ Song::PatternS Song::pattern(size_t patternIndex) const
     return m_patterns.at(patternIndex);
 }
 
+Song::PatternS Song::masterPattern() const
+{
+    return m_patterns.at(m_masterPatternIndex);
+}
+
 size_t Song::patternCount() const
 {
     return static_cast<size_t>(m_patterns.size());
@@ -309,9 +306,11 @@ Song::PatternIndexList Song::patternIndices() const
 std::set<size_t> Song::unusedPatternIndices() const
 {
     std::set<size_t> usedPatterns;
-    for (size_t i = 0; i < m_length; ++i) {
+    for (size_t i = 0; i < length(); i++) {
         usedPatterns.insert(m_playOrder->positionToPattern(i));
     }
+
+    usedPatterns.insert(m_masterPatternIndex);
 
     std::set<size_t> unusedPatterns;
     for (auto && [index, pattern] : m_patterns) {
@@ -324,9 +323,7 @@ std::set<size_t> Song::unusedPatternIndices() const
 
 void Song::deleteUnusedPatterns()
 {
-    const auto patternsToDelete = unusedPatternIndices();
-
-    for (const auto index : patternsToDelete) {
+    for (const auto index : unusedPatternIndices()) {
         juzzlin::L(TAG).info() << "Deleting unused pattern: " << index;
         m_patterns.erase(index);
     }
@@ -358,7 +355,7 @@ void Song::setSkipped(size_t position, bool skipped)
 
 void Song::insertPatternToPlayOrder(size_t position)
 {
-    m_playOrder->insertPattern(position, 0);
+    m_playOrder->insertPattern(position, m_masterPatternIndex);
 }
 
 void Song::removePatternFromPlayOrder(size_t position)
@@ -397,7 +394,7 @@ bool Song::deleteTrack(size_t trackIndex)
 
 size_t Song::trackCount() const
 {
-    return m_patterns.at(0)->trackCount();
+    return masterPattern()->trackCount();
 }
 
 size_t Song::trackCount(size_t patternIndex) const
@@ -407,17 +404,17 @@ size_t Song::trackCount(size_t patternIndex) const
 
 Song::TrackIndexList Song::trackIndices() const
 {
-    return m_patterns.at(0)->trackIndices();
+    return masterPattern()->trackIndices();
 }
 
 std::optional<size_t> Song::trackPositionByIndex(size_t trackIndex) const
 {
-    return m_patterns.at(0)->trackPositionByIndex(trackIndex);
+    return masterPattern()->trackPositionByIndex(trackIndex);
 }
 
 std::optional<size_t> Song::trackIndexByPosition(size_t trackPosition) const
 {
-    return m_patterns.at(0)->trackIndexByPosition(trackPosition);
+    return masterPattern()->trackIndexByPosition(trackPosition);
 }
 
 bool Song::isFirstTrack(size_t trackIndex) const
@@ -450,52 +447,52 @@ void Song::setPatternName(size_t patternIndex, std::string name)
 
 std::string Song::trackName(size_t trackIndex) const
 {
-    return m_patterns.at(0)->trackName(trackIndex);
+    return masterPattern()->trackName(trackIndex);
 }
 
 void Song::setTrackName(size_t trackIndex, std::string name)
 {
-    m_patterns.at(0)->setTrackName(trackIndex, name);
+    masterPattern()->setTrackName(trackIndex, name);
 }
 
 std::string Song::columnName(size_t trackIndex, size_t columnIndex) const
 {
-    return m_patterns.at(0)->columnName(trackIndex, columnIndex);
+    return masterPattern()->columnName(trackIndex, columnIndex);
 }
 
 void Song::setColumnName(size_t trackIndex, size_t columnIndex, std::string name)
 {
-    return m_patterns.at(0)->setColumnName(trackIndex, columnIndex, name);
+    return masterPattern()->setColumnName(trackIndex, columnIndex, name);
 }
 
 std::optional<size_t> Song::trackByName(std::string_view name) const
 {
-    return !name.empty() ? m_patterns.at(0)->trackByName(name) : std::optional<size_t> {};
+    return !name.empty() ? masterPattern()->trackByName(name) : std::optional<size_t> {};
 }
 
 std::optional<size_t> Song::columnByName(size_t trackIndex, std::string_view name) const
 {
-    return !name.empty() ? m_patterns.at(0)->columnByName(trackIndex, name) : std::optional<size_t> {};
+    return !name.empty() ? masterPattern()->columnByName(trackIndex, name) : std::optional<size_t> {};
 }
 
 Song::InstrumentS Song::instrument(size_t trackIndex) const
 {
-    return m_patterns.at(0)->instrument(trackIndex);
+    return masterPattern()->instrument(trackIndex);
 }
 
 void Song::setInstrument(size_t trackIndex, InstrumentS instrument)
 {
-    m_patterns.at(0)->setInstrument(trackIndex, instrument);
+    masterPattern()->setInstrument(trackIndex, instrument);
 }
 
 Song::ColumnSettingsS Song::columnSettings(size_t trackIndex, size_t columnIndex) const
 {
-    return m_patterns.at(0)->columnSettings(trackIndex, columnIndex);
+    return masterPattern()->columnSettings(trackIndex, columnIndex);
 }
 
 void Song::setColumnSettings(size_t trackIndex, size_t columnIndex, ColumnSettingsS settings)
 {
-    m_patterns.at(0)->setColumnSettings(trackIndex, columnIndex, settings);
+    masterPattern()->setColumnSettings(trackIndex, columnIndex, settings);
 }
 
 std::string Song::fileName() const
@@ -554,7 +551,8 @@ Position Song::prevNoteDataOnSameColumn(const Position & position) const
 void Song::initialize()
 {
     m_patterns.clear();
-    m_patterns[0] = std::make_shared<Pattern>(0, Constants::defaultPatternLineCount(), Constants::defaultTrackCount());
+    m_playOrder = std::make_unique<PlayOrder>(m_masterPatternIndex);
+    m_patterns[m_masterPatternIndex] = std::make_shared<Pattern>(m_masterPatternIndex, Constants::defaultPatternLineCount(), Constants::defaultTrackCount());
 }
 
 size_t Song::linesPerBeat() const
@@ -666,7 +664,7 @@ Song::EventList Song::generateAutoNoteOffsForDanglingNotes(size_t tick, ActiveNo
                 continue;
             }
 
-            for (int i = 1; i <= settings->midiDelayMaxRepetitions; ++i) {
+            for (int i = 1; i <= settings->midiDelayMaxRepetitions; i++) {
                 const size_t delayedTick = event->tick() + i * delayTicks;
                 if (delayedTick >= maxTick) {
                     break;
@@ -781,7 +779,7 @@ std::chrono::milliseconds Song::lineToTime(size_t line) const
 std::chrono::milliseconds Song::duration(size_t startPosition) const
 {
     std::chrono::milliseconds d {};
-    for (size_t i = startPosition; i < m_length; ++i) {
+    for (size_t i = startPosition; i < length(); i++) {
         if (!m_playOrder->isSkipped(i)) {
             const auto pattern = m_playOrder->positionToPattern(i);
             d += tickToTime(m_patterns.at(pattern)->lineCount() * m_ticksPerLine);
@@ -792,17 +790,17 @@ std::chrono::milliseconds Song::duration(size_t startPosition) const
 
 size_t Song::length() const
 {
-    return m_length;
+    return m_playOrder->length();
 }
 
 void Song::setLength(size_t length)
 {
-    m_length = length ? length : 1;
+    m_playOrder->setLength(length, masterPattern()->index());
 }
 
 size_t Song::totalTicks() const
 {
-    return positionToTick(m_length);
+    return positionToTick(length());
 }
 
 void Song::updateTickToSongPositionMapping(size_t patternStartTick, size_t songPosition, size_t patternIndex, size_t lineCount)
@@ -926,7 +924,7 @@ Song::EventsAndTick Song::renderPatterns(AutomationServiceS automationService, E
 {
     m_tickToSongPositionMap.clear();
     Song::EventList processedEventList { eventList };
-    for (size_t songPosition = startPosition; songPosition < m_length && songPosition < endPosition; songPosition++) {
+    for (size_t songPosition = startPosition; songPosition < length() && songPosition < endPosition; songPosition++) {
         if (m_playOrder->isSkipped(songPosition)) {
             continue;
         }
@@ -981,7 +979,7 @@ Song::EventList Song::generateChordAutomations(EventListCR events) const
 
         const auto track = noteData->track();
         const auto column = noteData->column();
-        const auto columnSettings = m_patterns.at(0)->columnSettings(track, column);
+        const auto columnSettings = masterPattern()->columnSettings(track, column);
         const auto & settings = columnSettings->chordAutomationSettings;
 
         if (!settings.isEnabled()) {
@@ -1010,8 +1008,8 @@ Song::EventList Song::generateChordAutomations(EventListCR events) const
             const size_t ticksPerBeat = m_linesPerBeat * m_ticksPerLine;
             const size_t ticksPerNote = ticksPerBeat / std::max(uint8_t(1), settings.arpeggiator.eventsPerBeat);
 
-            size_t nextEventTick = positionToTick(m_length);
-            for (size_t i = eventIndex + 1; i < events.size(); ++i) {
+            size_t nextEventTick = positionToTick(length());
+            for (size_t i = eventIndex + 1; i < events.size(); i++) {
                 const auto nextNoteData = events[i]->noteData();
                 if (nextNoteData.has_value() && nextNoteData->track() == track && nextNoteData->column() == column) {
                     nextEventTick = events[i]->tick();
@@ -1082,7 +1080,7 @@ Song::EventList Song::renderContent(AutomationServiceS automationService, SideCh
 
 Song::EventList Song::renderToEvents(AutomationServiceS automationService, SideChainServiceS sideChainService, size_t startPosition)
 {
-    return renderToEvents(automationService, sideChainService, startPosition, m_length);
+    return renderToEvents(automationService, sideChainService, startPosition, length());
 }
 
 Song::EventList Song::renderToEvents(AutomationServiceS automationService, SideChainServiceS sideChainService, size_t startPosition, size_t endPosition)
@@ -1098,7 +1096,6 @@ void Song::serializeToXml(QXmlStreamWriter & writer, MixerSerializationCallback 
 
     writer.writeAttribute(Constants::NahdXml::xmlKeyBeatsPerMinute(), QString::number(m_beatsPerMinute));
     writer.writeAttribute(Constants::NahdXml::xmlKeyLinesPerBeat(), QString::number(m_linesPerBeat));
-    writer.writeAttribute(Constants::NahdXml::xmlKeyLength(), QString::number(m_length));
 
     m_playOrder->serializeToXml(writer);
 
@@ -1136,7 +1133,6 @@ void Song::serializeToXmlAsTemplate(QXmlStreamWriter & writer, MixerSerializatio
 
     writer.writeAttribute(Constants::NahdXml::xmlKeyBeatsPerMinute(), QString::number(m_beatsPerMinute));
     writer.writeAttribute(Constants::NahdXml::xmlKeyLinesPerBeat(), QString::number(m_linesPerBeat));
-    writer.writeAttribute(Constants::NahdXml::xmlKeyLength(), QString::number(1));
 
     if (mixerSerializationCallback) {
         mixerSerializationCallback(writer);
@@ -1148,7 +1144,7 @@ void Song::serializeToXmlAsTemplate(QXmlStreamWriter & writer, MixerSerializatio
 
     writer.writeStartElement(Constants::NahdXml::xmlKeyPatterns());
 
-    m_patterns.at(0)->serializeToXml(writer);
+    masterPattern()->serializeToXml(writer);
 
     writer.writeEndElement(); // Patterns
     writer.writeEndElement(); // Song
@@ -1158,7 +1154,10 @@ void Song::deserializeFromXml(QXmlStreamReader & reader, MixerDeserializationCal
 {
     setBeatsPerMinute(*Utils::Xml::readUIntAttribute(reader, Constants::NahdXml::xmlKeyBeatsPerMinute()));
     setLinesPerBeat(*Utils::Xml::readUIntAttribute(reader, Constants::NahdXml::xmlKeyLinesPerBeat()));
-    setLength(*Utils::Xml::readUIntAttribute(reader, Constants::NahdXml::xmlKeyLength()));
+
+    if (const auto length = Utils::Xml::readUIntAttribute(reader, Constants::NahdXml::xmlKeyLength(), false); length.has_value()) {
+        setLength(length.value());
+    }
 
     juzzlin::L(TAG).trace() << "Reading Song started";
     while (!(reader.isEndElement() && !reader.name().compare(Constants::NahdXml::xmlKeySong()))) {
@@ -1188,6 +1187,13 @@ void Song::deserializeFromXml(QXmlStreamReader & reader, MixerDeserializationCal
         }
         reader.readNext();
     }
+
+    PlayOrder::PatternSet validPatterns;
+    for (auto && [index, pattern] : m_patterns) {
+        validPatterns.insert(index);
+    }
+    m_playOrder->removeMissingPatterns(validPatterns);
+
     juzzlin::L(TAG).trace() << "Reading Song ended";
 }
 

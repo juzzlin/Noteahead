@@ -57,6 +57,9 @@ private slots:
     void test_toXmlFromXml_differentSongs_shouldLoadSongs();
     void test_toXmlFromXml_template_shouldLoadTemplate();
     void test_toXmlFromXml_audioRecorder_shouldLoadAudioRecorder();
+
+    void test_fromXml_missingPatterns_shouldRemoveThemFromPlayOrder();
+    void test_fromXml_legacyLength_shouldBeSupported();
 };
 
 } // namespace noteahead
