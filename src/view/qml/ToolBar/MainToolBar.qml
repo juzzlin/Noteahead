@@ -9,11 +9,11 @@ Rectangle {
     gradient: Gradient {
         GradientStop {
             position: 0.0
-            color: Constants.mainToolBarGradientStartColor
+            color: themeService.mainToolBarGradientStartColor
         }
         GradientStop {
             position: 1.0
-            color: Constants.mainToolBarGradientStopColor
+            color: themeService.mainToolBarGradientStopColor
         }
     }
     ScrollView {

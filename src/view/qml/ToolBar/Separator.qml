@@ -4,5 +4,5 @@ import ".."
 Rectangle {
     height: parent.height
     width: 1
-    color: Constants.mainToolBarSeparatorColor
+    color: themeService.mainToolBarSeparatorColor
 }

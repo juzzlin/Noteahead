@@ -30,7 +30,7 @@ Row {
                 Text {
                     text: qsTr("POS")
                     font.bold: true
-                    color: Constants.mainToolBarTextColor
+                    color: themeService.mainToolBarTextColor
                     anchors.verticalCenter: parent.verticalCenter
                 }
                 SpinBox {
@@ -59,7 +59,7 @@ Row {
                 Text {
                     text: qsTr("PAT")
                     font.bold: true
-                    color: Constants.mainToolBarTextColor
+                    color: themeService.mainToolBarTextColor
                     anchors.verticalCenter: parent.verticalCenter
                 }
                 SpinBox {
@@ -86,7 +86,7 @@ Row {
                 Text {
                     text: qsTr("LEN")
                     font.bold: true
-                    color: Constants.mainToolBarTextColor
+                    color: themeService.mainToolBarTextColor
                     anchors.verticalCenter: parent.verticalCenter
                 }
                 SpinBox {
@@ -209,7 +209,7 @@ Row {
                 Text {
                     text: qsTr("PAT")
                     font.bold: true
-                    color: Constants.mainToolBarTextColor
+                    color: themeService.mainToolBarTextColor
                     anchors.verticalCenter: parent.verticalCenter
                 }
                 SpinBox {
@@ -238,7 +238,7 @@ Row {
                 Text {
                     text: qsTr("LEN")
                     font.bold: true
-                    color: Constants.mainToolBarTextColor
+                    color: themeService.mainToolBarTextColor
                     anchors.verticalCenter: parent.verticalCenter
                 }
                 SpinBox {
@@ -284,7 +284,7 @@ Row {
                 Text {
                     text: qsTr("STEP")
                     font.bold: true
-                    color: Constants.mainToolBarTextColor
+                    color: themeService.mainToolBarTextColor
                     anchors.verticalCenter: parent.verticalCenter
                 }
                 SpinBox {
@@ -312,7 +312,7 @@ Row {
                 Text {
                     text: qsTr("VEL")
                     font.bold: true
-                    color: Constants.mainToolBarTextColor
+                    color: themeService.mainToolBarTextColor
                     anchors.verticalCenter: parent.verticalCenter
                 }
                 SpinBox {
@@ -340,7 +340,7 @@ Row {
                 Text {
                     text: qsTr("OCT")
                     font.bold: true
-                    color: Constants.mainToolBarTextColor
+                    color: themeService.mainToolBarTextColor
                     anchors.verticalCenter: parent.verticalCenter
                 }
                 SpinBox {
@@ -385,7 +385,7 @@ Row {
                 Text {
                     text: qsTr("BPM")
                     font.bold: true
-                    color: Constants.mainToolBarTextColor
+                    color: themeService.mainToolBarTextColor
                     anchors.verticalCenter: parent.verticalCenter
                 }
                 SpinBox {
@@ -414,7 +414,7 @@ Row {
                 Text {
                     text: qsTr("LBP")
                     font.bold: true
-                    color: Constants.mainToolBarTextColor
+                    color: themeService.mainToolBarTextColor
                     anchors.verticalCenter: parent.verticalCenter
                 }
                 SpinBox {

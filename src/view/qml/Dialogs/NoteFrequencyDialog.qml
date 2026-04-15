@@ -55,26 +55,26 @@ Dialog {
                 Text {
                     text: qsTr("Note")
                     font.bold: true
-                    color: Constants.mainMenuTextColor
+                    color: themeService.mainMenuTextColor
                     Layout.preferredWidth: 140
                 }
                 Text {
                     text: qsTr("Octave")
                     font.bold: true
-                    color: Constants.mainMenuTextColor
+                    color: themeService.mainMenuTextColor
                     Layout.preferredWidth: 80
                 }
                 Text {
                     text: qsTr("Frequency (Hz)")
                     font.bold: true
-                    color: Constants.mainMenuTextColor
+                    color: themeService.mainMenuTextColor
                     Layout.preferredWidth: 200
                     horizontalAlignment: Text.AlignRight
                 }
                 Text {
                     text: qsTr("MIDI")
                     font.bold: true
-                    color: Constants.mainMenuTextColor
+                    color: themeService.mainMenuTextColor
                     Layout.preferredWidth: 80
                     horizontalAlignment: Text.AlignRight
                 }
@@ -105,26 +105,26 @@ Dialog {
 
                         Text {
                             text: modelData.noteLabel
-                            color: Constants.mainMenuTextColor
+                            color: themeService.mainMenuTextColor
                             Layout.preferredWidth: 140
                             verticalAlignment: Text.AlignVCenter
                         }
                         Text {
                             text: String(modelData.octave)
-                            color: Constants.mainMenuTextColor
+                            color: themeService.mainMenuTextColor
                             Layout.preferredWidth: 80
                             verticalAlignment: Text.AlignVCenter
                         }
                         Text {
                             text: Number(modelData.frequency).toFixed(2)
-                            color: Constants.mainMenuTextColor
+                            color: themeService.mainMenuTextColor
                             Layout.preferredWidth: 200
                             horizontalAlignment: Text.AlignRight
                             verticalAlignment: Text.AlignVCenter
                         }
                         Text {
                             text: String(modelData.midi)
-                            color: Constants.mainMenuTextColor
+                            color: themeService.mainMenuTextColor
                             Layout.preferredWidth: 80
                             horizontalAlignment: Text.AlignRight
                             verticalAlignment: Text.AlignVCenter
