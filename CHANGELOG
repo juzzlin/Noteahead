@@ -29,6 +29,8 @@ New features:
 
 Bug fixes:
 
+* Don't allow repeating keys when playing
+
 Other:
 
 * Divide column settings into Instrument, Timing, and MIDI Effects tabs

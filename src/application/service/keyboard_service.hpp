@@ -66,7 +66,7 @@ private:
     void handleInsert();
     void handleBackspace();
     void handleSpace();
-    void handleNoteOff();
+    void handleNoteOff(bool isAutoRepeat);
     void handleNoteTriggered(int key, int modifiers, bool isAutoRepeat);
     void handleLiveNoteReleased(int key);
 

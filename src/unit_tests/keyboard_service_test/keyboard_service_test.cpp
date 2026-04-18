@@ -69,6 +69,11 @@ public:
     bool isAtDelayColumn() const override { return m_isAtDelayColumn; }
     void setMockIsAtDelayColumn(bool val) { m_isAtDelayColumn = val; }
     bool requestNoteOnAtCurrentPosition(quint8, quint8, quint8) override { return true; }
+    bool requestNoteOffAtCurrentPosition() override
+    {
+        m_noteOffRequested = true;
+        return true;
+    }
     bool requestDigitSetAtCurrentPosition(quint8 digit) override
     {
         m_digitSet = digit;
@@ -78,12 +83,16 @@ public:
 
     std::optional<quint8> digitSet() const { return m_digitSet; }
 
+    bool noteOffRequested() const { return m_noteOffRequested; }
+    void setNoteOffRequested(bool val) { m_noteOffRequested = val; }
+
 private:
     Position m_position;
     bool m_isAtNoteColumn = true;
     bool m_isAtVelocityColumn = false;
     bool m_isAtDelayColumn = false;
     std::optional<quint8> m_digitSet;
+    bool m_noteOffRequested = false;
 };
 
 class MockPlayerService : public PlayerService
@@ -279,6 +288,83 @@ void KeyboardServiceTest::test_handleKeyPressed_Delete_shouldClearDelay_whenAtDe
 
     QVERIFY(editorService->digitSet().has_value());
     QCOMPARE(*editorService->digitSet(), quint8 { 0 });
+}
+
+void KeyboardServiceTest::test_handleKeyPressed_Note_shouldIgnoreRepeatDuringPlayback()
+{
+    const auto applicationService = std::make_shared<MockApplicationService>();
+    const auto editorService = std::make_shared<MockEditorService>();
+    const auto playerService = std::make_shared<MockPlayerService>();
+    const auto selectionService = std::make_shared<MockSelectionService>();
+    const auto settingsService = std::make_shared<MockSettingsService>();
+
+    KeyboardService keyboardService { applicationService, editorService, playerService, selectionService, settingsService };
+
+    applicationService->setEditMode(true);
+    editorService->setMockIsAtNoteColumn(true);
+    playerService->play();
+
+    QSignalSpy spy { applicationService.get(), &ApplicationService::liveNoteOnRequested };
+
+    // Initial press (not a repeat)
+    QVERIFY(keyboardService.handleKeyPressed(Qt::Key_Z, Qt::NoModifier, false));
+    QCOMPARE(spy.count(), 1);
+
+    // Repeat press
+    QVERIFY(keyboardService.handleKeyPressed(Qt::Key_Z, Qt::NoModifier, true));
+    QCOMPARE(spy.count(), 1); // Should still be 1
+}
+
+void KeyboardServiceTest::test_handleKeyPressed_NoteOff_shouldIgnoreRepeatDuringPlayback()
+{
+    const auto applicationService = std::make_shared<MockApplicationService>();
+    const auto editorService = std::make_shared<MockEditorService>();
+    const auto playerService = std::make_shared<MockPlayerService>();
+    const auto selectionService = std::make_shared<MockSelectionService>();
+    const auto settingsService = std::make_shared<MockSettingsService>();
+
+    KeyboardService keyboardService { applicationService, editorService, playerService, selectionService, settingsService };
+
+    applicationService->setEditMode(true);
+    playerService->play();
+
+    // Initial press (not a repeat)
+    editorService->setNoteOffRequested(false);
+    QVERIFY(keyboardService.handleKeyPressed(Qt::Key_A, Qt::NoModifier, false));
+    QVERIFY(editorService->noteOffRequested());
+
+    // Repeat press
+    editorService->setNoteOffRequested(false);
+    QVERIFY(keyboardService.handleKeyPressed(Qt::Key_A, Qt::NoModifier, true));
+    QVERIFY(!editorService->noteOffRequested());
+}
+
+void KeyboardServiceTest::test_handleKeyPressed_Digit_shouldIgnoreRepeatDuringPlayback()
+{
+    const auto applicationService = std::make_shared<MockApplicationService>();
+    const auto editorService = std::make_shared<MockEditorService>();
+    const auto playerService = std::make_shared<MockPlayerService>();
+    const auto selectionService = std::make_shared<MockSelectionService>();
+    const auto settingsService = std::make_shared<MockSettingsService>();
+
+    KeyboardService keyboardService { applicationService, editorService, playerService, selectionService, settingsService };
+
+    applicationService->setEditMode(true);
+    editorService->setMockIsAtNoteColumn(false);
+    editorService->setMockIsAtDelayColumn(true);
+    playerService->play();
+
+    // Initial press (not a repeat)
+    QVERIFY(keyboardService.handleKeyPressed(Qt::Key_5, Qt::NoModifier, false));
+    QVERIFY(editorService->digitSet().has_value());
+    QCOMPARE(*editorService->digitSet(), quint8 { 5 });
+
+    // Repeat press
+    editorService->setMockIsAtDelayColumn(true); // reset state if needed, though it's already true
+    // I need a way to clear digitSet in mock
+    // Actually I'll just check if it's NOT changed
+    QVERIFY(keyboardService.handleKeyPressed(Qt::Key_6, Qt::NoModifier, true));
+    QCOMPARE(*editorService->digitSet(), quint8 { 5 }); // Still 5
 }
 
 } // namespace noteahead

@@ -90,7 +90,7 @@ bool KeyboardService::handleKeyPressed(int key, int modifiers, bool isAutoRepeat
         setActiveOctave(activeOctave() + 1);
         return true;
     } else if (key == Qt::Key_A) {
-        handleNoteOff();
+        handleNoteOff(isAutoRepeat);
         return true;
     } else if (modifiers == Qt::NoModifier) {
         if (effectiveNote(key) || keyToDigit(key)) {
@@ -255,8 +255,12 @@ void KeyboardService::handleSpace()
     }
 }
 
-void KeyboardService::handleNoteOff()
+void KeyboardService::handleNoteOff(bool isAutoRepeat)
 {
+    if (isAutoRepeat && m_playerService->isPlaying()) {
+        return;
+    }
+
     if (m_applicationService->editMode()) {
         if (m_editorService->requestNoteOffAtCurrentPosition()) {
             m_editorService->requestScroll(m_settingsService->step(1));
@@ -267,6 +271,11 @@ void KeyboardService::handleNoteOff()
 void KeyboardService::handleNoteTriggered(int key, int modifiers, bool isAutoRepeat)
 {
     Q_UNUSED(modifiers)
+
+    if (isAutoRepeat && m_playerService->isPlaying()) {
+        return;
+    }
+
     if (m_applicationService->editMode()) {
         if (m_editorService->isAtNoteColumn()) {
             if (const auto note = effectiveNote(key)) {
