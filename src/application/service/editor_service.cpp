@@ -1290,6 +1290,91 @@ bool EditorService::requestNoteOffAtCurrentPosition()
     return true;
 }
 
+void EditorService::requestNoteOffAtColumnFirstLine()
+{
+    juzzlin::L(TAG).info() << "Requesting Note OFF at column first line";
+    Position pos { m_state.cursorPosition };
+    pos.line = 0;
+
+    NoteData noteData { pos.track, pos.column };
+    noteData.setAsNoteOff();
+
+    NoteEditCommand::ChangeList changes;
+    if (const auto oldNoteData = m_song->noteDataAtPosition(pos); oldNoteData) {
+        changes.emplace_back(pos, *oldNoteData, noteData);
+    } else {
+        changes.emplace_back(pos, NoteData { pos.track, pos.column }, noteData);
+    }
+
+    m_undoStack->push(std::make_shared<NoteEditCommand>(m_song, std::move(changes), m_state.cursorPosition, m_state.cursorPosition, [this](const Position & p) {
+        emit noteDataAtPositionChanged(p);
+        setIsModified(true);
+    }, [this](const Position & p) { requestPosition(p); }));
+}
+
+void EditorService::requestNoteOffAtTrackFirstLine()
+{
+    juzzlin::L(TAG).info() << "Requesting Note OFF at track first line";
+    NoteEditCommand::ChangeList changes;
+    const auto trk = currentTrack();
+    const auto numColumns = columnCount(trk);
+
+    for (quint64 col = 0; col < numColumns; col++) {
+        Position pos { m_state.cursorPosition };
+        pos.column = col;
+        pos.line = 0;
+
+        NoteData noteData { pos.track, pos.column };
+        noteData.setAsNoteOff();
+
+        if (const auto oldNoteData = m_song->noteDataAtPosition(pos); oldNoteData) {
+            changes.emplace_back(pos, *oldNoteData, noteData);
+        } else {
+            changes.emplace_back(pos, NoteData { pos.track, pos.column }, noteData);
+        }
+    }
+
+    if (!changes.empty()) {
+        m_undoStack->push(std::make_shared<NoteEditCommand>(m_song, std::move(changes), m_state.cursorPosition, m_state.cursorPosition, [this](const Position & p) {
+            emit noteDataAtPositionChanged(p);
+            setIsModified(true);
+        }, [this](const Position & p) { requestPosition(p); }));
+    }
+}
+
+void EditorService::requestNoteOffAtPatternFirstLine()
+{
+    juzzlin::L(TAG).info() << "Requesting Note OFF at pattern first line";
+    NoteEditCommand::ChangeList changes;
+    const auto numTracks = trackCount();
+
+    for (quint64 trk = 0; trk < numTracks; trk++) {
+        const auto numColumns = columnCount(trk);
+        for (quint64 col = 0; col < numColumns; col++) {
+            Position pos { m_state.cursorPosition };
+            pos.track = trk;
+            pos.column = col;
+            pos.line = 0;
+
+            NoteData noteData { pos.track, pos.column };
+            noteData.setAsNoteOff();
+
+            if (const auto oldNoteData = m_song->noteDataAtPosition(pos); oldNoteData) {
+                changes.emplace_back(pos, *oldNoteData, noteData);
+            } else {
+                changes.emplace_back(pos, NoteData { pos.track, pos.column }, noteData);
+            }
+        }
+    }
+
+    if (!changes.empty()) {
+        m_undoStack->push(std::make_shared<NoteEditCommand>(m_song, std::move(changes), m_state.cursorPosition, m_state.cursorPosition, [this](const Position & p) {
+            emit noteDataAtPositionChanged(p);
+            setIsModified(true);
+        }, [this](const Position & p) { requestPosition(p); }));
+    }
+}
+
 void EditorService::logPosition() const
 {
 #ifdef NOTEAHEAD_DEBUG

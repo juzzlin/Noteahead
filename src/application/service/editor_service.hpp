@@ -191,6 +191,9 @@ public:
     virtual Q_INVOKABLE void requestNoteDeletionAtCurrentPosition(bool shiftNotes);
     virtual Q_INVOKABLE bool requestNoteOnAtCurrentPosition(quint8 key, quint8 octave, quint8 velocity);
     virtual Q_INVOKABLE bool requestNoteOffAtCurrentPosition();
+    virtual Q_INVOKABLE void requestNoteOffAtColumnFirstLine();
+    virtual Q_INVOKABLE void requestNoteOffAtTrackFirstLine();
+    virtual Q_INVOKABLE void requestNoteOffAtPatternFirstLine();
 
     virtual Q_INVOKABLE void requestColumnCut();
     virtual Q_INVOKABLE void requestColumnCopy();

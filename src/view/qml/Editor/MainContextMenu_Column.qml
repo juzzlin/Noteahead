@@ -75,6 +75,12 @@ Menu {
     }
     MenuSeparator {}
     Action {
+        text: qsTr("Add Note OFF")
+        enabled: !UiService.isPlaying()
+        onTriggered: editorService.requestNoteOffAtColumnFirstLine()
+    }
+    MenuSeparator {}
+    Action {
         text: qsTr("Interpolate velocity")
         enabled: !UiService.isPlaying()
         onTriggered: UiService.requestColumnVelocityInterpolationDialog()

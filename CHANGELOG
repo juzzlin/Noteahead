@@ -5,6 +5,8 @@ Release date:
 
 New features:
 
+* Add menu actions to add Note OFFs on column, track, pattern
+
 * Add transpose per note column
   - Located in column settings
   - The value is added to the track-level transpose

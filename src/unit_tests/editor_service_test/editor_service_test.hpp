@@ -77,6 +77,9 @@ private slots:
     void test_requestNoteInsertionAtCurrentPosition_shouldInsertNoteData();
     void test_requestNoteOnAtCurrentPosition_shouldChangeNoteData();
     void test_requestNoteOnAtCurrentPosition_notOnNoteColumn_shouldNotChangeNoteData();
+    void test_requestNoteOffAtColumnFirstLine_shouldAddNoteOff();
+    void test_requestNoteOffAtTrackFirstLine_shouldAddNoteOff();
+    void test_requestNoteOffAtPatternFirstLine_shouldAddNoteOff();
 
     void test_requestColumnTranspose_shouldTransposeColumn();
     void test_requestTrackTranspose_shouldTransposeTrack();

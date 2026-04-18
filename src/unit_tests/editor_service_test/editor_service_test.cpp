@@ -996,6 +996,65 @@ void EditorServiceTest::test_requestNoteOnAtCurrentPosition_notOnNoteColumn_shou
     QCOMPARE(editorService.displayVelocityAtPosition(0, 0, 0, 0), editorService.noDataString());
 }
 
+void EditorServiceTest::test_requestNoteOffAtColumnFirstLine_shouldAddNoteOff()
+{
+    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
+    QSignalSpy noteDataChangedSpy { &editorService, &EditorService::noteDataAtPositionChanged };
+
+    editorService.requestPosition(0, 0, 0, 4, 0); // Move to line 4
+    editorService.requestNoteOffAtColumnFirstLine();
+
+    QCOMPARE(noteDataChangedSpy.count(), 1);
+    QCOMPARE(editorService.displayNoteAtPosition(0, 0, 0, 0), "OFF");
+    QCOMPARE(editorService.displayNoteAtPosition(0, 0, 0, 4), editorService.noDataString());
+    QVERIFY(editorService.isModified());
+
+    editorService.undo();
+    QCOMPARE(editorService.displayNoteAtPosition(0, 0, 0, 0), editorService.noDataString());
+}
+
+void EditorServiceTest::test_requestNoteOffAtTrackFirstLine_shouldAddNoteOff()
+{
+    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
+    QSignalSpy noteDataChangedSpy { &editorService, &EditorService::noteDataAtPositionChanged };
+
+    editorService.requestNewColumn(0); // Track 0 now has 2 columns
+    QCOMPARE(static_cast<int>(editorService.columnCount(0)), 2);
+
+    editorService.requestPosition(0, 0, 0, 5, 0); // Move to line 5
+    editorService.requestNoteOffAtTrackFirstLine();
+
+    QCOMPARE(noteDataChangedSpy.count(), 2);
+    QCOMPARE(editorService.displayNoteAtPosition(0, 0, 0, 0), "OFF");
+    QCOMPARE(editorService.displayNoteAtPosition(0, 0, 1, 0), "OFF");
+    QVERIFY(editorService.isModified());
+
+    editorService.undo();
+    QCOMPARE(editorService.displayNoteAtPosition(0, 0, 0, 0), editorService.noDataString());
+    QCOMPARE(editorService.displayNoteAtPosition(0, 0, 1, 0), editorService.noDataString());
+}
+
+void EditorServiceTest::test_requestNoteOffAtPatternFirstLine_shouldAddNoteOff()
+{
+    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
+    QSignalSpy noteDataChangedSpy { &editorService, &EditorService::noteDataAtPositionChanged };
+
+    const auto numTracks = editorService.trackCount();
+    editorService.requestPosition(0, 1, 0, 2, 0); // Track 1, Line 2
+    editorService.requestNoteOffAtPatternFirstLine();
+
+    QCOMPARE(noteDataChangedSpy.count(), static_cast<int>(numTracks));
+    for (quint64 trk = 0; trk < numTracks; trk++) {
+        QCOMPARE(editorService.displayNoteAtPosition(0, trk, 0, 0), "OFF");
+    }
+    QVERIFY(editorService.isModified());
+
+    editorService.undo();
+    for (quint64 trk = 0; trk < numTracks; trk++) {
+        QCOMPARE(editorService.displayNoteAtPosition(0, trk, 0, 0), editorService.noDataString());
+    }
+}
+
 void EditorServiceTest::test_requestColumnTranspose_shouldTransposeColumn()
 {
     EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };

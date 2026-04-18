@@ -70,6 +70,12 @@ Menu {
     }
     MenuSeparator {}
     Action {
+        text: qsTr("Add Note OFF")
+        enabled: !UiService.isPlaying()
+        onTriggered: editorService.requestNoteOffAtPatternFirstLine()
+    }
+    MenuSeparator {}
+    Action {
         text: qsTr("Edit MIDI CC automations")
         enabled: !UiService.isPlaying()
         onTriggered: UiService.requestEditMidiCcAutomationsDialogByPattern()
