@@ -43,6 +43,8 @@ Other:
   - Don't serialize song length anymore, but rely on play order
   - Remove possibly missing patterns indices from play order
 
+* Refactor audio settings layout
+
 2.0.0
 =====
 
