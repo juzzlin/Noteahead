@@ -202,38 +202,40 @@ void AudioPlayerRtAudio::start(const std::string & fileName, uint32_t bufferSize
             initializeSoundStream(deviceId, channelCount, sampleRate, actualBufferSize);
 
             m_running = true;
-        } catch (std::exception & e) {
-            juzzlin::L(TAG).error() << e.what();
+        } catch (...) {
             stop();
+            throw;
         }
     }
 }
 
 void AudioPlayerRtAudio::stop()
 {
-    if (m_running) {
-        m_running = false;
-        try {
-            if (m_rtAudio.isStreamRunning()) {
-                m_rtAudio.stopStream();
-            }
-            if (m_rtAudio.isStreamOpen()) {
-                m_rtAudio.closeStream();
-            }
-        } catch (std::exception & e) {
-            juzzlin::L(TAG).error() << e.what();
-        }
+    const bool wasRunning = m_running;
+    m_running = false;
 
-        m_stopThread = true;
-        if (m_diskReadThread.joinable()) {
-            m_diskReadThread.join();
+    try {
+        if (m_rtAudio.isStreamRunning()) {
+            m_rtAudio.stopStream();
         }
-
-        if (m_sndFile) {
-            sf_close(m_sndFile);
-            m_sndFile = nullptr;
+        if (m_rtAudio.isStreamOpen()) {
+            m_rtAudio.closeStream();
         }
+    } catch (std::exception & e) {
+        juzzlin::L(TAG).error() << e.what();
+    }
 
+    m_stopThread = true;
+    if (m_diskReadThread.joinable()) {
+        m_diskReadThread.join();
+    }
+
+    if (m_sndFile) {
+        sf_close(m_sndFile);
+        m_sndFile = nullptr;
+    }
+
+    if (wasRunning) {
         juzzlin::L(TAG).info() << "Playback stopped";
     }
 }

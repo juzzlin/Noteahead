@@ -139,7 +139,6 @@ void AudioRecorderRtAudio::diskWriteLoop()
 void AudioRecorderRtAudio::start(const std::string & fileName, uint32_t bufferSize)
 {
     if (!m_running) {
-
         try {
             uint32_t sampleRate = 48000;
             uint32_t channelCount = 2;
@@ -180,40 +179,40 @@ void AudioRecorderRtAudio::start(const std::string & fileName, uint32_t bufferSi
             initializeSoundStream(deviceId, channelCount, sampleRate, actualBufferSize);
 
             m_running = true;
-        } catch (std::exception & e) {
-            juzzlin::L(TAG).error() << e.what();
+        } catch (...) {
             stop();
+            throw;
         }
     }
 }
 
 void AudioRecorderRtAudio::stop()
 {
-    if (m_running) {
-        try {
-            if (m_rtAudio.isStreamRunning()) {
-                m_rtAudio.stopStream();
-            }
-            if (m_rtAudio.isStreamOpen()) {
-                m_rtAudio.closeStream();
-            }
-        } catch (std::exception & e) {
-            juzzlin::L(TAG).error() << e.what();
-            // Avoid infinite recursion if stop() fails
-            m_running = false;
-        }
+    const bool wasRunning = m_running;
+    m_running = false;
 
-        m_stopThread = true;
-        if (m_diskWriteThread.joinable()) {
-            m_diskWriteThread.join();
+    try {
+        if (m_rtAudio.isStreamRunning()) {
+            m_rtAudio.stopStream();
         }
-
-        if (m_sndFile) {
-            sf_close(m_sndFile);
-            m_sndFile = nullptr;
+        if (m_rtAudio.isStreamOpen()) {
+            m_rtAudio.closeStream();
         }
+    } catch (std::exception & e) {
+        juzzlin::L(TAG).error() << e.what();
+    }
 
-        m_running = false;
+    m_stopThread = true;
+    if (m_diskWriteThread.joinable()) {
+        m_diskWriteThread.join();
+    }
+
+    if (m_sndFile) {
+        sf_close(m_sndFile);
+        m_sndFile = nullptr;
+    }
+
+    if (wasRunning) {
         juzzlin::L(TAG).info() << "Recording stopped";
     }
 }

@@ -52,6 +52,9 @@ public:
 public slots:
     void reinitialize();
 
+private slots:
+    void onErrorOccurred(QString message);
+
 public:
     Q_INVOKABLE void startRecording(QString filePath, quint32 bufferSize, quint64 startTick);
     Q_INVOKABLE void stopRecording(quint64 stopTick);
@@ -85,6 +88,7 @@ signals:
     void latestRecordingStartTickChanged();
     void latestRecordingEndTickChanged();
     void reinitialized();
+    void errorOccurred(QString message);
 
 private:
     void initializeWorker();

@@ -88,6 +88,7 @@ private:
 
     void connectServices();
     void connectApplicationService();
+    void connectAudioService();
     void connectAutomationService();
     void connectEditorService();
     void connectJackService();

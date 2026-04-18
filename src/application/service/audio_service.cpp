@@ -104,8 +104,23 @@ void AudioService::reinitialize()
 
 void AudioService::initializeWorker()
 {
+    connect(m_audioWorker.get(), &AudioWorker::errorOccurred, this, &AudioService::onErrorOccurred);
     m_audioWorker->moveToThread(&m_audioWorkerThread);
     m_audioWorkerThread.start(QThread::HighPriority);
+}
+
+void AudioService::onErrorOccurred(QString message)
+{
+    if (m_isRecording) {
+        m_isRecording = false;
+        emit isRecordingChanged();
+        m_currentRecordingFileName.clear();
+    }
+    if (m_isPlayingPlayback) {
+        m_isPlayingPlayback = false;
+        emit isPlayingPlaybackChanged();
+    }
+    emit errorOccurred(message);
 }
 
 void AudioService::startRecording(QString filePath, quint32 bufferSize, quint64 startTick)

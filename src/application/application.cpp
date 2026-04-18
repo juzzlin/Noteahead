@@ -283,6 +283,7 @@ void Application::connectServices()
 {
     connectApplicationService();
 
+    connectAudioService();
     connectAutomationService();
     connectEditorService();
     connectJackService();
@@ -298,6 +299,14 @@ void Application::connectServices()
     connectTrackSettingsModel();
     connectMidiSettingsModel();
     connectColumnSettingsModel();
+}
+
+void Application::connectAudioService()
+{
+    connect(m_audioService.get(), &AudioService::errorOccurred, m_applicationService.get(), &ApplicationService::requestAlertDialog);
+    connect(m_audioService.get(), &AudioService::latestRecordingFileNameChanged, this, [this]() {
+        m_editorService->setIsModified(true);
+    });
 }
 
 void Application::connectJackService()

@@ -16,14 +16,14 @@ GroupBox {
             width: parent.width
             CheckBox {
                 id: enableAudioRecordingCheckbox
-                text: qsTr("Enable audio recording and playback from default source when playing.\nAudio files will appear next to the current project file.")
+                text: qsTr("Enable audio recording when playing.\nAudio files will appear next to the current project file.")
                 checked: settingsService.recordingEnabled
                 Layout.row: 0
                 Layout.fillWidth: true
                 ToolTip.delay: Constants.toolTipDelay
                 ToolTip.timeout: Constants.toolTipTimeout
                 ToolTip.visible: hovered
-                ToolTip.text: qsTr("Enable/disable audio recording and playback")
+                ToolTip.text: qsTr("Enable/disable audio recording")
                 onCheckedChanged: {
                     if (settingsService.recordingEnabled !== checked) {
                         settingsService.recordingEnabled = checked
@@ -61,7 +61,7 @@ GroupBox {
                 from: 32
                 to: 4096
                 stepSize: 32
-                enabled: enableAudioRecordingCheckbox.checked && !settingsService.jackSyncEnabled
+                enabled: !settingsService.jackSyncEnabled
                 value: settingsService.audioBufferSize()
                 Layout.column: 3
                 Layout.row: 3
@@ -70,7 +70,7 @@ GroupBox {
                 ToolTip.delay: Constants.toolTipDelay
                 ToolTip.timeout: Constants.toolTipTimeout
                 ToolTip.visible: hovered
-                ToolTip.text: settingsService.jackSyncEnabled ? qsTr("Buffer size is managed by JACK server") : qsTr("Set buffer size for audio recording")
+                ToolTip.text: settingsService.jackSyncEnabled ? qsTr("Buffer size is managed by JACK server") : qsTr("Set buffer size for audio recording and playback")
                 onValueChanged: settingsService.setAudioBufferSize(value)
                 Keys.onReturnPressed: focus = false
             }
@@ -132,7 +132,7 @@ GroupBox {
                 Layout.column: 3
                 Layout.row: 6
                 Layout.fillWidth: true
-                enabled: enableAudioRecordingCheckbox.checked && !settingsService.jackSyncEnabled
+                enabled: !settingsService.jackSyncEnabled
                 model: audioSettingsModel.outputDevices
                 textRole: "name"
                 valueRole: "id"
@@ -157,7 +157,7 @@ GroupBox {
                 text: qsTr("Refresh")
                 Layout.column: 4
                 Layout.row: 6
-                enabled: enableAudioRecordingCheckbox.checked && !settingsService.jackSyncEnabled
+                enabled: !settingsService.jackSyncEnabled
                 onClicked: audioSettingsModel.refreshOutputDevices()
                 ToolTip.visible: hovered
                 ToolTip.text: qsTr("Refresh output device list")

@@ -30,7 +30,11 @@ AudioWorker::AudioWorker(std::unique_ptr<AudioRecorder> audioRecorder, std::uniq
 
 void AudioWorker::startRecording(QString filePath, quint32 bufferSize)
 {
-    m_audioRecorder->start(filePath.toStdString(), bufferSize);
+    try {
+        m_audioRecorder->start(filePath.toStdString(), bufferSize);
+    } catch (const std::exception & e) {
+        emit errorOccurred(QString::fromStdString(e.what()));
+    }
 }
 
 void AudioWorker::stopRecording()
@@ -40,7 +44,11 @@ void AudioWorker::stopRecording()
 
 void AudioWorker::startPlayback(QString filePath, quint32 bufferSize)
 {
-    m_audioPlayer->start(filePath.toStdString(), bufferSize);
+    try {
+        m_audioPlayer->start(filePath.toStdString(), bufferSize);
+    } catch (const std::exception & e) {
+        emit errorOccurred(QString::fromStdString(e.what()));
+    }
 }
 
 void AudioWorker::stopPlayback()

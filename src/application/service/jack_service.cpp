@@ -175,7 +175,9 @@ void JackService::startRecording(const QString & filePath)
 
     m_sndFile = sf_open(filePath.toStdString().c_str(), SFM_WRITE, &m_sfInfo);
     if (!m_sndFile) {
-        juzzlin::L(TAG).error() << "Could not open audio file for recording: " << filePath.toStdString();
+        const auto message = tr("Could not open audio file for recording: %1").arg(filePath);
+        juzzlin::L(TAG).error() << message.toStdString();
+        emit errorOccurred(message);
         return;
     }
 
@@ -226,7 +228,9 @@ void JackService::startPlayback(const QString & filePath)
     m_playbackSfInfo = {};
     m_playbackSndFile = sf_open(filePath.toStdString().c_str(), SFM_READ, &m_playbackSfInfo);
     if (!m_playbackSndFile) {
-        juzzlin::L(TAG).error() << "Could not open audio file for playback: " << filePath.toStdString();
+        const auto message = tr("Could not open audio file for playback: %1").arg(filePath);
+        juzzlin::L(TAG).error() << message.toStdString();
+        emit errorOccurred(message);
         return;
     }
 

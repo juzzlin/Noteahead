@@ -49,6 +49,9 @@ public:
     Q_INVOKABLE QVariantList getOutputDevices() const;
     Q_INVOKABLE void setOutputDevice(int deviceId);
 
+signals:
+    void errorOccurred(QString message);
+
 private:
     std::unique_ptr<AudioRecorder> m_audioRecorder;
     std::unique_ptr<AudioPlayer> m_audioPlayer;

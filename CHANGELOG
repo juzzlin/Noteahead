@@ -29,6 +29,8 @@ New features:
 * Theming: Add option to change the accent color
   - Settings => Theme
 
+* Show error dialog if previously recorded audio cannot be played
+
 Bug fixes:
 
 * Don't allow repeating keys when playing
