@@ -57,7 +57,7 @@ RowLayout {
     }
 
     SectionHeading {
-        text: qsTr("The TR-808 bass drum, played as a drum or as a bass line")
+        text: qsTr("The TR-808 bass drum, with Drive and pitch controls added")
         Layout.fillWidth: true
         horizontalAlignment: Text.AlignRight
         elide: Text.ElideRight
