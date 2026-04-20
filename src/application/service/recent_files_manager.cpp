@@ -39,7 +39,7 @@ void RecentFilesManager::addRecentFile(QString filePath)
     m_recentFiles.removeAll(filePath);
     m_recentFiles.push_front(filePath);
 
-    const int maxFileCount = 8;
+    const int maxFileCount = 100;
     while (m_recentFiles.size() > maxFileCount) {
         m_recentFiles.pop_back();
     }
