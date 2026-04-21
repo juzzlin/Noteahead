@@ -33,3 +33,23 @@ if [[ -f $APPDATA_FILE ]]; then
 else
     echo "Warning: ${APPDATA_FILE} does not exist, skipping."
 fi
+
+CHANGELOG="CHANGELOG"
+if [[ -f $CHANGELOG ]]; then
+    echo "Updating ${CHANGELOG} .."
+    RFC_DATE=$(./scripts/rfc2822Time)
+    VERSION="${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}"
+
+    # Replace first x.y.z with version
+    sed -i "0,/x.y.z/s/x.y.z/$VERSION/" "$CHANGELOG" || exit 1
+
+    # Replace first "Release date:" with "Release date:\n\n$RFC_DATE"
+    sed -i "0,/Release date:/s/Release date:/Release date:\n\n$RFC_DATE/" "$CHANGELOG" || exit 1
+
+    # Prepend the new template
+    printf "x.y.z\n=====\n\nRelease date:\n\nNew features:\n\nBug fixes:\n\nOther:\n\n" > "$CHANGELOG.new"
+    cat "$CHANGELOG" >> "$CHANGELOG.new"
+    mv "$CHANGELOG.new" "$CHANGELOG"
+else
+    echo "Warning: ${CHANGELOG} does not exist, skipping."
+fi
