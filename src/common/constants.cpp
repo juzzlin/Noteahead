@@ -29,7 +29,7 @@ QString applicationVersion()
 
 QString copyright()
 {
-    return "Copyright (c) 2020-2025 Jussi Lind <jussi.lind@iki.fi>";
+    return "Copyright (c) 2020-2026 Jussi Lind <jussi.lind@iki.fi>";
 }
 
 QString license()
