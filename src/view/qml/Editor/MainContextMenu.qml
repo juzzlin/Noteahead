@@ -24,6 +24,16 @@ Menu {
     readonly property string trackPortName: editorService.instrumentPortName(editorService.position.track)
     readonly property bool trackHasInternalDevice: deviceService.isInternalDevice(trackPortName)
 
+    // In the Device sub-menu's place on a track that has none, so that the first thing the menu
+    // offers is always about the track's device. Collapsed by hand: a menu's ListView still reserves
+    // the height of a merely invisible row.
+    MenuItem {
+        text: qsTr("Assign a device...")
+        visible: !trackHasInternalDevice
+        height: visible ? implicitHeight : 0
+        enabled: !UiService.isPlaying()
+        onTriggered: UiService.requestAssignDevice(editorService.position.track)
+    }
     // MenuItemDelegate hides and collapses the row of a disabled sub-menu, which is what keeps a
     // track with no internal device from opening the menu with dead space above "Line".
     DeviceContextMenu {
@@ -31,10 +41,7 @@ Menu {
         enabled: trackHasInternalDevice
         width: rootItem.width
     }
-    MenuSeparator {
-        visible: trackHasInternalDevice
-        height: visible ? implicitHeight : 0
-    }
+    MenuSeparator {}
     MainContextMenu_Line {}
     MenuSeparator {}
     MainContextMenu_Column {}

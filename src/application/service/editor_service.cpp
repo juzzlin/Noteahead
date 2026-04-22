@@ -1019,6 +1019,23 @@ void EditorService::setInstrument(quint64 trackIndex, InstrumentS instrument)
     emit instrumentChanged(trackIndex);
 }
 
+void EditorService::setInstrumentPortName(quint64 trackIndex, QString portName)
+{
+    if (!m_song || !m_song->trackPositionByIndex(trackIndex).has_value()) {
+        return;
+    }
+    // A copy rather than the instrument itself: the one the track holds may be shared with whoever
+    // read it last, and the change has to reach the song through setInstrument() like any other.
+    auto instrument = std::make_shared<Instrument>(portName);
+    if (const auto current = this->instrument(trackIndex); current) {
+        instrument = std::make_shared<Instrument>(*current);
+        auto address = instrument->midiAddress();
+        address.setPort(portName);
+        instrument->setMidiAddress(address);
+    }
+    setInstrument(trackIndex, instrument);
+}
+
 EditorService::ColumnSettingsS EditorService::columnSettings(quint64 trackIndex, quint64 columnIndex) const
 {
     // The view can still be holding the index of a column that was just deleted

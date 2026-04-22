@@ -332,7 +332,7 @@ AnimatedDialog {
         }
 
         Text {
-            text: qsTr("To assign an internal device to a track, select its name from the port list in the Track Settings dialog.")
+            text: qsTr("To assign an internal device to a track, select its name from the port list in the Track Settings dialog, or click the faded device icon in the track header.")
             color: "#aaa"
             font.italic: true
             font.pointSize: 11

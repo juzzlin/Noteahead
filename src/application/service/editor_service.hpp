@@ -395,6 +395,9 @@ public:
     virtual InstrumentS instrument(quint64 trackIndex) const;
     virtual Q_INVOKABLE QString instrumentPortName(quint64 trackIndex) const;
     virtual void setInstrument(quint64 trackIndex, InstrumentS instrument);
+    //! Points the track at @p portName and keeps everything else its instrument has, or gives it a
+    //! default instrument when it has none yet.
+    virtual Q_INVOKABLE void setInstrumentPortName(quint64 trackIndex, QString portName);
     using InstrumentList = std::vector<std::pair<quint64, InstrumentS>>;
     virtual InstrumentList instruments() const;
 

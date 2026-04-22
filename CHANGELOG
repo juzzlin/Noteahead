@@ -12,6 +12,8 @@ New features:
 * Synth, Wavetable Synth and FM Synth
   - Phase Randomness: 0% starts every note of a unison stack equally loud
 
+* Assign a device to a track from its header icon or its right-click menu
+
 * Reverb, Compressor, Endless Reverb, Multiband Compressor and Early Reflections
   - Save and delete presets of your own, as on the other effects
 

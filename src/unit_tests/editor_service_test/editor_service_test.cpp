@@ -2008,6 +2008,50 @@ void EditorServiceTest::test_setCurrentPattern_addColumnFirst_shouldCreatePatter
     QCOMPARE(patternCreatedSpy.count(), 1);
 }
 
+void EditorServiceTest::test_setInstrumentPortName_noInstrument_shouldCreateOne()
+{
+    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+    QSignalSpy instrumentChangedSpy { &editorService, &EditorService::instrumentChanged };
+    QVERIFY(!editorService.instrument(1));
+
+    editorService.setInstrumentPortName(1, "Noteahead Synth 1");
+
+    QCOMPARE(editorService.instrumentPortName(1), QString { "Noteahead Synth 1" });
+    QCOMPARE(instrumentChangedSpy.count(), 1);
+    QCOMPARE(instrumentChangedSpy.at(0).at(0).toULongLong(), 1ULL);
+    QVERIFY(editorService.isModified());
+}
+
+void EditorServiceTest::test_setInstrumentPortName_existingInstrument_shouldKeepItsSettings()
+{
+    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+    const auto midiInstrument = std::make_shared<Instrument>(MidiAddress { "External Synth", 5 });
+    auto settings = midiInstrument->settings();
+    settings.patch = 42;
+    midiInstrument->setSettings(settings);
+    editorService.setInstrument(1, midiInstrument);
+
+    editorService.setInstrumentPortName(1, "Noteahead Synth 1");
+
+    const auto instrument = editorService.instrument(1);
+    QVERIFY(instrument);
+    QCOMPARE(instrument->midiAddress().portName(), QString { "Noteahead Synth 1" });
+    QCOMPARE(instrument->midiAddress().channel(), 5);
+    QCOMPARE(instrument->settings().patch, 42);
+    // The track's own copy changes, not the instrument it was given
+    QCOMPARE(midiInstrument->midiAddress().portName(), QString { "External Synth" });
+}
+
+void EditorServiceTest::test_setInstrumentPortName_staleTrackIndex_shouldDoNothing()
+{
+    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+    QSignalSpy instrumentChangedSpy { &editorService, &EditorService::instrumentChanged };
+
+    editorService.setInstrumentPortName(999, "Noteahead Synth 1");
+
+    QCOMPARE(instrumentChangedSpy.count(), 0);
+}
+
 void EditorServiceTest::test_setInstrumentSettings_shouldSetInstrumentSettings()
 {
     EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };

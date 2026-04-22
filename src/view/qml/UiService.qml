@@ -43,6 +43,7 @@ QtObject {
     signal deviceSubEffectsDialogRequested(string deviceName, int subIndex, string subLabel)
     signal sendChainEffectsDialogRequested(int busIndex, string busLabel)
     signal deviceRackDialogFromTrackSettingsRequested
+    signal assignDeviceRequested(int trackIndex)
     signal deviceRackDialogRequested
     signal exportDeviceSettingsRequested(int slotIndex, string deviceName, string deviceTypeName)
     signal importDeviceSettingsRequested(int slotIndex)
@@ -235,6 +236,11 @@ QtObject {
     }
     function requestDeviceRackDialogFromTrackSettings(): void {
         deviceRackDialogFromTrackSettingsRequested();
+    }
+    //! The Track Settings flow for a track whose settings are not open: the rack, and a device added
+    //! there offered as the track's port straight away.
+    function requestAssignDevice(trackIndex: int): void {
+        assignDeviceRequested(trackIndex);
     }
     //! Asks for the name a preset is to be saved under. The controller travels with the request so
     //! that one dialog serves every device without knowing anything about which one it is serving.

@@ -28,6 +28,9 @@ Button {
     property double _hoverScale: 1.0
     property string toolTipText
     property string _toggleColor: "red"
+    //! Drawn faded. A disabled button always is; an enabled one can say it is too, for an action
+    //! that is still available while the button's usual one is not.
+    property bool dimmed: !enabled
     signal leftClicked
     signal rightClicked
     function setImageSource(imageSource: string): void {
@@ -52,7 +55,7 @@ Button {
         border.color: rootItem._toggled ? _toggleColor : "transparent"
         border.width: rootItem._toggled ? 4 : 0
         radius: 4
-        opacity: rootItem.enabled ? 1.0 : 0.5
+        opacity: rootItem.dimmed ? 0.5 : 1.0
         Image {
             id: backgroundImage
             sourceSize: Qt.size(parent.width, parent.height)
@@ -60,7 +63,7 @@ Button {
             height: Math.floor(parent.height * rootItem._scale)
             anchors.centerIn: parent
             fillMode: Image.PreserveAspectFit
-            opacity: rootItem.enabled ? 1.0 : 0.5
+            opacity: rootItem.dimmed ? 0.5 : 1.0
         }
     }
     states: State {

@@ -135,6 +135,9 @@ private slots:
     void test_setCurrentPattern_shouldCreatePattern();
     void test_setCurrentPattern_addColumnFirst_shouldCreatePattern();
 
+    void test_setInstrumentPortName_noInstrument_shouldCreateOne();
+    void test_setInstrumentPortName_existingInstrument_shouldKeepItsSettings();
+    void test_setInstrumentPortName_staleTrackIndex_shouldDoNothing();
     void test_setInstrumentSettings_shouldSetInstrumentSettings();
     void test_removeInstrumentSettings_shouldRemoveInstrumentSettings();
 

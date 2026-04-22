@@ -42,6 +42,23 @@ ApplicationWindow {
     readonly property string _tag: "Main"
     property var _deviceNamesBeforeRackOpen: null
     property string _newDeviceName: ""
+    //! Where a device added in the rack goes: the open Track Settings dialog at -1, which applies it
+    //! with the rest of its settings, or straight to this track when the flow began elsewhere.
+    property int _assignDeviceTrackIndex: -1
+    //! Opens the rack remembering what it holds, so that a device added there can be offered as the
+    //! port of @p trackIndex when it closes (-1 for the open Track Settings dialog).
+    function _openDeviceRackToAssign(trackIndex: int): void {
+        const names = [];
+        for (let i = 0; i < deviceRackController.deviceCount; i++) {
+            const name = deviceRackController.deviceName(i);
+            if (name !== "")
+                names.push(name);
+        }
+        _deviceNamesBeforeRackOpen = names;
+        _assignDeviceTrackIndex = trackIndex;
+        deviceRackDialog.updateUsage();
+        deviceRackDialog.open();
+    }
     Universal.theme: Universal.Dark
     MainToolBar {
         id: mainToolBar
@@ -317,7 +334,13 @@ ApplicationWindow {
         anchors.centerIn: parent
         title: "<strong>" + qsTr("Assign Instrument Port") + "</strong>"
         acceptButtonText: qsTr("Assign")
-        onAccepted: trackSettingsDialog.setPortName(_newDeviceName)
+        onAccepted: {
+            if (_assignDeviceTrackIndex < 0) {
+                trackSettingsDialog.setPortName(_newDeviceName);
+            } else {
+                editorService.setInstrumentPortName(_assignDeviceTrackIndex, _newDeviceName);
+            }
+        }
     }
     MidiExportDialog {
         id: midiExportDialog
@@ -434,9 +457,10 @@ ApplicationWindow {
             _deviceNamesBeforeRackOpen = null;
             for (let i = 0; i < deviceRackController.deviceCount; i++) {
                 const name = deviceRackController.deviceName(i);
-                if (name !== "" && before.indexOf(name) === -1 && name !== trackSettingsModel.portName) {
+                const currentPort = _assignDeviceTrackIndex < 0 ? trackSettingsModel.portName : editorService.instrumentPortName(_assignDeviceTrackIndex);
+                if (name !== "" && before.indexOf(name) === -1 && name !== currentPort) {
                     _newDeviceName = name;
-                    portAutoAssignDialog.message = qsTr("'%1' was added. Assign it as the instrument port for this track?").arg(name);
+                    portAutoAssignDialog.message = _assignDeviceTrackIndex < 0 ? qsTr("'%1' was added. Assign it as the instrument port for this track?").arg(name) : qsTr("'%1' was added. Assign it as the instrument port for track %2?").arg(name).arg(_assignDeviceTrackIndex + 1);
                     portAutoAssignDialog.open();
                     break;
                 }
@@ -1090,17 +1114,8 @@ ApplicationWindow {
             deviceRackController.refresh();
             mixerDialog.open();
         });
-        UiService.deviceRackDialogFromTrackSettingsRequested.connect(() => {
-            const names = [];
-            for (let i = 0; i < deviceRackController.deviceCount; i++) {
-                const name = deviceRackController.deviceName(i);
-                if (name !== "")
-                    names.push(name);
-            }
-            _deviceNamesBeforeRackOpen = names;
-            deviceRackDialog.updateUsage();
-            deviceRackDialog.open();
-        });
+        UiService.deviceRackDialogFromTrackSettingsRequested.connect(() => _openDeviceRackToAssign(-1));
+        UiService.assignDeviceRequested.connect(trackIndex => _openDeviceRackToAssign(trackIndex));
         // The separate sends dialog is gone: routing is a tab of the device's own effects dialog,
         // so that a pad's sends are reachable from the same place its inserts are.
         UiService.effectSendsDialogRequested.connect(deviceName => {

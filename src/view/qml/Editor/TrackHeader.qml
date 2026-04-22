@@ -18,6 +18,7 @@ import QtQuick.Controls 2.15
 import QtQuick.Controls.Universal 2.15
 import ".."
 import "../ToolBar"
+import "../Components"
 
 Rectangle {
     id: rootItem
@@ -116,19 +117,37 @@ Rectangle {
             width: height
             property string portName: ""
             readonly property bool hasInternalDevice: deviceService.isInternalDevice(portName)
-            enabled: hasInternalDevice
+            // Without a device of its own the button assigns one, through the rack as the Track
+            // Settings dialog does, and stays faded to say the track has none. Assigning changes the
+            // song, so it waits for the playback to stop like the settings button beside it.
+            enabled: hasInternalDevice || !UiService.isPlaying()
+            dimmed: !hasInternalDevice
             onClicked: {
-                UiService.requestDeviceDialog(portName);
+                if (hasInternalDevice) {
+                    UiService.requestDeviceDialog(portName);
+                } else {
+                    UiService.requestAssignDevice(rootItem._index);
+                }
                 focus = false;
             }
             onRightClicked: {
                 if (hasInternalDevice) {
                     deviceContextMenu.popup();
+                } else {
+                    assignDeviceMenu.popup();
                 }
             }
             DeviceContextMenu {
                 id: deviceContextMenu
                 portName: directDeviceButton.portName
+            }
+            Menu {
+                id: assignDeviceMenu
+                MenuItem {
+                    text: qsTr("Assign a device...")
+                    onTriggered: UiService.requestAssignDevice(rootItem._index)
+                }
+                delegate: MenuItemDelegate {}
             }
             Keys.onPressed: event => {
                 if (event.key === Qt.Key_Space) {
@@ -138,7 +157,7 @@ Rectangle {
             ToolTip.delay: Constants.toolTipDelay
             ToolTip.timeout: Constants.toolTipTimeout
             ToolTip.visible: hovered
-            ToolTip.text: hasInternalDevice ? qsTr("Open %1").arg(portName) : qsTr("Set a built-in device port via track settings")
+            ToolTip.text: hasInternalDevice ? qsTr("Open %1").arg(portName) : qsTr("Assign a device to this track...")
             Component.onCompleted: {
                 setScale(0.8);
                 setImageSource("../Graphics/piano.png");
