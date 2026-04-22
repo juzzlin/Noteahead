@@ -1878,8 +1878,8 @@
         <translation>Falhas: %1</translation>
     </message>
     <message>
-        <source>To assign an internal device to a track, select its name from the port list in the Track Settings dialog.</source>
-        <translation>Para atribuir um dispositivo interno a uma faixa, selecione o nome dele na lista de portas da janela de configurações da faixa.</translation>
+        <source>To assign an internal device to a track, select its name from the port list in the Track Settings dialog, or click the faded device icon in the track header.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Insert effects of this device</source>
@@ -4013,6 +4013,10 @@
         <translation>&apos;%1&apos; foi adicionado. Atribuí-lo como porta do instrumento desta faixa?</translation>
     </message>
     <message>
+        <source>&apos;%1&apos; was added. Assign it as the instrument port for track %2?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>MIDI CC automation added</source>
         <translation>Automação MIDI CC adicionada</translation>
     </message>
@@ -4143,6 +4147,10 @@
 </context>
 <context>
     <name>MainContextMenu</name>
+    <message>
+        <source>Assign a device...</source>
+        <translation type="unfinished"></translation>
+    </message>
     <message>
         <source>Automation</source>
         <translation type="unfinished"></translation>
@@ -9779,12 +9787,16 @@ Um apóstrofo marca a sílaba tônica: A&apos;merica</translation>
         <translation>Abrir configurações da faixa</translation>
     </message>
     <message>
+        <source>Assign a device...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Open %1</source>
         <translation>Abrir %1</translation>
     </message>
     <message>
-        <source>Set a built-in device port via track settings</source>
-        <translation>Definir uma porta de dispositivo interno pelas configurações da faixa</translation>
+        <source>Assign a device to this track...</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Track name</source>

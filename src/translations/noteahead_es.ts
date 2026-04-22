@@ -1878,8 +1878,8 @@
         <translation>Cortes: %1</translation>
     </message>
     <message>
-        <source>To assign an internal device to a track, select its name from the port list in the Track Settings dialog.</source>
-        <translation>Para asignar un dispositivo interno a una pista, selecciona su nombre en la lista de puertos del diálogo de ajustes de pista.</translation>
+        <source>To assign an internal device to a track, select its name from the port list in the Track Settings dialog, or click the faded device icon in the track header.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Insert effects of this device</source>
@@ -4013,6 +4013,10 @@
         <translation>Se ha añadido &apos;%1&apos;. ¿Asignarlo como puerto de instrumento de esta pista?</translation>
     </message>
     <message>
+        <source>&apos;%1&apos; was added. Assign it as the instrument port for track %2?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>MIDI CC automation added</source>
         <translation>Automatización de MIDI CC añadida</translation>
     </message>
@@ -4143,6 +4147,10 @@
 </context>
 <context>
     <name>MainContextMenu</name>
+    <message>
+        <source>Assign a device...</source>
+        <translation type="unfinished"></translation>
+    </message>
     <message>
         <source>Automation</source>
         <translation type="unfinished"></translation>
@@ -9779,12 +9787,16 @@ Un apóstrofo marca la sílaba tónica: A&apos;merica</translation>
         <translation>Abrir los ajustes de la pista</translation>
     </message>
     <message>
+        <source>Assign a device...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Open %1</source>
         <translation>Abrir %1</translation>
     </message>
     <message>
-        <source>Set a built-in device port via track settings</source>
-        <translation>Establecer un puerto de dispositivo interno desde los ajustes de pista</translation>
+        <source>Assign a device to this track...</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Track name</source>

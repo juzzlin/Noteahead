@@ -1878,8 +1878,8 @@
         <translation>Décrochages : %1</translation>
     </message>
     <message>
-        <source>To assign an internal device to a track, select its name from the port list in the Track Settings dialog.</source>
-        <translation>Pour assigner un appareil interne à une piste, choisissez son nom dans la liste des ports de la fenêtre Paramètres de piste.</translation>
+        <source>To assign an internal device to a track, select its name from the port list in the Track Settings dialog, or click the faded device icon in the track header.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Insert effects of this device</source>
@@ -4013,6 +4013,10 @@
         <translation>&apos;%1&apos; a été ajouté. L&apos;assigner comme port d&apos;instrument pour cette piste ?</translation>
     </message>
     <message>
+        <source>&apos;%1&apos; was added. Assign it as the instrument port for track %2?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>MIDI CC automation added</source>
         <translation>Automation MIDI CC ajoutée</translation>
     </message>
@@ -4143,6 +4147,10 @@
 </context>
 <context>
     <name>MainContextMenu</name>
+    <message>
+        <source>Assign a device...</source>
+        <translation type="unfinished"></translation>
+    </message>
     <message>
         <source>Automation</source>
         <translation type="unfinished"></translation>
@@ -9779,12 +9787,16 @@ Une apostrophe marque la syllabe accentuée : A&apos;merica</translation>
         <translation>Ouvrir les paramètres de la piste</translation>
     </message>
     <message>
+        <source>Assign a device...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Open %1</source>
         <translation>Ouvrir %1</translation>
     </message>
     <message>
-        <source>Set a built-in device port via track settings</source>
-        <translation>Définir un port d&apos;appareil interne via les paramètres de piste</translation>
+        <source>Assign a device to this track...</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Track name</source>

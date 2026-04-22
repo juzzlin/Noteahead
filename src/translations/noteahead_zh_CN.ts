@@ -1877,8 +1877,8 @@
         <translation>丢帧：%1</translation>
     </message>
     <message>
-        <source>To assign an internal device to a track, select its name from the port list in the Track Settings dialog.</source>
-        <translation>要为轨道分配内部设备，请在轨道设置对话框的端口列表中选择其名称。</translation>
+        <source>To assign an internal device to a track, select its name from the port list in the Track Settings dialog, or click the faded device icon in the track header.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Insert effects of this device</source>
@@ -4012,6 +4012,10 @@
         <translation>已添加 &apos;%1&apos;。要将其指定为该轨道的乐器端口吗？</translation>
     </message>
     <message>
+        <source>&apos;%1&apos; was added. Assign it as the instrument port for track %2?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>MIDI CC automation added</source>
         <translation>已添加 MIDI CC 自动化</translation>
     </message>
@@ -4142,6 +4146,10 @@
 </context>
 <context>
     <name>MainContextMenu</name>
+    <message>
+        <source>Assign a device...</source>
+        <translation type="unfinished"></translation>
+    </message>
     <message>
         <source>Automation</source>
         <translation type="unfinished"></translation>
@@ -9777,12 +9785,16 @@ An apostrophe marks the stressed syllable: A&apos;merica</source>
         <translation>打开轨道设置</translation>
     </message>
     <message>
+        <source>Assign a device...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Open %1</source>
         <translation>打开 %1</translation>
     </message>
     <message>
-        <source>Set a built-in device port via track settings</source>
-        <translation>通过轨道设置指定内置设备端口</translation>
+        <source>Assign a device to this track...</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Track name</source>

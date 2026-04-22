@@ -1879,8 +1879,8 @@
         <translation>Przerwy: %1</translation>
     </message>
     <message>
-        <source>To assign an internal device to a track, select its name from the port list in the Track Settings dialog.</source>
-        <translation>Aby przypisać wewnętrzne urządzenie do ścieżki, wybierz jego nazwę z listy portów w oknie ustawień ścieżki.</translation>
+        <source>To assign an internal device to a track, select its name from the port list in the Track Settings dialog, or click the faded device icon in the track header.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Insert effects of this device</source>
@@ -4014,6 +4014,10 @@
         <translation>Dodano &apos;%1&apos;. Przypisać jako port instrumentu dla tej ścieżki?</translation>
     </message>
     <message>
+        <source>&apos;%1&apos; was added. Assign it as the instrument port for track %2?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>MIDI CC automation added</source>
         <translation>Dodano automatyzację MIDI CC</translation>
     </message>
@@ -4144,6 +4148,10 @@
 </context>
 <context>
     <name>MainContextMenu</name>
+    <message>
+        <source>Assign a device...</source>
+        <translation type="unfinished"></translation>
+    </message>
     <message>
         <source>Automation</source>
         <translation type="unfinished"></translation>
@@ -9781,12 +9789,16 @@ Apostrof oznacza sylabę akcentowaną: A&apos;merica</translation>
         <translation>Otwórz ustawienia ścieżki</translation>
     </message>
     <message>
+        <source>Assign a device...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Open %1</source>
         <translation>Otwórz %1</translation>
     </message>
     <message>
-        <source>Set a built-in device port via track settings</source>
-        <translation>Ustaw port wbudowanego urządzenia w ustawieniach ścieżki</translation>
+        <source>Assign a device to this track...</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Track name</source>
