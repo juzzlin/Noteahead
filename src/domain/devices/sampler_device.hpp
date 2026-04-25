@@ -70,6 +70,9 @@ public:
 
     void setProjectPath(const std::string & projectPath);
 
+    void saveState();
+    void restoreState();
+
 signals:
     void samplesChanged();
 
@@ -84,6 +87,7 @@ private:
     };
 
     std::array<std::unique_ptr<Sample>, 128> m_samples;
+    std::array<std::unique_ptr<Sample>, 128> m_savedSamples;
     std::vector<Voice> m_voices;
     mutable std::mutex m_mutex;
 

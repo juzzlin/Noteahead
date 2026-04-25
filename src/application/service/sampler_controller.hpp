@@ -21,6 +21,10 @@ public:
     SamplerPadModel * padModel() const;
     std::shared_ptr<SamplerDevice> sampler() const;
 
+    Q_INVOKABLE void initialize();
+    Q_INVOKABLE void accept();
+    Q_INVOKABLE void reject();
+
     Q_INVOKABLE void loadSample(int padIndex, const QString & filePath);
     Q_INVOKABLE void clearSample(int padIndex);
     Q_INVOKABLE void playSample(int padIndex, double velocity = 1.0);

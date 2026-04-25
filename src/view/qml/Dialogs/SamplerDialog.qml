@@ -27,12 +27,19 @@ Dialog {
     modal: true
     focus: true
 
+    onAboutToShow: samplerController.initialize()
+
     footer: DialogButtonBox {
         Button {
-            text: qsTr("Close")
+            text: qsTr("Ok")
+            DialogButtonBox.buttonRole: DialogButtonBox.AcceptRole
+        }
+        Button {
+            text: qsTr("Cancel")
             DialogButtonBox.buttonRole: DialogButtonBox.RejectRole
         }
-        onRejected: root.close()
+        onAccepted: samplerController.accept()
+        onRejected: samplerController.reject()
     }
 
     background: Rectangle {

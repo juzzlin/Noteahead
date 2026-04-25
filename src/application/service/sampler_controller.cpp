@@ -23,6 +23,25 @@ std::shared_ptr<SamplerDevice> SamplerController::sampler() const
     return m_sampler;
 }
 
+void SamplerController::initialize()
+{
+    if (m_sampler) {
+        m_sampler->saveState();
+    }
+}
+
+void SamplerController::accept()
+{
+    // State already updated in domain, nothing to do but close dialog which is handled by QML
+}
+
+void SamplerController::reject()
+{
+    if (m_sampler) {
+        m_sampler->restoreState();
+    }
+}
+
 void SamplerController::loadSample(int padIndex, const QString & filePath)
 {
     if (!m_sampler) {

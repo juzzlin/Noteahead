@@ -251,6 +251,28 @@ void SamplerDevice::deserializeFromXml(QXmlStreamReader & reader)
     emit samplesChanged();
 }
 
+void SamplerDevice::saveState()
+{
+    std::lock_guard<std::mutex> lock { m_mutex };
+    for (size_t i = 0; i < 128; ++i) {
+        if (m_samples.at(i)) {
+            m_savedSamples.at(i) = std::make_unique<Sample>(*m_samples.at(i));
+        } else {
+            m_savedSamples.at(i) = nullptr;
+        }
+    }
+}
+
+void SamplerDevice::restoreState()
+{
+    std::lock_guard<std::mutex> lock { m_mutex };
+    for (size_t i = 0; i < 128; ++i) {
+        m_samples.at(i) = std::move(m_savedSamples.at(i));
+        m_savedSamples.at(i) = nullptr;
+    }
+    emit samplesChanged();
+}
+
 void SamplerDevice::setProjectPath(const std::string & projectPath)
 {
     std::lock_guard<std::mutex> lock { m_mutex };
