@@ -14,6 +14,7 @@ set(SRC
     ../../application/instrument_request.cpp
     ../../common/constants.cpp
     ../../common/utils.cpp
+    ../../common/waveform_generator.cpp
     ../../domain/devices/device.cpp
     ../../domain/devices/sampler_device.cpp
     ../../domain/event.cpp

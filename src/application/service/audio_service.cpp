@@ -16,6 +16,7 @@
 #include "audio_service.hpp"
 
 #include "../../common/constants.hpp"
+#include "../../common/waveform_generator.hpp"
 #include "../../contrib/SimpleLogger/src/simple_logger.hpp"
 #include "../../infra/audio/implementation/jack/audio_recorder_jack.hpp"
 #include "../../infra/audio/implementation/jack/audio_player_jack.hpp"
@@ -252,43 +253,7 @@ bool AudioService::isRecording() const
 
 QVariantList AudioService::getWaveformData(int numPoints)
 {
-    if (m_latestRecordingFileName.isEmpty()) {
-        return {};
-    }
-
-    SF_INFO sfInfo = {};
-    SNDFILE * sndFile = sf_open(m_latestRecordingFileName.toStdString().c_str(), SFM_READ, &sfInfo);
-    if (!sndFile) {
-        juzzlin::L(TAG).error() << "Could not open audio file: " << m_latestRecordingFileName.toStdString();
-        return {};
-    }
-
-    if (sfInfo.frames <= 0 || numPoints <= 0) {
-        sf_close(sndFile);
-        return {};
-    }
-
-    QVariantList points;
-    points.reserve(numPoints);
-
-    const int channels = sfInfo.channels;
-    const qint64 totalFrames = sfInfo.frames;
-    const qint64 framesPerPoint = std::max(1ll, static_cast<long long>(totalFrames) / numPoints);
-    std::vector<double> buffer(framesPerPoint * channels);
-
-    for (int i = 0; i < numPoints; ++i) {
-        const auto readFrames = sf_readf_double(sndFile, buffer.data(), framesPerPoint);
-        if (readFrames <= 0) break;
-
-        double maxVal = 0.0;
-        for (int j = 0; j < readFrames * channels; ++j) {
-            maxVal = std::max(maxVal, std::abs(buffer[j]));
-        }
-        points.append(maxVal);
-    }
-
-    sf_close(sndFile);
-    return points;
+    return WaveformGenerator::getWaveformData(m_latestRecordingFileName, numPoints);
 }
 
 quint64 AudioService::latestRecordingStartTick() const

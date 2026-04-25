@@ -22,6 +22,7 @@ set(SRC
     ../../domain/midi_note_data.cpp
     ../../common/constants.cpp
     ../../common/utils.cpp
+    ../../common/waveform_generator.cpp
     ../../domain/arpeggiator.cpp
     ../../domain/automation.cpp
     ../../domain/automation_location.cpp

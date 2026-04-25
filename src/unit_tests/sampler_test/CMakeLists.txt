@@ -18,6 +18,7 @@ set(SRC
     ../../application/state_machine.cpp
     ../../common/constants.cpp
     ../../common/utils.cpp
+    ../../common/waveform_generator.cpp
     ../../domain/column.cpp
     ../../domain/devices/device.cpp
     ../../domain/devices/sampler_device.cpp

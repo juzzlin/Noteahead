@@ -210,6 +210,20 @@ const SamplerDevice::Sample * SamplerDevice::sample(uint8_t note) const
     return m_samples.at(note).get();
 }
 
+std::string SamplerDevice::absoluteFilePath(uint8_t note) const
+{
+    if (note >= 128 || !m_samples.at(note)) {
+        return "";
+    }
+
+    const auto filePath = m_samples.at(note)->filePath;
+    const auto path = QString::fromStdString(filePath);
+    if (QFileInfo { path }.isRelative() && !m_projectPath.empty()) {
+        return QFileInfo { QDir { QString::fromStdString(m_projectPath) }, path }.absoluteFilePath().toStdString();
+    }
+    return filePath;
+}
+
 void SamplerDevice::serializeToXml(QXmlStreamWriter & writer) const
 {
     writer.writeStartElement(Constants::NahdXml::xmlKeySampler());

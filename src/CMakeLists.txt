@@ -57,6 +57,7 @@ set(HEADER_FILES
   application/ui_logger.hpp
   common/constants.hpp
   common/utils.hpp
+  common/waveform_generator.hpp
   domain/automation.hpp
   domain/automation_location.hpp
   domain/arpeggiator.hpp
@@ -164,6 +165,7 @@ set(SOURCE_FILES
   application/ui_logger.cpp
   common/constants.cpp
   common/utils.cpp
+  common/waveform_generator.cpp
   domain/automation.cpp
   domain/automation_location.cpp
   domain/arpeggiator.cpp
@@ -234,6 +236,7 @@ set(QML_SOURCE_FILES
     ${QML_BASE_DIR}/Components/MenuItemDelegate.qml
     ${QML_BASE_DIR}/Components/MidiCcComboBox.qml
     ${QML_BASE_DIR}/Components/VirtualKeyboard.qml
+    ${QML_BASE_DIR}/Components/WaveformView.qml
     ${QML_BASE_DIR}/Constants.qml
     ${QML_BASE_DIR}/Dialogs/AboutDialog.qml
     ${QML_BASE_DIR}/Dialogs/AddMidiCcAutomationDialog.qml

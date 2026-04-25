@@ -41,6 +41,7 @@ set(SRC
     ../../infra/midi/implementation/librtmidi/midi_out_rt_midi.cpp
     ../../common/constants.cpp
     ../../common/utils.cpp
+    ../../common/waveform_generator.cpp
     ../../domain/arpeggiator.cpp
     ../../domain/automation.cpp
     ../../domain/automation_location.cpp

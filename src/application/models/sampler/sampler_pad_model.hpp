@@ -20,6 +20,7 @@ public:
         FilePath,
         IsLoaded
     };
+    Q_ENUM(Roles)
 
     explicit SamplerPadModel(std::shared_ptr<SamplerDevice> sampler, QObject * parent = nullptr);
 

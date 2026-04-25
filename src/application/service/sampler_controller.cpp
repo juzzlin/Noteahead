@@ -1,5 +1,6 @@
 #include "sampler_controller.hpp"
 #include "../models/sampler/sampler_pad_model.hpp"
+#include "../../common/waveform_generator.hpp"
 #include "../../domain/devices/sampler_device.hpp"
 
 namespace noteahead {
@@ -21,6 +22,29 @@ SamplerPadModel * SamplerController::padModel() const
 std::shared_ptr<SamplerDevice> SamplerController::sampler() const
 {
     return m_sampler;
+}
+
+int SamplerController::selectedPad() const
+{
+    return m_selectedPad;
+}
+
+void SamplerController::setSelectedPad(int selectedPad)
+{
+    if (m_selectedPad != selectedPad) {
+        m_selectedPad = selectedPad;
+        emit selectedPadChanged();
+    }
+}
+
+QVariantList SamplerController::getWaveformData(int numPoints)
+{
+    if (!m_sampler) {
+        return {};
+    }
+    const int note = 36 + m_selectedPad;
+    const auto filePath = QString::fromStdString(m_sampler->absoluteFilePath(static_cast<uint8_t>(note)));
+    return WaveformGenerator::getWaveformData(filePath, numPoints);
 }
 
 void SamplerController::initialize()

@@ -63,6 +63,7 @@ public:
     void loadSample(uint8_t note, const std::string & filePath);
     void clearSample(uint8_t note);
     const Sample * sample(uint8_t note) const;
+    std::string absoluteFilePath(uint8_t note) const;
 
     void setProjectPath(const std::string & projectPath);
 

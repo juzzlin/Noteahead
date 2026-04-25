@@ -20,6 +20,7 @@ import QtQuick.Layouts
 import QtQuick.Dialogs
 
 import Noteahead 1.0
+import "../Components"
 
 Dialog {
     id: root
@@ -27,7 +28,10 @@ Dialog {
     modal: true
     focus: true
 
-    onAboutToShow: samplerController.initialize()
+    onAboutToShow: {
+        samplerController.initialize()
+        waveform.updateWaveform()
+    }
 
     footer: DialogButtonBox {
         Button {
@@ -83,6 +87,44 @@ Dialog {
             Layout.alignment: Qt.AlignHCenter
         }
 
+        WaveformView {
+            id: waveform
+            Layout.fillWidth: true
+            Layout.preferredHeight: 150
+            Layout.margins: 10
+            
+            property var currentWaveformData: []
+            waveformData: currentWaveformData
+            fileName: {
+                if (samplerController.selectedPad < 0) return "";
+                const sample = samplerController.padModel.data(samplerController.padModel.index(samplerController.selectedPad, 0), SamplerPadModel.FilePath);
+                return sample ? sample.split("/").pop() : "";
+            }
+
+            function updateWaveform() {
+                if (width > 0) {
+                    const data = samplerController.getWaveformData(width - 12);
+                    currentWaveformData = data || [];
+                }
+            }
+
+            onWidthChanged: updateWaveform()
+            
+            Connections {
+                target: samplerController
+                function onSelectedPadChanged() {
+                    waveform.updateWaveform();
+                }
+            }
+            
+            Connections {
+                target: samplerController.padModel
+                function onDataChanged() {
+                    waveform.updateWaveform();
+                }
+            }
+        }
+
         GridView {
             id: padGrid
             Layout.fillWidth: true
@@ -101,8 +143,8 @@ Dialog {
                     anchors.margins: 8
                     radius: 12
                     color: isLoaded ? "#228822" : "#882222"
-                    border.color: mouseArea.pressed ? "white" : "#555"
-                    border.width: 2
+                    border.color: samplerController.selectedPad === index ? themeService.accentColor : (mouseArea.pressed ? "white" : "#555")
+                    border.width: samplerController.selectedPad === index ? 3 : 2
 
                     ColumnLayout {
                         anchors.centerIn: parent
@@ -134,6 +176,7 @@ Dialog {
                         ToolTip.text: filePath
 
                         onClicked: (mouse) => {
+                            samplerController.selectedPad = index;
                             if (mouse.button === Qt.RightButton) {
                                 if (isLoaded) {
                                     samplerController.clearSample(index)
