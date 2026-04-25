@@ -260,9 +260,9 @@ void EditorService::resetCursorPosition()
 void EditorService::load(QString fileName)
 {
     if (QFile file { fileName }; file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-        fromXml(file.readAll());
         m_song->setFileName(fileName.toStdString());
         emit projectPathChanged(QFileInfo { fileName }.absolutePath().toStdString());
+        fromXml(file.readAll());
         const auto message = QString { "Project successfully loaded from: %1 " }.arg(fileName);
         juzzlin::L(TAG).info() << message.toStdString();
         emit statusTextRequested(message);
@@ -357,12 +357,12 @@ void EditorService::saveAs(QString fileName)
 {
     if (QFile file { fileName }; file.open(QIODevice::WriteOnly | QIODevice::Text)) {
         juzzlin::L(TAG).info() << "Saving to " << fileName.toStdString();
-        file.write(toXml().toUtf8());
+        m_song->setFileName(fileName.toStdString());
         emit projectPathChanged(QFileInfo { fileName }.absolutePath().toStdString());
+        file.write(toXml().toUtf8());
         const auto message = QString { "Project successfully saved to: %1 " }.arg(fileName);
         juzzlin::L(TAG).info() << message.toStdString();
         emit statusTextRequested(message);
-        m_song->setFileName(fileName.toStdString());
         emit currentFileNameChanged();
         setIsModified(false);
     } else {
