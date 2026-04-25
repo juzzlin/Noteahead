@@ -17,6 +17,9 @@
 #define SAMPLER_DEVICE_HPP
 
 #include "device.hpp"
+#include "../../infra/audio/backend/audio_file_reader.hpp"
+
+#include <QObject>
 
 #include <array>
 #include <map>
@@ -30,10 +33,10 @@ class QXmlStreamWriter;
 
 namespace noteahead {
 
-class AudioFileReader;
-
-class SamplerDevice : public Device
+class SamplerDevice : public QObject, public Device
 {
+    Q_OBJECT
+
 public:
     using AudioFileReaderU = std::unique_ptr<AudioFileReader>;
 
@@ -66,6 +69,9 @@ public:
     const Sample * sample(uint8_t note) const;
 
     void setProjectPath(const std::string & projectPath);
+
+signals:
+    void samplesChanged();
 
 private:
     struct Voice

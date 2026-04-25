@@ -31,7 +31,8 @@
 namespace noteahead {
 
 SamplerDevice::SamplerDevice(AudioFileReaderU audioFileReader)
-  : m_audioFileReader { audioFileReader ? std::move(audioFileReader) : std::make_unique<SndFileReader>() }
+  : QObject { nullptr }
+  , m_audioFileReader { audioFileReader ? std::move(audioFileReader) : std::make_unique<SndFileReader>() }
 {
     m_voices.resize(MaxVoices);
     for (auto && sample : m_samples) {
@@ -189,6 +190,7 @@ void SamplerDevice::loadSample(uint8_t note, const std::string & filePath)
 
     std::lock_guard<std::mutex> lock { m_mutex };
     m_samples.at(note) = std::move(sample);
+    emit samplesChanged();
 }
 
 void SamplerDevice::clearSample(uint8_t note)
@@ -198,6 +200,7 @@ void SamplerDevice::clearSample(uint8_t note)
     }
     std::lock_guard<std::mutex> lock { m_mutex };
     m_samples.at(note) = nullptr;
+    emit samplesChanged();
 }
 
 const SamplerDevice::Sample * SamplerDevice::sample(uint8_t note) const
@@ -245,6 +248,7 @@ void SamplerDevice::deserializeFromXml(QXmlStreamReader & reader)
         }
         reader.readNext();
     }
+    emit samplesChanged();
 }
 
 void SamplerDevice::setProjectPath(const std::string & projectPath)

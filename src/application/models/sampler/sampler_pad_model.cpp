@@ -8,6 +8,11 @@ SamplerPadModel::SamplerPadModel(std::shared_ptr<SamplerDevice> sampler, QObject
   : QAbstractListModel { parent }
   , m_sampler { std::move(sampler) }
 {
+    if (m_sampler) {
+        connect(m_sampler.get(), &SamplerDevice::samplesChanged, this, [this]() {
+            emit dataChanged(index(0), index(PadCount - 1), { NoteName, FilePath, IsLoaded });
+        });
+    }
 }
 
 int SamplerPadModel::rowCount(const QModelIndex & parent) const
