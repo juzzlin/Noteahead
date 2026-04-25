@@ -15,11 +15,11 @@
 
 #include "sampler_model.hpp"
 
-#include "../../../domain/devices/sampler.hpp"
+#include "../../../domain/devices/sampler_device.hpp"
 
 namespace noteahead {
 
-SamplerModel::SamplerModel(SamplerS sampler, QObject * parent)
+SamplerModel::SamplerModel(SamplerDeviceS sampler, QObject * parent)
   : QAbstractListModel { parent }
   , m_sampler { std::move(sampler) }
 {

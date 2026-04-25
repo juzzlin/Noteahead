@@ -31,11 +31,13 @@
 #include "models/note_column_model_handler.hpp"
 #include "models/pitch_bend_automations_model.hpp"
 #include "models/recent_files_model.hpp"
+#include "models/sampler/sampler_pad_model.hpp"
 #include "models/track_settings_model.hpp"
 #include "note_converter.hpp"
 #include "service/application_service.hpp"
 #include "service/audio_service.hpp"
 #include "service/automation_service.hpp"
+#include "service/device_service.hpp"
 #include "service/editor_service.hpp"
 #include "service/jack_service.hpp"
 #include "service/keyboard_service.hpp"
@@ -44,11 +46,16 @@
 #include "service/player_service.hpp"
 #include "service/property_service.hpp"
 #include "service/recent_files_manager.hpp"
+#include "service/sampler_controller.hpp"
 #include "service/selection_service.hpp"
 #include "service/settings_service.hpp"
 #include "service/side_chain_service.hpp"
 #include "service/theme_service.hpp"
 #include "service/util_service.hpp"
+#include "domain/devices/sampler_device.hpp"
+#include "infra/audio/audio_engine.hpp"
+#include "infra/audio/backend/audio_file_reader.hpp"
+#include "infra/audio/backend/sndfile_reader.hpp"
 #include "state_machine.hpp"
 #include "ui_logger.hpp"
 #include "view/qml/Editor/line_number_renderer.hpp"
@@ -81,10 +88,13 @@ Application::Application(int & argc, char ** argv)
   , m_propertyService { std::make_shared<PropertyService>() }
   , m_automationService { std::make_shared<AutomationService>(m_propertyService) }
   , m_editorService { std::make_shared<EditorService>(m_selectionService, m_settingsService, m_automationService) }
-  , m_jackService { std::make_shared<JackService>(m_settingsService) }
+  , m_audioEngine { std::make_shared<AudioEngine>() }
+  , m_deviceService { std::make_shared<DeviceService>(m_audioEngine) }
+  , m_samplerController { std::make_shared<SamplerController>(std::make_shared<SamplerDevice>()) }
+  , m_jackService { std::make_shared<JackService>(m_settingsService, m_audioEngine) }
   , m_audioService { std::make_shared<AudioService>(m_settingsService, m_jackService) }
   , m_eventSelectionModel { std::make_shared<EventSelectionModel>() }
-  , m_midiService { std::make_shared<MidiService>() }
+  , m_midiService { std::make_shared<MidiService>(m_deviceService) }
   , m_mixerService { std::make_shared<MixerService>() }
   , m_sideChainService { std::make_shared<SideChainService>() }
   , m_playerService { std::make_shared<PlayerService>(m_midiService, m_mixerService, m_automationService, m_settingsService, m_sideChainService, m_jackService) }
@@ -105,7 +115,9 @@ Application::Application(int & argc, char ** argv)
   , m_noteColumnModelHandler { std::make_unique<NoteColumnModelHandler>(m_editorService, m_selectionService, m_automationService, m_settingsService) }
   , m_engine { std::make_unique<QQmlApplicationEngine>() }
 {
+    m_deviceService->registerDevice(m_samplerController->sampler());
     m_editorService->setMixerService(m_mixerService);
+
     registerTypes();
 
     handleCommandLineArguments(argc, argv); // Handle command-line arguments at initialization
@@ -149,6 +161,8 @@ void Application::registerTypes()
     qmlRegisterType<PitchBendAutomationsModel>("Noteahead", majorVersion, minorVersion, "PitchBendAutomationsModel");
     qmlRegisterType<PropertyService>("Noteahead", majorVersion, minorVersion, "PropertyService");
     qmlRegisterType<RecentFilesModel>("Noteahead", majorVersion, minorVersion, "RecentFilesModel");
+    qmlRegisterType<SamplerPadModel>("Noteahead", majorVersion, minorVersion, "SamplerPadModel");
+    qmlRegisterType<SamplerController>("Noteahead", majorVersion, minorVersion, "SamplerController");
     qmlRegisterType<SelectionService>("Noteahead", majorVersion, minorVersion, "SelectionService");
     qmlRegisterType<SettingsService>("Noteahead", majorVersion, minorVersion, "SettingsService");
     qmlRegisterType<SideChainService>("Noteahead", majorVersion, minorVersion, "SideChainService");
@@ -167,6 +181,8 @@ void Application::setContextProperties()
     m_engine->rootContext()->setContextProperty("audioSettingsModel", m_audioSettingsModel.get());
     m_engine->rootContext()->setContextProperty("automationService", m_automationService.get());
     m_engine->rootContext()->setContextProperty("columnSettingsModel", m_columnSettingsModel.get());
+    m_engine->rootContext()->setContextProperty("deviceService", m_deviceService.get());
+    m_engine->rootContext()->setContextProperty("samplerController", m_samplerController.get());
     m_engine->rootContext()->setContextProperty("editorService", m_editorService.get());
     m_engine->rootContext()->setContextProperty("eventSelectionModel", m_eventSelectionModel.get());
     m_engine->rootContext()->setContextProperty("midiCcAutomationsModel", m_midiCcAutomationsModel.get());
@@ -282,6 +298,7 @@ void Application::handleCommandLineArguments(int & argc, char ** argv)
 void Application::connectServices()
 {
     connectApplicationService();
+    connectDeviceService();
 
     connectAudioService();
     connectAutomationService();
@@ -299,6 +316,13 @@ void Application::connectServices()
     connectTrackSettingsModel();
     connectMidiSettingsModel();
     connectColumnSettingsModel();
+}
+
+void Application::connectDeviceService()
+{
+    connect(m_editorService.get(), &EditorService::devicesSerializationRequested, m_deviceService.get(), &DeviceService::serializeToXml);
+    connect(m_editorService.get(), &EditorService::devicesDeserializationRequested, m_deviceService.get(), &DeviceService::deserializeFromXml);
+    connect(m_editorService.get(), &EditorService::projectPathChanged, m_deviceService.get(), &DeviceService::setProjectPath);
 }
 
 void Application::connectAudioService()

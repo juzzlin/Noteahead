@@ -207,15 +207,17 @@ public:
     //! The same applies to AutomationSerializationCallback.
     using MixerSerializationCallback = std::function<void(QXmlStreamWriter & writer)>;
     using AutomationSerializationCallback = std::function<void(QXmlStreamWriter & writer)>;
+    using DevicesSerializationCallback = std::function<void(QXmlStreamWriter & writer)>;
     using SideChainSerializationCallback = std::function<void(QXmlStreamWriter & writer)>;
     using AudioRecorderSerializationCallback = std::function<void(QXmlStreamWriter & writer)>;
-    void serializeToXml(QXmlStreamWriter & writer, MixerSerializationCallback mixerSerializationCallback, AutomationSerializationCallback automationSerializationCallback, SideChainSerializationCallback sideChainSerializationCallback, AudioRecorderSerializationCallback audioRecorderSerializationCallback) const;
+    void serializeToXml(QXmlStreamWriter & writer, MixerSerializationCallback mixerSerializationCallback, AutomationSerializationCallback automationSerializationCallback, DevicesSerializationCallback devicesSerializationCallback, SideChainSerializationCallback sideChainSerializationCallback, AudioRecorderSerializationCallback audioRecorderSerializationCallback) const;
     void serializeToXmlAsTemplate(QXmlStreamWriter & writer, MixerSerializationCallback mixerSerializationCallback, AutomationSerializationCallback automationSerializationCallback) const;
     using MixerDeserializationCallback = std::function<void(QXmlStreamReader & reader)>;
     using AutomationDeserializationCallback = std::function<void(QXmlStreamReader & reader)>;
+    using DevicesDeserializationCallback = std::function<void(QXmlStreamReader & reader)>;
     using SideChainDeserializationCallback = std::function<void(QXmlStreamReader & reader)>;
     using AudioRecorderDeserializationCallback = std::function<void(QXmlStreamReader & reader)>;
-    void deserializeFromXml(QXmlStreamReader & reader, MixerDeserializationCallback mixerDeserializationCallback, AutomationDeserializationCallback automationDeserializationCallback, SideChainDeserializationCallback sideChainDeserializationCallback, AudioRecorderDeserializationCallback audioRecorderDeserializationCallback);
+    void deserializeFromXml(QXmlStreamReader & reader, MixerDeserializationCallback mixerDeserializationCallback, AutomationDeserializationCallback automationDeserializationCallback, DevicesDeserializationCallback devicesDeserializationCallback, SideChainDeserializationCallback sideChainDeserializationCallback, AudioRecorderDeserializationCallback audioRecorderDeserializationCallback);
 
     size_t positionToTick(size_t position) const;
     std::chrono::milliseconds tickToTime(size_t tick) const;

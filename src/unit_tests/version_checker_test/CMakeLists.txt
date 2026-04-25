@@ -1,5 +1,5 @@
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
-set(NAME sampler_test)
+set(NAME version_checker_test)
 set(SRC
     ${NAME}.cpp
     ${NAME}.hpp
@@ -15,11 +15,11 @@ set(SRC
     ../../application/service/editor_service.cpp
     ../../application/service/mixer_service.cpp
     ../../application/service/side_chain_service.cpp
+    ../../application/service/version_checker_service.cpp
     ../../application/state_machine.cpp
     ../../common/constants.cpp
-    ../../common/utils.cpp
     ../../domain/column.cpp
-    ../../domain/devices/sampler_device.cpp
+    ../../domain/devices/sampler.cpp
     ../../domain/instrument.cpp
     ../../domain/instrument_settings.cpp
     ../../domain/interpolator.cpp
@@ -43,4 +43,4 @@ set(SRC
 qt_add_executable(${NAME} ${SRC})
 set_target_properties(${NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${UNIT_TEST_BASE_DIR})
 add_test(${NAME} ${UNIT_TEST_BASE_DIR}/${NAME})
-target_link_libraries(${NAME} PRIVATE ${SNDFILE_LIBRARIES} Qt${QT_VERSION_MAJOR}::Gui Qt${QT_VERSION_MAJOR}::Test SimpleLogger noteahead_audio_backend)
+target_link_libraries(${NAME} PRIVATE ${SNDFILE_LIBRARIES} Qt${QT_VERSION_MAJOR}::Gui Qt${QT_VERSION_MAJOR}::Network Qt${QT_VERSION_MAJOR}::Test SimpleLogger noteahead_audio_backend)

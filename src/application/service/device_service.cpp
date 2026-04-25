@@ -16,7 +16,7 @@
 #include "device_service.hpp"
 
 #include "../../common/constants.hpp"
-#include "../../domain/devices/sampler.hpp"
+#include "../../domain/devices/sampler_device.hpp"
 #include "../../infra/audio/audio_engine.hpp"
 
 #include <QStringList>
@@ -90,17 +90,17 @@ QStringList DeviceService::internalDeviceNames() const
     return names;
 }
 
-void DeviceService::setProjectPath(const QString & projectPath)
+void DeviceService::setProjectPath(const std::string & projectPath)
 {
-    if (const auto sampler = std::dynamic_pointer_cast<Sampler>(device(Constants::samplerDeviceName().toStdString())); sampler) {
-        sampler->setProjectPath(projectPath.toStdString());
+    if (const auto sampler = std::dynamic_pointer_cast<SamplerDevice>(device(Constants::samplerDeviceName().toStdString())); sampler) {
+        sampler->setProjectPath(projectPath);
     }
 }
 
 void DeviceService::serializeToXml(QXmlStreamWriter & writer) const
 {
     writer.writeStartElement(Constants::NahdXml::xmlKeyDevices());
-    if (const auto sampler = std::dynamic_pointer_cast<Sampler>(device(Constants::samplerDeviceName().toStdString())); sampler) {
+    if (const auto sampler = std::dynamic_pointer_cast<SamplerDevice>(device(Constants::samplerDeviceName().toStdString())); sampler) {
         sampler->serializeToXml(writer);
     }
     writer.writeEndElement(); // Devices
@@ -110,7 +110,7 @@ void DeviceService::deserializeFromXml(QXmlStreamReader & reader)
 {
     while (!reader.atEnd() && !(reader.isEndElement() && reader.name() == Constants::NahdXml::xmlKeyDevices())) {
         if (reader.isStartElement() && reader.name() == Constants::NahdXml::xmlKeySampler()) {
-            if (const auto sampler = std::dynamic_pointer_cast<Sampler>(device(Constants::samplerDeviceName().toStdString())); sampler) {
+            if (const auto sampler = std::dynamic_pointer_cast<SamplerDevice>(device(Constants::samplerDeviceName().toStdString())); sampler) {
                 sampler->deserializeFromXml(reader);
             }
         }

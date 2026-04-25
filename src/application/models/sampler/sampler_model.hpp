@@ -21,7 +21,7 @@
 
 namespace noteahead {
 
-class Sampler;
+class SamplerDevice;
 
 enum class SamplerRoles {
     Note = Qt::UserRole + 1,
@@ -34,8 +34,8 @@ class SamplerModel : public QAbstractListModel
     Q_OBJECT
 
 public:
-    using SamplerS = std::shared_ptr<Sampler>;
-    explicit SamplerModel(SamplerS sampler, QObject * parent = nullptr);
+    using SamplerDeviceS = std::shared_ptr<SamplerDevice>;
+    explicit SamplerModel(SamplerDeviceS sampler, QObject * parent = nullptr);
     ~SamplerModel() override;
 
     int rowCount(const QModelIndex & parent = QModelIndex()) const override;
@@ -47,7 +47,7 @@ public:
     Q_INVOKABLE void playSample(int note, double velocity);
 
 private:
-    SamplerS m_sampler;
+    SamplerDeviceS m_sampler;
 };
 
 } // namespace noteahead

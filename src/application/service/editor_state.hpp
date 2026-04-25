@@ -13,37 +13,32 @@
 // You should have received a copy of the GNU General Public License
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef AUDIO_ENGINE_HPP
-#define AUDIO_ENGINE_HPP
+#ifndef EDITOR_STATE_HPP
+#define EDITOR_STATE_HPP
 
-#include "../../domain/devices/device.hpp"
-
-#include <map>
-#include <memory>
-#include <mutex>
-#include <string>
+#include "../position.hpp"
+#include "copy_manager.hpp"
+#include <QString>
 
 namespace noteahead {
 
-class AudioEngine
+struct EditorState
 {
-public:
-    using DeviceS = std::shared_ptr<Device>;
+    Position cursorPosition;
 
-    AudioEngine();
-    ~AudioEngine();
+    QString createdDate;
+    QString currentPatternTime;
+    QString currentTime;
+    QString duration;
 
-    void addDevice(DeviceS device);
-    void removeDevice(const std::string & name);
-    DeviceS device(const std::string & name) const;
+    quint64 horizontalScrollPosition = 0;
+    quint64 songPosition = 0;
 
-    void process(float * output, uint32_t nFrames, uint32_t sampleRate);
+    CopyManager copyManager;
 
-private:
-    std::map<std::string, DeviceS> m_devices;
-    mutable std::mutex m_mutex;
+    bool isModified = false;
 };
 
 } // namespace noteahead
 
-#endif // AUDIO_ENGINE_HPP
+#endif // EDITOR_STATE_HPP

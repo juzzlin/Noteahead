@@ -13,20 +13,20 @@
 // You should have received a copy of the GNU General Public License
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef SNDFILE_BACKEND_HPP
-#define SNDFILE_BACKEND_HPP
+#ifndef SNDFILE_READER_HPP
+#define SNDFILE_READER_HPP
 
-#include "audio_file_backend.hpp"
+#include "audio_file_reader.hpp"
 
 #include <sndfile.h>
 
 namespace noteahead {
 
-class SndFileBackend : public AudioFileBackend
+class SndFileReader : public AudioFileReader
 {
 public:
-    SndFileBackend();
-    ~SndFileBackend() override;
+    SndFileReader();
+    ~SndFileReader() override;
 
     bool open(const std::string & filePath, Mode mode, Info & info) override;
     void close() override;
@@ -50,4 +50,4 @@ private:
 
 } // namespace noteahead
 
-#endif // SNDFILE_BACKEND_HPP
+#endif // SNDFILE_READER_HPP

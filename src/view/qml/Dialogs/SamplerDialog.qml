@@ -13,21 +13,27 @@
 // You should have received a copy of the GNU General Public License
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
-import QtQuick
-import QtQuick.Controls
+import QtQuick 2.15
+import QtQuick.Controls 2.15
+import QtQuick.Controls.Universal 2.15
 import QtQuick.Layouts
 import QtQuick.Dialogs
 
-import Noteahead
+import Noteahead 1.0
 
-Popup {
+Dialog {
     id: root
+    title: "<strong>" + qsTr("Sampler") + "</strong>"
     modal: true
     focus: true
-    closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutside
-    width: 500
-    height: 600
-    anchors.centerIn: Overlay.overlay
+
+    footer: DialogButtonBox {
+        Button {
+            text: qsTr("Close")
+            DialogButtonBox.buttonRole: DialogButtonBox.RejectRole
+        }
+        onRejected: root.close()
+    }
 
     background: Rectangle {
         color: "#222"
@@ -39,10 +45,10 @@ Popup {
         id: sampleFileDialog
         title: qsTr("Select Sample")
         nameFilters: [qsTr("Audio files (*.wav *.WAV)")]
-        property int noteToAssign: -1
+        property int padToAssign: -1
         onAccepted: {
-            if (noteToAssign !== -1) {
-                samplerModel.loadSample(noteToAssign, selectedFile.toString().replace("file://", ""))
+            if (padToAssign !== -1) {
+                samplerController.loadSample(padToAssign, selectedFile.toString().replace("file://", ""))
             }
         }
     }
@@ -61,9 +67,12 @@ Popup {
         }
 
         Text {
-            text: qsTr("Click to assign/play, right-click to clear")
+            text: qsTr("Click to assign or play, right-click to clear. Assignments are saved with the song project. To use the sampler, select 'Noteahead Sampler' as the port in Track Settings.")
             color: "#aaa"
             font.pointSize: 10
+            Layout.fillWidth: true
+            wrapMode: Text.Wrap
+            horizontalAlignment: Text.AlignHCenter
             Layout.alignment: Qt.AlignHCenter
         }
 
@@ -73,7 +82,7 @@ Popup {
             Layout.fillHeight: true
             cellWidth: width / 4
             cellHeight: height / 4
-            model: samplerModel
+            model: samplerController.padModel
             interactive: false
 
             delegate: Item {
@@ -92,7 +101,7 @@ Popup {
                         anchors.centerIn: parent
                         spacing: 2
                         Text {
-                            text: note
+                            text: "Note: " + noteName + " (" + note + ")"
                             color: "white"
                             font.bold: true
                             Layout.alignment: Qt.AlignHCenter
@@ -108,17 +117,18 @@ Popup {
                     MouseArea {
                         id: mouseArea
                         anchors.fill: parent
+                        cursorShape: Qt.PointingHandCursor
                         acceptedButtons: Qt.LeftButton | Qt.RightButton
                         onClicked: (mouse) => {
                             if (mouse.button === Qt.RightButton) {
                                 if (isLoaded) {
-                                    samplerModel.clearSample(index)
+                                    samplerController.clearSample(index)
                                 }
                             } else {
                                 if (isLoaded) {
-                                    samplerModel.playSample(index, 1.0)
+                                    samplerController.playSample(index, 1.0)
                                 } else {
-                                    sampleFileDialog.noteToAssign = index
+                                    sampleFileDialog.padToAssign = index
                                     sampleFileDialog.open()
                                 }
                             }
@@ -126,12 +136,6 @@ Popup {
                     }
                 }
             }
-        }
-
-        Button {
-            text: qsTr("Close")
-            Layout.alignment: Qt.AlignRight
-            onClicked: root.close()
         }
     }
 }

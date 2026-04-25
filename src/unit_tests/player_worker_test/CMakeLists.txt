@@ -9,10 +9,12 @@ set(SRC
     ../../application/service/midi_worker_in.cpp
     ../../application/service/midi_worker_out.cpp
     ../../application/service/jack_service.cpp
+    ../../application/service/device_service.cpp
     ../../application/service/midi_worker.cpp
     ../../application/instrument_request.cpp
     ../../common/constants.cpp
     ../../common/utils.cpp
+    ../../domain/devices/sampler_device.cpp
     ../../domain/event.cpp
     ../../domain/event_data.cpp
     ../../domain/instrument.cpp
@@ -23,6 +25,10 @@ set(SRC
     ../../domain/midi_note_data.cpp
     ../../domain/note_data.cpp
     ../../domain/pitch_bend_data.cpp
+    ../../infra/audio/audio_engine.cpp
+    ../../infra/audio/audio_player.cpp
+    ../../infra/audio/audio_recorder.cpp
+    ../../infra/audio/backend/sndfile_reader.cpp
     ../../infra/midi/midi_backend.cpp
     ../../infra/midi/midi_backend_in.cpp
     ../../infra/midi/midi_backend_out.cpp

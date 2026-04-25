@@ -14,7 +14,7 @@
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
 #include "sampler_test.hpp"
-#include "../../domain/devices/sampler.hpp"
+#include "../../domain/devices/sampler_device.hpp"
 #include "../../common/constants.hpp"
 
 #include <memory>
@@ -24,7 +24,7 @@ using namespace noteahead;
 
 void SamplerTest::testInitialState()
 {
-    const Sampler sampler;
+    const SamplerDevice sampler;
     QCOMPARE(sampler.name(), Constants::samplerDeviceName().toStdString());
     for (int i = 0; i < 128; i++) {
         QVERIFY(sampler.sample(static_cast<uint8_t>(i)) == nullptr);
@@ -33,7 +33,7 @@ void SamplerTest::testInitialState()
 
 void SamplerTest::testLoadAndClearSample()
 {
-    Sampler sampler;
+    SamplerDevice sampler;
     // We can't easily test loadSample without a real file on disk
     // but we can test that clearSample works (even on null)
     sampler.clearSample(60);
@@ -42,7 +42,7 @@ void SamplerTest::testLoadAndClearSample()
 
 void SamplerTest::testMidiNoteOn()
 {
-    Sampler sampler;
+    SamplerDevice sampler;
     // Without a loaded sample, note on should do nothing
     sampler.processMidiNoteOn(60, 100);
 
@@ -56,14 +56,14 @@ void SamplerTest::testMidiNoteOn()
 
 void SamplerTest::testMidiAllNotesOff()
 {
-    Sampler sampler;
+    SamplerDevice sampler;
     sampler.processMidiAllNotesOff();
     // Mostly just ensuring it doesn't crash
 }
 
 void SamplerTest::testProcessAudio()
 {
-    Sampler sampler;
+    SamplerDevice sampler;
     std::vector<float> buffer(256, 1.0f); // Pre-fill with 1.0 to check mixing
     sampler.processAudio(buffer.data(), 128, 44100);
 

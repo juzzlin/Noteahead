@@ -13,37 +13,17 @@
 // You should have received a copy of the GNU General Public License
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef AUDIO_ENGINE_HPP
-#define AUDIO_ENGINE_HPP
+#ifndef VERSION_CHECKER_TEST_HPP
+#define VERSION_CHECKER_TEST_HPP
 
-#include "../../domain/devices/device.hpp"
+#include <QObject>
 
-#include <map>
-#include <memory>
-#include <mutex>
-#include <string>
-
-namespace noteahead {
-
-class AudioEngine
+class VersionCheckerTest : public QObject
 {
-public:
-    using DeviceS = std::shared_ptr<Device>;
+    Q_OBJECT
 
-    AudioEngine();
-    ~AudioEngine();
-
-    void addDevice(DeviceS device);
-    void removeDevice(const std::string & name);
-    DeviceS device(const std::string & name) const;
-
-    void process(float * output, uint32_t nFrames, uint32_t sampleRate);
-
-private:
-    std::map<std::string, DeviceS> m_devices;
-    mutable std::mutex m_mutex;
+private slots:
+    void testIsNewerVersion();
 };
 
-} // namespace noteahead
-
-#endif // AUDIO_ENGINE_HPP
+#endif // VERSION_CHECKER_TEST_HPP

@@ -15,16 +15,19 @@
 
 #include "xml_serialization_test.hpp"
 
+#include "../../application/service/application_service.hpp"
+#include "../../application/service/audio_service.hpp"
 #include "../../application/service/automation_service.hpp"
+#include "../../application/service/editor_service.hpp"
+#include "../../application/service/jack_service.hpp"
+#include "../../application/service/mixer_service.hpp"
 #include "../../application/service/property_service.hpp"
 #include "../../application/service/selection_service.hpp"
 #include "../../application/service/settings_service.hpp"
-#include "../../application/service/editor_service.hpp"
-#include "../../application/service/mixer_service.hpp"
 #include "../../application/service/side_chain_service.hpp"
-#include "../../application/service/audio_service.hpp"
-#include "../../application/service/jack_service.hpp"
+#include "../../infra/audio/audio_engine.hpp"
 #include "../../domain/column_settings.hpp"
+
 #include "../../domain/instrument.hpp"
 #include "../../domain/note_data.hpp"
 #include "../../domain/song.hpp"
@@ -668,7 +671,7 @@ void XmlSerializationTest::test_toXmlFromXml_audioRecorder_shouldLoadAudioRecord
     const quint64 endTick = 960;
 
     auto settingsService = std::make_shared<SettingsService>();
-    auto jackService = std::make_shared<JackService>(settingsService);
+    auto jackService = std::make_shared<JackService>(settingsService, std::make_shared<AudioEngine>());
     auto audioServiceOut = std::make_shared<AudioService>(settingsService, jackService);
     audioServiceOut->setLatestRecordingInfo(fileName, startTick, endTick);
 

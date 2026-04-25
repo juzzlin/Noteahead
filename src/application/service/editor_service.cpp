@@ -37,6 +37,7 @@
 
 #include <QDateTime>
 #include <QFile>
+#include <QFileInfo>
 #include <QXmlStreamReader>
 #include <QXmlStreamWriter>
 
@@ -205,6 +206,9 @@ EditorService::SongS EditorService::deserializeProject(QXmlStreamReader & reader
         const auto automationDeserializationCallback = [this](QXmlStreamReader & reader) {
             emit automationDeserializationRequested(reader);
         };
+        const auto devicesDeserializationCallback = [this](QXmlStreamReader & reader) {
+            emit devicesDeserializationRequested(reader);
+        };
         const auto sideChainDeserializationCallback = [this](QXmlStreamReader & reader) {
             emit sideChainDeserializationRequested(reader);
         };
@@ -214,7 +218,7 @@ EditorService::SongS EditorService::deserializeProject(QXmlStreamReader & reader
         while (!(reader.isEndElement() && !reader.name().compare(Constants::NahdXml::xmlKeyProject()))) {
             if (reader.isStartElement() && !reader.name().compare(Constants::NahdXml::xmlKeySong())) {
                 song = std::make_unique<Song>();
-                song->deserializeFromXml(reader, mixerDeserializationCallback, automationDeserializationCallback, sideChainDeserializationCallback, audioRecorderDeserializationCallback);
+                song->deserializeFromXml(reader, mixerDeserializationCallback, automationDeserializationCallback, devicesDeserializationCallback, sideChainDeserializationCallback, audioRecorderDeserializationCallback);
             }
             reader.readNext();
         }
@@ -258,6 +262,7 @@ void EditorService::load(QString fileName)
     if (QFile file { fileName }; file.open(QIODevice::ReadOnly | QIODevice::Text)) {
         fromXml(file.readAll());
         m_song->setFileName(fileName.toStdString());
+        emit projectPathChanged(QFileInfo { fileName }.absolutePath().toStdString());
         const auto message = QString { "Project successfully loaded from: %1 " }.arg(fileName);
         juzzlin::L(TAG).info() << message.toStdString();
         emit statusTextRequested(message);
@@ -292,13 +297,16 @@ QString EditorService::toXml()
     const auto automationSerializationCallback = [this](QXmlStreamWriter & writer) {
         emit automationSerializationRequested(writer);
     };
+    const auto devicesSerializationCallback = [this](QXmlStreamWriter & writer) {
+        emit devicesSerializationRequested(writer);
+    };
     const auto sideChainSerializationCallback = [this](QXmlStreamWriter & writer) {
         emit sideChainSerializationRequested(writer);
     };
     const auto audioRecorderSerializationCallback = [this](QXmlStreamWriter & writer) {
         emit audioRecorderSerializationRequested(writer);
     };
-    m_song->serializeToXml(writer, mixerSerializationCallback, automationSerializationCallback, sideChainSerializationCallback, audioRecorderSerializationCallback);
+    m_song->serializeToXml(writer, mixerSerializationCallback, automationSerializationCallback, devicesSerializationCallback, sideChainSerializationCallback, audioRecorderSerializationCallback);
 
     writer.writeEndElement();
     writer.writeEndDocument();
@@ -350,6 +358,7 @@ void EditorService::saveAs(QString fileName)
     if (QFile file { fileName }; file.open(QIODevice::WriteOnly | QIODevice::Text)) {
         juzzlin::L(TAG).info() << "Saving to " << fileName.toStdString();
         file.write(toXml().toUtf8());
+        emit projectPathChanged(QFileInfo { fileName }.absolutePath().toStdString());
         const auto message = QString { "Project successfully saved to: %1 " }.arg(fileName);
         juzzlin::L(TAG).info() << message.toStdString();
         emit statusTextRequested(message);

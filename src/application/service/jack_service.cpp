@@ -16,6 +16,7 @@
 #include "jack_service.hpp"
 
 #include "../../contrib/SimpleLogger/src/simple_logger.hpp"
+#include "../../infra/audio/audio_engine.hpp"
 #include "settings_service.hpp"
 
 #include <algorithm>
@@ -25,9 +26,10 @@ namespace noteahead {
 
 static const auto TAG = "JackService";
 
-JackService::JackService(SettingsServiceS settingsService, QObject * parent)
+JackService::JackService(SettingsServiceS settingsService, AudioEngineS audioEngine, QObject * parent)
   : QObject { parent }
   , m_settingsService { settingsService }
+  , m_audioEngine { std::move(audioEngine) }
 {
     connect(m_settingsService.get(), &SettingsService::jackSyncEnabledChanged, this, &JackService::onJackSyncEnabledChanged);
 }
@@ -393,6 +395,18 @@ int JackService::processCallback(jack_nframes_t nframes, void * arg)
         auto outR = static_cast<jack_default_audio_sample_t *>(jack_port_get_buffer(self->m_outputPortR, nframes));
         std::fill_n(outL, nframes, 0.0f);
         std::fill_n(outR, nframes, 0.0f);
+    }
+
+    if (self->m_audioEngine) {
+        std::vector<float> interleaved(nframes * 2, 0.0f);
+        self->m_audioEngine->process(interleaved.data(), nframes, self->sampleRate());
+
+        auto outL = static_cast<jack_default_audio_sample_t *>(jack_port_get_buffer(self->m_outputPortL, nframes));
+        auto outR = static_cast<jack_default_audio_sample_t *>(jack_port_get_buffer(self->m_outputPortR, nframes));
+        for (jack_nframes_t i = 0; i < nframes; ++i) {
+            outL[i] += interleaved[i * 2];
+            outR[i] += interleaved[i * 2 + 1];
+        }
     }
 
     jack_position_t pos;

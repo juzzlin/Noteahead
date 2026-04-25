@@ -25,6 +25,7 @@ set(HEADER_FILES
   application/models/pitch_bend_automations_model.hpp
   application/models/recent_files_model.hpp
   application/models/track_settings_model.hpp
+  application/models/sampler/sampler_pad_model.hpp
   application/note_converter.hpp
   view/qml/Editor/note_column_renderer.hpp
   application/position.hpp
@@ -33,6 +34,7 @@ set(HEADER_FILES
   application/service/audio_worker.hpp
   application/service/automation_service.hpp
   application/service/copy_manager.hpp
+  application/service/device_service.hpp
   application/service/editor_service.hpp
   application/service/jack_service.hpp
   application/service/keyboard_service.hpp
@@ -46,6 +48,7 @@ set(HEADER_FILES
   application/service/property_service.hpp
   application/service/random_service.hpp
   application/service/recent_files_manager.hpp
+  application/service/sampler_controller.hpp
   application/service/selection_service.hpp
   application/service/settings_service.hpp
   application/service/side_chain_service.hpp
@@ -59,6 +62,8 @@ set(HEADER_FILES
   domain/arpeggiator.hpp
   domain/column.hpp
   domain/column_settings.hpp
+  domain/devices/device.hpp
+  domain/devices/sampler_device.hpp
   domain/event.hpp
   domain/event_data.hpp
   domain/instrument.hpp
@@ -82,7 +87,10 @@ set(HEADER_FILES
   domain/side_chain_settings.hpp
   domain/song.hpp
   domain/track.hpp
+  infra/audio/audio_engine.hpp
   infra/audio/audio_recorder.hpp
+  infra/audio/backend/audio_file_reader.hpp
+  infra/audio/backend/sndfile_reader.hpp
   infra/audio/implementation/jack/audio_recorder_jack.hpp
   infra/audio/implementation/librtaudio/audio_recorder_rt_audio.hpp
   infra/audio/ring_buffer.hpp
@@ -123,6 +131,8 @@ set(SOURCE_FILES
   application/models/pitch_bend_automations_model.cpp
   application/models/recent_files_model.cpp
   application/models/track_settings_model.cpp
+  application/models/sampler/sampler_model.cpp
+  application/models/sampler/sampler_pad_model.cpp
   application/note_converter.cpp
   view/qml/Editor/note_column_renderer.cpp
   application/service/application_service.cpp
@@ -130,6 +140,7 @@ set(SOURCE_FILES
   application/service/audio_worker.cpp
   application/service/automation_service.cpp
   application/service/copy_manager.cpp
+  application/service/device_service.cpp
   application/service/editor_service.cpp
   application/service/jack_service.cpp
   application/service/keyboard_service.cpp
@@ -143,6 +154,7 @@ set(SOURCE_FILES
   application/service/property_service.cpp
   application/service/random_service.cpp
   application/service/recent_files_manager.cpp
+  application/service/sampler_controller.cpp
   application/service/selection_service.cpp
   application/service/settings_service.cpp
   application/service/side_chain_service.cpp
@@ -178,8 +190,11 @@ set(SOURCE_FILES
   domain/play_order.cpp
   domain/song.cpp
   domain/track.cpp
+  domain/devices/sampler_device.cpp
+  infra/audio/audio_engine.cpp
   infra/audio/audio_recorder.cpp
   infra/audio/audio_player.cpp
+  infra/audio/backend/sndfile_reader.cpp
   infra/audio/implementation/jack/audio_recorder_jack.cpp
   infra/audio/implementation/jack/audio_player_jack.cpp
   infra/audio/implementation/librtaudio/audio_recorder_rt_audio.cpp
@@ -246,6 +261,7 @@ set(QML_SOURCE_FILES
     ${QML_BASE_DIR}/Dialogs/NoteFrequencyDialog.qml
     ${QML_BASE_DIR}/Dialogs/PitchBendAutomationModel.qml
     ${QML_BASE_DIR}/Dialogs/RecentFilesDialog.qml
+    ${QML_BASE_DIR}/Dialogs/SamplerDialog.qml
     ${QML_BASE_DIR}/Dialogs/SettingsDialog.qml
     ${QML_BASE_DIR}/Dialogs/SettingsDialog_AudioSettings.qml
     ${QML_BASE_DIR}/Dialogs/SettingsDialog_GeneralSettings.qml
@@ -289,6 +305,7 @@ set(QML_SOURCE_FILES
     ${QML_BASE_DIR}/Editor/VelocityScale.qml
     ${QML_BASE_DIR}/Editor/VolumeMeter.qml
     ${QML_BASE_DIR}/MainMenu/MainMenu.qml
+    ${QML_BASE_DIR}/MainMenu/MainMenu_Devices.qml
     ${QML_BASE_DIR}/MainMenu/MainMenu_Edit.qml
     ${QML_BASE_DIR}/MainMenu/MainMenu_File.qml
     ${QML_BASE_DIR}/MainMenu/MainMenu_Help.qml

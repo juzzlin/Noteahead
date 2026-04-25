@@ -6,6 +6,7 @@ set(SRC
     ${NAME}.cpp
     ../../application/position.hpp
     ../../application/service/automation_service.cpp
+    ../../application/service/device_service.cpp
     ../../application/service/property_service.cpp
     ../../application/service/copy_manager.cpp
     ../../application/service/mixer_service.cpp
@@ -26,6 +27,7 @@ set(SRC
     ../../domain/automation_location.cpp
     ../../domain/column.cpp
     ../../domain/column_settings.cpp
+    ../../domain/devices/sampler_device.cpp
     ../../domain/event.cpp
     ../../domain/event_data.cpp
     ../../domain/instrument.cpp
@@ -46,6 +48,10 @@ set(SRC
     ../../domain/play_order.cpp
     ../../domain/song.cpp
     ../../domain/track.cpp
+    ../../infra/audio/audio_engine.cpp
+    ../../infra/audio/audio_player.cpp
+    ../../infra/audio/audio_recorder.cpp
+    ../../infra/audio/backend/sndfile_reader.cpp
     ../../infra/midi/midi_backend.cpp
     ../../infra/midi/midi_backend_in.cpp
     ../../infra/midi/midi_backend_out.cpp

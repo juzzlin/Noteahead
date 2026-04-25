@@ -13,37 +13,37 @@
 // You should have received a copy of the GNU General Public License
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef AUDIO_ENGINE_HPP
-#define AUDIO_ENGINE_HPP
+#ifndef VERSION_CHECKER_SERVICE_HPP
+#define VERSION_CHECKER_SERVICE_HPP
 
-#include "../../domain/devices/device.hpp"
-
-#include <map>
-#include <memory>
-#include <mutex>
-#include <string>
+#include <QObject>
+#include <QString>
+#include <QNetworkAccessManager>
+#include <QNetworkReply>
 
 namespace noteahead {
 
-class AudioEngine
+class VersionCheckerService : public QObject
 {
+    Q_OBJECT
+
 public:
-    using DeviceS = std::shared_ptr<Device>;
+    explicit VersionCheckerService(QObject * parent = nullptr);
 
-    AudioEngine();
-    ~AudioEngine();
+    Q_INVOKABLE void check();
 
-    void addDevice(DeviceS device);
-    void removeDevice(const std::string & name);
-    DeviceS device(const std::string & name) const;
+    static bool isNewerVersion(const QString & currentVersion, const QString & latestVersion);
 
-    void process(float * output, uint32_t nFrames, uint32_t sampleRate);
+signals:
+    void newVersionAvailable(QString version);
+
+private slots:
+    void onReplyFinished(QNetworkReply * reply);
 
 private:
-    std::map<std::string, DeviceS> m_devices;
-    mutable std::mutex m_mutex;
+    QNetworkAccessManager m_networkAccessManager;
 };
 
 } // namespace noteahead
 
-#endif // AUDIO_ENGINE_HPP
+#endif // VERSION_CHECKER_SERVICE_HPP

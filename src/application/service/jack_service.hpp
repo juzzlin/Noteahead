@@ -28,10 +28,12 @@
 
 #include <sndfile.h>
 #include "../../infra/audio/ring_buffer.hpp"
+#include "../../infra/audio/audio_engine.hpp"
 
 namespace noteahead {
 
 class SettingsService;
+class AudioEngine;
 
 class JackService : public QObject
 {
@@ -39,7 +41,8 @@ class JackService : public QObject
 
 public:
     using SettingsServiceS = std::shared_ptr<SettingsService>;
-    explicit JackService(SettingsServiceS settingsService, QObject * parent = nullptr);
+    using AudioEngineS = std::shared_ptr<AudioEngine>;
+    explicit JackService(SettingsServiceS settingsService, AudioEngineS audioEngine, QObject * parent = nullptr);
     ~JackService() override;
 
     void initialize();
@@ -106,6 +109,7 @@ private:
     std::atomic<bool> m_isPlayingPlaybackFinished { false };
 
     SettingsServiceS m_settingsService;
+    AudioEngineS m_audioEngine;
 };
 
 } // namespace noteahead

@@ -15,6 +15,7 @@ set(SRC
     ../../application/service/audio_worker.cpp
     ../../application/service/automation_service.cpp
     ../../application/service/copy_manager.cpp
+    ../../application/service/device_service.cpp
     ../../application/service/editor_service.cpp
     ../../application/service/jack_service.cpp
     ../../application/service/keyboard_service.cpp
@@ -39,6 +40,7 @@ set(SRC
     ../../domain/automation_location.cpp
     ../../domain/column.cpp
     ../../domain/column_settings.cpp
+    ../../domain/devices/sampler_device.cpp
     ../../domain/event.cpp
     ../../domain/event_data.cpp
     ../../domain/instrument.cpp
@@ -60,8 +62,10 @@ set(SRC
     ../../domain/play_order.cpp
     ../../domain/song.cpp
     ../../domain/track.cpp
+    ../../infra/audio/audio_engine.cpp
     ../../infra/audio/audio_player.cpp
     ../../infra/audio/audio_recorder.cpp
+    ../../infra/audio/backend/sndfile_reader.cpp
     ../../infra/audio/implementation/jack/audio_player_jack.cpp
     ../../infra/audio/implementation/jack/audio_recorder_jack.cpp
     ../../infra/audio/implementation/librtaudio/audio_player_rt_audio.cpp

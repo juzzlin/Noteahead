@@ -16,7 +16,10 @@
 #ifndef DEVICE_SERVICE_HPP
 #define DEVICE_SERVICE_HPP
 
+#include "../../domain/devices/device.hpp"
+
 #include <QObject>
+#include <QStringList>
 #include <memory>
 #include <string>
 
@@ -26,7 +29,6 @@ class QXmlStreamWriter;
 namespace noteahead {
 
 class AudioEngine;
-class Device;
 
 class DeviceService : public QObject
 {
@@ -50,7 +52,7 @@ public:
 
     QStringList internalDeviceNames() const;
 
-    void setProjectPath(const QString & projectPath);
+    void setProjectPath(const std::string & projectPath);
 
     void serializeToXml(QXmlStreamWriter & writer) const;
     void deserializeFromXml(QXmlStreamReader & reader);

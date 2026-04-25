@@ -25,6 +25,7 @@
 
 namespace noteahead {
 
+class DeviceService;
 class Instrument;
 class MidiAddress;
 class MidiBackendOut;
@@ -39,7 +40,8 @@ class MidiService : public QObject
     Q_OBJECT
 
 public:
-    explicit MidiService(QObject * parent = nullptr);
+    using DeviceServiceS = std::shared_ptr<DeviceService>;
+    explicit MidiService(DeviceServiceS deviceService, QObject * parent = nullptr);
 
     ~MidiService() override;
 
@@ -103,7 +105,7 @@ signals:
     void instrumentRequestHandlingRequested(const InstrumentRequest & instrumentRequest);
 
 protected:
-    MidiService(QObject * parent, bool initializeRealWorkers);
+    MidiService(DeviceServiceS deviceService, QObject * parent, bool initializeRealWorkers);
 
 private:
     void initializeWorkers();
@@ -116,6 +118,8 @@ private:
     std::unique_ptr<MidiWorkerIn> m_inputWorker;
     QThread m_inputWorkerThread;
     QStringList m_inputPorts;
+
+    DeviceServiceS m_deviceService;
 };
 
 } // namespace noteahead

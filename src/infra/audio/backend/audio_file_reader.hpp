@@ -13,8 +13,8 @@
 // You should have received a copy of the GNU General Public License
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef AUDIO_FILE_BACKEND_HPP
-#define AUDIO_FILE_BACKEND_HPP
+#ifndef AUDIO_FILE_READER_HPP
+#define AUDIO_FILE_READER_HPP
 
 #include <cstdint>
 #include <span>
@@ -23,10 +23,10 @@
 
 namespace noteahead {
 
-class AudioFileBackend
+class AudioFileReader
 {
 public:
-    virtual ~AudioFileBackend() = default;
+    virtual ~AudioFileReader() = default;
 
     struct Info
     {
@@ -59,4 +59,4 @@ public:
 
 } // namespace noteahead
 
-#endif // AUDIO_FILE_BACKEND_HPP
+#endif // AUDIO_FILE_READER_HPP

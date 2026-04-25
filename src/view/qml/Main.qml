@@ -198,6 +198,12 @@ ApplicationWindow {
             applicationService.cancelRecentFileDialog();
         }
     }
+    SamplerDialog {
+        id: samplerDialog
+        anchors.centerIn: parent
+        width: parent.width * Constants.defaultDialogScale
+        height: parent.height * Constants.defaultDialogScale
+    }
     SettingsDialog {
         id: settingsDialog
         anchors.centerIn: parent

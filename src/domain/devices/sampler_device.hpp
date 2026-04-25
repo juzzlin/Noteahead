@@ -13,8 +13,8 @@
 // You should have received a copy of the GNU General Public License
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef SAMPLER_HPP
-#define SAMPLER_HPP
+#ifndef SAMPLER_DEVICE_HPP
+#define SAMPLER_DEVICE_HPP
 
 #include "device.hpp"
 
@@ -30,15 +30,15 @@ class QXmlStreamWriter;
 
 namespace noteahead {
 
-class AudioFileBackend;
+class AudioFileReader;
 
-class Sampler : public Device
+class SamplerDevice : public Device
 {
 public:
-    using AudioFileBackendU = std::unique_ptr<AudioFileBackend>;
+    using AudioFileReaderU = std::unique_ptr<AudioFileReader>;
 
-    explicit Sampler(AudioFileBackendU audioFileBackend = nullptr);
-    ~Sampler() override;
+    explicit SamplerDevice(AudioFileReaderU audioFileReader = nullptr);
+    ~SamplerDevice() override;
 
     std::string name() const override;
 
@@ -55,7 +55,7 @@ public:
     struct Sample
     {
         std::string filePath;
-        std::vector<float> data;
+        std::shared_ptr<const std::vector<float>> data;
         int channels = 0;
         int sampleRate = 0;
         float pan = 0.5f; // 0.0 (left) to 1.0 (right)
@@ -83,10 +83,10 @@ private:
 
     float m_globalPan = 0.5f;
     std::string m_projectPath;
-    AudioFileBackendU m_audioFileBackend;
+    AudioFileReaderU m_audioFileReader;
     static constexpr size_t MaxVoices = 32;
 };
 
 } // namespace noteahead
 
-#endif // SAMPLER_HPP
+#endif // SAMPLER_DEVICE_HPP

@@ -13,12 +13,12 @@
 // You should have received a copy of the GNU General Public License
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
-#include "sampler.hpp"
+#include "sampler_device.hpp"
 
 #include "../../common/constants.hpp"
 #include "../../common/utils.hpp"
-#include "../../infra/audio/backend/audio_file_backend.hpp"
-#include "../../infra/audio/backend/sndfile_backend.hpp"
+#include "../../infra/audio/backend/audio_file_reader.hpp"
+#include "../../infra/audio/backend/sndfile_reader.hpp"
 
 #include <algorithm>
 #include <cmath>
@@ -30,8 +30,8 @@
 
 namespace noteahead {
 
-Sampler::Sampler(AudioFileBackendU audioFileBackend)
-  : m_audioFileBackend { audioFileBackend ? std::move(audioFileBackend) : std::make_unique<SndFileBackend>() }
+SamplerDevice::SamplerDevice(AudioFileReaderU audioFileReader)
+  : m_audioFileReader { audioFileReader ? std::move(audioFileReader) : std::make_unique<SndFileReader>() }
 {
     m_voices.resize(MaxVoices);
     for (auto && sample : m_samples) {
@@ -39,14 +39,14 @@ Sampler::Sampler(AudioFileBackendU audioFileBackend)
     }
 }
 
-Sampler::~Sampler() = default;
+SamplerDevice::~SamplerDevice() = default;
 
-std::string Sampler::name() const
+std::string SamplerDevice::name() const
 {
     return Constants::samplerDeviceName().toStdString();
 }
 
-void Sampler::processMidiNoteOn(uint8_t note, uint8_t velocity)
+void SamplerDevice::processMidiNoteOn(uint8_t note, uint8_t velocity)
 {
     std::lock_guard<std::mutex> lock { m_mutex };
 
@@ -67,12 +67,12 @@ void Sampler::processMidiNoteOn(uint8_t note, uint8_t velocity)
     }
 }
 
-void Sampler::processMidiNoteOff(uint8_t)
+void SamplerDevice::processMidiNoteOff(uint8_t)
 {
     // For now, samples just play till the end, no release phase
 }
 
-void Sampler::processMidiCc(uint8_t controller, uint8_t value)
+void SamplerDevice::processMidiCc(uint8_t controller, uint8_t value)
 {
     std::lock_guard<std::mutex> lock { m_mutex };
     if (controller == 10) { // Panning
@@ -80,7 +80,7 @@ void Sampler::processMidiCc(uint8_t controller, uint8_t value)
     }
 }
 
-void Sampler::processMidiAllNotesOff()
+void SamplerDevice::processMidiAllNotesOff()
 {
     std::lock_guard<std::mutex> lock { m_mutex };
     for (auto && voice : m_voices) {
@@ -88,16 +88,16 @@ void Sampler::processMidiAllNotesOff()
     }
 }
 
-void Sampler::processAudio(float * output, uint32_t nFrames, uint32_t sampleRate)
+void SamplerDevice::processAudio(float * output, uint32_t nFrames, uint32_t sampleRate)
 {
     std::lock_guard<std::mutex> lock { m_mutex };
 
     for (auto && voice : m_voices) {
-        if (!voice.active || !voice.sample) {
+        if (!voice.active || !voice.sample || !voice.sample->data) {
             continue;
         }
 
-        const auto & sampleData = voice.sample->data;
+        const auto & sampleData = *voice.sample->data;
         const int channels = voice.sample->channels;
         const float pitchScale = static_cast<float>(voice.sample->sampleRate) / static_cast<float>(sampleRate);
 
@@ -134,7 +134,7 @@ void Sampler::processAudio(float * output, uint32_t nFrames, uint32_t sampleRate
     }
 }
 
-void Sampler::loadSample(uint8_t note, const std::string & filePath)
+void SamplerDevice::loadSample(uint8_t note, const std::string & filePath)
 {
     if (note >= 128) {
         return;
@@ -148,25 +148,50 @@ void Sampler::loadSample(uint8_t note, const std::string & filePath)
         return path;
     }();
 
-    AudioFileBackend::Info info {};
-    if (!m_audioFileBackend->open(absolutePath.toStdString(), AudioFileBackend::Mode::Read, info)) {
-        return;
+    // Check if we already have this sample loaded for another note
+    std::shared_ptr<const std::vector<float>> sharedData;
+    int channels = 0;
+    int sampleRate = 0;
+
+    {
+        std::lock_guard<std::mutex> lock { m_mutex };
+        for (const auto & s : m_samples) {
+            if (s && s->filePath == filePath) {
+                sharedData = s->data;
+                channels = s->channels;
+                sampleRate = s->sampleRate;
+                break;
+            }
+        }
+    }
+
+    if (!sharedData) {
+        AudioFileReader::Info info {};
+        if (!m_audioFileReader->open(absolutePath.toStdString(), AudioFileReader::Mode::Read, info)) {
+            return;
+        }
+
+        auto data = std::make_shared<std::vector<float>>();
+        data->resize(static_cast<size_t>(info.frames * info.channels));
+        m_audioFileReader->readFloat(std::span<float> { *data });
+        m_audioFileReader->close();
+
+        sharedData = std::move(data);
+        channels = info.channels;
+        sampleRate = info.samplerate;
     }
 
     auto sample = std::make_unique<Sample>();
     sample->filePath = filePath;
-    sample->channels = info.channels;
-    sample->sampleRate = info.samplerate;
-    sample->data.resize(static_cast<size_t>(info.frames * info.channels));
-
-    m_audioFileBackend->readFloat(std::span<float> { sample->data });
-    m_audioFileBackend->close();
+    sample->channels = channels;
+    sample->sampleRate = sampleRate;
+    sample->data = std::move(sharedData);
 
     std::lock_guard<std::mutex> lock { m_mutex };
     m_samples.at(note) = std::move(sample);
 }
 
-void Sampler::clearSample(uint8_t note)
+void SamplerDevice::clearSample(uint8_t note)
 {
     if (note >= 128) {
         return;
@@ -175,7 +200,7 @@ void Sampler::clearSample(uint8_t note)
     m_samples.at(note) = nullptr;
 }
 
-const Sampler::Sample * Sampler::sample(uint8_t note) const
+const SamplerDevice::Sample * SamplerDevice::sample(uint8_t note) const
 {
     if (note >= 128) {
         return nullptr;
@@ -183,7 +208,7 @@ const Sampler::Sample * Sampler::sample(uint8_t note) const
     return m_samples.at(note).get();
 }
 
-void Sampler::serializeToXml(QXmlStreamWriter & writer) const
+void SamplerDevice::serializeToXml(QXmlStreamWriter & writer) const
 {
     writer.writeStartElement(Constants::NahdXml::xmlKeySampler());
 
@@ -208,7 +233,7 @@ void Sampler::serializeToXml(QXmlStreamWriter & writer) const
     writer.writeEndElement(); // Sampler
 }
 
-void Sampler::deserializeFromXml(QXmlStreamReader & reader)
+void SamplerDevice::deserializeFromXml(QXmlStreamReader & reader)
 {
     while (!reader.atEnd() && !(reader.isEndElement() && reader.name() == Constants::NahdXml::xmlKeySampler())) {
         if (reader.isStartElement() && reader.name() == Constants::NahdXml::xmlKeySample()) {
@@ -222,7 +247,7 @@ void Sampler::deserializeFromXml(QXmlStreamReader & reader)
     }
 }
 
-void Sampler::setProjectPath(const std::string & projectPath)
+void SamplerDevice::setProjectPath(const std::string & projectPath)
 {
     std::lock_guard<std::mutex> lock { m_mutex };
     m_projectPath = projectPath;
