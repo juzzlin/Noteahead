@@ -126,10 +126,11 @@ Dialog {
                         anchors.fill: parent
                         cursorShape: Qt.PointingHandCursor
                         acceptedButtons: Qt.LeftButton | Qt.RightButton
+                        hoverEnabled: true
 
                         ToolTip.delay: Constants.toolTipDelay
                         ToolTip.timeout: Constants.toolTipTimeout
-                        ToolTip.visible: isLoaded && hovered
+                        ToolTip.visible: isLoaded && containsMouse
                         ToolTip.text: filePath
 
                         onClicked: (mouse) => {
