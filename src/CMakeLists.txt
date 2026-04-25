@@ -190,6 +190,7 @@ set(SOURCE_FILES
   domain/play_order.cpp
   domain/song.cpp
   domain/track.cpp
+  domain/devices/device.cpp
   domain/devices/sampler_device.cpp
   infra/audio/audio_engine.cpp
   infra/audio/audio_recorder.cpp

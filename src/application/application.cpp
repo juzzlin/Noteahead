@@ -323,6 +323,10 @@ void Application::connectDeviceService()
     connect(m_editorService.get(), &EditorService::devicesSerializationRequested, m_deviceService.get(), &DeviceService::serializeToXml);
     connect(m_editorService.get(), &EditorService::devicesDeserializationRequested, m_deviceService.get(), &DeviceService::deserializeFromXml);
     connect(m_editorService.get(), &EditorService::projectPathChanged, m_deviceService.get(), &DeviceService::setProjectPath);
+
+    connect(m_deviceService.get(), &DeviceService::dataChanged, this, [this]() {
+        m_editorService->setIsModified(true);
+    });
 }
 
 void Application::connectAudioService()

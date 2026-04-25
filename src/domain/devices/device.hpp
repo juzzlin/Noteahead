@@ -16,14 +16,18 @@
 #ifndef DEVICE_HPP
 #define DEVICE_HPP
 
+#include <QObject>
+
+#include <cstdint>
 #include <string>
 #include <vector>
-#include <cstdint>
 
 namespace noteahead {
 
-class Device
+class Device : public QObject
 {
+    Q_OBJECT
+
 public:
     virtual ~Device() = default;
 
@@ -36,6 +40,9 @@ public:
 
     //! Process audio buffer. output is interleaved stereo.
     virtual void processAudio(float * output, uint32_t nFrames, uint32_t sampleRate) = 0;
+
+signals:
+    void dataChanged();
 };
 
 } // namespace noteahead

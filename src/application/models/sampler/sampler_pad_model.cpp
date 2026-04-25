@@ -9,7 +9,7 @@ SamplerPadModel::SamplerPadModel(std::shared_ptr<SamplerDevice> sampler, QObject
   , m_sampler { std::move(sampler) }
 {
     if (m_sampler) {
-        connect(m_sampler.get(), &SamplerDevice::samplesChanged, this, [this]() {
+        connect(m_sampler.get(), &SamplerDevice::dataChanged, this, [this]() {
             emit dataChanged(index(0), index(PadCount - 1), { NoteName, FilePath, IsLoaded });
         });
     }

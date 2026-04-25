@@ -19,6 +19,7 @@ set(SRC
     ../../common/constants.cpp
     ../../common/utils.cpp
     ../../domain/column.cpp
+    ../../domain/devices/device.cpp
     ../../domain/devices/sampler_device.cpp
     ../../domain/instrument.cpp
     ../../domain/instrument_settings.cpp

@@ -35,6 +35,7 @@ DeviceService::~DeviceService() = default;
 
 void DeviceService::registerDevice(DeviceS device)
 {
+    connect(device.get(), &Device::dataChanged, this, &DeviceService::dataChanged);
     m_audioEngine->addDevice(std::move(device));
 }
 
@@ -116,6 +117,7 @@ void DeviceService::deserializeFromXml(QXmlStreamReader & reader)
         }
         reader.readNext();
     }
+    emit dataChanged();
 }
 
 } // namespace noteahead

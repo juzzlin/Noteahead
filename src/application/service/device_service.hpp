@@ -57,6 +57,9 @@ public:
     void serializeToXml(QXmlStreamWriter & writer) const;
     void deserializeFromXml(QXmlStreamReader & reader);
 
+signals:
+    void dataChanged();
+
 private:
     AudioEngineS m_audioEngine;
 };
