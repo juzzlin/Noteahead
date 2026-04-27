@@ -139,192 +139,208 @@ Dialog {
 
         RowLayout {
             Layout.fillWidth: true
-            Layout.leftMargin: 20
-            Layout.rightMargin: 20
-            spacing: 10
-            Label {
-                text: qsTr("Pan:")
-                color: "white"
-            }
-            Slider {
-                id: panSlider
-                Layout.fillWidth: true
-                from: -100
-                to: 100
-                stepSize: 1
-                value: (samplerController.selectedPadPan * 200) - 100
-                onMoved: {
-                    samplerController.selectedPadPan = (value + 100) / 200
-                }
-                
-                handle: Rectangle {
-                    x: panSlider.leftPadding + panSlider.visualPosition * (panSlider.availableWidth - width)
-                    y: panSlider.topPadding + panSlider.availableHeight / 2 - height / 2
-                    implicitWidth: 20
-                    implicitHeight: 20
-                    radius: 10
-                    color: panSlider.pressed ? "#f0f0f0" : "#f6f6f6"
-                    border.color: "#bdbebf"
-                }
-            }
-            Label {
-                Layout.preferredWidth: 40
-                text: (panSlider.value > 0 ? "+" : "") + Math.round(panSlider.value) + "%"
-                color: "white"
-                horizontalAlignment: Text.AlignRight
-            }
-        }
-
-        RowLayout {
-            Layout.fillWidth: true
-            Layout.leftMargin: 20
-            Layout.rightMargin: 20
-            spacing: 10
-            Label {
-                text: qsTr("Volume:")
-                color: "white"
-            }
-            Slider {
-                id: volumeSlider
-                Layout.fillWidth: true
-                from: 0
-                to: 100
-                stepSize: 1
-                value: samplerController.selectedPadVolume * 100
-                onMoved: {
-                    samplerController.selectedPadVolume = value / 100
-                }
-                
-                handle: Rectangle {
-                    x: volumeSlider.leftPadding + volumeSlider.visualPosition * (volumeSlider.availableWidth - width)
-                    y: volumeSlider.topPadding + volumeSlider.availableHeight / 2 - height / 2
-                    implicitWidth: 20
-                    implicitHeight: 20
-                    radius: 10
-                    color: volumeSlider.pressed ? "#f0f0f0" : "#f6f6f6"
-                    border.color: "#bdbebf"
-                }
-            }
-            Label {
-                Layout.preferredWidth: 40
-                text: Math.round(volumeSlider.value) + "%"
-                color: "white"
-                horizontalAlignment: Text.AlignRight
-            }
-        }
-
-        RowLayout {
-            Layout.fillWidth: true
-            Layout.leftMargin: 20
-            Layout.rightMargin: 20
-            spacing: 10
-            Label {
-                text: qsTr("Cutoff:")
-                color: "white"
-            }
-            Slider {
-                id: cutoffSlider
-                Layout.fillWidth: true
-                from: 0
-                to: 100
-                stepSize: 1
-                value: samplerController.selectedPadCutoff * 100
-                onMoved: {
-                    samplerController.selectedPadCutoff = value / 100
-                }
-                
-                handle: Rectangle {
-                    x: cutoffSlider.leftPadding + cutoffSlider.visualPosition * (cutoffSlider.availableWidth - width)
-                    y: cutoffSlider.topPadding + cutoffSlider.availableHeight / 2 - height / 2
-                    implicitWidth: 20
-                    implicitHeight: 20
-                    radius: 10
-                    color: cutoffSlider.pressed ? "#f0f0f0" : "#f6f6f6"
-                    border.color: "#bdbebf"
-                }
-            }
-            Label {
-                Layout.preferredWidth: 40
-                text: Math.round(cutoffSlider.value) + "%"
-                color: "white"
-                horizontalAlignment: Text.AlignRight
-            }
-        }
-
-        GridView {
-            id: padGrid
-            Layout.fillWidth: true
             Layout.fillHeight: true
-            cellWidth: width / 4
-            cellHeight: height / 4
-            model: samplerController.padModel
-            interactive: false
+            spacing: 20
 
-            delegate: Item {
-                width: padGrid.cellWidth
-                height: padGrid.cellHeight
+            GridView {
+                id: padGrid
+                Layout.fillWidth: true
+                Layout.fillHeight: true
+                Layout.preferredWidth: parent.width * 0.66
+                cellWidth: width / 4
+                cellHeight: height / 4
+                model: samplerController.padModel
+                interactive: false
 
-                Rectangle {
-                    anchors.fill: parent
-                    anchors.margins: 8
-                    radius: 12
-                    color: isLoaded ? "#228822" : "#882222"
-                    border.color: samplerController.selectedPad === index ? themeService.accentColor : (mouseArea.pressed ? "white" : "#555")
-                    border.width: samplerController.selectedPad === index ? 3 : 2
+                delegate: Item {
+                    width: padGrid.cellWidth
+                    height: padGrid.cellHeight
 
-                    ColumnLayout {
-                        anchors.centerIn: parent
-                        spacing: 2
-                        Text {
-                            text: "Note: " + noteName + " (" + note + ")"
-                            color: "white"
-                            font.bold: true
-                            Layout.alignment: Qt.AlignHCenter
+                    Rectangle {
+                        anchors.fill: parent
+                        anchors.margins: 8
+                        radius: 12
+                        color: isLoaded ? "#228822" : "#882222"
+                        border.color: samplerController.selectedPad === index ? themeService.accentColor : (mouseArea.pressed ? "white" : "#555")
+                        border.width: samplerController.selectedPad === index ? 3 : 2
+
+                        ColumnLayout {
+                            anchors.centerIn: parent
+                            spacing: 2
+                            Text {
+                                text: "Note: " + noteName + " (" + note + ")"
+                                color: "white"
+                                font.bold: true
+                                Layout.alignment: Qt.AlignHCenter
+                            }
+                            Text {
+                                text: isLoaded ? "LOADED" : "EMPTY"
+                                color: "white"
+                                font.pointSize: 8
+                                Layout.alignment: Qt.AlignHCenter
+                            }
                         }
-                        Text {
-                            text: isLoaded ? "LOADED" : "EMPTY"
-                            color: "white"
-                            font.pointSize: 8
-                            Layout.alignment: Qt.AlignHCenter
+
+                        MouseArea {
+                            id: mouseArea
+                            anchors.fill: parent
+                            cursorShape: Qt.PointingHandCursor
+                            acceptedButtons: Qt.LeftButton | Qt.RightButton
+                            hoverEnabled: true
+
+                            ToolTip.delay: Constants.toolTipDelay
+                            ToolTip.timeout: Constants.toolTipTimeout
+                            ToolTip.visible: isLoaded && containsMouse
+                            ToolTip.text: filePath
+
+                            onPressed: (mouse) => {
+                                samplerController.selectedPad = index;
+                                if (mouse.button === Qt.LeftButton) {
+                                    if (isLoaded) {
+                                        samplerController.playSample(index, 1.0)
+                                    } else {
+                                        sampleFileDialog.padToAssign = index
+                                        sampleFileDialog.open()
+                                    }
+                                }
+                            }
+
+                            onReleased: (mouse) => {
+                                if (mouse.button === Qt.LeftButton && isLoaded) {
+                                    samplerController.stopSample(index)
+                                }
+                            }
+
+                            onClicked: (mouse) => {
+                                if (mouse.button === Qt.RightButton) {
+                                    if (isLoaded) {
+                                        samplerController.clearSample(index)
+                                    }
+                                }
+                            }
                         }
                     }
+                }
+            }
 
-                    MouseArea {
-                        id: mouseArea
-                        anchors.fill: parent
-                        cursorShape: Qt.PointingHandCursor
-                        acceptedButtons: Qt.LeftButton | Qt.RightButton
-                        hoverEnabled: true
+            ColumnLayout {
+                Layout.fillWidth: true
+                Layout.preferredWidth: parent.width * 0.33
+                Layout.alignment: Qt.AlignTop
+                spacing: 15
 
-                        ToolTip.delay: Constants.toolTipDelay
-                        ToolTip.timeout: Constants.toolTipTimeout
-                        ToolTip.visible: isLoaded && containsMouse
-                        ToolTip.text: filePath
-
-                        onPressed: (mouse) => {
-                            samplerController.selectedPad = index;
-                            if (mouse.button === Qt.LeftButton) {
-                                if (isLoaded) {
-                                    samplerController.playSample(index, 1.0)
-                                } else {
-                                    sampleFileDialog.padToAssign = index
-                                    sampleFileDialog.open()
-                                }
-                            }
+                // Pan Slider
+                ColumnLayout {
+                    Layout.fillWidth: true
+                    Label {
+                        text: qsTr("Pan: ") + (panSlider.value > 0 ? "+" : "") + Math.round(panSlider.value) + "%"
+                        color: "white"
+                    }
+                    Slider {
+                        id: panSlider
+                        Layout.fillWidth: true
+                        from: -100
+                        to: 100
+                        stepSize: 1
+                        value: (samplerController.selectedPadPan * 200) - 100
+                        onMoved: {
+                            samplerController.selectedPadPan = (value + 100) / 200
                         }
-
-                        onReleased: (mouse) => {
-                            if (mouse.button === Qt.LeftButton && isLoaded) {
-                                samplerController.stopSample(index)
-                            }
+                        handle: Rectangle {
+                            x: panSlider.leftPadding + panSlider.visualPosition * (panSlider.availableWidth - width)
+                            y: panSlider.topPadding + panSlider.availableHeight / 2 - height / 2
+                            implicitWidth: 16
+                            implicitHeight: 16
+                            radius: 8
+                            color: panSlider.pressed ? "#f0f0f0" : "#f6f6f6"
+                            border.color: "#bdbebf"
                         }
+                    }
+                }
 
-                        onClicked: (mouse) => {
-                            if (mouse.button === Qt.RightButton) {
-                                if (isLoaded) {
-                                    samplerController.clearSample(index)
-                                }
-                            }
+                // Volume Slider
+                ColumnLayout {
+                    Layout.fillWidth: true
+                    Label {
+                        text: qsTr("Volume: ") + Math.round(volumeSlider.value) + "%"
+                        color: "white"
+                    }
+                    Slider {
+                        id: volumeSlider
+                        Layout.fillWidth: true
+                        from: 0
+                        to: 100
+                        stepSize: 1
+                        value: samplerController.selectedPadVolume * 100
+                        onMoved: {
+                            samplerController.selectedPadVolume = value / 100
+                        }
+                        handle: Rectangle {
+                            x: volumeSlider.leftPadding + volumeSlider.visualPosition * (volumeSlider.availableWidth - width)
+                            y: volumeSlider.topPadding + volumeSlider.availableHeight / 2 - height / 2
+                            implicitWidth: 16
+                            implicitHeight: 16
+                            radius: 8
+                            color: volumeSlider.pressed ? "#f0f0f0" : "#f6f6f6"
+                            border.color: "#bdbebf"
+                        }
+                    }
+                }
+
+                // LPF Cutoff Slider
+                ColumnLayout {
+                    Layout.fillWidth: true
+                    Label {
+                        text: qsTr("LPF Cutoff: ") + Math.round(cutoffSlider.value) + "%"
+                        color: "white"
+                    }
+                    Slider {
+                        id: cutoffSlider
+                        Layout.fillWidth: true
+                        from: 0
+                        to: 100
+                        stepSize: 1
+                        value: samplerController.selectedPadCutoff * 100
+                        onMoved: {
+                            samplerController.selectedPadCutoff = value / 100
+                        }
+                        handle: Rectangle {
+                            x: cutoffSlider.leftPadding + cutoffSlider.visualPosition * (cutoffSlider.availableWidth - width)
+                            y: cutoffSlider.topPadding + cutoffSlider.availableHeight / 2 - height / 2
+                            implicitWidth: 16
+                            implicitHeight: 16
+                            radius: 8
+                            color: cutoffSlider.pressed ? "#f0f0f0" : "#f6f6f6"
+                            border.color: "#bdbebf"
+                        }
+                    }
+                }
+
+                // HPF Cutoff Slider
+                ColumnLayout {
+                    Layout.fillWidth: true
+                    Label {
+                        text: qsTr("HPF Cutoff: ") + Math.round(hpfCutoffSlider.value) + "%"
+                        color: "white"
+                    }
+                    Slider {
+                        id: hpfCutoffSlider
+                        Layout.fillWidth: true
+                        from: 0
+                        to: 100
+                        stepSize: 1
+                        value: samplerController.selectedPadHpfCutoff * 100
+                        onMoved: {
+                            samplerController.selectedPadHpfCutoff = value / 100
+                        }
+                        handle: Rectangle {
+                            x: hpfCutoffSlider.leftPadding + hpfCutoffSlider.visualPosition * (hpfCutoffSlider.availableWidth - width)
+                            y: hpfCutoffSlider.topPadding + hpfCutoffSlider.availableHeight / 2 - height / 2
+                            implicitWidth: 16
+                            implicitHeight: 16
+                            radius: 8
+                            color: hpfCutoffSlider.pressed ? "#f0f0f0" : "#f6f6f6"
+                            border.color: "#bdbebf"
                         }
                     }
                 }

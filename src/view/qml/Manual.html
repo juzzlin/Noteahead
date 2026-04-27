@@ -163,9 +163,23 @@
     <li><strong>Pads</strong>: The sampler features 16 pads, mapped to MIDI notes 36 to 51.</li>
     <li><strong>Loading Samples</strong>: Click an empty pad to open a file dialog and select a WAV file. Once loaded, the pad will turn green.</li>
     <li><strong>Playback</strong>: Press and hold a pad to play the sample, and release to stop. In the sequencer, use the corresponding MIDI note to trigger the sample.</li>
-    <li><strong>Panning</strong>: Each pad has its own base <strong>Pan</strong> setting (-100% to +100%). This can be adjusted using the slider below the waveform view.</li>
-    <li><strong>Volume</strong>: Each pad has its own base <strong>Volume</strong> setting (0-100%). This can be adjusted using the slider below the pan slider.</li>
-    <li><strong>Automation</strong>: The Sampler supports real-time <strong>MIDI CC 7 (Volume)</strong> and <strong>MIDI CC 10 (Pan)</strong> automation. Volume automation multiplies the pad's base volume, while pan automation is added to the pad's base pan setting.</li>
+    <li><strong>Panning</strong>: Each pad has its own base <strong>Pan</strong> setting (-100% to +100%). This can be adjusted using the slider on the right side of the pads.</li>
+    <li><strong>Volume</strong>: Each pad has its own base <strong>Volume</strong> setting (0-100%).</li>
+    <li><strong>Filters</strong>: Each pad features dual filters:
+        <ul>
+            <li><strong>LPF Cutoff</strong>: Low-pass filter (0-100%, 100% is fully open).</li>
+            <li><strong>HPF Cutoff</strong>: High-pass filter (0-100%, 0% is fully open).</li>
+        </ul>
+    </li>
+    <li><strong>Automation</strong>: The Sampler supports real-time MIDI CC automation:
+        <ul>
+            <li><strong>CC 7</strong>: Volume.</li>
+            <li><strong>CC 10</strong>: Pan.</li>
+            <li><strong>CC 74</strong>: LPF Cutoff.</li>
+            <li><strong>CC 81</strong>: HPF Cutoff.</li>
+        </ul>
+        In "Channel Mode", CCs on channel 1 affect pad 1, channel 2 affects pad 2, and so on.
+    </li>
     <li><strong>Management</strong>: <strong>Right-click</strong> a loaded pad to clear its assignment.</li>
 </ul>
 

@@ -84,6 +84,7 @@ QString xmlKeyController();
 QString xmlKeyEnabled();
 
 QString xmlKeyCutoff();
+QString xmlKeyHpfCutoff();
 
 QString xmlKeyDelay();
 QString xmlKeyMidiDelayEnabled();

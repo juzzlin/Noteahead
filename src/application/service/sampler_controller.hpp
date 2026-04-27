@@ -34,6 +34,7 @@ class SamplerController : public QObject
     Q_PROPERTY(double selectedPadPan READ selectedPadPan WRITE setSelectedPadPan NOTIFY selectedPadPanChanged)
     Q_PROPERTY(double selectedPadVolume READ selectedPadVolume WRITE setSelectedPadVolume NOTIFY selectedPadVolumeChanged)
     Q_PROPERTY(double selectedPadCutoff READ selectedPadCutoff WRITE setSelectedPadCutoff NOTIFY selectedPadCutoffChanged)
+    Q_PROPERTY(double selectedPadHpfCutoff READ selectedPadHpfCutoff WRITE setSelectedPadHpfCutoff NOTIFY selectedPadHpfCutoffChanged)
     Q_PROPERTY(bool channelMode READ channelMode WRITE setChannelMode NOTIFY channelModeChanged)
 
 public:
@@ -58,6 +59,9 @@ public:
     double selectedPadCutoff() const;
     void setSelectedPadCutoff(double cutoff);
 
+    double selectedPadHpfCutoff() const;
+    void setSelectedPadHpfCutoff(double cutoff);
+
     bool channelMode() const;
     void setChannelMode(bool enabled);
 
@@ -80,6 +84,7 @@ signals:
     void selectedPadPanChanged();
     void selectedPadVolumeChanged();
     void selectedPadCutoffChanged();
+    void selectedPadHpfCutoffChanged();
     void channelModeChanged();
 
 private:

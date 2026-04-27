@@ -59,7 +59,8 @@ public:
         int sampleRate = 0;
         float pan = 0.5f; // 0.0 (left) to 1.0 (right)
         float volume = 1.0f; // 0.0 to 1.0
-        float cutoff = 1.0f; // 0.0 to 1.0
+        float cutoff = 1.0f; // LPF cutoff: 0.0 to 1.0
+        float hpfCutoff = 0.0f; // HPF cutoff: 0.0 to 1.0
     };
 
     void loadSample(uint8_t note, const std::string & filePath);
@@ -75,6 +76,9 @@ public:
 
     float sampleCutoff(uint8_t note) const;
     void setSampleCutoff(uint8_t note, float cutoff);
+
+    float sampleHpfCutoff(uint8_t note) const;
+    void setSampleHpfCutoff(uint8_t note, float cutoff);
 
     bool channelMode() const;
     void setChannelMode(bool enabled);
@@ -97,8 +101,13 @@ private:
         float pan = 0.5f;
         float volume = 1.0f;
         float cutoff = 1.0f;
+        float hpfCutoff = 0.0f;
+        // LPF SVF state
         float lpL = 0.0f, hpL = 0.0f, bpL = 0.0f;
         float lpR = 0.0f, hpR = 0.0f, bpR = 0.0f;
+        // HPF SVF state
+        float hpfLpL = 0.0f, hpfHpL = 0.0f, hpfBpL = 0.0f;
+        float hpfLpR = 0.0f, hpfHpR = 0.0f, hpfBpR = 0.0f;
         bool active = false;
         bool releasing = false;
         float releaseGain = 1.0f;
@@ -112,6 +121,7 @@ private:
     float m_globalPan = 0.5f;
     float m_globalVolume = 1.0f;
     float m_globalCutoff = 1.0f;
+    float m_globalHpfCutoff = 0.0f;
     bool m_channelMode = false;
     std::string m_projectPath;
     AudioFileReaderU m_audioFileReader;

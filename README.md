@@ -80,7 +80,8 @@ All Arctic Music Project songs:
   - Internal sampler instrument with 16 assignable pads
   - Supports loading WAV samples
   - Per-sample panning (-100% to +100%) and volume (0-100%)
-  - Full MIDI CC automation support (Volume CC 7, Pan CC 10)
+  - Dual filters: Low-pass and High-pass
+  - Full MIDI CC automation support (Volume CC 7, Pan CC 10, LPF Cutoff CC 74, HPF Cutoff CC 81)
   - High-quality linear interpolation resampling
 - Sends MIDI clock pulse and Start/Stop on desired ports
 - MIDI side-chain (since 1.2.0)

@@ -234,6 +234,11 @@ QString xmlKeyCutoff()
     return "cutoff";
 }
 
+QString xmlKeyHpfCutoff()
+{
+    return "hpfCutoff";
+}
+
 QString xmlKeyDelay()
 {
     return "delay";

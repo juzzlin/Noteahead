@@ -73,8 +73,11 @@ void SamplerDevice::processMidiNoteOn(uint8_t note, uint8_t velocity)
             voice.pan = m_globalPan;
             voice.volume = m_globalVolume;
             voice.cutoff = m_globalCutoff;
+            voice.hpfCutoff = m_globalHpfCutoff;
             voice.lpL = voice.hpL = voice.bpL = 0.0f;
             voice.lpR = voice.hpR = voice.bpR = 0.0f;
+            voice.hpfLpL = voice.hpfHpL = voice.hpfBpL = 0.0f;
+            voice.hpfLpR = voice.hpfHpR = voice.hpfBpR = 0.0f;
             voice.releasing = false;
             voice.releaseGain = 1.0f;
             voice.active = true;
@@ -105,8 +108,10 @@ void SamplerDevice::processMidiCc(uint8_t controller, uint8_t value, uint8_t cha
                 m_samples.at(note)->pan = static_cast<float>(value) / 127.0f;
             } else if (controller == 7) { // Volume
                 m_samples.at(note)->volume = static_cast<float>(value) / 127.0f;
-            } else if (controller == 74) { // Cutoff
+            } else if (controller == 74) { // Cutoff (LPF)
                 m_samples.at(note)->cutoff = static_cast<float>(value) / 127.0f;
+            } else if (controller == 81) { // General Purpose 6 (HPF)
+                m_samples.at(note)->hpfCutoff = static_cast<float>(value) / 127.0f;
             }
             // Update active voices for this specific note
             for (auto && voice : m_voices) {
@@ -117,6 +122,8 @@ void SamplerDevice::processMidiCc(uint8_t controller, uint8_t value, uint8_t cha
                         voice.volume = m_samples.at(note)->volume;
                     } else if (controller == 74) {
                         voice.cutoff = m_samples.at(note)->cutoff;
+                    } else if (controller == 81) {
+                        voice.hpfCutoff = m_samples.at(note)->hpfCutoff;
                     }
                 }
             }
@@ -138,12 +145,20 @@ void SamplerDevice::processMidiCc(uint8_t controller, uint8_t value, uint8_t cha
                     voice.volume = m_globalVolume;
                 }
             }
-        } else if (controller == 74) { // Cutoff
+        } else if (controller == 74) { // Cutoff (LPF)
             m_globalCutoff = static_cast<float>(value) / 127.0f;
             // Update all active voices' cutoff
             for (auto && voice : m_voices) {
                 if (voice.active) {
                     voice.cutoff = m_globalCutoff;
+                }
+            }
+        } else if (controller == 81) { // General Purpose 6 (HPF)
+            m_globalHpfCutoff = static_cast<float>(value) / 127.0f;
+            // Update all active voices' hpfCutoff
+            for (auto && voice : m_voices) {
+                if (voice.active) {
+                    voice.hpfCutoff = m_globalHpfCutoff;
                 }
             }
         }
@@ -202,12 +217,11 @@ void SamplerDevice::processAudio(float * output, uint32_t nFrames, uint32_t samp
             }
 
             // Low-pass filter (Chamberlin SVF)
-            const float combinedCutoff = voice.sample->cutoff * voice.cutoff;
+            const float combinedCutoff = std::clamp(voice.sample->cutoff + (voice.cutoff - 1.0f), 0.0f, 1.0f);
             if (combinedCutoff < 0.999f) {
-                // Logarithmic mapping: 20Hz to 20kHz
                 const float freq = 20.0f * std::pow(std::min(20000.0f, sampleRate * 0.49f) / 20.0f, combinedCutoff);
                 const float f = 2.0f * std::sin(static_cast<float>(M_PI) * freq / static_cast<float>(sampleRate));
-                const float q = 0.5f; // Neutral resonance
+                const float q = 0.5f;
 
                 // Left
                 voice.hpL = left - voice.lpL - q * voice.bpL;
@@ -220,6 +234,26 @@ void SamplerDevice::processAudio(float * output, uint32_t nFrames, uint32_t samp
                 voice.bpR += f * voice.hpR;
                 voice.lpR += f * voice.bpR;
                 right = voice.lpR;
+            }
+
+            // High-pass filter (Chamberlin SVF)
+            const float combinedHpfCutoff = std::clamp(voice.sample->hpfCutoff + voice.hpfCutoff, 0.0f, 1.0f);
+            if (combinedHpfCutoff > 0.001f) {
+                const float freq = 20.0f * std::pow(std::min(20000.0f, sampleRate * 0.49f) / 20.0f, combinedHpfCutoff);
+                const float f = 2.0f * std::sin(static_cast<float>(M_PI) * freq / static_cast<float>(sampleRate));
+                const float q = 0.5f;
+
+                // Left
+                voice.hpfHpL = left - voice.hpfLpL - q * voice.hpfBpL;
+                voice.hpfBpL += f * voice.hpfHpL;
+                voice.hpfLpL += f * voice.hpfBpL;
+                left = voice.hpfHpL;
+
+                // Right
+                voice.hpfHpR = right - voice.hpfLpR - q * voice.hpfBpR;
+                voice.hpfBpR += f * voice.hpfHpR;
+                voice.hpfLpR += f * voice.hpfBpR;
+                right = voice.hpfHpR;
             }
 
             // Apply de-clicking fade if releasing
@@ -285,6 +319,7 @@ void SamplerDevice::loadSample(uint8_t note, const std::string & filePath)
     sample->sampleRate = info.samplerate;
     sample->data = std::move(data);
     sample->cutoff = 1.0f;
+    sample->hpfCutoff = 0.0f;
 
     std::lock_guard<std::mutex> lock { m_mutex };
     m_samples.at(note) = std::move(sample);
@@ -386,6 +421,27 @@ void SamplerDevice::setSampleCutoff(uint8_t note, float cutoff)
     }
 }
 
+float SamplerDevice::sampleHpfCutoff(uint8_t note) const
+{
+    std::lock_guard<std::mutex> lock { m_mutex };
+    if (note >= 128 || !m_samples.at(note)) {
+        return 0.0f;
+    }
+    return m_samples.at(note)->hpfCutoff;
+}
+
+void SamplerDevice::setSampleHpfCutoff(uint8_t note, float cutoff)
+{
+    if (note >= 128) {
+        return;
+    }
+    std::lock_guard<std::mutex> lock { m_mutex };
+    if (m_samples.at(note)) {
+        m_samples.at(note)->hpfCutoff = std::clamp(cutoff, 0.0f, 1.0f);
+        emit dataChanged();
+    }
+}
+
 bool SamplerDevice::channelMode() const
 {
     std::lock_guard<std::mutex> lock { m_mutex };
@@ -449,6 +505,7 @@ void SamplerDevice::serializeToXml(QXmlStreamWriter & writer) const
             writer.writeAttribute(Constants::NahdXml::xmlKeyPan(), QString::number(std::round((s->pan * 200.0f) - 100.0f)));
             writer.writeAttribute(Constants::NahdXml::xmlKeyVolume(), QString::number(std::round(s->volume * 100.0f)));
             writer.writeAttribute(Constants::NahdXml::xmlKeyCutoff(), QString::number(std::round(s->cutoff * 100.0f)));
+            writer.writeAttribute(Constants::NahdXml::xmlKeyHpfCutoff(), QString::number(std::round(s->hpfCutoff * 100.0f)));
             writer.writeEndElement();
         }
     }
@@ -475,6 +532,7 @@ void SamplerDevice::deserializeFromXml(QXmlStreamReader & reader)
             const auto pan = Utils::Xml::readIntAttribute(reader, Constants::NahdXml::xmlKeyPan(), false);
             const auto volume = Utils::Xml::readIntAttribute(reader, Constants::NahdXml::xmlKeyVolume(), false);
             const auto cutoff = Utils::Xml::readIntAttribute(reader, Constants::NahdXml::xmlKeyCutoff(), false);
+            const auto hpfCutoff = Utils::Xml::readIntAttribute(reader, Constants::NahdXml::xmlKeyHpfCutoff(), false);
             if (note.has_value()) {
                 loadSample(static_cast<uint8_t>(note.value()), path.toStdString());
                 if (pan.has_value()) {
@@ -485,6 +543,9 @@ void SamplerDevice::deserializeFromXml(QXmlStreamReader & reader)
                 }
                 if (cutoff.has_value()) {
                     setSampleCutoff(static_cast<uint8_t>(note.value()), static_cast<float>(cutoff.value()) / 100.0f);
+                }
+                if (hpfCutoff.has_value()) {
+                    setSampleHpfCutoff(static_cast<uint8_t>(note.value()), static_cast<float>(hpfCutoff.value()) / 100.0f);
                 }
             }
         }
