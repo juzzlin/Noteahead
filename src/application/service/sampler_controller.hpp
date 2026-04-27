@@ -33,6 +33,7 @@ class SamplerController : public QObject
     Q_PROPERTY(bool isFinished READ isFinished NOTIFY isFinishedChanged)
     Q_PROPERTY(double selectedPadPan READ selectedPadPan WRITE setSelectedPadPan NOTIFY selectedPadPanChanged)
     Q_PROPERTY(double selectedPadVolume READ selectedPadVolume WRITE setSelectedPadVolume NOTIFY selectedPadVolumeChanged)
+    Q_PROPERTY(double selectedPadCutoff READ selectedPadCutoff WRITE setSelectedPadCutoff NOTIFY selectedPadCutoffChanged)
     Q_PROPERTY(bool channelMode READ channelMode WRITE setChannelMode NOTIFY channelModeChanged)
 
 public:
@@ -53,6 +54,9 @@ public:
 
     double selectedPadVolume() const;
     void setSelectedPadVolume(double volume);
+
+    double selectedPadCutoff() const;
+    void setSelectedPadCutoff(double cutoff);
 
     bool channelMode() const;
     void setChannelMode(bool enabled);
@@ -75,6 +79,7 @@ signals:
     void isFinishedChanged();
     void selectedPadPanChanged();
     void selectedPadVolumeChanged();
+    void selectedPadCutoffChanged();
     void channelModeChanged();
 
 private:

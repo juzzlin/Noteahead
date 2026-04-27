@@ -54,6 +54,7 @@ QVariantList PropertyService::getAvailableMidiControllers(const QString & portNa
     if (!portName.isEmpty() && portName == Constants::samplerDeviceName()) {
         addController(7);  // Volume
         addController(10); // Pan
+        addController(74); // Cutoff
         return list;
     }
 

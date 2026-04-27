@@ -196,6 +196,34 @@ void SamplerTest::testVolume()
     QVERIFY(qAbs(buffer[1] - expected) < 0.0001f);
 }
 
+void SamplerTest::testCutoff()
+{
+    SamplerDevice sampler(std::make_unique<MockAudioFileReader>());
+    sampler.loadSample(60, "test.wav");
+    
+    // Default cutoff is 1.0 (fully open)
+    QCOMPARE(sampler.sampleCutoff(60), 1.0f);
+    
+    // Set base cutoff
+    sampler.setSampleCutoff(60, 0.5f);
+    QCOMPARE(sampler.sampleCutoff(60), 0.5f);
+    
+    // MIDI CC 74 (Cutoff) interaction
+    sampler.setSampleCutoff(60, 1.0f);
+    sampler.processMidiCc(74, 64, 0); // MIDI Cutoff approx 0.5
+    
+    std::vector<float> buffer(4, 0.0f);
+    sampler.processMidiNoteOn(60, 127);
+    sampler.processAudio(buffer.data(), 2, 44100);
+    
+    // With cutoff at ~0.5, signal should be filtered. 
+    // Since MockAudioFileReader returns 1.0f (DC), the filter will eventually 
+    // settle to 1.0f if it's purely low-pass.
+    // We just verify it's not zero and the logic executes.
+    QVERIFY(buffer[0] > 0.0f);
+    QVERIFY(buffer[1] > 0.0f);
+}
+
 void SamplerTest::testChannelMode()
 {
     SamplerDevice sampler(std::make_unique<MockAudioFileReader>());

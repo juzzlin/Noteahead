@@ -39,6 +39,7 @@ void SamplerController::setSelectedPad(int selectedPad)
         emit isFinishedChanged();
         emit selectedPadPanChanged();
         emit selectedPadVolumeChanged();
+        emit selectedPadCutoffChanged();
     }
 }
 
@@ -90,6 +91,22 @@ void SamplerController::setSelectedPadVolume(double volume)
     }
 }
 
+double SamplerController::selectedPadCutoff() const
+{
+    if (!m_sampler || m_selectedPad < 0) {
+        return 1.0;
+    }
+    return static_cast<double>(m_sampler->sampleCutoff(static_cast<uint8_t>(36 + m_selectedPad)));
+}
+
+void SamplerController::setSelectedPadCutoff(double cutoff)
+{
+    if (m_sampler && m_selectedPad >= 0) {
+        m_sampler->setSampleCutoff(static_cast<uint8_t>(36 + m_selectedPad), static_cast<float>(cutoff));
+        emit selectedPadCutoffChanged();
+    }
+}
+
 bool SamplerController::channelMode() const
 {
     if (!m_sampler) {
@@ -129,6 +146,7 @@ void SamplerController::initialize()
         emit isFinishedChanged();
         emit selectedPadPanChanged();
         emit selectedPadVolumeChanged();
+        emit selectedPadCutoffChanged();
     }
     emit channelModeChanged();
 }

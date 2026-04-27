@@ -213,6 +213,44 @@ Dialog {
             }
         }
 
+        RowLayout {
+            Layout.fillWidth: true
+            Layout.leftMargin: 20
+            Layout.rightMargin: 20
+            spacing: 10
+            Label {
+                text: qsTr("Cutoff:")
+                color: "white"
+            }
+            Slider {
+                id: cutoffSlider
+                Layout.fillWidth: true
+                from: 0
+                to: 100
+                stepSize: 1
+                value: samplerController.selectedPadCutoff * 100
+                onMoved: {
+                    samplerController.selectedPadCutoff = value / 100
+                }
+                
+                handle: Rectangle {
+                    x: cutoffSlider.leftPadding + cutoffSlider.visualPosition * (cutoffSlider.availableWidth - width)
+                    y: cutoffSlider.topPadding + cutoffSlider.availableHeight / 2 - height / 2
+                    implicitWidth: 20
+                    implicitHeight: 20
+                    radius: 10
+                    color: cutoffSlider.pressed ? "#f0f0f0" : "#f6f6f6"
+                    border.color: "#bdbebf"
+                }
+            }
+            Label {
+                Layout.preferredWidth: 40
+                text: Math.round(cutoffSlider.value) + "%"
+                color: "white"
+                horizontalAlignment: Text.AlignRight
+            }
+        }
+
         GridView {
             id: padGrid
             Layout.fillWidth: true

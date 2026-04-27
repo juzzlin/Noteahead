@@ -32,6 +32,7 @@ private slots:
     void testMidiAllNotesOff();
     void testPan();
     void testVolume();
+    void testCutoff();
     void testChannelMode();
     void testProcessAudio();
 };

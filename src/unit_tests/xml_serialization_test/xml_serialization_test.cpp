@@ -714,6 +714,7 @@ void XmlSerializationTest::test_toXmlFromXml_samplerDevice_shouldLoadSamplerDevi
     samplerOut->loadSample(60, fileName);
     samplerOut->setSamplePan(60, 0.75f);
     samplerOut->setSampleVolume(60, 0.8f);
+    samplerOut->setSampleCutoff(60, 0.4f);
     deviceServiceOut.registerDevice(samplerOut);
 
     EditorService editorServiceOut { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
@@ -742,6 +743,8 @@ void XmlSerializationTest::test_toXmlFromXml_samplerDevice_shouldLoadSamplerDevi
     QVERIFY(xml.contains("pan=\"50\""));
     QCOMPARE(sample->volume, 0.8f);
     QVERIFY(xml.contains("volume=\"80\""));
+    QCOMPARE(sample->cutoff, 0.4f);
+    QVERIFY(xml.contains("cutoff=\"40\""));
 }
 
 void XmlSerializationTest::test_fromXml_samplerDevice_missingId_shouldNotThrow()

@@ -55,6 +55,8 @@ void SamplerDevice::processMidiNoteOn(uint8_t note, uint8_t velocity)
     }
 
     // Stop any existing voices playing the same note (monophonic per note for now)
+    // For de-clicking, we immediately stop it and let the new one start
+    // A better way would be to let it finish its fade, but we need to find a free voice instead.
     for (auto && voice : m_voices) {
         if (voice.active && voice.note == note) {
             voice.active = false;
@@ -70,6 +72,11 @@ void SamplerDevice::processMidiNoteOn(uint8_t note, uint8_t velocity)
             voice.velocity = static_cast<float>(velocity) / 127.0f;
             voice.pan = m_globalPan;
             voice.volume = m_globalVolume;
+            voice.cutoff = m_globalCutoff;
+            voice.lpL = voice.hpL = voice.bpL = 0.0f;
+            voice.lpR = voice.hpR = voice.bpR = 0.0f;
+            voice.releasing = false;
+            voice.releaseGain = 1.0f;
             voice.active = true;
             return;
         }
@@ -80,8 +87,8 @@ void SamplerDevice::processMidiNoteOff(uint8_t note)
 {
     std::lock_guard<std::mutex> lock { m_mutex };
     for (auto && voice : m_voices) {
-        if (voice.active && voice.note == note) {
-            voice.active = false;
+        if (voice.active && voice.note == note && !voice.releasing) {
+            voice.releasing = true;
         }
     }
 }
@@ -98,6 +105,8 @@ void SamplerDevice::processMidiCc(uint8_t controller, uint8_t value, uint8_t cha
                 m_samples.at(note)->pan = static_cast<float>(value) / 127.0f;
             } else if (controller == 7) { // Volume
                 m_samples.at(note)->volume = static_cast<float>(value) / 127.0f;
+            } else if (controller == 74) { // Cutoff
+                m_samples.at(note)->cutoff = static_cast<float>(value) / 127.0f;
             }
             // Update active voices for this specific note
             for (auto && voice : m_voices) {
@@ -106,6 +115,8 @@ void SamplerDevice::processMidiCc(uint8_t controller, uint8_t value, uint8_t cha
                         voice.pan = m_samples.at(note)->pan;
                     } else if (controller == 7) {
                         voice.volume = m_samples.at(note)->volume;
+                    } else if (controller == 74) {
+                        voice.cutoff = m_samples.at(note)->cutoff;
                     }
                 }
             }
@@ -127,6 +138,14 @@ void SamplerDevice::processMidiCc(uint8_t controller, uint8_t value, uint8_t cha
                     voice.volume = m_globalVolume;
                 }
             }
+        } else if (controller == 74) { // Cutoff
+            m_globalCutoff = static_cast<float>(value) / 127.0f;
+            // Update all active voices' cutoff
+            for (auto && voice : m_voices) {
+                if (voice.active) {
+                    voice.cutoff = m_globalCutoff;
+                }
+            }
         }
     }
 }
@@ -135,13 +154,17 @@ void SamplerDevice::processMidiAllNotesOff()
 {
     std::lock_guard<std::mutex> lock { m_mutex };
     for (auto && voice : m_voices) {
-        voice.active = false;
+        if (voice.active) {
+            voice.releasing = true;
+        }
     }
 }
 
 void SamplerDevice::processAudio(float * output, uint32_t nFrames, uint32_t sampleRate)
 {
     std::lock_guard<std::mutex> lock { m_mutex };
+
+    const float fadeStep = 1.0f / 256.0f; // ~5ms fade at 48k
 
     for (auto && voice : m_voices) {
         if (!voice.active || !voice.sample || !voice.sample->data) {
@@ -176,6 +199,40 @@ void SamplerDevice::processAudio(float * output, uint32_t nFrames, uint32_t samp
                 const float r1 = sampleData.at((index + 1) * 2 + 1);
                 left = l0 + (l1 - l0) * fract;
                 right = r0 + (r1 - r0) * fract;
+            }
+
+            // Low-pass filter (Chamberlin SVF)
+            const float combinedCutoff = voice.sample->cutoff * voice.cutoff;
+            if (combinedCutoff < 0.999f) {
+                // Logarithmic mapping: 20Hz to 20kHz
+                const float freq = 20.0f * std::pow(std::min(20000.0f, sampleRate * 0.49f) / 20.0f, combinedCutoff);
+                const float f = 2.0f * std::sin(static_cast<float>(M_PI) * freq / static_cast<float>(sampleRate));
+                const float q = 0.5f; // Neutral resonance
+
+                // Left
+                voice.hpL = left - voice.lpL - q * voice.bpL;
+                voice.bpL += f * voice.hpL;
+                voice.lpL += f * voice.bpL;
+                left = voice.lpL;
+
+                // Right
+                voice.hpR = right - voice.lpR - q * voice.bpR;
+                voice.bpR += f * voice.hpR;
+                voice.lpR += f * voice.bpR;
+                right = voice.lpR;
+            }
+
+            // Apply de-clicking fade if releasing
+            if (voice.releasing) {
+                left *= voice.releaseGain;
+                right *= voice.releaseGain;
+                voice.releaseGain -= fadeStep;
+                if (voice.releaseGain <= 0.0f) {
+                    voice.active = false;
+                    voice.releasing = false;
+                    // Move to next voice since this one is done
+                    break;
+                }
             }
 
             // Apply velocity, voice base pan, and current MIDI CC pan
@@ -227,6 +284,7 @@ void SamplerDevice::loadSample(uint8_t note, const std::string & filePath)
     sample->channels = info.channels;
     sample->sampleRate = info.samplerate;
     sample->data = std::move(data);
+    sample->cutoff = 1.0f;
 
     std::lock_guard<std::mutex> lock { m_mutex };
     m_samples.at(note) = std::move(sample);
@@ -307,6 +365,27 @@ void SamplerDevice::setSampleVolume(uint8_t note, float volume)
     }
 }
 
+float SamplerDevice::sampleCutoff(uint8_t note) const
+{
+    std::lock_guard<std::mutex> lock { m_mutex };
+    if (note >= 128 || !m_samples.at(note)) {
+        return 1.0f;
+    }
+    return m_samples.at(note)->cutoff;
+}
+
+void SamplerDevice::setSampleCutoff(uint8_t note, float cutoff)
+{
+    if (note >= 128) {
+        return;
+    }
+    std::lock_guard<std::mutex> lock { m_mutex };
+    if (m_samples.at(note)) {
+        m_samples.at(note)->cutoff = std::clamp(cutoff, 0.0f, 1.0f);
+        emit dataChanged();
+    }
+}
+
 bool SamplerDevice::channelMode() const
 {
     std::lock_guard<std::mutex> lock { m_mutex };
@@ -369,6 +448,7 @@ void SamplerDevice::serializeToXml(QXmlStreamWriter & writer) const
             writer.writeAttribute(Constants::NahdXml::xmlKeySamplePath(), path);
             writer.writeAttribute(Constants::NahdXml::xmlKeyPan(), QString::number(std::round((s->pan * 200.0f) - 100.0f)));
             writer.writeAttribute(Constants::NahdXml::xmlKeyVolume(), QString::number(std::round(s->volume * 100.0f)));
+            writer.writeAttribute(Constants::NahdXml::xmlKeyCutoff(), QString::number(std::round(s->cutoff * 100.0f)));
             writer.writeEndElement();
         }
     }
@@ -394,6 +474,7 @@ void SamplerDevice::deserializeFromXml(QXmlStreamReader & reader)
             const auto path = reader.attributes().value(Constants::NahdXml::xmlKeySamplePath()).toString();
             const auto pan = Utils::Xml::readIntAttribute(reader, Constants::NahdXml::xmlKeyPan(), false);
             const auto volume = Utils::Xml::readIntAttribute(reader, Constants::NahdXml::xmlKeyVolume(), false);
+            const auto cutoff = Utils::Xml::readIntAttribute(reader, Constants::NahdXml::xmlKeyCutoff(), false);
             if (note.has_value()) {
                 loadSample(static_cast<uint8_t>(note.value()), path.toStdString());
                 if (pan.has_value()) {
@@ -401,6 +482,9 @@ void SamplerDevice::deserializeFromXml(QXmlStreamReader & reader)
                 }
                 if (volume.has_value()) {
                     setSampleVolume(static_cast<uint8_t>(note.value()), static_cast<float>(volume.value()) / 100.0f);
+                }
+                if (cutoff.has_value()) {
+                    setSampleCutoff(static_cast<uint8_t>(note.value()), static_cast<float>(cutoff.value()) / 100.0f);
                 }
             }
         }
