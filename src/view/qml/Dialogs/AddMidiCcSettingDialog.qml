@@ -10,6 +10,7 @@ Dialog {
     modal: true
     title: "<strong>" + qsTr("Add MIDI CC Setting") + "</strong>"
     standardButtons: Dialog.Ok | Dialog.Cancel
+    property string portName: ""
     ColumnLayout {
         width: parent.width
         spacing: 10
@@ -18,6 +19,7 @@ Dialog {
         }
         MidiCcComboBox {
             id: controllerComboBox
+            portName: rootItem.portName
             Layout.fillWidth: true
         }
         Label {

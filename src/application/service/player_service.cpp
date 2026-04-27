@@ -18,6 +18,7 @@
 #include "../../contrib/SimpleLogger/src/simple_logger.hpp"
 #include "../../domain/song.hpp"
 #include "jack_service.hpp"
+#include "midi_service.hpp"
 #include "player_worker.hpp"
 #include "settings_service.hpp"
 
@@ -36,11 +37,12 @@ PlayerService::PlayerService(
   JackServiceS jackService,
   QObject * parent)
   : QObject { parent }
-  , m_automationService { automationService }
-  , m_settingsService { settingsService }
-  , m_sideChainService { sideChainService }
-  , m_jackService { jackService }
-  , m_playerWorker { std::make_unique<PlayerWorker>(midiService, mixerService, jackService) }
+  , m_midiService { std::move(midiService) }
+  , m_automationService { std::move(automationService) }
+  , m_settingsService { std::move(settingsService) }
+  , m_sideChainService { std::move(sideChainService) }
+  , m_jackService { std::move(jackService) }
+  , m_playerWorker { std::make_unique<PlayerWorker>(m_midiService, std::move(mixerService), m_jackService) }
 {
     initializeWorker();
     connect(m_jackService.get(), &JackService::bpmChanged, this, [this]() {
@@ -97,6 +99,7 @@ void PlayerService::initializeWorkerWithSongData()
 void PlayerService::startWorker()
 {
     juzzlin::L(TAG).debug() << "Starting playback";
+    m_midiService->stopAllNotes();
     QMetaObject::invokeMethod(m_playerWorker.get(), "play", Qt::QueuedConnection);
 }
 

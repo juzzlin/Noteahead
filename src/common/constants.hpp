@@ -41,6 +41,8 @@ size_t defaultTrackCount();
 int transposeMin();
 int transposeMax();
 
+QString samplerDeviceName();
+
 namespace NahdXml {
 
 QString xmlKeyFileFormatVersion();
@@ -82,6 +84,7 @@ QString xmlKeyController();
 QString xmlKeyEnabled();
 
 QString xmlKeyCutoff();
+QString xmlKeyHpfCutoff();
 
 QString xmlKeyDelay();
 QString xmlKeyMidiDelayEnabled();
@@ -198,6 +201,12 @@ QString xmlKeySourceTrack();
 QString xmlKeySideChain();
 QString xmlKeySideChainTarget();
 QString xmlKeySideChainSettings();
+
+QString xmlKeyDevices();
+QString xmlKeySampler();
+QString xmlKeySample();
+QString xmlKeySamplePath();
+QString xmlKeyChannelMode();
 
 QString xmlValueFalse();
 QString xmlValueTrue();

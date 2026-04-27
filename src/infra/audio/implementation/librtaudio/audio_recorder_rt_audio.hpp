@@ -32,7 +32,7 @@ namespace noteahead {
 class AudioRecorderRtAudio : public AudioRecorder
 {
 public:
-    explicit AudioRecorderRtAudio(RtAudio::Api api = RtAudio::UNSPECIFIED);
+    explicit AudioRecorderRtAudio(AudioEngineS audioEngine = nullptr, RtAudio::Api api = RtAudio::UNSPECIFIED);
     ~AudioRecorderRtAudio() override;
 
     void start(const std::string & fileName, uint32_t bufferSize) override;
@@ -51,7 +51,7 @@ private:
                               RtAudioStreamStatus status, void * userData);
 
     void initializeSoundFile(const std::string & fileName, uint32_t sampleRate, uint32_t channelCount);
-    void initializeSoundStream(uint32_t deviceId, uint32_t channelCount, uint32_t sampleRate, uint32_t bufferSize);
+    uint32_t initializeSoundStream(uint32_t deviceId, uint32_t channelCount, uint32_t sampleRate, uint32_t bufferSize);
     void diskWriteLoop();
 
     RtAudio m_rtAudio;

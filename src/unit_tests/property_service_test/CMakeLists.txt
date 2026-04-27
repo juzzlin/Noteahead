@@ -4,6 +4,7 @@ set(SRC
     ${NAME}.cpp
     ${NAME}.hpp
     ../../application/service/property_service.cpp
+    ../../common/constants.cpp
     ../../infra/midi/midi_cc_mapping.cpp
 )
 qt_add_executable(${NAME} ${SRC})

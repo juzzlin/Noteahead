@@ -6,6 +6,14 @@ import "../Components"
 Menu {
     title: qsTr("Song")
     width: rootItem.width
+    Menu {
+        title: qsTr("Devices")
+        Action {
+            text: qsTr("Sampler...")
+            onTriggered: UiService.requestSamplerDialog()
+        }
+    }
+    MenuSeparator {}
     Action {
         text: qsTr("Transpose <b>+1</b> semitones")
         enabled: !UiService.isPlaying()

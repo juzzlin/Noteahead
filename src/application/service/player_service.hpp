@@ -93,6 +93,7 @@ private:
 
     SongS m_song;
 
+    MidiServiceS m_midiService;
     AutomationServiceS m_automationService;
     SettingsServiceS m_settingsService;
     SideChainServiceS m_sideChainService;

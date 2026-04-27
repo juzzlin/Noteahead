@@ -198,6 +198,12 @@ ApplicationWindow {
             applicationService.cancelRecentFileDialog();
         }
     }
+    SamplerDialog {
+        id: samplerDialog
+        anchors.centerIn: parent
+        width: parent.width * Constants.defaultDialogScale
+        height: parent.height * Constants.defaultDialogScale
+    }
     SettingsDialog {
         id: settingsDialog
         anchors.centerIn: parent
@@ -294,6 +300,7 @@ ApplicationWindow {
     }
     AddMidiCcAutomationDialog {
         id: addMidiCcAutomationDialog
+        portName: editorService.instrumentPortName(editorService.position.track)
         anchors.centerIn: parent
         width: parent.width * Constants.defaultDialogScale
         onAccepted: {
@@ -410,6 +417,7 @@ ApplicationWindow {
             uiLogger.info(_tag, "Settings focus on editor view");
             _editorView.focus = true;
         });
+        UiService.samplerDialogRequested.connect(samplerDialog.open);
         UiService.recentFilesDialogRequested.connect(recentFilesDialog.open);
         UiService.settingsDialogRequested.connect(settingsDialog.open);
         UiService.columnSettingsDialogRequested.connect((trackIndex, columnIndex) => {
@@ -468,6 +476,7 @@ ApplicationWindow {
         UiService.lineAddMidiCcAutomationDialogRequested.connect(() => {
             midiCcAutomationsModel.linesPerBeat = editorService.linesPerBeat;
             addMidiCcAutomationDialog.setTitle(qsTr("Add MIDI CC automation"));
+            addMidiCcAutomationDialog.setPortName(editorService.instrumentPortName(editorService.position.track));
             addMidiCcAutomationDialog.setStartLine(editorService.position.line);
             addMidiCcAutomationDialog.setEndLine(editorService.position.line);
             addMidiCcAutomationDialog.setStartValue(100);
@@ -480,6 +489,7 @@ ApplicationWindow {
         UiService.columnAddMidiCcAutomationDialogRequested.connect(() => {
             midiCcAutomationsModel.linesPerBeat = editorService.linesPerBeat;
             addMidiCcAutomationDialog.setTitle(qsTr("Add MIDI CC automation"));
+            addMidiCcAutomationDialog.setPortName(editorService.instrumentPortName(editorService.position.track));
             addMidiCcAutomationDialog.setStartLine(0);
             addMidiCcAutomationDialog.setEndLine(editorService.currentLineCount - 1);
             addMidiCcAutomationDialog.setStartValue(0);
@@ -492,6 +502,7 @@ ApplicationWindow {
         UiService.selectionAddMidiCcAutomationDialogRequested.connect(() => {
             midiCcAutomationsModel.linesPerBeat = editorService.linesPerBeat;
             addMidiCcAutomationDialog.setTitle(qsTr("Add MIDI CC automation"));
+            addMidiCcAutomationDialog.setPortName(editorService.instrumentPortName(editorService.position.track));
             addMidiCcAutomationDialog.setStartLine(selectionService.minLine());
             addMidiCcAutomationDialog.setEndLine(selectionService.maxLine());
             addMidiCcAutomationDialog.setStartValue(0);

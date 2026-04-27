@@ -17,7 +17,10 @@
 
 namespace noteahead {
 
-AudioRecorder::AudioRecorder() = default;
+AudioRecorder::AudioRecorder(AudioEngineS audioEngine)
+  : m_audioEngine { std::move(audioEngine) }
+{
+}
 
 AudioRecorder::~AudioRecorder() = default;
 

@@ -3,6 +3,7 @@ import QtQuick.Controls 2.15
 import QtQuick.Controls.Universal 2.15
 import QtQuick.Layouts 1.15
 import ".."
+import "../Components"
 
 Rectangle {
     id: rootItem
@@ -24,20 +25,20 @@ Rectangle {
     Connections {
         target: themeService
         function onAccentColorChanged() {
-            canvas.requestPaint();
+            waveform.requestPaint();
         }
     }
 
     function requestWaveform() {
         if (width > 0) {
-            const availableWidth = canvasContainer.width;
+            const availableWidth = waveform.width - 12;
             if (availableWidth > 0) {
                 const data = audioService.getWaveformData(availableWidth);
                 waveformData = data || [];
-                canvas.requestPaint();
+                waveform.requestPaint();
             } else {
                 waveformData = [];
-                canvas.requestPaint();
+                waveform.requestPaint();
             }
         }
     }
@@ -62,28 +63,24 @@ Rectangle {
         spacing: 6
 
         Item {
-            id: canvasContainer
             Layout.fillWidth: true
             Layout.fillHeight: true
             opacity: !UiService.isPlaying() ? 1.0 : 0.5
 
-            MouseArea {
+            WaveformView {
+                id: waveform
                 anchors.fill: parent
-                hoverEnabled: true
-                enabled: !UiService.isPlaying()
-                acceptedButtons: Qt.LeftButton | Qt.RightButton
-                cursorShape: audioService.latestRecordingFileName && !audioService.isRecording && !UiService.isPlaying() ? Qt.PointingHandCursor : Qt.ArrowCursor
-                onClicked: mouse => {
-                    if (mouse.button === Qt.RightButton) {
-                        contextMenu.popup();
-                    } else if (mouse.button === Qt.LeftButton) {
-                        const totalTicks = editorService.totalTicks();
-                        if (audioService.latestRecordingFileName && !audioService.isRecording && totalTicks > 0) {
-                            const pos = mouse.x / width;
-                            audioService.playbackPosition = pos;
+                waveformData: rootItem.waveformData
+                playbackPosition: audioService.playbackPosition
+                showPlayhead: audioService.latestRecordingFileName && !audioService.isRecording
+                fileName: audioService.latestRecordingFileName ? audioService.latestRecordingFileName.split("/").pop() : ""
+                visible: !audioService.isRecording
 
-                            // Seek main sequencer
-                            // Calculate target tick based on the actual recorded range
+                onSeekRequested: pos => {
+                    if (!audioService.isRecording && !UiService.isPlaying()) {
+                        const totalTicks = editorService.totalTicks();
+                        if (audioService.latestRecordingFileName && totalTicks > 0) {
+                            audioService.playbackPosition = pos;
                             const startTick = audioService.latestRecordingStartTick;
                             const endTick = audioService.latestRecordingEndTick;
                             const recordedTicks = (endTick > startTick) ? (endTick - startTick) : 0;
@@ -95,55 +92,16 @@ Rectangle {
                         }
                     }
                 }
-            }
 
-            Canvas {
-                id: canvas
-                anchors.fill: parent
-                visible: !audioService.isRecording
-                onPaint: {
-                    const ctx = getContext("2d");
-                    ctx.clearRect(0, 0, width, height);
-
-                    if (!rootItem.waveformData || rootItem.waveformData.length === 0)
-                        return;
-
-                    let maxPeak = 0;
-                    for (let i = 0; i < rootItem.waveformData.length; i++) {
-                        maxPeak = Math.max(maxPeak, rootItem.waveformData[i]);
-                    }
-
-                    ctx.strokeStyle = themeService.accentColor;
-                    ctx.lineWidth = 1;
-                    ctx.beginPath();
-
-                    const midY = height / 2;
-                    const len = rootItem.waveformData.length;
-                    const stepX = width / len;
-
-                    for (let i = 0; i < len; i++) {
-                        let val = rootItem.waveformData[i];
-                        if (maxPeak > 0) {
-                            val /= maxPeak;
+                MouseArea {
+                    anchors.fill: parent
+                    acceptedButtons: Qt.RightButton
+                    onClicked: mouse => {
+                        if (mouse.button === Qt.RightButton) {
+                            contextMenu.popup();
                         }
-                        const x = i * stepX;
-                        const h = val * height * 0.9;
-
-                        ctx.moveTo(x, midY - h / 2);
-                        ctx.lineTo(x, midY + h / 2);
                     }
-                    ctx.stroke();
                 }
-            }
-
-            Rectangle {
-                id: playhead
-                width: 2
-                height: parent.height
-                color: "white"
-                opacity: 0.8
-                x: audioService.playbackPosition * (parent.width - width)
-                visible: audioService.latestRecordingFileName && !audioService.isRecording
             }
 
             Text {
@@ -153,16 +111,6 @@ Rectangle {
                 font.pixelSize: rootItem.height * 0.5
                 font.bold: true
                 visible: audioService.isRecording
-            }
-
-            Text {
-                anchors.left: parent.left
-                anchors.bottom: parent.bottom
-                anchors.margins: 4
-                text: audioService.latestRecordingFileName ? audioService.latestRecordingFileName.split("/").pop() : ""
-                color: "white"
-                font.pixelSize: 10
-                visible: text !== "" && !audioService.isRecording
             }
         }
 

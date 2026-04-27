@@ -8,8 +8,12 @@ Dialog {
     id: rootItem
     modal: true
     standardButtons: Dialog.Ok | Dialog.Cancel
+    property string portName: ""
     function setTitle(text: var): void {
         title = `<strong>${text}</strong>`;
+    }
+    function setPortName(name: string): void {
+        portName = name;
     }
     function controller(): var {
         return model.controller();
@@ -90,5 +94,6 @@ Dialog {
 
     contentItem: MidiCcAutomationModel {
         id: model
+        portName: rootItem.portName
     }
 }

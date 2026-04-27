@@ -5,6 +5,7 @@ import QtQuick.Layouts
 
 Item {
     id: rootItem
+    property string portName: ""
     function controller(): int {
         return midiCcSelector.controller();
     }
@@ -105,6 +106,7 @@ Item {
             Layout.fillWidth: true
             MidiCcSelector {
                 id: midiCcSelector
+                portName: rootItem.portName
                 Component.onCompleted: {
                     showEnabled = false;
                     showValue = false;

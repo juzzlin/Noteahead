@@ -36,10 +36,12 @@ class Argengine;
 namespace noteahead {
 
 class ApplicationService;
+class AudioEngine;
 class AudioService;
 class AudioSettingsModel;
 class AutomationService;
 class ColumnSettingsModel;
+class DeviceService;
 class EditorService;
 class EventSelectionModel;
 class Instrument;
@@ -58,6 +60,7 @@ class PlayerService;
 class PropertyService;
 class RecentFilesManager;
 class RecentFilesModel;
+class SamplerController;
 class SelectionService;
 class SettingsService;
 class SideChainService;
@@ -88,6 +91,7 @@ private:
 
     void connectServices();
     void connectApplicationService();
+    void connectDeviceService();
     void connectAudioService();
     void connectAutomationService();
     void connectEditorService();
@@ -135,6 +139,10 @@ private:
     std::shared_ptr<AutomationService> m_automationService;
 
     std::shared_ptr<EditorService> m_editorService;
+
+    std::shared_ptr<AudioEngine> m_audioEngine;
+    std::shared_ptr<DeviceService> m_deviceService;
+    std::shared_ptr<SamplerController> m_samplerController;
 
     std::shared_ptr<JackService> m_jackService;
 
