@@ -15,6 +15,7 @@
 
 #include "property_service.hpp"
 
+#include "../../common/constants.hpp"
 #include "../../infra/midi/midi_cc_mapping.hpp"
 
 #include <QVariantMap>
@@ -28,8 +29,14 @@ PropertyService::PropertyService(QObject * parent)
 
 QVariantList PropertyService::availableMidiControllers() const
 {
+    return getAvailableMidiControllers();
+}
+
+QVariantList PropertyService::getAvailableMidiControllers(const QString & portName) const
+{
     QVariantList list;
-    for (uint8_t i { 0 }; i < 128; ++i) {
+
+    const auto addController = [&](uint8_t i) {
         QString name { MidiCcMapping::controllerToString(static_cast<MidiCcMapping::Controller>(i)) };
         if (name == "Undefined") {
             name = QString { "%1" }.arg(i);
@@ -42,6 +49,16 @@ QVariantList PropertyService::availableMidiControllers() const
             { "minValue", 0 },
             { "maxValue", 127 }
         });
+    };
+
+    if (!portName.isEmpty() && portName == Constants::samplerDeviceName()) {
+        addController(7);  // Volume
+        addController(10); // Pan
+        return list;
+    }
+
+    for (uint8_t i { 0 }; i < 128; ++i) {
+        addController(i);
     }
     return list;
 }

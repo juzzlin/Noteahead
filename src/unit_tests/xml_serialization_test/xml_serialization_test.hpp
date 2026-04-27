@@ -53,6 +53,8 @@ private slots:
     void test_toXmlFromXml_songProperties();
     void test_toXmlFromXml_trackName_shouldLoadTrackName();
     void test_toXmlFromXml_trackDrumTrack_shouldLoadTrackDrumTrack();
+    void test_toXmlFromXml_samplerDevice_shouldLoadSamplerDevice();
+    void test_fromXml_samplerDevice_missingId_shouldNotThrow();
 
     void test_toXmlFromXml_differentSongs_shouldLoadSongs();
     void test_toXmlFromXml_template_shouldLoadTemplate();

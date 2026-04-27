@@ -281,6 +281,7 @@ public:
 
     using InstrumentS = std::shared_ptr<Instrument>;
     virtual InstrumentS instrument(quint64 trackIndex) const;
+    virtual Q_INVOKABLE QString instrumentPortName(quint64 trackIndex) const;
     virtual void setInstrument(quint64 trackIndex, InstrumentS instrument);
     using InstrumentList = std::vector<std::pair<quint64, InstrumentS>>;
     virtual InstrumentList instruments() const;
@@ -341,6 +342,8 @@ signals:
 
     void automationSerializationRequested(QXmlStreamWriter & xmlStreamWriter);
     void automationDeserializationRequested(QXmlStreamReader & xmlStreamReader);
+    void devicesSerializationRequested(QXmlStreamWriter & xmlStreamWriter);
+    void devicesDeserializationRequested(QXmlStreamReader & xmlStreamReader);
     void mixerSerializationRequested(QXmlStreamWriter & xmlStreamWriter);
     void mixerDeserializationRequested(QXmlStreamReader & xmlStreamReader);
     void sideChainSerializationRequested(QXmlStreamWriter & xmlStreamWriter);
@@ -353,6 +356,7 @@ signals:
     void songPositionChanged(quint64 position); // For the play order widget
     void patternCreated(quint64 patternIndex);
     void positionChanged(const Position & newPosition, const Position & oldPosition);
+    void projectPathChanged(const std::string & projectPath);
 
     void scrollBarHandleSizeChanged();
     void scrollBarStepSizeChanged();

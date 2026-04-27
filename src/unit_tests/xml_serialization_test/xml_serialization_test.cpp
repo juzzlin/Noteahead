@@ -15,25 +15,69 @@
 
 #include "xml_serialization_test.hpp"
 
+#include "../../application/service/application_service.hpp"
+#include "../../application/service/audio_service.hpp"
 #include "../../application/service/automation_service.hpp"
+#include "../../application/service/device_service.hpp"
+#include "../../application/service/editor_service.hpp"
+#include "../../application/service/jack_service.hpp"
+#include "../../application/service/mixer_service.hpp"
 #include "../../application/service/property_service.hpp"
 #include "../../application/service/selection_service.hpp"
 #include "../../application/service/settings_service.hpp"
-#include "../../application/service/editor_service.hpp"
-#include "../../application/service/mixer_service.hpp"
 #include "../../application/service/side_chain_service.hpp"
-#include "../../application/service/audio_service.hpp"
-#include "../../application/service/jack_service.hpp"
 #include "../../domain/column_settings.hpp"
+#include "../../domain/devices/sampler_device.hpp"
 #include "../../domain/instrument.hpp"
 #include "../../domain/note_data.hpp"
 #include "../../domain/song.hpp"
+#include "../../infra/audio/audio_engine.hpp"
+#include "../../infra/audio/backend/audio_file_reader.hpp"
 
 #include <QSignalSpy>
 #include <QTemporaryFile>
 #include <QTest>
 
 namespace noteahead {
+
+class MockAudioFileReader : public AudioFileReader
+{
+public:
+    bool open(const std::string &, Mode, Info & info) override
+    {
+        info.frames = 1000;
+        info.samplerate = 44100;
+        info.channels = 2;
+        m_info = info;
+        m_isOpen = true;
+        return true;
+    }
+    void close() override { m_isOpen = false; }
+    int64_t readFloat(std::span<float> data) override
+    {
+        std::fill(data.begin(), data.end(), 0.0f);
+        return static_cast<int64_t>(data.size() / static_cast<size_t>(m_info.channels));
+    }
+    int64_t readDouble(std::span<double> data) override
+    {
+        std::fill(data.begin(), data.end(), 0.0);
+        return static_cast<int64_t>(data.size() / static_cast<size_t>(m_info.channels));
+    }
+    int64_t readInt(std::span<int32_t> data) override
+    {
+        std::fill(data.begin(), data.end(), 0);
+        return static_cast<int64_t>(data.size() / static_cast<size_t>(m_info.channels));
+    }
+    int64_t writeFloat(std::span<const float> data) override { return static_cast<int64_t>(data.size() / static_cast<size_t>(m_info.channels)); }
+    int64_t writeInt(std::span<const int32_t> data) override { return static_cast<int64_t>(data.size() / static_cast<size_t>(m_info.channels)); }
+    bool seek(int64_t, int) override { return true; }
+    bool isOpen() const override { return m_isOpen; }
+    Info info() const override { return m_info; }
+
+private:
+    bool m_isOpen = false;
+    Info m_info;
+};
 
 void XmlSerializationTest::test_toXmlFromXml_playOrder()
 {
@@ -659,6 +703,79 @@ void XmlSerializationTest::test_toXmlFromXml_trackDrumTrack_shouldLoadTrackDrumT
     QCOMPARE(editorServiceIn.instrument(0)->settings().drumTrack, true);
 }
 
+void XmlSerializationTest::test_toXmlFromXml_samplerDevice_shouldLoadSamplerDevice()
+{
+    const std::string fileName = "test.wav";
+
+    auto engine = std::make_shared<AudioEngine>();
+    DeviceService deviceServiceOut { engine };
+    auto samplerOut = std::make_shared<SamplerDevice>(std::make_unique<MockAudioFileReader>());
+    samplerOut->setId(42);
+    samplerOut->loadSample(60, fileName);
+    samplerOut->setSamplePan(60, 0.75f);
+    samplerOut->setSampleVolume(60, 0.8f);
+    deviceServiceOut.registerDevice(samplerOut);
+
+    EditorService editorServiceOut { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
+    connect(&editorServiceOut, &EditorService::devicesSerializationRequested, &deviceServiceOut, &DeviceService::serializeToXml);
+
+    const auto xml = editorServiceOut.toXml();
+
+    DeviceService deviceServiceIn { std::make_shared<AudioEngine>() };
+    auto samplerIn = std::make_shared<SamplerDevice>(std::make_unique<MockAudioFileReader>());
+    deviceServiceIn.registerDevice(samplerIn);
+
+    EditorService editorServiceIn { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
+    connect(&editorServiceIn, &EditorService::devicesDeserializationRequested, &deviceServiceIn, &DeviceService::deserializeFromXml);
+
+    editorServiceIn.fromXml(xml);
+
+    QCOMPARE(samplerIn->id(), 42);
+    const auto sample = samplerIn->sample(60);
+    QVERIFY(sample);
+    QCOMPARE(sample->filePath, fileName);
+    QCOMPARE(sample->sampleRate, 44100);
+    QCOMPARE(sample->channels, 2);
+    // 0.75f pan is (0.75 * 200) - 100 = 50 in integer representation.
+    // (50 + 100) / 200 = 0.75f back.
+    QCOMPARE(sample->pan, 0.75f);
+    QVERIFY(xml.contains("pan=\"50\""));
+    QCOMPARE(sample->volume, 0.8f);
+    QVERIFY(xml.contains("volume=\"80\""));
+}
+
+void XmlSerializationTest::test_fromXml_samplerDevice_missingId_shouldNotThrow()
+{
+    const auto xml = QString(R"XML(
+<Project applicationName="Noteahead" applicationVersion="2.0.0" fileFormatVersion="1.0">
+    <Song beatsPerMinute="120" linesPerBeat="8">
+        <Devices>
+            <Sampler>
+                <Sample note="60" path="test.wav"/>
+            </Sampler>
+        </Devices>
+        <Patterns>
+            <Pattern index="0" lineCount="64" name="" trackCount="8">
+                <Tracks/>
+            </Pattern>
+        </Patterns>
+    </Song>
+</Project>
+)XML");
+
+    DeviceService deviceServiceIn { std::make_shared<AudioEngine>() };
+    auto samplerIn = std::make_shared<SamplerDevice>(std::make_unique<MockAudioFileReader>());
+    deviceServiceIn.registerDevice(samplerIn);
+
+    EditorService editorServiceIn { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
+    connect(&editorServiceIn, &EditorService::devicesDeserializationRequested, &deviceServiceIn, &DeviceService::deserializeFromXml);
+
+    // This should not throw anymore
+    editorServiceIn.fromXml(xml);
+
+    QCOMPARE(samplerIn->id(), 0); // Default value
+}
+
 void XmlSerializationTest::test_toXmlFromXml_audioRecorder_shouldLoadAudioRecorder()
 {
     QTemporaryFile tempFile;
@@ -668,8 +785,9 @@ void XmlSerializationTest::test_toXmlFromXml_audioRecorder_shouldLoadAudioRecord
     const quint64 endTick = 960;
 
     auto settingsService = std::make_shared<SettingsService>();
-    auto jackService = std::make_shared<JackService>(settingsService);
-    auto audioServiceOut = std::make_shared<AudioService>(settingsService, jackService);
+    auto engine = std::make_shared<AudioEngine>();
+    auto jackService = std::make_shared<JackService>(settingsService, engine);
+    auto audioServiceOut = std::make_shared<AudioService>(settingsService, jackService, engine, nullptr, false);
     audioServiceOut->setLatestRecordingInfo(fileName, startTick, endTick);
 
     EditorService editorServiceOut { std::make_shared<SelectionService>(), settingsService, std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
@@ -677,7 +795,7 @@ void XmlSerializationTest::test_toXmlFromXml_audioRecorder_shouldLoadAudioRecord
 
     const auto xml = editorServiceOut.toXml();
 
-    auto audioServiceIn = std::make_shared<AudioService>(settingsService, jackService);
+    auto audioServiceIn = std::make_shared<AudioService>(settingsService, jackService, engine, nullptr, false);
     EditorService editorServiceIn { std::make_shared<SelectionService>(), settingsService, std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
     QObject::connect(&editorServiceIn, &EditorService::audioRecorderDeserializationRequested, audioServiceIn.get(), &AudioService::deserializeFromXml);
 

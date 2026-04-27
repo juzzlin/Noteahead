@@ -23,6 +23,7 @@ GroupBox {
                     width: midiCcListView.width // Make delegate fill width
                     showRemoveButton: true
                     index: index
+                    portName: trackSettingsModel.portName
                     Component.onCompleted: {
                         initialize(model.enabled, model.controller, model.value);
                     }
@@ -47,6 +48,7 @@ GroupBox {
     }
     AddMidiCcSettingDialog {
         id: addMidiCcSettingDialog
+        portName: trackSettingsModel.portName
         anchors.centerIn: parent
         width: parent.width * 0.5
     }

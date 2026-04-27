@@ -21,13 +21,17 @@
 #include <vector>
 
 #include "audio_recorder.hpp"
+#include <memory>
 
 namespace noteahead {
+
+class AudioEngine;
 
 class AudioPlayer
 {
 public:
-    explicit AudioPlayer();
+    using AudioEngineS = std::shared_ptr<AudioEngine>;
+    explicit AudioPlayer(AudioEngineS audioEngine = nullptr);
     virtual ~AudioPlayer();
 
     virtual void start(const std::string & fileName, uint32_t bufferSize);
@@ -42,6 +46,9 @@ public:
     virtual bool isFinished() const;
 
     virtual uint32_t sampleRate();
+
+protected:
+    AudioEngineS m_audioEngine;
 };
 
 } // namespace noteahead

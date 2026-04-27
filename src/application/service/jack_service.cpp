@@ -16,6 +16,7 @@
 #include "jack_service.hpp"
 
 #include "../../contrib/SimpleLogger/src/simple_logger.hpp"
+#include "../../infra/audio/audio_engine.hpp"
 #include "settings_service.hpp"
 
 #include <algorithm>
@@ -25,9 +26,10 @@ namespace noteahead {
 
 static const auto TAG = "JackService";
 
-JackService::JackService(SettingsServiceS settingsService, QObject * parent)
+JackService::JackService(SettingsServiceS settingsService, AudioEngineS audioEngine, QObject * parent)
   : QObject { parent }
   , m_settingsService { settingsService }
+  , m_audioEngine { std::move(audioEngine) }
 {
     connect(m_settingsService.get(), &SettingsService::jackSyncEnabledChanged, this, &JackService::onJackSyncEnabledChanged);
 }
@@ -164,8 +166,12 @@ jack_nframes_t JackService::currentFrame() const
 
 void JackService::startRecording(const QString & filePath)
 {
-    if (m_isRecording || !m_client) {
+    if (!m_client) {
         return;
+    }
+
+    if (m_isRecording) {
+        stopRecording();
     }
 
     m_sfInfo = {};
@@ -219,8 +225,12 @@ bool JackService::isRecording() const
 
 void JackService::startPlayback(const QString & filePath)
 {
-    if (m_isPlayingPlayback || !m_client) {
+    if (!m_client) {
         return;
+    }
+
+    if (m_isPlayingPlayback) {
+        stopPlayback();
     }
 
     m_isPlayingPlaybackFinished = false;
@@ -312,7 +322,10 @@ void JackService::diskWriteLoop()
             const size_t toRead = std::min(available, tempBuffer.size());
             const size_t read = m_recordingBuffer.pop(tempBuffer.data(), toRead);
             if (read > 0 && m_sndFile) {
-                sf_writef_int(m_sndFile, tempBuffer.data(), read / 2);
+                const int channels = m_sfInfo.channels;
+                if (channels > 0) {
+                    sf_writef_int(m_sndFile, tempBuffer.data(), read / channels);
+                }
             }
         } else {
             std::this_thread::sleep_for(std::chrono::milliseconds(10));
@@ -328,11 +341,15 @@ void JackService::diskReadLoop()
         const size_t available = m_playbackBuffer.writeAvailable();
         if (available > 0 && m_playbackSndFile) {
             const size_t toRead = std::min(available, tempBuffer.size());
-            const sf_count_t read = sf_readf_int(m_playbackSndFile, tempBuffer.data(), toRead / 2);
-            if (read > 0) {
-                m_playbackBuffer.push(tempBuffer.data(), read * 2);
-            } else {
-                std::this_thread::sleep_for(std::chrono::milliseconds(10));
+            const int channels = m_playbackSfInfo.channels;
+            if (channels > 0) {
+                const sf_count_t read = sf_readf_int(m_playbackSndFile, tempBuffer.data(), toRead / channels);
+                if (read > 0) {
+                    m_playbackBuffer.push(tempBuffer.data(), read * channels);
+                } else {
+                    // EOF or error
+                    std::this_thread::sleep_for(std::chrono::milliseconds(10));
+                }
             }
         } else {
             std::this_thread::sleep_for(std::chrono::milliseconds(10));
@@ -393,6 +410,18 @@ int JackService::processCallback(jack_nframes_t nframes, void * arg)
         auto outR = static_cast<jack_default_audio_sample_t *>(jack_port_get_buffer(self->m_outputPortR, nframes));
         std::fill_n(outL, nframes, 0.0f);
         std::fill_n(outR, nframes, 0.0f);
+    }
+
+    if (self->m_audioEngine) {
+        std::vector<float> interleaved(nframes * 2, 0.0f);
+        self->m_audioEngine->process(interleaved.data(), nframes, self->sampleRate());
+
+        auto outL = static_cast<jack_default_audio_sample_t *>(jack_port_get_buffer(self->m_outputPortL, nframes));
+        auto outR = static_cast<jack_default_audio_sample_t *>(jack_port_get_buffer(self->m_outputPortR, nframes));
+        for (jack_nframes_t i = 0; i < nframes; ++i) {
+            outL[i] += interleaved[i * 2];
+            outR[i] += interleaved[i * 2 + 1];
+        }
     }
 
     jack_position_t pos;

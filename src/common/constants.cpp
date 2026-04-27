@@ -77,6 +77,11 @@ size_t defaultTrackCount()
     return 8;
 }
 
+QString samplerDeviceName()
+{
+    return "Noteahead Sampler";
+}
+
 namespace NahdXml {
 
 QString xmlKeyFileFormatVersion()
@@ -664,10 +669,25 @@ QString xmlKeySideChainSettings()
     return "SideChainSettings";
 }
 
-QString xmlValueFalse()
+QString xmlKeyDevices()
 {
-    return "false";
+    return "Devices";
 }
+
+QString xmlKeySampler()
+{
+    return "Sampler";
+}
+
+QString xmlKeySample()
+{
+    return "Sample";
+}
+
+QString xmlKeySamplePath() { return "path"; }
+QString xmlKeyChannelMode() { return "channelMode"; }
+
+QString xmlValueFalse() { return "false"; }
 
 QString xmlValueTrue()
 {

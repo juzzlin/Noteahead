@@ -8,7 +8,8 @@ import "../.."
 ComboBox {
     id: root
     signal controllerChanged(int controller)
-    model: propertyService.availableMidiControllers
+    property string portName: ""
+    model: propertyService.getAvailableMidiControllers(portName)
     textRole: "name"
     valueRole: "number"
     editable: true

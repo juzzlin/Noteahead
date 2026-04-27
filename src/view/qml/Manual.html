@@ -156,6 +156,19 @@
 <h3 style="color: orange;">MIDI Side-chain</h3>
 <p>Located in Track settings, this allows one track/column to trigger MIDI CC events on another, perfect for "pumping" effects or rhythmic modulation.</p>
 
+<h2 style="color: orange; border-bottom: 1px solid #444; margin-top: 20px;">Internal Devices</h2>
+<h3 style="color: orange;">Sampler</h3>
+<p>Accessed via <code>Devices => Sampler...</code> or <code>Right-click => Song => Devices => Sampler...</code>, this internal instrument allows you to trigger audio samples directly within Noteahead.</p>
+<ul>
+    <li><strong>Pads</strong>: The sampler features 16 pads, mapped to MIDI notes 36 to 51.</li>
+    <li><strong>Loading Samples</strong>: Click an empty pad to open a file dialog and select a WAV file. Once loaded, the pad will turn green.</li>
+    <li><strong>Playback</strong>: Press and hold a pad to play the sample, and release to stop. In the sequencer, use the corresponding MIDI note to trigger the sample.</li>
+    <li><strong>Panning</strong>: Each pad has its own base <strong>Pan</strong> setting (-100% to +100%). This can be adjusted using the slider below the waveform view.</li>
+    <li><strong>Volume</strong>: Each pad has its own base <strong>Volume</strong> setting (0-100%). This can be adjusted using the slider below the pan slider.</li>
+    <li><strong>Automation</strong>: The Sampler supports real-time <strong>MIDI CC 7 (Volume)</strong> and <strong>MIDI CC 10 (Pan)</strong> automation. Volume automation multiplies the pad's base volume, while pan automation is added to the pad's base pan setting.</li>
+    <li><strong>Management</strong>: <strong>Right-click</strong> a loaded pad to clear its assignment.</li>
+</ul>
+
 <h2 style="color: orange; border-bottom: 1px solid #444; margin-top: 20px;">Synchronization</h2>
 <p>Noteahead can be synchronized with external audio hosts and MIDI hardware. These options are available in <code>Settings => MIDI => Synchronization</code>.</p>
 <ul>

@@ -30,6 +30,7 @@ public:
     explicit PropertyService(QObject * parent = nullptr);
 
     QVariantList availableMidiControllers() const;
+    Q_INVOKABLE QVariantList getAvailableMidiControllers(const QString & portName = {}) const;
 
     Q_INVOKABLE int minValue(int controller) const;
     Q_INVOKABLE int maxValue(int controller) const;

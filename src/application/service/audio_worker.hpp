@@ -17,6 +17,7 @@
 #define AUDIO_WORKER_HPP
 
 #include <QObject>
+#include <QTimer>
 #include <QVariantList>
 
 #include <RtAudio.h>
@@ -26,14 +27,18 @@ namespace noteahead {
 
 class AudioRecorder;
 class AudioPlayer;
+class AudioEngine;
 
 class AudioWorker : public QObject
 {
     Q_OBJECT
 
 public:
-    AudioWorker(std::unique_ptr<AudioRecorder> audioRecorder, std::unique_ptr<AudioPlayer> audioPlayer, QObject * parent = nullptr);
+    using AudioEngineS = std::shared_ptr<AudioEngine>;
+    AudioWorker(std::unique_ptr<AudioRecorder> audioRecorder, std::unique_ptr<AudioPlayer> audioPlayer, AudioEngineS audioEngine = nullptr, QObject * parent = nullptr);
     ~AudioWorker() override;
+
+    Q_INVOKABLE void initializeRealTimeStream(quint32 bufferSize);
 
     Q_INVOKABLE void startRecording(QString filePath, quint32 bufferSize);
     Q_INVOKABLE void stopRecording();
@@ -51,10 +56,18 @@ public:
 
 signals:
     void errorOccurred(QString message);
+    void playbackPositionChanged(double position);
+    void playbackFinished();
+
+private slots:
+    void onStatusTimerTimeout();
 
 private:
     std::unique_ptr<AudioRecorder> m_audioRecorder;
     std::unique_ptr<AudioPlayer> m_audioPlayer;
+    AudioEngineS m_audioEngine;
+    QTimer * m_statusTimer = nullptr;
+    quint32 m_bufferSize = 0;
 };
 
 } // namespace noteahead

@@ -16,6 +16,7 @@
 #include "audio_player_rt_audio.hpp"
 
 #include "../../../contrib/SimpleLogger/src/simple_logger.hpp"
+#include "../../audio_engine.hpp"
 
 #include <algorithm>
 #include <chrono>
@@ -41,13 +42,30 @@ int AudioPlayerRtAudio::playCallback(void * outputBuffer, void *,
     }
 
     const auto out = static_cast<int32_t *>(outputBuffer);
-    const int channels = self->m_sfInfo.channels;
+    const int channels = self->m_sfInfo.channels > 0 ? self->m_sfInfo.channels : 2; // Default to 2 if no file
     const size_t totalSamples = nFrames * channels;
 
     const size_t read = self->m_ringBuffer.pop(out, totalSamples);
     if (read < totalSamples) {
         // Zero out the rest of the buffer
         std::fill_n(out + read, totalSamples - read, 0);
+    }
+
+    if (self->m_audioEngine) {
+        std::vector<float> interleaved(nFrames * 2, 0.0f);
+        self->m_audioEngine->process(interleaved.data(), nFrames, self->m_rtAudio.getStreamSampleRate());
+
+        for (uint32_t i = 0; i < nFrames; ++i) {
+            // Mix with existing buffer (converted to float)
+            // assuming int32_t full scale
+            for (int ch = 0; ch < channels; ++ch) {
+                const int outIdx = i * channels + ch;
+                float currentVal = static_cast<float>(out[outIdx]) / 2147483647.0f;
+                // Mix in engine data (interleaved is always 2 channels)
+                currentVal += interleaved[i * 2 + (ch % 2)];
+                out[outIdx] = static_cast<int32_t>(std::clamp(currentVal, -1.0f, 1.0f) * 2147483647.0f);
+            }
+        }
     }
 
     if (read > 0) {
@@ -68,8 +86,9 @@ int AudioPlayerRtAudio::playCallback(void * outputBuffer, void *,
     return 0;
 }
 
-AudioPlayerRtAudio::AudioPlayerRtAudio(RtAudio::Api api)
-  : m_rtAudio { api }
+AudioPlayerRtAudio::AudioPlayerRtAudio(AudioEngineS audioEngine, RtAudio::Api api)
+  : AudioPlayer { std::move(audioEngine) }
+  , m_rtAudio { api }
 {
     if (m_rtAudio.getDeviceCount() > 0) {
         m_outputDeviceId = m_rtAudio.getDefaultOutputDevice();
@@ -116,7 +135,7 @@ void AudioPlayerRtAudio::initializeSoundFile(const std::string & fileName)
     }
 }
 
-void AudioPlayerRtAudio::initializeSoundStream(uint32_t deviceId, uint32_t channelCount, uint32_t sampleRate, uint32_t bufferSize)
+uint32_t AudioPlayerRtAudio::initializeSoundStream(uint32_t deviceId, uint32_t channelCount, uint32_t sampleRate, uint32_t bufferSize)
 {
     RtAudio::StreamParameters oParams;
     oParams.deviceId = deviceId;
@@ -126,6 +145,7 @@ void AudioPlayerRtAudio::initializeSoundStream(uint32_t deviceId, uint32_t chann
                          sampleRate, &bufferFrames,
                          &AudioPlayerRtAudio::playCallback, this);
     m_rtAudio.startStream();
+    return m_rtAudio.getStreamSampleRate();
 }
 
 void AudioPlayerRtAudio::diskReadLoop()
@@ -154,58 +174,68 @@ void AudioPlayerRtAudio::diskReadLoop()
 
 void AudioPlayerRtAudio::start(const std::string & fileName, uint32_t bufferSize)
 {
-    if (!m_running) {
-        try {
-            m_isFinished = false;
+    if (m_running) {
+        stop();
+    }
+
+    try {
+        m_isFinished = false;
+
+        uint32_t sampleRate = 44100;
+        uint32_t channelCount = 2;
+
+        if (!fileName.empty()) {
             initializeSoundFile(fileName);
-
-            uint32_t sampleRate = m_sfInfo.samplerate;
-            uint32_t channelCount = m_sfInfo.channels;
-            uint32_t deviceId = 0;
-            std::string deviceName = "JACK System";
-            uint32_t actualBufferSize = bufferSize;
-
-            if (m_rtAudio.getCurrentApi() == RtAudio::UNIX_JACK) {
-                juzzlin::L(TAG).info() << "JACK backend detected, skipping device probe.";
-                deviceId = m_rtAudio.getDefaultOutputDevice();
-                const auto deviceInfo = m_rtAudio.getDeviceInfo(deviceId);
-                deviceName = deviceInfo.name;
-                actualBufferSize = 0; // Let JACK decide
-            } else {
-                if (m_rtAudio.getDeviceCount() < 1) {
-                    throw std::runtime_error("No audio devices found!");
-                }
-
-                deviceId = m_outputDeviceId.load();
-                const auto deviceInfo = m_rtAudio.getDeviceInfo(deviceId);
-                deviceName = deviceInfo.name;
-            }
-
-            juzzlin::L(TAG).info() << "Playing to device: " << deviceName << ", " << sampleRate << " Hz, " << channelCount << " channels";
-
-            // 500ms buffer
-            m_ringBuffer.resize(sampleRate * channelCount / 2);
-
-            // Respect existing position if set
-            if (m_playbackPosition > 0.0 && m_playbackPosition < 1.0) {
-                const sf_count_t targetFrame = static_cast<sf_count_t>(m_playbackPosition * m_sfInfo.frames);
-                sf_seek(m_sndFile, targetFrame, SEEK_SET);
-                m_playedFrames = targetFrame;
-            } else {
-                m_playedFrames = 0;
-                m_playbackPosition = 0.0;
-            }
-
-            m_stopThread = false;
-            m_diskReadThread = std::thread(&AudioPlayerRtAudio::diskReadLoop, this);
-
-            initializeSoundStream(deviceId, channelCount, sampleRate, actualBufferSize);
-
-            m_running = true;
-        } catch (...) {
-            stop();
-            throw;
+            sampleRate = m_sfInfo.samplerate;
+            channelCount = m_sfInfo.channels;
         }
+
+        uint32_t deviceId = 0;
+        std::string deviceName = "JACK System";
+        uint32_t actualBufferSize = bufferSize;
+
+        if (m_rtAudio.getCurrentApi() == RtAudio::UNIX_JACK) {
+            juzzlin::L(TAG).info() << "JACK backend detected, skipping device probe.";
+            deviceId = m_rtAudio.getDefaultInputDevice();
+            const auto deviceInfo = m_rtAudio.getDeviceInfo(deviceId);
+            deviceName = deviceInfo.name;
+            actualBufferSize = 0; // Let JACK decide
+        } else {
+            if (m_rtAudio.getDeviceCount() < 1) {
+                throw std::runtime_error("No audio devices found!");
+            }
+
+            deviceId = m_outputDeviceId.load();
+            const auto deviceInfo = m_rtAudio.getDeviceInfo(deviceId);
+            deviceName = deviceInfo.name;
+        }
+
+        const uint32_t actualSampleRate = initializeSoundStream(deviceId, channelCount, sampleRate, actualBufferSize);
+
+        juzzlin::L(TAG).info() << "Playing to device: " << deviceName << ", " << actualSampleRate << " Hz, " << channelCount << " channels";
+
+        // 500ms buffer
+        m_ringBuffer.resize(actualSampleRate * channelCount / 2);
+
+        // Respect existing position if set
+        if (m_playbackPosition > 0.0 && m_playbackPosition < 1.0) {
+            const sf_count_t targetFrame = static_cast<sf_count_t>(m_playbackPosition * m_sfInfo.frames);
+            sf_seek(m_sndFile, targetFrame, SEEK_SET);
+            m_playedFrames = targetFrame;
+        } else {
+            m_playedFrames = 0;
+            m_playbackPosition = 0.0;
+        }
+
+        m_stopThread = false;
+        if (!fileName.empty()) {
+            m_diskReadThread = std::thread(&AudioPlayerRtAudio::diskReadLoop, this);
+        }
+
+        m_running = true;
+    } catch (...) {
+        stop();
+        throw;
     }
 }
 

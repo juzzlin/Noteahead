@@ -19,8 +19,11 @@
 #include <cstdint>
 #include <string>
 #include <vector>
+#include <memory>
 
 namespace noteahead {
+
+class AudioEngine;
 
 struct AudioDevice
 {
@@ -31,7 +34,8 @@ struct AudioDevice
 class AudioRecorder
 {
 public:
-    explicit AudioRecorder();
+    using AudioEngineS = std::shared_ptr<AudioEngine>;
+    explicit AudioRecorder(AudioEngineS audioEngine = nullptr);
     virtual ~AudioRecorder();
 
     virtual void start(const std::string & fileName, uint32_t bufferSize);
@@ -41,6 +45,9 @@ public:
     virtual void setInputDevice(uint32_t deviceId);
 
     virtual uint32_t sampleRate();
+
+protected:
+    AudioEngineS m_audioEngine;
 };
 
 } // namespace noteahead

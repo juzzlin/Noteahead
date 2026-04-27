@@ -50,7 +50,7 @@ class MockMidiService : public MidiService
 {
 public:
     MockMidiService()
-      : MidiService(nullptr, false)
+      : MidiService(nullptr, nullptr, false)
     {
     }
 

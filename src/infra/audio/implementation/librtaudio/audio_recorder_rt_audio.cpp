@@ -16,8 +16,10 @@
 #include "audio_recorder_rt_audio.hpp"
 
 #include "../../../contrib/SimpleLogger/src/simple_logger.hpp"
+#include "../../audio_engine.hpp"
 
-#include <chrono>
+#include <algorithm>
+
 #include <iostream>
 
 namespace noteahead {
@@ -41,7 +43,15 @@ int AudioRecorderRtAudio::recordCallback(void *, void * inputBuffer,
 
     const auto in = static_cast<int32_t *>(inputBuffer);
     const int channels = self->m_sfInfo.channels;
+    if (channels <= 0) {
+        return 0;
+    }
+
     const size_t totalSamples = nFrames * channels;
+
+    // We no longer call m_audioEngine->process() here because it's already called by the player.
+    // Calling it twice per period causes everything in the engine (like sampler voices) to advance twice as fast.
+    // Consistent with JackService, we only record hardware input.
 
     if (!self->m_ringBuffer.push(in, totalSamples)) {
         std::cerr << "RingBuffer Overflow!" << std::endl;
@@ -50,8 +60,9 @@ int AudioRecorderRtAudio::recordCallback(void *, void * inputBuffer,
     return 0;
 }
 
-AudioRecorderRtAudio::AudioRecorderRtAudio(RtAudio::Api api)
-  : m_rtAudio { api }
+AudioRecorderRtAudio::AudioRecorderRtAudio(AudioEngineS audioEngine, RtAudio::Api api)
+  : AudioRecorder { std::move(audioEngine) }
+  , m_rtAudio { api }
 {
     if (m_rtAudio.getDeviceCount() > 0) {
         m_inputDeviceId = m_rtAudio.getDefaultInputDevice();
@@ -103,7 +114,7 @@ void AudioRecorderRtAudio::initializeSoundFile(const std::string & fileName, uin
     }
 }
 
-void AudioRecorderRtAudio::initializeSoundStream(uint32_t deviceId, uint32_t channelCount, uint32_t sampleRate, uint32_t bufferSize)
+uint32_t AudioRecorderRtAudio::initializeSoundStream(uint32_t deviceId, uint32_t channelCount, uint32_t sampleRate, uint32_t bufferSize)
 {
     RtAudio::StreamParameters iParams;
     iParams.deviceId = deviceId;
@@ -113,6 +124,7 @@ void AudioRecorderRtAudio::initializeSoundStream(uint32_t deviceId, uint32_t cha
                          sampleRate, &bufferFrames,
                          &AudioRecorderRtAudio::recordCallback, this);
     m_rtAudio.startStream();
+    return m_rtAudio.getStreamSampleRate();
 }
 
 void AudioRecorderRtAudio::diskWriteLoop()
@@ -138,51 +150,53 @@ void AudioRecorderRtAudio::diskWriteLoop()
 
 void AudioRecorderRtAudio::start(const std::string & fileName, uint32_t bufferSize)
 {
-    if (!m_running) {
-        try {
-            uint32_t sampleRate = 48000;
-            uint32_t channelCount = 2;
-            uint32_t deviceId = 0;
-            std::string deviceName = "JACK System";
-            uint32_t actualBufferSize = bufferSize;
+    if (m_running) {
+        stop();
+    }
 
-            if (m_rtAudio.getCurrentApi() == RtAudio::UNIX_JACK) {
-                juzzlin::L(TAG).info() << "JACK backend detected, skipping device probe.";
-                deviceId = m_rtAudio.getDefaultInputDevice();
-                const auto deviceInfo = m_rtAudio.getDeviceInfo(deviceId);
-                sampleRate = deviceInfo.preferredSampleRate;
-                deviceName = deviceInfo.name;
-                actualBufferSize = 0; // Let JACK decide
-            } else {
-                if (m_rtAudio.getDeviceCount() < 1) {
-                    throw std::runtime_error("No audio devices found!");
-                }
+    try {
+        uint32_t sampleRate = 48000;
+        uint32_t channelCount = 2;
+        uint32_t deviceId = 0;
+        std::string deviceName = "JACK System";
+        uint32_t actualBufferSize = bufferSize;
 
-                deviceId = m_inputDeviceId.load();
-                const auto deviceInfo = m_rtAudio.getDeviceInfo(deviceId);
-                sampleRate = deviceInfo.preferredSampleRate ? deviceInfo.preferredSampleRate : 48000;
-                channelCount = std::min(deviceInfo.inputChannels, 2u);
-                deviceName = deviceInfo.name;
+        if (m_rtAudio.getCurrentApi() == RtAudio::UNIX_JACK) {
+            juzzlin::L(TAG).info() << "JACK backend detected, skipping device probe.";
+            deviceId = m_rtAudio.getDefaultInputDevice();
+            const auto deviceInfo = m_rtAudio.getDeviceInfo(deviceId);
+            sampleRate = deviceInfo.preferredSampleRate;
+            deviceName = deviceInfo.name;
+            actualBufferSize = 0; // Let JACK decide
+        } else {
+            if (m_rtAudio.getDeviceCount() < 1) {
+                throw std::runtime_error("No audio devices found!");
             }
 
-            juzzlin::L(TAG).info() << "Recording from device: " << deviceName << ", " << sampleRate << " Hz, " << channelCount << " channels (24-bit WAV)";
-            juzzlin::L(TAG).info() << "Buffer size: " << (actualBufferSize == 0 ? "Default" : std::to_string(actualBufferSize));
-
-            initializeSoundFile(fileName, sampleRate, channelCount);
-
-            // 2 seconds buffer
-            m_ringBuffer.resize(sampleRate * channelCount * 2);
-
-            m_stopThread = false;
-            m_diskWriteThread = std::thread(&AudioRecorderRtAudio::diskWriteLoop, this);
-
-            initializeSoundStream(deviceId, channelCount, sampleRate, actualBufferSize);
-
-            m_running = true;
-        } catch (...) {
-            stop();
-            throw;
+            deviceId = m_inputDeviceId.load();
+            const auto deviceInfo = m_rtAudio.getDeviceInfo(deviceId);
+            sampleRate = deviceInfo.preferredSampleRate ? deviceInfo.preferredSampleRate : 48000;
+            channelCount = std::min(deviceInfo.inputChannels, 2u);
+            deviceName = deviceInfo.name;
         }
+
+        const uint32_t actualSampleRate = initializeSoundStream(deviceId, channelCount, sampleRate, actualBufferSize);
+
+        juzzlin::L(TAG).info() << "Recording from device: " << deviceName << ", " << actualSampleRate << " Hz, " << channelCount << " channels (24-bit WAV)";
+        juzzlin::L(TAG).info() << "Buffer size: " << (actualBufferSize == 0 ? "Default" : std::to_string(actualBufferSize));
+
+        initializeSoundFile(fileName, actualSampleRate, channelCount);
+
+        // 2 seconds buffer
+        m_ringBuffer.resize(actualSampleRate * channelCount * 2);
+
+        m_stopThread = false;
+        m_diskWriteThread = std::thread(&AudioRecorderRtAudio::diskWriteLoop, this);
+
+        m_running = true;
+    } catch (...) {
+        stop();
+        throw;
     }
 }
 

@@ -13,6 +13,7 @@ set(SRC
     ../../application/service/automation_service.cpp
     ../../application/service/property_service.cpp
     ../../application/service/copy_manager.cpp
+    ../../application/service/device_service.cpp
     ../../application/service/editor_service.cpp
     ../../application/service/mixer_service.cpp
     ../../application/service/random_service.cpp
@@ -21,11 +22,14 @@ set(SRC
     ../../application/service/side_chain_service.cpp
     ../../common/constants.cpp
     ../../common/utils.cpp
+    ../../common/waveform_generator.cpp
     ../../domain/arpeggiator.cpp
     ../../domain/automation.cpp
     ../../domain/automation_location.cpp
     ../../domain/column.cpp
     ../../domain/column_settings.cpp
+    ../../domain/devices/device.cpp
+    ../../domain/devices/sampler_device.cpp
     ../../domain/event.cpp
     ../../domain/event_data.cpp
     ../../domain/instrument.cpp
@@ -37,6 +41,7 @@ set(SRC
     ../../domain/midi_cc_automation.cpp
     ../../domain/midi_cc_data.cpp
     ../../domain/midi_cc_setting.cpp
+    ../../domain/midi_note_data.cpp
     ../../domain/mixer_unit.cpp
     ../../domain/note_data.cpp
     ../../domain/note_data_manipulator.cpp
@@ -46,13 +51,17 @@ set(SRC
     ../../domain/play_order.cpp
     ../../domain/song.cpp
     ../../domain/track.cpp
+    ../../infra/audio/audio_engine.cpp
+    ../../infra/audio/audio_player.cpp
+    ../../infra/audio/audio_recorder.cpp
+    ../../infra/audio/backend/sndfile_reader.cpp
     ../../infra/settings.cpp
     ../../infra/midi/midi_cc_mapping.cpp
 )
 qt_add_executable(${NAME} ${SRC})
 set_target_properties(${NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${UNIT_TEST_BASE_DIR})
 add_test(${NAME} ${UNIT_TEST_BASE_DIR}/${NAME})
-target_link_libraries(${NAME} PRIVATE Qt${QT_VERSION_MAJOR}::Test Qt${QT_VERSION_MAJOR}::Gui SimpleLogger)
+target_link_libraries(${NAME} PRIVATE Qt${QT_VERSION_MAJOR}::Test Qt${QT_VERSION_MAJOR}::Gui SimpleLogger ${SNDFILE_LIBRARIES})
 
 set(DELAY_TEST_NAME editor_service_delay_test)
 set(DELAY_TEST_SRC
@@ -68,6 +77,7 @@ set(DELAY_TEST_SRC
     ../../application/service/automation_service.cpp
     ../../application/service/property_service.cpp
     ../../application/service/copy_manager.cpp
+    ../../application/service/device_service.cpp
     ../../application/service/editor_service.cpp
     ../../application/service/mixer_service.cpp
     ../../application/service/random_service.cpp
@@ -76,11 +86,14 @@ set(DELAY_TEST_SRC
     ../../application/service/side_chain_service.cpp
     ../../common/constants.cpp
     ../../common/utils.cpp
+    ../../common/waveform_generator.cpp
     ../../domain/arpeggiator.cpp
     ../../domain/automation.cpp
     ../../domain/automation_location.cpp
     ../../domain/column.cpp
     ../../domain/column_settings.cpp
+    ../../domain/devices/device.cpp
+    ../../domain/devices/sampler_device.cpp
     ../../domain/event.cpp
     ../../domain/event_data.cpp
     ../../domain/instrument.cpp
@@ -92,6 +105,7 @@ set(DELAY_TEST_SRC
     ../../domain/midi_cc_automation.cpp
     ../../domain/midi_cc_data.cpp
     ../../domain/midi_cc_setting.cpp
+    ../../domain/midi_note_data.cpp
     ../../domain/mixer_unit.cpp
     ../../domain/note_data.cpp
     ../../domain/note_data_manipulator.cpp
@@ -101,10 +115,14 @@ set(DELAY_TEST_SRC
     ../../domain/play_order.cpp
     ../../domain/song.cpp
     ../../domain/track.cpp
+    ../../infra/audio/audio_engine.cpp
+    ../../infra/audio/audio_player.cpp
+    ../../infra/audio/audio_recorder.cpp
+    ../../infra/audio/backend/sndfile_reader.cpp
     ../../infra/settings.cpp
     ../../infra/midi/midi_cc_mapping.cpp
 )
 qt_add_executable(${DELAY_TEST_NAME} ${DELAY_TEST_SRC})
 set_target_properties(${DELAY_TEST_NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${UNIT_TEST_BASE_DIR})
 add_test(${DELAY_TEST_NAME} ${UNIT_TEST_BASE_DIR}/${DELAY_TEST_NAME})
-target_link_libraries(${DELAY_TEST_NAME} PRIVATE Qt${QT_VERSION_MAJOR}::Test Qt${QT_VERSION_MAJOR}::Gui SimpleLogger)
+target_link_libraries(${DELAY_TEST_NAME} PRIVATE Qt${QT_VERSION_MAJOR}::Test Qt${QT_VERSION_MAJOR}::Gui SimpleLogger ${SNDFILE_LIBRARIES})

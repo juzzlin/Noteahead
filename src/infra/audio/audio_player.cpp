@@ -17,7 +17,10 @@
 
 namespace noteahead {
 
-AudioPlayer::AudioPlayer() = default;
+AudioPlayer::AudioPlayer(AudioEngineS audioEngine)
+  : m_audioEngine { std::move(audioEngine) }
+{
+}
 
 AudioPlayer::~AudioPlayer() = default;
 

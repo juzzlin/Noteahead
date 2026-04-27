@@ -32,6 +32,7 @@ namespace noteahead {
 class AudioWorker;
 class SettingsService;
 class JackService;
+class AudioEngine;
 
 class AudioService : public QObject
 {
@@ -46,11 +47,12 @@ class AudioService : public QObject
 public:
     using SettingsServiceS = std::shared_ptr<SettingsService>;
     using JackServiceS = std::shared_ptr<JackService>;
-    AudioService(SettingsServiceS settingsService, JackServiceS jackService, QObject * parent = nullptr);
+    using AudioEngineS = std::shared_ptr<AudioEngine>;
+    AudioService(SettingsServiceS settingsService, JackServiceS jackService, AudioEngineS audioEngine, QObject * parent = nullptr, bool autoInitialize = true);
     ~AudioService() override;
 
 public slots:
-    void reinitialize();
+    virtual void reinitialize();
 
 private slots:
     void onErrorOccurred(QString message);
@@ -107,6 +109,7 @@ private:
 
     SettingsServiceS m_settingsService;
     JackServiceS m_jackService;
+    AudioEngineS m_audioEngine;
 };
 
 } // namespace noteahead

@@ -5,6 +5,8 @@ Release date:
 
 New features:
 
+* Fix GitHub Issue #45: Implement a simple built-in sampler
+
 Bug fixes:
 
 Other:

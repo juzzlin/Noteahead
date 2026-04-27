@@ -22,6 +22,7 @@
 #include "../../domain/midi_note_data.hpp"
 #include "../../domain/pitch_bend_data.hpp"
 #include "../instrument_request.hpp"
+#include "device_service.hpp"
 #include "midi_worker_in.hpp"
 #include "midi_worker_out.hpp"
 
@@ -29,13 +30,14 @@ namespace noteahead {
 
 static const auto TAG = "MidiService";
 
-MidiService::MidiService(QObject * parent)
-  : MidiService(parent, true)
+MidiService::MidiService(DeviceServiceS deviceService, QObject * parent)
+  : MidiService(std::move(deviceService), parent, true)
 {
 }
 
-MidiService::MidiService(QObject * parent, bool initializeRealWorkers)
+MidiService::MidiService(DeviceServiceS deviceService, QObject * parent, bool initializeRealWorkers)
   : QObject { parent }
+  , m_deviceService { std::move(deviceService) }
 {
     if (initializeRealWorkers) {
         m_outputWorker = std::make_unique<MidiWorkerOut>();
@@ -92,6 +94,9 @@ void MidiService::initializeOutputWorker()
     connect(m_outputWorker.get(), &MidiWorkerOut::portsChanged, this, [this](const auto & midiPorts) {
         m_outputPorts = { "" };
         m_outputPorts.append(midiPorts);
+        if (m_deviceService) {
+            m_outputPorts.append(m_deviceService->internalDeviceNames());
+        }
         emit outputPortsChanged(m_outputPorts);
     });
 
@@ -104,11 +109,23 @@ void MidiService::initializeOutputWorker()
 
 QStringList MidiService::outputPorts() const
 {
-    return m_outputPorts;
+    auto ports = m_outputPorts;
+    if (m_deviceService) {
+        const auto internalPorts = m_deviceService->internalDeviceNames();
+        for (const auto & port : internalPorts) {
+            if (!ports.contains(port)) {
+                ports.append(port);
+            }
+        }
+    }
+    return ports;
 }
 
 void MidiService::handleInstrumentRequest(const InstrumentRequest & instrumentRequest)
 {
+    if (m_deviceService && m_deviceService->isInternalDevice(instrumentRequest.instrument().midiAddress().portName())) {
+        return;
+    }
     m_outputWorker->handleInstrumentRequest(instrumentRequest);
 }
 
@@ -130,34 +147,66 @@ void MidiService::setIsPlaying(bool isPlaying)
 
 void MidiService::playAndStopMiddleC(QString portName, quint8 channel, quint8 velocity)
 {
+    if (m_deviceService && m_deviceService->isInternalDevice(portName)) {
+        m_deviceService->processMidiNoteOn(portName, 60, velocity);
+        // FIXME: need a way to stop it after a delay for internal devices if wanted
+        return;
+    }
     m_outputWorker->playAndStopMiddleC(portName, channel, velocity);
 }
 
 void MidiService::playNote(InstrumentW instrument, MidiNoteDataCR data)
 {
     if (const auto instr = instrument.lock()) {
-        m_outputWorker->playNote(instr->midiAddress().portName(), instr->midiAddress().channel(), data.note(), data.velocity());
+        const auto portName = instr->midiAddress().portName();
+        if (m_deviceService && m_deviceService->isInternalDevice(portName)) {
+            m_deviceService->processMidiNoteOn(portName, data.note(), data.velocity());
+        } else {
+            m_outputWorker->playNote(portName, instr->midiAddress().channel(), data.note(), data.velocity());
+        }
     }
 }
 
 void MidiService::stopNote(InstrumentW instrument, MidiNoteDataCR data)
 {
     if (const auto instr = instrument.lock()) {
-        m_outputWorker->stopNote(instr->midiAddress().portName(), instr->midiAddress().channel(), data.note());
+        const auto portName = instr->midiAddress().portName();
+        if (m_deviceService && m_deviceService->isInternalDevice(portName)) {
+            m_deviceService->processMidiNoteOff(portName, data.note());
+        } else {
+            m_outputWorker->stopNote(portName, instr->midiAddress().channel(), data.note());
+        }
     }
 }
 
 void MidiService::stopAllNotes(InstrumentW instrument)
 {
     if (const auto instr = instrument.lock()) {
-        m_outputWorker->stopAllNotes(instr->midiAddress().portName(), instr->midiAddress().channel());
+        const auto portName = instr->midiAddress().portName();
+        if (m_deviceService && m_deviceService->isInternalDevice(portName)) {
+            m_deviceService->processMidiAllNotesOff(portName);
+        } else {
+            m_outputWorker->stopAllNotes(portName, instr->midiAddress().channel());
+        }
+    }
+}
+
+void MidiService::stopAllNotes()
+{
+    if (m_deviceService) {
+        m_deviceService->processMidiAllNotesOff();
     }
 }
 
 void MidiService::sendCcData(InstrumentW instrument, MidiCcDataCR data)
 {
     if (const auto instr = instrument.lock()) {
-        m_outputWorker->sendCcData(instr->midiAddress().portName(), instr->midiAddress().channel(), data.controller(), data.value());
+        const auto portName = instr->midiAddress().portName();
+        if (m_deviceService && m_deviceService->isInternalDevice(portName)) {
+            m_deviceService->processMidiCc(portName, data.controller(), data.value(), instr->midiAddress().channel());
+        } else {
+            m_outputWorker->sendCcData(portName, instr->midiAddress().channel(), data.controller(), data.value());
+        }
     }
 }
 
@@ -185,7 +234,12 @@ void MidiService::sendStop(MidiService::InstrumentW instrument)
 void MidiService::sendPitchBendData(InstrumentW instrument, MidiService::PitchBendDataCR data)
 {
     if (const auto instr = instrument.lock()) {
-        m_outputWorker->sendPitchBendData(instr->midiAddress().portName(), instr->midiAddress().channel(), data.msb(), data.lsb());
+        const auto portName = instr->midiAddress().portName();
+        if (m_deviceService && m_deviceService->isInternalDevice(portName)) {
+            // FIXME: processMidiPitchBend(portName, data.msb(), data.lsb())
+        } else {
+            m_outputWorker->sendPitchBendData(portName, instr->midiAddress().channel(), data.msb(), data.lsb());
+        }
     }
 }
 

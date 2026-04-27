@@ -6,6 +6,7 @@ import ".."
 import "../Components"
 
 RowLayout {
+    id: root
     Layout.fillWidth: true
     signal settingsChanged
     signal removeRequested
@@ -13,6 +14,7 @@ RowLayout {
     property bool showRemoveButton: false
     property bool showEnabled: true
     property bool showValue: true
+    property string portName: ""
     readonly property alias currentController: midiCcControllerComboBox.currentValue
     function initialize(enabled: bool, controller: int, value: int): void {
         enableCcCheckbox.checked = enabled;
@@ -55,6 +57,7 @@ RowLayout {
     }
     MidiCcComboBox {
         id: midiCcControllerComboBox
+        portName: root.portName
         Layout.fillWidth: true
         Layout.preferredWidth: 300
         onActivated: settingsChanged()
