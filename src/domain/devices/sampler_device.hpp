@@ -17,6 +17,7 @@
 #define SAMPLER_DEVICE_HPP
 
 #include "device.hpp"
+#include "effect.hpp"
 #include "../../infra/audio/backend/audio_file_reader.hpp"
 
 #include <array>
@@ -91,8 +92,13 @@ public:
     void restoreState();
 
 private:
+    struct Voice;
+    void updateVoiceEffects(Voice & voice);
+
     struct Voice
     {
+        Voice();
+
         uint8_t note = 0;
         Sample * sample = nullptr;
         double position = 0.0;
@@ -101,12 +107,13 @@ private:
         float volume = 1.0f;
         float cutoff = 1.0f;
         float hpfCutoff = 0.0f;
-        // LPF SVF state
-        float lpL = 0.0f, hpL = 0.0f, bpL = 0.0f;
-        float lpR = 0.0f, hpR = 0.0f, bpR = 0.0f;
-        // HPF SVF state
-        float hpfLpL = 0.0f, hpfHpL = 0.0f, hpfBpL = 0.0f;
-        float hpfLpR = 0.0f, hpfHpR = 0.0f, hpfBpR = 0.0f;
+
+        std::shared_ptr<LowPassFilterEffect> lpf;
+        std::shared_ptr<HighPassFilterEffect> hpf;
+        std::shared_ptr<VolumeEffect> volumeEffect;
+        std::shared_ptr<PanningEffect> panningEffect;
+        std::vector<std::shared_ptr<Effect>> effects;
+
         bool active = false;
         bool releasing = false;
         float releaseGain = 1.0f;

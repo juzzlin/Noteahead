@@ -41,6 +41,29 @@ SamplerDevice::SamplerDevice(AudioFileReaderU audioFileReader)
 
 SamplerDevice::~SamplerDevice() = default;
 
+SamplerDevice::Voice::Voice()
+{
+    lpf = std::make_shared<LowPassFilterEffect>();
+    hpf = std::make_shared<HighPassFilterEffect>();
+    volumeEffect = std::make_shared<VolumeEffect>();
+    panningEffect = std::make_shared<PanningEffect>();
+    effects = { lpf, hpf, volumeEffect, panningEffect };
+}
+
+void SamplerDevice::updateVoiceEffects(Voice & voice)
+{
+    const float sPan = (voice.sample->pan * 2.0f) - 1.0f;
+    const float mPan = (voice.pan * 2.0f) - 1.0f;
+    const float combinedPan = (std::clamp(sPan + mPan, -1.0f, 1.0f) + 1.0f) / 2.0f;
+    voice.panningEffect->setPan(combinedPan);
+
+    const float combinedVolume = voice.sample->volume * voice.volume * voice.velocity;
+    voice.volumeEffect->setVolume(combinedVolume);
+
+    voice.lpf->setCutoff(std::clamp(voice.sample->cutoff + (voice.cutoff - 1.0f), 0.0f, 1.0f));
+    voice.hpf->setCutoff(std::clamp(voice.sample->hpfCutoff + voice.hpfCutoff, 0.0f, 1.0f));
+}
+
 std::string SamplerDevice::name() const
 {
     return Constants::samplerDeviceName().toStdString();
@@ -74,10 +97,13 @@ void SamplerDevice::processMidiNoteOn(uint8_t note, uint8_t velocity)
             voice.volume = m_globalVolume;
             voice.cutoff = m_globalCutoff;
             voice.hpfCutoff = m_globalHpfCutoff;
-            voice.lpL = voice.hpL = voice.bpL = 0.0f;
-            voice.lpR = voice.hpR = voice.bpR = 0.0f;
-            voice.hpfLpL = voice.hpfHpL = voice.hpfBpL = 0.0f;
-            voice.hpfLpR = voice.hpfHpR = voice.hpfBpR = 0.0f;
+
+            for (auto && effect : voice.effects) {
+                effect->reset();
+            }
+
+            updateVoiceEffects(voice);
+
             voice.releasing = false;
             voice.releaseGain = 1.0f;
             voice.active = true;
@@ -125,6 +151,7 @@ void SamplerDevice::processMidiCc(uint8_t controller, uint8_t value, uint8_t cha
                     } else if (controller == 81) {
                         voice.hpfCutoff = m_samples.at(note)->hpfCutoff;
                     }
+                    updateVoiceEffects(voice);
                 }
             }
         }
@@ -135,6 +162,7 @@ void SamplerDevice::processMidiCc(uint8_t controller, uint8_t value, uint8_t cha
             for (auto && voice : m_voices) {
                 if (voice.active) {
                     voice.pan = m_globalPan;
+                    updateVoiceEffects(voice);
                 }
             }
         } else if (controller == 7) { // Volume
@@ -143,6 +171,7 @@ void SamplerDevice::processMidiCc(uint8_t controller, uint8_t value, uint8_t cha
             for (auto && voice : m_voices) {
                 if (voice.active) {
                     voice.volume = m_globalVolume;
+                    updateVoiceEffects(voice);
                 }
             }
         } else if (controller == 74) { // Cutoff (LPF)
@@ -151,6 +180,7 @@ void SamplerDevice::processMidiCc(uint8_t controller, uint8_t value, uint8_t cha
             for (auto && voice : m_voices) {
                 if (voice.active) {
                     voice.cutoff = m_globalCutoff;
+                    updateVoiceEffects(voice);
                 }
             }
         } else if (controller == 81) { // General Purpose 6 (HPF)
@@ -159,6 +189,7 @@ void SamplerDevice::processMidiCc(uint8_t controller, uint8_t value, uint8_t cha
             for (auto && voice : m_voices) {
                 if (voice.active) {
                     voice.hpfCutoff = m_globalHpfCutoff;
+                    updateVoiceEffects(voice);
                 }
             }
         }
@@ -216,44 +247,8 @@ void SamplerDevice::processAudio(float * output, uint32_t nFrames, uint32_t samp
                 right = r0 + (r1 - r0) * fract;
             }
 
-            // Low-pass filter (Chamberlin SVF)
-            const float combinedCutoff = std::clamp(voice.sample->cutoff + (voice.cutoff - 1.0f), 0.0f, 1.0f);
-            if (combinedCutoff < 0.999f) {
-                const float freq = 20.0f * std::pow(std::min(20000.0f, sampleRate * 0.49f) / 20.0f, combinedCutoff);
-                const float f = 2.0f * std::sin(static_cast<float>(M_PI) * freq / static_cast<float>(sampleRate));
-                const float q = 0.5f;
-
-                // Left
-                voice.hpL = left - voice.lpL - q * voice.bpL;
-                voice.bpL += f * voice.hpL;
-                voice.lpL += f * voice.bpL;
-                left = voice.lpL;
-
-                // Right
-                voice.hpR = right - voice.lpR - q * voice.bpR;
-                voice.bpR += f * voice.hpR;
-                voice.lpR += f * voice.bpR;
-                right = voice.lpR;
-            }
-
-            // High-pass filter (Chamberlin SVF)
-            const float combinedHpfCutoff = std::clamp(voice.sample->hpfCutoff + voice.hpfCutoff, 0.0f, 1.0f);
-            if (combinedHpfCutoff > 0.001f) {
-                const float freq = 20.0f * std::pow(std::min(20000.0f, sampleRate * 0.49f) / 20.0f, combinedHpfCutoff);
-                const float f = 2.0f * std::sin(static_cast<float>(M_PI) * freq / static_cast<float>(sampleRate));
-                const float q = 0.5f;
-
-                // Left
-                voice.hpfHpL = left - voice.hpfLpL - q * voice.hpfBpL;
-                voice.hpfBpL += f * voice.hpfHpL;
-                voice.hpfLpL += f * voice.hpfBpL;
-                left = voice.hpfHpL;
-
-                // Right
-                voice.hpfHpR = right - voice.hpfLpR - q * voice.hpfBpR;
-                voice.hpfBpR += f * voice.hpfHpR;
-                voice.hpfLpR += f * voice.hpfBpR;
-                right = voice.hpfHpR;
+            for (auto && effect : voice.effects) {
+                effect->process(left, right, sampleRate);
             }
 
             // Apply de-clicking fade if releasing
@@ -269,19 +264,8 @@ void SamplerDevice::processAudio(float * output, uint32_t nFrames, uint32_t samp
                 }
             }
 
-            // Apply velocity, voice base pan, and current MIDI CC pan
-            const float sPan = (voice.sample->pan * 2.0f) - 1.0f;
-            const float mPan = (voice.pan * 2.0f) - 1.0f;
-            const float combinedPan = (std::clamp(sPan + mPan, -1.0f, 1.0f) + 1.0f) / 2.0f;
-            
-            // Combined volume: sample base volume * current MIDI CC volume * velocity
-            const float combinedVolume = voice.sample->volume * voice.volume * voice.velocity;
-            
-            const float gainL = std::min(1.0f, 2.0f - combinedPan * 2.0f) * combinedVolume;
-            const float gainR = std::min(1.0f, combinedPan * 2.0f) * combinedVolume;
-
-            output[i * 2] += left * gainL;
-            output[i * 2 + 1] += right * gainR;
+            output[i * 2] += left;
+            output[i * 2 + 1] += right;
 
             voice.position += pitchScale;
         }
@@ -375,6 +359,11 @@ void SamplerDevice::setSamplePan(uint8_t note, float pan)
     std::lock_guard<std::mutex> lock { m_mutex };
     if (m_samples.at(note)) {
         m_samples.at(note)->pan = std::clamp(pan, 0.0f, 1.0f);
+        for (auto && voice : m_voices) {
+            if (voice.active && voice.note == note) {
+                updateVoiceEffects(voice);
+            }
+        }
         emit dataChanged();
     }
 }
@@ -396,6 +385,11 @@ void SamplerDevice::setSampleVolume(uint8_t note, float volume)
     std::lock_guard<std::mutex> lock { m_mutex };
     if (m_samples.at(note)) {
         m_samples.at(note)->volume = std::clamp(volume, 0.0f, 1.0f);
+        for (auto && voice : m_voices) {
+            if (voice.active && voice.note == note) {
+                updateVoiceEffects(voice);
+            }
+        }
         emit dataChanged();
     }
 }
@@ -417,6 +411,11 @@ void SamplerDevice::setSampleCutoff(uint8_t note, float cutoff)
     std::lock_guard<std::mutex> lock { m_mutex };
     if (m_samples.at(note)) {
         m_samples.at(note)->cutoff = std::clamp(cutoff, 0.0f, 1.0f);
+        for (auto && voice : m_voices) {
+            if (voice.active && voice.note == note) {
+                updateVoiceEffects(voice);
+            }
+        }
         emit dataChanged();
     }
 }
@@ -438,6 +437,11 @@ void SamplerDevice::setSampleHpfCutoff(uint8_t note, float cutoff)
     std::lock_guard<std::mutex> lock { m_mutex };
     if (m_samples.at(note)) {
         m_samples.at(note)->hpfCutoff = std::clamp(cutoff, 0.0f, 1.0f);
+        for (auto && voice : m_voices) {
+            if (voice.active && voice.note == note) {
+                updateVoiceEffects(voice);
+            }
+        }
         emit dataChanged();
     }
 }
