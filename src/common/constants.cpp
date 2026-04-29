@@ -82,6 +82,11 @@ QString samplerDeviceName()
     return "Noteahead Sampler";
 }
 
+QString synthDeviceName()
+{
+    return "Notealogue";
+}
+
 namespace NahdXml {
 
 QString xmlKeyFileFormatVersion()
@@ -719,6 +724,141 @@ QString xmlKeySampler()
     return "Sampler";
 }
 
+QString xmlKeySynth()
+{
+    return "Synth";
+}
+
+QString xmlKeyOscillator()
+{
+    return "Oscillator";
+}
+
+QString xmlKeyWaveform()
+{
+    return "waveform";
+}
+
+QString xmlKeyLevel()
+{
+    return "level";
+}
+
+QString xmlKeyShape()
+{
+    return "shape";
+}
+
+QString xmlKeyPitch()
+{
+    return "pitch";
+}
+
+QString xmlKeySync()
+{
+    return "sync";
+}
+
+QString xmlKeyOctave()
+{
+    return "octave";
+}
+
+QString xmlKeyVoiceMode()
+{
+    return "voiceMode";
+}
+
+QString xmlKeyVoiceDepth()
+{
+    return "voiceDepth";
+}
+
+QString xmlKeyPortamento()
+{
+    return "portamento";
+}
+
+QString xmlKeyPanSpread()
+{
+    return "panSpread";
+}
+
+QString xmlKeyResonance()
+{
+    return "resonance";
+}
+
+QString xmlKeyKeyTrack()
+{
+    return "keyTrack";
+}
+
+QString xmlKeyAttack()
+{
+    return "attack";
+}
+
+QString xmlKeyDecay()
+{
+    return "decay";
+}
+
+QString xmlKeySustain()
+{
+    return "sustain";
+}
+
+QString xmlKeyReleaseTime()
+{
+    return "release";
+}
+
+QString xmlKeyIntensity()
+{
+    return "intensity";
+}
+
+QString xmlKeyTarget()
+{
+    return "target";
+}
+
+QString xmlKeyDelayType()
+{
+    return "delayType";
+}
+
+QString xmlKeyDelayTime()
+{
+    return "delayTime";
+}
+
+QString xmlKeyDelayFeedback()
+{
+    return "delayFeedback";
+}
+
+QString xmlKeyDelayDepth()
+{
+    return "delayDepth";
+}
+
+QString xmlKeyDelayMix()
+{
+    return "delayMix";
+}
+
+QString xmlKeyDelaySync()
+{
+    return "delaySync";
+}
+
+QString xmlKeyDelaySyncDivision()
+{
+    return "delaySyncDivision";
+}
+
 QString xmlKeySample()
 {
     return "Sample";
@@ -753,6 +893,11 @@ QString xmlValueRandom()
 QString xmlValueSamplers()
 {
     return "Samplers";
+}
+
+QString xmlValueSynths()
+{
+    return "Synths";
 }
 
 } // namespace NahdXml

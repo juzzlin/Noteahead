@@ -17,6 +17,7 @@
 
 #include "../../common/constants.hpp"
 #include "../../domain/devices/sampler_device.hpp"
+#include "../../domain/devices/synth_device.hpp"
 #include "../../infra/audio/audio_engine.hpp"
 
 #include <QStringList>
@@ -104,6 +105,9 @@ QStringList DeviceService::internalDeviceNamesQt() const
     for (const auto & name : internalDeviceNames()) {
         names << QString::fromStdString(name);
     }
+    if (device(Constants::synthDeviceName().toStdString())) {
+        names << Constants::synthDeviceName();
+    }
     return names;
 }
 
@@ -152,6 +156,9 @@ void DeviceService::serializeToXml(QXmlStreamWriter & writer) const
             dev->serializeToXml(writer);
         }
     }
+    if (const auto synth = std::dynamic_pointer_cast<SynthDevice>(device(Constants::synthDeviceName().toStdString())); synth) {
+        synth->serializeToXml(writer);
+    }
     writer.writeEndElement(); // Devices
 }
 
@@ -168,6 +175,10 @@ void DeviceService::deserializeFromXml(QXmlStreamReader & reader)
                 dev->deserializeFromXml(reader);
             } else {
                 reader.skipCurrentElement();
+            }
+        } else if (reader.isStartElement() && reader.name() == Constants::NahdXml::xmlKeySynth()) {
+            if (const auto synth = std::dynamic_pointer_cast<SynthDevice>(device(Constants::synthDeviceName().toStdString())); synth) {
+                synth->deserializeFromXml(reader);
             }
         } else {
             reader.skipCurrentElement();

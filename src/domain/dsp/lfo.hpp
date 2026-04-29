@@ -13,41 +13,38 @@
 // You should have received a copy of the GNU General Public License
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef AUDIO_ENGINE_HPP
-#define AUDIO_ENGINE_HPP
-
-#include "../../domain/devices/device.hpp"
-
-#include <map>
-#include <memory>
-#include <mutex>
-#include <string>
+#ifndef LFO_HPP
+#define LFO_HPP
 
 namespace noteahead {
 
-class AudioEngine
+class LFO
 {
 public:
-    using DeviceS = std::shared_ptr<Device>;
+    enum class Waveform
+    {
+        Sine,
+        Triangle,
+        Saw,
+        Square
+    };
 
-    AudioEngine();
-    ~AudioEngine();
+    void setSampleRate(double sampleRate);
+    void setFrequency(double frequency);
+    void setWaveform(Waveform waveform);
 
-    void addDevice(DeviceS device);
-    void removeDevice(const std::string & name);
-    DeviceS device(const std::string & name) const;
-    using DeviceNames = std::vector<std::string>;
-    DeviceNames deviceNames() const;
-
-    void setBpm(float bpm);
-
-    void process(float * output, uint32_t nFrames, uint32_t sampleRate);
+    double nextSample();
 
 private:
-    std::map<std::string, DeviceS> m_devices;
-    mutable std::mutex m_mutex;
+    double m_sampleRate { 44100.0 };
+    double m_frequency { 1.0 };
+    Waveform m_waveform { Waveform::Sine };
+    double m_phase { 0.0 };
+    double m_phaseStep { 0.0 };
+
+    void updatePhaseStep();
 };
 
 } // namespace noteahead
 
-#endif // AUDIO_ENGINE_HPP
+#endif // LFO_HPP

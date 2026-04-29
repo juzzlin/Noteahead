@@ -25,7 +25,6 @@ void HighPassFilterEffect::setCutoff(float cutoff)
 {
     m_cutoff = cutoff;
 }
-
 void HighPassFilterEffect::process(float & left, float & right, uint32_t sampleRate)
 {
     if (m_cutoff <= 0.001f) {

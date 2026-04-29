@@ -30,6 +30,7 @@ private slots:
     void test_lowPassFilterEffect();
     void test_highPassFilterEffect();
     void test_filterStability();
+    void test_cascadedSvfStability();
 };
 
 } // namespace noteahead

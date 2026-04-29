@@ -54,6 +54,14 @@ AudioEngine::DeviceNames AudioEngine::deviceNames() const
     return names;
 }
 
+void AudioEngine::setBpm(float bpm)
+{
+    std::lock_guard<std::mutex> lock { m_mutex };
+    for (auto const & [name, device] : m_devices) {
+        device->setBpm(bpm);
+    }
+}
+
 void AudioEngine::process(float * output, uint32_t nFrames, uint32_t sampleRate)
 {
     std::lock_guard<std::mutex> lock { m_mutex };

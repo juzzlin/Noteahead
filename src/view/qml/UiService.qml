@@ -68,8 +68,8 @@ QtObject {
     property int _activeVelocity: settingsService.velocity(100)
 
     Component.onCompleted: {
-        applicationService.deviceRackDialogRequested.connect(deviceRackDialogRequested)
-        applicationService.samplerDialogRequested.connect(samplerDialogRequested)
+        applicationService.deviceRackDialogRequested.connect(deviceRackDialogRequested);
+        applicationService.samplerDialogRequested.connect(samplerDialogRequested);
     }
 
     function activeVelocity(): int {
@@ -142,9 +142,6 @@ QtObject {
     }
     function requestDeviceDialog(deviceName: string): void {
         deviceDialogRequested(deviceName);
-    }
-    function requestSamplerDialog(): void {
-        samplerDialogRequested();
     }
     function requestSettingsDialog(): void {
         settingsDialogRequested();

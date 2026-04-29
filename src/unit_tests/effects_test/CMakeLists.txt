@@ -7,6 +7,7 @@ set(SRC
     ../../domain/devices/panning_effect.cpp
     ../../domain/devices/low_pass_filter_effect.cpp
     ../../domain/devices/high_pass_filter_effect.cpp
+    ../../domain/dsp/cascaded_svf.cpp
 )
 qt_add_executable(${NAME} ${SRC})
 set_target_properties(${NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${UNIT_TEST_BASE_DIR})

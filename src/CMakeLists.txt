@@ -51,6 +51,7 @@ set(HEADER_FILES
   application/service/random_service.hpp
   application/service/recent_files_manager.hpp
   application/service/sampler_controller.hpp
+  application/service/synth_controller.hpp
   application/service/selection_service.hpp
   application/service/settings_service.hpp
   application/service/side_chain_service.hpp
@@ -66,12 +67,18 @@ set(HEADER_FILES
   domain/column.hpp
   domain/column_settings.hpp
   domain/devices/device.hpp
+  domain/devices/delay_effect.hpp
   domain/devices/effect.hpp
   domain/devices/high_pass_filter_effect.hpp
   domain/devices/low_pass_filter_effect.hpp
   domain/devices/panning_effect.hpp
   domain/devices/sampler_device.hpp
+  domain/devices/synth_device.hpp
   domain/devices/volume_effect.hpp
+  domain/dsp/adsr_envelope.hpp
+  domain/dsp/cascaded_svf.hpp
+  domain/dsp/lfo.hpp
+  domain/dsp/polyblep_oscillator.hpp
   domain/event.hpp
   domain/event_data.hpp
   domain/instrument.hpp
@@ -170,6 +177,7 @@ set(SOURCE_FILES
   application/service/random_service.cpp
   application/service/recent_files_manager.cpp
   application/service/sampler_controller.cpp
+  application/service/synth_controller.cpp
   application/service/selection_service.cpp
   application/service/settings_service.cpp
   application/service/side_chain_service.cpp
@@ -209,11 +217,17 @@ set(SOURCE_FILES
   domain/song.cpp
   domain/track.cpp
   domain/devices/device.cpp
+  domain/devices/delay_effect.cpp
   domain/devices/high_pass_filter_effect.cpp
   domain/devices/low_pass_filter_effect.cpp
   domain/devices/panning_effect.cpp
   domain/devices/sampler_device.cpp
+  domain/devices/synth_device.cpp
   domain/devices/volume_effect.cpp
+  domain/dsp/adsr_envelope.cpp
+  domain/dsp/cascaded_svf.cpp
+  domain/dsp/lfo.cpp
+  domain/dsp/polyblep_oscillator.cpp
   infra/audio/audio_engine.cpp
   infra/audio/audio_file_recorder.cpp
   infra/audio/audio_file_streamer.cpp
@@ -289,6 +303,7 @@ set(QML_SOURCE_FILES
     ${QML_BASE_DIR}/Dialogs/PitchBendAutomationModel.qml
     ${QML_BASE_DIR}/Dialogs/RecentFilesDialog.qml
     ${QML_BASE_DIR}/Dialogs/SamplerDialog.qml
+    ${QML_BASE_DIR}/Dialogs/SynthDialog.qml
     ${QML_BASE_DIR}/Dialogs/SettingsDialog.qml
     ${QML_BASE_DIR}/Dialogs/SettingsDialog_AudioSettings.qml
     ${QML_BASE_DIR}/Dialogs/SettingsDialog_GeneralSettings.qml

@@ -81,6 +81,11 @@ QString ApplicationService::samplerDeviceName() const
     return Constants::samplerDeviceName();
 }
 
+QString ApplicationService::synthDeviceName() const
+{
+    return Constants::synthDeviceName();
+}
+
 void ApplicationService::acceptUnsavedChangesDialog()
 {
     juzzlin::L(TAG).info() << "Unsaved changes accepted";

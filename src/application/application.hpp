@@ -63,6 +63,7 @@ class PropertyService;
 class RecentFilesManager;
 class RecentFilesModel;
 class SamplerController;
+class SynthController;
 class SelectionService;
 class SettingsService;
 class SideChainService;
@@ -146,6 +147,7 @@ private:
     std::shared_ptr<DeviceService> m_deviceService;
     std::unique_ptr<DeviceRack> m_deviceRack;
     std::shared_ptr<SamplerController> m_samplerController;
+    std::shared_ptr<SynthController> m_synthController;
     std::shared_ptr<DeviceRackController> m_deviceRackController;
 
     std::shared_ptr<JackService> m_jackService;

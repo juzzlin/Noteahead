@@ -42,6 +42,7 @@ int transposeMin();
 int transposeMax();
 
 QString samplerDeviceName();
+QString synthDeviceName();
 
 namespace NahdXml {
 
@@ -211,6 +212,33 @@ QString xmlKeyMax();
 QString xmlKeyDefault();
 QString xmlKeyScale();
 QString xmlKeySampler();
+QString xmlKeySynth();
+QString xmlKeyOscillator();
+QString xmlKeyWaveform();
+QString xmlKeyLevel();
+QString xmlKeyShape();
+QString xmlKeyPitch();
+QString xmlKeySync();
+QString xmlKeyOctave();
+QString xmlKeyVoiceMode();
+QString xmlKeyVoiceDepth();
+QString xmlKeyPortamento();
+QString xmlKeyPanSpread();
+QString xmlKeyResonance();
+QString xmlKeyKeyTrack();
+QString xmlKeyAttack();
+QString xmlKeyDecay();
+QString xmlKeySustain();
+QString xmlKeyReleaseTime();
+QString xmlKeyIntensity();
+QString xmlKeyTarget();
+QString xmlKeyDelayType();
+QString xmlKeyDelayTime();
+QString xmlKeyDelayFeedback();
+QString xmlKeyDelayDepth();
+QString xmlKeyDelayMix();
+QString xmlKeyDelaySync();
+QString xmlKeyDelaySyncDivision();
 QString xmlKeySample();
 QString xmlKeySamples();
 QString xmlKeySamplePath();
@@ -222,6 +250,7 @@ QString xmlValueTrue();
 QString xmlValueSineWave();
 QString xmlValueRandom();
 QString xmlValueSamplers();
+QString xmlValueSynths();
 
 } // namespace NahdXml
 } // namespace noteahead::Constants
