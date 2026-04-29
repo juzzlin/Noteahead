@@ -33,7 +33,7 @@ void HighPassFilterEffect::process(float & left, float & right, uint32_t sampleR
     }
 
     const float freq = 20.0f * std::pow(std::min(20000.0f, sampleRate * 0.49f) / 20.0f, m_cutoff);
-    const float f = 2.0f * std::sin(std::numbers::pi_v<float> * freq / static_cast<float>(sampleRate));
+    const float f = std::min(1.0f, 2.0f * std::sin(std::numbers::pi_v<float> * freq / static_cast<float>(sampleRate)));
     const float q = 0.5f;
 
     m_hpL = left - m_lpL - q * m_bpL;
