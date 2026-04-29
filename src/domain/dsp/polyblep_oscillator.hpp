@@ -13,26 +13,43 @@
 // You should have received a copy of the GNU General Public License
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef EFFECTS_TEST_HPP
-#define EFFECTS_TEST_HPP
-
-#include <QObject>
+#ifndef POLYBLEP_OSCILLATOR_HPP
+#define POLYBLEP_OSCILLATOR_HPP
 
 namespace noteahead {
 
-class EffectsTest : public QObject
+class PolyBLEPOscillator
 {
-    Q_OBJECT
+public:
+    enum class Waveform
+    {
+        Triangle,
+        Saw,
+        Pulse
+    };
 
-private slots:
-    void test_volumeEffect();
-    void test_panningEffect();
-    void test_lowPassFilterEffect();
-    void test_highPassFilterEffect();
-    void test_filterStability();
-    void test_cascadedSvfStability();
+    void setSampleRate(double sampleRate);
+    void setFrequency(double frequency);
+    void setWaveform(Waveform waveform);
+    void setPulseWidth(double pw); // 0.0 to 1.0
+
+    double nextSample();
+    void sync(double phase);
+
+    double phase() const;
+
+private:
+    double m_sampleRate { 44100.0 };
+    double m_frequency { 440.0 };
+    Waveform m_waveform { Waveform::Saw };
+    double m_pulseWidth { 0.5 };
+    double m_phase { 0.0 };
+    double m_phaseStep { 0.0 };
+
+    double polyBlep(double t) const;
+    void updatePhaseStep();
 };
 
 } // namespace noteahead
 
-#endif // EFFECTS_TEST_HPP
+#endif // POLYBLEP_OSCILLATOR_HPP

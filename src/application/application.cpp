@@ -47,12 +47,14 @@
 #include "service/property_service.hpp"
 #include "service/recent_files_manager.hpp"
 #include "service/sampler_controller.hpp"
+#include "service/synth_controller.hpp"
 #include "service/selection_service.hpp"
 #include "service/settings_service.hpp"
 #include "service/side_chain_service.hpp"
 #include "service/theme_service.hpp"
 #include "service/util_service.hpp"
 #include "domain/devices/sampler_device.hpp"
+#include "domain/devices/synth_device.hpp"
 #include "infra/audio/audio_engine.hpp"
 #include "infra/audio/backend/audio_file_reader.hpp"
 #include "infra/audio/backend/sndfile_reader.hpp"
@@ -91,6 +93,7 @@ Application::Application(int & argc, char ** argv)
   , m_audioEngine { std::make_shared<AudioEngine>() }
   , m_deviceService { std::make_shared<DeviceService>(m_audioEngine) }
   , m_samplerController { std::make_shared<SamplerController>(std::make_shared<SamplerDevice>()) }
+  , m_synthController { std::make_shared<SynthController>(std::make_shared<SynthDevice>()) }
   , m_jackService { std::make_shared<JackService>(m_settingsService, m_audioEngine) }
   , m_audioService { std::make_shared<AudioService>(m_settingsService, m_jackService, m_audioEngine) }
   , m_eventSelectionModel { std::make_shared<EventSelectionModel>() }
@@ -116,6 +119,7 @@ Application::Application(int & argc, char ** argv)
   , m_engine { std::make_unique<QQmlApplicationEngine>() }
 {
     m_deviceService->registerDevice(m_samplerController->sampler());
+    m_deviceService->registerDevice(m_synthController->synth());
     m_editorService->setMixerService(m_mixerService);
 
     registerTypes();
@@ -163,6 +167,7 @@ void Application::registerTypes()
     qmlRegisterType<RecentFilesModel>("Noteahead", majorVersion, minorVersion, "RecentFilesModel");
     qmlRegisterType<SamplerPadModel>("Noteahead", majorVersion, minorVersion, "SamplerPadModel");
     qmlRegisterType<SamplerController>("Noteahead", majorVersion, minorVersion, "SamplerController");
+    qmlRegisterType<SynthController>("Noteahead", majorVersion, minorVersion, "SynthController");
     qmlRegisterType<SelectionService>("Noteahead", majorVersion, minorVersion, "SelectionService");
     qmlRegisterType<SettingsService>("Noteahead", majorVersion, minorVersion, "SettingsService");
     qmlRegisterType<SideChainService>("Noteahead", majorVersion, minorVersion, "SideChainService");
@@ -182,8 +187,10 @@ void Application::setContextProperties()
     m_engine->rootContext()->setContextProperty("automationService", m_automationService.get());
     m_engine->rootContext()->setContextProperty("columnSettingsModel", m_columnSettingsModel.get());
     m_engine->rootContext()->setContextProperty("deviceService", m_deviceService.get());
-    m_engine->rootContext()->setContextProperty("samplerController", m_samplerController.get());
     m_engine->rootContext()->setContextProperty("editorService", m_editorService.get());
+    m_engine->rootContext()->setContextProperty("samplerController", m_samplerController.get());
+    m_engine->rootContext()->setContextProperty("synthController", m_synthController.get());
+    m_engine->rootContext()->setContextProperty("selectionService", m_selectionService.get());
     m_engine->rootContext()->setContextProperty("eventSelectionModel", m_eventSelectionModel.get());
     m_engine->rootContext()->setContextProperty("midiCcAutomationsModel", m_midiCcAutomationsModel.get());
     m_engine->rootContext()->setContextProperty("keyboardService", m_keyboardService.get());

@@ -82,6 +82,11 @@ QString samplerDeviceName()
     return "Noteahead Sampler";
 }
 
+QString synthDeviceName()
+{
+    return "Noteahead Synth";
+}
+
 namespace NahdXml {
 
 QString xmlKeyFileFormatVersion()
@@ -719,6 +724,96 @@ QString xmlKeySampler()
     return "Sampler";
 }
 
+QString xmlKeySynth()
+{
+    return "Synth";
+}
+
+QString xmlKeyOscillator()
+{
+    return "Oscillator";
+}
+
+QString xmlKeyWaveform()
+{
+    return "waveform";
+}
+
+QString xmlKeyLevel()
+{
+    return "level";
+}
+
+QString xmlKeyDetune()
+{
+    return "detune";
+}
+
+QString xmlKeyFreqModAmount()
+{
+    return "freqModAmount";
+}
+
+QString xmlKeyFreqModSource()
+{
+    return "freqModSource";
+}
+
+QString xmlKeyPulseWidth()
+{
+    return "pulseWidth";
+}
+
+QString xmlKeyOctave()
+{
+    return "octave";
+}
+
+QString xmlKeyKeyAssignMode()
+{
+    return "keyAssignMode";
+}
+
+QString xmlKeyResonance()
+{
+    return "resonance";
+}
+
+QString xmlKeyEnvAmount()
+{
+    return "envAmount";
+}
+
+QString xmlKeyKeyTrack()
+{
+    return "keyTrack";
+}
+
+QString xmlKeyFilterModAmount()
+{
+    return "filterModAmount";
+}
+
+QString xmlKeyAttack()
+{
+    return "attack";
+}
+
+QString xmlKeyDecay()
+{
+    return "decay";
+}
+
+QString xmlKeySustain()
+{
+    return "sustain";
+}
+
+QString xmlKeyMgFrequency()
+{
+    return "mgFrequency";
+}
+
 QString xmlKeySample()
 {
     return "Sample";
@@ -753,6 +848,11 @@ QString xmlValueRandom()
 QString xmlValueSamplers()
 {
     return "Samplers";
+}
+
+QString xmlValueSynths()
+{
+    return "Synths";
 }
 
 } // namespace NahdXml

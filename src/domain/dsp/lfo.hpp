@@ -13,26 +13,38 @@
 // You should have received a copy of the GNU General Public License
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef EFFECTS_TEST_HPP
-#define EFFECTS_TEST_HPP
-
-#include <QObject>
+#ifndef LFO_HPP
+#define LFO_HPP
 
 namespace noteahead {
 
-class EffectsTest : public QObject
+class LFO
 {
-    Q_OBJECT
+public:
+    enum class Waveform
+    {
+        Sine,
+        Triangle,
+        Saw,
+        Square
+    };
 
-private slots:
-    void test_volumeEffect();
-    void test_panningEffect();
-    void test_lowPassFilterEffect();
-    void test_highPassFilterEffect();
-    void test_filterStability();
-    void test_cascadedSvfStability();
+    void setSampleRate(double sampleRate);
+    void setFrequency(double frequency);
+    void setWaveform(Waveform waveform);
+
+    double nextSample();
+
+private:
+    double m_sampleRate { 44100.0 };
+    double m_frequency { 1.0 };
+    Waveform m_waveform { Waveform::Sine };
+    double m_phase { 0.0 };
+    double m_phaseStep { 0.0 };
+
+    void updatePhaseStep();
 };
 
 } // namespace noteahead
 
-#endif // EFFECTS_TEST_HPP
+#endif // LFO_HPP

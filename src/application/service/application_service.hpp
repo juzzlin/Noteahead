@@ -40,6 +40,8 @@ class ApplicationService : public QObject
     Q_OBJECT
 
     Q_PROPERTY(bool editMode READ editMode WRITE setEditMode NOTIFY editModeChanged)
+    Q_PROPERTY(QString samplerDeviceName READ samplerDeviceName CONSTANT)
+    Q_PROPERTY(QString synthDeviceName READ synthDeviceName CONSTANT)
 
 public:
     ApplicationService();
@@ -55,6 +57,7 @@ public:
     Q_INVOKABLE QString license() const;
     Q_INVOKABLE QString webSiteUrl() const;
     Q_INVOKABLE QString samplerDeviceName() const;
+    Q_INVOKABLE QString synthDeviceName() const;
 
     Q_INVOKABLE QStringList recentFiles() const;
     Q_INVOKABLE void addRecentFile(QString filePath);

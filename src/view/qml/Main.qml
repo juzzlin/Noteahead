@@ -204,6 +204,12 @@ ApplicationWindow {
         width: parent.width * Constants.defaultDialogScale
         height: parent.height * Constants.defaultDialogScale
     }
+    SynthDialog {
+        id: synthDialog
+        anchors.centerIn: parent
+        width: parent.width * Constants.defaultDialogScale
+        height: parent.height * Constants.defaultDialogScale
+    }
     SettingsDialog {
         id: settingsDialog
         anchors.centerIn: parent
@@ -417,14 +423,15 @@ ApplicationWindow {
             uiLogger.info(_tag, "Settings focus on editor view");
             _editorView.focus = true;
         });
-        UiService.samplerDialogRequested.connect(samplerDialog.open);
         UiService.recentFilesDialogRequested.connect(recentFilesDialog.open);
         UiService.deviceDialogRequested.connect(deviceName => {
-            if (deviceName === applicationService.samplerDeviceName()) {
+            if (deviceName === applicationService.samplerDeviceName) {
                 samplerDialog.open();
+            } else if (deviceName === applicationService.synthDeviceName) {
+                synthDialog.open();
             }
         });
-
+        UiService.settingsDialogRequested.connect(settingsDialog.open);
         UiService.columnSettingsDialogRequested.connect((trackIndex, columnIndex) => {
             midiCcAutomationsModel.linesPerBeat = editorService.linesPerBeat;
             columnSettingsDialog.setColumn(trackIndex, columnIndex);

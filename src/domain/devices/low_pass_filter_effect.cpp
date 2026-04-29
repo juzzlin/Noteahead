@@ -35,7 +35,7 @@ void LowPassFilterEffect::process(float & left, float & right, uint32_t sampleRa
     // Zero-Delay Feedback State Variable Filter (2nd order)
     const float freq = 20.0f * std::pow(std::min(20000.0f, sampleRate * 0.49f) / 20.0f, m_cutoff);
     const double g = std::tan(std::numbers::pi * static_cast<double>(freq) / static_cast<double>(sampleRate));
-    const double k = 1.0; // Q = 1.0 / k
+    const double k = 1.0; // Q = 1.0 / k. Using k = 1.0 for Q = 1.0 (slight resonance)
     const double damping = 1.0 / (1.0 + g * (g + k));
 
     // Left channel

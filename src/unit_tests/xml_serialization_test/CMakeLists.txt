@@ -38,6 +38,11 @@ set(SRC
     ../../domain/parameter.cpp
     ../../domain/parameter_container.cpp
     ../../domain/devices/sampler_device.cpp
+    ../../domain/devices/synth_device.cpp
+    ../../domain/dsp/adsr_envelope.cpp
+    ../../domain/dsp/cascaded_svf.cpp
+    ../../domain/dsp/lfo.cpp
+    ../../domain/dsp/polyblep_oscillator.cpp
     ../../domain/devices/volume_effect.cpp
     ../../domain/event.cpp
     ../../domain/event_data.cpp

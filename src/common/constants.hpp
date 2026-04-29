@@ -42,6 +42,7 @@ int transposeMin();
 int transposeMax();
 
 QString samplerDeviceName();
+QString synthDeviceName();
 
 namespace NahdXml {
 
@@ -211,6 +212,24 @@ QString xmlKeyMax();
 QString xmlKeyDefault();
 QString xmlKeyScale();
 QString xmlKeySampler();
+QString xmlKeySynth();
+QString xmlKeyOscillator();
+QString xmlKeyWaveform();
+QString xmlKeyLevel();
+QString xmlKeyDetune();
+QString xmlKeyFreqModAmount();
+QString xmlKeyFreqModSource();
+QString xmlKeyPulseWidth();
+QString xmlKeyOctave();
+QString xmlKeyKeyAssignMode();
+QString xmlKeyResonance();
+QString xmlKeyEnvAmount();
+QString xmlKeyKeyTrack();
+QString xmlKeyFilterModAmount();
+QString xmlKeyAttack();
+QString xmlKeyDecay();
+QString xmlKeySustain();
+QString xmlKeyMgFrequency();
 QString xmlKeySample();
 QString xmlKeySamples();
 QString xmlKeySamplePath();
@@ -222,6 +241,7 @@ QString xmlValueTrue();
 QString xmlValueSineWave();
 QString xmlValueRandom();
 QString xmlValueSamplers();
+QString xmlValueSynths();
 
 } // namespace NahdXml
 } // namespace noteahead::Constants

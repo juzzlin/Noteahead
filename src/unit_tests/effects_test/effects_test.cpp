@@ -19,6 +19,7 @@
 #include "../../domain/devices/panning_effect.hpp"
 #include "../../domain/devices/low_pass_filter_effect.hpp"
 #include "../../domain/devices/high_pass_filter_effect.hpp"
+#include "../../domain/dsp/cascaded_svf.hpp"
 
 #include <QtTest>
 
@@ -158,6 +159,28 @@ void EffectsTest::test_filterStability()
         QVERIFY(!std::isnan(left));
         QVERIFY(!std::isnan(right));
     }
+}
+
+void EffectsTest::test_cascadedSvfStability()
+{
+    CascadedSVF filter{};
+    filter.setSampleRate(44100);
+    
+    // Stress test: Rapidly change parameters
+    for (int i = 0; i < 1000; ++i) {
+        filter.setCutoff(0.5 + 0.49 * std::sin(i * 0.1));
+        filter.setResonance(0.5 + 0.49 * std::cos(i * 0.05));
+        
+        float out = filter.process(1.0f);
+        QVERIFY(!std::isnan(out));
+        QVERIFY(!std::isinf(out));
+    }
+    
+    // Check for NaN recovery
+    filter.setCutoff(0.5);
+    filter.setResonance(0.5);
+    float out = filter.process(1.0f);
+    QVERIFY(!std::isnan(out));
 }
 
 } // namespace noteahead
