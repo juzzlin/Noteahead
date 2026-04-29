@@ -42,10 +42,10 @@ int AudioPlayerRtAudio::playCallback(void * outputBuffer, void *,
     }
 
     const auto out = static_cast<int32_t *>(outputBuffer);
-    const int channels = self->m_sfInfo.channels > 0 ? self->m_sfInfo.channels : 2; // Default to 2 if no file
+    const int channels = self->m_streamer.channels() > 0 ? self->m_streamer.channels() : 2; // Default to 2 if no file
     const size_t totalSamples = nFrames * channels;
 
-    const size_t read = self->m_ringBuffer.pop(out, totalSamples);
+    const size_t read = self->m_streamer.pop(out, totalSamples);
     if (read < totalSamples) {
         // Zero out the rest of the buffer
         std::fill_n(out + read, totalSamples - read, 0);
@@ -65,21 +65,6 @@ int AudioPlayerRtAudio::playCallback(void * outputBuffer, void *,
                 currentVal += interleaved[i * 2 + (ch % 2)];
                 out[outIdx] = static_cast<int32_t>(std::clamp(currentVal, -1.0f, 1.0f) * 2147483647.0f);
             }
-        }
-    }
-
-    if (read > 0) {
-        const int channels = self->m_sfInfo.channels;
-        if (channels > 0) {
-            self->m_playedFrames += read / channels;
-        }
-    }
-
-    // Update playback position
-    if (self->m_sfInfo.frames > 0) {
-        self->m_playbackPosition = static_cast<double>(self->m_playedFrames.load()) / self->m_sfInfo.frames;
-        if (self->m_playedFrames >= static_cast<uint64_t>(self->m_sfInfo.frames)) {
-            self->m_isFinished = true;
         }
     }
 
@@ -126,15 +111,6 @@ AudioPlayerRtAudio::~AudioPlayerRtAudio()
     AudioPlayerRtAudio::stop();
 }
 
-void AudioPlayerRtAudio::initializeSoundFile(const std::string & fileName)
-{
-    m_sfInfo = {};
-    m_sndFile = sf_open(fileName.c_str(), SFM_READ, &m_sfInfo);
-    if (!m_sndFile) {
-        throw std::runtime_error("Error opening file for reading: " + fileName);
-    }
-}
-
 uint32_t AudioPlayerRtAudio::initializeSoundStream(uint32_t deviceId, uint32_t channelCount, uint32_t sampleRate, uint32_t bufferSize)
 {
     RtAudio::StreamParameters oParams;
@@ -148,30 +124,6 @@ uint32_t AudioPlayerRtAudio::initializeSoundStream(uint32_t deviceId, uint32_t c
     return m_rtAudio.getStreamSampleRate();
 }
 
-void AudioPlayerRtAudio::diskReadLoop()
-{
-    std::vector<int32_t> tempBuffer(16384);
-
-    while (!m_stopThread) {
-        const size_t available = m_ringBuffer.writeAvailable();
-        if (available > 0 && m_sndFile) {
-            const size_t toRead = std::min(available, tempBuffer.size());
-            const int channels = m_sfInfo.channels;
-            if (channels > 0) {
-                const sf_count_t read = sf_readf_int(m_sndFile, tempBuffer.data(), toRead / channels);
-                if (read > 0) {
-                    m_ringBuffer.push(tempBuffer.data(), read * channels);
-                } else {
-                    // EOF or error
-                    std::this_thread::sleep_for(std::chrono::milliseconds(10));
-                }
-            }
-        } else {
-            std::this_thread::sleep_for(std::chrono::milliseconds(10));
-        }
-    }
-}
-
 void AudioPlayerRtAudio::start(const std::string & fileName, uint32_t bufferSize)
 {
     if (m_running) {
@@ -179,15 +131,13 @@ void AudioPlayerRtAudio::start(const std::string & fileName, uint32_t bufferSize
     }
 
     try {
-        m_isFinished = false;
-
         uint32_t sampleRate = 44100;
         uint32_t channelCount = 2;
 
         if (!fileName.empty()) {
-            initializeSoundFile(fileName);
-            sampleRate = m_sfInfo.samplerate;
-            channelCount = m_sfInfo.channels;
+            m_streamer.start(fileName, 0); // Temporary size, will resize below
+            sampleRate = m_streamer.sampleRate();
+            channelCount = m_streamer.channels();
         }
 
         uint32_t deviceId = 0;
@@ -215,21 +165,8 @@ void AudioPlayerRtAudio::start(const std::string & fileName, uint32_t bufferSize
         juzzlin::L(TAG).info() << "Playing to device: " << deviceName << ", " << actualSampleRate << " Hz, " << channelCount << " channels";
 
         // 500ms buffer
-        m_ringBuffer.resize(actualSampleRate * channelCount / 2);
-
-        // Respect existing position if set
-        if (m_playbackPosition > 0.0 && m_playbackPosition < 1.0) {
-            const sf_count_t targetFrame = static_cast<sf_count_t>(m_playbackPosition * m_sfInfo.frames);
-            sf_seek(m_sndFile, targetFrame, SEEK_SET);
-            m_playedFrames = targetFrame;
-        } else {
-            m_playedFrames = 0;
-            m_playbackPosition = 0.0;
-        }
-
-        m_stopThread = false;
         if (!fileName.empty()) {
-            m_diskReadThread = std::thread(&AudioPlayerRtAudio::diskReadLoop, this);
+            m_streamer.start(fileName, actualSampleRate * channelCount / 2, position());
         }
 
         m_running = true;
@@ -255,15 +192,7 @@ void AudioPlayerRtAudio::stop()
         juzzlin::L(TAG).error() << e.what();
     }
 
-    m_stopThread = true;
-    if (m_diskReadThread.joinable()) {
-        m_diskReadThread.join();
-    }
-
-    if (m_sndFile) {
-        sf_close(m_sndFile);
-        m_sndFile = nullptr;
-    }
+    m_streamer.stop();
 
     if (wasRunning) {
         juzzlin::L(TAG).info() << "Playback stopped";
@@ -272,24 +201,17 @@ void AudioPlayerRtAudio::stop()
 
 void AudioPlayerRtAudio::setPosition(double position)
 {
-    if (m_sndFile && m_sfInfo.frames > 0) {
-        const sf_count_t targetFrame = static_cast<sf_count_t>(position * m_sfInfo.frames);
-        sf_seek(m_sndFile, targetFrame, SEEK_SET);
-        m_ringBuffer.clear();
-        m_playedFrames = targetFrame;
-        m_playbackPosition = position;
-        m_isFinished = targetFrame >= m_sfInfo.frames;
-    }
+    m_streamer.setPosition(position);
 }
 
 double AudioPlayerRtAudio::position() const
 {
-    return m_playbackPosition.load();
+    return m_streamer.position();
 }
 
 bool AudioPlayerRtAudio::isFinished() const
 {
-    return m_isFinished.load();
+    return m_streamer.isFinished();
 }
 
 } // namespace noteahead

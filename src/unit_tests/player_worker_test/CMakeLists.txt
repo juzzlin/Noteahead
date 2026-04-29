@@ -32,6 +32,8 @@ set(SRC
     ../../domain/note_data.cpp
     ../../domain/pitch_bend_data.cpp
     ../../infra/audio/audio_engine.cpp
+    ../../infra/audio/audio_file_recorder.cpp
+    ../../infra/audio/audio_file_streamer.cpp
     ../../infra/audio/audio_player.cpp
     ../../infra/audio/audio_recorder.cpp
     ../../infra/audio/backend/sndfile_reader.cpp

@@ -174,27 +174,16 @@ void JackService::startRecording(const QString & filePath)
         stopRecording();
     }
 
-    m_sfInfo = {};
-    m_sfInfo.samplerate = static_cast<int>(sampleRate());
-    m_sfInfo.channels = 2;
-    m_sfInfo.format = SF_FORMAT_WAV | SF_FORMAT_PCM_24;
-
-    m_sndFile = sf_open(filePath.toStdString().c_str(), SFM_WRITE, &m_sfInfo);
-    if (!m_sndFile) {
+    try {
+        // 2 seconds buffer
+        m_recorder.start(filePath.toStdString(), sampleRate(), 2, sampleRate() * 2 * 2);
+        m_isRecording = true;
+        juzzlin::L(TAG).info() << "JACK recording started: " << filePath.toStdString();
+    } catch (const std::exception & e) {
         const auto message = tr("Could not open audio file for recording: %1").arg(filePath);
-        juzzlin::L(TAG).error() << message.toStdString();
+        juzzlin::L(TAG).error() << message.toStdString() << " (" << e.what() << ")";
         emit errorOccurred(message);
-        return;
     }
-
-    // 2 seconds buffer
-    m_recordingBuffer.resize(sampleRate() * 2 * 2);
-
-    m_stopThread = false;
-    m_diskWriteThread = std::thread(&JackService::diskWriteLoop, this);
-
-    m_isRecording = true;
-    juzzlin::L(TAG).info() << "JACK recording started: " << filePath.toStdString();
 }
 
 void JackService::stopRecording()
@@ -204,17 +193,7 @@ void JackService::stopRecording()
     }
 
     m_isRecording = false;
-    m_stopThread = true;
-
-    if (m_diskWriteThread.joinable()) {
-        m_diskWriteThread.join();
-    }
-
-    if (m_sndFile) {
-        sf_close(m_sndFile);
-        m_sndFile = nullptr;
-    }
-
+    m_recorder.stop();
     juzzlin::L(TAG).info() << "JACK recording stopped";
 }
 
@@ -233,35 +212,16 @@ void JackService::startPlayback(const QString & filePath)
         stopPlayback();
     }
 
-    m_isPlayingPlaybackFinished = false;
-
-    m_playbackSfInfo = {};
-    m_playbackSndFile = sf_open(filePath.toStdString().c_str(), SFM_READ, &m_playbackSfInfo);
-    if (!m_playbackSndFile) {
+    try {
+        // 500ms buffer
+        m_streamer.start(filePath.toStdString(), sampleRate() * 2 / 2, playbackPosition());
+        m_isPlayingPlayback = true;
+        juzzlin::L(TAG).info() << "JACK playback started: " << filePath.toStdString();
+    } catch (const std::exception & e) {
         const auto message = tr("Could not open audio file for playback: %1").arg(filePath);
-        juzzlin::L(TAG).error() << message.toStdString();
+        juzzlin::L(TAG).error() << message.toStdString() << " (" << e.what() << ")";
         emit errorOccurred(message);
-        return;
     }
-
-    // 500ms buffer
-    m_playbackBuffer.resize(sampleRate() * 2 / 2);
-
-    // Respect existing position if set
-    if (m_playbackPosition > 0.0 && m_playbackPosition < 1.0) {
-        const sf_count_t targetFrame = static_cast<sf_count_t>(m_playbackPosition * m_playbackSfInfo.frames);
-        sf_seek(m_playbackSndFile, targetFrame, SEEK_SET);
-        m_playedPlaybackFrames = targetFrame;
-    } else {
-        m_playedPlaybackFrames = 0;
-        m_playbackPosition = 0.0;
-    }
-
-    m_stopPlaybackThread = false;
-    m_diskReadThread = std::thread(&JackService::diskReadLoop, this);
-
-    m_isPlayingPlayback = true;
-    juzzlin::L(TAG).info() << "JACK playback started: " << filePath.toStdString();
 }
 
 void JackService::stopPlayback()
@@ -271,17 +231,7 @@ void JackService::stopPlayback()
     }
 
     m_isPlayingPlayback = false;
-    m_stopPlaybackThread = true;
-
-    if (m_diskReadThread.joinable()) {
-        m_diskReadThread.join();
-    }
-
-    if (m_playbackSndFile) {
-        sf_close(m_playbackSndFile);
-        m_playbackSndFile = nullptr;
-    }
-
+    m_streamer.stop();
     juzzlin::L(TAG).info() << "JACK playback stopped";
 }
 
@@ -292,69 +242,17 @@ bool JackService::isPlayingPlayback() const
 
 bool JackService::isPlayingPlaybackFinished() const
 {
-    return m_isPlayingPlaybackFinished.load();
+    return m_streamer.isFinished();
 }
 
 void JackService::setPlaybackPosition(double position)
 {
-    if (m_playbackSndFile && m_playbackSfInfo.frames > 0) {
-        const sf_count_t targetFrame = static_cast<sf_count_t>(position * m_playbackSfInfo.frames);
-        sf_seek(m_playbackSndFile, targetFrame, SEEK_SET);
-        m_playbackBuffer.clear();
-        m_playedPlaybackFrames = targetFrame;
-        m_playbackPosition = position;
-        m_isPlayingPlaybackFinished = targetFrame >= m_playbackSfInfo.frames;
-    }
+    m_streamer.setPosition(position);
 }
 
 double JackService::playbackPosition() const
 {
-    return m_playbackPosition.load();
-}
-
-void JackService::diskWriteLoop()
-{
-    std::vector<int32_t> tempBuffer(16384);
-
-    while (!m_stopThread || m_recordingBuffer.readAvailable() > 0) {
-        const size_t available = m_recordingBuffer.readAvailable();
-        if (available > 0) {
-            const size_t toRead = std::min(available, tempBuffer.size());
-            const size_t read = m_recordingBuffer.pop(tempBuffer.data(), toRead);
-            if (read > 0 && m_sndFile) {
-                const int channels = m_sfInfo.channels;
-                if (channels > 0) {
-                    sf_writef_int(m_sndFile, tempBuffer.data(), read / channels);
-                }
-            }
-        } else {
-            std::this_thread::sleep_for(std::chrono::milliseconds(10));
-        }
-    }
-}
-
-void JackService::diskReadLoop()
-{
-    std::vector<int32_t> tempBuffer(16384);
-
-    while (!m_stopPlaybackThread) {
-        const size_t available = m_playbackBuffer.writeAvailable();
-        if (available > 0 && m_playbackSndFile) {
-            const size_t toRead = std::min(available, tempBuffer.size());
-            const int channels = m_playbackSfInfo.channels;
-            if (channels > 0) {
-                const sf_count_t read = sf_readf_int(m_playbackSndFile, tempBuffer.data(), toRead / channels);
-                if (read > 0) {
-                    m_playbackBuffer.push(tempBuffer.data(), read * channels);
-                } else {
-                    // EOF or error
-                    std::this_thread::sleep_for(std::chrono::milliseconds(10));
-                }
-            }
-        } else {
-            std::this_thread::sleep_for(std::chrono::milliseconds(10));
-        }
-    }
+    return m_streamer.position();
 }
 
 int JackService::processCallback(jack_nframes_t nframes, void * arg)
@@ -372,7 +270,7 @@ int JackService::processCallback(jack_nframes_t nframes, void * arg)
             interleaved[i * 2 + 1] = static_cast<int32_t>(inR[i] * 2147483647.0f);
         }
 
-        if (!self->m_recordingBuffer.push(interleaved.data(), interleaved.size())) {
+        if (!self->m_recorder.push(interleaved.data(), interleaved.size())) {
             // Under PipeWire, we might want to log this but very carefully (not in RT thread)
         }
     }
@@ -382,7 +280,7 @@ int JackService::processCallback(jack_nframes_t nframes, void * arg)
         auto outR = static_cast<jack_default_audio_sample_t *>(jack_port_get_buffer(self->m_outputPortR, nframes));
 
         std::vector<int32_t> interleaved(nframes * 2);
-        const size_t read = self->m_playbackBuffer.pop(interleaved.data(), interleaved.size());
+        const size_t read = self->m_streamer.pop(interleaved.data(), interleaved.size());
 
         for (jack_nframes_t i = 0; i < nframes; ++i) {
             if (i * 2 + 1 < read) {
@@ -391,18 +289,6 @@ int JackService::processCallback(jack_nframes_t nframes, void * arg)
             } else {
                 outL[i] = 0.0f;
                 outR[i] = 0.0f;
-            }
-        }
-
-        if (read > 0) {
-            self->m_playedPlaybackFrames += read / 2;
-        }
-
-        // Update playback position
-        if (self->m_playbackSndFile && self->m_playbackSfInfo.frames > 0) {
-            self->m_playbackPosition = static_cast<double>(self->m_playedPlaybackFrames.load()) / self->m_playbackSfInfo.frames;
-            if (self->m_playedPlaybackFrames >= static_cast<uint64_t>(self->m_playbackSfInfo.frames)) {
-                self->m_isPlayingPlaybackFinished = true;
             }
         }
     } else {

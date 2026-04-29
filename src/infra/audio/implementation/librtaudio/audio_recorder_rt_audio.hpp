@@ -16,16 +16,14 @@
 #ifndef AUDIO_RECORDER_RT_AUDIO_HPP
 #define AUDIO_RECORDER_RT_AUDIO_HPP
 
+#include "../../audio_file_recorder.hpp"
 #include "../../audio_recorder.hpp"
-#include "../../ring_buffer.hpp"
 
 #include <RtAudio.h>
-#include <sndfile.h>
 
 #include <atomic>
 #include <cstdint>
 #include <string>
-#include <thread>
 
 namespace noteahead {
 
@@ -43,30 +41,21 @@ public:
 
     uint32_t sampleRate() override;
 
-    bool isRunning() const;
-
 private:
     static int recordCallback(void * outputBuffer, void * inputBuffer,
                               uint32_t nFrames, double streamTime,
                               RtAudioStreamStatus status, void * userData);
 
-    void initializeSoundFile(const std::string & fileName, uint32_t sampleRate, uint32_t channelCount);
     uint32_t initializeSoundStream(uint32_t deviceId, uint32_t channelCount, uint32_t sampleRate, uint32_t bufferSize);
-    void diskWriteLoop();
 
     RtAudio m_rtAudio;
-
-    SNDFILE * m_sndFile = nullptr;
-
-    SF_INFO m_sfInfo = {};
 
     std::atomic_bool m_running = false;
     std::atomic<uint32_t> m_inputDeviceId = 0;
 
-    // Double buffering / Ring Buffer
-    RingBuffer<int32_t> m_ringBuffer;
-    std::thread m_diskWriteThread;
-    std::atomic<bool> m_stopThread { false };
+    AudioFileRecorder m_recorder;
+
+    uint32_t m_channels = 0;
 };
 
 } // namespace noteahead

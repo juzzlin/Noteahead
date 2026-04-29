@@ -26,9 +26,8 @@
 #include <jack/jack.h>
 #endif
 
-#include <sndfile.h>
-#include "../../infra/audio/ring_buffer.hpp"
-#include "../../infra/audio/audio_engine.hpp"
+#include "../../infra/audio/audio_file_recorder.hpp"
+#include "../../infra/audio/audio_file_streamer.hpp"
 
 namespace noteahead {
 
@@ -76,8 +75,6 @@ private slots:
 
 private:
     void deinitialize();
-    void diskWriteLoop();
-    void diskReadLoop();
 
 #ifdef HAVE_JACK
     static int processCallback(jack_nframes_t nframes, void * arg);
@@ -92,21 +89,10 @@ private:
 #endif
 
     std::atomic<bool> m_isRecording { false };
-    SNDFILE * m_sndFile = nullptr;
-    SF_INFO m_sfInfo = {};
-    RingBuffer<int32_t> m_recordingBuffer;
-    std::thread m_diskWriteThread;
-    std::atomic<bool> m_stopThread { false };
+    AudioFileRecorder m_recorder;
 
     std::atomic<bool> m_isPlayingPlayback { false };
-    SNDFILE * m_playbackSndFile = nullptr;
-    SF_INFO m_playbackSfInfo = {};
-    RingBuffer<int32_t> m_playbackBuffer;
-    std::thread m_diskReadThread;
-    std::atomic<bool> m_stopPlaybackThread { false };
-    std::atomic<uint64_t> m_playedPlaybackFrames { 0 };
-    std::atomic<double> m_playbackPosition { 0.0 };
-    std::atomic<bool> m_isPlayingPlaybackFinished { false };
+    AudioFileStreamer m_streamer;
 
     SettingsServiceS m_settingsService;
     AudioEngineS m_audioEngine;

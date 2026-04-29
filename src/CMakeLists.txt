@@ -94,6 +94,9 @@ set(HEADER_FILES
   domain/song.hpp
   domain/track.hpp
   infra/audio/audio_engine.hpp
+  infra/audio/audio_file_recorder.hpp
+  infra/audio/audio_file_streamer.hpp
+  infra/audio/audio_player.hpp
   infra/audio/audio_recorder.hpp
   infra/audio/backend/audio_file_reader.hpp
   infra/audio/backend/sndfile_reader.hpp
@@ -204,6 +207,8 @@ set(SOURCE_FILES
   domain/devices/sampler_device.cpp
   domain/devices/volume_effect.cpp
   infra/audio/audio_engine.cpp
+  infra/audio/audio_file_recorder.cpp
+  infra/audio/audio_file_streamer.cpp
   infra/audio/audio_recorder.cpp
   infra/audio/audio_player.cpp
   infra/audio/backend/sndfile_reader.cpp

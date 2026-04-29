@@ -55,6 +55,8 @@ set(SRC
     ../../domain/song.cpp
     ../../domain/track.cpp
     ../../infra/audio/audio_engine.cpp
+    ../../infra/audio/audio_file_recorder.cpp
+    ../../infra/audio/audio_file_streamer.cpp
     ../../infra/audio/audio_player.cpp
     ../../infra/audio/audio_recorder.cpp
     ../../infra/audio/backend/sndfile_reader.cpp

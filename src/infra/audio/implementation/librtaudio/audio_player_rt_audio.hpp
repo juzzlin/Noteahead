@@ -16,16 +16,14 @@
 #ifndef AUDIO_PLAYER_RT_AUDIO_HPP
 #define AUDIO_PLAYER_RT_AUDIO_HPP
 
+#include "../../audio_file_streamer.hpp"
 #include "../../audio_player.hpp"
-#include "../../ring_buffer.hpp"
 
 #include <RtAudio.h>
-#include <sndfile.h>
 
 #include <atomic>
 #include <cstdint>
 #include <string>
-#include <thread>
 
 namespace noteahead {
 
@@ -53,27 +51,14 @@ private:
                             uint32_t nFrames, double streamTime,
                             RtAudioStreamStatus status, void * userData);
 
-    void initializeSoundFile(const std::string & fileName);
     uint32_t initializeSoundStream(uint32_t deviceId, uint32_t channelCount, uint32_t sampleRate, uint32_t bufferSize);
-    void diskReadLoop();
 
     RtAudio m_rtAudio;
-
-    SNDFILE * m_sndFile = nullptr;
-
-    SF_INFO m_sfInfo = {};
 
     std::atomic_bool m_running = false;
     std::atomic<uint32_t> m_outputDeviceId = 0;
 
-    // Double buffering / Ring Buffer
-    RingBuffer<int32_t> m_ringBuffer;
-    std::thread m_diskReadThread;
-    std::atomic<bool> m_stopThread { false };
-
-    std::atomic<uint64_t> m_playedFrames { 0 };
-    std::atomic<double> m_playbackPosition { 0.0 };
-    std::atomic<bool> m_isFinished { false };
+    AudioFileStreamer m_streamer;
 };
 
 } // namespace noteahead

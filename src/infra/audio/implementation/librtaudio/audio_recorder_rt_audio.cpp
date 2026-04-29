@@ -42,18 +42,9 @@ int AudioRecorderRtAudio::recordCallback(void *, void * inputBuffer,
     }
 
     const auto in = static_cast<int32_t *>(inputBuffer);
-    const int channels = self->m_sfInfo.channels;
-    if (channels <= 0) {
-        return 0;
-    }
+    const size_t totalSamples = nFrames * self->m_channels;
 
-    const size_t totalSamples = nFrames * channels;
-
-    // We no longer call m_audioEngine->process() here because it's already called by the player.
-    // Calling it twice per period causes everything in the engine (like sampler voices) to advance twice as fast.
-    // Consistent with JackService, we only record hardware input.
-
-    if (!self->m_ringBuffer.push(in, totalSamples)) {
+    if (!self->m_recorder.push(in, totalSamples)) {
         std::cerr << "RingBuffer Overflow!" << std::endl;
     }
 
@@ -100,20 +91,6 @@ AudioRecorderRtAudio::~AudioRecorderRtAudio()
     AudioRecorderRtAudio::stop();
 }
 
-void AudioRecorderRtAudio::initializeSoundFile(const std::string & fileName, uint32_t sampleRate, uint32_t channelCount)
-{
-    // Open WAV file: 24-bit PCM
-    m_sfInfo = {};
-    m_sfInfo.samplerate = static_cast<int>(sampleRate);
-    m_sfInfo.channels = static_cast<int>(channelCount);
-    m_sfInfo.format = SF_FORMAT_WAV | SF_FORMAT_PCM_24;
-
-    m_sndFile = sf_open(fileName.c_str(), SFM_WRITE, &m_sfInfo);
-    if (!m_sndFile) {
-        throw std::runtime_error("Error opening file: " + fileName);
-    }
-}
-
 uint32_t AudioRecorderRtAudio::initializeSoundStream(uint32_t deviceId, uint32_t channelCount, uint32_t sampleRate, uint32_t bufferSize)
 {
     RtAudio::StreamParameters iParams;
@@ -125,27 +102,6 @@ uint32_t AudioRecorderRtAudio::initializeSoundStream(uint32_t deviceId, uint32_t
                          &AudioRecorderRtAudio::recordCallback, this);
     m_rtAudio.startStream();
     return m_rtAudio.getStreamSampleRate();
-}
-
-void AudioRecorderRtAudio::diskWriteLoop()
-{
-    std::vector<int32_t> tempBuffer(16384);
-
-    while (!m_stopThread || m_ringBuffer.readAvailable() > 0) {
-        const size_t available = m_ringBuffer.readAvailable();
-        if (available > 0) {
-            const size_t toRead = std::min(available, tempBuffer.size());
-            const size_t read = m_ringBuffer.pop(tempBuffer.data(), toRead);
-            if (read > 0 && m_sndFile) {
-                const int channels = m_sfInfo.channels;
-                if (channels > 0) {
-                    sf_writef_int(m_sndFile, tempBuffer.data(), read / channels);
-                }
-            }
-        } else {
-            std::this_thread::sleep_for(std::chrono::milliseconds(10));
-        }
-    }
 }
 
 void AudioRecorderRtAudio::start(const std::string & fileName, uint32_t bufferSize)
@@ -180,18 +136,14 @@ void AudioRecorderRtAudio::start(const std::string & fileName, uint32_t bufferSi
             deviceName = deviceInfo.name;
         }
 
+        m_channels = channelCount;
         const uint32_t actualSampleRate = initializeSoundStream(deviceId, channelCount, sampleRate, actualBufferSize);
 
         juzzlin::L(TAG).info() << "Recording from device: " << deviceName << ", " << actualSampleRate << " Hz, " << channelCount << " channels (24-bit WAV)";
         juzzlin::L(TAG).info() << "Buffer size: " << (actualBufferSize == 0 ? "Default" : std::to_string(actualBufferSize));
 
-        initializeSoundFile(fileName, actualSampleRate, channelCount);
-
         // 2 seconds buffer
-        m_ringBuffer.resize(actualSampleRate * channelCount * 2);
-
-        m_stopThread = false;
-        m_diskWriteThread = std::thread(&AudioRecorderRtAudio::diskWriteLoop, this);
+        m_recorder.start(fileName, actualSampleRate, channelCount, actualSampleRate * channelCount * 2);
 
         m_running = true;
     } catch (...) {
@@ -216,15 +168,7 @@ void AudioRecorderRtAudio::stop()
         juzzlin::L(TAG).error() << e.what();
     }
 
-    m_stopThread = true;
-    if (m_diskWriteThread.joinable()) {
-        m_diskWriteThread.join();
-    }
-
-    if (m_sndFile) {
-        sf_close(m_sndFile);
-        m_sndFile = nullptr;
-    }
+    m_recorder.stop();
 
     if (wasRunning) {
         juzzlin::L(TAG).info() << "Recording stopped";
