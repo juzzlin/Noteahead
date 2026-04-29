@@ -64,7 +64,12 @@ set(HEADER_FILES
   domain/column.hpp
   domain/column_settings.hpp
   domain/devices/device.hpp
+  domain/devices/effect.hpp
+  domain/devices/high_pass_filter_effect.hpp
+  domain/devices/low_pass_filter_effect.hpp
+  domain/devices/panning_effect.hpp
   domain/devices/sampler_device.hpp
+  domain/devices/volume_effect.hpp
   domain/event.hpp
   domain/event_data.hpp
   domain/instrument.hpp
@@ -193,7 +198,11 @@ set(SOURCE_FILES
   domain/song.cpp
   domain/track.cpp
   domain/devices/device.cpp
+  domain/devices/high_pass_filter_effect.cpp
+  domain/devices/low_pass_filter_effect.cpp
+  domain/devices/panning_effect.cpp
   domain/devices/sampler_device.cpp
+  domain/devices/volume_effect.cpp
   infra/audio/audio_engine.cpp
   infra/audio/audio_recorder.cpp
   infra/audio/audio_player.cpp

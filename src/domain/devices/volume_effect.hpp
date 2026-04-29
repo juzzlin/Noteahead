@@ -13,21 +13,23 @@
 // You should have received a copy of the GNU General Public License
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef EFFECT_HPP
-#define EFFECT_HPP
+#ifndef VOLUME_EFFECT_HPP
+#define VOLUME_EFFECT_HPP
 
-#include <cstdint>
+#include "effect.hpp"
 
 namespace noteahead {
 
-class Effect
+class VolumeEffect : public Effect
 {
 public:
-    virtual ~Effect() = default;
-    virtual void process(float & left, float & right, uint32_t sampleRate) = 0;
-    virtual void reset() {}
+    void setVolume(float volume);
+    void process(float & left, float & right, uint32_t sampleRate) override;
+
+private:
+    float m_volume { 1.0f };
 };
 
 } // namespace noteahead
 
-#endif // EFFECT_HPP
+#endif // VOLUME_EFFECT_HPP

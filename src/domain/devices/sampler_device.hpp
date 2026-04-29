@@ -18,6 +18,10 @@
 
 #include "device.hpp"
 #include "effect.hpp"
+#include "high_pass_filter_effect.hpp"
+#include "low_pass_filter_effect.hpp"
+#include "panning_effect.hpp"
+#include "volume_effect.hpp"
 #include "../../infra/audio/backend/audio_file_reader.hpp"
 
 #include <array>

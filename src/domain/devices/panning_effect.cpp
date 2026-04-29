@@ -13,21 +13,23 @@
 // You should have received a copy of the GNU General Public License
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef EFFECT_HPP
-#define EFFECT_HPP
+#include "panning_effect.hpp"
 
-#include <cstdint>
+#include <algorithm>
 
 namespace noteahead {
 
-class Effect
+void PanningEffect::setPan(float pan)
 {
-public:
-    virtual ~Effect() = default;
-    virtual void process(float & left, float & right, uint32_t sampleRate) = 0;
-    virtual void reset() {}
-};
+    m_pan = pan;
+}
+
+void PanningEffect::process(float & left, float & right, uint32_t /*sampleRate*/)
+{
+    const float gainL = std::min(1.0f, 2.0f - m_pan * 2.0f);
+    const float gainR = std::min(1.0f, m_pan * 2.0f);
+    left *= gainL;
+    right *= gainR;
+}
 
 } // namespace noteahead
-
-#endif // EFFECT_HPP
