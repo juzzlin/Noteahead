@@ -166,7 +166,7 @@ jack_nframes_t JackService::currentFrame() const
 
 void JackService::startRecording(const QString & filePath)
 {
-    if (!m_client) {
+    if (!m_client || filePath.isEmpty()) {
         return;
     }
 
@@ -225,7 +225,7 @@ bool JackService::isRecording() const
 
 void JackService::startPlayback(const QString & filePath)
 {
-    if (!m_client) {
+    if (!m_client || filePath.isEmpty()) {
         return;
     }
 
