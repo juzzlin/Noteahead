@@ -256,6 +256,18 @@ void ApplicationServiceTest::test_isMidiFile()
     QVERIFY(!service.isMidiFile(""));
 }
 
+void ApplicationServiceTest::test_requestAlertDialog()
+{
+    ApplicationService service;
+    QSignalSpy spy { &service, &ApplicationService::alertDialogRequested };
+
+    const auto message = "Test Message";
+    service.requestAlertDialog(message);
+
+    QCOMPARE(spy.count(), 1);
+    QCOMPARE(spy.at(0).at(0).toString(), message);
+}
+
 } // namespace noteahead
 
 QTEST_GUILESS_MAIN(noteahead::ApplicationServiceTest)

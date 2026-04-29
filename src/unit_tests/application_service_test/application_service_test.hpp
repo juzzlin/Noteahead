@@ -34,6 +34,7 @@ private slots:
     void test_liveNoteLogic();
     void test_importMidiFile_shouldAddRecentFile();
     void test_isMidiFile();
+    void test_requestAlertDialog();
 };
 
 } // namespace noteahead

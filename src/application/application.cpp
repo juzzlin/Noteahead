@@ -597,6 +597,12 @@ void Application::connectPlayerService()
         }
     });
 
+    connect(m_settingsService.get(), &SettingsService::recordingEnabledChanged, this, [this]() {
+        if (m_playerService->isPlaying()) {
+            applyAudioRecording(m_settingsService->recordingEnabled(), m_playerService->tick());
+        }
+    });
+
     connect(m_jackService.get(), &JackService::playRequested, m_playerService.get(), &PlayerService::play, Qt::QueuedConnection);
     connect(m_jackService.get(), &JackService::stopRequested, m_playerService.get(), &PlayerService::stop, Qt::QueuedConnection);
 }
@@ -647,6 +653,7 @@ void Application::applyAudioRecording(bool isPlaying, quint64 startTick)
             m_audioService->startRecording(audioFileName, static_cast<uint32_t>(m_settingsService->audioBufferSize()), startTick);
         } else {
             juzzlin::L(TAG).error() << "Output audio filename is empty!";
+            m_applicationService->requestAlertDialog(tr("The project needs to be saved before audio can be recorded."));
         }
     } else {
         m_audioService->stopRecording(startTick);
