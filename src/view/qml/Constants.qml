@@ -21,4 +21,6 @@ QtObject {
 
     readonly property int positionBarBorderWidth: 1
     readonly property double positionBarOpacity: 0.25
+
+    readonly property int maxEventDelay: 10000
 }

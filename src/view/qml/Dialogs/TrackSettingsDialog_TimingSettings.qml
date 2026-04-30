@@ -57,8 +57,8 @@ GroupBox {
             }
             SpinBox {
                 id: delaySpinBox
-                from: -999
-                to: 999
+                from: -Constants.maxEventDelay
+                to: Constants.maxEventDelay
                 editable: true
                 Layout.column: 6
                 Layout.row: 0

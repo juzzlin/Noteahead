@@ -21,8 +21,8 @@ GroupBox {
         }
         SpinBox {
             id: delaySpinBox
-            from: -10000
-            to: 10000
+            from: -Constants.maxEventDelay
+            to: Constants.maxEventDelay
             editable: true
             Keys.onReturnPressed: focus = false
             onValueModified: columnSettingsModel.delay = value
