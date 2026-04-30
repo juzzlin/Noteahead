@@ -20,6 +20,9 @@ Noteahead is written in Qt/QML/C++20 on top of RtMidi back-end + RtAudio for the
     <td><img src="/screenshots/0.15.0/9b.png" width="100%"></td>
     <td><img src="/screenshots/0.15.0/15b.png" width="100%"></td>
   </tr>
+  <tr>
+    <td><img src="/screenshots/2.2.0/Sampler.png" width="100%"></td>
+  </tr>
 </table>
 
 ##
@@ -76,7 +79,7 @@ All Arctic Music Project songs:
 - Poor Man's MIDI Hot-Plug with automatic setup
   - Noteahead notices when a device goes online/offline
   - Noteahead automatically sets channel, bank, and patch
-- Sampler (since 2.1.0)
+- Sampler (since 2.2.0)
   - Internal sampler instrument with 16 assignable pads
   - Supports loading WAV samples
   - Per-sample panning (-100% to +100%) and volume (0-100%)
