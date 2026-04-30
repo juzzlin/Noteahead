@@ -125,17 +125,11 @@ uint32_t AudioPlayerRtAudio::initializeSoundStream(uint32_t deviceId, uint32_t c
     // Set a priority name for the thread (helpful for debugging in 'top' or 'htop')
     streamOptions.streamName = TAG;
 
-    try {
-        uint32_t bufferFrames = bufferSize;
-        m_rtAudio.openStream(&streamParameters, nullptr, RTAUDIO_SINT32,
-                             sampleRate, &bufferFrames,
-                             &AudioPlayerRtAudio::playCallback, this, &streamOptions);
-        m_rtAudio.startStream();
-    } catch (RtAudioError & e) {
-        // Log the error (e.g., if the hardware doesn't support the requested buffer size)
-        e.printMessage();
-        return 0;
-    }
+    uint32_t bufferFrames = bufferSize;
+    m_rtAudio.openStream(&streamParameters, nullptr, RTAUDIO_SINT32,
+                         sampleRate, &bufferFrames,
+                         &AudioPlayerRtAudio::playCallback, this, &streamOptions);
+    m_rtAudio.startStream();
 
     return m_rtAudio.getStreamSampleRate();
 }

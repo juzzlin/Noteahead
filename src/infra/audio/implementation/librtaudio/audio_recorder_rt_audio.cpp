@@ -105,17 +105,11 @@ uint32_t AudioRecorderRtAudio::initializeSoundStream(uint32_t deviceId, uint32_t
     streamOptions.numberOfBuffers = 2;
     streamOptions.streamName = "NoteaheadRecorder";
 
-    try {
-        uint32_t bufferFrames = bufferSize;
-        m_rtAudio.openStream(nullptr, &streamParameters, RTAUDIO_SINT32,
-                             sampleRate, &bufferFrames,
-                             &AudioRecorderRtAudio::recordCallback, this, &streamOptions);
-        m_rtAudio.startStream();
-    } catch (RtAudioError & e) {
-        // In recording, if 'hw:' is busy, this will catch the 'Device Busy' error
-        e.printMessage();
-        return 0;
-    }
+    uint32_t bufferFrames = bufferSize;
+    m_rtAudio.openStream(nullptr, &streamParameters, RTAUDIO_SINT32,
+                         sampleRate, &bufferFrames,
+                         &AudioRecorderRtAudio::recordCallback, this, &streamOptions);
+    m_rtAudio.startStream();
 
     return m_rtAudio.getStreamSampleRate();
 }
