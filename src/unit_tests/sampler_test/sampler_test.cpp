@@ -173,6 +173,36 @@ void SamplerTest::test_midiCcReset()
     QVERIFY(qFuzzyCompare(sampler.samplePan(60), 0.75f)); // Should be back to manual setting
 }
 
+void SamplerTest::test_startOffset()
+{
+    SamplerDevice sampler { std::make_unique<MockAudioFileReader>() };
+    sampler.loadSample(60, "test.wav");
+    
+    // Default offset is 0.0
+    QCOMPARE(sampler.sampleStartOffset(60), 0.0);
+    
+    // Set offset to 0.01 seconds (441 frames at 44100Hz)
+    sampler.setSampleStartOffset(60, 0.01);
+    QCOMPARE(sampler.sampleStartOffset(60), 0.01);
+    
+    // Test serialization
+    QString xml;
+    QXmlStreamWriter writer(&xml);
+    sampler.serializeToXml(writer);
+    
+    SamplerDevice sampler2 { std::make_unique<MockAudioFileReader>() };
+    QXmlStreamReader reader(xml);
+    while (!reader.atEnd()) {
+        if (reader.isStartElement() && reader.name() == Constants::NahdXml::xmlKeySampler()) {
+            sampler2.deserializeFromXml(reader);
+            break;
+        }
+        reader.readNext();
+    }
+    
+    QCOMPARE(sampler2.sampleStartOffset(60), 0.01);
+}
+
 void SamplerTest::test_volume()
 {
     SamplerDevice sampler { std::make_unique<MockAudioFileReader>() };

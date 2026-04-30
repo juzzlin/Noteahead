@@ -207,6 +207,7 @@ QString xmlKeySampler();
 QString xmlKeySample();
 QString xmlKeySamplePath();
 QString xmlKeyChannelMode();
+QString xmlKeyStartOffset();
 
 QString xmlValueFalse();
 QString xmlValueTrue();

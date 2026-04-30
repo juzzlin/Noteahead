@@ -41,6 +41,8 @@ void SamplerController::setSelectedPad(int selectedPad)
         emit selectedPadVolumeChanged();
         emit selectedPadCutoffChanged();
         emit selectedPadHpfCutoffChanged();
+        emit selectedPadStartOffsetChanged();
+        emit selectedPadDurationChanged();
     }
 }
 
@@ -124,6 +126,51 @@ void SamplerController::setSelectedPadHpfCutoff(double cutoff)
     }
 }
 
+int SamplerController::selectedPadStartOffsetSeconds() const
+{
+    if (!m_sampler || m_selectedPad < 0) {
+        return 0;
+    }
+    return static_cast<int>(m_sampler->sampleStartOffset(static_cast<uint8_t>(36 + m_selectedPad)));
+}
+
+void SamplerController::setSelectedPadStartOffsetSeconds(int seconds)
+{
+    if (m_sampler && m_selectedPad >= 0) {
+        const double currentOffset = m_sampler->sampleStartOffset(static_cast<uint8_t>(36 + m_selectedPad));
+        const double milliseconds = (currentOffset - std::floor(currentOffset)) * 1000.0;
+        m_sampler->setSampleStartOffset(static_cast<uint8_t>(36 + m_selectedPad), static_cast<double>(seconds) + milliseconds / 1000.0);
+        emit selectedPadStartOffsetChanged();
+    }
+}
+
+int SamplerController::selectedPadStartOffsetMilliseconds() const
+{
+    if (!m_sampler || m_selectedPad < 0) {
+        return 0;
+    }
+    const double offset = m_sampler->sampleStartOffset(static_cast<uint8_t>(36 + m_selectedPad));
+    return static_cast<int>(std::round((offset - std::floor(offset)) * 1000.0));
+}
+
+void SamplerController::setSelectedPadStartOffsetMilliseconds(int milliseconds)
+{
+    if (m_sampler && m_selectedPad >= 0) {
+        const double currentOffset = m_sampler->sampleStartOffset(static_cast<uint8_t>(36 + m_selectedPad));
+        const double seconds = std::floor(currentOffset);
+        m_sampler->setSampleStartOffset(static_cast<uint8_t>(36 + m_selectedPad), seconds + static_cast<double>(milliseconds) / 1000.0);
+        emit selectedPadStartOffsetChanged();
+    }
+}
+
+double SamplerController::selectedPadDuration() const
+{
+    if (!m_sampler || m_selectedPad < 0) {
+        return 0.0;
+    }
+    return m_sampler->sampleDuration(static_cast<uint8_t>(36 + m_selectedPad));
+}
+
 bool SamplerController::channelMode() const
 {
     if (!m_sampler) {
@@ -165,6 +212,8 @@ void SamplerController::initialize()
         emit selectedPadVolumeChanged();
         emit selectedPadCutoffChanged();
         emit selectedPadHpfCutoffChanged();
+        emit selectedPadStartOffsetChanged();
+        emit selectedPadDurationChanged();
     }
     emit channelModeChanged();
 }
@@ -189,6 +238,9 @@ void SamplerController::loadSample(int padIndex, const QString & filePath)
     const int note = 36 + padIndex;
     m_sampler->loadSample(static_cast<uint8_t>(note), filePath.toStdString());
     m_padModel->updatePad(padIndex);
+    if (padIndex == m_selectedPad) {
+        emit selectedPadDurationChanged();
+    }
 }
 
 void SamplerController::clearSample(int padIndex)

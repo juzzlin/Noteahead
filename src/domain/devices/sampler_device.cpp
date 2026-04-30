@@ -73,7 +73,7 @@ void SamplerDevice::processMidiNoteOn(uint8_t note, uint8_t velocity)
 {
     std::lock_guard<std::mutex> lock { m_mutex };
 
-    if (note >= 128 || !m_samples.at(note)) {
+    if (note >= maxSamples || !m_samples.at(note)) {
         return;
     }
 
@@ -91,7 +91,7 @@ void SamplerDevice::processMidiNoteOn(uint8_t note, uint8_t velocity)
         if (!voice.active) {
             voice.note = note;
             voice.sample = m_samples.at(note).get();
-            voice.position = 0.0;
+            voice.position = voice.sample->startOffset * voice.sample->sampleRate;
             voice.velocity = static_cast<float>(velocity) / 127.0f;
             voice.pan = m_globalPan;
             voice.volume = m_globalVolume;
@@ -157,7 +157,7 @@ void SamplerDevice::processMidiCc(uint8_t controller, uint8_t value, uint8_t cha
     if (m_channelMode) {
         // channel is 0-indexed (0-15)
         const size_t note = 36 + channel;
-        if (note < 128 && m_samples.at(note)) {
+        if (note < maxSamples && m_samples.at(note)) {
             if (controller == 10) { // Panning
                 m_samples.at(note)->pan = static_cast<float>(value) / 127.0f;
             } else if (controller == 7) { // Volume
@@ -329,7 +329,7 @@ void SamplerDevice::processAudio(float * output, uint32_t nFrames, uint32_t samp
 
 void SamplerDevice::loadSample(uint8_t note, const std::string & filePath)
 {
-    if (note >= 128) {
+    if (note >= maxSamples) {
         return;
     }
 
@@ -371,7 +371,7 @@ void SamplerDevice::loadSample(uint8_t note, const std::string & filePath)
 
 void SamplerDevice::clearSample(uint8_t note)
 {
-    if (note >= 128) {
+    if (note >= maxSamples) {
         return;
     }
     std::lock_guard<std::mutex> lock { m_mutex };
@@ -381,7 +381,7 @@ void SamplerDevice::clearSample(uint8_t note)
 
 const SamplerDevice::Sample * SamplerDevice::sample(uint8_t note) const
 {
-    if (note >= 128) {
+    if (note >= maxSamples) {
         return nullptr;
     }
     return m_samples.at(note).get();
@@ -389,7 +389,7 @@ const SamplerDevice::Sample * SamplerDevice::sample(uint8_t note) const
 
 std::string SamplerDevice::absoluteFilePath(uint8_t note) const
 {
-    if (note >= 128 || !m_samples.at(note)) {
+    if (note >= maxSamples || !m_samples.at(note)) {
         return "";
     }
 
@@ -404,7 +404,7 @@ std::string SamplerDevice::absoluteFilePath(uint8_t note) const
 float SamplerDevice::samplePan(uint8_t note) const
 {
     std::lock_guard<std::mutex> lock { m_mutex };
-    if (note >= 128 || !m_samples.at(note)) {
+    if (note >= maxSamples || !m_samples.at(note)) {
         return 0.5f;
     }
     return m_samples.at(note)->pan;
@@ -412,7 +412,7 @@ float SamplerDevice::samplePan(uint8_t note) const
 
 void SamplerDevice::setSamplePan(uint8_t note, float pan)
 {
-    if (note >= 128) {
+    if (note >= maxSamples) {
         return;
     }
     std::lock_guard<std::mutex> lock { m_mutex };
@@ -431,7 +431,7 @@ void SamplerDevice::setSamplePan(uint8_t note, float pan)
 float SamplerDevice::sampleVolume(uint8_t note) const
 {
     std::lock_guard<std::mutex> lock { m_mutex };
-    if (note >= 128 || !m_samples.at(note)) {
+    if (note >= maxSamples || !m_samples.at(note)) {
         return 1.0f;
     }
     return m_samples.at(note)->volume;
@@ -439,7 +439,7 @@ float SamplerDevice::sampleVolume(uint8_t note) const
 
 void SamplerDevice::setSampleVolume(uint8_t note, float volume)
 {
-    if (note >= 128) {
+    if (note >= maxSamples) {
         return;
     }
     std::lock_guard<std::mutex> lock { m_mutex };
@@ -458,7 +458,7 @@ void SamplerDevice::setSampleVolume(uint8_t note, float volume)
 float SamplerDevice::sampleCutoff(uint8_t note) const
 {
     std::lock_guard<std::mutex> lock { m_mutex };
-    if (note >= 128 || !m_samples.at(note)) {
+    if (note >= maxSamples || !m_samples.at(note)) {
         return 1.0f;
     }
     return m_samples.at(note)->cutoff;
@@ -466,7 +466,7 @@ float SamplerDevice::sampleCutoff(uint8_t note) const
 
 void SamplerDevice::setSampleCutoff(uint8_t note, float cutoff)
 {
-    if (note >= 128) {
+    if (note >= maxSamples) {
         return;
     }
     std::lock_guard<std::mutex> lock { m_mutex };
@@ -485,7 +485,7 @@ void SamplerDevice::setSampleCutoff(uint8_t note, float cutoff)
 float SamplerDevice::sampleHpfCutoff(uint8_t note) const
 {
     std::lock_guard<std::mutex> lock { m_mutex };
-    if (note >= 128 || !m_samples.at(note)) {
+    if (note >= maxSamples || !m_samples.at(note)) {
         return 0.0f;
     }
     return m_samples.at(note)->hpfCutoff;
@@ -493,7 +493,7 @@ float SamplerDevice::sampleHpfCutoff(uint8_t note) const
 
 void SamplerDevice::setSampleHpfCutoff(uint8_t note, float cutoff)
 {
-    if (note >= 128) {
+    if (note >= maxSamples) {
         return;
     }
     std::lock_guard<std::mutex> lock { m_mutex };
@@ -507,6 +507,37 @@ void SamplerDevice::setSampleHpfCutoff(uint8_t note, float cutoff)
         }
         emit dataChanged();
     }
+}
+
+double SamplerDevice::sampleStartOffset(uint8_t note) const
+{
+    std::lock_guard<std::mutex> lock { m_mutex };
+    if (note >= maxSamples || !m_samples.at(note)) {
+        return 0.0;
+    }
+    return m_samples.at(note)->startOffset;
+}
+
+void SamplerDevice::setSampleStartOffset(uint8_t note, double offset)
+{
+    if (note >= maxSamples) {
+        return;
+    }
+    std::lock_guard<std::mutex> lock { m_mutex };
+    if (m_samples.at(note)) {
+        m_samples.at(note)->startOffset = std::max(0.0, offset);
+        emit dataChanged();
+    }
+}
+
+double SamplerDevice::sampleDuration(uint8_t note) const
+{
+    std::lock_guard<std::mutex> lock { m_mutex };
+    if (note >= maxSamples || !m_samples.at(note) || !m_samples.at(note)->data) {
+        return 0.0;
+    }
+    const auto & s = m_samples.at(note);
+    return static_cast<double>(s->data->size() / static_cast<size_t>(s->channels)) / static_cast<double>(s->sampleRate);
 }
 
 bool SamplerDevice::channelMode() const
@@ -555,7 +586,7 @@ void SamplerDevice::serializeToXml(QXmlStreamWriter & writer) const
     writer.writeAttribute(Constants::NahdXml::xmlKeyId(), QString::number(id()));
     writer.writeAttribute(Constants::NahdXml::xmlKeyChannelMode(), m_channelMode ? Constants::NahdXml::xmlValueTrue() : Constants::NahdXml::xmlValueFalse());
 
-    for (uint8_t note = 0; note < 128; note++) {
+    for (uint8_t note = 0; note < maxSamples; note++) {
         if (const auto & s = m_samples.at(note)) {
             writer.writeStartElement(Constants::NahdXml::xmlKeySample());
             writer.writeAttribute(Constants::NahdXml::xmlKeyNote(), QString::number(note));
@@ -573,6 +604,7 @@ void SamplerDevice::serializeToXml(QXmlStreamWriter & writer) const
             writer.writeAttribute(Constants::NahdXml::xmlKeyVolume(), QString::number(std::round(s->manualVolume * 100.0f)));
             writer.writeAttribute(Constants::NahdXml::xmlKeyCutoff(), QString::number(std::round(s->manualCutoff * 100.0f)));
             writer.writeAttribute(Constants::NahdXml::xmlKeyHpfCutoff(), QString::number(std::round(s->manualHpfCutoff * 100.0f)));
+            writer.writeAttribute(Constants::NahdXml::xmlKeyStartOffset(), QString::number(std::round(s->startOffset * 1000.0)));
             writer.writeEndElement();
         }
     }
@@ -600,6 +632,7 @@ void SamplerDevice::deserializeFromXml(QXmlStreamReader & reader)
             const auto volume = Utils::Xml::readIntAttribute(reader, Constants::NahdXml::xmlKeyVolume(), false);
             const auto cutoff = Utils::Xml::readIntAttribute(reader, Constants::NahdXml::xmlKeyCutoff(), false);
             const auto hpfCutoff = Utils::Xml::readIntAttribute(reader, Constants::NahdXml::xmlKeyHpfCutoff(), false);
+            const auto startOffset = Utils::Xml::readIntAttribute(reader, Constants::NahdXml::xmlKeyStartOffset(), false);
             if (note.has_value()) {
                 loadSample(static_cast<uint8_t>(note.value()), path.toStdString());
                 if (pan.has_value()) {
@@ -614,6 +647,9 @@ void SamplerDevice::deserializeFromXml(QXmlStreamReader & reader)
                 if (hpfCutoff.has_value()) {
                     setSampleHpfCutoff(static_cast<uint8_t>(note.value()), static_cast<float>(hpfCutoff.value()) / 100.0f);
                 }
+                if (startOffset.has_value()) {
+                    setSampleStartOffset(static_cast<uint8_t>(note.value()), static_cast<double>(startOffset.value()) / 1000.0);
+                }
             }
         }
         reader.readNext();
@@ -624,7 +660,7 @@ void SamplerDevice::deserializeFromXml(QXmlStreamReader & reader)
 void SamplerDevice::saveState()
 {
     std::lock_guard<std::mutex> lock { m_mutex };
-    for (size_t i = 0; i < 128; ++i) {
+    for (size_t i = 0; i < maxSamples; i++) {
         if (m_samples.at(i)) {
             m_savedSamples.at(i) = std::make_unique<Sample>(*m_samples.at(i));
         } else {
@@ -636,7 +672,7 @@ void SamplerDevice::saveState()
 void SamplerDevice::restoreState()
 {
     std::lock_guard<std::mutex> lock { m_mutex };
-    for (size_t i = 0; i < 128; ++i) {
+    for (size_t i = 0; i < maxSamples; i++) {
         m_samples.at(i) = std::move(m_savedSamples.at(i));
         m_savedSamples.at(i) = nullptr;
     }

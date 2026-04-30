@@ -38,6 +38,7 @@ namespace noteahead {
 class SamplerDevice : public Device
 {
 public:
+    static constexpr size_t maxSamples = 128;
     using AudioFileReaderU = std::unique_ptr<AudioFileReader>;
 
     explicit SamplerDevice(AudioFileReaderU audioFileReader = nullptr);
@@ -69,6 +70,7 @@ public:
         float manualVolume = 1.0f;
         float manualCutoff = 1.0f;
         float manualHpfCutoff = 0.0f;
+        double startOffset = 0.0; // in seconds
     };
 
     void loadSample(uint8_t note, const std::string & filePath);
@@ -87,6 +89,11 @@ public:
 
     float sampleHpfCutoff(uint8_t note) const;
     void setSampleHpfCutoff(uint8_t note, float cutoff);
+
+    double sampleStartOffset(uint8_t note) const;
+    void setSampleStartOffset(uint8_t note, double offset);
+
+    double sampleDuration(uint8_t note) const;
 
     bool channelMode() const;
     void setChannelMode(bool enabled);
@@ -127,8 +134,8 @@ private:
         float releaseGain = 1.0f;
     };
 
-    std::array<std::unique_ptr<Sample>, 128> m_samples;
-    std::array<std::unique_ptr<Sample>, 128> m_savedSamples;
+    std::array<std::unique_ptr<Sample>, maxSamples> m_samples;
+    std::array<std::unique_ptr<Sample>, maxSamples> m_savedSamples;
     std::vector<Voice> m_voices;
     mutable std::mutex m_mutex;
 

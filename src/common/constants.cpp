@@ -691,6 +691,7 @@ QString xmlKeySample()
 
 QString xmlKeySamplePath() { return "path"; }
 QString xmlKeyChannelMode() { return "channelMode"; }
+QString xmlKeyStartOffset() { return "startOffset"; }
 
 QString xmlValueFalse() { return "false"; }
 

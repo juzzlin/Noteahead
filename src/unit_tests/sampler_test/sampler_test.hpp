@@ -41,6 +41,8 @@ private slots:
     void test_channelMode();
     void test_midiCcReset();
 
+    void test_startOffset();
+
     void test_processAudio();
 };
 

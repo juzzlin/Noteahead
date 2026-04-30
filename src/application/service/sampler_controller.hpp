@@ -35,6 +35,9 @@ class SamplerController : public QObject
     Q_PROPERTY(double selectedPadVolume READ selectedPadVolume WRITE setSelectedPadVolume NOTIFY selectedPadVolumeChanged)
     Q_PROPERTY(double selectedPadCutoff READ selectedPadCutoff WRITE setSelectedPadCutoff NOTIFY selectedPadCutoffChanged)
     Q_PROPERTY(double selectedPadHpfCutoff READ selectedPadHpfCutoff WRITE setSelectedPadHpfCutoff NOTIFY selectedPadHpfCutoffChanged)
+    Q_PROPERTY(int selectedPadStartOffsetSeconds READ selectedPadStartOffsetSeconds WRITE setSelectedPadStartOffsetSeconds NOTIFY selectedPadStartOffsetChanged)
+    Q_PROPERTY(int selectedPadStartOffsetMilliseconds READ selectedPadStartOffsetMilliseconds WRITE setSelectedPadStartOffsetMilliseconds NOTIFY selectedPadStartOffsetChanged)
+    Q_PROPERTY(double selectedPadDuration READ selectedPadDuration NOTIFY selectedPadDurationChanged)
     Q_PROPERTY(bool channelMode READ channelMode WRITE setChannelMode NOTIFY channelModeChanged)
 
 public:
@@ -62,6 +65,14 @@ public:
     double selectedPadHpfCutoff() const;
     void setSelectedPadHpfCutoff(double cutoff);
 
+    int selectedPadStartOffsetSeconds() const;
+    void setSelectedPadStartOffsetSeconds(int seconds);
+
+    int selectedPadStartOffsetMilliseconds() const;
+    void setSelectedPadStartOffsetMilliseconds(int milliseconds);
+
+    double selectedPadDuration() const;
+
     bool channelMode() const;
     void setChannelMode(bool enabled);
 
@@ -85,6 +96,8 @@ signals:
     void selectedPadVolumeChanged();
     void selectedPadCutoffChanged();
     void selectedPadHpfCutoffChanged();
+    void selectedPadStartOffsetChanged();
+    void selectedPadDurationChanged();
     void channelModeChanged();
 
 private:

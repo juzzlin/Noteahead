@@ -13,6 +13,8 @@ Rectangle {
     property var waveformData: []
     onWaveformDataChanged: canvas.requestPaint()
     property double playbackPosition: 0.0
+    property double startOffset: 0.0
+    onStartOffsetChanged: canvas.requestPaint()
     property bool showPlayhead: false
     property string fileName: ""
     property alias accentColor: canvas.accentColor
@@ -61,6 +63,14 @@ Rectangle {
                 ctx.lineTo(x, midY + h / 2);
             }
             ctx.stroke();
+
+            // Render start offset overlay
+            if (rootItem.startOffset > 0) {
+                ctx.fillStyle = accentColor;
+                ctx.globalAlpha = 0.3;
+                ctx.fillRect(0, 0, Math.min(width, rootItem.startOffset * width), height);
+                ctx.globalAlpha = 1.0;
+            }
         }
     }
 

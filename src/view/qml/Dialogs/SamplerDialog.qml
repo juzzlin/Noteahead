@@ -102,6 +102,12 @@ Dialog {
             }
 
             playbackPosition: samplerController.playbackPosition
+            startOffset: {
+                if (samplerController.selectedPadDuration > 0) {
+                    return (samplerController.selectedPadStartOffsetSeconds + samplerController.selectedPadStartOffsetMilliseconds / 1000.0) / samplerController.selectedPadDuration;
+                }
+                return 0.0;
+            }
             showPlayhead: fileName !== ""
 
             Timer {
@@ -342,6 +348,38 @@ Dialog {
                             color: hpfCutoffSlider.pressed ? "#f0f0f0" : "#f6f6f6"
                             border.color: "#bdbebf"
                         }
+                    }
+                }
+
+                // Start Offset
+                ColumnLayout {
+                    Layout.fillWidth: true
+                    Label {
+                        text: qsTr("Start Offset:")
+                        color: "white"
+                    }
+                    RowLayout {
+                        Layout.fillWidth: true
+                        SpinBox {
+                            id: secondsSpinBox
+                            Layout.fillWidth: true
+                            from: 0
+                            to: 3600
+                            value: samplerController.selectedPadStartOffsetSeconds
+                            editable: true
+                            onValueModified: samplerController.selectedPadStartOffsetSeconds = value
+                        }
+                        Label { text: "s"; color: "white" }
+                        SpinBox {
+                            id: msSpinBox
+                            Layout.fillWidth: true
+                            from: 0
+                            to: 999
+                            value: samplerController.selectedPadStartOffsetMilliseconds
+                            editable: true
+                            onValueModified: samplerController.selectedPadStartOffsetMilliseconds = value
+                        }
+                        Label { text: "ms"; color: "white" }
                     }
                 }
             }
