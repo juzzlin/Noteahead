@@ -65,6 +65,10 @@ public:
         float volume = 1.0f; // 0.0 to 1.0
         float cutoff = 1.0f; // LPF cutoff: 0.0 to 1.0
         float hpfCutoff = 0.0f; // HPF cutoff: 0.0 to 1.0
+        float manualPan = 0.5f;
+        float manualVolume = 1.0f;
+        float manualCutoff = 1.0f;
+        float manualHpfCutoff = 0.0f;
     };
 
     void loadSample(uint8_t note, const std::string & filePath);
@@ -132,6 +136,10 @@ private:
     float m_globalVolume = 1.0f;
     float m_globalCutoff = 1.0f;
     float m_globalHpfCutoff = 0.0f;
+    float m_manualGlobalPan = 0.5f;
+    float m_manualGlobalVolume = 1.0f;
+    float m_manualGlobalCutoff = 1.0f;
+    float m_manualGlobalHpfCutoff = 0.0f;
     bool m_channelMode = false;
     std::string m_projectPath;
     AudioFileReaderU m_audioFileReader;

@@ -146,6 +146,33 @@ void SamplerTest::test_pan()
     QCOMPARE(buffer[1], 1.0f); // Right
 }
 
+void SamplerTest::test_midiCcReset()
+{
+    SamplerDevice sampler { std::make_unique<MockAudioFileReader>() };
+    sampler.loadSample(60, "test.wav");
+
+    // Set manual pan
+    sampler.setSamplePan(60, 0.75f);
+    QVERIFY(qFuzzyCompare(sampler.samplePan(60), 0.75f));
+
+    // Enable channel mode and apply automation
+    sampler.setChannelMode(true);
+    sampler.processMidiCc(10, 0, 24); // MIDI Pan full left for Note 60 (Channel 24 -> Note 36+24=60)
+    QVERIFY(qFuzzyCompare(sampler.samplePan(60) + 1.0f, 1.0f)); // Should show automated value (0.0)
+
+    // Reset via CC 121
+    sampler.processMidiCc(121, 127, 24);
+    QVERIFY(qFuzzyCompare(sampler.samplePan(60), 0.75f)); // Should be back to manual setting
+
+    // Apply automation again
+    sampler.processMidiCc(10, 127, 24); // MIDI Pan full right
+    QVERIFY(qFuzzyCompare(sampler.samplePan(60), 1.0f));
+
+    // Reset via Rewind (All Notes Off)
+    sampler.processMidiAllNotesOff();
+    QVERIFY(qFuzzyCompare(sampler.samplePan(60), 0.75f)); // Should be back to manual setting
+}
+
 void SamplerTest::test_volume()
 {
     SamplerDevice sampler { std::make_unique<MockAudioFileReader>() };

@@ -126,6 +126,34 @@ void SamplerDevice::processMidiCc(uint8_t controller, uint8_t value, uint8_t cha
 {
     std::lock_guard<std::mutex> lock { m_mutex };
 
+    if (controller == 121) { // Reset All Controllers
+        m_globalPan = m_manualGlobalPan;
+        m_globalVolume = m_manualGlobalVolume;
+        m_globalCutoff = m_manualGlobalCutoff;
+        m_globalHpfCutoff = m_manualGlobalHpfCutoff;
+
+        for (auto && sample : m_samples) {
+            if (sample) {
+                sample->pan = sample->manualPan;
+                sample->volume = sample->manualVolume;
+                sample->cutoff = sample->manualCutoff;
+                sample->hpfCutoff = sample->manualHpfCutoff;
+            }
+        }
+
+        for (auto && voice : m_voices) {
+            if (voice.active && voice.sample) {
+                voice.pan = m_globalPan;
+                voice.volume = m_globalVolume;
+                voice.cutoff = m_globalCutoff;
+                voice.hpfCutoff = m_globalHpfCutoff;
+                updateVoiceEffects(voice);
+            }
+        }
+        emit dataChanged();
+        return;
+    }
+
     if (m_channelMode) {
         // channel is 0-indexed (0-15)
         const size_t note = 36 + channel;
@@ -204,6 +232,33 @@ void SamplerDevice::processMidiAllNotesOff()
             voice.releasing = true;
         }
     }
+
+    m_globalPan = m_manualGlobalPan;
+    m_globalVolume = m_manualGlobalVolume;
+    m_globalCutoff = m_manualGlobalCutoff;
+    m_globalHpfCutoff = m_manualGlobalHpfCutoff;
+
+    for (auto && sample : m_samples) {
+        if (sample) {
+            sample->pan = sample->manualPan;
+            sample->volume = sample->manualVolume;
+            sample->cutoff = sample->manualCutoff;
+            sample->hpfCutoff = sample->manualHpfCutoff;
+        }
+    }
+
+    // Update active voices to reflect the reset values
+    for (auto && voice : m_voices) {
+        if (voice.active && voice.sample) {
+            voice.pan = m_globalPan;
+            voice.volume = m_globalVolume;
+            voice.cutoff = m_globalCutoff;
+            voice.hpfCutoff = m_globalHpfCutoff;
+            updateVoiceEffects(voice);
+        }
+    }
+
+    emit dataChanged();
 }
 
 void SamplerDevice::processAudio(float * output, uint32_t nFrames, uint32_t sampleRate)
@@ -304,6 +359,10 @@ void SamplerDevice::loadSample(uint8_t note, const std::string & filePath)
     sample->data = std::move(data);
     sample->cutoff = 1.0f;
     sample->hpfCutoff = 0.0f;
+    sample->manualPan = sample->pan;
+    sample->manualVolume = sample->volume;
+    sample->manualCutoff = sample->cutoff;
+    sample->manualHpfCutoff = sample->hpfCutoff;
 
     std::lock_guard<std::mutex> lock { m_mutex };
     m_samples.at(note) = std::move(sample);
@@ -359,6 +418,7 @@ void SamplerDevice::setSamplePan(uint8_t note, float pan)
     std::lock_guard<std::mutex> lock { m_mutex };
     if (m_samples.at(note)) {
         m_samples.at(note)->pan = std::clamp(pan, 0.0f, 1.0f);
+        m_samples.at(note)->manualPan = m_samples.at(note)->pan;
         for (auto && voice : m_voices) {
             if (voice.active && voice.note == note) {
                 updateVoiceEffects(voice);
@@ -385,6 +445,7 @@ void SamplerDevice::setSampleVolume(uint8_t note, float volume)
     std::lock_guard<std::mutex> lock { m_mutex };
     if (m_samples.at(note)) {
         m_samples.at(note)->volume = std::clamp(volume, 0.0f, 1.0f);
+        m_samples.at(note)->manualVolume = m_samples.at(note)->volume;
         for (auto && voice : m_voices) {
             if (voice.active && voice.note == note) {
                 updateVoiceEffects(voice);
@@ -411,6 +472,7 @@ void SamplerDevice::setSampleCutoff(uint8_t note, float cutoff)
     std::lock_guard<std::mutex> lock { m_mutex };
     if (m_samples.at(note)) {
         m_samples.at(note)->cutoff = std::clamp(cutoff, 0.0f, 1.0f);
+        m_samples.at(note)->manualCutoff = m_samples.at(note)->cutoff;
         for (auto && voice : m_voices) {
             if (voice.active && voice.note == note) {
                 updateVoiceEffects(voice);
@@ -437,6 +499,7 @@ void SamplerDevice::setSampleHpfCutoff(uint8_t note, float cutoff)
     std::lock_guard<std::mutex> lock { m_mutex };
     if (m_samples.at(note)) {
         m_samples.at(note)->hpfCutoff = std::clamp(cutoff, 0.0f, 1.0f);
+        m_samples.at(note)->manualHpfCutoff = m_samples.at(note)->hpfCutoff;
         for (auto && voice : m_voices) {
             if (voice.active && voice.note == note) {
                 updateVoiceEffects(voice);
@@ -506,10 +569,10 @@ void SamplerDevice::serializeToXml(QXmlStreamWriter & writer) const
             }();
 
             writer.writeAttribute(Constants::NahdXml::xmlKeySamplePath(), path);
-            writer.writeAttribute(Constants::NahdXml::xmlKeyPan(), QString::number(std::round((s->pan * 200.0f) - 100.0f)));
-            writer.writeAttribute(Constants::NahdXml::xmlKeyVolume(), QString::number(std::round(s->volume * 100.0f)));
-            writer.writeAttribute(Constants::NahdXml::xmlKeyCutoff(), QString::number(std::round(s->cutoff * 100.0f)));
-            writer.writeAttribute(Constants::NahdXml::xmlKeyHpfCutoff(), QString::number(std::round(s->hpfCutoff * 100.0f)));
+            writer.writeAttribute(Constants::NahdXml::xmlKeyPan(), QString::number(std::round((s->manualPan * 200.0f) - 100.0f)));
+            writer.writeAttribute(Constants::NahdXml::xmlKeyVolume(), QString::number(std::round(s->manualVolume * 100.0f)));
+            writer.writeAttribute(Constants::NahdXml::xmlKeyCutoff(), QString::number(std::round(s->manualCutoff * 100.0f)));
+            writer.writeAttribute(Constants::NahdXml::xmlKeyHpfCutoff(), QString::number(std::round(s->manualHpfCutoff * 100.0f)));
             writer.writeEndElement();
         }
     }

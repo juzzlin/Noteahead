@@ -39,6 +39,7 @@ private slots:
     void test_cutoff();
 
     void test_channelMode();
+    void test_midiCcReset();
 
     void test_processAudio();
 };
