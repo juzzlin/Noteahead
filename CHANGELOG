@@ -13,6 +13,8 @@ Other:
 
 * Improve ALSA playback latency
 
+* Improve ALSA recording latency
+
 2.1.0
 =====
 

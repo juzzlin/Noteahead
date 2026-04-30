@@ -93,14 +93,30 @@ AudioRecorderRtAudio::~AudioRecorderRtAudio()
 
 uint32_t AudioRecorderRtAudio::initializeSoundStream(uint32_t deviceId, uint32_t channelCount, uint32_t sampleRate, uint32_t bufferSize)
 {
-    RtAudio::StreamParameters iParams;
-    iParams.deviceId = deviceId;
-    iParams.nChannels = channelCount;
-    uint32_t bufferFrames = bufferSize;
-    m_rtAudio.openStream(nullptr, &iParams, RTAUDIO_SINT32,
-                         sampleRate, &bufferFrames,
-                         &AudioRecorderRtAudio::recordCallback, this);
-    m_rtAudio.startStream();
+    RtAudio::StreamParameters streamParameters;
+    streamParameters.deviceId = deviceId;
+    streamParameters.nChannels = channelCount;
+    streamParameters.firstChannel = 0;
+
+    RtAudio::StreamOptions streamOptions;
+    // Minimize latency for the input stream and request realtime scheduling
+    streamOptions.flags = RTAUDIO_MINIMIZE_LATENCY | RTAUDIO_SCHEDULE_REALTIME;
+    // Set to 2 buffers to minimize the time between hardware capture and your callback
+    streamOptions.numberOfBuffers = 2;
+    streamOptions.streamName = "NoteaheadRecorder";
+
+    try {
+        uint32_t bufferFrames = bufferSize;
+        m_rtAudio.openStream(nullptr, &streamParameters, RTAUDIO_SINT32,
+                             sampleRate, &bufferFrames,
+                             &AudioRecorderRtAudio::recordCallback, this, &streamOptions);
+        m_rtAudio.startStream();
+    } catch (RtAudioError & e) {
+        // In recording, if 'hw:' is busy, this will catch the 'Device Busy' error
+        e.printMessage();
+        return 0;
+    }
+
     return m_rtAudio.getStreamSampleRate();
 }
 
