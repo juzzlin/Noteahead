@@ -11,6 +11,8 @@ Bug fixes:
 
 Other:
 
+* Improve ALSA playback latency
+
 2.1.0
 =====
 

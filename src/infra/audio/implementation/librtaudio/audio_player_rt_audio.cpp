@@ -19,7 +19,6 @@
 #include "../../audio_engine.hpp"
 
 #include <algorithm>
-#include <chrono>
 #include <iostream>
 
 namespace noteahead {
@@ -113,14 +112,31 @@ AudioPlayerRtAudio::~AudioPlayerRtAudio()
 
 uint32_t AudioPlayerRtAudio::initializeSoundStream(uint32_t deviceId, uint32_t channelCount, uint32_t sampleRate, uint32_t bufferSize)
 {
-    RtAudio::StreamParameters oParams;
-    oParams.deviceId = deviceId;
-    oParams.nChannels = channelCount;
-    uint32_t bufferFrames = bufferSize;
-    m_rtAudio.openStream(&oParams, nullptr, RTAUDIO_SINT32,
-                         sampleRate, &bufferFrames,
-                         &AudioPlayerRtAudio::playCallback, this);
-    m_rtAudio.startStream();
+    RtAudio::StreamParameters streamParameters;
+    streamParameters.deviceId = deviceId;
+    streamParameters.nChannels = channelCount;
+    streamParameters.firstChannel = 0;
+
+    RtAudio::StreamOptions streamOptions;
+    streamOptions.flags = RTAUDIO_MINIMIZE_LATENCY | RTAUDIO_SCHEDULE_REALTIME;
+    // ALSA defaults this to 4 or 8 in many setups, which multiplies latency.
+    // 2 is the standard for double-buffered low-latency audio.
+    streamOptions.numberOfBuffers = 2;
+    // Set a priority name for the thread (helpful for debugging in 'top' or 'htop')
+    streamOptions.streamName = TAG;
+
+    try {
+        uint32_t bufferFrames = bufferSize;
+        m_rtAudio.openStream(&streamParameters, nullptr, RTAUDIO_SINT32,
+                             sampleRate, &bufferFrames,
+                             &AudioPlayerRtAudio::playCallback, this, &streamOptions);
+        m_rtAudio.startStream();
+    } catch (RtAudioError & e) {
+        // Log the error (e.g., if the hardware doesn't support the requested buffer size)
+        e.printMessage();
+        return 0;
+    }
+
     return m_rtAudio.getStreamSampleRate();
 }
 
