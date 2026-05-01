@@ -139,6 +139,27 @@ void EffectsTest::test_highPassFilterEffect()
     }
 }
 
+void EffectsTest::test_filterStability()
+{
+    LowPassFilterEffect lp;
+    HighPassFilterEffect hp;
+
+    for (int i = 0; i < 1000; ++i) {
+        float left = 1.0f;
+        float right = 1.0f;
+        const float cutoff = 0.5f + 0.49f * std::sin(i * 0.1f);
+
+        lp.setCutoff(cutoff);
+        hp.setCutoff(cutoff);
+
+        lp.process(left, right, 44100);
+        hp.process(left, right, 44100);
+
+        QVERIFY(!std::isnan(left));
+        QVERIFY(!std::isnan(right));
+    }
+}
+
 } // namespace noteahead
 
 QTEST_GUILESS_MAIN(noteahead::EffectsTest)

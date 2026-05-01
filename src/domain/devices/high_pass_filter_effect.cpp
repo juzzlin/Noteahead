@@ -32,25 +32,48 @@ void HighPassFilterEffect::process(float & left, float & right, uint32_t sampleR
         return;
     }
 
+    // Zero-Delay Feedback State Variable Filter (2nd order)
     const float freq = 20.0f * std::pow(std::min(20000.0f, sampleRate * 0.49f) / 20.0f, m_cutoff);
-    const float f = std::min(1.0f, 2.0f * std::sin(std::numbers::pi_v<float> * freq / static_cast<float>(sampleRate)));
-    const float q = 0.5f;
+    const double g = std::tan(std::numbers::pi * static_cast<double>(freq) / static_cast<double>(sampleRate));
+    const double k = 1.0; // Q = 1.0 / k
+    const double damping = 1.0 / (1.0 + g * (g + k));
 
-    m_hpL = left - m_lpL - q * m_bpL;
-    m_bpL += f * m_hpL;
-    m_lpL += f * m_bpL;
-    left = m_hpL;
+    // Left channel
+    {
+        const double hp = (static_cast<double>(left) - (g + k) * m_s1L - m_s2L) * damping;
+        const double v1 = g * hp;
+        const double v = v1 + m_s1L;
+        m_s1L = v1 + v;
+        const double v2 = g * v;
+        const double lp = v2 + m_s2L;
+        m_s2L = v2 + lp;
+        left = static_cast<float>(hp);
+    }
 
-    m_hpR = right - m_lpR - q * m_bpR;
-    m_bpR += f * m_hpR;
-    m_lpR += f * m_bpR;
-    right = m_hpR;
+    // Right channel
+    {
+        const double hp = (static_cast<double>(right) - (g + k) * m_s1R - m_s2R) * damping;
+        const double v1 = g * hp;
+        const double v = v1 + m_s1R;
+        m_s1R = v1 + v;
+        const double v2 = g * v;
+        const double lp = v2 + m_s2R;
+        m_s2R = v2 + lp;
+        right = static_cast<float>(hp);
+    }
+
+    // NaN protection
+    if (std::isnan(left) || std::isnan(right)) {
+        reset();
+        left = 0.0f;
+        right = 0.0f;
+    }
 }
 
 void HighPassFilterEffect::reset()
 {
-    m_lpL = m_hpL = m_bpL = 0.0f;
-    m_lpR = m_hpR = m_bpR = 0.0f;
+    m_s1L = m_s2L = 0.0;
+    m_s1R = m_s2R = 0.0;
 }
 
 } // namespace noteahead

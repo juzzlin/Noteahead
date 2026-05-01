@@ -29,8 +29,8 @@ public:
 
 private:
     float m_cutoff { 1.0f };
-    float m_lpL { 0.0f }, m_hpL { 0.0f }, m_bpL { 0.0f };
-    float m_lpR { 0.0f }, m_hpR { 0.0f }, m_bpR { 0.0f };
+    double m_s1L { 0.0 }, m_s2L { 0.0 };
+    double m_s1R { 0.0 }, m_s2R { 0.0 };
 };
 
 } // namespace noteahead

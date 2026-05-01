@@ -29,6 +29,7 @@ private slots:
     void test_panningEffect();
     void test_lowPassFilterEffect();
     void test_highPassFilterEffect();
+    void test_filterStability();
 };
 
 } // namespace noteahead
