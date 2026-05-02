@@ -188,13 +188,13 @@ private:
     int m_vco1Octave { 0 };
     float m_vco1Pitch { 0.0f };
     float m_vco1Shape { 0.0f };
-    bool m_vco1Sync { true };
+    bool m_vco1Sync { false };
 
     PolyBLEPOscillator::Waveform m_vco2Waveform { PolyBLEPOscillator::Waveform::Saw };
     int m_vco2Octave { 0 };
     float m_vco2Pitch { 0.0f };
     float m_vco2Shape { 0.0f };
-    bool m_vco2Sync { true };
+    bool m_vco2Sync { false };
 
     float m_mixVco1 { 1.0f };
     float m_mixVco2 { 0.0f };

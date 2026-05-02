@@ -68,13 +68,13 @@ SynthDevice::SynthDevice()
     addParameter(Parameter { "vco1" + Constants::NahdXml::xmlKeyOctave().toStdString(), 0.333f, -1, 2, 0 });
     addParameter(Parameter { "vco1" + Constants::NahdXml::xmlKeyPitch().toStdString(), 0.5f, -100, 100, 0 });
     addParameter(Parameter { "vco1" + Constants::NahdXml::xmlKeyShape().toStdString(), 0.0f, 0, 100, 0 });
-    addParameter(Parameter { "vco1" + Constants::NahdXml::xmlKeySync().toStdString(), 1.0f, 0, 1, 1 });
+    addParameter(Parameter { "vco1" + Constants::NahdXml::xmlKeySync().toStdString(), 0.0f, 0, 1, 0 });
 
     addParameter(Parameter { "vco2" + Constants::NahdXml::xmlKeyWaveform().toStdString(), 0.5f, 0, 2, 1 });
     addParameter(Parameter { "vco2" + Constants::NahdXml::xmlKeyOctave().toStdString(), 0.333f, -1, 2, 0 });
     addParameter(Parameter { "vco2" + Constants::NahdXml::xmlKeyPitch().toStdString(), 0.5f, -100, 100, 0 });
     addParameter(Parameter { "vco2" + Constants::NahdXml::xmlKeyShape().toStdString(), 0.0f, 0, 100, 0 });
-    addParameter(Parameter { "vco2" + Constants::NahdXml::xmlKeySync().toStdString(), 1.0f, 0, 1, 1 });
+    addParameter(Parameter { "vco2" + Constants::NahdXml::xmlKeySync().toStdString(), 0.0f, 0, 1, 0 });
 
     addParameter(Parameter { "mix" + Constants::NahdXml::xmlKeyLevel().toStdString() + "1", 1.0f, 0, 100, 100 });
     addParameter(Parameter { "mix" + Constants::NahdXml::xmlKeyLevel().toStdString() + "2", 0.0f, 0, 100, 0 });
