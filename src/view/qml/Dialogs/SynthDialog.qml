@@ -216,16 +216,18 @@ Dialog {
                     }
                     RowLayout {
                         CheckBox { text: qsTr("Sync"); checked: synthController.delaySync; onToggled: synthController.delaySync = checked }
-                        ComboBox { 
-                            visible: synthController.delaySync
-                            model: ["1/16", "1/8", "1/4", "1/2", "1/1"]
-                            currentIndex: [0.0625, 0.125, 0.25, 0.5, 1.0].indexOf(synthController.delaySyncDivision / 100.0)
-                            onActivated: (i) => synthController.delaySyncDivision = [6.25, 12.5, 25, 50, 100][i]
-                            Layout.fillWidth: true 
-                        }
-                        Knob { 
-                            visible: !synthController.delaySync
-                            label: qsTr("Time"); from: 1; to: 2000; suffix: "ms"; value: synthController.delayTime; onMoved: (v) => synthController.delayTime = v; Layout.fillWidth: true 
+                        StackLayout {
+                            currentIndex: synthController.delaySync ? 0 : 1
+                            Layout.fillWidth: true
+                            ComboBox { 
+                                model: ["1/16", "1/8", "1/4", "1/2", "1/1"]
+                                currentIndex: [0.0625, 0.125, 0.25, 0.5, 1.0].indexOf(synthController.delaySyncDivision / 100.0)
+                                onActivated: (i) => synthController.delaySyncDivision = [6.25, 12.5, 25, 50, 100][i]
+                                Layout.fillWidth: true 
+                            }
+                            Knob { 
+                                label: qsTr("Time"); from: 1; to: 2000; suffix: "ms"; value: synthController.delayTime; onMoved: (v) => synthController.delayTime = v; Layout.fillWidth: true 
+                            }
                         }
                     }
                     Knob { label: qsTr("Feedback"); value: synthController.delayFeedback; onMoved: (v) => synthController.delayFeedback = v; Layout.fillWidth: true }
