@@ -53,6 +53,9 @@ public:
 
     QStringList internalDeviceNames() const;
 
+    Q_INVOKABLE QStringList categories() const;
+    Q_INVOKABLE QStringList devicesByCategory(const QString & category) const;
+
     void setProjectPath(const std::string & projectPath);
 
     void serializeToXml(QXmlStreamWriter & writer) const;

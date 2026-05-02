@@ -10,6 +10,7 @@ QtObject {
 
     readonly property int lineNumberColumnWidth: 50
     readonly property int mainToolBarButtonSize: 32
+    readonly property int defaultButtonWidth: 100
     readonly property int toolTipDelay: 1000
     readonly property int toolTipTimeout: 5000
     readonly property int trackBorderWidth: 1

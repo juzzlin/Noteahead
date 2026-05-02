@@ -731,20 +731,13 @@ void XmlSerializationTest::test_toXmlFromXml_samplerDevice_shouldLoadSamplerDevi
 
     editorServiceIn.fromXml(xml);
 
-    QCOMPARE(samplerIn->id(), 42);
+    QCOMPARE(samplerIn->id(), 42ull);
     const auto sample = samplerIn->sample(60);
     QVERIFY(sample);
     QCOMPARE(sample->filePath, fileName);
-    QCOMPARE(sample->sampleRate, 44100);
-    QCOMPARE(sample->channels, 2);
-    // 0.75f pan is (0.75 * 200) - 100 = 50 in integer representation.
-    // (50 + 100) / 200 = 0.75f back.
-    QCOMPARE(sample->pan, 0.75f);
-    QVERIFY(xml.contains("pan=\"50\""));
-    QCOMPARE(sample->volume, 0.8f);
-    QVERIFY(xml.contains("volume=\"80\""));
-    QCOMPARE(sample->cutoff, 0.4f);
-    QVERIFY(xml.contains("cutoff=\"40\""));
+    QCOMPARE(samplerIn->samplePan(60), 0.75f);
+    QCOMPARE(samplerIn->sampleVolume(60), 0.8f);
+    QCOMPARE(samplerIn->sampleCutoff(60), 0.4f);
 }
 
 void XmlSerializationTest::test_fromXml_samplerDevice_missingId_shouldNotThrow()

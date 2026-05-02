@@ -218,6 +218,19 @@ void SamplerController::initialize()
     emit channelModeChanged();
 }
 
+void SamplerController::reset()
+{
+    if (m_sampler) {
+        m_sampler->reset();
+        emit selectedPadPanChanged();
+        emit selectedPadVolumeChanged();
+        emit selectedPadCutoffChanged();
+        emit selectedPadHpfCutoffChanged();
+        emit selectedPadStartOffsetChanged();
+        emit channelModeChanged();
+    }
+}
+
 void SamplerController::accept()
 {
     // State already updated in domain, nothing to do but close dialog which is handled by QML

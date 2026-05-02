@@ -419,7 +419,12 @@ ApplicationWindow {
         });
         UiService.samplerDialogRequested.connect(samplerDialog.open);
         UiService.recentFilesDialogRequested.connect(recentFilesDialog.open);
-        UiService.settingsDialogRequested.connect(settingsDialog.open);
+        UiService.deviceDialogRequested.connect(deviceName => {
+            if (deviceName === applicationService.samplerDeviceName()) {
+                samplerDialog.open();
+            }
+        });
+
         UiService.columnSettingsDialogRequested.connect((trackIndex, columnIndex) => {
             midiCcAutomationsModel.linesPerBeat = editorService.linesPerBeat;
             columnSettingsDialog.setColumn(trackIndex, columnIndex);

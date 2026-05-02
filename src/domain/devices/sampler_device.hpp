@@ -23,6 +23,7 @@
 #include "panning_effect.hpp"
 #include "volume_effect.hpp"
 #include "../../infra/audio/backend/audio_file_reader.hpp"
+#include "../parameter_container.hpp"
 
 #include <array>
 #include <memory>
@@ -45,6 +46,7 @@ public:
     ~SamplerDevice() override;
 
     std::string name() const override;
+    std::string category() const override;
 
     void processMidiNoteOn(uint8_t note, uint8_t velocity) override;
     void processMidiNoteOff(uint8_t note) override;
@@ -53,24 +55,30 @@ public:
 
     void processAudio(float * output, uint32_t nFrames, uint32_t sampleRate) override;
 
-    void serializeToXml(QXmlStreamWriter & writer) const;
-    void deserializeFromXml(QXmlStreamReader & reader);
+    void reset() override;
 
-    struct Sample
+    void serializeToXml(QXmlStreamWriter & writer) const override;
+    void deserializeFromXml(QXmlStreamReader & reader) override;
+
+    struct Sample : public ParameterContainer
     {
+        Sample();
+
         std::string filePath;
         std::shared_ptr<const std::vector<float>> data;
         int channels = 0;
         int sampleRate = 0;
-        float pan = 0.5f; // 0.0 (left) to 1.0 (right)
-        float volume = 1.0f; // 0.0 to 1.0
-        float cutoff = 1.0f; // LPF cutoff: 0.0 to 1.0
-        float hpfCutoff = 0.0f; // HPF cutoff: 0.0 to 1.0
+
+        float pan = 0.5f;
+        float volume = 1.0f;
+        float cutoff = 1.0f;
+        float hpfCutoff = 0.0f;
+        double startOffset = 0.0;
+
         float manualPan = 0.5f;
         float manualVolume = 1.0f;
         float manualCutoff = 1.0f;
         float manualHpfCutoff = 0.0f;
-        double startOffset = 0.0; // in seconds
     };
 
     void loadSample(uint8_t note, const std::string & filePath);

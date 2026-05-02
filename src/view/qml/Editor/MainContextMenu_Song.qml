@@ -1,3 +1,4 @@
+import QtQuick 2.15
 import QtQuick.Controls 2.15
 import QtQuick.Controls.Universal 2.15
 import ".."
@@ -8,9 +9,23 @@ Menu {
     width: rootItem.width
     Menu {
         title: qsTr("Devices")
-        Action {
-            text: qsTr("Sampler...")
-            onTriggered: UiService.requestSamplerDialog()
+        Instantiator {
+            model: deviceService.categories()
+            Menu {
+                id: categoryMenu
+                title: modelData
+                Instantiator {
+                    model: deviceService.devicesByCategory(modelData)
+                    MenuItem {
+                        text: modelData
+                        onTriggered: UiService.requestDeviceDialog(modelData)
+                    }
+                    onObjectAdded: (index, object) => categoryMenu.insertItem(index, object)
+                    onObjectRemoved: (index, object) => categoryMenu.removeItem(object)
+                }
+            }
+            onObjectAdded: (index, object) => insertMenu(index, object)
+            onObjectRemoved: (index, object) => removeMenu(object)
         }
     }
     MenuSeparator {}

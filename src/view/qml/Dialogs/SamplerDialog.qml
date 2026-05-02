@@ -36,14 +36,22 @@ Dialog {
     footer: DialogButtonBox {
         Button {
             text: qsTr("Ok")
+            implicitWidth: Constants.defaultButtonWidth
             DialogButtonBox.buttonRole: DialogButtonBox.AcceptRole
         }
         Button {
             text: qsTr("Cancel")
+            implicitWidth: Constants.defaultButtonWidth
             DialogButtonBox.buttonRole: DialogButtonBox.RejectRole
         }
-        onAccepted: samplerController.accept()
-        onRejected: samplerController.reject()
+        onAccepted: {
+            samplerController.accept()
+            root.accept()
+        }
+        onRejected: {
+            samplerController.reject()
+            root.reject()
+        }
     }
 
     background: Rectangle {
@@ -69,12 +77,23 @@ Dialog {
         anchors.margins: 10
         spacing: 15
 
-        Text {
-            text: qsTr("Noteahead Sampler")
-            color: "white"
-            font.bold: true
-            font.pointSize: 20
-            Layout.alignment: Qt.AlignHCenter
+        RowLayout {
+            Layout.fillWidth: true
+            Item { Layout.preferredWidth: resetBtn.width }
+            Text {
+                text: qsTr("Noteahead Sampler")
+                color: "white"
+                font.bold: true
+                font.pointSize: 20
+                Layout.fillWidth: true
+                horizontalAlignment: Text.AlignHCenter
+            }
+            Button {
+                id: resetBtn
+                text: qsTr("Reset")
+                implicitWidth: Constants.defaultButtonWidth
+                onClicked: samplerController.reset()
+            }
         }
 
         Text {
@@ -359,6 +378,10 @@ Dialog {
                             value: samplerController.selectedPadStartOffsetSeconds
                             editable: true
                             onValueModified: samplerController.selectedPadStartOffsetSeconds = value
+                            Keys.onReturnPressed: {
+                                value = valueFromText(contentItem.text, locale)
+                                samplerController.selectedPadStartOffsetSeconds = value
+                            }
                         }
                         Label { text: "s"; color: "white" }
                         SpinBox {
@@ -369,6 +392,10 @@ Dialog {
                             value: samplerController.selectedPadStartOffsetMilliseconds
                             editable: true
                             onValueModified: samplerController.selectedPadStartOffsetMilliseconds = value
+                            Keys.onReturnPressed: {
+                                value = valueFromText(contentItem.text, locale)
+                                samplerController.selectedPadStartOffsetMilliseconds = value
+                            }
                         }
                         Label { text: "ms"; color: "white" }
                     }

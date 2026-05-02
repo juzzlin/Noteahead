@@ -23,6 +23,8 @@
 #include <QXmlStreamReader>
 #include <QXmlStreamWriter>
 
+#include <set>
+
 namespace noteahead {
 
 DeviceService::DeviceService(AudioEngineS audioEngine, QObject * parent)
@@ -56,28 +58,28 @@ bool DeviceService::isInternalDevice(const QString & portName) const
 
 void DeviceService::processMidiNoteOn(const QString & portName, uint8_t note, uint8_t velocity)
 {
-    if (auto dev = device(portName.toStdString()); dev) {
+    if (const auto dev = device(portName.toStdString()); dev) {
         dev->processMidiNoteOn(note, velocity);
     }
 }
 
 void DeviceService::processMidiNoteOff(const QString & portName, uint8_t note)
 {
-    if (auto dev = device(portName.toStdString()); dev) {
+    if (const auto dev = device(portName.toStdString()); dev) {
         dev->processMidiNoteOff(note);
     }
 }
 
 void DeviceService::processMidiCc(const QString & portName, uint8_t controller, uint8_t value, uint8_t channel)
 {
-    if (auto dev = device(portName.toStdString()); dev) {
+    if (const auto dev = device(portName.toStdString()); dev) {
         dev->processMidiCc(controller, value, channel);
     }
 }
 
 void DeviceService::processMidiAllNotesOff(const QString & portName)
 {
-    if (auto dev = device(portName.toStdString()); dev) {
+    if (const auto dev = device(portName.toStdString()); dev) {
         dev->processMidiAllNotesOff();
     }
 }
@@ -85,7 +87,7 @@ void DeviceService::processMidiAllNotesOff(const QString & portName)
 void DeviceService::processMidiAllNotesOff()
 {
     for (const auto & name : internalDeviceNames()) {
-        if (auto dev = device(name.toStdString()); dev) {
+        if (const auto dev = device(name.toStdString()); dev) {
             dev->processMidiAllNotesOff();
         }
     }
@@ -94,10 +96,39 @@ void DeviceService::processMidiAllNotesOff()
 QStringList DeviceService::internalDeviceNames() const
 {
     QStringList names;
-    if (device(Constants::samplerDeviceName().toStdString())) {
-        names << Constants::samplerDeviceName();
+    const auto samplerName = Constants::samplerDeviceName();
+    if (device(samplerName.toStdString())) {
+        names << samplerName;
     }
     return names;
+}
+
+QStringList DeviceService::categories() const
+{
+    std::set<QString> categories;
+    for (const auto & name : internalDeviceNames()) {
+        if (const auto dev = device(name.toStdString()); dev) {
+            categories.insert(QString::fromStdString(dev->category()));
+        }
+    }
+    QStringList result;
+    for (const auto & c : categories) {
+        result << c;
+    }
+    return result;
+}
+
+QStringList DeviceService::devicesByCategory(const QString & category) const
+{
+    QStringList devices;
+    for (const auto & name : internalDeviceNames()) {
+        if (const auto dev = device(name.toStdString()); dev) {
+            if (QString::fromStdString(dev->category()) == category) {
+                devices << name;
+            }
+        }
+    }
+    return devices;
 }
 
 void DeviceService::setProjectPath(const std::string & projectPath)
@@ -110,21 +141,42 @@ void DeviceService::setProjectPath(const std::string & projectPath)
 void DeviceService::serializeToXml(QXmlStreamWriter & writer) const
 {
     writer.writeStartElement(Constants::NahdXml::xmlKeyDevices());
-    if (const auto sampler = std::dynamic_pointer_cast<SamplerDevice>(device(Constants::samplerDeviceName().toStdString())); sampler) {
-        sampler->serializeToXml(writer);
+    for (const auto & name : internalDeviceNames()) {
+        if (const auto dev = device(name.toStdString()); dev) {
+            dev->serializeToXml(writer);
+        }
     }
     writer.writeEndElement(); // Devices
 }
 
 void DeviceService::deserializeFromXml(QXmlStreamReader & reader)
 {
-    while (!reader.atEnd() && !(reader.isEndElement() && reader.name() == Constants::NahdXml::xmlKeyDevices())) {
-        if (reader.isStartElement() && reader.name() == Constants::NahdXml::xmlKeySampler()) {
-            if (const auto sampler = std::dynamic_pointer_cast<SamplerDevice>(device(Constants::samplerDeviceName().toStdString())); sampler) {
-                sampler->deserializeFromXml(reader);
+    const auto samplerName = Constants::samplerDeviceName().toStdString();
+    const auto samplersCategory = Constants::NahdXml::xmlValueSamplers();
+
+    while (reader.readNextStartElement()) {
+        const auto name = reader.name();
+        if (name == Constants::NahdXml::xmlKeyDevice()) {
+            const auto category = reader.attributes().value(Constants::NahdXml::xmlKeyCategory()).toString();
+            const auto deviceName = reader.attributes().value(Constants::NahdXml::xmlKeyName()).toString().toStdString();
+            if (category == samplersCategory) {
+                if (const auto sampler = std::dynamic_pointer_cast<SamplerDevice>(device(samplerName)); sampler) {
+                    sampler->deserializeFromXml(reader);
+                }
+            } else if (auto dev = device(deviceName)) {
+                dev->deserializeFromXml(reader);
+            } else {
+                reader.skipCurrentElement();
             }
+        } else if (name == Constants::NahdXml::xmlKeySampler()) {
+            if (const auto sampler = std::dynamic_pointer_cast<SamplerDevice>(device(samplerName)); sampler) {
+                sampler->deserializeFromXml(reader);
+            } else {
+                reader.skipCurrentElement();
+            }
+        } else {
+            reader.skipCurrentElement();
         }
-        reader.readNext();
     }
     emit dataChanged();
 }

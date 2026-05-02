@@ -14,6 +14,11 @@
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
 #include "device.hpp"
+#include "../../common/constants.hpp"
+#include "../../common/utils.hpp"
+
+#include <QXmlStreamReader>
+#include <QXmlStreamWriter>
 
 namespace noteahead {
 
@@ -25,6 +30,35 @@ size_t Device::id() const
 void Device::setId(size_t id)
 {
     m_id = id;
+}
+
+void Device::serializeToXml(QXmlStreamWriter & writer) const
+{
+    writer.writeStartElement(Constants::NahdXml::xmlKeyDevice());
+    serializeAttributesToXml(writer);
+    serializeParametersToXml(writer);
+    writer.writeEndElement(); // Device
+}
+
+void Device::deserializeFromXml(QXmlStreamReader & reader)
+{
+    deserializeAttributesFromXml(reader);
+    reader.readNext();
+    deserializeParametersFromXml(reader);
+}
+
+void Device::serializeAttributesToXml(QXmlStreamWriter & writer) const
+{
+    writer.writeAttribute(Constants::NahdXml::xmlKeyId(), QString::number(m_id));
+    writer.writeAttribute(Constants::NahdXml::xmlKeyName(), QString::fromStdString(name()));
+    writer.writeAttribute(Constants::NahdXml::xmlKeyCategory(), QString::fromStdString(category()));
+}
+
+void Device::deserializeAttributesFromXml(QXmlStreamReader & reader)
+{
+    if (const auto id = Utils::Xml::readUIntAttribute(reader, Constants::NahdXml::xmlKeyId(), false); id.has_value()) {
+        m_id = id.value();
+    }
 }
 
 } // namespace noteahead

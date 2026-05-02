@@ -12,6 +12,7 @@ Dialog {
     footer: DialogButtonBox {
         Button {
             text: qsTr("Ok")
+            implicitWidth: Constants.defaultButtonWidth
             DialogButtonBox.buttonRole: DialogButtonBox.AcceptRole
             onClicked: {
                 rootItem.accepted();

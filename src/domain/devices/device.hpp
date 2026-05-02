@@ -18,13 +18,17 @@
 
 #include <QObject>
 
+#include "../parameter_container.hpp"
+
 #include <cstdint>
 #include <string>
-#include <vector>
+
+class QXmlStreamReader;
+class QXmlStreamWriter;
 
 namespace noteahead {
 
-class Device : public QObject
+class Device : public QObject, public ParameterContainer
 {
     Q_OBJECT
 
@@ -32,6 +36,7 @@ public:
     virtual ~Device() = default;
 
     virtual std::string name() const = 0;
+    virtual std::string category() const = 0;
 
     size_t id() const;
     void setId(size_t id);
@@ -41,14 +46,22 @@ public:
     virtual void processMidiCc(uint8_t controller, uint8_t value, uint8_t channel) = 0;
     virtual void processMidiAllNotesOff() = 0;
 
-    //! Process audio buffer. output is interleaved stereo.
     virtual void processAudio(float * output, uint32_t nFrames, uint32_t sampleRate) = 0;
+
+    virtual void reset() = 0;
+
+    virtual void serializeToXml(QXmlStreamWriter & writer) const;
+    virtual void deserializeFromXml(QXmlStreamReader & reader);
 
 signals:
     void dataChanged();
 
+protected:
+    void serializeAttributesToXml(QXmlStreamWriter & writer) const;
+    void deserializeAttributesFromXml(QXmlStreamReader & reader);
+
 private:
-    size_t m_id = 0;
+    size_t m_id { 0 };
 };
 
 } // namespace noteahead

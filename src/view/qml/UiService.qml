@@ -32,6 +32,7 @@ QtObject {
     signal lineDelayDialogRequested
     signal noteFrequencyDialogRequested
     signal recentFilesDialogRequested
+    signal deviceDialogRequested(string deviceName)
     signal samplerDialogRequested
     signal selectionAddMidiCcAutomationDialogRequested
     signal selectionAddPitchBendAutomationDialogRequested
@@ -128,6 +129,9 @@ QtObject {
     }
     function requestRecentFilesDialog(): void {
         recentFilesDialogRequested();
+    }
+    function requestDeviceDialog(deviceName: string): void {
+        deviceDialogRequested(deviceName);
     }
     function requestSamplerDialog(): void {
         samplerDialogRequested();

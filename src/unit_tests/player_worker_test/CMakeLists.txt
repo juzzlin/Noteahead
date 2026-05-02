@@ -19,6 +19,8 @@ set(SRC
     ../../domain/devices/high_pass_filter_effect.cpp
     ../../domain/devices/low_pass_filter_effect.cpp
     ../../domain/devices/panning_effect.cpp
+    ../../domain/parameter.cpp
+    ../../domain/parameter_container.cpp
     ../../domain/devices/sampler_device.cpp
     ../../domain/devices/volume_effect.cpp
     ../../domain/event.cpp

@@ -76,6 +76,11 @@ QString ApplicationService::webSiteUrl() const
     return Constants::webSiteUrl();
 }
 
+QString ApplicationService::samplerDeviceName() const
+{
+    return Constants::samplerDeviceName();
+}
+
 void ApplicationService::acceptUnsavedChangesDialog()
 {
     juzzlin::L(TAG).info() << "Unsaved changes accepted";

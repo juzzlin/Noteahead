@@ -679,6 +679,41 @@ QString xmlKeyDevices()
     return "Devices";
 }
 
+QString xmlKeyDevice()
+{
+    return "Device";
+}
+
+QString xmlKeyCategory()
+{
+    return "category";
+}
+
+QString xmlKeyParameter()
+{
+    return "Parameter";
+}
+
+QString xmlKeyMin()
+{
+    return "min";
+}
+
+QString xmlKeyMax()
+{
+    return "max";
+}
+
+QString xmlKeyDefault()
+{
+    return "default";
+}
+
+QString xmlKeyScale()
+{
+    return "scale";
+}
+
 QString xmlKeySampler()
 {
     return "Sampler";
@@ -687,6 +722,11 @@ QString xmlKeySampler()
 QString xmlKeySample()
 {
     return "Sample";
+}
+
+QString xmlKeySamples()
+{
+    return "Samples";
 }
 
 QString xmlKeySamplePath() { return "path"; }
@@ -708,6 +748,11 @@ QString xmlValueSineWave()
 QString xmlValueRandom()
 {
     return "Random";
+}
+
+QString xmlValueSamplers()
+{
+    return "Samplers";
 }
 
 } // namespace NahdXml

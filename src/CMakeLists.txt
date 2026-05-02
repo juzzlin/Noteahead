@@ -86,6 +86,8 @@ set(HEADER_FILES
   domain/mixer_unit.hpp
   domain/note_data.hpp
   domain/note_data_manipulator.hpp
+  domain/parameter.hpp
+  domain/parameter_container.hpp
   domain/pattern.hpp
   domain/pitch_bend_automation.hpp
   domain/pitch_bend_data.hpp
@@ -194,6 +196,8 @@ set(SOURCE_FILES
   domain/mixer_unit.cpp
   domain/note_data.cpp
   domain/note_data_manipulator.cpp
+  domain/parameter.cpp
+  domain/parameter_container.cpp
   domain/pattern.cpp
   domain/pitch_bend_automation.cpp
   domain/pitch_bend_data.cpp

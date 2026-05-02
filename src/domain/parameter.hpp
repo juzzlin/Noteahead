@@ -13,41 +13,42 @@
 // You should have received a copy of the GNU General Public License
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef SAMPLER_TEST_HPP
-#define SAMPLER_TEST_HPP
+#ifndef PARAMETER_HPP
+#define PARAMETER_HPP
 
-#include <QtTest>
+#include <string>
 
 namespace noteahead {
 
-class SamplerTest : public QObject
+class Parameter
 {
-    Q_OBJECT
+public:
+    Parameter(const std::string & name, float internalValue, int xmlMin, int xmlMax, int xmlDefault, int xmlScale = 1);
 
-private slots:
-    void initTestCase();
+    const std::string & name() const;
 
-    void test_initialState_shouldBeCorrect();
+    float value() const;
+    void setValue(float val);
 
-    void test_loadAndClearSample_shouldUpdateModel();
+    int xmlValue() const;
+    int xmlMin() const;
+    int xmlMax() const;
+    int xmlDefault() const;
+    int xmlScale() const;
 
-    void test_midiNoteOn_shouldPlaySample();
-    void test_midiAllNotesOff_shouldStopAllVoices();
+    void setFromXml(int xmlVal);
 
-    void test_pan_shouldAdjustPanning();
-    void test_volume_shouldAdjustVolume();
-    void test_cutoff_shouldAdjustCutoff();
+    void reset();
 
-    void test_channelMode_shouldToggleCorrectMode();
-    void test_midiCcReset_shouldResetInternalValues();
-
-    void test_startOffset_shouldShiftPlaybackStart();
-
-    void test_reset_shouldResetParametersAndPads();
-
-    void test_processAudio_shouldProduceOutput();
+private:
+    std::string m_name;
+    float m_value { 0.0f };
+    int m_xmlMin { 0 };
+    int m_xmlMax { 100 };
+    int m_xmlDefault { 0 };
+    int m_xmlScale { 1 };
 };
 
 } // namespace noteahead
 
-#endif // SAMPLER_TEST_HPP
+#endif // PARAMETER_HPP

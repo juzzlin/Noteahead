@@ -203,8 +203,16 @@ QString xmlKeySideChainTarget();
 QString xmlKeySideChainSettings();
 
 QString xmlKeyDevices();
+QString xmlKeyDevice();
+QString xmlKeyCategory();
+QString xmlKeyParameter();
+QString xmlKeyMin();
+QString xmlKeyMax();
+QString xmlKeyDefault();
+QString xmlKeyScale();
 QString xmlKeySampler();
 QString xmlKeySample();
+QString xmlKeySamples();
 QString xmlKeySamplePath();
 QString xmlKeyChannelMode();
 QString xmlKeyStartOffset();
@@ -213,6 +221,7 @@ QString xmlValueFalse();
 QString xmlValueTrue();
 QString xmlValueSineWave();
 QString xmlValueRandom();
+QString xmlValueSamplers();
 
 } // namespace NahdXml
 } // namespace noteahead::Constants
