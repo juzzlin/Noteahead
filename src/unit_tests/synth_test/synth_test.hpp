@@ -18,6 +18,9 @@ private slots:
     void test_polyphony_shouldActiveMultipleVoices();
     void test_presets_shouldLoadCorrectValues();
     void test_midiCc_shouldUpdateParameters();
+    void test_presetMidiCcReset_shouldRestorePresetValues();
+    void test_voiceStealing_shouldStealQuietestVoice();
+    void test_softClipper_shouldPreventClipping();
     void test_reset_shouldRestoreDefaults();
     void test_serialization_shouldPreserveValues();
 };
