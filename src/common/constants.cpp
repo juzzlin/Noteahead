@@ -84,7 +84,7 @@ QString samplerDeviceName()
 
 QString synthDeviceName()
 {
-    return "Noteahead Synth";
+    return "Notealogue";
 }
 
 namespace NahdXml {
@@ -744,24 +744,19 @@ QString xmlKeyLevel()
     return "level";
 }
 
-QString xmlKeyDetune()
+QString xmlKeyShape()
 {
-    return "detune";
+    return "shape";
 }
 
-QString xmlKeyFreqModAmount()
+QString xmlKeyPitch()
 {
-    return "freqModAmount";
+    return "pitch";
 }
 
-QString xmlKeyFreqModSource()
+QString xmlKeySync()
 {
-    return "freqModSource";
-}
-
-QString xmlKeyPulseWidth()
-{
-    return "pulseWidth";
+    return "sync";
 }
 
 QString xmlKeyOctave()
@@ -769,9 +764,24 @@ QString xmlKeyOctave()
     return "octave";
 }
 
-QString xmlKeyKeyAssignMode()
+QString xmlKeyVoiceMode()
 {
-    return "keyAssignMode";
+    return "voiceMode";
+}
+
+QString xmlKeyVoiceDepth()
+{
+    return "voiceDepth";
+}
+
+QString xmlKeyPortamento()
+{
+    return "portamento";
+}
+
+QString xmlKeyPanSpread()
+{
+    return "panSpread";
 }
 
 QString xmlKeyResonance()
@@ -779,19 +789,9 @@ QString xmlKeyResonance()
     return "resonance";
 }
 
-QString xmlKeyEnvAmount()
-{
-    return "envAmount";
-}
-
 QString xmlKeyKeyTrack()
 {
     return "keyTrack";
-}
-
-QString xmlKeyFilterModAmount()
-{
-    return "filterModAmount";
 }
 
 QString xmlKeyAttack()
@@ -809,9 +809,54 @@ QString xmlKeySustain()
     return "sustain";
 }
 
-QString xmlKeyMgFrequency()
+QString xmlKeyReleaseTime()
 {
-    return "mgFrequency";
+    return "release";
+}
+
+QString xmlKeyIntensity()
+{
+    return "intensity";
+}
+
+QString xmlKeyTarget()
+{
+    return "target";
+}
+
+QString xmlKeyDelayType()
+{
+    return "delayType";
+}
+
+QString xmlKeyDelayTime()
+{
+    return "delayTime";
+}
+
+QString xmlKeyDelayFeedback()
+{
+    return "delayFeedback";
+}
+
+QString xmlKeyDelayDepth()
+{
+    return "delayDepth";
+}
+
+QString xmlKeyDelayMix()
+{
+    return "delayMix";
+}
+
+QString xmlKeyDelaySync()
+{
+    return "delaySync";
+}
+
+QString xmlKeyDelaySyncDivision()
+{
+    return "delaySyncDivision";
 }
 
 QString xmlKeySample()

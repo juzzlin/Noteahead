@@ -133,6 +133,10 @@ Application::Application(int & argc, char ** argv)
     m_applicationService->setStateMachine(m_stateMachine);
     m_applicationService->setEditorService(m_editorService);
     m_applicationService->setPlayerService(m_playerService);
+
+    connect(m_playerService.get(), &PlayerService::beatsPerMinuteChanged, this, [this]() {
+        m_audioEngine->setBpm(static_cast<float>(m_playerService->beatsPerMinute()));
+    });
 }
 
 void Application::registerTypes()

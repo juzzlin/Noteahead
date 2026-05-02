@@ -19,8 +19,8 @@
 #include "device.hpp"
 #include "../dsp/adsr_envelope.hpp"
 #include "../dsp/cascaded_svf.hpp"
-#include "../dsp/lfo.hpp"
 #include "../dsp/polyblep_oscillator.hpp"
+#include "delay_effect.hpp"
 
 #include <array>
 #include <memory>
@@ -35,17 +35,17 @@ namespace noteahead {
 class SynthDevice : public Device
 {
 public:
-    enum class KeyAssignMode
+    enum class VoiceMode
     {
-        Unison,
-        UnisonShare,
-        Poly
+        Poly,
+        Unison
     };
 
-    enum class FreqModSource
+    enum class ModTarget
     {
-        Mg1,
-        VcfEg
+        Pitch1,
+        Pitch2,
+        Cutoff
     };
 
     SynthDevice();
@@ -61,140 +61,180 @@ public:
 
     void processAudio(float * output, uint32_t nFrames, uint32_t sampleRate) override;
 
+    void setBpm(float bpm) override;
+
     void reset() override;
 
     void serializeToXml(QXmlStreamWriter & writer) const override;
     void deserializeFromXml(QXmlStreamReader & reader) override;
 
-    struct Oscillator : public ParameterContainer
-    {
-        Oscillator();
+    // Parameter accessors (VCO1)
+    PolyBLEPOscillator::Waveform vco1Waveform() const;
+    void setVco1Waveform(PolyBLEPOscillator::Waveform wave);
+    int vco1Octave() const;
+    void setVco1Octave(int octave);
+    float vco1Pitch() const;
+    void setVco1Pitch(float pitch);
+    float vco1Shape() const;
+    void setVco1Shape(float shape);
+    bool vco1Sync() const;
+    void setVco1Sync(bool sync);
 
-        PolyBLEPOscillator::Waveform waveform = PolyBLEPOscillator::Waveform::Saw;
-        float level = 1.0f;
-        float tune = 0.0f;
-        int octave = 0;
-    };
+    // Parameter accessors (VCO2)
+    PolyBLEPOscillator::Waveform vco2Waveform() const;
+    void setVco2Waveform(PolyBLEPOscillator::Waveform wave);
+    int vco2Octave() const;
+    void setVco2Octave(int octave);
+    float vco2Pitch() const;
+    void setVco2Pitch(float pitch);
+    float vco2Shape() const;
+    void setVco2Shape(float shape);
+    bool vco2Sync() const;
+    void setVco2Sync(bool sync);
 
-    // Parameter accessors
-    KeyAssignMode keyAssignMode() const;
-    void setKeyAssignMode(KeyAssignMode mode);
+    // Mixer
+    float mixVco1() const;
+    void setMixVco1(float level);
+    float mixVco2() const;
+    void setMixVco2(float level);
 
-    PolyBLEPOscillator::Waveform oscWaveform(int index) const;
-    void setOscWaveform(int index, PolyBLEPOscillator::Waveform waveform);
-
-    float oscLevel(int index) const;
-    void setOscLevel(int index, float level);
-
-    float oscTune(int index) const;
-    void setOscTune(int index, float tune);
-
-    int oscOctave(int index) const;
-    void setOscOctave(int index, int octave);
-
-    float pulseWidth() const;
-    void setPulseWidth(float pw);
-
-    float filterCutoff() const;
-    void setFilterCutoff(float cutoff);
-
-    float filterResonance() const;
-    void setFilterResonance(float resonance);
-
-    float filterEnvAmount() const;
-    void setFilterEnvAmount(float amount);
-
+    // Filter
+    float lpfCutoff() const;
+    void setLpfCutoff(float cutoff);
+    float lpfResonance() const;
+    void setLpfResonance(float resonance);
+    float hpfCutoff() const;
+    void setHpfCutoff(float cutoff);
     float filterKeyTrack() const;
     void setFilterKeyTrack(float track);
 
-    float filterModAmount() const;
-    void setFilterModAmount(float amount);
+    // Amp EG
+    float ampAttack() const;
+    void setAmpAttack(float a);
+    float ampDecay() const;
+    void setAmpDecay(float d);
+    float ampSustain() const;
+    void setAmpSustain(float s);
+    float ampRelease() const;
+    void setAmpRelease(float r);
 
-    float volume() const;
-    void setVolume(float volume);
+    // Mod EG
+    float modAttack() const;
+    void setModAttack(float a);
+    float modDecay() const;
+    void setModDecay(float d);
+    float modInt() const;
+    void setModInt(float intensity);
+    ModTarget modTarget() const;
+    void setModTarget(ModTarget target);
 
-    float vcaAttack() const;
-    void setVcaAttack(float a);
-    float vcaDecay() const;
-    void setVcaDecay(float d);
-    float vcaSustain() const;
-    void setVcaSustain(float s);
-    float vcaRelease() const;
-    void setVcaRelease(float r);
+    // Voice / Global
+    VoiceMode voiceMode() const;
+    void setVoiceMode(VoiceMode mode);
+    float voiceDepth() const;
+    void setVoiceDepth(float depth);
+    float portamento() const;
+    void setPortamento(float p);
+    float panSpread() const;
+    void setPanSpread(float spread);
+    float masterVolume() const;
+    void setMasterVolume(float vol);
 
-    float vcfAttack() const;
-    void setVcfAttack(float a);
-    float vcfDecay() const;
-    void setVcfDecay(float d);
-    float vcfSustain() const;
-    void setVcfSustain(float s);
-    float vcfRelease() const;
-    void setVcfRelease(float r);
+    // Delay parameters
+    DelayEffect::Type delayType() const;
+    void setDelayType(DelayEffect::Type type);
+    float delayTime() const;
+    void setDelayTime(float time);
+    float delayFeedback() const;
+    void setDelayFeedback(float fb);
+    float delayDepth() const;
+    void setDelayDepth(float depth);
+    float delayMix() const;
+    void setDelayMix(float mix);
+    bool delaySync() const;
+    void setDelaySync(bool sync);
+    float delaySyncDivision() const;
+    void setDelaySyncDivision(float division);
 
-    void setVcaAdsr(float a, float d, float s, float r);
-    void setVcfAdsr(float a, float d, float s, float r);
-
-    float mg1Frequency() const;
-    void setMg1Frequency(float freq);
-
-    float mg2Frequency() const;
-    void setMg2Frequency(float freq);
-
-    float detune() const;
-    void setDetune(float detune);
-
-    float freqModAmount() const;
-    void setFreqModAmount(float amount);
-
-    FreqModSource freqModSource() const;
-    void setFreqModSource(FreqModSource source);
+    void loadPreset(int index);
 
 private:
-    KeyAssignMode m_keyAssignMode { KeyAssignMode::Poly };
-    
-    std::array<PolyBLEPOscillator, 4> m_oscillators;
-    std::array<uint8_t, 4> m_oscillatorNotes {0, 0, 0, 0};
-    std::array<double, 4> m_oscillatorBaseFreqs {0.0, 0.0, 0.0, 0.0};
-    std::array<bool, 4> m_oscillatorActive {false, false, false, false};
-    
-    ADSREnvelope m_vcaEnvelope;
-    ADSREnvelope m_vcfEnvelope;
-    CascadedSVF m_filter;
-    
-    LFO m_mg1;
-    LFO m_mg2;
+    struct Voice
+    {
+        PolyBLEPOscillator vco1;
+        PolyBLEPOscillator vco2;
+        CascadedSVF lpf;
+        CascadedSVF hpf;
+        ADSREnvelope ampEg;
+        ADSREnvelope modEg;
 
-    std::vector<uint8_t> m_heldNotes;
-    int m_polyNextOsc = 0;
+        uint8_t note { 0 };
+        double frequency { 0.0 };
+        double glideFrequency { 0.0 };
+        bool active { false };
+        float pan { 0.5f };
 
+        void reset();
+        void trigger(uint8_t note, double freq, float pan, bool phaseSync);
+        void release();
+    };
+
+    std::array<Voice, 4> m_voices;
     mutable std::mutex m_mutex;
+    int m_polyNextVoice = 0;
 
-    std::array<std::unique_ptr<Oscillator>, 4> m_oscParams;
+    // Internal parameter storage
+    PolyBLEPOscillator::Waveform m_vco1Waveform { PolyBLEPOscillator::Waveform::Saw };
+    int m_vco1Octave { 0 };
+    float m_vco1Pitch { 0.0f };
+    float m_vco1Shape { 0.0f };
+    bool m_vco1Sync { true };
 
-    float m_pulseWidth = 0.5f;
-    float m_filterCutoff = 0.5f;
-    float m_filterResonance = 0.0f;
-    float m_filterEnvAmount = 0.0f;
-    float m_filterKeyTrack = 0.0f;
-    float m_filterModAmount = 0.1f;
-    float m_volume = 1.0f;
-    float m_vcaAttack = 0.1f;
-    float m_vcaDecay = 0.2f;
-    float m_vcaSustain = 1.0f;
-    float m_vcaRelease = 0.2f;
-    float m_vcfAttack = 0.1f;
-    float m_vcfDecay = 0.2f;
-    float m_vcfSustain = 1.0f;
-    float m_vcfRelease = 0.2f;
-    float m_mg1Frequency = 0.5f;
-    float m_mg2Frequency = 0.2f;
-    float m_detune = 0.0f;
-    float m_freqModAmount = 0.0f;
-    FreqModSource m_freqModSource = FreqModSource::Mg1;
+    PolyBLEPOscillator::Waveform m_vco2Waveform { PolyBLEPOscillator::Waveform::Saw };
+    int m_vco2Octave { 0 };
+    float m_vco2Pitch { 0.0f };
+    float m_vco2Shape { 0.0f };
+    bool m_vco2Sync { true };
 
-    double m_velocityFactor = 1.0;
+    float m_mixVco1 { 1.0f };
+    float m_mixVco2 { 0.0f };
 
-    void updateOscillatorFrequencies(double sampleRate, double modValue);
+    float m_lpfCutoff { 1.0f };
+    float m_lpfResonance { 0.0f };
+    float m_hpfCutoff { 0.0f };
+    float m_filterKeyTrack { 0.0f };
+
+    float m_ampAttack { 0.1f };
+    float m_ampDecay { 0.2f };
+    float m_ampSustain { 1.0f };
+    float m_ampRelease { 0.2f };
+
+    float m_modAttack { 0.1f };
+    float m_modDecay { 0.2f };
+    float m_modInt { 0.0f };
+    ModTarget m_modTarget { ModTarget::Cutoff };
+
+    VoiceMode m_voiceMode { VoiceMode::Poly };
+    float m_voiceDepth { 0.0f };
+    float m_portamento { 0.0f };
+    float m_panSpread { 0.0f };
+    float m_masterVolume { 1.0f };
+
+    // Manual settings for CC reset
+    float m_manualPanSpread { 0.0f };
+    float m_manualMasterVolume { 1.0f };
+    float m_manualLpfCutoff { 1.0f };
+    float m_manualHpfCutoff { 0.0f };
+
+    DelayEffect m_delay;
+    DelayEffect::Type m_delayType { DelayEffect::Type::Stereo };
+    float m_delayTime { 0.5f };
+    float m_delayFeedback { 0.3f };
+    float m_delayDepth { 0.5f };
+    float m_delayMix { 0.0f };
+    bool m_delaySync { false };
+    float m_delaySyncDivision { 0.25f };
+
     void handleNoteOn(uint8_t note, uint8_t velocity);
     void handleNoteOff(uint8_t note);
     double midiNoteToFreq(uint8_t note) const;

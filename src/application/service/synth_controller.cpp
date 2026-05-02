@@ -15,572 +15,126 @@
 
 #include "synth_controller.hpp"
 #include "../../domain/devices/synth_device.hpp"
+
 #include <cmath>
 
 namespace noteahead {
 
 SynthController::SynthController(std::shared_ptr<SynthDevice> synth, QObject * parent)
-    : QObject { parent }
-    , m_synth { std::move(synth) }
+  : QObject(parent)
+  , m_synth { std::move(synth) }
 {
 }
 
 SynthController::~SynthController() = default;
 
-std::shared_ptr<SynthDevice> SynthController::synth() const
-{
-    return m_synth;
+std::shared_ptr<SynthDevice> SynthController::synth() const { return m_synth; }
+
+// VCO1
+int SynthController::vco1Waveform() const { return m_synth ? static_cast<int>(m_synth->vco1Waveform()) : 0; }
+void SynthController::setVco1Waveform(int wave) { if (m_synth) { m_synth->setVco1Waveform(static_cast<PolyBLEPOscillator::Waveform>(wave)); emit vco1WaveformChanged(); } }
+int SynthController::vco1Octave() const { return m_synth ? m_synth->vco1Octave() : 0; }
+void SynthController::setVco1Octave(int oct) { if (m_synth) { m_synth->setVco1Octave(oct); emit vco1OctaveChanged(); } }
+int SynthController::vco1Pitch() const { return m_synth ? static_cast<int>(m_synth->vco1Pitch()) : 0; }
+void SynthController::setVco1Pitch(int p) { if (m_synth) { m_synth->setVco1Pitch(static_cast<float>(p)); emit vco1PitchChanged(); } }
+int SynthController::vco1Shape() const { return m_synth ? static_cast<int>(std::round(m_synth->vco1Shape() * 100.0f)) : 0; }
+void SynthController::setVco1Shape(int s) { if (m_synth) { m_synth->setVco1Shape(s / 100.0f); emit vco1ShapeChanged(); } }
+bool SynthController::vco1Sync() const { return m_synth ? m_synth->vco1Sync() : false; }
+void SynthController::setVco1Sync(bool s) { if (m_synth) { m_synth->setVco1Sync(s); emit vco1SyncChanged(); } }
+
+// VCO2
+int SynthController::vco2Waveform() const { return m_synth ? static_cast<int>(m_synth->vco2Waveform()) : 0; }
+void SynthController::setVco2Waveform(int wave) { if (m_synth) { m_synth->setVco2Waveform(static_cast<PolyBLEPOscillator::Waveform>(wave)); emit vco2WaveformChanged(); } }
+int SynthController::vco2Octave() const { return m_synth ? m_synth->vco2Octave() : 0; }
+void SynthController::setVco2Octave(int oct) { if (m_synth) { m_synth->setVco2Octave(oct); emit vco2OctaveChanged(); } }
+int SynthController::vco2Pitch() const { return m_synth ? static_cast<int>(m_synth->vco2Pitch()) : 0; }
+void SynthController::setVco2Pitch(int p) { if (m_synth) { m_synth->setVco2Pitch(static_cast<float>(p)); emit vco2PitchChanged(); } }
+int SynthController::vco2Shape() const { return m_synth ? static_cast<int>(std::round(m_synth->vco2Shape() * 100.0f)) : 0; }
+void SynthController::setVco2Shape(int s) { if (m_synth) { m_synth->setVco2Shape(s / 100.0f); emit vco2ShapeChanged(); } }
+bool SynthController::vco2Sync() const { return m_synth ? m_synth->vco2Sync() : false; }
+void SynthController::setVco2Sync(bool s) { if (m_synth) { m_synth->setVco2Sync(s); emit vco2SyncChanged(); } }
+
+// Mixer
+int SynthController::mixVco1() const { return m_synth ? static_cast<int>(std::round(m_synth->mixVco1() * 100.0f)) : 0; }
+void SynthController::setMixVco1(int lvl) { if (m_synth) { m_synth->setMixVco1(lvl / 100.0f); emit mixVco1Changed(); } }
+int SynthController::mixVco2() const { return m_synth ? static_cast<int>(std::round(m_synth->mixVco2() * 100.0f)) : 0; }
+void SynthController::setMixVco2(int lvl) { if (m_synth) { m_synth->setMixVco2(lvl / 100.0f); emit mixVco2Changed(); } }
+
+// Filter
+int SynthController::lpfCutoff() const { return m_synth ? static_cast<int>(std::round(m_synth->lpfCutoff() * 100.0f)) : 0; }
+void SynthController::setLpfCutoff(int c) { if (m_synth) { m_synth->setLpfCutoff(c / 100.0f); emit lpfCutoffChanged(); } }
+int SynthController::lpfResonance() const { return m_synth ? static_cast<int>(std::round(m_synth->lpfResonance() * 100.0f)) : 0; }
+void SynthController::setLpfResonance(int r) { if (m_synth) { m_synth->setLpfResonance(r / 100.0f); emit lpfResonanceChanged(); } }
+int SynthController::hpfCutoff() const { return m_synth ? static_cast<int>(std::round(m_synth->hpfCutoff() * 100.0f)) : 0; }
+void SynthController::setHpfCutoff(int c) { if (m_synth) { m_synth->setHpfCutoff(c / 100.0f); emit hpfCutoffChanged(); } }
+int SynthController::filterKeyTrack() const { return m_synth ? static_cast<int>(std::round(m_synth->filterKeyTrack() * 100.0f)) : 0; }
+void SynthController::setFilterKeyTrack(int t) { if (m_synth) { m_synth->setFilterKeyTrack(t / 100.0f); emit filterKeyTrackChanged(); } }
+
+// Amp EG
+int SynthController::ampAttack() const { return m_synth ? static_cast<int>(std::round(m_synth->ampAttack() * 100.0f)) : 0; }
+void SynthController::setAmpAttack(int a) { if (m_synth) { m_synth->setAmpAttack(a / 100.0f); emit ampAttackChanged(); } }
+int SynthController::ampDecay() const { return m_synth ? static_cast<int>(std::round(m_synth->ampDecay() * 100.0f)) : 0; }
+void SynthController::setAmpDecay(int d) { if (m_synth) { m_synth->setAmpDecay(d / 100.0f); emit ampDecayChanged(); } }
+int SynthController::ampSustain() const { return m_synth ? static_cast<int>(std::round(m_synth->ampSustain() * 100.0f)) : 0; }
+void SynthController::setAmpSustain(int s) { if (m_synth) { m_synth->setAmpSustain(s / 100.0f); emit ampSustainChanged(); } }
+int SynthController::ampRelease() const { return m_synth ? static_cast<int>(std::round(m_synth->ampRelease() * 100.0f)) : 0; }
+void SynthController::setAmpRelease(int r) { if (m_synth) { m_synth->setAmpRelease(r / 100.0f); emit ampReleaseChanged(); } }
+
+// Mod EG
+int SynthController::modAttack() const { return m_synth ? static_cast<int>(std::round(m_synth->modAttack() * 100.0f)) : 0; }
+void SynthController::setModAttack(int a) { if (m_synth) { m_synth->setModAttack(a / 100.0f); emit modAttackChanged(); } }
+int SynthController::modDecay() const { return m_synth ? static_cast<int>(std::round(m_synth->modDecay() * 100.0f)) : 0; }
+void SynthController::setModDecay(int d) { if (m_synth) { m_synth->setModDecay(d / 100.0f); emit modDecayChanged(); } }
+int SynthController::modInt() const { return m_synth ? static_cast<int>(std::round(m_synth->modInt() * 100.0f)) : 0; }
+void SynthController::setModInt(int i) { if (m_synth) { m_synth->setModInt(i / 100.0f); emit modIntChanged(); } }
+int SynthController::modTarget() const { return m_synth ? static_cast<int>(m_synth->modTarget()) : 0; }
+void SynthController::setModTarget(int t) { if (m_synth) { m_synth->setModTarget(static_cast<SynthDevice::ModTarget>(t)); emit modTargetChanged(); } }
+
+// Global
+int SynthController::voiceMode() const { return m_synth ? static_cast<int>(m_synth->voiceMode()) : 0; }
+void SynthController::setVoiceMode(int m) { if (m_synth) { m_synth->setVoiceMode(static_cast<SynthDevice::VoiceMode>(m)); emit voiceModeChanged(); } }
+int SynthController::voiceDepth() const { return m_synth ? static_cast<int>(std::round(m_synth->voiceDepth() * 100.0f)) : 0; }
+void SynthController::setVoiceDepth(int d) { if (m_synth) { m_synth->setVoiceDepth(d / 100.0f); emit voiceDepthChanged(); } }
+int SynthController::portamento() const { return m_synth ? static_cast<int>(std::round(m_synth->portamento() * 100.0f)) : 0; }
+void SynthController::setPortamento(int p) { if (m_synth) { m_synth->setPortamento(p / 100.0f); emit portamentoChanged(); } }
+int SynthController::panSpread() const { return m_synth ? static_cast<int>(std::round(m_synth->panSpread() * 100.0f)) : 0; }
+void SynthController::setPanSpread(int s) { if (m_synth) { m_synth->setPanSpread(s / 100.0f); emit panSpreadChanged(); } }
+int SynthController::masterVolume() const { return m_synth ? static_cast<int>(std::round(m_synth->masterVolume() * 100.0f)) : 0; }
+void SynthController::setMasterVolume(int v) { if (m_synth) { m_synth->setMasterVolume(v / 100.0f); emit masterVolumeChanged(); } }
+
+// Delay
+int SynthController::delayType() const { return m_synth ? static_cast<int>(m_synth->delayType()) : 0; }
+void SynthController::setDelayType(int type) { if (m_synth) { m_synth->setDelayType(static_cast<DelayEffect::Type>(type)); emit delayTypeChanged(); } }
+int SynthController::delayTime() const { return m_synth ? static_cast<int>(std::round(m_synth->delayTime() * 1000.0f)) : 0; }
+void SynthController::setDelayTime(int time) { if (m_synth) { m_synth->setDelayTime(time / 1000.0f); emit delayTimeChanged(); } }
+int SynthController::delayFeedback() const { return m_synth ? static_cast<int>(std::round(m_synth->delayFeedback() * 100.0f)) : 0; }
+void SynthController::setDelayFeedback(int fb) { if (m_synth) { m_synth->setDelayFeedback(fb / 100.0f); emit delayFeedbackChanged(); } }
+int SynthController::delayDepth() const { return m_synth ? static_cast<int>(std::round(m_synth->delayDepth() * 100.0f)) : 0; }
+void SynthController::setDelayDepth(int d) { if (m_synth) { m_synth->setDelayDepth(d / 100.0f); emit delayDepthChanged(); } }
+int SynthController::delayMix() const { return m_synth ? static_cast<int>(std::round(m_synth->delayMix() * 100.0f)) : 0; }
+void SynthController::setDelayMix(int mix) { if (m_synth) { m_synth->setDelayMix(mix / 100.0f); emit delayMixChanged(); } }
+bool SynthController::delaySync() const { return m_synth ? m_synth->delaySync() : false; }
+void SynthController::setDelaySync(bool sync) { if (m_synth) { m_synth->setDelaySync(sync); emit delaySyncChanged(); } }
+int SynthController::delaySyncDivision() const { return m_synth ? static_cast<int>(std::round(m_synth->delaySyncDivision() * 100.0f)) : 0; }
+void SynthController::setDelaySyncDivision(int div) { if (m_synth) { m_synth->setDelaySyncDivision(div / 100.0f); emit delaySyncDivisionChanged(); } }
+
+void SynthController::initialize() {}
+void SynthController::reset() { if (m_synth) m_synth->reset(); requestSettings(); }
+void SynthController::requestSettings() {
+    emit vco1WaveformChanged(); emit vco1OctaveChanged(); emit vco1PitchChanged(); emit vco1ShapeChanged(); emit vco1SyncChanged();
+    emit vco2WaveformChanged(); emit vco2OctaveChanged(); emit vco2PitchChanged(); emit vco2ShapeChanged(); emit vco2SyncChanged();
+    emit mixVco1Changed(); emit mixVco2Changed();
+    emit lpfCutoffChanged(); emit lpfResonanceChanged(); emit hpfCutoffChanged(); emit filterKeyTrackChanged();
+    emit ampAttackChanged(); emit ampDecayChanged(); emit ampSustainChanged(); emit ampReleaseChanged();
+    emit modAttackChanged(); emit modDecayChanged(); emit modIntChanged(); emit modTargetChanged();
+    emit voiceModeChanged(); emit voiceDepthChanged(); emit portamentoChanged(); emit panSpreadChanged(); emit masterVolumeChanged();
+    emit delayTypeChanged(); emit delayTimeChanged(); emit delayFeedbackChanged(); emit delayDepthChanged(); emit delayMixChanged(); emit delaySyncChanged(); emit delaySyncDivisionChanged();
 }
-
-int SynthController::detune() const
-{
-    return m_synth ? static_cast<int>(std::round(m_synth->detune() * 100.0f)) : 0;
-}
-
-void SynthController::setDetune(int detune)
-{
-    if (m_synth) {
-        m_synth->setDetune(detune / 100.0f);
-        emit detuneChanged();
-    }
-}
-
-int SynthController::freqModAmount() const
-{
-    return m_synth ? static_cast<int>(std::round(m_synth->freqModAmount() * 100.0f)) : 0;
-}
-
-void SynthController::setFreqModAmount(int amount)
-{
-    if (m_synth) {
-        m_synth->setFreqModAmount(amount / 100.0f);
-        emit freqModAmountChanged();
-    }
-}
-
-int SynthController::freqModSource() const
-{
-    return m_synth ? static_cast<int>(m_synth->freqModSource()) : 0;
-}
-
-void SynthController::setFreqModSource(int source)
-{
-    if (m_synth) {
-        m_synth->setFreqModSource(static_cast<SynthDevice::FreqModSource>(source));
-        emit freqModSourceChanged();
-    }
-}
-
-int SynthController::keyAssignMode() const
-{
-    return m_synth ? static_cast<int>(m_synth->keyAssignMode()) : 0;
-}
-
-void SynthController::setKeyAssignMode(int mode)
-{
-    if (m_synth) {
-        m_synth->setKeyAssignMode(static_cast<SynthDevice::KeyAssignMode>(mode));
-        emit keyAssignModeChanged();
-    }
-}
-
-int SynthController::pulseWidth() const
-{
-    return m_synth ? static_cast<int>(std::round(m_synth->pulseWidth() * 100.0f)) : 50;
-}
-
-void SynthController::setPulseWidth(int pw)
-{
-    if (m_synth) {
-        m_synth->setPulseWidth(pw / 100.0f);
-        emit pulseWidthChanged();
-    }
-}
-
-int SynthController::filterCutoff() const
-{
-    return m_synth ? static_cast<int>(std::round(m_synth->filterCutoff() * 100.0f)) : 50;
-}
-
-void SynthController::setFilterCutoff(int cutoff)
-{
-    if (m_synth) {
-        m_synth->setFilterCutoff(cutoff / 100.0f);
-        emit filterCutoffChanged();
-    }
-}
-
-int SynthController::filterResonance() const
-{
-    return m_synth ? static_cast<int>(std::round(m_synth->filterResonance() * 100.0f)) : 0;
-}
-
-void SynthController::setFilterResonance(int resonance)
-{
-    if (m_synth) {
-        m_synth->setFilterResonance(resonance / 100.0f);
-        emit filterResonanceChanged();
-    }
-}
-
-int SynthController::filterEnvAmount() const
-{
-    return m_synth ? static_cast<int>(std::round(m_synth->filterEnvAmount() * 100.0f)) : 0;
-}
-
-void SynthController::setFilterEnvAmount(int amount)
-{
-    if (m_synth) {
-        m_synth->setFilterEnvAmount(amount / 100.0f);
-        emit filterEnvAmountChanged();
-    }
-}
-
-int SynthController::filterKeyTrack() const
-{
-    return m_synth ? static_cast<int>(std::round(m_synth->filterKeyTrack() * 100.0f)) : 0;
-}
-
-void SynthController::setFilterKeyTrack(int track)
-{
-    if (m_synth) {
-        m_synth->setFilterKeyTrack(track / 100.0f);
-        emit filterKeyTrackChanged();
-    }
-}
-
-int SynthController::filterModAmount() const
-{
-    return m_synth ? static_cast<int>(std::round(m_synth->filterModAmount() * 100.0f)) : 0;
-}
-
-void SynthController::setFilterModAmount(int amount)
-{
-    if (m_synth) {
-        m_synth->setFilterModAmount(amount / 100.0f);
-        emit filterModAmountChanged();
-    }
-}
-
-int SynthController::volume() const
-{
-    return m_synth ? static_cast<int>(std::round(m_synth->volume() * 100.0f)) : 100;
-}
-
-void SynthController::setVolume(int volume)
-{
-    if (m_synth) {
-        m_synth->setVolume(volume / 100.0f);
-        emit volumeChanged();
-    }
-}
-
-int SynthController::mg1Frequency() const
-{
-    return m_synth ? static_cast<int>(std::round(m_synth->mg1Frequency() * 100.0f)) : 50;
-}
-
-void SynthController::setMg1Frequency(int freq)
-{
-    if (m_synth) {
-        m_synth->setMg1Frequency(freq / 100.0f);
-        emit mg1FrequencyChanged();
-    }
-}
-
-int SynthController::mg2Frequency() const
-{
-    return m_synth ? static_cast<int>(std::round(m_synth->mg2Frequency() * 100.0f)) : 20;
-}
-
-void SynthController::setMg2Frequency(int freq)
-{
-    if (m_synth) {
-        m_synth->setMg2Frequency(freq / 100.0f);
-        emit mg2FrequencyChanged();
-    }
-}
-
-int SynthController::osc1Waveform() const
-{
-    return m_synth ? static_cast<int>(m_synth->oscWaveform(0)) : 0;
-}
-
-void SynthController::setOsc1Waveform(int waveform)
-{
-    if (m_synth) {
-        m_synth->setOscWaveform(0, static_cast<PolyBLEPOscillator::Waveform>(waveform));
-        emit osc1WaveformChanged();
-    }
-}
-
-int SynthController::osc1Level() const
-{
-    return m_synth ? static_cast<int>(std::round(m_synth->oscLevel(0) * 100.0f)) : 100;
-}
-
-void SynthController::setOsc1Level(int level)
-{
-    if (m_synth) {
-        m_synth->setOscLevel(0, level / 100.0f);
-        emit osc1LevelChanged();
-    }
-}
-
-int SynthController::osc1Tune() const
-{
-    return m_synth ? static_cast<int>(std::round(m_synth->oscTune(0) * 100.0f)) : 0;
-}
-
-void SynthController::setOsc1Tune(int tune)
-{
-    if (m_synth) {
-        m_synth->setOscTune(0, tune / 100.0f);
-        emit osc1TuneChanged();
-    }
-}
-
-int SynthController::osc1Octave() const
-{
-    return m_synth ? m_synth->oscOctave(0) : 0;
-}
-
-void SynthController::setOsc1Octave(int octave)
-{
-    if (m_synth) {
-        m_synth->setOscOctave(0, octave);
-        emit osc1OctaveChanged();
-    }
-}
-
-int SynthController::osc2Waveform() const
-{
-    return m_synth ? static_cast<int>(m_synth->oscWaveform(1)) : 0;
-}
-
-void SynthController::setOsc2Waveform(int waveform)
-{
-    if (m_synth) {
-        m_synth->setOscWaveform(1, static_cast<PolyBLEPOscillator::Waveform>(waveform));
-        emit osc2WaveformChanged();
-    }
-}
-
-int SynthController::osc2Level() const
-{
-    return m_synth ? static_cast<int>(std::round(m_synth->oscLevel(1) * 100.0f)) : 100;
-}
-
-void SynthController::setOsc2Level(int level)
-{
-    if (m_synth) {
-        m_synth->setOscLevel(1, level / 100.0f);
-        emit osc2LevelChanged();
-    }
-}
-
-int SynthController::osc2Tune() const
-{
-    return m_synth ? static_cast<int>(std::round(m_synth->oscTune(1) * 100.0f)) : 0;
-}
-
-void SynthController::setOsc2Tune(int tune)
-{
-    if (m_synth) {
-        m_synth->setOscTune(1, tune / 100.0f);
-        emit osc2TuneChanged();
-    }
-}
-
-int SynthController::osc2Octave() const
-{
-    return m_synth ? m_synth->oscOctave(1) : 0;
-}
-
-void SynthController::setOsc2Octave(int octave)
-{
-    if (m_synth) {
-        m_synth->setOscOctave(1, octave);
-        emit osc2OctaveChanged();
-    }
-}
-
-int SynthController::osc3Waveform() const
-{
-    return m_synth ? static_cast<int>(m_synth->oscWaveform(2)) : 0;
-}
-
-void SynthController::setOsc3Waveform(int waveform)
-{
-    if (m_synth) {
-        m_synth->setOscWaveform(2, static_cast<PolyBLEPOscillator::Waveform>(waveform));
-        emit osc3WaveformChanged();
-    }
-}
-
-int SynthController::osc3Level() const
-{
-    return m_synth ? static_cast<int>(std::round(m_synth->oscLevel(2) * 100.0f)) : 100;
-}
-
-void SynthController::setOsc3Level(int level)
-{
-    if (m_synth) {
-        m_synth->setOscLevel(2, level / 100.0f);
-        emit osc3LevelChanged();
-    }
-}
-
-int SynthController::osc3Tune() const
-{
-    return m_synth ? static_cast<int>(std::round(m_synth->oscTune(2) * 100.0f)) : 0;
-}
-
-void SynthController::setOsc3Tune(int tune)
-{
-    if (m_synth) {
-        m_synth->setOscTune(2, tune / 100.0f);
-        emit osc3TuneChanged();
-    }
-}
-
-int SynthController::osc3Octave() const
-{
-    return m_synth ? m_synth->oscOctave(2) : 0;
-}
-
-void SynthController::setOsc3Octave(int octave)
-{
-    if (m_synth) {
-        m_synth->setOscOctave(2, octave);
-        emit osc3OctaveChanged();
-    }
-}
-
-int SynthController::osc4Waveform() const
-{
-    return m_synth ? static_cast<int>(m_synth->oscWaveform(3)) : 0;
-}
-
-void SynthController::setOsc4Waveform(int waveform)
-{
-    if (m_synth) {
-        m_synth->setOscWaveform(3, static_cast<PolyBLEPOscillator::Waveform>(waveform));
-        emit osc4WaveformChanged();
-    }
-}
-
-int SynthController::osc4Level() const
-{
-    return m_synth ? static_cast<int>(std::round(m_synth->oscLevel(3) * 100.0f)) : 100;
-}
-
-void SynthController::setOsc4Level(int level)
-{
-    if (m_synth) {
-        m_synth->setOscLevel(3, level / 100.0f);
-        emit osc4LevelChanged();
-    }
-}
-
-int SynthController::osc4Tune() const
-{
-    return m_synth ? static_cast<int>(std::round(m_synth->oscTune(3) * 100.0f)) : 0;
-}
-
-void SynthController::setOsc4Tune(int tune)
-{
-    if (m_synth) {
-        m_synth->setOscTune(3, tune / 100.0f);
-        emit osc4TuneChanged();
-    }
-}
-
-int SynthController::osc4Octave() const
-{
-    return m_synth ? m_synth->oscOctave(3) : 0;
-}
-
-void SynthController::setOsc4Octave(int octave)
-{
-    if (m_synth) {
-        m_synth->setOscOctave(3, octave);
-        emit osc4OctaveChanged();
-    }
-}
-
-int SynthController::vcaAttack() const
-{
-    return m_synth ? static_cast<int>(std::round(m_synth->vcaAttack() * 100.0f)) : 10;
-}
-
-void SynthController::setVcaAttack(int a)
-{
-    if (m_synth) {
-        m_synth->setVcaAttack(a / 100.0f);
-        emit vcaAttackChanged();
-    }
-}
-
-int SynthController::vcaDecay() const
-{
-    return m_synth ? static_cast<int>(std::round(m_synth->vcaDecay() * 100.0f)) : 20;
-}
-
-void SynthController::setVcaDecay(int d)
-{
-    if (m_synth) {
-        m_synth->setVcaDecay(d / 100.0f);
-        emit vcaDecayChanged();
-    }
-}
-
-int SynthController::vcaSustain() const
-{
-    return m_synth ? static_cast<int>(std::round(m_synth->vcaSustain() * 100.0f)) : 100;
-}
-
-void SynthController::setVcaSustain(int s)
-{
-    if (m_synth) {
-        m_synth->setVcaSustain(s / 100.0f);
-        emit vcaSustainChanged();
-    }
-}
-
-int SynthController::vcaRelease() const
-{
-    return m_synth ? static_cast<int>(std::round(m_synth->vcaRelease() * 100.0f)) : 20;
-}
-
-void SynthController::setVcaRelease(int r)
-{
-    if (m_synth) {
-        m_synth->setVcaRelease(r / 100.0f);
-        emit vcaReleaseChanged();
-    }
-}
-
-int SynthController::vcfAttack() const
-{
-    return m_synth ? static_cast<int>(std::round(m_synth->vcfAttack() * 100.0f)) : 10;
-}
-
-void SynthController::setVcfAttack(int a)
-{
-    if (m_synth) {
-        m_synth->setVcfAttack(a / 100.0f);
-        emit vcfAttackChanged();
-    }
-}
-
-int SynthController::vcfDecay() const
-{
-    return m_synth ? static_cast<int>(std::round(m_synth->vcfDecay() * 100.0f)) : 20;
-}
-
-void SynthController::setVcfDecay(int d)
-{
-    if (m_synth) {
-        m_synth->setVcfDecay(d / 100.0f);
-        emit vcfDecayChanged();
-    }
-}
-
-int SynthController::vcfSustain() const
-{
-    return m_synth ? static_cast<int>(std::round(m_synth->vcfSustain() * 100.0f)) : 100;
-}
-
-void SynthController::setVcfSustain(int s)
-{
-    if (m_synth) {
-        m_synth->setVcfSustain(s / 100.0f);
-        emit vcfSustainChanged();
-    }
-}
-
-int SynthController::vcfRelease() const
-{
-    return m_synth ? static_cast<int>(std::round(m_synth->vcfRelease() * 100.0f)) : 20;
-}
-
-void SynthController::setVcfRelease(int r)
-{
-    if (m_synth) {
-        m_synth->setVcfRelease(r / 100.0f);
-        emit vcfReleaseChanged();
-    }
-}
-
-void SynthController::initialize()
-{
-}
-
-void SynthController::reset()
-{
-    if (m_synth) {
-        m_synth->reset();
-        requestSettings();
-    }
-}
-
-void SynthController::requestSettings()
-{
-    emit detuneChanged();
-    emit freqModAmountChanged();
-    emit freqModSourceChanged();
-    emit keyAssignModeChanged();
-    emit pulseWidthChanged();
-    emit filterCutoffChanged();
-    emit filterResonanceChanged();
-    emit filterEnvAmountChanged();
-    emit filterKeyTrackChanged();
-    emit filterModAmountChanged();
-    emit volumeChanged();
-    emit mg1FrequencyChanged();
-    emit mg2FrequencyChanged();
-    emit osc1WaveformChanged();
-    emit osc1LevelChanged();
-    emit osc1TuneChanged();
-    emit osc1OctaveChanged();
-    emit osc2WaveformChanged();
-    emit osc2LevelChanged();
-    emit osc2TuneChanged();
-    emit osc2OctaveChanged();
-    emit osc3WaveformChanged();
-    emit osc3LevelChanged();
-    emit osc3TuneChanged();
-    emit osc3OctaveChanged();
-    emit osc4WaveformChanged();
-    emit osc4LevelChanged();
-    emit osc4TuneChanged();
-    emit osc4OctaveChanged();
-    emit vcaAttackChanged();
-    emit vcaDecayChanged();
-    emit vcaSustainChanged();
-    emit vcaReleaseChanged();
-    emit vcfAttackChanged();
-    emit vcfDecayChanged();
-    emit vcfSustainChanged();
-    emit vcfReleaseChanged();
-}
-
 void SynthController::accept() {}
 void SynthController::reject() {}
+void SynthController::loadPreset(int index) { if (m_synth) m_synth->loadPreset(index); requestSettings(); }
 
-void SynthController::playNote(int note, double velocity)
-{
-    if (m_synth) {
-        m_synth->processMidiNoteOn(static_cast<uint8_t>(note), static_cast<uint8_t>(velocity * 127.0));
-    }
-}
-
-void SynthController::stopNote(int note)
-{
-    if (m_synth) {
-        m_synth->processMidiNoteOff(static_cast<uint8_t>(note));
-    }
-}
+void SynthController::playNote(int note, double velocity) { if (m_synth) m_synth->processMidiNoteOn(note, static_cast<uint8_t>(velocity * 127.0)); }
+void SynthController::stopNote(int note) { if (m_synth) m_synth->processMidiNoteOff(note); }
 
 } // namespace noteahead

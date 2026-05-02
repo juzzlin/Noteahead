@@ -51,6 +51,7 @@ void ADSREnvelope::setReleaseTime(double seconds)
 void ADSREnvelope::trigger()
 {
     m_state = State::Attack;
+    m_currentLevel = 0.0;
 }
 
 void ADSREnvelope::release()

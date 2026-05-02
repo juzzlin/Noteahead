@@ -42,6 +42,11 @@ void PolyBLEPOscillator::setPulseWidth(double pw)
     m_pulseWidth = std::clamp(pw, 0.01, 0.99);
 }
 
+void PolyBLEPOscillator::setShape(double shape)
+{
+    m_shape = std::clamp(shape, 0.0, 1.0);
+}
+
 double PolyBLEPOscillator::nextSample()
 {
     double value = 0.0;
@@ -49,18 +54,24 @@ double PolyBLEPOscillator::nextSample()
 
     if (m_waveform == Waveform::Saw) {
         value = (2.0 * t) - 1.0;
+        if (m_shape > 0.0) {
+            // Basic saw shaping: mix in a bit of folding
+            value = (1.0 - m_shape) * value + m_shape * std::sin(std::numbers::pi * value);
+        }
         value -= polyBlep(t);
     } else if (m_waveform == Waveform::Pulse) {
-        value = (t < m_pulseWidth) ? 1.0 : -1.0;
+        // Map shape 0..1 to pulse width 0.5..0.01
+        double pw = 0.5 * (1.0 - m_shape * 0.98); 
+        value = (t < pw) ? 1.0 : -1.0;
         value += polyBlep(t);
-        value -= polyBlep(std::fmod(t + (1.0 - m_pulseWidth), 1.0));
+        value -= polyBlep(std::fmod(t + (1.0 - pw), 1.0));
     } else if (m_waveform == Waveform::Triangle) {
-        // Triangle is integrated square wave.
-        // For simplicity, let's use a non-bandlimited one first, or a better one.
-        // Standard PolyBLEP triangle is harder. 
-        // Let's use the standard formula and see.
         value = (t < 0.5) ? (4.0 * t - 1.0) : (3.0 - 4.0 * t);
-        // Note: Triangle usually doesn't need PolyBLEP as much, but we could add it.
+        if (m_shape > 0.0) {
+            // Basic triangle shaping: variable center point (simplified)
+            double s = 0.5 + m_shape * 0.45;
+            value = (t < s) ? (2.0 * t / s - 1.0) : (1.0 - 2.0 * (t - s) / (1.0 - s));
+        }
     }
 
     m_phase += m_phaseStep;

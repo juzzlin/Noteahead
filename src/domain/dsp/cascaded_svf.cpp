@@ -36,9 +36,17 @@ void CascadedSVF::setResonance(double resonance)
     m_resonance = std::clamp(resonance, 0.0, 1.0);
 }
 
+void CascadedSVF::setMode(Mode mode)
+{
+    m_mode = mode;
+}
+
 float CascadedSVF::process(float input)
 {
-    if (m_cutoff >= 0.999) {
+    if (m_mode == Mode::LowPass && m_cutoff >= 0.999) {
+        return input;
+    }
+    if (m_mode == Mode::HighPass && m_cutoff <= 0.001) {
         return input;
     }
 
@@ -49,8 +57,8 @@ float CascadedSVF::process(float input)
     const double k = 2.0 * (1.0 - m_resonance);
     const double damping = 1.0 / (1.0 + g * (g + k));
 
-    float out1 = m_unit1.process(input, g, damping, k);
-    float out2 = m_unit2.process(out1, g, damping, k);
+    float out1 = m_unit1.process(input, g, damping, k, m_mode);
+    float out2 = m_unit2.process(out1, g, damping, k, m_mode);
 
     // NaN protection
     if (std::isnan(out2)) {
@@ -67,7 +75,7 @@ void CascadedSVF::reset()
     m_unit2.reset();
 }
 
-float CascadedSVF::SVFUnit::process(float input, double g, double damping, double k)
+float CascadedSVF::SVFUnit::process(float input, double g, double damping, double k, Mode mode)
 {
     const double hp = (input - (g + k) * s1 - s2) * damping;
     const double v1 = g * hp;
@@ -77,7 +85,7 @@ float CascadedSVF::SVFUnit::process(float input, double g, double damping, doubl
     const double lp = v2 + s2;
     s2 = v2 + lp;
     
-    return static_cast<float>(lp);
+    return static_cast<float>(mode == Mode::LowPass ? lp : hp);
 }
 
 } // namespace noteahead

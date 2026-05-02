@@ -16,6 +16,7 @@ set(SRC
     ../../common/utils.cpp
     ../../common/waveform_generator.cpp
     ../../domain/devices/device.cpp
+    ../../domain/devices/delay_effect.cpp
     ../../domain/devices/high_pass_filter_effect.cpp
     ../../domain/devices/low_pass_filter_effect.cpp
     ../../domain/devices/panning_effect.cpp

@@ -37,6 +37,8 @@ public:
     void removeDevice(const std::string & name);
     DeviceS device(const std::string & name) const;
 
+    void setBpm(float bpm);
+
     void process(float * output, uint32_t nFrames, uint32_t sampleRate);
 
 private:

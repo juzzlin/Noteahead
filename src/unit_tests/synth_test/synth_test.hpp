@@ -14,12 +14,10 @@ private slots:
     void cleanupTestCase();
 
     void test_defaultValues_shouldBeCorrect();
-    void test_oscillatorParameters_shouldSetCorrectValues();
-    void test_adsrParameters_shouldSetCorrectValues();
-    void test_filterParameters_shouldSetCorrectValues();
-    void test_volume_shouldAdjustMasterVolume();
-    void test_velocity_shouldAffectOutputLevel();
-    void test_detune_shouldAdjustDetuneAmount();
+    void test_parameterSetting_shouldUpdateValues();
+    void test_polyphony_shouldActiveMultipleVoices();
+    void test_presets_shouldLoadCorrectValues();
+    void test_midiCc_shouldUpdateParameters();
     void test_reset_shouldRestoreDefaults();
     void test_serialization_shouldPreserveValues();
 };

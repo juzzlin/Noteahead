@@ -23,9 +23,16 @@ namespace noteahead {
 class CascadedSVF
 {
 public:
+    enum class Mode
+    {
+        LowPass,
+        HighPass
+    };
+
     void setSampleRate(double sampleRate);
     void setCutoff(double cutoff); // 0.0 to 1.0
     void setResonance(double resonance); // 0.0 to 1.0
+    void setMode(Mode mode);
     
     float process(float input);
     void reset();
@@ -34,10 +41,11 @@ private:
     double m_sampleRate { 44100.0 };
     double m_cutoff { 1.0 };
     double m_resonance { 0.0 };
+    Mode m_mode { Mode::LowPass };
 
     struct SVFUnit {
         double s1 = 0.0, s2 = 0.0;
-        float process(float input, double g, double damping, double k);
+        float process(float input, double g, double damping, double k, Mode mode);
         void reset() { s1 = s2 = 0.0; }
     };
 

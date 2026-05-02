@@ -48,6 +48,8 @@ public:
 
     virtual void processAudio(float * output, uint32_t nFrames, uint32_t sampleRate) = 0;
 
+    virtual void setBpm(float bpm) { (void)bpm; }
+
     virtual void reset() = 0;
 
     virtual void serializeToXml(QXmlStreamWriter & writer) const;

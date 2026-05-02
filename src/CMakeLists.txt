@@ -65,6 +65,7 @@ set(HEADER_FILES
   domain/column.hpp
   domain/column_settings.hpp
   domain/devices/device.hpp
+  domain/devices/delay_effect.hpp
   domain/devices/effect.hpp
   domain/devices/high_pass_filter_effect.hpp
   domain/devices/low_pass_filter_effect.hpp
@@ -212,6 +213,7 @@ set(SOURCE_FILES
   domain/song.cpp
   domain/track.cpp
   domain/devices/device.cpp
+  domain/devices/delay_effect.cpp
   domain/devices/high_pass_filter_effect.cpp
   domain/devices/low_pass_filter_effect.cpp
   domain/devices/panning_effect.cpp

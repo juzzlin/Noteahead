@@ -21,7 +21,7 @@ import Noteahead 1.0
 
 Dialog {
     id: root
-    title: qsTr("Noteahead Synth")
+    title: qsTr("Notealogue Synthesizer")
     modal: true
     focus: true
     width: 1000
@@ -30,7 +30,6 @@ Dialog {
     Universal.accent: themeService.accentColor
 
     onAboutToShow: () => {
-        synthController.initialize();
         synthController.requestSettings();
     }
 
@@ -53,597 +52,200 @@ Dialog {
         }
     }
 
-    component OscillatorControl : ColumnLayout {
-        id: oscControl
-        property string title: "OSC"
-        property int waveform
-        property real level
-        property int octave
-        property real tune
+    component Knob : ColumnLayout {
+        id: knobRoot
+        property string label: ""
+        property real value: 0
+        property real from: 0
+        property real to: 100
+        property string suffix: "%"
+        signal moved(real val)
 
-        signal waveformEdited(int value)
-        signal levelEdited(real value)
-        signal octaveEdited(int value)
-        signal tuneEdited(real value)
-
-        spacing: 5
-
+        spacing: 2
         Label {
-            text: oscControl.title
-            font.bold: true
-            font.pixelSize: 16
+            text: knobRoot.label + " (" + Math.round(knobRoot.value) + knobRoot.suffix + ")"
+            font.pixelSize: 11
             Layout.alignment: Qt.AlignHCenter
         }
-
-        Label { text: qsTr("Waveform"); Layout.alignment: Qt.AlignHCenter }
-        ComboBox {
-            id: waveformCombo
-            model: ["Triangle", "Saw", "Pulse"]
-            Layout.fillWidth: true
-            currentIndex: oscControl.waveform
-            onActivated: (index) => oscControl.waveformEdited(index)
-            ToolTip.delay: Constants.toolTipDelay
-            ToolTip.timeout: Constants.toolTipTimeout
-            ToolTip.visible: hovered
-            ToolTip.text: qsTr("Select the oscillator waveform shape")
-        }
-
-        Label { text: qsTr("Octave"); Layout.alignment: Qt.AlignHCenter }
-        ComboBox {
-            id: octaveCombo
-            model: ["16'", "8'", "4'", "2'"]
-            Layout.fillWidth: true
-            currentIndex: oscControl.octave
-            onActivated: (index) => oscControl.octaveEdited(index)
-            ToolTip.delay: Constants.toolTipDelay
-            ToolTip.timeout: Constants.toolTipTimeout
-            ToolTip.visible: hovered
-            ToolTip.text: qsTr("Set the oscillator pitch in octaves")
-        }
-
-        Label { text: qsTr("Level") + " (" + levelSlider.value + "%)"; Layout.alignment: Qt.AlignHCenter }
         Slider {
-            id: levelSlider
-            from: 0
-            to: 100
+            from: knobRoot.from
+            to: knobRoot.to
+            value: knobRoot.value
             stepSize: 1
             Layout.fillWidth: true
-            value: oscControl.level
-            onMoved: () => oscControl.levelEdited(value)
-            ToolTip.delay: Constants.toolTipDelay
-            ToolTip.timeout: Constants.toolTipTimeout
-            ToolTip.visible: hovered
-            ToolTip.text: qsTr("Adjust the volume level of this oscillator")
-        }
-
-        Label { text: qsTr("Tune") + " (" + tuneSlider.value + ")"; Layout.alignment: Qt.AlignHCenter }
-        Slider {
-            id: tuneSlider
-            from: -100
-            to: 100
-            stepSize: 1
-            Layout.fillWidth: true
-            value: oscControl.tune
-            onMoved: () => oscControl.tuneEdited(value)
-            ToolTip.delay: Constants.toolTipDelay
-            ToolTip.timeout: Constants.toolTipTimeout
-            ToolTip.visible: hovered
-            ToolTip.text: qsTr("Fine-tune the oscillator pitch in cents")
+            onMoved: () => knobRoot.moved(value)
         }
     }
 
-    component AdsrControl : ColumnLayout {
-        id: adsrControl
-        property string title: "ADSR"
-        property real attack
-        property real decay
-        property real sustain
-        property real release
-
-        signal attackEdited(real value)
-        signal decayEdited(real value)
-        signal sustainEdited(real value)
-        signal releaseEdited(real value)
-
-        spacing: 5
-
-        Label {
-            text: adsrControl.title
-            font.bold: true
-            font.pixelSize: 16
-            Layout.alignment: Qt.AlignHCenter
-        }
-
-        GridLayout {
-            columns: 2
-            Layout.fillWidth: true
-            Label { text: qsTr("A") + " (" + attackSlider.value + ")" }
-            Slider {
-                id: attackSlider
-                from: 0; to: 100; stepSize: 1; Layout.fillWidth: true
-                value: adsrControl.attack
-                onMoved: () => adsrControl.attackEdited(value)
-                ToolTip.delay: Constants.toolTipDelay
-                ToolTip.timeout: Constants.toolTipTimeout
-                ToolTip.visible: hovered
-                ToolTip.text: qsTr("Set the time it takes for the signal to reach maximum level")
-            }
-            Label { text: qsTr("D") + " (" + decaySlider.value + ")" }
-            Slider {
-                id: decaySlider
-                from: 0; to: 100; stepSize: 1; Layout.fillWidth: true
-                value: adsrControl.decay
-                onMoved: () => adsrControl.decayEdited(value)
-                ToolTip.delay: Constants.toolTipDelay
-                ToolTip.timeout: Constants.toolTipTimeout
-                ToolTip.visible: hovered
-                ToolTip.text: qsTr("Set the time it takes for the signal to fall to the sustain level")
-            }
-            Label { text: qsTr("S") + " (" + sustainSlider.value + "%)" }
-            Slider {
-                id: sustainSlider
-                from: 0; to: 100; stepSize: 1; Layout.fillWidth: true
-                value: adsrControl.sustain
-                onMoved: () => adsrControl.sustainEdited(value)
-                ToolTip.delay: Constants.toolTipDelay
-                ToolTip.timeout: Constants.toolTipTimeout
-                ToolTip.visible: hovered
-                ToolTip.text: qsTr("Set the level held while the note is sustained")
-            }
-            Label { text: qsTr("R") + " (" + releaseSlider.value + ")" }
-            Slider {
-                id: releaseSlider
-                from: 0; to: 100; stepSize: 1; Layout.fillWidth: true
-                value: adsrControl.release
-                onMoved: () => adsrControl.releaseEdited(value)
-                ToolTip.delay: Constants.toolTipDelay
-                ToolTip.timeout: Constants.toolTipTimeout
-                ToolTip.visible: hovered
-                ToolTip.text: qsTr("Set the time it takes for the signal to fall to zero after the note is released")
-            }
-        }
+    component SectionTitle : Label {
+        font.bold: true
+        font.pixelSize: 16
+        color: themeService.accentColor
+        Layout.alignment: Qt.AlignLeft
+        Layout.topMargin: 10
     }
 
     ColumnLayout {
         anchors.fill: parent
-        anchors.margins: 10
-        spacing: 15
+        anchors.margins: 15
+        spacing: 10
 
+        // Header and Presets
         RowLayout {
             Layout.fillWidth: true
-            Item { Layout.preferredWidth: resetBtn.width }
-            Text {
-                text: qsTr("Noteahead Synth")
-                color: "white"
-                font.bold: true
-                font.pixelSize: 20
-                Layout.fillWidth: true
-                horizontalAlignment: Text.AlignHCenter
+            SectionTitle { text: qsTr("Notealogue"); Layout.fillWidth: true }
+            
+            Label { text: qsTr("Preset:") }
+            ComboBox {
+                id: presetCombo
+                model: ["Init", "Fat Bass", "Soft Pad", "Sync Lead", "Bright Pluck", "Sub Bass", "Strings", "Organ", "Bell", "Classic Poly"]
+                onActivated: (index) => synthController.loadPreset(index)
             }
+
             Button {
-                id: resetBtn
                 text: qsTr("Reset")
-                implicitWidth: Constants.defaultButtonWidth
                 onClicked: synthController.reset()
             }
         }
 
         ScrollView {
-            id: settingsScrollView
             Layout.fillWidth: true
             Layout.fillHeight: true
             clip: true
-            contentWidth: availableWidth
-            ScrollBar.vertical.policy: ScrollBar.AsNeeded
 
-            ColumnLayout {
-                width: settingsScrollView.availableWidth
-                spacing: 20
+            GridLayout {
+                columns: 4
+                columnSpacing: 20
+                rowSpacing: 5
+                width: parent.width - 20
 
-                // Oscillators Row
-                RowLayout {
-                    spacing: 20
+                // Row 1: Titles
+                SectionTitle { text: "VCO 1" }
+                SectionTitle { text: "VCO 2" }
+                SectionTitle { text: "Mixer" }
+                SectionTitle { text: "Filter" }
+
+                // Row 2: VCO/Mixer/Filter Controls
+                ColumnLayout {
                     Layout.fillWidth: true
-
-                    OscillatorControl {
-                        title: "OSC 1"
-                        Layout.fillWidth: true
-                        waveform: synthController.osc1Waveform
-                        onWaveformEdited: (value) => synthController.osc1Waveform = value
-                        level: synthController.osc1Level
-                        onLevelEdited: (value) => synthController.osc1Level = value
-                        octave: synthController.osc1Octave + 1
-                        onOctaveEdited: (value) => synthController.osc1Octave = value - 1
-                        tune: synthController.osc1Tune
-                        onTuneEdited: (value) => synthController.osc1Tune = value
+                    Layout.alignment: Qt.AlignTop
+                    RowLayout {
+                        ComboBox { model: ["Triangle", "Saw", "Pulse"]; currentIndex: synthController.vco1Waveform; onActivated: (i) => synthController.vco1Waveform = i; Layout.fillWidth: true }
+                        ComboBox { model: ["16'", "8'", "4'", "2'"]; currentIndex: synthController.vco1Octave + 1; onActivated: (i) => synthController.vco1Octave = i - 1; Layout.fillWidth: true }
                     }
-
-                    OscillatorControl {
-                        title: "OSC 2"
-                        Layout.fillWidth: true
-                        waveform: synthController.osc2Waveform
-                        onWaveformEdited: (value) => synthController.osc2Waveform = value
-                        level: synthController.osc2Level
-                        onLevelEdited: (value) => synthController.osc2Level = value
-                        octave: synthController.osc2Octave + 1
-                        onOctaveEdited: (value) => synthController.osc2Octave = value - 1
-                        tune: synthController.osc2Tune
-                        onTuneEdited: (value) => synthController.osc2Tune = value
-                    }
-
-                    OscillatorControl {
-                        title: "OSC 3"
-                        Layout.fillWidth: true
-                        waveform: synthController.osc3Waveform
-                        onWaveformEdited: (value) => synthController.osc3Waveform = value
-                        level: synthController.osc3Level
-                        onLevelEdited: (value) => synthController.osc3Level = value
-                        octave: synthController.osc3Octave + 1
-                        onOctaveEdited: (value) => synthController.osc3Octave = value - 1
-                        tune: synthController.osc3Tune
-                        onTuneEdited: (value) => synthController.osc3Tune = value
-                    }
-
-                    OscillatorControl {
-                        title: "OSC 4"
-                        Layout.fillWidth: true
-                        waveform: synthController.osc4Waveform
-                        onWaveformEdited: (value) => synthController.osc4Waveform = value
-                        level: synthController.osc4Level
-                        onLevelEdited: (value) => synthController.osc4Level = value
-                        octave: synthController.osc4Octave + 1
-                        onOctaveEdited: (value) => synthController.osc4Octave = value - 1
-                        tune: synthController.osc4Tune
-                        onTuneEdited: (value) => synthController.osc4Tune = value
-                    }
+                    Knob { label: qsTr("Pitch"); from: -100; to: 100; suffix: "c"; value: synthController.vco1Pitch; onMoved: (v) => synthController.vco1Pitch = v; Layout.fillWidth: true }
+                    Knob { label: qsTr("Shape"); from: 0; to: 100; value: synthController.vco1Shape; onMoved: (v) => synthController.vco1Shape = v; Layout.fillWidth: true }
+                    CheckBox { text: qsTr("Phase Sync"); checked: synthController.vco1Sync; onToggled: synthController.vco1Sync = checked }
                 }
 
-                Rectangle {
+                ColumnLayout {
                     Layout.fillWidth: true
-                    height: 1
-                    color: Qt.rgba(1, 1, 1, 0.1)
+                    Layout.alignment: Qt.AlignTop
+                    RowLayout {
+                        ComboBox { model: ["Triangle", "Saw", "Pulse"]; currentIndex: synthController.vco2Waveform; onActivated: (i) => synthController.vco2Waveform = i; Layout.fillWidth: true }
+                        ComboBox { model: ["16'", "8'", "4'", "2'"]; currentIndex: synthController.vco2Octave + 1; onActivated: (i) => synthController.vco2Octave = i - 1; Layout.fillWidth: true }
+                    }
+                    Knob { label: qsTr("Pitch"); from: -100; to: 100; suffix: "c"; value: synthController.vco2Pitch; onMoved: (v) => synthController.vco2Pitch = v; Layout.fillWidth: true }
+                    Knob { label: qsTr("Shape"); from: 0; to: 100; value: synthController.vco2Shape; onMoved: (v) => synthController.vco2Shape = v; Layout.fillWidth: true }
+                    CheckBox { text: qsTr("Hard Sync to VCO1"); checked: synthController.vco2Sync; onToggled: synthController.vco2Sync = checked }
                 }
 
-                // VCF & Envelopes Row
-                RowLayout {
-                    spacing: 40
+                ColumnLayout {
                     Layout.fillWidth: true
-
-                    ColumnLayout {
-                        Layout.fillWidth: true
-                        Label {
-                            text: qsTr("VCF")
-                            font.bold: true
-                            font.pixelSize: 16
-                        }
-                        GridLayout {
-                            columns: 2
-                            Layout.fillWidth: true
-                            Label { text: qsTr("Cutoff") + " (" + filterCutoffSlider.value + "%)" }
-                            Slider {
-                                id: filterCutoffSlider
-                                from: 0
-                                to: 100
-                                stepSize: 1
-                                value: synthController.filterCutoff
-                                onMoved: () => synthController.filterCutoff = filterCutoffSlider.value
-                                Layout.fillWidth: true
-                                ToolTip.delay: Constants.toolTipDelay
-                                ToolTip.timeout: Constants.toolTipTimeout
-                                ToolTip.visible: hovered
-                                ToolTip.text: qsTr("Frequency above which the filter starts to attenuate the signal")
-                            }
-                            Label { text: qsTr("Resonance") + " (" + filterResonanceSlider.value + "%)" }
-                            Slider {
-                                id: filterResonanceSlider
-                                from: 0
-                                to: 100
-                                stepSize: 1
-                                value: synthController.filterResonance
-                                onMoved: () => synthController.filterResonance = filterResonanceSlider.value
-                                Layout.fillWidth: true
-                                ToolTip.delay: Constants.toolTipDelay
-                                ToolTip.timeout: Constants.toolTipTimeout
-                                ToolTip.visible: hovered
-                                ToolTip.text: qsTr("Emphasize the frequencies around the cutoff point")
-                            }
-                            Label { text: qsTr("Env Amount") + " (" + filterEnvAmountSlider.value + "%)" }
-                            Slider {
-                                id: filterEnvAmountSlider
-                                from: -100
-                                to: 100
-                                stepSize: 1
-                                value: synthController.filterEnvAmount
-                                onMoved: () => synthController.filterEnvAmount = filterEnvAmountSlider.value
-                                Layout.fillWidth: true
-                                ToolTip.delay: Constants.toolTipDelay
-                                ToolTip.timeout: Constants.toolTipTimeout
-                                ToolTip.visible: hovered
-                                ToolTip.text: qsTr("Amount of envelope modulation applied to the filter cutoff")
-                            }
-                            Label { text: qsTr("Key Track") + " (" + filterKeyTrackSlider.value + "%)" }
-                            Slider {
-                                id: filterKeyTrackSlider
-                                from: 0
-                                to: 100
-                                stepSize: 1
-                                value: synthController.filterKeyTrack
-                                onMoved: () => synthController.filterKeyTrack = filterKeyTrackSlider.value
-                                Layout.fillWidth: true
-                                ToolTip.delay: Constants.toolTipDelay
-                                ToolTip.timeout: Constants.toolTipTimeout
-                                ToolTip.visible: hovered
-                                ToolTip.text: qsTr("How much the filter cutoff follows the keyboard pitch")
-                            }
-                            Label { text: qsTr("Mod Amt") + " (" + filterModAmountSlider.value + "%)" }
-                            Slider {
-                                id: filterModAmountSlider
-                                from: 0
-                                to: 100
-                                stepSize: 1
-                                value: synthController.filterModAmount
-                                onMoved: () => synthController.filterModAmount = filterModAmountSlider.value
-                                Layout.fillWidth: true
-                                ToolTip.delay: Constants.toolTipDelay
-                                ToolTip.timeout: Constants.toolTipTimeout
-                                ToolTip.visible: hovered
-                                ToolTip.text: qsTr("Amount of filter modulation from MG 2")
-                            }
-                            Label { text: qsTr("Pulse Width") + " (" + pulseWidthSlider.value + "%)" }
-                            Slider {
-                                id: pulseWidthSlider
-                                from: 1
-                                to: 99
-                                stepSize: 1
-                                value: synthController.pulseWidth
-                                onMoved: () => synthController.pulseWidth = pulseWidthSlider.value
-                                Layout.fillWidth: true
-                                ToolTip.delay: Constants.toolTipDelay
-                                ToolTip.timeout: Constants.toolTipTimeout
-                                ToolTip.visible: hovered
-                                ToolTip.text: qsTr("Adjust the pulse width of the square waveform")
-                            }
-                            }
-                            }
-                    AdsrControl {
-                        title: "VCF EG"
-                        Layout.fillWidth: true
-                        attack: synthController.vcfAttack
-                        onAttackEdited: (value) => synthController.vcfAttack = value
-                        decay: synthController.vcfDecay
-                        onDecayEdited: (value) => synthController.vcfDecay = value
-                        sustain: synthController.vcfSustain
-                        onSustainEdited: (value) => synthController.vcfSustain = value
-                        release: synthController.vcfRelease
-                        onReleaseEdited: (value) => synthController.vcfRelease = value
-                    }
-
-                    AdsrControl {
-                        title: "VCA EG"
-                        Layout.fillWidth: true
-                        attack: synthController.vcaAttack
-                        onAttackEdited: (value) => synthController.vcaAttack = value
-                        decay: synthController.vcaDecay
-                        onDecayEdited: (value) => synthController.vcaDecay = value
-                        sustain: synthController.vcaSustain
-                        onSustainEdited: (value) => synthController.vcaSustain = value
-                        release: synthController.vcaRelease
-                        onReleaseEdited: (value) => synthController.vcaRelease = value
-                    }
+                    Layout.alignment: Qt.AlignTop
+                    Knob { label: qsTr("VCO 1 Level"); value: synthController.mixVco1; onMoved: (v) => synthController.mixVco1 = v; Layout.fillWidth: true }
+                    Knob { label: qsTr("VCO 2 Level"); value: synthController.mixVco2; onMoved: (v) => synthController.mixVco2 = v; Layout.fillWidth: true }
                 }
 
-                Rectangle {
+                ColumnLayout {
                     Layout.fillWidth: true
-                    height: 1
-                    color: Qt.rgba(1, 1, 1, 0.1)
+                    Layout.alignment: Qt.AlignTop
+                    Knob { label: qsTr("LPF Cutoff"); value: synthController.lpfCutoff; onMoved: (v) => synthController.lpfCutoff = v; Layout.fillWidth: true }
+                    Knob { label: qsTr("LPF Resonance"); value: synthController.lpfResonance; onMoved: (v) => synthController.lpfResonance = v; Layout.fillWidth: true }
+                    Knob { label: qsTr("HPF Cutoff"); value: synthController.hpfCutoff; onMoved: (v) => synthController.hpfCutoff = v; Layout.fillWidth: true }
+                    Knob { label: qsTr("Key Track"); value: synthController.filterKeyTrack; onMoved: (v) => synthController.filterKeyTrack = v; Layout.fillWidth: true }
                 }
 
-                // MG/LFO Row
-                RowLayout {
-                    spacing: 40
+                // Spacing Row
+                Item { Layout.fillWidth: true; Layout.preferredHeight: 10; Layout.columnSpan: 4 }
+
+                // Row 3: Titles
+                SectionTitle { text: "Voice / Global" }
+                SectionTitle { text: "Amp EG (ADSR)" }
+                SectionTitle { text: "Mod EG (AD)" }
+                SectionTitle { text: "Delay Effect" }
+
+                // Row 4: Controls
+                ColumnLayout {
                     Layout.fillWidth: true
+                    Layout.alignment: Qt.AlignTop
+                    RowLayout {
+                        ComboBox { model: ["Poly", "Unison"]; currentIndex: synthController.voiceMode; onActivated: (i) => synthController.voiceMode = i; Layout.fillWidth: true }
+                    }
+                    Knob { label: qsTr("Voice Depth"); value: synthController.voiceDepth; onMoved: (v) => synthController.voiceDepth = v; Layout.fillWidth: true }
+                    Knob { label: qsTr("Portamento"); value: synthController.portamento; onMoved: (v) => synthController.portamento = v; Layout.fillWidth: true }
+                    Knob { label: qsTr("Pan Spread"); value: synthController.panSpread; onMoved: (v) => synthController.panSpread = v; Layout.fillWidth: true }
+                    Knob { label: qsTr("Master Volume"); value: synthController.masterVolume; onMoved: (v) => synthController.masterVolume = v; Layout.fillWidth: true }
+                }
 
-                    ColumnLayout {
-                        Layout.fillWidth: true
-                        Label {
-                            text: qsTr("Freq Mod")
-                            font.bold: true
-                            font.pixelSize: 16
+                ColumnLayout {
+                    Layout.fillWidth: true
+                    Layout.alignment: Qt.AlignTop
+                    Knob { label: qsTr("Attack"); value: synthController.ampAttack; onMoved: (v) => synthController.ampAttack = v; Layout.fillWidth: true }
+                    Knob { label: qsTr("Decay"); value: synthController.ampDecay; onMoved: (v) => synthController.ampDecay = v; Layout.fillWidth: true }
+                    Knob { label: qsTr("Sustain"); value: synthController.ampSustain; onMoved: (v) => synthController.ampSustain = v; Layout.fillWidth: true }
+                    Knob { label: qsTr("Release"); value: synthController.ampRelease; onMoved: (v) => synthController.ampRelease = v; Layout.fillWidth: true }
+                }
+
+                ColumnLayout {
+                    Layout.fillWidth: true
+                    Layout.alignment: Qt.AlignTop
+                    RowLayout {
+                        ComboBox { model: ["Pitch 1", "Pitch 2", "Cutoff"]; currentIndex: synthController.modTarget; onActivated: (i) => synthController.modTarget = i; Layout.fillWidth: true }
+                    }
+                    Knob { label: qsTr("Attack"); value: synthController.modAttack; onMoved: (v) => synthController.modAttack = v; Layout.fillWidth: true }
+                    Knob { label: qsTr("Decay"); value: synthController.modDecay; onMoved: (v) => synthController.modDecay = v; Layout.fillWidth: true }
+                    Knob { label: qsTr("Intensity"); value: synthController.modInt; onMoved: (v) => synthController.modInt = v; Layout.fillWidth: true }
+                }
+
+                ColumnLayout {
+                    Layout.fillWidth: true
+                    Layout.alignment: Qt.AlignTop
+                    RowLayout {
+                        ComboBox { model: ["Stereo", "Mono", "PingPong", "HiPass", "LowPass", "Tape"]; currentIndex: synthController.delayType; onActivated: (i) => synthController.delayType = i; Layout.fillWidth: true }
+                    }
+                    RowLayout {
+                        CheckBox { text: qsTr("Sync"); checked: synthController.delaySync; onToggled: synthController.delaySync = checked }
+                        ComboBox { 
+                            visible: synthController.delaySync
+                            model: ["1/16", "1/8", "1/4", "1/2", "1/1"]
+                            currentIndex: [0.0625, 0.125, 0.25, 0.5, 1.0].indexOf(synthController.delaySyncDivision / 100.0)
+                            onActivated: (i) => synthController.delaySyncDivision = [6.25, 12.5, 25, 50, 100][i]
+                            Layout.fillWidth: true 
                         }
-                        RowLayout {
-                            Layout.fillWidth: true
-                            Label { text: qsTr("Amt") + " (" + freqModAmountSlider.value + "%)" }
-                            Slider {
-                                id: freqModAmountSlider
-                                Layout.fillWidth: true
-                                from: 0
-                                to: 100
-                                stepSize: 1
-                                value: synthController.freqModAmount
-                                onMoved: () => synthController.freqModAmount = freqModAmountSlider.value
-                                ToolTip.delay: Constants.toolTipDelay
-                                ToolTip.timeout: Constants.toolTipTimeout
-                                ToolTip.visible: hovered
-                                ToolTip.text: qsTr("Amount of frequency modulation")
-                            }
-                        }
-                        RowLayout {
-                            Layout.fillWidth: true
-                            Label { text: qsTr("Source") }
-                            ComboBox {
-                                Layout.fillWidth: true
-                                model: ["MG 1", "VCF EG"]
-                                currentIndex: synthController.freqModSource
-                                onActivated: (index) => synthController.freqModSource = index
-                                ToolTip.delay: Constants.toolTipDelay
-                                ToolTip.timeout: Constants.toolTipTimeout
-                                ToolTip.visible: hovered
-                                ToolTip.text: qsTr("Source for frequency modulation")
-                            }
+                        Knob { 
+                            visible: !synthController.delaySync
+                            label: qsTr("Time"); from: 1; to: 2000; suffix: "ms"; value: synthController.delayTime; onMoved: (v) => synthController.delayTime = v; Layout.fillWidth: true 
                         }
                     }
-
-                    ColumnLayout {
-                        Layout.fillWidth: true
-                        Label {
-                            text: qsTr("MG 1 (Pitch)")
-                            font.bold: true
-                            font.pixelSize: 16
-                        }
-                        RowLayout {
-                            Layout.fillWidth: true
-                            Label { text: qsTr("Freq") + " (" + mg1FreqSlider.value + ")" }
-                            Slider {
-                                id: mg1FreqSlider
-                                Layout.fillWidth: true
-                                from: 1
-                                to: 200
-                                stepSize: 1
-                                value: synthController.mg1Frequency
-                                onMoved: () => synthController.mg1Frequency = mg1FreqSlider.value
-                                ToolTip.delay: Constants.toolTipDelay
-                                ToolTip.timeout: Constants.toolTipTimeout
-                                ToolTip.visible: hovered
-                                ToolTip.text: qsTr("Pitch modulation generator (LFO) frequency")
-                            }
-                        }
-                    }
-
-                    ColumnLayout {
-                        Layout.fillWidth: true
-                        Label {
-                            text: qsTr("MG 2 (Filter)")
-                            font.bold: true
-                            font.pixelSize: 16
-                        }
-                        RowLayout {
-                            Layout.fillWidth: true
-                            Label { text: qsTr("Freq") + " (" + mg2FreqSlider.value + ")" }
-                            Slider {
-                                id: mg2FreqSlider
-                                Layout.fillWidth: true
-                                from: 1
-                                to: 200
-                                stepSize: 1
-                                value: synthController.mg2Frequency
-                                onMoved: () => synthController.mg2Frequency = mg2FreqSlider.value
-                                ToolTip.delay: Constants.toolTipDelay
-                                ToolTip.timeout: Constants.toolTipTimeout
-                                ToolTip.visible: hovered
-                                ToolTip.text: qsTr("Filter modulation generator (LFO) frequency")
-                            }
-                        }
-                    }
-
-                    ColumnLayout {
-                        Layout.fillWidth: true
-                        Label {
-                            text: qsTr("Detune") + " (" + globalDetuneSlider.value + ")"
-                            font.bold: true
-                        }
-                        Slider {
-                            id: globalDetuneSlider
-                            Layout.fillWidth: true
-                            from: 0
-                            to: 100
-                            stepSize: 1
-                            value: synthController.detune
-                            onMoved: () => synthController.detune = globalDetuneSlider.value
-                            ToolTip.delay: Constants.toolTipDelay
-                            ToolTip.timeout: Constants.toolTipTimeout
-                            ToolTip.visible: hovered
-                            ToolTip.text: qsTr("Global detune for all oscillators")
-                        }
-                    }
-
-                    ColumnLayout {
-                        Layout.fillWidth: true
-                        Label {
-                            text: qsTr("Volume") + " (" + globalVolumeSlider.value + "%)"
-                            font.bold: true
-                        }
-                        Slider {
-                            id: globalVolumeSlider
-                            Layout.fillWidth: true
-                            from: 0
-                            to: 100
-                            stepSize: 1
-                            value: synthController.volume
-                            onMoved: () => synthController.volume = globalVolumeSlider.value
-                            ToolTip.delay: Constants.toolTipDelay
-                            ToolTip.timeout: Constants.toolTipTimeout
-                            ToolTip.visible: hovered
-                            ToolTip.text: qsTr("Global master volume for the synth")
-                        }
-                    }
-
-                    ColumnLayout {
-                        Layout.fillWidth: true
-                        Label {
-                            text: qsTr("Mode")
-                            font.bold: true
-                        }
-                        ComboBox {
-                            Layout.fillWidth: true
-                            model: ["Unison", "Unison Share", "Poly"]
-                            currentIndex: synthController.keyAssignMode
-                            onActivated: (index) => synthController.keyAssignMode = index
-                            ToolTip.delay: Constants.toolTipDelay
-                            ToolTip.timeout: Constants.toolTipTimeout
-                            ToolTip.visible: hovered
-                            ToolTip.text: qsTr("Voice assignment mode (Unison, Poly, etc.)")
-                        }
-                    }
+                    Knob { label: qsTr("Feedback"); value: synthController.delayFeedback; onMoved: (v) => synthController.delayFeedback = v; Layout.fillWidth: true }
+                    Knob { label: qsTr("Depth"); value: synthController.delayDepth; onMoved: (v) => synthController.delayDepth = v; Layout.fillWidth: true }
+                    Knob { label: qsTr("Mix"); value: synthController.delayMix; onMoved: (v) => synthController.delayMix = v; Layout.fillWidth: true }
                 }
             }
         }
 
-        Rectangle {
+        // Test Pads
+        RowLayout {
             Layout.fillWidth: true
-            height: 1
-            color: Qt.rgba(1, 1, 1, 0.1)
-        }
-
-        // Test Pads Row
-        ColumnLayout {
-            Layout.fillWidth: true
-            spacing: 10
-            Label {
-                text: qsTr("Test Pads (C-keys)")
-                font.bold: true
-                font.pixelSize: 16
-                Layout.alignment: Qt.AlignHCenter
-            }
-            RowLayout {
-                Layout.fillWidth: true
-                spacing: 10
-                Repeater {
-                    model: [0, 12, 24, 36, 48, 60, 72, 84, 96, 108]
-                    delegate: Rectangle {
-                        id: pad
-                        Layout.fillWidth: true
-                        Layout.preferredHeight: 60
-                        radius: 8
-                        color: mouseArea.pressed ? themeService.accentColor : Qt.rgba(1, 1, 1, 0.05)
-                        border.color: mouseArea.pressed ? "white" : Qt.rgba(1, 1, 1, 0.2)
-                        border.width: 2
-
-                        Label {
-                            anchors.centerIn: parent
-                            text: "C" + Math.floor(modelData / 12)
-                            font.bold: true
-                            color: mouseArea.pressed ? "white" : "#ccc"
-                        }
-
-                        MouseArea {
-                            id: mouseArea
-                            anchors.fill: parent
-                            cursorShape: Qt.PointingHandCursor
-                            onPressed: (mouse) => synthController.playNote(modelData, 0.8)
-                            onReleased: (mouse) => synthController.stopNote(modelData)
-                            onCanceled: () => synthController.stopNote(modelData)
-                        }
-                    }
+            spacing: 5
+            Repeater {
+                model: [48, 50, 52, 53, 55, 57, 59, 60] // C3 Scale
+                Button {
+                    text: ["C", "D", "E", "F", "G", "A", "B", "C"][index]
+                    Layout.fillWidth: true
+                    onPressed: synthController.playNote(modelData, 0.8)
+                    onReleased: synthController.stopNote(modelData)
                 }
             }
         }

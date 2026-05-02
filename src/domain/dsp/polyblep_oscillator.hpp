@@ -32,6 +32,7 @@ public:
     void setFrequency(double frequency);
     void setWaveform(Waveform waveform);
     void setPulseWidth(double pw); // 0.0 to 1.0
+    void setShape(double shape); // 0.0 to 1.0
 
     double nextSample();
     void sync(double phase);
@@ -43,6 +44,7 @@ private:
     double m_frequency { 440.0 };
     Waveform m_waveform { Waveform::Saw };
     double m_pulseWidth { 0.5 };
+    double m_shape { 0.0 };
     double m_phase { 0.0 };
     double m_phaseStep { 0.0 };
 

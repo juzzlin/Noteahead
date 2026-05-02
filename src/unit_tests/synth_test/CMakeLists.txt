@@ -8,6 +8,7 @@ set(SRC
     ../../domain/parameter.cpp
     ../../domain/parameter_container.cpp
     ../../domain/devices/device.cpp
+    ../../domain/devices/delay_effect.cpp
     ../../domain/devices/synth_device.cpp
     ../../domain/dsp/adsr_envelope.cpp
     ../../domain/dsp/cascaded_svf.cpp
