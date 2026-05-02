@@ -14,6 +14,7 @@
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
 #include "synth_device.hpp"
+#include "synth_presets.hpp"
 #include "../../common/constants.hpp"
 #include "../../common/utils.hpp"
 
@@ -414,33 +415,17 @@ void SynthDevice::loadPreset(int index)
 {
     const std::lock_guard<std::mutex> lock(m_mutex);
     
-    struct Preset {
-        std::string name;
-        std::vector<std::pair<std::string, float>> params;
-    };
-
-    static const std::vector<Preset> presets = {
-        {"Init", {}},
-        {"Fat Bass", {{"vco1waveform", 1}, {"vco2waveform", 1}, {"mixlevel1", 1.0}, {"mixlevel2", 0.8}, {"lpfcutoff", 0.3}, {"lpfresonance", 0.4}, {"ampattack", 0.0}, {"ampdecay", 0.4}, {"ampsustain", 0.5}, {"amprelease", 0.2}, {"voiceMode", 1}, {"voiceDepth", 0.2}}},
-        {"Soft Pad", {{"vco1waveform", 0}, {"vco2waveform", 0}, {"mixlevel1", 0.8}, {"mixlevel2", 0.8}, {"vco2pitch", 10}, {"lpfcutoff", 0.4}, {"ampattack", 0.6}, {"ampdecay", 0.5}, {"ampsustain", 0.8}, {"amprelease", 0.6}, {"panSpread", 0.5}}},
-        {"Sync Lead", {{"vco1waveform", 1}, {"vco2waveform", 1}, {"vco2sync", 1}, {"mixlevel1", 0.5}, {"mixlevel2", 1.0}, {"modtarget", 1}, {"modintensity", 0.8}, {"modattack", 0.2}, {"moddecay", 0.4}}},
-        {"Bright Pluck", {{"vco1waveform", 2}, {"mixlevel1", 1.0}, {"lpfcutoff", 0.2}, {"modtarget", 2}, {"modintensity", 0.6}, {"modattack", 0.0}, {"moddecay", 0.2}, {"ampattack", 0.0}, {"ampdecay", 0.3}, {"ampsustain", 0.0}}},
-        {"Sub Bass", {{"vco1waveform", 0}, {"vco2waveform", 0}, {"vco2octave", -1}, {"mixlevel1", 1.0}, {"mixlevel2", 0.5}, {"lpfcutoff", 0.2}, {"ampdecay", 0.5}, {"ampsustain", 0.4}}},
-        {"Strings", {{"vco1waveform", 1}, {"vco2waveform", 1}, {"vco2pitch", 5}, {"mixlevel1", 0.8}, {"mixlevel2", 0.8}, {"ampattack", 0.4}, {"amprelease", 0.5}, {"panSpread", 0.8}}},
-        {"Organ", {{"vco1waveform", 2}, {"vco2waveform", 2}, {"vco2octave", 1}, {"mixlevel1", 0.8}, {"mixlevel2", 0.6}, {"ampattack", 0.0}, {"ampsustain", 1.0}}},
-        {"Bell", {{"vco1waveform", 0}, {"vco2waveform", 2}, {"vco2octave", 2}, {"mixlevel1", 0.5}, {"mixlevel2", 0.5}, {"ampattack", 0.0}, {"ampdecay", 0.8}, {"ampsustain", 0.0}}},
-        {"Classic Poly", {{"vco1waveform", 1}, {"vco2waveform", 1}, {"vco2octave", 0}, {"vco2pitch", 2}, {"mixlevel1", 1.0}, {"mixlevel2", 1.0}, {"lpfcutoff", 0.6}, {"ampattack", 0.1}, {"ampdecay", 0.4}, {"ampsustain", 0.6}, {"amprelease", 0.3}}}
-    };
-
+    const auto& presets = SynthPresets::presets();
     if (index < 0 || index >= static_cast<int>(presets.size())) return;
 
     ParameterContainer::reset();
 
-    for (auto && [name, val] : presets[index].params) {
+    for (auto && [name, val] : presets[index].parameters) {
         if (auto p = parameter(name); p) {
             if (name.find("waveform") != std::string::npos || name.find("octave") != std::string::npos || 
                 name.find("sync") != std::string::npos || name.find("target") != std::string::npos ||
-                name.find("Mode") != std::string::npos || name.find("pitch") != std::string::npos) {
+                name.find("Mode") != std::string::npos || name.find("pitch") != std::string::npos ||
+                name.find("delayType") != std::string::npos) {
                 p->get().setFromXml(static_cast<int>(val));
             } else {
                 p->get().setValue(val);

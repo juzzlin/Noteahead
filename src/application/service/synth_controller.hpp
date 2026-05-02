@@ -69,6 +69,7 @@ class SynthController : public QObject
     Q_PROPERTY(int portamento READ portamento WRITE setPortamento NOTIFY portamentoChanged)
     Q_PROPERTY(int panSpread READ panSpread WRITE setPanSpread NOTIFY panSpreadChanged)
     Q_PROPERTY(int masterVolume READ masterVolume WRITE setMasterVolume NOTIFY masterVolumeChanged)
+    Q_PROPERTY(QStringList presetNames READ presetNames CONSTANT)
 
     // Delay
     Q_PROPERTY(int delayType READ delayType WRITE setDelayType NOTIFY delayTypeChanged)
@@ -121,6 +122,8 @@ public:
     int portamento() const; void setPortamento(int p);
     int panSpread() const; void setPanSpread(int s);
     int masterVolume() const; void setMasterVolume(int v);
+
+    QStringList presetNames() const;
 
     int delayType() const; void setDelayType(int type);
     int delayTime() const; void setDelayTime(int time);

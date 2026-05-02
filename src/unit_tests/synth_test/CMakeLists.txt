@@ -10,6 +10,7 @@ set(SRC
     ../../domain/devices/device.cpp
     ../../domain/devices/delay_effect.cpp
     ../../domain/devices/synth_device.cpp
+    ../../domain/devices/synth_presets.cpp
     ../../domain/dsp/adsr_envelope.cpp
     ../../domain/dsp/cascaded_svf.cpp
     ../../domain/dsp/lfo.cpp
