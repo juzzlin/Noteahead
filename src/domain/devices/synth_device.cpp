@@ -143,6 +143,10 @@ void SynthDevice::processAudio(float * output, uint32_t nFrames, uint32_t sample
         voice.modEg.setSampleRate(sampleRate);
 
         voice.lpf.setResonance(m_lpfResonance);
+        voice.vco1.setWaveform(m_vco1Waveform);
+        voice.vco2.setWaveform(m_vco2Waveform);
+        voice.vco1.setShape(m_vco1Shape);
+        voice.vco2.setShape(m_vco2Shape);
 
         // Portamento constant (simple one-pole)
         const double portamentoCoeff = m_portamento > 0 ? 1.0 - std::pow(0.001, 1.0 / (m_portamento * sampleRate)) : 1.0;
@@ -164,8 +168,6 @@ void SynthDevice::processAudio(float * output, uint32_t nFrames, uint32_t sample
 
             voice.vco1.setFrequency(vco1Freq);
             voice.vco2.setFrequency(vco2Freq);
-            voice.vco1.setShape(m_vco1Shape);
-            voice.vco2.setShape(m_vco2Shape);
 
             // VCO2 Hard Sync to VCO1
             double oldPhase = voice.vco1.phase();
@@ -176,7 +178,7 @@ void SynthDevice::processAudio(float * output, uint32_t nFrames, uint32_t sample
             double vco2Val = voice.vco2.nextSample();
 
             double mix = (vco1Val * m_mixVco1) + (vco2Val * m_mixVco2);
-            mix *= 0.6; // Safety headroom
+            mix *= 0.5; // Safety headroom
 
             // Filter
             double cutoffMod = (m_modTarget == ModTarget::Cutoff) ? modEnv : 0.0;
@@ -186,7 +188,7 @@ void SynthDevice::processAudio(float * output, uint32_t nFrames, uint32_t sample
             voice.hpf.setCutoff(m_hpfCutoff);
 
             float filtered = voice.hpf.process(voice.lpf.process(static_cast<float>(mix)));
-            float finalSample = filtered * static_cast<float>(ampEnv) * m_masterVolume * 0.7f; // Global gain reduction
+            float finalSample = filtered * static_cast<float>(ampEnv) * m_masterVolume * 0.8f;
 
             localBuffer[i * 2] += finalSample * (1.0f - voice.pan);
             localBuffer[i * 2 + 1] += finalSample * voice.pan;
@@ -202,8 +204,10 @@ void SynthDevice::processAudio(float * output, uint32_t nFrames, uint32_t sample
         float l = localBuffer[i * 2];
         float r = localBuffer[i * 2 + 1];
         m_delay.process(l, r, sampleRate);
-        output[i * 2] += l;
-        output[i * 2 + 1] += r;
+        
+        // Final Output Soft-Clipper
+        output[i * 2] += std::tanh(l);
+        output[i * 2 + 1] += std::tanh(r);
     }
 }
 
@@ -289,14 +293,34 @@ void SynthDevice::handleNoteOn(uint8_t note, uint8_t velocity)
     float spread = m_panSpread * 0.5f;
 
     if (m_voiceMode == VoiceMode::Poly) {
-        // Round robin
-        m_voices[m_polyNextVoice].trigger(note, freq, 0.5f + (m_polyNextVoice % 2 == 0 ? spread : -spread), m_vco1Sync);
-        m_polyNextVoice = (m_polyNextVoice + 1) % 4;
+        // Find best voice: 1. Idle, 2. Lowest amplitude (stolen)
+        int bestVoice = -1;
+        float lowestAmp = 2.0f;
+
+        for (int i = 0; i < 4; i++) {
+            int idx = (m_polyNextVoice + i) % 4;
+            if (!m_voices[idx].active) {
+                bestVoice = idx;
+                break;
+            }
+            // Use internal current level for better decision
+            float currentAmp = static_cast<float>(m_voices[idx].ampEg.nextSample()); // Approximated
+            if (currentAmp < lowestAmp) {
+                lowestAmp = currentAmp;
+                bestVoice = idx;
+            }
+        }
+
+        if (bestVoice != -1) {
+            m_voices[bestVoice].trigger(note, freq, 0.5f + (bestVoice % 2 == 0 ? spread : -spread), m_vco1Sync);
+            m_polyNextVoice = (bestVoice + 1) % 4;
+        }
     } else {
         // Unison
         for (int i = 0; i < 4; i++) {
-            double detune = (i - 1.5) * m_voiceDepth * 0.1; // Spread detune
-            m_voices[i].trigger(note, freq * std::pow(2.0, detune / 12.0), 0.5f + (i < 2 ? -spread : spread), m_vco1Sync);
+            // Non-linear detune spread for better texture
+            double detuneAmount = (i - 1.5) * std::pow(m_voiceDepth, 1.5) * 0.2; 
+            m_voices[i].trigger(note, freq * std::pow(2.0, detuneAmount / 12.0), 0.5f + (i < 2 ? -spread : spread), m_vco1Sync);
         }
     }
 }
@@ -434,6 +458,13 @@ void SynthDevice::loadPreset(int index)
     }
 
     syncParameters();
+    
+    // Update manual fallback values for MIDI CC reset to match the new preset
+    m_manualPanSpread = m_panSpread;
+    m_manualMasterVolume = m_masterVolume;
+    m_manualLpfCutoff = m_lpfCutoff;
+    m_manualHpfCutoff = m_hpfCutoff;
+
     emit dataChanged();
 }
 

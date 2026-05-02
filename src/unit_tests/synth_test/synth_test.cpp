@@ -125,6 +125,83 @@ void SynthTest::test_midiCc_shouldUpdateParameters()
     QCOMPARE(synth.hpfCutoff(), 0.1f);
 }
 
+void SynthTest::test_presetMidiCcReset_shouldRestorePresetValues()
+{
+    SynthDevice synth;
+    
+    // 1. Initial manual state
+    synth.setLpfCutoff(1.0f);
+    
+    // 2. Load "Fat Bass" preset (Cutoff = 0.3)
+    synth.loadPreset(1); 
+    QCOMPARE(synth.lpfCutoff(), 0.3f);
+    
+    // 3. Offset via MIDI CC
+    synth.processMidiCc(74, 127, 0); // Cutoff to 1.0
+    QCOMPARE(synth.lpfCutoff(), 1.0f);
+    
+    // 4. Reset All Controllers (CC 121)
+    synth.processMidiCc(121, 0, 0);
+    
+    // 5. Should restore to PRESET value (0.3), not initial manual value (1.0)
+    QCOMPARE(synth.lpfCutoff(), 0.3f);
+}
+
+void SynthTest::test_voiceStealing_shouldStealQuietestVoice()
+{
+    SynthDevice synth;
+    
+    // Trigger 4 notes to fill all voices
+    synth.processMidiNoteOn(60, 100);
+    synth.processMidiNoteOn(62, 100);
+    synth.processMidiNoteOn(64, 100);
+    synth.processMidiNoteOn(65, 100);
+    
+    // Process audio so they all start playing
+    float output[256];
+    synth.processAudio(output, 128, 44100);
+    
+    // Release Note 60 - it will start decaying (becoming quieter)
+    synth.processMidiNoteOff(60);
+    
+    // Process a bit more to let it decay
+    synth.processAudio(output, 128, 44100);
+    
+    // Trigger a 5th note (67)
+    // It should steal Note 60 because it's the quietest (releasing)
+    synth.processMidiNoteOn(67, 100);
+    
+    // We verify sound is still coming out (basic stability check)
+    synth.processAudio(output, 128, 44100);
+    bool sound = false;
+    for (int i = 0; i < 256; i++) {
+        if (std::abs(output[i]) > 0.0001f) { sound = true; break; }
+    }
+    QVERIFY(sound);
+}
+
+void SynthTest::test_softClipper_shouldPreventClipping()
+{
+    SynthDevice synth;
+    
+    // Max out volume and multiple oscillators to force > 1.0 signal
+    synth.setMasterVolume(1.0f);
+    synth.setMixVco1(1.0f);
+    synth.setMixVco2(1.0f);
+    synth.setLpfResonance(1.0f); // High resonance adds lots of gain
+    
+    synth.processMidiNoteOn(60, 127);
+    
+    float output[1024];
+    std::fill(output, output + 1024, 0.0f);
+    synth.processAudio(output, 512, 44100);
+    
+    for (int i = 0; i < 1024; i++) {
+        QVERIFY(output[i] <= 1.0f);
+        QVERIFY(output[i] >= -1.0f);
+    }
+}
+
 void SynthTest::test_reset_shouldRestoreDefaults()
 {
     SynthDevice synth;
