@@ -98,7 +98,7 @@ Dialog {
             Label { text: qsTr("Preset:") }
             ComboBox {
                 id: presetCombo
-                model: ["Init", "Fat Bass", "Soft Pad", "Sync Lead", "Bright Pluck", "Sub Bass", "Strings", "Organ", "Bell", "Classic Poly"]
+                model: synthController.presetNames
                 onActivated: (index) => synthController.loadPreset(index)
             }
 

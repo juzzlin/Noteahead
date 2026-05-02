@@ -15,6 +15,7 @@
 
 #include "synth_controller.hpp"
 #include "../../domain/devices/synth_device.hpp"
+#include "../../domain/devices/synth_presets.hpp"
 
 #include <cmath>
 
@@ -101,6 +102,15 @@ int SynthController::panSpread() const { return m_synth ? static_cast<int>(std::
 void SynthController::setPanSpread(int s) { if (m_synth) { m_synth->setPanSpread(s / 100.0f); emit panSpreadChanged(); } }
 int SynthController::masterVolume() const { return m_synth ? static_cast<int>(std::round(m_synth->masterVolume() * 100.0f)) : 0; }
 void SynthController::setMasterVolume(int v) { if (m_synth) { m_synth->setMasterVolume(v / 100.0f); emit masterVolumeChanged(); } }
+
+QStringList SynthController::presetNames() const
+{
+    QStringList names;
+    for (const auto& preset : SynthPresets::presets()) {
+        names.append(QString::fromStdString(preset.name));
+    }
+    return names;
+}
 
 // Delay
 int SynthController::delayType() const { return m_synth ? static_cast<int>(m_synth->delayType()) : 0; }

@@ -72,6 +72,7 @@ set(HEADER_FILES
   domain/devices/panning_effect.hpp
   domain/devices/sampler_device.hpp
   domain/devices/synth_device.hpp
+  domain/devices/synth_presets.hpp
   domain/devices/volume_effect.hpp
   domain/dsp/adsr_envelope.hpp
   domain/dsp/cascaded_svf.hpp
@@ -219,6 +220,7 @@ set(SOURCE_FILES
   domain/devices/panning_effect.cpp
   domain/devices/sampler_device.cpp
   domain/devices/synth_device.cpp
+  domain/devices/synth_presets.cpp
   domain/devices/volume_effect.cpp
   domain/dsp/adsr_envelope.cpp
   domain/dsp/cascaded_svf.cpp
