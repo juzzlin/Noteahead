@@ -28,6 +28,8 @@ Dialog {
     modal: true
     focus: true
 
+    Universal.accent: themeService.accentColor
+
     onAboutToShow: {
         samplerController.initialize()
         waveform.updateWaveform()
@@ -69,6 +71,32 @@ Dialog {
             if (padToAssign !== -1) {
                 samplerController.loadSample(padToAssign, selectedFile.toString().replace("file://", ""))
             }
+        }
+    }
+
+    component Knob : ColumnLayout {
+        id: knobRoot
+        property string label: ""
+        property real value: 0
+        property real from: 0
+        property real to: 100
+        property string suffix: "%"
+        signal moved(real val)
+
+        spacing: 2
+        Label {
+            text: knobRoot.label + " (" + Math.round(knobRoot.value) + knobRoot.suffix + ")"
+            font.pixelSize: 11
+            color: themeService.accentColor
+            Layout.alignment: Qt.AlignHCenter
+        }
+        Slider {
+            from: knobRoot.from
+            to: knobRoot.to
+            value: knobRoot.value
+            stepSize: 1
+            Layout.fillWidth: true
+            onMoved: () => knobRoot.moved(value)
         }
     }
 
@@ -254,110 +282,41 @@ Dialog {
                 Layout.alignment: Qt.AlignTop
                 spacing: 15
 
-                component ThemedSlider : Slider {
-                    id: control
-                    Layout.fillWidth: true
-                    handle: Rectangle {
-                        x: control.leftPadding + control.visualPosition * (control.availableWidth - width)
-                        y: control.topPadding + control.availableHeight / 2 - height / 2
-                        implicitWidth: 16
-                        implicitHeight: 16
-                        radius: 8
-                        color: control.pressed ? "#f0f0f0" : "#f6f6f6"
-                        border.color: themeService.accentColor
-                    }
-                    background: Rectangle {
-                        x: control.leftPadding
-                        y: control.topPadding + control.availableHeight / 2 - height / 2
-                        implicitWidth: 200
-                        implicitHeight: 4
-                        width: control.availableWidth
-                        height: implicitHeight
-                        radius: 2
-                        color: "#444"
-
-                        Rectangle {
-                            width: control.visualPosition * parent.width
-                            height: parent.height
-                            color: themeService.accentColor
-                            radius: 2
-                        }
+                // Pan Knob
+                Knob {
+                    label: qsTr("Pan")
+                    from: -100
+                    to: 100
+                    value: (samplerController.selectedPadPan * 200) - 100
+                    onMoved: (v) => {
+                        samplerController.selectedPadPan = (v + 100) / 200
                     }
                 }
 
-                // Pan Slider
-                ColumnLayout {
-                    Layout.fillWidth: true
-                    Label {
-                        text: qsTr("Pan: ") + (panSlider.value > 0 ? "+" : "") + Math.round(panSlider.value) + "%"
-                        color: "white"
-                    }
-                    ThemedSlider {
-                        id: panSlider
-                        from: -100
-                        to: 100
-                        stepSize: 1
-                        value: (samplerController.selectedPadPan * 200) - 100
-                        onMoved: {
-                            samplerController.selectedPadPan = (value + 100) / 200
-                        }
+                // Volume Knob
+                Knob {
+                    label: qsTr("Volume")
+                    value: samplerController.selectedPadVolume * 100
+                    onMoved: (v) => {
+                        samplerController.selectedPadVolume = v / 100
                     }
                 }
 
-                // Volume Slider
-                ColumnLayout {
-                    Layout.fillWidth: true
-                    Label {
-                        text: qsTr("Volume: ") + Math.round(volumeSlider.value) + "%"
-                        color: "white"
-                    }
-                    ThemedSlider {
-                        id: volumeSlider
-                        from: 0
-                        to: 100
-                        stepSize: 1
-                        value: samplerController.selectedPadVolume * 100
-                        onMoved: {
-                            samplerController.selectedPadVolume = value / 100
-                        }
+                // LPF Cutoff Knob
+                Knob {
+                    label: qsTr("LPF Cutoff")
+                    value: samplerController.selectedPadCutoff * 100
+                    onMoved: (v) => {
+                        samplerController.selectedPadCutoff = v / 100
                     }
                 }
 
-                // LPF Cutoff Slider
-                ColumnLayout {
-                    Layout.fillWidth: true
-                    Label {
-                        text: qsTr("LPF Cutoff: ") + Math.round(cutoffSlider.value) + "%"
-                        color: "white"
-                    }
-                    ThemedSlider {
-                        id: cutoffSlider
-                        from: 0
-                        to: 100
-                        stepSize: 1
-                        value: samplerController.selectedPadCutoff * 100
-                        onMoved: {
-                            samplerController.selectedPadCutoff = value / 100
-                        }
-                    }
-                }
-
-                // HPF Cutoff Slider
-                ColumnLayout {
-                    Layout.fillWidth: true
-                    Label {
-                        text: qsTr("HPF Cutoff: ") + Math.round(hpfCutoffSlider.value) + "%"
-                        color: "white"
-                    }
-                    ThemedSlider {
-                        id: hpfCutoffSlider
-                        from: 0
-                        to: 100
-                        stepSize: 1
-                        value: samplerController.selectedPadHpfCutoff * 100
-                        onMoved: {
-                            samplerController.selectedPadHpfCutoff = value / 100
-                        }
+                // HPF Cutoff Knob
+                Knob {
+                    label: qsTr("HPF Cutoff")
+                    value: samplerController.selectedPadHpfCutoff * 100
+                    onMoved: (v) => {
+                        samplerController.selectedPadHpfCutoff = v / 100
                     }
                 }
 
