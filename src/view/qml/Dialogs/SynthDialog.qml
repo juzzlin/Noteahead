@@ -21,7 +21,7 @@ import Noteahead 1.0
 
 Dialog {
     id: root
-    title: qsTr("Notealogue Synthesizer")
+    title: "<strong>" + qsTr("Notealogue") + "</strong>"
     modal: true
     focus: true
     width: 1000
@@ -59,7 +59,7 @@ Dialog {
         }
     }
 
-    component Knob : ColumnLayout {
+    component Knob: ColumnLayout {
         id: knobRoot
         property string label: ""
         property real value: 0
@@ -85,7 +85,7 @@ Dialog {
         }
     }
 
-    component SectionTitle : Label {
+    component SectionTitle: Label {
         font.bold: true
         font.pixelSize: 16
         color: themeService.accentColor
@@ -101,15 +101,19 @@ Dialog {
         // Header and Presets
         RowLayout {
             Layout.fillWidth: true
-            SectionTitle { text: qsTr("Notealogue"); Layout.fillWidth: true }
-            
-            Label { text: qsTr("Preset:") }
+            SectionTitle {
+                text: qsTr("A general purpose 6-voice synthesizer")
+                Layout.fillWidth: true
+            }
+            Label {
+                text: qsTr("Preset:")
+            }
             ComboBox {
                 id: presetCombo
                 implicitWidth: 300
                 model: synthController.presetNames
-                onActivated: (index) => synthController.loadPreset(index)
-                
+                onActivated: index => synthController.loadPreset(index)
+
                 delegate: ItemDelegate {
                     width: 235
                     highlighted: presetCombo.highlightedIndex === index
@@ -124,9 +128,9 @@ Dialog {
                         color: highlighted ? "#333" : "transparent"
                     }
                     onClicked: {
-                        presetCombo.currentIndex = index
-                        presetCombo.activated(index)
-                        presetCombo.popup.close()
+                        presetCombo.currentIndex = index;
+                        presetCombo.activated(index);
+                        presetCombo.popup.close();
                     }
                 }
 
@@ -136,15 +140,17 @@ Dialog {
                     width: 980
                     implicitHeight: 500
                     padding: 5
-                    
+
                     contentItem: GridView {
                         clip: true
                         model: presetCombo.delegateModel
                         cellWidth: 240
                         cellHeight: 40
-                        ScrollBar.vertical: ScrollBar { policy: ScrollBar.AlwaysOn }
+                        ScrollBar.vertical: ScrollBar {
+                            policy: ScrollBar.AlwaysOn
+                        }
                     }
-                    
+
                     background: Rectangle {
                         color: "#252525"
                         border.color: themeService.accentColor
@@ -171,144 +177,400 @@ Dialog {
                 width: parent.width - 20
 
                 // Row 1: Titles
-                SectionTitle { text: "VCO 1" }
-                SectionTitle { text: "VCO 2" }
-                SectionTitle { text: "Multi Engine" }
-                SectionTitle { text: "Filter" }
-                SectionTitle { text: "LFO" }
+                SectionTitle {
+                    text: "VCO 1"
+                }
+                SectionTitle {
+                    text: "VCO 2"
+                }
+                SectionTitle {
+                    text: "Multi Engine"
+                }
+                SectionTitle {
+                    text: "Filter"
+                }
+                SectionTitle {
+                    text: "LFO"
+                }
 
                 // Row 2: Controls
                 ColumnLayout {
                     Layout.fillWidth: true
                     Layout.alignment: Qt.AlignTop
                     RowLayout {
-                        ComboBox { model: ["Triangle", "Saw", "Pulse"]; currentIndex: synthController.vco1Waveform; onActivated: (i) => synthController.vco1Waveform = i; Layout.fillWidth: true }
-                        ComboBox { model: ["16'", "8'", "4'", "2'"]; currentIndex: synthController.vco1Octave + 1; onActivated: (i) => synthController.vco1Octave = i - 1; Layout.fillWidth: true }
+                        ComboBox {
+                            model: ["Triangle", "Saw", "Pulse"]
+                            currentIndex: synthController.vco1Waveform
+                            onActivated: i => synthController.vco1Waveform = i
+                            Layout.fillWidth: true
+                        }
+                        ComboBox {
+                            model: ["16'", "8'", "4'", "2'"]
+                            currentIndex: synthController.vco1Octave + 1
+                            onActivated: i => synthController.vco1Octave = i - 1
+                            Layout.fillWidth: true
+                        }
                     }
-                    Knob { label: qsTr("Pitch"); from: -100; to: 100; suffix: "c"; value: synthController.vco1Pitch; onMoved: (v) => synthController.vco1Pitch = v; Layout.fillWidth: true }
-                    Knob { label: qsTr("Shape"); from: 0; to: 100; value: synthController.vco1Shape; onMoved: (v) => synthController.vco1Shape = v; Layout.fillWidth: true }
-                    Knob { label: qsTr("Level"); value: synthController.mixVco1; onMoved: (v) => synthController.mixVco1 = v; Layout.fillWidth: true }
-                    CheckBox { text: qsTr("Phase Sync"); checked: synthController.vco1Sync; onToggled: synthController.vco1Sync = checked }
+                    Knob {
+                        label: qsTr("Pitch")
+                        from: -100
+                        to: 100
+                        suffix: "c"
+                        value: synthController.vco1Pitch
+                        onMoved: v => synthController.vco1Pitch = v
+                        Layout.fillWidth: true
+                    }
+                    Knob {
+                        label: qsTr("Shape")
+                        from: 0
+                        to: 100
+                        value: synthController.vco1Shape
+                        onMoved: v => synthController.vco1Shape = v
+                        Layout.fillWidth: true
+                    }
+                    Knob {
+                        label: qsTr("Level")
+                        value: synthController.mixVco1
+                        onMoved: v => synthController.mixVco1 = v
+                        Layout.fillWidth: true
+                    }
+                    CheckBox {
+                        text: qsTr("Phase Sync")
+                        checked: synthController.vco1Sync
+                        onToggled: synthController.vco1Sync = checked
+                    }
                 }
 
                 ColumnLayout {
                     Layout.fillWidth: true
                     Layout.alignment: Qt.AlignTop
                     RowLayout {
-                        ComboBox { model: ["Triangle", "Saw", "Pulse"]; currentIndex: synthController.vco2Waveform; onActivated: (i) => synthController.vco2Waveform = i; Layout.fillWidth: true }
-                        ComboBox { model: ["16'", "8'", "4'", "2'"]; currentIndex: synthController.vco2Octave + 1; onActivated: (i) => synthController.vco2Octave = i - 1; Layout.fillWidth: true }
+                        ComboBox {
+                            model: ["Triangle", "Saw", "Pulse"]
+                            currentIndex: synthController.vco2Waveform
+                            onActivated: i => synthController.vco2Waveform = i
+                            Layout.fillWidth: true
+                        }
+                        ComboBox {
+                            model: ["16'", "8'", "4'", "2'"]
+                            currentIndex: synthController.vco2Octave + 1
+                            onActivated: i => synthController.vco2Octave = i - 1
+                            Layout.fillWidth: true
+                        }
                     }
-                    Knob { label: qsTr("Pitch"); from: -100; to: 100; suffix: "c"; value: synthController.vco2Pitch; onMoved: (v) => synthController.vco2Pitch = v; Layout.fillWidth: true }
-                    Knob { label: qsTr("Shape"); from: 0; to: 100; value: synthController.vco2Shape; onMoved: (v) => synthController.vco2Shape = v; Layout.fillWidth: true }
-                    Knob { label: qsTr("Level"); value: synthController.mixVco2; onMoved: (v) => synthController.mixVco2 = v; Layout.fillWidth: true }
-                    CheckBox { text: qsTr("Hard Sync to VCO1"); checked: synthController.vco2Sync; onToggled: synthController.vco2Sync = checked }
+                    Knob {
+                        label: qsTr("Pitch")
+                        from: -100
+                        to: 100
+                        suffix: "c"
+                        value: synthController.vco2Pitch
+                        onMoved: v => synthController.vco2Pitch = v
+                        Layout.fillWidth: true
+                    }
+                    Knob {
+                        label: qsTr("Shape")
+                        from: 0
+                        to: 100
+                        value: synthController.vco2Shape
+                        onMoved: v => synthController.vco2Shape = v
+                        Layout.fillWidth: true
+                    }
+                    Knob {
+                        label: qsTr("Level")
+                        value: synthController.mixVco2
+                        onMoved: v => synthController.mixVco2 = v
+                        Layout.fillWidth: true
+                    }
+                    CheckBox {
+                        text: qsTr("Hard Sync to VCO1")
+                        checked: synthController.vco2Sync
+                        onToggled: synthController.vco2Sync = checked
+                    }
                 }
 
                 ColumnLayout {
                     Layout.fillWidth: true
                     Layout.alignment: Qt.AlignTop
                     RowLayout {
-                        ComboBox { model: ["High", "Low", "Peak", "Decim"]; currentIndex: synthController.multiType; onActivated: (i) => synthController.multiType = i; Layout.fillWidth: true }
+                        ComboBox {
+                            model: ["High", "Low", "Peak", "Decim"]
+                            currentIndex: synthController.multiType
+                            onActivated: i => synthController.multiType = i
+                            Layout.fillWidth: true
+                        }
                     }
-                    Knob { label: qsTr("Shape"); from: 0; to: 100; value: synthController.multiShape; onMoved: (v) => synthController.multiShape = v; Layout.fillWidth: true }
-                    Knob { label: qsTr("Key Track"); value: synthController.multiKeyTrack; onMoved: (v) => synthController.multiKeyTrack = v; Layout.fillWidth: true }
-                    Knob { label: qsTr("Level"); value: synthController.multiLevel; onMoved: (v) => synthController.multiLevel = v; Layout.fillWidth: true }
+                    Knob {
+                        label: qsTr("Shape")
+                        from: 0
+                        to: 100
+                        value: synthController.multiShape
+                        onMoved: v => synthController.multiShape = v
+                        Layout.fillWidth: true
+                    }
+                    Knob {
+                        label: qsTr("Key Track")
+                        value: synthController.multiKeyTrack
+                        onMoved: v => synthController.multiKeyTrack = v
+                        Layout.fillWidth: true
+                    }
+                    Knob {
+                        label: qsTr("Level")
+                        value: synthController.multiLevel
+                        onMoved: v => synthController.multiLevel = v
+                        Layout.fillWidth: true
+                    }
                 }
 
                 ColumnLayout {
                     Layout.fillWidth: true
                     Layout.alignment: Qt.AlignTop
-                    Knob { label: qsTr("LPF Cutoff"); value: synthController.lpfCutoff; onMoved: (v) => synthController.lpfCutoff = v; Layout.fillWidth: true }
-                    Knob { label: qsTr("LPF Resonance"); value: synthController.lpfResonance; onMoved: (v) => synthController.lpfResonance = v; Layout.fillWidth: true }
-                    Knob { label: qsTr("HPF Cutoff"); value: synthController.hpfCutoff; onMoved: (v) => synthController.hpfCutoff = v; Layout.fillWidth: true }
-                    Knob { label: qsTr("Key Track"); value: synthController.filterKeyTrack; onMoved: (v) => synthController.filterKeyTrack = v; Layout.fillWidth: true }
+                    Knob {
+                        label: qsTr("LPF Cutoff")
+                        value: synthController.lpfCutoff
+                        onMoved: v => synthController.lpfCutoff = v
+                        Layout.fillWidth: true
+                    }
+                    Knob {
+                        label: qsTr("LPF Resonance")
+                        value: synthController.lpfResonance
+                        onMoved: v => synthController.lpfResonance = v
+                        Layout.fillWidth: true
+                    }
+                    Knob {
+                        label: qsTr("HPF Cutoff")
+                        value: synthController.hpfCutoff
+                        onMoved: v => synthController.hpfCutoff = v
+                        Layout.fillWidth: true
+                    }
+                    Knob {
+                        label: qsTr("Key Track")
+                        value: synthController.filterKeyTrack
+                        onMoved: v => synthController.filterKeyTrack = v
+                        Layout.fillWidth: true
+                    }
                 }
 
                 ColumnLayout {
                     Layout.fillWidth: true
                     Layout.alignment: Qt.AlignTop
                     RowLayout {
-                        ComboBox { model: ["Saw", "Triangle", "Square"]; currentIndex: synthController.lfoWaveform; onActivated: (i) => synthController.lfoWaveform = i; Layout.fillWidth: true }
-                        ComboBox { model: ["Normal", "BPM", "1-Shot"]; currentIndex: synthController.lfoMode; onActivated: (i) => synthController.lfoMode = i; Layout.fillWidth: true }
+                        ComboBox {
+                            model: ["Saw", "Triangle", "Square"]
+                            currentIndex: synthController.lfoWaveform
+                            onActivated: i => synthController.lfoWaveform = i
+                            Layout.fillWidth: true
+                        }
+                        ComboBox {
+                            model: ["Normal", "BPM", "1-Shot"]
+                            currentIndex: synthController.lfoMode
+                            onActivated: i => synthController.lfoMode = i
+                            Layout.fillWidth: true
+                        }
                     }
                     RowLayout {
-                        ComboBox { model: ["Pitch", "Shape", "Cutoff"]; currentIndex: synthController.lfoTarget; onActivated: (i) => synthController.lfoTarget = i; Layout.fillWidth: true }
+                        ComboBox {
+                            model: ["Pitch", "Shape", "Cutoff"]
+                            currentIndex: synthController.lfoTarget
+                            onActivated: i => synthController.lfoTarget = i
+                            Layout.fillWidth: true
+                        }
                     }
-                    Knob { label: qsTr("Rate"); value: synthController.lfoRate; onMoved: (v) => synthController.lfoRate = v; Layout.fillWidth: true }
-                    Knob { label: qsTr("Intensity"); value: synthController.lfoInt; onMoved: (v) => synthController.lfoInt = v; Layout.fillWidth: true }
+                    Knob {
+                        label: qsTr("Rate")
+                        value: synthController.lfoRate
+                        onMoved: v => synthController.lfoRate = v
+                        Layout.fillWidth: true
+                    }
+                    Knob {
+                        label: qsTr("Intensity")
+                        value: synthController.lfoInt
+                        onMoved: v => synthController.lfoInt = v
+                        Layout.fillWidth: true
+                    }
                 }
 
                 // Spacing Row
-                Item { Layout.fillWidth: true; Layout.preferredHeight: 10; Layout.columnSpan: 5 }
+                Item {
+                    Layout.fillWidth: true
+                    Layout.preferredHeight: 10
+                    Layout.columnSpan: 5
+                }
 
                 // Row 3: Titles
-                SectionTitle { text: "Voice / Global" }
-                SectionTitle { text: "Amp EG (ADSR)" }
-                SectionTitle { text: "Mod EG (AD)" }
-                SectionTitle { text: "Delay Effect" }
-                Item { Layout.fillWidth: true }
+                SectionTitle {
+                    text: "Voice / Global"
+                }
+                SectionTitle {
+                    text: "Amp EG (ADSR)"
+                }
+                SectionTitle {
+                    text: "Mod EG (AD)"
+                }
+                SectionTitle {
+                    text: "Delay Effect"
+                }
+                Item {
+                    Layout.fillWidth: true
+                }
 
                 // Row 4: Controls
                 ColumnLayout {
                     Layout.fillWidth: true
                     Layout.alignment: Qt.AlignTop
                     RowLayout {
-                        ComboBox { model: ["Poly", "Unison"]; currentIndex: synthController.voiceMode; onActivated: (i) => synthController.voiceMode = i; Layout.fillWidth: true }
+                        ComboBox {
+                            model: ["Poly", "Unison"]
+                            currentIndex: synthController.voiceMode
+                            onActivated: i => synthController.voiceMode = i
+                            Layout.fillWidth: true
+                        }
                     }
-                    Knob { label: qsTr("Voice Depth"); value: synthController.voiceDepth; onMoved: (v) => synthController.voiceDepth = v; Layout.fillWidth: true }
-                    Knob { label: qsTr("Portamento"); value: synthController.portamento; onMoved: (v) => synthController.portamento = v; Layout.fillWidth: true }
-                    Knob { label: qsTr("Pan Spread"); value: synthController.panSpread; onMoved: (v) => synthController.panSpread = v; Layout.fillWidth: true }
-                    Knob { label: qsTr("Master Volume"); value: synthController.masterVolume; onMoved: (v) => synthController.masterVolume = v; Layout.fillWidth: true }
+                    Knob {
+                        label: qsTr("Voice Depth")
+                        value: synthController.voiceDepth
+                        onMoved: v => synthController.voiceDepth = v
+                        Layout.fillWidth: true
+                    }
+                    Knob {
+                        label: qsTr("Portamento")
+                        value: synthController.portamento
+                        onMoved: v => synthController.portamento = v
+                        Layout.fillWidth: true
+                    }
+                    Knob {
+                        label: qsTr("Pan Spread")
+                        value: synthController.panSpread
+                        onMoved: v => synthController.panSpread = v
+                        Layout.fillWidth: true
+                    }
+                    Knob {
+                        label: qsTr("Master Volume")
+                        value: synthController.masterVolume
+                        onMoved: v => synthController.masterVolume = v
+                        Layout.fillWidth: true
+                    }
                 }
 
                 ColumnLayout {
                     Layout.fillWidth: true
                     Layout.alignment: Qt.AlignTop
-                    Knob { label: qsTr("Attack"); value: synthController.ampAttack; onMoved: (v) => synthController.ampAttack = v; Layout.fillWidth: true }
-                    Knob { label: qsTr("Decay"); value: synthController.ampDecay; onMoved: (v) => synthController.ampDecay = v; Layout.fillWidth: true }
-                    Knob { label: qsTr("Sustain"); value: synthController.ampSustain; onMoved: (v) => synthController.ampSustain = v; Layout.fillWidth: true }
-                    Knob { label: qsTr("Release"); value: synthController.ampRelease; onMoved: (v) => synthController.ampRelease = v; Layout.fillWidth: true }
+                    Knob {
+                        label: qsTr("Attack")
+                        value: synthController.ampAttack
+                        onMoved: v => synthController.ampAttack = v
+                        Layout.fillWidth: true
+                    }
+                    Knob {
+                        label: qsTr("Decay")
+                        value: synthController.ampDecay
+                        onMoved: v => synthController.ampDecay = v
+                        Layout.fillWidth: true
+                    }
+                    Knob {
+                        label: qsTr("Sustain")
+                        value: synthController.ampSustain
+                        onMoved: v => synthController.ampSustain = v
+                        Layout.fillWidth: true
+                    }
+                    Knob {
+                        label: qsTr("Release")
+                        value: synthController.ampRelease
+                        onMoved: v => synthController.ampRelease = v
+                        Layout.fillWidth: true
+                    }
                 }
 
                 ColumnLayout {
                     Layout.fillWidth: true
                     Layout.alignment: Qt.AlignTop
                     RowLayout {
-                        ComboBox { model: ["Pitch 1", "Pitch 2", "Cutoff"]; currentIndex: synthController.modTarget; onActivated: (i) => synthController.modTarget = i; Layout.fillWidth: true }
+                        ComboBox {
+                            model: ["Pitch 1", "Pitch 2", "Cutoff"]
+                            currentIndex: synthController.modTarget
+                            onActivated: i => synthController.modTarget = i
+                            Layout.fillWidth: true
+                        }
                     }
-                    Knob { label: qsTr("Attack"); value: synthController.modAttack; onMoved: (v) => synthController.modAttack = v; Layout.fillWidth: true }
-                    Knob { label: qsTr("Decay"); value: synthController.modDecay; onMoved: (v) => synthController.modDecay = v; Layout.fillWidth: true }
-                    Knob { label: qsTr("Intensity"); value: synthController.modInt; onMoved: (v) => synthController.modInt = v; Layout.fillWidth: true }
+                    Knob {
+                        label: qsTr("Attack")
+                        value: synthController.modAttack
+                        onMoved: v => synthController.modAttack = v
+                        Layout.fillWidth: true
+                    }
+                    Knob {
+                        label: qsTr("Decay")
+                        value: synthController.modDecay
+                        onMoved: v => synthController.modDecay = v
+                        Layout.fillWidth: true
+                    }
+                    Knob {
+                        label: qsTr("Intensity")
+                        value: synthController.modInt
+                        onMoved: v => synthController.modInt = v
+                        Layout.fillWidth: true
+                    }
                 }
 
                 ColumnLayout {
                     Layout.fillWidth: true
                     Layout.alignment: Qt.AlignTop
                     RowLayout {
-                        ComboBox { model: ["Stereo", "Mono", "PingPong", "HiPass", "LowPass", "Tape"]; currentIndex: synthController.delayType; onActivated: (i) => synthController.delayType = i; Layout.fillWidth: true }
+                        ComboBox {
+                            model: ["Stereo", "Mono", "PingPong", "HiPass", "LowPass", "Tape"]
+                            currentIndex: synthController.delayType
+                            onActivated: i => synthController.delayType = i
+                            Layout.fillWidth: true
+                        }
                     }
                     RowLayout {
-                        CheckBox { text: qsTr("Sync"); checked: synthController.delaySync; onToggled: synthController.delaySync = checked }
+                        CheckBox {
+                            text: qsTr("Sync")
+                            checked: synthController.delaySync
+                            onToggled: synthController.delaySync = checked
+                        }
                         StackLayout {
                             currentIndex: synthController.delaySync ? 0 : 1
                             Layout.fillWidth: true
-                            ComboBox { 
+                            ComboBox {
                                 model: ["1/16", "1/8", "1/4", "1/2", "1/1"]
                                 currentIndex: [0.0625, 0.125, 0.25, 0.5, 1.0].indexOf(synthController.delaySyncDivision / 100.0)
-                                onActivated: (i) => synthController.delaySyncDivision = [6.25, 12.5, 25, 50, 100][i]
-                                Layout.fillWidth: true 
+                                onActivated: i => synthController.delaySyncDivision = [6.25, 12.5, 25, 50, 100][i]
+                                Layout.fillWidth: true
                             }
-                            Knob { 
-                                label: qsTr("Time"); from: 1; to: 2000; suffix: "ms"; value: synthController.delayTime; onMoved: (v) => synthController.delayTime = v; Layout.fillWidth: true 
+                            Knob {
+                                label: qsTr("Time")
+                                from: 1
+                                to: 2000
+                                suffix: "ms"
+                                value: synthController.delayTime
+                                onMoved: v => synthController.delayTime = v
+                                Layout.fillWidth: true
                             }
                         }
                     }
-                    Knob { label: qsTr("Feedback"); value: synthController.delayFeedback; onMoved: (v) => synthController.delayFeedback = v; Layout.fillWidth: true }
-                    Knob { label: qsTr("Depth"); value: synthController.delayDepth; onMoved: (v) => synthController.delayDepth = v; Layout.fillWidth: true }
-                    Knob { label: qsTr("Mix"); value: synthController.delayMix; onMoved: (v) => synthController.delayMix = v; Layout.fillWidth: true }
+                    Knob {
+                        label: qsTr("Feedback")
+                        value: synthController.delayFeedback
+                        onMoved: v => synthController.delayFeedback = v
+                        Layout.fillWidth: true
+                    }
+                    Knob {
+                        label: qsTr("Depth")
+                        value: synthController.delayDepth
+                        onMoved: v => synthController.delayDepth = v
+                        Layout.fillWidth: true
+                    }
+                    Knob {
+                        label: qsTr("Mix")
+                        value: synthController.delayMix
+                        onMoved: v => synthController.delayMix = v
+                        Layout.fillWidth: true
+                    }
                 }
 
-                Item { Layout.fillWidth: true }
+                Item {
+                    Layout.fillWidth: true
+                }
             }
         }
 
