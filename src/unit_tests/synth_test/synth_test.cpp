@@ -20,7 +20,7 @@ void SynthTest::test_defaultValues_shouldBeCorrect()
     SynthDevice synth;
     QCOMPARE(synth.name(), std::string("Notealogue"));
     QCOMPARE(synth.vco1Octave(), 0);
-    QCOMPARE(synth.vco1Pitch(), 0.0f);
+    QCOMPARE(synth.vco1Pitch(), 0.5f);
     QCOMPARE(synth.mixVco1(), 1.0f);
     QCOMPARE(synth.mixVco2(), 0.0f);
     QCOMPARE(synth.lpfCutoff(), 1.0f);
