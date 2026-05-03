@@ -25,9 +25,16 @@ Dialog {
     modal: true
     focus: true
     width: 1000
-    height: 800
+    height: 850
 
+    Universal.theme: Universal.Dark
     Universal.accent: themeService.accentColor
+
+    background: Rectangle {
+        color: "#1e1e1e"
+        border.color: "#333"
+        radius: 2
+    }
 
     onAboutToShow: () => {
         synthController.requestSettings();
@@ -65,6 +72,7 @@ Dialog {
         Label {
             text: knobRoot.label + " (" + Math.round(knobRoot.value) + knobRoot.suffix + ")"
             font.pixelSize: 11
+            color: themeService.accentColor
             Layout.alignment: Qt.AlignHCenter
         }
         Slider {
@@ -98,8 +106,51 @@ Dialog {
             Label { text: qsTr("Preset:") }
             ComboBox {
                 id: presetCombo
+                implicitWidth: 300
                 model: synthController.presetNames
                 onActivated: (index) => synthController.loadPreset(index)
+                
+                delegate: ItemDelegate {
+                    width: 235
+                    highlighted: presetCombo.highlightedIndex === index
+                    contentItem: Label {
+                        text: modelData
+                        color: presetCombo.currentIndex === index ? themeService.accentColor : "white"
+                        font.bold: presetCombo.currentIndex === index
+                        elide: Text.ElideRight
+                        verticalAlignment: Image.AlignVCenter
+                    }
+                    background: Rectangle {
+                        color: highlighted ? "#333" : "transparent"
+                    }
+                    onClicked: {
+                        presetCombo.currentIndex = index
+                        presetCombo.activated(index)
+                        presetCombo.popup.close()
+                    }
+                }
+
+                popup: Popup {
+                    y: presetCombo.height
+                    x: (root.width - width) / 2 - parent.x - 15
+                    width: 980
+                    implicitHeight: 500
+                    padding: 5
+                    
+                    contentItem: GridView {
+                        clip: true
+                        model: presetCombo.delegateModel
+                        cellWidth: 240
+                        cellHeight: 40
+                        ScrollBar.vertical: ScrollBar { policy: ScrollBar.AlwaysOn }
+                    }
+                    
+                    background: Rectangle {
+                        color: "#252525"
+                        border.color: themeService.accentColor
+                        radius: 4
+                    }
+                }
             }
 
             Button {

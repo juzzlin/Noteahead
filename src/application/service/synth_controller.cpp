@@ -118,8 +118,11 @@ void SynthController::setMasterVolume(int v) { if (m_synth) { m_synth->setMaster
 QStringList SynthController::presetNames() const
 {
     QStringList names;
-    for (const auto& preset : SynthPresets::presets()) {
-        names.append(QString::fromStdString(preset.name));
+    const auto& presetList = SynthPresets::presets();
+    for (size_t i = 0; i < presetList.size(); ++i) {
+        names.append(QString("%1: %2")
+            .arg(static_cast<int>(i + 1), 3, 10, QChar('0'))
+            .arg(QString::fromStdString(presetList[i].name)));
     }
     return names;
 }
