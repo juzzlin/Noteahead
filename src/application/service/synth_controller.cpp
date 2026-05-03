@@ -122,6 +122,8 @@ int SynthController::portamento() const { return m_synth ? static_cast<int>(std:
 void SynthController::setPortamento(int p) { if (m_synth) { m_synth->setPortamento(p / 100.0f); emit portamentoChanged(); } }
 int SynthController::panSpread() const { return m_synth ? static_cast<int>(std::round(m_synth->panSpread() * 100.0f)) : 0; }
 void SynthController::setPanSpread(int s) { if (m_synth) { m_synth->setPanSpread(s / 100.0f); emit panSpreadChanged(); } }
+int SynthController::masterPan() const { return m_synth ? static_cast<int>(std::round(m_synth->masterPan() * 100.0f)) : 0; }
+void SynthController::setMasterPan(int p) { if (m_synth) { m_synth->setMasterPan(p / 100.0f); emit masterPanChanged(); } }
 int SynthController::masterVolume() const { return m_synth ? static_cast<int>(std::round(m_synth->masterVolume() * 100.0f)) : 0; }
 void SynthController::setMasterVolume(int v) { if (m_synth) { m_synth->setMasterVolume(v / 100.0f); emit masterVolumeChanged(); } }
 
@@ -164,7 +166,7 @@ void SynthController::requestSettings() {
     emit ampAttackChanged(); emit ampDecayChanged(); emit ampSustainChanged(); emit ampReleaseChanged();
     emit modAttackChanged(); emit modDecayChanged(); emit modIntChanged(); emit modTargetChanged();
     emit lfoWaveformChanged(); emit lfoModeChanged(); emit lfoRateChanged(); emit lfoIntChanged(); emit lfoTargetChanged();
-    emit voiceModeChanged(); emit voiceDepthChanged(); emit portamentoChanged(); emit panSpreadChanged(); emit masterVolumeChanged();
+    emit voiceModeChanged(); emit voiceDepthChanged(); emit portamentoChanged(); emit panSpreadChanged(); emit masterPanChanged(); emit masterVolumeChanged();
     emit delayTypeChanged(); emit delayTimeChanged(); emit delayFeedbackChanged(); emit delayDepthChanged(); emit delayMixChanged(); emit delaySyncChanged(); emit delaySyncDivisionChanged();
 }
 void SynthController::accept() {}

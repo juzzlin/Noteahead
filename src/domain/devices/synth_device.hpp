@@ -172,6 +172,8 @@ public:
     void setPortamento(float p);
     float panSpread() const;
     void setPanSpread(float spread);
+    float masterPan() const;
+    void setMasterPan(float pan);
     float masterVolume() const;
     void setMasterVolume(float vol);
 
@@ -266,10 +268,12 @@ private:
     float m_voiceDepth { 0.0f };
     float m_portamento { 0.0f };
     float m_panSpread { 0.0f };
+    float m_masterPan { 0.5f };
     float m_masterVolume { 1.0f };
 
     // Manual settings for CC reset
     float m_manualPanSpread { 0.0f };
+    float m_manualMasterPan { 0.5f };
     float m_manualMasterVolume { 1.0f };
     float m_manualLpfCutoff { 1.0f };
     float m_manualHpfCutoff { 0.0f };

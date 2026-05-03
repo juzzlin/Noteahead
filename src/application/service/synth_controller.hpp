@@ -81,6 +81,7 @@ class SynthController : public QObject
     Q_PROPERTY(int voiceDepth READ voiceDepth WRITE setVoiceDepth NOTIFY voiceDepthChanged)
     Q_PROPERTY(int portamento READ portamento WRITE setPortamento NOTIFY portamentoChanged)
     Q_PROPERTY(int panSpread READ panSpread WRITE setPanSpread NOTIFY panSpreadChanged)
+    Q_PROPERTY(int masterPan READ masterPan WRITE setMasterPan NOTIFY masterPanChanged)
     Q_PROPERTY(int masterVolume READ masterVolume WRITE setMasterVolume NOTIFY masterVolumeChanged)
     Q_PROPERTY(QStringList presetNames READ presetNames CONSTANT)
 
@@ -145,6 +146,7 @@ public:
     int voiceDepth() const; void setVoiceDepth(int d);
     int portamento() const; void setPortamento(int p);
     int panSpread() const; void setPanSpread(int s);
+    int masterPan() const; void setMasterPan(int p);
     int masterVolume() const; void setMasterVolume(int v);
 
     QStringList presetNames() const;
@@ -176,7 +178,7 @@ signals:
     void ampAttackChanged(); void ampDecayChanged(); void ampSustainChanged(); void ampReleaseChanged();
     void modAttackChanged(); void modDecayChanged(); void modIntChanged(); void modTargetChanged();
     void lfoWaveformChanged(); void lfoModeChanged(); void lfoRateChanged(); void lfoIntChanged(); void lfoTargetChanged();
-    void voiceModeChanged(); void voiceDepthChanged(); void portamentoChanged(); void panSpreadChanged(); void masterVolumeChanged();
+    void voiceModeChanged(); void voiceDepthChanged(); void portamentoChanged(); void panSpreadChanged(); void masterPanChanged(); void masterVolumeChanged();
     void delayTypeChanged(); void delayTimeChanged(); void delayFeedbackChanged(); void delayDepthChanged(); void delayMixChanged(); void delaySyncChanged(); void delaySyncDivisionChanged();
 
 private:

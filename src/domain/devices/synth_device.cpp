@@ -114,6 +114,7 @@ SynthDevice::SynthDevice()
     addParameter(Parameter { Constants::NahdXml::xmlKeyVoiceDepth().toStdString(), 0.0f, 0, 100, 0 });
     addParameter(Parameter { Constants::NahdXml::xmlKeyPortamento().toStdString(), 0.0f, 0, 100, 0 });
     addParameter(Parameter { Constants::NahdXml::xmlKeyPanSpread().toStdString(), 0.0f, 0, 100, 0 });
+    addParameter(Parameter { Constants::NahdXml::xmlKeyPan().toStdString(), 0.5f, 0, 100, 50 });
     addParameter(Parameter { Constants::NahdXml::xmlKeyVolume().toStdString(), 1.0f, 0, 100, 100 });
 
     addParameter(Parameter { Constants::NahdXml::xmlKeyDelayType().toStdString(), 0.0f, 0, 5, 0 });
@@ -130,6 +131,7 @@ SynthDevice::SynthDevice()
     }
 
     m_manualPanSpread = m_panSpread;
+    m_manualMasterPan = m_masterPan;
     m_manualMasterVolume = m_masterVolume;
     m_manualLpfCutoff = m_lpfCutoff;
     m_manualHpfCutoff = m_hpfCutoff;
@@ -228,8 +230,8 @@ void SynthDevice::processAudio(float * output, uint32_t nFrames, uint32_t sample
             const float filtered { voice.hpf.process(voice.lpf.process(static_cast<float>(mixHeadroom))) };
             const float finalSample { filtered * static_cast<float>(ampEnv) * m_masterVolume * (1.0f / static_cast<float>(MaxVoices)) };
 
-            localBuffer[i * 2] += finalSample * (1.0f - voice.pan);
-            localBuffer[i * 2 + 1] += finalSample * voice.pan;
+            localBuffer[i * 2] += finalSample * (1.0f - voice.pan) * (1.0f - m_masterPan) * 2.0f;
+            localBuffer[i * 2 + 1] += finalSample * voice.pan * m_masterPan * 2.0f;
         }
 
         if (voice.ampEg.state() == ADSREnvelope::State::Idle) {
@@ -267,11 +269,13 @@ void SynthDevice::processMidiCc(uint8_t controller, uint8_t value, uint8_t /*cha
 
     if (controller == 121) { // Reset All Controllers
         m_panSpread = m_manualPanSpread;
+        m_masterPan = m_manualMasterPan;
         m_masterVolume = m_manualMasterVolume;
         m_lpfCutoff = m_manualLpfCutoff;
         m_hpfCutoff = m_manualHpfCutoff;
 
         if (auto p = parameter(Constants::NahdXml::xmlKeyPanSpread().toStdString()); p) p->get().setValue(m_panSpread);
+        if (auto p = parameter(Constants::NahdXml::xmlKeyPan().toStdString()); p) p->get().setValue(m_masterPan);
         if (auto p = parameter(Constants::NahdXml::xmlKeyVolume().toStdString()); p) p->get().setValue(m_masterVolume);
         if (auto p = parameter("lpf" + Constants::NahdXml::xmlKeyCutoff().toStdString()); p) p->get().setValue(m_lpfCutoff);
         if (auto p = parameter("hpf" + Constants::NahdXml::xmlKeyCutoff().toStdString()); p) p->get().setValue(m_hpfCutoff);
@@ -474,6 +478,7 @@ void SynthDevice::syncParameters()
     if (auto p = parameter(Constants::NahdXml::xmlKeyVoiceDepth().toStdString()); p) m_voiceDepth = p->get().value();
     if (auto p = parameter(Constants::NahdXml::xmlKeyPortamento().toStdString()); p) m_portamento = p->get().value();
     if (auto p = parameter(Constants::NahdXml::xmlKeyPanSpread().toStdString()); p) m_panSpread = p->get().value();
+    if (auto p = parameter(Constants::NahdXml::xmlKeyPan().toStdString()); p) m_masterPan = p->get().value();
     if (auto p = parameter(Constants::NahdXml::xmlKeyVolume().toStdString()); p) m_masterVolume = p->get().value();
 
     if (auto p = parameter(Constants::NahdXml::xmlKeyDelayType().toStdString()); p) m_delayType = static_cast<DelayEffect::Type>(p->get().xmlValue());
@@ -671,6 +676,8 @@ float SynthDevice::portamento() const { return m_portamento; }
 void SynthDevice::setPortamento(float val) { if (auto p = parameter(Constants::NahdXml::xmlKeyPortamento().toStdString()); p) { p->get().setValue(val); syncParameters(); emit dataChanged(); } }
 float SynthDevice::panSpread() const { return m_panSpread; }
 void SynthDevice::setPanSpread(float spread) { if (auto p = parameter(Constants::NahdXml::xmlKeyPanSpread().toStdString()); p) { p->get().setValue(spread); m_manualPanSpread = p->get().value(); syncParameters(); emit dataChanged(); } }
+float SynthDevice::masterPan() const { return m_masterPan; }
+void SynthDevice::setMasterPan(float pan) { if (auto p = parameter(Constants::NahdXml::xmlKeyPan().toStdString()); p) { p->get().setValue(pan); m_manualMasterPan = p->get().value(); syncParameters(); emit dataChanged(); } }
 float SynthDevice::masterVolume() const { return m_masterVolume; }
 void SynthDevice::setMasterVolume(float vol) { if (auto p = parameter(Constants::NahdXml::xmlKeyVolume().toStdString()); p) { p->get().setValue(vol); m_manualMasterVolume = p->get().value(); syncParameters(); emit dataChanged(); } }
 

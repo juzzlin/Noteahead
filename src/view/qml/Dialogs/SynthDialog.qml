@@ -21,7 +21,7 @@ import Noteahead 1.0
 
 Dialog {
     id: root
-    title: "<strong>" + qsTr("Notealogue") + "</strong>"
+    title: qsTr("Notealogue Synthesizer")
     modal: true
     focus: true
     width: 1000
@@ -59,7 +59,7 @@ Dialog {
         }
     }
 
-    component Knob: ColumnLayout {
+    component Knob : ColumnLayout {
         id: knobRoot
         property string label: ""
         property real value: 0
@@ -85,7 +85,7 @@ Dialog {
         }
     }
 
-    component SectionTitle: Label {
+    component SectionTitle : Label {
         font.bold: true
         font.pixelSize: 16
         color: themeService.accentColor
@@ -178,6 +178,9 @@ Dialog {
 
                 // Row 1: Titles
                 SectionTitle {
+                    text: "Voice / Global"
+                }
+                SectionTitle {
                     text: "VCO 1"
                 }
                 SectionTitle {
@@ -189,11 +192,51 @@ Dialog {
                 SectionTitle {
                     text: "Filter"
                 }
-                SectionTitle {
-                    text: "LFO"
-                }
 
                 // Row 2: Controls
+                ColumnLayout {
+                    Layout.fillWidth: true
+                    Layout.alignment: Qt.AlignTop
+                    RowLayout {
+                        ComboBox {
+                            model: ["Poly", "Unison"]
+                            currentIndex: synthController.voiceMode
+                            onActivated: i => synthController.voiceMode = i
+                            Layout.fillWidth: true
+                        }
+                    }
+                    Knob {
+                        label: qsTr("Voice Depth")
+                        value: synthController.voiceDepth
+                        onMoved: v => synthController.voiceDepth = v
+                        Layout.fillWidth: true
+                    }
+                    Knob {
+                        label: qsTr("Portamento")
+                        value: synthController.portamento
+                        onMoved: v => synthController.portamento = v
+                        Layout.fillWidth: true
+                    }
+                    Knob {
+                        label: qsTr("Pan Spread")
+                        value: synthController.panSpread
+                        onMoved: v => synthController.panSpread = v
+                        Layout.fillWidth: true
+                    }
+                    Knob {
+                        label: qsTr("Master Volume")
+                        value: synthController.masterVolume
+                        onMoved: v => synthController.masterVolume = v
+                        Layout.fillWidth: true
+                    }
+                    Knob {
+                        label: qsTr("Master Pan")
+                        value: synthController.masterPan
+                        onMoved: v => synthController.masterPan = v
+                        Layout.fillWidth: true
+                    }
+                }
+
                 ColumnLayout {
                     Layout.fillWidth: true
                     Layout.alignment: Qt.AlignTop
@@ -350,6 +393,31 @@ Dialog {
                     }
                 }
 
+                // Spacing Row
+                Item {
+                    Layout.fillWidth: true
+                    Layout.preferredHeight: 10
+                    Layout.columnSpan: 5
+                }
+
+                // Row 3: Titles
+                SectionTitle {
+                    text: "LFO"
+                }
+                SectionTitle {
+                    text: "Amp EG (ADSR)"
+                }
+                SectionTitle {
+                    text: "Mod EG (AD)"
+                }
+                SectionTitle {
+                    text: "Delay Effect"
+                }
+                Item {
+                    Layout.fillWidth: true
+                }
+
+                // Row 4: Controls
                 ColumnLayout {
                     Layout.fillWidth: true
                     Layout.alignment: Qt.AlignTop
@@ -385,68 +453,6 @@ Dialog {
                         label: qsTr("Intensity")
                         value: synthController.lfoInt
                         onMoved: v => synthController.lfoInt = v
-                        Layout.fillWidth: true
-                    }
-                }
-
-                // Spacing Row
-                Item {
-                    Layout.fillWidth: true
-                    Layout.preferredHeight: 10
-                    Layout.columnSpan: 5
-                }
-
-                // Row 3: Titles
-                SectionTitle {
-                    text: "Voice / Global"
-                }
-                SectionTitle {
-                    text: "Amp EG (ADSR)"
-                }
-                SectionTitle {
-                    text: "Mod EG (AD)"
-                }
-                SectionTitle {
-                    text: "Delay Effect"
-                }
-                Item {
-                    Layout.fillWidth: true
-                }
-
-                // Row 4: Controls
-                ColumnLayout {
-                    Layout.fillWidth: true
-                    Layout.alignment: Qt.AlignTop
-                    RowLayout {
-                        ComboBox {
-                            model: ["Poly", "Unison"]
-                            currentIndex: synthController.voiceMode
-                            onActivated: i => synthController.voiceMode = i
-                            Layout.fillWidth: true
-                        }
-                    }
-                    Knob {
-                        label: qsTr("Voice Depth")
-                        value: synthController.voiceDepth
-                        onMoved: v => synthController.voiceDepth = v
-                        Layout.fillWidth: true
-                    }
-                    Knob {
-                        label: qsTr("Portamento")
-                        value: synthController.portamento
-                        onMoved: v => synthController.portamento = v
-                        Layout.fillWidth: true
-                    }
-                    Knob {
-                        label: qsTr("Pan Spread")
-                        value: synthController.panSpread
-                        onMoved: v => synthController.panSpread = v
-                        Layout.fillWidth: true
-                    }
-                    Knob {
-                        label: qsTr("Master Volume")
-                        value: synthController.masterVolume
-                        onMoved: v => synthController.masterVolume = v
                         Layout.fillWidth: true
                     }
                 }

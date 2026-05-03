@@ -26,6 +26,7 @@ void SynthTest::test_defaultValues_shouldBeCorrect()
     QCOMPARE(synth.lpfCutoff(), 1.0f);
     QCOMPARE(synth.hpfCutoff(), 0.0f);
     QCOMPARE(synth.ampSustain(), 1.0f);
+    QCOMPARE(synth.masterPan(), 0.5f);
 }
 
 void SynthTest::test_parameterSetting_shouldUpdateValues()
@@ -48,6 +49,9 @@ void SynthTest::test_parameterSetting_shouldUpdateValues()
     
     synth.setDelaySync(true);
     QCOMPARE(synth.delaySync(), true);
+
+    synth.setMasterPan(0.2f);
+    QCOMPARE(synth.masterPan(), 0.2f);
 }
 
 void SynthTest::test_polyphony_shouldActiveMultipleVoices()
@@ -104,6 +108,7 @@ void SynthTest::test_midiCc_shouldUpdateParameters()
     // Test CC 121 (Reset All Controllers)
     // First, set manual UI values
     synth.setMasterVolume(1.0f);
+    synth.setMasterPan(0.0f);
     synth.setPanSpread(0.0f);
     synth.setLpfCutoff(0.5f);
     synth.setHpfCutoff(0.1f);
@@ -120,6 +125,7 @@ void SynthTest::test_midiCc_shouldUpdateParameters()
 
     // Should return to manual UI values
     QCOMPARE(synth.masterVolume(), 1.0f);
+    QCOMPARE(synth.masterPan(), 0.0f);
     QCOMPARE(synth.panSpread(), 0.0f);
     QCOMPARE(synth.lpfCutoff(), 0.5f);
     QCOMPARE(synth.hpfCutoff(), 0.1f);
@@ -256,6 +262,7 @@ void SynthTest::test_serialization_shouldPreserveValues()
     synth1.setMultiShape(0.42f);
     synth1.setMultiLevel(0.88f);
     synth1.setMultiKeyTrack(0.5f);
+    synth1.setMasterPan(0.12f);
 
     QByteArray data;
     QBuffer buffer(&data);
@@ -283,6 +290,7 @@ void SynthTest::test_serialization_shouldPreserveValues()
     QCOMPARE(synth2.multiShape(), 0.42f);
     QCOMPARE(synth2.multiLevel(), 0.88f);
     QCOMPARE(synth2.multiKeyTrack(), 0.5f);
+    QCOMPARE(synth2.masterPan(), 0.12f);
 }
 
 void SynthTest::test_portamento_shouldGlideFrequency()
