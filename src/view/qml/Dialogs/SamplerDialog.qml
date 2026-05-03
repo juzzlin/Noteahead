@@ -24,15 +24,15 @@ import "../Components"
 
 Dialog {
     id: root
-    title: "<strong>" + qsTr("Sampler") + "</strong>"
+    title: "<strong>" + qsTr("Noteahead Sampler") + "</strong>"
     modal: true
     focus: true
 
     Universal.accent: themeService.accentColor
 
     onAboutToShow: {
-        samplerController.initialize()
-        waveform.updateWaveform()
+        samplerController.initialize();
+        waveform.updateWaveform();
     }
 
     footer: DialogButtonBox {
@@ -47,12 +47,12 @@ Dialog {
             DialogButtonBox.buttonRole: DialogButtonBox.RejectRole
         }
         onAccepted: {
-            samplerController.accept()
-            root.accept()
+            samplerController.accept();
+            root.accept();
         }
         onRejected: {
-            samplerController.reject()
-            root.reject()
+            samplerController.reject();
+            root.reject();
         }
     }
 
@@ -69,12 +69,12 @@ Dialog {
         property int padToAssign: -1
         onAccepted: {
             if (padToAssign !== -1) {
-                samplerController.loadSample(padToAssign, selectedFile.toString().replace("file://", ""))
+                samplerController.loadSample(padToAssign, selectedFile.toString().replace("file://", ""));
             }
         }
     }
 
-    component Knob : ColumnLayout {
+    component Knob: ColumnLayout {
         id: knobRoot
         property string label: ""
         property real value: 0
@@ -107,9 +107,11 @@ Dialog {
 
         RowLayout {
             Layout.fillWidth: true
-            Item { Layout.preferredWidth: resetBtn.width }
+            Item {
+                Layout.preferredWidth: resetBtn.width
+            }
             Text {
-                text: qsTr("Noteahead Sampler")
+                text: qsTr("Emulation of a 16-pad sampler")
                 color: "white"
                 font.bold: true
                 font.pointSize: 20
@@ -139,11 +141,12 @@ Dialog {
             Layout.fillWidth: true
             Layout.preferredHeight: 150
             Layout.margins: 10
-            
+
             property var currentWaveformData: []
             waveformData: currentWaveformData
             fileName: {
-                if (samplerController.selectedPad < 0) return "";
+                if (samplerController.selectedPad < 0)
+                    return "";
                 const sample = samplerController.padModel.data(samplerController.padModel.index(samplerController.selectedPad, 0), SamplerPadModel.FilePath);
                 return sample ? sample.split("/").pop() : "";
             }
@@ -162,7 +165,7 @@ Dialog {
                 running: root.visible && waveform.fileName !== ""
                 repeat: true
                 onTriggered: {
-                    samplerController.updatePlaybackStatus()
+                    samplerController.updatePlaybackStatus();
                 }
             }
 
@@ -174,14 +177,14 @@ Dialog {
             }
 
             onWidthChanged: updateWaveform()
-            
+
             Connections {
                 target: samplerController
                 function onSelectedPadChanged() {
                     waveform.updateWaveform();
                 }
             }
-            
+
             Connections {
                 target: samplerController.padModel
                 function onDataChanged() {
@@ -246,28 +249,28 @@ Dialog {
                             ToolTip.visible: isLoaded && containsMouse
                             ToolTip.text: filePath
 
-                            onPressed: (mouse) => {
+                            onPressed: mouse => {
                                 samplerController.selectedPad = index;
                                 if (mouse.button === Qt.LeftButton) {
                                     if (isLoaded) {
-                                        samplerController.playSample(index, 1.0)
+                                        samplerController.playSample(index, 1.0);
                                     } else {
-                                        sampleFileDialog.padToAssign = index
-                                        sampleFileDialog.open()
+                                        sampleFileDialog.padToAssign = index;
+                                        sampleFileDialog.open();
                                     }
                                 }
                             }
 
-                            onReleased: (mouse) => {
+                            onReleased: mouse => {
                                 if (mouse.button === Qt.LeftButton && isLoaded) {
-                                    samplerController.stopSample(index)
+                                    samplerController.stopSample(index);
                                 }
                             }
 
-                            onClicked: (mouse) => {
+                            onClicked: mouse => {
                                 if (mouse.button === Qt.RightButton) {
                                     if (isLoaded) {
-                                        samplerController.clearSample(index)
+                                        samplerController.clearSample(index);
                                     }
                                 }
                             }
@@ -288,8 +291,8 @@ Dialog {
                     from: -100
                     to: 100
                     value: (samplerController.selectedPadPan * 200) - 100
-                    onMoved: (v) => {
-                        samplerController.selectedPadPan = (v + 100) / 200
+                    onMoved: v => {
+                        samplerController.selectedPadPan = (v + 100) / 200;
                     }
                 }
 
@@ -297,8 +300,8 @@ Dialog {
                 Knob {
                     label: qsTr("Volume")
                     value: samplerController.selectedPadVolume * 100
-                    onMoved: (v) => {
-                        samplerController.selectedPadVolume = v / 100
+                    onMoved: v => {
+                        samplerController.selectedPadVolume = v / 100;
                     }
                 }
 
@@ -306,8 +309,8 @@ Dialog {
                 Knob {
                     label: qsTr("LPF Cutoff")
                     value: samplerController.selectedPadCutoff * 100
-                    onMoved: (v) => {
-                        samplerController.selectedPadCutoff = v / 100
+                    onMoved: v => {
+                        samplerController.selectedPadCutoff = v / 100;
                     }
                 }
 
@@ -315,8 +318,8 @@ Dialog {
                 Knob {
                     label: qsTr("HPF Cutoff")
                     value: samplerController.selectedPadHpfCutoff * 100
-                    onMoved: (v) => {
-                        samplerController.selectedPadHpfCutoff = v / 100
+                    onMoved: v => {
+                        samplerController.selectedPadHpfCutoff = v / 100;
                     }
                 }
 
@@ -338,11 +341,14 @@ Dialog {
                             editable: true
                             onValueModified: samplerController.selectedPadStartOffsetSeconds = value
                             Keys.onReturnPressed: {
-                                value = valueFromText(contentItem.text, locale)
-                                samplerController.selectedPadStartOffsetSeconds = value
+                                value = valueFromText(contentItem.text, locale);
+                                samplerController.selectedPadStartOffsetSeconds = value;
                             }
                         }
-                        Label { text: "s"; color: "white" }
+                        Label {
+                            text: "s"
+                            color: "white"
+                        }
                         SpinBox {
                             id: msSpinBox
                             Layout.fillWidth: true
@@ -352,11 +358,14 @@ Dialog {
                             editable: true
                             onValueModified: samplerController.selectedPadStartOffsetMilliseconds = value
                             Keys.onReturnPressed: {
-                                value = valueFromText(contentItem.text, locale)
-                                samplerController.selectedPadStartOffsetMilliseconds = value
+                                value = valueFromText(contentItem.text, locale);
+                                samplerController.selectedPadStartOffsetMilliseconds = value;
                             }
                         }
-                        Label { text: "ms"; color: "white" }
+                        Label {
+                            text: "ms"
+                            color: "white"
+                        }
                     }
                 }
             }
