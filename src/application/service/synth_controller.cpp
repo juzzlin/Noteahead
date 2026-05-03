@@ -36,8 +36,8 @@ int SynthController::vco1Waveform() const { return m_synth ? static_cast<int>(m_
 void SynthController::setVco1Waveform(int wave) { if (m_synth) { m_synth->setVco1Waveform(static_cast<PolyBLEPOscillator::Waveform>(wave)); emit vco1WaveformChanged(); } }
 int SynthController::vco1Octave() const { return m_synth ? m_synth->vco1Octave() : 0; }
 void SynthController::setVco1Octave(int oct) { if (m_synth) { m_synth->setVco1Octave(oct); emit vco1OctaveChanged(); } }
-int SynthController::vco1Pitch() const { return m_synth ? static_cast<int>(m_synth->vco1Pitch()) : 0; }
-void SynthController::setVco1Pitch(int p) { if (m_synth) { m_synth->setVco1Pitch(static_cast<float>(p)); emit vco1PitchChanged(); } }
+int SynthController::vco1Pitch() const { return m_synth ? m_synth->vco1Pitch() : 0; }
+void SynthController::setVco1Pitch(int p) { if (m_synth) { m_synth->setVco1Pitch(p); emit vco1PitchChanged(); } }
 int SynthController::vco1Shape() const { return m_synth ? static_cast<int>(std::round(m_synth->vco1Shape() * 100.0f)) : 0; }
 void SynthController::setVco1Shape(int s) { if (m_synth) { m_synth->setVco1Shape(s / 100.0f); emit vco1ShapeChanged(); } }
 bool SynthController::vco1Sync() const { return m_synth ? m_synth->vco1Sync() : false; }
@@ -48,8 +48,8 @@ int SynthController::vco2Waveform() const { return m_synth ? static_cast<int>(m_
 void SynthController::setVco2Waveform(int wave) { if (m_synth) { m_synth->setVco2Waveform(static_cast<PolyBLEPOscillator::Waveform>(wave)); emit vco2WaveformChanged(); } }
 int SynthController::vco2Octave() const { return m_synth ? m_synth->vco2Octave() : 0; }
 void SynthController::setVco2Octave(int oct) { if (m_synth) { m_synth->setVco2Octave(oct); emit vco2OctaveChanged(); } }
-int SynthController::vco2Pitch() const { return m_synth ? static_cast<int>(m_synth->vco2Pitch()) : 0; }
-void SynthController::setVco2Pitch(int p) { if (m_synth) { m_synth->setVco2Pitch(static_cast<float>(p)); emit vco2PitchChanged(); } }
+int SynthController::vco2Pitch() const { return m_synth ? m_synth->vco2Pitch() : 0; }
+void SynthController::setVco2Pitch(int p) { if (m_synth) { m_synth->setVco2Pitch(p); emit vco2PitchChanged(); } }
 int SynthController::vco2Shape() const { return m_synth ? static_cast<int>(std::round(m_synth->vco2Shape() * 100.0f)) : 0; }
 void SynthController::setVco2Shape(int s) { if (m_synth) { m_synth->setVco2Shape(s / 100.0f); emit vco2ShapeChanged(); } }
 bool SynthController::vco2Sync() const { return m_synth ? m_synth->vco2Sync() : false; }
