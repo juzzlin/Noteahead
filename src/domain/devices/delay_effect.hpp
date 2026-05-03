@@ -45,6 +45,7 @@ public:
     void setDepth(float depth);
     void setMix(float mix);
     void setBpm(float bpm);
+    float bpm() const;
     void setSync(bool sync);
     void setSyncDivision(float division);
 

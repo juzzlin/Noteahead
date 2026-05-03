@@ -769,6 +769,16 @@ QString xmlKeyVoiceMode()
     return "voiceMode";
 }
 
+QString xmlKeyMode()
+{
+    return "mode";
+}
+
+QString xmlKeyRate()
+{
+    return "rate";
+}
+
 QString xmlKeyVoiceDepth()
 {
     return "voiceDepth";

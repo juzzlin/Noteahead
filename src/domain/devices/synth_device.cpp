@@ -34,6 +34,7 @@ void SynthDevice::Voice::reset()
     hpf.reset();
     ampEg.reset();
     modEg.reset();
+    lfo.reset();
 }
 
 void SynthDevice::Voice::trigger(uint8_t n, double freq, float p, bool phaseSync)
@@ -46,6 +47,7 @@ void SynthDevice::Voice::trigger(uint8_t n, double freq, float p, bool phaseSync
 
     lpf.reset();
     hpf.reset();
+    lfo.reset();
 
     if (phaseSync) {
         vco1.sync(0.0);
@@ -94,6 +96,12 @@ SynthDevice::SynthDevice()
     addParameter(Parameter { "mod" + Constants::NahdXml::xmlKeyIntensity().toStdString(), 0.0f, 0, 100, 0 });
     addParameter(Parameter { "mod" + Constants::NahdXml::xmlKeyTarget().toStdString(), 1.0f, 0, 2, 2 }); // Cutoff default
 
+    addParameter(Parameter { "lfo" + Constants::NahdXml::xmlKeyWaveform().toStdString(), 0.5f, 0, 2, 1 }); // Tri default
+    addParameter(Parameter { "lfo" + Constants::NahdXml::xmlKeyMode().toStdString(), 0.0f, 0, 2, 0 }); // Normal default
+    addParameter(Parameter { "lfo" + Constants::NahdXml::xmlKeyRate().toStdString(), 0.5f, 0, 100, 50 });
+    addParameter(Parameter { "lfo" + Constants::NahdXml::xmlKeyIntensity().toStdString(), 0.0f, 0, 100, 0 });
+    addParameter(Parameter { "lfo" + Constants::NahdXml::xmlKeyTarget().toStdString(), 0.0f, 0, 2, 0 }); // Pitch default
+
     addParameter(Parameter { Constants::NahdXml::xmlKeyVoiceMode().toStdString(), 0.0f, 0, 1, 0 });
     addParameter(Parameter { Constants::NahdXml::xmlKeyVoiceDepth().toStdString(), 0.0f, 0, 100, 0 });
     addParameter(Parameter { Constants::NahdXml::xmlKeyPortamento().toStdString(), 0.0f, 0, 100, 0 });
@@ -141,6 +149,7 @@ void SynthDevice::processAudio(float * output, uint32_t nFrames, uint32_t sample
         voice.hpf.setSampleRate(sampleRate);
         voice.ampEg.setSampleRate(sampleRate);
         voice.modEg.setSampleRate(sampleRate);
+        voice.lfo.setSampleRate(sampleRate);
 
         voice.lpf.setResonance(m_lpfResonance);
         voice.vco1.setWaveform(m_vco1Waveform);
@@ -157,17 +166,29 @@ void SynthDevice::processAudio(float * output, uint32_t nFrames, uint32_t sample
 
             const double ampEnv = voice.ampEg.nextSample();
             const double modEnv = voice.modEg.nextSample() * m_modInt;
+            const double lfoVal = voice.lfo.nextSample() * m_lfoInt;
 
-            // Pitch modulation
-            double pitchMod1 = (m_modTarget == ModTarget::Pitch1) ? modEnv : 0.0;
-            double pitchMod2 = (m_modTarget == ModTarget::Pitch2) ? modEnv : 0.0;
+            // Modulation
+            double cutoffMod = (m_modTarget == ModTarget::Cutoff) ? modEnv : 0.0;
+            if (m_lfoTarget == LfoTarget::Cutoff) cutoffMod += lfoVal;
+
+            double shapeMod = (m_lfoTarget == LfoTarget::Shape) ? lfoVal : 0.0;
 
             // VCO Frequencies
-            const double vco1Freq = voice.glideFrequency * std::pow(2.0, (m_vco1Octave * 12.0 + m_vco1Pitch + pitchMod1 * 12.0) / 12.0);
-            const double vco2Freq = voice.glideFrequency * std::pow(2.0, (m_vco2Octave * 12.0 + m_vco2Pitch + pitchMod2 * 12.0) / 12.0);
+            double p1 = (m_modTarget == ModTarget::Pitch1) ? modEnv : 0.0;
+            double p2 = (m_modTarget == ModTarget::Pitch2) ? modEnv : 0.0;
+            if (m_lfoTarget == LfoTarget::Pitch) {
+                p1 += lfoVal;
+                p2 += lfoVal;
+            }
+
+            const double vco1Freq = voice.glideFrequency * std::pow(2.0, (m_vco1Octave * 12.0 + m_vco1Pitch + p1 * 12.0) / 12.0);
+            const double vco2Freq = voice.glideFrequency * std::pow(2.0, (m_vco2Octave * 12.0 + m_vco2Pitch + p2 * 12.0) / 12.0);
 
             voice.vco1.setFrequency(vco1Freq);
             voice.vco2.setFrequency(vco2Freq);
+            voice.vco1.setShape(std::clamp(m_vco1Shape + shapeMod, 0.0, 1.0));
+            voice.vco2.setShape(std::clamp(m_vco2Shape + shapeMod, 0.0, 1.0));
 
             // VCO2 Hard Sync to VCO1
             double oldPhase = voice.vco1.phase();
@@ -181,7 +202,6 @@ void SynthDevice::processAudio(float * output, uint32_t nFrames, uint32_t sample
             mix *= 0.5; // Safety headroom
 
             // Filter
-            double cutoffMod = (m_modTarget == ModTarget::Cutoff) ? modEnv : 0.0;
             cutoffMod += (voice.note - 60.0) / 127.0 * m_filterKeyTrack;
             
             voice.lpf.setCutoff(std::clamp(m_lpfCutoff + cutoffMod, 0.0, 1.0));
@@ -371,6 +391,12 @@ void SynthDevice::syncParameters()
     if (auto p = parameter("mod" + Constants::NahdXml::xmlKeyIntensity().toStdString()); p) m_modInt = p->get().value();
     if (auto p = parameter("mod" + Constants::NahdXml::xmlKeyTarget().toStdString()); p) m_modTarget = static_cast<ModTarget>(p->get().xmlValue());
 
+    if (auto p = parameter("lfo" + Constants::NahdXml::xmlKeyWaveform().toStdString()); p) m_lfoWaveform = static_cast<LFO::Waveform>(p->get().xmlValue());
+    if (auto p = parameter("lfo" + Constants::NahdXml::xmlKeyMode().toStdString()); p) m_lfoMode = static_cast<LFO::Mode>(p->get().xmlValue());
+    if (auto p = parameter("lfo" + Constants::NahdXml::xmlKeyRate().toStdString()); p) m_lfoRate = p->get().value();
+    if (auto p = parameter("lfo" + Constants::NahdXml::xmlKeyIntensity().toStdString()); p) m_lfoInt = p->get().value();
+    if (auto p = parameter("lfo" + Constants::NahdXml::xmlKeyTarget().toStdString()); p) m_lfoTarget = static_cast<LfoTarget>(p->get().xmlValue());
+
     if (auto p = parameter(Constants::NahdXml::xmlKeyVoiceMode().toStdString()); p) m_voiceMode = static_cast<VoiceMode>(p->get().xmlValue());
     if (auto p = parameter(Constants::NahdXml::xmlKeyVoiceDepth().toStdString()); p) m_voiceDepth = p->get().value();
     if (auto p = parameter(Constants::NahdXml::xmlKeyPortamento().toStdString()); p) m_portamento = p->get().value();
@@ -398,6 +424,19 @@ void SynthDevice::syncParameters()
         voice.vco2.setWaveform(m_vco2Waveform);
         voice.vco1.setShape(m_vco1Shape);
         voice.vco2.setShape(m_vco2Shape);
+        
+        voice.lfo.setWaveform(m_lfoWaveform);
+        voice.lfo.setMode(m_lfoMode);
+        
+        float freq = 0.0f;
+        if (m_lfoMode == LFO::Mode::BPM) {
+            // Map 0..1 rate to BPM divisions (approx)
+            freq = (m_delay.bpm() / 60.0f) * (m_lfoRate * 4.0f + 0.25f);
+        } else {
+            freq = std::pow(20.0f, m_lfoRate) - 0.95f; // 0.05 to 20Hz
+        }
+        voice.lfo.setFrequency(freq);
+
         voice.ampEg.setAttackTime(m_ampAttack);
         voice.ampEg.setDecayTime(m_ampDecay);
         voice.ampEg.setSustainLevel(m_ampSustain);
@@ -449,7 +488,7 @@ void SynthDevice::loadPreset(int index)
             if (name.find("waveform") != std::string::npos || name.find("octave") != std::string::npos || 
                 name.find("sync") != std::string::npos || name.find("target") != std::string::npos ||
                 name.find("Mode") != std::string::npos || name.find("pitch") != std::string::npos ||
-                name.find("delayType") != std::string::npos) {
+                name.find("delayType") != std::string::npos || name.find("mode") != std::string::npos) {
                 p->get().setFromXml(static_cast<int>(val));
             } else {
                 p->get().setValue(val);
@@ -527,6 +566,18 @@ float SynthDevice::modInt() const { return m_modInt; }
 void SynthDevice::setModInt(float intensity) { if (auto p = parameter("mod" + Constants::NahdXml::xmlKeyIntensity().toStdString()); p) { p->get().setValue(intensity); syncParameters(); emit dataChanged(); } }
 SynthDevice::ModTarget SynthDevice::modTarget() const { return m_modTarget; }
 void SynthDevice::setModTarget(ModTarget target) { if (auto p = parameter("mod" + Constants::NahdXml::xmlKeyTarget().toStdString()); p) { p->get().setFromXml(static_cast<int>(target)); syncParameters(); emit dataChanged(); } }
+
+// LFO
+LFO::Waveform SynthDevice::lfoWaveform() const { return m_lfoWaveform; }
+void SynthDevice::setLfoWaveform(LFO::Waveform wave) { if (auto p = parameter("lfo" + Constants::NahdXml::xmlKeyWaveform().toStdString()); p) { p->get().setFromXml(static_cast<int>(wave)); syncParameters(); emit dataChanged(); } }
+LFO::Mode SynthDevice::lfoMode() const { return m_lfoMode; }
+void SynthDevice::setLfoMode(LFO::Mode mode) { if (auto p = parameter("lfo" + Constants::NahdXml::xmlKeyMode().toStdString()); p) { p->get().setFromXml(static_cast<int>(mode)); syncParameters(); emit dataChanged(); } }
+float SynthDevice::lfoRate() const { return m_lfoRate; }
+void SynthDevice::setLfoRate(float rate) { if (auto p = parameter("lfo" + Constants::NahdXml::xmlKeyRate().toStdString()); p) { p->get().setValue(rate); syncParameters(); emit dataChanged(); } }
+float SynthDevice::lfoInt() const { return m_lfoInt; }
+void SynthDevice::setLfoInt(float intensity) { if (auto p = parameter("lfo" + Constants::NahdXml::xmlKeyIntensity().toStdString()); p) { p->get().setValue(intensity); syncParameters(); emit dataChanged(); } }
+SynthDevice::LfoTarget SynthDevice::lfoTarget() const { return m_lfoTarget; }
+void SynthDevice::setLfoTarget(LfoTarget target) { if (auto p = parameter("lfo" + Constants::NahdXml::xmlKeyTarget().toStdString()); p) { p->get().setFromXml(static_cast<int>(target)); syncParameters(); emit dataChanged(); } }
 
 // Voice / Global
 SynthDevice::VoiceMode SynthDevice::voiceMode() const { return m_voiceMode; }

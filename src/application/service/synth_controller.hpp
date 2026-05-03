@@ -63,6 +63,13 @@ class SynthController : public QObject
     Q_PROPERTY(int modInt READ modInt WRITE setModInt NOTIFY modIntChanged)
     Q_PROPERTY(int modTarget READ modTarget WRITE setModTarget NOTIFY modTargetChanged)
 
+    // LFO
+    Q_PROPERTY(int lfoWaveform READ lfoWaveform WRITE setLfoWaveform NOTIFY lfoWaveformChanged)
+    Q_PROPERTY(int lfoMode READ lfoMode WRITE setLfoMode NOTIFY lfoModeChanged)
+    Q_PROPERTY(int lfoRate READ lfoRate WRITE setLfoRate NOTIFY lfoRateChanged)
+    Q_PROPERTY(int lfoInt READ lfoInt WRITE setLfoInt NOTIFY lfoIntChanged)
+    Q_PROPERTY(int lfoTarget READ lfoTarget WRITE setLfoTarget NOTIFY lfoTargetChanged)
+
     // Global
     Q_PROPERTY(int voiceMode READ voiceMode WRITE setVoiceMode NOTIFY voiceModeChanged)
     Q_PROPERTY(int voiceDepth READ voiceDepth WRITE setVoiceDepth NOTIFY voiceDepthChanged)
@@ -117,6 +124,12 @@ public:
     int modInt() const; void setModInt(int i);
     int modTarget() const; void setModTarget(int t);
 
+    int lfoWaveform() const; void setLfoWaveform(int wave);
+    int lfoMode() const; void setLfoMode(int mode);
+    int lfoRate() const; void setLfoRate(int rate);
+    int lfoInt() const; void setLfoInt(int intensity);
+    int lfoTarget() const; void setLfoTarget(int target);
+
     int voiceMode() const; void setVoiceMode(int m);
     int voiceDepth() const; void setVoiceDepth(int d);
     int portamento() const; void setPortamento(int p);
@@ -150,6 +163,7 @@ signals:
     void lpfCutoffChanged(); void lpfResonanceChanged(); void hpfCutoffChanged(); void filterKeyTrackChanged();
     void ampAttackChanged(); void ampDecayChanged(); void ampSustainChanged(); void ampReleaseChanged();
     void modAttackChanged(); void modDecayChanged(); void modIntChanged(); void modTargetChanged();
+    void lfoWaveformChanged(); void lfoModeChanged(); void lfoRateChanged(); void lfoIntChanged(); void lfoTargetChanged();
     void voiceModeChanged(); void voiceDepthChanged(); void portamentoChanged(); void panSpreadChanged(); void masterVolumeChanged();
     void delayTypeChanged(); void delayTimeChanged(); void delayFeedbackChanged(); void delayDepthChanged(); void delayMixChanged(); void delaySyncChanged(); void delaySyncDivisionChanged();
 
