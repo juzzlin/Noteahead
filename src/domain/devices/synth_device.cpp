@@ -194,9 +194,9 @@ void SynthDevice::processAudio(float * output, uint32_t nFrames, uint32_t sample
                 p2 += lfoVal;
             }
 
-            // Note: Pitch parameters are 0..1 mapped to -2400..2400 cents
-            const double vco1PitchOffset = (m_vco1Pitch - 0.5) * 4800.0;
-            const double vco2PitchOffset = (m_vco2Pitch - 0.5) * 4800.0;
+            // Note: Pitch parameters are in cents (-2400..2400)
+            const double vco1PitchOffset = m_vco1Pitch;
+            const double vco2PitchOffset = m_vco2Pitch;
 
             const double vco1Freq { voice.glideFrequency * std::pow(2.0, (m_vco1Octave * 12.0 + vco1PitchOffset / 100.0 + p1 * 12.0) / 12.0) };
             const double vco2Freq { voice.glideFrequency * std::pow(2.0, (m_vco2Octave * 12.0 + vco2PitchOffset / 100.0 + p2 * 12.0) / 12.0) };
@@ -422,13 +422,13 @@ void SynthDevice::syncParameters()
 {
     if (auto p = parameter("vco1" + Constants::NahdXml::xmlKeyWaveform().toStdString()); p) m_vco1Waveform = static_cast<PolyBLEPOscillator::Waveform>(p->get().xmlValue());
     if (auto p = parameter("vco1" + Constants::NahdXml::xmlKeyOctave().toStdString()); p) m_vco1Octave = p->get().xmlValue();
-    if (auto p = parameter("vco1" + Constants::NahdXml::xmlKeyPitch().toStdString()); p) m_vco1Pitch = p->get().value();
+    if (auto p = parameter("vco1" + Constants::NahdXml::xmlKeyPitch().toStdString()); p) m_vco1Pitch = p->get().xmlValue();
     if (auto p = parameter("vco1" + Constants::NahdXml::xmlKeyShape().toStdString()); p) m_vco1Shape = p->get().value();
     if (auto p = parameter("vco1" + Constants::NahdXml::xmlKeySync().toStdString()); p) m_vco1Sync = p->get().xmlValue() > 0;
 
     if (auto p = parameter("vco2" + Constants::NahdXml::xmlKeyWaveform().toStdString()); p) m_vco2Waveform = static_cast<PolyBLEPOscillator::Waveform>(p->get().xmlValue());
     if (auto p = parameter("vco2" + Constants::NahdXml::xmlKeyOctave().toStdString()); p) m_vco2Octave = p->get().xmlValue();
-    if (auto p = parameter("vco2" + Constants::NahdXml::xmlKeyPitch().toStdString()); p) m_vco2Pitch = p->get().value();
+    if (auto p = parameter("vco2" + Constants::NahdXml::xmlKeyPitch().toStdString()); p) m_vco2Pitch = p->get().xmlValue();
     if (auto p = parameter("vco2" + Constants::NahdXml::xmlKeyShape().toStdString()); p) m_vco2Shape = p->get().value();
     if (auto p = parameter("vco2" + Constants::NahdXml::xmlKeySync().toStdString()); p) m_vco2Sync = p->get().xmlValue() > 0;
 
@@ -576,8 +576,8 @@ PolyBLEPOscillator::Waveform SynthDevice::vco1Waveform() const { return m_vco1Wa
 void SynthDevice::setVco1Waveform(PolyBLEPOscillator::Waveform wave) { if (auto p = parameter("vco1" + Constants::NahdXml::xmlKeyWaveform().toStdString()); p) { p->get().setFromXml(static_cast<int>(wave)); syncParameters(); emit dataChanged(); } }
 int SynthDevice::vco1Octave() const { return m_vco1Octave; }
 void SynthDevice::setVco1Octave(int octave) { if (auto p = parameter("vco1" + Constants::NahdXml::xmlKeyOctave().toStdString()); p) { p->get().setFromXml(octave); syncParameters(); emit dataChanged(); } }
-float SynthDevice::vco1Pitch() const { return m_vco1Pitch; }
-void SynthDevice::setVco1Pitch(float pitch) { if (auto p = parameter("vco1" + Constants::NahdXml::xmlKeyPitch().toStdString()); p) { p->get().setFromXml(static_cast<int>(pitch)); syncParameters(); emit dataChanged(); } }
+int SynthDevice::vco1Pitch() const { return m_vco1Pitch; }
+void SynthDevice::setVco1Pitch(int pitch) { if (auto p = parameter("vco1" + Constants::NahdXml::xmlKeyPitch().toStdString()); p) { p->get().setFromXml(pitch); syncParameters(); emit dataChanged(); } }
 float SynthDevice::vco1Shape() const { return m_vco1Shape; }
 void SynthDevice::setVco1Shape(float shape) { if (auto p = parameter("vco1" + Constants::NahdXml::xmlKeyShape().toStdString()); p) { p->get().setValue(shape); syncParameters(); emit dataChanged(); } }
 bool SynthDevice::vco1Sync() const { return m_vco1Sync; }
@@ -588,8 +588,8 @@ PolyBLEPOscillator::Waveform SynthDevice::vco2Waveform() const { return m_vco2Wa
 void SynthDevice::setVco2Waveform(PolyBLEPOscillator::Waveform wave) { if (auto p = parameter("vco2" + Constants::NahdXml::xmlKeyWaveform().toStdString()); p) { p->get().setFromXml(static_cast<int>(wave)); syncParameters(); emit dataChanged(); } }
 int SynthDevice::vco2Octave() const { return m_vco2Octave; }
 void SynthDevice::setVco2Octave(int octave) { if (auto p = parameter("vco2" + Constants::NahdXml::xmlKeyOctave().toStdString()); p) { p->get().setFromXml(octave); syncParameters(); emit dataChanged(); } }
-float SynthDevice::vco2Pitch() const { return m_vco2Pitch; }
-void SynthDevice::setVco2Pitch(float pitch) { if (auto p = parameter("vco2" + Constants::NahdXml::xmlKeyPitch().toStdString()); p) { p->get().setFromXml(static_cast<int>(pitch)); syncParameters(); emit dataChanged(); } }
+int SynthDevice::vco2Pitch() const { return m_vco2Pitch; }
+void SynthDevice::setVco2Pitch(int pitch) { if (auto p = parameter("vco2" + Constants::NahdXml::xmlKeyPitch().toStdString()); p) { p->get().setFromXml(pitch); syncParameters(); emit dataChanged(); } }
 float SynthDevice::vco2Shape() const { return m_vco2Shape; }
 void SynthDevice::setVco2Shape(float shape) { if (auto p = parameter("vco2" + Constants::NahdXml::xmlKeyShape().toStdString()); p) { p->get().setValue(shape); syncParameters(); emit dataChanged(); } }
 bool SynthDevice::vco2Sync() const { return m_vco2Sync; }
