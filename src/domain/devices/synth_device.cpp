@@ -65,6 +65,8 @@ void SynthDevice::Voice::release()
 
 SynthDevice::SynthDevice()
 {
+    m_voices.resize(MaxVoices);
+
     // Initialize Parameters
     addParameter(Parameter { "vco1" + Constants::NahdXml::xmlKeyWaveform().toStdString(), 0.5f, 0, 2, 1 });
     addParameter(Parameter { "vco1" + Constants::NahdXml::xmlKeyOctave().toStdString(), 0.333f, -1, 2, 0 });
@@ -223,7 +225,7 @@ void SynthDevice::processAudio(float * output, uint32_t nFrames, uint32_t sample
             voice.hpf.setCutoff(m_hpfCutoff);
 
             const float filtered { voice.hpf.process(voice.lpf.process(static_cast<float>(mixHeadroom))) };
-            const float finalSample { filtered * static_cast<float>(ampEnv) * m_masterVolume * 0.25f };
+            const float finalSample { filtered * static_cast<float>(ampEnv) * m_masterVolume * (1.0f / static_cast<float>(MaxVoices)) };
 
             localBuffer[i * 2] += finalSample * (1.0f - voice.pan);
             localBuffer[i * 2 + 1] += finalSample * voice.pan;
@@ -333,14 +335,13 @@ void SynthDevice::handleNoteOn(uint8_t note, uint8_t velocity)
     }
 
     double freq = midiNoteToFreq(note);
-    float spread = m_panSpread * 0.5f;
 
     if (m_voiceMode == VoiceMode::Poly) {
         int bestVoice = -1;
 
         // 1. Try to find a voice already playing or releasing this note (Affinity)
-        for (int i = 0; i < 4; i++) {
-            if (m_voices[i].active && m_voices[i].note == note) {
+        for (int i = 0; i < MaxVoices; i++) {
+            if (m_voices.at(i).active && m_voices.at(i).note == note) {
                 bestVoice = i;
                 break;
             }
@@ -348,11 +349,11 @@ void SynthDevice::handleNoteOn(uint8_t note, uint8_t velocity)
 
         // 2. Try to find an idle voice (Round-Robin)
         if (bestVoice == -1) {
-            for (int i = 0; i < 4; i++) {
-                int idx = (m_polyNextVoice + i) % 4;
-                if (!m_voices[idx].active) {
+            for (int i = 0; i < MaxVoices; i++) {
+                int idx = (m_polyNextVoice + i) % MaxVoices;
+                if (!m_voices.at(idx).active) {
                     bestVoice = idx;
-                    m_polyNextVoice = (idx + 1) % 4;
+                    m_polyNextVoice = (idx + 1) % MaxVoices;
                     break;
                 }
             }
@@ -361,33 +362,44 @@ void SynthDevice::handleNoteOn(uint8_t note, uint8_t velocity)
         // 3. Steal the quietest voice (Round-Robin search for stealing candidate)
         if (bestVoice == -1) {
             float lowestAmp = 2.0f;
-            for (int i = 0; i < 4; i++) {
-                int idx = (m_polyNextVoice + i) % 4;
-                float currentAmp = static_cast<float>(m_voices[idx].ampEg.value());
+            for (int i = 0; i < MaxVoices; i++) {
+                int idx = (m_polyNextVoice + i) % MaxVoices;
+                float currentAmp = static_cast<float>(m_voices.at(idx).ampEg.value());
                 if (currentAmp < lowestAmp) {
                     lowestAmp = currentAmp;
                     bestVoice = idx;
                 }
             }
             if (bestVoice != -1) {
-                m_polyNextVoice = (bestVoice + 1) % 4;
+                m_polyNextVoice = (bestVoice + 1) % MaxVoices;
             }
         }
 
         if (bestVoice != -1) {
             // Reset glide if voice was idle or if portamento is off
-            if (!m_voices[bestVoice].active || m_portamento == 0.0f) {
-                m_voices[bestVoice].glideFrequency = freq;
+            if (!m_voices.at(bestVoice).active || m_portamento == 0.0f) {
+                m_voices.at(bestVoice).glideFrequency = freq;
             }
-            m_voices[bestVoice].trigger(note, freq, 0.5f + (bestVoice % 2 == 0 ? spread : -spread), m_vco1Sync);
+
+            // Balanced Pan Spread (Voice-alternating distribution inspired by Behringer DeepMind)
+            const float side = (bestVoice % 2 == 0) ? -1.0f : 1.0f;
+            const float depth = 1.0f - static_cast<float>(bestVoice / 2) * (2.0f / static_cast<float>(MaxVoices));
+            const float pan = 0.5f + (side * depth * m_panSpread * 0.5f);
+
+            m_voices.at(bestVoice).trigger(note, freq, pan, m_vco1Sync);
         }
     } else {
         // Unison
-        for (int i = 0; i < 4; i++) {
-            m_voices[i].glideFrequency = 0.0;
+        for (int i = 0; i < MaxVoices; i++) {
+            m_voices.at(i).glideFrequency = 0.0;
             // Non-linear detune spread for better texture
-            double detuneAmount = (i - 1.5) * std::pow(m_voiceDepth, 1.5) * 0.2; 
-            m_voices[i].trigger(note, freq * std::pow(2.0, detuneAmount / 12.0), 0.5f + (i < 2 ? -spread : spread), m_vco1Sync);
+            const double detuneAmount = (i - (MaxVoices - 1) / 2.0) * std::pow(m_voiceDepth, 1.5) * 0.2; 
+
+            const float side = (i % 2 == 0) ? -1.0f : 1.0f;
+            const float depth = 1.0f - static_cast<float>(i / 2) * (2.0f / static_cast<float>(MaxVoices));
+            const float pan = 0.5f + (side * depth * m_panSpread * 0.5f);
+
+            m_voices.at(i).trigger(note, freq * std::pow(2.0, detuneAmount / 12.0), pan, m_vco1Sync);
         }
     }
 }

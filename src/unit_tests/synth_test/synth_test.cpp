@@ -183,11 +183,10 @@ void SynthTest::test_voiceStealing_shouldStealQuietestVoice()
 {
     SynthDevice synth;
     
-    // Trigger 4 notes to fill all voices
-    synth.processMidiNoteOn(60, 100);
-    synth.processMidiNoteOn(62, 100);
-    synth.processMidiNoteOn(64, 100);
-    synth.processMidiNoteOn(65, 100);
+    // Trigger 6 notes to fill all voices
+    for (int i = 0; i < SynthDevice::MaxVoices; ++i) {
+        synth.processMidiNoteOn(60 + i, 100);
+    }
     
     // Process audio so they all start playing
     float output[256];
@@ -199,9 +198,9 @@ void SynthTest::test_voiceStealing_shouldStealQuietestVoice()
     // Process a bit more to let it decay
     synth.processAudio(output, 128, 44100);
     
-    // Trigger a 5th note (67)
+    // Trigger a new note
     // It should steal Note 60 because it's the quietest (releasing)
-    synth.processMidiNoteOn(67, 100);
+    synth.processMidiNoteOn(80, 100);
     
     // We verify sound is still coming out (basic stability check)
     synth.processAudio(output, 128, 44100);
