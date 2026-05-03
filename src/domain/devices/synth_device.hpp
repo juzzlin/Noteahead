@@ -76,6 +76,8 @@ public:
 
     void reset() override;
 
+    double voiceGlideFrequency(int index) const;
+
     void serializeToXml(QXmlStreamWriter & writer) const override;
     void deserializeFromXml(QXmlStreamReader & reader) override;
 
