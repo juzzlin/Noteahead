@@ -37,6 +37,8 @@ namespace noteahead {
 class SynthDevice : public Device
 {
 public:
+    static constexpr int MaxVoices = 6;
+
     enum class VoiceMode
     {
         Poly,
@@ -212,7 +214,7 @@ private:
         void release();
     };
 
-    std::array<Voice, 4> m_voices;
+    std::vector<Voice> m_voices;
     mutable std::mutex m_mutex;
     int m_polyNextVoice = 0;
 
