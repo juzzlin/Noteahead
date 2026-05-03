@@ -252,6 +252,10 @@ void SynthTest::test_serialization_shouldPreserveValues()
     synth1.setMixVco2(0.75f);
     synth1.setLpfCutoff(0.3f);
     synth1.setAmpAttack(0.2f);
+    synth1.setMultiType(MultiEngine::Type::Decim);
+    synth1.setMultiShape(0.42f);
+    synth1.setMultiLevel(0.88f);
+    synth1.setMultiKeyTrack(0.5f);
 
     QByteArray data;
     QBuffer buffer(&data);
@@ -275,6 +279,10 @@ void SynthTest::test_serialization_shouldPreserveValues()
     QCOMPARE(synth2.mixVco2(), 0.75f);
     QCOMPARE(synth2.lpfCutoff(), 0.3f);
     QCOMPARE(synth2.ampAttack(), 0.2f);
+    QCOMPARE(synth2.multiType(), MultiEngine::Type::Decim);
+    QCOMPARE(synth2.multiShape(), 0.42f);
+    QCOMPARE(synth2.multiLevel(), 0.88f);
+    QCOMPARE(synth2.multiKeyTrack(), 0.5f);
 }
 
 void SynthTest::test_portamento_shouldGlideFrequency()
