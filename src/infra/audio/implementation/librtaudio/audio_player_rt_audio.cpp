@@ -26,14 +26,14 @@ namespace noteahead {
 static const auto TAG = "AudioPlayerRtAudio";
 
 int AudioPlayerRtAudio::playCallback(void * outputBuffer, void *,
-                                     uint32_t nFrames,
+                                     uint32_t frameCount,
                                      double, RtAudioStreamStatus status,
                                      void * userData)
 {
     const auto self = static_cast<AudioPlayerRtAudio *>(userData);
 
     if (status) {
-        std::cerr << "Stream under/overflow detected!" << std::endl;
+        juzzlin::L(TAG).error() << "Stream under/overflow detected!";
     }
 
     if (!outputBuffer) {
@@ -41,28 +41,26 @@ int AudioPlayerRtAudio::playCallback(void * outputBuffer, void *,
     }
 
     const auto out = static_cast<int32_t *>(outputBuffer);
-    const int channels = self->m_streamer.channels() > 0 ? self->m_streamer.channels() : 2; // Default to 2 if no file
-    const size_t totalSamples = nFrames * channels;
+    const size_t channels = self->m_streamer.channels() > 0 ? static_cast<size_t>(self->m_streamer.channels()) : 2; // Default to 2 if no file
+    const size_t totalSamples = frameCount * channels;
 
-    const size_t read = self->m_streamer.pop(out, totalSamples);
-    if (read < totalSamples) {
+    if (const size_t read = self->m_streamer.pop(out, totalSamples); read < totalSamples) {
         // Zero out the rest of the buffer
         std::fill_n(out + read, totalSamples - read, 0);
     }
 
     if (self->m_audioEngine) {
-        std::vector<float> interleaved(nFrames * 2, 0.0f);
-        self->m_audioEngine->process(interleaved.data(), nFrames, self->m_rtAudio.getStreamSampleRate());
-
-        for (uint32_t i = 0; i < nFrames; ++i) {
+        std::vector<float> interleaved(frameCount * 2, 0.0f);
+        self->m_audioEngine->process(interleaved.data(), frameCount, self->m_rtAudio.getStreamSampleRate());
+        for (uint32_t frame = 0; frame < frameCount; frame++) {
             // Mix with existing buffer (converted to float)
             // assuming int32_t full scale
-            for (int ch = 0; ch < channels; ++ch) {
-                const int outIdx = i * channels + ch;
-                float currentVal = static_cast<float>(out[outIdx]) / 2147483647.0f;
+            for (size_t channel = 0; channel < channels; channel++) {
+                const auto outIndex = frame * channels + channel;
+                const auto maxVal = 2'147'483'647.0f;
                 // Mix in engine data (interleaved is always 2 channels)
-                currentVal += interleaved[i * 2 + (ch % 2)];
-                out[outIdx] = static_cast<int32_t>(std::clamp(currentVal, -1.0f, 1.0f) * 2147483647.0f);
+                const auto currentVal = static_cast<float>(out[outIndex]) / maxVal + interleaved[frame * 2 + (channel % 2)];
+                out[outIndex] = static_cast<int32_t>(std::clamp(currentVal, -1.0f, 1.0f) * maxVal);
             }
         }
     }
@@ -88,10 +86,10 @@ std::vector<AudioDevice> AudioPlayerRtAudio::getOutputDevices()
 {
     std::vector<AudioDevice> devices;
     const unsigned int deviceCount = m_rtAudio.getDeviceCount();
-    for (unsigned int i = 0; i < deviceCount; ++i) {
-        const auto info = m_rtAudio.getDeviceInfo(i);
+    for (unsigned int deviceIndex = 0; deviceIndex < deviceCount; deviceIndex++) {
+        const auto info = m_rtAudio.getDeviceInfo(deviceIndex);
         if (info.outputChannels > 0) {
-            devices.push_back({ i, info.name });
+            devices.push_back({ deviceIndex, info.name });
         }
     }
     return devices;
@@ -146,8 +144,8 @@ void AudioPlayerRtAudio::start(const std::string & fileName, uint32_t bufferSize
 
         if (!fileName.empty()) {
             m_streamer.start(fileName, 0); // Temporary size, will resize below
-            sampleRate = m_streamer.sampleRate();
-            channelCount = m_streamer.channels();
+            sampleRate = static_cast<uint32_t>(m_streamer.sampleRate());
+            channelCount = static_cast<uint32_t>(m_streamer.channels());
         }
 
         uint32_t deviceId = 0;

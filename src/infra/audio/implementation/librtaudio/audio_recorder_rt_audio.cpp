@@ -34,7 +34,7 @@ int AudioRecorderRtAudio::recordCallback(void *, void * inputBuffer,
     const auto self = static_cast<AudioRecorderRtAudio *>(userData);
 
     if (status) {
-        std::cerr << "Stream under/overflow detected!" << std::endl;
+        juzzlin::L(TAG).error() << "Stream under/overflow detected!";
     }
 
     if (!inputBuffer) {
