@@ -44,6 +44,7 @@ set(SRC
     ../../domain/dsp/adsr_envelope.cpp
     ../../domain/dsp/cascaded_svf.cpp
     ../../domain/dsp/lfo.cpp
+    ../../domain/dsp/multi_engine.cpp
     ../../domain/dsp/polyblep_oscillator.cpp
     ../../domain/devices/volume_effect.cpp
     ../../domain/event.cpp

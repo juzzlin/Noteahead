@@ -55,6 +55,7 @@ set(SRC
     ../../domain/dsp/adsr_envelope.cpp
     ../../domain/dsp/cascaded_svf.cpp
     ../../domain/dsp/lfo.cpp
+    ../../domain/dsp/multi_engine.cpp
     ../../domain/dsp/polyblep_oscillator.cpp
     ../../domain/event.cpp
     ../../domain/event_data.cpp

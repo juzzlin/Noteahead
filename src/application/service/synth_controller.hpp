@@ -41,6 +41,12 @@ class SynthController : public QObject
     Q_PROPERTY(int vco2Shape READ vco2Shape WRITE setVco2Shape NOTIFY vco2ShapeChanged)
     Q_PROPERTY(bool vco2Sync READ vco2Sync WRITE setVco2Sync NOTIFY vco2SyncChanged)
 
+    // Multi Engine
+    Q_PROPERTY(int multiType READ multiType WRITE setMultiType NOTIFY multiTypeChanged)
+    Q_PROPERTY(int multiShape READ multiShape WRITE setMultiShape NOTIFY multiShapeChanged)
+    Q_PROPERTY(int multiLevel READ multiLevel WRITE setMultiLevel NOTIFY multiLevelChanged)
+    Q_PROPERTY(int multiKeyTrack READ multiKeyTrack WRITE setMultiKeyTrack NOTIFY multiKeyTrackChanged)
+
     // Mixer
     Q_PROPERTY(int mixVco1 READ mixVco1 WRITE setMixVco1 NOTIFY mixVco1Changed)
     Q_PROPERTY(int mixVco2 READ mixVco2 WRITE setMixVco2 NOTIFY mixVco2Changed)
@@ -106,6 +112,11 @@ public:
     int vco2Shape() const; void setVco2Shape(int s);
     bool vco2Sync() const; void setVco2Sync(bool s);
 
+    int multiType() const; void setMultiType(int type);
+    int multiShape() const; void setMultiShape(int s);
+    int multiLevel() const; void setMultiLevel(int lvl);
+    int multiKeyTrack() const; void setMultiKeyTrack(int t);
+
     int mixVco1() const; void setMixVco1(int lvl);
     int mixVco2() const; void setMixVco2(int lvl);
 
@@ -159,6 +170,7 @@ public:
 signals:
     void vco1WaveformChanged(); void vco1OctaveChanged(); void vco1PitchChanged(); void vco1ShapeChanged(); void vco1SyncChanged();
     void vco2WaveformChanged(); void vco2OctaveChanged(); void vco2PitchChanged(); void vco2ShapeChanged(); void vco2SyncChanged();
+    void multiTypeChanged(); void multiShapeChanged(); void multiLevelChanged(); void multiKeyTrackChanged();
     void mixVco1Changed(); void mixVco2Changed();
     void lpfCutoffChanged(); void lpfResonanceChanged(); void hpfCutoffChanged(); void filterKeyTrackChanged();
     void ampAttackChanged(); void ampDecayChanged(); void ampSustainChanged(); void ampReleaseChanged();

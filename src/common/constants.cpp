@@ -764,6 +764,16 @@ QString xmlKeyOctave()
     return "octave";
 }
 
+QString xmlKeyMultiType()
+{
+    return "multiType";
+}
+
+QString xmlKeyMultiKeyTrack()
+{
+    return "multiKeyTrack";
+}
+
 QString xmlKeyVoiceMode()
 {
     return "voiceMode";

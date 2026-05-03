@@ -55,6 +55,16 @@ void SynthController::setVco2Shape(int s) { if (m_synth) { m_synth->setVco2Shape
 bool SynthController::vco2Sync() const { return m_synth ? m_synth->vco2Sync() : false; }
 void SynthController::setVco2Sync(bool s) { if (m_synth) { m_synth->setVco2Sync(s); emit vco2SyncChanged(); } }
 
+// Multi Engine
+int SynthController::multiType() const { return m_synth ? static_cast<int>(m_synth->multiType()) : 0; }
+void SynthController::setMultiType(int type) { if (m_synth) { m_synth->setMultiType(static_cast<MultiEngine::Type>(type)); emit multiTypeChanged(); } }
+int SynthController::multiShape() const { return m_synth ? static_cast<int>(std::round(m_synth->multiShape() * 100.0f)) : 0; }
+void SynthController::setMultiShape(int s) { if (m_synth) { m_synth->setMultiShape(s / 100.0f); emit multiShapeChanged(); } }
+int SynthController::multiLevel() const { return m_synth ? static_cast<int>(std::round(m_synth->multiLevel() * 100.0f)) : 0; }
+void SynthController::setMultiLevel(int lvl) { if (m_synth) { m_synth->setMultiLevel(lvl / 100.0f); emit multiLevelChanged(); } }
+int SynthController::multiKeyTrack() const { return m_synth ? static_cast<int>(std::round(m_synth->multiKeyTrack() * 100.0f)) : 0; }
+void SynthController::setMultiKeyTrack(int t) { if (m_synth) { m_synth->setMultiKeyTrack(t / 100.0f); emit multiKeyTrackChanged(); } }
+
 // Mixer
 int SynthController::mixVco1() const { return m_synth ? static_cast<int>(std::round(m_synth->mixVco1() * 100.0f)) : 0; }
 void SynthController::setMixVco1(int lvl) { if (m_synth) { m_synth->setMixVco1(lvl / 100.0f); emit mixVco1Changed(); } }
@@ -148,6 +158,7 @@ void SynthController::reset() { if (m_synth) m_synth->reset(); requestSettings()
 void SynthController::requestSettings() {
     emit vco1WaveformChanged(); emit vco1OctaveChanged(); emit vco1PitchChanged(); emit vco1ShapeChanged(); emit vco1SyncChanged();
     emit vco2WaveformChanged(); emit vco2OctaveChanged(); emit vco2PitchChanged(); emit vco2ShapeChanged(); emit vco2SyncChanged();
+    emit multiTypeChanged(); emit multiShapeChanged(); emit multiLevelChanged(); emit multiKeyTrackChanged();
     emit mixVco1Changed(); emit mixVco2Changed();
     emit lpfCutoffChanged(); emit lpfResonanceChanged(); emit hpfCutoffChanged(); emit filterKeyTrackChanged();
     emit ampAttackChanged(); emit ampDecayChanged(); emit ampSustainChanged(); emit ampReleaseChanged();
