@@ -28,17 +28,17 @@ constexpr double SilenceLevel = 1.0e-4;
 constexpr double ReverseFadeInSeconds = 0.01;
 constexpr std::array<double, 5> SweptKnobs { 0.0, 0.2, 0.5, 0.8, 1.0 };
 
-// The RD-8's closed hat with its Tone at noon, fitted on third octaves in 2-150 ms windows within
-// 2.7 dB. Its squares come with some noise, through a band and two high passes.
+// The RD-8's closed hat with its Tone at noon, fitted against RD-8 within 1.7 dB.
+// Its squares come with band-passed noise, through a band and two high passes.
 namespace ClosedHat {
-constexpr double BandHz = 1083.43;
-constexpr double BandQ = 6.70053;
-constexpr double HighPassHz = 6877.58;
-constexpr double NoiseLevel = 0.318049;
-constexpr double NoiseHz = 6742.14;
-constexpr double NoiseQ = 0.459173;
+constexpr double BandHz = 786.89;
+constexpr double BandQ = 12.0;
+constexpr double HighPassHz = 7819.51;
+constexpr double NoiseLevel = 0.3343;
+constexpr double NoiseHz = 6776.81;
+constexpr double NoiseQ = 1.9115;
 constexpr double Seconds = 0.0183787;
-constexpr double Gain = 133.646;
+constexpr double Gain = 581.915;
 //! Tone on the RD-8's hats is a shelf under 6 to 12 kHz: a few dB up below noon, down by up to
 //! 15 dB above it, which leaves what is over the corner standing out. Fitted on a sweep within 2.5
 //! to 3.4 dB.
@@ -47,7 +47,7 @@ constexpr Drum808::KnobCurve ToneDb { SweptKnobs, { 3.10, 2.72, 0.0, -7.51, -15.
 constexpr Drum808::KnobCurve ToneQ { SweptKnobs, { 2.999, 2.994, 2.0, 1.086, 1.144 } };
 } // namespace ClosedHat
 
-// The open hat with both knobs at noon, fitted against RD-8 V3 recordings: a broader band with
+// The open hat with both knobs at noon, fitted against RD-8 recordings: a broader band with
 // subtle filtered noise so it breathes instead of ringing metallically, held and then closed.
 namespace OpenHat {
 constexpr double BandHz = 6530.19;
@@ -70,21 +70,21 @@ constexpr Drum808::KnobCurve DecaySeconds { SweptKnobs, { 0.1115, 0.1562, 1.0, 0
 constexpr Drum808::KnobCurve DecayHold { SweptKnobs, { 1.365, 1.182, 1.0, 1.786, 1.805 } };
 } // namespace OpenHat
 
-// The cymbal with both knobs at noon, within 3.0 dB
+// The cymbal with both knobs at noon, fitted against RD-8 within 2.2 dB
 namespace Cymbal {
-constexpr double HighHz = 10591.2;
-constexpr double HighQ = 1.09002;
+constexpr double HighHz = 7894.08;
+constexpr double HighQ = 1.3734;
 constexpr double HighLowPassHz = 20000.0;
 constexpr double HighSeconds = 0.122453;
-constexpr double LowHz = 2227.78;
-constexpr double LowQ = 1.65979;
+constexpr double LowHz = 2341.25;
+constexpr double LowQ = 1.2;
 constexpr double LowSeconds = 0.453816;
 //! The low band swells in over this, which is what makes the 808's cymbal bloom
 constexpr double LowAttackSeconds = 0.217541;
-constexpr double LowLevel = 0.81034;
+constexpr double LowLevel = 1.057;
 constexpr double AttackSeconds = 0.00131047;
-constexpr double HighPassHz = 5754.95;
-constexpr double Gain = 10.2815;
+constexpr double HighPassHz = 5723.87;
+constexpr double Gain = 11.42;
 //! Tone balances the two bands: below noon the high one is turned down, above it the low one.
 //! Fitted on a sweep within 2.9 to 4.1 dB.
 constexpr Drum808::KnobCurve ToneHigh { SweptKnobs, { 0.6291, 0.8084, 1.0, 0.923, 0.7909 } };
