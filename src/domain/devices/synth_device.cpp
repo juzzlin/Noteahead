@@ -35,6 +35,7 @@ void SynthDevice::Voice::reset()
     ampEg.reset();
     modEg.reset();
     lfo.reset();
+    glideFrequency = 0.0;
 }
 
 void SynthDevice::Voice::trigger(uint8_t n, double freq, float p, bool phaseSync)
@@ -323,6 +324,15 @@ void SynthDevice::reset()
     syncParameters();
 }
 
+double SynthDevice::voiceGlideFrequency(int index) const
+{
+    const std::lock_guard<std::mutex> lock(m_mutex);
+    if (index >= 0 && index < static_cast<int>(m_voices.size())) {
+        return m_voices.at(index).glideFrequency;
+    }
+    return 0.0;
+}
+
 void SynthDevice::handleNoteOn(uint8_t note, uint8_t velocity)
 {
     (void)velocity;
@@ -376,8 +386,8 @@ void SynthDevice::handleNoteOn(uint8_t note, uint8_t velocity)
         }
 
         if (bestVoice != -1) {
-            // Reset glide if voice was idle or if portamento is off
-            if (!m_voices.at(bestVoice).active || m_portamento == 0.0f) {
+            // Reset glide if portamento is off
+            if (m_portamento == 0.0f) {
                 m_voices.at(bestVoice).glideFrequency = freq;
             }
 
@@ -391,7 +401,6 @@ void SynthDevice::handleNoteOn(uint8_t note, uint8_t velocity)
     } else {
         // Unison
         for (int i = 0; i < MaxVoices; i++) {
-            m_voices.at(i).glideFrequency = 0.0;
             // Non-linear detune spread for better texture
             const double detuneAmount = (i - (MaxVoices - 1) / 2.0) * std::pow(m_voiceDepth, 1.5) * 0.2; 
 

@@ -184,7 +184,7 @@ void SynthTest::test_voiceStealing_shouldStealQuietestVoice()
     SynthDevice synth;
     
     // Trigger 6 notes to fill all voices
-    for (int i = 0; i < SynthDevice::MaxVoices; ++i) {
+    for (int i = 0; i < SynthDevice::MaxVoices; i++) {
         synth.processMidiNoteOn(60 + i, 100);
     }
     
@@ -275,6 +275,54 @@ void SynthTest::test_serialization_shouldPreserveValues()
     QCOMPARE(synth2.mixVco2(), 0.75f);
     QCOMPARE(synth2.lpfCutoff(), 0.3f);
     QCOMPARE(synth2.ampAttack(), 0.2f);
+}
+
+void SynthTest::test_portamento_shouldGlideFrequency()
+{
+    SynthDevice synth;
+    const double freq60 = 440.0 * std::pow(2.0, (60 - 69) / 12.0);
+
+    // --- Test Poly Mode ---
+    synth.setVoiceMode(SynthDevice::VoiceMode::Poly);
+    synth.setPortamento(0.5f); // 50% portamento
+
+    // Play first note
+    synth.processMidiNoteOn(60, 100);
+    QCOMPARE(synth.voiceGlideFrequency(0), freq60);
+
+    // Let it finish (we need to process audio until it's inactive)
+    float dummy[1024];
+    for (int i = 0; i < 100; i++) {
+        synth.processAudio(dummy, 512, 44100);
+    }
+
+    // Play second note (same voice should be reused if it's the only one)
+    synth.processMidiNoteOn(62, 100);
+    
+    // In the BROKEN state, it will be freq62 immediately.
+    // In the FIXED state, it should still be freq60 (starting the glide).
+    // Note: processMidiNoteOn calls handleNoteOn which updates glideFrequency if broken.
+    QCOMPARE(synth.voiceGlideFrequency(0), freq60);
+
+    // --- Test Unison Mode ---
+    synth.reset();
+    synth.setVoiceMode(SynthDevice::VoiceMode::Unison);
+    synth.setPortamento(0.5f);
+
+    // Play first note (Unison triggers all voices)
+    synth.processMidiNoteOn(60, 100);
+    for (int i = 0; i < SynthDevice::MaxVoices; i++) {
+        QCOMPARE(synth.voiceGlideFrequency(i), freq60);
+    }
+
+    // Play second note
+    synth.processMidiNoteOn(62, 100);
+
+    // In the BROKEN state, it will be freq62 immediately.
+    // In the FIXED state, it should still be freq60.
+    for (int i = 0; i < SynthDevice::MaxVoices; i++) {
+        QCOMPARE(synth.voiceGlideFrequency(i), freq60);
+    }
 }
 
 } // namespace noteahead

@@ -24,6 +24,7 @@ private slots:
     void test_softClipper_shouldPreventClipping();
     void test_reset_shouldRestoreDefaults();
     void test_serialization_shouldPreserveValues();
+    void test_portamento_shouldGlideFrequency();
 };
 
 } // namespace noteahead
