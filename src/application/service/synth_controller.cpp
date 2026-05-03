@@ -91,6 +91,18 @@ void SynthController::setModInt(int i) { if (m_synth) { m_synth->setModInt(i / 1
 int SynthController::modTarget() const { return m_synth ? static_cast<int>(m_synth->modTarget()) : 0; }
 void SynthController::setModTarget(int t) { if (m_synth) { m_synth->setModTarget(static_cast<SynthDevice::ModTarget>(t)); emit modTargetChanged(); } }
 
+// LFO
+int SynthController::lfoWaveform() const { return m_synth ? static_cast<int>(m_synth->lfoWaveform()) : 0; }
+void SynthController::setLfoWaveform(int wave) { if (m_synth) { m_synth->setLfoWaveform(static_cast<LFO::Waveform>(wave)); emit lfoWaveformChanged(); } }
+int SynthController::lfoMode() const { return m_synth ? static_cast<int>(m_synth->lfoMode()) : 0; }
+void SynthController::setLfoMode(int mode) { if (m_synth) { m_synth->setLfoMode(static_cast<LFO::Mode>(mode)); emit lfoModeChanged(); } }
+int SynthController::lfoRate() const { return m_synth ? static_cast<int>(std::round(m_synth->lfoRate() * 100.0f)) : 0; }
+void SynthController::setLfoRate(int rate) { if (m_synth) { m_synth->setLfoRate(rate / 100.0f); emit lfoRateChanged(); } }
+int SynthController::lfoInt() const { return m_synth ? static_cast<int>(std::round(m_synth->lfoInt() * 100.0f)) : 0; }
+void SynthController::setLfoInt(int intensity) { if (m_synth) { m_synth->setLfoInt(intensity / 100.0f); emit lfoIntChanged(); } }
+int SynthController::lfoTarget() const { return m_synth ? static_cast<int>(m_synth->lfoTarget()) : 0; }
+void SynthController::setLfoTarget(int target) { if (m_synth) { m_synth->setLfoTarget(static_cast<SynthDevice::LfoTarget>(target)); emit lfoTargetChanged(); } }
+
 // Global
 int SynthController::voiceMode() const { return m_synth ? static_cast<int>(m_synth->voiceMode()) : 0; }
 void SynthController::setVoiceMode(int m) { if (m_synth) { m_synth->setVoiceMode(static_cast<SynthDevice::VoiceMode>(m)); emit voiceModeChanged(); } }
@@ -137,6 +149,7 @@ void SynthController::requestSettings() {
     emit lpfCutoffChanged(); emit lpfResonanceChanged(); emit hpfCutoffChanged(); emit filterKeyTrackChanged();
     emit ampAttackChanged(); emit ampDecayChanged(); emit ampSustainChanged(); emit ampReleaseChanged();
     emit modAttackChanged(); emit modDecayChanged(); emit modIntChanged(); emit modTargetChanged();
+    emit lfoWaveformChanged(); emit lfoModeChanged(); emit lfoRateChanged(); emit lfoIntChanged(); emit lfoTargetChanged();
     emit voiceModeChanged(); emit voiceDepthChanged(); emit portamentoChanged(); emit panSpreadChanged(); emit masterVolumeChanged();
     emit delayTypeChanged(); emit delayTimeChanged(); emit delayFeedbackChanged(); emit delayDepthChanged(); emit delayMixChanged(); emit delaySyncChanged(); emit delaySyncDivisionChanged();
 }

@@ -122,10 +122,10 @@ Dialog {
                 // Row 1: Titles
                 SectionTitle { text: "VCO 1" }
                 SectionTitle { text: "VCO 2" }
-                SectionTitle { text: "Mixer" }
                 SectionTitle { text: "Filter" }
+                SectionTitle { text: "LFO" }
 
-                // Row 2: VCO/Mixer/Filter Controls
+                // Row 2: Controls
                 ColumnLayout {
                     Layout.fillWidth: true
                     Layout.alignment: Qt.AlignTop
@@ -135,6 +135,7 @@ Dialog {
                     }
                     Knob { label: qsTr("Pitch"); from: -100; to: 100; suffix: "c"; value: synthController.vco1Pitch; onMoved: (v) => synthController.vco1Pitch = v; Layout.fillWidth: true }
                     Knob { label: qsTr("Shape"); from: 0; to: 100; value: synthController.vco1Shape; onMoved: (v) => synthController.vco1Shape = v; Layout.fillWidth: true }
+                    Knob { label: qsTr("Level"); value: synthController.mixVco1; onMoved: (v) => synthController.mixVco1 = v; Layout.fillWidth: true }
                     CheckBox { text: qsTr("Phase Sync"); checked: synthController.vco1Sync; onToggled: synthController.vco1Sync = checked }
                 }
 
@@ -147,14 +148,8 @@ Dialog {
                     }
                     Knob { label: qsTr("Pitch"); from: -100; to: 100; suffix: "c"; value: synthController.vco2Pitch; onMoved: (v) => synthController.vco2Pitch = v; Layout.fillWidth: true }
                     Knob { label: qsTr("Shape"); from: 0; to: 100; value: synthController.vco2Shape; onMoved: (v) => synthController.vco2Shape = v; Layout.fillWidth: true }
+                    Knob { label: qsTr("Level"); value: synthController.mixVco2; onMoved: (v) => synthController.mixVco2 = v; Layout.fillWidth: true }
                     CheckBox { text: qsTr("Hard Sync to VCO1"); checked: synthController.vco2Sync; onToggled: synthController.vco2Sync = checked }
-                }
-
-                ColumnLayout {
-                    Layout.fillWidth: true
-                    Layout.alignment: Qt.AlignTop
-                    Knob { label: qsTr("VCO 1 Level"); value: synthController.mixVco1; onMoved: (v) => synthController.mixVco1 = v; Layout.fillWidth: true }
-                    Knob { label: qsTr("VCO 2 Level"); value: synthController.mixVco2; onMoved: (v) => synthController.mixVco2 = v; Layout.fillWidth: true }
                 }
 
                 ColumnLayout {
@@ -164,6 +159,20 @@ Dialog {
                     Knob { label: qsTr("LPF Resonance"); value: synthController.lpfResonance; onMoved: (v) => synthController.lpfResonance = v; Layout.fillWidth: true }
                     Knob { label: qsTr("HPF Cutoff"); value: synthController.hpfCutoff; onMoved: (v) => synthController.hpfCutoff = v; Layout.fillWidth: true }
                     Knob { label: qsTr("Key Track"); value: synthController.filterKeyTrack; onMoved: (v) => synthController.filterKeyTrack = v; Layout.fillWidth: true }
+                }
+
+                ColumnLayout {
+                    Layout.fillWidth: true
+                    Layout.alignment: Qt.AlignTop
+                    RowLayout {
+                        ComboBox { model: ["Saw", "Triangle", "Square"]; currentIndex: synthController.lfoWaveform; onActivated: (i) => synthController.lfoWaveform = i; Layout.fillWidth: true }
+                        ComboBox { model: ["Normal", "BPM", "1-Shot"]; currentIndex: synthController.lfoMode; onActivated: (i) => synthController.lfoMode = i; Layout.fillWidth: true }
+                    }
+                    RowLayout {
+                        ComboBox { model: ["Pitch", "Shape", "Cutoff"]; currentIndex: synthController.lfoTarget; onActivated: (i) => synthController.lfoTarget = i; Layout.fillWidth: true }
+                    }
+                    Knob { label: qsTr("Rate"); value: synthController.lfoRate; onMoved: (v) => synthController.lfoRate = v; Layout.fillWidth: true }
+                    Knob { label: qsTr("Intensity"); value: synthController.lfoInt; onMoved: (v) => synthController.lfoInt = v; Layout.fillWidth: true }
                 }
 
                 // Spacing Row

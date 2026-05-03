@@ -23,24 +23,34 @@ class LFO
 public:
     enum class Waveform
     {
-        Sine,
-        Triangle,
         Saw,
+        Triangle,
         Square
+    };
+
+    enum class Mode
+    {
+        Normal,
+        BPM,
+        OneShot
     };
 
     void setSampleRate(double sampleRate);
     void setFrequency(double frequency);
     void setWaveform(Waveform waveform);
+    void setMode(Mode mode);
+    void reset();
 
     double nextSample();
 
 private:
     double m_sampleRate { 44100.0 };
     double m_frequency { 1.0 };
-    Waveform m_waveform { Waveform::Sine };
+    Waveform m_waveform { Waveform::Triangle };
+    Mode m_mode { Mode::Normal };
     double m_phase { 0.0 };
     double m_phaseStep { 0.0 };
+    bool m_oneShotActive { true };
 
     void updatePhaseStep();
 };

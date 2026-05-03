@@ -147,6 +147,38 @@ void SynthTest::test_presetMidiCcReset_shouldRestorePresetValues()
     QCOMPARE(synth.lpfCutoff(), 0.3f);
 }
 
+void SynthTest::test_lfoModulation_shouldUpdateInternalState()
+{
+    SynthDevice synth;
+    
+    synth.setLfoWaveform(LFO::Waveform::Square);
+    QCOMPARE(synth.lfoWaveform(), LFO::Waveform::Square);
+    
+    synth.setLfoMode(LFO::Mode::OneShot);
+    QCOMPARE(synth.lfoMode(), LFO::Mode::OneShot);
+    
+    synth.setLfoRate(0.8f);
+    QCOMPARE(synth.lfoRate(), 0.8f);
+    
+    synth.setLfoInt(0.5f);
+    QCOMPARE(synth.lfoInt(), 0.5f);
+    
+    synth.setLfoTarget(SynthDevice::LfoTarget::Cutoff);
+    QCOMPARE(synth.lfoTarget(), SynthDevice::LfoTarget::Cutoff);
+
+    // Verify audio generation works with LFO
+    synth.processMidiNoteOn(60, 100);
+    float output[512];
+    std::fill(output, output + 512, 0.0f);
+    synth.processAudio(output, 256, 44100);
+    
+    bool sound = false;
+    for (int i = 0; i < 512; i++) {
+        if (std::abs(output[i]) > 0.0001f) { sound = true; break; }
+    }
+    QVERIFY(sound);
+}
+
 void SynthTest::test_voiceStealing_shouldStealQuietestVoice()
 {
     SynthDevice synth;

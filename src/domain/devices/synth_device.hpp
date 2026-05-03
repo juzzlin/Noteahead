@@ -20,6 +20,7 @@
 #include "../dsp/adsr_envelope.hpp"
 #include "../dsp/cascaded_svf.hpp"
 #include "../dsp/polyblep_oscillator.hpp"
+#include "../dsp/lfo.hpp"
 #include "delay_effect.hpp"
 
 #include <array>
@@ -45,6 +46,13 @@ public:
     {
         Pitch1,
         Pitch2,
+        Cutoff
+    };
+
+    enum class LfoTarget
+    {
+        Pitch,
+        Shape,
         Cutoff
     };
 
@@ -128,6 +136,18 @@ public:
     ModTarget modTarget() const;
     void setModTarget(ModTarget target);
 
+    // LFO
+    LFO::Waveform lfoWaveform() const;
+    void setLfoWaveform(LFO::Waveform wave);
+    LFO::Mode lfoMode() const;
+    void setLfoMode(LFO::Mode mode);
+    float lfoRate() const;
+    void setLfoRate(float rate);
+    float lfoInt() const;
+    void setLfoInt(float intensity);
+    LfoTarget lfoTarget() const;
+    void setLfoTarget(LfoTarget target);
+
     // Voice / Global
     VoiceMode voiceMode() const;
     void setVoiceMode(VoiceMode mode);
@@ -167,6 +187,7 @@ private:
         CascadedSVF hpf;
         ADSREnvelope ampEg;
         ADSREnvelope modEg;
+        LFO lfo;
 
         uint8_t note { 0 };
         double frequency { 0.0 };
@@ -213,6 +234,12 @@ private:
     float m_modDecay { 0.2f };
     float m_modInt { 0.0f };
     ModTarget m_modTarget { ModTarget::Cutoff };
+
+    LFO::Waveform m_lfoWaveform { LFO::Waveform::Triangle };
+    LFO::Mode m_lfoMode { LFO::Mode::Normal };
+    float m_lfoRate { 0.5f };
+    float m_lfoInt { 0.0f };
+    LfoTarget m_lfoTarget { LfoTarget::Pitch };
 
     VoiceMode m_voiceMode { VoiceMode::Poly };
     float m_voiceDepth { 0.0f };

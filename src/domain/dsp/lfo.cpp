@@ -16,7 +16,7 @@
 #include "lfo.hpp"
 
 #include <cmath>
-#include <numbers>
+#include <algorithm>
 
 namespace noteahead {
 
@@ -37,25 +37,31 @@ void LFO::setWaveform(Waveform waveform)
     m_waveform = waveform;
 }
 
+void LFO::setMode(Mode mode)
+{
+    m_mode = mode;
+}
+
+void LFO::reset()
+{
+    m_phase = 0.0;
+    m_oneShotActive = true;
+}
+
 double LFO::nextSample()
 {
+    if (m_mode == Mode::OneShot && !m_oneShotActive) {
+        return 0.0;
+    }
+
     double value = 0.0;
 
     switch (m_waveform) {
-    case Waveform::Sine:
-        value = std::sin(2.0 * std::numbers::pi * m_phase);
-        break;
-    case Waveform::Triangle:
-        if (m_phase < 0.25) {
-            value = 4.0 * m_phase;
-        } else if (m_phase < 0.75) {
-            value = 2.0 - 4.0 * m_phase;
-        } else {
-            value = -4.0 + 4.0 * m_phase;
-        }
-        break;
     case Waveform::Saw:
         value = 2.0 * m_phase - 1.0;
+        break;
+    case Waveform::Triangle:
+        value = (m_phase < 0.5) ? (4.0 * m_phase - 1.0) : (3.0 - 4.0 * m_phase);
         break;
     case Waveform::Square:
         value = (m_phase < 0.5) ? 1.0 : -1.0;
@@ -65,6 +71,10 @@ double LFO::nextSample()
     m_phase += m_phaseStep;
     if (m_phase >= 1.0) {
         m_phase -= 1.0;
+        if (m_mode == Mode::OneShot) {
+            m_oneShotActive = false;
+            value = 0.0;
+        }
     }
 
     return value;

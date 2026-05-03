@@ -126,6 +126,7 @@ void DelayEffect::setFeedback(float feedback) { m_feedback = std::clamp(feedback
 void DelayEffect::setDepth(float depth) { m_depth = std::clamp(depth, 0.0f, 1.0f); }
 void DelayEffect::setMix(float mix) { m_mix = std::clamp(mix, 0.0f, 1.0f); }
 void DelayEffect::setBpm(float bpm) { m_bpm = std::max(1.0f, bpm); }
+float DelayEffect::bpm() const { return m_bpm; }
 void DelayEffect::setSync(bool sync) { m_sync = sync; }
 void DelayEffect::setSyncDivision(float division) { m_syncDivision = division; }
 

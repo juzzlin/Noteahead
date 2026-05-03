@@ -221,6 +221,8 @@ QString xmlKeyPitch();
 QString xmlKeySync();
 QString xmlKeyOctave();
 QString xmlKeyVoiceMode();
+QString xmlKeyMode();
+QString xmlKeyRate();
 QString xmlKeyVoiceDepth();
 QString xmlKeyPortamento();
 QString xmlKeyPanSpread();
