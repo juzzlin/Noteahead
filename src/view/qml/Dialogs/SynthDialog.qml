@@ -165,7 +165,7 @@ Dialog {
             clip: true
 
             GridLayout {
-                columns: 4
+                columns: 5
                 columnSpacing: 20
                 rowSpacing: 5
                 width: parent.width - 20
@@ -173,6 +173,7 @@ Dialog {
                 // Row 1: Titles
                 SectionTitle { text: "VCO 1" }
                 SectionTitle { text: "VCO 2" }
+                SectionTitle { text: "Multi Engine" }
                 SectionTitle { text: "Filter" }
                 SectionTitle { text: "LFO" }
 
@@ -206,6 +207,17 @@ Dialog {
                 ColumnLayout {
                     Layout.fillWidth: true
                     Layout.alignment: Qt.AlignTop
+                    RowLayout {
+                        ComboBox { model: ["High", "Low", "Peak", "Decim"]; currentIndex: synthController.multiType; onActivated: (i) => synthController.multiType = i; Layout.fillWidth: true }
+                    }
+                    Knob { label: qsTr("Shape"); from: 0; to: 100; value: synthController.multiShape; onMoved: (v) => synthController.multiShape = v; Layout.fillWidth: true }
+                    Knob { label: qsTr("Key Track"); value: synthController.multiKeyTrack; onMoved: (v) => synthController.multiKeyTrack = v; Layout.fillWidth: true }
+                    Knob { label: qsTr("Level"); value: synthController.multiLevel; onMoved: (v) => synthController.multiLevel = v; Layout.fillWidth: true }
+                }
+
+                ColumnLayout {
+                    Layout.fillWidth: true
+                    Layout.alignment: Qt.AlignTop
                     Knob { label: qsTr("LPF Cutoff"); value: synthController.lpfCutoff; onMoved: (v) => synthController.lpfCutoff = v; Layout.fillWidth: true }
                     Knob { label: qsTr("LPF Resonance"); value: synthController.lpfResonance; onMoved: (v) => synthController.lpfResonance = v; Layout.fillWidth: true }
                     Knob { label: qsTr("HPF Cutoff"); value: synthController.hpfCutoff; onMoved: (v) => synthController.hpfCutoff = v; Layout.fillWidth: true }
@@ -227,13 +239,14 @@ Dialog {
                 }
 
                 // Spacing Row
-                Item { Layout.fillWidth: true; Layout.preferredHeight: 10; Layout.columnSpan: 4 }
+                Item { Layout.fillWidth: true; Layout.preferredHeight: 10; Layout.columnSpan: 5 }
 
                 // Row 3: Titles
                 SectionTitle { text: "Voice / Global" }
                 SectionTitle { text: "Amp EG (ADSR)" }
                 SectionTitle { text: "Mod EG (AD)" }
                 SectionTitle { text: "Delay Effect" }
+                Item { Layout.fillWidth: true }
 
                 // Row 4: Controls
                 ColumnLayout {
@@ -294,6 +307,8 @@ Dialog {
                     Knob { label: qsTr("Depth"); value: synthController.delayDepth; onMoved: (v) => synthController.delayDepth = v; Layout.fillWidth: true }
                     Knob { label: qsTr("Mix"); value: synthController.delayMix; onMoved: (v) => synthController.delayMix = v; Layout.fillWidth: true }
                 }
+
+                Item { Layout.fillWidth: true }
             }
         }
 
