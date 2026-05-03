@@ -68,13 +68,13 @@ SynthDevice::SynthDevice()
     // Initialize Parameters
     addParameter(Parameter { "vco1" + Constants::NahdXml::xmlKeyWaveform().toStdString(), 0.5f, 0, 2, 1 });
     addParameter(Parameter { "vco1" + Constants::NahdXml::xmlKeyOctave().toStdString(), 0.333f, -1, 2, 0 });
-    addParameter(Parameter { "vco1" + Constants::NahdXml::xmlKeyPitch().toStdString(), 0.5f, -100, 100, 0 });
+    addParameter(Parameter { "vco1" + Constants::NahdXml::xmlKeyPitch().toStdString(), 0.5f, -2400, 2400, 0 });
     addParameter(Parameter { "vco1" + Constants::NahdXml::xmlKeyShape().toStdString(), 0.0f, 0, 100, 0 });
     addParameter(Parameter { "vco1" + Constants::NahdXml::xmlKeySync().toStdString(), 0.0f, 0, 1, 0 });
 
     addParameter(Parameter { "vco2" + Constants::NahdXml::xmlKeyWaveform().toStdString(), 0.5f, 0, 2, 1 });
     addParameter(Parameter { "vco2" + Constants::NahdXml::xmlKeyOctave().toStdString(), 0.333f, -1, 2, 0 });
-    addParameter(Parameter { "vco2" + Constants::NahdXml::xmlKeyPitch().toStdString(), 0.5f, -100, 100, 0 });
+    addParameter(Parameter { "vco2" + Constants::NahdXml::xmlKeyPitch().toStdString(), 0.5f, -2400, 2400, 0 });
     addParameter(Parameter { "vco2" + Constants::NahdXml::xmlKeyShape().toStdString(), 0.0f, 0, 100, 0 });
     addParameter(Parameter { "vco2" + Constants::NahdXml::xmlKeySync().toStdString(), 0.0f, 0, 1, 0 });
 
@@ -192,8 +192,12 @@ void SynthDevice::processAudio(float * output, uint32_t nFrames, uint32_t sample
                 p2 += lfoVal;
             }
 
-            const double vco1Freq { voice.glideFrequency * std::pow(2.0, (m_vco1Octave * 12.0 + m_vco1Pitch + p1 * 12.0) / 12.0) };
-            const double vco2Freq { voice.glideFrequency * std::pow(2.0, (m_vco2Octave * 12.0 + m_vco2Pitch + p2 * 12.0) / 12.0) };
+            // Note: Pitch parameters are 0..1 mapped to -2400..2400 cents
+            const double vco1PitchOffset = (m_vco1Pitch - 0.5) * 4800.0;
+            const double vco2PitchOffset = (m_vco2Pitch - 0.5) * 4800.0;
+
+            const double vco1Freq { voice.glideFrequency * std::pow(2.0, (m_vco1Octave * 12.0 + vco1PitchOffset / 100.0 + p1 * 12.0) / 12.0) };
+            const double vco2Freq { voice.glideFrequency * std::pow(2.0, (m_vco2Octave * 12.0 + vco2PitchOffset / 100.0 + p2 * 12.0) / 12.0) };
 
             voice.vco1.setFrequency(vco1Freq);
             voice.vco2.setFrequency(vco2Freq);
@@ -219,7 +223,7 @@ void SynthDevice::processAudio(float * output, uint32_t nFrames, uint32_t sample
             voice.hpf.setCutoff(m_hpfCutoff);
 
             const float filtered { voice.hpf.process(voice.lpf.process(static_cast<float>(mixHeadroom))) };
-            const float finalSample { filtered * static_cast<float>(ampEnv) * m_masterVolume * 0.8f };
+            const float finalSample { filtered * static_cast<float>(ampEnv) * m_masterVolume * 0.25f };
 
             localBuffer[i * 2] += finalSample * (1.0f - voice.pan);
             localBuffer[i * 2 + 1] += finalSample * voice.pan;
@@ -320,35 +324,67 @@ void SynthDevice::reset()
 void SynthDevice::handleNoteOn(uint8_t note, uint8_t velocity)
 {
     (void)velocity;
+
+    // First release any existing voices for this note to avoid multiple voices for same note in poly
+    for (auto && voice : m_voices) {
+        if (voice.active && voice.note == note) {
+            voice.release();
+        }
+    }
+
     double freq = midiNoteToFreq(note);
     float spread = m_panSpread * 0.5f;
 
     if (m_voiceMode == VoiceMode::Poly) {
-        // Find best voice: 1. Idle, 2. Lowest amplitude (stolen)
         int bestVoice = -1;
-        float lowestAmp = 2.0f;
 
+        // 1. Try to find a voice already playing or releasing this note (Affinity)
         for (int i = 0; i < 4; i++) {
-            int idx = (m_polyNextVoice + i) % 4;
-            if (!m_voices[idx].active) {
-                bestVoice = idx;
+            if (m_voices[i].active && m_voices[i].note == note) {
+                bestVoice = i;
                 break;
             }
-            // Use internal current level for better decision
-            float currentAmp = static_cast<float>(m_voices[idx].ampEg.nextSample()); // Approximated
-            if (currentAmp < lowestAmp) {
-                lowestAmp = currentAmp;
-                bestVoice = idx;
+        }
+
+        // 2. Try to find an idle voice (Round-Robin)
+        if (bestVoice == -1) {
+            for (int i = 0; i < 4; i++) {
+                int idx = (m_polyNextVoice + i) % 4;
+                if (!m_voices[idx].active) {
+                    bestVoice = idx;
+                    m_polyNextVoice = (idx + 1) % 4;
+                    break;
+                }
+            }
+        }
+
+        // 3. Steal the quietest voice (Round-Robin search for stealing candidate)
+        if (bestVoice == -1) {
+            float lowestAmp = 2.0f;
+            for (int i = 0; i < 4; i++) {
+                int idx = (m_polyNextVoice + i) % 4;
+                float currentAmp = static_cast<float>(m_voices[idx].ampEg.value());
+                if (currentAmp < lowestAmp) {
+                    lowestAmp = currentAmp;
+                    bestVoice = idx;
+                }
+            }
+            if (bestVoice != -1) {
+                m_polyNextVoice = (bestVoice + 1) % 4;
             }
         }
 
         if (bestVoice != -1) {
+            // Reset glide if voice was idle or if portamento is off
+            if (!m_voices[bestVoice].active || m_portamento == 0.0f) {
+                m_voices[bestVoice].glideFrequency = freq;
+            }
             m_voices[bestVoice].trigger(note, freq, 0.5f + (bestVoice % 2 == 0 ? spread : -spread), m_vco1Sync);
-            m_polyNextVoice = (bestVoice + 1) % 4;
         }
     } else {
         // Unison
         for (int i = 0; i < 4; i++) {
+            m_voices[i].glideFrequency = 0.0;
             // Non-linear detune spread for better texture
             double detuneAmount = (i - 1.5) * std::pow(m_voiceDepth, 1.5) * 0.2; 
             m_voices[i].trigger(note, freq * std::pow(2.0, detuneAmount / 12.0), 0.5f + (i < 2 ? -spread : spread), m_vco1Sync);
@@ -374,13 +410,13 @@ void SynthDevice::syncParameters()
 {
     if (auto p = parameter("vco1" + Constants::NahdXml::xmlKeyWaveform().toStdString()); p) m_vco1Waveform = static_cast<PolyBLEPOscillator::Waveform>(p->get().xmlValue());
     if (auto p = parameter("vco1" + Constants::NahdXml::xmlKeyOctave().toStdString()); p) m_vco1Octave = p->get().xmlValue();
-    if (auto p = parameter("vco1" + Constants::NahdXml::xmlKeyPitch().toStdString()); p) m_vco1Pitch = static_cast<float>(p->get().xmlValue());
+    if (auto p = parameter("vco1" + Constants::NahdXml::xmlKeyPitch().toStdString()); p) m_vco1Pitch = p->get().value();
     if (auto p = parameter("vco1" + Constants::NahdXml::xmlKeyShape().toStdString()); p) m_vco1Shape = p->get().value();
     if (auto p = parameter("vco1" + Constants::NahdXml::xmlKeySync().toStdString()); p) m_vco1Sync = p->get().xmlValue() > 0;
 
     if (auto p = parameter("vco2" + Constants::NahdXml::xmlKeyWaveform().toStdString()); p) m_vco2Waveform = static_cast<PolyBLEPOscillator::Waveform>(p->get().xmlValue());
     if (auto p = parameter("vco2" + Constants::NahdXml::xmlKeyOctave().toStdString()); p) m_vco2Octave = p->get().xmlValue();
-    if (auto p = parameter("vco2" + Constants::NahdXml::xmlKeyPitch().toStdString()); p) m_vco2Pitch = static_cast<float>(p->get().xmlValue());
+    if (auto p = parameter("vco2" + Constants::NahdXml::xmlKeyPitch().toStdString()); p) m_vco2Pitch = p->get().value();
     if (auto p = parameter("vco2" + Constants::NahdXml::xmlKeyShape().toStdString()); p) m_vco2Shape = p->get().value();
     if (auto p = parameter("vco2" + Constants::NahdXml::xmlKeySync().toStdString()); p) m_vco2Sync = p->get().xmlValue() > 0;
 

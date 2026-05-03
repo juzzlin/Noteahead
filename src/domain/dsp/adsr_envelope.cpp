@@ -40,6 +40,7 @@ void ADSREnvelope::setDecayTime(double seconds)
 void ADSREnvelope::setSustainLevel(double level)
 {
     m_sustainLevel = std::clamp(level, 0.0, 1.0);
+    calculateSteps();
 }
 
 void ADSREnvelope::setReleaseTime(double seconds)
@@ -51,14 +52,12 @@ void ADSREnvelope::setReleaseTime(double seconds)
 void ADSREnvelope::trigger()
 {
     m_state = State::Attack;
-    m_currentLevel = 0.0;
 }
 
 void ADSREnvelope::release()
 {
     if (m_state != State::Idle) {
         m_state = State::Release;
-        m_releaseStep = m_currentLevel / (m_releaseTime * m_sampleRate);
     }
 }
 
@@ -102,6 +101,11 @@ double ADSREnvelope::nextSample()
     return m_currentLevel;
 }
 
+double ADSREnvelope::value() const
+{
+    return m_currentLevel;
+}
+
 ADSREnvelope::State ADSREnvelope::state() const
 {
     return m_state;
@@ -116,7 +120,7 @@ void ADSREnvelope::calculateSteps()
 {
     m_attackStep = 1.0 / (m_attackTime * m_sampleRate);
     m_decayStep = (1.0 - m_sustainLevel) / (m_decayTime * m_sampleRate);
-    m_releaseStep = m_currentLevel / (m_releaseTime * m_sampleRate);
+    m_releaseStep = 1.0 / (m_releaseTime * m_sampleRate);
 }
 
 } // namespace noteahead

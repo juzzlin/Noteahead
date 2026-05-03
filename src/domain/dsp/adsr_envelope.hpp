@@ -43,6 +43,7 @@ public:
     void reset();
 
     double nextSample();
+    double value() const;
     State state() const;
     bool isActive() const;
 

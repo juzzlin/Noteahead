@@ -68,7 +68,7 @@ const std::vector<SynthPreset>& SynthPresets::presets()
         {"Soft Pad", {{"vco1waveform", 0}, {"vco2waveform", 0}, {"mixlevel1", 0.8}, {"mixlevel2", 0.8}, {"vco2pitch", 10}, {"lpfcutoff", 0.4}, {"ampattack", 0.6}, {"ampdecay", 0.5}, {"ampsustain", 0.8}, {"amprelease", 0.6}, {"panSpread", 0.5}, {"lfotarget", 1}, {"lfointensity", 0.3}, {"lforate", 0.1}}},
         {"Deep Sea", {{"vco1waveform", 0}, {"vco2waveform", 0}, {"vco2octave", -1}, {"lpfcutoff", 0.2}, {"ampattack", 0.8}, {"amprelease", 1.0}, {"delaymix", 0.4}}},
         {"Saw Pad", {{"vco1waveform", 1}, {"vco2waveform", 1}, {"vco2pitch", 5}, {"mixlevel1", 1.0}, {"mixlevel2", 0.9}, {"lpfcutoff", 0.3}, {"ampattack", 0.4}, {"ampsustain", 0.7}}},
-        {"Strings", {{"vco1waveform", 1}, {"vco2waveform", 1}, {"vco2pitch", 5}, {"mixlevel1", 0.8}, {"mixlevel2", 0.8}, {"ampattack", 0.4}, {"amprelease", 0.5}, {"panspread", 0.8}}},
+        {"Strings", {{"vco1waveform", 1}, {"vco2waveform", 1}, {"vco2pitch", 12}, {"mixlevel1", 0.8}, {"mixlevel2", 0.8}, {"lpfcutoff", 0.4}, {"ampattack", 0.4}, {"amprelease", 0.5}, {"panspread", 0.8}}},
         {"Organ Pad", {{"vco1waveform", 2}, {"vco1shape", 0.5}, {"vco2waveform", 0}, {"vco2octave", 1}, {"ampattack", 0.3}, {"ampsustain", 1.0}}},
         {"Glassy", {{"vco1waveform", 0}, {"vco2waveform", 2}, {"vco2octave", 2}, {"lpfcutoff", 0.5}, {"ampattack", 0.2}, {"delaymix", 0.5}}},
         {"Ethereal", {{"vco1waveform", 0}, {"vco2waveform", 0}, {"vco2pitch", 12}, {"lpfcutoff", 0.3}, {"ampattack", 0.9}, {"delaytype", 5}, {"delaymix", 0.6}, {"lfotarget", 2}, {"lfointensity", 0.4}, {"lforate", 0.05}}},
