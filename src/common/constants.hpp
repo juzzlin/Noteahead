@@ -220,6 +220,8 @@ QString xmlKeyShape();
 QString xmlKeyPitch();
 QString xmlKeySync();
 QString xmlKeyOctave();
+QString xmlKeyMultiType();
+QString xmlKeyMultiKeyTrack();
 QString xmlKeyVoiceMode();
 QString xmlKeyMode();
 QString xmlKeyRate();

@@ -78,6 +78,11 @@ SynthDevice::SynthDevice()
     addParameter(Parameter { "vco2" + Constants::NahdXml::xmlKeyShape().toStdString(), 0.0f, 0, 100, 0 });
     addParameter(Parameter { "vco2" + Constants::NahdXml::xmlKeySync().toStdString(), 0.0f, 0, 1, 0 });
 
+    addParameter(Parameter { "multi" + Constants::NahdXml::xmlKeyMode().toStdString(), 0.25f, 0, 3, 1 }); // Low default
+    addParameter(Parameter { "multi" + Constants::NahdXml::xmlKeyShape().toStdString(), 0.5f, 0, 100, 50 });
+    addParameter(Parameter { "multi" + Constants::NahdXml::xmlKeyLevel().toStdString(), 0.0f, 0, 100, 0 });
+    addParameter(Parameter { Constants::NahdXml::xmlKeyMultiKeyTrack().toStdString(), 0.0f, 0, 100, 0 });
+
     addParameter(Parameter { "mix" + Constants::NahdXml::xmlKeyLevel().toStdString() + "1", 1.0f, 0, 100, 100 });
     addParameter(Parameter { "mix" + Constants::NahdXml::xmlKeyLevel().toStdString() + "2", 0.0f, 0, 100, 0 });
 
@@ -136,7 +141,7 @@ std::string SynthDevice::category() const { return Constants::NahdXml::xmlValueS
 
 void SynthDevice::processAudio(float * output, uint32_t nFrames, uint32_t sampleRate)
 {
-    const std::lock_guard<std::mutex> lock(m_mutex);
+    const std::lock_guard<std::mutex> lock { m_mutex };
 
     std::vector<float> localBuffer(nFrames * 2, 0.0f);
 
@@ -145,6 +150,7 @@ void SynthDevice::processAudio(float * output, uint32_t nFrames, uint32_t sample
 
         voice.vco1.setSampleRate(sampleRate);
         voice.vco2.setSampleRate(sampleRate);
+        voice.multi.setSampleRate(sampleRate);
         voice.lpf.setSampleRate(sampleRate);
         voice.hpf.setSampleRate(sampleRate);
         voice.ampEg.setSampleRate(sampleRate);
@@ -156,34 +162,38 @@ void SynthDevice::processAudio(float * output, uint32_t nFrames, uint32_t sample
         voice.vco2.setWaveform(m_vco2Waveform);
         voice.vco1.setShape(m_vco1Shape);
         voice.vco2.setShape(m_vco2Shape);
+        voice.multi.setType(m_multiType);
+        voice.multi.setShape(m_multiShape);
+        voice.multi.setKeyTrack(m_multiKeyTrack);
+        voice.multi.setNote(voice.note);
 
         // Portamento constant (simple one-pole)
-        const double portamentoCoeff = m_portamento > 0 ? 1.0 - std::pow(0.001, 1.0 / (m_portamento * sampleRate)) : 1.0;
+        const double portamentoCoeff { m_portamento > 0 ? 1.0 - std::pow(0.001, 1.0 / (m_portamento * sampleRate)) : 1.0 };
 
-        for (uint32_t i = 0; i < nFrames; i++) {
+        for (uint32_t i { 0 }; i < nFrames; i++) {
             // Update glide frequency
             voice.glideFrequency += (voice.frequency - voice.glideFrequency) * portamentoCoeff;
 
-            const double ampEnv = voice.ampEg.nextSample();
-            const double modEnv = voice.modEg.nextSample() * m_modInt;
-            const double lfoVal = voice.lfo.nextSample() * m_lfoInt;
+            const double ampEnv { voice.ampEg.nextSample() };
+            const double modEnv { voice.modEg.nextSample() * m_modInt };
+            const double lfoVal { voice.lfo.nextSample() * m_lfoInt };
 
             // Modulation
-            double cutoffMod = (m_modTarget == ModTarget::Cutoff) ? modEnv : 0.0;
+            double cutoffMod { (m_modTarget == ModTarget::Cutoff) ? modEnv : 0.0 };
             if (m_lfoTarget == LfoTarget::Cutoff) cutoffMod += lfoVal;
 
-            double shapeMod = (m_lfoTarget == LfoTarget::Shape) ? lfoVal : 0.0;
+            const double shapeMod { (m_lfoTarget == LfoTarget::Shape) ? lfoVal : 0.0 };
 
             // VCO Frequencies
-            double p1 = (m_modTarget == ModTarget::Pitch1) ? modEnv : 0.0;
-            double p2 = (m_modTarget == ModTarget::Pitch2) ? modEnv : 0.0;
+            double p1 { (m_modTarget == ModTarget::Pitch1) ? modEnv : 0.0 };
+            double p2 { (m_modTarget == ModTarget::Pitch2) ? modEnv : 0.0 };
             if (m_lfoTarget == LfoTarget::Pitch) {
                 p1 += lfoVal;
                 p2 += lfoVal;
             }
 
-            const double vco1Freq = voice.glideFrequency * std::pow(2.0, (m_vco1Octave * 12.0 + m_vco1Pitch + p1 * 12.0) / 12.0);
-            const double vco2Freq = voice.glideFrequency * std::pow(2.0, (m_vco2Octave * 12.0 + m_vco2Pitch + p2 * 12.0) / 12.0);
+            const double vco1Freq { voice.glideFrequency * std::pow(2.0, (m_vco1Octave * 12.0 + m_vco1Pitch + p1 * 12.0) / 12.0) };
+            const double vco2Freq { voice.glideFrequency * std::pow(2.0, (m_vco2Octave * 12.0 + m_vco2Pitch + p2 * 12.0) / 12.0) };
 
             voice.vco1.setFrequency(vco1Freq);
             voice.vco2.setFrequency(vco2Freq);
@@ -191,15 +201,16 @@ void SynthDevice::processAudio(float * output, uint32_t nFrames, uint32_t sample
             voice.vco2.setShape(std::clamp(m_vco2Shape + shapeMod, 0.0, 1.0));
 
             // VCO2 Hard Sync to VCO1
-            double oldPhase = voice.vco1.phase();
-            double vco1Val = voice.vco1.nextSample();
+            const double oldPhase { voice.vco1.phase() };
+            const double vco1Val { voice.vco1.nextSample() };
             if (m_vco2Sync && voice.vco1.phase() < oldPhase) {
                 voice.vco2.sync(0.0);
             }
-            double vco2Val = voice.vco2.nextSample();
+            const double vco2Val { voice.vco2.nextSample() };
+            const double multiVal { voice.multi.nextSample() };
 
-            double mix = (vco1Val * m_mixVco1) + (vco2Val * m_mixVco2);
-            mix *= 0.5; // Safety headroom
+            const double mix { (vco1Val * m_mixVco1) + (vco2Val * m_mixVco2) + (multiVal * m_multiLevel) };
+            const double mixHeadroom { mix * 0.45 }; // Extra headroom for Multi engine
 
             // Filter
             cutoffMod += (voice.note - 60.0) / 127.0 * m_filterKeyTrack;
@@ -207,8 +218,8 @@ void SynthDevice::processAudio(float * output, uint32_t nFrames, uint32_t sample
             voice.lpf.setCutoff(std::clamp(m_lpfCutoff + cutoffMod, 0.0, 1.0));
             voice.hpf.setCutoff(m_hpfCutoff);
 
-            float filtered = voice.hpf.process(voice.lpf.process(static_cast<float>(mix)));
-            float finalSample = filtered * static_cast<float>(ampEnv) * m_masterVolume * 0.8f;
+            const float filtered { voice.hpf.process(voice.lpf.process(static_cast<float>(mixHeadroom))) };
+            const float finalSample { filtered * static_cast<float>(ampEnv) * m_masterVolume * 0.8f };
 
             localBuffer[i * 2] += finalSample * (1.0f - voice.pan);
             localBuffer[i * 2 + 1] += finalSample * voice.pan;
@@ -220,9 +231,9 @@ void SynthDevice::processAudio(float * output, uint32_t nFrames, uint32_t sample
     }
 
     // Apply global FX (Delay)
-    for (uint32_t i = 0; i < nFrames; i++) {
-        float l = localBuffer[i * 2];
-        float r = localBuffer[i * 2 + 1];
+    for (uint32_t i { 0 }; i < nFrames; i++) {
+        float l { localBuffer[i * 2] };
+        float r { localBuffer[i * 2 + 1] };
         m_delay.process(l, r, sampleRate);
         
         // Final Output Soft-Clipper
@@ -372,6 +383,11 @@ void SynthDevice::syncParameters()
     if (auto p = parameter("vco2" + Constants::NahdXml::xmlKeyPitch().toStdString()); p) m_vco2Pitch = static_cast<float>(p->get().xmlValue());
     if (auto p = parameter("vco2" + Constants::NahdXml::xmlKeyShape().toStdString()); p) m_vco2Shape = p->get().value();
     if (auto p = parameter("vco2" + Constants::NahdXml::xmlKeySync().toStdString()); p) m_vco2Sync = p->get().xmlValue() > 0;
+
+    if (auto p = parameter("multi" + Constants::NahdXml::xmlKeyMode().toStdString()); p) m_multiType = static_cast<MultiEngine::Type>(p->get().xmlValue());
+    if (auto p = parameter("multi" + Constants::NahdXml::xmlKeyShape().toStdString()); p) m_multiShape = p->get().value();
+    if (auto p = parameter("multi" + Constants::NahdXml::xmlKeyLevel().toStdString()); p) m_multiLevel = p->get().value();
+    if (auto p = parameter(Constants::NahdXml::xmlKeyMultiKeyTrack().toStdString()); p) m_multiKeyTrack = p->get().value();
 
     if (auto p = parameter("mix" + Constants::NahdXml::xmlKeyLevel().toStdString() + "1"); p) m_mixVco1 = p->get().value();
     if (auto p = parameter("mix" + Constants::NahdXml::xmlKeyLevel().toStdString() + "2"); p) m_mixVco2 = p->get().value();
@@ -530,6 +546,16 @@ float SynthDevice::vco2Shape() const { return m_vco2Shape; }
 void SynthDevice::setVco2Shape(float shape) { if (auto p = parameter("vco2" + Constants::NahdXml::xmlKeyShape().toStdString()); p) { p->get().setValue(shape); syncParameters(); emit dataChanged(); } }
 bool SynthDevice::vco2Sync() const { return m_vco2Sync; }
 void SynthDevice::setVco2Sync(bool sync) { if (auto p = parameter("vco2" + Constants::NahdXml::xmlKeySync().toStdString()); p) { p->get().setFromXml(sync ? 1 : 0); syncParameters(); emit dataChanged(); } }
+
+// Multi Engine
+MultiEngine::Type SynthDevice::multiType() const { return m_multiType; }
+void SynthDevice::setMultiType(MultiEngine::Type type) { if (auto p = parameter("multi" + Constants::NahdXml::xmlKeyMode().toStdString()); p) { p->get().setFromXml(static_cast<int>(type)); syncParameters(); emit dataChanged(); } }
+float SynthDevice::multiShape() const { return m_multiShape; }
+void SynthDevice::setMultiShape(float shape) { if (auto p = parameter("multi" + Constants::NahdXml::xmlKeyShape().toStdString()); p) { p->get().setValue(shape); syncParameters(); emit dataChanged(); } }
+float SynthDevice::multiLevel() const { return m_multiLevel; }
+void SynthDevice::setMultiLevel(float level) { if (auto p = parameter("multi" + Constants::NahdXml::xmlKeyLevel().toStdString()); p) { p->get().setValue(level); syncParameters(); emit dataChanged(); } }
+float SynthDevice::multiKeyTrack() const { return m_multiKeyTrack; }
+void SynthDevice::setMultiKeyTrack(float keyTrack) { if (auto p = parameter(Constants::NahdXml::xmlKeyMultiKeyTrack().toStdString()); p) { p->get().setValue(keyTrack); syncParameters(); emit dataChanged(); } }
 
 // Mixer
 float SynthDevice::mixVco1() const { return m_mixVco1; }

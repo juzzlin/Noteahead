@@ -21,6 +21,7 @@
 #include "../dsp/cascaded_svf.hpp"
 #include "../dsp/polyblep_oscillator.hpp"
 #include "../dsp/lfo.hpp"
+#include "../dsp/multi_engine.hpp"
 #include "delay_effect.hpp"
 
 #include <array>
@@ -99,6 +100,16 @@ public:
     void setVco2Shape(float shape);
     bool vco2Sync() const;
     void setVco2Sync(bool sync);
+
+    // Multi Engine
+    MultiEngine::Type multiType() const;
+    void setMultiType(MultiEngine::Type type);
+    float multiShape() const;
+    void setMultiShape(float shape);
+    float multiLevel() const;
+    void setMultiLevel(float level);
+    float multiKeyTrack() const;
+    void setMultiKeyTrack(float keyTrack);
 
     // Mixer
     float mixVco1() const;
@@ -183,6 +194,7 @@ private:
     {
         PolyBLEPOscillator vco1;
         PolyBLEPOscillator vco2;
+        MultiEngine multi;
         CascadedSVF lpf;
         CascadedSVF hpf;
         ADSREnvelope ampEg;
@@ -216,6 +228,11 @@ private:
     float m_vco2Pitch { 0.0f };
     float m_vco2Shape { 0.0f };
     bool m_vco2Sync { false };
+
+    MultiEngine::Type m_multiType { MultiEngine::Type::Low };
+    float m_multiShape { 0.5f };
+    float m_multiLevel { 0.0f };
+    float m_multiKeyTrack { 0.0f };
 
     float m_mixVco1 { 1.0f };
     float m_mixVco2 { 0.0f };

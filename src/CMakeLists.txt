@@ -77,6 +77,7 @@ set(HEADER_FILES
   domain/dsp/adsr_envelope.hpp
   domain/dsp/cascaded_svf.hpp
   domain/dsp/lfo.hpp
+  domain/dsp/multi_engine.hpp
   domain/dsp/polyblep_oscillator.hpp
   domain/event.hpp
   domain/event_data.hpp
@@ -225,6 +226,7 @@ set(SOURCE_FILES
   domain/dsp/adsr_envelope.cpp
   domain/dsp/cascaded_svf.cpp
   domain/dsp/lfo.cpp
+  domain/dsp/multi_engine.cpp
   domain/dsp/polyblep_oscillator.cpp
   infra/audio/audio_engine.cpp
   infra/audio/audio_file_recorder.cpp
