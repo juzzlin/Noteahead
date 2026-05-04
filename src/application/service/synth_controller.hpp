@@ -151,6 +151,7 @@ public:
     int masterVolume() const; void setMasterVolume(int v);
 
     uint32_t sampleRate() const;
+    Q_INVOKABLE float cutoffToHz(float cutoff) const;
 
     QStringList presetNames() const;
 

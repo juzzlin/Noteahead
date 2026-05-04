@@ -16,9 +16,11 @@
 #ifndef POLYBLEP_OSCILLATOR_HPP
 #define POLYBLEP_OSCILLATOR_HPP
 
+#include "dsp_component.hpp"
+
 namespace noteahead {
 
-class PolyBLEPOscillator
+class PolyBLEPOscillator : public DspComponent
 {
 public:
     enum class Waveform
@@ -28,7 +30,7 @@ public:
         Pulse
     };
 
-    void setSampleRate(double sampleRate);
+    void setSampleRate(double sampleRate) override;
     void setFrequency(double frequency);
     void setWaveform(Waveform waveform);
     void setPulseWidth(double pw); // 0.0 to 1.0
@@ -40,7 +42,6 @@ public:
     double phase() const;
 
 private:
-    double m_sampleRate { 44100.0 };
     double m_frequency { 440.0 };
     Waveform m_waveform { Waveform::Saw };
     double m_pulseWidth { 0.5 };

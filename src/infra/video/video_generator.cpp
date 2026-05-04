@@ -15,6 +15,7 @@
 
 #include "video_generator.hpp"
 
+#include "../../common/constants.hpp"
 #include "../../application/service/automation_service.hpp"
 #include "../../application/service/property_service.hpp"
 #include "../../application/service/side_chain_service.hpp"
@@ -161,7 +162,7 @@ void VideoGenerator::renderVideo(const VideoConfig & config)
         "-pix_fmt", "yuv420p",
         "-c:a", QString::fromStdString(config.audioCodec),
         "-b:a", "320k",
-        "-ar", "48000",
+        "-ar", QString::number(static_cast<uint32_t>(Constants::defaultSampleRate())),
         QString::fromStdString(config.songPath) + ".mp4"
     };
 

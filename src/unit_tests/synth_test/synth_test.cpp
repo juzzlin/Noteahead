@@ -65,7 +65,7 @@ void SynthTest::test_polyphony_shouldActiveMultipleVoices()
     // but we can check if audio is generated.
     float output[2048];
     std::fill(output, output + 2048, 0.0f);
-    synth.processAudio(output, 1024, 44100);
+    synth.processAudio(output, 1024, static_cast<uint32_t>(Constants::defaultSampleRate()));
     
     bool soundDetected = false;
     for (int i = 0; i < 2048; i++) {
@@ -176,7 +176,7 @@ void SynthTest::test_lfoModulation_shouldUpdateInternalState()
     synth.processMidiNoteOn(60, 100);
     float output[512];
     std::fill(output, output + 512, 0.0f);
-    synth.processAudio(output, 256, 44100);
+    synth.processAudio(output, 256, static_cast<uint32_t>(Constants::defaultSampleRate()));
     
     bool sound = false;
     for (int i = 0; i < 512; i++) {
@@ -196,20 +196,20 @@ void SynthTest::test_voiceStealing_shouldStealQuietestVoice()
     
     // Process audio so they all start playing
     float output[256];
-    synth.processAudio(output, 128, 44100);
+    synth.processAudio(output, 128, static_cast<uint32_t>(Constants::defaultSampleRate()));
     
     // Release Note 60 - it will start decaying (becoming quieter)
     synth.processMidiNoteOff(60);
     
     // Process a bit more to let it decay
-    synth.processAudio(output, 128, 44100);
+    synth.processAudio(output, 128, static_cast<uint32_t>(Constants::defaultSampleRate()));
     
     // Trigger a new note
     // It should steal Note 60 because it's the quietest (releasing)
     synth.processMidiNoteOn(80, 100);
     
     // We verify sound is still coming out (basic stability check)
-    synth.processAudio(output, 128, 44100);
+    synth.processAudio(output, 128, static_cast<uint32_t>(Constants::defaultSampleRate()));
     bool sound = false;
     for (int i = 0; i < 256; i++) {
         if (std::abs(output[i]) > 0.0001f) { sound = true; break; }
@@ -231,7 +231,7 @@ void SynthTest::test_softClipper_shouldPreventClipping()
     
     float output[1024];
     std::fill(output, output + 1024, 0.0f);
-    synth.processAudio(output, 512, 44100);
+    synth.processAudio(output, 512, static_cast<uint32_t>(Constants::defaultSampleRate()));
     
     for (int i = 0; i < 1024; i++) {
         QVERIFY(output[i] <= 1.0f);
@@ -309,7 +309,7 @@ void SynthTest::test_portamento_shouldGlideFrequency()
     // Let it finish (we need to process audio until it's inactive)
     float dummy[1024];
     for (int i = 0; i < 100; i++) {
-        synth.processAudio(dummy, 512, 44100);
+        synth.processAudio(dummy, 512, static_cast<uint32_t>(Constants::defaultSampleRate()));
     }
 
     // Play second note (same voice should be reused if it's the only one)

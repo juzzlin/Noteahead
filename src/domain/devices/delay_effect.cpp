@@ -23,8 +23,9 @@ DelayEffect::DelayEffect()
 {
 }
 
-void DelayEffect::process(float & left, float & right, uint32_t sampleRate)
+void DelayEffect::process(float & left, float & right)
 {
+    const auto sampleRate = static_cast<uint32_t>(m_sampleRate);
     if (sampleRate != m_lastSampleRate) {
         updateBuffers(sampleRate);
         m_lastSampleRate = sampleRate;

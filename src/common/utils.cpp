@@ -150,4 +150,15 @@ std::optional<std::chrono::milliseconds> readMSecAttribute(QXmlStreamReader & re
 }
 
 } // namespace Xml
+namespace Dsp {
+float cutoffToHz(float cutoff, float sampleRate)
+{
+    const float maxFreq = std::min(20000.0f, sampleRate * 0.49f);
+    if (cutoff <= 0.0f) return 0.0f;
+    // Map 0..1 to 0..maxFreq using a formula that goes through 0.
+    // We'll use f = maxFreq * (pow(1000.0, cutoff) - 1.0) / 999.0
+    // This gives a nice logarithmic feel.
+    return maxFreq * (std::pow(1000.0f, cutoff) - 1.0f) / 999.0f;
+}
+} // namespace Dsp
 } // namespace noteahead::Utils

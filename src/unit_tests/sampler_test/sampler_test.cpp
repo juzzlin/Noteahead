@@ -35,7 +35,7 @@ public:
     int64_t writeInt(std::span<const int32_t> data) override { return data.size(); }
     bool seek(int64_t, int) override { return true; }
     bool isOpen() const override { return true; }
-    Info info() const override { return { 1024, 44100, m_channels, 0 }; }
+    Info info() const override { return { 1024, static_cast<int>(Constants::defaultSampleRate()), m_channels, 0 }; }
     void setForceChannels(int channels) { m_channels = channels; }
 private:
     int m_channels = 2;
@@ -67,7 +67,7 @@ void SamplerTest::test_midiNoteOn_shouldPlaySample()
     sampler.loadSample(60, "test.wav");
     sampler.processMidiNoteOn(60, 127);
     std::vector<float> buffer(4, 0.0f);
-    sampler.processAudio(buffer.data(), 2, 44100);
+    sampler.processAudio(buffer.data(), 2, static_cast<uint32_t>(Constants::defaultSampleRate()));
     QVERIFY(buffer[0] > 0.0f);
 }
 
@@ -78,7 +78,7 @@ void SamplerTest::test_midiAllNotesOff_shouldStopAllVoices()
     sampler.processMidiNoteOn(60, 127);
     sampler.processMidiAllNotesOff();
     std::vector<float> buffer(4, 0.0f);
-    sampler.processAudio(buffer.data(), 2, 44100);
+    sampler.processAudio(buffer.data(), 2, static_cast<uint32_t>(Constants::defaultSampleRate()));
     QCOMPARE(buffer[0], 0.0f);
 }
 
@@ -152,7 +152,7 @@ void SamplerTest::test_processAudio_shouldProduceOutput()
     sampler.loadSample(60, "test.wav");
     sampler.processMidiNoteOn(60, 127);
     std::vector<float> buffer(4, 0.0f);
-    sampler.processAudio(buffer.data(), 2, 44100);
+    sampler.processAudio(buffer.data(), 2, static_cast<uint32_t>(Constants::defaultSampleRate()));
     QCOMPARE(buffer[0], 1.0f);
     QCOMPARE(buffer[1], 1.0f);
 }

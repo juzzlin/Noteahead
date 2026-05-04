@@ -24,7 +24,7 @@ void PanningEffect::setPan(float pan)
     m_pan = pan;
 }
 
-void PanningEffect::process(float & left, float & right, uint32_t /*sampleRate*/)
+void PanningEffect::process(float & left, float & right)
 {
     const float gainL = std::min(1.0f, 2.0f - m_pan * 2.0f);
     const float gainR = std::min(1.0f, m_pan * 2.0f);

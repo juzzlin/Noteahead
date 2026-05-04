@@ -3,42 +3,34 @@ set(NAME keyboard_service_test)
 set(SRC
     ${NAME}.cpp
     ${NAME}.hpp
-    ../../application/service/keyboard_service.cpp
-    ../../application/service/application_service.cpp
-    ../../application/service/editor_service.cpp
-    ../../application/service/player_service.cpp
-    ../../application/service/recent_files_manager.cpp
-    ../../application/service/automation_service.cpp
-    ../../application/service/property_service.cpp
-    ../../application/service/copy_manager.cpp
-    ../../application/service/device_service.cpp
-    ../../application/service/mixer_service.cpp
-    ../../application/service/random_service.cpp
-    ../../application/service/selection_service.cpp
-    ../../application/service/side_chain_service.cpp
-    ../../application/state_machine.cpp
-    ../../application/note_converter.cpp
-    ../../application/command/note_edit_command.cpp
-    ../../application/command/undo_stack.cpp
     ../../application/command/automation_command.cpp
     ../../application/command/composite_command.cpp
-    ../../application/position.hpp
+    ../../application/command/note_edit_command.cpp
+    ../../application/command/undo_stack.cpp
     ../../application/instrument_request.cpp
+    ../../application/note_converter.cpp
+    ../../application/position.hpp
+    ../../application/service/application_service.cpp
+    ../../application/service/automation_service.cpp
+    ../../application/service/copy_manager.cpp
+    ../../application/service/device_service.cpp
+    ../../application/service/editor_service.cpp
+    ../../application/service/jack_service.cpp
+    ../../application/service/keyboard_service.cpp
     ../../application/service/midi_service.cpp
     ../../application/service/midi_worker.cpp
     ../../application/service/midi_worker_in.cpp
     ../../application/service/midi_worker_out.cpp
-    ../../application/service/jack_service.cpp
+    ../../application/service/mixer_service.cpp
+    ../../application/service/player_service.cpp
     ../../application/service/player_worker.cpp
+    ../../application/service/property_service.cpp
+    ../../application/service/random_service.cpp
+    ../../application/service/recent_files_manager.cpp
+    ../../application/service/selection_service.cpp
     ../../application/service/settings_service.cpp
-    ../../infra/settings.cpp
-    ../../infra/midi/midi_backend.cpp
-    ../../infra/midi/midi_backend_in.cpp
-    ../../infra/midi/midi_backend_out.cpp
-    ../../infra/midi/midi_port.cpp
-    ../../infra/midi/midi_cc_mapping.cpp
-    ../../infra/midi/implementation/librtmidi/midi_in_rt_midi.cpp
-    ../../infra/midi/implementation/librtmidi/midi_out_rt_midi.cpp
+    ../../application/service/side_chain_service.cpp
+    ../../application/state_machine.cpp
     ../../common/constants.cpp
     ../../common/utils.cpp
     ../../common/waveform_generator.cpp
@@ -47,19 +39,19 @@ set(SRC
     ../../domain/automation_location.cpp
     ../../domain/column.cpp
     ../../domain/column_settings.cpp
-    ../../domain/devices/device.cpp
     ../../domain/devices/delay_effect.cpp
+    ../../domain/devices/device.cpp
+    ../../domain/devices/effect.cpp
     ../../domain/devices/high_pass_filter_effect.cpp
     ../../domain/devices/low_pass_filter_effect.cpp
     ../../domain/devices/panning_effect.cpp
-    ../../domain/parameter.cpp
-    ../../domain/parameter_container.cpp
     ../../domain/devices/sampler_device.cpp
     ../../domain/devices/synth_device.cpp
     ../../domain/devices/synth_presets.cpp
     ../../domain/devices/volume_effect.cpp
     ../../domain/dsp/adsr_envelope.cpp
     ../../domain/dsp/cascaded_svf.cpp
+    ../../domain/dsp/dsp_component.cpp
     ../../domain/dsp/lfo.cpp
     ../../domain/dsp/multi_engine.cpp
     ../../domain/dsp/polyblep_oscillator.cpp
@@ -78,6 +70,8 @@ set(SRC
     ../../domain/mixer_unit.cpp
     ../../domain/note_data.cpp
     ../../domain/note_data_manipulator.cpp
+    ../../domain/parameter.cpp
+    ../../domain/parameter_container.cpp
     ../../domain/pattern.cpp
     ../../domain/pitch_bend_automation.cpp
     ../../domain/pitch_bend_data.cpp
@@ -90,6 +84,14 @@ set(SRC
     ../../infra/audio/audio_player.cpp
     ../../infra/audio/audio_recorder.cpp
     ../../infra/audio/backend/sndfile_reader.cpp
+    ../../infra/midi/implementation/librtmidi/midi_in_rt_midi.cpp
+    ../../infra/midi/implementation/librtmidi/midi_out_rt_midi.cpp
+    ../../infra/midi/midi_backend.cpp
+    ../../infra/midi/midi_backend_in.cpp
+    ../../infra/midi/midi_backend_out.cpp
+    ../../infra/midi/midi_cc_mapping.cpp
+    ../../infra/midi/midi_port.cpp
+    ../../infra/settings.cpp
 )
 
 qt_add_executable(${NAME} ${SRC})

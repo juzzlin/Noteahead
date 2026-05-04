@@ -14,6 +14,8 @@
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
 #include "synth_controller.hpp"
+#include "../../common/constants.hpp"
+#include "../../common/utils.hpp"
 #include "../../domain/devices/synth_device.hpp"
 #include "../../domain/devices/synth_presets.hpp"
 
@@ -130,7 +132,12 @@ void SynthController::setMasterPan(int p) { if (m_synth) { m_synth->setMasterPan
 int SynthController::masterVolume() const { return m_synth ? static_cast<int>(std::round(m_synth->masterVolume() * 100.0f)) : 0; }
 void SynthController::setMasterVolume(int v) { if (m_synth) { m_synth->setMasterVolume(v / 100.0f); emit masterVolumeChanged(); } }
 
-uint32_t SynthController::sampleRate() const { return m_synth ? m_synth->sampleRate() : 44100; }
+uint32_t SynthController::sampleRate() const { return m_synth ? m_synth->sampleRate() : static_cast<uint32_t>(Constants::defaultSampleRate()); }
+
+float SynthController::cutoffToHz(float cutoff) const
+{
+    return Utils::Dsp::cutoffToHz(cutoff / 100.0f, static_cast<float>(sampleRate()));
+}
 
 QStringList SynthController::presetNames() const
 {

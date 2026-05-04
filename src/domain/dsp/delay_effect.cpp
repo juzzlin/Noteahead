@@ -14,6 +14,7 @@
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
 #include "delay_effect.hpp"
+#include "../../common/constants.hpp"
 
 #include <cmath>
 #include <algorithm>
@@ -28,7 +29,7 @@ DelayEffect::DelayEffect()
 void DelayEffect::setSampleRate(double sampleRate)
 {
     if (std::abs(m_sampleRate - sampleRate) > 0.1) {
-        m_sampleRate = sampleRate;
+        DspComponent::setSampleRate(sampleRate);
         updateBuffers();
     }
 }

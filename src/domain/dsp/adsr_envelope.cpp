@@ -19,12 +19,6 @@
 
 namespace noteahead {
 
-void ADSREnvelope::setSampleRate(double sampleRate)
-{
-    m_sampleRate = sampleRate;
-    calculateSteps();
-}
-
 void ADSREnvelope::setAttackTime(double seconds)
 {
     m_attackTime = std::max(0.000001, seconds);

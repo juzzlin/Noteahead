@@ -45,6 +45,9 @@ std::optional<size_t> readUIntAttribute(QXmlStreamReader & reader, QString name,
 std::optional<QString> readStringAttribute(QXmlStreamReader & reader, QString name, bool required = true);
 std::optional<std::chrono::milliseconds> readMSecAttribute(QXmlStreamReader & reader, QString name, bool required = true);
 } // namespace Xml
+namespace Dsp {
+float cutoffToHz(float cutoff, float sampleRate);
+} // namespace Dsp
 } // namespace noteahead::Utils
 
 #endif // UTILS_HPP

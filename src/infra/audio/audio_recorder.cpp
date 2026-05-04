@@ -14,6 +14,7 @@
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
 #include "audio_recorder.hpp"
+#include "../../common/constants.hpp"
 
 namespace noteahead {
 
@@ -43,7 +44,7 @@ void AudioRecorder::setInputDevice(uint32_t)
 
 uint32_t AudioRecorder::sampleRate()
 {
-    return 48000;
+    return static_cast<uint32_t>(Constants::defaultSampleRate());
 }
 
 } // namespace noteahead

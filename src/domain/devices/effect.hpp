@@ -18,13 +18,15 @@
 
 #include <cstdint>
 
+#include "../dsp/dsp_component.hpp"
+
 namespace noteahead {
 
-class Effect
+class Effect : public DspComponent
 {
 public:
-    virtual ~Effect() = default;
-    virtual void process(float & left, float & right, uint32_t sampleRate) = 0;
+    virtual ~Effect() override;
+    virtual void process(float & left, float & right) = 0;
     virtual void reset() {}
 };
 

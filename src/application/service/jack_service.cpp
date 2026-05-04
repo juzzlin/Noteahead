@@ -15,6 +15,7 @@
 
 #include "jack_service.hpp"
 
+#include "../../common/constants.hpp"
 #include "../../contrib/SimpleLogger/src/simple_logger.hpp"
 #include "../../infra/audio/audio_engine.hpp"
 #include "settings_service.hpp"
@@ -156,7 +157,7 @@ double JackService::bpm() const
 
 uint32_t JackService::sampleRate() const
 {
-    return m_client ? jack_get_sample_rate(m_client) : 48000;
+    return m_client ? jack_get_sample_rate(m_client) : static_cast<uint32_t>(Constants::defaultSampleRate());
 }
 
 jack_nframes_t JackService::currentFrame() const

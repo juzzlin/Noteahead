@@ -20,6 +20,7 @@
 #include "../../domain/devices/low_pass_filter_effect.hpp"
 #include "../../domain/devices/high_pass_filter_effect.hpp"
 #include "../../domain/dsp/cascaded_svf.hpp"
+#include "../../common/constants.hpp"
 
 #include <QtTest>
 
@@ -34,7 +35,7 @@ void EffectsTest::test_volumeEffect()
     float right = 1.0f;
 
     effect.setVolume(0.5f);
-    effect.process(left, right, 44100);
+    effect.process(left, right);
 
     QCOMPARE(left, 0.5f);
     QCOMPARE(right, 0.5f);
@@ -42,7 +43,7 @@ void EffectsTest::test_volumeEffect()
     effect.setVolume(0.0f);
     left = 1.0f;
     right = 1.0f;
-    effect.process(left, right, 44100);
+    effect.process(left, right);
     QCOMPARE(left, 0.0f);
     QCOMPARE(right, 0.0f);
 }
@@ -56,7 +57,7 @@ void EffectsTest::test_panningEffect()
         float left = 1.0f;
         float right = 1.0f;
         effect.setPan(0.5f);
-        effect.process(left, right, 44100);
+        effect.process(left, right);
         QCOMPARE(left, 1.0f);
         QCOMPARE(right, 1.0f);
     }
@@ -66,7 +67,7 @@ void EffectsTest::test_panningEffect()
         float left = 1.0f;
         float right = 1.0f;
         effect.setPan(0.0f);
-        effect.process(left, right, 44100);
+        effect.process(left, right);
         QCOMPARE(left, 1.0f);
         QCOMPARE(right, 0.0f);
     }
@@ -76,7 +77,7 @@ void EffectsTest::test_panningEffect()
         float left = 1.0f;
         float right = 1.0f;
         effect.setPan(1.0f);
-        effect.process(left, right, 44100);
+        effect.process(left, right);
         QCOMPARE(left, 0.0f);
         QCOMPARE(right, 1.0f);
     }
@@ -90,7 +91,7 @@ void EffectsTest::test_lowPassFilterEffect()
 
     // Cutoff 1.0 (bypass)
     effect.setCutoff(1.0f);
-    effect.process(left, right, 44100);
+    effect.process(left, right);
     QCOMPARE(left, 1.0f);
     QCOMPARE(right, 1.0f);
 
@@ -99,7 +100,7 @@ void EffectsTest::test_lowPassFilterEffect()
     for (int i = 0; i < 100; ++i) {
         left = 1.0f;
         right = 1.0f;
-        effect.process(left, right, 44100);
+        effect.process(left, right);
         QVERIFY(!std::isnan(left));
         QVERIFY(!std::isnan(right));
     }
@@ -114,7 +115,7 @@ void EffectsTest::test_highPassFilterEffect()
         float left = 1.0f;
         float right = 1.0f;
         effect.setCutoff(0.0f);
-        effect.process(left, right, 44100);
+        effect.process(left, right);
         QCOMPARE(left, 1.0f);
         QCOMPARE(right, 1.0f);
     }
@@ -124,7 +125,7 @@ void EffectsTest::test_highPassFilterEffect()
     for (int i = 0; i < 100; ++i) {
         float left = 1.0f;
         float right = 1.0f;
-        effect.process(left, right, 44100);
+        effect.process(left, right);
         QVERIFY(!std::isnan(left));
         QVERIFY(!std::isnan(right));
     }
@@ -134,7 +135,7 @@ void EffectsTest::test_highPassFilterEffect()
     for (int i = 0; i < 100; ++i) {
         float left = 1.0f;
         float right = 1.0f;
-        effect.process(left, right, 44100);
+        effect.process(left, right);
         QVERIFY(!std::isnan(left));
         QVERIFY(!std::isnan(right));
     }
@@ -153,8 +154,8 @@ void EffectsTest::test_filterStability()
         lp.setCutoff(cutoff);
         hp.setCutoff(cutoff);
 
-        lp.process(left, right, 44100);
-        hp.process(left, right, 44100);
+        lp.process(left, right);
+        hp.process(left, right);
 
         QVERIFY(!std::isnan(left));
         QVERIFY(!std::isnan(right));
@@ -164,7 +165,7 @@ void EffectsTest::test_filterStability()
 void EffectsTest::test_cascadedSvfStability()
 {
     CascadedSVF filter{};
-    filter.setSampleRate(44100);
+    filter.setSampleRate(static_cast<uint32_t>(Constants::defaultSampleRate()));
     
     // Stress test: Rapidly change parameters
     for (int i = 0; i < 1000; ++i) {

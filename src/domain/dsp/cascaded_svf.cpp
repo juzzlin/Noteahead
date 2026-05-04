@@ -21,11 +21,6 @@
 
 namespace noteahead {
 
-void CascadedSVF::setSampleRate(double sampleRate)
-{
-    m_sampleRate = sampleRate;
-}
-
 void CascadedSVF::setCutoff(double cutoff)
 {
     m_cutoff = std::clamp(cutoff, 0.0, 1.0);

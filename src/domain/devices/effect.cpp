@@ -13,26 +13,10 @@
 // You should have received a copy of the GNU General Public License
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef HIGH_PASS_FILTER_EFFECT_HPP
-#define HIGH_PASS_FILTER_EFFECT_HPP
-
 #include "effect.hpp"
 
 namespace noteahead {
 
-class HighPassFilterEffect : public Effect
-{
-public:
-    void setCutoff(float cutoff);
-    void process(float & left, float & right) override;
-    void reset() override;
-
-private:
-    float m_cutoff { 0.0f };
-    double m_s1L { 0.0 }, m_s2L { 0.0 };
-    double m_s1R { 0.0 }, m_s2R { 0.0 };
-};
+Effect::~Effect() = default;
 
 } // namespace noteahead
-
-#endif // HIGH_PASS_FILTER_EFFECT_HPP

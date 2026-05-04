@@ -282,8 +282,8 @@ Dialog {
                 // LPF Cutoff Knob
                 FilterKnob {
                     label: qsTr("LPF Cutoff")
+                    controller: samplerController
                     value: samplerController.selectedPadCutoff * 100
-                    sampleRate: samplerController.sampleRate
                     onMoved: v => {
                         samplerController.selectedPadCutoff = v / 100;
                     }
@@ -292,8 +292,8 @@ Dialog {
                 // HPF Cutoff Knob
                 FilterKnob {
                     label: qsTr("HPF Cutoff")
+                    controller: samplerController
                     value: samplerController.selectedPadHpfCutoff * 100
-                    sampleRate: samplerController.sampleRate
                     isHpf: true
                     onMoved: v => {
                         samplerController.selectedPadHpfCutoff = v / 100;

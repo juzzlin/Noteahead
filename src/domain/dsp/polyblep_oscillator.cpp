@@ -22,7 +22,7 @@ namespace noteahead {
 
 void PolyBLEPOscillator::setSampleRate(double sampleRate)
 {
-    m_sampleRate = sampleRate;
+    DspComponent::setSampleRate(sampleRate);
     updatePhaseStep();
 }
 

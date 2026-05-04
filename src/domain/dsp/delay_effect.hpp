@@ -19,9 +19,11 @@
 #include <vector>
 #include <cstdint>
 
+#include "dsp_component.hpp"
+
 namespace noteahead {
 
-class DelayEffect
+class DelayEffect : public DspComponent
 {
 public:
     enum class Type
@@ -36,7 +38,7 @@ public:
 
     DelayEffect();
 
-    void setSampleRate(double sampleRate);
+    void setSampleRate(double sampleRate) override;
     void setType(Type type);
     void setTime(double seconds); // Manual time
     void setFeedback(double feedback); // 0.0 to 1.0
@@ -50,7 +52,7 @@ public:
 
 private:
     Type m_type { Type::Stereo };
-    double m_sampleRate { 44100.0 };
+    double m_sampleRate;
     double m_time { 0.5 };
     double m_feedback { 0.3 };
     double m_mix { 0.0 };

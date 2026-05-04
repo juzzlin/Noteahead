@@ -16,36 +16,36 @@
 #ifndef LFO_HPP
 #define LFO_HPP
 
+#include "dsp_component.hpp"
+
 namespace noteahead {
 
-class LFO
+class LFO : public DspComponent
 {
 public:
-    enum class Waveform
-    {
+    enum class Waveform {
         Saw,
         Triangle,
         Square
     };
 
-    enum class Mode
-    {
+    enum class Mode {
         Normal,
         BPM,
         OneShot
     };
 
-    void setSampleRate(double sampleRate);
+    void setSampleRate(double sampleRate) override;
     void setFrequency(double frequency);
     void setWaveform(Waveform waveform);
     void setMode(Mode mode);
+    void trigger();
+    double nextSample();
     void reset();
 
-    double nextSample();
-
 private:
-    double m_sampleRate { 44100.0 };
     double m_frequency { 1.0 };
+
     Waveform m_waveform { Waveform::Triangle };
     Mode m_mode { Mode::Normal };
     double m_phase { 0.0 };

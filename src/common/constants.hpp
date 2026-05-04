@@ -44,6 +44,8 @@ int transposeMax();
 QString samplerDeviceName();
 QString synthDeviceName();
 
+double defaultSampleRate();
+
 namespace NahdXml {
 
 QString xmlKeyFileFormatVersion();

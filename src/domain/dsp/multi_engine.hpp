@@ -19,9 +19,11 @@
 #include <cstdint>
 #include <random>
 
+#include "dsp_component.hpp"
+
 namespace noteahead {
 
-class MultiEngine
+class MultiEngine : public DspComponent
 {
 public:
     enum class Type
@@ -34,7 +36,6 @@ public:
 
     MultiEngine();
 
-    void setSampleRate(double sampleRate);
     void setType(Type type);
     void setShape(float shape);
     void setKeyTrack(float keyTrack);
@@ -45,7 +46,6 @@ public:
 
 private:
     Type m_type { Type::Low };
-    double m_sampleRate { 44100.0 };
     float m_shape { 0.5f };
     float m_keyTrack { 0.0f };
     uint8_t m_note { 60 };

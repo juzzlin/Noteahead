@@ -17,6 +17,7 @@
 #include "../../infra/audio/audio_file_recorder.hpp"
 #include "../../infra/audio/audio_file_streamer.hpp"
 #include "../../infra/audio/backend/audio_file_reader.hpp"
+#include "../../common/constants.hpp"
 
 #include <QtTest>
 #include <mutex>
@@ -138,7 +139,7 @@ private:
 
 void AudioFileIoTest::testRecordingAndStreaming()
 {
-    const uint32_t sampleRate = 44100;
+    const uint32_t sampleRate = static_cast<uint32_t>(Constants::defaultSampleRate());
     const uint32_t channels = 2;
     const size_t bufferSize = 4096;
 
@@ -210,7 +211,7 @@ void AudioFileIoTest::testRecordingAndStreaming()
 
 void AudioFileIoTest::testPosition()
 {
-    const uint32_t sampleRate = 44100;
+    const uint32_t sampleRate = static_cast<uint32_t>(Constants::defaultSampleRate());
     const uint32_t channels = 1;
     const size_t bufferSize = 4096;
 

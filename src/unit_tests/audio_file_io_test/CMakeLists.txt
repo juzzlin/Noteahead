@@ -3,6 +3,8 @@ set(NAME audio_file_io_test)
 set(SRC
     ${NAME}.cpp
     ${NAME}.hpp
+    ../../common/constants.cpp
+    ../../common/utils.cpp
     ../../infra/audio/audio_file_recorder.cpp
     ../../infra/audio/audio_file_streamer.cpp
     ../../infra/audio/backend/sndfile_reader.cpp

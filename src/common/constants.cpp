@@ -87,6 +87,11 @@ QString synthDeviceName()
     return "Notealogue";
 }
 
+double defaultSampleRate()
+{
+    return 48000.0;
+}
+
 namespace NahdXml {
 
 QString xmlKeyFileFormatVersion()

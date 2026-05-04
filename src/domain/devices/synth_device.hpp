@@ -24,8 +24,6 @@
 #include "../dsp/multi_engine.hpp"
 #include "delay_effect.hpp"
 
-#include <array>
-#include <memory>
 #include <mutex>
 #include <vector>
 

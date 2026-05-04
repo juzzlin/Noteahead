@@ -14,9 +14,10 @@
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
 #include "synth_device.hpp"
-#include "synth_presets.hpp"
+
 #include "../../common/constants.hpp"
 #include "../../common/utils.hpp"
+#include "synth_presets.hpp"
 
 #include <QXmlStreamReader>
 #include <QXmlStreamWriter>
@@ -258,7 +259,7 @@ void SynthDevice::processAudio(float * output, uint32_t nFrames, uint32_t sample
     for (uint32_t i { 0 }; i < nFrames; i++) {
         float l { localBuffer[i * 2] };
         float r { localBuffer[i * 2 + 1] };
-        m_delay.process(l, r, sampleRate);
+        m_delay.process(l, r);
         
         // Final Output Soft-Clipper
         output[i * 2] += std::tanh(l);
@@ -433,7 +434,7 @@ void SynthDevice::handleNoteOn(uint8_t note, uint8_t velocity)
         // Unison
         for (int i = 0; i < MaxVoices; i++) {
             // Non-linear detune spread for better texture
-            const double detuneAmount = (i - (MaxVoices - 1) / 2.0) * std::pow(m_voiceDepth, 1.5) * 0.2; 
+            const double detuneAmount = (i - (MaxVoices - 1) / 2.0) * std::pow(m_voiceDepth, 1.5) * 0.2;
 
             const float side = (i % 2 == 0) ? -1.0f : 1.0f;
             const float depth = 1.0f - static_cast<float>(i / 2) * (2.0f / static_cast<float>(MaxVoices));

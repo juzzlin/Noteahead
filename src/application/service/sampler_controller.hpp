@@ -48,6 +48,7 @@ public:
     ~SamplerController() override;
 
     uint32_t sampleRate() const;
+    Q_INVOKABLE float cutoffToHz(float cutoff) const;
 
     SamplerPadModel * padModel() const;
     SamplerDevice::SamplerDeviceS sampler() const;

@@ -18,9 +18,11 @@
 
 #include <cstdint>
 
+#include "dsp_component.hpp"
+
 namespace noteahead {
 
-class CascadedSVF
+class CascadedSVF : public DspComponent
 {
 public:
     enum class Mode
@@ -29,7 +31,6 @@ public:
         HighPass
     };
 
-    void setSampleRate(double sampleRate);
     void setCutoff(double cutoff); // 0.0 to 1.0
     void setResonance(double resonance); // 0.0 to 1.0
     void setMode(Mode mode);
@@ -38,7 +39,6 @@ public:
     void reset();
 
 private:
-    double m_sampleRate { 44100.0 };
     double m_cutoff { 1.0 };
     double m_resonance { 0.0 };
     Mode m_mode { Mode::LowPass };

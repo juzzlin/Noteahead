@@ -17,6 +17,7 @@
 
 #include "../../../contrib/SimpleLogger/src/simple_logger.hpp"
 #include "../../audio_engine.hpp"
+#include "../../../common/constants.hpp"
 
 #include <algorithm>
 
@@ -83,7 +84,7 @@ uint32_t AudioRecorderRtAudio::sampleRate()
     if (m_rtAudio.isStreamOpen()) {
         return m_rtAudio.getStreamSampleRate();
     }
-    return 48000;
+    return static_cast<uint32_t>(Constants::defaultSampleRate());
 }
 
 AudioRecorderRtAudio::~AudioRecorderRtAudio()
@@ -121,7 +122,7 @@ void AudioRecorderRtAudio::start(const std::string & fileName, uint32_t bufferSi
     }
 
     try {
-        uint32_t sampleRate = 48000;
+        uint32_t sampleRate = static_cast<uint32_t>(Constants::defaultSampleRate());
         uint32_t channelCount = 2;
         uint32_t deviceId = 0;
         std::string deviceName = "JACK System";
@@ -141,7 +142,7 @@ void AudioRecorderRtAudio::start(const std::string & fileName, uint32_t bufferSi
 
             deviceId = m_inputDeviceId.load();
             const auto deviceInfo = m_rtAudio.getDeviceInfo(deviceId);
-            sampleRate = deviceInfo.preferredSampleRate ? deviceInfo.preferredSampleRate : 48000;
+            sampleRate = deviceInfo.preferredSampleRate ? deviceInfo.preferredSampleRate : static_cast<uint32_t>(Constants::defaultSampleRate());
             channelCount = std::min(deviceInfo.inputChannels, 2u);
             deviceName = deviceInfo.name;
         }

@@ -22,7 +22,7 @@ namespace noteahead {
 
 void LFO::setSampleRate(double sampleRate)
 {
-    m_sampleRate = sampleRate;
+    DspComponent::setSampleRate(sampleRate);
     updatePhaseStep();
 }
 

@@ -24,7 +24,7 @@ class VolumeEffect : public Effect
 {
 public:
     void setVolume(float volume);
-    void process(float & left, float & right, uint32_t sampleRate) override;
+    void process(float & left, float & right) override;
 
 private:
     float m_volume { 1.0f };

@@ -9,10 +9,12 @@ set(SRC
     ../../domain/parameter_container.cpp
     ../../domain/devices/device.cpp
     ../../domain/devices/delay_effect.cpp
+    ../../domain/devices/effect.cpp
     ../../domain/devices/synth_device.cpp
     ../../domain/devices/synth_presets.cpp
     ../../domain/dsp/adsr_envelope.cpp
     ../../domain/dsp/cascaded_svf.cpp
+    ../../domain/dsp/dsp_component.cpp
     ../../domain/dsp/lfo.cpp
     ../../domain/dsp/multi_engine.cpp
     ../../domain/dsp/polyblep_oscillator.cpp

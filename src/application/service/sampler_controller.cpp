@@ -1,5 +1,7 @@
 #include "sampler_controller.hpp"
 #include "../models/sampler/sampler_pad_model.hpp"
+#include "../../common/constants.hpp"
+#include "../../common/utils.hpp"
 #include "../../common/waveform_generator.hpp"
 #include "../../domain/devices/sampler_device.hpp"
 
@@ -43,7 +45,12 @@ void SamplerController::setSampler(SamplerDevice::SamplerDeviceS sampler)
 
 uint32_t SamplerController::sampleRate() const
 {
-    return m_sampler ? m_sampler->sampleRate() : 44100;
+    return m_sampler ? m_sampler->sampleRate() : static_cast<uint32_t>(Constants::defaultSampleRate());
+}
+
+float SamplerController::cutoffToHz(float cutoff) const
+{
+    return Utils::Dsp::cutoffToHz(cutoff / 100.0f, static_cast<float>(sampleRate()));
 }
 
 int SamplerController::selectedPad() const

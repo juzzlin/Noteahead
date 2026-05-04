@@ -26,24 +26,17 @@ ColumnLayout {
     property real from: 0
     property real to: 100
     property string suffix: "%"
-    property real sampleRate: 44100
+    property var controller: null
     property bool isHpf: false
     signal moved(real val)
 
     Universal.theme: Universal.Dark
     Universal.accent: themeService.accentColor
 
-    readonly property real cutoffHz: {
-        const normalizedCutoff = value / 100.0;
-        if (isHpf && normalizedCutoff <= 0.001) {
-            return 0.0;
-        }
-        const freq = 20.0 * Math.pow(Math.min(20000.0, sampleRate * 0.49) / 20.0, normalizedCutoff);
-        return freq;
-    }
+    readonly property real cutoffHz: controller ? controller.cutoffToHz(value) : 0
 
     readonly property string freqString: {
-        if (isHpf && value <= 0) {
+        if (value <= 0) {
             return "0 Hz";
         }
         if (!isHpf && value >= 100) {

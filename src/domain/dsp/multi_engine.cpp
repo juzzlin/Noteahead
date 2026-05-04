@@ -14,6 +14,7 @@
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
 #include "multi_engine.hpp"
+#include "../../common/constants.hpp"
 
 #include <cmath>
 #include <algorithm>
@@ -25,11 +26,6 @@ MultiEngine::MultiEngine()
     : m_rng(std::random_device{}())
     , m_dist(-1.0f, 1.0f)
 {
-}
-
-void MultiEngine::setSampleRate(double sampleRate)
-{
-    m_sampleRate = sampleRate;
 }
 
 void MultiEngine::setType(Type type)
@@ -84,7 +80,7 @@ float MultiEngine::nextSample()
         return processFilter(noise, cutoff, 0.8f, 2); // 2 = BP
     } else if (m_type == Type::Decim) {
         // Decimator [240Hz ... 48kHz]
-        float baseRate = 240.0f + m_shape * (48000.0f - 240.0f);
+        float baseRate = 240.0f + m_shape * (static_cast<float>(Constants::defaultSampleRate()) - 240.0f);
         float trackedRate = baseRate * std::pow(2.0f, (m_note - 60) / 12.0f * m_keyTrack);
         trackedRate = std::clamp(trackedRate, 240.0f, static_cast<float>(m_sampleRate));
 

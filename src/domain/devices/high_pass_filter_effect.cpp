@@ -14,6 +14,7 @@
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
 #include "high_pass_filter_effect.hpp"
+#include "../../common/utils.hpp"
 
 #include <algorithm>
 #include <cmath>
@@ -25,15 +26,15 @@ void HighPassFilterEffect::setCutoff(float cutoff)
 {
     m_cutoff = cutoff;
 }
-void HighPassFilterEffect::process(float & left, float & right, uint32_t sampleRate)
+void HighPassFilterEffect::process(float & left, float & right)
 {
     if (m_cutoff <= 0.001f) {
         return;
     }
 
     // Zero-Delay Feedback State Variable Filter (2nd order)
-    const float freq = 20.0f * std::pow(std::min(20000.0f, sampleRate * 0.49f) / 20.0f, m_cutoff);
-    const double g = std::tan(std::numbers::pi * static_cast<double>(freq) / static_cast<double>(sampleRate));
+    const float freq = Utils::Dsp::cutoffToHz(m_cutoff, static_cast<float>(m_sampleRate));
+    const double g = std::tan(std::numbers::pi * static_cast<double>(freq) / m_sampleRate);
     const double k = 1.0; // Q = 1.0 / k
     const double damping = 1.0 / (1.0 + g * (g + k));
 

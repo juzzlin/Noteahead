@@ -32,6 +32,7 @@ set(SRC
     ../../domain/column.cpp
     ../../domain/column_settings.cpp
     ../../domain/devices/device.cpp
+    ../../domain/devices/effect.cpp
     ../../domain/devices/delay_effect.cpp
     ../../domain/devices/high_pass_filter_effect.cpp
     ../../domain/devices/low_pass_filter_effect.cpp
@@ -43,6 +44,7 @@ set(SRC
     ../../domain/devices/synth_presets.cpp
     ../../domain/dsp/adsr_envelope.cpp
     ../../domain/dsp/cascaded_svf.cpp
+    ../../domain/dsp/dsp_component.cpp
     ../../domain/dsp/lfo.cpp
     ../../domain/dsp/multi_engine.cpp
     ../../domain/dsp/polyblep_oscillator.cpp

@@ -22,7 +22,7 @@ void VolumeEffect::setVolume(float volume)
     m_volume = volume;
 }
 
-void VolumeEffect::process(float & left, float & right, uint32_t /*sampleRate*/)
+void VolumeEffect::process(float & left, float & right)
 {
     left *= m_volume;
     right *= m_volume;

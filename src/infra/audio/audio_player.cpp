@@ -14,6 +14,7 @@
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
 #include "audio_player.hpp"
+#include "../../common/constants.hpp"
 
 namespace noteahead {
 
@@ -57,7 +58,7 @@ bool AudioPlayer::isFinished() const
 
 uint32_t AudioPlayer::sampleRate()
 {
-    return 48000;
+    return static_cast<uint32_t>(Constants::defaultSampleRate());
 }
 
 } // namespace noteahead

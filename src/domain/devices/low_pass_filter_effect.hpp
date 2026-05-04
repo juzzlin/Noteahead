@@ -24,7 +24,7 @@ class LowPassFilterEffect : public Effect
 {
 public:
     void setCutoff(float cutoff);
-    void process(float & left, float & right, uint32_t sampleRate) override;
+    void process(float & left, float & right) override;
     void reset() override;
 
 private:

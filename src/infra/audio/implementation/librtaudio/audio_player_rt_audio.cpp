@@ -17,6 +17,7 @@
 
 #include "../../../contrib/SimpleLogger/src/simple_logger.hpp"
 #include "../../audio_engine.hpp"
+#include "../../../common/constants.hpp"
 
 #include <algorithm>
 #include <iostream>
@@ -100,7 +101,7 @@ uint32_t AudioPlayerRtAudio::sampleRate()
     if (m_rtAudio.isStreamOpen()) {
         return m_rtAudio.getStreamSampleRate();
     }
-    return 48000;
+    return static_cast<uint32_t>(Constants::defaultSampleRate());
 }
 
 AudioPlayerRtAudio::~AudioPlayerRtAudio()
@@ -139,7 +140,7 @@ void AudioPlayerRtAudio::start(const std::string & fileName, uint32_t bufferSize
     }
 
     try {
-        uint32_t sampleRate = 44100;
+        uint32_t sampleRate = static_cast<uint32_t>(Constants::defaultSampleRate());
         uint32_t channelCount = 2;
 
         if (!fileName.empty()) {

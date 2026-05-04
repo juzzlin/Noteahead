@@ -22,6 +22,10 @@
 
 namespace noteahead {
 
+Device::Device()
+{
+}
+
 size_t Device::id() const
 {
     return m_id;

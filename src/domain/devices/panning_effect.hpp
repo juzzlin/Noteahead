@@ -24,7 +24,7 @@ class PanningEffect : public Effect
 {
 public:
     void setPan(float pan);
-    void process(float & left, float & right, uint32_t sampleRate) override;
+    void process(float & left, float & right) override;
 
 private:
     float m_pan { 0.5f };

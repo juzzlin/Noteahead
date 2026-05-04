@@ -33,6 +33,7 @@ class Device : public QObject, public ParameterContainer
     Q_OBJECT
 
 public:
+    Device();
     virtual ~Device() override = default;
 
     virtual std::string name() const = 0;
@@ -65,7 +66,7 @@ protected:
     void serializeAttributesToXml(QXmlStreamWriter & writer) const;
     void deserializeAttributesFromXml(QXmlStreamReader & reader);
 
-    uint32_t m_sampleRate { 44100 };
+    uint32_t m_sampleRate;
 
 private:
     size_t m_id { 0 };

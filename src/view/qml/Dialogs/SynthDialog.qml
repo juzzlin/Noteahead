@@ -344,8 +344,8 @@ Dialog {
                     Layout.alignment: Qt.AlignTop
                     FilterKnob {
                         label: qsTr("LPF Cutoff")
+                        controller: synthController
                         value: synthController.lpfCutoff
-                        sampleRate: synthController.sampleRate
                         onMoved: v => synthController.lpfCutoff = v
                         Layout.fillWidth: true
                     }
@@ -357,8 +357,8 @@ Dialog {
                     }
                     FilterKnob {
                         label: qsTr("HPF Cutoff")
+                        controller: synthController
                         value: synthController.hpfCutoff
-                        sampleRate: synthController.sampleRate
                         isHpf: true
                         onMoved: v => synthController.hpfCutoff = v
                         Layout.fillWidth: true

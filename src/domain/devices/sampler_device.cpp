@@ -346,7 +346,7 @@ void SamplerDevice::processAudio(float * output, uint32_t nFrames, uint32_t samp
             }
 
             for (auto && effect : voice.effects) {
-                effect->process(left, right, sampleRate);
+                effect->process(left, right);
             }
 
             if (voice.releasing) {

@@ -18,9 +18,11 @@
 
 #include <cstdint>
 
+#include "dsp_component.hpp"
+
 namespace noteahead {
 
-class ADSREnvelope
+class ADSREnvelope : public DspComponent
 {
 public:
     enum class State
@@ -32,7 +34,6 @@ public:
         Release
     };
 
-    void setSampleRate(double sampleRate);
     void setAttackTime(double seconds);
     void setDecayTime(double seconds);
     void setSustainLevel(double level);
@@ -49,7 +50,6 @@ public:
 
 private:
     State m_state { State::Idle };
-    double m_sampleRate { 44100.0 };
 
     double m_attackTime { 0.01 };
     double m_decayTime { 0.1 };

@@ -15,6 +15,7 @@
 
 #include "audio_recorder_jack.hpp"
 #include "../../../../application/service/jack_service.hpp"
+#include "../../../../common/constants.hpp"
 
 #include <QString>
 
@@ -55,7 +56,7 @@ void AudioRecorderJack::setInputDevice(uint32_t /*deviceId*/)
 
 uint32_t AudioRecorderJack::sampleRate()
 {
-    return m_jackService ? m_jackService->sampleRate() : 48000;
+    return m_jackService ? m_jackService->sampleRate() : static_cast<uint32_t>(Constants::defaultSampleRate());
 }
 
 } // namespace noteahead

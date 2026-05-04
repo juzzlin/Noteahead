@@ -47,7 +47,7 @@ public:
     bool open(const std::string &, Mode, Info & info) override
     {
         info.frames = 1000;
-        info.samplerate = 44100;
+        info.samplerate = static_cast<uint32_t>(Constants::defaultSampleRate());
         info.channels = 2;
         m_info = info;
         m_isOpen = true;
