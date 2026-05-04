@@ -23,7 +23,7 @@ namespace noteahead {
 class Parameter
 {
 public:
-    Parameter(const std::string & name, float internalValue, int xmlMin, int xmlMax, int xmlDefault, int xmlScale = 1);
+    Parameter(const std::string & name, float internalValue, int xmlMin, int xmlMax, int xmlDefault, int xmlScale = 1, bool discrete = false);
 
     const std::string & name() const;
 
@@ -36,6 +36,8 @@ public:
     int xmlDefault() const;
     int xmlScale() const;
 
+    bool isDiscrete() const;
+
     void setFromXml(int xmlVal);
 
     void reset();
@@ -47,6 +49,7 @@ private:
     int m_xmlMax { 100 };
     int m_xmlDefault { 0 };
     int m_xmlScale { 1 };
+    bool m_discrete { false };
 };
 
 } // namespace noteahead

@@ -245,6 +245,46 @@ QString xmlKeyDelayDepth();
 QString xmlKeyDelayMix();
 QString xmlKeyDelaySync();
 QString xmlKeyDelaySyncDivision();
+
+QString xmlKeySynthVco1Waveform();
+QString xmlKeySynthVco1Octave();
+QString xmlKeySynthVco1Pitch();
+QString xmlKeySynthVco1Shape();
+QString xmlKeySynthVco1Sync();
+
+QString xmlKeySynthVco2Waveform();
+QString xmlKeySynthVco2Octave();
+QString xmlKeySynthVco2Pitch();
+QString xmlKeySynthVco2Shape();
+QString xmlKeySynthVco2Sync();
+
+QString xmlKeySynthMultiMode();
+QString xmlKeySynthMultiShape();
+QString xmlKeySynthMultiLevel();
+
+QString xmlKeySynthMixLevel1();
+QString xmlKeySynthMixLevel2();
+
+QString xmlKeySynthLpfCutoff();
+QString xmlKeySynthLpfResonance();
+QString xmlKeySynthHpfCutoff();
+
+QString xmlKeySynthAmpAttack();
+QString xmlKeySynthAmpDecay();
+QString xmlKeySynthAmpSustain();
+QString xmlKeySynthAmpRelease();
+
+QString xmlKeySynthModAttack();
+QString xmlKeySynthModDecay();
+QString xmlKeySynthModIntensity();
+QString xmlKeySynthModTarget();
+
+QString xmlKeySynthLfoWaveform();
+QString xmlKeySynthLfoMode();
+QString xmlKeySynthLfoRate();
+QString xmlKeySynthLfoIntensity();
+QString xmlKeySynthLfoTarget();
+
 QString xmlKeySample();
 QString xmlKeySamples();
 QString xmlKeySamplePath();

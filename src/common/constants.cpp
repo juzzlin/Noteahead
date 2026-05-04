@@ -884,6 +884,45 @@ QString xmlKeyDelaySyncDivision()
     return "delaySyncDivision";
 }
 
+QString xmlKeySynthVco1Waveform() { return "vco1Waveform"; }
+QString xmlKeySynthVco1Octave() { return "vco1Octave"; }
+QString xmlKeySynthVco1Pitch() { return "vco1Pitch"; }
+QString xmlKeySynthVco1Shape() { return "vco1Shape"; }
+QString xmlKeySynthVco1Sync() { return "vco1Sync"; }
+
+QString xmlKeySynthVco2Waveform() { return "vco2Waveform"; }
+QString xmlKeySynthVco2Octave() { return "vco2Octave"; }
+QString xmlKeySynthVco2Pitch() { return "vco2Pitch"; }
+QString xmlKeySynthVco2Shape() { return "vco2Shape"; }
+QString xmlKeySynthVco2Sync() { return "vco2Sync"; }
+
+QString xmlKeySynthMultiMode() { return "multiMode"; }
+QString xmlKeySynthMultiShape() { return "multiShape"; }
+QString xmlKeySynthMultiLevel() { return "multiLevel"; }
+
+QString xmlKeySynthMixLevel1() { return "mixLevel1"; }
+QString xmlKeySynthMixLevel2() { return "mixLevel2"; }
+
+QString xmlKeySynthLpfCutoff() { return "lpfCutoff"; }
+QString xmlKeySynthLpfResonance() { return "lpfResonance"; }
+QString xmlKeySynthHpfCutoff() { return "hpfCutoff"; }
+
+QString xmlKeySynthAmpAttack() { return "ampAttack"; }
+QString xmlKeySynthAmpDecay() { return "ampDecay"; }
+QString xmlKeySynthAmpSustain() { return "ampSustain"; }
+QString xmlKeySynthAmpRelease() { return "ampRelease"; }
+
+QString xmlKeySynthModAttack() { return "modAttack"; }
+QString xmlKeySynthModDecay() { return "modDecay"; }
+QString xmlKeySynthModIntensity() { return "modIntensity"; }
+QString xmlKeySynthModTarget() { return "modTarget"; }
+
+QString xmlKeySynthLfoWaveform() { return "lfoWaveform"; }
+QString xmlKeySynthLfoMode() { return "lfoMode"; }
+QString xmlKeySynthLfoRate() { return "lfoRate"; }
+QString xmlKeySynthLfoIntensity() { return "lfoIntensity"; }
+QString xmlKeySynthLfoTarget() { return "lfoTarget"; }
+
 QString xmlKeySample()
 {
     return "Sample";

@@ -20,13 +20,14 @@
 
 namespace noteahead {
 
-Parameter::Parameter(const std::string & name, float internalValue, int xmlMin, int xmlMax, int xmlDefault, int xmlScale)
+Parameter::Parameter(const std::string & name, float internalValue, int xmlMin, int xmlMax, int xmlDefault, int xmlScale, bool discrete)
   : m_name { name }
   , m_value { std::clamp(internalValue, 0.0f, 1.0f) }
   , m_xmlMin { xmlMin }
   , m_xmlMax { xmlMax }
   , m_xmlDefault { xmlDefault }
   , m_xmlScale { xmlScale }
+  , m_discrete { discrete }
 {
 }
 
@@ -68,6 +69,11 @@ int Parameter::xmlDefault() const
 int Parameter::xmlScale() const
 {
     return m_xmlScale;
+}
+
+bool Parameter::isDiscrete() const
+{
+    return m_discrete;
 }
 
 void Parameter::setFromXml(int xmlVal)
