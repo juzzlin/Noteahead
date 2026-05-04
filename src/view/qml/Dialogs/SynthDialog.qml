@@ -60,7 +60,7 @@ Dialog {
         }
     }
 
-    component SectionTitle : Label {
+    component SectionTitle: Label {
         font.bold: true
         font.pixelSize: 16
         color: themeService.accentColor
@@ -148,7 +148,7 @@ Dialog {
             GridLayout {
                 columns: 5
                 columnSpacing: 20
-                rowSpacing: 5
+                rowSpacing: 10
                 width: parent.width - 20
 
                 // Row 1: Titles
