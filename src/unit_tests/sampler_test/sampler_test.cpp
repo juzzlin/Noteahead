@@ -18,6 +18,7 @@
 #include "../../domain/devices/sampler_device.hpp"
 #include "../../infra/audio/backend/audio_file_reader.hpp"
 
+#include <QTest>
 #include <QXmlStreamReader>
 #include <QXmlStreamWriter>
 

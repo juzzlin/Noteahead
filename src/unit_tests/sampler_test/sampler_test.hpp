@@ -16,7 +16,7 @@
 #ifndef SAMPLER_TEST_HPP
 #define SAMPLER_TEST_HPP
 
-#include <QtTest>
+#include <QObject>
 
 namespace noteahead {
 
