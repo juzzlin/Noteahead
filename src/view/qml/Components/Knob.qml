@@ -24,7 +24,7 @@ ColumnLayout {
     property string label: ""
     property real value: 0
     property real from: 0
-    property real to: 100
+    property real to: 1000
     property string suffix: "%"
     property alias stepSize: slider.stepSize
     signal moved(real val)
@@ -34,7 +34,13 @@ ColumnLayout {
 
     spacing: 2
     Label {
-        text: knobRoot.label + " (" + Math.round(knobRoot.value) + knobRoot.suffix + ")"
+        text: {
+            let displayValue = Math.round(knobRoot.value);
+            if (knobRoot.suffix === "%") {
+                displayValue = (knobRoot.value / 10.0).toFixed(1);
+            }
+            return `${knobRoot.label} (${displayValue}${knobRoot.suffix})`;
+        }
         font.pixelSize: 11
         color: themeService.accentColor
         Layout.alignment: Qt.AlignHCenter
@@ -47,5 +53,15 @@ ColumnLayout {
         stepSize: 1
         Layout.fillWidth: true
         onMoved: () => knobRoot.moved(value)
+
+        WheelHandler {
+            onWheel: (wheel) => {
+                if (wheel.angleDelta.y > 0) {
+                    slider.increase();
+                } else {
+                    slider.decrease();
+                }
+            }
+        }
     }
 }

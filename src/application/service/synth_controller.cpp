@@ -43,8 +43,8 @@ int SynthController::vco1Octave() const { return m_synth ? m_synth->vco1Octave()
 void SynthController::setVco1Octave(int oct) { if (m_synth) { m_synth->setVco1Octave(oct); emit vco1OctaveChanged(); } }
 int SynthController::vco1Pitch() const { return m_synth ? m_synth->vco1Pitch() : 0; }
 void SynthController::setVco1Pitch(int p) { if (m_synth) { m_synth->setVco1Pitch(p); emit vco1PitchChanged(); } }
-int SynthController::vco1Shape() const { return m_synth ? static_cast<int>(std::round(m_synth->vco1Shape() * 100.0f)) : 0; }
-void SynthController::setVco1Shape(int s) { if (m_synth) { m_synth->setVco1Shape(s / 100.0f); emit vco1ShapeChanged(); } }
+int SynthController::vco1Shape() const { return m_synth ? static_cast<int>(std::round(m_synth->vco1Shape() * 1000.0f)) : 0; }
+void SynthController::setVco1Shape(int s) { if (m_synth) { m_synth->setVco1Shape(s / 1000.0f); emit vco1ShapeChanged(); } }
 bool SynthController::vco1Sync() const { return m_synth ? m_synth->vco1Sync() : false; }
 void SynthController::setVco1Sync(bool s) { if (m_synth) { m_synth->setVco1Sync(s); emit vco1SyncChanged(); } }
 
@@ -55,54 +55,54 @@ int SynthController::vco2Octave() const { return m_synth ? m_synth->vco2Octave()
 void SynthController::setVco2Octave(int oct) { if (m_synth) { m_synth->setVco2Octave(oct); emit vco2OctaveChanged(); } }
 int SynthController::vco2Pitch() const { return m_synth ? m_synth->vco2Pitch() : 0; }
 void SynthController::setVco2Pitch(int p) { if (m_synth) { m_synth->setVco2Pitch(p); emit vco2PitchChanged(); } }
-int SynthController::vco2Shape() const { return m_synth ? static_cast<int>(std::round(m_synth->vco2Shape() * 100.0f)) : 0; }
-void SynthController::setVco2Shape(int s) { if (m_synth) { m_synth->setVco2Shape(s / 100.0f); emit vco2ShapeChanged(); } }
+int SynthController::vco2Shape() const { return m_synth ? static_cast<int>(std::round(m_synth->vco2Shape() * 1000.0f)) : 0; }
+void SynthController::setVco2Shape(int s) { if (m_synth) { m_synth->setVco2Shape(s / 1000.0f); emit vco2ShapeChanged(); } }
 bool SynthController::vco2Sync() const { return m_synth ? m_synth->vco2Sync() : false; }
 void SynthController::setVco2Sync(bool s) { if (m_synth) { m_synth->setVco2Sync(s); emit vco2SyncChanged(); } }
 
 // Multi Engine
 int SynthController::multiType() const { return m_synth ? static_cast<int>(m_synth->multiType()) : 0; }
 void SynthController::setMultiType(int type) { if (m_synth) { m_synth->setMultiType(static_cast<MultiEngine::Type>(type)); emit multiTypeChanged(); } }
-int SynthController::multiShape() const { return m_synth ? static_cast<int>(std::round(m_synth->multiShape() * 100.0f)) : 0; }
-void SynthController::setMultiShape(int s) { if (m_synth) { m_synth->setMultiShape(s / 100.0f); emit multiShapeChanged(); } }
-int SynthController::multiLevel() const { return m_synth ? static_cast<int>(std::round(m_synth->multiLevel() * 100.0f)) : 0; }
-void SynthController::setMultiLevel(int lvl) { if (m_synth) { m_synth->setMultiLevel(lvl / 100.0f); emit multiLevelChanged(); } }
-int SynthController::multiKeyTrack() const { return m_synth ? static_cast<int>(std::round(m_synth->multiKeyTrack() * 100.0f)) : 0; }
-void SynthController::setMultiKeyTrack(int t) { if (m_synth) { m_synth->setMultiKeyTrack(t / 100.0f); emit multiKeyTrackChanged(); } }
+int SynthController::multiShape() const { return m_synth ? static_cast<int>(std::round(m_synth->multiShape() * 1000.0f)) : 0; }
+void SynthController::setMultiShape(int s) { if (m_synth) { m_synth->setMultiShape(s / 1000.0f); emit multiShapeChanged(); } }
+int SynthController::multiLevel() const { return m_synth ? static_cast<int>(std::round(m_synth->multiLevel() * 1000.0f)) : 0; }
+void SynthController::setMultiLevel(int lvl) { if (m_synth) { m_synth->setMultiLevel(lvl / 1000.0f); emit multiLevelChanged(); } }
+int SynthController::multiKeyTrack() const { return m_synth ? static_cast<int>(std::round(m_synth->multiKeyTrack() * 1000.0f)) : 0; }
+void SynthController::setMultiKeyTrack(int t) { if (m_synth) { m_synth->setMultiKeyTrack(t / 1000.0f); emit multiKeyTrackChanged(); } }
 
 // Mixer
-int SynthController::mixVco1() const { return m_synth ? static_cast<int>(std::round(m_synth->mixVco1() * 100.0f)) : 0; }
-void SynthController::setMixVco1(int lvl) { if (m_synth) { m_synth->setMixVco1(lvl / 100.0f); emit mixVco1Changed(); } }
-int SynthController::mixVco2() const { return m_synth ? static_cast<int>(std::round(m_synth->mixVco2() * 100.0f)) : 0; }
-void SynthController::setMixVco2(int lvl) { if (m_synth) { m_synth->setMixVco2(lvl / 100.0f); emit mixVco2Changed(); } }
+int SynthController::mixVco1() const { return m_synth ? static_cast<int>(std::round(m_synth->mixVco1() * 1000.0f)) : 0; }
+void SynthController::setMixVco1(int lvl) { if (m_synth) { m_synth->setMixVco1(lvl / 1000.0f); emit mixVco1Changed(); } }
+int SynthController::mixVco2() const { return m_synth ? static_cast<int>(std::round(m_synth->mixVco2() * 1000.0f)) : 0; }
+void SynthController::setMixVco2(int lvl) { if (m_synth) { m_synth->setMixVco2(lvl / 1000.0f); emit mixVco2Changed(); } }
 
 // Filter
-int SynthController::lpfCutoff() const { return m_synth ? static_cast<int>(std::round(m_synth->lpfCutoff() * 100.0f)) : 0; }
-void SynthController::setLpfCutoff(int c) { if (m_synth) { m_synth->setLpfCutoff(c / 100.0f); emit lpfCutoffChanged(); } }
-int SynthController::lpfResonance() const { return m_synth ? static_cast<int>(std::round(m_synth->lpfResonance() * 100.0f)) : 0; }
-void SynthController::setLpfResonance(int r) { if (m_synth) { m_synth->setLpfResonance(r / 100.0f); emit lpfResonanceChanged(); } }
-int SynthController::hpfCutoff() const { return m_synth ? static_cast<int>(std::round(m_synth->hpfCutoff() * 100.0f)) : 0; }
-void SynthController::setHpfCutoff(int c) { if (m_synth) { m_synth->setHpfCutoff(c / 100.0f); emit hpfCutoffChanged(); } }
-int SynthController::filterKeyTrack() const { return m_synth ? static_cast<int>(std::round(m_synth->filterKeyTrack() * 100.0f)) : 0; }
-void SynthController::setFilterKeyTrack(int t) { if (m_synth) { m_synth->setFilterKeyTrack(t / 100.0f); emit filterKeyTrackChanged(); } }
+int SynthController::lpfCutoff() const { return m_synth ? static_cast<int>(std::round(m_synth->lpfCutoff() * 1000.0f)) : 0; }
+void SynthController::setLpfCutoff(int c) { if (m_synth) { m_synth->setLpfCutoff(c / 1000.0f); emit lpfCutoffChanged(); } }
+int SynthController::lpfResonance() const { return m_synth ? static_cast<int>(std::round(m_synth->lpfResonance() * 1000.0f)) : 0; }
+void SynthController::setLpfResonance(int r) { if (m_synth) { m_synth->setLpfResonance(r / 1000.0f); emit lpfResonanceChanged(); } }
+int SynthController::hpfCutoff() const { return m_synth ? static_cast<int>(std::round(m_synth->hpfCutoff() * 1000.0f)) : 0; }
+void SynthController::setHpfCutoff(int c) { if (m_synth) { m_synth->setHpfCutoff(c / 1000.0f); emit hpfCutoffChanged(); } }
+int SynthController::filterKeyTrack() const { return m_synth ? static_cast<int>(std::round(m_synth->filterKeyTrack() * 1000.0f)) : 0; }
+void SynthController::setFilterKeyTrack(int t) { if (m_synth) { m_synth->setFilterKeyTrack(t / 1000.0f); emit filterKeyTrackChanged(); } }
 
 // Amp EG
-int SynthController::ampAttack() const { return m_synth ? static_cast<int>(std::round(m_synth->ampAttack() * 100.0f)) : 0; }
-void SynthController::setAmpAttack(int a) { if (m_synth) { m_synth->setAmpAttack(a / 100.0f); emit ampAttackChanged(); } }
-int SynthController::ampDecay() const { return m_synth ? static_cast<int>(std::round(m_synth->ampDecay() * 100.0f)) : 0; }
-void SynthController::setAmpDecay(int d) { if (m_synth) { m_synth->setAmpDecay(d / 100.0f); emit ampDecayChanged(); } }
-int SynthController::ampSustain() const { return m_synth ? static_cast<int>(std::round(m_synth->ampSustain() * 100.0f)) : 0; }
-void SynthController::setAmpSustain(int s) { if (m_synth) { m_synth->setAmpSustain(s / 100.0f); emit ampSustainChanged(); } }
-int SynthController::ampRelease() const { return m_synth ? static_cast<int>(std::round(m_synth->ampRelease() * 100.0f)) : 0; }
-void SynthController::setAmpRelease(int r) { if (m_synth) { m_synth->setAmpRelease(r / 100.0f); emit ampReleaseChanged(); } }
+int SynthController::ampAttack() const { return m_synth ? static_cast<int>(std::round(m_synth->ampAttack() * 1000.0f)) : 0; }
+void SynthController::setAmpAttack(int a) { if (m_synth) { m_synth->setAmpAttack(a / 1000.0f); emit ampAttackChanged(); } }
+int SynthController::ampDecay() const { return m_synth ? static_cast<int>(std::round(m_synth->ampDecay() * 1000.0f)) : 0; }
+void SynthController::setAmpDecay(int d) { if (m_synth) { m_synth->setAmpDecay(d / 1000.0f); emit ampDecayChanged(); } }
+int SynthController::ampSustain() const { return m_synth ? static_cast<int>(std::round(m_synth->ampSustain() * 1000.0f)) : 0; }
+void SynthController::setAmpSustain(int s) { if (m_synth) { m_synth->setAmpSustain(s / 1000.0f); emit ampSustainChanged(); } }
+int SynthController::ampRelease() const { return m_synth ? static_cast<int>(std::round(m_synth->ampRelease() * 1000.0f)) : 0; }
+void SynthController::setAmpRelease(int r) { if (m_synth) { m_synth->setAmpRelease(r / 1000.0f); emit ampReleaseChanged(); } }
 
 // Mod EG
-int SynthController::modAttack() const { return m_synth ? static_cast<int>(std::round(m_synth->modAttack() * 100.0f)) : 0; }
-void SynthController::setModAttack(int a) { if (m_synth) { m_synth->setModAttack(a / 100.0f); emit modAttackChanged(); } }
-int SynthController::modDecay() const { return m_synth ? static_cast<int>(std::round(m_synth->modDecay() * 100.0f)) : 0; }
-void SynthController::setModDecay(int d) { if (m_synth) { m_synth->setModDecay(d / 100.0f); emit modDecayChanged(); } }
-int SynthController::modInt() const { return m_synth ? static_cast<int>(std::round(m_synth->modInt() * 100.0f)) : 0; }
-void SynthController::setModInt(int i) { if (m_synth) { m_synth->setModInt(i / 100.0f); emit modIntChanged(); } }
+int SynthController::modAttack() const { return m_synth ? static_cast<int>(std::round(m_synth->modAttack() * 1000.0f)) : 0; }
+void SynthController::setModAttack(int a) { if (m_synth) { m_synth->setModAttack(a / 1000.0f); emit modAttackChanged(); } }
+int SynthController::modDecay() const { return m_synth ? static_cast<int>(std::round(m_synth->modDecay() * 1000.0f)) : 0; }
+void SynthController::setModDecay(int d) { if (m_synth) { m_synth->setModDecay(d / 1000.0f); emit modDecayChanged(); } }
+int SynthController::modInt() const { return m_synth ? static_cast<int>(std::round(m_synth->modInt() * 1000.0f)) : 0; }
+void SynthController::setModInt(int i) { if (m_synth) { m_synth->setModInt(i / 1000.0f); emit modIntChanged(); } }
 int SynthController::modTarget() const { return m_synth ? static_cast<int>(m_synth->modTarget()) : 0; }
 void SynthController::setModTarget(int t) { if (m_synth) { m_synth->setModTarget(static_cast<SynthDevice::ModTarget>(t)); emit modTargetChanged(); } }
 
@@ -111,32 +111,32 @@ int SynthController::lfoWaveform() const { return m_synth ? static_cast<int>(m_s
 void SynthController::setLfoWaveform(int wave) { if (m_synth) { m_synth->setLfoWaveform(static_cast<LFO::Waveform>(wave)); emit lfoWaveformChanged(); } }
 int SynthController::lfoMode() const { return m_synth ? static_cast<int>(m_synth->lfoMode()) : 0; }
 void SynthController::setLfoMode(int mode) { if (m_synth) { m_synth->setLfoMode(static_cast<LFO::Mode>(mode)); emit lfoModeChanged(); } }
-int SynthController::lfoRate() const { return m_synth ? static_cast<int>(std::round(m_synth->lfoRate() * 100.0f)) : 0; }
-void SynthController::setLfoRate(int rate) { if (m_synth) { m_synth->setLfoRate(rate / 100.0f); emit lfoRateChanged(); } }
-int SynthController::lfoInt() const { return m_synth ? static_cast<int>(std::round(m_synth->lfoInt() * 100.0f)) : 0; }
-void SynthController::setLfoInt(int intensity) { if (m_synth) { m_synth->setLfoInt(intensity / 100.0f); emit lfoIntChanged(); } }
+int SynthController::lfoRate() const { return m_synth ? static_cast<int>(std::round(m_synth->lfoRate() * 1000.0f)) : 0; }
+void SynthController::setLfoRate(int rate) { if (m_synth) { m_synth->setLfoRate(rate / 1000.0f); emit lfoRateChanged(); } }
+int SynthController::lfoInt() const { return m_synth ? static_cast<int>(std::round(m_synth->lfoInt() * 1000.0f)) : 0; }
+void SynthController::setLfoInt(int intensity) { if (m_synth) { m_synth->setLfoInt(intensity / 1000.0f); emit lfoIntChanged(); } }
 int SynthController::lfoTarget() const { return m_synth ? static_cast<int>(m_synth->lfoTarget()) : 0; }
 void SynthController::setLfoTarget(int target) { if (m_synth) { m_synth->setLfoTarget(static_cast<SynthDevice::LfoTarget>(target)); emit lfoTargetChanged(); } }
 
 // Global
 int SynthController::voiceMode() const { return m_synth ? static_cast<int>(m_synth->voiceMode()) : 0; }
 void SynthController::setVoiceMode(int m) { if (m_synth) { m_synth->setVoiceMode(static_cast<SynthDevice::VoiceMode>(m)); emit voiceModeChanged(); } }
-int SynthController::voiceDepth() const { return m_synth ? static_cast<int>(std::round(m_synth->voiceDepth() * 100.0f)) : 0; }
-void SynthController::setVoiceDepth(int d) { if (m_synth) { m_synth->setVoiceDepth(d / 100.0f); emit voiceDepthChanged(); } }
-int SynthController::portamento() const { return m_synth ? static_cast<int>(std::round(m_synth->portamento() * 100.0f)) : 0; }
-void SynthController::setPortamento(int p) { if (m_synth) { m_synth->setPortamento(p / 100.0f); emit portamentoChanged(); } }
-int SynthController::panSpread() const { return m_synth ? static_cast<int>(std::round(m_synth->panSpread() * 100.0f)) : 0; }
-void SynthController::setPanSpread(int s) { if (m_synth) { m_synth->setPanSpread(s / 100.0f); emit panSpreadChanged(); } }
-int SynthController::masterPan() const { return m_synth ? static_cast<int>(std::round(m_synth->masterPan() * 100.0f)) : 0; }
-void SynthController::setMasterPan(int p) { if (m_synth) { m_synth->setMasterPan(p / 100.0f); emit masterPanChanged(); } }
-int SynthController::masterVolume() const { return m_synth ? static_cast<int>(std::round(m_synth->masterVolume() * 100.0f)) : 0; }
-void SynthController::setMasterVolume(int v) { if (m_synth) { m_synth->setMasterVolume(v / 100.0f); emit masterVolumeChanged(); } }
+int SynthController::voiceDepth() const { return m_synth ? static_cast<int>(std::round(m_synth->voiceDepth() * 1000.0f)) : 0; }
+void SynthController::setVoiceDepth(int d) { if (m_synth) { m_synth->setVoiceDepth(d / 1000.0f); emit voiceDepthChanged(); } }
+int SynthController::portamento() const { return m_synth ? static_cast<int>(std::round(m_synth->portamento() * 1000.0f)) : 0; }
+void SynthController::setPortamento(int p) { if (m_synth) { m_synth->setPortamento(p / 1000.0f); emit portamentoChanged(); } }
+int SynthController::panSpread() const { return m_synth ? static_cast<int>(std::round(m_synth->panSpread() * 1000.0f)) : 0; }
+void SynthController::setPanSpread(int s) { if (m_synth) { m_synth->setPanSpread(s / 1000.0f); emit panSpreadChanged(); } }
+int SynthController::masterPan() const { return m_synth ? static_cast<int>(std::round(m_synth->masterPan() * 1000.0f)) : 0; }
+void SynthController::setMasterPan(int p) { if (m_synth) { m_synth->setMasterPan(p / 1000.0f); emit masterPanChanged(); } }
+int SynthController::masterVolume() const { return m_synth ? static_cast<int>(std::round(m_synth->masterVolume() * 1000.0f)) : 0; }
+void SynthController::setMasterVolume(int v) { if (m_synth) { m_synth->setMasterVolume(v / 1000.0f); emit masterVolumeChanged(); } }
 
 uint32_t SynthController::sampleRate() const { return m_synth ? m_synth->sampleRate() : static_cast<uint32_t>(Constants::defaultSampleRate()); }
 
 float SynthController::cutoffToHz(float cutoff) const
 {
-    return Utils::Dsp::cutoffToHz(cutoff / 100.0f, static_cast<float>(sampleRate()));
+    return Utils::Dsp::cutoffToHz(cutoff / 1000.0f, static_cast<float>(sampleRate()));
 }
 
 QStringList SynthController::presetNames() const
@@ -156,16 +156,16 @@ int SynthController::delayType() const { return m_synth ? static_cast<int>(m_syn
 void SynthController::setDelayType(int type) { if (m_synth) { m_synth->setDelayType(static_cast<DelayEffect::Type>(type)); emit delayTypeChanged(); } }
 int SynthController::delayTime() const { return m_synth ? static_cast<int>(std::round(m_synth->delayTime() * 1000.0f)) : 0; }
 void SynthController::setDelayTime(int time) { if (m_synth) { m_synth->setDelayTime(time / 1000.0f); emit delayTimeChanged(); } }
-int SynthController::delayFeedback() const { return m_synth ? static_cast<int>(std::round(m_synth->delayFeedback() * 100.0f)) : 0; }
-void SynthController::setDelayFeedback(int fb) { if (m_synth) { m_synth->setDelayFeedback(fb / 100.0f); emit delayFeedbackChanged(); } }
-int SynthController::delayDepth() const { return m_synth ? static_cast<int>(std::round(m_synth->delayDepth() * 100.0f)) : 0; }
-void SynthController::setDelayDepth(int d) { if (m_synth) { m_synth->setDelayDepth(d / 100.0f); emit delayDepthChanged(); } }
-int SynthController::delayMix() const { return m_synth ? static_cast<int>(std::round(m_synth->delayMix() * 100.0f)) : 0; }
-void SynthController::setDelayMix(int mix) { if (m_synth) { m_synth->setDelayMix(mix / 100.0f); emit delayMixChanged(); } }
+int SynthController::delayFeedback() const { return m_synth ? static_cast<int>(std::round(m_synth->delayFeedback() * 1000.0f)) : 0; }
+void SynthController::setDelayFeedback(int fb) { if (m_synth) { m_synth->setDelayFeedback(fb / 1000.0f); emit delayFeedbackChanged(); } }
+int SynthController::delayDepth() const { return m_synth ? static_cast<int>(std::round(m_synth->delayDepth() * 1000.0f)) : 0; }
+void SynthController::setDelayDepth(int d) { if (m_synth) { m_synth->setDelayDepth(d / 1000.0f); emit delayDepthChanged(); } }
+int SynthController::delayMix() const { return m_synth ? static_cast<int>(std::round(m_synth->delayMix() * 1000.0f)) : 0; }
+void SynthController::setDelayMix(int mix) { if (m_synth) { m_synth->setDelayMix(mix / 1000.0f); emit delayMixChanged(); } }
 bool SynthController::delaySync() const { return m_synth ? m_synth->delaySync() : false; }
 void SynthController::setDelaySync(bool sync) { if (m_synth) { m_synth->setDelaySync(sync); emit delaySyncChanged(); } }
-int SynthController::delaySyncDivision() const { return m_synth ? static_cast<int>(std::round(m_synth->delaySyncDivision() * 100.0f)) : 0; }
-void SynthController::setDelaySyncDivision(int div) { if (m_synth) { m_synth->setDelaySyncDivision(div / 100.0f); emit delaySyncDivisionChanged(); } }
+int SynthController::delaySyncDivision() const { return m_synth ? static_cast<int>(std::round(m_synth->delaySyncDivision() * 1000.0f)) : 0; }
+void SynthController::setDelaySyncDivision(int div) { if (m_synth) { m_synth->setDelaySyncDivision(div / 1000.0f); emit delaySyncDivisionChanged(); } }
 
 void SynthController::initialize() {}
 void SynthController::reset() { if (m_synth) m_synth->reset(); requestSettings(); }

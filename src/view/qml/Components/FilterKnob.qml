@@ -24,7 +24,7 @@ ColumnLayout {
     property string label: ""
     property real value: 0
     property real from: 0
-    property real to: 100
+    property real to: 1000
     property string suffix: "%"
     property var controller: null
     property bool isHpf: false
@@ -39,28 +39,45 @@ ColumnLayout {
         if (value <= 0) {
             return "0 Hz";
         }
-        if (!isHpf && value >= 100) {
+        if (!isHpf && value >= 1000) {
             return qsTr("Bypass");
         }
         if (cutoffHz >= 1000) {
-            return (cutoffHz / 1000.0).toFixed(1) + " kHz";
+            return `${(cutoffHz / 1000.0).toFixed(1)} kHz`;
         }
-        return Math.round(cutoffHz) + " Hz";
+        return `${Math.round(cutoffHz)} Hz`;
     }
 
     spacing: 2
     Label {
-        text: knobRoot.label + " (" + Math.round(knobRoot.value) + knobRoot.suffix + " / " + knobRoot.freqString + ")"
+        text: {
+            let displayValue = Math.round(knobRoot.value);
+            if (knobRoot.suffix === "%") {
+                displayValue = (knobRoot.value / 10.0).toFixed(1);
+            }
+            return `${knobRoot.label} (${displayValue}${knobRoot.suffix} / ${knobRoot.freqString})`;
+        }
         font.pixelSize: 11
         color: themeService.accentColor
         Layout.alignment: Qt.AlignHCenter
     }
     Slider {
+        id: slider
         from: knobRoot.from
         to: knobRoot.to
         value: knobRoot.value
         stepSize: 1
         Layout.fillWidth: true
         onMoved: () => knobRoot.moved(value)
+
+        WheelHandler {
+            onWheel: (wheel) => {
+                if (wheel.angleDelta.y > 0) {
+                    slider.increase();
+                } else {
+                    slider.decrease();
+                }
+            }
+        }
     }
 }

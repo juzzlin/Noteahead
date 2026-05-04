@@ -231,8 +231,8 @@ Dialog {
                     }
                     Knob {
                         label: qsTr("Pitch")
-                        from: -100
-                        to: 100
+                        from: -1000
+                        to: 1000
                         suffix: "c"
                         value: synthController.vco1Pitch
                         onMoved: v => synthController.vco1Pitch = v
@@ -240,8 +240,6 @@ Dialog {
                     }
                     Knob {
                         label: qsTr("Shape")
-                        from: 0
-                        to: 100
                         value: synthController.vco1Shape
                         onMoved: v => synthController.vco1Shape = v
                         Layout.fillWidth: true
@@ -278,8 +276,8 @@ Dialog {
                     }
                     Knob {
                         label: qsTr("Pitch")
-                        from: -100
-                        to: 100
+                        from: -1000
+                        to: 1000
                         suffix: "c"
                         value: synthController.vco2Pitch
                         onMoved: v => synthController.vco2Pitch = v
@@ -287,8 +285,6 @@ Dialog {
                     }
                     Knob {
                         label: qsTr("Shape")
-                        from: 0
-                        to: 100
                         value: synthController.vco2Shape
                         onMoved: v => synthController.vco2Shape = v
                         Layout.fillWidth: true
@@ -319,8 +315,6 @@ Dialog {
                     }
                     Knob {
                         label: qsTr("Shape")
-                        from: 0
-                        to: 100
                         value: synthController.multiShape
                         onMoved: v => synthController.multiShape = v
                         Layout.fillWidth: true
@@ -517,8 +511,8 @@ Dialog {
                             Layout.fillWidth: true
                             ComboBox {
                                 model: ["1/16", "1/8", "1/4", "1/2", "1/1"]
-                                currentIndex: [0.0625, 0.125, 0.25, 0.5, 1.0].indexOf(synthController.delaySyncDivision / 100.0)
-                                onActivated: i => synthController.delaySyncDivision = [6.25, 12.5, 25, 50, 100][i]
+                                currentIndex: [0.0625, 0.125, 0.25, 0.5, 1.0].indexOf(synthController.delaySyncDivision / 1000.0)
+                                onActivated: i => synthController.delaySyncDivision = [62.5, 125, 250, 500, 1000][i]
                                 Layout.fillWidth: true
                             }
                             Knob {

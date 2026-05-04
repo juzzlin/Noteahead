@@ -262,20 +262,20 @@ Dialog {
                 // Pan Knob
                 Knob {
                     label: qsTr("Pan")
-                    from: -100
-                    to: 100
-                    value: (samplerController.selectedPadPan * 200) - 100
+                    from: -1000
+                    to: 1000
+                    value: (samplerController.selectedPadPan * 2000) - 1000
                     onMoved: v => {
-                        samplerController.selectedPadPan = (v + 100) / 200;
+                        samplerController.selectedPadPan = (v + 1000) / 2000;
                     }
                 }
 
                 // Volume Knob
                 Knob {
                     label: qsTr("Volume")
-                    value: samplerController.selectedPadVolume * 100
+                    value: samplerController.selectedPadVolume * 1000
                     onMoved: v => {
-                        samplerController.selectedPadVolume = v / 100;
+                        samplerController.selectedPadVolume = v / 1000;
                     }
                 }
 
@@ -283,9 +283,9 @@ Dialog {
                 FilterKnob {
                     label: qsTr("LPF Cutoff")
                     controller: samplerController
-                    value: samplerController.selectedPadCutoff * 100
+                    value: samplerController.selectedPadCutoff * 1000
                     onMoved: v => {
-                        samplerController.selectedPadCutoff = v / 100;
+                        samplerController.selectedPadCutoff = v / 1000;
                     }
                 }
 
@@ -293,10 +293,10 @@ Dialog {
                 FilterKnob {
                     label: qsTr("HPF Cutoff")
                     controller: samplerController
-                    value: samplerController.selectedPadHpfCutoff * 100
+                    value: samplerController.selectedPadHpfCutoff * 1000
                     isHpf: true
                     onMoved: v => {
-                        samplerController.selectedPadHpfCutoff = v / 100;
+                        samplerController.selectedPadHpfCutoff = v / 1000;
                     }
                 }
 
