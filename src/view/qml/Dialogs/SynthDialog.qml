@@ -558,19 +558,11 @@ Dialog {
             }
         }
 
-        // Test Pads
-        RowLayout {
+        // Virtual Keyboard
+        VirtualKeyboard {
             Layout.fillWidth: true
-            spacing: 5
-            Repeater {
-                model: [48, 50, 52, 53, 55, 57, 59, 60] // C3 Scale
-                Button {
-                    text: ["C", "D", "E", "F", "G", "A", "B", "C"][index]
-                    Layout.fillWidth: true
-                    onPressed: synthController.playNote(modelData, 0.8)
-                    onReleased: synthController.stopNote(modelData)
-                }
-            }
+            onNoteOnRequested: note => synthController.playNote(note, UiService._activeVelocity / 127.0)
+            onNoteOffRequested: note => synthController.stopNote(note)
         }
     }
 }
