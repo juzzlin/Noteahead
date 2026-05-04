@@ -13,40 +13,26 @@
 // You should have received a copy of the GNU General Public License
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef AUDIO_ENGINE_HPP
-#define AUDIO_ENGINE_HPP
-
-#include "../../domain/devices/device.hpp"
-
-#include <map>
-#include <memory>
-#include <mutex>
-#include <string>
+#include "device_rack.hpp"
+#include "device_service.hpp"
+#include "../../domain/devices/sampler_device.hpp"
 
 namespace noteahead {
 
-class AudioEngine
+DeviceRack::DeviceRack(DeviceServiceS deviceService)
+  : m_deviceService { std::move(deviceService) }
 {
-public:
-    using DeviceS = std::shared_ptr<Device>;
+}
 
-    AudioEngine();
-    ~AudioEngine();
+DeviceRack::~DeviceRack() = default;
 
-    void addDevice(DeviceS device);
-    void removeDevice(const std::string & name);
-    DeviceS device(const std::string & name) const;
-
-    using DeviceNames = std::vector<std::string>;
-    DeviceNames deviceNames() const;
-
-    void process(float * output, uint32_t nFrames, uint32_t sampleRate);
-
-private:
-    std::map<std::string, DeviceS> m_devices;
-    mutable std::mutex m_mutex;
-};
+void DeviceRack::initialize()
+{
+    for (size_t i = 1; i <= 4; i++) {
+        const auto sampler = std::make_shared<SamplerDevice>("Sampler " + std::to_string(i));
+        sampler->setId(i);
+        m_deviceService->registerDevice(sampler);
+    }
+}
 
 } // namespace noteahead
-
-#endif // AUDIO_ENGINE_HPP

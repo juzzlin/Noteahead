@@ -19,6 +19,8 @@
 #include <QObject>
 #include <memory>
 
+#include "../../domain/devices/sampler_device.hpp"
+
 namespace noteahead {
 
 class SamplerDevice;
@@ -41,11 +43,12 @@ class SamplerController : public QObject
     Q_PROPERTY(bool channelMode READ channelMode WRITE setChannelMode NOTIFY channelModeChanged)
 
 public:
-    explicit SamplerController(std::shared_ptr<SamplerDevice> sampler, QObject * parent = nullptr);
+    explicit SamplerController(SamplerDevice::SamplerDeviceS sampler, QObject * parent = nullptr);
     ~SamplerController() override;
 
     SamplerPadModel * padModel() const;
-    std::shared_ptr<SamplerDevice> sampler() const;
+    SamplerDevice::SamplerDeviceS sampler() const;
+    void setSampler(SamplerDevice::SamplerDeviceS sampler);
 
     int selectedPad() const;
     void setSelectedPad(int selectedPad);
@@ -100,9 +103,10 @@ signals:
     void selectedPadStartOffsetChanged();
     void selectedPadDurationChanged();
     void channelModeChanged();
+    void samplerChanged();
 
 private:
-    std::shared_ptr<SamplerDevice> m_sampler;
+    SamplerDevice::SamplerDeviceS m_sampler;
     std::unique_ptr<SamplerPadModel> m_padModel;
     int m_selectedPad = 0;
 };

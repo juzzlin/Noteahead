@@ -37,6 +37,7 @@ public:
 
     virtual std::string name() const = 0;
     virtual std::string category() const = 0;
+    virtual std::string typeId() const = 0;
 
     size_t id() const;
     void setId(size_t id);

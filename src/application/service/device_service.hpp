@@ -44,14 +44,17 @@ public:
     void unregisterDevice(const std::string & name);
     DeviceS device(const std::string & name) const;
 
-    bool isInternalDevice(const QString & portName) const;
+    Q_INVOKABLE bool isInternalDevice(const QString & portName) const;
     void processMidiNoteOn(const QString & portName, uint8_t note, uint8_t velocity);
     void processMidiNoteOff(const QString & portName, uint8_t note);
     void processMidiCc(const QString & portName, uint8_t controller, uint8_t value, uint8_t channel);
     void processMidiAllNotesOff(const QString & portName);
     void processMidiAllNotesOff();
 
-    QStringList internalDeviceNames() const;
+    using InternalDeviceNames = std::vector<std::string>;
+    InternalDeviceNames internalDeviceNames() const;
+
+    Q_INVOKABLE QStringList internalDeviceNamesQt() const;
 
     Q_INVOKABLE QStringList categories() const;
     Q_INVOKABLE QStringList devicesByCategory(const QString & category) const;

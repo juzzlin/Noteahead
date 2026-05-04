@@ -33,6 +33,7 @@ QtObject {
     signal noteFrequencyDialogRequested
     signal recentFilesDialogRequested
     signal deviceDialogRequested(string deviceName)
+    signal deviceRackDialogRequested
     signal samplerDialogRequested
     signal selectionAddMidiCcAutomationDialogRequested
     signal selectionAddPitchBendAutomationDialogRequested
@@ -65,6 +66,12 @@ QtObject {
     }
     signal activeVelocityChanged(int activeVelocity)
     property int _activeVelocity: settingsService.velocity(100)
+
+    Component.onCompleted: {
+        applicationService.deviceRackDialogRequested.connect(deviceRackDialogRequested)
+        applicationService.samplerDialogRequested.connect(samplerDialogRequested)
+    }
+
     function activeVelocity(): int {
         return _activeVelocity;
     }
@@ -129,6 +136,9 @@ QtObject {
     }
     function requestRecentFilesDialog(): void {
         recentFilesDialogRequested();
+    }
+    function requestDeviceRackDialog(): void {
+        deviceRackDialogRequested();
     }
     function requestDeviceDialog(deviceName: string): void {
         deviceDialogRequested(deviceName);

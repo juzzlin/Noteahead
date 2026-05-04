@@ -44,6 +44,16 @@ AudioEngine::DeviceS AudioEngine::device(const std::string & name) const
     return nullptr;
 }
 
+AudioEngine::DeviceNames AudioEngine::deviceNames() const
+{
+    std::lock_guard<std::mutex> lock { m_mutex };
+    DeviceNames names;
+    for (const auto & [name, device] : m_devices) {
+        names.push_back(name);
+    }
+    return names;
+}
+
 void AudioEngine::process(float * output, uint32_t nFrames, uint32_t sampleRate)
 {
     std::lock_guard<std::mutex> lock { m_mutex };

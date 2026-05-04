@@ -52,6 +52,7 @@ void Device::serializeAttributesToXml(QXmlStreamWriter & writer) const
     writer.writeAttribute(Constants::NahdXml::xmlKeyId(), QString::number(m_id));
     writer.writeAttribute(Constants::NahdXml::xmlKeyName(), QString::fromStdString(name()));
     writer.writeAttribute(Constants::NahdXml::xmlKeyCategory(), QString::fromStdString(category()));
+    writer.writeAttribute("typeId", QString::fromStdString(typeId()));
 }
 
 void Device::deserializeAttributesFromXml(QXmlStreamReader & reader)

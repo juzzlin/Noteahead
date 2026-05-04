@@ -5,7 +5,7 @@
 
 namespace noteahead {
 
-SamplerController::SamplerController(std::shared_ptr<SamplerDevice> sampler, QObject * parent)
+SamplerController::SamplerController(SamplerDevice::SamplerDeviceS sampler, QObject * parent)
   : QObject { parent }
   , m_sampler { std::move(sampler) }
   , m_padModel { std::make_unique<SamplerPadModel>(m_sampler, this) }
@@ -20,9 +20,19 @@ SamplerPadModel * SamplerController::padModel() const
     return m_padModel.get();
 }
 
-std::shared_ptr<SamplerDevice> SamplerController::sampler() const
+SamplerDevice::SamplerDeviceS SamplerController::sampler() const
 {
     return m_sampler;
+}
+
+void SamplerController::setSampler(SamplerDevice::SamplerDeviceS sampler)
+{
+    if (m_sampler != sampler) {
+        m_sampler = std::move(sampler);
+        m_padModel->setSampler(m_sampler);
+        emit samplerChanged();
+        setSelectedPad(m_selectedPad); // Trigger updates for properties
+    }
 }
 
 int SamplerController::selectedPad() const

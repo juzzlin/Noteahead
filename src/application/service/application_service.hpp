@@ -89,6 +89,7 @@ public:
     Q_INVOKABLE void requestQuit();
 
     Q_INVOKABLE void requestRecentFilesDialog();
+    Q_INVOKABLE void requestDeviceRackDialog();
     Q_INVOKABLE void requestSaveProject();
     Q_INVOKABLE void requestSaveProjectAs();
     Q_INVOKABLE void requestSaveProjectAsTemplate();
@@ -148,6 +149,8 @@ signals:
     void quitRequested();
 
     void recentFilesDialogRequested();
+    void deviceRackDialogRequested();
+    void samplerDialogRequested();
 
     void saveAsDialogRequested();
     void saveAsTemplateDialogRequested();

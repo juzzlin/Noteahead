@@ -15,6 +15,7 @@
 
 #include "xml_serialization_test.hpp"
 
+#include "../../common/constants.hpp"
 #include "../../application/service/application_service.hpp"
 #include "../../application/service/audio_service.hpp"
 #include "../../application/service/automation_service.hpp"
@@ -706,10 +707,11 @@ void XmlSerializationTest::test_toXmlFromXml_trackDrumTrack_shouldLoadTrackDrumT
 void XmlSerializationTest::test_toXmlFromXml_samplerDevice_shouldLoadSamplerDevice()
 {
     const std::string fileName = "test.wav";
+    const auto samplerName = Constants::samplerDeviceName().toStdString();
 
     auto engine = std::make_shared<AudioEngine>();
     DeviceService deviceServiceOut { engine };
-    auto samplerOut = std::make_shared<SamplerDevice>(std::make_unique<MockAudioFileReader>());
+    auto samplerOut = std::make_shared<SamplerDevice>(samplerName, std::make_unique<MockAudioFileReader>());
     samplerOut->setId(42);
     samplerOut->loadSample(60, fileName);
     samplerOut->setSamplePan(60, 0.75f);
@@ -723,7 +725,7 @@ void XmlSerializationTest::test_toXmlFromXml_samplerDevice_shouldLoadSamplerDevi
     const auto xml = editorServiceOut.toXml();
 
     DeviceService deviceServiceIn { std::make_shared<AudioEngine>() };
-    auto samplerIn = std::make_shared<SamplerDevice>(std::make_unique<MockAudioFileReader>());
+    auto samplerIn = std::make_shared<SamplerDevice>(samplerName, std::make_unique<MockAudioFileReader>());
     deviceServiceIn.registerDevice(samplerIn);
 
     EditorService editorServiceIn { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
@@ -760,7 +762,7 @@ void XmlSerializationTest::test_fromXml_samplerDevice_missingId_shouldNotThrow()
 )XML");
 
     DeviceService deviceServiceIn { std::make_shared<AudioEngine>() };
-    auto samplerIn = std::make_shared<SamplerDevice>(std::make_unique<MockAudioFileReader>());
+    auto samplerIn = std::make_shared<SamplerDevice>(Constants::samplerDeviceName().toStdString(), std::make_unique<MockAudioFileReader>());
     deviceServiceIn.registerDevice(samplerIn);
 
     EditorService editorServiceIn { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };

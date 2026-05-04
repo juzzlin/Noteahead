@@ -4,7 +4,7 @@
 
 namespace noteahead {
 
-SamplerPadModel::SamplerPadModel(std::shared_ptr<SamplerDevice> sampler, QObject * parent)
+SamplerPadModel::SamplerPadModel(SamplerDevice::SamplerDeviceS sampler, QObject * parent)
   : QAbstractListModel { parent }
   , m_sampler { std::move(sampler) }
 {
@@ -13,6 +13,25 @@ SamplerPadModel::SamplerPadModel(std::shared_ptr<SamplerDevice> sampler, QObject
             emit dataChanged(index(0), index(PadCount - 1), { NoteName, FilePath, IsLoaded });
         });
     }
+}
+
+void SamplerPadModel::setSampler(SamplerDevice::SamplerDeviceS sampler)
+{
+    if (m_sampler == sampler) {
+        return;
+    }
+
+    beginResetModel();
+    if (m_sampler) {
+        m_sampler->disconnect(this);
+    }
+    m_sampler = std::move(sampler);
+    if (m_sampler) {
+        connect(m_sampler.get(), &SamplerDevice::dataChanged, this, [this]() {
+            emit dataChanged(index(0), index(PadCount - 1), { NoteName, FilePath, IsLoaded });
+        });
+    }
+    endResetModel();
 }
 
 int SamplerPadModel::rowCount(const QModelIndex & parent) const

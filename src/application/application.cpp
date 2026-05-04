@@ -47,6 +47,8 @@
 #include "service/property_service.hpp"
 #include "service/recent_files_manager.hpp"
 #include "service/sampler_controller.hpp"
+#include "service/device_rack.hpp"
+#include "service/device_rack_controller.hpp"
 #include "service/selection_service.hpp"
 #include "service/settings_service.hpp"
 #include "service/side_chain_service.hpp"
@@ -90,7 +92,9 @@ Application::Application(int & argc, char ** argv)
   , m_editorService { std::make_shared<EditorService>(m_selectionService, m_settingsService, m_automationService) }
   , m_audioEngine { std::make_shared<AudioEngine>() }
   , m_deviceService { std::make_shared<DeviceService>(m_audioEngine) }
-  , m_samplerController { std::make_shared<SamplerController>(std::make_shared<SamplerDevice>()) }
+  , m_deviceRack { std::make_unique<DeviceRack>(m_deviceService) }
+  , m_samplerController { std::make_shared<SamplerController>(nullptr) }
+  , m_deviceRackController { std::make_shared<DeviceRackController>(m_deviceService, m_samplerController) }
   , m_jackService { std::make_shared<JackService>(m_settingsService, m_audioEngine) }
   , m_audioService { std::make_shared<AudioService>(m_settingsService, m_jackService, m_audioEngine) }
   , m_eventSelectionModel { std::make_shared<EventSelectionModel>() }
@@ -115,7 +119,10 @@ Application::Application(int & argc, char ** argv)
   , m_noteColumnModelHandler { std::make_unique<NoteColumnModelHandler>(m_editorService, m_selectionService, m_automationService, m_settingsService) }
   , m_engine { std::make_unique<QQmlApplicationEngine>() }
 {
-    m_deviceService->registerDevice(m_samplerController->sampler());
+    m_deviceRack->initialize();
+    if (const auto sampler = std::dynamic_pointer_cast<SamplerDevice>(m_deviceService->device("Sampler 1"))) {
+        m_samplerController->setSampler(sampler);
+    }
     m_editorService->setMixerService(m_mixerService);
 
     registerTypes();
@@ -147,6 +154,7 @@ void Application::registerTypes()
     qmlRegisterType<AudioSettingsModel>("Noteahead", majorVersion, minorVersion, "AudioSettingsModel");
     qmlRegisterType<AutomationService>("Noteahead", majorVersion, minorVersion, "AutomationService");
     qmlRegisterType<ColumnSettingsModel>("Noteahead", majorVersion, minorVersion, "ColumnSettingsModel");
+    qmlRegisterType<DeviceRackController>("Noteahead", majorVersion, minorVersion, "DeviceRackController");
     qmlRegisterType<EditorService>("Noteahead", majorVersion, minorVersion, "EditorService");
     qmlRegisterType<EventSelectionModel>("Noteahead", majorVersion, minorVersion, "EventSelectionModel");
     qmlRegisterType<KeyboardService>("Noteahead", majorVersion, minorVersion, "KeyboardService");
@@ -181,6 +189,7 @@ void Application::setContextProperties()
     m_engine->rootContext()->setContextProperty("audioSettingsModel", m_audioSettingsModel.get());
     m_engine->rootContext()->setContextProperty("automationService", m_automationService.get());
     m_engine->rootContext()->setContextProperty("columnSettingsModel", m_columnSettingsModel.get());
+    m_engine->rootContext()->setContextProperty("deviceRackController", m_deviceRackController.get());
     m_engine->rootContext()->setContextProperty("deviceService", m_deviceService.get());
     m_engine->rootContext()->setContextProperty("samplerController", m_samplerController.get());
     m_engine->rootContext()->setContextProperty("editorService", m_editorService.get());
@@ -320,6 +329,10 @@ void Application::connectServices()
 
 void Application::connectDeviceService()
 {
+    connect(m_deviceRackController.get(), &DeviceRackController::samplerDialogRequested, m_applicationService.get(), [this]() {
+        emit m_applicationService->samplerDialogRequested();
+    });
+
     connect(m_editorService.get(), &EditorService::devicesSerializationRequested, m_deviceService.get(), &DeviceService::serializeToXml);
     connect(m_editorService.get(), &EditorService::devicesDeserializationRequested, m_deviceService.get(), &DeviceService::deserializeFromXml);
     connect(m_editorService.get(), &EditorService::projectPathChanged, m_deviceService.get(), &DeviceService::setProjectPath);

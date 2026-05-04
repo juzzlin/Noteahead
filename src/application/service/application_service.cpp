@@ -118,6 +118,12 @@ void ApplicationService::requestRecentFilesDialog()
     emit recentFilesDialogRequested();
 }
 
+void ApplicationService::requestDeviceRackDialog()
+{
+    juzzlin::L(TAG).info() << "Device Rack requested";
+    emit deviceRackDialogRequested();
+}
+
 void ApplicationService::requestOpenProject()
 {
     juzzlin::L(TAG).info() << "'Open file' requested";

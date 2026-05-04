@@ -13,40 +13,29 @@
 // You should have received a copy of the GNU General Public License
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef AUDIO_ENGINE_HPP
-#define AUDIO_ENGINE_HPP
+#ifndef DEVICE_RACK_HPP
+#define DEVICE_RACK_HPP
 
-#include "../../domain/devices/device.hpp"
-
-#include <map>
 #include <memory>
-#include <mutex>
-#include <string>
+#include <vector>
 
 namespace noteahead {
 
-class AudioEngine
+class DeviceService;
+
+class DeviceRack
 {
 public:
-    using DeviceS = std::shared_ptr<Device>;
+    using DeviceServiceS = std::shared_ptr<DeviceService>;
+    explicit DeviceRack(DeviceServiceS deviceService);
+    ~DeviceRack();
 
-    AudioEngine();
-    ~AudioEngine();
-
-    void addDevice(DeviceS device);
-    void removeDevice(const std::string & name);
-    DeviceS device(const std::string & name) const;
-
-    using DeviceNames = std::vector<std::string>;
-    DeviceNames deviceNames() const;
-
-    void process(float * output, uint32_t nFrames, uint32_t sampleRate);
+    void initialize();
 
 private:
-    std::map<std::string, DeviceS> m_devices;
-    mutable std::mutex m_mutex;
+    DeviceServiceS m_deviceService;
 };
 
 } // namespace noteahead
 
-#endif // AUDIO_ENGINE_HPP
+#endif // DEVICE_RACK_HPP

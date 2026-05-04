@@ -39,14 +39,16 @@ namespace noteahead {
 class SamplerDevice : public Device
 {
 public:
+    using SamplerDeviceS = std::shared_ptr<SamplerDevice>;
     static constexpr size_t maxSamples = 128;
     using AudioFileReaderU = std::unique_ptr<AudioFileReader>;
 
-    explicit SamplerDevice(AudioFileReaderU audioFileReader = nullptr);
+    explicit SamplerDevice(std::string name, AudioFileReaderU audioFileReader = nullptr);
     ~SamplerDevice() override;
 
     std::string name() const override;
     std::string category() const override;
+    std::string typeId() const override;
 
     void processMidiNoteOn(uint8_t note, uint8_t velocity) override;
     void processMidiNoteOff(uint8_t note) override;
@@ -147,6 +149,7 @@ private:
     std::vector<Voice> m_voices;
     mutable std::mutex m_mutex;
 
+    std::string m_name;
     float m_globalPan = 0.5f;
     float m_globalVolume = 1.0f;
     float m_globalCutoff = 1.0f;

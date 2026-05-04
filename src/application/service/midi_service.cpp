@@ -95,7 +95,7 @@ void MidiService::initializeOutputWorker()
         m_outputPorts = { "" };
         m_outputPorts.append(midiPorts);
         if (m_deviceService) {
-            m_outputPorts.append(m_deviceService->internalDeviceNames());
+            m_outputPorts.append(m_deviceService->internalDeviceNamesQt());
         }
         emit outputPortsChanged(m_outputPorts);
     });
@@ -111,7 +111,7 @@ QStringList MidiService::outputPorts() const
 {
     auto ports = m_outputPorts;
     if (m_deviceService) {
-        const auto internalPorts = m_deviceService->internalDeviceNames();
+        const auto internalPorts = m_deviceService->internalDeviceNamesQt();
         for (const auto & port : internalPorts) {
             if (!ports.contains(port)) {
                 ports.append(port);

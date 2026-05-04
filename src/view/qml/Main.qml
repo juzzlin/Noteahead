@@ -204,6 +204,12 @@ ApplicationWindow {
         width: parent.width * Constants.defaultDialogScale
         height: parent.height * Constants.defaultDialogScale
     }
+    DeviceRackDialog {
+        id: deviceRackDialog
+        anchors.centerIn: parent
+        width: parent.width * Constants.defaultDialogScale
+        height: parent.height * Constants.defaultDialogScale
+    }
     SettingsDialog {
         id: settingsDialog
         anchors.centerIn: parent
@@ -387,6 +393,8 @@ ApplicationWindow {
             errorDialog.open();
         });
         applicationService.midiExportDialogRequested.connect(midiExportDialog.open);
+        applicationService.deviceRackDialogRequested.connect(deviceRackDialog.open);
+        applicationService.samplerDialogRequested.connect(samplerDialog.open);
         applicationService.openDialogRequested.connect(openDialog.open);
         applicationService.recentFilesDialogRequested.connect(recentFilesDialog.open);
         applicationService.saveAsDialogRequested.connect(saveAsDialog.open);
@@ -417,14 +425,14 @@ ApplicationWindow {
             uiLogger.info(_tag, "Settings focus on editor view");
             _editorView.focus = true;
         });
+        UiService.deviceRackDialogRequested.connect(deviceRackDialog.open);
         UiService.samplerDialogRequested.connect(samplerDialog.open);
         UiService.recentFilesDialogRequested.connect(recentFilesDialog.open);
         UiService.deviceDialogRequested.connect(deviceName => {
-            if (deviceName === applicationService.samplerDeviceName()) {
-                samplerDialog.open();
+            if (deviceService.isInternalDevice(deviceName)) {
+                deviceRackController.openDevice(deviceName);
             }
         });
-
         UiService.columnSettingsDialogRequested.connect((trackIndex, columnIndex) => {
             midiCcAutomationsModel.linesPerBeat = editorService.linesPerBeat;
             columnSettingsDialog.setColumn(trackIndex, columnIndex);

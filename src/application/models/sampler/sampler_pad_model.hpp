@@ -5,9 +5,9 @@
 #include <memory>
 #include <vector>
 
-namespace noteahead {
+#include "../../../domain/devices/sampler_device.hpp"
 
-class SamplerDevice;
+namespace noteahead {
 
 class SamplerPadModel : public QAbstractListModel
 {
@@ -22,7 +22,9 @@ public:
     };
     Q_ENUM(Roles)
 
-    explicit SamplerPadModel(std::shared_ptr<SamplerDevice> sampler, QObject * parent = nullptr);
+    explicit SamplerPadModel(SamplerDevice::SamplerDeviceS sampler, QObject * parent = nullptr);
+
+    void setSampler(SamplerDevice::SamplerDeviceS sampler);
 
     int rowCount(const QModelIndex & parent = QModelIndex()) const override;
     QVariant data(const QModelIndex & index, int role = Qt::DisplayRole) const override;
@@ -31,7 +33,7 @@ public:
     void updatePad(int padIndex);
 
 private:
-    std::shared_ptr<SamplerDevice> m_sampler;
+    SamplerDevice::SamplerDeviceS m_sampler;
     static constexpr int PadCount = 16;
     static constexpr int StartNote = 36;
 };

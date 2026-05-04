@@ -7,26 +7,9 @@ import "../Components"
 Menu {
     title: qsTr("Song")
     width: rootItem.width
-    Menu {
-        title: qsTr("Devices")
-        Instantiator {
-            model: deviceService.categories()
-            Menu {
-                id: categoryMenu
-                title: modelData
-                Instantiator {
-                    model: deviceService.devicesByCategory(modelData)
-                    MenuItem {
-                        text: modelData
-                        onTriggered: UiService.requestDeviceDialog(modelData)
-                    }
-                    onObjectAdded: (index, object) => categoryMenu.insertItem(index, object)
-                    onObjectRemoved: (index, object) => categoryMenu.removeItem(object)
-                }
-            }
-            onObjectAdded: (index, object) => insertMenu(index, object)
-            onObjectRemoved: (index, object) => removeMenu(object)
-        }
+    Action {
+        text: qsTr("Device Rack...")
+        onTriggered: applicationService.requestDeviceRackDialog()
     }
     MenuSeparator {}
     Action {

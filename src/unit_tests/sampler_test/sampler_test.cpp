@@ -45,13 +45,14 @@ void SamplerTest::initTestCase() { }
 
 void SamplerTest::test_initialState_shouldBeCorrect()
 {
-    SamplerDevice sampler { std::make_unique<MockAudioFileReader>() };
-    QCOMPARE(sampler.name(), Constants::samplerDeviceName().toStdString());
+    const auto samplerName = Constants::samplerDeviceName().toStdString();
+    SamplerDevice sampler { samplerName, std::make_unique<MockAudioFileReader>() };
+    QCOMPARE(sampler.name(), samplerName);
 }
 
 void SamplerTest::test_loadAndClearSample_shouldUpdateModel()
 {
-    SamplerDevice sampler { std::make_unique<MockAudioFileReader>() };
+    SamplerDevice sampler { Constants::samplerDeviceName().toStdString(), std::make_unique<MockAudioFileReader>() };
     sampler.loadSample(60, "test.wav");
     QVERIFY(sampler.sample(60) != nullptr);
     sampler.clearSample(60);
@@ -62,7 +63,7 @@ void SamplerTest::test_midiNoteOn_shouldPlaySample()
 {
     auto mockReader = std::make_unique<MockAudioFileReader>();
     mockReader->setForceChannels(1);
-    SamplerDevice sampler { std::move(mockReader) };
+    SamplerDevice sampler { Constants::samplerDeviceName().toStdString(), std::move(mockReader) };
     sampler.loadSample(60, "test.wav");
     sampler.processMidiNoteOn(60, 127);
     std::vector<float> buffer(4, 0.0f);
@@ -72,7 +73,7 @@ void SamplerTest::test_midiNoteOn_shouldPlaySample()
 
 void SamplerTest::test_midiAllNotesOff_shouldStopAllVoices()
 {
-    SamplerDevice sampler { std::make_unique<MockAudioFileReader>() };
+    SamplerDevice sampler { Constants::samplerDeviceName().toStdString(), std::make_unique<MockAudioFileReader>() };
     sampler.loadSample(60, "test.wav");
     sampler.processMidiNoteOn(60, 127);
     sampler.processMidiAllNotesOff();
@@ -83,7 +84,7 @@ void SamplerTest::test_midiAllNotesOff_shouldStopAllVoices()
 
 void SamplerTest::test_pan_shouldAdjustPanning()
 {
-    SamplerDevice sampler { std::make_unique<MockAudioFileReader>() };
+    SamplerDevice sampler { Constants::samplerDeviceName().toStdString(), std::make_unique<MockAudioFileReader>() };
     sampler.loadSample(60, "test.wav");
     sampler.setSamplePan(60, 0.75f);
     QVERIFY(qFuzzyCompare(sampler.samplePan(60), 0.75f));
@@ -91,7 +92,7 @@ void SamplerTest::test_pan_shouldAdjustPanning()
 
 void SamplerTest::test_volume_shouldAdjustVolume()
 {
-    SamplerDevice sampler { std::make_unique<MockAudioFileReader>() };
+    SamplerDevice sampler { Constants::samplerDeviceName().toStdString(), std::make_unique<MockAudioFileReader>() };
     sampler.loadSample(60, "test.wav");
     sampler.setSampleVolume(60, 0.5f);
     QCOMPARE(sampler.sampleVolume(60), 0.5f);
@@ -99,7 +100,7 @@ void SamplerTest::test_volume_shouldAdjustVolume()
 
 void SamplerTest::test_cutoff_shouldAdjustCutoff()
 {
-    SamplerDevice sampler { std::make_unique<MockAudioFileReader>() };
+    SamplerDevice sampler { Constants::samplerDeviceName().toStdString(), std::make_unique<MockAudioFileReader>() };
     sampler.loadSample(60, "test.wav");
     sampler.setSampleCutoff(60, 0.5f);
     QCOMPARE(sampler.sampleCutoff(60), 0.5f);
@@ -109,14 +110,14 @@ void SamplerTest::test_cutoff_shouldAdjustCutoff()
 
 void SamplerTest::test_channelMode_shouldToggleCorrectMode()
 {
-    SamplerDevice sampler { std::make_unique<MockAudioFileReader>() };
+    SamplerDevice sampler { Constants::samplerDeviceName().toStdString(), std::make_unique<MockAudioFileReader>() };
     sampler.setChannelMode(true);
     QCOMPARE(sampler.channelMode(), true);
 }
 
 void SamplerTest::test_midiCcReset_shouldResetInternalValues()
 {
-    SamplerDevice sampler { std::make_unique<MockAudioFileReader>() };
+    SamplerDevice sampler { Constants::samplerDeviceName().toStdString(), std::make_unique<MockAudioFileReader>() };
     sampler.loadSample(60, "test.wav");
     sampler.setSamplePan(60, 0.75f);
     sampler.setChannelMode(true);
@@ -127,7 +128,7 @@ void SamplerTest::test_midiCcReset_shouldResetInternalValues()
 
 void SamplerTest::test_startOffset_shouldShiftPlaybackStart()
 {
-    SamplerDevice sampler { std::make_unique<MockAudioFileReader>() };
+    SamplerDevice sampler { Constants::samplerDeviceName().toStdString(), std::make_unique<MockAudioFileReader>() };
     sampler.loadSample(60, "test.wav");
     sampler.setSampleStartOffset(60, 0.01);
     QVERIFY(std::abs(sampler.sampleStartOffset(60) - 0.01) < 0.0001);
@@ -135,7 +136,7 @@ void SamplerTest::test_startOffset_shouldShiftPlaybackStart()
 
 void SamplerTest::test_reset_shouldResetParametersAndPads()
 {
-    SamplerDevice sampler { std::make_unique<MockAudioFileReader>() };
+    SamplerDevice sampler { Constants::samplerDeviceName().toStdString(), std::make_unique<MockAudioFileReader>() };
     sampler.loadSample(60, "test.wav");
     sampler.setChannelMode(true);
     sampler.reset();
@@ -147,7 +148,7 @@ void SamplerTest::test_processAudio_shouldProduceOutput()
 {
     auto mockReader = std::make_unique<MockAudioFileReader>();
     mockReader->setForceChannels(1);
-    SamplerDevice sampler { std::move(mockReader) };
+    SamplerDevice sampler { Constants::samplerDeviceName().toStdString(), std::move(mockReader) };
     sampler.loadSample(60, "test.wav");
     sampler.processMidiNoteOn(60, 127);
     std::vector<float> buffer(4, 0.0f);

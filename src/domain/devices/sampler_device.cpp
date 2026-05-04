@@ -39,8 +39,9 @@ SamplerDevice::Sample::Sample()
     addParameter(Parameter { Constants::NahdXml::xmlKeyStartOffset().toStdString(), 0.0f, 0, 60000, 0, 1 });
 }
 
-SamplerDevice::SamplerDevice(AudioFileReaderU audioFileReader)
-  : m_audioFileReader { audioFileReader ? std::move(audioFileReader) : std::make_unique<SndFileReader>() }
+SamplerDevice::SamplerDevice(std::string name, AudioFileReaderU audioFileReader)
+  : m_name { std::move(name) }
+  , m_audioFileReader { audioFileReader ? std::move(audioFileReader) : std::make_unique<SndFileReader>() }
 {
     addParameter(Parameter { Constants::NahdXml::xmlKeyChannelMode().toStdString(), 0.0f, 0, 1, 0, 1 });
 
@@ -77,12 +78,17 @@ void SamplerDevice::updateVoiceEffects(Voice & voice)
 
 std::string SamplerDevice::name() const
 {
-    return Constants::samplerDeviceName().toStdString();
+    return m_name;
 }
 
 std::string SamplerDevice::category() const
 {
     return Constants::NahdXml::xmlValueSamplers().toStdString();
+}
+
+std::string SamplerDevice::typeId() const
+{
+    return "9dda4ff6-471b-11f1-9324-c701bfaf8258";
 }
 
 void SamplerDevice::processMidiNoteOn(uint8_t note, uint8_t velocity)

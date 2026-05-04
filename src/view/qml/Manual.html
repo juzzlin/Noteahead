@@ -83,6 +83,7 @@
     <li><strong>Column</strong>: Perform Cut/Copy/Paste and transposition on the current note column. You can also <strong>Add Note OFF</strong> to quickly insert a note-off event on the first line of the column, <strong>Interpolate velocity</strong> across the entire column, or manage column-wide automations.</li>
     <li><strong>Track</strong>: Manage the current track (Insert/Delete), <strong>Add Note OFF</strong> to all columns in the track (first line), transpose all columns within the track, and edit track-specific automations.</li>
     <li><strong>Pattern</strong>: <strong>Add Note OFF</strong> to all columns in the entire pattern (first line), transpose, or perform clipboard operations for the entire active pattern.</li>
+    <li><strong>Song</strong>: Access the <strong>Device Rack...</strong> to manage internal instruments or perform song-wide transposition.</li>
     <li><strong>Delete unused patterns</strong>: Found in the Edit menu, this tool scans the play order and removes all patterns that are not assigned to any song position. This is useful for cleaning up patterns that were created during the composing process but are no longer part of the song.</li>
     <li><strong>Selection</strong>: When a range of lines/columns is selected, this menu allows you to perform actions specifically on that selection, such as adding automations or interpolating velocity.</li>
     <li><strong>Global Automation</strong>: At the bottom of the menu, you can find options to edit <strong>ALL</strong> MIDI CC or Pitch Bend automations in the project.</li>
@@ -157,10 +158,18 @@
 <p>Located in Track settings, this allows one track/column to trigger MIDI CC events on another, perfect for "pumping" effects or rhythmic modulation.</p>
 
 <h2 style="color: orange; border-bottom: 1px solid #444; margin-top: 20px;">Internal Devices</h2>
-<h3 style="color: orange;">Sampler</h3>
-<p>Accessed via <code>Devices => Sampler...</code> or <code>Right-click => Song => Devices => Sampler...</code>, this internal instrument allows you to trigger audio samples directly within Noteahead.</p>
+<h3 style="color: orange;">Device Rack</h3>
+<p>Accessed via <code>Devices => Rack...</code> or <code>Right-click => Song => Device Rack...</code>, the rack is the central hub for all internal instruments in Noteahead.</p>
 <ul>
-    <li><strong>Pads</strong>: The sampler features 16 pads, mapped to MIDI notes 36 to 51.</li>
+    <li><strong>Managing Devices</strong>: The rack displays all available internal devices. Click a device entry to open its dedicated control dialog.</li>
+    <li><strong>Multiple Instances</strong>: Noteahead currently provides 4 independent <strong>Sampler</strong> instances ("Sampler 1" to "Sampler 4"), each with its own settings and sample set.</li>
+</ul>
+
+<h3 style="color: orange;">Sampler</h3>
+<p>The Sampler is a versatile internal instrument for triggering audio samples.</p>
+<ul>
+    <li><strong>Selection</strong>: Assign a track to a specific sampler by selecting its name (e.g., "Sampler 1") in the <strong>Track Settings</strong> port list.</li>
+    <li><strong>Pads</strong>: Each sampler features 16 pads, mapped to MIDI notes 36 to 51.</li>
     <li><strong>Loading Samples</strong>: Click an empty pad to open a file dialog and select a WAV file. Once loaded, the pad will turn green.</li>
     <li><strong>Playback</strong>: Press and hold a pad to play the sample, and release to stop. In the sequencer, use the corresponding MIDI note to trigger the sample.</li>
     <li><strong>Panning</strong>: Each pad has its own base <strong>Pan</strong> setting (-100% to +100%). This can be adjusted using the slider on the right side of the pads.</li>
