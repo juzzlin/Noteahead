@@ -120,12 +120,14 @@ SynthDevice::SynthDevice(std::string name)
     addParameter(Parameter { Constants::NahdXml::xmlKeyVolume().toStdString(), 1.0f, 0, 100, 100 });
 
     addParameter(Parameter { Constants::NahdXml::xmlKeyDelayType().toStdString(), 0.0f, 0, 5, 0, 1, true });
-    addParameter(Parameter { Constants::NahdXml::xmlKeyDelayTime().toStdString(), 0.5f, 0, 2000, 500 }); // 0..2 seconds in ms
+    addParameter(Parameter { Constants::NahdXml::xmlKeyDelayTime().toStdString(), 0.5f, 0, 10000, 500 }); // 0..10 seconds in ms
     addParameter(Parameter { Constants::NahdXml::xmlKeyDelayFeedback().toStdString(), 0.3f, 0, 100, 30 });
     addParameter(Parameter { Constants::NahdXml::xmlKeyDelayDepth().toStdString(), 0.5f, 0, 100, 50 });
     addParameter(Parameter { Constants::NahdXml::xmlKeyDelayMix().toStdString(), 0.0f, 0, 100, 0 });
     addParameter(Parameter { Constants::NahdXml::xmlKeyDelaySync().toStdString(), 0.0f, 0, 1, 0, 1, true });
     addParameter(Parameter { Constants::NahdXml::xmlKeyDelaySyncDivision().toStdString(), 0.25f, 0, 100, 25 });
+    addParameter(Parameter { Constants::NahdXml::xmlKeyDelayFeedbackLpf().toStdString(), 1.0f, 0, 100, 100 });
+    addParameter(Parameter { Constants::NahdXml::xmlKeyDelayFeedbackHpf().toStdString(), 0.0f, 0, 100, 0 });
 
     for (auto && voice : m_voices) {
         voice.lpf.setMode(CascadedSVF::Mode::LowPass);
@@ -515,12 +517,14 @@ void SynthDevice::syncParameters()
     if (auto p = parameter(Constants::NahdXml::xmlKeyVolume().toStdString()); p) m_masterVolume = p->get().value();
 
     if (auto p = parameter(Constants::NahdXml::xmlKeyDelayType().toStdString()); p) m_delayType = static_cast<DelayEffect::Type>(p->get().xmlValue());
-    if (auto p = parameter(Constants::NahdXml::xmlKeyDelayTime().toStdString()); p) m_delayTime = p->get().value() * 2.0f; 
+    if (auto p = parameter(Constants::NahdXml::xmlKeyDelayTime().toStdString()); p) m_delayTime = p->get().value() * 10.0f; 
     if (auto p = parameter(Constants::NahdXml::xmlKeyDelayFeedback().toStdString()); p) m_delayFeedback = p->get().value();
     if (auto p = parameter(Constants::NahdXml::xmlKeyDelayDepth().toStdString()); p) m_delayDepth = p->get().value();
     if (auto p = parameter(Constants::NahdXml::xmlKeyDelayMix().toStdString()); p) m_delayMix = p->get().value();
     if (auto p = parameter(Constants::NahdXml::xmlKeyDelaySync().toStdString()); p) m_delaySync = p->get().xmlValue() > 0;
     if (auto p = parameter(Constants::NahdXml::xmlKeyDelaySyncDivision().toStdString()); p) m_delaySyncDivision = p->get().value();
+    if (auto p = parameter(Constants::NahdXml::xmlKeyDelayFeedbackLpf().toStdString()); p) m_delay.setFeedbackLpf(p->get().value());
+    if (auto p = parameter(Constants::NahdXml::xmlKeyDelayFeedbackHpf().toStdString()); p) m_delay.setFeedbackHpf(p->get().value());
 
     m_delay.setType(m_delayType);
     m_delay.setTime(m_delayTime);
@@ -752,7 +756,7 @@ void SynthDevice::setMasterVolume(float vol) { bool changed = false; { std::lock
 DelayEffect::Type SynthDevice::delayType() const { return m_delayType; }
 void SynthDevice::setDelayType(DelayEffect::Type type) { bool changed = false; { std::lock_guard<std::mutex> lock { m_mutex }; if (auto p = parameter(Constants::NahdXml::xmlKeyDelayType().toStdString()); p) { p->get().setFromXml(static_cast<int>(type)); syncParameters(); changed = true; } } if (changed) emit dataChanged(); }
 float SynthDevice::delayTime() const { return m_delayTime; }
-void SynthDevice::setDelayTime(float time) { bool changed = false; { std::lock_guard<std::mutex> lock { m_mutex }; if (auto p = parameter(Constants::NahdXml::xmlKeyDelayTime().toStdString()); p) { p->get().setValue(time / 2.0f); syncParameters(); changed = true; } } if (changed) emit dataChanged(); }
+void SynthDevice::setDelayTime(float time) { bool changed = false; { std::lock_guard<std::mutex> lock { m_mutex }; if (auto p = parameter(Constants::NahdXml::xmlKeyDelayTime().toStdString()); p) { p->get().setValue(time / 10.0f); syncParameters(); changed = true; } } if (changed) emit dataChanged(); }
 float SynthDevice::delayFeedback() const { return m_delayFeedback; }
 void SynthDevice::setDelayFeedback(float fb) { bool changed = false; { std::lock_guard<std::mutex> lock { m_mutex }; if (auto p = parameter(Constants::NahdXml::xmlKeyDelayFeedback().toStdString()); p) { p->get().setValue(fb); syncParameters(); changed = true; } } if (changed) emit dataChanged(); }
 float SynthDevice::delayDepth() const { return m_delayDepth; }
@@ -763,5 +767,9 @@ bool SynthDevice::delaySync() const { return m_delaySync; }
 void SynthDevice::setDelaySync(bool sync) { bool changed = false; { std::lock_guard<std::mutex> lock { m_mutex }; if (auto p = parameter(Constants::NahdXml::xmlKeyDelaySync().toStdString()); p) { p->get().setFromXml(sync ? 1 : 0); syncParameters(); changed = true; } } if (changed) emit dataChanged(); }
 float SynthDevice::delaySyncDivision() const { return m_delaySyncDivision; }
 void SynthDevice::setDelaySyncDivision(float division) { bool changed = false; { std::lock_guard<std::mutex> lock { m_mutex }; if (auto p = parameter(Constants::NahdXml::xmlKeyDelaySyncDivision().toStdString()); p) { p->get().setValue(division); syncParameters(); changed = true; } } if (changed) emit dataChanged(); }
+float SynthDevice::delayFeedbackLpf() const { return m_delay.feedbackLpf(); }
+void SynthDevice::setFeedbackLpf(float cutoff) { bool changed = false; { std::lock_guard<std::mutex> lock { m_mutex }; if (auto p = parameter(Constants::NahdXml::xmlKeyDelayFeedbackLpf().toStdString()); p) { p->get().setValue(cutoff); syncParameters(); changed = true; } } if (changed) emit dataChanged(); }
+float SynthDevice::delayFeedbackHpf() const { return m_delay.feedbackHpf(); }
+void SynthDevice::setFeedbackHpf(float cutoff) { bool changed = false; { std::lock_guard<std::mutex> lock { m_mutex }; if (auto p = parameter(Constants::NahdXml::xmlKeyDelayFeedbackHpf().toStdString()); p) { p->get().setValue(cutoff); syncParameters(); changed = true; } } if (changed) emit dataChanged(); }
 
 } // namespace noteahead

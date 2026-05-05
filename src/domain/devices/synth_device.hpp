@@ -193,6 +193,10 @@ public:
     void setDelaySync(bool sync);
     float delaySyncDivision() const;
     void setDelaySyncDivision(float division);
+    float delayFeedbackLpf() const;
+    void setFeedbackLpf(float cutoff);
+    float delayFeedbackHpf() const;
+    void setFeedbackHpf(float cutoff);
 
     void loadPreset(int bank, int index);
     void setUserPresets(const UserPresets & presets);

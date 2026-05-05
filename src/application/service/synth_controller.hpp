@@ -100,6 +100,8 @@ class SynthController : public QObject
     Q_PROPERTY(int delayMix READ delayMix WRITE setDelayMix NOTIFY delayMixChanged)
     Q_PROPERTY(bool delaySync READ delaySync WRITE setDelaySync NOTIFY delaySyncChanged)
     Q_PROPERTY(int delaySyncDivision READ delaySyncDivision WRITE setDelaySyncDivision NOTIFY delaySyncDivisionChanged)
+    Q_PROPERTY(int delayFeedbackLpf READ delayFeedbackLpf WRITE setDelayFeedbackLpf NOTIFY delayFeedbackLpfChanged)
+    Q_PROPERTY(int delayFeedbackHpf READ delayFeedbackHpf WRITE setDelayFeedbackHpf NOTIFY delayFeedbackHpfChanged)
 
 public:
     explicit SynthController(std::shared_ptr<SynthDevice> synth, QObject * parent = nullptr);
@@ -171,6 +173,8 @@ public:
     int delayMix() const; void setDelayMix(int mix);
     bool delaySync() const; void setDelaySync(bool sync);
     int delaySyncDivision() const; void setDelaySyncDivision(int div);
+    int delayFeedbackLpf() const; void setDelayFeedbackLpf(int cutoff);
+    int delayFeedbackHpf() const; void setDelayFeedbackHpf(int cutoff);
 
     Q_INVOKABLE void initialize();
     Q_INVOKABLE void reset();
@@ -199,7 +203,7 @@ signals:
     void lfoWaveformChanged(); void lfoModeChanged(); void lfoRateChanged(); void lfoIntChanged(); void lfoTargetChanged();
     void voiceModeChanged(); void voiceDepthChanged(); void portamentoChanged(); void panSpreadChanged(); void masterPanChanged(); void masterVolumeChanged();
     void sampleRateChanged();
-    void delayTypeChanged(); void delayTimeChanged(); void delayFeedbackChanged(); void delayDepthChanged(); void delayMixChanged(); void delaySyncChanged(); void delaySyncDivisionChanged();
+    void delayTypeChanged(); void delayTimeChanged(); void delayFeedbackChanged(); void delayDepthChanged(); void delayMixChanged(); void delaySyncChanged(); void delaySyncDivisionChanged(); void delayFeedbackLpfChanged(); void delayFeedbackHpfChanged();
 
 public:
     void setSynth(std::shared_ptr<SynthDevice> synth);

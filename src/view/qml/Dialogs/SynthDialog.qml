@@ -562,16 +562,34 @@ Dialog {
                         StackLayout {
                             currentIndex: synthController.delaySync ? 0 : 1
                             Layout.fillWidth: true
+                            Layout.preferredHeight: noteDurationCombo.implicitHeight
                             ComboBox {
-                                model: ["1/16", "1/8", "1/4", "1/2", "1/1"]
-                                currentIndex: [0.0625, 0.125, 0.25, 0.5, 1.0].indexOf(synthController.delaySyncDivision / 1000.0)
-                                onActivated: i => synthController.delaySyncDivision = [62.5, 125, 250, 500, 1000][i]
+                                id: noteDurationCombo
+                                model: ["1/1", "3/4", "1/2", "3/8", "1/3", "1/4", "3/16", "1/6", "1/8", "3/32", "1/12", "1/16", "3/64", "1/24", "1/32", "1/64"]
+                                currentIndex: {
+                                    const divisions = [1.0, 0.75, 0.5, 0.375, 1/3, 0.25, 0.1875, 1/6, 0.125, 0.09375, 1/12, 0.0625, 0.046875, 1/24, 0.03125, 0.015625];
+                                    const val = synthController.delaySyncDivision / 1000.0;
+                                    let bestIdx = 0;
+                                    let minDiff = 1000;
+                                    for (let i = 0; i < divisions.length; ++i) {
+                                        let diff = Math.abs(divisions[i] - val);
+                                        if (diff < minDiff) {
+                                            minDiff = diff;
+                                            bestIdx = i;
+                                        }
+                                    }
+                                    return bestIdx;
+                                }
+                                onActivated: i => {
+                                    const divisions = [1000, 750, 500, 375, 333.33, 250, 187.5, 166.67, 125, 93.75, 83.33, 62.5, 46.88, 41.67, 31.25, 15.63];
+                                    synthController.delaySyncDivision = divisions[i];
+                                }
                                 Layout.fillWidth: true
                             }
                             Knob {
                                 label: qsTr("Time")
                                 from: 1
-                                to: 2000
+                                to: 10000
                                 suffix: "ms"
                                 value: synthController.delayTime
                                 onMoved: v => synthController.delayTime = v
@@ -579,23 +597,44 @@ Dialog {
                             }
                         }
                     }
-                    Knob {
-                        label: qsTr("Feedback")
-                        value: synthController.delayFeedback
-                        onMoved: v => synthController.delayFeedback = v
+                    RowLayout {
                         Layout.fillWidth: true
+                        Knob {
+                            label: qsTr("Feedback")
+                            value: synthController.delayFeedback
+                            onMoved: v => synthController.delayFeedback = v
+                            Layout.fillWidth: true
+                        }
+                        FilterKnob {
+                            label: qsTr("LPF")
+                            controller: synthController
+                            value: synthController.delayFeedbackLpf
+                            onMoved: v => synthController.delayFeedbackLpf = v
+                            Layout.fillWidth: true
+                        }
+                        FilterKnob {
+                            label: qsTr("HPF")
+                            controller: synthController
+                            value: synthController.delayFeedbackHpf
+                            isHpf: true
+                            onMoved: v => synthController.delayFeedbackHpf = v
+                            Layout.fillWidth: true
+                        }
                     }
-                    Knob {
-                        label: qsTr("Depth")
-                        value: synthController.delayDepth
-                        onMoved: v => synthController.delayDepth = v
+                    RowLayout {
                         Layout.fillWidth: true
-                    }
-                    Knob {
-                        label: qsTr("Mix")
-                        value: synthController.delayMix
-                        onMoved: v => synthController.delayMix = v
-                        Layout.fillWidth: true
+                        Knob {
+                            label: qsTr("Depth")
+                            value: synthController.delayDepth
+                            onMoved: v => synthController.delayDepth = v
+                            Layout.fillWidth: true
+                        }
+                        Knob {
+                            label: qsTr("Mix")
+                            value: synthController.delayMix
+                            onMoved: v => synthController.delayMix = v
+                            Layout.fillWidth: true
+                        }
                     }
                 }
 

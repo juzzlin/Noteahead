@@ -761,6 +761,11 @@ void XmlSerializationTest::test_toXmlFromXml_synthDevice_shouldPreserveValuesAnd
     synthOut->setMultiLevel(0.88f);
     synthOut->setMultiKeyTrack(0.5f);
     synthOut->setMasterPan(0.12f);
+    synthOut->setDelayType(DelayEffect::Type::PingPong);
+    synthOut->setDelaySync(true);
+    synthOut->setDelaySyncDivision(0.25f);
+    synthOut->setFeedbackLpf(0.6f);
+    synthOut->setFeedbackHpf(0.2f);
     deviceServiceOut.registerDevice(synthOut);
 
     EditorService editorServiceOut { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
@@ -788,6 +793,11 @@ void XmlSerializationTest::test_toXmlFromXml_synthDevice_shouldPreserveValuesAnd
     QCOMPARE(synthIn->multiLevel(), 0.88f);
     QCOMPARE(synthIn->multiKeyTrack(), 0.5f);
     QCOMPARE(synthIn->masterPan(), 0.12f);
+    QCOMPARE(synthIn->delayType(), DelayEffect::Type::PingPong);
+    QCOMPARE(synthIn->delaySync(), true);
+    QCOMPARE(synthIn->delaySyncDivision(), 0.25f);
+    QCOMPARE(synthIn->delayFeedbackLpf(), 0.6f);
+    QCOMPARE(synthIn->delayFeedbackHpf(), 0.2f);
 
     // Verify discrete flags
     const auto vco1Wave = synthIn->parameter(Constants::NahdXml::xmlKeySynthVco1Waveform().toStdString());

@@ -245,6 +245,8 @@ QString xmlKeyDelayDepth();
 QString xmlKeyDelayMix();
 QString xmlKeyDelaySync();
 QString xmlKeyDelaySyncDivision();
+QString xmlKeyDelayFeedbackLpf();
+QString xmlKeyDelayFeedbackHpf();
 
 QString xmlKeySynthVco1Waveform();
 QString xmlKeySynthVco1Octave();

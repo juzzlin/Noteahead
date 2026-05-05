@@ -17,6 +17,7 @@
 #define DELAY_EFFECT_HPP
 
 #include "effect.hpp"
+#include "../dsp/cascaded_svf.hpp"
 #include <vector>
 
 namespace noteahead {
@@ -49,6 +50,11 @@ public:
     void setSync(bool sync);
     void setSyncDivision(float division);
 
+    void setFeedbackLpf(float cutoff);
+    float feedbackLpf() const;
+    void setFeedbackHpf(float cutoff);
+    float feedbackHpf() const;
+
 private:
     Type m_type { Type::Stereo };
     float m_time { 0.5f };
@@ -58,13 +64,21 @@ private:
     float m_bpm { 120.0f };
     bool m_sync { false };
     float m_syncDivision { 0.25f };
+    float m_feedbackLpfCutoff { 1.0f };
+    float m_feedbackHpfCutoff { 0.0f };
 
     std::vector<float> m_bufferL;
     std::vector<float> m_bufferR;
     uint32_t m_writePos { 0 };
     uint32_t m_lastSampleRate { 0 };
 
-    // Filter states for HiPass/LowPass/Tape
+    // Feedback filters
+    CascadedSVF m_fbLpfL;
+    CascadedSVF m_fbLpfR;
+    CascadedSVF m_fbHpfL;
+    CascadedSVF m_fbHpfR;
+
+    // Filter states for legacy HiPass/LowPass/Tape
     float m_lpStateL { 0.0f };
     float m_lpStateR { 0.0f };
     float m_hpStateL { 0.0f };

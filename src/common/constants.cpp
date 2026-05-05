@@ -879,10 +879,9 @@ QString xmlKeyDelaySync()
     return "delaySync";
 }
 
-QString xmlKeyDelaySyncDivision()
-{
-    return "delaySyncDivision";
-}
+QString xmlKeyDelaySyncDivision() { return "delaySyncDivision"; }
+QString xmlKeyDelayFeedbackLpf() { return "delayFeedbackLpf"; }
+QString xmlKeyDelayFeedbackHpf() { return "delayFeedbackHpf"; }
 
 QString xmlKeySynthVco1Waveform() { return "vco1Waveform"; }
 QString xmlKeySynthVco1Octave() { return "vco1Octave"; }

@@ -216,6 +216,10 @@ bool SynthController::delaySync() const { return m_synth ? m_synth->delaySync() 
 void SynthController::setDelaySync(bool sync) { if (m_synth) { m_synth->setDelaySync(sync); emit delaySyncChanged(); } }
 int SynthController::delaySyncDivision() const { return m_synth ? static_cast<int>(std::round(m_synth->delaySyncDivision() * 1000.0f)) : 0; }
 void SynthController::setDelaySyncDivision(int div) { if (m_synth) { m_synth->setDelaySyncDivision(div / 1000.0f); emit delaySyncDivisionChanged(); } }
+int SynthController::delayFeedbackLpf() const { return m_synth ? static_cast<int>(std::round(m_synth->delayFeedbackLpf() * 1000.0f)) : 0; }
+void SynthController::setDelayFeedbackLpf(int cutoff) { if (m_synth) { m_synth->setFeedbackLpf(cutoff / 1000.0f); emit delayFeedbackLpfChanged(); } }
+int SynthController::delayFeedbackHpf() const { return m_synth ? static_cast<int>(std::round(m_synth->delayFeedbackHpf() * 1000.0f)) : 0; }
+void SynthController::setDelayFeedbackHpf(int cutoff) { if (m_synth) { m_synth->setFeedbackHpf(cutoff / 1000.0f); emit delayFeedbackHpfChanged(); } }
 
 void SynthController::initialize() {}
 void SynthController::reset() { if (m_synth) m_synth->reset(); requestSettings(); }
@@ -229,7 +233,7 @@ void SynthController::requestSettings() {
     emit modAttackChanged(); emit modDecayChanged(); emit modIntChanged(); emit modTargetChanged();
     emit lfoWaveformChanged(); emit lfoModeChanged(); emit lfoRateChanged(); emit lfoIntChanged(); emit lfoTargetChanged();
     emit voiceModeChanged(); emit voiceDepthChanged(); emit portamentoChanged(); emit panSpreadChanged(); emit masterPanChanged(); emit masterVolumeChanged();
-    emit delayTypeChanged(); emit delayTimeChanged(); emit delayFeedbackChanged(); emit delayDepthChanged(); emit delayMixChanged(); emit delaySyncChanged(); emit delaySyncDivisionChanged();
+    emit delayTypeChanged(); emit delayTimeChanged(); emit delayFeedbackChanged(); emit delayDepthChanged(); emit delayMixChanged(); emit delaySyncChanged(); emit delaySyncDivisionChanged(); emit delayFeedbackLpfChanged(); emit delayFeedbackHpfChanged();
 }
 void SynthController::accept() {}
 void SynthController::reject() {}

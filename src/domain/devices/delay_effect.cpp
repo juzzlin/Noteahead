@@ -21,6 +21,10 @@ namespace noteahead {
 
 DelayEffect::DelayEffect()
 {
+    m_fbLpfL.setMode(CascadedSVF::Mode::LowPass);
+    m_fbLpfR.setMode(CascadedSVF::Mode::LowPass);
+    m_fbHpfL.setMode(CascadedSVF::Mode::HighPass);
+    m_fbHpfR.setMode(CascadedSVF::Mode::HighPass);
 }
 
 void DelayEffect::process(float & left, float & right)
@@ -29,6 +33,10 @@ void DelayEffect::process(float & left, float & right)
     if (sampleRate != m_lastSampleRate) {
         updateBuffers(sampleRate);
         m_lastSampleRate = sampleRate;
+        m_fbLpfL.setSampleRate(m_sampleRate);
+        m_fbLpfR.setSampleRate(m_sampleRate);
+        m_fbHpfL.setSampleRate(m_sampleRate);
+        m_fbHpfR.setSampleRate(m_sampleRate);
     }
 
     if (m_mix <= 0.001f) return;
@@ -42,6 +50,9 @@ void DelayEffect::process(float & left, float & right)
 
     double delaySamples = static_cast<double>(delayTime) * sampleRate;
     size_t bufSize = m_bufferL.size();
+
+    // Clamp delay samples to avoid reading out of bounds if buffer is too small
+    delaySamples = std::clamp(delaySamples, 1.0, static_cast<double>(bufSize - 2));
 
     auto readFromBuffer = [&](const std::vector<float>& buf, double delay) {
         double readPos = static_cast<double>(m_writePos) - delay;
@@ -82,6 +93,17 @@ void DelayEffect::process(float & left, float & right)
         fbR = std::tanh(m_lpStateR * 1.5f);
     }
 
+    // Apply feedback filters
+    m_fbLpfL.setCutoff(m_feedbackLpfCutoff);
+    m_fbLpfR.setCutoff(m_feedbackLpfCutoff);
+    m_fbHpfL.setCutoff(m_feedbackHpfCutoff);
+    m_fbHpfR.setCutoff(m_feedbackHpfCutoff);
+
+    fbL = m_fbLpfL.process(fbL);
+    fbR = m_fbLpfR.process(fbR);
+    fbL = m_fbHpfL.process(fbL);
+    fbR = m_fbHpfR.process(fbR);
+
     // 3. Routing and Write-back
     float inputL = left;
     float inputR = right;
@@ -119,11 +141,15 @@ void DelayEffect::reset()
     std::fill(m_bufferR.begin(), m_bufferR.end(), 0.0f);
     m_lpStateL = m_lpStateR = 0.0f;
     m_hpStateL = m_hpStateR = 0.0f;
+    m_fbLpfL.reset();
+    m_fbLpfR.reset();
+    m_fbHpfL.reset();
+    m_fbHpfR.reset();
 }
 
 void DelayEffect::setType(Type type) { m_type = type; }
-void DelayEffect::setTime(float seconds) { m_time = std::clamp(seconds, 0.001f, 2.0f); }
-void DelayEffect::setFeedback(float feedback) { m_feedback = std::clamp(feedback, 0.0f, 0.95f); }
+void DelayEffect::setTime(float seconds) { m_time = std::clamp(seconds, 0.001f, 10.0f); }
+void DelayEffect::setFeedback(float feedback) { m_feedback = std::clamp(feedback, 0.0f, 0.99f); }
 void DelayEffect::setDepth(float depth) { m_depth = std::clamp(depth, 0.0f, 1.0f); }
 void DelayEffect::setMix(float mix) { m_mix = std::clamp(mix, 0.0f, 1.0f); }
 void DelayEffect::setBpm(float bpm) { m_bpm = std::max(1.0f, bpm); }
@@ -131,9 +157,14 @@ float DelayEffect::bpm() const { return m_bpm; }
 void DelayEffect::setSync(bool sync) { m_sync = sync; }
 void DelayEffect::setSyncDivision(float division) { m_syncDivision = division; }
 
+void DelayEffect::setFeedbackLpf(float cutoff) { m_feedbackLpfCutoff = std::clamp(cutoff, 0.0f, 1.0f); }
+float DelayEffect::feedbackLpf() const { return m_feedbackLpfCutoff; }
+void DelayEffect::setFeedbackHpf(float cutoff) { m_feedbackHpfCutoff = std::clamp(cutoff, 0.0f, 1.0f); }
+float DelayEffect::feedbackHpf() const { return m_feedbackHpfCutoff; }
+
 void DelayEffect::updateBuffers(uint32_t sampleRate)
 {
-    size_t size = static_cast<size_t>(sampleRate * 3); // 3 seconds max
+    size_t size = static_cast<size_t>(sampleRate * 10); // 10 seconds max
     m_bufferL.assign(size, 0.0f);
     m_bufferR.assign(size, 0.0f);
     m_writePos = 0;
