@@ -35,6 +35,7 @@ set(SRC
     ../../domain/devices/panning_effect.cpp
     ../../domain/devices/sampler_device.cpp
     ../../domain/devices/synth_device.cpp
+    ../../domain/dsp/oversampler.cpp
     ../../domain/devices/synth_presets.cpp
     ../../domain/devices/volume_effect.cpp
     ../../domain/dsp/adsr_envelope.cpp

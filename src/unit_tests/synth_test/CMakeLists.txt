@@ -11,6 +11,7 @@ set(SRC
     ../../domain/devices/delay_effect.cpp
     ../../domain/devices/effect.cpp
     ../../domain/devices/synth_device.cpp
+    ../../domain/dsp/oversampler.cpp
     ../../domain/devices/synth_presets.cpp
     ../../domain/dsp/adsr_envelope.cpp
     ../../domain/dsp/cascaded_svf.cpp

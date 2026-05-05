@@ -233,6 +233,7 @@ set(SOURCE_FILES
   domain/dsp/dsp_component.cpp
   domain/dsp/lfo.cpp
   domain/dsp/multi_engine.cpp
+  domain/dsp/oversampler.cpp
   domain/dsp/polyblep_oscillator.cpp
   infra/audio/audio_engine.cpp
   infra/audio/audio_file_recorder.cpp

@@ -23,6 +23,7 @@
 #include "../dsp/cascaded_svf.hpp"
 #include "../dsp/lfo.hpp"
 #include "../dsp/multi_engine.hpp"
+#include "../dsp/oversampler.hpp"
 #include "../dsp/polyblep_oscillator.hpp"
 
 #include <mutex>
@@ -300,6 +301,9 @@ private:
 
     int m_currentBank = 0;
     UserPresets m_userPresets;
+
+    Oversampler2x m_oversamplerL;
+    Oversampler2x m_oversamplerR;
 
     void handleNoteOn(uint8_t note, uint8_t velocity);
     void handleNoteOff(uint8_t note);
