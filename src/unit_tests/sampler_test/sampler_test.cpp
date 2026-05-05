@@ -49,6 +49,7 @@ void SamplerTest::test_initialState_shouldBeCorrect()
     const auto samplerName = Constants::samplerDeviceName().toStdString();
     SamplerDevice sampler { samplerName, std::make_unique<MockAudioFileReader>() };
     QCOMPARE(sampler.name(), samplerName);
+    QCOMPARE(sampler.gain(), 0.5f);
 }
 
 void SamplerTest::test_loadAndClearSample_shouldUpdateModel()
@@ -97,6 +98,12 @@ void SamplerTest::test_volume_shouldAdjustVolume()
     sampler.loadSample(60, "test.wav");
     sampler.setSampleVolume(60, 0.5f);
     QCOMPARE(sampler.sampleVolume(60), 0.5f);
+
+    sampler.setGlobalVolume(0.7f);
+    QCOMPARE(sampler.globalVolume(), 0.7f);
+
+    sampler.setGain(0.8f);
+    QCOMPARE(sampler.gain(), 0.8f);
 }
 
 void SamplerTest::test_cutoff_shouldAdjustCutoff()
@@ -156,6 +163,29 @@ void SamplerTest::test_processAudio_shouldProduceOutput()
     sampler.processAudio(buffer.data(), 2, static_cast<uint32_t>(Constants::defaultSampleRate()));
     QCOMPARE(buffer[0], 1.0f);
     QCOMPARE(buffer[1], 1.0f);
+}
+
+void SamplerTest::test_serialization_shouldSaveAndLoadGain()
+{
+    QByteArray data;
+    {
+        SamplerDevice sampler { Constants::samplerDeviceName().toStdString(), std::make_unique<MockAudioFileReader>() };
+        sampler.setGain(0.8f);
+        sampler.setGlobalVolume(0.4f);
+        QXmlStreamWriter writer(&data);
+        sampler.serializeToXml(writer);
+    }
+
+    {
+        SamplerDevice sampler { Constants::samplerDeviceName().toStdString(), std::make_unique<MockAudioFileReader>() };
+        QXmlStreamReader reader(data);
+        while (!reader.atEnd() && !reader.isStartElement()) {
+            reader.readNext();
+        }
+        sampler.deserializeFromXml(reader);
+        QCOMPARE(sampler.gain(), 0.8f);
+        QCOMPARE(sampler.globalVolume(), 0.4f);
+    }
 }
 
 } // namespace noteahead

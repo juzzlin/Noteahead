@@ -177,6 +177,8 @@ public:
     void setMasterPan(float pan);
     float masterVolume() const;
     void setMasterVolume(float vol);
+    float gain() const;
+    void setGain(float gain);
 
     // Delay parameters
     DelayEffect::Type delayType() const;
@@ -276,11 +278,14 @@ private:
     float m_panSpread { 0.0f };
     float m_masterPan { 0.5f };
     float m_masterVolume { 1.0f };
+    float m_gain { 0.5f };
+    float m_linearGain { 1.0f };
 
     // Manual settings for CC reset
     float m_manualPanSpread { 0.0f };
     float m_manualMasterPan { 0.5f };
     float m_manualMasterVolume { 1.0f };
+    float m_manualGain { 0.5f };
     float m_manualLpfCutoff { 1.0f };
     float m_manualHpfCutoff { 0.0f };
 

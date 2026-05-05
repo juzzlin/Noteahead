@@ -298,11 +298,35 @@ Dialog {
                     onMoved: v => {
                         samplerController.selectedPadHpfCutoff = v / 1000;
                     }
-                }
+                    }
 
-                // Start Offset
-                ColumnLayout {
-                    Layout.fillWidth: true
+                    // Global Settings
+                    Label {
+                    text: qsTr("Global Settings")
+                    font.bold: true
+                    color: themeService.accentColor
+                    Layout.topMargin: 10
+                    }
+
+                    Knob {
+                    label: qsTr("Global Volume")
+                    value: samplerController.globalVolume * 1000
+                    onMoved: v => {
+                        samplerController.globalVolume = v / 1000;
+                    }
+                    }
+
+                    Knob {
+                    label: qsTr("Global Gain")
+                    suffix: "dB"
+                    value: samplerController.gain * 1000
+                    onMoved: v => {
+                        samplerController.gain = v / 1000;
+                    }
+                    }
+
+                    // Start Offset
+                    ColumnLayout {                    Layout.fillWidth: true
                     Label {
                         text: qsTr("Start Offset:")
                         color: "white"

@@ -86,6 +86,7 @@ class SynthController : public QObject
     Q_PROPERTY(int panSpread READ panSpread WRITE setPanSpread NOTIFY panSpreadChanged)
     Q_PROPERTY(int masterPan READ masterPan WRITE setMasterPan NOTIFY masterPanChanged)
     Q_PROPERTY(int masterVolume READ masterVolume WRITE setMasterVolume NOTIFY masterVolumeChanged)
+    Q_PROPERTY(int gain READ gain WRITE setGain NOTIFY gainChanged)
     Q_PROPERTY(uint32_t sampleRate READ sampleRate NOTIFY sampleRateChanged)
     Q_PROPERTY(QStringList presetNames READ presetNames CONSTANT)
     Q_PROPERTY(int currentBank READ currentBank WRITE setCurrentBank NOTIFY currentBankChanged)
@@ -157,6 +158,7 @@ public:
     int panSpread() const; void setPanSpread(int s);
     int masterPan() const; void setMasterPan(int p);
     int masterVolume() const; void setMasterVolume(int v);
+    int gain() const; void setGain(int g);
 
     uint32_t sampleRate() const;
     Q_INVOKABLE float cutoffToHz(float cutoff) const;
@@ -201,7 +203,7 @@ signals:
     void ampAttackChanged(); void ampDecayChanged(); void ampSustainChanged(); void ampReleaseChanged();
     void modAttackChanged(); void modDecayChanged(); void modIntChanged(); void modTargetChanged();
     void lfoWaveformChanged(); void lfoModeChanged(); void lfoRateChanged(); void lfoIntChanged(); void lfoTargetChanged();
-    void voiceModeChanged(); void voiceDepthChanged(); void portamentoChanged(); void panSpreadChanged(); void masterPanChanged(); void masterVolumeChanged();
+    void voiceModeChanged(); void voiceDepthChanged(); void portamentoChanged(); void panSpreadChanged(); void masterPanChanged(); void masterVolumeChanged(); void gainChanged();
     void sampleRateChanged();
     void delayTypeChanged(); void delayTimeChanged(); void delayFeedbackChanged(); void delayDepthChanged(); void delayMixChanged(); void delaySyncChanged(); void delaySyncDivisionChanged(); void delayFeedbackLpfChanged(); void delayFeedbackHpfChanged();
 

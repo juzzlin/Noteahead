@@ -649,6 +649,11 @@ QString xmlKeyVolume()
     return "volume";
 }
 
+QString xmlKeyGain()
+{
+    return "gain";
+}
+
 QString xmlKeyProject()
 {
     return "Project";

@@ -108,6 +108,12 @@ public:
     bool channelMode() const;
     void setChannelMode(bool enabled);
 
+    float globalVolume() const;
+    void setGlobalVolume(float volume);
+
+    float gain() const;
+    void setGain(float gain);
+
     double playbackPosition(uint8_t note) const;
     bool isFinished(uint8_t note) const;
 
@@ -119,6 +125,7 @@ public:
 private:
     struct Voice;
     void updateVoiceEffects(Voice & voice);
+    void syncParameters();
 
     struct Voice
     {
@@ -152,10 +159,13 @@ private:
     std::string m_name;
     float m_globalPan = 0.5f;
     float m_globalVolume = 1.0f;
+    float m_gain = 0.5f;
+    float m_linearGain = 1.0f;
     float m_globalCutoff = 1.0f;
     float m_globalHpfCutoff = 0.0f;
     float m_manualGlobalPan = 0.5f;
     float m_manualGlobalVolume = 1.0f;
+    float m_manualGain = 0.5f;
     float m_manualGlobalCutoff = 1.0f;
     float m_manualGlobalHpfCutoff = 0.0f;
     bool m_channelMode = false;

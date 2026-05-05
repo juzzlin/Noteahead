@@ -38,6 +38,10 @@ ColumnLayout {
             let displayValue = Math.round(knobRoot.value);
             if (knobRoot.suffix === "%") {
                 displayValue = (knobRoot.value / 10.0).toFixed(1);
+            } else if (knobRoot.suffix === "dB") {
+                // Map 0..1000 to -30..30 dB
+                displayValue = ((knobRoot.value / 1000.0 * 60.0) - 30.0).toFixed(1);
+                if (displayValue > 0) displayValue = "+" + displayValue;
             }
             return `${knobRoot.label} (${displayValue}${knobRoot.suffix})`;
         }

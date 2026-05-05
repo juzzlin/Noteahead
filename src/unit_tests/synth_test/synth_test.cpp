@@ -48,6 +48,7 @@ void SynthTest::test_defaultValues_shouldBeCorrect()
     QCOMPARE(synth.hpfCutoff(), 0.0f);
     QCOMPARE(synth.ampSustain(), 1.0f);
     QCOMPARE(synth.masterPan(), 0.5f);
+    QCOMPARE(synth.gain(), 0.5f);
 }
 
 void SynthTest::test_parameterSetting_shouldUpdateValues()
@@ -73,6 +74,9 @@ void SynthTest::test_parameterSetting_shouldUpdateValues()
 
     synth.setMasterPan(0.2f);
     QCOMPARE(synth.masterPan(), 0.2f);
+
+    synth.setGain(0.75f);
+    QCOMPARE(synth.gain(), 0.75f);
 }
 
 void SynthTest::test_polyphony_shouldActiveMultipleVoices()
@@ -403,6 +407,27 @@ void SynthTest::test_userPresets_shouldSaveAndLoad()
     synth.loadPreset(1, 10);
     
     QCOMPARE(synth.lpfCutoff(), 0.42f);
+}
+
+void SynthTest::test_serialization_shouldSaveAndLoadGain()
+{
+    QByteArray data;
+    {
+        SynthDevice synth { "Test Synth" };
+        synth.setGain(0.8f);
+        QXmlStreamWriter writer(&data);
+        synth.serializeToXml(writer);
+    }
+
+    {
+        SynthDevice synth { "Test Synth" };
+        QXmlStreamReader reader(data);
+        while (!reader.atEnd() && !reader.isStartElement()) {
+            reader.readNext();
+        }
+        synth.deserializeFromXml(reader);
+        QCOMPARE(synth.gain(), 0.8f);
+    }
 }
 
 } // namespace noteahead

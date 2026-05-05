@@ -44,11 +44,17 @@ SamplerDevice::SamplerDevice(std::string name, AudioFileReaderU audioFileReader)
   , m_audioFileReader { audioFileReader ? std::move(audioFileReader) : std::make_unique<SndFileReader>() }
 {
     addParameter(Parameter { Constants::NahdXml::xmlKeyChannelMode().toStdString(), 0.0f, 0, 1, 0, 1 });
+    addParameter(Parameter { Constants::NahdXml::xmlKeyVolume().toStdString(), 1.0f, 0, 100, 100, 1 });
+    addParameter(Parameter { Constants::NahdXml::xmlKeyGain().toStdString(), 0.5f, -30, 30, 0, 1, false });
 
     m_voices.resize(m_maxVoices);
     for (auto && sample : m_samples) {
         sample = nullptr;
     }
+
+    m_manualGain = m_gain;
+    m_manualGlobalVolume = m_globalVolume;
+    syncParameters();
 }
 
 SamplerDevice::~SamplerDevice() = default;
@@ -153,6 +159,7 @@ void SamplerDevice::processMidiCc(uint8_t controller, uint8_t value, uint8_t cha
         if (controller == 121) { // Reset All Controllers
             m_globalPan = m_manualGlobalPan;
             m_globalVolume = m_manualGlobalVolume;
+            m_gain = m_manualGain;
             m_globalCutoff = m_manualGlobalCutoff;
             m_globalHpfCutoff = m_manualGlobalHpfCutoff;
 
@@ -169,6 +176,9 @@ void SamplerDevice::processMidiCc(uint8_t controller, uint8_t value, uint8_t cha
                     if (auto p = sample->parameter(Constants::NahdXml::xmlKeyHpfCutoff().toStdString()); p) p->get().setValue(sample->hpfCutoff);
                 }
             }
+
+            if (auto p = parameter(Constants::NahdXml::xmlKeyVolume().toStdString()); p) p->get().setValue(m_globalVolume);
+            if (auto p = parameter(Constants::NahdXml::xmlKeyGain().toStdString()); p) p->get().setValue(m_gain);
 
             for (auto && voice : m_voices) {
                 if (voice.active && voice.sample) {
@@ -226,6 +236,7 @@ void SamplerDevice::processMidiCc(uint8_t controller, uint8_t value, uint8_t cha
                 }
             } else if (controller == 7) { // Volume
                 m_globalVolume = static_cast<float>(value) / 127.0f;
+                if (auto p = parameter(Constants::NahdXml::xmlKeyVolume().toStdString()); p) p->get().setValue(m_globalVolume);
                 // Update all active voices' volume
                 for (auto && voice : m_voices) {
                     if (voice.active) {
@@ -360,8 +371,8 @@ void SamplerDevice::processAudio(float * output, uint32_t nFrames, uint32_t samp
                 }
             }
 
-            output[i * 2] += left;
-            output[i * 2 + 1] += right;
+            output[i * 2] += left * m_linearGain;
+            output[i * 2 + 1] += right * m_linearGain;
 
             voice.position += pitchScale;
         }
@@ -380,9 +391,7 @@ void SamplerDevice::reset()
             voice.active = false;
         }
 
-        if (auto p = parameter(Constants::NahdXml::xmlKeyChannelMode().toStdString()); p) {
-            m_channelMode = p->get().value() > 0.5f;
-        }
+        syncParameters();
     }
 
     emit dataChanged();
@@ -770,9 +779,7 @@ void SamplerDevice::deserializeFromXml(QXmlStreamReader & reader)
     {
         std::lock_guard<std::mutex> lock { m_mutex };
         // Sync global fields
-        if (auto p = parameter(Constants::NahdXml::xmlKeyChannelMode().toStdString()); p) {
-            m_channelMode = p->get().value() > 0.5f;
-        }
+        syncParameters();
     }
 
     emit dataChanged();
@@ -806,6 +813,64 @@ void SamplerDevice::setProjectPath(const std::string & projectPath)
 {
     std::lock_guard<std::mutex> lock { m_mutex };
     m_projectPath = projectPath;
+}
+
+float SamplerDevice::globalVolume() const
+{
+    return m_globalVolume;
+}
+
+void SamplerDevice::setGlobalVolume(float volume)
+{
+    bool changed = false;
+    {
+        std::lock_guard<std::mutex> lock { m_mutex };
+        if (auto p = parameter(Constants::NahdXml::xmlKeyVolume().toStdString()); p) {
+            p->get().setValue(volume);
+            m_manualGlobalVolume = p->get().value();
+            syncParameters();
+            changed = true;
+        }
+    }
+    if (changed) {
+        emit dataChanged();
+    }
+}
+
+float SamplerDevice::gain() const
+{
+    return m_gain;
+}
+
+void SamplerDevice::setGain(float gain)
+{
+    bool changed = false;
+    {
+        std::lock_guard<std::mutex> lock { m_mutex };
+        if (auto p = parameter(Constants::NahdXml::xmlKeyGain().toStdString()); p) {
+            p->get().setValue(gain);
+            m_manualGain = p->get().value();
+            syncParameters();
+            changed = true;
+        }
+    }
+    if (changed) {
+        emit dataChanged();
+    }
+}
+
+void SamplerDevice::syncParameters()
+{
+    if (auto p = parameter(Constants::NahdXml::xmlKeyChannelMode().toStdString()); p) {
+        m_channelMode = p->get().value() > 0.5f;
+    }
+    if (auto p = parameter(Constants::NahdXml::xmlKeyVolume().toStdString()); p) {
+        m_globalVolume = p->get().value();
+    }
+    if (auto p = parameter(Constants::NahdXml::xmlKeyGain().toStdString()); p) {
+        m_gain = p->get().value();
+        m_linearGain = std::pow(10.0f, ((m_gain - 0.5f) * 60.0f) / 20.0f);
+    }
 }
 
 } // namespace noteahead

@@ -42,12 +42,11 @@ private slots:
     void test_midiCcReset_shouldResetInternalValues();
 
     void test_startOffset_shouldShiftPlaybackStart();
-
     void test_reset_shouldResetParametersAndPads();
-
     void test_processAudio_shouldProduceOutput();
-};
+    void test_serialization_shouldSaveAndLoadGain();
+    };
 
-} // namespace noteahead
+    } // namespace noteahead
 
 #endif // SAMPLER_TEST_HPP

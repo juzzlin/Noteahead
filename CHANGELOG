@@ -5,6 +5,10 @@ Release date:
 
 New features:
 
+* Implement a Gain parameter for Noteahead Sampler and Synth
+  - Range: -30 dB to +30 dB
+  - Allows proper gain staging when recording alongside hardware instruments
+
 * Fix GitHub Issue #45: Implement a simple built-in sampler
 
 * Implements a virtual device rack

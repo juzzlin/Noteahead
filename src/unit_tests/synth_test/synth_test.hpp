@@ -42,6 +42,7 @@ private slots:
     void test_parameterDiscreteFlag_shouldReturnCorrectDiscreteState();
     void test_midiBankAndProgramChange_shouldLoadCorrectPreset();
     void test_userPresets_shouldSaveAndLoad();
+    void test_serialization_shouldSaveAndLoadGain();
 };
 
 } // namespace noteahead
