@@ -15,9 +15,12 @@
 
 #include "synth_test.hpp"
 
-#include "../../domain/devices/synth_device.hpp"
 #include "../../common/constants.hpp"
+#include "../../domain/devices/synth_device.hpp"
+#include "../../domain/devices/synth_presets.hpp"
 
+#include <cmath>
+#include <map>
 #include <QBuffer>
 #include <QTest>
 #include <QXmlStreamReader>
@@ -98,7 +101,7 @@ void SynthTest::test_polyphony_shouldActiveMultipleVoices()
 void SynthTest::test_presets_shouldLoadCorrectValues()
 {
     SynthDevice synth { "Test Synth" };
-    synth.loadPreset(1); // Fat Bass
+    synth.loadPreset(0, 1); // Fat Bass
     
     QCOMPARE(synth.vco1Waveform(), PolyBLEPOscillator::Waveform::Saw);
     QCOMPARE(synth.mixVco2(), 0.8f);
@@ -157,7 +160,7 @@ void SynthTest::test_presetMidiCcReset_shouldRestorePresetValues()
     synth.setLpfCutoff(1.0f);
     
     // 2. Load "Fat Bass" preset (Cutoff = 0.3)
-    synth.loadPreset(1); 
+    synth.loadPreset(0, 1); 
     QCOMPARE(synth.lpfCutoff(), 0.3f);
     
     // 3. Offset via MIDI CC
@@ -354,6 +357,52 @@ void SynthTest::test_parameterDiscreteFlag_shouldReturnCorrectDiscreteState()
     const auto multiShape = synth.parameter(Constants::NahdXml::xmlKeySynthMultiShape().toStdString());
     QVERIFY(multiShape.has_value());
     QVERIFY(!multiShape->get().isDiscrete());
+}
+
+void SynthTest::test_midiBankAndProgramChange_shouldLoadCorrectPreset()
+{
+    SynthDevice synth { "Test Synth" };
+    
+    // Set some user presets
+    UserPresets userPresets;
+    const SynthPreset up1 { "User 1", { { Constants::NahdXml::xmlKeySynthLpfCutoff().toStdString(), 0.123f } } };
+    userPresets[5] = up1;
+    synth.setUserPresets(userPresets);
+
+    // Switch to User Bank (Bank Select MSB = 1)
+    synth.processMidiCc(0, 1, 0);
+    // Change to Program 5
+    synth.processMidiProgramChange(5, 0);
+
+    QCOMPARE(synth.lpfCutoff(), 0.123f);
+
+    // Switch to Factory Bank (Bank Select MSB = 0)
+    synth.processMidiCc(0, 0, 0);
+    // Change to Program 0 (Factory Init/first preset)
+    synth.processMidiProgramChange(0, 0);
+    
+    const auto & factoryPresets = SynthPresets::presets();
+    if (!factoryPresets.empty()) {
+        const auto expectedCutoff = factoryPresets[0].parameters.count(Constants::NahdXml::xmlKeySynthLpfCutoff().toStdString()) ?
+                                    factoryPresets[0].parameters.at(Constants::NahdXml::xmlKeySynthLpfCutoff().toStdString()) : 1.0f; // Default 1.0
+        QCOMPARE(synth.lpfCutoff(), expectedCutoff);
+    }
+}
+
+void SynthTest::test_userPresets_shouldSaveAndLoad()
+{
+    SynthDevice synth { "Test Synth" };
+    
+    UserPresets userPresets;
+    for (int i = 0; i < 128; ++i) userPresets[i] = SynthPresets::initPreset();
+    
+    const SynthPreset myPreset { "My Bass", { { Constants::NahdXml::xmlKeySynthLpfCutoff().toStdString(), 0.42f } } };
+    userPresets[10] = myPreset;
+    
+    synth.setUserPresets(userPresets);
+    synth.loadPreset(1, 10);
+    
+    QCOMPARE(synth.lpfCutoff(), 0.42f);
 }
 
 } // namespace noteahead

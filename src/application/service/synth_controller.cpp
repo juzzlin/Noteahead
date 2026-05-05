@@ -14,10 +14,12 @@
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
 #include "synth_controller.hpp"
+
 #include "../../common/constants.hpp"
 #include "../../common/utils.hpp"
 #include "../../domain/devices/synth_device.hpp"
 #include "../../domain/devices/synth_presets.hpp"
+#include "device_service.hpp"
 
 #include <cmath>
 
@@ -29,6 +31,10 @@ SynthController::SynthController(std::shared_ptr<SynthDevice> synth, QObject * p
 {
     if (m_synth) {
         connect(m_synth.get(), &Device::dataChanged, this, &SynthController::sampleRateChanged);
+    }
+
+    for (int i = 0; i < 128; ++i) {
+        m_userPresets[i] = SynthPresets::initPreset();
     }
 }
 
@@ -142,13 +148,57 @@ float SynthController::cutoffToHz(float cutoff) const
 QStringList SynthController::presetNames() const
 {
     QStringList names;
-    const auto& presetList = SynthPresets::presets();
+    const auto & presetList = SynthPresets::presets();
     for (size_t i = 0; i < presetList.size(); ++i) {
         names.append(QString("%1: %2")
-            .arg(static_cast<int>(i + 1), 3, 10, QChar('0'))
-            .arg(QString::fromStdString(presetList[i].name)));
+                         .arg(static_cast<int>(i), 3, 10, QChar('0'))
+                         .arg(QString::fromStdString(presetList[i].name)));
     }
     return names;
+}
+
+int SynthController::currentBank() const
+{
+    return m_currentBank;
+}
+
+void SynthController::setCurrentBank(int bank)
+{
+    if (m_currentBank != bank) {
+        m_currentBank = bank;
+        emit currentBankChanged();
+        setCurrentPresetIndex(0);
+    }
+}
+
+int SynthController::currentPresetIndex() const
+{
+    return m_currentPresetIndex;
+}
+
+void SynthController::setCurrentPresetIndex(int index)
+{
+    if (m_currentPresetIndex != index) {
+        m_currentPresetIndex = index;
+        emit currentPresetIndexChanged();
+    }
+}
+
+QStringList SynthController::userPresetNames() const
+{
+    QStringList names;
+    for (int i = 0; i < 128; ++i) {
+        names << QString("%1: %2")
+                     .arg(i, 3, 10, QChar('0'))
+                     .arg(QString::fromStdString(m_userPresets.at(i).name));
+    }
+    return names;
+}
+
+void SynthController::setUserPresets(const UserPresets & presets)
+{
+    m_userPresets = presets;
+    emit userPresetNamesChanged();
 }
 
 // Delay
@@ -183,7 +233,30 @@ void SynthController::requestSettings() {
 }
 void SynthController::accept() {}
 void SynthController::reject() {}
-void SynthController::loadPreset(int index) { if (m_synth) m_synth->loadPreset(index); requestSettings(); }
+void SynthController::loadPreset(int index)
+{
+    if (m_synth) {
+        m_synth->loadPreset(m_currentBank, index);
+        requestSettings();
+    }
+}
+
+void SynthController::saveUserPreset(QString name)
+{
+    if (m_synth && m_deviceService) {
+        SynthPreset preset;
+        preset.name = name.toStdString();
+        for (const auto & [paramName, parameter] : m_synth->parameters()) {
+            preset.parameters[paramName] = parameter.value();
+        }
+        m_deviceService->saveSynthUserPreset(m_currentPresetIndex, preset);
+    }
+}
+
+void SynthController::setDeviceService(std::shared_ptr<DeviceService> deviceService)
+{
+    m_deviceService = std::move(deviceService);
+}
 
 void SynthController::playNote(int note, double velocity) { if (m_synth) m_synth->processMidiNoteOn(note, static_cast<uint8_t>(velocity * 127.0)); }
 void SynthController::stopNote(int note) { if (m_synth) m_synth->processMidiNoteOff(note); }

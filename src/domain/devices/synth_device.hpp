@@ -16,13 +16,14 @@
 #ifndef SYNTH_DEVICE_HPP
 #define SYNTH_DEVICE_HPP
 
+#include "delay_effect.hpp"
 #include "device.hpp"
+#include "synth_presets.hpp"
 #include "../dsp/adsr_envelope.hpp"
 #include "../dsp/cascaded_svf.hpp"
-#include "../dsp/polyblep_oscillator.hpp"
 #include "../dsp/lfo.hpp"
 #include "../dsp/multi_engine.hpp"
-#include "delay_effect.hpp"
+#include "../dsp/polyblep_oscillator.hpp"
 
 #include <mutex>
 #include <vector>
@@ -67,6 +68,7 @@ public:
     void processMidiNoteOn(uint8_t note, uint8_t velocity) override;
     void processMidiNoteOff(uint8_t note) override;
     void processMidiCc(uint8_t controller, uint8_t value, uint8_t channel) override;
+    void processMidiProgramChange(uint8_t program, uint8_t channel) override;
     void processMidiAllNotesOff() override;
 
     void processAudio(float * output, uint32_t nFrames, uint32_t sampleRate) override;
@@ -192,7 +194,8 @@ public:
     float delaySyncDivision() const;
     void setDelaySyncDivision(float division);
 
-    void loadPreset(int index);
+    void loadPreset(int bank, int index);
+    void setUserPresets(const UserPresets & presets);
 
 private:
     struct Voice
@@ -285,6 +288,9 @@ private:
     float m_delayMix { 0.0f };
     bool m_delaySync { false };
     float m_delaySyncDivision { 0.25f };
+
+    int m_currentBank = 0;
+    UserPresets m_userPresets;
 
     void handleNoteOn(uint8_t note, uint8_t velocity);
     void handleNoteOff(uint8_t note);

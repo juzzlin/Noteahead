@@ -16,11 +16,14 @@
 #ifndef SYNTH_CONTROLLER_HPP
 #define SYNTH_CONTROLLER_HPP
 
+#include "../../domain/devices/synth_presets.hpp"
+
 #include <QObject>
 #include <memory>
 
 namespace noteahead {
 
+class DeviceService;
 class SynthDevice;
 
 class SynthController : public QObject
@@ -85,6 +88,9 @@ class SynthController : public QObject
     Q_PROPERTY(int masterVolume READ masterVolume WRITE setMasterVolume NOTIFY masterVolumeChanged)
     Q_PROPERTY(uint32_t sampleRate READ sampleRate NOTIFY sampleRateChanged)
     Q_PROPERTY(QStringList presetNames READ presetNames CONSTANT)
+    Q_PROPERTY(int currentBank READ currentBank WRITE setCurrentBank NOTIFY currentBankChanged)
+    Q_PROPERTY(int currentPresetIndex READ currentPresetIndex WRITE setCurrentPresetIndex NOTIFY currentPresetIndexChanged)
+    Q_PROPERTY(QStringList userPresetNames READ userPresetNames NOTIFY userPresetNamesChanged)
 
     // Delay
     Q_PROPERTY(int delayType READ delayType WRITE setDelayType NOTIFY delayTypeChanged)
@@ -154,6 +160,9 @@ public:
     Q_INVOKABLE float cutoffToHz(float cutoff) const;
 
     QStringList presetNames() const;
+    int currentBank() const; void setCurrentBank(int bank);
+    int currentPresetIndex() const; void setCurrentPresetIndex(int index);
+    QStringList userPresetNames() const;
 
     int delayType() const; void setDelayType(int type);
     int delayTime() const; void setDelayTime(int time);
@@ -169,12 +178,17 @@ public:
     Q_INVOKABLE void accept();
     Q_INVOKABLE void reject();
     Q_INVOKABLE void loadPreset(int index);
+    Q_INVOKABLE void saveUserPreset(QString name);
 
     Q_INVOKABLE void playNote(int note, double velocity = 1.0);
     Q_INVOKABLE void stopNote(int note);
 
 signals:
     void synthChanged();
+    void currentBankChanged();
+    void currentPresetIndexChanged();
+    void userPresetNamesChanged();
+    void userPresetSaved(int index, const noteahead::SynthPreset & preset);
     void vco1WaveformChanged(); void vco1OctaveChanged(); void vco1PitchChanged(); void vco1ShapeChanged(); void vco1SyncChanged();
     void vco2WaveformChanged(); void vco2OctaveChanged(); void vco2PitchChanged(); void vco2ShapeChanged(); void vco2SyncChanged();
     void multiTypeChanged(); void multiShapeChanged(); void multiLevelChanged(); void multiKeyTrackChanged();
@@ -189,9 +203,15 @@ signals:
 
 public:
     void setSynth(std::shared_ptr<SynthDevice> synth);
+    void setDeviceService(std::shared_ptr<DeviceService> deviceService);
+    void setUserPresets(const UserPresets & presets);
 
 private:
     std::shared_ptr<SynthDevice> m_synth;
+    std::shared_ptr<DeviceService> m_deviceService;
+    int m_currentBank = 0;
+    int m_currentPresetIndex = 0;
+    UserPresets m_userPresets;
 };
 
 } // namespace noteahead

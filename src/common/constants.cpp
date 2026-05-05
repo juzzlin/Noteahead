@@ -917,6 +917,10 @@ QString xmlKeySynthModDecay() { return "modDecay"; }
 QString xmlKeySynthModIntensity() { return "modIntensity"; }
 QString xmlKeySynthModTarget() { return "modTarget"; }
 
+QString xmlKeyUserPresets() { return "UserPresets"; }
+QString xmlKeyPreset() { return "Preset"; }
+QString xmlKeyTypeId() { return "typeId"; }
+
 QString xmlKeySynthLfoWaveform() { return "lfoWaveform"; }
 QString xmlKeySynthLfoMode() { return "lfoMode"; }
 QString xmlKeySynthLfoRate() { return "lfoRate"; }

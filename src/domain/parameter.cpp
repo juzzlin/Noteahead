@@ -48,7 +48,7 @@ void Parameter::setValue(float val)
 
 int Parameter::xmlValue() const
 {
-    return static_cast<int>(std::round(m_value * static_cast<float>(m_xmlMax - m_xmlMin))) + m_xmlMin;
+    return internalToXmlValue(m_value, m_xmlMin, m_xmlMax);
 }
 
 int Parameter::xmlMin() const
@@ -78,17 +78,26 @@ bool Parameter::isDiscrete() const
 
 void Parameter::setFromXml(int xmlVal)
 {
-    const int clamped = std::clamp(xmlVal, std::min(m_xmlMin, m_xmlMax), std::max(m_xmlMin, m_xmlMax));
-    if (const int range = m_xmlMax - m_xmlMin; range != 0) {
-        m_value = static_cast<float>(clamped - m_xmlMin) / static_cast<float>(range);
-    } else {
-        m_value = 0.0f;
-    }
+    m_value = xmlValueToInternal(xmlVal, m_xmlMin, m_xmlMax);
 }
 
 void Parameter::reset()
 {
     setFromXml(m_xmlDefault);
+}
+
+float Parameter::xmlValueToInternal(int xmlVal, int xmlMin, int xmlMax)
+{
+    const int clamped = std::clamp(xmlVal, std::min(xmlMin, xmlMax), std::max(xmlMin, xmlMax));
+    if (const int range = xmlMax - xmlMin; range != 0) {
+        return static_cast<float>(clamped - xmlMin) / static_cast<float>(range);
+    }
+    return 0.0f;
+}
+
+int Parameter::internalToXmlValue(float value, int xmlMin, int xmlMax)
+{
+    return static_cast<int>(std::round(std::clamp(value, 0.0f, 1.0f) * static_cast<float>(xmlMax - xmlMin))) + xmlMin;
 }
 
 } // namespace noteahead

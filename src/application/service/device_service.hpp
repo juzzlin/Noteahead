@@ -17,6 +17,7 @@
 #define DEVICE_SERVICE_HPP
 
 #include "../../domain/devices/device.hpp"
+#include "../../domain/devices/synth_presets.hpp"
 
 #include <QObject>
 #include <QStringList>
@@ -48,6 +49,7 @@ public:
     void processMidiNoteOn(const QString & portName, uint8_t note, uint8_t velocity);
     void processMidiNoteOff(const QString & portName, uint8_t note);
     void processMidiCc(const QString & portName, uint8_t controller, uint8_t value, uint8_t channel);
+    void processMidiProgramChange(const QString & portName, uint8_t program, uint8_t channel);
     void processMidiAllNotesOff(const QString & portName);
     void processMidiAllNotesOff();
 
@@ -59,6 +61,10 @@ public:
     Q_INVOKABLE QStringList categories() const;
     Q_INVOKABLE QStringList devicesByCategory(const QString & category) const;
 
+    void setSynthUserPresets(const UserPresets & presets);
+    UserPresets synthUserPresets() const;
+    void saveSynthUserPreset(int index, const SynthPreset & preset);
+
     void setProjectPath(const std::string & projectPath);
 
     void serializeToXml(QXmlStreamWriter & writer) const;
@@ -66,9 +72,11 @@ public:
 
 signals:
     void dataChanged();
+    void synthUserPresetsChanged(const UserPresets & presets);
 
 private:
     AudioEngineS m_audioEngine;
+    UserPresets m_synthUserPresets;
 };
 
 } // namespace noteahead

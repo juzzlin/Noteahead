@@ -40,6 +40,8 @@ private slots:
     void test_reset_shouldRestoreDefaults();
     void test_portamento_shouldGlideFrequency();
     void test_parameterDiscreteFlag_shouldReturnCorrectDiscreteState();
+    void test_midiBankAndProgramChange_shouldLoadCorrectPreset();
+    void test_userPresets_shouldSaveAndLoad();
 };
 
 } // namespace noteahead

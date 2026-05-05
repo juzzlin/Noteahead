@@ -15,7 +15,6 @@
 
 #include "xml_serialization_test.hpp"
 
-#include "../../common/constants.hpp"
 #include "../../application/service/application_service.hpp"
 #include "../../application/service/audio_service.hpp"
 #include "../../application/service/automation_service.hpp"
@@ -27,6 +26,7 @@
 #include "../../application/service/selection_service.hpp"
 #include "../../application/service/settings_service.hpp"
 #include "../../application/service/side_chain_service.hpp"
+#include "../../common/constants.hpp"
 #include "../../domain/column_settings.hpp"
 #include "../../domain/devices/sampler_device.hpp"
 #include "../../domain/devices/synth_device.hpp"
@@ -201,11 +201,11 @@ void XmlSerializationTest::test_toXmlFromXml_columnSettings_shouldSaveAndLoad()
 
 void XmlSerializationTest::test_toXmlFromXml_automationService_midiCc_shouldLoadAutomationService()
 {
-    quint8 controller = 64;
-    quint8 line0 = 4;
-    quint8 line1 = 12;
-    quint8 value0 = 0;
-    quint8 value1 = 100;
+    const quint8 controller = 64;
+    const quint8 line0 = 4;
+    const quint8 line1 = 12;
+    const quint8 value0 = 0;
+    const quint8 value1 = 100;
     const auto comment = "MIDI CC Automation Test";
 
     AutomationService automationServiceOut { std::make_shared<PropertyService>() };
@@ -284,10 +284,10 @@ void XmlSerializationTest::test_toXmlFromXml_automationService_midiCc_noModulati
 
 void XmlSerializationTest::test_toXmlFromXml_automationService_pitchBend_shouldLoadAutomationService()
 {
-    quint8 line0 = 4;
-    quint8 line1 = 12;
-    int value0 = -100;
-    int value1 = +100;
+    const quint8 line0 = 4;
+    const quint8 line1 = 12;
+    const int value0 = -100;
+    const int value1 = +100;
     const auto comment = "Pitch Bend Automation Test";
 
     AutomationService automationServiceOut { std::make_shared<PropertyService>() };
@@ -805,6 +805,41 @@ void XmlSerializationTest::test_toXmlFromXml_synthDevice_shouldPreserveValuesAnd
     const auto multiShape = synthIn->parameter(Constants::NahdXml::xmlKeySynthMultiShape().toStdString());
     QVERIFY(multiShape.has_value());
     QVERIFY(!multiShape->get().isDiscrete());
+}
+
+void XmlSerializationTest::test_toXmlFromXml_synthUserPresets_shouldSaveAndLoad()
+{
+    const auto engine = std::make_shared<AudioEngine>();
+    DeviceService deviceServiceOut { engine };
+    const auto synthOut = std::make_shared<SynthDevice>(Constants::synthDeviceName().toStdString());
+    deviceServiceOut.registerDevice(synthOut);
+
+    UserPresets userPresets;
+    SynthPreset preset;
+    preset.name = "Test Preset";
+    preset.parameters[Constants::NahdXml::xmlKeySynthLpfCutoff().toStdString()] = 0.5f;
+    userPresets[10] = preset;
+    deviceServiceOut.setSynthUserPresets(userPresets);
+
+    EditorService editorServiceOut { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
+    connect(&editorServiceOut, &EditorService::devicesSerializationRequested, &deviceServiceOut, &DeviceService::serializeToXml);
+
+    const auto xml = editorServiceOut.toXml();
+
+    // Verify XML contains metadata (min/max/default/scale)
+    QVERIFY(xml.contains("min=\"0\""));
+    QVERIFY(xml.contains("max=\"100\""));
+
+    const auto deviceServiceIn = std::make_shared<DeviceService>(std::make_shared<AudioEngine>());
+    EditorService editorServiceIn { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
+    connect(&editorServiceIn, &EditorService::devicesDeserializationRequested, deviceServiceIn.get(), &DeviceService::deserializeFromXml);
+
+    editorServiceIn.fromXml(xml);
+
+    const auto & userPresetsIn = deviceServiceIn->synthUserPresets();
+    QVERIFY(userPresetsIn.count(10));
+    QCOMPARE(userPresetsIn.at(10).name, std::string("Test Preset"));
+    QCOMPARE(userPresetsIn.at(10).parameters.at(Constants::NahdXml::xmlKeySynthLpfCutoff().toStdString()), 0.5f);
 }
 
 void XmlSerializationTest::test_fromXml_samplerDevice_missingId_shouldNotThrow()

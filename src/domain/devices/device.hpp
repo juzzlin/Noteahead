@@ -46,11 +46,12 @@ public:
     virtual void processMidiNoteOn(uint8_t note, uint8_t velocity) = 0;
     virtual void processMidiNoteOff(uint8_t note) = 0;
     virtual void processMidiCc(uint8_t controller, uint8_t value, uint8_t channel) = 0;
+    virtual void processMidiProgramChange(uint8_t, uint8_t) {}
     virtual void processMidiAllNotesOff() = 0;
 
     virtual void processAudio(float * output, uint32_t nFrames, uint32_t sampleRate) = 0;
 
-    virtual void setBpm(float bpm) { (void)bpm; }
+    virtual void setBpm(float) {}
 
     virtual void reset() = 0;
 

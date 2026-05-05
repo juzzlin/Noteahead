@@ -13,18 +13,25 @@
 // You should have received a copy of the GNU General Public License
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
-#include "../../domain/pattern.hpp"
 #include "editor_service.hpp"
 
-#include "../../infra/settings.hpp"
 #include "../../common/constants.hpp"
+#include "../../common/utils.hpp"
 #include "../../contrib/SimpleLogger/src/simple_logger.hpp"
+#include "../../domain/column_settings.hpp"
+#include "../../domain/devices/device.hpp"
+#include "../../domain/instrument.hpp"
+#include "../../domain/instrument_settings.hpp"
+#include "../../domain/line.hpp"
 #include "../../domain/note_data.hpp"
 #include "../../domain/note_data_manipulator.hpp"
+#include "../../domain/pattern.hpp"
 #include "../../domain/song.hpp"
-#include "../command/note_edit_command.hpp"
+#include "../../domain/track.hpp"
+#include "../../infra/settings.hpp"
 #include "../command/automation_command.hpp"
 #include "../command/composite_command.hpp"
+#include "../command/note_edit_command.hpp"
 #include "../instrument_request.hpp"
 #include "../note_converter.hpp"
 #include "audio_service.hpp"
@@ -1864,7 +1871,7 @@ void EditorService::requestSelectionPaste()
                 const auto & interpolation = automation.interpolation();
                 for (size_t line = interpolation.line0; line <= interpolation.line1; ++line) {
                     const auto existing = m_automationService->midiCcAutomationsByLine(location.pattern(), location.track(), location.column(), line);
-                    for (auto && ex : existing) {
+                    for (const auto & ex : existing) {
                         if (std::ranges::find(midiCcDeletions, ex) == midiCcDeletions.end()) {
                             midiCcDeletions.push_back(ex);
                         }
@@ -1877,7 +1884,7 @@ void EditorService::requestSelectionPaste()
                 const auto & interpolation = automation.interpolation();
                 for (size_t line = interpolation.line0; line <= interpolation.line1; ++line) {
                     const auto existing = m_automationService->pitchBendAutomationsByLine(location.pattern(), location.track(), location.column(), line);
-                    for (auto && ex : existing) {
+                    for (const auto & ex : existing) {
                         if (std::ranges::find(pitchBendDeletions, ex) == pitchBendDeletions.end()) {
                             pitchBendDeletions.push_back(ex);
                         }

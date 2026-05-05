@@ -12,16 +12,17 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
-
 #include "device_service.hpp"
 
 #include "../../common/constants.hpp"
+#include "../../common/utils.hpp"
 #include "../../domain/devices/sampler_device.hpp"
 #include "../../domain/devices/synth_device.hpp"
 #include "../../infra/audio/audio_engine.hpp"
 
-#include <QStringList>
 #include <QXmlStreamReader>
+#include <QXmlStreamWriter>
+#include <set>
 #include <QXmlStreamWriter>
 
 #include <set>
@@ -32,6 +33,9 @@ DeviceService::DeviceService(AudioEngineS audioEngine, QObject * parent)
   : QObject { parent }
   , m_audioEngine { std::move(audioEngine) }
 {
+    for (int i = 0; i < 128; ++i) {
+        m_synthUserPresets[i] = SynthPresets::initPreset();
+    }
 }
 
 DeviceService::~DeviceService() = default;
@@ -75,6 +79,13 @@ void DeviceService::processMidiCc(const QString & portName, uint8_t controller, 
 {
     if (const auto dev = device(portName.toStdString()); dev) {
         dev->processMidiCc(controller, value, channel);
+    }
+}
+
+void DeviceService::processMidiProgramChange(const QString & portName, uint8_t program, uint8_t channel)
+{
+    if (const auto dev = device(portName.toStdString()); dev) {
+        dev->processMidiProgramChange(program, channel);
     }
 }
 
@@ -139,6 +150,32 @@ QStringList DeviceService::devicesByCategory(const QString & category) const
     return devices;
 }
 
+void DeviceService::setSynthUserPresets(const UserPresets & presets)
+{
+    m_synthUserPresets = presets;
+    for (const auto & name : internalDeviceNames()) {
+        if (const auto synth = std::dynamic_pointer_cast<SynthDevice>(device(name))) {
+            synth->setUserPresets(m_synthUserPresets);
+        }
+    }
+    if (const auto synth = std::dynamic_pointer_cast<SynthDevice>(device(Constants::synthDeviceName().toStdString()))) {
+        synth->setUserPresets(m_synthUserPresets);
+    }
+    emit synthUserPresetsChanged(m_synthUserPresets);
+}
+
+UserPresets DeviceService::synthUserPresets() const
+{
+    return m_synthUserPresets;
+}
+
+void DeviceService::saveSynthUserPreset(int index, const SynthPreset & preset)
+{
+    m_synthUserPresets[index] = preset;
+    setSynthUserPresets(m_synthUserPresets);
+    emit dataChanged();
+}
+
 void DeviceService::setProjectPath(const std::string & projectPath)
 {
     for (const auto & name : internalDeviceNames()) {
@@ -156,30 +193,107 @@ void DeviceService::serializeToXml(QXmlStreamWriter & writer) const
             dev->serializeToXml(writer);
         }
     }
-    if (const auto synth = std::dynamic_pointer_cast<SynthDevice>(device(Constants::synthDeviceName().toStdString())); synth) {
+    if (const auto synth = std::dynamic_pointer_cast<SynthDevice>(device(Constants::synthDeviceName().toStdString()))) {
         synth->serializeToXml(writer);
     }
+
+    if (!m_synthUserPresets.empty()) {
+        std::shared_ptr<SynthDevice> synth;
+        for (const auto & name : internalDeviceNames()) {
+            if (auto dev = std::dynamic_pointer_cast<SynthDevice>(device(name))) {
+                synth = dev;
+                break;
+            }
+        }
+        const auto typeId = synth ? QString::fromStdString(synth->typeId()) : "";
+
+        writer.writeStartElement(Constants::NahdXml::xmlKeyUserPresets());
+        if (!typeId.isEmpty()) {
+            writer.writeAttribute(Constants::NahdXml::xmlKeyTypeId(), typeId);
+        }
+
+        for (auto && [index, preset] : m_synthUserPresets) {
+            if (!preset.parameters.empty()) {
+                writer.writeStartElement(Constants::NahdXml::xmlKeyPreset());
+                writer.writeAttribute(Constants::NahdXml::xmlKeyIndex(), QString::number(index));
+                writer.writeAttribute(Constants::NahdXml::xmlKeyName(), QString::fromStdString(preset.name));
+                for (auto && [paramName, value] : preset.parameters) {
+                    writer.writeStartElement(Constants::NahdXml::xmlKeyParameter());
+                    writer.writeAttribute(Constants::NahdXml::xmlKeyName(), QString::fromStdString(paramName));
+                    if (synth) {
+                        if (auto p = synth->parameter(paramName); p) {
+                            writer.writeAttribute(Constants::NahdXml::xmlKeyValue(), QString::number(Parameter::internalToXmlValue(value, p->get().xmlMin(), p->get().xmlMax())));
+                            writer.writeAttribute(Constants::NahdXml::xmlKeyMin(), QString::number(p->get().xmlMin()));
+                            writer.writeAttribute(Constants::NahdXml::xmlKeyMax(), QString::number(p->get().xmlMax()));
+                            writer.writeAttribute(Constants::NahdXml::xmlKeyDefault(), QString::number(p->get().xmlDefault()));
+                            writer.writeAttribute(Constants::NahdXml::xmlKeyScale(), QString::number(p->get().xmlScale()));
+                        } else {
+                            writer.writeAttribute(Constants::NahdXml::xmlKeyValue(), QString::number(static_cast<double>(value)));
+                        }
+                    } else {
+                        writer.writeAttribute(Constants::NahdXml::xmlKeyValue(), QString::number(static_cast<double>(value)));
+                    }
+                    writer.writeEndElement(); // Parameter
+                }
+                writer.writeEndElement(); // Preset
+            }
+        }
+        writer.writeEndElement(); // SynthUserPresets
+    }
+
     writer.writeEndElement(); // Devices
 }
 
 void DeviceService::deserializeFromXml(QXmlStreamReader & reader)
 {
-    const auto samplersCategory = Constants::NahdXml::xmlValueSamplers();
-
     while (reader.readNextStartElement()) {
         const auto name = reader.name();
         if (name == Constants::NahdXml::xmlKeyDevice()) {
             const auto category = reader.attributes().value(Constants::NahdXml::xmlKeyCategory()).toString();
             const auto deviceName = reader.attributes().value(Constants::NahdXml::xmlKeyName()).toString().toStdString();
-            if (auto dev = device(deviceName)) {
+            if (const auto dev = device(deviceName)) {
                 dev->deserializeFromXml(reader);
             } else {
                 reader.skipCurrentElement();
             }
-        } else if (reader.isStartElement() && reader.name() == Constants::NahdXml::xmlKeySynth()) {
-            if (const auto synth = std::dynamic_pointer_cast<SynthDevice>(device(Constants::synthDeviceName().toStdString())); synth) {
+        } else if (reader.name() == Constants::NahdXml::xmlKeySynth()) {
+            if (const auto synth = std::dynamic_pointer_cast<SynthDevice>(device(Constants::synthDeviceName().toStdString()))) {
                 synth->deserializeFromXml(reader);
             }
+        } else if (reader.name() == Constants::NahdXml::xmlKeyUserPresets()) {
+            const auto typeId = Utils::Xml::readStringAttribute(reader, Constants::NahdXml::xmlKeyTypeId(), false);
+            
+            while (reader.readNextStartElement()) {
+                if (reader.name() == Constants::NahdXml::xmlKeyPreset()) {
+                    const auto index = Utils::Xml::readUIntAttribute(reader, Constants::NahdXml::xmlKeyIndex()).value_or(0);
+                    const auto presetName = Utils::Xml::readStringAttribute(reader, Constants::NahdXml::xmlKeyName()).value_or("Init");
+                    SynthPreset preset { presetName.toStdString(), {} };
+                    
+                        while (reader.readNextStartElement()) {
+                            if (reader.name() == Constants::NahdXml::xmlKeyParameter()) {
+                                const auto paramName = Utils::Xml::readStringAttribute(reader, Constants::NahdXml::xmlKeyName()).value_or("").toStdString();
+                                if (!paramName.empty()) {
+                                    const auto xmlMin = reader.attributes().value(Constants::NahdXml::xmlKeyMin());
+                                    const auto xmlMax = reader.attributes().value(Constants::NahdXml::xmlKeyMax());
+                                    if (!xmlMin.isNull() && !xmlMax.isNull()) {
+                                        const auto xmlValue = reader.attributes().value(Constants::NahdXml::xmlKeyValue()).toInt();
+                                        preset.parameters[paramName] = Parameter::xmlValueToInternal(xmlValue, xmlMin.toInt(), xmlMax.toInt());
+                                    } else {
+                                        const auto paramValue = Utils::Xml::readDoubleAttribute(reader, Constants::NahdXml::xmlKeyValue()).value_or(0.0);
+                                        preset.parameters[paramName] = static_cast<float>(paramValue);
+                                    }
+                                }
+                                reader.skipCurrentElement();
+                            } else {
+                                reader.skipCurrentElement();
+                            }
+                        }
+                    m_synthUserPresets[index] = std::move(preset);
+                } else {
+                    reader.skipCurrentElement();
+                }
+            }
+            setSynthUserPresets(m_synthUserPresets);
         } else {
             reader.skipCurrentElement();
         }

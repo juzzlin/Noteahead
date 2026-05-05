@@ -42,6 +42,9 @@ public:
 
     void reset();
 
+    static float xmlValueToInternal(int xmlVal, int xmlMin, int xmlMax);
+    static int internalToXmlValue(float value, int xmlMin, int xmlMax);
+
 private:
     std::string m_name;
     float m_value { 0.0f };

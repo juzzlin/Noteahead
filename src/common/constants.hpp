@@ -279,6 +279,10 @@ QString xmlKeySynthModDecay();
 QString xmlKeySynthModIntensity();
 QString xmlKeySynthModTarget();
 
+QString xmlKeyUserPresets();
+QString xmlKeyPreset();
+QString xmlKeyTypeId();
+
 QString xmlKeySynthLfoWaveform();
 QString xmlKeySynthLfoMode();
 QString xmlKeySynthLfoRate();

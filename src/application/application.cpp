@@ -353,6 +353,9 @@ void Application::connectDeviceService()
     connect(m_editorService.get(), &EditorService::devicesDeserializationRequested, m_deviceService.get(), &DeviceService::deserializeFromXml);
     connect(m_editorService.get(), &EditorService::projectPathChanged, m_deviceService.get(), &DeviceService::setProjectPath);
 
+    m_synthController->setDeviceService(m_deviceService);
+    connect(m_deviceService.get(), &DeviceService::synthUserPresetsChanged, m_synthController.get(), &SynthController::setUserPresets);
+
     connect(m_deviceService.get(), &DeviceService::dataChanged, this, [this]() {
         m_editorService->setIsModified(true);
     });

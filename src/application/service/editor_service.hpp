@@ -173,6 +173,7 @@ public:
     virtual Q_INVOKABLE bool isTrackVisible(quint64 track) const;
     virtual Q_INVOKABLE bool isModified() const;
     virtual Q_INVOKABLE void resetModified();
+    virtual void setIsModified(bool isModified);
 
     virtual Q_INVOKABLE Position position() const;
     virtual Q_INVOKABLE quint64 positionBarLine() const;
@@ -295,8 +296,6 @@ public:
     using ColumnSettingsS = std::shared_ptr<ColumnSettings>;
     virtual ColumnSettingsS columnSettings(quint64 trackIndex, quint64 columnIndex) const;
     virtual void setColumnSettings(quint64 trackIndex, quint64 columnIndex, ColumnSettingsS settings);
-
-    virtual void setIsModified(bool isModified);
 
     virtual Q_INVOKABLE bool canUndo() const;
     virtual Q_INVOKABLE bool canRedo() const;

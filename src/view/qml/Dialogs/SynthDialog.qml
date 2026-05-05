@@ -37,8 +37,22 @@ Dialog {
         radius: 2
     }
 
+    property bool isSaving: false
+
     onAboutToShow: () => {
+        isSaving = false;
         synthController.requestSettings();
+    }
+
+    StringInputDialog {
+        id: presetNameDialog
+        onAccepted: {
+            synthController.saveUserPreset(text)
+            isSaving = false
+        }
+        onRejected: {
+            isSaving = false
+        }
     }
 
     footer: DialogButtonBox {
@@ -53,9 +67,11 @@ Dialog {
             DialogButtonBox.buttonRole: DialogButtonBox.RejectRole
         }
         onAccepted: () => {
+            isSaving = false;
             synthController.accept();
         }
         onRejected: () => {
+            isSaving = false;
             synthController.reject();
         }
     }
@@ -77,17 +93,41 @@ Dialog {
         RowLayout {
             Layout.fillWidth: true
             SectionTitle {
-                text: qsTr("A general purpose 6-voice synthesizer")
+                text: isSaving ? qsTr("Select slot to save preset...") : qsTr("A general purpose 6-voice synthesizer")
                 Layout.fillWidth: true
             }
+
+            Label {
+                text: qsTr("Bank:")
+            }
+            ComboBox {
+                id: bankCombo
+                model: [qsTr("Factory"), qsTr("User")]
+                currentIndex: synthController.currentBank
+                onActivated: index => {
+                    synthController.currentBank = index
+                }
+            }
+
             Label {
                 text: qsTr("Preset:")
             }
             ComboBox {
                 id: presetCombo
                 implicitWidth: 300
-                model: synthController.presetNames
-                onActivated: index => synthController.loadPreset(index)
+                model: synthController.currentBank === 0 ? synthController.presetNames : synthController.userPresetNames
+                currentIndex: synthController.currentPresetIndex
+                onActivated: index => {
+                    if (isSaving) {
+                        synthController.currentPresetIndex = index
+                        presetNameDialog.setTitle(qsTr("Save User Preset"))
+                        presetNameDialog.text = synthController.userPresetNames[index].split(": ")[1]
+                        presetNameDialog.open()
+                    } else {
+                        synthController.currentPresetIndex = index
+                        synthController.loadPreset(index)
+                    }
+                }
 
                 delegate: ItemDelegate {
                     width: 235
@@ -135,8 +175,21 @@ Dialog {
             }
 
             Button {
+                text: qsTr("Save")
+                highlighted: isSaving
+                onClicked: {
+                    isSaving = true
+                    synthController.currentBank = 1
+                    presetCombo.popup.open()
+                }
+            }
+
+            Button {
                 text: qsTr("Reset")
-                onClicked: synthController.reset()
+                onClicked: {
+                    isSaving = false
+                    synthController.reset()
+                }
             }
         }
 

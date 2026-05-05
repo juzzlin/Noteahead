@@ -16,9 +16,9 @@
 #ifndef SYNTH_PRESETS_HPP
 #define SYNTH_PRESETS_HPP
 
+#include <map>
 #include <string>
 #include <vector>
-#include <map>
 
 namespace noteahead {
 
@@ -28,10 +28,13 @@ struct SynthPreset
     std::map<std::string, float> parameters;
 };
 
+using UserPresets = std::map<int, SynthPreset>;
+
 class SynthPresets
 {
 public:
     static const std::vector<SynthPreset>& presets();
+    static SynthPreset initPreset();
 };
 
 } // namespace noteahead

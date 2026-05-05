@@ -19,10 +19,10 @@
 #include "../../common/utils.hpp"
 #include "synth_presets.hpp"
 
+#include <algorithm>
+#include <cmath>
 #include <QXmlStreamReader>
 #include <QXmlStreamWriter>
-#include <cmath>
-#include <algorithm>
 
 namespace noteahead {
 
@@ -279,7 +279,7 @@ void SynthDevice::processMidiNoteOff(uint8_t note)
     handleNoteOff(note);
 }
 
-void SynthDevice::processMidiCc(uint8_t controller, uint8_t value, uint8_t /*channel*/)
+void SynthDevice::processMidiCc(uint8_t controller, uint8_t value, uint8_t)
 {
     bool changed = false;
     {
@@ -300,6 +300,8 @@ void SynthDevice::processMidiCc(uint8_t controller, uint8_t value, uint8_t /*cha
 
             syncParameters();
             changed = true;
+        } else if (controller == 0) { // Bank Select MSB
+            m_currentBank = std::clamp(static_cast<int>(value), 0, 1); // 0: Factory, 1: User
         } else {
             const float val = static_cast<float>(value) / 127.0f;
 
@@ -365,10 +367,8 @@ double SynthDevice::voiceGlideFrequency(int index) const
     return 0.0;
 }
 
-void SynthDevice::handleNoteOn(uint8_t note, uint8_t velocity)
+void SynthDevice::handleNoteOn(uint8_t note, uint8_t)
 {
-    (void)velocity;
-
     // First release any existing voices for this note to avoid multiple voices for same note in poly
     for (auto && voice : m_voices) {
         if (voice.active && voice.note == note) {
@@ -588,24 +588,48 @@ void SynthDevice::deserializeFromXml(QXmlStreamReader & reader)
     emit dataChanged();
 }
 
-void SynthDevice::loadPreset(int index)
+void SynthDevice::processMidiProgramChange(uint8_t program, uint8_t)
+{
+    loadPreset(m_currentBank, program);
+}
+
+void SynthDevice::loadPreset(int bank, int index)
 {
     {
         const std::lock_guard<std::mutex> lock(m_mutex);
         
-        const auto& presets = SynthPresets::presets();
-        if (index < 0 || index >= static_cast<int>(presets.size())) return;
+        if (bank == 0) {
+            const auto& presets = SynthPresets::presets();
+            if (index < 0 || index >= static_cast<int>(presets.size())) return;
 
-        ParameterContainer::reset();
+            ParameterContainer::reset();
 
-        for (auto && [name, val] : presets[index].parameters) {
-            if (auto p = parameter(name); p) {
-                if (p->get().isDiscrete()) {
-                    p->get().setFromXml(static_cast<int>(val));
-                } else {
-                    p->get().setValue(val);
+            for (auto && [name, val] : presets[index].parameters) {
+                if (auto p = parameter(name); p) {
+                    if (p->get().isDiscrete()) {
+                        p->get().setFromXml(static_cast<int>(val));
+                    } else {
+                        p->get().setValue(val);
+                    }
                 }
             }
+        } else if (bank == 1) {
+            if (m_userPresets.find(index) == m_userPresets.end()) return;
+            const auto& preset = m_userPresets.at(index);
+
+            ParameterContainer::reset();
+
+            for (auto && [name, val] : preset.parameters) {
+                if (auto p = parameter(name); p) {
+                    if (p->get().isDiscrete()) {
+                        p->get().setFromXml(static_cast<int>(val));
+                    } else {
+                        p->get().setValue(val);
+                    }
+                }
+            }
+        } else {
+            return;
         }
 
         syncParameters();
@@ -618,6 +642,14 @@ void SynthDevice::loadPreset(int index)
     }
 
     emit dataChanged();
+}
+
+void SynthDevice::setUserPresets(const UserPresets & presets)
+{
+    {
+        const std::lock_guard<std::mutex> lock(m_mutex);
+        m_userPresets = presets;
+    }
 }
 
 // Accessors (VCO1)

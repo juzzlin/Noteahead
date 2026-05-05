@@ -20,6 +20,7 @@ set(SRC
     ../../common/constants.cpp
     ../../domain/column.cpp
     ../../domain/devices/sampler.cpp
+    ../../domain/devices/synth_presets.cpp
     ../../domain/instrument.cpp
     ../../domain/instrument_settings.cpp
     ../../domain/interpolator.cpp

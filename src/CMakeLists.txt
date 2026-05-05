@@ -319,6 +319,7 @@ set(QML_SOURCE_FILES
     ${QML_BASE_DIR}/Dialogs/SettingsDialog_ThemeSettings.qml
     ${QML_BASE_DIR}/Dialogs/ShortcutsDialog.qml
     ${QML_BASE_DIR}/Dialogs/SideChainTargetDelegate.qml
+    ${QML_BASE_DIR}/Dialogs/StringInputDialog.qml
     ${QML_BASE_DIR}/Dialogs/TrackSettingsDialog.qml
     ${QML_BASE_DIR}/Dialogs/TrackSettingsDialog_InstrumentSettings.qml
     ${QML_BASE_DIR}/Dialogs/TrackSettingsDialog_MidiCcSettings.qml
