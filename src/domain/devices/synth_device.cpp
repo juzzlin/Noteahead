@@ -71,19 +71,19 @@ SynthDevice::SynthDevice(std::string name)
     m_voices.resize(MaxVoices);
 
     // Initialize Parameters
-    addParameter(Parameter { Constants::NahdXml::xmlKeySynthVco1Waveform().toStdString(), 0.5f, 0, 2, 1, 1, true });
-    addParameter(Parameter { Constants::NahdXml::xmlKeySynthVco1Octave().toStdString(), 0.333f, -1, 2, 0, 1, true });
-    addParameter(Parameter { Constants::NahdXml::xmlKeySynthVco1Pitch().toStdString(), 0.5f, -2400, 2400, 0, 1, true });
+    addParameter(Parameter { Constants::NahdXml::xmlKeySynthVco1Waveform().toStdString(), 1.0f, 0, 2, 1, 1, true });
+    addParameter(Parameter { Constants::NahdXml::xmlKeySynthVco1Octave().toStdString(), 0.0f, -1, 2, 0, 1, true });
+    addParameter(Parameter { Constants::NahdXml::xmlKeySynthVco1Pitch().toStdString(), 0.0f, -2400, 2400, 0, 1, true });
     addParameter(Parameter { Constants::NahdXml::xmlKeySynthVco1Shape().toStdString(), 0.0f, 0, 100, 0 });
     addParameter(Parameter { Constants::NahdXml::xmlKeySynthVco1Sync().toStdString(), 0.0f, 0, 1, 0, 1, true });
 
-    addParameter(Parameter { Constants::NahdXml::xmlKeySynthVco2Waveform().toStdString(), 0.5f, 0, 2, 1, 1, true });
-    addParameter(Parameter { Constants::NahdXml::xmlKeySynthVco2Octave().toStdString(), 0.333f, -1, 2, 0, 1, true });
-    addParameter(Parameter { Constants::NahdXml::xmlKeySynthVco2Pitch().toStdString(), 0.5f, -2400, 2400, 0, 1, true });
+    addParameter(Parameter { Constants::NahdXml::xmlKeySynthVco2Waveform().toStdString(), 1.0f, 0, 2, 1, 1, true });
+    addParameter(Parameter { Constants::NahdXml::xmlKeySynthVco2Octave().toStdString(), 0.0f, -1, 2, 0, 1, true });
+    addParameter(Parameter { Constants::NahdXml::xmlKeySynthVco2Pitch().toStdString(), 0.0f, -2400, 2400, 0, 1, true });
     addParameter(Parameter { Constants::NahdXml::xmlKeySynthVco2Shape().toStdString(), 0.0f, 0, 100, 0 });
     addParameter(Parameter { Constants::NahdXml::xmlKeySynthVco2Sync().toStdString(), 0.0f, 0, 1, 0, 1, true });
 
-    addParameter(Parameter { Constants::NahdXml::xmlKeySynthMultiMode().toStdString(), 0.25f, 0, 3, 1, 1, true }); // Low default
+    addParameter(Parameter { Constants::NahdXml::xmlKeySynthMultiMode().toStdString(), 1.0f, 0, 3, 1, 1, true }); // Low default
     addParameter(Parameter { Constants::NahdXml::xmlKeySynthMultiShape().toStdString(), 0.5f, 0, 100, 50 });
     addParameter(Parameter { Constants::NahdXml::xmlKeySynthMultiLevel().toStdString(), 0.0f, 0, 100, 0 });
     addParameter(Parameter { Constants::NahdXml::xmlKeyMultiKeyTrack().toStdString(), 0.0f, 0, 100, 0 });
@@ -104,9 +104,9 @@ SynthDevice::SynthDevice(std::string name)
     addParameter(Parameter { Constants::NahdXml::xmlKeySynthModAttack().toStdString(), 0.5f, 0, 100, 50 });
     addParameter(Parameter { Constants::NahdXml::xmlKeySynthModDecay().toStdString(), 0.34f, 0, 100, 34 });
     addParameter(Parameter { Constants::NahdXml::xmlKeySynthModIntensity().toStdString(), 0.0f, 0, 100, 0 });
-    addParameter(Parameter { Constants::NahdXml::xmlKeySynthModTarget().toStdString(), 1.0f, 0, 2, 2, 1, true }); // Cutoff default
+    addParameter(Parameter { Constants::NahdXml::xmlKeySynthModTarget().toStdString(), 2.0f, 0, 2, 2, 1, true }); // Cutoff default
 
-    addParameter(Parameter { Constants::NahdXml::xmlKeySynthLfoWaveform().toStdString(), 0.5f, 0, 2, 1, 1, true }); // Tri default
+    addParameter(Parameter { Constants::NahdXml::xmlKeySynthLfoWaveform().toStdString(), 1.0f, 0, 2, 1, 1, true }); // Tri default
     addParameter(Parameter { Constants::NahdXml::xmlKeySynthLfoMode().toStdString(), 0.0f, 0, 2, 0, 1, true }); // Normal default
     addParameter(Parameter { Constants::NahdXml::xmlKeySynthLfoRate().toStdString(), 0.5f, 0, 100, 50 });
     addParameter(Parameter { Constants::NahdXml::xmlKeySynthLfoIntensity().toStdString(), 0.0f, 0, 100, 0 });
@@ -629,11 +629,7 @@ void SynthDevice::loadPreset(int bank, int index)
 
             for (auto && [name, val] : presets[index].parameters) {
                 if (auto p = parameter(name); p) {
-                    if (p->get().isDiscrete()) {
-                        p->get().setFromXml(static_cast<int>(val));
-                    } else {
-                        p->get().setValue(val);
-                    }
+                    p->get().setValue(val);
                 }
             }
         } else if (bank == 1) {
@@ -644,11 +640,7 @@ void SynthDevice::loadPreset(int bank, int index)
 
             for (auto && [name, val] : preset.parameters) {
                 if (auto p = parameter(name); p) {
-                    if (p->get().isDiscrete()) {
-                        p->get().setFromXml(static_cast<int>(val));
-                    } else {
-                        p->get().setValue(val);
-                    }
+                    p->get().setValue(val);
                 }
             }
         } else {

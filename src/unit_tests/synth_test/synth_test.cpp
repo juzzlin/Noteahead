@@ -409,6 +409,70 @@ void SynthTest::test_userPresets_shouldSaveAndLoad()
     QCOMPARE(synth.lpfCutoff(), 0.42f);
 }
 
+void SynthTest::test_userPresetsDiscreteValues_shouldLoadCorrectly()
+{
+    SynthDevice synth { "Test Synth" };
+    
+    UserPresets userPresets;
+    const std::string vco1WaveformKey = Constants::NahdXml::xmlKeySynthVco1Waveform().toStdString();
+    
+    // Logical values for discrete parameters:
+    // Waveform (0..2): Tri=0.0, Saw=1.0, Pulse=2.0
+    // DelayType (0..5): Stereo=0.0, Mono=1.0, PingPong=2.0, ...
+    
+    const SynthPreset sawPreset { "Saw", { { vco1WaveformKey, 1.0f } } };
+    const SynthPreset pulsePreset { "Pulse", { { vco1WaveformKey, 2.0f } } };
+    const SynthPreset pingPongPreset { "PingPong", { { Constants::NahdXml::xmlKeyDelayType().toStdString(), 2.0f } } };
+    
+    userPresets[0] = sawPreset;
+    userPresets[1] = pulsePreset;
+    userPresets[2] = pingPongPreset;
+    
+    synth.setUserPresets(userPresets);
+    
+    // Load Saw
+    synth.loadPreset(1, 0);
+    QCOMPARE(synth.vco1Waveform(), PolyBLEPOscillator::Waveform::Saw);
+    
+    // Load Pulse
+    synth.loadPreset(1, 1);
+    QCOMPARE(synth.vco1Waveform(), PolyBLEPOscillator::Waveform::Pulse);
+
+    // Load PingPong
+    synth.loadPreset(1, 2);
+    QCOMPARE(synth.delayType(), DelayEffect::Type::PingPong);
+
+    // Test Phase Sync (vco1Sync)
+    const std::string vco1SyncKey = Constants::NahdXml::xmlKeySynthVco1Sync().toStdString();
+    const SynthPreset syncPreset { "Sync", { { vco1SyncKey, 1.0f } } };
+    userPresets[3] = syncPreset;
+    synth.setUserPresets(userPresets);
+    
+    synth.loadPreset(1, 3);
+    QCOMPARE(synth.vco1Sync(), true);
+}
+
+void SynthTest::test_projectLoadPhaseSync_shouldLoadCorrectly()
+{
+    QByteArray data;
+    {
+        SynthDevice synth { "Test Synth" };
+        synth.setVco1Sync(true);
+        QXmlStreamWriter writer(&data);
+        synth.serializeToXml(writer);
+    }
+
+    {
+        SynthDevice synth { "Test Synth" };
+        QXmlStreamReader reader(data);
+        while (!reader.atEnd() && !reader.isStartElement()) {
+            reader.readNext();
+        }
+        synth.deserializeFromXml(reader);
+        QCOMPARE(synth.vco1Sync(), true);
+    }
+}
+
 void SynthTest::test_serialization_shouldSaveAndLoadGain()
 {
     QByteArray data;

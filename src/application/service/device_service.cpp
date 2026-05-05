@@ -277,7 +277,26 @@ void DeviceService::deserializeFromXml(QXmlStreamReader & reader)
                                     const auto xmlMax = reader.attributes().value(Constants::NahdXml::xmlKeyMax());
                                     if (!xmlMin.isNull() && !xmlMax.isNull()) {
                                         const auto xmlValue = reader.attributes().value(Constants::NahdXml::xmlKeyValue()).toInt();
-                                        preset.parameters[paramName] = Parameter::xmlValueToInternal(xmlValue, xmlMin.toInt(), xmlMax.toInt());
+                                        std::shared_ptr<SynthDevice> synth;
+                                        for (const auto & name : internalDeviceNames()) {
+                                            if (auto dev = std::dynamic_pointer_cast<SynthDevice>(device(name))) {
+                                                synth = dev;
+                                                break;
+                                            }
+                                        }
+                                        if (synth) {
+                                            if (auto p = synth->parameter(paramName); p) {
+                                                if (p->get().isDiscrete()) {
+                                                    preset.parameters[paramName] = static_cast<float>(xmlValue);
+                                                } else {
+                                                    preset.parameters[paramName] = Parameter::xmlValueToInternal(xmlValue, xmlMin.toInt(), xmlMax.toInt());
+                                                }
+                                            } else {
+                                                preset.parameters[paramName] = Parameter::xmlValueToInternal(xmlValue, xmlMin.toInt(), xmlMax.toInt());
+                                            }
+                                        } else {
+                                            preset.parameters[paramName] = Parameter::xmlValueToInternal(xmlValue, xmlMin.toInt(), xmlMax.toInt());
+                                        }
                                     } else {
                                         const auto paramValue = Utils::Xml::readDoubleAttribute(reader, Constants::NahdXml::xmlKeyValue()).value_or(0.0);
                                         preset.parameters[paramName] = static_cast<float>(paramValue);
