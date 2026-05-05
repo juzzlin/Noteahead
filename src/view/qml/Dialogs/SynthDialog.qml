@@ -647,6 +647,7 @@ Dialog {
         // Virtual Keyboard
         VirtualKeyboard {
             Layout.fillWidth: true
+            Layout.topMargin: 20
             onNoteOnRequested: note => synthController.playNote(note, UiService._activeVelocity / 127.0)
             onNoteOffRequested: note => synthController.stopNote(note)
         }
