@@ -29,6 +29,7 @@
 #include "../../application/service/side_chain_service.hpp"
 #include "../../domain/column_settings.hpp"
 #include "../../domain/devices/sampler_device.hpp"
+#include "../../domain/devices/synth_device.hpp"
 #include "../../domain/instrument.hpp"
 #include "../../domain/note_data.hpp"
 #include "../../domain/song.hpp"
@@ -709,9 +710,9 @@ void XmlSerializationTest::test_toXmlFromXml_samplerDevice_shouldLoadSamplerDevi
     const std::string fileName = "test.wav";
     const auto samplerName = Constants::samplerDeviceName().toStdString();
 
-    auto engine = std::make_shared<AudioEngine>();
+    const auto engine = std::make_shared<AudioEngine>();
     DeviceService deviceServiceOut { engine };
-    auto samplerOut = std::make_shared<SamplerDevice>(samplerName, std::make_unique<MockAudioFileReader>());
+    const auto samplerOut = std::make_shared<SamplerDevice>(samplerName, std::make_unique<MockAudioFileReader>());
     samplerOut->setId(42);
     samplerOut->loadSample(60, fileName);
     samplerOut->setSamplePan(60, 0.75f);
@@ -724,12 +725,12 @@ void XmlSerializationTest::test_toXmlFromXml_samplerDevice_shouldLoadSamplerDevi
 
     const auto xml = editorServiceOut.toXml();
 
-    DeviceService deviceServiceIn { std::make_shared<AudioEngine>() };
-    auto samplerIn = std::make_shared<SamplerDevice>(samplerName, std::make_unique<MockAudioFileReader>());
-    deviceServiceIn.registerDevice(samplerIn);
+    const auto deviceServiceIn = std::make_shared<DeviceService>(std::make_shared<AudioEngine>());
+    const auto samplerIn = std::make_shared<SamplerDevice>(samplerName, std::make_unique<MockAudioFileReader>());
+    deviceServiceIn->registerDevice(samplerIn);
 
     EditorService editorServiceIn { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
-    connect(&editorServiceIn, &EditorService::devicesDeserializationRequested, &deviceServiceIn, &DeviceService::deserializeFromXml);
+    connect(&editorServiceIn, &EditorService::devicesDeserializationRequested, deviceServiceIn.get(), &DeviceService::deserializeFromXml);
 
     editorServiceIn.fromXml(xml);
 
@@ -740,6 +741,70 @@ void XmlSerializationTest::test_toXmlFromXml_samplerDevice_shouldLoadSamplerDevi
     QCOMPARE(samplerIn->samplePan(60), 0.75f);
     QCOMPARE(samplerIn->sampleVolume(60), 0.8f);
     QCOMPARE(samplerIn->sampleCutoff(60), 0.4f);
+}
+
+void XmlSerializationTest::test_toXmlFromXml_synthDevice_shouldPreserveValuesAndDiscreteFlags()
+{
+    const auto synthName = "Test Synth";
+
+    const auto engine = std::make_shared<AudioEngine>();
+    DeviceService deviceServiceOut { engine };
+    const auto synthOut = std::make_shared<SynthDevice>(synthName);
+    synthOut->setId(66);
+    synthOut->setVco1Waveform(PolyBLEPOscillator::Waveform::Saw);
+    synthOut->setVco1Octave(1);
+    synthOut->setMixVco2(0.75f);
+    synthOut->setLpfCutoff(0.3f);
+    synthOut->setAmpAttack(0.2f);
+    synthOut->setMultiType(MultiEngine::Type::Decim);
+    synthOut->setMultiShape(0.42f);
+    synthOut->setMultiLevel(0.88f);
+    synthOut->setMultiKeyTrack(0.5f);
+    synthOut->setMasterPan(0.12f);
+    deviceServiceOut.registerDevice(synthOut);
+
+    EditorService editorServiceOut { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
+    connect(&editorServiceOut, &EditorService::devicesSerializationRequested, &deviceServiceOut, &DeviceService::serializeToXml);
+
+    const auto xml = editorServiceOut.toXml();
+
+    const auto deviceServiceIn = std::make_shared<DeviceService>(std::make_shared<AudioEngine>());
+    const auto synthIn = std::make_shared<SynthDevice>(synthName);
+    deviceServiceIn->registerDevice(synthIn);
+
+    EditorService editorServiceIn { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
+    connect(&editorServiceIn, &EditorService::devicesDeserializationRequested, deviceServiceIn.get(), &DeviceService::deserializeFromXml);
+
+    editorServiceIn.fromXml(xml);
+
+    QCOMPARE(synthIn->id(), 66ull);
+    QCOMPARE(synthIn->vco1Waveform(), PolyBLEPOscillator::Waveform::Saw);
+    QCOMPARE(synthIn->vco1Octave(), 1);
+    QCOMPARE(synthIn->mixVco2(), 0.75f);
+    QCOMPARE(synthIn->lpfCutoff(), 0.3f);
+    QCOMPARE(synthIn->ampAttack(), 0.2f);
+    QCOMPARE(synthIn->multiType(), MultiEngine::Type::Decim);
+    QCOMPARE(synthIn->multiShape(), 0.42f);
+    QCOMPARE(synthIn->multiLevel(), 0.88f);
+    QCOMPARE(synthIn->multiKeyTrack(), 0.5f);
+    QCOMPARE(synthIn->masterPan(), 0.12f);
+
+    // Verify discrete flags
+    const auto vco1Wave = synthIn->parameter(Constants::NahdXml::xmlKeySynthVco1Waveform().toStdString());
+    QVERIFY(vco1Wave.has_value());
+    QVERIFY(vco1Wave->get().isDiscrete());
+
+    const auto vco1Octave = synthIn->parameter(Constants::NahdXml::xmlKeySynthVco1Octave().toStdString());
+    QVERIFY(vco1Octave.has_value());
+    QVERIFY(vco1Octave->get().isDiscrete());
+
+    const auto lpfCutoff = synthIn->parameter(Constants::NahdXml::xmlKeySynthLpfCutoff().toStdString());
+    QVERIFY(lpfCutoff.has_value());
+    QVERIFY(!lpfCutoff->get().isDiscrete());
+
+    const auto multiShape = synthIn->parameter(Constants::NahdXml::xmlKeySynthMultiShape().toStdString());
+    QVERIFY(multiShape.has_value());
+    QVERIFY(!multiShape->get().isDiscrete());
 }
 
 void XmlSerializationTest::test_fromXml_samplerDevice_missingId_shouldNotThrow()

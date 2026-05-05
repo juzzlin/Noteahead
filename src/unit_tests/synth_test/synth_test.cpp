@@ -35,7 +35,7 @@ void SynthTest::cleanupTestCase()
 
 void SynthTest::test_defaultValues_shouldBeCorrect()
 {
-    SynthDevice synth { "Test Synth" };
+    const SynthDevice synth { "Test Synth" };
     QCOMPARE(synth.name(), std::string("Test Synth"));
     QCOMPARE(synth.vco1Octave(), 0);
     QCOMPARE(synth.vco1Pitch(), 0);
@@ -269,48 +269,6 @@ void SynthTest::test_reset_shouldRestoreDefaults()
     QCOMPARE(synth.lpfCutoff(), 1.0f);
 }
 
-void SynthTest::test_serialization_shouldPreserveValues()
-{
-    SynthDevice synth1 { "Test Synth 1" };
-    synth1.setVco1Octave(1);
-    synth1.setMixVco2(0.75f);
-    synth1.setLpfCutoff(0.3f);
-    synth1.setAmpAttack(0.2f);
-    synth1.setMultiType(MultiEngine::Type::Decim);
-    synth1.setMultiShape(0.42f);
-    synth1.setMultiLevel(0.88f);
-    synth1.setMultiKeyTrack(0.5f);
-    synth1.setMasterPan(0.12f);
-
-    QByteArray data;
-    QBuffer buffer(&data);
-    buffer.open(QIODevice::WriteOnly);
-    QXmlStreamWriter writer(&buffer);
-    synth1.serializeToXml(writer);
-    buffer.close();
-
-    SynthDevice synth2 { "Test Synth 2" };
-    QBuffer readBuffer(&data);
-    readBuffer.open(QIODevice::ReadOnly);
-    QXmlStreamReader reader(&readBuffer);
-    
-    while (!reader.atEnd() && !reader.isStartElement()) {
-        reader.readNext();
-    }
-    
-    synth2.deserializeFromXml(reader);
-
-    QCOMPARE(synth2.vco1Octave(), 1);
-    QCOMPARE(synth2.mixVco2(), 0.75f);
-    QCOMPARE(synth2.lpfCutoff(), 0.3f);
-    QCOMPARE(synth2.ampAttack(), 0.2f);
-    QCOMPARE(synth2.multiType(), MultiEngine::Type::Decim);
-    QCOMPARE(synth2.multiShape(), 0.42f);
-    QCOMPARE(synth2.multiLevel(), 0.88f);
-    QCOMPARE(synth2.multiKeyTrack(), 0.5f);
-    QCOMPARE(synth2.masterPan(), 0.12f);
-}
-
 void SynthTest::test_portamento_shouldGlideFrequency()
 {
     SynthDevice synth { "Test Synth" };
@@ -357,6 +315,45 @@ void SynthTest::test_portamento_shouldGlideFrequency()
     for (int i = 0; i < SynthDevice::MaxVoices; i++) {
         QCOMPARE(synth.voiceGlideFrequency(i), freq60);
     }
+}
+
+void SynthTest::test_parameterDiscreteFlag_shouldReturnCorrectDiscreteState()
+{
+    const SynthDevice synth { "Test Synth" };
+    
+    // Test discrete parameters
+    const auto vco1Wave = synth.parameter(Constants::NahdXml::xmlKeySynthVco1Waveform().toStdString());
+    QVERIFY(vco1Wave.has_value());
+    QVERIFY(vco1Wave->get().isDiscrete());
+
+    const auto vco1Octave = synth.parameter(Constants::NahdXml::xmlKeySynthVco1Octave().toStdString());
+    QVERIFY(vco1Octave.has_value());
+    QVERIFY(vco1Octave->get().isDiscrete());
+
+    const auto vco1Pitch = synth.parameter(Constants::NahdXml::xmlKeySynthVco1Pitch().toStdString());
+    QVERIFY(vco1Pitch.has_value());
+    QVERIFY(vco1Pitch->get().isDiscrete());
+
+    const auto modTarget = synth.parameter(Constants::NahdXml::xmlKeySynthModTarget().toStdString());
+    QVERIFY(modTarget.has_value());
+    QVERIFY(modTarget->get().isDiscrete());
+
+    const auto voiceMode = synth.parameter(Constants::NahdXml::xmlKeyVoiceMode().toStdString());
+    QVERIFY(voiceMode.has_value());
+    QVERIFY(voiceMode->get().isDiscrete());
+
+    // Test continuous parameters
+    const auto lpfCutoff = synth.parameter(Constants::NahdXml::xmlKeySynthLpfCutoff().toStdString());
+    QVERIFY(lpfCutoff.has_value());
+    QVERIFY(!lpfCutoff->get().isDiscrete());
+
+    const auto ampAttack = synth.parameter(Constants::NahdXml::xmlKeySynthAmpAttack().toStdString());
+    QVERIFY(ampAttack.has_value());
+    QVERIFY(!ampAttack->get().isDiscrete());
+
+    const auto multiShape = synth.parameter(Constants::NahdXml::xmlKeySynthMultiShape().toStdString());
+    QVERIFY(multiShape.has_value());
+    QVERIFY(!multiShape->get().isDiscrete());
 }
 
 } // namespace noteahead

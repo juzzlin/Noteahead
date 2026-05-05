@@ -38,8 +38,8 @@ private slots:
     void test_voiceStealing_shouldStealQuietestVoice();
     void test_softClipper_shouldPreventClipping();
     void test_reset_shouldRestoreDefaults();
-    void test_serialization_shouldPreserveValues();
     void test_portamento_shouldGlideFrequency();
+    void test_parameterDiscreteFlag_shouldReturnCorrectDiscreteState();
 };
 
 } // namespace noteahead
