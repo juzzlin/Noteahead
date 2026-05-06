@@ -16,42 +16,59 @@
 #ifndef DEVICE_RACK_CONTROLLER_HPP
 #define DEVICE_RACK_CONTROLLER_HPP
 
+#include <QAbstractListModel>
 #include <QObject>
 #include <QStringList>
+
 #include <memory>
 
 namespace noteahead {
 
 class DeviceService;
+class EditorService;
 class SamplerController;
 class SynthController;
 
-class DeviceRackController : public QObject
+class DeviceRackController : public QAbstractListModel
 {
     Q_OBJECT
-    Q_PROPERTY(QStringList devices READ devices NOTIFY devicesChanged)
 
 public:
+    enum class DataRole
+    {
+        Name = Qt::UserRole + 1,
+        TrackNames
+    };
+    Q_ENUM(DataRole)
+
     using DeviceServiceS = std::shared_ptr<DeviceService>;
     using SamplerControllerS = std::shared_ptr<SamplerController>;
     using SynthControllerS = std::shared_ptr<SynthController>;
+    using EditorServiceS = std::shared_ptr<EditorService>;
 
-    explicit DeviceRackController(DeviceServiceS deviceService, SamplerControllerS samplerController, SynthControllerS synthController, QObject * parent = nullptr);
+    explicit DeviceRackController(DeviceServiceS deviceService, SamplerControllerS samplerController, SynthControllerS synthController, EditorServiceS editorService, QObject * parent = nullptr);
     ~DeviceRackController() override;
 
-    QStringList devices() const;
+    int rowCount(const QModelIndex & parent = QModelIndex()) const override;
+    QVariant data(const QModelIndex & index, int role = Qt::DisplayRole) const override;
+    QHash<int, QByteArray> roleNames() const override;
 
+    Q_INVOKABLE void refresh();
     Q_INVOKABLE void openDevice(const QString & name);
 
 signals:
-    void devicesChanged();
     void samplerDialogRequested();
     void synthDialogRequested();
 
 private:
+    QString trackNames(const QString & deviceName) const;
+
     DeviceServiceS m_deviceService;
     SamplerControllerS m_samplerController;
     SynthControllerS m_synthController;
+    EditorServiceS m_editorService;
+
+    QStringList m_devices;
 };
 
 } // namespace noteahead

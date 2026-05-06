@@ -54,12 +54,12 @@ public:
     void processMidiAllNotesOff();
 
     using InternalDeviceNames = std::vector<std::string>;
-    InternalDeviceNames internalDeviceNames() const;
+    virtual InternalDeviceNames internalDeviceNames() const;
 
-    Q_INVOKABLE QStringList internalDeviceNamesQt() const;
+    Q_INVOKABLE virtual QStringList internalDeviceNamesQt() const;
 
-    Q_INVOKABLE QStringList categories() const;
-    Q_INVOKABLE QStringList devicesByCategory(const QString & category) const;
+    Q_INVOKABLE virtual QStringList categories() const;
+    Q_INVOKABLE virtual QStringList devicesByCategory(const QString & category) const;
 
     void setSynthUserPresets(const UserPresets & presets);
     UserPresets synthUserPresets() const;

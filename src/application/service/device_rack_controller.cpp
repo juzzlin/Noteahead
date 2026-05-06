@@ -14,28 +14,93 @@
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
 #include "device_rack_controller.hpp"
-#include "device_service.hpp"
-#include "sampler_controller.hpp"
-#include "synth_controller.hpp"
+
+#include "../../common/constants.hpp"
 #include "../../domain/devices/sampler_device.hpp"
 #include "../../domain/devices/synth_device.hpp"
+#include "device_service.hpp"
+#include "editor_service.hpp"
+#include "sampler_controller.hpp"
+#include "synth_controller.hpp"
 
 namespace noteahead {
 
-DeviceRackController::DeviceRackController(DeviceServiceS deviceService, SamplerControllerS samplerController, SynthControllerS synthController, QObject * parent)
-  : QObject { parent }
+DeviceRackController::DeviceRackController(DeviceServiceS deviceService, SamplerControllerS samplerController, SynthControllerS synthController, EditorServiceS editorService, QObject * parent)
+  : QAbstractListModel { parent }
   , m_deviceService { std::move(deviceService) }
   , m_samplerController { std::move(samplerController) }
   , m_synthController { std::move(synthController) }
+  , m_editorService { std::move(editorService) }
 {
-    connect(m_deviceService.get(), &DeviceService::dataChanged, this, &DeviceRackController::devicesChanged);
+    if (m_deviceService) {
+        m_devices = m_deviceService->internalDeviceNamesQt();
+        connect(m_deviceService.get(), &DeviceService::dataChanged, this, &DeviceRackController::refresh);
+    }
+    if (m_editorService) {
+        connect(m_editorService.get(), &EditorService::songChanged, this, &DeviceRackController::refresh);
+    }
 }
 
 DeviceRackController::~DeviceRackController() = default;
 
-QStringList DeviceRackController::devices() const
+int DeviceRackController::rowCount(const QModelIndex & parent) const
 {
-    return m_deviceService->internalDeviceNamesQt();
+    if (parent.isValid()) {
+        return 0;
+    }
+    return m_devices.size();
+}
+
+QVariant DeviceRackController::data(const QModelIndex & index, int role) const
+{
+    if (!index.isValid()) {
+        return {};
+    }
+
+    const auto row = index.row();
+    if (row < 0 || row >= m_devices.size()) {
+        return {};
+    }
+
+    const auto & name = m_devices.at(row);
+
+    switch (static_cast<DataRole>(role)) {
+    case DataRole::Name:
+        return name;
+    case DataRole::TrackNames:
+        return trackNames(name);
+    }
+
+    return {};
+}
+
+QHash<int, QByteArray> DeviceRackController::roleNames() const
+{
+    static const QHash<int, QByteArray> roles {
+        { static_cast<int>(DataRole::Name), "name" },
+        { static_cast<int>(DataRole::TrackNames), "trackNames" }
+    };
+    return roles;
+}
+
+void DeviceRackController::refresh()
+{
+    beginResetModel();
+    if (m_deviceService) {
+        m_devices = m_deviceService->internalDeviceNamesQt();
+    }
+    endResetModel();
+}
+
+QString DeviceRackController::trackNames(const QString & deviceName) const
+{
+    QStringList trackNames;
+    for (const auto index : m_editorService->trackIndices()) {
+        if (const auto portName = m_editorService->instrumentPortName(index); portName == deviceName) {
+            trackNames << m_editorService->trackName(index);
+        }
+    }
+    return trackNames.join(", ");
 }
 
 void DeviceRackController::openDevice(const QString & name)

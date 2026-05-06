@@ -26,7 +26,6 @@ Dialog {
     title: "<strong>" + qsTr("Device Rack") + "</strong>"
     modal: true
     focus: true
-
     footer: DialogButtonBox {
         Button {
             text: qsTr("Close")
@@ -34,18 +33,18 @@ Dialog {
             DialogButtonBox.buttonRole: DialogButtonBox.AcceptRole
         }
     }
-
     background: Rectangle {
         color: "#222"
         border.color: "#444"
         radius: 10
     }
-
+    function updateUsage(): void {
+        deviceRackController.refresh();
+    }
     ColumnLayout {
         anchors.fill: parent
         anchors.margins: 15
         spacing: 20
-
         Text {
             text: qsTr("Device Rack")
             color: "white"
@@ -53,45 +52,44 @@ Dialog {
             font.pointSize: 18
             Layout.alignment: Qt.AlignHCenter
         }
-
-        GridLayout {
-            columns: 1
-            rowSpacing: 10
+        ListView {
+            id: deviceListView
+            model: deviceRackController
             Layout.fillWidth: true
-
-            Repeater {
-                model: deviceRackController.devices
-                delegate: RowLayout {
-                    Layout.fillWidth: true
-                    spacing: 15
-                    
-                    Rectangle {
+            Layout.fillHeight: true
+            Layout.preferredHeight: 400
+            Layout.preferredWidth: 600
+            clip: true
+            spacing: 10
+            ScrollBar.vertical: ScrollBar {}
+            delegate: Rectangle {
+                width: deviceListView.width
+                height: 60
+                color: mouseArea.containsMouse ? themeService.accentColor : "#333"
+                radius: 5
+                border.color: "#555"
+                MouseArea {
+                    id: mouseArea
+                    anchors.fill: parent
+                    hoverEnabled: true
+                    cursorShape: Qt.PointingHandCursor
+                    onClicked: deviceRackController.openDevice(model.name)
+                }
+                RowLayout {
+                    anchors.fill: parent
+                    anchors.margins: 15
+                    Text {
+                        text: model.name
+                        color: "white"
+                        font.pointSize: 13
+                        font.bold: mouseArea.containsMouse
                         Layout.fillWidth: true
-                        Layout.preferredHeight: 60
-                        color: mouseArea.containsMouse ? themeService.accentColor : "#333"
-                        radius: 5
-                        border.color: "#555"
-                        
-                        MouseArea {
-                            id: mouseArea
-                            anchors.fill: parent
-                            hoverEnabled: true
-                            cursorShape: Qt.PointingHandCursor
-                            onClicked: deviceRackController.openDevice(modelData)
-                        }
-
-                        RowLayout {
-                            anchors.fill: parent
-                            anchors.margins: 15
-                            
-                            Text {
-                                text: modelData
-                                color: "white"
-                                font.pointSize: 13
-                                font.bold: mouseArea.containsMouse
-                                Layout.fillWidth: true
-                            }
-                        }
+                    }
+                    Text {
+                        text: model.trackNames
+                        color: "#aaa"
+                        font.pointSize: 11
+                        Layout.alignment: Qt.AlignRight
                     }
                 }
             }

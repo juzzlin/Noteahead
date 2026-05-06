@@ -399,7 +399,10 @@ ApplicationWindow {
             errorDialog.open();
         });
         applicationService.midiExportDialogRequested.connect(midiExportDialog.open);
-        applicationService.deviceRackDialogRequested.connect(deviceRackDialog.open);
+        applicationService.deviceRackDialogRequested.connect(() => {
+            deviceRackDialog.updateUsage();
+            deviceRackDialog.open();
+        });
         deviceRackController.samplerDialogRequested.connect(samplerDialog.open);
         deviceRackController.synthDialogRequested.connect(synthDialog.open);
         applicationService.samplerDialogRequested.connect(samplerDialog.open);
