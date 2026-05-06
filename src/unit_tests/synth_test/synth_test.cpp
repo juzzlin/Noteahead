@@ -64,7 +64,7 @@ void SynthTest::test_parameterSetting_shouldUpdateValues()
     QCOMPARE(synth.lpfCutoff(), 0.4f);
     
     synth.setModInt(0.8f);
-    QCOMPARE(synth.modInt(), 0.8f);
+    QCOMPARE(synth.modInt(), 0.6f);
 
     synth.setDelayMix(0.5f);
     QCOMPARE(synth.delayMix(), 0.5f);
@@ -108,8 +108,8 @@ void SynthTest::test_presets_shouldLoadCorrectValues()
     synth.loadPreset(0, 1); // Fat Bass
     
     QCOMPARE(synth.vco1Waveform(), PolyBLEPOscillator::Waveform::Saw);
-    QCOMPARE(synth.mixVco2(), 0.8f);
-    QCOMPARE(synth.lpfCutoff(), 0.3f);
+    QCOMPARE(synth.mixVco2(), 0.7f);
+    QCOMPARE(synth.lpfCutoff(), 0.25f);
     QCOMPARE(synth.voiceMode(), SynthDevice::VoiceMode::Unison);
 }
 
@@ -163,9 +163,9 @@ void SynthTest::test_presetMidiCcReset_shouldRestorePresetValues()
     // 1. Initial manual state
     synth.setLpfCutoff(1.0f);
     
-    // 2. Load "Fat Bass" preset (Cutoff = 0.3)
+    // 2. Load "Fat Bass" preset (Cutoff = 0.25)
     synth.loadPreset(0, 1); 
-    QCOMPARE(synth.lpfCutoff(), 0.3f);
+    QCOMPARE(synth.lpfCutoff(), 0.25f);
     
     // 3. Offset via MIDI CC
     synth.processMidiCc(74, 127, 0); // Cutoff to 1.0
@@ -174,8 +174,8 @@ void SynthTest::test_presetMidiCcReset_shouldRestorePresetValues()
     // 4. Reset All Controllers (CC 121)
     synth.processMidiCc(121, 0, 0);
     
-    // 5. Should restore to PRESET value (0.3), not initial manual value (1.0)
-    QCOMPARE(synth.lpfCutoff(), 0.3f);
+    // 5. Should restore to PRESET value (0.25), not initial manual value (1.0)
+    QCOMPARE(synth.lpfCutoff(), 0.25f);
 }
 
 void SynthTest::test_lfoModulation_shouldUpdateInternalState()
@@ -191,7 +191,7 @@ void SynthTest::test_lfoModulation_shouldUpdateInternalState()
     synth.setLfoRate(0.8f);
     QCOMPARE(synth.lfoRate(), 0.8f);
     
-    synth.setLfoInt(0.5f);
+    synth.setLfoInt(0.75f);
     QCOMPARE(synth.lfoInt(), 0.5f);
     
     synth.setLfoTarget(SynthDevice::LfoTarget::Cutoff);

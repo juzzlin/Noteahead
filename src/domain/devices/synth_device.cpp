@@ -103,13 +103,13 @@ SynthDevice::SynthDevice(std::string name)
 
     addParameter(Parameter { Constants::NahdXml::xmlKeySynthModAttack().toStdString(), 0.5f, 0, 100, 50 });
     addParameter(Parameter { Constants::NahdXml::xmlKeySynthModDecay().toStdString(), 0.34f, 0, 100, 34 });
-    addParameter(Parameter { Constants::NahdXml::xmlKeySynthModIntensity().toStdString(), 0.0f, 0, 100, 0 });
+    addParameter(Parameter { Constants::NahdXml::xmlKeySynthModIntensity().toStdString(), 0.5f, -100, 100, 0 });
     addParameter(Parameter { Constants::NahdXml::xmlKeySynthModTarget().toStdString(), 2.0f, 0, 2, 2, 1, true }); // Cutoff default
 
     addParameter(Parameter { Constants::NahdXml::xmlKeySynthLfoWaveform().toStdString(), 1.0f, 0, 2, 1, 1, true }); // Tri default
     addParameter(Parameter { Constants::NahdXml::xmlKeySynthLfoMode().toStdString(), 0.0f, 0, 2, 0, 1, true }); // Normal default
     addParameter(Parameter { Constants::NahdXml::xmlKeySynthLfoRate().toStdString(), 0.5f, 0, 100, 50 });
-    addParameter(Parameter { Constants::NahdXml::xmlKeySynthLfoIntensity().toStdString(), 0.0f, 0, 100, 0 });
+    addParameter(Parameter { Constants::NahdXml::xmlKeySynthLfoIntensity().toStdString(), 0.5f, -100, 100, 0 });
     addParameter(Parameter { Constants::NahdXml::xmlKeySynthLfoTarget().toStdString(), 0.0f, 0, 2, 0, 1, true }); // Pitch default
 
     addParameter(Parameter { Constants::NahdXml::xmlKeyVoiceMode().toStdString(), 0.0f, 0, 1, 0, 1, true });
@@ -515,13 +515,13 @@ void SynthDevice::syncParameters()
     const auto mapDecay = [](float x) { return 0.01f * std::pow(60.0f / 0.01f, x); };
     const auto mapRelease = [](float x) { return 0.001f * std::pow(60.0f / 0.001f, x); };
 
-    if (auto p = parameter(Constants::NahdXml::xmlKeySynthModIntensity().toStdString()); p) m_modInt = p->get().value();
+    if (auto p = parameter(Constants::NahdXml::xmlKeySynthModIntensity().toStdString()); p) m_modInt = (p->get().value() - 0.5f) * 2.0f;
     if (auto p = parameter(Constants::NahdXml::xmlKeySynthModTarget().toStdString()); p) m_modTarget = static_cast<ModTarget>(p->get().xmlValue());
 
     if (auto p = parameter(Constants::NahdXml::xmlKeySynthLfoWaveform().toStdString()); p) m_lfoWaveform = static_cast<LFO::Waveform>(p->get().xmlValue());
     if (auto p = parameter(Constants::NahdXml::xmlKeySynthLfoMode().toStdString()); p) m_lfoMode = static_cast<LFO::Mode>(p->get().xmlValue());
     if (auto p = parameter(Constants::NahdXml::xmlKeySynthLfoRate().toStdString()); p) m_lfoRate = p->get().value();
-    if (auto p = parameter(Constants::NahdXml::xmlKeySynthLfoIntensity().toStdString()); p) m_lfoInt = p->get().value();
+    if (auto p = parameter(Constants::NahdXml::xmlKeySynthLfoIntensity().toStdString()); p) m_lfoInt = (p->get().value() - 0.5f) * 2.0f;
     if (auto p = parameter(Constants::NahdXml::xmlKeySynthLfoTarget().toStdString()); p) m_lfoTarget = static_cast<LfoTarget>(p->get().xmlValue());
 
     if (auto p = parameter(Constants::NahdXml::xmlKeyVoiceMode().toStdString()); p) m_voiceMode = static_cast<VoiceMode>(p->get().xmlValue());
