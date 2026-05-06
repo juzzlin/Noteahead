@@ -26,7 +26,7 @@
 namespace noteahead {
 
 SynthController::SynthController(std::shared_ptr<SynthDevice> synth, QObject * parent)
-  : QObject(parent)
+  : QObject { parent }
   , m_synth { std::move(synth) }
 {
     if (m_synth) {
@@ -152,9 +152,9 @@ QStringList SynthController::presetNames() const
     QStringList names;
     const auto & presetList = SynthPresets::presets();
     for (size_t i = 0; i < presetList.size(); ++i) {
-        names.append(QString("%1: %2")
-                         .arg(static_cast<int>(i), 3, 10, QChar('0'))
-                         .arg(QString::fromStdString(presetList[i].name)));
+        names.append(QString { "%1: %2" }
+                       .arg(static_cast<int>(i), 3, 10, QChar { '0' })
+                       .arg(QString::fromStdString(presetList.at(i).name)));
     }
     return names;
 }
@@ -190,9 +190,9 @@ QStringList SynthController::userPresetNames() const
 {
     QStringList names;
     for (int i = 0; i < 128; ++i) {
-        names << QString("%1: %2")
-                     .arg(i, 3, 10, QChar('0'))
-                     .arg(QString::fromStdString(m_userPresets.at(i).name));
+        names << QString { "%1: %2" }
+                   .arg(i, 3, 10, QChar { '0' })
+                   .arg(QString::fromStdString(m_userPresets.at(i).name));
     }
     return names;
 }

@@ -54,6 +54,7 @@ void SynthDevice::Voice::trigger(uint8_t n, double freq, float p, bool phaseSync
     if (phaseSync) {
         vco1.sync(0.0);
         vco2.sync(0.0);
+        multi.reset();
     }
     ampEg.trigger();
     modEg.trigger();
