@@ -222,11 +222,20 @@ void DeviceService::serializeToXml(QXmlStreamWriter & writer) const
                     writer.writeAttribute(Constants::NahdXml::xmlKeyName(), QString::fromStdString(paramName));
                     if (synth) {
                         if (auto p = synth->parameter(paramName); p) {
-                            writer.writeAttribute(Constants::NahdXml::xmlKeyValue(), QString::number(Parameter::internalToXmlValue(value, p->get().xmlMin(), p->get().xmlMax())));
-                            writer.writeAttribute(Constants::NahdXml::xmlKeyMin(), QString::number(p->get().xmlMin()));
-                            writer.writeAttribute(Constants::NahdXml::xmlKeyMax(), QString::number(p->get().xmlMax()));
-                            writer.writeAttribute(Constants::NahdXml::xmlKeyDefault(), QString::number(p->get().xmlDefault()));
-                            writer.writeAttribute(Constants::NahdXml::xmlKeyScale(), QString::number(p->get().xmlScale()));
+                            if (p->get().type() == Parameter::Type::Continuous) {
+                                writer.writeAttribute(Constants::NahdXml::xmlKeyParameterValueType(), Constants::NahdXml::xmlValueFloat());
+                                writer.writeAttribute(Constants::NahdXml::xmlKeyValue(), QString::number(Parameter::internalToXmlValue(value, p->get().xmlMin(), p->get().xmlMax())));
+                                writer.writeAttribute(Constants::NahdXml::xmlKeyMin(), QString::number(p->get().xmlMin()));
+                                writer.writeAttribute(Constants::NahdXml::xmlKeyMax(), QString::number(p->get().xmlMax()));
+                                writer.writeAttribute(Constants::NahdXml::xmlKeyDefault(), QString::number(p->get().xmlDefault()));
+                                writer.writeAttribute(Constants::NahdXml::xmlKeyScale(), QString::number(p->get().xmlScale()));
+                            } else if (p->get().type() == Parameter::Type::Discrete) {
+                                writer.writeAttribute(Constants::NahdXml::xmlKeyParameterValueType(), Constants::NahdXml::xmlValueInt());
+                                writer.writeAttribute(Constants::NahdXml::xmlKeyValue(), QString::number(static_cast<int>(std::round(value))));
+                            } else if (p->get().type() == Parameter::Type::Boolean) {
+                                writer.writeAttribute(Constants::NahdXml::xmlKeyParameterValueType(), Constants::NahdXml::xmlValueBool());
+                                writer.writeAttribute(Constants::NahdXml::xmlKeyValue(), value > 0.5f ? Constants::NahdXml::xmlValueTrue() : Constants::NahdXml::xmlValueFalse());
+                            }
                         } else {
                             writer.writeAttribute(Constants::NahdXml::xmlKeyValue(), QString::number(static_cast<double>(value)));
                         }
@@ -273,37 +282,54 @@ void DeviceService::deserializeFromXml(QXmlStreamReader & reader)
                             if (reader.name() == Constants::NahdXml::xmlKeyParameter()) {
                                 const auto paramName = Utils::Xml::readStringAttribute(reader, Constants::NahdXml::xmlKeyName()).value_or("").toStdString();
                                 if (!paramName.empty()) {
-                                    const auto xmlMin = reader.attributes().value(Constants::NahdXml::xmlKeyMin());
-                                    const auto xmlMax = reader.attributes().value(Constants::NahdXml::xmlKeyMax());
-                                    if (!xmlMin.isNull() && !xmlMax.isNull()) {
-                                        const auto xmlValue = reader.attributes().value(Constants::NahdXml::xmlKeyValue()).toInt();
-                                        std::shared_ptr<SynthDevice> synth;
-                                        for (const auto & name : internalDeviceNames()) {
-                                            if (auto dev = std::dynamic_pointer_cast<SynthDevice>(device(name))) {
-                                                synth = dev;
-                                                break;
+                                    const auto valueType = reader.attributes().value(Constants::NahdXml::xmlKeyParameterValueType()).toString();
+                                    const auto xmlValue = reader.attributes().value(Constants::NahdXml::xmlKeyValue()).toString();
+
+                                    if (valueType == Constants::NahdXml::xmlValueInt()) {
+                                        preset.parameters[paramName] = static_cast<float>(xmlValue.toInt());
+                                    } else if (valueType == Constants::NahdXml::xmlValueBool()) {
+                                        preset.parameters[paramName] = (xmlValue == Constants::NahdXml::xmlValueTrue() || xmlValue == "1") ? 1.0f : 0.0f;
+                                    } else if (valueType == Constants::NahdXml::xmlValueFloat()) {
+                                        const auto xmlMin = reader.attributes().value(Constants::NahdXml::xmlKeyMin()).toInt();
+                                        const auto xmlMax = reader.attributes().value(Constants::NahdXml::xmlKeyMax()).toInt();
+                                        preset.parameters[paramName] = Parameter::xmlValueToInternal(xmlValue.toInt(), xmlMin, xmlMax);
+                                    } else {
+                                        // Fallback for older files
+                                        const auto xmlMinAttr = reader.attributes().value(Constants::NahdXml::xmlKeyMin());
+                                        const auto xmlMaxAttr = reader.attributes().value(Constants::NahdXml::xmlKeyMax());
+                                        if (!xmlMinAttr.isNull() && !xmlMaxAttr.isNull()) {
+                                            const auto xmlMin = xmlMinAttr.toInt();
+                                            const auto xmlMax = xmlMaxAttr.toInt();
+                                            const auto intValue = xmlValue.toInt();
+
+                                            std::shared_ptr<SynthDevice> synth;
+                                            for (const auto & name : internalDeviceNames()) {
+                                                if (auto dev = std::dynamic_pointer_cast<SynthDevice>(device(name))) {
+                                                    synth = dev;
+                                                    break;
+                                                }
                                             }
-                                        }
-                                        if (synth) {
-                                            if (auto p = synth->parameter(paramName); p) {
-                                                if (p->get().isDiscrete()) {
-                                                    preset.parameters[paramName] = static_cast<float>(xmlValue);
+                                            if (synth) {
+                                                if (auto p = synth->parameter(paramName); p) {
+                                                    if (p->get().isDiscrete() || p->get().isBoolean()) {
+                                                        preset.parameters[paramName] = static_cast<float>(intValue);
+                                                    } else {
+                                                        preset.parameters[paramName] = Parameter::xmlValueToInternal(intValue, xmlMin, xmlMax);
+                                                    }
                                                 } else {
-                                                    preset.parameters[paramName] = Parameter::xmlValueToInternal(xmlValue, xmlMin.toInt(), xmlMax.toInt());
+                                                    preset.parameters[paramName] = Parameter::xmlValueToInternal(intValue, xmlMin, xmlMax);
                                                 }
                                             } else {
-                                                preset.parameters[paramName] = Parameter::xmlValueToInternal(xmlValue, xmlMin.toInt(), xmlMax.toInt());
+                                                preset.parameters[paramName] = Parameter::xmlValueToInternal(intValue, xmlMin, xmlMax);
                                             }
                                         } else {
-                                            preset.parameters[paramName] = Parameter::xmlValueToInternal(xmlValue, xmlMin.toInt(), xmlMax.toInt());
+                                            preset.parameters[paramName] = xmlValue.toFloat();
                                         }
-                                    } else {
-                                        const auto paramValue = Utils::Xml::readDoubleAttribute(reader, Constants::NahdXml::xmlKeyValue()).value_or(0.0);
-                                        preset.parameters[paramName] = static_cast<float>(paramValue);
                                     }
                                 }
                                 reader.skipCurrentElement();
-                            } else {
+                            }
+ else {
                                 reader.skipCurrentElement();
                             }
                         }

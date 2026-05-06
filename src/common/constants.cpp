@@ -709,6 +709,11 @@ QString xmlKeyParameter()
     return "Parameter";
 }
 
+QString xmlKeyParameterValueType()
+{
+    return "valueType";
+}
+
 QString xmlKeyMin()
 {
     return "min";
@@ -950,6 +955,21 @@ QString xmlValueFalse() { return "false"; }
 QString xmlValueTrue()
 {
     return "true";
+}
+
+QString xmlValueInt()
+{
+    return "int";
+}
+
+QString xmlValueBool()
+{
+    return "bool";
+}
+
+QString xmlValueFloat()
+{
+    return "float";
 }
 
 QString xmlValueSineWave()

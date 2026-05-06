@@ -43,9 +43,9 @@ SamplerDevice::SamplerDevice(std::string name, AudioFileReaderU audioFileReader)
   : m_name { std::move(name) }
   , m_audioFileReader { audioFileReader ? std::move(audioFileReader) : std::make_unique<SndFileReader>() }
 {
-    addParameter(Parameter { Constants::NahdXml::xmlKeyChannelMode().toStdString(), 0.0f, 0, 1, 0, 1, true });
+    addParameter(Parameter { Constants::NahdXml::xmlKeyChannelMode().toStdString(), 0.0f, 0, 1, 0, 1, Parameter::Type::Boolean });
     addParameter(Parameter { Constants::NahdXml::xmlKeyVolume().toStdString(), 1.0f, 0, 100, 100, 1 });
-    addParameter(Parameter { Constants::NahdXml::xmlKeyGain().toStdString(), 0.5f, -30, 30, 0, 1, false });
+    addParameter(Parameter { Constants::NahdXml::xmlKeyGain().toStdString(), 0.5f, -30, 30, 0, 1, Parameter::Type::Continuous });
 
     m_voices.resize(m_maxVoices);
     for (auto && sample : m_samples) {
@@ -735,10 +735,21 @@ void SamplerDevice::deserializeFromXml(QXmlStreamReader & reader)
         const auto name = reader.name();
         if (name == Constants::NahdXml::xmlKeyParameter()) {
             const auto paramName = reader.attributes().value(Constants::NahdXml::xmlKeyName()).toString().toStdString();
-            const auto value = reader.attributes().value(Constants::NahdXml::xmlKeyValue()).toInt();
+            const auto valueType = reader.attributes().value(Constants::NahdXml::xmlKeyParameterValueType()).toString();
+            const auto xmlValue = reader.attributes().value(Constants::NahdXml::xmlKeyValue()).toString();
+
             std::lock_guard<std::mutex> lock { m_mutex };
             if (auto p = parameter(paramName); p) {
-                p->get().setFromXml(value);
+                if (valueType == Constants::NahdXml::xmlValueInt()) {
+                    p->get().setFromXml(xmlValue.toInt());
+                } else if (valueType == Constants::NahdXml::xmlValueBool()) {
+                    p->get().setValue((xmlValue == Constants::NahdXml::xmlValueTrue() || xmlValue == "1") ? 1.0f : 0.0f);
+                } else if (valueType == Constants::NahdXml::xmlValueFloat()) {
+                    p->get().setFromXml(xmlValue.toInt());
+                } else {
+                    // Fallback for older files
+                    p->get().setFromXml(xmlValue.toInt());
+                }
             }
             reader.skipCurrentElement();
         } else if (name == Constants::NahdXml::xmlKeySamples()) {

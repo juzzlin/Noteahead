@@ -20,13 +20,13 @@
 
 namespace noteahead {
 
-Parameter::Parameter(const std::string & name, float internalValue, int xmlMin, int xmlMax, int xmlDefault, int xmlScale, bool discrete)
+Parameter::Parameter(const std::string & name, float internalValue, int xmlMin, int xmlMax, int xmlDefault, int xmlScale, Type type)
   : m_name { name }
   , m_xmlMin { xmlMin }
   , m_xmlMax { xmlMax }
   , m_xmlDefault { xmlDefault }
   , m_xmlScale { xmlScale }
-  , m_discrete { discrete }
+  , m_type { type }
 {
     setValue(internalValue);
 }
@@ -43,8 +43,10 @@ float Parameter::value() const
 
 void Parameter::setValue(float val)
 {
-    if (m_discrete) {
+    if (m_type == Type::Discrete) {
         m_value = std::clamp(val, static_cast<float>(std::min(m_xmlMin, m_xmlMax)), static_cast<float>(std::max(m_xmlMin, m_xmlMax)));
+    } else if (m_type == Type::Boolean) {
+        m_value = val > 0.5f ? 1.0f : 0.0f;
     } else {
         m_value = std::clamp(val, 0.0f, 1.0f);
     }
@@ -52,7 +54,7 @@ void Parameter::setValue(float val)
 
 int Parameter::xmlValue() const
 {
-    if (m_discrete) {
+    if (m_type == Type::Discrete || m_type == Type::Boolean) {
         return static_cast<int>(std::round(m_value));
     }
     return internalToXmlValue(m_value, m_xmlMin, m_xmlMax);
@@ -78,14 +80,24 @@ int Parameter::xmlScale() const
     return m_xmlScale;
 }
 
+Parameter::Type Parameter::type() const
+{
+    return m_type;
+}
+
 bool Parameter::isDiscrete() const
 {
-    return m_discrete;
+    return m_type == Type::Discrete;
+}
+
+bool Parameter::isBoolean() const
+{
+    return m_type == Type::Boolean;
 }
 
 void Parameter::setFromXml(int xmlVal)
 {
-    if (m_discrete) {
+    if (m_type == Type::Discrete || m_type == Type::Boolean) {
         m_value = static_cast<float>(std::clamp(xmlVal, std::min(m_xmlMin, m_xmlMax), std::max(m_xmlMin, m_xmlMax)));
     } else {
         m_value = xmlValueToInternal(xmlVal, m_xmlMin, m_xmlMax);

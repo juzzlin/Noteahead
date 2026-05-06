@@ -23,6 +23,7 @@ ColumnLayout {
     id: knobRoot
     property string label: ""
     property real value: 0
+    property real customValue: NaN
     property real from: 0
     property real to: 1000
     property string suffix: "%"
@@ -35,12 +36,13 @@ ColumnLayout {
     spacing: 2
     Label {
         text: {
-            let displayValue = Math.round(knobRoot.value);
+            let val = isNaN(knobRoot.customValue) ? knobRoot.value : knobRoot.customValue;
+            let displayValue = Math.round(val);
             if (knobRoot.suffix === "%") {
-                displayValue = (knobRoot.value / 10.0).toFixed(1);
+                displayValue = (val / (Constants.uiInternalScaling / 100.0)).toFixed(1);
             } else if (knobRoot.suffix === "dB") {
-                // Map 0..1000 to -30..30 dB
-                displayValue = ((knobRoot.value / 1000.0 * 60.0) - 30.0).toFixed(1);
+                // Map 0..Constants.uiInternalScaling to -30..30 dB
+                displayValue = ((val / Constants.uiInternalScaling * 60.0) - 30.0).toFixed(1);
                 if (displayValue > 0) displayValue = "+" + displayValue;
             }
             return `${knobRoot.label} (${displayValue}${knobRoot.suffix})`;

@@ -25,4 +25,6 @@ QtObject {
     readonly property double positionBarOpacity: 0.25
 
     readonly property int maxEventDelay: 10000
+
+    readonly property real uiInternalScaling: 1000.0
 }

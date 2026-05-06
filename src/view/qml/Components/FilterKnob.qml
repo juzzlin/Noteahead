@@ -39,7 +39,7 @@ ColumnLayout {
         if (value <= 0) {
             return "0 Hz";
         }
-        if (!isHpf && value >= 1000) {
+        if (!isHpf && value >= Constants.uiInternalScaling) {
             return qsTr("Bypass");
         }
         if (cutoffHz >= 1000) {
@@ -53,7 +53,7 @@ ColumnLayout {
         text: {
             let displayValue = Math.round(knobRoot.value);
             if (knobRoot.suffix === "%") {
-                displayValue = (knobRoot.value / 10.0).toFixed(1);
+                displayValue = (knobRoot.value / (Constants.uiInternalScaling / 100.0)).toFixed(1);
             }
             return `${knobRoot.label} (${displayValue}${knobRoot.suffix} / ${knobRoot.freqString})`;
         }

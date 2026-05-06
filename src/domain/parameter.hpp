@@ -23,7 +23,14 @@ namespace noteahead {
 class Parameter
 {
 public:
-    Parameter(const std::string & name, float internalValue, int xmlMin, int xmlMax, int xmlDefault, int xmlScale = 1, bool discrete = false);
+    enum class Type
+    {
+        Continuous,
+        Discrete,
+        Boolean
+    };
+
+    Parameter(const std::string & name, float internalValue, int xmlMin, int xmlMax, int xmlDefault, int xmlScale = 1, Type type = Type::Continuous);
 
     const std::string & name() const;
 
@@ -36,7 +43,9 @@ public:
     int xmlDefault() const;
     int xmlScale() const;
 
+    Type type() const;
     bool isDiscrete() const;
+    bool isBoolean() const;
 
     void setFromXml(int xmlVal);
 
@@ -52,7 +61,7 @@ private:
     int m_xmlMax { 100 };
     int m_xmlDefault { 0 };
     int m_xmlScale { 1 };
-    bool m_discrete { false };
+    Type m_type { Type::Continuous };
 };
 
 } // namespace noteahead

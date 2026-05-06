@@ -46,6 +46,8 @@ QString synthDeviceName();
 
 double defaultSampleRate();
 
+constexpr float uiInternalScaling() { return 1000.0f; }
+
 namespace NahdXml {
 
 QString xmlKeyFileFormatVersion();
@@ -210,6 +212,7 @@ QString xmlKeyDevices();
 QString xmlKeyDevice();
 QString xmlKeyCategory();
 QString xmlKeyParameter();
+QString xmlKeyParameterValueType();
 QString xmlKeyMin();
 QString xmlKeyMax();
 QString xmlKeyDefault();
@@ -300,6 +303,9 @@ QString xmlKeyStartOffset();
 
 QString xmlValueFalse();
 QString xmlValueTrue();
+QString xmlValueInt();
+QString xmlValueBool();
+QString xmlValueFloat();
 QString xmlValueSineWave();
 QString xmlValueRandom();
 QString xmlValueSamplers();

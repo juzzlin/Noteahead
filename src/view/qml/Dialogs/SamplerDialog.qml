@@ -262,20 +262,20 @@ Dialog {
                 // Pan Knob
                 Knob {
                     label: qsTr("Pan")
-                    from: -1000
-                    to: 1000
-                    value: (samplerController.selectedPadPan * 2000) - 1000
+                    from: -Constants.uiInternalScaling
+                    to: Constants.uiInternalScaling
+                    value: (samplerController.selectedPadPan * 2 * Constants.uiInternalScaling) - Constants.uiInternalScaling
                     onMoved: v => {
-                        samplerController.selectedPadPan = (v + 1000) / 2000;
+                        samplerController.selectedPadPan = (v + Constants.uiInternalScaling) / (2 * Constants.uiInternalScaling);
                     }
                 }
 
                 // Volume Knob
                 Knob {
                     label: qsTr("Volume")
-                    value: samplerController.selectedPadVolume * 1000
+                    value: samplerController.selectedPadVolume * Constants.uiInternalScaling
                     onMoved: v => {
-                        samplerController.selectedPadVolume = v / 1000;
+                        samplerController.selectedPadVolume = v / Constants.uiInternalScaling;
                     }
                 }
 
@@ -283,9 +283,9 @@ Dialog {
                 FilterKnob {
                     label: qsTr("LPF Cutoff")
                     controller: samplerController
-                    value: samplerController.selectedPadCutoff * 1000
+                    value: samplerController.selectedPadCutoff * Constants.uiInternalScaling
                     onMoved: v => {
-                        samplerController.selectedPadCutoff = v / 1000;
+                        samplerController.selectedPadCutoff = v / Constants.uiInternalScaling;
                     }
                 }
 
@@ -293,10 +293,10 @@ Dialog {
                 FilterKnob {
                     label: qsTr("HPF Cutoff")
                     controller: samplerController
-                    value: samplerController.selectedPadHpfCutoff * 1000
+                    value: samplerController.selectedPadHpfCutoff * Constants.uiInternalScaling
                     isHpf: true
                     onMoved: v => {
-                        samplerController.selectedPadHpfCutoff = v / 1000;
+                        samplerController.selectedPadHpfCutoff = v / Constants.uiInternalScaling;
                     }
                     }
 
@@ -310,18 +310,18 @@ Dialog {
 
                     Knob {
                     label: qsTr("Global Volume")
-                    value: samplerController.globalVolume * 1000
+                    value: samplerController.globalVolume * Constants.uiInternalScaling
                     onMoved: v => {
-                        samplerController.globalVolume = v / 1000;
+                        samplerController.globalVolume = v / Constants.uiInternalScaling;
                     }
                     }
 
                     Knob {
                     label: qsTr("Global Gain")
                     suffix: "dB"
-                    value: samplerController.gain * 1000
+                    value: samplerController.gain * Constants.uiInternalScaling
                     onMoved: v => {
-                        samplerController.gain = v / 1000;
+                        samplerController.gain = v / Constants.uiInternalScaling;
                     }
                     }
 

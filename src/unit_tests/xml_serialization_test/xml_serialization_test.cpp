@@ -852,6 +852,44 @@ void XmlSerializationTest::test_toXmlFromXml_synthUserPresets_shouldSaveAndLoad(
     QCOMPARE(userPresetsIn.at(10).parameters.at(Constants::NahdXml::xmlKeySynthLpfCutoff().toStdString()), 0.5f);
 }
 
+void XmlSerializationTest::test_toXmlFromXml_synthUserPresets_discreteValues_shouldSaveAndLoad()
+{
+    const auto engine = std::make_shared<AudioEngine>();
+    DeviceService deviceServiceOut { engine };
+    const auto synthOut = std::make_shared<SynthDevice>(Constants::synthDeviceName().toStdString());
+    deviceServiceOut.registerDevice(synthOut);
+
+    UserPresets userPresets;
+    SynthPreset preset;
+    preset.name = "Discrete Test";
+    // Waveform: Saw (1.0f)
+    preset.parameters[Constants::NahdXml::xmlKeySynthVco1Waveform().toStdString()] = 1.0f;
+    // Pitch: 0 cents
+    preset.parameters[Constants::NahdXml::xmlKeySynthVco1Pitch().toStdString()] = 0.0f;
+    userPresets[5] = preset;
+    deviceServiceOut.setSynthUserPresets(userPresets);
+
+    EditorService editorServiceOut { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
+    connect(&editorServiceOut, &EditorService::devicesSerializationRequested, &deviceServiceOut, &DeviceService::serializeToXml);
+
+    const auto xml = editorServiceOut.toXml();
+
+    const auto deviceServiceIn = std::make_shared<DeviceService>(std::make_shared<AudioEngine>());
+    const auto synthIn = std::make_shared<SynthDevice>(Constants::synthDeviceName().toStdString());
+    deviceServiceIn->registerDevice(synthIn);
+    
+    EditorService editorServiceIn { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
+    connect(&editorServiceIn, &EditorService::devicesDeserializationRequested, deviceServiceIn.get(), &DeviceService::deserializeFromXml);
+
+    editorServiceIn.fromXml(xml);
+
+    const auto & userPresetsIn = deviceServiceIn->synthUserPresets();
+    QVERIFY(userPresetsIn.count(5));
+    // Verify internal values are preserved
+    QCOMPARE(userPresetsIn.at(5).parameters.at(Constants::NahdXml::xmlKeySynthVco1Waveform().toStdString()), 1.0f);
+    QCOMPARE(userPresetsIn.at(5).parameters.at(Constants::NahdXml::xmlKeySynthVco1Pitch().toStdString()), 0.0f);
+}
+
 void XmlSerializationTest::test_fromXml_samplerDevice_missingId_shouldNotThrow()
 {
     const auto xml = QString(R"XML(

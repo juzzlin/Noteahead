@@ -67,11 +67,22 @@ void ParameterContainer::serializeParametersToXml(QXmlStreamWriter & writer) con
     for (const auto & [name, p] : m_parameters) {
         writer.writeStartElement(Constants::NahdXml::xmlKeyParameter());
         writer.writeAttribute(Constants::NahdXml::xmlKeyName(), QString::fromStdString(name));
-        writer.writeAttribute(Constants::NahdXml::xmlKeyValue(), QString::number(p.xmlValue()));
-        writer.writeAttribute(Constants::NahdXml::xmlKeyMin(), QString::number(p.xmlMin()));
-        writer.writeAttribute(Constants::NahdXml::xmlKeyMax(), QString::number(p.xmlMax()));
-        writer.writeAttribute(Constants::NahdXml::xmlKeyDefault(), QString::number(p.xmlDefault()));
-        writer.writeAttribute(Constants::NahdXml::xmlKeyScale(), QString::number(p.xmlScale()));
+
+        if (p.type() == Parameter::Type::Continuous) {
+            writer.writeAttribute(Constants::NahdXml::xmlKeyParameterValueType(), Constants::NahdXml::xmlValueFloat());
+            writer.writeAttribute(Constants::NahdXml::xmlKeyValue(), QString::number(p.xmlValue()));
+            writer.writeAttribute(Constants::NahdXml::xmlKeyMin(), QString::number(p.xmlMin()));
+            writer.writeAttribute(Constants::NahdXml::xmlKeyMax(), QString::number(p.xmlMax()));
+            writer.writeAttribute(Constants::NahdXml::xmlKeyDefault(), QString::number(p.xmlDefault()));
+            writer.writeAttribute(Constants::NahdXml::xmlKeyScale(), QString::number(p.xmlScale()));
+        } else if (p.type() == Parameter::Type::Discrete) {
+            writer.writeAttribute(Constants::NahdXml::xmlKeyParameterValueType(), Constants::NahdXml::xmlValueInt());
+            writer.writeAttribute(Constants::NahdXml::xmlKeyValue(), QString::number(p.xmlValue()));
+        } else if (p.type() == Parameter::Type::Boolean) {
+            writer.writeAttribute(Constants::NahdXml::xmlKeyParameterValueType(), Constants::NahdXml::xmlValueBool());
+            writer.writeAttribute(Constants::NahdXml::xmlKeyValue(), p.value() > 0.5f ? Constants::NahdXml::xmlValueTrue() : Constants::NahdXml::xmlValueFalse());
+        }
+
         writer.writeEndElement();
     }
 }
@@ -81,9 +92,20 @@ void ParameterContainer::deserializeParametersFromXml(QXmlStreamReader & reader)
     while (reader.readNextStartElement()) {
         if (reader.name() == Constants::NahdXml::xmlKeyParameter()) {
             const auto name = reader.attributes().value(Constants::NahdXml::xmlKeyName()).toString().toStdString();
-            const auto value = reader.attributes().value(Constants::NahdXml::xmlKeyValue()).toInt();
+            const auto valueType = reader.attributes().value(Constants::NahdXml::xmlKeyParameterValueType()).toString();
+            const auto xmlValue = reader.attributes().value(Constants::NahdXml::xmlKeyValue()).toString();
+
             if (auto p = parameter(name); p) {
-                p->get().setFromXml(value);
+                if (valueType == Constants::NahdXml::xmlValueInt()) {
+                    p->get().setFromXml(xmlValue.toInt());
+                } else if (valueType == Constants::NahdXml::xmlValueBool()) {
+                    p->get().setValue((xmlValue == Constants::NahdXml::xmlValueTrue() || xmlValue == "1") ? 1.0f : 0.0f);
+                } else if (valueType == Constants::NahdXml::xmlValueFloat()) {
+                    p->get().setFromXml(xmlValue.toInt());
+                } else {
+                    // Fallback for older files
+                    p->get().setFromXml(xmlValue.toInt());
+                }
             }
             reader.skipCurrentElement();
         } else {

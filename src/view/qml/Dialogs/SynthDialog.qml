@@ -291,11 +291,12 @@ Dialog {
                     }
                     Knob {
                         label: qsTr("Pitch")
-                        from: -1000
-                        to: 1000
+                        from: -Constants.uiInternalScaling
+                        to: Constants.uiInternalScaling
                         suffix: "c"
-                        value: synthController.vco1Pitch
-                        onMoved: v => synthController.vco1Pitch = v
+                        value: synthController.pitchToUiValue(synthController.vco1Pitch)
+                        customValue: synthController.vco1Pitch
+                        onMoved: v => synthController.vco1Pitch = synthController.uiValueToPitch(v)
                         Layout.fillWidth: true
                     }
                     Knob {
@@ -336,11 +337,12 @@ Dialog {
                     }
                     Knob {
                         label: qsTr("Pitch")
-                        from: -1000
-                        to: 1000
+                        from: -Constants.uiInternalScaling
+                        to: Constants.uiInternalScaling
                         suffix: "c"
-                        value: synthController.vco2Pitch
-                        onMoved: v => synthController.vco2Pitch = v
+                        value: synthController.pitchToUiValue(synthController.vco2Pitch)
+                        customValue: synthController.vco2Pitch
+                        onMoved: v => synthController.vco2Pitch = synthController.uiValueToPitch(v)
                         Layout.fillWidth: true
                     }
                     Knob {
@@ -573,11 +575,11 @@ Dialog {
                             ComboBox {
                                 id: noteDurationCombo
                                 model: ["1/1", "3/4", "1/2", "3/8", "1/3", "1/4", "3/16", "1/6", "1/8", "3/32", "1/12", "1/16", "3/64", "1/24", "1/32", "1/64"]
+                                readonly property var divisions: [1.0, 0.75, 0.5, 0.375, 1/3, 0.25, 0.1875, 1/6, 0.125, 0.09375, 1/12, 0.0625, 0.046875, 1/24, 0.03125, 0.015625]
                                 currentIndex: {
-                                    const divisions = [1.0, 0.75, 0.5, 0.375, 1/3, 0.25, 0.1875, 1/6, 0.125, 0.09375, 1/12, 0.0625, 0.046875, 1/24, 0.03125, 0.015625];
-                                    const val = synthController.delaySyncDivision / 1000.0;
+                                    const val = synthController.delaySyncDivision / Constants.uiInternalScaling;
                                     let bestIdx = 0;
-                                    let minDiff = 1000;
+                                    let minDiff = 10.0; // Larger than max possible difference (1.0)
                                     for (let i = 0; i < divisions.length; ++i) {
                                         let diff = Math.abs(divisions[i] - val);
                                         if (diff < minDiff) {
@@ -588,8 +590,7 @@ Dialog {
                                     return bestIdx;
                                 }
                                 onActivated: i => {
-                                    const divisions = [1000, 750, 500, 375, 333.33, 250, 187.5, 166.67, 125, 93.75, 83.33, 62.5, 46.88, 41.67, 31.25, 15.63];
-                                    synthController.delaySyncDivision = divisions[i];
+                                    synthController.delaySyncDivision = divisions[i] * Constants.uiInternalScaling;
                                 }
                                 Layout.fillWidth: true
                             }
