@@ -201,20 +201,20 @@ ApplicationWindow {
     SamplerDialog {
         id: samplerDialog
         anchors.centerIn: parent
-        width: parent.width * Constants.defaultDialogScale
-        height: parent.height * Constants.defaultDialogScale
-    }
-    DeviceRackDialog {
-        id: deviceRackDialog
-        anchors.centerIn: parent
-        width: parent.width * Constants.defaultDialogScale
-        height: parent.height * Constants.defaultDialogScale
+        width: parent.width * Constants.largeDialogScale
+        height: parent.height * Constants.largeDialogScale
     }
     SynthDialog {
         id: synthDialog
         anchors.centerIn: parent
         width: parent.width * Constants.largeDialogScale
         height: parent.height * Constants.largeDialogScale
+    }
+    DeviceRackDialog {
+        id: deviceRackDialog
+        anchors.centerIn: parent
+        width: parent.width * Constants.defaultDialogScale
+        height: parent.height * Constants.defaultDialogScale
     }
     SettingsDialog {
         id: settingsDialog

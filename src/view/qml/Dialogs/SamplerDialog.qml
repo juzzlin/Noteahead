@@ -27,6 +27,7 @@ Dialog {
     title: "<strong>" + qsTr("Noteahead Sampler") + "</strong>"
     modal: true
     focus: true
+    clip: true
 
     Universal.accent: themeService.accentColor
 
@@ -298,35 +299,36 @@ Dialog {
                     onMoved: v => {
                         samplerController.selectedPadHpfCutoff = v / Constants.uiInternalScaling;
                     }
-                    }
+                }
 
-                    // Global Settings
-                    Label {
+                // Global Settings
+                Label {
                     text: qsTr("Global Settings")
                     font.bold: true
                     color: themeService.accentColor
                     Layout.topMargin: 10
-                    }
+                }
 
-                    Knob {
+                Knob {
                     label: qsTr("Global Volume")
                     value: samplerController.globalVolume * Constants.uiInternalScaling
                     onMoved: v => {
                         samplerController.globalVolume = v / Constants.uiInternalScaling;
                     }
-                    }
+                }
 
-                    Knob {
+                Knob {
                     label: qsTr("Global Gain")
                     suffix: "dB"
                     value: samplerController.gain * Constants.uiInternalScaling
                     onMoved: v => {
                         samplerController.gain = v / Constants.uiInternalScaling;
                     }
-                    }
+                }
 
-                    // Start Offset
-                    ColumnLayout {                    Layout.fillWidth: true
+                // Start Offset
+                ColumnLayout {
+                    Layout.fillWidth: true
                     Label {
                         text: qsTr("Start Offset:")
                         color: "white"
