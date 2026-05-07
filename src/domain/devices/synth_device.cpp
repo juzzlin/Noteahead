@@ -30,8 +30,6 @@ namespace noteahead {
 void SynthDevice::Voice::reset()
 {
     active = false;
-    vco1.sync(0.0);
-    vco2.sync(0.0);
     lpf.reset();
     hpf.reset();
     ampEg.reset();
@@ -48,14 +46,11 @@ void SynthDevice::Voice::trigger(uint8_t n, double freq, float p, bool phaseSync
     pan = p;
     active = true;
 
-    lpf.reset();
-    hpf.reset();
     lfo.reset();
 
     if (phaseSync) {
         vco1.sync(0.0);
         vco2.sync(0.0);
-        multi.reset();
     }
     ampEg.trigger();
     modEg.trigger();
@@ -233,7 +228,15 @@ void SynthDevice::processAudio(float * output, uint32_t nFrames, uint32_t sample
                 const double oldPhase { voice.vco1.phase() };
                 const double vco1Val { voice.vco1.nextSample() };
                 if (m_vco2Sync && voice.vco1.phase() < oldPhase) {
-                    voice.vco2.sync(0.0);
+                    // Calculate fractional phase for VCO2 to maintain sync accuracy
+                    const double phaseStep1 = vco1Freq / oversampledRate;
+                    const double phaseStep2 = vco2Freq / oversampledRate;
+                    if (phaseStep1 > 0.0) {
+                        const double fraction = voice.vco1.phase() / phaseStep1;
+                        voice.vco2.sync(fraction * phaseStep2);
+                    } else {
+                        voice.vco2.sync(0.0);
+                    }
                 }
                 const double vco2Val { voice.vco2.nextSample() };
                 const double multiVal { voice.multi.nextSample() };
