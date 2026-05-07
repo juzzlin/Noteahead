@@ -24,7 +24,7 @@ import "../Components"
 
 Dialog {
     id: root
-    title: "<strong>" + qsTr("Noteahead Sampler") + "</strong>"
+    title: "<strong>" + applicationService.samplerDeviceName + "</strong>"
     modal: true
     focus: true
     clip: true
@@ -102,7 +102,7 @@ Dialog {
         }
 
         Text {
-            text: qsTr("Press and hold pad to play, release to stop. Right-click to clear. Assignments are saved with the song project. To use the sampler, select 'Noteahead Sampler' as the port in Track Settings.")
+            text: qsTr("Press and hold pad to play, release to stop. Right-click to clear. Assignments are saved with the song project. To use the sampler, select '%1' as the port in Track Settings.").arg(applicationService.samplerDeviceName)
             color: "#aaa"
             font.pointSize: 10
             Layout.fillWidth: true

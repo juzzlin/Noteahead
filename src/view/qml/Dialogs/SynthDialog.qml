@@ -22,7 +22,7 @@ import "../Components"
 
 Dialog {
     id: root
-    title: qsTr("Notealogue Synthesizer")
+    title: applicationService.synthDeviceName
     modal: true
     focus: true
     width: 1000

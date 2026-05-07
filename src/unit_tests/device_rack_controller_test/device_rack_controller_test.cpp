@@ -58,7 +58,7 @@ private:
 void DeviceRackControllerTest::test_devices()
 {
     const auto deviceService = std::make_shared<MockDeviceService>();
-    const auto names = QStringList { "Sampler 1", "Synth 1" };
+    const auto names = QStringList { "Noteahead Sampler 1", "Noteahead Synth 1" };
     deviceService->setMockNames(names);
 
     DeviceRackController controller(deviceService, nullptr, nullptr, nullptr);
@@ -70,18 +70,18 @@ void DeviceRackControllerTest::test_devices()
 void DeviceRackControllerTest::test_trackNames()
 {
     const auto deviceService = std::make_shared<MockDeviceService>();
-    deviceService->setMockNames({ "Sampler 1", "Synth 1" });
+    deviceService->setMockNames({ "Noteahead Sampler 1", "Noteahead Synth 1" });
 
     const auto editorService = std::make_shared<MockEditorService>();
     editorService->setMockIndices({ 0, 1, 2, 3 });
     editorService->setMockTrackName(0, "Track 1");
-    editorService->setMockInstrumentPortName(0, "Sampler 1");
+    editorService->setMockInstrumentPortName(0, "Noteahead Sampler 1");
     editorService->setMockTrackName(1, "Track 2");
-    editorService->setMockInstrumentPortName(1, "Synth 1");
+    editorService->setMockInstrumentPortName(1, "Noteahead Synth 1");
     editorService->setMockTrackName(2, "Track 3");
-    editorService->setMockInstrumentPortName(2, "Sampler 1");
+    editorService->setMockInstrumentPortName(2, "Noteahead Sampler 1");
     editorService->setMockTrackName(3, "Track 4");
-    editorService->setMockInstrumentPortName(3, "Synth 1");
+    editorService->setMockInstrumentPortName(3, "Noteahead Synth 1");
 
     DeviceRackController controller(deviceService, nullptr, nullptr, editorService);
 

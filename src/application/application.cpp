@@ -19,6 +19,7 @@
 #include "../contrib/SimpleLogger/src/simple_logger.hpp"
 #include "../infra/midi/export/midi_exporter.hpp"
 #include "../infra/video/video_generator.hpp"
+#include "common/constants.hpp"
 #include "common/utils.hpp"
 #include "domain/column_settings.hpp"
 #include "domain/devices/sampler_device.hpp"
@@ -123,10 +124,10 @@ Application::Application(int & argc, char ** argv)
   , m_engine { std::make_unique<QQmlApplicationEngine>() }
 {
     m_deviceRack->initialize();
-    if (const auto sampler = std::dynamic_pointer_cast<SamplerDevice>(m_deviceService->device("Sampler 1"))) {
+    if (const auto sampler = std::dynamic_pointer_cast<SamplerDevice>(m_deviceService->device(Constants::samplerDeviceName().toStdString() + " 1"))) {
         m_samplerController->setSampler(sampler);
     }
-    if (const auto synth = std::dynamic_pointer_cast<SynthDevice>(m_deviceService->device("Synth 1"))) {
+    if (const auto synth = std::dynamic_pointer_cast<SynthDevice>(m_deviceService->device(Constants::synthDeviceName().toStdString() + " 1"))) {
         m_synthController->setSynth(synth);
     }
     m_deviceService->registerDevice(m_samplerController->sampler());

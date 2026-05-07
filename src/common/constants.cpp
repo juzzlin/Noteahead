@@ -84,7 +84,7 @@ QString samplerDeviceName()
 
 QString synthDeviceName()
 {
-    return "Notealogue";
+    return "Noteahead Synth";
 }
 
 double defaultSampleRate()
