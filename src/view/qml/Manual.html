@@ -161,8 +161,14 @@
 <h3 style="color: orange;">Device Rack</h3>
 <p>Accessed via <code>Devices => Rack...</code> or <code>Right-click => Song => Device Rack...</code>, the rack is the central hub for all internal instruments in Noteahead.</p>
 <ul>
-    <li><strong>Managing Devices</strong>: The rack displays all available internal devices. Click a device entry to open its dedicated control dialog.</li>
-    <li><strong>Multiple Instances</strong>: Noteahead currently provides 4 independent <strong>Noteahead Sampler</strong> instances ("Noteahead Sampler 1" to "Noteahead Sampler 4"), each with its own settings and sample set.</li>
+    <li><strong>Managing Devices</strong>: The rack displays all available internal devices. Each entry shows the device name and a list of all tracks currently assigned to it. Click a device entry to open its dedicated control dialog.</li>
+    <li><strong>Multiple Instances</strong>: Noteahead currently provides:
+        <ul>
+            <li>4 independent <strong>Noteahead Sampler</strong> instances ("Noteahead Sampler 1" to "Noteahead Sampler 4").</li>
+            <li>4 independent <strong>Noteahead Synth</strong> instances ("Noteahead Synth 1" to "Noteahead Synth 4").</li>
+        </ul>
+        Each instance maintains its own settings, samples, and presets, allowing for complex multi-instrument arrangements without external hardware.
+    </li>
 </ul>
 
 <h3 style="color: orange;">Sampler</h3>
@@ -190,6 +196,51 @@
         In "Channel Mode", CCs on channel 1 affect pad 1, channel 2 affects pad 2, and so on.
     </li>
     <li><strong>Management</strong>: <strong>Right-click</strong> a loaded pad to clear its assignment.</li>
+</ul>
+
+<h3 style="color: orange;">Synth</h3>
+<p>The Noteahead Synth is a powerful built-in polyphonic synthesizer (up to 6 voices) designed for classic and modern electronic sounds.</p>
+<ul>
+    <li><strong>Selection</strong>: Assign a track to a specific synth by selecting its name (e.g., "Noteahead Synth 1") in the <strong>Track Settings</strong> port list.</li>
+    <li><strong>Oscillators (VCO1 & VCO2)</strong>: Two high-quality oscillators with <strong>Triangle</strong>, <strong>Saw</strong>, and <strong>Pulse</strong> waveforms. Each oscillator features <strong>Octave</strong>, <strong>Pitch</strong> (fine-tuning), <strong>Shape</strong> (pulse-width or waveform modulation), and <strong>Sync</strong>.</li>
+    <li><strong>Multi Engine</strong>: An additional digital engine providing <strong>Low</strong> and <strong>High</strong> frequency content, <strong>Peak</strong> (peaking filter), and <strong>Decim</strong> (bit-crusher/decimator) textures. It includes its own <strong>Shape</strong> and <strong>Level</strong> controls.</li>
+    <li><strong>Mixer</strong>: Balance the output of VCO1 and VCO2.</li>
+    <li><strong>Filters</strong>:
+        <ul>
+            <li><strong>LPF Cutoff & Resonance</strong>: A resonant low-pass filter for sculpting the timbre.</li>
+            <li><strong>HPF Cutoff</strong>: A dedicated high-pass filter for removing low-end rumble or creating thin textures.</li>
+            <li><strong>Key Track</strong>: Adjusts how much the filter cutoff follows the played note's pitch.</li>
+        </ul>
+    </li>
+    <li><strong>Envelopes</strong>:
+        <ul>
+            <li><strong>Amp EG</strong>: A standard ADSR (Attack, Decay, Sustain, Release) envelope controlling the volume over time.</li>
+            <li><strong>Mod EG</strong>: An AD (Attack, Decay) envelope with adjustable <strong>Intensity</strong> that can target <strong>Pitch 1</strong>, <strong>Pitch 2</strong>, or <strong>Filter Cutoff</strong>.</li>
+        </ul>
+    </li>
+    <li><strong>LFO</strong>: A flexible Low-Frequency Oscillator with multiple waveforms and modes (Normal, Fast, 1-Shot, and BPM-synced). It can target <strong>Pitch</strong>, <strong>Shape</strong>, or <strong>Filter Cutoff</strong>.</li>
+    <li><strong>Voice / Global</strong>:
+        <ul>
+            <li><strong>Voice Mode</strong>: Choose between <strong>Poly</strong> for chords or <strong>Unison</strong> for thick, stacked lead and bass sounds.</li>
+            <li><strong>Portamento</strong>: Smoothly glides between notes.</li>
+            <li><strong>Pan Spread</strong>: Spreads voices across the stereo field for a wider sound.</li>
+        </ul>
+    </li>
+    <li><strong>Delay Effect</strong>: A built-in delay with multiple types (Stereo, Mono, Ping Pong, HiPass, LowPass, and Tape), feedback, depth, and optional <strong>BPM Sync</strong>.</li>
+    <li><strong>Presets</strong>:
+        <ul>
+            <li><strong>Factory & User Banks</strong>: Use MIDI <strong>Bank Select (CC 0)</strong> to switch between Factory (0) and User (1) presets.</li>
+            <li><strong>Patch Changes</strong>: Use standard MIDI <strong>Program Change</strong> messages to load presets within the active bank.</li>
+        </ul>
+    </li>
+    <li><strong>Automation</strong>: The Synth supports real-time MIDI CC automation:
+        <ul>
+            <li><strong>CC 7</strong>: Volume.</li>
+            <li><strong>CC 10</strong>: Pan.</li>
+            <li><strong>CC 74</strong>: LPF Cutoff.</li>
+            <li><strong>CC 81</strong>: HPF Cutoff.</li>
+        </ul>
+    </li>
 </ul>
 
 <h2 style="color: orange; border-bottom: 1px solid #444; margin-top: 20px;">Synchronization</h2>

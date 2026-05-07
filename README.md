@@ -22,6 +22,7 @@ Noteahead is written in Qt/QML/C++20 on top of RtMidi back-end + RtAudio for the
   </tr>
   <tr>
     <td><img src="/screenshots/2.2.0/Sampler.png" width="100%"></td>
+    <td><img src="/screenshots/2.2.0/Synth.png" width="100%"></td>
   </tr>
 </table>
 
@@ -58,6 +59,9 @@ All Arctic Music Project songs:
 ### Core / Performance
 - **Very accurate internal timing**
   - No jitter, no drift
+- **Virtual device rack** (since 2.2.0)
+  - Central hub for managing internal instruments
+  - Supports multiple instances of Samplers and Synths
 - Fully scalable UI
 - Cool volume meters like in NoiseTracker
 - Cool note visualizer animation on the bottom bar
@@ -86,6 +90,16 @@ All Arctic Music Project songs:
   - Dual filters: Low-pass and High-pass
   - Full MIDI CC automation support (Volume CC 7, Pan CC 10, LPF Cutoff CC 74, HPF Cutoff CC 81)
   - High-quality linear interpolation resampling
+- Synth (since 2.2.0)
+  - Internal polyphonic synthesizer (up to 6 voices)
+  - Two high-quality oscillators (VCO1 & VCO2) with Triangle, Saw, and Pulse waveforms and sync
+  - Digital Multi Engine (Low, High, Peak, Decim)
+  - Dual filters (LPF with resonance, HPF)
+  - ADSR Amp EG and AD Mod EG (targeting pitch or cutoff)
+  - Flexible LFO (multiple waveforms, BPM sync)
+  - Built-in Delay effect (Stereo, Mono, PingPong, HiPass, LowPass, Tape) with BPM sync
+  - Factory and User preset banks
+  - Full MIDI CC automation support (Volume CC 7, Pan CC 10, LPF Cutoff CC 74, HPF Cutoff CC 81)
 - Sends MIDI clock pulse and Start/Stop on desired ports
 - MIDI side-chain (since 1.2.0)
   - In Track settings the user can select source track and column that triggers the desired MIDI CC event
