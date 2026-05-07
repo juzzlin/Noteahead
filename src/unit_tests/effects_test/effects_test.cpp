@@ -164,7 +164,7 @@ void EffectsTest::test_filterStability()
 
 void EffectsTest::test_cascadedSvfStability()
 {
-    CascadedSVF filter{};
+    CascadedSvf filter{};
     filter.setSampleRate(static_cast<uint32_t>(Constants::defaultSampleRate()));
     
     // Stress test: Rapidly change parameters

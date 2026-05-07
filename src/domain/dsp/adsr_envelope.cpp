@@ -19,31 +19,31 @@
 
 namespace noteahead {
 
-void ADSREnvelope::setAttackTime(double seconds)
+void AdsrEnvelope::setAttackTime(double seconds)
 {
     m_attackTime = std::max(0.000001, seconds);
     calculateSteps();
 }
 
-void ADSREnvelope::setDecayTime(double seconds)
+void AdsrEnvelope::setDecayTime(double seconds)
 {
     m_decayTime = std::max(0.000001, seconds);
     calculateSteps();
 }
 
-void ADSREnvelope::setSustainLevel(double level)
+void AdsrEnvelope::setSustainLevel(double level)
 {
     m_sustainLevel = std::clamp(level, 0.0, 1.0);
     calculateSteps();
 }
 
-void ADSREnvelope::setReleaseTime(double seconds)
+void AdsrEnvelope::setReleaseTime(double seconds)
 {
     m_releaseTime = std::max(0.000001, seconds);
     calculateSteps();
 }
 
-void ADSREnvelope::setSampleRate(double sampleRate)
+void AdsrEnvelope::setSampleRate(double sampleRate)
 {
     if (std::abs(m_sampleRate - sampleRate) < 0.1) {
         return;
@@ -52,25 +52,25 @@ void ADSREnvelope::setSampleRate(double sampleRate)
     calculateSteps();
 }
 
-void ADSREnvelope::trigger()
+void AdsrEnvelope::trigger()
 {
     m_state = State::Attack;
 }
 
-void ADSREnvelope::release()
+void AdsrEnvelope::release()
 {
     if (m_state != State::Idle) {
         m_state = State::Release;
     }
 }
 
-void ADSREnvelope::reset()
+void AdsrEnvelope::reset()
 {
     m_state = State::Idle;
     m_currentLevel = 0.0;
 }
 
-double ADSREnvelope::nextSample()
+double AdsrEnvelope::nextSample()
 {
     switch (m_state) {
     case State::Idle:
@@ -104,22 +104,22 @@ double ADSREnvelope::nextSample()
     return m_currentLevel;
 }
 
-double ADSREnvelope::value() const
+double AdsrEnvelope::value() const
 {
     return m_currentLevel;
 }
 
-ADSREnvelope::State ADSREnvelope::state() const
+AdsrEnvelope::State AdsrEnvelope::state() const
 {
     return m_state;
 }
 
-bool ADSREnvelope::isActive() const
+bool AdsrEnvelope::isActive() const
 {
     return m_state != State::Idle;
 }
 
-void ADSREnvelope::calculateSteps()
+void AdsrEnvelope::calculateSteps()
 {
     m_attackStep = 1.0 / (m_attackTime * m_sampleRate);
     m_decayStep = (1.0 - m_sustainLevel) / (m_decayTime * m_sampleRate);

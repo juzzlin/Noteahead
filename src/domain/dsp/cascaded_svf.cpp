@@ -21,22 +21,22 @@
 
 namespace noteahead {
 
-void CascadedSVF::setCutoff(double cutoff)
+void CascadedSvf::setCutoff(double cutoff)
 {
     m_cutoff = std::clamp(cutoff, 0.0, 1.0);
 }
 
-void CascadedSVF::setResonance(double resonance)
+void CascadedSvf::setResonance(double resonance)
 {
     m_resonance = std::clamp(resonance, 0.0, 1.0);
 }
 
-void CascadedSVF::setMode(Mode mode)
+void CascadedSvf::setMode(Mode mode)
 {
     m_mode = mode;
 }
 
-float CascadedSVF::process(float input)
+float CascadedSvf::process(float input)
 {
     if (m_mode == Mode::LowPass && m_cutoff >= 0.999) {
         return input;
@@ -64,13 +64,13 @@ float CascadedSVF::process(float input)
     return out2;
 }
 
-void CascadedSVF::reset()
+void CascadedSvf::reset()
 {
     m_unit1.reset();
     m_unit2.reset();
 }
 
-float CascadedSVF::SVFUnit::process(float input, double g, double damping, double k, Mode mode)
+float CascadedSvf::SvfUnit::process(float input, double g, double damping, double k, Mode mode)
 {
     const double hp = (input - (g + k) * s1 - s2) * damping;
     const double v1 = g * hp;

@@ -54,7 +54,7 @@ int SynthController::vco1Waveform() const
 void SynthController::setVco1Waveform(int wave)
 {
     if (m_synth) {
-        m_synth->setVco1Waveform(static_cast<PolyBLEPOscillator::Waveform>(wave));
+        m_synth->setVco1Waveform(static_cast<PolyBlepOscillator::Waveform>(wave));
         emit vco1WaveformChanged();
     }
 }
@@ -120,7 +120,7 @@ int SynthController::vco2Waveform() const
 void SynthController::setVco2Waveform(int wave)
 {
     if (m_synth) {
-        m_synth->setVco2Waveform(static_cast<PolyBLEPOscillator::Waveform>(wave));
+        m_synth->setVco2Waveform(static_cast<PolyBlepOscillator::Waveform>(wave));
         emit vco2WaveformChanged();
     }
 }
@@ -416,7 +416,7 @@ void SynthController::setModTarget(int t)
     }
 }
 
-// LFO
+// Lfo
 int SynthController::lfoWaveform() const
 {
     return m_synth ? static_cast<int>(m_synth->lfoWaveform()) : 0;
@@ -425,7 +425,7 @@ int SynthController::lfoWaveform() const
 void SynthController::setLfoWaveform(int wave)
 {
     if (m_synth) {
-        m_synth->setLfoWaveform(static_cast<LFO::Waveform>(wave));
+        m_synth->setLfoWaveform(static_cast<Lfo::Waveform>(wave));
         emit lfoWaveformChanged();
     }
 }
@@ -438,7 +438,7 @@ int SynthController::lfoMode() const
 void SynthController::setLfoMode(int mode)
 {
     if (m_synth) {
-        m_synth->setLfoMode(static_cast<LFO::Mode>(mode));
+        m_synth->setLfoMode(static_cast<Lfo::Mode>(mode));
         emit lfoModeChanged();
     }
 }

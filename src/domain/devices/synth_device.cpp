@@ -130,8 +130,8 @@ SynthDevice::SynthDevice(std::string name)
     addParameter(Parameter { Constants::NahdXml::xmlKeyDelayFeedbackHpf().toStdString(), 0.0f, 0, 100, 0 });
 
     for (auto && voice : m_voices) {
-        voice.lpf.setMode(CascadedSVF::Mode::LowPass);
-        voice.hpf.setMode(CascadedSVF::Mode::HighPass);
+        voice.lpf.setMode(CascadedSvf::Mode::LowPass);
+        voice.hpf.setMode(CascadedSvf::Mode::HighPass);
     }
 
     setManualPan(panInternal());
@@ -255,7 +255,7 @@ void SynthDevice::processAudio(float * output, uint32_t nFrames, uint32_t sample
             }
         }
 
-        if (voice.ampEg.state() == ADSREnvelope::State::Idle) {
+        if (voice.ampEg.state() == AdsrEnvelope::State::Idle) {
             voice.active = false;
         }
     }
@@ -479,13 +479,13 @@ double SynthDevice::midiNoteToFreq(uint8_t note) const
 void SynthDevice::syncParameters()
 {
     Device::syncParameters();
-    if (auto p = parameter(Constants::NahdXml::xmlKeySynthVco1Waveform().toStdString()); p) m_vco1Waveform = static_cast<PolyBLEPOscillator::Waveform>(p->get().xmlValue());
+    if (auto p = parameter(Constants::NahdXml::xmlKeySynthVco1Waveform().toStdString()); p) m_vco1Waveform = static_cast<PolyBlepOscillator::Waveform>(p->get().xmlValue());
     if (auto p = parameter(Constants::NahdXml::xmlKeySynthVco1Octave().toStdString()); p) m_vco1Octave = p->get().xmlValue();
     if (auto p = parameter(Constants::NahdXml::xmlKeySynthVco1Pitch().toStdString()); p) m_vco1Pitch = p->get().xmlValue();
     if (auto p = parameter(Constants::NahdXml::xmlKeySynthVco1Shape().toStdString()); p) m_vco1Shape = p->get().value();
     if (auto p = parameter(Constants::NahdXml::xmlKeySynthVco1Sync().toStdString()); p) m_vco1Sync = p->get().value() > 0.5f;
 
-    if (auto p = parameter(Constants::NahdXml::xmlKeySynthVco2Waveform().toStdString()); p) m_vco2Waveform = static_cast<PolyBLEPOscillator::Waveform>(p->get().xmlValue());
+    if (auto p = parameter(Constants::NahdXml::xmlKeySynthVco2Waveform().toStdString()); p) m_vco2Waveform = static_cast<PolyBlepOscillator::Waveform>(p->get().xmlValue());
     if (auto p = parameter(Constants::NahdXml::xmlKeySynthVco2Octave().toStdString()); p) m_vco2Octave = p->get().xmlValue();
     if (auto p = parameter(Constants::NahdXml::xmlKeySynthVco2Pitch().toStdString()); p) m_vco2Pitch = p->get().xmlValue();
     if (auto p = parameter(Constants::NahdXml::xmlKeySynthVco2Shape().toStdString()); p) m_vco2Shape = p->get().value();
@@ -519,8 +519,8 @@ void SynthDevice::syncParameters()
     if (auto p = parameter(Constants::NahdXml::xmlKeySynthModIntensity().toStdString()); p) m_modInt = (p->get().value() - 0.5f) * 2.0f;
     if (auto p = parameter(Constants::NahdXml::xmlKeySynthModTarget().toStdString()); p) m_modTarget = static_cast<ModTarget>(p->get().xmlValue());
 
-    if (auto p = parameter(Constants::NahdXml::xmlKeySynthLfoWaveform().toStdString()); p) m_lfoWaveform = static_cast<LFO::Waveform>(p->get().xmlValue());
-    if (auto p = parameter(Constants::NahdXml::xmlKeySynthLfoMode().toStdString()); p) m_lfoMode = static_cast<LFO::Mode>(p->get().xmlValue());
+    if (auto p = parameter(Constants::NahdXml::xmlKeySynthLfoWaveform().toStdString()); p) m_lfoWaveform = static_cast<Lfo::Waveform>(p->get().xmlValue());
+    if (auto p = parameter(Constants::NahdXml::xmlKeySynthLfoMode().toStdString()); p) m_lfoMode = static_cast<Lfo::Mode>(p->get().xmlValue());
     if (auto p = parameter(Constants::NahdXml::xmlKeySynthLfoRate().toStdString()); p) m_lfoRate = p->get().value();
     if (auto p = parameter(Constants::NahdXml::xmlKeySynthLfoIntensity().toStdString()); p) m_lfoInt = (p->get().value() - 0.5f) * 2.0f;
     if (auto p = parameter(Constants::NahdXml::xmlKeySynthLfoTarget().toStdString()); p) m_lfoTarget = static_cast<LfoTarget>(p->get().xmlValue());
@@ -558,7 +558,7 @@ void SynthDevice::syncParameters()
         voice.lfo.setMode(m_lfoMode);
         
         float freq = 0.0f;
-        if (m_lfoMode == LFO::Mode::BPM) {
+        if (m_lfoMode == Lfo::Mode::BPM) {
             // Map 0..1 rate to BPM divisions (approx)
             freq = (m_delay.bpm() / 60.0f) * (m_lfoRate * 4.0f + 0.25f);
         } else {
@@ -661,8 +661,8 @@ void SynthDevice::setUserPresets(const UserPresets & presets)
 }
 
 // Accessors (VCO1)
-PolyBLEPOscillator::Waveform SynthDevice::vco1Waveform() const { return m_vco1Waveform; }
-void SynthDevice::setVco1Waveform(PolyBLEPOscillator::Waveform wave) { bool changed = false; { std::lock_guard<std::recursive_mutex> lock { mutex() }; if (auto p = parameter(Constants::NahdXml::xmlKeySynthVco1Waveform().toStdString()); p) { p->get().setFromXml(static_cast<int>(wave)); syncParameters(); changed = true; } } if (changed) emit dataChanged(); }
+PolyBlepOscillator::Waveform SynthDevice::vco1Waveform() const { return m_vco1Waveform; }
+void SynthDevice::setVco1Waveform(PolyBlepOscillator::Waveform wave) { bool changed = false; { std::lock_guard<std::recursive_mutex> lock { mutex() }; if (auto p = parameter(Constants::NahdXml::xmlKeySynthVco1Waveform().toStdString()); p) { p->get().setFromXml(static_cast<int>(wave)); syncParameters(); changed = true; } } if (changed) emit dataChanged(); }
 int SynthDevice::vco1Octave() const { return m_vco1Octave; }
 void SynthDevice::setVco1Octave(int octave) { bool changed = false; { std::lock_guard<std::recursive_mutex> lock { mutex() }; if (auto p = parameter(Constants::NahdXml::xmlKeySynthVco1Octave().toStdString()); p) { p->get().setFromXml(octave); syncParameters(); changed = true; } } if (changed) emit dataChanged(); }
 int SynthDevice::vco1Pitch() const { return m_vco1Pitch; }
@@ -673,8 +673,8 @@ bool SynthDevice::vco1Sync() const { return m_vco1Sync; }
 void SynthDevice::setVco1Sync(bool sync) { bool changed = false; { std::lock_guard<std::recursive_mutex> lock { mutex() }; if (auto p = parameter(Constants::NahdXml::xmlKeySynthVco1Sync().toStdString()); p) { p->get().setValue(sync ? 1.0f : 0.0f); syncParameters(); changed = true; } } if (changed) emit dataChanged(); }
 
 // Accessors (VCO2)
-PolyBLEPOscillator::Waveform SynthDevice::vco2Waveform() const { return m_vco2Waveform; }
-void SynthDevice::setVco2Waveform(PolyBLEPOscillator::Waveform wave) { bool changed = false; { std::lock_guard<std::recursive_mutex> lock { mutex() }; if (auto p = parameter(Constants::NahdXml::xmlKeySynthVco2Waveform().toStdString()); p) { p->get().setFromXml(static_cast<int>(wave)); syncParameters(); changed = true; } } if (changed) emit dataChanged(); }
+PolyBlepOscillator::Waveform SynthDevice::vco2Waveform() const { return m_vco2Waveform; }
+void SynthDevice::setVco2Waveform(PolyBlepOscillator::Waveform wave) { bool changed = false; { std::lock_guard<std::recursive_mutex> lock { mutex() }; if (auto p = parameter(Constants::NahdXml::xmlKeySynthVco2Waveform().toStdString()); p) { p->get().setFromXml(static_cast<int>(wave)); syncParameters(); changed = true; } } if (changed) emit dataChanged(); }
 int SynthDevice::vco2Octave() const { return m_vco2Octave; }
 void SynthDevice::setVco2Octave(int octave) { bool changed = false; { std::lock_guard<std::recursive_mutex> lock { mutex() }; if (auto p = parameter(Constants::NahdXml::xmlKeySynthVco2Octave().toStdString()); p) { p->get().setFromXml(octave); syncParameters(); changed = true; } } if (changed) emit dataChanged(); }
 int SynthDevice::vco2Pitch() const { return m_vco2Pitch; }
@@ -730,11 +730,11 @@ void SynthDevice::setModInt(float intensity) { bool changed = false; { std::lock
 SynthDevice::ModTarget SynthDevice::modTarget() const { return m_modTarget; }
 void SynthDevice::setModTarget(ModTarget target) { bool changed = false; { std::lock_guard<std::recursive_mutex> lock { mutex() }; if (auto p = parameter(Constants::NahdXml::xmlKeySynthModTarget().toStdString()); p) { p->get().setFromXml(static_cast<int>(target)); syncParameters(); changed = true; } } if (changed) emit dataChanged(); }
 
-// LFO
-LFO::Waveform SynthDevice::lfoWaveform() const { return m_lfoWaveform; }
-void SynthDevice::setLfoWaveform(LFO::Waveform wave) { bool changed = false; { std::lock_guard<std::recursive_mutex> lock { mutex() }; if (auto p = parameter(Constants::NahdXml::xmlKeySynthLfoWaveform().toStdString()); p) { p->get().setFromXml(static_cast<int>(wave)); syncParameters(); changed = true; } } if (changed) emit dataChanged(); }
-LFO::Mode SynthDevice::lfoMode() const { return m_lfoMode; }
-void SynthDevice::setLfoMode(LFO::Mode mode) { bool changed = false; { std::lock_guard<std::recursive_mutex> lock { mutex() }; if (auto p = parameter(Constants::NahdXml::xmlKeySynthLfoMode().toStdString()); p) { p->get().setFromXml(static_cast<int>(mode)); syncParameters(); changed = true; } } if (changed) emit dataChanged(); }
+// Lfo
+Lfo::Waveform SynthDevice::lfoWaveform() const { return m_lfoWaveform; }
+void SynthDevice::setLfoWaveform(Lfo::Waveform wave) { bool changed = false; { std::lock_guard<std::recursive_mutex> lock { mutex() }; if (auto p = parameter(Constants::NahdXml::xmlKeySynthLfoWaveform().toStdString()); p) { p->get().setFromXml(static_cast<int>(wave)); syncParameters(); changed = true; } } if (changed) emit dataChanged(); }
+Lfo::Mode SynthDevice::lfoMode() const { return m_lfoMode; }
+void SynthDevice::setLfoMode(Lfo::Mode mode) { bool changed = false; { std::lock_guard<std::recursive_mutex> lock { mutex() }; if (auto p = parameter(Constants::NahdXml::xmlKeySynthLfoMode().toStdString()); p) { p->get().setFromXml(static_cast<int>(mode)); syncParameters(); changed = true; } } if (changed) emit dataChanged(); }
 float SynthDevice::lfoRate() const { return m_lfoRate; }
 void SynthDevice::setLfoRate(float rate) { bool changed = false; { std::lock_guard<std::recursive_mutex> lock { mutex() }; if (auto p = parameter(Constants::NahdXml::xmlKeySynthLfoRate().toStdString()); p) { p->get().setValue(rate); syncParameters(); changed = true; } } if (changed) emit dataChanged(); }
 float SynthDevice::lfoInt() const { return m_lfoInt; }

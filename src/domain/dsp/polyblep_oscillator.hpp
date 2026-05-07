@@ -20,7 +20,7 @@
 
 namespace noteahead {
 
-class PolyBLEPOscillator : public DspComponent
+class PolyBlepOscillator : public DspComponent
 {
 public:
     enum class Waveform

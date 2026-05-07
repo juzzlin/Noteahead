@@ -20,7 +20,7 @@
 
 namespace noteahead {
 
-void PolyBLEPOscillator::setSampleRate(double sampleRate)
+void PolyBlepOscillator::setSampleRate(double sampleRate)
 {
     if (std::abs(m_sampleRate - sampleRate) < 0.1) {
         return;
@@ -29,28 +29,28 @@ void PolyBLEPOscillator::setSampleRate(double sampleRate)
     updatePhaseStep();
 }
 
-void PolyBLEPOscillator::setFrequency(double frequency)
+void PolyBlepOscillator::setFrequency(double frequency)
 {
     m_frequency = frequency;
     updatePhaseStep();
 }
 
-void PolyBLEPOscillator::setWaveform(Waveform waveform)
+void PolyBlepOscillator::setWaveform(Waveform waveform)
 {
     m_waveform = waveform;
 }
 
-void PolyBLEPOscillator::setPulseWidth(double pw)
+void PolyBlepOscillator::setPulseWidth(double pw)
 {
     m_pulseWidth = std::clamp(pw, 0.01, 0.99);
 }
 
-void PolyBLEPOscillator::setShape(double shape)
+void PolyBlepOscillator::setShape(double shape)
 {
     m_shape = std::clamp(shape, 0.0, 1.0);
 }
 
-double PolyBLEPOscillator::nextSample()
+double PolyBlepOscillator::nextSample()
 {
     double value = 0.0;
     const double t = m_phase;
@@ -85,17 +85,17 @@ double PolyBLEPOscillator::nextSample()
     return value;
 }
 
-void PolyBLEPOscillator::sync(double phase)
+void PolyBlepOscillator::sync(double phase)
 {
     m_phase = phase;
 }
 
-double PolyBLEPOscillator::phase() const
+double PolyBlepOscillator::phase() const
 {
     return m_phase;
 }
 
-double PolyBLEPOscillator::polyBlep(double t) const
+double PolyBlepOscillator::polyBlep(double t) const
 {
     const double dt = m_phaseStep;
     // 0 <= t < 1
@@ -112,7 +112,7 @@ double PolyBLEPOscillator::polyBlep(double t) const
     }
 }
 
-void PolyBLEPOscillator::updatePhaseStep()
+void PolyBlepOscillator::updatePhaseStep()
 {
     m_phaseStep = m_frequency / m_sampleRate;
 }

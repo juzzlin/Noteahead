@@ -21,10 +21,10 @@ namespace noteahead {
 
 DelayEffect::DelayEffect()
 {
-    m_fbLpfL.setMode(CascadedSVF::Mode::LowPass);
-    m_fbLpfR.setMode(CascadedSVF::Mode::LowPass);
-    m_fbHpfL.setMode(CascadedSVF::Mode::HighPass);
-    m_fbHpfR.setMode(CascadedSVF::Mode::HighPass);
+    m_fbLpfL.setMode(CascadedSvf::Mode::LowPass);
+    m_fbLpfR.setMode(CascadedSvf::Mode::LowPass);
+    m_fbHpfL.setMode(CascadedSvf::Mode::HighPass);
+    m_fbHpfR.setMode(CascadedSvf::Mode::HighPass);
 }
 
 void DelayEffect::process(float & left, float & right)

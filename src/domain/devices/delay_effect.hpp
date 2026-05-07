@@ -73,10 +73,10 @@ private:
     uint32_t m_lastSampleRate { 0 };
 
     // Feedback filters
-    CascadedSVF m_fbLpfL;
-    CascadedSVF m_fbLpfR;
-    CascadedSVF m_fbHpfL;
-    CascadedSVF m_fbHpfR;
+    CascadedSvf m_fbLpfL;
+    CascadedSvf m_fbLpfR;
+    CascadedSvf m_fbHpfL;
+    CascadedSvf m_fbHpfR;
 
     // Filter states for legacy HiPass/LowPass/Tape
     float m_lpStateL { 0.0f };

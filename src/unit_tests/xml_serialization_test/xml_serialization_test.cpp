@@ -751,7 +751,7 @@ void XmlSerializationTest::test_toXmlFromXml_synthDevice_shouldPreserveValuesAnd
     DeviceService deviceServiceOut { engine };
     const auto synthOut = std::make_shared<SynthDevice>(synthName);
     synthOut->setId(66);
-    synthOut->setVco1Waveform(PolyBLEPOscillator::Waveform::Saw);
+    synthOut->setVco1Waveform(PolyBlepOscillator::Waveform::Saw);
     synthOut->setVco1Octave(1);
     synthOut->setMixVco2(0.75f);
     synthOut->setLpfCutoff(0.3f);
@@ -783,7 +783,7 @@ void XmlSerializationTest::test_toXmlFromXml_synthDevice_shouldPreserveValuesAnd
     editorServiceIn.fromXml(xml);
 
     QCOMPARE(synthIn->id(), 66ull);
-    QCOMPARE(synthIn->vco1Waveform(), PolyBLEPOscillator::Waveform::Saw);
+    QCOMPARE(synthIn->vco1Waveform(), PolyBlepOscillator::Waveform::Saw);
     QCOMPARE(synthIn->vco1Octave(), 1);
     QCOMPARE(synthIn->mixVco2(), 0.75f);
     QCOMPARE(synthIn->lpfCutoff(), 0.3f);

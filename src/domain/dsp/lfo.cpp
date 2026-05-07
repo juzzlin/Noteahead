@@ -20,7 +20,7 @@
 
 namespace noteahead {
 
-void LFO::setSampleRate(double sampleRate)
+void Lfo::setSampleRate(double sampleRate)
 {
     if (std::abs(m_sampleRate - sampleRate) < 0.1) {
         return;
@@ -29,29 +29,29 @@ void LFO::setSampleRate(double sampleRate)
     updatePhaseStep();
 }
 
-void LFO::setFrequency(double frequency)
+void Lfo::setFrequency(double frequency)
 {
     m_frequency = frequency;
     updatePhaseStep();
 }
 
-void LFO::setWaveform(Waveform waveform)
+void Lfo::setWaveform(Waveform waveform)
 {
     m_waveform = waveform;
 }
 
-void LFO::setMode(Mode mode)
+void Lfo::setMode(Mode mode)
 {
     m_mode = mode;
 }
 
-void LFO::reset()
+void Lfo::reset()
 {
     m_phase = 0.0;
     m_oneShotActive = true;
 }
 
-double LFO::nextSample()
+double Lfo::nextSample()
 {
     if (m_mode == Mode::OneShot && !m_oneShotActive) {
         return 0.0;
@@ -83,7 +83,7 @@ double LFO::nextSample()
     return value;
 }
 
-void LFO::updatePhaseStep()
+void Lfo::updatePhaseStep()
 {
     m_phaseStep = m_frequency / m_sampleRate;
 }

@@ -84,8 +84,8 @@ public:
     void deserializeFromXml(QXmlStreamReader & reader) override;
 
     // Parameter accessors (VCO1)
-    PolyBLEPOscillator::Waveform vco1Waveform() const;
-    void setVco1Waveform(PolyBLEPOscillator::Waveform wave);
+    PolyBlepOscillator::Waveform vco1Waveform() const;
+    void setVco1Waveform(PolyBlepOscillator::Waveform wave);
     int vco1Octave() const;
     void setVco1Octave(int octave);
     int vco1Pitch() const;
@@ -96,8 +96,8 @@ public:
     void setVco1Sync(bool sync);
 
     // Parameter accessors (VCO2)
-    PolyBLEPOscillator::Waveform vco2Waveform() const;
-    void setVco2Waveform(PolyBLEPOscillator::Waveform wave);
+    PolyBlepOscillator::Waveform vco2Waveform() const;
+    void setVco2Waveform(PolyBlepOscillator::Waveform wave);
     int vco2Octave() const;
     void setVco2Octave(int octave);
     int vco2Pitch() const;
@@ -153,11 +153,11 @@ public:
     ModTarget modTarget() const;
     void setModTarget(ModTarget target);
 
-    // LFO
-    LFO::Waveform lfoWaveform() const;
-    void setLfoWaveform(LFO::Waveform wave);
-    LFO::Mode lfoMode() const;
-    void setLfoMode(LFO::Mode mode);
+    // Lfo
+    Lfo::Waveform lfoWaveform() const;
+    void setLfoWaveform(Lfo::Waveform wave);
+    Lfo::Mode lfoMode() const;
+    void setLfoMode(Lfo::Mode mode);
     float lfoRate() const;
     void setLfoRate(float rate);
     float lfoInt() const;
@@ -205,14 +205,14 @@ public:
 private:
     struct Voice
     {
-        PolyBLEPOscillator vco1;
-        PolyBLEPOscillator vco2;
+        PolyBlepOscillator vco1;
+        PolyBlepOscillator vco2;
         MultiEngine multi;
-        CascadedSVF lpf;
-        CascadedSVF hpf;
-        ADSREnvelope ampEg;
-        ADSREnvelope modEg;
-        LFO lfo;
+        CascadedSvf lpf;
+        CascadedSvf hpf;
+        AdsrEnvelope ampEg;
+        AdsrEnvelope modEg;
+        Lfo lfo;
 
         uint8_t note { 0 };
         double frequency { 0.0 };
@@ -229,13 +229,13 @@ private:
     int m_polyNextVoice = 0;
 
     // Internal parameter storage
-    PolyBLEPOscillator::Waveform m_vco1Waveform { PolyBLEPOscillator::Waveform::Saw };
+    PolyBlepOscillator::Waveform m_vco1Waveform { PolyBlepOscillator::Waveform::Saw };
     int m_vco1Octave { 0 };
     int m_vco1Pitch { 0 };
     float m_vco1Shape { 0.0f };
     bool m_vco1Sync { false };
 
-    PolyBLEPOscillator::Waveform m_vco2Waveform { PolyBLEPOscillator::Waveform::Saw };
+    PolyBlepOscillator::Waveform m_vco2Waveform { PolyBlepOscillator::Waveform::Saw };
     int m_vco2Octave { 0 };
     int m_vco2Pitch { 0 };
     float m_vco2Shape { 0.0f };
@@ -264,8 +264,8 @@ private:
     float m_modInt { 0.0f };
     ModTarget m_modTarget { ModTarget::Cutoff };
 
-    LFO::Waveform m_lfoWaveform { LFO::Waveform::Triangle };
-    LFO::Mode m_lfoMode { LFO::Mode::Normal };
+    Lfo::Waveform m_lfoWaveform { Lfo::Waveform::Triangle };
+    Lfo::Mode m_lfoMode { Lfo::Mode::Normal };
     float m_lfoRate { 0.5f };
     float m_lfoInt { 0.0f };
     LfoTarget m_lfoTarget { LfoTarget::Pitch };

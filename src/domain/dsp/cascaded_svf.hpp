@@ -22,7 +22,7 @@
 
 namespace noteahead {
 
-class CascadedSVF : public DspComponent
+class CascadedSvf : public DspComponent
 {
 public:
     enum class Mode
@@ -43,14 +43,14 @@ private:
     double m_resonance { 0.0 };
     Mode m_mode { Mode::LowPass };
 
-    struct SVFUnit {
+    struct SvfUnit {
         double s1 = 0.0, s2 = 0.0;
         float process(float input, double g, double damping, double k, Mode mode);
         void reset() { s1 = s2 = 0.0; }
     };
 
-    SVFUnit m_unit1;
-    SVFUnit m_unit2;
+    SvfUnit m_unit1;
+    SvfUnit m_unit2;
 };
 
 } // namespace noteahead

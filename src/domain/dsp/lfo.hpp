@@ -20,7 +20,7 @@
 
 namespace noteahead {
 
-class LFO : public DspComponent
+class Lfo : public DspComponent
 {
 public:
     enum class Waveform {

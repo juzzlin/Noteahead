@@ -22,7 +22,7 @@
 
 namespace noteahead {
 
-class ADSREnvelope : public DspComponent
+class AdsrEnvelope : public DspComponent
 {
 public:
     enum class State

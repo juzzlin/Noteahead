@@ -54,8 +54,8 @@ void SynthTest::test_defaultValues_shouldBeCorrect()
 void SynthTest::test_parameterSetting_shouldUpdateValues()
 {
     SynthDevice synth { "Test Synth" };
-    synth.setVco2Waveform(PolyBLEPOscillator::Waveform::Pulse);
-    QCOMPARE(synth.vco2Waveform(), PolyBLEPOscillator::Waveform::Pulse);
+    synth.setVco2Waveform(PolyBlepOscillator::Waveform::Pulse);
+    QCOMPARE(synth.vco2Waveform(), PolyBlepOscillator::Waveform::Pulse);
     
     synth.setMixVco2(0.5f);
     QCOMPARE(synth.mixVco2(), 0.5f);
@@ -107,7 +107,7 @@ void SynthTest::test_presets_shouldLoadCorrectValues()
     SynthDevice synth { "Test Synth" };
     synth.loadPreset(0, 1); // Fat Bass
     
-    QCOMPARE(synth.vco1Waveform(), PolyBLEPOscillator::Waveform::Saw);
+    QCOMPARE(synth.vco1Waveform(), PolyBlepOscillator::Waveform::Saw);
     QCOMPARE(synth.mixVco2(), 0.7f);
     QCOMPARE(synth.lpfCutoff(), 0.25f);
     QCOMPARE(synth.voiceMode(), SynthDevice::VoiceMode::Unison);
@@ -182,11 +182,11 @@ void SynthTest::test_lfoModulation_shouldUpdateInternalState()
 {
     SynthDevice synth { "Test Synth" };
     
-    synth.setLfoWaveform(LFO::Waveform::Square);
-    QCOMPARE(synth.lfoWaveform(), LFO::Waveform::Square);
+    synth.setLfoWaveform(Lfo::Waveform::Square);
+    QCOMPARE(synth.lfoWaveform(), Lfo::Waveform::Square);
     
-    synth.setLfoMode(LFO::Mode::OneShot);
-    QCOMPARE(synth.lfoMode(), LFO::Mode::OneShot);
+    synth.setLfoMode(Lfo::Mode::OneShot);
+    QCOMPARE(synth.lfoMode(), Lfo::Mode::OneShot);
     
     synth.setLfoRate(0.8f);
     QCOMPARE(synth.lfoRate(), 0.8f);
@@ -197,7 +197,7 @@ void SynthTest::test_lfoModulation_shouldUpdateInternalState()
     synth.setLfoTarget(SynthDevice::LfoTarget::Cutoff);
     QCOMPARE(synth.lfoTarget(), SynthDevice::LfoTarget::Cutoff);
 
-    // Verify audio generation works with LFO
+    // Verify audio generation works with Lfo
     synth.processMidiNoteOn(60, 100);
     float output[512];
     std::fill(output, output + 512, 0.0f);
@@ -432,11 +432,11 @@ void SynthTest::test_userPresetsDiscreteValues_shouldLoadCorrectly()
     
     // Load Saw
     synth.loadPreset(1, 0);
-    QCOMPARE(synth.vco1Waveform(), PolyBLEPOscillator::Waveform::Saw);
+    QCOMPARE(synth.vco1Waveform(), PolyBlepOscillator::Waveform::Saw);
     
     // Load Pulse
     synth.loadPreset(1, 1);
-    QCOMPARE(synth.vco1Waveform(), PolyBLEPOscillator::Waveform::Pulse);
+    QCOMPARE(synth.vco1Waveform(), PolyBlepOscillator::Waveform::Pulse);
 
     // Load PingPong
     synth.loadPreset(1, 2);
@@ -581,7 +581,7 @@ void SynthTest::test_projectLoadMidiCcReset_shouldRestoreLoadedValues()
 
 void SynthTest::test_adsrEnvelope_shouldUpdateStepsOnSampleRateChange()
 {
-    ADSREnvelope env;
+    AdsrEnvelope env;
     env.setSampleRate(44100.0);
     env.setAttackTime(1.0); // 1 second attack
     env.setDecayTime(1.0);
