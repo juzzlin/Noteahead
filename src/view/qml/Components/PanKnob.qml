@@ -33,48 +33,78 @@ ColumnLayout {
     spacing: 2
     Label {
         text: {
-            let panVal = 0;
-            if (knobRoot.from === 0 && knobRoot.to === Constants.uiInternalScaling) {
-                // 0..1000 case (Synth Master Pan)
-                panVal = (knobRoot.value / Constants.uiInternalScaling) * 200.0 - 100.0;
-            } else if (knobRoot.from === -Constants.uiInternalScaling && knobRoot.to === Constants.uiInternalScaling) {
-                // -1000..1000 case (Sampler Pad Pan)
-                panVal = (knobRoot.value / Constants.uiInternalScaling) * 100.0;
-            } else {
-                // Fallback for other ranges, assuming center is in the middle
-                let range = knobRoot.to - knobRoot.from;
-                if (range === 0) return `${knobRoot.label} (Center)`;
-                panVal = ((knobRoot.value - knobRoot.from) / range) * 200.0 - 100.0;
-            }
+            const center = (knobRoot.from + knobRoot.to) / 2.0;
+            const range = (knobRoot.to - knobRoot.from) / 2.0;
+            const panVal = range !== 0 ? ((knobRoot.value - center) / range) * 100.0 : 0;
 
             if (Math.abs(panVal) < 0.05) {
                 return `${knobRoot.label} (${qsTr("Center")})`;
             }
 
-            let displayValue = Math.abs(panVal).toFixed(1);
-            let side = panVal < 0 ? qsTr(" L") : qsTr(" R");
-            let sign = panVal > 0 ? "+" : "-";
+            const displayValue = Math.abs(panVal).toFixed(1);
+            const side = panVal < 0 ? qsTr(" L") : qsTr(" R");
+            const sign = panVal > 0 ? "+" : "-";
             return `${knobRoot.label} (${sign}${displayValue}%${side})`;
         }
         font.pixelSize: 11
         color: themeService.accentColor
         Layout.alignment: Qt.AlignHCenter
     }
+
     Slider {
         id: slider
-        from: knobRoot.from
-        to: knobRoot.to
-        value: knobRoot.value
-        stepSize: 1
+        from: -1.0
+        to: 1.0
+        stepSize: 0
         Layout.fillWidth: true
-        onMoved: () => knobRoot.moved(value)
+
+        function updateValue(v) {
+            const mapped = Math.sign(v) * Math.pow(Math.abs(v), 3.0);
+            const center = (knobRoot.from + knobRoot.to) / 2.0;
+            const range = (knobRoot.to - knobRoot.from) / 2.0;
+            let outVal = mapped * range + center;
+
+            // Snap to center (within 1% of total range)
+            if (Math.abs(outVal - center) < (range * 0.01)) {
+                 outVal = center;
+            }
+
+            knobRoot.moved(outVal);
+        }
+
+        onMoved: updateValue(value)
+
+        Binding {
+            target: slider
+            property: "value"
+            value: {
+                const center = (knobRoot.from + knobRoot.to) / 2.0;
+                const range = (knobRoot.to - knobRoot.from) / 2.0;
+                if (range === 0) return 0;
+                const norm = Math.max(-1, Math.min(1, (knobRoot.value - center) / range));
+                return Math.sign(norm) * Math.pow(Math.abs(norm), 1.0/3.0);
+            }
+            when: !slider.pressed
+        }
 
         WheelHandler {
             onWheel: (wheel) => {
-                if (wheel.angleDelta.y > 0) {
-                    slider.increase();
+                const delta = wheel.angleDelta.y > 0 ? 0.05 : -0.05;
+                const newValue = Math.max(-1, Math.min(1, slider.value + delta));
+                slider.value = newValue;
+                slider.updateValue(newValue);
+            }
+        }
+
+        MouseArea {
+            anchors.fill: parent
+            acceptedButtons: Qt.RightButton
+            onPressed: mouse => {
+                if (mouse.button === Qt.RightButton) {
+                    const center = (knobRoot.from + knobRoot.to) / 2.0;
+                    knobRoot.moved(center);
                 } else {
-                    slider.decrease();
+                    mouse.accepted = false;
                 }
             }
         }
