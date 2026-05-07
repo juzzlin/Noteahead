@@ -59,7 +59,7 @@ GroupBox {
                 }
                 MidiCcComboBox {
                     id: controllerComboBox
-                    portName: (model && model.track !== undefined) ? editorService.instrumentPortName(Number(model.track)) : ""
+                    portName: (track !== undefined) ? editorService.instrumentPortName(track) : ""
                     Layout.row: 1
                     Layout.column: 1
                     Layout.fillWidth: true
