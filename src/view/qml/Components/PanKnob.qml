@@ -57,6 +57,7 @@ ColumnLayout {
         to: 1.0
         stepSize: 0
         Layout.fillWidth: true
+        padding: 0
 
         function updateValue(v) {
             const mapped = Math.sign(v) * Math.pow(Math.abs(v), 3.0);
@@ -89,10 +90,14 @@ ColumnLayout {
 
         WheelHandler {
             onWheel: (wheel) => {
+                const center = (knobRoot.from + knobRoot.to) / 2.0;
+                const range = (knobRoot.to - knobRoot.from) / 2.0;
+                if (range === 0) return;
+
+                const norm = Math.max(-1, Math.min(1, (knobRoot.value - center) / range));
+                const currentV = Math.sign(norm) * Math.pow(Math.abs(norm), 1.0/3.0);
                 const delta = wheel.angleDelta.y > 0 ? 0.05 : -0.05;
-                const newValue = Math.max(-1, Math.min(1, slider.value + delta));
-                slider.value = newValue;
-                slider.updateValue(newValue);
+                slider.updateValue(Math.max(-1, Math.min(1, currentV + delta)));
             }
         }
 

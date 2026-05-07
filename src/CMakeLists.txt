@@ -276,6 +276,7 @@ set(QML_SOURCE_FILES
     ${QML_BASE_DIR}/${MAIN}
     ${QML_BASE_DIR}/BottomBar.qml
     ${QML_BASE_DIR}/Components/FilterKnob.qml
+    ${QML_BASE_DIR}/Components/IntensityKnob.qml
     ${QML_BASE_DIR}/Components/Knob.qml
     ${QML_BASE_DIR}/Components/PanKnob.qml
     ${QML_BASE_DIR}/Components/LayoutSeparator.qml
