@@ -156,19 +156,14 @@ std::string SynthDevice::typeId() const
     return "26f5a47e-4786-11f1-92b0-0b3f3bef9f74";
 }
 
-void SynthDevice::processAudio(float * output, uint32_t nFrames, uint32_t sampleRate)
+void SynthDevice::processAudio(float * output, uint32_t frameCount, uint32_t sampleRate)
 {
     setSampleRate(sampleRate);
     m_delay.setSampleRate(static_cast<double>(sampleRate));
-    const uint32_t oversampledRate { sampleRate * 2 };
-    const std::lock_guard<std::recursive_mutex> lock(mutex());
+    const uint32_t oversampledRate = sampleRate * 2;
+    const std::lock_guard<std::recursive_mutex> lock { mutex() };
 
-    const uint32_t oversampledBufferCount = nFrames * 4;
-    if (m_oversampledBuffer.size() < oversampledBufferCount) {
-        m_oversampledBuffer.resize(oversampledBufferCount, 0.0f);
-    } else {
-        std::fill(m_oversampledBuffer.begin(), m_oversampledBuffer.begin() + oversampledBufferCount, 0.0f);
-    }
+    std::vector<float> oversampledBuffer(frameCount * 4, 0.0f);
 
     for (auto && voice : m_voices) {
         if (!voice.active) continue;
@@ -193,27 +188,27 @@ void SynthDevice::processAudio(float * output, uint32_t nFrames, uint32_t sample
         voice.multi.setNote(voice.note);
 
         // Portamento constant (simple one-pole)
-        const double portamentoCoeff { m_portamento > 0 ? 1.0 - std::pow(0.001, 1.0 / (m_portamento * oversampledRate)) : 1.0 };
+        const double portamentoCoeff = m_portamento > 0 ? 1.0 - std::pow(0.001, 1.0 / (m_portamento * oversampledRate)) : 1.0;
 
-        for (uint32_t i { 0 }; i < nFrames; i++) {
+        for (uint32_t i = 0; i < frameCount; i++) {
             // Run voice generation twice for 2x oversampling
-            for (int os { 0 }; os < 2; os++) {
+            for (int os = 0; os < 2; os++) {
                 // Update glide frequency
                 voice.glideFrequency += (voice.frequency - voice.glideFrequency) * portamentoCoeff;
 
-                const double ampEnv { voice.ampEg.nextSample() };
-                const double modEnv { voice.modEg.nextSample() * m_modInt };
-                const double lfoVal { voice.lfo.nextSample() * m_lfoInt };
+                const double ampEnv = voice.ampEg.nextSample();
+                const double modEnv = voice.modEg.nextSample() * m_modInt;
+                const double lfoVal = voice.lfo.nextSample() * m_lfoInt;
 
                 // Modulation
-                double cutoffMod { (m_modTarget == ModTarget::Cutoff) ? modEnv : 0.0 };
+                double cutoffMod = (m_modTarget == ModTarget::Cutoff) ? modEnv : 0.0;
                 if (m_lfoTarget == LfoTarget::Cutoff) cutoffMod += lfoVal;
 
-                const double shapeMod { (m_lfoTarget == LfoTarget::Shape) ? lfoVal : 0.0 };
+                const double shapeMod = (m_lfoTarget == LfoTarget::Shape) ? lfoVal : 0.0;
 
                 // VCO Frequencies
-                double p1 { (m_modTarget == ModTarget::Pitch1) ? modEnv : 0.0 };
-                double p2 { (m_modTarget == ModTarget::Pitch2) ? modEnv : 0.0 };
+                double p1 = (m_modTarget == ModTarget::Pitch1) ? modEnv : 0.0;
+                double p2 = (m_modTarget == ModTarget::Pitch2) ? modEnv : 0.0;
                 if (m_lfoTarget == LfoTarget::Pitch) {
                     p1 += lfoVal;
                     p2 += lfoVal;
@@ -223,8 +218,8 @@ void SynthDevice::processAudio(float * output, uint32_t nFrames, uint32_t sample
                 const double vco1PitchOffset = ParameterMapper::mapCubicCentered(m_vco1Pitch * 2.0 - 1.0, -2400, 2400);
                 const double vco2PitchOffset = ParameterMapper::mapCubicCentered(m_vco2Pitch * 2.0 - 1.0, -2400, 2400);
 
-                const double vco1Freq { voice.glideFrequency * std::pow(2.0, (m_vco1Octave * 12.0 + vco1PitchOffset / 100.0 + p1 * 12.0) / 12.0) };
-                const double vco2Freq { voice.glideFrequency * std::pow(2.0, (m_vco2Octave * 12.0 + vco2PitchOffset / 100.0 + p2 * 12.0) / 12.0) };
+                const double vco1Freq = voice.glideFrequency * std::pow(2.0, (m_vco1Octave * 12.0 + vco1PitchOffset / 100.0 + p1 * 12.0) / 12.0);
+                const double vco2Freq = voice.glideFrequency * std::pow(2.0, (m_vco2Octave * 12.0 + vco2PitchOffset / 100.0 + p2 * 12.0) / 12.0);
 
                 voice.vco1.setFrequency(vco1Freq);
                 voice.vco2.setFrequency(vco2Freq);
@@ -232,8 +227,8 @@ void SynthDevice::processAudio(float * output, uint32_t nFrames, uint32_t sample
                 voice.vco2.setShape(std::clamp(m_vco2Shape + shapeMod, 0.0, 1.0));
 
                 // VCO2 Hard Sync to VCO1
-                const double oldPhase { voice.vco1.phase() };
-                const double vco1Val { voice.vco1.nextSample() };
+                const double oldPhase = voice.vco1.phase();
+                const double vco1Val = voice.vco1.nextSample();
                 if (m_vco2Sync && voice.vco1.phase() < oldPhase) {
                     // Calculate fractional phase for VCO2 to maintain sync accuracy
                     const double phaseStep1 = vco1Freq / oversampledRate;
@@ -245,11 +240,11 @@ void SynthDevice::processAudio(float * output, uint32_t nFrames, uint32_t sample
                         voice.vco2.sync(0.0);
                     }
                 }
-                const double vco2Val { voice.vco2.nextSample() };
-                const double multiVal { voice.multi.nextSample() };
+                const double vco2Val = voice.vco2.nextSample();
+                const double multiVal = voice.multi.nextSample();
 
-                const double mix { (vco1Val * m_mixVco1) + (vco2Val * m_mixVco2) + (multiVal * m_multiLevel) };
-                const double mixHeadroom { mix * 0.45 }; // Extra headroom for Multi engine
+                const double mix = (vco1Val * m_mixVco1) + (vco2Val * m_mixVco2) + (multiVal * m_multiLevel);
+                const double mixHeadroom = mix * 0.45; // Extra headroom for Multi engine
 
                 // Filter
                 cutoffMod += (voice.note - 60.0) / 127.0 * m_filterKeyTrack;
@@ -257,11 +252,11 @@ void SynthDevice::processAudio(float * output, uint32_t nFrames, uint32_t sample
                 voice.lpf.setCutoff(std::clamp(m_lpfCutoff + cutoffMod, 0.0, 1.0));
                 voice.hpf.setCutoff(m_hpfCutoff);
 
-                const float filtered { voice.hpf.process(voice.lpf.process(static_cast<float>(mixHeadroom))) };
-                const float finalHighRateSample { filtered * static_cast<float>(ampEnv) * (1.0f / static_cast<float>(MaxVoices)) * linearGainInternal() };
+                const float filtered = voice.hpf.process(voice.lpf.process(static_cast<float>(mixHeadroom)));
+                const float finalHighRateSample = filtered * static_cast<float>(ampEnv) * (1.0f / static_cast<float>(MaxVoices)) * linearGainInternal();
 
-                m_oversampledBuffer.at((i * 2 + os) * 2) += finalHighRateSample * (1.0f - voice.pan) * (1.0f - panInternal()) * 2.0f;
-                m_oversampledBuffer.at((i * 2 + os) * 2 + 1) += finalHighRateSample * voice.pan * panInternal() * 2.0f;
+                oversampledBuffer[(i * 2 + os) * 2] += finalHighRateSample * (1.0f - voice.pan) * (1.0f - panInternal()) * 2.0f;
+                oversampledBuffer[(i * 2 + os) * 2 + 1] += finalHighRateSample * voice.pan * panInternal() * 2.0f;
             }
         }
 
@@ -271,15 +266,15 @@ void SynthDevice::processAudio(float * output, uint32_t nFrames, uint32_t sample
     }
 
     // Apply global FX (Delay) and downsample
-    for (uint32_t i { 0 }; i < nFrames; i++) {
-        const float l0 { m_oversampledBuffer.at(i * 4) };
-        const float r0 { m_oversampledBuffer.at(i * 4 + 1) };
-        const float l1 { m_oversampledBuffer.at(i * 4 + 2) };
-        const float r1 { m_oversampledBuffer.at(i * 4 + 3) };
+    for (uint32_t i = 0; i < frameCount; i++) {
+        const float l0 = oversampledBuffer[i * 4];
+        const float r0 = oversampledBuffer[i * 4 + 1];
+        const float l1 = oversampledBuffer[i * 4 + 2];
+        const float r1 = oversampledBuffer[i * 4 + 3];
 
         // Soft-clip at high rate and then downsample
-        float l { m_oversamplerL.process(std::tanh(l0), std::tanh(l1)) };
-        float r { m_oversamplerR.process(std::tanh(r0), std::tanh(r1)) };
+        float l = m_oversamplerL.process(std::tanh(l0), std::tanh(l1));
+        float r = m_oversamplerR.process(std::tanh(r0), std::tanh(r1));
 
         m_delay.process(l, r);
 
@@ -294,13 +289,13 @@ void SynthDevice::processAudio(float * output, uint32_t nFrames, uint32_t sample
 
 void SynthDevice::processMidiNoteOn(uint8_t note, uint8_t velocity)
 {
-    const std::lock_guard<std::recursive_mutex> lock(mutex());
+    const std::lock_guard<std::recursive_mutex> lock { mutex() };
     handleNoteOn(note, velocity);
 }
 
 void SynthDevice::processMidiNoteOff(uint8_t note)
 {
-    const std::lock_guard<std::recursive_mutex> lock(mutex());
+    const std::lock_guard<std::recursive_mutex> lock { mutex() };
     handleNoteOff(note);
 }
 
@@ -376,12 +371,20 @@ void SynthDevice::reset()
     {
         const std::lock_guard<std::recursive_mutex> lock(mutex());
         Device::reset();
+        resetAudio();
+        syncParameters();
+    }
+}
+
+void SynthDevice::resetAudio()
+{
+    {
+        const std::lock_guard<std::recursive_mutex> lock(mutex());
         for (auto && voice : m_voices) voice.reset();
         m_delay.reset();
         m_oversamplerL.reset();
         m_oversamplerR.reset();
         m_polyNextVoice = 0;
-        syncParameters();
     }
 }
 
@@ -537,7 +540,7 @@ void SynthDevice::syncParameters()
     if (auto p = parameter(Constants::NahdXml::xmlKeyPanSpread().toStdString()); p) m_panSpread = p->get().value();
 
     if (auto p = parameter(Constants::NahdXml::xmlKeyDelayType().toStdString()); p) m_delayType = static_cast<DelayEffect::Type>(p->get().xmlValue());
-    if (auto p = parameter(Constants::NahdXml::xmlKeyDelayTime().toStdString()); p) m_delayTime = p->get().value() * 10.0f; 
+    if (auto p = parameter(Constants::NahdXml::xmlKeyDelayTime().toStdString()); p) m_delayTime = p->get().value() * 10.0f;
     if (auto p = parameter(Constants::NahdXml::xmlKeyDelayFeedback().toStdString()); p) m_delayFeedback = p->get().value();
     if (auto p = parameter(Constants::NahdXml::xmlKeyDelayDepth().toStdString()); p) m_delayDepth = p->get().value();
     if (auto p = parameter(Constants::NahdXml::xmlKeyDelayMix().toStdString()); p) m_delayMix = p->get().value();
@@ -562,11 +565,9 @@ void SynthDevice::syncParameters()
         
         voice.lfo.setWaveform(m_lfoWaveform);
         voice.lfo.setMode(m_lfoMode);
-        
-        float freq = 0.0f;
+
+        double freq = 0.0;
         if (m_lfoMode == Lfo::Mode::BPM) {
-            // Treat m_lfoRate as the duration multiplier (e.g. 0.25 for 1/4 note)
-            // freq = (bpm / 60.0f) * (0.25f / multiplier)
             freq = (m_delay.bpm() / 60.0f) * (0.25f / std::max(0.0001f, m_lfoRate));
         } else {
             freq = static_cast<float>(ParameterMapper::mapLfoFrequency(m_lfoRate, 0.05, 20.0));
@@ -672,25 +673,8 @@ PolyBlepOscillator::Waveform SynthDevice::vco1Waveform() const { return m_vco1Wa
 void SynthDevice::setVco1Waveform(PolyBlepOscillator::Waveform wave) { bool changed = false; { std::lock_guard<std::recursive_mutex> lock { mutex() }; if (auto p = parameter(Constants::NahdXml::xmlKeySynthVco1Waveform().toStdString()); p) { p->get().setFromXml(static_cast<int>(wave)); syncParameters(); changed = true; } } if (changed) emit dataChanged(); }
 int SynthDevice::vco1Octave() const { return m_vco1Octave; }
 void SynthDevice::setVco1Octave(int octave) { bool changed = false; { std::lock_guard<std::recursive_mutex> lock { mutex() }; if (auto p = parameter(Constants::NahdXml::xmlKeySynthVco1Octave().toStdString()); p) { p->get().setFromXml(octave); syncParameters(); changed = true; } } if (changed) emit dataChanged(); }
-float SynthDevice::vco1Pitch() const
-{
-    return m_vco1Pitch;
-}
-
-void SynthDevice::setVco1Pitch(float pitch)
-{
-    bool changed = false;
-    {
-        std::lock_guard<std::recursive_mutex> lock { mutex() };
-        if (auto p = parameter(Constants::NahdXml::xmlKeySynthVco1Pitch().toStdString()); p) {
-            p->get().setValue(pitch);
-            syncParameters();
-            changed = true;
-        }
-    }
-    if (changed) emit dataChanged();
-}
-
+float SynthDevice::vco1Pitch() const { return m_vco1Pitch; }
+void SynthDevice::setVco1Pitch(float pitch) { bool changed = false; { std::lock_guard<std::recursive_mutex> lock { mutex() }; if (auto p = parameter(Constants::NahdXml::xmlKeySynthVco1Pitch().toStdString()); p) { p->get().setValue(pitch); syncParameters(); changed = true; } } if (changed) emit dataChanged(); }
 float SynthDevice::vco1Shape() const { return m_vco1Shape; }
 void SynthDevice::setVco1Shape(float shape) { bool changed = false; { std::lock_guard<std::recursive_mutex> lock { mutex() }; if (auto p = parameter(Constants::NahdXml::xmlKeySynthVco1Shape().toStdString()); p) { p->get().setValue(shape); syncParameters(); changed = true; } } if (changed) emit dataChanged(); }
 bool SynthDevice::vco1Sync() const { return m_vco1Sync; }
@@ -701,25 +685,8 @@ PolyBlepOscillator::Waveform SynthDevice::vco2Waveform() const { return m_vco2Wa
 void SynthDevice::setVco2Waveform(PolyBlepOscillator::Waveform wave) { bool changed = false; { std::lock_guard<std::recursive_mutex> lock { mutex() }; if (auto p = parameter(Constants::NahdXml::xmlKeySynthVco2Waveform().toStdString()); p) { p->get().setFromXml(static_cast<int>(wave)); syncParameters(); changed = true; } } if (changed) emit dataChanged(); }
 int SynthDevice::vco2Octave() const { return m_vco2Octave; }
 void SynthDevice::setVco2Octave(int octave) { bool changed = false; { std::lock_guard<std::recursive_mutex> lock { mutex() }; if (auto p = parameter(Constants::NahdXml::xmlKeySynthVco2Octave().toStdString()); p) { p->get().setFromXml(octave); syncParameters(); changed = true; } } if (changed) emit dataChanged(); }
-float SynthDevice::vco2Pitch() const
-{
-    return m_vco2Pitch;
-}
-
-void SynthDevice::setVco2Pitch(float pitch)
-{
-    bool changed = false;
-    {
-        std::lock_guard<std::recursive_mutex> lock { mutex() };
-        if (auto p = parameter(Constants::NahdXml::xmlKeySynthVco2Pitch().toStdString()); p) {
-            p->get().setValue(pitch);
-            syncParameters();
-            changed = true;
-        }
-    }
-    if (changed) emit dataChanged();
-}
-
+float SynthDevice::vco2Pitch() const { return m_vco2Pitch; }
+void SynthDevice::setVco2Pitch(float pitch) { bool changed = false; { std::lock_guard<std::recursive_mutex> lock { mutex() }; if (auto p = parameter(Constants::NahdXml::xmlKeySynthVco2Pitch().toStdString()); p) { p->get().setValue(pitch); syncParameters(); changed = true; } } if (changed) emit dataChanged(); }
 float SynthDevice::vco2Shape() const { return m_vco2Shape; }
 void SynthDevice::setVco2Shape(float shape) { bool changed = false; { std::lock_guard<std::recursive_mutex> lock { mutex() }; if (auto p = parameter(Constants::NahdXml::xmlKeySynthVco2Shape().toStdString()); p) { p->get().setValue(shape); syncParameters(); changed = true; } } if (changed) emit dataChanged(); }
 bool SynthDevice::vco2Sync() const { return m_vco2Sync; }

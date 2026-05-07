@@ -43,7 +43,7 @@ public:
 
 private:
     static int recordCallback(void * outputBuffer, void * inputBuffer,
-                              uint32_t nFrames, double streamTime,
+                              uint32_t frameCount, double streamTime,
                               RtAudioStreamStatus status, void * userData);
 
     uint32_t initializeSoundStream(uint32_t deviceId, uint32_t channelCount, uint32_t sampleRate, uint32_t bufferSize);

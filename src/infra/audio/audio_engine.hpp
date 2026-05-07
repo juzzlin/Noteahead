@@ -43,16 +43,22 @@ public:
 
     void setBpm(float bpm);
 
-    void process(float * output, uint32_t nFrames, uint32_t sampleRate);
+    void process(float * output, uint32_t frameCount, uint32_t sampleRate);
+
+    void reset();
+
+    void setIsExclusive(bool exclusive);
+    bool isExclusive() const;
 
     EffectRack & effectRack();
 
 private:
-    std::map<std::string, DeviceS> m_devices;
-    EffectRack m_effectRack;
-    std::vector<float> m_deviceBuffer;
-    std::vector<std::vector<float>> m_sendBusBuffers;
+    std::map<std::string, DeviceS> m_devices {};
+    EffectRack m_effectRack {};
+    std::vector<float> m_deviceBuffer {};
+    std::vector<std::vector<float>> m_sendBusBuffers {};
     mutable std::mutex m_mutex;
+    std::atomic<bool> m_isExclusive { false };
 };
 
 } // namespace noteahead

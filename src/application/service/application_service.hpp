@@ -106,6 +106,8 @@ public:
     Q_INVOKABLE void requestMidiExportDialog();
     Q_INVOKABLE void exportMidiFile(QUrl url, quint64 startPosition, quint64 endPosition, bool exportBank, bool exportProgramChange, bool exportMidiCc, bool exportPitchBend);
 
+    Q_INVOKABLE void requestAudioRenderDialog();
+
     Q_INVOKABLE void requestMidiImportDialog();
     Q_INVOKABLE void importMidiFile(QUrl url, int importMode, int patternLength, bool quantizeNoteOn, bool quantizeNoteOff, bool connectMidiPorts);
 
@@ -121,8 +123,8 @@ public:
     Q_INVOKABLE void requestSaveAsDialog();
     void requestSaveAsTemplateDialog();
 
-    void requestAlertDialog(QString text);
-    void requestStatusText(QString text);
+    Q_INVOKABLE void requestAlertDialog(QString text);
+    Q_INVOKABLE void requestStatusText(QString text);
 
     using RecentFilesManagerS = std::shared_ptr<RecentFilesManager>;
     void setRecentFilesManager(RecentFilesManagerS recentFilesManager);
@@ -163,6 +165,7 @@ signals:
 
     void saveAsDialogRequested();
     void saveAsTemplateDialogRequested();
+    void audioRenderDialogRequested();
     void midiExportDialogRequested();
     void midiExportRequested(QString fileName, quint64 startPosition, quint64 endPosition, MidiExportOptions options);
 

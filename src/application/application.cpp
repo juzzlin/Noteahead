@@ -58,6 +58,8 @@
 #include "service/player_service.hpp"
 #include "service/property_service.hpp"
 #include "service/recent_files_manager.hpp"
+#include "service/render_service.hpp"
+#include "service/render_worker.hpp"
 #include "service/sampler_controller.hpp"
 #include "service/selection_service.hpp"
 #include "service/settings_service.hpp"
@@ -105,6 +107,7 @@ Application::Application(int & argc, char ** argv)
   , m_drumSynthController { std::make_shared<DrumSynthController>(m_deviceService) }
   , m_effectRackController { std::make_shared<EffectRackController>(m_deviceService) }
   , m_deviceRackController { std::make_shared<DeviceRackController>(m_deviceService, m_samplerController, m_synthController, m_drumSynthController, m_editorService) }
+  , m_knobController { std::make_shared<KnobController>() }
   , m_jackService { std::make_shared<JackService>(m_settingsService, m_audioEngine) }
   , m_audioService { std::make_shared<AudioService>(m_settingsService, m_jackService, m_audioEngine) }
   , m_eventSelectionModel { std::make_shared<EventSelectionModel>() }
@@ -117,8 +120,8 @@ Application::Application(int & argc, char ** argv)
   , m_midiImporter { std::make_shared<MidiImporter>() }
   , m_stateMachine { std::make_shared<StateMachine>(m_applicationService, m_editorService) }
   , m_recentFilesManager { std::make_shared<RecentFilesManager>() }
-  , m_knobController { std::make_shared<KnobController>() }
   , m_recentFilesModel { std::make_unique<RecentFilesModel>() }
+  , m_renderService { std::make_shared<RenderService>(m_audioEngine, m_deviceService, m_mixerService, m_editorService, m_automationService, m_sideChainService) }
   , m_midiCcAutomationsModel { std::make_unique<MidiCcAutomationsModel>() }
   , m_pitchBendAutomationsModel { std::make_unique<PitchBendAutomationsModel>() }
   , m_columnSettingsModel { std::make_unique<ColumnSettingsModel>() }
@@ -176,6 +179,8 @@ void Application::registerTypes()
     qRegisterMetaType<const noteahead::MidiAddress &>("MidiAddressCR");
     qRegisterMetaType<noteahead::MidiNoteData>("MidiNoteData");
     qRegisterMetaType<const noteahead::MidiNoteData &>("MidiNoteDataCR");
+    qRegisterMetaType<noteahead::RenderWorker::Timing>("RenderWorker::Timing");
+    qRegisterMetaType<noteahead::RenderWorker::EventList>("RenderWorker::EventList");
 
     qmlRegisterType<ApplicationService>("Noteahead", majorVersion, minorVersion, "ApplicationService");
     qmlRegisterType<AudioSettingsModel>("Noteahead", majorVersion, minorVersion, "AudioSettingsModel");
@@ -237,6 +242,7 @@ void Application::setContextProperties()
     m_engine->rootContext()->setContextProperty("playerService", m_playerService.get());
     m_engine->rootContext()->setContextProperty("propertyService", m_propertyService.get());
     m_engine->rootContext()->setContextProperty("recentFilesModel", m_recentFilesModel.get());
+    m_engine->rootContext()->setContextProperty("renderService", m_renderService.get());
     m_engine->rootContext()->setContextProperty("selectionService", m_selectionService.get());
     m_engine->rootContext()->setContextProperty("settingsService", m_settingsService.get());
     m_engine->rootContext()->setContextProperty("themeService", m_themeService.get());
@@ -347,6 +353,7 @@ void Application::connectServices()
     connectJackService();
     connectMidiService();
     connectMixerService();
+    connectRenderService();
     connectPlayerService();
 
     connectStateMachine();
@@ -630,6 +637,15 @@ void Application::connectMixerService()
     });
     connect(m_mixerService.get(), &MixerService::trackIndicesRequested, this, [this] {
         m_mixerService->setTrackIndices(m_editorService->trackIndices());
+    });
+}
+
+void Application::connectRenderService()
+{
+    connect(m_renderService.get(), &RenderService::isRenderingChanged, this, [this]() {
+        if (m_renderService->isRendering()) {
+            m_playerService->stop();
+        }
     });
 }
 

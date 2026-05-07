@@ -28,7 +28,7 @@ namespace noteahead {
 static const auto TAG = "AudioRecorderRtAudio";
 
 int AudioRecorderRtAudio::recordCallback(void *, void * inputBuffer,
-                                         uint32_t nFrames,
+                                         uint32_t frameCount,
                                          double, RtAudioStreamStatus status,
                                          void * userData)
 {
@@ -38,15 +38,15 @@ int AudioRecorderRtAudio::recordCallback(void *, void * inputBuffer,
         juzzlin::L(TAG).error() << "Stream under/overflow detected!";
     }
 
-    if (!inputBuffer) {
+    if (!inputBuffer || !self->m_running) {
         return 0;
     }
 
     const auto in = static_cast<int32_t *>(inputBuffer);
-    const size_t totalSamples = nFrames * self->m_channels;
+    const size_t totalSamples = frameCount * self->m_channels;
 
     if (!self->m_recorder.push(in, totalSamples)) {
-        std::cerr << "RingBuffer Overflow!" << std::endl;
+        juzzlin::L(TAG).error() << "Ring buffer overflow! Data lost.";
     }
 
     return 0;

@@ -20,6 +20,8 @@
 #include <chrono>
 #include <stdexcept>
 
+using namespace std::chrono_literals;
+
 namespace noteahead {
 
 AudioFileStreamer::AudioFileStreamer(std::unique_ptr<AudioFileReader> reader)
@@ -39,9 +41,9 @@ void AudioFileStreamer::start(const std::string & fileName, size_t bufferSize, d
 {
     stop();
 
-    AudioFileReader::Info info;
+    AudioFileReader::Info info {};
     if (!m_reader->open(fileName, AudioFileReader::Mode::Read, info)) {
-        throw std::runtime_error("Error opening file for reading: " + fileName);
+        throw std::runtime_error { "Error opening file for reading: " + fileName };
     }
 
     if (bufferSize > 0) {
@@ -54,14 +56,14 @@ void AudioFileStreamer::start(const std::string & fileName, size_t bufferSize, d
     m_isFinished = false;
 
     if (startPosition > 0.0 && startPosition < 1.0 && info.frames > 0) {
-        const int64_t targetFrame = static_cast<int64_t>(startPosition * info.frames);
+        const int64_t targetFrame { static_cast<int64_t>(startPosition * info.frames) };
         m_reader->seek(targetFrame, SEEK_SET);
         m_playedFrames = targetFrame;
         m_playbackPosition = startPosition;
     }
 
     m_stopThread = false;
-    m_diskReadThread = std::thread(&AudioFileStreamer::diskReadLoop, this);
+    m_diskReadThread = std::thread { &AudioFileStreamer::diskReadLoop, this };
 }
 
 void AudioFileStreamer::stop()
@@ -76,11 +78,11 @@ void AudioFileStreamer::stop()
     }
 }
 
-size_t AudioFileStreamer::pop(int32_t * data, size_t count)
+size_t AudioFileStreamer::pop(float * data, size_t count)
 {
-    const size_t read = m_ringBuffer.pop(data, count);
+    const size_t read { m_ringBuffer.pop(data, count) };
 
-    const auto info = m_reader->info();
+    const auto info { m_reader->info() };
     if (read > 0) {
         if (info.channels > 0) {
             m_playedFrames += read / info.channels;
@@ -97,12 +99,22 @@ size_t AudioFileStreamer::pop(int32_t * data, size_t count)
     return read;
 }
 
+size_t AudioFileStreamer::pop(int32_t * data, size_t count)
+{
+    std::vector<float> floatBuffer(count);
+    const size_t read { pop(floatBuffer.data(), count) };
+    for (size_t i { 0 }; i < read; ++i) {
+        data[i] = static_cast<int32_t>(std::clamp(floatBuffer[i], -1.0f, 1.0f) * 2147483647.0f);
+    }
+    return read;
+}
+
 void AudioFileStreamer::setPosition(double position)
 {
     m_playbackPosition = position;
-    const auto info = m_reader->info();
+    const auto info { m_reader->info() };
     if (m_reader->isOpen() && info.frames > 0) {
-        const int64_t targetFrame = static_cast<int64_t>(position * info.frames);
+        const int64_t targetFrame { static_cast<int64_t>(position * info.frames) };
         m_reader->seek(targetFrame, SEEK_SET);
         m_ringBuffer.clear();
         m_playedFrames = targetFrame;
@@ -137,27 +149,27 @@ int64_t AudioFileStreamer::frames() const
 
 void AudioFileStreamer::diskReadLoop()
 {
-    std::vector<int32_t> tempBuffer(16384);
+    std::vector<float> tempBuffer(16384);
 
     while (!m_stopThread) {
-        const size_t available = m_ringBuffer.writeAvailable();
+        const size_t available { m_ringBuffer.writeAvailable() };
         if (available > 0 && m_reader->isOpen()) {
-            const size_t toRead = std::min(available, tempBuffer.size());
-            const auto info = m_reader->info();
-            const int channels = info.channels;
+            const size_t toRead { std::min(available, tempBuffer.size()) };
+            const auto info { m_reader->info() };
+            const int channels { info.channels };
             if (channels > 0) {
-                const int64_t read = m_reader->readInt({ tempBuffer.data(), toRead });
+                const int64_t read { m_reader->readFloat({ tempBuffer.data(), toRead }) };
                 if (read > 0) {
                     m_ringBuffer.push(tempBuffer.data(), read * channels);
                 } else {
                     // EOF or error
-                    std::this_thread::sleep_for(std::chrono::milliseconds(10));
+                    std::this_thread::sleep_for(10ms);
                 }
             } else {
-                std::this_thread::sleep_for(std::chrono::milliseconds(10));
+                std::this_thread::sleep_for(10ms);
             }
         } else {
-            std::this_thread::sleep_for(std::chrono::milliseconds(10));
+            std::this_thread::sleep_for(10ms);
         }
     }
 }

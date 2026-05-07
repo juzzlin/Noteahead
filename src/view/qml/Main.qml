@@ -178,6 +178,12 @@ ApplicationWindow {
         width: parent.width * Constants.defaultDialogScale * 0.5
         height: parent.height * Constants.defaultDialogScale * 0.7
     }
+    AudioRenderDialog {
+        id: audioRenderDialog
+        anchors.centerIn: parent
+        width: parent.width * Constants.defaultDialogScale * 0.5
+        height: parent.height * Constants.defaultDialogScale * 0.7
+    }
     MidiImportDialog {
         id: midiImportDialog
         anchors.centerIn: parent
@@ -421,6 +427,7 @@ ApplicationWindow {
             errorDialog.open();
         });
         applicationService.midiExportDialogRequested.connect(midiExportDialog.open);
+        applicationService.audioRenderDialogRequested.connect(audioRenderDialog.open);
         applicationService.deviceRackDialogRequested.connect(() => {
             deviceRackDialog.updateUsage();
             deviceRackDialog.open();

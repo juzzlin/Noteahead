@@ -72,11 +72,12 @@ public:
     void processMidiProgramChange(uint8_t program, uint8_t channel) override;
     void processMidiAllNotesOff() override;
 
-    void processAudio(float * output, uint32_t nFrames, uint32_t sampleRate) override;
+    void processAudio(float * output, uint32_t frameCount, uint32_t sampleRate) override;
 
     void setBpm(float bpm) override;
 
     void reset() override;
+    void resetAudio() override;
 
     double voiceGlideFrequency(int index) const;
 

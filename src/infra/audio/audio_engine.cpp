@@ -67,11 +67,11 @@ void AudioEngine::setBpm(float bpm)
     }
 }
 
-void AudioEngine::process(float * output, uint32_t nFrames, uint32_t sampleRate)
+void AudioEngine::process(float * output, uint32_t frameCount, uint32_t sampleRate)
 {
     std::lock_guard<std::mutex> lock { m_mutex };
 
-    const uint32_t bufferSize = nFrames * 2;
+    const uint32_t bufferSize = frameCount * 2;
     if (m_deviceBuffer.size() < bufferSize) {
         m_deviceBuffer.resize(bufferSize, 0.0f);
     }
@@ -91,7 +91,7 @@ void AudioEngine::process(float * output, uint32_t nFrames, uint32_t sampleRate)
 
     for (auto const & [name, device] : m_devices) {
         std::fill(m_deviceBuffer.begin(), m_deviceBuffer.begin() + bufferSize, 0.0f);
-        device->processAudio(m_deviceBuffer.data(), nFrames, sampleRate);
+        device->processAudio(m_deviceBuffer.data(), frameCount, sampleRate);
 
         const float rSend0 = device->reverbSend(0);
         const float rSend1 = device->reverbSend(1);
@@ -111,8 +111,27 @@ void AudioEngine::process(float * output, uint32_t nFrames, uint32_t sampleRate)
 
     // Process Effect Rack
     for (size_t s = 0; s < sendCount; ++s) {
-        m_effectRack.process(output, m_sendBusBuffers[s].data(), s, nFrames, sampleRate);
+        m_effectRack.process(output, m_sendBusBuffers[s].data(), s, frameCount, sampleRate);
     }
+}
+
+void AudioEngine::reset()
+{
+    std::lock_guard<std::mutex> lock { m_mutex };
+    for (auto const & [name, device] : m_devices) {
+        device->resetAudio();
+    }
+    m_effectRack.reset();
+}
+
+void AudioEngine::setIsExclusive(bool exclusive)
+{
+    m_isExclusive = exclusive;
+}
+
+bool AudioEngine::isExclusive() const
+{
+    return m_isExclusive;
 }
 
 EffectRack & AudioEngine::effectRack()

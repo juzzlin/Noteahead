@@ -36,17 +36,17 @@ public:
     void start(const std::string & fileName, uint32_t sampleRate, uint32_t channelCount, size_t bufferSize);
     void stop();
 
+    bool push(const float * data, size_t count);
     bool push(const int32_t * data, size_t count);
 
-private:
+    private:
     void diskWriteLoop();
 
-    RingBuffer<int32_t> m_ringBuffer;
+    RingBuffer<float> m_ringBuffer;
     std::thread m_diskWriteThread;
     std::atomic<bool> m_stopThread { false };
 
-    std::unique_ptr<AudioFileReader> m_writer;
-};
+    std::unique_ptr<AudioFileReader> m_writer;};
 
 } // namespace noteahead
 

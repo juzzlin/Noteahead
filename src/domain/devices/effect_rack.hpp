@@ -39,7 +39,9 @@ public:
     EffectS effect(size_t index) const;
     size_t effectCount() const;
 
-    void process(float * output, const float * sendBus, size_t effectIndex, uint32_t nFrames, uint32_t sampleRate);
+    void process(float * output, const float * sendBus, size_t effectIndex, uint32_t frameCount, uint32_t sampleRate);
+
+    void reset();
 
     void serializeToXml(QXmlStreamWriter & writer) const;
     void deserializeFromXml(QXmlStreamReader & reader);

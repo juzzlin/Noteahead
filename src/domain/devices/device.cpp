@@ -231,6 +231,10 @@ void Device::reset()
     syncParameters();
 }
 
+void Device::resetAudio()
+{
+}
+
 float Device::volumeInternal() const
 {
     return m_volume;

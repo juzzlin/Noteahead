@@ -36,6 +36,7 @@ public:
     void start(const std::string & fileName, size_t bufferSize, double startPosition = 0.0);
     void stop();
 
+    size_t pop(float * data, size_t count);
     size_t pop(int32_t * data, size_t count);
     void setPosition(double position);
     double position() const;
@@ -48,11 +49,11 @@ public:
 private:
     void diskReadLoop();
 
-    RingBuffer<int32_t> m_ringBuffer;
-    std::thread m_diskReadThread;
+    RingBuffer<float> m_ringBuffer {};
+    std::thread m_diskReadThread {};
     std::atomic<bool> m_stopThread { false };
 
-    std::unique_ptr<AudioFileReader> m_reader;
+    std::unique_ptr<AudioFileReader> m_reader { nullptr };
 
     std::atomic<uint64_t> m_playedFrames { 0 };
     std::atomic<double> m_playbackPosition { 0.0 };

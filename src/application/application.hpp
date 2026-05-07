@@ -44,13 +44,14 @@ class ColumnSettingsModel;
 class DeviceRack;
 class DeviceRackController;
 class DeviceService;
+class DrumSynthController;
 class EditorService;
+class EffectRackController;
 class EventSelectionModel;
 class Instrument;
 class JackService;
 class KeyboardService;
 class KnobController;
-class EffectRackController;
 class MidiCcAutomationsModel;
 class MidiExporter;
 class MidiImporter;
@@ -64,12 +65,12 @@ class PlayerService;
 class PropertyService;
 class RecentFilesManager;
 class RecentFilesModel;
-class DrumSynthController;
+class RenderService;
 class SamplerController;
-class SynthController;
 class SelectionService;
 class SettingsService;
 class SideChainService;
+class SynthController;
 class ThemeService;
 class TrackSettingsModel;
 class UiLogger;
@@ -106,6 +107,7 @@ private:
     void connectMidiService();
     void connectMidiSettingsModel();
     void connectMixerService();
+    void connectRenderService();
     void connectPlayerService();
     void connectStateMachine();
     void connectEventSelectionModel();
@@ -154,6 +156,7 @@ private:
     std::shared_ptr<DrumSynthController> m_drumSynthController;
     std::shared_ptr<EffectRackController> m_effectRackController;
     std::shared_ptr<DeviceRackController> m_deviceRackController;
+    std::shared_ptr<KnobController> m_knobController;
 
     std::shared_ptr<JackService> m_jackService;
 
@@ -173,8 +176,9 @@ private:
     std::shared_ptr<StateMachine> m_stateMachine;
 
     std::shared_ptr<RecentFilesManager> m_recentFilesManager;
-    std::shared_ptr<KnobController> m_knobController;
     std::unique_ptr<RecentFilesModel> m_recentFilesModel;
+
+    std::shared_ptr<RenderService> m_renderService;
 
     std::unique_ptr<MidiCcAutomationsModel> m_midiCcAutomationsModel;
     std::unique_ptr<PitchBendAutomationsModel> m_pitchBendAutomationsModel;

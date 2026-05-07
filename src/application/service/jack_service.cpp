@@ -256,20 +256,20 @@ double JackService::playbackPosition() const
     return m_streamer.position();
 }
 
-int JackService::processCallback(jack_nframes_t nframes, void * arg)
+int JackService::processCallback(jack_nframes_t frameCount, void * arg)
 {
     auto self = static_cast<JackService *>(arg);
 
     if (self->m_isRecording) {
-        auto inL = static_cast<jack_default_audio_sample_t *>(jack_port_get_buffer(self->m_inputPortL, nframes));
-        auto inR = static_cast<jack_default_audio_sample_t *>(jack_port_get_buffer(self->m_inputPortR, nframes));
+        auto inL = static_cast<jack_default_audio_sample_t *>(jack_port_get_buffer(self->m_inputPortL, frameCount));
+        auto inR = static_cast<jack_default_audio_sample_t *>(jack_port_get_buffer(self->m_inputPortR, frameCount));
 
-        const size_t totalSamples = nframes * 2;
+        const size_t totalSamples = frameCount * 2;
         if (self->m_recordingInterleavedBuffer.size() < totalSamples) {
             self->m_recordingInterleavedBuffer.resize(totalSamples);
         }
 
-        for (jack_nframes_t i = 0; i < nframes; ++i) {
+        for (jack_nframes_t i = 0; i < frameCount; ++i) {
             self->m_recordingInterleavedBuffer[i * 2] = static_cast<int32_t>(inL[i] * 2147483647.0f);
             self->m_recordingInterleavedBuffer[i * 2 + 1] = static_cast<int32_t>(inR[i] * 2147483647.0f);
         }
@@ -280,17 +280,17 @@ int JackService::processCallback(jack_nframes_t nframes, void * arg)
     }
 
     if (self->m_isPlayingPlayback) {
-        auto outL = static_cast<jack_default_audio_sample_t *>(jack_port_get_buffer(self->m_outputPortL, nframes));
-        auto outR = static_cast<jack_default_audio_sample_t *>(jack_port_get_buffer(self->m_outputPortR, nframes));
+        auto outL = static_cast<jack_default_audio_sample_t *>(jack_port_get_buffer(self->m_outputPortL, frameCount));
+        auto outR = static_cast<jack_default_audio_sample_t *>(jack_port_get_buffer(self->m_outputPortR, frameCount));
 
-        const size_t totalSamples = nframes * 2;
+        const size_t totalSamples = frameCount * 2;
         if (self->m_playbackInterleavedBuffer.size() < totalSamples) {
             self->m_playbackInterleavedBuffer.resize(totalSamples);
         }
 
         const size_t read = self->m_streamer.pop(self->m_playbackInterleavedBuffer.data(), totalSamples);
 
-        for (jack_nframes_t i = 0; i < nframes; ++i) {
+        for (jack_nframes_t i = 0; i < frameCount; ++i) {
             if (i * 2 + 1 < read) {
                 outL[i] = static_cast<float>(self->m_playbackInterleavedBuffer[i * 2]) / 2147483647.0f;
                 outR[i] = static_cast<float>(self->m_playbackInterleavedBuffer[i * 2 + 1]) / 2147483647.0f;
@@ -300,25 +300,25 @@ int JackService::processCallback(jack_nframes_t nframes, void * arg)
             }
         }
     } else {
-        auto outL = static_cast<jack_default_audio_sample_t *>(jack_port_get_buffer(self->m_outputPortL, nframes));
-        auto outR = static_cast<jack_default_audio_sample_t *>(jack_port_get_buffer(self->m_outputPortR, nframes));
-        std::fill_n(outL, nframes, 0.0f);
-        std::fill_n(outR, nframes, 0.0f);
+        auto outL = static_cast<jack_default_audio_sample_t *>(jack_port_get_buffer(self->m_outputPortL, frameCount));
+        auto outR = static_cast<jack_default_audio_sample_t *>(jack_port_get_buffer(self->m_outputPortR, frameCount));
+        std::fill_n(outL, frameCount, 0.0f);
+        std::fill_n(outR, frameCount, 0.0f);
     }
 
-    if (self->m_audioEngine) {
-        const size_t totalSamples = nframes * 2;
+    if (self->m_audioEngine && !self->m_audioEngine->isExclusive()) {
+        const size_t totalSamples = frameCount * 2;
         if (self->m_engineInterleavedBuffer.size() < totalSamples) {
             self->m_engineInterleavedBuffer.assign(totalSamples, 0.0f);
         } else {
             std::fill(self->m_engineInterleavedBuffer.begin(), self->m_engineInterleavedBuffer.begin() + totalSamples, 0.0f);
         }
 
-        self->m_audioEngine->process(self->m_engineInterleavedBuffer.data(), nframes, self->sampleRate());
+        self->m_audioEngine->process(self->m_engineInterleavedBuffer.data(), frameCount, self->sampleRate());
 
-        auto outL = static_cast<jack_default_audio_sample_t *>(jack_port_get_buffer(self->m_outputPortL, nframes));
-        auto outR = static_cast<jack_default_audio_sample_t *>(jack_port_get_buffer(self->m_outputPortR, nframes));
-        for (jack_nframes_t i = 0; i < nframes; ++i) {
+        auto outL = static_cast<jack_default_audio_sample_t *>(jack_port_get_buffer(self->m_outputPortL, frameCount));
+        auto outR = static_cast<jack_default_audio_sample_t *>(jack_port_get_buffer(self->m_outputPortR, frameCount));
+        for (jack_nframes_t i = 0; i < frameCount; ++i) {
             outL[i] += self->m_engineInterleavedBuffer[i * 2];
             outR[i] += self->m_engineInterleavedBuffer[i * 2 + 1];
         }

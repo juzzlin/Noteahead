@@ -50,6 +50,12 @@ Menu {
     }
     MenuSeparator {}
     Action {
+        text: qsTr("Render audio...")
+        shortcut: "Ctrl+R"
+        onTriggered: applicationService.requestAudioRenderDialog()
+    }
+    MenuSeparator {}
+    Action {
         text: qsTr("Quit")
         shortcut: "Ctrl+Q"
         onTriggered: UiService.requestQuit()

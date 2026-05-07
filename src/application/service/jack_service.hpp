@@ -77,7 +77,7 @@ private:
     void deinitialize();
 
 #ifdef HAVE_JACK
-    static int processCallback(jack_nframes_t nframes, void * arg);
+    static int processCallback(jack_nframes_t frameCount, void * arg);
     jack_client_t * m_client = nullptr;
     jack_port_t * m_inputPortL = nullptr;
     jack_port_t * m_inputPortR = nullptr;

@@ -50,17 +50,17 @@ int AudioPlayerRtAudio::playCallback(void * outputBuffer, void *,
         std::fill_n(out + read, totalSamples - read, 0);
     }
 
-    if (self->m_audioEngine) {
+    if (self->m_audioEngine && !self->m_audioEngine->isExclusive()) {
         std::vector<float> interleaved(frameCount * 2, 0.0f);
         self->m_audioEngine->process(interleaved.data(), frameCount, self->m_rtAudio.getStreamSampleRate());
-        for (uint32_t frame = 0; frame < frameCount; frame++) {
+        for (uint32_t frame { 0 }; frame < frameCount; frame++) {
             // Mix with existing buffer (converted to float)
             // assuming int32_t full scale
-            for (size_t channel = 0; channel < channels; channel++) {
-                const auto outIndex = frame * channels + channel;
-                const auto maxVal = 2'147'483'647.0f;
+            for (size_t channel { 0 }; channel < channels; channel++) {
+                const auto outIndex { frame * channels + channel };
+                const auto maxVal { 2'147'483'647.0f };
                 // Mix in engine data (interleaved is always 2 channels)
-                const auto currentVal = static_cast<float>(out[outIndex]) / maxVal + interleaved[frame * 2 + (channel % 2)];
+                const auto currentVal { static_cast<float>(out[outIndex]) / maxVal + interleaved[frame * 2 + (channel % 2)] };
                 out[outIndex] = static_cast<int32_t>(std::clamp(currentVal, -1.0f, 1.0f) * maxVal);
             }
         }

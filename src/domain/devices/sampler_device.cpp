@@ -305,12 +305,12 @@ void SamplerDevice::processMidiAllNotesOff()
     emit dataChanged();
 }
 
-void SamplerDevice::processAudio(float * output, uint32_t nFrames, uint32_t sampleRate)
+void SamplerDevice::processAudio(float * output, uint32_t frameCount, uint32_t sampleRate)
 {
     setSampleRate(sampleRate);
-    const std::lock_guard<std::recursive_mutex> lock(mutex());
+    const std::lock_guard<std::recursive_mutex> lock { mutex() };
 
-    std::vector<float> buffer(nFrames * 2, 0.0f);
+    std::vector<float> buffer(frameCount * 2, 0.0f);
 
     const float fadeStep = 1.0f / 256.0f;
 
@@ -323,11 +323,11 @@ void SamplerDevice::processAudio(float * output, uint32_t nFrames, uint32_t samp
             effect->setSampleRate(sampleRate);
         }
 
-        const auto & sampleData = *voice.sample->data;
+        const auto & sampleData { *voice.sample->data };
         const int channels = voice.sample->channels;
         const float pitchScale = static_cast<float>(voice.sample->sampleRate) / static_cast<float>(sampleRate);
 
-        for (uint32_t i = 0; i < nFrames; i++) {
+        for (uint32_t i = 0; i < frameCount; i++) {
             const double currentPos = voice.position;
             const size_t index = static_cast<size_t>(currentPos);
             const float fract = static_cast<float>(currentPos - index);
@@ -371,11 +371,11 @@ void SamplerDevice::processAudio(float * output, uint32_t nFrames, uint32_t samp
             buffer[i * 2] += left * linearGainInternal();
             buffer[i * 2 + 1] += right * linearGainInternal();
 
-            voice.position += pitchScale;
+            voice.position += static_cast<double>(pitchScale);
         }
     }
 
-    for (uint32_t i = 0; i < nFrames; i++) {
+    for (uint32_t i = 0; i < frameCount; i++) {
         output[i * 2] += buffer[i * 2] * volumeInternal();
         output[i * 2 + 1] += buffer[i * 2 + 1] * volumeInternal();
     }
@@ -386,17 +386,21 @@ void SamplerDevice::reset()
     {
         std::lock_guard<std::recursive_mutex> lock { mutex() };
         Device::reset();
-        for (auto && sample : m_samples) {
-            sample = nullptr;
-        }
-        for (auto && voice : m_voices) {
-            voice.active = false;
-        }
-
+        resetAudio();
         syncParameters();
     }
 
     emit dataChanged();
+}
+
+void SamplerDevice::resetAudio()
+{
+    {
+        std::lock_guard<std::recursive_mutex> lock { mutex() };
+        for (auto && voice : m_voices) {
+            voice.active = false;
+        }
+    }
 }
 
 void SamplerDevice::loadSample(uint8_t note, const std::string & filePath)

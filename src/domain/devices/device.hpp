@@ -51,11 +51,12 @@ public:
     virtual void processMidiProgramChange(uint8_t, uint8_t) {}
     virtual void processMidiAllNotesOff() = 0;
 
-    virtual void processAudio(float * output, uint32_t nFrames, uint32_t sampleRate) = 0;
+    virtual void processAudio(float * output, uint32_t frameCount, uint32_t sampleRate) = 0;
 
     virtual void setBpm(float) {}
 
     virtual void reset() override;
+    virtual void resetAudio();
 
     uint32_t sampleRate() const;
 

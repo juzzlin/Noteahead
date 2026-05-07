@@ -15,6 +15,7 @@
 
 #include "util_service.hpp"
 
+#include <QUrl>
 #include <algorithm>
 
 namespace noteahead {
@@ -56,6 +57,11 @@ double UtilService::indexHighlightOpacity(int index, int linesPerBeat) const
     } else {
         return 0;
     }
+}
+
+QString UtilService::urlToLocalFile(const QString & url) const
+{
+    return QUrl { url }.toLocalFile();
 }
 
 } // namespace noteahead

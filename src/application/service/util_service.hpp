@@ -30,6 +30,8 @@ public:
     Q_INVOKABLE QColor scaledColor(QColor color, double scale) const;
 
     Q_INVOKABLE double indexHighlightOpacity(int index, int linesPerBeat) const;
+
+    Q_INVOKABLE QString urlToLocalFile(const QString & url) const;
 };
 
 } // namespace noteahead

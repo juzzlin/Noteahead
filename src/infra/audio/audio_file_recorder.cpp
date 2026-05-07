@@ -20,6 +20,8 @@
 #include <chrono>
 #include <stdexcept>
 
+using namespace std::chrono_literals;
+
 namespace noteahead {
 
 AudioFileRecorder::AudioFileRecorder(std::unique_ptr<AudioFileReader> writer)
@@ -39,13 +41,13 @@ void AudioFileRecorder::start(const std::string & fileName, uint32_t sampleRate,
 {
     stop();
 
-    AudioFileReader::Info info;
+    AudioFileReader::Info info {};
     info.samplerate = static_cast<int>(sampleRate);
     info.channels = static_cast<int>(channelCount);
-    info.format = SF_FORMAT_WAV | SF_FORMAT_PCM_24;
+    info.format = SF_FORMAT_WAV | SF_FORMAT_PCM_16;
 
     if (!m_writer->open(fileName, AudioFileReader::Mode::Write, info)) {
-        throw std::runtime_error("Error opening file for writing: " + fileName);
+        throw std::runtime_error { "Error opening file for writing: " + fileName };
     }
 
     if (bufferSize > 0) {
@@ -54,7 +56,7 @@ void AudioFileRecorder::start(const std::string & fileName, uint32_t sampleRate,
     m_ringBuffer.clear();
 
     m_stopThread = false;
-    m_diskWriteThread = std::thread(&AudioFileRecorder::diskWriteLoop, this);
+    m_diskWriteThread = std::thread { &AudioFileRecorder::diskWriteLoop, this };
 }
 
 void AudioFileRecorder::stop()
@@ -69,25 +71,34 @@ void AudioFileRecorder::stop()
     }
 }
 
-bool AudioFileRecorder::push(const int32_t * data, size_t count)
+bool AudioFileRecorder::push(const float * data, size_t count)
 {
     return m_ringBuffer.push(data, count);
 }
 
+bool AudioFileRecorder::push(const int32_t * data, size_t count)
+{
+    std::vector<float> floatBuffer(count);
+    for (size_t i { 0 }; i < count; ++i) {
+        floatBuffer[i] = static_cast<float>(data[i]) / 2147483647.0f;
+    }
+    return m_ringBuffer.push(floatBuffer.data(), count);
+}
+
 void AudioFileRecorder::diskWriteLoop()
 {
-    std::vector<int32_t> tempBuffer(16384);
+    std::vector<float> tempBuffer(16384);
 
     while (!m_stopThread || m_ringBuffer.readAvailable() > 0) {
-        const size_t available = m_ringBuffer.readAvailable();
+        const size_t available { m_ringBuffer.readAvailable() };
         if (available > 0) {
-            const size_t toRead = std::min(available, tempBuffer.size());
-            const size_t read = m_ringBuffer.pop(tempBuffer.data(), toRead);
+            const size_t toRead { std::min(available, tempBuffer.size()) };
+            const size_t read { m_ringBuffer.pop(tempBuffer.data(), toRead) };
             if (read > 0 && m_writer->isOpen()) {
-                m_writer->writeInt({ tempBuffer.data(), read });
+                m_writer->writeFloat({ tempBuffer.data(), read });
             }
         } else {
-            std::this_thread::sleep_for(std::chrono::milliseconds(10));
+            std::this_thread::sleep_for(10ms);
         }
     }
 }

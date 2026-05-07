@@ -135,7 +135,7 @@ void DrumSynthDevice::processMidiAllNotesOff()
     }
 }
 
-void DrumSynthDevice::processAudio(float * output, uint32_t nFrames, uint32_t sampleRate)
+void DrumSynthDevice::processAudio(float * output, uint32_t frameCount, uint32_t sampleRate)
 {
     setSampleRate(sampleRate);
     const std::lock_guard<std::recursive_mutex> lock { mutex() };
@@ -146,17 +146,17 @@ void DrumSynthDevice::processAudio(float * output, uint32_t nFrames, uint32_t sa
         voice.hpf->setSampleRate(sampleRate);
     }
 
-    const float globalVol { volumeInternal() * linearGainInternal() };
+    const float globalVol = volumeInternal() * linearGainInternal();
 
-    for (uint32_t i { 0 }; i < nFrames; i++) {
-        float mixL { 0.0f };
-        float mixR { 0.0f };
+    for (uint32_t i = 0; i < frameCount; i++) {
+        float mixL = 0.0f;
+        float mixR = 0.0f;
 
         for (auto && voice : m_voices) {
             if (voice.engine->isActive()) {
-                float sample { voice.engine->nextSample() };
-                float l { sample };
-                float r { sample };
+                float sample = voice.engine->nextSample();
+                float l = sample;
+                float r = sample;
 
                 voice.lpf->process(l, r);
                 voice.hpf->process(l, r);
@@ -177,6 +177,12 @@ void DrumSynthDevice::reset()
 {
     const std::lock_guard<std::recursive_mutex> lock { mutex() };
     Device::reset();
+    resetAudio();
+}
+
+void DrumSynthDevice::resetAudio()
+{
+    const std::lock_guard<std::recursive_mutex> lock { mutex() };
     for (auto && voice : m_voices) {
         voice.engine->reset();
     }

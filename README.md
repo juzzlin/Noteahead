@@ -144,6 +144,11 @@ All Arctic Music Project songs:
 - Optional MIDI transport synchronization (since 1.8.0)
 
 ### Audio
+- **Built-in high-precision renderer** (since 3.1.0)
+  - Render your song to a WAV file with sample-accurate timing
+  - Support for all internal devices (Synth, Sampler, DrumSynth)
+  - Preserves all instrument parameters and automations during render
+  - Offline rendering is faster than real-time
 - Audio recorder
   - Just enable recording in `Settings => Audio` and Noteahead will record from the selected audio source when the song starts and name the file according to active tracks
   - Records audio from Jack if Jack Transport is enabled (since 1.8.0)

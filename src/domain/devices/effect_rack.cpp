@@ -57,7 +57,7 @@ size_t EffectRack::effectCount() const
     return m_effects.size();
 }
 
-void EffectRack::process(float * output, const float * sendBus, size_t effectIndex, uint32_t nFrames, uint32_t sampleRate)
+void EffectRack::process(float * output, const float * sendBus, size_t effectIndex, uint32_t frameCount, uint32_t sampleRate)
 {
     std::lock_guard<std::mutex> lock { m_mutex };
     if (effectIndex >= m_effects.size()) return;
@@ -65,7 +65,7 @@ void EffectRack::process(float * output, const float * sendBus, size_t effectInd
     auto & effect = m_effects[effectIndex];
     effect->setSampleRate(sampleRate);
 
-    for (uint32_t i = 0; i < nFrames; ++i) {
+    for (uint32_t i = 0; i < frameCount; ++i) {
         float l = sendBus[i * 2];
         float r = sendBus[i * 2 + 1];
         
@@ -78,6 +78,14 @@ void EffectRack::process(float * output, const float * sendBus, size_t effectInd
         // We subtract the dry part (l, r) to get wet*mix.
         output[i * 2] += (wetL - l);
         output[i * 2 + 1] += (wetR - r);
+    }
+}
+
+void EffectRack::reset()
+{
+    std::lock_guard<std::mutex> lock { m_mutex };
+    for (auto & effect : m_effects) {
+        effect->reset();
     }
 }
 

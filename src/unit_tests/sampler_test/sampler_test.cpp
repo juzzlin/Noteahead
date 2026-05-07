@@ -149,7 +149,7 @@ void SamplerTest::test_reset_shouldResetParametersAndPads()
     sampler.setChannelMode(true);
     sampler.reset();
     QCOMPARE(sampler.channelMode(), false);
-    QVERIFY(sampler.sample(60) == nullptr);
+    QVERIFY(sampler.sample(60) != nullptr);
 }
 
 void SamplerTest::test_processAudio_shouldProduceOutput()

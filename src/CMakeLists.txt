@@ -50,6 +50,8 @@ set(HEADER_FILES
   application/service/property_service.hpp
   application/service/random_service.hpp
   application/service/recent_files_manager.hpp
+  application/service/render_service.hpp
+  application/service/render_worker.hpp
   application/service/sampler_controller.hpp
   application/service/selection_service.hpp
   application/service/settings_service.hpp
@@ -193,6 +195,8 @@ set(SOURCE_FILES
   application/service/property_service.cpp
   application/service/random_service.cpp
   application/service/recent_files_manager.cpp
+  application/service/render_service.cpp
+  application/service/render_worker.cpp
   application/service/sampler_controller.cpp
   application/service/selection_service.cpp
   application/service/settings_service.cpp
@@ -314,6 +318,7 @@ set(QML_SOURCE_FILES
     ${QML_BASE_DIR}/Components/WaveformView.qml
     ${QML_BASE_DIR}/Constants.qml
     ${QML_BASE_DIR}/Dialogs/AboutDialog.qml
+    ${QML_BASE_DIR}/Dialogs/AudioRenderDialog.qml
     ${QML_BASE_DIR}/Dialogs/AddMidiCcAutomationDialog.qml
     ${QML_BASE_DIR}/Dialogs/AddMidiCcSettingDialog.qml
     ${QML_BASE_DIR}/Dialogs/AddPitchBendAutomationDialog.qml

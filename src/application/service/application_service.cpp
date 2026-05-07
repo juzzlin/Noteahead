@@ -183,6 +183,12 @@ void ApplicationService::requestMidiExportDialog()
     emit midiExportDialogRequested();
 }
 
+void ApplicationService::requestAudioRenderDialog()
+{
+    juzzlin::L(TAG).info() << "Audio render requested";
+    emit audioRenderDialogRequested();
+}
+
 void ApplicationService::exportMidiFile(QUrl url, quint64 startPosition, quint64 endPosition, bool exportBank, bool exportProgramChange, bool exportMidiCc, bool exportPitchBend)
 {
     auto fileName = url.toLocalFile();
