@@ -618,7 +618,7 @@ void SynthDevice::loadPreset(int bank, int index)
             const auto& presets = SynthPresets::presets();
             if (index < 0 || index >= static_cast<int>(presets.size())) return;
 
-            Device::reset();
+            reset();
 
             for (auto && [name, val] : presets[index].parameters) {
                 if (auto p = parameter(name); p) {
@@ -629,7 +629,7 @@ void SynthDevice::loadPreset(int bank, int index)
             if (m_userPresets.find(index) == m_userPresets.end()) return;
             const auto& preset = m_userPresets.at(index);
 
-            Device::reset();
+            reset();
 
             for (auto && [name, val] : preset.parameters) {
                 if (auto p = parameter(name); p) {
