@@ -483,7 +483,7 @@ Dialog {
                         onMoved: v => synthController.lfoRate = v
                         Layout.fillWidth: true
                     }
-                    Knob {
+                    IntensityKnob {
                         label: qsTr("Intensity")
                         value: synthController.lfoInt
                         onMoved: v => synthController.lfoInt = v
@@ -543,7 +543,7 @@ Dialog {
                         onMoved: v => synthController.modDecay = v
                         Layout.fillWidth: true
                     }
-                    Knob {
+                    IntensityKnob {
                         label: qsTr("Intensity")
                         value: synthController.modInt
                         onMoved: v => synthController.modInt = v
