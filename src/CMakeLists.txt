@@ -277,6 +277,7 @@ set(QML_SOURCE_FILES
     ${QML_BASE_DIR}/BottomBar.qml
     ${QML_BASE_DIR}/Components/FilterKnob.qml
     ${QML_BASE_DIR}/Components/Knob.qml
+    ${QML_BASE_DIR}/Components/PanKnob.qml
     ${QML_BASE_DIR}/Components/LayoutSeparator.qml
     ${QML_BASE_DIR}/Components/MenuItemDelegate.qml
     ${QML_BASE_DIR}/Components/MidiCcComboBox.qml

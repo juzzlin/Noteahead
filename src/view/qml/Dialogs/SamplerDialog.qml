@@ -261,7 +261,7 @@ Dialog {
                 spacing: 15
 
                 // Pan Knob
-                Knob {
+                PanKnob {
                     label: qsTr("Pan")
                     from: -Constants.uiInternalScaling
                     to: Constants.uiInternalScaling

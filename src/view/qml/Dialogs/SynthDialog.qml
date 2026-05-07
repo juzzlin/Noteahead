@@ -264,7 +264,7 @@ Dialog {
                         onMoved: v => synthController.gain = v
                         Layout.fillWidth: true
                     }
-                    Knob {
+                    PanKnob {
                         label: qsTr("Master Pan")
                         value: synthController.pan
                         onMoved: v => synthController.pan = v
