@@ -114,4 +114,9 @@ void DeviceRackController::openDevice(const QString & name)
     }
 }
 
+void DeviceRackController::requestEffectSendsDialog(const QString & deviceName)
+{
+    emit effectSendsDialogRequested(deviceName);
+}
+
 } // namespace noteahead

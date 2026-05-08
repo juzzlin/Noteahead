@@ -23,6 +23,7 @@ namespace noteahead {
 class HighPassFilterEffect : public Effect
 {
 public:
+    std::string type() const override { return "highPassFilter"; }
     void setCutoff(float cutoff);
     void process(float & left, float & right) override;
     void reset() override;

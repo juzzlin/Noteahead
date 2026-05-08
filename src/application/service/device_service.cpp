@@ -23,9 +23,6 @@
 #include <QXmlStreamReader>
 #include <QXmlStreamWriter>
 #include <set>
-#include <QXmlStreamWriter>
-
-#include <set>
 
 namespace noteahead {
 
@@ -197,6 +194,8 @@ void DeviceService::serializeToXml(QXmlStreamWriter & writer) const
         synth->serializeToXml(writer);
     }
 
+    m_audioEngine->effectRack().serializeToXml(writer);
+
     if (!m_synthUserPresets.empty()) {
         std::shared_ptr<SynthDevice> synth;
         for (const auto & name : internalDeviceNames()) {
@@ -247,7 +246,7 @@ void DeviceService::serializeToXml(QXmlStreamWriter & writer) const
                 writer.writeEndElement(); // Preset
             }
         }
-        writer.writeEndElement(); // SynthUserPresets
+        writer.writeEndElement(); // UserPresets
     }
 
     writer.writeEndElement(); // Devices
@@ -269,6 +268,8 @@ void DeviceService::deserializeFromXml(QXmlStreamReader & reader)
             if (const auto synth = std::dynamic_pointer_cast<SynthDevice>(device(Constants::synthDeviceName().toStdString()))) {
                 synth->deserializeFromXml(reader);
             }
+        } else if (reader.name() == Constants::NahdXml::xmlKeyMasterEffects()) {
+            m_audioEngine->effectRack().deserializeFromXml(reader);
         } else if (reader.name() == Constants::NahdXml::xmlKeyUserPresets()) {
             const auto typeId = Utils::Xml::readStringAttribute(reader, Constants::NahdXml::xmlKeyTypeId(), false);
             
@@ -328,8 +329,7 @@ void DeviceService::deserializeFromXml(QXmlStreamReader & reader)
                                     }
                                 }
                                 reader.skipCurrentElement();
-                            }
- else {
+                            } else {
                                 reader.skipCurrentElement();
                             }
                         }
@@ -344,6 +344,11 @@ void DeviceService::deserializeFromXml(QXmlStreamReader & reader)
         }
     }
     emit dataChanged();
+}
+
+EffectRack & DeviceService::effectRack()
+{
+    return m_audioEngine->effectRack();
 }
 
 } // namespace noteahead

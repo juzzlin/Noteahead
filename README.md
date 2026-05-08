@@ -62,9 +62,15 @@ All Arctic Music Project songs:
 - **Virtual device rack** (since 2.2.0)
   - Central hub for managing internal instruments
   - Supports multiple instances of Samplers and Synths
+  - **Effect Sends routing button per device** (since x.y.z)
 - Fully scalable UI
 - Cool volume meters like in NoiseTracker
 - Cool note visualizer animation on the bottom bar
+- **Master Effect Rack**
+  - Central hub for global audio effects
+  - Support for multiple independent effect instances
+  - Studio-quality FDN (Feedback Delay Network) Reverb with presets
+  - Scalable send routing from all internal instruments
 - The Debian package size is currently around 1 MB (is that bloat?)
 
 ### Editing
@@ -133,6 +139,19 @@ All Arctic Music Project songs:
   - The last recorded audio file path is saved and loaded along the project (since 2.1.0)
 - Audio player (since 2.1.0)
   - Output device can be selected in the audio settings
+
+### Master Effects
+- **Effect Rack**
+  - Manage global send effects in a dedicated rack
+  - Four independent studio-quality reverbs by default
+  - Generic parameter system for future effect types
+- **Routing**
+  - Per-instrument send controls accessible from the Device Rack
+  - Independent send levels for each effect slot
+- **FDN Reverb**
+  - High-quality Feedback Delay Network algorithm
+  - Controls for Size, Decay (0-10,000 ms), Damping, Pre-Delay (0-500 ms), Mix, and Stereo Width
+  - 8 Studio presets: Hall, Large Room, Small Room, Plate, Cathedral, Basement, Tunnel, Spring
 
 ### Tools
 - Delay time calculator

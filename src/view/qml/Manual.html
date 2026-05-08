@@ -89,6 +89,33 @@
     <li><strong>Global Automation</strong>: At the bottom of the menu, you can find options to edit <strong>ALL</strong> MIDI CC or Pitch Bend automations in the project.</li>
 </ul>
 
+<h2 style="color: orange; border-bottom: 1px solid #444; margin-top: 20px;">Master Effects</h2>
+<h3 style="color: orange;">Effect Rack</h3>
+<p>Accessed via <code>Devices => Master Effects...</code>, the Effect Rack is the central hub for global audio processing. It allows you to manage a collection of high-quality effects that all internal instruments (Synths and Samplers) can share.</p>
+<ul>
+    <li><strong>Managing Effects</strong>: The rack displays a list of active effect slots. Click any slot to open its dedicated parameter dialog.</li>
+    <li><strong>Multiple Instances</strong>: By default, Noteahead provides four independent <strong>FDN Reverb</strong> instances. Each reverb can be configured with its own unique settings and presets.</li>
+</ul>
+
+<h3 style="color: orange;">Reverb Parameters</h3>
+<p>Noteahead features a studio-quality <strong>Feedback Delay Network (FDN)</strong> reverb, designed for lush tails and natural-sounding high-frequency absorption.</p>
+<ul>
+    <li><strong>Preset Selection</strong>: Choose from 8 professional presets (e.g., Hall, Cathedral, Plate) using the ComboBox at the top. This will automatically adjust all parameters for the selected acoustic space.</li>
+    <li><strong>Size</strong>: Controls the overall dimensions of the simulated room. Larger sizes result in more complex reflections.</li>
+    <li><strong>Decay (ms)</strong>: The time it takes for the reverb tail to fade away (0 to 10,000 ms).</li>
+    <li><strong>Damping</strong>: Controls high-frequency absorption. Higher values result in a darker, warmer reverb sound as reflections lose high-frequency energy more quickly.</li>
+    <li><strong>Pre-Delay (ms)</strong>: The time gap between the dry signal and the start of the reverb (0 to 500 ms). This helps maintain clarity by separating the direct sound from the reverberation.</li>
+    <li><strong>Width</strong>: Adjusts the stereo spread of the reverb output. 100% is standard stereo, while higher values expand the side signal for an ultra-wide effect.</li>
+    <li><strong>Mix</strong>: Controls the wet/dry balance of the effect within its dedicated send bus.</li>
+</ul>
+
+<h3 style="color: orange;">Send Routing</h3>
+<p>Instead of having fixed effect chains, Noteahead uses a flexible <strong>Send Bus</strong> architecture. This allows you to route varying amounts of each instrument's signal to any of the master effects.</p>
+<ul>
+    <li><strong>Effect Sends Dialog</strong>: In the <strong>Device Rack</strong>, each instrument instance has a dedicated <strong>Sends</strong> button. Clicking this opens a dialog with independent send knobs for all master effect slots.</li>
+    <li><strong>Parallel Processing</strong>: Because effects are shared, you can apply the same "Hall Reverb" to multiple instruments at different levels, creating a cohesive sense of space in your mix while saving CPU resources.</li>
+</ul>
+
 <h2 style="color: orange; border-bottom: 1px solid #444; margin-top: 20px;">Keyboard Shortcuts</h2>
 
 <h3 style="color: orange;">Navigation & Editing</h3>

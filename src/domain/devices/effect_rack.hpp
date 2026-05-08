@@ -13,24 +13,42 @@
 // You should have received a copy of the GNU General Public License
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef VOLUME_EFFECT_HPP
-#define VOLUME_EFFECT_HPP
+#ifndef EFFECT_RACK_HPP
+#define EFFECT_RACK_HPP
 
 #include "effect.hpp"
+#include <vector>
+#include <memory>
+#include <mutex>
+
+class QXmlStreamReader;
+class QXmlStreamWriter;
 
 namespace noteahead {
 
-class VolumeEffect : public Effect
+class EffectRack
 {
 public:
-    std::string type() const override { return "volume"; }
-    void setVolume(float volume);
-    void process(float & left, float & right) override;
+    using EffectS = std::shared_ptr<Effect>;
+
+    EffectRack();
+    ~EffectRack();
+
+    void addEffect(EffectS effect);
+    void removeEffect(size_t index);
+    EffectS effect(size_t index) const;
+    size_t effectCount() const;
+
+    void process(float * output, const float * sendBus, size_t effectIndex, uint32_t nFrames, uint32_t sampleRate);
+
+    void serializeToXml(QXmlStreamWriter & writer) const;
+    void deserializeFromXml(QXmlStreamReader & reader);
 
 private:
-    float m_volume { 1.0f };
+    std::vector<EffectS> m_effects;
+    mutable std::mutex m_mutex;
 };
 
 } // namespace noteahead
 
-#endif // VOLUME_EFFECT_HPP
+#endif // EFFECT_RACK_HPP

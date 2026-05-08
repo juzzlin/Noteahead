@@ -50,6 +50,7 @@ class Instrument;
 class JackService;
 class KeyboardService;
 class KnobController;
+class EffectRackController;
 class MidiCcAutomationsModel;
 class MidiExporter;
 class MidiImporter;
@@ -149,6 +150,7 @@ private:
     std::unique_ptr<DeviceRack> m_deviceRack;
     std::shared_ptr<SamplerController> m_samplerController;
     std::shared_ptr<SynthController> m_synthController;
+    std::shared_ptr<EffectRackController> m_effectRackController;
     std::shared_ptr<DeviceRackController> m_deviceRackController;
 
     std::shared_ptr<JackService> m_jackService;

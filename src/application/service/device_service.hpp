@@ -18,6 +18,7 @@
 
 #include "../../domain/devices/device.hpp"
 #include "../../domain/devices/synth_presets.hpp"
+#include "../../domain/devices/effect_rack.hpp"
 
 #include <QObject>
 #include <QStringList>
@@ -69,6 +70,8 @@ public:
 
     void serializeToXml(QXmlStreamWriter & writer) const;
     void deserializeFromXml(QXmlStreamReader & reader);
+
+    EffectRack & effectRack();
 
 signals:
     void dataChanged();

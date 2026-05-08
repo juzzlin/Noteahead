@@ -17,17 +17,21 @@
 #define EFFECT_HPP
 
 #include <cstdint>
+#include <string>
 
 #include "../dsp/dsp_component.hpp"
+#include "../parameter_container.hpp"
 
 namespace noteahead {
 
-class Effect : public DspComponent
+class Effect : public DspComponent, public ParameterContainer
 {
 public:
     virtual ~Effect() override;
+    virtual std::string type() const = 0;
     virtual void process(float & left, float & right) = 0;
-    virtual void reset() {}
+    virtual void reset() override {}
+    virtual void sync() {}
 };
 
 } // namespace noteahead

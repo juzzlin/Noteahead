@@ -20,6 +20,7 @@
 
 #include "../parameter_container.hpp"
 
+#include <vector>
 #include <cstdint>
 #include <mutex>
 #include <string>
@@ -70,6 +71,10 @@ public:
     float pan() const;
     virtual void setPan(float pan);
 
+    float reverbSend(size_t index) const;
+    virtual void setReverbSend(size_t index, float send);
+    size_t reverbSendCount() const;
+
 signals:
     void dataChanged();
 
@@ -82,6 +87,7 @@ protected:
     bool updateVolumeParameter(float volume, bool updateManual);
     bool updateGainParameter(float gain, bool updateManual);
     bool updatePanParameter(float pan, bool updateManual);
+    bool updateReverbSendParameter(size_t index, float send, bool updateManual);
 
     void setSampleRate(uint32_t sampleRate);
     std::recursive_mutex & mutex() const;
@@ -89,13 +95,16 @@ protected:
     float volumeInternal() const;
     float gainInternal() const;
     float panInternal() const;
+    float reverbSendInternal(size_t index) const;
     float linearGainInternal() const;
     float manualVolumeInternal() const;
     float manualGainInternal() const;
     float manualPanInternal() const;
+    float manualReverbSendInternal(size_t index) const;
     void setManualVolume(float volume);
     void setManualGain(float gain);
     void setManualPan(float pan);
+    void setManualReverbSend(size_t index, float send);
 
 private:
     size_t m_id { 0 };
@@ -104,12 +113,14 @@ private:
     float m_volume { 1.0f };
     float m_gain { 0.5f };
     float m_pan { 0.5f };
+    std::vector<float> m_reverbSends;
     float m_linearGain { 1.0f };
 
     // Manual settings for CC reset
     float m_manualVolume { 1.0f };
     float m_manualGain { 0.5f };
     float m_manualPan { 0.5f };
+    std::vector<float> m_manualReverbSends;
 
     mutable std::recursive_mutex m_mutex;
 };

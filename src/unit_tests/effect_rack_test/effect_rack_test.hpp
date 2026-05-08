@@ -13,24 +13,24 @@
 // You should have received a copy of the GNU General Public License
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef VOLUME_EFFECT_HPP
-#define VOLUME_EFFECT_HPP
+#ifndef EFFECT_RACK_TEST_HPP
+#define EFFECT_RACK_TEST_HPP
 
-#include "effect.hpp"
+#include <QObject>
 
 namespace noteahead {
 
-class VolumeEffect : public Effect
+class EffectRackTest : public QObject
 {
-public:
-    std::string type() const override { return "volume"; }
-    void setVolume(float volume);
-    void process(float & left, float & right) override;
+    Q_OBJECT
 
-private:
-    float m_volume { 1.0f };
+private slots:
+    void test_addRemove();
+    void test_process();
+    void test_serialization();
+    void test_reverb_parameters();
 };
 
 } // namespace noteahead
 
-#endif // VOLUME_EFFECT_HPP
+#endif // EFFECT_RACK_TEST_HPP

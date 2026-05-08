@@ -62,34 +62,53 @@ Dialog {
             clip: true
             spacing: 10
             ScrollBar.vertical: ScrollBar {}
-            delegate: Rectangle {
+            delegate: Item {
                 width: deviceListView.width
                 height: 60
-                color: mouseArea.containsMouse ? themeService.accentColor : "#333"
-                radius: 5
-                border.color: "#555"
-                MouseArea {
-                    id: mouseArea
-                    anchors.fill: parent
-                    hoverEnabled: true
-                    cursorShape: Qt.PointingHandCursor
-                    onClicked: deviceRackController.openDevice(model.name)
-                }
+                
                 RowLayout {
                     anchors.fill: parent
-                    anchors.margins: 15
-                    Text {
-                        text: model.name
-                        color: "white"
-                        font.pointSize: 13
-                        font.bold: mouseArea.containsMouse
+                    spacing: 15
+                    
+                    Rectangle {
                         Layout.fillWidth: true
+                        Layout.fillHeight: true
+                        color: mouseArea.containsMouse ? themeService.accentColor : "#333"
+                        radius: 5
+                        border.color: "#555"
+                        
+                        MouseArea {
+                            id: mouseArea
+                            anchors.fill: parent
+                            hoverEnabled: true
+                            cursorShape: Qt.PointingHandCursor
+                            onClicked: deviceRackController.openDevice(model.name)
+                        }
+
+                        Text {
+                            anchors.left: parent.left
+                            anchors.leftMargin: 15
+                            anchors.verticalCenter: parent.verticalCenter
+                            text: model.name
+                            color: "white"
+                            font.pointSize: 13
+                            font.bold: mouseArea.containsMouse
+                        }
                     }
+
+                    Button {
+                        text: qsTr("Sends")
+                        onClicked: deviceRackController.requestEffectSendsDialog(model.name)
+                        Layout.preferredWidth: 80
+                    }
+
                     Text {
                         text: model.trackNames
                         color: "#aaa"
                         font.pointSize: 11
-                        Layout.alignment: Qt.AlignRight
+                        Layout.preferredWidth: 150
+                        horizontalAlignment: Text.AlignRight
+                        elide: Text.ElideRight
                     }
                 }
             }

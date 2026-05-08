@@ -399,6 +399,21 @@ QString xmlKeyMixer()
     return "Mixer";
 }
 
+QString xmlKeyMasterEffects()
+{
+    return "MasterEffects";
+}
+
+QString xmlKeyReverb()
+{
+    return "Reverb";
+}
+
+QString xmlKeyEffect()
+{
+    return "Effect";
+}
+
 QString xmlKeyAudioRecorder()
 {
     return "AudioRecorder";
@@ -567,6 +582,31 @@ QString xmlKeyNoteData()
 QString xmlKeyPan()
 {
     return "pan";
+}
+
+QString xmlKeyReverbSend()
+{
+    return "reverbSend";
+}
+
+QString xmlKeyReverbSend1()
+{
+    return "reverbSend1";
+}
+
+QString xmlKeyReverbSend2()
+{
+    return "reverbSend2";
+}
+
+QString xmlKeyReverbSend3()
+{
+    return "reverbSend3";
+}
+
+QString xmlKeyReverbSend4()
+{
+    return "reverbSend4";
 }
 
 QString xmlKeyPatch()
@@ -881,6 +921,13 @@ QString xmlKeyDelaySync() { return "delaySync"; }
 QString xmlKeyDelaySyncDivision() { return "delaySyncDivision"; }
 QString xmlKeyDelayFeedbackLpf() { return "delayFeedbackLpf"; }
 QString xmlKeyDelayFeedbackHpf() { return "delayFeedbackHpf"; }
+
+QString xmlKeyReverbSize() { return "reverbSize"; }
+QString xmlKeyReverbDecay() { return "reverbDecay"; }
+QString xmlKeyReverbDamping() { return "reverbDamping"; }
+QString xmlKeyReverbPreDelay() { return "reverbPreDelay"; }
+QString xmlKeyReverbMix() { return "reverbMix"; }
+QString xmlKeyReverbWidth() { return "reverbWidth"; }
 
 QString xmlKeySynthVco1Waveform() { return "vco1Waveform"; }
 QString xmlKeySynthVco1Octave() { return "vco1Octave"; }

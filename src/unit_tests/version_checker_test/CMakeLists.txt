@@ -36,6 +36,11 @@ set(SRC
     ../../domain/play_order.cpp
     ../../domain/song.cpp
     ../../domain/track.cpp
+    ../../domain/parameter.cpp
+    ../../domain/parameter.cpp
+    ../../domain/parameter_container.cpp
+    ../../domain/devices/effect.cpp
+    ../../domain/devices/effect_rack.cpp
     ../../infra/audio/audio_engine.cpp
     ../../infra/audio/backend/sndfile_reader.cpp
     ../../infra/midi/midi_cc_mapping.cpp

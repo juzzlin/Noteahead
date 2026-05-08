@@ -17,11 +17,13 @@
 #define AUDIO_ENGINE_HPP
 
 #include "../../domain/devices/device.hpp"
+#include "../../domain/devices/effect_rack.hpp"
 
 #include <map>
 #include <memory>
 #include <mutex>
 #include <string>
+#include <vector>
 
 namespace noteahead {
 
@@ -43,8 +45,13 @@ public:
 
     void process(float * output, uint32_t nFrames, uint32_t sampleRate);
 
+    EffectRack & effectRack();
+
 private:
     std::map<std::string, DeviceS> m_devices;
+    EffectRack m_effectRack;
+    std::vector<float> m_deviceBuffer;
+    std::vector<std::vector<float>> m_sendBusBuffers;
     mutable std::mutex m_mutex;
 };
 

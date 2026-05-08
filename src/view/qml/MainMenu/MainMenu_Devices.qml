@@ -25,4 +25,9 @@ Menu {
         text: qsTr("Rack...")
         onTriggered: applicationService.requestDeviceRackDialog()
     }
+
+    Action {
+        text: qsTr("Master Effects...")
+        onTriggered: applicationService.requestMasterEffectsDialog()
+    }
 }

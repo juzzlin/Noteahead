@@ -49,6 +49,7 @@ set(SRC
     ../../domain/dsp/lfo.cpp
     ../../domain/dsp/multi_engine.cpp
     ../../domain/dsp/polyblep_oscillator.cpp
+    ../../domain/dsp/reverb_effect.cpp
     ../../domain/event.cpp
     ../../domain/event_data.cpp
     ../../domain/instrument.cpp
@@ -70,6 +71,7 @@ set(SRC
     ../../domain/play_order.cpp
     ../../domain/song.cpp
     ../../domain/track.cpp
+    ../../domain/devices/effect_rack.cpp
     ../../infra/audio/audio_engine.cpp
     ../../infra/audio/backend/sndfile_reader.cpp
     ../../infra/midi/midi_cc_mapping.cpp

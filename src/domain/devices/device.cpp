@@ -19,6 +19,7 @@
 
 #include <QXmlStreamReader>
 #include <QXmlStreamWriter>
+#include <cmath>
 
 namespace noteahead {
 
@@ -27,6 +28,13 @@ Device::Device()
     addParameter(Parameter { Constants::NahdXml::xmlKeyVolume().toStdString(), 1.0f, 0, 100, 100 });
     addParameter(Parameter { Constants::NahdXml::xmlKeyGain().toStdString(), 0.5f, -30, 30, 0, 1, Parameter::Type::Continuous });
     addParameter(Parameter { Constants::NahdXml::xmlKeyPan().toStdString(), 0.5f, 0, 100, 50 });
+    
+    // Initial 4 sends
+    for (int i = 0; i < 4; ++i) {
+        addParameter(Parameter { "reverbSend_" + std::to_string(i), 0.0f, 0, 100, 0 });
+    }
+    m_reverbSends.resize(4, 0.0f);
+    m_manualReverbSends.resize(4, 0.0f);
 }
 
 size_t Device::id() const
@@ -52,6 +60,7 @@ void Device::deserializeFromXml(QXmlStreamReader & reader)
     deserializeAttributesFromXml(reader);
     reader.readNext();
     deserializeParametersFromXml(reader);
+    syncParameters();
 }
 
 uint32_t Device::sampleRate() const
@@ -109,6 +118,28 @@ void Device::setPan(float pan)
     }
 }
 
+float Device::reverbSend(size_t index) const
+{
+    std::lock_guard<std::recursive_mutex> lock { m_mutex };
+    if (index < m_reverbSends.size()) {
+        return m_reverbSends[index];
+    }
+    return 0.0f;
+}
+
+void Device::setReverbSend(size_t index, float send)
+{
+    if (updateReverbSendParameter(index, send, true)) {
+        emit dataChanged();
+    }
+}
+
+size_t Device::reverbSendCount() const
+{
+    std::lock_guard<std::recursive_mutex> lock { m_mutex };
+    return m_reverbSends.size();
+}
+
 bool Device::updateVolumeParameter(float volume, bool updateManual)
 {
     std::lock_guard<std::recursive_mutex> lock { m_mutex };
@@ -154,6 +185,25 @@ bool Device::updatePanParameter(float pan, bool updateManual)
     return false;
 }
 
+bool Device::updateReverbSendParameter(size_t index, float send, bool updateManual)
+{
+    std::lock_guard<std::recursive_mutex> lock { m_mutex };
+    const std::string key = "reverbSend_" + std::to_string(index);
+
+    if (auto p = parameter(key); p) {
+        const float oldVal = p->get().value();
+        p->get().setValue(send);
+        if (updateManual) {
+            if (index < m_manualReverbSends.size()) {
+                m_manualReverbSends[index] = p->get().value();
+            }
+        }
+        syncParameters();
+        return p->get().value() != oldVal;
+    }
+    return false;
+}
+
 void Device::syncParameters()
 {
     if (auto p = parameter(Constants::NahdXml::xmlKeyVolume().toStdString()); p) {
@@ -165,6 +215,12 @@ void Device::syncParameters()
     }
     if (auto p = parameter(Constants::NahdXml::xmlKeyPan().toStdString()); p) {
         m_pan = p->get().value();
+    }
+    
+    for (size_t i = 0; i < m_reverbSends.size(); ++i) {
+        if (auto p = parameter("reverbSend_" + std::to_string(i)); p) {
+            m_reverbSends[i] = p->get().value();
+        }
     }
 }
 
@@ -209,6 +265,22 @@ float Device::manualPanInternal() const
     return m_manualPan;
 }
 
+float Device::reverbSendInternal(size_t index) const
+{
+    if (index < m_reverbSends.size()) {
+        return m_reverbSends[index];
+    }
+    return 0.0f;
+}
+
+float Device::manualReverbSendInternal(size_t index) const
+{
+    if (index < m_manualReverbSends.size()) {
+        return m_manualReverbSends[index];
+    }
+    return 0.0f;
+}
+
 void Device::setManualVolume(float volume)
 {
     m_manualVolume = volume;
@@ -222,6 +294,16 @@ void Device::setManualGain(float gain)
 void Device::setManualPan(float pan)
 {
     m_manualPan = pan;
+}
+
+void Device::setManualReverbSend(size_t index, float send)
+{
+    if (index < m_manualReverbSends.size()) {
+        m_manualReverbSends[index] = send;
+    } else {
+        m_manualReverbSends.resize(index + 1, 0.0f);
+        m_manualReverbSends[index] = send;
+    }
 }
 
 void Device::serializeAttributesToXml(QXmlStreamWriter & writer) const

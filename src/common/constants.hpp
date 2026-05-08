@@ -130,6 +130,9 @@ QString xmlKeyMidiCcSetting();
 QString xmlKeyMidiSideChain();
 
 QString xmlKeyMixer();
+QString xmlKeyMasterEffects();
+QString xmlKeyReverb();
+QString xmlKeyEffect();
 
 QString xmlKeyAudioRecorder();
 QString xmlKeyLatestRecordingFilePath();
@@ -173,6 +176,11 @@ QString xmlKeyNoteOff();
 QString xmlKeyNoteData();
 
 QString xmlKeyPan();
+QString xmlKeyReverbSend();
+QString xmlKeyReverbSend1();
+QString xmlKeyReverbSend2();
+QString xmlKeyReverbSend3();
+QString xmlKeyReverbSend4();
 
 QString xmlKeyPatch();
 
@@ -252,6 +260,13 @@ QString xmlKeyDelaySync();
 QString xmlKeyDelaySyncDivision();
 QString xmlKeyDelayFeedbackLpf();
 QString xmlKeyDelayFeedbackHpf();
+
+QString xmlKeyReverbSize();
+QString xmlKeyReverbDecay();
+QString xmlKeyReverbDamping();
+QString xmlKeyReverbPreDelay();
+QString xmlKeyReverbMix();
+QString xmlKeyReverbWidth();
 
 QString xmlKeySynthVco1Waveform();
 QString xmlKeySynthVco1Octave();

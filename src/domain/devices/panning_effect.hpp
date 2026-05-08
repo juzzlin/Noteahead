@@ -23,6 +23,7 @@ namespace noteahead {
 class PanningEffect : public Effect
 {
 public:
+    std::string type() const override { return "panning"; }
     void setPan(float pan);
     void process(float & left, float & right) override;
 

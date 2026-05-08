@@ -50,6 +50,7 @@
 #include "service/jack_service.hpp"
 #include "service/keyboard_service.hpp"
 #include "service/knob_controller.hpp"
+#include "service/effect_rack_controller.hpp"
 #include "service/midi_service.hpp"
 #include "service/mixer_service.hpp"
 #include "service/player_service.hpp"
@@ -99,6 +100,7 @@ Application::Application(int & argc, char ** argv)
   , m_deviceRack { std::make_unique<DeviceRack>(m_deviceService) }
   , m_samplerController { std::make_shared<SamplerController>(std::make_shared<SamplerDevice>("Default Sampler")) }
   , m_synthController { std::make_shared<SynthController>(std::make_shared<SynthDevice>("Default Synth")) }
+  , m_effectRackController { std::make_shared<EffectRackController>(m_deviceService) }
   , m_deviceRackController { std::make_shared<DeviceRackController>(m_deviceService, m_samplerController, m_synthController, m_editorService) }
   , m_jackService { std::make_shared<JackService>(m_settingsService, m_audioEngine) }
   , m_audioService { std::make_shared<AudioService>(m_settingsService, m_jackService, m_audioEngine) }
@@ -174,6 +176,7 @@ void Application::registerTypes()
     qmlRegisterType<EditorService>("Noteahead", majorVersion, minorVersion, "EditorService");
     qmlRegisterType<EventSelectionModel>("Noteahead", majorVersion, minorVersion, "EventSelectionModel");
     qmlRegisterType<KeyboardService>("Noteahead", majorVersion, minorVersion, "KeyboardService");
+    qmlRegisterType<EffectRackController>("Noteahead", majorVersion, minorVersion, "EffectRackController");
     qmlRegisterType<LineNumberRenderer>("Noteahead", majorVersion, minorVersion, "LineNumberRenderer");
     qmlRegisterType<MidiCcAutomationsModel>("Noteahead", majorVersion, minorVersion, "MidiCcAutomationsModel");
     qmlRegisterType<MidiCcSelectionModel>("Noteahead", majorVersion, minorVersion, "MidiCcSelectionModel");
@@ -211,8 +214,8 @@ void Application::setContextProperties()
     m_engine->rootContext()->setContextProperty("editorService", m_editorService.get());
     m_engine->rootContext()->setContextProperty("samplerController", m_samplerController.get());
     m_engine->rootContext()->setContextProperty("synthController", m_synthController.get());
-    m_engine->rootContext()->setContextProperty("selectionService", m_selectionService.get());
-    m_engine->rootContext()->setContextProperty("eventSelectionModel", m_eventSelectionModel.get());
+    m_engine->rootContext()->setContextProperty("effectRackController", m_effectRackController.get());
+    m_engine->rootContext()->setContextProperty("selectionService", m_selectionService.get());    m_engine->rootContext()->setContextProperty("eventSelectionModel", m_eventSelectionModel.get());
     m_engine->rootContext()->setContextProperty("midiCcAutomationsModel", m_midiCcAutomationsModel.get());
     m_engine->rootContext()->setContextProperty("keyboardService", m_keyboardService.get());
     m_engine->rootContext()->setContextProperty("knobController", m_knobController.get());

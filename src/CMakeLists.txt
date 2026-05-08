@@ -7,12 +7,11 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 # These are needed only for the IDE
 set(HEADER_FILES
   application/application.hpp
-  application/instrument_request.hpp
-  application/command/note_edit_command.hpp
   application/command/automation_command.hpp
   application/command/composite_command.hpp
+  application/command/note_edit_command.hpp
   application/command/undo_stack.hpp
-  view/qml/Editor/line_number_renderer.hpp
+  application/instrument_request.hpp
   application/models/audio_settings_model.hpp
   application/models/column_settings_model.hpp
   application/models/event_selection_model.hpp
@@ -24,10 +23,9 @@ set(HEADER_FILES
   application/models/note_column_model_handler.hpp
   application/models/pitch_bend_automations_model.hpp
   application/models/recent_files_model.hpp
-  application/models/track_settings_model.hpp
   application/models/sampler/sampler_pad_model.hpp
+  application/models/track_settings_model.hpp
   application/note_converter.hpp
-  view/qml/Editor/note_column_renderer.hpp
   application/position.hpp
   application/service/application_service.hpp
   application/service/audio_service.hpp
@@ -38,6 +36,7 @@ set(HEADER_FILES
   application/service/device_rack_controller.hpp
   application/service/device_service.hpp
   application/service/editor_service.hpp
+  application/service/effect_rack_controller.hpp
   application/service/jack_service.hpp
   application/service/keyboard_service.hpp
   application/service/midi_service.hpp
@@ -51,24 +50,25 @@ set(HEADER_FILES
   application/service/random_service.hpp
   application/service/recent_files_manager.hpp
   application/service/sampler_controller.hpp
-  application/service/synth_controller.hpp
   application/service/selection_service.hpp
   application/service/settings_service.hpp
   application/service/side_chain_service.hpp
+  application/service/synth_controller.hpp
   application/service/util_service.hpp
   application/state_machine.hpp
   application/ui_logger.hpp
   common/constants.hpp
   common/utils.hpp
   common/waveform_generator.hpp
+  domain/arpeggiator.hpp
   domain/automation.hpp
   domain/automation_location.hpp
-  domain/arpeggiator.hpp
   domain/column.hpp
   domain/column_settings.hpp
   domain/devices/delay_effect.hpp
   domain/devices/device.hpp
   domain/devices/effect.hpp
+  domain/devices/effect_rack.hpp
   domain/devices/high_pass_filter_effect.hpp
   domain/devices/low_pass_filter_effect.hpp
   domain/devices/panning_effect.hpp
@@ -81,6 +81,7 @@ set(HEADER_FILES
   domain/dsp/lfo.hpp
   domain/dsp/multi_engine.hpp
   domain/dsp/polyblep_oscillator.hpp
+  domain/dsp/reverb_effect.hpp
   domain/event.hpp
   domain/event_data.hpp
   domain/instrument.hpp
@@ -117,9 +118,9 @@ set(HEADER_FILES
   infra/audio/implementation/librtaudio/audio_recorder_rt_audio.hpp
   infra/audio/ring_buffer.hpp
   infra/midi/export/midi_exporter.hpp
-  infra/midi/import/midi_importer.hpp
   infra/midi/implementation/librtmidi/midi_in_rt_midi.hpp
   infra/midi/implementation/librtmidi/midi_out_rt_midi.hpp
+  infra/midi/import/midi_importer.hpp
   infra/midi/midi_backend.hpp
   infra/midi/midi_backend_in.hpp
   infra/midi/midi_backend_out.hpp
@@ -131,16 +132,17 @@ set(HEADER_FILES
   infra/video/default_animation.hpp
   infra/video/video_config.hpp
   infra/video/video_generator.hpp
+  view/qml/Editor/line_number_renderer.hpp
+  view/qml/Editor/note_column_renderer.hpp
 )
 
 set(SOURCE_FILES
   application/application.cpp
-  application/instrument_request.cpp
-  application/command/note_edit_command.cpp
   application/command/automation_command.cpp
   application/command/composite_command.cpp
+  application/command/note_edit_command.cpp
   application/command/undo_stack.cpp
-  view/qml/Editor/line_number_renderer.cpp
+  application/instrument_request.cpp
   application/models/audio_settings_model.cpp
   application/models/column_settings_model.cpp
   application/models/event_selection_model.cpp
@@ -152,11 +154,10 @@ set(SOURCE_FILES
   application/models/note_column_model_handler.cpp
   application/models/pitch_bend_automations_model.cpp
   application/models/recent_files_model.cpp
-  application/models/track_settings_model.cpp
   application/models/sampler/sampler_model.cpp
   application/models/sampler/sampler_pad_model.cpp
+  application/models/track_settings_model.cpp
   application/note_converter.cpp
-  view/qml/Editor/note_column_renderer.cpp
   application/service/application_service.cpp
   application/service/audio_service.cpp
   application/service/audio_worker.cpp
@@ -166,6 +167,7 @@ set(SOURCE_FILES
   application/service/device_rack_controller.cpp
   application/service/device_service.cpp
   application/service/editor_service.cpp
+  application/service/effect_rack_controller.cpp
   application/service/jack_service.cpp
   application/service/keyboard_service.cpp
   application/service/knob_controller.cpp
@@ -180,10 +182,10 @@ set(SOURCE_FILES
   application/service/random_service.cpp
   application/service/recent_files_manager.cpp
   application/service/sampler_controller.cpp
-  application/service/synth_controller.cpp
   application/service/selection_service.cpp
   application/service/settings_service.cpp
   application/service/side_chain_service.cpp
+  application/service/synth_controller.cpp
   application/service/theme_service.cpp
   application/service/util_service.cpp
   application/state_machine.cpp
@@ -191,11 +193,30 @@ set(SOURCE_FILES
   common/constants.cpp
   common/utils.cpp
   common/waveform_generator.cpp
+  domain/arpeggiator.cpp
   domain/automation.cpp
   domain/automation_location.cpp
-  domain/arpeggiator.cpp
   domain/column.cpp
   domain/column_settings.cpp
+  domain/devices/delay_effect.cpp
+  domain/devices/device.cpp
+  domain/devices/effect.cpp
+  domain/devices/effect_rack.cpp
+  domain/devices/high_pass_filter_effect.cpp
+  domain/devices/low_pass_filter_effect.cpp
+  domain/devices/panning_effect.cpp
+  domain/devices/sampler_device.cpp
+  domain/devices/synth_device.cpp
+  domain/devices/synth_presets.cpp
+  domain/devices/volume_effect.cpp
+  domain/dsp/adsr_envelope.cpp
+  domain/dsp/cascaded_svf.cpp
+  domain/dsp/dsp_component.cpp
+  domain/dsp/lfo.cpp
+  domain/dsp/multi_engine.cpp
+  domain/dsp/oversampler.cpp
+  domain/dsp/polyblep_oscillator.cpp
+  domain/dsp/reverb_effect.cpp
   domain/event.cpp
   domain/event_data.cpp
   domain/instrument.cpp
@@ -219,37 +240,20 @@ set(SOURCE_FILES
   domain/play_order.cpp
   domain/song.cpp
   domain/track.cpp
-  domain/devices/device.cpp
-  domain/devices/effect.cpp
-  domain/devices/delay_effect.cpp
-  domain/devices/high_pass_filter_effect.cpp
-  domain/devices/low_pass_filter_effect.cpp
-  domain/devices/panning_effect.cpp
-  domain/devices/sampler_device.cpp
-  domain/devices/synth_device.cpp
-  domain/devices/synth_presets.cpp
-  domain/devices/volume_effect.cpp
-  domain/dsp/adsr_envelope.cpp
-  domain/dsp/cascaded_svf.cpp
-  domain/dsp/dsp_component.cpp
-  domain/dsp/lfo.cpp
-  domain/dsp/multi_engine.cpp
-  domain/dsp/oversampler.cpp
-  domain/dsp/polyblep_oscillator.cpp
   infra/audio/audio_engine.cpp
   infra/audio/audio_file_recorder.cpp
   infra/audio/audio_file_streamer.cpp
-  infra/audio/audio_recorder.cpp
   infra/audio/audio_player.cpp
+  infra/audio/audio_recorder.cpp
   infra/audio/backend/sndfile_reader.cpp
-  infra/audio/implementation/jack/audio_recorder_jack.cpp
   infra/audio/implementation/jack/audio_player_jack.cpp
-  infra/audio/implementation/librtaudio/audio_recorder_rt_audio.cpp
+  infra/audio/implementation/jack/audio_recorder_jack.cpp
   infra/audio/implementation/librtaudio/audio_player_rt_audio.cpp
+  infra/audio/implementation/librtaudio/audio_recorder_rt_audio.cpp
   infra/midi/export/midi_exporter.cpp
-  infra/midi/import/midi_importer.cpp
   infra/midi/implementation/librtmidi/midi_in_rt_midi.cpp
   infra/midi/implementation/librtmidi/midi_out_rt_midi.cpp
+  infra/midi/import/midi_importer.cpp
   infra/midi/midi_backend.cpp
   infra/midi/midi_backend_in.cpp
   infra/midi/midi_backend_out.cpp
@@ -261,6 +265,8 @@ set(SOURCE_FILES
   infra/video/default_animation.cpp
   infra/video/video_generator.cpp
   main.cpp
+  view/qml/Editor/line_number_renderer.cpp
+  view/qml/Editor/note_column_renderer.cpp
 )
 
 qt_add_executable(${BINARY_NAME} ${HEADER_FILES} ${SOURCE_FILES})
@@ -306,6 +312,9 @@ set(QML_SOURCE_FILES
     ${QML_BASE_DIR}/Dialogs/EventSelectionDialog.qml
     ${QML_BASE_DIR}/Dialogs/GainConverterDialog.qml
     ${QML_BASE_DIR}/Dialogs/IntegerInputDialog.qml
+    ${QML_BASE_DIR}/Dialogs/MasterEffectsDialog.qml
+    ${QML_BASE_DIR}/Dialogs/ReverbDialog.qml
+    ${QML_BASE_DIR}/Dialogs/EffectSendsDialog.qml
     ${QML_BASE_DIR}/Dialogs/InterpolationDialog.qml
     ${QML_BASE_DIR}/Dialogs/ManualDialog.qml
     ${QML_BASE_DIR}/Dialogs/MidiCcAutomationModel.qml

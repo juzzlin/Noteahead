@@ -35,6 +35,8 @@ public:
 
     DelayEffect();
 
+    std::string type() const override { return "delay"; }
+
     void process(float & left, float & right) override;
     void reset() override;
 

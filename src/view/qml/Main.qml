@@ -216,6 +216,20 @@ ApplicationWindow {
         width: parent.width * Constants.defaultDialogScale
         height: parent.height * Constants.defaultDialogScale
     }
+    MasterEffectsDialog {
+        id: masterEffectsDialog
+        anchors.centerIn: parent
+        width: parent.width * Constants.defaultDialogScale
+        height: parent.height * Constants.defaultDialogScale
+    }
+    EffectSendsDialog {
+        id: effectSendsDialog
+        anchors.centerIn: parent
+    }
+    ReverbDialog {
+        id: reverbDialog
+        anchors.centerIn: parent
+    }
     SettingsDialog {
         id: settingsDialog
         anchors.centerIn: parent
@@ -403,8 +417,13 @@ ApplicationWindow {
             deviceRackDialog.updateUsage();
             deviceRackDialog.open();
         });
+        applicationService.masterEffectsDialogRequested.connect(masterEffectsDialog.open);
         deviceRackController.samplerDialogRequested.connect(samplerDialog.open);
         deviceRackController.synthDialogRequested.connect(synthDialog.open);
+        deviceRackController.effectSendsDialogRequested.connect(deviceName => {
+            effectSendsDialog.deviceName = deviceName;
+            effectSendsDialog.open();
+        });
         applicationService.samplerDialogRequested.connect(samplerDialog.open);
         applicationService.openDialogRequested.connect(openDialog.open);
         applicationService.recentFilesDialogRequested.connect(recentFilesDialog.open);

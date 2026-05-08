@@ -129,6 +129,12 @@ void ApplicationService::requestDeviceRackDialog()
     emit deviceRackDialogRequested();
 }
 
+void ApplicationService::requestMasterEffectsDialog()
+{
+    juzzlin::L(TAG).info() << "Master Effects requested";
+    emit masterEffectsDialogRequested();
+}
+
 void ApplicationService::requestOpenProject()
 {
     juzzlin::L(TAG).info() << "'Open file' requested";

@@ -55,10 +55,12 @@ public:
 
     Q_INVOKABLE void refresh();
     Q_INVOKABLE void openDevice(const QString & name);
+    Q_INVOKABLE void requestEffectSendsDialog(const QString & deviceName);
 
 signals:
     void samplerDialogRequested();
     void synthDialogRequested();
+    void effectSendsDialogRequested(const QString & deviceName);
 
 private:
     QString trackNames(const QString & deviceName) const;
