@@ -97,7 +97,7 @@ All Arctic Music Project songs:
   - Dual filters (LPF with resonance, HPF)
   - ADSR Amp EG and AD Mod EG (targeting pitch or cutoff)
   - Flexible LFO (multiple waveforms, BPM sync)
-  - Built-in Delay effect (Stereo, Mono, PingPong, HiPass, LowPass, Tape) with BPM sync
+  - Built-in Delay effect (Stereo, Mono, PingPong, Tape) with BPM sync
   - Factory and User preset banks
   - Full MIDI CC automation support (Volume CC 7, Pan CC 10, LPF Cutoff CC 74, HPF Cutoff CC 81)
 - Sends MIDI clock pulse and Start/Stop on desired ports

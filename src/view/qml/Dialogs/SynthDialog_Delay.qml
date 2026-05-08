@@ -22,7 +22,7 @@ ColumnLayout {
 
     RowLayout {
         ComboBox {
-            model: ["Stereo", "Mono", "PingPong", "HiPass", "LowPass", "Tape"]
+            model: ["Stereo", "Mono", "PingPong", "Tape"]
             currentIndex: synthController.delayType
             onActivated: i => synthController.delayType = i
             Layout.fillWidth: true

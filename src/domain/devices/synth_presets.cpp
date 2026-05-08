@@ -61,7 +61,7 @@ const std::vector<SynthPreset>& SynthPresets::presets()
         {"Gritty Mono", {{"vco1Waveform", 2.0f}, {"multiMode", 3.0f}, {"multiLevel", 0.5f}, {"portamento", 0.1f}, {"lpfCutoff", 0.4f}}},
         {"Classic 80s", {{"vco1Waveform", 1.0f}, {"vco2Waveform", 2.0f}, {"vco2Shape", 0.5f}, {"vco2Pitch", 8.0f}, {"lpfCutoff", 0.45f}}},
         {"Saw Swell", {{"vco1Waveform", 1.0f}, {"ampAttack", 0.6f}, {"lfoTarget", 1.0f}, {"lfoIntensity", 0.8f}, {"lfoRate", 0.1f}}},
-        {"Space Lead", {{"vco1Waveform", 0.0f}, {"vco2Sync", 1.0f}, {"vco2Pitch", 2400.0f}, {"delayDepth", 0.7f}, {"delayType", 5.0f}}},
+        {"Space Lead", {{"vco1Waveform", 0.0f}, {"vco2Sync", 1.0f}, {"vco2Pitch", 2400.0f}, {"delayDepth", 0.7f}, {"delayType", 3.0f}}},
         {"Aggro Sync", {{"vco1Waveform", 1.0f}, {"vco2Sync", 1.0f}, {"modTarget", 2.0f}, {"modIntensity", 0.9f}, {"modDecay", 0.35f}}},
 
         // --- PADS (40-59) ---
@@ -84,7 +84,7 @@ const std::vector<SynthPreset>& SynthPresets::presets()
         {"Twilight", {{"vco1Waveform", 1.0f}, {"vco2Waveform", 0.0f}, {"ampAttack", 0.75f}, {"lpfCutoff", 0.25f}}},
         {"Retro Pad", {{"vco1Waveform", 1.0f}, {"lfoTarget", 1.0f}, {"lfoIntensity", 0.75f}, {"lfoRate", 0.15f}, {"ampAttack", 0.65f}, {"lpfCutoff", 0.35f}}},
         {"Darkness", {{"vco1Waveform", 1.0f}, {"vco1Octave", -1.0f}, {"lpfCutoff", 0.1f}, {"ampAttack", 0.85f}}},
-        {"Heavenly", {{"vco1Waveform", 0.0f}, {"vco1Octave", 1.0f}, {"ampAttack", 0.8f}, {"delayDepth", 0.65f}, {"delayType", 5.0f}}},
+        {"Heavenly", {{"vco1Waveform", 0.0f}, {"vco1Octave", 1.0f}, {"ampAttack", 0.8f}, {"delayDepth", 0.65f}, {"delayType", 3.0f}}},
 
         // --- PLUCKS (60-79) ---
         {"Bright Pluck", {{"vco1Waveform", 2.0f}, {"vco1Shape", 0.5f}, {"modTarget", 2.0f}, {"modIntensity", 0.85f}, {"modDecay", 0.25f}, {"ampSustain", 0.0f}, {"ampDecay", 0.4f}, {"delayDepth", 0.3f}}},

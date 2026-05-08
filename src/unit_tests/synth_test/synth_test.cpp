@@ -418,7 +418,7 @@ void SynthTest::test_userPresetsDiscreteValues_shouldLoadCorrectly()
     
     // Logical values for discrete parameters:
     // Waveform (0..2): Tri=0.0, Saw=1.0, Pulse=2.0
-    // DelayType (0..5): Stereo=0.0, Mono=1.0, PingPong=2.0, ...
+    // DelayType (0..3): Stereo=0.0, Mono=1.0, PingPong=2.0, Tape=3.0
     
     const SynthPreset sawPreset { "Saw", { { vco1WaveformKey, 1.0f } } };
     const SynthPreset pulsePreset { "Pulse", { { vco1WaveformKey, 2.0f } } };

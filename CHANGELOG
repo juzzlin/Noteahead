@@ -10,6 +10,23 @@ New features:
   - Allows proper gain staging when recording alongside hardware instruments
 
 * Fix GitHub Issue #45: Implement a simple built-in sampler
+  - Internal sampler instrument with 16 assignable pads
+  - Supports loading WAV samples
+  - Per-sample panning (-100% to +100%) and volume (0-100%)
+  - Dual filters: Low-pass and High-pass
+  - Full MIDI CC automation support (Volume CC 7, Pan CC 10, LPF Cutoff CC 74, HPF Cutoff CC 81)
+  - High-quality linear interpolation resampling
+
+* Fix GitHub Issue #47: Implement a simple built-in synthesizer
+  - Internal polyphonic synthesizer (up to 6 voices)
+  - Two high-quality oscillators (VCO1 & VCO2) with Triangle, Saw, and Pulse waveforms and sync
+  - Digital Multi Engine (Low, High, Peak, Decim)
+  - Dual filters (LPF with resonance, HPF)
+  - ADSR Amp EG and AD Mod EG (targeting pitch or cutoff)
+  - Flexible LFO (multiple waveforms, BPM sync)
+  - Built-in Delay effect (Stereo, Mono, PingPong, Tape) with BPM sync
+  - Factory and User preset banks
+  - Full MIDI CC automation support (Volume CC 7, Pan CC 10, LPF Cutoff CC 74, HPF Cutoff CC 81)
 
 * Implements a virtual device rack
 
