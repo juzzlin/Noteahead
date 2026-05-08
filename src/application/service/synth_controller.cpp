@@ -684,7 +684,7 @@ int SynthController::delayTime() const
 void SynthController::setDelayTime(int time)
 {
     if (m_synth) {
-        m_synth->setDelayTime(time / Constants::uiInternalScaling());
+        m_synth->setDelayTime(time / 10000.0);
         emit delayTimeChanged();
     }
 }

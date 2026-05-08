@@ -586,7 +586,7 @@ Dialog {
                                 onMoved: v => synthController.delaySyncDivision = v
                                 Layout.fillWidth: true
                             }
-                            Knob {
+                            TimeKnob {
                                 id: delayTimeKnob
                                 label: qsTr("Time")
                                 from: 1

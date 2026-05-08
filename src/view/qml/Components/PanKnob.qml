@@ -57,9 +57,8 @@ ColumnLayout {
         to: 1.0
         stepSize: 0
         Layout.fillWidth: true
-        padding: 0
 
-        function updateValue(v) {
+        function updateValue(v: double): void {
             const mapped = Math.sign(v) * Math.pow(Math.abs(v), 3.0);
             const center = (knobRoot.from + knobRoot.to) / 2.0;
             const range = (knobRoot.to - knobRoot.from) / 2.0;
