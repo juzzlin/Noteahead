@@ -318,6 +318,16 @@ set(QML_SOURCE_FILES
     ${QML_BASE_DIR}/Dialogs/RecentFilesDialog.qml
     ${QML_BASE_DIR}/Dialogs/SamplerDialog.qml
     ${QML_BASE_DIR}/Dialogs/SynthDialog.qml
+    ${QML_BASE_DIR}/Dialogs/SynthDialog_AmpEg.qml
+    ${QML_BASE_DIR}/Dialogs/SynthDialog_Delay.qml
+    ${QML_BASE_DIR}/Dialogs/SynthDialog_Filter.qml
+    ${QML_BASE_DIR}/Dialogs/SynthDialog_Global.qml
+    ${QML_BASE_DIR}/Dialogs/SynthDialog_Lfo.qml
+    ${QML_BASE_DIR}/Dialogs/SynthDialog_ModEg.qml
+    ${QML_BASE_DIR}/Dialogs/SynthDialog_Multi.qml
+    ${QML_BASE_DIR}/Dialogs/SynthDialog_Presets.qml
+    ${QML_BASE_DIR}/Dialogs/SynthDialog_Vco1.qml
+    ${QML_BASE_DIR}/Dialogs/SynthDialog_Vco2.qml
     ${QML_BASE_DIR}/Dialogs/SettingsDialog.qml
     ${QML_BASE_DIR}/Dialogs/SettingsDialog_AudioSettings.qml
     ${QML_BASE_DIR}/Dialogs/SettingsDialog_GeneralSettings.qml
