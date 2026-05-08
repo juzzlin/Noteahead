@@ -66,8 +66,8 @@ void SynthTest::test_parameterSetting_shouldUpdateValues()
     synth.setModInt(0.8f);
     QCOMPARE(synth.modInt(), 0.6f);
 
-    synth.setDelayMix(0.5f);
-    QCOMPARE(synth.delayMix(), 0.5f);
+    synth.setDelayDepth(0.5f);
+    QCOMPARE(synth.delayDepth(), 0.5f);
     
     synth.setDelaySync(true);
     QCOMPARE(synth.delaySync(), true);

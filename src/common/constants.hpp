@@ -46,6 +46,7 @@ QString synthDeviceName();
 
 double defaultSampleRate();
 
+constexpr float minEffectLevel() { return 0.001f; }
 constexpr float uiInternalScaling() { return 1000.0f; }
 
 namespace NahdXml {

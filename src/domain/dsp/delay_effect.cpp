@@ -14,10 +14,11 @@
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
 #include "delay_effect.hpp"
+
 #include "../../common/constants.hpp"
 
-#include <cmath>
 #include <algorithm>
+#include <cmath>
 
 namespace noteahead {
 
@@ -47,6 +48,11 @@ void DelayEffect::setTime(double seconds)
 void DelayEffect::setFeedback(double feedback)
 {
     m_feedback = std::clamp(feedback, 0.0, 0.95);
+}
+
+void DelayEffect::setDepth(double depth)
+{
+    m_depth = std::clamp(depth, 0.0, 1.0);
 }
 
 void DelayEffect::setMix(double mix)
@@ -98,7 +104,7 @@ void DelayEffect::reset()
 
 void DelayEffect::process(float & left, float & right)
 {
-    if (m_mix <= 0.001) return;
+    if (m_mix <= Constants::minEffectLevel()) return;
 
     double delaySamples = getDelaySamples();
     size_t bufSize = m_bufferL.size();
@@ -139,26 +145,32 @@ void DelayEffect::process(float & left, float & right)
     float fbR = outR * static_cast<float>(m_feedback);
 
     // Filtering
-    if (m_type == Type::LowPass || m_type == Type::Tape) {
+    if (m_type == Type::Tape) {
         m_lpStateL += 0.3f * (fbL - m_lpStateL);
         m_lpStateR += 0.3f * (fbR - m_lpStateR);
-        fbL = m_lpStateL;
-        fbR = m_lpStateR;
-    }
-    if (m_type == Type::HiPass) {
-        m_hpStateL += 0.3f * (fbL - m_hpStateL);
-        m_hpStateR += 0.3f * (fbR - m_hpStateR);
-        fbL -= m_hpStateL;
-        fbR -= m_hpStateR;
+        const float saturation = 1.0f + (static_cast<float>(m_depth) * 2.0f);
+        fbL = std::tanh(m_lpStateL * saturation);
+        fbR = std::tanh(m_lpStateR * saturation);
     }
 
-    m_bufferL[m_writePos] = inputL + fbL;
-    m_bufferR[m_writePos] = inputR + fbR;
+    if (m_type == Type::PingPong) {
+        // Depth controls width
+        float inL = inputL + inputR * (1.0f - static_cast<float>(m_depth));
+        float inR = inputR * (1.0f - static_cast<float>(m_depth));
+        m_bufferL[m_writePos] = inL + fbR;
+        m_bufferR[m_writePos] = inR + fbL;
+    } else {
+        m_bufferL[m_writePos] = inputL + fbL;
+        m_bufferR[m_writePos] = inputR + fbR;
+    }
 
     m_writePos = (m_writePos + 1) % bufSize;
 
-    left = left * (1.0f - m_mix) + outL * m_mix;
-    right = right * (1.0f - m_mix) + outR * m_mix;
+    // Mix: Unity-dry crossfade strategy
+    const float dry = std::clamp(2.0f * (1.0f - static_cast<float>(m_mix)), 0.0f, 1.0f);
+    const float wet = std::clamp(2.0f * static_cast<float>(m_mix), 0.0f, 1.0f);
+    left = left * dry + outL * wet;
+    right = right * dry + outR * wet;
 }
 
 } // namespace noteahead

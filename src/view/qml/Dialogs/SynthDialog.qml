@@ -47,11 +47,11 @@ Dialog {
     StringInputDialog {
         id: presetNameDialog
         onAccepted: {
-            synthController.saveUserPreset(text)
-            isSaving = false
+            synthController.saveUserPreset(text);
+            isSaving = false;
         }
         onRejected: {
-            isSaving = false
+            isSaving = false;
         }
     }
 
@@ -105,7 +105,7 @@ Dialog {
                 model: [qsTr("Factory"), qsTr("User")]
                 currentIndex: synthController.currentBank
                 onActivated: index => {
-                    synthController.currentBank = index
+                    synthController.currentBank = index;
                 }
             }
 
@@ -119,13 +119,13 @@ Dialog {
                 currentIndex: synthController.currentPresetIndex
                 onActivated: index => {
                     if (isSaving) {
-                        synthController.currentPresetIndex = index
-                        presetNameDialog.setTitle(qsTr("Save User Preset"))
-                        presetNameDialog.text = synthController.userPresetNames[index].split(": ")[1]
-                        presetNameDialog.open()
+                        synthController.currentPresetIndex = index;
+                        presetNameDialog.setTitle(qsTr("Save User Preset"));
+                        presetNameDialog.text = synthController.userPresetNames[index].split(": ")[1];
+                        presetNameDialog.open();
                     } else {
-                        synthController.currentPresetIndex = index
-                        synthController.loadPreset(index)
+                        synthController.currentPresetIndex = index;
+                        synthController.loadPreset(index);
                     }
                 }
 
@@ -178,17 +178,17 @@ Dialog {
                 text: qsTr("Save")
                 highlighted: isSaving
                 onClicked: {
-                    isSaving = true
-                    synthController.currentBank = 1
-                    presetCombo.popup.open()
+                    isSaving = true;
+                    synthController.currentBank = 1;
+                    presetCombo.popup.open();
                 }
             }
 
             Button {
                 text: qsTr("Reset")
                 onClicked: {
-                    isSaving = false
-                    synthController.reset()
+                    isSaving = false;
+                    synthController.reset();
                 }
             }
         }
@@ -638,13 +638,11 @@ Dialog {
                         }
                     }
                 }
-
                 Item {
                     Layout.fillWidth: true
                 }
             }
         }
-
         // Virtual Keyboard
         VirtualKeyboard {
             Layout.fillWidth: true

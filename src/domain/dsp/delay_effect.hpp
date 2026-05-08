@@ -16,10 +16,10 @@
 #ifndef DELAY_EFFECT_HPP
 #define DELAY_EFFECT_HPP
 
-#include <vector>
-#include <cstdint>
-
 #include "dsp_component.hpp"
+
+#include <cstdint>
+#include <vector>
 
 namespace noteahead {
 
@@ -31,8 +31,6 @@ public:
         Stereo,
         Mono,
         PingPong,
-        HiPass,
-        LowPass,
         Tape
     };
 
@@ -42,6 +40,7 @@ public:
     void setType(Type type);
     void setTime(double seconds); // Manual time
     void setFeedback(double feedback); // 0.0 to 1.0
+    void setDepth(double depth); // 0.0 to 1.0
     void setMix(double mix); // 0.0 to 1.0
     void setBpm(double bpm);
     void setSync(bool sync);
@@ -55,6 +54,7 @@ private:
     double m_sampleRate;
     double m_time { 0.5 };
     double m_feedback { 0.3 };
+    double m_depth { 0.5 };
     double m_mix { 0.0 };
     double m_bpm { 120.0 };
     bool m_sync { false };

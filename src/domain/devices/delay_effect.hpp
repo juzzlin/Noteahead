@@ -30,8 +30,6 @@ public:
         Stereo,
         Mono,
         PingPong,
-        HiPass,
-        LowPass,
         Tape
     };
 

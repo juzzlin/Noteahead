@@ -14,8 +14,11 @@
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
 #include "delay_effect.hpp"
-#include <cmath>
+
+#include "../../common/constants.hpp"
+
 #include <algorithm>
+#include <cmath>
 
 namespace noteahead {
 
@@ -39,7 +42,7 @@ void DelayEffect::process(float & left, float & right)
         m_fbHpfR.setSampleRate(m_sampleRate);
     }
 
-    if (m_mix <= 0.001f) return;
+    if (m_mix <= Constants::minEffectLevel()) return;
 
     float delayTime;
     if (m_sync) {
@@ -73,31 +76,20 @@ void DelayEffect::process(float & left, float & right)
     float fbL = outL;
     float fbR = outR;
 
-    if (m_type == Type::LowPass) {
-        // Aggressive LowPass
-        m_lpStateL += 0.15f * (fbL - m_lpStateL);
-        m_lpStateR += 0.15f * (fbR - m_lpStateR);
-        fbL = m_lpStateL;
-        fbR = m_lpStateR;
-    } else if (m_type == Type::HiPass) {
-        // Aggressive HiPass
-        m_hpStateL += 0.2f * (fbL - m_hpStateL);
-        m_hpStateR += 0.2f * (fbR - m_hpStateR);
-        fbL -= m_hpStateL;
-        fbR -= m_hpStateR;
-    } else if (m_type == Type::Tape) {
-        // Tape: Dark, saturated, slightly compressed
+    if (m_type == Type::Tape) {
+        // Tape: Dark, saturated, slightly compressed. Depth controls saturation.
         m_lpStateL += 0.08f * (fbL - m_lpStateL);
         m_lpStateR += 0.08f * (fbR - m_lpStateR);
-        fbL = std::tanh(m_lpStateL * 1.5f);
-        fbR = std::tanh(m_lpStateR * 1.5f);
+        const float saturation = 1.0f + (m_depth * 2.0f);
+        fbL = std::tanh(m_lpStateL * saturation);
+        fbR = std::tanh(m_lpStateR * saturation);
     }
 
     // Apply feedback filters
     m_fbLpfL.setCutoff(m_feedbackLpfCutoff);
     m_fbLpfR.setCutoff(m_feedbackLpfCutoff);
-    m_fbHpfL.setCutoff(m_feedbackHpfCutoff);
-    m_fbHpfR.setCutoff(m_feedbackHpfCutoff);
+    m_fbHpfL.setCutoff(std::max(0.001f, m_feedbackHpfCutoff));
+    m_fbHpfR.setCutoff(std::max(0.001f, m_feedbackHpfCutoff));
 
     fbL = m_fbLpfL.process(fbL);
     fbR = m_fbLpfR.process(fbR);
@@ -109,8 +101,9 @@ void DelayEffect::process(float & left, float & right)
     float inputR = right;
 
     if (m_type == Type::PingPong) {
-        // Ping-Pong: Depth controls how much of the input goes to one side vs both.
-        // If Depth is 1.0, input only goes to Left channel of delay, then bounces.
+        // Ping-Pong: Depth controls stereo width/bounce amount.
+        // 0.0 = Mono (both delay lines get both inputs)
+        // 1.0 = Wide (Left delay gets Left input, Right delay gets feedback from Left)
         float inL = inputL + inputR * (1.0f - m_depth);
         float inR = inputR * (1.0f - m_depth);
         
@@ -130,9 +123,11 @@ void DelayEffect::process(float & left, float & right)
 
     m_writePos = (m_writePos + 1) % bufSize;
 
-    // 4. Mix
-    left = left * (1.0f - m_mix) + outL * m_mix;
-    right = right * (1.0f - m_mix) + outR * m_mix;
+    // 4. Mix: Use a unity-dry crossfade strategy (0% to 50% Dry is 100%, Wet fades in)
+    const float dry = std::clamp(2.0f * (1.0f - m_mix), 0.0f, 1.0f);
+    const float wet = std::clamp(2.0f * m_mix, 0.0f, 1.0f);
+    left = left * dry + outL * wet;
+    right = right * dry + outR * wet;
 }
 
 void DelayEffect::reset()

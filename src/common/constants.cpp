@@ -874,20 +874,9 @@ QString xmlKeyDelayFeedback()
     return "delayFeedback";
 }
 
-QString xmlKeyDelayDepth()
-{
-    return "delayDepth";
-}
-
-QString xmlKeyDelayMix()
-{
-    return "delayMix";
-}
-
-QString xmlKeyDelaySync()
-{
-    return "delaySync";
-}
+QString xmlKeyDelayDepth() { return "delayDepth"; }
+QString xmlKeyDelayMix() { return "delayMix"; }
+QString xmlKeyDelaySync() { return "delaySync"; }
 
 QString xmlKeyDelaySyncDivision() { return "delaySyncDivision"; }
 QString xmlKeyDelayFeedbackLpf() { return "delayFeedbackLpf"; }
