@@ -115,8 +115,12 @@ Dialog {
                 SynthDialog_AmpEg {}
                 SynthDialog_ModEg {}
                 SynthDialog_Delay {}
+
+                // Spacing Row
                 Item {
                     Layout.fillWidth: true
+                    Layout.preferredHeight: 10
+                    Layout.columnSpan: 5
                 }
             }
         }
