@@ -562,8 +562,9 @@ void SynthDevice::syncParameters()
         
         float freq = 0.0f;
         if (m_lfoMode == Lfo::Mode::BPM) {
-            // Map 0..1 rate to BPM divisions (approx)
-            freq = (m_delay.bpm() / 60.0f) * (m_lfoRate * 4.0f + 0.25f);
+            // Treat m_lfoRate as the duration multiplier (e.g. 0.25 for 1/4 note)
+            // freq = (bpm / 60.0f) * (0.25f / multiplier)
+            freq = (m_delay.bpm() / 60.0f) * (0.25f / std::max(0.0001f, m_lfoRate));
         } else {
             freq = std::pow(20.0f, m_lfoRate) - 0.95f; // 0.05 to 20Hz
         }

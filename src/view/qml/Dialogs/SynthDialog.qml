@@ -482,6 +482,14 @@ Dialog {
                         value: synthController.lfoRate
                         onMoved: v => synthController.lfoRate = v
                         Layout.fillWidth: true
+                        visible: synthController.lfoMode !== 1
+                    }
+                    SyncSlider {
+                        label: qsTr("Rate")
+                        value: synthController.lfoRate
+                        onMoved: v => synthController.lfoRate = v
+                        Layout.fillWidth: true
+                        visible: synthController.lfoMode === 1
                     }
                     IntensityKnob {
                         label: qsTr("Intensity")
@@ -574,14 +582,13 @@ Dialog {
                             Layout.preferredHeight: noteDurationCombo.implicitHeight
                             ComboBox {
                                 id: noteDurationCombo
-                                model: ["1/1", "3/4", "1/2", "3/8", "1/3", "1/4", "3/16", "1/6", "1/8", "3/32", "1/12", "1/16", "3/64", "1/24", "1/32", "1/64"]
-                                readonly property var divisions: [1.0, 0.75, 0.5, 0.375, 1/3, 0.25, 0.1875, 1/6, 0.125, 0.09375, 1/12, 0.0625, 0.046875, 1/24, 0.03125, 0.015625]
+                                model: Constants.syncLabels
                                 currentIndex: {
                                     const val = synthController.delaySyncDivision / Constants.uiInternalScaling;
                                     let bestIdx = 0;
-                                    let minDiff = 10.0; // Larger than max possible difference (1.0)
-                                    for (let i = 0; i < divisions.length; ++i) {
-                                        let diff = Math.abs(divisions[i] - val);
+                                    let minDiff = 10.0;
+                                    for (let i = 0; i < Constants.syncDivisions.length; ++i) {
+                                        let diff = Math.abs(Constants.syncDivisions[i] - val);
                                         if (diff < minDiff) {
                                             minDiff = diff;
                                             bestIdx = i;
@@ -590,7 +597,7 @@ Dialog {
                                     return bestIdx;
                                 }
                                 onActivated: i => {
-                                    synthController.delaySyncDivision = divisions[i] * Constants.uiInternalScaling;
+                                    synthController.delaySyncDivision = Constants.syncDivisions[i] * Constants.uiInternalScaling;
                                 }
                                 Layout.fillWidth: true
                             }
