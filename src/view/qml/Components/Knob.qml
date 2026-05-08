@@ -37,15 +37,15 @@ ColumnLayout {
     Label {
         text: {
             let val = isNaN(knobRoot.customValue) ? knobRoot.value : knobRoot.customValue;
-            let displayValue = Math.round(val);
+            let displayValue = "";
             if (knobRoot.suffix === "%") {
-                displayValue = (val / (Constants.uiInternalScaling / 100.0)).toFixed(1);
+                displayValue = knobController.percentageToString(val);
             } else if (knobRoot.suffix === "dB") {
-                // Map 0..Constants.uiInternalScaling to -30..30 dB
-                displayValue = ((val / Constants.uiInternalScaling * 60.0) - 30.0).toFixed(1);
-                if (displayValue > 0) displayValue = "+" + displayValue;
+                displayValue = knobController.decibelToString(val);
+            } else {
+                displayValue = Math.round(val) + knobRoot.suffix;
             }
-            return `${knobRoot.label} (${displayValue}${knobRoot.suffix})`;
+            return `${knobRoot.label} (${displayValue})`;
         }
         font.pixelSize: 11
         color: themeService.accentColor

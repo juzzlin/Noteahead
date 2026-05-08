@@ -49,6 +49,7 @@
 #include "service/editor_service.hpp"
 #include "service/jack_service.hpp"
 #include "service/keyboard_service.hpp"
+#include "service/knob_controller.hpp"
 #include "service/midi_service.hpp"
 #include "service/mixer_service.hpp"
 #include "service/player_service.hpp"
@@ -111,6 +112,7 @@ Application::Application(int & argc, char ** argv)
   , m_midiImporter { std::make_shared<MidiImporter>() }
   , m_stateMachine { std::make_shared<StateMachine>(m_applicationService, m_editorService) }
   , m_recentFilesManager { std::make_shared<RecentFilesManager>() }
+  , m_knobController { std::make_shared<KnobController>() }
   , m_recentFilesModel { std::make_unique<RecentFilesModel>() }
   , m_midiCcAutomationsModel { std::make_unique<MidiCcAutomationsModel>() }
   , m_pitchBendAutomationsModel { std::make_unique<PitchBendAutomationsModel>() }
@@ -213,6 +215,7 @@ void Application::setContextProperties()
     m_engine->rootContext()->setContextProperty("eventSelectionModel", m_eventSelectionModel.get());
     m_engine->rootContext()->setContextProperty("midiCcAutomationsModel", m_midiCcAutomationsModel.get());
     m_engine->rootContext()->setContextProperty("keyboardService", m_keyboardService.get());
+    m_engine->rootContext()->setContextProperty("knobController", m_knobController.get());
     m_engine->rootContext()->setContextProperty("midiService", m_midiService.get());
     m_engine->rootContext()->setContextProperty("midiSettingsModel", m_midiSettingsModel.get());
     m_engine->rootContext()->setContextProperty("mixerService", m_mixerService.get());

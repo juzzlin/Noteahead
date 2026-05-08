@@ -168,6 +168,7 @@ set(SOURCE_FILES
   application/service/editor_service.cpp
   application/service/jack_service.cpp
   application/service/keyboard_service.cpp
+  application/service/knob_controller.cpp
   application/service/midi_service.cpp
   application/service/midi_worker.cpp
   application/service/midi_worker_in.cpp

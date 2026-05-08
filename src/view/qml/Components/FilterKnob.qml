@@ -35,27 +35,13 @@ ColumnLayout {
 
     readonly property real cutoffHz: controller ? controller.cutoffToHz(value) : 0
 
-    readonly property string freqString: {
-        if (value <= 0) {
-            return "0 Hz";
-        }
-        if (!isHpf && value >= Constants.uiInternalScaling) {
-            return qsTr("Bypass");
-        }
-        if (cutoffHz >= 1000) {
-            return `${(cutoffHz / 1000.0).toFixed(1)} kHz`;
-        }
-        return `${Math.round(cutoffHz)} Hz`;
-    }
+    readonly property string freqString: knobController.frequencyToString(value, cutoffHz, isHpf)
 
     spacing: 2
     Label {
         text: {
-            let displayValue = Math.round(knobRoot.value);
-            if (knobRoot.suffix === "%") {
-                displayValue = (knobRoot.value / (Constants.uiInternalScaling / 100.0)).toFixed(1);
-            }
-            return `${knobRoot.label} (${displayValue}${knobRoot.suffix} / ${knobRoot.freqString})`;
+            let displayValue = knobRoot.suffix === "%" ? knobController.percentageToString(knobRoot.value) : Math.round(knobRoot.value) + knobRoot.suffix;
+            return `${knobRoot.label} (${displayValue} / ${knobRoot.freqString})`;
         }
         font.pixelSize: 11
         color: themeService.accentColor

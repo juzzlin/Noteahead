@@ -1,0 +1,173 @@
+// This file is part of Noteahead.
+// Copyright (C) 2026 Jussi Lind <jussi.lind@iki.fi>
+//
+// Noteahead is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+// Noteahead is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
+
+#include "knob_controller.hpp"
+#include "../../common/constants.hpp"
+
+#include <cmath>
+#include <vector>
+
+namespace noteahead {
+
+static const std::vector<double> syncDivisions = { 1.0, 0.75, 0.5, 0.375, 1.0 / 3.0, 0.25, 0.1875, 1.0 / 6.0, 0.125, 0.09375, 1.0 / 12.0, 0.0625, 0.046875, 1.0 / 24.0, 0.03125, 0.015625 };
+static const std::vector<QString> syncLabels = { "1/1", "3/4", "1/2", "3/8", "1/3", "1/4", "3/16", "1/6", "1/8", "3/32", "1/12", "1/16", "3/64", "1/24", "1/32", "1/64" };
+
+KnobController::KnobController(QObject * parent)
+    : QObject(parent)
+{
+}
+
+double KnobController::mapIntensity(double value, double from, double to) const
+{
+    const double center = (from + to) / 2.0;
+    const double range = (to - from) / 2.0;
+    const double mapped = (value >= 0 ? 1.0 : -1.0) * std::pow(std::abs(value), 3.0);
+    double outVal = mapped * range + center;
+
+    // Snap to center (within 1% of total range)
+    if (std::abs(outVal - center) < (range * 0.01)) {
+        outVal = center;
+    }
+
+    return outVal;
+}
+
+double KnobController::unmapIntensity(double value, double from, double to) const
+{
+    const double center = (from + to) / 2.0;
+    const double range = (to - from) / 2.0;
+    if (range == 0) return 0;
+    const double norm = std::max(-1.0, std::min(1.0, (value - center) / range));
+    return (norm >= 0 ? 1.0 : -1.0) * std::pow(std::abs(norm), 1.0 / 3.0);
+}
+
+QString KnobController::intensityToString(double value, double from, double to) const
+{
+    const double center = (from + to) / 2.0;
+    const double range = (to - from) / 2.0;
+    const double intVal = range != 0 ? ((value - center) / range) * 100.0 : 0;
+
+    if (std::abs(intVal) < 0.05) {
+        return "0.0%";
+    }
+
+    return QString("%1%2%").arg(intVal > 0 ? "+" : "").arg(intVal, 0, 'f', 1);
+}
+
+double KnobController::mapPan(double value, double from, double to) const
+{
+    return mapIntensity(value, from, to);
+}
+
+double KnobController::unmapPan(double value, double from, double to) const
+{
+    return unmapIntensity(value, from, to);
+}
+
+QString KnobController::panToString(double value, double from, double to) const
+{
+    const double center = (from + to) / 2.0;
+    const double range = (to - from) / 2.0;
+    const double panVal = range != 0 ? ((value - center) / range) * 100.0 : 0;
+
+    if (std::abs(panVal) < 0.05) {
+        return tr("Center");
+    }
+
+    const QString side = panVal < 0 ? tr(" L") : tr(" R");
+    const QString sign = panVal > 0 ? "+" : "-";
+    return QString("%1%2%%3").arg(sign).arg(std::abs(panVal), 0, 'f', 1).arg(side);
+}
+
+double KnobController::mapTime(double value, double from, double to) const
+{
+    const double range = to - from;
+    const double mapped = std::pow(value, 3.0);
+    return from + (mapped * range);
+}
+
+double KnobController::unmapTime(double value, double from, double to) const
+{
+    const double range = to - from;
+    if (range <= 0) return 0;
+    const double norm = std::max(0.0, std::min(1.0, (value - from) / range));
+    return std::pow(norm, 1.0 / 3.0);
+}
+
+QString KnobController::timeToString(double value, const QString & suffix) const
+{
+    return QString("%1%2").arg(std::round(value)).arg(suffix);
+}
+
+QString KnobController::percentageToString(double value) const
+{
+    const double displayValue = value / (Constants::uiInternalScaling() / 100.0);
+    return QString("%1%").arg(displayValue, 0, 'f', 1);
+}
+
+QString KnobController::decibelToString(double value) const
+{
+    // Map 0..Constants.uiInternalScaling to -30..30 dB
+    double displayValue = (value / Constants::uiInternalScaling() * 60.0) - 30.0;
+    return QString("%1%2 dB").arg(displayValue > 0 ? "+" : "").arg(displayValue, 0, 'f', 1);
+}
+
+QString KnobController::frequencyToString(double value, double cutoffHz, bool isHpf) const
+{
+    if (value <= 0) {
+        return "0 Hz";
+    }
+    if (!isHpf && value >= Constants::uiInternalScaling()) {
+        return tr("Bypass");
+    }
+    if (cutoffHz >= 1000) {
+        return QString("%1 kHz").arg(cutoffHz / 1000.0, 0, 'f', 1);
+    }
+    return QString("%1 Hz").arg(std::round(cutoffHz));
+}
+
+int KnobController::syncIndex(double value) const
+{
+    const double internalVal = value / Constants::uiInternalScaling();
+    int bestIdx = 0;
+    double minDiff = 10.0;
+    for (size_t i = 0; i < syncDivisions.size(); ++i) {
+        double diff = std::abs(syncDivisions[i] - internalVal);
+        if (diff < minDiff) {
+            minDiff = diff;
+            bestIdx = static_cast<int>(i);
+        }
+    }
+    return bestIdx;
+}
+
+double KnobController::syncValue(int index) const
+{
+    if (index < 0 || index >= static_cast<int>(syncDivisions.size())) return 0;
+    return syncDivisions[static_cast<size_t>(index)] * Constants::uiInternalScaling();
+}
+
+QString KnobController::syncLabel(int index) const
+{
+    if (index < 0 || index >= static_cast<int>(syncLabels.size())) return "";
+    return syncLabels[static_cast<size_t>(index)];
+}
+
+int KnobController::syncCount() const
+{
+    return static_cast<int>(syncDivisions.size());
+}
+
+} // namespace noteahead

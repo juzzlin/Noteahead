@@ -49,6 +49,7 @@ class EventSelectionModel;
 class Instrument;
 class JackService;
 class KeyboardService;
+class KnobController;
 class MidiCcAutomationsModel;
 class MidiExporter;
 class MidiImporter;
@@ -168,6 +169,7 @@ private:
     std::shared_ptr<StateMachine> m_stateMachine;
 
     std::shared_ptr<RecentFilesManager> m_recentFilesManager;
+    std::shared_ptr<KnobController> m_knobController;
     std::unique_ptr<RecentFilesModel> m_recentFilesModel;
 
     std::unique_ptr<MidiCcAutomationsModel> m_midiCcAutomationsModel;

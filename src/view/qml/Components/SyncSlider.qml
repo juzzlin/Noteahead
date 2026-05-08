@@ -30,10 +30,7 @@ ColumnLayout {
 
     spacing: 2
     Label {
-        text: {
-            const index = slider.findBestIndex(knobRoot.value / Constants.uiInternalScaling);
-            return `${knobRoot.label} (${Constants.syncLabels[index]})`;
-        }
+        text: `${knobRoot.label} (${knobController.syncLabel(knobController.syncIndex(knobRoot.value))})`
         font.pixelSize: 11
         color: themeService.accentColor
         Layout.alignment: Qt.AlignHCenter
@@ -42,39 +39,26 @@ ColumnLayout {
     Slider {
         id: slider
         from: 0
-        to: Constants.syncDivisions.length - 1
+        to: knobController.syncCount() - 1
         stepSize: 1
         Layout.fillWidth: true
 
-        function findBestIndex(val: double): int {
-            let bestIdx = 0;
-            let minDiff = 10.0;
-            for (let i = 0; i < Constants.syncDivisions.length; ++i) {
-                let diff = Math.abs(Constants.syncDivisions[i] - val);
-                if (diff < minDiff) {
-                    minDiff = diff;
-                    bestIdx = i;
-                }
-            }
-            return bestIdx;
-        }
-
         onMoved: {
-            knobRoot.moved(Constants.syncDivisions[Math.round(value)] * Constants.uiInternalScaling);
+            knobRoot.moved(knobController.syncValue(Math.round(value)));
         }
 
         Binding {
             target: slider
             property: "value"
-            value: slider.findBestIndex(knobRoot.value / Constants.uiInternalScaling)
+            value: knobController.syncIndex(knobRoot.value)
             when: !slider.pressed
         }
 
         WheelHandler {
             onWheel: (wheel) => {
                 const delta = wheel.angleDelta.y > 0 ? 1 : -1;
-                const newIndex = Math.max(0, Math.min(Constants.syncDivisions.length - 1, slider.value + delta));
-                knobRoot.moved(Constants.syncDivisions[newIndex] * Constants.uiInternalScaling);
+                const newIndex = Math.max(0, Math.min(knobController.syncCount() - 1, slider.value + delta));
+                knobRoot.moved(knobController.syncValue(newIndex));
             }
         }
     }

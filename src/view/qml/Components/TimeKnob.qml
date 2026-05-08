@@ -33,7 +33,7 @@ ColumnLayout {
 
     spacing: 2
     Label {
-        text: `${knobRoot.label} (${Math.round(knobRoot.value)}${knobRoot.suffix})`
+        text: `${knobRoot.label} (${knobController.timeToString(knobRoot.value, knobRoot.suffix)})`
         font.pixelSize: 11
         color: themeService.accentColor
         Layout.alignment: Qt.AlignHCenter
@@ -47,36 +47,22 @@ ColumnLayout {
         Layout.fillWidth: true
 
         onMoved: {
-            const range = knobRoot.to - knobRoot.from;
-            const mapped = Math.pow(value, 3.0);
-            const outVal = knobRoot.from + (mapped * range);
-            knobRoot.moved(outVal);
+            knobRoot.moved(knobController.mapTime(value, knobRoot.from, knobRoot.to));
         }
 
         Binding {
             target: slider
             property: "value"
-            value: {
-                const range = knobRoot.to - knobRoot.from;
-                if (range <= 0) return 0;
-                const norm = Math.max(0, Math.min(1, (knobRoot.value - knobRoot.from) / range));
-                return Math.pow(norm, 1.0 / 3.0);
-            }
+            value: knobController.unmapTime(knobRoot.value, knobRoot.from, knobRoot.to)
             when: !slider.pressed
         }
 
         WheelHandler {
             onWheel: (wheel) => {
-                const range = knobRoot.to - knobRoot.from;
-                if (range <= 0) return;
-                
-                const norm = Math.max(0, Math.min(1, (knobRoot.value - knobRoot.from) / range));
-                const currentV = Math.pow(norm, 1.0 / 3.0);
+                const currentV = knobController.unmapTime(knobRoot.value, knobRoot.from, knobRoot.to);
                 const delta = wheel.angleDelta.y > 0 ? 0.02 : -0.02;
                 const nextV = Math.max(0, Math.min(1, currentV + delta));
-                const nextMapped = Math.pow(nextV, 3.0);
-                const outVal = knobRoot.from + (nextMapped * range);
-                knobRoot.moved(outVal);
+                knobRoot.moved(knobController.mapTime(nextV, knobRoot.from, knobRoot.to));
             }
         }
     }
