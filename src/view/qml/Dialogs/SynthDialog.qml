@@ -579,29 +579,15 @@ Dialog {
                         StackLayout {
                             currentIndex: synthController.delaySync ? 0 : 1
                             Layout.fillWidth: true
-                            Layout.preferredHeight: noteDurationCombo.implicitHeight
-                            ComboBox {
-                                id: noteDurationCombo
-                                model: Constants.syncLabels
-                                currentIndex: {
-                                    const val = synthController.delaySyncDivision / Constants.uiInternalScaling;
-                                    let bestIdx = 0;
-                                    let minDiff = 10.0;
-                                    for (let i = 0; i < Constants.syncDivisions.length; ++i) {
-                                        let diff = Math.abs(Constants.syncDivisions[i] - val);
-                                        if (diff < minDiff) {
-                                            minDiff = diff;
-                                            bestIdx = i;
-                                        }
-                                    }
-                                    return bestIdx;
-                                }
-                                onActivated: i => {
-                                    synthController.delaySyncDivision = Constants.syncDivisions[i] * Constants.uiInternalScaling;
-                                }
+                            Layout.preferredHeight: delayTimeKnob.implicitHeight
+                            SyncSlider {
+                                label: qsTr("Time")
+                                value: synthController.delaySyncDivision
+                                onMoved: v => synthController.delaySyncDivision = v
                                 Layout.fillWidth: true
                             }
                             Knob {
+                                id: delayTimeKnob
                                 label: qsTr("Time")
                                 from: 1
                                 to: 10000
