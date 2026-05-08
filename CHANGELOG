@@ -5,9 +5,18 @@ Release date:
 
 New features:
 
-* Implement a Gain parameter for Noteahead Sampler and Synth
-  - Range: -30 dB to +30 dB
-  - Allows proper gain staging when recording alongside hardware instruments
+Bug fixes:
+
+Other:
+
+3.0.0
+=====
+
+Release date:
+
+Thu, 07 May 2026 22:04:50 +0300
+
+New features:
 
 * Fix GitHub Issue #45: Implement a simple built-in sampler
   - Internal sampler instrument with 16 assignable pads
@@ -29,8 +38,8 @@ New features:
   - Full MIDI CC automation support (Volume CC 7, Pan CC 10, LPF Cutoff CC 74, HPF Cutoff CC 81)
 
 * Implements a virtual device rack
-
-Bug fixes:
+  - Central hub for managing internal instruments
+  - Supports multiple instances of Samplers and Synths
 
 Other:
 
