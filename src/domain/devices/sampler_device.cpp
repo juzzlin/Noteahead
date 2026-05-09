@@ -319,6 +319,10 @@ void SamplerDevice::processAudio(float * output, uint32_t nFrames, uint32_t samp
             continue;
         }
 
+        for (auto && effect : voice.effects) {
+            effect->setSampleRate(sampleRate);
+        }
+
         const auto & sampleData = *voice.sample->data;
         const int channels = voice.sample->channels;
         const float pitchScale = static_cast<float>(voice.sample->sampleRate) / static_cast<float>(sampleRate);

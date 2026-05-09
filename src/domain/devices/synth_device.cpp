@@ -158,6 +158,7 @@ std::string SynthDevice::typeId() const
 void SynthDevice::processAudio(float * output, uint32_t nFrames, uint32_t sampleRate)
 {
     setSampleRate(sampleRate);
+    m_delay.setSampleRate(static_cast<double>(sampleRate));
     const uint32_t oversampledRate { sampleRate * 2 };
     const std::lock_guard<std::recursive_mutex> lock(mutex());
 

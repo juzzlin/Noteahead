@@ -25,6 +25,8 @@ New features:
 
 Bug fixes:
 
+* Fix Synth's BPM Delay being out of sync due to missing sample rate updates and initial BPM propagation
+
 * Fix metallic ringing in reverb at very small sizes by ensuring musical minimum delay lengths
 
 Other:

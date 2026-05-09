@@ -19,6 +19,7 @@
 #include "../../domain/devices/panning_effect.hpp"
 #include "../../domain/devices/low_pass_filter_effect.hpp"
 #include "../../domain/devices/high_pass_filter_effect.hpp"
+#include "../../domain/devices/delay_effect.hpp"
 #include "../../domain/dsp/cascaded_svf.hpp"
 #include "../../common/constants.hpp"
 
@@ -139,6 +140,33 @@ void EffectsTest::test_highPassFilterEffect()
         QVERIFY(!std::isnan(left));
         QVERIFY(!std::isnan(right));
     }
+}
+
+void EffectsTest::test_delayEffect()
+{
+    DelayEffect effect;
+    effect.setSampleRate(44100.0);
+    effect.setBpm(120.0);
+    effect.setSync(true);
+    effect.setSyncDivision(0.25f); // 1/4 note
+
+    // 120 BPM, 1/4 note = 0.5 seconds.
+    // At 44100 Hz, 0.5 seconds = 22050 samples.
+    
+    // We can't easily check internal state, but we can verify it doesn't crash 
+    // and produces audio if we feed it something.
+    float left = 1.0f;
+    float right = 1.0f;
+    effect.process(left, right);
+    QVERIFY(!std::isnan(left));
+    QVERIFY(!std::isnan(right));
+
+    // Test sample rate change
+    effect.setSampleRate(48000.0);
+    left = 1.0f;
+    right = 1.0f;
+    effect.process(left, right);
+    QCOMPARE(effect.sampleRate(), 48000.0);
 }
 
 void EffectsTest::test_filterStability()

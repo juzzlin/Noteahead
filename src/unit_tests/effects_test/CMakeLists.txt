@@ -9,6 +9,7 @@ set(SRC
     ../../domain/devices/panning_effect.cpp
     ../../domain/devices/low_pass_filter_effect.cpp
     ../../domain/devices/high_pass_filter_effect.cpp
+    ../../domain/devices/delay_effect.cpp
     ../../domain/parameter.cpp
     ../../domain/parameter_container.cpp
     ../../domain/devices/effect.cpp

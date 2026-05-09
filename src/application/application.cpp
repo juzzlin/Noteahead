@@ -154,6 +154,9 @@ Application::Application(int & argc, char ** argv)
     connect(m_playerService.get(), &PlayerService::beatsPerMinuteChanged, this, [this]() {
         m_audioEngine->setBpm(static_cast<float>(m_playerService->beatsPerMinute()));
     });
+
+    m_playerService->setSong(m_editorService->song());
+    m_audioEngine->setBpm(static_cast<float>(m_playerService->beatsPerMinute()));
 }
 
 void Application::registerTypes()
@@ -513,6 +516,14 @@ void Application::connectEditorService()
     connect(m_editorService.get(), &EditorService::trackDeleted, m_sideChainService.get(), &SideChainService::removeSettings);
 
     connect(m_editorService.get(), &EditorService::songPositionChanged, m_playerService.get(), &PlayerService::setSongPosition);
+
+    connect(m_editorService.get(), &EditorService::beatsPerMinuteChanged, this, [this]() {
+        m_audioEngine->setBpm(static_cast<float>(m_playerService->beatsPerMinute()));
+    });
+    connect(m_editorService.get(), &EditorService::songChanged, this, [this]() {
+        m_playerService->setSong(m_editorService->song());
+        m_audioEngine->setBpm(static_cast<float>(m_playerService->beatsPerMinute()));
+    });
 
     connect(m_editorService.get(), &EditorService::positionChanged, this, [this](const auto & newPosition, const auto &) {
         if (const auto settings = m_editorService->columnSettings(newPosition.track, newPosition.column); settings) {
