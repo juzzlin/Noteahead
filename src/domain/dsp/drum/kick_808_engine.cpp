@@ -23,43 +23,27 @@ namespace noteahead {
 
 namespace {
 
-//! Shortest and longest -60 dB times the Decay control spans. The low end is a bare click, the high
-//! end the long sub tail the 808 is wanted for.
-constexpr double MinDecayT60 = 0.04;
-constexpr double MaxDecayT60 = 3.0;
+//! Shortest and longest -60 dB times the Decay control spans, fitted against uncompressed RD-8 V3
+//! recordings. The low end is a short thump, the high end the long sub tail the 808 is wanted for.
+constexpr double MinDecayT60 = 0.065;
+constexpr double MaxDecayT60 = 2.60;
+constexpr double DecayCurve = 0.65;
 
-//! Curvature applied to the Decay control before the range above is swept geometrically.
-//!
-//! Sweeping the range geometrically off the raw control put the middle of the knob at 0.35 s, where
-//! an RD-8 with its own Decay at half rings for closer to 0.9 s: the same setting on the two gave
-//! tails a factor of two apart. Taking the root first lands mid-knob on the hardware and tracks its
-//! envelope within a decibel from 80 ms out, while leaving both ends of the range where they were.
-constexpr double DecayCurve = 0.5;
-
-//! Excitation pulse time constants. A shorter pulse is a broader spectrum, so Tone brightens the
-//! attack by shortening it.
-constexpr double MaxPulseTau = 0.004;
-constexpr double MinPulseTau = 0.0005;
+//! Fixed short excitation pulse time constant. Keeping the body excitation independent of Tone
+//! keeps the peak and sub level steady across the entire Tone range (matching the RD-8's <1 dB
+//! variation) and avoids the artificial transient spike relative to the body.
+constexpr double PulseTau = 0.00055;
 
 //! Pitch envelope time constants, from a snap to an audible downward sweep.
-//!
-//! Mapped geometrically rather than linearly. What an 808 wants is a couple of milliseconds, and on
-//! a linear map to 155 ms that is the bottom two percent of the knob: the whole useful range was
-//! crammed against the stop while nine tenths of the travel bought sweeps far too slow to read as a
-//! drum at all. Zero-crossing measurements of an RD-8 put its own sweep at 3.25 ms, which is a
-//! quarter of the way up a geometric map, so the control's default sits where the hardware does.
 constexpr double MinPitchTau = 0.001;
 constexpr double MaxPitchTau = 0.155;
 
 //! Frequency multiplier the pitch envelope reaches at full depth.
-//!
-//! The same measurements put the RD-8's first half cycle at 271 Hz against a 58 Hz fundamental, and
-//! a fit over its first 22 zero crossings gives a sweep starting 5.4x above the note. The old range
-//! could not reach that even with the control at maximum, so the drum never passed through the two
-//! or three hundred hertz where the body of an 808 hit lives - the fundamental was all there was,
-//! which is what made it sound hollow. Half a knob is 5.4x now, leaving the top half for sweeps
-//! deeper than the hardware's.
-constexpr double PitchDepthRange = 8.8;
+constexpr double PitchDepthRange = 8.2;
+
+//! Subtle analog pitch droop over the first ~35 ms as the bridged-T resonator settles.
+constexpr double DroopDepth = 0.05;
+constexpr double DroopTau = 0.035;
 
 constexpr double MaxGlideSeconds = 0.5;
 
@@ -67,74 +51,33 @@ constexpr double MaxGlideSeconds = 0.5;
 //! cannot beat audibly against the hit that replaced it, long enough to stay a smooth fade.
 constexpr double RetriggerFadeSeconds = 0.004;
 
-//! Leaves headroom so a full-velocity hit with drive off does not sit at full scale. Re-based when
-//! the excitation gained its pulse-length compensation, which lifted the quiet end of Tone's range
-//! by some 10 dB rather than lowering the loud end, and again when the pitch envelope was deepened
-//! to the hardware's: the compensation is taken at the frequency the sweep starts on, so a start
-//! five times the note rather than twice it is worth another 8 dB of excitation at the dark end of
-//! Tone, which put a full-velocity hit a fifth of a decibel under full scale.
-//!
-//! Rebasing here rather than damping the compensation is what keeps Tone out of the level: the
-//! compensation multiplies the excitation, and the excitation is the whole drum, so anything taken
-//! off it at one end of Tone tilts the tail as well as the attack.
-constexpr double OutputGain = 0.36;
+//! Leaves headroom so a full-velocity hit with drive off does not sit at full scale, while keeping
+//! the kit mix level with Drum Synth 808's other pads.
+constexpr double OutputGain = 0.81;
 
 //! Peak the drive stage saturates towards.
-//!
-//! The saturator normalises by tanh(gain), which maps anything with level asymptotically to full
-//! scale, so without a ceiling under 1.0 a fully driven hit pins at exactly +/-1.0. That is bad in
-//! two ways: it sits on the device rack's clip indicator permanently, since the indicator latches
-//! at full scale and the next buffer re-latches it as fast as it can be cleared, and it leaves
-//! nothing for the fader or an off-centre pan, both of which can only push it further over.
-//!
-//! Aiming here instead also keeps Drive from doubling as a +10 dB makeup control, so the knob
-//! changes the harmonics rather than the level.
 constexpr double DriveCeiling = 0.5;
 
-//! The click is in two parts, which is what an RD-8 measures like.
-//!
-//! Third-octave band energies of a hit, taken against that machine, put its attack 5 - 18 dB above
-//! ours through 200 Hz - 800 Hz and 7 - 27 dB above it everywhere over 200 Hz once its Tone is
-//! backed off. Above 800 Hz with Tone up we were already close. So the gap is a missing mid-band
-//! transient, not a missing top end, and the hardware clicks with Tone at zero where we did not
-//! click at all.
-//!
-//! The body of the click carries 200 Hz - 1 kHz. Weighting the slow term by the ratio of the two
-//! time constants makes the shape integrate to zero, so the click is a band pass burst with nothing
-//! left under the fundamental: a one-sided blip carries DC and sub instead, which turned Tone into
-//! a 10 dB level control down there.
-//!
-//! Its length used to be the excitation pulse's, which Tone shortens. That pushed its corner up to
-//! about 1 kHz at full Tone, leaving a hole between the fundamental and the top end, and it made
-//! the click carry *less* energy the further Tone was opened.
+//! The click is in two parts, fitted against uncompressed RD-8 V3 recordings:
+//! - A zero-mean band-pass body covering 200 Hz - 1 kHz.
+//! - A short 2.6 kHz damped sine tick carrying the 1 - 8 kHz snap.
 constexpr double ClickBodyFastTau = 0.00084;
 constexpr double ClickBodySlowTau = 0.00145;
-constexpr double ClickBodyGain = 0.27;
+constexpr double ClickBodyGain = 0.075;
 
-//! The tick is a damped sine burst about two cycles long, which is the top end of the measurement.
-//! Being bipolar it leaves nothing at DC for the device's blocker to throw away.
-constexpr double ClickTickFrequency = 830.0;
-constexpr double ClickTickT60 = 0.0024;
-constexpr double ClickTickGain = 0.40;
+constexpr double ClickTickFrequency = 2600.0;
+constexpr double ClickTickT60 = 0.00085;
+constexpr double ClickTickGain = 0.62;
 
-//! What Tone leaves of each part at zero. The hardware clicks across its whole range - Tone is a
-//! tilt on the click rather than an on/off switch for it - so neither part backs out entirely.
-constexpr double ClickBodyFloor = 0.30;
-constexpr double ClickTickFloor = 0.29;
+//! What Tone leaves of each part at zero: Tone tilts the click and sweeps its low-pass filter
+//! rather than switching the click off entirely.
+constexpr double ClickBodyFloor = 0.55;
+constexpr double ClickTickFloor = 0.16;
 
-//! Corner the click is band limited at. Chosen against the RD-8's own top octaves rather than as
-//! high as possible: the click is a step, and a step has to be rolled off somewhere.
-constexpr double ClickLowPassFrequency = 8000.0;
-
-//! Two poles at that corner rather than one, and Butterworth so the band below it stays flat.
-//!
-//! One pole does not roll off near Nyquist at all: its response flattens out towards half the
-//! sample rate instead of continuing to fall, and it reaches Nyquist only 6 dB down. That left the
-//! click's step just as flat above 10 kHz as it was without a filter, which on a constant
-//! percentage bandwidth analyser - where a band holds more bins the higher it sits - reads as the
-//! whole top of the spectrum ramping back up towards 20 kHz. A second-order low pass has a zero at
-//! Nyquist, so it keeps falling all the way up, and the top band ends up some 18 dB down on where
-//! one pole left it while nothing under 8 kHz moves by as much as a decibel.
+//! Tone sweeps the 2-pole Butterworth click low-pass from 1.1 kHz to 9.5 kHz, reproducing the
+//! RD-8's ~15 dB high-frequency Tone range while continuing to roll off cleanly towards Nyquist.
+constexpr double ClickMinLpfHz = 1100.0;
+constexpr double ClickMaxLpfHz = 9500.0;
 constexpr double ClickLowPassQ = std::numbers::sqrt2 / 2.0;
 
 //! Ratio between a -60 dB time and the exponential time constant that produces it.
@@ -227,20 +170,15 @@ void Kick808Engine::trigger(float velocity)
     m_velocity = velocity;
     m_pulseEnv = 1.0f;
     m_pitchEnv = 1.0f;
+    m_droopEnv = 1.0f;
     m_active = true;
     m_stopping = false;
 
     m_clickSlowEnv = 1.0f;
     m_clickFastEnv = 1.0f;
 
-    // The pulse rings the resonator through what amounts to a one-pole low pass at the frequency
-    // the hit starts on, which is the swept one rather than the note's own.
-    const double sweptStart = m_currentFrequency * (1.0 + static_cast<double>(m_pitchDepth) * PitchDepthRange);
-    m_excitationCompensation = std::hypot(1.0, 2.0 * std::numbers::pi * sweptStart * m_pulseTau);
-
     // Strike the tick resonator on its real axis. The output tap is the imaginary part, so a hit
-    // that lands while the previous tick is still ringing adds to it without stepping the output,
-    // and no separate fade is needed for a burst this short.
+    // that lands while the previous tick is still ringing adds to it without stepping the output.
     m_tickRe += toneScaled(ClickTickFloor) * static_cast<double>(velocity) * ClickTickGain;
 
     // Hand the ring that is still sounding to the tail and restart the resonator from zero, so every
@@ -266,15 +204,16 @@ float Kick808Engine::nextSample()
     // Glide the rendered frequency toward the note that was last triggered.
     m_currentFrequency += (targetFrequency() - m_currentFrequency) * m_glideRate;
 
-    // The pitch envelope rides on top of the glided frequency.
-    const double sweptFrequency = m_currentFrequency * (1.0 + static_cast<double>(m_pitchDepth) * PitchDepthRange * static_cast<double>(m_pitchEnv));
+    // The pitch envelope and subtle analog droop ride on top of the glided frequency.
+    const double droop = DroopDepth * (static_cast<double>(m_pitchDepth) * 2.0) * static_cast<double>(m_droopEnv);
+    const double sweptFrequency = m_currentFrequency * (1.0 + static_cast<double>(m_pitchDepth) * PitchDepthRange * static_cast<double>(m_pitchEnv) + droop);
     // Keep the rotation inside the unit circle's stable region even if a caller asks for a silly note.
     const double omega = 2.0 * std::numbers::pi * std::clamp(sweptFrequency, 1.0, sr * 0.45) / sr;
     const double cosOmega = std::cos(omega);
     const double sinOmega = std::sin(omega);
 
     // Drive the resonator with the excitation pulse, then rotate and damp it.
-    const double excitation = static_cast<double>(m_pulseEnv) * static_cast<double>(m_velocity) * m_excitationGain * m_excitationCompensation;
+    const double excitation = static_cast<double>(m_pulseEnv) * static_cast<double>(m_velocity) * m_excitationGain;
     const double re = m_resonatorRe + excitation;
     const double im = m_resonatorIm;
     const double chokeDamping = m_stopping ? exponentialDecayPerSample(ChokeFadeSeconds, sr) : 1.0;
@@ -297,16 +236,10 @@ float Kick808Engine::nextSample()
     m_tickRe = tickDamping * (tickRe * m_tickCos - m_tickIm * m_tickSin);
     m_tickIm = tickDamping * (tickRe * m_tickSin + m_tickIm * m_tickCos);
 
-    // Both parts of the click start from zero in a single sample, and a step like that carries level
-    // all the way to Nyquist: without this the top two octaves come out flat instead of continuing
-    // to fall, which reads as a shelf climbing towards 20 kHz on an analyser. The corner is far
-    // enough above the click itself to leave the rest of the spectrum alone.
     const double click = clickBody + m_tickIm;
     const double clickBandLimited = m_clickLowPass.process(click);
 
-    // The click enters against the body's polarity. The resonator's first swing under the pitch
-    // envelope is what puts energy around 200 Hz, and a click of the same sign partly cancels it -
-    // measured as a 10 dB hole right where the hardware is strongest. Inverted, the two reinforce.
+    // The click enters against the body's polarity so it reinforces the swept first swing.
     double out = (m_resonatorIm + m_tailIm - clickBandLimited) * OutputGain;
 
     // Saturation stays fully bypassed at zero drive, so the clean tail is bit-for-bit unaffected.
@@ -318,6 +251,7 @@ float Kick808Engine::nextSample()
 
     m_pulseEnv *= m_pulseDecayRate;
     m_pitchEnv *= m_pitchDecayRate;
+    m_droopEnv *= m_droopDecayRate;
     m_clickSlowEnv *= m_clickSlowDecayRate;
     m_clickFastEnv *= m_clickFastDecayRate;
 
@@ -356,6 +290,7 @@ void Kick808Engine::reset()
     m_tickIm = 0.0;
     m_pulseEnv = 0.0f;
     m_pitchEnv = 0.0f;
+    m_droopEnv = 0.0f;
     m_clickSlowEnv = 0.0f;
     m_clickFastEnv = 0.0f;
     m_clickLowPass.reset();
@@ -380,25 +315,16 @@ void Kick808Engine::updateRates()
     m_resonatorDamping = exponentialDecayPerSample(t60 / T60ToTau, sr);
     m_tailDamping = exponentialDecayPerSample(RetriggerFadeSeconds, sr);
 
-    m_pulseTau = MaxPulseTau + (MinPulseTau - MaxPulseTau) * static_cast<double>(m_tone);
+    m_pulseTau = PulseTau;
     m_pulseDecayRate = static_cast<float>(exponentialDecayPerSample(m_pulseTau, sr));
-
-    // Normalize the injected energy against the pulse length so Tone changes the attack's colour
-    // rather than the level of the tail behind it. Matching the area alone does not achieve that:
-    // the injection is spread over the pulse, so once it is no longer short against the resonator's
-    // own period it starts averaging against itself. That left Tone worth 9 dB of level at the
-    // fundamental, measured, which is the resonator's one-pole response to the pulse. trigger()
-    // divides that response back out, at the frequency the hit actually starts on.
     m_excitationGain = 1.0 / (m_pulseTau * sr);
 
     m_clickSlowDecayRate = static_cast<float>(exponentialDecayPerSample(ClickBodySlowTau, sr));
     m_clickFastDecayRate = static_cast<float>(exponentialDecayPerSample(ClickBodyFastTau, sr));
-
-    // Normalize the shape by its own peak, which is at t = 0, so ClickBodyGain stays the click's
-    // level rather than something the time constants quietly scale.
     m_clickBodyNormalization = 1.0 / (1.0 - ClickBodyFastTau / ClickBodySlowTau);
 
-    m_clickLowPass.calculateHighCut(ClickLowPassFrequency, sr, ClickLowPassQ);
+    const double clickLpfHz = ClickMinLpfHz * std::pow(ClickMaxLpfHz / ClickMinLpfHz, static_cast<double>(m_tone));
+    m_clickLowPass.calculateHighCut(clickLpfHz, sr, ClickLowPassQ);
 
     const double tickOmega = 2.0 * std::numbers::pi * std::clamp(ClickTickFrequency, 1.0, sr * 0.45) / sr;
     m_tickCos = std::cos(tickOmega);
@@ -407,6 +333,7 @@ void Kick808Engine::updateRates()
 
     const double pitchTau = MinPitchTau * std::pow(MaxPitchTau / MinPitchTau, static_cast<double>(m_pitchDecay));
     m_pitchDecayRate = static_cast<float>(exponentialDecayPerSample(pitchTau, sr));
+    m_droopDecayRate = static_cast<float>(exponentialDecayPerSample(DroopTau, sr));
 
     const double glideSeconds = static_cast<double>(m_glide) * MaxGlideSeconds;
     m_glideRate = glideSeconds > 0.0 ? 1.0 - exponentialDecayPerSample(glideSeconds, sr) : 1.0;

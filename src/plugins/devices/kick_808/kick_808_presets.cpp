@@ -88,7 +88,7 @@ const std::vector<SynthPreset> & Kick808Presets::presets()
     static const std::vector<SynthPreset> presets {
         { .name = "Init", .parameters = {} },
         // Nothing but the start of the hit, high-passed: a tick for layering over another kick
-        { .name = "Click Layer", .parameters = parameters({ .tone = 10.0, .decay = 0.5, .pitchDepth = 8.0, .pitchDecay = 0.5, .keyTrack = false, .hpfHz = 150.0, .gainDb = 11.0 }) },
+        { .name = "Click Layer", .parameters = parameters({ .tone = 10.0, .decay = 0.5, .pitchDepth = 8.0, .pitchDecay = 0.5, .keyTrack = false, .hpfHz = 150.0, .gainDb = 6.0 }) },
         // Driven into a growl, the sweep a little longer to carry it. Under Init's peak, as the drive
         // makes it denser and so louder at the same peak
         { .name = "Distorted", .parameters = parameters({ .tone = 5.0, .decay = 6.0, .pitchDepth = 6.0, .pitchDecay = 3.0, .drive = 7.0, .keyTrack = false, .gainDb = -4.0 }) },
@@ -99,9 +99,9 @@ const std::vector<SynthPreset> & Kick808Presets::presets()
         // Short with a hard snap: a kick that gets out of the way
         { .name = "Short Punch", .parameters = parameters({ .tune = 5.4, .tone = 6.0, .decay = 2.5, .pitchDepth = 7.0, .pitchDecay = 1.5, .keyTrack = false }) },
         // Long and round, sliding between the notes of the column: the 808 as a bass line
-        { .name = "Sub Glide", .parameters = parameters({ .tone = 2.0, .decay = 8.0, .pitchDepth = 2.0, .glide = 3.0, .lpfHz = 2000.0, .gainDb = 1.0 }) },
+        { .name = "Sub Glide", .parameters = parameters({ .tone = 2.0, .decay = 8.0, .pitchDepth = 2.0, .glide = 3.0, .lpfHz = 2000.0, .gainDb = -2.5 }) },
         // Tight and a little driven, the lowest lows cut: the four-to-the-floor techno kick
-        { .name = "Techno", .parameters = parameters({ .tune = 5.4, .tone = 4.5, .decay = 4.0, .pitchDepth = 6.0, .pitchDecay = 2.0, .drive = 3.0, .keyTrack = false, .hpfHz = 30.0, .gainDb = 2.1 }) },
+        { .name = "Techno", .parameters = parameters({ .tune = 5.4, .tone = 4.5, .decay = 4.0, .pitchDepth = 6.0, .pitchDecay = 2.0, .drive = 3.0, .keyTrack = false, .hpfHz = 30.0, .gainDb = -0.5 }) },
     };
     return presets;
 }

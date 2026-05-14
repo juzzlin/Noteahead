@@ -643,6 +643,27 @@ void Kick808Test::test_serialization_shouldRestoreParameters()
     QCOMPARE(restored.hpfCutoff(), 0.25f);
 }
 
+void Kick808Test::test_tone_shouldKeepPeakLevelSteady()
+{
+    // The RD-8's peak barely moves across Tone (+0.8 dB); keeping excitation independent of Tone
+    // prevents Tone from acting as a level control.
+    const auto peakAt = [](float tone) {
+        Kick808Device kick { "Kick" };
+        kick.setTone(tone);
+        kick.processMidiNoteOn(36, 127);
+        const auto audio = renderMono(kick, 4096);
+        double peak = 0.0;
+        for (const double s : audio) {
+            peak = std::max(peak, std::abs(s));
+        }
+        return peak;
+    };
+    const double lowPeak = peakAt(0.0f);
+    const double highPeak = peakAt(1.0f);
+    const double diffDb = std::abs(20.0 * std::log10(highPeak / lowPeak));
+    QVERIFY2(diffDb < 1.5, qPrintable(QString { "Tone moved peak by %1 dB" }.arg(diffDb)));
+}
+
 void Kick808Test::test_presets_shouldLoadAndPlay()
 {
     const auto & presets = Kick808Presets::presets();
