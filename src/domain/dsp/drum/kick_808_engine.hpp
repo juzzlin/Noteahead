@@ -116,6 +116,7 @@ private:
 
     float m_pulseEnv { 0.0f };
     float m_pitchEnv { 0.0f };
+    float m_droopEnv { 0.0f };
     float m_clickSlowEnv { 0.0f };
     float m_clickFastEnv { 0.0f };
     float m_velocity { 1.0f };
@@ -140,8 +141,8 @@ private:
     float m_clickFastDecayRate { 0.0f };
     double m_clickBodyNormalization { 1.0 };
     float m_pitchDecayRate { 0.0f };
+    float m_droopDecayRate { 0.0f };
     double m_excitationGain { 0.0 };
-    double m_excitationCompensation { 1.0 };
     double m_pulseTau { 0.0 };
     double m_glideRate { 0.0 };
     double m_lastSampleRate { -1.0 };

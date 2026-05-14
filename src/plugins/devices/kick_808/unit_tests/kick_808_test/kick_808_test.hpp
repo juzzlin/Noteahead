@@ -52,6 +52,7 @@ private slots:
     void test_resetAllControllers_shouldRestoreAuthoredValue();
     void test_drive_full_shouldLeaveHeadroom();
     void test_serialization_shouldRestoreParameters();
+    void test_tone_shouldKeepPeakLevelSteady();
 
     void test_presets_shouldLoadAndPlay();
     void test_ampEnvelope_defaults_shouldBeBypassed();
