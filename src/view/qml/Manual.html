@@ -193,6 +193,7 @@
         <ul>
             <li>4 independent <strong>Noteahead Sampler</strong> instances ("Noteahead Sampler 1" to "Noteahead Sampler 4").</li>
             <li>4 independent <strong>Noteahead Synth</strong> instances ("Noteahead Synth 1" to "Noteahead Synth 4").</li>
+            <li>4 independent <strong>Noteahead DrumSynth</strong> instances ("Noteahead DrumSynth 1" to "Noteahead DrumSynth 4").</li>
         </ul>
         Each instance maintains its own settings, samples, and presets, allowing for complex multi-instrument arrangements without external hardware.
     </li>
@@ -266,6 +267,45 @@
             <li><strong>CC 10</strong>: Pan.</li>
             <li><strong>CC 74</strong>: LPF Cutoff.</li>
             <li><strong>CC 81</strong>: HPF Cutoff.</li>
+        </ul>
+    </li>
+</ul>
+
+<h3 style="color: orange;">DrumSynth</h3>
+<p>The DrumSynth is a specialized internal instrument for synthesizing drum sounds, featuring 11 independent pads with dedicated synthesis engines.</p>
+<ul>
+    <li><strong>Selection</strong>: Assign a track to a specific DrumSynth by selecting its name (e.g., "Noteahead DrumSynth 1") in the <strong>Track Settings</strong> port list.</li>
+    <li><strong>Pads</strong>: Features 11 pads: Kick, Snare, Closed Hi-Hat, Clap, Open Hi-Hat, Low Tom, Mid Tom, High Tom, Crash, Ride, and Reverse Crash.</li>
+    <li><strong>Common Pad Controls</strong>:
+        <ul>
+            <li><strong>Level & Pan</strong>: Individual volume and stereo positioning for each pad.</li>
+            <li><strong>LPF & HPF Cutoff</strong>: Dedicated low-pass and high-pass filters for each pad.</li>
+            <li><strong>Tune</strong>: Pitch control for the drum engine.</li>
+            <li><strong>Decay & Attack</strong>: Control the amplitude envelope of the drum sound.</li>
+            <li><strong>Resonance</strong>: Filter resonance for the pad's LPF.</li>
+        </ul>
+    </li>
+    <li><strong>Advanced Controls</strong>:
+        <ul>
+            <li><strong>Kick</strong>: Click Tune, Pitch Depth, and Pitch Decay.</li>
+            <li><strong>Snare</strong>: Snappy (noise level) and Tone.</li>
+            <li><strong>Toms</strong>: Pitch Depth and Pitch Decay.</li>
+        </ul>
+    </li>
+    <li><strong>Automation</strong>: DrumSynth supports extensive MIDI CC automation for all parameters. Note that CCs 71-79 target the <strong>Selected Pad</strong> (which can be focused via CC 70):
+        <ul>
+            <li><strong>CC 7</strong>: Global Volume.</li>
+            <li><strong>CC 10</strong>: Global Pan.</li>
+            <li><strong>CC 70</strong>: Focus Pad (0-10).</li>
+            <li><strong>CC 71</strong>: Pad Level.</li>
+            <li><strong>CC 72</strong>: Pad Pan.</li>
+            <li><strong>CC 73</strong>: Pad LPF Cutoff.</li>
+            <li><strong>CC 74</strong>: Pad HPF Cutoff.</li>
+            <li><strong>CC 75</strong>: Pad Tune.</li>
+            <li><strong>CC 76</strong>: Pad Decay.</li>
+            <li><strong>CC 77</strong>: Pad Specific 1 (e.g., Kick Attack, Snare Snappy).</li>
+            <li><strong>CC 78</strong>: Pad Specific 2 (e.g., Kick Pitch Depth, Snare Tone).</li>
+            <li><strong>CC 79</strong>: Pad Specific 3 (e.g., Kick Pitch Decay).</li>
         </ul>
     </li>
 </ul>
