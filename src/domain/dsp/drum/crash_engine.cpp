@@ -47,6 +47,10 @@ void CrashEngine::trigger(float velocity)
     m_bpf.reset();
     m_lpf.reset();
     m_bodyFilter.reset();
+    m_wobblePhase = 0.0;
+    for (auto && phase : m_phases) {
+        phase = 0.0;
+    }
     if (m_mode == Mode::Normal) {
         m_ampEnv = 1.0f;
     } else {

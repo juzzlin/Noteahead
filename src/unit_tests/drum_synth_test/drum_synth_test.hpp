@@ -32,6 +32,7 @@ private slots:
     void test_kick_start_discontinuity();
     void test_kick_retrigger_pop();
     void test_kick_small_attack_pop();
+    void test_kickEngine_peakVolume_shouldNotExceedOne();
     void test_snareEngine_trigger_shouldBeActive();
     void test_hihatEngine_trigger_shouldBeActive();
     void test_crashEngine_trigger_shouldBeActive();

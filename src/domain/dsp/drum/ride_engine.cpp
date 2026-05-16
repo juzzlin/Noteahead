@@ -32,6 +32,9 @@ void RideEngine::trigger(float velocity)
     m_active = true;
     m_filter.reset();
     m_ampEnv = 1.0f;
+    for (auto && phase : m_phases) {
+        phase = 0.0;
+    }
 }
 
 float RideEngine::nextSample()

@@ -55,6 +55,8 @@ private:
     float m_pitchDepth { 0.5f };
     float m_pitchDecay { 0.5f };
     float m_velocity { 1.0f };
+    float m_lastOut { 0.0f };
+    float m_retriggerOffset { 0.0f };
 
     std::mt19937 m_rng;
     std::uniform_real_distribution<float> m_dist { -1.0f, 1.0f };

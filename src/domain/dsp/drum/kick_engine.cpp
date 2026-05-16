@@ -29,11 +29,7 @@ KickEngine::KickEngine()
 
 void KickEngine::trigger(float velocity)
 {
-    if (m_active && m_ampEnv > 0.001f) {
-        // Simple cross-fade: store current state to fade out
-        // For now, just a very fast ramp down of current env could work,
-        // but let's just reset phase and accept it'll be at 0.
-    }
+    m_retriggerOffset = m_lastOut;
     m_velocity = velocity;
     m_pitchEnv = 1.0f;
     m_phase = 0.0;
@@ -47,6 +43,7 @@ void KickEngine::trigger(float velocity)
 float KickEngine::nextSample()
 {
     if (!m_active) {
+        m_lastOut = 0.0f;
         return 0.0f;
     }
 
@@ -68,14 +65,18 @@ float KickEngine::nextSample()
     if (m_clickPhase >= 1.0) m_clickPhase -= 1.0;
     
     // Click Component
-    const float click { clickOsc * m_clickEnv * m_attack * 1.2f };
+    const float click { clickOsc * m_clickEnv * m_attack * 0.35f };
     
     // Sine Component
-    const float sine { static_cast<float>(std::sin(m_phase * 2.0 * std::numbers::pi)) * 0.8f };
+    const float sine { static_cast<float>(std::sin(m_phase * 2.0 * std::numbers::pi)) * 0.65f };
     m_phase += phaseStep;
     if (m_phase >= 1.0) m_phase -= 1.0;
 
-    const float out { (sine + click) * m_ampEnv * m_velocity };
+    float out { (sine + click) * m_ampEnv * m_velocity };
+
+    // Apply re-trigger offset to smooth out discontinuities
+    out += m_retriggerOffset;
+    m_retriggerOffset *= 0.95f;
 
     // Envelopes
     const float ampDecayRate { 1.0f - (1.0f / (std::max(0.001f, m_decay) * 0.5f * static_cast<float>(sr))) };
@@ -88,11 +89,13 @@ float KickEngine::nextSample()
     const float pitchDecayRate { 1.0f - (1.0f / (std::max(0.001f, m_pitchDecay * 0.1f) * static_cast<float>(sr))) };
     m_pitchEnv *= pitchDecayRate;
 
-    if (m_ampEnv < AmplitudeThreshold) {
+    if (m_ampEnv < AmplitudeThreshold && std::abs(out) < AmplitudeThreshold) {
         m_active = false;
         m_ampEnv = 0.0f;
+        m_retriggerOffset = 0.0f;
     }
 
+    m_lastOut = out;
     return out;
 }
 
@@ -106,6 +109,8 @@ void KickEngine::reset()
     m_active = false;
     m_ampEnv = 0.0f;
     m_clickEnv = 0.0f;
+    m_lastOut = 0.0f;
+    m_retriggerOffset = 0.0f;
 }
 
 void KickEngine::setTune(float tune)

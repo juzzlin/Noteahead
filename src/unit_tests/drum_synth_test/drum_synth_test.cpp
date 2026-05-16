@@ -89,6 +89,23 @@ void DrumSynthTest::test_kick_small_attack_pop()
     ReproKickPop::test_kick_small_attack_pop();
 }
 
+void DrumSynthTest::test_kickEngine_peakVolume_shouldNotExceedOne()
+{
+    KickEngine engine;
+    engine.setSampleRate(44100);
+    
+    for (float attack : { 0.0f, 0.5f, 1.0f }) {
+        engine.setAttack(attack);
+        engine.trigger(1.0f);
+        float peak = 0.0f;
+        for (int i = 0; i < 1000; ++i) {
+            peak = std::max(peak, std::abs(engine.nextSample()));
+        }
+        std::cout << "Peak for attack " << attack << ": " << peak << std::endl;
+        QVERIFY(peak <= 1.01f);
+    }
+}
+
 void DrumSynthTest::test_snareEngine_trigger_shouldBeActive()
 {
     SnareEngine engine;

@@ -35,6 +35,9 @@ void HiHatEngine::trigger(float velocity)
     m_active = true;
     m_filter.reset();
     m_bodyFilter.reset();
+    for (auto && phase : m_phases) {
+        phase = 0.0;
+    }
 }
 
 float HiHatEngine::nextSample()
