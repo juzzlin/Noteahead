@@ -231,6 +231,8 @@ ApplicationWindow {
     EffectSendsDialog {
         id: effectSendsDialog
         anchors.centerIn: parent
+        width: parent.width * Constants.defaultDialogScale
+        height: parent.height * Constants.defaultDialogScale
     }
     ReverbDialog {
         id: reverbDialog
@@ -427,10 +429,6 @@ ApplicationWindow {
         deviceRackController.samplerDialogRequested.connect(samplerDialog.open);
         deviceRackController.synthDialogRequested.connect(synthDialog.open);
         deviceRackController.drumSynthDialogRequested.connect(drumSynthDialog.open);
-        deviceRackController.effectSendsDialogRequested.connect(deviceName => {
-            effectSendsDialog.deviceName = deviceName;
-            effectSendsDialog.open();
-        });
         applicationService.samplerDialogRequested.connect(samplerDialog.open);
         applicationService.drumSynthDialogRequested.connect(drumSynthDialog.open);
         applicationService.openDialogRequested.connect(openDialog.open);
@@ -464,17 +462,17 @@ ApplicationWindow {
             _editorView.focus = true;
         });
         UiService.deviceRackDialogRequested.connect(deviceRackDialog.open);
+        UiService.effectSendsDialogRequested.connect(deviceName => {
+            effectSendsDialog.deviceName = deviceName;
+            effectSendsDialog.open();
+        });
         UiService.samplerDialogRequested.connect(samplerDialog.open);
         UiService.drumSynthDialogRequested.connect(drumSynthDialog.open);
         UiService.recentFilesDialogRequested.connect(recentFilesDialog.open);
         UiService.deviceDialogRequested.connect(deviceName => {
             if (deviceService.isInternalDevice(deviceName)) {
                 deviceRackController.openDevice(deviceName);
-            }
-        });
-        UiService.recentFilesDialogRequested.connect(recentFilesDialog.open);
-        UiService.deviceDialogRequested.connect(deviceName => {
-            if (deviceName === applicationService.samplerDeviceName) {
+            } else if (deviceName === applicationService.samplerDeviceName) {
                 samplerDialog.open();
             } else if (deviceName === applicationService.synthDeviceName) {
                 synthDialog.open();

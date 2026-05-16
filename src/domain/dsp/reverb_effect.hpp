@@ -74,6 +74,9 @@ private:
     float m_mix { 0.0f };
     float m_width { 1.0f };
 
+    bool m_shouldSyncParameters { false };
+    bool m_shouldUpdateBuffers { false };
+
     static constexpr int NumDelays = 4;
     
     struct DelayLine {
@@ -82,22 +85,6 @@ private:
         float lpState { 0.0f };
         uint32_t size { 0 };
         float feedback { 0.0f };
-
-        void resize(uint32_t n) {
-            buffer.assign(n, 0.0f);
-            size = n;
-            writePos = 0;
-            lpState = 0.0f;
-        }
-
-        float process(float input, float damping) {
-            float output = buffer[writePos];
-            // Low-pass absorption
-            lpState = output + damping * (lpState - output);
-            buffer[writePos] = input * feedback;
-            if (++writePos >= size) writePos = 0;
-            return lpState;
-        }
 
         void reset() {
             std::fill(buffer.begin(), buffer.end(), 0.0f);

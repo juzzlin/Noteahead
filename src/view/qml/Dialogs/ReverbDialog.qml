@@ -69,7 +69,10 @@ Dialog {
 
             Knob {
                 label: qsTr("Size")
-                value: (effectRackController.revision, effectRackController.parameterValue(root.effectIndex, "reverbSize") * Constants.uiInternalScaling)
+                value: {
+                    effectRackController.revision;
+                    return effectRackController.parameterValue(root.effectIndex, "reverbSize") * Constants.uiInternalScaling;
+                }
                 onMoved: v => effectRackController.setParameterValue(root.effectIndex, "reverbSize", v / Constants.uiInternalScaling)
                 Layout.fillWidth: true
             }
@@ -79,14 +82,20 @@ Dialog {
                 suffix: "ms"
                 from: 0
                 to: 10000
-                value: (effectRackController.revision, effectRackController.parameterValue(root.effectIndex, "reverbDecay") * 10000)
+                value: {
+                    effectRackController.revision;
+                    return effectRackController.parameterValue(root.effectIndex, "reverbDecay") * 10000;
+                }
                 onMoved: v => effectRackController.setParameterValue(root.effectIndex, "reverbDecay", v / 10000)
                 Layout.fillWidth: true
             }
 
             Knob {
                 label: qsTr("Damping")
-                value: (effectRackController.revision, effectRackController.parameterValue(root.effectIndex, "reverbDamping") * Constants.uiInternalScaling)
+                value: {
+                    effectRackController.revision;
+                    return effectRackController.parameterValue(root.effectIndex, "reverbDamping") * Constants.uiInternalScaling;
+                }
                 onMoved: v => effectRackController.setParameterValue(root.effectIndex, "reverbDamping", v / Constants.uiInternalScaling)
                 Layout.fillWidth: true
             }
@@ -96,7 +105,10 @@ Dialog {
                 suffix: "ms"
                 from: 0
                 to: 500
-                value: (effectRackController.revision, effectRackController.parameterValue(root.effectIndex, "reverbPreDelay") * 500)
+                value: {
+                    effectRackController.revision;
+                    return effectRackController.parameterValue(root.effectIndex, "reverbPreDelay") * 500;
+                }
                 onMoved: v => effectRackController.setParameterValue(root.effectIndex, "reverbPreDelay", v / 500)
                 Layout.fillWidth: true
             }
@@ -105,14 +117,20 @@ Dialog {
                 label: qsTr("Width")
                 from: 0
                 to: 2 * Constants.uiInternalScaling
-                value: (effectRackController.revision, effectRackController.parameterValue(root.effectIndex, "reverbWidth") * Constants.uiInternalScaling)
-                onMoved: v => effectRackController.setParameterValue(root.effectIndex, "reverbWidth", v / Constants.uiInternalScaling)
+                value: {
+                    effectRackController.revision;
+                    return effectRackController.parameterValue(root.effectIndex, "reverbWidth") * 2 * Constants.uiInternalScaling;
+                }
+                onMoved: v => effectRackController.setParameterValue(root.effectIndex, "reverbWidth", v / (2 * Constants.uiInternalScaling))
                 Layout.fillWidth: true
             }
 
             Knob {
                 label: qsTr("Mix")
-                value: (effectRackController.revision, effectRackController.parameterValue(root.effectIndex, "reverbMix") * Constants.uiInternalScaling)
+                value: {
+                    effectRackController.revision;
+                    return effectRackController.parameterValue(root.effectIndex, "reverbMix") * Constants.uiInternalScaling;
+                }
                 onMoved: v => effectRackController.setParameterValue(root.effectIndex, "reverbMix", v / Constants.uiInternalScaling)
                 Layout.fillWidth: true
             }

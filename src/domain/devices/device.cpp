@@ -32,7 +32,7 @@ Device::Device()
     
     // Initial 4 sends
     for (int i = 0; i < 4; ++i) {
-        addParameter(Parameter { "reverbSend_" + std::to_string(i), 0.0f, 0, 100, 0 });
+        addParameter(Parameter { "reverbSend_" + std::to_string(i), 0.0f, 0, 1, 0 });
     }
     m_reverbSends.resize(4, 0.0f);
     m_manualReverbSends.resize(4, 0.0f);

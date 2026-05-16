@@ -24,6 +24,12 @@ EffectRackController::EffectRackController(std::shared_ptr<DeviceService> device
   : QObject { parent }
   , m_deviceService { std::move(deviceService) }
 {
+    if (m_deviceService) {
+        connect(m_deviceService.get(), &DeviceService::dataChanged, this, [this]() {
+            m_revision++;
+            emit revisionChanged();
+        });
+    }
 }
 
 int EffectRackController::effectCount() const

@@ -98,7 +98,7 @@ Dialog {
 
                     Button {
                         text: qsTr("Sends")
-                        onClicked: deviceRackController.requestEffectSendsDialog(model.name)
+                        onClicked: UiService.requestEffectSendsDialog(model.name)
                         Layout.preferredWidth: 80
                     }
 

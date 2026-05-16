@@ -34,6 +34,7 @@ QtObject {
     signal recentFilesDialogRequested
     signal deviceDialogRequested(string deviceName)
     signal deviceRackDialogRequested
+    signal effectSendsDialogRequested(string deviceName)
     signal samplerDialogRequested
     signal drumSynthDialogRequested
     signal selectionAddMidiCcAutomationDialogRequested
@@ -141,6 +142,9 @@ QtObject {
     }
     function requestDeviceRackDialog(): void {
         deviceRackDialogRequested();
+    }
+    function requestEffectSendsDialog(deviceName: string): void {
+        effectSendsDialogRequested(deviceName);
     }
     function requestDrumSynthDialog(): void {
         drumSynthDialogRequested();

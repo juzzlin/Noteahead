@@ -76,7 +76,10 @@ Dialog {
                         Layout.fillWidth: true
                     }
                     Knob {
-                        value: (effectRackController.revision, effectRackController.deviceSend(root.deviceName, index) * Constants.uiInternalScaling)
+                        value: {
+                            effectRackController.revision;
+                            return effectRackController.deviceSend(root.deviceName, index) * Constants.uiInternalScaling;
+                        }
                         onMoved: v => effectRackController.setDeviceSend(root.deviceName, index, v / Constants.uiInternalScaling)
                     }
                 }
