@@ -171,7 +171,6 @@ Dialog {
                     Knob {
                         visible: drumSynthController.isKick
                         label: qsTr("P.Depth")
-                        mapping: "intensity"
                         value: drumSynthController.kickPitchDepth
                         onMoved: (val) => drumSynthController.kickPitchDepth = val
                     }
@@ -196,7 +195,6 @@ Dialog {
                     Knob {
                         visible: drumSynthController.isTom
                         label: qsTr("P.Depth")
-                        mapping: "intensity"
                         value: drumSynthController.tomPitchDepth
                         onMoved: (val) => drumSynthController.tomPitchDepth = val
                     }
