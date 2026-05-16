@@ -43,7 +43,7 @@ float TomEngine::nextSample()
     const double baseFreq { 80.0 + (m_tune * 150.0) };
     const double sweepFreq { baseFreq + (m_pitchDepth * 200.0 * m_pitchEnv) };
 
-    float out { static_cast<float>(std::sin(m_phase * 2.0 * std::numbers::pi)) * m_ampEnv * m_attackEnv * m_velocity };
+    float out { static_cast<float>(std::sin(m_phase * 2.0 * std::numbers::pi)) * m_ampEnv * m_attackEnv * m_velocity * 0.7f };
 
     // Apply re-trigger offset to smooth out discontinuities
     out += m_retriggerOffset;

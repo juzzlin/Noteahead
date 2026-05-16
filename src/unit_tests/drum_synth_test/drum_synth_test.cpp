@@ -101,9 +101,71 @@ void DrumSynthTest::test_kickEngine_peakVolume_shouldNotExceedOne()
         for (int i = 0; i < 1000; ++i) {
             peak = std::max(peak, std::abs(engine.nextSample()));
         }
-        std::cout << "Peak for attack " << attack << ": " << peak << std::endl;
         QVERIFY(peak <= 1.01f);
     }
+}
+
+void DrumSynthTest::test_tomEngine_peakVolume_shouldNotExceedOne()
+{
+    TomEngine engine;
+    engine.setSampleRate(44100);
+    engine.trigger(1.0f);
+    float peak = 0.0f;
+    for (int i = 0; i < 1000; ++i) {
+        peak = std::max(peak, std::abs(engine.nextSample()));
+    }
+    QVERIFY(peak <= 1.01f);
+}
+
+void DrumSynthTest::test_snareEngine_peakVolume_shouldNotExceedOne()
+{
+    SnareEngine engine;
+    engine.setSampleRate(44100);
+    for (float snappy : { 0.0f, 0.5f, 1.0f }) {
+        engine.setSnappy(snappy);
+        engine.trigger(1.0f);
+        float peak = 0.0f;
+        for (int i = 0; i < 1000; ++i) {
+            peak = std::max(peak, std::abs(engine.nextSample()));
+        }
+        QVERIFY(peak <= 1.01f);
+    }
+}
+
+void DrumSynthTest::test_hihatEngine_peakVolume_shouldNotExceedOne()
+{
+    HiHatEngine engine;
+    engine.setSampleRate(44100);
+    engine.trigger(1.0f);
+    float peak = 0.0f;
+    for (int i = 0; i < 1000; ++i) {
+        peak = std::max(peak, std::abs(engine.nextSample()));
+    }
+    QVERIFY(peak <= 1.01f);
+}
+
+void DrumSynthTest::test_crashEngine_peakVolume_shouldNotExceedOne()
+{
+    CrashEngine engine;
+    engine.setSampleRate(44100);
+    engine.trigger(1.0f);
+    float peak = 0.0f;
+    for (int i = 0; i < 1000; ++i) {
+        peak = std::max(peak, std::abs(engine.nextSample()));
+    }
+    QVERIFY(peak <= 1.01f);
+}
+
+void DrumSynthTest::test_rideEngine_peakVolume_shouldNotExceedOne()
+{
+    RideEngine engine;
+    engine.setSampleRate(44100);
+    engine.trigger(1.0f);
+    float peak = 0.0f;
+    for (int i = 0; i < 1000; ++i) {
+        peak = std::max(peak, std::abs(engine.nextSample()));
+    }
+    QVERIFY(peak <= 1.01f);
 }
 
 void DrumSynthTest::test_snareEngine_trigger_shouldBeActive()

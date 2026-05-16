@@ -78,7 +78,7 @@ float SnareEngine::nextSample()
     m_noiseFilter.setResonance(0.3f);
     const float filteredNoise { m_noiseFilter.process(noise) };
 
-    const float out { (tonal * m_tonalEnv * (1.0f - m_snappy) + filteredNoise * m_snappy * 3.0f) * m_ampEnv * m_velocity };
+    const float out { (tonal * m_tonalEnv * (1.0f - m_snappy) * 0.8f + filteredNoise * m_snappy * 2.5f) * m_ampEnv * m_velocity };
 
     // Separate decay for tonal part (much faster than noise)
     const float tonalDecayRate { 1.0f - (1.0f / (0.04f * static_cast<float>(sampleRate()))) };
