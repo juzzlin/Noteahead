@@ -18,6 +18,7 @@
 #include <QXmlStreamWriter>
 #include <QXmlStreamReader>
 #include "repro_kick_pop.cpp"
+#include "../../common/constants.hpp"
 #include "../../domain/dsp/drum/kick_engine.hpp"
 #include "../../domain/dsp/drum/snare_engine.hpp"
 #include "../../domain/dsp/drum/hihat_engine.hpp"
@@ -130,7 +131,7 @@ void DrumSynthTest::test_clapEngine_trigger_shouldBeActive()
     QVERIFY(engine.isActive());
 }
 
-void DrumSynthTest::test_drumSynthDevice_midiNoteOn_shouldTriggerPad()
+void DrumSynthTest::test_drumSynthDevice_midiNoteOn_shouldTriggerVoice()
 {
     DrumSynthDevice device("Test");
     device.processMidiNoteOn(36, 127); // Kick
@@ -150,8 +151,8 @@ void DrumSynthTest::test_drumSynthDevice_xmlSerialization_shouldRestoreParameter
 {
     DrumSynthDevice device("Test");
     
-    if (auto p = device.parameter("Pad0_tune"); p) p->get().setValue(0.75f);
-    if (auto p = device.parameter("Pad1_snappy"); p) p->get().setValue(0.25f);
+    if (auto p = device.parameter("Voice0_" + Constants::NahdXml::xmlKeyTune().toStdString()); p) p->get().setValue(0.75f);
+    if (auto p = device.parameter("Voice1_" + Constants::NahdXml::xmlKeySnappy().toStdString()); p) p->get().setValue(0.25f);
 
     QString xml;
     QXmlStreamWriter writer(&xml);
@@ -162,34 +163,46 @@ void DrumSynthTest::test_drumSynthDevice_xmlSerialization_shouldRestoreParameter
     while (!reader.atEnd() && !reader.isStartElement()) reader.readNext();
     restored.deserializeFromXml(reader);
 
-    if (auto p = restored.parameter("Pad0_tune"); p) QCOMPARE(p->get().value(), 0.75f);
-    if (auto p = restored.parameter("Pad1_snappy"); p) QCOMPARE(p->get().value(), 0.25f);
+    if (auto p = restored.parameter("Voice0_" + Constants::NahdXml::xmlKeyTune().toStdString()); p) QCOMPARE(p->get().value(), 0.75f);
+    if (auto p = restored.parameter("Voice1_" + Constants::NahdXml::xmlKeySnappy().toStdString()); p) QCOMPARE(p->get().value(), 0.25f);
 }
 
-void DrumSynthTest::test_drumSynthDevice_midiCc_shouldUpdateSelectedPadParameters()
+void DrumSynthTest::test_processMidiCc_shouldUpdateVoicePanLpfHpf()
 {
     DrumSynthDevice device("Test");
     
-    device.processMidiCc(70, 0, 0);
-    QCOMPARE(device.selectedPad(), 0);
+    // Kick (Voice 0) Pan (CC 14)
+    device.processMidiCc(14, 127, 0);
+    if (auto p = device.parameter("Voice0_" + Constants::NahdXml::xmlKeyPan().toStdString()); p) QCOMPARE(p->get().value(), 1.0f);
 
-    device.processMidiCc(75, 127, 0);
-    if (auto p = device.parameter("Pad0_tune"); p) QCOMPARE(p->get().value(), 1.0f);
+    // Kick (Voice 0) LPF (CC 15)
+    device.processMidiCc(15, 64, 0);
+    if (auto p = device.parameter("Voice0_" + Constants::NahdXml::xmlKeyCutoff().toStdString()); p) QVERIFY(std::abs(p->get().value() - 0.5f) < 0.01f);
 
-    device.processMidiCc(70, 1, 0);
-    QCOMPARE(device.selectedPad(), 1);
+    // Kick (Voice 0) HPF (CC 16)
+    device.processMidiCc(16, 0, 0);
+    if (auto p = device.parameter("Voice0_" + Constants::NahdXml::xmlKeyHpfCutoff().toStdString()); p) QCOMPARE(p->get().value(), 0.0f);
 
-    device.processMidiCc(77, 64, 0);
-    if (auto p = device.parameter("Pad1_snappy"); p) QVERIFY(std::abs(p->get().value() - 0.5f) < 0.01f);
+    // Low Tom (Voice 5) HPF (CC 14 + 5*3 + 2 = CC 31)
+    device.processMidiCc(31, 127, 0);
+    if (auto p = device.parameter("Voice5_" + Constants::NahdXml::xmlKeyHpfCutoff().toStdString()); p) QCOMPARE(p->get().value(), 1.0f);
+
+    // Mid Tom (Voice 6) Pan (CC 102)
+    device.processMidiCc(102, 127, 0);
+    if (auto p = device.parameter("Voice6_" + Constants::NahdXml::xmlKeyPan().toStdString()); p) QCOMPARE(p->get().value(), 1.0f);
+
+    // Reverse Crash (Voice 10) HPF (CC 102 + 4*3 + 2 = CC 116)
+    device.processMidiCc(116, 127, 0);
+    if (auto p = device.parameter("Voice10_" + Constants::NahdXml::xmlKeyHpfCutoff().toStdString()); p) QCOMPARE(p->get().value(), 1.0f);
 }
 
 void DrumSynthTest::test_drumSynthDevice_toms_shouldHaveDifferentDefaultTunes()
 {
     const DrumSynthDevice device("Test");
     
-    const auto getTune = [&](int padIndex) {
-        const std::string prefix { "Pad" + std::to_string(padIndex) + "_" };
-        const auto p { device.parameter(prefix + "tune") };
+    const auto getTune = [&](int voiceIndex) {
+        const std::string prefix { DrumSynth::voiceId(voiceIndex) + "_" };
+        const auto p { device.parameter(prefix + Constants::NahdXml::xmlKeyTune().toStdString()) };
         return p ? p->get().value() : -1.0f;
     };
 

@@ -24,7 +24,9 @@
 
 namespace noteahead {
 
-void DrumSynthDevice::Pad::updateEffects()
+using namespace DrumSynth;
+
+void DrumSynthDevice::Voice::updateEffects()
 {
     volumeEffect->setVolume(level);
     panningEffect->setPan(pan);
@@ -35,10 +37,10 @@ void DrumSynthDevice::Pad::updateEffects()
 DrumSynthDevice::DrumSynthDevice(std::string name)
   : m_name { std::move(name) }
 {
-    initializePads();
+    initializeVoices();
 
-    for (int i { 0 }; i < NumPads; ++i) {
-        addPadParameters(i);
+    for (int i { 0 }; i < NumVoices; ++i) {
+        addVoiceParameters(i);
     }
 
     setManualPan(panInternal());
@@ -66,10 +68,10 @@ std::string DrumSynthDevice::typeId() const
 void DrumSynthDevice::processMidiNoteOn(uint8_t note, uint8_t velocity)
 {
     const std::lock_guard<std::recursive_mutex> lock { mutex() };
-    for (auto && pad : m_pads) {
-        if (pad.midiNote == note) {
+    for (auto && voice : m_voices) {
+        if (voice.midiNote == note) {
             const float vel { static_cast<float>(velocity) / 127.0f };
-            pad.engine->trigger(vel);
+            voice.engine->trigger(vel);
             break;
         }
     }
@@ -80,7 +82,7 @@ void DrumSynthDevice::processMidiNoteOff(uint8_t note)
     const std::lock_guard<std::recursive_mutex> lock { mutex() };
     // Closed Hat choke logic
     if (note == 42 || note == 44) { // Closed Hat or Pedal Hat
-        m_pads[4].engine->reset(); // Reset Open Hat (46)
+        m_voices[static_cast<int>(VoiceIndex::OpenHiHat)].engine->reset();
     }
 }
 
@@ -104,34 +106,18 @@ void DrumSynthDevice::processMidiCc(uint8_t controller, uint8_t value, uint8_t /
                 changed |= updateVolumeParameter(val, false);
             } else if (controller == static_cast<uint8_t>(Controller::PanMSB)) {
                 changed |= updatePanParameter(val, false);
-            } else if (controller == static_cast<uint8_t>(Controller::SoundController1)) { // CC 70: Focus Pad
-                m_selectedPad = std::clamp(static_cast<int>(value), 0, NumPads - 1);
-                changed = true;
-            } else if (controller == static_cast<uint8_t>(Controller::SoundController2)) { // CC 71: Level
-                changed |= updatePadParameter(m_selectedPad, Constants::NahdXml::xmlKeyLevel().toStdString(), val);
-            } else if (controller == static_cast<uint8_t>(Controller::SoundController3)) { // CC 72: Pan
-                changed |= updatePadParameter(m_selectedPad, Constants::NahdXml::xmlKeyPan().toStdString(), val);
-            } else if (controller == static_cast<uint8_t>(Controller::SoundController4)) { // CC 73: LPF
-                changed |= updatePadParameter(m_selectedPad, Constants::NahdXml::xmlKeyCutoff().toStdString(), val);
-            } else if (controller == static_cast<uint8_t>(Controller::SoundController5)) { // CC 74: HPF
-                changed |= updatePadParameter(m_selectedPad, Constants::NahdXml::xmlKeyHpfCutoff().toStdString(), val);
-            } else if (controller == static_cast<uint8_t>(Controller::SoundController6)) { // CC 75: Tune
-                changed |= updatePadParameter(m_selectedPad, Constants::NahdXml::xmlKeyTune().toStdString(), val);
-            } else if (controller == static_cast<uint8_t>(Controller::SoundController7)) { // CC 76: Decay
-                changed |= updatePadParameter(m_selectedPad, Constants::NahdXml::xmlKeyDecay().toStdString(), val);
-            } else if (controller == static_cast<uint8_t>(Controller::SoundController8)) { // CC 77: Specific 1
-                if (m_selectedPad == 0) changed |= updatePadParameter(0, Constants::NahdXml::xmlKeyAttack().toStdString(), val);
-                else if (m_selectedPad == 1) changed |= updatePadParameter(1, Constants::NahdXml::xmlKeySnappy().toStdString(), val);
-                else if (m_selectedPad >= 5 && m_selectedPad <= 7) changed |= updatePadParameter(m_selectedPad, Constants::NahdXml::xmlKeyPitchDepth().toStdString(), val);
-                else if (m_selectedPad >= 2 && m_selectedPad <= 4) changed |= updatePadParameter(m_selectedPad, Constants::NahdXml::xmlKeyResonance().toStdString(), val);
-                else if (m_selectedPad >= 8 && m_selectedPad <= 10) changed |= updatePadParameter(m_selectedPad, Constants::NahdXml::xmlKeyResonance().toStdString(), val);
-            } else if (controller == static_cast<uint8_t>(Controller::SoundController9)) { // CC 78: Specific 2
-                if (m_selectedPad == 0) changed |= updatePadParameter(0, Constants::NahdXml::xmlKeyPitchDepth().toStdString(), val);
-                else if (m_selectedPad == 1) changed |= updatePadParameter(1, Constants::NahdXml::xmlKeyTone().toStdString(), val);
-                else if (m_selectedPad >= 5 && m_selectedPad <= 7) changed |= updatePadParameter(m_selectedPad, Constants::NahdXml::xmlKeyPitchDecay().toStdString(), val);
-                else if (m_selectedPad == PadIndex::Crash || m_selectedPad == PadIndex::ReverseCrash) changed |= updatePadParameter(m_selectedPad, Constants::NahdXml::xmlKeyAttack().toStdString(), val);
-            } else if (controller == static_cast<uint8_t>(Controller::SoundController10)) { // CC 79: Specific 3
-                if (m_selectedPad == 0) changed |= updatePadParameter(0, Constants::NahdXml::xmlKeyPitchDecay().toStdString(), val);
+            } else if (controller >= CcStartRange1 && controller < CcStartRange1 + (NumVoicesRange1 * 3)) {
+                const int voiceIndex { (controller - CcStartRange1) / 3 };
+                const int paramType { (controller - CcStartRange1) % 3 };
+                if (paramType == 0) changed |= updateVoiceParameter(voiceIndex, Constants::NahdXml::xmlKeyPan().toStdString(), val);
+                else if (paramType == 1) changed |= updateVoiceParameter(voiceIndex, Constants::NahdXml::xmlKeyCutoff().toStdString(), val);
+                else if (paramType == 2) changed |= updateVoiceParameter(voiceIndex, Constants::NahdXml::xmlKeyHpfCutoff().toStdString(), val);
+            } else if (controller >= CcStartRange2 && controller < CcStartRange2 + (NumVoicesRange2 * 3)) {
+                const int voiceIndex { NumVoicesRange1 + (controller - CcStartRange2) / 3 };
+                const int paramType { (controller - CcStartRange2) % 3 };
+                if (paramType == 0) changed |= updateVoiceParameter(voiceIndex, Constants::NahdXml::xmlKeyPan().toStdString(), val);
+                else if (paramType == 1) changed |= updateVoiceParameter(voiceIndex, Constants::NahdXml::xmlKeyCutoff().toStdString(), val);
+                else if (paramType == 2) changed |= updateVoiceParameter(voiceIndex, Constants::NahdXml::xmlKeyHpfCutoff().toStdString(), val);
             }
         }
     }
@@ -144,8 +130,8 @@ void DrumSynthDevice::processMidiCc(uint8_t controller, uint8_t value, uint8_t /
 void DrumSynthDevice::processMidiAllNotesOff()
 {
     const std::lock_guard<std::recursive_mutex> lock { mutex() };
-    for (auto && pad : m_pads) {
-        pad.engine->reset();
+    for (auto && voice : m_voices) {
+        voice.engine->reset();
     }
 }
 
@@ -154,10 +140,10 @@ void DrumSynthDevice::processAudio(float * output, uint32_t nFrames, uint32_t sa
     setSampleRate(sampleRate);
     const std::lock_guard<std::recursive_mutex> lock { mutex() };
 
-    for (auto && pad : m_pads) {
-        pad.engine->setSampleRate(sampleRate);
-        pad.lpf->setSampleRate(sampleRate);
-        pad.hpf->setSampleRate(sampleRate);
+    for (auto && voice : m_voices) {
+        voice.engine->setSampleRate(sampleRate);
+        voice.lpf->setSampleRate(sampleRate);
+        voice.hpf->setSampleRate(sampleRate);
     }
 
     const float globalVol { volumeInternal() * linearGainInternal() };
@@ -166,16 +152,16 @@ void DrumSynthDevice::processAudio(float * output, uint32_t nFrames, uint32_t sa
         float mixL { 0.0f };
         float mixR { 0.0f };
 
-        for (auto && pad : m_pads) {
-            if (pad.engine->isActive()) {
-                float sample { pad.engine->nextSample() };
+        for (auto && voice : m_voices) {
+            if (voice.engine->isActive()) {
+                float sample { voice.engine->nextSample() };
                 float l { sample };
                 float r { sample };
 
-                pad.lpf->process(l, r);
-                pad.hpf->process(l, r);
-                pad.volumeEffect->process(l, r);
-                pad.panningEffect->process(l, r);
+                voice.lpf->process(l, r);
+                voice.hpf->process(l, r);
+                voice.volumeEffect->process(l, r);
+                voice.panningEffect->process(l, r);
 
                 mixL += l;
                 mixR += r;
@@ -191,8 +177,8 @@ void DrumSynthDevice::reset()
 {
     const std::lock_guard<std::recursive_mutex> lock { mutex() };
     Device::reset();
-    for (auto && pad : m_pads) {
-        pad.engine->reset();
+    for (auto && voice : m_voices) {
+        voice.engine->reset();
     }
 }
 
@@ -213,67 +199,69 @@ void DrumSynthDevice::deserializeFromXml(QXmlStreamReader & reader)
     syncParameters();
 }
 
-int DrumSynthDevice::selectedPad() const
+int DrumSynthDevice::selectedVoice() const
 {
-    return m_selectedPad;
+    return m_selectedVoice;
 }
 
-void DrumSynthDevice::setSelectedPad(int index)
+void DrumSynthDevice::setSelectedVoice(int index)
 {
-    m_selectedPad = std::clamp(index, 0, NumPads - 1);
+    m_selectedVoice = std::clamp(index, 0, NumVoices - 1);
 }
 
-uint8_t DrumSynthDevice::padNote(int index) const
+uint8_t DrumSynthDevice::voiceNote(int index) const
 {
-    if (index >= 0 && index < NumPads) {
-        return m_pads.at(index).midiNote;
+    if (index >= 0 && index < NumVoices) {
+        return m_voices.at(index).midiNote;
     }
     return 0;
 }
 
-void DrumSynthDevice::initializePads()
+void DrumSynthDevice::initializeVoices()
 {
     // Define GM mapping
-    const std::array<uint8_t, NumPads> notes { 36, 38, 42, 39, 46, 41, 43, 45, 49, 51, 52 }; // Kick, Snare, ClHat, Clap, OpHat, LowTom, MidTom, HiTom, Crash, Ride, RevCrash
+    const std::array<uint8_t, NumVoices> notes { 36, 38, 42, 39, 46, 41, 43, 45, 49, 51, 52 }; // Kick, Snare, ClHat, Clap, OpHat, LowTom, MidTom, HiTom, Crash, Ride, RevCrash
 
-    for (int i { 0 }; i < NumPads; i++) {
-        m_pads.at(i).midiNote = notes.at(i);
-        m_pads.at(i).lpf = std::make_shared<LowPassFilterEffect>();
-        m_pads.at(i).hpf = std::make_shared<HighPassFilterEffect>();
-        m_pads.at(i).volumeEffect = std::make_shared<VolumeEffect>();
-        m_pads.at(i).panningEffect = std::make_shared<PanningEffect>();
+    for (int i { 0 }; i < NumVoices; i++) {
+        m_voices.at(i).midiNote = notes.at(i);
+        m_voices.at(i).lpf = std::make_shared<LowPassFilterEffect>();
+        m_voices.at(i).hpf = std::make_shared<HighPassFilterEffect>();
+        m_voices.at(i).volumeEffect = std::make_shared<VolumeEffect>();
+        m_voices.at(i).panningEffect = std::make_shared<PanningEffect>();
 
-        if (i == PadIndex::Kick) m_pads.at(i).engine = std::make_unique<KickEngine>();
-        else if (i == PadIndex::Snare) m_pads.at(i).engine = std::make_unique<SnareEngine>();
-        else if (i == PadIndex::Clap) m_pads.at(i).engine = std::make_unique<ClapEngine>();
-        else if (i == PadIndex::ClosedHiHat || i == PadIndex::OpenHiHat) m_pads.at(i).engine = std::make_unique<HiHatEngine>();
-        else if (i >= PadIndex::LowTom && i <= PadIndex::HighTom) m_pads.at(i).engine = std::make_unique<TomEngine>();
-        else if (i == PadIndex::Crash) {
-            m_pads.at(i).engine = std::make_unique<CrashEngine>();
-        } else if (i == PadIndex::Ride) {
-            m_pads.at(i).engine = std::make_unique<RideEngine>();
-        } else if (i == PadIndex::ReverseCrash) {
+        const auto voiceIdx { static_cast<VoiceIndex>(i) };
+        if (voiceIdx == VoiceIndex::Kick) m_voices.at(i).engine = std::make_unique<KickEngine>();
+        else if (voiceIdx == VoiceIndex::Snare) m_voices.at(i).engine = std::make_unique<SnareEngine>();
+        else if (voiceIdx == VoiceIndex::Clap) m_voices.at(i).engine = std::make_unique<ClapEngine>();
+        else if (voiceIdx == VoiceIndex::ClosedHiHat || voiceIdx == VoiceIndex::OpenHiHat) m_voices.at(i).engine = std::make_unique<HiHatEngine>();
+        else if (voiceIdx >= VoiceIndex::LowTom && voiceIdx <= VoiceIndex::HighTom) m_voices.at(i).engine = std::make_unique<TomEngine>();
+        else if (voiceIdx == VoiceIndex::Crash) {
+            m_voices.at(i).engine = std::make_unique<CrashEngine>();
+        } else if (voiceIdx == VoiceIndex::Ride) {
+            m_voices.at(i).engine = std::make_unique<RideEngine>();
+        } else if (voiceIdx == VoiceIndex::ReverseCrash) {
             auto crash = std::make_unique<CrashEngine>();
             crash->setMode(CrashEngine::Mode::Reverse);
-            m_pads.at(i).engine = std::move(crash);
+            m_voices.at(i).engine = std::move(crash);
         }
     }
 }
 
-void DrumSynthDevice::addPadParameters(int index)
+void DrumSynthDevice::addVoiceParameters(int index)
 {
-    const std::string prefix { "Pad" + std::to_string(index) + "_" };
+    const std::string prefix { voiceId(index) + "_" };
     
     float defTune = 0.5f;
     float defDecay = 0.5f;
 
-    if (index == 2) { defTune = 0.7f; defDecay = 0.1f; } // ClHat
-    else if (index == 4) { defTune = 0.6f; defDecay = 0.8f; } // OpHat
-    else if (index == 5) { defTune = 0.2f; } // Low Tom
-    else if (index == 6) { defTune = 0.5f; } // Mid Tom
-    else if (index == 7) { defTune = 0.8f; } // Hi Tom
+    const auto voiceIdx { static_cast<VoiceIndex>(index) };
+    if (voiceIdx == VoiceIndex::ClosedHiHat) { defTune = 0.7f; defDecay = 0.1f; }
+    else if (voiceIdx == VoiceIndex::OpenHiHat) { defTune = 0.6f; defDecay = 0.8f; }
+    else if (voiceIdx == VoiceIndex::LowTom) { defTune = 0.2f; }
+    else if (voiceIdx == VoiceIndex::MidTom) { defTune = 0.5f; }
+    else if (voiceIdx == VoiceIndex::HighTom) { defTune = 0.8f; }
 
-    // Standard pad parameters
+    // Standard voice parameters
     addParameter(Parameter { prefix + Constants::NahdXml::xmlKeyLevel().toStdString(), 0.8f, 0, 100, 80 });
     addParameter(Parameter { prefix + Constants::NahdXml::xmlKeyPan().toStdString(), 0.5f, 0, 100, 50 });
     addParameter(Parameter { prefix + Constants::NahdXml::xmlKeyCutoff().toStdString(), 1.0f, 0, 100, 100 });
@@ -283,12 +271,12 @@ void DrumSynthDevice::addPadParameters(int index)
     addParameter(Parameter { prefix + Constants::NahdXml::xmlKeyTune().toStdString(), defTune, 0, 100, static_cast<int>(defTune * 100) });
     addParameter(Parameter { prefix + Constants::NahdXml::xmlKeyDecay().toStdString(), defDecay, 0, 100, static_cast<int>(defDecay * 100) });
 
-    if (index == 0) addKickParameters(prefix);
-    else if (index == 1) addSnareParameters(prefix);
-    else if (index == 3) {} // Clap
-    else if (index == 2 || index == 4) addHiHatParameters(prefix);
-    else if (index >= 5 && index <= 7) addTomParameters(prefix);
-    else if (index >= 8 && index <= 10) addCymbalParameters(prefix);
+    if (voiceIdx == VoiceIndex::Kick) addKickParameters(prefix);
+    else if (voiceIdx == VoiceIndex::Snare) addSnareParameters(prefix);
+    else if (voiceIdx == VoiceIndex::Clap) {}
+    else if (voiceIdx == VoiceIndex::ClosedHiHat || voiceIdx == VoiceIndex::OpenHiHat) addHiHatParameters(prefix);
+    else if (voiceIdx >= VoiceIndex::LowTom && voiceIdx <= VoiceIndex::HighTom) addTomParameters(prefix);
+    else if (voiceIdx >= VoiceIndex::Crash && voiceIdx <= VoiceIndex::ReverseCrash) addCymbalParameters(prefix);
 }
 
 void DrumSynthDevice::addKickParameters(const std::string & prefix)
@@ -326,58 +314,60 @@ void DrumSynthDevice::syncParameters()
 {
     Device::syncParameters();
 
-    for (int i { 0 }; i < NumPads; ++i) {
-        syncPadParameters(i);
+    for (int i { 0 }; i < NumVoices; ++i) {
+        syncVoiceParameters(i);
     }
 }
 
-void DrumSynthDevice::syncPadParameters(int index)
+void DrumSynthDevice::syncVoiceParameters(int index)
 {
-    const std::string prefix { "Pad" + std::to_string(index) + "_" };
+    const std::string prefix { voiceId(index) + "_" };
     
-    if (auto p = parameter(prefix + Constants::NahdXml::xmlKeyLevel().toStdString()); p) m_pads.at(index).level = p->get().value();
-    if (auto p = parameter(prefix + Constants::NahdXml::xmlKeyPan().toStdString()); p) m_pads.at(index).pan = p->get().value();
-    if (auto p = parameter(prefix + Constants::NahdXml::xmlKeyCutoff().toStdString()); p) m_pads.at(index).lpfCutoff = p->get().value();
-    if (auto p = parameter(prefix + Constants::NahdXml::xmlKeyHpfCutoff().toStdString()); p) m_pads.at(index).hpfCutoff = p->get().value();
+    if (auto p = parameter(prefix + Constants::NahdXml::xmlKeyLevel().toStdString()); p) m_voices.at(index).level = p->get().value();
+    if (auto p = parameter(prefix + Constants::NahdXml::xmlKeyPan().toStdString()); p) m_voices.at(index).pan = p->get().value();
+    if (auto p = parameter(prefix + Constants::NahdXml::xmlKeyCutoff().toStdString()); p) m_voices.at(index).lpfCutoff = p->get().value();
+    if (auto p = parameter(prefix + Constants::NahdXml::xmlKeyHpfCutoff().toStdString()); p) m_voices.at(index).hpfCutoff = p->get().value();
 
-    m_pads.at(index).updateEffects();
+    m_voices.at(index).updateEffects();
 
     syncCommonEngineParameters(index, prefix);
 
-    if (index == PadIndex::Kick) syncKickParameters(prefix);
-    else if (index == PadIndex::Snare) syncSnareParameters(prefix);
-    else if (index == PadIndex::Clap) syncClapParameters(prefix);
-    else if (index == PadIndex::ClosedHiHat || index == PadIndex::OpenHiHat) syncHiHatParameters(index, prefix);
-    else if (index >= PadIndex::LowTom && index <= PadIndex::HighTom) syncTomParameters(index, prefix);
-    else if (index >= PadIndex::Crash && index <= PadIndex::ReverseCrash) syncCymbalParameters(index, prefix);
+    const auto voiceIdx { static_cast<VoiceIndex>(index) };
+    if (voiceIdx == VoiceIndex::Kick) syncKickParameters(prefix);
+    else if (voiceIdx == VoiceIndex::Snare) syncSnareParameters(prefix);
+    else if (voiceIdx == VoiceIndex::Clap) syncClapParameters(prefix);
+    else if (voiceIdx == VoiceIndex::ClosedHiHat || voiceIdx == VoiceIndex::OpenHiHat) syncHiHatParameters(index, prefix);
+    else if (voiceIdx >= VoiceIndex::LowTom && voiceIdx <= VoiceIndex::HighTom) syncTomParameters(index, prefix);
+    else if (voiceIdx >= VoiceIndex::Crash && voiceIdx <= VoiceIndex::ReverseCrash) syncCymbalParameters(index, prefix);
 }
 
 void DrumSynthDevice::syncCommonEngineParameters(int index, const std::string & prefix)
 {
-    DrumEngine & engine { *m_pads.at(index).engine };
+    DrumEngine & engine { *m_voices.at(index).engine };
 
+    const auto voiceIdx { static_cast<VoiceIndex>(index) };
     if (auto p = parameter(prefix + Constants::NahdXml::xmlKeyTune().toStdString()); p) {
         const float val { p->get().value() };
-        if (index == PadIndex::Kick) static_cast<KickEngine &>(engine).setTune(val);
-        else if (index == PadIndex::Snare) static_cast<SnareEngine &>(engine).setTune(val);
-        else if (index == PadIndex::Clap) static_cast<ClapEngine &>(engine).setTune(val);
-        else if (index == PadIndex::ClosedHiHat || index == PadIndex::OpenHiHat) static_cast<HiHatEngine &>(engine).setTune(val);
-        else if (index >= PadIndex::LowTom && index <= PadIndex::HighTom) static_cast<TomEngine &>(engine).setTune(val);
-        else if (index >= PadIndex::Crash && index <= PadIndex::ReverseCrash) {
-            if (index == PadIndex::Ride) static_cast<RideEngine &>(engine).setTune(val);
+        if (voiceIdx == VoiceIndex::Kick) static_cast<KickEngine &>(engine).setTune(val);
+        else if (voiceIdx == VoiceIndex::Snare) static_cast<SnareEngine &>(engine).setTune(val);
+        else if (voiceIdx == VoiceIndex::Clap) static_cast<ClapEngine &>(engine).setTune(val);
+        else if (voiceIdx == VoiceIndex::ClosedHiHat || voiceIdx == VoiceIndex::OpenHiHat) static_cast<HiHatEngine &>(engine).setTune(val);
+        else if (voiceIdx >= VoiceIndex::LowTom && voiceIdx <= VoiceIndex::HighTom) static_cast<TomEngine &>(engine).setTune(val);
+        else if (voiceIdx >= VoiceIndex::Crash && voiceIdx <= VoiceIndex::ReverseCrash) {
+            if (voiceIdx == VoiceIndex::Ride) static_cast<RideEngine &>(engine).setTune(val);
             else static_cast<CrashEngine &>(engine).setTune(val);
         }
     }
 
     if (auto p = parameter(prefix + Constants::NahdXml::xmlKeyDecay().toStdString()); p) {
         const float val { p->get().value() };
-        if (index == PadIndex::Kick) static_cast<KickEngine &>(engine).setDecay(val);
-        else if (index == PadIndex::Snare) static_cast<SnareEngine &>(engine).setDecay(val);
-        else if (index == PadIndex::Clap) static_cast<ClapEngine &>(engine).setDecay(val);
-        else if (index == PadIndex::ClosedHiHat || index == PadIndex::OpenHiHat) static_cast<HiHatEngine &>(engine).setDecay(val);
-        else if (index >= PadIndex::LowTom && index <= PadIndex::HighTom) static_cast<TomEngine &>(engine).setDecay(val);
-        else if (index >= PadIndex::Crash && index <= PadIndex::ReverseCrash) {
-            if (index == PadIndex::Ride) static_cast<RideEngine &>(engine).setDecay(val);
+        if (voiceIdx == VoiceIndex::Kick) static_cast<KickEngine &>(engine).setDecay(val);
+        else if (voiceIdx == VoiceIndex::Snare) static_cast<SnareEngine &>(engine).setDecay(val);
+        else if (voiceIdx == VoiceIndex::Clap) static_cast<ClapEngine &>(engine).setDecay(val);
+        else if (voiceIdx == VoiceIndex::ClosedHiHat || voiceIdx == VoiceIndex::OpenHiHat) static_cast<HiHatEngine &>(engine).setDecay(val);
+        else if (voiceIdx >= VoiceIndex::LowTom && voiceIdx <= VoiceIndex::HighTom) static_cast<TomEngine &>(engine).setDecay(val);
+        else if (voiceIdx >= VoiceIndex::Crash && voiceIdx <= VoiceIndex::ReverseCrash) {
+            if (voiceIdx == VoiceIndex::Ride) static_cast<RideEngine &>(engine).setDecay(val);
             else static_cast<CrashEngine &>(engine).setDecay(val);
         }
     }
@@ -385,7 +375,7 @@ void DrumSynthDevice::syncCommonEngineParameters(int index, const std::string & 
 
 void DrumSynthDevice::syncKickParameters(const std::string & prefix)
 {
-    auto & engine { static_cast<KickEngine &>(*m_pads.at(0).engine) };
+    auto & engine { static_cast<KickEngine &>(*m_voices.at(static_cast<int>(VoiceIndex::Kick)).engine) };
     if (auto p = parameter(prefix + Constants::NahdXml::xmlKeyAttack().toStdString()); p) engine.setAttack(p->get().value());
     if (auto p = parameter(prefix + Constants::NahdXml::xmlKeyClickTune().toStdString()); p) engine.setClickTune(p->get().value());
     if (auto p = parameter(prefix + Constants::NahdXml::xmlKeyPitchDepth().toStdString()); p) engine.setPitchDepth(p->get().value());
@@ -394,7 +384,7 @@ void DrumSynthDevice::syncKickParameters(const std::string & prefix)
 
 void DrumSynthDevice::syncSnareParameters(const std::string & prefix)
 {
-    auto & engine { static_cast<SnareEngine &>(*m_pads.at(1).engine) };
+    auto & engine { static_cast<SnareEngine &>(*m_voices.at(static_cast<int>(VoiceIndex::Snare)).engine) };
     if (auto p = parameter(prefix + Constants::NahdXml::xmlKeySnappy().toStdString()); p) engine.setSnappy(p->get().value());
     if (auto p = parameter(prefix + Constants::NahdXml::xmlKeyTone().toStdString()); p) engine.setTone(p->get().value());
 }
@@ -406,35 +396,36 @@ void DrumSynthDevice::syncClapParameters(const std::string & /*prefix*/)
 
 void DrumSynthDevice::syncTomParameters(int index, const std::string & prefix)
 {
-    auto & engine { static_cast<TomEngine &>(*m_pads.at(index).engine) };
+    auto & engine { static_cast<TomEngine &>(*m_voices.at(index).engine) };
     if (auto p = parameter(prefix + Constants::NahdXml::xmlKeyPitchDepth().toStdString()); p) engine.setPitchDepth(p->get().value());
     if (auto p = parameter(prefix + Constants::NahdXml::xmlKeyPitchDecay().toStdString()); p) engine.setPitchDecay(p->get().value());
 }
 
 void DrumSynthDevice::syncHiHatParameters(int index, const std::string & prefix)
 {
-    auto & engine { static_cast<HiHatEngine &>(*m_pads.at(index).engine) };
+    auto & engine { static_cast<HiHatEngine &>(*m_voices.at(index).engine) };
     if (auto p = parameter(prefix + Constants::NahdXml::xmlKeyResonance().toStdString()); p) engine.setResonance(p->get().value());
 }
 
 void DrumSynthDevice::syncCymbalParameters(int index, const std::string & prefix)
 {
-    if (index == PadIndex::Crash || index == PadIndex::ReverseCrash) {
-        auto & engine { static_cast<CrashEngine &>(*m_pads.at(index).engine) };
+    const auto voiceIdx { static_cast<VoiceIndex>(index) };
+    if (voiceIdx == VoiceIndex::Crash || voiceIdx == VoiceIndex::ReverseCrash) {
+        auto & engine { static_cast<CrashEngine &>(*m_voices.at(index).engine) };
         if (auto p = parameter(prefix + Constants::NahdXml::xmlKeyResonance().toStdString()); p) engine.setResonance(p->get().value());
         if (auto p = parameter(prefix + Constants::NahdXml::xmlKeyAttack().toStdString()); p) engine.setAttack(p->get().value());
-    } else if (index == PadIndex::Ride) {
-        auto & engine { static_cast<RideEngine &>(*m_pads.at(index).engine) };
+    } else if (voiceIdx == VoiceIndex::Ride) {
+        auto & engine { static_cast<RideEngine &>(*m_voices.at(index).engine) };
         if (auto p = parameter(prefix + Constants::NahdXml::xmlKeyResonance().toStdString()); p) engine.setResonance(p->get().value());
     }
 }
 
-bool DrumSynthDevice::updatePadParameter(int padIndex, const std::string & paramName, float value)
+bool DrumSynthDevice::updateVoiceParameter(int voiceIndex, const std::string & paramName, float value)
 {
-    const std::string prefix { "Pad" + std::to_string(padIndex) + "_" };
+    const std::string prefix { voiceId(voiceIndex) + "_" };
     if (auto p = parameter(prefix + paramName); p) {
         p->get().setValue(value);
-        syncPadParameters(padIndex);
+        syncVoiceParameters(voiceIndex);
         emit dataChanged();
         return true;
     }

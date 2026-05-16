@@ -68,8 +68,8 @@ set(HEADER_FILES
   domain/column.hpp
   domain/column_settings.hpp
   domain/devices/delay_effect.hpp
-  domain/devices/drum_synth_device.hpp
   domain/devices/device.hpp
+  domain/devices/drum_synth_device.hpp
   domain/devices/effect.hpp
   domain/devices/effect_rack.hpp
   domain/devices/high_pass_filter_effect.hpp
@@ -81,11 +81,12 @@ set(HEADER_FILES
   domain/devices/volume_effect.hpp
   domain/dsp/adsr_envelope.hpp
   domain/dsp/cascaded_svf.hpp
+  domain/dsp/drum/clap_engine.hpp
   domain/dsp/drum/crash_engine.hpp
-  domain/dsp/drum/ride_engine.hpp
   domain/dsp/drum/drum_engine.hpp
   domain/dsp/drum/hihat_engine.hpp
   domain/dsp/drum/kick_engine.hpp
+  domain/dsp/drum/ride_engine.hpp
   domain/dsp/drum/snare_engine.hpp
   domain/dsp/drum/tom_engine.hpp
   domain/dsp/lfo.hpp
@@ -204,7 +205,6 @@ set(SOURCE_FILES
   common/constants.cpp
   common/parameter_mapper.cpp
   common/utils.cpp
-
   common/waveform_generator.cpp
   domain/arpeggiator.cpp
   domain/automation.cpp
@@ -212,8 +212,9 @@ set(SOURCE_FILES
   domain/column.cpp
   domain/column_settings.cpp
   domain/devices/delay_effect.cpp
-  domain/devices/drum_synth_device.cpp
   domain/devices/device.cpp
+  domain/devices/drum_synth_constants.cpp
+  domain/devices/drum_synth_device.cpp
   domain/devices/effect.cpp
   domain/devices/effect_rack.cpp
   domain/devices/high_pass_filter_effect.cpp
@@ -225,11 +226,11 @@ set(SOURCE_FILES
   domain/devices/volume_effect.cpp
   domain/dsp/adsr_envelope.cpp
   domain/dsp/cascaded_svf.cpp
+  domain/dsp/drum/clap_engine.cpp
   domain/dsp/drum/crash_engine.cpp
-  domain/dsp/drum/ride_engine.cpp
   domain/dsp/drum/hihat_engine.cpp
   domain/dsp/drum/kick_engine.cpp
-  domain/dsp/drum/clap_engine.cpp
+  domain/dsp/drum/ride_engine.cpp
   domain/dsp/drum/snare_engine.cpp
   domain/dsp/drum/tom_engine.cpp
   domain/dsp/dsp_component.cpp

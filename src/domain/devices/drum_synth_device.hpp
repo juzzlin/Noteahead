@@ -17,6 +17,7 @@
 #define DRUM_SYNTH_DEVICE_HPP
 
 #include "device.hpp"
+#include "drum_synth_constants.hpp"
 #include "high_pass_filter_effect.hpp"
 #include "low_pass_filter_effect.hpp"
 #include "panning_effect.hpp"
@@ -38,23 +39,6 @@ namespace noteahead {
 class DrumSynthDevice : public Device
 {
 public:
-    enum PadIndex : int
-    {
-        Kick = 0,
-        Snare = 1,
-        ClosedHiHat = 2,
-        Clap = 3,
-        OpenHiHat = 4,
-        LowTom = 5,
-        MidTom = 6,
-        HighTom = 7,
-        Crash = 8,
-        Ride = 9,
-        ReverseCrash = 10
-    };
-
-    static constexpr int NumPads = 11;
-
     explicit DrumSynthDevice(std::string name);
     virtual ~DrumSynthDevice() override = default;
 
@@ -74,18 +58,18 @@ public:
     void serializeToXml(QXmlStreamWriter & writer) const override;
     void deserializeFromXml(QXmlStreamReader & reader) override;
 
-    int selectedPad() const;
-    void setSelectedPad(int index);
+    int selectedVoice() const;
+    void setSelectedVoice(int index);
 
-    uint8_t padNote(int index) const;
+    uint8_t voiceNote(int index) const;
 
-    bool updatePadParameter(int padIndex, const std::string & paramName, float value);
+    bool updateVoiceParameter(int voiceIndex, const std::string & paramName, float value);
 
 protected:
     void syncParameters() override;
 
 private:
-    struct Pad
+    struct Voice
     {
         std::unique_ptr<DrumEngine> engine;
         std::shared_ptr<LowPassFilterEffect> lpf;
@@ -103,18 +87,18 @@ private:
     };
 
     std::string m_name;
-    std::array<Pad, NumPads> m_pads;
-    int m_selectedPad { 0 };
+    std::array<Voice, DrumSynth::NumVoices> m_voices;
+    int m_selectedVoice { 0 };
 
-    void initializePads();
-    void addPadParameters(int index);
+    void initializeVoices();
+    void addVoiceParameters(int index);
     void addKickParameters(const std::string & prefix);
     void addSnareParameters(const std::string & prefix);
     void addTomParameters(const std::string & prefix);
     void addHiHatParameters(const std::string & prefix);
     void addCymbalParameters(const std::string & prefix);
 
-    void syncPadParameters(int index);
+    void syncVoiceParameters(int index);
     void syncCommonEngineParameters(int index, const std::string & prefix);
     void syncKickParameters(const std::string & prefix);
     void syncSnareParameters(const std::string & prefix);

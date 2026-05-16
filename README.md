@@ -111,13 +111,13 @@ All Arctic Music Project songs:
   - Factory and User preset banks
   - Full MIDI CC automation support (Volume CC 7, Pan CC 10, LPF Cutoff CC 74, HPF Cutoff CC 81)
 - DrumSynth (since 3.1.0)
-  - Internal drum synthesizer with 11 independent pads
+  - Internal drum synthesizer with 11 independent voices
   - Dedicated engines for Kick, Snare, Hi-Hats, Toms, Clap, and Cymbals
-  - Per-pad controls: Level, Pan, LPF, HPF, Tune, Decay, Attack, and Resonance
+  - Per-voice controls: Level, Pan, LPF, HPF, Tune, Decay, Attack, and Resonance
   - Advanced Kick parameters: Click Tune, Pitch Depth, and Pitch Decay
   - Advanced Snare parameters: Snappy and Tone
   - Advanced Tom parameters: Pitch Depth and Pitch Decay
-  - Full MIDI CC automation support for all pad parameters
+  - Simplified direct MIDI CC automation for each voice's Pan, LPF, and HPF
 - Sends MIDI clock pulse and Start/Stop on desired ports
 - MIDI side-chain (since 1.2.0)
   - In Track settings the user can select source track and column that triggers the desired MIDI CC event

@@ -12,6 +12,7 @@ set(SRC
     ../../common/utils.cpp
     ../../domain/automation.cpp
     ../../domain/automation_location.cpp
+    ../../domain/devices/drum_synth_constants.cpp
     ../../domain/event.cpp
     ../../domain/event_data.cpp
     ../../domain/interpolator.cpp

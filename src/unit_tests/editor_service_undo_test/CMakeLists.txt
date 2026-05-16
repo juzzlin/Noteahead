@@ -3,18 +3,18 @@ set(NAME editor_service_undo_test)
 set(SRC
     ${NAME}.cpp
     ${NAME}.hpp
+    ../../application/command/automation_command.cpp
+    ../../application/command/composite_command.cpp
+    ../../application/command/note_edit_command.cpp
+    ../../application/command/undo_stack.cpp
     ../../application/instrument_request.cpp
     ../../application/note_converter.cpp
     ../../application/position.hpp
-    ../../application/command/note_edit_command.cpp
-    ../../application/command/undo_stack.cpp
-    ../../application/command/automation_command.cpp
-    ../../application/command/composite_command.cpp
     ../../application/service/automation_service.cpp
-    ../../application/service/property_service.cpp
     ../../application/service/copy_manager.cpp
     ../../application/service/editor_service.cpp
     ../../application/service/mixer_service.cpp
+    ../../application/service/property_service.cpp
     ../../application/service/random_service.cpp
     ../../application/service/selection_service.cpp
     ../../application/service/settings_service.cpp
@@ -27,6 +27,7 @@ set(SRC
     ../../domain/automation_location.cpp
     ../../domain/column.cpp
     ../../domain/column_settings.cpp
+    ../../domain/devices/drum_synth_constants.cpp
     ../../domain/devices/synth_presets.cpp
     ../../domain/event.cpp
     ../../domain/event_data.cpp
@@ -48,8 +49,8 @@ set(SRC
     ../../domain/play_order.cpp
     ../../domain/song.cpp
     ../../domain/track.cpp
-    ../../infra/settings.cpp
     ../../infra/midi/midi_cc_mapping.cpp
+    ../../infra/settings.cpp
 )
 qt_add_executable(${NAME} ${SRC})
 set_target_properties(${NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${UNIT_TEST_BASE_DIR})

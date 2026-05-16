@@ -43,6 +43,7 @@ set(SRC
     ../../domain/devices/synth_device.cpp
     ../../domain/dsp/oversampler.cpp
     ../../domain/devices/synth_presets.cpp
+    ../../domain/devices/drum_synth_constants.cpp
     ../../domain/devices/volume_effect.cpp
     ../../domain/dsp/adsr_envelope.cpp
     ../../domain/dsp/cascaded_svf.cpp

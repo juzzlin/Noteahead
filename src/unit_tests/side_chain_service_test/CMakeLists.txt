@@ -17,6 +17,7 @@ set(SRC
     ../../domain/automation_location.cpp
     ../../domain/column.cpp
     ../../domain/column_settings.cpp
+    ../../domain/devices/drum_synth_constants.cpp
     ../../domain/devices/synth_presets.cpp
     ../../domain/event.cpp
     ../../domain/event_data.cpp

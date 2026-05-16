@@ -29,16 +29,16 @@ class DrumSynthController : public QObject
 {
     Q_OBJECT
 
-    Q_PROPERTY(int selectedPad READ selectedPad WRITE setSelectedPad NOTIFY selectedPadChanged)
+    Q_PROPERTY(int selectedVoice READ selectedVoice WRITE setSelectedVoice NOTIFY selectedVoiceChanged)
     
-    // Selected Pad Parameters
-    Q_PROPERTY(int padLevel READ padLevel WRITE setPadLevel NOTIFY padLevelChanged)
-    Q_PROPERTY(int padPan READ padPan WRITE setPadPan NOTIFY padPanChanged)
-    Q_PROPERTY(int padLpfCutoff READ padLpfCutoff WRITE setPadLpfCutoff NOTIFY padLpfCutoffChanged)
-    Q_PROPERTY(int padHpfCutoff READ padHpfCutoff WRITE setPadHpfCutoff NOTIFY padHpfCutoffChanged)
-    Q_PROPERTY(int padTune READ padTune WRITE setPadTune NOTIFY padTuneChanged)
-    Q_PROPERTY(int padDecay READ padDecay WRITE setPadDecay NOTIFY padDecayChanged)
-    Q_PROPERTY(int padAttack READ padAttack WRITE setPadAttack NOTIFY padAttackChanged)
+    // Selected Voice Parameters
+    Q_PROPERTY(int voiceLevel READ voiceLevel WRITE setVoiceLevel NOTIFY voiceLevelChanged)
+    Q_PROPERTY(int voicePan READ voicePan WRITE setVoicePan NOTIFY voicePanChanged)
+    Q_PROPERTY(int voiceLpfCutoff READ voiceLpfCutoff WRITE setVoiceLpfCutoff NOTIFY voiceLpfCutoffChanged)
+    Q_PROPERTY(int voiceHpfCutoff READ voiceHpfCutoff WRITE setVoiceHpfCutoff NOTIFY voiceHpfCutoffChanged)
+    Q_PROPERTY(int voiceTune READ voiceTune WRITE setVoiceTune NOTIFY voiceTuneChanged)
+    Q_PROPERTY(int voiceDecay READ voiceDecay WRITE setVoiceDecay NOTIFY voiceDecayChanged)
+    Q_PROPERTY(int voiceAttack READ voiceAttack WRITE setVoiceAttack NOTIFY voiceAttackChanged)
     
     // Kick Specific
     Q_PROPERTY(int kickAttack READ kickAttack WRITE setKickAttack NOTIFY kickAttackChanged)
@@ -55,13 +55,21 @@ class DrumSynthController : public QObject
     Q_PROPERTY(int tomPitchDecay READ tomPitchDecay WRITE setTomPitchDecay NOTIFY tomPitchDecayChanged)
 
     // HiHat / Cymbal Specific
-    Q_PROPERTY(int padResonance READ padResonance WRITE setPadResonance NOTIFY padResonanceChanged)
+    Q_PROPERTY(int voiceResonance READ voiceResonance WRITE setVoiceResonance NOTIFY voiceResonanceChanged)
 
     // Global
     Q_PROPERTY(int volume READ volume WRITE setVolume NOTIFY volumeChanged)
     Q_PROPERTY(int gain READ gain WRITE setGain NOTIFY gainChanged)
     Q_PROPERTY(int pan READ pan WRITE setPan NOTIFY panChanged)
     Q_PROPERTY(uint32_t sampleRate READ sampleRate NOTIFY sampleRateChanged)
+
+    // UI Helpers
+    Q_PROPERTY(bool isKick READ isKick NOTIFY selectedVoiceChanged)
+    Q_PROPERTY(bool isSnare READ isSnare NOTIFY selectedVoiceChanged)
+    Q_PROPERTY(bool isTom READ isTom NOTIFY selectedVoiceChanged)
+    Q_PROPERTY(bool isCymbal READ isCymbal NOTIFY selectedVoiceChanged)
+    Q_PROPERTY(bool hasResonance READ hasResonance NOTIFY selectedVoiceChanged)
+    Q_PROPERTY(bool hasAttack READ hasAttack NOTIFY selectedVoiceChanged)
 
 public:
     explicit DrumSynthController(std::shared_ptr<DeviceService> deviceService, QObject * parent = nullptr);
@@ -71,29 +79,29 @@ public:
     uint32_t sampleRate() const;
     Q_INVOKABLE float cutoffToHz(float cutoff) const;
 
-    int selectedPad() const;
-    void setSelectedPad(int index);
+    int selectedVoice() const;
+    void setSelectedVoice(int index);
 
-    int padLevel() const;
-    void setPadLevel(int value);
+    int voiceLevel() const;
+    void setVoiceLevel(int value);
 
-    int padPan() const;
-    void setPadPan(int value);
+    int voicePan() const;
+    void setVoicePan(int value);
 
-    int padLpfCutoff() const;
-    void setPadLpfCutoff(int value);
+    int voiceLpfCutoff() const;
+    void setVoiceLpfCutoff(int value);
 
-    int padHpfCutoff() const;
-    void setPadHpfCutoff(int value);
+    int voiceHpfCutoff() const;
+    void setVoiceHpfCutoff(int value);
 
-    int padTune() const;
-    void setPadTune(int value);
+    int voiceTune() const;
+    void setVoiceTune(int value);
 
-    int padDecay() const;
-    void setPadDecay(int value);
+    int voiceDecay() const;
+    void setVoiceDecay(int value);
 
-    int padAttack() const;
-    void setPadAttack(int value);
+    int voiceAttack() const;
+    void setVoiceAttack(int value);
 
     int kickAttack() const;
     void setKickAttack(int value);
@@ -119,8 +127,8 @@ public:
     int tomPitchDecay() const;
     void setTomPitchDecay(int value);
 
-    int padResonance() const;
-    void setPadResonance(int value);
+    int voiceResonance() const;
+    void setVoiceResonance(int value);
 
     int volume() const;
     void setVolume(int value);
@@ -131,19 +139,26 @@ public:
     int pan() const;
     void setPan(int value);
 
+    bool isKick() const;
+    bool isSnare() const;
+    bool isTom() const;
+    bool isCymbal() const;
+    bool hasResonance() const;
+    bool hasAttack() const;
+
     Q_INVOKABLE void playNote(int note, double velocity = 1.0);
     Q_INVOKABLE void stopNote(int note);
-    Q_INVOKABLE void playPad(int index);
+    Q_INVOKABLE void playVoice(int index);
 
 signals:
-    void selectedPadChanged();
-    void padLevelChanged();
-    void padPanChanged();
-    void padLpfCutoffChanged();
-    void padHpfCutoffChanged();
-    void padTuneChanged();
-    void padDecayChanged();
-    void padAttackChanged();
+    void selectedVoiceChanged();
+    void voiceLevelChanged();
+    void voicePanChanged();
+    void voiceLpfCutoffChanged();
+    void voiceHpfCutoffChanged();
+    void voiceTuneChanged();
+    void voiceDecayChanged();
+    void voiceAttackChanged();
     void kickAttackChanged();
     void kickClickTuneChanged();
     void kickPitchDepthChanged();
@@ -152,7 +167,7 @@ signals:
     void snareToneChanged();
     void tomPitchDepthChanged();
     void tomPitchDecayChanged();
-    void padResonanceChanged();
+    void voiceResonanceChanged();
     void volumeChanged();
     void gainChanged();
     void panChanged();
@@ -161,9 +176,9 @@ signals:
 private:
     std::shared_ptr<DeviceService> m_deviceService;
     std::shared_ptr<DrumSynthDevice> m_device;
-    int m_selectedPad { 0 };
+    int m_selectedVoice { 0 };
 
-    std::string currentPadPrefix() const;
+    std::string currentVoicePrefix() const;
     void updateProperties();
 };
 

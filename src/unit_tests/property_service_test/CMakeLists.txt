@@ -5,6 +5,7 @@ set(SRC
     ${NAME}.hpp
     ../../application/service/property_service.cpp
     ../../common/constants.cpp
+    ../../domain/devices/drum_synth_constants.cpp
     ../../infra/midi/midi_cc_mapping.cpp
 )
 qt_add_executable(${NAME} ${SRC})

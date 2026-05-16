@@ -3,20 +3,20 @@ set(NAME editor_service_test)
 set(SRC
     ${NAME}.cpp
     ${NAME}.hpp
-    ../../application/instrument_request.cpp
-    ../../application/command/note_edit_command.cpp
     ../../application/command/automation_command.cpp
     ../../application/command/composite_command.cpp
+    ../../application/command/note_edit_command.cpp
     ../../application/command/undo_stack.cpp
+    ../../application/instrument_request.cpp
     ../../application/note_converter.cpp
     ../../application/position.hpp
     ../../application/service/automation_service.cpp
-    ../../application/service/property_service.cpp
     ../../application/service/copy_manager.cpp
     ../../application/service/device_service.cpp
     ../../application/service/drum_synth_controller.cpp
     ../../application/service/editor_service.cpp
     ../../application/service/mixer_service.cpp
+    ../../application/service/property_service.cpp
     ../../application/service/random_service.cpp
     ../../application/service/selection_service.cpp
     ../../application/service/settings_service.cpp
@@ -30,32 +30,32 @@ set(SRC
     ../../domain/automation_location.cpp
     ../../domain/column.cpp
     ../../domain/column_settings.cpp
-    ../../domain/devices/device.cpp
-    ../../domain/devices/effect.cpp
     ../../domain/devices/delay_effect.cpp
+    ../../domain/devices/device.cpp
+    ../../domain/devices/drum_synth_constants.cpp
+    ../../domain/devices/drum_synth_device.cpp
+    ../../domain/devices/effect.cpp
+    ../../domain/devices/effect_rack.cpp
     ../../domain/devices/high_pass_filter_effect.cpp
     ../../domain/devices/low_pass_filter_effect.cpp
     ../../domain/devices/panning_effect.cpp
-    ../../domain/parameter.cpp
-    ../../domain/parameter_container.cpp
     ../../domain/devices/sampler_device.cpp
     ../../domain/devices/synth_device.cpp
-    ../../domain/devices/drum_synth_device.cpp
-    ../../domain/dsp/oversampler.cpp
     ../../domain/devices/synth_presets.cpp
     ../../domain/devices/volume_effect.cpp
     ../../domain/dsp/adsr_envelope.cpp
     ../../domain/dsp/cascaded_svf.cpp
+    ../../domain/dsp/drum/clap_engine.cpp
+    ../../domain/dsp/drum/crash_engine.cpp
+    ../../domain/dsp/drum/hihat_engine.cpp
+    ../../domain/dsp/drum/kick_engine.cpp
+    ../../domain/dsp/drum/ride_engine.cpp
+    ../../domain/dsp/drum/snare_engine.cpp
+    ../../domain/dsp/drum/tom_engine.cpp
     ../../domain/dsp/dsp_component.cpp
     ../../domain/dsp/lfo.cpp
     ../../domain/dsp/multi_engine.cpp
-    ../../domain/dsp/drum/crash_engine.cpp
-    ../../domain/dsp/drum/ride_engine.cpp
-    ../../domain/dsp/drum/hihat_engine.cpp
-    ../../domain/dsp/drum/kick_engine.cpp
-    ../../domain/dsp/drum/clap_engine.cpp
-    ../../domain/dsp/drum/snare_engine.cpp
-    ../../domain/dsp/drum/tom_engine.cpp
+    ../../domain/dsp/oversampler.cpp
     ../../domain/dsp/polyblep_oscillator.cpp
     ../../domain/dsp/reverb_effect.cpp
     ../../domain/event.cpp
@@ -73,19 +73,20 @@ set(SRC
     ../../domain/mixer_unit.cpp
     ../../domain/note_data.cpp
     ../../domain/note_data_manipulator.cpp
+    ../../domain/parameter.cpp
+    ../../domain/parameter_container.cpp
     ../../domain/pattern.cpp
     ../../domain/pitch_bend_automation.cpp
     ../../domain/pitch_bend_data.cpp
     ../../domain/play_order.cpp
     ../../domain/song.cpp
     ../../domain/track.cpp
-    ../../domain/devices/effect_rack.cpp
     ../../infra/audio/audio_engine.cpp
     ../../infra/audio/audio_player.cpp
     ../../infra/audio/audio_recorder.cpp
     ../../infra/audio/backend/sndfile_reader.cpp
-    ../../infra/settings.cpp
     ../../infra/midi/midi_cc_mapping.cpp
+    ../../infra/settings.cpp
 )
 qt_add_executable(${NAME} ${SRC})
 set_target_properties(${NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${UNIT_TEST_BASE_DIR})
@@ -96,20 +97,20 @@ set(DELAY_TEST_NAME editor_service_delay_test)
 set(DELAY_TEST_SRC
     ${DELAY_TEST_NAME}.cpp
     ${DELAY_TEST_NAME}.hpp
-    ../../application/instrument_request.cpp
-    ../../application/command/note_edit_command.cpp
     ../../application/command/automation_command.cpp
     ../../application/command/composite_command.cpp
+    ../../application/command/note_edit_command.cpp
     ../../application/command/undo_stack.cpp
+    ../../application/instrument_request.cpp
     ../../application/note_converter.cpp
     ../../application/position.hpp
     ../../application/service/automation_service.cpp
-    ../../application/service/property_service.cpp
     ../../application/service/copy_manager.cpp
     ../../application/service/device_service.cpp
     ../../application/service/drum_synth_controller.cpp
     ../../application/service/editor_service.cpp
     ../../application/service/mixer_service.cpp
+    ../../application/service/property_service.cpp
     ../../application/service/random_service.cpp
     ../../application/service/selection_service.cpp
     ../../application/service/settings_service.cpp
@@ -123,32 +124,32 @@ set(DELAY_TEST_SRC
     ../../domain/automation_location.cpp
     ../../domain/column.cpp
     ../../domain/column_settings.cpp
-    ../../domain/devices/device.cpp
-    ../../domain/devices/effect.cpp
     ../../domain/devices/delay_effect.cpp
+    ../../domain/devices/device.cpp
+    ../../domain/devices/drum_synth_constants.cpp
+    ../../domain/devices/drum_synth_device.cpp
+    ../../domain/devices/effect.cpp
+    ../../domain/devices/effect_rack.cpp
     ../../domain/devices/high_pass_filter_effect.cpp
     ../../domain/devices/low_pass_filter_effect.cpp
     ../../domain/devices/panning_effect.cpp
-    ../../domain/parameter.cpp
-    ../../domain/parameter_container.cpp
     ../../domain/devices/sampler_device.cpp
     ../../domain/devices/synth_device.cpp
-    ../../domain/devices/drum_synth_device.cpp
-    ../../domain/dsp/oversampler.cpp
     ../../domain/devices/synth_presets.cpp
     ../../domain/devices/volume_effect.cpp
     ../../domain/dsp/adsr_envelope.cpp
     ../../domain/dsp/cascaded_svf.cpp
+    ../../domain/dsp/drum/clap_engine.cpp
+    ../../domain/dsp/drum/crash_engine.cpp
+    ../../domain/dsp/drum/hihat_engine.cpp
+    ../../domain/dsp/drum/kick_engine.cpp
+    ../../domain/dsp/drum/ride_engine.cpp
+    ../../domain/dsp/drum/snare_engine.cpp
+    ../../domain/dsp/drum/tom_engine.cpp
     ../../domain/dsp/dsp_component.cpp
     ../../domain/dsp/lfo.cpp
     ../../domain/dsp/multi_engine.cpp
-    ../../domain/dsp/drum/crash_engine.cpp
-    ../../domain/dsp/drum/ride_engine.cpp
-    ../../domain/dsp/drum/hihat_engine.cpp
-    ../../domain/dsp/drum/kick_engine.cpp
-    ../../domain/dsp/drum/clap_engine.cpp
-    ../../domain/dsp/drum/snare_engine.cpp
-    ../../domain/dsp/drum/tom_engine.cpp
+    ../../domain/dsp/oversampler.cpp
     ../../domain/dsp/polyblep_oscillator.cpp
     ../../domain/dsp/reverb_effect.cpp
     ../../domain/event.cpp
@@ -166,19 +167,20 @@ set(DELAY_TEST_SRC
     ../../domain/mixer_unit.cpp
     ../../domain/note_data.cpp
     ../../domain/note_data_manipulator.cpp
+    ../../domain/parameter.cpp
+    ../../domain/parameter_container.cpp
     ../../domain/pattern.cpp
     ../../domain/pitch_bend_automation.cpp
     ../../domain/pitch_bend_data.cpp
     ../../domain/play_order.cpp
     ../../domain/song.cpp
     ../../domain/track.cpp
-    ../../domain/devices/effect_rack.cpp
     ../../infra/audio/audio_engine.cpp
     ../../infra/audio/audio_player.cpp
     ../../infra/audio/audio_recorder.cpp
     ../../infra/audio/backend/sndfile_reader.cpp
-    ../../infra/settings.cpp
     ../../infra/midi/midi_cc_mapping.cpp
+    ../../infra/settings.cpp
 )
 qt_add_executable(${DELAY_TEST_NAME} ${DELAY_TEST_SRC})
 set_target_properties(${DELAY_TEST_NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${UNIT_TEST_BASE_DIR})

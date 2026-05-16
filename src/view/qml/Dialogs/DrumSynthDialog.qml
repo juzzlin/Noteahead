@@ -76,9 +76,9 @@ Dialog {
             }
         }
 
-        // Pad Grid
+        // Voice Grid
         GroupBox {
-            title: qsTr("Pads")
+            title: qsTr("Voices")
             Layout.fillWidth: true
             Layout.fillHeight: true
             
@@ -94,19 +94,19 @@ Dialog {
                         text: modelData
                         Layout.fillWidth: true
                         Layout.preferredHeight: 50
-                        highlighted: drumSynthController.selectedPad === index
+                        highlighted: drumSynthController.selectedVoice === index
                         onClicked: {
-                            drumSynthController.selectedPad = index
-                            drumSynthController.playPad(index)
+                            drumSynthController.selectedVoice = index
+                            drumSynthController.playVoice(index)
                         }
                     }
                 }
             }
         }
 
-        // Pad Settings
+        // Voice Settings
         GroupBox {
-            title: qsTr("Pad Settings") + " (" + ["Kick", "Snare", "CHH", "Clap", "OHH", "Lo Tom", "Mid Tom", "Hi Tom", "Crash", "Ride", "Rev Crash"][drumSynthController.selectedPad] + ")"
+            title: qsTr("Voice Settings") + " (" + ["Kick", "Snare", "CHH", "Clap", "OHH", "Lo Tom", "Mid Tom", "Hi Tom", "Crash", "Ride", "Rev Crash"][drumSynthController.selectedVoice] + ")"
             Layout.fillWidth: true
             Layout.preferredHeight: 150
             
@@ -121,102 +121,102 @@ Dialog {
                     
                     Knob {
                         label: qsTr("Level")
-                        value: drumSynthController.padLevel
-                        onMoved: (val) => drumSynthController.padLevel = val
+                        value: drumSynthController.voiceLevel
+                        onMoved: (val) => drumSynthController.voiceLevel = val
                     }
                     Knob {
                         label: qsTr("Pan")
                         mapping: "pan"
-                        value: drumSynthController.padPan
-                        onMoved: (val) => drumSynthController.padPan = val
+                        value: drumSynthController.voicePan
+                        onMoved: (val) => drumSynthController.voicePan = val
                     }
                     FilterKnob {
                         label: qsTr("LPF")
                         controller: drumSynthController
-                        value: drumSynthController.padLpfCutoff
-                        onMoved: (val) => drumSynthController.padLpfCutoff = val
+                        value: drumSynthController.voiceLpfCutoff
+                        onMoved: (val) => drumSynthController.voiceLpfCutoff = val
                     }
                     FilterKnob {
                         label: qsTr("HPF")
                         controller: drumSynthController
                         isHpf: true
-                        value: drumSynthController.padHpfCutoff
-                        onMoved: (val) => drumSynthController.padHpfCutoff = val
+                        value: drumSynthController.voiceHpfCutoff
+                        onMoved: (val) => drumSynthController.voiceHpfCutoff = val
                     }
                     Knob {
                         label: qsTr("Tune")
-                        value: drumSynthController.padTune
-                        onMoved: (val) => drumSynthController.padTune = val
+                        value: drumSynthController.voiceTune
+                        onMoved: (val) => drumSynthController.voiceTune = val
                     }
                     Knob {
                         label: qsTr("Decay")
-                        value: drumSynthController.padDecay
-                        onMoved: (val) => drumSynthController.padDecay = val
+                        value: drumSynthController.voiceDecay
+                        onMoved: (val) => drumSynthController.voiceDecay = val
                     }
 
                     // Voice Specific
                     Knob {
-                        visible: drumSynthController.selectedPad === 0
+                        visible: drumSynthController.isKick
                         label: qsTr("Attack")
                         mapping: "cubic"
                         value: drumSynthController.kickAttack
                         onMoved: (val) => drumSynthController.kickAttack = val
                     }
                     Knob {
-                        visible: drumSynthController.selectedPad === 0
+                        visible: drumSynthController.isKick
                         label: qsTr("C.Tune")
                         value: drumSynthController.kickClickTune
                         onMoved: (val) => drumSynthController.kickClickTune = val
                     }
                     Knob {
-                        visible: drumSynthController.selectedPad === 0
+                        visible: drumSynthController.isKick
                         label: qsTr("P.Depth")
                         mapping: "intensity"
                         value: drumSynthController.kickPitchDepth
                         onMoved: (val) => drumSynthController.kickPitchDepth = val
                     }
                     Knob {
-                        visible: drumSynthController.selectedPad === 0
+                        visible: drumSynthController.isKick
                         label: qsTr("P.Decay")
                         value: drumSynthController.kickPitchDecay
                         onMoved: (val) => drumSynthController.kickPitchDecay = val
                     }
                     Knob {
-                        visible: drumSynthController.selectedPad === 1
+                        visible: drumSynthController.isSnare
                         label: qsTr("Snappy")
                         value: drumSynthController.snareSnappy
                         onMoved: (val) => drumSynthController.snareSnappy = val
                     }
                     Knob {
-                        visible: drumSynthController.selectedPad === 1
+                        visible: drumSynthController.isSnare
                         label: qsTr("Tone")
                         value: drumSynthController.snareTone
                         onMoved: (val) => drumSynthController.snareTone = val
                     }
                     Knob {
-                        visible: drumSynthController.selectedPad >= 5 && drumSynthController.selectedPad <= 7
+                        visible: drumSynthController.isTom
                         label: qsTr("P.Depth")
                         mapping: "intensity"
                         value: drumSynthController.tomPitchDepth
                         onMoved: (val) => drumSynthController.tomPitchDepth = val
                     }
                     Knob {
-                        visible: drumSynthController.selectedPad >= 5 && drumSynthController.selectedPad <= 7
+                        visible: drumSynthController.isTom
                         label: qsTr("P.Decay")
                         value: drumSynthController.tomPitchDecay
                         onMoved: (val) => drumSynthController.tomPitchDecay = val
                     }
                     Knob {
-                        visible: drumSynthController.selectedPad === 8 || drumSynthController.selectedPad === 10
+                        visible: drumSynthController.hasAttack && !drumSynthController.isKick
                         label: qsTr("Attack")
-                        value: drumSynthController.padAttack
-                        onMoved: (val) => drumSynthController.padAttack = val
+                        value: drumSynthController.voiceAttack
+                        onMoved: (val) => drumSynthController.voiceAttack = val
                     }
                     Knob {
-                        visible: (drumSynthController.selectedPad === 2 || drumSynthController.selectedPad === 4) || (drumSynthController.selectedPad >= 8 && drumSynthController.selectedPad <= 10)
+                        visible: drumSynthController.hasResonance
                         label: qsTr("Reso")
-                        value: drumSynthController.padResonance
-                        onMoved: (val) => drumSynthController.padResonance = val
+                        value: drumSynthController.voiceResonance
+                        onMoved: (val) => drumSynthController.voiceResonance = val
                     }
                 }
             }

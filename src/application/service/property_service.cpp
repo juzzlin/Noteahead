@@ -17,6 +17,7 @@
 
 #include "../../common/constants.hpp"
 #include "../../infra/midi/midi_cc_mapping.hpp"
+#include "../../domain/devices/drum_synth_device.hpp"
 
 #include <QVariantMap>
 
@@ -34,14 +35,20 @@ QVariantList PropertyService::availableMidiControllers() const
 
 QVariantList PropertyService::getAvailableMidiControllers(const QString & portName) const
 {
+    using namespace MidiCcMapping;
     QVariantList list;
 
-    const auto addController = [&](uint8_t i) {
-        QString name { MidiCcMapping::controllerToString(static_cast<MidiCcMapping::Controller>(i)) };
-        if (name == "Undefined") {
-            name = QString { "%1" }.arg(i);
+    const auto addController = [&](uint8_t i, const QString & customName = {}) {
+        QString name;
+        if (!customName.isEmpty()) {
+            name = QString { "%1: %2" }.arg(i).arg(customName);
         } else {
-            name = QString { "%1: %2" }.arg(i).arg(name);
+            name = controllerToString(static_cast<Controller>(i));
+            if (name == "Undefined") {
+                name = QString { "%1" }.arg(i);
+            } else {
+                name = QString { "%1: %2" }.arg(i).arg(name);
+            }
         }
         list.append(QVariantMap {
             { "number", i },
@@ -51,12 +58,36 @@ QVariantList PropertyService::getAvailableMidiControllers(const QString & portNa
         });
     };
 
-    if (!portName.isEmpty() && (portName.startsWith(Constants::samplerDeviceName()) || portName.startsWith(Constants::synthDeviceName()))) {
-        addController(7);  // Volume
-        addController(10); // Pan
-        addController(74); // Cutoff (LPF)
-        addController(81); // General Purpose 6 (HPF)
-        return list;
+    if (!portName.isEmpty()) {
+        if (portName.startsWith(Constants::samplerDeviceName()) || portName.startsWith(Constants::synthDeviceName())) {
+            addController(static_cast<uint8_t>(Controller::ChannelVolumeMSB));
+            addController(static_cast<uint8_t>(Controller::PanMSB));
+            addController(static_cast<uint8_t>(Controller::SoundController5)); // LPF
+            addController(81); // HPF
+            return list;
+        } else if (portName.startsWith(Constants::drumSynthDeviceName())) {
+            addController(static_cast<uint8_t>(Controller::ChannelVolumeMSB));
+            addController(static_cast<uint8_t>(Controller::PanMSB));
+
+            // Range 1: Voices 0-5
+            for (int voice { 0 }; voice < DrumSynth::NumVoicesRange1; voice++) {
+                const uint8_t baseCc = DrumSynth::CcStartRange1 + (voice * 3);
+                const QString voiceName = DrumSynth::voiceName(voice);
+                addController(baseCc, voiceName + " Pan");
+                addController(baseCc + 1, voiceName + " LPF");
+                addController(baseCc + 2, voiceName + " HPF");
+            }
+
+            // Range 2: Voices 6-10
+            for (int voice { 0 }; voice < DrumSynth::NumVoicesRange2; voice++) {
+                const uint8_t baseCc = DrumSynth::CcStartRange2 + (voice * 3);
+                const QString voiceName = DrumSynth::voiceName(static_cast<int>(DrumSynth::NumVoicesRange1) + voice);
+                addController(baseCc, voiceName + " Pan");
+                addController(baseCc + 1, voiceName + " LPF");
+                addController(baseCc + 2, voiceName + " HPF");
+            }
+            return list;
+        }
     }
 
     for (uint8_t i { 0 }; i < 128; ++i) {
