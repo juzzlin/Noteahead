@@ -116,7 +116,11 @@ Dialog {
                 SynthDialog_Lfo { Layout.preferredWidth: parent.colWidth; Layout.fillWidth: false }
                 SynthDialog_AmpEg { Layout.preferredWidth: parent.colWidth; Layout.fillWidth: false }
                 SynthDialog_ModEg { Layout.preferredWidth: parent.colWidth; Layout.fillWidth: false }
-                SynthDialog_Delay { Layout.preferredWidth: parent.colWidth; Layout.fillWidth: false }
+                SynthDialog_Delay {
+                    Layout.preferredWidth: parent.colWidth * 2 + parent.columnSpacing
+                    Layout.fillWidth: false
+                    Layout.columnSpan: 2
+                }
 
                 // Spacing Row
                 Item {
