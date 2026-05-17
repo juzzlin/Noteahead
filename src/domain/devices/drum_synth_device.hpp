@@ -22,6 +22,7 @@
 #include "low_pass_filter_effect.hpp"
 #include "panning_effect.hpp"
 #include "volume_effect.hpp"
+#include "../dsp/oversampler.hpp"
 #include "../dsp/drum/crash_engine.hpp"
 #include "../dsp/drum/ride_engine.hpp"
 #include "../dsp/drum/hihat_engine.hpp"
@@ -90,6 +91,9 @@ private:
     std::string m_name;
     std::array<Voice, DrumSynth::NumVoices> m_voices;
     int m_selectedVoice { 0 };
+
+    Oversampler2x m_oversamplerL;
+    Oversampler2x m_oversamplerR;
 
     void initializeVoices();
     void addVoiceParameters(int index);

@@ -23,6 +23,7 @@ set(SRC
     ../../domain/dsp/drum/snare_engine.cpp
     ../../domain/dsp/drum/tom_engine.cpp
     ../../domain/dsp/dsp_component.cpp
+    ../../domain/dsp/oversampler.cpp
     ../../domain/parameter.cpp
     ../../domain/parameter_container.cpp
 )

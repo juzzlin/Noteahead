@@ -138,38 +138,56 @@ void DrumSynthDevice::processMidiAllNotesOff()
 void DrumSynthDevice::processAudio(float * output, uint32_t frameCount, uint32_t sampleRate)
 {
     setSampleRate(sampleRate);
+    const uint32_t oversampledRate = sampleRate * 2;
     const std::lock_guard<std::recursive_mutex> lock { mutex() };
 
     for (auto && voice : m_voices) {
-        voice.engine->setSampleRate(sampleRate);
-        voice.lpf->setSampleRate(sampleRate);
-        voice.hpf->setSampleRate(sampleRate);
+        voice.engine->setSampleRate(oversampledRate);
+        voice.lpf->setSampleRate(oversampledRate);
+        voice.hpf->setSampleRate(oversampledRate);
     }
 
-    const float globalVol = volumeInternal() * linearGainInternal();
+    std::vector<float> oversampledBuffer(frameCount * 4, 0.0f);
+    const float globalGain = linearGainInternal();
 
     for (uint32_t i = 0; i < frameCount; i++) {
-        float mixL = 0.0f;
-        float mixR = 0.0f;
+        for (int os = 0; os < 2; os++) {
+            float mixL = 0.0f;
+            float mixR = 0.0f;
 
-        for (auto && voice : m_voices) {
-            if (voice.engine->isActive()) {
-                float sample = voice.engine->nextSample();
-                float l = sample;
-                float r = sample;
+            for (auto && voice : m_voices) {
+                if (voice.engine->isActive()) {
+                    float sample = voice.engine->nextSample();
+                    float l = sample;
+                    float r = sample;
 
-                voice.lpf->process(l, r);
-                voice.hpf->process(l, r);
-                voice.volumeEffect->process(l, r);
-                voice.panningEffect->process(l, r);
+                    voice.lpf->process(l, r);
+                    voice.hpf->process(l, r);
+                    voice.volumeEffect->process(l, r);
+                    voice.panningEffect->process(l, r);
 
-                mixL += l;
-                mixR += r;
+                    mixL += l;
+                    mixR += r;
+                }
             }
-        }
 
-        output[i * 2] += mixL * globalVol * (1.0f - panInternal()) * 2.0f;
-        output[i * 2 + 1] += mixR * globalVol * panInternal() * 2.0f;
+            oversampledBuffer[(i * 2 + os) * 2] += mixL * globalGain * (1.0f - panInternal()) * 2.0f;
+            oversampledBuffer[(i * 2 + os) * 2 + 1] += mixR * globalGain * panInternal() * 2.0f;
+        }
+    }
+
+    for (uint32_t i = 0; i < frameCount; i++) {
+        const float l0 = oversampledBuffer[i * 4];
+        const float r0 = oversampledBuffer[i * 4 + 1];
+        const float l1 = oversampledBuffer[i * 4 + 2];
+        const float r1 = oversampledBuffer[i * 4 + 3];
+
+        // Soft-clip at high rate and then downsample
+        float l = m_oversamplerL.process(std::tanh(l0), std::tanh(l1));
+        float r = m_oversamplerR.process(std::tanh(r0), std::tanh(r1));
+
+        output[i * 2] += l * volumeInternal();
+        output[i * 2 + 1] += r * volumeInternal();
     }
 }
 
@@ -186,6 +204,8 @@ void DrumSynthDevice::resetAudio()
     for (auto && voice : m_voices) {
         voice.engine->reset();
     }
+    m_oversamplerL.reset();
+    m_oversamplerR.reset();
 }
 
 void DrumSynthDevice::serializeToXml(QXmlStreamWriter & writer) const
