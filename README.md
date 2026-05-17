@@ -2,7 +2,9 @@
 
 ![Build Status](https://github.com/juzzlin/Noteahead/actions/workflows/ci.yml/badge.svg)
 
-Noteahead is a "simple" MIDI tracker and sequencer for Linux focusing on ease of use. There are no audio tracks, only MIDI.
+Noteahead is a "simple" MIDI tracker and sequencer for Linux focusing on ease of use.
+
+There are no audio tracks, only MIDI. However, Noteahead currently implements a built-in audio recorder, sampler and a virtual analog synth. A virtual analog drum machine will be released in 3.1.0. These built-in devices act like any MIDI device.
 
 Noteahead is designed to be especially a MIDI tracker, so it has/will have features that make MIDI sequencing as easy as possible.
 
@@ -36,9 +38,10 @@ My own setup runs Noteahead on Ubuntu 24.04 LTS with all gear connected via USB-
 ##
 ## Example Tracks
 
-Some example tracks sequenced with Noteahead (produced with Behringer X32 Producer and Audacity):
+Some example tracks sequenced and recorded with Noteahead (usually mastered in Audacity):
 
-- [Arctic Music Project - My Real Name (SoundCloud)](https://soundcloud.com/arctic-music-project/my-real-name)
+- [Arctic Music Project - Raindrops (SoundCloud)](https://soundcloud.com/arctic-music-project/raindrops)
+- [Arctic Music Project - My Real Name (Spotify)](https://open.spotify.com/track/2WN79Gzazaq0xtji9t0ORI)
 - [Arctic Music Project - Epic Success (Epic Piano Remix) (Spotify)](https://open.spotify.com/track/62R7Qb53DbrAatjN6wmzmE)
 - [Arctic Music Project - Incredible Times (Spotify)](https://open.spotify.com/track/5mnyB4BaIhdKecEkendF6E)
 - [Arctic Music Project - Your Love (Spotify)](https://open.spotify.com/track/1s2hw68GyPfwUfOOkuaGLn)
@@ -46,6 +49,7 @@ Some example tracks sequenced with Noteahead (produced with Behringer X32 Produc
 - [Arctic Music Project - Pointless (YouTube)](https://www.youtube.com/watch?v=xXXgGbOZIV0)
 - [Arctic Music Project - Pointless (SoundCloud)](https://soundcloud.com/arctic-music-project/pointless)
 - [Arctic Music Project - Why (SoundCloud)](https://soundcloud.com/arctic-music-project/why)
+- [Arctic Music Project - 0035AM (Spotify)](https://open.spotify.com/track/4yUJmFjBmUhOTyl8oXu1yU)
 - [J.L.P - This Planet (Spotify)](https://open.spotify.com/track/5LV4oR82Ak4uA0kkKB6McX)
 - [J.L.P - This Planet - Note Visualization Video (YouTube)](https://www.youtube.com/watch?v=f_Cf_84eXcA)
 
