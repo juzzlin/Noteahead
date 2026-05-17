@@ -71,13 +71,13 @@ SynthDevice::SynthDevice(std::string name)
     // Initialize Parameters
     addParameter(Parameter { Constants::NahdXml::xmlKeySynthVco1Waveform().toStdString(), 1.0f, 0, 2, 1, 1, Parameter::Type::Discrete });
     addParameter(Parameter { Constants::NahdXml::xmlKeySynthVco1Octave().toStdString(), 0.0f, -1, 2, 0, 1, Parameter::Type::Discrete });
-    addParameter(Parameter { Constants::NahdXml::xmlKeySynthVco1Pitch().toStdString(), 0.0f, -2400, 2400, 0, 1, Parameter::Type::Discrete });
+    addParameter(Parameter { Constants::NahdXml::xmlKeySynthVco1Pitch().toStdString(), 0.5f, -2400, 2400, 0 });
     addParameter(Parameter { Constants::NahdXml::xmlKeySynthVco1Shape().toStdString(), 0.0f, 0, 100, 0 });
     addParameter(Parameter { Constants::NahdXml::xmlKeySynthVco1Sync().toStdString(), 0.0f, 0, 1, 0, 1, Parameter::Type::Boolean });
 
     addParameter(Parameter { Constants::NahdXml::xmlKeySynthVco2Waveform().toStdString(), 1.0f, 0, 2, 1, 1, Parameter::Type::Discrete });
     addParameter(Parameter { Constants::NahdXml::xmlKeySynthVco2Octave().toStdString(), 0.0f, -1, 2, 0, 1, Parameter::Type::Discrete });
-    addParameter(Parameter { Constants::NahdXml::xmlKeySynthVco2Pitch().toStdString(), 0.0f, -2400, 2400, 0, 1, Parameter::Type::Discrete });
+    addParameter(Parameter { Constants::NahdXml::xmlKeySynthVco2Pitch().toStdString(), 0.5f, -2400, 2400, 0 });
     addParameter(Parameter { Constants::NahdXml::xmlKeySynthVco2Shape().toStdString(), 0.0f, 0, 100, 0 });
     addParameter(Parameter { Constants::NahdXml::xmlKeySynthVco2Sync().toStdString(), 0.0f, 0, 1, 0, 1, Parameter::Type::Boolean });
 
@@ -220,8 +220,8 @@ void SynthDevice::processAudio(float * output, uint32_t nFrames, uint32_t sample
                 }
 
                 // Note: Pitch parameters are in cents (-2400..2400)
-                const double vco1PitchOffset = ParameterMapper::mapCubicCentered(m_vco1Pitch, -2400, 2400);
-                const double vco2PitchOffset = ParameterMapper::mapCubicCentered(m_vco2Pitch, -2400, 2400);
+                const double vco1PitchOffset = ParameterMapper::mapCubicCentered(m_vco1Pitch * 2.0 - 1.0, -2400, 2400);
+                const double vco2PitchOffset = ParameterMapper::mapCubicCentered(m_vco2Pitch * 2.0 - 1.0, -2400, 2400);
 
                 const double vco1Freq { voice.glideFrequency * std::pow(2.0, (m_vco1Octave * 12.0 + vco1PitchOffset / 100.0 + p1 * 12.0) / 12.0) };
                 const double vco2Freq { voice.glideFrequency * std::pow(2.0, (m_vco2Octave * 12.0 + vco2PitchOffset / 100.0 + p2 * 12.0) / 12.0) };
@@ -497,7 +497,7 @@ void SynthDevice::syncParameters()
 
     if (auto p = parameter(Constants::NahdXml::xmlKeySynthVco2Waveform().toStdString()); p) m_vco2Waveform = static_cast<PolyBlepOscillator::Waveform>(p->get().xmlValue());
     if (auto p = parameter(Constants::NahdXml::xmlKeySynthVco2Octave().toStdString()); p) m_vco2Octave = p->get().xmlValue();
-    if (auto p = parameter(Constants::NahdXml::xmlKeySynthVco2Pitch().toStdString()); p) m_vco2Pitch = p->get().xmlValue();
+    if (auto p = parameter(Constants::NahdXml::xmlKeySynthVco2Pitch().toStdString()); p) m_vco2Pitch = p->get().value();
     if (auto p = parameter(Constants::NahdXml::xmlKeySynthVco2Shape().toStdString()); p) m_vco2Shape = p->get().value();
     if (auto p = parameter(Constants::NahdXml::xmlKeySynthVco2Sync().toStdString()); p) m_vco2Sync = p->get().value() > 0.5f;
 

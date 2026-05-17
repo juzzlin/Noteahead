@@ -41,7 +41,7 @@ void SynthTest::test_defaultValues_shouldBeCorrect()
     const SynthDevice synth { "Test Synth" };
     QCOMPARE(synth.name(), std::string("Test Synth"));
     QCOMPARE(synth.vco1Octave(), 0);
-    QCOMPARE(synth.vco1Pitch(), 0);
+    QCOMPARE(synth.vco1Pitch(), 0.5f);
     QCOMPARE(synth.mixVco1(), 1.0f);
     QCOMPARE(synth.mixVco2(), 0.0f);
     QCOMPARE(synth.lpfCutoff(), 1.0f);
@@ -339,7 +339,7 @@ void SynthTest::test_parameterDiscreteFlag_shouldReturnCorrectDiscreteState()
 
     const auto vco1Pitch = synth.parameter(Constants::NahdXml::xmlKeySynthVco1Pitch().toStdString());
     QVERIFY(vco1Pitch.has_value());
-    QVERIFY(vco1Pitch->get().isDiscrete());
+    QVERIFY(!vco1Pitch->get().isDiscrete());
 
     const auto modTarget = synth.parameter(Constants::NahdXml::xmlKeySynthModTarget().toStdString());
     QVERIFY(modTarget.has_value());
