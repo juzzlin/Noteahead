@@ -98,11 +98,13 @@ Dialog {
                 rowSpacing: 10
                 width: parent.width - 20
 
-                SynthDialog_Global {}
-                SynthDialog_Vco1 {}
-                SynthDialog_Vco2 {}
-                SynthDialog_Multi {}
-                SynthDialog_Filter {}
+                readonly property real colWidth: (width - (columnSpacing * (columns - 1))) / columns
+
+                SynthDialog_Global { Layout.preferredWidth: parent.colWidth; Layout.fillWidth: false }
+                SynthDialog_Vco1 { Layout.preferredWidth: parent.colWidth; Layout.fillWidth: false }
+                SynthDialog_Vco2 { Layout.preferredWidth: parent.colWidth; Layout.fillWidth: false }
+                SynthDialog_Multi { Layout.preferredWidth: parent.colWidth; Layout.fillWidth: false }
+                SynthDialog_Filter { Layout.preferredWidth: parent.colWidth; Layout.fillWidth: false }
 
                 // Spacing Row
                 Item {
@@ -111,10 +113,10 @@ Dialog {
                     Layout.columnSpan: 5
                 }
 
-                SynthDialog_Lfo {}
-                SynthDialog_AmpEg {}
-                SynthDialog_ModEg {}
-                SynthDialog_Delay {}
+                SynthDialog_Lfo { Layout.preferredWidth: parent.colWidth; Layout.fillWidth: false }
+                SynthDialog_AmpEg { Layout.preferredWidth: parent.colWidth; Layout.fillWidth: false }
+                SynthDialog_ModEg { Layout.preferredWidth: parent.colWidth; Layout.fillWidth: false }
+                SynthDialog_Delay { Layout.preferredWidth: parent.colWidth; Layout.fillWidth: false }
 
                 // Spacing Row
                 Item {
