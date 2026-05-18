@@ -49,6 +49,8 @@ private slots:
     void test_projectLoadMidiCcReset_shouldRestoreLoadedValues();
     void test_adsrEnvelope_shouldUpdateStepsOnSampleRateChange();
     void test_pitchBend_shouldUpdateFrequency();
+    void test_pulseWidth_shouldUpdateDutyCycle();
+    void test_pwm_shouldModulatePulseWidth();
 };
 
 } // namespace noteahead

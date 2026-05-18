@@ -626,6 +626,93 @@ void SynthTest::test_pitchBend_shouldUpdateFrequency()
     QCOMPARE(std::round(synth.currentPitchBendOffset()), 12.0);
 }
 
+void SynthTest::test_pulseWidth_shouldUpdateDutyCycle()
+{
+    SynthDevice synth("TestSynth");
+    synth.setVco1Waveform(PolyBlepOscillator::Waveform::Pulse);
+    synth.setMixVco1(1.0f);
+    synth.setMixVco2(0.0f);
+    synth.setMultiLevel(0.0f);
+    synth.setVolume(1.0f);
+    synth.setGain(0.5f); // 0dB
+    synth.setLpfCutoff(1.0f); // Open filter
+    synth.setHpfCutoff(0.0f);
+
+    const uint32_t sampleRate = 44100;
+    const uint32_t frameCount = 1000;
+    std::vector<float> buffer(frameCount * 2, 0.0f);
+
+    // Shape 0.0 -> 50% duty cycle
+    synth.setVco1Shape(0.0f);
+    synth.processMidiNoteOn(60, 100);
+    // Process some audio to settle envelopes
+    synth.processAudio(buffer.data(), frameCount, sampleRate);
+    std::fill(buffer.begin(), buffer.end(), 0.0f);
+    synth.processAudio(buffer.data(), frameCount, sampleRate);
+
+    int positiveSamples = 0;
+    double sum = 0.0;
+    for (size_t i = 0; i < buffer.size(); i += 2) {
+        if (buffer[i] > 0.001f) positiveSamples++;
+        sum += buffer[i];
+    }
+    // With 50% duty cycle, roughly half should be positive
+    QVERIFY(positiveSamples > 400 && positiveSamples < 600);
+    // DC offset should be near zero
+    QVERIFY(std::abs(sum / frameCount) < 0.05);
+
+    // Shape 1.0 -> very narrow pulse (0.5%)
+    synth.setVco1Shape(1.0f);
+    std::fill(buffer.begin(), buffer.end(), 0.0f);
+    synth.processAudio(buffer.data(), frameCount, sampleRate);
+
+    positiveSamples = 0;
+    sum = 0.0;
+    for (size_t i = 0; i < buffer.size(); i += 2) {
+        if (buffer[i] > 0.001f) positiveSamples++;
+        sum += buffer[i];
+    }
+    // With 0.5% duty cycle, very few should be positive
+    QVERIFY(positiveSamples < 50);
+    // DC offset should still be near zero
+    QVERIFY(std::abs(sum / frameCount) < 0.05);
+}
+
+void SynthTest::test_pwm_shouldModulatePulseWidth()
+{
+    SynthDevice synth("TestSynth");
+    synth.setVco1Waveform(PolyBlepOscillator::Waveform::Pulse);
+    synth.setMixVco1(1.0f);
+    synth.setMixVco2(0.0f);
+    synth.setLpfCutoff(1.0f);
+    
+    // Set LFO to modulate Shape (PWM)
+    synth.setLfoTarget(SynthDevice::LfoTarget::Shape);
+    synth.setLfoRate(0.5f); // Fast enough to see change in 1000 samples
+    synth.setLfoInt(1.0f);
+    synth.setVco1Shape(0.5f);
+
+    const uint32_t sampleRate = 44100;
+    const uint32_t frameCount = 1000;
+    std::vector<float> buffer(frameCount * 2, 0.0f);
+
+    synth.processMidiNoteOn(60, 100);
+    
+    // Count positive samples in two consecutive blocks. 
+    // Due to LFO modulation, the duty cycle should change.
+    synth.processAudio(buffer.data(), frameCount, sampleRate);
+    int pos1 = 0;
+    for (size_t i = 0; i < buffer.size(); i += 2) if (buffer[i] > 0.001f) pos1++;
+
+    std::fill(buffer.begin(), buffer.end(), 0.0f);
+    synth.processAudio(buffer.data(), frameCount, sampleRate);
+    int pos2 = 0;
+    for (size_t i = 0; i < buffer.size(); i += 2) if (buffer[i] > 0.001f) pos2++;
+
+    // The number of positive samples should be different due to PWM
+    QVERIFY(pos1 != pos2);
+}
+
 } // namespace noteahead
 
 QTEST_GUILESS_MAIN(noteahead::SynthTest)

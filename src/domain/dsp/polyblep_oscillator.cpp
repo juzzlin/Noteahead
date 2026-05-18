@@ -63,9 +63,9 @@ double PolyBlepOscillator::nextSample()
         }
         value -= polyBlep(t);
     } else if (m_waveform == Waveform::Pulse) {
-        // Map shape 0..1 to pulse width 0.5..0.01
-        double pw = 0.5 * (1.0 - m_shape * 0.98); 
+        double pw = 0.5 * (1.0 - m_shape * 0.99);
         value = (t < pw) ? 1.0 : -1.0;
+        value -= (2.0 * pw - 1.0);
         value += polyBlep(t);
         value -= polyBlep(std::fmod(t + (1.0 - pw), 1.0));
     } else if (m_waveform == Waveform::Triangle) {
