@@ -84,6 +84,7 @@ class SynthController : public QObject
     Q_PROPERTY(int voiceDepth READ voiceDepth WRITE setVoiceDepth NOTIFY voiceDepthChanged)
     Q_PROPERTY(int portamento READ portamento WRITE setPortamento NOTIFY portamentoChanged)
     Q_PROPERTY(int panSpread READ panSpread WRITE setPanSpread NOTIFY panSpreadChanged)
+    Q_PROPERTY(int pitchBendRange READ pitchBendRange WRITE setPitchBendRange NOTIFY pitchBendRangeChanged)
     Q_PROPERTY(int pan READ pan WRITE setPan NOTIFY panChanged)
     Q_PROPERTY(int volume READ volume WRITE setVolume NOTIFY volumeChanged)
     Q_PROPERTY(int gain READ gain WRITE setGain NOTIFY gainChanged)
@@ -193,6 +194,8 @@ public:
     void setPortamento(int p);
     int panSpread() const;
     void setPanSpread(int s);
+    int pitchBendRange() const;
+    void setPitchBendRange(int r);
     int pan() const;
     void setPan(int p);
     int volume() const;
@@ -283,6 +286,7 @@ signals:
     void voiceDepthChanged();
     void portamentoChanged();
     void panSpreadChanged();
+    void pitchBendRangeChanged();
     void panChanged();
     void volumeChanged();
     void gainChanged();

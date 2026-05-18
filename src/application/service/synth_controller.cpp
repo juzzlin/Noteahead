@@ -545,6 +545,19 @@ void SynthController::setPanSpread(int s)
     }
 }
 
+int SynthController::pitchBendRange() const
+{
+    return m_synth ? m_synth->pitchBendRange() : 0;
+}
+
+void SynthController::setPitchBendRange(int r)
+{
+    if (m_synth) {
+        m_synth->setPitchBendRange(r);
+        emit pitchBendRangeChanged();
+    }
+}
+
 int SynthController::pan() const
 {
     return m_synth ? static_cast<int>(std::round(m_synth->pan() * Constants::uiInternalScaling())) : 0;
@@ -827,6 +840,7 @@ void SynthController::requestSettings()
     emit voiceDepthChanged();
     emit portamentoChanged();
     emit panSpreadChanged();
+    emit pitchBendRangeChanged();
     emit panChanged();
     emit volumeChanged();
     emit gainChanged();

@@ -244,6 +244,7 @@ QString xmlKeyRate();
 QString xmlKeyVoiceDepth();
 QString xmlKeyPortamento();
 QString xmlKeyPanSpread();
+QString xmlKeyPitchBendRange();
 QString xmlKeyResonance();
 QString xmlKeyKeyTrack();
 QString xmlKeyAttack();

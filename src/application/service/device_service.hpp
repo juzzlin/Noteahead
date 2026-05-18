@@ -50,6 +50,7 @@ public:
     void processMidiNoteOn(const QString & portName, uint8_t note, uint8_t velocity);
     void processMidiNoteOff(const QString & portName, uint8_t note);
     void processMidiCc(const QString & portName, uint8_t controller, uint8_t value, uint8_t channel);
+    void processMidiPitchBend(const QString & portName, uint16_t value, uint8_t channel);
     void processMidiProgramChange(const QString & portName, uint8_t program, uint8_t channel);
     void processMidiAllNotesOff(const QString & portName);
     void processMidiAllNotesOff();

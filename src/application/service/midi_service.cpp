@@ -241,7 +241,7 @@ void MidiService::sendPitchBendData(InstrumentW instrument, MidiService::PitchBe
     if (const auto instr = instrument.lock()) {
         const auto portName = instr->midiAddress().portName();
         if (m_deviceService && m_deviceService->isInternalDevice(portName)) {
-            // FIXME: processMidiPitchBend(portName, data.msb(), data.lsb())
+            m_deviceService->processMidiPitchBend(portName, (static_cast<uint16_t>(data.msb()) << 7) | data.lsb(), instr->midiAddress().channel());
         } else {
             m_outputWorker->sendPitchBendData(portName, instr->midiAddress().channel(), data.msb(), data.lsb());
         }

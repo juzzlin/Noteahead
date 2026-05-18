@@ -864,6 +864,11 @@ QString xmlKeyPanSpread()
     return "panSpread";
 }
 
+QString xmlKeyPitchBendRange()
+{
+    return "pitchBendRange";
+}
+
 QString xmlKeyResonance()
 {
     return "resonance";

@@ -604,6 +604,28 @@ void SynthTest::test_adsrEnvelope_shouldUpdateStepsOnSampleRateChange()
     QVERIFY(std::abs(val96 - (1.0 / 96000.0)) < 0.000001);
 }
 
+void SynthTest::test_pitchBend_shouldUpdateFrequency()
+{
+    SynthDevice synth("TestSynth");
+    synth.setPitchBendRange(2);
+
+    // Default center
+    QCOMPARE(synth.currentPitchBendOffset(), 0.0f);
+
+    // Max up
+    synth.processMidiPitchBend(16383, 0);
+    QCOMPARE(std::round(synth.currentPitchBendOffset()), 2.0);
+
+    // Max down
+    synth.processMidiPitchBend(0, 0);
+    QCOMPARE(std::round(synth.currentPitchBendOffset()), -2.0);
+
+    // Range change
+    synth.setPitchBendRange(12);
+    synth.processMidiPitchBend(16383, 0);
+    QCOMPARE(std::round(synth.currentPitchBendOffset()), 12.0);
+}
+
 } // namespace noteahead
 
 QTEST_GUILESS_MAIN(noteahead::SynthTest)

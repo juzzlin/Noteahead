@@ -114,8 +114,10 @@ SynthDevice::SynthDevice(std::string name)
     addParameter(Parameter { Constants::NahdXml::xmlKeyVoiceDepth().toStdString(), 0.0f, 0, 100, 0 });
     addParameter(Parameter { Constants::NahdXml::xmlKeyPortamento().toStdString(), 0.0f, 0, 100, 0 });
     addParameter(Parameter { Constants::NahdXml::xmlKeyPanSpread().toStdString(), 0.0f, 0, 100, 0 });
+    addParameter(Parameter { Constants::NahdXml::xmlKeyPitchBendRange().toStdString(), 2.0f, 0, 24, 2, 1, Parameter::Type::Discrete });
 
-    addParameter(Parameter { Constants::NahdXml::xmlKeyDelayType().toStdString(), 0.0f, 0, 3, 0, 1, Parameter::Type::Discrete });
+    addParameter(Parameter { Constants::NahdXml::xmlKeyDelayType().toStdString(), 0.0f, 0, 2, 0, 1, Parameter::Type::Discrete });
+
     addParameter(Parameter { Constants::NahdXml::xmlKeyDelayTime().toStdString(), 0.5f, 0, 10000, 500 }); // 0..10 seconds in ms
     addParameter(Parameter { Constants::NahdXml::xmlKeyDelayFeedback().toStdString(), 0.3f, 0, 100, 30 });
     addParameter(Parameter { Constants::NahdXml::xmlKeyDelayDepth().toStdString(), 0.5f, 0, 100, 50 });
@@ -207,12 +209,15 @@ void SynthDevice::processAudio(float * output, uint32_t frameCount, uint32_t sam
                 const double shapeMod = (m_lfoTarget == LfoTarget::Shape) ? lfoVal : 0.0;
 
                 // VCO Frequencies
+                const double pbOffset = (static_cast<double>(m_pitchBend) - 8192.0) / 8192.0 * m_pitchBendRange;
                 double p1 = (m_modTarget == ModTarget::Pitch1) ? modEnv : 0.0;
                 double p2 = (m_modTarget == ModTarget::Pitch2) ? modEnv : 0.0;
                 if (m_lfoTarget == LfoTarget::Pitch) {
                     p1 += lfoVal;
                     p2 += lfoVal;
                 }
+                p1 += pbOffset / 12.0;
+                p2 += pbOffset / 12.0;
 
                 // Note: Pitch parameters are in cents (-2400..2400)
                 const double vco1PitchOffset = ParameterMapper::mapCubicCentered(m_vco1Pitch * 2.0 - 1.0, -2400, 2400);
@@ -538,6 +543,7 @@ void SynthDevice::syncParameters()
     if (auto p = parameter(Constants::NahdXml::xmlKeyVoiceDepth().toStdString()); p) m_voiceDepth = p->get().value();
     if (auto p = parameter(Constants::NahdXml::xmlKeyPortamento().toStdString()); p) m_portamento = p->get().value();
     if (auto p = parameter(Constants::NahdXml::xmlKeyPanSpread().toStdString()); p) m_panSpread = p->get().value();
+    if (auto p = parameter(Constants::NahdXml::xmlKeyPitchBendRange().toStdString()); p) m_pitchBendRange = static_cast<int>(p->get().xmlValue());
 
     if (auto p = parameter(Constants::NahdXml::xmlKeyDelayType().toStdString()); p) m_delayType = static_cast<DelayEffect::Type>(p->get().xmlValue());
     if (auto p = parameter(Constants::NahdXml::xmlKeyDelayTime().toStdString()); p) m_delayTime = p->get().value() * 10.0f;
@@ -610,6 +616,12 @@ void SynthDevice::deserializeFromXml(QXmlStreamReader & reader)
         m_manualHpfCutoff = m_hpfCutoff;
     }
     emit dataChanged();
+}
+
+void SynthDevice::processMidiPitchBend(uint16_t value, uint8_t)
+{
+    const std::lock_guard<std::recursive_mutex> lock { mutex() };
+    m_pitchBend = value;
 }
 
 void SynthDevice::processMidiProgramChange(uint8_t program, uint8_t)
@@ -759,6 +771,9 @@ float SynthDevice::portamento() const { return m_portamento; }
 void SynthDevice::setPortamento(float val) { bool changed = false; { std::lock_guard<std::recursive_mutex> lock { mutex() }; if (auto p = parameter(Constants::NahdXml::xmlKeyPortamento().toStdString()); p) { p->get().setValue(val); syncParameters(); changed = true; } } if (changed) emit dataChanged(); }
 float SynthDevice::panSpread() const { return m_panSpread; }
 void SynthDevice::setPanSpread(float spread) { bool changed = false; { std::lock_guard<std::recursive_mutex> lock { mutex() }; if (auto p = parameter(Constants::NahdXml::xmlKeyPanSpread().toStdString()); p) { p->get().setValue(spread); syncParameters(); changed = true; } } if (changed) emit dataChanged(); }
+int SynthDevice::pitchBendRange() const { return m_pitchBendRange; }
+void SynthDevice::setPitchBendRange(int range) { bool changed = false; { std::lock_guard<std::recursive_mutex> lock { mutex() }; if (auto p = parameter(Constants::NahdXml::xmlKeyPitchBendRange().toStdString()); p) { p->get().setValue(static_cast<float>(range)); syncParameters(); changed = true; } } if (changed) emit dataChanged(); }
+float SynthDevice::currentPitchBendOffset() const { const std::lock_guard<std::recursive_mutex> lock { mutex() }; return (static_cast<float>(m_pitchBend) - 8192.0f) / 8192.0f * m_pitchBendRange; }
 void SynthDevice::setPan(float val) { Device::setPan(val); }
 void SynthDevice::setVolume(float vol) { Device::setVolume(vol); }
 float SynthDevice::gain() const { return Device::gain(); }

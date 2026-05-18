@@ -79,6 +79,13 @@ void DeviceService::processMidiCc(const QString & portName, uint8_t controller, 
     }
 }
 
+void DeviceService::processMidiPitchBend(const QString & portName, uint16_t value, uint8_t channel)
+{
+    if (const auto dev = device(portName.toStdString()); dev) {
+        dev->processMidiPitchBend(value, channel);
+    }
+}
+
 void DeviceService::processMidiProgramChange(const QString & portName, uint8_t program, uint8_t channel)
 {
     if (const auto dev = device(portName.toStdString()); dev) {

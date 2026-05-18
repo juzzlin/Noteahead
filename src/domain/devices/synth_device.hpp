@@ -69,6 +69,7 @@ public:
     void processMidiNoteOn(uint8_t note, uint8_t velocity) override;
     void processMidiNoteOff(uint8_t note) override;
     void processMidiCc(uint8_t controller, uint8_t value, uint8_t channel) override;
+    void processMidiPitchBend(uint16_t value, uint8_t channel) override;
     void processMidiProgramChange(uint8_t program, uint8_t channel) override;
     void processMidiAllNotesOff() override;
 
@@ -175,6 +176,9 @@ public:
     void setPortamento(float p);
     float panSpread() const;
     void setPanSpread(float spread);
+    int pitchBendRange() const;
+    void setPitchBendRange(int range);
+    float currentPitchBendOffset() const;
     void setPan(float pan) override;
     void setVolume(float vol) override;
     float gain() const;
@@ -275,6 +279,8 @@ private:
     float m_voiceDepth { 0.0f };
     float m_portamento { 0.0f };
     float m_panSpread { 0.0f };
+    int m_pitchBendRange { 2 };
+    uint16_t m_pitchBend { 8192 };
 
     // Manual settings for CC reset
     float m_manualLpfCutoff { 1.0f };

@@ -47,6 +47,16 @@ ColumnLayout {
         Layout.fillWidth: true
     }
     Knob {
+        label: qsTr("Pitch Bend Range")
+        from: 0
+        to: 24
+        stepSize: 1
+        suffix: ""
+        value: synthController.pitchBendRange
+        onMoved: v => synthController.pitchBendRange = Math.round(v)
+        Layout.fillWidth: true
+    }
+    Knob {
         label: qsTr("Master Volume")
         value: synthController.volume
         onMoved: v => synthController.volume = v
@@ -66,5 +76,4 @@ ColumnLayout {
         onMoved: v => synthController.pan = v
         Layout.fillWidth: true
     }
-
 }

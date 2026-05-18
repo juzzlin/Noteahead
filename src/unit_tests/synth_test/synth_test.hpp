@@ -48,6 +48,7 @@ private slots:
     void test_midiCcResetPanAndVolume_shouldRestoreManualValues();
     void test_projectLoadMidiCcReset_shouldRestoreLoadedValues();
     void test_adsrEnvelope_shouldUpdateStepsOnSampleRateChange();
+    void test_pitchBend_shouldUpdateFrequency();
 };
 
 } // namespace noteahead
