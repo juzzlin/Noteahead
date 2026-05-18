@@ -74,7 +74,8 @@ void RealTimeWorkerPool::run(size_t taskCount, void * context, TaskCallback call
     m_context = context;
     m_callback = callback;
     m_taskCount = taskCount;
-    m_nextTask.store(0, std::memory_order_relaxed);
+    const size_t mainWorkerIndex = m_workers.size();
+    m_nextTask.store(1, std::memory_order_relaxed);
     const size_t workersToUse = std::min(m_workers.size(), taskCount - 1);
     m_activeWorkers.store(workersToUse, std::memory_order_release);
 
@@ -82,7 +83,8 @@ void RealTimeWorkerPool::run(size_t taskCount, void * context, TaskCallback call
         m_startSemaphores[workerIndex]->release();
     }
 
-    const size_t mainWorkerIndex = m_workers.size();
+    callback(context, 0, mainWorkerIndex);
+
     while (true) {
         const size_t taskIndex = m_nextTask.fetch_add(1, std::memory_order_relaxed);
         if (taskIndex >= m_taskCount) {
