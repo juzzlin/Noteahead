@@ -191,6 +191,17 @@ void DrumSynthDevice::processAudio(float * output, uint32_t frameCount, uint32_t
     }
 }
 
+bool DrumSynthDevice::hasActiveAudio() const
+{
+    const std::lock_guard<std::recursive_mutex> lock { mutex() };
+    for (const auto & voice : m_voices) {
+        if (voice.engine->isActive()) {
+            return true;
+        }
+    }
+    return false;
+}
+
 void DrumSynthDevice::reset()
 {
     const std::lock_guard<std::recursive_mutex> lock { mutex() };

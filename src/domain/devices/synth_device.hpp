@@ -74,6 +74,7 @@ public:
     void processMidiAllNotesOff() override;
 
     void processAudio(float * output, uint32_t frameCount, uint32_t sampleRate) override;
+    bool hasActiveAudio() const override;
 
     void setBpm(float bpm) override;
 

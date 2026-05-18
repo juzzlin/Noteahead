@@ -17,6 +17,7 @@
 #include "../../domain/dsp/reverb_effect.hpp"
 
 #include <algorithm>
+#include <cmath>
 
 namespace noteahead {
 
@@ -26,6 +27,7 @@ struct DeviceProcessContext
 {
     std::vector<AudioEngine::DeviceS> * devices {};
     std::vector<AudioEngineWorkBuffer> * workBuffers {};
+    std::vector<uint8_t> * deviceActiveFlags {};
     std::vector<float> * deviceSends {};
     size_t sendCount {};
     uint32_t frameCount {};
@@ -38,9 +40,21 @@ struct EffectProcessContext
     std::vector<EffectRack::EffectS> * effects {};
     std::vector<std::vector<float>> * sendBusBuffers {};
     std::vector<std::vector<float>> * effectWetBuffers {};
+    std::vector<uint8_t> * effectActiveFlags {};
     uint32_t frameCount {};
     uint32_t sampleRate {};
 };
+
+bool bufferContainsSignal(const std::vector<float> & buffer, uint32_t bufferSize)
+{
+    constexpr float threshold = 1.0e-8f;
+    for (uint32_t i = 0; i < bufferSize; ++i) {
+        if (std::abs(buffer[i]) > threshold) {
+            return true;
+        }
+    }
+    return false;
+}
 
 void processDeviceTask(void * context, size_t taskIndex, size_t workerIndex)
 {
@@ -49,7 +63,13 @@ void processDeviceTask(void * context, size_t taskIndex, size_t workerIndex)
     auto & workBuffer = deviceContext.workBuffers->at(workerIndex);
 
     std::fill(workBuffer.deviceBuffer.begin(), workBuffer.deviceBuffer.begin() + deviceContext.bufferSize, 0.0f);
+    if (!device->hasActiveAudio() && !deviceContext.deviceActiveFlags->at(taskIndex)) {
+        return;
+    }
+
     device->processAudio(workBuffer.deviceBuffer.data(), deviceContext.frameCount, deviceContext.sampleRate);
+    const bool hasOutputSignal = bufferContainsSignal(workBuffer.deviceBuffer, deviceContext.bufferSize);
+    deviceContext.deviceActiveFlags->at(taskIndex) = hasOutputSignal ? 1 : 0;
 
     for (uint32_t i = 0; i < deviceContext.bufferSize; ++i) {
         const float sample = workBuffer.deviceBuffer[i];
@@ -68,8 +88,15 @@ void processEffectTask(void * context, size_t taskIndex, size_t /*workerIndex*/)
     auto & effect = effectContext.effects->at(taskIndex);
     const auto & sendBus = effectContext.sendBusBuffers->at(taskIndex);
     auto & wetBuffer = effectContext.effectWetBuffers->at(taskIndex);
+    const auto bufferSize = effectContext.frameCount * 2;
+
+    if (!bufferContainsSignal(sendBus, bufferSize) && !effectContext.effectActiveFlags->at(taskIndex)) {
+        std::fill(wetBuffer.begin(), wetBuffer.begin() + bufferSize, 0.0f);
+        return;
+    }
 
     effect->setSampleRate(effectContext.sampleRate);
+    bool hasWetSignal = false;
 
     for (uint32_t i = 0; i < effectContext.frameCount; ++i) {
         const size_t leftIndex = i * 2;
@@ -83,7 +110,9 @@ void processEffectTask(void * context, size_t taskIndex, size_t /*workerIndex*/)
 
         wetBuffer[leftIndex] = wetL - dryL;
         wetBuffer[rightIndex] = wetR - dryR;
+        hasWetSignal = hasWetSignal || std::abs(wetBuffer[leftIndex]) > 1.0e-8f || std::abs(wetBuffer[rightIndex]) > 1.0e-8f;
     }
+    effectContext.effectActiveFlags->at(taskIndex) = hasWetSignal ? 1 : 0;
 }
 
 } // namespace
@@ -148,6 +177,7 @@ void AudioEngine::process(float * output, uint32_t frameCount, uint32_t sampleRa
 
     ensureWorkBuffers(laneCount, sendCount, bufferSize);
     ensureEffectWetBuffers(sendCount, bufferSize);
+    ensureEffectActiveFlags(sendCount);
 
     if (m_sendBusBuffers.size() != sendCount) {
         m_sendBusBuffers.resize(sendCount);
@@ -166,6 +196,7 @@ void AudioEngine::process(float * output, uint32_t frameCount, uint32_t sampleRa
     for (auto const & [name, device] : m_devices) {
         m_deviceSnapshot.push_back(device);
     }
+    ensureDeviceActiveFlags(m_deviceSnapshot.size());
 
     m_deviceSendSnapshot.resize(m_deviceSnapshot.size() * sendCount);
     for (size_t deviceIndex = 0; deviceIndex < m_deviceSnapshot.size(); ++deviceIndex) {
@@ -184,6 +215,7 @@ void AudioEngine::process(float * output, uint32_t frameCount, uint32_t sampleRa
     DeviceProcessContext deviceContext {
         &m_deviceSnapshot,
         &m_workBuffers,
+        &m_deviceActiveFlags,
         &m_deviceSendSnapshot,
         sendCount,
         frameCount,
@@ -209,6 +241,7 @@ void AudioEngine::process(float * output, uint32_t frameCount, uint32_t sampleRa
         &effects,
         &m_sendBusBuffers,
         &m_effectWetBuffers,
+        &m_effectActiveFlags,
         frameCount,
         sampleRate
     };
@@ -228,6 +261,8 @@ void AudioEngine::reset()
         device->resetAudio();
     }
     m_effectRack.reset();
+    std::fill(m_deviceActiveFlags.begin(), m_deviceActiveFlags.end(), 0);
+    std::fill(m_effectActiveFlags.begin(), m_effectActiveFlags.end(), 0);
 }
 
 void AudioEngine::setIsExclusive(bool exclusive)
@@ -279,6 +314,20 @@ void AudioEngine::ensureEffectWetBuffers(size_t effectCount, uint32_t bufferSize
         if (buffer.size() < bufferSize) {
             buffer.resize(bufferSize, 0.0f);
         }
+    }
+}
+
+void AudioEngine::ensureEffectActiveFlags(size_t effectCount)
+{
+    if (m_effectActiveFlags.size() != effectCount) {
+        m_effectActiveFlags.assign(effectCount, 0);
+    }
+}
+
+void AudioEngine::ensureDeviceActiveFlags(size_t deviceCount)
+{
+    if (m_deviceActiveFlags.size() != deviceCount) {
+        m_deviceActiveFlags.assign(deviceCount, 0);
     }
 }
 

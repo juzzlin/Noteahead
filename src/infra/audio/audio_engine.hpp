@@ -63,15 +63,19 @@ public:
 private:
     void ensureWorkBuffers(size_t laneCount, size_t sendCount, uint32_t bufferSize);
     void ensureEffectWetBuffers(size_t effectCount, uint32_t bufferSize);
+    void ensureEffectActiveFlags(size_t effectCount);
+    void ensureDeviceActiveFlags(size_t deviceCount);
 
     std::map<std::string, DeviceS> m_devices {};
     EffectRack m_effectRack {};
     RealTimeWorkerPool m_workerPool {};
     std::vector<AudioEngineWorkBuffer> m_workBuffers {};
     std::vector<DeviceS> m_deviceSnapshot {};
+    std::vector<uint8_t> m_deviceActiveFlags {};
     std::vector<float> m_deviceSendSnapshot {};
     std::vector<std::vector<float>> m_sendBusBuffers {};
     std::vector<std::vector<float>> m_effectWetBuffers {};
+    std::vector<uint8_t> m_effectActiveFlags {};
     mutable std::mutex m_mutex;
     std::atomic<bool> m_isExclusive { false };
 };

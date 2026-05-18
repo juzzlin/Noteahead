@@ -292,6 +292,17 @@ void SynthDevice::processAudio(float * output, uint32_t frameCount, uint32_t sam
     }
 }
 
+bool SynthDevice::hasActiveAudio() const
+{
+    const std::lock_guard<std::recursive_mutex> lock { mutex() };
+    for (const auto & voice : m_voices) {
+        if (voice.active) {
+            return true;
+        }
+    }
+    return false;
+}
+
 void SynthDevice::processMidiNoteOn(uint8_t note, uint8_t velocity)
 {
     const std::lock_guard<std::recursive_mutex> lock { mutex() };

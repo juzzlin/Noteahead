@@ -53,6 +53,7 @@ public:
     virtual void processMidiAllNotesOff() = 0;
 
     virtual void processAudio(float * output, uint32_t frameCount, uint32_t sampleRate) = 0;
+    virtual bool hasActiveAudio() const { return true; }
 
     virtual void setBpm(float) {}
 

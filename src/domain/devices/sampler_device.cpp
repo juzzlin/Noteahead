@@ -381,6 +381,17 @@ void SamplerDevice::processAudio(float * output, uint32_t frameCount, uint32_t s
     }
 }
 
+bool SamplerDevice::hasActiveAudio() const
+{
+    const std::lock_guard<std::recursive_mutex> lock { mutex() };
+    for (const auto & voice : m_voices) {
+        if (voice.active && voice.sample && voice.sample->data) {
+            return true;
+        }
+    }
+    return false;
+}
+
 void SamplerDevice::reset()
 {
     {
