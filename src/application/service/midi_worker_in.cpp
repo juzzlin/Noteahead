@@ -94,26 +94,27 @@ void MidiWorkerIn::setMidiSyncEnabled(bool enabled)
 void MidiWorkerIn::handleIncomingMessage(double deltaTime, MessageCR message)
 {
     if (!message.empty()) {
-        logMidiMessage(deltaTime, message);
-
         const quint8 statusByte = message.at(0);
-
-        // Handle real-time messages directly
-        if (m_midiSyncEnabled) {
-            switch (statusByte) {
-            case 0xFA: // Start
-                emit startReceived();
-                return;
-            case 0xFC: // Stop
-                emit stopReceived();
-                return;
-            case 0xFB: // Continue (optional)
-                emit continueReceived();
-                return;
-            default:
-                break;
+        if (statusByte >= 0xF8) {
+            if (m_midiSyncEnabled) {
+                switch (statusByte) {
+                case 0xFA: // Start
+                    emit startReceived();
+                    return;
+                case 0xFC: // Stop
+                    emit stopReceived();
+                    return;
+                case 0xFB: // Continue
+                    emit continueReceived();
+                    return;
+                default:
+                    return;
+                }
             }
+            return;
         }
+
+        logMidiMessage(deltaTime, message);
 
         const quint8 status = statusByte & 0xF0;
         const quint8 channel = statusByte & 0x0F;

@@ -88,7 +88,7 @@ void MidiInRtMidi::setCallbackForPort(const MidiPort & port, InputCallback callb
         m_callbacks[index] = std::move(callback);
         m_callbackInfos[index] = std::make_unique<CallbackInfo>(this, index);
         m_openedPorts[index]->setCallback(&MidiInRtMidi::staticCallback, m_callbackInfos[index].get());
-        m_openedPorts[index]->ignoreTypes(false, false, false); // Enable all types
+        m_openedPorts[index]->ignoreTypes(false, false, true);
     } else {
         throw std::runtime_error("Port must be opened before setting callback!");
     }
@@ -106,7 +106,6 @@ void MidiInRtMidi::clearCallbacks()
 
 void MidiInRtMidi::staticCallback(double deltaTime, MessageP message, void * userData)
 {
-    juzzlin::L(TAG).debug() << "staticCallback called";
     if (userData && message) {
         const auto info = static_cast<CallbackInfo *>(userData);
         const auto self = info->backend;
