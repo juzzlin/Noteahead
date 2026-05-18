@@ -85,6 +85,7 @@ set(SRC
     ../../infra/audio/audio_player.cpp
     ../../infra/audio/audio_recorder.cpp
     ../../infra/audio/backend/sndfile_reader.cpp
+    ../../infra/audio/real_time_worker_pool.cpp
     ../../infra/midi/midi_cc_mapping.cpp
     ../../infra/settings.cpp
 )
@@ -179,6 +180,7 @@ set(DELAY_TEST_SRC
     ../../infra/audio/audio_player.cpp
     ../../infra/audio/audio_recorder.cpp
     ../../infra/audio/backend/sndfile_reader.cpp
+    ../../infra/audio/real_time_worker_pool.cpp
     ../../infra/midi/midi_cc_mapping.cpp
     ../../infra/settings.cpp
 )

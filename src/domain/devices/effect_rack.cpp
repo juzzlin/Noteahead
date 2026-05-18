@@ -51,6 +51,12 @@ EffectRack::EffectS EffectRack::effect(size_t index) const
     return nullptr;
 }
 
+std::vector<EffectRack::EffectS> EffectRack::effects() const
+{
+    std::lock_guard<std::mutex> lock { m_mutex };
+    return m_effects;
+}
+
 size_t EffectRack::effectCount() const
 {
     std::lock_guard<std::mutex> lock { m_mutex };

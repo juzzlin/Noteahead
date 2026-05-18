@@ -129,6 +129,7 @@ set(HEADER_FILES
   infra/audio/backend/sndfile_reader.hpp
   infra/audio/implementation/jack/audio_recorder_jack.hpp
   infra/audio/implementation/librtaudio/audio_recorder_rt_audio.hpp
+  infra/audio/real_time_worker_pool.hpp
   infra/audio/ring_buffer.hpp
   infra/midi/export/midi_exporter.hpp
   infra/midi/implementation/librtmidi/midi_in_rt_midi.hpp
@@ -276,6 +277,7 @@ set(SOURCE_FILES
   infra/audio/implementation/jack/audio_recorder_jack.cpp
   infra/audio/implementation/librtaudio/audio_player_rt_audio.cpp
   infra/audio/implementation/librtaudio/audio_recorder_rt_audio.cpp
+  infra/audio/real_time_worker_pool.cpp
   infra/midi/export/midi_exporter.cpp
   infra/midi/implementation/librtmidi/midi_in_rt_midi.cpp
   infra/midi/implementation/librtmidi/midi_out_rt_midi.cpp

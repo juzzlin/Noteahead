@@ -18,6 +18,7 @@
 
 #include "../../domain/devices/device.hpp"
 #include "../../domain/devices/effect_rack.hpp"
+#include "real_time_worker_pool.hpp"
 
 #include <map>
 #include <memory>
@@ -26,6 +27,13 @@
 #include <vector>
 
 namespace noteahead {
+
+struct AudioEngineWorkBuffer
+{
+    std::vector<float> deviceBuffer {};
+    std::vector<float> outputBuffer {};
+    std::vector<std::vector<float>> sendBuffers {};
+};
 
 class AudioEngine
 {
@@ -53,10 +61,17 @@ public:
     EffectRack & effectRack();
 
 private:
+    void ensureWorkBuffers(size_t laneCount, size_t sendCount, uint32_t bufferSize);
+    void ensureEffectWetBuffers(size_t effectCount, uint32_t bufferSize);
+
     std::map<std::string, DeviceS> m_devices {};
     EffectRack m_effectRack {};
-    std::vector<float> m_deviceBuffer {};
+    RealTimeWorkerPool m_workerPool {};
+    std::vector<AudioEngineWorkBuffer> m_workBuffers {};
+    std::vector<DeviceS> m_deviceSnapshot {};
+    std::vector<float> m_deviceSendSnapshot {};
     std::vector<std::vector<float>> m_sendBusBuffers {};
+    std::vector<std::vector<float>> m_effectWetBuffers {};
     mutable std::mutex m_mutex;
     std::atomic<bool> m_isExclusive { false };
 };

@@ -62,6 +62,7 @@ set(SRC
     ../../infra/audio/audio_player.cpp
     ../../infra/audio/audio_recorder.cpp
     ../../infra/audio/backend/sndfile_reader.cpp
+    ../../infra/audio/real_time_worker_pool.cpp
     ../../infra/midi/implementation/librtmidi/midi_in_rt_midi.cpp
     ../../infra/midi/implementation/librtmidi/midi_out_rt_midi.cpp
     ../../infra/midi/midi_backend.cpp

@@ -83,6 +83,7 @@ set(SRC
     ../../domain/devices/effect_rack.cpp
     ../../infra/audio/audio_engine.cpp
     ../../infra/audio/backend/sndfile_reader.cpp
+    ../../infra/audio/real_time_worker_pool.cpp
     ../../infra/midi/midi_cc_mapping.cpp
     ../../infra/settings.cpp
 )

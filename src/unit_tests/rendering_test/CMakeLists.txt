@@ -12,6 +12,7 @@ set(SOURCE_FILES
     ../../infra/audio/audio_engine.cpp
     ../../infra/audio/audio_file_recorder.cpp
     ../../infra/audio/backend/sndfile_reader.cpp
+    ../../infra/audio/real_time_worker_pool.cpp
     ../../domain/devices/device.cpp
     ../../domain/devices/effect.cpp
     ../../domain/devices/synth_device.cpp

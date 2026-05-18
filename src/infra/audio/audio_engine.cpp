@@ -16,7 +16,77 @@
 #include "audio_engine.hpp"
 #include "../../domain/dsp/reverb_effect.hpp"
 
+#include <algorithm>
+
 namespace noteahead {
+
+namespace {
+
+struct DeviceProcessContext
+{
+    std::vector<AudioEngine::DeviceS> * devices {};
+    std::vector<AudioEngineWorkBuffer> * workBuffers {};
+    std::vector<float> * deviceSends {};
+    size_t sendCount {};
+    uint32_t frameCount {};
+    uint32_t sampleRate {};
+    uint32_t bufferSize {};
+};
+
+struct EffectProcessContext
+{
+    std::vector<EffectRack::EffectS> * effects {};
+    std::vector<std::vector<float>> * sendBusBuffers {};
+    std::vector<std::vector<float>> * effectWetBuffers {};
+    uint32_t frameCount {};
+    uint32_t sampleRate {};
+};
+
+void processDeviceTask(void * context, size_t taskIndex, size_t workerIndex)
+{
+    auto & deviceContext = *static_cast<DeviceProcessContext *>(context);
+    auto & device = deviceContext.devices->at(taskIndex);
+    auto & workBuffer = deviceContext.workBuffers->at(workerIndex);
+
+    std::fill(workBuffer.deviceBuffer.begin(), workBuffer.deviceBuffer.begin() + deviceContext.bufferSize, 0.0f);
+    device->processAudio(workBuffer.deviceBuffer.data(), deviceContext.frameCount, deviceContext.sampleRate);
+
+    for (uint32_t i = 0; i < deviceContext.bufferSize; ++i) {
+        const float sample = workBuffer.deviceBuffer[i];
+        workBuffer.outputBuffer[i] += sample;
+
+        for (size_t sendIndex = 0; sendIndex < deviceContext.sendCount; ++sendIndex) {
+            const float send = deviceContext.deviceSends->at(taskIndex * deviceContext.sendCount + sendIndex);
+            workBuffer.sendBuffers[sendIndex][i] += sample * send;
+        }
+    }
+}
+
+void processEffectTask(void * context, size_t taskIndex, size_t /*workerIndex*/)
+{
+    auto & effectContext = *static_cast<EffectProcessContext *>(context);
+    auto & effect = effectContext.effects->at(taskIndex);
+    const auto & sendBus = effectContext.sendBusBuffers->at(taskIndex);
+    auto & wetBuffer = effectContext.effectWetBuffers->at(taskIndex);
+
+    effect->setSampleRate(effectContext.sampleRate);
+
+    for (uint32_t i = 0; i < effectContext.frameCount; ++i) {
+        const size_t leftIndex = i * 2;
+        const size_t rightIndex = leftIndex + 1;
+        const float dryL = sendBus[leftIndex];
+        const float dryR = sendBus[rightIndex];
+
+        float wetL = dryL;
+        float wetR = dryR;
+        effect->process(wetL, wetR);
+
+        wetBuffer[leftIndex] = wetL - dryL;
+        wetBuffer[rightIndex] = wetR - dryR;
+    }
+}
+
+} // namespace
 
 AudioEngine::AudioEngine()
 {
@@ -72,11 +142,13 @@ void AudioEngine::process(float * output, uint32_t frameCount, uint32_t sampleRa
     std::lock_guard<std::mutex> lock { m_mutex };
 
     const uint32_t bufferSize = frameCount * 2;
-    if (m_deviceBuffer.size() < bufferSize) {
-        m_deviceBuffer.resize(bufferSize, 0.0f);
-    }
+    auto effects = m_effectRack.effects();
+    const size_t sendCount = effects.size();
+    const size_t laneCount = m_workerPool.laneCount();
 
-    const size_t sendCount = m_effectRack.effectCount();
+    ensureWorkBuffers(laneCount, sendCount, bufferSize);
+    ensureEffectWetBuffers(sendCount, bufferSize);
+
     if (m_sendBusBuffers.size() != sendCount) {
         m_sendBusBuffers.resize(sendCount);
     }
@@ -89,29 +161,63 @@ void AudioEngine::process(float * output, uint32_t frameCount, uint32_t sampleRa
         }
     }
 
+    m_deviceSnapshot.clear();
+    m_deviceSnapshot.reserve(m_devices.size());
     for (auto const & [name, device] : m_devices) {
-        std::fill(m_deviceBuffer.begin(), m_deviceBuffer.begin() + bufferSize, 0.0f);
-        device->processAudio(m_deviceBuffer.data(), frameCount, sampleRate);
+        m_deviceSnapshot.push_back(device);
+    }
 
-        const float rSend0 = device->reverbSend(0);
-        const float rSend1 = device->reverbSend(1);
-        const float rSend2 = device->reverbSend(2);
-        const float rSend3 = device->reverbSend(3);
-
-        for (uint32_t i = 0; i < bufferSize; ++i) {
-            const float sample = m_deviceBuffer.at(i);
-            output[i] += sample;
-            
-            if (sendCount > 0) m_sendBusBuffers.at(0).at(i) += sample * rSend0;
-            if (sendCount > 1) m_sendBusBuffers.at(1).at(i) += sample * rSend1;
-            if (sendCount > 2) m_sendBusBuffers.at(2).at(i) += sample * rSend2;
-            if (sendCount > 3) m_sendBusBuffers.at(3).at(i) += sample * rSend3;
+    m_deviceSendSnapshot.resize(m_deviceSnapshot.size() * sendCount);
+    for (size_t deviceIndex = 0; deviceIndex < m_deviceSnapshot.size(); ++deviceIndex) {
+        for (size_t sendIndex = 0; sendIndex < sendCount; ++sendIndex) {
+            m_deviceSendSnapshot[deviceIndex * sendCount + sendIndex] = m_deviceSnapshot[deviceIndex]->reverbSend(sendIndex);
         }
     }
 
-    // Process Effect Rack
-    for (size_t s = 0; s < sendCount; ++s) {
-        m_effectRack.process(output, m_sendBusBuffers[s].data(), s, frameCount, sampleRate);
+    for (auto & workBuffer : m_workBuffers) {
+        std::fill(workBuffer.outputBuffer.begin(), workBuffer.outputBuffer.begin() + bufferSize, 0.0f);
+        for (auto & sendBuffer : workBuffer.sendBuffers) {
+            std::fill(sendBuffer.begin(), sendBuffer.begin() + bufferSize, 0.0f);
+        }
+    }
+
+    DeviceProcessContext deviceContext {
+        &m_deviceSnapshot,
+        &m_workBuffers,
+        &m_deviceSendSnapshot,
+        sendCount,
+        frameCount,
+        sampleRate,
+        bufferSize
+    };
+    m_workerPool.run(m_deviceSnapshot.size(), &deviceContext, processDeviceTask);
+
+    for (const auto & workBuffer : m_workBuffers) {
+        for (uint32_t i = 0; i < bufferSize; ++i) {
+            output[i] += workBuffer.outputBuffer[i];
+        }
+        for (size_t sendIndex = 0; sendIndex < sendCount; ++sendIndex) {
+            auto & sendBus = m_sendBusBuffers[sendIndex];
+            const auto & laneSendBus = workBuffer.sendBuffers[sendIndex];
+            for (uint32_t i = 0; i < bufferSize; ++i) {
+                sendBus[i] += laneSendBus[i];
+            }
+        }
+    }
+
+    EffectProcessContext effectContext {
+        &effects,
+        &m_sendBusBuffers,
+        &m_effectWetBuffers,
+        frameCount,
+        sampleRate
+    };
+    m_workerPool.run(sendCount, &effectContext, processEffectTask);
+
+    for (const auto & wetBuffer : m_effectWetBuffers) {
+        for (uint32_t i = 0; i < bufferSize; ++i) {
+            output[i] += wetBuffer[i];
+        }
     }
 }
 
@@ -137,6 +243,43 @@ bool AudioEngine::isExclusive() const
 EffectRack & AudioEngine::effectRack()
 {
     return m_effectRack;
+}
+
+void AudioEngine::ensureWorkBuffers(size_t laneCount, size_t sendCount, uint32_t bufferSize)
+{
+    if (m_workBuffers.size() != laneCount) {
+        m_workBuffers.resize(laneCount);
+    }
+
+    for (auto & workBuffer : m_workBuffers) {
+        if (workBuffer.deviceBuffer.size() < bufferSize) {
+            workBuffer.deviceBuffer.resize(bufferSize, 0.0f);
+        }
+        if (workBuffer.outputBuffer.size() < bufferSize) {
+            workBuffer.outputBuffer.resize(bufferSize, 0.0f);
+        }
+        if (workBuffer.sendBuffers.size() != sendCount) {
+            workBuffer.sendBuffers.resize(sendCount);
+        }
+        for (auto & sendBuffer : workBuffer.sendBuffers) {
+            if (sendBuffer.size() < bufferSize) {
+                sendBuffer.resize(bufferSize, 0.0f);
+            }
+        }
+    }
+}
+
+void AudioEngine::ensureEffectWetBuffers(size_t effectCount, uint32_t bufferSize)
+{
+    if (m_effectWetBuffers.size() != effectCount) {
+        m_effectWetBuffers.resize(effectCount);
+    }
+
+    for (auto & buffer : m_effectWetBuffers) {
+        if (buffer.size() < bufferSize) {
+            buffer.resize(bufferSize, 0.0f);
+        }
+    }
 }
 
 } // namespace noteahead

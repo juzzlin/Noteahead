@@ -37,6 +37,7 @@ public:
     void addEffect(EffectS effect);
     void removeEffect(size_t index);
     EffectS effect(size_t index) const;
+    std::vector<EffectS> effects() const;
     size_t effectCount() const;
 
     void process(float * output, const float * sendBus, size_t effectIndex, uint32_t frameCount, uint32_t sampleRate);

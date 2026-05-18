@@ -104,6 +104,7 @@ set(SRC
     ../../infra/audio/implementation/jack/audio_recorder_jack.cpp
     ../../infra/audio/implementation/librtaudio/audio_player_rt_audio.cpp
     ../../infra/audio/implementation/librtaudio/audio_recorder_rt_audio.cpp
+    ../../infra/audio/real_time_worker_pool.cpp
     ../../infra/midi/implementation/librtmidi/midi_in_rt_midi.cpp
     ../../infra/midi/implementation/librtmidi/midi_out_rt_midi.cpp
     ../../infra/midi/midi_backend.cpp
