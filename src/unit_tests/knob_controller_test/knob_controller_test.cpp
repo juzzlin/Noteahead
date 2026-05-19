@@ -38,9 +38,9 @@ void KnobControllerTest::test_intensityMapping()
     QCOMPARE(controller.mapIntensity(1.0, from, to), to);
     QCOMPARE(controller.mapIntensity(-1.0, from, to), from);
 
-    // Test snap to center
-    QCOMPARE(controller.mapIntensity(0.005, from, to), center);
-    QCOMPARE(controller.mapIntensity(-0.005, from, to), center);
+    // Test mapping without snap to center
+    QVERIFY(std::abs(controller.mapIntensity(0.005, from, to) - (center + 0.0000625)) < 0.000001);
+    QVERIFY(std::abs(controller.mapIntensity(-0.005, from, to) - (center - 0.0000625)) < 0.000001);
 }
 
 void KnobControllerTest::test_intensityToString()
@@ -53,6 +53,10 @@ void KnobControllerTest::test_intensityToString()
     QCOMPARE(controller.intensityToString(1000.0, from, to), QString("+100.0%"));
     QCOMPARE(controller.intensityToString(0.0, from, to), QString("-100.0%"));
     QCOMPARE(controller.intensityToString(750.0, from, to), QString("+50.0%"));
+
+    // Test visual snapping removal: 0.04% should now show (rounded) 0.0% but NOT be skipped by threshold
+    // 500.2 -> ((500.2 - 500) / 500) * 100 = 0.04. Should show 0.0% without + sign.
+    QCOMPARE(controller.intensityToString(500.2, from, to), QString("0.0%"));
 }
 
 void KnobControllerTest::test_panMapping()

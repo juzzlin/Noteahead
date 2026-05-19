@@ -79,6 +79,10 @@ void ParameterMapperTest::test_cubicCenteredMapping()
     
     // 0.5^3 = 0.125. range is 100. Should be 12.5
     QCOMPARE(ParameterMapper::mapCubicCentered(0.5, min, max), 12.5);
+
+    // Test snapping removal: 0.1^3 = 0.001. range is 100. outVal should be 0.1.
+    // It should NO LONGER snap to 0.0.
+    QCOMPARE(ParameterMapper::mapCubicCentered(0.1, min, max), 0.1);
 }
 
 void ParameterMapperTest::test_cubicCenteredUnmapping()

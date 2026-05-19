@@ -87,15 +87,13 @@ double KnobController::unmapIntensity(double value, double from, double to) cons
 
 QString KnobController::intensityToString(double value, double from, double to) const
 {
-    const double center = (from + to) / 2.0;
-    const double range = (to - from) / 2.0;
-    const double intVal = range != 0 ? ((value - center) / range) * 100.0 : 0;
+    const double center = { (from + to) / 2.0 };
+    const double range = { (to - from) / 2.0 };
+    const double intVal = { range != 0 ? ((value - center) / range) * 100.0 : 0 };
 
-    if (std::abs(intVal) < 0.05) {
-        return "0.0%";
-    }
-
-    return QString("%1%2%").arg(intVal > 0 ? "+" : "").arg(intVal, 0, 'f', 1);
+    const QString sign = { intVal >= 0.05 ? "+" : "" };
+    const double displayVal = { std::abs(intVal) < 0.05 ? 0.0 : intVal };
+    return QString { "%1%2%" }.arg(sign).arg(displayVal, 0, 'f', 1);
 }
 
 double KnobController::mapPan(double value, double from, double to) const
@@ -110,17 +108,17 @@ double KnobController::unmapPan(double value, double from, double to) const
 
 QString KnobController::panToString(double value, double from, double to) const
 {
-    const double center = (from + to) / 2.0;
-    const double range = (to - from) / 2.0;
-    const double panVal = range != 0 ? ((value - center) / range) * 100.0 : 0;
+    const double center = { (from + to) / 2.0 };
+    const double range = { (to - from) / 2.0 };
+    const double panVal = { range != 0 ? ((value - center) / range) * 100.0 : 0 };
 
-    if (std::abs(panVal) < 0.05) {
+    if (qFuzzyIsNull(panVal)) {
         return tr("Center");
     }
 
-    const QString side = panVal < 0 ? tr(" L") : tr(" R");
-    const QString sign = panVal > 0 ? "+" : "-";
-    return QString("%1%2%%3").arg(sign).arg(std::abs(panVal), 0, 'f', 1).arg(side);
+    const QString side = { panVal < 0 ? tr(" L") : tr(" R") };
+    const QString sign = { panVal >= 0.05 ? "+" : (panVal <= -0.05 ? "-" : "") };
+    return QString { "%1%2%%3" }.arg(sign).arg(std::abs(panVal), 0, 'f', 1).arg(side);
 }
 
 double KnobController::mapTime(double value, double from, double to) const

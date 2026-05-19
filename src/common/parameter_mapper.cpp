@@ -52,14 +52,7 @@ double ParameterMapper::mapCubicCentered(double value, double min, double max)
     const double range = (max - min) / 2.0;
     const double norm = std::clamp(value, -1.0, 1.0);
     const double mapped = (norm >= 0 ? 1.0 : -1.0) * std::pow(std::abs(norm), 3.0);
-    double outVal = mapped * range + center;
-
-    // Snap to center (within 1% of total range)
-    if (std::abs(outVal - center) < (std::abs(range) * 0.02)) {
-        outVal = center;
-    }
-
-    return outVal;
+    return mapped * range + center;
 }
 
 double ParameterMapper::unmapCubicCentered(double mappedValue, double min, double max)
