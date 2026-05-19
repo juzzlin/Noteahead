@@ -88,7 +88,8 @@ Dialog {
                     anchors.fill: parent
                     anchors.margins: 15
                     Text {
-                        text: qsTr("Slot %1: %2").arg(index + 1).arg(effectRackController.effectType(index).toUpperCase())
+                        readonly property string effectType: effectRackController.effectType(index)
+                        text: qsTr("Slot %1: %2").arg(index + 1).arg(effectType.charAt(0).toUpperCase() + effectType.slice(1))
                         color: "white"
                         font.pointSize: 13
                         font.bold: mouseArea.containsMouse
