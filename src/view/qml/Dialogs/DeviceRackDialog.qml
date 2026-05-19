@@ -113,5 +113,15 @@ Dialog {
                 }
             }
         }
+
+        Text {
+            text: qsTr("To assign an internal device to a track, select its name from the port list in the Track Settings dialog.")
+            color: "#aaa"
+            font.italic: true
+            font.pointSize: 11
+            Layout.fillWidth: true
+            wrapMode: Text.WordWrap
+            horizontalAlignment: Text.AlignHCenter
+        }
     }
 }
