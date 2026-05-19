@@ -25,6 +25,7 @@
 namespace noteahead {
 
 class DeviceService;
+class BassSynthController;
 class DrumSynthController;
 class EditorService;
 class SamplerController;
@@ -45,10 +46,11 @@ public:
     using DeviceServiceS = std::shared_ptr<DeviceService>;
     using SamplerControllerS = std::shared_ptr<SamplerController>;
     using SynthControllerS = std::shared_ptr<SynthController>;
+    using BassSynthControllerS = std::shared_ptr<BassSynthController>;
     using DrumSynthControllerS = std::shared_ptr<DrumSynthController>;
     using EditorServiceS = std::shared_ptr<EditorService>;
 
-    explicit DeviceRackController(DeviceServiceS deviceService, SamplerControllerS samplerController, SynthControllerS synthController, DrumSynthControllerS drumSynthController, EditorServiceS editorService, QObject * parent = nullptr);
+    explicit DeviceRackController(DeviceServiceS deviceService, SamplerControllerS samplerController, SynthControllerS synthController, BassSynthControllerS bassSynthController, DrumSynthControllerS drumSynthController, EditorServiceS editorService, QObject * parent = nullptr);
     ~DeviceRackController() override;
 
     int rowCount(const QModelIndex & parent = QModelIndex()) const override;
@@ -62,6 +64,7 @@ public:
 signals:
     void samplerDialogRequested();
     void synthDialogRequested();
+    void bassSynthDialogRequested();
     void drumSynthDialogRequested();
     void effectSendsDialogRequested(const QString & deviceName);
 
@@ -71,6 +74,7 @@ private:
     DeviceServiceS m_deviceService;
     SamplerControllerS m_samplerController;
     SynthControllerS m_synthController;
+    BassSynthControllerS m_bassSynthController;
     DrumSynthControllerS m_drumSynthController;
     EditorServiceS m_editorService;
 

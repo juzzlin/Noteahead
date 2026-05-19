@@ -216,6 +216,12 @@ ApplicationWindow {
         width: parent.width * Constants.largeDialogScale
         height: parent.height * Constants.largeDialogScale
     }
+    BassSynthDialog {
+        id: bassSynthDialog
+        anchors.centerIn: parent
+        width: parent.width * Constants.largeDialogScale
+        height: parent.height * Constants.largeDialogScale
+    }
     DrumSynthDialog {
         id: drumSynthDialog
         anchors.centerIn: parent
@@ -435,6 +441,7 @@ ApplicationWindow {
         applicationService.masterEffectsDialogRequested.connect(masterEffectsDialog.open);
         deviceRackController.samplerDialogRequested.connect(samplerDialog.open);
         deviceRackController.synthDialogRequested.connect(synthDialog.open);
+        deviceRackController.bassSynthDialogRequested.connect(bassSynthDialog.open);
         deviceRackController.drumSynthDialogRequested.connect(drumSynthDialog.open);
         applicationService.samplerDialogRequested.connect(samplerDialog.open);
         applicationService.drumSynthDialogRequested.connect(drumSynthDialog.open);

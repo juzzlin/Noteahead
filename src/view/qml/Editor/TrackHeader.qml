@@ -29,6 +29,7 @@ Rectangle {
     }
     function setIndex(index): void {
         _index = index;
+        updateInstrument();
     }
     function setName(name): void {
         nameField.text = name;
@@ -41,6 +42,17 @@ Rectangle {
     }
     function setVelocityScale(value: int): void {
         velocityScaleWidget.value = value;
+    }
+    function updateInstrument(): void {
+        directDeviceButton.portName = editorService.instrumentPortName(_index);
+    }
+    Connections {
+        target: editorService
+        function onInstrumentChanged(trackIndex) {
+            if (trackIndex === rootItem._index) {
+                rootItem.updateInstrument();
+            }
+        }
     }
     Row {
         anchors.fill: parent
@@ -81,7 +93,7 @@ Rectangle {
             id: directDeviceButton
             height: parent.height
             width: height
-            readonly property string portName: editorService.instrumentPortName(_index)
+            property string portName: ""
             readonly property bool hasInternalDevice: deviceService.isInternalDevice(portName)
             enabled: hasInternalDevice && !UiService.isPlaying()
             onClicked: {

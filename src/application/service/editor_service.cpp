@@ -693,6 +693,7 @@ void EditorService::setInstrument(quint64 trackIndex, InstrumentS instrument)
     m_song->setInstrument(trackIndex, instrument);
 
     setIsModified(true);
+    emit instrumentChanged(trackIndex);
 }
 
 EditorService::ColumnSettingsS EditorService::columnSettings(quint64 trackIndex, quint64 columnIndex) const

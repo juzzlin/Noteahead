@@ -333,6 +333,7 @@ signals:
     void initialized();
 
     void instrumentRequested(const InstrumentRequest & instrumentRequest);
+    void instrumentChanged(quint64 trackIndex);
 
     void isModifiedChanged();
 

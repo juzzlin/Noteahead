@@ -31,6 +31,7 @@ set(HEADER_FILES
   application/service/audio_service.hpp
   application/service/audio_worker.hpp
   application/service/automation_service.hpp
+  application/service/bass_synth_controller.hpp
   application/service/copy_manager.hpp
   application/service/device_rack.hpp
   application/service/device_rack_controller.hpp
@@ -70,6 +71,7 @@ set(HEADER_FILES
   domain/column.hpp
   domain/column_settings.hpp
   domain/devices/delay_effect.hpp
+  domain/devices/bass_synth_device.hpp
   domain/devices/device.hpp
   domain/devices/drum_synth_device.hpp
   domain/devices/effect.hpp
@@ -176,6 +178,7 @@ set(SOURCE_FILES
   application/service/audio_service.cpp
   application/service/audio_worker.cpp
   application/service/automation_service.cpp
+  application/service/bass_synth_controller.cpp
   application/service/copy_manager.cpp
   application/service/device_rack.cpp
   application/service/device_rack_controller.cpp
@@ -217,6 +220,7 @@ set(SOURCE_FILES
   domain/column.cpp
   domain/column_settings.cpp
   domain/devices/delay_effect.cpp
+  domain/devices/bass_synth_device.cpp
   domain/devices/device.cpp
   domain/devices/drum_synth_constants.cpp
   domain/devices/drum_synth_device.cpp
@@ -332,6 +336,11 @@ set(QML_SOURCE_FILES
     ${QML_BASE_DIR}/Dialogs/DelayCalculatorDialog.qml
     ${QML_BASE_DIR}/Dialogs/DeleteUnusedPatternsDialog.qml
     ${QML_BASE_DIR}/Dialogs/DrumSynthDialog.qml
+    ${QML_BASE_DIR}/Dialogs/BassSynthDialog.qml
+    ${QML_BASE_DIR}/Dialogs/BassSynthDialog_Distortion.qml
+    ${QML_BASE_DIR}/Dialogs/BassSynthDialog_Filter.qml
+    ${QML_BASE_DIR}/Dialogs/BassSynthDialog_Global.qml
+    ${QML_BASE_DIR}/Dialogs/BassSynthDialog_Oscillator.qml
     ${QML_BASE_DIR}/Dialogs/EditMidiCcAutomationsDelegate.qml
     ${QML_BASE_DIR}/Dialogs/EditMidiCcAutomationsDialog.qml
     ${QML_BASE_DIR}/Dialogs/EditPitchBendAutomationsDelegate.qml

@@ -44,6 +44,7 @@ class ColumnSettingsModel;
 class DeviceRack;
 class DeviceRackController;
 class DeviceService;
+class BassSynthController;
 class DrumSynthController;
 class EditorService;
 class EffectRackController;
@@ -153,6 +154,7 @@ private:
     std::unique_ptr<DeviceRack> m_deviceRack;
     std::shared_ptr<SamplerController> m_samplerController;
     std::shared_ptr<SynthController> m_synthController;
+    std::shared_ptr<BassSynthController> m_bassSynthController;
     std::shared_ptr<DrumSynthController> m_drumSynthController;
     std::shared_ptr<EffectRackController> m_effectRackController;
     std::shared_ptr<DeviceRackController> m_deviceRackController;

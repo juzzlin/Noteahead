@@ -43,6 +43,7 @@ int transposeMax();
 
 QString samplerDeviceName();
 QString synthDeviceName();
+QString bassSynthDeviceName();
 QString drumSynthDeviceName();
 
 double defaultSampleRate();
@@ -240,6 +241,7 @@ QString xmlKeyMultiType();
 QString xmlKeyMultiKeyTrack();
 QString xmlKeyVoiceMode();
 QString xmlKeyMode();
+QString xmlKeyBaseRate();
 QString xmlKeyRate();
 QString xmlKeyVoiceDepth();
 QString xmlKeyPortamento();
@@ -312,6 +314,16 @@ QString xmlKeySynthLfoMode();
 QString xmlKeySynthLfoRate();
 QString xmlKeySynthLfoIntensity();
 QString xmlKeySynthLfoTarget();
+
+QString xmlKeyBassSynth();
+QString xmlKeySubLevel();
+QString xmlKeySubOctave();
+QString xmlKeyEnvMod();
+QString xmlKeyAccent();
+QString xmlKeySlide();
+QString xmlKeyDistDrive();
+QString xmlKeyDistTone();
+QString xmlKeyDistLevel();
 
 QString xmlKeySample();
 QString xmlKeySamples();

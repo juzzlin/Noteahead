@@ -62,7 +62,7 @@ double PolyBlepOscillator::nextSample()
             value = (1.0 - m_shape) * value + m_shape * std::sin(std::numbers::pi * value);
         }
         value -= polyBlep(t);
-    } else if (m_waveform == Waveform::Pulse) {
+    } else if (m_waveform == Waveform::Square) {
         double pw = 0.5 * (1.0 - m_shape * 0.99);
         value = (t < pw) ? 1.0 : -1.0;
         value -= (2.0 * pw - 1.0);

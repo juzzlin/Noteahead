@@ -5,6 +5,15 @@ Release date:
 
 New features:
 
+* Implement BassSynth
+  - Internal monophonic acid-style synthesizer
+  - High-quality oscillator with Triangle, Saw, and Square waveforms
+  - Sub-oscillator with Level and Octave (-1 or -2) controls
+  - Classic 24dB resonant Low-pass filter and 12dB High-pass filter
+  - TB-303 style Accent and Slide (legato) implementation
+  - Built-in Distortion with Drive, Tone, and Level controls
+  - Full MIDI CC automation support (Volume CC 7, Pan CC 10, LPF Cutoff CC 74, HPF Cutoff CC 81)
+
 * Implement a master effect rack
   - Central hub for global send effects
   - Includes four independent studio-quality reverb instances by default
@@ -55,7 +64,7 @@ New features:
 
 * Fix GitHub Issue #47: Implement a simple built-in synthesizer
   - Internal polyphonic synthesizer (up to 6 voices)
-  - Two high-quality oscillators (VCO1 & VCO2) with Triangle, Saw, and Pulse waveforms and sync
+  - Two high-quality oscillators (VCO1 & VCO2) with Triangle, Saw, and Square waveforms and sync
   - Digital Multi Engine (Low, High, Peak, Decim)
   - Dual filters (LPF with resonance, HPF)
   - ADSR Amp EG and AD Mod EG (targeting pitch or cutoff)

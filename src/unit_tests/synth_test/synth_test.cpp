@@ -54,8 +54,8 @@ void SynthTest::test_defaultValues_shouldBeCorrect()
 void SynthTest::test_parameterSetting_shouldUpdateValues()
 {
     SynthDevice synth { "Test Synth" };
-    synth.setVco2Waveform(PolyBlepOscillator::Waveform::Pulse);
-    QCOMPARE(synth.vco2Waveform(), PolyBlepOscillator::Waveform::Pulse);
+    synth.setVco2Waveform(PolyBlepOscillator::Waveform::Square);
+    QCOMPARE(synth.vco2Waveform(), PolyBlepOscillator::Waveform::Square);
     
     synth.setMixVco2(0.5f);
     QCOMPARE(synth.mixVco2(), 0.5f);
@@ -417,11 +417,11 @@ void SynthTest::test_userPresetsDiscreteValues_shouldLoadCorrectly()
     const std::string vco1WaveformKey = Constants::NahdXml::xmlKeySynthVco1Waveform().toStdString();
     
     // Logical values for discrete parameters:
-    // Waveform (0..2): Tri=0.0, Saw=1.0, Pulse=2.0
+    // Waveform (0..2): Tri=0.0, Saw=1.0, Square=2.0
     // DelayType (0..3): Stereo=0.0, Mono=1.0, PingPong=2.0, Tape=3.0
     
     const SynthPreset sawPreset { "Saw", { { vco1WaveformKey, 1.0f } } };
-    const SynthPreset pulsePreset { "Pulse", { { vco1WaveformKey, 2.0f } } };
+    const SynthPreset pulsePreset { "Square", { { vco1WaveformKey, 2.0f } } };
     const SynthPreset pingPongPreset { "PingPong", { { Constants::NahdXml::xmlKeyDelayType().toStdString(), 2.0f } } };
     
     userPresets[0] = sawPreset;
@@ -434,9 +434,9 @@ void SynthTest::test_userPresetsDiscreteValues_shouldLoadCorrectly()
     synth.loadPreset(1, 0);
     QCOMPARE(synth.vco1Waveform(), PolyBlepOscillator::Waveform::Saw);
     
-    // Load Pulse
+    // Load Square
     synth.loadPreset(1, 1);
-    QCOMPARE(synth.vco1Waveform(), PolyBlepOscillator::Waveform::Pulse);
+    QCOMPARE(synth.vco1Waveform(), PolyBlepOscillator::Waveform::Square);
 
     // Load PingPong
     synth.loadPreset(1, 2);
@@ -629,7 +629,7 @@ void SynthTest::test_pitchBend_shouldUpdateFrequency()
 void SynthTest::test_pulseWidth_shouldUpdateDutyCycle()
 {
     SynthDevice synth("TestSynth");
-    synth.setVco1Waveform(PolyBlepOscillator::Waveform::Pulse);
+    synth.setVco1Waveform(PolyBlepOscillator::Waveform::Square);
     synth.setMixVco1(1.0f);
     synth.setMixVco2(0.0f);
     synth.setMultiLevel(0.0f);
@@ -681,7 +681,7 @@ void SynthTest::test_pulseWidth_shouldUpdateDutyCycle()
 void SynthTest::test_pwm_shouldModulatePulseWidth()
 {
     SynthDevice synth("TestSynth");
-    synth.setVco1Waveform(PolyBlepOscillator::Waveform::Pulse);
+    synth.setVco1Waveform(PolyBlepOscillator::Waveform::Square);
     synth.setMixVco1(1.0f);
     synth.setMixVco2(0.0f);
     synth.setLpfCutoff(1.0f);

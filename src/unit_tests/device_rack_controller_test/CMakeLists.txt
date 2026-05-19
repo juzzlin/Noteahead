@@ -14,6 +14,7 @@ set(SRC
     ../../application/note_converter.cpp
     ../../application/position.cpp
     ../../application/service/automation_service.cpp
+    ../../application/service/bass_synth_controller.cpp
     ../../application/service/copy_manager.cpp
     ../../application/service/device_rack_controller.cpp
     ../../application/service/device_service.cpp
@@ -36,6 +37,7 @@ set(SRC
     ../../domain/automation_location.cpp
     ../../domain/column.cpp
     ../../domain/column_settings.cpp
+    ../../domain/devices/bass_synth_device.cpp
     ../../domain/devices/delay_effect.cpp
     ../../domain/devices/device.cpp
     ../../domain/devices/drum_synth_constants.cpp

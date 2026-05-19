@@ -16,9 +16,11 @@
 #include "device_rack_controller.hpp"
 
 #include "../../common/constants.hpp"
+#include "../../domain/devices/bass_synth_device.hpp"
 #include "../../domain/devices/drum_synth_device.hpp"
 #include "../../domain/devices/sampler_device.hpp"
 #include "../../domain/devices/synth_device.hpp"
+#include "bass_synth_controller.hpp"
 #include "device_service.hpp"
 #include "drum_synth_controller.hpp"
 #include "editor_service.hpp"
@@ -27,13 +29,15 @@
 
 namespace noteahead {
 
-DeviceRackController::DeviceRackController(DeviceServiceS deviceService, SamplerControllerS samplerController, SynthControllerS synthController, DrumSynthControllerS drumSynthController, EditorServiceS editorService, QObject * parent)
+DeviceRackController::DeviceRackController(DeviceServiceS deviceService, SamplerControllerS samplerController, SynthControllerS synthController, BassSynthControllerS bassSynthController, DrumSynthControllerS drumSynthController, EditorServiceS editorService, QObject * parent)
   : QAbstractListModel { parent }
   , m_deviceService { std::move(deviceService) }
   , m_samplerController { std::move(samplerController) }
   , m_synthController { std::move(synthController) }
+  , m_bassSynthController { std::move(bassSynthController) }
   , m_drumSynthController { std::move(drumSynthController) }
   , m_editorService { std::move(editorService) }
+
 {
     if (m_deviceService) {
         m_devices = m_deviceService->internalDeviceNamesQt();
@@ -114,6 +118,9 @@ void DeviceRackController::openDevice(const QString & name)
     } else if (const auto synth = std::dynamic_pointer_cast<SynthDevice>(m_deviceService->device(name.toStdString()))) {
         m_synthController->setSynth(synth);
         emit synthDialogRequested();
+    } else if (const auto bassSynth = std::dynamic_pointer_cast<BassSynthDevice>(m_deviceService->device(name.toStdString()))) {
+        m_bassSynthController->setDevice(bassSynth);
+        emit bassSynthDialogRequested();
     } else if (const auto drumSynth = std::dynamic_pointer_cast<DrumSynthDevice>(m_deviceService->device(name.toStdString()))) {
         m_drumSynthController->setDevice(name);
         emit drumSynthDialogRequested();

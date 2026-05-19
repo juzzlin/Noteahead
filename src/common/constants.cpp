@@ -87,6 +87,11 @@ QString synthDeviceName()
     return "Noteahead Synth";
 }
 
+QString bassSynthDeviceName()
+{
+    return "Noteahead BassSynth";
+}
+
 QString drumSynthDeviceName()
 {
     return "Noteahead DrumSynth";
@@ -981,6 +986,16 @@ QString xmlKeySynthLfoMode() { return "lfoMode"; }
 QString xmlKeySynthLfoRate() { return "lfoRate"; }
 QString xmlKeySynthLfoIntensity() { return "lfoIntensity"; }
 QString xmlKeySynthLfoTarget() { return "lfoTarget"; }
+
+QString xmlKeyBassSynth() { return "BassSynth"; }
+QString xmlKeySubLevel() { return "subLevel"; }
+QString xmlKeySubOctave() { return "subOctave"; }
+QString xmlKeyEnvMod() { return "envMod"; }
+QString xmlKeyAccent() { return "accent"; }
+QString xmlKeySlide() { return "slide"; }
+QString xmlKeyDistDrive() { return "distDrive"; }
+QString xmlKeyDistTone() { return "distTone"; }
+QString xmlKeyDistLevel() { return "distLevel"; }
 
 QString xmlKeySample()
 {

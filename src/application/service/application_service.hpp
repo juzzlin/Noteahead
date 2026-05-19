@@ -42,6 +42,7 @@ class ApplicationService : public QObject
     Q_PROPERTY(bool editMode READ editMode WRITE setEditMode NOTIFY editModeChanged)
     Q_PROPERTY(QString samplerDeviceName READ samplerDeviceName CONSTANT)
     Q_PROPERTY(QString synthDeviceName READ synthDeviceName CONSTANT)
+    Q_PROPERTY(QString bassSynthDeviceName READ bassSynthDeviceName CONSTANT)
     Q_PROPERTY(QString drumSynthDeviceName READ drumSynthDeviceName CONSTANT)
 
 public:
@@ -59,6 +60,7 @@ public:
     Q_INVOKABLE QString webSiteUrl() const;
     Q_INVOKABLE QString samplerDeviceName() const;
     Q_INVOKABLE QString synthDeviceName() const;
+    Q_INVOKABLE QString bassSynthDeviceName() const;
     Q_INVOKABLE QString drumSynthDeviceName() const;
 
     Q_INVOKABLE QStringList recentFiles() const;

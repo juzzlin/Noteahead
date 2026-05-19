@@ -86,6 +86,11 @@ QString ApplicationService::synthDeviceName() const
     return Constants::synthDeviceName();
 }
 
+QString ApplicationService::bassSynthDeviceName() const
+{
+    return Constants::bassSynthDeviceName();
+}
+
 QString ApplicationService::drumSynthDeviceName() const
 {
     return Constants::drumSynthDeviceName();

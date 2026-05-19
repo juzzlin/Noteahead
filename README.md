@@ -65,8 +65,8 @@ All Arctic Music Project songs:
   - No jitter, no drift
 - **Virtual device rack** (since 2.2.0)
   - Central hub for managing internal instruments
-  - Supports multiple instances of Samplers and Synths
-  - **Effect Sends routing button per device** (since x.y.z)
+  - Supports multiple instances of Samplers, Synths and BassSynths
+  - **Effect Sends routing button per device** (since 3.1.0)
 - Fully scalable UI
 - Cool volume meters like in NoiseTracker
 - Cool note visualizer animation on the bottom bar
@@ -102,13 +102,21 @@ All Arctic Music Project songs:
   - High-quality linear interpolation resampling
 - Synth (since 2.2.0)
   - Internal polyphonic synthesizer (up to 6 voices)
-  - Two high-quality oscillators (VCO1 & VCO2) with Triangle, Saw, and Pulse waveforms and sync
+  - Two high-quality oscillators (VCO1 & VCO2) with Triangle, Saw, and Square waveforms and sync
   - Digital Multi Engine (Low, High, Peak, Decim)
   - Dual filters (LPF with resonance, HPF)
   - ADSR Amp EG and AD Mod EG (targeting pitch or cutoff)
   - Flexible LFO (multiple waveforms, BPM sync)
   - Built-in Delay effect (Stereo, Mono, PingPong, Tape) with BPM sync
   - Factory and User preset banks
+  - Full MIDI CC automation support (Volume CC 7, Pan CC 10, LPF Cutoff CC 74, HPF Cutoff CC 81)
+- BassSynth (since 3.1.0)
+  - Internal monophonic acid-style synthesizer
+  - High-quality oscillator with Triangle, Saw, and Square waveforms
+  - Sub-oscillator with Level and Octave (-1 or -2) controls
+  - Classic 24dB resonant Low-pass filter and 12dB High-pass filter
+  - TB-303 style Accent and Slide (legato) implementation
+  - Built-in Distortion with Drive, Tone, and Level controls
   - Full MIDI CC automation support (Volume CC 7, Pan CC 10, LPF Cutoff CC 74, HPF Cutoff CC 81)
 - DrumSynth (since 3.1.0)
   - Internal drum synthesizer with 11 independent voices

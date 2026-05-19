@@ -193,6 +193,7 @@
         <ul>
             <li>4 independent <strong>Noteahead Sampler</strong> instances ("Noteahead Sampler 1" to "Noteahead Sampler 4").</li>
             <li>4 independent <strong>Noteahead Synth</strong> instances ("Noteahead Synth 1" to "Noteahead Synth 4").</li>
+            <li>4 independent <strong>Noteahead BassSynth</strong> instances ("Noteahead BassSynth 1" to "Noteahead BassSynth 4").</li>
             <li>4 independent <strong>Noteahead DrumSynth</strong> instances ("Noteahead DrumSynth 1" to "Noteahead DrumSynth 4").</li>
         </ul>
         Each instance maintains its own settings, samples, and presets, allowing for complex multi-instrument arrangements without external hardware.
@@ -230,7 +231,7 @@
 <p>The Noteahead Synth is a powerful built-in polyphonic synthesizer (up to 6 voices) designed for classic and modern electronic sounds.</p>
 <ul>
     <li><strong>Selection</strong>: Assign a track to a specific synth by selecting its name (e.g., "Noteahead Synth 1") in the <strong>Track Settings</strong> port list.</li>
-    <li><strong>Oscillators (VCO1 & VCO2)</strong>: Two high-quality oscillators with <strong>Triangle</strong>, <strong>Saw</strong>, and <strong>Pulse</strong> waveforms. Each oscillator features <strong>Octave</strong>, <strong>Pitch</strong> (fine-tuning), <strong>Shape</strong> (pulse-width or waveform modulation), and <strong>Sync</strong>.</li>
+    <li><strong>Oscillators (VCO1 & VCO2)</strong>: Two high-quality oscillators with <strong>Triangle</strong>, <strong>Saw</strong>, and <strong>Square</strong> waveforms. Each oscillator features <strong>Octave</strong>, <strong>Pitch</strong> (fine-tuning), <strong>Shape</strong> (pulse-width or waveform modulation), and <strong>Sync</strong>.</li>
     <li><strong>Multi Engine</strong>: An additional digital engine providing <strong>Low</strong> and <strong>High</strong> frequency content, <strong>Peak</strong> (peaking filter), and <strong>Decim</strong> (bit-crusher/decimator) textures. It includes its own <strong>Shape</strong> and <strong>Level</strong> controls.</li>
     <li><strong>Mixer</strong>: Balance the output of VCO1 and VCO2.</li>
     <li><strong>Filters</strong>:
@@ -269,6 +270,45 @@
             <li><strong>CC 81</strong>: HPF Cutoff.</li>
         </ul>
     </li>
+</ul>
+
+<h3 style="color: orange;">BassSynth</h3>
+<p>The BassSynth is a specialized monophonic instrument designed for classic acid basslines and powerful low-end sounds.</p>
+<ul>
+    <li><strong>Selection</strong>: Assign a track to a specific BassSynth by selecting its name (e.g., "Noteahead BassSynth 1") in the <strong>Track Settings</strong> port list.</li>
+    <li><strong>Oscillator</strong>: Choose between <strong>Triangle</strong>, <strong>Saw</strong>, and <strong>Square</strong> waveforms. The <strong>Tuning</strong> control allows for fine-tuning the pitch.</li>
+    <li><strong>Sub-Oscillator</strong>: Adds a sub-octave oscillator for extra weight.
+        <ul>
+            <li><strong>Sub Level</strong>: Controls the volume of the sub-oscillator.</li>
+            <li><strong>Sub Octave</strong>: Choose between <strong>-1</strong> or <strong>-2</strong> octaves below the root.</li>
+        </ul>
+    </li>
+    <li><strong>Filters</strong>:
+        <ul>
+            <li><strong>LPF Cutoff & Resonance</strong>: A classic 24dB resonant low-pass filter, perfect for squelchy acid sweeps.</li>
+            <li><strong>HPF Cutoff</strong>: A 12dB high-pass filter for sculpting the low-end.</li>
+            <li><strong>Env Mod</strong>: Controls how much the internal decay envelope affects the LPF cutoff.</li>
+        </ul>
+    </li>
+    <li><strong>Envelope</strong>:
+        <ul>
+            <li><strong>Decay</strong>: Controls the decay time for both the amplitude and the filter cutoff modulation.</li>
+        </ul>
+    </li>
+    <li><strong>Acid Implementation</strong>:
+        <ul>
+            <li><strong>Accent</strong>: Triggered when note velocity is above 100. It boosts the volume and increases the filter envelope's effect.</li>
+            <li><strong>Slide</strong>: Enabled via the <strong>Slide</strong> control. When notes overlap or are played legato, the pitch glides smoothly between them without retriggering the envelopes.</li>
+        </ul>
+    </li>
+    <li><strong>Distortion</strong>: Built-in saturation for aggressive textures.
+        <ul>
+            <li><strong>Drive</strong>: Controls the amount of distortion.</li>
+            <li><strong>Tone</strong>: Adjusts the brightness of the distorted signal.</li>
+            <li><strong>Level</strong>: Sets the output level of the distortion stage.</li>
+        </ul>
+    </li>
+    <li><strong>Automation</strong>: Supports real-time MIDI CC automation for Volume (CC 7), Pan (CC 10), LPF Cutoff (CC 74), and HPF Cutoff (CC 81).</li>
 </ul>
 
 <h3 style="color: orange;">DrumSynth</h3>
