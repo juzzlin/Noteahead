@@ -435,6 +435,7 @@ set(PNG_SOURCE_FILES
     ${QML_BASE_DIR}/Graphics/delete.png
     ${QML_BASE_DIR}/Graphics/icon.png
     ${QML_BASE_DIR}/Graphics/mute.png
+    ${QML_BASE_DIR}/Graphics/piano.png
     ${QML_BASE_DIR}/Graphics/play.png
     ${QML_BASE_DIR}/Graphics/prev.png
     ${QML_BASE_DIR}/Graphics/replay.png

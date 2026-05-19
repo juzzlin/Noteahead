@@ -77,6 +77,31 @@ Rectangle {
                 setImageSource("../Graphics/settings.png");
             }
         }
+        ToolBarButtonBase {
+            id: directDeviceButton
+            height: parent.height
+            width: height
+            readonly property string portName: editorService.instrumentPortName(_index)
+            readonly property bool hasInternalDevice: deviceService.isInternalDevice(portName)
+            enabled: hasInternalDevice && !UiService.isPlaying()
+            onClicked: {
+                UiService.requestDeviceDialog(portName);
+                focus = false;
+            }
+            Keys.onPressed: event => {
+                if (event.key === Qt.Key_Space) {
+                    event.accepted = true;
+                }
+            }
+            ToolTip.delay: Constants.toolTipDelay
+            ToolTip.timeout: Constants.toolTipTimeout
+            ToolTip.visible: hovered
+            ToolTip.text: hasInternalDevice ? qsTr("Open %1").arg(portName) : qsTr("Set a built-in device port via track settings")
+            Component.onCompleted: {
+                setScale(0.8);
+                setImageSource("../Graphics/piano.png");
+            }
+        }
         TextField {
             id: nameField
             placeholderText: qsTr("Track name")
@@ -89,7 +114,7 @@ Rectangle {
             font.pixelSize: settingsService.trackHeaderFontSize
             font.family: "sans"
             height: parent.height
-            width: parent.width - trackSettingsButton.width - trackHeaderColumnButtons.width - muteSoloButtons.width - velocityScaleWidget.width
+            width: parent.width - trackSettingsButton.width - directDeviceButton.width - trackHeaderColumnButtons.width - muteSoloButtons.width - velocityScaleWidget.width
             verticalAlignment: Text.AlignVCenter
             horizontalAlignment: Text.AlignHCenter
             padding: 0  // Remove default padding
