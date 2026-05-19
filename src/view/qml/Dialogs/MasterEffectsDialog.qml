@@ -97,5 +97,15 @@ Dialog {
                 }
             }
         }
+
+        Text {
+            text: qsTr("To route an internal instrument to a master effect, use the Sends button in the Device Rack dialog.")
+            color: "#aaa"
+            font.italic: true
+            font.pointSize: 11
+            Layout.fillWidth: true
+            wrapMode: Text.WordWrap
+            horizontalAlignment: Text.AlignHCenter
+        }
     }
 }
