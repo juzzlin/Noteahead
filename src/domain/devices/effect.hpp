@@ -29,7 +29,9 @@ class Effect : public DspComponent, public ParameterContainer
 public:
     virtual ~Effect() override;
     virtual std::string type() const = 0;
+    virtual std::string typeId() const = 0;
     virtual void process(float & left, float & right) = 0;
+    virtual std::vector<std::string> parameterNames() const;
     virtual void reset() override {}
     virtual void sync() {}
 };

@@ -16,9 +16,12 @@
 #ifndef EFFECT_RACK_CONTROLLER_HPP
 #define EFFECT_RACK_CONTROLLER_HPP
 
-#include <QObject>
-#include <memory>
 #include "device_service.hpp"
+#include "editor_service.hpp"
+
+#include <QObject>
+
+#include <memory>
 
 namespace noteahead {
 
@@ -29,7 +32,9 @@ class EffectRackController : public QObject
     Q_PROPERTY(int revision READ revision NOTIFY revisionChanged)
 
 public:
-    explicit EffectRackController(std::shared_ptr<DeviceService> deviceService, QObject * parent = nullptr);
+    using DeviceServiceS = std::shared_ptr<DeviceService>;
+    using EditorServiceS = std::shared_ptr<EditorService>;
+    explicit EffectRackController(DeviceServiceS deviceService, EditorServiceS editorService, QObject * parent = nullptr);
 
     int effectCount() const;
     int revision() const;
@@ -37,7 +42,19 @@ public:
     Q_INVOKABLE float parameterValue(int effectIndex, const QString & paramName) const;
     Q_INVOKABLE void setParameterValue(int effectIndex, const QString & paramName, float value);
 
+    Q_INVOKABLE void setEffect(int slotIndex, const QString & typeId);
+    Q_INVOKABLE void clearEffect(int slotIndex);
+    Q_INVOKABLE QVariantList availableEffects() const;
+
+    Q_INVOKABLE QStringList parameterNames(int effectIndex) const;
     Q_INVOKABLE QString effectType(int effectIndex) const;
+
+    Q_INVOKABLE QString reverbSizeKey() const;
+    Q_INVOKABLE QString reverbDecayKey() const;
+    Q_INVOKABLE QString reverbDampingKey() const;
+    Q_INVOKABLE QString reverbPreDelayKey() const;
+    Q_INVOKABLE QString reverbWidthKey() const;
+    Q_INVOKABLE QString reverbMixKey() const;
 
     Q_INVOKABLE QStringList reverbPresets() const;
     Q_INVOKABLE void applyReverbPreset(int effectIndex, int presetIndex);
@@ -51,7 +68,8 @@ signals:
     void parameterChanged(int effectIndex, const QString & paramName);
 
 private:
-    std::shared_ptr<DeviceService> m_deviceService;
+    DeviceServiceS m_deviceService;
+    EditorServiceS m_editorService;
     int m_revision = 0;
 };
 

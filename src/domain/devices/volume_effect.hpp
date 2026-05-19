@@ -23,7 +23,9 @@ namespace noteahead {
 class VolumeEffect : public Effect
 {
 public:
+    static std::string typeIdString() { return "d4e5f6a7-b8c9-4d0e-1f2a-3b4c5d6e7f8a"; }
     std::string type() const override { return "volume"; }
+    std::string typeId() const override { return typeIdString(); }
     void setVolume(float volume);
     void process(float & left, float & right) override;
 

@@ -38,6 +38,9 @@ QString webSiteUrl();
 size_t defaultPatternLineCount();
 size_t defaultTrackCount();
 
+size_t deviceRackSize();
+size_t effectRackSize();
+
 int transposeMin();
 int transposeMax();
 
@@ -46,6 +49,7 @@ QString synthDeviceName();
 QString bassSynthDeviceName();
 QString drumSynthDeviceName();
 
+QString internalDevicePortPrefix();
 double defaultSampleRate();
 
 constexpr float minEffectLevel() { return 0.001f; }
@@ -59,6 +63,8 @@ QString xmlKeyApplicationName();
 QString xmlKeyApplicationVersion();
 
 QString xmlKeyCreatedDate();
+
+QString xmlKeyTypeName();
 
 QString xmlKeyBankEnabled();
 QString xmlKeyBankLsb();
@@ -133,8 +139,10 @@ QString xmlKeyMidiSideChain();
 
 QString xmlKeyMixer();
 QString xmlKeyMasterEffects();
-QString xmlKeyReverb();
 QString xmlKeyEffect();
+QString xmlKeySend();
+QString xmlKeyDeviceSlot();
+QString xmlKeyEffectSlot();
 
 QString xmlKeyAudioRecorder();
 QString xmlKeyLatestRecordingFilePath();
@@ -177,6 +185,7 @@ QString xmlKeyNoteOn();
 QString xmlKeyNoteOff();
 QString xmlKeyNoteData();
 
+QString xmlKeySlot();
 QString xmlKeyPan();
 QString xmlKeyReverbSend();
 QString xmlKeyReverbSend1();

@@ -34,12 +34,15 @@ class SynthController;
 class DeviceRackController : public QAbstractListModel
 {
     Q_OBJECT
+    Q_PROPERTY(int deviceCount READ deviceCount NOTIFY deviceCountChanged)
+    Q_PROPERTY(int revision READ revision NOTIFY revisionChanged)
 
 public:
-    enum class DataRole
-    {
+    enum class DataRole {
         Name = Qt::UserRole + 1,
-        TrackNames
+        TrackNames,
+        TypeName,
+        TypeId
     };
     Q_ENUM(DataRole)
 
@@ -57,11 +60,32 @@ public:
     QVariant data(const QModelIndex & index, int role = Qt::DisplayRole) const override;
     QHash<int, QByteArray> roleNames() const override;
 
+    int deviceCount() const;
+    int revision() const;
+
     Q_INVOKABLE void refresh();
     Q_INVOKABLE void openDevice(const QString & name);
+    Q_INVOKABLE void openDevice(int slotIndex);
     Q_INVOKABLE void requestEffectSendsDialog(const QString & deviceName);
 
+    Q_INVOKABLE void setDevice(int slotIndex, const QString & typeId);
+    Q_INVOKABLE void clearDevice(int slotIndex);
+
+    Q_INVOKABLE QString deviceType(int slotIndex) const;
+    Q_INVOKABLE QString deviceTypeName(int slotIndex) const;
+    Q_INVOKABLE QString deviceName(int slotIndex) const;
+    Q_INVOKABLE QString trackNames(int slotIndex) const;
+    Q_INVOKABLE QVariantList availableDevices() const;
+
+    Q_INVOKABLE void addSampler();
+    Q_INVOKABLE void addSynth();
+    Q_INVOKABLE void addBassSynth();
+    Q_INVOKABLE void addDrumSynth();
+    Q_INVOKABLE void removeDevice(const QString & name);
+
 signals:
+    void deviceCountChanged();
+    void revisionChanged();
     void samplerDialogRequested();
     void synthDialogRequested();
     void bassSynthDialogRequested();
@@ -79,6 +103,7 @@ private:
     EditorServiceS m_editorService;
 
     QStringList m_devices;
+    int m_revision { 0 };
 };
 
 } // namespace noteahead

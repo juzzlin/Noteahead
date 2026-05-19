@@ -328,6 +328,7 @@ set(QML_SOURCE_FILES
     ${QML_BASE_DIR}/Dialogs/AddMidiCcAutomationDialog.qml
     ${QML_BASE_DIR}/Dialogs/AddMidiCcSettingDialog.qml
     ${QML_BASE_DIR}/Dialogs/AddPitchBendAutomationDialog.qml
+    ${QML_BASE_DIR}/Dialogs/DeviceGalleryDialog.qml
     ${QML_BASE_DIR}/Dialogs/DeviceRackDialog.qml
     ${QML_BASE_DIR}/Dialogs/ColumnSettingsDialog.qml
     ${QML_BASE_DIR}/Dialogs/ColumnSettingsDialog_InstrumentSettings.qml
@@ -345,6 +346,7 @@ set(QML_SOURCE_FILES
     ${QML_BASE_DIR}/Dialogs/EditMidiCcAutomationsDialog.qml
     ${QML_BASE_DIR}/Dialogs/EditPitchBendAutomationsDelegate.qml
     ${QML_BASE_DIR}/Dialogs/EditPitchBendAutomationsDialog.qml
+    ${QML_BASE_DIR}/Dialogs/EffectsGalleryDialog.qml
     ${QML_BASE_DIR}/Dialogs/EventSelectionDialog.qml
     ${QML_BASE_DIR}/Dialogs/GainConverterDialog.qml
     ${QML_BASE_DIR}/Dialogs/IntegerInputDialog.qml

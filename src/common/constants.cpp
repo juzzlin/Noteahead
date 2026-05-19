@@ -77,6 +77,16 @@ size_t defaultTrackCount()
     return 8;
 }
 
+size_t deviceRackSize()
+{
+    return 8;
+}
+
+size_t effectRackSize()
+{
+    return 8;
+}
+
 QString samplerDeviceName()
 {
     return "Noteahead Sampler";
@@ -95,6 +105,11 @@ QString bassSynthDeviceName()
 QString drumSynthDeviceName()
 {
     return "Noteahead DrumSynth";
+}
+
+QString internalDevicePortPrefix()
+{
+    return "Noteahead Internal Device";
 }
 
 double defaultSampleRate()
@@ -122,6 +137,11 @@ QString xmlKeyApplicationVersion()
 QString xmlKeyCreatedDate()
 {
     return "createdDate";
+}
+
+QString xmlKeyTypeName()
+{
+    return "typeName";
 }
 
 QString xmlKeyBeatsPerMinute()
@@ -424,6 +444,21 @@ QString xmlKeyEffect()
     return "Effect";
 }
 
+QString xmlKeySend()
+{
+    return "Send";
+}
+
+QString xmlKeyDeviceSlot()
+{
+    return "deviceSlot";
+}
+
+QString xmlKeyEffectSlot()
+{
+    return "effectSlot";
+}
+
 QString xmlKeyAudioRecorder()
 {
     return "AudioRecorder";
@@ -587,6 +622,11 @@ QString xmlKeyNoteOff()
 QString xmlKeyNoteData()
 {
     return "NoteData";
+}
+
+QString xmlKeySlot()
+{
+    return "slot";
 }
 
 QString xmlKeyPan()

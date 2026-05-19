@@ -16,8 +16,7 @@
 import QtQuick 2.15
 import QtQuick.Controls 2.15
 import QtQuick.Controls.Universal 2.15
-import QtQuick.Layouts
-
+import QtQuick.Layouts 1.15
 import Noteahead 1.0
 import "../Components"
 
@@ -26,6 +25,22 @@ Dialog {
     title: "<strong>" + qsTr("Device Rack") + "</strong>"
     modal: true
     focus: true
+    width: 600
+    height: 500
+
+    function updateUsage(): void {
+        deviceRackController.refresh();
+    }
+
+    Universal.theme: Universal.Dark
+    Universal.accent: themeService.accentColor
+
+    background: Rectangle {
+        color: "#1e1e1e"
+        border.color: "#333"
+        radius: 2
+    }
+
     footer: DialogButtonBox {
         Button {
             text: qsTr("Close")
@@ -33,82 +48,124 @@ Dialog {
             DialogButtonBox.buttonRole: DialogButtonBox.AcceptRole
         }
     }
-    background: Rectangle {
-        color: "#222"
-        border.color: "#444"
-        radius: 10
-    }
-    function updateUsage(): void {
-        deviceRackController.refresh();
-    }
+
     ColumnLayout {
         anchors.fill: parent
-        anchors.margins: 15
+        anchors.margins: 20
         spacing: 20
-        Text {
+
+        Label {
             text: qsTr("Device Rack")
-            color: "white"
             font.bold: true
             font.pointSize: 18
+            color: "white"
             Layout.alignment: Qt.AlignHCenter
         }
+
         ListView {
             id: deviceListView
-            model: deviceRackController
+            model: deviceRackController.deviceCount
+            property int hoveredIndex: -1
             Layout.fillWidth: true
             Layout.fillHeight: true
-            Layout.preferredHeight: 400
-            Layout.preferredWidth: 600
             clip: true
             spacing: 10
             ScrollBar.vertical: ScrollBar {}
-            delegate: Item {
+            delegate: Rectangle {
                 width: deviceListView.width
                 height: 60
-                
+                color: (deviceListView.hoveredIndex === index && root.activeFocus) ? themeService.accentColor : "#333"
+                radius: 5
+                border.color: "#555"
+                readonly property string deviceType: {
+                    deviceRackController.revision;
+                    return deviceRackController.deviceType(index);
+                }
+                readonly property string deviceTypeName: {
+                    deviceRackController.revision;
+                    return deviceRackController.deviceTypeName(index);
+                }
+                readonly property string deviceName: {
+                    deviceRackController.revision;
+                    return deviceRackController.deviceName(index);
+                }
+                readonly property string trackNames: {
+                    deviceRackController.revision;
+                    return deviceRackController.trackNames(index);
+                }
+
+                MouseArea {
+                    id: mouseArea
+                    anchors.fill: parent
+                    hoverEnabled: true
+                    cursorShape: Qt.PointingHandCursor
+                    onEntered: deviceListView.hoveredIndex = index
+                    onExited: deviceListView.hoveredIndex = -1
+                    onClicked: {
+                        deviceListView.hoveredIndex = -1;
+                        if (deviceType === "") {
+                            UiService.requestDeviceGalleryDialog(index);
+                        } else {
+                            deviceRackController.openDevice(index);
+                        }
+                    }
+                }
                 RowLayout {
                     anchors.fill: parent
-                    spacing: 15
+                    anchors.margins: 15
+                    spacing: 10
                     
-                    Rectangle {
-                        Layout.fillWidth: true
-                        Layout.fillHeight: true
-                        color: mouseArea.containsMouse ? themeService.accentColor : "#333"
-                        radius: 5
-                        border.color: "#555"
-                        
-                        MouseArea {
-                            id: mouseArea
-                            anchors.fill: parent
-                            hoverEnabled: true
-                            cursorShape: Qt.PointingHandCursor
-                            onClicked: deviceRackController.openDevice(model.name)
-                        }
-
-                        Text {
-                            anchors.left: parent.left
-                            anchors.leftMargin: 15
-                            anchors.verticalCenter: parent.verticalCenter
-                            text: model.name
-                            color: "white"
-                            font.pointSize: 13
-                            font.bold: mouseArea.containsMouse
-                        }
-                    }
-
-                    Button {
-                        text: qsTr("Sends")
-                        onClicked: UiService.requestEffectSendsDialog(model.name)
-                        Layout.preferredWidth: 80
-                    }
-
                     Text {
-                        text: model.trackNames
+                        text: deviceType === "" ? "" : qsTr("Slot %1: %2 (%3)").arg(index + 1).arg(deviceName).arg(deviceTypeName)
+                        color: "white"
+                        font.pointSize: 13
+                        font.bold: deviceListView.hoveredIndex === index && root.activeFocus
+                        Layout.fillWidth: true
+                        visible: deviceType !== ""
+                    }
+                    
+                    Text {
+                        text: trackNames
                         color: "#aaa"
                         font.pointSize: 11
                         Layout.preferredWidth: 150
                         horizontalAlignment: Text.AlignRight
                         elide: Text.ElideRight
+                        visible: deviceType !== ""
+                    }
+
+                    Image {
+                        source: "../Graphics/add_box.png"
+                        sourceSize.width: 32
+                        sourceSize.height: 32
+                        Layout.alignment: Qt.AlignCenter
+                        visible: deviceType === ""
+                        opacity: (deviceListView.hoveredIndex === index && root.activeFocus) ? 1.0 : 0.5
+                    }
+
+                    Button {
+                        text: qsTr("Sends")
+                        onClicked: UiService.requestEffectSendsDialog(deviceName)
+                        Layout.preferredWidth: 80
+                        visible: deviceType !== ""
+                    }
+
+                    Button {
+                        Layout.preferredWidth: 32
+                        Layout.preferredHeight: 32
+                        visible: deviceType !== ""
+                        flat: true
+                        padding: 0
+                        Image {
+                            source: "../Graphics/delete.png"
+                            anchors.fill: parent
+                            anchors.margins: 4
+                            sourceSize.width: 24
+                            sourceSize.height: 24
+                            fillMode: Image.PreserveAspectFit
+                            opacity: parent.hovered ? 1.0 : 0.6
+                        }
+                        onClicked: deviceRackController.clearDevice(index)
                     }
                 }
             }

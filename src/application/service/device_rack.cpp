@@ -32,30 +32,6 @@ DeviceRack::~DeviceRack() = default;
 
 void DeviceRack::initialize()
 {
-    for (int i = 1; i <= 2; i++) {
-        const auto sampler = std::make_shared<SamplerDevice>(Constants::samplerDeviceName().toStdString() + " " + std::to_string(i));
-        sampler->setId(i);
-        m_deviceService->registerDevice(sampler);
-    }
-
-    for (int i = 1; i <= 8; i++) {
-        const auto synth = std::make_shared<SynthDevice>(Constants::synthDeviceName().toStdString() + " " + std::to_string(i));
-        synth->setId(i + 100);
-        m_deviceService->registerDevice(synth);
-    }
-
-    for (int i = 1; i <= 2; i++) {
-        const auto bassSynth = std::make_shared<BassSynthDevice>(Constants::bassSynthDeviceName().toStdString() + " " + std::to_string(i));
-        bassSynth->setId(i + 150);
-        m_deviceService->registerDevice(bassSynth);
-    }
-
-    for (int i = 1; i <= 8; i++) {
-
-        const auto drumSynth = std::make_shared<DrumSynthDevice>(Constants::drumSynthDeviceName().toStdString() + " " + std::to_string(i));
-        drumSynth->setId(i + 200);
-        m_deviceService->registerDevice(drumSynth);
-    }
 }
 
 } // namespace noteahead

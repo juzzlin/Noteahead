@@ -23,7 +23,9 @@ namespace noteahead {
 class PanningEffect : public Effect
 {
 public:
+    static std::string typeIdString() { return "c3d4e5f6-a7b8-4c9d-0e1f-2a3b4c5d6e7f"; }
     std::string type() const override { return "panning"; }
+    std::string typeId() const override { return typeIdString(); }
     void setPan(float pan);
     void process(float & left, float & right) override;
 

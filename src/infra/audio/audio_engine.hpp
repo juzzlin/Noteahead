@@ -43,9 +43,11 @@ public:
     AudioEngine();
     ~AudioEngine();
 
-    void addDevice(DeviceS device);
-    void removeDevice(const std::string & name);
+    void setDevice(size_t slotIndex, DeviceS device);
+    void clearDevice(size_t slotIndex);
+    DeviceS device(size_t slotIndex) const;
     DeviceS device(const std::string & name) const;
+
     using DeviceNames = std::vector<std::string>;
     DeviceNames deviceNames() const;
 
@@ -54,6 +56,7 @@ public:
     void process(float * output, uint32_t frameCount, uint32_t sampleRate);
 
     void reset();
+    void clear();
 
     void setIsExclusive(bool exclusive);
     bool isExclusive() const;
@@ -66,7 +69,7 @@ private:
     void ensureEffectActiveFlags(size_t effectCount);
     void ensureDeviceActiveFlags(size_t deviceCount);
 
-    std::map<std::string, DeviceS> m_devices {};
+    std::map<size_t, DeviceS> m_devices {};
     EffectRack m_effectRack {};
     RealTimeWorkerPool m_workerPool {};
     std::vector<AudioEngineWorkBuffer> m_workBuffers {};

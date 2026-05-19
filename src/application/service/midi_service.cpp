@@ -40,6 +40,12 @@ MidiService::MidiService(DeviceServiceS deviceService, QObject * parent, bool in
   : QObject { parent }
   , m_deviceService { std::move(deviceService) }
 {
+    if (m_deviceService) {
+        connect(m_deviceService.get(), &DeviceService::dataChanged, this, [this]() {
+            emit outputPortsChanged(outputPorts());
+        });
+    }
+
     if (initializeRealWorkers) {
         m_outputWorker = std::make_unique<MidiWorkerOut>();
         m_inputWorker = std::make_unique<MidiWorkerIn>();

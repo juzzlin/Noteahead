@@ -25,6 +25,8 @@ QtObject {
     signal editPitchBendAutomationsDialogByTrackRequested
     signal editPitchBendAutomationsDialogRequested
     signal eventSelectionDialogRequested
+    signal effectsGalleryDialogRequested(int slotIndex)
+    signal deviceGalleryDialogRequested(int slotIndex)
     signal focusOnEditorViewRequested
     signal gainConverterDialogRequested
     signal lineAddMidiCcAutomationDialogRequested
@@ -130,6 +132,12 @@ QtObject {
     }
     function requestEventSelectionDialog(): void {
         eventSelectionDialogRequested();
+    }
+    function requestEffectsGalleryDialog(slotIndex: int): void {
+        effectsGalleryDialogRequested(slotIndex);
+    }
+    function requestDeviceGalleryDialog(slotIndex: int): void {
+        deviceGalleryDialogRequested(slotIndex);
     }
     function requestGainConverterDialog(): void {
         gainConverterDialogRequested();

@@ -46,8 +46,8 @@ public:
 
     virtual void reset();
 
-    void serializeParametersToXml(QXmlStreamWriter & writer) const;
-    void deserializeParametersFromXml(QXmlStreamReader & reader);
+    virtual void serializeParametersToXml(QXmlStreamWriter & writer) const;
+    virtual void deserializeParametersFromXml(QXmlStreamReader & reader);
 
 private:
     std::map<std::string, Parameter> m_parameters;

@@ -54,6 +54,12 @@ Rectangle {
             }
         }
     }
+    Connections {
+        target: deviceService
+        function onDataChanged() {
+            rootItem.updateInstrument();
+        }
+    }
     Row {
         anchors.fill: parent
         anchors.leftMargin: 2

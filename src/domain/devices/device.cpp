@@ -14,13 +14,15 @@
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
 #include "device.hpp"
+
 #include "../../common/constants.hpp"
 #include "../../common/parameter_mapper.hpp"
 #include "../../common/utils.hpp"
 
+#include <cmath>
+
 #include <QXmlStreamReader>
 #include <QXmlStreamWriter>
-#include <cmath>
 
 namespace noteahead {
 
@@ -29,13 +31,9 @@ Device::Device()
     addParameter(Parameter { Constants::NahdXml::xmlKeyVolume().toStdString(), 1.0f, 0, 100, 100 });
     addParameter(Parameter { Constants::NahdXml::xmlKeyGain().toStdString(), 0.5f, -30, 30, 0, 1, Parameter::Type::Continuous });
     addParameter(Parameter { Constants::NahdXml::xmlKeyPan().toStdString(), 0.5f, 0, 100, 50 });
-    
-    // Initial 4 sends
-    for (int i = 0; i < 4; ++i) {
-        addParameter(Parameter { "reverbSend_" + std::to_string(i), 0.0f, 0, 1, 0 });
-    }
-    m_reverbSends.resize(4, 0.0f);
-    m_manualReverbSends.resize(4, 0.0f);
+
+    m_reverbSends.resize(Constants::effectRackSize(), 0.0f);
+    m_manualReverbSends.resize(Constants::effectRackSize(), 0.0f);
 }
 
 size_t Device::id() const
@@ -151,7 +149,7 @@ bool Device::updateVolumeParameter(float volume, bool updateManual)
             m_manualVolume = p->get().value();
         }
         syncParameters();
-        return p->get().value() != oldVal;
+        return !qFuzzyCompare(p->get().value(), oldVal);
     }
     return false;
 }
@@ -166,7 +164,7 @@ bool Device::updateGainParameter(float gain, bool updateManual)
             m_manualGain = p->get().value();
         }
         syncParameters();
-        return p->get().value() != oldVal;
+        return !qFuzzyCompare(p->get().value(), oldVal);
     }
     return false;
 }
@@ -181,7 +179,7 @@ bool Device::updatePanParameter(float pan, bool updateManual)
             m_manualPan = p->get().value();
         }
         syncParameters();
-        return p->get().value() != oldVal;
+        return !qFuzzyCompare(p->get().value(), oldVal);
     }
     return false;
 }
@@ -189,18 +187,16 @@ bool Device::updatePanParameter(float pan, bool updateManual)
 bool Device::updateReverbSendParameter(size_t index, float send, bool updateManual)
 {
     std::lock_guard<std::recursive_mutex> lock { m_mutex };
-    const std::string key = "reverbSend_" + std::to_string(index);
 
-    if (auto p = parameter(key); p) {
-        const float oldVal = p->get().value();
-        p->get().setValue(send);
+    if (index < m_reverbSends.size()) {
+        const float oldVal = m_reverbSends[index];
+        m_reverbSends[index] = send;
         if (updateManual) {
             if (index < m_manualReverbSends.size()) {
-                m_manualReverbSends[index] = p->get().value();
+                m_manualReverbSends[index] = send;
             }
         }
-        syncParameters();
-        return p->get().value() != oldVal;
+        return !qFuzzyCompare(m_reverbSends[index], oldVal);
     }
     return false;
 }
@@ -217,14 +213,7 @@ void Device::syncParameters()
     if (auto p = parameter(Constants::NahdXml::xmlKeyPan().toStdString()); p) {
         m_pan = p->get().value();
     }
-    
-    for (size_t i = 0; i < m_reverbSends.size(); ++i) {
-        if (auto p = parameter("reverbSend_" + std::to_string(i)); p) {
-            m_reverbSends[i] = p->get().value();
-        }
-    }
 }
-
 void Device::reset()
 {
     ParameterContainer::reset();
@@ -313,15 +302,18 @@ void Device::setManualReverbSend(size_t index, float send)
 
 void Device::serializeAttributesToXml(QXmlStreamWriter & writer) const
 {
-    writer.writeAttribute(Constants::NahdXml::xmlKeyId(), QString::number(m_id));
+    writer.writeAttribute(Constants::NahdXml::xmlKeySlot(), QString::number(m_id));
     writer.writeAttribute(Constants::NahdXml::xmlKeyName(), QString::fromStdString(name()));
+    writer.writeAttribute(Constants::NahdXml::xmlKeyTypeName(), QString::fromStdString(typeName()));
     writer.writeAttribute(Constants::NahdXml::xmlKeyCategory(), QString::fromStdString(category()));
-    writer.writeAttribute("typeId", QString::fromStdString(typeId()));
+    writer.writeAttribute(Constants::NahdXml::xmlKeyTypeId(), QString::fromStdString(typeId()));
 }
 
 void Device::deserializeAttributesFromXml(QXmlStreamReader & reader)
 {
-    if (const auto id = Utils::Xml::readUIntAttribute(reader, Constants::NahdXml::xmlKeyId(), false); id.has_value()) {
+    if (const auto slot = Utils::Xml::readUIntAttribute(reader, Constants::NahdXml::xmlKeySlot(), false); slot.has_value()) {
+        m_id = slot.value();
+    } else if (const auto id = Utils::Xml::readUIntAttribute(reader, Constants::NahdXml::xmlKeyId(), false); id.has_value()) {
         m_id = id.value();
     }
 }

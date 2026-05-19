@@ -63,15 +63,17 @@ All Arctic Music Project songs:
 ### Core / Performance
 - **Very accurate internal timing**
   - No jitter, no drift
-- **Virtual device rack** (since 2.2.0)
+- **Virtual device rack** (since 3.1.0)
   - Central hub for managing internal instruments
-  - Supports multiple instances of Samplers, Synths and BassSynths
+  - Dynamically add devices (Sampler, Synth, BassSynth, DrumSynth) by clicking the (+) icon in the rack
+  - Supports multiple independent instances of any device type
   - **Effect Sends routing button per device** (since 3.1.0)
 - Fully scalable UI
 - Cool volume meters like in NoiseTracker
 - Cool note visualizer animation on the bottom bar
-- **Master Effect Rack**
+- **Master Effect Rack** (since 3.1.0)
   - Central hub for global audio effects
+  - Dynamically add effects (e.g., Reverb) by clicking the (+) icon in the rack
   - Support for multiple independent effect instances
   - Studio-quality FDN (Feedback Delay Network) Reverb with presets
   - Scalable send routing from all internal instruments

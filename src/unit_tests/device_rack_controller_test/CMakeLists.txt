@@ -37,7 +37,6 @@ set(SRC
     ../../domain/automation_location.cpp
     ../../domain/column.cpp
     ../../domain/column_settings.cpp
-    ../../domain/devices/bass_synth_device.cpp
     ../../domain/devices/delay_effect.cpp
     ../../domain/devices/device.cpp
     ../../domain/devices/drum_synth_constants.cpp
@@ -48,6 +47,7 @@ set(SRC
     ../../domain/devices/low_pass_filter_effect.cpp
     ../../domain/devices/panning_effect.cpp
     ../../domain/devices/sampler_device.cpp
+    ../../domain/devices/bass_synth_device.cpp
     ../../domain/devices/synth_device.cpp
     ../../domain/devices/synth_presets.cpp
     ../../domain/devices/volume_effect.cpp

@@ -16,6 +16,7 @@
 #include "effect_rack_test.hpp"
 #include "../../domain/devices/effect_rack.hpp"
 #include "../../domain/dsp/reverb_effect.hpp"
+#include "../../common/constants.hpp"
 
 #include <QTest>
 #include <QXmlStreamWriter>
@@ -26,15 +27,15 @@ namespace noteahead {
 void EffectRackTest::test_addRemove()
 {
     EffectRack rack;
-    QCOMPARE(rack.effectCount(), 0u);
+    QCOMPARE(rack.effectCount(), Constants::effectRackSize());
 
     auto reverb = std::make_shared<ReverbEffect>();
-    rack.addEffect(reverb);
-    QCOMPARE(rack.effectCount(), 1u);
+    rack.setEffect(0, reverb);
+    QCOMPARE(rack.effectCount(), Constants::effectRackSize());
     QCOMPARE(rack.effect(0), reverb);
 
-    rack.removeEffect(0);
-    QCOMPARE(rack.effectCount(), 0u);
+    rack.setEffect(0, nullptr);
+    QCOMPARE(rack.effect(0), nullptr);
 }
 
 void EffectRackTest::test_process()
@@ -44,7 +45,7 @@ void EffectRackTest::test_process()
     reverb->setMix(1.0f); // Full wet
     reverb->setSize(0.5f);
     reverb->setDecay(0.5f);
-    rack.addEffect(reverb);
+    rack.setEffect(0, reverb);
 
     std::vector<float> output(2, 0.0f);
     std::vector<float> sendBus(2, 1.0f); // DC input
@@ -55,6 +56,12 @@ void EffectRackTest::test_process()
     }
 
     QVERIFY(output[0] != 0.0f || output[1] != 0.0f);
+
+    // Verify processing an empty slot doesn't crash
+    std::vector<float> output2(2, 0.0f);
+    rack.process(output2.data(), sendBus.data(), 1, 1, 44100);
+    QCOMPARE(output2[0], 0.0f);
+    QCOMPARE(output2[1], 0.0f);
 }
 
 void EffectRackTest::test_serialization()
@@ -62,21 +69,28 @@ void EffectRackTest::test_serialization()
     EffectRack rack;
     auto reverb = std::make_shared<ReverbEffect>();
     reverb->setSize(0.75f);
-    rack.addEffect(reverb);
+    rack.setEffect(2, reverb);
 
     QString xml;
     QXmlStreamWriter writer(&xml);
-    rack.serializeToXml(writer);
+    writer.writeStartElement(Constants::NahdXml::xmlKeyMasterEffects());
+    rack.serializeEffectsToXml(writer);
+    writer.writeEndElement();
 
     EffectRack rack2;
     QXmlStreamReader reader(xml);
-    while (!reader.atEnd() && !reader.isStartElement()) {
-        reader.readNext();
+    while (reader.readNextStartElement()) {
+        if (reader.name() == Constants::NahdXml::xmlKeyMasterEffects()) {
+            rack2.deserializeEffectsFromXml(reader);
+        } else {
+            reader.skipCurrentElement();
+        }
     }
-    rack2.deserializeFromXml(reader);
 
-    QCOMPARE(rack2.effectCount(), 1u);
-    auto reverb2 = std::dynamic_pointer_cast<ReverbEffect>(rack2.effect(0));
+    QCOMPARE(rack2.effectCount(), Constants::effectRackSize());
+    QVERIFY(rack2.effect(0) == nullptr);
+    QVERIFY(rack2.effect(1) == nullptr);
+    auto reverb2 = std::dynamic_pointer_cast<ReverbEffect>(rack2.effect(2));
     QVERIFY(reverb2 != nullptr);
     QCOMPARE(reverb2->size(), 0.75f);
 }
@@ -92,6 +106,20 @@ void EffectRackTest::test_reverb_parameters()
     // Pre-delay: 0.2 internal should be 100ms
     reverb->setPreDelay(0.2f);
     QCOMPARE(reverb->preDelay(), 0.2f);
+}
+
+void EffectRackTest::test_reverb_presets()
+{
+    auto reverb = std::make_shared<ReverbEffect>();
+    
+    const auto presets = ReverbEffect::presetNames();
+    QVERIFY(!presets.empty());
+    QCOMPARE(presets[0], "Hall");
+    
+    reverb->applyPreset(ReverbEffect::stringToPreset("Cathedral"));
+    QCOMPARE(reverb->size(), 1.0f);
+    
+    QCOMPARE(ReverbEffect::presetToString(ReverbEffect::Preset::Spring), "Spring");
 }
 
 } // namespace noteahead

@@ -36,6 +36,7 @@ public:
 
     float value() const;
     void setValue(float val);
+    bool update(float val);
 
     int xmlValue() const;
     int xmlMin() const;

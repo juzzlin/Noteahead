@@ -147,6 +147,18 @@ ApplicationWindow {
         onAccepted: uiLogger.info(_tag, "Event selection dialog accepted")
         onRejected: uiLogger.info(_tag, "Event selection dialog rejected.")
     }
+    EffectsGalleryDialog {
+        id: effectsGalleryDialog
+        anchors.centerIn: parent
+        width: parent.width * Constants.defaultDialogScale * 0.5
+        height: parent.height * Constants.defaultDialogScale * 0.5
+    }
+    DeviceGalleryDialog {
+        id: deviceGalleryDialog
+        anchors.centerIn: parent
+        width: parent.width * Constants.defaultDialogScale * 0.5
+        height: parent.height * Constants.defaultDialogScale * 0.5
+    }
     FileDialog {
         id: saveAsDialog
         currentFolder: StandardPaths.standardLocations(StandardPaths.DocumentsLocation)[0]
@@ -416,7 +428,8 @@ ApplicationWindow {
     function _getWindowTitle(): string {
         const nameAndVersion = `${applicationService.applicationName()} MIDI tracker v${applicationService.applicationVersion()}`;
         const currentFileName = (editorService.currentFileName ? " - " + editorService.currentFileName : "");
-        return `${nameAndVersion}${currentFileName}`;
+        const modifiedIndicator = (editorService.isModified ? " (*)" : "");
+        return `${nameAndVersion}${currentFileName}${modifiedIndicator}`;
     }
     function _setWindowSizeAndPosition(): void {
         const defaultWindowScale = Constants.defaultWindowScale;
@@ -434,17 +447,11 @@ ApplicationWindow {
         });
         applicationService.midiExportDialogRequested.connect(midiExportDialog.open);
         applicationService.audioRenderDialogRequested.connect(audioRenderDialog.open);
-        applicationService.deviceRackDialogRequested.connect(() => {
-            deviceRackDialog.updateUsage();
-            deviceRackDialog.open();
-        });
         applicationService.masterEffectsDialogRequested.connect(masterEffectsDialog.open);
         deviceRackController.samplerDialogRequested.connect(samplerDialog.open);
         deviceRackController.synthDialogRequested.connect(synthDialog.open);
         deviceRackController.bassSynthDialogRequested.connect(bassSynthDialog.open);
         deviceRackController.drumSynthDialogRequested.connect(drumSynthDialog.open);
-        applicationService.samplerDialogRequested.connect(samplerDialog.open);
-        applicationService.drumSynthDialogRequested.connect(drumSynthDialog.open);
         applicationService.openDialogRequested.connect(openDialog.open);
         applicationService.recentFilesDialogRequested.connect(recentFilesDialog.open);
         applicationService.saveAsDialogRequested.connect(saveAsDialog.open);
@@ -475,7 +482,10 @@ ApplicationWindow {
             uiLogger.info(_tag, "Settings focus on editor view");
             _editorView.focus = true;
         });
-        UiService.deviceRackDialogRequested.connect(deviceRackDialog.open);
+        UiService.deviceRackDialogRequested.connect(() => {
+            deviceRackDialog.updateUsage();
+            deviceRackDialog.open();
+        });
         UiService.effectSendsDialogRequested.connect(deviceName => {
             effectSendsDialog.deviceName = deviceName;
             effectSendsDialog.open();
@@ -681,6 +691,14 @@ ApplicationWindow {
             delayCalculatorDialog.bpm = editorService.beatsPerMinute;
             delayCalculatorDialog.calculateDelay();
             delayCalculatorDialog.open();
+        });
+        UiService.effectsGalleryDialogRequested.connect(slotIndex => {
+            effectsGalleryDialog.slotIndex = slotIndex;
+            effectsGalleryDialog.open();
+        });
+        UiService.deviceGalleryDialogRequested.connect(slotIndex => {
+            deviceGalleryDialog.slotIndex = slotIndex;
+            deviceGalleryDialog.open();
         });
         UiService.gainConverterDialogRequested.connect(() => {
             gainConverterDialog.open();

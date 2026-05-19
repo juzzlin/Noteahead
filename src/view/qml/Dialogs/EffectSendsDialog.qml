@@ -70,8 +70,13 @@ Dialog {
                 delegate: RowLayout {
                     Layout.fillWidth: true
                     spacing: 30
+                    readonly property string effectType: {
+                        effectRackController.revision;
+                        return effectRackController.effectType(index);
+                    }
+                    visible: effectType !== ""
                     Label {
-                        text: qsTr("Send %1 (%2)").arg(index + 1).arg(effectRackController.effectType(index).toUpperCase())
+                        text: qsTr("Send %1 (%2)").arg(index + 1).arg(effectType.toUpperCase())
                         font.pointSize: 12
                         Layout.fillWidth: true
                     }

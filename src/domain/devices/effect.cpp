@@ -19,4 +19,13 @@ namespace noteahead {
 
 Effect::~Effect() = default;
 
+std::vector<std::string> Effect::parameterNames() const
+{
+    std::vector<std::string> names;
+    for (const auto & [name, p] : parameters()) {
+        names.push_back(name);
+    }
+    return names;
+}
+
 } // namespace noteahead

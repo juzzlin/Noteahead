@@ -33,8 +33,41 @@ public:
     MockDeviceService() : DeviceService(nullptr) {}
     QStringList internalDeviceNamesQt() const override { return m_names; }
     void setMockNames(const QStringList & names) { m_names = names; }
+    DeviceS device(size_t slotIndex) const override {
+        if (slotIndex < m_devices.size()) return m_devices[slotIndex];
+        return nullptr;
+    }
+    void setMockDevice(size_t index, DeviceS dev) {
+        if (index >= m_devices.size()) m_devices.resize(index + 1);
+        m_devices[index] = dev;
+    }
 private:
     QStringList m_names;
+    std::vector<DeviceS> m_devices;
+};
+
+class MockDevice : public Device
+{
+public:
+    MockDevice(const std::string & name) : m_name(name) {}
+    std::string name() const override { return m_name; }
+    std::string category() const override { return ""; }
+    std::string typeName() const override { return "Mock Type"; }
+    std::string typeId() const override { return "mock"; }
+    void processMidiNoteOn(uint8_t, uint8_t) override {}
+    void processMidiNoteOff(uint8_t) override {}
+    void processMidiCc(uint8_t, uint8_t, uint8_t) override {}
+    void processMidiAllNotesOff() override {}
+    void processAudio(float *, uint32_t, uint32_t) override {}
+    bool hasActiveAudio() const override { return false; }
+    void reset() override {}
+    void resetAudio() override {}
+    void serializeToXml(QXmlStreamWriter &) const override {}
+    void deserializeFromXml(QXmlStreamReader &) override {}
+protected:
+    void syncParameters() override {}
+private:
+    std::string m_name;
 };
 
 class MockEditorService : public EditorService
@@ -58,30 +91,36 @@ private:
 void DeviceRackControllerTest::test_devices()
 {
     const auto deviceService = std::make_shared<MockDeviceService>();
-    const auto names = QStringList { "Noteahead Sampler 1", "Noteahead Synth 1" };
-    deviceService->setMockNames(names);
+    const auto name1 = "Noteahead Sampler 1";
+    const auto name2 = "Noteahead Synth 1";
+    deviceService->setMockDevice(0, std::make_shared<MockDevice>(name1));
+    deviceService->setMockDevice(1, std::make_shared<MockDevice>(name2));
 
     DeviceRackController controller(deviceService, nullptr, nullptr, nullptr, nullptr, nullptr);
-    QCOMPARE(controller.rowCount(), 2);
-    QCOMPARE(controller.data(controller.index(0), static_cast<int>(DeviceRackController::DataRole::Name)).toString(), names.at(0));
-    QCOMPARE(controller.data(controller.index(1), static_cast<int>(DeviceRackController::DataRole::Name)).toString(), names.at(1));
+    QCOMPARE(controller.rowCount(), 8);
+    QCOMPARE(controller.data(controller.index(0), static_cast<int>(DeviceRackController::DataRole::Name)).toString(), QString::fromStdString(name1));
+    QCOMPARE(controller.data(controller.index(1), static_cast<int>(DeviceRackController::DataRole::Name)).toString(), QString::fromStdString(name2));
+    QCOMPARE(controller.data(controller.index(2), static_cast<int>(DeviceRackController::DataRole::Name)).toString(), QString(""));
 }
 
 void DeviceRackControllerTest::test_trackNames()
 {
     const auto deviceService = std::make_shared<MockDeviceService>();
-    deviceService->setMockNames({ "Noteahead Sampler 1", "Noteahead Synth 1" });
+    const auto name1 = "Noteahead Sampler 1";
+    const auto name2 = "Noteahead Synth 1";
+    deviceService->setMockDevice(0, std::make_shared<MockDevice>(name1));
+    deviceService->setMockDevice(1, std::make_shared<MockDevice>(name2));
 
     const auto editorService = std::make_shared<MockEditorService>();
     editorService->setMockIndices({ 0, 1, 2, 3 });
     editorService->setMockTrackName(0, "Track 1");
-    editorService->setMockInstrumentPortName(0, "Noteahead Sampler 1");
+    editorService->setMockInstrumentPortName(0, QString::fromStdString(name1));
     editorService->setMockTrackName(1, "Track 2");
-    editorService->setMockInstrumentPortName(1, "Noteahead Synth 1");
+    editorService->setMockInstrumentPortName(1, QString::fromStdString(name2));
     editorService->setMockTrackName(2, "Track 3");
-    editorService->setMockInstrumentPortName(2, "Noteahead Sampler 1");
+    editorService->setMockInstrumentPortName(2, QString::fromStdString(name1));
     editorService->setMockTrackName(3, "Track 4");
-    editorService->setMockInstrumentPortName(3, "Noteahead Synth 1");
+    editorService->setMockInstrumentPortName(3, QString::fromStdString(name2));
 
     DeviceRackController controller(deviceService, nullptr, nullptr, nullptr, nullptr, editorService);
 

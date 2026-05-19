@@ -34,7 +34,7 @@ public:
     EffectRack();
     ~EffectRack();
 
-    void addEffect(EffectS effect);
+    void setEffect(size_t index, EffectS effect);
     void removeEffect(size_t index);
     EffectS effect(size_t index) const;
     std::vector<EffectS> effects() const;
@@ -44,12 +44,13 @@ public:
 
     void reset();
 
-    void serializeToXml(QXmlStreamWriter & writer) const;
-    void deserializeFromXml(QXmlStreamReader & reader);
+    void serializeEffectsToXml(QXmlStreamWriter & writer) const;
+    void deserializeEffectsFromXml(QXmlStreamReader & reader);
+    void deserializeEffect(QXmlStreamReader & reader);
 
 private:
     std::vector<EffectS> m_effects;
-    mutable std::mutex m_mutex;
+    mutable std::recursive_mutex m_mutex;
 };
 
 } // namespace noteahead

@@ -708,17 +708,16 @@ void XmlSerializationTest::test_toXmlFromXml_trackDrumTrack_shouldLoadTrackDrumT
 void XmlSerializationTest::test_toXmlFromXml_samplerDevice_shouldLoadSamplerDevice()
 {
     const std::string fileName = "test.wav";
-    const auto samplerName = Constants::samplerDeviceName().toStdString();
+    const auto samplerName = "Noteahead Internal Device 1";
 
     const auto engine = std::make_shared<AudioEngine>();
     DeviceService deviceServiceOut { engine };
     const auto samplerOut = std::make_shared<SamplerDevice>(samplerName, std::make_unique<MockAudioFileReader>());
-    samplerOut->setId(42);
     samplerOut->loadSample(60, fileName);
     samplerOut->setSamplePan(60, 0.75f);
     samplerOut->setSampleVolume(60, 0.8f);
     samplerOut->setSampleCutoff(60, 0.4f);
-    deviceServiceOut.registerDevice(samplerOut);
+    deviceServiceOut.setDevice(0, samplerOut);
 
     EditorService editorServiceOut { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
     connect(&editorServiceOut, &EditorService::devicesSerializationRequested, &deviceServiceOut, &DeviceService::serializeToXml);
@@ -727,14 +726,14 @@ void XmlSerializationTest::test_toXmlFromXml_samplerDevice_shouldLoadSamplerDevi
 
     const auto deviceServiceIn = std::make_shared<DeviceService>(std::make_shared<AudioEngine>());
     const auto samplerIn = std::make_shared<SamplerDevice>(samplerName, std::make_unique<MockAudioFileReader>());
-    deviceServiceIn->registerDevice(samplerIn);
+    deviceServiceIn->setDevice(0, samplerIn);
 
     EditorService editorServiceIn { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
     connect(&editorServiceIn, &EditorService::devicesDeserializationRequested, deviceServiceIn.get(), &DeviceService::deserializeFromXml);
 
     editorServiceIn.fromXml(xml);
 
-    QCOMPARE(samplerIn->id(), 42ull);
+    QCOMPARE(samplerIn->id(), 0ull);
     const auto sample = samplerIn->sample(60);
     QVERIFY(sample);
     QCOMPARE(sample->filePath, fileName);
@@ -745,12 +744,11 @@ void XmlSerializationTest::test_toXmlFromXml_samplerDevice_shouldLoadSamplerDevi
 
 void XmlSerializationTest::test_toXmlFromXml_synthDevice_shouldPreserveValuesAndDiscreteFlags()
 {
-    const auto synthName = "Test Synth";
+    const auto synthName = "Noteahead Internal Device 1";
 
     const auto engine = std::make_shared<AudioEngine>();
     DeviceService deviceServiceOut { engine };
     const auto synthOut = std::make_shared<SynthDevice>(synthName);
-    synthOut->setId(66);
     synthOut->setVco1Waveform(PolyBlepOscillator::Waveform::Saw);
     synthOut->setVco1Octave(1);
     synthOut->setMixVco2(0.75f);
@@ -766,7 +764,7 @@ void XmlSerializationTest::test_toXmlFromXml_synthDevice_shouldPreserveValuesAnd
     synthOut->setDelaySyncDivision(0.25f);
     synthOut->setFeedbackLpf(0.6f);
     synthOut->setFeedbackHpf(0.2f);
-    deviceServiceOut.registerDevice(synthOut);
+    deviceServiceOut.setDevice(0, synthOut);
 
     EditorService editorServiceOut { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
     connect(&editorServiceOut, &EditorService::devicesSerializationRequested, &deviceServiceOut, &DeviceService::serializeToXml);
@@ -775,14 +773,14 @@ void XmlSerializationTest::test_toXmlFromXml_synthDevice_shouldPreserveValuesAnd
 
     const auto deviceServiceIn = std::make_shared<DeviceService>(std::make_shared<AudioEngine>());
     const auto synthIn = std::make_shared<SynthDevice>(synthName);
-    deviceServiceIn->registerDevice(synthIn);
+    deviceServiceIn->setDevice(0, synthIn);
 
     EditorService editorServiceIn { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
     connect(&editorServiceIn, &EditorService::devicesDeserializationRequested, deviceServiceIn.get(), &DeviceService::deserializeFromXml);
 
     editorServiceIn.fromXml(xml);
 
-    QCOMPARE(synthIn->id(), 66ull);
+    QCOMPARE(synthIn->id(), 0ull);
     QCOMPARE(synthIn->vco1Waveform(), PolyBlepOscillator::Waveform::Saw);
     QCOMPARE(synthIn->vco1Octave(), 1);
     QCOMPARE(synthIn->mixVco2(), 0.75f);
@@ -821,8 +819,8 @@ void XmlSerializationTest::test_toXmlFromXml_synthUserPresets_shouldSaveAndLoad(
 {
     const auto engine = std::make_shared<AudioEngine>();
     DeviceService deviceServiceOut { engine };
-    const auto synthOut = std::make_shared<SynthDevice>(Constants::synthDeviceName().toStdString());
-    deviceServiceOut.registerDevice(synthOut);
+    const auto synthOut = std::make_shared<SynthDevice>("Noteahead Internal Device 1");
+    deviceServiceOut.setDevice(0, synthOut);
 
     UserPresets userPresets;
     SynthPreset preset;
@@ -856,8 +854,8 @@ void XmlSerializationTest::test_toXmlFromXml_synthUserPresets_discreteValues_sho
 {
     const auto engine = std::make_shared<AudioEngine>();
     DeviceService deviceServiceOut { engine };
-    const auto synthOut = std::make_shared<SynthDevice>(Constants::synthDeviceName().toStdString());
-    deviceServiceOut.registerDevice(synthOut);
+    const auto synthOut = std::make_shared<SynthDevice>("Noteahead Internal Device 1");
+    deviceServiceOut.setDevice(0, synthOut);
 
     UserPresets userPresets;
     SynthPreset preset;
@@ -875,8 +873,8 @@ void XmlSerializationTest::test_toXmlFromXml_synthUserPresets_discreteValues_sho
     const auto xml = editorServiceOut.toXml();
 
     const auto deviceServiceIn = std::make_shared<DeviceService>(std::make_shared<AudioEngine>());
-    const auto synthIn = std::make_shared<SynthDevice>(Constants::synthDeviceName().toStdString());
-    deviceServiceIn->registerDevice(synthIn);
+    const auto synthIn = std::make_shared<SynthDevice>("Noteahead Internal Device 1");
+    deviceServiceIn->setDevice(0, synthIn);
     
     EditorService editorServiceIn { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
     connect(&editorServiceIn, &EditorService::devicesDeserializationRequested, deviceServiceIn.get(), &DeviceService::deserializeFromXml);
@@ -911,7 +909,7 @@ void XmlSerializationTest::test_fromXml_samplerDevice_missingId_shouldNotThrow()
 
     DeviceService deviceServiceIn { std::make_shared<AudioEngine>() };
     auto samplerIn = std::make_shared<SamplerDevice>(Constants::samplerDeviceName().toStdString(), std::make_unique<MockAudioFileReader>());
-    deviceServiceIn.registerDevice(samplerIn);
+    deviceServiceIn.setDevice(0, samplerIn);
 
     EditorService editorServiceIn { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
     connect(&editorServiceIn, &EditorService::devicesDeserializationRequested, &deviceServiceIn, &DeviceService::deserializeFromXml);

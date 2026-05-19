@@ -42,11 +42,12 @@ public:
     ~DeviceService() override;
 
     using DeviceS = std::shared_ptr<Device>;
-    void registerDevice(DeviceS device);
-    void unregisterDevice(const std::string & name);
-    DeviceS device(const std::string & name) const;
+    void setDevice(size_t slotIndex, DeviceS device);
+    void clearDevice(size_t slotIndex);
+    virtual DeviceS device(size_t slotIndex) const;
+    virtual DeviceS device(const std::string & name) const;
 
-    Q_INVOKABLE bool isInternalDevice(const QString & portName) const;
+    Q_INVOKABLE virtual bool isInternalDevice(const QString & portName) const;
     void processMidiNoteOn(const QString & portName, uint8_t note, uint8_t velocity);
     void processMidiNoteOff(const QString & portName, uint8_t note);
     void processMidiCc(const QString & portName, uint8_t controller, uint8_t value, uint8_t channel);
@@ -71,6 +72,8 @@ public:
 
     void serializeToXml(QXmlStreamWriter & writer) const;
     void deserializeFromXml(QXmlStreamReader & reader);
+
+    void reset();
 
     EffectRack & effectRack();
 

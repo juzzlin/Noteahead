@@ -29,6 +29,7 @@ private slots:
     void test_process();
     void test_serialization();
     void test_reverb_parameters();
+    void test_reverb_presets();
 };
 
 } // namespace noteahead

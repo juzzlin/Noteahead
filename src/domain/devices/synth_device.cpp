@@ -153,9 +153,14 @@ std::string SynthDevice::category() const
     return Constants::NahdXml::xmlValueSynths().toStdString();
 }
 
+std::string SynthDevice::typeName() const
+{
+    return Constants::synthDeviceName().toStdString();
+}
+
 std::string SynthDevice::typeId() const
 {
-    return "26f5a47e-4786-11f1-92b0-0b3f3bef9f74";
+    return typeIdString();
 }
 
 void SynthDevice::processAudio(float * output, uint32_t frameCount, uint32_t sampleRate)

@@ -52,6 +52,13 @@ void Parameter::setValue(float val)
     }
 }
 
+bool Parameter::update(float val)
+{
+    const float oldValue = m_value;
+    setValue(val);
+    return std::abs(m_value - oldValue) > 0.0001f;
+}
+
 int Parameter::xmlValue() const
 {
     if (m_type == Type::Discrete || m_type == Type::Boolean) {

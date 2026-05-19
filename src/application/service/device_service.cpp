@@ -16,6 +16,8 @@
 
 #include "../../common/constants.hpp"
 #include "../../common/utils.hpp"
+#include "../../domain/devices/bass_synth_device.hpp"
+#include "../../domain/devices/drum_synth_device.hpp"
 #include "../../domain/devices/sampler_device.hpp"
 #include "../../domain/devices/synth_device.hpp"
 #include "../../infra/audio/audio_engine.hpp"
@@ -37,15 +39,23 @@ DeviceService::DeviceService(AudioEngineS audioEngine, QObject * parent)
 
 DeviceService::~DeviceService() = default;
 
-void DeviceService::registerDevice(DeviceS device)
+void DeviceService::setDevice(size_t slotIndex, DeviceS device)
 {
     connect(device.get(), &Device::dataChanged, this, &DeviceService::dataChanged);
-    m_audioEngine->addDevice(std::move(device));
+    device->setId(slotIndex);
+    m_audioEngine->setDevice(slotIndex, std::move(device));
+    emit dataChanged();
 }
 
-void DeviceService::unregisterDevice(const std::string & name)
+void DeviceService::clearDevice(size_t slotIndex)
 {
-    m_audioEngine->removeDevice(name);
+    m_audioEngine->clearDevice(slotIndex);
+    emit dataChanged();
+}
+
+DeviceService::DeviceS DeviceService::device(size_t slotIndex) const
+{
+    return m_audioEngine->device(slotIndex);
 }
 
 DeviceService::DeviceS DeviceService::device(const std::string & name) const
@@ -55,7 +65,7 @@ DeviceService::DeviceS DeviceService::device(const std::string & name) const
 
 bool DeviceService::isInternalDevice(const QString & portName) const
 {
-    return m_audioEngine->device(portName.toStdString()) != nullptr;
+    return portName.startsWith(Constants::internalDevicePortPrefix());
 }
 
 void DeviceService::processMidiNoteOn(const QString & portName, uint8_t note, uint8_t velocity)
@@ -120,9 +130,6 @@ QStringList DeviceService::internalDeviceNamesQt() const
     for (const auto & name : internalDeviceNames()) {
         names << QString::fromStdString(name);
     }
-    if (device(Constants::synthDeviceName().toStdString())) {
-        names << Constants::synthDeviceName();
-    }
     return names;
 }
 
@@ -144,7 +151,8 @@ QStringList DeviceService::categories() const
 QStringList DeviceService::devicesByCategory(const QString & category) const
 {
     QStringList devices;
-    for (const auto & name : internalDeviceNames()) {
+    const auto names = internalDeviceNames();
+    for (const auto & name : names) {
         if (const auto dev = device(name)) {
             if (QString::fromStdString(dev->category()) == category) {
                 devices << QString::fromStdString(name);
@@ -161,9 +169,6 @@ void DeviceService::setSynthUserPresets(const UserPresets & presets)
         if (const auto synth = std::dynamic_pointer_cast<SynthDevice>(device(name))) {
             synth->setUserPresets(m_synthUserPresets);
         }
-    }
-    if (const auto synth = std::dynamic_pointer_cast<SynthDevice>(device(Constants::synthDeviceName().toStdString()))) {
-        synth->setUserPresets(m_synthUserPresets);
     }
     emit synthUserPresetsChanged(m_synthUserPresets);
 }
@@ -197,11 +202,25 @@ void DeviceService::serializeToXml(QXmlStreamWriter & writer) const
             dev->serializeToXml(writer);
         }
     }
-    if (const auto synth = std::dynamic_pointer_cast<SynthDevice>(device(Constants::synthDeviceName().toStdString()))) {
-        synth->serializeToXml(writer);
-    }
 
-    m_audioEngine->effectRack().serializeToXml(writer);
+    writer.writeStartElement(Constants::NahdXml::xmlKeyMasterEffects());
+    m_audioEngine->effectRack().serializeEffectsToXml(writer);
+
+    for (int deviceSlot = 0; deviceSlot < static_cast<int>(Constants::deviceRackSize()); ++deviceSlot) {
+        if (const auto dev = m_audioEngine->device(deviceSlot)) {
+            for (int effectSlot = 0; effectSlot < static_cast<int>(Constants::effectRackSize()); ++effectSlot) {
+                const float send = dev->reverbSend(effectSlot);
+                if (send > 0.0001f) {
+                    writer.writeStartElement(Constants::NahdXml::xmlKeySend());
+                    writer.writeAttribute(Constants::NahdXml::xmlKeyDeviceSlot(), QString::number(deviceSlot));
+                    writer.writeAttribute(Constants::NahdXml::xmlKeyEffectSlot(), QString::number(effectSlot));
+                    writer.writeAttribute(Constants::NahdXml::xmlKeyValue(), QString::number(static_cast<double>(send)));
+                    writer.writeEndElement(); // Send
+                }
+            }
+        }
+    }
+    writer.writeEndElement(); // MasterEffects
 
     if (!m_synthUserPresets.empty()) {
         std::shared_ptr<SynthDevice> synth;
@@ -264,19 +283,69 @@ void DeviceService::deserializeFromXml(QXmlStreamReader & reader)
     while (reader.readNextStartElement()) {
         const auto name = reader.name();
         if (name == Constants::NahdXml::xmlKeyDevice()) {
-            const auto category = reader.attributes().value(Constants::NahdXml::xmlKeyCategory()).toString();
-            const auto deviceName = reader.attributes().value(Constants::NahdXml::xmlKeyName()).toString().toStdString();
-            if (const auto dev = device(deviceName)) {
+            const auto deviceName = reader.attributes().value(Constants::NahdXml::xmlKeyName()).toString();
+            const auto typeId = reader.attributes().value(Constants::NahdXml::xmlKeyTypeId()).toString();
+            const auto slotAttr = reader.attributes().value(Constants::NahdXml::xmlKeySlot());
+            const auto idAttr = reader.attributes().value(Constants::NahdXml::xmlKeyId());
+
+            auto dev = device(deviceName.toStdString());
+            if (!dev && !typeId.isEmpty()) {
+                const auto stdTypeId = typeId.toStdString();
+                if (stdTypeId == SamplerDevice::typeIdString()) {
+                    dev = std::make_shared<SamplerDevice>(deviceName.toStdString());
+                } else if (stdTypeId == SynthDevice::typeIdString()) {
+                    dev = std::make_shared<SynthDevice>(deviceName.toStdString());
+                } else if (stdTypeId == BassSynthDevice::typeIdString()) {
+                    dev = std::make_shared<BassSynthDevice>(deviceName.toStdString());
+                } else if (stdTypeId == DrumSynthDevice::typeIdString()) {
+                    dev = std::make_shared<DrumSynthDevice>(deviceName.toStdString());
+                }
+
+                if (dev) {
+                    if (!slotAttr.isNull()) {
+                        setDevice(slotAttr.toUInt(), dev);
+                    } else if (!idAttr.isNull() && idAttr.toUInt() <= Constants::deviceRackSize()) {
+                        setDevice(idAttr.toUInt() - 1, dev);
+                    } else {
+                        const auto lastSpace = deviceName.lastIndexOf(' ');
+                        if (lastSpace != -1) {
+                            bool ok;
+                            const auto slotIndex = deviceName.mid(lastSpace + 1).toUInt(&ok) - 1;
+                            if (ok && slotIndex < Constants::deviceRackSize()) {
+                                setDevice(slotIndex, dev);
+                            }
+                        }
+                    }
+                    // Re-acquire dev from engine because setDevice moved it
+                    dev = device(deviceName.toStdString());
+                }
+            }
+
+            if (dev) {
                 dev->deserializeFromXml(reader);
             } else {
                 reader.skipCurrentElement();
             }
         } else if (reader.name() == Constants::NahdXml::xmlKeySynth()) {
-            if (const auto synth = std::dynamic_pointer_cast<SynthDevice>(device(Constants::synthDeviceName().toStdString()))) {
-                synth->deserializeFromXml(reader);
-            }
+            // Handled via generic Device element if present in slot
         } else if (reader.name() == Constants::NahdXml::xmlKeyMasterEffects()) {
-            m_audioEngine->effectRack().deserializeFromXml(reader);
+            while (reader.readNextStartElement()) {
+                if (reader.name() == Constants::NahdXml::xmlKeyEffect()) {
+                    m_audioEngine->effectRack().deserializeEffect(reader);
+                } else if (reader.name() == Constants::NahdXml::xmlKeySend()) {
+                    const auto deviceSlot = Utils::Xml::readIntAttribute(reader, Constants::NahdXml::xmlKeyDeviceSlot(), false);
+                    const auto effectSlot = Utils::Xml::readIntAttribute(reader, Constants::NahdXml::xmlKeyEffectSlot(), false);
+                    const auto value = Utils::Xml::readDoubleAttribute(reader, Constants::NahdXml::xmlKeyValue(), false);
+                    if (deviceSlot.has_value() && effectSlot.has_value() && value.has_value()) {
+                        if (const auto dev = m_audioEngine->device(static_cast<size_t>(deviceSlot.value()))) {
+                            dev->setReverbSend(static_cast<size_t>(effectSlot.value()), static_cast<float>(value.value()));
+                        }
+                    }
+                    reader.skipCurrentElement();
+                } else {
+                    reader.skipCurrentElement();
+                }
+            }
         } else if (reader.name() == Constants::NahdXml::xmlKeyUserPresets()) {
             const auto typeId = Utils::Xml::readStringAttribute(reader, Constants::NahdXml::xmlKeyTypeId(), false);
             
@@ -350,6 +419,12 @@ void DeviceService::deserializeFromXml(QXmlStreamReader & reader)
             reader.skipCurrentElement();
         }
     }
+    emit dataChanged();
+}
+
+void DeviceService::reset()
+{
+    m_audioEngine->clear();
     emit dataChanged();
 }
 

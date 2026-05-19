@@ -92,9 +92,14 @@ std::string SamplerDevice::category() const
     return Constants::NahdXml::xmlValueSamplers().toStdString();
 }
 
+std::string SamplerDevice::typeName() const
+{
+    return Constants::samplerDeviceName().toStdString();
+}
+
 std::string SamplerDevice::typeId() const
 {
-    return "9dda4ff6-471b-11f1-9324-c701bfaf8258";
+    return typeIdString();
 }
 
 void SamplerDevice::processMidiNoteOn(uint8_t note, uint8_t velocity)

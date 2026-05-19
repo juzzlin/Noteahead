@@ -45,7 +45,9 @@ public:
 
     std::string name() const override;
     std::string category() const override;
+    std::string typeName() const override;
     std::string typeId() const override;
+    static std::string typeIdString() { return "a7f5a47e-4786-11f1-92b0-0b3f3bef9f74"; }
 
     void processMidiNoteOn(uint8_t note, uint8_t velocity) override;
     void processMidiNoteOff(uint8_t note) override;

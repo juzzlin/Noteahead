@@ -14,6 +14,7 @@
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
 #include "audio_engine.hpp"
+#include "../../common/constants.hpp"
 #include "../../domain/dsp/reverb_effect.hpp"
 
 #include <algorithm>
@@ -119,32 +120,52 @@ void processEffectTask(void * context, size_t taskIndex, size_t /*workerIndex*/)
 
 AudioEngine::AudioEngine()
 {
-    // Initialize with 4 independent reverbs
-    for (int i = 0; i < 4; ++i) {
-        m_effectRack.addEffect(std::make_shared<ReverbEffect>());
-    }
 }
 
 AudioEngine::~AudioEngine() = default;
 
-void AudioEngine::addDevice(DeviceS device)
+void AudioEngine::setDevice(size_t slotIndex, DeviceS device)
 {
     std::lock_guard<std::mutex> lock { m_mutex };
-    m_devices[device->name()] = std::move(device);
+    m_devices[slotIndex] = std::move(device);
 }
 
-void AudioEngine::removeDevice(const std::string & name)
+void AudioEngine::clearDevice(size_t slotIndex)
 {
     std::lock_guard<std::mutex> lock { m_mutex };
-    m_devices.erase(name);
+    m_devices.erase(slotIndex);
+}
+
+AudioEngine::DeviceS AudioEngine::device(size_t slotIndex) const
+{
+    std::lock_guard<std::mutex> lock { m_mutex };
+    if (const auto it = m_devices.find(slotIndex); it != m_devices.end()) {
+        return it->second;
+    }
+    return nullptr;
 }
 
 AudioEngine::DeviceS AudioEngine::device(const std::string & name) const
 {
     std::lock_guard<std::mutex> lock { m_mutex };
-    if (const auto it = m_devices.find(name); it != m_devices.end()) {
-        return it->second;
+    const auto prefix = Constants::internalDevicePortPrefix().toStdString();
+    if (name.starts_with(prefix)) {
+        try {
+            const auto slotStr = name.substr(prefix.length() + 1);
+            const auto slotIndex = std::stoul(slotStr) - 1;
+            if (const auto it = m_devices.find(slotIndex); it != m_devices.end()) {
+                return it->second;
+            }
+        } catch (...) {
+        }
     }
+
+    for (auto const & [index, device] : m_devices) {
+        if (device && device->name() == name) {
+            return device;
+        }
+    }
+
     return nullptr;
 }
 
@@ -152,8 +173,8 @@ AudioEngine::DeviceNames AudioEngine::deviceNames() const
 {
     std::lock_guard<std::mutex> lock { m_mutex };
     DeviceNames names;
-    for (auto const & [name, device] : m_devices) {
-        names.push_back(name);
+    for (auto const & [index, device] : m_devices) {
+        names.push_back(Constants::internalDevicePortPrefix().toStdString() + " " + std::to_string(index + 1));
     }
     return names;
 }
@@ -161,8 +182,10 @@ AudioEngine::DeviceNames AudioEngine::deviceNames() const
 void AudioEngine::setBpm(float bpm)
 {
     std::lock_guard<std::mutex> lock { m_mutex };
-    for (auto const & [name, device] : m_devices) {
-        device->setBpm(bpm);
+    for (auto const & [index, device] : m_devices) {
+        if (device) {
+            device->setBpm(bpm);
+        }
     }
 }
 
@@ -193,8 +216,10 @@ void AudioEngine::process(float * output, uint32_t frameCount, uint32_t sampleRa
 
     m_deviceSnapshot.clear();
     m_deviceSnapshot.reserve(m_devices.size());
-    for (auto const & [name, device] : m_devices) {
-        m_deviceSnapshot.push_back(device);
+    for (auto const & [index, device] : m_devices) {
+        if (device) {
+            m_deviceSnapshot.push_back(device);
+        }
     }
     ensureDeviceActiveFlags(m_deviceSnapshot.size());
 
@@ -258,10 +283,33 @@ void AudioEngine::process(float * output, uint32_t frameCount, uint32_t sampleRa
 void AudioEngine::reset()
 {
     std::lock_guard<std::mutex> lock { m_mutex };
-    for (auto const & [name, device] : m_devices) {
-        device->resetAudio();
+    for (auto const & [index, device] : m_devices) {
+        if (device) {
+            device->resetAudio();
+        }
     }
     m_effectRack.reset();
+
+    std::fill(m_deviceActiveFlags.begin(), m_deviceActiveFlags.end(), 0);
+    std::fill(m_effectActiveFlags.begin(), m_effectActiveFlags.end(), 0);
+}
+
+void AudioEngine::clear()
+{
+    std::lock_guard<std::mutex> lock { m_mutex };
+    for (auto const & [index, device] : m_devices) {
+        if (device) {
+            device->resetAudio();
+        }
+    }
+    m_devices.clear();
+    m_effectRack.reset();
+
+    // Also clear the actual effects to ensure a fresh state for "New Project"
+    for (size_t i = 0; i < m_effectRack.effectCount(); ++i) {
+        m_effectRack.setEffect(i, nullptr);
+    }
+
     std::fill(m_deviceActiveFlags.begin(), m_deviceActiveFlags.end(), 0);
     std::fill(m_effectActiveFlags.begin(), m_effectActiveFlags.end(), 0);
 }

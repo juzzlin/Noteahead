@@ -27,6 +27,8 @@
 #include "sampler_controller.hpp"
 #include "synth_controller.hpp"
 
+#include <QVariantMap>
+
 namespace noteahead {
 
 DeviceRackController::DeviceRackController(DeviceServiceS deviceService, SamplerControllerS samplerController, SynthControllerS synthController, BassSynthControllerS bassSynthController, DrumSynthControllerS drumSynthController, EditorServiceS editorService, QObject * parent)
@@ -37,15 +39,18 @@ DeviceRackController::DeviceRackController(DeviceServiceS deviceService, Sampler
   , m_bassSynthController { std::move(bassSynthController) }
   , m_drumSynthController { std::move(drumSynthController) }
   , m_editorService { std::move(editorService) }
-
 {
     if (m_deviceService) {
-        m_devices = m_deviceService->internalDeviceNamesQt();
-        connect(m_deviceService.get(), &DeviceService::dataChanged, this, &DeviceRackController::refresh);
+        connect(m_deviceService.get(), &DeviceService::dataChanged, this, [this]() {
+            m_revision++;
+            emit revisionChanged();
+            refresh();
+        });
     }
     if (m_editorService) {
         connect(m_editorService.get(), &EditorService::songChanged, this, &DeviceRackController::refresh);
     }
+    refresh();
 }
 
 DeviceRackController::~DeviceRackController() = default;
@@ -55,27 +60,39 @@ int DeviceRackController::rowCount(const QModelIndex & parent) const
     if (parent.isValid()) {
         return 0;
     }
-    return m_devices.size();
+    return deviceCount();
 }
 
 QVariant DeviceRackController::data(const QModelIndex & index, int role) const
 {
-    if (!index.isValid()) {
+    if (!index.isValid() || index.row() >= deviceCount()) {
         return {};
     }
 
-    const auto row = index.row();
-    if (row < 0 || row >= m_devices.size()) {
-        return {};
-    }
-
-    const auto & name = m_devices.at(row);
+    const auto slotIndex = static_cast<size_t>(index.row());
+    const auto dev = m_deviceService->device(slotIndex);
 
     switch (static_cast<DataRole>(role)) {
     case DataRole::Name:
-        return name;
+        if (dev) {
+            return QString::fromStdString(dev->name());
+        }
+        return QString("");
     case DataRole::TrackNames:
-        return trackNames(name);
+        if (dev) {
+            return trackNames(static_cast<int>(slotIndex));
+        }
+        return QString("");
+    case DataRole::TypeName:
+        if (dev) {
+            return QString::fromStdString(dev->typeName());
+        }
+        return QString("");
+    case DataRole::TypeId:
+        if (dev) {
+            return QString::fromStdString(dev->typeId());
+        }
+        return QString("");
     }
 
     return {};
@@ -85,29 +102,32 @@ QHash<int, QByteArray> DeviceRackController::roleNames() const
 {
     static const QHash<int, QByteArray> roles {
         { static_cast<int>(DataRole::Name), "name" },
-        { static_cast<int>(DataRole::TrackNames), "trackNames" }
+        { static_cast<int>(DataRole::TrackNames), "trackNames" },
+        { static_cast<int>(DataRole::TypeName), "typeName" },
+        { static_cast<int>(DataRole::TypeId), "typeId" }
     };
     return roles;
 }
 
+int DeviceRackController::deviceCount() const
+{
+    return static_cast<int>(Constants::deviceRackSize());
+}
+
+int DeviceRackController::revision() const
+{
+    return m_revision;
+}
+
 void DeviceRackController::refresh()
 {
+    m_revision++;
+    emit revisionChanged();
     beginResetModel();
     if (m_deviceService) {
         m_devices = m_deviceService->internalDeviceNamesQt();
     }
     endResetModel();
-}
-
-QString DeviceRackController::trackNames(const QString & deviceName) const
-{
-    QStringList trackNames;
-    for (const auto index : m_editorService->trackIndices()) {
-        if (const auto portName = m_editorService->instrumentPortName(index); portName == deviceName) {
-            trackNames << m_editorService->trackName(index);
-        }
-    }
-    return trackNames.join(", ");
 }
 
 void DeviceRackController::openDevice(const QString & name)
@@ -127,9 +147,155 @@ void DeviceRackController::openDevice(const QString & name)
     }
 }
 
+void DeviceRackController::openDevice(int slotIndex)
+{
+    if (const auto dev = m_deviceService->device(static_cast<size_t>(slotIndex))) {
+        openDevice(QString::fromStdString(dev->name()));
+    }
+}
+
 void DeviceRackController::requestEffectSendsDialog(const QString & deviceName)
 {
     emit effectSendsDialogRequested(deviceName);
+}
+
+void DeviceRackController::setDevice(int slotIndex, const QString & typeId)
+{
+    const auto name = Constants::internalDevicePortPrefix().toStdString() + " " + std::to_string(slotIndex + 1);
+    DeviceService::DeviceS dev;
+    const auto stdTypeId = typeId.toStdString();
+    if (stdTypeId == SamplerDevice::typeIdString()) {
+        dev = std::make_shared<SamplerDevice>(name);
+    } else if (stdTypeId == SynthDevice::typeIdString()) {
+        dev = std::make_shared<SynthDevice>(name);
+    } else if (stdTypeId == BassSynthDevice::typeIdString()) {
+        dev = std::make_shared<BassSynthDevice>(name);
+    } else if (stdTypeId == DrumSynthDevice::typeIdString()) {
+        dev = std::make_shared<DrumSynthDevice>(name);
+    }
+
+    if (dev) {
+        m_deviceService->setDevice(static_cast<size_t>(slotIndex), std::move(dev));
+        m_editorService->setIsModified(true);
+        m_revision++;
+        emit revisionChanged();
+    }
+}
+
+void DeviceRackController::clearDevice(int slotIndex)
+{
+    m_deviceService->clearDevice(static_cast<size_t>(slotIndex));
+    m_editorService->setIsModified(true);
+    m_revision++;
+    emit revisionChanged();
+}
+
+QString DeviceRackController::deviceType(int slotIndex) const
+{
+    if (const auto dev = m_deviceService->device(static_cast<size_t>(slotIndex))) {
+        return QString::fromStdString(dev->typeId());
+    }
+    return "";
+}
+
+QString DeviceRackController::deviceTypeName(int slotIndex) const
+{
+    if (const auto dev = m_deviceService->device(static_cast<size_t>(slotIndex))) {
+        return QString::fromStdString(dev->typeName());
+    }
+    return "";
+}
+
+QString DeviceRackController::deviceName(int slotIndex) const
+{
+    if (const auto dev = m_deviceService->device(static_cast<size_t>(slotIndex))) {
+        return QString::fromStdString(dev->name());
+    }
+    return "";
+}
+
+QString DeviceRackController::trackNames(int slotIndex) const
+{
+    if (const auto dev = m_deviceService->device(static_cast<size_t>(slotIndex))) {
+        const auto deviceName = QString::fromStdString(dev->name());
+        QStringList trackNames;
+        for (const auto index : m_editorService->trackIndices()) {
+            if (const auto portName = m_editorService->instrumentPortName(index); portName == deviceName) {
+                trackNames << m_editorService->trackName(index);
+            }
+        }
+        return trackNames.join(", ");
+    }
+    return "";
+}
+
+QVariantList DeviceRackController::availableDevices() const
+{
+    QVariantList list;
+
+    auto addDevice = [&](const QString & name, const QString & typeId) {
+        QVariantMap map;
+        map["name"] = name;
+        map["typeId"] = typeId;
+        list.append(map);
+    };
+
+    addDevice("Sampler", QString::fromStdString(SamplerDevice::typeIdString()));
+    addDevice("Synth", QString::fromStdString(SynthDevice::typeIdString()));
+    addDevice("Bass Synth", QString::fromStdString(BassSynthDevice::typeIdString()));
+    addDevice("Drum Synth", QString::fromStdString(DrumSynthDevice::typeIdString()));
+
+    return list;
+}
+
+void DeviceRackController::addSampler()
+{
+    for (int i = 0; i < deviceCount(); ++i) {
+        if (!m_deviceService->device(static_cast<size_t>(i))) {
+            setDevice(i, QString::fromStdString(SamplerDevice::typeIdString()));
+            return;
+        }
+    }
+}
+
+void DeviceRackController::addSynth()
+{
+    for (int i = 0; i < deviceCount(); ++i) {
+        if (!m_deviceService->device(static_cast<size_t>(i))) {
+            setDevice(i, QString::fromStdString(SynthDevice::typeIdString()));
+            return;
+        }
+    }
+}
+
+void DeviceRackController::addBassSynth()
+{
+    for (int i = 0; i < deviceCount(); ++i) {
+        if (!m_deviceService->device(static_cast<size_t>(i))) {
+            setDevice(i, QString::fromStdString(BassSynthDevice::typeIdString()));
+            return;
+        }
+    }
+}
+
+void DeviceRackController::addDrumSynth()
+{
+    for (int i = 0; i < deviceCount(); ++i) {
+        if (!m_deviceService->device(static_cast<size_t>(i))) {
+            setDevice(i, QString::fromStdString(DrumSynthDevice::typeIdString()));
+            return;
+        }
+    }
+}
+
+void DeviceRackController::removeDevice(const QString & name)
+{
+    const auto prefix = Constants::internalDevicePortPrefix();
+    if (name.startsWith(prefix)) {
+        const auto slotStr = name.mid(prefix.length() + 1);
+        const auto slotIndex = slotStr.toUInt() - 1;
+        clearDevice(static_cast<int>(slotIndex));
+    }
 }
 
 } // namespace noteahead

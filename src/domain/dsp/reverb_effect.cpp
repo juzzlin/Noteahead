@@ -239,6 +239,39 @@ void ReverbEffect::applyPreset(Preset preset)
     }
 }
 
+std::string ReverbEffect::presetToString(Preset preset)
+{
+    switch (preset) {
+    case Preset::Hall: return "Hall";
+    case Preset::LargeRoom: return "Large Room";
+    case Preset::SmallRoom: return "Small Room";
+    case Preset::Plate: return "Plate";
+    case Preset::Cathedral: return "Cathedral";
+    case Preset::Basement: return "Basement";
+    case Preset::Tunnel: return "Tunnel";
+    case Preset::Spring: return "Spring";
+    }
+    return "Hall";
+}
+
+ReverbEffect::Preset ReverbEffect::stringToPreset(const std::string & presetName)
+{
+    if (presetName == "Hall") return Preset::Hall;
+    if (presetName == "Large Room") return Preset::LargeRoom;
+    if (presetName == "Small Room") return Preset::SmallRoom;
+    if (presetName == "Plate") return Preset::Plate;
+    if (presetName == "Cathedral") return Preset::Cathedral;
+    if (presetName == "Basement") return Preset::Basement;
+    if (presetName == "Tunnel") return Preset::Tunnel;
+    if (presetName == "Spring") return Preset::Spring;
+    return Preset::Hall;
+}
+
+std::vector<std::string> ReverbEffect::presetNames()
+{
+    return { "Hall", "Large Room", "Small Room", "Plate", "Cathedral", "Basement", "Tunnel", "Spring" };
+}
+
 void ReverbEffect::syncParameters()
 {
     if (auto p = parameter(Constants::NahdXml::xmlKeyReverbSize().toStdString()); p) {

@@ -108,7 +108,7 @@ Application::Application(int & argc, char ** argv)
   , m_synthController { std::make_shared<SynthController>(std::make_shared<SynthDevice>("Default Synth")) }
   , m_bassSynthController { std::make_shared<BassSynthController>(std::make_shared<BassSynthDevice>("Default BassSynth")) }
   , m_drumSynthController { std::make_shared<DrumSynthController>(m_deviceService) }
-  , m_effectRackController { std::make_shared<EffectRackController>(m_deviceService) }
+  , m_effectRackController { std::make_shared<EffectRackController>(m_deviceService, m_editorService) }
   , m_deviceRackController { std::make_shared<DeviceRackController>(m_deviceService, m_samplerController, m_synthController, m_bassSynthController, m_drumSynthController, m_editorService) }
   , m_knobController { std::make_shared<KnobController>() }
   , m_jackService { std::make_shared<JackService>(m_settingsService, m_audioEngine) }
@@ -137,22 +137,7 @@ Application::Application(int & argc, char ** argv)
   , m_engine { std::make_unique<QQmlApplicationEngine>() }
 {
     m_deviceRack->initialize();
-    if (const auto sampler = std::dynamic_pointer_cast<SamplerDevice>(m_deviceService->device(Constants::samplerDeviceName().toStdString() + " 1"))) {
-        m_samplerController->setSampler(sampler);
-    }
-    if (const auto synth = std::dynamic_pointer_cast<SynthDevice>(m_deviceService->device(Constants::synthDeviceName().toStdString() + " 1"))) {
-        m_synthController->setSynth(synth);
-    }
-    if (const auto bassSynth = std::dynamic_pointer_cast<BassSynthDevice>(m_deviceService->device(Constants::bassSynthDeviceName().toStdString() + " 1"))) {
-        m_bassSynthController->setDevice(bassSynth);
-    }
-    if (const auto drumSynth = std::dynamic_pointer_cast<DrumSynthDevice>(m_deviceService->device(Constants::drumSynthDeviceName().toStdString() + " 1"))) {
-        m_drumSynthController->setDevice(Constants::drumSynthDeviceName() + " 1");
-    }
-    m_deviceService->registerDevice(m_samplerController->sampler());
-    m_deviceService->registerDevice(m_synthController->synth());
-    m_deviceService->registerDevice(m_bassSynthController->device());
-
+    // Initial empty rack, devices will be added via DeviceRackDialog/Gallery
     m_editorService->setMixerService(m_mixerService);
 
     registerTypes();
@@ -522,7 +507,9 @@ void Application::connectColumnSettingsModel()
 void Application::connectEditorService()
 {
     connect(m_editorService.get(), &EditorService::aboutToChangeSong, m_mixerService.get(), &MixerService::clear);
+    connect(m_editorService.get(), &EditorService::aboutToChangeSong, m_deviceService.get(), &DeviceService::reset);
     connect(m_editorService.get(), &EditorService::aboutToInitialize, m_mixerService.get(), &MixerService::clear);
+    connect(m_editorService.get(), &EditorService::aboutToInitialize, m_deviceService.get(), &DeviceService::reset);
     connect(m_editorService.get(), &EditorService::instrumentRequested, m_midiService.get(), &MidiService::handleInstrumentRequest);
 
     connect(m_editorService.get(), &EditorService::automationDeserializationRequested, m_automationService.get(), &AutomationService::deserializeFromXml);

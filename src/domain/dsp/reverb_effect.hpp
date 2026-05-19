@@ -38,7 +38,10 @@ public:
 
     ReverbEffect();
 
+    static std::string typeIdString() { return "47a2e2d0-1e5e-4f3a-9c6a-6a5b2d7e8f1a"; }
+
     std::string type() const override { return "reverb"; }
+    std::string typeId() const override { return typeIdString(); }
     void process(float & left, float & right) override;
     void reset() override;
     void sync() override;
@@ -62,6 +65,10 @@ public:
     float width() const;
 
     void applyPreset(Preset preset);
+
+    static std::string presetToString(Preset preset);
+    static Preset stringToPreset(const std::string & presetName);
+    static std::vector<std::string> presetNames();
 
 private:
     void syncParameters();

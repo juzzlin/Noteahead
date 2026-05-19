@@ -40,6 +40,8 @@ set(SRC
     ../../domain/parameter.cpp
     ../../domain/parameter_container.cpp
     ../../domain/devices/sampler_device.cpp
+    ../../domain/devices/drum_synth_device.cpp
+    ../../domain/devices/bass_synth_device.cpp
     ../../domain/devices/synth_device.cpp
     ../../domain/dsp/oversampler.cpp
     ../../domain/devices/synth_presets.cpp

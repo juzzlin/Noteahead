@@ -15,6 +15,7 @@ set(SOURCE_FILES
     ../../infra/audio/real_time_worker_pool.cpp
     ../../domain/devices/device.cpp
     ../../domain/devices/effect.cpp
+    ../../domain/devices/bass_synth_device.cpp
     ../../domain/devices/synth_device.cpp
     ../../domain/devices/synth_presets.cpp
     ../../domain/devices/sampler_device.cpp

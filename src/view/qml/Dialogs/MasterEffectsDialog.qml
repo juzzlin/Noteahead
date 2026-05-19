@@ -61,6 +61,7 @@ Dialog {
         ListView {
             id: effectListView
             model: effectRackController.effectCount
+            property int hoveredIndex: -1
             Layout.fillWidth: true
             Layout.fillHeight: true
             clip: true
@@ -69,18 +70,29 @@ Dialog {
             delegate: Rectangle {
                 width: effectListView.width
                 height: 60
-                color: mouseArea.containsMouse ? themeService.accentColor : "#333"
+                color: (effectListView.hoveredIndex === index && root.activeFocus) ? themeService.accentColor : "#333"
                 radius: 5
                 border.color: "#555"
+                readonly property string effectType: {
+                    effectRackController.revision;
+                    return effectRackController.effectType(index);
+                }
                 MouseArea {
                     id: mouseArea
                     anchors.fill: parent
                     hoverEnabled: true
                     cursorShape: Qt.PointingHandCursor
+                    onEntered: effectListView.hoveredIndex = index
+                    onExited: effectListView.hoveredIndex = -1
                     onClicked: {
-                        if (effectRackController.effectType(index) === "reverb") {
+                        effectListView.hoveredIndex = -1;
+                        if (effectType === "reverb") {
                             reverbDialog.effectIndex = index;
                             reverbDialog.open();
+                        } else if (effectType === "") {
+                            UiService.requestEffectsGalleryDialog(index);
+                        } else {
+                            UiService.requestEffectsGalleryDialog(index);
                         }
                     }
                 }
@@ -88,12 +100,37 @@ Dialog {
                     anchors.fill: parent
                     anchors.margins: 15
                     Text {
-                        readonly property string effectType: effectRackController.effectType(index)
-                        text: qsTr("Slot %1: %2").arg(index + 1).arg(effectType.charAt(0).toUpperCase() + effectType.slice(1))
+                        text: effectType === "" ? "" : qsTr("Slot %1: %2").arg(index + 1).arg(effectType.charAt(0).toUpperCase() + effectType.slice(1))
                         color: "white"
                         font.pointSize: 13
-                        font.bold: mouseArea.containsMouse
+                        font.bold: effectListView.hoveredIndex === index && root.activeFocus
                         Layout.fillWidth: true
+                        visible: effectType !== ""
+                    }
+                    Image {
+                        source: "../Graphics/add_box.png"
+                        sourceSize.width: 32
+                        sourceSize.height: 32
+                        Layout.alignment: Qt.AlignCenter
+                        visible: effectType === ""
+                        opacity: (effectListView.hoveredIndex === index && root.activeFocus) ? 1.0 : 0.5
+                    }
+                    Button {
+                        Layout.preferredWidth: 32
+                        Layout.preferredHeight: 32
+                        visible: effectType !== ""
+                        flat: true
+                        padding: 0
+                        Image {
+                            source: "../Graphics/delete.png"
+                            anchors.fill: parent
+                            anchors.margins: 4
+                            sourceSize.width: 24
+                            sourceSize.height: 24
+                            fillMode: Image.PreserveAspectFit
+                            opacity: parent.hovered ? 1.0 : 0.6
+                        }
+                        onClicked: effectRackController.clearEffect(index)
                     }
                 }
             }

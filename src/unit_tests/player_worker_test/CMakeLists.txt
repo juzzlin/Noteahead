@@ -25,6 +25,9 @@ set(SRC
     ../../domain/devices/low_pass_filter_effect.cpp
     ../../domain/devices/panning_effect.cpp
     ../../domain/devices/sampler_device.cpp
+    ../../domain/devices/drum_synth_constants.cpp
+    ../../domain/devices/drum_synth_device.cpp
+    ../../domain/devices/bass_synth_device.cpp
     ../../domain/devices/synth_device.cpp
     ../../domain/dsp/oversampler.cpp
     ../../domain/devices/synth_presets.cpp

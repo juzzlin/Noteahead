@@ -65,7 +65,7 @@ void RenderingTest::test_renderSynth_shouldPreserveParameters()
     auto synth = std::make_shared<SynthDevice>("Noteahead Synth");
     synth->setLpfCutoff(0.5f);
     synth->setGain(0.75f);
-    deviceService->registerDevice(synth);
+    deviceService->setDevice(0, synth);
     
     RenderWorker worker(audioEngine, deviceService, mixerService);
     worker.setAudioFileReaderFactory([]() { return std::make_unique<MockRenderIo>(); });
@@ -99,7 +99,7 @@ void RenderingTest::test_renderSynth_shouldNotBeSilent()
     synth->setLpfCutoff(1.0f);
     synth->setGain(0.5f); // 0 dB
     synth->setVolume(1.0f);
-    deviceService->registerDevice(synth);
+    deviceService->setDevice(0, synth);
     
     RenderWorker worker(audioEngine, deviceService, mixerService);
     
@@ -111,7 +111,7 @@ void RenderingTest::test_renderSynth_shouldNotBeSilent()
     });
     
     RenderWorker::EventList events;
-    auto instrument = std::make_shared<Instrument>("Noteahead Synth");
+    auto instrument = std::make_shared<Instrument>("Noteahead Internal Device 1");
     NoteData noteData { 0, 0 };
     noteData.setAsNoteOn(60, 100);
     auto event = std::make_shared<Event>(0, noteData);
@@ -154,7 +154,7 @@ void RenderingTest::test_renderSampler_shouldPreserveParameters()
     auto sampler = std::make_shared<SamplerDevice>("Noteahead Sampler");
     sampler->setVolume(0.33f);
     sampler->setGain(0.88f);
-    deviceService->registerDevice(sampler);
+    deviceService->setDevice(0, sampler);
     
     RenderWorker worker(audioEngine, deviceService, mixerService);
     worker.setAudioFileReaderFactory([]() { return std::make_unique<MockRenderIo>(); });
@@ -187,7 +187,7 @@ void RenderingTest::test_renderDrumSynth_shouldPreserveParameters()
     auto drumSynth = std::make_shared<DrumSynthDevice>("Noteahead DrumSynth");
     drumSynth->setPan(0.25f);
     drumSynth->setGain(0.99f);
-    deviceService->registerDevice(drumSynth);
+    deviceService->setDevice(0, drumSynth);
     
     RenderWorker worker(audioEngine, deviceService, mixerService);
     worker.setAudioFileReaderFactory([]() { return std::make_unique<MockRenderIo>(); });
