@@ -127,19 +127,12 @@ Dialog {
                 Layout.fillHeight: true
                 spacing: 10
 
-                TabBar {
-                    id: synthTabBar
-                    Layout.fillWidth: true
-                    TabButton { text: qsTr("Oscillators") }
-                    TabButton { text: qsTr("Filter / Envelope") }
-                    TabButton { text: qsTr("LFO / Effects") }
-                }
-
                 StackLayout {
                     id: synthStackLayout
                     currentIndex: synthTabBar.currentIndex
                     Layout.fillWidth: true
                     Layout.fillHeight: true
+                    Layout.bottomMargin: 10
 
                     // Tab 1: Oscillators
                     ScrollView {
@@ -184,13 +177,21 @@ Dialog {
                         }
                     }
                 }
+
+                TabBar {
+                    id: synthTabBar
+                    Layout.fillWidth: true
+                    TabButton { text: qsTr("Oscillators") }
+                    TabButton { text: qsTr("Filter / Envelope") }
+                    TabButton { text: qsTr("LFO / Effects") }
+                }
             }
         }
 
         // Virtual Keyboard
         VirtualKeyboard {
             Layout.fillWidth: true
-            Layout.topMargin: 20
+            Layout.topMargin: 10
             onNoteOnRequested: note => synthController.playNote(note, UiService._activeVelocity / 127.0)
             onNoteOffRequested: note => synthController.stopNote(note)
         }
