@@ -23,6 +23,12 @@ class DspComponent
 public:
     DspComponent();
     virtual ~DspComponent();
+
+    DspComponent(const DspComponent &) = default;
+    DspComponent & operator=(const DspComponent &) = default;
+    DspComponent(DspComponent &&) = default;
+    DspComponent & operator=(DspComponent &&) = default;
+
     virtual void setSampleRate(double sampleRate);
     double sampleRate() const;
 

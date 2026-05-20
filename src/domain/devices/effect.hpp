@@ -27,7 +27,14 @@ namespace noteahead {
 class Effect : public DspComponent, public ParameterContainer
 {
 public:
+    Effect() = default;
     virtual ~Effect() override;
+
+    Effect(const Effect &) = default;
+    Effect & operator=(const Effect &) = default;
+    Effect(Effect &&) = default;
+    Effect & operator=(Effect &&) = default;
+
     virtual std::string type() const = 0;
     virtual std::string typeId() const = 0;
     virtual void process(float & left, float & right) = 0;

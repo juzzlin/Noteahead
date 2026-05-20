@@ -34,7 +34,13 @@ public:
     using ParameterOpt = std::optional<std::reference_wrapper<Parameter>>;
     using ConstParameterOpt = std::optional<std::reference_wrapper<const Parameter>>;
 
+    ParameterContainer() = default;
     virtual ~ParameterContainer();
+
+    ParameterContainer(const ParameterContainer &) = default;
+    ParameterContainer & operator=(const ParameterContainer &) = default;
+    ParameterContainer(ParameterContainer &&) = default;
+    ParameterContainer & operator=(ParameterContainer &&) = default;
 
     void addParameter(Parameter parameter);
 
