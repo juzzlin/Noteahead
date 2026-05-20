@@ -311,6 +311,20 @@ private:
     double midiNoteToFreq(uint8_t note) const;
     void syncParameters() override;
 
+    struct ModulationValues
+    {
+        double ampEnvelope { 0.0 };
+        double modEnvelope { 0.0 };
+        double lfoValue { 0.0 };
+        double cutoffMod { 0.0 };
+        double shapeMod { 0.0 };
+        double vco1PitchMod { 0.0 };
+        double vco2PitchMod { 0.0 };
+    };
+
+    ModulationValues calculateModulation(Voice & voice) const;
+    float generateVoiceSample(Voice & voice, const ModulationValues & mods, double oversampledRate);
+
     std::string m_name;
 };
 

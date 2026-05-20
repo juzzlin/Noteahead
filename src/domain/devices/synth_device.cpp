@@ -173,7 +173,9 @@ void SynthDevice::processAudio(float * output, uint32_t frameCount, uint32_t sam
     std::vector<float> oversampledBuffer(frameCount * 4, 0.0f);
 
     for (auto && voice : m_voices) {
-        if (!voice.active) continue;
+        if (!voice.active) {
+            continue;
+        }
 
         voice.vco1.setSampleRate(oversampledRate);
         voice.vco2.setSampleRate(oversampledRate);
@@ -203,67 +205,8 @@ void SynthDevice::processAudio(float * output, uint32_t frameCount, uint32_t sam
                 // Update glide frequency
                 voice.glideFrequency += (voice.frequency - voice.glideFrequency) * portamentoCoeff;
 
-                const double ampEnv = voice.ampEg.nextSample();
-                const double modEnv = voice.modEg.nextSample() * m_modInt;
-                const double lfoVal = voice.lfo.nextSample() * m_lfoInt;
-
-                // Modulation
-                double cutoffMod = (m_modTarget == ModTarget::Cutoff) ? modEnv : 0.0;
-                if (m_lfoTarget == LfoTarget::Cutoff) cutoffMod += lfoVal;
-
-                const double shapeMod = (m_lfoTarget == LfoTarget::Shape) ? lfoVal : 0.0;
-
-                // VCO Frequencies
-                const double pbOffset = (static_cast<double>(m_pitchBend) - 8192.0) / 8192.0 * m_pitchBendRange;
-                double p1 = (m_modTarget == ModTarget::Pitch1) ? modEnv : 0.0;
-                double p2 = (m_modTarget == ModTarget::Pitch2) ? modEnv : 0.0;
-                if (m_lfoTarget == LfoTarget::Pitch) {
-                    p1 += lfoVal;
-                    p2 += lfoVal;
-                }
-                p1 += pbOffset / 12.0;
-                p2 += pbOffset / 12.0;
-
-                // Note: Pitch parameters are in cents (-2400..2400)
-                const double vco1PitchOffset = ParameterMapper::mapCubicCentered(m_vco1Pitch * 2.0 - 1.0, -2400, 2400);
-                const double vco2PitchOffset = ParameterMapper::mapCubicCentered(m_vco2Pitch * 2.0 - 1.0, -2400, 2400);
-
-                const double vco1Freq = voice.glideFrequency * std::pow(2.0, (m_vco1Octave * 12.0 + vco1PitchOffset / 100.0 + p1 * 12.0) / 12.0);
-                const double vco2Freq = voice.glideFrequency * std::pow(2.0, (m_vco2Octave * 12.0 + vco2PitchOffset / 100.0 + p2 * 12.0) / 12.0);
-
-                voice.vco1.setFrequency(vco1Freq);
-                voice.vco2.setFrequency(vco2Freq);
-                voice.vco1.setShape(std::clamp(m_vco1Shape + shapeMod, 0.0, 1.0));
-                voice.vco2.setShape(std::clamp(m_vco2Shape + shapeMod, 0.0, 1.0));
-
-                // VCO2 Hard Sync to VCO1
-                const double oldPhase = voice.vco1.phase();
-                const double vco1Val = voice.vco1.nextSample();
-                if (m_vco2Sync && voice.vco1.phase() < oldPhase) {
-                    // Calculate fractional phase for VCO2 to maintain sync accuracy
-                    const double phaseStep1 = vco1Freq / oversampledRate;
-                    const double phaseStep2 = vco2Freq / oversampledRate;
-                    if (phaseStep1 > 0.0) {
-                        const double fraction = voice.vco1.phase() / phaseStep1;
-                        voice.vco2.sync(fraction * phaseStep2);
-                    } else {
-                        voice.vco2.sync(0.0);
-                    }
-                }
-                const double vco2Val = voice.vco2.nextSample();
-                const double multiVal = voice.multi.nextSample();
-
-                const double mix = (vco1Val * m_mixVco1) + (vco2Val * m_mixVco2) + (multiVal * m_multiLevel);
-                const double mixHeadroom = mix * 0.45; // Extra headroom for Multi engine
-
-                // Filter
-                cutoffMod += (voice.note - 60.0) / 127.0 * m_filterKeyTrack;
-                
-                voice.lpf.setCutoff(std::clamp(m_lpfCutoff + cutoffMod, 0.0, 1.0));
-                voice.hpf.setCutoff(m_hpfCutoff);
-
-                const float filtered = voice.hpf.process(voice.lpf.process(static_cast<float>(mixHeadroom)));
-                const float finalHighRateSample = filtered * static_cast<float>(ampEnv) * (1.0f / static_cast<float>(MaxVoices)) * linearGainInternal();
+                const ModulationValues mods = calculateModulation(voice);
+                const float finalHighRateSample = generateVoiceSample(voice, mods, oversampledRate) * (1.0f / static_cast<float>(MaxVoices)) * linearGainInternal();
 
                 oversampledBuffer[(i * 2 + os) * 2] += finalHighRateSample * (1.0f - voice.pan) * (1.0f - panInternal()) * 2.0f;
                 oversampledBuffer[(i * 2 + os) * 2 + 1] += finalHighRateSample * voice.pan * panInternal() * 2.0f;
@@ -508,6 +451,77 @@ void SynthDevice::handleNoteOff(uint8_t note)
 double SynthDevice::midiNoteToFreq(uint8_t note) const
 {
     return 440.0 * std::pow(2.0, (note - 69) / 12.0);
+}
+
+SynthDevice::ModulationValues SynthDevice::calculateModulation(Voice & voice) const
+{
+    ModulationValues mods;
+    mods.ampEnvelope = voice.ampEg.nextSample();
+    const double modEnv = voice.modEg.nextSample() * m_modInt;
+    const double lfoVal = voice.lfo.nextSample() * m_lfoInt;
+
+    mods.cutoffMod = (m_modTarget == ModTarget::Cutoff) ? modEnv : 0.0;
+    if (m_lfoTarget == LfoTarget::Cutoff) {
+        mods.cutoffMod += lfoVal;
+    }
+
+    mods.shapeMod = (m_lfoTarget == LfoTarget::Shape) ? lfoVal : 0.0;
+
+    const double pbOffset = (static_cast<double>(m_pitchBend) - 8192.0) / 8192.0 * m_pitchBendRange;
+    mods.vco1PitchMod = (m_modTarget == ModTarget::Pitch1) ? modEnv : 0.0;
+    mods.vco2PitchMod = (m_modTarget == ModTarget::Pitch2) ? modEnv : 0.0;
+    if (m_lfoTarget == LfoTarget::Pitch) {
+        mods.vco1PitchMod += lfoVal;
+        mods.vco2PitchMod += lfoVal;
+    }
+    mods.vco1PitchMod += pbOffset / 12.0;
+    mods.vco2PitchMod += pbOffset / 12.0;
+
+    return mods;
+}
+
+float SynthDevice::generateVoiceSample(Voice & voice, const ModulationValues & mods, double oversampledRate)
+{
+    // Note: Pitch parameters are in cents (-2400..2400)
+    const double vco1PitchOffset = ParameterMapper::mapCubicCentered(m_vco1Pitch * 2.0 - 1.0, -2400, 2400);
+    const double vco2PitchOffset = ParameterMapper::mapCubicCentered(m_vco2Pitch * 2.0 - 1.0, -2400, 2400);
+
+    const double vco1Freq = voice.glideFrequency * std::pow(2.0, (m_vco1Octave * 12.0 + vco1PitchOffset / 100.0 + mods.vco1PitchMod * 12.0) / 12.0);
+    const double vco2Freq = voice.glideFrequency * std::pow(2.0, (m_vco2Octave * 12.0 + vco2PitchOffset / 100.0 + mods.vco2PitchMod * 12.0) / 12.0);
+
+    voice.vco1.setFrequency(vco1Freq);
+    voice.vco2.setFrequency(vco2Freq);
+    voice.vco1.setShape(std::clamp(m_vco1Shape + mods.shapeMod, 0.0, 1.0));
+    voice.vco2.setShape(std::clamp(m_vco2Shape + mods.shapeMod, 0.0, 1.0));
+
+    // VCO2 Hard Sync to VCO1
+    const double oldPhase = voice.vco1.phase();
+    const double vco1Val = voice.vco1.nextSample();
+    if (m_vco2Sync && voice.vco1.phase() < oldPhase) {
+        // Calculate fractional phase for VCO2 to maintain sync accuracy
+        const double phaseStep1 = vco1Freq / oversampledRate;
+        const double phaseStep2 = vco2Freq / oversampledRate;
+        if (phaseStep1 > 0.0) {
+            const double fraction = voice.vco1.phase() / phaseStep1;
+            voice.vco2.sync(fraction * phaseStep2);
+        } else {
+            voice.vco2.sync(0.0);
+        }
+    }
+    const double vco2Val = voice.vco2.nextSample();
+    const double multiVal = voice.multi.nextSample();
+
+    const double mix = (vco1Val * m_mixVco1) + (vco2Val * m_mixVco2) + (multiVal * m_multiLevel);
+    const double mixHeadroom = mix * 0.45; // Extra headroom for Multi engine
+
+    // Filter
+    const double cutoffMod = mods.cutoffMod + (voice.note - 60.0) / 127.0 * m_filterKeyTrack;
+
+    voice.lpf.setCutoff(std::clamp(m_lpfCutoff + cutoffMod, 0.0, 1.0));
+    voice.hpf.setCutoff(m_hpfCutoff);
+
+    const float filtered = voice.hpf.process(voice.lpf.process(static_cast<float>(mixHeadroom)));
+    return filtered * static_cast<float>(mods.ampEnvelope);
 }
 
 void SynthDevice::syncParameters()
