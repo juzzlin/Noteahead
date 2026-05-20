@@ -22,6 +22,7 @@
 #include <QTest>
 #include <mutex>
 #include <condition_variable>
+#include <thread>
 
 namespace noteahead {
 
@@ -239,8 +240,15 @@ void AudioFileIoTest::testPosition()
         QVERIFY(mockReaderPtr->waitForReadCount(2, std::chrono::milliseconds { 1000 }));
 
         std::vector<float> dummy(100);
-        size_t read { streamer.pop(dummy.data(), dummy.size()) };
-        QCOMPARE(read, 100u);
+        size_t totalRead { 0 };
+        const auto deadline { std::chrono::steady_clock::now() + std::chrono::milliseconds { 1000 } };
+        while (totalRead < dummy.size() && std::chrono::steady_clock::now() < deadline) {
+            totalRead += streamer.pop(dummy.data() + totalRead, dummy.size() - totalRead);
+            if (totalRead < dummy.size()) {
+                std::this_thread::sleep_for(std::chrono::milliseconds { 1 });
+            }
+        }
+        QCOMPARE(totalRead, 100u);
         QVERIFY(streamer.position() > 0.5);
     }
 }

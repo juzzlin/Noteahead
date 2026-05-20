@@ -21,6 +21,7 @@
 
 #include <atomic>
 #include <memory>
+#include <mutex>
 #include <string>
 #include <thread>
 #include <vector>
@@ -52,6 +53,7 @@ private:
     RingBuffer<float> m_ringBuffer {};
     std::thread m_diskReadThread {};
     std::atomic<bool> m_stopThread { false };
+    std::mutex m_diskReadMutex {};
 
     std::unique_ptr<AudioFileReader> m_reader { nullptr };
 

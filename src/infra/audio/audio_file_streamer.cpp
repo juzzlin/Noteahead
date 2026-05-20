@@ -114,9 +114,10 @@ void AudioFileStreamer::setPosition(double position)
     m_playbackPosition = position;
     const auto info { m_reader->info() };
     if (m_reader->isOpen() && info.frames > 0) {
+        std::lock_guard<std::mutex> lock { m_diskReadMutex };
         const int64_t targetFrame { static_cast<int64_t>(position * info.frames) };
-        m_reader->seek(targetFrame, SEEK_SET);
         m_ringBuffer.clear();
+        m_reader->seek(targetFrame, SEEK_SET);
         m_playedFrames = targetFrame;
         m_isFinished = targetFrame >= info.frames;
     }
@@ -158,10 +159,15 @@ void AudioFileStreamer::diskReadLoop()
             const auto info { m_reader->info() };
             const int channels { info.channels };
             if (channels > 0) {
-                const int64_t read { m_reader->readFloat({ tempBuffer.data(), toRead }) };
-                if (read > 0) {
-                    m_ringBuffer.push(tempBuffer.data(), read * channels);
-                } else {
+                int64_t read { 0 };
+                {
+                    std::lock_guard<std::mutex> lock { m_diskReadMutex };
+                    read = m_reader->readFloat({ tempBuffer.data(), toRead });
+                    if (read > 0) {
+                        m_ringBuffer.push(tempBuffer.data(), read * channels);
+                    }
+                }
+                if (read <= 0) {
                     // EOF or error
                     std::this_thread::sleep_for(10ms);
                 }
