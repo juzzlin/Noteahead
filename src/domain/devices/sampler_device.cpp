@@ -54,7 +54,7 @@ SamplerDevice::SamplerDevice(std::string name, AudioFileReaderU audioFileReader)
     setManualPan(panInternal());
     setManualVolume(volumeInternal());
     setManualGain(gainInternal());
-    syncParameters();
+    SamplerDevice::syncParameters();
 }
 
 SamplerDevice::~SamplerDevice() = default;

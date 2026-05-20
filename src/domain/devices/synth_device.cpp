@@ -138,7 +138,7 @@ SynthDevice::SynthDevice(std::string name)
     m_manualLpfCutoff = m_lpfCutoff;
     m_manualHpfCutoff = m_hpfCutoff;
 
-    syncParameters();
+    SynthDevice::syncParameters();
 }
 
 SynthDevice::~SynthDevice() = default;

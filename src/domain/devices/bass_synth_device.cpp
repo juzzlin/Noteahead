@@ -97,7 +97,7 @@ BassSynthDevice::BassSynthDevice(std::string name)
     m_voice.ampEg.setAttackTime(0.001); // Fast attack for bass
     m_voice.filterEg.setAttackTime(0.001);
 
-    syncParameters();
+    BassSynthDevice::syncParameters();
 }
 
 BassSynthDevice::~BassSynthDevice() = default;

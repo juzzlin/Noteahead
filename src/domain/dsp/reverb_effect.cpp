@@ -29,7 +29,7 @@ ReverbEffect::ReverbEffect()
     addParameter(Parameter { Constants::NahdXml::xmlKeyReverbPreDelay().toStdString(), 0.04f, 0, 500, 20 });
     addParameter(Parameter { Constants::NahdXml::xmlKeyReverbWidth().toStdString(), 0.5f, 0, 200, 100 });
     addParameter(Parameter { Constants::NahdXml::xmlKeyReverbMix().toStdString(), 0.0f, 0, 100, 0 });
-    syncParameters();
+    ReverbEffect::syncParameters();
 }
 
 void ReverbEffect::process(float & left, float & right)

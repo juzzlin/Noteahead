@@ -47,7 +47,7 @@ DrumSynthDevice::DrumSynthDevice(std::string name)
     setManualVolume(volumeInternal());
     setManualGain(gainInternal());
 
-    syncParameters();
+    DrumSynthDevice::syncParameters();
 }
 
 std::string DrumSynthDevice::name() const
