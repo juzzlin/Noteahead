@@ -325,6 +325,11 @@ private:
     ModulationValues calculateModulation(Voice & voice) const;
     float generateVoiceSample(Voice & voice, const ModulationValues & mods, double oversampledRate);
 
+    void prepareForProcessing(uint32_t sampleRate, uint32_t frameCount);
+    void updateVoiceParameters(Voice & voice, uint32_t oversampledRate);
+    void renderVoice(Voice & voice, uint32_t frameCount, uint32_t oversampledRate);
+    void applyGlobalEffects(float * output, uint32_t frameCount);
+
     std::string m_name;
 };
 

@@ -165,78 +165,96 @@ std::string SynthDevice::typeId() const
 
 void SynthDevice::processAudio(float * output, uint32_t frameCount, uint32_t sampleRate)
 {
-    setSampleRate(sampleRate);
-    m_delay.setSampleRate(static_cast<double>(sampleRate));
-    const uint32_t oversampledRate = sampleRate * 2;
     const std::lock_guard<std::recursive_mutex> lock { mutex() };
 
-    std::vector<float> oversampledBuffer(frameCount * 4, 0.0f);
+    prepareForProcessing(sampleRate, frameCount);
 
+    const uint32_t oversampledRate = sampleRate * 2;
     for (auto && voice : m_voices) {
-        if (!voice.active) {
-            continue;
-        }
-
-        voice.vco1.setSampleRate(oversampledRate);
-        voice.vco2.setSampleRate(oversampledRate);
-        voice.multi.setSampleRate(oversampledRate);
-        voice.lpf.setSampleRate(oversampledRate);
-        voice.hpf.setSampleRate(oversampledRate);
-        voice.ampEg.setSampleRate(oversampledRate);
-        voice.modEg.setSampleRate(oversampledRate);
-        voice.lfo.setSampleRate(oversampledRate);
-
-        voice.lpf.setResonance(m_lpfResonance);
-        voice.vco1.setWaveform(m_vco1Waveform);
-        voice.vco2.setWaveform(m_vco2Waveform);
-        voice.vco1.setShape(m_vco1Shape);
-        voice.vco2.setShape(m_vco2Shape);
-        voice.multi.setType(m_multiType);
-        voice.multi.setShape(m_multiShape);
-        voice.multi.setKeyTrack(m_multiKeyTrack);
-        voice.multi.setNote(voice.note);
-
-        // Portamento constant (simple one-pole)
-        const double portamentoCoeff = m_portamento > 0 ? 1.0 - std::pow(0.001, 1.0 / (m_portamento * oversampledRate)) : 1.0;
-
-        for (uint32_t i = 0; i < frameCount; i++) {
-            // Run voice generation twice for 2x oversampling
-            for (int os = 0; os < 2; os++) {
-                // Update glide frequency
-                voice.glideFrequency += (voice.frequency - voice.glideFrequency) * portamentoCoeff;
-
-                const ModulationValues mods = calculateModulation(voice);
-                const float finalHighRateSample = generateVoiceSample(voice, mods, oversampledRate) * (1.0f / static_cast<float>(MaxVoices)) * linearGainInternal();
-
-                oversampledBuffer[(i * 2 + os) * 2] += finalHighRateSample * (1.0f - voice.pan) * (1.0f - panInternal()) * 2.0f;
-                oversampledBuffer[(i * 2 + os) * 2 + 1] += finalHighRateSample * voice.pan * panInternal() * 2.0f;
-            }
-        }
-
-        if (voice.ampEg.state() == AdsrEnvelope::State::Idle) {
-            voice.active = false;
+        if (voice.active) {
+            renderVoice(voice, frameCount, oversampledRate);
         }
     }
 
-    // Apply global FX (Delay) and downsample
-    for (uint32_t i = 0; i < frameCount; i++) {
-        const float l0 = oversampledBuffer[i * 4];
-        const float r0 = oversampledBuffer[i * 4 + 1];
-        const float l1 = oversampledBuffer[i * 4 + 2];
-        const float r1 = oversampledBuffer[i * 4 + 3];
+    applyGlobalEffects(output, frameCount);
+}
 
-        // Soft-clip at high rate and then downsample
+void SynthDevice::prepareForProcessing(uint32_t sampleRate, uint32_t frameCount)
+{
+    setSampleRate(sampleRate);
+    m_delay.setSampleRate(static_cast<double>(sampleRate));
+
+    const size_t requiredSize = static_cast<size_t>(frameCount) * 4;
+    if (m_oversampledBuffer.size() < requiredSize) {
+        m_oversampledBuffer.resize(requiredSize);
+    }
+    std::fill(m_oversampledBuffer.begin(), m_oversampledBuffer.begin() + requiredSize, 0.0f);
+}
+
+void SynthDevice::renderVoice(Voice & voice, uint32_t frameCount, uint32_t oversampledRate)
+{
+    updateVoiceParameters(voice, oversampledRate);
+
+    const float gain = (1.0f / static_cast<float>(MaxVoices)) * linearGainInternal();
+    const float panL = (1.0f - voice.pan) * (1.0f - panInternal()) * 2.0f;
+    const float panR = voice.pan * panInternal() * 2.0f;
+
+    const double portamentoCoeff = m_portamento > 0 ? 1.0 - std::pow(0.001, 1.0 / (m_portamento * oversampledRate)) : 1.0;
+
+    for (uint32_t i = 0; i < frameCount; i++) {
+        for (int os = 0; os < 2; os++) {
+            voice.glideFrequency += (voice.frequency - voice.glideFrequency) * portamentoCoeff;
+
+            const ModulationValues mods = calculateModulation(voice);
+            const float finalHighRateSample = generateVoiceSample(voice, mods, oversampledRate) * gain;
+
+            m_oversampledBuffer[(i * 2 + os) * 2] += finalHighRateSample * panL;
+            m_oversampledBuffer[(i * 2 + os) * 2 + 1] += finalHighRateSample * panR;
+        }
+    }
+
+    if (voice.ampEg.state() == AdsrEnvelope::State::Idle) {
+        voice.active = false;
+    }
+}
+
+void SynthDevice::updateVoiceParameters(Voice & voice, uint32_t oversampledRate)
+{
+    voice.vco1.setSampleRate(oversampledRate);
+    voice.vco2.setSampleRate(oversampledRate);
+    voice.multi.setSampleRate(oversampledRate);
+    voice.lpf.setSampleRate(oversampledRate);
+    voice.hpf.setSampleRate(oversampledRate);
+    voice.ampEg.setSampleRate(oversampledRate);
+    voice.modEg.setSampleRate(oversampledRate);
+    voice.lfo.setSampleRate(oversampledRate);
+
+    voice.lpf.setResonance(m_lpfResonance);
+    voice.vco1.setWaveform(m_vco1Waveform);
+    voice.vco2.setWaveform(m_vco2Waveform);
+    voice.vco1.setShape(m_vco1Shape);
+    voice.vco2.setShape(m_vco2Shape);
+    voice.multi.setType(m_multiType);
+    voice.multi.setShape(m_multiShape);
+    voice.multi.setKeyTrack(m_multiKeyTrack);
+    voice.multi.setNote(voice.note);
+}
+
+void SynthDevice::applyGlobalEffects(float * output, uint32_t frameCount)
+{
+    for (uint32_t i = 0; i < frameCount; i++) {
+        const float l0 = m_oversampledBuffer[i * 4];
+        const float r0 = m_oversampledBuffer[i * 4 + 1];
+        const float l1 = m_oversampledBuffer[i * 4 + 2];
+        const float r1 = m_oversampledBuffer[i * 4 + 3];
+
         float l = m_oversamplerL.process(std::tanh(l0), std::tanh(l1));
         float r = m_oversamplerR.process(std::tanh(r0), std::tanh(r1));
 
         m_delay.process(l, r);
 
-        // Final volume after all processing
-        l *= volumeInternal();
-        r *= volumeInternal();
-
-        output[i * 2] += l;
-        output[i * 2 + 1] += r;
+        output[i * 2] += l * volumeInternal();
+        output[i * 2 + 1] += r * volumeInternal();
     }
 }
 
@@ -702,6 +720,7 @@ void SynthDevice::loadPreset(int bank, int index)
 
     emit dataChanged();
 }
+
 void SynthDevice::setUserPresets(const UserPresets & presets)
 {
     {
