@@ -324,7 +324,6 @@ void BassSynthDevice::deserializeFromXml(QXmlStreamReader & reader)
     }
     emit dataChanged();
 }
-
 void BassSynthDevice::handleNoteOn(uint8_t note, uint8_t velocity)
 {
     double freq = midiNoteToFreq(note);
@@ -337,17 +336,19 @@ void BassSynthDevice::handleNoteOn(uint8_t note, uint8_t velocity)
         m_voice.note = note;
         m_voice.velocity = vel;
         m_voice.accent = hasAccent;
+        // Always trigger envelopes to ensure the attack/decay cycle starts again.
+        // For slides, we don't reset to zero to keep it smooth, but we still trigger the attack phase.
+        // If slide is 0, we reset the filter envelope for a snappy start, but not the amplitude to avoid clicks.
         if (m_slide == 0.0f || hasAccent) {
             m_voice.filterEg.reset();
-            m_voice.ampEg.reset();
-            m_voice.filterEg.trigger();
-            m_voice.ampEg.trigger();
         }
+        m_voice.filterEg.trigger();
+        m_voice.ampEg.trigger();
     } else {
+        m_distLpState = 0.0f;
         m_voice.trigger(note, freq, vel, hasAccent, true);
     }
 }
-
 void BassSynthDevice::handleNoteOff(uint8_t note)
 {
     if (m_voice.active && m_voice.note == note) {
