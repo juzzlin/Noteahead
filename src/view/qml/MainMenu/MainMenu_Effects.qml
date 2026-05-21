@@ -19,9 +19,9 @@ import QtQuick.Controls.Universal 2.15
 import ".."
 
 Menu {
-    title: qsTr("&Devices")
+    title: qsTr("&Effects")
     Action {
-        text: qsTr("Built-in device rack...")
-        onTriggered: applicationService.requestDeviceRackDialog()
+        text: qsTr("Master effects...")
+        onTriggered: applicationService.requestMasterEffectsDialog()
     }
 }

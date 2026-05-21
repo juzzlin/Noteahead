@@ -421,6 +421,7 @@ set(QML_SOURCE_FILES
     ${QML_BASE_DIR}/MainMenu/MainMenu.qml
     ${QML_BASE_DIR}/MainMenu/MainMenu_Devices.qml
     ${QML_BASE_DIR}/MainMenu/MainMenu_Edit.qml
+    ${QML_BASE_DIR}/MainMenu/MainMenu_Effects.qml
     ${QML_BASE_DIR}/MainMenu/MainMenu_File.qml
     ${QML_BASE_DIR}/MainMenu/MainMenu_Help.qml
     ${QML_BASE_DIR}/MainMenu/MainMenu_Tools.qml

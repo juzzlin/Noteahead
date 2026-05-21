@@ -6,6 +6,7 @@ MenuBar {
     MainMenu_File {}
     MainMenu_Edit {}
     MainMenu_Devices {}
+    MainMenu_Effects {}
     MainMenu_Tools {}
     MainMenu_Help {}
 }
