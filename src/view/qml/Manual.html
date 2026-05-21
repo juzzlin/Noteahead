@@ -111,6 +111,19 @@
     <li><strong>Mix</strong>: Controls the wet/dry balance of the effect within its dedicated send bus.</li>
 </ul>
 
+<h3 style="color: orange;">Compressor Parameters</h3>
+<p>The Compressor is a versatile dynamic processor used to control the signal's dynamic range. It uses a high-quality feed-forward algorithm with optional lookahead.</p>
+<ul>
+    <li><strong>Threshold (dB)</strong>: The level above which compression starts to occur (-60 to 0 dB).</li>
+    <li><strong>Ratio</strong>: Determines the amount of gain reduction applied once the signal exceeds the threshold (1:1 to 20:1).</li>
+    <li><strong>Knee (dB)</strong>: Adjusts how the compressor transitions from uncompressed to compressed state (0 to 24 dB). A hard knee (0 dB) starts compressing immediately at the threshold, while a soft knee provides a smoother transition.</li>
+    <li><strong>Attack</strong>: Sets how quickly the compressor responds to signals exceeding the threshold (0.1 to 500 ms).</li>
+    <li><strong>Release</strong>: Determines how quickly the compressor returns to unity gain once the signal falls below the threshold (1 to 2000 ms).</li>
+    <li><strong>Makeup (dB)</strong>: Compensates for the level loss caused by compression (-12 to +12 dB).</li>
+    <li><strong>Lookahead (ms)</strong>: Delays the audio path slightly to allow the detector to "see" incoming peaks before they occur (0 to 10 ms), enabling more precise peak management.</li>
+    <li><strong>Reduction Meter</strong>: Provides real-time visual feedback of the current gain reduction in dB.</li>
+</ul>
+
 <h3 style="color: orange;">Send Routing</h3>
 <p>Instead of having fixed effect chains, Noteahead uses a flexible <strong>Send Bus</strong> architecture. This allows you to route varying amounts of each instrument's signal to any of the master effects.</p>
 <ul>

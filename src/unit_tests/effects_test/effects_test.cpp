@@ -15,14 +15,16 @@
 
 #include "effects_test.hpp"
 
-#include "../../domain/devices/volume_effect.hpp"
-#include "../../domain/devices/panning_effect.hpp"
-#include "../../domain/devices/low_pass_filter_effect.hpp"
-#include "../../domain/devices/high_pass_filter_effect.hpp"
-#include "../../domain/devices/delay_effect.hpp"
-#include "../../domain/dsp/reverb_effect.hpp"
-#include "../../domain/dsp/cascaded_svf.hpp"
 #include "../../common/constants.hpp"
+#include "../../common/utils.hpp"
+#include "../../domain/devices/delay_effect.hpp"
+#include "../../domain/devices/high_pass_filter_effect.hpp"
+#include "../../domain/devices/low_pass_filter_effect.hpp"
+#include "../../domain/devices/panning_effect.hpp"
+#include "../../domain/devices/volume_effect.hpp"
+#include "../../domain/dsp/cascaded_svf.hpp"
+#include "../../domain/dsp/compressor_effect.hpp"
+#include "../../domain/dsp/reverb_effect.hpp"
 
 #include <QTest>
 
@@ -215,6 +217,73 @@ void EffectsTest::test_delayEffect()
     right = 1.0f;
     effect.process(left, right);
     QCOMPARE(effect.sampleRate(), 48000.0);
+}
+
+void EffectsTest::test_compressorEffect()
+{
+    CompressorEffect effect;
+    effect.setSampleRate(44100.0);
+
+    // Default: Threshold -20dB, Ratio 4:1, Attack 10ms, Release 100ms, Makeup 0dB, Lookahead 0ms
+
+    // Test bypass (signal below threshold)
+    {
+        // -30dB signal
+        float val = Utils::Dsp::dbToLinear(-30.0f);
+        float left = val;
+        float right = val;
+        effect.process(left, right);
+        // Should be exactly same if below threshold and no lookahead
+        QCOMPARE(left, val);
+        QCOMPARE(right, val);
+        QCOMPARE(effect.reductionDb(), 0.0f);
+    }
+
+    // Test compression (signal above threshold)
+    {
+        effect.reset();
+        // 0dB signal. Threshold is -20dB. Ratio is 4:1.
+        // Overshoot is 20dB. Target reduction is 20 * (1 - 1/4) = 15dB.
+        float val = 1.0f; // 0dB
+        float left = val;
+        float right = val;
+        
+        // Process long enough for attack to settle
+        for (int i = 0; i < 5000; i++) {
+            float tl = val;
+            float tr = val;
+            effect.process(tl, tr);
+        }
+        
+        QVERIFY(effect.reductionDb() < -14.0f);
+        QVERIFY(effect.reductionDb() > -16.0f);
+        
+        left = val;
+        right = val;
+        effect.process(left, right);
+        QVERIFY(left < Utils::Dsp::dbToLinear(-14.0f));
+    }
+
+    // Test lookahead
+    {
+        effect.reset();
+        // Set 10ms lookahead
+        if (auto p = effect.parameter(Constants::NahdXml::xmlKeyLookahead().toStdString()); p) {
+            p->get().setValue(1.0f); // 100% = 10ms
+            effect.sync();
+        }
+
+        float left = 1.0f;
+        float right = 1.0f;
+        effect.process(left, right);
+        
+        // Output should be 0 because of delay line (initial silence)
+        QCOMPARE(left, 0.0f);
+        QCOMPARE(right, 0.0f);
+        
+        // But reduction should already start happening based on the input
+        QVERIFY(effect.reductionDb() < 0.0f);
+    }
 }
 
 void EffectsTest::test_filterStability()

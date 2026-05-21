@@ -995,6 +995,11 @@ QString xmlKeyReverbPreDelay() { return "reverbPreDelay"; }
 QString xmlKeyReverbMix() { return "reverbMix"; }
 QString xmlKeyReverbWidth() { return "reverbWidth"; }
 
+QString xmlKeyCompressorThreshold() { return "threshold"; }
+QString xmlKeyCompressorRatio() { return "ratio"; }
+QString xmlKeyCompressorKnee() { return "knee"; }
+QString xmlKeyCompressorMakeup() { return "makeup"; }
+
 QString xmlKeySynthVco1Waveform() { return "vco1Waveform"; }
 QString xmlKeySynthVco1Octave() { return "vco1Octave"; }
 QString xmlKeySynthVco1Pitch() { return "vco1Pitch"; }

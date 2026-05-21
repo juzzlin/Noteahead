@@ -21,6 +21,7 @@ set(SRC
     ../../domain/dsp/reverb_effect.cpp
     ../../domain/dsp/adsr_envelope.cpp
     ../../domain/dsp/cascaded_svf.cpp
+    ../../domain/dsp/compressor_effect.cpp
     ../../domain/dsp/dsp_component.cpp
     ../../domain/dsp/polyblep_oscillator.cpp
 )

@@ -16,6 +16,7 @@
 #include "effect_rack.hpp"
 #include "../../common/constants.hpp"
 #include "../../common/utils.hpp"
+#include "../dsp/compressor_effect.hpp"
 #include "../dsp/reverb_effect.hpp"
 #include "delay_effect.hpp"
 #include "high_pass_filter_effect.hpp"
@@ -24,7 +25,6 @@
 #include "volume_effect.hpp"
 
 #include <QXmlStreamReader>
-#include <QXmlStreamWriter>
 
 namespace noteahead {
 
@@ -171,6 +171,8 @@ void EffectRack::deserializeEffect(QXmlStreamReader & reader)
         effect = std::make_shared<PanningEffect>();
     } else if (typeId == VolumeEffect::typeIdString() || type == "volume") {
         effect = std::make_shared<VolumeEffect>();
+    } else if (typeId == CompressorEffect::typeIdString() || type == "compressor") {
+        effect = std::make_shared<CompressorEffect>();
     }
 
     if (effect) {

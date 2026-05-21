@@ -35,6 +35,7 @@ set(SOURCE_FILES
     ../../domain/dsp/multi_engine.cpp
     ../../domain/dsp/oversampler.cpp
     ../../domain/dsp/reverb_effect.cpp
+    ../../domain/dsp/compressor_effect.cpp
     ../../domain/dsp/drum/kick_engine.cpp
     ../../domain/dsp/drum/snare_engine.cpp
     ../../domain/dsp/drum/hihat_engine.cpp

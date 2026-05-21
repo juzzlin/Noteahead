@@ -66,6 +66,16 @@ public:
     Q_INVOKABLE QString reverbWidthKey() const;
     Q_INVOKABLE QString reverbMixKey() const;
 
+    Q_INVOKABLE QString compressorThresholdKey() const;
+    Q_INVOKABLE QString compressorRatioKey() const;
+    Q_INVOKABLE QString compressorAttackKey() const;
+    Q_INVOKABLE QString compressorReleaseKey() const;
+    Q_INVOKABLE QString compressorKneeKey() const;
+    Q_INVOKABLE QString compressorMakeupKey() const;
+    Q_INVOKABLE QString compressorLookaheadKey() const;
+
+    Q_INVOKABLE float compressorReductionDb(int effectIndex) const;
+
     Q_INVOKABLE QStringList reverbPresets() const;
     Q_INVOKABLE void applyReverbPreset(int effectIndex, int presetIndex);
 

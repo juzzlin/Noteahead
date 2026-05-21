@@ -47,6 +47,8 @@ std::optional<std::chrono::milliseconds> readMSecAttribute(QXmlStreamReader & re
 } // namespace Xml
 namespace Dsp {
 float cutoffToHz(float cutoff, float sampleRate);
+float dbToLinear(float db);
+float linearToDb(float linear);
 } // namespace Dsp
 } // namespace noteahead::Utils
 

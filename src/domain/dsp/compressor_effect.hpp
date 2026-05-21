@@ -1,0 +1,65 @@
+// This file is part of Noteahead.
+// Copyright (C) 2026 Jussi Lind <jussi.lind@iki.fi>
+//
+// Noteahead is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+// Noteahead is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
+
+#ifndef COMPRESSOR_EFFECT_HPP
+#define COMPRESSOR_EFFECT_HPP
+
+#include "../devices/effect.hpp"
+#include <vector>
+
+namespace noteahead {
+
+class CompressorEffect : public Effect
+{
+public:
+    CompressorEffect();
+
+    static std::string typeIdString() { return "7a2b3c4d-5e6f-4a8b-9c0d-1e2f3a4b5c6d"; }
+
+    std::string type() const override { return "compressor"; }
+    std::string typeId() const override { return typeIdString(); }
+    void process(float & left, float & right) override;
+    void reset() override;
+    void sync() override;
+
+    float reductionDb() const;
+
+private:
+    void syncParameters();
+
+    float m_threshold { -20.0f };
+    float m_ratio { 4.0f };
+    float m_attackMs { 10.0f };
+    float m_releaseMs { 100.0f };
+    float m_knee { 0.0f };
+    float m_makeup { 0.0f };
+    float m_lookaheadMs { 0.0f };
+
+    float m_envelopeDb { 0.0f };
+    float m_reductionDb { 0.0f };
+
+    std::vector<float> m_delayBufferL;
+    std::vector<float> m_delayBufferR;
+    uint32_t m_writePos { 0 };
+    uint32_t m_delaySamples { 0 };
+
+    bool m_shouldSyncParameters { false };
+    bool m_shouldUpdateBuffers { false };
+    uint32_t m_lastSampleRate { 0 };
+};
+
+} // namespace noteahead
+
+#endif // COMPRESSOR_EFFECT_HPP

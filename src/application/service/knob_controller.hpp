@@ -16,6 +16,8 @@
 #ifndef KNOB_CONTROLLER_HPP
 #define KNOB_CONTROLLER_HPP
 
+#include "../../common/constants.hpp"
+
 #include <QObject>
 #include <QString>
 
@@ -46,8 +48,9 @@ public:
     Q_INVOKABLE double mapExponential(double value, double min, double max) const;
     Q_INVOKABLE double unmapExponential(double value, double min, double max) const;
 
-    Q_INVOKABLE QString percentageToString(double value) const;
-    Q_INVOKABLE QString decibelToString(double value) const;
+    Q_INVOKABLE QString percentageToString(double value, double from = 0, double to = Constants::uiInternalScaling()) const;
+    Q_INVOKABLE QString decibelToString(double value, double from = 0, double to = Constants::uiInternalScaling()) const;
+    Q_INVOKABLE QString valueToString(double value, const QString & suffix, double from = 0, double to = Constants::uiInternalScaling()) const;
     Q_INVOKABLE QString frequencyToString(double value, double cutoffHz, bool isHpf) const;
 
     Q_INVOKABLE int syncIndex(double value) const;

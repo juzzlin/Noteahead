@@ -49,14 +49,14 @@ void KnobControllerTest::test_intensityToString()
     const double from = 0.0;
     const double to = 1000.0;
 
-    QCOMPARE(controller.intensityToString(500.0, from, to), QString("0.0%"));
-    QCOMPARE(controller.intensityToString(1000.0, from, to), QString("+100.0%"));
-    QCOMPARE(controller.intensityToString(0.0, from, to), QString("-100.0%"));
-    QCOMPARE(controller.intensityToString(750.0, from, to), QString("+50.0%"));
+    QCOMPARE(controller.intensityToString(500.0, from, to), QString { "0.0%" });
+    QCOMPARE(controller.intensityToString(1000.0, from, to), QString { "+100.0%" });
+    QCOMPARE(controller.intensityToString(0.0, from, to), QString { "-100.0%" });
+    QCOMPARE(controller.intensityToString(750.0, from, to), QString { "+50.0%" });
 
     // Test visual snapping removal: 0.04% should now show (rounded) 0.0% but NOT be skipped by threshold
     // 500.2 -> ((500.2 - 500) / 500) * 100 = 0.04. Should show 0.0% without + sign.
-    QCOMPARE(controller.intensityToString(500.2, from, to), QString("0.0%"));
+    QCOMPARE(controller.intensityToString(500.2, from, to), QString { "0.0%" });
 }
 
 void KnobControllerTest::test_panMapping()
@@ -76,9 +76,9 @@ void KnobControllerTest::test_panToString()
     const double from = 0.0;
     const double to = 1000.0;
 
-    QCOMPARE(controller.panToString(500.0, from, to), QString("Center"));
-    QCOMPARE(controller.panToString(1000.0, from, to), QString("+100.0% R"));
-    QCOMPARE(controller.panToString(0.0, from, to), QString("-100.0% L"));
+    QCOMPARE(controller.panToString(500.0, from, to), QString { "Center" });
+    QCOMPARE(controller.panToString(1000.0, from, to), QString { "+100.0% R" });
+    QCOMPARE(controller.panToString(0.0, from, to), QString { "-100.0% L" });
 }
 
 void KnobControllerTest::test_timeMapping()
@@ -100,42 +100,68 @@ void KnobControllerTest::test_timeMapping()
 void KnobControllerTest::test_timeToString()
 {
     KnobController controller;
-    QCOMPARE(controller.timeToString(123.4, "ms"), QString("123ms"));
-    QCOMPARE(controller.timeToString(10.0, "s"), QString("10.0 s"));
+    QCOMPARE(controller.timeToString(123.4, "ms"), QString { "123.4 ms" });
+    QCOMPARE(controller.timeToString(10.0, "s"), QString { "10.0 s" });
+    
+    // New handling via ms suffix
+    QCOMPARE(controller.timeToString(0.5, "ms"), QString { "0.5 ms" });
+    QCOMPARE(controller.timeToString(0.005, "ms"), QString { "5 μs" });
+    QCOMPARE(controller.timeToString(2000.0, "ms"), QString { "2.0 s" });
 }
 
 void KnobControllerTest::test_percentageToString()
 {
     KnobController controller;
-    QCOMPARE(controller.percentageToString(500.0), QString("50.0%"));
-    QCOMPARE(controller.percentageToString(1000.0), QString("100.0%"));
+    QCOMPARE(controller.percentageToString(500.0), QString { "50.0%" });
+    QCOMPARE(controller.percentageToString(1000.0), QString { "100.0%" });
+    
+    // Custom range
+    QCOMPARE(controller.percentageToString(10.0, 0, 100), QString { "10.0%" });
 }
 
 void KnobControllerTest::test_decibelToString()
 {
     KnobController controller;
-    // 0..1000 -> -30..30
-    QCOMPARE(controller.decibelToString(500.0), QString("0.0 dB"));
-    QCOMPARE(controller.decibelToString(1000.0), QString("+30.0 dB"));
-    QCOMPARE(controller.decibelToString(0.0), QString("-30.0 dB"));
+    // Default 0..1000 -> -30..30
+    QCOMPARE(controller.decibelToString(500.0), QString { "0.0 dB" });
+    QCOMPARE(controller.decibelToString(1000.0), QString { "+30.0 dB" });
+    QCOMPARE(controller.decibelToString(0.0), QString { "-30.0 dB" });
+
+    // Custom range (e.g. Threshold -60..0)
+    QCOMPARE(controller.decibelToString(-60.0, -60.0, 0.0), QString { "-60.0 dB" });
+    QCOMPARE(controller.decibelToString(-20.0, -60.0, 0.0), QString { "-20.0 dB" });
+    QCOMPARE(controller.decibelToString(0.0, -60.0, 0.0), QString { "0.0 dB" });
+
+    // Custom range (e.g. Makeup -12..12)
+    QCOMPARE(controller.decibelToString(-12.0, -12.0, 12.0), QString { "-12.0 dB" });
+    QCOMPARE(controller.decibelToString(0.0, -12.0, 12.0), QString { "0.0 dB" });
+    QCOMPARE(controller.decibelToString(6.0, -12.0, 12.0), QString { "+6.0 dB" });
+}
+
+void KnobControllerTest::test_valueToString()
+{
+    KnobController controller;
+    QCOMPARE(controller.valueToString(50.0, "%", 0, 100), QString { "50.0%" });
+    QCOMPARE(controller.valueToString(-10.0, "dB", -60, 0), QString { "-10.0 dB" });
+    QCOMPARE(controller.valueToString(123.0, "Hz"), QString { "123Hz" });
 }
 
 void KnobControllerTest::test_frequencyToString()
 {
     KnobController controller;
-    QCOMPARE(controller.frequencyToString(500.0, 440.0, false), QString("440 Hz"));
-    QCOMPARE(controller.frequencyToString(500.0, 1500.0, false), QString("1.5 kHz"));
-    QCOMPARE(controller.frequencyToString(1000.0, 20000.0, false), QString("Bypass"));
-    QCOMPARE(controller.frequencyToString(1000.0, 20000.0, true), QString("20.0 kHz"));
-    QCOMPARE(controller.frequencyToString(0.0, 0.0, false), QString("0 Hz"));
+    QCOMPARE(controller.frequencyToString(500.0, 440.0, false), QString { "440 Hz" });
+    QCOMPARE(controller.frequencyToString(500.0, 1500.0, false), QString { "1.5 kHz" });
+    QCOMPARE(controller.frequencyToString(1000.0, 20000.0, false), QString { "Bypass" });
+    QCOMPARE(controller.frequencyToString(1000.0, 20000.0, true), QString { "20.0 kHz" });
+    QCOMPARE(controller.frequencyToString(0.0, 0.0, false), QString { "0 Hz" });
 }
 
 void KnobControllerTest::test_syncLogic()
 {
     KnobController controller;
     QCOMPARE(controller.syncCount(), 16);
-    QCOMPARE(controller.syncLabel(0), QString("1/1"));
-    QCOMPARE(controller.syncLabel(15), QString("1/64"));
+    QCOMPARE(controller.syncLabel(0), QString { "1/1" });
+    QCOMPARE(controller.syncLabel(15), QString { "1/64" });
 
     // 1/1 = 1.0. 1.0 * 1000 = 1000
     QCOMPARE(controller.syncValue(0), 1000.0);

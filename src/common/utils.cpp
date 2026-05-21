@@ -157,5 +157,16 @@ float cutoffToHz(float cutoff, float sampleRate)
     const float maxFreq = std::min(20000.0f, sampleRate * 0.49f);
     return static_cast<float>(ParameterMapper::mapLogFrequency(cutoff, 0, maxFreq));
 }
+float dbToLinear(float db)
+{
+    return std::pow(10.0f, db / 20.0f);
+}
+float linearToDb(float linear)
+{
+    if (linear <= 1e-6f) {
+        return -120.0f;
+    }
+    return 20.0f * std::log10(linear);
+}
 } // namespace Dsp
 } // namespace noteahead::Utils

@@ -14,6 +14,7 @@
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
 #include "parameter_container.hpp"
+
 #include "../common/constants.hpp"
 
 #include <QXmlStreamReader>

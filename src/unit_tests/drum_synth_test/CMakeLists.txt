@@ -17,6 +17,7 @@ set(SRC
     ../../domain/devices/panning_effect.cpp
     ../../domain/devices/volume_effect.cpp
     ../../domain/dsp/cascaded_svf.cpp
+    ../../domain/dsp/compressor_effect.cpp
     ../../domain/dsp/reverb_effect.cpp
     ../../domain/dsp/drum/clap_engine.cpp
     ../../domain/dsp/drum/crash_engine.cpp

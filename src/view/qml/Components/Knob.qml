@@ -50,13 +50,7 @@ ColumnLayout {
         text: {
             let displayValue = "";
             if (knobRoot.mapping === "linear") {
-                if (knobRoot.suffix === "%") {
-                    displayValue = knobController.percentageToString(knobRoot.value);
-                } else if (knobRoot.suffix === "dB") {
-                    displayValue = knobController.decibelToString(knobRoot.value);
-                } else {
-                    displayValue = Math.round(knobRoot.value) + knobRoot.suffix;
-                }
+                displayValue = knobController.valueToString(knobRoot.value, knobRoot.suffix, knobRoot.from, knobRoot.to);
             } else {
                 let mappedValue = knobController.map(knobRoot.value / knobRoot.to, knobRoot.mapping, knobRoot.mapMin, knobRoot.mapMax);
                 displayValue = knobController.format(mappedValue, knobRoot.mapping, knobRoot.suffix, knobRoot.mapMin, knobRoot.mapMax);

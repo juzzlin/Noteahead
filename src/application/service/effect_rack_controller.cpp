@@ -21,6 +21,7 @@
 #include "../../domain/devices/low_pass_filter_effect.hpp"
 #include "../../domain/devices/panning_effect.hpp"
 #include "../../domain/devices/volume_effect.hpp"
+#include "../../domain/dsp/compressor_effect.hpp"
 #include "../../domain/dsp/reverb_effect.hpp"
 
 #include <QStringList>
@@ -149,6 +150,8 @@ void EffectRackController::setEffect(int slotIndex, const QString & typeId)
         effect = std::make_shared<PanningEffect>();
     } else if (stdTypeId == VolumeEffect::typeIdString()) {
         effect = std::make_shared<VolumeEffect>();
+    } else if (stdTypeId == CompressorEffect::typeIdString()) {
+        effect = std::make_shared<CompressorEffect>();
     }
 
     if (effect) {
@@ -182,6 +185,7 @@ QVariantList EffectRackController::availableEffects() const
     };
 
     addEffect("Reverb", ReverbEffect::typeIdString());
+    addEffect("Compressor", CompressorEffect::typeIdString());
 
     return list;
 }
@@ -238,6 +242,53 @@ QString EffectRackController::reverbWidthKey() const
 QString EffectRackController::reverbMixKey() const
 {
     return Constants::NahdXml::xmlKeyReverbMix();
+}
+
+QString EffectRackController::compressorThresholdKey() const
+{
+    return Constants::NahdXml::xmlKeyCompressorThreshold();
+}
+
+QString EffectRackController::compressorRatioKey() const
+{
+    return Constants::NahdXml::xmlKeyCompressorRatio();
+}
+
+QString EffectRackController::compressorAttackKey() const
+{
+    return Constants::NahdXml::xmlKeyAttack();
+}
+
+QString EffectRackController::compressorReleaseKey() const
+{
+    return Constants::NahdXml::xmlKeyRelease();
+}
+
+QString EffectRackController::compressorKneeKey() const
+{
+    return Constants::NahdXml::xmlKeyCompressorKnee();
+}
+
+QString EffectRackController::compressorMakeupKey() const
+{
+    return Constants::NahdXml::xmlKeyCompressorMakeup();
+}
+
+QString EffectRackController::compressorLookaheadKey() const
+{
+    return Constants::NahdXml::xmlKeyLookahead();
+}
+
+float EffectRackController::compressorReductionDb(int effectIndex) const
+{
+    if (const auto rack = currentRack()) {
+        if (const auto effect = rack->get().effect(static_cast<size_t>(effectIndex))) {
+            if (const auto compressor = std::dynamic_pointer_cast<CompressorEffect>(effect)) {
+                return compressor->reductionDb();
+            }
+        }
+    }
+    return 0.0f;
 }
 
 QStringList EffectRackController::reverbPresets() const

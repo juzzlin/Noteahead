@@ -118,6 +118,9 @@ Dialog {
                         if (effectType === "reverb") {
                             reverbDialog.effectIndex = index;
                             reverbDialog.open();
+                        } else if (effectType === "compressor") {
+                            compressorDialog.effectIndex = index;
+                            compressorDialog.open();
                         } else if (effectType === "") {
                             UiService.requestEffectsGalleryDialog(index);
                         } else {

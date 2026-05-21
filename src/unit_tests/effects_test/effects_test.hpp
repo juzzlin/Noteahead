@@ -31,6 +31,7 @@ private slots:
     void test_highPassFilterEffect();
     void test_reverb_mix();
     void test_delayEffect();
+    void test_compressorEffect();
     void test_filterStability();
     void test_cascadedSvfStability();
 };

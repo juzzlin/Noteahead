@@ -14,6 +14,7 @@ set(SRC
     ../../domain/devices/panning_effect.cpp
     ../../domain/devices/volume_effect.cpp
     ../../domain/dsp/cascaded_svf.cpp
+    ../../domain/dsp/compressor_effect.cpp
     ../../domain/dsp/dsp_component.cpp
     ../../domain/dsp/reverb_effect.cpp
     ../../domain/parameter.cpp

@@ -12,6 +12,7 @@ set(SRC
     ../../domain/devices/high_pass_filter_effect.cpp
     ../../domain/devices/delay_effect.cpp
     ../../domain/dsp/reverb_effect.cpp
+    ../../domain/dsp/compressor_effect.cpp
     ../../domain/parameter.cpp
     ../../domain/parameter_container.cpp
     ../../domain/devices/effect.cpp

@@ -180,6 +180,12 @@ All Arctic Music Project songs:
   - High-quality Feedback Delay Network algorithm
   - Controls for Size, Decay (0-10,000 ms), Damping, Pre-Delay (0-500 ms), Mix, and Stereo Width
   - 8 Studio presets: Hall, Large Room, Small Room, Plate, Cathedral, Basement, Tunnel, Spring
+- **Compressor** (since 3.1.0)
+  - Versatile feed-forward compressor with soft-knee interpolation
+  - Essential controls: Threshold (-60 to 0 dB), Ratio (1:1 to 20:1), Attack (0.1 to 500 ms), Release (1 to 2000 ms), Knee (0 to 24 dB), and Makeup Gain (-12 to +12 dB)
+  - Integrated lookahead support (0-10 ms) via internal ring buffer
+  - High-precision temporal resolution with automatic units (s, ms, μs)
+  - Real-time gain reduction meter in the UI
 
 ### Tools
 - Delay time calculator

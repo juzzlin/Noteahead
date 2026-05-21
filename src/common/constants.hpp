@@ -283,6 +283,11 @@ QString xmlKeyReverbPreDelay();
 QString xmlKeyReverbMix();
 QString xmlKeyReverbWidth();
 
+QString xmlKeyCompressorThreshold();
+QString xmlKeyCompressorRatio();
+QString xmlKeyCompressorKnee();
+QString xmlKeyCompressorMakeup();
+
 QString xmlKeySynthVco1Waveform();
 QString xmlKeySynthVco1Octave();
 QString xmlKeySynthVco1Pitch();

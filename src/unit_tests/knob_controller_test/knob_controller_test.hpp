@@ -33,6 +33,7 @@ private slots:
     void test_timeToString();
     void test_percentageToString();
     void test_decibelToString();
+    void test_valueToString();
     void test_frequencyToString();
     void test_syncLogic();
 };

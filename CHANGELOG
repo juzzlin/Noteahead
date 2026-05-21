@@ -24,6 +24,13 @@ New features:
   - Controls: Size, Decay (0-10,000 ms), Damping, Pre-Delay (0-500 ms), Width, and Mix
   - Includes 8 studio presets (Hall, Large Room, Small Room, Plate, Cathedral, Basement, Tunnel, Spring)
 
+* Implement a versatile Compressor effect
+  - Feed-forward compression algorithm with soft-knee interpolation
+  - Essential controls: Threshold, Ratio, Attack, Release, Knee, and Makeup Gain
+  - Integrated lookahead support (0-10 ms) for precise peak handling
+  - High-precision temporal resolution (s, ms, and μs)
+  - Real-time gain reduction meter in the UI
+
 * Implement an audio renderer
 
 * Advanced Send Routing

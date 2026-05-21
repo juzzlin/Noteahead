@@ -59,6 +59,7 @@ set(SRC
     ../../domain/devices/volume_effect.cpp
     ../../domain/dsp/adsr_envelope.cpp
     ../../domain/dsp/cascaded_svf.cpp
+    ../../domain/dsp/compressor_effect.cpp
     ../../domain/dsp/drum/clap_engine.cpp
     ../../domain/dsp/drum/crash_engine.cpp
     ../../domain/dsp/drum/hihat_engine.cpp
