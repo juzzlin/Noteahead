@@ -95,6 +95,23 @@ void EffectRack::process(AudioContext & outputContext, const float * sendBus, si
     }
 }
 
+void EffectRack::processInPlace(AudioContext & context)
+{
+    std::lock_guard<std::recursive_mutex> lock { m_mutex };
+    for (auto & effect : m_effects) {
+        if (!effect) continue;
+
+        effect->setSampleRate(context.sampleRate);
+        for (uint32_t i = 0; i < context.frameCount; i++) {
+            float l = context.buffer[i * 2];
+            float r = context.buffer[i * 2 + 1];
+            effect->process(l, r);
+            context.buffer[i * 2] = l;
+            context.buffer[i * 2 + 1] = r;
+        }
+    }
+}
+
 void EffectRack::reset()
 {
     std::lock_guard<std::recursive_mutex> lock { m_mutex };

@@ -204,11 +204,17 @@ void DeviceService::serializeToXml(QXmlStreamWriter & writer) const
     }
 
     writer.writeStartElement(Constants::NahdXml::xmlKeyMasterEffects());
-    m_audioEngine->effectRack().serializeEffectsToXml(writer);
 
-    for (int deviceSlot = 0; deviceSlot < static_cast<int>(Constants::deviceRackSize()); ++deviceSlot) {
+    writer.writeStartElement(Constants::NahdXml::xmlKeyInsertEffects());
+    m_audioEngine->insertEffectRack().serializeEffectsToXml(writer);
+    writer.writeEndElement();
+
+    writer.writeStartElement(Constants::NahdXml::xmlKeySendEffects());
+    m_audioEngine->sendEffectRack().serializeEffectsToXml(writer);
+
+    for (int deviceSlot = 0; deviceSlot < static_cast<int>(Constants::deviceRackSize()); deviceSlot++) {
         if (const auto dev = m_audioEngine->device(deviceSlot)) {
-            for (int effectSlot = 0; effectSlot < static_cast<int>(Constants::effectRackSize()); ++effectSlot) {
+            for (int effectSlot = 0; effectSlot < static_cast<int>(Constants::effectRackSize()); effectSlot++) {
                 const float send = dev->reverbSend(effectSlot);
                 if (send > 0.0001f) {
                     writer.writeStartElement(Constants::NahdXml::xmlKeySend());
@@ -220,6 +226,7 @@ void DeviceService::serializeToXml(QXmlStreamWriter & writer) const
             }
         }
     }
+    writer.writeEndElement(); // SendEffects
     writer.writeEndElement(); // MasterEffects
 
     if (!m_synthUserPresets.empty()) {
@@ -330,9 +337,31 @@ void DeviceService::deserializeFromXml(QXmlStreamReader & reader)
             // Handled via generic Device element if present in slot
         } else if (reader.name() == Constants::NahdXml::xmlKeyMasterEffects()) {
             while (reader.readNextStartElement()) {
-                if (reader.name() == Constants::NahdXml::xmlKeyEffect()) {
-                    m_audioEngine->effectRack().deserializeEffect(reader);
+                if (reader.name() == Constants::NahdXml::xmlKeyInsertEffects()) {
+                    m_audioEngine->insertEffectRack().deserializeEffectsFromXml(reader);
+                } else if (reader.name() == Constants::NahdXml::xmlKeySendEffects()) {
+                    while (reader.readNextStartElement()) {
+                        if (reader.name() == Constants::NahdXml::xmlKeyEffect()) {
+                            m_audioEngine->sendEffectRack().deserializeEffect(reader);
+                        } else if (reader.name() == Constants::NahdXml::xmlKeySend()) {
+                            const auto deviceSlot = Utils::Xml::readIntAttribute(reader, Constants::NahdXml::xmlKeyDeviceSlot(), false);
+                            const auto effectSlot = Utils::Xml::readIntAttribute(reader, Constants::NahdXml::xmlKeyEffectSlot(), false);
+                            const auto value = Utils::Xml::readDoubleAttribute(reader, Constants::NahdXml::xmlKeyValue(), false);
+                            if (deviceSlot.has_value() && effectSlot.has_value() && value.has_value()) {
+                                if (const auto dev = m_audioEngine->device(static_cast<size_t>(deviceSlot.value()))) {
+                                    dev->setReverbSend(static_cast<size_t>(effectSlot.value()), static_cast<float>(value.value()));
+                                }
+                            }
+                            reader.skipCurrentElement();
+                        } else {
+                            reader.skipCurrentElement();
+                        }
+                    }
+                } else if (reader.name() == Constants::NahdXml::xmlKeyEffect()) {
+                    // Backward compatibility: effects directly under MasterEffects
+                    m_audioEngine->sendEffectRack().deserializeEffect(reader);
                 } else if (reader.name() == Constants::NahdXml::xmlKeySend()) {
+                    // Backward compatibility: sends directly under MasterEffects
                     const auto deviceSlot = Utils::Xml::readIntAttribute(reader, Constants::NahdXml::xmlKeyDeviceSlot(), false);
                     const auto effectSlot = Utils::Xml::readIntAttribute(reader, Constants::NahdXml::xmlKeyEffectSlot(), false);
                     const auto value = Utils::Xml::readDoubleAttribute(reader, Constants::NahdXml::xmlKeyValue(), false);
@@ -428,9 +457,14 @@ void DeviceService::reset()
     emit dataChanged();
 }
 
-EffectRack & DeviceService::effectRack()
+EffectRack & DeviceService::sendEffectRack()
 {
-    return m_audioEngine->effectRack();
+    return m_audioEngine->sendEffectRack();
+}
+
+EffectRack & DeviceService::insertEffectRack()
+{
+    return m_audioEngine->insertEffectRack();
 }
 
 } // namespace noteahead

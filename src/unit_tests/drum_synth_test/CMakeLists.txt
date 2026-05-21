@@ -7,14 +7,17 @@ set(SRC
     ../../common/parameter_mapper.cpp
     ../../common/utils.cpp
     ../../domain/devices/device.cpp
+    ../../domain/devices/delay_effect.cpp
     ../../domain/devices/drum_synth_constants.cpp
     ../../domain/devices/drum_synth_device.cpp
     ../../domain/devices/effect.cpp
+    ../../domain/devices/effect_rack.cpp
     ../../domain/devices/high_pass_filter_effect.cpp
     ../../domain/devices/low_pass_filter_effect.cpp
     ../../domain/devices/panning_effect.cpp
     ../../domain/devices/volume_effect.cpp
     ../../domain/dsp/cascaded_svf.cpp
+    ../../domain/dsp/reverb_effect.cpp
     ../../domain/dsp/drum/clap_engine.cpp
     ../../domain/dsp/drum/crash_engine.cpp
     ../../domain/dsp/drum/hihat_engine.cpp

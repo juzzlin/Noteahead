@@ -144,6 +144,13 @@ Dialog {
                     }
 
                     Button {
+                        text: qsTr("Insert FX")
+                        onClicked: UiService.requestDeviceInsertEffectsDialog(deviceName)
+                        Layout.preferredWidth: 80
+                        visible: deviceType !== ""
+                    }
+
+                    Button {
                         text: qsTr("Sends")
                         onClicked: UiService.requestEffectSendsDialog(deviceName)
                         Layout.preferredWidth: 80

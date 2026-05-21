@@ -50,15 +50,41 @@ void Device::serializeToXml(QXmlStreamWriter & writer) const
 {
     writer.writeStartElement(Constants::NahdXml::xmlKeyDevice());
     serializeAttributesToXml(writer);
+
+    writer.writeStartElement(Constants::NahdXml::xmlKeyInsertEffects());
+    m_insertEffectRack.serializeEffectsToXml(writer);
+    writer.writeEndElement();
+
+    writer.writeStartElement(Constants::NahdXml::xmlKeyParameters());
     serializeParametersToXml(writer);
+    writer.writeEndElement();
+
     writer.writeEndElement(); // Device
 }
 
 void Device::deserializeFromXml(QXmlStreamReader & reader)
 {
     deserializeAttributesFromXml(reader);
-    reader.readNext();
-    deserializeParametersFromXml(reader);
+
+    while (!reader.atEnd() && !reader.hasError()) {
+        const auto token = reader.readNext();
+        if (token == QXmlStreamReader::EndElement && reader.name() == Constants::NahdXml::xmlKeyDevice()) {
+            break;
+        }
+
+        if (token == QXmlStreamReader::StartElement) {
+            if (reader.name() == Constants::NahdXml::xmlKeyParameters()) {
+                deserializeParametersFromXml(reader);
+            } else if (reader.name() == Constants::NahdXml::xmlKeyInsertEffects()) {
+                m_insertEffectRack.deserializeEffectsFromXml(reader);
+            } else if (reader.name() == Constants::NahdXml::xmlKeyParameter()) {
+                deserializeParameter(reader);
+            } else {
+                reader.skipCurrentElement();
+            }
+        }
+    }
+
     syncParameters();
 }
 
@@ -218,10 +244,27 @@ void Device::reset()
 {
     ParameterContainer::reset();
     syncParameters();
+    m_insertEffectRack.reset();
 }
 
 void Device::resetAudio()
 {
+    m_insertEffectRack.reset();
+}
+
+void Device::processInsertEffects(AudioContext & context)
+{
+    m_insertEffectRack.processInPlace(context);
+}
+
+EffectRack & Device::insertEffectRack()
+{
+    return m_insertEffectRack;
+}
+
+const EffectRack & Device::insertEffectRack() const
+{
+    return m_insertEffectRack;
 }
 
 float Device::volumeInternal() const

@@ -329,6 +329,7 @@ set(QML_SOURCE_FILES
     ${QML_BASE_DIR}/Dialogs/AddMidiCcSettingDialog.qml
     ${QML_BASE_DIR}/Dialogs/AddPitchBendAutomationDialog.qml
     ${QML_BASE_DIR}/Dialogs/DeviceGalleryDialog.qml
+    ${QML_BASE_DIR}/Dialogs/DeviceInsertEffectsDialog.qml
     ${QML_BASE_DIR}/Dialogs/DeviceRackDialog.qml
     ${QML_BASE_DIR}/Dialogs/ColumnSettingsDialog.qml
     ${QML_BASE_DIR}/Dialogs/ColumnSettingsDialog_InstrumentSettings.qml

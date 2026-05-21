@@ -61,7 +61,8 @@ public:
     void setIsExclusive(bool exclusive);
     bool isExclusive() const;
 
-    EffectRack & effectRack();
+    EffectRack & sendEffectRack();
+    EffectRack & insertEffectRack();
 
 private:
     void ensureWorkBuffers(size_t laneCount, size_t sendCount, uint32_t bufferSize);
@@ -70,7 +71,8 @@ private:
     void ensureDeviceActiveFlags(size_t deviceCount);
 
     std::map<size_t, DeviceS> m_devices {};
-    EffectRack m_effectRack {};
+    EffectRack m_sendEffectRack {};
+    EffectRack m_insertEffectRack {};
     RealTimeWorkerPool m_workerPool {};
     std::vector<AudioEngineWorkBuffer> m_workBuffers {};
     std::vector<DeviceS> m_deviceSnapshot {};

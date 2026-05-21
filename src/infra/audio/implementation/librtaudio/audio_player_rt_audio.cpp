@@ -52,7 +52,7 @@ int AudioPlayerRtAudio::playCallback(void * outputBuffer, void *,
 
     if (self->m_audioEngine && !self->m_audioEngine->isExclusive()) {
         std::vector<float> interleaved(frameCount * 2, 0.0f);
-        AudioContext audioContext { interleaved.data(), frameCount, self->m_rtAudio.getStreamSampleRate() };
+        AudioContext audioContext { std::span(interleaved.data(), interleaved.size()), frameCount, self->m_rtAudio.getStreamSampleRate() };
         self->m_audioEngine->process(audioContext);
         for (uint32_t frame = 0; frame < frameCount; frame++) {
             // Mix with existing buffer (converted to float)

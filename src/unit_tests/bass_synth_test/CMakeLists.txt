@@ -10,8 +10,15 @@ set(SRC
     ../../domain/parameter_container.cpp
     ../../domain/devices/device.cpp
     ../../domain/devices/effect.cpp
+    ../../domain/devices/effect_rack.cpp
+    ../../domain/devices/delay_effect.cpp
+    ../../domain/devices/high_pass_filter_effect.cpp
+    ../../domain/devices/low_pass_filter_effect.cpp
+    ../../domain/devices/panning_effect.cpp
+    ../../domain/devices/volume_effect.cpp
     ../../domain/devices/bass_synth_device.cpp
     ../../domain/dsp/oversampler.cpp
+    ../../domain/dsp/reverb_effect.cpp
     ../../domain/dsp/adsr_envelope.cpp
     ../../domain/dsp/cascaded_svf.cpp
     ../../domain/dsp/dsp_component.cpp

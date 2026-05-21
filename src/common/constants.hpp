@@ -133,12 +133,14 @@ QString xmlKeyLineCount();
 QString xmlKeyLinesPerBeat();
 
 QString xmlKeyLookahead();
-
+QString xmlKeyParameters();
 QString xmlKeyMidiCcSetting();
 QString xmlKeyMidiSideChain();
 
 QString xmlKeyMixer();
 QString xmlKeyMasterEffects();
+QString xmlKeyInsertEffects();
+QString xmlKeySendEffects();
 QString xmlKeyEffect();
 QString xmlKeySend();
 QString xmlKeyDeviceSlot();

@@ -411,10 +411,16 @@ QString xmlKeyLinesPerBeat()
 
 QString xmlKeyLookahead()
 {
-    return "lookahead";
+    return "Lookahead";
+}
+
+QString xmlKeyParameters()
+{
+    return "Parameters";
 }
 
 QString xmlKeyMidiCcSetting()
+
 {
     return "MidiCcSetting";
 }
@@ -434,9 +440,14 @@ QString xmlKeyMasterEffects()
     return "MasterEffects";
 }
 
-QString xmlKeyReverb()
+QString xmlKeyInsertEffects()
 {
-    return "Reverb";
+    return "InsertEffects";
+}
+
+QString xmlKeySendEffects()
+{
+    return "SendEffects";
 }
 
 QString xmlKeyEffect()

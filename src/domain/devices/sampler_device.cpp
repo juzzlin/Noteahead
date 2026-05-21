@@ -722,7 +722,14 @@ void SamplerDevice::serializeToXml(QXmlStreamWriter & writer) const
     std::lock_guard<std::recursive_mutex> lock { mutex() };
     writer.writeStartElement(Constants::NahdXml::xmlKeyDevice());
     serializeAttributesToXml(writer);
+
+    writer.writeStartElement(Constants::NahdXml::xmlKeyInsertEffects());
+    insertEffectRack().serializeEffectsToXml(writer);
+    writer.writeEndElement();
+
+    writer.writeStartElement(Constants::NahdXml::xmlKeyParameters());
     serializeParametersToXml(writer);
+    writer.writeEndElement();
 
     writer.writeStartElement(Constants::NahdXml::xmlKeySamples());
     for (uint8_t note = 0; note < maxSamples; note++) {
@@ -755,25 +762,12 @@ void SamplerDevice::deserializeFromXml(QXmlStreamReader & reader)
 
     while (reader.readNextStartElement()) {
         const auto name = reader.name();
-        if (name == Constants::NahdXml::xmlKeyParameter()) {
-            const auto paramName = reader.attributes().value(Constants::NahdXml::xmlKeyName()).toString().toStdString();
-            const auto valueType = reader.attributes().value(Constants::NahdXml::xmlKeyParameterValueType()).toString();
-            const auto xmlValue = reader.attributes().value(Constants::NahdXml::xmlKeyValue()).toString();
-
-            std::lock_guard<std::recursive_mutex> lock { mutex() };
-            if (auto p = parameter(paramName); p) {
-                if (valueType == Constants::NahdXml::xmlValueInt()) {
-                    p->get().setFromXml(xmlValue.toInt());
-                } else if (valueType == Constants::NahdXml::xmlValueBool()) {
-                    p->get().setValue((xmlValue == Constants::NahdXml::xmlValueTrue() || xmlValue == "1") ? 1.0f : 0.0f);
-                } else if (valueType == Constants::NahdXml::xmlValueFloat()) {
-                    p->get().setFromXml(xmlValue.toInt());
-                } else {
-                    // Fallback for older files
-                    p->get().setFromXml(xmlValue.toInt());
-                }
-            }
-            reader.skipCurrentElement();
+        if (name == Constants::NahdXml::xmlKeyParameters()) {
+            deserializeParametersFromXml(reader);
+        } else if (name == Constants::NahdXml::xmlKeyInsertEffects()) {
+            insertEffectRack().deserializeEffectsFromXml(reader);
+        } else if (name == Constants::NahdXml::xmlKeyParameter()) {
+            deserializeParameter(reader);
         } else if (name == Constants::NahdXml::xmlKeySamples()) {
             while (reader.readNextStartElement()) {
                 if (reader.name() == Constants::NahdXml::xmlKeySample()) {

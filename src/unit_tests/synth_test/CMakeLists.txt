@@ -11,8 +11,14 @@ set(SRC
     ../../domain/devices/device.cpp
     ../../domain/devices/delay_effect.cpp
     ../../domain/devices/effect.cpp
+    ../../domain/devices/effect_rack.cpp
+    ../../domain/devices/high_pass_filter_effect.cpp
+    ../../domain/devices/low_pass_filter_effect.cpp
+    ../../domain/devices/panning_effect.cpp
+    ../../domain/devices/volume_effect.cpp
     ../../domain/devices/synth_device.cpp
     ../../domain/dsp/oversampler.cpp
+    ../../domain/dsp/reverb_effect.cpp
     ../../domain/devices/synth_presets.cpp
     ../../domain/dsp/adsr_envelope.cpp
     ../../domain/dsp/cascaded_svf.cpp

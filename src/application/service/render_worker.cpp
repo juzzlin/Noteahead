@@ -97,7 +97,7 @@ void RenderWorker::render(const QString & fileName, const noteahead::RenderWorke
                 }
 
                 std::fill(audioBuffer.begin(), audioBuffer.begin() + framesToProcess * 2, 0.0f);
-                AudioContext audioContext { audioBuffer.data(), framesToProcess, sampleRate };
+                AudioContext audioContext { std::span(audioBuffer.data(), static_cast<size_t>(framesToProcess) * 2), framesToProcess, sampleRate };
                 m_audioEngine->process(audioContext);
 
                 if (!recorder.push(audioBuffer.data(), framesToProcess * 2)) {
@@ -120,7 +120,7 @@ void RenderWorker::render(const QString & fileName, const noteahead::RenderWorke
                 audioBuffer.resize(finalFrames * 2);
             }
             std::fill(audioBuffer.begin(), audioBuffer.begin() + finalFrames * 2, 0.0f);
-            AudioContext audioContext { audioBuffer.data(), finalFrames, sampleRate };
+            AudioContext audioContext { std::span(audioBuffer.data(), static_cast<size_t>(finalFrames) * 2), finalFrames, sampleRate };
             m_audioEngine->process(audioContext);
             while (!recorder.push(audioBuffer.data(), finalFrames * 2)) {
                 std::this_thread::sleep_for(std::chrono::milliseconds { 1 });

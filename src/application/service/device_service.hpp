@@ -75,7 +75,8 @@ public:
 
     void reset();
 
-    EffectRack & effectRack();
+    EffectRack & sendEffectRack();
+    EffectRack & insertEffectRack();
 
 signals:
     void dataChanged();

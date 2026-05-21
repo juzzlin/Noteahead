@@ -68,8 +68,9 @@ void processDeviceTask(void * context, size_t taskIndex, size_t workerIndex)
         return;
     }
 
-    AudioContext audioContext { workBuffer.deviceBuffer.data(), deviceContext.frameCount, deviceContext.sampleRate };
+    AudioContext audioContext { std::span(workBuffer.deviceBuffer.data(), deviceContext.bufferSize), deviceContext.frameCount, deviceContext.sampleRate };
     device->processAudio(audioContext);
+    device->processInsertEffects(audioContext);
     const bool hasOutputSignal = bufferContainsSignal(workBuffer.deviceBuffer, deviceContext.bufferSize);
     deviceContext.deviceActiveFlags->at(taskIndex) = hasOutputSignal ? 1 : 0;
 
@@ -91,6 +92,12 @@ void processEffectTask(void * context, size_t taskIndex, size_t /*workerIndex*/)
     const auto & sendBus = effectContext.sendBusBuffers->at(taskIndex);
     auto & wetBuffer = effectContext.effectWetBuffers->at(taskIndex);
     const auto bufferSize = effectContext.frameCount * 2;
+
+    if (!effect) {
+        std::fill(wetBuffer.begin(), wetBuffer.begin() + bufferSize, 0.0f);
+        effectContext.effectActiveFlags->at(taskIndex) = 0;
+        return;
+    }
 
     if (!bufferContainsSignal(sendBus, bufferSize) && !effectContext.effectActiveFlags->at(taskIndex)) {
         std::fill(wetBuffer.begin(), wetBuffer.begin() + bufferSize, 0.0f);
@@ -124,6 +131,16 @@ AudioEngine::AudioEngine()
 }
 
 AudioEngine::~AudioEngine() = default;
+
+EffectRack & AudioEngine::sendEffectRack()
+{
+    return m_sendEffectRack;
+}
+
+EffectRack & AudioEngine::insertEffectRack()
+{
+    return m_insertEffectRack;
+}
 
 void AudioEngine::setDevice(size_t slotIndex, DeviceS device)
 {
@@ -195,7 +212,7 @@ void AudioEngine::process(AudioContext & context)
     std::lock_guard<std::mutex> lock { m_mutex };
 
     const uint32_t bufferSize = context.frameCount * 2;
-    auto effects = m_effectRack.effects();
+    auto effects = m_sendEffectRack.effects();
     const size_t sendCount = effects.size();
     const size_t laneCount = m_workerPool.laneCount();
 
@@ -279,6 +296,8 @@ void AudioEngine::process(AudioContext & context)
             context.buffer[i] += wetBuffer[i];
         }
     }
+
+    m_insertEffectRack.processInPlace(context);
 }
 
 void AudioEngine::reset()
@@ -289,7 +308,8 @@ void AudioEngine::reset()
             device->resetAudio();
         }
     }
-    m_effectRack.reset();
+    m_sendEffectRack.reset();
+    m_insertEffectRack.reset();
 
     std::fill(m_deviceActiveFlags.begin(), m_deviceActiveFlags.end(), 0);
     std::fill(m_effectActiveFlags.begin(), m_effectActiveFlags.end(), 0);
@@ -304,11 +324,15 @@ void AudioEngine::clear()
         }
     }
     m_devices.clear();
-    m_effectRack.reset();
+    m_sendEffectRack.reset();
+    m_insertEffectRack.reset();
 
     // Also clear the actual effects to ensure a fresh state for "New Project"
-    for (size_t i = 0; i < m_effectRack.effectCount(); ++i) {
-        m_effectRack.setEffect(i, nullptr);
+    for (size_t i = 0; i < m_sendEffectRack.effectCount(); i++) {
+        m_sendEffectRack.setEffect(i, nullptr);
+    }
+    for (size_t i = 0; i < m_insertEffectRack.effectCount(); i++) {
+        m_insertEffectRack.setEffect(i, nullptr);
     }
 
     std::fill(m_deviceActiveFlags.begin(), m_deviceActiveFlags.end(), 0);
@@ -323,11 +347,6 @@ void AudioEngine::setIsExclusive(bool exclusive)
 bool AudioEngine::isExclusive() const
 {
     return m_isExclusive;
-}
-
-EffectRack & AudioEngine::effectRack()
-{
-    return m_effectRack;
 }
 
 void AudioEngine::ensureWorkBuffers(size_t laneCount, size_t sendCount, uint32_t bufferSize)

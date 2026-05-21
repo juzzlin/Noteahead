@@ -15,6 +15,7 @@
 
 #include "effect_rack_test.hpp"
 #include "../../domain/devices/effect_rack.hpp"
+#include "../../domain/devices/volume_effect.hpp"
 #include "../../domain/dsp/reverb_effect.hpp"
 #include "../../common/constants.hpp"
 
@@ -49,7 +50,7 @@ void EffectRackTest::test_process()
 
     std::vector<float> output(2, 0.0f);
     std::vector<float> sendBus(2, 1.0f); // DC input
-    AudioContext outputContext { output.data(), 1, 44100 };
+    AudioContext outputContext { std::span(output.data(), output.size()), 1, 44100 };
 
     // Reverb needs some samples to build up output
     for (int i = 0; i < 2000; i++) {
@@ -61,10 +62,28 @@ void EffectRackTest::test_process()
 
     // Verify processing an empty slot doesn't crash
     std::vector<float> output2(2, 0.0f);
-    AudioContext outputContext2 { output2.data(), 1, 44100 };
+    AudioContext outputContext2 { std::span(output2.data(), output2.size()), 1, 44100 };
     rack.process(outputContext2, sendBus.data(), 1);
     QCOMPARE(output2[0], 0.0f);
     QCOMPARE(output2[1], 0.0f);
+}
+
+void EffectRackTest::test_processInPlace()
+{
+    EffectRack rack;
+    auto volume = std::make_shared<VolumeEffect>();
+    volume->setVolume(0.5f); // Half volume
+    rack.setEffect(0, volume);
+
+    std::vector<float> buffer(4, 1.0f); // 2 stereo frames of DC 1.0
+    AudioContext context { std::span(buffer.data(), buffer.size()), 2, 44100 };
+
+    rack.processInPlace(context);
+
+    // All samples should be 0.5
+    for (float sample : buffer) {
+        QCOMPARE(sample, 0.5f);
+    }
 }
 
 void EffectRackTest::test_serialization()

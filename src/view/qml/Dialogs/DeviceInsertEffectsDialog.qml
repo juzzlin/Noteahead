@@ -22,7 +22,8 @@ import "../Components"
 
 Dialog {
     id: root
-    title: "<strong>" + qsTr("Effect Rack") + "</strong>"
+    property string deviceName: ""
+    title: "<strong>" + qsTr("Insert Effects") + "</strong>"
     modal: true
     focus: true
     width: parent ? parent.width * Constants.defaultDialogScale : 600
@@ -32,12 +33,8 @@ Dialog {
     Universal.accent: themeService.accentColor
 
     onOpened: {
-        if (tabBar.currentIndex === 0) {
-            effectRackController.isInsertRack = true;
-        } else {
-            effectRackController.isInsertRack = false;
-        }
-        effectRackController.targetDeviceName = "";
+        effectRackController.isInsertRack = true;
+        effectRackController.targetDeviceName = deviceName;
     }
 
     background: Rectangle {
@@ -60,31 +57,11 @@ Dialog {
         spacing: 20
 
         Label {
-            text: qsTr("Master Effect Rack")
+            text: qsTr("%1 Insert Effects").arg(deviceName)
             font.bold: true
             font.pointSize: 18
             color: "white"
             Layout.alignment: Qt.AlignHCenter
-        }
-
-        TabBar {
-            id: tabBar
-            Layout.fillWidth: true
-            Universal.theme: Universal.Dark
-            TabButton {
-                text: qsTr("Insert Effects")
-                onClicked: {
-                    effectRackController.isInsertRack = true;
-                    effectRackController.targetDeviceName = "";
-                }
-            }
-            TabButton {
-                text: qsTr("Send Effects")
-                onClicked: {
-                    effectRackController.isInsertRack = false;
-                    effectRackController.targetDeviceName = "";
-                }
-            }
         }
 
         ListView {
@@ -166,7 +143,7 @@ Dialog {
         }
 
         Text {
-            text: tabBar.currentIndex === 0 ? qsTr("Insert effects are processed in order. Dry/Wet mix is handled by each effect.") : qsTr("To route an internal instrument to a send effect, use the Sends button in the Device Rack dialog.")
+            text: qsTr("Insert effects are processed in order. Dry/Wet mix is handled by each effect.")
             color: "#aaa"
             font.italic: true
             font.pointSize: 11

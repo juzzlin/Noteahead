@@ -27,6 +27,7 @@ class EffectRackTest : public QObject
 private slots:
     void test_addRemove();
     void test_process();
+    void test_processInPlace();
     void test_serialization();
     void test_reverb_parameters();
     void test_reverb_presets();

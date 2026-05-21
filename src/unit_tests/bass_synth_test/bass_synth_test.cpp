@@ -97,7 +97,7 @@ void BassSynthTest::test_retriggerOnSlide_shouldIncreaseVolume()
     // Render some audio to let it reach decay phase
     const int frameCount { 1000 };
     std::vector<float> buffer(static_cast<size_t>(frameCount) * 2, 0.0f);
-    AudioContext context { buffer.data(), static_cast<uint32_t>(frameCount), 44100 };
+    AudioContext context { std::span(buffer.data(), buffer.size()), static_cast<uint32_t>(frameCount), 44100 };
     synth.processAudio(context);
 
     float peak1 { 0.0f };
@@ -133,7 +133,7 @@ void BassSynthTest::test_noClickOnSlideZero_shouldNotHaveLargeDiscontinuities()
 
     const int frameCount { 100 };
     std::vector<float> buffer(static_cast<size_t>(frameCount) * 2, 0.0f);
-    AudioContext context { buffer.data(), static_cast<uint32_t>(frameCount), 44100 };
+    AudioContext context { std::span(buffer.data(), buffer.size()), static_cast<uint32_t>(frameCount), 44100 };
     synth.processAudio(context);
 
     // Trigger next note immediately

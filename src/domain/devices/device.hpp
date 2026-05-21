@@ -18,6 +18,7 @@
 
 #include <QObject>
 
+#include "effect_rack.hpp"
 #include "../dsp/audio_context.hpp"
 #include "../parameter_container.hpp"
 
@@ -55,6 +56,9 @@ public:
     virtual void processMidiAllNotesOff() = 0;
 
     virtual void processAudio(AudioContext & context) = 0;
+    void processInsertEffects(AudioContext & context);
+    EffectRack & insertEffectRack();
+    const EffectRack & insertEffectRack() const;
     virtual bool hasActiveAudio() const { return true; }
 
     virtual void setBpm(float) {}
@@ -126,6 +130,7 @@ private:
     float m_manualGain { 0.5f };
     float m_manualPan { 0.5f };
     std::vector<float> m_manualReverbSends;
+    EffectRack m_insertEffectRack;
 
     mutable std::recursive_mutex m_mutex;
 };

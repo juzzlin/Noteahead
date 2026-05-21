@@ -44,7 +44,10 @@ EffectRackController::EffectRackController(DeviceServiceS deviceService, EditorS
 
 int EffectRackController::effectCount() const
 {
-    return static_cast<int>(m_deviceService->effectRack().effectCount());
+    if (const auto rack = currentRack()) {
+        return static_cast<int>(rack->get().effectCount());
+    }
+    return 0;
 }
 
 int EffectRackController::revision() const
@@ -52,11 +55,61 @@ int EffectRackController::revision() const
     return m_revision;
 }
 
+QString EffectRackController::targetDeviceName() const
+{
+    return m_targetDeviceName;
+}
+
+void EffectRackController::setTargetDeviceName(const QString & name)
+{
+    if (m_targetDeviceName != name) {
+        m_targetDeviceName = name;
+        emit targetDeviceNameChanged();
+        m_revision++;
+        emit revisionChanged();
+        emit effectCountChanged();
+    }
+}
+
+bool EffectRackController::isInsertRack() const
+{
+    return m_isInsertRack;
+}
+
+void EffectRackController::setIsInsertRack(bool isInsert)
+{
+    if (m_isInsertRack != isInsert) {
+        m_isInsertRack = isInsert;
+        emit isInsertRackChanged();
+        m_revision++;
+        emit revisionChanged();
+        emit effectCountChanged();
+    }
+}
+
+std::optional<std::reference_wrapper<EffectRack>> EffectRackController::currentRack() const
+{
+    if (m_targetDeviceName.isEmpty()) {
+        if (m_isInsertRack) {
+            return std::ref(m_deviceService->insertEffectRack());
+        } else {
+            return std::ref(m_deviceService->sendEffectRack());
+        }
+    } else {
+        if (const auto device = m_deviceService->device(m_targetDeviceName.toStdString())) {
+            return std::ref(device->insertEffectRack());
+        }
+    }
+    return std::nullopt;
+}
+
 float EffectRackController::parameterValue(int effectIndex, const QString & paramName) const
 {
-    if (const auto effect = m_deviceService->effectRack().effect(static_cast<size_t>(effectIndex))) {
-        if (const auto parameter = effect->parameter(paramName.toStdString()); parameter) {
-            return parameter->get().value();
+    if (const auto rack = currentRack()) {
+        if (const auto effect = rack->get().effect(static_cast<size_t>(effectIndex))) {
+            if (const auto parameter = effect->parameter(paramName.toStdString()); parameter) {
+                return parameter->get().value();
+            }
         }
     }
     return 0.0f;
@@ -64,15 +117,17 @@ float EffectRackController::parameterValue(int effectIndex, const QString & para
 
 void EffectRackController::setParameterValue(int effectIndex, const QString & paramName, float value)
 {
-    if (const auto effect = m_deviceService->effectRack().effect(static_cast<size_t>(effectIndex))) {
-        if (const auto parameter = effect->parameter(paramName.toStdString()); parameter) {
-            if (parameter->get().update(value)) {
-                effect->sync();
+    if (const auto rack = currentRack()) {
+        if (const auto effect = rack->get().effect(static_cast<size_t>(effectIndex))) {
+            if (const auto parameter = effect->parameter(paramName.toStdString()); parameter) {
+                if (parameter->get().update(value)) {
+                    effect->sync();
 
-                m_editorService->setIsModified(true);
-                m_revision++;
-                emit revisionChanged();
-                emit parameterChanged(effectIndex, paramName);
+                    m_editorService->setIsModified(true);
+                    m_revision++;
+                    emit revisionChanged();
+                    emit parameterChanged(effectIndex, paramName);
+                }
             }
         }
     }
@@ -97,19 +152,23 @@ void EffectRackController::setEffect(int slotIndex, const QString & typeId)
     }
 
     if (effect) {
-        m_deviceService->effectRack().setEffect(static_cast<size_t>(slotIndex), std::move(effect));
-        m_editorService->setIsModified(true);
-        m_revision++;
-        emit revisionChanged();
+        if (const auto rack = currentRack()) {
+            rack->get().setEffect(static_cast<size_t>(slotIndex), std::move(effect));
+            m_editorService->setIsModified(true);
+            m_revision++;
+            emit revisionChanged();
+        }
     }
 }
 
 void EffectRackController::clearEffect(int slotIndex)
 {
-    m_deviceService->effectRack().setEffect(static_cast<size_t>(slotIndex), nullptr);
-    m_editorService->setIsModified(true);
-    m_revision++;
-    emit revisionChanged();
+    if (const auto rack = currentRack()) {
+        rack->get().setEffect(static_cast<size_t>(slotIndex), nullptr);
+        m_editorService->setIsModified(true);
+        m_revision++;
+        emit revisionChanged();
+    }
 }
 QVariantList EffectRackController::availableEffects() const
 {
@@ -123,31 +182,30 @@ QVariantList EffectRackController::availableEffects() const
     };
 
     addEffect("Reverb", ReverbEffect::typeIdString());
-    addEffect("Delay", DelayEffect::typeIdString());
-    addEffect("High Pass Filter", HighPassFilterEffect::typeIdString());
-    addEffect("Low Pass Filter", LowPassFilterEffect::typeIdString());
-    addEffect("Panning", PanningEffect::typeIdString());
-    addEffect("Volume", VolumeEffect::typeIdString());
 
     return list;
 }
 
 QStringList EffectRackController::parameterNames(int effectIndex) const
 {
-    if (const auto effect = m_deviceService->effectRack().effect(static_cast<size_t>(effectIndex))) {
-        QStringList names;
-        for (const auto & name : effect->parameterNames()) {
-            names.append(QString::fromStdString(name));
+    if (const auto rack = currentRack()) {
+        if (const auto effect = rack->get().effect(static_cast<size_t>(effectIndex))) {
+            QStringList names;
+            for (const auto & name : effect->parameterNames()) {
+                names.append(QString::fromStdString(name));
+            }
+            return names;
         }
-        return names;
     }
     return {};
 }
 
 QString EffectRackController::effectType(int effectIndex) const
 {
-    if (const auto effect = m_deviceService->effectRack().effect(static_cast<size_t>(effectIndex))) {
-        return QString::fromStdString(effect->type());
+    if (const auto rack = currentRack()) {
+        if (const auto effect = rack->get().effect(static_cast<size_t>(effectIndex))) {
+            return QString::fromStdString(effect->type());
+        }
     }
     return "";
 }
@@ -193,15 +251,17 @@ QStringList EffectRackController::reverbPresets() const
 
 void EffectRackController::applyReverbPreset(int effectIndex, int presetIndex)
 {
-    if (const auto effect = m_deviceService->effectRack().effect(static_cast<size_t>(effectIndex))) {
-        if (const auto reverb = std::dynamic_pointer_cast<ReverbEffect>(effect)) {
-            const auto presetNames = ReverbEffect::presetNames();
-            if (presetIndex >= 0 && presetIndex < static_cast<int>(presetNames.size())) {
-                reverb->applyPreset(ReverbEffect::stringToPreset(presetNames[presetIndex]));
-                m_editorService->setIsModified(true);
-                m_revision++;
-                emit revisionChanged();
-                emit parameterChanged(effectIndex, ""); // Notify all parameters changed
+    if (const auto rack = currentRack()) {
+        if (const auto effect = rack->get().effect(static_cast<size_t>(effectIndex))) {
+            if (const auto reverb = std::dynamic_pointer_cast<ReverbEffect>(effect)) {
+                const auto presetNames = ReverbEffect::presetNames();
+                if (presetIndex >= 0 && presetIndex < static_cast<int>(presetNames.size())) {
+                    reverb->applyPreset(ReverbEffect::stringToPreset(presetNames[presetIndex]));
+                    m_editorService->setIsModified(true);
+                    m_revision++;
+                    emit revisionChanged();
+                    emit parameterChanged(effectIndex, ""); // Notify all parameters changed
+                }
             }
         }
     }

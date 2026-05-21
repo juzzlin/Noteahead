@@ -37,6 +37,7 @@ QtObject {
     signal deviceDialogRequested(string deviceName)
     signal deviceRackDialogRequested
     signal effectSendsDialogRequested(string deviceName)
+    signal deviceInsertEffectsDialogRequested(string deviceName)
     signal samplerDialogRequested
     signal drumSynthDialogRequested
     signal selectionAddMidiCcAutomationDialogRequested
@@ -153,6 +154,9 @@ QtObject {
     }
     function requestEffectSendsDialog(deviceName: string): void {
         effectSendsDialogRequested(deviceName);
+    }
+    function requestDeviceInsertEffectsDialog(deviceName: string): void {
+        deviceInsertEffectsDialogRequested(deviceName);
     }
     function requestDrumSynthDialog(): void {
         drumSynthDialogRequested();

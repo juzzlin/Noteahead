@@ -17,12 +17,13 @@
 #define AUDIO_CONTEXT_HPP
 
 #include <cstdint>
+#include <span>
 
 namespace noteahead {
 
 struct AudioContext
 {
-    float * buffer { nullptr };
+    std::span<float> buffer {};
     uint32_t frameCount { 0 };
     uint32_t sampleRate { 0 };
 };

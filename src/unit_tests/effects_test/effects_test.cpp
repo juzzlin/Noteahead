@@ -20,6 +20,7 @@
 #include "../../domain/devices/low_pass_filter_effect.hpp"
 #include "../../domain/devices/high_pass_filter_effect.hpp"
 #include "../../domain/devices/delay_effect.hpp"
+#include "../../domain/dsp/reverb_effect.hpp"
 #include "../../domain/dsp/cascaded_svf.hpp"
 #include "../../common/constants.hpp"
 
@@ -140,6 +141,53 @@ void EffectsTest::test_highPassFilterEffect()
         QVERIFY(!std::isnan(left));
         QVERIFY(!std::isnan(right));
     }
+}
+
+void EffectsTest::test_reverb_mix()
+{
+    ReverbEffect reverb;
+    reverb.setSampleRate(44100);
+    reverb.setMix(0.0f);
+    reverb.sync();
+
+    float l = 1.0f;
+    float r = 1.0f;
+    
+    // Process many samples to ensure any internal state is active
+    // Reverb tail needs some samples to build up
+    for (int i = 0; i < 5000; i++) {
+        float tl = 1.0f;
+        float tr = 1.0f;
+        reverb.process(tl, tr);
+    }
+
+    reverb.process(l, r);
+
+    // With mix 0, output should be exactly equal to input
+    QCOMPARE(l, 1.0f);
+    QCOMPARE(r, 1.0f);
+
+    reverb.setMix(1.0f);
+    reverb.sync();
+
+    // Reverb tail needs some samples to build up
+    for (int i = 0; i < 5000; i++) {
+        float tl = 1.0f;
+        float tr = 1.0f;
+        reverb.process(tl, tr);
+    }
+
+    l = 1.0f;
+    r = 1.0f;
+    reverb.process(l, r);
+    
+    // With mix 1.0, output should be different from input
+    QVERIFY(l != 1.0f || r != 1.0f);
+    
+    // With additive mix 1.0 and DC 1.0 input, output should be > 1.0 
+    // (dry + wet, where wet is also derived from 1.0)
+    QVERIFY(std::abs(l) > 1.0f);
+    QVERIFY(std::abs(r) > 1.0f);
 }
 
 void EffectsTest::test_delayEffect()

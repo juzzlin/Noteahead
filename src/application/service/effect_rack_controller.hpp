@@ -21,7 +21,9 @@
 
 #include <QObject>
 
+#include <functional>
 #include <memory>
+#include <optional>
 
 namespace noteahead {
 
@@ -30,6 +32,8 @@ class EffectRackController : public QObject
     Q_OBJECT
     Q_PROPERTY(int effectCount READ effectCount NOTIFY effectCountChanged)
     Q_PROPERTY(int revision READ revision NOTIFY revisionChanged)
+    Q_PROPERTY(QString targetDeviceName READ targetDeviceName WRITE setTargetDeviceName NOTIFY targetDeviceNameChanged)
+    Q_PROPERTY(bool isInsertRack READ isInsertRack WRITE setIsInsertRack NOTIFY isInsertRackChanged)
 
 public:
     using DeviceServiceS = std::shared_ptr<DeviceService>;
@@ -38,6 +42,12 @@ public:
 
     int effectCount() const;
     int revision() const;
+
+    QString targetDeviceName() const;
+    void setTargetDeviceName(const QString & name);
+
+    bool isInsertRack() const;
+    void setIsInsertRack(bool isInsert);
 
     Q_INVOKABLE float parameterValue(int effectIndex, const QString & paramName) const;
     Q_INVOKABLE void setParameterValue(int effectIndex, const QString & paramName, float value);
@@ -65,12 +75,18 @@ public:
 signals:
     void effectCountChanged();
     void revisionChanged();
+    void targetDeviceNameChanged();
+    void isInsertRackChanged();
     void parameterChanged(int effectIndex, const QString & paramName);
 
 private:
+    std::optional<std::reference_wrapper<EffectRack>> currentRack() const;
+
     DeviceServiceS m_deviceService;
     EditorServiceS m_editorService;
     int m_revision = 0;
+    QString m_targetDeviceName;
+    bool m_isInsertRack = false;
 };
 
 } // namespace noteahead

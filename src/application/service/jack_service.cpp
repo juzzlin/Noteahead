@@ -314,7 +314,7 @@ int JackService::processCallback(jack_nframes_t frameCount, void * arg)
             std::fill(self->m_engineInterleavedBuffer.begin(), self->m_engineInterleavedBuffer.begin() + totalSamples, 0.0f);
         }
 
-        AudioContext audioContext { self->m_engineInterleavedBuffer.data(), frameCount, self->sampleRate() };
+        AudioContext audioContext { std::span(self->m_engineInterleavedBuffer.data(), frameCount * 2), frameCount, self->sampleRate() };
         self->m_audioEngine->process(audioContext);
 
         auto outL = static_cast<jack_default_audio_sample_t *>(jack_port_get_buffer(self->m_outputPortL, frameCount));

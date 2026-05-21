@@ -91,27 +91,32 @@ void ParameterContainer::deserializeParametersFromXml(QXmlStreamReader & reader)
 {
     while (reader.readNextStartElement()) {
         if (reader.name() == Constants::NahdXml::xmlKeyParameter()) {
-            const auto name = reader.attributes().value(Constants::NahdXml::xmlKeyName()).toString().toStdString();
-            const auto valueType = reader.attributes().value(Constants::NahdXml::xmlKeyParameterValueType()).toString();
-            const auto xmlValue = reader.attributes().value(Constants::NahdXml::xmlKeyValue()).toString();
-
-            if (auto p = parameter(name); p) {
-                if (valueType == Constants::NahdXml::xmlValueInt()) {
-                    p->get().setFromXml(xmlValue.toInt());
-                } else if (valueType == Constants::NahdXml::xmlValueBool()) {
-                    p->get().setValue((xmlValue == Constants::NahdXml::xmlValueTrue() || xmlValue == "1") ? 1.0f : 0.0f);
-                } else if (valueType == Constants::NahdXml::xmlValueFloat()) {
-                    p->get().setFromXml(xmlValue.toInt());
-                } else {
-                    // Fallback for older files
-                    p->get().setFromXml(xmlValue.toInt());
-                }
-            }
-            reader.skipCurrentElement();
+            deserializeParameter(reader);
         } else {
             reader.skipCurrentElement();
         }
     }
+}
+
+void ParameterContainer::deserializeParameter(QXmlStreamReader & reader)
+{
+    const auto name = reader.attributes().value(Constants::NahdXml::xmlKeyName()).toString().toStdString();
+    const auto valueType = reader.attributes().value(Constants::NahdXml::xmlKeyParameterValueType()).toString();
+    const auto xmlValue = reader.attributes().value(Constants::NahdXml::xmlKeyValue()).toString();
+
+    if (auto p = parameter(name); p) {
+        if (valueType == Constants::NahdXml::xmlValueInt()) {
+            p->get().setFromXml(xmlValue.toInt());
+        } else if (valueType == Constants::NahdXml::xmlValueBool()) {
+            p->get().setValue((xmlValue == Constants::NahdXml::xmlValueTrue() || xmlValue == "1") ? 1.0f : 0.0f);
+        } else if (valueType == Constants::NahdXml::xmlValueFloat()) {
+            p->get().setFromXml(xmlValue.toInt());
+        } else {
+            // Fallback for older files
+            p->get().setFromXml(xmlValue.toInt());
+        }
+    }
+    reader.skipCurrentElement();
 }
 
 } // namespace noteahead

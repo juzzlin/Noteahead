@@ -246,12 +246,21 @@ ApplicationWindow {
         width: parent.width * Constants.defaultDialogScale
         height: parent.height * Constants.defaultDialogScale
     }
+
     MasterEffectsDialog {
         id: masterEffectsDialog
         anchors.centerIn: parent
         width: parent.width * Constants.defaultDialogScale
         height: parent.height * Constants.defaultDialogScale
     }
+
+    DeviceInsertEffectsDialog {
+        id: deviceInsertEffectsDialog
+        anchors.centerIn: parent
+        width: parent.width * Constants.defaultDialogScale
+        height: parent.height * Constants.defaultDialogScale
+    }
+
     EffectSendsDialog {
         id: effectSendsDialog
         anchors.centerIn: parent
@@ -486,10 +495,15 @@ ApplicationWindow {
             deviceRackDialog.updateUsage();
             deviceRackDialog.open();
         });
-        UiService.effectSendsDialogRequested.connect(deviceName => {
+        UiService.effectSendsDialogRequested.connect((deviceName) => {
             effectSendsDialog.deviceName = deviceName;
             effectSendsDialog.open();
         });
+        UiService.deviceInsertEffectsDialogRequested.connect((deviceName) => {
+            deviceInsertEffectsDialog.deviceName = deviceName;
+            deviceInsertEffectsDialog.open();
+        });
+
         UiService.samplerDialogRequested.connect(samplerDialog.open);
         UiService.drumSynthDialogRequested.connect(drumSynthDialog.open);
         UiService.recentFilesDialogRequested.connect(recentFilesDialog.open);

@@ -215,7 +215,7 @@ void DrumSynthTest::test_drumSynthDevice_midiNoteOn_shouldTriggerVoice()
      DrumSynthDevice device("Test");
     device.processMidiNoteOn(36, 127); // Kick
     std::vector<float> buffer(20, 0.0f);
-    AudioContext context { buffer.data(), 10, 44100 };
+    AudioContext context { std::span(buffer.data(), buffer.size()), 10, 44100 };
     device.processAudio(context);
     bool foundSound = false;
     for (size_t i = 0; i < buffer.size(); i++) {

@@ -303,7 +303,15 @@ void BassSynthDevice::serializeToXml(QXmlStreamWriter & writer) const
     const std::lock_guard<std::recursive_mutex> lock(mutex());
     writer.writeStartElement(Constants::NahdXml::xmlKeyDevice());
     serializeAttributesToXml(writer);
+
+    writer.writeStartElement(Constants::NahdXml::xmlKeyInsertEffects());
+    insertEffectRack().serializeEffectsToXml(writer);
+    writer.writeEndElement();
+
+    writer.writeStartElement(Constants::NahdXml::xmlKeyParameters());
     serializeParametersToXml(writer);
+    writer.writeEndElement();
+
     writer.writeEndElement();
 }
 
@@ -312,7 +320,26 @@ void BassSynthDevice::deserializeFromXml(QXmlStreamReader & reader)
     {
         const std::lock_guard<std::recursive_mutex> lock(mutex());
         deserializeAttributesFromXml(reader);
-        deserializeParametersFromXml(reader);
+
+        while (!reader.atEnd() && !reader.hasError()) {
+            const auto token = reader.readNext();
+            if (token == QXmlStreamReader::EndElement && reader.name() == Constants::NahdXml::xmlKeyDevice()) {
+                break;
+            }
+
+            if (token == QXmlStreamReader::StartElement) {
+                if (reader.name() == Constants::NahdXml::xmlKeyParameters()) {
+                    deserializeParametersFromXml(reader);
+                } else if (reader.name() == Constants::NahdXml::xmlKeyInsertEffects()) {
+                    insertEffectRack().deserializeEffectsFromXml(reader);
+                } else if (reader.name() == Constants::NahdXml::xmlKeyParameter()) {
+                    deserializeParameter(reader);
+                } else {
+                    reader.skipCurrentElement();
+                }
+            }
+        }
+
         syncParameters();
 
         // Update manual fallback values for MIDI CC reset
