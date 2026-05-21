@@ -24,19 +24,19 @@
 
 namespace noteahead {
 
-void BassSynthTest::test_serialization()
+void BassSynthTest::test_serialization_shouldRestoreParameters()
 {
-    BassSynthDevice synth("Test BassSynth");
+    BassSynthDevice synth { "Test BassSynth" };
     synth.setLpfCutoff(0.75f);
     synth.setWaveform(PolyBlepOscillator::Waveform::Square);
     synth.setSubLevel(0.5f);
 
     QString xml;
-    QXmlStreamWriter writer(&xml);
+    QXmlStreamWriter writer { &xml };
     synth.serializeToXml(writer);
 
-    BassSynthDevice synth2("Restored BassSynth");
-    QXmlStreamReader reader(xml);
+    BassSynthDevice synth2 { "Restored BassSynth" };
+    QXmlStreamReader reader { xml };
     if (reader.readNextStartElement()) {
         synth2.deserializeFromXml(reader);
     }
@@ -46,9 +46,9 @@ void BassSynthTest::test_serialization()
     QCOMPARE(synth2.subLevel(), 0.5f);
 }
 
-void BassSynthTest::test_midiProcessing()
+void BassSynthTest::test_midiProcessing_shouldTriggerAudio()
 {
-    BassSynthDevice synth("Test BassSynth");
+    BassSynthDevice synth { "Test BassSynth" };
     synth.processMidiNoteOn(60, 100);
     QVERIFY(synth.hasActiveAudio());
 
@@ -58,32 +58,93 @@ void BassSynthTest::test_midiProcessing()
     QVERIFY(!synth.hasActiveAudio());
 }
 
-void BassSynthTest::test_legatoSlide()
+void BassSynthTest::test_legatoSlide_shouldStayActive()
 {
-    BassSynthDevice synth("Test BassSynth");
+    BassSynthDevice synth { "Test BassSynth" };
     synth.setSlide(0.5f);
-    
+
     synth.processMidiNoteOn(60, 100);
     QVERIFY(synth.hasActiveAudio());
-    
+
     // Trigger another note while first is active
     synth.processMidiNoteOn(72, 100);
     // Monophonic, so still active
     QVERIFY(synth.hasActiveAudio());
 }
 
-void BassSynthTest::test_velocityAndAccent()
+void BassSynthTest::test_velocityAndAccent_shouldTriggerAudio()
 {
-    BassSynthDevice synth("Test BassSynth");
-    
+    BassSynthDevice synth { "Test BassSynth" };
+
     // Normal velocity
     synth.processMidiNoteOn(60, 80);
-    // How to verify internal state? Maybe just ensure it doesn't crash
-    // Ideally we'd check internal voice accent flag, but it's private.
-    
+    QVERIFY(synth.hasActiveAudio());
+
     // Accent velocity
     synth.processMidiNoteOn(60, 110);
     QVERIFY(synth.hasActiveAudio());
+}
+
+void BassSynthTest::test_retriggerOnSlide_shouldIncreaseVolume()
+{
+    BassSynthDevice synth { "Test BassSynth" };
+    synth.setSlide(0.5f); // Enable slide
+    synth.setDecay(0.1f); // Short decay to see volume drop
+
+    // 1. Trigger first note
+    synth.processMidiNoteOn(60, 100);
+
+    // Render some audio to let it reach decay phase
+    const int frameCount { 1000 };
+    std::vector<float> buffer(static_cast<size_t>(frameCount) * 2, 0.0f);
+    synth.processAudio(buffer.data(), frameCount, 44100);
+
+    float peak1 { 0.0f };
+    for (float sample : buffer) {
+        peak1 = std::max(peak1, std::abs(sample));
+    }
+    QVERIFY(peak1 > 0.0f);
+
+    // Render more to let it decay a lot
+    synth.processAudio(buffer.data(), frameCount, 44100);
+    float lastVal { std::abs(buffer[buffer.size() - 2]) };
+
+    // 2. Trigger second note (legato)
+    synth.processMidiNoteOn(62, 100);
+
+    // Render again. Volume should INCREASE because of re-triggering attack
+    synth.processAudio(buffer.data(), frameCount, 44100);
+    float peak2 { 0.0f };
+    for (float sample : buffer) {
+        peak2 = std::max(peak2, std::abs(sample));
+    }
+
+    QVERIFY(peak2 > lastVal); // Re-triggering worked!
+}
+
+void BassSynthTest::test_noClickOnSlideZero_shouldNotHaveLargeDiscontinuities()
+{
+    BassSynthDevice synth { "Test BassSynth" };
+    synth.setSlide(0.0f); // Slide off
+
+    // Trigger two overlapping notes rapidly
+    synth.processMidiNoteOn(60, 100);
+
+    const int frameCount { 100 };
+    std::vector<float> buffer(static_cast<size_t>(frameCount) * 2, 0.0f);
+    synth.processAudio(buffer.data(), frameCount, 44100);
+
+    // Trigger next note immediately
+    synth.processMidiNoteOn(62, 100);
+
+    synth.processAudio(buffer.data(), frameCount, 44100);
+
+    // Check for huge jumps (clicks) in the transition
+    for (size_t i { 1 }; i < buffer.size(); i++) {
+        float diff { std::abs(buffer[i] - buffer[i - 1]) };
+        // A click would be a very large jump, e.g., > 0.5 in one sample
+        QVERIFY2(diff < 0.5f, QString("Large discontinuity detected: %1").arg(static_cast<double>(diff)).toUtf8().constData());
+    }
 }
 
 } // namespace noteahead

@@ -25,10 +25,12 @@ class BassSynthTest : public QObject
     Q_OBJECT
 
 private slots:
-    void test_serialization();
-    void test_midiProcessing();
-    void test_legatoSlide();
-    void test_velocityAndAccent();
+    void test_serialization_shouldRestoreParameters();
+    void test_midiProcessing_shouldTriggerAudio();
+    void test_legatoSlide_shouldStayActive();
+    void test_velocityAndAccent_shouldTriggerAudio();
+    void test_retriggerOnSlide_shouldIncreaseVolume();
+    void test_noClickOnSlideZero_shouldNotHaveLargeDiscontinuities();
 };
 
 } // namespace noteahead
