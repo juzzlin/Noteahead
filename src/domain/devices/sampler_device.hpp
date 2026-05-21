@@ -55,7 +55,7 @@ public:
     void processMidiCc(uint8_t controller, uint8_t value, uint8_t channel) override;
     void processMidiAllNotesOff() override;
 
-    void processAudio(float * output, uint32_t frameCount, uint32_t sampleRate) override;
+    void processAudio(AudioContext & context) override;
     bool hasActiveAudio() const override;
 
     void reset() override;

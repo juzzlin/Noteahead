@@ -269,7 +269,7 @@ int JackService::processCallback(jack_nframes_t frameCount, void * arg)
             self->m_recordingInterleavedBuffer.resize(totalSamples);
         }
 
-        for (jack_nframes_t i = 0; i < frameCount; ++i) {
+        for (jack_nframes_t i = 0; i < frameCount; i++) {
             self->m_recordingInterleavedBuffer[i * 2] = static_cast<int32_t>(inL[i] * 2147483647.0f);
             self->m_recordingInterleavedBuffer[i * 2 + 1] = static_cast<int32_t>(inR[i] * 2147483647.0f);
         }
@@ -290,7 +290,7 @@ int JackService::processCallback(jack_nframes_t frameCount, void * arg)
 
         const size_t read = self->m_streamer.pop(self->m_playbackInterleavedBuffer.data(), totalSamples);
 
-        for (jack_nframes_t i = 0; i < frameCount; ++i) {
+        for (jack_nframes_t i = 0; i < frameCount; i++) {
             if (i * 2 + 1 < read) {
                 outL[i] = static_cast<float>(self->m_playbackInterleavedBuffer[i * 2]) / 2147483647.0f;
                 outR[i] = static_cast<float>(self->m_playbackInterleavedBuffer[i * 2 + 1]) / 2147483647.0f;
@@ -314,11 +314,12 @@ int JackService::processCallback(jack_nframes_t frameCount, void * arg)
             std::fill(self->m_engineInterleavedBuffer.begin(), self->m_engineInterleavedBuffer.begin() + totalSamples, 0.0f);
         }
 
-        self->m_audioEngine->process(self->m_engineInterleavedBuffer.data(), frameCount, self->sampleRate());
+        AudioContext audioContext { self->m_engineInterleavedBuffer.data(), frameCount, self->sampleRate() };
+        self->m_audioEngine->process(audioContext);
 
         auto outL = static_cast<jack_default_audio_sample_t *>(jack_port_get_buffer(self->m_outputPortL, frameCount));
         auto outR = static_cast<jack_default_audio_sample_t *>(jack_port_get_buffer(self->m_outputPortR, frameCount));
-        for (jack_nframes_t i = 0; i < frameCount; ++i) {
+        for (jack_nframes_t i = 0; i < frameCount; i++) {
             outL[i] += self->m_engineInterleavedBuffer[i * 2];
             outR[i] += self->m_engineInterleavedBuffer[i * 2 + 1];
         }

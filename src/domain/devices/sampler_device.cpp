@@ -310,12 +310,12 @@ void SamplerDevice::processMidiAllNotesOff()
     emit dataChanged();
 }
 
-void SamplerDevice::processAudio(float * output, uint32_t frameCount, uint32_t sampleRate)
+void SamplerDevice::processAudio(AudioContext & context)
 {
-    setSampleRate(sampleRate);
+    setSampleRate(context.sampleRate);
     const std::lock_guard<std::recursive_mutex> lock { mutex() };
 
-    std::vector<float> buffer(frameCount * 2, 0.0f);
+    std::vector<float> buffer(context.frameCount * 2, 0.0f);
 
     const float fadeStep = 1.0f / 256.0f;
 
@@ -325,14 +325,14 @@ void SamplerDevice::processAudio(float * output, uint32_t frameCount, uint32_t s
         }
 
         for (auto && effect : voice.effects) {
-            effect->setSampleRate(sampleRate);
+            effect->setSampleRate(context.sampleRate);
         }
 
         const auto & sampleData { *voice.sample->data };
         const int channels = voice.sample->channels;
-        const float pitchScale = static_cast<float>(voice.sample->sampleRate) / static_cast<float>(sampleRate);
+        const float pitchScale = static_cast<float>(voice.sample->sampleRate) / static_cast<float>(context.sampleRate);
 
-        for (uint32_t i = 0; i < frameCount; i++) {
+        for (uint32_t i = 0; i < context.frameCount; i++) {
             const double currentPos = voice.position;
             const size_t index = static_cast<size_t>(currentPos);
             const float fract = static_cast<float>(currentPos - index);
@@ -380,9 +380,9 @@ void SamplerDevice::processAudio(float * output, uint32_t frameCount, uint32_t s
         }
     }
 
-    for (uint32_t i = 0; i < frameCount; i++) {
-        output[i * 2] += buffer[i * 2] * volumeInternal();
-        output[i * 2 + 1] += buffer[i * 2 + 1] * volumeInternal();
+    for (uint32_t i = 0; i < context.frameCount; i++) {
+        context.buffer[i * 2] += buffer[i * 2] * volumeInternal();
+        context.buffer[i * 2 + 1] += buffer[i * 2 + 1] * volumeInternal();
     }
 }
 

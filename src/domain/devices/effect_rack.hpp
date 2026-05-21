@@ -17,6 +17,7 @@
 #define EFFECT_RACK_HPP
 
 #include "effect.hpp"
+#include "../dsp/audio_context.hpp"
 #include <vector>
 #include <memory>
 #include <mutex>
@@ -40,7 +41,7 @@ public:
     std::vector<EffectS> effects() const;
     size_t effectCount() const;
 
-    void process(float * output, const float * sendBus, size_t effectIndex, uint32_t frameCount, uint32_t sampleRate);
+    void process(AudioContext & outputContext, const float * sendBus, size_t effectIndex);
 
     void reset();
 

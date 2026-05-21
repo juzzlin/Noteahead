@@ -75,7 +75,7 @@ public:
     void processMidiProgramChange(uint8_t program, uint8_t channel) override;
     void processMidiAllNotesOff() override;
 
-    void processAudio(float * output, uint32_t frameCount, uint32_t sampleRate) override;
+    void processAudio(AudioContext & context) override;
     bool hasActiveAudio() const override;
 
     void setBpm(float bpm) override;
@@ -325,10 +325,10 @@ private:
     ModulationValues calculateModulation(Voice & voice) const;
     float generateVoiceSample(Voice & voice, const ModulationValues & mods, double oversampledRate);
 
-    void prepareForProcessing(uint32_t sampleRate, uint32_t frameCount);
+    void prepareForProcessing(AudioContext & context);
     void updateVoiceParameters(Voice & voice, uint32_t oversampledRate);
-    void renderVoice(Voice & voice, uint32_t frameCount, uint32_t oversampledRate);
-    void applyGlobalEffects(float * output, uint32_t frameCount);
+    void renderVoice(Voice & voice, AudioContext & context, uint32_t oversampledRate);
+    void applyGlobalEffects(AudioContext & context);
 
     std::string m_name;
 };

@@ -53,7 +53,7 @@ public:
 
     void setBpm(float bpm);
 
-    void process(float * output, uint32_t frameCount, uint32_t sampleRate);
+    void process(AudioContext & context);
 
     void reset();
     void clear();

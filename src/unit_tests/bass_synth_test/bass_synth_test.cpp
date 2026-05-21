@@ -97,7 +97,8 @@ void BassSynthTest::test_retriggerOnSlide_shouldIncreaseVolume()
     // Render some audio to let it reach decay phase
     const int frameCount { 1000 };
     std::vector<float> buffer(static_cast<size_t>(frameCount) * 2, 0.0f);
-    synth.processAudio(buffer.data(), frameCount, 44100);
+    AudioContext context { buffer.data(), static_cast<uint32_t>(frameCount), 44100 };
+    synth.processAudio(context);
 
     float peak1 { 0.0f };
     for (float sample : buffer) {
@@ -106,14 +107,14 @@ void BassSynthTest::test_retriggerOnSlide_shouldIncreaseVolume()
     QVERIFY(peak1 > 0.0f);
 
     // Render more to let it decay a lot
-    synth.processAudio(buffer.data(), frameCount, 44100);
+    synth.processAudio(context);
     float lastVal { std::abs(buffer[buffer.size() - 2]) };
 
     // 2. Trigger second note (legato)
     synth.processMidiNoteOn(62, 100);
 
     // Render again. Volume should INCREASE because of re-triggering attack
-    synth.processAudio(buffer.data(), frameCount, 44100);
+    synth.processAudio(context);
     float peak2 { 0.0f };
     for (float sample : buffer) {
         peak2 = std::max(peak2, std::abs(sample));
@@ -132,12 +133,13 @@ void BassSynthTest::test_noClickOnSlideZero_shouldNotHaveLargeDiscontinuities()
 
     const int frameCount { 100 };
     std::vector<float> buffer(static_cast<size_t>(frameCount) * 2, 0.0f);
-    synth.processAudio(buffer.data(), frameCount, 44100);
+    AudioContext context { buffer.data(), static_cast<uint32_t>(frameCount), 44100 };
+    synth.processAudio(context);
 
     // Trigger next note immediately
     synth.processMidiNoteOn(62, 100);
 
-    synth.processAudio(buffer.data(), frameCount, 44100);
+    synth.processAudio(context);
 
     // Check for huge jumps (clicks) in the transition
     for (size_t i { 1 }; i < buffer.size(); i++) {

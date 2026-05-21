@@ -58,7 +58,7 @@ public:
     void processMidiNoteOff(uint8_t) override {}
     void processMidiCc(uint8_t, uint8_t, uint8_t) override {}
     void processMidiAllNotesOff() override {}
-    void processAudio(float *, uint32_t, uint32_t) override {}
+    void processAudio(AudioContext &) override {}
     bool hasActiveAudio() const override { return false; }
     void reset() override {}
     void resetAudio() override {}

@@ -98,7 +98,7 @@ void DrumSynthTest::test_kickEngine_peakVolume_shouldNotExceedOne()
         engine.setAttack(attack);
         engine.trigger(1.0f);
         float peak = 0.0f;
-        for (int i = 0; i < 1000; ++i) {
+        for (int i = 0; i < 1000; i++) {
             peak = std::max(peak, std::abs(engine.nextSample()));
         }
         QVERIFY(peak <= 1.01f);
@@ -111,7 +111,7 @@ void DrumSynthTest::test_tomEngine_peakVolume_shouldNotExceedOne()
     engine.setSampleRate(44100);
     engine.trigger(1.0f);
     float peak = 0.0f;
-    for (int i = 0; i < 1000; ++i) {
+    for (int i = 0; i < 1000; i++) {
         peak = std::max(peak, std::abs(engine.nextSample()));
     }
     QVERIFY(peak <= 1.01f);
@@ -125,7 +125,7 @@ void DrumSynthTest::test_snareEngine_peakVolume_shouldNotExceedOne()
         engine.setSnappy(snappy);
         engine.trigger(1.0f);
         float peak = 0.0f;
-        for (int i = 0; i < 1000; ++i) {
+        for (int i = 0; i < 1000; i++) {
             peak = std::max(peak, std::abs(engine.nextSample()));
         }
         QVERIFY(peak <= 1.01f);
@@ -138,7 +138,7 @@ void DrumSynthTest::test_hihatEngine_peakVolume_shouldNotExceedOne()
     engine.setSampleRate(44100);
     engine.trigger(1.0f);
     float peak = 0.0f;
-    for (int i = 0; i < 1000; ++i) {
+    for (int i = 0; i < 1000; i++) {
         peak = std::max(peak, std::abs(engine.nextSample()));
     }
     QVERIFY(peak <= 1.01f);
@@ -150,7 +150,7 @@ void DrumSynthTest::test_crashEngine_peakVolume_shouldNotExceedOne()
     engine.setSampleRate(44100);
     engine.trigger(1.0f);
     float peak = 0.0f;
-    for (int i = 0; i < 1000; ++i) {
+    for (int i = 0; i < 1000; i++) {
         peak = std::max(peak, std::abs(engine.nextSample()));
     }
     QVERIFY(peak <= 1.01f);
@@ -162,7 +162,7 @@ void DrumSynthTest::test_rideEngine_peakVolume_shouldNotExceedOne()
     engine.setSampleRate(44100);
     engine.trigger(1.0f);
     float peak = 0.0f;
-    for (int i = 0; i < 1000; ++i) {
+    for (int i = 0; i < 1000; i++) {
         peak = std::max(peak, std::abs(engine.nextSample()));
     }
     QVERIFY(peak <= 1.01f);
@@ -212,12 +212,13 @@ void DrumSynthTest::test_clapEngine_trigger_shouldBeActive()
 
 void DrumSynthTest::test_drumSynthDevice_midiNoteOn_shouldTriggerVoice()
 {
-    DrumSynthDevice device("Test");
+     DrumSynthDevice device("Test");
     device.processMidiNoteOn(36, 127); // Kick
     std::vector<float> buffer(20, 0.0f);
-    device.processAudio(buffer.data(), 10, 44100);
+    AudioContext context { buffer.data(), 10, 44100 };
+    device.processAudio(context);
     bool foundSound = false;
-    for (size_t i = 0; i < buffer.size(); ++i) {
+    for (size_t i = 0; i < buffer.size(); i++) {
         if (buffer.at(i) != 0.0f) {
             foundSound = true;
             break;
@@ -301,7 +302,7 @@ void DrumSynthTest::test_tomEngine_tunes_shouldSoundDifferent()
     
     engine.setTune(0.2f);
     engine.trigger(1.0f);
-    for (int i { 0 }; i < 10; ++i) {
+    for (int i { 0 }; i < 10; i++) {
         engine.nextSample();
     }
     const float sample1 { engine.nextSample() };
@@ -309,7 +310,7 @@ void DrumSynthTest::test_tomEngine_tunes_shouldSoundDifferent()
     engine.reset();
     engine.setTune(0.8f);
     engine.trigger(1.0f);
-    for (int i { 0 }; i < 10; ++i) {
+    for (int i { 0 }; i < 10; i++) {
         engine.nextSample();
     }
     const float sample2 { engine.nextSample() };

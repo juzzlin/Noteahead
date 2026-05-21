@@ -39,7 +39,7 @@ DrumSynthDevice::DrumSynthDevice(std::string name)
 {
     initializeVoices();
 
-    for (int i { 0 }; i < NumVoices; ++i) {
+    for (int i { 0 }; i < NumVoices; i++) {
         addVoiceParameters(i);
     }
 
@@ -140,10 +140,10 @@ void DrumSynthDevice::processMidiAllNotesOff()
     }
 }
 
-void DrumSynthDevice::processAudio(float * output, uint32_t frameCount, uint32_t sampleRate)
+void DrumSynthDevice::processAudio(AudioContext & context)
 {
-    setSampleRate(sampleRate);
-    const uint32_t oversampledRate = sampleRate * 2;
+    setSampleRate(context.sampleRate);
+    const uint32_t oversampledRate = context.sampleRate * 2;
     const std::lock_guard<std::recursive_mutex> lock { mutex() };
 
     for (auto && voice : m_voices) {
@@ -152,10 +152,10 @@ void DrumSynthDevice::processAudio(float * output, uint32_t frameCount, uint32_t
         voice.hpf->setSampleRate(oversampledRate);
     }
 
-    std::vector<float> oversampledBuffer(frameCount * 4, 0.0f);
+    std::vector<float> oversampledBuffer(context.frameCount * 4, 0.0f);
     const float globalGain = linearGainInternal();
 
-    for (uint32_t i = 0; i < frameCount; i++) {
+    for (uint32_t i = 0; i < context.frameCount; i++) {
         for (int os = 0; os < 2; os++) {
             float mixL = 0.0f;
             float mixR = 0.0f;
@@ -181,7 +181,7 @@ void DrumSynthDevice::processAudio(float * output, uint32_t frameCount, uint32_t
         }
     }
 
-    for (uint32_t i = 0; i < frameCount; i++) {
+    for (uint32_t i = 0; i < context.frameCount; i++) {
         const float l0 = oversampledBuffer[i * 4];
         const float r0 = oversampledBuffer[i * 4 + 1];
         const float l1 = oversampledBuffer[i * 4 + 2];
@@ -191,8 +191,8 @@ void DrumSynthDevice::processAudio(float * output, uint32_t frameCount, uint32_t
         float l = m_oversamplerL.process(std::tanh(l0), std::tanh(l1));
         float r = m_oversamplerR.process(std::tanh(r0), std::tanh(r1));
 
-        output[i * 2] += l * volumeInternal();
-        output[i * 2 + 1] += r * volumeInternal();
+        context.buffer[i * 2] += l * volumeInternal();
+        context.buffer[i * 2 + 1] += r * volumeInternal();
     }
 }
 
@@ -356,7 +356,7 @@ void DrumSynthDevice::syncParameters()
 {
     Device::syncParameters();
 
-    for (int i { 0 }; i < NumVoices; ++i) {
+    for (int i { 0 }; i < NumVoices; i++) {
         syncVoiceParameters(i);
     }
 }

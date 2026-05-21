@@ -49,17 +49,20 @@ void EffectRackTest::test_process()
 
     std::vector<float> output(2, 0.0f);
     std::vector<float> sendBus(2, 1.0f); // DC input
+    AudioContext outputContext { output.data(), 1, 44100 };
 
     // Reverb needs some samples to build up output
-    for (int i = 0; i < 2000; ++i) {
-        rack.process(output.data(), sendBus.data(), 0, 1, 44100);
+    for (int i = 0; i < 2000; i++) {
+
+        rack.process(outputContext, sendBus.data(), 0);
     }
 
     QVERIFY(output[0] != 0.0f || output[1] != 0.0f);
 
     // Verify processing an empty slot doesn't crash
     std::vector<float> output2(2, 0.0f);
-    rack.process(output2.data(), sendBus.data(), 1, 1, 44100);
+    AudioContext outputContext2 { output2.data(), 1, 44100 };
+    rack.process(outputContext2, sendBus.data(), 1);
     QCOMPARE(output2[0], 0.0f);
     QCOMPARE(output2[1], 0.0f);
 }

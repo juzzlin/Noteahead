@@ -18,6 +18,7 @@
 
 #include <QObject>
 
+#include "../dsp/audio_context.hpp"
 #include "../parameter_container.hpp"
 
 #include <vector>
@@ -53,7 +54,7 @@ public:
     virtual void processMidiProgramChange(uint8_t, uint8_t) {}
     virtual void processMidiAllNotesOff() = 0;
 
-    virtual void processAudio(float * output, uint32_t frameCount, uint32_t sampleRate) = 0;
+    virtual void processAudio(AudioContext & context) = 0;
     virtual bool hasActiveAudio() const { return true; }
 
     virtual void setBpm(float) {}

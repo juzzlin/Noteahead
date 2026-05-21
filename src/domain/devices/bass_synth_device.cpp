@@ -195,10 +195,10 @@ void BassSynthDevice::processMidiAllNotesOff()
     m_voice.reset();
 }
 
-void BassSynthDevice::processAudio(float * output, uint32_t frameCount, uint32_t sampleRate)
+void BassSynthDevice::processAudio(AudioContext & context)
 {
-    setSampleRate(sampleRate);
-    const uint32_t oversampledRate = sampleRate * 2;
+    setSampleRate(context.sampleRate);
+    const uint32_t oversampledRate = context.sampleRate * 2;
     const std::lock_guard<std::recursive_mutex> lock { mutex() };
 
     if (!m_voice.active) return;
@@ -218,7 +218,7 @@ void BassSynthDevice::processAudio(float * output, uint32_t frameCount, uint32_t
     const double pbOffset = (static_cast<double>(m_pitchBend) - 8192.0) / 8192.0 * m_pitchBendRange;
     const double tuningOffset = ParameterMapper::mapCubicCentered(m_tuning * 2.0 - 1.0, -1200, 1200);
 
-    for (uint32_t i = 0; i < frameCount; i++) {
+    for (uint32_t i = 0; i < context.frameCount; i++) {
         float l[2] { 0.0f, 0.0f };
         float r[2] { 0.0f, 0.0f };
 
@@ -267,8 +267,8 @@ void BassSynthDevice::processAudio(float * output, uint32_t frameCount, uint32_t
             r[os] = finalSample * panInternal() * 0.5f;
         }
 
-        output[i * 2] += m_oversamplerL.process(l[0], l[1]) * volumeInternal();
-        output[i * 2 + 1] += m_oversamplerR.process(r[0], r[1]) * volumeInternal();
+        context.buffer[i * 2] += m_oversamplerL.process(l[0], l[1]) * volumeInternal();
+        context.buffer[i * 2 + 1] += m_oversamplerR.process(r[0], r[1]) * volumeInternal();
     }
 
     if (m_voice.ampEg.state() == AdsrEnvelope::State::Idle) {

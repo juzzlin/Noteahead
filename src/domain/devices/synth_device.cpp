@@ -163,35 +163,35 @@ std::string SynthDevice::typeId() const
     return typeIdString();
 }
 
-void SynthDevice::processAudio(float * output, uint32_t frameCount, uint32_t sampleRate)
+void SynthDevice::processAudio(AudioContext & context)
 {
     const std::lock_guard<std::recursive_mutex> lock { mutex() };
 
-    prepareForProcessing(sampleRate, frameCount);
+    prepareForProcessing(context);
 
-    const uint32_t oversampledRate = sampleRate * 2;
+    const uint32_t oversampledRate = context.sampleRate * 2;
     for (auto && voice : m_voices) {
         if (voice.active) {
-            renderVoice(voice, frameCount, oversampledRate);
+            renderVoice(voice, context, oversampledRate);
         }
     }
 
-    applyGlobalEffects(output, frameCount);
+    applyGlobalEffects(context);
 }
 
-void SynthDevice::prepareForProcessing(uint32_t sampleRate, uint32_t frameCount)
+void SynthDevice::prepareForProcessing(AudioContext & context)
 {
-    setSampleRate(sampleRate);
-    m_delay.setSampleRate(static_cast<double>(sampleRate));
+    setSampleRate(context.sampleRate);
+    m_delay.setSampleRate(static_cast<double>(context.sampleRate));
 
-    const size_t requiredSize = static_cast<size_t>(frameCount) * 4;
+    const size_t requiredSize = static_cast<size_t>(context.frameCount) * 4;
     if (m_oversampledBuffer.size() < requiredSize) {
         m_oversampledBuffer.resize(requiredSize);
     }
     std::fill(m_oversampledBuffer.begin(), m_oversampledBuffer.begin() + requiredSize, 0.0f);
 }
 
-void SynthDevice::renderVoice(Voice & voice, uint32_t frameCount, uint32_t oversampledRate)
+void SynthDevice::renderVoice(Voice & voice, AudioContext & context, uint32_t oversampledRate)
 {
     updateVoiceParameters(voice, oversampledRate);
 
@@ -201,7 +201,7 @@ void SynthDevice::renderVoice(Voice & voice, uint32_t frameCount, uint32_t overs
 
     const double portamentoCoeff = m_portamento > 0 ? 1.0 - std::pow(0.001, 1.0 / (m_portamento * oversampledRate)) : 1.0;
 
-    for (uint32_t i = 0; i < frameCount; i++) {
+    for (uint32_t i = 0; i < context.frameCount; i++) {
         for (int os = 0; os < 2; os++) {
             voice.glideFrequency += (voice.frequency - voice.glideFrequency) * portamentoCoeff;
 
@@ -240,9 +240,9 @@ void SynthDevice::updateVoiceParameters(Voice & voice, uint32_t oversampledRate)
     voice.multi.setNote(voice.note);
 }
 
-void SynthDevice::applyGlobalEffects(float * output, uint32_t frameCount)
+void SynthDevice::applyGlobalEffects(AudioContext & context)
 {
-    for (uint32_t i = 0; i < frameCount; i++) {
+    for (uint32_t i = 0; i < context.frameCount; i++) {
         const float l0 = m_oversampledBuffer[i * 4];
         const float r0 = m_oversampledBuffer[i * 4 + 1];
         const float l1 = m_oversampledBuffer[i * 4 + 2];
@@ -253,8 +253,8 @@ void SynthDevice::applyGlobalEffects(float * output, uint32_t frameCount)
 
         m_delay.process(l, r);
 
-        output[i * 2] += l * volumeInternal();
-        output[i * 2 + 1] += r * volumeInternal();
+        context.buffer[i * 2] += l * volumeInternal();
+        context.buffer[i * 2 + 1] += r * volumeInternal();
     }
 }
 

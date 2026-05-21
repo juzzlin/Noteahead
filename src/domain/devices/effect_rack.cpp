@@ -72,7 +72,7 @@ size_t EffectRack::effectCount() const
     return m_effects.size();
 }
 
-void EffectRack::process(float * output, const float * sendBus, size_t effectIndex, uint32_t frameCount, uint32_t sampleRate)
+void EffectRack::process(AudioContext & outputContext, const float * sendBus, size_t effectIndex)
 {
     std::lock_guard<std::recursive_mutex> lock { m_mutex };
     if (effectIndex >= m_effects.size()) return;
@@ -80,21 +80,18 @@ void EffectRack::process(float * output, const float * sendBus, size_t effectInd
     auto & effect = m_effects[effectIndex];
     if (!effect) return;
 
-    effect->setSampleRate(sampleRate);
+    effect->setSampleRate(outputContext.sampleRate);
 
-    for (uint32_t i = 0; i < frameCount; ++i) {
+    for (uint32_t i = 0; i < outputContext.frameCount; i++) {
         float l = sendBus[i * 2];
         float r = sendBus[i * 2 + 1];
-        
+
         float wetL = l;
         float wetR = r;
         effect->process(wetL, wetR);
-        
-        // We want only the wet part (assuming Effect::process is dry + wet*mix)
-        // wetL is now dry + wet*mix.
-        // We subtract the dry part (l, r) to get wet*mix.
-        output[i * 2] += (wetL - l);
-        output[i * 2 + 1] += (wetR - r);
+
+        outputContext.buffer[i * 2] += (wetL - l);
+        outputContext.buffer[i * 2 + 1] += (wetR - r);
     }
 }
 
@@ -111,7 +108,7 @@ void EffectRack::reset()
 void EffectRack::serializeEffectsToXml(QXmlStreamWriter & writer) const
 {
     std::lock_guard<std::recursive_mutex> lock { m_mutex };
-    for (size_t i = 0; i < m_effects.size(); ++i) {
+    for (size_t i = 0; i < m_effects.size(); i++) {
         const auto & effect = m_effects[i];
         if (effect) {
             writer.writeStartElement(Constants::NahdXml::xmlKeyEffect());

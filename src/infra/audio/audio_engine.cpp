@@ -49,7 +49,7 @@ struct EffectProcessContext
 bool bufferContainsSignal(const std::vector<float> & buffer, uint32_t bufferSize)
 {
     constexpr float threshold = 1.0e-8f;
-    for (uint32_t i = 0; i < bufferSize; ++i) {
+    for (uint32_t i = 0; i < bufferSize; i++) {
         if (std::abs(buffer[i]) > threshold) {
             return true;
         }
@@ -68,15 +68,16 @@ void processDeviceTask(void * context, size_t taskIndex, size_t workerIndex)
         return;
     }
 
-    device->processAudio(workBuffer.deviceBuffer.data(), deviceContext.frameCount, deviceContext.sampleRate);
+    AudioContext audioContext { workBuffer.deviceBuffer.data(), deviceContext.frameCount, deviceContext.sampleRate };
+    device->processAudio(audioContext);
     const bool hasOutputSignal = bufferContainsSignal(workBuffer.deviceBuffer, deviceContext.bufferSize);
     deviceContext.deviceActiveFlags->at(taskIndex) = hasOutputSignal ? 1 : 0;
 
-    for (uint32_t i = 0; i < deviceContext.bufferSize; ++i) {
+    for (uint32_t i = 0; i < deviceContext.bufferSize; i++) {
         const float sample = workBuffer.deviceBuffer[i];
         workBuffer.outputBuffer[i] += sample;
 
-        for (size_t sendIndex = 0; sendIndex < deviceContext.sendCount; ++sendIndex) {
+        for (size_t sendIndex = 0; sendIndex < deviceContext.sendCount; sendIndex++) {
             const float send = deviceContext.deviceSends->at(taskIndex * deviceContext.sendCount + sendIndex);
             workBuffer.sendBuffers[sendIndex][i] += sample * send;
         }
@@ -99,7 +100,7 @@ void processEffectTask(void * context, size_t taskIndex, size_t /*workerIndex*/)
     effect->setSampleRate(effectContext.sampleRate);
     bool hasWetSignal = false;
 
-    for (uint32_t i = 0; i < effectContext.frameCount; ++i) {
+    for (uint32_t i = 0; i < effectContext.frameCount; i++) {
         const size_t leftIndex = i * 2;
         const size_t rightIndex = leftIndex + 1;
         const float dryL = sendBus[leftIndex];
@@ -189,11 +190,11 @@ void AudioEngine::setBpm(float bpm)
     }
 }
 
-void AudioEngine::process(float * output, uint32_t frameCount, uint32_t sampleRate)
+void AudioEngine::process(AudioContext & context)
 {
     std::lock_guard<std::mutex> lock { m_mutex };
 
-    const uint32_t bufferSize = frameCount * 2;
+    const uint32_t bufferSize = context.frameCount * 2;
     auto effects = m_effectRack.effects();
     const size_t sendCount = effects.size();
     const size_t laneCount = m_workerPool.laneCount();
@@ -224,8 +225,8 @@ void AudioEngine::process(float * output, uint32_t frameCount, uint32_t sampleRa
     ensureDeviceActiveFlags(m_deviceSnapshot.size());
 
     m_deviceSendSnapshot.resize(m_deviceSnapshot.size() * sendCount);
-    for (size_t deviceIndex = 0; deviceIndex < m_deviceSnapshot.size(); ++deviceIndex) {
-        for (size_t sendIndex = 0; sendIndex < sendCount; ++sendIndex) {
+    for (size_t deviceIndex = 0; deviceIndex < m_deviceSnapshot.size(); deviceIndex++) {
+        for (size_t sendIndex = 0; sendIndex < sendCount; sendIndex++) {
             m_deviceSendSnapshot[deviceIndex * sendCount + sendIndex] = m_deviceSnapshot[deviceIndex]->reverbSend(sendIndex);
         }
     }
@@ -243,21 +244,21 @@ void AudioEngine::process(float * output, uint32_t frameCount, uint32_t sampleRa
         &m_deviceActiveFlags,
         &m_deviceSendSnapshot,
         sendCount,
-        frameCount,
-        sampleRate,
+        context.frameCount,
+        context.sampleRate,
         bufferSize
     };
     m_workerPool.run(m_deviceSnapshot.size(), &deviceContext, processDeviceTask);
 
     // Sum parallel results into the main output and send buses
     for (const auto & workBuffer : m_workBuffers) {
-        for (uint32_t i = 0; i < bufferSize; ++i) {
-            output[i] += workBuffer.outputBuffer[i];
+        for (uint32_t i = 0; i < bufferSize; i++) {
+            context.buffer[i] += workBuffer.outputBuffer[i];
         }
-        for (size_t sendIndex = 0; sendIndex < sendCount; ++sendIndex) {
+        for (size_t sendIndex = 0; sendIndex < sendCount; sendIndex++) {
             auto & sendBus = m_sendBusBuffers[sendIndex];
             const auto & laneSendBus = workBuffer.sendBuffers[sendIndex];
-            for (uint32_t i = 0; i < bufferSize; ++i) {
+            for (uint32_t i = 0; i < bufferSize; i++) {
                 sendBus[i] += laneSendBus[i];
             }
         }
@@ -268,14 +269,14 @@ void AudioEngine::process(float * output, uint32_t frameCount, uint32_t sampleRa
         &m_sendBusBuffers,
         &m_effectWetBuffers,
         &m_effectActiveFlags,
-        frameCount,
-        sampleRate
+        context.frameCount,
+        context.sampleRate
     };
     m_workerPool.run(sendCount, &effectContext, processEffectTask);
 
     for (const auto & wetBuffer : m_effectWetBuffers) {
-        for (uint32_t i = 0; i < bufferSize; ++i) {
-            output[i] += wetBuffer[i];
+        for (uint32_t i = 0; i < bufferSize; i++) {
+            context.buffer[i] += wetBuffer[i];
         }
     }
 }
