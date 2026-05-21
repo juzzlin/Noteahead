@@ -94,8 +94,8 @@ BassSynthDevice::BassSynthDevice(std::string name)
 
     m_voice.filterEg.setSustainLevel(0.0);
     m_voice.ampEg.setSustainLevel(0.0);
-    m_voice.ampEg.setAttackTime(0.001); // Fast attack for bass
-    m_voice.filterEg.setAttackTime(0.001);
+    m_voice.ampEg.setAttackTime(0.005); // Snappy but no click
+    m_voice.filterEg.setAttackTime(0.005);
 
     BassSynthDevice::syncParameters();
 }
