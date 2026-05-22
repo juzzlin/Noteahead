@@ -28,9 +28,11 @@ public:
     std::string typeId() const override { return typeIdString(); }
     void setCutoff(float cutoff);
     void process(float & left, float & right) override;
+    void process(AudioContext & context) override;
     void reset() override;
 
 private:
+    void processSample(float & left, float & right, double g, double damping, double k);
     float m_cutoff { 1.0f };
     double m_s1L { 0.0 }, m_s2L { 0.0 };
     double m_s1R { 0.0 }, m_s2R { 0.0 };

@@ -142,6 +142,10 @@ float BiquadFilter::process(float input)
     m_z1 = m_coefficients.b1 * input - m_coefficients.a1 * out + m_z2;
     m_z2 = m_coefficients.b2 * input - m_coefficients.a2 * out;
 
+    // Denormal protection
+    if (std::abs(m_z1) < 1.0e-15) m_z1 = 0.0;
+    if (std::abs(m_z2) < 1.0e-15) m_z2 = 0.0;
+
     return static_cast<float>(out);
 }
 

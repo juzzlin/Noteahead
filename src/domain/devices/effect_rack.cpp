@@ -82,7 +82,12 @@ void EffectRack::process(AudioContext & outputContext, const float * sendBus, si
     if (!effect) return;
 
     effect->setSampleRate(outputContext.sampleRate);
+    effect->sync();
 
+    // Call block-based process if available (via default implementation or override)
+    // but we need to mix into outputContext. 
+    // The previous implementation was doing a sample-by-sample delta mix.
+    
     for (uint32_t i = 0; i < outputContext.frameCount; i++) {
         float l = sendBus[i * 2];
         float r = sendBus[i * 2 + 1];
@@ -103,13 +108,7 @@ void EffectRack::processInPlace(AudioContext & context)
         if (!effect) continue;
 
         effect->setSampleRate(context.sampleRate);
-        for (uint32_t i = 0; i < context.frameCount; i++) {
-            float l = context.buffer[i * 2];
-            float r = context.buffer[i * 2 + 1];
-            effect->process(l, r);
-            context.buffer[i * 2] = l;
-            context.buffer[i * 2 + 1] = r;
-        }
+        effect->process(context);
     }
 }
 

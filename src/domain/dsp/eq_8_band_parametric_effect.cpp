@@ -14,6 +14,7 @@
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
 #include "eq_8_band_parametric_effect.hpp"
+#include "audio_context.hpp"
 
 #include "../../common/constants.hpp"
 #include "../../common/parameter_mapper.hpp"
@@ -44,6 +45,19 @@ void Eq8BandParametricEffect::process(float & left, float & right)
 
     updateBuffers();
     processStereo(left, right);
+}
+
+void Eq8BandParametricEffect::process(AudioContext & context)
+{
+    if (m_sampleRate <= 0) {
+        return;
+    }
+
+    updateBuffers();
+
+    for (uint32_t i = 0; i < context.frameCount; i++) {
+        process(context.buffer[i * 2], context.buffer[i * 2 + 1]);
+    }
 }
 
 void Eq8BandParametricEffect::updateBuffers()

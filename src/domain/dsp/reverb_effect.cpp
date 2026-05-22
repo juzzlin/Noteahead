@@ -14,6 +14,7 @@
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
 #include "reverb_effect.hpp"
+#include "audio_context.hpp"
 #include "../../common/constants.hpp"
 
 #include <cmath>
@@ -38,12 +39,7 @@ void ReverbEffect::process(float & left, float & right)
         return;
     }
 
-    if (static_cast<uint32_t>(m_sampleRate) != m_lastSampleRate) {
-        syncParameters();
-        updateBuffers();
-        m_shouldUpdateBuffers = false;
-        m_shouldSyncParameters = false;
-    } else if (m_shouldUpdateBuffers) {
+    if (static_cast<uint32_t>(m_sampleRate) != m_lastSampleRate || m_shouldUpdateBuffers) {
         syncParameters();
         updateBuffers();
         m_shouldUpdateBuffers = false;
@@ -70,13 +66,25 @@ void ReverbEffect::process(float & left, float & right)
     // FDN Processing
     std::array<float, NumDelays> delayOutputs;
     for (int i = 0; i < NumDelays; i++) {
+        if (m_delays[i].buffer.empty()) {
+            delayOutputs[i] = 0.0f;
+            continue;
+        }
         delayOutputs[i] = m_delays[i].buffer[m_delays[i].writePos];
     }
 
     // Apply damping to delay line outputs
     for (int i = 0; i < NumDelays; i++) {
+        if (m_delays[i].buffer.empty()) {
+            continue;
+        }
         const float dOut = delayOutputs[i];
         m_delays[i].lpState = dOut + m_damping * (m_delays[i].lpState - dOut);
+
+        // Denormal protection
+        if (std::abs(m_delays[i].lpState) < 1.0e-15f) {
+            m_delays[i].lpState = 0.0f;
+        }
     }
 
     // Householder reflection for N=4
@@ -87,6 +95,9 @@ void ReverbEffect::process(float & left, float & right)
     const float average = sum * (2.0f / static_cast<float>(NumDelays));
 
     for (int i = 0; i < NumDelays; i++) {
+        if (m_delays[i].buffer.empty()) {
+            continue;
+        }
         const float feedback = m_delays[i].lpState - average;
         // Inject input + mixed feedback into delay lines
         m_delays[i].buffer[m_delays[i].writePos] = input + feedback * m_delays[i].feedback;
@@ -106,6 +117,22 @@ void ReverbEffect::process(float & left, float & right)
     // Mix
     left = dryL + wetL * m_mix;
     right = dryR + wetR * m_mix;
+}
+
+void ReverbEffect::process(AudioContext & context)
+{
+    if (m_sampleRate <= 0) {
+        return;
+    }
+
+    syncParameters();
+    updateBuffers();
+    m_shouldUpdateBuffers = false;
+    m_shouldSyncParameters = false;
+
+    for (uint32_t i = 0; i < context.frameCount; i++) {
+        process(context.buffer[i * 2], context.buffer[i * 2 + 1]);
+    }
 }
 
 void ReverbEffect::reset()

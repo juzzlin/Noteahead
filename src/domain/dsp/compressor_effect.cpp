@@ -14,6 +14,7 @@
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
 #include "compressor_effect.hpp"
+#include "audio_context.hpp"
 
 #include "../../common/constants.hpp"
 #include "../../common/parameter_mapper.hpp"
@@ -44,6 +45,7 @@ void CompressorEffect::process(float & left, float & right)
     }
 
     updateBuffers();
+    updateCoefficients();
 
     const float detectorDb = calculateDetectorLevelDb(left, right);
     const float gainReductionDb = calculateGainReductionDb(detectorDb);
@@ -52,9 +54,23 @@ void CompressorEffect::process(float & left, float & right)
     applyGain(left, right);
 }
 
+void CompressorEffect::process(AudioContext & context)
+{
+    if (m_sampleRate <= 0) {
+        return;
+    }
+
+    updateBuffers();
+    updateCoefficients();
+
+    for (uint32_t i = 0; i < context.frameCount; i++) {
+        process(context.buffer[i * 2], context.buffer[i * 2 + 1]);
+    }
+}
+
 void CompressorEffect::updateBuffers()
 {
-    if (static_cast<uint32_t>(m_sampleRate) != m_lastSampleRate || m_shouldUpdateBuffers) {
+    if (static_cast<uint32_t>(m_sampleRate) != m_lastSampleRate || m_shouldUpdateBuffers || m_delayBufferL.empty()) {
         syncParameters();
         const uint32_t lookaheadSamples = static_cast<uint32_t>(m_lookaheadMs * m_sampleRate / 1000.0f);
         const uint32_t bufferSize = std::max(1u, lookaheadSamples + 1);
@@ -70,6 +86,14 @@ void CompressorEffect::updateBuffers()
     } else if (m_shouldSyncParameters) {
         syncParameters();
         m_shouldSyncParameters = false;
+    }
+}
+
+void CompressorEffect::updateCoefficients()
+{
+    if (m_sampleRate > 0) {
+        m_attackCoeff = std::exp(-1.0f / (m_attackMs * static_cast<float>(m_sampleRate) / 1000.0f));
+        m_releaseCoeff = std::exp(-1.0f / (m_releaseMs * static_cast<float>(m_sampleRate) / 1000.0f));
     }
 }
 
@@ -100,13 +124,15 @@ float CompressorEffect::calculateGainReductionDb(float detectorDb) const
 
 void CompressorEffect::updateEnvelope(float gainReductionDb)
 {
-    const float attackCoeff = std::exp(-1.0f / (m_attackMs * static_cast<float>(m_sampleRate) / 1000.0f));
-    const float releaseCoeff = std::exp(-1.0f / (m_releaseMs * static_cast<float>(m_sampleRate) / 1000.0f));
-
     if (gainReductionDb < m_envelopeDb) {
-        m_envelopeDb = attackCoeff * m_envelopeDb + (1.0f - attackCoeff) * gainReductionDb;
+        m_envelopeDb = m_attackCoeff * m_envelopeDb + (1.0f - m_attackCoeff) * gainReductionDb;
     } else {
-        m_envelopeDb = releaseCoeff * m_envelopeDb + (1.0f - releaseCoeff) * gainReductionDb;
+        m_envelopeDb = m_releaseCoeff * m_envelopeDb + (1.0f - m_releaseCoeff) * gainReductionDb;
+    }
+
+    // Denormal protection
+    if (std::abs(m_envelopeDb) < 1.0e-15f) {
+        m_envelopeDb = 0.0f;
     }
 
     m_reductionDb = m_envelopeDb;
@@ -114,6 +140,10 @@ void CompressorEffect::updateEnvelope(float gainReductionDb)
 
 void CompressorEffect::applyGain(float & left, float & right)
 {
+    if (m_delayBufferL.empty()) {
+        updateBuffers();
+    }
+    
     m_delayBufferL[m_writePos] = left;
     m_delayBufferR[m_writePos] = right;
 

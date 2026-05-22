@@ -14,6 +14,7 @@
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
 #include "delay_effect.hpp"
+#include "../dsp/audio_context.hpp"
 
 #include "../../common/constants.hpp"
 
@@ -32,16 +33,6 @@ DelayEffect::DelayEffect()
 
 void DelayEffect::process(float & left, float & right)
 {
-    const auto sampleRate = static_cast<uint32_t>(m_sampleRate);
-    if (sampleRate != m_lastSampleRate) {
-        updateBuffers(sampleRate);
-        m_lastSampleRate = sampleRate;
-        m_fbLpfL.setSampleRate(m_sampleRate);
-        m_fbLpfR.setSampleRate(m_sampleRate);
-        m_fbHpfL.setSampleRate(m_sampleRate);
-        m_fbHpfR.setSampleRate(m_sampleRate);
-    }
-
     if (m_mix <= Constants::minEffectLevel()) return;
 
     float delayTime;
@@ -51,6 +42,7 @@ void DelayEffect::process(float & left, float & right)
         delayTime = m_time;
     }
 
+    const uint32_t sampleRate = static_cast<uint32_t>(m_sampleRate);
     double delaySamples = static_cast<double>(delayTime) * sampleRate;
     size_t bufSize = m_bufferL.size();
 
@@ -85,16 +77,14 @@ void DelayEffect::process(float & left, float & right)
         fbR = std::tanh(m_lpStateR * saturation);
     }
 
-    // Apply feedback filters
-    m_fbLpfL.setCutoff(m_feedbackLpfCutoff);
-    m_fbLpfR.setCutoff(m_feedbackLpfCutoff);
-    m_fbHpfL.setCutoff(std::max(0.001f, m_feedbackHpfCutoff));
-    m_fbHpfR.setCutoff(std::max(0.001f, m_feedbackHpfCutoff));
-
     fbL = m_fbLpfL.process(fbL);
     fbR = m_fbLpfR.process(fbR);
     fbL = m_fbHpfL.process(fbL);
     fbR = m_fbHpfR.process(fbR);
+
+    // Denormal protection for feedback states
+    if (std::abs(m_lpStateL) < 1.0e-15f) m_lpStateL = 0.0f;
+    if (std::abs(m_lpStateR) < 1.0e-15f) m_lpStateR = 0.0f;
 
     // 3. Routing and Write-back
     float inputL = left;
@@ -128,6 +118,30 @@ void DelayEffect::process(float & left, float & right)
     const float wet = std::clamp(2.0f * m_mix, 0.0f, 1.0f);
     left = left * dry + outL * wet;
     right = right * dry + outR * wet;
+}
+
+void DelayEffect::process(AudioContext & context)
+{
+    if (m_sampleRate <= 0) return;
+
+    const auto sampleRate = static_cast<uint32_t>(m_sampleRate);
+    if (sampleRate != m_lastSampleRate) {
+        updateBuffers(sampleRate);
+        m_lastSampleRate = sampleRate;
+        m_fbLpfL.setSampleRate(m_sampleRate);
+        m_fbLpfR.setSampleRate(m_sampleRate);
+        m_fbHpfL.setSampleRate(m_sampleRate);
+        m_fbHpfR.setSampleRate(m_sampleRate);
+    }
+
+    m_fbLpfL.setCutoff(m_feedbackLpfCutoff);
+    m_fbLpfR.setCutoff(m_feedbackLpfCutoff);
+    m_fbHpfL.setCutoff(std::max(0.001f, m_feedbackHpfCutoff));
+    m_fbHpfR.setCutoff(std::max(0.001f, m_feedbackHpfCutoff));
+
+    for (uint32_t i = 0; i < context.frameCount; i++) {
+        process(context.buffer[i * 2], context.buffer[i * 2 + 1]);
+    }
 }
 
 void DelayEffect::reset()

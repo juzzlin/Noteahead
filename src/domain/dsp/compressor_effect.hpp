@@ -31,6 +31,7 @@ public:
     std::string type() const override { return "compressor"; }
     std::string typeId() const override { return typeIdString(); }
     void process(float & left, float & right) override;
+    void process(AudioContext & context) override;
     void reset() override;
     void sync() override;
 
@@ -38,6 +39,7 @@ public:
 
 private:
     void updateBuffers();
+    void updateCoefficients();
     float calculateDetectorLevelDb(float left, float right) const;
     float calculateGainReductionDb(float detectorDb) const;
     void updateEnvelope(float gainReductionDb);
@@ -51,6 +53,9 @@ private:
     float m_knee { 0.0f };
     float m_makeup { 0.0f };
     float m_lookaheadMs { 0.0f };
+
+    float m_attackCoeff { 0.0f };
+    float m_releaseCoeff { 0.0f };
 
     float m_envelopeDb { 0.0f };
     float m_reductionDb { 0.0f };

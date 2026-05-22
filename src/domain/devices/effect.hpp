@@ -24,6 +24,8 @@
 
 namespace noteahead {
 
+struct AudioContext;
+
 class Effect : public DspComponent, public ParameterContainer
 {
 public:
@@ -38,6 +40,7 @@ public:
     virtual std::string type() const = 0;
     virtual std::string typeId() const = 0;
     virtual void process(float & left, float & right) = 0;
+    virtual void process(AudioContext & context);
     virtual std::vector<std::string> parameterNames() const;
     virtual void reset() override {}
     virtual void sync() {}

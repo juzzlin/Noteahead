@@ -43,6 +43,7 @@ public:
     std::string type() const override { return "reverb"; }
     std::string typeId() const override { return typeIdString(); }
     void process(float & left, float & right) override;
+    void process(AudioContext & context) override;
     void reset() override;
     void sync() override;
 

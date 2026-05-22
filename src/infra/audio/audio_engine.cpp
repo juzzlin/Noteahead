@@ -105,22 +105,21 @@ void processEffectTask(void * context, size_t taskIndex, size_t /*workerIndex*/)
     }
 
     effect->setSampleRate(effectContext.sampleRate);
+    
+    // Copy dry signal to wet buffer for in-place processing
+    std::copy(sendBus.begin(), sendBus.begin() + bufferSize, wetBuffer.begin());
+    
+    AudioContext context_obj { std::span(wetBuffer.data(), bufferSize), effectContext.frameCount, effectContext.sampleRate };
+    effect->process(context_obj);
+
     bool hasWetSignal = false;
-
-    for (uint32_t i = 0; i < effectContext.frameCount; i++) {
-        const size_t leftIndex = i * 2;
-        const size_t rightIndex = leftIndex + 1;
-        const float dryL = sendBus[leftIndex];
-        const float dryR = sendBus[rightIndex];
-
-        float wetL = dryL;
-        float wetR = dryR;
-        effect->process(wetL, wetR);
-
-        wetBuffer[leftIndex] = wetL - dryL;
-        wetBuffer[rightIndex] = wetR - dryR;
-        hasWetSignal = hasWetSignal || std::abs(wetBuffer[leftIndex]) > 1.0e-8f || std::abs(wetBuffer[rightIndex]) > 1.0e-8f;
+    for (uint32_t i = 0; i < bufferSize; i++) {
+        wetBuffer[i] -= sendBus[i];
+        if (std::abs(wetBuffer[i]) > 1.0e-8f) {
+            hasWetSignal = true;
+        }
     }
+    
     effectContext.effectActiveFlags->at(taskIndex) = hasWetSignal ? 1 : 0;
 }
 
