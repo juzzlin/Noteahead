@@ -22,6 +22,7 @@
 #include "../../domain/devices/panning_effect.hpp"
 #include "../../domain/devices/volume_effect.hpp"
 #include "../../domain/dsp/compressor_effect.hpp"
+#include "../../domain/dsp/eq_8_band_parametric_effect.hpp"
 #include "../../domain/dsp/reverb_effect.hpp"
 
 #include <QStringList>
@@ -152,6 +153,8 @@ void EffectRackController::setEffect(int slotIndex, const QString & typeId)
         effect = std::make_shared<VolumeEffect>();
     } else if (stdTypeId == CompressorEffect::typeIdString()) {
         effect = std::make_shared<CompressorEffect>();
+    } else if (stdTypeId == Eq8BandParametricEffect::typeIdString()) {
+        effect = std::make_shared<Eq8BandParametricEffect>();
     }
 
     if (effect) {
@@ -184,8 +187,9 @@ QVariantList EffectRackController::availableEffects() const
         list.append(map);
     };
 
-    addEffect("Reverb", ReverbEffect::typeIdString());
     addEffect("Compressor", CompressorEffect::typeIdString());
+    addEffect("EQ 8-Band Parametric", Eq8BandParametricEffect::typeIdString());
+    addEffect("Reverb", ReverbEffect::typeIdString());
 
     return list;
 }
@@ -277,6 +281,26 @@ QString EffectRackController::compressorMakeupKey() const
 QString EffectRackController::compressorLookaheadKey() const
 {
     return Constants::NahdXml::xmlKeyLookahead();
+}
+
+QString EffectRackController::eq8BandParametricTypeKey(int bandIndex) const
+{
+    return Constants::NahdXml::xmlKeyEq8BandParametricType(bandIndex);
+}
+
+QString EffectRackController::eq8BandParametricFreqKey(int bandIndex) const
+{
+    return Constants::NahdXml::xmlKeyEq8BandParametricFreq(bandIndex);
+}
+
+QString EffectRackController::eq8BandParametricGainKey(int bandIndex) const
+{
+    return Constants::NahdXml::xmlKeyEq8BandParametricGain(bandIndex);
+}
+
+QString EffectRackController::eq8BandParametricQKey(int bandIndex) const
+{
+    return Constants::NahdXml::xmlKeyEq8BandParametricQ(bandIndex);
 }
 
 float EffectRackController::compressorReductionDb(int effectIndex) const

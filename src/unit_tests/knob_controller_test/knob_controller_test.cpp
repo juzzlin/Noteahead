@@ -144,6 +144,29 @@ void KnobControllerTest::test_valueToString()
     QCOMPARE(controller.valueToString(50.0, "%", 0, 100), QString { "50.0%" });
     QCOMPARE(controller.valueToString(-10.0, "dB", -60, 0), QString { "-10.0 dB" });
     QCOMPARE(controller.valueToString(123.0, "Hz"), QString { "123Hz" });
+    
+    // Test s and ms suffixes in valueToString (for linear mapping)
+    QCOMPARE(controller.valueToString(500.0, "ms"), QString { "500.0 ms" });
+    QCOMPARE(controller.valueToString(2.5, "s"), QString { "2.5 s" });
+}
+
+void KnobControllerTest::test_format()
+{
+    KnobController controller;
+    
+    // Test exponential mapping with time suffixes (reproduce attack knob issue)
+    // 0.5 unmapped with exponential 0.1 to 500 should be ~7.07
+    double mappedVal = controller.map(0.5, "exponential", 0.1, 500.0);
+    QCOMPARE(controller.format(mappedVal, "exponential", "ms", 0.1, 500.0), QString { "7.1 ms" });
+
+    // Test logFrequency mapping (reproduce LPF Bypass issue)
+    // LPF at max value should show Bypass
+    double maxFreq = controller.map(1.0, "logFrequency", 20, 20000);
+    // EXPECTED: "100.0% / Bypass"
+    QCOMPARE(controller.format(maxFreq, "logFrequency", "%", 20, 20000), QString { "100.0% / Bypass" });
+    
+    // Test exponential mapping for Q (reproduce integer formatting issue)
+    QCOMPARE(controller.format(1.234, "exponential", "", 0.1, 10.0), QString { "1.23" });
 }
 
 void KnobControllerTest::test_frequencyToString()

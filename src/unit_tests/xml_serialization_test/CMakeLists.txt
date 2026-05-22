@@ -47,7 +47,9 @@ set(SRC
     ../../domain/devices/synth_presets.cpp
     ../../domain/devices/volume_effect.cpp
     ../../domain/dsp/adsr_envelope.cpp
+    ../../domain/dsp/biquad_filter.cpp
     ../../domain/dsp/cascaded_svf.cpp
+    ../../domain/dsp/compressor_effect.cpp
     ../../domain/dsp/drum/clap_engine.cpp
     ../../domain/dsp/drum/crash_engine.cpp
     ../../domain/dsp/drum/hihat_engine.cpp
@@ -56,12 +58,12 @@ set(SRC
     ../../domain/dsp/drum/snare_engine.cpp
     ../../domain/dsp/drum/tom_engine.cpp
     ../../domain/dsp/dsp_component.cpp
+    ../../domain/dsp/eq_8_band_parametric_effect.cpp
     ../../domain/dsp/lfo.cpp
     ../../domain/dsp/multi_engine.cpp
     ../../domain/dsp/oversampler.cpp
     ../../domain/dsp/polyblep_oscillator.cpp
     ../../domain/dsp/reverb_effect.cpp
-    ../../domain/dsp/compressor_effect.cpp
     ../../domain/event.cpp
     ../../domain/event_data.cpp
     ../../domain/instrument.cpp

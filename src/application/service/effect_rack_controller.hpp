@@ -74,6 +74,11 @@ public:
     Q_INVOKABLE QString compressorMakeupKey() const;
     Q_INVOKABLE QString compressorLookaheadKey() const;
 
+    Q_INVOKABLE QString eq8BandParametricTypeKey(int bandIndex) const;
+    Q_INVOKABLE QString eq8BandParametricFreqKey(int bandIndex) const;
+    Q_INVOKABLE QString eq8BandParametricGainKey(int bandIndex) const;
+    Q_INVOKABLE QString eq8BandParametricQKey(int bandIndex) const;
+
     Q_INVOKABLE float compressorReductionDb(int effectIndex) const;
 
     Q_INVOKABLE QStringList reverbPresets() const;

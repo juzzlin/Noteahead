@@ -13,36 +13,38 @@ set(SOURCE_FILES
     ../../infra/audio/audio_file_recorder.cpp
     ../../infra/audio/backend/sndfile_reader.cpp
     ../../infra/audio/real_time_worker_pool.cpp
-    ../../domain/devices/device.cpp
-    ../../domain/devices/effect.cpp
     ../../domain/devices/bass_synth_device.cpp
+    ../../domain/devices/delay_effect.cpp
+    ../../domain/devices/device.cpp
+    ../../domain/devices/drum_synth_constants.cpp
+    ../../domain/devices/drum_synth_device.cpp
+    ../../domain/devices/effect.cpp
+    ../../domain/devices/effect_rack.cpp
+    ../../domain/devices/high_pass_filter_effect.cpp
+    ../../domain/devices/low_pass_filter_effect.cpp
+    ../../domain/devices/panning_effect.cpp
+    ../../domain/devices/sampler_device.cpp
     ../../domain/devices/synth_device.cpp
     ../../domain/devices/synth_presets.cpp
-    ../../domain/devices/sampler_device.cpp
-    ../../domain/devices/drum_synth_device.cpp
-    ../../domain/devices/drum_synth_constants.cpp
-    ../../domain/devices/effect_rack.cpp
-    ../../domain/devices/delay_effect.cpp
-    ../../domain/devices/panning_effect.cpp
-    ../../domain/devices/low_pass_filter_effect.cpp
-    ../../domain/devices/high_pass_filter_effect.cpp
     ../../domain/devices/volume_effect.cpp
     ../../domain/dsp/adsr_envelope.cpp
+    ../../domain/dsp/biquad_filter.cpp
     ../../domain/dsp/cascaded_svf.cpp
+    ../../domain/dsp/compressor_effect.cpp
+    ../../domain/dsp/drum/clap_engine.cpp
+    ../../domain/dsp/drum/crash_engine.cpp
+    ../../domain/dsp/drum/hihat_engine.cpp
+    ../../domain/dsp/drum/kick_engine.cpp
+    ../../domain/dsp/drum/ride_engine.cpp
+    ../../domain/dsp/drum/snare_engine.cpp
+    ../../domain/dsp/drum/tom_engine.cpp
     ../../domain/dsp/dsp_component.cpp
-    ../../domain/dsp/polyblep_oscillator.cpp
+    ../../domain/dsp/eq_8_band_parametric_effect.cpp
     ../../domain/dsp/lfo.cpp
     ../../domain/dsp/multi_engine.cpp
     ../../domain/dsp/oversampler.cpp
+    ../../domain/dsp/polyblep_oscillator.cpp
     ../../domain/dsp/reverb_effect.cpp
-    ../../domain/dsp/compressor_effect.cpp
-    ../../domain/dsp/drum/kick_engine.cpp
-    ../../domain/dsp/drum/snare_engine.cpp
-    ../../domain/dsp/drum/hihat_engine.cpp
-    ../../domain/dsp/drum/clap_engine.cpp
-    ../../domain/dsp/drum/tom_engine.cpp
-    ../../domain/dsp/drum/crash_engine.cpp
-    ../../domain/dsp/drum/ride_engine.cpp
     ../../domain/parameter.cpp
     ../../domain/parameter_container.cpp
     ../../domain/event.cpp

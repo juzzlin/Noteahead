@@ -29,6 +29,7 @@ ColumnLayout {
     property string mapping: "linear"
     property real mapMin: 0
     property real mapMax: 1
+    property bool isInteger: true
     property real sliderFrom: {
         if (mapping === "linear") return from;
         if (mapping === "cubicCentered") return -1.0;
@@ -50,7 +51,7 @@ ColumnLayout {
         text: {
             let displayValue = "";
             if (knobRoot.mapping === "linear") {
-                displayValue = knobController.valueToString(knobRoot.value, knobRoot.suffix, knobRoot.from, knobRoot.to);
+                displayValue = knobController.valueToString(knobRoot.value, knobRoot.suffix, knobRoot.from, knobRoot.to, knobRoot.isInteger);
             } else {
                 let mappedValue = knobController.map(knobRoot.value / knobRoot.to, knobRoot.mapping, knobRoot.mapMin, knobRoot.mapMax);
                 displayValue = knobController.format(mappedValue, knobRoot.mapping, knobRoot.suffix, knobRoot.mapMin, knobRoot.mapMax);

@@ -64,6 +64,9 @@ QString KnobController::format(double mappedValue, const QString & type, const Q
         const QString pctStr = percentageToString(linearValue);
         return QString { "%1 / %2" }.arg(pctStr).arg(freqStr);
     }
+    if (type == "exponential" && suffix.isEmpty()) {
+        return QString { "%1" }.arg(mappedValue, 0, 'f', 2);
+    }
     if (suffix == "%") {
         return percentageToString(unmap(mappedValue, type, min, max) * Constants::uiInternalScaling());
     }
@@ -178,7 +181,7 @@ QString KnobController::decibelToString(double value, double from, double to) co
     return QString { "%1%2 dB" }.arg(db > 0.05 ? "+" : "").arg(db, 0, 'f', 1);
 }
 
-QString KnobController::valueToString(double value, const QString & suffix, double from, double to) const
+QString KnobController::valueToString(double value, const QString & suffix, double from, double to, bool isInteger) const
 {
     if (suffix == "%") {
         return percentageToString(value, from, to);
@@ -186,19 +189,27 @@ QString KnobController::valueToString(double value, const QString & suffix, doub
     if (suffix == "dB") {
         return decibelToString(value, from, to);
     }
-    return QString { "%1%2" }.arg(std::round(value)).arg(suffix);
+    
+    if (suffix == "s" || suffix == "ms") {
+        return timeToString(value, suffix);
+    }
+
+    if (isInteger) {
+        return QString { "%1%2" }.arg(std::round(value)).arg(suffix);
+    }
+    return QString { "%1%2" }.arg(value, 0, 'f', 2).arg(suffix);
 }
 
 QString KnobController::frequencyToString(double value, double cutoffHz, bool isHpf) const
 {
-    if (value <= 0) {
-        return tr("0 Hz");
-    }
     if (!isHpf && value >= Constants::uiInternalScaling()) {
         return tr("Bypass");
     }
     if (cutoffHz >= 1000) {
         return QString { "%1 kHz" }.arg(cutoffHz / 1000.0, 0, 'f', 1);
+    }
+    if (cutoffHz < 1.0) {
+        return tr("0 Hz");
     }
     return QString { "%1 Hz" }.arg(std::round(cutoffHz));
 }

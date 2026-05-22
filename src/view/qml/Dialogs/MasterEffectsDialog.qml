@@ -121,6 +121,9 @@ Dialog {
                         } else if (effectType === "compressor") {
                             compressorDialog.effectIndex = index;
                             compressorDialog.open();
+                        } else if (effectType === "eq8bandparametric") {
+                            eq8BandParametricDialog.effectIndex = index;
+                            eq8BandParametricDialog.open();
                         } else if (effectType === "") {
                             UiService.requestEffectsGalleryDialog(index);
                         } else {

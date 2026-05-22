@@ -1000,6 +1000,11 @@ QString xmlKeyCompressorRatio() { return "ratio"; }
 QString xmlKeyCompressorKnee() { return "knee"; }
 QString xmlKeyCompressorMakeup() { return "makeup"; }
 
+QString xmlKeyEq8BandParametricType(int bandIndex) { return QString("eq8BandParametricBand%1Type").arg(bandIndex + 1); }
+QString xmlKeyEq8BandParametricFreq(int bandIndex) { return QString("eq8BandParametricBand%1Freq").arg(bandIndex + 1); }
+QString xmlKeyEq8BandParametricGain(int bandIndex) { return QString("eq8BandParametricBand%1Gain").arg(bandIndex + 1); }
+QString xmlKeyEq8BandParametricQ(int bandIndex) { return QString("eq8BandParametricBand%1Q").arg(bandIndex + 1); }
+
 QString xmlKeySynthVco1Waveform() { return "vco1Waveform"; }
 QString xmlKeySynthVco1Octave() { return "vco1Octave"; }
 QString xmlKeySynthVco1Pitch() { return "vco1Pitch"; }

@@ -19,11 +19,16 @@ set(SRC
     ../../application/state_machine.cpp
     ../../common/constants.cpp
     ../../domain/column.cpp
-    ../../domain/devices/sampler.cpp
+    ../../domain/devices/bass_synth_device.cpp
     ../../domain/devices/drum_synth_constants.cpp
     ../../domain/devices/drum_synth_device.cpp
-    ../../domain/devices/bass_synth_device.cpp
+    ../../domain/devices/effect.cpp
+    ../../domain/devices/effect_rack.cpp
+    ../../domain/devices/sampler.cpp
     ../../domain/devices/synth_presets.cpp
+    ../../domain/dsp/biquad_filter.cpp
+    ../../domain/dsp/compressor_effect.cpp
+    ../../domain/dsp/eq_8_band_parametric_effect.cpp
     ../../domain/instrument.cpp
     ../../domain/instrument_settings.cpp
     ../../domain/interpolator.cpp
@@ -35,16 +40,12 @@ set(SRC
     ../../domain/mixer_unit.cpp
     ../../domain/note_data.cpp
     ../../domain/note_data_manipulator.cpp
+    ../../domain/parameter.cpp
+    ../../domain/parameter_container.cpp
     ../../domain/pattern.cpp
     ../../domain/play_order.cpp
     ../../domain/song.cpp
     ../../domain/track.cpp
-    ../../domain/parameter.cpp
-    ../../domain/parameter.cpp
-    ../../domain/parameter_container.cpp
-    ../../domain/devices/effect.cpp
-    ../../domain/devices/effect_rack.cpp
-    ../../domain/dsp/compressor_effect.cpp
     ../../infra/audio/audio_engine.cpp
     ../../infra/audio/backend/sndfile_reader.cpp
     ../../infra/audio/real_time_worker_pool.cpp

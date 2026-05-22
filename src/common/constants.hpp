@@ -288,6 +288,11 @@ QString xmlKeyCompressorRatio();
 QString xmlKeyCompressorKnee();
 QString xmlKeyCompressorMakeup();
 
+QString xmlKeyEq8BandParametricType(int bandIndex);
+QString xmlKeyEq8BandParametricFreq(int bandIndex);
+QString xmlKeyEq8BandParametricGain(int bandIndex);
+QString xmlKeyEq8BandParametricQ(int bandIndex);
+
 QString xmlKeySynthVco1Waveform();
 QString xmlKeySynthVco1Octave();
 QString xmlKeySynthVco1Pitch();

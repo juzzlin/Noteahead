@@ -30,6 +30,7 @@ set(SRC
     ../../domain/automation_location.cpp
     ../../domain/column.cpp
     ../../domain/column_settings.cpp
+    ../../domain/devices/bass_synth_device.cpp
     ../../domain/devices/delay_effect.cpp
     ../../domain/devices/device.cpp
     ../../domain/devices/drum_synth_constants.cpp
@@ -40,11 +41,11 @@ set(SRC
     ../../domain/devices/low_pass_filter_effect.cpp
     ../../domain/devices/panning_effect.cpp
     ../../domain/devices/sampler_device.cpp
-    ../../domain/devices/bass_synth_device.cpp
     ../../domain/devices/synth_device.cpp
     ../../domain/devices/synth_presets.cpp
     ../../domain/devices/volume_effect.cpp
     ../../domain/dsp/adsr_envelope.cpp
+    ../../domain/dsp/biquad_filter.cpp
     ../../domain/dsp/cascaded_svf.cpp
     ../../domain/dsp/compressor_effect.cpp
     ../../domain/dsp/drum/clap_engine.cpp
@@ -55,6 +56,7 @@ set(SRC
     ../../domain/dsp/drum/snare_engine.cpp
     ../../domain/dsp/drum/tom_engine.cpp
     ../../domain/dsp/dsp_component.cpp
+    ../../domain/dsp/eq_8_band_parametric_effect.cpp
     ../../domain/dsp/lfo.cpp
     ../../domain/dsp/multi_engine.cpp
     ../../domain/dsp/oversampler.cpp
@@ -127,6 +129,7 @@ set(DELAY_TEST_SRC
     ../../domain/automation_location.cpp
     ../../domain/column.cpp
     ../../domain/column_settings.cpp
+    ../../domain/devices/bass_synth_device.cpp
     ../../domain/devices/delay_effect.cpp
     ../../domain/devices/device.cpp
     ../../domain/devices/drum_synth_constants.cpp
@@ -137,11 +140,11 @@ set(DELAY_TEST_SRC
     ../../domain/devices/low_pass_filter_effect.cpp
     ../../domain/devices/panning_effect.cpp
     ../../domain/devices/sampler_device.cpp
-    ../../domain/devices/bass_synth_device.cpp
     ../../domain/devices/synth_device.cpp
     ../../domain/devices/synth_presets.cpp
     ../../domain/devices/volume_effect.cpp
     ../../domain/dsp/adsr_envelope.cpp
+    ../../domain/dsp/biquad_filter.cpp
     ../../domain/dsp/cascaded_svf.cpp
     ../../domain/dsp/compressor_effect.cpp
     ../../domain/dsp/drum/clap_engine.cpp
@@ -152,6 +155,7 @@ set(DELAY_TEST_SRC
     ../../domain/dsp/drum/snare_engine.cpp
     ../../domain/dsp/drum/tom_engine.cpp
     ../../domain/dsp/dsp_component.cpp
+    ../../domain/dsp/eq_8_band_parametric_effect.cpp
     ../../domain/dsp/lfo.cpp
     ../../domain/dsp/multi_engine.cpp
     ../../domain/dsp/oversampler.cpp

@@ -13,9 +13,11 @@ set(SRC
     ../../domain/devices/low_pass_filter_effect.cpp
     ../../domain/devices/panning_effect.cpp
     ../../domain/devices/volume_effect.cpp
+    ../../domain/dsp/biquad_filter.cpp
     ../../domain/dsp/cascaded_svf.cpp
     ../../domain/dsp/compressor_effect.cpp
     ../../domain/dsp/dsp_component.cpp
+    ../../domain/dsp/eq_8_band_parametric_effect.cpp
     ../../domain/dsp/reverb_effect.cpp
     ../../domain/parameter.cpp
     ../../domain/parameter_container.cpp

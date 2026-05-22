@@ -70,8 +70,8 @@ set(HEADER_FILES
   domain/automation_location.hpp
   domain/column.hpp
   domain/column_settings.hpp
-  domain/devices/delay_effect.hpp
   domain/devices/bass_synth_device.hpp
+  domain/devices/delay_effect.hpp
   domain/devices/device.hpp
   domain/devices/drum_synth_device.hpp
   domain/devices/effect.hpp
@@ -84,6 +84,7 @@ set(HEADER_FILES
   domain/devices/synth_presets.hpp
   domain/devices/volume_effect.hpp
   domain/dsp/adsr_envelope.hpp
+  domain/dsp/biquad_filter.hpp
   domain/dsp/cascaded_svf.hpp
   domain/dsp/drum/clap_engine.hpp
   domain/dsp/drum/crash_engine.hpp
@@ -93,6 +94,7 @@ set(HEADER_FILES
   domain/dsp/drum/ride_engine.hpp
   domain/dsp/drum/snare_engine.hpp
   domain/dsp/drum/tom_engine.hpp
+  domain/dsp/eq_8_band_parametric_effect.hpp
   domain/dsp/lfo.hpp
   domain/dsp/multi_engine.hpp
   domain/dsp/polyblep_oscillator.hpp
@@ -219,8 +221,8 @@ set(SOURCE_FILES
   domain/automation_location.cpp
   domain/column.cpp
   domain/column_settings.cpp
-  domain/devices/delay_effect.cpp
   domain/devices/bass_synth_device.cpp
+  domain/devices/delay_effect.cpp
   domain/devices/device.cpp
   domain/devices/drum_synth_constants.cpp
   domain/devices/drum_synth_device.cpp
@@ -234,6 +236,7 @@ set(SOURCE_FILES
   domain/devices/synth_presets.cpp
   domain/devices/volume_effect.cpp
   domain/dsp/adsr_envelope.cpp
+  domain/dsp/biquad_filter.cpp
   domain/dsp/cascaded_svf.cpp
   domain/dsp/compressor_effect.cpp
   domain/dsp/drum/clap_engine.cpp
@@ -244,6 +247,7 @@ set(SOURCE_FILES
   domain/dsp/drum/snare_engine.cpp
   domain/dsp/drum/tom_engine.cpp
   domain/dsp/dsp_component.cpp
+  domain/dsp/eq_8_band_parametric_effect.cpp
   domain/dsp/lfo.cpp
   domain/dsp/multi_engine.cpp
   domain/dsp/oversampler.cpp
@@ -337,6 +341,7 @@ set(QML_SOURCE_FILES
     ${QML_BASE_DIR}/Dialogs/ColumnSettingsDialog_MidiEffects.qml
     ${QML_BASE_DIR}/Dialogs/ColumnSettingsDialog_TimingSettings.qml
     ${QML_BASE_DIR}/Dialogs/CompressorDialog.qml
+    ${QML_BASE_DIR}/Dialogs/Eq8BandParametricDialog.qml
     ${QML_BASE_DIR}/Dialogs/DelayCalculatorDialog.qml
     ${QML_BASE_DIR}/Dialogs/DeleteUnusedPatternsDialog.qml
     ${QML_BASE_DIR}/Dialogs/DrumSynthDialog.qml

@@ -275,6 +275,12 @@ ApplicationWindow {
         id: compressorDialog
         anchors.centerIn: parent
     }
+    Eq8BandParametricDialog {
+        id: eq8BandParametricDialog
+        anchors.centerIn: parent
+        width: parent.width * Constants.defaultDialogScale
+        height: parent.height * Constants.defaultDialogScale
+    }
     SettingsDialog {
         id: settingsDialog
         anchors.centerIn: parent

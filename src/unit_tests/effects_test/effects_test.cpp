@@ -24,6 +24,7 @@
 #include "../../domain/devices/volume_effect.hpp"
 #include "../../domain/dsp/cascaded_svf.hpp"
 #include "../../domain/dsp/compressor_effect.hpp"
+#include "../../domain/dsp/eq_8_band_parametric_effect.hpp"
 #include "../../domain/dsp/reverb_effect.hpp"
 
 #include <QTest>
@@ -283,6 +284,57 @@ void EffectsTest::test_compressorEffect()
         
         // But reduction should already start happening based on the input
         QVERIFY(effect.reductionDb() < 0.0f);
+    }
+}
+
+void EffectsTest::test_eq8BandParametricEffect()
+{
+    Eq8BandParametricEffect effect;
+    effect.setSampleRate(44100.0);
+
+    // Test bypass (all bands default to bypass)
+    {
+        float left = 1.0f;
+        float right = 1.0f;
+        effect.process(left, right);
+        QCOMPARE(left, 1.0f);
+        QCOMPARE(right, 1.0f);
+    }
+
+    // Test Bell filter
+    {
+        effect.reset();
+        // Band 1: Bell, 1000Hz, +12dB, Q=1.0
+        if (auto p = effect.parameter(Constants::NahdXml::xmlKeyEq8BandParametricType(0).toStdString()); p) {
+            p->get().setValue(1.0f / 6.0f); // Bell
+        }
+        if (auto p = effect.parameter(Constants::NahdXml::xmlKeyEq8BandParametricFreq(0).toStdString()); p) {
+            p->get().setValue(0.5f); // 1000Hz approx
+        }
+        if (auto p = effect.parameter(Constants::NahdXml::xmlKeyEq8BandParametricGain(0).toStdString()); p) {
+            p->get().setValue(0.75f); // +12dB
+        }
+        effect.sync();
+
+        float left = 1.0f;
+        float right = 1.0f;
+        effect.process(left, right);
+
+        // At 0Hz (DC), a bell filter at 1000Hz with Q=1.0 should have some gain
+        // but not the full +12dB. Output should be > 1.0.
+        QVERIFY(left > 1.0f);
+        QVERIFY(right > 1.0f);
+    }
+
+    // Test stability
+    {
+        for (int i = 0; i < 1000; i++) {
+            float left = 1.0f;
+            float right = 1.0f;
+            effect.process(left, right);
+            QVERIFY(!std::isnan(left));
+            QVERIFY(!std::isinf(left));
+        }
     }
 }
 
