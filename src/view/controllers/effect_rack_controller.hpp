@@ -72,6 +72,7 @@ class EffectRackController : public QObject
     Q_PROPERTY(QString eq8BandParametricType READ eq8BandParametricType CONSTANT)
     Q_PROPERTY(QString vintagePassiveEqType READ vintagePassiveEqType CONSTANT)
     Q_PROPERTY(QString airBandEqType READ airBandEqType CONSTANT)
+    Q_PROPERTY(QString eq32BandGraphicalType READ eq32BandGraphicalType CONSTANT)
     Q_PROPERTY(QString simpleEqType READ simpleEqType CONSTANT)
     Q_PROPERTY(QString pannerType READ pannerType CONSTANT)
     Q_PROPERTY(QString autoPannerType READ autoPannerType CONSTANT)
@@ -152,6 +153,7 @@ public:
     QString eq8BandParametricType() const;
     QString vintagePassiveEqType() const;
     QString airBandEqType() const;
+    QString eq32BandGraphicalType() const;
     QString simpleEqType() const;
     QString pannerType() const;
     QString reverbType() const;
@@ -499,6 +501,18 @@ public:
     Q_INVOKABLE QString airBandEqAirFreqKey() const;
     Q_INVOKABLE QString airBandEqAirGainKey() const;
     Q_INVOKABLE QString airBandEqOutputGainKey() const;
+
+    // EQ 32-Band Graphical
+    Q_INVOKABLE QVariantList eq32BandGraphicalResponse(quint32 effectIndex, int points) const;
+    Q_INVOKABLE int eq32BandGraphicalBandCount() const;
+    Q_INVOKABLE QString eq32BandGraphicalBandGainKey(quint32 bandIndex) const;
+    //! The nominal frequency a slider is labelled with, "31.5 Hz" or "1.25 kHz".
+    Q_INVOKABLE QString eq32BandGraphicalBandLabel(quint32 bandIndex) const;
+    Q_INVOKABLE QString eq32BandGraphicalStereoModeKey() const;
+    Q_INVOKABLE QString eq32BandGraphicalOutputGainKey() const;
+    //! Every slider back to 0 dB, leaving the stereo mode and the output gain where they are, which
+    //! is how this differs from the Flat preset.
+    Q_INVOKABLE void eq32BandGraphicalFlatten(quint32 effectIndex);
 
     Q_INVOKABLE QString simpleEqAmountKey() const;
 

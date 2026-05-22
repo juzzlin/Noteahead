@@ -105,7 +105,7 @@
 
 <h3>Available Effects</h3>
 <ul>
-    <li><strong>Equalizers</strong>: <strong>EQ 8-Band Parametric</strong> (Bell, Shelf, Cut and Notch types per band, plus Mid/Side modes), <strong>Vintage Passive EQ</strong> (EQP-1A style, with interacting low Boost/Atten shelves and a high bell), <strong>Air Band EQ</strong> (fixed parallel-summed bands added back to the dry signal) and <strong>Simple EQ</strong> (a single "Sounds Good" knob sweeping a loudness-smile curve).</li>
+    <li><strong>Equalizers</strong>: <strong>EQ 8-Band Parametric</strong> (Bell, Shelf, Cut and Notch types per band, plus Mid/Side modes), <strong>EQ 32-Band Graphical</strong> (a third-octave graphic equalizer for mastering), <strong>Vintage Passive EQ</strong> (EQP-1A style, with interacting low Boost/Atten shelves and a high bell), <strong>Air Band EQ</strong> (fixed parallel-summed bands added back to the dry signal) and <strong>Simple EQ</strong> (a single "Sounds Good" knob sweeping a loudness-smile curve).</li>
     <li><strong>Reverbs</strong>: <strong>Reverb</strong> (the FDN reverb described below), <strong>Endless Reverb</strong> (a large modulated ambient reverb with a Freeze switch for an infinite tail) and <strong>Early Reflections</strong> (the room a sound is in, without a tail, described below).</li>
     <li><strong>Dynamics</strong>: <strong>Compressor</strong> (with side-chain support), <strong>Multiband Compressor</strong> (three bands split by Linkwitz-Riley crossovers, described below), <strong>Gate</strong> (a noise gate that is also a downward expander, described below), <strong>Auto Ducker</strong> (side-chain driven ducking or boosting), <strong>Limiter</strong> (lookahead brickwall with gain reduction metering), <strong>Gain</strong> (a plain +/-24 dB trim with a clip indicator, described below), <strong>Clipper</strong> and <strong>Wave Designer</strong> (transient shaper, described below).</li>
     <li><strong>Saturation &amp; Lo-fi</strong>: <strong>Drive</strong> (Soft, Hard, Fold and Dist algorithms), <strong>Saturator</strong>, <strong>Tube Stage</strong> (valve preamp, described below), <strong>Analog Fuzz</strong> (a synth's drive knob: a fuzz stage played through the filter it overdrives, described below), <strong>Bass Grinder</strong> (split-band bass preamp distortion, described below), <strong>Bit Crusher</strong> (word length and sample rate thrown away separately, described below) and <strong>Stereo Exciter</strong> (harmonic generator, described below).</li>
@@ -224,6 +224,16 @@
     <li><strong>Mix</strong> and <strong>Solo</strong>: the blend against the dry signal, and hearing the room without the source that caused it. On a send bus, set Mix to 100%: the send already returns only what the effect added, so Mix acts as the return level there.</li>
 </ul>
 <p>Use it on a send, with the send amount as the distance control: more send is further back. One instance shared by everything is what sells the illusion, since a coherent room is a single room.</p>
+
+<h3>EQ 32-Band Graphical Parameters</h3>
+<p>A third-octave graphic equalizer for mastering: one slider for each of the 32 ISO bands from <strong>16 Hz</strong> to <strong>20 kHz</strong>, <strong>-12 to +12 dB</strong> each. Unlike most graphic equalizers, the curve goes through the sliders. Neighbouring bands overlap, so setting each one to its slider would make five sliders up by 3 dB come out nearer 6; this one works out what every band has to do for the response to land on each slider's position at its centre, to within a tenth of a decibel, and runs smoothly between them. The top octave stays as accurate as the rest, at 44.1 kHz too.</p>
+<ul>
+    <li><strong>Sliders</strong>: drag, or use the wheel for half a decibel a notch (<strong>Ctrl</strong> for a tenth). A right-click or a double-click puts a slider back to 0 dB.</li>
+    <li><strong>Flat</strong>: every slider back to 0 dB, leaving the stereo mode and the output gain alone. The <strong>Flat</strong> preset resets those too.</li>
+    <li><strong>Stereo Mode</strong>: <strong>Stereo</strong> shapes both channels; <strong>Mid</strong> only the centre of the image; <strong>Side</strong> only the sides.</li>
+    <li><strong>Output</strong>: <strong>-12 to +12 dB</strong>, to level-match the result against the original, which is the only fair way to judge an EQ move.</li>
+</ul>
+<p>Every slider can be automated with a parameter automation. The built-in presets are broad and gentle mastering moves, a few decibels spread over several bands; a flat panel passes the signal through untouched.</p>
 
 <h3>EQ 8-Band Parametric Parameters</h3>
 <p>Eight independent bands, each of which can be any shape, at any frequency, with any width. Every band is a second-order section, so a cut or a pass rolls off at <strong>12 dB/octave</strong>. A steeper one is a second band at the same frequency: two of them give 24 dB/octave, three give 36, at the cost of a band each. Set both to a Q of 0.707 and the corner ends up 6 dB down rather than 3; a maximally flat pair wants 0.54 and 1.31.</p>

@@ -37,6 +37,7 @@
 #include "drive.hpp"
 #include "early_reflections.hpp"
 #include "endless_reverb.hpp"
+#include "eq_32_band_graphical.hpp"
 #include "eq_8_band_parametric.hpp"
 #include "flanger.hpp"
 #include "gain.hpp"
@@ -124,6 +125,7 @@ void EffectFactory::init()
     registerEffect(BassGrinder::typeIdString(), []() { return std::make_shared<BassGrinder>(); });
     registerEffect(Drive::typeIdString(), []() { return std::make_shared<Drive>(); });
     registerEffect(EarlyReflections::typeIdString(), []() { return std::make_shared<EarlyReflections>(); });
+    registerEffect(Eq32BandGraphical::typeIdString(), []() { return std::make_shared<Eq32BandGraphical>(); });
     registerEffect(Eq8BandParametric::typeIdString(), []() { return std::make_shared<Eq8BandParametric>(); });
     registerEffect(Limiter::typeIdString(), []() { return std::make_shared<Limiter>(); });
     registerEffect(LufsMeter::typeIdString(), []() { return std::make_shared<LufsMeter>(); });
@@ -166,6 +168,7 @@ void EffectFactory::init()
     registerEffect(Constants::RackEffectType::drive().toStdString(), []() { return std::make_shared<Drive>(); });
     registerEffect(Constants::RackEffectType::earlyReflections().toStdString(), []() { return std::make_shared<EarlyReflections>(); });
     registerEffect(Constants::RackEffectType::eq8BandParametric().toStdString(), []() { return std::make_shared<Eq8BandParametric>(); });
+    registerEffect(Constants::RackEffectType::eq32BandGraphical().toStdString(), []() { return std::make_shared<Eq32BandGraphical>(); });
     registerEffect(Constants::RackEffectType::limiter().toStdString(), []() { return std::make_shared<Limiter>(); });
     registerEffect(Constants::RackEffectType::monitor().toStdString(), []() { return std::make_shared<Monitor>(); });
     registerEffect(Constants::RackEffectType::gain().toStdString(), []() { return std::make_shared<Gain>(); });
@@ -217,6 +220,7 @@ void EffectFactory::init()
     registerLegacyEffect("compressor", []() { return std::make_shared<Compressor>(); });
     registerLegacyEffect("delay", []() { return std::make_shared<Delay>(); });
     registerLegacyEffect("eq_8_band_parametric", []() { return std::make_shared<Eq8BandParametric>(); });
+    registerLegacyEffect("eq_32_band_graphical", []() { return std::make_shared<Eq32BandGraphical>(); });
     registerLegacyEffect("limiter", []() { return std::make_shared<Limiter>(); });
     registerLegacyEffect("monitor", []() { return std::make_shared<Monitor>(); });
     registerLegacyEffect("gain", []() { return std::make_shared<Gain>(); });

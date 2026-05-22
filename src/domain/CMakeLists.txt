@@ -45,8 +45,10 @@ set(HEADER_FILES
     dsp/dsp_component.hpp
     dsp/fft.hpp
     dsp/fm_operator.hpp
+    dsp/graphic_eq_designer.hpp
     dsp/high_pass_filter.hpp
     dsp/lfo.hpp
+    dsp/matched_bell_filter.hpp
     dsp/metronome.hpp
     dsp/micro_pitch_shifter.hpp
     dsp/linkwitz_riley_crossover.hpp
@@ -94,6 +96,8 @@ set(HEADER_FILES
     effects/effect_presets.hpp
     effects/effect_rack.hpp
     effects/endless_reverb.hpp
+    effects/eq_32_band_graphical.hpp
+    effects/eq_32_band_graphical_presets.hpp
     effects/eq_8_band_parametric.hpp
     effects/eq_8_band_parametric_presets.hpp
     effects/flanger.hpp
@@ -222,8 +226,10 @@ set(SOURCE_FILES
     dsp/ensemble_chorus.cpp
     dsp/fft.cpp
     dsp/fm_operator.cpp
+    dsp/graphic_eq_designer.cpp
     dsp/high_pass_filter.cpp
     dsp/lfo.cpp
+    dsp/matched_bell_filter.cpp
     dsp/metronome.cpp
     dsp/micro_pitch_shifter.cpp
     dsp/linkwitz_riley_crossover.cpp
@@ -272,6 +278,8 @@ set(SOURCE_FILES
     effects/effect_factory.cpp
     effects/effect_rack.cpp
     effects/endless_reverb.cpp
+    effects/eq_32_band_graphical.cpp
+    effects/eq_32_band_graphical_presets.cpp
     effects/eq_8_band_parametric.cpp
     effects/eq_8_band_parametric_presets.cpp
     effects/flanger.cpp

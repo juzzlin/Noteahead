@@ -274,6 +274,7 @@ QString autoDucker();
 QString autoFilter();
 QString phaser();
 QString eq8BandParametric();
+QString eq32BandGraphical();
 QString eq8BandParametricLegacy();
 QString vintagePassiveEq();
 QString airBandEq();

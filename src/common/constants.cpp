@@ -474,6 +474,11 @@ QString eq8BandParametric()
     return "eq8bandparametric";
 }
 
+QString eq32BandGraphical()
+{
+    return "eq32bandgraphical";
+}
+
 QString vintagePassiveEq()
 {
     return "vintagepassiveeq";

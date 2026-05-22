@@ -724,6 +724,10 @@ ApplicationWindow {
         width: parent.width * Constants.defaultDialogScale
         height: parent.height * Constants.defaultDialogScale
     }
+    Eq32BandGraphicalDialog {
+        id: eq32BandGraphicalDialog
+        anchors.centerIn: parent
+    }
     AirBandEqDialog {
         id: airBandEqDialog
         anchors.centerIn: parent

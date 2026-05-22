@@ -39,6 +39,7 @@
 #include "../../domain/effects/early_reflections.hpp"
 #include "../../domain/effects/effect_factory.hpp"
 #include "../../domain/effects/effect_rack.hpp"
+#include "../../domain/effects/eq_32_band_graphical.hpp"
 #include "../../domain/effects/eq_8_band_parametric.hpp"
 #include "../../domain/effects/flanger.hpp"
 #include "../../domain/effects/gain.hpp"
@@ -363,6 +364,7 @@ QVariantList EffectRackController::availableEffects() const
     addEffect("Early Reflections", Constants::RackEffectType::earlyReflections().toStdString());
     addEffect("Drive", Constants::RackEffectType::drive().toStdString());
     addEffect("EQ 8-Band Parametric", Constants::RackEffectType::eq8BandParametric().toStdString());
+    addEffect("EQ 32-Band Graphical", Constants::RackEffectType::eq32BandGraphical().toStdString());
     addEffect("Vintage Passive EQ", Constants::RackEffectType::vintagePassiveEq().toStdString());
     addEffect("Air Band EQ", Constants::RackEffectType::airBandEq().toStdString());
     addEffect("Simple EQ", Constants::RackEffectType::simpleEq().toStdString());
@@ -952,6 +954,21 @@ QString EffectRackController::summaryFor(const EffectRack::EffectS & effect) con
                     }
                 }
                 return QString { "(Parametric, %1)" }.arg(modeName);
+            } else if (type == Constants::RackEffectType::eq32BandGraphical()) {
+                QString modeName { tr("Stereo") };
+                if (const auto stereoMode { effect->parameter(Constants::NahdXml::xmlKeyStereoMode().toStdString()) }; stereoMode) {
+                    switch (static_cast<Eq32BandGraphical::StereoMode>(std::clamp(static_cast<int>(std::round(stereoMode->get().value())), 0, 2))) {
+                    case Eq32BandGraphical::StereoMode::Mid:
+                        modeName = tr("Mid");
+                        break;
+                    case Eq32BandGraphical::StereoMode::Side:
+                        modeName = tr("Side");
+                        break;
+                    case Eq32BandGraphical::StereoMode::Stereo:
+                        break;
+                    }
+                }
+                return QString { "(Graphical, %1)" }.arg(modeName);
             } else if (type == Constants::RackEffectType::vintagePassiveEq()) {
                 return "(Passive)";
             } else if (type == Constants::RackEffectType::airBandEq()) {
@@ -1587,20 +1604,28 @@ float EffectRackController::eq8BandParametricDefaultQ(int bandType) const
 
 namespace {
 
-//! Samples @p magnitudeDbAt over the drawn range, evenly spaced by octave from 20 Hz to 20 kHz.
+//! The frequencies a curve is drawn at, evenly spaced by octave from 20 Hz to 20 kHz.
 //!
 //! The spacing EqCurveRenderer expects, kept in one place so that every curve in every dialog is
 //! sampled the same way.
+std::vector<double> responseFrequencies(int points)
+{
+    std::vector<double> frequencies;
+    if (points <= 1) {
+        return frequencies;
+    }
+    frequencies.reserve(static_cast<size_t>(points));
+    for (int i = 0; i < points; i++) {
+        const double t = static_cast<double>(i) / static_cast<double>(points - 1);
+        frequencies.push_back(20.0 * std::pow(1000.0, t));
+    }
+    return frequencies;
+}
+
 QVariantList sampleResponse(int points, const std::function<double(double)> & magnitudeDbAt)
 {
     QVariantList response;
-    if (points <= 1) {
-        return response;
-    }
-    response.reserve(points);
-    for (int i = 0; i < points; i++) {
-        const double t = static_cast<double>(i) / static_cast<double>(points - 1);
-        const double hz = 20.0 * std::pow(1000.0, t);
+    for (const double hz : responseFrequencies(points)) {
         response.append(magnitudeDbAt(hz));
     }
     return response;
@@ -1663,6 +1688,69 @@ QVariantList EffectRackController::airBandEqResponse(quint32 effectIndex, int po
         return {};
     }
     return sampleResponse(points, [&effect](double hz) { return effect->magnitudeDbAt(hz); });
+}
+
+QVariantList EffectRackController::eq32BandGraphicalResponse(quint32 effectIndex, int points) const
+{
+    const auto effect = std::dynamic_pointer_cast<Eq32BandGraphical>(effectAt(effectIndex));
+    if (!effect) {
+        return {};
+    }
+    // All points at once: the equalizer designs its bands from the parameters for every call, and
+    // that is the expensive part
+    QVariantList response;
+    for (const double db : effect->magnitudesDbAt(responseFrequencies(points))) {
+        response.append(db);
+    }
+    return response;
+}
+
+int EffectRackController::eq32BandGraphicalBandCount() const
+{
+    return static_cast<int>(Eq32BandGraphical::BandCount);
+}
+
+QString EffectRackController::eq32BandGraphicalBandGainKey(quint32 bandIndex) const
+{
+    return Constants::NahdXml::xmlKeyBandGain(bandIndex);
+}
+
+QString EffectRackController::eq32BandGraphicalBandLabel(quint32 bandIndex) const
+{
+    return QString::fromStdString(Eq32BandGraphical::nominalLabel(bandIndex));
+}
+
+QString EffectRackController::eq32BandGraphicalStereoModeKey() const
+{
+    return Constants::NahdXml::xmlKeyStereoMode();
+}
+
+QString EffectRackController::eq32BandGraphicalOutputGainKey() const
+{
+    return Constants::NahdXml::xmlKeyGain();
+}
+
+void EffectRackController::eq32BandGraphicalFlatten(quint32 effectIndex)
+{
+    const auto effect = std::dynamic_pointer_cast<Eq32BandGraphical>(effectAt(effectIndex));
+    if (!effect) {
+        return;
+    }
+    // One revision for the lot rather than one per slider, each of which would redraw the curve
+    bool changed = false;
+    for (size_t i = 0; i < Eq32BandGraphical::BandCount; i++) {
+        const auto key = Constants::NahdXml::xmlKeyBandGain(i);
+        if (const auto parameter = effect->parameter(key.toStdString()); parameter && parameter->get().update(Eq32BandGraphical::sliderParameterValue(0.0))) {
+            changed = true;
+            emit parameterChanged(effectIndex, key);
+        }
+    }
+    if (changed) {
+        effect->sync();
+        m_editorService->setIsModified(true);
+        m_revision++;
+        emit revisionChanged();
+    }
 }
 
 QString EffectRackController::eq8BandParametricStereoModeKey() const
@@ -2550,6 +2638,11 @@ QString EffectRackController::vintagePassiveEqType() const
 QString EffectRackController::airBandEqType() const
 {
     return Constants::RackEffectType::airBandEq();
+}
+
+QString EffectRackController::eq32BandGraphicalType() const
+{
+    return Constants::RackEffectType::eq32BandGraphical();
 }
 
 QString EffectRackController::simpleEqType() const

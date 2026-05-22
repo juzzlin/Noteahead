@@ -47,6 +47,7 @@
 #include "../../domain/devices/synth_device.hpp"
 #include "../../domain/devices/wavetable_synth_device.hpp"
 #include "../../domain/effects/air_band_eq.hpp"
+#include "../../domain/effects/eq_32_band_graphical.hpp"
 #include "../../domain/effects/all_pass_filter.hpp"
 #include "../../domain/effects/analog_fuzz.hpp"
 #include "../../domain/effects/auto_ducker.hpp"
@@ -2266,6 +2267,51 @@ void XmlSerializationTest::test_toXmlFromXml_airBandEqEffect_shouldLoadCorrectly
     }
     QCOMPARE(valueOf(Constants::NahdXml::xmlKeyAirFreq()), 4.0f);
     QVERIFY(std::abs(valueOf(Constants::NahdXml::xmlKeyAirGain()) - 0.65f) < 0.001f);
+    QVERIFY(std::abs(valueOf(Constants::NahdXml::xmlKeyGain()) - 0.4f) < 0.001f);
+}
+
+void XmlSerializationTest::test_toXmlFromXml_eq32BandGraphicalEffect_shouldLoadCorrectly()
+{
+    const auto engineOut = std::make_shared<AudioEngine>();
+    DeviceService deviceServiceOut { engineOut, std::make_shared<DataService>() };
+
+    auto eq = std::make_shared<Eq32BandGraphical>();
+    const auto setParam = [&eq](const QString & key, float value) {
+        if (auto p = eq->parameter(key.toStdString()); p) {
+            p->get().setValue(value);
+        }
+    };
+    const auto sliderValue = [](size_t band) { return static_cast<float>(band) / static_cast<float>(Eq32BandGraphical::BandCount - 1); };
+    for (size_t i = 0; i < Eq32BandGraphical::BandCount; i++) {
+        setParam(Constants::NahdXml::xmlKeyBandGain(i), sliderValue(i));
+    }
+    setParam(Constants::NahdXml::xmlKeyStereoMode(), 2.0f);
+    setParam(Constants::NahdXml::xmlKeyGain(), 0.4f);
+    deviceServiceOut.insertEffectRack().setEffect(0, eq);
+
+    EditorService editorServiceOut { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+    connect(&editorServiceOut, &EditorService::devicesSerializationRequested, &deviceServiceOut, &DeviceService::serializeToXml);
+
+    const auto xml = editorServiceOut.toXml();
+
+    const auto engineIn = std::make_shared<AudioEngine>();
+    DeviceService deviceServiceIn { engineIn, std::make_shared<DataService>() };
+    EditorService editorServiceIn { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+    connect(&editorServiceIn, &EditorService::devicesDeserializationRequested, &deviceServiceIn, &DeviceService::deserializeFromXml);
+
+    editorServiceIn.fromXml(xml);
+
+    const auto restored = std::dynamic_pointer_cast<Eq32BandGraphical>(deviceServiceIn.insertEffectRack().effect(0));
+    QVERIFY(restored);
+    QCOMPARE(restored->typeId(), Eq32BandGraphical::typeIdString());
+    const auto valueOf = [&restored](const QString & key) {
+        const auto p = restored->parameter(key.toStdString());
+        return p ? p->get().value() : -1.0f;
+    };
+    for (size_t i = 0; i < Eq32BandGraphical::BandCount; i++) {
+        QVERIFY(std::abs(valueOf(Constants::NahdXml::xmlKeyBandGain(i)) - sliderValue(i)) < 0.001f);
+    }
+    QCOMPARE(valueOf(Constants::NahdXml::xmlKeyStereoMode()), 2.0f);
     QVERIFY(std::abs(valueOf(Constants::NahdXml::xmlKeyGain()) - 0.4f) < 0.001f);
 }
 
