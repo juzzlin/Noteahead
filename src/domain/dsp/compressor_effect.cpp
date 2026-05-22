@@ -43,6 +43,17 @@ void CompressorEffect::process(float & left, float & right)
         return;
     }
 
+    updateBuffers();
+
+    const float detectorDb = calculateDetectorLevelDb(left, right);
+    const float gainReductionDb = calculateGainReductionDb(detectorDb);
+
+    updateEnvelope(gainReductionDb);
+    applyGain(left, right);
+}
+
+void CompressorEffect::updateBuffers()
+{
     if (static_cast<uint32_t>(m_sampleRate) != m_lastSampleRate || m_shouldUpdateBuffers) {
         syncParameters();
         const uint32_t lookaheadSamples = static_cast<uint32_t>(m_lookaheadMs * m_sampleRate / 1000.0f);
@@ -60,16 +71,16 @@ void CompressorEffect::process(float & left, float & right)
         syncParameters();
         m_shouldSyncParameters = false;
     }
+}
 
-    // 1. Detector (sidechain)
-    const float inputL = left;
-    const float inputR = right;
-    const float absL = std::abs(inputL);
-    const float absR = std::abs(inputR);
-    const float detector = std::max(absL, absR);
-    const float detectorDb = Utils::Dsp::linearToDb(detector);
+float CompressorEffect::calculateDetectorLevelDb(float left, float right) const
+{
+    const float detector = std::max(std::abs(left), std::abs(right));
+    return Utils::Dsp::linearToDb(detector);
+}
 
-    // 2. Static curve
+float CompressorEffect::calculateGainReductionDb(float detectorDb) const
+{
     float targetDb = detectorDb;
     if (m_knee > 0.001f) {
         if (detectorDb > m_threshold + m_knee / 2.0f) {
@@ -84,9 +95,11 @@ void CompressorEffect::process(float & left, float & right)
         }
     }
 
-    const float gainReductionDb = targetDb - detectorDb;
+    return targetDb - detectorDb;
+}
 
-    // 3. Attack/Release smoothing
+void CompressorEffect::updateEnvelope(float gainReductionDb)
+{
     const float attackCoeff = std::exp(-1.0f / (m_attackMs * static_cast<float>(m_sampleRate) / 1000.0f));
     const float releaseCoeff = std::exp(-1.0f / (m_releaseMs * static_cast<float>(m_sampleRate) / 1000.0f));
 
@@ -97,10 +110,12 @@ void CompressorEffect::process(float & left, float & right)
     }
 
     m_reductionDb = m_envelopeDb;
+}
 
-    // 4. Lookahead delay and apply gain
-    m_delayBufferL[m_writePos] = inputL;
-    m_delayBufferR[m_writePos] = inputR;
+void CompressorEffect::applyGain(float & left, float & right)
+{
+    m_delayBufferL[m_writePos] = left;
+    m_delayBufferR[m_writePos] = right;
 
     const uint32_t readPos = (m_writePos + m_delayBufferL.size() - m_delaySamples) % m_delayBufferL.size();
     float outL = m_delayBufferL[readPos];

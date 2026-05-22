@@ -37,6 +37,11 @@ public:
     float reductionDb() const;
 
 private:
+    void updateBuffers();
+    float calculateDetectorLevelDb(float left, float right) const;
+    float calculateGainReductionDb(float detectorDb) const;
+    void updateEnvelope(float gainReductionDb);
+    void applyGain(float & left, float & right);
     void syncParameters();
 
     float m_threshold { -20.0f };
