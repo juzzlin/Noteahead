@@ -38,10 +38,7 @@ void DelayEffect::process(float & left, float & right)
     }
 
     // Ensure filters are updated even if process(AudioContext&) wasn't called (e.g. per-sample usage)
-    m_fbLpfL.setCutoff(m_feedbackLpfCutoff);
-    m_fbLpfR.setCutoff(m_feedbackLpfCutoff);
-    m_fbHpfL.setCutoff(std::max(0.001f, m_feedbackHpfCutoff));
-    m_fbHpfR.setCutoff(std::max(0.001f, m_feedbackHpfCutoff));
+    updateFilters();
 
     const double delaySamples = calculateDelaySamples();
 
@@ -58,6 +55,14 @@ void DelayEffect::process(float & left, float & right)
 
     // 4. Mix
     applyMix(left, right, outL, outR);
+}
+
+void DelayEffect::updateFilters()
+{
+    m_fbLpfL.setCutoff(static_cast<double>(m_feedbackLpfCutoff));
+    m_fbLpfR.setCutoff(static_cast<double>(m_feedbackLpfCutoff));
+    m_fbHpfL.setCutoff(static_cast<double>(std::max(0.001f, m_feedbackHpfCutoff)));
+    m_fbHpfR.setCutoff(static_cast<double>(std::max(0.001f, m_feedbackHpfCutoff)));
 }
 
 void DelayEffect::updateWriteBuffer(float inputL, float inputR, float fbL, float fbR, float & outL, float & outR)
@@ -185,10 +190,7 @@ void DelayEffect::process(AudioContext & context)
         m_fbHpfR.setSampleRate(m_sampleRate);
     }
 
-    m_fbLpfL.setCutoff(m_feedbackLpfCutoff);
-    m_fbLpfR.setCutoff(m_feedbackLpfCutoff);
-    m_fbHpfL.setCutoff(std::max(0.001f, m_feedbackHpfCutoff));
-    m_fbHpfR.setCutoff(std::max(0.001f, m_feedbackHpfCutoff));
+    updateFilters();
 
     for (uint32_t i = 0; i < context.frameCount; i++) {
         process(context.buffer[i * 2], context.buffer[i * 2 + 1]);
@@ -206,11 +208,8 @@ void DelayEffect::setSampleRate(double sampleRate)
         m_fbLpfR.setSampleRate(m_sampleRate);
         m_fbHpfL.setSampleRate(m_sampleRate);
         m_fbHpfR.setSampleRate(m_sampleRate);
-        
-        m_fbLpfL.setCutoff(m_feedbackLpfCutoff);
-        m_fbLpfR.setCutoff(m_feedbackLpfCutoff);
-        m_fbHpfL.setCutoff(std::max(0.001f, m_feedbackHpfCutoff));
-        m_fbHpfR.setCutoff(std::max(0.001f, m_feedbackHpfCutoff));
+
+        updateFilters();
     }
 }
 

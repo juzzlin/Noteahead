@@ -60,6 +60,15 @@ public:
     float feedbackHpf() const;
 
 private:
+    double calculateDelaySamples() const;
+    float readFromBuffer(const std::vector<float> & buffer, double delay) const;
+    void applyFeedbackFilters(float & fbL, float & fbR);
+    void applyMix(float & left, float & right, float outL, float outR) const;
+    void applyTapeSaturation(float & fbL, float & fbR);
+    void updateBuffers(uint32_t sampleRate);
+    void updateFilters();
+    void updateWriteBuffer(float inputL, float inputR, float fbL, float fbR, float & outL, float & outR);
+
     Type m_type { Type::Stereo };
     float m_time { 0.5f };
     float m_feedback { 0.3f };
@@ -87,15 +96,6 @@ private:
     float m_lpStateR { 0.0f };
     float m_hpStateL { 0.0f };
     float m_hpStateR { 0.0f };
-
-    void updateBuffers(uint32_t sampleRate);
-
-    double calculateDelaySamples() const;
-    float readFromBuffer(const std::vector<float> & buffer, double delay) const;
-    void applyFeedbackFilters(float & fbL, float & fbR);
-    void applyTapeSaturation(float & fbL, float & fbR);
-    void updateWriteBuffer(float inputL, float inputR, float fbL, float fbR, float & outL, float & outR);
-    void applyMix(float & left, float & right, float outL, float outR) const;
 };
 
 } // namespace noteahead
