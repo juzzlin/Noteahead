@@ -68,7 +68,6 @@ void DelayEffect::updateFilters()
 void DelayEffect::updateWriteBuffer(float inputL, float inputR, float fbL, float fbR, float & outL, float & outR)
 {
     const size_t bufSize = m_bufferL.size();
-
     float writeL = inputL;
     float writeR = inputR;
 
@@ -76,7 +75,6 @@ void DelayEffect::updateWriteBuffer(float inputL, float inputR, float fbL, float
         // Ping-Pong: Depth controls stereo width/bounce amount.
         const float inL = inputL + inputR * (1.0f - m_depth);
         const float inR = inputR * (1.0f - m_depth);
-        
         writeL = inL + fbR;
         writeR = inR + fbL;
     } else if (m_type == Type::Mono) {
