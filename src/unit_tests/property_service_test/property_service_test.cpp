@@ -21,7 +21,7 @@
 
 namespace noteahead {
 
-void PropertyServiceTest::test_availableMidiControllers()
+void PropertyServiceTest::test_availableMidiControllers_shouldReturnCorrectControllers()
 {
     PropertyService service;
     const auto controllers = service.availableMidiControllers();

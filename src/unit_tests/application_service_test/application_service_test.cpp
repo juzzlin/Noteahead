@@ -108,13 +108,13 @@ void ApplicationServiceTest::initTestCase()
     qRegisterMetaType<std::shared_ptr<noteahead::Instrument>>("InstrumentS");
 }
 
-void ApplicationServiceTest::test_initialState()
+void ApplicationServiceTest::test_initialState_shouldBeCorrect()
 {
     ApplicationService service;
     QVERIFY(!service.editMode());
 }
 
-void ApplicationServiceTest::test_applicationProperties()
+void ApplicationServiceTest::test_applicationProperties_shouldMatchConstants()
 {
     ApplicationService service;
     QCOMPARE(service.applicationName(), Constants::applicationName());
@@ -126,7 +126,7 @@ void ApplicationServiceTest::test_applicationProperties()
     QCOMPARE(service.webSiteUrl(), Constants::webSiteUrl());
 }
 
-void ApplicationServiceTest::test_editMode()
+void ApplicationServiceTest::test_editMode_shouldToggleCorrectly()
 {
     ApplicationService service;
     const auto playerService = std::make_shared<MockPlayerService>();
@@ -157,7 +157,7 @@ void ApplicationServiceTest::test_editMode()
     QVERIFY(service.editMode());
 }
 
-void ApplicationServiceTest::test_recentFiles()
+void ApplicationServiceTest::test_recentFiles_shouldBeManagedCorrectly()
 {
     ApplicationService service;
     auto recentFilesManager = std::make_shared<MockRecentFilesManager>();
@@ -170,7 +170,7 @@ void ApplicationServiceTest::test_recentFiles()
     QCOMPARE(service.recentFiles(), QStringList { filePath });
 }
 
-void ApplicationServiceTest::test_stateMachineInteractions()
+void ApplicationServiceTest::test_stateMachineInteractions_shouldTriggerCorrectActions()
 {
     ApplicationService service;
     const auto stateMachine = std::make_shared<MockStateMachine>();
@@ -198,7 +198,7 @@ void ApplicationServiceTest::test_stateMachineInteractions()
     QCOMPARE(stateMachine->lastAction(), StateMachine::Action::UnsavedChangesDialogCanceled);
 }
 
-void ApplicationServiceTest::test_liveNoteLogic()
+void ApplicationServiceTest::test_liveNoteLogic_shouldTriggerCorrectSignals()
 {
     ApplicationService service;
     const auto editorService = std::make_shared<MockEditorService>();
@@ -244,7 +244,7 @@ void ApplicationServiceTest::test_importMidiFile_shouldAddRecentFile()
     QCOMPARE(service.recentFiles(), QStringList { filePath });
 }
 
-void ApplicationServiceTest::test_isMidiFile()
+void ApplicationServiceTest::test_isMidiFile_shouldDetectCorrectExtensions()
 {
     ApplicationService service;
     QVERIFY(service.isMidiFile("test.mid"));
@@ -256,7 +256,7 @@ void ApplicationServiceTest::test_isMidiFile()
     QVERIFY(!service.isMidiFile(""));
 }
 
-void ApplicationServiceTest::test_requestAlertDialog()
+void ApplicationServiceTest::test_requestAlertDialog_shouldEmitSignal()
 {
     ApplicationService service;
     QSignalSpy spy { &service, &ApplicationService::alertDialogRequested };

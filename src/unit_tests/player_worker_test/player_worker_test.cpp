@@ -34,7 +34,7 @@ class TestablePlayerWorker : public PlayerWorker
 public:
     using PlayerWorker::PlayerWorker;
 
-    void testHandleEvent(const Event & event)
+    void test_handleEvent(const Event & event)
     {
         handleEvent(event);
     }
@@ -100,7 +100,7 @@ void PlayerWorkerTest::test_mixerChange_shouldStopNotes()
     worker.initialize(events, timing);
 
     // Simulate playback of the note to add it to m_activeNotes
-    worker.testHandleEvent(*event);
+    worker.test_handleEvent(*event);
 
     // Act: Mute Track 0
     mixerService->muteTrack(0, true);
@@ -142,7 +142,7 @@ void PlayerWorkerTest::test_columnMuteBehavior_shouldNotStopAllNotes()
     event1.setInstrument(instrument);
 
     // Act: Process Event on Muted Column
-    worker.testHandleEvent(event1);
+    worker.test_handleEvent(event1);
 
     // Assert:
     // 1. playNote should NOT be called (column is muted)
@@ -156,7 +156,7 @@ void PlayerWorkerTest::test_columnMuteBehavior_shouldNotStopAllNotes()
     noteData2.setAsNoteOff(60);
     Event event2 { 0, noteData2 };
     event2.setInstrument(instrument);
-    worker.testHandleEvent(event2);
+    worker.test_handleEvent(event2);
     QCOMPARE(midiService->stopNoteCallCount, 1);
 }
 
@@ -183,7 +183,7 @@ void PlayerWorkerTest::test_trackMuteBehavior_shouldStopAllNotes()
     event1.setInstrument(instrument);
 
     // Act
-    worker.testHandleEvent(event1);
+    worker.test_handleEvent(event1);
 
     // Assert
     QCOMPARE(midiService->playNoteCallCount, 0);
@@ -213,7 +213,7 @@ void PlayerWorkerTest::test_columnMute_shouldStopActiveNote()
     worker.initialize(events, timing);
 
     // Play note
-    worker.testHandleEvent(*event);
+    worker.test_handleEvent(*event);
 
     // Mute Column 0
     mixerService->muteColumn(0, 0, true);
@@ -254,9 +254,9 @@ void PlayerWorkerTest::test_playback_shouldSendMidiEvents()
     eventOff.setInstrument(instrument);
 
     // Act
-    worker.testHandleEvent(eventOn);
+    worker.test_handleEvent(eventOn);
     QCOMPARE(midiService->playNoteCallCount, 1);
-    worker.testHandleEvent(eventOff);
+    worker.test_handleEvent(eventOff);
     QCOMPARE(midiService->stopNoteCallCount, 1);
 }
 

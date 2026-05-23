@@ -25,11 +25,11 @@ class RingBufferTest : public QObject
     Q_OBJECT
 
 private slots:
-    void test_pushPop_basic();
-    void test_capacity_and_available();
-    void test_wrapping();
-    void test_overflow();
-    void test_clear();
+    void test_pushPop_shouldWorkForBasicCases();
+    void test_capacityAndAvailable_shouldReflectState();
+    void test_pushPop_shouldHandleWrapping();
+    void test_push_shouldFailOnOverflow();
+    void test_clear_shouldResetState();
 };
 
 } // namespace noteahead

@@ -52,7 +52,7 @@ void countTask(void * context, size_t taskIndex, size_t workerIndex)
 
 } // namespace
 
-void RealTimeWorkerPoolTest::test_runExecutesEveryTaskOnce()
+void RealTimeWorkerPoolTest::test_runExecutesEveryTaskOnce_shouldCompleteAllTasks()
 {
     constexpr size_t workerCount = 2;
     constexpr size_t taskCount = 256;
@@ -68,7 +68,7 @@ void RealTimeWorkerPoolTest::test_runExecutesEveryTaskOnce()
     QVERIFY(context.callerThreadTasks.load(std::memory_order_relaxed) > 0);
 }
 
-void RealTimeWorkerPoolTest::test_singleTaskUsesCallerThread()
+void RealTimeWorkerPoolTest::test_singleTaskUsesCallerThread_shouldExecuteOnCurrentThread()
 {
     RealTimeWorkerPool pool { 2 };
     CountingContext context { 1, 0 };

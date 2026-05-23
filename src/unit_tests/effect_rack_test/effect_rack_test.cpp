@@ -25,7 +25,7 @@
 
 namespace noteahead {
 
-void EffectRackTest::test_addRemove()
+void EffectRackTest::test_addRemove_shouldAddAndRemoveEffects()
 {
     EffectRack rack;
     QCOMPARE(rack.effectCount(), Constants::effectRackSize());
@@ -39,7 +39,7 @@ void EffectRackTest::test_addRemove()
     QCOMPARE(rack.effect(0), nullptr);
 }
 
-void EffectRackTest::test_process()
+void EffectRackTest::test_process_shouldProcessAudio()
 {
     EffectRack rack;
     auto reverb = std::make_shared<ReverbEffect>();
@@ -68,7 +68,7 @@ void EffectRackTest::test_process()
     QCOMPARE(output2[1], 0.0f);
 }
 
-void EffectRackTest::test_processInPlace()
+void EffectRackTest::test_processInPlace_shouldApplyEffectToBuffer()
 {
     EffectRack rack;
     auto volume = std::make_shared<VolumeEffect>();
@@ -86,7 +86,7 @@ void EffectRackTest::test_processInPlace()
     }
 }
 
-void EffectRackTest::test_serialization()
+void EffectRackTest::test_serialization_shouldSerializeAndDeserializeEffects()
 {
     EffectRack rack;
     auto reverb = std::make_shared<ReverbEffect>();
@@ -117,7 +117,7 @@ void EffectRackTest::test_serialization()
     QCOMPARE(reverb2->size(), 0.75f);
 }
 
-void EffectRackTest::test_reverb_parameters()
+void EffectRackTest::test_reverb_parameters_shouldGetAndSetParameters()
 {
     auto reverb = std::make_shared<ReverbEffect>();
     
@@ -130,7 +130,7 @@ void EffectRackTest::test_reverb_parameters()
     QCOMPARE(reverb->preDelay(), 0.2f);
 }
 
-void EffectRackTest::test_reverb_presets()
+void EffectRackTest::test_reverb_presets_shouldApplyPresets()
 {
     auto reverb = std::make_shared<ReverbEffect>();
     

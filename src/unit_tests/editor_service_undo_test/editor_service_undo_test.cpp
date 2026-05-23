@@ -28,7 +28,7 @@
 
 namespace noteahead {
 
-void EditorServiceUndoTest::test_undoRedo_noteOn()
+void EditorServiceUndoTest::test_undoRedo_noteOn_shouldUndoAndRedo()
 {
     EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
     editorService.requestPosition(0, 0, 0, 0, 0);
@@ -55,7 +55,7 @@ void EditorServiceUndoTest::test_undoRedo_noteOn()
     QVERIFY(editorService.canUndo());
 }
 
-void EditorServiceUndoTest::test_undoRedo_noteOff()
+void EditorServiceUndoTest::test_undoRedo_noteOff_shouldUndoAndRedo()
 {
     EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
     editorService.requestPosition(0, 0, 0, 0, 0);
@@ -77,7 +77,7 @@ void EditorServiceUndoTest::test_undoRedo_noteOff()
     QCOMPARE(editorService.displayNoteAtPosition(0, 0, 0, 0), "OFF");
 }
 
-void EditorServiceUndoTest::test_undoRedo_velocityChange()
+void EditorServiceUndoTest::test_undoRedo_velocityChange_shouldUndoAndRedo()
 {
     EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
     editorService.requestPosition(0, 0, 0, 0, 0);
@@ -101,7 +101,7 @@ void EditorServiceUndoTest::test_undoRedo_velocityChange()
     QCOMPARE(editorService.displayVelocityAtPosition(0, 0, 0, 0), "069");
 }
 
-void EditorServiceUndoTest::test_undoRedo_deleteNote()
+void EditorServiceUndoTest::test_undoRedo_deleteNote_shouldUndoAndRedo()
 {
     EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
     editorService.requestPosition(0, 0, 0, 0, 0);
@@ -121,7 +121,7 @@ void EditorServiceUndoTest::test_undoRedo_deleteNote()
     QCOMPARE(editorService.displayNoteAtPosition(0, 0, 0, 0), editorService.noDataString());
 }
 
-void EditorServiceUndoTest::test_undoRedo_insertNote()
+void EditorServiceUndoTest::test_undoRedo_insertNote_shouldUndoAndRedo()
 {
     EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
     editorService.requestPosition(0, 0, 0, 0, 0);
@@ -145,7 +145,7 @@ void EditorServiceUndoTest::test_undoRedo_insertNote()
     QCOMPARE(editorService.displayNoteAtPosition(0, 0, 0, 1), "C-3");
 }
 
-void EditorServiceUndoTest::test_undoRedo_backspaceNote()
+void EditorServiceUndoTest::test_undoRedo_backspaceNote_shouldUndoAndRedo()
 {
     EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
     editorService.requestPosition(0, 0, 0, 1, 0);
@@ -174,7 +174,7 @@ void EditorServiceUndoTest::test_undoRedo_backspaceNote()
     QCOMPARE(editorService.displayNoteAtPosition(0, 0, 0, 1), editorService.noDataString());
 }
 
-void EditorServiceUndoTest::test_undoRedo_noteOffWithRedundantRemoval()
+void EditorServiceUndoTest::test_undoRedo_noteOffWithRedundantRemoval_shouldUndoAndRedo()
 {
     EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
     
@@ -223,7 +223,7 @@ void EditorServiceUndoTest::test_undoRedo_noteOffWithRedundantRemoval()
     QCOMPARE(editorService.displayNoteAtPosition(0, 0, 0, 4), "OFF");
 }
 
-void EditorServiceUndoTest::test_undoRedo_pasteColumn()
+void EditorServiceUndoTest::test_undoRedo_pasteColumn_shouldUndoAndRedo()
 {
     EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
     editorService.requestPosition(0, 0, 0, 0, 0);
@@ -248,7 +248,7 @@ void EditorServiceUndoTest::test_undoRedo_pasteColumn()
     QCOMPARE(editorService.displayNoteAtPosition(0, 0, 1, 0), "C-3");
 }
 
-void EditorServiceUndoTest::test_undoRedo_pasteTrack()
+void EditorServiceUndoTest::test_undoRedo_pasteTrack_shouldUndoAndRedo()
 {
     EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
     editorService.requestPosition(0, 0, 0, 0, 0);
@@ -273,7 +273,7 @@ void EditorServiceUndoTest::test_undoRedo_pasteTrack()
     QCOMPARE(editorService.displayNoteAtPosition(0, 1, 0, 0), "C-3");
 }
 
-void EditorServiceUndoTest::test_undoRedo_pastePattern()
+void EditorServiceUndoTest::test_undoRedo_pastePattern_shouldUndoAndRedo()
 {
     EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
     editorService.requestPosition(0, 0, 0, 0, 0);
@@ -298,7 +298,7 @@ void EditorServiceUndoTest::test_undoRedo_pastePattern()
     QCOMPARE(editorService.displayNoteAtPosition(1, 0, 0, 0), "C-3");
 }
 
-void EditorServiceUndoTest::test_undoRedo_pasteSelection()
+void EditorServiceUndoTest::test_undoRedo_pasteSelection_shouldUndoAndRedo()
 {
     auto selectionService = std::make_shared<SelectionService>();
     const auto settingsService = std::make_shared<SettingsService>();
@@ -328,7 +328,7 @@ void EditorServiceUndoTest::test_undoRedo_pasteSelection()
     QCOMPARE(editorService.displayNoteAtPosition(0, 0, 0, 2), "C-3");
 }
 
-void EditorServiceUndoTest::test_undoRedo_cutColumn()
+void EditorServiceUndoTest::test_undoRedo_cutColumn_shouldUndoAndRedo()
 {
     EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
     editorService.requestPosition(0, 0, 0, 0, 0);
@@ -349,7 +349,7 @@ void EditorServiceUndoTest::test_undoRedo_cutColumn()
     QCOMPARE(editorService.displayNoteAtPosition(0, 0, 0, 0), editorService.noDataString());
 }
 
-void EditorServiceUndoTest::test_undoRedo_cutTrack()
+void EditorServiceUndoTest::test_undoRedo_cutTrack_shouldUndoAndRedo()
 {
     EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
     editorService.requestPosition(0, 0, 0, 0, 0);
@@ -370,7 +370,7 @@ void EditorServiceUndoTest::test_undoRedo_cutTrack()
     QCOMPARE(editorService.displayNoteAtPosition(0, 0, 0, 0), editorService.noDataString());
 }
 
-void EditorServiceUndoTest::test_undoRedo_cutPattern()
+void EditorServiceUndoTest::test_undoRedo_cutPattern_shouldUndoAndRedo()
 {
     EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
     editorService.requestPosition(0, 0, 0, 0, 0);
@@ -391,7 +391,7 @@ void EditorServiceUndoTest::test_undoRedo_cutPattern()
     QCOMPARE(editorService.displayNoteAtPosition(0, 0, 0, 0), editorService.noDataString());
 }
 
-void EditorServiceUndoTest::test_undoRedo_cutSelection()
+void EditorServiceUndoTest::test_undoRedo_cutSelection_shouldUndoAndRedo()
 {
     auto selectionService = std::make_shared<SelectionService>();
     const auto settingsService = std::make_shared<SettingsService>();
@@ -418,7 +418,7 @@ void EditorServiceUndoTest::test_undoRedo_cutSelection()
     QCOMPARE(editorService.displayNoteAtPosition(0, 0, 0, 0), editorService.noDataString());
 }
 
-void EditorServiceUndoTest::test_undoRedo_canUndoRedoSignals()
+void EditorServiceUndoTest::test_undoRedo_canUndoRedoSignals_shouldEmitSignals()
 {
     EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
     QSignalSpy canUndoSpy(&editorService, &EditorService::canUndoChanged);
@@ -446,7 +446,7 @@ void EditorServiceUndoTest::test_undoRedo_canUndoRedoSignals()
     QVERIFY(!editorService.canRedo());
 }
 
-void EditorServiceUndoTest::test_undoRedo_clearsOnNewSong()
+void EditorServiceUndoTest::test_undoRedo_clearsOnNewSong_shouldClearStack()
 {
     EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
     editorService.requestPosition(0, 0, 0, 0, 0);
@@ -460,7 +460,7 @@ void EditorServiceUndoTest::test_undoRedo_clearsOnNewSong()
     QVERIFY(!editorService.canRedo());
 }
 
-void EditorServiceUndoTest::test_undoRedo_shouldNotClearOnPatternChange()
+void EditorServiceUndoTest::test_undoRedo_patternChange_shouldNotClearStack()
 {
     EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
     // Ensure we have at least two tracks for testing track change
@@ -478,7 +478,7 @@ void EditorServiceUndoTest::test_undoRedo_shouldNotClearOnPatternChange()
     QVERIFY(editorService.canUndo());
 }
 
-void EditorServiceUndoTest::test_undoRedo_shouldRestorePosition()
+void EditorServiceUndoTest::test_undoRedo_shouldRestorePositionOnUndoRedo()
 {
     EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
     editorService.requestPosition(0, 0, 0, 0, 0);
@@ -535,7 +535,7 @@ void EditorServiceUndoTest::test_undoRedo_shouldRestorePosition()
     QCOMPARE(editorService.position().pattern, 1);
 }
 
-void EditorServiceUndoTest::test_undoRedo_clearsOnStructuralChange()
+void EditorServiceUndoTest::test_undoRedo_clearsOnStructuralChange_shouldClearStack()
 {
     EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
     editorService.requestPosition(0, 0, 0, 0, 0);
@@ -555,7 +555,7 @@ void EditorServiceUndoTest::test_undoRedo_clearsOnStructuralChange()
     QVERIFY(!editorService.canUndo());
 }
 
-void EditorServiceUndoTest::test_undoRedo_transposeColumn()
+void EditorServiceUndoTest::test_undoRedo_transposeColumn_shouldUndoAndRedo()
 {
     EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
     editorService.requestPosition(0, 0, 0, 0, 0);
@@ -576,7 +576,7 @@ void EditorServiceUndoTest::test_undoRedo_transposeColumn()
     QCOMPARE(editorService.displayNoteAtPosition(0, 0, 0, 0), "C#3");
 }
 
-void EditorServiceUndoTest::test_undoRedo_transposeTrack()
+void EditorServiceUndoTest::test_undoRedo_transposeTrack_shouldUndoAndRedo()
 {
     EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
     editorService.requestPosition(0, 0, 0, 0, 0);
@@ -605,7 +605,7 @@ void EditorServiceUndoTest::test_undoRedo_transposeTrack()
     QCOMPARE(editorService.displayNoteAtPosition(0, 0, 1, 0), "D-3");
 }
 
-void EditorServiceUndoTest::test_undoRedo_transposePattern()
+void EditorServiceUndoTest::test_undoRedo_transposePattern_shouldUndoAndRedo()
 {
     EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
     editorService.requestPosition(0, 0, 0, 0, 0);
@@ -635,7 +635,7 @@ void EditorServiceUndoTest::test_undoRedo_transposePattern()
     QCOMPARE(editorService.displayNoteAtPosition(0, 1, 0, 0), "B-2");
 }
 
-void EditorServiceUndoTest::test_undoRedo_transposeSelection()
+void EditorServiceUndoTest::test_undoRedo_transposeSelection_shouldUndoAndRedo()
 {
     auto selectionService = std::make_shared<SelectionService>();
     const auto settingsService = std::make_shared<SettingsService>();
@@ -667,7 +667,7 @@ void EditorServiceUndoTest::test_undoRedo_transposeSelection()
     QCOMPARE(editorService.displayNoteAtPosition(0, 0, 0, 2), "C-3");
 }
 
-void EditorServiceUndoTest::test_undoRedo_linearVelocityInterpolation()
+void EditorServiceUndoTest::test_undoRedo_linearVelocityInterpolation_shouldUndoAndRedo()
 {
     EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
     

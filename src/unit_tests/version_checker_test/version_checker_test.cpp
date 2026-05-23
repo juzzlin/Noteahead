@@ -20,7 +20,7 @@
 
 using namespace noteahead;
 
-void VersionCheckerTest::testIsNewerVersion()
+void VersionCheckerTest::test_isNewerVersion_shouldReturnCorrectResults()
 {
     QVERIFY(VersionCheckerService::isNewerVersion("2.1.0", "2.1.1"));
     QVERIFY(VersionCheckerService::isNewerVersion("2.1.0", "v2.1.1"));

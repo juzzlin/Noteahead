@@ -21,7 +21,7 @@
 
 namespace noteahead {
 
-void KnobControllerTest::test_intensityMapping()
+void KnobControllerTest::test_intensityMapping_shouldMapValuesCorrectly()
 {
     KnobController controller;
     const double from = 0.0;
@@ -43,7 +43,7 @@ void KnobControllerTest::test_intensityMapping()
     QVERIFY(std::abs(controller.mapIntensity(-0.005, from, to) - (center - 0.0000625)) < 0.000001);
 }
 
-void KnobControllerTest::test_intensityToString()
+void KnobControllerTest::test_intensityToString_shouldFormatPercentageStrings()
 {
     KnobController controller;
     const double from = 0.0;
@@ -59,7 +59,7 @@ void KnobControllerTest::test_intensityToString()
     QCOMPARE(controller.intensityToString(500.2, from, to), QString { "0.0%" });
 }
 
-void KnobControllerTest::test_panMapping()
+void KnobControllerTest::test_panMapping_shouldMapValuesCorrectly()
 {
     KnobController controller;
     const double from = 0.0;
@@ -70,7 +70,7 @@ void KnobControllerTest::test_panMapping()
     QCOMPARE(controller.mapPan(1.0, from, to), 1000.0);
 }
 
-void KnobControllerTest::test_panToString()
+void KnobControllerTest::test_panToString_shouldFormatPanLabels()
 {
     KnobController controller;
     const double from = 0.0;
@@ -81,7 +81,7 @@ void KnobControllerTest::test_panToString()
     QCOMPARE(controller.panToString(0.0, from, to), QString { "-100.0% L" });
 }
 
-void KnobControllerTest::test_timeMapping()
+void KnobControllerTest::test_timeMapping_shouldMapTimeValuesCorrectly()
 {
     KnobController controller;
     const double from = 1.0;
@@ -97,7 +97,7 @@ void KnobControllerTest::test_timeMapping()
     QCOMPARE(controller.mapTime(0.5, from, to), 1251.0);
 }
 
-void KnobControllerTest::test_timeToString()
+void KnobControllerTest::test_timeToString_shouldFormatTimeStrings()
 {
     KnobController controller;
     QCOMPARE(controller.timeToString(123.4, "ms"), QString { "123.4 ms" });
@@ -109,7 +109,7 @@ void KnobControllerTest::test_timeToString()
     QCOMPARE(controller.timeToString(2000.0, "ms"), QString { "2.0 s" });
 }
 
-void KnobControllerTest::test_percentageToString()
+void KnobControllerTest::test_percentageToString_shouldFormatPercentageStrings()
 {
     KnobController controller;
     QCOMPARE(controller.percentageToString(500.0), QString { "50.0%" });
@@ -119,7 +119,7 @@ void KnobControllerTest::test_percentageToString()
     QCOMPARE(controller.percentageToString(10.0, 0, 100), QString { "10.0%" });
 }
 
-void KnobControllerTest::test_decibelToString()
+void KnobControllerTest::test_decibelToString_shouldFormatDecibelStrings()
 {
     KnobController controller;
     // Default 0..1000 -> -30..30
@@ -138,7 +138,7 @@ void KnobControllerTest::test_decibelToString()
     QCOMPARE(controller.decibelToString(6.0, -12.0, 12.0), QString { "+6.0 dB" });
 }
 
-void KnobControllerTest::test_valueToString()
+void KnobControllerTest::test_valueToString_shouldFormatUnitStrings()
 {
     KnobController controller;
     QCOMPARE(controller.valueToString(50.0, "%", 0, 100), QString { "50.0%" });
@@ -150,7 +150,7 @@ void KnobControllerTest::test_valueToString()
     QCOMPARE(controller.valueToString(2.5, "s"), QString { "2.5 s" });
 }
 
-void KnobControllerTest::test_format()
+void KnobControllerTest::test_format_shouldHandleMappingAndUnits()
 {
     KnobController controller;
     
@@ -169,7 +169,7 @@ void KnobControllerTest::test_format()
     QCOMPARE(controller.format(1.234, "exponential", "", 0.1, 10.0), QString { "1.23" });
 }
 
-void KnobControllerTest::test_frequencyToString()
+void KnobControllerTest::test_frequencyToString_shouldFormatFrequencyStrings()
 {
     KnobController controller;
     QCOMPARE(controller.frequencyToString(500.0, 440.0, false), QString { "440 Hz" });
@@ -179,7 +179,7 @@ void KnobControllerTest::test_frequencyToString()
     QCOMPARE(controller.frequencyToString(0.0, 0.0, false), QString { "0 Hz" });
 }
 
-void KnobControllerTest::test_syncLogic()
+void KnobControllerTest::test_syncLogic_shouldHandleSyncValuesAndLabels()
 {
     KnobController controller;
     QCOMPARE(controller.syncCount(), 16);

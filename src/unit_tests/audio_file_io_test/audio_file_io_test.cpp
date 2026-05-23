@@ -138,7 +138,7 @@ private:
     std::condition_variable m_cv;
 };
 
-void AudioFileIoTest::testRecordingAndStreaming()
+void AudioFileIoTest::test_recordingAndStreaming_shouldWriteToDiskAndReadBackCorrectly()
 {
     const uint32_t sampleRate { static_cast<uint32_t>(Constants::defaultSampleRate()) };
     const uint32_t channels { 2 };
@@ -210,7 +210,7 @@ void AudioFileIoTest::testRecordingAndStreaming()
     }
 }
 
-void AudioFileIoTest::testPosition()
+void AudioFileIoTest::test_position_shouldSeekAndReportCorrectPosition()
 {
     const uint32_t sampleRate { static_cast<uint32_t>(Constants::defaultSampleRate()) };
     const uint32_t channels { 1 };

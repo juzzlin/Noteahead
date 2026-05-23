@@ -25,8 +25,8 @@ class AudioFileIoTest : public QObject
     Q_OBJECT
 
 private slots:
-    void testRecordingAndStreaming();
-    void testPosition();
+    void test_recordingAndStreaming_shouldWriteToDiskAndReadBackCorrectly();
+    void test_position_shouldSeekAndReportCorrectPosition();
 };
 
 } // namespace noteahead

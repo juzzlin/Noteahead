@@ -25,16 +25,16 @@ class EffectsTest : public QObject
     Q_OBJECT
 
 private slots:
-    void test_volumeEffect();
-    void test_panningEffect();
-    void test_lowPassFilterEffect();
-    void test_highPassFilterEffect();
-    void test_reverb_mix();
-    void test_delayEffect();
-    void test_compressorEffect();
-    void test_eq8BandParametricEffect();
-    void test_filterStability();
-    void test_cascadedSvfStability();
+    void test_volumeEffect_shouldApplyGainToSignal();
+    void test_panningEffect_shouldDistributeSignalToChannels();
+    void test_lowPassFilterEffect_shouldProcessAudioStablely();
+    void test_highPassFilterEffect_shouldProcessAudioStablely();
+    void test_reverb_mix_shouldApplyEffectBasedOnMixLevel();
+    void test_delayEffect_shouldProcessSignalAndHandleSampleRateChanges();
+    void test_compressorEffect_shouldReduceGainAndHandleLookahead();
+    void test_eq8BandParametricEffect_shouldApplyBandsAndBeStable();
+    void test_filterStability_shouldHandleChangingCutoff();
+    void test_cascadedSvfStability_shouldHandleRapidParameterChanges();
 };
 
 } // namespace noteahead

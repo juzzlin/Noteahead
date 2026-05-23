@@ -30,7 +30,7 @@ private slots:
 
     void test_createPattern_columnAdded_shouldCreatePattern();
 
-    void test_hasData_emptySong_hasNoData();
+    void test_hasData_emptySong_shouldReturnFalse();
     void test_hasData_noteOnAdded_shouldHaveData();
     void test_hasData_noteOffAdded_shouldHaveData();
 
@@ -69,7 +69,7 @@ private slots:
     void test_addTrackToLeft_shouldUseSmallestFreeId();
     void test_trackByName_shouldReturnTrack();
     void test_columnByName_shouldReturnColumn();
-    void test_trackIndexByPosition_and_trackPositionByIndex();
+    void test_trackIndexByPosition_and_trackPositionByIndex_shouldReturnCorrectValues();
 
     void test_transposePattern_drumTrackSet_shouldNotTransposeDrumTrack();
     void test_transposeSong_drumTrackSet_shouldNotTransposeDrumTrack();

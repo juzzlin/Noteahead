@@ -44,7 +44,7 @@ private slots:
     void test_trackCutPaste_shorterTarget_shouldCopyTrack();
     void test_trackCopyPaste_equalSizes_shouldCopyTrack();
     void test_trackCopyPaste_shorterTarget_shouldCopyTrack();
-    void test_trackCopyPaste_withAutomations();
+    void test_trackCopyPaste_withAutomations_shouldCopyAutomations();
 
     void test_patternCutPaste_equalSizes_shouldCopyPattern();
     void test_patternCutPaste_shorterTarget_shouldCopyPattern();
@@ -59,7 +59,7 @@ private slots:
 
     void test_requestDigitSetAtCurrentPosition_velocity_shouldChangeVelocity();
 
-    void test_velocity_input_hundreds_digit();
+    void test_velocity_input_hundreds_digit_shouldSetVelocity();
 
     void test_requestHorizontalScrollPositionChange_shouldChangePosition();
 
@@ -93,8 +93,8 @@ private slots:
 
     void test_requestPosition_invalidPosition_shouldNotChangePosition();
     void test_requestPosition_validPosition_shouldChangePosition();
-    void test_requestPosition_shouldChangePosition();
-    void test_requestPosition_shouldNotChangePosition();
+    void test_requestPosition_shouldUpdatePosition();
+    void test_requestPosition_outOfBounds_shouldNotChangePosition();
     void test_requestPositionByTick_shouldRespectUiUpdatesDisabledSetting();
     void test_resetSongPosition_firstTrackRemoved_shouldResetPosition();
 

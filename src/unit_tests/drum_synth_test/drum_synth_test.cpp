@@ -74,19 +74,19 @@ void DrumSynthTest::test_kickEngine_nextSample_shouldEventuallyDeactivate()
     QVERIFY(!engine.isActive());
 }
 
-void DrumSynthTest::test_kick_start_discontinuity()
+void DrumSynthTest::test_kick_start_shouldNotHaveDiscontinuity()
 {
-    ReproKickPop::test_kick_start_discontinuity();
+    ReproKickPop::test_kick_start_shouldNotHaveDiscontinuity();
 }
 
-void DrumSynthTest::test_kick_retrigger_pop()
+void DrumSynthTest::test_kick_retrigger_shouldNotPop()
 {
-    ReproKickPop::test_kick_retrigger_pop();
+    ReproKickPop::test_kick_retrigger_shouldNotPop();
 }
 
-void DrumSynthTest::test_kick_small_attack_pop()
+void DrumSynthTest::test_kick_small_attack_shouldNotPop()
 {
-    ReproKickPop::test_kick_small_attack_pop();
+    ReproKickPop::test_kick_small_attack_shouldNotPop();
 }
 
 void DrumSynthTest::test_kickEngine_peakVolume_shouldNotExceedOne()

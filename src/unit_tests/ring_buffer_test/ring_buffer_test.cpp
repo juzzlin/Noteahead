@@ -21,7 +21,7 @@
 
 namespace noteahead {
 
-void RingBufferTest::test_pushPop_basic()
+void RingBufferTest::test_pushPop_shouldWorkForBasicCases()
 {
     RingBuffer<int> rb(10);
     const std::vector<int> input = { 1, 2, 3, 4, 5 };
@@ -38,7 +38,7 @@ void RingBufferTest::test_pushPop_basic()
     }
 }
 
-void RingBufferTest::test_capacity_and_available()
+void RingBufferTest::test_capacityAndAvailable_shouldReflectState()
 {
     // Note: RingBuffer keeps one slot empty to distinguish full from empty
     RingBuffer<int> rb(5);
@@ -51,7 +51,7 @@ void RingBufferTest::test_capacity_and_available()
     QCOMPARE(rb.readAvailable(), 1u);
 }
 
-void RingBufferTest::test_wrapping()
+void RingBufferTest::test_pushPop_shouldHandleWrapping()
 {
     RingBuffer<int> rb(5); // Internal capacity is 5, usable is 4
     
@@ -73,7 +73,7 @@ void RingBufferTest::test_wrapping()
     QCOMPARE(finalOutput[2], 5);
 }
 
-void RingBufferTest::test_overflow()
+void RingBufferTest::test_push_shouldFailOnOverflow()
 {
     RingBuffer<int> rb(5); // usable 4
     std::vector<int> data = { 1, 2, 3, 4, 5 };
@@ -82,7 +82,7 @@ void RingBufferTest::test_overflow()
     QVERIFY(rb.push(data.data(), 4));
 }
 
-void RingBufferTest::test_clear()
+void RingBufferTest::test_clear_shouldResetState()
 {
     RingBuffer<int> rb(10);
     int data[3] = { 1, 2, 3 };

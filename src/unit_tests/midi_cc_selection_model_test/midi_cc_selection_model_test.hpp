@@ -33,8 +33,8 @@ private slots:
     void test_setData_shouldUpdateModel();
     void test_toString_shouldReturnNonEmptyString();
     void test_settings_shouldRoundTripCorrectly();
-    void test_addAndRemoveSetting();
-    void test_addDuplicateSetting();
+    void test_addAndRemoveSetting_shouldUpdateModel();
+    void test_addDuplicateSetting_shouldOverwriteExisting();
 
 private:
     MidiCcSelectionModel * model = nullptr;

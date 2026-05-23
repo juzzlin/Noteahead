@@ -81,7 +81,7 @@ private:
     Info m_info;
 };
 
-void XmlSerializationTest::test_toXmlFromXml_playOrder()
+void XmlSerializationTest::test_toXmlFromXml_playOrder_shouldBeCorrect()
 {
     EditorService editorServiceOut { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
     editorServiceOut.setPatternAtSongPosition(1, 11);
@@ -99,7 +99,7 @@ void XmlSerializationTest::test_toXmlFromXml_playOrder()
     QCOMPARE(editorServiceIn.patternAtSongPosition(3), 33);
 }
 
-void XmlSerializationTest::test_toXmlFromXml_songProperties()
+void XmlSerializationTest::test_toXmlFromXml_songProperties_shouldBeCorrect()
 {
     EditorService editorServiceOut { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
     editorServiceOut.setBeatsPerMinute(666);
@@ -467,7 +467,7 @@ void XmlSerializationTest::test_toXmlFromXml_sideChainService_shouldLoadSideChai
     }
 }
 
-void XmlSerializationTest::test_toXmlFromXml_noteData_noteOn()
+void XmlSerializationTest::test_toXmlFromXml_noteData_noteOn_shouldBeCorrect()
 {
     EditorService editorServiceOut { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
 
@@ -532,7 +532,7 @@ void XmlSerializationTest::test_toXmlFromXml_noteData_delay_shouldSaveAndLoadDel
     QCOMPARE(editorServiceIn.delayAtCurrentPosition(), 0);
 }
 
-void XmlSerializationTest::test_toXmlFromXml_noteData_noteOff()
+void XmlSerializationTest::test_toXmlFromXml_noteData_noteOff_shouldBeCorrect()
 {
     EditorService editorServiceOut { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
 

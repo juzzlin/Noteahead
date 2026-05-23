@@ -82,7 +82,7 @@ void MidiCcSelectionModelTest::test_settings_shouldRoundTripCorrectly()
     }
 }
 
-void MidiCcSelectionModelTest::test_addAndRemoveSetting()
+void MidiCcSelectionModelTest::test_addAndRemoveSetting_shouldUpdateModel()
 {
     model->setMidiCcSettings({});
     QCOMPARE(model->rowCount(), 0);
@@ -96,7 +96,7 @@ void MidiCcSelectionModelTest::test_addAndRemoveSetting()
     QCOMPARE(model->rowCount(), 0);
 }
 
-void MidiCcSelectionModelTest::test_addDuplicateSetting()
+void MidiCcSelectionModelTest::test_addDuplicateSetting_shouldOverwriteExisting()
 {
     model->setMidiCcSettings({});
     model->addMidiCcSetting(94, 0);

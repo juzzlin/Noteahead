@@ -88,30 +88,30 @@ private:
     std::map<quint64, QString> m_ports;
 };
 
-void DeviceRackControllerTest::test_devices()
+void DeviceRackControllerTest::test_devices_shouldReturnDeviceNames()
 {
-    const auto deviceService = std::make_shared<MockDeviceService>();
-    const auto name1 = "Noteahead Sampler 1";
-    const auto name2 = "Noteahead Synth 1";
+    const auto deviceService { std::make_shared<MockDeviceService>() };
+    const auto name1 { "Noteahead Sampler 1" };
+    const auto name2 { "Noteahead Synth 1" };
     deviceService->setMockDevice(0, std::make_shared<MockDevice>(name1));
     deviceService->setMockDevice(1, std::make_shared<MockDevice>(name2));
 
-    DeviceRackController controller(deviceService, nullptr, nullptr, nullptr, nullptr, nullptr);
+    DeviceRackController controller { deviceService, nullptr, nullptr, nullptr, nullptr, nullptr };
     QCOMPARE(controller.rowCount(), 8);
     QCOMPARE(controller.data(controller.index(0), static_cast<int>(DeviceRackController::DataRole::Name)).toString(), QString::fromStdString(name1));
     QCOMPARE(controller.data(controller.index(1), static_cast<int>(DeviceRackController::DataRole::Name)).toString(), QString::fromStdString(name2));
     QCOMPARE(controller.data(controller.index(2), static_cast<int>(DeviceRackController::DataRole::Name)).toString(), QString(""));
 }
 
-void DeviceRackControllerTest::test_trackNames()
+void DeviceRackControllerTest::test_trackNames_shouldReturnTrackNamesForDevice()
 {
-    const auto deviceService = std::make_shared<MockDeviceService>();
-    const auto name1 = "Noteahead Sampler 1";
-    const auto name2 = "Noteahead Synth 1";
+    const auto deviceService { std::make_shared<MockDeviceService>() };
+    const auto name1 { "Noteahead Sampler 1" };
+    const auto name2 { "Noteahead Synth 1" };
     deviceService->setMockDevice(0, std::make_shared<MockDevice>(name1));
     deviceService->setMockDevice(1, std::make_shared<MockDevice>(name2));
 
-    const auto editorService = std::make_shared<MockEditorService>();
+    const auto editorService { std::make_shared<MockEditorService>() };
     editorService->setMockIndices({ 0, 1, 2, 3 });
     editorService->setMockTrackName(0, "Track 1");
     editorService->setMockInstrumentPortName(0, QString::fromStdString(name1));
@@ -122,13 +122,13 @@ void DeviceRackControllerTest::test_trackNames()
     editorService->setMockTrackName(3, "Track 4");
     editorService->setMockInstrumentPortName(3, QString::fromStdString(name2));
 
-    DeviceRackController controller(deviceService, nullptr, nullptr, nullptr, nullptr, editorService);
+    DeviceRackController controller { deviceService, nullptr, nullptr, nullptr, nullptr, editorService };
 
     QCOMPARE(controller.data(controller.index(0), static_cast<int>(DeviceRackController::DataRole::TrackNames)).toString(), QString("Track 1, Track 3"));
     QCOMPARE(controller.data(controller.index(1), static_cast<int>(DeviceRackController::DataRole::TrackNames)).toString(), QString("Track 2, Track 4"));
 }
 
-void DeviceRackControllerTest::test_openDevice()
+void DeviceRackControllerTest::test_openDevice_shouldOpenDevice()
 {
     // This test would require more complex mocking of DeviceService to return real Device objects
     // or further mocking of Sampler/Synth controllers.

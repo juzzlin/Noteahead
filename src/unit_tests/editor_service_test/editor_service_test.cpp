@@ -391,7 +391,7 @@ void EditorServiceTest::test_trackCopyPaste_shorterTarget_shouldCopyTrack()
     QCOMPARE(editorService.song()->noteDataAtPosition(targetPosition)->track(), targetPosition.track);
 }
 
-void EditorServiceTest::test_trackCopyPaste_withAutomations()
+void EditorServiceTest::test_trackCopyPaste_withAutomations_shouldCopyAutomations()
 {
     EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
     auto automationService = std::make_shared<AutomationService>(std::make_shared<PropertyService>());
@@ -668,7 +668,7 @@ void EditorServiceTest::test_requestDigitSetAtCurrentPosition_velocity_shouldCha
     QCOMPARE(editorService.displayVelocityAtPosition(0, 0, 0, 0), "050");
 }
 
-void EditorServiceTest::test_velocity_input_hundreds_digit()
+void EditorServiceTest::test_velocity_input_hundreds_digit_shouldSetVelocity()
 {
     EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
     QVERIFY(editorService.requestPosition(0, 0, 0, 0, 0));
@@ -1356,7 +1356,7 @@ void EditorServiceTest::test_requestScroll_shouldChangeCurrentTime()
     QCOMPARE(editorService.currentTime(), "00:00:00.062");
 }
 
-void EditorServiceTest::test_requestPosition_shouldChangePosition()
+void EditorServiceTest::test_requestPosition_shouldUpdatePosition()
 {
     EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
     QSignalSpy positionChangedSpy { &editorService, &EditorService::positionChanged };
@@ -1379,7 +1379,7 @@ void EditorServiceTest::test_requestPosition_shouldChangePosition()
     QCOMPARE(editorService.position().track, editorService.trackCount() - 1);
 }
 
-void EditorServiceTest::test_requestPosition_shouldNotChangePosition()
+void EditorServiceTest::test_requestPosition_outOfBounds_shouldNotChangePosition()
 {
     EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
     QSignalSpy positionChangedSpy { &editorService, &EditorService::positionChanged };

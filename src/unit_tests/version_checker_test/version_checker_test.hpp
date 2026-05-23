@@ -23,7 +23,7 @@ class VersionCheckerTest : public QObject
     Q_OBJECT
 
 private slots:
-    void testIsNewerVersion();
+    void test_isNewerVersion_shouldReturnCorrectResults();
 };
 
 #endif // VERSION_CHECKER_TEST_HPP

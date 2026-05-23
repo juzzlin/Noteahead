@@ -25,31 +25,31 @@ class EditorServiceUndoTest : public QObject
     Q_OBJECT
 
 private slots:
-    void test_undoRedo_noteOn();
-    void test_undoRedo_noteOff();
-    void test_undoRedo_velocityChange();
-    void test_undoRedo_deleteNote();
-    void test_undoRedo_insertNote();
-    void test_undoRedo_backspaceNote();
-    void test_undoRedo_noteOffWithRedundantRemoval();
-    void test_undoRedo_pasteColumn();
-    void test_undoRedo_pasteTrack();
-    void test_undoRedo_pastePattern();
-    void test_undoRedo_pasteSelection();
-    void test_undoRedo_cutColumn();
-    void test_undoRedo_cutTrack();
-    void test_undoRedo_cutPattern();
-    void test_undoRedo_cutSelection();
-    void test_undoRedo_canUndoRedoSignals();
-    void test_undoRedo_clearsOnNewSong();
-    void test_undoRedo_shouldNotClearOnPatternChange();
-    void test_undoRedo_shouldRestorePosition();
-    void test_undoRedo_clearsOnStructuralChange();
-    void test_undoRedo_transposeColumn();
-    void test_undoRedo_transposeTrack();
-    void test_undoRedo_transposePattern();
-    void test_undoRedo_transposeSelection();
-    void test_undoRedo_linearVelocityInterpolation();
+    void test_undoRedo_noteOn_shouldUndoAndRedo();
+    void test_undoRedo_noteOff_shouldUndoAndRedo();
+    void test_undoRedo_velocityChange_shouldUndoAndRedo();
+    void test_undoRedo_deleteNote_shouldUndoAndRedo();
+    void test_undoRedo_insertNote_shouldUndoAndRedo();
+    void test_undoRedo_backspaceNote_shouldUndoAndRedo();
+    void test_undoRedo_noteOffWithRedundantRemoval_shouldUndoAndRedo();
+    void test_undoRedo_pasteColumn_shouldUndoAndRedo();
+    void test_undoRedo_pasteTrack_shouldUndoAndRedo();
+    void test_undoRedo_pastePattern_shouldUndoAndRedo();
+    void test_undoRedo_pasteSelection_shouldUndoAndRedo();
+    void test_undoRedo_cutColumn_shouldUndoAndRedo();
+    void test_undoRedo_cutTrack_shouldUndoAndRedo();
+    void test_undoRedo_cutPattern_shouldUndoAndRedo();
+    void test_undoRedo_cutSelection_shouldUndoAndRedo();
+    void test_undoRedo_canUndoRedoSignals_shouldEmitSignals();
+    void test_undoRedo_clearsOnNewSong_shouldClearStack();
+    void test_undoRedo_patternChange_shouldNotClearStack();
+    void test_undoRedo_shouldRestorePositionOnUndoRedo();
+    void test_undoRedo_clearsOnStructuralChange_shouldClearStack();
+    void test_undoRedo_transposeColumn_shouldUndoAndRedo();
+    void test_undoRedo_transposeTrack_shouldUndoAndRedo();
+    void test_undoRedo_transposePattern_shouldUndoAndRedo();
+    void test_undoRedo_transposeSelection_shouldUndoAndRedo();
+    void test_undoRedo_linearVelocityInterpolation_shouldUndoAndRedo();
 };
 
 } // namespace noteahead

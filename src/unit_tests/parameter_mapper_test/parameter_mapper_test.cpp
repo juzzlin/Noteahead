@@ -20,7 +20,7 @@
 
 namespace noteahead {
 
-void ParameterMapperTest::test_exponentialMapping()
+void ParameterMapperTest::test_exponentialMapping_shouldReturnCorrectValues()
 {
     const double min = 0.001;
     const double max = 10.0;
@@ -33,7 +33,7 @@ void ParameterMapperTest::test_exponentialMapping()
     QVERIFY(std::abs(ParameterMapper::mapExponential(0.5, min, max) - expectedMid) < 0.000001);
 }
 
-void ParameterMapperTest::test_exponentialUnmapping()
+void ParameterMapperTest::test_exponentialUnmapping_shouldReturnCorrectValues()
 {
     const double min = 0.001;
     const double max = 10.0;
@@ -45,7 +45,7 @@ void ParameterMapperTest::test_exponentialUnmapping()
     QVERIFY(std::abs(ParameterMapper::unmapExponential(mid, min, max) - 0.5) < 0.000001);
 }
 
-void ParameterMapperTest::test_cubicMapping()
+void ParameterMapperTest::test_cubicMapping_shouldReturnCorrectValues()
 {
     const double min = 10.0;
     const double max = 110.0;
@@ -57,7 +57,7 @@ void ParameterMapperTest::test_cubicMapping()
     QCOMPARE(ParameterMapper::mapCubic(0.5, min, max), 22.5);
 }
 
-void ParameterMapperTest::test_cubicUnmapping()
+void ParameterMapperTest::test_cubicUnmapping_shouldReturnCorrectValues()
 {
     const double min = 10.0;
     const double max = 110.0;
@@ -67,7 +67,7 @@ void ParameterMapperTest::test_cubicUnmapping()
     QVERIFY(std::abs(ParameterMapper::unmapCubic(22.5, min, max) - 0.5) < 0.000001);
 }
 
-void ParameterMapperTest::test_cubicCenteredMapping()
+void ParameterMapperTest::test_cubicCenteredMapping_shouldReturnCorrectValues()
 {
     const double min = -100.0;
     const double max = 100.0;
@@ -85,7 +85,7 @@ void ParameterMapperTest::test_cubicCenteredMapping()
     QCOMPARE(ParameterMapper::mapCubicCentered(0.1, min, max), 0.1);
 }
 
-void ParameterMapperTest::test_cubicCenteredUnmapping()
+void ParameterMapperTest::test_cubicCenteredUnmapping_shouldReturnCorrectValues()
 {
     const double min = -100.0;
     const double max = 100.0;
@@ -96,7 +96,7 @@ void ParameterMapperTest::test_cubicCenteredUnmapping()
     QVERIFY(std::abs(ParameterMapper::unmapCubicCentered(12.5, min, max) - 0.5) < 0.000001);
 }
 
-void ParameterMapperTest::test_logFrequencyMapping()
+void ParameterMapperTest::test_logFrequencyMapping_shouldReturnCorrectValues()
 {
     const double maxFreq = 20000.0;
     
@@ -113,7 +113,7 @@ void ParameterMapperTest::test_logFrequencyMapping()
     QVERIFY(std::abs(ParameterMapper::mapLogFrequency(0.5, 0, maxFreq) - expected) < 0.000001);
 }
 
-void ParameterMapperTest::test_logFrequencyUnmapping()
+void ParameterMapperTest::test_logFrequencyUnmapping_shouldReturnCorrectValues()
 {
     const double maxFreq = 20000.0;
     

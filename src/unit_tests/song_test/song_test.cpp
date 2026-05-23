@@ -75,7 +75,7 @@ void SongTest::test_createPattern_columnAdded_shouldCreatePattern()
     QCOMPARE(song.lineCount(0), song.lineCount(1));
 }
 
-void SongTest::test_hasData_emptySong_hasNoData()
+void SongTest::test_hasData_emptySong_shouldReturnFalse()
 {
     Song song;
 
@@ -831,7 +831,7 @@ void SongTest::test_columnByName_shouldReturnColumn()
     QCOMPARE(song.columnByName(1, "Bar").value(), 0);
 }
 
-void SongTest::test_trackIndexByPosition_and_trackPositionByIndex()
+void SongTest::test_trackIndexByPosition_and_trackPositionByIndex_shouldReturnCorrectValues()
 {
     Song song;
     // Initial: 8 tracks [0, 1, 2, 3, 4, 5, 6, 7]

@@ -44,13 +44,13 @@ private slots:
 
     void test_toXmlFromXml_mixerService_shouldLoadMixerService();
 
-    void test_toXmlFromXml_noteData_noteOff();
-    void test_toXmlFromXml_noteData_noteOn();
+    void test_toXmlFromXml_noteData_noteOff_shouldBeCorrect();
+    void test_toXmlFromXml_noteData_noteOn_shouldBeCorrect();
     void test_toXmlFromXml_noteData_delay_shouldSaveAndLoadDelay();
 
-    void test_toXmlFromXml_playOrder();
+    void test_toXmlFromXml_playOrder_shouldBeCorrect();
     void test_toXmlFromXml_removeTrack_shouldLoadSong();
-    void test_toXmlFromXml_songProperties();
+    void test_toXmlFromXml_songProperties_shouldBeCorrect();
     void test_toXmlFromXml_trackName_shouldLoadTrackName();
     void test_toXmlFromXml_trackDrumTrack_shouldLoadTrackDrumTrack();
     void test_toXmlFromXml_samplerDevice_shouldLoadSamplerDevice();

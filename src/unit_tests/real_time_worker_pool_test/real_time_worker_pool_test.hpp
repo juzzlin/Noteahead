@@ -25,8 +25,8 @@ class RealTimeWorkerPoolTest : public QObject
     Q_OBJECT
 
 private slots:
-    void test_runExecutesEveryTaskOnce();
-    void test_singleTaskUsesCallerThread();
+    void test_runExecutesEveryTaskOnce_shouldCompleteAllTasks();
+    void test_singleTaskUsesCallerThread_shouldExecuteOnCurrentThread();
 };
 
 } // namespace noteahead

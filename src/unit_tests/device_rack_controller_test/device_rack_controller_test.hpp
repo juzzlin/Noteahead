@@ -25,9 +25,9 @@ class DeviceRackControllerTest : public QObject
     Q_OBJECT
 
 private slots:
-    void test_devices();
-    void test_trackNames();
-    void test_openDevice();
+    void test_devices_shouldReturnDeviceNames();
+    void test_trackNames_shouldReturnTrackNamesForDevice();
+    void test_openDevice_shouldOpenDevice();
 };
 
 } // namespace noteahead

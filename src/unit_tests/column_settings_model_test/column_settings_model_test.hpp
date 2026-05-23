@@ -27,9 +27,9 @@ class ColumnSettingsModelTest : public QObject
     Q_OBJECT
 
 private slots:
-    void test_initialValues();
-    void test_settersAndGetters();
-    void test_signals();
+    void test_initialValues_shouldMatchDefaults();
+    void test_settersAndGetters_shouldManageModelData();
+    void test_signals_shouldBeEmittedWhenValuesChange();
     void test_reset_shouldResetToDefaultValues();
     void test_save_shouldEmitSaveRequestedWithCorrectData();
 };

@@ -26,15 +26,15 @@ class ApplicationServiceTest : public QObject
 
 private slots:
     void initTestCase();
-    void test_initialState();
-    void test_applicationProperties();
-    void test_editMode();
-    void test_recentFiles();
-    void test_stateMachineInteractions();
-    void test_liveNoteLogic();
+    void test_initialState_shouldBeCorrect();
+    void test_applicationProperties_shouldMatchConstants();
+    void test_editMode_shouldToggleCorrectly();
+    void test_recentFiles_shouldBeManagedCorrectly();
+    void test_stateMachineInteractions_shouldTriggerCorrectActions();
+    void test_liveNoteLogic_shouldTriggerCorrectSignals();
     void test_importMidiFile_shouldAddRecentFile();
-    void test_isMidiFile();
-    void test_requestAlertDialog();
+    void test_isMidiFile_shouldDetectCorrectExtensions();
+    void test_requestAlertDialog_shouldEmitSignal();
 };
 
 } // namespace noteahead

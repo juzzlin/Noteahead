@@ -33,7 +33,7 @@
 
 namespace noteahead {
 
-void EffectsTest::test_volumeEffect()
+void EffectsTest::test_volumeEffect_shouldApplyGainToSignal()
 {
     VolumeEffect effect;
     float left = 1.0f;
@@ -53,7 +53,7 @@ void EffectsTest::test_volumeEffect()
     QCOMPARE(right, 0.0f);
 }
 
-void EffectsTest::test_panningEffect()
+void EffectsTest::test_panningEffect_shouldDistributeSignalToChannels()
 {
     PanningEffect effect;
 
@@ -88,7 +88,7 @@ void EffectsTest::test_panningEffect()
     }
 }
 
-void EffectsTest::test_lowPassFilterEffect()
+void EffectsTest::test_lowPassFilterEffect_shouldProcessAudioStablely()
 {
     LowPassFilterEffect effect;
     float left = 1.0f;
@@ -111,7 +111,7 @@ void EffectsTest::test_lowPassFilterEffect()
     }
 }
 
-void EffectsTest::test_highPassFilterEffect()
+void EffectsTest::test_highPassFilterEffect_shouldProcessAudioStablely()
 {
     HighPassFilterEffect effect;
     
@@ -146,7 +146,7 @@ void EffectsTest::test_highPassFilterEffect()
     }
 }
 
-void EffectsTest::test_reverb_mix()
+void EffectsTest::test_reverb_mix_shouldApplyEffectBasedOnMixLevel()
 {
     ReverbEffect reverb;
     reverb.setSampleRate(44100);
@@ -193,7 +193,7 @@ void EffectsTest::test_reverb_mix()
     QVERIFY(std::abs(r) > 1.0f);
 }
 
-void EffectsTest::test_delayEffect()
+void EffectsTest::test_delayEffect_shouldProcessSignalAndHandleSampleRateChanges()
 {
     DelayEffect effect;
     effect.setSampleRate(44100.0);
@@ -220,7 +220,7 @@ void EffectsTest::test_delayEffect()
     QCOMPARE(effect.sampleRate(), 48000.0);
 }
 
-void EffectsTest::test_compressorEffect()
+void EffectsTest::test_compressorEffect_shouldReduceGainAndHandleLookahead()
 {
     CompressorEffect effect;
     effect.setSampleRate(44100.0);
@@ -287,7 +287,7 @@ void EffectsTest::test_compressorEffect()
     }
 }
 
-void EffectsTest::test_eq8BandParametricEffect()
+void EffectsTest::test_eq8BandParametricEffect_shouldApplyBandsAndBeStable()
 {
     Eq8BandParametricEffect effect;
     effect.setSampleRate(44100.0);
@@ -338,7 +338,7 @@ void EffectsTest::test_eq8BandParametricEffect()
     }
 }
 
-void EffectsTest::test_filterStability()
+void EffectsTest::test_filterStability_shouldHandleChangingCutoff()
 {
     LowPassFilterEffect lp;
     HighPassFilterEffect hp;
@@ -359,7 +359,7 @@ void EffectsTest::test_filterStability()
     }
 }
 
-void EffectsTest::test_cascadedSvfStability()
+void EffectsTest::test_cascadedSvfStability_shouldHandleRapidParameterChanges()
 {
     CascadedSvf filter{};
     filter.setSampleRate(static_cast<uint32_t>(Constants::defaultSampleRate()));

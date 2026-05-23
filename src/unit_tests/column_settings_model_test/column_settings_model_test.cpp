@@ -20,7 +20,7 @@
 
 namespace noteahead {
 
-void ColumnSettingsModelTest::test_initialValues()
+void ColumnSettingsModelTest::test_initialValues_shouldMatchDefaults()
 {
     ColumnSettingsModel model;
     QCOMPARE(model.trackIndex(), 0);
@@ -32,7 +32,7 @@ void ColumnSettingsModelTest::test_initialValues()
     QCOMPARE(model.chordNote1Delay(), 0);
 }
 
-void ColumnSettingsModelTest::test_settersAndGetters()
+void ColumnSettingsModelTest::test_settersAndGetters_shouldManageModelData()
 {
     ColumnSettingsModel model;
 
@@ -85,7 +85,7 @@ void ColumnSettingsModelTest::test_settersAndGetters()
     QCOMPARE(model.arpeggiatorEventsPerBeat(), 8);
 }
 
-void ColumnSettingsModelTest::test_signals()
+void ColumnSettingsModelTest::test_signals_shouldBeEmittedWhenValuesChange()
 {
     ColumnSettingsModel model;
 

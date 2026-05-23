@@ -7,7 +7,7 @@ namespace noteahead {
 class ReproKickPop
 {
 public:
-    static void test_kick_start_discontinuity()
+    static void test_kick_start_shouldNotHaveDiscontinuity()
     {
         KickEngine engine;
         engine.setSampleRate(44100);
@@ -22,7 +22,7 @@ public:
         QVERIFY(std::abs(firstSample) < 0.01f);
     }
 
-    static void test_kick_retrigger_pop()
+    static void test_kick_retrigger_shouldNotPop()
     {
         KickEngine engine;
         engine.setSampleRate(44100);
@@ -49,7 +49,7 @@ public:
         QVERIFY(jump < 2.0f);
     }
 
-    static void test_kick_small_attack_pop()
+    static void test_kick_small_attack_shouldNotPop()
     {
         KickEngine engine;
         engine.setSampleRate(44100);

@@ -25,18 +25,18 @@ class KnobControllerTest : public QObject
     Q_OBJECT
 
 private slots:
-    void test_intensityMapping();
-    void test_intensityToString();
-    void test_panMapping();
-    void test_panToString();
-    void test_timeMapping();
-    void test_timeToString();
-    void test_percentageToString();
-    void test_decibelToString();
-    void test_valueToString();
-    void test_format();
-    void test_frequencyToString();
-    void test_syncLogic();
+    void test_intensityMapping_shouldMapValuesCorrectly();
+    void test_intensityToString_shouldFormatPercentageStrings();
+    void test_panMapping_shouldMapValuesCorrectly();
+    void test_panToString_shouldFormatPanLabels();
+    void test_timeMapping_shouldMapTimeValuesCorrectly();
+    void test_timeToString_shouldFormatTimeStrings();
+    void test_percentageToString_shouldFormatPercentageStrings();
+    void test_decibelToString_shouldFormatDecibelStrings();
+    void test_valueToString_shouldFormatUnitStrings();
+    void test_format_shouldHandleMappingAndUnits();
+    void test_frequencyToString_shouldFormatFrequencyStrings();
+    void test_syncLogic_shouldHandleSyncValuesAndLabels();
 };
 
 } // namespace noteahead

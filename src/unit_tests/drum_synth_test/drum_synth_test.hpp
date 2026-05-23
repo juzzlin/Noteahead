@@ -29,9 +29,9 @@ private slots:
     void test_kickEngine_attack_shouldAddClick();
     void test_kickEngine_trigger_shouldBeActive();
     void test_kickEngine_nextSample_shouldEventuallyDeactivate();
-    void test_kick_start_discontinuity();
-    void test_kick_retrigger_pop();
-    void test_kick_small_attack_pop();
+    void test_kick_start_shouldNotHaveDiscontinuity();
+    void test_kick_retrigger_shouldNotPop();
+    void test_kick_small_attack_shouldNotPop();
     void test_kickEngine_peakVolume_shouldNotExceedOne();
     void test_tomEngine_peakVolume_shouldNotExceedOne();
     void test_snareEngine_peakVolume_shouldNotExceedOne();

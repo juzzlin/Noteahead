@@ -24,14 +24,14 @@ class ParameterMapperTest : public QObject
 {
     Q_OBJECT
 private slots:
-    void test_exponentialMapping();
-    void test_exponentialUnmapping();
-    void test_cubicMapping();
-    void test_cubicUnmapping();
-    void test_cubicCenteredMapping();
-    void test_cubicCenteredUnmapping();
-    void test_logFrequencyMapping();
-    void test_logFrequencyUnmapping();
+    void test_exponentialMapping_shouldReturnCorrectValues();
+    void test_exponentialUnmapping_shouldReturnCorrectValues();
+    void test_cubicMapping_shouldReturnCorrectValues();
+    void test_cubicUnmapping_shouldReturnCorrectValues();
+    void test_cubicCenteredMapping_shouldReturnCorrectValues();
+    void test_cubicCenteredUnmapping_shouldReturnCorrectValues();
+    void test_logFrequencyMapping_shouldReturnCorrectValues();
+    void test_logFrequencyUnmapping_shouldReturnCorrectValues();
 };
 
 } // namespace noteahead
