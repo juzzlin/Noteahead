@@ -125,10 +125,15 @@ void ReverbEffect::process(AudioContext & context)
         return;
     }
 
-    syncParameters();
-    updateBuffers();
-    m_shouldUpdateBuffers = false;
-    m_shouldSyncParameters = false;
+    if (static_cast<uint32_t>(m_sampleRate) != m_lastSampleRate || m_shouldUpdateBuffers) {
+        syncParameters();
+        updateBuffers();
+        m_shouldUpdateBuffers = false;
+        m_shouldSyncParameters = false;
+    } else if (m_shouldSyncParameters) {
+        syncParameters();
+        m_shouldSyncParameters = false;
+    }
 
     for (uint32_t i = 0; i < context.frameCount; i++) {
         process(context.buffer[i * 2], context.buffer[i * 2 + 1]);

@@ -232,67 +232,81 @@ void AudioEngine::process(AudioContext & context)
     }
 
     m_deviceSnapshot.clear();
-    m_deviceSnapshot.reserve(m_devices.size());
-    for (auto const & [index, device] : m_devices) {
-        if (device) {
-            m_deviceSnapshot.push_back(device);
-        }
-    }
-    ensureDeviceActiveFlags(m_deviceSnapshot.size());
-
-    m_deviceSendSnapshot.resize(m_deviceSnapshot.size() * sendCount);
-    for (size_t deviceIndex = 0; deviceIndex < m_deviceSnapshot.size(); deviceIndex++) {
-        for (size_t sendIndex = 0; sendIndex < sendCount; sendIndex++) {
-            m_deviceSendSnapshot[deviceIndex * sendCount + sendIndex] = m_deviceSnapshot[deviceIndex]->reverbSend(sendIndex);
-        }
-    }
-
-    for (auto & workBuffer : m_workBuffers) {
-        std::fill(workBuffer.outputBuffer.begin(), workBuffer.outputBuffer.begin() + bufferSize, 0.0f);
-        for (auto & sendBuffer : workBuffer.sendBuffers) {
-            std::fill(sendBuffer.begin(), sendBuffer.begin() + bufferSize, 0.0f);
-        }
-    }
-
-    DeviceProcessContext deviceContext {
-        &m_deviceSnapshot,
-        &m_workBuffers,
-        &m_deviceActiveFlags,
-        &m_deviceSendSnapshot,
-        sendCount,
-        context.frameCount,
-        context.sampleRate,
-        bufferSize
-    };
-    m_workerPool.run(m_deviceSnapshot.size(), &deviceContext, processDeviceTask);
-
-    // Sum parallel results into the main output and send buses
-    for (const auto & workBuffer : m_workBuffers) {
-        for (uint32_t i = 0; i < bufferSize; i++) {
-            context.buffer[i] += workBuffer.outputBuffer[i];
-        }
-        for (size_t sendIndex = 0; sendIndex < sendCount; sendIndex++) {
-            auto & sendBus = m_sendBusBuffers[sendIndex];
-            const auto & laneSendBus = workBuffer.sendBuffers[sendIndex];
-            for (uint32_t i = 0; i < bufferSize; i++) {
-                sendBus[i] += laneSendBus[i];
+    if (!m_devices.empty()) {
+        m_deviceSnapshot.reserve(m_devices.size());
+        for (auto const & [index, device] : m_devices) {
+            if (device) {
+                m_deviceSnapshot.push_back(device);
             }
         }
     }
 
-    EffectProcessContext effectContext {
-        &effects,
-        &m_sendBusBuffers,
-        &m_effectWetBuffers,
-        &m_effectActiveFlags,
-        context.frameCount,
-        context.sampleRate
-    };
-    m_workerPool.run(sendCount, &effectContext, processEffectTask);
+    if (!m_deviceSnapshot.empty()) {
+        ensureDeviceActiveFlags(m_deviceSnapshot.size());
 
-    for (const auto & wetBuffer : m_effectWetBuffers) {
-        for (uint32_t i = 0; i < bufferSize; i++) {
-            context.buffer[i] += wetBuffer[i];
+        m_deviceSendSnapshot.resize(m_deviceSnapshot.size() * sendCount);
+        for (size_t deviceIndex = 0; deviceIndex < m_deviceSnapshot.size(); deviceIndex++) {
+            for (size_t sendIndex = 0; sendIndex < sendCount; sendIndex++) {
+                m_deviceSendSnapshot[deviceIndex * sendCount + sendIndex] = m_deviceSnapshot[deviceIndex]->reverbSend(sendIndex);
+            }
+        }
+
+        for (auto & workBuffer : m_workBuffers) {
+            std::fill(workBuffer.outputBuffer.begin(), workBuffer.outputBuffer.begin() + bufferSize, 0.0f);
+            for (auto & sendBuffer : workBuffer.sendBuffers) {
+                std::fill(sendBuffer.begin(), sendBuffer.begin() + bufferSize, 0.0f);
+            }
+        }
+
+        DeviceProcessContext deviceContext {
+            &m_deviceSnapshot,
+            &m_workBuffers,
+            &m_deviceActiveFlags,
+            &m_deviceSendSnapshot,
+            sendCount,
+            context.frameCount,
+            context.sampleRate,
+            bufferSize
+        };
+        m_workerPool.run(m_deviceSnapshot.size(), &deviceContext, processDeviceTask);
+
+        // Sum parallel results into the main output and send buses
+        for (const auto & workBuffer : m_workBuffers) {
+            for (uint32_t i = 0; i < bufferSize; i++) {
+                context.buffer[i] += workBuffer.outputBuffer[i];
+            }
+            for (size_t sendIndex = 0; sendIndex < sendCount; sendIndex++) {
+                auto & sendBus = m_sendBusBuffers[sendIndex];
+                const auto & laneSendBus = workBuffer.sendBuffers[sendIndex];
+                for (uint32_t i = 0; i < bufferSize; i++) {
+                    sendBus[i] += laneSendBus[i];
+                }
+            }
+        }
+    }
+
+    if (std::ranges::any_of(effects, [](const auto & effect) { return effect != nullptr; })) {
+        EffectProcessContext effectContext {
+            &effects,
+            &m_sendBusBuffers,
+            &m_effectWetBuffers,
+            &m_effectActiveFlags,
+            context.frameCount,
+            context.sampleRate
+        };
+        m_workerPool.run(sendCount, &effectContext, processEffectTask);
+
+        for (const auto & wetBuffer : m_effectWetBuffers) {
+            for (uint32_t i = 0; i < bufferSize; i++) {
+                context.buffer[i] += wetBuffer[i];
+            }
+        }
+    } else {
+        for (size_t i = 0; i < sendCount; i++) {
+            if (m_effectActiveFlags[i]) {
+                std::fill(m_effectWetBuffers[i].begin(), m_effectWetBuffers[i].begin() + bufferSize, 0.0f);
+                m_effectActiveFlags[i] = 0;
+            }
         }
     }
 
