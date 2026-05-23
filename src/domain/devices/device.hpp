@@ -18,14 +18,14 @@
 
 #include <QObject>
 
-#include "effect_rack.hpp"
 #include "../dsp/audio_context.hpp"
 #include "../parameter_container.hpp"
+#include "effect_rack.hpp"
 
-#include <vector>
 #include <cstdint>
 #include <mutex>
 #include <string>
+#include <vector>
 
 class QXmlStreamReader;
 class QXmlStreamWriter;
@@ -51,17 +51,26 @@ public:
     virtual void processMidiNoteOn(uint8_t note, uint8_t velocity) = 0;
     virtual void processMidiNoteOff(uint8_t note) = 0;
     virtual void processMidiCc(uint8_t controller, uint8_t value, uint8_t channel) = 0;
-    virtual void processMidiPitchBend(uint16_t /*value*/, uint8_t /*channel*/) {}
-    virtual void processMidiProgramChange(uint8_t, uint8_t) {}
+    virtual void processMidiPitchBend(uint16_t /*value*/, uint8_t /*channel*/)
+    {
+    }
+    virtual void processMidiProgramChange(uint8_t, uint8_t)
+    {
+    }
     virtual void processMidiAllNotesOff() = 0;
 
     virtual void processAudio(AudioContext & context) = 0;
     void processInsertEffects(AudioContext & context);
     EffectRack & insertEffectRack();
     const EffectRack & insertEffectRack() const;
-    virtual bool hasActiveAudio() const { return true; }
+    virtual bool hasActiveAudio() const
+    {
+        return true;
+    }
 
-    virtual void setBpm(float) {}
+    virtual void setBpm(float)
+    {
+    }
 
     virtual void reset() override;
     virtual void resetAudio();

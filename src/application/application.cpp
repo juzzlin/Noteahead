@@ -51,10 +51,10 @@
 #include "service/device_service.hpp"
 #include "service/drum_synth_controller.hpp"
 #include "service/editor_service.hpp"
+#include "service/effect_rack_controller.hpp"
 #include "service/jack_service.hpp"
 #include "service/keyboard_service.hpp"
 #include "service/knob_controller.hpp"
-#include "service/effect_rack_controller.hpp"
 #include "service/midi_service.hpp"
 #include "service/mixer_service.hpp"
 #include "service/player_service.hpp"
@@ -74,13 +74,13 @@
 #include "view/qml/Editor/line_number_renderer.hpp"
 #include "view/qml/Editor/note_column_renderer.hpp"
 
+#include <QFileInfo>
 #include <QGuiApplication>
 #include <QQmlApplicationEngine>
 #include <QQmlContext>
-#include <QFileInfo>
 
-#include <iostream>
 #include <iomanip>
+#include <iostream>
 #include <regex>
 
 Q_DECLARE_METATYPE(noteahead::InstrumentRequest)
@@ -223,7 +223,9 @@ void Application::setContextProperties()
     m_engine->rootContext()->setContextProperty("synthController", m_synthController.get());
     m_engine->rootContext()->setContextProperty("bassSynthController", m_bassSynthController.get());
     m_engine->rootContext()->setContextProperty("drumSynthController", m_drumSynthController.get());
-    m_engine->rootContext()->setContextProperty("effectRackController", m_effectRackController.get());    m_engine->rootContext()->setContextProperty("selectionService", m_selectionService.get());    m_engine->rootContext()->setContextProperty("eventSelectionModel", m_eventSelectionModel.get());
+    m_engine->rootContext()->setContextProperty("effectRackController", m_effectRackController.get());
+    m_engine->rootContext()->setContextProperty("selectionService", m_selectionService.get());
+    m_engine->rootContext()->setContextProperty("eventSelectionModel", m_eventSelectionModel.get());
     m_engine->rootContext()->setContextProperty("midiCcAutomationsModel", m_midiCcAutomationsModel.get());
     m_engine->rootContext()->setContextProperty("keyboardService", m_keyboardService.get());
     m_engine->rootContext()->setContextProperty("knobController", m_knobController.get());
@@ -971,4 +973,3 @@ Application::~Application()
 }
 
 } // namespace noteahead
-

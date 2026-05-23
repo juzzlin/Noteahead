@@ -16,19 +16,19 @@
 #ifndef DRUM_SYNTH_DEVICE_HPP
 #define DRUM_SYNTH_DEVICE_HPP
 
+#include "../dsp/drum/crash_engine.hpp"
+#include "../dsp/drum/hihat_engine.hpp"
+#include "../dsp/drum/kick_engine.hpp"
+#include "../dsp/drum/ride_engine.hpp"
+#include "../dsp/drum/snare_engine.hpp"
+#include "../dsp/drum/tom_engine.hpp"
+#include "../dsp/oversampler.hpp"
 #include "device.hpp"
 #include "drum_synth_constants.hpp"
 #include "high_pass_filter_effect.hpp"
 #include "low_pass_filter_effect.hpp"
 #include "panning_effect.hpp"
 #include "volume_effect.hpp"
-#include "../dsp/oversampler.hpp"
-#include "../dsp/drum/crash_engine.hpp"
-#include "../dsp/drum/ride_engine.hpp"
-#include "../dsp/drum/hihat_engine.hpp"
-#include "../dsp/drum/kick_engine.hpp"
-#include "../dsp/drum/snare_engine.hpp"
-#include "../dsp/drum/tom_engine.hpp"
 
 #include <array>
 #include <memory>
@@ -47,7 +47,10 @@ public:
     std::string category() const override;
     std::string typeName() const override;
     std::string typeId() const override;
-    static std::string typeIdString() { return "a7f5a47e-4786-11f1-92b0-0b3f3bef9f74"; }
+    static std::string typeIdString()
+    {
+        return "a7f5a47e-4786-11f1-92b0-0b3f3bef9f74";
+    }
 
     void processMidiNoteOn(uint8_t note, uint8_t velocity) override;
     void processMidiNoteOff(uint8_t note) override;
@@ -81,7 +84,7 @@ private:
         std::shared_ptr<HighPassFilterEffect> hpf;
         std::shared_ptr<VolumeEffect> volumeEffect;
         std::shared_ptr<PanningEffect> panningEffect;
-        
+
         uint8_t midiNote { 0 };
         float level { 1.0f };
         float pan { 0.5f };

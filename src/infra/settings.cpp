@@ -381,5 +381,4 @@ void setAccentColor(QColor accentColor)
     settings.endGroup();
 }
 
-
 } // namespace noteahead::Settings

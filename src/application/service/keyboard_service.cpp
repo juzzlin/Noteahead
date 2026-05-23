@@ -207,7 +207,8 @@ void KeyboardService::handleDelete()
         if (m_editorService->isAtNoteColumn()) {
             m_editorService->requestNoteDeletionAtCurrentPosition(false);
             m_editorService->requestScroll(m_settingsService->step(1));
-                    } else if (m_editorService->isAtVelocityColumn() || m_editorService->isAtDelayColumn()) {            if (m_editorService->requestDigitSetAtCurrentPosition(0)) {
+        } else if (m_editorService->isAtVelocityColumn() || m_editorService->isAtDelayColumn()) {
+            if (m_editorService->requestDigitSetAtCurrentPosition(0)) {
                 m_editorService->requestScroll(m_settingsService->step(1));
             }
         }

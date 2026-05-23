@@ -18,8 +18,8 @@
 #include "../../application/models/note_column_model.hpp"
 #include "../../application/models/note_column_model_handler.hpp"
 #include "../../application/service/automation_service.hpp"
-#include "../../application/service/property_service.hpp"
 #include "../../application/service/editor_service.hpp"
+#include "../../application/service/property_service.hpp"
 #include "../../application/service/selection_service.hpp"
 #include "../../application/service/settings_service.hpp"
 
@@ -83,10 +83,10 @@ void NoteColumnModelHandlerTest::test_updatePattern_shouldPreserveFocus()
     NoteColumnModelHandler handler { editorService, selectionService, automationService, settingsService };
 
     auto model { handler.columnModel(0, 0, 0) };
-    
+
     // Set position
     editorService->requestPosition(0, 0, 0, 10, 0);
-    
+
     // Check if focused. Note: NoteColumnModel adds positionBarLine() to the row index.
     const int row = 10 + static_cast<int>(editorService->positionBarLine());
     QVERIFY(model->data(model->index(row, 0), static_cast<int>(NoteColumnModel::DataRole::IsFocused)).toBool());

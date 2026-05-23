@@ -16,15 +16,15 @@
 #include "multi_engine.hpp"
 #include "../../common/constants.hpp"
 
-#include <cmath>
 #include <algorithm>
+#include <cmath>
 #include <numbers>
 
 namespace noteahead {
 
 MultiEngine::MultiEngine()
-    : m_rng(std::random_device{}())
-    , m_dist(-1.0f, 1.0f)
+  : m_rng(std::random_device {}())
+  , m_dist(-1.0f, 1.0f)
 {
 }
 
@@ -111,9 +111,12 @@ float MultiEngine::processFilter(float input, float cutoff, float resonance, int
     const double lp = v2 + m_s2;
     m_s2 = v2 + lp;
 
-    if (mode == 0) return static_cast<float>(lp);
-    if (mode == 1) return static_cast<float>(hp);
-    if (mode == 2) return static_cast<float>(bp);
+    if (mode == 0)
+        return static_cast<float>(lp);
+    if (mode == 1)
+        return static_cast<float>(hp);
+    if (mode == 2)
+        return static_cast<float>(bp);
     return input;
 }
 

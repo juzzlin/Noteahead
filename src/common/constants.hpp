@@ -52,8 +52,14 @@ QString drumSynthDeviceName();
 QString internalDevicePortPrefix();
 double defaultSampleRate();
 
-constexpr float minEffectLevel() { return 0.001f; }
-constexpr float uiInternalScaling() { return 1000.0f; }
+constexpr float minEffectLevel()
+{
+    return 0.001f;
+}
+constexpr float uiInternalScaling()
+{
+    return 1000.0f;
+}
 
 namespace NahdXml {
 
@@ -108,10 +114,10 @@ QString xmlKeyMidiDelayMaxRepetitions();
 QString xmlKeyTranspose();
 QString xmlKeyDrumTrack();
 
-    QString xmlKeyVelocityJitter();
-    QString xmlKeyVelocityKeyTrack();
-    QString xmlKeyVelocityKeyTrackOffset();
-    QString xmlKeyAutoNoteOffOffset();
+QString xmlKeyVelocityJitter();
+QString xmlKeyVelocityKeyTrack();
+QString xmlKeyVelocityKeyTrackOffset();
+QString xmlKeyAutoNoteOffOffset();
 QString xmlKeyIndex();
 
 QString xmlKeyInstrument();

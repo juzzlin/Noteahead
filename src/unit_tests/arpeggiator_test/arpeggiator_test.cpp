@@ -14,8 +14,8 @@
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
 #include "arpeggiator_test.hpp"
-#include <QTest>
 #include "../../domain/arpeggiator.hpp"
+#include <QTest>
 
 #include <algorithm>
 
@@ -31,7 +31,7 @@ void ArpeggiatorTest::test_generate_singleNote_shouldReturnInput()
     QCOMPARE(Arpeggiator::generate(Arpeggiator::Pattern::UpDown, input).size(), 1u);
     QCOMPARE(Arpeggiator::generate(Arpeggiator::Pattern::DownUp, input).size(), 1u);
     QCOMPARE(Arpeggiator::generate(Arpeggiator::Pattern::Random, input).size(), 1u);
-    
+
     QCOMPARE(Arpeggiator::generate(Arpeggiator::Pattern::Up, input)[0].note, 60);
 }
 
@@ -95,9 +95,10 @@ void ArpeggiatorTest::test_generate_random_shouldReturnPermutation()
 
     // Should contain all unique notes from input
     std::vector<uint8_t> resultNotes;
-    for (const auto & ni : result) resultNotes.push_back(ni.note);
+    for (const auto & ni : result)
+        resultNotes.push_back(ni.note);
     std::sort(resultNotes.begin(), resultNotes.end());
-    
+
     QCOMPARE(resultNotes[0], 60);
     QCOMPARE(resultNotes[1], 64);
     QCOMPARE(resultNotes[2], 67);

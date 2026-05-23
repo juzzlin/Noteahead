@@ -15,8 +15,8 @@
 
 #include "lfo.hpp"
 
-#include <cmath>
 #include <algorithm>
+#include <cmath>
 
 namespace noteahead {
 

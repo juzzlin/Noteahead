@@ -14,14 +14,14 @@
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
 #include "audio_file_io_test.hpp"
+#include "../../common/constants.hpp"
 #include "../../infra/audio/audio_file_recorder.hpp"
 #include "../../infra/audio/audio_file_streamer.hpp"
 #include "../../infra/audio/backend/audio_file_reader.hpp"
-#include "../../common/constants.hpp"
 
 #include <QTest>
-#include <mutex>
 #include <condition_variable>
+#include <mutex>
 #include <thread>
 
 namespace noteahead {
@@ -55,9 +55,11 @@ public:
     int64_t readFloat(std::span<float> data) override
     {
         std::lock_guard<std::mutex> lock { m_mutex };
-        if (!m_isOpen || m_mode != Mode::Read) return 0;
+        if (!m_isOpen || m_mode != Mode::Read)
+            return 0;
         const size_t toRead { std::min(data.size(), m_data.size() - m_pos) };
-        if (toRead == 0) return 0;
+        if (toRead == 0)
+            return 0;
         std::copy(m_data.begin() + m_pos, m_data.begin() + m_pos + toRead, data.begin());
         m_pos += toRead;
         m_readCount++;
@@ -65,13 +67,20 @@ public:
         return static_cast<int64_t>(toRead / static_cast<size_t>(m_info.channels));
     }
 
-    int64_t readDouble(std::span<double>) override { return 0; }
-    int64_t readInt(std::span<int32_t>) override { return 0; }
+    int64_t readDouble(std::span<double>) override
+    {
+        return 0;
+    }
+    int64_t readInt(std::span<int32_t>) override
+    {
+        return 0;
+    }
 
     int64_t writeFloat(std::span<const float> data) override
     {
         std::lock_guard<std::mutex> lock { m_mutex };
-        if (!m_isOpen || m_mode != Mode::Write) return 0;
+        if (!m_isOpen || m_mode != Mode::Write)
+            return 0;
         m_data.insert(m_data.end(), data.begin(), data.end());
         m_info.frames += static_cast<int64_t>(data.size() / static_cast<size_t>(m_info.channels));
         m_writeCount++;
@@ -79,7 +88,10 @@ public:
         return static_cast<int64_t>(data.size() / static_cast<size_t>(m_info.channels));
     }
 
-    int64_t writeInt(std::span<const int32_t>) override { return 0; }
+    int64_t writeInt(std::span<const int32_t>) override
+    {
+        return 0;
+    }
 
     bool seek(int64_t frames, int) override
     {
@@ -90,8 +102,14 @@ public:
         return true;
     }
 
-    bool isOpen() const override { return m_isOpen; }
-    Info info() const override { return m_info; }
+    bool isOpen() const override
+    {
+        return m_isOpen;
+    }
+    Info info() const override
+    {
+        return m_info;
+    }
 
     // Helper for testing
     void setData(const std::vector<float> & data, const Info & info)
@@ -228,7 +246,7 @@ void AudioFileIoTest::test_position_shouldSeekAndReportCorrectPosition()
     {
         AudioFileStreamer streamer { std::move(mockReader) };
         streamer.start("dummy", bufferSize);
-        
+
         // Wait for initial fill
         QVERIFY(mockReaderPtr->waitForReadCount(1, std::chrono::milliseconds { 1000 }));
 

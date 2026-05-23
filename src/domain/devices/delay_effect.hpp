@@ -16,8 +16,8 @@
 #ifndef DELAY_EFFECT_HPP
 #define DELAY_EFFECT_HPP
 
-#include "effect.hpp"
 #include "../dsp/cascaded_svf.hpp"
+#include "effect.hpp"
 #include <vector>
 
 namespace noteahead {
@@ -35,10 +35,19 @@ public:
 
     DelayEffect();
 
-    static std::string typeIdString() { return "7c2e3d0a-4f6b-4b2a-8c1d-1a2b3c4d5e6f"; }
+    static std::string typeIdString()
+    {
+        return "7c2e3d0a-4f6b-4b2a-8c1d-1a2b3c4d5e6f";
+    }
 
-    std::string type() const override { return "delay"; }
-    std::string typeId() const override { return typeIdString(); }
+    std::string type() const override
+    {
+        return "delay";
+    }
+    std::string typeId() const override
+    {
+        return typeIdString();
+    }
     void process(float & left, float & right) override;
     void process(AudioContext & context) override;
     void setSampleRate(double sampleRate) override;

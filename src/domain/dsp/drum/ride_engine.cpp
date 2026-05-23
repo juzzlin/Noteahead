@@ -22,7 +22,7 @@ namespace noteahead {
 
 RideEngine::RideEngine()
 {
-    m_rng.seed(std::random_device{}());
+    m_rng.seed(std::random_device {}());
     m_filter.setMode(CascadedSvf::Mode::HighPass);
 }
 
@@ -45,7 +45,7 @@ float RideEngine::nextSample()
 
     const double sr { sampleRate() };
     const float noise { m_dist(m_rng) };
-    
+
     const double baseFreq { 300.0 + m_tune * 500.0 };
     static constexpr std::array<double, 6> ratios { 1.0, 1.48, 1.92, 2.54, 3.41, 4.23 };
 
@@ -53,11 +53,12 @@ float RideEngine::nextSample()
     for (size_t i = 0; i < 6; ++i) {
         const double freq = baseFreq * ratios[i];
         m_phases[i] += freq / sr;
-        if (m_phases[i] >= 1.0) m_phases[i] -= 1.0;
+        if (m_phases[i] >= 1.0)
+            m_phases[i] -= 1.0;
         metallicSource += (m_phases[i] < 0.5 ? 1.0 : -1.0);
     }
     metallicSource /= 6.0;
-    
+
     float source = static_cast<float>(metallicSource) * 0.7f + noise * 0.3f;
 
     m_filter.setSampleRate(sr);

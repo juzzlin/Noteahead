@@ -32,8 +32,9 @@ Arpeggiator::NoteInfoList Arpeggiator::generate(Pattern pattern, const NoteInfoL
         return a.note < b.note;
     });
     uniqueNotes.erase(std::unique(uniqueNotes.begin(), uniqueNotes.end(), [](auto && a, auto && b) {
-        return a.note == b.note;
-    }), uniqueNotes.end());
+                          return a.note == b.note;
+                      }),
+                      uniqueNotes.end());
 
     NoteInfoList arpeggioSequence;
     switch (pattern) {

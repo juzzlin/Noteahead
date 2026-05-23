@@ -22,7 +22,7 @@ namespace noteahead {
 
 ClapEngine::ClapEngine()
 {
-    m_rng.seed(std::random_device{}());
+    m_rng.seed(std::random_device {}());
     m_filter.setMode(CascadedSvf::Mode::HighPass);
 }
 
@@ -43,11 +43,11 @@ float ClapEngine::nextSample()
 
     float burstAmp = 0.0f;
     const double sr = sampleRate();
-    
+
     // Three initial bursts
     const int burstInterval = static_cast<int>(0.01f * sr);
     const int burstDuration = static_cast<int>(0.005f * sr);
-    
+
     for (int i = 0; i < 3; ++i) {
         int start = i * burstInterval;
         if (m_sampleCount >= start && m_sampleCount < start + burstDuration) {
@@ -69,7 +69,7 @@ float ClapEngine::nextSample()
     m_filter.setSampleRate(sr);
     m_filter.setCutoff(0.2f + m_tune * 0.5f);
     m_filter.setResonance(0.3f);
-    
+
     const float out = m_filter.process(noise) * (burstAmp + tailAmp) * m_velocity;
 
     m_sampleCount++;

@@ -16,11 +16,11 @@
 #ifndef BASS_SYNTH_DEVICE_HPP
 #define BASS_SYNTH_DEVICE_HPP
 
-#include "device.hpp"
 #include "../dsp/adsr_envelope.hpp"
 #include "../dsp/cascaded_svf.hpp"
 #include "../dsp/oversampler.hpp"
 #include "../dsp/polyblep_oscillator.hpp"
+#include "device.hpp"
 
 #include <mutex>
 #include <vector>
@@ -37,7 +37,10 @@ public:
     std::string category() const override;
     std::string typeName() const override;
     std::string typeId() const override;
-    static std::string typeIdString() { return "7d9c1e4b-2f3a-4b5c-8d6e-9f0a1b2c3d4e"; }
+    static std::string typeIdString()
+    {
+        return "7d9c1e4b-2f3a-4b5c-8d6e-9f0a1b2c3d4e";
+    }
 
     void processMidiNoteOn(uint8_t note, uint8_t velocity) override;
     void processMidiNoteOff(uint8_t note) override;

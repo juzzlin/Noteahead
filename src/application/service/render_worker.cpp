@@ -78,7 +78,7 @@ void RenderWorker::render(const QString & fileName, const noteahead::RenderWorke
 
         const double secondsPerTick = 60.0 / (static_cast<double>(timing.beatsPerMinute * timing.linesPerBeat * timing.ticksPerLine));
         const double samplesPerTick = secondsPerTick * sampleRate;
-        
+
         double sampleCounter = 0.0;
         std::vector<float> audioBuffer {};
 

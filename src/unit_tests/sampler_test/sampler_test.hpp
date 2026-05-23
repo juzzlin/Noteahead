@@ -47,8 +47,8 @@ private slots:
     void test_serialization_shouldSaveAndLoadGain();
     void test_midiCcResetGlobalPanAndVolume_shouldRestoreManualValues();
     void test_projectLoadMidiCcResetGlobal_shouldRestoreLoadedValues();
-    };
+};
 
-    } // namespace noteahead
+} // namespace noteahead
 
 #endif // SAMPLER_TEST_HPP

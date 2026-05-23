@@ -36,7 +36,8 @@ public:
         int format = 0;
     };
 
-    enum class Mode {
+    enum class Mode
+    {
         Read,
         Write
     };

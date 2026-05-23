@@ -16,15 +16,15 @@
 #include "application_service_test.hpp"
 
 #include "../../application/service/application_service.hpp"
-#include "../../application/service/recent_files_manager.hpp"
-#include "../../application/service/player_service.hpp"
 #include "../../application/service/editor_service.hpp"
+#include "../../application/service/player_service.hpp"
+#include "../../application/service/recent_files_manager.hpp"
 #include "../../application/state_machine.hpp"
 #include "../../common/constants.hpp"
 
 #include "../../application/note_converter.hpp"
-#include "../../domain/midi_note_data.hpp"
 #include "../../domain/instrument.hpp"
+#include "../../domain/midi_note_data.hpp"
 
 #include <QSignalSpy>
 #include <QTest>
@@ -34,8 +34,14 @@ namespace noteahead {
 class MockEditorService : public EditorService
 {
 public:
-    Position position() const override { return m_position; }
-    void setMockPosition(const Position & position) { m_position = position; }
+    Position position() const override
+    {
+        return m_position;
+    }
+    void setMockPosition(const Position & position)
+    {
+        m_position = position;
+    }
 
     InstrumentS instrument(quint64 trackIndex) const override
     {
@@ -44,7 +50,10 @@ public:
         }
         return nullptr;
     }
-    void setMockInstrument(quint64 trackIndex, InstrumentS instrument) { m_instruments[trackIndex] = instrument; }
+    void setMockInstrument(quint64 trackIndex, InstrumentS instrument)
+    {
+        m_instruments[trackIndex] = instrument;
+    }
 
 private:
     Position m_position;
@@ -58,7 +67,10 @@ public:
       : PlayerService { nullptr, nullptr, nullptr, nullptr, nullptr, nullptr }
     {
     }
-    bool isPlaying() const override { return m_isPlaying; }
+    bool isPlaying() const override
+    {
+        return m_isPlaying;
+    }
     void setIsPlaying(bool playing)
     {
         m_isPlaying = playing;
@@ -72,7 +84,10 @@ private:
 class MockRecentFilesManager : public RecentFilesManager
 {
 public:
-    QStringList recentFiles() const override { return m_recentFiles; }
+    QStringList recentFiles() const override
+    {
+        return m_recentFiles;
+    }
     void addRecentFile(QString filePath) override
     {
         m_recentFiles.push_front(filePath);
@@ -94,7 +109,10 @@ public:
     {
         m_lastAction = action;
     }
-    StateMachine::Action lastAction() const { return m_lastAction; }
+    StateMachine::Action lastAction() const
+    {
+        return m_lastAction;
+    }
 
 private:
     StateMachine::Action m_lastAction = static_cast<StateMachine::Action>(-1);

@@ -14,14 +14,14 @@
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
 #include "effect_rack_test.hpp"
+#include "../../common/constants.hpp"
 #include "../../domain/devices/effect_rack.hpp"
 #include "../../domain/devices/volume_effect.hpp"
 #include "../../domain/dsp/reverb_effect.hpp"
-#include "../../common/constants.hpp"
 
 #include <QTest>
-#include <QXmlStreamWriter>
 #include <QXmlStreamReader>
+#include <QXmlStreamWriter>
 
 namespace noteahead {
 
@@ -120,11 +120,11 @@ void EffectRackTest::test_serialization_shouldSerializeAndDeserializeEffects()
 void EffectRackTest::test_reverb_parameters_shouldGetAndSetParameters()
 {
     auto reverb = std::make_shared<ReverbEffect>();
-    
+
     // Decay: 0.5 internal should be 5000ms
     reverb->setDecay(0.5f);
     QCOMPARE(reverb->decay(), 0.5f);
-    
+
     // Pre-delay: 0.2 internal should be 100ms
     reverb->setPreDelay(0.2f);
     QCOMPARE(reverb->preDelay(), 0.2f);
@@ -133,14 +133,14 @@ void EffectRackTest::test_reverb_parameters_shouldGetAndSetParameters()
 void EffectRackTest::test_reverb_presets_shouldApplyPresets()
 {
     auto reverb = std::make_shared<ReverbEffect>();
-    
+
     const auto presets = ReverbEffect::presetNames();
     QVERIFY(!presets.empty());
     QCOMPARE(presets[0], "Hall");
-    
+
     reverb->applyPreset(ReverbEffect::stringToPreset("Cathedral"));
     QCOMPARE(reverb->size(), 1.0f);
-    
+
     QCOMPARE(ReverbEffect::presetToString(ReverbEffect::Preset::Spring), "Spring");
 }
 

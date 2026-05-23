@@ -16,13 +16,12 @@
 #include "editor_service_test.hpp"
 
 #include <algorithm> // Required for std::sort
-#include <vector>    // Required for std::vector
+#include <vector> // Required for std::vector
 
 #include "../../application/service/automation_service.hpp"
-#include "../../application/service/property_service.hpp"
 #include "../../application/service/editor_service.hpp"
 #include "../../application/service/mixer_service.hpp"
-#include "../../infra/settings.hpp"
+#include "../../application/service/property_service.hpp"
 #include "../../application/service/selection_service.hpp"
 #include "../../application/service/settings_service.hpp"
 #include "../../application/service/side_chain_service.hpp"
@@ -33,6 +32,7 @@
 #include "../../domain/side_chain_settings.hpp"
 #include "../../domain/song.hpp"
 #include "../../domain/track.hpp"
+#include "../../infra/settings.hpp"
 
 #include <QSignalSpy>
 #include <QTest>
@@ -1242,9 +1242,9 @@ void EditorServiceTest::test_requestLinearVelocityInterpolationOnColumn_shouldIn
     QVERIFY(editorService.requestPosition(0, 0, 0, 0, 0));
     QVERIFY(editorService.requestNoteOnAtCurrentPosition(1, 3, 100)); // Initial velocity 100
     QVERIFY(editorService.requestPosition(0, 0, 0, 3, 0));
-    QVERIFY(editorService.requestNoteOnAtCurrentPosition(1, 3, 50));  // Initial velocity 50
+    QVERIFY(editorService.requestNoteOnAtCurrentPosition(1, 3, 50)); // Initial velocity 50
     QVERIFY(editorService.requestPosition(0, 0, 0, 7, 0));
-    QVERIFY(editorService.requestNoteOnAtCurrentPosition(1, 3, 20));  // Initial velocity 20
+    QVERIFY(editorService.requestNoteOnAtCurrentPosition(1, 3, 20)); // Initial velocity 20
 
     // Interpolate from 50% to 150%
     editorService.requestLinearVelocityInterpolationOnColumn(0, 7, 50, 150, true);

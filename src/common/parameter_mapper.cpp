@@ -22,13 +22,15 @@ namespace noteahead {
 
 double ParameterMapper::mapExponential(double value, double min, double max)
 {
-    if (min <= 0 || max <= 0) return min;
+    if (min <= 0 || max <= 0)
+        return min;
     return min * std::pow(max / min, std::clamp(value, 0.0, 1.0));
 }
 
 double ParameterMapper::unmapExponential(double mappedValue, double min, double max)
 {
-    if (min <= 0 || max <= 0 || mappedValue <= 0) return 0.0;
+    if (min <= 0 || max <= 0 || mappedValue <= 0)
+        return 0.0;
     return std::log(mappedValue / min) / std::log(max / min);
 }
 
@@ -41,7 +43,8 @@ double ParameterMapper::mapCubic(double value, double min, double max)
 double ParameterMapper::unmapCubic(double mappedValue, double min, double max)
 {
     const double range = max - min;
-    if (range <= 0) return 0.0;
+    if (range <= 0)
+        return 0.0;
     const double norm = std::max(0.0, std::min(1.0, (mappedValue - min) / range));
     return std::pow(norm, 1.0 / 3.0);
 }
@@ -59,7 +62,8 @@ double ParameterMapper::unmapCubicCentered(double mappedValue, double min, doubl
 {
     const double center = (min + max) / 2.0;
     const double range = (max - min) / 2.0;
-    if (range == 0) return 0.0;
+    if (range == 0)
+        return 0.0;
     const double norm = std::max(-1.0, std::min(1.0, (mappedValue - center) / range));
     return (norm >= 0 ? 1.0 : -1.0) * std::pow(std::abs(norm), 1.0 / 3.0);
 }
@@ -68,7 +72,7 @@ double ParameterMapper::mapLogFrequency(double value, double min, double max)
 {
     // Use the formula from Utils::Dsp::cutoffToHz
     // f = maxFreq * (pow(1000.0, cutoff) - 1.0) / 999.0
-    // But generalized for min/max. 
+    // But generalized for min/max.
     // Actually, Utils::Dsp::cutoffToHz is specifically for [0, 1] -> [0, 20000].
     // Let's stick to a more standard exponential mapping if min > 0.
     if (min <= 0) {
@@ -80,7 +84,8 @@ double ParameterMapper::mapLogFrequency(double value, double min, double max)
 double ParameterMapper::unmapLogFrequency(double mappedValue, double min, double max)
 {
     if (min <= 0) {
-        if (mappedValue <= 0) return 0.0;
+        if (mappedValue <= 0)
+            return 0.0;
         return std::log(mappedValue * 999.0 / max + 1.0) / std::log(1000.0);
     }
     return unmapExponential(mappedValue, min, max);
@@ -94,7 +99,8 @@ double ParameterMapper::mapDecibel(double value, double range)
 
 double ParameterMapper::unmapDecibel(double mappedValue, double range)
 {
-    if (mappedValue <= 0) return 0.0;
+    if (mappedValue <= 0)
+        return 0.0;
     const double db = 20.0 * std::log10(mappedValue);
     return (db / (range * 2.0)) + 0.5;
 }
@@ -102,7 +108,7 @@ double ParameterMapper::unmapDecibel(double mappedValue, double range)
 double ParameterMapper::mapLfoFrequency(double value, double /*min*/, double /*max*/)
 {
     // Use the specific formula from SynthDevice: std::pow(20.0f, x) - 0.95f
-    // This maps 0..1 to 0.05..19.05 Hz. 
+    // This maps 0..1 to 0.05..19.05 Hz.
     return std::pow(20.0, std::clamp(value, 0.0, 1.0)) - 0.95;
 }
 

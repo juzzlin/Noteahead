@@ -23,13 +23,15 @@ namespace noteahead {
 class Lfo : public DspComponent
 {
 public:
-    enum class Waveform {
+    enum class Waveform
+    {
         Saw,
         Triangle,
         Square
     };
 
-    enum class Mode {
+    enum class Mode
+    {
         Normal,
         BPM,
         OneShot

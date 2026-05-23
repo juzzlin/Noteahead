@@ -18,9 +18,9 @@
 
 #include "command.hpp"
 
+#include <functional>
 #include <memory>
 #include <vector>
-#include <functional>
 
 namespace noteahead {
 

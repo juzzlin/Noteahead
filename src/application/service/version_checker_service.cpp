@@ -28,7 +28,7 @@ static const auto TAG = "VersionCheckerService";
 namespace noteahead {
 
 VersionCheckerService::VersionCheckerService(QObject * parent)
-    : QObject(parent)
+  : QObject(parent)
 {
     connect(&m_networkAccessManager, &QNetworkAccessManager::finished, this, &VersionCheckerService::onReplyFinished);
 }

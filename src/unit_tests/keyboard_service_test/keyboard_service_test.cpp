@@ -15,9 +15,9 @@
 
 #include "keyboard_service_test.hpp"
 
-#include "../../application/service/keyboard_service.hpp"
 #include "../../application/service/application_service.hpp"
 #include "../../application/service/editor_service.hpp"
+#include "../../application/service/keyboard_service.hpp"
 #include "../../application/service/player_service.hpp"
 #include "../../application/service/selection_service.hpp"
 #include "../../application/service/settings_service.hpp"
@@ -32,9 +32,19 @@ namespace noteahead {
 class MockApplicationService : public ApplicationService
 {
 public:
-    bool editMode() const override { return m_editMode; }
-    void setEditMode(bool editMode) override { m_editMode = editMode; emit editModeChanged(m_editMode); }
-    void toggleEditMode() override { setEditMode(!m_editMode); }
+    bool editMode() const override
+    {
+        return m_editMode;
+    }
+    void setEditMode(bool editMode) override
+    {
+        m_editMode = editMode;
+        emit editModeChanged(m_editMode);
+    }
+    void toggleEditMode() override
+    {
+        setEditMode(!m_editMode);
+    }
 
     void requestLiveNoteOn(quint8, quint8, quint8) override
     {
@@ -58,17 +68,50 @@ private:
 class MockEditorService : public EditorService
 {
 public:
-    Position position() const override { return m_position; }
-    void setMockPosition(const Position & position) { m_position = position; }
-    void requestScroll(int steps) override { m_position.line += steps; }
-    quint64 linesPerBeat() const override { return 4; }
-    bool isAtNoteColumn() const override { return m_isAtNoteColumn; }
-    void setMockIsAtNoteColumn(bool val) { m_isAtNoteColumn = val; }
-    bool isAtVelocityColumn() const override { return m_isAtVelocityColumn; }
-    void setMockIsAtVelocityColumn(bool val) { m_isAtVelocityColumn = val; }
-    bool isAtDelayColumn() const override { return m_isAtDelayColumn; }
-    void setMockIsAtDelayColumn(bool val) { m_isAtDelayColumn = val; }
-    bool requestNoteOnAtCurrentPosition(quint8, quint8, quint8) override { return true; }
+    Position position() const override
+    {
+        return m_position;
+    }
+    void setMockPosition(const Position & position)
+    {
+        m_position = position;
+    }
+    void requestScroll(int steps) override
+    {
+        m_position.line += steps;
+    }
+    quint64 linesPerBeat() const override
+    {
+        return 4;
+    }
+    bool isAtNoteColumn() const override
+    {
+        return m_isAtNoteColumn;
+    }
+    void setMockIsAtNoteColumn(bool val)
+    {
+        m_isAtNoteColumn = val;
+    }
+    bool isAtVelocityColumn() const override
+    {
+        return m_isAtVelocityColumn;
+    }
+    void setMockIsAtVelocityColumn(bool val)
+    {
+        m_isAtVelocityColumn = val;
+    }
+    bool isAtDelayColumn() const override
+    {
+        return m_isAtDelayColumn;
+    }
+    void setMockIsAtDelayColumn(bool val)
+    {
+        m_isAtDelayColumn = val;
+    }
+    bool requestNoteOnAtCurrentPosition(quint8, quint8, quint8) override
+    {
+        return true;
+    }
     bool requestNoteOffAtCurrentPosition() override
     {
         m_noteOffRequested = true;
@@ -79,12 +122,24 @@ public:
         m_digitSet = digit;
         return true;
     }
-    bool requestPosition(quint64, quint64, quint64, qint64, quint64) override { return true; }
+    bool requestPosition(quint64, quint64, quint64, qint64, quint64) override
+    {
+        return true;
+    }
 
-    std::optional<quint8> digitSet() const { return m_digitSet; }
+    std::optional<quint8> digitSet() const
+    {
+        return m_digitSet;
+    }
 
-    bool noteOffRequested() const { return m_noteOffRequested; }
-    void setNoteOffRequested(bool val) { m_noteOffRequested = val; }
+    bool noteOffRequested() const
+    {
+        return m_noteOffRequested;
+    }
+    void setNoteOffRequested(bool val)
+    {
+        m_noteOffRequested = val;
+    }
 
 private:
     Position m_position;
@@ -102,9 +157,21 @@ public:
       : PlayerService { nullptr, nullptr, nullptr, nullptr, nullptr, nullptr }
     {
     }
-    bool isPlaying() const override { return m_isPlaying; }
-    bool play() override { m_isPlaying = true; emit isPlayingChanged(); return true; }
-    void stop() override { m_isPlaying = false; emit isPlayingChanged(); }
+    bool isPlaying() const override
+    {
+        return m_isPlaying;
+    }
+    bool play() override
+    {
+        m_isPlaying = true;
+        emit isPlayingChanged();
+        return true;
+    }
+    void stop() override
+    {
+        m_isPlaying = false;
+        emit isPlayingChanged();
+    }
 
 private:
     bool m_isPlaying = false;
@@ -113,8 +180,15 @@ private:
 class MockSelectionService : public SelectionService
 {
 public:
-    void clear() override { m_cleared = true; }
-    bool cleared() const { return m_cleared; }
+    void clear() override
+    {
+        m_cleared = true;
+    }
+    bool cleared() const
+    {
+        return m_cleared;
+    }
+
 private:
     bool m_cleared = false;
 };
@@ -122,8 +196,14 @@ private:
 class MockSettingsService : public SettingsService
 {
 public:
-    int step(int) const override { return 1; }
-    int velocity(int) const override { return 100; }
+    int step(int) const override
+    {
+        return 1;
+    }
+    int velocity(int) const override
+    {
+        return 100;
+    }
 };
 
 void KeyboardServiceTest::initTestCase()

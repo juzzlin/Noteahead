@@ -21,8 +21,8 @@
 #include <map>
 #include <optional>
 #include <set>
-#include <vector>
 #include <utility>
+#include <vector>
 
 #include "../../../application/service/mixer_service.hpp"
 #include "../../../contrib/SimpleLogger/src/simple_logger.hpp"
@@ -36,51 +36,51 @@
 namespace noteahead {
 
 namespace {
-    const auto TAG = "MidiExporter";
+const auto TAG = "MidiExporter";
 
-    // MIDI constants
-    constexpr uint8_t META_EVENT = 0xff;
-    constexpr uint8_t MIDI_PORT_EVENT = 0x21;
-    constexpr uint8_t TRACK_NAME_EVENT = 0x03;
-    constexpr uint8_t END_OF_TRACK_EVENT = 0x2f;
-    constexpr uint8_t DEVICE_NAME_EVENT = 0x09;
-    constexpr uint8_t SET_TEMPO_EVENT = 0x51;
+// MIDI constants
+constexpr uint8_t META_EVENT = 0xff;
+constexpr uint8_t MIDI_PORT_EVENT = 0x21;
+constexpr uint8_t TRACK_NAME_EVENT = 0x03;
+constexpr uint8_t END_OF_TRACK_EVENT = 0x2f;
+constexpr uint8_t DEVICE_NAME_EVENT = 0x09;
+constexpr uint8_t SET_TEMPO_EVENT = 0x51;
 
-    constexpr uint8_t NOTE_ON_STATUS = 0x90;
-    constexpr uint8_t NOTE_OFF_STATUS = 0x80;
-    constexpr uint8_t CONTROL_CHANGE_STATUS = 0xb0;
-    constexpr uint8_t PROGRAM_CHANGE_STATUS = 0xc0;
-    constexpr uint8_t PITCH_BEND_STATUS = 0xe0;
+constexpr uint8_t NOTE_ON_STATUS = 0x90;
+constexpr uint8_t NOTE_OFF_STATUS = 0x80;
+constexpr uint8_t CONTROL_CHANGE_STATUS = 0xb0;
+constexpr uint8_t PROGRAM_CHANGE_STATUS = 0xc0;
+constexpr uint8_t PITCH_BEND_STATUS = 0xe0;
 
-    constexpr uint8_t BANK_SELECT_MSB = 0x00;
-    constexpr uint8_t BANK_SELECT_LSB = 0x20;
+constexpr uint8_t BANK_SELECT_MSB = 0x00;
+constexpr uint8_t BANK_SELECT_LSB = 0x20;
 
-    void writeBeU32(std::ostream & out, uint32_t value)
-    {
-        out.put(static_cast<uint8_t>(value >> 24) & 0xff);
-        out.put(static_cast<uint8_t>(value >> 16) & 0xff);
-        out.put(static_cast<uint8_t>(value >> 8) & 0xff);
-        out.put(static_cast<uint8_t>(value) & 0xff);
-    }
+void writeBeU32(std::ostream & out, uint32_t value)
+{
+    out.put(static_cast<uint8_t>(value >> 24) & 0xff);
+    out.put(static_cast<uint8_t>(value >> 16) & 0xff);
+    out.put(static_cast<uint8_t>(value >> 8) & 0xff);
+    out.put(static_cast<uint8_t>(value) & 0xff);
+}
 
-    void writeBeU16(std::ostream & out, uint16_t value)
-    {
-        out.put((value >> 8) & 0xff);
-        out.put(value & 0xff);
-    }
+void writeBeU16(std::ostream & out, uint16_t value)
+{
+    out.put((value >> 8) & 0xff);
+    out.put(value & 0xff);
+}
 
-    void writeVlq(MidiExporter::ByteVector & out, uint32_t value)
-    {
-        MidiExporter::ByteVector buffer;
-        buffer.push_back(static_cast<char>(value & 0x7f));
+void writeVlq(MidiExporter::ByteVector & out, uint32_t value)
+{
+    MidiExporter::ByteVector buffer;
+    buffer.push_back(static_cast<char>(value & 0x7f));
+    value >>= 7;
+    while (value > 0) {
+        buffer.push_back(static_cast<char>((value & 0x7f) | 0x80));
         value >>= 7;
-        while (value > 0) {
-            buffer.push_back(static_cast<char>((value & 0x7f) | 0x80));
-            value >>= 7;
-        }
-        std::reverse(buffer.begin(), buffer.end());
-        out.insert(out.end(), buffer.begin(), buffer.end());
     }
+    std::reverse(buffer.begin(), buffer.end());
+    out.insert(out.end(), buffer.begin(), buffer.end());
+}
 
 } // namespace
 

@@ -42,8 +42,12 @@ public:
     virtual void process(float & left, float & right) = 0;
     virtual void process(AudioContext & context);
     virtual std::vector<std::string> parameterNames() const;
-    virtual void reset() override {}
-    virtual void sync() {}
+    virtual void reset() override
+    {
+    }
+    virtual void sync()
+    {
+    }
 };
 
 } // namespace noteahead

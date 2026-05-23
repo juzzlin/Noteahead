@@ -17,12 +17,11 @@
 
 #include "../common/constants.hpp"
 #include "../common/utils.hpp"
-#include "../common/utils.hpp"
 #include "../contrib/SimpleLogger/src/simple_logger.hpp"
 
+#include <QStringBuilder>
 #include <QXmlStreamReader>
 #include <QXmlStreamWriter>
-#include <QStringBuilder>
 
 namespace noteahead {
 
@@ -91,21 +90,21 @@ ColumnSettings::ColumnSettingsU ColumnSettings::deserializeFromXml(QXmlStreamRea
 QString ColumnSettings::toString() const
 {
     return QStringLiteral("ColumnSettings(delay=%1, midiDelayEnabled=%2, midiDelayLines=%3, midiDelayFeedback=%4, midiDelayMaxRepetitions=%5, transpose=%6, chordAutomation: note1(offset=%7, velocity=%8, delay=%9), note2(offset=%10, velocity=%11, delay=%12), note3(offset=%13, velocity=%14, delay=%15))")
-        .arg(delay.count())
-        .arg(midiDelayEnabled)
-        .arg(midiDelayLines)
-        .arg(midiDelayFeedback)
-        .arg(midiDelayMaxRepetitions)
-        .arg(transpose)
-        .arg(chordAutomationSettings.note1.offset)
-        .arg(chordAutomationSettings.note1.velocity)
-        .arg(chordAutomationSettings.note1.delay)
-        .arg(chordAutomationSettings.note2.offset)
-        .arg(chordAutomationSettings.note2.velocity)
-        .arg(chordAutomationSettings.note2.delay)
-        .arg(chordAutomationSettings.note3.offset)
-        .arg(chordAutomationSettings.note3.velocity)
-        .arg(chordAutomationSettings.note3.delay);
+      .arg(delay.count())
+      .arg(midiDelayEnabled)
+      .arg(midiDelayLines)
+      .arg(midiDelayFeedback)
+      .arg(midiDelayMaxRepetitions)
+      .arg(transpose)
+      .arg(chordAutomationSettings.note1.offset)
+      .arg(chordAutomationSettings.note1.velocity)
+      .arg(chordAutomationSettings.note1.delay)
+      .arg(chordAutomationSettings.note2.offset)
+      .arg(chordAutomationSettings.note2.velocity)
+      .arg(chordAutomationSettings.note2.delay)
+      .arg(chordAutomationSettings.note3.offset)
+      .arg(chordAutomationSettings.note3.velocity)
+      .arg(chordAutomationSettings.note3.delay);
 }
 
 } // namespace noteahead

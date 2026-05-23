@@ -69,7 +69,6 @@ public:
     QString toString() const;
 
 private:
-
     InterpolationParameters m_interpolation;
     ModulationParameters m_modulation;
 };

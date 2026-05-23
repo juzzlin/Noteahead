@@ -17,8 +17,8 @@
 #define DEVICE_SERVICE_HPP
 
 #include "../../domain/devices/device.hpp"
-#include "../../domain/devices/synth_presets.hpp"
 #include "../../domain/devices/effect_rack.hpp"
+#include "../../domain/devices/synth_presets.hpp"
 
 #include <QObject>
 #include <QStringList>

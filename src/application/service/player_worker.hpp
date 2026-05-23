@@ -88,7 +88,7 @@ private:
     MidiServiceS m_midiService;
     MixerServiceS m_mixerService;
     JackServiceS m_jackService;
-    
+
     Timing m_timing;
 
     using EventMap = std::map<quint64, EventList>;

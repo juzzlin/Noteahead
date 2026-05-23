@@ -25,14 +25,14 @@ void RingBufferTest::test_pushPop_shouldWorkForBasicCases()
 {
     RingBuffer<int> rb(10);
     const std::vector<int> input = { 1, 2, 3, 4, 5 };
-    
+
     QVERIFY(rb.push(input.data(), input.size()));
     QCOMPARE(rb.readAvailable(), 5u);
-    
+
     std::vector<int> output(5);
     QCOMPARE(rb.pop(output.data(), 5), 5u);
     QCOMPARE(rb.readAvailable(), 0u);
-    
+
     for (size_t i = 0; i < input.size(); ++i) {
         QCOMPARE(output[i], input[i]);
     }
@@ -44,7 +44,7 @@ void RingBufferTest::test_capacityAndAvailable_shouldReflectState()
     RingBuffer<int> rb(5);
     QCOMPARE(rb.writeAvailable(), 4u);
     QCOMPARE(rb.readAvailable(), 0u);
-    
+
     int val = 42;
     rb.push(&val, 1);
     QCOMPARE(rb.writeAvailable(), 3u);
@@ -54,20 +54,20 @@ void RingBufferTest::test_capacityAndAvailable_shouldReflectState()
 void RingBufferTest::test_pushPop_shouldHandleWrapping()
 {
     RingBuffer<int> rb(5); // Internal capacity is 5, usable is 4
-    
+
     std::vector<int> data = { 1, 2, 3 };
     rb.push(data.data(), 3);
-    
+
     std::vector<int> dummy(2);
     rb.pop(dummy.data(), 2); // tail is now at 2, head at 3
-    
+
     // Now push 2 more items, this should wrap around the end
     std::vector<int> wrapData = { 4, 5 };
     QVERIFY(rb.push(wrapData.data(), 2));
-    
+
     std::vector<int> finalOutput(3);
     QCOMPARE(rb.pop(finalOutput.data(), 3), 3u);
-    
+
     QCOMPARE(finalOutput[0], 3);
     QCOMPARE(finalOutput[1], 4);
     QCOMPARE(finalOutput[2], 5);
@@ -77,7 +77,7 @@ void RingBufferTest::test_push_shouldFailOnOverflow()
 {
     RingBuffer<int> rb(5); // usable 4
     std::vector<int> data = { 1, 2, 3, 4, 5 };
-    
+
     QVERIFY(!rb.push(data.data(), 5));
     QVERIFY(rb.push(data.data(), 4));
 }
@@ -88,7 +88,7 @@ void RingBufferTest::test_clear_shouldResetState()
     int data[3] = { 1, 2, 3 };
     rb.push(data, 3);
     QCOMPARE(rb.readAvailable(), 3u);
-    
+
     rb.clear();
     QCOMPARE(rb.readAvailable(), 0u);
     QCOMPARE(rb.writeAvailable(), 9u);

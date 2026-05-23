@@ -54,7 +54,10 @@ public:
         m_isOpen = true;
         return true;
     }
-    void close() override { m_isOpen = false; }
+    void close() override
+    {
+        m_isOpen = false;
+    }
     int64_t readFloat(std::span<float> data) override
     {
         std::fill(data.begin(), data.end(), 0.0f);
@@ -70,11 +73,26 @@ public:
         std::fill(data.begin(), data.end(), 0);
         return static_cast<int64_t>(data.size() / static_cast<size_t>(m_info.channels));
     }
-    int64_t writeFloat(std::span<const float> data) override { return static_cast<int64_t>(data.size() / static_cast<size_t>(m_info.channels)); }
-    int64_t writeInt(std::span<const int32_t> data) override { return static_cast<int64_t>(data.size() / static_cast<size_t>(m_info.channels)); }
-    bool seek(int64_t, int) override { return true; }
-    bool isOpen() const override { return m_isOpen; }
-    Info info() const override { return m_info; }
+    int64_t writeFloat(std::span<const float> data) override
+    {
+        return static_cast<int64_t>(data.size() / static_cast<size_t>(m_info.channels));
+    }
+    int64_t writeInt(std::span<const int32_t> data) override
+    {
+        return static_cast<int64_t>(data.size() / static_cast<size_t>(m_info.channels));
+    }
+    bool seek(int64_t, int) override
+    {
+        return true;
+    }
+    bool isOpen() const override
+    {
+        return m_isOpen;
+    }
+    Info info() const override
+    {
+        return m_info;
+    }
 
 private:
     bool m_isOpen = false;
@@ -875,7 +893,7 @@ void XmlSerializationTest::test_toXmlFromXml_synthUserPresets_discreteValues_sho
     const auto deviceServiceIn = std::make_shared<DeviceService>(std::make_shared<AudioEngine>());
     const auto synthIn = std::make_shared<SynthDevice>("Noteahead Internal Device 1");
     deviceServiceIn->setDevice(0, synthIn);
-    
+
     EditorService editorServiceIn { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
     connect(&editorServiceIn, &EditorService::devicesDeserializationRequested, deviceServiceIn.get(), &DeviceService::deserializeFromXml);
 

@@ -23,7 +23,7 @@ namespace noteahead {
 
 SnareEngine::SnareEngine()
 {
-    m_rng.seed(std::random_device{}());
+    m_rng.seed(std::random_device {}());
     m_noiseFilter.setMode(CascadedSvf::Mode::BandPass);
 }
 
@@ -69,7 +69,7 @@ float SnareEngine::nextSample()
 
     // Mix and saturate the tonal part slightly to make it less "sine-like"
     float tonal { (tonal1 + tonal2 * 0.4f) / 1.4f };
-    tonal = std::tanh(tonal * 1.5f); 
+    tonal = std::tanh(tonal * 1.5f);
 
     // Noise part (Snappy bump 2000-12000 Hz)
     const float noise { m_dist(m_rng) };

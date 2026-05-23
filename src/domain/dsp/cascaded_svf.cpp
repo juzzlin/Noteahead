@@ -15,8 +15,8 @@
 
 #include "cascaded_svf.hpp"
 
-#include <cmath>
 #include <algorithm>
+#include <cmath>
 #include <numbers>
 
 namespace noteahead {
@@ -47,10 +47,7 @@ float CascadedSvf::process(float input)
 
     // Zero-Delay Feedback State Variable Filter
     // Stable for all frequencies up to Nyquist
-    if (std::abs(m_cutoff - m_lastCutoff) > 0.000001 || 
-        std::abs(m_resonance - m_lastResonance) > 0.000001 ||
-        std::abs(m_sampleRate - m_lastSampleRate) > 0.1) 
-    {
+    if (std::abs(m_cutoff - m_lastCutoff) > 0.000001 || std::abs(m_resonance - m_lastResonance) > 0.000001 || std::abs(m_sampleRate - m_lastSampleRate) > 0.1) {
         const double freq = 20.0 * std::pow(std::min(20000.0, m_sampleRate * 0.49) / 20.0, m_cutoff);
         m_g = std::tan(std::numbers::pi * freq / m_sampleRate);
         m_k = 2.0 * (1.0 - m_resonance);
@@ -88,11 +85,15 @@ float CascadedSvf::SvfUnit::process(float input, double g, double damping, doubl
     const double v2 = g * bp;
     const double lp = v2 + s2;
     s2 = v2 + lp;
-    
-    if (mode == Mode::LowPass) return static_cast<float>(lp);
-    if (mode == Mode::HighPass) return static_cast<float>(hp);
-    if (mode == Mode::BandPass) return static_cast<float>(bp);
-    if (mode == Mode::Notch) return static_cast<float>(lp + hp);
+
+    if (mode == Mode::LowPass)
+        return static_cast<float>(lp);
+    if (mode == Mode::HighPass)
+        return static_cast<float>(hp);
+    if (mode == Mode::BandPass)
+        return static_cast<float>(bp);
+    if (mode == Mode::Notch)
+        return static_cast<float>(lp + hp);
     return 0.0f;
 }
 

@@ -19,7 +19,7 @@
 namespace noteahead {
 
 DspComponent::DspComponent()
-    : m_sampleRate { Constants::defaultSampleRate() }
+  : m_sampleRate { Constants::defaultSampleRate() }
 {
 }
 

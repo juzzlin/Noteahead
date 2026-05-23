@@ -29,10 +29,19 @@ class Eq8BandParametricEffect : public Effect
 public:
     Eq8BandParametricEffect();
 
-    static std::string typeIdString() { return "b2e1f3a4-c5d6-4e7f-8a9b-0c1d2e3f4a5b"; }
+    static std::string typeIdString()
+    {
+        return "b2e1f3a4-c5d6-4e7f-8a9b-0c1d2e3f4a5b";
+    }
 
-    std::string type() const override { return "eq8bandparametric"; }
-    std::string typeId() const override { return typeIdString(); }
+    std::string type() const override
+    {
+        return "eq8bandparametric";
+    }
+    std::string typeId() const override
+    {
+        return typeIdString();
+    }
     void process(float & left, float & right) override;
     void process(AudioContext & context) override;
     void reset() override;

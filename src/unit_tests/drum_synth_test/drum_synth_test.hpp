@@ -18,7 +18,6 @@
 
 #include <QObject>
 
-
 namespace noteahead {
 
 class DrumSynthTest : public QObject

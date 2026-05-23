@@ -30,7 +30,7 @@ float Oversampler2x::process(float s0, float s1)
     // FIR convolution
     float output { 0.0f };
     size_t readIndex { m_writeIndex };
-    
+
     for (const float coeff : Coefficients) {
         if (readIndex == 0) {
             readIndex = Coefficients.size() - 1;

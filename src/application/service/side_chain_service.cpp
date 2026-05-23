@@ -44,7 +44,7 @@ Song::EventList SideChainService::renderToEvents(const Song & song, const Song::
     const auto maxTick = song.positionToTick(endPosition);
     const double msPerTick = 60'000.0 / static_cast<double>(song.beatsPerMinute() * song.linesPerBeat() * song.ticksPerLine());
 
-    for (auto const& [trackIndex, sideChainSettings] : m_settings) {
+    for (auto const & [trackIndex, sideChainSettings] : m_settings) {
         if (!song.hasTrack(trackIndex)) {
             continue;
         }
@@ -167,7 +167,7 @@ void SideChainService::serializeToXml(QXmlStreamWriter & writer) const
 {
     writer.writeStartElement(Constants::NahdXml::xmlKeySideChain());
 
-    for (auto const& [trackIndex, settings] : m_settings) {
+    for (auto const & [trackIndex, settings] : m_settings) {
         writer.writeStartElement(Constants::NahdXml::xmlKeySideChainSettings());
         writer.writeAttribute(Constants::NahdXml::xmlKeyTrackAttr(), QString::number(trackIndex));
         writer.writeAttribute(Constants::NahdXml::xmlKeyEnabled(), settings.enabled ? Constants::NahdXml::xmlValueTrue() : Constants::NahdXml::xmlValueFalse());
@@ -176,8 +176,8 @@ void SideChainService::serializeToXml(QXmlStreamWriter & writer) const
         writer.writeAttribute(Constants::NahdXml::xmlKeyLookahead(), QString::number(settings.lookahead.count()));
         writer.writeAttribute(Constants::NahdXml::xmlKeyRelease(), QString::number(settings.release.count()));
 
-        for(size_t i = 0; i < settings.targets.size(); ++i) {
-            const auto& target = settings.targets[i];
+        for (size_t i = 0; i < settings.targets.size(); ++i) {
+            const auto & target = settings.targets[i];
             writer.writeStartElement(Constants::NahdXml::xmlKeySideChainTarget());
             writer.writeAttribute(Constants::NahdXml::xmlKeyEnabled(), target.enabled ? Constants::NahdXml::xmlValueTrue() : Constants::NahdXml::xmlValueFalse());
             writer.writeAttribute(Constants::NahdXml::xmlKeyController(), QString::number(target.controller));

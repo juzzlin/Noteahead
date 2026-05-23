@@ -19,8 +19,8 @@
 #include "../cascaded_svf.hpp"
 #include "drum_engine.hpp"
 
-#include <random>
 #include <array>
+#include <random>
 
 namespace noteahead {
 

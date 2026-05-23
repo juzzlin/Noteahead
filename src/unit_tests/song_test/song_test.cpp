@@ -25,8 +25,8 @@
 #include "../../domain/pattern.hpp"
 #include "../../domain/song.hpp"
 
-#include <QXmlStreamWriter>
 #include <QTest>
+#include <QXmlStreamWriter>
 
 namespace noteahead {
 
@@ -905,7 +905,7 @@ void SongTest::test_renderToEvents_midiSideChain_shouldGenerateEvents()
     bool targetEventFound = false;
     bool releaseEventFound = false;
 
-    for (const auto& event : events) {
+    for (const auto & event : events) {
         if (auto ccData = event->midiCcData()) {
             if (ccData->track() == 1 && ccData->controller() == sideChainSettings.targets.at(0).controller) {
                 if (event->tick() == expectedTargetTick && ccData->value() == sideChainSettings.targets.at(0).targetValue) {
@@ -921,7 +921,6 @@ void SongTest::test_renderToEvents_midiSideChain_shouldGenerateEvents()
     QVERIFY(targetEventFound);
     QVERIFY(releaseEventFound);
 }
-
 
 void SongTest::test_renderToEvents_midiSideChain_shouldClampReleaseEvents()
 {
@@ -939,7 +938,7 @@ void SongTest::test_renderToEvents_midiSideChain_shouldClampReleaseEvents()
     sideChainService->setSettings(1, sideChainSettings);
 
     // Place a note at the end of the first line of pattern 0
-    const Position triggerPosition = { 0, 0, 0, song.lineCount(0) -1, 0 };
+    const Position triggerPosition = { 0, 0, 0, song.lineCount(0) - 1, 0 };
     NoteData noteData { triggerPosition.track, triggerPosition.column };
     noteData.setAsNoteOn(60, 100);
     song.setNoteDataAtPosition(noteData, triggerPosition);
@@ -952,7 +951,7 @@ void SongTest::test_renderToEvents_midiSideChain_shouldClampReleaseEvents()
 
     // Find the release event and check its tick
     bool releaseEventFound = false;
-    for (const auto& event : events) {
+    for (const auto & event : events) {
         if (auto ccData = event->midiCcData()) {
             if (ccData->track() == 1 && ccData->controller() == sideChainSettings.targets.at(0).controller && ccData->value() == sideChainSettings.targets.at(0).releaseValue) {
                 releaseEventFound = true;
@@ -997,7 +996,7 @@ void SongTest::test_renderToEvents_midiSideChain_shouldClampAttackEvents()
     const size_t startTick = song.positionToTick(startPosition);
     bool targetEventFound = false;
 
-    for (const auto& event : events) {
+    for (const auto & event : events) {
         if (auto ccData = event->midiCcData()) {
             if (ccData->track() == 1 && ccData->controller() == sideChainSettings.targets.at(0).controller) {
                 if (ccData->value() == sideChainSettings.targets.at(0).targetValue) {
@@ -1014,14 +1013,14 @@ void SongTest::test_renderToEvents_midiSideChain_shouldClampAttackEvents()
 void SongTest::test_transposePattern_drumTrackSet_shouldNotTransposeDrumTrack()
 {
     Song song;
-    
+
     // Setup Track 0 as Drum Track
     auto drumInstrument = std::make_shared<Instrument>("");
     auto drumSettings = drumInstrument->settings();
     drumSettings.drumTrack = true;
     drumInstrument->setSettings(drumSettings);
     song.setInstrument(0, drumInstrument);
-    
+
     // Setup Track 1 as normal track
     auto normalInstrument = std::make_shared<Instrument>("");
     song.setInstrument(1, normalInstrument);

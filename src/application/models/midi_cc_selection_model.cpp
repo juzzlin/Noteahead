@@ -30,7 +30,7 @@ MidiCcSelectionModel::MidiCcSelectionModel(QObject * parent)
 {
 }
 
-int MidiCcSelectionModel::rowCount(const QModelIndex &parent) const
+int MidiCcSelectionModel::rowCount(const QModelIndex & parent) const
 {
     if (parent.isValid()) {
         return 0;
@@ -39,7 +39,7 @@ int MidiCcSelectionModel::rowCount(const QModelIndex &parent) const
     return static_cast<int>(m_settings.size());
 }
 
-QVariant MidiCcSelectionModel::data(const QModelIndex &index, int role) const
+QVariant MidiCcSelectionModel::data(const QModelIndex & index, int role) const
 {
     if (!index.isValid()) {
         return {};
@@ -59,12 +59,12 @@ QVariant MidiCcSelectionModel::data(const QModelIndex &index, int role) const
     return {};
 }
 
-bool MidiCcSelectionModel::setData(const QModelIndex &index, const QVariant &value, int role)
+bool MidiCcSelectionModel::setData(const QModelIndex & index, const QVariant & value, int role)
 {
     if (!index.isValid())
         return false;
 
-    auto &setting = m_settings[static_cast<size_t>(index.row())];
+    auto & setting = m_settings[static_cast<size_t>(index.row())];
     bool changed = false;
 
     switch (static_cast<Roles>(role)) {
@@ -150,7 +150,7 @@ void MidiCcSelectionModel::setMidiCcSettings(const MidiCcSettingList & midiCcSet
     beginResetModel();
 
     std::map<quint32, MidiCcSetting> uniqueSettings;
-    for (const auto& setting : midiCcSettings) {
+    for (const auto & setting : midiCcSettings) {
         uniqueSettings[setting.controller()] = setting;
     }
 
@@ -158,7 +158,7 @@ void MidiCcSelectionModel::setMidiCcSettings(const MidiCcSettingList & midiCcSet
     for (const auto & pair : uniqueSettings) {
         m_settings.push_back(pair.second);
     }
-    std::sort(m_settings.begin(), m_settings.end(), [](const auto& a, const auto& b){ return a.controller() < b.controller(); });
+    std::sort(m_settings.begin(), m_settings.end(), [](const auto & a, const auto & b) { return a.controller() < b.controller(); });
 
     endResetModel();
 }

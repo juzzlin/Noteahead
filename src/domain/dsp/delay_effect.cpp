@@ -163,8 +163,8 @@ void DelayEffect::applyTapeSaturation(float & fbL, float & fbR)
 
 void DelayEffect::updateWriteBuffer(float inputL, float inputR, float fbL, float fbR, float & outL, float & outR)
 {
-    (void) outL;
-    (void) outR;
+    (void)outL;
+    (void)outR;
 
     const size_t bufSize = m_bufferL.size();
 

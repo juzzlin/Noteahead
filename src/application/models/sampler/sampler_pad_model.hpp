@@ -14,7 +14,8 @@ class SamplerPadModel : public QAbstractListModel
     Q_OBJECT
 
 public:
-    enum Roles {
+    enum Roles
+    {
         Note = Qt::UserRole + 1,
         NoteName,
         FilePath,

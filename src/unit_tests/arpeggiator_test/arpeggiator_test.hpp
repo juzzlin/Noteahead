@@ -18,7 +18,6 @@
 
 #include <QObject>
 
-
 namespace noteahead {
 
 class ArpeggiatorTest : public QObject

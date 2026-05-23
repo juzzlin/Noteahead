@@ -20,10 +20,10 @@
 #include "../../common/utils.hpp"
 #include "../../infra/midi/midi_cc_mapping.hpp"
 
-#include <algorithm>
-#include <cmath>
 #include <QXmlStreamReader>
 #include <QXmlStreamWriter>
+#include <algorithm>
+#include <cmath>
 
 namespace noteahead {
 
@@ -146,8 +146,10 @@ void BassSynthDevice::processMidiCc(uint8_t controller, uint8_t value, uint8_t)
             m_lpfCutoff = m_manualLpfCutoff;
             m_hpfCutoff = m_manualHpfCutoff;
 
-            if (auto p = parameter(Constants::NahdXml::xmlKeySynthLpfCutoff().toStdString()); p) p->get().setValue(m_lpfCutoff);
-            if (auto p = parameter(Constants::NahdXml::xmlKeySynthHpfCutoff().toStdString()); p) p->get().setValue(m_hpfCutoff);
+            if (auto p = parameter(Constants::NahdXml::xmlKeySynthLpfCutoff().toStdString()); p)
+                p->get().setValue(m_lpfCutoff);
+            if (auto p = parameter(Constants::NahdXml::xmlKeySynthHpfCutoff().toStdString()); p)
+                p->get().setValue(m_hpfCutoff);
 
             updatePanParameter(manualPanInternal(), false);
             updateVolumeParameter(manualVolumeInternal(), false);
@@ -201,7 +203,8 @@ void BassSynthDevice::processAudio(AudioContext & context)
     const uint32_t oversampledRate = context.sampleRate * 2;
     const std::lock_guard<std::recursive_mutex> lock { mutex() };
 
-    if (!m_voice.active) return;
+    if (!m_voice.active)
+        return;
 
     m_voice.vco.setSampleRate(oversampledRate);
     m_voice.sub.setSampleRate(oversampledRate);
@@ -391,23 +394,37 @@ double BassSynthDevice::midiNoteToFreq(uint8_t note) const
 void BassSynthDevice::syncParameters()
 {
     Device::syncParameters();
-    if (auto p = parameter(Constants::NahdXml::xmlKeyWaveform().toStdString()); p) m_waveform = static_cast<PolyBlepOscillator::Waveform>(p->get().xmlValue());
-    if (auto p = parameter(Constants::NahdXml::xmlKeyPitch().toStdString()); p) m_tuning = p->get().value();
-    if (auto p = parameter(Constants::NahdXml::xmlKeySubLevel().toStdString()); p) m_subLevel = p->get().value();
-    if (auto p = parameter(Constants::NahdXml::xmlKeySubOctave().toStdString()); p) m_subOctave = static_cast<int>(p->get().xmlValue());
+    if (auto p = parameter(Constants::NahdXml::xmlKeyWaveform().toStdString()); p)
+        m_waveform = static_cast<PolyBlepOscillator::Waveform>(p->get().xmlValue());
+    if (auto p = parameter(Constants::NahdXml::xmlKeyPitch().toStdString()); p)
+        m_tuning = p->get().value();
+    if (auto p = parameter(Constants::NahdXml::xmlKeySubLevel().toStdString()); p)
+        m_subLevel = p->get().value();
+    if (auto p = parameter(Constants::NahdXml::xmlKeySubOctave().toStdString()); p)
+        m_subOctave = static_cast<int>(p->get().xmlValue());
 
-    if (auto p = parameter(Constants::NahdXml::xmlKeySynthLpfCutoff().toStdString()); p) m_lpfCutoff = p->get().value();
-    if (auto p = parameter(Constants::NahdXml::xmlKeySynthLpfResonance().toStdString()); p) m_lpfResonance = p->get().value();
-    if (auto p = parameter(Constants::NahdXml::xmlKeySynthHpfCutoff().toStdString()); p) m_hpfCutoff = p->get().value();
-    if (auto p = parameter(Constants::NahdXml::xmlKeyEnvMod().toStdString()); p) m_envMod = p->get().value();
-    if (auto p = parameter(Constants::NahdXml::xmlKeyDecay().toStdString()); p) m_decay = p->get().value();
+    if (auto p = parameter(Constants::NahdXml::xmlKeySynthLpfCutoff().toStdString()); p)
+        m_lpfCutoff = p->get().value();
+    if (auto p = parameter(Constants::NahdXml::xmlKeySynthLpfResonance().toStdString()); p)
+        m_lpfResonance = p->get().value();
+    if (auto p = parameter(Constants::NahdXml::xmlKeySynthHpfCutoff().toStdString()); p)
+        m_hpfCutoff = p->get().value();
+    if (auto p = parameter(Constants::NahdXml::xmlKeyEnvMod().toStdString()); p)
+        m_envMod = p->get().value();
+    if (auto p = parameter(Constants::NahdXml::xmlKeyDecay().toStdString()); p)
+        m_decay = p->get().value();
 
-    if (auto p = parameter(Constants::NahdXml::xmlKeyAccent().toStdString()); p) m_accent = p->get().value();
-    if (auto p = parameter(Constants::NahdXml::xmlKeySlide().toStdString()); p) m_slide = p->get().value();
+    if (auto p = parameter(Constants::NahdXml::xmlKeyAccent().toStdString()); p)
+        m_accent = p->get().value();
+    if (auto p = parameter(Constants::NahdXml::xmlKeySlide().toStdString()); p)
+        m_slide = p->get().value();
 
-    if (auto p = parameter(Constants::NahdXml::xmlKeyDistDrive().toStdString()); p) m_distDrive = p->get().value();
-    if (auto p = parameter(Constants::NahdXml::xmlKeyDistTone().toStdString()); p) m_distTone = p->get().value();
-    if (auto p = parameter(Constants::NahdXml::xmlKeyDistLevel().toStdString()); p) m_distLevel = p->get().value();
+    if (auto p = parameter(Constants::NahdXml::xmlKeyDistDrive().toStdString()); p)
+        m_distDrive = p->get().value();
+    if (auto p = parameter(Constants::NahdXml::xmlKeyDistTone().toStdString()); p)
+        m_distTone = p->get().value();
+    if (auto p = parameter(Constants::NahdXml::xmlKeyDistLevel().toStdString()); p)
+        m_distLevel = p->get().value();
 
     m_voice.vco.setWaveform(m_waveform);
     m_voice.filterEg.setDecayTime(ParameterMapper::mapExponential(m_decay, 0.1, 10.0));
@@ -416,33 +433,259 @@ void BassSynthDevice::syncParameters()
     m_voice.ampEg.setReleaseTime(ParameterMapper::mapExponential(m_decay, 0.1, 10.0));
 }
 
-PolyBlepOscillator::Waveform BassSynthDevice::waveform() const { return m_waveform; }
-void BassSynthDevice::setWaveform(PolyBlepOscillator::Waveform wave) { bool changed = false; { std::lock_guard<std::recursive_mutex> lock { mutex() }; if (auto p = parameter(Constants::NahdXml::xmlKeyWaveform().toStdString()); p) { p->get().setFromXml(static_cast<int>(wave)); syncParameters(); changed = true; } } if (changed) emit dataChanged(); }
-float BassSynthDevice::tuning() const { return m_tuning; }
-void BassSynthDevice::setTuning(float tuning) { bool changed = false; { std::lock_guard<std::recursive_mutex> lock { mutex() }; if (auto p = parameter(Constants::NahdXml::xmlKeyPitch().toStdString()); p) { p->get().setValue(tuning); syncParameters(); changed = true; } } if (changed) emit dataChanged(); }
-float BassSynthDevice::subLevel() const { return m_subLevel; }
-void BassSynthDevice::setSubLevel(float level) { bool changed = false; { std::lock_guard<std::recursive_mutex> lock { mutex() }; if (auto p = parameter(Constants::NahdXml::xmlKeySubLevel().toStdString()); p) { p->get().setValue(level); syncParameters(); changed = true; } } if (changed) emit dataChanged(); }
-int BassSynthDevice::subOctave() const { return m_subOctave; }
-void BassSynthDevice::setSubOctave(int octave) { bool changed = false; { std::lock_guard<std::recursive_mutex> lock { mutex() }; if (auto p = parameter(Constants::NahdXml::xmlKeySubOctave().toStdString()); p) { p->get().setFromXml(octave); syncParameters(); changed = true; } } if (changed) emit dataChanged(); }
-float BassSynthDevice::lpfCutoff() const { return m_lpfCutoff; }
-void BassSynthDevice::setLpfCutoff(float cutoff) { bool changed = false; { std::lock_guard<std::recursive_mutex> lock { mutex() }; if (auto p = parameter(Constants::NahdXml::xmlKeySynthLpfCutoff().toStdString()); p) { p->get().setValue(cutoff); m_manualLpfCutoff = p->get().value(); syncParameters(); changed = true; } } if (changed) emit dataChanged(); }
-float BassSynthDevice::lpfResonance() const { return m_lpfResonance; }
-void BassSynthDevice::setLpfResonance(float resonance) { bool changed = false; { std::lock_guard<std::recursive_mutex> lock { mutex() }; if (auto p = parameter(Constants::NahdXml::xmlKeySynthLpfResonance().toStdString()); p) { p->get().setValue(resonance); syncParameters(); changed = true; } } if (changed) emit dataChanged(); }
-float BassSynthDevice::hpfCutoff() const { return m_hpfCutoff; }
-void BassSynthDevice::setHpfCutoff(float cutoff) { bool changed = false; { std::lock_guard<std::recursive_mutex> lock { mutex() }; if (auto p = parameter(Constants::NahdXml::xmlKeySynthHpfCutoff().toStdString()); p) { p->get().setValue(cutoff); m_manualHpfCutoff = p->get().value(); syncParameters(); changed = true; } } if (changed) emit dataChanged(); }
-float BassSynthDevice::envMod() const { return m_envMod; }
-void BassSynthDevice::setEnvMod(float mod) { bool changed = false; { std::lock_guard<std::recursive_mutex> lock { mutex() }; if (auto p = parameter(Constants::NahdXml::xmlKeyEnvMod().toStdString()); p) { p->get().setValue(mod); syncParameters(); changed = true; } } if (changed) emit dataChanged(); }
-float BassSynthDevice::decay() const { return m_decay; }
-void BassSynthDevice::setDecay(float decay) { bool changed = false; { std::lock_guard<std::recursive_mutex> lock { mutex() }; if (auto p = parameter(Constants::NahdXml::xmlKeyDecay().toStdString()); p) { p->get().setValue(decay); syncParameters(); changed = true; } } if (changed) emit dataChanged(); }
-float BassSynthDevice::accent() const { return m_accent; }
-void BassSynthDevice::setAccent(float accent) { bool changed = false; { std::lock_guard<std::recursive_mutex> lock { mutex() }; if (auto p = parameter(Constants::NahdXml::xmlKeyAccent().toStdString()); p) { p->get().setValue(accent); syncParameters(); changed = true; } } if (changed) emit dataChanged(); }
-float BassSynthDevice::slide() const { return m_slide; }
-void BassSynthDevice::setSlide(float slide) { bool changed = false; { std::lock_guard<std::recursive_mutex> lock { mutex() }; if (auto p = parameter(Constants::NahdXml::xmlKeySlide().toStdString()); p) { p->get().setValue(slide); syncParameters(); changed = true; } } if (changed) emit dataChanged(); }
-float BassSynthDevice::distDrive() const { return m_distDrive; }
-void BassSynthDevice::setDistDrive(float drive) { bool changed = false; { std::lock_guard<std::recursive_mutex> lock { mutex() }; if (auto p = parameter(Constants::NahdXml::xmlKeyDistDrive().toStdString()); p) { p->get().setValue(drive); syncParameters(); changed = true; } } if (changed) emit dataChanged(); }
-float BassSynthDevice::distTone() const { return m_distTone; }
-void BassSynthDevice::setDistTone(float tone) { bool changed = false; { std::lock_guard<std::recursive_mutex> lock { mutex() }; if (auto p = parameter(Constants::NahdXml::xmlKeyDistTone().toStdString()); p) { p->get().setValue(tone); syncParameters(); changed = true; } } if (changed) emit dataChanged(); }
-float BassSynthDevice::distLevel() const { return m_distLevel; }
-void BassSynthDevice::setDistLevel(float level) { bool changed = false; { std::lock_guard<std::recursive_mutex> lock { mutex() }; if (auto p = parameter(Constants::NahdXml::xmlKeyDistLevel().toStdString()); p) { p->get().setValue(level); syncParameters(); changed = true; } } if (changed) emit dataChanged(); }
+PolyBlepOscillator::Waveform BassSynthDevice::waveform() const
+{
+    return m_waveform;
+}
+void BassSynthDevice::setWaveform(PolyBlepOscillator::Waveform wave)
+{
+    bool changed = false;
+    {
+        std::lock_guard<std::recursive_mutex> lock { mutex() };
+        if (auto p = parameter(Constants::NahdXml::xmlKeyWaveform().toStdString()); p) {
+            p->get().setFromXml(static_cast<int>(wave));
+            syncParameters();
+            changed = true;
+        }
+    }
+    if (changed)
+        emit dataChanged();
+}
+float BassSynthDevice::tuning() const
+{
+    return m_tuning;
+}
+void BassSynthDevice::setTuning(float tuning)
+{
+    bool changed = false;
+    {
+        std::lock_guard<std::recursive_mutex> lock { mutex() };
+        if (auto p = parameter(Constants::NahdXml::xmlKeyPitch().toStdString()); p) {
+            p->get().setValue(tuning);
+            syncParameters();
+            changed = true;
+        }
+    }
+    if (changed)
+        emit dataChanged();
+}
+float BassSynthDevice::subLevel() const
+{
+    return m_subLevel;
+}
+void BassSynthDevice::setSubLevel(float level)
+{
+    bool changed = false;
+    {
+        std::lock_guard<std::recursive_mutex> lock { mutex() };
+        if (auto p = parameter(Constants::NahdXml::xmlKeySubLevel().toStdString()); p) {
+            p->get().setValue(level);
+            syncParameters();
+            changed = true;
+        }
+    }
+    if (changed)
+        emit dataChanged();
+}
+int BassSynthDevice::subOctave() const
+{
+    return m_subOctave;
+}
+void BassSynthDevice::setSubOctave(int octave)
+{
+    bool changed = false;
+    {
+        std::lock_guard<std::recursive_mutex> lock { mutex() };
+        if (auto p = parameter(Constants::NahdXml::xmlKeySubOctave().toStdString()); p) {
+            p->get().setFromXml(octave);
+            syncParameters();
+            changed = true;
+        }
+    }
+    if (changed)
+        emit dataChanged();
+}
+float BassSynthDevice::lpfCutoff() const
+{
+    return m_lpfCutoff;
+}
+void BassSynthDevice::setLpfCutoff(float cutoff)
+{
+    bool changed = false;
+    {
+        std::lock_guard<std::recursive_mutex> lock { mutex() };
+        if (auto p = parameter(Constants::NahdXml::xmlKeySynthLpfCutoff().toStdString()); p) {
+            p->get().setValue(cutoff);
+            m_manualLpfCutoff = p->get().value();
+            syncParameters();
+            changed = true;
+        }
+    }
+    if (changed)
+        emit dataChanged();
+}
+float BassSynthDevice::lpfResonance() const
+{
+    return m_lpfResonance;
+}
+void BassSynthDevice::setLpfResonance(float resonance)
+{
+    bool changed = false;
+    {
+        std::lock_guard<std::recursive_mutex> lock { mutex() };
+        if (auto p = parameter(Constants::NahdXml::xmlKeySynthLpfResonance().toStdString()); p) {
+            p->get().setValue(resonance);
+            syncParameters();
+            changed = true;
+        }
+    }
+    if (changed)
+        emit dataChanged();
+}
+float BassSynthDevice::hpfCutoff() const
+{
+    return m_hpfCutoff;
+}
+void BassSynthDevice::setHpfCutoff(float cutoff)
+{
+    bool changed = false;
+    {
+        std::lock_guard<std::recursive_mutex> lock { mutex() };
+        if (auto p = parameter(Constants::NahdXml::xmlKeySynthHpfCutoff().toStdString()); p) {
+            p->get().setValue(cutoff);
+            m_manualHpfCutoff = p->get().value();
+            syncParameters();
+            changed = true;
+        }
+    }
+    if (changed)
+        emit dataChanged();
+}
+float BassSynthDevice::envMod() const
+{
+    return m_envMod;
+}
+void BassSynthDevice::setEnvMod(float mod)
+{
+    bool changed = false;
+    {
+        std::lock_guard<std::recursive_mutex> lock { mutex() };
+        if (auto p = parameter(Constants::NahdXml::xmlKeyEnvMod().toStdString()); p) {
+            p->get().setValue(mod);
+            syncParameters();
+            changed = true;
+        }
+    }
+    if (changed)
+        emit dataChanged();
+}
+float BassSynthDevice::decay() const
+{
+    return m_decay;
+}
+void BassSynthDevice::setDecay(float decay)
+{
+    bool changed = false;
+    {
+        std::lock_guard<std::recursive_mutex> lock { mutex() };
+        if (auto p = parameter(Constants::NahdXml::xmlKeyDecay().toStdString()); p) {
+            p->get().setValue(decay);
+            syncParameters();
+            changed = true;
+        }
+    }
+    if (changed)
+        emit dataChanged();
+}
+float BassSynthDevice::accent() const
+{
+    return m_accent;
+}
+void BassSynthDevice::setAccent(float accent)
+{
+    bool changed = false;
+    {
+        std::lock_guard<std::recursive_mutex> lock { mutex() };
+        if (auto p = parameter(Constants::NahdXml::xmlKeyAccent().toStdString()); p) {
+            p->get().setValue(accent);
+            syncParameters();
+            changed = true;
+        }
+    }
+    if (changed)
+        emit dataChanged();
+}
+float BassSynthDevice::slide() const
+{
+    return m_slide;
+}
+void BassSynthDevice::setSlide(float slide)
+{
+    bool changed = false;
+    {
+        std::lock_guard<std::recursive_mutex> lock { mutex() };
+        if (auto p = parameter(Constants::NahdXml::xmlKeySlide().toStdString()); p) {
+            p->get().setValue(slide);
+            syncParameters();
+            changed = true;
+        }
+    }
+    if (changed)
+        emit dataChanged();
+}
+float BassSynthDevice::distDrive() const
+{
+    return m_distDrive;
+}
+void BassSynthDevice::setDistDrive(float drive)
+{
+    bool changed = false;
+    {
+        std::lock_guard<std::recursive_mutex> lock { mutex() };
+        if (auto p = parameter(Constants::NahdXml::xmlKeyDistDrive().toStdString()); p) {
+            p->get().setValue(drive);
+            syncParameters();
+            changed = true;
+        }
+    }
+    if (changed)
+        emit dataChanged();
+}
+float BassSynthDevice::distTone() const
+{
+    return m_distTone;
+}
+void BassSynthDevice::setDistTone(float tone)
+{
+    bool changed = false;
+    {
+        std::lock_guard<std::recursive_mutex> lock { mutex() };
+        if (auto p = parameter(Constants::NahdXml::xmlKeyDistTone().toStdString()); p) {
+            p->get().setValue(tone);
+            syncParameters();
+            changed = true;
+        }
+    }
+    if (changed)
+        emit dataChanged();
+}
+float BassSynthDevice::distLevel() const
+{
+    return m_distLevel;
+}
+void BassSynthDevice::setDistLevel(float level)
+{
+    bool changed = false;
+    {
+        std::lock_guard<std::recursive_mutex> lock { mutex() };
+        if (auto p = parameter(Constants::NahdXml::xmlKeyDistLevel().toStdString()); p) {
+            p->get().setValue(level);
+            syncParameters();
+            changed = true;
+        }
+    }
+    if (changed)
+        emit dataChanged();
+}
 
 } // namespace noteahead

@@ -16,8 +16,8 @@
 #ifndef SNARE_ENGINE_HPP
 #define SNARE_ENGINE_HPP
 
-#include "drum_engine.hpp"
 #include "../cascaded_svf.hpp"
+#include "drum_engine.hpp"
 #include <random>
 
 namespace noteahead {

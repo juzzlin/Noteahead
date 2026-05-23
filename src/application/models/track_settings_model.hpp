@@ -57,8 +57,8 @@ class TrackSettingsModel : public QObject
     Q_PROPERTY(int autoNoteOffOffset READ autoNoteOffOffset WRITE setAutoNoteOffOffset NOTIFY autoNoteOffOffsetChanged)
     Q_PROPERTY(bool autoNoteOffOffsetEnabled READ autoNoteOffOffsetEnabled WRITE setAutoNoteOffOffsetEnabled NOTIFY autoNoteOffOffsetEnabledChanged)
     Q_PROPERTY(bool drumTrack READ drumTrack WRITE setDrumTrack NOTIFY drumTrackChanged)
-    
-    Q_PROPERTY(MidiCcSelectionModel* midiCcModel READ midiCcModel CONSTANT)
+
+    Q_PROPERTY(MidiCcSelectionModel * midiCcModel READ midiCcModel CONSTANT)
 
 public:
     explicit TrackSettingsModel(QObject * parent = nullptr);
@@ -132,8 +132,8 @@ public:
 
     bool drumTrack() const;
     void setDrumTrack(bool enabled);
-    
-    MidiCcSelectionModel* midiCcModel() const;
+
+    MidiCcSelectionModel * midiCcModel() const;
 
 signals:
     void applyAllRequested();
@@ -225,8 +225,8 @@ private:
     std::vector<bool> m_applyDisabledStack;
 
     quint64 m_trackIndex { 0 };
-    
-    MidiCcSelectionModel* m_midiCcModel;
+
+    MidiCcSelectionModel * m_midiCcModel;
 };
 
 } // namespace noteahead

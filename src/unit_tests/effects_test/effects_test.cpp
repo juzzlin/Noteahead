@@ -114,7 +114,7 @@ void EffectsTest::test_lowPassFilterEffect_shouldProcessAudioStablely()
 void EffectsTest::test_highPassFilterEffect_shouldProcessAudioStablely()
 {
     HighPassFilterEffect effect;
-    
+
     // Cutoff 0.0 (bypass)
     {
         float left = 1.0f;
@@ -155,7 +155,7 @@ void EffectsTest::test_reverb_mix_shouldApplyEffectBasedOnMixLevel()
 
     float l = 1.0f;
     float r = 1.0f;
-    
+
     // Process many samples to ensure any internal state is active
     // Reverb tail needs some samples to build up
     for (int i = 0; i < 5000; i++) {
@@ -183,11 +183,11 @@ void EffectsTest::test_reverb_mix_shouldApplyEffectBasedOnMixLevel()
     l = 1.0f;
     r = 1.0f;
     reverb.process(l, r);
-    
+
     // With mix 1.0, output should be different from input
     QVERIFY(l != 1.0f || r != 1.0f);
-    
-    // With additive mix 1.0 and DC 1.0 input, output should be > 1.0 
+
+    // With additive mix 1.0 and DC 1.0 input, output should be > 1.0
     // (dry + wet, where wet is also derived from 1.0)
     QVERIFY(std::abs(l) > 1.0f);
     QVERIFY(std::abs(r) > 1.0f);
@@ -203,8 +203,8 @@ void EffectsTest::test_delayEffect_shouldProcessSignalAndHandleSampleRateChanges
 
     // 120 BPM, 1/4 note = 0.5 seconds.
     // At 44100 Hz, 0.5 seconds = 22050 samples.
-    
-    // We can't easily check internal state, but we can verify it doesn't crash 
+
+    // We can't easily check internal state, but we can verify it doesn't crash
     // and produces audio if we feed it something.
     float left = 1.0f;
     float right = 1.0f;
@@ -258,7 +258,7 @@ void EffectsTest::test_delayEffect_shouldProduceDelayedSignal()
     left = 1.0f;
     right = 1.0f;
     effect.process(left, right);
-    
+
     for (int i = 0; i + 1 < delaySamples; i++) {
         float l = 0.0f;
         float r = 0.0f;
@@ -278,17 +278,17 @@ void EffectsTest::test_delayEffect_shouldProduceDelayedSignal()
     effect.setBpm(120.0f);
     effect.setSyncDivision(0.25f); // 120 BPM, 1/4 note = 0.5s = 22050 samples
     const int syncDelaySamples = static_cast<int>(0.5f * sampleRate);
-    
+
     left = 1.0f;
     right = 1.0f;
     effect.process(left, right);
-    
+
     for (int i = 0; i + 1 < syncDelaySamples; i++) {
         float l = 0.0f;
         float r = 0.0f;
         effect.process(l, r);
     }
-    
+
     left = 0.0f;
     right = 0.0f;
     effect.process(left, right);
@@ -371,12 +371,13 @@ void EffectsTest::test_delayEffect_shouldMaintainStereoFeedback()
     effect.process(left, right);
 
     int echoes = 0;
-    
+
     // Process 1 second (10 echoes expected)
     for (int i = 0; i < 1 * 44100; i++) {
-        float l = 0.0f; float r = 0.0f;
+        float l = 0.0f;
+        float r = 0.0f;
         effect.process(l, r);
-        
+
         if ((i + 1) % delaySamples == 0) {
             if (l > 0.001f) {
                 echoes++;
@@ -408,12 +409,13 @@ void EffectsTest::test_delayEffect_shouldProduceDecayingSeriesOfEchoes()
 
     int echoes = 0;
     float lastEchoVal = 1.1f;
-    
+
     // Process 2 seconds
     for (int i = 0; i < 2 * 44100; i++) {
-        float l = 0.0f; float r = 0.0f;
+        float l = 0.0f;
+        float r = 0.0f;
         effect.process(l, r);
-        
+
         // If we see a pulse, count it and verify it's decaying
         if (l > 0.001f) {
             // Pulse should be around delaySamples multiples
@@ -450,13 +452,15 @@ void EffectsTest::test_delayEffect_shouldProcessMonoMode()
 
     // Wait for 1st echo
     for (int i = 0; i + 1 < delaySamples; i++) {
-        float l = 0.0f; float r = 0.0f;
+        float l = 0.0f;
+        float r = 0.0f;
         effect.process(l, r);
     }
-    
-    left = 0.0f; right = 0.0f;
+
+    left = 0.0f;
+    right = 0.0f;
     effect.process(left, right);
-    
+
     // In Mono mode, the left-only input should be summed and distributed to both channels
     // (1.0 + 0.0) * 0.5 = 0.5 expected on both channels
     QVERIFY(std::abs(left - 0.5f) < 1.0e-3f);
@@ -483,13 +487,15 @@ void EffectsTest::test_delayEffect_shouldProcessPingPongMode()
 
     // Wait for 1st echo
     for (int i = 0; i + 1 < delaySamples; i++) {
-        float l = 0.0f; float r = 0.0f;
+        float l = 0.0f;
+        float r = 0.0f;
         effect.process(l, r);
     }
-    
-    left = 0.0f; right = 0.0f;
+
+    left = 0.0f;
+    right = 0.0f;
     effect.process(left, right);
-    
+
     // Ping-Pong: Left input should first appear on RIGHT channel?
     // Let's check implementation:
     // inL = inputL + inputR * (1.0 - m_depth) = 1.0 + 0.0 = 1.0
@@ -505,13 +511,15 @@ void EffectsTest::test_delayEffect_shouldProcessPingPongMode()
     // next bufferL = inL + fbR = 0.0 + 0.0 = 0.0
     // next bufferR = inR + fbL = 0.0 + 1.0 = 1.0
     for (int i = 0; i + 1 < delaySamples; i++) {
-        float l = 0.0f; float r = 0.0f;
+        float l = 0.0f;
+        float r = 0.0f;
         effect.process(l, r);
     }
-    
-    left = 0.0f; right = 0.0f;
+
+    left = 0.0f;
+    right = 0.0f;
     effect.process(left, right);
-    
+
     QVERIFY(std::abs(left - 0.0f) < 1.0e-3f);
     QVERIFY(std::abs(right - 1.0f) < 1.0e-3f);
 }
@@ -532,16 +540,18 @@ void EffectsTest::test_delayEffect_shouldProcessTapeMode()
     // Feed a large signal pulse for 10 samples
     const float pulseVal = 2.0f;
     for (int i = 0; i < 10; i++) {
-        float left = pulseVal; float right = pulseVal;
+        float left = pulseVal;
+        float right = pulseVal;
         effect.process(left, right);
     }
 
     bool foundEcho = false;
     // We expect the echo around delaySamples. Let's check a window.
     for (int i = 0; i < delaySamples + 100; i++) {
-        float left = 0.0f; float right = 0.0f;
+        float left = 0.0f;
+        float right = 0.0f;
         effect.process(left, right);
-        
+
         if (left > 0.01f) {
             foundEcho = true;
             if (left >= pulseVal) {
@@ -551,7 +561,7 @@ void EffectsTest::test_delayEffect_shouldProcessTapeMode()
             QVERIFY(left < pulseVal);
         }
     }
-    
+
     QVERIFY(foundEcho);
 }
 
@@ -583,17 +593,17 @@ void EffectsTest::test_compressorEffect_shouldReduceGainAndHandleLookahead()
         float val = 1.0f; // 0dB
         float left = val;
         float right = val;
-        
+
         // Process long enough for attack to settle
         for (int i = 0; i < 5000; i++) {
             float tl = val;
             float tr = val;
             effect.process(tl, tr);
         }
-        
+
         QVERIFY(effect.reductionDb() < -14.0f);
         QVERIFY(effect.reductionDb() > -16.0f);
-        
+
         left = val;
         right = val;
         effect.process(left, right);
@@ -612,11 +622,11 @@ void EffectsTest::test_compressorEffect_shouldReduceGainAndHandleLookahead()
         float left = 1.0f;
         float right = 1.0f;
         effect.process(left, right);
-        
+
         // Output should be 0 because of delay line (initial silence)
         QCOMPARE(left, 0.0f);
         QCOMPARE(right, 0.0f);
-        
+
         // But reduction should already start happening based on the input
         QVERIFY(effect.reductionDb() < 0.0f);
     }
@@ -696,19 +706,19 @@ void EffectsTest::test_filterStability_shouldHandleChangingCutoff()
 
 void EffectsTest::test_cascadedSvfStability_shouldHandleRapidParameterChanges()
 {
-    CascadedSvf filter{};
+    CascadedSvf filter {};
     filter.setSampleRate(static_cast<uint32_t>(Constants::defaultSampleRate()));
-    
+
     // Stress test: Rapidly change parameters
     for (int i = 0; i < 1000; ++i) {
         filter.setCutoff(0.5 + 0.49 * std::sin(i * 0.1));
         filter.setResonance(0.5 + 0.49 * std::cos(i * 0.05));
-        
+
         float out = filter.process(1.0f);
         QVERIFY(!std::isnan(out));
         QVERIFY(!std::isinf(out));
     }
-    
+
     // Check for NaN recovery
     filter.setCutoff(0.5);
     filter.setResonance(0.5);

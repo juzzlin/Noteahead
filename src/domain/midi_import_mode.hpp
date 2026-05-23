@@ -18,7 +18,8 @@
 
 namespace noteahead {
 
-enum class MidiImportMode {
+enum class MidiImportMode
+{
     Overwrite,
     Merge
 };

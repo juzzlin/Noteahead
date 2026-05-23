@@ -16,8 +16,8 @@
 #ifndef AUDIO_FILE_STREAMER_HPP
 #define AUDIO_FILE_STREAMER_HPP
 
-#include "ring_buffer.hpp"
 #include "backend/audio_file_reader.hpp"
+#include "ring_buffer.hpp"
 
 #include <atomic>
 #include <memory>

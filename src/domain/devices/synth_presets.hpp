@@ -33,7 +33,7 @@ using UserPresets = std::map<int, SynthPreset>;
 class SynthPresets
 {
 public:
-    static const std::vector<SynthPreset>& presets();
+    static const std::vector<SynthPreset> & presets();
     static SynthPreset initPreset();
 };
 

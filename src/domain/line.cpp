@@ -60,8 +60,6 @@ void Line::setNoteData(const NoteData & noteData)
     *m_noteData = noteData;
 }
 
-
-
 Line::LineEventOpt Line::lineEvent() const
 {
     return m_lineEvent;

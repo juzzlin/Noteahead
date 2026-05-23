@@ -14,8 +14,8 @@
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
 #include "low_pass_filter_effect.hpp"
-#include "../dsp/audio_context.hpp"
 #include "../../common/utils.hpp"
+#include "../dsp/audio_context.hpp"
 
 #include <algorithm>
 #include <cmath>
@@ -51,7 +51,7 @@ void LowPassFilterEffect::process(AudioContext & context)
 
     const float freq = Utils::Dsp::cutoffToHz(m_cutoff, static_cast<float>(m_sampleRate));
     const double g = std::tan(std::numbers::pi * static_cast<double>(freq) / m_sampleRate);
-    const double k = 1.0; 
+    const double k = 1.0;
     const double damping = 1.0 / (1.0 + g * (g + k));
 
     for (uint32_t i = 0; i < context.frameCount; i++) {
@@ -86,10 +86,14 @@ void LowPassFilterEffect::processSample(float & left, float & right, double g, d
     }
 
     // Denormal protection
-    if (std::abs(m_s1L) < 1.0e-15) m_s1L = 0.0;
-    if (std::abs(m_s2L) < 1.0e-15) m_s2L = 0.0;
-    if (std::abs(m_s1R) < 1.0e-15) m_s1R = 0.0;
-    if (std::abs(m_s2R) < 1.0e-15) m_s2R = 0.0;
+    if (std::abs(m_s1L) < 1.0e-15)
+        m_s1L = 0.0;
+    if (std::abs(m_s2L) < 1.0e-15)
+        m_s2L = 0.0;
+    if (std::abs(m_s1R) < 1.0e-15)
+        m_s1R = 0.0;
+    if (std::abs(m_s2R) < 1.0e-15)
+        m_s2R = 0.0;
 
     // NaN protection
     if (std::isnan(left) || std::isnan(right)) {

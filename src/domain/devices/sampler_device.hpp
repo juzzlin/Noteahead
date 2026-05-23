@@ -16,14 +16,14 @@
 #ifndef SAMPLER_DEVICE_HPP
 #define SAMPLER_DEVICE_HPP
 
+#include "../../infra/audio/backend/audio_file_reader.hpp"
+#include "../parameter_container.hpp"
 #include "device.hpp"
 #include "effect.hpp"
 #include "high_pass_filter_effect.hpp"
 #include "low_pass_filter_effect.hpp"
 #include "panning_effect.hpp"
 #include "volume_effect.hpp"
-#include "../../infra/audio/backend/audio_file_reader.hpp"
-#include "../parameter_container.hpp"
 
 #include <array>
 #include <memory>
@@ -49,7 +49,10 @@ public:
     std::string category() const override;
     std::string typeName() const override;
     std::string typeId() const override;
-    static std::string typeIdString() { return "9dda4ff6-471b-11f1-9324-c701bfaf8258"; }
+    static std::string typeIdString()
+    {
+        return "9dda4ff6-471b-11f1-9324-c701bfaf8258";
+    }
     void processMidiNoteOn(uint8_t note, uint8_t velocity) override;
     void processMidiNoteOff(uint8_t note) override;
     void processMidiCc(uint8_t controller, uint8_t value, uint8_t channel) override;

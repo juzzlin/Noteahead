@@ -62,7 +62,8 @@ RenderService::~RenderService()
 
 void RenderService::renderMaster(const QString & fileName)
 {
-    if (m_isRendering) return;
+    if (m_isRendering)
+        return;
 
     juzzlin::L(TAG).info() << "Rendering master to " << fileName.toStdString();
 
@@ -77,7 +78,8 @@ void RenderService::renderMaster(const QString & fileName)
 
 void RenderService::renderIndividualTracks(const QString & directory)
 {
-    if (m_isRendering) return;
+    if (m_isRendering)
+        return;
 
     juzzlin::L(TAG).info() << "Rendering individual tracks to " << directory.toStdString();
 
@@ -181,12 +183,12 @@ void RenderService::startNextRender()
     juzzlin::L(TAG).info() << "Invoking RenderWorker::render... events=" << events.size() << " maxTick=" << maxTick;
 
     bool success = QMetaObject::invokeMethod(m_worker.get(), "render",
-                              Qt::QueuedConnection,
-                              Q_ARG(QString, job.fileName),
-                              Q_ARG(noteahead::RenderWorker::EventList, events),
-                              Q_ARG(noteahead::RenderWorker::Timing, timing),
-                              Q_ARG(quint64, maxTick),
-                              Q_ARG(quint32, sampleRate));
+                                             Qt::QueuedConnection,
+                                             Q_ARG(QString, job.fileName),
+                                             Q_ARG(noteahead::RenderWorker::EventList, events),
+                                             Q_ARG(noteahead::RenderWorker::Timing, timing),
+                                             Q_ARG(quint64, maxTick),
+                                             Q_ARG(quint32, sampleRate));
     if (!success) {
         juzzlin::L(TAG).error() << "Failed to invoke RenderWorker::render!";
         onWorkerFinished(false, "Internal error: Failed to start render worker.");

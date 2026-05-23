@@ -17,8 +17,8 @@
 
 #include "../../application/models/note_column_line_container_helper.hpp"
 #include "../../application/service/automation_service.hpp"
-#include "../../application/service/property_service.hpp"
 #include "../../application/service/editor_service.hpp"
+#include "../../application/service/property_service.hpp"
 #include "../../application/service/selection_service.hpp"
 #include "../../application/service/settings_service.hpp"
 #include "../../application/service/util_service.hpp"

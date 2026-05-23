@@ -17,9 +17,9 @@
 #define AUDIO_RECORDER_HPP
 
 #include <cstdint>
+#include <memory>
 #include <string>
 #include <vector>
-#include <memory>
 
 namespace noteahead {
 

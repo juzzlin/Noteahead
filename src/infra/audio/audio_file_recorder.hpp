@@ -16,8 +16,8 @@
 #ifndef AUDIO_FILE_RECORDER_HPP
 #define AUDIO_FILE_RECORDER_HPP
 
-#include "ring_buffer.hpp"
 #include "backend/audio_file_reader.hpp"
+#include "ring_buffer.hpp"
 
 #include <atomic>
 #include <memory>
@@ -39,14 +39,15 @@ public:
     bool push(const float * data, size_t count);
     bool push(const int32_t * data, size_t count);
 
-    private:
+private:
     void diskWriteLoop();
 
     RingBuffer<float> m_ringBuffer;
     std::thread m_diskWriteThread;
     std::atomic<bool> m_stopThread { false };
 
-    std::unique_ptr<AudioFileReader> m_writer;};
+    std::unique_ptr<AudioFileReader> m_writer;
+};
 
 } // namespace noteahead
 

@@ -76,18 +76,20 @@ size_t EffectRack::effectCount() const
 void EffectRack::process(AudioContext & outputContext, const float * sendBus, size_t effectIndex)
 {
     std::lock_guard<std::recursive_mutex> lock { m_mutex };
-    if (effectIndex >= m_effects.size()) return;
+    if (effectIndex >= m_effects.size())
+        return;
 
     auto & effect = m_effects[effectIndex];
-    if (!effect) return;
+    if (!effect)
+        return;
 
     effect->setSampleRate(outputContext.sampleRate);
     effect->sync();
 
     // Call block-based process if available (via default implementation or override)
-    // but we need to mix into outputContext. 
+    // but we need to mix into outputContext.
     // The previous implementation was doing a sample-by-sample delta mix.
-    
+
     for (uint32_t i = 0; i < outputContext.frameCount; i++) {
         float l = sendBus[i * 2];
         float r = sendBus[i * 2 + 1];
@@ -105,7 +107,8 @@ void EffectRack::processInPlace(AudioContext & context)
 {
     std::lock_guard<std::recursive_mutex> lock { m_mutex };
     for (auto & effect : m_effects) {
-        if (!effect) continue;
+        if (!effect)
+            continue;
 
         effect->setSampleRate(context.sampleRate);
         effect->process(context);

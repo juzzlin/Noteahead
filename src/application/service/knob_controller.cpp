@@ -26,27 +26,37 @@ static const std::vector<double> syncDivisions = { 1.0, 0.75, 0.5, 0.375, 1.0 / 
 static const std::vector<QString> syncLabels = { "1/1", "3/4", "1/2", "3/8", "1/3", "1/4", "3/16", "1/6", "1/8", "3/32", "1/12", "1/16", "3/64", "1/24", "1/32", "1/64" };
 
 KnobController::KnobController(QObject * parent)
-    : QObject(parent)
+  : QObject(parent)
 {
 }
 
 double KnobController::map(double value, const QString & type, double min, double max) const
 {
-    if (type == "exponential") return ParameterMapper::mapExponential(value, min, max);
-    if (type == "cubic") return ParameterMapper::mapCubic(value, min, max);
-    if (type == "cubicCentered" || type == "pan") return ParameterMapper::mapCubicCentered(value * 2.0 - 1.0, min, max);
-    if (type == "intensity") return mapIntensity(value * 2.0 - 1.0, min, max);
-    if (type == "logFrequency") return ParameterMapper::mapLogFrequency(value, min, max);
+    if (type == "exponential")
+        return ParameterMapper::mapExponential(value, min, max);
+    if (type == "cubic")
+        return ParameterMapper::mapCubic(value, min, max);
+    if (type == "cubicCentered" || type == "pan")
+        return ParameterMapper::mapCubicCentered(value * 2.0 - 1.0, min, max);
+    if (type == "intensity")
+        return mapIntensity(value * 2.0 - 1.0, min, max);
+    if (type == "logFrequency")
+        return ParameterMapper::mapLogFrequency(value, min, max);
     return min + (value * (max - min)); // linear
 }
 
 double KnobController::unmap(double mappedValue, const QString & type, double min, double max) const
 {
-    if (type == "exponential") return ParameterMapper::unmapExponential(mappedValue, min, max);
-    if (type == "cubic") return ParameterMapper::unmapCubic(mappedValue, min, max);
-    if (type == "cubicCentered" || type == "pan") return (ParameterMapper::unmapCubicCentered(mappedValue, min, max) + 1.0) / 2.0;
-    if (type == "intensity") return (unmapIntensity(mappedValue, min, max) + 1.0) / 2.0;
-    if (type == "logFrequency") return ParameterMapper::unmapLogFrequency(mappedValue, min, max);
+    if (type == "exponential")
+        return ParameterMapper::unmapExponential(mappedValue, min, max);
+    if (type == "cubic")
+        return ParameterMapper::unmapCubic(mappedValue, min, max);
+    if (type == "cubicCentered" || type == "pan")
+        return (ParameterMapper::unmapCubicCentered(mappedValue, min, max) + 1.0) / 2.0;
+    if (type == "intensity")
+        return (unmapIntensity(mappedValue, min, max) + 1.0) / 2.0;
+    if (type == "logFrequency")
+        return ParameterMapper::unmapLogFrequency(mappedValue, min, max);
     return (max != min) ? (mappedValue - min) / (max - min) : 0.0;
 }
 
@@ -73,7 +83,7 @@ QString KnobController::format(double mappedValue, const QString & type, const Q
     if (suffix == "dB") {
         return decibelToString(unmap(mappedValue, type, min, max) * Constants::uiInternalScaling());
     }
-    
+
     // Default to time-like formatting
     return timeToString(mappedValue, suffix);
 }
@@ -189,7 +199,7 @@ QString KnobController::valueToString(double value, const QString & suffix, doub
     if (suffix == "dB") {
         return decibelToString(value, from, to);
     }
-    
+
     if (suffix == "s" || suffix == "ms") {
         return timeToString(value, suffix);
     }
@@ -231,13 +241,15 @@ int KnobController::syncIndex(double value) const
 
 double KnobController::syncValue(int index) const
 {
-    if (index < 0 || index >= static_cast<int>(syncDivisions.size())) return 0;
+    if (index < 0 || index >= static_cast<int>(syncDivisions.size()))
+        return 0;
     return syncDivisions[static_cast<size_t>(index)] * Constants::uiInternalScaling();
 }
 
 QString KnobController::syncLabel(int index) const
 {
-    if (index < 0 || index >= static_cast<int>(syncLabels.size())) return "";
+    if (index < 0 || index >= static_cast<int>(syncLabels.size()))
+        return "";
     return syncLabels[static_cast<size_t>(index)];
 }
 

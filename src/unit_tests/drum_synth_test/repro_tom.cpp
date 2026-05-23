@@ -1,7 +1,7 @@
-#include <QTest>
+#include "../../common/constants.hpp"
 #include "../../domain/devices/drum_synth_device.hpp"
 #include "../../domain/dsp/drum/tom_engine.hpp"
-#include "../../common/constants.hpp"
+#include <QTest>
 
 using namespace noteahead;
 
@@ -12,7 +12,7 @@ private slots:
     void test_toms_shouldHaveDifferentTunes()
     {
         DrumSynthDevice device("Test");
-        
+
         auto getTune = [&](int padIndex) {
             std::string prefix = "Pad" + std::to_string(padIndex) + "_";
             auto p = device.parameter(prefix + "tune");

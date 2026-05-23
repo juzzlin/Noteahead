@@ -16,10 +16,10 @@
 #ifndef VERSION_CHECKER_SERVICE_HPP
 #define VERSION_CHECKER_SERVICE_HPP
 
-#include <QObject>
-#include <QString>
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
+#include <QObject>
+#include <QString>
 
 namespace noteahead {
 

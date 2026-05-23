@@ -16,8 +16,8 @@
 #include "waveform_generator.hpp"
 #include "../contrib/SimpleLogger/src/simple_logger.hpp"
 
-#include <sndfile.h>
 #include <algorithm>
+#include <sndfile.h>
 #include <vector>
 
 namespace noteahead::WaveformGenerator {
@@ -52,7 +52,8 @@ QVariantList getWaveformData(const QString & filePath, int numPoints)
 
     for (int i = 0; i < numPoints; ++i) {
         const auto readFrames = sf_readf_double(sndFile, buffer.data(), framesPerPoint);
-        if (readFrames <= 0) break;
+        if (readFrames <= 0)
+            break;
 
         double maxVal = 0.0;
         for (int j = 0; j < readFrames * channels; ++j) {

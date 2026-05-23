@@ -23,7 +23,7 @@ namespace noteahead {
 
 CrashEngine::CrashEngine()
 {
-    m_rng.seed(std::random_device{}());
+    m_rng.seed(std::random_device {}());
     m_hpf.setMode(CascadedSvf::Mode::HighPass);
     m_bpf.setMode(CascadedSvf::Mode::BandPass);
     m_lpf.setMode(CascadedSvf::Mode::LowPass);
@@ -71,9 +71,10 @@ float CrashEngine::nextSample()
     if (m_attack > 0.0f && m_attackEnv < 1.0f) {
         const float attackRate { 1.0f / (std::max(0.001f, m_attack) * 0.2f * static_cast<float>(sampleRate())) };
         m_attackEnv += attackRate;
-        if (m_attackEnv > 1.0f) m_attackEnv = 1.0f;
+        if (m_attackEnv > 1.0f)
+            m_attackEnv = 1.0f;
     }
-    
+
     // Pitch envelope for the initial "hit" - used only for subtle shimmer, no "laser" sweeps
     const float pitchEnvDecay { 1.0f - (1.0f / (0.02f * static_cast<float>(sampleRate()))) };
     m_pitchEnv *= pitchEnvDecay;
@@ -90,47 +91,49 @@ float CrashEngine::nextSample()
     // Wobble: Subtler modulation for character without too much "beating"
     const double wobbleFreq = 1.5 + m_tune * 2.0;
     m_wobblePhase += wobbleFreq / sr;
-    if (m_wobblePhase >= 1.0) m_wobblePhase -= 1.0;
+    if (m_wobblePhase >= 1.0)
+        m_wobblePhase -= 1.0;
     const double wobble = 1.0 + 0.005 * std::sin(m_wobblePhase * 2.0 * std::numbers::pi);
 
     // Body component: noise-based impact for "weight" (OHH approach)
     // Centered around the 909's 568Hz peak
     m_bodyFilter.setSampleRate(sr);
-    m_bodyFilter.setCutoff(0.35f + m_tune * 0.2f); 
+    m_bodyFilter.setCutoff(0.35f + m_tune * 0.2f);
     m_bodyFilter.setResonance(0.4f);
-    
+
     // Body is more prominent if decay is long (OHH approach)
     const float bodyGain = 0.6f * std::min(1.0f, m_decay * 2.0f);
     const float bodySource = m_bodyFilter.process(noise) * m_bodyEnv * bodyGain;
 
     // Metallic part: 12 square wave oscillators with ratios tuned for 2kHz-8kHz clusters
     const double baseFreq { (350.0 + m_tune * 400.0) * pitchMod * wobble };
-    static constexpr std::array<double, 12> ratios { 
-        1.0, 1.27, 2.11, 3.47, 4.21, 5.17, 6.39, 7.63, 8.87, 10.13, 12.39, 14.57 
+    static constexpr std::array<double, 12> ratios {
+        1.0, 1.27, 2.11, 3.47, 4.21, 5.17, 6.39, 7.63, 8.87, 10.13, 12.39, 14.57
     };
 
     double metallicSource = 0.0;
     for (size_t i = 0; i < 12; ++i) {
         const double freq = baseFreq * ratios[i];
         m_phases[i] += freq / sr;
-        if (m_phases[i] >= 1.0) m_phases[i] -= 1.0;
+        if (m_phases[i] >= 1.0)
+            m_phases[i] -= 1.0;
         metallicSource += (m_phases[i] < 0.5 ? 1.0 : -1.0);
     }
     metallicSource /= 12.0;
 
     // Blend: metallic core with noise "wash", "sizzle"
-    const float strikeNoise = noise * m_pitchEnv * 0.6f; 
+    const float strikeNoise = noise * m_pitchEnv * 0.6f;
     const float sizzleNoise = noise * m_sizzleEnv * 0.5f;
     float source = (static_cast<float>(metallicSource) * 0.4f + noise * 0.4f + strikeNoise + sizzleNoise) * m_attackEnv;
 
     // Triple filtering to shape the spectral profile
     m_hpf.setSampleRate(sr);
-    m_hpf.setCutoff(0.35f + m_tune * 0.4f); 
+    m_hpf.setCutoff(0.35f + m_tune * 0.4f);
     m_hpf.setResonance(m_resonance * 0.2f);
-    
+
     m_bpf.setSampleRate(sr);
     m_bpf.setCutoff(0.45f + m_tune * 0.5f);
-    m_bpf.setResonance(0.5f); 
+    m_bpf.setResonance(0.5f);
 
     m_lpf.setSampleRate(sr);
     m_lpf.setCutoff(0.85f); // 12kHz roll-off
@@ -139,7 +142,7 @@ float CrashEngine::nextSample()
     const float hpfOut { m_hpf.process(source) };
     const float bpfOut { m_bpf.process(source) };
     const float filtered { (hpfOut * 0.85f + bpfOut * 0.55f) };
-    
+
     const float out { (m_lpf.process(filtered) + bodySource * m_attackEnv) * m_ampEnv * m_velocity };
 
     if (m_mode == Mode::Normal) {
@@ -154,7 +157,7 @@ float CrashEngine::nextSample()
         m_ampEnv += riseRate;
         if (m_ampEnv >= 1.0f) {
             m_ampEnv = 1.0f;
-            m_active = false; 
+            m_active = false;
         }
     }
 

@@ -76,8 +76,7 @@ void PlayerService::initializeWorker()
 {
     connect(m_playerWorker.get(), &PlayerWorker::tickUpdated, this, [this](quint64 tick) {
         m_tick = tick;
-        emit tickUpdated(tick);
-    }, Qt::QueuedConnection);
+        emit tickUpdated(tick); }, Qt::QueuedConnection);
     connect(m_playerWorker.get(), &PlayerWorker::isPlayingChanged, this, &PlayerService::isPlayingChanged, Qt::QueuedConnection);
     connect(m_playerWorker.get(), &PlayerWorker::songEnded, this, &PlayerService::songEnded, Qt::QueuedConnection);
     m_playerWorker->moveToThread(&m_playerWorkerThread);

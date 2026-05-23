@@ -16,10 +16,10 @@
 #ifndef HIHAT_ENGINE_HPP
 #define HIHAT_ENGINE_HPP
 
-#include "drum_engine.hpp"
 #include "../cascaded_svf.hpp"
-#include <random>
+#include "drum_engine.hpp"
 #include <array>
+#include <random>
 
 namespace noteahead {
 
@@ -37,7 +37,7 @@ public:
     void setTune(float tune);
     void setDecay(float decay);
     void setResonance(float resonance);
-    
+
     void stop(); // For choking
 
 private:

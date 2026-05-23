@@ -38,7 +38,8 @@ class DeviceRackController : public QAbstractListModel
     Q_PROPERTY(int revision READ revision NOTIFY revisionChanged)
 
 public:
-    enum class DataRole {
+    enum class DataRole
+    {
         Name = Qt::UserRole + 1,
         TrackNames,
         TypeName,

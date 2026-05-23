@@ -19,7 +19,7 @@
 namespace noteahead {
 
 CompositeCommand::CompositeCommand(CommandList commands)
-    : m_commands(std::move(commands))
+  : m_commands(std::move(commands))
 {
 }
 

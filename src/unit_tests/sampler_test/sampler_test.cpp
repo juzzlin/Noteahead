@@ -27,22 +27,59 @@ namespace noteahead {
 class MockAudioFileReader : public AudioFileReader
 {
 public:
-    bool open(const std::string &, Mode, Info & info) override { info = this->info(); return true; }
-    void close() override { }
-    int64_t readFloat(std::span<float> data) override { std::fill(data.begin(), data.end(), 1.0f); return data.size(); }
-    int64_t readDouble(std::span<double> data) override { return data.size(); }
-    int64_t readInt(std::span<int32_t> data) override { return data.size(); }
-    int64_t writeFloat(std::span<const float> data) override { return data.size(); }
-    int64_t writeInt(std::span<const int32_t> data) override { return data.size(); }
-    bool seek(int64_t, int) override { return true; }
-    bool isOpen() const override { return true; }
-    Info info() const override { return { 1024, static_cast<int>(Constants::defaultSampleRate()), m_channels, 0 }; }
-    void setForceChannels(int channels) { m_channels = channels; }
+    bool open(const std::string &, Mode, Info & info) override
+    {
+        info = this->info();
+        return true;
+    }
+    void close() override
+    {
+    }
+    int64_t readFloat(std::span<float> data) override
+    {
+        std::fill(data.begin(), data.end(), 1.0f);
+        return data.size();
+    }
+    int64_t readDouble(std::span<double> data) override
+    {
+        return data.size();
+    }
+    int64_t readInt(std::span<int32_t> data) override
+    {
+        return data.size();
+    }
+    int64_t writeFloat(std::span<const float> data) override
+    {
+        return data.size();
+    }
+    int64_t writeInt(std::span<const int32_t> data) override
+    {
+        return data.size();
+    }
+    bool seek(int64_t, int) override
+    {
+        return true;
+    }
+    bool isOpen() const override
+    {
+        return true;
+    }
+    Info info() const override
+    {
+        return { 1024, static_cast<int>(Constants::defaultSampleRate()), m_channels, 0 };
+    }
+    void setForceChannels(int channels)
+    {
+        m_channels = channels;
+    }
+
 private:
     int m_channels = 2;
 };
 
-void SamplerTest::initTestCase() { }
+void SamplerTest::initTestCase()
+{
+}
 
 void SamplerTest::test_initialState_shouldBeCorrect()
 {
@@ -201,7 +238,7 @@ void SamplerTest::test_midiCcResetGlobalPanAndVolume_shouldRestoreManualValues()
     sampler.setGain(0.6f);
 
     // 2. Change via MIDI CC
-    sampler.processMidiCc(7, 127, 0);  // Volume to 1.0
+    sampler.processMidiCc(7, 127, 0); // Volume to 1.0
     sampler.processMidiCc(10, 127, 0); // Pan to 1.0
     QCOMPARE(sampler.volume(), 1.0f);
     QCOMPARE(sampler.pan(), 1.0f);
@@ -234,7 +271,7 @@ void SamplerTest::test_projectLoadMidiCcResetGlobal_shouldRestoreLoadedValues()
             reader.readNext();
         }
         sampler.deserializeFromXml(reader);
-        
+
         QCOMPARE(sampler.volume(), 0.4f);
         QCOMPARE(sampler.pan(), 0.6f);
         QCOMPARE(sampler.gain(), 0.7f);

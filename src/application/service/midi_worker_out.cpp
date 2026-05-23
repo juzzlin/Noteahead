@@ -30,8 +30,9 @@ namespace noteahead {
 static const auto TAG = "MidiWorkerOut";
 
 MidiWorkerOut::MidiWorkerOut(QObject * parent)
-    : MidiWorker { std::make_unique<MidiOutRtMidi>(), "OUT", parent },
-      m_midiBackendOut { std::dynamic_pointer_cast<MidiBackendOut>(midiBackend()) } {
+  : MidiWorker { std::make_unique<MidiOutRtMidi>(), "OUT", parent }
+  , m_midiBackendOut { std::dynamic_pointer_cast<MidiBackendOut>(midiBackend()) }
+{
     juzzlin::L(TAG).info() << "Midi API name: " << m_midiBackendOut->midiApiName();
 }
 
@@ -89,8 +90,8 @@ void MidiWorkerOut::applyBank(const Instrument & instrument, MidiPortS port)
     if (instrument.settings().bank.has_value()) {
         juzzlin::L(TAG).info() << "Setting bank to " << static_cast<int>(instrument.settings().bank->msb) << ":" << static_cast<int>(instrument.settings().bank->lsb);
         m_midiBackendOut->sendBankChange(*port, instrument.midiAddress().channel(),
-                                  instrument.settings().bank->byteOrderSwapped ? instrument.settings().bank->lsb : instrument.settings().bank->msb,
-                                  instrument.settings().bank->byteOrderSwapped ? instrument.settings().bank->msb : instrument.settings().bank->lsb);
+                                         instrument.settings().bank->byteOrderSwapped ? instrument.settings().bank->lsb : instrument.settings().bank->msb,
+                                         instrument.settings().bank->byteOrderSwapped ? instrument.settings().bank->msb : instrument.settings().bank->lsb);
     }
 }
 

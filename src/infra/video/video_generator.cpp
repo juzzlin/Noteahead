@@ -15,10 +15,10 @@
 
 #include "video_generator.hpp"
 
-#include "../../common/constants.hpp"
 #include "../../application/service/automation_service.hpp"
 #include "../../application/service/property_service.hpp"
 #include "../../application/service/side_chain_service.hpp"
+#include "../../common/constants.hpp"
 #include "../../common/utils.hpp"
 #include "../../contrib/SimpleLogger/src/simple_logger.hpp"
 #include "bars_animation.hpp"

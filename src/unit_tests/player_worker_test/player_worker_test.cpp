@@ -23,8 +23,8 @@
 #include "../../domain/midi_note_data.hpp"
 #include "../../domain/note_data.hpp"
 
-#include <memory>
 #include <QTest>
+#include <memory>
 
 namespace noteahead {
 
@@ -104,7 +104,7 @@ void PlayerWorkerTest::test_mixerChange_shouldStopNotes()
 
     // Act: Mute Track 0
     mixerService->muteTrack(0, true);
-    
+
     // Simulate mixer change handling
     worker.callCheckMixerState();
 

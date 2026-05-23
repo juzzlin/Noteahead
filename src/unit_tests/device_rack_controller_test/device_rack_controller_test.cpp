@@ -30,17 +30,31 @@ namespace noteahead {
 class MockDeviceService : public DeviceService
 {
 public:
-    MockDeviceService() : DeviceService(nullptr) {}
-    QStringList internalDeviceNamesQt() const override { return m_names; }
-    void setMockNames(const QStringList & names) { m_names = names; }
-    DeviceS device(size_t slotIndex) const override {
-        if (slotIndex < m_devices.size()) return m_devices[slotIndex];
+    MockDeviceService()
+      : DeviceService(nullptr)
+    {
+    }
+    QStringList internalDeviceNamesQt() const override
+    {
+        return m_names;
+    }
+    void setMockNames(const QStringList & names)
+    {
+        m_names = names;
+    }
+    DeviceS device(size_t slotIndex) const override
+    {
+        if (slotIndex < m_devices.size())
+            return m_devices[slotIndex];
         return nullptr;
     }
-    void setMockDevice(size_t index, DeviceS dev) {
-        if (index >= m_devices.size()) m_devices.resize(index + 1);
+    void setMockDevice(size_t index, DeviceS dev)
+    {
+        if (index >= m_devices.size())
+            m_devices.resize(index + 1);
         m_devices[index] = dev;
     }
+
 private:
     QStringList m_names;
     std::vector<DeviceS> m_devices;
@@ -49,23 +63,63 @@ private:
 class MockDevice : public Device
 {
 public:
-    MockDevice(const std::string & name) : m_name(name) {}
-    std::string name() const override { return m_name; }
-    std::string category() const override { return ""; }
-    std::string typeName() const override { return "Mock Type"; }
-    std::string typeId() const override { return "mock"; }
-    void processMidiNoteOn(uint8_t, uint8_t) override {}
-    void processMidiNoteOff(uint8_t) override {}
-    void processMidiCc(uint8_t, uint8_t, uint8_t) override {}
-    void processMidiAllNotesOff() override {}
-    void processAudio(AudioContext &) override {}
-    bool hasActiveAudio() const override { return false; }
-    void reset() override {}
-    void resetAudio() override {}
-    void serializeToXml(QXmlStreamWriter &) const override {}
-    void deserializeFromXml(QXmlStreamReader &) override {}
+    MockDevice(const std::string & name)
+      : m_name(name)
+    {
+    }
+    std::string name() const override
+    {
+        return m_name;
+    }
+    std::string category() const override
+    {
+        return "";
+    }
+    std::string typeName() const override
+    {
+        return "Mock Type";
+    }
+    std::string typeId() const override
+    {
+        return "mock";
+    }
+    void processMidiNoteOn(uint8_t, uint8_t) override
+    {
+    }
+    void processMidiNoteOff(uint8_t) override
+    {
+    }
+    void processMidiCc(uint8_t, uint8_t, uint8_t) override
+    {
+    }
+    void processMidiAllNotesOff() override
+    {
+    }
+    void processAudio(AudioContext &) override
+    {
+    }
+    bool hasActiveAudio() const override
+    {
+        return false;
+    }
+    void reset() override
+    {
+    }
+    void resetAudio() override
+    {
+    }
+    void serializeToXml(QXmlStreamWriter &) const override
+    {
+    }
+    void deserializeFromXml(QXmlStreamReader &) override
+    {
+    }
+
 protected:
-    void syncParameters() override {}
+    void syncParameters() override
+    {
+    }
+
 private:
     std::string m_name;
 };
@@ -73,14 +127,32 @@ private:
 class MockEditorService : public EditorService
 {
 public:
-    std::vector<quint64> trackIndices() const override { return m_indices; }
-    void setMockIndices(const std::vector<quint64> & indices) { m_indices = indices; }
+    std::vector<quint64> trackIndices() const override
+    {
+        return m_indices;
+    }
+    void setMockIndices(const std::vector<quint64> & indices)
+    {
+        m_indices = indices;
+    }
 
-    QString trackName(quint64 trackIndex) const override { return m_names.at(trackIndex); }
-    void setMockTrackName(quint64 trackIndex, const QString & name) { m_names[trackIndex] = name; }
+    QString trackName(quint64 trackIndex) const override
+    {
+        return m_names.at(trackIndex);
+    }
+    void setMockTrackName(quint64 trackIndex, const QString & name)
+    {
+        m_names[trackIndex] = name;
+    }
 
-    QString instrumentPortName(quint64 trackIndex) const override { return m_ports.at(trackIndex); }
-    void setMockInstrumentPortName(quint64 trackIndex, const QString & port) { m_ports[trackIndex] = port; }
+    QString instrumentPortName(quint64 trackIndex) const override
+    {
+        return m_ports.at(trackIndex);
+    }
+    void setMockInstrumentPortName(quint64 trackIndex, const QString & port)
+    {
+        m_ports[trackIndex] = port;
+    }
 
 private:
     std::vector<quint64> m_indices;

@@ -22,7 +22,7 @@ namespace noteahead {
 
 HiHatEngine::HiHatEngine()
 {
-    m_rng.seed(std::random_device{}());
+    m_rng.seed(std::random_device {}());
     m_filter.setMode(CascadedSvf::Mode::HighPass);
     m_bodyFilter.setMode(CascadedSvf::Mode::BandPass);
 }
@@ -57,7 +57,8 @@ float HiHatEngine::nextSample()
     for (size_t i = 0; i < 6; ++i) {
         const double freq = baseFreq * ratios[i];
         m_phases[i] += freq / sr;
-        if (m_phases[i] >= 1.0) m_phases[i] -= 1.0;
+        if (m_phases[i] >= 1.0)
+            m_phases[i] -= 1.0;
         metallicSource += (m_phases[i] < 0.5 ? 1.0 : -1.0);
     }
     metallicSource /= 6.0;
@@ -70,7 +71,7 @@ float HiHatEngine::nextSample()
     m_bodyFilter.setSampleRate(sr);
     m_bodyFilter.setCutoff(0.3f + m_tune * 0.15f); // Centered around 300-600Hz
     m_bodyFilter.setResonance(0.4f);
-    
+
     // Body is more prominent if decay is long (Open Hat)
     const float bodyGain = 0.7f * std::min(1.0f, m_decay * 2.0f);
     const float bodyOut = m_bodyFilter.process(source) * m_bodyEnv * bodyGain;
@@ -80,7 +81,7 @@ float HiHatEngine::nextSample()
     // Starting slightly lower to let more body through
     m_filter.setCutoff(0.7f + m_tune * 0.2f);
     m_filter.setResonance(m_resonance * 0.3f);
-    
+
     // Process through the cascaded SVF (which is already 2 units internally)
     const float out { (m_filter.process(source) + bodyOut) * m_ampEnv * m_velocity * 1.5f };
 

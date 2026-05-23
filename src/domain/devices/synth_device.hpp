@@ -16,15 +16,15 @@
 #ifndef SYNTH_DEVICE_HPP
 #define SYNTH_DEVICE_HPP
 
-#include "delay_effect.hpp"
-#include "device.hpp"
-#include "synth_presets.hpp"
 #include "../dsp/adsr_envelope.hpp"
 #include "../dsp/cascaded_svf.hpp"
 #include "../dsp/lfo.hpp"
 #include "../dsp/multi_engine.hpp"
 #include "../dsp/oversampler.hpp"
 #include "../dsp/polyblep_oscillator.hpp"
+#include "delay_effect.hpp"
+#include "device.hpp"
+#include "synth_presets.hpp"
 
 #include <mutex>
 #include <vector>
@@ -66,7 +66,10 @@ public:
     std::string category() const override;
     std::string typeName() const override;
     std::string typeId() const override;
-    static std::string typeIdString() { return "26f5a47e-4786-11f1-92b0-0b3f3bef9f74"; }
+    static std::string typeIdString()
+    {
+        return "26f5a47e-4786-11f1-92b0-0b3f3bef9f74";
+    }
 
     void processMidiNoteOn(uint8_t note, uint8_t velocity) override;
     void processMidiNoteOff(uint8_t note) override;

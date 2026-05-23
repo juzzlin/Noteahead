@@ -23,7 +23,8 @@ namespace noteahead {
 
 class SamplerDevice;
 
-enum class SamplerRoles {
+enum class SamplerRoles
+{
     Note = Qt::UserRole + 1,
     FilePath,
     IsLoaded

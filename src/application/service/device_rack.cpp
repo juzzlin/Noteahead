@@ -14,12 +14,12 @@
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
 #include "device_rack.hpp"
-#include "device_service.hpp"
 #include "../../common/constants.hpp"
 #include "../../domain/devices/bass_synth_device.hpp"
 #include "../../domain/devices/drum_synth_device.hpp"
 #include "../../domain/devices/sampler_device.hpp"
 #include "../../domain/devices/synth_device.hpp"
+#include "device_service.hpp"
 
 namespace noteahead {
 

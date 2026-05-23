@@ -89,7 +89,7 @@ void KnobControllerTest::test_timeMapping_shouldMapTimeValuesCorrectly()
 
     QCOMPARE(controller.unmapTime(from, from, to), 0.0);
     QCOMPARE(controller.unmapTime(to, from, to), 1.0);
-    
+
     QCOMPARE(controller.mapTime(0.0, from, to), from);
     QCOMPARE(controller.mapTime(1.0, from, to), to);
 
@@ -102,7 +102,7 @@ void KnobControllerTest::test_timeToString_shouldFormatTimeStrings()
     KnobController controller;
     QCOMPARE(controller.timeToString(123.4, "ms"), QString { "123.4 ms" });
     QCOMPARE(controller.timeToString(10.0, "s"), QString { "10.0 s" });
-    
+
     // New handling via ms suffix
     QCOMPARE(controller.timeToString(0.5, "ms"), QString { "0.5 ms" });
     QCOMPARE(controller.timeToString(0.005, "ms"), QString { "5 μs" });
@@ -114,7 +114,7 @@ void KnobControllerTest::test_percentageToString_shouldFormatPercentageStrings()
     KnobController controller;
     QCOMPARE(controller.percentageToString(500.0), QString { "50.0%" });
     QCOMPARE(controller.percentageToString(1000.0), QString { "100.0%" });
-    
+
     // Custom range
     QCOMPARE(controller.percentageToString(10.0, 0, 100), QString { "10.0%" });
 }
@@ -144,7 +144,7 @@ void KnobControllerTest::test_valueToString_shouldFormatUnitStrings()
     QCOMPARE(controller.valueToString(50.0, "%", 0, 100), QString { "50.0%" });
     QCOMPARE(controller.valueToString(-10.0, "dB", -60, 0), QString { "-10.0 dB" });
     QCOMPARE(controller.valueToString(123.0, "Hz"), QString { "123Hz" });
-    
+
     // Test s and ms suffixes in valueToString (for linear mapping)
     QCOMPARE(controller.valueToString(500.0, "ms"), QString { "500.0 ms" });
     QCOMPARE(controller.valueToString(2.5, "s"), QString { "2.5 s" });
@@ -153,7 +153,7 @@ void KnobControllerTest::test_valueToString_shouldFormatUnitStrings()
 void KnobControllerTest::test_format_shouldHandleMappingAndUnits()
 {
     KnobController controller;
-    
+
     // Test exponential mapping with time suffixes (reproduce attack knob issue)
     // 0.5 unmapped with exponential 0.1 to 500 should be ~7.07
     double mappedVal = controller.map(0.5, "exponential", 0.1, 500.0);
@@ -164,7 +164,7 @@ void KnobControllerTest::test_format_shouldHandleMappingAndUnits()
     double maxFreq = controller.map(1.0, "logFrequency", 20, 20000);
     // EXPECTED: "100.0% / Bypass"
     QCOMPARE(controller.format(maxFreq, "logFrequency", "%", 20, 20000), QString { "100.0% / Bypass" });
-    
+
     // Test exponential mapping for Q (reproduce integer formatting issue)
     QCOMPARE(controller.format(1.234, "exponential", "", 0.1, 10.0), QString { "1.23" });
 }
@@ -189,7 +189,7 @@ void KnobControllerTest::test_syncLogic_shouldHandleSyncValuesAndLabels()
     // 1/1 = 1.0. 1.0 * 1000 = 1000
     QCOMPARE(controller.syncValue(0), 1000.0);
     QCOMPARE(controller.syncIndex(1000.0), 0);
-    
+
     // 1/2 = 0.5. 0.5 * 1000 = 500
     QCOMPARE(controller.syncIndex(500.0), 2);
 }

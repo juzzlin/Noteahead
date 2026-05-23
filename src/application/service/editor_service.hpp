@@ -21,10 +21,10 @@
 
 #include <QObject>
 
+#include "../command/undo_stack.hpp"
 #include <optional>
 #include <set>
 #include <utility>
-#include "../command/undo_stack.hpp"
 
 class QXmlStreamReader;
 class QXmlStreamWriter;
@@ -93,8 +93,14 @@ public:
     SongS song() const;
     void setSong(SongS song);
 
-    SelectionServiceS selectionService() const { return m_selectionService; }
-    SettingsServiceS settingsService() const { return m_settingsService; }
+    SelectionServiceS selectionService() const
+    {
+        return m_selectionService;
+    }
+    SettingsServiceS settingsService() const
+    {
+        return m_settingsService;
+    }
 
     void load(QString fileName);
     void save();

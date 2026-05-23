@@ -17,15 +17,16 @@
 #define REVERB_EFFECT_HPP
 
 #include "../devices/effect.hpp"
-#include <vector>
 #include <array>
+#include <vector>
 
 namespace noteahead {
 
 class ReverbEffect : public Effect
 {
 public:
-    enum class Preset {
+    enum class Preset
+    {
         Hall,
         LargeRoom,
         SmallRoom,
@@ -38,10 +39,19 @@ public:
 
     ReverbEffect();
 
-    static std::string typeIdString() { return "47a2e2d0-1e5e-4f3a-9c6a-6a5b2d7e8f1a"; }
+    static std::string typeIdString()
+    {
+        return "47a2e2d0-1e5e-4f3a-9c6a-6a5b2d7e8f1a";
+    }
 
-    std::string type() const override { return "reverb"; }
-    std::string typeId() const override { return typeIdString(); }
+    std::string type() const override
+    {
+        return "reverb";
+    }
+    std::string typeId() const override
+    {
+        return typeIdString();
+    }
     void process(float & left, float & right) override;
     void process(AudioContext & context) override;
     void reset() override;
@@ -86,15 +96,17 @@ private:
     bool m_shouldUpdateBuffers { false };
 
     static constexpr int NumDelays = 4;
-    
-    struct DelayLine {
+
+    struct DelayLine
+    {
         std::vector<float> buffer;
         uint32_t writePos { 0 };
         float lpState { 0.0f };
         uint32_t size { 0 };
         float feedback { 0.0f };
 
-        void reset() {
+        void reset()
+        {
             std::fill(buffer.begin(), buffer.end(), 0.0f);
             writePos = 0;
             lpState = 0.0f;

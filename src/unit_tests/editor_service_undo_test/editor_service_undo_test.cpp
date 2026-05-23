@@ -16,8 +16,8 @@
 #include "editor_service_undo_test.hpp"
 
 #include "../../application/service/automation_service.hpp"
-#include "../../application/service/property_service.hpp"
 #include "../../application/service/editor_service.hpp"
+#include "../../application/service/property_service.hpp"
 #include "../../application/service/selection_service.hpp"
 #include "../../application/service/settings_service.hpp"
 #include "../../domain/note_data.hpp"
@@ -82,7 +82,7 @@ void EditorServiceUndoTest::test_undoRedo_velocityChange_shouldUndoAndRedo()
     EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
     editorService.requestPosition(0, 0, 0, 0, 0);
     editorService.requestNoteOnAtCurrentPosition(1, 3, 64);
-    
+
     // Move to velocity column
     editorService.requestPosition(0, 0, 0, 0, 3); // Last digit of velocity
 
@@ -126,7 +126,7 @@ void EditorServiceUndoTest::test_undoRedo_insertNote_shouldUndoAndRedo()
     EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
     editorService.requestPosition(0, 0, 0, 0, 0);
     editorService.requestNoteOnAtCurrentPosition(1, 3, 64);
-    
+
     // Action: Insert Note (shift down)
     // Should push C-3 down to line 1
     editorService.requestNoteInsertionAtCurrentPosition();
@@ -150,7 +150,7 @@ void EditorServiceUndoTest::test_undoRedo_backspaceNote_shouldUndoAndRedo()
     EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
     editorService.requestPosition(0, 0, 0, 1, 0);
     editorService.requestNoteOnAtCurrentPosition(1, 3, 64);
-    
+
     // Move to line 1 (where note is)
     // But backspace deletes previous line (line 0) and pulls line 1 up to 0.
     // So cursor should be at line 1.
@@ -177,7 +177,7 @@ void EditorServiceUndoTest::test_undoRedo_backspaceNote_shouldUndoAndRedo()
 void EditorServiceUndoTest::test_undoRedo_noteOffWithRedundantRemoval_shouldUndoAndRedo()
 {
     EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
-    
+
     // 1. Insert Note Off at Line 2
     editorService.requestPosition(0, 0, 0, 2, 0);
     editorService.requestNoteOffAtCurrentPosition();
@@ -187,7 +187,7 @@ void EditorServiceUndoTest::test_undoRedo_noteOffWithRedundantRemoval_shouldUndo
     // This should trigger removal of Note Off at Line 2 because it's now redundant (previous event is also Note Off)
     editorService.requestPosition(0, 0, 0, 4, 0);
     editorService.requestNoteOffAtCurrentPosition();
-    
+
     // Verify state after Action 2 (and automatic cleanup)
     QCOMPARE(editorService.displayNoteAtPosition(0, 0, 0, 4), "OFF");
     // Line 2 should be deleted
@@ -210,14 +210,14 @@ void EditorServiceUndoTest::test_undoRedo_noteOffWithRedundantRemoval_shouldUndo
     QVERIFY(editorService.canUndo());
     editorService.undo();
     QCOMPARE(editorService.displayNoteAtPosition(0, 0, 0, 2), editorService.noDataString());
-    
+
     // Redo all
     editorService.redo(); // Action 1
     QCOMPARE(editorService.displayNoteAtPosition(0, 0, 0, 2), "OFF");
-    
+
     editorService.redo(); // Action 2
     QCOMPARE(editorService.displayNoteAtPosition(0, 0, 0, 4), "OFF");
-    
+
     editorService.redo(); // Cleanup
     QCOMPARE(editorService.displayNoteAtPosition(0, 0, 0, 2), editorService.noDataString());
     QCOMPARE(editorService.displayNoteAtPosition(0, 0, 0, 4), "OFF");
@@ -229,7 +229,7 @@ void EditorServiceUndoTest::test_undoRedo_pasteColumn_shouldUndoAndRedo()
     editorService.requestPosition(0, 0, 0, 0, 0);
     editorService.requestNoteOnAtCurrentPosition(1, 3, 64);
     editorService.requestColumnCopy();
-    
+
     // Move to next column
     editorService.requestNewColumn(0);
     editorService.requestPosition(0, 0, 1, 0, 0);
@@ -306,7 +306,7 @@ void EditorServiceUndoTest::test_undoRedo_pasteSelection_shouldUndoAndRedo()
 
     editorService.requestPosition(0, 0, 0, 0, 0);
     editorService.requestNoteOnAtCurrentPosition(1, 3, 64);
-    
+
     selectionService->requestSelectionStart(0, 0, 0, 0);
     selectionService->requestSelectionEnd(0, 0, 0, 0);
     editorService.requestSelectionCopy();
@@ -425,7 +425,7 @@ void EditorServiceUndoTest::test_undoRedo_canUndoRedoSignals_shouldEmitSignals()
     QSignalSpy canRedoSpy(&editorService, &EditorService::canRedoChanged);
 
     editorService.requestPosition(0, 0, 0, 0, 0);
-    
+
     // Action -> canUndo: true
     editorService.requestNoteOnAtCurrentPosition(1, 3, 64);
     QCOMPARE(canUndoSpy.count(), 1);
@@ -455,7 +455,7 @@ void EditorServiceUndoTest::test_undoRedo_clearsOnNewSong_shouldClearStack()
 
     // Reset song (implicitly done via initialize or setSong)
     editorService.initialize();
-    
+
     QVERIFY(!editorService.canUndo());
     QVERIFY(!editorService.canRedo());
 }
@@ -584,7 +584,7 @@ void EditorServiceUndoTest::test_undoRedo_transposeTrack_shouldUndoAndRedo()
     editorService.requestNewColumn(0);
     editorService.requestPosition(0, 0, 1, 0, 0);
     editorService.requestNoteOnAtCurrentPosition(1, 3, 64);
-    
+
     QCOMPARE(editorService.displayNoteAtPosition(0, 0, 0, 0), "C-3");
     QCOMPARE(editorService.displayNoteAtPosition(0, 0, 1, 0), "C-3");
 
@@ -610,7 +610,7 @@ void EditorServiceUndoTest::test_undoRedo_transposePattern_shouldUndoAndRedo()
     EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
     editorService.requestPosition(0, 0, 0, 0, 0);
     editorService.requestNoteOnAtCurrentPosition(1, 3, 64);
-    
+
     editorService.requestNewTrackToRight();
     editorService.requestPosition(0, 1, 0, 0, 0);
     editorService.requestNoteOnAtCurrentPosition(1, 3, 64);
@@ -651,7 +651,7 @@ void EditorServiceUndoTest::test_undoRedo_transposeSelection_shouldUndoAndRedo()
 
     // Action: Transpose Selection
     editorService.requestSelectionTranspose(1);
-    
+
     QCOMPARE(editorService.displayNoteAtPosition(0, 0, 0, 0), "C#3");
     QCOMPARE(editorService.displayNoteAtPosition(0, 0, 0, 2), "C-3"); // Unaffected
     QVERIFY(editorService.canUndo());
@@ -670,7 +670,7 @@ void EditorServiceUndoTest::test_undoRedo_transposeSelection_shouldUndoAndRedo()
 void EditorServiceUndoTest::test_undoRedo_linearVelocityInterpolation_shouldUndoAndRedo()
 {
     EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
-    
+
     // Set up notes
     editorService.requestPosition(0, 0, 0, 0, 0);
     QVERIFY(editorService.requestNoteOnAtCurrentPosition(1, 3, 10)); // Line 0
@@ -688,7 +688,7 @@ void EditorServiceUndoTest::test_undoRedo_linearVelocityInterpolation_shouldUndo
 
     // Undo Interpolation
     editorService.undo();
-    
+
     // Redo to restore state
     editorService.redo();
     QCOMPARE(editorService.displayVelocityAtPosition(0, 0, 0, 2), "030");
@@ -703,13 +703,13 @@ void EditorServiceUndoTest::test_undoRedo_linearVelocityInterpolation_shouldUndo
     editorService.requestNoteOnAtCurrentPosition(1, 3, 50); // Line 4
 
     editorService.requestLinearVelocityInterpolationOnColumn(0, 4, 10, 50, false);
-    
+
     QCOMPARE(editorService.displayVelocityAtPosition(0, 0, 0, 2), "030");
-    
+
     editorService.undo();
 
     QCOMPARE(editorService.displayVelocityAtPosition(0, 0, 0, 2), "100");
-    
+
     editorService.redo();
 
     QCOMPARE(editorService.displayVelocityAtPosition(0, 0, 0, 2), "030");

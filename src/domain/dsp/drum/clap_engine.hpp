@@ -16,8 +16,8 @@
 #ifndef CLAP_ENGINE_HPP
 #define CLAP_ENGINE_HPP
 
-#include "drum_engine.hpp"
 #include "../cascaded_svf.hpp"
+#include "drum_engine.hpp"
 #include <random>
 #include <vector>
 
@@ -49,7 +49,8 @@ private:
     std::uniform_real_distribution<float> m_dist { -1.0f, 1.0f };
     CascadedSvf m_filter;
 
-    struct Burst {
+    struct Burst
+    {
         int startSample;
         float level;
     };

@@ -16,11 +16,11 @@
 #ifndef EFFECT_RACK_HPP
 #define EFFECT_RACK_HPP
 
-#include "effect.hpp"
 #include "../dsp/audio_context.hpp"
-#include <vector>
+#include "effect.hpp"
 #include <memory>
 #include <mutex>
+#include <vector>
 
 class QXmlStreamReader;
 class QXmlStreamWriter;

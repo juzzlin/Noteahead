@@ -15,14 +15,14 @@
 
 #include "note_column_model_test.hpp"
 
-#include "../../application/models/note_column_model.hpp"
 #include "../../application/models/note_column_line_container_helper.hpp"
+#include "../../application/models/note_column_model.hpp"
 #include "../../application/service/automation_service.hpp"
-#include "../../application/service/property_service.hpp"
 #include "../../application/service/editor_service.hpp"
+#include "../../application/service/property_service.hpp"
 #include "../../application/service/selection_service.hpp"
-#include "../../application/service/util_service.hpp"
 #include "../../application/service/settings_service.hpp"
+#include "../../application/service/util_service.hpp"
 #include "../../domain/line.hpp"
 #include "../../domain/note_data.hpp"
 
@@ -109,7 +109,7 @@ void NoteColumnModelTest::test_data_LineRole_shouldReturnCorrectValue()
     model.setColumnData(lines);
 
     const int barLine = static_cast<int>(editorService->positionBarLine());
-    
+
     // Test filled line
     const auto idx0 = model.index(barLine, 0);
     QCOMPARE(model.data(idx0, static_cast<int>(NoteColumnModel::DataRole::Line)).toString(), QString { "C-5 100 12" });

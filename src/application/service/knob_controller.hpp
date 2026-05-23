@@ -27,7 +27,7 @@ class KnobController : public QObject
 {
     Q_OBJECT
 public:
-    explicit KnobController(QObject *parent = nullptr);
+    explicit KnobController(QObject * parent = nullptr);
 
     Q_INVOKABLE double map(double value, const QString & type, double min, double max) const;
     Q_INVOKABLE double unmap(double mappedValue, const QString & type, double min, double max) const;

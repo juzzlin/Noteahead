@@ -30,7 +30,7 @@ class DrumSynthController : public QObject
     Q_OBJECT
 
     Q_PROPERTY(int selectedVoice READ selectedVoice WRITE setSelectedVoice NOTIFY selectedVoiceChanged)
-    
+
     // Selected Voice Parameters
     Q_PROPERTY(int voiceLevel READ voiceLevel WRITE setVoiceLevel NOTIFY voiceLevelChanged)
     Q_PROPERTY(int voicePan READ voicePan WRITE setVoicePan NOTIFY voicePanChanged)
@@ -39,13 +39,13 @@ class DrumSynthController : public QObject
     Q_PROPERTY(int voiceTune READ voiceTune WRITE setVoiceTune NOTIFY voiceTuneChanged)
     Q_PROPERTY(int voiceDecay READ voiceDecay WRITE setVoiceDecay NOTIFY voiceDecayChanged)
     Q_PROPERTY(int voiceAttack READ voiceAttack WRITE setVoiceAttack NOTIFY voiceAttackChanged)
-    
+
     // Kick Specific
     Q_PROPERTY(int kickAttack READ kickAttack WRITE setKickAttack NOTIFY kickAttackChanged)
     Q_PROPERTY(int kickClickTune READ kickClickTune WRITE setKickClickTune NOTIFY kickClickTuneChanged)
     Q_PROPERTY(int kickPitchDepth READ kickPitchDepth WRITE setKickPitchDepth NOTIFY kickPitchDepthChanged)
     Q_PROPERTY(int kickPitchDecay READ kickPitchDecay WRITE setKickPitchDecay NOTIFY kickPitchDecayChanged)
-    
+
     // Snare Specific
     Q_PROPERTY(int snareSnappy READ snareSnappy WRITE setSnareSnappy NOTIFY snareSnappyChanged)
     Q_PROPERTY(int snareTone READ snareTone WRITE setSnareTone NOTIFY snareToneChanged)

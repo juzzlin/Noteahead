@@ -72,8 +72,8 @@ void MidiCcSelectionModelTest::test_settings_shouldRoundTripCorrectly()
     const auto result = model->midiCcSettings();
     for (size_t i = 0; i < result.size(); i++) {
         bool found = false;
-        for(const auto& res : result) {
-            if(res.controller() == settings[i].controller() && res.value() == settings[i].value()) {
+        for (const auto & res : result) {
+            if (res.controller() == settings[i].controller() && res.value() == settings[i].value()) {
                 found = true;
                 break;
             }
@@ -101,7 +101,7 @@ void MidiCcSelectionModelTest::test_addDuplicateSetting_shouldOverwriteExisting(
     model->setMidiCcSettings({});
     model->addMidiCcSetting(94, 0);
     model->addMidiCcSetting(94, 4);
-    
+
     QCOMPARE(model->rowCount(), 1);
     QCOMPARE(model->data(model->index(0), static_cast<int>(MidiCcSelectionModel::Roles::ValueRole)).toInt(), 4);
 }

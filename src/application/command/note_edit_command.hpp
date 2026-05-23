@@ -20,8 +20,8 @@
 
 #include <functional>
 #include <memory>
-#include <vector>
 #include <tuple>
+#include <vector>
 
 #include "../../domain/note_data.hpp"
 #include "../position.hpp"

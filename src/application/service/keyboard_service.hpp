@@ -70,7 +70,8 @@ private:
     void handleNoteTriggered(int key, int modifiers, bool isAutoRepeat);
     void handleLiveNoteReleased(int key);
 
-    struct NoteInfo {
+    struct NoteInfo
+    {
         uint8_t note = 0;
         uint8_t octave = 0;
     };

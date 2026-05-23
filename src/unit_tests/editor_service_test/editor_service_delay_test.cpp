@@ -16,12 +16,12 @@
 #include "editor_service_delay_test.hpp"
 
 #include "../../application/service/automation_service.hpp"
-#include "../../application/service/property_service.hpp"
 #include "../../application/service/editor_service.hpp"
-#include "../../domain/note_data.hpp"
-#include "../../domain/song.hpp"
+#include "../../application/service/property_service.hpp"
 #include "../../application/service/selection_service.hpp"
 #include "../../application/service/settings_service.hpp"
+#include "../../domain/note_data.hpp"
+#include "../../domain/song.hpp"
 
 #include <QTest>
 
@@ -31,7 +31,7 @@ void EditorServiceDelayTest::test_requestDigitSetAtCurrentPosition_shouldSetDela
 {
     EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
     editorService.requestNewTrackToRight(); // Ensure we have a track
-    editorService.requestNewColumn(0);      // Ensure we have a column
+    editorService.requestNewColumn(0); // Ensure we have a column
 
     // Insert a note first at the note column
     editorService.requestPosition(0, 0, 0, 0, 0);

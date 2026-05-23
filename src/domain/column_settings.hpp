@@ -16,8 +16,8 @@
 #ifndef COLUMN_SETTINGS_HPP
 #define COLUMN_SETTINGS_HPP
 
-#include <cstdint>
 #include <chrono>
+#include <cstdint>
 #include <memory>
 
 #include <QString>

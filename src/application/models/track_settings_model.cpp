@@ -30,7 +30,7 @@ TrackSettingsModel::TrackSettingsModel(QObject * parent)
 {
 }
 
-MidiCcSelectionModel* TrackSettingsModel::midiCcModel() const
+MidiCcSelectionModel * TrackSettingsModel::midiCcModel() const
 {
     return m_midiCcModel;
 }
@@ -242,7 +242,7 @@ void TrackSettingsModel::reset()
     pushApplyDisabled();
 
     m_instrumentPortName = {};
-    setAvailableMidiPorts(m_availableMidiPorts); 
+    setAvailableMidiPorts(m_availableMidiPorts);
 
     m_instrumentSettings = {};
 
@@ -498,7 +498,6 @@ void TrackSettingsModel::setDrumTrack(bool enabled)
         emit drumTrackChanged();
     }
 }
-
 
 void TrackSettingsModel::pushApplyDisabled()
 {

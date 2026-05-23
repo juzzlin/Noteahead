@@ -24,13 +24,13 @@ void OversamplerTest::test_process_dcInput_shouldReturnSameValue()
 {
     Oversampler2x oversampler;
     const float dcValue { 0.5f };
-    
+
     // Feed DC value for a while to stabilize filter
     float output { 0.0f };
     for (int i { 0 }; i < 100; ++i) {
         output = oversampler.process(dcValue, dcValue);
     }
-    
+
     QCOMPARE(output, dcValue);
 }
 
@@ -52,7 +52,7 @@ void OversamplerTest::test_process_lowFrequency_shouldPassUnattenuated()
     const float freq { 100.0f };
     const float fsHigh { 88200.0f };
     const float dt { 2.0f * std::numbers::pi_v<float> * freq / fsHigh };
-    
+
     float maxOut { 0.0f };
     for (int i { 0 }; i < 1000; ++i) {
         const float s0 { std::sin(static_cast<float>(i * 2) * dt) };
@@ -60,7 +60,7 @@ void OversamplerTest::test_process_lowFrequency_shouldPassUnattenuated()
         const float output { oversampler.process(s0, s1) };
         maxOut = std::max(maxOut, std::abs(output));
     }
-    
+
     // Should be very close to 1.0 (amplitude of input)
     QVERIFY(maxOut > 0.99f);
     QVERIFY(maxOut <= 1.01f);

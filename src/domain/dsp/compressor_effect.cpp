@@ -34,7 +34,7 @@ CompressorEffect::CompressorEffect()
     addParameter(Parameter { Constants::NahdXml::xmlKeyCompressorKnee().toStdString(), 0.0f, 0, 24, 0 });
     addParameter(Parameter { Constants::NahdXml::xmlKeyCompressorMakeup().toStdString(), 0.5f, -12, 12, 0 });
     addParameter(Parameter { Constants::NahdXml::xmlKeyLookahead().toStdString(), 0.0f, 0, 10, 0 });
-    
+
     syncParameters();
 }
 
@@ -143,7 +143,7 @@ void CompressorEffect::applyGain(float & left, float & right)
     if (m_delayBufferL.empty()) {
         updateBuffers();
     }
-    
+
     m_delayBufferL[m_writePos] = left;
     m_delayBufferR[m_writePos] = right;
 

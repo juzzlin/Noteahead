@@ -14,19 +14,19 @@
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
 #include "drum_synth_test.hpp"
-#include <QTest>
-#include <QXmlStreamWriter>
-#include <QXmlStreamReader>
-#include "repro_kick_pop.cpp"
 #include "../../common/constants.hpp"
-#include "../../domain/dsp/drum/kick_engine.hpp"
-#include "../../domain/dsp/drum/snare_engine.hpp"
-#include "../../domain/dsp/drum/hihat_engine.hpp"
-#include "../../domain/dsp/drum/crash_engine.hpp"
-#include "../../domain/dsp/drum/ride_engine.hpp"
-#include "../../domain/dsp/drum/tom_engine.hpp"
-#include "../../domain/dsp/drum/clap_engine.hpp"
 #include "../../domain/devices/drum_synth_device.hpp"
+#include "../../domain/dsp/drum/clap_engine.hpp"
+#include "../../domain/dsp/drum/crash_engine.hpp"
+#include "../../domain/dsp/drum/hihat_engine.hpp"
+#include "../../domain/dsp/drum/kick_engine.hpp"
+#include "../../domain/dsp/drum/ride_engine.hpp"
+#include "../../domain/dsp/drum/snare_engine.hpp"
+#include "../../domain/dsp/drum/tom_engine.hpp"
+#include "repro_kick_pop.cpp"
+#include <QTest>
+#include <QXmlStreamReader>
+#include <QXmlStreamWriter>
 
 namespace noteahead {
 
@@ -34,20 +34,20 @@ void DrumSynthTest::test_kickEngine_attack_shouldAddClick()
 {
     KickEngine engine;
     engine.setSampleRate(44100.0);
-    
+
     // Test with no attack (no click)
     engine.setAttack(0.0f);
     engine.trigger(1.0f);
     engine.nextSample(); // Skip first (zero) sample
     float sampleNoClick = engine.nextSample();
-    
+
     KickEngine engine2;
     engine2.setSampleRate(44100.0);
     engine2.setAttack(1.0f);
     engine2.trigger(1.0f);
     engine2.nextSample(); // Skip first (zero) sample
     float sampleWithClick = engine2.nextSample();
-    
+
     QVERIFY(std::abs(sampleWithClick - sampleNoClick) > 0.001f);
 }
 
@@ -65,7 +65,7 @@ void DrumSynthTest::test_kickEngine_nextSample_shouldEventuallyDeactivate()
     engine.setSampleRate(44100.0);
     engine.setDecay(0.01f); // Very fast decay for test
     engine.trigger(1.0f);
-    
+
     int iterations { 0 };
     while (engine.isActive() && iterations < 100000) {
         engine.nextSample();
@@ -93,7 +93,7 @@ void DrumSynthTest::test_kickEngine_peakVolume_shouldNotExceedOne()
 {
     KickEngine engine;
     engine.setSampleRate(44100);
-    
+
     for (float attack : { 0.0f, 0.5f, 1.0f }) {
         engine.setAttack(attack);
         engine.trigger(1.0f);
@@ -212,7 +212,7 @@ void DrumSynthTest::test_clapEngine_trigger_shouldBeActive()
 
 void DrumSynthTest::test_drumSynthDevice_midiNoteOn_shouldTriggerVoice()
 {
-     DrumSynthDevice device("Test");
+    DrumSynthDevice device("Test");
     device.processMidiNoteOn(36, 127); // Kick
     std::vector<float> buffer(20, 0.0f);
     AudioContext context { std::span(buffer.data(), buffer.size()), 10, 44100 };
@@ -230,9 +230,11 @@ void DrumSynthTest::test_drumSynthDevice_midiNoteOn_shouldTriggerVoice()
 void DrumSynthTest::test_drumSynthDevice_xmlSerialization_shouldRestoreParameters()
 {
     DrumSynthDevice device("Test");
-    
-    if (auto p = device.parameter("Voice0_" + Constants::NahdXml::xmlKeyTune().toStdString()); p) p->get().setValue(0.75f);
-    if (auto p = device.parameter("Voice1_" + Constants::NahdXml::xmlKeySnappy().toStdString()); p) p->get().setValue(0.25f);
+
+    if (auto p = device.parameter("Voice0_" + Constants::NahdXml::xmlKeyTune().toStdString()); p)
+        p->get().setValue(0.75f);
+    if (auto p = device.parameter("Voice1_" + Constants::NahdXml::xmlKeySnappy().toStdString()); p)
+        p->get().setValue(0.25f);
 
     QString xml;
     QXmlStreamWriter writer(&xml);
@@ -240,46 +242,55 @@ void DrumSynthTest::test_drumSynthDevice_xmlSerialization_shouldRestoreParameter
 
     DrumSynthDevice restored("Restored");
     QXmlStreamReader reader(xml);
-    while (!reader.atEnd() && !reader.isStartElement()) reader.readNext();
+    while (!reader.atEnd() && !reader.isStartElement())
+        reader.readNext();
     restored.deserializeFromXml(reader);
 
-    if (auto p = restored.parameter("Voice0_" + Constants::NahdXml::xmlKeyTune().toStdString()); p) QCOMPARE(p->get().value(), 0.75f);
-    if (auto p = restored.parameter("Voice1_" + Constants::NahdXml::xmlKeySnappy().toStdString()); p) QCOMPARE(p->get().value(), 0.25f);
+    if (auto p = restored.parameter("Voice0_" + Constants::NahdXml::xmlKeyTune().toStdString()); p)
+        QCOMPARE(p->get().value(), 0.75f);
+    if (auto p = restored.parameter("Voice1_" + Constants::NahdXml::xmlKeySnappy().toStdString()); p)
+        QCOMPARE(p->get().value(), 0.25f);
 }
 
 void DrumSynthTest::test_processMidiCc_shouldUpdateVoicePanLpfHpf()
 {
     DrumSynthDevice device("Test");
-    
+
     // Kick (Voice 0) Pan (CC 14)
     device.processMidiCc(14, 127, 0);
-    if (auto p = device.parameter("Voice0_" + Constants::NahdXml::xmlKeyPan().toStdString()); p) QCOMPARE(p->get().value(), 1.0f);
+    if (auto p = device.parameter("Voice0_" + Constants::NahdXml::xmlKeyPan().toStdString()); p)
+        QCOMPARE(p->get().value(), 1.0f);
 
     // Kick (Voice 0) LPF (CC 15)
     device.processMidiCc(15, 64, 0);
-    if (auto p = device.parameter("Voice0_" + Constants::NahdXml::xmlKeyCutoff().toStdString()); p) QVERIFY(std::abs(p->get().value() - 0.5f) < 0.01f);
+    if (auto p = device.parameter("Voice0_" + Constants::NahdXml::xmlKeyCutoff().toStdString()); p)
+        QVERIFY(std::abs(p->get().value() - 0.5f) < 0.01f);
 
     // Kick (Voice 0) HPF (CC 16)
     device.processMidiCc(16, 0, 0);
-    if (auto p = device.parameter("Voice0_" + Constants::NahdXml::xmlKeyHpfCutoff().toStdString()); p) QCOMPARE(p->get().value(), 0.0f);
+    if (auto p = device.parameter("Voice0_" + Constants::NahdXml::xmlKeyHpfCutoff().toStdString()); p)
+        QCOMPARE(p->get().value(), 0.0f);
 
     // Low Tom (Voice 5) HPF (CC 14 + 5*3 + 2 = CC 31)
     device.processMidiCc(31, 127, 0);
-    if (auto p = device.parameter("Voice5_" + Constants::NahdXml::xmlKeyHpfCutoff().toStdString()); p) QCOMPARE(p->get().value(), 1.0f);
+    if (auto p = device.parameter("Voice5_" + Constants::NahdXml::xmlKeyHpfCutoff().toStdString()); p)
+        QCOMPARE(p->get().value(), 1.0f);
 
     // Mid Tom (Voice 6) Pan (CC 102)
     device.processMidiCc(102, 127, 0);
-    if (auto p = device.parameter("Voice6_" + Constants::NahdXml::xmlKeyPan().toStdString()); p) QCOMPARE(p->get().value(), 1.0f);
+    if (auto p = device.parameter("Voice6_" + Constants::NahdXml::xmlKeyPan().toStdString()); p)
+        QCOMPARE(p->get().value(), 1.0f);
 
     // Reverse Crash (Voice 10) HPF (CC 102 + 4*3 + 2 = CC 116)
     device.processMidiCc(116, 127, 0);
-    if (auto p = device.parameter("Voice10_" + Constants::NahdXml::xmlKeyHpfCutoff().toStdString()); p) QCOMPARE(p->get().value(), 1.0f);
+    if (auto p = device.parameter("Voice10_" + Constants::NahdXml::xmlKeyHpfCutoff().toStdString()); p)
+        QCOMPARE(p->get().value(), 1.0f);
 }
 
 void DrumSynthTest::test_drumSynthDevice_toms_shouldHaveDifferentDefaultTunes()
 {
     const DrumSynthDevice device("Test");
-    
+
     const auto getTune = [&](int voiceIndex) {
         const std::string prefix { DrumSynth::voiceId(voiceIndex) + "_" };
         const auto p { device.parameter(prefix + Constants::NahdXml::xmlKeyTune().toStdString()) };
@@ -299,7 +310,7 @@ void DrumSynthTest::test_tomEngine_tunes_shouldSoundDifferent()
 {
     TomEngine engine;
     engine.setSampleRate(44100);
-    
+
     engine.setTune(0.2f);
     engine.trigger(1.0f);
     for (int i { 0 }; i < 10; i++) {

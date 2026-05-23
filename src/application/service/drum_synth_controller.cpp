@@ -15,10 +15,10 @@
 
 #include "drum_synth_controller.hpp"
 
-#include "device_service.hpp"
 #include "../../common/constants.hpp"
 #include "../../common/utils.hpp"
 #include "../../domain/devices/drum_synth_device.hpp"
+#include "device_service.hpp"
 
 #include <cmath>
 
@@ -53,12 +53,23 @@ float DrumSynthController::cutoffToHz(float cutoff) const
     return Utils::Dsp::cutoffToHz(cutoff / Constants::uiInternalScaling(), static_cast<float>(sampleRate()));
 }
 
-int DrumSynthController::selectedVoice() const { return m_selectedVoice; }
-void DrumSynthController::setSelectedVoice(int index) { if (m_selectedVoice != index) { m_selectedVoice = index; emit selectedVoiceChanged(); updateProperties(); } }
+int DrumSynthController::selectedVoice() const
+{
+    return m_selectedVoice;
+}
+void DrumSynthController::setSelectedVoice(int index)
+{
+    if (m_selectedVoice != index) {
+        m_selectedVoice = index;
+        emit selectedVoiceChanged();
+        updateProperties();
+    }
+}
 
 int DrumSynthController::voiceLevel() const
 {
-    if (!m_device) return 0;
+    if (!m_device)
+        return 0;
     auto p = m_device->parameter(currentVoicePrefix() + Constants::NahdXml::xmlKeyLevel().toStdString());
     return p ? static_cast<int>(std::round(p->get().value() * Constants::uiInternalScaling())) : 0;
 }
@@ -72,7 +83,8 @@ void DrumSynthController::setVoiceLevel(int value)
 
 int DrumSynthController::voicePan() const
 {
-    if (!m_device) return 500;
+    if (!m_device)
+        return 500;
     auto p = m_device->parameter(currentVoicePrefix() + Constants::NahdXml::xmlKeyPan().toStdString());
     return p ? static_cast<int>(std::round(p->get().value() * Constants::uiInternalScaling())) : 500;
 }
@@ -86,7 +98,8 @@ void DrumSynthController::setVoicePan(int value)
 
 int DrumSynthController::voiceLpfCutoff() const
 {
-    if (!m_device) return 1000;
+    if (!m_device)
+        return 1000;
     auto p = m_device->parameter(currentVoicePrefix() + Constants::NahdXml::xmlKeyCutoff().toStdString());
     return p ? static_cast<int>(std::round(p->get().value() * Constants::uiInternalScaling())) : 1000;
 }
@@ -100,7 +113,8 @@ void DrumSynthController::setVoiceLpfCutoff(int value)
 
 int DrumSynthController::voiceHpfCutoff() const
 {
-    if (!m_device) return 0;
+    if (!m_device)
+        return 0;
     auto p = m_device->parameter(currentVoicePrefix() + Constants::NahdXml::xmlKeyHpfCutoff().toStdString());
     return p ? static_cast<int>(std::round(p->get().value() * Constants::uiInternalScaling())) : 0;
 }
@@ -114,7 +128,8 @@ void DrumSynthController::setVoiceHpfCutoff(int value)
 
 int DrumSynthController::voiceTune() const
 {
-    if (!m_device) return 500;
+    if (!m_device)
+        return 500;
     auto p = m_device->parameter(currentVoicePrefix() + Constants::NahdXml::xmlKeyTune().toStdString());
     return p ? static_cast<int>(std::round(p->get().value() * Constants::uiInternalScaling())) : 500;
 }
@@ -128,7 +143,8 @@ void DrumSynthController::setVoiceTune(int value)
 
 int DrumSynthController::voiceDecay() const
 {
-    if (!m_device) return 500;
+    if (!m_device)
+        return 500;
     auto p = m_device->parameter(currentVoicePrefix() + Constants::NahdXml::xmlKeyDecay().toStdString());
     return p ? static_cast<int>(std::round(p->get().value() * Constants::uiInternalScaling())) : 500;
 }
@@ -142,7 +158,8 @@ void DrumSynthController::setVoiceDecay(int value)
 
 int DrumSynthController::voiceAttack() const
 {
-    if (!m_device) return 0;
+    if (!m_device)
+        return 0;
     auto p = m_device->parameter(currentVoicePrefix() + Constants::NahdXml::xmlKeyAttack().toStdString());
     return p ? static_cast<int>(std::round(p->get().value() * Constants::uiInternalScaling())) : 0;
 }
@@ -156,7 +173,8 @@ void DrumSynthController::setVoiceAttack(int value)
 
 int DrumSynthController::kickAttack() const
 {
-    if (!m_device) return 500;
+    if (!m_device)
+        return 500;
     auto p = m_device->parameter(DrumSynth::voiceId(static_cast<int>(DrumSynth::VoiceIndex::Kick)) + "_" + Constants::NahdXml::xmlKeyAttack().toStdString());
     return p ? static_cast<int>(std::round(p->get().value() * Constants::uiInternalScaling())) : 500;
 }
@@ -170,7 +188,8 @@ void DrumSynthController::setKickAttack(int value)
 
 int DrumSynthController::kickClickTune() const
 {
-    if (!m_device) return 500;
+    if (!m_device)
+        return 500;
     auto p = m_device->parameter(DrumSynth::voiceId(static_cast<int>(DrumSynth::VoiceIndex::Kick)) + "_" + Constants::NahdXml::xmlKeyClickTune().toStdString());
     return p ? static_cast<int>(std::round(p->get().value() * Constants::uiInternalScaling())) : 500;
 }
@@ -184,7 +203,8 @@ void DrumSynthController::setKickClickTune(int value)
 
 int DrumSynthController::kickPitchDepth() const
 {
-    if (!m_device) return 500;
+    if (!m_device)
+        return 500;
     auto p = m_device->parameter(DrumSynth::voiceId(static_cast<int>(DrumSynth::VoiceIndex::Kick)) + "_" + Constants::NahdXml::xmlKeyPitchDepth().toStdString());
     return p ? static_cast<int>(std::round(p->get().value() * Constants::uiInternalScaling())) : 500;
 }
@@ -198,7 +218,8 @@ void DrumSynthController::setKickPitchDepth(int value)
 
 int DrumSynthController::kickPitchDecay() const
 {
-    if (!m_device) return 500;
+    if (!m_device)
+        return 500;
     auto p = m_device->parameter(DrumSynth::voiceId(static_cast<int>(DrumSynth::VoiceIndex::Kick)) + "_" + Constants::NahdXml::xmlKeyPitchDecay().toStdString());
     return p ? static_cast<int>(std::round(p->get().value() * Constants::uiInternalScaling())) : 500;
 }
@@ -212,7 +233,8 @@ void DrumSynthController::setKickPitchDecay(int value)
 
 int DrumSynthController::snareSnappy() const
 {
-    if (!m_device) return 500;
+    if (!m_device)
+        return 500;
     auto p = m_device->parameter(DrumSynth::voiceId(static_cast<int>(DrumSynth::VoiceIndex::Snare)) + "_" + Constants::NahdXml::xmlKeySnappy().toStdString());
     return p ? static_cast<int>(std::round(p->get().value() * Constants::uiInternalScaling())) : 500;
 }
@@ -226,7 +248,8 @@ void DrumSynthController::setSnareSnappy(int value)
 
 int DrumSynthController::snareTone() const
 {
-    if (!m_device) return 500;
+    if (!m_device)
+        return 500;
     auto p = m_device->parameter(DrumSynth::voiceId(static_cast<int>(DrumSynth::VoiceIndex::Snare)) + "_" + Constants::NahdXml::xmlKeyTone().toStdString());
     return p ? static_cast<int>(std::round(p->get().value() * Constants::uiInternalScaling())) : 500;
 }
@@ -240,7 +263,8 @@ void DrumSynthController::setSnareTone(int value)
 
 int DrumSynthController::tomPitchDepth() const
 {
-    if (!m_device) return 500;
+    if (!m_device)
+        return 500;
     auto p = m_device->parameter(currentVoicePrefix() + Constants::NahdXml::xmlKeyPitchDepth().toStdString());
     return p ? static_cast<int>(std::round(p->get().value() * Constants::uiInternalScaling())) : 500;
 }
@@ -254,7 +278,8 @@ void DrumSynthController::setTomPitchDepth(int value)
 
 int DrumSynthController::tomPitchDecay() const
 {
-    if (!m_device) return 500;
+    if (!m_device)
+        return 500;
     auto p = m_device->parameter(currentVoicePrefix() + Constants::NahdXml::xmlKeyPitchDecay().toStdString());
     return p ? static_cast<int>(std::round(p->get().value() * Constants::uiInternalScaling())) : 500;
 }
@@ -268,7 +293,8 @@ void DrumSynthController::setTomPitchDecay(int value)
 
 int DrumSynthController::voiceResonance() const
 {
-    if (!m_device) return 300;
+    if (!m_device)
+        return 300;
     auto p = m_device->parameter(currentVoicePrefix() + Constants::NahdXml::xmlKeyResonance().toStdString());
     return p ? static_cast<int>(std::round(p->get().value() * Constants::uiInternalScaling())) : 300;
 }
@@ -280,21 +306,60 @@ void DrumSynthController::setVoiceResonance(int value)
     }
 }
 
-int DrumSynthController::volume() const { return m_device ? static_cast<int>(std::round(m_device->volume() * Constants::uiInternalScaling())) : 1000; }
-void DrumSynthController::setVolume(int value) { if (m_device) m_device->setVolume(static_cast<float>(value) / Constants::uiInternalScaling()); }
+int DrumSynthController::volume() const
+{
+    return m_device ? static_cast<int>(std::round(m_device->volume() * Constants::uiInternalScaling())) : 1000;
+}
+void DrumSynthController::setVolume(int value)
+{
+    if (m_device)
+        m_device->setVolume(static_cast<float>(value) / Constants::uiInternalScaling());
+}
 
-int DrumSynthController::gain() const { return m_device ? static_cast<int>(std::round(m_device->gain() * Constants::uiInternalScaling())) : 500; }
-void DrumSynthController::setGain(int value) { if (m_device) m_device->setGain(static_cast<float>(value) / Constants::uiInternalScaling()); }
+int DrumSynthController::gain() const
+{
+    return m_device ? static_cast<int>(std::round(m_device->gain() * Constants::uiInternalScaling())) : 500;
+}
+void DrumSynthController::setGain(int value)
+{
+    if (m_device)
+        m_device->setGain(static_cast<float>(value) / Constants::uiInternalScaling());
+}
 
-int DrumSynthController::pan() const { return m_device ? static_cast<int>(std::round(m_device->pan() * Constants::uiInternalScaling())) : 500; }
-void DrumSynthController::setPan(int value) { if (m_device) m_device->setPan(static_cast<float>(value) / Constants::uiInternalScaling()); }
+int DrumSynthController::pan() const
+{
+    return m_device ? static_cast<int>(std::round(m_device->pan() * Constants::uiInternalScaling())) : 500;
+}
+void DrumSynthController::setPan(int value)
+{
+    if (m_device)
+        m_device->setPan(static_cast<float>(value) / Constants::uiInternalScaling());
+}
 
-bool DrumSynthController::isKick() const { return m_selectedVoice == static_cast<int>(DrumSynth::VoiceIndex::Kick); }
-bool DrumSynthController::isSnare() const { return m_selectedVoice == static_cast<int>(DrumSynth::VoiceIndex::Snare); }
-bool DrumSynthController::isTom() const { return m_selectedVoice >= static_cast<int>(DrumSynth::VoiceIndex::LowTom) && m_selectedVoice <= static_cast<int>(DrumSynth::VoiceIndex::HighTom); }
-bool DrumSynthController::isCymbal() const { return m_selectedVoice >= static_cast<int>(DrumSynth::VoiceIndex::Crash) && m_selectedVoice <= static_cast<int>(DrumSynth::VoiceIndex::ReverseCrash); }
-bool DrumSynthController::hasResonance() const { return (m_selectedVoice == static_cast<int>(DrumSynth::VoiceIndex::ClosedHiHat) || m_selectedVoice == static_cast<int>(DrumSynth::VoiceIndex::OpenHiHat)) || isCymbal(); }
-bool DrumSynthController::hasAttack() const { return isKick() || (m_selectedVoice == static_cast<int>(DrumSynth::VoiceIndex::Crash) || m_selectedVoice == static_cast<int>(DrumSynth::VoiceIndex::ReverseCrash)); }
+bool DrumSynthController::isKick() const
+{
+    return m_selectedVoice == static_cast<int>(DrumSynth::VoiceIndex::Kick);
+}
+bool DrumSynthController::isSnare() const
+{
+    return m_selectedVoice == static_cast<int>(DrumSynth::VoiceIndex::Snare);
+}
+bool DrumSynthController::isTom() const
+{
+    return m_selectedVoice >= static_cast<int>(DrumSynth::VoiceIndex::LowTom) && m_selectedVoice <= static_cast<int>(DrumSynth::VoiceIndex::HighTom);
+}
+bool DrumSynthController::isCymbal() const
+{
+    return m_selectedVoice >= static_cast<int>(DrumSynth::VoiceIndex::Crash) && m_selectedVoice <= static_cast<int>(DrumSynth::VoiceIndex::ReverseCrash);
+}
+bool DrumSynthController::hasResonance() const
+{
+    return (m_selectedVoice == static_cast<int>(DrumSynth::VoiceIndex::ClosedHiHat) || m_selectedVoice == static_cast<int>(DrumSynth::VoiceIndex::OpenHiHat)) || isCymbal();
+}
+bool DrumSynthController::hasAttack() const
+{
+    return isKick() || (m_selectedVoice == static_cast<int>(DrumSynth::VoiceIndex::Crash) || m_selectedVoice == static_cast<int>(DrumSynth::VoiceIndex::ReverseCrash));
+}
 
 void DrumSynthController::playNote(int note, double velocity)
 {

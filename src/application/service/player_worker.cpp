@@ -243,10 +243,9 @@ void PlayerWorker::processEvents()
             const double framesPerTick = (jackSampleRate * 60.0) / (currentBpm * m_timing.linesPerBeat * m_timing.ticksPerLine);
             const double tickOffset = static_cast<double>(tick - minTick + step);
             const auto framesToWait = static_cast<long long>(tickOffset * framesPerTick);
-            
+
             // We sync Noteahead's steady_clock timeline to JACK's sample clock
-            nextTickTime = startTime + std::chrono::duration_cast<std::chrono::steady_clock::duration>(
-                                          std::chrono::duration<double>(framesToWait / jackSampleRate));
+            nextTickTime = startTime + std::chrono::duration_cast<std::chrono::steady_clock::duration>(std::chrono::duration<double>(framesToWait / jackSampleRate));
         } else {
             const double tickDurationS = 60.0 / (static_cast<double>(m_timing.beatsPerMinute * m_timing.linesPerBeat * m_timing.ticksPerLine));
             const auto tickDuration = std::chrono::duration<double> { tickDurationS };

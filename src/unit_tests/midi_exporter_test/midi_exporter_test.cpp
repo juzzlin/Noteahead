@@ -66,40 +66,40 @@ struct MidiTestEvent
     uint8_t value = 0;
     int16_t pitchBend = 0;
 
-    auto operator<=>(const MidiTestEvent&) const = default;
+    auto operator<=>(const MidiTestEvent &) const = default;
 };
 
 // Helper function to read big-endian 16-bit unsigned integer
-auto readBeU16(std::istream& in) -> uint16_t
+auto readBeU16(std::istream & in) -> uint16_t
 {
     uint8_t b1 {};
     uint8_t b2 {};
-    in.read(reinterpret_cast<char*>(&b1), 1);
-    in.read(reinterpret_cast<char*>(&b2), 1);
+    in.read(reinterpret_cast<char *>(&b1), 1);
+    in.read(reinterpret_cast<char *>(&b2), 1);
     return (static_cast<uint16_t>(b1) << 8) | b2;
 }
 
 // Helper function to read big-endian 32-bit unsigned integer
-auto readBeU32(std::istream& in) -> uint32_t
+auto readBeU32(std::istream & in) -> uint32_t
 {
     uint8_t b1 {};
     uint8_t b2 {};
     uint8_t b3 {};
     uint8_t b4 {};
-    in.read(reinterpret_cast<char*>(&b1), 1);
-    in.read(reinterpret_cast<char*>(&b2), 1);
-    in.read(reinterpret_cast<char*>(&b3), 1);
-    in.read(reinterpret_cast<char*>(&b4), 1);
+    in.read(reinterpret_cast<char *>(&b1), 1);
+    in.read(reinterpret_cast<char *>(&b2), 1);
+    in.read(reinterpret_cast<char *>(&b3), 1);
+    in.read(reinterpret_cast<char *>(&b4), 1);
     return (static_cast<uint32_t>(b1) << 24) | (static_cast<uint32_t>(b2) << 16) | (static_cast<uint32_t>(b3) << 8) | b4;
 }
 
 // Helper function to read a variable-length quantity (VLQ)
-auto readVlq(std::istream& in) -> uint32_t
+auto readVlq(std::istream & in) -> uint32_t
 {
     uint32_t value = 0;
     uint8_t byte {};
     do {
-        in.read(reinterpret_cast<char*>(&byte), 1);
+        in.read(reinterpret_cast<char *>(&byte), 1);
         if (!in.good()) {
             return 0; // Or throw an exception
         }
@@ -109,7 +109,7 @@ auto readVlq(std::istream& in) -> uint32_t
 }
 
 // Helper function to parse a MIDI file and extract note events
-auto readMidiFile(const std::string& fileName) -> std::vector<MidiTestEvent>
+auto readMidiFile(const std::string & fileName) -> std::vector<MidiTestEvent>
 {
     std::vector<MidiTestEvent> events;
     std::ifstream in(fileName, std::ios::binary);
@@ -160,7 +160,7 @@ auto readMidiFile(const std::string& fileName) -> std::vector<MidiTestEvent>
             currentTrackTick += deltaTime;
 
             uint8_t currentByte;
-            in.read(reinterpret_cast<char*>(&currentByte), 1);
+            in.read(reinterpret_cast<char *>(&currentByte), 1);
 
             if (currentByte & 0x80) { // New status byte
                 statusByte = currentByte;
@@ -174,7 +174,7 @@ auto readMidiFile(const std::string& fileName) -> std::vector<MidiTestEvent>
                 if (metaType == 0x21) { // MIDI Port
                     if (metaLength == 1) {
                         currentPort = static_cast<uint8_t>(in.get());
-                         std::cerr << "readMidiFile: MIDI Port Meta-Event found, setting current_port to " << static_cast<int>(currentPort) << std::endl;
+                        std::cerr << "readMidiFile: MIDI Port Meta-Event found, setting current_port to " << static_cast<int>(currentPort) << std::endl;
                     } else {
                         in.seekg(metaLength, std::ios_base::cur);
                     }
@@ -228,7 +228,7 @@ auto readMidiFile(const std::string& fileName) -> std::vector<MidiTestEvent>
         }
     }
 
-    std::ranges::sort(events, [](const auto& a, const auto& b) {
+    std::ranges::sort(events, [](const auto & a, const auto & b) {
         if (a.tick != b.tick) {
             return a.tick < b.tick;
         }
@@ -434,7 +434,7 @@ void MidiExporterTest::test_exportTo_mutedAndSoloedTracks_shouldExportCorrectly(
     song->setNoteDataAtPosition(noteData, { 0, 1, 0, 0, 0 });
     noteData.setAsNoteOff(62);
     song->setNoteDataAtPosition(noteData, { 0, 1, 0, 1, 0 });
-    
+
     noteData.setAsNoteOn(64, 80);
     song->setNoteDataAtPosition(noteData, { 0, 2, 0, 0, 0 });
     noteData.setAsNoteOff(64);
@@ -587,7 +587,7 @@ void MidiExporterTest::test_exportTo_bankAndProgramChange_shouldExportCorrectly(
         exporter.exportTo(fileName.toStdString(), song, 0, song->length(), options);
 
         const auto exportedEvents = readMidiFile(fileName.toStdString());
-        
+
         // Expected at tick 0: Program Change (30), then Note On
         QVERIFY(exportedEvents.size() >= 2);
         QCOMPARE(exportedEvents[0].type, MidiTestEvent::Type::ProgramChange);
@@ -607,7 +607,7 @@ void MidiExporterTest::test_exportTo_bankAndProgramChange_shouldExportCorrectly(
         exporter.exportTo(fileName.toStdString(), song, 0, song->length(), options);
 
         const auto exportedEvents = readMidiFile(fileName.toStdString());
-        
+
         // Expected at tick 0: Bank MSB (20), Bank LSB (10), then Note On
         QVERIFY(exportedEvents.size() >= 3);
         QCOMPARE(exportedEvents[0].type, MidiTestEvent::Type::BankMsb);
@@ -648,7 +648,7 @@ void MidiExporterTest::test_exportTo_noNotesButSettings_shouldExportSettings()
     exporter.exportTo(fileName.toStdString(), song, 0, song->length(), options);
 
     const auto exportedEvents = readMidiFile(fileName.toStdString());
-    
+
     // Expected at tick 0: Bank MSB (25), Bank LSB (15), Program Change (35)
     // No NoteOn should be present
     QVERIFY(exportedEvents.size() >= 3);
@@ -806,6 +806,6 @@ void MidiExporterTest::test_exportTo_nonSequentialTracks_shouldExportCorrectly()
     QVERIFY(QFile { fileName }.size() > 0);
 }
 
-        } // namespace noteahead
+} // namespace noteahead
 
 QTEST_GUILESS_MAIN(noteahead::MidiExporterTest)

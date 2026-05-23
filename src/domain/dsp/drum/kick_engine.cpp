@@ -23,7 +23,7 @@ namespace noteahead {
 
 KickEngine::KickEngine()
 {
-    m_rng.seed(std::random_device{}());
+    m_rng.seed(std::random_device {}());
     m_noiseFilter.setMode(CascadedSvf::Mode::HighPass);
 }
 
@@ -62,15 +62,17 @@ float KickEngine::nextSample()
     const double clickPhaseStep = clickFreq / sr;
     const float clickOsc { static_cast<float>(std::sin(m_clickPhase * 2.0 * std::numbers::pi)) };
     m_clickPhase += clickPhaseStep;
-    if (m_clickPhase >= 1.0) m_clickPhase -= 1.0;
-    
+    if (m_clickPhase >= 1.0)
+        m_clickPhase -= 1.0;
+
     // Click Component
     const float click { clickOsc * m_clickEnv * m_attack * 0.35f };
-    
+
     // Sine Component
     const float sine { static_cast<float>(std::sin(m_phase * 2.0 * std::numbers::pi)) * 0.65f };
     m_phase += phaseStep;
-    if (m_phase >= 1.0) m_phase -= 1.0;
+    if (m_phase >= 1.0)
+        m_phase -= 1.0;
 
     float out { (sine + click) * m_ampEnv * m_velocity };
 

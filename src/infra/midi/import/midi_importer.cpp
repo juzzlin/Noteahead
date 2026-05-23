@@ -78,7 +78,7 @@ std::optional<size_t> tryExtractTrackIndex(const std::string & trackName)
     }
     return std::nullopt;
 }
-}
+} // namespace
 
 MidiImporter::MidiImporter() = default;
 

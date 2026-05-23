@@ -15,8 +15,8 @@
 
 #include "polyblep_oscillator.hpp"
 
-#include <cmath>
 #include <algorithm>
+#include <cmath>
 
 namespace noteahead {
 

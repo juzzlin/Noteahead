@@ -35,8 +35,8 @@ namespace noteahead {
 
 static const auto TAG = "AutomationService";
 
-AutomationService::AutomationService(std::shared_ptr<PropertyService> propertyService) :
-    m_propertyService { propertyService }
+AutomationService::AutomationService(std::shared_ptr<PropertyService> propertyService)
+  : m_propertyService { propertyService }
 {
 }
 
@@ -132,8 +132,7 @@ void AutomationService::updateMidiCcAutomation(const MidiCcAutomation & updatedA
         if (const auto oldAutomation = *iter; oldAutomation != updatedAutomation) {
             *iter = updatedAutomation;
             if (oldAutomation.interpolation() != updatedAutomation.interpolation() || //
-                oldAutomation.enabled() != updatedAutomation.enabled() ||
-                oldAutomation.modulation() != updatedAutomation.modulation()) {
+                oldAutomation.enabled() != updatedAutomation.enabled() || oldAutomation.modulation() != updatedAutomation.modulation()) {
                 notifyChangedLinesMerged(oldAutomation, updatedAutomation);
             }
             juzzlin::L(TAG).info() << "MIDI CC Automation updated: " << updatedAutomation.toString().toStdString();
@@ -186,8 +185,7 @@ void AutomationService::updatePitchBendAutomation(const PitchBendAutomation & up
         if (const auto oldAutomation = *iter; oldAutomation != updatedAutomation) {
             *iter = updatedAutomation;
             if (oldAutomation.interpolation() != updatedAutomation.interpolation() || //
-                oldAutomation.enabled() != updatedAutomation.enabled() ||
-                oldAutomation.modulation() != updatedAutomation.modulation()) {
+                oldAutomation.enabled() != updatedAutomation.enabled() || oldAutomation.modulation() != updatedAutomation.modulation()) {
                 notifyChangedLinesMerged(oldAutomation, updatedAutomation);
             }
             juzzlin::L(TAG).info() << "Pitch Bend Automation updated: " << updatedAutomation.toString().toStdString();

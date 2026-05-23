@@ -16,14 +16,14 @@
 #ifndef RING_BUFFER_HPP
 #define RING_BUFFER_HPP
 
+#include <algorithm>
 #include <atomic>
 #include <cstddef>
 #include <vector>
-#include <algorithm>
 
 namespace noteahead {
 
-template <typename T>
+template<typename T>
 class RingBuffer
 {
 public:
@@ -49,7 +49,8 @@ public:
         const size_t tail = m_tail.load(std::memory_order_acquire);
         const size_t capacity = m_buffer.size();
 
-        if (capacity == 0) return false;
+        if (capacity == 0)
+            return false;
 
         // Calculate available space
         // One slot is kept empty to distinguish full from empty
@@ -76,7 +77,8 @@ public:
         const size_t head = m_head.load(std::memory_order_acquire);
         const size_t capacity = m_buffer.size();
 
-        if (capacity == 0) return 0;
+        if (capacity == 0)
+            return 0;
 
         const size_t available = (capacity + head - tail) % capacity;
 
@@ -100,7 +102,8 @@ public:
         const size_t tail = m_tail.load(std::memory_order_relaxed);
         const size_t head = m_head.load(std::memory_order_acquire);
         const size_t capacity = m_buffer.size();
-        if (capacity == 0) return 0;
+        if (capacity == 0)
+            return 0;
         return (capacity + head - tail) % capacity;
     }
 
@@ -109,7 +112,8 @@ public:
         const size_t head = m_head.load(std::memory_order_relaxed);
         const size_t tail = m_tail.load(std::memory_order_acquire);
         const size_t capacity = m_buffer.size();
-        if (capacity == 0) return 0;
+        if (capacity == 0)
+            return 0;
         // One slot is kept empty
         return (capacity + tail - head - 1) % capacity;
     }

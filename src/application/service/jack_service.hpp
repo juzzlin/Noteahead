@@ -16,10 +16,10 @@
 #ifndef JACK_SERVICE_HPP
 #define JACK_SERVICE_HPP
 
-#include <QObject>
 #include <QCoreApplication>
-#include <memory>
+#include <QObject>
 #include <atomic>
+#include <memory>
 #include <thread>
 
 #ifdef HAVE_JACK

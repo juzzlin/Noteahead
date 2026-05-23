@@ -16,10 +16,10 @@
 #include "midi_importer_test.hpp"
 
 #include "../../application/service/automation_service.hpp"
+#include "../../application/service/midi_service.hpp"
 #include "../../application/service/mixer_service.hpp"
 #include "../../application/service/property_service.hpp"
 #include "../../application/service/side_chain_service.hpp"
-#include "../../application/service/midi_service.hpp"
 #include "../../domain/note_data.hpp"
 #include "../../domain/song.hpp"
 #include "../../infra/midi/export/midi_exporter.hpp"
@@ -40,8 +40,14 @@ public:
     {
     }
 
-    QStringList outputPorts() const { return m_mockPorts; }
-    void setMockPorts(const QStringList & ports) { m_mockPorts = ports; }
+    QStringList outputPorts() const
+    {
+        return m_mockPorts;
+    }
+    void setMockPorts(const QStringList & ports)
+    {
+        m_mockPorts = ports;
+    }
 
 private:
     QStringList m_mockPorts;

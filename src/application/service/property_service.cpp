@@ -16,8 +16,8 @@
 #include "property_service.hpp"
 
 #include "../../common/constants.hpp"
-#include "../../infra/midi/midi_cc_mapping.hpp"
 #include "../../domain/devices/drum_synth_device.hpp"
+#include "../../infra/midi/midi_cc_mapping.hpp"
 
 #include <QVariantMap>
 
@@ -51,11 +51,10 @@ QVariantList PropertyService::getAvailableMidiControllers(const QString & portNa
             }
         }
         list.append(QVariantMap {
-            { "number", i },
-            { "name", name },
-            { "minValue", 0 },
-            { "maxValue", 127 }
-        });
+          { "number", i },
+          { "name", name },
+          { "minValue", 0 },
+          { "maxValue", 127 } });
     };
 
     if (!portName.isEmpty()) {

@@ -15,8 +15,8 @@
 
 #include "delay_effect.hpp"
 
-#include "../dsp/audio_context.hpp"
 #include "../../common/constants.hpp"
+#include "../dsp/audio_context.hpp"
 
 #include <algorithm>
 #include <cmath>
@@ -149,7 +149,7 @@ void DelayEffect::applyTapeSaturation(float & fbL, float & fbR)
     // Tape: Dark, saturated, slightly compressed. Depth controls saturation.
     m_lpStateL += 0.2f * (fbL - m_lpStateL);
     m_lpStateR += 0.2f * (fbR - m_lpStateR);
-    
+
     const float saturation = 1.0f + (m_depth * 2.0f);
     fbL = std::tanh(m_lpStateL * saturation);
     fbR = std::tanh(m_lpStateR * saturation);
@@ -223,20 +223,70 @@ void DelayEffect::reset()
     m_fbHpfR.reset();
 }
 
-void DelayEffect::setType(Type type) { m_type = type; }
-void DelayEffect::setTime(float seconds) { m_time = std::clamp(seconds, 0.001f, 10.0f); }
-void DelayEffect::setFeedback(float feedback) { m_feedback = std::clamp(feedback, 0.0f, 1.0f); }
-void DelayEffect::setDepth(float depth) { m_depth = std::clamp(depth, 0.0f, 1.0f); }
-void DelayEffect::setMix(float mix) { m_mix = std::clamp(mix, 0.0f, 1.0f); }
-void DelayEffect::setBpm(float bpm) { m_bpm = std::max(1.0f, bpm); }
-float DelayEffect::bpm() const { return m_bpm; }
-void DelayEffect::setSync(bool sync) { m_sync = sync; }
-void DelayEffect::setSyncDivision(float division) { m_syncDivision = division; }
+void DelayEffect::setType(Type type)
+{
+    m_type = type;
+}
 
-void DelayEffect::setFeedbackLpf(float cutoff) { m_feedbackLpfCutoff = std::clamp(cutoff, 0.0f, 1.0f); }
-float DelayEffect::feedbackLpf() const { return m_feedbackLpfCutoff; }
-void DelayEffect::setFeedbackHpf(float cutoff) { m_feedbackHpfCutoff = std::clamp(cutoff, 0.0f, 1.0f); }
-float DelayEffect::feedbackHpf() const { return m_feedbackHpfCutoff; }
+void DelayEffect::setTime(float seconds)
+{
+    m_time = std::clamp(seconds, 0.001f, 10.0f);
+}
+
+void DelayEffect::setFeedback(float feedback)
+{
+    m_feedback = std::clamp(feedback, 0.0f, 1.0f);
+}
+
+void DelayEffect::setDepth(float depth)
+{
+    m_depth = std::clamp(depth, 0.0f, 1.0f);
+}
+
+void DelayEffect::setMix(float mix)
+{
+    m_mix = std::clamp(mix, 0.0f, 1.0f);
+}
+
+void DelayEffect::setBpm(float bpm)
+{
+    m_bpm = std::max(1.0f, bpm);
+}
+
+float DelayEffect::bpm() const
+{
+    return m_bpm;
+}
+
+void DelayEffect::setSync(bool sync)
+{
+    m_sync = sync;
+}
+
+void DelayEffect::setSyncDivision(float division)
+{
+    m_syncDivision = division;
+}
+
+void DelayEffect::setFeedbackLpf(float cutoff)
+{
+    m_feedbackLpfCutoff = std::clamp(cutoff, 0.0f, 1.0f);
+}
+
+float DelayEffect::feedbackLpf() const
+{
+    return m_feedbackLpfCutoff;
+}
+
+void DelayEffect::setFeedbackHpf(float cutoff)
+{
+    m_feedbackHpfCutoff = std::clamp(cutoff, 0.0f, 1.0f);
+}
+
+float DelayEffect::feedbackHpf() const
+{
+    return m_feedbackHpfCutoff;
+}
 
 void DelayEffect::updateBuffers(uint32_t sampleRate)
 {
