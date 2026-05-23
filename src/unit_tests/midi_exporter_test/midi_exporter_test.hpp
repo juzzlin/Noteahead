@@ -37,6 +37,8 @@ private slots:
     void test_exportTo_nonSequentialTracks_shouldExportCorrectly();
     void test_exportTo_drumTrack_shouldExportToChannel10();
     void test_exportTo_manualChannel10_shouldExportToChannel10();
+    void test_exportTo_noAutoAssignChannels_shouldUseInstrumentChannel();
+    void test_exportTo_noForceDrumChannel10_shouldNotForceChannel10();
 };
 
 } // namespace noteahead

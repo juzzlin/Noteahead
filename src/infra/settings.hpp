@@ -68,6 +68,12 @@ void setMidiSyncEnabled(bool enabled);
 bool waveViewEnabled();
 void setWaveViewEnabled(bool enabled);
 
+bool midiExportForceDrumChannel10();
+void setMidiExportForceDrumChannel10(bool enabled);
+
+bool midiExportAutoAssignChannels();
+void setMidiExportAutoAssignChannels(bool enabled);
+
 int audioBufferSize();
 void setAudioBufferSize(int audioBufferSize);
 

@@ -872,6 +872,85 @@ void MidiExporterTest::test_exportTo_manualChannel10_shouldExportToChannel10()
     QCOMPARE(exportedEvents[0].channel, 9);
 }
 
+void MidiExporterTest::test_exportTo_noAutoAssignChannels_shouldUseInstrumentChannel()
+{
+    const auto song = std::make_shared<Song>();
+    song->setBeatsPerMinute(120);
+    song->setLinesPerBeat(4);
+
+    const auto instrument = std::make_shared<Instrument>("TestInstrument");
+    auto address = instrument->midiAddress();
+    address.setChannel(5); // MIDI Channel 6
+    instrument->setMidiAddress(address);
+    song->setInstrument(0, instrument);
+
+    NoteData noteData;
+    noteData.setAsNoteOn(60, 100);
+    song->setNoteDataAtPosition(noteData, { 0, 0, 0, 0, 0 });
+
+    QTemporaryFile tempFile;
+    QVERIFY(tempFile.open());
+    const auto fileName = tempFile.fileName();
+    tempFile.close();
+
+    const auto automationService = std::make_shared<AutomationService>(std::make_shared<PropertyService>());
+    const auto mixerService = std::make_shared<MixerService>();
+    const auto sideChainService = std::make_shared<SideChainService>();
+    MidiExporter exporter { automationService, mixerService, sideChainService };
+    
+    MidiExportOptions options;
+    options.autoAssignChannels = false;
+    options.forceDrumChannel10 = false;
+    
+    exporter.exportTo(fileName.toStdString(), song, 0, std::numeric_limits<size_t>::max(), options);
+
+    const auto exportedEvents = readMidiFile(fileName.toStdString());
+    QVERIFY(!exportedEvents.empty());
+    QCOMPARE(exportedEvents[0].channel, 5);
+}
+
+void MidiExporterTest::test_exportTo_noForceDrumChannel10_shouldNotForceChannel10()
+{
+    const auto song = std::make_shared<Song>();
+    song->setBeatsPerMinute(120);
+    song->setLinesPerBeat(4);
+
+    const auto instrument = std::make_shared<Instrument>("DrumInstrument");
+    auto settings = instrument->settings();
+    settings.drumTrack = true;
+    instrument->setSettings(settings);
+    
+    auto address = instrument->midiAddress();
+    address.setChannel(2); // MIDI Channel 3
+    instrument->setMidiAddress(address);
+    
+    song->setInstrument(0, instrument);
+
+    NoteData noteData;
+    noteData.setAsNoteOn(60, 100);
+    song->setNoteDataAtPosition(noteData, { 0, 0, 0, 0, 0 });
+
+    QTemporaryFile tempFile;
+    QVERIFY(tempFile.open());
+    const auto fileName = tempFile.fileName();
+    tempFile.close();
+
+    const auto automationService = std::make_shared<AutomationService>(std::make_shared<PropertyService>());
+    const auto mixerService = std::make_shared<MixerService>();
+    const auto sideChainService = std::make_shared<SideChainService>();
+    MidiExporter exporter { automationService, mixerService, sideChainService };
+    
+    MidiExportOptions options;
+    options.autoAssignChannels = false;
+    options.forceDrumChannel10 = false;
+    
+    exporter.exportTo(fileName.toStdString(), song, 0, std::numeric_limits<size_t>::max(), options);
+
+    const auto exportedEvents = readMidiFile(fileName.toStdString());
+    QVERIFY(!exportedEvents.empty());
+    QCOMPARE(exportedEvents[0].channel, 2); // Should be 2, not 9
+}
+
 } // namespace noteahead
 
 QTEST_GUILESS_MAIN(noteahead::MidiExporterTest)

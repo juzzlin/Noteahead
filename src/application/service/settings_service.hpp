@@ -34,6 +34,8 @@ class SettingsService : public QObject
     Q_PROPERTY(bool jackBpmSyncEnabled READ jackBpmSyncEnabled WRITE setJackBpmSyncEnabled NOTIFY jackBpmSyncEnabledChanged)
     Q_PROPERTY(bool midiSyncEnabled READ midiSyncEnabled WRITE setMidiSyncEnabled NOTIFY midiSyncEnabledChanged)
     Q_PROPERTY(bool waveViewEnabled READ waveViewEnabled WRITE setWaveViewEnabled NOTIFY waveViewEnabledChanged)
+    Q_PROPERTY(bool midiExportForceDrumChannel10 READ midiExportForceDrumChannel10 WRITE setMidiExportForceDrumChannel10 NOTIFY midiExportForceDrumChannel10Changed)
+    Q_PROPERTY(bool midiExportAutoAssignChannels READ midiExportAutoAssignChannels WRITE setMidiExportAutoAssignChannels NOTIFY midiExportAutoAssignChannelsChanged)
 
 public:
     SettingsService();
@@ -78,6 +80,12 @@ public:
     virtual Q_INVOKABLE bool waveViewEnabled() const;
     virtual Q_INVOKABLE void setWaveViewEnabled(bool enabled);
 
+    virtual Q_INVOKABLE bool midiExportForceDrumChannel10() const;
+    virtual Q_INVOKABLE void setMidiExportForceDrumChannel10(bool enabled);
+
+    virtual Q_INVOKABLE bool midiExportAutoAssignChannels() const;
+    virtual Q_INVOKABLE void setMidiExportAutoAssignChannels(bool enabled);
+
     virtual Q_INVOKABLE int audioBufferSize() const;
     virtual Q_INVOKABLE void setAudioBufferSize(int bufferSize);
 
@@ -98,6 +106,8 @@ signals:
     void jackBpmSyncEnabledChanged();
     void midiSyncEnabledChanged();
     void waveViewEnabledChanged();
+    void midiExportForceDrumChannel10Changed();
+    void midiExportAutoAssignChannelsChanged();
 
 private:
     QString m_controllerPort;

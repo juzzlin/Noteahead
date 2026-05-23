@@ -35,6 +35,9 @@ const auto jackBpmSyncEnabledKey = "jackBpmSyncEnabled";
 const auto midiSyncEnabledKey = "midiSyncEnabled";
 const auto waveViewEnabledKey = "waveViewEnabled";
 
+const auto midiExportForceDrumChannel10Key = "midiExportForceDrumChannel10";
+const auto midiExportAutoAssignChannelsKey = "midiExportAutoAssignChannels";
+
 const auto settingsGroupAudio = "Audio";
 const auto settingsGroupEditor = "Editor";
 const auto settingsGroupMainWindow = "MainWindow";
@@ -310,6 +313,40 @@ void setWaveViewEnabled(bool enabled)
     QSettings settings;
     settings.beginGroup(settingsGroupAudio);
     settings.setValue(waveViewEnabledKey, enabled);
+    settings.endGroup();
+}
+
+bool midiExportForceDrumChannel10()
+{
+    QSettings settings;
+    settings.beginGroup(settingsGroupMidi);
+    const auto enabled = settings.value(midiExportForceDrumChannel10Key, true).toBool();
+    settings.endGroup();
+    return enabled;
+}
+
+void setMidiExportForceDrumChannel10(bool enabled)
+{
+    QSettings settings;
+    settings.beginGroup(settingsGroupMidi);
+    settings.setValue(midiExportForceDrumChannel10Key, enabled);
+    settings.endGroup();
+}
+
+bool midiExportAutoAssignChannels()
+{
+    QSettings settings;
+    settings.beginGroup(settingsGroupMidi);
+    const auto enabled = settings.value(midiExportAutoAssignChannelsKey, true).toBool();
+    settings.endGroup();
+    return enabled;
+}
+
+void setMidiExportAutoAssignChannels(bool enabled)
+{
+    QSettings settings;
+    settings.beginGroup(settingsGroupMidi);
+    settings.setValue(midiExportAutoAssignChannelsKey, enabled);
     settings.endGroup();
 }
 

@@ -194,7 +194,7 @@ void ApplicationService::requestAudioRenderDialog()
     emit audioRenderDialogRequested();
 }
 
-void ApplicationService::exportMidiFile(QUrl url, quint64 startPosition, quint64 endPosition, bool exportBank, bool exportProgramChange, bool exportMidiCc, bool exportPitchBend)
+void ApplicationService::exportMidiFile(QUrl url, quint64 startPosition, quint64 endPosition, bool exportBank, bool exportProgramChange, bool exportMidiCc, bool exportPitchBend, bool forceDrumChannel10, bool autoAssignChannels)
 {
     auto fileName = url.toLocalFile();
     if (fileName.isEmpty()) {
@@ -209,6 +209,8 @@ void ApplicationService::exportMidiFile(QUrl url, quint64 startPosition, quint64
     options.exportProgramChange = exportProgramChange;
     options.exportMidiCc = exportMidiCc;
     options.exportPitchBend = exportPitchBend;
+    options.forceDrumChannel10 = forceDrumChannel10;
+    options.autoAssignChannels = autoAssignChannels;
     emit midiExportRequested(fileName, startPosition, endPosition, options);
 }
 

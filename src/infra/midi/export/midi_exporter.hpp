@@ -42,6 +42,8 @@ struct MidiExportOptions
     bool exportProgramChange = true;
     bool exportMidiCc = true;
     bool exportPitchBend = true;
+    bool forceDrumChannel10 = true;
+    bool autoAssignChannels = true;
 };
 
 class MidiExporter

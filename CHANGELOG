@@ -45,6 +45,8 @@ Bug fixes:
 
 * Fix GitHub Issue #48: Percussion tracks not exported to MIDI Channel 10
   - Automatically map drum tracks and tracks manually set to Channel 10 to MIDI Channel 10 in export
+  - Add "Force drum tracks as channel #10" and "Auto-assign channels" export options
+  - Persist MIDI export options
 
 * Fix Synth's BPM Delay being out of sync due to missing sample rate updates and initial BPM propagation
 

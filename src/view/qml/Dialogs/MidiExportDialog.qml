@@ -83,6 +83,18 @@ Dialog {
                         text: qsTr("Export Pitch Bend")
                         checked: true
                     }
+                    CheckBox {
+                        id: forceDrumChannel10CheckBox
+                        text: qsTr("Force drum tracks as channel #10")
+                        checked: settingsService.midiExportForceDrumChannel10
+                        onCheckedChanged: settingsService.midiExportForceDrumChannel10 = checked
+                    }
+                    CheckBox {
+                        id: autoAssignChannelsCheckBox
+                        text: qsTr("Auto-assign channels")
+                        checked: settingsService.midiExportAutoAssignChannels
+                        onCheckedChanged: settingsService.midiExportAutoAssignChannels = checked
+                    }
                 }
             }
         }
@@ -96,7 +108,7 @@ Dialog {
             text: qsTr("Export")
             enabled: rootItem.outputFileName
             onClicked: {
-                applicationService.exportMidiFile(rootItem.outputFileName, startPositionSpinBox.value, endPositionSpinBox.value, exportBankCheckBox.checked, exportProgramChangeCheckBox.checked, exportMidiCcCheckBox.checked, exportPitchBendCheckBox.checked);
+                applicationService.exportMidiFile(rootItem.outputFileName, startPositionSpinBox.value, endPositionSpinBox.value, exportBankCheckBox.checked, exportProgramChangeCheckBox.checked, exportMidiCcCheckBox.checked, exportPitchBendCheckBox.checked, forceDrumChannel10CheckBox.checked, autoAssignChannelsCheckBox.checked);
                 rootItem.accept();
             }
         }

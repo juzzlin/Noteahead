@@ -329,14 +329,16 @@ MidiExporter::TrackProcessingState MidiExporter::initializeTracks(const SongS & 
 
         const auto & portName = activeTracks.trackToPortName.at(trackIndex);
         uint8_t trackChannel;
-        if (instrument->settings().drumTrack || instrument->midiAddress().channel() == 9) {
+        if (options.forceDrumChannel10 && (instrument->settings().drumTrack || instrument->midiAddress().channel() == 9)) {
             trackChannel = 9;
-        } else {
+        } else if (options.autoAssignChannels) {
             uint8_t & channel = portChannelCounters[portName];
             if (channel == 9) { // Skip drum channel 10
                 channel++;
             }
             trackChannel = channel++;
+        } else {
+            trackChannel = instrument->midiAddress().channel();
         }
         state.trackToChannelMap[trackIndex] = trackChannel;
 

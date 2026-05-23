@@ -106,7 +106,7 @@ public:
     Q_INVOKABLE void saveProjectAsTemplate(QUrl url);
 
     Q_INVOKABLE void requestMidiExportDialog();
-    Q_INVOKABLE void exportMidiFile(QUrl url, quint64 startPosition, quint64 endPosition, bool exportBank, bool exportProgramChange, bool exportMidiCc, bool exportPitchBend);
+    Q_INVOKABLE void exportMidiFile(QUrl url, quint64 startPosition, quint64 endPosition, bool exportBank, bool exportProgramChange, bool exportMidiCc, bool exportPitchBend, bool forceDrumChannel10, bool autoAssignChannels);
 
     Q_INVOKABLE void requestAudioRenderDialog();
 

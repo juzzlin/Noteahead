@@ -194,6 +194,32 @@ void SettingsService::setWaveViewEnabled(bool enabled)
     }
 }
 
+bool SettingsService::midiExportForceDrumChannel10() const
+{
+    return Settings::midiExportForceDrumChannel10();
+}
+
+void SettingsService::setMidiExportForceDrumChannel10(bool enabled)
+{
+    if (midiExportForceDrumChannel10() != enabled) {
+        Settings::setMidiExportForceDrumChannel10(enabled);
+        emit midiExportForceDrumChannel10Changed();
+    }
+}
+
+bool SettingsService::midiExportAutoAssignChannels() const
+{
+    return Settings::midiExportAutoAssignChannels();
+}
+
+void SettingsService::setMidiExportAutoAssignChannels(bool enabled)
+{
+    if (midiExportAutoAssignChannels() != enabled) {
+        Settings::setMidiExportAutoAssignChannels(enabled);
+        emit midiExportAutoAssignChannelsChanged();
+    }
+}
+
 int SettingsService::audioBufferSize() const
 {
     return Settings::audioBufferSize();
