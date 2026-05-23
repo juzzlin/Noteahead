@@ -41,6 +41,7 @@ public:
     std::string typeId() const override { return typeIdString(); }
     void process(float & left, float & right) override;
     void process(AudioContext & context) override;
+    void setSampleRate(double sampleRate) override;
     void reset() override;
 
     void setType(Type type);

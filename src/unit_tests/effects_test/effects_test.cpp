@@ -220,6 +220,62 @@ void EffectsTest::test_delayEffect_shouldProcessSignalAndHandleSampleRateChanges
     QCOMPARE(effect.sampleRate(), 48000.0);
 }
 
+void EffectsTest::test_delayEffect_shouldProduceDelayedSignal()
+{
+    DelayEffect effect;
+    const float sampleRate = 44100.0f;
+    effect.setSampleRate(sampleRate);
+    effect.setMix(1.0f); // 100% wet
+    effect.setFeedback(0.0f); // No feedback for simplicity
+    effect.setTime(0.1f); // 100ms delay = 4410 samples
+    effect.setSync(false);
+
+    // Initial output should be silence (buffer is empty)
+    float left = 1.0f;
+    float right = 1.0f;
+    effect.process(left, right);
+    QCOMPARE(left, 0.0f);
+    QCOMPARE(right, 0.0f);
+
+    // Process enough samples to reach the delay time
+    const int delaySamples = static_cast<int>(0.1f * sampleRate);
+    for (int i = 0; i + 1 < delaySamples; i++) {
+        float l = 0.0f;
+        float r = 0.0f;
+        effect.process(l, r);
+    }
+
+    // Now the 1.0f pulse should come out
+    left = 0.0f;
+    right = 0.0f;
+    effect.process(left, right);
+    QVERIFY(std::abs(left - 1.0f) < 1.0e-3f);
+    QVERIFY(std::abs(right - 1.0f) < 1.0e-3f);
+
+    // Test synced delay
+    effect.reset();
+    effect.setSync(true);
+    effect.setBpm(120.0f);
+    effect.setSyncDivision(0.25f); // 120 BPM, 1/4 note = 0.5s = 22050 samples
+    const int syncDelaySamples = static_cast<int>(0.5f * sampleRate);
+    
+    left = 1.0f;
+    right = 1.0f;
+    effect.process(left, right);
+    
+    for (int i = 0; i + 1 < syncDelaySamples; i++) {
+        float l = 0.0f;
+        float r = 0.0f;
+        effect.process(l, r);
+    }
+    
+    left = 0.0f;
+    right = 0.0f;
+    effect.process(left, right);
+    QVERIFY(std::abs(left - 1.0f) < 1.0e-3f);
+    QVERIFY(std::abs(right - 1.0f) < 1.0e-3f);
+}
+
 void EffectsTest::test_compressorEffect_shouldReduceGainAndHandleLookahead()
 {
     CompressorEffect effect;

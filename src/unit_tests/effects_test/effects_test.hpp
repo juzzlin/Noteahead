@@ -31,6 +31,7 @@ private slots:
     void test_highPassFilterEffect_shouldProcessAudioStablely();
     void test_reverb_mix_shouldApplyEffectBasedOnMixLevel();
     void test_delayEffect_shouldProcessSignalAndHandleSampleRateChanges();
+    void test_delayEffect_shouldProduceDelayedSignal();
     void test_compressorEffect_shouldReduceGainAndHandleLookahead();
     void test_eq8BandParametricEffect_shouldApplyBandsAndBeStable();
     void test_filterStability_shouldHandleChangingCutoff();

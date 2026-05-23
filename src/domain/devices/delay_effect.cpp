@@ -33,7 +33,14 @@ DelayEffect::DelayEffect()
 
 void DelayEffect::process(float & left, float & right)
 {
-    if (m_mix <= Constants::minEffectLevel()) return;
+    if (m_mix <= Constants::minEffectLevel()) {
+        return;
+    }
+
+    const size_t bufSize = m_bufferL.size();
+    if (bufSize == 0) {
+        return;
+    }
 
     float delayTime;
     if (m_sync) {
@@ -43,19 +50,20 @@ void DelayEffect::process(float & left, float & right)
     }
 
     const uint32_t sampleRate = static_cast<uint32_t>(m_sampleRate);
-    double delaySamples = static_cast<double>(delayTime) * sampleRate;
-    size_t bufSize = m_bufferL.size();
-
-    // Clamp delay samples to avoid reading out of bounds if buffer is too small
-    delaySamples = std::clamp(delaySamples, 1.0, static_cast<double>(bufSize - 2));
+    const double delaySamples = std::clamp(static_cast<double>(delayTime) * sampleRate, 1.0, static_cast<double>(bufSize - 2));
 
     auto readFromBuffer = [&](const std::vector<float>& buf, double delay) {
         double readPos = static_cast<double>(m_writePos) - delay;
-        while (readPos < 0) readPos += bufSize;
+        while (readPos < 0) {
+            readPos += static_cast<double>(bufSize);
+        }
+        while (readPos >= static_cast<double>(bufSize)) {
+            readPos -= static_cast<double>(bufSize);
+        }
         
-        size_t i0 = static_cast<size_t>(readPos) % bufSize;
-        size_t i1 = (i0 + 1) % bufSize;
-        float frac = static_cast<float>(readPos - static_cast<double>(static_cast<size_t>(readPos)));
+        const size_t i0 = static_cast<size_t>(readPos) % bufSize;
+        const size_t i1 = (i0 + 1) % bufSize;
+        const float frac = static_cast<float>(readPos - static_cast<double>(i0));
         
         return buf[i0] * (1.0f - frac) + buf[i1] * frac;
     };
@@ -83,26 +91,30 @@ void DelayEffect::process(float & left, float & right)
     fbR = m_fbHpfR.process(fbR);
 
     // Denormal protection for feedback states
-    if (std::abs(m_lpStateL) < 1.0e-15f) m_lpStateL = 0.0f;
-    if (std::abs(m_lpStateR) < 1.0e-15f) m_lpStateR = 0.0f;
+    if (std::abs(m_lpStateL) < 1.0e-15f) {
+        m_lpStateL = 0.0f;
+    }
+    if (std::abs(m_lpStateR) < 1.0e-15f) {
+        m_lpStateR = 0.0f;
+    }
 
     // 3. Routing and Write-back
-    float inputL = left;
-    float inputR = right;
+    const float inputL = left;
+    const float inputR = right;
 
     if (m_type == Type::PingPong) {
         // Ping-Pong: Depth controls stereo width/bounce amount.
         // 0.0 = Mono (both delay lines get both inputs)
         // 1.0 = Wide (Left delay gets Left input, Right delay gets feedback from Left)
-        float inL = inputL + inputR * (1.0f - m_depth);
-        float inR = inputR * (1.0f - m_depth);
+        const float inL = inputL + inputR * (1.0f - m_depth);
+        const float inR = inputR * (1.0f - m_depth);
         
         m_bufferL[m_writePos] = inL + fbR * m_feedback;
         m_bufferR[m_writePos] = inR + fbL * m_feedback;
     } else if (m_type == Type::Mono) {
         // Sum input and feedback to mono delay line
-        float monoInput = (inputL + inputR) * 0.5f;
-        float monoFb = (fbL + fbR) * 0.5f * m_feedback;
+        const float monoInput = (inputL + inputR) * 0.5f;
+        const float monoFb = (fbL + fbR) * 0.5f * m_feedback;
         m_bufferL[m_writePos] = m_bufferR[m_writePos] = monoInput + monoFb;
         outL = outR = (outL + outR) * 0.5f;
     } else {
@@ -122,10 +134,8 @@ void DelayEffect::process(float & left, float & right)
 
 void DelayEffect::process(AudioContext & context)
 {
-    if (m_sampleRate <= 0) return;
-
     const auto sampleRate = static_cast<uint32_t>(m_sampleRate);
-    if (sampleRate != m_lastSampleRate) {
+    if ((sampleRate != m_lastSampleRate || m_bufferL.empty()) && sampleRate > 0) {
         updateBuffers(sampleRate);
         m_lastSampleRate = sampleRate;
         m_fbLpfL.setSampleRate(m_sampleRate);
@@ -141,6 +151,20 @@ void DelayEffect::process(AudioContext & context)
 
     for (uint32_t i = 0; i < context.frameCount; i++) {
         process(context.buffer[i * 2], context.buffer[i * 2 + 1]);
+    }
+}
+
+void DelayEffect::setSampleRate(double sampleRate)
+{
+    if (std::abs(m_sampleRate - sampleRate) > 0.1 || m_bufferL.empty()) {
+        DspComponent::setSampleRate(sampleRate);
+        const auto rate = static_cast<uint32_t>(m_sampleRate);
+        updateBuffers(rate);
+        m_lastSampleRate = rate;
+        m_fbLpfL.setSampleRate(m_sampleRate);
+        m_fbLpfR.setSampleRate(m_sampleRate);
+        m_fbHpfL.setSampleRate(m_sampleRate);
+        m_fbHpfR.setSampleRate(m_sampleRate);
     }
 }
 
