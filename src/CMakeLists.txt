@@ -496,3 +496,5 @@ endif()
 include(${CMAKE_SOURCE_DIR}/cmake/DebianPackagingDefaultQt.cmake)
 
 include(CPack)
+
+include(Style.cmake)
