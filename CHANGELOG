@@ -43,6 +43,9 @@ New features:
 
 Bug fixes:
 
+* Fix GitHub Issue #48: Percussion tracks not exported to MIDI Channel 10
+  - Automatically map drum tracks and tracks manually set to Channel 10 to MIDI Channel 10 in export
+
 * Fix Synth's BPM Delay being out of sync due to missing sample rate updates and initial BPM propagation
 
 * Fix metallic ringing in reverb at very small sizes by ensuring musical minimum delay lengths

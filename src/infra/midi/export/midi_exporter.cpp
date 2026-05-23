@@ -328,11 +328,16 @@ MidiExporter::TrackProcessingState MidiExporter::initializeTracks(const SongS & 
         state.lastTicks[trackIndex] = 0;
 
         const auto & portName = activeTracks.trackToPortName.at(trackIndex);
-        uint8_t & channel = portChannelCounters[portName];
-        if (channel == 9) { // Skip drum channel 10
-            channel++;
+        uint8_t trackChannel;
+        if (instrument->settings().drumTrack || instrument->midiAddress().channel() == 9) {
+            trackChannel = 9;
+        } else {
+            uint8_t & channel = portChannelCounters[portName];
+            if (channel == 9) { // Skip drum channel 10
+                channel++;
+            }
+            trackChannel = channel++;
         }
-        const uint8_t trackChannel = channel++;
         state.trackToChannelMap[trackIndex] = trackChannel;
 
         state.allTracksData[trackIndex] = initializeTrack(song, trackIndex, trackChannel, activeTracks, options);

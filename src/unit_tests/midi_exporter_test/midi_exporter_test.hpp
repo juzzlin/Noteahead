@@ -35,6 +35,8 @@ private slots:
     void test_exportTo_timing_shouldBeCorrect();
     void test_exportTo_emptySong_shouldExportValidMidi();
     void test_exportTo_nonSequentialTracks_shouldExportCorrectly();
+    void test_exportTo_drumTrack_shouldExportToChannel10();
+    void test_exportTo_manualChannel10_shouldExportToChannel10();
 };
 
 } // namespace noteahead
