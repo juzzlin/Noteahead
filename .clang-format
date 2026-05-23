@@ -34,4 +34,6 @@ PointerBindsToType: false
 SortIncludes: true
 SpaceAfterTemplateKeyword: false
 Standard: Cpp11
+SeparateDefinitionBlocks: Always
+MaxEmptyLinesToKeep: 1
 
