@@ -176,6 +176,7 @@ void EffectRackController::clearEffect(int slotIndex)
         emit revisionChanged();
     }
 }
+
 QVariantList EffectRackController::availableEffects() const
 {
     QVariantList list;

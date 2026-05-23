@@ -31,40 +31,49 @@ public:
         m_isOpen = true;
         return true;
     }
+
     void close() override
     {
         m_isOpen = false;
     }
+
     int64_t readFloat(std::span<float>) override
     {
         return 0;
     }
+
     int64_t readDouble(std::span<double>) override
     {
         return 0;
     }
+
     int64_t readInt(std::span<int32_t>) override
     {
         return 0;
     }
+
     int64_t writeFloat(std::span<const float> data) override
     {
         std::lock_guard<std::mutex> lock(m_mutex);
         m_data.insert(m_data.end(), data.begin(), data.end());
         return static_cast<int64_t>(data.size() / 2);
     }
+
     int64_t writeInt(std::span<const int32_t>) override
     {
         return 0;
     }
+
     bool seek(int64_t, int) override
     {
         return true;
     }
+
     bool isOpen() const override
     {
         return m_isOpen;
     }
+
     Info info() const override
     {
         return m_info;

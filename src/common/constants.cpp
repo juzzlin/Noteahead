@@ -984,10 +984,12 @@ QString xmlKeyDelayDepth()
 {
     return "delayDepth";
 }
+
 QString xmlKeyDelayMix()
 {
     return "delayMix";
 }
+
 QString xmlKeyDelaySync()
 {
     return "delaySync";
@@ -997,10 +999,12 @@ QString xmlKeyDelaySyncDivision()
 {
     return "delaySyncDivision";
 }
+
 QString xmlKeyDelayFeedbackLpf()
 {
     return "delayFeedbackLpf";
 }
+
 QString xmlKeyDelayFeedbackHpf()
 {
     return "delayFeedbackHpf";
@@ -1010,22 +1014,27 @@ QString xmlKeyReverbSize()
 {
     return "reverbSize";
 }
+
 QString xmlKeyReverbDecay()
 {
     return "reverbDecay";
 }
+
 QString xmlKeyReverbDamping()
 {
     return "reverbDamping";
 }
+
 QString xmlKeyReverbPreDelay()
 {
     return "reverbPreDelay";
 }
+
 QString xmlKeyReverbMix()
 {
     return "reverbMix";
 }
+
 QString xmlKeyReverbWidth()
 {
     return "reverbWidth";
@@ -1035,14 +1044,17 @@ QString xmlKeyCompressorThreshold()
 {
     return "threshold";
 }
+
 QString xmlKeyCompressorRatio()
 {
     return "ratio";
 }
+
 QString xmlKeyCompressorKnee()
 {
     return "knee";
 }
+
 QString xmlKeyCompressorMakeup()
 {
     return "makeup";
@@ -1052,14 +1064,17 @@ QString xmlKeyEq8BandParametricType(int bandIndex)
 {
     return QString("eq8BandParametricBand%1Type").arg(bandIndex + 1);
 }
+
 QString xmlKeyEq8BandParametricFreq(int bandIndex)
 {
     return QString("eq8BandParametricBand%1Freq").arg(bandIndex + 1);
 }
+
 QString xmlKeyEq8BandParametricGain(int bandIndex)
 {
     return QString("eq8BandParametricBand%1Gain").arg(bandIndex + 1);
 }
+
 QString xmlKeyEq8BandParametricQ(int bandIndex)
 {
     return QString("eq8BandParametricBand%1Q").arg(bandIndex + 1);
@@ -1069,18 +1084,22 @@ QString xmlKeySynthVco1Waveform()
 {
     return "vco1Waveform";
 }
+
 QString xmlKeySynthVco1Octave()
 {
     return "vco1Octave";
 }
+
 QString xmlKeySynthVco1Pitch()
 {
     return "vco1Pitch";
 }
+
 QString xmlKeySynthVco1Shape()
 {
     return "vco1Shape";
 }
+
 QString xmlKeySynthVco1Sync()
 {
     return "vco1Sync";
@@ -1090,18 +1109,22 @@ QString xmlKeySynthVco2Waveform()
 {
     return "vco2Waveform";
 }
+
 QString xmlKeySynthVco2Octave()
 {
     return "vco2Octave";
 }
+
 QString xmlKeySynthVco2Pitch()
 {
     return "vco2Pitch";
 }
+
 QString xmlKeySynthVco2Shape()
 {
     return "vco2Shape";
 }
+
 QString xmlKeySynthVco2Sync()
 {
     return "vco2Sync";
@@ -1111,10 +1134,12 @@ QString xmlKeySynthMultiMode()
 {
     return "multiMode";
 }
+
 QString xmlKeySynthMultiShape()
 {
     return "multiShape";
 }
+
 QString xmlKeySynthMultiLevel()
 {
     return "multiLevel";
@@ -1124,6 +1149,7 @@ QString xmlKeySynthMixLevel1()
 {
     return "mixLevel1";
 }
+
 QString xmlKeySynthMixLevel2()
 {
     return "mixLevel2";
@@ -1133,10 +1159,12 @@ QString xmlKeySynthLpfCutoff()
 {
     return "lpfCutoff";
 }
+
 QString xmlKeySynthLpfResonance()
 {
     return "lpfResonance";
 }
+
 QString xmlKeySynthHpfCutoff()
 {
     return "hpfCutoff";
@@ -1146,14 +1174,17 @@ QString xmlKeySynthAmpAttack()
 {
     return "ampAttack";
 }
+
 QString xmlKeySynthAmpDecay()
 {
     return "ampDecay";
 }
+
 QString xmlKeySynthAmpSustain()
 {
     return "ampSustain";
 }
+
 QString xmlKeySynthAmpRelease()
 {
     return "ampRelease";
@@ -1163,14 +1194,17 @@ QString xmlKeySynthModAttack()
 {
     return "modAttack";
 }
+
 QString xmlKeySynthModDecay()
 {
     return "modDecay";
 }
+
 QString xmlKeySynthModIntensity()
 {
     return "modIntensity";
 }
+
 QString xmlKeySynthModTarget()
 {
     return "modTarget";
@@ -1180,10 +1214,12 @@ QString xmlKeyUserPresets()
 {
     return "UserPresets";
 }
+
 QString xmlKeyPreset()
 {
     return "Preset";
 }
+
 QString xmlKeyTypeId()
 {
     return "typeId";
@@ -1193,18 +1229,22 @@ QString xmlKeySynthLfoWaveform()
 {
     return "lfoWaveform";
 }
+
 QString xmlKeySynthLfoMode()
 {
     return "lfoMode";
 }
+
 QString xmlKeySynthLfoRate()
 {
     return "lfoRate";
 }
+
 QString xmlKeySynthLfoIntensity()
 {
     return "lfoIntensity";
 }
+
 QString xmlKeySynthLfoTarget()
 {
     return "lfoTarget";
@@ -1214,34 +1254,42 @@ QString xmlKeyBassSynth()
 {
     return "BassSynth";
 }
+
 QString xmlKeySubLevel()
 {
     return "subLevel";
 }
+
 QString xmlKeySubOctave()
 {
     return "subOctave";
 }
+
 QString xmlKeyEnvMod()
 {
     return "envMod";
 }
+
 QString xmlKeyAccent()
 {
     return "accent";
 }
+
 QString xmlKeySlide()
 {
     return "slide";
 }
+
 QString xmlKeyDistDrive()
 {
     return "distDrive";
 }
+
 QString xmlKeyDistTone()
 {
     return "distTone";
 }
+
 QString xmlKeyDistLevel()
 {
     return "distLevel";
@@ -1261,10 +1309,12 @@ QString xmlKeySamplePath()
 {
     return "path";
 }
+
 QString xmlKeyChannelMode()
 {
     return "channelMode";
 }
+
 QString xmlKeyStartOffset()
 {
     return "startOffset";
@@ -1274,30 +1324,37 @@ QString xmlKeyDrumSynth()
 {
     return "DrumSynth";
 }
+
 QString xmlKeyPad()
 {
     return "Pad";
 }
+
 QString xmlKeyTune()
 {
     return "tune";
 }
+
 QString xmlKeyClickTune()
 {
     return "clickTune";
 }
+
 QString xmlKeySnappy()
 {
     return "snappy";
 }
+
 QString xmlKeyTone()
 {
     return "tone";
 }
+
 QString xmlKeyPitchDepth()
 {
     return "pitchDepth";
 }
+
 QString xmlKeyPitchDecay()
 {
     return "pitchDecay";

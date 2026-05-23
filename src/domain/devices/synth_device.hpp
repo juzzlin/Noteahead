@@ -66,6 +66,7 @@ public:
     std::string category() const override;
     std::string typeName() const override;
     std::string typeId() const override;
+
     static std::string typeIdString()
     {
         return "26f5a47e-4786-11f1-92b0-0b3f3bef9f74";

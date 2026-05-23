@@ -27,6 +27,7 @@ void HighPassFilterEffect::setCutoff(float cutoff)
 {
     m_cutoff = cutoff;
 }
+
 void HighPassFilterEffect::process(float & left, float & right)
 {
     if (m_cutoff <= 0.001f) {

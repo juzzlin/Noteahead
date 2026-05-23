@@ -97,6 +97,7 @@ public:
     {
         return m_selectionService;
     }
+
     SettingsServiceS settingsService() const
     {
         return m_settingsService;

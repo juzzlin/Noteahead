@@ -96,6 +96,7 @@ private:
         QString fileName;
         std::vector<quint64> soloTracks;
     };
+
     std::vector<RenderJob> m_queue;
     size_t m_currentJobIndex = 0;
 };

@@ -334,6 +334,7 @@ void SynthDevice::processMidiCc(uint8_t controller, uint8_t value, uint8_t)
         emit dataChanged();
     }
 }
+
 void SynthDevice::processMidiAllNotesOff()
 {
     {
@@ -815,6 +816,7 @@ PolyBlepOscillator::Waveform SynthDevice::vco1Waveform() const
 {
     return m_vco1Waveform;
 }
+
 void SynthDevice::setVco1Waveform(PolyBlepOscillator::Waveform wave)
 {
     bool changed = false;
@@ -829,10 +831,12 @@ void SynthDevice::setVco1Waveform(PolyBlepOscillator::Waveform wave)
     if (changed)
         emit dataChanged();
 }
+
 int SynthDevice::vco1Octave() const
 {
     return m_vco1Octave;
 }
+
 void SynthDevice::setVco1Octave(int octave)
 {
     bool changed = false;
@@ -847,10 +851,12 @@ void SynthDevice::setVco1Octave(int octave)
     if (changed)
         emit dataChanged();
 }
+
 float SynthDevice::vco1Pitch() const
 {
     return m_vco1Pitch;
 }
+
 void SynthDevice::setVco1Pitch(float pitch)
 {
     bool changed = false;
@@ -865,10 +871,12 @@ void SynthDevice::setVco1Pitch(float pitch)
     if (changed)
         emit dataChanged();
 }
+
 float SynthDevice::vco1Shape() const
 {
     return m_vco1Shape;
 }
+
 void SynthDevice::setVco1Shape(float shape)
 {
     bool changed = false;
@@ -883,10 +891,12 @@ void SynthDevice::setVco1Shape(float shape)
     if (changed)
         emit dataChanged();
 }
+
 bool SynthDevice::vco1Sync() const
 {
     return m_vco1Sync;
 }
+
 void SynthDevice::setVco1Sync(bool sync)
 {
     bool changed = false;
@@ -907,6 +917,7 @@ PolyBlepOscillator::Waveform SynthDevice::vco2Waveform() const
 {
     return m_vco2Waveform;
 }
+
 void SynthDevice::setVco2Waveform(PolyBlepOscillator::Waveform wave)
 {
     bool changed = false;
@@ -921,10 +932,12 @@ void SynthDevice::setVco2Waveform(PolyBlepOscillator::Waveform wave)
     if (changed)
         emit dataChanged();
 }
+
 int SynthDevice::vco2Octave() const
 {
     return m_vco2Octave;
 }
+
 void SynthDevice::setVco2Octave(int octave)
 {
     bool changed = false;
@@ -939,10 +952,12 @@ void SynthDevice::setVco2Octave(int octave)
     if (changed)
         emit dataChanged();
 }
+
 float SynthDevice::vco2Pitch() const
 {
     return m_vco2Pitch;
 }
+
 void SynthDevice::setVco2Pitch(float pitch)
 {
     bool changed = false;
@@ -957,10 +972,12 @@ void SynthDevice::setVco2Pitch(float pitch)
     if (changed)
         emit dataChanged();
 }
+
 float SynthDevice::vco2Shape() const
 {
     return m_vco2Shape;
 }
+
 void SynthDevice::setVco2Shape(float shape)
 {
     bool changed = false;
@@ -975,10 +992,12 @@ void SynthDevice::setVco2Shape(float shape)
     if (changed)
         emit dataChanged();
 }
+
 bool SynthDevice::vco2Sync() const
 {
     return m_vco2Sync;
 }
+
 void SynthDevice::setVco2Sync(bool sync)
 {
     bool changed = false;
@@ -999,6 +1018,7 @@ MultiEngine::Type SynthDevice::multiType() const
 {
     return m_multiType;
 }
+
 void SynthDevice::setMultiType(MultiEngine::Type type)
 {
     bool changed = false;
@@ -1013,10 +1033,12 @@ void SynthDevice::setMultiType(MultiEngine::Type type)
     if (changed)
         emit dataChanged();
 }
+
 float SynthDevice::multiShape() const
 {
     return m_multiShape;
 }
+
 void SynthDevice::setMultiShape(float shape)
 {
     bool changed = false;
@@ -1031,10 +1053,12 @@ void SynthDevice::setMultiShape(float shape)
     if (changed)
         emit dataChanged();
 }
+
 float SynthDevice::multiLevel() const
 {
     return m_multiLevel;
 }
+
 void SynthDevice::setMultiLevel(float level)
 {
     bool changed = false;
@@ -1049,10 +1073,12 @@ void SynthDevice::setMultiLevel(float level)
     if (changed)
         emit dataChanged();
 }
+
 float SynthDevice::multiKeyTrack() const
 {
     return m_multiKeyTrack;
 }
+
 void SynthDevice::setMultiKeyTrack(float keyTrack)
 {
     bool changed = false;
@@ -1073,6 +1099,7 @@ float SynthDevice::mixVco1() const
 {
     return m_mixVco1;
 }
+
 void SynthDevice::setMixVco1(float level)
 {
     bool changed = false;
@@ -1087,10 +1114,12 @@ void SynthDevice::setMixVco1(float level)
     if (changed)
         emit dataChanged();
 }
+
 float SynthDevice::mixVco2() const
 {
     return m_mixVco2;
 }
+
 void SynthDevice::setMixVco2(float level)
 {
     bool changed = false;
@@ -1111,6 +1140,7 @@ float SynthDevice::lpfCutoff() const
 {
     return m_lpfCutoff;
 }
+
 void SynthDevice::setLpfCutoff(float cutoff)
 {
     bool changed = false;
@@ -1126,10 +1156,12 @@ void SynthDevice::setLpfCutoff(float cutoff)
     if (changed)
         emit dataChanged();
 }
+
 float SynthDevice::lpfResonance() const
 {
     return m_lpfResonance;
 }
+
 void SynthDevice::setLpfResonance(float resonance)
 {
     bool changed = false;
@@ -1144,10 +1176,12 @@ void SynthDevice::setLpfResonance(float resonance)
     if (changed)
         emit dataChanged();
 }
+
 float SynthDevice::hpfCutoff() const
 {
     return m_hpfCutoff;
 }
+
 void SynthDevice::setHpfCutoff(float cutoff)
 {
     bool changed = false;
@@ -1163,10 +1197,12 @@ void SynthDevice::setHpfCutoff(float cutoff)
     if (changed)
         emit dataChanged();
 }
+
 float SynthDevice::filterKeyTrack() const
 {
     return m_filterKeyTrack;
 }
+
 void SynthDevice::setFilterKeyTrack(float track)
 {
     bool changed = false;
@@ -1187,6 +1223,7 @@ float SynthDevice::ampAttack() const
 {
     return m_ampAttack;
 }
+
 void SynthDevice::setAmpAttack(float a)
 {
     bool changed = false;
@@ -1201,10 +1238,12 @@ void SynthDevice::setAmpAttack(float a)
     if (changed)
         emit dataChanged();
 }
+
 float SynthDevice::ampDecay() const
 {
     return m_ampDecay;
 }
+
 void SynthDevice::setAmpDecay(float d)
 {
     bool changed = false;
@@ -1219,10 +1258,12 @@ void SynthDevice::setAmpDecay(float d)
     if (changed)
         emit dataChanged();
 }
+
 float SynthDevice::ampSustain() const
 {
     return m_ampSustain;
 }
+
 void SynthDevice::setAmpSustain(float s)
 {
     bool changed = false;
@@ -1237,10 +1278,12 @@ void SynthDevice::setAmpSustain(float s)
     if (changed)
         emit dataChanged();
 }
+
 float SynthDevice::ampRelease() const
 {
     return m_ampRelease;
 }
+
 void SynthDevice::setAmpRelease(float r)
 {
     bool changed = false;
@@ -1261,6 +1304,7 @@ float SynthDevice::modAttack() const
 {
     return m_modAttack;
 }
+
 void SynthDevice::setModAttack(float a)
 {
     bool changed = false;
@@ -1275,10 +1319,12 @@ void SynthDevice::setModAttack(float a)
     if (changed)
         emit dataChanged();
 }
+
 float SynthDevice::modDecay() const
 {
     return m_modDecay;
 }
+
 void SynthDevice::setModDecay(float d)
 {
     bool changed = false;
@@ -1293,10 +1339,12 @@ void SynthDevice::setModDecay(float d)
     if (changed)
         emit dataChanged();
 }
+
 float SynthDevice::modInt() const
 {
     return m_modInt;
 }
+
 void SynthDevice::setModInt(float intensity)
 {
     bool changed = false;
@@ -1311,10 +1359,12 @@ void SynthDevice::setModInt(float intensity)
     if (changed)
         emit dataChanged();
 }
+
 SynthDevice::ModTarget SynthDevice::modTarget() const
 {
     return m_modTarget;
 }
+
 void SynthDevice::setModTarget(ModTarget target)
 {
     bool changed = false;
@@ -1335,6 +1385,7 @@ Lfo::Waveform SynthDevice::lfoWaveform() const
 {
     return m_lfoWaveform;
 }
+
 void SynthDevice::setLfoWaveform(Lfo::Waveform wave)
 {
     bool changed = false;
@@ -1349,10 +1400,12 @@ void SynthDevice::setLfoWaveform(Lfo::Waveform wave)
     if (changed)
         emit dataChanged();
 }
+
 Lfo::Mode SynthDevice::lfoMode() const
 {
     return m_lfoMode;
 }
+
 void SynthDevice::setLfoMode(Lfo::Mode mode)
 {
     bool changed = false;
@@ -1367,10 +1420,12 @@ void SynthDevice::setLfoMode(Lfo::Mode mode)
     if (changed)
         emit dataChanged();
 }
+
 float SynthDevice::lfoRate() const
 {
     return m_lfoRate;
 }
+
 void SynthDevice::setLfoRate(float rate)
 {
     bool changed = false;
@@ -1385,10 +1440,12 @@ void SynthDevice::setLfoRate(float rate)
     if (changed)
         emit dataChanged();
 }
+
 float SynthDevice::lfoInt() const
 {
     return m_lfoInt;
 }
+
 void SynthDevice::setLfoInt(float intensity)
 {
     bool changed = false;
@@ -1403,10 +1460,12 @@ void SynthDevice::setLfoInt(float intensity)
     if (changed)
         emit dataChanged();
 }
+
 SynthDevice::LfoTarget SynthDevice::lfoTarget() const
 {
     return m_lfoTarget;
 }
+
 void SynthDevice::setLfoTarget(LfoTarget target)
 {
     bool changed = false;
@@ -1427,6 +1486,7 @@ SynthDevice::VoiceMode SynthDevice::voiceMode() const
 {
     return m_voiceMode;
 }
+
 void SynthDevice::setVoiceMode(VoiceMode mode)
 {
     bool changed = false;
@@ -1441,10 +1501,12 @@ void SynthDevice::setVoiceMode(VoiceMode mode)
     if (changed)
         emit dataChanged();
 }
+
 float SynthDevice::voiceDepth() const
 {
     return m_voiceDepth;
 }
+
 void SynthDevice::setVoiceDepth(float depth)
 {
     bool changed = false;
@@ -1459,10 +1521,12 @@ void SynthDevice::setVoiceDepth(float depth)
     if (changed)
         emit dataChanged();
 }
+
 float SynthDevice::portamento() const
 {
     return m_portamento;
 }
+
 void SynthDevice::setPortamento(float val)
 {
     bool changed = false;
@@ -1477,10 +1541,12 @@ void SynthDevice::setPortamento(float val)
     if (changed)
         emit dataChanged();
 }
+
 float SynthDevice::panSpread() const
 {
     return m_panSpread;
 }
+
 void SynthDevice::setPanSpread(float spread)
 {
     bool changed = false;
@@ -1495,10 +1561,12 @@ void SynthDevice::setPanSpread(float spread)
     if (changed)
         emit dataChanged();
 }
+
 int SynthDevice::pitchBendRange() const
 {
     return m_pitchBendRange;
 }
+
 void SynthDevice::setPitchBendRange(int range)
 {
     bool changed = false;
@@ -1513,23 +1581,28 @@ void SynthDevice::setPitchBendRange(int range)
     if (changed)
         emit dataChanged();
 }
+
 float SynthDevice::currentPitchBendOffset() const
 {
     const std::lock_guard<std::recursive_mutex> lock { mutex() };
     return (static_cast<float>(m_pitchBend) - 8192.0f) / 8192.0f * m_pitchBendRange;
 }
+
 void SynthDevice::setPan(float val)
 {
     Device::setPan(val);
 }
+
 void SynthDevice::setVolume(float vol)
 {
     Device::setVolume(vol);
 }
+
 float SynthDevice::gain() const
 {
     return Device::gain();
 }
+
 void SynthDevice::setGain(float val)
 {
     Device::setGain(val);
@@ -1540,6 +1613,7 @@ DelayEffect::Type SynthDevice::delayType() const
 {
     return m_delayType;
 }
+
 void SynthDevice::setDelayType(DelayEffect::Type type)
 {
     bool changed = false;
@@ -1554,10 +1628,12 @@ void SynthDevice::setDelayType(DelayEffect::Type type)
     if (changed)
         emit dataChanged();
 }
+
 float SynthDevice::delayTime() const
 {
     return m_delayTime;
 }
+
 void SynthDevice::setDelayTime(float time)
 {
     bool changed = false;
@@ -1572,10 +1648,12 @@ void SynthDevice::setDelayTime(float time)
     if (changed)
         emit dataChanged();
 }
+
 float SynthDevice::delayFeedback() const
 {
     return m_delayFeedback;
 }
+
 void SynthDevice::setDelayFeedback(float fb)
 {
     bool changed = false;
@@ -1590,10 +1668,12 @@ void SynthDevice::setDelayFeedback(float fb)
     if (changed)
         emit dataChanged();
 }
+
 float SynthDevice::delayDepth() const
 {
     return m_delayDepth;
 }
+
 void SynthDevice::setDelayDepth(float depth)
 {
     bool changed = false;
@@ -1608,10 +1688,12 @@ void SynthDevice::setDelayDepth(float depth)
     if (changed)
         emit dataChanged();
 }
+
 float SynthDevice::delayMix() const
 {
     return m_delayMix;
 }
+
 void SynthDevice::setDelayMix(float mix)
 {
     bool changed = false;
@@ -1626,10 +1708,12 @@ void SynthDevice::setDelayMix(float mix)
     if (changed)
         emit dataChanged();
 }
+
 bool SynthDevice::delaySync() const
 {
     return m_delaySync;
 }
+
 void SynthDevice::setDelaySync(bool sync)
 {
     bool changed = false;
@@ -1644,10 +1728,12 @@ void SynthDevice::setDelaySync(bool sync)
     if (changed)
         emit dataChanged();
 }
+
 float SynthDevice::delaySyncDivision() const
 {
     return m_delaySyncDivision;
 }
+
 void SynthDevice::setDelaySyncDivision(float division)
 {
     bool changed = false;
@@ -1662,10 +1748,12 @@ void SynthDevice::setDelaySyncDivision(float division)
     if (changed)
         emit dataChanged();
 }
+
 float SynthDevice::delayFeedbackLpf() const
 {
     return m_delay.feedbackLpf();
 }
+
 void SynthDevice::setFeedbackLpf(float cutoff)
 {
     bool changed = false;
@@ -1680,10 +1768,12 @@ void SynthDevice::setFeedbackLpf(float cutoff)
     if (changed)
         emit dataChanged();
 }
+
 float SynthDevice::delayFeedbackHpf() const
 {
     return m_delay.feedbackHpf();
 }
+
 void SynthDevice::setFeedbackHpf(float cutoff)
 {
     bool changed = false;

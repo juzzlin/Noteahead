@@ -35,10 +35,12 @@ public:
     {
         return "compressor";
     }
+
     std::string typeId() const override
     {
         return typeIdString();
     }
+
     void process(float & left, float & right) override;
     void process(AudioContext & context) override;
     void reset() override;

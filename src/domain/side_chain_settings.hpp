@@ -45,6 +45,7 @@ struct SideChainSettings
         uint8_t targetValue { 0 };
         uint8_t releaseValue { 0 };
     };
+
     std::vector<Target> targets;
 };
 

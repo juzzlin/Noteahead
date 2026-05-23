@@ -103,6 +103,7 @@ private:
         size_t column;
         quint8 note;
     };
+
     std::map<InstrumentS, std::vector<ActiveNote>> m_activeNotes;
 
     std::atomic_bool m_isPlaying = false;

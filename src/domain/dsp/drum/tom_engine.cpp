@@ -22,6 +22,7 @@
 namespace noteahead {
 
 TomEngine::TomEngine() = default;
+
 void TomEngine::trigger(float velocity)
 {
     m_retriggerOffset = m_lastOut;

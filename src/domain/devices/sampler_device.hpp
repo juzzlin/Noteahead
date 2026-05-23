@@ -49,10 +49,12 @@ public:
     std::string category() const override;
     std::string typeName() const override;
     std::string typeId() const override;
+
     static std::string typeIdString()
     {
         return "9dda4ff6-471b-11f1-9324-c701bfaf8258";
     }
+
     void processMidiNoteOn(uint8_t note, uint8_t velocity) override;
     void processMidiNoteOff(uint8_t note) override;
     void processMidiCc(uint8_t controller, uint8_t value, uint8_t channel) override;

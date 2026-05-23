@@ -27,14 +27,17 @@ public:
     {
         return "b2c3d4e5-f6a7-4b8c-9d0e-1f2a3b4c5d6e";
     }
+
     std::string type() const override
     {
         return "lowPassFilter";
     }
+
     std::string typeId() const override
     {
         return typeIdString();
     }
+
     void setCutoff(float cutoff);
     void process(float & left, float & right) override;
     void process(AudioContext & context) override;

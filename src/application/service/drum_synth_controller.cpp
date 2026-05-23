@@ -57,6 +57,7 @@ int DrumSynthController::selectedVoice() const
 {
     return m_selectedVoice;
 }
+
 void DrumSynthController::setSelectedVoice(int index)
 {
     if (m_selectedVoice != index) {
@@ -310,6 +311,7 @@ int DrumSynthController::volume() const
 {
     return m_device ? static_cast<int>(std::round(m_device->volume() * Constants::uiInternalScaling())) : 1000;
 }
+
 void DrumSynthController::setVolume(int value)
 {
     if (m_device)
@@ -320,6 +322,7 @@ int DrumSynthController::gain() const
 {
     return m_device ? static_cast<int>(std::round(m_device->gain() * Constants::uiInternalScaling())) : 500;
 }
+
 void DrumSynthController::setGain(int value)
 {
     if (m_device)
@@ -330,6 +333,7 @@ int DrumSynthController::pan() const
 {
     return m_device ? static_cast<int>(std::round(m_device->pan() * Constants::uiInternalScaling())) : 500;
 }
+
 void DrumSynthController::setPan(int value)
 {
     if (m_device)
@@ -340,22 +344,27 @@ bool DrumSynthController::isKick() const
 {
     return m_selectedVoice == static_cast<int>(DrumSynth::VoiceIndex::Kick);
 }
+
 bool DrumSynthController::isSnare() const
 {
     return m_selectedVoice == static_cast<int>(DrumSynth::VoiceIndex::Snare);
 }
+
 bool DrumSynthController::isTom() const
 {
     return m_selectedVoice >= static_cast<int>(DrumSynth::VoiceIndex::LowTom) && m_selectedVoice <= static_cast<int>(DrumSynth::VoiceIndex::HighTom);
 }
+
 bool DrumSynthController::isCymbal() const
 {
     return m_selectedVoice >= static_cast<int>(DrumSynth::VoiceIndex::Crash) && m_selectedVoice <= static_cast<int>(DrumSynth::VoiceIndex::ReverseCrash);
 }
+
 bool DrumSynthController::hasResonance() const
 {
     return (m_selectedVoice == static_cast<int>(DrumSynth::VoiceIndex::ClosedHiHat) || m_selectedVoice == static_cast<int>(DrumSynth::VoiceIndex::OpenHiHat)) || isCymbal();
 }
+
 bool DrumSynthController::hasAttack() const
 {
     return isKick() || (m_selectedVoice == static_cast<int>(DrumSynth::VoiceIndex::Crash) || m_selectedVoice == static_cast<int>(DrumSynth::VoiceIndex::ReverseCrash));

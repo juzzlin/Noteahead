@@ -431,6 +431,7 @@ void Application::exportToMidi(QString fileName, quint64 startPosition, quint64 
         m_applicationService->requestStatusText(message);
     }
 }
+
 void Application::importFromMidi(QString fileName, MidiImportMode importMode, int patternLength, bool quantizeNoteOn, bool quantizeNoteOff, bool connectMidiPorts)
 {
     try {

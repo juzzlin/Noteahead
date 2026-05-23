@@ -38,6 +38,7 @@ public:
     {
         return m_position;
     }
+
     void setMockPosition(const Position & position)
     {
         m_position = position;
@@ -50,6 +51,7 @@ public:
         }
         return nullptr;
     }
+
     void setMockInstrument(quint64 trackIndex, InstrumentS instrument)
     {
         m_instruments[trackIndex] = instrument;
@@ -67,10 +69,12 @@ public:
       : PlayerService { nullptr, nullptr, nullptr, nullptr, nullptr, nullptr }
     {
     }
+
     bool isPlaying() const override
     {
         return m_isPlaying;
     }
+
     void setIsPlaying(bool playing)
     {
         m_isPlaying = playing;
@@ -88,6 +92,7 @@ public:
     {
         return m_recentFiles;
     }
+
     void addRecentFile(QString filePath) override
     {
         m_recentFiles.push_front(filePath);
@@ -105,10 +110,12 @@ public:
       : StateMachine { nullptr, nullptr }
     {
     }
+
     void calculateState(StateMachine::Action action) override
     {
         m_lastAction = action;
     }
+
     StateMachine::Action lastAction() const
     {
         return m_lastAction;

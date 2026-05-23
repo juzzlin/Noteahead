@@ -53,6 +53,7 @@ double portNameMatchScore(const std::string & s1, const std::string & s2)
     }
 }
 } // namespace Midi
+
 namespace Misc {
 void ensureFileExists(const std::filesystem::path & filePath)
 {
@@ -60,6 +61,7 @@ void ensureFileExists(const std::filesystem::path & filePath)
         throw std::runtime_error("File does not exist: " + filePath.string());
     }
 }
+
 std::optional<double> parseDecimal(std::string_view str)
 {
     double value;
@@ -69,6 +71,7 @@ std::optional<double> parseDecimal(std::string_view str)
         return std::nullopt;
     }
 }
+
 QStringList stdStringVectorToQStringList(const std::vector<std::string> & stringVector)
 {
     QStringList stringList;
@@ -77,6 +80,7 @@ QStringList stdStringVectorToQStringList(const std::vector<std::string> & string
     return stringList;
 }
 } // namespace Misc
+
 namespace Xml {
 std::optional<bool> readBoolAttribute(QXmlStreamReader & reader, QString name, bool required)
 {
@@ -151,16 +155,19 @@ std::optional<std::chrono::milliseconds> readMSecAttribute(QXmlStreamReader & re
 }
 
 } // namespace Xml
+
 namespace Dsp {
 float cutoffToHz(float cutoff, float sampleRate)
 {
     const float maxFreq = std::min(20000.0f, sampleRate * 0.49f);
     return static_cast<float>(ParameterMapper::mapLogFrequency(cutoff, 0, maxFreq));
 }
+
 float dbToLinear(float db)
 {
     return std::pow(10.0f, db / 20.0f);
 }
+
 float linearToDb(float linear)
 {
     if (linear <= 1e-6f) {

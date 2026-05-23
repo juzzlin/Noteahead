@@ -240,6 +240,7 @@ void Device::syncParameters()
         m_pan = p->get().value();
     }
 }
+
 void Device::reset()
 {
     ParameterContainer::reset();

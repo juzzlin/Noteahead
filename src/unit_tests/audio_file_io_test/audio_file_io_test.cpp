@@ -71,6 +71,7 @@ public:
     {
         return 0;
     }
+
     int64_t readInt(std::span<int32_t>) override
     {
         return 0;
@@ -106,6 +107,7 @@ public:
     {
         return m_isOpen;
     }
+
     Info info() const override
     {
         return m_info;

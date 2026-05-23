@@ -32,42 +32,52 @@ public:
         info = this->info();
         return true;
     }
+
     void close() override
     {
     }
+
     int64_t readFloat(std::span<float> data) override
     {
         std::fill(data.begin(), data.end(), 1.0f);
         return data.size();
     }
+
     int64_t readDouble(std::span<double> data) override
     {
         return data.size();
     }
+
     int64_t readInt(std::span<int32_t> data) override
     {
         return data.size();
     }
+
     int64_t writeFloat(std::span<const float> data) override
     {
         return data.size();
     }
+
     int64_t writeInt(std::span<const int32_t> data) override
     {
         return data.size();
     }
+
     bool seek(int64_t, int) override
     {
         return true;
     }
+
     bool isOpen() const override
     {
         return true;
     }
+
     Info info() const override
     {
         return { 1024, static_cast<int>(Constants::defaultSampleRate()), m_channels, 0 };
     }
+
     void setForceChannels(int channels)
     {
         m_channels = channels;

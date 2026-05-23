@@ -9,6 +9,7 @@ class ReproTomTest : public QObject
 {
     Q_OBJECT
 private slots:
+
     void test_toms_shouldHaveDifferentTunes()
     {
         DrumSynthDevice device("Test");

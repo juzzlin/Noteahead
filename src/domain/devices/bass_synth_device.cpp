@@ -354,6 +354,7 @@ void BassSynthDevice::deserializeFromXml(QXmlStreamReader & reader)
     }
     emit dataChanged();
 }
+
 void BassSynthDevice::handleNoteOn(uint8_t note, uint8_t velocity)
 {
     double freq = midiNoteToFreq(note);
@@ -379,6 +380,7 @@ void BassSynthDevice::handleNoteOn(uint8_t note, uint8_t velocity)
         m_voice.trigger(note, freq, vel, hasAccent, true);
     }
 }
+
 void BassSynthDevice::handleNoteOff(uint8_t note)
 {
     if (m_voice.active && m_voice.note == note) {
@@ -437,6 +439,7 @@ PolyBlepOscillator::Waveform BassSynthDevice::waveform() const
 {
     return m_waveform;
 }
+
 void BassSynthDevice::setWaveform(PolyBlepOscillator::Waveform wave)
 {
     bool changed = false;
@@ -451,10 +454,12 @@ void BassSynthDevice::setWaveform(PolyBlepOscillator::Waveform wave)
     if (changed)
         emit dataChanged();
 }
+
 float BassSynthDevice::tuning() const
 {
     return m_tuning;
 }
+
 void BassSynthDevice::setTuning(float tuning)
 {
     bool changed = false;
@@ -469,10 +474,12 @@ void BassSynthDevice::setTuning(float tuning)
     if (changed)
         emit dataChanged();
 }
+
 float BassSynthDevice::subLevel() const
 {
     return m_subLevel;
 }
+
 void BassSynthDevice::setSubLevel(float level)
 {
     bool changed = false;
@@ -487,10 +494,12 @@ void BassSynthDevice::setSubLevel(float level)
     if (changed)
         emit dataChanged();
 }
+
 int BassSynthDevice::subOctave() const
 {
     return m_subOctave;
 }
+
 void BassSynthDevice::setSubOctave(int octave)
 {
     bool changed = false;
@@ -505,10 +514,12 @@ void BassSynthDevice::setSubOctave(int octave)
     if (changed)
         emit dataChanged();
 }
+
 float BassSynthDevice::lpfCutoff() const
 {
     return m_lpfCutoff;
 }
+
 void BassSynthDevice::setLpfCutoff(float cutoff)
 {
     bool changed = false;
@@ -524,10 +535,12 @@ void BassSynthDevice::setLpfCutoff(float cutoff)
     if (changed)
         emit dataChanged();
 }
+
 float BassSynthDevice::lpfResonance() const
 {
     return m_lpfResonance;
 }
+
 void BassSynthDevice::setLpfResonance(float resonance)
 {
     bool changed = false;
@@ -542,10 +555,12 @@ void BassSynthDevice::setLpfResonance(float resonance)
     if (changed)
         emit dataChanged();
 }
+
 float BassSynthDevice::hpfCutoff() const
 {
     return m_hpfCutoff;
 }
+
 void BassSynthDevice::setHpfCutoff(float cutoff)
 {
     bool changed = false;
@@ -561,10 +576,12 @@ void BassSynthDevice::setHpfCutoff(float cutoff)
     if (changed)
         emit dataChanged();
 }
+
 float BassSynthDevice::envMod() const
 {
     return m_envMod;
 }
+
 void BassSynthDevice::setEnvMod(float mod)
 {
     bool changed = false;
@@ -579,10 +596,12 @@ void BassSynthDevice::setEnvMod(float mod)
     if (changed)
         emit dataChanged();
 }
+
 float BassSynthDevice::decay() const
 {
     return m_decay;
 }
+
 void BassSynthDevice::setDecay(float decay)
 {
     bool changed = false;
@@ -597,10 +616,12 @@ void BassSynthDevice::setDecay(float decay)
     if (changed)
         emit dataChanged();
 }
+
 float BassSynthDevice::accent() const
 {
     return m_accent;
 }
+
 void BassSynthDevice::setAccent(float accent)
 {
     bool changed = false;
@@ -615,10 +636,12 @@ void BassSynthDevice::setAccent(float accent)
     if (changed)
         emit dataChanged();
 }
+
 float BassSynthDevice::slide() const
 {
     return m_slide;
 }
+
 void BassSynthDevice::setSlide(float slide)
 {
     bool changed = false;
@@ -633,10 +656,12 @@ void BassSynthDevice::setSlide(float slide)
     if (changed)
         emit dataChanged();
 }
+
 float BassSynthDevice::distDrive() const
 {
     return m_distDrive;
 }
+
 void BassSynthDevice::setDistDrive(float drive)
 {
     bool changed = false;
@@ -651,10 +676,12 @@ void BassSynthDevice::setDistDrive(float drive)
     if (changed)
         emit dataChanged();
 }
+
 float BassSynthDevice::distTone() const
 {
     return m_distTone;
 }
+
 void BassSynthDevice::setDistTone(float tone)
 {
     bool changed = false;
@@ -669,10 +696,12 @@ void BassSynthDevice::setDistTone(float tone)
     if (changed)
         emit dataChanged();
 }
+
 float BassSynthDevice::distLevel() const
 {
     return m_distLevel;
 }
+
 void BassSynthDevice::setDistLevel(float level)
 {
     bool changed = false;

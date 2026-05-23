@@ -33,10 +33,12 @@ void ensureFileExists(const std::filesystem::path & filePath);
 QStringList stdStringVectorToQStringList(const std::vector<std::string> & stringVector);
 std::optional<double> parseDecimal(std::string_view string);
 } // namespace Misc
+
 namespace Midi {
 uint8_t scaleVelocityByKey(uint8_t velocity, uint8_t note, int keyTrackPercentage, int keyTrackOffset = 0);
 double portNameMatchScore(const std::string & s1, const std::string & s2);
 } // namespace Midi
+
 namespace Xml {
 std::optional<bool> readBoolAttribute(QXmlStreamReader & reader, QString name, bool required = true);
 std::optional<int> readIntAttribute(QXmlStreamReader & reader, QString name, bool required = true);
@@ -45,6 +47,7 @@ std::optional<size_t> readUIntAttribute(QXmlStreamReader & reader, QString name,
 std::optional<QString> readStringAttribute(QXmlStreamReader & reader, QString name, bool required = true);
 std::optional<std::chrono::milliseconds> readMSecAttribute(QXmlStreamReader & reader, QString name, bool required = true);
 } // namespace Xml
+
 namespace Dsp {
 float cutoffToHz(float cutoff, float sampleRate);
 float dbToLinear(float db);

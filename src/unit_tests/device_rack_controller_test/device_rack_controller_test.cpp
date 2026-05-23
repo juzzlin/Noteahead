@@ -34,20 +34,24 @@ public:
       : DeviceService(nullptr)
     {
     }
+
     QStringList internalDeviceNamesQt() const override
     {
         return m_names;
     }
+
     void setMockNames(const QStringList & names)
     {
         m_names = names;
     }
+
     DeviceS device(size_t slotIndex) const override
     {
         if (slotIndex < m_devices.size())
             return m_devices[slotIndex];
         return nullptr;
     }
+
     void setMockDevice(size_t index, DeviceS dev)
     {
         if (index >= m_devices.size())
@@ -67,50 +71,64 @@ public:
       : m_name(name)
     {
     }
+
     std::string name() const override
     {
         return m_name;
     }
+
     std::string category() const override
     {
         return "";
     }
+
     std::string typeName() const override
     {
         return "Mock Type";
     }
+
     std::string typeId() const override
     {
         return "mock";
     }
+
     void processMidiNoteOn(uint8_t, uint8_t) override
     {
     }
+
     void processMidiNoteOff(uint8_t) override
     {
     }
+
     void processMidiCc(uint8_t, uint8_t, uint8_t) override
     {
     }
+
     void processMidiAllNotesOff() override
     {
     }
+
     void processAudio(AudioContext &) override
     {
     }
+
     bool hasActiveAudio() const override
     {
         return false;
     }
+
     void reset() override
     {
     }
+
     void resetAudio() override
     {
     }
+
     void serializeToXml(QXmlStreamWriter &) const override
     {
     }
+
     void deserializeFromXml(QXmlStreamReader &) override
     {
     }
@@ -131,6 +149,7 @@ public:
     {
         return m_indices;
     }
+
     void setMockIndices(const std::vector<quint64> & indices)
     {
         m_indices = indices;
@@ -140,6 +159,7 @@ public:
     {
         return m_names.at(trackIndex);
     }
+
     void setMockTrackName(quint64 trackIndex, const QString & name)
     {
         m_names[trackIndex] = name;
@@ -149,6 +169,7 @@ public:
     {
         return m_ports.at(trackIndex);
     }
+
     void setMockInstrumentPortName(quint64 trackIndex, const QString & port)
     {
         m_ports[trackIndex] = port;

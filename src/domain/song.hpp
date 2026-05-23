@@ -193,6 +193,7 @@ public:
 
         std::chrono::milliseconds currentTime;
     };
+
     using SongPositionOpt = std::optional<SongPosition>;
     SongPositionOpt songPositionByTick(size_t tick) const;
     std::chrono::milliseconds lineToTime(size_t line) const;

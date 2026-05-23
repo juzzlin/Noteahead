@@ -685,6 +685,7 @@ Song::EventList Song::applyMidiDelay(EventListCR events) const
 
     return processedEventList;
 }
+
 Song::EventList Song::generateNoteOffs(EventListCR events) const
 {
     Song::EventList processedEvents;

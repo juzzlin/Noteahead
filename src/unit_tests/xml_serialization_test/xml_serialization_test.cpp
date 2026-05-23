@@ -54,41 +54,50 @@ public:
         m_isOpen = true;
         return true;
     }
+
     void close() override
     {
         m_isOpen = false;
     }
+
     int64_t readFloat(std::span<float> data) override
     {
         std::fill(data.begin(), data.end(), 0.0f);
         return static_cast<int64_t>(data.size() / static_cast<size_t>(m_info.channels));
     }
+
     int64_t readDouble(std::span<double> data) override
     {
         std::fill(data.begin(), data.end(), 0.0);
         return static_cast<int64_t>(data.size() / static_cast<size_t>(m_info.channels));
     }
+
     int64_t readInt(std::span<int32_t> data) override
     {
         std::fill(data.begin(), data.end(), 0);
         return static_cast<int64_t>(data.size() / static_cast<size_t>(m_info.channels));
     }
+
     int64_t writeFloat(std::span<const float> data) override
     {
         return static_cast<int64_t>(data.size() / static_cast<size_t>(m_info.channels));
     }
+
     int64_t writeInt(std::span<const int32_t> data) override
     {
         return static_cast<int64_t>(data.size() / static_cast<size_t>(m_info.channels));
     }
+
     bool seek(int64_t, int) override
     {
         return true;
     }
+
     bool isOpen() const override
     {
         return m_isOpen;
     }
+
     Info info() const override
     {
         return m_info;

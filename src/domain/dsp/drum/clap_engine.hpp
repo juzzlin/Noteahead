@@ -54,6 +54,7 @@ private:
         int startSample;
         float level;
     };
+
     std::vector<Burst> m_bursts;
     int m_sampleCount { 0 };
     float m_tailEnv { 0.0f };

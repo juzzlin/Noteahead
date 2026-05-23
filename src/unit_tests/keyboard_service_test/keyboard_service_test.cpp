@@ -36,11 +36,13 @@ public:
     {
         return m_editMode;
     }
+
     void setEditMode(bool editMode) override
     {
         m_editMode = editMode;
         emit editModeChanged(m_editMode);
     }
+
     void toggleEditMode() override
     {
         setEditMode(!m_editMode);
@@ -51,11 +53,13 @@ public:
         MidiNoteData data;
         emit liveNoteOnRequested(nullptr, data);
     }
+
     void requestLiveNoteOff(quint8, quint8) override
     {
         MidiNoteData data;
         emit liveNoteOffRequested(nullptr, data);
     }
+
     void requestLiveNoteOnAtCurrentPosition() override
     {
         emit liveNoteOnAtCurrentPositionRequested(nullptr);
@@ -72,56 +76,69 @@ public:
     {
         return m_position;
     }
+
     void setMockPosition(const Position & position)
     {
         m_position = position;
     }
+
     void requestScroll(int steps) override
     {
         m_position.line += steps;
     }
+
     quint64 linesPerBeat() const override
     {
         return 4;
     }
+
     bool isAtNoteColumn() const override
     {
         return m_isAtNoteColumn;
     }
+
     void setMockIsAtNoteColumn(bool val)
     {
         m_isAtNoteColumn = val;
     }
+
     bool isAtVelocityColumn() const override
     {
         return m_isAtVelocityColumn;
     }
+
     void setMockIsAtVelocityColumn(bool val)
     {
         m_isAtVelocityColumn = val;
     }
+
     bool isAtDelayColumn() const override
     {
         return m_isAtDelayColumn;
     }
+
     void setMockIsAtDelayColumn(bool val)
     {
         m_isAtDelayColumn = val;
     }
+
     bool requestNoteOnAtCurrentPosition(quint8, quint8, quint8) override
     {
         return true;
     }
+
     bool requestNoteOffAtCurrentPosition() override
     {
         m_noteOffRequested = true;
         return true;
     }
+
     bool requestDigitSetAtCurrentPosition(quint8 digit) override
     {
         m_digitSet = digit;
         return true;
     }
+
     bool requestPosition(quint64, quint64, quint64, qint64, quint64) override
     {
         return true;
@@ -136,6 +153,7 @@ public:
     {
         return m_noteOffRequested;
     }
+
     void setNoteOffRequested(bool val)
     {
         m_noteOffRequested = val;
@@ -157,16 +175,19 @@ public:
       : PlayerService { nullptr, nullptr, nullptr, nullptr, nullptr, nullptr }
     {
     }
+
     bool isPlaying() const override
     {
         return m_isPlaying;
     }
+
     bool play() override
     {
         m_isPlaying = true;
         emit isPlayingChanged();
         return true;
     }
+
     void stop() override
     {
         m_isPlaying = false;
@@ -184,6 +205,7 @@ public:
     {
         m_cleared = true;
     }
+
     bool cleared() const
     {
         return m_cleared;
@@ -200,6 +222,7 @@ public:
     {
         return 1;
     }
+
     int velocity(int) const override
     {
         return 100;

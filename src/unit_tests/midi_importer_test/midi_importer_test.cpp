@@ -44,6 +44,7 @@ public:
     {
         return m_mockPorts;
     }
+
     void setMockPorts(const QStringList & ports)
     {
         m_mockPorts = ports;
