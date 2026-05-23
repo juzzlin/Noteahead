@@ -89,6 +89,13 @@ private:
     float m_hpStateR { 0.0f };
 
     void updateBuffers(uint32_t sampleRate);
+
+    double calculateDelaySamples() const;
+    float readFromBuffer(const std::vector<float> & buffer, double delay) const;
+    void applyFeedbackFilters(float & fbL, float & fbR);
+    void applyTapeSaturation(float & fbL, float & fbR);
+    void updateWriteBuffer(float inputL, float inputR, float fbL, float fbR, float & outL, float & outR);
+    void applyMix(float & left, float & right, float outL, float outR) const;
 };
 
 } // namespace noteahead

@@ -104,23 +104,13 @@ void DelayEffect::reset()
 
 void DelayEffect::process(float & left, float & right)
 {
-    if (m_mix <= Constants::minEffectLevel()) return;
+    if (m_mix <= Constants::minEffectLevel()) {
+        return;
+    }
 
-    double delaySamples = getDelaySamples();
-    size_t bufSize = m_bufferL.size();
+    const double delaySamples = getDelaySamples();
 
-    // Linear interpolation for fractional delay
-    auto readFromBuffer = [&](const std::vector<float>& buf, double delay) {
-        double readPos = static_cast<double>(m_writePos) - delay;
-        while (readPos < 0) readPos += bufSize;
-        
-        size_t i0 = static_cast<size_t>(readPos);
-        size_t i1 = (i0 + 1) % bufSize;
-        float frac = static_cast<float>(readPos - i0);
-        
-        return buf[i0] * (1.0f - frac) + buf[i1] * frac;
-    };
-
+    // 1. Read from buffers
     float outL = 0.0f;
     float outR = 0.0f;
 
@@ -132,19 +122,36 @@ void DelayEffect::process(float & left, float & right)
         outR = readFromBuffer(m_bufferR, delaySamples);
     }
 
-    float inputL = left;
-    float inputR = right;
-
-    if (m_type == Type::Mono) {
-        float monoInput = (inputL + inputR) * 0.5f;
-        inputL = inputR = monoInput;
-    }
-
-    // Feedback path
+    // 2. Feedback and Character Processing
     float fbL = outL * static_cast<float>(m_feedback);
     float fbR = outR * static_cast<float>(m_feedback);
 
-    // Filtering
+    applyTapeSaturation(fbL, fbR);
+
+    // 3. Routing and Write-back
+    updateWriteBuffer(left, right, fbL, fbR, outL, outR);
+
+    // 4. Mix
+    applyMix(left, right, outL, outR);
+}
+
+float DelayEffect::readFromBuffer(const std::vector<float> & buffer, double delay) const
+{
+    const size_t bufSize = buffer.size();
+    double readPos = static_cast<double>(m_writePos) - delay;
+    while (readPos < 0) {
+        readPos += bufSize;
+    }
+
+    const size_t i0 = static_cast<size_t>(readPos) % bufSize;
+    const size_t i1 = (i0 + 1) % bufSize;
+    const float frac = static_cast<float>(readPos - static_cast<double>(i0));
+
+    return buffer[i0] * (1.0f - frac) + buffer[i1] * frac;
+}
+
+void DelayEffect::applyTapeSaturation(float & fbL, float & fbR)
+{
     if (m_type == Type::Tape) {
         m_lpStateL += 0.3f * (fbL - m_lpStateL);
         m_lpStateR += 0.3f * (fbR - m_lpStateR);
@@ -152,11 +159,24 @@ void DelayEffect::process(float & left, float & right)
         fbL = std::tanh(m_lpStateL * saturation);
         fbR = std::tanh(m_lpStateR * saturation);
     }
+}
+
+void DelayEffect::updateWriteBuffer(float inputL, float inputR, float fbL, float fbR, float & outL, float & outR)
+{
+    (void) outL;
+    (void) outR;
+
+    const size_t bufSize = m_bufferL.size();
+
+    if (m_type == Type::Mono) {
+        const float monoInput = (inputL + inputR) * 0.5f;
+        inputL = inputR = monoInput;
+    }
 
     if (m_type == Type::PingPong) {
         // Depth controls width
-        float inL = inputL + inputR * (1.0f - static_cast<float>(m_depth));
-        float inR = inputR * (1.0f - static_cast<float>(m_depth));
+        const float inL = inputL + inputR * (1.0f - static_cast<float>(m_depth));
+        const float inR = inputR * (1.0f - static_cast<float>(m_depth));
         m_bufferL[m_writePos] = inL + fbR;
         m_bufferR[m_writePos] = inR + fbL;
     } else {
@@ -165,7 +185,10 @@ void DelayEffect::process(float & left, float & right)
     }
 
     m_writePos = (m_writePos + 1) % bufSize;
+}
 
+void DelayEffect::applyMix(float & left, float & right, float outL, float outR) const
+{
     // Mix: Unity-dry crossfade strategy
     const float dry = std::clamp(2.0f * (1.0f - static_cast<float>(m_mix)), 0.0f, 1.0f);
     const float wet = std::clamp(2.0f * static_cast<float>(m_mix), 0.0f, 1.0f);

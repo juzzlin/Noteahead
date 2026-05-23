@@ -67,6 +67,11 @@ private:
     double getDelaySamples() const;
     void updateBuffers();
 
+    float readFromBuffer(const std::vector<float> & buffer, double delay) const;
+    void applyTapeSaturation(float & fbL, float & fbR);
+    void updateWriteBuffer(float inputL, float inputR, float fbL, float fbR, float & outL, float & outR);
+    void applyMix(float & left, float & right, float outL, float outR) const;
+
     // Filters for feedback
     float m_lpStateL { 0.0f };
     float m_lpStateR { 0.0f };
