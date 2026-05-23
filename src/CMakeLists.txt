@@ -84,7 +84,6 @@ set(HEADER_FILES
   domain/devices/synth_presets.hpp
   domain/devices/volume_effect.hpp
   domain/dsp/adsr_envelope.hpp
-  domain/dsp/biquad_filter.hpp
   domain/dsp/cascaded_svf.hpp
   domain/dsp/drum/clap_engine.hpp
   domain/dsp/drum/crash_engine.hpp
@@ -99,6 +98,7 @@ set(HEADER_FILES
   domain/dsp/multi_engine.hpp
   domain/dsp/polyblep_oscillator.hpp
   domain/dsp/reverb_effect.hpp
+  domain/dsp/svf_filter.hpp
   domain/event.hpp
   domain/event_data.hpp
   domain/instrument.hpp
@@ -236,7 +236,6 @@ set(SOURCE_FILES
   domain/devices/synth_presets.cpp
   domain/devices/volume_effect.cpp
   domain/dsp/adsr_envelope.cpp
-  domain/dsp/biquad_filter.cpp
   domain/dsp/cascaded_svf.cpp
   domain/dsp/compressor_effect.cpp
   domain/dsp/drum/clap_engine.cpp
@@ -253,6 +252,7 @@ set(SOURCE_FILES
   domain/dsp/oversampler.cpp
   domain/dsp/polyblep_oscillator.cpp
   domain/dsp/reverb_effect.cpp
+  domain/dsp/svf_filter.cpp
   domain/event.cpp
   domain/event_data.cpp
   domain/instrument.cpp

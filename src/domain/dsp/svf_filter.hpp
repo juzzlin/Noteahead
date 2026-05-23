@@ -13,12 +13,12 @@
 // You should have received a copy of the GNU General Public License
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef BIQUAD_FILTER_HPP
-#define BIQUAD_FILTER_HPP
+#ifndef SVF_FILTER_HPP
+#define SVF_FILTER_HPP
 
 namespace noteahead {
 
-class BiquadFilter
+class SvfFilter
 {
 public:
     enum class Type
@@ -45,21 +45,21 @@ public:
     void reset();
 
 private:
-    struct Coefficients
-    {
-        double a1 { 0.0 };
-        double a2 { 0.0 };
-        double b0 { 1.0 };
-        double b1 { 0.0 };
-        double b2 { 0.0 };
-    };
+    double m_g { 0.0 };
+    double m_k { 0.0 };
+    double m_a1 { 0.0 };
+    double m_a2 { 0.0 };
+    double m_a3 { 0.0 };
+    double m_m0 { 0.0 };
+    double m_m1 { 0.0 };
+    double m_m2 { 0.0 };
 
-    Coefficients m_coefficients;
-    double m_z1 { 0.0 };
-    double m_z2 { 0.0 };
+    double m_s1 { 0.0 };
+    double m_s2 { 0.0 };
+
     bool m_isBypassed { true };
 };
 
 } // namespace noteahead
 
-#endif // BIQUAD_FILTER_HPP
+#endif // SVF_FILTER_HPP

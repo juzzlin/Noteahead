@@ -17,7 +17,7 @@
 #define EQ_8_BAND_PARAMETRIC_EFFECT_HPP
 
 #include "../devices/effect.hpp"
-#include "biquad_filter.hpp"
+#include "svf_filter.hpp"
 
 #include <array>
 #include <vector>
@@ -52,9 +52,9 @@ public:
 private:
     struct Band
     {
-        BiquadFilter filterL;
-        BiquadFilter filterR;
-        BiquadFilter::Type type { BiquadFilter::Type::Bypass };
+        SvfFilter filterL;
+        SvfFilter filterR;
+        SvfFilter::Type type { SvfFilter::Type::Bypass };
         float frequency { 1000.0f };
         float gainDb { 0.0f };
         float q { 0.707f };
@@ -68,31 +68,31 @@ private:
         void updateCoefficients(double sampleRate)
         {
             switch (type) {
-            case BiquadFilter::Type::Bypass:
+            case SvfFilter::Type::Bypass:
                 filterL.setBypass();
                 filterR.setBypass();
                 break;
-            case BiquadFilter::Type::Bell:
+            case SvfFilter::Type::Bell:
                 filterL.calculateBell(frequency, sampleRate, q, gainDb);
                 filterR.calculateBell(frequency, sampleRate, q, gainDb);
                 break;
-            case BiquadFilter::Type::LowShelf:
+            case SvfFilter::Type::LowShelf:
                 filterL.calculateLowShelf(frequency, sampleRate, q, gainDb);
                 filterR.calculateLowShelf(frequency, sampleRate, q, gainDb);
                 break;
-            case BiquadFilter::Type::HighShelf:
+            case SvfFilter::Type::HighShelf:
                 filterL.calculateHighShelf(frequency, sampleRate, q, gainDb);
                 filterR.calculateHighShelf(frequency, sampleRate, q, gainDb);
                 break;
-            case BiquadFilter::Type::LowCut:
+            case SvfFilter::Type::LowCut:
                 filterL.calculateLowCut(frequency, sampleRate, q);
                 filterR.calculateLowCut(frequency, sampleRate, q);
                 break;
-            case BiquadFilter::Type::HighCut:
+            case SvfFilter::Type::HighCut:
                 filterL.calculateHighCut(frequency, sampleRate, q);
                 filterR.calculateHighCut(frequency, sampleRate, q);
                 break;
-            case BiquadFilter::Type::Notch:
+            case SvfFilter::Type::Notch:
                 filterL.calculateNotch(frequency, sampleRate, q);
                 filterR.calculateNotch(frequency, sampleRate, q);
                 break;

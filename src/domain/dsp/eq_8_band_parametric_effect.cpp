@@ -100,7 +100,7 @@ void Eq8BandParametricEffect::syncParameters()
         auto & band = m_bands[i];
 
         if (auto p = parameter(Constants::NahdXml::xmlKeyEq8BandParametricType(i).toStdString()); p) {
-            band.type = static_cast<BiquadFilter::Type>(std::clamp(static_cast<int>(std::round(p->get().value() * 6.0f)), 0, 6));
+            band.type = static_cast<SvfFilter::Type>(std::clamp(static_cast<int>(std::round(p->get().value() * 6.0f)), 0, 6));
         }
 
         if (auto p = parameter(Constants::NahdXml::xmlKeyEq8BandParametricFreq(i).toStdString()); p) {
