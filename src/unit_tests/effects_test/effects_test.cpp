@@ -245,7 +245,26 @@ void EffectsTest::test_delayEffect_shouldProduceDelayedSignal()
         effect.process(l, r);
     }
 
-    // Now the 1.0f pulse should come out
+    // Now with feedback 0.0, the output should still be silence
+    left = 0.0f;
+    right = 0.0f;
+    effect.process(left, right);
+    QCOMPARE(left, 0.0f);
+    QCOMPARE(right, 0.0f);
+
+    // Now re-feed with feedback 1.0 to test delayed signal
+    effect.reset();
+    effect.setFeedback(1.0f);
+    left = 1.0f;
+    right = 1.0f;
+    effect.process(left, right);
+    
+    for (int i = 0; i + 1 < delaySamples; i++) {
+        float l = 0.0f;
+        float r = 0.0f;
+        effect.process(l, r);
+    }
+
     left = 0.0f;
     right = 0.0f;
     effect.process(left, right);
@@ -255,6 +274,7 @@ void EffectsTest::test_delayEffect_shouldProduceDelayedSignal()
     // Test synced delay
     effect.reset();
     effect.setSync(true);
+    effect.setFeedback(1.0f);
     effect.setBpm(120.0f);
     effect.setSyncDivision(0.25f); // 120 BPM, 1/4 note = 0.5s = 22050 samples
     const int syncDelaySamples = static_cast<int>(0.5f * sampleRate);
@@ -304,8 +324,8 @@ void EffectsTest::test_delayEffect_shouldMaintainFeedbackLoop()
     left = 0.0f;
     right = 0.0f;
     effect.process(left, right);
-    // 1st echo should be 1.0
-    QVERIFY(std::abs(left - 1.0f) < 1.0e-3f);
+    // 1st echo should be 0.5 (1.0 * feedback)
+    QVERIFY(std::abs(left - 0.5f) < 1.0e-3f);
 
     // Wait for 2nd echo
     for (int i = 0; i + 1 < delaySamples; i++) {
@@ -316,8 +336,8 @@ void EffectsTest::test_delayEffect_shouldMaintainFeedbackLoop()
     left = 0.0f;
     right = 0.0f;
     effect.process(left, right);
-    // 2nd echo should be 0.5 (1.0 * feedback)
-    QVERIFY(std::abs(left - 0.5f) < 1.0e-3f);
+    // 2nd echo should be 0.25 (0.5 * feedback)
+    QVERIFY(std::abs(left - 0.25f) < 1.0e-3f);
 
     // Wait for 3rd echo
     for (int i = 0; i + 1 < delaySamples; i++) {
@@ -328,8 +348,8 @@ void EffectsTest::test_delayEffect_shouldMaintainFeedbackLoop()
     left = 0.0f;
     right = 0.0f;
     effect.process(left, right);
-    // 3rd echo should be 0.25 (0.5 * feedback)
-    QVERIFY(std::abs(left - 0.25f) < 1.0e-3f);
+    // 3rd echo should be 0.125 (0.5 * 0.5 * 0.5)
+    QVERIFY(std::abs(left - 0.125f) < 1.0e-3f);
 }
 
 void EffectsTest::test_delayEffect_shouldMaintainStereoFeedback()

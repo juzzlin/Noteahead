@@ -136,18 +136,18 @@ void DelayEffect::updateWriteBuffer(float inputL, float inputR, float fbL, float
         const float inL = inputL + inputR * (1.0f - m_depth);
         const float inR = inputR * (1.0f - m_depth);
 
-        m_bufferL[m_writePos] = inL + fbR * m_feedback;
-        m_bufferR[m_writePos] = inR + fbL * m_feedback;
+        m_bufferL[m_writePos] = (inL + fbR) * m_feedback;
+        m_bufferR[m_writePos] = (inR + fbL) * m_feedback;
     } else if (m_type == Type::Mono) {
         // Sum input and feedback to mono delay line
         const float monoInput = (inputL + inputR) * 0.5f;
-        const float monoFb = (fbL + fbR) * 0.5f * m_feedback;
-        m_bufferL[m_writePos] = m_bufferR[m_writePos] = monoInput + monoFb;
+        const float monoFb = (fbL + fbR) * 0.5f;
+        m_bufferL[m_writePos] = m_bufferR[m_writePos] = (monoInput + monoFb) * m_feedback;
         outL = outR = (outL + outR) * 0.5f;
     } else {
         // Normal Stereo
-        m_bufferL[m_writePos] = inputL + fbL * m_feedback;
-        m_bufferR[m_writePos] = inputR + fbR * m_feedback;
+        m_bufferL[m_writePos] = (inputL + fbL) * m_feedback;
+        m_bufferR[m_writePos] = (inputR + fbR) * m_feedback;
     }
 
     m_writePos = (m_writePos + 1) % bufSize;
@@ -221,7 +221,7 @@ void DelayEffect::reset()
 
 void DelayEffect::setType(Type type) { m_type = type; }
 void DelayEffect::setTime(float seconds) { m_time = std::clamp(seconds, 0.001f, 10.0f); }
-void DelayEffect::setFeedback(float feedback) { m_feedback = std::clamp(feedback, 0.0f, 0.99f); }
+void DelayEffect::setFeedback(float feedback) { m_feedback = std::clamp(feedback, 0.0f, 1.0f); }
 void DelayEffect::setDepth(float depth) { m_depth = std::clamp(depth, 0.0f, 1.0f); }
 void DelayEffect::setMix(float mix) { m_mix = std::clamp(mix, 0.0f, 1.0f); }
 void DelayEffect::setBpm(float bpm) { m_bpm = std::max(1.0f, bpm); }

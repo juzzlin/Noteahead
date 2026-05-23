@@ -177,11 +177,11 @@ void DelayEffect::updateWriteBuffer(float inputL, float inputR, float fbL, float
         // Depth controls width
         const float inL = inputL + inputR * (1.0f - static_cast<float>(m_depth));
         const float inR = inputR * (1.0f - static_cast<float>(m_depth));
-        m_bufferL[m_writePos] = inL + fbR;
-        m_bufferR[m_writePos] = inR + fbL;
+        m_bufferL[m_writePos] = (inL + fbR) * static_cast<float>(m_feedback);
+        m_bufferR[m_writePos] = (inR + fbL) * static_cast<float>(m_feedback);
     } else {
-        m_bufferL[m_writePos] = inputL + fbL;
-        m_bufferR[m_writePos] = inputR + fbR;
+        m_bufferL[m_writePos] = (inputL + fbL) * static_cast<float>(m_feedback);
+        m_bufferR[m_writePos] = (inputR + fbR) * static_cast<float>(m_feedback);
     }
 
     m_writePos = (m_writePos + 1) % bufSize;
