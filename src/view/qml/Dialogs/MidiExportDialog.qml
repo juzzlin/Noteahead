@@ -61,39 +61,57 @@ Dialog {
             GroupBox {
                 title: qsTr("Options")
                 Layout.fillWidth: true
-                ColumnLayout {
+                RowLayout {
                     anchors.fill: parent
-                    CheckBox {
-                        id: exportBankCheckBox
-                        text: qsTr("Export Bank")
-                        checked: true
+                    spacing: 10
+                    GroupBox {
+                        title: qsTr("Events")
+                        Layout.fillWidth: true
+                        Layout.fillHeight: true
+                        ColumnLayout {
+                            anchors.fill: parent
+                            CheckBox {
+                                id: exportBankCheckBox
+                                text: qsTr("Export Bank")
+                                checked: true
+                            }
+                            CheckBox {
+                                id: exportProgramChangeCheckBox
+                                text: qsTr("Export Program Change")
+                                checked: true
+                            }
+                            CheckBox {
+                                id: exportMidiCcCheckBox
+                                text: qsTr("Export MIDI CC")
+                                checked: true
+                            }
+                            CheckBox {
+                                id: exportPitchBendCheckBox
+                                text: qsTr("Export Pitch Bend")
+                                checked: true
+                            }
+                        }
                     }
-                    CheckBox {
-                        id: exportProgramChangeCheckBox
-                        text: qsTr("Export Program Change")
-                        checked: true
-                    }
-                    CheckBox {
-                        id: exportMidiCcCheckBox
-                        text: qsTr("Export MIDI CC")
-                        checked: true
-                    }
-                    CheckBox {
-                        id: exportPitchBendCheckBox
-                        text: qsTr("Export Pitch Bend")
-                        checked: true
-                    }
-                    CheckBox {
-                        id: forceDrumChannel10CheckBox
-                        text: qsTr("Force drum tracks as channel #10")
-                        checked: settingsService.midiExportForceDrumChannel10
-                        onCheckedChanged: settingsService.midiExportForceDrumChannel10 = checked
-                    }
-                    CheckBox {
-                        id: autoAssignChannelsCheckBox
-                        text: qsTr("Auto-assign channels")
-                        checked: settingsService.midiExportAutoAssignChannels
-                        onCheckedChanged: settingsService.midiExportAutoAssignChannels = checked
+                    GroupBox {
+                        title: qsTr("Channels")
+                        Layout.fillWidth: true
+                        Layout.fillHeight: true
+                        ColumnLayout {
+                            anchors.fill: parent
+                            CheckBox {
+                                id: forceDrumChannel10CheckBox
+                                text: qsTr("Force drum tracks as channel #10")
+                                checked: settingsService.midiExportForceDrumChannel10
+                                onCheckedChanged: settingsService.midiExportForceDrumChannel10 = checked
+                            }
+                            CheckBox {
+                                id: autoAssignChannelsCheckBox
+                                text: qsTr("Auto-assign channels")
+                                checked: settingsService.midiExportAutoAssignChannels
+                                onCheckedChanged: settingsService.midiExportAutoAssignChannels = checked
+                            }
+                            Item { Layout.fillHeight: true }
+                        }
                     }
                 }
             }
