@@ -431,6 +431,130 @@ void EffectsTest::test_delayEffect_shouldProduceDecayingSeriesOfEchoes()
     QVERIFY(std::abs(lastEchoVal - std::pow(0.9f, 19.0f)) < 0.05f);
 }
 
+void EffectsTest::test_delayEffect_shouldProcessMonoMode()
+{
+    DelayEffect effect;
+    const float sampleRate = 44100.0f;
+    effect.setSampleRate(sampleRate);
+    effect.setType(DelayEffect::Type::Mono);
+    effect.setMix(1.0f);
+    effect.setFeedback(1.0f);
+    effect.setTime(0.1f);
+
+    const int delaySamples = static_cast<int>(0.1f * sampleRate);
+
+    // Feed a pulse to LEFT channel only
+    float left = 1.0f;
+    float right = 0.0f;
+    effect.process(left, right);
+
+    // Wait for 1st echo
+    for (int i = 0; i + 1 < delaySamples; i++) {
+        float l = 0.0f; float r = 0.0f;
+        effect.process(l, r);
+    }
+    
+    left = 0.0f; right = 0.0f;
+    effect.process(left, right);
+    
+    // In Mono mode, the left-only input should be summed and distributed to both channels
+    // (1.0 + 0.0) * 0.5 = 0.5 expected on both channels
+    QVERIFY(std::abs(left - 0.5f) < 1.0e-3f);
+    QVERIFY(std::abs(right - 0.5f) < 1.0e-3f);
+}
+
+void EffectsTest::test_delayEffect_shouldProcessPingPongMode()
+{
+    DelayEffect effect;
+    const float sampleRate = 44100.0f;
+    effect.setSampleRate(sampleRate);
+    effect.setType(DelayEffect::Type::PingPong);
+    effect.setMix(1.0f);
+    effect.setFeedback(1.0f);
+    effect.setDepth(1.0f); // Max width
+    effect.setTime(0.1f);
+
+    const int delaySamples = static_cast<int>(0.1f * sampleRate);
+
+    // Feed a pulse to LEFT channel only
+    float left = 1.0f;
+    float right = 0.0f;
+    effect.process(left, right);
+
+    // Wait for 1st echo
+    for (int i = 0; i + 1 < delaySamples; i++) {
+        float l = 0.0f; float r = 0.0f;
+        effect.process(l, r);
+    }
+    
+    left = 0.0f; right = 0.0f;
+    effect.process(left, right);
+    
+    // Ping-Pong: Left input should first appear on RIGHT channel?
+    // Let's check implementation:
+    // inL = inputL + inputR * (1.0 - m_depth) = 1.0 + 0.0 = 1.0
+    // inR = inputR * (1.0 - m_depth) = 0.0
+    // m_bufferL = inL + fbR * m_feedback = 1.0
+    // m_bufferR = inR + fbL * m_feedback = 0.0
+    // 1st Read (Stereo-like read): outL = bufL, outR = bufR
+    // So 1st echo should be Left=1.0, Right=0.0
+    QVERIFY(std::abs(left - 1.0f) < 1.0e-3f);
+    QVERIFY(std::abs(right - 0.0f) < 1.0e-3f);
+
+    // 2nd echo should bounce: fbL=1.0, fbR=0.0
+    // next bufferL = inL + fbR = 0.0 + 0.0 = 0.0
+    // next bufferR = inR + fbL = 0.0 + 1.0 = 1.0
+    for (int i = 0; i + 1 < delaySamples; i++) {
+        float l = 0.0f; float r = 0.0f;
+        effect.process(l, r);
+    }
+    
+    left = 0.0f; right = 0.0f;
+    effect.process(left, right);
+    
+    QVERIFY(std::abs(left - 0.0f) < 1.0e-3f);
+    QVERIFY(std::abs(right - 1.0f) < 1.0e-3f);
+}
+
+void EffectsTest::test_delayEffect_shouldProcessTapeMode()
+{
+    DelayEffect effect;
+    const float sampleRate = 44100.0f;
+    effect.setSampleRate(sampleRate);
+    effect.setType(DelayEffect::Type::Tape);
+    effect.setMix(1.0f); // 100% wet
+    effect.setFeedback(1.0f);
+    effect.setDepth(1.0f); // High saturation
+    effect.setTime(0.1f);
+
+    const int delaySamples = static_cast<int>(0.1f * sampleRate);
+
+    // Feed a large signal pulse for 10 samples
+    const float pulseVal = 2.0f;
+    for (int i = 0; i < 10; i++) {
+        float left = pulseVal; float right = pulseVal;
+        effect.process(left, right);
+    }
+
+    bool foundEcho = false;
+    // We expect the echo around delaySamples. Let's check a window.
+    for (int i = 0; i < delaySamples + 100; i++) {
+        float left = 0.0f; float right = 0.0f;
+        effect.process(left, right);
+        
+        if (left > 0.01f) {
+            foundEcho = true;
+            if (left >= pulseVal) {
+                qDebug() << "Tape mode failed: left =" << left << "pulseVal =" << pulseVal << "i =" << i;
+            }
+            // In Tape mode, output should be saturated (less than pulseVal)
+            QVERIFY(left < pulseVal);
+        }
+    }
+    
+    QVERIFY(foundEcho);
+}
+
 void EffectsTest::test_compressorEffect_shouldReduceGainAndHandleLookahead()
 {
     CompressorEffect effect;

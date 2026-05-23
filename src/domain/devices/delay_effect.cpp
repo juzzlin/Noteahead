@@ -45,7 +45,7 @@ void DelayEffect::process(float & left, float & right)
 
     const double delaySamples = calculateDelaySamples();
 
-    // 1. Read from buffers
+    // 1. Read from buffers (this is our WET signal)
     float outL = readFromBuffer(m_bufferL, delaySamples);
     float outR = readFromBuffer(m_bufferR, delaySamples);
 
@@ -53,14 +53,46 @@ void DelayEffect::process(float & left, float & right)
     float fbL = outL;
     float fbR = outR;
 
-    applyTapeSaturation(fbL, fbR);
-    applyFeedbackFilters(fbL, fbR);
-
     // 3. Routing and Write-back
     updateWriteBuffer(left, right, fbL, fbR, outL, outR);
 
     // 4. Mix
     applyMix(left, right, outL, outR);
+}
+
+void DelayEffect::updateWriteBuffer(float inputL, float inputR, float fbL, float fbR, float & outL, float & outR)
+{
+    const size_t bufSize = m_bufferL.size();
+
+    float writeL = inputL;
+    float writeR = inputR;
+
+    if (m_type == Type::PingPong) {
+        // Ping-Pong: Depth controls stereo width/bounce amount.
+        const float inL = inputL + inputR * (1.0f - m_depth);
+        const float inR = inputR * (1.0f - m_depth);
+        
+        writeL = inL + fbR;
+        writeR = inR + fbL;
+    } else if (m_type == Type::Mono) {
+        // Sum input and feedback to mono delay line
+        const float monoInput = (inputL + inputR) * 0.5f;
+        const float monoFb = (fbL + fbR) * 0.5f;
+        writeL = writeR = monoInput + monoFb;
+        outL = outR = (outL + outR) * 0.5f;
+    } else {
+        // Normal Stereo
+        writeL = inputL + fbL;
+        writeR = inputR + fbR;
+    }
+
+    applyTapeSaturation(writeL, writeR);
+    applyFeedbackFilters(writeL, writeR);
+
+    m_bufferL[m_writePos] = writeL * m_feedback;
+    m_bufferR[m_writePos] = writeR * m_feedback;
+
+    m_writePos = (m_writePos + 1) % bufSize;
 }
 
 double DelayEffect::calculateDelaySamples() const
@@ -112,8 +144,9 @@ void DelayEffect::applyTapeSaturation(float & fbL, float & fbR)
     }
 
     // Tape: Dark, saturated, slightly compressed. Depth controls saturation.
-    m_lpStateL += 0.08f * (fbL - m_lpStateL);
-    m_lpStateR += 0.08f * (fbR - m_lpStateR);
+    m_lpStateL += 0.2f * (fbL - m_lpStateL);
+    m_lpStateR += 0.2f * (fbR - m_lpStateR);
+    
     const float saturation = 1.0f + (m_depth * 2.0f);
     fbL = std::tanh(m_lpStateL * saturation);
     fbR = std::tanh(m_lpStateR * saturation);
@@ -125,32 +158,6 @@ void DelayEffect::applyTapeSaturation(float & fbL, float & fbR)
     if (std::abs(m_lpStateR) < 1.0e-15f) {
         m_lpStateR = 0.0f;
     }
-}
-
-void DelayEffect::updateWriteBuffer(float inputL, float inputR, float fbL, float fbR, float & outL, float & outR)
-{
-    const size_t bufSize = m_bufferL.size();
-
-    if (m_type == Type::PingPong) {
-        // Ping-Pong: Depth controls stereo width/bounce amount.
-        const float inL = inputL + inputR * (1.0f - m_depth);
-        const float inR = inputR * (1.0f - m_depth);
-
-        m_bufferL[m_writePos] = (inL + fbR) * m_feedback;
-        m_bufferR[m_writePos] = (inR + fbL) * m_feedback;
-    } else if (m_type == Type::Mono) {
-        // Sum input and feedback to mono delay line
-        const float monoInput = (inputL + inputR) * 0.5f;
-        const float monoFb = (fbL + fbR) * 0.5f;
-        m_bufferL[m_writePos] = m_bufferR[m_writePos] = (monoInput + monoFb) * m_feedback;
-        outL = outR = (outL + outR) * 0.5f;
-    } else {
-        // Normal Stereo
-        m_bufferL[m_writePos] = (inputL + fbL) * m_feedback;
-        m_bufferR[m_writePos] = (inputR + fbR) * m_feedback;
-    }
-
-    m_writePos = (m_writePos + 1) % bufSize;
 }
 
 void DelayEffect::applyMix(float & left, float & right, float outL, float outR) const
