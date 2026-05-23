@@ -18,7 +18,7 @@
 namespace noteahead {
 
 ColumnSettingsModel::ColumnSettingsModel(QObject * parent)
-  : QObject(parent)
+  : QObject { parent }
 {
 }
 

@@ -26,7 +26,7 @@ static const std::vector<double> syncDivisions = { 1.0, 0.75, 0.5, 0.375, 1.0 / 
 static const std::vector<QString> syncLabels = { "1/1", "3/4", "1/2", "3/8", "1/3", "1/4", "3/16", "1/6", "1/8", "3/32", "1/12", "1/16", "3/64", "1/24", "1/32", "1/64" };
 
 KnobController::KnobController(QObject * parent)
-  : QObject(parent)
+  : QObject { parent }
 {
 }
 
