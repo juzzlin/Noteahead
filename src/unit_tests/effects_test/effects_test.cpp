@@ -276,6 +276,141 @@ void EffectsTest::test_delayEffect_shouldProduceDelayedSignal()
     QVERIFY(std::abs(right - 1.0f) < 1.0e-3f);
 }
 
+void EffectsTest::test_delayEffect_shouldMaintainFeedbackLoop()
+{
+    DelayEffect effect;
+    const float sampleRate = 44100.0f;
+    effect.setSampleRate(sampleRate);
+    effect.setMix(1.0f); // 100% wet
+    effect.setFeedback(0.5f); // 50% feedback
+    effect.setTime(0.1f); // 100ms delay = 4410 samples
+    effect.setSync(false);
+
+    const int delaySamples = static_cast<int>(0.1f * sampleRate);
+
+    // Feed a pulse of 1.0
+    float left = 1.0f;
+    float right = 1.0f;
+    effect.process(left, right);
+    // Output should be silence (mix is wet, buffer empty)
+    QCOMPARE(left, 0.0f);
+
+    // Wait for 1st echo
+    for (int i = 0; i + 1 < delaySamples; i++) {
+        float l = 0.0f;
+        float r = 0.0f;
+        effect.process(l, r);
+    }
+    left = 0.0f;
+    right = 0.0f;
+    effect.process(left, right);
+    // 1st echo should be 1.0
+    QVERIFY(std::abs(left - 1.0f) < 1.0e-3f);
+
+    // Wait for 2nd echo
+    for (int i = 0; i + 1 < delaySamples; i++) {
+        float l = 0.0f;
+        float r = 0.0f;
+        effect.process(l, r);
+    }
+    left = 0.0f;
+    right = 0.0f;
+    effect.process(left, right);
+    // 2nd echo should be 0.5 (1.0 * feedback)
+    QVERIFY(std::abs(left - 0.5f) < 1.0e-3f);
+
+    // Wait for 3rd echo
+    for (int i = 0; i + 1 < delaySamples; i++) {
+        float l = 0.0f;
+        float r = 0.0f;
+        effect.process(l, r);
+    }
+    left = 0.0f;
+    right = 0.0f;
+    effect.process(left, right);
+    // 3rd echo should be 0.25 (0.5 * feedback)
+    QVERIFY(std::abs(left - 0.25f) < 1.0e-3f);
+}
+
+void EffectsTest::test_delayEffect_shouldMaintainStereoFeedback()
+{
+    DelayEffect effect;
+    const float sampleRate = 44100.0f;
+    effect.setSampleRate(sampleRate);
+    effect.setType(DelayEffect::Type::Stereo);
+    effect.setMix(1.0f); // 100% wet
+    effect.setFeedback(0.9f); // 90% feedback
+    effect.setTime(0.1f); // 100ms delay = 4410 samples
+    effect.setSync(false);
+
+    const int delaySamples = static_cast<int>(0.1f * sampleRate);
+
+    // Feed a pulse of 1.0 to LEFT channel only
+    float left = 1.0f;
+    float right = 0.0f;
+    effect.process(left, right);
+
+    int echoes = 0;
+    
+    // Process 1 second (10 echoes expected)
+    for (int i = 0; i < 1 * 44100; i++) {
+        float l = 0.0f; float r = 0.0f;
+        effect.process(l, r);
+        
+        if ((i + 1) % delaySamples == 0) {
+            if (l > 0.001f) {
+                echoes++;
+            }
+            // In stereo mode, right channel should remain silent if only left was pulsed
+            QCOMPARE(r, 0.0f);
+        }
+    }
+
+    QCOMPARE(echoes, 10);
+}
+
+void EffectsTest::test_delayEffect_shouldProduceDecayingSeriesOfEchoes()
+{
+    DelayEffect effect;
+    const float sampleRate = 44100.0f;
+    effect.setSampleRate(sampleRate);
+    effect.setMix(1.0f); // 100% wet
+    effect.setFeedback(0.9f); // 90% feedback
+    effect.setTime(0.1f); // 100ms delay = 4410 samples
+    effect.setSync(false);
+
+    const int delaySamples = static_cast<int>(0.1f * sampleRate);
+
+    // Feed a pulse of 1.0
+    float left = 1.0f;
+    float right = 1.0f;
+    effect.process(left, right);
+
+    int echoes = 0;
+    float lastEchoVal = 1.1f;
+    
+    // Process 2 seconds
+    for (int i = 0; i < 2 * 44100; i++) {
+        float l = 0.0f; float r = 0.0f;
+        effect.process(l, r);
+        
+        // If we see a pulse, count it and verify it's decaying
+        if (l > 0.001f) {
+            // Pulse should be around delaySamples multiples
+            if ((i + 1) % delaySamples == 0) {
+                echoes++;
+                QVERIFY(l < lastEchoVal); // Decay check
+                lastEchoVal = l;
+            }
+        }
+    }
+
+    // We should have seen 20 echoes
+    QCOMPARE(echoes, 20);
+    // Echo 1 was 1.0, Echo 2 was 0.9, ..., Echo 20 was 0.9^19
+    QVERIFY(std::abs(lastEchoVal - std::pow(0.9f, 19.0f)) < 0.05f);
+}
+
 void EffectsTest::test_compressorEffect_shouldReduceGainAndHandleLookahead()
 {
     CompressorEffect effect;

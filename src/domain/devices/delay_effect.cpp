@@ -14,8 +14,8 @@
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
 #include "delay_effect.hpp"
-#include "../dsp/audio_context.hpp"
 
+#include "../dsp/audio_context.hpp"
 #include "../../common/constants.hpp"
 
 #include <algorithm>
@@ -33,32 +33,29 @@ DelayEffect::DelayEffect()
 
 void DelayEffect::process(float & left, float & right)
 {
-    if (m_mix <= Constants::minEffectLevel()) {
-        return;
-    }
-
     const size_t bufSize = m_bufferL.size();
-    if (bufSize == 0) {
+    if (!bufSize) {
         return;
     }
 
-    float delayTime;
-    if (m_sync) {
-        delayTime = (60.0f / m_bpm) * m_syncDivision * 4.0f;
-    } else {
-        delayTime = m_time;
-    }
+    // Ensure filters are updated even if process(AudioContext&) wasn't called (e.g. per-sample usage)
+    m_fbLpfL.setCutoff(m_feedbackLpfCutoff);
+    m_fbLpfR.setCutoff(m_feedbackLpfCutoff);
+    m_fbHpfL.setCutoff(std::max(0.001f, m_feedbackHpfCutoff));
+    m_fbHpfR.setCutoff(std::max(0.001f, m_feedbackHpfCutoff));
 
+    const float delayTime = m_sync ? (60.0f / m_bpm) * m_syncDivision * 4.0f : m_time;
     const uint32_t sampleRate = static_cast<uint32_t>(m_sampleRate);
     const double delaySamples = std::clamp(static_cast<double>(delayTime) * sampleRate, 1.0, static_cast<double>(bufSize - 2));
 
-    auto readFromBuffer = [&](const std::vector<float>& buf, double delay) {
+    const auto readFromBuffer = [&](const std::vector<float>& buf, double delay) {
+        const double bufSizeD = static_cast<double>(bufSize);
         double readPos = static_cast<double>(m_writePos) - delay;
-        while (readPos < 0) {
-            readPos += static_cast<double>(bufSize);
+        while (readPos < 0.0) {
+            readPos += bufSizeD;
         }
-        while (readPos >= static_cast<double>(bufSize)) {
-            readPos -= static_cast<double>(bufSize);
+        while (readPos >= bufSizeD) {
+            readPos -= bufSizeD;
         }
         
         const size_t i0 = static_cast<size_t>(readPos) % bufSize;
@@ -69,8 +66,11 @@ void DelayEffect::process(float & left, float & right)
     };
 
     // 1. Read from buffers
-    float outL = readFromBuffer(m_bufferL, delaySamples);
-    float outR = readFromBuffer(m_bufferR, delaySamples);
+    const float originalOutL = readFromBuffer(m_bufferL, delaySamples);
+    const float originalOutR = readFromBuffer(m_bufferR, delaySamples);
+    
+    float outL = originalOutL;
+    float outR = originalOutR;
 
     // 2. Feedback and Character Processing
     float fbL = outL;
@@ -85,10 +85,15 @@ void DelayEffect::process(float & left, float & right)
         fbR = std::tanh(m_lpStateR * saturation);
     }
 
-    fbL = m_fbLpfL.process(fbL);
-    fbR = m_fbLpfR.process(fbR);
-    fbL = m_fbHpfL.process(fbL);
-    fbR = m_fbHpfR.process(fbR);
+    // Feedback filters: Explicit bypass at neutral positions
+    if (m_feedbackLpfCutoff < 0.999f) {
+        fbL = m_fbLpfL.process(fbL);
+        fbR = m_fbLpfR.process(fbR);
+    }
+    if (m_feedbackHpfCutoff > 0.001f) {
+        fbL = m_fbHpfL.process(fbL);
+        fbR = m_fbHpfR.process(fbR);
+    }
 
     // Denormal protection for feedback states
     if (std::abs(m_lpStateL) < 1.0e-15f) {
@@ -104,8 +109,6 @@ void DelayEffect::process(float & left, float & right)
 
     if (m_type == Type::PingPong) {
         // Ping-Pong: Depth controls stereo width/bounce amount.
-        // 0.0 = Mono (both delay lines get both inputs)
-        // 1.0 = Wide (Left delay gets Left input, Right delay gets feedback from Left)
         const float inL = inputL + inputR * (1.0f - m_depth);
         const float inR = inputR * (1.0f - m_depth);
         
@@ -124,6 +127,10 @@ void DelayEffect::process(float & left, float & right)
     }
 
     m_writePos = (m_writePos + 1) % bufSize;
+
+    if (m_mix <= Constants::minEffectLevel()) {
+        return;
+    }
 
     // 4. Mix: Use a unity-dry crossfade strategy (0% to 50% Dry is 100%, Wet fades in)
     const float dry = std::clamp(2.0f * (1.0f - m_mix), 0.0f, 1.0f);
@@ -165,6 +172,11 @@ void DelayEffect::setSampleRate(double sampleRate)
         m_fbLpfR.setSampleRate(m_sampleRate);
         m_fbHpfL.setSampleRate(m_sampleRate);
         m_fbHpfR.setSampleRate(m_sampleRate);
+        
+        m_fbLpfL.setCutoff(m_feedbackLpfCutoff);
+        m_fbLpfR.setCutoff(m_feedbackLpfCutoff);
+        m_fbHpfL.setCutoff(std::max(0.001f, m_feedbackHpfCutoff));
+        m_fbHpfR.setCutoff(std::max(0.001f, m_feedbackHpfCutoff));
     }
 }
 

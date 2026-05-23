@@ -32,6 +32,9 @@ private slots:
     void test_reverb_mix_shouldApplyEffectBasedOnMixLevel();
     void test_delayEffect_shouldProcessSignalAndHandleSampleRateChanges();
     void test_delayEffect_shouldProduceDelayedSignal();
+    void test_delayEffect_shouldMaintainFeedbackLoop();
+    void test_delayEffect_shouldMaintainStereoFeedback();
+    void test_delayEffect_shouldProduceDecayingSeriesOfEchoes();
     void test_compressorEffect_shouldReduceGainAndHandleLookahead();
     void test_eq8BandParametricEffect_shouldApplyBandsAndBeStable();
     void test_filterStability_shouldHandleChangingCutoff();
