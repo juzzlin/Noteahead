@@ -76,7 +76,10 @@ Dialog {
                     }
                     visible: effectType !== ""
                     Label {
-                        text: qsTr("Send %1 (%2)").arg(index + 1).arg(effectType.toUpperCase())
+                        text: {
+                            let summary = effectRackController.effectParametersSummary(index);
+                            return qsTr("Send %1 (%2) %3").arg(index + 1).arg(effectType.toUpperCase()).arg(summary);
+                        }
                         font.pointSize: 12
                         Layout.fillWidth: true
                     }

@@ -112,7 +112,12 @@ Dialog {
                     anchors.fill: parent
                     anchors.margins: 15
                     Text {
-                        text: effectType === "" ? "" : qsTr("Slot %1: %2").arg(index + 1).arg(effectType.charAt(0).toUpperCase() + effectType.slice(1))
+                        text: {
+                            if (effectType === "") return "";
+                            let name = effectType.charAt(0).toUpperCase() + effectType.slice(1);
+                            let summary = effectRackController.effectParametersSummary(index);
+                            return qsTr("Slot %1: %2 %3").arg(index + 1).arg(name).arg(summary);
+                        }
                         color: "white"
                         font.pointSize: 13
                         font.bold: effectListView.hoveredIndex === index && root.activeFocus

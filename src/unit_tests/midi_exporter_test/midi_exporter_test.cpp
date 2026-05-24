@@ -897,11 +897,11 @@ void MidiExporterTest::test_exportTo_noAutoAssignChannels_shouldUseInstrumentCha
     const auto mixerService = std::make_shared<MixerService>();
     const auto sideChainService = std::make_shared<SideChainService>();
     MidiExporter exporter { automationService, mixerService, sideChainService };
-    
+
     MidiExportOptions options;
     options.autoAssignChannels = false;
     options.forceDrumChannel10 = false;
-    
+
     exporter.exportTo(fileName.toStdString(), song, 0, std::numeric_limits<size_t>::max(), options);
 
     const auto exportedEvents = readMidiFile(fileName.toStdString());
@@ -919,11 +919,11 @@ void MidiExporterTest::test_exportTo_noForceDrumChannel10_shouldNotForceChannel1
     auto settings = instrument->settings();
     settings.drumTrack = true;
     instrument->setSettings(settings);
-    
+
     auto address = instrument->midiAddress();
     address.setChannel(2); // MIDI Channel 3
     instrument->setMidiAddress(address);
-    
+
     song->setInstrument(0, instrument);
 
     NoteData noteData;
@@ -939,11 +939,11 @@ void MidiExporterTest::test_exportTo_noForceDrumChannel10_shouldNotForceChannel1
     const auto mixerService = std::make_shared<MixerService>();
     const auto sideChainService = std::make_shared<SideChainService>();
     MidiExporter exporter { automationService, mixerService, sideChainService };
-    
+
     MidiExportOptions options;
     options.autoAssignChannels = false;
     options.forceDrumChannel10 = false;
-    
+
     exporter.exportTo(fileName.toStdString(), song, 0, std::numeric_limits<size_t>::max(), options);
 
     const auto exportedEvents = readMidiFile(fileName.toStdString());

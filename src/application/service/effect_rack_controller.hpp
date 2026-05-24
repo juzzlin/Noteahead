@@ -58,6 +58,7 @@ public:
 
     Q_INVOKABLE QStringList parameterNames(int effectIndex) const;
     Q_INVOKABLE QString effectType(int effectIndex) const;
+    Q_INVOKABLE QString effectParametersSummary(int effectIndex) const;
 
     Q_INVOKABLE QString reverbSizeKey() const;
     Q_INVOKABLE QString reverbDecayKey() const;

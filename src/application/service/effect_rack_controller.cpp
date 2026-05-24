@@ -16,6 +16,7 @@
 #include "effect_rack_controller.hpp"
 
 #include "../../common/constants.hpp"
+#include "../../common/parameter_mapper.hpp"
 #include "../../domain/devices/delay_effect.hpp"
 #include "../../domain/devices/high_pass_filter_effect.hpp"
 #include "../../domain/devices/low_pass_filter_effect.hpp"
@@ -217,6 +218,43 @@ QString EffectRackController::effectType(int effectIndex) const
         }
     }
     return "";
+}
+
+QString EffectRackController::effectParametersSummary(int effectIndex) const
+{
+    if (const auto rack = currentRack()) {
+        if (const auto effect = rack->get().effect(static_cast<size_t>(effectIndex))) {
+            const auto type = effect->type();
+            if (type == "reverb") {
+                auto preDelay = effect->parameter(Constants::NahdXml::xmlKeyReverbPreDelay().toStdString());
+                auto decay = effect->parameter(Constants::NahdXml::xmlKeyReverbDecay().toStdString());
+                if (preDelay && decay) {
+                    return QString { "(pre=%1ms, decay=%2ms)" }
+                      .arg(preDelay->get().xmlValue())
+                      .arg(decay->get().xmlValue());
+                }
+            } else if (type == "compressor") {
+                auto attack = effect->parameter(Constants::NahdXml::xmlKeyAttack().toStdString());
+                auto ratio = effect->parameter(Constants::NahdXml::xmlKeyCompressorRatio().toStdString());
+                if (attack && ratio) {
+                    const float attackMs = static_cast<float>(ParameterMapper::mapExponential(attack->get().value(), 0.1, 500.0));
+                    const int ratioValue = ratio->get().xmlValue();
+                    return QString { "(attack=%1ms, ratio=%2:1)" }
+                      .arg(attackMs, 0, 'f', 1)
+                      .arg(ratioValue);
+                }
+            } else if (type == "delay") {
+                auto time = effect->parameter(Constants::NahdXml::xmlKeyDelayTime().toStdString());
+                auto feedback = effect->parameter(Constants::NahdXml::xmlKeyDelayFeedback().toStdString());
+                if (time && feedback) {
+                    return QString { "(time=%1ms, fb=%2%)" }
+                      .arg(static_cast<int>(std::round(time->get().value() * 1000.0f)))
+                      .arg(static_cast<int>(std::round(feedback->get().value() * 100.0f)));
+                }
+            }
+        }
+    }
+    return {};
 }
 
 QString EffectRackController::reverbSizeKey() const
