@@ -67,26 +67,6 @@ Dialog {
             Layout.alignment: Qt.AlignHCenter
         }
 
-        TabBar {
-            id: tabBar
-            Layout.fillWidth: true
-            Universal.theme: Universal.Dark
-            TabButton {
-                text: qsTr("Insert Effects")
-                onClicked: {
-                    effectRackController.isInsertRack = true;
-                    effectRackController.targetDeviceName = "";
-                }
-            }
-            TabButton {
-                text: qsTr("Send Effects")
-                onClicked: {
-                    effectRackController.isInsertRack = false;
-                    effectRackController.targetDeviceName = "";
-                }
-            }
-        }
-
         ListView {
             id: effectListView
             model: effectRackController.effectCount
@@ -185,6 +165,26 @@ Dialog {
                         }
                         onClicked: effectRackController.clearEffect(index)
                     }
+                }
+            }
+        }
+
+        TabBar {
+            id: tabBar
+            Layout.fillWidth: true
+            Universal.theme: Universal.Dark
+            TabButton {
+                text: qsTr("Insert Effects")
+                onClicked: {
+                    effectRackController.isInsertRack = true;
+                    effectRackController.targetDeviceName = "";
+                }
+            }
+            TabButton {
+                text: qsTr("Send Effects")
+                onClicked: {
+                    effectRackController.isInsertRack = false;
+                    effectRackController.targetDeviceName = "";
                 }
             }
         }
