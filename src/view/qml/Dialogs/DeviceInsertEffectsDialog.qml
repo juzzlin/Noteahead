@@ -113,9 +113,10 @@ Dialog {
                     anchors.margins: 15
                     Text {
                         text: {
+                            effectRackController.revision;
                             if (effectType === "") return "";
-                            let name = effectType.charAt(0).toUpperCase() + effectType.slice(1);
-                            let summary = effectRackController.effectParametersSummary(index);
+                            const name = effectType.charAt(0).toUpperCase() + effectType.slice(1);
+                            const summary = effectRackController.effectParametersSummary(index);
                             return qsTr("Slot %1: %2 %3").arg(index + 1).arg(name).arg(summary);
                         }
                         color: "white"

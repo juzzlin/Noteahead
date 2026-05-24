@@ -32,6 +32,11 @@ Dialog {
     Universal.theme: Universal.Dark
     Universal.accent: themeService.accentColor
 
+    onOpened: {
+        effectRackController.isInsertRack = false;
+        effectRackController.targetDeviceName = "";
+    }
+
     background: Rectangle {
         color: "#1e1e1e"
         border.color: "#333"
@@ -77,7 +82,8 @@ Dialog {
                     visible: effectType !== ""
                     Label {
                         text: {
-                            let summary = effectRackController.effectParametersSummary(index);
+                            effectRackController.revision;
+                            const summary = effectRackController.effectParametersSummary(index);
                             return qsTr("Send %1 (%2) %3").arg(index + 1).arg(effectType.toUpperCase()).arg(summary);
                         }
                         font.pointSize: 12
