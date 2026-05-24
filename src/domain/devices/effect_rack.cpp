@@ -80,7 +80,7 @@ void EffectRack::process(AudioContext & outputContext, const float * sendBus, si
         return;
 
     auto & effect = m_effects[effectIndex];
-    if (!effect)
+    if (!effect || !effect->enabled())
         return;
 
     effect->setSampleRate(outputContext.sampleRate);
@@ -107,7 +107,7 @@ void EffectRack::processInPlace(AudioContext & context)
 {
     std::lock_guard<std::recursive_mutex> lock { m_mutex };
     for (auto & effect : m_effects) {
-        if (!effect)
+        if (!effect || !effect->enabled())
             continue;
 
         effect->setSampleRate(context.sampleRate);
@@ -135,6 +135,7 @@ void EffectRack::serializeEffectsToXml(QXmlStreamWriter & writer) const
             writer.writeAttribute("slot", QString::number(i));
             writer.writeAttribute(Constants::NahdXml::xmlKeyTypeId(), QString::fromStdString(effect->typeId()));
             writer.writeAttribute(Constants::NahdXml::xmlKeyType(), QString::fromStdString(effect->type()));
+            writer.writeAttribute(Constants::NahdXml::xmlKeyEnabled(), effect->enabled() ? Constants::NahdXml::xmlValueTrue() : Constants::NahdXml::xmlValueFalse());
             effect->serializeParametersToXml(writer);
             writer.writeEndElement(); // Effect
         }
@@ -160,6 +161,7 @@ void EffectRack::deserializeEffect(QXmlStreamReader & reader)
     const auto slot = Utils::Xml::readIntAttribute(reader, "slot", false);
     const auto typeId = reader.attributes().value(Constants::NahdXml::xmlKeyTypeId()).toString().toStdString();
     const auto type = reader.attributes().value(Constants::NahdXml::xmlKeyType()).toString().toStdString();
+    const auto enabled = reader.attributes().value(Constants::NahdXml::xmlKeyEnabled()).toString() != Constants::NahdXml::xmlValueFalse();
 
     EffectS effect;
     if (typeId == ReverbEffect::typeIdString() || type == "reverb") {
@@ -181,6 +183,7 @@ void EffectRack::deserializeEffect(QXmlStreamReader & reader)
     }
 
     if (effect) {
+        effect->setEnabled(enabled);
         effect->deserializeParametersFromXml(reader);
         effect->sync();
         const size_t targetIndex = slot.has_value() ? static_cast<size_t>(slot.value()) : 0;

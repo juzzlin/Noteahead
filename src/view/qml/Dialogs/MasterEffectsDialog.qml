@@ -155,6 +155,19 @@ Dialog {
                         visible: effectType === ""
                         opacity: (effectListView.hoveredIndex === index && root.activeFocus) ? 1.0 : 0.5
                     }
+                    CheckBox {
+                        visible: effectType !== ""
+                        Layout.preferredWidth: 40
+                        Layout.preferredHeight: 40
+                        checked: {
+                            effectRackController.revision;
+                            return effectRackController.isEffectEnabled(index);
+                        }
+                        onToggled: effectRackController.setIsEffectEnabled(index, checked)
+                        ToolTip.visible: hovered
+                        ToolTip.delay: Constants.toolTipDelay
+                        ToolTip.text: qsTr("Enable/disable the effect")
+                    }
                     Button {
                         Layout.preferredWidth: 32
                         Layout.preferredHeight: 32

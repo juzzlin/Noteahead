@@ -57,13 +57,33 @@ void EffectRackControllerTest::test_effectParametersSummary_compressor()
 
 void EffectRackControllerTest::test_effectParametersSummary_emptySlot()
 {
-    auto audioEngine = std::make_shared<AudioEngine>();
-    auto deviceService = std::make_shared<DeviceService>(audioEngine);
-    auto editorService = std::make_shared<EditorService>();
+    const auto audioEngine = std::make_shared<AudioEngine>();
+    const auto deviceService = std::make_shared<DeviceService>(audioEngine);
+    const auto editorService = std::make_shared<EditorService>();
     EffectRackController controller { deviceService, editorService };
 
     controller.setIsInsertRack(true);
     QCOMPARE(controller.effectParametersSummary(0), QString { "" });
+}
+
+void EffectRackControllerTest::test_isEffectEnabled()
+{
+    const auto audioEngine = std::make_shared<AudioEngine>();
+    const auto deviceService = std::make_shared<DeviceService>(audioEngine);
+    const auto editorService = std::make_shared<EditorService>();
+    EffectRackController controller { deviceService, editorService };
+
+    controller.setIsInsertRack(true);
+    controller.setEffect(0, QString::fromStdString(ReverbEffect::typeIdString()));
+
+    QVERIFY(controller.isEffectEnabled(0));
+
+    controller.setIsEffectEnabled(0, false);
+    QVERIFY(!controller.isEffectEnabled(0));
+    QVERIFY(editorService->isModified());
+
+    controller.setIsEffectEnabled(0, true);
+    QVERIFY(controller.isEffectEnabled(0));
 }
 
 } // namespace noteahead

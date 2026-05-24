@@ -56,6 +56,9 @@ public:
     Q_INVOKABLE void clearEffect(int slotIndex);
     Q_INVOKABLE QVariantList availableEffects() const;
 
+    Q_INVOKABLE bool isEffectEnabled(int effectIndex) const;
+    Q_INVOKABLE void setIsEffectEnabled(int effectIndex, bool enabled);
+
     Q_INVOKABLE QStringList parameterNames(int effectIndex) const;
     Q_INVOKABLE QString effectType(int effectIndex) const;
     Q_INVOKABLE QString effectParametersSummary(int effectIndex) const;

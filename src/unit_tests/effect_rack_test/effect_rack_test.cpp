@@ -115,6 +115,64 @@ void EffectRackTest::test_serialization_shouldSerializeAndDeserializeEffects()
     auto reverb2 = std::dynamic_pointer_cast<ReverbEffect>(rack2.effect(2));
     QVERIFY(reverb2 != nullptr);
     QCOMPARE(reverb2->size(), 0.75f);
+    QVERIFY(reverb2->enabled());
+
+    // Test disabled serialization
+    reverb2->setEnabled(false);
+    xml.clear();
+    QXmlStreamWriter writer2(&xml);
+    writer2.writeStartElement(Constants::NahdXml::xmlKeyMasterEffects());
+    rack2.serializeEffectsToXml(writer2);
+    writer2.writeEndElement();
+
+    EffectRack rack3;
+    QXmlStreamReader reader2(xml);
+    while (reader2.readNextStartElement()) {
+        if (reader2.name() == Constants::NahdXml::xmlKeyMasterEffects()) {
+            rack3.deserializeEffectsFromXml(reader2);
+        } else {
+            reader2.skipCurrentElement();
+        }
+    }
+    auto reverb3 = std::dynamic_pointer_cast<ReverbEffect>(rack3.effect(2));
+    QVERIFY(reverb3 != nullptr);
+    QVERIFY(!reverb3->enabled());
+}
+
+void EffectRackTest::test_enabled_flag_shouldControlProcessing()
+{
+    EffectRack rack;
+    auto volume = std::make_shared<VolumeEffect>();
+    volume->setVolume(0.5f); // Half volume
+    volume->setEnabled(false);
+    rack.setEffect(0, volume);
+
+    // Test processInPlace
+    std::vector<float> buffer(4, 1.0f); // 2 stereo frames of DC 1.0
+    AudioContext context { std::span(buffer.data(), buffer.size()), 2, 44100 };
+    rack.processInPlace(context);
+
+    // All samples should STILL be 1.0 because effect is disabled
+    for (float sample : buffer) {
+        QCOMPARE(sample, 1.0f);
+    }
+
+    // Test process (send bus style)
+    std::vector<float> output(2, 0.0f);
+    std::vector<float> sendBus(2, 1.0f);
+    AudioContext outputContext { std::span(output.data(), output.size()), 1, 44100 };
+    rack.process(outputContext, sendBus.data(), 0);
+
+    // Output should STILL be 0.0 because effect is disabled
+    QCOMPARE(output[0], 0.0f);
+    QCOMPARE(output[1], 0.0f);
+
+    // Re-enable and verify it processes
+    volume->setEnabled(true);
+    rack.processInPlace(context);
+    for (float sample : buffer) {
+        QCOMPARE(sample, 0.5f);
+    }
 }
 
 void EffectRackTest::test_reverb_parameters_shouldGetAndSetParameters()

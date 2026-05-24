@@ -43,6 +43,16 @@ public:
     virtual void process(AudioContext & context);
     virtual std::vector<std::string> parameterNames() const;
 
+    bool enabled() const
+    {
+        return m_enabled;
+    }
+
+    void setEnabled(bool enabled)
+    {
+        m_enabled = enabled;
+    }
+
     virtual void reset() override
     {
     }
@@ -50,6 +60,9 @@ public:
     virtual void sync()
     {
     }
+
+private:
+    bool m_enabled { true };
 };
 
 } // namespace noteahead

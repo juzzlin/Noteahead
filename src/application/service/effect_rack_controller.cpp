@@ -196,6 +196,30 @@ QVariantList EffectRackController::availableEffects() const
     return list;
 }
 
+bool EffectRackController::isEffectEnabled(int effectIndex) const
+{
+    if (const auto rack = currentRack()) {
+        if (const auto effect = rack->get().effect(static_cast<size_t>(effectIndex))) {
+            return effect->enabled();
+        }
+    }
+    return false;
+}
+
+void EffectRackController::setIsEffectEnabled(int effectIndex, bool enabled)
+{
+    if (const auto rack = currentRack()) {
+        if (const auto effect = rack->get().effect(static_cast<size_t>(effectIndex))) {
+            if (effect->enabled() != enabled) {
+                effect->setEnabled(enabled);
+                m_editorService->setIsModified(true);
+                m_revision++;
+                emit revisionChanged();
+            }
+        }
+    }
+}
+
 QStringList EffectRackController::parameterNames(int effectIndex) const
 {
     if (const auto rack = currentRack()) {

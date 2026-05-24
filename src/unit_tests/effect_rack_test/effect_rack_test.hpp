@@ -29,6 +29,7 @@ private slots:
     void test_process_shouldProcessAudio();
     void test_processInPlace_shouldApplyEffectToBuffer();
     void test_serialization_shouldSerializeAndDeserializeEffects();
+    void test_enabled_flag_shouldControlProcessing();
     void test_reverb_parameters_shouldGetAndSetParameters();
     void test_reverb_presets_shouldApplyPresets();
 };
