@@ -340,6 +340,7 @@ void DeviceService::deserializeFromXml(QXmlStreamReader & reader)
                 if (reader.name() == Constants::NahdXml::xmlKeyInsertEffects()) {
                     m_audioEngine->insertEffectRack().deserializeEffectsFromXml(reader);
                 } else if (reader.name() == Constants::NahdXml::xmlKeySendEffects()) {
+                    m_audioEngine->sendEffectRack().clear();
                     while (reader.readNextStartElement()) {
                         if (reader.name() == Constants::NahdXml::xmlKeyEffect()) {
                             m_audioEngine->sendEffectRack().deserializeEffect(reader);

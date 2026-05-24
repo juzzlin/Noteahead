@@ -8,6 +8,7 @@
 #include "../../domain/dsp/reverb_effect.hpp"
 #include "../../infra/audio/audio_engine.hpp"
 
+#include <QSignalSpy>
 #include <QTest>
 #include <memory>
 
@@ -84,6 +85,27 @@ void EffectRackControllerTest::test_isEffectEnabled()
 
     controller.setIsEffectEnabled(0, true);
     QVERIFY(controller.isEffectEnabled(0));
+}
+
+void EffectRackControllerTest::test_revision_shouldIncrementOnPropertySet()
+{
+    const auto audioEngine = std::make_shared<AudioEngine>();
+    const auto deviceService = std::make_shared<DeviceService>(audioEngine);
+    const auto editorService = std::make_shared<EditorService>();
+    EffectRackController controller { deviceService, editorService };
+
+    QSignalSpy revisionSpy { &controller, &EffectRackController::revisionChanged };
+    const int initialRevision = controller.revision();
+
+    // Setting the same target device name should still increment revision
+    controller.setTargetDeviceName(controller.targetDeviceName());
+    QCOMPARE(controller.revision(), initialRevision + 1);
+    QCOMPARE(revisionSpy.count(), 1);
+
+    // Setting the same isInsertRack value should still increment revision
+    controller.setIsInsertRack(controller.isInsertRack());
+    QCOMPARE(controller.revision(), initialRevision + 2);
+    QCOMPARE(revisionSpy.count(), 2);
 }
 
 } // namespace noteahead

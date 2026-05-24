@@ -57,6 +57,7 @@ private slots:
     void test_toXmlFromXml_synthDevice_shouldPreserveValuesAndDiscreteFlags();
     void test_toXmlFromXml_synthUserPresets_shouldSaveAndLoad();
     void test_toXmlFromXml_synthUserPresets_discreteValues_shouldSaveAndLoad();
+    void test_toXmlFromXml_masterSendEffects_shouldLoadCorrectly();
     void test_fromXml_samplerDevice_missingId_shouldNotThrow();
 
     void test_toXmlFromXml_differentSongs_shouldLoadSongs();

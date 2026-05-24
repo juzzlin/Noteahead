@@ -43,8 +43,8 @@ public:
 
     void process(AudioContext & outputContext, const float * sendBus, size_t effectIndex);
     void processInPlace(AudioContext & context);
-
     void reset();
+    void clear();
 
     void serializeEffectsToXml(QXmlStreamWriter & writer) const;
     void deserializeEffectsFromXml(QXmlStreamReader & reader);

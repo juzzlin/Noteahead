@@ -30,6 +30,7 @@
 #include "../../domain/column_settings.hpp"
 #include "../../domain/devices/sampler_device.hpp"
 #include "../../domain/devices/synth_device.hpp"
+#include "../../domain/dsp/reverb_effect.hpp"
 #include "../../domain/instrument.hpp"
 #include "../../domain/note_data.hpp"
 #include "../../domain/song.hpp"
@@ -913,6 +914,36 @@ void XmlSerializationTest::test_toXmlFromXml_synthUserPresets_discreteValues_sho
     // Verify internal values are preserved
     QCOMPARE(userPresetsIn.at(5).parameters.at(Constants::NahdXml::xmlKeySynthVco1Waveform().toStdString()), 1.0f);
     QCOMPARE(userPresetsIn.at(5).parameters.at(Constants::NahdXml::xmlKeySynthVco1Pitch().toStdString()), 0.0f);
+}
+
+void XmlSerializationTest::test_toXmlFromXml_masterSendEffects_shouldLoadCorrectly()
+{
+    const auto engineOut = std::make_shared<AudioEngine>();
+    DeviceService deviceServiceOut { engineOut };
+
+    // Add a reverb effect to slot 0 of master send rack
+    auto reverb = std::make_shared<ReverbEffect>();
+    reverb->setDecay(0.75f); // internal value
+    deviceServiceOut.sendEffectRack().setEffect(0, reverb);
+
+    EditorService editorServiceOut { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
+    connect(&editorServiceOut, &EditorService::devicesSerializationRequested, &deviceServiceOut, &DeviceService::serializeToXml);
+
+    const auto xml = editorServiceOut.toXml();
+
+    const auto engineIn = std::make_shared<AudioEngine>();
+    DeviceService deviceServiceIn { engineIn };
+    EditorService editorServiceIn { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
+    connect(&editorServiceIn, &EditorService::devicesDeserializationRequested, &deviceServiceIn, &DeviceService::deserializeFromXml);
+
+    editorServiceIn.fromXml(xml);
+
+    auto effect = deviceServiceIn.sendEffectRack().effect(0);
+    QVERIFY(effect);
+    QCOMPARE(effect->typeId(), ReverbEffect::typeIdString());
+    auto restoredReverb = std::dynamic_pointer_cast<ReverbEffect>(effect);
+    QVERIFY(restoredReverb);
+    QCOMPARE(restoredReverb->decay(), 0.75f);
 }
 
 void XmlSerializationTest::test_fromXml_samplerDevice_missingId_shouldNotThrow()

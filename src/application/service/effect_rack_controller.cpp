@@ -65,13 +65,11 @@ QString EffectRackController::targetDeviceName() const
 
 void EffectRackController::setTargetDeviceName(const QString & name)
 {
-    if (m_targetDeviceName != name) {
-        m_targetDeviceName = name;
-        emit targetDeviceNameChanged();
-        m_revision++;
-        emit revisionChanged();
-        emit effectCountChanged();
-    }
+    m_targetDeviceName = name;
+    emit targetDeviceNameChanged();
+    m_revision++;
+    emit revisionChanged();
+    emit effectCountChanged();
 }
 
 bool EffectRackController::isInsertRack() const
@@ -81,13 +79,11 @@ bool EffectRackController::isInsertRack() const
 
 void EffectRackController::setIsInsertRack(bool isInsert)
 {
-    if (m_isInsertRack != isInsert) {
-        m_isInsertRack = isInsert;
-        emit isInsertRackChanged();
-        m_revision++;
-        emit revisionChanged();
-        emit effectCountChanged();
-    }
+    m_isInsertRack = isInsert;
+    emit isInsertRackChanged();
+    m_revision++;
+    emit revisionChanged();
+    emit effectCountChanged();
 }
 
 std::optional<std::reference_wrapper<EffectRack>> EffectRackController::currentRack() const

@@ -125,6 +125,12 @@ void EffectRack::reset()
     }
 }
 
+void EffectRack::clear()
+{
+    std::lock_guard<std::recursive_mutex> lock { m_mutex };
+    std::fill(m_effects.begin(), m_effects.end(), nullptr);
+}
+
 void EffectRack::serializeEffectsToXml(QXmlStreamWriter & writer) const
 {
     std::lock_guard<std::recursive_mutex> lock { m_mutex };

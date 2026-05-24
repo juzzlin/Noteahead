@@ -14,6 +14,7 @@ private slots:
     void test_effectParametersSummary_compressor();
     void test_effectParametersSummary_emptySlot();
     void test_isEffectEnabled();
+    void test_revision_shouldIncrementOnPropertySet();
 };
 
 } // namespace noteahead
