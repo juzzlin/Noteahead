@@ -106,6 +106,22 @@ Rectangle {
                 UiService.requestDeviceDialog(portName);
                 focus = false;
             }
+            onRightClicked: {
+                if (hasInternalDevice) {
+                    deviceContextMenu.popup();
+                }
+            }
+            Menu {
+                id: deviceContextMenu
+                MenuItem {
+                    text: qsTr("Insert effects...")
+                    onTriggered: UiService.requestDeviceInsertEffectsDialog(directDeviceButton.portName)
+                }
+                MenuItem {
+                    text: qsTr("Effect sends...")
+                    onTriggered: UiService.requestEffectSendsDialog(directDeviceButton.portName)
+                }
+            }
             Keys.onPressed: event => {
                 if (event.key === Qt.Key_Space) {
                     event.accepted = true;
