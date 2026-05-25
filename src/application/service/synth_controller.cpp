@@ -30,7 +30,12 @@ SynthController::SynthController(std::shared_ptr<SynthDevice> synth, QObject * p
   , m_synth { std::move(synth) }
 {
     if (m_synth) {
-        connect(m_synth.get(), &Device::dataChanged, this, &SynthController::sampleRateChanged);
+        connect(m_synth.get(), &Device::sampleRateChanged, this, &SynthController::sampleRateChanged);
+        connect(m_synth.get(), &Device::sampleRateChanged, this, &SynthController::lpfCutoffChanged);
+        connect(m_synth.get(), &Device::sampleRateChanged, this, &SynthController::hpfCutoffChanged);
+        connect(m_synth.get(), &Device::sampleRateChanged, this, &SynthController::delayFeedbackLpfChanged);
+        connect(m_synth.get(), &Device::sampleRateChanged, this, &SynthController::delayFeedbackHpfChanged);
+        connect(m_synth.get(), &Device::dataChanged, this, &SynthController::requestSettings);
     }
 
     for (int i = 0; i < 128; ++i) {
@@ -913,9 +918,17 @@ void SynthController::stopNote(int note)
 void SynthController::setSynth(std::shared_ptr<SynthDevice> synth)
 {
     if (m_synth != synth) {
+        if (m_synth) {
+            disconnect(m_synth.get(), nullptr, this, nullptr);
+        }
         m_synth = std::move(synth);
         if (m_synth) {
-            connect(m_synth.get(), &Device::dataChanged, this, &SynthController::sampleRateChanged);
+            connect(m_synth.get(), &Device::sampleRateChanged, this, &SynthController::sampleRateChanged);
+            connect(m_synth.get(), &Device::sampleRateChanged, this, &SynthController::lpfCutoffChanged);
+            connect(m_synth.get(), &Device::sampleRateChanged, this, &SynthController::hpfCutoffChanged);
+            connect(m_synth.get(), &Device::sampleRateChanged, this, &SynthController::delayFeedbackLpfChanged);
+            connect(m_synth.get(), &Device::sampleRateChanged, this, &SynthController::delayFeedbackHpfChanged);
+            connect(m_synth.get(), &Device::dataChanged, this, &SynthController::requestSettings);
         }
         emit synthChanged();
         requestSettings();

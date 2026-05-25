@@ -98,6 +98,7 @@ public:
     Q_INVOKABLE QVariantList getWaveformData(int numPoints);
 
     Q_INVOKABLE void initialize();
+    Q_INVOKABLE void refresh();
     Q_INVOKABLE void reset();
     Q_INVOKABLE void accept();
     Q_INVOKABLE void reject();

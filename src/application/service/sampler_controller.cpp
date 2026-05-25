@@ -14,7 +14,10 @@ SamplerController::SamplerController(SamplerDevice::SamplerDeviceS sampler, QObj
   , m_selectedPad { -1 }
 {
     if (m_sampler) {
-        connect(m_sampler.get(), &Device::dataChanged, this, &SamplerController::sampleRateChanged);
+        connect(m_sampler.get(), &Device::sampleRateChanged, this, &SamplerController::sampleRateChanged);
+        connect(m_sampler.get(), &Device::sampleRateChanged, this, &SamplerController::selectedPadCutoffChanged);
+        connect(m_sampler.get(), &Device::sampleRateChanged, this, &SamplerController::selectedPadHpfCutoffChanged);
+        connect(m_sampler.get(), &Device::dataChanged, this, &SamplerController::refresh);
     }
 }
 
@@ -33,9 +36,15 @@ SamplerDevice::SamplerDeviceS SamplerController::sampler() const
 void SamplerController::setSampler(SamplerDevice::SamplerDeviceS sampler)
 {
     if (m_sampler != sampler) {
+        if (m_sampler) {
+            disconnect(m_sampler.get(), nullptr, this, nullptr);
+        }
         m_sampler = std::move(sampler);
         if (m_sampler) {
-            connect(m_sampler.get(), &Device::dataChanged, this, &SamplerController::sampleRateChanged);
+            connect(m_sampler.get(), &Device::sampleRateChanged, this, &SamplerController::sampleRateChanged);
+            connect(m_sampler.get(), &Device::sampleRateChanged, this, &SamplerController::selectedPadCutoffChanged);
+            connect(m_sampler.get(), &Device::sampleRateChanged, this, &SamplerController::selectedPadHpfCutoffChanged);
+            connect(m_sampler.get(), &Device::dataChanged, this, &SamplerController::refresh);
         }
         m_padModel->setSampler(m_sampler);
         emit samplerChanged();
@@ -278,6 +287,11 @@ void SamplerController::initialize()
     if (m_sampler) {
         m_sampler->saveState();
     }
+    refresh();
+}
+
+void SamplerController::refresh()
+{
     if (m_selectedPad < 0) {
         setSelectedPad(0);
     } else {

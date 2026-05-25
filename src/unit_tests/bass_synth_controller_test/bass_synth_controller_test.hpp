@@ -13,29 +13,22 @@
 // You should have received a copy of the GNU General Public License
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef DRUM_ENGINE_HPP
-#define DRUM_ENGINE_HPP
+#ifndef BASS_SYNTH_CONTROLLER_TEST_HPP
+#define BASS_SYNTH_CONTROLLER_TEST_HPP
 
-#include "../dsp_component.hpp"
+#include <QObject>
 
 namespace noteahead {
 
-class DrumEngine : public DspComponent
+class BassSynthControllerTest : public QObject
 {
-public:
-    static constexpr float AmplitudeThreshold { 0.0001f };
+    Q_OBJECT
 
-    virtual ~DrumEngine() override = default;
-    virtual void trigger(float velocity) = 0;
-    virtual float nextSample() = 0;
-    virtual bool isActive() const = 0;
-    virtual void reset() = 0;
-
-    virtual void stop()
-    {
-    }
+private slots:
+    void test_sampleRateChange_shouldUpdateHzValues();
+    void test_deserialization_shouldUpdateHzValues();
 };
 
 } // namespace noteahead
 
-#endif // DRUM_ENGINE_HPP
+#endif // BASS_SYNTH_CONTROLLER_TEST_HPP

@@ -260,29 +260,32 @@ void DrumSynthDevice::serializeToXml(QXmlStreamWriter & writer) const
 
 void DrumSynthDevice::deserializeFromXml(QXmlStreamReader & reader)
 {
-    const std::lock_guard<std::recursive_mutex> lock { mutex() };
-    deserializeAttributesFromXml(reader);
+    {
+        const std::lock_guard<std::recursive_mutex> lock { mutex() };
+        deserializeAttributesFromXml(reader);
 
-    while (!reader.atEnd() && !reader.hasError()) {
-        const auto token = reader.readNext();
-        if (token == QXmlStreamReader::EndElement && reader.name() == Constants::NahdXml::xmlKeyDevice()) {
-            break;
-        }
+        while (!reader.atEnd() && !reader.hasError()) {
+            const auto token = reader.readNext();
+            if (token == QXmlStreamReader::EndElement && reader.name() == Constants::NahdXml::xmlKeyDevice()) {
+                break;
+            }
 
-        if (token == QXmlStreamReader::StartElement) {
-            if (reader.name() == Constants::NahdXml::xmlKeyParameters()) {
-                deserializeParametersFromXml(reader);
-            } else if (reader.name() == Constants::NahdXml::xmlKeyInsertEffects()) {
-                insertEffectRack().deserializeEffectsFromXml(reader);
-            } else if (reader.name() == Constants::NahdXml::xmlKeyParameter()) {
-                deserializeParameter(reader);
-            } else {
-                reader.skipCurrentElement();
+            if (token == QXmlStreamReader::StartElement) {
+                if (reader.name() == Constants::NahdXml::xmlKeyParameters()) {
+                    deserializeParametersFromXml(reader);
+                } else if (reader.name() == Constants::NahdXml::xmlKeyInsertEffects()) {
+                    insertEffectRack().deserializeEffectsFromXml(reader);
+                } else if (reader.name() == Constants::NahdXml::xmlKeyParameter()) {
+                    deserializeParameter(reader);
+                } else {
+                    reader.skipCurrentElement();
+                }
             }
         }
-    }
 
-    syncParameters();
+        syncParameters();
+    }
+    emit dataChanged();
 }
 
 int DrumSynthDevice::selectedVoice() const

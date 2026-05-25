@@ -28,7 +28,10 @@ BassSynthController::BassSynthController(std::shared_ptr<BassSynthDevice> device
   , m_device { std::move(device) }
 {
     if (m_device) {
-        connect(m_device.get(), &Device::dataChanged, this, &BassSynthController::sampleRateChanged);
+        connect(m_device.get(), &Device::sampleRateChanged, this, &BassSynthController::sampleRateChanged);
+        connect(m_device.get(), &Device::sampleRateChanged, this, &BassSynthController::lpfCutoffChanged);
+        connect(m_device.get(), &Device::sampleRateChanged, this, &BassSynthController::hpfCutoffChanged);
+        connect(m_device.get(), &Device::dataChanged, this, &BassSynthController::requestSettings);
     }
 }
 
@@ -327,9 +330,15 @@ void BassSynthController::stopNote(int note)
 void BassSynthController::setDevice(std::shared_ptr<BassSynthDevice> device)
 {
     if (m_device != device) {
+        if (m_device) {
+            disconnect(m_device.get(), nullptr, this, nullptr);
+        }
         m_device = std::move(device);
         if (m_device) {
-            connect(m_device.get(), &Device::dataChanged, this, &BassSynthController::sampleRateChanged);
+            connect(m_device.get(), &Device::sampleRateChanged, this, &BassSynthController::sampleRateChanged);
+            connect(m_device.get(), &Device::sampleRateChanged, this, &BassSynthController::lpfCutoffChanged);
+            connect(m_device.get(), &Device::sampleRateChanged, this, &BassSynthController::hpfCutoffChanged);
+            connect(m_device.get(), &Device::dataChanged, this, &BassSynthController::requestSettings);
         }
         emit deviceChanged();
         requestSettings();

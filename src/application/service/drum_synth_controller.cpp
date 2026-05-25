@@ -34,11 +34,11 @@ void DrumSynthController::setDevice(const QString & deviceName)
 {
     if (auto dev = std::dynamic_pointer_cast<DrumSynthDevice>(m_deviceService->device(deviceName.toStdString()))) {
         if (m_device) {
-            disconnect(m_device.get(), &Device::dataChanged, this, &DrumSynthController::updateProperties);
+            disconnect(m_device.get(), nullptr, this, nullptr);
         }
         m_device = dev;
         connect(m_device.get(), &Device::dataChanged, this, &DrumSynthController::updateProperties, Qt::UniqueConnection);
-        connect(m_device.get(), &Device::dataChanged, this, &DrumSynthController::sampleRateChanged, Qt::UniqueConnection);
+        connect(m_device.get(), &Device::sampleRateChanged, this, &DrumSynthController::updateProperties, Qt::UniqueConnection);
         updateProperties();
     }
 }

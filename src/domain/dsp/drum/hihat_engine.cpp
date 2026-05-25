@@ -92,8 +92,8 @@ float HiHatEngine::nextSample()
     m_bodyEnv *= bodyDecayRate;
 
     const float decayRate = m_choking
-        ? 1.0f - (1.0f / (0.015f * static_cast<float>(sr)))
-        : 1.0f - (1.0f / (std::max(0.001f, m_decay) * 0.18f * static_cast<float>(sr)));
+      ? 1.0f - (1.0f / (0.015f * static_cast<float>(sr)))
+      : 1.0f - (1.0f / (std::max(0.001f, m_decay) * 0.18f * static_cast<float>(sr)));
     m_ampEnv *= decayRate;
 
     if (m_ampEnv < AmplitudeThreshold) {

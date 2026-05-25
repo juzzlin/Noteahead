@@ -64,28 +64,32 @@ void Device::serializeToXml(QXmlStreamWriter & writer) const
 
 void Device::deserializeFromXml(QXmlStreamReader & reader)
 {
-    deserializeAttributesFromXml(reader);
+    {
+        std::lock_guard<std::recursive_mutex> lock { m_mutex };
+        deserializeAttributesFromXml(reader);
 
-    while (!reader.atEnd() && !reader.hasError()) {
-        const auto token = reader.readNext();
-        if (token == QXmlStreamReader::EndElement && reader.name() == Constants::NahdXml::xmlKeyDevice()) {
-            break;
-        }
+        while (!reader.atEnd() && !reader.hasError()) {
+            const auto token = reader.readNext();
+            if (token == QXmlStreamReader::EndElement && reader.name() == Constants::NahdXml::xmlKeyDevice()) {
+                break;
+            }
 
-        if (token == QXmlStreamReader::StartElement) {
-            if (reader.name() == Constants::NahdXml::xmlKeyParameters()) {
-                deserializeParametersFromXml(reader);
-            } else if (reader.name() == Constants::NahdXml::xmlKeyInsertEffects()) {
-                m_insertEffectRack.deserializeEffectsFromXml(reader);
-            } else if (reader.name() == Constants::NahdXml::xmlKeyParameter()) {
-                deserializeParameter(reader);
-            } else {
-                reader.skipCurrentElement();
+            if (token == QXmlStreamReader::StartElement) {
+                if (reader.name() == Constants::NahdXml::xmlKeyParameters()) {
+                    deserializeParametersFromXml(reader);
+                } else if (reader.name() == Constants::NahdXml::xmlKeyInsertEffects()) {
+                    m_insertEffectRack.deserializeEffectsFromXml(reader);
+                } else if (reader.name() == Constants::NahdXml::xmlKeyParameter()) {
+                    deserializeParameter(reader);
+                } else {
+                    reader.skipCurrentElement();
+                }
             }
         }
-    }
 
-    syncParameters();
+        syncParameters();
+    }
+    emit dataChanged();
 }
 
 uint32_t Device::sampleRate() const
@@ -96,7 +100,18 @@ uint32_t Device::sampleRate() const
 
 void Device::setSampleRate(uint32_t sampleRate)
 {
-    m_sampleRate = sampleRate;
+    bool changed = false;
+    {
+        std::lock_guard<std::recursive_mutex> lock { m_mutex };
+        if (m_sampleRate != sampleRate) {
+            m_sampleRate = sampleRate;
+            changed = true;
+        }
+    }
+    if (changed) {
+        emit sampleRateChanged();
+        emit dataChanged();
+    }
 }
 
 std::recursive_mutex & Device::mutex() const

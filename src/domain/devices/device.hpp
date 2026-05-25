@@ -32,6 +32,10 @@ class QXmlStreamWriter;
 
 namespace noteahead {
 
+namespace Constants {
+double defaultSampleRate();
+}
+
 class Device : public QObject, public ParameterContainer
 {
     Q_OBJECT
@@ -80,6 +84,7 @@ public:
     virtual void resetAudio();
 
     uint32_t sampleRate() const;
+    void setSampleRate(uint32_t sampleRate);
 
     virtual void serializeToXml(QXmlStreamWriter & writer) const;
     virtual void deserializeFromXml(QXmlStreamReader & reader);
@@ -99,6 +104,7 @@ public:
 
 signals:
     void dataChanged();
+    void sampleRateChanged();
 
 protected:
     void serializeAttributesToXml(QXmlStreamWriter & writer) const;
@@ -111,7 +117,6 @@ protected:
     bool updatePanParameter(float pan, bool updateManual);
     bool updateReverbSendParameter(size_t index, float send, bool updateManual);
 
-    void setSampleRate(uint32_t sampleRate);
     std::recursive_mutex & mutex() const;
 
     float volumeInternal() const;
@@ -130,7 +135,7 @@ protected:
 
 private:
     size_t m_id { 0 };
-    uint32_t m_sampleRate { 0 };
+    uint32_t m_sampleRate { static_cast<uint32_t>(Constants::defaultSampleRate()) };
 
     float m_volume { 1.0f };
     float m_gain { 0.5f };
