@@ -50,7 +50,7 @@ float HiHatEngine::nextSample()
     const float noise { m_dist(m_rng) };
 
     // Metallic part: 6 square wave oscillators with ratios (808-style)
-    const double baseFreq { 500.0 + m_tune * 800.0 };
+    const double baseFreq { 450.0 + m_tune * 750.0 };
     static constexpr std::array<double, 6> ratios { 1.0, 1.47, 1.91, 2.51, 3.39, 4.21 };
 
     double metallicSource = 0.0;
@@ -63,33 +63,34 @@ float HiHatEngine::nextSample()
     }
     metallicSource /= 6.0;
 
-    // Blend: metallic core with noise - very thin blend
-    float source = static_cast<float>(metallicSource) * 0.75f + noise * 0.35f;
+    // Blend: metallic core with noise - more noise for 909-style character
+    float source = static_cast<float>(metallicSource) * 0.7f + noise * 0.6f;
 
     // Body component: metallic + noise-based impact for "thickness"
     // Use a band-pass filter to create a "thump"
     m_bodyFilter.setSampleRate(sr);
-    m_bodyFilter.setCutoff(0.3f + m_tune * 0.15f); // Centered around 300-600Hz
-    m_bodyFilter.setResonance(0.4f);
+    m_bodyFilter.setCutoff(0.28f + m_tune * 0.15f); // Centered around mid-range
+    m_bodyFilter.setResonance(0.5f);
 
     // Body is more prominent if decay is long (Open Hat)
-    const float bodyGain = 0.7f * std::min(1.0f, m_decay * 2.0f);
+    const float bodyGain = 0.85f * std::min(1.0f, m_decay * 2.0f);
     const float bodyOut = m_bodyFilter.process(source) * m_bodyEnv * bodyGain;
 
     m_filter.setSampleRate(sr);
     // High-pass filter to keep it thin and "metallic"
     // Starting slightly lower to let more body through
-    m_filter.setCutoff(0.7f + m_tune * 0.2f);
-    m_filter.setResonance(m_resonance * 0.3f);
+    m_filter.setCutoff(0.68f + m_tune * 0.2f);
+    m_filter.setResonance(m_resonance * 0.35f);
 
-    // Process through the cascaded SVF (which is already 2 units internally)
-    const float out { (m_filter.process(source) + bodyOut) * m_ampEnv * m_velocity * 1.5f };
+    // Sum and saturate for "body" and warmth (909-style)
+    float mixed = (m_filter.process(source) + bodyOut);
+    float out = std::tanh(mixed * 1.4f) * m_ampEnv * m_velocity * 1.1f;
 
-    // Body decay is slightly longer to provide more "meat" (909-style)
-    const float bodyDecayRate { 1.0f - (1.0f / (0.05f * static_cast<float>(sr))) };
+    // Body decay is slightly longer to provide more "meat"
+    const float bodyDecayRate { 1.0f - (1.0f / (0.06f * static_cast<float>(sr))) };
     m_bodyEnv *= bodyDecayRate;
 
-    const float decayRate { 1.0f - (1.0f / (std::max(0.001f, m_decay) * 0.15f * static_cast<float>(sr))) };
+    const float decayRate { 1.0f - (1.0f / (std::max(0.001f, m_decay) * 0.18f * static_cast<float>(sr))) };
     m_ampEnv *= decayRate;
 
     if (m_ampEnv < AmplitudeThreshold) {
