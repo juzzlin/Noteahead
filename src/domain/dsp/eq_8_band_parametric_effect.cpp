@@ -31,7 +31,7 @@ Eq8BandParametricEffect::Eq8BandParametricEffect()
         addParameter(Parameter { Constants::NahdXml::xmlKeyEq8BandParametricType(i).toStdString(), 0.0f, 0, 6, 0 });
         addParameter(Parameter { Constants::NahdXml::xmlKeyEq8BandParametricFreq(i).toStdString(), 0.5f, 20, 20000, 1000 });
         addParameter(Parameter { Constants::NahdXml::xmlKeyEq8BandParametricGain(i).toStdString(), 0.5f, -24, 24, 0 });
-        addParameter(Parameter { Constants::NahdXml::xmlKeyEq8BandParametricQ(i).toStdString(), 0.3f, 1, 100, 7, 10 });
+        addParameter(Parameter { Constants::NahdXml::xmlKeyEq8BandParametricQ(i).toStdString(), 0.5f, 1, 100, 10, 10 });
     }
 
     syncParameters();

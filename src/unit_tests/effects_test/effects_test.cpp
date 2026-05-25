@@ -637,6 +637,14 @@ void EffectsTest::test_eq8BandParametricEffect_shouldApplyBandsAndBeStable()
     Eq8BandParametricEffect effect;
     effect.setSampleRate(44100.0);
 
+    // Test defaults
+    {
+        if (auto p = effect.parameter(Constants::NahdXml::xmlKeyEq8BandParametricQ(0).toStdString()); p) {
+            // Default should be 0.5f (maps to 1.0)
+            QCOMPARE(p->get().value(), 0.5f);
+        }
+    }
+
     // Test bypass (all bands default to bypass)
     {
         float left = 1.0f;
