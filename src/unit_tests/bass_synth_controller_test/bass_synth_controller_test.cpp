@@ -45,8 +45,8 @@ void BassSynthControllerTest::test_sampleRateChange_shouldUpdateHzValues()
     device->setSampleRate(32000);
 
     QCOMPARE(srSpy.count(), 1);
-    QCOMPARE(lpfSpy.count(), 2); // Once from sampleRateChanged, once from dataChanged -> requestSettings
-    QCOMPARE(hpfSpy.count(), 2);
+    QCOMPARE(lpfSpy.count(), 1);
+    QCOMPARE(hpfSpy.count(), 1);
 
     const float newHz = controller.cutoffToHz(controller.lpfCutoff());
     const float expectedHz = initialHz * ((32000.0f * 0.49f) / 20000.0f);

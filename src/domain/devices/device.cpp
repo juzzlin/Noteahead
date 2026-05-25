@@ -110,7 +110,6 @@ void Device::setSampleRate(uint32_t sampleRate)
     }
     if (changed) {
         emit sampleRateChanged();
-        emit dataChanged();
     }
 }
 
