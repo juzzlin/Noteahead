@@ -3,8 +3,8 @@
 //
 #include "sampler_controller_test.hpp"
 #include "../../application/service/sampler_controller.hpp"
-#include "../../domain/devices/sampler_device.hpp"
 #include "../../common/constants.hpp"
+#include "../../domain/devices/sampler_device.hpp"
 
 #include <QSignalSpy>
 #include <QTest>

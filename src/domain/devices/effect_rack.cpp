@@ -22,6 +22,7 @@
 #include "delay_effect.hpp"
 #include "high_pass_filter_effect.hpp"
 #include "low_pass_filter_effect.hpp"
+#include "panner_effect.hpp"
 #include "panning_effect.hpp"
 #include "volume_effect.hpp"
 
@@ -178,6 +179,8 @@ void EffectRack::deserializeEffect(QXmlStreamReader & reader)
         effect = std::make_shared<HighPassFilterEffect>();
     } else if (typeId == LowPassFilterEffect::typeIdString() || type == "lowPassFilter") {
         effect = std::make_shared<LowPassFilterEffect>();
+    } else if (typeId == PannerEffect::typeIdString() || type == "panner") {
+        effect = std::make_shared<PannerEffect>();
     } else if (typeId == PanningEffect::typeIdString() || type == "panning") {
         effect = std::make_shared<PanningEffect>();
     } else if (typeId == VolumeEffect::typeIdString() || type == "volume") {

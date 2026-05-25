@@ -1,14 +1,13 @@
 include_directories(${CMAKE_CURRENT_SOURCE_DIR} ${RTAUDIO_INCLUDE_DIRS} ${PROJECT_SOURCE_DIR}/src ${PROJECT_SOURCE_DIR}/src/contrib/SimpleLogger/src)
-set(NAME bass_synth_test)
+set(NAME panner_test)
 set(SRC
     ${NAME}.cpp
     ${NAME}.hpp
     ../../common/constants.cpp
     ../../common/parameter_mapper.cpp
     ../../common/utils.cpp
-    ../../domain/devices/bass_synth_device.cpp
-    ../../domain/devices/delay_effect.cpp
     ../../domain/devices/device.cpp
+    ../../domain/devices/delay_effect.cpp
     ../../domain/devices/effect.cpp
     ../../domain/devices/effect_rack.cpp
     ../../domain/devices/high_pass_filter_effect.cpp
@@ -16,15 +15,12 @@ set(SRC
     ../../domain/devices/panner_effect.cpp
     ../../domain/devices/panning_effect.cpp
     ../../domain/devices/volume_effect.cpp
-    ../../domain/dsp/adsr_envelope.cpp
-    ../../domain/dsp/svf_filter.cpp
     ../../domain/dsp/cascaded_svf.cpp
     ../../domain/dsp/compressor_effect.cpp
     ../../domain/dsp/dsp_component.cpp
     ../../domain/dsp/eq_8_band_parametric_effect.cpp
-    ../../domain/dsp/oversampler.cpp
-    ../../domain/dsp/polyblep_oscillator.cpp
     ../../domain/dsp/reverb_effect.cpp
+    ../../domain/dsp/svf_filter.cpp
     ../../domain/parameter.cpp
     ../../domain/parameter_container.cpp
 )

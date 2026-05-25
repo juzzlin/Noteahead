@@ -20,6 +20,7 @@
 #include "../../domain/devices/delay_effect.hpp"
 #include "../../domain/devices/high_pass_filter_effect.hpp"
 #include "../../domain/devices/low_pass_filter_effect.hpp"
+#include "../../domain/devices/panner_effect.hpp"
 #include "../../domain/devices/panning_effect.hpp"
 #include "../../domain/devices/volume_effect.hpp"
 #include "../../domain/dsp/compressor_effect.hpp"
@@ -144,6 +145,8 @@ void EffectRackController::setEffect(int slotIndex, const QString & typeId)
         effect = std::make_shared<HighPassFilterEffect>();
     } else if (stdTypeId == LowPassFilterEffect::typeIdString()) {
         effect = std::make_shared<LowPassFilterEffect>();
+    } else if (stdTypeId == PannerEffect::typeIdString()) {
+        effect = std::make_shared<PannerEffect>();
     } else if (stdTypeId == PanningEffect::typeIdString()) {
         effect = std::make_shared<PanningEffect>();
     } else if (stdTypeId == VolumeEffect::typeIdString()) {
@@ -187,6 +190,7 @@ QVariantList EffectRackController::availableEffects() const
 
     addEffect("Compressor", CompressorEffect::typeIdString());
     addEffect("EQ 8-Band Parametric", Eq8BandParametricEffect::typeIdString());
+    addEffect("Panner", PannerEffect::typeIdString());
     addEffect("Reverb", ReverbEffect::typeIdString());
 
     return list;
@@ -270,6 +274,14 @@ QString EffectRackController::effectParametersSummary(int effectIndex) const
                     return QString { "(time=%1ms, fb=%2%)" }
                       .arg(static_cast<int>(std::round(time->get().value() * 1000.0f)))
                       .arg(static_cast<int>(std::round(feedback->get().value() * 100.0f)));
+                }
+            } else if (type == "panner") {
+                auto pan = effect->parameter(Constants::NahdXml::xmlKeyPan().toStdString());
+                auto width = effect->parameter(Constants::NahdXml::xmlKeyReverbWidth().toStdString());
+                if (pan && width) {
+                    return QString { "(pan=%1%, width=%2%)" }
+                      .arg(static_cast<int>(std::round(pan->get().value() * 100.0f)))
+                      .arg(static_cast<int>(std::round(width->get().value() * 100.0f)));
                 }
             }
         }

@@ -271,6 +271,10 @@ ApplicationWindow {
         id: reverbDialog
         anchors.centerIn: parent
     }
+    PannerDialog {
+        id: pannerDialog
+        anchors.centerIn: parent
+    }
     CompressorDialog {
         id: compressorDialog
         anchors.centerIn: parent

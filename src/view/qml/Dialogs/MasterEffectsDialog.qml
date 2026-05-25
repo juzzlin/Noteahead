@@ -104,6 +104,9 @@ Dialog {
                         } else if (effectType === "eq8bandparametric") {
                             eq8BandParametricDialog.effectIndex = index;
                             eq8BandParametricDialog.open();
+                        } else if (effectType === "panner") {
+                            pannerDialog.effectIndex = index;
+                            pannerDialog.open();
                         } else if (effectType === "") {
                             UiService.requestEffectsGalleryDialog(index);
                         } else {

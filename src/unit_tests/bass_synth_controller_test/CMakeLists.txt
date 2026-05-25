@@ -15,6 +15,7 @@ set(SRC
     ../../domain/devices/high_pass_filter_effect.cpp
     ../../domain/devices/low_pass_filter_effect.cpp
     ../../domain/devices/panning_effect.cpp
+    ../../domain/devices/panner_effect.cpp
     ../../domain/devices/volume_effect.cpp
     ../../domain/dsp/adsr_envelope.cpp
     ../../domain/dsp/svf_filter.cpp

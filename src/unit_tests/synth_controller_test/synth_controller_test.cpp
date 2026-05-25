@@ -3,8 +3,8 @@
 //
 #include "synth_controller_test.hpp"
 #include "../../application/service/synth_controller.hpp"
-#include "../../domain/devices/synth_device.hpp"
 #include "../../common/constants.hpp"
+#include "../../domain/devices/synth_device.hpp"
 
 #include <QSignalSpy>
 #include <QTest>

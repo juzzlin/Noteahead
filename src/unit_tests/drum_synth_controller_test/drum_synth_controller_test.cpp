@@ -2,10 +2,10 @@
 // Copyright (C) 2026 Jussi Lind <jussi.lind@iki.fi>
 //
 #include "drum_synth_controller_test.hpp"
-#include "../../application/service/drum_synth_controller.hpp"
 #include "../../application/service/device_service.hpp"
-#include "../../domain/devices/drum_synth_device.hpp"
+#include "../../application/service/drum_synth_controller.hpp"
 #include "../../common/constants.hpp"
+#include "../../domain/devices/drum_synth_device.hpp"
 #include "../../infra/audio/audio_engine.hpp"
 
 #include <QSignalSpy>
@@ -18,7 +18,7 @@ void DrumSynthControllerTest::test_sampleRateChange_shouldUpdateHzValues()
     const auto audioEngine = std::make_shared<AudioEngine>();
     const auto deviceService = std::make_shared<DeviceService>(audioEngine);
     DrumSynthController controller { deviceService };
-    
+
     const auto device = std::make_shared<DrumSynthDevice>(Constants::drumSynthDeviceName().toStdString());
     deviceService->setDevice(0, device);
 
@@ -42,7 +42,7 @@ void DrumSynthControllerTest::test_sampleRateChange_shouldUpdateHzValues()
     QVERIFY(propSpy.count() >= 1);
 
     const auto newHz = controller.cutoffToHz(controller.voiceLpfCutoff());
-    const auto expectedHz = initialHz * ( (32000.0f * 0.49f) / 20000.0f );
+    const auto expectedHz = initialHz * ((32000.0f * 0.49f) / 20000.0f);
     QVERIFY2(std::abs(newHz - expectedHz) < 1.0f,
              QString("newHz: %1, initialHz: %2, expectedHz: %3").arg(newHz).arg(initialHz).arg(expectedHz).toUtf8().constData());
 }

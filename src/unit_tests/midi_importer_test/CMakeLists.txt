@@ -40,6 +40,7 @@ set(SRC
     ../../domain/devices/high_pass_filter_effect.cpp
     ../../domain/devices/low_pass_filter_effect.cpp
     ../../domain/devices/panning_effect.cpp
+    ../../domain/devices/panner_effect.cpp
     ../../domain/devices/sampler_device.cpp
     ../../domain/devices/synth_device.cpp
     ../../domain/devices/synth_presets.cpp

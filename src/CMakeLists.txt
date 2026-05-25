@@ -78,6 +78,7 @@ set(HEADER_FILES
   domain/devices/effect_rack.hpp
   domain/devices/high_pass_filter_effect.hpp
   domain/devices/low_pass_filter_effect.hpp
+  domain/devices/panner_effect.hpp
   domain/devices/panning_effect.hpp
   domain/devices/sampler_device.hpp
   domain/devices/synth_device.hpp
@@ -230,6 +231,7 @@ set(SOURCE_FILES
   domain/devices/effect_rack.cpp
   domain/devices/high_pass_filter_effect.cpp
   domain/devices/low_pass_filter_effect.cpp
+  domain/devices/panner_effect.cpp
   domain/devices/panning_effect.cpp
   domain/devices/sampler_device.cpp
   domain/devices/synth_device.cpp
@@ -359,6 +361,7 @@ set(QML_SOURCE_FILES
     ${QML_BASE_DIR}/Dialogs/GainConverterDialog.qml
     ${QML_BASE_DIR}/Dialogs/IntegerInputDialog.qml
     ${QML_BASE_DIR}/Dialogs/MasterEffectsDialog.qml
+    ${QML_BASE_DIR}/Dialogs/PannerDialog.qml
     ${QML_BASE_DIR}/Dialogs/ReverbDialog.qml
     ${QML_BASE_DIR}/Dialogs/EffectSendsDialog.qml
     ${QML_BASE_DIR}/Dialogs/InterpolationDialog.qml
