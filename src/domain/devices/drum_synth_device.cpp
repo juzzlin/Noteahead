@@ -73,6 +73,14 @@ std::string DrumSynthDevice::typeId() const
 void DrumSynthDevice::processMidiNoteOn(uint8_t note, uint8_t velocity)
 {
     const std::lock_guard<std::recursive_mutex> lock { mutex() };
+
+    using enum DrumSynth::MidiNote;
+
+    // Hi-hat choking logic: Closed Hat or Pedal Hat chokes Open Hat
+    if (note == static_cast<uint8_t>(ClosedHiHat) || note == static_cast<uint8_t>(PedalHiHat)) {
+        m_voices[static_cast<int>(VoiceIndex::OpenHiHat)].engine->stop();
+    }
+
     for (auto && voice : m_voices) {
         if (voice.midiNote == note) {
             const float vel { static_cast<float>(velocity) / 127.0f };
@@ -85,9 +93,12 @@ void DrumSynthDevice::processMidiNoteOn(uint8_t note, uint8_t velocity)
 void DrumSynthDevice::processMidiNoteOff(uint8_t note)
 {
     const std::lock_guard<std::recursive_mutex> lock { mutex() };
-    // Closed Hat choke logic
-    if (note == 42 || note == 44) { // Closed Hat or Pedal Hat
-        m_voices[static_cast<int>(VoiceIndex::OpenHiHat)].engine->reset();
+
+    using enum DrumSynth::MidiNote;
+
+    // Closed Hat choke logic: smoothly stop Open Hat on CHH/Pedal release
+    if (note == static_cast<uint8_t>(ClosedHiHat) || note == static_cast<uint8_t>(PedalHiHat)) {
+        m_voices[static_cast<int>(VoiceIndex::OpenHiHat)].engine->stop();
     }
 }
 
@@ -294,8 +305,22 @@ uint8_t DrumSynthDevice::voiceNote(int index) const
 
 void DrumSynthDevice::initializeVoices()
 {
+    using enum DrumSynth::MidiNote;
+
     // Define GM mapping
-    const std::array<uint8_t, NumVoices> notes { 36, 38, 42, 39, 46, 41, 43, 45, 49, 51, 52 }; // Kick, Snare, ClHat, Clap, OpHat, LowTom, MidTom, HiTom, Crash, Ride, RevCrash
+    const std::array<uint8_t, NumVoices> notes {
+        static_cast<uint8_t>(Kick),
+        static_cast<uint8_t>(Snare),
+        static_cast<uint8_t>(ClosedHiHat),
+        static_cast<uint8_t>(Clap),
+        static_cast<uint8_t>(OpenHiHat),
+        static_cast<uint8_t>(LowTom),
+        static_cast<uint8_t>(MidTom),
+        static_cast<uint8_t>(HiTom),
+        static_cast<uint8_t>(Crash),
+        static_cast<uint8_t>(Ride),
+        static_cast<uint8_t>(ReverseCrash)
+    };
 
     for (int i { 0 }; i < NumVoices; i++) {
         m_voices.at(i).midiNote = notes.at(i);

@@ -33,6 +33,7 @@ void HiHatEngine::trigger(float velocity)
     m_ampEnv = 1.0f;
     m_bodyEnv = 1.0f;
     m_active = true;
+    m_choking = false;
     m_filter.reset();
     m_bodyFilter.reset();
     for (auto && phase : m_phases) {
@@ -90,11 +91,14 @@ float HiHatEngine::nextSample()
     const float bodyDecayRate { 1.0f - (1.0f / (0.06f * static_cast<float>(sr))) };
     m_bodyEnv *= bodyDecayRate;
 
-    const float decayRate { 1.0f - (1.0f / (std::max(0.001f, m_decay) * 0.18f * static_cast<float>(sr))) };
+    const float decayRate = m_choking
+        ? 1.0f - (1.0f / (0.015f * static_cast<float>(sr)))
+        : 1.0f - (1.0f / (std::max(0.001f, m_decay) * 0.18f * static_cast<float>(sr)));
     m_ampEnv *= decayRate;
 
     if (m_ampEnv < AmplitudeThreshold) {
         m_active = false;
+        m_choking = false;
         m_ampEnv = 0.0f;
     }
 
@@ -109,6 +113,7 @@ bool HiHatEngine::isActive() const
 void HiHatEngine::reset()
 {
     m_active = false;
+    m_choking = false;
     m_ampEnv = 0.0f;
 }
 
@@ -129,8 +134,7 @@ void HiHatEngine::setResonance(float resonance)
 
 void HiHatEngine::stop()
 {
-    m_active = false;
-    m_ampEnv = 0.0f;
+    m_choking = true;
 }
 
 } // namespace noteahead

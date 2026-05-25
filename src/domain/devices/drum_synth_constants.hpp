@@ -39,6 +39,22 @@ enum class VoiceIndex : int
 
 static constexpr int NumVoices = 11;
 
+enum class MidiNote : uint8_t
+{
+    Kick = 36,
+    Snare = 38,
+    ClosedHiHat = 42,
+    Clap = 39,
+    PedalHiHat = 44,
+    OpenHiHat = 46,
+    LowTom = 41,
+    MidTom = 43,
+    HiTom = 45,
+    Crash = 49,
+    Ride = 51,
+    ReverseCrash = 52
+};
+
 static constexpr uint8_t CcStartRange1 = 14;
 static constexpr int NumVoicesRange1 = 6;
 static constexpr uint8_t CcStartRange2 = 102;

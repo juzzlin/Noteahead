@@ -43,6 +43,7 @@ public:
 private:
     float m_ampEnv { 0.0f };
     bool m_active { false };
+    bool m_choking { false };
 
     float m_tune { 0.5f };
     float m_decay { 0.5f };

@@ -30,6 +30,7 @@ public:
     virtual float nextSample() = 0;
     virtual bool isActive() const = 0;
     virtual void reset() = 0;
+    virtual void stop() {}
 };
 
 } // namespace noteahead
