@@ -318,7 +318,9 @@ Dialog {
 
                 Knob {
                     label: qsTr("Global Gain")
-                    suffix: "dB"
+                    mapping: "decibel"
+                    mapMin: -30
+                    mapMax: 30
                     value: samplerController.gain
                     onMoved: v => {
                         samplerController.gain = v;

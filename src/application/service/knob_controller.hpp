@@ -50,6 +50,7 @@ public:
 
     Q_INVOKABLE QString percentageToString(double value, double from = 0, double to = Constants::uiInternalScaling()) const;
     Q_INVOKABLE QString decibelToString(double value, double from = 0, double to = Constants::uiInternalScaling()) const;
+    Q_INVOKABLE QString decibelMultiplierToString(double multiplier) const;
     Q_INVOKABLE QString valueToString(double value, const QString & suffix, double from = 0, double to = Constants::uiInternalScaling(), bool isInteger = true) const;
     Q_INVOKABLE QString frequencyToString(double value, double cutoffHz, bool isHpf) const;
 

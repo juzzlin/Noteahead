@@ -138,6 +138,15 @@ void KnobControllerTest::test_decibelToString_shouldFormatDecibelStrings()
     QCOMPARE(controller.decibelToString(6.0, -12.0, 12.0), QString { "+6.0 dB" });
 }
 
+void KnobControllerTest::test_decibelMultiplierToString_shouldFormatDecibelStrings()
+{
+    KnobController controller;
+    QCOMPARE(controller.decibelMultiplierToString(1.0), QString { "0.0 dB" });
+    QCOMPARE(controller.decibelMultiplierToString(2.0), QString { "+6.0 dB" });
+    QCOMPARE(controller.decibelMultiplierToString(0.5), QString { "-6.0 dB" });
+    QCOMPARE(controller.decibelMultiplierToString(0.0), QString { "-inf dB" });
+}
+
 void KnobControllerTest::test_valueToString_shouldFormatUnitStrings()
 {
     KnobController controller;

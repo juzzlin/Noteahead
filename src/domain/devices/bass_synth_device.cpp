@@ -266,8 +266,8 @@ void BassSynthDevice::processAudio(AudioContext & context)
                 finalSample *= (1.0f + m_accent);
             }
 
-            l[os] = finalSample * (1.0f - panInternal()) * 0.5f;
-            r[os] = finalSample * panInternal() * 0.5f;
+            l[os] = finalSample * (1.0f - panInternal()) * 2.0f;
+            r[os] = finalSample * panInternal() * 2.0f;
         }
 
         context.buffer[i * 2] += m_oversamplerL.process(l[0], l[1]) * volumeInternal();

@@ -42,6 +42,8 @@ double KnobController::map(double value, const QString & type, double min, doubl
         return mapIntensity(value * 2.0 - 1.0, min, max);
     if (type == "logFrequency")
         return ParameterMapper::mapLogFrequency(value, min, max);
+    if (type == "decibel")
+        return ParameterMapper::mapDecibel(value, (max - min) / 2.0);
     return min + (value * (max - min)); // linear
 }
 
@@ -57,6 +59,8 @@ double KnobController::unmap(double mappedValue, const QString & type, double mi
         return (unmapIntensity(mappedValue, min, max) + 1.0) / 2.0;
     if (type == "logFrequency")
         return ParameterMapper::unmapLogFrequency(mappedValue, min, max);
+    if (type == "decibel")
+        return ParameterMapper::unmapDecibel(mappedValue, (max - min) / 2.0);
     return (max != min) ? (mappedValue - min) / (max - min) : 0.0;
 }
 
@@ -74,6 +78,9 @@ QString KnobController::format(double mappedValue, const QString & type, const Q
         const QString pctStr = percentageToString(linearValue);
         return QString { "%1 / %2" }.arg(pctStr).arg(freqStr);
     }
+    if (type == "decibel") {
+        return decibelMultiplierToString(mappedValue);
+    }
     if (type == "exponential" && suffix.isEmpty()) {
         return QString { "%1" }.arg(mappedValue, 0, 'f', 2);
     }
@@ -81,7 +88,7 @@ QString KnobController::format(double mappedValue, const QString & type, const Q
         return percentageToString(unmap(mappedValue, type, min, max) * Constants::uiInternalScaling());
     }
     if (suffix == "dB") {
-        return decibelToString(unmap(mappedValue, type, min, max) * Constants::uiInternalScaling());
+        return decibelToString(mappedValue, min, max);
     }
 
     // Default to time-like formatting
@@ -184,10 +191,20 @@ QString KnobController::decibelToString(double value, double from, double to) co
 {
     double db;
     if (from == 0 && to == Constants::uiInternalScaling()) {
+        // Legacy: value is 0..1000, map to -30..30 dB
         db = (value / Constants::uiInternalScaling() - 0.5) * 60.0;
     } else {
+        // Generic case: value is already in dB
         db = value;
     }
+    return QString { "%1%2 dB" }.arg(db > 0.05 ? "+" : "").arg(db, 0, 'f', 1);
+}
+
+QString KnobController::decibelMultiplierToString(double multiplier) const
+{
+    if (multiplier <= 0)
+        return "-inf dB";
+    const double db = 20.0 * std::log10(multiplier);
     return QString { "%1%2 dB" }.arg(db > 0.05 ? "+" : "").arg(db, 0, 'f', 1);
 }
 

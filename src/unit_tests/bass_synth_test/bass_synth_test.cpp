@@ -149,6 +149,35 @@ void BassSynthTest::test_noClickOnSlideZero_shouldNotHaveLargeDiscontinuities()
     }
 }
 
+void BassSynthTest::test_outputLevel_shouldBeCorrect()
+{
+    BassSynthDevice synth { "Test BassSynth" };
+    synth.setVolume(1.0f);
+    synth.setGain(0.5f); // 0 dB
+    synth.setPan(0.5f); // Center
+    synth.setWaveform(PolyBlepOscillator::Waveform::Square);
+    synth.setSubLevel(0.0f);
+    synth.setDistDrive(0.0f);
+    synth.setLpfCutoff(1.0f); // Wide open
+
+    synth.processMidiNoteOn(60, 100);
+
+    const int frameCount { 1000 };
+    std::vector<float> buffer(static_cast<size_t>(frameCount) * 2, 0.0f);
+    AudioContext context { std::span(buffer.data(), buffer.size()), static_cast<uint32_t>(frameCount), 44100 };
+    synth.processAudio(context);
+
+    float peak { 0.0f };
+    for (float sample : buffer) {
+        peak = std::max(peak, std::abs(sample));
+    }
+
+    // Square wave peak should be 1.0. Panning center multiplier is 2.0 * 0.5 = 1.0.
+    // So peak should be around 1.0.
+    // (Previous bug had 0.5 * 0.5 = 0.25)
+    QVERIFY2(peak > 0.9f && peak < 1.1f, QString("Peak level incorrect: %1").arg(static_cast<double>(peak)).toUtf8().constData());
+}
+
 } // namespace noteahead
 
 QTEST_GUILESS_MAIN(noteahead::BassSynthTest)

@@ -33,6 +33,7 @@ private slots:
     void test_timeToString_shouldFormatTimeStrings();
     void test_percentageToString_shouldFormatPercentageStrings();
     void test_decibelToString_shouldFormatDecibelStrings();
+    void test_decibelMultiplierToString_shouldFormatDecibelStrings();
     void test_valueToString_shouldFormatUnitStrings();
     void test_format_shouldHandleMappingAndUnits();
     void test_frequencyToString_shouldFormatFrequencyStrings();

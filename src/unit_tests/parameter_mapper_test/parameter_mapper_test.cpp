@@ -124,6 +124,22 @@ void ParameterMapperTest::test_logFrequencyUnmapping_shouldReturnCorrectValues()
     QVERIFY(std::abs(ParameterMapper::unmapLogFrequency(midFreq, 0, maxFreq) - 0.5) < 0.000001);
 }
 
+void ParameterMapperTest::test_decibelMapping_shouldReturnCorrectValues()
+{
+    // Range 30 dB (so -30 to 30)
+    QCOMPARE(ParameterMapper::mapDecibel(0.5, 30.0), 1.0); // 0 dB
+    QCOMPARE(ParameterMapper::mapDecibel(1.0, 30.0), std::pow(10.0, 30.0 / 20.0)); // 30 dB
+    QCOMPARE(ParameterMapper::mapDecibel(0.0, 30.0), std::pow(10.0, -30.0 / 20.0)); // -30 dB
+}
+
+void ParameterMapperTest::test_decibelUnmapping_shouldReturnCorrectValues()
+{
+    // Range 30 dB (so -30 to 30)
+    QCOMPARE(ParameterMapper::unmapDecibel(1.0, 30.0), 0.5); // 0 dB
+    QVERIFY(std::abs(ParameterMapper::unmapDecibel(std::pow(10.0, 30.0 / 20.0), 30.0) - 1.0) < 0.000001); // 30 dB
+    QVERIFY(std::abs(ParameterMapper::unmapDecibel(std::pow(10.0, -30.0 / 20.0), 30.0) - 0.0) < 0.000001); // -30 dB
+}
+
 } // namespace noteahead
 
 QTEST_APPLESS_MAIN(noteahead::ParameterMapperTest)

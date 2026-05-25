@@ -31,6 +31,7 @@ private slots:
     void test_velocityAndAccent_shouldTriggerAudio();
     void test_retriggerOnSlide_shouldIncreaseVolume();
     void test_noClickOnSlideZero_shouldNotHaveLargeDiscontinuities();
+    void test_outputLevel_shouldBeCorrect();
 };
 
 } // namespace noteahead

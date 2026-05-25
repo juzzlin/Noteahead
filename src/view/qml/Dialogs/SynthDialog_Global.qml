@@ -64,7 +64,9 @@ ColumnLayout {
     }
     Knob {
         label: qsTr("Gain")
-        suffix: "dB"
+        mapping: "decibel"
+        mapMin: -30
+        mapMax: 30
         value: synthController.gain
         onMoved: v => synthController.gain = v
         Layout.fillWidth: true

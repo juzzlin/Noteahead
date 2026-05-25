@@ -63,7 +63,9 @@ Dialog {
                 }
                 Knob {
                     label: qsTr("Gain")
-                    suffix: "dB"
+                    mapping: "decibel"
+                    mapMin: -30
+                    mapMax: 30
                     value: drumSynthController.gain
                     onMoved: (val) => drumSynthController.gain = val
                 }

@@ -32,6 +32,8 @@ private slots:
     void test_cubicCenteredUnmapping_shouldReturnCorrectValues();
     void test_logFrequencyMapping_shouldReturnCorrectValues();
     void test_logFrequencyUnmapping_shouldReturnCorrectValues();
+    void test_decibelMapping_shouldReturnCorrectValues();
+    void test_decibelUnmapping_shouldReturnCorrectValues();
 };
 
 } // namespace noteahead
