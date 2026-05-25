@@ -14,6 +14,7 @@
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
 #include "bass_synth_controller_test.hpp"
+
 #include "../../application/service/bass_synth_controller.hpp"
 #include "../../common/constants.hpp"
 #include "../../domain/devices/bass_synth_device.hpp"
@@ -63,10 +64,8 @@ void BassSynthControllerTest::test_deserialization_shouldUpdateHzValues()
 
     QString xml;
     QXmlStreamWriter writer { &xml };
-    // Device::serializeToXml already writes its own start element
     device->serializeToXml(writer);
 
-    // Change value in device so we can see it restored
     device->setLpfCutoff(0.9f);
 
     QSignalSpy lpfSpy { &controller, &BassSynthController::lpfCutoffChanged };
@@ -77,8 +76,137 @@ void BassSynthControllerTest::test_deserialization_shouldUpdateHzValues()
     }
 
     QCOMPARE(device->lpfCutoff(), 0.1f);
-    // dataChanged signal from Device should have triggered requestSettings in controller
     QVERIFY(lpfSpy.count() >= 1);
+}
+
+void BassSynthControllerTest::test_properties_shouldUpdateDeviceAndEmitSignals()
+{
+    auto device = std::make_shared<BassSynthDevice>("Test BassSynth");
+    BassSynthController controller { device };
+
+    // Common properties (DeviceController)
+    {
+        QSignalSpy spy { &controller, &BassSynthController::volumeChanged };
+        controller.setVolume(800);
+        QCOMPARE(spy.count(), 1);
+        QCOMPARE(controller.volume(), 800);
+        QCOMPARE(device->volume(), 0.8f);
+    }
+    {
+        QSignalSpy spy { &controller, &BassSynthController::gainChanged };
+        controller.setGain(600);
+        QCOMPARE(spy.count(), 1);
+        QCOMPARE(controller.gain(), 600);
+        QCOMPARE(device->gain(), 0.6f);
+    }
+    {
+        QSignalSpy spy { &controller, &BassSynthController::panChanged };
+        controller.setPan(300);
+        QCOMPARE(spy.count(), 1);
+        QCOMPARE(controller.pan(), 300);
+        QCOMPARE(device->pan(), 0.3f);
+    }
+
+    // Specific properties
+    {
+        QSignalSpy spy { &controller, &BassSynthController::waveformChanged };
+        controller.setWaveform(1);
+        QCOMPARE(spy.count(), 1);
+        QCOMPARE(controller.waveform(), 1);
+    }
+    {
+        QSignalSpy spy { &controller, &BassSynthController::tuningChanged };
+        controller.setTuning(700);
+        QCOMPARE(spy.count(), 1);
+        QCOMPARE(controller.tuning(), 700);
+    }
+    {
+        QSignalSpy spy { &controller, &BassSynthController::subLevelChanged };
+        controller.setSubLevel(400);
+        QCOMPARE(spy.count(), 1);
+        QCOMPARE(controller.subLevel(), 400);
+    }
+    {
+        QSignalSpy spy { &controller, &BassSynthController::subOctaveChanged };
+        controller.setSubOctave(2);
+        QCOMPARE(spy.count(), 1);
+        QCOMPARE(controller.subOctave(), 2);
+    }
+    {
+        QSignalSpy spy { &controller, &BassSynthController::lpfCutoffChanged };
+        controller.setLpfCutoff(200);
+        QCOMPARE(spy.count(), 1);
+        QCOMPARE(controller.lpfCutoff(), 200);
+    }
+    {
+        QSignalSpy spy { &controller, &BassSynthController::lpfResonanceChanged };
+        controller.setLpfResonance(500);
+        QCOMPARE(spy.count(), 1);
+        QCOMPARE(controller.lpfResonance(), 500);
+    }
+    {
+        QSignalSpy spy { &controller, &BassSynthController::hpfCutoffChanged };
+        controller.setHpfCutoff(100);
+        QCOMPARE(spy.count(), 1);
+        QCOMPARE(controller.hpfCutoff(), 100);
+    }
+    {
+        QSignalSpy spy { &controller, &BassSynthController::envModChanged };
+        controller.setEnvMod(800);
+        QCOMPARE(spy.count(), 1);
+        QCOMPARE(controller.envMod(), 800);
+    }
+    {
+        QSignalSpy spy { &controller, &BassSynthController::decayChanged };
+        controller.setDecay(600);
+        QCOMPARE(spy.count(), 1);
+        QCOMPARE(controller.decay(), 600);
+    }
+    {
+        QSignalSpy spy { &controller, &BassSynthController::accentChanged };
+        controller.setAccent(900);
+        QCOMPARE(spy.count(), 1);
+        QCOMPARE(controller.accent(), 900);
+    }
+    {
+        QSignalSpy spy { &controller, &BassSynthController::slideChanged };
+        controller.setSlide(500);
+        QCOMPARE(spy.count(), 1);
+        QCOMPARE(controller.slide(), 500);
+    }
+    {
+        QSignalSpy spy { &controller, &BassSynthController::distDriveChanged };
+        controller.setDistDrive(750);
+        QCOMPARE(spy.count(), 1);
+        QCOMPARE(controller.distDrive(), 750);
+    }
+    {
+        QSignalSpy spy { &controller, &BassSynthController::distToneChanged };
+        controller.setDistTone(450);
+        QCOMPARE(spy.count(), 1);
+        QCOMPARE(controller.distTone(), 450);
+    }
+    {
+        QSignalSpy spy { &controller, &BassSynthController::distLevelChanged };
+        controller.setDistLevel(350);
+        QCOMPARE(spy.count(), 1);
+        QCOMPARE(controller.distLevel(), 350);
+    }
+}
+
+void BassSynthControllerTest::test_reset_shouldRestoreDefaultValues()
+{
+    auto device = std::make_shared<BassSynthDevice>("Test BassSynth");
+    BassSynthController controller { device };
+
+    controller.setVolume(100);
+    controller.setLpfCutoff(100);
+
+    QSignalSpy spy { &controller, &BassSynthController::volumeChanged };
+    controller.reset();
+
+    QVERIFY(spy.count() >= 1);
+    QCOMPARE(controller.volume(), 1000);
 }
 
 } // namespace noteahead

@@ -18,6 +18,7 @@ set(SRC
     ../../application/service/copy_manager.cpp
     ../../application/service/device_rack_controller.cpp
     ../../application/service/device_service.cpp
+    ../../application/service/device_controller.cpp
     ../../application/service/drum_synth_controller.cpp
     ../../application/service/editor_service.cpp
     ../../application/service/effect_rack_controller.cpp

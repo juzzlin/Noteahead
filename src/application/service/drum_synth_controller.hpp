@@ -16,7 +16,7 @@
 #ifndef DRUM_SYNTH_CONTROLLER_HPP
 #define DRUM_SYNTH_CONTROLLER_HPP
 
-#include <QObject>
+#include "device_controller.hpp"
 #include <memory>
 #include <string>
 
@@ -25,7 +25,7 @@ namespace noteahead {
 class DeviceService;
 class DrumSynthDevice;
 
-class DrumSynthController : public QObject
+class DrumSynthController : public DeviceController
 {
     Q_OBJECT
 
@@ -58,10 +58,6 @@ class DrumSynthController : public QObject
     Q_PROPERTY(int voiceResonance READ voiceResonance WRITE setVoiceResonance NOTIFY voiceResonanceChanged)
 
     // Global
-    Q_PROPERTY(int volume READ volume WRITE setVolume NOTIFY volumeChanged)
-    Q_PROPERTY(int gain READ gain WRITE setGain NOTIFY gainChanged)
-    Q_PROPERTY(int pan READ pan WRITE setPan NOTIFY panChanged)
-    Q_PROPERTY(uint32_t sampleRate READ sampleRate NOTIFY sampleRateChanged)
 
     // UI Helpers
     Q_PROPERTY(bool isKick READ isKick NOTIFY selectedVoiceChanged)
@@ -74,10 +70,8 @@ class DrumSynthController : public QObject
 public:
     explicit DrumSynthController(std::shared_ptr<DeviceService> deviceService, QObject * parent = nullptr);
 
+    std::shared_ptr<Device> device() const override;
     Q_INVOKABLE void setDevice(const QString & deviceName);
-
-    uint32_t sampleRate() const;
-    Q_INVOKABLE float cutoffToHz(float cutoff) const;
 
     int selectedVoice() const;
     void setSelectedVoice(int index);
@@ -130,15 +124,6 @@ public:
     int voiceResonance() const;
     void setVoiceResonance(int value);
 
-    int volume() const;
-    void setVolume(int value);
-
-    int gain() const;
-    void setGain(int value);
-
-    int pan() const;
-    void setPan(int value);
-
     bool isKick() const;
     bool isSnare() const;
     bool isTom() const;
@@ -146,8 +131,7 @@ public:
     bool hasResonance() const;
     bool hasAttack() const;
 
-    Q_INVOKABLE void playNote(int note, double velocity = 1.0);
-    Q_INVOKABLE void stopNote(int note);
+    Q_INVOKABLE void requestSettings() override;
     Q_INVOKABLE void playVoice(int index);
 
 signals:
@@ -168,10 +152,6 @@ signals:
     void tomPitchDepthChanged();
     void tomPitchDecayChanged();
     void voiceResonanceChanged();
-    void volumeChanged();
-    void gainChanged();
-    void panChanged();
-    void sampleRateChanged();
 
 private:
     std::shared_ptr<DeviceService> m_deviceService;
@@ -179,7 +159,6 @@ private:
     int m_selectedVoice { 0 };
 
     std::string currentVoicePrefix() const;
-    void updateProperties();
 };
 
 } // namespace noteahead

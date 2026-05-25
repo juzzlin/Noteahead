@@ -19,25 +19,26 @@
 #include "../../common/utils.hpp"
 #include "../../domain/devices/bass_synth_device.hpp"
 
+#include <QDebug>
 #include <cmath>
 
 namespace noteahead {
 
 BassSynthController::BassSynthController(std::shared_ptr<BassSynthDevice> device, QObject * parent)
-  : QObject { parent }
+  : DeviceController { parent }
   , m_device { std::move(device) }
 {
-    if (m_device) {
-        connect(m_device.get(), &Device::sampleRateChanged, this, &BassSynthController::sampleRateChanged);
-        connect(m_device.get(), &Device::sampleRateChanged, this, &BassSynthController::lpfCutoffChanged);
-        connect(m_device.get(), &Device::sampleRateChanged, this, &BassSynthController::hpfCutoffChanged);
-        connect(m_device.get(), &Device::dataChanged, this, &BassSynthController::requestSettings);
-    }
+    connectDeviceSignals();
 }
 
 BassSynthController::~BassSynthController() = default;
 
-std::shared_ptr<BassSynthDevice> BassSynthController::device() const
+std::shared_ptr<Device> BassSynthController::device() const
+{
+    return m_device;
+}
+
+std::shared_ptr<BassSynthDevice> BassSynthController::bassSynthDevice() const
 {
     return m_device;
 }
@@ -52,7 +53,6 @@ void BassSynthController::setWaveform(int wave)
 {
     if (m_device) {
         m_device->setWaveform(static_cast<PolyBlepOscillator::Waveform>(wave));
-        emit waveformChanged();
     }
 }
 
@@ -65,7 +65,6 @@ void BassSynthController::setTuning(int t)
 {
     if (m_device) {
         m_device->setTuning(static_cast<float>(t) / Constants::uiInternalScaling());
-        emit tuningChanged();
     }
 }
 
@@ -78,7 +77,6 @@ void BassSynthController::setSubLevel(int level)
 {
     if (m_device) {
         m_device->setSubLevel(static_cast<float>(level) / Constants::uiInternalScaling());
-        emit subLevelChanged();
     }
 }
 
@@ -91,7 +89,6 @@ void BassSynthController::setSubOctave(int oct)
 {
     if (m_device) {
         m_device->setSubOctave(oct);
-        emit subOctaveChanged();
     }
 }
 
@@ -105,7 +102,6 @@ void BassSynthController::setLpfCutoff(int c)
 {
     if (m_device) {
         m_device->setLpfCutoff(static_cast<float>(c) / Constants::uiInternalScaling());
-        emit lpfCutoffChanged();
     }
 }
 
@@ -118,7 +114,6 @@ void BassSynthController::setLpfResonance(int r)
 {
     if (m_device) {
         m_device->setLpfResonance(static_cast<float>(r) / Constants::uiInternalScaling());
-        emit lpfResonanceChanged();
     }
 }
 
@@ -131,7 +126,6 @@ void BassSynthController::setHpfCutoff(int c)
 {
     if (m_device) {
         m_device->setHpfCutoff(static_cast<float>(c) / Constants::uiInternalScaling());
-        emit hpfCutoffChanged();
     }
 }
 
@@ -144,7 +138,6 @@ void BassSynthController::setEnvMod(int m)
 {
     if (m_device) {
         m_device->setEnvMod(static_cast<float>(m) / Constants::uiInternalScaling());
-        emit envModChanged();
     }
 }
 
@@ -157,7 +150,6 @@ void BassSynthController::setDecay(int d)
 {
     if (m_device) {
         m_device->setDecay(static_cast<float>(d) / Constants::uiInternalScaling());
-        emit decayChanged();
     }
 }
 
@@ -171,7 +163,6 @@ void BassSynthController::setAccent(int a)
 {
     if (m_device) {
         m_device->setAccent(static_cast<float>(a) / Constants::uiInternalScaling());
-        emit accentChanged();
     }
 }
 
@@ -184,57 +175,7 @@ void BassSynthController::setSlide(int s)
 {
     if (m_device) {
         m_device->setSlide(static_cast<float>(s) / Constants::uiInternalScaling());
-        emit slideChanged();
     }
-}
-
-int BassSynthController::volume() const
-{
-    return m_device ? static_cast<int>(std::round(m_device->volume() * Constants::uiInternalScaling())) : 0;
-}
-
-void BassSynthController::setVolume(int v)
-{
-    if (m_device) {
-        m_device->setVolume(static_cast<float>(v) / Constants::uiInternalScaling());
-        emit volumeChanged();
-    }
-}
-
-int BassSynthController::gain() const
-{
-    return m_device ? static_cast<int>(std::round(m_device->gain() * Constants::uiInternalScaling())) : 0;
-}
-
-void BassSynthController::setGain(int g)
-{
-    if (m_device) {
-        m_device->setGain(static_cast<float>(g) / Constants::uiInternalScaling());
-        emit gainChanged();
-    }
-}
-
-int BassSynthController::pan() const
-{
-    return m_device ? static_cast<int>(std::round(m_device->pan() * Constants::uiInternalScaling())) : 0;
-}
-
-void BassSynthController::setPan(int p)
-{
-    if (m_device) {
-        m_device->setPan(static_cast<float>(p) / Constants::uiInternalScaling());
-        emit panChanged();
-    }
-}
-
-uint32_t BassSynthController::sampleRate() const
-{
-    return m_device ? m_device->sampleRate() : static_cast<uint32_t>(Constants::defaultSampleRate());
-}
-
-float BassSynthController::cutoffToHz(float cutoff) const
-{
-    return Utils::Dsp::cutoffToHz(cutoff / Constants::uiInternalScaling(), static_cast<float>(sampleRate()));
 }
 
 int BassSynthController::distDrive() const
@@ -246,7 +187,6 @@ void BassSynthController::setDistDrive(int d)
 {
     if (m_device) {
         m_device->setDistDrive(static_cast<float>(d) / Constants::uiInternalScaling());
-        emit distDriveChanged();
     }
 }
 
@@ -259,7 +199,6 @@ void BassSynthController::setDistTone(int t)
 {
     if (m_device) {
         m_device->setDistTone(static_cast<float>(t) / Constants::uiInternalScaling());
-        emit distToneChanged();
     }
 }
 
@@ -272,16 +211,7 @@ void BassSynthController::setDistLevel(int l)
 {
     if (m_device) {
         m_device->setDistLevel(static_cast<float>(l) / Constants::uiInternalScaling());
-        emit distLevelChanged();
     }
-}
-
-void BassSynthController::reset()
-{
-    if (m_device) {
-        m_device->reset();
-    }
-    requestSettings();
 }
 
 void BassSynthController::requestSettings()
@@ -300,31 +230,10 @@ void BassSynthController::requestSettings()
     emit volumeChanged();
     emit gainChanged();
     emit panChanged();
+    emit sampleRateChanged();
     emit distDriveChanged();
     emit distToneChanged();
     emit distLevelChanged();
-}
-
-void BassSynthController::accept()
-{
-}
-
-void BassSynthController::reject()
-{
-}
-
-void BassSynthController::playNote(int note, double velocity)
-{
-    if (m_device) {
-        m_device->processMidiNoteOn(note, static_cast<uint8_t>(velocity * 127.0));
-    }
-}
-
-void BassSynthController::stopNote(int note)
-{
-    if (m_device) {
-        m_device->processMidiNoteOff(note);
-    }
 }
 
 void BassSynthController::setDevice(std::shared_ptr<BassSynthDevice> device)
@@ -334,12 +243,7 @@ void BassSynthController::setDevice(std::shared_ptr<BassSynthDevice> device)
             disconnect(m_device.get(), nullptr, this, nullptr);
         }
         m_device = std::move(device);
-        if (m_device) {
-            connect(m_device.get(), &Device::sampleRateChanged, this, &BassSynthController::sampleRateChanged);
-            connect(m_device.get(), &Device::sampleRateChanged, this, &BassSynthController::lpfCutoffChanged);
-            connect(m_device.get(), &Device::sampleRateChanged, this, &BassSynthController::hpfCutoffChanged);
-            connect(m_device.get(), &Device::dataChanged, this, &BassSynthController::requestSettings);
-        }
+        connectDeviceSignals();
         emit deviceChanged();
         requestSettings();
     }

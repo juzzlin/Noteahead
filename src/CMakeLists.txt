@@ -34,6 +34,7 @@ set(HEADER_FILES
   application/service/bass_synth_controller.hpp
   application/service/copy_manager.hpp
   application/service/device_rack.hpp
+  application/service/device_controller.hpp
   application/service/device_rack_controller.hpp
   application/service/device_service.hpp
   application/service/drum_synth_controller.hpp
@@ -184,6 +185,7 @@ set(SOURCE_FILES
   application/service/bass_synth_controller.cpp
   application/service/copy_manager.cpp
   application/service/device_rack.cpp
+  application/service/device_controller.cpp
   application/service/device_rack_controller.cpp
   application/service/device_service.cpp
   application/service/drum_synth_controller.cpp

@@ -27,6 +27,8 @@ class BassSynthControllerTest : public QObject
 private slots:
     void test_sampleRateChange_shouldUpdateHzValues();
     void test_deserialization_shouldUpdateHzValues();
+    void test_properties_shouldUpdateDeviceAndEmitSignals();
+    void test_reset_shouldRestoreDefaultValues();
 };
 
 } // namespace noteahead

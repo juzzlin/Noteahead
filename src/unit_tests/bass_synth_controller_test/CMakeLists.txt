@@ -3,6 +3,7 @@ set(NAME bass_synth_controller_test)
 set(SRC
     ${NAME}.cpp
     ${NAME}.hpp
+    ../../application/service/device_controller.cpp
     ../../application/service/bass_synth_controller.cpp
     ../../common/constants.cpp
     ../../common/parameter_mapper.cpp

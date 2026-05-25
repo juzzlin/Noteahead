@@ -25,9 +25,14 @@
 namespace noteahead {
 
 DrumSynthController::DrumSynthController(std::shared_ptr<DeviceService> deviceService, QObject * parent)
-  : QObject { parent }
+  : DeviceController { parent }
   , m_deviceService { std::move(deviceService) }
 {
+}
+
+std::shared_ptr<Device> DrumSynthController::device() const
+{
+    return m_device;
 }
 
 void DrumSynthController::setDevice(const QString & deviceName)
@@ -37,20 +42,9 @@ void DrumSynthController::setDevice(const QString & deviceName)
             disconnect(m_device.get(), nullptr, this, nullptr);
         }
         m_device = dev;
-        connect(m_device.get(), &Device::dataChanged, this, &DrumSynthController::updateProperties, Qt::UniqueConnection);
-        connect(m_device.get(), &Device::sampleRateChanged, this, &DrumSynthController::updateProperties, Qt::UniqueConnection);
-        updateProperties();
+        connectDeviceSignals();
+        requestSettings();
     }
-}
-
-uint32_t DrumSynthController::sampleRate() const
-{
-    return m_device ? m_device->sampleRate() : static_cast<uint32_t>(Constants::defaultSampleRate());
-}
-
-float DrumSynthController::cutoffToHz(float cutoff) const
-{
-    return Utils::Dsp::cutoffToHz(cutoff / Constants::uiInternalScaling(), static_cast<float>(sampleRate()));
 }
 
 int DrumSynthController::selectedVoice() const
@@ -63,7 +57,7 @@ void DrumSynthController::setSelectedVoice(int index)
     if (m_selectedVoice != index) {
         m_selectedVoice = index;
         emit selectedVoiceChanged();
-        updateProperties();
+        requestSettings();
     }
 }
 
@@ -307,39 +301,6 @@ void DrumSynthController::setVoiceResonance(int value)
     }
 }
 
-int DrumSynthController::volume() const
-{
-    return m_device ? static_cast<int>(std::round(m_device->volume() * Constants::uiInternalScaling())) : 1000;
-}
-
-void DrumSynthController::setVolume(int value)
-{
-    if (m_device)
-        m_device->setVolume(static_cast<float>(value) / Constants::uiInternalScaling());
-}
-
-int DrumSynthController::gain() const
-{
-    return m_device ? static_cast<int>(std::round(m_device->gain() * Constants::uiInternalScaling())) : 500;
-}
-
-void DrumSynthController::setGain(int value)
-{
-    if (m_device)
-        m_device->setGain(static_cast<float>(value) / Constants::uiInternalScaling());
-}
-
-int DrumSynthController::pan() const
-{
-    return m_device ? static_cast<int>(std::round(m_device->pan() * Constants::uiInternalScaling())) : 500;
-}
-
-void DrumSynthController::setPan(int value)
-{
-    if (m_device)
-        m_device->setPan(static_cast<float>(value) / Constants::uiInternalScaling());
-}
-
 bool DrumSynthController::isKick() const
 {
     return m_selectedVoice == static_cast<int>(DrumSynth::VoiceIndex::Kick);
@@ -370,20 +331,6 @@ bool DrumSynthController::hasAttack() const
     return isKick() || (m_selectedVoice == static_cast<int>(DrumSynth::VoiceIndex::Crash) || m_selectedVoice == static_cast<int>(DrumSynth::VoiceIndex::ReverseCrash));
 }
 
-void DrumSynthController::playNote(int note, double velocity)
-{
-    if (m_device) {
-        m_device->processMidiNoteOn(static_cast<uint8_t>(note), static_cast<uint8_t>(velocity * 127.0));
-    }
-}
-
-void DrumSynthController::stopNote(int note)
-{
-    if (m_device) {
-        m_device->processMidiNoteOff(static_cast<uint8_t>(note));
-    }
-}
-
 void DrumSynthController::playVoice(int index)
 {
     if (m_device) {
@@ -399,7 +346,7 @@ std::string DrumSynthController::currentVoicePrefix() const
     return DrumSynth::voiceId(m_selectedVoice) + "_";
 }
 
-void DrumSynthController::updateProperties()
+void DrumSynthController::requestSettings()
 {
     emit selectedVoiceChanged();
     emit voiceLevelChanged();

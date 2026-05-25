@@ -16,7 +16,7 @@
 #ifndef SAMPLER_CONTROLLER_HPP
 #define SAMPLER_CONTROLLER_HPP
 
-#include <QObject>
+#include "device_controller.hpp"
 #include <memory>
 
 #include "../../domain/devices/sampler_device.hpp"
@@ -26,7 +26,7 @@ namespace noteahead {
 class SamplerDevice;
 class SamplerPadModel;
 
-class SamplerController : public QObject
+class SamplerController : public DeviceController
 {
     Q_OBJECT
     Q_PROPERTY(noteahead::SamplerPadModel * padModel READ padModel CONSTANT)
@@ -37,22 +37,16 @@ class SamplerController : public QObject
     Q_PROPERTY(double selectedPadVolume READ selectedPadVolume WRITE setSelectedPadVolume NOTIFY selectedPadVolumeChanged)
     Q_PROPERTY(double selectedPadCutoff READ selectedPadCutoff WRITE setSelectedPadCutoff NOTIFY selectedPadCutoffChanged)
     Q_PROPERTY(double selectedPadHpfCutoff READ selectedPadHpfCutoff WRITE setSelectedPadHpfCutoff NOTIFY selectedPadHpfCutoffChanged)
-    Q_PROPERTY(double volume READ volume WRITE setVolume NOTIFY volumeChanged)
-    Q_PROPERTY(double gain READ gain WRITE setGain NOTIFY gainChanged)
-    Q_PROPERTY(double pan READ pan WRITE setPan NOTIFY panChanged)
     Q_PROPERTY(int selectedPadStartOffsetSeconds READ selectedPadStartOffsetSeconds WRITE setSelectedPadStartOffsetSeconds NOTIFY selectedPadStartOffsetChanged)
     Q_PROPERTY(int selectedPadStartOffsetMilliseconds READ selectedPadStartOffsetMilliseconds WRITE setSelectedPadStartOffsetMilliseconds NOTIFY selectedPadStartOffsetChanged)
     Q_PROPERTY(double selectedPadDuration READ selectedPadDuration NOTIFY selectedPadDurationChanged)
     Q_PROPERTY(bool channelMode READ channelMode WRITE setChannelMode NOTIFY channelModeChanged)
-    Q_PROPERTY(uint32_t sampleRate READ sampleRate NOTIFY sampleRateChanged)
 
 public:
     explicit SamplerController(SamplerDevice::SamplerDeviceS sampler, QObject * parent = nullptr);
     ~SamplerController() override;
 
-    uint32_t sampleRate() const;
-    Q_INVOKABLE float cutoffToHz(float cutoff) const;
-
+    std::shared_ptr<Device> device() const override;
     SamplerPadModel * padModel() const;
     SamplerDevice::SamplerDeviceS sampler() const;
     void setSampler(SamplerDevice::SamplerDeviceS sampler);
@@ -75,15 +69,6 @@ public:
     double selectedPadHpfCutoff() const;
     void setSelectedPadHpfCutoff(double cutoff);
 
-    double volume() const;
-    void setVolume(double volume);
-
-    double gain() const;
-    void setGain(double gain);
-
-    double pan() const;
-    void setPan(double pan);
-
     int selectedPadStartOffsetSeconds() const;
     void setSelectedPadStartOffsetSeconds(int seconds);
 
@@ -98,10 +83,8 @@ public:
     Q_INVOKABLE QVariantList getWaveformData(int numPoints);
 
     Q_INVOKABLE void initialize();
-    Q_INVOKABLE void refresh();
-    Q_INVOKABLE void reset();
-    Q_INVOKABLE void accept();
-    Q_INVOKABLE void reject();
+    Q_INVOKABLE void requestSettings() override;
+    void reject() override;
 
     Q_INVOKABLE void loadSample(int padIndex, const QString & filePath);
     Q_INVOKABLE void clearSample(int padIndex);
@@ -117,13 +100,9 @@ signals:
     void selectedPadVolumeChanged();
     void selectedPadCutoffChanged();
     void selectedPadHpfCutoffChanged();
-    void volumeChanged();
-    void gainChanged();
-    void panChanged();
     void selectedPadStartOffsetChanged();
     void selectedPadDurationChanged();
     void channelModeChanged();
-    void sampleRateChanged();
     void samplerChanged();
 
 private:

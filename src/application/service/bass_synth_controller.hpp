@@ -16,14 +16,14 @@
 #ifndef BASS_SYNTH_CONTROLLER_HPP
 #define BASS_SYNTH_CONTROLLER_HPP
 
-#include <QObject>
+#include "device_controller.hpp"
 #include <memory>
 
 namespace noteahead {
 
 class BassSynthDevice;
 
-class BassSynthController : public QObject
+class BassSynthController : public DeviceController
 {
     Q_OBJECT
 
@@ -43,10 +43,6 @@ class BassSynthController : public QObject
     // Global / Modifiers
     Q_PROPERTY(int accent READ accent WRITE setAccent NOTIFY accentChanged)
     Q_PROPERTY(int slide READ slide WRITE setSlide NOTIFY slideChanged)
-    Q_PROPERTY(int volume READ volume WRITE setVolume NOTIFY volumeChanged)
-    Q_PROPERTY(int gain READ gain WRITE setGain NOTIFY gainChanged)
-    Q_PROPERTY(int pan READ pan WRITE setPan NOTIFY panChanged)
-    Q_PROPERTY(uint32_t sampleRate READ sampleRate NOTIFY sampleRateChanged)
 
     // Distortion
     Q_PROPERTY(int distDrive READ distDrive WRITE setDistDrive NOTIFY distDriveChanged)
@@ -57,7 +53,8 @@ public:
     explicit BassSynthController(std::shared_ptr<BassSynthDevice> device, QObject * parent = nullptr);
     ~BassSynthController() override;
 
-    std::shared_ptr<BassSynthDevice> device() const;
+    std::shared_ptr<Device> device() const override;
+    std::shared_ptr<BassSynthDevice> bassSynthDevice() const;
 
     // Accessors
     int waveform() const;
@@ -84,15 +81,6 @@ public:
     void setAccent(int a);
     int slide() const;
     void setSlide(int s);
-    int volume() const;
-    void setVolume(int v);
-    int gain() const;
-    void setGain(int g);
-    int pan() const;
-    void setPan(int p);
-
-    uint32_t sampleRate() const;
-    Q_INVOKABLE float cutoffToHz(float cutoff) const;
 
     int distDrive() const;
     void setDistDrive(int d);
@@ -101,13 +89,7 @@ public:
     int distLevel() const;
     void setDistLevel(int l);
 
-    Q_INVOKABLE void reset();
-    Q_INVOKABLE void requestSettings();
-    Q_INVOKABLE void accept();
-    Q_INVOKABLE void reject();
-
-    Q_INVOKABLE void playNote(int note, double velocity = 1.0);
-    Q_INVOKABLE void stopNote(int note);
+    Q_INVOKABLE void requestSettings() override;
 
 signals:
     void deviceChanged();
@@ -122,10 +104,6 @@ signals:
     void decayChanged();
     void accentChanged();
     void slideChanged();
-    void volumeChanged();
-    void gainChanged();
-    void panChanged();
-    void sampleRateChanged();
     void distDriveChanged();
     void distToneChanged();
     void distLevelChanged();

@@ -47,6 +47,51 @@ void DrumSynthControllerTest::test_sampleRateChange_shouldUpdateHzValues()
              QString("newHz: %1, initialHz: %2, expectedHz: %3").arg(newHz).arg(initialHz).arg(expectedHz).toUtf8().constData());
 }
 
+void DrumSynthControllerTest::test_properties_shouldUpdateDeviceAndEmitSignals()
+{
+    const auto audioEngine = std::make_shared<AudioEngine>();
+    const auto deviceService = std::make_shared<DeviceService>(audioEngine);
+    DrumSynthController controller { deviceService };
+
+    const auto device = std::make_shared<DrumSynthDevice>(Constants::drumSynthDeviceName().toStdString());
+    deviceService->setDevice(0, device);
+    controller.setDevice(Constants::drumSynthDeviceName());
+
+    // Common properties
+    {
+        QSignalSpy spy { &controller, &DrumSynthController::volumeChanged };
+        controller.setVolume(800);
+        QCOMPARE(spy.count(), 1);
+        QCOMPARE(controller.volume(), 800);
+    }
+
+    // Voice specific
+    controller.setSelectedVoice(0); // Kick
+    {
+        QSignalSpy spy { &controller, &DrumSynthController::voiceLevelChanged };
+        controller.setVoiceLevel(700);
+        QCOMPARE(spy.count(), 1);
+        QCOMPARE(controller.voiceLevel(), 700);
+    }
+}
+
+void DrumSynthControllerTest::test_reset_shouldRestoreDefaultValues()
+{
+    const auto audioEngine = std::make_shared<AudioEngine>();
+    const auto deviceService = std::make_shared<DeviceService>(audioEngine);
+    DrumSynthController controller { deviceService };
+
+    const auto device = std::make_shared<DrumSynthDevice>(Constants::drumSynthDeviceName().toStdString());
+    deviceService->setDevice(0, device);
+    controller.setDevice(Constants::drumSynthDeviceName());
+
+    controller.setVolume(100);
+    QSignalSpy spy { &controller, &DrumSynthController::volumeChanged };
+    controller.reset();
+    QVERIFY(spy.count() >= 1);
+    QCOMPARE(controller.volume(), 1000);
+}
+
 } // namespace noteahead
 
 QTEST_GUILESS_MAIN(noteahead::DrumSynthControllerTest)

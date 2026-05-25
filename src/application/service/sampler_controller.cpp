@@ -8,20 +8,20 @@
 namespace noteahead {
 
 SamplerController::SamplerController(SamplerDevice::SamplerDeviceS sampler, QObject * parent)
-  : QObject { parent }
+  : DeviceController { parent }
   , m_sampler { std::move(sampler) }
   , m_padModel { std::make_unique<SamplerPadModel>(m_sampler, this) }
   , m_selectedPad { -1 }
 {
-    if (m_sampler) {
-        connect(m_sampler.get(), &Device::sampleRateChanged, this, &SamplerController::sampleRateChanged);
-        connect(m_sampler.get(), &Device::sampleRateChanged, this, &SamplerController::selectedPadCutoffChanged);
-        connect(m_sampler.get(), &Device::sampleRateChanged, this, &SamplerController::selectedPadHpfCutoffChanged);
-        connect(m_sampler.get(), &Device::dataChanged, this, &SamplerController::refresh);
-    }
+    connectDeviceSignals();
 }
 
 SamplerController::~SamplerController() = default;
+
+std::shared_ptr<Device> SamplerController::device() const
+{
+    return m_sampler;
+}
 
 SamplerPadModel * SamplerController::padModel() const
 {
@@ -40,26 +40,11 @@ void SamplerController::setSampler(SamplerDevice::SamplerDeviceS sampler)
             disconnect(m_sampler.get(), nullptr, this, nullptr);
         }
         m_sampler = std::move(sampler);
-        if (m_sampler) {
-            connect(m_sampler.get(), &Device::sampleRateChanged, this, &SamplerController::sampleRateChanged);
-            connect(m_sampler.get(), &Device::sampleRateChanged, this, &SamplerController::selectedPadCutoffChanged);
-            connect(m_sampler.get(), &Device::sampleRateChanged, this, &SamplerController::selectedPadHpfCutoffChanged);
-            connect(m_sampler.get(), &Device::dataChanged, this, &SamplerController::refresh);
-        }
+        connectDeviceSignals();
         m_padModel->setSampler(m_sampler);
         emit samplerChanged();
         setSelectedPad(m_selectedPad); // Trigger updates for properties
     }
-}
-
-uint32_t SamplerController::sampleRate() const
-{
-    return m_sampler ? m_sampler->sampleRate() : static_cast<uint32_t>(Constants::defaultSampleRate());
-}
-
-float SamplerController::cutoffToHz(float cutoff) const
-{
-    return Utils::Dsp::cutoffToHz(cutoff / Constants::uiInternalScaling(), static_cast<float>(sampleRate()));
 }
 
 int SamplerController::selectedPad() const
@@ -111,7 +96,6 @@ void SamplerController::setSelectedPadPan(double pan)
 {
     if (m_sampler && m_selectedPad >= 0) {
         m_sampler->setSamplePan(static_cast<uint8_t>(36 + m_selectedPad), static_cast<float>(pan));
-        emit selectedPadPanChanged();
     }
 }
 
@@ -127,7 +111,6 @@ void SamplerController::setSelectedPadVolume(double volume)
 {
     if (m_sampler && m_selectedPad >= 0) {
         m_sampler->setSampleVolume(static_cast<uint8_t>(36 + m_selectedPad), static_cast<float>(volume));
-        emit selectedPadVolumeChanged();
     }
 }
 
@@ -143,7 +126,6 @@ void SamplerController::setSelectedPadCutoff(double cutoff)
 {
     if (m_sampler && m_selectedPad >= 0) {
         m_sampler->setSampleCutoff(static_cast<uint8_t>(36 + m_selectedPad), static_cast<float>(cutoff));
-        emit selectedPadCutoffChanged();
     }
 }
 
@@ -159,55 +141,6 @@ void SamplerController::setSelectedPadHpfCutoff(double cutoff)
 {
     if (m_sampler && m_selectedPad >= 0) {
         m_sampler->setSampleHpfCutoff(static_cast<uint8_t>(36 + m_selectedPad), static_cast<float>(cutoff));
-        emit selectedPadHpfCutoffChanged();
-    }
-}
-
-double SamplerController::volume() const
-{
-    if (!m_sampler) {
-        return 1.0;
-    }
-    return static_cast<double>(m_sampler->volume());
-}
-
-void SamplerController::setVolume(double volume)
-{
-    if (m_sampler) {
-        m_sampler->setVolume(static_cast<float>(volume));
-        emit volumeChanged();
-    }
-}
-
-double SamplerController::gain() const
-{
-    if (!m_sampler) {
-        return 0.5;
-    }
-    return static_cast<double>(m_sampler->gain());
-}
-
-void SamplerController::setGain(double gain)
-{
-    if (m_sampler) {
-        m_sampler->setGain(static_cast<float>(gain));
-        emit gainChanged();
-    }
-}
-
-double SamplerController::pan() const
-{
-    if (!m_sampler) {
-        return 0.5;
-    }
-    return static_cast<double>(m_sampler->pan());
-}
-
-void SamplerController::setPan(double pan)
-{
-    if (m_sampler) {
-        m_sampler->setPan(static_cast<float>(pan));
-        emit panChanged();
     }
 }
 
@@ -225,7 +158,6 @@ void SamplerController::setSelectedPadStartOffsetSeconds(int seconds)
         const double currentOffset = m_sampler->sampleStartOffset(static_cast<uint8_t>(36 + m_selectedPad));
         const double milliseconds = (currentOffset - std::floor(currentOffset)) * 1000.0;
         m_sampler->setSampleStartOffset(static_cast<uint8_t>(36 + m_selectedPad), static_cast<double>(seconds) + milliseconds / 1000.0);
-        emit selectedPadStartOffsetChanged();
     }
 }
 
@@ -244,7 +176,6 @@ void SamplerController::setSelectedPadStartOffsetMilliseconds(int milliseconds)
         const double currentOffset = m_sampler->sampleStartOffset(static_cast<uint8_t>(36 + m_selectedPad));
         const double seconds = std::floor(currentOffset);
         m_sampler->setSampleStartOffset(static_cast<uint8_t>(36 + m_selectedPad), seconds + static_cast<double>(milliseconds) / 1000.0);
-        emit selectedPadStartOffsetChanged();
     }
 }
 
@@ -268,7 +199,6 @@ void SamplerController::setChannelMode(bool enabled)
 {
     if (m_sampler) {
         m_sampler->setChannelMode(enabled);
-        emit channelModeChanged();
     }
 }
 
@@ -287,10 +217,10 @@ void SamplerController::initialize()
     if (m_sampler) {
         m_sampler->saveState();
     }
-    refresh();
+    requestSettings();
 }
 
-void SamplerController::refresh()
+void SamplerController::requestSettings()
 {
     if (m_selectedPad < 0) {
         setSelectedPad(0);
@@ -309,27 +239,7 @@ void SamplerController::refresh()
     emit gainChanged();
     emit panChanged();
     emit channelModeChanged();
-}
-
-void SamplerController::reset()
-{
-    if (m_sampler) {
-        m_sampler->reset();
-        emit selectedPadPanChanged();
-        emit selectedPadVolumeChanged();
-        emit selectedPadCutoffChanged();
-        emit selectedPadHpfCutoffChanged();
-        emit selectedPadStartOffsetChanged();
-        emit volumeChanged();
-        emit gainChanged();
-        emit panChanged();
-        emit channelModeChanged();
-    }
-}
-
-void SamplerController::accept()
-{
-    // State already updated in domain, nothing to do but close dialog which is handled by QML
+    emit sampleRateChanged();
 }
 
 void SamplerController::reject()

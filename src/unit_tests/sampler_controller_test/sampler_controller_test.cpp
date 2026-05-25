@@ -39,6 +39,41 @@ void SamplerControllerTest::test_sampleRateChange_shouldUpdateHzValues()
              QString("newHz: %1, initialHz: %2, expectedHz: %3").arg(newHz).arg(initialHz).arg(expectedHz).toUtf8().constData());
 }
 
+void SamplerControllerTest::test_properties_shouldUpdateDeviceAndEmitSignals()
+{
+    const auto sampler = std::make_shared<SamplerDevice>("Test Sampler");
+    SamplerController controller { sampler };
+
+    // Common properties (now scaled ints)
+    {
+        QSignalSpy spy { &controller, &SamplerController::volumeChanged };
+        controller.setVolume(800);
+        QCOMPARE(spy.count(), 1);
+        QCOMPARE(controller.volume(), 800);
+        QCOMPARE(sampler->volume(), 0.8f);
+    }
+
+    // Controller specific
+    {
+        QSignalSpy spy { &controller, &SamplerController::selectedPadChanged };
+        controller.setSelectedPad(2);
+        QCOMPARE(spy.count(), 1);
+        QCOMPARE(controller.selectedPad(), 2);
+    }
+}
+
+void SamplerControllerTest::test_reset_shouldRestoreDefaultValues()
+{
+    const auto sampler = std::make_shared<SamplerDevice>("Test Sampler");
+    SamplerController controller { sampler };
+
+    controller.setVolume(100);
+    QSignalSpy spy { &controller, &SamplerController::volumeChanged };
+    controller.reset();
+    QVERIFY(spy.count() >= 1);
+    QCOMPARE(controller.volume(), 1000);
+}
+
 } // namespace noteahead
 
 QTEST_GUILESS_MAIN(noteahead::SamplerControllerTest)

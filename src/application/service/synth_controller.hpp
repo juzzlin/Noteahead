@@ -17,8 +17,8 @@
 #define SYNTH_CONTROLLER_HPP
 
 #include "../../domain/devices/synth_presets.hpp"
+#include "device_controller.hpp"
 
-#include <QObject>
 #include <memory>
 
 namespace noteahead {
@@ -26,7 +26,7 @@ namespace noteahead {
 class DeviceService;
 class SynthDevice;
 
-class SynthController : public QObject
+class SynthController : public DeviceController
 {
     Q_OBJECT
 
@@ -93,10 +93,6 @@ class SynthController : public QObject
     Q_PROPERTY(int portamento READ portamento WRITE setPortamento NOTIFY portamentoChanged)
     Q_PROPERTY(int panSpread READ panSpread WRITE setPanSpread NOTIFY panSpreadChanged)
     Q_PROPERTY(int pitchBendRange READ pitchBendRange WRITE setPitchBendRange NOTIFY pitchBendRangeChanged)
-    Q_PROPERTY(int pan READ pan WRITE setPan NOTIFY panChanged)
-    Q_PROPERTY(int volume READ volume WRITE setVolume NOTIFY volumeChanged)
-    Q_PROPERTY(int gain READ gain WRITE setGain NOTIFY gainChanged)
-    Q_PROPERTY(uint32_t sampleRate READ sampleRate NOTIFY sampleRateChanged)
     Q_PROPERTY(QStringList presetNames READ presetNames CONSTANT)
     Q_PROPERTY(int currentBank READ currentBank WRITE setCurrentBank NOTIFY currentBankChanged)
     Q_PROPERTY(int currentPresetIndex READ currentPresetIndex WRITE setCurrentPresetIndex NOTIFY currentPresetIndexChanged)
@@ -117,6 +113,7 @@ public:
     explicit SynthController(std::shared_ptr<SynthDevice> synth, QObject * parent = nullptr);
     ~SynthController() override;
 
+    std::shared_ptr<Device> device() const override;
     std::shared_ptr<SynthDevice> synth() const;
 
     // Accessors
@@ -217,15 +214,6 @@ public:
     void setPanSpread(int s);
     int pitchBendRange() const;
     void setPitchBendRange(int r);
-    int pan() const;
-    void setPan(int p);
-    int volume() const;
-    void setVolume(int v);
-    int gain() const;
-    void setGain(int g);
-
-    uint32_t sampleRate() const;
-    Q_INVOKABLE float cutoffToHz(float cutoff) const;
 
     QStringList presetNames() const;
     int currentBank() const;
@@ -254,15 +242,9 @@ public:
     void setDelayFeedbackHpf(int cutoff);
 
     Q_INVOKABLE void initialize();
-    Q_INVOKABLE void reset();
-    Q_INVOKABLE void requestSettings();
-    Q_INVOKABLE void accept();
-    Q_INVOKABLE void reject();
+    Q_INVOKABLE void requestSettings() override;
     Q_INVOKABLE void loadPreset(int index);
     Q_INVOKABLE void saveUserPreset(QString name);
-
-    Q_INVOKABLE void playNote(int note, double velocity = 1.0);
-    Q_INVOKABLE void stopNote(int note);
 
 signals:
     void synthChanged();
@@ -314,10 +296,6 @@ signals:
     void portamentoChanged();
     void panSpreadChanged();
     void pitchBendRangeChanged();
-    void panChanged();
-    void volumeChanged();
-    void gainChanged();
-    void sampleRateChanged();
     void delayTypeChanged();
     void delayTimeChanged();
     void delayFeedbackChanged();

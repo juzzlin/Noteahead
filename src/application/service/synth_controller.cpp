@@ -21,22 +21,16 @@
 #include "../../domain/devices/synth_presets.hpp"
 #include "device_service.hpp"
 
+#include <QDebug>
 #include <cmath>
 
 namespace noteahead {
 
 SynthController::SynthController(std::shared_ptr<SynthDevice> synth, QObject * parent)
-  : QObject { parent }
+  : DeviceController { parent }
   , m_synth { std::move(synth) }
 {
-    if (m_synth) {
-        connect(m_synth.get(), &Device::sampleRateChanged, this, &SynthController::sampleRateChanged);
-        connect(m_synth.get(), &Device::sampleRateChanged, this, &SynthController::lpfCutoffChanged);
-        connect(m_synth.get(), &Device::sampleRateChanged, this, &SynthController::hpfCutoffChanged);
-        connect(m_synth.get(), &Device::sampleRateChanged, this, &SynthController::delayFeedbackLpfChanged);
-        connect(m_synth.get(), &Device::sampleRateChanged, this, &SynthController::delayFeedbackHpfChanged);
-        connect(m_synth.get(), &Device::dataChanged, this, &SynthController::requestSettings);
-    }
+    connectDeviceSignals();
 
     for (int i = 0; i < 128; ++i) {
         m_userPresets[i] = SynthPresets::initPreset();
@@ -44,6 +38,11 @@ SynthController::SynthController(std::shared_ptr<SynthDevice> synth, QObject * p
 }
 
 SynthController::~SynthController() = default;
+
+std::shared_ptr<Device> SynthController::device() const
+{
+    return m_synth;
+}
 
 std::shared_ptr<SynthDevice> SynthController::synth() const
 {
@@ -60,7 +59,6 @@ void SynthController::setVco1Waveform(int wave)
 {
     if (m_synth) {
         m_synth->setVco1Waveform(static_cast<PolyBlepOscillator::Waveform>(wave));
-        emit vco1WaveformChanged();
     }
 }
 
@@ -73,7 +71,6 @@ void SynthController::setVco1Octave(int oct)
 {
     if (m_synth) {
         m_synth->setVco1Octave(oct);
-        emit vco1OctaveChanged();
     }
 }
 
@@ -86,7 +83,6 @@ void SynthController::setVco1Pitch(int p)
 {
     if (m_synth) {
         m_synth->setVco1Pitch(static_cast<float>(p) / Constants::uiInternalScaling());
-        emit vco1PitchChanged();
     }
 }
 
@@ -99,7 +95,6 @@ void SynthController::setVco1Shape(int s)
 {
     if (m_synth) {
         m_synth->setVco1Shape(s / Constants::uiInternalScaling());
-        emit vco1ShapeChanged();
     }
 }
 
@@ -112,7 +107,6 @@ void SynthController::setVco1Sync(bool s)
 {
     if (m_synth) {
         m_synth->setVco1Sync(s);
-        emit vco1SyncChanged();
     }
 }
 
@@ -126,7 +120,6 @@ void SynthController::setVco2Waveform(int wave)
 {
     if (m_synth) {
         m_synth->setVco2Waveform(static_cast<PolyBlepOscillator::Waveform>(wave));
-        emit vco2WaveformChanged();
     }
 }
 
@@ -139,7 +132,6 @@ void SynthController::setVco2Octave(int oct)
 {
     if (m_synth) {
         m_synth->setVco2Octave(oct);
-        emit vco2OctaveChanged();
     }
 }
 
@@ -152,7 +144,6 @@ void SynthController::setVco2Pitch(int p)
 {
     if (m_synth) {
         m_synth->setVco2Pitch(static_cast<float>(p) / Constants::uiInternalScaling());
-        emit vco2PitchChanged();
     }
 }
 
@@ -165,7 +156,6 @@ void SynthController::setVco2Shape(int s)
 {
     if (m_synth) {
         m_synth->setVco2Shape(s / Constants::uiInternalScaling());
-        emit vco2ShapeChanged();
     }
 }
 
@@ -178,7 +168,6 @@ void SynthController::setVco2Sync(bool s)
 {
     if (m_synth) {
         m_synth->setVco2Sync(s);
-        emit vco2SyncChanged();
     }
 }
 
@@ -192,7 +181,6 @@ void SynthController::setMultiType(int type)
 {
     if (m_synth) {
         m_synth->setMultiType(static_cast<MultiEngine::Type>(type));
-        emit multiTypeChanged();
     }
 }
 
@@ -205,7 +193,6 @@ void SynthController::setMultiShape(int s)
 {
     if (m_synth) {
         m_synth->setMultiShape(s / Constants::uiInternalScaling());
-        emit multiShapeChanged();
     }
 }
 
@@ -218,7 +205,6 @@ void SynthController::setMultiLevel(int lvl)
 {
     if (m_synth) {
         m_synth->setMultiLevel(lvl / Constants::uiInternalScaling());
-        emit multiLevelChanged();
     }
 }
 
@@ -231,7 +217,6 @@ void SynthController::setMultiKeyTrack(int t)
 {
     if (m_synth) {
         m_synth->setMultiKeyTrack(t / Constants::uiInternalScaling());
-        emit multiKeyTrackChanged();
     }
 }
 
@@ -245,7 +230,6 @@ void SynthController::setMixVco1(int lvl)
 {
     if (m_synth) {
         m_synth->setMixVco1(lvl / Constants::uiInternalScaling());
-        emit mixVco1Changed();
     }
 }
 
@@ -258,7 +242,6 @@ void SynthController::setMixVco2(int lvl)
 {
     if (m_synth) {
         m_synth->setMixVco2(lvl / Constants::uiInternalScaling());
-        emit mixVco2Changed();
     }
 }
 
@@ -272,7 +255,6 @@ void SynthController::setLpfCutoff(int c)
 {
     if (m_synth) {
         m_synth->setLpfCutoff(c / Constants::uiInternalScaling());
-        emit lpfCutoffChanged();
     }
 }
 
@@ -285,7 +267,6 @@ void SynthController::setLpfResonance(int r)
 {
     if (m_synth) {
         m_synth->setLpfResonance(r / Constants::uiInternalScaling());
-        emit lpfResonanceChanged();
     }
 }
 
@@ -298,7 +279,6 @@ void SynthController::setHpfCutoff(int c)
 {
     if (m_synth) {
         m_synth->setHpfCutoff(c / Constants::uiInternalScaling());
-        emit hpfCutoffChanged();
     }
 }
 
@@ -311,7 +291,6 @@ void SynthController::setFilterKeyTrack(int t)
 {
     if (m_synth) {
         m_synth->setFilterKeyTrack(t / Constants::uiInternalScaling());
-        emit filterKeyTrackChanged();
     }
 }
 
@@ -325,7 +304,6 @@ void SynthController::setAmpAttack(int a)
 {
     if (m_synth) {
         m_synth->setAmpAttack(a / Constants::uiInternalScaling());
-        emit ampAttackChanged();
     }
 }
 
@@ -338,7 +316,6 @@ void SynthController::setAmpDecay(int d)
 {
     if (m_synth) {
         m_synth->setAmpDecay(d / Constants::uiInternalScaling());
-        emit ampDecayChanged();
     }
 }
 
@@ -351,7 +328,6 @@ void SynthController::setAmpSustain(int s)
 {
     if (m_synth) {
         m_synth->setAmpSustain(s / Constants::uiInternalScaling());
-        emit ampSustainChanged();
     }
 }
 
@@ -364,7 +340,6 @@ void SynthController::setAmpRelease(int r)
 {
     if (m_synth) {
         m_synth->setAmpRelease(r / Constants::uiInternalScaling());
-        emit ampReleaseChanged();
     }
 }
 
@@ -378,7 +353,6 @@ void SynthController::setModAttack(int a)
 {
     if (m_synth) {
         m_synth->setModAttack(a / Constants::uiInternalScaling());
-        emit modAttackChanged();
     }
 }
 
@@ -391,7 +365,6 @@ void SynthController::setModDecay(int d)
 {
     if (m_synth) {
         m_synth->setModDecay(d / Constants::uiInternalScaling());
-        emit modDecayChanged();
     }
 }
 
@@ -409,7 +382,6 @@ void SynthController::setModInt(int i)
 {
     if (m_synth) {
         m_synth->setModInt(i / Constants::uiInternalScaling());
-        emit modIntChanged();
     }
 }
 
@@ -422,7 +394,6 @@ void SynthController::setModTarget(int t)
 {
     if (m_synth) {
         m_synth->setModTarget(static_cast<SynthDevice::ModTarget>(t));
-        emit modTargetChanged();
     }
 }
 
@@ -436,7 +407,6 @@ void SynthController::setLfoWaveform(int wave)
 {
     if (m_synth) {
         m_synth->setLfoWaveform(static_cast<Lfo::Waveform>(wave));
-        emit lfoWaveformChanged();
     }
 }
 
@@ -449,7 +419,6 @@ void SynthController::setLfoMode(int mode)
 {
     if (m_synth) {
         m_synth->setLfoMode(static_cast<Lfo::Mode>(mode));
-        emit lfoModeChanged();
     }
 }
 
@@ -462,7 +431,6 @@ void SynthController::setLfoRate(int rate)
 {
     if (m_synth) {
         m_synth->setLfoRate(rate / Constants::uiInternalScaling());
-        emit lfoRateChanged();
     }
 }
 
@@ -480,7 +448,6 @@ void SynthController::setLfoInt(int intensity)
 {
     if (m_synth) {
         m_synth->setLfoInt(intensity / Constants::uiInternalScaling());
-        emit lfoIntChanged();
     }
 }
 
@@ -493,7 +460,6 @@ void SynthController::setLfoTarget(int target)
 {
     if (m_synth) {
         m_synth->setLfoTarget(static_cast<SynthDevice::LfoTarget>(target));
-        emit lfoTargetChanged();
     }
 }
 
@@ -507,7 +473,6 @@ void SynthController::setVoiceMode(int m)
 {
     if (m_synth) {
         m_synth->setVoiceMode(static_cast<SynthDevice::VoiceMode>(m));
-        emit voiceModeChanged();
     }
 }
 
@@ -520,7 +485,6 @@ void SynthController::setVoiceDepth(int d)
 {
     if (m_synth) {
         m_synth->setVoiceDepth(d / Constants::uiInternalScaling());
-        emit voiceDepthChanged();
     }
 }
 
@@ -533,7 +497,6 @@ void SynthController::setPortamento(int p)
 {
     if (m_synth) {
         m_synth->setPortamento(p / Constants::uiInternalScaling());
-        emit portamentoChanged();
     }
 }
 
@@ -546,7 +509,6 @@ void SynthController::setPanSpread(int s)
 {
     if (m_synth) {
         m_synth->setPanSpread(s / Constants::uiInternalScaling());
-        emit panSpreadChanged();
     }
 }
 
@@ -559,57 +521,7 @@ void SynthController::setPitchBendRange(int r)
 {
     if (m_synth) {
         m_synth->setPitchBendRange(r);
-        emit pitchBendRangeChanged();
     }
-}
-
-int SynthController::pan() const
-{
-    return m_synth ? static_cast<int>(std::round(m_synth->pan() * Constants::uiInternalScaling())) : 0;
-}
-
-void SynthController::setPan(int p)
-{
-    if (m_synth) {
-        m_synth->setPan(p / Constants::uiInternalScaling());
-        emit panChanged();
-    }
-}
-
-int SynthController::volume() const
-{
-    return m_synth ? static_cast<int>(std::round(m_synth->volume() * Constants::uiInternalScaling())) : 0;
-}
-
-void SynthController::setVolume(int v)
-{
-    if (m_synth) {
-        m_synth->setVolume(v / Constants::uiInternalScaling());
-        emit volumeChanged();
-    }
-}
-
-int SynthController::gain() const
-{
-    return m_synth ? static_cast<int>(std::round(m_synth->gain() * Constants::uiInternalScaling())) : 0;
-}
-
-void SynthController::setGain(int g)
-{
-    if (m_synth) {
-        m_synth->setGain(g / Constants::uiInternalScaling());
-        emit gainChanged();
-    }
-}
-
-uint32_t SynthController::sampleRate() const
-{
-    return m_synth ? m_synth->sampleRate() : static_cast<uint32_t>(Constants::defaultSampleRate());
-}
-
-float SynthController::cutoffToHz(float cutoff) const
-{
-    return Utils::Dsp::cutoffToHz(cutoff / Constants::uiInternalScaling(), static_cast<float>(sampleRate()));
 }
 
 QStringList SynthController::presetNames() const
@@ -678,7 +590,6 @@ void SynthController::setDelayType(int type)
 {
     if (m_synth) {
         m_synth->setDelayType(static_cast<DelayEffect::Type>(type));
-        emit delayTypeChanged();
     }
 }
 
@@ -691,7 +602,6 @@ void SynthController::setDelayTime(int time)
 {
     if (m_synth) {
         m_synth->setDelayTime(time / 10000.0);
-        emit delayTimeChanged();
     }
 }
 
@@ -704,7 +614,6 @@ void SynthController::setDelayFeedback(int fb)
 {
     if (m_synth) {
         m_synth->setDelayFeedback(fb / Constants::uiInternalScaling());
-        emit delayFeedbackChanged();
     }
 }
 
@@ -717,7 +626,6 @@ void SynthController::setDelayDepth(int d)
 {
     if (m_synth) {
         m_synth->setDelayDepth(d / Constants::uiInternalScaling());
-        emit delayDepthChanged();
     }
 }
 
@@ -730,7 +638,6 @@ void SynthController::setDelayMix(int mix)
 {
     if (m_synth) {
         m_synth->setDelayMix(mix / Constants::uiInternalScaling());
-        emit delayMixChanged();
     }
 }
 
@@ -743,7 +650,6 @@ void SynthController::setDelaySync(bool sync)
 {
     if (m_synth) {
         m_synth->setDelaySync(sync);
-        emit delaySyncChanged();
     }
 }
 
@@ -756,7 +662,6 @@ void SynthController::setDelaySyncDivision(int div)
 {
     if (m_synth) {
         m_synth->setDelaySyncDivision(div / Constants::uiInternalScaling());
-        emit delaySyncDivisionChanged();
     }
 }
 
@@ -769,7 +674,6 @@ void SynthController::setDelayFeedbackLpf(int cutoff)
 {
     if (m_synth) {
         m_synth->setFeedbackLpf(cutoff / Constants::uiInternalScaling());
-        emit delayFeedbackLpfChanged();
     }
 }
 
@@ -782,20 +686,11 @@ void SynthController::setDelayFeedbackHpf(int cutoff)
 {
     if (m_synth) {
         m_synth->setFeedbackHpf(cutoff / Constants::uiInternalScaling());
-        emit delayFeedbackHpfChanged();
     }
 }
 
 void SynthController::initialize()
 {
-}
-
-void SynthController::reset()
-{
-    if (m_synth) {
-        m_synth->reset();
-    }
-    requestSettings();
 }
 
 void SynthController::requestSettings()
@@ -853,9 +748,11 @@ void SynthController::requestSettings()
     emit portamentoChanged();
     emit panSpreadChanged();
     emit pitchBendRangeChanged();
-    emit panChanged();
+
     emit volumeChanged();
     emit gainChanged();
+    emit panChanged();
+    emit sampleRateChanged();
 
     emit delayTypeChanged();
     emit delayTimeChanged();
@@ -866,14 +763,6 @@ void SynthController::requestSettings()
     emit delaySyncDivisionChanged();
     emit delayFeedbackLpfChanged();
     emit delayFeedbackHpfChanged();
-}
-
-void SynthController::accept()
-{
-}
-
-void SynthController::reject()
-{
 }
 
 void SynthController::loadPreset(int index)
@@ -901,20 +790,6 @@ void SynthController::setDeviceService(std::shared_ptr<DeviceService> deviceServ
     m_deviceService = std::move(deviceService);
 }
 
-void SynthController::playNote(int note, double velocity)
-{
-    if (m_synth) {
-        m_synth->processMidiNoteOn(note, static_cast<uint8_t>(velocity * 127.0));
-    }
-}
-
-void SynthController::stopNote(int note)
-{
-    if (m_synth) {
-        m_synth->processMidiNoteOff(note);
-    }
-}
-
 void SynthController::setSynth(std::shared_ptr<SynthDevice> synth)
 {
     if (m_synth != synth) {
@@ -922,14 +797,7 @@ void SynthController::setSynth(std::shared_ptr<SynthDevice> synth)
             disconnect(m_synth.get(), nullptr, this, nullptr);
         }
         m_synth = std::move(synth);
-        if (m_synth) {
-            connect(m_synth.get(), &Device::sampleRateChanged, this, &SynthController::sampleRateChanged);
-            connect(m_synth.get(), &Device::sampleRateChanged, this, &SynthController::lpfCutoffChanged);
-            connect(m_synth.get(), &Device::sampleRateChanged, this, &SynthController::hpfCutoffChanged);
-            connect(m_synth.get(), &Device::sampleRateChanged, this, &SynthController::delayFeedbackLpfChanged);
-            connect(m_synth.get(), &Device::sampleRateChanged, this, &SynthController::delayFeedbackHpfChanged);
-            connect(m_synth.get(), &Device::dataChanged, this, &SynthController::requestSettings);
-        }
+        connectDeviceSignals();
         emit synthChanged();
         requestSettings();
     }
@@ -945,7 +813,6 @@ void SynthController::setVco3Waveform(int wave)
 {
     if (m_synth) {
         m_synth->setVco3Waveform(static_cast<PolyBlepOscillator::Waveform>(wave));
-        emit vco3WaveformChanged();
     }
 }
 
@@ -958,7 +825,6 @@ void SynthController::setVco3Octave(int oct)
 {
     if (m_synth) {
         m_synth->setVco3Octave(oct);
-        emit vco3OctaveChanged();
     }
 }
 
@@ -971,7 +837,6 @@ void SynthController::setVco3Pitch(int p)
 {
     if (m_synth) {
         m_synth->setVco3Pitch(static_cast<float>(p) / Constants::uiInternalScaling());
-        emit vco3PitchChanged();
     }
 }
 
@@ -984,7 +849,6 @@ void SynthController::setVco3Shape(int s)
 {
     if (m_synth) {
         m_synth->setVco3Shape(static_cast<float>(s) / Constants::uiInternalScaling());
-        emit vco3ShapeChanged();
     }
 }
 
@@ -997,7 +861,6 @@ void SynthController::setVco3Sync(bool s)
 {
     if (m_synth) {
         m_synth->setVco3Sync(s);
-        emit vco3SyncChanged();
     }
 }
 
@@ -1010,7 +873,6 @@ void SynthController::setMixVco3(int lvl)
 {
     if (m_synth) {
         m_synth->setMixVco3(static_cast<float>(lvl) / Constants::uiInternalScaling());
-        emit mixVco3Changed();
     }
 }
 

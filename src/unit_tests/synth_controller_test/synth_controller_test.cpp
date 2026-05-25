@@ -38,6 +38,62 @@ void SynthControllerTest::test_sampleRateChange_shouldUpdateHzValues()
              QString("newHz: %1, initialHz: %2, expectedHz: %3").arg(newHz).arg(initialHz).arg(expectedHz).toUtf8().constData());
 }
 
+void SynthControllerTest::test_properties_shouldUpdateDeviceAndEmitSignals()
+{
+    const auto synth = std::make_shared<SynthDevice>("Test Synth");
+    SynthController controller { synth };
+
+    // Common properties
+    {
+        QSignalSpy spy { &controller, &SynthController::volumeChanged };
+        controller.setVolume(800);
+        QCOMPARE(spy.count(), 1);
+        QCOMPARE(controller.volume(), 800);
+    }
+
+    // VCO1
+    {
+        QSignalSpy spy { &controller, &SynthController::vco1WaveformChanged };
+        controller.setVco1Waveform(1);
+        QCOMPARE(spy.count(), 1);
+        QCOMPARE(controller.vco1Waveform(), 1);
+    }
+    {
+        QSignalSpy spy { &controller, &SynthController::vco1OctaveChanged };
+        controller.setVco1Octave(1);
+        QCOMPARE(spy.count(), 1);
+        QCOMPARE(controller.vco1Octave(), 1);
+    }
+
+    // Filter
+    {
+        QSignalSpy spy { &controller, &SynthController::lpfCutoffChanged };
+        controller.setLpfCutoff(600);
+        QCOMPARE(spy.count(), 1);
+        QCOMPARE(controller.lpfCutoff(), 600);
+    }
+
+    // LFO
+    {
+        QSignalSpy spy { &controller, &SynthController::lfoRateChanged };
+        controller.setLfoRate(400);
+        QCOMPARE(spy.count(), 1);
+        QCOMPARE(controller.lfoRate(), 400);
+    }
+}
+
+void SynthControllerTest::test_reset_shouldRestoreDefaultValues()
+{
+    const auto synth = std::make_shared<SynthDevice>("Test Synth");
+    SynthController controller { synth };
+
+    controller.setVolume(100);
+    QSignalSpy spy { &controller, &SynthController::volumeChanged };
+    controller.reset();
+    QVERIFY(spy.count() >= 1);
+    QCOMPARE(controller.volume(), 1000);
+}
+
 } // namespace noteahead
 
 QTEST_GUILESS_MAIN(noteahead::SynthControllerTest)
