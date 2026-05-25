@@ -101,7 +101,7 @@ Rectangle {
             width: height
             property string portName: ""
             readonly property bool hasInternalDevice: deviceService.isInternalDevice(portName)
-            enabled: hasInternalDevice && !UiService.isPlaying()
+            enabled: hasInternalDevice
             onClicked: {
                 UiService.requestDeviceDialog(portName);
                 focus = false;
