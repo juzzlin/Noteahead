@@ -49,6 +49,7 @@ public:
     {
         Pitch1,
         Pitch2,
+        Pitch3,
         Cutoff
     };
 
@@ -116,6 +117,18 @@ public:
     bool vco2Sync() const;
     void setVco2Sync(bool sync);
 
+    // Parameter accessors (VCO3)
+    PolyBlepOscillator::Waveform vco3Waveform() const;
+    void setVco3Waveform(PolyBlepOscillator::Waveform wave);
+    int vco3Octave() const;
+    void setVco3Octave(int octave);
+    float vco3Pitch() const;
+    void setVco3Pitch(float pitch);
+    float vco3Shape() const;
+    void setVco3Shape(float shape);
+    bool vco3Sync() const;
+    void setVco3Sync(bool sync);
+
     // Multi Engine
     MultiEngine::Type multiType() const;
     void setMultiType(MultiEngine::Type type);
@@ -131,6 +144,8 @@ public:
     void setMixVco1(float level);
     float mixVco2() const;
     void setMixVco2(float level);
+    float mixVco3() const;
+    void setMixVco3(float level);
 
     // Filter
     float lpfCutoff() const;
@@ -219,6 +234,7 @@ private:
     {
         PolyBlepOscillator vco1;
         PolyBlepOscillator vco2;
+        PolyBlepOscillator vco3;
         MultiEngine multi;
         CascadedSvf lpf;
         CascadedSvf hpf;
@@ -253,6 +269,12 @@ private:
     float m_vco2Shape { 0.0f };
     bool m_vco2Sync { false };
 
+    PolyBlepOscillator::Waveform m_vco3Waveform { PolyBlepOscillator::Waveform::Saw };
+    int m_vco3Octave { 0 };
+    float m_vco3Pitch { 0.5f };
+    float m_vco3Shape { 0.0f };
+    bool m_vco3Sync { false };
+
     MultiEngine::Type m_multiType { MultiEngine::Type::Low };
     float m_multiShape { 0.5f };
     float m_multiLevel { 0.0f };
@@ -260,6 +282,7 @@ private:
 
     float m_mixVco1 { 1.0f };
     float m_mixVco2 { 0.0f };
+    float m_mixVco3 { 0.0f };
 
     float m_lpfCutoff { 1.0f };
     float m_lpfResonance { 0.0f };
@@ -324,6 +347,7 @@ private:
         double shapeMod { 0.0 };
         double vco1PitchMod { 0.0 };
         double vco2PitchMod { 0.0 };
+        double vco3PitchMod { 0.0 };
     };
 
     ModulationValues calculateModulation(Voice & voice) const;

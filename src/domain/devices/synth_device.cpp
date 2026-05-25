@@ -53,6 +53,7 @@ void SynthDevice::Voice::trigger(uint8_t n, double freq, float p, bool phaseSync
     if (phaseSync) {
         vco1.sync(0.0);
         vco2.sync(0.0);
+        vco3.sync(0.0);
     }
     ampEg.trigger();
     modEg.trigger();
@@ -82,6 +83,12 @@ SynthDevice::SynthDevice(std::string name)
     addParameter(Parameter { Constants::NahdXml::xmlKeySynthVco2Shape().toStdString(), 0.0f, 0, 100, 0 });
     addParameter(Parameter { Constants::NahdXml::xmlKeySynthVco2Sync().toStdString(), 0.0f, 0, 1, 0, 1, Parameter::Type::Boolean });
 
+    addParameter(Parameter { Constants::NahdXml::xmlKeySynthVco3Waveform().toStdString(), 1.0f, 0, 2, 1, 1, Parameter::Type::Discrete });
+    addParameter(Parameter { Constants::NahdXml::xmlKeySynthVco3Octave().toStdString(), 0.0f, -1, 2, 0, 1, Parameter::Type::Discrete });
+    addParameter(Parameter { Constants::NahdXml::xmlKeySynthVco3Pitch().toStdString(), 0.5f, -2400, 2400, 0 });
+    addParameter(Parameter { Constants::NahdXml::xmlKeySynthVco3Shape().toStdString(), 0.0f, 0, 100, 0 });
+    addParameter(Parameter { Constants::NahdXml::xmlKeySynthVco3Sync().toStdString(), 0.0f, 0, 1, 0, 1, Parameter::Type::Boolean });
+
     addParameter(Parameter { Constants::NahdXml::xmlKeySynthMultiMode().toStdString(), 1.0f, 0, 3, 1, 1, Parameter::Type::Discrete }); // Low default
     addParameter(Parameter { Constants::NahdXml::xmlKeySynthMultiShape().toStdString(), 0.5f, 0, 100, 50 });
     addParameter(Parameter { Constants::NahdXml::xmlKeySynthMultiLevel().toStdString(), 0.0f, 0, 100, 0 });
@@ -89,6 +96,7 @@ SynthDevice::SynthDevice(std::string name)
 
     addParameter(Parameter { Constants::NahdXml::xmlKeySynthMixLevel1().toStdString(), 1.0f, 0, 100, 100 });
     addParameter(Parameter { Constants::NahdXml::xmlKeySynthMixLevel2().toStdString(), 0.0f, 0, 100, 0 });
+    addParameter(Parameter { Constants::NahdXml::xmlKeySynthMixLevel3().toStdString(), 0.0f, 0, 100, 0 });
 
     addParameter(Parameter { Constants::NahdXml::xmlKeySynthLpfCutoff().toStdString(), 1.0f, 0, 100, 100 });
     addParameter(Parameter { Constants::NahdXml::xmlKeySynthLpfResonance().toStdString(), 0.0f, 0, 100, 0 });
@@ -103,7 +111,7 @@ SynthDevice::SynthDevice(std::string name)
     addParameter(Parameter { Constants::NahdXml::xmlKeySynthModAttack().toStdString(), 0.5f, 0, 100, 50 });
     addParameter(Parameter { Constants::NahdXml::xmlKeySynthModDecay().toStdString(), 0.34f, 0, 100, 34 });
     addParameter(Parameter { Constants::NahdXml::xmlKeySynthModIntensity().toStdString(), 0.5f, -100, 100, 0 });
-    addParameter(Parameter { Constants::NahdXml::xmlKeySynthModTarget().toStdString(), 2.0f, 0, 2, 2, 1, Parameter::Type::Discrete }); // Cutoff default
+    addParameter(Parameter { Constants::NahdXml::xmlKeySynthModTarget().toStdString(), 3.0f, 0, 3, 3, 1, Parameter::Type::Discrete }); // Cutoff default
 
     addParameter(Parameter { Constants::NahdXml::xmlKeySynthLfoWaveform().toStdString(), 1.0f, 0, 2, 1, 1, Parameter::Type::Discrete }); // Tri default
     addParameter(Parameter { Constants::NahdXml::xmlKeySynthLfoMode().toStdString(), 0.0f, 0, 2, 0, 1, Parameter::Type::Discrete }); // Normal default
@@ -223,6 +231,7 @@ void SynthDevice::updateVoiceParameters(Voice & voice, uint32_t oversampledRate)
 {
     voice.vco1.setSampleRate(oversampledRate);
     voice.vco2.setSampleRate(oversampledRate);
+    voice.vco3.setSampleRate(oversampledRate);
     voice.multi.setSampleRate(oversampledRate);
     voice.lpf.setSampleRate(oversampledRate);
     voice.hpf.setSampleRate(oversampledRate);
@@ -233,8 +242,10 @@ void SynthDevice::updateVoiceParameters(Voice & voice, uint32_t oversampledRate)
     voice.lpf.setResonance(m_lpfResonance);
     voice.vco1.setWaveform(m_vco1Waveform);
     voice.vco2.setWaveform(m_vco2Waveform);
+    voice.vco3.setWaveform(m_vco3Waveform);
     voice.vco1.setShape(m_vco1Shape);
     voice.vco2.setShape(m_vco2Shape);
+    voice.vco3.setShape(m_vco3Shape);
     voice.multi.setType(m_multiType);
     voice.multi.setShape(m_multiShape);
     voice.multi.setKeyTrack(m_multiKeyTrack);
@@ -494,12 +505,16 @@ SynthDevice::ModulationValues SynthDevice::calculateModulation(Voice & voice) co
     const double pbOffset = (static_cast<double>(m_pitchBend) - 8192.0) / 8192.0 * m_pitchBendRange;
     mods.vco1PitchMod = (m_modTarget == ModTarget::Pitch1) ? modEnv : 0.0;
     mods.vco2PitchMod = (m_modTarget == ModTarget::Pitch2) ? modEnv : 0.0;
+    mods.vco3PitchMod = (m_modTarget == ModTarget::Pitch3) ? modEnv : 0.0;
+
     if (m_lfoTarget == LfoTarget::Pitch) {
         mods.vco1PitchMod += lfoVal;
         mods.vco2PitchMod += lfoVal;
+        mods.vco3PitchMod += lfoVal;
     }
     mods.vco1PitchMod += pbOffset / 12.0;
     mods.vco2PitchMod += pbOffset / 12.0;
+    mods.vco3PitchMod += pbOffset / 12.0;
 
     return mods;
 }
@@ -509,19 +524,23 @@ float SynthDevice::generateVoiceSample(Voice & voice, const ModulationValues & m
     // Note: Pitch parameters are in cents (-2400..2400)
     const double vco1PitchOffset = ParameterMapper::mapCubicCentered(m_vco1Pitch * 2.0 - 1.0, -2400, 2400);
     const double vco2PitchOffset = ParameterMapper::mapCubicCentered(m_vco2Pitch * 2.0 - 1.0, -2400, 2400);
+    const double vco3PitchOffset = ParameterMapper::mapCubicCentered(m_vco3Pitch * 2.0 - 1.0, -2400, 2400);
 
     const double vco1Freq = voice.glideFrequency * std::pow(2.0, (m_vco1Octave * 12.0 + vco1PitchOffset / 100.0 + mods.vco1PitchMod * 12.0) / 12.0);
     const double vco2Freq = voice.glideFrequency * std::pow(2.0, (m_vco2Octave * 12.0 + vco2PitchOffset / 100.0 + mods.vco2PitchMod * 12.0) / 12.0);
+    const double vco3Freq = voice.glideFrequency * std::pow(2.0, (m_vco3Octave * 12.0 + vco3PitchOffset / 100.0 + mods.vco3PitchMod * 12.0) / 12.0);
 
     voice.vco1.setFrequency(vco1Freq);
     voice.vco2.setFrequency(vco2Freq);
+    voice.vco3.setFrequency(vco3Freq);
     voice.vco1.setShape(std::clamp(m_vco1Shape + mods.shapeMod, 0.0, 1.0));
     voice.vco2.setShape(std::clamp(m_vco2Shape + mods.shapeMod, 0.0, 1.0));
+    voice.vco3.setShape(std::clamp(m_vco3Shape + mods.shapeMod, 0.0, 1.0));
 
     // VCO2 Hard Sync to VCO1
-    const double oldPhase = voice.vco1.phase();
+    const double oldPhase1 = voice.vco1.phase();
     const double vco1Val = voice.vco1.nextSample();
-    if (m_vco2Sync && voice.vco1.phase() < oldPhase) {
+    if (m_vco2Sync && voice.vco1.phase() < oldPhase1) {
         // Calculate fractional phase for VCO2 to maintain sync accuracy
         const double phaseStep1 = vco1Freq / oversampledRate;
         const double phaseStep2 = vco2Freq / oversampledRate;
@@ -532,11 +551,26 @@ float SynthDevice::generateVoiceSample(Voice & voice, const ModulationValues & m
             voice.vco2.sync(0.0);
         }
     }
+    const double oldPhase2 = voice.vco2.phase();
     const double vco2Val = voice.vco2.nextSample();
+
+    // VCO3 Hard Sync to VCO2
+    if (m_vco3Sync && voice.vco2.phase() < oldPhase2) {
+        const double phaseStep2 = vco2Freq / oversampledRate;
+        const double phaseStep3 = vco3Freq / oversampledRate;
+        if (phaseStep2 > 0.0) {
+            const double fraction = voice.vco2.phase() / phaseStep2;
+            voice.vco3.sync(fraction * phaseStep3);
+        } else {
+            voice.vco3.sync(0.0);
+        }
+    }
+    const double vco3Val = voice.vco3.nextSample();
+
     const double multiVal = voice.multi.nextSample();
 
-    const double mix = (vco1Val * m_mixVco1) + (vco2Val * m_mixVco2) + (multiVal * m_multiLevel);
-    const double mixHeadroom = mix * 0.45; // Extra headroom for Multi engine
+    const double mix = (vco1Val * m_mixVco1) + (vco2Val * m_mixVco2) + (vco3Val * m_mixVco3) + (multiVal * m_multiLevel);
+    const double mixHeadroom = mix * 0.4; // Slightly more headroom for 3rd VCO + Multi engine
 
     // Filter
     const double cutoffMod = mods.cutoffMod + (voice.note - 60.0) / 127.0 * m_filterKeyTrack;
@@ -573,6 +607,17 @@ void SynthDevice::syncParameters()
     if (auto p = parameter(Constants::NahdXml::xmlKeySynthVco2Sync().toStdString()); p)
         m_vco2Sync = p->get().value() > 0.5f;
 
+    if (auto p = parameter(Constants::NahdXml::xmlKeySynthVco3Waveform().toStdString()); p)
+        m_vco3Waveform = static_cast<PolyBlepOscillator::Waveform>(p->get().xmlValue());
+    if (auto p = parameter(Constants::NahdXml::xmlKeySynthVco3Octave().toStdString()); p)
+        m_vco3Octave = p->get().xmlValue();
+    if (auto p = parameter(Constants::NahdXml::xmlKeySynthVco3Pitch().toStdString()); p)
+        m_vco3Pitch = p->get().value();
+    if (auto p = parameter(Constants::NahdXml::xmlKeySynthVco3Shape().toStdString()); p)
+        m_vco3Shape = p->get().value();
+    if (auto p = parameter(Constants::NahdXml::xmlKeySynthVco3Sync().toStdString()); p)
+        m_vco3Sync = p->get().value() > 0.5f;
+
     if (auto p = parameter(Constants::NahdXml::xmlKeySynthMultiMode().toStdString()); p)
         m_multiType = static_cast<MultiEngine::Type>(p->get().xmlValue());
     if (auto p = parameter(Constants::NahdXml::xmlKeySynthMultiShape().toStdString()); p)
@@ -586,6 +631,8 @@ void SynthDevice::syncParameters()
         m_mixVco1 = p->get().value();
     if (auto p = parameter(Constants::NahdXml::xmlKeySynthMixLevel2().toStdString()); p)
         m_mixVco2 = p->get().value();
+    if (auto p = parameter(Constants::NahdXml::xmlKeySynthMixLevel3().toStdString()); p)
+        m_mixVco3 = p->get().value();
 
     if (auto p = parameter(Constants::NahdXml::xmlKeySynthLpfCutoff().toStdString()); p)
         m_lpfCutoff = p->get().value();
@@ -667,8 +714,10 @@ void SynthDevice::syncParameters()
     for (auto && voice : m_voices) {
         voice.vco1.setWaveform(m_vco1Waveform);
         voice.vco2.setWaveform(m_vco2Waveform);
+        voice.vco3.setWaveform(m_vco3Waveform);
         voice.vco1.setShape(m_vco1Shape);
         voice.vco2.setShape(m_vco2Shape);
+        voice.vco3.setShape(m_vco3Shape);
 
         voice.lfo.setWaveform(m_lfoWaveform);
         voice.lfo.setMode(m_lfoMode);
@@ -1781,6 +1830,127 @@ void SynthDevice::setFeedbackHpf(float cutoff)
         std::lock_guard<std::recursive_mutex> lock { mutex() };
         if (auto p = parameter(Constants::NahdXml::xmlKeyDelayFeedbackHpf().toStdString()); p) {
             p->get().setValue(cutoff);
+            syncParameters();
+            changed = true;
+        }
+    }
+    if (changed)
+        emit dataChanged();
+}
+
+// Accessors (VCO3)
+PolyBlepOscillator::Waveform SynthDevice::vco3Waveform() const
+{
+    return m_vco3Waveform;
+}
+
+void SynthDevice::setVco3Waveform(PolyBlepOscillator::Waveform wave)
+{
+    bool changed = false;
+    {
+        std::lock_guard<std::recursive_mutex> lock { mutex() };
+        if (auto p = parameter(Constants::NahdXml::xmlKeySynthVco3Waveform().toStdString()); p) {
+            p->get().setFromXml(static_cast<int>(wave));
+            syncParameters();
+            changed = true;
+        }
+    }
+    if (changed)
+        emit dataChanged();
+}
+
+int SynthDevice::vco3Octave() const
+{
+    return m_vco3Octave;
+}
+
+void SynthDevice::setVco3Octave(int octave)
+{
+    bool changed = false;
+    {
+        std::lock_guard<std::recursive_mutex> lock { mutex() };
+        if (auto p = parameter(Constants::NahdXml::xmlKeySynthVco3Octave().toStdString()); p) {
+            p->get().setFromXml(octave);
+            syncParameters();
+            changed = true;
+        }
+    }
+    if (changed)
+        emit dataChanged();
+}
+
+float SynthDevice::vco3Pitch() const
+{
+    return m_vco3Pitch;
+}
+
+void SynthDevice::setVco3Pitch(float pitch)
+{
+    bool changed = false;
+    {
+        std::lock_guard<std::recursive_mutex> lock { mutex() };
+        if (auto p = parameter(Constants::NahdXml::xmlKeySynthVco3Pitch().toStdString()); p) {
+            p->get().setValue(pitch);
+            syncParameters();
+            changed = true;
+        }
+    }
+    if (changed)
+        emit dataChanged();
+}
+
+float SynthDevice::vco3Shape() const
+{
+    return m_vco3Shape;
+}
+
+void SynthDevice::setVco3Shape(float shape)
+{
+    bool changed = false;
+    {
+        std::lock_guard<std::recursive_mutex> lock { mutex() };
+        if (auto p = parameter(Constants::NahdXml::xmlKeySynthVco3Shape().toStdString()); p) {
+            p->get().setValue(shape);
+            syncParameters();
+            changed = true;
+        }
+    }
+    if (changed)
+        emit dataChanged();
+}
+
+bool SynthDevice::vco3Sync() const
+{
+    return m_vco3Sync;
+}
+
+void SynthDevice::setVco3Sync(bool sync)
+{
+    bool changed = false;
+    {
+        std::lock_guard<std::recursive_mutex> lock { mutex() };
+        if (auto p = parameter(Constants::NahdXml::xmlKeySynthVco3Sync().toStdString()); p) {
+            p->get().setValue(sync ? 1.0f : 0.0f);
+            syncParameters();
+            changed = true;
+        }
+    }
+    if (changed)
+        emit dataChanged();
+}
+
+float SynthDevice::mixVco3() const
+{
+    return m_mixVco3;
+}
+
+void SynthDevice::setMixVco3(float level)
+{
+    bool changed = false;
+    {
+        std::lock_guard<std::recursive_mutex> lock { mutex() };
+        if (auto p = parameter(Constants::NahdXml::xmlKeySynthMixLevel3().toStdString()); p) {
+            p->get().setValue(level);
             syncParameters();
             changed = true;
         }

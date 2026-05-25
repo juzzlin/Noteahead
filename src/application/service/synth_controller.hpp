@@ -44,6 +44,13 @@ class SynthController : public QObject
     Q_PROPERTY(int vco2Shape READ vco2Shape WRITE setVco2Shape NOTIFY vco2ShapeChanged)
     Q_PROPERTY(bool vco2Sync READ vco2Sync WRITE setVco2Sync NOTIFY vco2SyncChanged)
 
+    // VCO3
+    Q_PROPERTY(int vco3Waveform READ vco3Waveform WRITE setVco3Waveform NOTIFY vco3WaveformChanged)
+    Q_PROPERTY(int vco3Octave READ vco3Octave WRITE setVco3Octave NOTIFY vco3OctaveChanged)
+    Q_PROPERTY(int vco3Pitch READ vco3Pitch WRITE setVco3Pitch NOTIFY vco3PitchChanged)
+    Q_PROPERTY(int vco3Shape READ vco3Shape WRITE setVco3Shape NOTIFY vco3ShapeChanged)
+    Q_PROPERTY(bool vco3Sync READ vco3Sync WRITE setVco3Sync NOTIFY vco3SyncChanged)
+
     // Multi Engine
     Q_PROPERTY(int multiType READ multiType WRITE setMultiType NOTIFY multiTypeChanged)
     Q_PROPERTY(int multiShape READ multiShape WRITE setMultiShape NOTIFY multiShapeChanged)
@@ -53,6 +60,7 @@ class SynthController : public QObject
     // Mixer
     Q_PROPERTY(int mixVco1 READ mixVco1 WRITE setMixVco1 NOTIFY mixVco1Changed)
     Q_PROPERTY(int mixVco2 READ mixVco2 WRITE setMixVco2 NOTIFY mixVco2Changed)
+    Q_PROPERTY(int mixVco3 READ mixVco3 WRITE setMixVco3 NOTIFY mixVco3Changed)
 
     // Filter
     Q_PROPERTY(int lpfCutoff READ lpfCutoff WRITE setLpfCutoff NOTIFY lpfCutoffChanged)
@@ -134,6 +142,17 @@ public:
     bool vco2Sync() const;
     void setVco2Sync(bool s);
 
+    int vco3Waveform() const;
+    void setVco3Waveform(int wave);
+    int vco3Octave() const;
+    void setVco3Octave(int oct);
+    int vco3Pitch() const;
+    void setVco3Pitch(int p);
+    int vco3Shape() const;
+    void setVco3Shape(int s);
+    bool vco3Sync() const;
+    void setVco3Sync(bool s);
+
     int multiType() const;
     void setMultiType(int type);
     int multiShape() const;
@@ -147,6 +166,8 @@ public:
     void setMixVco1(int lvl);
     int mixVco2() const;
     void setMixVco2(int lvl);
+    int mixVco3() const;
+    void setMixVco3(int lvl);
 
     int lpfCutoff() const;
     void setLpfCutoff(int c);
@@ -259,12 +280,18 @@ signals:
     void vco2PitchChanged();
     void vco2ShapeChanged();
     void vco2SyncChanged();
+    void vco3WaveformChanged();
+    void vco3OctaveChanged();
+    void vco3PitchChanged();
+    void vco3ShapeChanged();
+    void vco3SyncChanged();
     void multiTypeChanged();
     void multiShapeChanged();
     void multiLevelChanged();
     void multiKeyTrackChanged();
     void mixVco1Changed();
     void mixVco2Changed();
+    void mixVco3Changed();
     void lpfCutoffChanged();
     void lpfResonanceChanged();
     void hpfCutoffChanged();

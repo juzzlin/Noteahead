@@ -1130,6 +1130,31 @@ QString xmlKeySynthVco2Sync()
     return "vco2Sync";
 }
 
+QString xmlKeySynthVco3Waveform()
+{
+    return "vco3Waveform";
+}
+
+QString xmlKeySynthVco3Octave()
+{
+    return "vco3Octave";
+}
+
+QString xmlKeySynthVco3Pitch()
+{
+    return "vco3Pitch";
+}
+
+QString xmlKeySynthVco3Shape()
+{
+    return "vco3Shape";
+}
+
+QString xmlKeySynthVco3Sync()
+{
+    return "vco3Sync";
+}
+
 QString xmlKeySynthMultiMode()
 {
     return "multiMode";
@@ -1153,6 +1178,11 @@ QString xmlKeySynthMixLevel1()
 QString xmlKeySynthMixLevel2()
 {
     return "mixLevel2";
+}
+
+QString xmlKeySynthMixLevel3()
+{
+    return "mixLevel3";
 }
 
 QString xmlKeySynthLpfCutoff()

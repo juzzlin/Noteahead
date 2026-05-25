@@ -383,6 +383,7 @@ set(QML_SOURCE_FILES
     ${QML_BASE_DIR}/Dialogs/SynthDialog_Presets.qml
     ${QML_BASE_DIR}/Dialogs/SynthDialog_Vco1.qml
     ${QML_BASE_DIR}/Dialogs/SynthDialog_Vco2.qml
+    ${QML_BASE_DIR}/Dialogs/SynthDialog_Vco3.qml
     ${QML_BASE_DIR}/Dialogs/SettingsDialog.qml
     ${QML_BASE_DIR}/Dialogs/SettingsDialog_AudioSettings.qml
     ${QML_BASE_DIR}/Dialogs/SettingsDialog_GeneralSettings.qml

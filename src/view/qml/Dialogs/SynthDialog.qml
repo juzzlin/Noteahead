@@ -143,7 +143,14 @@ Dialog {
                             width: parent.width - 20
                             SynthDialog_Vco1 { Layout.preferredWidth: mainRow.moduleWidth; Layout.fillWidth: true; Layout.alignment: Qt.AlignTop }
                             SynthDialog_Vco2 { Layout.preferredWidth: mainRow.moduleWidth; Layout.fillWidth: true; Layout.alignment: Qt.AlignTop }
-                            SynthDialog_Multi { Layout.preferredWidth: mainRow.moduleWidth; Layout.fillWidth: true; Layout.alignment: Qt.AlignTop }
+                            SynthDialog_Vco3 { Layout.preferredWidth: mainRow.moduleWidth; Layout.fillWidth: true; Layout.alignment: Qt.AlignTop }
+                            SynthDialog_Multi {
+                                Layout.preferredWidth: mainRow.moduleWidth
+                                Layout.fillWidth: true
+                                Layout.alignment: Qt.AlignTop
+                                Layout.columnSpan: 3
+                                Layout.topMargin: 10
+                            }
                         }
                     }
 

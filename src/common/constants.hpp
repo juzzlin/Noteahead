@@ -312,12 +312,19 @@ QString xmlKeySynthVco2Pitch();
 QString xmlKeySynthVco2Shape();
 QString xmlKeySynthVco2Sync();
 
+QString xmlKeySynthVco3Waveform();
+QString xmlKeySynthVco3Octave();
+QString xmlKeySynthVco3Pitch();
+QString xmlKeySynthVco3Shape();
+QString xmlKeySynthVco3Sync();
+
 QString xmlKeySynthMultiMode();
 QString xmlKeySynthMultiShape();
 QString xmlKeySynthMultiLevel();
 
 QString xmlKeySynthMixLevel1();
 QString xmlKeySynthMixLevel2();
+QString xmlKeySynthMixLevel3();
 
 QString xmlKeySynthLpfCutoff();
 QString xmlKeySynthLpfResonance();

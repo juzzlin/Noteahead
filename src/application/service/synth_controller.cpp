@@ -807,6 +807,12 @@ void SynthController::requestSettings()
     emit vco2ShapeChanged();
     emit vco2SyncChanged();
 
+    emit vco3WaveformChanged();
+    emit vco3OctaveChanged();
+    emit vco3PitchChanged();
+    emit vco3ShapeChanged();
+    emit vco3SyncChanged();
+
     emit multiTypeChanged();
     emit multiShapeChanged();
     emit multiLevelChanged();
@@ -814,6 +820,7 @@ void SynthController::requestSettings()
 
     emit mixVco1Changed();
     emit mixVco2Changed();
+    emit mixVco3Changed();
 
     emit lpfCutoffChanged();
     emit lpfResonanceChanged();
@@ -912,6 +919,85 @@ void SynthController::setSynth(std::shared_ptr<SynthDevice> synth)
         }
         emit synthChanged();
         requestSettings();
+    }
+}
+
+// VCO3
+int SynthController::vco3Waveform() const
+{
+    return m_synth ? static_cast<int>(m_synth->vco3Waveform()) : 0;
+}
+
+void SynthController::setVco3Waveform(int wave)
+{
+    if (m_synth) {
+        m_synth->setVco3Waveform(static_cast<PolyBlepOscillator::Waveform>(wave));
+        emit vco3WaveformChanged();
+    }
+}
+
+int SynthController::vco3Octave() const
+{
+    return m_synth ? m_synth->vco3Octave() : 0;
+}
+
+void SynthController::setVco3Octave(int oct)
+{
+    if (m_synth) {
+        m_synth->setVco3Octave(oct);
+        emit vco3OctaveChanged();
+    }
+}
+
+int SynthController::vco3Pitch() const
+{
+    return m_synth ? static_cast<int>(std::round(m_synth->vco3Pitch() * Constants::uiInternalScaling())) : 0;
+}
+
+void SynthController::setVco3Pitch(int p)
+{
+    if (m_synth) {
+        m_synth->setVco3Pitch(static_cast<float>(p) / Constants::uiInternalScaling());
+        emit vco3PitchChanged();
+    }
+}
+
+int SynthController::vco3Shape() const
+{
+    return m_synth ? static_cast<int>(std::round(m_synth->vco3Shape() * Constants::uiInternalScaling())) : 0;
+}
+
+void SynthController::setVco3Shape(int s)
+{
+    if (m_synth) {
+        m_synth->setVco3Shape(static_cast<float>(s) / Constants::uiInternalScaling());
+        emit vco3ShapeChanged();
+    }
+}
+
+bool SynthController::vco3Sync() const
+{
+    return m_synth ? m_synth->vco3Sync() : false;
+}
+
+void SynthController::setVco3Sync(bool s)
+{
+    if (m_synth) {
+        m_synth->setVco3Sync(s);
+        emit vco3SyncChanged();
+    }
+}
+
+int SynthController::mixVco3() const
+{
+    return m_synth ? static_cast<int>(std::round(m_synth->mixVco3() * Constants::uiInternalScaling())) : 0;
+}
+
+void SynthController::setMixVco3(int lvl)
+{
+    if (m_synth) {
+        m_synth->setMixVco3(static_cast<float>(lvl) / Constants::uiInternalScaling());
+        emit mixVco3Changed();
     }
 }
 
