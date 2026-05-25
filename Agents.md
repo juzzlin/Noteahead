@@ -6,16 +6,20 @@ Noteahead is a MIDI tracker and sequencer for Linux, written in **Qt/QML** and *
 
 The project follows a layered architecture to ensure separation of concerns:
 
-- **`src/domain`**: The "Heart" of the application. Contains pure business logic and data structures (e.g., `Song`, `Track`, `Pattern`, `Arpeggiator`). It should remain as independent of the UI and infrastructure as possible.
+- **`src/domain`**: The "Heart" of the application. Contains pure business logic and data structures.
+    - **`devices/`**: Virtual instruments and effects (e.g., `SynthDevice`, `DelayEffect`).
+    - **`dsp/`**: Digital Signal Processing components (e.g., `AdsrEnvelope`, `SvfFilter`).
+    - **Core**: `Song`, `Track`, `Pattern`, `Arpeggiator`, etc.
+    - It should remain as independent of the UI and infrastructure as possible.
 - **`src/application`**: The "Brain". Orchestrates domain objects and provides services for the UI.
-    - **`services/`**: High-level logic (e.g., `MidiService`, `EditorService`).
+    - **`service/`**: High-level logic (e.g., `MidiService`, `EditorService`).
     - **`models/`**: `QAbstractListModel` and other QML-facing models.
     - **`command/`**: Implementation of the Command Pattern for Undo/Redo functionality.
 - **`src/infra`**: The "Hands". Handles external systems:
     - **`midi/`**: RtMidi backend and MIDI file export/import.
     - **`audio/`**: RtAudio backend and audio recording.
     - **`video/`**: ffmpeg-based video generation.
-    - **`settings/`**: Persistent configuration management.
+    - **`settings.cpp/hpp`**: Persistent configuration management.
 - **`src/view`**: The "Face". Pure QML-based UI, communicating with the application layer via models and services.
 - **`src/common`**: Shared constants and utilities.
 - **`src/contrib`**: External dependencies bundled with the source (`Argengine`, `SimpleLogger`).
@@ -47,6 +51,7 @@ Adherence to these standards is mandatory for all contributions:
 - **Formatting**: Strictly follow the project's `.clang-format` located in the root.
 - **Header Guards**: Use `#ifndef FILENAME_HPP` style instead of `#pragma once`.
 - **Standard Library**: Prefer `std::` containers and algorithms where appropriate.
+- **Post-increment**: Always use post-increment (`i++`) instead of pre-increment (`++i`) for loop counters.
 
 ### Qt & QML
 - **Model/View**: Keep logic in C++ models and services; QML should only handle presentation.
@@ -58,6 +63,10 @@ Adherence to these standards is mandatory for all contributions:
 - **Unit Tests**: Located in `src/unit_tests`. Every new feature or bug fix should include a test.
 - **Execution**: Run tests using `ctest` from the build directory.
 - **Framework**: Uses the Qt Test framework.
+- **Project Structure**: Each test MUST be in its own subdirectory with its own `CMakeLists.txt`.
+- **Lean Headers**: Test headers (`.hpp`) MUST NOT include `QtTest`. They MUST only include `<QObject>`.
+- **Granular Includes**: In test source files (`.cpp`), NEVER use `#include <QtTest>`. Use the specific `#include <QTest>` header and other specific utilities (e.g., `<QSignalSpy>`) as needed.
+- **MOC Handling**: DO NOT explicitly include `.moc` files (e.g., `#include "test.moc"`) in source files. Rely on CMake's automatic MOC handling by including the header in the `qt_add_executable` source list.
 
 ## 🚀 Build & Test
 
@@ -68,4 +77,3 @@ Adherence to these standards is mandatory for all contributions:
 
 - **Accuracy**: Noteahead renders events just before playback to ensure jitter-free, drift-free timing.
 - **Thread Safety**: The player runs in a dedicated thread (`PlayerWorker`). Use safe synchronization primitives when interacting between the UI and player threads.
-- Always use post-increment (i++) instead of pre-increment (++i) for loop counters.
