@@ -47,7 +47,7 @@ ColumnLayout {
                 rows: 3
                 width: parent.width
                 Label {
-                    text: qsTr("Port:")
+                    text: qsTr("Port (MIDI or internal):")
                     Layout.column: 0
                     Layout.columnSpan: 2
                     Layout.row: 0
@@ -58,17 +58,25 @@ ColumnLayout {
                     model: trackSettingsModel.availableMidiPorts
                     currentIndex: 0
                     Layout.column: 2
-                    Layout.columnSpan: 7
+                    Layout.columnSpan: 5
                     Layout.row: 0
                     Layout.fillWidth: true
                     ToolTip.delay: Constants.toolTipDelay
                     ToolTip.timeout: Constants.toolTipTimeout
                     ToolTip.visible: hovered
-                    ToolTip.text: qsTr("Set MIDI port for this track")
+                    ToolTip.text: qsTr("Set MIDI or internal port for this track. Internal ports are managed in the Device Rack.")
                     function setSelected(text) {
                         currentIndex = find(text);
                     }
                     onCurrentTextChanged: trackSettingsModel.portName = currentText
+                }
+                Button {
+                    text: qsTr("Device Rack...")
+                    Layout.column: 7
+                    Layout.columnSpan: 2
+                    Layout.row: 0
+                    Layout.fillWidth: true
+                    onClicked: UiService.requestDeviceRackDialog()
                 }
                 Label {
                     text: qsTr("Channel:")
