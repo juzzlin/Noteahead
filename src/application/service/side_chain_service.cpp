@@ -35,7 +35,7 @@ SideChainService::SideChainService(QObject * parent)
 {
 }
 
-Song::EventList SideChainService::renderToEvents(const Song & song, const Song::EventList & events, size_t startPosition, size_t endPosition)
+Song::EventList SideChainService::renderToEvents(const Song & song, const Song::EventList & events, size_t startPosition, size_t endPosition) const
 {
     Song::EventList processedEvents { events };
     Song::EventList sideChainEvents;
@@ -86,6 +86,7 @@ Song::EventList SideChainService::renderToEvents(const Song & song, const Song::
     std::sort(processedEvents.begin(), processedEvents.end(), [](const auto & a, const auto & b) {
         return a->tick() < b->tick();
     });
+
     return processedEvents;
 }
 

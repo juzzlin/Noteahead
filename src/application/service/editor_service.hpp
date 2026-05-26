@@ -387,7 +387,7 @@ public slots:
 private:
     void clampCursorLine(quint64 oldLineCount, quint64 newLineCount);
 
-    void setSongPositionInternal(quint64 songPosition, bool updateTime);
+    void setSongPositionInternal(quint64 songPosition, bool updateTime, bool allowExtend = true);
 
     void createPatternIfDoesNotExist(quint64 patternIndex);
 

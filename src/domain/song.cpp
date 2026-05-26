@@ -806,7 +806,7 @@ size_t Song::totalTicks() const
     return positionToTick(length());
 }
 
-void Song::updateTickToSongPositionMapping(size_t patternStartTick, size_t songPosition, size_t patternIndex, size_t lineCount)
+void Song::updateTickToSongPositionMapping(size_t patternStartTick, size_t songPosition, size_t patternIndex, size_t lineCount) const
 {
     for (size_t lineIndex = 0; lineIndex < lineCount; lineIndex++) {
         const auto tick = patternStartTick + lineIndex * m_ticksPerLine;
@@ -923,7 +923,7 @@ Song::EventList Song::renderEndOfSong(EventListCR eventList, size_t tick) const
     return processedEventList;
 }
 
-Song::EventsAndTick Song::renderPatterns(AutomationServiceS automationService, EventListCR eventList, size_t tick, size_t startPosition, size_t endPosition)
+Song::EventsAndTick Song::renderPatterns(AutomationServiceS automationService, EventListCR eventList, size_t tick, size_t startPosition, size_t endPosition) const
 {
     m_tickToSongPositionMap.clear();
     Song::EventList processedEventList { eventList };
@@ -933,7 +933,7 @@ Song::EventsAndTick Song::renderPatterns(AutomationServiceS automationService, E
         }
         const auto patternIndex = m_playOrder->positionToPattern(songPosition);
         juzzlin::L(TAG).debug() << "Rendering position " << songPosition << " as pattern " << patternIndex;
-        const auto & pattern = m_patterns[patternIndex];
+        const auto & pattern = m_patterns.at(patternIndex);
         const auto patternEventList = pattern->renderToEvents(automationService, tick, m_ticksPerLine, m_linesPerBeat);
         std::ranges::copy(patternEventList, std::back_inserter(processedEventList));
         updateTickToSongPositionMapping(tick, songPosition, patternIndex, pattern->lineCount());
@@ -942,7 +942,7 @@ Song::EventsAndTick Song::renderPatterns(AutomationServiceS automationService, E
     return { processedEventList, tick };
 }
 
-Song::EventList Song::generateMidiClockEvents(EventListCR eventList, size_t startTick, size_t endTick)
+Song::EventList Song::generateMidiClockEvents(EventListCR eventList, size_t startTick, size_t endTick) const
 {
     const size_t midiClockPulsesPerBeat = 24;
     const double ticksPerMidiClock = static_cast<double>(m_ticksPerLine * m_linesPerBeat) / midiClockPulsesPerBeat;
@@ -1050,7 +1050,7 @@ Song::EventList Song::generateChordAutomations(EventListCR events) const
     return processedEventList;
 }
 
-Song::EventList Song::renderContent(AutomationServiceS automationService, SideChainServiceS sideChainService, size_t startPosition, size_t endPosition)
+Song::EventList Song::renderContent(AutomationServiceS automationService, SideChainServiceS sideChainService, size_t startPosition, size_t endPosition) const
 {
     if (endPosition >= length()) {
         endPosition = length();
@@ -1081,12 +1081,12 @@ Song::EventList Song::renderContent(AutomationServiceS automationService, SideCh
     return eventList;
 }
 
-Song::EventList Song::renderToEvents(AutomationServiceS automationService, SideChainServiceS sideChainService, size_t startPosition)
+Song::EventList Song::renderToEvents(AutomationServiceS automationService, SideChainServiceS sideChainService, size_t startPosition) const
 {
     return renderToEvents(automationService, sideChainService, startPosition, length());
 }
 
-Song::EventList Song::renderToEvents(AutomationServiceS automationService, SideChainServiceS sideChainService, size_t startPosition, size_t endPosition)
+Song::EventList Song::renderToEvents(AutomationServiceS automationService, SideChainServiceS sideChainService, size_t startPosition, size_t endPosition) const
 {
     auto eventList = applyInstrumentsOnEvents(renderContent(automationService, sideChainService, startPosition, endPosition));
     juzzlin::L(TAG).info() << "Rendered event list size: " << eventList.size();

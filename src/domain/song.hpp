@@ -175,8 +175,8 @@ public:
     using EventList = std::vector<EventS>;
     using AutomationServiceS = std::shared_ptr<AutomationService>;
     using SideChainServiceS = std::shared_ptr<SideChainService>;
-    EventList renderToEvents(AutomationServiceS automationService, SideChainServiceS sideChainService, size_t startPosition);
-    EventList renderToEvents(AutomationServiceS automationService, SideChainServiceS sideChainService, size_t startPosition, size_t endPosition);
+    EventList renderToEvents(AutomationServiceS automationService, SideChainServiceS sideChainService, size_t startPosition) const;
+    EventList renderToEvents(AutomationServiceS automationService, SideChainServiceS sideChainService, size_t startPosition, size_t endPosition) const;
 
     size_t beatsPerMinute() const;
     void setBeatsPerMinute(size_t bpm);
@@ -222,7 +222,7 @@ public:
 
     size_t positionToTick(size_t position) const;
     std::chrono::milliseconds tickToTime(size_t tick) const;
-    void updateTickToSongPositionMapping(size_t patternStartTick, size_t songPosition, size_t patternIndex, size_t lineCount);
+    void updateTickToSongPositionMapping(size_t patternStartTick, size_t songPosition, size_t patternIndex, size_t lineCount) const;
 
     void initialize();
 
@@ -242,14 +242,14 @@ private:
     EventList generateChordAutomations(EventListCR eventList) const;
     EventList applyMidiDelay(EventListCR eventList) const;
     EventList generateNoteOffs(EventListCR eventList) const;
-    EventList generateMidiClockEvents(EventListCR eventList, size_t startTick, size_t endTick);
+    EventList generateMidiClockEvents(EventListCR eventList, size_t startTick, size_t endTick) const;
     EventList removeNonMappedNoteOffs(EventListCR events) const;
     EventList renderStartOfSong(size_t tick) const;
     EventList renderEndOfSong(EventListCR eventList, size_t tick) const;
 
     using EventsAndTick = std::pair<EventList, size_t>;
-    EventsAndTick renderPatterns(AutomationServiceS automationService, EventListCR eventList, size_t tick, size_t startPosition, size_t endPosition);
-    EventList renderContent(AutomationServiceS automationService, SideChainServiceS sideChainService, size_t startPosition, size_t endPosition);
+    EventsAndTick renderPatterns(AutomationServiceS automationService, EventListCR eventList, size_t tick, size_t startPosition, size_t endPosition) const;
+    EventList renderContent(AutomationServiceS automationService, SideChainServiceS sideChainService, size_t startPosition, size_t endPosition) const;
 
     PatternS masterPattern() const;
 
@@ -263,7 +263,7 @@ private:
     std::unique_ptr<PlayOrder> m_playOrder;
     size_t m_masterPatternIndex = 0;
 
-    std::unordered_map<size_t, SongPosition> m_tickToSongPositionMap;
+    mutable std::unordered_map<size_t, SongPosition> m_tickToSongPositionMap;
 
     std::string m_fileName;
 };

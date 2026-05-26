@@ -2131,14 +2131,14 @@ void EditorService::requestPositionByTick(quint64 tick)
 
     if (auto && songPosition = m_song->songPositionByTick(roundedTick); songPosition.has_value()) {
         if (m_settingsService->uiUpdatesDisabledDuringPlayback()) {
-            setSongPositionInternal(songPosition->position, false);
+            setSongPositionInternal(songPosition->position, false, false);
             updateTimes(songPosition->currentTime, m_song->lineToTime(songPosition->line));
         } else {
             const auto oldPosition = m_state.cursorPosition;
             m_state.cursorPosition.pattern = songPosition->pattern;
             m_state.cursorPosition.line = static_cast<quint64>(songPosition->line);
             notifyPositionChange(oldPosition);
-            setSongPositionInternal(songPosition->position, false);
+            setSongPositionInternal(songPosition->position, false, false);
             updateTimes(songPosition->currentTime, m_song->lineToTime(songPosition->line));
         }
     }
@@ -2444,13 +2444,13 @@ void EditorService::setSongPosition(quint64 songPosition)
     setSongPositionInternal(songPosition, true);
 }
 
-void EditorService::setSongPositionInternal(quint64 songPosition, bool updateTime)
+void EditorService::setSongPositionInternal(quint64 songPosition, bool updateTime, bool allowExtend)
 {
     if (m_state.songPosition != songPosition) {
         m_state.songPosition = songPosition;
         emit songPositionChanged(songPosition);
         emit patternAtCurrentSongPositionChanged();
-        if (songPosition >= songLength()) {
+        if (allowExtend && songPosition >= songLength()) {
             setSongLength(songPosition + 1);
         }
         if (updateTime) {
