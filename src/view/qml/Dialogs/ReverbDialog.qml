@@ -26,8 +26,8 @@ Dialog {
     title: "<strong>" + qsTr("Reverb Parameters (Slot %1)").arg(effectIndex + 1) + "</strong>"
     modal: true
     focus: true
-    width: 600
-    height: 450
+    width: 680
+    height: 500
 
     Universal.theme: Universal.Dark
     Universal.accent: themeService.accentColor
@@ -62,7 +62,7 @@ Dialog {
         }
 
         GridLayout {
-            columns: 3
+            columns: 4
             columnSpacing: 30
             rowSpacing: 20
             Layout.fillWidth: true
@@ -132,6 +132,27 @@ Dialog {
                     return effectRackController.parameterValue(root.effectIndex, effectRackController.reverbMixKey()) * Constants.uiInternalScaling;
                 }
                 onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.reverbMixKey(), v / Constants.uiInternalScaling)
+                Layout.fillWidth: true
+            }
+
+            FilterKnob {
+                label: qsTr("LPF")
+                value: {
+                    effectRackController.revision;
+                    return effectRackController.parameterValue(root.effectIndex, effectRackController.reverbLpfCutoffKey()) * Constants.uiInternalScaling;
+                }
+                onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.reverbLpfCutoffKey(), v / Constants.uiInternalScaling)
+                Layout.fillWidth: true
+            }
+
+            FilterKnob {
+                label: qsTr("HPF")
+                isHpf: true
+                value: {
+                    effectRackController.revision;
+                    return effectRackController.parameterValue(root.effectIndex, effectRackController.reverbHpfCutoffKey()) * Constants.uiInternalScaling;
+                }
+                onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.reverbHpfCutoffKey(), v / Constants.uiInternalScaling)
                 Layout.fillWidth: true
             }
         }

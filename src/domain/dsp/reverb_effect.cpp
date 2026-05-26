@@ -29,7 +29,22 @@ ReverbEffect::ReverbEffect()
     addParameter(Parameter { Constants::NahdXml::xmlKeyReverbDamping().toStdString(), 0.3f, 0, 100, 30 });
     addParameter(Parameter { Constants::NahdXml::xmlKeyReverbPreDelay().toStdString(), 0.04f, 0, 500, 20 });
     addParameter(Parameter { Constants::NahdXml::xmlKeyReverbWidth().toStdString(), 0.5f, 0, 200, 100 });
+    addParameter(Parameter { Constants::NahdXml::xmlKeyReverbLpfCutoff().toStdString(), 0.85f, 0, 100, 85 });
+    addParameter(Parameter { Constants::NahdXml::xmlKeyReverbHpfCutoff().toStdString(), 0.2f, 0, 100, 20 });
     addParameter(Parameter { Constants::NahdXml::xmlKeyReverbMix().toStdString(), 0.0f, 0, 100, 0 });
+
+    for (auto & delay : m_delays) {
+        delay.fbLpf.setMode(CascadedSvf::Mode::LowPass);
+        delay.fbHpf.setMode(CascadedSvf::Mode::HighPass);
+        delay.fbLpf.setResonance(0.0);
+        delay.fbHpf.setResonance(0.0);
+    }
+
+    m_wetLpfL.setMode(CascadedSvf::Mode::LowPass);
+    m_wetLpfR.setMode(CascadedSvf::Mode::LowPass);
+    m_wetHpfL.setMode(CascadedSvf::Mode::HighPass);
+    m_wetHpfR.setMode(CascadedSvf::Mode::HighPass);
+
     ReverbEffect::syncParameters();
 }
 
@@ -52,10 +67,8 @@ void ReverbEffect::process(float & left, float & right)
     const float dryL = left;
     const float dryR = right;
 
-    // Mono input for reverb
     float input = (dryL + dryR) * 0.5f;
 
-    // Pre-delay
     if (!m_preDelayBuffer.empty()) {
         const float delayedInput = m_preDelayBuffer[m_preDelayWritePos];
         m_preDelayBuffer[m_preDelayWritePos] = input;
@@ -63,7 +76,6 @@ void ReverbEffect::process(float & left, float & right)
         input = delayedInput;
     }
 
-    // FDN Processing
     std::array<float, NumDelays> delayOutputs;
     for (int i = 0; i < NumDelays; i++) {
         if (m_delays[i].buffer.empty()) {
@@ -73,48 +85,56 @@ void ReverbEffect::process(float & left, float & right)
         delayOutputs[i] = m_delays[i].buffer[m_delays[i].writePos];
     }
 
-    // Apply damping to delay line outputs
+    std::array<float, NumDelays> feedbackSignals;
     for (int i = 0; i < NumDelays; i++) {
         if (m_delays[i].buffer.empty()) {
+            feedbackSignals[i] = 0.0f;
             continue;
         }
+
         const float dOut = delayOutputs[i];
         m_delays[i].lpState = dOut + m_damping * (m_delays[i].lpState - dOut);
 
-        // Denormal protection
         if (std::abs(m_delays[i].lpState) < 1.0e-15f) {
             m_delays[i].lpState = 0.0f;
         }
+
+        float filtered = m_delays[i].lpState;
+        if (m_hpfCutoff > 0.001f) {
+            filtered = m_delays[i].fbHpf.process(filtered);
+        }
+        if (m_lpfCutoff < 0.999f) {
+            filtered = m_delays[i].fbLpf.process(filtered);
+        }
+        feedbackSignals[i] = filtered;
     }
 
-    // Householder reflection for N=4
     float sum = 0.0f;
     for (int i = 0; i < NumDelays; i++) {
-        sum += m_delays[i].lpState;
+        sum += feedbackSignals[i];
     }
     const float average = sum * (2.0f / static_cast<float>(NumDelays));
 
+    static constexpr std::array<float, NumDelays> inputGains = { 0.82f, -0.74f, 0.68f, -0.61f, 0.56f, -0.51f, 0.47f, -0.43f };
     for (int i = 0; i < NumDelays; i++) {
         if (m_delays[i].buffer.empty()) {
             continue;
         }
-        const float feedback = m_delays[i].lpState - average;
-        // Inject input + mixed feedback into delay lines
-        m_delays[i].buffer[m_delays[i].writePos] = input + feedback * m_delays[i].feedback;
+        const float feedback = feedbackSignals[i] - average;
+        m_delays[i].buffer[m_delays[i].writePos] = input * inputGains[i] + feedback * m_delays[i].feedback;
         m_delays[i].writePos = (m_delays[i].writePos + 1) % m_delays[i].size;
     }
 
-    // Stereo Output from delay lines (using different combinations for decorrelation)
-    float wetL = (delayOutputs[0] + delayOutputs[2]) * 0.5f;
-    float wetR = (delayOutputs[1] + delayOutputs[3]) * 0.5f;
+    float wetL = (delayOutputs[0] - delayOutputs[2] + delayOutputs[4] - delayOutputs[6]) * 0.25f;
+    float wetR = (delayOutputs[1] - delayOutputs[3] + delayOutputs[5] - delayOutputs[7]) * 0.25f;
 
-    // Apply width
+    applyWetFilters(wetL, wetR);
+
     const float mid = (wetL + wetR) * 0.5f;
     const float side = (wetL - wetR) * 0.5f;
     wetL = mid + side * m_width;
     wetR = mid - side * m_width;
 
-    // Mix
     left = dryL + wetL * m_mix;
     right = dryR + wetR * m_mix;
 }
@@ -147,6 +167,10 @@ void ReverbEffect::reset()
     }
     std::fill(m_preDelayBuffer.begin(), m_preDelayBuffer.end(), 0.0f);
     m_preDelayWritePos = 0;
+    m_wetLpfL.reset();
+    m_wetLpfR.reset();
+    m_wetHpfL.reset();
+    m_wetHpfR.reset();
 }
 
 void ReverbEffect::sync()
@@ -241,6 +265,38 @@ float ReverbEffect::width() const
     return m_width;
 }
 
+void ReverbEffect::setLpfCutoff(float cutoff)
+{
+    if (auto p = parameter(Constants::NahdXml::xmlKeyReverbLpfCutoff().toStdString()); p) {
+        p->get().setValue(cutoff);
+        m_shouldSyncParameters = true;
+    }
+}
+
+float ReverbEffect::lpfCutoff() const
+{
+    if (auto p = parameter(Constants::NahdXml::xmlKeyReverbLpfCutoff().toStdString()); p) {
+        return p->get().value();
+    }
+    return 0.85f;
+}
+
+void ReverbEffect::setHpfCutoff(float cutoff)
+{
+    if (auto p = parameter(Constants::NahdXml::xmlKeyReverbHpfCutoff().toStdString()); p) {
+        p->get().setValue(cutoff);
+        m_shouldSyncParameters = true;
+    }
+}
+
+float ReverbEffect::hpfCutoff() const
+{
+    if (auto p = parameter(Constants::NahdXml::xmlKeyReverbHpfCutoff().toStdString()); p) {
+        return p->get().value();
+    }
+    return 0.2f;
+}
+
 void ReverbEffect::applyPreset(Preset preset)
 {
     switch (preset) {
@@ -250,6 +306,8 @@ void ReverbEffect::applyPreset(Preset preset)
         setDamping(0.3f);
         setPreDelay(30.0f / 500.0f);
         setWidth(1.2f / 2.0f);
+        setLpfCutoff(0.86f);
+        setHpfCutoff(0.18f);
         break;
     case Preset::LargeRoom:
         setSize(0.6f);
@@ -257,6 +315,8 @@ void ReverbEffect::applyPreset(Preset preset)
         setDamping(0.4f);
         setPreDelay(15.0f / 500.0f);
         setWidth(1.0f / 2.0f);
+        setLpfCutoff(0.82f);
+        setHpfCutoff(0.2f);
         break;
     case Preset::SmallRoom:
         setSize(0.3f);
@@ -264,6 +324,8 @@ void ReverbEffect::applyPreset(Preset preset)
         setDamping(0.5f);
         setPreDelay(5.0f / 500.0f);
         setWidth(0.8f / 2.0f);
+        setLpfCutoff(0.78f);
+        setHpfCutoff(0.24f);
         break;
     case Preset::Plate:
         setSize(0.5f);
@@ -271,6 +333,8 @@ void ReverbEffect::applyPreset(Preset preset)
         setDamping(0.2f);
         setPreDelay(10.0f / 500.0f);
         setWidth(1.5f / 2.0f);
+        setLpfCutoff(0.9f);
+        setHpfCutoff(0.2f);
         break;
     case Preset::Cathedral:
         setSize(1.0f);
@@ -278,6 +342,8 @@ void ReverbEffect::applyPreset(Preset preset)
         setDamping(0.2f);
         setPreDelay(50.0f / 500.0f);
         setWidth(2.0f / 2.0f);
+        setLpfCutoff(0.84f);
+        setHpfCutoff(0.16f);
         break;
     case Preset::Basement:
         setSize(0.2f);
@@ -285,6 +351,8 @@ void ReverbEffect::applyPreset(Preset preset)
         setDamping(0.7f);
         setPreDelay(2.0f / 500.0f);
         setWidth(0.5f / 2.0f);
+        setLpfCutoff(0.68f);
+        setHpfCutoff(0.3f);
         break;
     case Preset::Tunnel:
         setSize(0.9f);
@@ -292,6 +360,8 @@ void ReverbEffect::applyPreset(Preset preset)
         setDamping(0.1f);
         setPreDelay(40.0f / 500.0f);
         setWidth(0.6f / 2.0f);
+        setLpfCutoff(0.88f);
+        setHpfCutoff(0.18f);
         break;
     case Preset::Spring:
         setSize(0.4f);
@@ -299,6 +369,8 @@ void ReverbEffect::applyPreset(Preset preset)
         setDamping(0.4f);
         setPreDelay(5.0f / 500.0f);
         setWidth(1.0f / 2.0f);
+        setLpfCutoff(0.72f);
+        setHpfCutoff(0.26f);
         break;
     }
 }
@@ -372,6 +444,14 @@ void ReverbEffect::syncParameters()
     if (auto p = parameter(Constants::NahdXml::xmlKeyReverbMix().toStdString()); p) {
         m_mix = p->get().value();
     }
+    if (auto p = parameter(Constants::NahdXml::xmlKeyReverbLpfCutoff().toStdString()); p) {
+        m_lpfCutoff = std::clamp(p->get().value(), 0.0f, 1.0f);
+    }
+    if (auto p = parameter(Constants::NahdXml::xmlKeyReverbHpfCutoff().toStdString()); p) {
+        m_hpfCutoff = std::clamp(p->get().value(), 0.0f, 1.0f);
+    }
+
+    updateFilters();
 }
 
 void ReverbEffect::updateBuffers()
@@ -381,14 +461,12 @@ void ReverbEffect::updateBuffers()
     }
     m_lastSampleRate = static_cast<uint32_t>(m_sampleRate);
 
-    // Prime-like delay lengths for better diffusion and less resonance (metallic sound)
-    static const std::array<float, NumDelays> baseLengths = { 1103.0f, 1373.0f, 1741.0f, 2131.0f };
+    static const std::array<float, NumDelays> baseLengths = { 1277.0f, 1493.0f, 1723.0f, 1999.0f, 2293.0f, 2551.0f, 2879.0f, 3253.0f };
     const float rateScale = static_cast<float>(m_sampleRate) / 44100.0f;
 
     const float t60 = std::max(0.1f, m_decayMs / 1000.0f);
 
     for (int i = 0; i < NumDelays; i++) {
-        // Size scale: 0.5 to 1.5 of base lengths
         uint32_t newSize = static_cast<uint32_t>(baseLengths[i] * rateScale * (0.5f + m_size));
         if (newSize < 100) {
             newSize = 100;
@@ -399,16 +477,48 @@ void ReverbEffect::updateBuffers()
             m_delays[i].size = newSize;
             m_delays[i].writePos = 0;
             m_delays[i].lpState = 0.0f;
+            m_delays[i].fbLpf.reset();
+            m_delays[i].fbHpf.reset();
         }
 
-        // Feedback calculation for desired T60 decay time
-        m_delays[i].feedback = std::pow(10.0f, -3.0f * static_cast<float>(newSize) / (t60 * static_cast<float>(m_sampleRate)));
+        m_delays[i].feedback = std::min(0.985f, std::pow(10.0f, -3.0f * static_cast<float>(newSize) / (t60 * static_cast<float>(m_sampleRate))));
     }
 
     const uint32_t preDelaySize = std::max(1u, static_cast<uint32_t>(m_preDelayMs * static_cast<float>(m_sampleRate) / 1000.0f));
     if (preDelaySize != m_preDelayBuffer.size()) {
         m_preDelayBuffer.assign(preDelaySize, 0.0f);
         m_preDelayWritePos = 0;
+    }
+}
+
+void ReverbEffect::updateFilters()
+{
+    for (auto & delay : m_delays) {
+        delay.fbLpf.setSampleRate(m_sampleRate);
+        delay.fbHpf.setSampleRate(m_sampleRate);
+        delay.fbLpf.setCutoff(static_cast<double>(m_lpfCutoff));
+        delay.fbHpf.setCutoff(static_cast<double>(m_hpfCutoff));
+    }
+
+    m_wetLpfL.setSampleRate(m_sampleRate);
+    m_wetLpfR.setSampleRate(m_sampleRate);
+    m_wetHpfL.setSampleRate(m_sampleRate);
+    m_wetHpfR.setSampleRate(m_sampleRate);
+    m_wetLpfL.setCutoff(static_cast<double>(m_lpfCutoff));
+    m_wetLpfR.setCutoff(static_cast<double>(m_lpfCutoff));
+    m_wetHpfL.setCutoff(static_cast<double>(m_hpfCutoff));
+    m_wetHpfR.setCutoff(static_cast<double>(m_hpfCutoff));
+}
+
+void ReverbEffect::applyWetFilters(float & wetL, float & wetR)
+{
+    if (m_hpfCutoff > 0.001f) {
+        wetL = m_wetHpfL.process(wetL);
+        wetR = m_wetHpfR.process(wetR);
+    }
+    if (m_lpfCutoff < 0.999f) {
+        wetL = m_wetLpfL.process(wetL);
+        wetR = m_wetLpfR.process(wetR);
     }
 }
 

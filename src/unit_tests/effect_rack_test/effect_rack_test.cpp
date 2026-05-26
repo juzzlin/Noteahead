@@ -46,6 +46,9 @@ void EffectRackTest::test_process_shouldProcessAudio()
     reverb->setMix(1.0f); // Full wet
     reverb->setSize(0.5f);
     reverb->setDecay(0.5f);
+    reverb->setPreDelay(0.0f);
+    reverb->setLpfCutoff(1.0f);
+    reverb->setHpfCutoff(0.0f);
     rack.setEffect(0, reverb);
 
     std::vector<float> output(2, 0.0f);
@@ -53,7 +56,7 @@ void EffectRackTest::test_process_shouldProcessAudio()
     AudioContext outputContext { std::span(output.data(), output.size()), 1, 44100 };
 
     // Reverb needs some samples to build up output
-    for (int i = 0; i < 2000; i++) {
+    for (int i = 0; i < 5000; i++) {
 
         rack.process(outputContext, sendBus.data(), 0);
     }
@@ -91,6 +94,8 @@ void EffectRackTest::test_serialization_shouldSerializeAndDeserializeEffects()
     EffectRack rack;
     auto reverb = std::make_shared<ReverbEffect>();
     reverb->setSize(0.75f);
+    reverb->setLpfCutoff(0.7f);
+    reverb->setHpfCutoff(0.25f);
     rack.setEffect(2, reverb);
 
     QString xml;
@@ -115,6 +120,8 @@ void EffectRackTest::test_serialization_shouldSerializeAndDeserializeEffects()
     auto reverb2 = std::dynamic_pointer_cast<ReverbEffect>(rack2.effect(2));
     QVERIFY(reverb2 != nullptr);
     QCOMPARE(reverb2->size(), 0.75f);
+    QCOMPARE(reverb2->lpfCutoff(), 0.7f);
+    QCOMPARE(reverb2->hpfCutoff(), 0.25f);
     QVERIFY(reverb2->enabled());
 
     // Test disabled serialization
@@ -186,6 +193,12 @@ void EffectRackTest::test_reverb_parameters_shouldGetAndSetParameters()
     // Pre-delay: 0.2 internal should be 100ms
     reverb->setPreDelay(0.2f);
     QCOMPARE(reverb->preDelay(), 0.2f);
+
+    reverb->setLpfCutoff(0.65f);
+    QCOMPARE(reverb->lpfCutoff(), 0.65f);
+
+    reverb->setHpfCutoff(0.3f);
+    QCOMPARE(reverb->hpfCutoff(), 0.3f);
 }
 
 void EffectRackTest::test_reverb_presets_shouldApplyPresets()
@@ -198,6 +211,8 @@ void EffectRackTest::test_reverb_presets_shouldApplyPresets()
 
     reverb->applyPreset(ReverbEffect::stringToPreset("Cathedral"));
     QCOMPARE(reverb->size(), 1.0f);
+    QCOMPARE(reverb->lpfCutoff(), 0.84f);
+    QCOMPARE(reverb->hpfCutoff(), 0.16f);
 
     QCOMPARE(ReverbEffect::presetToString(ReverbEffect::Preset::Spring), "Spring");
 }

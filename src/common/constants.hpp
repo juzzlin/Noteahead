@@ -289,6 +289,8 @@ QString xmlKeyReverbDamping();
 QString xmlKeyReverbPreDelay();
 QString xmlKeyReverbMix();
 QString xmlKeyReverbWidth();
+QString xmlKeyReverbLpfCutoff();
+QString xmlKeyReverbHpfCutoff();
 
 QString xmlKeyCompressorThreshold();
 QString xmlKeyCompressorRatio();

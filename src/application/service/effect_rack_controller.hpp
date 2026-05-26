@@ -68,6 +68,8 @@ public:
     Q_INVOKABLE QString reverbDampingKey() const;
     Q_INVOKABLE QString reverbPreDelayKey() const;
     Q_INVOKABLE QString reverbWidthKey() const;
+    Q_INVOKABLE QString reverbLpfCutoffKey() const;
+    Q_INVOKABLE QString reverbHpfCutoffKey() const;
     Q_INVOKABLE QString reverbMixKey() const;
 
     Q_INVOKABLE QString compressorThresholdKey() const;

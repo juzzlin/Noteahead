@@ -1040,6 +1040,16 @@ QString xmlKeyReverbWidth()
     return "reverbWidth";
 }
 
+QString xmlKeyReverbLpfCutoff()
+{
+    return "reverbLpfCutoff";
+}
+
+QString xmlKeyReverbHpfCutoff()
+{
+    return "reverbHpfCutoff";
+}
+
 QString xmlKeyCompressorThreshold()
 {
     return "threshold";

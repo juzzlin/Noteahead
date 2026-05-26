@@ -924,6 +924,8 @@ void XmlSerializationTest::test_toXmlFromXml_masterSendEffects_shouldLoadCorrect
     // Add a reverb effect to slot 0 of master send rack
     auto reverb = std::make_shared<ReverbEffect>();
     reverb->setDecay(0.75f); // internal value
+    reverb->setLpfCutoff(0.72f);
+    reverb->setHpfCutoff(0.28f);
     deviceServiceOut.sendEffectRack().setEffect(0, reverb);
 
     EditorService editorServiceOut { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
@@ -944,6 +946,8 @@ void XmlSerializationTest::test_toXmlFromXml_masterSendEffects_shouldLoadCorrect
     auto restoredReverb = std::dynamic_pointer_cast<ReverbEffect>(effect);
     QVERIFY(restoredReverb);
     QCOMPARE(restoredReverb->decay(), 0.75f);
+    QCOMPARE(restoredReverb->lpfCutoff(), 0.72f);
+    QCOMPARE(restoredReverb->hpfCutoff(), 0.28f);
 }
 
 void XmlSerializationTest::test_fromXml_samplerDevice_missingId_shouldNotThrow()

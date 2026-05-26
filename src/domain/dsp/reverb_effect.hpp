@@ -17,6 +17,9 @@
 #define REVERB_EFFECT_HPP
 
 #include "../devices/effect.hpp"
+#include "cascaded_svf.hpp"
+
+#include <algorithm>
 #include <array>
 #include <vector>
 
@@ -77,6 +80,12 @@ public:
     void setWidth(float width);
     float width() const;
 
+    void setLpfCutoff(float cutoff);
+    float lpfCutoff() const;
+
+    void setHpfCutoff(float cutoff);
+    float hpfCutoff() const;
+
     void applyPreset(Preset preset);
 
     static std::string presetToString(Preset preset);
@@ -86,6 +95,8 @@ public:
 private:
     void syncParameters();
     void updateBuffers();
+    void updateFilters();
+    void applyWetFilters(float & wetL, float & wetR);
 
     float m_size { 0.5f };
     float m_decayMs { 1500.0f };
@@ -93,11 +104,13 @@ private:
     float m_preDelayMs { 20.0f };
     float m_mix { 0.0f };
     float m_width { 1.0f };
+    float m_lpfCutoff { 0.85f };
+    float m_hpfCutoff { 0.2f };
 
     bool m_shouldSyncParameters { false };
     bool m_shouldUpdateBuffers { false };
 
-    static constexpr int NumDelays = 4;
+    static constexpr int NumDelays = 8;
 
     struct DelayLine
     {
@@ -106,12 +119,16 @@ private:
         float lpState { 0.0f };
         uint32_t size { 0 };
         float feedback { 0.0f };
+        CascadedSvf fbLpf;
+        CascadedSvf fbHpf;
 
         void reset()
         {
             std::fill(buffer.begin(), buffer.end(), 0.0f);
             writePos = 0;
             lpState = 0.0f;
+            fbLpf.reset();
+            fbHpf.reset();
         }
     };
 
@@ -119,6 +136,11 @@ private:
     std::vector<float> m_preDelayBuffer;
     uint32_t m_preDelayWritePos { 0 };
     uint32_t m_lastSampleRate { 0 };
+
+    CascadedSvf m_wetLpfL;
+    CascadedSvf m_wetLpfR;
+    CascadedSvf m_wetHpfL;
+    CascadedSvf m_wetHpfR;
 };
 
 } // namespace noteahead

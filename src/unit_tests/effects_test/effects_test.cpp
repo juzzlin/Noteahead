@@ -151,6 +151,8 @@ void EffectsTest::test_reverb_mix_shouldApplyEffectBasedOnMixLevel()
     ReverbEffect reverb;
     reverb.setSampleRate(44100);
     reverb.setMix(0.0f);
+    reverb.setLpfCutoff(1.0f);
+    reverb.setHpfCutoff(0.0f);
     reverb.sync();
 
     float l = 1.0f;
@@ -187,10 +189,41 @@ void EffectsTest::test_reverb_mix_shouldApplyEffectBasedOnMixLevel()
     // With mix 1.0, output should be different from input
     QVERIFY(l != 1.0f || r != 1.0f);
 
-    // With additive mix 1.0 and DC 1.0 input, output should be > 1.0
-    // (dry + wet, where wet is also derived from 1.0)
-    QVERIFY(std::abs(l) > 1.0f);
-    QVERIFY(std::abs(r) > 1.0f);
+    // With additive mix 1.0 and DC input, at least one decorrelated wet channel should add energy.
+    QVERIFY(std::abs(l) > 1.0f || std::abs(r) > 1.0f);
+}
+
+void EffectsTest::test_reverb_filters_shouldShapeWetSignal()
+{
+    auto measureDcWetEnergy = [](float hpfCutoff) {
+        ReverbEffect reverb;
+        reverb.setSampleRate(44100);
+        reverb.setMix(1.0f);
+        reverb.setSize(0.6f);
+        reverb.setDecay(0.5f);
+        reverb.setDamping(0.2f);
+        reverb.setPreDelay(0.0f);
+        reverb.setLpfCutoff(1.0f);
+        reverb.setHpfCutoff(hpfCutoff);
+        reverb.sync();
+
+        double energy = 0.0;
+        for (int i = 0; i < 12000; ++i) {
+            float l = 1.0f;
+            float r = 1.0f;
+            reverb.process(l, r);
+            if (i > 6000) {
+                energy += std::abs(l - 1.0f) + std::abs(r - 1.0f);
+            }
+        }
+        return energy;
+    };
+
+    const double openEnergy = measureDcWetEnergy(0.0f);
+    const double highPassedEnergy = measureDcWetEnergy(0.8f);
+
+    QVERIFY(openEnergy > 1.0);
+    QVERIFY(highPassedEnergy < openEnergy * 0.25);
 }
 
 void EffectsTest::test_delayEffect_shouldProcessSignalAndHandleSampleRateChanges()

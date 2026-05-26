@@ -314,6 +314,16 @@ QString EffectRackController::reverbWidthKey() const
     return Constants::NahdXml::xmlKeyReverbWidth();
 }
 
+QString EffectRackController::reverbLpfCutoffKey() const
+{
+    return Constants::NahdXml::xmlKeyReverbLpfCutoff();
+}
+
+QString EffectRackController::reverbHpfCutoffKey() const
+{
+    return Constants::NahdXml::xmlKeyReverbHpfCutoff();
+}
+
 QString EffectRackController::reverbMixKey() const
 {
     return Constants::NahdXml::xmlKeyReverbMix();
