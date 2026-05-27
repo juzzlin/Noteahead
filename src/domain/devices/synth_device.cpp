@@ -425,13 +425,13 @@ void SynthDevice::handleNoteOn(uint8_t note, uint8_t)
         }
     }
 
-    double freq = midiNoteToFreq(note);
+    const double freq = midiNoteToFreq(note);
 
     if (m_voiceMode == VoiceMode::Poly) {
-        int bestVoice = -1;
+        std::optional<size_t> bestVoice;
 
         // 1. Try to find a voice already playing or releasing this note (Affinity)
-        for (int i = 0; i < MaxVoices; i++) {
+        for (size_t i = 0; i < MaxVoices; i++) {
             if (m_voices.at(i).active && m_voices.at(i).note == note) {
                 bestVoice = i;
                 break;
@@ -439,55 +439,55 @@ void SynthDevice::handleNoteOn(uint8_t note, uint8_t)
         }
 
         // 2. Try to find an idle voice (Round-Robin)
-        if (bestVoice == -1) {
-            for (int i = 0; i < MaxVoices; i++) {
-                int idx = (m_polyNextVoice + i) % MaxVoices;
-                if (!m_voices.at(idx).active) {
-                    bestVoice = idx;
-                    m_polyNextVoice = (idx + 1) % MaxVoices;
+        if (!bestVoice) {
+            for (size_t i = 0; i < MaxVoices; i++) {
+                const size_t voiceIndex = (m_polyNextVoice + i) % MaxVoices;
+                if (!m_voices.at(voiceIndex).active) {
+                    bestVoice = voiceIndex;
+                    m_polyNextVoice = (voiceIndex + 1) % MaxVoices;
                     break;
                 }
             }
         }
 
         // 3. Steal the quietest voice (Round-Robin search for stealing candidate)
-        if (bestVoice == -1) {
+        if (!bestVoice) {
             float lowestAmp = 2.0f;
-            for (int i = 0; i < MaxVoices; i++) {
-                int idx = (m_polyNextVoice + i) % MaxVoices;
-                float currentAmp = static_cast<float>(m_voices.at(idx).ampEg.value());
+            for (size_t i = 0; i < MaxVoices; i++) {
+                size_t voiceIndex = (m_polyNextVoice + i) % MaxVoices;
+                const float currentAmp = static_cast<float>(m_voices.at(voiceIndex).ampEg.value());
                 if (currentAmp < lowestAmp) {
                     lowestAmp = currentAmp;
-                    bestVoice = idx;
+                    bestVoice = voiceIndex;
                 }
             }
-            if (bestVoice != -1) {
-                m_polyNextVoice = (bestVoice + 1) % MaxVoices;
+            if (bestVoice) {
+                m_polyNextVoice = (bestVoice.value() + 1) % MaxVoices;
             }
         }
 
-        if (bestVoice != -1) {
+        if (bestVoice) {
             // Reset glide if portamento is off
             if (m_portamento <= 0.001f) {
-                m_voices.at(bestVoice).glideFrequency = freq;
+                m_voices.at(bestVoice.value()).glideFrequency = freq;
             }
 
             // Balanced Pan Spread (Voice-alternating distribution inspired by Behringer DeepMind)
-            const float side = (bestVoice % 2 == 0) ? -1.0f : 1.0f;
-            const float depth = 1.0f - static_cast<float>(bestVoice / 2) * (2.0f / static_cast<float>(MaxVoices));
+            const float side = (bestVoice.value() % 2 == 0) ? -1.0f : 1.0f;
+            const float depth = 1.0f - static_cast<float>(bestVoice.value() / 2) * (2.0f / static_cast<float>(MaxVoices));
             const float pan = 0.5f + (side * depth * m_panSpread * 0.5f);
 
             if (m_vco1Sync) {
-                m_voices.at(bestVoice).trigger(note, freq, pan, true);
+                m_voices.at(bestVoice.value()).trigger(note, freq, pan, true);
             } else {
-                m_voices.at(bestVoice).triggerRandomized(note, freq, pan, m_phaseDist(m_rng));
+                m_voices.at(bestVoice.value()).triggerRandomized(note, freq, pan, m_phaseDist(m_rng));
             }
         }
     } else {
         // Unison
-        for (int i = 0; i < MaxVoices; i++) {
+        for (size_t i = 0; i < MaxVoices; i++) {
             // Non-linear detune spread for better texture
-            const double detuneAmount = (i - (MaxVoices - 1) / 2.0) * std::pow(m_voiceDepth, 1.5) * 0.2;
+            const double detuneAmount = (static_cast<double>(i) - (MaxVoices - 1) / 2.0) * std::pow(m_voiceDepth, 1.5) * 0.2;
             const double voiceFreq = freq * std::pow(2.0, detuneAmount / 12.0);
 
             if (m_portamento <= 0.001f) {
