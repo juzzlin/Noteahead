@@ -27,6 +27,7 @@
 #include "synth_presets.hpp"
 
 #include <mutex>
+#include <random>
 #include <vector>
 
 class QXmlStreamReader;
@@ -250,11 +251,15 @@ private:
 
         void reset();
         void trigger(uint8_t note, double freq, float pan, bool phaseSync);
+        void triggerRandomized(uint8_t note, double freq, float pan, double randomPhase);
         void release();
     };
 
     std::vector<Voice> m_voices;
     int m_polyNextVoice = 0;
+
+    mutable std::mt19937 m_rng { std::random_device {}() };
+    mutable std::uniform_real_distribution<double> m_phaseDist { 0.0, 1.0 };
 
     // Internal parameter storage
     PolyBlepOscillator::Waveform m_vco1Waveform { PolyBlepOscillator::Waveform::Saw };

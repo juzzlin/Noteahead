@@ -31,6 +31,9 @@ namespace noteahead {
 void SynthDevice::Voice::reset()
 {
     active = false;
+    vco1.sync(0.0);
+    vco2.sync(0.0);
+    vco3.sync(0.0);
     lpf.reset();
     hpf.reset();
     ampEg.reset();
@@ -55,6 +58,26 @@ void SynthDevice::Voice::trigger(uint8_t n, double freq, float p, bool phaseSync
         vco2.sync(0.0);
         vco3.sync(0.0);
     }
+    ampEg.trigger();
+    modEg.trigger();
+}
+
+void SynthDevice::Voice::triggerRandomized(uint8_t n, double freq, float p, double randomPhase)
+{
+    note = n;
+    frequency = freq;
+    if (glideFrequency == 0.0) {
+        glideFrequency = freq;
+    }
+    pan = p;
+    active = true;
+
+    lfo.reset();
+
+    vco1.sync(randomPhase);
+    vco2.sync(std::fmod(randomPhase + 0.33, 1.0));
+    vco3.sync(std::fmod(randomPhase + 0.66, 1.0));
+
     ampEg.trigger();
     modEg.trigger();
 }
@@ -461,7 +484,11 @@ void SynthDevice::handleNoteOn(uint8_t note, uint8_t)
             const float depth = 1.0f - static_cast<float>(bestVoice / 2) * (2.0f / static_cast<float>(MaxVoices));
             const float pan = 0.5f + (side * depth * m_panSpread * 0.5f);
 
-            m_voices.at(bestVoice).trigger(note, freq, pan, m_vco1Sync);
+            if (m_vco1Sync) {
+                m_voices.at(bestVoice).trigger(note, freq, pan, true);
+            } else {
+                m_voices.at(bestVoice).triggerRandomized(note, freq, pan, m_phaseDist(m_rng));
+            }
         }
     } else {
         // Unison
@@ -478,7 +505,11 @@ void SynthDevice::handleNoteOn(uint8_t note, uint8_t)
             const float depth = 1.0f - static_cast<float>(i / 2) * (2.0f / static_cast<float>(MaxVoices));
             const float pan = 0.5f + (side * depth * m_panSpread * 0.5f);
 
-            m_voices.at(i).trigger(note, voiceFreq, pan, m_vco1Sync);
+            if (m_vco1Sync) {
+                m_voices.at(i).trigger(note, voiceFreq, pan, true);
+            } else {
+                m_voices.at(i).triggerRandomized(note, voiceFreq, pan, m_phaseDist(m_rng));
+            }
         }
     }
 }
