@@ -89,7 +89,7 @@ public:
     void reset() override;
     void resetAudio() override;
 
-    double voiceGlideFrequency(int index) const;
+    double voiceGlideFrequency(size_t index) const;
 
     void serializeToXml(QXmlStreamWriter & writer) const override;
     void deserializeFromXml(QXmlStreamReader & reader) override;

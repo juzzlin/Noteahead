@@ -410,13 +410,10 @@ void SynthDevice::resetAudio()
     }
 }
 
-double SynthDevice::voiceGlideFrequency(int index) const
+double SynthDevice::voiceGlideFrequency(size_t index) const
 {
-    const std::lock_guard<std::recursive_mutex> lock(mutex());
-    if (index >= 0 && index < static_cast<int>(m_voices.size())) {
-        return m_voices.at(index).glideFrequency;
-    }
-    return 0.0;
+    const std::lock_guard<std::recursive_mutex> lock { mutex() };
+    return index < m_voices.size() ? m_voices.at(index).glideFrequency : 0.0;
 }
 
 void SynthDevice::handleNoteOn(uint8_t note, uint8_t)
