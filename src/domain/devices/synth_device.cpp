@@ -539,10 +539,8 @@ float SynthDevice::generateVoiceSample(Voice & voice, const ModulationValues & m
 
     voice.vco1.setFrequency(vco1Freq);
     voice.vco2.setFrequency(vco2Freq);
-    voice.vco3.setFrequency(vco3Freq);
     voice.vco1.setShape(std::clamp(m_vco1Shape + mods.shapeMod, 0.0, 1.0));
     voice.vco2.setShape(std::clamp(m_vco2Shape + mods.shapeMod, 0.0, 1.0));
-    voice.vco3.setShape(std::clamp(m_vco3Shape + mods.shapeMod, 0.0, 1.0));
 
     // VCO2 Hard Sync to VCO1
     const double oldPhase1 = voice.vco1.phase();
@@ -561,20 +559,29 @@ float SynthDevice::generateVoiceSample(Voice & voice, const ModulationValues & m
     const double oldPhase2 = voice.vco2.phase();
     const double vco2Val = voice.vco2.nextSample();
 
-    // VCO3 Hard Sync to VCO2
-    if (m_vco3Sync && voice.vco2.phase() < oldPhase2) {
-        const double phaseStep2 = vco2Freq / oversampledRate;
-        const double phaseStep3 = vco3Freq / oversampledRate;
-        if (phaseStep2 > 0.0) {
-            const double fraction = voice.vco2.phase() / phaseStep2;
-            voice.vco3.sync(fraction * phaseStep3);
-        } else {
-            voice.vco3.sync(0.0);
-        }
-    }
-    const double vco3Val = voice.vco3.nextSample();
+    double vco3Val = 0.0;
+    if (m_mixVco3 >= 0.001f) {
+        voice.vco3.setFrequency(vco3Freq);
+        voice.vco3.setShape(std::clamp(m_vco3Shape + mods.shapeMod, 0.0, 1.0));
 
-    const double multiVal = voice.multi.nextSample();
+        // VCO3 Hard Sync to VCO2
+        if (m_vco3Sync && voice.vco2.phase() < oldPhase2) {
+            const double phaseStep2 = vco2Freq / oversampledRate;
+            const double phaseStep3 = vco3Freq / oversampledRate;
+            if (phaseStep2 > 0.0) {
+                const double fraction = voice.vco2.phase() / phaseStep2;
+                voice.vco3.sync(fraction * phaseStep3);
+            } else {
+                voice.vco3.sync(0.0);
+            }
+        }
+        vco3Val = voice.vco3.nextSample();
+    }
+
+    double multiVal = 0.0;
+    if (m_multiLevel >= 0.001f) {
+        multiVal = voice.multi.nextSample();
+    }
 
     const double mix = (vco1Val * m_mixVco1) + (vco2Val * m_mixVco2) + (vco3Val * m_mixVco3) + (multiVal * m_multiLevel);
     const double mixHeadroom = mix * 0.4; // Slightly more headroom for 3rd VCO + Multi engine
