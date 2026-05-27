@@ -46,8 +46,9 @@ void SynthDevice::Voice::trigger(uint8_t n, double freq, float p, bool phaseSync
 {
     note = n;
     frequency = freq;
-    if (glideFrequency == 0.0)
+    if (glideFrequency == 0.0) {
         glideFrequency = freq;
+    }
     pan = p;
     active = true;
 
@@ -300,12 +301,7 @@ void SynthDevice::applyGlobalEffects(AudioContext & context)
 bool SynthDevice::hasActiveAudio() const
 {
     const std::lock_guard<std::recursive_mutex> lock { mutex() };
-    for (const auto & voice : m_voices) {
-        if (voice.active) {
-            return true;
-        }
-    }
-    return false;
+    return std::ranges::any_of(m_voices, [](const auto & voice) { return voice.active; });
 }
 
 void SynthDevice::processMidiNoteOn(uint8_t note, uint8_t velocity)
@@ -376,9 +372,10 @@ void SynthDevice::processMidiCc(uint8_t controller, uint8_t value, uint8_t)
 void SynthDevice::processMidiAllNotesOff()
 {
     {
-        const std::lock_guard<std::recursive_mutex> lock(mutex());
-        for (auto && voice : m_voices)
+        const std::lock_guard<std::recursive_mutex> lock { mutex() };
+        for (auto && voice : m_voices) {
             voice.reset();
+        }
         m_delay.reset();
     }
 }
@@ -386,7 +383,7 @@ void SynthDevice::processMidiAllNotesOff()
 void SynthDevice::setBpm(float bpm)
 {
     {
-        const std::lock_guard<std::recursive_mutex> lock(mutex());
+        const std::lock_guard<std::recursive_mutex> lock { mutex() };
         m_delay.setBpm(bpm);
     }
 }
@@ -394,7 +391,7 @@ void SynthDevice::setBpm(float bpm)
 void SynthDevice::reset()
 {
     {
-        const std::lock_guard<std::recursive_mutex> lock(mutex());
+        const std::lock_guard<std::recursive_mutex> lock { mutex() };
         Device::reset();
         resetAudio();
         syncParameters();
@@ -404,9 +401,10 @@ void SynthDevice::reset()
 void SynthDevice::resetAudio()
 {
     {
-        const std::lock_guard<std::recursive_mutex> lock(mutex());
-        for (auto && voice : m_voices)
+        const std::lock_guard<std::recursive_mutex> lock { mutex() };
+        for (auto && voice : m_voices) {
             voice.reset();
+        }
         m_delay.reset();
         m_oversamplerL.reset();
         m_oversamplerR.reset();
@@ -561,12 +559,15 @@ float SynthDevice::generateVoiceSample(Voice & voice, const ModulationValues & m
     double vco2Freq = voice.glideFrequency * m_vco2BasePitchRatio * pbRatio;
     double vco3Freq = voice.glideFrequency * m_vco3BasePitchRatio * pbRatio;
 
-    if (mods.vco1PitchMod != 0.0)
+    if (mods.vco1PitchMod != 0.0) {
         vco1Freq *= std::exp2(mods.vco1PitchMod);
-    if (mods.vco2PitchMod != 0.0)
+    }
+    if (mods.vco2PitchMod != 0.0) {
         vco2Freq *= std::exp2(mods.vco2PitchMod);
-    if (mods.vco3PitchMod != 0.0)
+    }
+    if (mods.vco3PitchMod != 0.0) {
         vco3Freq *= std::exp2(mods.vco3PitchMod);
+    }
 
     voice.vco1.setFrequency(vco1Freq);
     voice.vco2.setFrequency(vco2Freq);
