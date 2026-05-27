@@ -369,45 +369,37 @@ void SynthDevice::processMidiCc(uint8_t controller, uint8_t value, uint8_t)
 
 void SynthDevice::processMidiAllNotesOff()
 {
-    {
-        const std::lock_guard<std::recursive_mutex> lock { mutex() };
-        for (auto && voice : m_voices) {
-            voice.reset();
-        }
-        m_delay.reset();
+    const std::lock_guard<std::recursive_mutex> lock { mutex() };
+    for (auto && voice : m_voices) {
+        voice.reset();
     }
+    m_delay.reset();
 }
 
 void SynthDevice::setBpm(float bpm)
 {
-    {
-        const std::lock_guard<std::recursive_mutex> lock { mutex() };
-        m_delay.setBpm(bpm);
-    }
+    const std::lock_guard<std::recursive_mutex> lock { mutex() };
+    m_delay.setBpm(static_cast<double>(bpm));
 }
 
 void SynthDevice::reset()
 {
-    {
-        const std::lock_guard<std::recursive_mutex> lock { mutex() };
-        Device::reset();
-        resetAudio();
-        syncParameters();
-    }
+    const std::lock_guard<std::recursive_mutex> lock { mutex() };
+    Device::reset();
+    resetAudio();
+    syncParameters();
 }
 
 void SynthDevice::resetAudio()
 {
-    {
-        const std::lock_guard<std::recursive_mutex> lock { mutex() };
-        for (auto && voice : m_voices) {
-            voice.reset();
-        }
-        m_delay.reset();
-        m_oversamplerL.reset();
-        m_oversamplerR.reset();
-        m_polyNextVoice = 0;
+    const std::lock_guard<std::recursive_mutex> lock { mutex() };
+    for (auto && voice : m_voices) {
+        voice.reset();
     }
+    m_delay.reset();
+    m_oversamplerL.reset();
+    m_oversamplerR.reset();
+    m_polyNextVoice = 0;
 }
 
 double SynthDevice::voiceGlideFrequency(size_t index) const
