@@ -10,6 +10,8 @@ Dialog {
     id: rootItem
     title: "<strong>" + qsTr("Export song as a MIDI file") + "</strong>"
     modal: true
+    width: 600
+    height: 500
     property string outputFileName
     onOpened: {
         startPositionSpinBox.value = editorService.songPosition;

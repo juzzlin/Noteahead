@@ -187,20 +187,20 @@ ApplicationWindow {
     MidiExportDialog {
         id: midiExportDialog
         anchors.centerIn: parent
-        width: parent.width * Constants.defaultDialogScale * 0.5
-        height: parent.height * Constants.defaultDialogScale * 0.7
+        width: parent.width * Constants.defaultDialogScale
+        height: parent.height * Constants.defaultDialogScale
     }
     AudioRenderDialog {
         id: audioRenderDialog
         anchors.centerIn: parent
-        width: parent.width * Constants.defaultDialogScale * 0.5
-        height: parent.height * Constants.defaultDialogScale * 0.7
+        width: parent.width * Constants.defaultDialogScale
+        height: parent.height * Constants.defaultDialogScale
     }
     MidiImportDialog {
         id: midiImportDialog
         anchors.centerIn: parent
-        width: parent.width * Constants.defaultDialogScale * 0.5
-        height: parent.height * Constants.defaultDialogScale * 0.7
+        width: parent.width * Constants.defaultDialogScale
+        height: parent.height * Constants.defaultDialogScale
     }
     RecentFilesDialog {
         id: recentFilesDialog

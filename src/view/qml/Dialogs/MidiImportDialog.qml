@@ -10,6 +10,8 @@ Dialog {
     title: qsTr("Import MIDI file")
     modal: true
     visible: false
+    width: 600
+    height: 500
 
     property string inputFileName
 

@@ -10,8 +10,8 @@ Dialog {
     id: rootItem
     title: "<strong>" + qsTr("Render audio") + "</strong>"
     modal: true
-    width: 500
-    height: 400
+    width: 600
+    height: 500
 
     property string outputFileName
     property string outputDirectory
