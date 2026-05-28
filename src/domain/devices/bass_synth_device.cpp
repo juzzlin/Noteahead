@@ -454,9 +454,9 @@ void BassSynthDevice::syncParameters()
     m_voice.vco.setWaveform(m_waveform);
     const float decayTime = ParameterMapper::mapExponential(m_decay, 0.1, 10.0);
     m_voice.filterEg.setDecayTime(m_voice.accent ? decayTime * 0.5 : decayTime);
-    m_voice.filterEg.setReleaseTime(decayTime);
+    m_voice.filterEg.setReleaseTime(0.005);
     m_voice.ampEg.setDecayTime(decayTime);
-    m_voice.ampEg.setReleaseTime(decayTime);
+    m_voice.ampEg.setReleaseTime(0.005);
 }
 
 PolyBlepOscillator::Waveform BassSynthDevice::waveform() const

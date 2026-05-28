@@ -176,6 +176,33 @@ void BassSynthTest::test_outputLevel_shouldBeCorrect()
     // So peak should be around 1.0.
     // (Previous bug had 0.5 * 0.5 = 0.25)
     QVERIFY2(peak > 0.9f && peak < 1.1f, QString("Peak level incorrect: %1").arg(static_cast<double>(peak)).toUtf8().constData());
+void BassSynthTest::test_noteOff_shouldCutNoteQuickly()
+{
+    BassSynthDevice synth { "Test BassSynth" };
+    synth.setDecay(1.0f); // Long decay (mapped to 10s)
+
+    synth.processMidiNoteOn(60, 100);
+    QVERIFY(synth.hasActiveAudio());
+
+    // Render 10ms
+    const int sampleRate { 44100 };
+    const int frameCount { static_cast<int>(sampleRate * 0.01) };
+    std::vector<double> buffer(static_cast<size_t>(frameCount) * 2, 0.0);
+    AudioContext context { std::span(buffer.data(), buffer.size()), static_cast<uint32_t>(frameCount), sampleRate };
+    synth.processAudio(context);
+
+    // Note off
+    synth.processMidiNoteOff(60);
+
+    // Render another 20ms. Since release should be 5ms (fixed), it should be inactive by now.
+    // If it's linked to decay (10s), it will definitely still be active.
+    const int frameCount2 { static_cast<int>(sampleRate * 0.02) };
+    std::vector<double> buffer2(static_cast<size_t>(frameCount2) * 2, 0.0);
+    AudioContext context2 { std::span(buffer2.data(), buffer2.size()), static_cast<uint32_t>(frameCount2), sampleRate };
+    synth.processAudio(context2);
+
+    QVERIFY(!synth.hasActiveAudio());
+}
 }
 
 } // namespace noteahead

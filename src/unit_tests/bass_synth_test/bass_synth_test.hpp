@@ -32,6 +32,7 @@ private slots:
     void test_retriggerOnSlide_shouldIncreaseVolume();
     void test_noClickOnSlideZero_shouldNotHaveLargeDiscontinuities();
     void test_outputLevel_shouldBeCorrect();
+    void test_noteOff_shouldCutNoteQuickly();
 };
 
 } // namespace noteahead
