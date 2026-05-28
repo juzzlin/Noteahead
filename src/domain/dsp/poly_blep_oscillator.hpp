@@ -27,7 +27,8 @@ public:
     {
         Triangle,
         Saw,
-        Square
+        Square,
+        Sine
     };
 
     void setSampleRate(double sampleRate) override;

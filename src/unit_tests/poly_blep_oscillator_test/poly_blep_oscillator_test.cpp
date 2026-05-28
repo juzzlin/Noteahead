@@ -151,6 +151,58 @@ void PolyBlepOscillatorTest::test_nextSample_triangle_fold_shouldReturnExpectedV
     QCOMPARE(osc.nextSample(), 0.0);
 }
 
+void PolyBlepOscillatorTest::test_nextSample_sine_shouldReturnExpectedValues()
+{
+    PolyBlepOscillator osc;
+    osc.setSampleRate(44100.0);
+    osc.setFrequency(441.0);
+    osc.setWaveform(PolyBlepOscillator::Waveform::Sine);
+
+    // t=0, sine(0) = 0.0
+    QCOMPARE(osc.nextSample(), 0.0);
+
+    // At t=0.25, sine(2*pi*0.25) = sine(pi/2) = 1.0
+    for (int i = 0; i < 24; i++) {
+        osc.nextSample();
+    }
+    QCOMPARE(osc.nextSample(), 1.0);
+
+    // At t=0.5, sine(pi) = 0.0
+    for (int i = 0; i < 24; i++) {
+        osc.nextSample();
+    }
+    QCOMPARE(osc.nextSample(), 0.0);
+}
+
+void PolyBlepOscillatorTest::test_nextSample_sine_fold_shouldReturnExpectedValues()
+{
+    PolyBlepOscillator osc;
+    osc.setSampleRate(44100.0);
+    osc.setFrequency(441.0); // dt = 0.01
+    osc.setWaveform(PolyBlepOscillator::Waveform::Sine);
+    osc.setShape(0.25); // multiplier = 2.0
+
+    // t=0, sine=0. Fold=0. Next is 0.01
+    QCOMPARE(osc.nextSample(), 0.0);
+
+    // At t=0.1
+    // sine(2*pi*0.1) approx 0.587785
+    // Multiplied by 2.0 approx 1.17557
+    // Folded: 2.0 - 1.17557 approx 0.82443
+    for (int i = 0; i < 9; i++) {
+        osc.nextSample();
+    }
+    double expected = 2.0 - 2.0 * std::sin(std::numbers::pi * 2.0 * 0.1);
+    QVERIFY(std::abs(osc.nextSample() - expected) < 0.001);
+
+    // At t=0.25, sine = 1.0. Multiplied by 2.0 = 2.0.
+    // Folded: 2.0 - 2.0 = 0.0
+    for (int i = 0; i < 14; i++) {
+        osc.nextSample();
+    }
+    QCOMPARE(osc.nextSample(), 0.0);
+}
+
 void PolyBlepOscillatorTest::test_setFrequency_shouldUpdatePhaseStep()
 {
     PolyBlepOscillator osc;

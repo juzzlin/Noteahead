@@ -29,6 +29,8 @@ private slots:
     void test_nextSample_square_shouldReturnExpectedValues();
     void test_nextSample_triangle_shouldReturnExpectedValues();
     void test_nextSample_triangle_fold_shouldReturnExpectedValues();
+    void test_nextSample_sine_shouldReturnExpectedValues();
+    void test_nextSample_sine_fold_shouldReturnExpectedValues();
     void test_setFrequency_shouldUpdatePhaseStep();
     void test_sync_shouldResetPhase();
     void test_setPulseWidth_shouldClampValues();

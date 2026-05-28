@@ -81,6 +81,19 @@ double PolyBlepOscillator::nextSample()
                 }
             }
         }
+    } else if (m_waveform == Waveform::Sine) {
+        value = std::sin(std::numbers::pi * 2.0 * t);
+        if (m_shape > 0.0) {
+            // Sine shaping: fold
+            value *= (1.0 + m_shape * 4.0);
+            while (value > 1.0 || value < -1.0) {
+                if (value > 1.0) {
+                    value = 2.0 - value;
+                } else if (value < -1.0) {
+                    value = -2.0 - value;
+                }
+            }
+        }
     }
 
     m_phase += m_phaseStep;
