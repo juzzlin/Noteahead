@@ -32,10 +32,11 @@ void SnareEngine::trigger(float velocity)
     updateRates();
     m_velocity = velocity;
     m_ampEnv = 1.0f;
+    m_attackEnv = 0.0f;
     m_tonalEnv = 1.0f;
     m_pitchEnv = 1.0f;
-    m_tonalPhase1 = 0.0;
-    m_tonalPhase2 = 0.0;
+    m_tonalPhase1 = std::uniform_real_distribution<double>(0.0, 1.0)(m_rng);
+    m_tonalPhase2 = std::uniform_real_distribution<double>(0.0, 1.0)(m_rng);
     m_active = true;
     m_noiseFilter.reset();
 
@@ -82,14 +83,20 @@ float SnareEngine::nextSample()
     float tonal { (tonal1 + tonal2 * 0.4f) / 1.4f };
     tonal = std::tanh(tonal * 1.5f);
 
+    if (m_invertPhase) {
+        tonal = -tonal;
+    }
+
     // Noise part (Snappy bump 2000-12000 Hz)
     const float noise { m_dist(m_rng) };
     const auto filteredNoise = static_cast<float>(m_noiseFilter.process(noise));
 
-    float out { (tonal * m_tonalEnv * (1.0f - m_snappy) * 0.8f + filteredNoise * m_snappy * 2.5f) * m_ampEnv * m_velocity };
+    float out { (tonal * m_tonalEnv * (1.0f - m_snappy) * 0.8f + filteredNoise * m_snappy * 2.5f) * m_ampEnv * m_attackEnv * m_velocity };
     out = std::tanh(out);
 
     // Separate decay for tonal part (much faster than noise)
+    const float attackRate { 1.0f / (0.0005f * static_cast<float>(sr)) };
+    m_attackEnv = std::min(1.0f, m_attackEnv + attackRate);
     m_tonalEnv *= m_tonalDecayRate;
     m_ampEnv *= m_decayRate;
 
@@ -133,6 +140,11 @@ void SnareEngine::setTone(float tone)
 {
     m_tone = tone;
     m_noiseFilter.setCutoff(0.65f + m_tone * 0.3f);
+}
+
+void SnareEngine::setInvertPhase(bool invert)
+{
+    m_invertPhase = invert;
 }
 
 void SnareEngine::updateRates()

@@ -43,6 +43,7 @@ public:
 
 private:
     float m_ampEnv { 0.0f };
+    float m_attackEnv { 0.0f };
     bool m_active { false };
     bool m_choking { false };
 

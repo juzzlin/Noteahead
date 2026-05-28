@@ -52,6 +52,7 @@ private:
 
     float m_tune { 0.5f };
     float m_attack { 0.5f };
+    float m_attackEnv { 0.0f };
     float m_clickTune { 0.5f };
     float m_decay { 0.5f };
     float m_pitchDepth { 0.5f };

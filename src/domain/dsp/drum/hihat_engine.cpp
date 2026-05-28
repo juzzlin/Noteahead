@@ -32,6 +32,7 @@ void HiHatEngine::trigger(float velocity)
     updateRates();
     m_velocity = velocity;
     m_ampEnv = 1.0f;
+    m_attackEnv = 0.0f;
     m_bodyEnv = 1.0f;
     m_active = true;
     m_choking = false;
@@ -91,7 +92,10 @@ float HiHatEngine::nextSample()
 
     // Sum and saturate for "body" and warmth (909-style)
     float mixed = (m_filter.process(source) + bodyOut);
-    float out = std::tanh(mixed * 1.4f) * m_ampEnv * m_velocity * 1.1f;
+    float out = std::tanh(mixed * 1.4f) * m_ampEnv * m_attackEnv * m_velocity * 1.1f;
+
+    const float attackRate { 1.0f / (0.0005f * static_cast<float>(sampleRate())) };
+    m_attackEnv = std::min(1.0f, m_attackEnv + attackRate);
 
     // Body decay is slightly longer to provide more "meat"
     m_bodyEnv *= m_bodyDecayRate;

@@ -42,7 +42,7 @@ void CrashEngine::trigger(float velocity)
     m_pitchEnv = 1.0f;
     m_sizzleEnv = 1.0f;
     m_bodyEnv = 1.0f;
-    m_attackEnv = (m_attack > 0.0f) ? 0.0f : 1.0f;
+    m_attackEnv = 0.0f;
     m_hpf.reset();
     m_bpf.reset();
     m_lpf.reset();
@@ -68,11 +68,10 @@ float CrashEngine::nextSample()
     const float noise { m_dist(m_rng) };
 
     // Attack envelope to soften the initial hit
-    if (m_attack > 0.0f && m_attackEnv < 1.0f) {
-        const float attackRate { 1.0f / (std::max(0.001f, m_attack) * 0.2f * static_cast<float>(sampleRate())) };
-        m_attackEnv += attackRate;
-        if (m_attackEnv > 1.0f)
-            m_attackEnv = 1.0f;
+    if (m_attackEnv < 1.0f) {
+        const float attackTime { std::max(0.0005f, m_attack * 0.2f) };
+        const float attackRate { 1.0f / (attackTime * static_cast<float>(sampleRate())) };
+        m_attackEnv = std::min(1.0f, m_attackEnv + attackRate);
     }
 
     // Pitch envelope for the initial "hit" - used only for subtle shimmer, no "laser" sweeps

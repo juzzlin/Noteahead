@@ -37,6 +37,7 @@ void KickEngine::trigger(float velocity)
     m_clickPhase = 0.0;
     m_active = true;
     m_ampEnv = 1.0f;
+    m_attackEnv = 0.0f;
     m_clickEnv = 1.0f;
     m_noiseFilter.reset();
 }
@@ -78,13 +79,15 @@ float KickEngine::nextSample()
     if (m_phase >= 1.0)
         m_phase -= 1.0;
 
-    float out { (sine + click) * m_ampEnv * m_velocity };
+    float out { (sine + click) * m_ampEnv * m_attackEnv * m_velocity };
 
     // Apply re-trigger offset to smooth out discontinuities
     out += m_retriggerOffset;
     m_retriggerOffset *= 0.95f;
 
     // Envelopes
+    const float attackRate { 1.0f / (0.0005f * static_cast<float>(sr)) };
+    m_attackEnv = std::min(1.0f, m_attackEnv + attackRate);
     m_ampEnv *= m_ampDecayRate;
     m_clickEnv *= m_clickDecayRate;
     m_pitchEnv *= m_pitchDecayRate;

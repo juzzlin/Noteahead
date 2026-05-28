@@ -32,6 +32,7 @@ void ClapEngine::trigger(float velocity)
     m_active = true;
     m_sampleCount = 0;
     m_tailEnv = 1.0f;
+    m_attackEnv = 0.0f;
     m_filter.reset();
 }
 
@@ -70,7 +71,10 @@ float ClapEngine::nextSample()
     m_filter.setCutoff(0.2f + m_tune * 0.5f);
     m_filter.setResonance(0.3f);
 
-    const float out = m_filter.process(noise) * (burstAmp + tailAmp) * m_velocity;
+    const float out = m_filter.process(noise) * (burstAmp + tailAmp) * m_attackEnv * m_velocity;
+
+    const float attackRate { 1.0f / (0.0005f * static_cast<float>(sampleRate())) };
+    m_attackEnv = std::min(1.0f, m_attackEnv + attackRate);
 
     m_sampleCount++;
 

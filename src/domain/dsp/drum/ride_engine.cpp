@@ -32,6 +32,7 @@ void RideEngine::trigger(float velocity)
     m_active = true;
     m_filter.reset();
     m_ampEnv = 1.0f;
+    m_attackEnv = 0.0f;
     for (auto && phase : m_phases) {
         phase = 0.0;
     }
@@ -64,7 +65,10 @@ float RideEngine::nextSample()
     m_filter.setSampleRate(sr);
     m_filter.setCutoff(0.4f + m_tune * 0.5f);
     m_filter.setResonance(m_resonance);
-    const auto out = static_cast<float>(m_filter.process(source) * m_ampEnv * m_velocity);
+    const auto out = static_cast<float>(m_filter.process(source) * m_ampEnv * m_attackEnv * m_velocity);
+
+    const float attackRate { 1.0f / (0.0005f * static_cast<float>(sampleRate())) };
+    m_attackEnv = std::min(1.0f, m_attackEnv + attackRate);
 
     const float decayRate { 1.0f - (1.0f / (std::max(0.01f, m_decay) * 2.0f * static_cast<float>(sampleRate()))) };
     m_ampEnv *= decayRate;

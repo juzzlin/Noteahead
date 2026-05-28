@@ -37,6 +37,7 @@ public:
     void setDecay(float decay);
     void setSnappy(float snappy);
     void setTone(float tone);
+    void setInvertPhase(bool invert);
 
     void updateRates();
 
@@ -44,9 +45,11 @@ private:
     double m_tonalPhase1 { 0.0 };
     double m_tonalPhase2 { 0.0 };
     float m_ampEnv { 0.0f };
+    float m_attackEnv { 0.0f };
     float m_tonalEnv { 0.0f };
     float m_pitchEnv { 0.0f };
     bool m_active { false };
+    bool m_invertPhase { false };
 
     float m_tune { 0.5f };
     float m_decay { 0.5f };
