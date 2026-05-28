@@ -71,9 +71,15 @@ double PolyBlepOscillator::nextSample()
     } else if (m_waveform == Waveform::Triangle) {
         value = (t < 0.5) ? (4.0 * t - 1.0) : (3.0 - 4.0 * t);
         if (m_shape > 0.0) {
-            // Basic triangle shaping: variable center point (simplified)
-            double s = 0.5 + m_shape * 0.45;
-            value = (t < s) ? (2.0 * t / s - 1.0) : (1.0 - 2.0 * (t - s) / (1.0 - s));
+            // Triangle shaping: fold
+            value *= (1.0 + m_shape * 4.0);
+            while (value > 1.0 || value < -1.0) {
+                if (value > 1.0) {
+                    value = 2.0 - value;
+                } else if (value < -1.0) {
+                    value = -2.0 - value;
+                }
+            }
         }
     }
 

@@ -119,6 +119,38 @@ void PolyBlepOscillatorTest::test_nextSample_triangle_shouldReturnExpectedValues
     QCOMPARE(osc.nextSample(), 1.0);
 }
 
+void PolyBlepOscillatorTest::test_nextSample_triangle_fold_shouldReturnExpectedValues()
+{
+    PolyBlepOscillator osc;
+    osc.setSampleRate(44100.0);
+    osc.setFrequency(441.0); // dt = 0.01
+    osc.setWaveform(PolyBlepOscillator::Waveform::Triangle);
+    osc.setShape(0.25); // (1 + 0.25*4) = 2.0 multiplier
+
+    // t=0, original value -1.0. Multiplied by 2.0 = -2.0.
+    // Fold: -2.0 < -1.0 => -2.0 - (-2.0) = 0.0.
+    QCOMPARE(osc.nextSample(), 0.0); // t=0.0, next is t=0.01
+
+    // At t=0.1, original triangle value = 4*0.1 - 1 = -0.6.
+    // Multiplied by 2.0 = -1.2.
+    // Folded: -2.0 - (-1.2) = -0.8.
+    for (int i = 0; i < 9; i++) {
+        osc.nextSample();
+    }
+    // After loop, 10 samples total have been processed.
+    // Next call is 11th sample, t=0.10.
+    QCOMPARE(osc.nextSample(), -0.8);
+
+    // At t=0.25, original triangle value = 0.0.
+    // Multiplied by 2.0 = 0.0.
+    for (int i = 0; i < 14; i++) {
+        osc.nextSample();
+    }
+    // 11 + 14 = 25 samples total.
+    // Next call is 26th sample, t=0.25.
+    QCOMPARE(osc.nextSample(), 0.0);
+}
+
 void PolyBlepOscillatorTest::test_setFrequency_shouldUpdatePhaseStep()
 {
     PolyBlepOscillator osc;
