@@ -97,8 +97,9 @@ void DiodeLadderFilter::updateCoefficients()
         return;
     }
 
-    // 303 filter range is roughly 300Hz to 10kHz
-    const double freq = 300.0 * std::pow(10000.0 / 300.0, m_cutoff);
+    // Standard filter range 20Hz to 20kHz
+    const double maxFreq = std::min(20000.0, m_sampleRate * 0.49);
+    const double freq = 20.0 * std::pow(maxFreq / 20.0, m_cutoff);
     m_g = std::tan(std::numbers::pi * freq / m_sampleRate);
 
     // Resonance k: 0 to 17 is a common range for diode ladder models

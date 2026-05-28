@@ -52,6 +52,8 @@ void BassSynthDevice::Voice::trigger(uint8_t n, double freq, float vel, bool has
         vco.sync(0.0);
         sub.sync(0.0);
     }
+    lpf.reset();
+    hpf.reset();
     filterEg.reset();
     ampEg.reset();
     filterEg.trigger();
@@ -303,6 +305,7 @@ void BassSynthDevice::resetAudio()
     m_voice.reset();
     m_oversamplerL.reset();
     m_oversamplerR.reset();
+    m_distLpState = 0.0f;
 }
 
 void BassSynthDevice::serializeToXml(QXmlStreamWriter & writer) const
@@ -389,6 +392,8 @@ void BassSynthDevice::handleNoteOn(uint8_t note, uint8_t velocity)
         m_voice.ampEg.trigger();
     } else {
         m_distLpState = 0.0f;
+        m_oversamplerL.reset();
+        m_oversamplerR.reset();
         if (hasAccent) {
             m_voice.filterEg.setDecayTime(ParameterMapper::mapExponential(m_decay, 0.1, 10.0) * 0.5);
         } else {

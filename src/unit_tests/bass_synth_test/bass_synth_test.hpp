@@ -33,6 +33,7 @@ private slots:
     void test_noClickOnSlideZero_shouldNotHaveLargeDiscontinuities();
     void test_outputLevel_shouldBeCorrect();
     void test_noteOff_shouldCutNoteQuickly();
+    void test_sineWave_noClickAtAttack();
 };
 
 } // namespace noteahead
