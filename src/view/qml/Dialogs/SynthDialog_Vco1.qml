@@ -22,7 +22,7 @@ ColumnLayout {
 
     RowLayout {
         ComboBox {
-            model: ["Triangle", "Saw", "Square"]
+            model: synthController.vcoWaveformNames
             currentIndex: synthController.vco1Waveform
             onActivated: i => synthController.vco1Waveform = i
             Layout.fillWidth: true

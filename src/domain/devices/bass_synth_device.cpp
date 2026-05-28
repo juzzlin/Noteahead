@@ -68,7 +68,7 @@ BassSynthDevice::BassSynthDevice(std::string name)
   : m_name { std::move(name) }
 {
     // Initialize Parameters
-    addParameter(Parameter(Constants::NahdXml::xmlKeyWaveform().toStdString(), 1.0f, 0, 2, 1, 1, Parameter::Type::Discrete));
+    addParameter(Parameter(Constants::NahdXml::xmlKeyWaveform().toStdString(), 1.0f, 0, 3, 1, 1, Parameter::Type::Discrete));
     addParameter(Parameter(Constants::NahdXml::xmlKeyPitch().toStdString(), 0.5f, -1200, 1200, 0));
     addParameter(Parameter(Constants::NahdXml::xmlKeySubLevel().toStdString(), 0.0f, 0, 100, 0));
     addParameter(Parameter(Constants::NahdXml::xmlKeySubOctave().toStdString(), 1.0f, 1, 2, 1, 1, Parameter::Type::Discrete));

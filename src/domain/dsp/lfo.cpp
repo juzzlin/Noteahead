@@ -20,6 +20,11 @@
 
 namespace noteahead {
 
+std::vector<std::string> Lfo::waveformNames()
+{
+    return { "Saw", "Triangle", "Square" };
+}
+
 void Lfo::setSampleRate(double sampleRate)
 {
     if (std::abs(m_sampleRate - sampleRate) < 0.1) {

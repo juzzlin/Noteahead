@@ -29,6 +29,7 @@ class BassSynthController : public DeviceController
 
     // Oscillator
     Q_PROPERTY(int waveform READ waveform WRITE setWaveform NOTIFY waveformChanged)
+    Q_PROPERTY(QStringList vcoWaveformNames READ vcoWaveformNames CONSTANT)
     Q_PROPERTY(int tuning READ tuning WRITE setTuning NOTIFY tuningChanged)
     Q_PROPERTY(int subLevel READ subLevel WRITE setSubLevel NOTIFY subLevelChanged)
     Q_PROPERTY(int subOctave READ subOctave WRITE setSubOctave NOTIFY subOctaveChanged)
@@ -59,6 +60,7 @@ public:
     // Accessors
     int waveform() const;
     void setWaveform(int wave);
+    QStringList vcoWaveformNames() const;
     int tuning() const;
     void setTuning(int t);
     int subLevel() const;

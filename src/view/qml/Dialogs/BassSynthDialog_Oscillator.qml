@@ -18,7 +18,7 @@ GroupBox {
             ColumnLayout {
                 Label { text: qsTr("VCO Waveform") }
                 ComboBox {
-                    model: ["Saw", "Square"]
+                    model: bassSynthController.vcoWaveformNames
                     currentIndex: bassSynthController.waveform
                     onActivated: i => bassSynthController.waveform = i
                     Layout.preferredWidth: 120

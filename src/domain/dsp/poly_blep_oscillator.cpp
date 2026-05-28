@@ -20,6 +20,11 @@
 
 namespace noteahead {
 
+std::vector<std::string> PolyBlepOscillator::waveformNames()
+{
+    return { "Triangle", "Saw", "Square", "Sine" };
+}
+
 void PolyBlepOscillator::setSampleRate(double sampleRate)
 {
     if (std::abs(m_sampleRate - sampleRate) < 0.1) {

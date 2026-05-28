@@ -56,6 +56,15 @@ void BassSynthController::setWaveform(int wave)
     }
 }
 
+QStringList BassSynthController::vcoWaveformNames() const
+{
+    QStringList list;
+    for (auto && name : PolyBlepOscillator::waveformNames()) {
+        list << QString::fromStdString(name);
+    }
+    return list;
+}
+
 int BassSynthController::tuning() const
 {
     return m_device ? static_cast<int>(std::round(m_device->tuning() * Constants::uiInternalScaling())) : 0;

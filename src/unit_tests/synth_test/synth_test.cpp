@@ -478,7 +478,7 @@ void SynthTest::test_userPresetsDiscreteValues_shouldLoadCorrectly()
     const std::string vco1WaveformKey = Constants::NahdXml::xmlKeySynthVco1Waveform().toStdString();
 
     // Logical values for discrete parameters:
-    // Waveform (0..2): Tri=0.0, Saw=1.0, Square=2.0
+    // Waveform (0..3): Tri=0.0, Saw=1.0, Square=2.0, Sine=3.0
     // DelayType (0..3): Stereo=0.0, Mono=1.0, PingPong=2.0, Tape=3.0
 
     const SynthPreset sawPreset { "Saw", { { vco1WaveformKey, 1.0f } } };

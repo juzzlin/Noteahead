@@ -18,6 +18,9 @@
 
 #include "dsp_component.hpp"
 
+#include <string>
+#include <vector>
+
 namespace noteahead {
 
 class PolyBlepOscillator : public DspComponent
@@ -30,6 +33,8 @@ public:
         Square,
         Sine
     };
+
+    static std::vector<std::string> waveformNames();
 
     void setSampleRate(double sampleRate) override;
     void setFrequency(double frequency);

@@ -18,6 +18,9 @@
 
 #include "dsp_component.hpp"
 
+#include <string>
+#include <vector>
+
 namespace noteahead {
 
 class Lfo : public DspComponent
@@ -29,6 +32,8 @@ public:
         Triangle,
         Square
     };
+
+    static std::vector<std::string> waveformNames();
 
     enum class Mode
     {

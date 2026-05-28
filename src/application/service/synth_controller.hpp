@@ -30,6 +30,9 @@ class SynthController : public DeviceController
 {
     Q_OBJECT
 
+    Q_PROPERTY(QStringList vcoWaveformNames READ vcoWaveformNames CONSTANT)
+    Q_PROPERTY(QStringList lfoWaveformNames READ lfoWaveformNames CONSTANT)
+
     // VCO1
     Q_PROPERTY(int vco1Waveform READ vco1Waveform WRITE setVco1Waveform NOTIFY vco1WaveformChanged)
     Q_PROPERTY(int vco1Octave READ vco1Octave WRITE setVco1Octave NOTIFY vco1OctaveChanged)
@@ -117,6 +120,9 @@ public:
     std::shared_ptr<SynthDevice> synth() const;
 
     // Accessors
+    QStringList vcoWaveformNames() const;
+    QStringList lfoWaveformNames() const;
+
     int vco1Waveform() const;
     void setVco1Waveform(int wave);
     int vco1Octave() const;

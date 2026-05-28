@@ -49,6 +49,24 @@ std::shared_ptr<SynthDevice> SynthController::synth() const
     return m_synth;
 }
 
+QStringList SynthController::vcoWaveformNames() const
+{
+    QStringList list;
+    for (auto && name : PolyBlepOscillator::waveformNames()) {
+        list << QString::fromStdString(name);
+    }
+    return list;
+}
+
+QStringList SynthController::lfoWaveformNames() const
+{
+    QStringList list;
+    for (auto && name : Lfo::waveformNames()) {
+        list << QString::fromStdString(name);
+    }
+    return list;
+}
+
 // VCO1
 int SynthController::vco1Waveform() const
 {
