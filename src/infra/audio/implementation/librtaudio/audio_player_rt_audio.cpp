@@ -16,6 +16,7 @@
 #include "audio_player_rt_audio.hpp"
 
 #include "../../../common/constants.hpp"
+#include "../../../common/denormal_protection.hpp"
 #include "../../../contrib/SimpleLogger/src/simple_logger.hpp"
 #include "../../audio_engine.hpp"
 
@@ -31,6 +32,8 @@ int AudioPlayerRtAudio::playCallback(void * outputBuffer, void *,
                                      double, RtAudioStreamStatus status,
                                      void * userData)
 {
+    enableHardwareDenormalProtection();
+
     const auto self = static_cast<AudioPlayerRtAudio *>(userData);
 
     if (status) {

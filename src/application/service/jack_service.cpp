@@ -17,6 +17,7 @@
 
 #include "../../common/audio_backend.hpp"
 #include "../../common/constants.hpp"
+#include "../../common/denormal_protection.hpp"
 #include "../../contrib/SimpleLogger/src/simple_logger.hpp"
 #include "../../infra/audio/audio_engine.hpp"
 #include "settings_service.hpp"
@@ -258,6 +259,8 @@ double JackService::playbackPosition() const
 
 int JackService::processCallback(jack_nframes_t frameCount, void * arg)
 {
+    enableHardwareDenormalProtection();
+
     auto self = static_cast<JackService *>(arg);
 
     if (self->m_isDeinitializing) {
