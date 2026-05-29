@@ -120,7 +120,11 @@ size_t RealTimeWorkerPool::defaultWorkerCount()
     if (hardwareThreads <= 1) {
         return 0;
     }
-    return std::min<size_t>(3, static_cast<size_t>(hardwareThreads - 1));
+    if (hardwareThreads <= 4) {
+        return static_cast<size_t>(hardwareThreads - 1);
+    }
+    // Leave at least 2 logical threads for the system/UI on higher core counts
+    return static_cast<size_t>(hardwareThreads - 2);
 }
 
 void RealTimeWorkerPool::workerLoop(size_t workerIndex)
