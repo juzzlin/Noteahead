@@ -2,13 +2,11 @@
 
 ![Build Status](https://github.com/juzzlin/Noteahead/actions/workflows/ci.yml/badge.svg)
 
-Noteahead is a "simple" MIDI tracker and sequencer for Linux focusing on ease of use.
+Noteahead is a lightweight, pattern-based MIDI sequencer and "half-daw" for Linux, designed for musicians who prefer the tracker workflow but want a modern, self-contained production environment.
 
-There are no audio tracks, only MIDI. However, Noteahead currently implements a built-in audio recorder, sampler and a virtual analog synth. A virtual analog drum machine will be released in 3.1.0. These built-in devices act like any MIDI device.
+While it excels as a dedicated MIDI "brain" for external synthesizers and drum machines, Noteahead now features a powerful suite of internal instruments, a studio-quality virtual rack for mixing, and high-precision rendering capabilities.
 
-Noteahead is designed to be especially a MIDI tracker, so it has/will have features that make MIDI sequencing as easy as possible.
-
-Noteahead is written in Qt/QML/C++20 on top of RtMidi back-end + RtAudio for the audio recorder. It builds with CMake and uses CTest + Qt Test framework for unit tests.
+Noteahead is written in Qt/QML/C++20 on top of RtMidi back-end + RtAudio. It builds with CMake and uses CTest + Qt Test framework for unit tests.
 
 <table>
   <tr><td colspan="3"><img src="/screenshots/1.8.0/1.png" width="100%"></td></tr>
@@ -32,9 +30,13 @@ Noteahead is written in Qt/QML/C++20 on top of RtMidi back-end + RtAudio for the
 ##
 ## Who is it for?
 
-While it's all about DAWs today, Noteahead is for Linux musicians who enjoy the tracker workflow and want a lightweight, pattern-based MIDI sequencer instead of a full DAW. It’s built for fast, keyboard-driven sequencing of external synths and drum machines, with clear handling of patch changes, automation, and CCs — no cryptic hex values required. If you already use a DAW or mixer for audio, Noteahead can serve as the dedicated MIDI brain of your setup.
+While many musicians rely on complex DAWs, Noteahead is for Linux musicians who enjoy the precision and keyboard-driven workflow of trackers but want something more integrated than a simple MIDI sequencer. It is the perfect middle ground—a "half-daw" that can act as the central brain of a MIDI setup or as a standalone production tool using its built-in software synths and effects.
 
-My own setup runs Noteahead on Ubuntu 24.04 LTS with all gear connected via USB-MIDI hubs. Synths are routed to an external digital mixer connected to the PC via USB. I record with Noteahead and master in Audacity using LSP (mostly) plugins. I have already produced several songs with it, available on SoundCloud, YouTube Music, and Spotify (see links below) and I'm quite happy with it (see the links below).
+Whether you are sequencing external vintage gear via USB-MIDI or building entire tracks in the box, Noteahead offers a clear interface with studio-quality features like 8-band parametric EQ, feedback delay network reverbs, and a high-precision offline renderer.
+
+My own setup runs Noteahead on Ubuntu 24.04 LTS with all gear connected via USB-MIDI hubs. Synths are routed to an external digital mixer connected to the PC via USB. I record with Noteahead and master in Audacity using LSP (mostly) plugins. I have already produced several songs with it, available on SoundCloud, YouTube Music, and Spotify (see links below).
+
+I now also write songs with the internal instruments only. It has been a huge effort to make this possible.
 
 ##
 ## Example Tracks
@@ -62,147 +64,45 @@ All Arctic Music Project songs:
 ## Features
 
 ### Core / Performance
-- **Very accurate internal timing**
-  - No jitter, no drift
-- **Virtual device rack** (since 3.1.0)
-  - Central hub for managing internal instruments
-  - Dynamically add devices (Sampler, Synth, BassSynth, DrumSynth) by clicking the (+) icon in the rack
-  - Supports multiple independent instances of any device type
-  - **Effect Sends routing button per device** (since 3.1.0)
-- Fully scalable UI
-- Cool volume meters like in NoiseTracker
-- Cool note visualizer animation on the bottom bar
-- **Master Effect Rack** (since 3.1.0)
-  - Central hub for global audio effects
-  - Dynamically add effects (e.g., Reverb) by clicking the (+) icon in the rack
-  - Support for multiple independent effect instances
-  - Studio-quality FDN (Feedback Delay Network) Reverb with presets
-  - Scalable send routing from all internal instruments
-- The Debian package size is currently around 1 MB (is that bloat?)
+- **Sample-Accurate Timing**: Jitter-free and drift-free internal timing strategy.
+- **High-Precision Offline Renderer**: Export songs to WAV with sample-accurate timing, preserving all automations and parameters.
+- **Native Audio Backend Selector**: Explicit support for **ALSA**, **PulseAudio**, and **JACK** with optional transport synchronization.
+- **Lightweight & Scalable**: Fully scalable UI with a Debian package size of around 1 MB.
 
-### Editing
-- Easy-to-use track editing
-- Tracks with multiple note columns
-- Track settings with port, channel, bank, patch, volume, pan, cutoff
-  - Can be easily changed on-the-fly via line events
-- Track settings with generic MIDI CC slots
-  - Initial MIDI CC values can be set directly via Track settings
-- Track and column-specific velocity scales
-  - Effective velocity is the product of track scale, column scale, and note velocity
-- Velocity key track scaling (since 1.4.0)
-  - Linearly turn velocity down on higher notes (0-100%)
+### Internal Instruments (Virtual Device Rack)
+- **Virtual Device Rack**: Central hub for managing multiple independent instances of internal instruments.
+- **Synth**: Polyphonic VA synthesizer (up to 6 voices) with dual oscillators, multi-mode filters, ADSR/Mod EGs, LFO, and built-in Delay.
+- **BassSynth**: Monophonic acid-style synthesizer with sub-oscillator, resonant 24dB LPF, and TB-303 style accent/slide.
+- **DrumSynth**: Multi-engine drum machine with 11 independent voices (Kick, Snare, Toms, etc.) and dedicated per-voice controls.
+- **Sampler**: 16-pad internal sampler with WAV support, dual filters, and per-sample panning/volume.
+- **Dynamic Routing**: Per-device Effect Sends for flexible mixing.
 
-### MIDI
-- Poor Man's MIDI Hot-Plug with automatic setup
-  - Noteahead notices when a device goes online/offline
-  - Noteahead automatically sets channel, bank, and patch
-- Sampler (since 2.2.0)
-  - Internal sampler instrument with 16 assignable pads
-  - Supports loading WAV samples
-  - Per-sample panning (-100% to +100%) and volume (0-100%)
-  - Dual filters: Low-pass and High-pass
-  - Full MIDI CC automation support (Volume CC 7, Pan CC 10, LPF Cutoff CC 74, HPF Cutoff CC 81)
-  - High-quality linear interpolation resampling
-- Synth (since 2.2.0)
-  - Internal polyphonic synthesizer (up to 6 voices)
-  - Two high-quality oscillators (VCO1 & VCO2) with Triangle, Saw, and Square waveforms and sync
-  - Digital Multi Engine (Low, High, Peak, Decim)
-  - Dual filters (LPF with resonance, HPF)
-  - ADSR Amp EG and AD Mod EG (targeting pitch or cutoff)
-  - Flexible LFO (multiple waveforms, BPM sync)
-  - Built-in Delay effect (Stereo, Mono, PingPong, Tape) with BPM sync
-  - Factory and User preset banks
-  - Full MIDI CC automation support (Volume CC 7, Pan CC 10, LPF Cutoff CC 74, HPF Cutoff CC 81)
-- BassSynth (since 3.1.0)
-  - Internal monophonic acid-style synthesizer
-  - High-quality oscillator with Triangle, Saw, and Square waveforms
-  - Sub-oscillator with Level and Octave (-1 or -2) controls
-  - Classic 24dB resonant Low-pass filter and 12dB High-pass filter
-  - TB-303 style Accent and Slide (legato) implementation
-  - Built-in Distortion with Drive, Tone, and Level controls
-  - Full MIDI CC automation support (Volume CC 7, Pan CC 10, LPF Cutoff CC 74, HPF Cutoff CC 81)
-- DrumSynth (since 3.1.0)
-  - Internal drum synthesizer with 11 independent voices
-  - Dedicated engines for Kick, Snare, Hi-Hats, Toms, Clap, and Cymbals
-  - Per-voice controls: Level, Pan, LPF, HPF, Tune, Decay, Attack, and Resonance
-  - Advanced Kick parameters: Click Tune, Pitch Depth, and Pitch Decay
-  - Advanced Snare parameters: Snappy and Tone
-  - Advanced Tom parameters: Pitch Depth and Pitch Decay
-  - Simplified direct MIDI CC automation for each voice's Pan, LPF, and HPF
-- Sends MIDI clock pulse and Start/Stop on desired ports
-- MIDI side-chain (since 1.2.0)
-  - In Track settings the user can select source track and column that triggers the desired MIDI CC event
-- MIDI CC automation
-  - Select lines and add automation on the desired controller
-  - Linear interpolation
-  - Sine wave (since 1.0.0+) and Random modulation (since 1.8.0+)
-- Pitch Bend automation
-  - Select lines and add automation on pitch bend
-  - Linear, Sine wave, and Random modulation (since 1.8.0+)
-- Chord automation (since 1.2.0)
-  - In Column Settings the user can set offsets for three notes that are relative to the root note
-- Arpeggiator (since 1.9.0)
-  - Extend chord automation with an arpeggiator
-  - Patterns: Up, Down, Up-Down, Down-Up, Random
-  - Adjustable events per beat (1-32)
-- Step record / play notes via a MIDI controller (since 0.10.0)
-  - The MIDI controller is routed to the instrument of the selected track
-- Highly adjustable note-off's (global default in ms, per-instrument in ms, manual)
-- Virtual MIDI out port (since 1.0.0+)
-- Velocity key track
-  - Make e.g. your piano have less velocity on higher notes. Super cool!
-- Optional Jack transport and BPM synchronization (requires JACK audio backend)
-- Optional MIDI transport synchronization (since 1.8.0)
+### Master Effects Rack
+- **Master Effect Rack**: Studio-quality global effects hub with support for multiple independent instances.
+- **8-Band Parametric EQ**: High-precision equalizer with multiple filter types (Bell, Shelf, Cut, Notch) per band.
+- **FDN Reverb**: High-quality Feedback Delay Network algorithm with 8 studio presets (Hall, Cathedral, etc.) and fine-grained controls.
+- **Compressor**: Feed-forward compressor with soft-knee interpolation, lookahead support, and real-time gain reduction metering.
+- **Integrated Effects**: Includes studio-standard Delay, High-Pass/Low-Pass filters, and Panning/Volume utilities.
 
-### Audio
-- **Built-in high-precision renderer** (since 3.1.0)
-  - Render your song to a WAV file with sample-accurate timing
-  - Support for all internal devices (Synth, Sampler, DrumSynth)
-  - Preserves all instrument parameters and automations during render
-  - Offline rendering is faster than real-time
-- Audio recorder
-  - Just enable recording in `Settings => Audio` and Noteahead will record from the selected audio source when the song starts and name the file according to active tracks
-  - Records audio from Jack if the **JACK** audio backend and **Jack Transport Sync** are enabled
-  - Clicking on the waveform will make the editor jump to the corresponding location (since 2.1.0)
-  - The last recorded audio file path is saved and loaded along the project (since 2.1.0)
-- Audio player (since 2.1.0)
-  - Output device can be selected in the audio settings
-- **Explicit Audio Backend Selector** (since 3.1.0)
-  - Select between **Auto**, **ALSA**, **PulseAudio**, and **JACK** backends in `Settings => Audio`
-  - Overridable via CLI: `--audio [alsa, pulse, jack]`
+### Editing & Sequencing
+- **Keyboard-Driven Workflow**: Fast, tracker-style editing using decimal values (0-127).
+- **Advanced Automation**: Linear, Sine wave, and Random modulation for MIDI CCs and Pitch Bend.
+- **Pattern-Based Sequencing**: Flexible play order management with independent pattern lengths.
+- **Arpeggiator & Chords**: Integrated arpeggiator with multiple patterns (Up, Down, Random) and customizable chord offsets.
+- **MIDI Side-Chain**: Trigger MIDI CC events based on other tracks or columns.
+- **Step Recording**: Record notes directly from a MIDI controller into the editor.
 
-### Master Effects
-- **Effect Rack**
-  - Manage global send effects in a dedicated rack
-  - Four independent studio-quality reverbs by default
-  - Generic parameter system for future effect types
-- **Routing**
-  - Per-instrument send controls accessible from the Device Rack
-  - Independent send levels for each effect slot
-- **FDN Reverb**
-  - High-quality Feedback Delay Network algorithm
-  - Controls for Size, Decay (0-10,000 ms), Damping, Pre-Delay (0-500 ms), Mix, and Stereo Width
-  - 8 Studio presets: Hall, Large Room, Small Room, Plate, Cathedral, Basement, Tunnel, Spring
-- **Compressor** (since 3.1.0)
-  - Versatile feed-forward compressor with soft-knee interpolation
-  - Essential controls: Threshold (-60 to 0 dB), Ratio (1:1 to 20:1), Attack (0.1 to 500 ms), Release (1 to 2000 ms), Knee (0 to 24 dB), and Makeup Gain (-12 to +12 dB)
-  - Integrated lookahead support (0-10 ms) via internal ring buffer
-  - High-precision temporal resolution with automatic units (s, ms, μs)
-  - Real-time gain reduction meter in the UI
+### MIDI & Connectivity
+- **MIDI Hot-Plug**: Automatic detection and setup of MIDI devices as they go online/offline.
+- **Virtual MIDI Out**: Use Noteahead to control other software or external hardware.
+- **Wide Hardware Support**: Tested with a vast range of Arturia, Behringer, Korg, Roland, and Yamaha gear.
+- **Standard Exports**: Export to MIDI File Format 1 (SMF Type 1) including automations.
 
-### Tools
-- Delay time calculator
-- Note frequency calculator
-
-### File Formats
-- Saves to a custom (but open!) XML-based **.nahd** format
-- Exports in **MIDI File Format 1** (SMF Type 1) (since 1.0.0)
-  - Supports optional export of MIDI CC and Pitch Bend automations (since 1.9.0)
-
-### Experimental
-- Imports in **MIDI File Format 1** (SMF Type 1) (since 1.8.0)
-- Music video generator
-  [A note visualization video generated by Noteahead](https://www.youtube.com/watch?v=V--dK6A2FxQ)
+### Tools & Experimental
+- **Note Visualization**: Particle-based music video generator for sharing your tracks on social media.
+- **Audio Recorder**: Direct-to-disk recording from the selected audio source.
+- **Calculators**: Built-in Delay time and Note frequency calculators.
+- **Experimental MIDI Import**: Initial support for importing Standard MIDI Files.
 
 ##
 ## Known issues
@@ -232,10 +132,6 @@ All values are entered in decimal format, typically ranging from 0 to 127 to ali
 ### Internal timing strategy
 
 The song is rendered into events just before playing. Accurate timestamps are calculated for each event beforehand in order to achieve a drifting-free timing. The player thread syncs to these event timestamps.
-
-The timing accuracy is incredible when doing a multitrack recording (screenshot from Audacity):
-
-<img src="/screenshots/Timing.png" width="100%">
 
 ### Project file format
 
