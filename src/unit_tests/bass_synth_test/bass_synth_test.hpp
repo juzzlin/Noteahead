@@ -35,6 +35,7 @@ private slots:
     void test_noteOff_shouldCutNoteQuickly();
     void test_sineWave_noClickAtAttack();
     void test_midiVelocity_shouldAffectVolume();
+    void test_subOscOptimization_shouldSkipSilentSubOsc();
 };
 
 } // namespace noteahead

@@ -235,15 +235,19 @@ void BassSynthDevice::processAudio(AudioContext & context)
 
             const double vcoFreq = m_voice.glideFrequency * combinedPitchRatio;
             m_voice.vco.setFrequency(vcoFreq);
-            m_voice.sub.setFrequency(vcoFreq * m_subBasePitchRatio);
+
+            double subVal = 0.0;
+            if (m_subLevel >= 0.001f) {
+                m_voice.sub.setFrequency(vcoFreq * m_subBasePitchRatio);
+                subVal = m_voice.sub.nextSample() * m_subLevel;
+            }
 
             const double filterEnv = m_voice.filterEg.nextSample();
             const double ampEnv = m_voice.ampEg.nextSample();
 
             const double vcoVal = m_voice.vco.nextSample();
-            const double subVal = m_voice.sub.nextSample() * m_subLevel;
 
-            double mix = vcoVal + subVal;
+            const double mix = vcoVal + subVal;
 
             // Filter
             double cutoffMod = filterEnv * m_envMod;

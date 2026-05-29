@@ -270,6 +270,37 @@ void BassSynthTest::test_midiVelocity_shouldAffectVolume()
     QVERIFY2(peakHigh > peakLow, QString("Velocity did not affect volume: peakLow=%1, peakHigh=%2").arg(peakLow).arg(peakHigh).toUtf8().constData());
 }
 
+void BassSynthTest::test_subOscOptimization_shouldSkipSilentSubOsc()
+{
+    BassSynthDevice synth { "Test BassSynth" };
+    synth.setVolume(1.0f);
+    synth.setGain(0.5f);
+    synth.setLpfCutoff(1.0f);
+    synth.setSubLevel(0.0f);
+
+    auto getOutput = [&]() {
+        synth.resetAudio();
+        synth.processMidiNoteOn(60, 100);
+        const int frameCount { 100 };
+        std::vector<double> buffer(static_cast<size_t>(frameCount) * 2, 0.0);
+        AudioContext context { std::span(buffer.data(), buffer.size()), static_cast<uint32_t>(frameCount), 44100 };
+        synth.processAudio(context);
+        return buffer;
+    };
+
+    // 1. Initial output with SubLevel 0
+    const auto buffer1 = getOutput();
+
+    // 2. Change Sub-oscillator parameters (should be skipped)
+    synth.setSubOctave(2);
+    const auto buffer2 = getOutput();
+
+    for (size_t i = 0; i < buffer1.size(); i++) {
+        QVERIFY2(std::abs(buffer1[i] - buffer2[i]) < 1e-6,
+                 QString("Output changed when Sub-oscillator parameters changed: diff=%1").arg(std::abs(buffer1[i] - buffer2[i])).toUtf8().constData());
+    }
+}
+
 } // namespace noteahead
 
 QTEST_GUILESS_MAIN(noteahead::BassSynthTest)
