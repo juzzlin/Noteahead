@@ -782,6 +782,34 @@ void SynthTest::test_pwm_shouldModulatePulseWidth()
     QVERIFY(pos1 != pos2);
 }
 
+void SynthTest::test_midiVelocity_shouldAffectVolume()
+{
+    SynthDevice synth { "Test Synth" };
+    synth.setVolume(1.0f);
+    synth.setGain(0.5f);
+
+    auto getPeak = [&](uint8_t velocity) {
+        synth.processMidiAllNotesOff();
+        synth.processMidiNoteOn(60, velocity);
+
+        const int frameCount { 1000 };
+        std::vector<double> buffer(static_cast<size_t>(frameCount) * 2, 0.0);
+        AudioContext context { std::span(buffer.data(), buffer.size()), static_cast<uint32_t>(frameCount), 44100 };
+        synth.processAudio(context);
+
+        double peak { 0.0 };
+        for (const double sample : buffer) {
+            peak = std::max(peak, std::abs(sample));
+        }
+        return peak;
+    };
+
+    const double peakLow = getPeak(40);
+    const double peakHigh = getPeak(127);
+
+    QVERIFY2(peakHigh > peakLow, QString("Velocity did not affect volume: peakLow=%1, peakHigh=%2").arg(peakLow).arg(peakHigh).toUtf8().constData());
+}
+
 } // namespace noteahead
 
 QTEST_GUILESS_MAIN(noteahead::SynthTest)

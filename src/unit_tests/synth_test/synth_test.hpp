@@ -52,6 +52,7 @@ private slots:
     void test_pitchBend_shouldUpdateFrequency();
     void test_pulseWidth_shouldUpdateDutyCycle();
     void test_pwm_shouldModulatePulseWidth();
+    void test_midiVelocity_shouldAffectVolume();
 };
 
 } // namespace noteahead

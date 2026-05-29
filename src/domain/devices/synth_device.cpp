@@ -42,7 +42,7 @@ void SynthDevice::Voice::reset()
     glideFrequency = 0.0;
 }
 
-void SynthDevice::Voice::trigger(uint8_t n, double freq, float p, bool phaseSync)
+void SynthDevice::Voice::trigger(uint8_t n, double freq, float p, float v, bool phaseSync)
 {
     note = n;
     frequency = freq;
@@ -50,6 +50,7 @@ void SynthDevice::Voice::trigger(uint8_t n, double freq, float p, bool phaseSync
         glideFrequency = freq;
     }
     pan = p;
+    velocity = v;
     active = true;
 
     lfo.reset();
@@ -63,7 +64,7 @@ void SynthDevice::Voice::trigger(uint8_t n, double freq, float p, bool phaseSync
     modEg.trigger();
 }
 
-void SynthDevice::Voice::triggerRandomized(uint8_t n, double freq, float p, double randomPhase)
+void SynthDevice::Voice::triggerRandomized(uint8_t n, double freq, float p, float v, double randomPhase)
 {
     note = n;
     frequency = freq;
@@ -71,6 +72,7 @@ void SynthDevice::Voice::triggerRandomized(uint8_t n, double freq, float p, doub
         glideFrequency = freq;
     }
     pan = p;
+    velocity = v;
     active = true;
 
     lfo.reset();
@@ -78,7 +80,6 @@ void SynthDevice::Voice::triggerRandomized(uint8_t n, double freq, float p, doub
     vco1.sync(randomPhase);
     vco2.sync(std::fmod(randomPhase + 0.33, 1.0));
     vco3.sync(std::fmod(randomPhase + 0.66, 1.0));
-
     ampEg.trigger();
     modEg.trigger();
 }
@@ -234,7 +235,7 @@ void SynthDevice::renderVoice(Voice & voice, AudioContext & context, uint32_t ov
 {
     updateVoiceParameters(voice, oversampledRate);
 
-    const float gain = (1.0f / static_cast<float>(MaxVoices)) * linearGainInternal();
+    const float gain = (1.0f / static_cast<float>(MaxVoices)) * linearGainInternal() * voice.velocity;
     const float panL = (1.0f - voice.pan) * (1.0f - panInternal()) * 2.0f;
     const float panR = voice.pan * panInternal() * 2.0f;
 
@@ -408,7 +409,7 @@ double SynthDevice::voiceGlideFrequency(size_t index) const
     return index < m_voices.size() ? m_voices.at(index).glideFrequency : 0.0;
 }
 
-void SynthDevice::handleNoteOn(uint8_t note, uint8_t)
+void SynthDevice::handleNoteOn(uint8_t note, uint8_t velocity)
 {
     // First release any existing voices for this note to avoid multiple voices for same note in poly
     for (auto && voice : m_voices) {
@@ -418,6 +419,7 @@ void SynthDevice::handleNoteOn(uint8_t note, uint8_t)
     }
 
     const double freq = midiNoteToFreq(note);
+    const float vel = static_cast<float>(velocity) / 127.0f;
 
     if (m_voiceMode == VoiceMode::Poly) {
         std::optional<size_t> bestVoice;
@@ -470,9 +472,9 @@ void SynthDevice::handleNoteOn(uint8_t note, uint8_t)
             const float pan = 0.5f + (side * depth * m_panSpread * 0.5f);
 
             if (m_vco1Sync) {
-                m_voices.at(bestVoice.value()).trigger(note, freq, pan, true);
+                m_voices.at(bestVoice.value()).trigger(note, freq, pan, vel, true);
             } else {
-                m_voices.at(bestVoice.value()).triggerRandomized(note, freq, pan, m_phaseDist(m_rng));
+                m_voices.at(bestVoice.value()).triggerRandomized(note, freq, pan, vel, m_phaseDist(m_rng));
             }
         }
     } else {
@@ -491,9 +493,9 @@ void SynthDevice::handleNoteOn(uint8_t note, uint8_t)
             const float pan = 0.5f + (side * depth * m_panSpread * 0.5f);
 
             if (m_vco1Sync) {
-                m_voices.at(i).trigger(note, voiceFreq, pan, true);
+                m_voices.at(i).trigger(note, voiceFreq, pan, vel, true);
             } else {
-                m_voices.at(i).triggerRandomized(note, voiceFreq, pan, m_phaseDist(m_rng));
+                m_voices.at(i).triggerRandomized(note, voiceFreq, pan, vel, m_phaseDist(m_rng));
             }
         }
     }

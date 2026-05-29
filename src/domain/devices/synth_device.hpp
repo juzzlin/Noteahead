@@ -248,10 +248,11 @@ private:
         double glideFrequency { 0.0 };
         bool active { false };
         float pan { 0.5f };
+        float velocity { 1.0f };
 
         void reset();
-        void trigger(uint8_t note, double freq, float pan, bool phaseSync);
-        void triggerRandomized(uint8_t note, double freq, float pan, double randomPhase);
+        void trigger(uint8_t note, double freq, float pan, float velocity, bool phaseSync);
+        void triggerRandomized(uint8_t note, double freq, float pan, float velocity, double randomPhase);
         void release();
     };
 
