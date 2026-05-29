@@ -59,6 +59,7 @@ private:
     std::atomic<uint32_t> m_outputDeviceId = 0;
 
     AudioFileStreamer m_streamer;
+    std::vector<double> m_doubleBuffer;
 };
 
 } // namespace noteahead

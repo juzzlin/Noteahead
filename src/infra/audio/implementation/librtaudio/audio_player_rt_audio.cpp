@@ -54,8 +54,14 @@ int AudioPlayerRtAudio::playCallback(void * outputBuffer, void *,
     }
 
     if (self->m_audioEngine && !self->m_audioEngine->isExclusive()) {
-        std::vector<double> doubleBuffer(frameCount * 2, 0.0);
-        AudioContext audioContext { std::span(doubleBuffer.data(), doubleBuffer.size()), frameCount, self->m_rtAudio.getStreamSampleRate() };
+        const size_t doubleBufferSize = frameCount * 2;
+        if (self->m_doubleBuffer.size() < doubleBufferSize) {
+            self->m_doubleBuffer.assign(doubleBufferSize, 0.0);
+        } else {
+            std::fill(self->m_doubleBuffer.begin(), self->m_doubleBuffer.begin() + doubleBufferSize, 0.0);
+        }
+
+        AudioContext audioContext { std::span(self->m_doubleBuffer.data(), self->m_doubleBuffer.size()), frameCount, self->m_rtAudio.getStreamSampleRate() };
         self->m_audioEngine->process(audioContext);
         for (uint32_t frame = 0; frame < frameCount; frame++) {
             // Mix with existing buffer (converted to float)
@@ -64,7 +70,7 @@ int AudioPlayerRtAudio::playCallback(void * outputBuffer, void *,
                 const auto outIndex = frame * channels + channel;
                 const auto maxVal = 2'147'483'647.0;
                 // Mix in engine data (interleaved is always 2 channels)
-                const auto currentVal = static_cast<double>(out[outIndex]) / maxVal + doubleBuffer[frame * 2 + (channel % 2)];
+                const auto currentVal = static_cast<double>(out[outIndex]) / maxVal + self->m_doubleBuffer[frame * 2 + (channel % 2)];
                 out[outIndex] = static_cast<int32_t>(std::clamp(currentVal, -1.0, 1.0) * maxVal);
             }
         }
