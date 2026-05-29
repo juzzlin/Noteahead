@@ -179,9 +179,15 @@ void SynthDevice::processAudio(AudioContext & context)
     prepareForProcessing(context);
 
     const uint32_t oversampledRate = context.sampleRate * 2;
+
+    const double portamentoTime = ParameterMapper::mapExponential(m_portamento, 0.01, 2.0);
+    const double portamentoCoeff = m_portamento > 0 ? 1.0 - std::pow(0.001, 1.0 / (portamentoTime * oversampledRate)) : 1.0;
+    const double pbOffset = (static_cast<double>(m_pitchBend) - 8192.0) / 8192.0 * m_pitchBendRange;
+    const double pbRatio = std::exp2(pbOffset / 12.0);
+
     for (auto && voice : m_voices) {
         if (voice.active) {
-            renderVoice(voice, context, oversampledRate);
+            renderVoice(voice, context, oversampledRate, portamentoCoeff, pbRatio);
         }
     }
 
@@ -200,7 +206,7 @@ void SynthDevice::prepareForProcessing(AudioContext & context)
     std::fill(m_oversampledBuffer.begin(), m_oversampledBuffer.begin() + requiredSize, 0.0f);
 }
 
-void SynthDevice::renderVoice(Voice & voice, AudioContext & context, uint32_t oversampledRate)
+void SynthDevice::renderVoice(Voice & voice, AudioContext & context, uint32_t oversampledRate, double portamentoCoeff, double pbRatio)
 {
     updateVoiceParameters(voice, oversampledRate);
 
@@ -208,14 +214,12 @@ void SynthDevice::renderVoice(Voice & voice, AudioContext & context, uint32_t ov
     const float panL = (1.0f - voice.pan) * (1.0f - panInternal()) * 2.0f;
     const float panR = voice.pan * panInternal() * 2.0f;
 
-    const double portamentoCoeff = m_portamento > 0 ? 1.0 - std::pow(0.001, 1.0 / (m_portamento * oversampledRate)) : 1.0;
-
     for (uint32_t i = 0; i < context.frameCount; i++) {
         for (int os = 0; os < 2; os++) {
             voice.glideFrequency += (voice.frequency - voice.glideFrequency) * portamentoCoeff;
 
             const ModulationValues mods = calculateModulation(voice);
-            const float finalHighRateSample = generateVoiceSample(voice, mods, oversampledRate) * gain;
+            const float finalHighRateSample = generateVoiceSample(voice, mods, oversampledRate, pbRatio) * gain;
 
             m_oversampledBuffer[(i * 2 + os) * 2] += finalHighRateSample * panL;
             m_oversampledBuffer[(i * 2 + os) * 2 + 1] += finalHighRateSample * panR;
@@ -260,8 +264,8 @@ void SynthDevice::applyGlobalEffects(AudioContext & context)
         const float l1 = m_oversampledBuffer[i * 4 + 2];
         const float r1 = m_oversampledBuffer[i * 4 + 3];
 
-        double l = static_cast<double>(m_oversamplerL.process(std::tanh(l0), std::tanh(l1)));
-        double r = static_cast<double>(m_oversamplerR.process(std::tanh(r0), std::tanh(r1)));
+        double l = static_cast<double>(m_oversamplerL.process(l0, l1));
+        double r = static_cast<double>(m_oversamplerR.process(r0, r1));
 
         m_delay.process(l, r);
 
@@ -448,7 +452,7 @@ void SynthDevice::handleNoteOn(uint8_t note, uint8_t)
 
         if (bestVoice != -1) {
             // Reset glide if portamento is off
-            if (m_portamento == 0.0f) {
+            if (m_portamento <= 0.001f) {
                 m_voices.at(bestVoice).glideFrequency = freq;
             }
 
@@ -464,12 +468,17 @@ void SynthDevice::handleNoteOn(uint8_t note, uint8_t)
         for (int i = 0; i < MaxVoices; i++) {
             // Non-linear detune spread for better texture
             const double detuneAmount = (i - (MaxVoices - 1) / 2.0) * std::pow(m_voiceDepth, 1.5) * 0.2;
+            const double voiceFreq = freq * std::pow(2.0, detuneAmount / 12.0);
+
+            if (m_portamento <= 0.001f) {
+                m_voices.at(i).glideFrequency = voiceFreq;
+            }
 
             const float side = (i % 2 == 0) ? -1.0f : 1.0f;
             const float depth = 1.0f - static_cast<float>(i / 2) * (2.0f / static_cast<float>(MaxVoices));
             const float pan = 0.5f + (side * depth * m_panSpread * 0.5f);
 
-            m_voices.at(i).trigger(note, freq * std::pow(2.0, detuneAmount / 12.0), pan, m_vco1Sync);
+            m_voices.at(i).trigger(note, voiceFreq, pan, m_vco1Sync);
         }
     }
 }
@@ -502,7 +511,6 @@ SynthDevice::ModulationValues SynthDevice::calculateModulation(Voice & voice) co
 
     mods.shapeMod = (m_lfoTarget == LfoTarget::Shape) ? lfoVal : 0.0;
 
-    const double pbOffset = (static_cast<double>(m_pitchBend) - 8192.0) / 8192.0 * m_pitchBendRange;
     mods.vco1PitchMod = (m_modTarget == ModTarget::Pitch1) ? modEnv : 0.0;
     mods.vco2PitchMod = (m_modTarget == ModTarget::Pitch2) ? modEnv : 0.0;
     mods.vco3PitchMod = (m_modTarget == ModTarget::Pitch3) ? modEnv : 0.0;
@@ -512,18 +520,22 @@ SynthDevice::ModulationValues SynthDevice::calculateModulation(Voice & voice) co
         mods.vco2PitchMod += lfoVal;
         mods.vco3PitchMod += lfoVal;
     }
-    mods.vco1PitchMod += pbOffset / 12.0;
-    mods.vco2PitchMod += pbOffset / 12.0;
-    mods.vco3PitchMod += pbOffset / 12.0;
 
     return mods;
 }
 
-float SynthDevice::generateVoiceSample(Voice & voice, const ModulationValues & mods, double oversampledRate)
+float SynthDevice::generateVoiceSample(Voice & voice, const ModulationValues & mods, double oversampledRate, double pbRatio)
 {
-    const double vco1Freq = voice.glideFrequency * m_vco1BasePitchRatio * std::exp2(mods.vco1PitchMod);
-    const double vco2Freq = voice.glideFrequency * m_vco2BasePitchRatio * std::exp2(mods.vco2PitchMod);
-    const double vco3Freq = voice.glideFrequency * m_vco3BasePitchRatio * std::exp2(mods.vco3PitchMod);
+    double vco1Freq = voice.glideFrequency * m_vco1BasePitchRatio * pbRatio;
+    double vco2Freq = voice.glideFrequency * m_vco2BasePitchRatio * pbRatio;
+    double vco3Freq = voice.glideFrequency * m_vco3BasePitchRatio * pbRatio;
+
+    if (mods.vco1PitchMod != 0.0)
+        vco1Freq *= std::exp2(mods.vco1PitchMod);
+    if (mods.vco2PitchMod != 0.0)
+        vco2Freq *= std::exp2(mods.vco2PitchMod);
+    if (mods.vco3PitchMod != 0.0)
+        vco3Freq *= std::exp2(mods.vco3PitchMod);
 
     voice.vco1.setFrequency(vco1Freq);
     voice.vco2.setFrequency(vco2Freq);

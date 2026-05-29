@@ -335,6 +335,56 @@ void SynthTest::test_portamento_shouldGlideFrequency()
     }
 }
 
+void SynthTest::test_portamentoOff_shouldJumpImmediately()
+{
+    SynthDevice synth { "Test Synth" };
+    const double freq60 = 440.0 * std::pow(2.0, (60 - 69) / 12.0);
+    const double freq62 = 440.0 * std::pow(2.0, (62 - 69) / 12.0);
+
+    // --- Poly Mode ---
+    synth.setVoiceMode(SynthDevice::VoiceMode::Poly);
+    synth.setPortamento(0.0f);
+
+    synth.processMidiNoteOn(60, 100);
+    bool found60 = false;
+    for (int i = 0; i < SynthDevice::MaxVoices; i++) {
+        if (std::abs(synth.voiceGlideFrequency(i) - freq60) < 0.001) {
+            found60 = true;
+            break;
+        }
+    }
+    QVERIFY(found60);
+
+    synth.processMidiNoteOn(62, 100);
+    bool found62 = false;
+    for (int i = 0; i < SynthDevice::MaxVoices; i++) {
+        if (std::abs(synth.voiceGlideFrequency(i) - freq62) < 0.001) {
+            found62 = true;
+            break;
+        }
+    }
+    QVERIFY(found62);
+
+    // --- Unison Mode ---
+    synth.reset();
+    synth.setVoiceMode(SynthDevice::VoiceMode::Unison);
+    synth.setPortamento(0.0f);
+
+    synth.processMidiNoteOn(60, 100);
+    for (int i = 0; i < SynthDevice::MaxVoices; i++) {
+        const double detuneAmount = (i - (SynthDevice::MaxVoices - 1) / 2.0) * std::pow(0.0, 1.5) * 0.2; // voiceDepth is 0
+        const double expectedFreq = freq60 * std::pow(2.0, detuneAmount / 12.0);
+        QCOMPARE(synth.voiceGlideFrequency(i), expectedFreq);
+    }
+
+    synth.processMidiNoteOn(62, 100);
+    for (int i = 0; i < SynthDevice::MaxVoices; i++) {
+        const double detuneAmount = (i - (SynthDevice::MaxVoices - 1) / 2.0) * std::pow(0.0, 1.5) * 0.2;
+        const double expectedFreq = freq62 * std::pow(2.0, detuneAmount / 12.0);
+        QCOMPARE(synth.voiceGlideFrequency(i), expectedFreq);
+    }
+}
+
 void SynthTest::test_parameterDiscreteFlag_shouldReturnCorrectDiscreteState()
 {
     const SynthDevice synth { "Test Synth" };

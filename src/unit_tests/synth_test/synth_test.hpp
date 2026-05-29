@@ -39,6 +39,7 @@ private slots:
     void test_softClipper_shouldPreventClipping();
     void test_reset_shouldRestoreDefaults();
     void test_portamento_shouldGlideFrequency();
+    void test_portamentoOff_shouldJumpImmediately();
     void test_parameterDiscreteFlag_shouldReturnCorrectDiscreteState();
     void test_midiBankAndProgramChange_shouldLoadCorrectPreset();
     void test_userPresets_shouldSaveAndLoad();

@@ -355,11 +355,11 @@ private:
     };
 
     ModulationValues calculateModulation(Voice & voice) const;
-    float generateVoiceSample(Voice & voice, const ModulationValues & mods, double oversampledRate);
+    float generateVoiceSample(Voice & voice, const ModulationValues & mods, double oversampledRate, double pbRatio);
 
     void prepareForProcessing(AudioContext & context);
     void updateVoiceParameters(Voice & voice, uint32_t oversampledRate);
-    void renderVoice(Voice & voice, AudioContext & context, uint32_t oversampledRate);
+    void renderVoice(Voice & voice, AudioContext & context, uint32_t oversampledRate, double portamentoCoeff, double pbRatio);
     void applyGlobalEffects(AudioContext & context);
 
     std::string m_name;
