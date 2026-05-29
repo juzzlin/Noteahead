@@ -558,27 +558,35 @@ float SynthDevice::generateVoiceSample(Voice & voice, const ModulationValues & m
         vco3Freq *= std::exp2(mods.vco3PitchMod);
     }
 
-    voice.vco1.setFrequency(vco1Freq);
-    voice.vco2.setFrequency(vco2Freq);
-    voice.vco1.setShape(std::clamp(m_vco1Shape + mods.shapeMod, 0.0, 1.0));
-    voice.vco2.setShape(std::clamp(m_vco2Shape + mods.shapeMod, 0.0, 1.0));
-
-    // VCO2 Hard Sync to VCO1
-    const double oldPhase1 = voice.vco1.phase();
-    const double vco1Val = voice.vco1.nextSample();
-    if (m_vco2Sync && voice.vco1.phase() < oldPhase1) {
-        // Calculate fractional phase for VCO2 to maintain sync accuracy
-        const double phaseStep1 = vco1Freq / oversampledRate;
-        const double phaseStep2 = vco2Freq / oversampledRate;
-        if (phaseStep1 > 0.0) {
-            const double fraction = voice.vco1.phase() / phaseStep1;
-            voice.vco2.sync(fraction * phaseStep2);
-        } else {
-            voice.vco2.sync(0.0);
-        }
+    double vco1Val = 0.0;
+    double oldPhase1 = voice.vco1.phase();
+    if (m_mixVco1 >= 0.001f) {
+        voice.vco1.setFrequency(vco1Freq);
+        voice.vco1.setShape(std::clamp(m_vco1Shape + mods.shapeMod, 0.0, 1.0));
+        oldPhase1 = voice.vco1.phase();
+        vco1Val = voice.vco1.nextSample();
     }
-    const double oldPhase2 = voice.vco2.phase();
-    const double vco2Val = voice.vco2.nextSample();
+
+    double vco2Val = 0.0;
+    double oldPhase2 = voice.vco2.phase();
+    if (m_mixVco2 >= 0.001f) {
+        voice.vco2.setFrequency(vco2Freq);
+        voice.vco2.setShape(std::clamp(m_vco2Shape + mods.shapeMod, 0.0, 1.0));
+
+        if (m_vco2Sync && voice.vco1.phase() < oldPhase1) {
+            // Calculate fractional phase for VCO2 to maintain sync accuracy
+            const double phaseStep1 = vco1Freq / oversampledRate;
+            const double phaseStep2 = vco2Freq / oversampledRate;
+            if (phaseStep1 > 0.0) {
+                const double fraction = voice.vco1.phase() / phaseStep1;
+                voice.vco2.sync(fraction * phaseStep2);
+            } else {
+                voice.vco2.sync(0.0);
+            }
+        }
+        oldPhase2 = voice.vco2.phase();
+        vco2Val = voice.vco2.nextSample();
+    }
 
     double vco3Val = 0.0;
     if (m_mixVco3 >= 0.001f) {

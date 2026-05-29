@@ -810,6 +810,72 @@ void SynthTest::test_midiVelocity_shouldAffectVolume()
     QVERIFY2(peakHigh > peakLow, QString("Velocity did not affect volume: peakLow=%1, peakHigh=%2").arg(peakLow).arg(peakHigh).toUtf8().constData());
 }
 
+void SynthTest::test_oscillatorOptimization_shouldSkipSilentOscillators()
+{
+    SynthDevice synth { "Test Synth" };
+    synth.setVolume(1.0f);
+    synth.setGain(0.5f);
+    synth.setLpfCutoff(1.0f);
+    synth.setVco1Sync(true); // Disable phase randomization for predictable output
+
+    auto getOutput = [&]() {
+        synth.resetAudio();
+        synth.processMidiNoteOn(60, 100);
+        const int frameCount { 100 };
+        std::vector<double> buffer(static_cast<size_t>(frameCount) * 2, 0.0);
+        AudioContext context { std::span(buffer.data(), buffer.size()), static_cast<uint32_t>(frameCount), 44100 };
+        synth.processAudio(context);
+        return buffer;
+    };
+
+    // 1. All OSCs off -> should be silent
+    synth.setMixVco1(0.0f);
+    synth.setMixVco2(0.0f);
+    synth.setMixVco3(0.0f);
+    synth.setMultiLevel(0.0f);
+
+    const auto bufferSilent = getOutput();
+    for (const double sample : bufferSilent) {
+        QCOMPARE(sample, 0.0);
+    }
+
+    // 2. OSC2 off, OSC1 on. Changing OSC2 parameters should not change output.
+    synth.setMixVco1(1.0f);
+    const auto bufferOnlyVco1 = getOutput();
+
+    synth.setVco2Waveform(PolyBlepOscillator::Waveform::Square);
+    synth.setVco2Octave(2);
+    const auto bufferOnlyVco1AfterVco2Change = getOutput();
+
+    for (size_t i = 0; i < bufferOnlyVco1.size(); i++) {
+        QVERIFY2(std::abs(bufferOnlyVco1[i] - bufferOnlyVco1AfterVco2Change[i]) < 1e-6,
+                 QString("VCO1 output changed when VCO2 parameters changed: diff=%1").arg(std::abs(bufferOnlyVco1[i] - bufferOnlyVco1AfterVco2Change[i])).toUtf8().constData());
+    }
+
+    // 3. Multi off, OSC1 on. Changing Multi parameters should not change output.
+    synth.setMultiType(MultiEngine::Type::Decim);
+    const auto bufferOnlyVco1AfterMultiChange = getOutput();
+
+    for (size_t i = 0; i < bufferOnlyVco1.size(); i++) {
+        QVERIFY2(std::abs(bufferOnlyVco1[i] - bufferOnlyVco1AfterMultiChange[i]) < 1e-6,
+                 QString("VCO1 output changed when Multi parameters changed: diff=%1").arg(std::abs(bufferOnlyVco1[i] - bufferOnlyVco1AfterMultiChange[i])).toUtf8().constData());
+    }
+
+    // 4. VCO1 off, VCO2 on. Changing VCO1 parameters should not change output.
+    synth.setMixVco1(0.0f);
+    synth.setMixVco2(1.0f);
+    const auto bufferOnlyVco2 = getOutput();
+
+    synth.setVco1Waveform(PolyBlepOscillator::Waveform::Square);
+    synth.setVco1Octave(-1);
+    const auto bufferOnlyVco2AfterVco1Change = getOutput();
+
+    for (size_t i = 0; i < bufferOnlyVco2.size(); i++) {
+        QVERIFY2(std::abs(bufferOnlyVco2[i] - bufferOnlyVco2AfterVco1Change[i]) < 1e-6,
+                 QString("VCO2 output changed when VCO1 parameters changed: diff=%1").arg(std::abs(bufferOnlyVco2[i] - bufferOnlyVco2AfterVco1Change[i])).toUtf8().constData());
+    }
+}
+
 } // namespace noteahead
 
 QTEST_GUILESS_MAIN(noteahead::SynthTest)
