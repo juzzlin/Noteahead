@@ -14,6 +14,7 @@
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
 #include "real_time_worker_pool.hpp"
+#include "../../common/denormal_protection.hpp"
 #include "../../contrib/SimpleLogger/src/simple_logger.hpp"
 
 #include <algorithm>
@@ -32,6 +33,8 @@ RealTimeWorkerPool::RealTimeWorkerPool(size_t workerCount)
 
     for (size_t i = 0; i < workerCount; ++i) {
         m_workers.emplace_back([this, i] {
+            enableHardwareDenormalProtection();
+
             // Set thread name for easier debugging
             const std::string threadName = "AudioWorker-" + std::to_string(i);
             pthread_setname_np(pthread_self(), threadName.c_str());
