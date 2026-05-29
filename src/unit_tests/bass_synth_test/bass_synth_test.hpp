@@ -34,6 +34,7 @@ private slots:
     void test_outputLevel_shouldBeCorrect();
     void test_noteOff_shouldCutNoteQuickly();
     void test_sineWave_noClickAtAttack();
+    void test_midiVelocity_shouldAffectVolume();
 };
 
 } // namespace noteahead

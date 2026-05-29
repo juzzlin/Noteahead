@@ -155,12 +155,13 @@ void BassSynthTest::test_outputLevel_shouldBeCorrect()
     synth.setVolume(1.0f);
     synth.setGain(0.5f); // 0 dB
     synth.setPan(0.5f); // Center
+    synth.setAccent(0.0f); // Ensure no accent boost
     synth.setWaveform(PolyBlepOscillator::Waveform::Square);
     synth.setSubLevel(0.0f);
     synth.setDistDrive(0.0f);
     synth.setLpfCutoff(1.0f); // Wide open
 
-    synth.processMidiNoteOn(60, 100);
+    synth.processMidiNoteOn(60, 127);
 
     const int frameCount { 1000 };
     std::vector<double> buffer(static_cast<size_t>(frameCount) * 2, 0.0);
@@ -238,6 +239,35 @@ void BassSynthTest::test_sineWave_noClickAtAttack()
             QVERIFY2(diff < 0.05, QString("Click detected at sample %1: diff %2").arg(j).arg(diff).toUtf8().constData());
         }
     }
+}
+
+void BassSynthTest::test_midiVelocity_shouldAffectVolume()
+{
+    BassSynthDevice synth { "Test BassSynth" };
+    synth.setVolume(1.0f);
+    synth.setGain(0.5f);
+    synth.setAccent(0.0f); // Disable accent effect to focus on velocity
+
+    auto getPeak = [&](uint8_t velocity) {
+        synth.processMidiAllNotesOff();
+        synth.processMidiNoteOn(60, velocity);
+
+        const int frameCount { 1000 };
+        std::vector<double> buffer(static_cast<size_t>(frameCount) * 2, 0.0);
+        AudioContext context { std::span(buffer.data(), buffer.size()), static_cast<uint32_t>(frameCount), 44100 };
+        synth.processAudio(context);
+
+        double peak { 0.0 };
+        for (const double sample : buffer) {
+            peak = std::max(peak, std::abs(sample));
+        }
+        return peak;
+    };
+
+    const double peakLow = getPeak(40);
+    const double peakHigh = getPeak(127);
+
+    QVERIFY2(peakHigh > peakLow, QString("Velocity did not affect volume: peakLow=%1, peakHigh=%2").arg(peakLow).arg(peakHigh).toUtf8().constData());
 }
 
 } // namespace noteahead

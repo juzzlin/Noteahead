@@ -267,7 +267,7 @@ void BassSynthDevice::processAudio(AudioContext & context)
                 filtered = m_distLpState;
             }
 
-            float finalSample = filtered * static_cast<float>(ampEnv) * linearGainInternal();
+            float finalSample = filtered * static_cast<float>(ampEnv) * linearGainInternal() * m_voice.velocity;
             if (m_voice.accent) {
                 finalSample *= (1.0f + m_accent);
             }
