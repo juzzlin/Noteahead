@@ -5,6 +5,19 @@ Release date:
 
 New features:
 
+Bug fixes:
+
+Other:
+
+3.1.0
+=====
+
+Release date:
+
+Fri, 29 May 2026 21:24:08 +0300
+
+New features:
+
 * Implement BassSynth
   - Internal monophonic acid-style synthesizer
   - High-quality oscillator with Triangle, Saw, and Square waveforms
