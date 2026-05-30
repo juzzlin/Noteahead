@@ -302,6 +302,20 @@ void SamplerTest::test_projectLoadMidiCcResetGlobal_shouldRestoreLoadedValues()
     }
 }
 
+void SamplerTest::test_loadSample_relativePath_shouldWorkWithProjectPath()
+{
+    SamplerDevice sampler { Constants::samplerDeviceName().toStdString(), std::make_unique<MockAudioFileReader>() };
+
+    const std::string projectPath { "/tmp/noteahead_test" };
+    sampler.setProjectPath(projectPath);
+
+    const std::string relativePath { "samples/kick.wav" };
+    sampler.loadSample(60, relativePath);
+
+    const auto expectedPath { QDir { QString::fromStdString(projectPath) }.absoluteFilePath(QString::fromStdString(relativePath)).toStdString() };
+    QCOMPARE(sampler.absoluteFilePath(60), expectedPath);
+}
+
 } // namespace noteahead
 
 QTEST_GUILESS_MAIN(noteahead::SamplerTest)

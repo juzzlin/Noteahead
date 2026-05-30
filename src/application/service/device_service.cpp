@@ -43,6 +43,9 @@ void DeviceService::setDevice(size_t slotIndex, DeviceS device)
 {
     connect(device.get(), &Device::dataChanged, this, &DeviceService::dataChanged);
     device->setId(slotIndex);
+    if (const auto sampler = std::dynamic_pointer_cast<SamplerDevice>(device)) {
+        sampler->setProjectPath(m_projectPath);
+    }
     m_audioEngine->setDevice(slotIndex, std::move(device));
     emit dataChanged();
 }
@@ -187,9 +190,10 @@ void DeviceService::saveSynthUserPreset(int index, const SynthPreset & preset)
 
 void DeviceService::setProjectPath(const std::string & projectPath)
 {
+    m_projectPath = projectPath;
     for (const auto & name : internalDeviceNames()) {
         if (const auto sampler = std::dynamic_pointer_cast<SamplerDevice>(device(name))) {
-            sampler->setProjectPath(projectPath);
+            sampler->setProjectPath(m_projectPath);
         }
     }
 }

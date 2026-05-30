@@ -770,6 +770,40 @@ void XmlSerializationTest::test_toXmlFromXml_samplerDevice_shouldLoadSamplerDevi
     QCOMPARE(samplerIn->sampleCutoff(60), 0.4f);
 }
 
+void XmlSerializationTest::test_toXmlFromXml_samplerDevice_relativePath_shouldLoadCorrectly()
+{
+    const std::string projectPath = "/tmp/noteahead_test";
+    const std::string relativePath = "samples/kick.wav";
+    const std::string absolutePath = QDir(QString::fromStdString(projectPath)).absoluteFilePath(QString::fromStdString(relativePath)).toStdString();
+    const auto samplerName = "Noteahead Internal Device 1";
+
+    const auto engine = std::make_shared<AudioEngine>();
+    DeviceService deviceServiceOut { engine };
+    deviceServiceOut.setProjectPath(projectPath);
+
+    const auto samplerOut = std::make_shared<SamplerDevice>(samplerName, std::make_unique<MockAudioFileReader>());
+    samplerOut->loadSample(60, absolutePath);
+    deviceServiceOut.setDevice(0, samplerOut);
+
+    EditorService editorServiceOut { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
+    connect(&editorServiceOut, &EditorService::devicesSerializationRequested, &deviceServiceOut, &DeviceService::serializeToXml);
+
+    const auto xml = editorServiceOut.toXml();
+
+    const auto deviceServiceIn = std::make_shared<DeviceService>(std::make_shared<AudioEngine>());
+    deviceServiceIn->setProjectPath(projectPath);
+
+    const auto samplerIn = std::make_shared<SamplerDevice>(samplerName, std::make_unique<MockAudioFileReader>());
+    deviceServiceIn->setDevice(0, samplerIn);
+
+    EditorService editorServiceIn { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
+    connect(&editorServiceIn, &EditorService::devicesDeserializationRequested, deviceServiceIn.get(), &DeviceService::deserializeFromXml);
+
+    editorServiceIn.fromXml(xml);
+
+    QCOMPARE(samplerIn->absoluteFilePath(60), absolutePath);
+}
+
 void XmlSerializationTest::test_toXmlFromXml_synthDevice_shouldPreserveValuesAndDiscreteFlags()
 {
     const auto synthName = "Noteahead Internal Device 1";

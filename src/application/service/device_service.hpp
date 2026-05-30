@@ -85,6 +85,7 @@ signals:
 private:
     AudioEngineS m_audioEngine;
     UserPresets m_synthUserPresets;
+    std::string m_projectPath;
 };
 
 } // namespace noteahead
