@@ -67,57 +67,79 @@ All Arctic Music Project songs:
 ## Features
 
 ### Core / Performance
-- **Sample-Accurate Timing**: Jitter-free and drift-free internal timing strategy.
-- **High-Precision Offline Renderer**: Export songs to WAV with sample-accurate timing, preserving all automations and parameters.
-- **Native Audio Backend Selector**: Explicit support for **ALSA**, **PulseAudio**, and **JACK** with optional transport synchronization.
-- **Lightweight & Scalable**: Fully scalable UI with a Debian package size of around 1 MB.
+- Sample-Accurate Timing
+  - Jitter-free and drift-free internal timing strategy.
+- High-Precision Offline Renderer
+  - Export songs to WAV with sample-accurate timing, preserving all automations and parameters.
+- Native Audio Backend Selector
+  - Explicit support for **ALSA**, **PulseAudio**, and **JACK** with optional transport synchronization.
+- Lightweight & Scalable
+  - Fully scalable UI with a Debian package size of around 1 MB.
 
 ### Internal Instruments (Virtual Device Rack)
-- **Virtual Device Rack**: Central hub for managing multiple independent instances of internal instruments.
-- **Synth**: Polyphonic VA synthesizer (up to 6 voices) with dual oscillators, multi-mode filters, ADSR/Mod EGs, LFO, and built-in Delay.
-- **BassSynth**: Monophonic acid-style synthesizer with sub-oscillator, resonant 24dB LPF, and TB-303 style accent/slide.
-- **DrumSynth**: Multi-engine drum machine with 11 independent voices (Kick, Snare, Toms, etc.) and dedicated per-voice controls.
-- **Sampler**: 16-pad internal sampler with WAV support, dual filters, and per-sample panning/volume.
-- **Dynamic Routing**: Per-device Effect Sends for flexible mixing.
+- Virtual Device Rack
+  - Central hub for managing multiple independent instances of internal instruments.
+- Synth
+  - Polyphonic VA synthesizer (up to 6 voices) with dual oscillators, multi-mode filters, ADSR/Mod EGs, LFO, and built-in Delay.
+- BassSynth
+  - Monophonic acid-style synthesizer with sub-oscillator, resonant 24dB LPF, and TB-303 style accent/slide.
+- DrumSynth
+  - Multi-engine drum machine with 11 independent voices (Kick, Snare, Toms, etc.) and dedicated per-voice controls.
+- Sampler
+  - 16-pad internal sampler with WAV support, dual filters, and per-sample panning/volume.
+- Dynamic Routing
+  - Per-device Effect Sends for flexible mixing.
 
 ### Master Effects Rack
-- **Master Effect Rack**: Studio-quality global effects hub with support for multiple independent instances.
-- **8-Band Parametric EQ**: High-precision equalizer with multiple filter types (Bell, Shelf, Cut, Notch) per band.
-- **FDN Reverb**: High-quality Feedback Delay Network algorithm with 8 studio presets (Hall, Cathedral, etc.) and fine-grained controls.
-- **Compressor**: Feed-forward compressor with soft-knee interpolation, lookahead support, and real-time gain reduction metering.
-- **Integrated Effects**: Includes studio-standard Delay, High-Pass/Low-Pass filters, and Panning/Volume utilities.
+- Master Effect Rack
+  - Studio-quality global effects hub with support for multiple independent instances.
+- 8-Band Parametric EQ
+  - High-precision equalizer with multiple filter types (Bell, Shelf, Cut, Notch) per band.
+- FDN Reverb
+  - High-quality Feedback Delay Network algorithm with 8 studio presets (Hall, Cathedral, etc.) and fine-grained controls.
+- Compressor
+  - Feed-forward compressor with soft-knee interpolation, lookahead support, and real-time gain reduction metering.
+- Integrated Effects
+  - Includes studio-standard Delay, High-Pass/Low-Pass filters, and Panning/Volume utilities.
 
 ### Editing & Sequencing
-- **Keyboard-Driven Workflow**: Fast, tracker-style editing using decimal values (0-127).
-- **Advanced Automation**: Linear, Sine wave, and Random modulation for MIDI CCs and Pitch Bend.
-- **Pattern-Based Sequencing**: Flexible play order management with independent pattern lengths.
-- **Arpeggiator & Chords**: Integrated arpeggiator with multiple patterns (Up, Down, Random) and customizable chord offsets.
-- **MIDI Side-Chain**: Trigger MIDI CC events based on other tracks or columns.
-- **Step Recording**: Record notes directly from a MIDI controller into the editor.
+- Keyboard-Driven Workflow
+  - Fast, tracker-style editing using decimal values (0-127).
+- Advanced Automation
+  - Linear, Sine wave, and Random modulation for MIDI CCs and Pitch Bend.
+- Pattern-Based Sequencing
+  - Flexible play order management with independent pattern lengths.
+- Arpeggiator & Chords
+  - Integrated arpeggiator with multiple patterns (Up, Down, Random) and customizable chord offsets.
+- MIDI Side-Chain
+  - Trigger MIDI CC events based on other tracks or columns.
+- Step Recording
+  - Record notes directly from a MIDI controller into the editor.
 
 ### MIDI & Connectivity
-- **MIDI Hot-Plug**: Automatic detection and setup of MIDI devices as they go online/offline.
-- **Virtual MIDI Out**: Use Noteahead to control other software or external hardware.
-- **Wide Hardware Support**: Tested with a vast range of Arturia, Behringer, Korg, Roland, and Yamaha gear.
-- **Standard Exports**: Export to MIDI File Format 1 (SMF Type 1) including automations.
+- MIDI Hot-Plug
+  - Automatic detection and setup of MIDI devices as they go online/offline.
+- Virtual MIDI Out
+  - Use Noteahead to control other software or external hardware.
+- Wide Hardware Support
+  - Tested with a vast range of Arturia, Behringer, Korg, Roland, and Yamaha gear.
+- Standard Exports
+  - Export to MIDI File Format 1 (SMF Type 1) including automations.
 
 ### Tools & Experimental
-- **Note Visualization**: Particle-based music video generator for sharing your tracks on social media.
-- **Audio Recorder**: Direct-to-disk recording from the selected audio source.
-- **Calculators**: Built-in Delay time and Note frequency calculators.
-- **Experimental MIDI Import**: Initial support for importing Standard MIDI Files.
-
-##
-## Known issues
-
-* The UI can be a bit laggy during playback with Qt older than 6.5.3
-  - Unfortunately Ubuntu 24.04 LTS has only Qt 6.4.2 in the repositories
-  - However, this doesn't affect the accuracy of MIDI events
+- Note Visualization
+  - Particle-based music video generator for sharing your tracks on social media.
+- Audio Recorder
+  - Direct-to-disk recording from the selected audio source.
+- Calculators
+  - Built-in Delay time and Note frequency calculators.
+- Experimental MIDI Import
+  - Initial support for importing Standard MIDI Files.
 
 ##
 ## Future dreams (**NOT YET IMPLEMENTED**):
 
-* Horizontal visualization
+* Horizontal visualization / Piano Roll
 
 ##
 ## Some important design choices
@@ -140,7 +162,7 @@ The song is rendered into events just before playing. Accurate timestamps are ca
 
 Noteahead reads and saves to a custom XML-based format. This has several pros:
 
-* I don't have to write a MIDI-file parser (yet)
+* It supports more feature than just a simple MIDI-file.
 * A plain text project file works well with version control systems like Git. You can immediately see what you have changed in the project. A binary-formatted project file is a black box and a PITA. 
 
 Several..? That was only two, come on!
