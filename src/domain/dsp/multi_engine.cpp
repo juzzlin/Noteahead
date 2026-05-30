@@ -23,7 +23,7 @@
 namespace noteahead {
 
 MultiEngine::MultiEngine()
-  : m_rng(std::random_device {}())
+  : m_rng(0)
   , m_dist(-1.0f, 1.0f)
 {
 }

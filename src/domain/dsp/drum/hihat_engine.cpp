@@ -22,7 +22,7 @@ namespace noteahead {
 
 HiHatEngine::HiHatEngine()
 {
-    m_rng.seed(std::random_device {}());
+    m_rng.seed(0);
     m_filter.setMode(CascadedSvf::Mode::HighPass);
     m_bodyFilter.setMode(CascadedSvf::Mode::BandPass);
 }

@@ -259,7 +259,7 @@ private:
     std::vector<Voice> m_voices;
     size_t m_polyNextVoice = 0;
 
-    mutable std::mt19937 m_rng { std::random_device {}() };
+    mutable std::mt19937 m_rng { 0 };
     mutable std::uniform_real_distribution<double> m_phaseDist { 0.0, 1.0 };
 
     // Internal parameter storage

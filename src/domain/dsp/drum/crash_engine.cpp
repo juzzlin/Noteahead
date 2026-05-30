@@ -23,7 +23,7 @@ namespace noteahead {
 
 CrashEngine::CrashEngine()
 {
-    m_rng.seed(std::random_device {}());
+    m_rng.seed(0);
     m_hpf.setMode(CascadedSvf::Mode::HighPass);
     m_bpf.setMode(CascadedSvf::Mode::BandPass);
     m_lpf.setMode(CascadedSvf::Mode::LowPass);

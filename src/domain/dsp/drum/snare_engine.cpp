@@ -23,7 +23,7 @@ namespace noteahead {
 
 SnareEngine::SnareEngine()
 {
-    m_rng.seed(std::random_device {}());
+    m_rng.seed(0);
     m_noiseFilter.setMode(CascadedSvf::Mode::BandPass);
 }
 
