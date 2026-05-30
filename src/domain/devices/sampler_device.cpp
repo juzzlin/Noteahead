@@ -451,7 +451,7 @@ void SamplerDevice::loadSample(uint8_t note, const std::string & filePath)
         return;
     }
 
-    auto data = std::make_shared<std::vector<float>>();
+    const auto data = std::make_shared<std::vector<float>>();
     data->resize(static_cast<size_t>(info.frames * info.channels));
     m_audioFileReader->readFloat(std::span<float> { *data });
     m_audioFileReader->close();
