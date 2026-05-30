@@ -9,24 +9,24 @@ While it excels as a dedicated MIDI "brain" for external synthesizers and drum m
 Noteahead is written in Qt/QML/C++20 on top of RtMidi back-end + RtAudio. It builds with CMake and uses CTest + Qt Test framework for unit tests.
 
 <table>
-  <tr><td colspan="4"><img src="/screenshots/1.8.0/1.png" width="100%"></td></tr>
-  <tr>
-    <td><img src="/screenshots/3.1.0/DeviceRack.png" width="100%"></td>
-    <td><img src="/screenshots/3.1.0/EffectRack.png" width="100%"></td>
-    <td><img src="/screenshots/3.1.0/AudioRenderer.png" width="100%"></td>
-    <td><img src="/screenshots/2.2.0/Sampler.png" width="100%"></td>
-  </tr>
+  <tr><td colspan="4"><img src="/screenshots/3.1.0/Noteahead.png" width="100%"></td></tr>
   <tr>
     <td><img src="/screenshots/3.1.0/Synth.png" width="100%"></td>
     <td><img src="/screenshots/3.1.0/BassSynth.png" width="100%"></td>
     <td><img src="/screenshots/3.1.0/DrumSynth.png" width="100%"></td>
-    <td><img src="/screenshots/0.15.0/15b.png" width="100%"></td>
+    <td><img src="/screenshots/3.1.0/Sampler.png" width="100%"></td>
   </tr>
   <tr>
+    <td><img src="/screenshots/3.1.0/TrackSettings.png" width="100%"></td>
+    <td><img src="/screenshots/3.1.0/MidiSettings.png" width="100%"></td>
+    <td><img src="/screenshots/3.1.0/AudioSettings.png" width="100%"></td>
+    <td><img src="/screenshots/3.1.0/AudioRenderer.png" width="100%"></td>
+  </tr>
+  <tr>
+    <td><img src="/screenshots/3.1.0/DeviceRack.png" width="100%"></td>
+    <td><img src="/screenshots/3.1.0/EffectRack.png" width="100%"></td>
     <td><img src="/screenshots/0.6.0/Noteahead_1.png" width="100%"></td>
-    <td><img src="/screenshots/0.6.0/Noteahead_2.png" width="100%"></td>
     <td><img src="/screenshots/0.6.0/Noteahead_3.png" width="100%"></td>
-    <td><img src="/screenshots/0.15.0/9b.png" width="100%"></td>
   </tr>
 </table>
 
