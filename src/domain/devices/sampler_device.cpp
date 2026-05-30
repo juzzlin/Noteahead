@@ -21,8 +21,12 @@
 #include "../../infra/audio/backend/sndfile_reader.hpp"
 #include "../../infra/midi/midi_cc_mapping.hpp"
 
+#include "../../contrib/SimpleLogger/src/simple_logger.hpp"
+
 #include <algorithm>
 #include <cmath>
+#include <iomanip>
+#include <stdexcept>
 
 #include <QDir>
 #include <QFileInfo>
@@ -30,6 +34,8 @@
 #include <QXmlStreamWriter>
 
 namespace noteahead {
+
+static const auto TAG = "SamplerDevice";
 
 SamplerDevice::Sample::Sample()
 {
@@ -447,8 +453,11 @@ void SamplerDevice::loadSample(uint8_t note, const std::string & filePath)
 
     // We always reload the sample to support cases where the file on disk has changed (e.g. after recording)
     AudioFileReader::Info info {};
+    juzzlin::L(TAG).info() << "Loading sample " << std::quoted(absolutePath.toStdString());
     if (!m_audioFileReader->open(absolutePath.toStdString(), AudioFileReader::Mode::Read, info)) {
-        return;
+        std::stringstream ss;
+        ss << "Loading sample failed: " << std::quoted(absolutePath.toStdString());
+        throw std::runtime_error { ss.str() };
     }
 
     const auto data = std::make_shared<std::vector<float>>();
