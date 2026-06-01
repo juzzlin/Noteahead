@@ -23,14 +23,15 @@ option(BUILD_TESTS "Build unit tests." ON)
 option(ENABLE_MIDI_DEBUG "Enable MIDI debug messages." OFF)
 option(ENABLE_JACK_SUPPORT "Enable JACK support." ON)
 
-if(CMAKE_COMPILER_IS_GNUCXX OR MINGW OR ${CMAKE_CXX_COMPILER_ID} STREQUAL "Clang")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wpedantic")
-    # Automatically use ccache if found
-    find_program(CCACHE_FOUND ccache)
-    if(CCACHE_FOUND)
-        set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE ccache)
-        set_property(GLOBAL PROPERTY RULE_LAUNCH_LINK ccache)
-    endif(CCACHE_FOUND)
+if(CMAKE_COMPILER_IS_GNUCXX OR MINGW OR ${CMAKE_CXX_COMPILER_ID} MATCHES "Clang")
+   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wpedantic")
+   set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3 -march=x86-64-v2 -ffast-math -fno-math-errno")
+   set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -O0 -g")
+   find_program(CCACHE_FOUND ccache)
+   if(CCACHE_FOUND)
+       set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE ccache)
+       set_property(GLOBAL PROPERTY RULE_LAUNCH_LINK ccache)
+   endif()
 endif()
 
 # Default to release C++ flags if CMAKE_BUILD_TYPE not set
@@ -39,6 +40,7 @@ if(NOT CMAKE_BUILD_TYPE)
         "Choose the type of build, options are: None Debug Release RelWithDebInfo
 MinSizeRel." FORCE)
 endif()
+message(STATUS "CMake build type  : ${CMAKE_BUILD_TYPE}")
 
 # Find pkg-config
 find_package(PkgConfig REQUIRED)
