@@ -119,6 +119,7 @@ CopyManager::PositionList CopyManager::pushSourcePattern(const Pattern & pattern
     CopyManager::PositionList changedPositions;
     juzzlin::L(TAG).info() << "Pushing data of pattern " << pattern.index();
     const auto lineCount = pattern.lineCount();
+    m_sourceLineCount = lineCount;
     for (size_t trackIndex : pattern.trackIndices()) {
         juzzlin::L(TAG).debug() << "Pushing data of track " << trackIndex;
         const auto columnCount = pattern.columnCount(trackIndex);
@@ -148,6 +149,9 @@ CopyManager::PositionList CopyManager::pastePattern(PatternW targetPattern)
         throw std::runtime_error("Target or source not set");
     } else {
         juzzlin::L(TAG).info() << "Pasting copied data on pattern " << locked->index();
+        if (locked->lineCount() < m_sourceLineCount) {
+            locked->setLineCount(m_sourceLineCount);
+        }
         const auto changes = getPastePatternChanges(*locked);
         for (const auto & [targetPosition, newNoteData] : changes) {
             locked->setNoteDataAtPosition(newNoteData, targetPosition);
@@ -188,6 +192,11 @@ CopyManager::PositionList CopyManager::pushSourceSelection(const Pattern & patte
     }
     m_mode = Mode::Selection;
     return changedPositions;
+}
+
+size_t CopyManager::sourceLineCount() const
+{
+    return m_sourceLineCount;
 }
 
 size_t CopyManager::getMinLineIndex() const

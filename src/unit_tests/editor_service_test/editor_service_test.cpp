@@ -478,7 +478,8 @@ void EditorServiceTest::test_patternCutPaste_shorterTarget_shouldCopyPattern()
     editorService.setCurrentLineCount(32);
     editorService.requestPatternPaste();
 
-    QCOMPARE(noteDataChangedSpy.count(), 769);
+    QCOMPARE(editorService.currentLineCount(), 64);
+    QCOMPARE(noteDataChangedSpy.count(), 1025);
     QCOMPARE(editorService.displayNoteAtPosition(sourcePosition), editorService.noDataString());
     QCOMPARE(editorService.displayVelocityAtPosition(sourcePosition), editorService.noDataString());
     const Position targetPosition = { 1, 0, 0, 0, 0 };
@@ -550,7 +551,8 @@ void EditorServiceTest::test_patternCopyPaste_shorterTarget_shouldCopyPattern()
     editorService.setCurrentLineCount(32);
     editorService.requestPatternPaste();
 
-    QCOMPARE(noteDataChangedSpy.count(), 257);
+    QCOMPARE(editorService.currentLineCount(), 64);
+    QCOMPARE(noteDataChangedSpy.count(), 513);
     QCOMPARE(editorService.displayNoteAtPosition(sourcePosition), "C-3");
     QCOMPARE(editorService.displayVelocityAtPosition(sourcePosition), "064");
     const Position targetPosition = { 1, 0, 0, 0, 0 };

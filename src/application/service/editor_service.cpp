@@ -1700,6 +1700,15 @@ void EditorService::requestPatternPaste()
 {
     try {
         juzzlin::L(TAG).info() << "Requesting paste for copied pattern";
+        const auto oldLineCount = m_song->lineCount(currentPattern());
+        if (oldLineCount < m_state.copyManager.sourceLineCount()) {
+            m_undoStack->clear();
+            m_song->setLineCount(currentPattern(), m_state.copyManager.sourceLineCount());
+            emit currentLineCountChanged();
+            emit currentLineCountModified(oldLineCount, m_song->lineCount(currentPattern()));
+            setIsModified(true);
+            updateDuration();
+        }
         NoteEditCommand::ChangeList changes;
         const auto targetPattern = *m_song->pattern(currentPattern());
         for (const auto & [pos, noteData] : m_state.copyManager.getPastePatternChanges(targetPattern)) {

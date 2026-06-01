@@ -81,6 +81,8 @@ public:
     MidiCcAutomationList getPasteSelectionMidiCcAutomationChanges(const Pattern & targetPattern, const Position & targetPosition) const;
     PitchBendAutomationList getPasteSelectionPitchBendAutomationChanges(const Pattern & targetPattern, const Position & targetPosition) const;
 
+    size_t sourceLineCount() const;
+
 private:
     size_t getMinLineIndex() const;
     size_t getMinColumnIndex() const;
@@ -92,6 +94,8 @@ private:
 
     MidiCcAutomationList m_copiedMidiCcAutomations;
     PitchBendAutomationList m_copiedPitchBendAutomations;
+
+    size_t m_sourceLineCount = 0;
 };
 
 } // namespace noteahead
