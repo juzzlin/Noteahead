@@ -50,6 +50,8 @@ public:
     std::string typeName() const override;
     std::string typeId() const override;
 
+    std::vector<MidiCcController> availableMidiCcControllers() const override;
+
     static std::string typeIdString()
     {
         return "9dda4ff6-471b-11f1-9324-c701bfaf8258";

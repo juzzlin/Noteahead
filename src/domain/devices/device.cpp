@@ -46,6 +46,11 @@ void Device::setId(size_t id)
     m_id = id;
 }
 
+std::vector<MidiCcController> Device::availableMidiCcControllers() const
+{
+    return {};
+}
+
 void Device::serializeToXml(QXmlStreamWriter & writer) const
 {
     writer.writeStartElement(Constants::NahdXml::xmlKeyDevice());

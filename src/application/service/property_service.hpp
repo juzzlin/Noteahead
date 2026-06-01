@@ -18,8 +18,11 @@
 
 #include <QObject>
 #include <QVariantList>
+#include <memory>
 
 namespace noteahead {
+
+class DeviceService;
 
 class PropertyService : public QObject
 {
@@ -29,11 +32,16 @@ class PropertyService : public QObject
 public:
     explicit PropertyService(QObject * parent = nullptr);
 
+    void setDeviceService(std::weak_ptr<DeviceService> deviceService);
+
     QVariantList availableMidiControllers() const;
     Q_INVOKABLE QVariantList getAvailableMidiControllers(const QString & portName = {}) const;
 
     Q_INVOKABLE int minValue(int controller) const;
     Q_INVOKABLE int maxValue(int controller) const;
+
+private:
+    std::weak_ptr<DeviceService> m_deviceService;
 };
 
 } // namespace noteahead

@@ -7,6 +7,11 @@ New features:
 
 Bug fixes:
 
+* Fix MIDI CC controller list for internal devices
+  - Implement architectural fix delegating CC mapping to actual device instances
+  - Ensure correct CC lists are returned for all internal devices (Sampler, Synth, BassSynth, DrumSynth)
+  - Added robust unit tests to verify mappings against default and custom device names
+
 Other:
 
 * Expand target pattern length to match source on pattern paste

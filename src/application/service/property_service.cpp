@@ -18,6 +18,7 @@
 #include "../../common/constants.hpp"
 #include "../../domain/devices/drum_synth_device.hpp"
 #include "../../infra/midi/midi_cc_mapping.hpp"
+#include "device_service.hpp"
 
 #include <QVariantMap>
 
@@ -26,6 +27,11 @@ namespace noteahead {
 PropertyService::PropertyService(QObject * parent)
   : QObject { parent }
 {
+}
+
+void PropertyService::setDeviceService(std::weak_ptr<DeviceService> deviceService)
+{
+    m_deviceService = deviceService;
 }
 
 QVariantList PropertyService::availableMidiControllers() const
@@ -57,33 +63,10 @@ QVariantList PropertyService::getAvailableMidiControllers(const QString & portNa
           { "maxValue", 127 } });
     };
 
-    if (!portName.isEmpty()) {
-        if (portName.startsWith(Constants::samplerDeviceName()) || portName.startsWith(Constants::synthDeviceName())) {
-            addController(static_cast<uint8_t>(Controller::ChannelVolumeMSB));
-            addController(static_cast<uint8_t>(Controller::PanMSB));
-            addController(static_cast<uint8_t>(Controller::SoundController5)); // LPF
-            addController(81); // HPF
-            return list;
-        } else if (portName.startsWith(Constants::drumSynthDeviceName())) {
-            addController(static_cast<uint8_t>(Controller::ChannelVolumeMSB));
-            addController(static_cast<uint8_t>(Controller::PanMSB));
-
-            // Range 1: Voices 0-5
-            for (int voice { 0 }; voice < DrumSynth::NumVoicesRange1; voice++) {
-                const uint8_t baseCc = DrumSynth::CcStartRange1 + (voice * 3);
-                const QString voiceName = DrumSynth::voiceName(voice);
-                addController(baseCc, voiceName + " Pan");
-                addController(baseCc + 1, voiceName + " LPF");
-                addController(baseCc + 2, voiceName + " HPF");
-            }
-
-            // Range 2: Voices 6-10
-            for (int voice { 0 }; voice < DrumSynth::NumVoicesRange2; voice++) {
-                const uint8_t baseCc = DrumSynth::CcStartRange2 + (voice * 3);
-                const QString voiceName = DrumSynth::voiceName(static_cast<int>(DrumSynth::NumVoicesRange1) + voice);
-                addController(baseCc, voiceName + " Pan");
-                addController(baseCc + 1, voiceName + " LPF");
-                addController(baseCc + 2, voiceName + " HPF");
+    if (auto ds = m_deviceService.lock()) {
+        if (auto dev = ds->device(portName.toStdString())) {
+            for (auto && controller : dev->availableMidiCcControllers()) {
+                addController(controller.number, QString::fromStdString(controller.name));
             }
             return list;
         }

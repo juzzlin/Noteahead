@@ -70,6 +70,37 @@ std::string DrumSynthDevice::typeId() const
     return typeIdString();
 }
 
+std::vector<MidiCcController> DrumSynthDevice::availableMidiCcControllers() const
+{
+    using namespace MidiCcMapping;
+    std::vector<MidiCcController> list;
+
+    list.push_back({ static_cast<uint8_t>(Controller::ChannelVolumeMSB), "Volume" });
+    list.push_back({ static_cast<uint8_t>(Controller::PanMSB), "Pan" });
+
+    using namespace DrumSynth;
+
+    // Range 1: Voices 0-5
+    for (int voice { 0 }; voice < NumVoicesRange1; voice++) {
+        const uint8_t baseCc = CcStartRange1 + (voice * 3);
+        const std::string voiceName = DrumSynth::voiceName(voice).toStdString();
+        list.push_back({ baseCc, voiceName + " Pan" });
+        list.push_back({ static_cast<uint8_t>(baseCc + 1), voiceName + " LPF" });
+        list.push_back({ static_cast<uint8_t>(baseCc + 2), voiceName + " HPF" });
+    }
+
+    // Range 2: Voices 6-10
+    for (int voice { 0 }; voice < NumVoicesRange2; voice++) {
+        const uint8_t baseCc = CcStartRange2 + (voice * 3);
+        const std::string voiceName = DrumSynth::voiceName(static_cast<int>(NumVoicesRange1) + voice).toStdString();
+        list.push_back({ baseCc, voiceName + " Pan" });
+        list.push_back({ static_cast<uint8_t>(baseCc + 1), voiceName + " LPF" });
+        list.push_back({ static_cast<uint8_t>(baseCc + 2), voiceName + " HPF" });
+    }
+
+    return list;
+}
+
 void DrumSynthDevice::processMidiNoteOn(uint8_t note, uint8_t velocity)
 {
     const std::lock_guard<std::recursive_mutex> lock { mutex() };

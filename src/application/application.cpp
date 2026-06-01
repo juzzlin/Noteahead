@@ -136,6 +136,7 @@ Application::Application(int & argc, char ** argv)
   , m_noteColumnModelHandler { std::make_unique<NoteColumnModelHandler>(m_editorService, m_selectionService, m_automationService, m_settingsService) }
   , m_engine { std::make_unique<QQmlApplicationEngine>() }
 {
+    m_propertyService->setDeviceService(m_deviceService);
     m_deviceRack->initialize();
     // Initial empty rack, devices will be added via DeviceRackDialog/Gallery
     m_editorService->setMixerService(m_mixerService);

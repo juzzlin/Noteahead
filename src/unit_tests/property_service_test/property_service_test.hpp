@@ -26,6 +26,7 @@ class PropertyServiceTest : public QObject
 
 private slots:
     void test_availableMidiControllers_shouldReturnCorrectControllers();
+    void test_getAvailableMidiControllers_withInternalDevice_shouldReturnDeviceSpecificControllers();
 };
 
 } // namespace noteahead

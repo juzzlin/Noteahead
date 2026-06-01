@@ -36,6 +36,14 @@ namespace Constants {
 double defaultSampleRate();
 }
 
+struct MidiCcController
+{
+    uint8_t number;
+    std::string name;
+    int minValue { 0 };
+    int maxValue { 127 };
+};
+
 class Device : public QObject, public ParameterContainer
 {
     Q_OBJECT
@@ -48,6 +56,8 @@ public:
     virtual std::string category() const = 0;
     virtual std::string typeName() const = 0;
     virtual std::string typeId() const = 0;
+
+    virtual std::vector<MidiCcController> availableMidiCcControllers() const;
 
     size_t id() const;
     void setId(size_t id);

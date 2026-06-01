@@ -108,6 +108,17 @@ std::string SamplerDevice::typeId() const
     return typeIdString();
 }
 
+std::vector<MidiCcController> SamplerDevice::availableMidiCcControllers() const
+{
+    using namespace MidiCcMapping;
+    return {
+        { static_cast<uint8_t>(Controller::ChannelVolumeMSB), "Volume" },
+        { static_cast<uint8_t>(Controller::PanMSB), "Pan" },
+        { static_cast<uint8_t>(Controller::SoundController5), "LPF" },
+        { static_cast<uint8_t>(Controller::GeneralPurpose6), "HPF" }
+    };
+}
+
 void SamplerDevice::processMidiNoteOn(uint8_t note, uint8_t velocity)
 {
     std::lock_guard<std::recursive_mutex> lock { mutex() };
