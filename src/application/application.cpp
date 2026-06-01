@@ -19,7 +19,6 @@
 #include "../contrib/Argengine/src/argengine.hpp"
 #include "../contrib/SimpleLogger/src/simple_logger.hpp"
 #include "../infra/midi/export/midi_exporter.hpp"
-#include "../infra/video/video_generator.hpp"
 #include "common/constants.hpp"
 #include "common/utils.hpp"
 #include "domain/column_settings.hpp"
@@ -249,58 +248,6 @@ void Application::setContextProperties()
     m_engine->rootContext()->setContextProperty("utilService", m_utilService.get());
 }
 
-void Application::addVideoOptions(juzzlin::Argengine & ae)
-{
-    ae.addOption({ "--video-ffmpeg" }, [this](const std::string & value) { m_videoConfig.ffmpegPath = value; }, false, "Custom path for ffmpeg executable.");
-
-    ae.addOption({ "--video-audio" }, [this](const std::string & value) { m_videoConfig.audioPath = value; }, false, "The audio file to create a video from.");
-    ae.addOption({ "--video-audio-codec" }, [this](const std::string & value) { m_videoConfig.audioCodec = value; }, false, "The audio codec given to ffmpeg.");
-    ae.addOption({ "--video-video-codec" }, [this](const std::string & value) { m_videoConfig.videoCodec = value; }, false, "The video codec given to ffmpeg.");
-    ae.addOption({ "--video-song" }, [this](const std::string & value) {
-        m_videoGeneratorEnabled = true;
-        m_videoConfig.songPath = value; }, false, "The .nahd song to create a video from.");
-
-    ae.addOption({ "--video-image" }, [this](const std::string & value) { m_videoConfig.imagePath = value; }, false, "An optional background image for the video.");
-    ae.addOption({ "--video-image-opacity" }, [this](const std::string & value) { m_videoConfig.imageOpacity = Utils::Misc::parseDecimal(value).value_or(0); }, false, "Opacity of the background image.");
-    ae.addOption({ "--video-image-zoom-speed" }, [this](const std::string & value) { m_videoConfig.imageZoomSpeed = Utils::Misc::parseDecimal(value).value_or(0); }, false, "Zoom speed for the background image, e.g. 0.0001. The default is zero.");
-    ae.addOption({ "--video-image-rotation-speed" }, [this](const std::string & value) { m_videoConfig.imageRotationSpeed = Utils::Misc::parseDecimal(value).value_or(0); }, false, "Rotation speed for the background image, e.g. 0.0001. The default is zero.");
-    ae.addOption({ "--video-logo" }, [this](const std::string & value) { m_videoConfig.logoPath = value; }, false, "An optional logo for the video.");
-    ae.addOption({ "--video-logo-pos" }, [this](const std::string & value) {
-        const auto valueString = QString::fromStdString(value);
-        if (const auto splitString = valueString.split(","); splitString.size() == 2) {
-            m_videoConfig.logoX = std::stoi(splitString.at(0).toStdString());
-            m_videoConfig.logoY = std::stoi(splitString.at(1).toStdString());
-        } else {
-            throw std::runtime_error { std::string { "Invalid syntax for size: " } + value};
-        } }, false, "Position of the logo image. The default is 0,0.");
-    ae.addOption({ "--video-logo-fade-factor" }, [this](const std::string & value) { m_videoConfig.logoFadeFactor = Utils::Misc::parseDecimal(value).value_or(1.0); }, false, "Fade out factor for the logo, e.g. 0.99. The default is 1.0.");
-
-    ae.addOption({ "--video-track-opacity" }, [this](const std::string & value) { m_videoConfig.trackOpacity = Utils::Misc::parseDecimal(value).value_or(0); }, false, "Opacity of the track lanes.");
-
-    ae.addOption({ "--video-flash-track" }, [this](const std::string & value) { m_videoConfig.flashTrackName = value; }, false, "Source track name for a flash effect.");
-    ae.addOption({ "--video-flash-column" }, [this](const std::string & value) { m_videoConfig.flashColumnName = value; }, false, "Source column name for a flash effect.");
-
-    ae.addOption({ "--video-fps" }, [this](const std::string & value) { m_videoConfig.fps = std::stoul(value); }, false, "FPS of the generated video. The default is 60 fps.");
-    ae.addOption({ "--video-size" }, [this](const std::string & value) {
-        const auto valueString = QString::fromStdString(value);
-        if (const auto splitString = valueString.split("x"); splitString.size() == 2) {
-            m_videoConfig.width = std::stoi(splitString.at(0).toStdString());
-            m_videoConfig.height = std::stoi(splitString.at(1).toStdString());
-        } else {
-            throw std::runtime_error { std::string { "Invalid syntax for size: " } + value};
-        } }, false, "Size of the generated video. The default is 1920x1080.");
-
-    ae.addOption({ "--video-output-dir" }, [this](const std::string & value) { m_videoConfig.outputDir = value + "-" + std::to_string(QDateTime::currentSecsSinceEpoch()); }, false, "The output directory for the generated video frames. Will be created if doesn't exist.");
-
-    ae.addOption({ "--video-start-pos" }, [this](const std::string & value) { m_videoConfig.startPosition = std::stoul(value); }, false, "The song play order position to start the video generation at. The default is 0.");
-    ae.addOption({ "--video-length" }, [this](const std::string & value) { m_videoConfig.length = std::chrono::milliseconds { std::stoul(value) }; }, false, "The length of the video in milliseconds. The default is the whole song.");
-    ae.addOption({ "--video-lead-in-time" }, [this](const std::string & value) { m_videoConfig.leadInTime = std::chrono::milliseconds { std::stoul(value) }; }, false, "The lead-in time for the video to match audio in milliseconds. The default is 0 ms.");
-    ae.addOption({ "--video-lead-out-time" }, [this](const std::string & value) { m_videoConfig.leadOutTime = std::chrono::milliseconds { std::stoul(value) }; }, false, "The lead-out time for the video to match audio in milliseconds. The default is 0 ms.");
-
-    ae.addOption({ "--video-scrolling-text" }, [this](const std::string & value) { m_videoConfig.scrollingText = value; }, false, "An optional text to scroll during the video.");
-    ae.addOption({ "--video-type" }, [this](const std::string & value) { m_videoConfig.type = (value == "bars" ? VideoConfig::Type::Bars : VideoConfig::Type::Default); }, false, "Animation type: [default, bars]");
-}
-
 void Application::handleCommandLineArguments(int & argc, char ** argv)
 {
     juzzlin::Argengine ae { argc, argv };
@@ -344,8 +291,6 @@ void Application::handleCommandLineArguments(int & argc, char ** argv)
             m_applicationService->setInitialFilePath(QFileInfo { path }.absoluteFilePath());
         }
     });
-
-    addVideoOptions(ae);
 
     ae.parse();
 }
@@ -825,24 +770,9 @@ int Application::initializeTracker()
     return m_application->exec();
 }
 
-int Application::runVideoGenerator()
-{
-    juzzlin::L(TAG).info() << "Running video generator";
-    VideoGenerator videoGenerator { m_mixerService };
-    m_editorService->load(QString::fromStdString(m_videoConfig.songPath));
-    videoGenerator.initialize(m_videoConfig, m_editorService->song());
-    videoGenerator.run();
-
-    return EXIT_SUCCESS;
-}
-
 int Application::initialize()
 {
-    if (m_videoGeneratorEnabled) {
-        return runVideoGenerator();
-    } else {
-        return initializeTracker();
-    }
+    return initializeTracker();
 }
 
 void Application::initializeApplicationEngine()

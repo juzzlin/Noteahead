@@ -18,7 +18,6 @@ The project follows a layered architecture to ensure separation of concerns:
 - **`src/infra`**: The "Hands". Handles external systems:
     - **`midi/`**: RtMidi backend and MIDI file export/import.
     - **`audio/`**: RtAudio backend and audio recording.
-    - **`video/`**: ffmpeg-based video generation.
     - **`settings.cpp/hpp`**: Persistent configuration management.
 - **`src/view`**: The "Face". Pure QML-based UI, communicating with the application layer via models and services.
 - **`src/common`**: Shared constants and utilities.

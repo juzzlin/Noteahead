@@ -18,7 +18,6 @@
 
 #include "../infra/midi/export/midi_exporter.hpp"
 #include "../infra/midi/import/midi_importer.hpp"
-#include "../infra/video/video_config.hpp"
 #include "state_machine.hpp"
 
 #include <memory>
@@ -116,13 +115,11 @@ private:
     void connectTrackSettingsModel();
     void connectColumnSettingsModel();
 
-    void addVideoOptions(juzzlin::Argengine & ae);
     void handleCommandLineArguments(int & argc, char ** argv);
 
     int initialize();
     void initializeApplicationEngine();
     int initializeTracker();
-    int runVideoGenerator();
 
     void registerTypes();
     void setContextProperties();
@@ -193,10 +190,6 @@ private:
     std::unique_ptr<NoteColumnModelHandler> m_noteColumnModelHandler;
 
     std::unique_ptr<QQmlApplicationEngine> m_engine;
-
-    bool m_videoGeneratorEnabled = false;
-
-    VideoConfig m_videoConfig;
 
     std::unique_ptr<QTimer> m_instrumentTimer;
 };

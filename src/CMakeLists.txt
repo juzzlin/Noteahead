@@ -147,11 +147,6 @@ set(HEADER_FILES
   infra/midi/midi_cc_mapping.hpp
   infra/midi/midi_port.hpp
   infra/settings.hpp
-  infra/video/animation.hpp
-  infra/video/bars_animation.hpp
-  infra/video/default_animation.hpp
-  infra/video/video_config.hpp
-  infra/video/video_generator.hpp
   view/qml/Editor/line_number_renderer.hpp
   view/qml/Editor/note_column_renderer.hpp
 )
@@ -302,10 +297,6 @@ set(SOURCE_FILES
   infra/midi/midi_cc_mapping.cpp
   infra/midi/midi_port.cpp
   infra/settings.cpp
-  infra/video/animation.cpp
-  infra/video/bars_animation.cpp
-  infra/video/default_animation.cpp
-  infra/video/video_generator.cpp
   main.cpp
   view/qml/Editor/line_number_renderer.cpp
   view/qml/Editor/note_column_renderer.cpp

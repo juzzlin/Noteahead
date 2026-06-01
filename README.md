@@ -57,7 +57,6 @@ Some example tracks sequenced and recorded with Noteahead (usually mastered in A
 - [Arctic Music Project - Why (SoundCloud)](https://soundcloud.com/arctic-music-project/why)
 - [Arctic Music Project - 0035AM (Spotify)](https://open.spotify.com/track/4yUJmFjBmUhOTyl8oXu1yU)
 - [J.L.P - This Planet (Spotify)](https://open.spotify.com/track/5LV4oR82Ak4uA0kkKB6McX)
-- [J.L.P - This Planet - Note Visualization Video (YouTube)](https://www.youtube.com/watch?v=f_Cf_84eXcA)
 
 All Arctic Music Project songs:
 
@@ -127,8 +126,6 @@ All Arctic Music Project songs:
   - Export to MIDI File Format 1 (SMF Type 1) including automations.
 
 ### Tools & Experimental
-- Note Visualization
-  - Particle-based music video generator for sharing your tracks on social media.
 - Audio Recorder
   - Direct-to-disk recording from the selected audio source.
 - Calculators
@@ -288,24 +285,6 @@ Transposition (also available via right-clicking on the editor):
 * **Ctrl + F10**: transpose pattern by +1 semitone
 * **Ctrl + F11**: transpose pattern by -12 semitones
 * **Ctrl + F12**: transpose pattern by +12 semitones
-
-### Experimental note visualization video generation
-
-Noteahead can be used to generate a note visualization video with particle effects.
-
-To achieve this, these things are needed:
-
-* `ffmpeg` installed (used to render the video from the generated frames)
-* A soundtrack file that corresponds with the song (.wav)
-* The song file (.nahd)
-* Optional background image file (.png)
-* Optional logo image file (.png)
-
-An example command to generate a video:
-
-    $ ./noteahead --video-audio Song.wav --video-song Song.nahd --video-scrolling-text Test --video-image Video.png --video-image-zoom-speed 0.0001 --video-logo Logo.png --video-logo-fade-factor 0.99 --video-track-opacity 0.1 --video-lead-in-time 2000 --video-lead-out-time 2000 --video-size 1920x1080
-
-Run `noteahead -h` for all options.
 
 ##
 ## Real-world test cases
