@@ -68,6 +68,12 @@ QString KnobController::format(double value, const QString & type, const QString
     if (type == "intensity" || type == "cubicCentered") {
         return bipolarToString((value - 0.5) * 2.0, suffix, -1.0, 1.0);
     }
+    if (type == "volume") {
+        const double linearValue = value * Constants::uiInternalScaling();
+        const QString pctStr = percentageToString(linearValue);
+        const QString dbStr = decibelMultiplierToString(value);
+        return QString { "%1 / %2" }.arg(pctStr).arg(dbStr);
+    }
 
     const double mappedValue = map(value, type, min, max);
 
@@ -182,7 +188,8 @@ QString KnobController::decibelToString(double value, double from, double to) co
         // Generic case: value is already in dB
         db = value;
     }
-    return QString { "%1%2 dB" }.arg(db > 0.05 ? "+" : "").arg(db, 0, 'f', 1);
+    const QString sign = { db >= 0.05 ? "+" : (db <= -0.05 ? "-" : "") };
+    return QString { "%1%2 dB" }.arg(sign).arg(std::abs(db), 0, 'f', 1);
 }
 
 QString KnobController::decibelMultiplierToString(double multiplier) const
@@ -190,7 +197,8 @@ QString KnobController::decibelMultiplierToString(double multiplier) const
     if (multiplier <= 0)
         return "-inf dB";
     const double db = 20.0 * std::log10(multiplier);
-    return QString { "%1%2 dB" }.arg(db > 0.05 ? "+" : "").arg(db, 0, 'f', 1);
+    const QString sign = { db >= 0.05 ? "+" : (db <= -0.05 ? "-" : "") };
+    return QString { "%1%2 dB" }.arg(sign).arg(std::abs(db), 0, 'f', 1);
 }
 
 QString KnobController::valueToString(double value, const QString & suffix, double from, double to, bool isInteger) const

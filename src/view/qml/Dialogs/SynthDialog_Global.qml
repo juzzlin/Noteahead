@@ -58,6 +58,7 @@ ColumnLayout {
     }
     Knob {
         label: qsTr("Master Volume")
+        mapping: "volume"
         value: synthController.volume
         onMoved: v => synthController.volume = v
         Layout.fillWidth: true

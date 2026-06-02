@@ -22,6 +22,7 @@ ColumnLayout {
 
     Knob {
         label: qsTr("Master Volume")
+        mapping: "volume"
         value: bassSynthController.volume
         onMoved: v => bassSynthController.volume = v
         Layout.fillWidth: true

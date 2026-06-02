@@ -273,6 +273,7 @@ Dialog {
                 // Volume Knob
                 Knob {
                     label: qsTr("Volume")
+                    mapping: "volume"
                     value: samplerController.selectedPadVolume * Constants.uiInternalScaling
                     onMoved: v => {
                         samplerController.selectedPadVolume = v / Constants.uiInternalScaling;
@@ -310,6 +311,7 @@ Dialog {
 
                 Knob {
                     label: qsTr("Global Volume")
+                    mapping: "volume"
                     value: samplerController.volume
                     onMoved: v => {
                         samplerController.volume = v;
