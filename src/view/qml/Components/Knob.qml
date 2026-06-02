@@ -32,12 +32,12 @@ ColumnLayout {
     property bool isInteger: true
     property real sliderFrom: {
         if (mapping === "linear") return from;
-        if (mapping === "cubicCentered") return -1.0;
+        if (mapping === "cubicCentered" || mapping === "pan" || mapping === "intensity") return -1.0;
         return 0.0;
     }
     property real sliderTo: {
         if (mapping === "linear") return to;
-        if (mapping === "cubicCentered") return 1.0;
+        if (mapping === "cubicCentered" || mapping === "pan" || mapping === "intensity") return 1.0;
         return 1.0;
     }
     property alias stepSize: slider.stepSize
@@ -50,12 +50,8 @@ ColumnLayout {
     Label {
         text: {
             let displayValue = "";
-            if (knobRoot.mapping === "linear") {
-                displayValue = knobController.valueToString(knobRoot.value, knobRoot.suffix, knobRoot.from, knobRoot.to, knobRoot.isInteger);
-            } else {
-                let mappedValue = knobController.map(knobRoot.value / knobRoot.to, knobRoot.mapping, knobRoot.mapMin, knobRoot.mapMax);
-                displayValue = knobController.format(mappedValue, knobRoot.mapping, knobRoot.suffix, knobRoot.mapMin, knobRoot.mapMax);
-            }
+            let modelNorm = knobRoot.value / knobRoot.to;
+            displayValue = knobController.format(modelNorm, knobRoot.mapping, knobRoot.suffix, knobRoot.mapMin, knobRoot.mapMax);
             return `${knobRoot.label} (${displayValue})`;
         }
         font.pixelSize: 11
@@ -73,7 +69,7 @@ ColumnLayout {
             let val = value;
             if (knobRoot.mapping === "linear") {
                 knobRoot.moved(val);
-            } else if (knobRoot.mapping === "cubicCentered") {
+            } else if (knobRoot.mapping === "cubicCentered" || knobRoot.mapping === "pan" || knobRoot.mapping === "intensity") {
                 // slider -1..1 maps to model 0..1000 via internal 0..1
                 knobRoot.moved((val * 0.5 + 0.5) * knobRoot.to);
             } else {
@@ -87,7 +83,7 @@ ColumnLayout {
             property: "value"
             value: {
                 if (knobRoot.mapping === "linear") return knobRoot.value;
-                if (knobRoot.mapping === "cubicCentered") {
+                if (knobRoot.mapping === "cubicCentered" || knobRoot.mapping === "pan" || knobRoot.mapping === "intensity") {
                     return (knobRoot.value / knobRoot.to) * 2.0 - 1.0;
                 }
                 return knobRoot.value / knobRoot.to;
@@ -104,7 +100,7 @@ ColumnLayout {
                     knobRoot.moved(Math.max(knobRoot.from, Math.min(knobRoot.to, knobRoot.value + linearDelta)));
                 } else {
                     const nextV = Math.max(slider.from, Math.min(slider.to, slider.value + delta));
-                    if (knobRoot.mapping === "cubicCentered") {
+                    if (knobRoot.mapping === "cubicCentered" || knobRoot.mapping === "pan" || knobRoot.mapping === "intensity") {
                          knobRoot.moved((nextV * 0.5 + 0.5) * knobRoot.to);
                     } else {
                          knobRoot.moved(nextV * knobRoot.to);

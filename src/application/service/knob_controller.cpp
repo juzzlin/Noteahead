@@ -60,16 +60,19 @@ double KnobController::unmap(double mappedValue, const QString & type, double mi
     return (max != min) ? (mappedValue - min) / (max - min) : 0.0;
 }
 
-QString KnobController::format(double mappedValue, const QString & type, const QString & suffix, double min, double max) const
+QString KnobController::format(double value, const QString & type, const QString & suffix, double min, double max) const
 {
     if (type == "pan") {
-        return panToString(mappedValue, min, max);
+        return panToString(value, 0.0, 1.0);
     }
     if (type == "intensity" || type == "cubicCentered") {
-        return bipolarToString(mappedValue, suffix, min, max);
+        return bipolarToString((value - 0.5) * 2.0, suffix, -1.0, 1.0);
     }
+
+    const double mappedValue = map(value, type, min, max);
+
     if (type == "logFrequency" || type == "frequency") {
-        const double linearValue = unmap(mappedValue, type, min, max) * Constants::uiInternalScaling();
+        const double linearValue = value * Constants::uiInternalScaling();
         const QString freqStr = frequencyToString(linearValue, mappedValue, false);
         const QString pctStr = percentageToString(linearValue);
         return QString { "%1 / %2" }.arg(pctStr).arg(freqStr);
@@ -81,7 +84,7 @@ QString KnobController::format(double mappedValue, const QString & type, const Q
         return QString { "%1" }.arg(mappedValue, 0, 'f', 2);
     }
     if (suffix == "%") {
-        return percentageToString(unmap(mappedValue, type, min, max) * Constants::uiInternalScaling());
+        return percentageToString(value * Constants::uiInternalScaling());
     }
     if (suffix == "dB") {
         return decibelToString(mappedValue, min, max);
