@@ -31,17 +31,9 @@ public:
 
     ClipperEffect();
 
-    static std::string typeIdString()
-    {
-        return "9e1f2a3b-4c5d-6e7f-8a9b-0c1d2e3f4a5b";
-    }
-
+    static std::string typeIdString();
     std::string type() const override;
-
-    std::string typeId() const override
-    {
-        return typeIdString();
-    }
+    std::string typeId() const override;
 
     void process(double & left, double & right) override;
     void process(AudioContext & context) override;

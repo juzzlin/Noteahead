@@ -23,20 +23,9 @@ namespace noteahead {
 class HighPassFilterEffect : public Effect
 {
 public:
-    static std::string typeIdString()
-    {
-        return "a1b2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5d";
-    }
-
-    std::string type() const override
-    {
-        return "highPassFilter";
-    }
-
-    std::string typeId() const override
-    {
-        return typeIdString();
-    }
+    static std::string typeIdString();
+    std::string type() const override;
+    std::string typeId() const override;
 
     void setCutoff(float cutoff);
     void process(double & left, double & right) override;

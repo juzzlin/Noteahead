@@ -35,17 +35,9 @@ public:
 
     DelayEffect();
 
-    static std::string typeIdString()
-    {
-        return "7c2e3d0a-4f6b-4b2a-8c1d-1a2b3c4d5e6f";
-    }
-
+    static std::string typeIdString();
     std::string type() const override;
-
-    std::string typeId() const override
-    {
-        return typeIdString();
-    }
+    std::string typeId() const override;
 
     void process(double & left, double & right) override;
     void process(AudioContext & context) override;

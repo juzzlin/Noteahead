@@ -26,17 +26,9 @@ class CompressorEffect : public Effect
 public:
     CompressorEffect();
 
-    static std::string typeIdString()
-    {
-        return "7a2b3c4d-5e6f-4a8b-9c0d-1e2f3a4b5c6d";
-    }
-
+    static std::string typeIdString();
     std::string type() const override;
-
-    std::string typeId() const override
-    {
-        return typeIdString();
-    }
+    std::string typeId() const override;
 
     void process(double & left, double & right) override;
     void process(AudioContext & context) override;

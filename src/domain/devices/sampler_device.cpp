@@ -103,6 +103,11 @@ std::string SamplerDevice::typeName() const
     return Constants::samplerDeviceName().toStdString();
 }
 
+std::string SamplerDevice::typeIdString()
+{
+    return "9dda4ff6-471b-11f1-9324-c701bfaf8258";
+}
+
 std::string SamplerDevice::typeId() const
 {
     return typeIdString();

@@ -32,4 +32,19 @@ void PanningEffect::process(double & left, double & right)
     right *= gainR;
 }
 
+std::string PanningEffect::typeIdString()
+{
+    return "c3d4e5f6-a7b8-4c9d-0e1f-2a3b4c5d6e7f";
+}
+
+std::string PanningEffect::type() const
+{
+    return "panning";
+}
+
+std::string PanningEffect::typeId() const
+{
+    return typeIdString();
+}
+
 } // namespace noteahead

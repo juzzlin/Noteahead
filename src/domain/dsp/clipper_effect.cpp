@@ -74,9 +74,19 @@ void ClipperEffect::syncParameters()
     }
 }
 
+std::string ClipperEffect::typeIdString()
+{
+    return "9e1f2a3b-4c5d-6e7f-8a9b-0c1d2e3f4a5b";
+}
+
 std::string ClipperEffect::type() const
 {
     return Constants::RackEffectType::clipper().toStdString();
+}
+
+std::string ClipperEffect::typeId() const
+{
+    return typeIdString();
 }
 
 } // namespace noteahead

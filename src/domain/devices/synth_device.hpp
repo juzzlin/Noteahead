@@ -71,10 +71,7 @@ public:
 
     std::vector<MidiCcController> availableMidiCcControllers() const override;
 
-    static std::string typeIdString()
-    {
-        return "26f5a47e-4786-11f1-92b0-0b3f3bef9f74";
-    }
+    static std::string typeIdString();
 
     void processMidiNoteOn(uint8_t note, uint8_t velocity) override;
     void processMidiNoteOff(uint8_t note) override;

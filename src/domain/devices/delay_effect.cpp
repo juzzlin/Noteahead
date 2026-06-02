@@ -140,9 +140,19 @@ void DelayEffect::applyFeedbackFilters(double & fbL, double & fbR)
     }
 }
 
+std::string DelayEffect::typeIdString()
+{
+    return "7c2e3d0a-4f6b-4b2a-8c1d-1a2b3c4d5e6f";
+}
+
 std::string DelayEffect::type() const
 {
     return Constants::RackEffectType::delay().toStdString();
+}
+
+std::string DelayEffect::typeId() const
+{
+    return typeIdString();
 }
 
 void DelayEffect::applyTapeSaturation(double & fbL, double & fbR)

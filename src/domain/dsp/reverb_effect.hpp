@@ -42,17 +42,9 @@ public:
 
     ReverbEffect();
 
-    static std::string typeIdString()
-    {
-        return "47a2e2d0-1e5e-4f3a-9c6a-6a5b2d7e8f1a";
-    }
-
+    static std::string typeIdString();
     std::string type() const override;
-
-    std::string typeId() const override
-    {
-        return typeIdString();
-    }
+    std::string typeId() const override;
 
     void process(double & left, double & right) override;
     void process(AudioContext & context) override;

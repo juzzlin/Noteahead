@@ -178,9 +178,19 @@ void ReverbEffect::sync()
     m_shouldUpdateBuffers = true;
 }
 
+std::string ReverbEffect::typeIdString()
+{
+    return "47a2e2d0-1e5e-4f3a-9c6a-6a5b2d7e8f1a";
+}
+
 std::string ReverbEffect::type() const
 {
     return Constants::RackEffectType::reverb().toStdString();
+}
+
+std::string ReverbEffect::typeId() const
+{
+    return typeIdString();
 }
 
 void ReverbEffect::setSize(float size)

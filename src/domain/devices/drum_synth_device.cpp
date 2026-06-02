@@ -65,6 +65,11 @@ std::string DrumSynthDevice::typeName() const
     return Constants::drumSynthDeviceName().toStdString();
 }
 
+std::string DrumSynthDevice::typeIdString()
+{
+    return "a7f5a47e-4786-11f1-92b0-0b3f3bef9f74";
+}
+
 std::string DrumSynthDevice::typeId() const
 {
     return typeIdString();

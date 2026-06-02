@@ -109,4 +109,19 @@ void HighPassFilterEffect::reset()
     m_s1R = m_s2R = 0.0;
 }
 
+std::string HighPassFilterEffect::typeIdString()
+{
+    return "a1b2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5d";
+}
+
+std::string HighPassFilterEffect::type() const
+{
+    return "highPassFilter";
+}
+
+std::string HighPassFilterEffect::typeId() const
+{
+    return typeIdString();
+}
+
 } // namespace noteahead

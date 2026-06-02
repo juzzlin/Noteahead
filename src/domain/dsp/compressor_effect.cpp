@@ -208,9 +208,19 @@ void CompressorEffect::syncParameters()
     }
 }
 
+std::string CompressorEffect::typeIdString()
+{
+    return "7a2b3c4d-5e6f-4a8b-9c0d-1e2f3a4b5c6d";
+}
+
 std::string CompressorEffect::type() const
 {
     return Constants::RackEffectType::compressor().toStdString();
+}
+
+std::string CompressorEffect::typeId() const
+{
+    return typeIdString();
 }
 
 } // namespace noteahead

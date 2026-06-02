@@ -28,4 +28,19 @@ void VolumeEffect::process(double & left, double & right)
     right *= m_volume;
 }
 
+std::string VolumeEffect::typeIdString()
+{
+    return "d4e5f6a7-b8c9-4d0e-1f2a-3b4c5d6e7f8a";
+}
+
+std::string VolumeEffect::type() const
+{
+    return "volume";
+}
+
+std::string VolumeEffect::typeId() const
+{
+    return typeIdString();
+}
+
 } // namespace noteahead

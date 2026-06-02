@@ -23,20 +23,9 @@ namespace noteahead {
 class LowPassFilterEffect : public Effect
 {
 public:
-    static std::string typeIdString()
-    {
-        return "b2c3d4e5-f6a7-4b8c-9d0e-1f2a3b4c5d6e";
-    }
-
-    std::string type() const override
-    {
-        return "lowPassFilter";
-    }
-
-    std::string typeId() const override
-    {
-        return typeIdString();
-    }
+    static std::string typeIdString();
+    std::string type() const override;
+    std::string typeId() const override;
 
     void setCutoff(double cutoff);
     void process(double & left, double & right) override;

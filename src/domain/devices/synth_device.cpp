@@ -192,6 +192,11 @@ std::string SynthDevice::typeName() const
     return Constants::synthDeviceName().toStdString();
 }
 
+std::string SynthDevice::typeIdString()
+{
+    return "26f5a47e-4786-11f1-92b0-0b3f3bef9f74";
+}
+
 std::string SynthDevice::typeId() const
 {
     return typeIdString();

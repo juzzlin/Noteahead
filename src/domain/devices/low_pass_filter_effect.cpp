@@ -109,4 +109,19 @@ void LowPassFilterEffect::reset()
     m_s1R = m_s2R = 0.0;
 }
 
+std::string LowPassFilterEffect::typeIdString()
+{
+    return "b2c3d4e5-f6a7-4b8c-9d0e-1f2a3b4c5d6e";
+}
+
+std::string LowPassFilterEffect::type() const
+{
+    return "lowPassFilter";
+}
+
+std::string LowPassFilterEffect::typeId() const
+{
+    return typeIdString();
+}
+
 } // namespace noteahead
