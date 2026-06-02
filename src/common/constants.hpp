@@ -69,8 +69,8 @@ QString delay();
 QString clipper();
 QString panner();
 QString eq8BandParametric();
+QString eq8BandParametricLegacy();
 }
-
 namespace NahdXml {
 
 QString xmlKeyFileFormatVersion();

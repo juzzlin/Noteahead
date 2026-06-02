@@ -119,4 +119,9 @@ void Eq8BandParametricEffect::syncParameters()
     }
 }
 
+std::string Eq8BandParametricEffect::type() const
+{
+    return Constants::RackEffectType::eq8BandParametric().toStdString();
+}
+
 } // namespace noteahead

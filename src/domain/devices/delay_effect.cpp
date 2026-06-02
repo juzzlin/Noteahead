@@ -140,6 +140,11 @@ void DelayEffect::applyFeedbackFilters(double & fbL, double & fbR)
     }
 }
 
+std::string DelayEffect::type() const
+{
+    return Constants::RackEffectType::delay().toStdString();
+}
+
 void DelayEffect::applyTapeSaturation(double & fbL, double & fbR)
 {
     if (m_type != Type::Tape) {

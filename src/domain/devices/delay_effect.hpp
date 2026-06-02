@@ -40,10 +40,7 @@ public:
         return "7c2e3d0a-4f6b-4b2a-8c1d-1a2b3c4d5e6f";
     }
 
-    std::string type() const override
-    {
-        return "delay";
-    }
+    std::string type() const override;
 
     std::string typeId() const override
     {

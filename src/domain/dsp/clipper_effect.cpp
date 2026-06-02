@@ -74,4 +74,9 @@ void ClipperEffect::syncParameters()
     }
 }
 
+std::string ClipperEffect::type() const
+{
+    return Constants::RackEffectType::clipper().toStdString();
+}
+
 } // namespace noteahead

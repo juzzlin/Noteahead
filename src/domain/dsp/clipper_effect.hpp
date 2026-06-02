@@ -36,10 +36,7 @@ public:
         return "9e1f2a3b-4c5d-6e7f-8a9b-0c1d2e3f4a5b";
     }
 
-    std::string type() const override
-    {
-        return "clipper";
-    }
+    std::string type() const override;
 
     std::string typeId() const override
     {

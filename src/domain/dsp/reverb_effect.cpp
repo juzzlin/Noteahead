@@ -178,6 +178,11 @@ void ReverbEffect::sync()
     m_shouldUpdateBuffers = true;
 }
 
+std::string ReverbEffect::type() const
+{
+    return Constants::RackEffectType::reverb().toStdString();
+}
+
 void ReverbEffect::setSize(float size)
 {
     if (auto p = parameter(Constants::NahdXml::xmlKeyReverbSize().toStdString()); p) {

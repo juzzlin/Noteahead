@@ -208,4 +208,9 @@ void CompressorEffect::syncParameters()
     }
 }
 
+std::string CompressorEffect::type() const
+{
+    return Constants::RackEffectType::compressor().toStdString();
+}
+
 } // namespace noteahead

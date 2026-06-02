@@ -140,7 +140,7 @@ QString panner()
 }
 QString eq8BandParametric()
 {
-    return "eq8BandParametric";
+    return "eq8bandparametric";
 }
 }
 

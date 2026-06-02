@@ -47,10 +47,7 @@ public:
         return "47a2e2d0-1e5e-4f3a-9c6a-6a5b2d7e8f1a";
     }
 
-    std::string type() const override
-    {
-        return "reverb";
-    }
+    std::string type() const override;
 
     std::string typeId() const override
     {

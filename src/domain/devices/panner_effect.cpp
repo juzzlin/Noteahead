@@ -33,7 +33,7 @@ std::string PannerEffect::typeIdString()
 
 std::string PannerEffect::type() const
 {
-    return "panner";
+    return Constants::RackEffectType::panner().toStdString();
 }
 
 std::string PannerEffect::typeId() const
