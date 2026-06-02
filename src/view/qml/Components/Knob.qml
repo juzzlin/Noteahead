@@ -88,7 +88,7 @@ ColumnLayout {
 
         WheelHandler {
             onWheel: (wheel) => {
-                const delta = wheel.angleDelta.y > 0 ? 0.05 : -0.05;
+                const delta = wheel.angleDelta.y / 12000.0; // ~1% per standard notch
                 const nextV = Math.max(slider.from, Math.min(slider.to, slider.value + delta));
                 if (knobRoot.mapping === "linear") {
                     knobRoot.moved(nextV);
