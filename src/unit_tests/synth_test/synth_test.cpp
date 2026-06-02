@@ -64,7 +64,7 @@ void SynthTest::test_parameterSetting_shouldUpdateValues()
     QCOMPARE(synth.lpfCutoff(), 0.4f);
 
     synth.setModInt(0.8f);
-    QCOMPARE(synth.modInt(), 0.6f);
+    QVERIFY(std::abs(synth.modInt() - 0.216f) < 0.001f);
 
     synth.setDelayDepth(0.5f);
     QCOMPARE(synth.delayDepth(), 0.5f);
@@ -193,7 +193,7 @@ void SynthTest::test_lfoModulation_shouldUpdateInternalState()
     QCOMPARE(synth.lfoRate(), 0.8f);
 
     synth.setLfoInt(0.75f);
-    QCOMPARE(synth.lfoInt(), 0.5f);
+    QVERIFY(std::abs(synth.lfoInt() - 0.125f) < 0.001f);
 
     synth.setLfoTarget(SynthDevice::LfoTarget::Cutoff);
     QCOMPARE(synth.lfoTarget(), SynthDevice::LfoTarget::Cutoff);

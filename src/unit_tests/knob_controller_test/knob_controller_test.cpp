@@ -28,35 +28,30 @@ void KnobControllerTest::test_intensityMapping_shouldMapValuesCorrectly()
     const double to = 1000.0;
     const double center = 500.0;
 
-    // Test unmap (from internal value to slider -1..1)
-    QCOMPARE(controller.unmapIntensity(center, from, to), 0.0);
-    QCOMPARE(controller.unmapIntensity(to, from, to), 1.0);
-    QCOMPARE(controller.unmapIntensity(from, from, to), -1.0);
+    // Test unmap (from internal value to normalized 0..1)
+    QCOMPARE(controller.unmap(center, "intensity", from, to), 0.5);
+    QCOMPARE(controller.unmap(to, "intensity", from, to), 1.0);
+    QCOMPARE(controller.unmap(from, "intensity", from, to), 0.0);
 
     // Test map (from slider -1..1 to internal value)
-    QCOMPARE(controller.mapIntensity(0.0, from, to), center);
-    QCOMPARE(controller.mapIntensity(1.0, from, to), to);
-    QCOMPARE(controller.mapIntensity(-1.0, from, to), from);
-
-    // Test mapping without snap to center
-    QVERIFY(std::abs(controller.mapIntensity(0.005, from, to) - (center + 0.0000625)) < 0.000001);
-    QVERIFY(std::abs(controller.mapIntensity(-0.005, from, to) - (center - 0.0000625)) < 0.000001);
+    QCOMPARE(controller.map(0.5, "intensity", from, to), center); // 0.5 slider maps to center
+    QCOMPARE(controller.map(1.0, "intensity", from, to), to);
+    QCOMPARE(controller.map(0.0, "intensity", from, to), from);
 }
 
 void KnobControllerTest::test_intensityToString_shouldFormatPercentageStrings()
 {
     KnobController controller;
-    const double from = 0.0;
-    const double to = 1000.0;
+    const double from = -100.0;
+    const double to = 100.0;
 
-    QCOMPARE(controller.intensityToString(500.0, from, to), QString { "0.0%" });
-    QCOMPARE(controller.intensityToString(1000.0, from, to), QString { "+100.0%" });
-    QCOMPARE(controller.intensityToString(0.0, from, to), QString { "-100.0%" });
-    QCOMPARE(controller.intensityToString(750.0, from, to), QString { "+50.0%" });
+    QCOMPARE(controller.bipolarToString(0.0, "%", from, to), QString { "0.0%" });
+    QCOMPARE(controller.bipolarToString(100.0, "%", from, to), QString { "+100.0%" });
+    QCOMPARE(controller.bipolarToString(-100.0, "%", from, to), QString { "-100.0%" });
+    QCOMPARE(controller.bipolarToString(50.0, "%", from, to), QString { "+50.0%" });
 
     // Test visual snapping removal: 0.04% should now show (rounded) 0.0% but NOT be skipped by threshold
-    // 500.2 -> ((500.2 - 500) / 500) * 100 = 0.04. Should show 0.0% without + sign.
-    QCOMPARE(controller.intensityToString(500.2, from, to), QString { "0.0%" });
+    QCOMPARE(controller.bipolarToString(0.04, "%", from, to), QString { "0.0%" });
 }
 
 void KnobControllerTest::test_panMapping_shouldMapValuesCorrectly()

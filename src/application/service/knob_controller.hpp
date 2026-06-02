@@ -33,9 +33,7 @@ public:
     Q_INVOKABLE double unmap(double mappedValue, const QString & type, double min, double max) const;
     Q_INVOKABLE QString format(double mappedValue, const QString & type, const QString & suffix, double min = 0, double max = 1) const;
 
-    Q_INVOKABLE double mapIntensity(double value, double from, double to) const;
-    Q_INVOKABLE double unmapIntensity(double value, double from, double to) const;
-    Q_INVOKABLE QString intensityToString(double value, double from, double to) const;
+    Q_INVOKABLE QString bipolarToString(double value, const QString & suffix, double from, double to) const;
 
     Q_INVOKABLE double mapPan(double value, double from, double to) const;
     Q_INVOKABLE double unmapPan(double value, double from, double to) const;

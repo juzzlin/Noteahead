@@ -50,7 +50,9 @@ ColumnLayout {
     }
     Knob {
         label: qsTr("Intensity")
-        mapping: "intensity"
+        mapping: "cubicCentered"
+        mapMin: -100
+        mapMax: 100
         value: synthController.modInt
         onMoved: v => synthController.modInt = v
         Layout.fillWidth: true

@@ -721,7 +721,7 @@ void SynthDevice::syncParameters()
         m_modDecay = p->get().value();
 
     if (const auto p = parameter(Constants::NahdXml::xmlKeySynthModIntensity().toStdString()); p)
-        m_modInt = (p->get().value() - 0.5f) * 2.0f;
+        m_modInt = ParameterMapper::mapCubicCentered((p->get().value() - 0.5f) * 2.0f, -1.0, 1.0);
     if (const auto p = parameter(Constants::NahdXml::xmlKeySynthModTarget().toStdString()); p)
         m_modTarget = static_cast<ModTarget>(p->get().xmlValue());
 
@@ -732,7 +732,7 @@ void SynthDevice::syncParameters()
     if (const auto p = parameter(Constants::NahdXml::xmlKeySynthLfoRate().toStdString()); p)
         m_lfoRate = p->get().value();
     if (const auto p = parameter(Constants::NahdXml::xmlKeySynthLfoIntensity().toStdString()); p)
-        m_lfoInt = (p->get().value() - 0.5f) * 2.0f;
+        m_lfoInt = ParameterMapper::mapCubicCentered((p->get().value() - 0.5f) * 2.0f, -1.0, 1.0);
     if (const auto p = parameter(Constants::NahdXml::xmlKeySynthLfoTarget().toStdString()); p)
         m_lfoTarget = static_cast<LfoTarget>(p->get().xmlValue());
 
