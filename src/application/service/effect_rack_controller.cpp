@@ -287,6 +287,13 @@ QString EffectRackController::effectParametersSummary(int effectIndex) const
                       .arg(static_cast<int>(std::round(pan->get().value() * 100.0f)))
                       .arg(static_cast<int>(std::round(width->get().value() * 100.0f)));
                 }
+            } else if (type == "clipper") {
+                auto threshold = effect->parameter(Constants::NahdXml::xmlKeyClipperThreshold().toStdString());
+                if (threshold) {
+                    return QString { "(thr=%1dB)" }.arg(threshold->get().xmlValue() / 100.0f, 0, 'f', 1);
+                }
+            } else if (type == "eq8bandparametric") {
+                return "(Parametric)";
             }
         }
     }

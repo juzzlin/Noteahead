@@ -101,7 +101,7 @@ Dialog {
                         } else if (effectType === "clipper") {
                             clipperDialog.effectIndex = index;
                             clipperDialog.open();
-                        } else if (effectType === "eq8BandParametric") {
+                        } else if (effectType === "eq8bandparametric") {
                             eq8BandParametricDialog.effectIndex = index;
                             eq8BandParametricDialog.open();
                         } else if (effectType === "panner") {
@@ -121,7 +121,12 @@ Dialog {
                         text: {
                             effectRackController.revision;
                             if (effectType === "") return "";
-                            const name = effectType.charAt(0).toUpperCase() + effectType.slice(1);
+                            let name = effectType;
+                            if (effectType === "eq8bandparametric") {
+                                name = "EQ 8-Band Parametric";
+                            } else {
+                                name = effectType.charAt(0).toUpperCase() + effectType.slice(1);
+                            }
                             const summary = effectRackController.effectParametersSummary(index);
                             return qsTr("Slot %1: %2 %3").arg(index + 1).arg(name).arg(summary);
                         }
