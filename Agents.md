@@ -43,6 +43,8 @@ Adherence to these standards is mandatory for all contributions:
 - **Const-Correctness**: Embrace `const` everywhere. Methods that do not modify state MUST be marked `const`.
 - **Memory Management**: Use smart pointers (`std::unique_ptr`, `std::shared_ptr`) and avoid raw `new`/`delete`.
 - **RAII**: Resource acquisition is initialization.
+- **No Copy-Paste**: Never duplicate string literals or logic. Centralize strings in `src/common/constants.hpp` or relevant classes.
+- **Implementation Location**: All implementation MUST reside in `.cpp` files. Headers MUST only contain declarations.
 
 ### C++ Specifics
 - **Braced Initializers**: Use `{}` for initialization to avoid narrowing conversions and the "most vexing parse".
@@ -56,6 +58,11 @@ Adherence to these standards is mandatory for all contributions:
 - **Model/View**: Keep logic in C++ models and services; QML should only handle presentation.
 - **Properties**: Use `Q_PROPERTY` with `READ`, `WRITE`, and `NOTIFY` signals correctly.
 - **Signals/Slots**: Prefer the modern `connect` syntax (`&Sender::signal, receiver, &Receiver::slot`).
+
+## 📝 Git & Commits
+
+- **Imperative Tense**: ALWAYS use the imperative tense in commit messages ("Fix bug" not "Fixed bug", "Update docs" not "Updating docs").
+- **Conciseness**: Keep the first line of the commit message brief (ideally under 50 characters).
 
 ## 🧪 Testing Strategy
 
