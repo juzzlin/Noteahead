@@ -27,8 +27,8 @@ ColumnLayout {
     property real to: Constants.uiInternalScaling
     property string suffix: "%"
     property string mapping: "linear"
-    property real mapMin: 0
-    property real mapMax: 1
+    property real mapMin: from
+    property real mapMax: to
     property bool isInteger: true
     property real sliderFrom: from
     property real sliderTo: to
