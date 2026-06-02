@@ -92,21 +92,21 @@ Dialog {
                     onExited: effectListView.hoveredIndex = -1
                     onClicked: {
                         effectListView.hoveredIndex = -1;
-                        if (effectType === "reverb") {
-                            reverbDialog.effectIndex = index;
-                            reverbDialog.open();
-                        } else if (effectType === "compressor") {
-                            compressorDialog.effectIndex = index;
-                            compressorDialog.open();
-                        } else if (effectType === "clipper") {
+                        if (effectType === effectRackController.clipperType) {
                             clipperDialog.effectIndex = index;
                             clipperDialog.open();
-                        } else if (effectType === "eq8bandparametric") {
+                        } else if (effectType === effectRackController.compressorType) {
+                            compressorDialog.effectIndex = index;
+                            compressorDialog.open();
+                        } else if (effectType === effectRackController.eq8BandParametricType) {
                             eq8BandParametricDialog.effectIndex = index;
                             eq8BandParametricDialog.open();
-                        } else if (effectType === "panner") {
+                        } else if (effectType === effectRackController.pannerType) {
                             pannerDialog.effectIndex = index;
                             pannerDialog.open();
+                        } else if (effectType === effectRackController.reverbType) {
+                            reverbDialog.effectIndex = index;
+                            reverbDialog.open();
                         } else if (effectType === "") {
                             UiService.requestEffectsGalleryDialog(index);
                         } else {
@@ -122,7 +122,7 @@ Dialog {
                             effectRackController.revision;
                             if (effectType === "") return "";
                             let name = effectType;
-                            if (effectType === "eq8bandparametric") {
+                            if (effectType === effectRackController.eq8BandParametricType) {
                                 name = "EQ 8-Band Parametric";
                             } else {
                                 name = effectType.charAt(0).toUpperCase() + effectType.slice(1);

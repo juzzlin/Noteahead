@@ -117,6 +117,33 @@ double defaultSampleRate()
     return 48000.0;
 }
 
+namespace RackEffectType {
+QString reverb()
+{
+    return "reverb";
+}
+QString compressor()
+{
+    return "compressor";
+}
+QString delay()
+{
+    return "delay";
+}
+QString clipper()
+{
+    return "clipper";
+}
+QString panner()
+{
+    return "panner";
+}
+QString eq8BandParametric()
+{
+    return "eq8BandParametric";
+}
+}
+
 namespace NahdXml {
 
 QString xmlKeyFileFormatVersion()

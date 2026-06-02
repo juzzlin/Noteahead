@@ -36,7 +36,7 @@ public:
 
     std::string type() const override
     {
-        return "eq8bandparametric";
+        return "eq8BandParametric";
     }
 
     std::string typeId() const override

@@ -172,26 +172,27 @@ void EffectRack::deserializeEffect(QXmlStreamReader & reader)
     const auto enabled = reader.attributes().value(Constants::NahdXml::xmlKeyEnabled()).toString() != Constants::NahdXml::xmlValueFalse();
 
     EffectS effect;
-    if (typeId == ReverbEffect::typeIdString() || type == "reverb") {
-        effect = std::make_shared<ReverbEffect>();
-    } else if (typeId == DelayEffect::typeIdString() || type == "delay") {
+    const auto stdType = QString::fromStdString(type);
+    if (typeId == ClipperEffect::typeIdString() || stdType == Constants::RackEffectType::clipper()) {
+        effect = std::make_shared<ClipperEffect>();
+    } else if (typeId == CompressorEffect::typeIdString() || stdType == Constants::RackEffectType::compressor()) {
+        effect = std::make_shared<CompressorEffect>();
+    } else if (typeId == DelayEffect::typeIdString() || stdType == Constants::RackEffectType::delay()) {
         effect = std::make_shared<DelayEffect>();
+    } else if (typeId == Eq8BandParametricEffect::typeIdString() || stdType == Constants::RackEffectType::eq8BandParametric() || type == "eq8bandparametric") {
+        effect = std::make_shared<Eq8BandParametricEffect>();
     } else if (typeId == HighPassFilterEffect::typeIdString() || type == "highPassFilter") {
         effect = std::make_shared<HighPassFilterEffect>();
     } else if (typeId == LowPassFilterEffect::typeIdString() || type == "lowPassFilter") {
         effect = std::make_shared<LowPassFilterEffect>();
-    } else if (typeId == PannerEffect::typeIdString() || type == "panner") {
+    } else if (typeId == PannerEffect::typeIdString() || stdType == Constants::RackEffectType::panner()) {
         effect = std::make_shared<PannerEffect>();
     } else if (typeId == PanningEffect::typeIdString() || type == "panning") {
         effect = std::make_shared<PanningEffect>();
+    } else if (typeId == ReverbEffect::typeIdString() || stdType == Constants::RackEffectType::reverb()) {
+        effect = std::make_shared<ReverbEffect>();
     } else if (typeId == VolumeEffect::typeIdString() || type == "volume") {
         effect = std::make_shared<VolumeEffect>();
-    } else if (typeId == CompressorEffect::typeIdString() || type == "compressor") {
-        effect = std::make_shared<CompressorEffect>();
-    } else if (typeId == ClipperEffect::typeIdString() || type == "clipper") {
-        effect = std::make_shared<ClipperEffect>();
-    } else if (typeId == Eq8BandParametricEffect::typeIdString() || type == "eq8bandparametric") {
-        effect = std::make_shared<Eq8BandParametricEffect>();
     }
 
     if (effect) {

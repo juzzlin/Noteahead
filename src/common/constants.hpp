@@ -62,6 +62,15 @@ constexpr float uiInternalScaling()
     return 1000.0f;
 }
 
+namespace RackEffectType {
+QString reverb();
+QString compressor();
+QString delay();
+QString clipper();
+QString panner();
+QString eq8BandParametric();
+}
+
 namespace NahdXml {
 
 QString xmlKeyFileFormatVersion();

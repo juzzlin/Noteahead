@@ -191,8 +191,9 @@ QVariantList EffectRackController::availableEffects() const
         list.append(map);
     };
 
-    addEffect("Compressor", CompressorEffect::typeIdString());
     addEffect("Clipper", ClipperEffect::typeIdString());
+    addEffect("Compressor", CompressorEffect::typeIdString());
+    addEffect("Delay", DelayEffect::typeIdString());
     addEffect("EQ 8-Band Parametric", Eq8BandParametricEffect::typeIdString());
     addEffect("Panner", PannerEffect::typeIdString());
     addEffect("Reverb", ReverbEffect::typeIdString());
@@ -252,8 +253,8 @@ QString EffectRackController::effectParametersSummary(int effectIndex) const
 {
     if (const auto rack = currentRack()) {
         if (const auto effect = rack->get().effect(static_cast<size_t>(effectIndex))) {
-            const auto type = effect->type();
-            if (type == "reverb") {
+            const auto type = QString::fromStdString(effect->type());
+            if (type == Constants::RackEffectType::reverb()) {
                 auto preDelay = effect->parameter(Constants::NahdXml::xmlKeyReverbPreDelay().toStdString());
                 auto decay = effect->parameter(Constants::NahdXml::xmlKeyReverbDecay().toStdString());
                 if (preDelay && decay) {
@@ -261,7 +262,7 @@ QString EffectRackController::effectParametersSummary(int effectIndex) const
                       .arg(preDelay->get().xmlValue())
                       .arg(decay->get().xmlValue());
                 }
-            } else if (type == "compressor") {
+            } else if (type == Constants::RackEffectType::compressor()) {
                 auto attack = effect->parameter(Constants::NahdXml::xmlKeyAttack().toStdString());
                 auto ratio = effect->parameter(Constants::NahdXml::xmlKeyCompressorRatio().toStdString());
                 if (attack && ratio) {
@@ -271,7 +272,7 @@ QString EffectRackController::effectParametersSummary(int effectIndex) const
                       .arg(attackMs, 0, 'f', 1)
                       .arg(ratioValue);
                 }
-            } else if (type == "delay") {
+            } else if (type == Constants::RackEffectType::delay()) {
                 auto time = effect->parameter(Constants::NahdXml::xmlKeyDelayTime().toStdString());
                 auto feedback = effect->parameter(Constants::NahdXml::xmlKeyDelayFeedback().toStdString());
                 if (time && feedback) {
@@ -279,7 +280,7 @@ QString EffectRackController::effectParametersSummary(int effectIndex) const
                       .arg(static_cast<int>(std::round(time->get().value() * 1000.0f)))
                       .arg(static_cast<int>(std::round(feedback->get().value() * 100.0f)));
                 }
-            } else if (type == "panner") {
+            } else if (type == Constants::RackEffectType::panner()) {
                 auto pan = effect->parameter(Constants::NahdXml::xmlKeyPan().toStdString());
                 auto width = effect->parameter(Constants::NahdXml::xmlKeyReverbWidth().toStdString());
                 if (pan && width) {
@@ -287,12 +288,12 @@ QString EffectRackController::effectParametersSummary(int effectIndex) const
                       .arg(static_cast<int>(std::round(pan->get().value() * 100.0f)))
                       .arg(static_cast<int>(std::round(width->get().value() * 100.0f)));
                 }
-            } else if (type == "clipper") {
+            } else if (type == Constants::RackEffectType::clipper()) {
                 auto threshold = effect->parameter(Constants::NahdXml::xmlKeyClipperThreshold().toStdString());
                 if (threshold) {
                     return QString { "(thr=%1dB)" }.arg(threshold->get().xmlValue() / 100.0f, 0, 'f', 1);
                 }
-            } else if (type == "eq8bandparametric") {
+            } else if (type == Constants::RackEffectType::eq8BandParametric()) {
                 return "(Parametric)";
             }
         }
@@ -408,6 +409,36 @@ QString EffectRackController::eq8BandParametricGainKey(int bandIndex) const
 QString EffectRackController::eq8BandParametricQKey(int bandIndex) const
 {
     return Constants::NahdXml::xmlKeyEq8BandParametricQ(bandIndex);
+}
+
+QString EffectRackController::clipperType() const
+{
+    return Constants::RackEffectType::clipper();
+}
+
+QString EffectRackController::compressorType() const
+{
+    return Constants::RackEffectType::compressor();
+}
+
+QString EffectRackController::delayType() const
+{
+    return Constants::RackEffectType::delay();
+}
+
+QString EffectRackController::eq8BandParametricType() const
+{
+    return Constants::RackEffectType::eq8BandParametric();
+}
+
+QString EffectRackController::pannerType() const
+{
+    return Constants::RackEffectType::panner();
+}
+
+QString EffectRackController::reverbType() const
+{
+    return Constants::RackEffectType::reverb();
 }
 
 float EffectRackController::compressorReductionDb(int effectIndex) const

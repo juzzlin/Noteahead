@@ -35,6 +35,13 @@ class EffectRackController : public QObject
     Q_PROPERTY(QString targetDeviceName READ targetDeviceName WRITE setTargetDeviceName NOTIFY targetDeviceNameChanged)
     Q_PROPERTY(bool isInsertRack READ isInsertRack WRITE setIsInsertRack NOTIFY isInsertRackChanged)
 
+    Q_PROPERTY(QString clipperType READ clipperType CONSTANT)
+    Q_PROPERTY(QString compressorType READ compressorType CONSTANT)
+    Q_PROPERTY(QString delayType READ delayType CONSTANT)
+    Q_PROPERTY(QString eq8BandParametricType READ eq8BandParametricType CONSTANT)
+    Q_PROPERTY(QString pannerType READ pannerType CONSTANT)
+    Q_PROPERTY(QString reverbType READ reverbType CONSTANT)
+
 public:
     using DeviceServiceS = std::shared_ptr<DeviceService>;
     using EditorServiceS = std::shared_ptr<EditorService>;
@@ -90,6 +97,13 @@ public:
     Q_INVOKABLE QString eq8BandParametricQKey(int bandIndex) const;
 
     Q_INVOKABLE float compressorReductionDb(int effectIndex) const;
+
+    QString clipperType() const;
+    QString compressorType() const;
+    QString delayType() const;
+    QString eq8BandParametricType() const;
+    QString pannerType() const;
+    QString reverbType() const;
 
     Q_INVOKABLE QStringList reverbPresets() const;
     Q_INVOKABLE void applyReverbPreset(int effectIndex, int presetIndex);
