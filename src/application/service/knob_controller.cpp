@@ -65,9 +65,7 @@ QString KnobController::format(double value, const QString & type, const QString
     if (type == "pan") {
         return panToString(value, 0.0, 1.0);
     }
-    if (type == "intensity" || type == "cubicCentered") {
-        return bipolarToString((value - 0.5) * 2.0, suffix, -1.0, 1.0);
-    }
+
     if (type == "volume") {
         const double linearValue = value * Constants::uiInternalScaling();
         const QString pctStr = percentageToString(linearValue);
@@ -77,6 +75,9 @@ QString KnobController::format(double value, const QString & type, const QString
 
     const double mappedValue = map(value, type, min, max);
 
+    if (type == "intensity" || type == "cubicCentered") {
+        return bipolarToString(mappedValue, suffix, min, max);
+    }
     if (type == "logFrequency" || type == "frequency") {
         const double linearValue = value * Constants::uiInternalScaling();
         const QString freqStr = frequencyToString(linearValue, mappedValue, false);
@@ -158,7 +159,7 @@ QString KnobController::timeToString(double value, const QString & suffix) const
         }
         return QString { "%1 s" }.arg(seconds, 0, 'f', 1);
     }
-    return QString { "%1%2" }.arg(std::round(value)).arg(suffix);
+    return QString { "%1 %2" }.arg(value, 0, 'f', 1).arg(suffix);
 }
 
 double KnobController::mapExponential(double value, double min, double max) const
@@ -174,8 +175,8 @@ double KnobController::unmapExponential(double value, double min, double max) co
 QString KnobController::percentageToString(double value, double from, double to) const
 {
     const double range = to - from;
-    const double displayValue = (range != 0) ? (value - from) / range * 100.0 : 0.0;
-    return QString { "%1%" }.arg(displayValue, 0, 'f', 1);
+    const double pct = { range != 0 ? ((value - from) / range) * 100.0 : 0 };
+    return QString { "%1%" }.arg(pct, 0, 'f', 1);
 }
 
 QString KnobController::decibelToString(double value, double from, double to) const
@@ -209,29 +210,24 @@ QString KnobController::valueToString(double value, const QString & suffix, doub
     if (suffix == "dB") {
         return decibelToString(value, from, to);
     }
-
+    if (suffix == "Hz") {
+        return QString::number(static_cast<int>(std::round(value))) + "Hz";
+    }
     if (suffix == "s" || suffix == "ms") {
         return timeToString(value, suffix);
     }
-
-    if (isInteger) {
-        return QString { "%1%2" }.arg(std::round(value)).arg(suffix);
-    }
-    return QString { "%1%2" }.arg(value, 0, 'f', 2).arg(suffix);
+    return QString::number(isInteger ? std::round(value) : value, 'f', isInteger ? 0 : 2) + suffix;
 }
 
-QString KnobController::frequencyToString(double value, double cutoffHz, bool isHpf) const
+QString KnobController::frequencyToString(double linearValue, double mappedValue, bool forceHz) const
 {
-    if (!isHpf && value >= Constants::uiInternalScaling()) {
+    if (!forceHz && linearValue >= Constants::uiInternalScaling() - 0.1) {
         return tr("Bypass");
     }
-    if (cutoffHz >= 1000) {
-        return QString { "%1 kHz" }.arg(cutoffHz / 1000.0, 0, 'f', 1);
+    if (mappedValue < 1000.0) {
+        return QString { "%1 Hz" }.arg(std::round(mappedValue));
     }
-    if (cutoffHz < 1.0) {
-        return tr("0 Hz");
-    }
-    return QString { "%1 Hz" }.arg(std::round(cutoffHz));
+    return QString { "%1 kHz" }.arg(mappedValue / 1000.0, 0, 'f', 1);
 }
 
 int KnobController::syncIndex(double value) const

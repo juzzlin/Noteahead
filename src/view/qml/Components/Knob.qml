@@ -30,16 +30,8 @@ ColumnLayout {
     property real mapMin: 0
     property real mapMax: 1
     property bool isInteger: true
-    property real sliderFrom: {
-        if (mapping === "linear") return from;
-        if (mapping === "cubicCentered" || mapping === "pan" || mapping === "intensity") return -1.0;
-        return 0.0;
-    }
-    property real sliderTo: {
-        if (mapping === "linear") return to;
-        if (mapping === "cubicCentered" || mapping === "pan" || mapping === "intensity") return 1.0;
-        return 1.0;
-    }
+    property real sliderFrom: from
+    property real sliderTo: to
     property alias stepSize: slider.stepSize
     signal moved(real val)
 
@@ -49,7 +41,7 @@ ColumnLayout {
     spacing: 2
     Label {
         text: {
-            let modelNorm = knobRoot.value / knobRoot.to;
+            let modelNorm = (knobRoot.value - knobRoot.from) / (knobRoot.to - knobRoot.from);
             let displayValue = knobController.format(modelNorm, knobRoot.mapping, knobRoot.suffix, knobRoot.mapMin, knobRoot.mapMax);
             return `${knobRoot.label} (${displayValue})`;
         }
@@ -62,41 +54,25 @@ ColumnLayout {
         from: knobRoot.sliderFrom
         to: knobRoot.sliderTo
         stepSize: 0
+        value: knobRoot.value
         Layout.fillWidth: true
         
         onMoved: {
-            if (knobRoot.mapping === "linear") {
-                knobRoot.moved(value);
-            } else {
-                let norm = (value - from) / (to - from);
-                let mapped = knobController.map(norm, knobRoot.mapping, knobRoot.mapMin, knobRoot.mapMax);
-                knobRoot.moved(mapped * knobRoot.to);
-            }
+            knobRoot.moved(value);
         }
 
         Binding {
             target: slider
             property: "value"
-            value: {
-                if (knobRoot.mapping === "linear") return knobRoot.value;
-                let modelNorm = knobRoot.value / knobRoot.to;
-                let unmapped = knobController.unmap(modelNorm, knobRoot.mapping, knobRoot.mapMin, knobRoot.mapMax);
-                return unmapped * (sliderTo - sliderFrom) + sliderFrom;
-            }
+            value: knobRoot.value
             when: !slider.pressed
         }
 
         WheelHandler {
             onWheel: (wheel) => {
-                const delta = wheel.angleDelta.y / 12000.0; // ~1% per standard notch
+                const delta = (wheel.angleDelta.y / 12000.0) * (slider.to - slider.from);
                 const nextV = Math.max(slider.from, Math.min(slider.to, slider.value + delta));
-                if (knobRoot.mapping === "linear") {
-                    knobRoot.moved(nextV);
-                } else {
-                    let norm = (nextV - slider.from) / (slider.to - slider.from);
-                    let mapped = knobController.map(norm, knobRoot.mapping, knobRoot.mapMin, knobRoot.mapMax);
-                    knobRoot.moved(mapped * knobRoot.to);
-                }
+                knobRoot.moved(nextV);
             }
         }
 
