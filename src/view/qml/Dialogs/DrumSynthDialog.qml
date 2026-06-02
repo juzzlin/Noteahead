@@ -123,6 +123,9 @@ Dialog {
                     
                     Knob {
                         label: qsTr("Level")
+                        mapping: "decibel"
+                        mapMin: -30
+                        mapMax: 30
                         value: drumSynthController.voiceLevel
                         onMoved: (val) => drumSynthController.voiceLevel = val
                     }
