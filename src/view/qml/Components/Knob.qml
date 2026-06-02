@@ -49,9 +49,8 @@ ColumnLayout {
     spacing: 2
     Label {
         text: {
-            let displayValue = "";
             let modelNorm = knobRoot.value / knobRoot.to;
-            displayValue = knobController.format(modelNorm, knobRoot.mapping, knobRoot.suffix, knobRoot.mapMin, knobRoot.mapMax);
+            let displayValue = knobController.format(modelNorm, knobRoot.mapping, knobRoot.suffix, knobRoot.mapMin, knobRoot.mapMax);
             return `${knobRoot.label} (${displayValue})`;
         }
         font.pixelSize: 11
@@ -66,15 +65,12 @@ ColumnLayout {
         Layout.fillWidth: true
         
         onMoved: {
-            let val = value;
             if (knobRoot.mapping === "linear") {
-                knobRoot.moved(val);
-            } else if (knobRoot.mapping === "cubicCentered" || knobRoot.mapping === "pan" || knobRoot.mapping === "intensity") {
-                // slider -1..1 maps to model 0..1000 via internal 0..1
-                knobRoot.moved((val * 0.5 + 0.5) * knobRoot.to);
+                knobRoot.moved(value);
             } else {
-                // slider 0..1 maps to model 0..1000
-                knobRoot.moved(val * knobRoot.to);
+                let norm = (value - from) / (to - from);
+                let mapped = knobController.map(norm, knobRoot.mapping, knobRoot.mapMin, knobRoot.mapMax);
+                knobRoot.moved(mapped * knobRoot.to);
             }
         }
 
@@ -83,10 +79,9 @@ ColumnLayout {
             property: "value"
             value: {
                 if (knobRoot.mapping === "linear") return knobRoot.value;
-                if (knobRoot.mapping === "cubicCentered" || knobRoot.mapping === "pan" || knobRoot.mapping === "intensity") {
-                    return (knobRoot.value / knobRoot.to) * 2.0 - 1.0;
-                }
-                return knobRoot.value / knobRoot.to;
+                let modelNorm = knobRoot.value / knobRoot.to;
+                let unmapped = knobController.unmap(modelNorm, knobRoot.mapping, knobRoot.mapMin, knobRoot.mapMax);
+                return unmapped * (sliderTo - sliderFrom) + sliderFrom;
             }
             when: !slider.pressed
         }
@@ -94,17 +89,13 @@ ColumnLayout {
         WheelHandler {
             onWheel: (wheel) => {
                 const delta = wheel.angleDelta.y > 0 ? 0.05 : -0.05;
+                const nextV = Math.max(slider.from, Math.min(slider.to, slider.value + delta));
                 if (knobRoot.mapping === "linear") {
-                    const range = knobRoot.to - knobRoot.from;
-                    const linearDelta = delta * range;
-                    knobRoot.moved(Math.max(knobRoot.from, Math.min(knobRoot.to, knobRoot.value + linearDelta)));
+                    knobRoot.moved(nextV);
                 } else {
-                    const nextV = Math.max(slider.from, Math.min(slider.to, slider.value + delta));
-                    if (knobRoot.mapping === "cubicCentered" || knobRoot.mapping === "pan" || knobRoot.mapping === "intensity") {
-                         knobRoot.moved((nextV * 0.5 + 0.5) * knobRoot.to);
-                    } else {
-                         knobRoot.moved(nextV * knobRoot.to);
-                    }
+                    let norm = (nextV - slider.from) / (slider.to - slider.from);
+                    let mapped = knobController.map(norm, knobRoot.mapping, knobRoot.mapMin, knobRoot.mapMax);
+                    knobRoot.moved(mapped * knobRoot.to);
                 }
             }
         }
