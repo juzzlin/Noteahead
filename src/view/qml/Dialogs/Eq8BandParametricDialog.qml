@@ -54,22 +54,24 @@ Dialog {
             Layout.fillWidth: true
             Layout.fillHeight: true
             clip: true
-            contentWidth: bandsRow.implicitWidth
-            contentHeight: -1
-            ScrollBar.horizontal.policy: ScrollBar.AsNeeded
+            contentWidth: -1
+            contentHeight: bandsGrid.implicitHeight
+            ScrollBar.horizontal.policy: ScrollBar.AlwaysOff
             ScrollBar.vertical.policy: ScrollBar.AsNeeded
 
-            RowLayout {
-                id: bandsRow
-                spacing: 40
-                anchors.top: parent.top
-                anchors.bottom: parent.bottom
+            GridLayout {
+                id: bandsGrid
+                columns: 4
+                rowSpacing: 30
+                columnSpacing: 30
+                width: parent.width
 
                 Repeater {
                     model: 8
                     delegate: ColumnLayout {
                         spacing: 15
                         Layout.alignment: Qt.AlignTop
+                        Layout.fillWidth: true
                         
                         Label {
                             text: "<strong>" + qsTr("Band %1").arg(index + 1) + "</strong>"
@@ -81,6 +83,7 @@ Dialog {
                         BandSettings {
                             bandIndex: index
                             effectIndex: root.effectIndex
+                            Layout.fillWidth: true
                         }
                     }
                 }
