@@ -13,7 +13,14 @@
 #include "../../infra/audio/audio_engine.hpp"
 #include "../../infra/audio/backend/audio_file_reader.hpp"
 
+#include "../../application/service/automation_service.hpp"
+#include "../../application/service/property_service.hpp"
+#include "../../application/service/side_chain_service.hpp"
+#include "../../domain/pattern.hpp"
+#include "../../domain/song.hpp"
+
 #include <QTest>
+
 #include <cmath>
 #include <mutex>
 #include <span>
@@ -320,6 +327,81 @@ void RenderingTest::test_render_shouldClampSignal()
         }
     }
     QVERIFY2(foundLargeSignal, "Should have found samples close to 1.0 due to clamping");
+}
+
+void RenderingTest::test_render_midiSideChain_shouldProcessEventWhenSourceTrackIsMuted()
+{
+    auto audioEngine = std::make_shared<AudioEngine>();
+    auto deviceService = std::make_shared<DeviceService>(audioEngine);
+    auto mixerService = std::make_shared<MixerService>();
+    auto propertyService = std::make_shared<PropertyService>();
+    auto automationService = std::make_shared<AutomationService>(propertyService);
+    auto sideChainService = std::make_shared<SideChainService>();
+
+    auto song = std::make_shared<Song>();
+    song->initialize();
+    song->addTrackToRightOf(0); // Track 0 and Track 1
+
+    auto instrument0 = std::make_shared<Instrument>(Constants::internalDevicePortPrefix() + " 1");
+    song->setInstrument(0, instrument0);
+
+    auto instrument1 = std::make_shared<Instrument>(Constants::internalDevicePortPrefix() + " 2");
+    song->setInstrument(1, instrument1);
+
+    auto synth1 = std::make_shared<SynthDevice>("Target Synth");
+    synth1->setLpfCutoff(0.5f);
+    deviceService->setDevice(1, synth1);
+
+    SideChainSettings settings;
+    settings.enabled = true;
+    settings.sourceTrackIndex = 0;
+    settings.sourceColumnIndex = 0;
+    settings.lookahead = std::chrono::milliseconds { 0 };
+    settings.release = std::chrono::milliseconds { 100 };
+    settings.targets.push_back({ true, 74, 127, 0 }); // CC 74 (Cutoff) -> 127
+    sideChainService->setSettings(1, settings);
+
+    // Add a NoteOn on Track 0 at tick 0 to trigger the side-chain
+    NoteData triggerNote { 0, 0 };
+    triggerNote.setAsNoteOn(60, 100);
+    const auto patternIndex = song->patternAtSongPosition(0);
+    song->pattern(patternIndex)->setNoteDataAtPosition(triggerNote, { 0, 0, 0, 0, 0 });
+
+    // Solo Track 1, so Track 0 is muted
+    mixerService->soloTrack(1, true);
+
+    QVERIFY(mixerService->shouldTrackPlay(1));
+    QVERIFY(!mixerService->shouldTrackPlay(0));
+
+    // Render to events
+    const auto events = song->renderToEvents(automationService, sideChainService, 0);
+
+    // Verify CC event exists
+    bool foundCcEvent = false;
+    for (const auto & event : events) {
+        if (event->type() == Event::Type::MidiCcData) {
+            if (auto data = event->midiCcData(); data && data->track() == 1 && data->controller() == 74) {
+                foundCcEvent = true;
+                break;
+            }
+        }
+    }
+    QVERIFY(foundCcEvent);
+
+    // Process events through RenderWorker
+    RenderWorker worker(audioEngine, deviceService, mixerService);
+    worker.setAudioFileReaderFactory([]() { return std::make_unique<MockRenderIo>(); });
+
+    RenderWorker::Timing timing;
+    timing.beatsPerMinute = 120;
+    timing.linesPerBeat = 4;
+    timing.ticksPerLine = 6;
+
+    // Process only first tick where CC is expected
+    worker.render("dummy.wav", events, timing, 1, 44100);
+
+    // Verify cutoff was updated to 1.0f (from CC 127)
+    QCOMPARE(synth1->lpfCutoff(), 1.0f);
 }
 
 } // namespace noteahead

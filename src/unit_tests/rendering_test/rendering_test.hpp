@@ -16,6 +16,7 @@ private slots:
     void test_renderDrumSynth_shouldPreserveParameters();
     void test_render_shouldNotCrashWithNullInstrumentEvents();
     void test_render_shouldClampSignal();
+    void test_render_midiSideChain_shouldProcessEventWhenSourceTrackIsMuted();
 };
 
 } // namespace noteahead
