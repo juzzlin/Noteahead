@@ -23,6 +23,7 @@
 #include "../../domain/devices/panner_effect.hpp"
 #include "../../domain/devices/panning_effect.hpp"
 #include "../../domain/devices/volume_effect.hpp"
+#include "../../domain/dsp/clipper_effect.hpp"
 #include "../../domain/dsp/compressor_effect.hpp"
 #include "../../domain/dsp/eq_8_band_parametric_effect.hpp"
 #include "../../domain/dsp/reverb_effect.hpp"
@@ -153,6 +154,8 @@ void EffectRackController::setEffect(int slotIndex, const QString & typeId)
         effect = std::make_shared<VolumeEffect>();
     } else if (stdTypeId == CompressorEffect::typeIdString()) {
         effect = std::make_shared<CompressorEffect>();
+    } else if (stdTypeId == ClipperEffect::typeIdString()) {
+        effect = std::make_shared<ClipperEffect>();
     } else if (stdTypeId == Eq8BandParametricEffect::typeIdString()) {
         effect = std::make_shared<Eq8BandParametricEffect>();
     }
@@ -189,6 +192,7 @@ QVariantList EffectRackController::availableEffects() const
     };
 
     addEffect("Compressor", CompressorEffect::typeIdString());
+    addEffect("Clipper", ClipperEffect::typeIdString());
     addEffect("EQ 8-Band Parametric", Eq8BandParametricEffect::typeIdString());
     addEffect("Panner", PannerEffect::typeIdString());
     addEffect("Reverb", ReverbEffect::typeIdString());
@@ -362,6 +366,21 @@ QString EffectRackController::compressorMakeupKey() const
 QString EffectRackController::compressorLookaheadKey() const
 {
     return Constants::NahdXml::xmlKeyLookahead();
+}
+
+QString EffectRackController::clipperModeKey() const
+{
+    return Constants::NahdXml::xmlKeyClipperMode();
+}
+
+QString EffectRackController::clipperThresholdKey() const
+{
+    return Constants::NahdXml::xmlKeyClipperThreshold();
+}
+
+QString EffectRackController::clipperGainKey() const
+{
+    return Constants::NahdXml::xmlKeyClipperGain();
 }
 
 QString EffectRackController::eq8BandParametricTypeKey(int bandIndex) const

@@ -26,8 +26,8 @@ Dialog {
     title: "<strong>" + qsTr("Insert Effects") + "</strong>"
     modal: true
     focus: true
-    width: parent ? parent.width * Constants.defaultDialogScale : 600
-    height: parent ? parent.height * Constants.defaultDialogScale : 500
+    width: parent ? parent.width * Constants.largeDialogScale : 800
+    height: parent ? parent.height * Constants.largeDialogScale : 600
 
     Universal.theme: Universal.Dark
     Universal.accent: themeService.accentColor
@@ -98,7 +98,10 @@ Dialog {
                         } else if (effectType === "compressor") {
                             compressorDialog.effectIndex = index;
                             compressorDialog.open();
-                        } else if (effectType === "eq8bandparametric") {
+                        } else if (effectType === "clipper") {
+                            clipperDialog.effectIndex = index;
+                            clipperDialog.open();
+                        } else if (effectType === "eq8BandParametric") {
                             eq8BandParametricDialog.effectIndex = index;
                             eq8BandParametricDialog.open();
                         } else if (effectType === "panner") {

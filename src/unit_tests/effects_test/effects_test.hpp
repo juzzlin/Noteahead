@@ -41,6 +41,7 @@ private slots:
     void test_delayEffect_shouldProcessTapeMode();
     void test_compressorEffect_shouldReduceGainAndHandleLookahead();
     void test_eq8BandParametricEffect_shouldApplyBandsAndBeStable();
+    void test_clipperEffect_shouldClipSignal();
     void test_filterStability_shouldHandleChangingCutoff();
     void test_cascadedSvfStability_shouldHandleRapidParameterChanges();
 };

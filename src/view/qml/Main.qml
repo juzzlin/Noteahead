@@ -279,6 +279,10 @@ ApplicationWindow {
         id: compressorDialog
         anchors.centerIn: parent
     }
+    ClipperDialog {
+        id: clipperDialog
+        anchors.centerIn: parent
+    }
     Eq8BandParametricDialog {
         id: eq8BandParametricDialog
         anchors.centerIn: parent

@@ -23,6 +23,7 @@
 #include "../../domain/devices/panning_effect.hpp"
 #include "../../domain/devices/volume_effect.hpp"
 #include "../../domain/dsp/cascaded_svf.hpp"
+#include "../../domain/dsp/clipper_effect.hpp"
 #include "../../domain/dsp/compressor_effect.hpp"
 #include "../../domain/dsp/eq_8_band_parametric_effect.hpp"
 #include "../../domain/dsp/reverb_effect.hpp"
@@ -719,6 +720,79 @@ void EffectsTest::test_eq8BandParametricEffect_shouldApplyBandsAndBeStable()
             QVERIFY(!std::isnan(left));
             QVERIFY(!std::isinf(left));
         }
+    }
+}
+
+void EffectsTest::test_clipperEffect_shouldClipSignal()
+{
+    ClipperEffect effect;
+
+    // Test Hard Clipping
+    {
+        effect.reset();
+        if (const auto p = effect.parameter(Constants::NahdXml::xmlKeyClipperMode().toStdString()); p) {
+            p->get().setValue(0.0f); // Hard
+        }
+        if (const auto p = effect.parameter(Constants::NahdXml::xmlKeyClipperThreshold().toStdString()); p) {
+            p->get().setValue(0.5f); // -12dB approx 0.2511
+        }
+        effect.sync();
+
+        const auto threshold = Utils::Dsp::dbToLinear(-12.0f);
+        auto left = 1.0;
+        auto right = 1.0;
+        effect.process(left, right);
+
+        QCOMPARE(static_cast<float>(left), threshold);
+        QCOMPARE(static_cast<float>(right), threshold);
+
+        left = -1.0;
+        right = -1.0;
+        effect.process(left, right);
+        QCOMPARE(static_cast<float>(left), -threshold);
+        QCOMPARE(static_cast<float>(right), -threshold);
+    }
+
+    // Test Soft Clipping (Tanh)
+    {
+        effect.reset();
+        if (const auto p = effect.parameter(Constants::NahdXml::xmlKeyClipperMode().toStdString()); p) {
+            p->get().setValue(1.0f); // Soft
+        }
+        if (const auto p = effect.parameter(Constants::NahdXml::xmlKeyClipperThreshold().toStdString()); p) {
+            p->get().setValue(1.0f); // 0dB = 1.0
+        }
+        effect.sync();
+
+        auto left = 1.0;
+        auto right = 1.0;
+        effect.process(left, right);
+
+        // tanh(1.0) is approx 0.7615
+        QVERIFY(left < 1.0);
+        QVERIFY(left > 0.76);
+    }
+
+    // Test Gain
+    {
+        effect.reset();
+        if (const auto p = effect.parameter(Constants::NahdXml::xmlKeyClipperMode().toStdString()); p) {
+            p->get().setValue(0.0f); // Hard
+        }
+        if (const auto p = effect.parameter(Constants::NahdXml::xmlKeyClipperThreshold().toStdString()); p) {
+            p->get().setValue(1.0f); // 0dB = 1.0
+        }
+        if (const auto p = effect.parameter(Constants::NahdXml::xmlKeyClipperGain().toStdString()); p) {
+            p->get().setValue(0.75f); // +12dB = 3.98 approx
+        }
+        effect.sync();
+
+        auto left = 0.5;
+        auto right = 0.5;
+        effect.process(left, right);
+
+        const auto expected = 0.5 * Utils::Dsp::dbToLinear(12.0f);
+        QCOMPARE(static_cast<float>(left), expected);
     }
 }
 

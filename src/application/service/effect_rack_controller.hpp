@@ -80,6 +80,10 @@ public:
     Q_INVOKABLE QString compressorMakeupKey() const;
     Q_INVOKABLE QString compressorLookaheadKey() const;
 
+    Q_INVOKABLE QString clipperModeKey() const;
+    Q_INVOKABLE QString clipperThresholdKey() const;
+    Q_INVOKABLE QString clipperGainKey() const;
+
     Q_INVOKABLE QString eq8BandParametricTypeKey(int bandIndex) const;
     Q_INVOKABLE QString eq8BandParametricFreqKey(int bandIndex) const;
     Q_INVOKABLE QString eq8BandParametricGainKey(int bandIndex) const;

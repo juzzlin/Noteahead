@@ -5,12 +5,20 @@ Release date:
 
 New features:
 
+* Implement Clipper effect
+  - Dual modes: Hard and Soft (tanh saturation)
+  - Configurable Threshold and Output Gain
+
 Bug fixes:
 
 * Fix MIDI CC controller list for internal devices
   - Implement architectural fix delegating CC mapping to actual device instances
   - Ensure correct CC lists are returned for all internal devices (Sampler, Synth, BassSynth, DrumSynth)
   - Added robust unit tests to verify mappings against default and custom device names
+
+* UI: Standardize and enlarge Device/Effects Gallery and Rack dialogs
+  - Increased size using parent-relative scaling for better usability
+  - Modernized layout for Clipper dialog with stacked controls for better precision
 
 Other:
 

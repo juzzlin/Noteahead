@@ -25,8 +25,8 @@ Dialog {
     title: "<strong>" + qsTr("Device Rack") + "</strong>"
     modal: true
     focus: true
-    width: 600
-    height: 500
+    width: parent ? parent.width * Constants.largeDialogScale : 800
+    height: parent ? parent.height * Constants.largeDialogScale : 600
 
     function updateUsage(): void {
         deviceRackController.refresh();

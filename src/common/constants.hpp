@@ -297,6 +297,10 @@ QString xmlKeyCompressorRatio();
 QString xmlKeyCompressorKnee();
 QString xmlKeyCompressorMakeup();
 
+QString xmlKeyClipperMode();
+QString xmlKeyClipperThreshold();
+QString xmlKeyClipperGain();
+
 QString xmlKeyEq8BandParametricType(int bandIndex);
 QString xmlKeyEq8BandParametricFreq(int bandIndex);
 QString xmlKeyEq8BandParametricGain(int bandIndex);

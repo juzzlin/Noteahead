@@ -16,6 +16,7 @@
 #include "effect_rack.hpp"
 #include "../../common/constants.hpp"
 #include "../../common/utils.hpp"
+#include "../dsp/clipper_effect.hpp"
 #include "../dsp/compressor_effect.hpp"
 #include "../dsp/eq_8_band_parametric_effect.hpp"
 #include "../dsp/reverb_effect.hpp"
@@ -187,6 +188,8 @@ void EffectRack::deserializeEffect(QXmlStreamReader & reader)
         effect = std::make_shared<VolumeEffect>();
     } else if (typeId == CompressorEffect::typeIdString() || type == "compressor") {
         effect = std::make_shared<CompressorEffect>();
+    } else if (typeId == ClipperEffect::typeIdString() || type == "clipper") {
+        effect = std::make_shared<ClipperEffect>();
     } else if (typeId == Eq8BandParametricEffect::typeIdString() || type == "eq8bandparametric") {
         effect = std::make_shared<Eq8BandParametricEffect>();
     }

@@ -1070,6 +1070,21 @@ QString xmlKeyCompressorMakeup()
     return "makeup";
 }
 
+QString xmlKeyClipperMode()
+{
+    return "clipperMode";
+}
+
+QString xmlKeyClipperThreshold()
+{
+    return "clipperThreshold";
+}
+
+QString xmlKeyClipperGain()
+{
+    return "clipperGain";
+}
+
 QString xmlKeyEq8BandParametricType(int bandIndex)
 {
     return QString("eq8BandParametricBand%1Type").arg(bandIndex + 1);

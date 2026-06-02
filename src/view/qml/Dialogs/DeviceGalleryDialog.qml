@@ -24,8 +24,8 @@ Dialog {
     title: "<strong>" + qsTr("Device Gallery") + "</strong>"
     modal: true
     focus: true
-    width: parent ? parent.width * Constants.defaultDialogScale : 600
-    height: parent ? parent.height * Constants.defaultDialogScale : 500
+    width: parent ? parent.width * Constants.largeDialogScale : 800
+    height: parent ? parent.height * Constants.largeDialogScale : 600
 
     property int slotIndex: -1
 

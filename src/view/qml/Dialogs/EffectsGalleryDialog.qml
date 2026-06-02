@@ -24,8 +24,8 @@ Dialog {
     title: "<strong>" + qsTr("Effects Gallery") + "</strong>"
     modal: true
     focus: true
-    width: 400
-    height: 400
+    width: parent ? parent.width * Constants.largeDialogScale : 800
+    height: parent ? parent.height * Constants.largeDialogScale : 600
 
     property int slotIndex: -1
 
