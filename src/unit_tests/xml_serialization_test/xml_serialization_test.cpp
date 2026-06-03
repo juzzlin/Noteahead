@@ -816,6 +816,7 @@ void XmlSerializationTest::test_toXmlFromXml_synthDevice_shouldPreserveValuesAnd
     synthOut->setMixVco2(0.75f);
     synthOut->setLpfCutoff(0.3f);
     synthOut->setAmpAttack(0.2f);
+    synthOut->setAmpVelocitySensitivity(0.7f);
     synthOut->setMultiType(MultiEngine::Type::Decim);
     synthOut->setMultiShape(0.42f);
     synthOut->setMultiLevel(0.88f);
@@ -848,6 +849,7 @@ void XmlSerializationTest::test_toXmlFromXml_synthDevice_shouldPreserveValuesAnd
     QCOMPARE(synthIn->mixVco2(), 0.75f);
     QCOMPARE(synthIn->lpfCutoff(), 0.3f);
     QCOMPARE(synthIn->ampAttack(), 0.2f);
+    QCOMPARE(synthIn->ampVelocitySensitivity(), 0.7f);
     QCOMPARE(synthIn->multiType(), MultiEngine::Type::Decim);
     QCOMPARE(synthIn->multiShape(), 0.42f);
     QCOMPARE(synthIn->multiLevel(), 0.88f);

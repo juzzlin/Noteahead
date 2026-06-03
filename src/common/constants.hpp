@@ -351,6 +351,7 @@ QString xmlKeySynthAmpAttack();
 QString xmlKeySynthAmpDecay();
 QString xmlKeySynthAmpSustain();
 QString xmlKeySynthAmpRelease();
+QString xmlKeySynthAmpVelocitySensitivity();
 
 QString xmlKeySynthModAttack();
 QString xmlKeySynthModDecay();

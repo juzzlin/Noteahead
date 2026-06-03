@@ -40,6 +40,7 @@ void SynthDevice::Voice::reset()
     modEg.reset();
     lfo.reset();
     glideFrequency = 0.0;
+    active = false;
 }
 
 void SynthDevice::Voice::trigger(uint8_t n, double freq, float p, float v, bool phaseSync)
@@ -132,6 +133,7 @@ SynthDevice::SynthDevice(std::string name)
     addParameter(Parameter { Constants::NahdXml::xmlKeySynthAmpDecay().toStdString(), 0.34f, 0, 100, 34 });
     addParameter(Parameter { Constants::NahdXml::xmlKeySynthAmpSustain().toStdString(), 1.0f, 0, 100, 100 });
     addParameter(Parameter { Constants::NahdXml::xmlKeySynthAmpRelease().toStdString(), 0.48f, 0, 100, 48 });
+    addParameter(Parameter { Constants::NahdXml::xmlKeySynthAmpVelocitySensitivity().toStdString(), 1.0f, 0, 100, 100 });
 
     addParameter(Parameter { Constants::NahdXml::xmlKeySynthModAttack().toStdString(), 0.5f, 0, 100, 50 });
     addParameter(Parameter { Constants::NahdXml::xmlKeySynthModDecay().toStdString(), 0.34f, 0, 100, 34 });
@@ -436,6 +438,7 @@ void SynthDevice::handleNoteOn(uint8_t note, uint8_t velocity)
 
     const double freq = midiNoteToFreq(note);
     const float vel = static_cast<float>(velocity) / 127.0f;
+    const float finalVel = std::clamp((1.0f - m_ampVelocitySensitivity) + m_ampVelocitySensitivity * vel, 0.0f, 1.0f);
 
     if (m_voiceMode == VoiceMode::Poly) {
         std::optional<size_t> bestVoice;
@@ -488,9 +491,9 @@ void SynthDevice::handleNoteOn(uint8_t note, uint8_t velocity)
             const float pan = 0.5f + (side * depth * m_panSpread * 0.5f);
 
             if (m_vco1Sync) {
-                m_voices.at(bestVoice.value()).trigger(note, freq, pan, vel, true);
+                m_voices.at(bestVoice.value()).trigger(note, freq, pan, finalVel, true);
             } else {
-                m_voices.at(bestVoice.value()).triggerRandomized(note, freq, pan, vel, m_phaseDist(m_rng));
+                m_voices.at(bestVoice.value()).triggerRandomized(note, freq, pan, finalVel, m_phaseDist(m_rng));
             }
         }
     } else {
@@ -509,9 +512,9 @@ void SynthDevice::handleNoteOn(uint8_t note, uint8_t velocity)
             const float pan = 0.5f + (side * depth * m_panSpread * 0.5f);
 
             if (m_vco1Sync) {
-                m_voices.at(i).trigger(note, voiceFreq, pan, vel, true);
+                m_voices.at(i).trigger(note, voiceFreq, pan, finalVel, true);
             } else {
-                m_voices.at(i).triggerRandomized(note, voiceFreq, pan, vel, m_phaseDist(m_rng));
+                m_voices.at(i).triggerRandomized(note, voiceFreq, pan, finalVel, m_phaseDist(m_rng));
             }
         }
     }
@@ -719,6 +722,8 @@ void SynthDevice::syncParameters()
         m_ampSustain = p->get().value();
     if (const auto p = parameter(Constants::NahdXml::xmlKeySynthAmpRelease().toStdString()); p)
         m_ampRelease = p->get().value();
+    if (const auto p = parameter(Constants::NahdXml::xmlKeySynthAmpVelocitySensitivity().toStdString()); p)
+        m_ampVelocitySensitivity = p->get().value();
 
     if (const auto p = parameter(Constants::NahdXml::xmlKeySynthModAttack().toStdString()); p)
         m_modAttack = p->get().value();
@@ -1408,6 +1413,26 @@ void SynthDevice::setAmpRelease(float r)
         std::lock_guard<std::recursive_mutex> lock { mutex() };
         if (const auto p = parameter(Constants::NahdXml::xmlKeySynthAmpRelease().toStdString()); p) {
             p->get().setValue(r);
+            syncParameters();
+            changed = true;
+        }
+    }
+    if (changed)
+        emit dataChanged();
+}
+
+float SynthDevice::ampVelocitySensitivity() const
+{
+    return m_ampVelocitySensitivity;
+}
+
+void SynthDevice::setAmpVelocitySensitivity(float sensitivity)
+{
+    bool changed = false;
+    {
+        std::lock_guard<std::recursive_mutex> lock { mutex() };
+        if (const auto p = parameter(Constants::NahdXml::xmlKeySynthAmpVelocitySensitivity().toStdString()); p) {
+            p->get().setValue(sensitivity);
             syncParameters();
             changed = true;
         }

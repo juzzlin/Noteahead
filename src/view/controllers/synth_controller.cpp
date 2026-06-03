@@ -361,6 +361,18 @@ void SynthController::setAmpRelease(int r)
     }
 }
 
+int SynthController::ampVelocitySensitivity() const
+{
+    return m_synth ? static_cast<int>(std::round(m_synth->ampVelocitySensitivity() * Constants::uiInternalScaling())) : 0;
+}
+
+void SynthController::setAmpVelocitySensitivity(int sensitivity)
+{
+    if (m_synth) {
+        m_synth->setAmpVelocitySensitivity(sensitivity / Constants::uiInternalScaling());
+    }
+}
+
 // Mod EG
 int SynthController::modAttack() const
 {
@@ -749,6 +761,7 @@ void SynthController::requestSettings()
     emit ampDecayChanged();
     emit ampSustainChanged();
     emit ampReleaseChanged();
+    emit ampVelocitySensitivityChanged();
 
     emit modAttackChanged();
     emit modDecayChanged();

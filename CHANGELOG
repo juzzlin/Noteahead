@@ -11,6 +11,8 @@ New features:
 
 * Implement Auto Panner effect
 
+* Implement velocity sensitivity for Synth
+
 Bug fixes:
 
 * Fix MIDI CC controller list for internal devices

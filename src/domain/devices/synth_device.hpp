@@ -166,6 +166,8 @@ public:
     void setAmpSustain(float s);
     float ampRelease() const;
     void setAmpRelease(float r);
+    float ampVelocitySensitivity() const;
+    void setAmpVelocitySensitivity(float sensitivity);
 
     // Mod EG
     float modAttack() const;
@@ -298,6 +300,7 @@ private:
     float m_ampDecay { 0.2f };
     float m_ampSustain { 1.0f };
     float m_ampRelease { 0.2f };
+    float m_ampVelocitySensitivity { 1.0f };
 
     float m_modAttack { 0.1f };
     float m_modDecay { 0.2f };

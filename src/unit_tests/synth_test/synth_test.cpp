@@ -810,6 +810,56 @@ void SynthTest::test_midiVelocity_shouldAffectVolume()
     QVERIFY2(peakHigh > peakLow, QString("Velocity did not affect volume: peakLow=%1, peakHigh=%2").arg(peakLow).arg(peakHigh).toUtf8().constData());
 }
 
+void SynthTest::test_velocitySensitivity_shouldAffectVoiceVelocity()
+{
+    SynthDevice synth { std::string("Test Synth") };
+    synth.setVolume(1.0f);
+    synth.setGain(0.5f);
+    synth.setAmpAttack(0.0f);
+    synth.setAmpSustain(1.0f);
+    synth.setMixVco1(1.0f);
+    synth.setMixVco2(0.0f);
+    synth.setMixVco3(0.0f);
+    synth.setMultiLevel(0.0f);
+    synth.setLpfCutoff(1.0f);
+
+    QCOMPARE(synth.ampVelocitySensitivity(), 1.0f);
+
+    auto getPeak = [&](uint8_t velocity, float sensitivity) {
+        synth.setAmpVelocitySensitivity(sensitivity);
+        synth.resetAudio();
+        synth.processMidiNoteOn(60, velocity);
+
+        const int frameCount { 1000 };
+        std::vector<double> buffer(static_cast<size_t>(frameCount) * 2, 0.0);
+        AudioContext context { std::span(buffer.data(), buffer.size()), static_cast<uint32_t>(frameCount), 44100 };
+        synth.processAudio(context);
+
+        double peak { 0.0 };
+        for (const double sample : buffer) {
+            peak = std::max(peak, std::abs(sample));
+        }
+        return peak;
+    };
+
+    // 1. With 0% sensitivity, velocity should not affect volume (peak should be same)
+    const double peak0SensLow = getPeak(10, 0.0f);
+    const double peak0SensHigh = getPeak(127, 0.0f);
+    QVERIFY2(std::abs(peak0SensLow - peak0SensHigh) < 0.001, QString { "Expected same peak at 0% sensitivity" }.toUtf8().constData());
+
+    // 1b. With 100% sensitivity, velocity 0 should be silent
+    const double peak100SensSilent = getPeak(0, 1.0f);
+    QVERIFY2(peak100SensSilent < 0.0001, QString { "Expected silence at 100% sensitivity and 0 velocity, got %1" }.arg(peak100SensSilent).toUtf8().constData());
+
+    // 2. With 100% sensitivity, velocity should affect volume (standard behavior)
+    const double peak100SensLow = getPeak(10, 1.0f);
+    const double peak100SensHigh = getPeak(127, 1.0f);
+    QVERIFY2(peak100SensHigh > peak100SensLow * 10.0, QString { "Expected ~12x difference at 100% sensitivity, got %1x" }.arg(peak100SensHigh / peak100SensLow).toUtf8().constData());
+
+    // 3. With 100% sensitivity and 127 velocity, it should match 0% sensitivity (always full)
+    QVERIFY2(std::abs(peak0SensHigh - peak100SensHigh) < 0.001, QString { "Peak at 127 velocity should be same regardless of sensitivity" }.toUtf8().constData());
+}
+
 void SynthTest::test_oscillatorOptimization_shouldSkipSilentOscillators()
 {
     SynthDevice synth { "Test Synth" };

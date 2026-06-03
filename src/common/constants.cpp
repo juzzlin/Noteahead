@@ -1282,6 +1282,11 @@ QString xmlKeySynthAmpRelease()
     return "ampRelease";
 }
 
+QString xmlKeySynthAmpVelocitySensitivity()
+{
+    return "ampVelocitySensitivity";
+}
+
 QString xmlKeySynthModAttack()
 {
     return "modAttack";
