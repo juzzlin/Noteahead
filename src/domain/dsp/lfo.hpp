@@ -28,18 +28,19 @@ class Lfo : public DspComponent
 public:
     enum class Waveform
     {
-        Saw,
-        Triangle,
-        Square
+        Saw = 0,
+        Sine = 3,
+        Square = 2,
+        Triangle = 1,
     };
 
     static std::vector<std::string> waveformNames();
 
     enum class Mode
     {
-        Normal,
-        BPM,
-        OneShot
+        BPM = 1,
+        Normal = 0,
+        OneShot = 2,
     };
 
     void setSampleRate(double sampleRate) override;

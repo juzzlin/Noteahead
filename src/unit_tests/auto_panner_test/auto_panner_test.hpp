@@ -13,28 +13,23 @@
 // You should have received a copy of the GNU General Public License
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef AUDIO_CONTEXT_HPP
-#define AUDIO_CONTEXT_HPP
+#ifndef AUTO_PANNER_TEST_HPP
+#define AUTO_PANNER_TEST_HPP
 
-#include <cstdint>
-#include <span>
+#include <QObject>
 
 namespace noteahead {
 
-/**
- * @brief Audio processing context.
- *
- * Uses double precision for the accumulation buffer to ensure high-quality
- * mixing and summing across many voices and tracks.
- */
-struct AudioContext
+class AutoPannerTest : public QObject
 {
-    std::span<double> buffer {};
-    uint32_t frameCount { 0 };
-    uint32_t sampleRate { 0 };
-    double bpm { 120.0 };
+    Q_OBJECT
+
+private slots:
+    void test_process_shouldModulatePanning();
+    void test_intensity_shouldScaleModulation();
+    void test_setBpm_shouldUpdateLfoFrequencyInSyncMode();
 };
 
 } // namespace noteahead
 
-#endif // AUDIO_CONTEXT_HPP
+#endif // AUTO_PANNER_TEST_HPP

@@ -23,6 +23,7 @@ set(HEADER_FILES
   application/models/note_column_model_handler.hpp
   application/models/pitch_bend_automations_model.hpp
   application/models/recent_files_model.hpp
+  application/models/sampler/sampler_model.hpp
   application/models/sampler/sampler_pad_model.hpp
   application/models/track_settings_model.hpp
   application/note_converter.hpp
@@ -33,8 +34,8 @@ set(HEADER_FILES
   application/service/automation_service.hpp
   application/service/bass_synth_controller.hpp
   application/service/copy_manager.hpp
-  application/service/device_rack.hpp
   application/service/device_controller.hpp
+  application/service/device_rack.hpp
   application/service/device_rack_controller.hpp
   application/service/device_service.hpp
   application/service/drum_synth_controller.hpp
@@ -42,6 +43,7 @@ set(HEADER_FILES
   application/service/effect_rack_controller.hpp
   application/service/jack_service.hpp
   application/service/keyboard_service.hpp
+  application/service/knob_controller.hpp
   application/service/midi_service.hpp
   application/service/midi_worker.hpp
   application/service/midi_worker_in.hpp
@@ -59,6 +61,7 @@ set(HEADER_FILES
   application/service/settings_service.hpp
   application/service/side_chain_service.hpp
   application/service/synth_controller.hpp
+  application/service/theme_service.hpp
   application/service/util_service.hpp
   application/state_machine.hpp
   application/ui_logger.hpp
@@ -71,9 +74,11 @@ set(HEADER_FILES
   domain/automation_location.hpp
   domain/column.hpp
   domain/column_settings.hpp
+  domain/devices/auto_panner_effect.hpp
   domain/devices/bass_synth_device.hpp
   domain/devices/delay_effect.hpp
   domain/devices/device.hpp
+  domain/devices/drum_synth_constants.hpp
   domain/devices/drum_synth_device.hpp
   domain/devices/effect.hpp
   domain/devices/effect_rack.hpp
@@ -87,6 +92,9 @@ set(HEADER_FILES
   domain/devices/volume_effect.hpp
   domain/dsp/adsr_envelope.hpp
   domain/dsp/cascaded_svf.hpp
+  domain/dsp/clipper_effect.hpp
+  domain/dsp/compressor_effect.hpp
+  domain/dsp/diode_ladder_filter.hpp
   domain/dsp/drum/clap_engine.hpp
   domain/dsp/drum/crash_engine.hpp
   domain/dsp/drum/drum_engine.hpp
@@ -95,9 +103,11 @@ set(HEADER_FILES
   domain/dsp/drum/ride_engine.hpp
   domain/dsp/drum/snare_engine.hpp
   domain/dsp/drum/tom_engine.hpp
+  domain/dsp/dsp_component.hpp
   domain/dsp/eq_8_band_parametric_effect.hpp
   domain/dsp/lfo.hpp
   domain/dsp/multi_engine.hpp
+  domain/dsp/oversampler.hpp
   domain/dsp/poly_blep_oscillator.hpp
   domain/dsp/reverb_effect.hpp
   domain/dsp/svf_filter.hpp
@@ -133,7 +143,9 @@ set(HEADER_FILES
   infra/audio/audio_recorder.hpp
   infra/audio/backend/audio_file_reader.hpp
   infra/audio/backend/sndfile_reader.hpp
+  infra/audio/implementation/jack/audio_player_jack.hpp
   infra/audio/implementation/jack/audio_recorder_jack.hpp
+  infra/audio/implementation/librtaudio/audio_player_rt_audio.hpp
   infra/audio/implementation/librtaudio/audio_recorder_rt_audio.hpp
   infra/audio/real_time_worker_pool.hpp
   infra/audio/ring_buffer.hpp
@@ -179,8 +191,8 @@ set(SOURCE_FILES
   application/service/automation_service.cpp
   application/service/bass_synth_controller.cpp
   application/service/copy_manager.cpp
-  application/service/device_rack.cpp
   application/service/device_controller.cpp
+  application/service/device_rack.cpp
   application/service/device_rack_controller.cpp
   application/service/device_service.cpp
   application/service/drum_synth_controller.cpp
@@ -219,6 +231,7 @@ set(SOURCE_FILES
   domain/automation_location.cpp
   domain/column.cpp
   domain/column_settings.cpp
+  domain/devices/auto_panner_effect.cpp
   domain/devices/bass_synth_device.cpp
   domain/devices/delay_effect.cpp
   domain/devices/device.cpp
@@ -236,9 +249,9 @@ set(SOURCE_FILES
   domain/devices/volume_effect.cpp
   domain/dsp/adsr_envelope.cpp
   domain/dsp/cascaded_svf.cpp
-  domain/dsp/diode_ladder_filter.cpp
-  domain/dsp/compressor_effect.cpp
   domain/dsp/clipper_effect.cpp
+  domain/dsp/compressor_effect.cpp
+  domain/dsp/diode_ladder_filter.cpp
   domain/dsp/drum/clap_engine.cpp
   domain/dsp/drum/crash_engine.cpp
   domain/dsp/drum/hihat_engine.cpp
@@ -327,6 +340,7 @@ set(QML_SOURCE_FILES
     ${QML_BASE_DIR}/Constants.qml
     ${QML_BASE_DIR}/Dialogs/AboutDialog.qml
     ${QML_BASE_DIR}/Dialogs/AudioRenderDialog.qml
+    ${QML_BASE_DIR}/Dialogs/AutoPannerDialog.qml
     ${QML_BASE_DIR}/Dialogs/AddMidiCcAutomationDialog.qml
     ${QML_BASE_DIR}/Dialogs/AddMidiCcSettingDialog.qml
     ${QML_BASE_DIR}/Dialogs/AddPitchBendAutomationDialog.qml

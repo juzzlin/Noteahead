@@ -14,6 +14,8 @@ set(SRC
     ../../domain/devices/bass_synth_device.cpp
     ../../domain/devices/drum_synth_device.cpp
     ../../domain/devices/drum_synth_constants.cpp
+    ../../domain/dsp/lfo.cpp
+    ../../domain/devices/auto_panner_effect.cpp
     ../../domain/devices/effect_rack.cpp
     ../../domain/devices/effect.cpp
     ../../domain/devices/volume_effect.cpp

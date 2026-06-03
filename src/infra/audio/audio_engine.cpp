@@ -201,6 +201,8 @@ AudioEngine::DeviceNames AudioEngine::deviceNames() const
 void AudioEngine::setBpm(float bpm)
 {
     std::lock_guard<std::mutex> lock { m_mutex };
+    m_sendEffectRack.setBpm(bpm);
+    m_insertEffectRack.setBpm(bpm);
     for (auto const & [index, device] : m_devices) {
         if (device) {
             device->setBpm(bpm);

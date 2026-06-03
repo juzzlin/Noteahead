@@ -17,6 +17,7 @@
 
 #include "../../common/constants.hpp"
 #include "../../common/parameter_mapper.hpp"
+#include "../../domain/devices/auto_panner_effect.hpp"
 #include "../../domain/devices/delay_effect.hpp"
 #include "../../domain/devices/high_pass_filter_effect.hpp"
 #include "../../domain/devices/low_pass_filter_effect.hpp"
@@ -27,6 +28,7 @@
 #include "../../domain/dsp/compressor_effect.hpp"
 #include "../../domain/dsp/eq_8_band_parametric_effect.hpp"
 #include "../../domain/dsp/reverb_effect.hpp"
+#include "knob_controller.hpp"
 
 #include <QStringList>
 #include <QVariantMap>
@@ -142,6 +144,8 @@ void EffectRackController::setEffect(int slotIndex, const QString & typeId)
         effect = std::make_shared<ReverbEffect>();
     } else if (stdTypeId == DelayEffect::typeIdString()) {
         effect = std::make_shared<DelayEffect>();
+    } else if (stdTypeId == AutoPannerEffect::typeIdString()) {
+        effect = std::make_shared<AutoPannerEffect>();
     } else if (stdTypeId == HighPassFilterEffect::typeIdString()) {
         effect = std::make_shared<HighPassFilterEffect>();
     } else if (stdTypeId == LowPassFilterEffect::typeIdString()) {
@@ -191,6 +195,7 @@ QVariantList EffectRackController::availableEffects() const
         list.append(map);
     };
 
+    addEffect("Auto Panner", AutoPannerEffect::typeIdString());
     addEffect("Clipper", ClipperEffect::typeIdString());
     addEffect("Compressor", CompressorEffect::typeIdString());
     addEffect("Delay", DelayEffect::typeIdString());
@@ -279,6 +284,24 @@ QString EffectRackController::effectParametersSummary(int effectIndex) const
                     return QString { "(time=%1ms, fb=%2%)" }
                       .arg(static_cast<int>(std::round(time->get().value() * 1000.0f)))
                       .arg(static_cast<int>(std::round(feedback->get().value() * 100.0f)));
+                }
+            } else if (type == Constants::RackEffectType::autoPanner()) {
+                const auto sync = effect->parameter(Constants::NahdXml::xmlKeySync().toStdString());
+                const auto intensity = effect->parameter(Constants::NahdXml::xmlKeyIntensity().toStdString());
+                if (sync && intensity) {
+                    QString rateStr;
+                    if (sync->get().value() > 0.5f) {
+                        const auto division = effect->parameter(Constants::NahdXml::xmlKeyDelaySyncDivision().toStdString());
+                        KnobController knobController;
+                        rateStr = knobController.syncLabel(knobController.syncIndex(division->get().value() * Constants::uiInternalScaling()));
+                    } else {
+                        const auto rate = effect->parameter(Constants::NahdXml::xmlKeyRate().toStdString());
+                        const float rateHz = static_cast<float>(ParameterMapper::mapExponential(rate->get().value(), 0.05, 20.0));
+                        rateStr = QString { "%1Hz" }.arg(rateHz, 0, 'f', 2);
+                    }
+                    return QString { "(rate=%1, int=%2%)" }
+                      .arg(rateStr)
+                      .arg(static_cast<int>(std::round(intensity->get().value() * 100.0f)));
                 }
             } else if (type == Constants::RackEffectType::panner()) {
                 auto pan = effect->parameter(Constants::NahdXml::xmlKeyPan().toStdString());
@@ -434,6 +457,11 @@ QString EffectRackController::eq8BandParametricType() const
 QString EffectRackController::pannerType() const
 {
     return Constants::RackEffectType::panner();
+}
+
+QString EffectRackController::autoPannerType() const
+{
+    return Constants::RackEffectType::autoPanner();
 }
 
 QString EffectRackController::reverbType() const

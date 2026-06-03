@@ -44,6 +44,8 @@ set(SRC
     ../../domain/devices/drum_synth_constants.cpp
     ../../domain/devices/drum_synth_device.cpp
     ../../domain/devices/effect.cpp
+    ../../domain/dsp/lfo.cpp
+    ../../domain/devices/auto_panner_effect.cpp
     ../../domain/devices/effect_rack.cpp
     ../../domain/devices/high_pass_filter_effect.cpp
     ../../domain/devices/low_pass_filter_effect.cpp

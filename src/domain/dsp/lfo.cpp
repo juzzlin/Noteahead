@@ -22,7 +22,7 @@ namespace noteahead {
 
 std::vector<std::string> Lfo::waveformNames()
 {
-    return { "Saw", "Triangle", "Square" };
+    return { "Saw", "Triangle", "Square", "Sine" };
 }
 
 void Lfo::setSampleRate(double sampleRate)
@@ -65,6 +65,9 @@ double Lfo::nextSample()
     double value = 0.0;
 
     switch (m_waveform) {
+    case Waveform::Sine:
+        value = std::sin(2.0 * M_PI * m_phase);
+        break;
     case Waveform::Saw:
         value = 2.0 * m_phase - 1.0;
         break;

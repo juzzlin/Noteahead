@@ -12,6 +12,8 @@ set(SRC
     ../../domain/devices/delay_effect.cpp
     ../../domain/devices/device.cpp
     ../../domain/devices/effect.cpp
+    ../../domain/dsp/lfo.cpp
+    ../../domain/devices/auto_panner_effect.cpp
     ../../domain/devices/effect_rack.cpp
     ../../domain/devices/high_pass_filter_effect.cpp
     ../../domain/devices/low_pass_filter_effect.cpp

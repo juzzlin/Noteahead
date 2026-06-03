@@ -275,6 +275,10 @@ ApplicationWindow {
         id: pannerDialog
         anchors.centerIn: parent
     }
+    AutoPannerDialog {
+        id: autoPannerDialog
+        anchors.centerIn: parent
+    }
     CompressorDialog {
         id: compressorDialog
         anchors.centerIn: parent

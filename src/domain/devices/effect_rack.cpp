@@ -20,6 +20,7 @@
 #include "../dsp/compressor_effect.hpp"
 #include "../dsp/eq_8_band_parametric_effect.hpp"
 #include "../dsp/reverb_effect.hpp"
+#include "auto_panner_effect.hpp"
 #include "delay_effect.hpp"
 #include "high_pass_filter_effect.hpp"
 #include "low_pass_filter_effect.hpp"
@@ -127,6 +128,16 @@ void EffectRack::reset()
     }
 }
 
+void EffectRack::setBpm(float bpm)
+{
+    std::lock_guard<std::recursive_mutex> lock { m_mutex };
+    for (auto & effect : m_effects) {
+        if (effect) {
+            effect->setBpm(bpm);
+        }
+    }
+}
+
 void EffectRack::clear()
 {
     std::lock_guard<std::recursive_mutex> lock { m_mutex };
@@ -179,6 +190,8 @@ void EffectRack::deserializeEffect(QXmlStreamReader & reader)
         effect = std::make_shared<CompressorEffect>();
     } else if (typeId == DelayEffect::typeIdString() || stdType == Constants::RackEffectType::delay()) {
         effect = std::make_shared<DelayEffect>();
+    } else if (typeId == AutoPannerEffect::typeIdString() || stdType == Constants::RackEffectType::autoPanner()) {
+        effect = std::make_shared<AutoPannerEffect>();
     } else if (typeId == Eq8BandParametricEffect::typeIdString() || stdType == Constants::RackEffectType::eq8BandParametric() || type == "eq8bandparametric") {
         effect = std::make_shared<Eq8BandParametricEffect>();
     } else if (typeId == HighPassFilterEffect::typeIdString() || type == "highPassFilter") {

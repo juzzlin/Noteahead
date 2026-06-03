@@ -104,6 +104,9 @@ Dialog {
                         } else if (effectType === effectRackController.pannerType) {
                             pannerDialog.effectIndex = index;
                             pannerDialog.open();
+                        } else if (effectType === effectRackController.autoPannerType) {
+                            autoPannerDialog.effectIndex = index;
+                            autoPannerDialog.open();
                         } else if (effectType === effectRackController.reverbType) {
                             reverbDialog.effectIndex = index;
                             reverbDialog.open();

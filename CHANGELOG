@@ -9,6 +9,8 @@ New features:
   - Dual modes: Hard and Soft (tanh saturation)
   - Configurable Threshold and Output Gain
 
+* Implement Auto Panner effect
+
 Bug fixes:
 
 * Fix MIDI CC controller list for internal devices

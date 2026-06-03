@@ -41,25 +41,15 @@ public:
     virtual std::string typeId() const = 0;
     virtual void process(double & left, double & right) = 0;
     virtual void process(AudioContext & context);
-    virtual std::vector<std::string> parameterNames() const;
+    using StringList = std::vector<std::string>;
+    virtual StringList parameterNames() const;
 
-    bool enabled() const
-    {
-        return m_enabled;
-    }
+    bool enabled() const;
+    void setEnabled(bool enabled);
 
-    void setEnabled(bool enabled)
-    {
-        m_enabled = enabled;
-    }
-
-    virtual void reset() override
-    {
-    }
-
-    virtual void sync()
-    {
-    }
+    virtual void reset() override;
+    virtual void sync();
+    virtual void setBpm(float bpm);
 
 private:
     bool m_enabled { true };

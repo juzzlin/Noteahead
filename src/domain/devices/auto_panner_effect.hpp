@@ -13,28 +13,39 @@
 // You should have received a copy of the GNU General Public License
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef AUDIO_CONTEXT_HPP
-#define AUDIO_CONTEXT_HPP
+#ifndef AUTO_PANNER_EFFECT_HPP
+#define AUTO_PANNER_EFFECT_HPP
 
-#include <cstdint>
-#include <span>
+#include "../dsp/lfo.hpp"
+#include "effect.hpp"
 
 namespace noteahead {
 
-/**
- * @brief Audio processing context.
- *
- * Uses double precision for the accumulation buffer to ensure high-quality
- * mixing and summing across many voices and tracks.
- */
-struct AudioContext
+class AutoPannerEffect : public Effect
 {
-    std::span<double> buffer {};
-    uint32_t frameCount { 0 };
-    uint32_t sampleRate { 0 };
-    double bpm { 120.0 };
+public:
+    AutoPannerEffect();
+
+    static std::string typeIdString();
+    std::string type() const override;
+    std::string typeId() const override;
+
+    void process(double & left, double & right) override;
+    void process(AudioContext & context) override;
+    void sync() override;
+    void setBpm(float bpm) override;
+
+private:
+    Lfo m_lfo;
+    float m_intensity { 1.0f };
+    bool m_sync { false };
+    float m_rate { 0.5f };
+    float m_syncDivision { 0.25f };
+    float m_bpm { 120.0f };
+
+    void updateLfoFrequency();
 };
 
 } // namespace noteahead
 
-#endif // AUDIO_CONTEXT_HPP
+#endif // AUTO_PANNER_EFFECT_HPP

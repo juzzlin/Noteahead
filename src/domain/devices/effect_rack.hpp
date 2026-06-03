@@ -44,6 +44,7 @@ public:
     void process(AudioContext & outputContext, const double * sendBus, size_t effectIndex);
     void processInPlace(AudioContext & context);
     void reset();
+    void setBpm(float bpm);
     void clear();
 
     void serializeEffectsToXml(QXmlStreamWriter & writer) const;

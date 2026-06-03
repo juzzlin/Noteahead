@@ -86,9 +86,7 @@ public:
         return true;
     }
 
-    virtual void setBpm(float)
-    {
-    }
+    virtual void setBpm(float bpm);
 
     virtual void reset() override;
     virtual void resetAudio();

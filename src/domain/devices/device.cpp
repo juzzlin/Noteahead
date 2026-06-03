@@ -260,6 +260,11 @@ void Device::syncParameters()
     }
 }
 
+void Device::setBpm(float bpm)
+{
+    m_insertEffectRack.setBpm(bpm);
+}
+
 void Device::reset()
 {
     ParameterContainer::reset();

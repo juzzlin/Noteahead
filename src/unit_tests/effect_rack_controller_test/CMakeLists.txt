@@ -22,6 +22,7 @@ set(SRC
     ../../application/service/drum_synth_controller.cpp
     ../../application/service/editor_service.cpp
     ../../application/service/effect_rack_controller.cpp
+    ../../application/service/knob_controller.cpp
     ../../application/service/mixer_service.cpp
     ../../application/service/property_service.cpp
     ../../application/service/random_service.cpp
@@ -45,6 +46,8 @@ set(SRC
     ../../domain/devices/drum_synth_constants.cpp
     ../../domain/devices/drum_synth_device.cpp
     ../../domain/devices/effect.cpp
+    ../../domain/dsp/lfo.cpp
+    ../../domain/devices/auto_panner_effect.cpp
     ../../domain/devices/effect_rack.cpp
     ../../domain/devices/high_pass_filter_effect.cpp
     ../../domain/devices/low_pass_filter_effect.cpp

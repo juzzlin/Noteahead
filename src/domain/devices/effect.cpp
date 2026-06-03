@@ -14,15 +14,16 @@
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
 #include "effect.hpp"
+
 #include "../dsp/audio_context.hpp"
 
 namespace noteahead {
 
 Effect::~Effect() = default;
 
-std::vector<std::string> Effect::parameterNames() const
+Effect::StringList Effect::parameterNames() const
 {
-    std::vector<std::string> names;
+    StringList names;
     for (const auto & [name, p] : parameters()) {
         names.push_back(name);
     }
@@ -34,6 +35,28 @@ void Effect::process(AudioContext & context)
     for (uint32_t i = 0; i < context.frameCount; i++) {
         process(context.buffer[i * 2], context.buffer[i * 2 + 1]);
     }
+}
+
+bool Effect::enabled() const
+{
+    return m_enabled;
+}
+
+void Effect::setEnabled(bool enabled)
+{
+    m_enabled = enabled;
+}
+
+void Effect::reset()
+{
+}
+
+void Effect::sync()
+{
+}
+
+void Effect::setBpm(float)
+{
 }
 
 } // namespace noteahead

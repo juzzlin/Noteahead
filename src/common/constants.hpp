@@ -68,9 +68,11 @@ QString compressor();
 QString delay();
 QString clipper();
 QString panner();
+QString autoPanner();
 QString eq8BandParametric();
 QString eq8BandParametricLegacy();
-}
+} // namespace RackEffectType
+
 namespace NahdXml {
 
 QString xmlKeyFileFormatVersion();

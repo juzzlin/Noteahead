@@ -122,27 +122,37 @@ QString reverb()
 {
     return "reverb";
 }
+
 QString compressor()
 {
     return "compressor";
 }
+
 QString delay()
 {
     return "delay";
 }
+
 QString clipper()
 {
     return "clipper";
 }
+
 QString panner()
 {
     return "panner";
 }
+
+QString autoPanner()
+{
+    return "autopanner";
+}
+
 QString eq8BandParametric()
 {
     return "eq8bandparametric";
 }
-}
+} // namespace RackEffectType
 
 namespace NahdXml {
 

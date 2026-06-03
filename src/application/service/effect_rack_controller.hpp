@@ -40,6 +40,7 @@ class EffectRackController : public QObject
     Q_PROPERTY(QString delayType READ delayType CONSTANT)
     Q_PROPERTY(QString eq8BandParametricType READ eq8BandParametricType CONSTANT)
     Q_PROPERTY(QString pannerType READ pannerType CONSTANT)
+    Q_PROPERTY(QString autoPannerType READ autoPannerType CONSTANT)
     Q_PROPERTY(QString reverbType READ reverbType CONSTANT)
 
 public:
@@ -55,6 +56,14 @@ public:
 
     bool isInsertRack() const;
     void setIsInsertRack(bool isInsert);
+
+    QString autoPannerType() const;
+    QString clipperType() const;
+    QString compressorType() const;
+    QString delayType() const;
+    QString eq8BandParametricType() const;
+    QString pannerType() const;
+    QString reverbType() const;
 
     Q_INVOKABLE float parameterValue(int effectIndex, const QString & paramName) const;
     Q_INVOKABLE void setParameterValue(int effectIndex, const QString & paramName, float value);
@@ -98,13 +107,6 @@ public:
 
     Q_INVOKABLE float compressorReductionDb(int effectIndex) const;
 
-    QString clipperType() const;
-    QString compressorType() const;
-    QString delayType() const;
-    QString eq8BandParametricType() const;
-    QString pannerType() const;
-    QString reverbType() const;
-
     Q_INVOKABLE QStringList reverbPresets() const;
     Q_INVOKABLE void applyReverbPreset(int effectIndex, int presetIndex);
 
@@ -123,8 +125,8 @@ private:
 
     DeviceServiceS m_deviceService;
     EditorServiceS m_editorService;
-    int m_revision = 0;
     QString m_targetDeviceName;
+    int m_revision = 0;
     bool m_isInsertRack = false;
 };
 
