@@ -32,18 +32,12 @@ set(HEADER_FILES
   application/service/audio_service.hpp
   application/service/audio_worker.hpp
   application/service/automation_service.hpp
-  application/service/bass_synth_controller.hpp
   application/service/copy_manager.hpp
-  application/service/device_controller.hpp
   application/service/device_rack.hpp
-  application/service/device_rack_controller.hpp
   application/service/device_service.hpp
-  application/service/drum_synth_controller.hpp
   application/service/editor_service.hpp
-  application/service/effect_rack_controller.hpp
   application/service/jack_service.hpp
   application/service/keyboard_service.hpp
-  application/service/knob_controller.hpp
   application/service/midi_service.hpp
   application/service/midi_worker.hpp
   application/service/midi_worker_in.hpp
@@ -56,11 +50,9 @@ set(HEADER_FILES
   application/service/recent_files_manager.hpp
   application/service/render_service.hpp
   application/service/render_worker.hpp
-  application/service/sampler_controller.hpp
   application/service/selection_service.hpp
   application/service/settings_service.hpp
   application/service/side_chain_service.hpp
-  application/service/synth_controller.hpp
   application/service/theme_service.hpp
   application/service/util_service.hpp
   application/state_machine.hpp
@@ -159,6 +151,14 @@ set(HEADER_FILES
   infra/midi/midi_cc_mapping.hpp
   infra/midi/midi_port.hpp
   infra/settings.hpp
+  view/controllers/bass_synth_controller.hpp
+  view/controllers/device_controller.hpp
+  view/controllers/device_rack_controller.hpp
+  view/controllers/drum_synth_controller.hpp
+  view/controllers/effect_rack_controller.hpp
+  view/controllers/knob_controller.hpp
+  view/controllers/sampler_controller.hpp
+  view/controllers/synth_controller.hpp
   view/qml/Editor/line_number_renderer.hpp
   view/qml/Editor/note_column_renderer.hpp
 )
@@ -189,18 +189,12 @@ set(SOURCE_FILES
   application/service/audio_service.cpp
   application/service/audio_worker.cpp
   application/service/automation_service.cpp
-  application/service/bass_synth_controller.cpp
   application/service/copy_manager.cpp
-  application/service/device_controller.cpp
   application/service/device_rack.cpp
-  application/service/device_rack_controller.cpp
   application/service/device_service.cpp
-  application/service/drum_synth_controller.cpp
   application/service/editor_service.cpp
-  application/service/effect_rack_controller.cpp
   application/service/jack_service.cpp
   application/service/keyboard_service.cpp
-  application/service/knob_controller.cpp
   application/service/midi_service.cpp
   application/service/midi_worker.cpp
   application/service/midi_worker_in.cpp
@@ -213,11 +207,9 @@ set(SOURCE_FILES
   application/service/recent_files_manager.cpp
   application/service/render_service.cpp
   application/service/render_worker.cpp
-  application/service/sampler_controller.cpp
   application/service/selection_service.cpp
   application/service/settings_service.cpp
   application/service/side_chain_service.cpp
-  application/service/synth_controller.cpp
   application/service/theme_service.cpp
   application/service/util_service.cpp
   application/state_machine.cpp
@@ -312,6 +304,14 @@ set(SOURCE_FILES
   infra/midi/midi_port.cpp
   infra/settings.cpp
   main.cpp
+  view/controllers/bass_synth_controller.cpp
+  view/controllers/device_controller.cpp
+  view/controllers/device_rack_controller.cpp
+  view/controllers/drum_synth_controller.cpp
+  view/controllers/effect_rack_controller.cpp
+  view/controllers/knob_controller.cpp
+  view/controllers/sampler_controller.cpp
+  view/controllers/synth_controller.cpp
   view/qml/Editor/line_number_renderer.cpp
   view/qml/Editor/note_column_renderer.cpp
 )

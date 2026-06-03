@@ -13,8 +13,8 @@ set(SRC
     ../../application/service/automation_service.cpp
     ../../application/service/copy_manager.cpp
     ../../application/service/device_service.cpp
-    ../../application/service/device_controller.cpp
-    ../../application/service/drum_synth_controller.cpp
+    ../../view/controllers/device_controller.cpp
+    ../../view/controllers/drum_synth_controller.cpp
     ../../application/service/editor_service.cpp
     ../../application/service/mixer_service.cpp
     ../../application/service/property_service.cpp
@@ -118,8 +118,8 @@ set(DELAY_TEST_SRC
     ../../application/service/automation_service.cpp
     ../../application/service/copy_manager.cpp
     ../../application/service/device_service.cpp
-    ../../application/service/device_controller.cpp
-    ../../application/service/drum_synth_controller.cpp
+    ../../view/controllers/device_controller.cpp
+    ../../view/controllers/drum_synth_controller.cpp
     ../../application/service/editor_service.cpp
     ../../application/service/mixer_service.cpp
     ../../application/service/property_service.cpp

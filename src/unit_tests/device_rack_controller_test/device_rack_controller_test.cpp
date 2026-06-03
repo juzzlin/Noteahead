@@ -15,12 +15,12 @@
 
 #include "device_rack_controller_test.hpp"
 
-#include "../../application/service/device_rack_controller.hpp"
 #include "../../application/service/device_service.hpp"
 #include "../../application/service/editor_service.hpp"
-#include "../../application/service/sampler_controller.hpp"
-#include "../../application/service/synth_controller.hpp"
 #include "../../common/constants.hpp"
+#include "../../view/controllers/device_rack_controller.hpp"
+#include "../../view/controllers/sampler_controller.hpp"
+#include "../../view/controllers/synth_controller.hpp"
 
 #include <QSignalSpy>
 #include <QTest>

@@ -3,10 +3,10 @@
 //
 #include "drum_synth_controller_test.hpp"
 #include "../../application/service/device_service.hpp"
-#include "../../application/service/drum_synth_controller.hpp"
 #include "../../common/constants.hpp"
 #include "../../domain/devices/drum_synth_device.hpp"
 #include "../../infra/audio/audio_engine.hpp"
+#include "../../view/controllers/drum_synth_controller.hpp"
 
 #include <QSignalSpy>
 #include <QTest>

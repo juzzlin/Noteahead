@@ -14,9 +14,9 @@
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
 #include "auto_panner_effect.hpp"
-#include "../../application/service/knob_controller.hpp"
 #include "../../common/constants.hpp"
 #include "../../common/parameter_mapper.hpp"
+#include "../../view/controllers/knob_controller.hpp"
 #include "../dsp/audio_context.hpp"
 
 #include <algorithm>

@@ -4,7 +4,7 @@ set(HEADER_FILES
 
 set(SOURCE_FILES
     knob_controller_test.cpp
-    ../../application/service/knob_controller.cpp
+    ../../view/controllers/knob_controller.cpp
     ../../common/constants.cpp
     ../../common/parameter_mapper.cpp
 )

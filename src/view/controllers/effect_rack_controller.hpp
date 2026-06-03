@@ -16,8 +16,8 @@
 #ifndef EFFECT_RACK_CONTROLLER_HPP
 #define EFFECT_RACK_CONTROLLER_HPP
 
-#include "device_service.hpp"
-#include "editor_service.hpp"
+#include "../../application/service/device_service.hpp"
+#include "../../application/service/editor_service.hpp"
 
 #include <QObject>
 

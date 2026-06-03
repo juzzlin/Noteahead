@@ -1,12 +1,12 @@
 #include "effect_rack_controller_test.hpp"
 #include "../../application/service/device_service.hpp"
 #include "../../application/service/editor_service.hpp"
-#include "../../application/service/effect_rack_controller.hpp"
 #include "../../common/constants.hpp"
 #include "../../domain/devices/effect_rack.hpp"
 #include "../../domain/dsp/compressor_effect.hpp"
 #include "../../domain/dsp/reverb_effect.hpp"
 #include "../../infra/audio/audio_engine.hpp"
+#include "../../view/controllers/effect_rack_controller.hpp"
 
 #include <QSignalSpy>
 #include <QTest>

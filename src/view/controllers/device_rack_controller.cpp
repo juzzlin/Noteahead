@@ -15,15 +15,15 @@
 
 #include "device_rack_controller.hpp"
 
+#include "../../application/service/device_service.hpp"
+#include "../../application/service/editor_service.hpp"
 #include "../../common/constants.hpp"
 #include "../../domain/devices/bass_synth_device.hpp"
 #include "../../domain/devices/drum_synth_device.hpp"
 #include "../../domain/devices/sampler_device.hpp"
 #include "../../domain/devices/synth_device.hpp"
 #include "bass_synth_controller.hpp"
-#include "device_service.hpp"
 #include "drum_synth_controller.hpp"
-#include "editor_service.hpp"
 #include "sampler_controller.hpp"
 #include "synth_controller.hpp"
 

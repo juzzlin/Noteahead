@@ -16,8 +16,6 @@ set(SRC
     ../../application/service/automation_service.cpp
     ../../application/service/copy_manager.cpp
     ../../application/service/device_service.cpp
-    ../../application/service/device_controller.cpp
-    ../../application/service/drum_synth_controller.cpp
     ../../application/service/editor_service.cpp
     ../../application/service/jack_service.cpp
     ../../application/service/keyboard_service.cpp
@@ -123,6 +121,8 @@ set(SRC
     ../../infra/midi/midi_cc_mapping.cpp
     ../../infra/midi/midi_port.cpp
     ../../infra/settings.cpp
+    ../../view/controllers/device_controller.cpp
+    ../../view/controllers/drum_synth_controller.cpp
 )
 qt_add_executable(${NAME} ${SRC})
 set_target_properties(${NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${UNIT_TEST_BASE_DIR})

@@ -14,23 +14,23 @@ set(SRC
     ../../application/note_converter.cpp
     ../../application/position.cpp
     ../../application/service/automation_service.cpp
-    ../../application/service/bass_synth_controller.cpp
+    ../../view/controllers/bass_synth_controller.cpp
     ../../application/service/copy_manager.cpp
-    ../../application/service/device_rack_controller.cpp
+    ../../view/controllers/device_rack_controller.cpp
     ../../application/service/device_service.cpp
-    ../../application/service/device_controller.cpp
-    ../../application/service/drum_synth_controller.cpp
+    ../../view/controllers/device_controller.cpp
+    ../../view/controllers/drum_synth_controller.cpp
     ../../application/service/editor_service.cpp
-    ../../application/service/effect_rack_controller.cpp
-    ../../application/service/knob_controller.cpp
+    ../../view/controllers/effect_rack_controller.cpp
+    ../../view/controllers/knob_controller.cpp
     ../../application/service/mixer_service.cpp
     ../../application/service/property_service.cpp
     ../../application/service/random_service.cpp
-    ../../application/service/sampler_controller.cpp
+    ../../view/controllers/sampler_controller.cpp
     ../../application/service/selection_service.cpp
     ../../application/service/settings_service.cpp
     ../../application/service/side_chain_service.cpp
-    ../../application/service/synth_controller.cpp
+    ../../view/controllers/synth_controller.cpp
     ../../common/constants.cpp
     ../../common/parameter_mapper.cpp
     ../../common/utils.cpp

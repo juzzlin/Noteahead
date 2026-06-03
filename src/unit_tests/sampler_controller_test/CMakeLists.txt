@@ -16,8 +16,8 @@ set(SRC
     ../../application/service/automation_service.cpp
     ../../application/service/copy_manager.cpp
     ../../application/service/device_service.cpp
-    ../../application/service/device_controller.cpp
-    ../../application/service/drum_synth_controller.cpp
+    ../../view/controllers/device_controller.cpp
+    ../../view/controllers/drum_synth_controller.cpp
     ../../application/service/editor_service.cpp
     ../../application/service/jack_service.cpp
     ../../application/service/keyboard_service.cpp
@@ -31,11 +31,11 @@ set(SRC
     ../../application/service/property_service.cpp
     ../../application/service/random_service.cpp
     ../../application/service/recent_files_manager.cpp
-    ../../application/service/sampler_controller.cpp
+    ../../view/controllers/sampler_controller.cpp
     ../../application/service/selection_service.cpp
     ../../application/service/settings_service.cpp
     ../../application/service/side_chain_service.cpp
-    ../../application/service/synth_controller.cpp
+    ../../view/controllers/synth_controller.cpp
     ../../application/state_machine.cpp
     ../../application/models/sampler/sampler_pad_model.cpp
     ../../common/constants.cpp
