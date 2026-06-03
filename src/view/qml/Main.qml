@@ -476,20 +476,20 @@ ApplicationWindow {
             errorDialog.errorMessage = text;
             errorDialog.open();
         });
-        applicationService.midiExportDialogRequested.connect(midiExportDialog.open);
         applicationService.audioRenderDialogRequested.connect(audioRenderDialog.open);
         applicationService.masterEffectsDialogRequested.connect(masterEffectsDialog.open);
-        deviceRackController.samplerDialogRequested.connect(samplerDialog.open);
-        deviceRackController.synthDialogRequested.connect(synthDialog.open);
-        deviceRackController.bassSynthDialogRequested.connect(bassSynthDialog.open);
-        deviceRackController.drumSynthDialogRequested.connect(drumSynthDialog.open);
+        applicationService.midiExportDialogRequested.connect(midiExportDialog.open);
+        applicationService.midiImportDialogRequested.connect(midiImportDialog.open);
         applicationService.openDialogRequested.connect(openDialog.open);
         applicationService.recentFilesDialogRequested.connect(recentFilesDialog.open);
         applicationService.saveAsDialogRequested.connect(saveAsDialog.open);
         applicationService.saveAsTemplateDialogRequested.connect(saveAsTemplateDialog.open);
         applicationService.statusTextRequested.connect(bottomBar.setStatusText);
         applicationService.unsavedChangesDialogRequested.connect(unsavedChangesDialog.open);
-        applicationService.midiImportDialogRequested.connect(midiImportDialog.open);
+        deviceRackController.bassSynthDialogRequested.connect(bassSynthDialog.open);
+        deviceRackController.drumSynthDialogRequested.connect(drumSynthDialog.open);
+        deviceRackController.samplerDialogRequested.connect(samplerDialog.open);
+        deviceRackController.synthDialogRequested.connect(synthDialog.open);
     }
     function _connectEditorService(): void {
         editorService.errorTextRequested.connect(errorText => {
@@ -517,11 +517,11 @@ ApplicationWindow {
             deviceRackDialog.updateUsage();
             deviceRackDialog.open();
         });
-        UiService.effectSendsDialogRequested.connect((deviceName) => {
+        UiService.effectSendsDialogRequested.connect(deviceName => {
             effectSendsDialog.deviceName = deviceName;
             effectSendsDialog.open();
         });
-        UiService.deviceInsertEffectsDialogRequested.connect((deviceName) => {
+        UiService.deviceInsertEffectsDialogRequested.connect(deviceName => {
             deviceInsertEffectsDialog.deviceName = deviceName;
             deviceInsertEffectsDialog.open();
         });

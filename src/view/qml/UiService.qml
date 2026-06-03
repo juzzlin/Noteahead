@@ -3,7 +3,6 @@ import QtQuick 2.15
 
 QtObject {
     signal aboutDialogRequested
-    signal manualDialogRequested
     signal activeOctaveChanged(int activeOctave)
     signal columnAddMidiCcAutomationDialogRequested
     signal columnAddPitchBendAutomationDialogRequested
@@ -11,9 +10,14 @@ QtObject {
     signal columnVelocityInterpolationDialogRequested
     signal columnVelocityScaleDialogRequested(int trackIndex, int columnIndex)
     signal contextMenuRequested(int globalX, int globalY)
-    signal deleteUnusedPatternsRequested
-    signal deleteUnusedPatternsConfirmed
     signal delayCalculatorDialogRequested
+    signal deleteUnusedPatternsConfirmed
+    signal deleteUnusedPatternsRequested
+    signal deviceDialogRequested(string deviceName)
+    signal deviceGalleryDialogRequested(int slotIndex)
+    signal deviceInsertEffectsDialogRequested(string deviceName)
+    signal deviceRackDialogRequested
+    signal drumSynthDialogRequested
     signal editMidiCcAutomationsDialogByColumnRequested
     signal editMidiCcAutomationsDialogByLineRequested
     signal editMidiCcAutomationsDialogByPatternRequested
@@ -24,22 +28,18 @@ QtObject {
     signal editPitchBendAutomationsDialogByPatternRequested
     signal editPitchBendAutomationsDialogByTrackRequested
     signal editPitchBendAutomationsDialogRequested
-    signal eventSelectionDialogRequested
+    signal effectSendsDialogRequested(string deviceName)
     signal effectsGalleryDialogRequested(int slotIndex)
-    signal deviceGalleryDialogRequested(int slotIndex)
+    signal eventSelectionDialogRequested
     signal focusOnEditorViewRequested
     signal gainConverterDialogRequested
     signal lineAddMidiCcAutomationDialogRequested
     signal lineAddPitchBendAutomationDialogRequested
     signal lineDelayDialogRequested
+    signal manualDialogRequested
     signal noteFrequencyDialogRequested
     signal recentFilesDialogRequested
-    signal deviceDialogRequested(string deviceName)
-    signal deviceRackDialogRequested
-    signal effectSendsDialogRequested(string deviceName)
-    signal deviceInsertEffectsDialogRequested(string deviceName)
     signal samplerDialogRequested
-    signal drumSynthDialogRequested
     signal selectionAddMidiCcAutomationDialogRequested
     signal selectionAddPitchBendAutomationDialogRequested
     signal selectionVelocityInterpolationDialogRequested
