@@ -14,9 +14,9 @@
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
 #include "auto_panner_effect.hpp"
+
 #include "../../common/constants.hpp"
 #include "../../common/parameter_mapper.hpp"
-#include "../../view/controllers/knob_controller.hpp"
 #include "../dsp/audio_context.hpp"
 
 #include <algorithm>
@@ -26,11 +26,11 @@ namespace noteahead {
 
 AutoPannerEffect::AutoPannerEffect()
 {
-    addParameter(Parameter(Constants::NahdXml::xmlKeyWaveform().toStdString(), 0.0f, 0, 3, 0, 1, Parameter::Type::Discrete));
-    addParameter(Parameter(Constants::NahdXml::xmlKeyIntensity().toStdString(), 1.0f, 0, 100, 100));
-    addParameter(Parameter(Constants::NahdXml::xmlKeyRate().toStdString(), 0.5f, 0, 100, 50));
-    addParameter(Parameter(Constants::NahdXml::xmlKeySync().toStdString(), 0.0f, 0, 1, 0, 1, Parameter::Type::Boolean));
-    addParameter(Parameter(Constants::NahdXml::xmlKeyDelaySyncDivision().toStdString(), 0.25f, 0, 100, 25));
+    addParameter({ Constants::NahdXml::xmlKeyWaveform().toStdString(), 0.0f, 0, 3, 0, 1, Parameter::Type::Discrete });
+    addParameter({ Constants::NahdXml::xmlKeyIntensity().toStdString(), 1.0f, 0, 100, 100 });
+    addParameter({ Constants::NahdXml::xmlKeyRate().toStdString(), 0.5f, 0, 100, 50 });
+    addParameter({ Constants::NahdXml::xmlKeySync().toStdString(), 0.0f, 0, 1, 0, 1, Parameter::Type::Boolean });
+    addParameter({ Constants::NahdXml::xmlKeyDelaySyncDivision().toStdString(), 0.25f, 0, 100, 25 });
 }
 
 std::string AutoPannerEffect::typeIdString()
@@ -52,7 +52,6 @@ void AutoPannerEffect::process(double & left, double & right)
 {
     const double lfoValue = m_lfo.nextSample(); // -1.0 to 1.0
     const double pan = 0.5 + (lfoValue * 0.5 * m_intensity); // 0.0 to 1.0
-
     const double gainL = std::min(1.0, 2.0 - pan * 2.0);
     const double gainR = std::min(1.0, pan * 2.0);
 
@@ -76,31 +75,31 @@ void AutoPannerEffect::sync()
         m_lfo.setWaveform(static_cast<Lfo::Waveform>(static_cast<int>(p->get().value() * 3.0f + 0.5f)));
     }
     if (auto p = parameter(Constants::NahdXml::xmlKeyIntensity().toStdString()); p) {
-        m_intensity = p->get().value();
+        m_intensity = static_cast<double>(p->get().value());
     }
     if (auto p = parameter(Constants::NahdXml::xmlKeySync().toStdString()); p) {
         m_sync = p->get().value() > 0.5f;
     }
     if (auto p = parameter(Constants::NahdXml::xmlKeyRate().toStdString()); p) {
-        m_rate = p->get().value();
+        m_rate = static_cast<double>(p->get().value());
     }
     if (auto p = parameter(Constants::NahdXml::xmlKeyDelaySyncDivision().toStdString()); p) {
-        m_syncDivision = p->get().value();
+        m_syncDivision = static_cast<double>(p->get().value());
     }
     updateLfoFrequency();
 }
 
 void AutoPannerEffect::setBpm(float bpm)
 {
-    m_bpm = bpm;
+    Effect::setBpm(bpm);
     updateLfoFrequency();
 }
 
 void AutoPannerEffect::updateLfoFrequency()
 {
     if (m_sync) {
-        const double bps = static_cast<double>(m_bpm) / 60.0;
-        m_lfo.setFrequency(bps / (static_cast<double>(m_syncDivision) * 4.0));
+        const double bps = static_cast<double>(bpm()) / 60.0;
+        m_lfo.setFrequency(bps / (m_syncDivision * 4.0));
     } else {
         m_lfo.setFrequency(ParameterMapper::mapLfoFrequency(m_rate, 0.05, 20.0));
     }

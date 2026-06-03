@@ -104,7 +104,7 @@ double DelayEffect::calculateDelaySamples() const
     if (bufSize < 2) {
         return 0.0;
     }
-    const double delayTime = m_sync ? (60.0 / m_bpm) * m_syncDivision * 4.0 : m_time;
+    const double delayTime = m_sync ? (60.0 / static_cast<double>(bpm())) * m_syncDivision * 4.0 : m_time;
     const uint32_t sampleRate = static_cast<uint32_t>(m_sampleRate);
     return std::clamp(delayTime * sampleRate, 1.0, static_cast<double>(bufSize - 2));
 }
@@ -261,16 +261,6 @@ void DelayEffect::setDepth(double depth)
 void DelayEffect::setMix(double mix)
 {
     m_mix = std::clamp(mix, 0.0, 1.0);
-}
-
-void DelayEffect::setBpm(double bpm)
-{
-    m_bpm = std::max(1.0, bpm);
-}
-
-double DelayEffect::bpm() const
-{
-    return m_bpm;
 }
 
 void DelayEffect::setSync(bool sync)

@@ -49,8 +49,6 @@ public:
     void setFeedback(double feedback);
     void setDepth(double depth);
     void setMix(double mix);
-    void setBpm(double bpm);
-    double bpm() const;
     void setSync(bool sync);
     void setSyncDivision(double division);
 
@@ -74,7 +72,6 @@ private:
     double m_feedback { 0.3 };
     double m_depth { 0.5 };
     double m_mix { 0.0 };
-    double m_bpm { 120.0 };
     bool m_sync { false };
     double m_syncDivision { 0.25 };
     double m_feedbackLpfCutoff { 1.0 };

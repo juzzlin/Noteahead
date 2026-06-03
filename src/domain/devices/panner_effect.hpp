@@ -34,8 +34,8 @@ public:
     void sync() override;
 
 private:
-    float m_pan { 0.5f };
-    float m_width { 1.0f };
+    double m_pan { 0.5 };
+    double m_width { 1.0 };
 };
 
 } // namespace noteahead

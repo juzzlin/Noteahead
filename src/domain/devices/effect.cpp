@@ -17,6 +17,8 @@
 
 #include "../dsp/audio_context.hpp"
 
+#include <algorithm>
+
 namespace noteahead {
 
 Effect::~Effect() = default;
@@ -55,8 +57,14 @@ void Effect::sync()
 {
 }
 
-void Effect::setBpm(float)
+void Effect::setBpm(float bpm)
 {
+    m_bpm = std::max(1.0f, bpm);
+}
+
+float Effect::bpm() const
+{
+    return m_bpm;
 }
 
 } // namespace noteahead

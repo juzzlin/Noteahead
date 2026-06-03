@@ -17,6 +17,8 @@
 #define COMPRESSOR_EFFECT_HPP
 
 #include "../devices/effect.hpp"
+
+#include <cstdint>
 #include <vector>
 
 namespace noteahead {

@@ -312,10 +312,10 @@ QString xmlKeyClipperMode();
 QString xmlKeyClipperThreshold();
 QString xmlKeyClipperGain();
 
-QString xmlKeyEq8BandParametricType(int bandIndex);
-QString xmlKeyEq8BandParametricFreq(int bandIndex);
-QString xmlKeyEq8BandParametricGain(int bandIndex);
-QString xmlKeyEq8BandParametricQ(int bandIndex);
+QString xmlKeyEq8BandParametricType(size_t bandIndex);
+QString xmlKeyEq8BandParametricFreq(size_t bandIndex);
+QString xmlKeyEq8BandParametricGain(size_t bandIndex);
+QString xmlKeyEq8BandParametricQ(size_t bandIndex);
 
 QString xmlKeySynthVco1Waveform();
 QString xmlKeySynthVco1Octave();

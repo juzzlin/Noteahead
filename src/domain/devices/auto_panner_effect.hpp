@@ -37,11 +37,10 @@ public:
 
 private:
     Lfo m_lfo;
-    float m_intensity { 1.0f };
+    double m_intensity { 1.0 };
+    double m_rate { 0.5 };
+    double m_syncDivision { 0.25 };
     bool m_sync { false };
-    float m_rate { 0.5f };
-    float m_syncDivision { 0.25f };
-    float m_bpm { 120.0f };
 
     void updateLfoFrequency();
 };

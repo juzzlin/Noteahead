@@ -398,7 +398,7 @@ void SynthDevice::processMidiAllNotesOff()
 void SynthDevice::setBpm(float bpm)
 {
     const std::lock_guard<std::recursive_mutex> lock { mutex() };
-    m_delay.setBpm(static_cast<double>(bpm));
+    m_delay.setBpm(bpm);
 }
 
 void SynthDevice::reset()

@@ -14,6 +14,7 @@
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
 #include "panner_effect.hpp"
+
 #include "../../common/constants.hpp"
 
 #include <algorithm>
@@ -22,8 +23,8 @@ namespace noteahead {
 
 PannerEffect::PannerEffect()
 {
-    addParameter(Parameter { Constants::NahdXml::xmlKeyPan().toStdString(), 0.5f, 0, 100, 50 });
-    addParameter(Parameter { Constants::NahdXml::xmlKeyReverbWidth().toStdString(), 1.0f, 0, 100, 100 });
+    addParameter({ Constants::NahdXml::xmlKeyPan().toStdString(), 0.5f, 0, 100, 50 });
+    addParameter({ Constants::NahdXml::xmlKeyReverbWidth().toStdString(), 1.0f, 0, 100, 100 });
 }
 
 std::string PannerEffect::typeIdString()
@@ -51,14 +52,13 @@ void PannerEffect::process(double & left, double & right)
 
     const double mid = (left + right) * 0.5;
     const double side = (left - right) * 0.5;
-    const double width = static_cast<double>(m_width);
 
-    left = mid + side * width;
-    right = mid - side * width;
+    left = mid + side * m_width;
+    right = mid - side * m_width;
 
     // Panning (Linear)
-    const double gainL = std::min(1.0, 2.0 - static_cast<double>(m_pan) * 2.0);
-    const double gainR = std::min(1.0, static_cast<double>(m_pan) * 2.0);
+    const double gainL = std::min(1.0, 2.0 - m_pan * 2.0);
+    const double gainR = std::min(1.0, m_pan * 2.0);
 
     left *= gainL;
     right *= gainR;
@@ -66,11 +66,11 @@ void PannerEffect::process(double & left, double & right)
 
 void PannerEffect::sync()
 {
-    if (auto p = parameter(Constants::NahdXml::xmlKeyPan().toStdString()); p) {
-        m_pan = p->get().value();
+    if (const auto p = parameter(Constants::NahdXml::xmlKeyPan().toStdString()); p) {
+        m_pan = static_cast<double>(p->get().value());
     }
-    if (auto p = parameter(Constants::NahdXml::xmlKeyReverbWidth().toStdString()); p) {
-        m_width = p->get().value();
+    if (const auto p = parameter(Constants::NahdXml::xmlKeyReverbWidth().toStdString()); p) {
+        m_width = static_cast<double>(p->get().value());
     }
 }
 

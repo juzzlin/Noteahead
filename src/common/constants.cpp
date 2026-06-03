@@ -1122,24 +1122,24 @@ QString xmlKeyClipperGain()
     return "clipperGain";
 }
 
-QString xmlKeyEq8BandParametricType(int bandIndex)
+QString xmlKeyEq8BandParametricType(size_t bandIndex)
 {
-    return QString("eq8BandParametricBand%1Type").arg(bandIndex + 1);
+    return QString { "eq8BandParametricBand%1Type" }.arg(bandIndex + 1);
 }
 
-QString xmlKeyEq8BandParametricFreq(int bandIndex)
+QString xmlKeyEq8BandParametricFreq(size_t bandIndex)
 {
-    return QString("eq8BandParametricBand%1Freq").arg(bandIndex + 1);
+    return QString { "eq8BandParametricBand%1Freq" }.arg(bandIndex + 1);
 }
 
-QString xmlKeyEq8BandParametricGain(int bandIndex)
+QString xmlKeyEq8BandParametricGain(size_t bandIndex)
 {
-    return QString("eq8BandParametricBand%1Gain").arg(bandIndex + 1);
+    return QString { "eq8BandParametricBand%1Gain" }.arg(bandIndex + 1);
 }
 
-QString xmlKeyEq8BandParametricQ(int bandIndex)
+QString xmlKeyEq8BandParametricQ(size_t bandIndex)
 {
-    return QString("eq8BandParametricBand%1Q").arg(bandIndex + 1);
+    return QString { "eq8BandParametricBand%1Q" }.arg(bandIndex + 1);
 }
 
 QString xmlKeySynthVco1Waveform()

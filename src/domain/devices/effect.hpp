@@ -16,7 +16,6 @@
 #ifndef EFFECT_HPP
 #define EFFECT_HPP
 
-#include <cstdint>
 #include <string>
 
 #include "../dsp/dsp_component.hpp"
@@ -50,9 +49,11 @@ public:
     virtual void reset() override;
     virtual void sync();
     virtual void setBpm(float bpm);
+    float bpm() const;
 
 private:
     bool m_enabled { true };
+    float m_bpm = 120;
 };
 
 } // namespace noteahead

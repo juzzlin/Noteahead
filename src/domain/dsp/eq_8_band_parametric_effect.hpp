@@ -20,7 +20,7 @@
 #include "svf_filter.hpp"
 
 #include <array>
-#include <vector>
+#include <cstdint>
 
 namespace noteahead {
 
@@ -44,9 +44,9 @@ private:
         SvfFilter filterL;
         SvfFilter filterR;
         SvfFilter::Type type { SvfFilter::Type::Bypass };
-        float frequency { 1000.0f };
-        float gainDb { 0.0f };
-        float q { 0.707f };
+        double frequency { 1000.0 };
+        double gainDb { 0.0 };
+        double q { 0.707 };
 
         void reset()
         {

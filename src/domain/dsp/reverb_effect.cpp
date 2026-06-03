@@ -14,26 +14,28 @@
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
 #include "reverb_effect.hpp"
+
 #include "../../common/constants.hpp"
 #include "audio_context.hpp"
 
 #include <algorithm>
 #include <cmath>
+#include <cstddef>
 
 namespace noteahead {
 
 ReverbEffect::ReverbEffect()
 {
-    addParameter(Parameter { Constants::NahdXml::xmlKeyReverbSize().toStdString(), 0.5f, 0, 100, 50 });
-    addParameter(Parameter { Constants::NahdXml::xmlKeyReverbDecay().toStdString(), 0.15f, 0, 10000, 1500 });
-    addParameter(Parameter { Constants::NahdXml::xmlKeyReverbDamping().toStdString(), 0.3f, 0, 100, 30 });
-    addParameter(Parameter { Constants::NahdXml::xmlKeyReverbPreDelay().toStdString(), 0.04f, 0, 500, 20 });
-    addParameter(Parameter { Constants::NahdXml::xmlKeyReverbWidth().toStdString(), 0.5f, 0, 200, 100 });
-    addParameter(Parameter { Constants::NahdXml::xmlKeyReverbLpfCutoff().toStdString(), 0.85f, 0, 100, 85 });
-    addParameter(Parameter { Constants::NahdXml::xmlKeyReverbHpfCutoff().toStdString(), 0.2f, 0, 100, 20 });
-    addParameter(Parameter { Constants::NahdXml::xmlKeyReverbMix().toStdString(), 0.0f, 0, 100, 0 });
+    addParameter({ Constants::NahdXml::xmlKeyReverbSize().toStdString(), 0.5f, 0, 100, 50 });
+    addParameter({ Constants::NahdXml::xmlKeyReverbDecay().toStdString(), 0.15f, 0, 10000, 1500 });
+    addParameter({ Constants::NahdXml::xmlKeyReverbDamping().toStdString(), 0.3f, 0, 100, 30 });
+    addParameter({ Constants::NahdXml::xmlKeyReverbPreDelay().toStdString(), 0.04f, 0, 500, 20 });
+    addParameter({ Constants::NahdXml::xmlKeyReverbWidth().toStdString(), 0.5f, 0, 200, 100 });
+    addParameter({ Constants::NahdXml::xmlKeyReverbLpfCutoff().toStdString(), 0.85f, 0, 100, 85 });
+    addParameter({ Constants::NahdXml::xmlKeyReverbHpfCutoff().toStdString(), 0.2f, 0, 100, 20 });
+    addParameter({ Constants::NahdXml::xmlKeyReverbMix().toStdString(), 0.0f, 0, 100, 0 });
 
-    for (auto & delay : m_delays) {
+    for (auto && delay : m_delays) {
         delay.fbLpf.setMode(CascadedSvf::Mode::LowPass);
         delay.fbHpf.setMode(CascadedSvf::Mode::HighPass);
         delay.fbLpf.setResonance(0.0);
@@ -77,7 +79,7 @@ void ReverbEffect::process(double & left, double & right)
     }
 
     std::array<double, NumDelays> delayOutputs;
-    for (int i = 0; i < NumDelays; i++) {
+    for (size_t i = 0; i < NumDelays; i++) {
         if (m_delays[i].buffer.empty()) {
             delayOutputs[i] = 0.0;
             continue;
@@ -86,7 +88,7 @@ void ReverbEffect::process(double & left, double & right)
     }
 
     std::array<double, NumDelays> feedbackSignals;
-    for (int i = 0; i < NumDelays; i++) {
+    for (size_t i = 0; i < NumDelays; i++) {
         if (m_delays[i].buffer.empty()) {
             feedbackSignals[i] = 0.0;
             continue;
@@ -110,13 +112,13 @@ void ReverbEffect::process(double & left, double & right)
     }
 
     double sum = 0.0;
-    for (int i = 0; i < NumDelays; i++) {
+    for (size_t i = 0; i < NumDelays; i++) {
         sum += feedbackSignals[i];
     }
     const double average = sum * (2.0 / static_cast<double>(NumDelays));
 
     static constexpr std::array<double, NumDelays> inputGains = { 0.82, -0.74, 0.68, -0.61, 0.56, -0.51, 0.47, -0.43 };
-    for (int i = 0; i < NumDelays; i++) {
+    for (size_t i = 0; i < NumDelays; i++) {
         if (m_delays[i].buffer.empty()) {
             continue;
         }
@@ -162,7 +164,7 @@ void ReverbEffect::process(AudioContext & context)
 
 void ReverbEffect::reset()
 {
-    for (auto & dl : m_delays) {
+    for (auto && dl : m_delays) {
         dl.reset();
     }
     std::fill(m_preDelayBuffer.begin(), m_preDelayBuffer.end(), 0.0);
@@ -195,7 +197,7 @@ std::string ReverbEffect::typeId() const
 
 void ReverbEffect::setSize(float size)
 {
-    if (auto p = parameter(Constants::NahdXml::xmlKeyReverbSize().toStdString()); p) {
+    if (const auto p = parameter(Constants::NahdXml::xmlKeyReverbSize().toStdString()); p) {
         p->get().setValue(size);
         m_shouldUpdateBuffers = true;
     }
@@ -203,7 +205,7 @@ void ReverbEffect::setSize(float size)
 
 float ReverbEffect::size() const
 {
-    if (auto p = parameter(Constants::NahdXml::xmlKeyReverbSize().toStdString()); p) {
+    if (const auto p = parameter(Constants::NahdXml::xmlKeyReverbSize().toStdString()); p) {
         return p->get().value();
     }
     return 0.5f;
@@ -211,7 +213,7 @@ float ReverbEffect::size() const
 
 void ReverbEffect::setDecay(float decay)
 {
-    if (auto p = parameter(Constants::NahdXml::xmlKeyReverbDecay().toStdString()); p) {
+    if (const auto p = parameter(Constants::NahdXml::xmlKeyReverbDecay().toStdString()); p) {
         p->get().setValue(decay);
         m_shouldSyncParameters = true;
     }
@@ -219,7 +221,7 @@ void ReverbEffect::setDecay(float decay)
 
 float ReverbEffect::decay() const
 {
-    if (auto p = parameter(Constants::NahdXml::xmlKeyReverbDecay().toStdString()); p) {
+    if (const auto p = parameter(Constants::NahdXml::xmlKeyReverbDecay().toStdString()); p) {
         return p->get().value();
     }
     return 0.15f;
@@ -227,7 +229,7 @@ float ReverbEffect::decay() const
 
 void ReverbEffect::setDamping(float damping)
 {
-    if (auto p = parameter(Constants::NahdXml::xmlKeyReverbDamping().toStdString()); p) {
+    if (const auto p = parameter(Constants::NahdXml::xmlKeyReverbDamping().toStdString()); p) {
         p->get().setValue(damping);
         m_shouldSyncParameters = true;
     }
@@ -240,7 +242,7 @@ float ReverbEffect::damping() const
 
 void ReverbEffect::setPreDelay(float ms)
 {
-    if (auto p = parameter(Constants::NahdXml::xmlKeyReverbPreDelay().toStdString()); p) {
+    if (const auto p = parameter(Constants::NahdXml::xmlKeyReverbPreDelay().toStdString()); p) {
         p->get().setValue(ms);
         m_shouldUpdateBuffers = true;
     }
@@ -248,7 +250,7 @@ void ReverbEffect::setPreDelay(float ms)
 
 float ReverbEffect::preDelay() const
 {
-    if (auto p = parameter(Constants::NahdXml::xmlKeyReverbPreDelay().toStdString()); p) {
+    if (const auto p = parameter(Constants::NahdXml::xmlKeyReverbPreDelay().toStdString()); p) {
         return p->get().value();
     }
     return 0.04f;
@@ -256,7 +258,7 @@ float ReverbEffect::preDelay() const
 
 void ReverbEffect::setMix(float mix)
 {
-    if (auto p = parameter(Constants::NahdXml::xmlKeyReverbMix().toStdString()); p) {
+    if (const auto p = parameter(Constants::NahdXml::xmlKeyReverbMix().toStdString()); p) {
         p->get().setValue(mix);
         m_shouldSyncParameters = true;
     }
@@ -269,7 +271,7 @@ float ReverbEffect::mix() const
 
 void ReverbEffect::setWidth(float width)
 {
-    if (auto p = parameter(Constants::NahdXml::xmlKeyReverbWidth().toStdString()); p) {
+    if (const auto p = parameter(Constants::NahdXml::xmlKeyReverbWidth().toStdString()); p) {
         p->get().setValue(width);
         m_shouldSyncParameters = true;
     }
@@ -282,7 +284,7 @@ float ReverbEffect::width() const
 
 void ReverbEffect::setLpfCutoff(float cutoff)
 {
-    if (auto p = parameter(Constants::NahdXml::xmlKeyReverbLpfCutoff().toStdString()); p) {
+    if (const auto p = parameter(Constants::NahdXml::xmlKeyReverbLpfCutoff().toStdString()); p) {
         p->get().setValue(cutoff);
         m_shouldSyncParameters = true;
     }
@@ -290,7 +292,7 @@ void ReverbEffect::setLpfCutoff(float cutoff)
 
 float ReverbEffect::lpfCutoff() const
 {
-    if (auto p = parameter(Constants::NahdXml::xmlKeyReverbLpfCutoff().toStdString()); p) {
+    if (const auto p = parameter(Constants::NahdXml::xmlKeyReverbLpfCutoff().toStdString()); p) {
         return p->get().value();
     }
     return 0.85f;
@@ -298,7 +300,7 @@ float ReverbEffect::lpfCutoff() const
 
 void ReverbEffect::setHpfCutoff(float cutoff)
 {
-    if (auto p = parameter(Constants::NahdXml::xmlKeyReverbHpfCutoff().toStdString()); p) {
+    if (const auto p = parameter(Constants::NahdXml::xmlKeyReverbHpfCutoff().toStdString()); p) {
         p->get().setValue(cutoff);
         m_shouldSyncParameters = true;
     }
@@ -306,7 +308,7 @@ void ReverbEffect::setHpfCutoff(float cutoff)
 
 float ReverbEffect::hpfCutoff() const
 {
-    if (auto p = parameter(Constants::NahdXml::xmlKeyReverbHpfCutoff().toStdString()); p) {
+    if (const auto p = parameter(Constants::NahdXml::xmlKeyReverbHpfCutoff().toStdString()); p) {
         return p->get().value();
     }
     return 0.2f;
@@ -441,28 +443,28 @@ std::vector<std::string> ReverbEffect::presetNames()
 
 void ReverbEffect::syncParameters()
 {
-    if (auto p = parameter(Constants::NahdXml::xmlKeyReverbSize().toStdString()); p) {
+    if (const auto p = parameter(Constants::NahdXml::xmlKeyReverbSize().toStdString()); p) {
         m_size = std::clamp(p->get().value(), 0.01f, 1.0f);
     }
-    if (auto p = parameter(Constants::NahdXml::xmlKeyReverbDecay().toStdString()); p) {
+    if (const auto p = parameter(Constants::NahdXml::xmlKeyReverbDecay().toStdString()); p) {
         m_decayMs = p->get().value() * 10000.0f;
     }
-    if (auto p = parameter(Constants::NahdXml::xmlKeyReverbDamping().toStdString()); p) {
+    if (const auto p = parameter(Constants::NahdXml::xmlKeyReverbDamping().toStdString()); p) {
         m_damping = std::clamp(p->get().value(), 0.0f, 0.9f);
     }
-    if (auto p = parameter(Constants::NahdXml::xmlKeyReverbPreDelay().toStdString()); p) {
+    if (const auto p = parameter(Constants::NahdXml::xmlKeyReverbPreDelay().toStdString()); p) {
         m_preDelayMs = p->get().value() * 500.0f;
     }
-    if (auto p = parameter(Constants::NahdXml::xmlKeyReverbWidth().toStdString()); p) {
+    if (const auto p = parameter(Constants::NahdXml::xmlKeyReverbWidth().toStdString()); p) {
         m_width = p->get().value() * 2.0f;
     }
-    if (auto p = parameter(Constants::NahdXml::xmlKeyReverbMix().toStdString()); p) {
+    if (const auto p = parameter(Constants::NahdXml::xmlKeyReverbMix().toStdString()); p) {
         m_mix = p->get().value();
     }
-    if (auto p = parameter(Constants::NahdXml::xmlKeyReverbLpfCutoff().toStdString()); p) {
+    if (const auto p = parameter(Constants::NahdXml::xmlKeyReverbLpfCutoff().toStdString()); p) {
         m_lpfCutoff = std::clamp(p->get().value(), 0.0f, 1.0f);
     }
-    if (auto p = parameter(Constants::NahdXml::xmlKeyReverbHpfCutoff().toStdString()); p) {
+    if (const auto p = parameter(Constants::NahdXml::xmlKeyReverbHpfCutoff().toStdString()); p) {
         m_hpfCutoff = std::clamp(p->get().value(), 0.0f, 1.0f);
     }
 
@@ -481,7 +483,7 @@ void ReverbEffect::updateBuffers()
 
     const float t60 = std::max(0.1f, m_decayMs / 1000.0f);
 
-    for (int i = 0; i < NumDelays; i++) {
+    for (size_t i = 0; i < NumDelays; i++) {
         uint32_t newSize = static_cast<uint32_t>(baseLengths[i] * rateScale * (0.5f + m_size));
         if (newSize < 100) {
             newSize = 100;

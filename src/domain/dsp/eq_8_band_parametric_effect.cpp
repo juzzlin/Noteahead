@@ -14,11 +14,10 @@
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
 #include "eq_8_band_parametric_effect.hpp"
-#include "audio_context.hpp"
 
+#include "audio_context.hpp"
 #include "../../common/constants.hpp"
 #include "../../common/parameter_mapper.hpp"
-#include "../../common/utils.hpp"
 
 #include <algorithm>
 #include <cmath>
@@ -96,25 +95,20 @@ void Eq8BandParametricEffect::sync()
 
 void Eq8BandParametricEffect::syncParameters()
 {
-    for (int i = 0; i < static_cast<int>(NumBands); i++) {
-        auto & band = m_bands[i];
-
-        if (auto p = parameter(Constants::NahdXml::xmlKeyEq8BandParametricType(i).toStdString()); p) {
+    for (size_t i = 0; i < NumBands; i++) {
+        auto && band = m_bands[i];
+        if (const auto p = parameter(Constants::NahdXml::xmlKeyEq8BandParametricType(i).toStdString()); p) {
             band.type = static_cast<SvfFilter::Type>(std::clamp(static_cast<int>(std::round(p->get().value() * 6.0f)), 0, 6));
         }
-
-        if (auto p = parameter(Constants::NahdXml::xmlKeyEq8BandParametricFreq(i).toStdString()); p) {
-            band.frequency = static_cast<float>(ParameterMapper::mapLogFrequency(p->get().value(), 20.0, 20000.0));
+        if (const auto p = parameter(Constants::NahdXml::xmlKeyEq8BandParametricFreq(i).toStdString()); p) {
+            band.frequency = ParameterMapper::mapLogFrequency(static_cast<double>(p->get().value()), 20.0, 20000.0);
         }
-
-        if (auto p = parameter(Constants::NahdXml::xmlKeyEq8BandParametricGain(i).toStdString()); p) {
-            band.gainDb = -24.0f + p->get().value() * 48.0f;
+        if (const auto p = parameter(Constants::NahdXml::xmlKeyEq8BandParametricGain(i).toStdString()); p) {
+            band.gainDb = -24.0 + static_cast<double>(p->get().value()) * 48.0;
         }
-
-        if (auto p = parameter(Constants::NahdXml::xmlKeyEq8BandParametricQ(i).toStdString()); p) {
-            band.q = static_cast<float>(ParameterMapper::mapExponential(p->get().value(), 0.1, 10.0));
+        if (const auto p = parameter(Constants::NahdXml::xmlKeyEq8BandParametricQ(i).toStdString()); p) {
+            band.q = ParameterMapper::mapExponential(static_cast<double>(p->get().value()), 0.1, 10.0);
         }
-
         band.updateCoefficients(m_sampleRate);
     }
 }
