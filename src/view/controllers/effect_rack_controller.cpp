@@ -198,7 +198,6 @@ QVariantList EffectRackController::availableEffects() const
     addEffect("Auto Panner", AutoPannerEffect::typeIdString());
     addEffect("Clipper", ClipperEffect::typeIdString());
     addEffect("Compressor", CompressorEffect::typeIdString());
-    addEffect("Delay", DelayEffect::typeIdString());
     addEffect("EQ 8-Band Parametric", Eq8BandParametricEffect::typeIdString());
     addEffect("Panner", PannerEffect::typeIdString());
     addEffect("Reverb", ReverbEffect::typeIdString());
@@ -276,14 +275,6 @@ QString EffectRackController::effectParametersSummary(int effectIndex) const
                     return QString { "(attack=%1ms, ratio=%2:1)" }
                       .arg(attackMs, 0, 'f', 1)
                       .arg(ratioValue);
-                }
-            } else if (type == Constants::RackEffectType::delay()) {
-                auto time = effect->parameter(Constants::NahdXml::xmlKeyDelayTime().toStdString());
-                auto feedback = effect->parameter(Constants::NahdXml::xmlKeyDelayFeedback().toStdString());
-                if (time && feedback) {
-                    return QString { "(time=%1ms, fb=%2%)" }
-                      .arg(static_cast<int>(std::round(time->get().value() * 1000.0f)))
-                      .arg(static_cast<int>(std::round(feedback->get().value() * 100.0f)));
                 }
             } else if (type == Constants::RackEffectType::autoPanner()) {
                 const auto sync = effect->parameter(Constants::NahdXml::xmlKeySync().toStdString());
