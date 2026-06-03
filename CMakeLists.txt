@@ -11,6 +11,7 @@ set(VERSION "${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}")
 message("\n${CMAKE_PROJECT_NAME} ${VERSION}\n")
 message(STATUS "System name       : ${CMAKE_HOST_SYSTEM_NAME}")
 message(STATUS "System version    : ${CMAKE_SYSTEM_VERSION}")
+message(STATUS "System processor  : ${CMAKE_SYSTEM_PROCESSOR}")
 message(STATUS "Compiler identity : ${CMAKE_CXX_COMPILER_ID}")
 message(STATUS "Compiler version  : ${CMAKE_CXX_COMPILER_VERSION}")
 
@@ -25,7 +26,17 @@ option(ENABLE_JACK_SUPPORT "Enable JACK support." ON)
 
 if(CMAKE_COMPILER_IS_GNUCXX OR MINGW OR ${CMAKE_CXX_COMPILER_ID} MATCHES "Clang")
    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wpedantic")
-   set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3 -march=x86-64-v2 -ffast-math -fno-math-errno")
+   # Base release flags common to both x86 and ARM
+   set(RELEASE_FLAGS "-O3 -ffast-math -fno-math-errno")
+   # Check architecture and append the correct optimization flags
+   if(CMAKE_SYSTEM_PROCESSOR MATCHES "(x86_64|i386|AMD64)")
+       set(RELEASE_FLAGS "${RELEASE_FLAGS} -march=x86-64-v2")
+   elseif(CMAKE_SYSTEM_PROCESSOR MATCHES "(arm|aarch64)")
+       # -march=native optimizes for the specific host ARM CPU you are building on.
+       # Alternatively, use "-mcpu=native" or omit micro-architecture flags entirely for generic ARM.
+       set(RELEASE_FLAGS "${RELEASE_FLAGS} -march=native")
+   endif()
+   set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} ${RELEASE_FLAGS}")
    set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -O0 -g")
    find_program(CCACHE_FOUND ccache)
    if(CCACHE_FOUND)
