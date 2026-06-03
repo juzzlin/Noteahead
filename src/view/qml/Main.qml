@@ -150,14 +150,14 @@ ApplicationWindow {
     EffectsGalleryDialog {
         id: effectsGalleryDialog
         anchors.centerIn: parent
-        width: parent.width * Constants.defaultDialogScale * 0.5
-        height: parent.height * Constants.defaultDialogScale * 0.5
+        width: parent.width * Constants.defaultDialogScale
+        height: parent.height * Constants.defaultDialogScale
     }
     DeviceGalleryDialog {
         id: deviceGalleryDialog
         anchors.centerIn: parent
-        width: parent.width * Constants.defaultDialogScale * 0.5
-        height: parent.height * Constants.defaultDialogScale * 0.5
+        width: parent.width * Constants.defaultDialogScale
+        height: parent.height * Constants.defaultDialogScale
     }
     FileDialog {
         id: saveAsDialog
