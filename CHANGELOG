@@ -5,6 +5,19 @@ Release date:
 
 New features:
 
+Bug fixes:
+
+Other:
+
+3.2.0
+=====
+
+Release date:
+
+Wed, 03 Jun 2026 22:20:40 +0300
+
+New features:
+
 * Implement Clipper effect
   - Dual modes: Hard and Soft (tanh saturation)
   - Configurable Threshold and Output Gain
