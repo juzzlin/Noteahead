@@ -21,11 +21,10 @@ namespace noteahead {
 
 namespace {
 
-// The RD-8's clap at noon, fitted on third octaves in 3-600 ms windows within 3.0 dB, against the
-// 3 dB two noises differ by on the same measure
-constexpr double ClapHz = 1616.08;
-constexpr double ClapQ = 1.31053;
-constexpr double ClapLowPassHz = 7763.88;
+// The RD-8's clap at noon, fitted against RD-8 on third octaves within 2.1 dB
+constexpr double ClapHz = 1621.17;
+constexpr double ClapQ = 1.794;
+constexpr double ClapLowPassHz = 6737.33;
 constexpr int Bursts = 3;
 constexpr double BurstGapSeconds = 0.00878709;
 constexpr double BurstSeconds = 0.00424493;
@@ -36,7 +35,7 @@ constexpr double TailAttackSeconds = 0.00100701;
 constexpr double TailFast = 0.943874;
 constexpr double TailFastSeconds = 0.0150286;
 constexpr double TailSeconds = 0.0162349;
-constexpr double ClapGain = 0.982897;
+constexpr double ClapGain = 1.1316;
 
 //! Offset on the RD-8, against noon, fitted on a sweep within 3.0 to 4.0 dB: it is as much the
 //! clap's level as its length, nearly silent at zero
@@ -45,14 +44,14 @@ constexpr Drum808::KnobCurve OffsetBurstTime { { 0.0, 0.2, 0.5, 0.8, 1.0 }, { 0.
 constexpr Drum808::KnobCurve OffsetTailLevel { { 0.0, 0.2, 0.5, 0.8, 1.0 }, { 1.164, 0.895, 1.0, 0.886, 1.251 } };
 constexpr Drum808::KnobCurve OffsetTailTime { { 0.0, 0.2, 0.5, 0.8, 1.0 }, { 0.654, 0.692, 1.0, 1.735, 1.976 } };
 
-// The RD-8's maracas, within 3.7 dB on the same measure. Offset is not measured on them, so it
-// leaves them alone.
-constexpr double MaracasHighPassHz = 2671.17;
-constexpr double MaracasLowPassHz = 11376.7;
+// The RD-8's maracas, fitted against RD-8 within 3.6 dB. Offset is not measured on them,
+// so it leaves them alone.
+constexpr double MaracasHighPassHz = 3112.15;
+constexpr double MaracasLowPassHz = 10136.62;
 constexpr double MaracasAttackSeconds = 0.00491444;
 constexpr double MaracasHoldSeconds = 0.0204146;
 constexpr double MaracasReleaseSeconds = 0.00221164;
-constexpr double MaracasGain = 0.325;
+constexpr double MaracasGain = 0.3677;
 
 constexpr double ButterworthQ = 0.70710678;
 constexpr double SilenceLevel = 1.0e-4;
