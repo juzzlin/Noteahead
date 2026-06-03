@@ -107,6 +107,9 @@ Dialog {
                         } else if (effectType === effectRackController.autoPannerType) {
                             autoPannerDialog.effectIndex = index;
                             autoPannerDialog.open();
+                        } else if (effectType === effectRackController.chorusType) {
+                            chorusDialog.effectIndex = index;
+                            chorusDialog.open();
                         } else if (effectType === effectRackController.reverbType) {
                             reverbDialog.effectIndex = index;
                             reverbDialog.open();

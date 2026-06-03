@@ -133,6 +133,11 @@ QString delay()
     return "delay";
 }
 
+QString chorus()
+{
+    return "chorus";
+}
+
 QString clipper()
 {
     return "clipper";
@@ -1085,6 +1090,41 @@ QString xmlKeyReverbLpfCutoff()
 QString xmlKeyReverbHpfCutoff()
 {
     return "reverbHpfCutoff";
+}
+
+QString xmlKeyChorusRate()
+{
+    return "chorusRate";
+}
+
+QString xmlKeyChorusDepth()
+{
+    return "chorusDepth";
+}
+
+QString xmlKeyChorusDelay()
+{
+    return "chorusDelay";
+}
+
+QString xmlKeyChorusMix()
+{
+    return "chorusMix";
+}
+
+QString xmlKeyChorusWidth()
+{
+    return "chorusWidth";
+}
+
+QString xmlKeyChorusLpf()
+{
+    return "chorusLpf";
+}
+
+QString xmlKeyChorusHpf()
+{
+    return "chorusHpf";
 }
 
 QString xmlKeyCompressorThreshold()

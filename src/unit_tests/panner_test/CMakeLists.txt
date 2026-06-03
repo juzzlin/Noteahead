@@ -24,6 +24,7 @@ set(SRC
     ../../domain/dsp/dsp_component.cpp
     ../../domain/dsp/eq_8_band_parametric_effect.cpp
     ../../domain/dsp/reverb_effect.cpp
+    ../../domain/dsp/chorus_effect.cpp
     ../../domain/dsp/svf_filter.cpp
     ../../domain/parameter.cpp
     ../../domain/parameter_container.cpp

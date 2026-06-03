@@ -30,6 +30,7 @@
 #include "../../domain/column_settings.hpp"
 #include "../../domain/devices/sampler_device.hpp"
 #include "../../domain/devices/synth_device.hpp"
+#include "../../domain/dsp/chorus_effect.hpp"
 #include "../../domain/dsp/reverb_effect.hpp"
 #include "../../domain/instrument.hpp"
 #include "../../domain/note_data.hpp"
@@ -984,6 +985,48 @@ void XmlSerializationTest::test_toXmlFromXml_masterSendEffects_shouldLoadCorrect
     QCOMPARE(restoredReverb->decay(), 0.75f);
     QCOMPARE(restoredReverb->lpfCutoff(), 0.72f);
     QCOMPARE(restoredReverb->hpfCutoff(), 0.28f);
+}
+
+void XmlSerializationTest::test_toXmlFromXml_chorusEffect_shouldLoadCorrectly()
+{
+    const auto engineOut = std::make_shared<AudioEngine>();
+    DeviceService deviceServiceOut { engineOut };
+
+    // Add a chorus effect to slot 0 of master send rack
+    auto chorus = std::make_shared<ChorusEffect>();
+    chorus->setRate(0.5f);
+    chorus->setDepth(0.6f);
+    chorus->setDelay(0.4f);
+    chorus->setMix(0.7f);
+    chorus->setWidth(0.8f);
+    chorus->setLpfCutoff(0.9f);
+    chorus->setHpfCutoff(0.1f);
+    deviceServiceOut.sendEffectRack().setEffect(0, chorus);
+
+    EditorService editorServiceOut { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
+    connect(&editorServiceOut, &EditorService::devicesSerializationRequested, &deviceServiceOut, &DeviceService::serializeToXml);
+
+    const auto xml = editorServiceOut.toXml();
+
+    const auto engineIn = std::make_shared<AudioEngine>();
+    DeviceService deviceServiceIn { engineIn };
+    EditorService editorServiceIn { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
+    connect(&editorServiceIn, &EditorService::devicesDeserializationRequested, &deviceServiceIn, &DeviceService::deserializeFromXml);
+
+    editorServiceIn.fromXml(xml);
+
+    auto effect = deviceServiceIn.sendEffectRack().effect(0);
+    QVERIFY(effect);
+    QCOMPARE(effect->typeId(), ChorusEffect::typeIdString());
+    auto restoredChorus = std::dynamic_pointer_cast<ChorusEffect>(effect);
+    QVERIFY(restoredChorus);
+    QCOMPARE(restoredChorus->rate(), 0.5f);
+    QCOMPARE(restoredChorus->depth(), 0.6f);
+    QCOMPARE(restoredChorus->delay(), 0.4f);
+    QCOMPARE(restoredChorus->mix(), 0.7f);
+    QCOMPARE(restoredChorus->width(), 0.8f);
+    QCOMPARE(restoredChorus->lpfCutoff(), 0.9f);
+    QCOMPARE(restoredChorus->hpfCutoff(), 0.1f);
 }
 
 void XmlSerializationTest::test_fromXml_samplerDevice_missingId_shouldNotThrow()

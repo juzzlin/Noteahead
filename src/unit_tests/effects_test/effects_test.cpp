@@ -23,6 +23,7 @@
 #include "../../domain/devices/panning_effect.hpp"
 #include "../../domain/devices/volume_effect.hpp"
 #include "../../domain/dsp/cascaded_svf.hpp"
+#include "../../domain/dsp/chorus_effect.hpp"
 #include "../../domain/dsp/clipper_effect.hpp"
 #include "../../domain/dsp/compressor_effect.hpp"
 #include "../../domain/dsp/eq_8_band_parametric_effect.hpp"
@@ -837,6 +838,39 @@ void EffectsTest::test_cascadedSvfStability_shouldHandleRapidParameterChanges()
     filter.setResonance(0.5);
     double out = filter.process(1.0);
     QVERIFY(!std::isnan(out));
+}
+
+void EffectsTest::test_chorusEffect_shouldProcessAudio()
+{
+    ChorusEffect effect;
+    effect.setSampleRate(44100.0);
+    effect.setRate(1.0);
+    effect.setDepth(0.5);
+    effect.setDelay(20.0);
+    effect.setMix(1.0); // Wet only
+
+    // Process some silence to initialize
+    for (int i = 0; i < 1000; i++) {
+        double l = 0.0, r = 0.0;
+        effect.process(l, r);
+    }
+
+    bool signalDetected = false;
+    // Process enough samples to reach the delay (~20ms @ 44.1kHz = 882 samples)
+    // plus some extra for modulation and filters
+    for (int i = 0; i < 5000; i++) {
+        // Use a sine wave to avoid DC issues with HPF
+        double input = std::sin(2.0 * M_PI * 440.0 * i / 44100.0);
+        double l = input, r = input;
+        effect.process(l, r);
+        if (i > 1500) {
+            if (std::abs(l) > 0.1 || std::abs(r) > 0.1) {
+                signalDetected = true;
+                break;
+            }
+        }
+    }
+    QVERIFY(signalDetected);
 }
 
 } // namespace noteahead

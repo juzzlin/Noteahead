@@ -35,6 +35,7 @@ class EffectRackController : public QObject
     Q_PROPERTY(QString targetDeviceName READ targetDeviceName WRITE setTargetDeviceName NOTIFY targetDeviceNameChanged)
     Q_PROPERTY(bool isInsertRack READ isInsertRack WRITE setIsInsertRack NOTIFY isInsertRackChanged)
 
+    Q_PROPERTY(QString chorusType READ chorusType CONSTANT)
     Q_PROPERTY(QString clipperType READ clipperType CONSTANT)
     Q_PROPERTY(QString compressorType READ compressorType CONSTANT)
     Q_PROPERTY(QString delayType READ delayType CONSTANT)
@@ -61,10 +62,12 @@ public:
     QString clipperType() const;
     QString compressorType() const;
     QString delayType() const;
+    QString chorusType() const;
     QString eq8BandParametricType() const;
     QString pannerType() const;
     QString reverbType() const;
 
+    Q_INVOKABLE QString effectParametersSummary(int effectIndex) const;
     Q_INVOKABLE float parameterValue(int effectIndex, const QString & paramName) const;
     Q_INVOKABLE void setParameterValue(int effectIndex, const QString & paramName, float value);
 
@@ -77,7 +80,6 @@ public:
 
     Q_INVOKABLE QStringList parameterNames(int effectIndex) const;
     Q_INVOKABLE QString effectType(int effectIndex) const;
-    Q_INVOKABLE QString effectParametersSummary(int effectIndex) const;
 
     Q_INVOKABLE QString reverbSizeKey() const;
     Q_INVOKABLE QString reverbDecayKey() const;
@@ -88,6 +90,13 @@ public:
     Q_INVOKABLE QString reverbHpfCutoffKey() const;
     Q_INVOKABLE QString reverbMixKey() const;
 
+    Q_INVOKABLE QString chorusRateKey() const;
+    Q_INVOKABLE QString chorusDepthKey() const;
+    Q_INVOKABLE QString chorusDelayKey() const;
+    Q_INVOKABLE QString chorusMixKey() const;
+    Q_INVOKABLE QString chorusWidthKey() const;
+    Q_INVOKABLE QString chorusLpfKey() const;
+    Q_INVOKABLE QString chorusHpfKey() const;
     Q_INVOKABLE QString compressorThresholdKey() const;
     Q_INVOKABLE QString compressorRatioKey() const;
     Q_INVOKABLE QString compressorAttackKey() const;
@@ -133,3 +142,4 @@ private:
 } // namespace noteahead
 
 #endif // EFFECT_RACK_CONTROLLER_HPP
+ EFFECT_RACK_CONTROLLER_HPP

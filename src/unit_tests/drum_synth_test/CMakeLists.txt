@@ -35,6 +35,7 @@ set(SRC
     ../../domain/dsp/eq_8_band_parametric_effect.cpp
     ../../domain/dsp/oversampler.cpp
     ../../domain/dsp/reverb_effect.cpp
+    ../../domain/dsp/chorus_effect.cpp
     ../../domain/parameter.cpp
     ../../domain/parameter_container.cpp
 )

@@ -50,6 +50,17 @@ void Lfo::setMode(Mode mode)
     m_mode = mode;
 }
 
+void Lfo::setPhase(double phase)
+{
+    m_phase = phase;
+    while (m_phase >= 1.0) {
+        m_phase -= 1.0;
+    }
+    while (m_phase < 0.0) {
+        m_phase += 1.0;
+    }
+}
+
 void Lfo::reset()
 {
     m_phase = 0.0;

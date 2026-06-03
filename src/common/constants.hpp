@@ -66,6 +66,7 @@ namespace RackEffectType {
 QString reverb();
 QString compressor();
 QString delay();
+QString chorus();
 QString clipper();
 QString panner();
 QString autoPanner();
@@ -302,6 +303,14 @@ QString xmlKeyReverbMix();
 QString xmlKeyReverbWidth();
 QString xmlKeyReverbLpfCutoff();
 QString xmlKeyReverbHpfCutoff();
+
+QString xmlKeyChorusRate();
+QString xmlKeyChorusDepth();
+QString xmlKeyChorusDelay();
+QString xmlKeyChorusMix();
+QString xmlKeyChorusWidth();
+QString xmlKeyChorusLpf();
+QString xmlKeyChorusHpf();
 
 QString xmlKeyCompressorThreshold();
 QString xmlKeyCompressorRatio();

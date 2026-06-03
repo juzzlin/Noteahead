@@ -47,6 +47,7 @@ public:
     void setFrequency(double frequency);
     void setWaveform(Waveform waveform);
     void setMode(Mode mode);
+    void setPhase(double phase);
     void trigger();
     double nextSample();
     void reset();

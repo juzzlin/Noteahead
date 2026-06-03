@@ -24,6 +24,7 @@
 #include "../../domain/devices/panner_effect.hpp"
 #include "../../domain/devices/panning_effect.hpp"
 #include "../../domain/devices/volume_effect.hpp"
+#include "../../domain/dsp/chorus_effect.hpp"
 #include "../../domain/dsp/clipper_effect.hpp"
 #include "../../domain/dsp/compressor_effect.hpp"
 #include "../../domain/dsp/eq_8_band_parametric_effect.hpp"
@@ -144,6 +145,8 @@ void EffectRackController::setEffect(int slotIndex, const QString & typeId)
         effect = std::make_shared<ReverbEffect>();
     } else if (stdTypeId == DelayEffect::typeIdString()) {
         effect = std::make_shared<DelayEffect>();
+    } else if (stdTypeId == ChorusEffect::typeIdString()) {
+        effect = std::make_shared<ChorusEffect>();
     } else if (stdTypeId == AutoPannerEffect::typeIdString()) {
         effect = std::make_shared<AutoPannerEffect>();
     } else if (stdTypeId == HighPassFilterEffect::typeIdString()) {
@@ -196,8 +199,10 @@ QVariantList EffectRackController::availableEffects() const
     };
 
     addEffect("Auto Panner", AutoPannerEffect::typeIdString());
+    addEffect("Chorus", ChorusEffect::typeIdString());
     addEffect("Clipper", ClipperEffect::typeIdString());
     addEffect("Compressor", CompressorEffect::typeIdString());
+    addEffect("Delay", DelayEffect::typeIdString());
     addEffect("EQ 8-Band Parametric", Eq8BandParametricEffect::typeIdString());
     addEffect("Panner", PannerEffect::typeIdString());
     addEffect("Reverb", ReverbEffect::typeIdString());
@@ -302,6 +307,15 @@ QString EffectRackController::effectParametersSummary(int effectIndex) const
                       .arg(static_cast<int>(std::round(pan->get().value() * 100.0f)))
                       .arg(static_cast<int>(std::round(width->get().value() * 100.0f)));
                 }
+            } else if (type == Constants::RackEffectType::chorus()) {
+                auto rate = effect->parameter(Constants::NahdXml::xmlKeyChorusRate().toStdString());
+                auto mix = effect->parameter(Constants::NahdXml::xmlKeyChorusMix().toStdString());
+                if (rate && mix) {
+                    const float rateHz = static_cast<float>(ParameterMapper::mapExponential(rate->get().value(), 0.1, 10.0));
+                    return QString { "(rate=%1Hz, mix=%2%)" }
+                      .arg(rateHz, 0, 'f', 1)
+                      .arg(static_cast<int>(std::round(mix->get().value() * 100.0f)));
+                }
             } else if (type == Constants::RackEffectType::clipper()) {
                 auto threshold = effect->parameter(Constants::NahdXml::xmlKeyClipperThreshold().toStdString());
                 if (threshold) {
@@ -353,6 +367,41 @@ QString EffectRackController::reverbHpfCutoffKey() const
 QString EffectRackController::reverbMixKey() const
 {
     return Constants::NahdXml::xmlKeyReverbMix();
+}
+
+QString EffectRackController::chorusRateKey() const
+{
+    return Constants::NahdXml::xmlKeyChorusRate();
+}
+
+QString EffectRackController::chorusDepthKey() const
+{
+    return Constants::NahdXml::xmlKeyChorusDepth();
+}
+
+QString EffectRackController::chorusDelayKey() const
+{
+    return Constants::NahdXml::xmlKeyChorusDelay();
+}
+
+QString EffectRackController::chorusMixKey() const
+{
+    return Constants::NahdXml::xmlKeyChorusMix();
+}
+
+QString EffectRackController::chorusWidthKey() const
+{
+    return Constants::NahdXml::xmlKeyChorusWidth();
+}
+
+QString EffectRackController::chorusLpfKey() const
+{
+    return Constants::NahdXml::xmlKeyChorusLpf();
+}
+
+QString EffectRackController::chorusHpfKey() const
+{
+    return Constants::NahdXml::xmlKeyChorusHpf();
 }
 
 QString EffectRackController::compressorThresholdKey() const
@@ -428,6 +477,11 @@ QString EffectRackController::eq8BandParametricQKey(int bandIndex) const
 QString EffectRackController::clipperType() const
 {
     return Constants::RackEffectType::clipper();
+}
+
+QString EffectRackController::chorusType() const
+{
+    return Constants::RackEffectType::chorus();
 }
 
 QString EffectRackController::compressorType() const

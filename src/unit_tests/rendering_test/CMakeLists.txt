@@ -61,6 +61,7 @@ set(SOURCE_FILES
     ../../domain/dsp/oversampler.cpp
     ../../domain/dsp/poly_blep_oscillator.cpp
     ../../domain/dsp/reverb_effect.cpp
+    ../../domain/dsp/chorus_effect.cpp
     ../../domain/event.cpp
     ../../domain/event_data.cpp
     ../../domain/instrument.cpp

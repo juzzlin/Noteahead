@@ -241,6 +241,7 @@ set(SOURCE_FILES
   domain/devices/volume_effect.cpp
   domain/dsp/adsr_envelope.cpp
   domain/dsp/cascaded_svf.cpp
+  domain/dsp/chorus_effect.cpp
   domain/dsp/clipper_effect.cpp
   domain/dsp/compressor_effect.cpp
   domain/dsp/diode_ladder_filter.cpp
@@ -341,6 +342,7 @@ set(QML_SOURCE_FILES
     ${QML_BASE_DIR}/Dialogs/AboutDialog.qml
     ${QML_BASE_DIR}/Dialogs/AudioRenderDialog.qml
     ${QML_BASE_DIR}/Dialogs/AutoPannerDialog.qml
+    ${QML_BASE_DIR}/Dialogs/ChorusDialog.qml
     ${QML_BASE_DIR}/Dialogs/AddMidiCcAutomationDialog.qml
     ${QML_BASE_DIR}/Dialogs/AddMidiCcSettingDialog.qml
     ${QML_BASE_DIR}/Dialogs/AddPitchBendAutomationDialog.qml
