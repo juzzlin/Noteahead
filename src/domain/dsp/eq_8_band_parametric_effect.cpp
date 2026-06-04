@@ -15,9 +15,9 @@
 
 #include "eq_8_band_parametric_effect.hpp"
 
-#include "audio_context.hpp"
 #include "../../common/constants.hpp"
 #include "../../common/parameter_mapper.hpp"
+#include "audio_context.hpp"
 
 #include <algorithm>
 #include <cmath>

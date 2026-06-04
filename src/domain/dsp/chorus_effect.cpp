@@ -86,8 +86,10 @@ void ChorusEffect::process(double & left, double & right)
         delaySamples = std::max(1.0, delaySamples);
         const double bufSize = static_cast<double>(buffer.size());
         double readPos = static_cast<double>(m_writePos) - delaySamples;
-        while (readPos < 0.0) readPos += bufSize;
-        while (readPos >= bufSize) readPos -= bufSize;
+        while (readPos < 0.0)
+            readPos += bufSize;
+        while (readPos >= bufSize)
+            readPos -= bufSize;
 
         const size_t i0 = static_cast<size_t>(readPos);
         const size_t i1 = (i0 + 1) % buffer.size();

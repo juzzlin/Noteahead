@@ -540,7 +540,6 @@ float EffectRackController::clipperReductionDb(int effectIndex) const
     return 0.0f;
 }
 
-
 QStringList EffectRackController::reverbPresets() const
 {
     QStringList presets;
