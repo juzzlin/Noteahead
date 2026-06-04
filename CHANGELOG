@@ -15,6 +15,10 @@ Bug fixes:
 
 Other:
 
+* Improve parameter precision by increasing XML resolution to 100x
+
+* Add timestamp to individual track render filenames
+
 3.2.0
 =====
 

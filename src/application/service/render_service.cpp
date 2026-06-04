@@ -88,6 +88,8 @@ void RenderService::renderIndividualTracks(const QString & directory)
 
     m_mixerService->pushState();
 
+    const auto date = QDateTime::currentDateTime().toString("yyyyMMdd_HHmmss");
+
     m_queue.clear();
     for (auto trackIndex : m_editorService->trackIndices()) {
         const auto portName = m_editorService->instrumentPortName(trackIndex);
@@ -97,7 +99,7 @@ void RenderService::renderIndividualTracks(const QString & directory)
         }
 
         const auto trackName = m_editorService->trackName(trackIndex);
-        const auto fileName = QDir(directory).filePath(trackName + ".wav");
+        const auto fileName = QDir(directory).filePath(trackName + "_" + date + ".wav");
         m_queue.push_back({ fileName, { trackIndex } });
     }
 

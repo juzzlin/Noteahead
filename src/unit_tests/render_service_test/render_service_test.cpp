@@ -119,9 +119,20 @@ void RenderServiceTest::test_renderIndividualTracks_shouldSkipNonInternalInstrum
     files.removeAll("..");
 
     QCOMPARE(files.size(), 2);
-    QVERIFY(files.contains("Track0.wav"));
-    QVERIFY(files.contains("Track2.wav"));
-    QVERIFY(!files.contains("Track1.wav"));
+
+    auto containsGlob = [](const QStringList & list, const QString & pattern) {
+        QRegularExpression re(QRegularExpression::wildcardToRegularExpression(pattern));
+        for (const auto & str : list) {
+            if (re.match(str).hasMatch()) {
+                return true;
+            }
+        }
+        return false;
+    };
+
+    QVERIFY(containsGlob(files, "Track0_*.wav"));
+    QVERIFY(containsGlob(files, "Track2_*.wav"));
+    QVERIFY(!containsGlob(files, "Track1_*.wav"));
 }
 
 void RenderServiceTest::test_renderIndividualTracks_shouldRestoreMixerState()
