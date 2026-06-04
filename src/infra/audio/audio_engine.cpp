@@ -14,9 +14,12 @@
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
 #include "audio_engine.hpp"
+
 #include "../../common/constants.hpp"
 #include "../../common/denormal_protection.hpp"
+#include "../../domain/devices/effect_rack.hpp"
 #include "../../domain/dsp/reverb_effect.hpp"
+#include "real_time_worker_pool.hpp"
 
 #include <algorithm>
 #include <cmath>
@@ -127,6 +130,9 @@ void processEffectTask(void * context, size_t taskIndex, size_t /*workerIndex*/)
 } // namespace
 
 AudioEngine::AudioEngine()
+  : m_sendEffectRack { std::make_unique<EffectRack>() }
+  , m_insertEffectRack { std::make_unique<EffectRack>() }
+  , m_workerPool { std::make_unique<RealTimeWorkerPool>() }
 {
     enableHardwareDenormalProtection();
 }
@@ -135,12 +141,12 @@ AudioEngine::~AudioEngine() = default;
 
 EffectRack & AudioEngine::sendEffectRack()
 {
-    return m_sendEffectRack;
+    return *m_sendEffectRack;
 }
 
 EffectRack & AudioEngine::insertEffectRack()
 {
-    return m_insertEffectRack;
+    return *m_insertEffectRack;
 }
 
 void AudioEngine::setDevice(size_t slotIndex, DeviceS device)
@@ -201,8 +207,8 @@ AudioEngine::DeviceNames AudioEngine::deviceNames() const
 void AudioEngine::setBpm(float bpm)
 {
     std::lock_guard<std::mutex> lock { m_mutex };
-    m_sendEffectRack.setBpm(bpm);
-    m_insertEffectRack.setBpm(bpm);
+    m_sendEffectRack->setBpm(bpm);
+    m_insertEffectRack->setBpm(bpm);
     for (auto const & [index, device] : m_devices) {
         if (device) {
             device->setBpm(bpm);
@@ -215,9 +221,9 @@ void AudioEngine::process(AudioContext & context)
     std::lock_guard<std::mutex> lock { m_mutex };
 
     const uint32_t bufferSize = context.frameCount * 2;
-    auto effects = m_sendEffectRack.effects();
+    auto effects = m_sendEffectRack->effects();
     const size_t sendCount = effects.size();
-    const size_t laneCount = m_workerPool.laneCount();
+    const size_t laneCount = m_workerPool->laneCount();
 
     ensureWorkBuffers(laneCount, sendCount, bufferSize);
     ensureEffectWetBuffers(sendCount, bufferSize);
@@ -272,7 +278,7 @@ void AudioEngine::process(AudioContext & context)
             context.sampleRate,
             bufferSize
         };
-        m_workerPool.run(m_deviceSnapshot.size(), &deviceContext, processDeviceTask);
+        m_workerPool->run(m_deviceSnapshot.size(), &deviceContext, processDeviceTask);
 
         // Sum parallel results into the main output and send buses
         for (const auto & workBuffer : m_workBuffers) {
@@ -298,7 +304,7 @@ void AudioEngine::process(AudioContext & context)
             context.frameCount,
             context.sampleRate
         };
-        m_workerPool.run(sendCount, &effectContext, processEffectTask);
+        m_workerPool->run(sendCount, &effectContext, processEffectTask);
 
         for (const auto & wetBuffer : m_effectWetBuffers) {
             for (uint32_t i = 0; i < bufferSize; i++) {
@@ -314,7 +320,7 @@ void AudioEngine::process(AudioContext & context)
         }
     }
 
-    m_insertEffectRack.processInPlace(context);
+    m_insertEffectRack->processInPlace(context);
 }
 
 void AudioEngine::reset()
@@ -325,8 +331,8 @@ void AudioEngine::reset()
             device->resetAudio();
         }
     }
-    m_sendEffectRack.reset();
-    m_insertEffectRack.reset();
+    m_sendEffectRack->reset();
+    m_insertEffectRack->reset();
 
     std::fill(m_deviceActiveFlags.begin(), m_deviceActiveFlags.end(), 0);
     std::fill(m_effectActiveFlags.begin(), m_effectActiveFlags.end(), 0);
@@ -341,15 +347,15 @@ void AudioEngine::clear()
         }
     }
     m_devices.clear();
-    m_sendEffectRack.reset();
-    m_insertEffectRack.reset();
+    m_sendEffectRack->reset();
+    m_insertEffectRack->reset();
 
     // Also clear the actual effects to ensure a fresh state for "New Project"
-    for (size_t i = 0; i < m_sendEffectRack.effectCount(); i++) {
-        m_sendEffectRack.setEffect(i, nullptr);
+    for (size_t i = 0; i < m_sendEffectRack->effectCount(); i++) {
+        m_sendEffectRack->setEffect(i, nullptr);
     }
-    for (size_t i = 0; i < m_insertEffectRack.effectCount(); i++) {
-        m_insertEffectRack.setEffect(i, nullptr);
+    for (size_t i = 0; i < m_insertEffectRack->effectCount(); i++) {
+        m_insertEffectRack->setEffect(i, nullptr);
     }
 
     std::fill(m_deviceActiveFlags.begin(), m_deviceActiveFlags.end(), 0);

@@ -17,8 +17,6 @@
 #define AUDIO_ENGINE_HPP
 
 #include "../../domain/devices/device.hpp"
-#include "../../domain/devices/effect_rack.hpp"
-#include "real_time_worker_pool.hpp"
 
 #include <map>
 #include <memory>
@@ -27,6 +25,9 @@
 #include <vector>
 
 namespace noteahead {
+
+class EffectRack;
+class RealTimeWorkerPool;
 
 struct AudioEngineWorkBuffer
 {
@@ -70,17 +71,17 @@ private:
     void ensureEffectActiveFlags(size_t effectCount);
     void ensureDeviceActiveFlags(size_t deviceCount);
 
-    std::map<size_t, DeviceS> m_devices {};
-    EffectRack m_sendEffectRack {};
-    EffectRack m_insertEffectRack {};
-    RealTimeWorkerPool m_workerPool {};
-    std::vector<AudioEngineWorkBuffer> m_workBuffers {};
-    std::vector<DeviceS> m_deviceSnapshot {};
-    std::vector<uint8_t> m_deviceActiveFlags {};
-    std::vector<double> m_deviceSendSnapshot {};
-    std::vector<std::vector<double>> m_sendBusBuffers {};
-    std::vector<std::vector<double>> m_effectWetBuffers {};
-    std::vector<uint8_t> m_effectActiveFlags {};
+    std::map<size_t, DeviceS> m_devices;
+    std::unique_ptr<EffectRack> m_sendEffectRack;
+    std::unique_ptr<EffectRack> m_insertEffectRack;
+    std::unique_ptr<RealTimeWorkerPool> m_workerPool;
+    std::vector<AudioEngineWorkBuffer> m_workBuffers;
+    std::vector<DeviceS> m_deviceSnapshot;
+    std::vector<uint8_t> m_deviceActiveFlags;
+    std::vector<double> m_deviceSendSnapshot;
+    std::vector<std::vector<double>> m_sendBusBuffers;
+    std::vector<std::vector<double>> m_effectWetBuffers;
+    std::vector<uint8_t> m_effectActiveFlags;
     mutable std::mutex m_mutex;
     std::atomic<bool> m_isExclusive { false };
 };
