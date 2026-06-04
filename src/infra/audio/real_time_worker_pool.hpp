@@ -18,6 +18,7 @@
 
 #include <atomic>
 #include <cstddef>
+#include <functional>
 #include <memory>
 #include <semaphore>
 #include <thread>
@@ -28,7 +29,7 @@ namespace noteahead {
 class RealTimeWorkerPool
 {
 public:
-    using TaskCallback = void (*)(void * context, size_t taskIndex, size_t workerIndex);
+    using TaskCallback = std::function<void(void * context, size_t taskIndex, size_t workerIndex)>;
 
     explicit RealTimeWorkerPool(size_t workerCount = defaultWorkerCount());
     ~RealTimeWorkerPool();
