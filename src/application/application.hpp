@@ -40,7 +40,6 @@ class AudioService;
 class AudioSettingsModel;
 class AutomationService;
 class ColumnSettingsModel;
-class DeviceRack;
 class DeviceRackController;
 class DeviceService;
 class BassSynthController;
@@ -148,7 +147,6 @@ private:
 
     std::shared_ptr<AudioEngine> m_audioEngine;
     std::shared_ptr<DeviceService> m_deviceService;
-    std::unique_ptr<DeviceRack> m_deviceRack;
     std::shared_ptr<SamplerController> m_samplerController;
     std::shared_ptr<SynthController> m_synthController;
     std::shared_ptr<BassSynthController> m_bassSynthController;

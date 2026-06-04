@@ -33,7 +33,6 @@ set(HEADER_FILES
   application/service/audio_worker.hpp
   application/service/automation_service.hpp
   application/service/copy_manager.hpp
-  application/service/device_rack.hpp
   application/service/device_service.hpp
   application/service/editor_service.hpp
   application/service/jack_service.hpp
@@ -190,7 +189,6 @@ set(SOURCE_FILES
   application/service/audio_worker.cpp
   application/service/automation_service.cpp
   application/service/copy_manager.cpp
-  application/service/device_rack.cpp
   application/service/device_service.cpp
   application/service/editor_service.cpp
   application/service/jack_service.cpp

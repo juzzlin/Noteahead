@@ -45,7 +45,6 @@
 #include "service/application_service.hpp"
 #include "service/audio_service.hpp"
 #include "service/automation_service.hpp"
-#include "service/device_rack.hpp"
 #include "service/device_service.hpp"
 #include "service/editor_service.hpp"
 #include "service/jack_service.hpp"
@@ -103,7 +102,6 @@ Application::Application(int & argc, char ** argv)
   , m_editorService { std::make_shared<EditorService>(m_selectionService, m_settingsService, m_automationService) }
   , m_audioEngine { std::make_shared<AudioEngine>() }
   , m_deviceService { std::make_shared<DeviceService>(m_audioEngine) }
-  , m_deviceRack { std::make_unique<DeviceRack>(m_deviceService) }
   , m_samplerController { std::make_shared<SamplerController>(std::make_shared<SamplerDevice>("Default Sampler")) }
   , m_synthController { std::make_shared<SynthController>(std::make_shared<SynthDevice>("Default Synth")) }
   , m_bassSynthController { std::make_shared<BassSynthController>(std::make_shared<BassSynthDevice>("Default BassSynth")) }
@@ -137,7 +135,6 @@ Application::Application(int & argc, char ** argv)
   , m_engine { std::make_unique<QQmlApplicationEngine>() }
 {
     m_propertyService->setDeviceService(m_deviceService);
-    m_deviceRack->initialize();
     // Initial empty rack, devices will be added via DeviceRackDialog/Gallery
     m_editorService->setMixerService(m_mixerService);
 
