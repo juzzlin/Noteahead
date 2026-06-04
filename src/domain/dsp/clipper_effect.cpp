@@ -37,6 +37,9 @@ void ClipperEffect::process(double & left, double & right)
     const auto thresholdLin = std::max(1e-5, static_cast<double>(Utils::Dsp::dbToLinear(m_thresholdDb)));
     const auto gainLin = static_cast<double>(Utils::Dsp::dbToLinear(m_gainDb));
 
+    const double preL = left;
+    const double preR = right;
+
     if (m_mode == Mode::Hard) {
         left = std::clamp(left, -thresholdLin, thresholdLin);
         right = std::clamp(right, -thresholdLin, thresholdLin);
@@ -45,20 +48,54 @@ void ClipperEffect::process(double & left, double & right)
         right = thresholdLin * std::tanh(right / thresholdLin);
     }
 
+    const double peakPre = std::max(std::abs(preL), std::abs(preR));
+    const double peakPost = std::max(std::abs(left), std::abs(right));
+
+    double reductionDb = 0.0;
+    if (peakPre > 1e-10 && peakPost < peakPre) {
+        reductionDb = Utils::Dsp::linearToDb(static_cast<float>(peakPost / peakPre));
+    }
+
+    if (reductionDb < m_reductionDb) {
+        m_reductionDb = reductionDb;
+    } else {
+        m_reductionDb = m_meterReleaseCoeff * m_reductionDb + (1.0 - m_meterReleaseCoeff) * reductionDb;
+    }
+
+    // Denormal protection
+    if (std::abs(m_reductionDb) < 1.0e-15) {
+        m_reductionDb = 0.0;
+    }
+
     left *= gainLin;
     right *= gainLin;
 }
 
 void ClipperEffect::process(AudioContext & context)
 {
+    if (static_cast<uint32_t>(context.sampleRate) != m_lastSampleRate) {
+        m_meterReleaseCoeff = std::exp(-1.0 / (100.0 * context.sampleRate / 1000.0));
+        m_lastSampleRate = static_cast<uint32_t>(context.sampleRate);
+    }
+
     for (uint32_t i = 0; i < context.frameCount; i++) {
         process(context.buffer[i * 2], context.buffer[i * 2 + 1]);
     }
 }
 
+void ClipperEffect::reset()
+{
+    m_reductionDb = 0.0;
+}
+
 void ClipperEffect::sync()
 {
     syncParameters();
+}
+
+float ClipperEffect::reductionDb() const
+{
+    return static_cast<float>(m_reductionDb);
 }
 
 void ClipperEffect::syncParameters()

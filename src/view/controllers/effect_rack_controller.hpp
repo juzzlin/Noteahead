@@ -115,6 +115,7 @@ public:
     Q_INVOKABLE QString eq8BandParametricQKey(int bandIndex) const;
 
     Q_INVOKABLE float compressorReductionDb(int effectIndex) const;
+    Q_INVOKABLE float clipperReductionDb(int effectIndex) const;
 
     Q_INVOKABLE QStringList reverbPresets() const;
     Q_INVOKABLE void applyReverbPreset(int effectIndex, int presetIndex);

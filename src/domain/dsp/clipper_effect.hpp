@@ -18,6 +18,8 @@
 
 #include "../devices/effect.hpp"
 
+#include <cstdint>
+
 namespace noteahead {
 
 class ClipperEffect : public Effect
@@ -37,7 +39,10 @@ public:
 
     void process(double & left, double & right) override;
     void process(AudioContext & context) override;
+    void reset() override;
     void sync() override;
+
+    float reductionDb() const;
 
 private:
     void syncParameters();
@@ -45,6 +50,10 @@ private:
     Mode m_mode { Mode::Soft };
     float m_thresholdDb { 0.0f };
     float m_gainDb { 0.0f };
+
+    double m_reductionDb { 0.0 };
+    double m_meterReleaseCoeff { 0.0 };
+    uint32_t m_lastSampleRate { 0 };
 };
 
 } // namespace noteahead

@@ -7,6 +7,8 @@ New features:
 
 * Implement Chorus effect
 
+* Implement reduction meter for Clipper
+
 Bug fixes:
 
 * Improve synth voice stealing logic

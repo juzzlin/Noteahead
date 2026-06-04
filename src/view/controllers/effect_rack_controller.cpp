@@ -523,8 +523,23 @@ float EffectRackController::compressorReductionDb(int effectIndex) const
             }
         }
     }
+
     return 0.0f;
 }
+
+float EffectRackController::clipperReductionDb(int effectIndex) const
+{
+    if (const auto rack = currentRack()) {
+        if (const auto effect = rack->get().effect(static_cast<size_t>(effectIndex))) {
+            if (const auto clipper = std::dynamic_pointer_cast<ClipperEffect>(effect)) {
+                return clipper->reductionDb();
+            }
+        }
+    }
+
+    return 0.0f;
+}
+
 
 QStringList EffectRackController::reverbPresets() const
 {
