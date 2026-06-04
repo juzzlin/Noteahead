@@ -245,6 +245,7 @@ private:
         Lfo lfo;
 
         uint8_t note { 0 };
+        uint64_t triggerId { 0 };
         double frequency { 0.0 };
         double glideFrequency { 0.0 };
         bool active { false };
@@ -252,8 +253,8 @@ private:
         float velocity { 1.0f };
 
         void reset();
-        void trigger(uint8_t note, double freq, float pan, float velocity, bool phaseSync);
-        void triggerRandomized(uint8_t note, double freq, float pan, float velocity, double randomPhase);
+        void trigger(uint8_t note, double freq, float pan, float velocity, bool phaseSync, uint64_t triggerId);
+        void triggerRandomized(uint8_t note, double freq, float pan, float velocity, double randomPhase, uint64_t triggerId);
         void release();
     };
 
@@ -314,6 +315,7 @@ private:
     LfoTarget m_lfoTarget { LfoTarget::Pitch };
 
     VoiceMode m_voiceMode { VoiceMode::Poly };
+    uint64_t m_nextTriggerId { 1 };
     float m_voiceDepth { 0.0f };
     float m_portamento { 0.0f };
     float m_panSpread { 0.0f };

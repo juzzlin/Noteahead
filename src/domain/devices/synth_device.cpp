@@ -43,9 +43,10 @@ void SynthDevice::Voice::reset()
     active = false;
 }
 
-void SynthDevice::Voice::trigger(uint8_t n, double freq, float p, float v, bool phaseSync)
+void SynthDevice::Voice::trigger(uint8_t n, double freq, float p, float v, bool phaseSync, uint64_t tid)
 {
     note = n;
+    triggerId = tid;
     frequency = freq;
     if (glideFrequency == 0.0) {
         glideFrequency = freq;
@@ -65,9 +66,10 @@ void SynthDevice::Voice::trigger(uint8_t n, double freq, float p, float v, bool 
     modEg.trigger();
 }
 
-void SynthDevice::Voice::triggerRandomized(uint8_t n, double freq, float p, float v, double randomPhase)
+void SynthDevice::Voice::triggerRandomized(uint8_t n, double freq, float p, float v, double randomPhase, uint64_t tid)
 {
     note = n;
+    triggerId = tid;
     frequency = freq;
     if (glideFrequency == 0.0) {
         glideFrequency = freq;
@@ -419,6 +421,7 @@ void SynthDevice::resetAudio()
     m_oversamplerL.reset();
     m_oversamplerR.reset();
     m_polyNextVoice = 0;
+    m_nextTriggerId = 1;
 }
 
 double SynthDevice::voiceGlideFrequency(size_t index) const
@@ -463,19 +466,29 @@ void SynthDevice::handleNoteOn(uint8_t note, uint8_t velocity)
             }
         }
 
-        // 3. Steal the quietest voice (Round-Robin search for stealing candidate)
+        // 3. Steal a voice
         if (!bestVoice) {
+            // Prefer voices in Release state (quietest first)
             float lowestAmp = 2.0f;
             for (size_t i = 0; i < MaxVoices; i++) {
-                size_t voiceIndex = (m_polyNextVoice + i) % MaxVoices;
-                const float currentAmp = static_cast<float>(m_voices.at(voiceIndex).ampEg.value());
-                if (currentAmp < lowestAmp) {
-                    lowestAmp = currentAmp;
-                    bestVoice = voiceIndex;
+                if (m_voices.at(i).ampEg.state() == AdsrEnvelope::State::Release) {
+                    const float currentAmp = static_cast<float>(m_voices.at(i).ampEg.value());
+                    if (currentAmp < lowestAmp) {
+                        lowestAmp = currentAmp;
+                        bestVoice = i;
+                    }
                 }
             }
-            if (bestVoice) {
-                m_polyNextVoice = (bestVoice.value() + 1) % MaxVoices;
+
+            // If no voice in Release state, steal the oldest voice
+            if (!bestVoice) {
+                uint64_t oldestTriggerId { std::numeric_limits<uint64_t>::max() };
+                for (size_t i = 0; i < MaxVoices; i++) {
+                    if (m_voices.at(i).triggerId < oldestTriggerId) {
+                        oldestTriggerId = m_voices.at(i).triggerId;
+                        bestVoice = i;
+                    }
+                }
             }
         }
 
@@ -491,13 +504,14 @@ void SynthDevice::handleNoteOn(uint8_t note, uint8_t velocity)
             const float pan = 0.5f + (side * depth * m_panSpread * 0.5f);
 
             if (m_vco1Sync) {
-                m_voices.at(bestVoice.value()).trigger(note, freq, pan, finalVel, true);
+                m_voices.at(bestVoice.value()).trigger(note, freq, pan, finalVel, true, m_nextTriggerId++);
             } else {
-                m_voices.at(bestVoice.value()).triggerRandomized(note, freq, pan, finalVel, m_phaseDist(m_rng));
+                m_voices.at(bestVoice.value()).triggerRandomized(note, freq, pan, finalVel, m_phaseDist(m_rng), m_nextTriggerId++);
             }
         }
     } else {
         // Unison
+        const uint64_t tid { m_nextTriggerId++ };
         for (size_t i = 0; i < MaxVoices; i++) {
             // Non-linear detune spread for better texture
             const double detuneAmount = (static_cast<double>(i) - (MaxVoices - 1) / 2.0) * std::pow(m_voiceDepth, 1.5) * 0.2;
@@ -512,9 +526,9 @@ void SynthDevice::handleNoteOn(uint8_t note, uint8_t velocity)
             const float pan = 0.5f + (side * depth * m_panSpread * 0.5f);
 
             if (m_vco1Sync) {
-                m_voices.at(i).trigger(note, voiceFreq, pan, finalVel, true);
+                m_voices.at(i).trigger(note, voiceFreq, pan, finalVel, true, tid);
             } else {
-                m_voices.at(i).triggerRandomized(note, voiceFreq, pan, finalVel, m_phaseDist(m_rng));
+                m_voices.at(i).triggerRandomized(note, voiceFreq, pan, finalVel, m_phaseDist(m_rng), tid);
             }
         }
     }
