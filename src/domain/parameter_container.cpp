@@ -101,20 +101,28 @@ void ParameterContainer::deserializeParametersFromXml(QXmlStreamReader & reader)
 
 void ParameterContainer::deserializeParameter(QXmlStreamReader & reader)
 {
-    const auto name = reader.attributes().value(Constants::NahdXml::xmlKeyName()).toString().toStdString();
-    const auto valueType = reader.attributes().value(Constants::NahdXml::xmlKeyParameterValueType()).toString();
-    const auto xmlValue = reader.attributes().value(Constants::NahdXml::xmlKeyValue()).toString();
+    const auto attrs = reader.attributes();
+    const auto name = attrs.value(Constants::NahdXml::xmlKeyName()).toString().toStdString();
+    const auto valueType = attrs.value(Constants::NahdXml::xmlKeyParameterValueType()).toString();
+    const auto xmlValueStr = attrs.value(Constants::NahdXml::xmlKeyValue()).toString();
+
+    std::optional<int> xmlMin;
+    if (attrs.hasAttribute(Constants::NahdXml::xmlKeyMin())) {
+        xmlMin = attrs.value(Constants::NahdXml::xmlKeyMin()).toInt();
+    }
+    std::optional<int> xmlMax;
+    if (attrs.hasAttribute(Constants::NahdXml::xmlKeyMax())) {
+        xmlMax = attrs.value(Constants::NahdXml::xmlKeyMax()).toInt();
+    }
 
     if (auto p = parameter(name); p) {
-        if (valueType == Constants::NahdXml::xmlValueInt()) {
-            p->get().setFromXml(xmlValue.toInt());
+        if (valueType == Constants::NahdXml::xmlValueInt() || valueType == Constants::NahdXml::xmlValueFloat()) {
+            p->get().setFromXml(xmlValueStr.toInt(), xmlMin, xmlMax);
         } else if (valueType == Constants::NahdXml::xmlValueBool()) {
-            p->get().setValue((xmlValue == Constants::NahdXml::xmlValueTrue() || xmlValue == "1") ? 1.0f : 0.0f);
-        } else if (valueType == Constants::NahdXml::xmlValueFloat()) {
-            p->get().setFromXml(xmlValue.toInt());
+            p->get().setValue((xmlValueStr == Constants::NahdXml::xmlValueTrue() || xmlValueStr == "1") ? 1.0f : 0.0f);
         } else {
             // Fallback for older files
-            p->get().setFromXml(xmlValue.toInt());
+            p->get().setFromXml(xmlValueStr.toInt(), xmlMin, xmlMax);
         }
     }
     reader.skipCurrentElement();

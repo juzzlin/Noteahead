@@ -39,10 +39,10 @@ static const auto TAG = "SamplerDevice";
 
 SamplerDevice::Sample::Sample()
 {
-    addParameter(Parameter { Constants::NahdXml::xmlKeyPan().toStdString(), 0.5f, -100, 100, 0, 1 });
-    addParameter(Parameter { Constants::NahdXml::xmlKeyVolume().toStdString(), 1.0f, 0, 100, 100, 1 });
-    addParameter(Parameter { Constants::NahdXml::xmlKeyCutoff().toStdString(), 1.0f, 0, 100, 100, 1 });
-    addParameter(Parameter { Constants::NahdXml::xmlKeyHpfCutoff().toStdString(), 0.0f, 0, 100, 0, 1 });
+    addParameter(Parameter { Constants::NahdXml::xmlKeyPan().toStdString(), 0.5f, -10000, 10000, 0, 100 });
+    addParameter(Parameter { Constants::NahdXml::xmlKeyVolume().toStdString(), 1.0f, 0, 10000, 10000, 100 });
+    addParameter(Parameter { Constants::NahdXml::xmlKeyCutoff().toStdString(), 1.0f, 0, 10000, 10000, 100 });
+    addParameter(Parameter { Constants::NahdXml::xmlKeyHpfCutoff().toStdString(), 0.0f, 0, 10000, 0, 100 });
     addParameter(Parameter { Constants::NahdXml::xmlKeyStartOffset().toStdString(), 0.0f, 0, 60000, 0, 1 });
 }
 

@@ -268,15 +268,15 @@ QString EffectRackController::effectParametersSummary(int effectIndex) const
                 auto decay = effect->parameter(Constants::NahdXml::xmlKeyReverbDecay().toStdString());
                 if (preDelay && decay) {
                     return QString { "(pre=%1ms, decay=%2ms)" }
-                      .arg(preDelay->get().xmlValue())
-                      .arg(decay->get().xmlValue());
+                      .arg(preDelay->get().xmlValue() / preDelay->get().xmlScale())
+                      .arg(decay->get().xmlValue() / decay->get().xmlScale());
                 }
             } else if (type == Constants::RackEffectType::compressor()) {
                 auto attack = effect->parameter(Constants::NahdXml::xmlKeyAttack().toStdString());
                 auto ratio = effect->parameter(Constants::NahdXml::xmlKeyCompressorRatio().toStdString());
                 if (attack && ratio) {
                     const float attackMs = static_cast<float>(ParameterMapper::mapExponential(attack->get().value(), 0.1, 500.0));
-                    const int ratioValue = ratio->get().xmlValue();
+                    const int ratioValue = ratio->get().xmlValue() / ratio->get().xmlScale();
                     return QString { "(attack=%1ms, ratio=%2:1)" }
                       .arg(attackMs, 0, 'f', 1)
                       .arg(ratioValue);

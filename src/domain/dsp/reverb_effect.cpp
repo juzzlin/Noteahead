@@ -26,14 +26,14 @@ namespace noteahead {
 
 ReverbEffect::ReverbEffect()
 {
-    addParameter({ Constants::NahdXml::xmlKeyReverbSize().toStdString(), 0.5f, 0, 100, 50 });
+    addParameter({ Constants::NahdXml::xmlKeyReverbSize().toStdString(), 0.5f, 0, 10000, 5000, 100 });
     addParameter({ Constants::NahdXml::xmlKeyReverbDecay().toStdString(), 0.15f, 0, 10000, 1500 });
-    addParameter({ Constants::NahdXml::xmlKeyReverbDamping().toStdString(), 0.3f, 0, 100, 30 });
+    addParameter({ Constants::NahdXml::xmlKeyReverbDamping().toStdString(), 0.3f, 0, 10000, 3000, 100 });
     addParameter({ Constants::NahdXml::xmlKeyReverbPreDelay().toStdString(), 0.04f, 0, 500, 20 });
     addParameter({ Constants::NahdXml::xmlKeyReverbWidth().toStdString(), 0.5f, 0, 200, 100 });
-    addParameter({ Constants::NahdXml::xmlKeyReverbLpfCutoff().toStdString(), 0.85f, 0, 100, 85 });
-    addParameter({ Constants::NahdXml::xmlKeyReverbHpfCutoff().toStdString(), 0.2f, 0, 100, 20 });
-    addParameter({ Constants::NahdXml::xmlKeyReverbMix().toStdString(), 0.0f, 0, 100, 0 });
+    addParameter({ Constants::NahdXml::xmlKeyReverbLpfCutoff().toStdString(), 0.85f, 0, 10000, 8500, 100 });
+    addParameter({ Constants::NahdXml::xmlKeyReverbHpfCutoff().toStdString(), 0.2f, 0, 10000, 2000, 100 });
+    addParameter({ Constants::NahdXml::xmlKeyReverbMix().toStdString(), 0.0f, 0, 10000, 0, 100 });
 
     for (auto && delay : m_delays) {
         delay.fbLpf.setMode(CascadedSvf::Mode::LowPass);

@@ -901,7 +901,7 @@ void XmlSerializationTest::test_toXmlFromXml_synthUserPresets_shouldSaveAndLoad(
 
     // Verify XML contains metadata (min/max/default/scale)
     QVERIFY(xml.contains("min=\"0\""));
-    QVERIFY(xml.contains("max=\"100\""));
+    QVERIFY(xml.contains("max=\"10000\""));
 
     const auto deviceServiceIn = std::make_shared<DeviceService>(std::make_shared<AudioEngine>());
     EditorService editorServiceIn { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };

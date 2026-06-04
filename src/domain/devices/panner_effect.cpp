@@ -23,8 +23,8 @@ namespace noteahead {
 
 PannerEffect::PannerEffect()
 {
-    addParameter({ Constants::NahdXml::xmlKeyPan().toStdString(), 0.5f, 0, 100, 50 });
-    addParameter({ Constants::NahdXml::xmlKeyReverbWidth().toStdString(), 1.0f, 0, 100, 100 });
+    addParameter({ Constants::NahdXml::xmlKeyPan().toStdString(), 0.5f, 0, 10000, 5000, 100 });
+    addParameter({ Constants::NahdXml::xmlKeyReverbWidth().toStdString(), 1.0f, 0, 10000, 10000, 100 });
 }
 
 std::string PannerEffect::typeIdString()

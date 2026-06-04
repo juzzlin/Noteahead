@@ -102,12 +102,14 @@ bool Parameter::isBoolean() const
     return m_type == Type::Boolean;
 }
 
-void Parameter::setFromXml(int xmlVal)
+void Parameter::setFromXml(int xmlVal, std::optional<int> xmlMin, std::optional<int> xmlMax)
 {
+    const int min = xmlMin.value_or(m_xmlMin);
+    const int max = xmlMax.value_or(m_xmlMax);
     if (m_type == Type::Discrete || m_type == Type::Boolean) {
-        m_value = static_cast<float>(std::clamp(xmlVal, std::min(m_xmlMin, m_xmlMax), std::max(m_xmlMin, m_xmlMax)));
+        m_value = static_cast<float>(std::clamp(xmlVal, std::min(min, max), std::max(min, max)));
     } else {
-        m_value = xmlValueToInternal(xmlVal, m_xmlMin, m_xmlMax);
+        m_value = xmlValueToInternal(xmlVal, min, max);
     }
 }
 

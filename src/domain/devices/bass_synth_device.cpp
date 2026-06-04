@@ -72,21 +72,21 @@ BassSynthDevice::BassSynthDevice(std::string name)
     // Initialize Parameters
     addParameter(Parameter(Constants::NahdXml::xmlKeyWaveform().toStdString(), 1.0f, 0, 3, 1, 1, Parameter::Type::Discrete));
     addParameter(Parameter(Constants::NahdXml::xmlKeyPitch().toStdString(), 0.5f, -1200, 1200, 0));
-    addParameter(Parameter(Constants::NahdXml::xmlKeySubLevel().toStdString(), 0.0f, 0, 100, 0));
+    addParameter(Parameter(Constants::NahdXml::xmlKeySubLevel().toStdString(), 0.0f, 0, 10000, 0, 100));
     addParameter(Parameter(Constants::NahdXml::xmlKeySubOctave().toStdString(), 1.0f, 1, 2, 1, 1, Parameter::Type::Discrete));
 
-    addParameter(Parameter(Constants::NahdXml::xmlKeySynthLpfCutoff().toStdString(), 0.5f, 0, 100, 50));
-    addParameter(Parameter(Constants::NahdXml::xmlKeySynthLpfResonance().toStdString(), 0.0f, 0, 100, 0));
-    addParameter(Parameter(Constants::NahdXml::xmlKeySynthHpfCutoff().toStdString(), 0.0f, 0, 100, 0));
-    addParameter(Parameter(Constants::NahdXml::xmlKeyEnvMod().toStdString(), 0.5f, 0, 100, 50));
-    addParameter(Parameter(Constants::NahdXml::xmlKeyDecay().toStdString(), 0.5f, 0, 100, 50));
+    addParameter(Parameter(Constants::NahdXml::xmlKeySynthLpfCutoff().toStdString(), 0.5f, 0, 10000, 5000, 100));
+    addParameter(Parameter(Constants::NahdXml::xmlKeySynthLpfResonance().toStdString(), 0.0f, 0, 10000, 0, 100));
+    addParameter(Parameter(Constants::NahdXml::xmlKeySynthHpfCutoff().toStdString(), 0.0f, 0, 10000, 0, 100));
+    addParameter(Parameter(Constants::NahdXml::xmlKeyEnvMod().toStdString(), 0.5f, 0, 10000, 5000, 100));
+    addParameter(Parameter(Constants::NahdXml::xmlKeyDecay().toStdString(), 0.5f, 0, 10000, 5000, 100));
 
-    addParameter(Parameter(Constants::NahdXml::xmlKeyAccent().toStdString(), 0.5f, 0, 100, 50));
-    addParameter(Parameter(Constants::NahdXml::xmlKeySlide().toStdString(), 0.0f, 0, 100, 0));
+    addParameter(Parameter(Constants::NahdXml::xmlKeyAccent().toStdString(), 0.5f, 0, 10000, 5000, 100));
+    addParameter(Parameter(Constants::NahdXml::xmlKeySlide().toStdString(), 0.0f, 0, 10000, 0, 100));
 
-    addParameter(Parameter(Constants::NahdXml::xmlKeyDistDrive().toStdString(), 0.0f, 0, 100, 0));
-    addParameter(Parameter(Constants::NahdXml::xmlKeyDistTone().toStdString(), 0.5f, 0, 100, 50));
-    addParameter(Parameter(Constants::NahdXml::xmlKeyDistLevel().toStdString(), 1.0f, 0, 100, 100));
+    addParameter(Parameter(Constants::NahdXml::xmlKeyDistDrive().toStdString(), 0.0f, 0, 10000, 0, 100));
+    addParameter(Parameter(Constants::NahdXml::xmlKeyDistTone().toStdString(), 0.5f, 0, 10000, 5000, 100));
+    addParameter(Parameter(Constants::NahdXml::xmlKeyDistLevel().toStdString(), 1.0f, 0, 10000, 10000, 100));
 
     m_voice.vco.setWaveform(PolyBlepOscillator::Waveform::Saw);
     m_voice.sub.setWaveform(PolyBlepOscillator::Waveform::Square);

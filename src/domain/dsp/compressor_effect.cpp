@@ -27,12 +27,12 @@ namespace noteahead {
 
 CompressorEffect::CompressorEffect()
 {
-    addParameter(Parameter { Constants::NahdXml::xmlKeyCompressorThreshold().toStdString(), 0.66f, -60, 0, -20 });
-    addParameter(Parameter { Constants::NahdXml::xmlKeyCompressorRatio().toStdString(), 0.15f, 1, 20, 4 });
+    addParameter(Parameter { Constants::NahdXml::xmlKeyCompressorThreshold().toStdString(), 0.66f, -6000, 0, -2000, 100 });
+    addParameter(Parameter { Constants::NahdXml::xmlKeyCompressorRatio().toStdString(), 0.15789f, 100, 2000, 400, 100 });
     addParameter(Parameter { Constants::NahdXml::xmlKeyAttack().toStdString(), 0.2f, 0, 500, 10 });
     addParameter(Parameter { Constants::NahdXml::xmlKeyRelease().toStdString(), 0.25f, 1, 2000, 100 });
-    addParameter(Parameter { Constants::NahdXml::xmlKeyCompressorKnee().toStdString(), 0.0f, 0, 24, 0 });
-    addParameter(Parameter { Constants::NahdXml::xmlKeyCompressorMakeup().toStdString(), 0.5f, -12, 12, 0 });
+    addParameter(Parameter { Constants::NahdXml::xmlKeyCompressorKnee().toStdString(), 0.0f, 0, 2400, 0, 100 });
+    addParameter(Parameter { Constants::NahdXml::xmlKeyCompressorMakeup().toStdString(), 0.5f, -1200, 1200, 0, 100 });
     addParameter(Parameter { Constants::NahdXml::xmlKeyLookahead().toStdString(), 0.0f, 0, 10, 0 });
 
     syncParameters();

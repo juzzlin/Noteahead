@@ -27,8 +27,8 @@ namespace noteahead {
 AutoPannerEffect::AutoPannerEffect()
 {
     addParameter({ Constants::NahdXml::xmlKeyWaveform().toStdString(), 0.0f, 0, 3, 0, 1, Parameter::Type::Discrete });
-    addParameter({ Constants::NahdXml::xmlKeyIntensity().toStdString(), 1.0f, 0, 100, 100 });
-    addParameter({ Constants::NahdXml::xmlKeyRate().toStdString(), 0.5f, 0, 100, 50 });
+    addParameter({ Constants::NahdXml::xmlKeyIntensity().toStdString(), 1.0f, 0, 10000, 10000, 100 });
+    addParameter({ Constants::NahdXml::xmlKeyRate().toStdString(), 0.5f, 0, 10000, 5000, 100 });
     addParameter({ Constants::NahdXml::xmlKeySync().toStdString(), 0.0f, 0, 1, 0, 1, Parameter::Type::Boolean });
     addParameter({ Constants::NahdXml::xmlKeyDelaySyncDivision().toStdString(), 0.25f, 0, 100, 25 });
 }

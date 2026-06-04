@@ -16,6 +16,7 @@
 #ifndef PARAMETER_HPP
 #define PARAMETER_HPP
 
+#include <optional>
 #include <string>
 
 namespace noteahead {
@@ -48,7 +49,7 @@ public:
     bool isDiscrete() const;
     bool isBoolean() const;
 
-    void setFromXml(int xmlVal);
+    void setFromXml(int xmlVal, std::optional<int> xmlMin = std::nullopt, std::optional<int> xmlMax = std::nullopt);
 
     void reset();
 
