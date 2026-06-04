@@ -14,11 +14,13 @@
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
 #include "audio_file_recorder.hpp"
+
 #include "backend/sndfile_reader.hpp"
 
 #include <algorithm>
 #include <chrono>
 #include <stdexcept>
+#include <vector>
 
 using namespace std::chrono_literals;
 
@@ -95,7 +97,7 @@ bool AudioFileRecorder::push(const float * data, size_t count)
 bool AudioFileRecorder::push(const int32_t * data, size_t count)
 {
     std::vector<float> floatBuffer(count);
-    for (size_t i { 0 }; i < count; ++i) {
+    for (size_t i = 0; i < count; i++) {
         floatBuffer[i] = static_cast<float>(data[i]) / 2147483647.0f;
     }
     return m_ringBuffer.push(floatBuffer.data(), count);

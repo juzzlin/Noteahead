@@ -24,7 +24,6 @@
 #include <memory>
 #include <string>
 #include <thread>
-#include <vector>
 
 namespace noteahead {
 
@@ -45,7 +44,7 @@ private:
 
     RingBuffer<float> m_ringBuffer;
     std::thread m_diskWriteThread;
-    std::atomic<bool> m_stopThread { false };
+    std::atomic_bool m_stopThread { false };
 
     std::unique_ptr<AudioFileReader> m_writer;
 };
