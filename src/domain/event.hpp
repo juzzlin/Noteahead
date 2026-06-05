@@ -53,26 +53,29 @@ public:
     struct StartOfSong
     {
     };
+
     struct EndOfSong
     {
     };
+
     struct MidiClockOut
     {
     };
+
     struct None
     {
     };
 
     using InstrumentSettingsS = std::shared_ptr<InstrumentSettings>;
     using Data = std::variant<
-        None,
-        NoteData,
-        MidiCcData,
-        PitchBendData,
-        InstrumentSettingsS,
-        StartOfSong,
-        EndOfSong,
-        MidiClockOut>;
+      None,
+      NoteData,
+      MidiCcData,
+      PitchBendData,
+      InstrumentSettingsS,
+      StartOfSong,
+      EndOfSong,
+      MidiClockOut>;
 
     //! Builds a default None event.
     explicit Event(size_t tick);

@@ -165,8 +165,7 @@ void RenderWorker::handleEvent(const Event & event)
         using T = std::decay_t<decltype(data)>;
         if constexpr (std::is_same_v<T, NoteData>) {
             if (auto && instrument = event.instrument(); instrument) {
-                const auto portName = instrument->midiAddress().portName();
-                if (m_deviceService->isInternalDevice(portName)) {
+                if (const auto portName = instrument->midiAddress().portName(); m_deviceService->isInternalDevice(portName)) {
                     if (data.type() == NoteData::Type::NoteOff) {
                         m_deviceService->processMidiNoteOff(portName, *data.note());
                     } else if (data.type() == NoteData::Type::NoteOn && data.note().has_value()) {
@@ -179,16 +178,14 @@ void RenderWorker::handleEvent(const Event & event)
             }
         } else if constexpr (std::is_same_v<T, MidiCcData>) {
             if (auto && instrument = event.instrument(); instrument) {
-                const auto portName = instrument->midiAddress().portName();
-                if (m_deviceService->isInternalDevice(portName)) {
+                if (const auto portName = instrument->midiAddress().portName(); m_deviceService->isInternalDevice(portName)) {
                     m_deviceService->processMidiCc(portName, data.controller(), data.value(), instrument->midiAddress().channel());
                 }
             }
         } else if constexpr (std::is_same_v<T, PitchBendData>) {
             if (auto && instrument = event.instrument(); instrument) {
-                const auto portName = instrument->midiAddress().portName();
-                if (m_deviceService->isInternalDevice(portName)) {
-                    // FIXME: DeviceService doesn't have processMidiPitchBend yet, but let's keep it for future
+                if (const auto portName = instrument->midiAddress().portName(); m_deviceService->isInternalDevice(portName)) {
+                    m_deviceService->processMidiPitchBend(portName, (static_cast<uint16_t>(data.msb()) << 7) | data.lsb(), instrument->midiAddress().channel());
                 }
             }
         } else if constexpr (std::is_same_v<T, Event::InstrumentSettingsS>) {

@@ -9,6 +9,8 @@ New features:
 
 * Implement reduction meter for Clipper
 
+* Support Pitch Bend events when rendering internal instruments
+
 Bug fixes:
 
 * Improve synth voice stealing logic

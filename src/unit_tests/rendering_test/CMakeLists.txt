@@ -10,6 +10,7 @@ set(SOURCE_FILES
     ../../application/service/copy_manager.cpp
     ../../application/service/device_service.cpp
     ../../domain/devices/device_factory.cpp
+    ../../domain/devices/device_registration.cpp
     ../../application/service/mixer_service.cpp
     ../../application/service/property_service.cpp
     ../../application/service/random_service.cpp

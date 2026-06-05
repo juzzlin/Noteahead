@@ -4,12 +4,15 @@
 #include "../../application/service/mixer_service.hpp"
 #include "../../application/service/render_worker.hpp"
 #include "../../common/constants.hpp"
+#include "../../domain/devices/device_factory.hpp"
 #include "../../domain/devices/drum_synth_device.hpp"
+#include "../../domain/devices/effect_factory.hpp"
 #include "../../domain/devices/sampler_device.hpp"
 #include "../../domain/devices/synth_device.hpp"
 #include "../../domain/event.hpp"
 #include "../../domain/instrument.hpp"
 #include "../../domain/note_data.hpp"
+#include "../../domain/pitch_bend_data.hpp"
 #include "../../infra/audio/audio_engine.hpp"
 #include "../../infra/audio/backend/audio_file_reader.hpp"
 
@@ -27,6 +30,18 @@
 #include <vector>
 
 namespace noteahead {
+
+void RenderingTest::initTestCase()
+{
+    EffectFactory::init();
+    DeviceFactory::init();
+}
+
+void RenderingTest::cleanupTestCase()
+{
+    EffectFactory::clear();
+    DeviceFactory::clear();
+}
 
 class MockRenderIo : public AudioFileReader
 {
@@ -402,6 +417,42 @@ void RenderingTest::test_render_midiSideChain_shouldProcessEventWhenSourceTrackI
 
     // Verify cutoff was updated to 1.0f (from CC 127)
     QCOMPARE(synth1->lpfCutoff(), 1.0f);
+}
+
+void RenderingTest::test_render_pitchBend_shouldProcessEvent()
+{
+    const auto audioEngine = std::make_shared<AudioEngine>();
+    const auto deviceService = std::make_shared<DeviceService>(audioEngine);
+    const auto mixerService = std::make_shared<MixerService>();
+
+    const auto portName = Constants::internalDevicePortPrefix() + " 1";
+    const auto synth = std::make_shared<SynthDevice>("Test Synth");
+    synth->setPitchBendRange(12);
+    deviceService->setDevice(0, synth);
+
+    const auto instrument = std::make_shared<Instrument>(portName);
+    RenderWorker::EventList events;
+
+    // Pitch bend to maximum (16383)
+    const PitchBendData pbData { 0, 0, static_cast<uint16_t>(16383) };
+    const auto event = std::make_shared<Event>(0, pbData);
+    event->setInstrument(instrument);
+    events.push_back(event);
+
+    RenderWorker worker { audioEngine, deviceService, mixerService };
+    worker.setAudioFileReaderFactory([]() { return std::make_unique<MockRenderIo>(); });
+
+    RenderWorker::Timing timing;
+    timing.beatsPerMinute = 120;
+    timing.linesPerBeat = 4;
+    timing.ticksPerLine = 6;
+
+    worker.render("dummy.wav", events, timing, 1, 44100);
+
+    // With range 12, max pitch bend should be approximately +12.0f
+    // We use a small delta to account for MIDI resolution (14-bit) and float precision
+    const float offset = synth->currentPitchBendOffset();
+    QVERIFY2(std::abs(offset - 12.0f) < 0.01f, qPrintable(QString { "Pitch bend offset %1 is not close to 12.0" }.arg(static_cast<double>(offset))));
 }
 
 } // namespace noteahead
