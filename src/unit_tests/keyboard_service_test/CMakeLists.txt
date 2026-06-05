@@ -14,6 +14,7 @@ set(SRC
     ../../application/service/automation_service.cpp
     ../../application/service/copy_manager.cpp
     ../../application/service/device_service.cpp
+    ../../domain/devices/device_factory.cpp
     ../../view/controllers/device_controller.cpp
     ../../view/controllers/drum_synth_controller.cpp
     ../../application/service/editor_service.cpp

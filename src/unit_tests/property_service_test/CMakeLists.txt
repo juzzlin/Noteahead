@@ -5,6 +5,7 @@ set(SRC
     ${NAME}.hpp
     ../../application/service/property_service.cpp
     ../../application/service/device_service.cpp
+    ../../domain/devices/device_factory.cpp
     ../../common/constants.cpp
     ../../common/parameter_mapper.cpp
     ../../common/utils.cpp

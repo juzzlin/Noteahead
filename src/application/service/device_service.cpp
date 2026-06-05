@@ -16,8 +16,7 @@
 
 #include "../../common/constants.hpp"
 #include "../../common/utils.hpp"
-#include "../../domain/devices/bass_synth_device.hpp"
-#include "../../domain/devices/drum_synth_device.hpp"
+#include "../../domain/devices/device_factory.hpp"
 #include "../../domain/devices/sampler_device.hpp"
 #include "../../domain/devices/synth_device.hpp"
 #include "../../infra/audio/audio_engine.hpp"
@@ -301,16 +300,7 @@ void DeviceService::deserializeFromXml(QXmlStreamReader & reader)
 
             auto dev = device(deviceName.toStdString());
             if (!dev && !typeId.isEmpty()) {
-                const auto stdTypeId = typeId.toStdString();
-                if (stdTypeId == SamplerDevice::typeIdString()) {
-                    dev = std::make_shared<SamplerDevice>(deviceName.toStdString());
-                } else if (stdTypeId == SynthDevice::typeIdString()) {
-                    dev = std::make_shared<SynthDevice>(deviceName.toStdString());
-                } else if (stdTypeId == BassSynthDevice::typeIdString()) {
-                    dev = std::make_shared<BassSynthDevice>(deviceName.toStdString());
-                } else if (stdTypeId == DrumSynthDevice::typeIdString()) {
-                    dev = std::make_shared<DrumSynthDevice>(deviceName.toStdString());
-                }
+                dev = DeviceFactory::createDevice(typeId.toStdString(), deviceName.toStdString());
 
                 if (dev) {
                     if (!slotAttr.isNull()) {

@@ -19,6 +19,7 @@
 #include "../../application/service/editor_service.hpp"
 #include "../../common/constants.hpp"
 #include "../../domain/devices/bass_synth_device.hpp"
+#include "../../domain/devices/device_factory.hpp"
 #include "../../domain/devices/drum_synth_device.hpp"
 #include "../../domain/devices/sampler_device.hpp"
 #include "../../domain/devices/synth_device.hpp"
@@ -74,27 +75,14 @@ QVariant DeviceRackController::data(const QModelIndex & index, int role) const
 
     switch (static_cast<DataRole>(role)) {
     case DataRole::Name:
-        if (dev) {
-            return QString::fromStdString(dev->name());
-        }
-        return QString("");
+        return dev ? QString::fromStdString(dev->name()) : QString {};
     case DataRole::TrackNames:
-        if (dev) {
-            return trackNames(static_cast<int>(slotIndex));
-        }
-        return QString("");
+        return dev ? trackNames(static_cast<int>(slotIndex)) : QString {};
     case DataRole::TypeName:
-        if (dev) {
-            return QString::fromStdString(dev->typeName());
-        }
-        return QString("");
+        return dev ? QString::fromStdString(dev->typeName()) : QString {};
     case DataRole::TypeId:
-        if (dev) {
-            return QString::fromStdString(dev->typeId());
-        }
-        return QString("");
+        return dev ? QString::fromStdString(dev->typeId()) : QString {};
     }
-
     return {};
 }
 
@@ -162,19 +150,7 @@ void DeviceRackController::requestEffectSendsDialog(const QString & deviceName)
 void DeviceRackController::setDevice(int slotIndex, const QString & typeId)
 {
     const auto name = Constants::internalDevicePortPrefix().toStdString() + " " + std::to_string(slotIndex + 1);
-    DeviceService::DeviceS dev;
-    const auto stdTypeId = typeId.toStdString();
-    if (stdTypeId == SamplerDevice::typeIdString()) {
-        dev = std::make_shared<SamplerDevice>(name);
-    } else if (stdTypeId == SynthDevice::typeIdString()) {
-        dev = std::make_shared<SynthDevice>(name);
-    } else if (stdTypeId == BassSynthDevice::typeIdString()) {
-        dev = std::make_shared<BassSynthDevice>(name);
-    } else if (stdTypeId == DrumSynthDevice::typeIdString()) {
-        dev = std::make_shared<DrumSynthDevice>(name);
-    }
-
-    if (dev) {
+    if (const auto dev = DeviceFactory::createDevice(typeId.toStdString(), name); dev) {
         m_deviceService->setDevice(static_cast<size_t>(slotIndex), std::move(dev));
         m_editorService->setIsModified(true);
         m_revision++;
@@ -233,7 +209,7 @@ QVariantList DeviceRackController::availableDevices() const
 {
     QVariantList list;
 
-    auto addDevice = [&](const QString & name, const QString & typeId) {
+    const auto addDevice = [&](const QString & name, const QString & typeId) {
         QVariantMap map;
         map["name"] = name;
         map["typeId"] = typeId;
@@ -250,7 +226,7 @@ QVariantList DeviceRackController::availableDevices() const
 
 void DeviceRackController::addSampler()
 {
-    for (int i = 0; i < deviceCount(); ++i) {
+    for (int i = 0; i < deviceCount(); i++) {
         if (!m_deviceService->device(static_cast<size_t>(i))) {
             setDevice(i, QString::fromStdString(SamplerDevice::typeIdString()));
             return;
@@ -260,7 +236,7 @@ void DeviceRackController::addSampler()
 
 void DeviceRackController::addSynth()
 {
-    for (int i = 0; i < deviceCount(); ++i) {
+    for (int i = 0; i < deviceCount(); i++) {
         if (!m_deviceService->device(static_cast<size_t>(i))) {
             setDevice(i, QString::fromStdString(SynthDevice::typeIdString()));
             return;
@@ -270,7 +246,7 @@ void DeviceRackController::addSynth()
 
 void DeviceRackController::addBassSynth()
 {
-    for (int i = 0; i < deviceCount(); ++i) {
+    for (int i = 0; i < deviceCount(); i++) {
         if (!m_deviceService->device(static_cast<size_t>(i))) {
             setDevice(i, QString::fromStdString(BassSynthDevice::typeIdString()));
             return;
@@ -280,7 +256,7 @@ void DeviceRackController::addBassSynth()
 
 void DeviceRackController::addDrumSynth()
 {
-    for (int i = 0; i < deviceCount(); ++i) {
+    for (int i = 0; i < deviceCount(); i++) {
         if (!m_deviceService->device(static_cast<size_t>(i))) {
             setDevice(i, QString::fromStdString(DrumSynthDevice::typeIdString()));
             return;
@@ -290,8 +266,7 @@ void DeviceRackController::addDrumSynth()
 
 void DeviceRackController::removeDevice(const QString & name)
 {
-    const auto prefix = Constants::internalDevicePortPrefix();
-    if (name.startsWith(prefix)) {
+    if (const auto prefix = Constants::internalDevicePortPrefix(); name.startsWith(prefix)) {
         const auto slotStr = name.mid(prefix.length() + 1);
         const auto slotIndex = slotStr.toUInt() - 1;
         clearDevice(static_cast<int>(slotIndex));

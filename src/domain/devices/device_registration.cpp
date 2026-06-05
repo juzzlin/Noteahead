@@ -1,0 +1,41 @@
+// This file is part of Noteahead.
+// Copyright (C) 2026 Jussi Lind <jussi.lind@iki.fi>
+//
+// Noteahead is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+// Noteahead is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
+
+#include "device_factory.hpp"
+
+#include "bass_synth_device.hpp"
+#include "drum_synth_device.hpp"
+#include "sampler_device.hpp"
+#include "synth_device.hpp"
+
+namespace noteahead {
+
+void DeviceFactory::init()
+{
+    registerDevice(BassSynthDevice::typeIdString(), [](const std::string & name) {
+        return std::make_shared<BassSynthDevice>(name);
+    });
+    registerDevice(DrumSynthDevice::typeIdString(), [](const std::string & name) {
+        return std::make_shared<DrumSynthDevice>(name);
+    });
+    registerDevice(SamplerDevice::typeIdString(), [](const std::string & name) {
+        return std::make_shared<SamplerDevice>(name);
+    });
+    registerDevice(SynthDevice::typeIdString(), [](const std::string & name) {
+        return std::make_shared<SynthDevice>(name);
+    });
+}
+
+} // namespace noteahead

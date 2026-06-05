@@ -69,6 +69,7 @@ set(HEADER_FILES
   domain/devices/bass_synth_device.hpp
   domain/devices/delay_effect.hpp
   domain/devices/device.hpp
+  domain/devices/device_factory.hpp
   domain/devices/drum_synth_constants.hpp
   domain/devices/drum_synth_device.hpp
   domain/devices/effect.hpp
@@ -226,6 +227,8 @@ set(SOURCE_FILES
   domain/devices/bass_synth_device.cpp
   domain/devices/delay_effect.cpp
   domain/devices/device.cpp
+  domain/devices/device_factory.cpp
+  domain/devices/device_registration.cpp
   domain/devices/drum_synth_constants.cpp
   domain/devices/drum_synth_device.cpp
   domain/devices/effect.cpp

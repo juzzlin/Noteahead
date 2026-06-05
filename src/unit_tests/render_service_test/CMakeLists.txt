@@ -13,6 +13,7 @@ set(SRC
     ../../application/service/render_service.cpp
     ../../application/service/render_worker.cpp
     ../../application/service/device_service.cpp
+    ../../domain/devices/device_factory.cpp
     ../../application/service/editor_service.cpp
     ../../application/service/mixer_service.cpp
     ../../application/service/automation_service.cpp

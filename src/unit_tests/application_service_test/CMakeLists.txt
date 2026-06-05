@@ -16,6 +16,7 @@ set(SRC
     ../../application/service/automation_service.cpp
     ../../application/service/copy_manager.cpp
     ../../application/service/device_service.cpp
+    ../../domain/devices/device_factory.cpp
     ../../application/service/editor_service.cpp
     ../../application/service/jack_service.cpp
     ../../application/service/keyboard_service.cpp

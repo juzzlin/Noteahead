@@ -5,6 +5,7 @@ set(SRC
     ${NAME}.hpp
     ../../application/instrument_request.cpp
     ../../application/service/device_service.cpp
+    ../../domain/devices/device_factory.cpp
     ../../application/service/jack_service.cpp
     ../../application/service/midi_service.cpp
     ../../application/service/midi_worker.cpp
