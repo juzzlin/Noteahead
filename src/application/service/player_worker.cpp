@@ -112,58 +112,58 @@ bool PlayerWorker::shouldEventPlay(size_t track, size_t column) const
 
 void PlayerWorker::handleEvent(const Event & event)
 {
-    if (event.type() == Event::Type::NoteData) {
-        if (auto && noteData = event.noteData(); noteData) {
+    event.visit([&](auto && data) {
+        using T = std::decay_t<decltype(data)>;
+        if constexpr (std::is_same_v<T, NoteData>) {
             if (auto && instrument = event.instrument(); instrument) {
-                if (noteData->type() == NoteData::Type::NoteOff) {
-                    m_midiService->stopNote(instrument, { *noteData->note(), 0 });
+                if (data.type() == NoteData::Type::NoteOff) {
+                    m_midiService->stopNote(instrument, { *data.note(), 0 });
                     auto & notes = m_activeNotes[instrument];
                     std::erase_if(notes, [&](const ActiveNote & an) {
-                        return an.track == noteData->track() && an.column == noteData->column() && an.note == *noteData->note();
+                        return an.track == data.track() && an.column == data.column() && an.note == *data.note();
                     });
-                } else if (noteData->type() == NoteData::Type::NoteOn && noteData->note().has_value()) {
-                    if (shouldEventPlay(noteData->track(), noteData->column())) {
-                        const auto effectiveVelocity = m_mixerService->effectiveVelocity(noteData->track(), noteData->column(), noteData->velocity());
-                        m_midiService->playNote(instrument, { *noteData->note(), effectiveVelocity });
-                        m_activeNotes[instrument].push_back({ noteData->track(), noteData->column(), *noteData->note() });
+                } else if (data.type() == NoteData::Type::NoteOn && data.note().has_value()) {
+                    if (shouldEventPlay(data.track(), data.column())) {
+                        const auto effectiveVelocity = m_mixerService->effectiveVelocity(data.track(), data.column(), data.velocity());
+                        m_midiService->playNote(instrument, { *data.note(), effectiveVelocity });
+                        m_activeNotes[instrument].push_back({ data.track(), data.column(), *data.note() });
                     }
                 }
             }
-        }
-    } else if (event.type() == Event::Type::MidiCcData) {
-        if (event.midiCcData() && event.instrument()) {
-            m_midiService->sendCcData(event.instrument(), *event.midiCcData());
-        }
-    } else if (event.type() == Event::Type::MidiClockOut) {
-        // There should not be any clock events generated if disabled, but double-checking won't make any harm
-        if (auto && instrument = event.instrument(); instrument && instrument->settings().timing.sendMidiClock.has_value() && *instrument->settings().timing.sendMidiClock) {
-            m_midiService->sendClock(instrument);
-        }
-    } else if (event.type() == Event::Type::StartOfSong) {
-        if (auto && instrument = event.instrument(); instrument && instrument->settings().timing.sendTransport.has_value() && *instrument->settings().timing.sendTransport) {
-            juzzlin::L(TAG).info() << "Sending start to " << instrument->midiAddress().portName().toStdString();
-            m_midiService->sendStart(instrument);
-        }
-    } else if (event.type() == Event::Type::EndOfSong) {
-        if (auto && instrument = event.instrument(); instrument && instrument->settings().timing.sendTransport.has_value() && *instrument->settings().timing.sendTransport) {
-            juzzlin::L(TAG).info() << "Sending stop to " << instrument->midiAddress().portName().toStdString();
-            m_midiService->sendStop(instrument);
-        }
-    } else if (event.type() == Event::Type::PitchBendData) {
-        if (event.pitchBendData() && event.instrument()) {
-            m_midiService->sendPitchBendData(event.instrument(), *event.pitchBendData());
-        }
-    } else if (event.type() == Event::Type::InstrumentSettings) {
-        if (auto && instrumentSettings = event.instrumentSettings(); instrumentSettings) {
-            juzzlin::L(TAG).trace() << instrumentSettings->toString().toStdString();
-            if (auto && instrument = event.instrument(); instrument) {
-                auto tempInstrument = *instrument;
-                tempInstrument.setSettings(*instrumentSettings);
-                InstrumentRequest instrumentRequest { InstrumentRequest::Type::ApplyAll, tempInstrument };
-                m_midiService->handleInstrumentRequest(instrumentRequest);
+        } else if constexpr (std::is_same_v<T, MidiCcData>) {
+            if (event.instrument()) {
+                m_midiService->sendCcData(event.instrument(), data);
+            }
+        } else if constexpr (std::is_same_v<T, Event::MidiClockOut>) {
+            if (auto && instrument = event.instrument(); instrument && instrument->settings().timing.sendMidiClock.has_value() && *instrument->settings().timing.sendMidiClock) {
+                m_midiService->sendClock(instrument);
+            }
+        } else if constexpr (std::is_same_v<T, Event::StartOfSong>) {
+            if (auto && instrument = event.instrument(); instrument && instrument->settings().timing.sendTransport.has_value() && *instrument->settings().timing.sendTransport) {
+                juzzlin::L(TAG).info() << "Sending start to " << instrument->midiAddress().portName().toStdString();
+                m_midiService->sendStart(instrument);
+            }
+        } else if constexpr (std::is_same_v<T, Event::EndOfSong>) {
+            if (auto && instrument = event.instrument(); instrument && instrument->settings().timing.sendTransport.has_value() && *instrument->settings().timing.sendTransport) {
+                juzzlin::L(TAG).info() << "Sending stop to " << instrument->midiAddress().portName().toStdString();
+                m_midiService->sendStop(instrument);
+            }
+        } else if constexpr (std::is_same_v<T, PitchBendData>) {
+            if (event.instrument()) {
+                m_midiService->sendPitchBendData(event.instrument(), data);
+            }
+        } else if constexpr (std::is_same_v<T, Event::InstrumentSettingsS>) {
+            if (data) {
+                juzzlin::L(TAG).trace() << data->toString().toStdString();
+                if (auto && instrument = event.instrument(); instrument) {
+                    auto tempInstrument = *instrument;
+                    tempInstrument.setSettings(*data);
+                    InstrumentRequest instrumentRequest { InstrumentRequest::Type::ApplyAll, tempInstrument };
+                    m_midiService->handleInstrumentRequest(instrumentRequest);
+                }
             }
         }
-    }
+    });
 }
 
 quint64 PlayerWorker::effectiveTick(quint64 tick, quint64 minTick, quint64 maxTick) const

@@ -25,34 +25,35 @@ namespace noteahead {
 Event::Event(size_t tick, NoteDataCR noteData)
   : m_tick { tick }
   , m_type { Event::Type::NoteData }
-  , m_noteData { noteData }
+  , m_data { noteData }
 {
 }
 
 Event::Event(size_t tick, MidiCcDataCR midiCcData)
   : m_tick { tick }
   , m_type { Event::Type::MidiCcData }
-  , m_midiCcData { midiCcData }
+  , m_data { midiCcData }
 {
 }
 
 Event::Event(size_t tick, PitchBendDataCR pitchBendData)
   : m_tick { tick }
   , m_type { Event::Type::PitchBendData }
-  , m_pitchBendData { pitchBendData }
+  , m_data { pitchBendData }
 {
 }
 
 Event::Event(size_t tick, InstrumentSettingsS instrumentSettings)
   : m_tick { tick }
   , m_type { Event::Type::InstrumentSettings }
-  , m_instrumentSettings { instrumentSettings }
+  , m_data { instrumentSettings }
 {
 }
 
 Event::Event(size_t tick)
   : m_tick { tick }
   , m_type { Event::Type::None }
+  , m_data { None {} }
 {
 }
 
@@ -63,9 +64,9 @@ void Event::applyDelay(std::chrono::milliseconds delay, double msPerTick)
 
 void Event::applyVelocityJitter(int percentage)
 {
-    if (m_noteData.has_value() && percentage > 0) {
+    if (auto noteData = std::get_if<NoteData>(&m_data); noteData && percentage > 0) {
 
-        const int velocity = m_noteData->velocity();
+        const int velocity = noteData->velocity();
 
         // Jitter range in absolute velocity units
         const int maxDelta = (velocity * percentage) / 100;
@@ -73,37 +74,40 @@ void Event::applyVelocityJitter(int percentage)
         // Uniform distribution between -maxDelta and +maxDelta
         std::uniform_int_distribution<int> dist { -maxDelta, 0 };
         const int jittered = velocity + dist(RandomService::generator());
-        m_noteData->setVelocity(static_cast<uint8_t>(std::clamp(jittered, 0, 127)));
+        noteData->setVelocity(static_cast<uint8_t>(std::clamp(jittered, 0, 127)));
     }
 }
 
 void Event::applyVelocityKeyTrack(int percentage, int offset)
 {
-    if (m_noteData.has_value() && percentage > 0 && m_noteData->type() == NoteData::Type::NoteOn && m_noteData->note().has_value()) {
-        m_noteData->setVelocity(Utils::Midi::scaleVelocityByKey(m_noteData->velocity(), *m_noteData->note(), percentage, offset));
+    if (auto noteData = std::get_if<NoteData>(&m_data); noteData && percentage > 0 && noteData->type() == NoteData::Type::NoteOn && noteData->note().has_value()) {
+        noteData->setVelocity(Utils::Midi::scaleVelocityByKey(noteData->velocity(), *noteData->note(), percentage, offset));
     }
 }
 
 void Event::transpose(int semitones)
 {
-    if (m_noteData.has_value()) {
-        m_noteData->transpose(semitones);
+    if (auto noteData = std::get_if<NoteData>(&m_data)) {
+        noteData->transpose(semitones);
     }
 }
 
 void Event::setAsMidiClockOut()
 {
     m_type = Type::MidiClockOut;
+    m_data = MidiClockOut {};
 }
 
 void Event::setAsStartOfSong()
 {
     m_type = Type::StartOfSong;
+    m_data = StartOfSong {};
 }
 
 void Event::setAsEndOfSong()
 {
     m_type = Type::EndOfSong;
+    m_data = EndOfSong {};
 }
 
 size_t Event::tick() const
@@ -123,17 +127,26 @@ Event::Type Event::type() const
 
 Event::NoteDataOpt Event::noteData() const
 {
-    return m_noteData;
+    if (auto noteData = std::get_if<NoteData>(&m_data)) {
+        return *noteData;
+    }
+    return std::nullopt;
 }
 
 Event::MidiCcDataOpt Event::midiCcData() const
 {
-    return m_midiCcData;
+    if (auto midiCcData = std::get_if<MidiCcData>(&m_data)) {
+        return *midiCcData;
+    }
+    return std::nullopt;
 }
 
 Event::PitchBendDataOpt Event::pitchBendData() const
 {
-    return m_pitchBendData;
+    if (auto pitchBendData = std::get_if<PitchBendData>(&m_data)) {
+        return *pitchBendData;
+    }
+    return std::nullopt;
 }
 
 Event::InstrumentS Event::instrument() const
@@ -148,12 +161,16 @@ void Event::setInstrument(InstrumentS instrument)
 
 Event::InstrumentSettingsS Event::instrumentSettings() const
 {
-    return m_instrumentSettings;
+    if (auto instrumentSettings = std::get_if<InstrumentSettingsS>(&m_data)) {
+        return *instrumentSettings;
+    }
+    return nullptr;
 }
 
 void Event::setInstrumentSettings(InstrumentSettingsS instrumentSettings)
 {
-    m_instrumentSettings = instrumentSettings;
+    m_type = Type::InstrumentSettings;
+    m_data = instrumentSettings;
 }
 
 } // namespace noteahead

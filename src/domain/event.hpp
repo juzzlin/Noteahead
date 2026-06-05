@@ -19,6 +19,9 @@
 #include <chrono>
 #include <cstddef>
 #include <memory>
+#include <optional>
+#include <utility>
+#include <variant>
 
 #include "midi_cc_data.hpp"
 #include "note_data.hpp"
@@ -47,6 +50,30 @@ public:
         StartOfSong,
     };
 
+    struct StartOfSong
+    {
+    };
+    struct EndOfSong
+    {
+    };
+    struct MidiClockOut
+    {
+    };
+    struct None
+    {
+    };
+
+    using InstrumentSettingsS = std::shared_ptr<InstrumentSettings>;
+    using Data = std::variant<
+        None,
+        NoteData,
+        MidiCcData,
+        PitchBendData,
+        InstrumentSettingsS,
+        StartOfSong,
+        EndOfSong,
+        MidiClockOut>;
+
     //! Builds a default None event.
     explicit Event(size_t tick);
 
@@ -63,13 +90,18 @@ public:
     Event(size_t tick, PitchBendDataCR pitchBendData);
 
     //! Builds an instrument settings event.
-    using InstrumentSettingsS = std::shared_ptr<InstrumentSettings>;
     Event(size_t tick, InstrumentSettingsS instrumentSettings);
 
     size_t tick() const;
     void setTick(size_t tick);
 
     Type type() const;
+
+    template<class Visitor>
+    auto visit(Visitor && visitor) const
+    {
+        return std::visit(std::forward<Visitor>(visitor), m_data);
+    }
 
     //! Applies delay as ticks.
     void applyDelay(std::chrono::milliseconds delay, double msPerTick);
@@ -113,12 +145,8 @@ private:
 
     Type m_type;
 
-    //! Data for data-like events
-    NoteDataOpt m_noteData;
-    MidiCcDataOpt m_midiCcData;
-    PitchBendDataOpt m_pitchBendData;
+    Data m_data { None {} };
     InstrumentS m_instrument;
-    InstrumentSettingsS m_instrumentSettings;
 };
 
 } // namespace noteahead

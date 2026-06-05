@@ -161,48 +161,45 @@ void RenderWorker::render(const QString & fileName, const noteahead::RenderWorke
 
 void RenderWorker::handleEvent(const Event & event)
 {
-    if (event.type() == Event::Type::NoteData) {
-        if (auto && noteData = event.noteData(); noteData) {
+    event.visit([&](auto && data) {
+        using T = std::decay_t<decltype(data)>;
+        if constexpr (std::is_same_v<T, NoteData>) {
             if (auto && instrument = event.instrument(); instrument) {
                 const auto portName = instrument->midiAddress().portName();
                 if (m_deviceService->isInternalDevice(portName)) {
-                    if (noteData->type() == NoteData::Type::NoteOff) {
-                        m_deviceService->processMidiNoteOff(portName, *noteData->note());
-                    } else if (noteData->type() == NoteData::Type::NoteOn && noteData->note().has_value()) {
-                        if (m_mixerService->shouldColumnPlay(noteData->track(), noteData->column())) {
-                            const auto effectiveVelocity = m_mixerService->effectiveVelocity(noteData->track(), noteData->column(), noteData->velocity());
-                            m_deviceService->processMidiNoteOn(portName, *noteData->note(), effectiveVelocity);
+                    if (data.type() == NoteData::Type::NoteOff) {
+                        m_deviceService->processMidiNoteOff(portName, *data.note());
+                    } else if (data.type() == NoteData::Type::NoteOn && data.note().has_value()) {
+                        if (m_mixerService->shouldColumnPlay(data.track(), data.column())) {
+                            const auto effectiveVelocity = m_mixerService->effectiveVelocity(data.track(), data.column(), data.velocity());
+                            m_deviceService->processMidiNoteOn(portName, *data.note(), effectiveVelocity);
                         }
                     }
                 }
             }
-        }
-    } else if (event.type() == Event::Type::MidiCcData) {
-        if (auto && ccData = event.midiCcData(); ccData) {
+        } else if constexpr (std::is_same_v<T, MidiCcData>) {
             if (auto && instrument = event.instrument(); instrument) {
                 const auto portName = instrument->midiAddress().portName();
                 if (m_deviceService->isInternalDevice(portName)) {
-                    m_deviceService->processMidiCc(portName, ccData->controller(), ccData->value(), instrument->midiAddress().channel());
+                    m_deviceService->processMidiCc(portName, data.controller(), data.value(), instrument->midiAddress().channel());
                 }
             }
-        }
-    } else if (event.type() == Event::Type::PitchBendData) {
-        if (auto && pbData = event.pitchBendData(); pbData) {
+        } else if constexpr (std::is_same_v<T, PitchBendData>) {
             if (auto && instrument = event.instrument(); instrument) {
                 const auto portName = instrument->midiAddress().portName();
                 if (m_deviceService->isInternalDevice(portName)) {
                     // FIXME: DeviceService doesn't have processMidiPitchBend yet, but let's keep it for future
                 }
             }
-        }
-    } else if (event.type() == Event::Type::InstrumentSettings) {
-        if (auto && instrumentSettings = event.instrumentSettings(); instrumentSettings) {
-            if (auto && instrument = event.instrument(); instrument) {
-                m_deviceService->processMidiAllNotesOff(instrument->midiAddress().portName());
-                // Settings like transpose/delay are already applied to events by Song::applyInstrumentsOnEvents
+        } else if constexpr (std::is_same_v<T, Event::InstrumentSettingsS>) {
+            if (data) {
+                if (auto && instrument = event.instrument(); instrument) {
+                    m_deviceService->processMidiAllNotesOff(instrument->midiAddress().portName());
+                    // Settings like transpose/delay are already applied to events by Song::applyInstrumentsOnEvents
+                }
             }
         }
-    }
+    });
 }
 
 } // namespace noteahead
