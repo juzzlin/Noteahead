@@ -44,7 +44,13 @@ I now also write songs with the internal instruments only. It has been a huge ef
 ##
 ## Example Tracks
 
-Some example tracks sequenced and recorded with Noteahead (usually mastered in Audacity):
+Some example tracks sequenced and recorded with Noteahead (usually mastered in Audacity).
+
+Noteahead's built-in synths only:
+
+- [Arctic Music Project - Awesome (Noteahead Remix) (SoundCloud)](https://soundcloud.com/arctic-music-project/awesome-noteahead-remix)
+
+Noteahead with hardware synths:
 
 - [Arctic Music Project - Raindrops (SoundCloud)](https://soundcloud.com/arctic-music-project/raindrops)
 - [Arctic Music Project - My Real Name (Spotify)](https://open.spotify.com/track/2WN79Gzazaq0xtji9t0ORI)
