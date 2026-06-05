@@ -19,6 +19,7 @@ set(SRC
     ../../view/controllers/device_rack_controller.cpp
     ../../application/service/device_service.cpp
     ../../domain/devices/device_factory.cpp
+    ../../domain/devices/device_registration.cpp
     ../../view/controllers/device_controller.cpp
     ../../view/controllers/drum_synth_controller.cpp
     ../../application/service/editor_service.cpp

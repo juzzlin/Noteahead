@@ -15,9 +15,9 @@
 
 #include "effect_rack.hpp"
 
-#include "effect_factory.hpp"
 #include "../../common/constants.hpp"
 #include "../../common/utils.hpp"
+#include "effect_factory.hpp"
 
 #include <QXmlStreamReader>
 

@@ -25,7 +25,7 @@ std::map<std::string, DeviceFactory::Creator> & registry()
     static std::map<std::string, DeviceFactory::Creator> instance;
     return instance;
 }
-}
+} // namespace
 
 void DeviceFactory::registerDevice(const std::string & typeId, Creator creator)
 {

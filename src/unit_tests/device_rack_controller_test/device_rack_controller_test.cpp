@@ -18,6 +18,13 @@
 #include "../../application/service/device_service.hpp"
 #include "../../application/service/editor_service.hpp"
 #include "../../common/constants.hpp"
+#include "../../domain/devices/bass_synth_device.hpp"
+#include "../../domain/devices/device_factory.hpp"
+#include "../../domain/devices/drum_synth_device.hpp"
+#include "../../domain/devices/effect_factory.hpp"
+#include "../../domain/devices/sampler_device.hpp"
+#include "../../domain/devices/synth_device.hpp"
+#include "../../infra/audio/audio_engine.hpp"
 #include "../../view/controllers/device_rack_controller.hpp"
 #include "../../view/controllers/sampler_controller.hpp"
 #include "../../view/controllers/synth_controller.hpp"
@@ -27,48 +34,24 @@
 
 namespace noteahead {
 
-class MockDeviceService : public DeviceService
+void DeviceRackControllerTest::initTestCase()
 {
-public:
-    MockDeviceService()
-      : DeviceService(nullptr)
-    {
-    }
+    EffectFactory::init();
+    DeviceFactory::init();
+}
 
-    QStringList internalDeviceNamesQt() const override
-    {
-        return m_names;
-    }
-
-    void setMockNames(const QStringList & names)
-    {
-        m_names = names;
-    }
-
-    DeviceS device(size_t slotIndex) const override
-    {
-        if (slotIndex < m_devices.size())
-            return m_devices[slotIndex];
-        return nullptr;
-    }
-
-    void setMockDevice(size_t index, DeviceS dev)
-    {
-        if (index >= m_devices.size())
-            m_devices.resize(index + 1);
-        m_devices[index] = dev;
-    }
-
-private:
-    QStringList m_names;
-    std::vector<DeviceS> m_devices;
-};
+void DeviceRackControllerTest::cleanupTestCase()
+{
+    EffectFactory::clear();
+    DeviceFactory::clear();
+}
 
 class MockDevice : public Device
 {
 public:
-    MockDevice(const std::string & name)
-      : m_name(name)
+    MockDevice(const std::string & name, const std::string & typeId = "mock")
+      : m_name { name }
+      , m_typeId { typeId }
     {
     }
 
@@ -79,7 +62,7 @@ public:
 
     std::string category() const override
     {
-        return "";
+        return "Mock Category";
     }
 
     std::string typeName() const override
@@ -89,7 +72,7 @@ public:
 
     std::string typeId() const override
     {
-        return "mock";
+        return m_typeId;
     }
 
     void processMidiNoteOn(uint8_t, uint8_t) override
@@ -140,6 +123,7 @@ protected:
 
 private:
     std::string m_name;
+    std::string m_typeId;
 };
 
 class MockEditorService : public EditorService
@@ -175,22 +159,35 @@ public:
         m_ports[trackIndex] = port;
     }
 
+    void setIsModified(bool modified) override
+    {
+        m_modified = modified;
+    }
+
+    bool isModified() const override
+    {
+        return m_modified;
+    }
+
 private:
     std::vector<quint64> m_indices;
     std::map<quint64, QString> m_names;
     std::map<quint64, QString> m_ports;
+    bool m_modified { false };
 };
 
 void DeviceRackControllerTest::test_devices_shouldReturnDeviceNames()
 {
-    const auto deviceService { std::make_shared<MockDeviceService>() };
-    const auto name1 { "Noteahead Sampler 1" };
-    const auto name2 { "Noteahead Synth 1" };
-    deviceService->setMockDevice(0, std::make_shared<MockDevice>(name1));
-    deviceService->setMockDevice(1, std::make_shared<MockDevice>(name2));
+    const auto audioEngine = std::make_shared<AudioEngine>();
+    const auto deviceService = std::make_shared<DeviceService>(audioEngine);
+    const auto name1 = "Test Device 1";
+    const auto name2 = "Test Device 2";
+    deviceService->setDevice(0, std::make_shared<MockDevice>(name1));
+    deviceService->setDevice(1, std::make_shared<MockDevice>(name2));
 
     DeviceRackController controller { deviceService, nullptr, nullptr, nullptr, nullptr, nullptr };
-    QCOMPARE(controller.rowCount(), 8);
+
+    QCOMPARE(controller.rowCount(), static_cast<int>(Constants::deviceRackSize()));
     QCOMPARE(controller.data(controller.index(0), static_cast<int>(DeviceRackController::DataRole::Name)).toString(), QString::fromStdString(name1));
     QCOMPARE(controller.data(controller.index(1), static_cast<int>(DeviceRackController::DataRole::Name)).toString(), QString::fromStdString(name2));
     QCOMPARE(controller.data(controller.index(2), static_cast<int>(DeviceRackController::DataRole::Name)).toString(), QString(""));
@@ -198,13 +195,14 @@ void DeviceRackControllerTest::test_devices_shouldReturnDeviceNames()
 
 void DeviceRackControllerTest::test_trackNames_shouldReturnTrackNamesForDevice()
 {
-    const auto deviceService { std::make_shared<MockDeviceService>() };
-    const auto name1 { "Noteahead Sampler 1" };
-    const auto name2 { "Noteahead Synth 1" };
-    deviceService->setMockDevice(0, std::make_shared<MockDevice>(name1));
-    deviceService->setMockDevice(1, std::make_shared<MockDevice>(name2));
+    const auto audioEngine = std::make_shared<AudioEngine>();
+    const auto deviceService = std::make_shared<DeviceService>(audioEngine);
+    const auto name1 = "Device 1";
+    const auto name2 = "Device 2";
+    deviceService->setDevice(0, std::make_shared<MockDevice>(name1));
+    deviceService->setDevice(1, std::make_shared<MockDevice>(name2));
 
-    const auto editorService { std::make_shared<MockEditorService>() };
+    const auto editorService = std::make_shared<MockEditorService>();
     editorService->setMockIndices({ 0, 1, 2, 3 });
     editorService->setMockTrackName(0, "Track 1");
     editorService->setMockInstrumentPortName(0, QString::fromStdString(name1));
@@ -221,11 +219,103 @@ void DeviceRackControllerTest::test_trackNames_shouldReturnTrackNamesForDevice()
     QCOMPARE(controller.data(controller.index(1), static_cast<int>(DeviceRackController::DataRole::TrackNames)).toString(), QString("Track 2, Track 4"));
 }
 
-void DeviceRackControllerTest::test_openDevice_shouldOpenDevice()
+void DeviceRackControllerTest::test_setDevice_shouldAddDeviceAndNotify()
 {
-    // This test would require more complex mocking of DeviceService to return real Device objects
-    // or further mocking of Sampler/Synth controllers.
-    // For now, let's focus on the requested trackNames functionality.
+    const auto audioEngine = std::make_shared<AudioEngine>();
+    const auto deviceService = std::make_shared<DeviceService>(audioEngine);
+    const auto editorService = std::make_shared<MockEditorService>();
+    DeviceRackController controller { deviceService, nullptr, nullptr, nullptr, nullptr, editorService };
+
+    QSignalSpy revisionSpy { &controller, &DeviceRackController::revisionChanged };
+    QSignalSpy dataChangedSpy { &controller, &DeviceRackController::dataChanged };
+
+    const auto typeId = QString::fromStdString(SynthDevice::typeIdString());
+    controller.setDevice(0, typeId);
+
+    QVERIFY(revisionSpy.count() > 0);
+    QVERIFY(editorService->isModified());
+    QVERIFY(deviceService->device(0) != nullptr);
+    QCOMPARE(QString::fromStdString(deviceService->device(0)->typeId()), typeId);
+}
+
+void DeviceRackControllerTest::test_clearDevice_shouldRemoveDeviceAndNotify()
+{
+    const auto audioEngine = std::make_shared<AudioEngine>();
+    const auto deviceService = std::make_shared<DeviceService>(audioEngine);
+    const auto editorService = std::make_shared<MockEditorService>();
+    deviceService->setDevice(0, std::make_shared<MockDevice>("To be removed"));
+
+    DeviceRackController controller { deviceService, nullptr, nullptr, nullptr, nullptr, editorService };
+
+    QSignalSpy revisionSpy { &controller, &DeviceRackController::revisionChanged };
+    controller.clearDevice(0);
+
+    QVERIFY(revisionSpy.count() > 0);
+    QVERIFY(editorService->isModified());
+    QVERIFY(deviceService->device(0) == nullptr);
+}
+
+void DeviceRackControllerTest::test_addMethods_shouldAddDevicesToFirstEmptySlot()
+{
+    const auto audioEngine = std::make_shared<AudioEngine>();
+    const auto deviceService = std::make_shared<DeviceService>(audioEngine);
+    const auto editorService = std::make_shared<MockEditorService>();
+    DeviceRackController controller { deviceService, nullptr, nullptr, nullptr, nullptr, editorService };
+
+    // Fill first slot
+    controller.setDevice(0, QString::fromStdString(SamplerDevice::typeIdString()));
+
+    // addSynth should go to slot 1
+    controller.addSynth();
+    QVERIFY(deviceService->device(1) != nullptr);
+    QCOMPARE(deviceService->device(1)->typeId(), SynthDevice::typeIdString());
+
+    // addBassSynth should go to slot 2
+    controller.addBassSynth();
+    QVERIFY(deviceService->device(2) != nullptr);
+    QCOMPARE(deviceService->device(2)->typeId(), BassSynthDevice::typeIdString());
+
+    // addDrumSynth should go to slot 3
+    controller.addDrumSynth();
+    QVERIFY(deviceService->device(3) != nullptr);
+    QCOMPARE(deviceService->device(3)->typeId(), DrumSynthDevice::typeIdString());
+
+    // addSampler should go to slot 4
+    controller.addSampler();
+    QVERIFY(deviceService->device(4) != nullptr);
+    QCOMPARE(deviceService->device(4)->typeId(), SamplerDevice::typeIdString());
+}
+
+void DeviceRackControllerTest::test_availableDevices_shouldReturnCorrectList()
+{
+    DeviceRackController controller { nullptr, nullptr, nullptr, nullptr, nullptr, nullptr };
+    const auto list = controller.availableDevices();
+
+    QCOMPARE(list.size(), 4);
+    QCOMPARE(list.at(0).toMap()["name"].toString(), QString("Sampler"));
+    QCOMPARE(list.at(1).toMap()["name"].toString(), QString("Synth"));
+    QCOMPARE(list.at(2).toMap()["name"].toString(), QString("Bass Synth"));
+    QCOMPARE(list.at(3).toMap()["name"].toString(), QString("Drum Synth"));
+}
+
+void DeviceRackControllerTest::test_removeDeviceByName_shouldClearCorrectSlot()
+{
+    const auto audioEngine = std::make_shared<AudioEngine>();
+    const auto deviceService = std::make_shared<DeviceService>(audioEngine);
+    const auto editorService = std::make_shared<MockEditorService>();
+
+    const auto prefix = Constants::internalDevicePortPrefix().toStdString();
+    deviceService->setDevice(0, std::make_shared<MockDevice>(prefix + " 1"));
+    deviceService->setDevice(2, std::make_shared<MockDevice>(prefix + " 3"));
+
+    DeviceRackController controller { deviceService, nullptr, nullptr, nullptr, nullptr, editorService };
+
+    controller.removeDevice(QString::fromStdString(prefix + " 3"));
+    QVERIFY(deviceService->device(0) != nullptr);
+    QVERIFY(deviceService->device(2) == nullptr);
+
+    controller.removeDevice(QString::fromStdString(prefix + " 1"));
+    QVERIFY(deviceService->device(0) == nullptr);
 }
 
 } // namespace noteahead

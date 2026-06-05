@@ -39,7 +39,7 @@ std::map<std::string, EffectFactory::Creator> & legacyRegistry()
     static std::map<std::string, EffectFactory::Creator> instance;
     return instance;
 }
-}
+} // namespace
 
 void EffectFactory::registerEffect(const std::string & typeId, Creator creator)
 {

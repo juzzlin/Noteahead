@@ -25,9 +25,16 @@ class DeviceRackControllerTest : public QObject
     Q_OBJECT
 
 private slots:
+    void initTestCase();
+    void cleanupTestCase();
+
     void test_devices_shouldReturnDeviceNames();
     void test_trackNames_shouldReturnTrackNamesForDevice();
-    void test_openDevice_shouldOpenDevice();
+    void test_setDevice_shouldAddDeviceAndNotify();
+    void test_clearDevice_shouldRemoveDeviceAndNotify();
+    void test_addMethods_shouldAddDevicesToFirstEmptySlot();
+    void test_availableDevices_shouldReturnCorrectList();
+    void test_removeDeviceByName_shouldClearCorrectSlot();
 };
 
 } // namespace noteahead
