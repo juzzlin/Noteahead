@@ -24,6 +24,7 @@
 #include "domain/column_settings.hpp"
 #include "domain/devices/bass_synth_device.hpp"
 #include "domain/devices/drum_synth_device.hpp"
+#include "domain/devices/effect_factory.hpp"
 #include "domain/devices/sampler_device.hpp"
 #include "domain/devices/synth_device.hpp"
 #include "domain/midi_note_data.hpp"
@@ -134,6 +135,7 @@ Application::Application(int & argc, char ** argv)
   , m_noteColumnModelHandler { std::make_unique<NoteColumnModelHandler>(m_editorService, m_selectionService, m_automationService, m_settingsService) }
   , m_engine { std::make_unique<QQmlApplicationEngine>() }
 {
+    EffectFactory::init();
     m_propertyService->setDeviceService(m_deviceService);
     // Initial empty rack, devices will be added via DeviceRackDialog/Gallery
     m_editorService->setMixerService(m_mixerService);

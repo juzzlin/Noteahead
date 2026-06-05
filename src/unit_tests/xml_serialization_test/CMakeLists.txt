@@ -35,6 +35,7 @@ set(SRC
     ../../domain/devices/bass_synth_device.cpp
     ../../domain/devices/delay_effect.cpp
     ../../domain/devices/device.cpp
+    ../../domain/devices/effect_factory.cpp
     ../../domain/devices/drum_synth_constants.cpp
     ../../domain/devices/drum_synth_device.cpp
     ../../domain/devices/effect.cpp

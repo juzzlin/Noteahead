@@ -3,6 +3,7 @@
 #include "../../application/service/editor_service.hpp"
 #include "../../common/constants.hpp"
 #include "../../domain/devices/auto_panner_effect.hpp"
+#include "../../domain/devices/effect_factory.hpp"
 #include "../../domain/devices/effect_rack.hpp"
 #include "../../domain/devices/panner_effect.hpp"
 #include "../../domain/dsp/clipper_effect.hpp"
@@ -17,6 +18,16 @@
 #include <memory>
 
 namespace noteahead {
+
+void EffectRackControllerTest::initTestCase()
+{
+    EffectFactory::init();
+}
+
+void EffectRackControllerTest::cleanupTestCase()
+{
+    EffectFactory::clear();
+}
 
 void EffectRackControllerTest::test_effectParametersSummary_reverb_shouldReturnFormattedSummary()
 {

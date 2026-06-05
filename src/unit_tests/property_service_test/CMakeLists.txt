@@ -8,6 +8,7 @@ set(SRC
     ../../common/constants.cpp
     ../../common/parameter_mapper.cpp
     ../../common/utils.cpp
+    ../../domain/devices/effect_factory.cpp
     ../../domain/devices/device.cpp
     ../../domain/devices/sampler_device.cpp
     ../../domain/devices/synth_device.cpp

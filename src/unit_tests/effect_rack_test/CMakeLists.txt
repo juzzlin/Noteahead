@@ -11,6 +11,7 @@ set(SRC
     ../../domain/dsp/lfo.cpp
     ../../domain/devices/auto_panner_effect.cpp
     ../../domain/devices/effect_rack.cpp
+    ../../domain/devices/effect_factory.cpp
     ../../domain/devices/high_pass_filter_effect.cpp
     ../../domain/devices/low_pass_filter_effect.cpp
     ../../domain/devices/panning_effect.cpp

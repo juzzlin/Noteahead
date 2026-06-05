@@ -6,6 +6,7 @@ set(SRC
     ../../common/constants.cpp
     ../../common/parameter_mapper.cpp
     ../../common/utils.cpp
+    ../../domain/devices/effect_factory.cpp
     ../../domain/devices/device.cpp
     ../../domain/devices/delay_effect.cpp
     ../../domain/devices/effect.cpp

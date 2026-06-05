@@ -15,20 +15,9 @@
 
 #include "effect_rack.hpp"
 
+#include "effect_factory.hpp"
 #include "../../common/constants.hpp"
 #include "../../common/utils.hpp"
-#include "../dsp/chorus_effect.hpp"
-#include "../dsp/clipper_effect.hpp"
-#include "../dsp/compressor_effect.hpp"
-#include "../dsp/eq_8_band_parametric_effect.hpp"
-#include "../dsp/reverb_effect.hpp"
-#include "auto_panner_effect.hpp"
-#include "delay_effect.hpp"
-#include "high_pass_filter_effect.hpp"
-#include "low_pass_filter_effect.hpp"
-#include "panner_effect.hpp"
-#include "panning_effect.hpp"
-#include "volume_effect.hpp"
 
 #include <QXmlStreamReader>
 
@@ -184,33 +173,7 @@ void EffectRack::deserializeEffect(QXmlStreamReader & reader)
     const auto type = reader.attributes().value(Constants::NahdXml::xmlKeyType()).toString().toStdString();
     const auto enabled = reader.attributes().value(Constants::NahdXml::xmlKeyEnabled()).toString() != Constants::NahdXml::xmlValueFalse();
 
-    EffectS effect;
-    const auto stdType = QString::fromStdString(type);
-    if (typeId == ClipperEffect::typeIdString() || stdType == Constants::RackEffectType::clipper()) {
-        effect = std::make_shared<ClipperEffect>();
-    } else if (typeId == CompressorEffect::typeIdString() || stdType == Constants::RackEffectType::compressor()) {
-        effect = std::make_shared<CompressorEffect>();
-    } else if (typeId == DelayEffect::typeIdString() || stdType == Constants::RackEffectType::delay()) {
-        effect = std::make_shared<DelayEffect>();
-    } else if (typeId == ChorusEffect::typeIdString() || stdType == Constants::RackEffectType::chorus()) {
-        effect = std::make_shared<ChorusEffect>();
-    } else if (typeId == AutoPannerEffect::typeIdString() || stdType == Constants::RackEffectType::autoPanner()) {
-        effect = std::make_shared<AutoPannerEffect>();
-    } else if (typeId == Eq8BandParametricEffect::typeIdString() || stdType == Constants::RackEffectType::eq8BandParametric() || type == "eq8bandparametric") {
-        effect = std::make_shared<Eq8BandParametricEffect>();
-    } else if (typeId == HighPassFilterEffect::typeIdString() || type == "highPassFilter") {
-        effect = std::make_shared<HighPassFilterEffect>();
-    } else if (typeId == LowPassFilterEffect::typeIdString() || type == "lowPassFilter") {
-        effect = std::make_shared<LowPassFilterEffect>();
-    } else if (typeId == PannerEffect::typeIdString() || stdType == Constants::RackEffectType::panner()) {
-        effect = std::make_shared<PannerEffect>();
-    } else if (typeId == PanningEffect::typeIdString() || type == "panning") {
-        effect = std::make_shared<PanningEffect>();
-    } else if (typeId == ReverbEffect::typeIdString() || stdType == Constants::RackEffectType::reverb()) {
-        effect = std::make_shared<ReverbEffect>();
-    } else if (typeId == VolumeEffect::typeIdString() || type == "volume") {
-        effect = std::make_shared<VolumeEffect>();
-    }
+    const auto effect = EffectFactory::createEffect(typeId, type);
 
     if (effect) {
         effect->setEnabled(enabled);

@@ -72,6 +72,7 @@ set(HEADER_FILES
   domain/devices/drum_synth_constants.hpp
   domain/devices/drum_synth_device.hpp
   domain/devices/effect.hpp
+  domain/devices/effect_factory.hpp
   domain/devices/effect_rack.hpp
   domain/devices/high_pass_filter_effect.hpp
   domain/devices/low_pass_filter_effect.hpp
@@ -228,6 +229,7 @@ set(SOURCE_FILES
   domain/devices/drum_synth_constants.cpp
   domain/devices/drum_synth_device.cpp
   domain/devices/effect.cpp
+  domain/devices/effect_factory.cpp
   domain/devices/effect_rack.cpp
   domain/devices/high_pass_filter_effect.cpp
   domain/devices/low_pass_filter_effect.cpp

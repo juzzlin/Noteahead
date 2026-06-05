@@ -18,12 +18,9 @@
 #include "../../common/constants.hpp"
 #include "../../common/parameter_mapper.hpp"
 #include "../../domain/devices/auto_panner_effect.hpp"
-#include "../../domain/devices/delay_effect.hpp"
-#include "../../domain/devices/high_pass_filter_effect.hpp"
-#include "../../domain/devices/low_pass_filter_effect.hpp"
+#include "../../domain/devices/effect_factory.hpp"
+#include "../../domain/devices/effect_rack.hpp"
 #include "../../domain/devices/panner_effect.hpp"
-#include "../../domain/devices/panning_effect.hpp"
-#include "../../domain/devices/volume_effect.hpp"
 #include "../../domain/dsp/chorus_effect.hpp"
 #include "../../domain/dsp/clipper_effect.hpp"
 #include "../../domain/dsp/compressor_effect.hpp"
@@ -100,7 +97,7 @@ std::optional<std::reference_wrapper<EffectRack>> EffectRackController::currentR
             return std::ref(m_deviceService->sendEffectRack());
         }
     } else {
-        if (const auto device = m_deviceService->device(m_targetDeviceName.toStdString())) {
+        if (const auto device = m_deviceService->device(m_targetDeviceName.toStdString()); device) {
             return std::ref(device->insertEffectRack());
         }
     }
@@ -109,8 +106,8 @@ std::optional<std::reference_wrapper<EffectRack>> EffectRackController::currentR
 
 float EffectRackController::parameterValue(int effectIndex, const QString & paramName) const
 {
-    if (const auto rack = currentRack()) {
-        if (const auto effect = rack->get().effect(static_cast<size_t>(effectIndex))) {
+    if (const auto rack = currentRack(); rack) {
+        if (const auto effect = rack->get().effect(static_cast<size_t>(effectIndex)); effect) {
             if (const auto parameter = effect->parameter(paramName.toStdString()); parameter) {
                 return parameter->get().value();
             }
@@ -121,12 +118,11 @@ float EffectRackController::parameterValue(int effectIndex, const QString & para
 
 void EffectRackController::setParameterValue(int effectIndex, const QString & paramName, float value)
 {
-    if (const auto rack = currentRack()) {
-        if (const auto effect = rack->get().effect(static_cast<size_t>(effectIndex))) {
+    if (const auto rack = currentRack(); rack) {
+        if (const auto effect = rack->get().effect(static_cast<size_t>(effectIndex)); effect) {
             if (const auto parameter = effect->parameter(paramName.toStdString()); parameter) {
                 if (parameter->get().update(value)) {
                     effect->sync();
-
                     m_editorService->setIsModified(true);
                     m_revision++;
                     emit revisionChanged();
@@ -139,36 +135,8 @@ void EffectRackController::setParameterValue(int effectIndex, const QString & pa
 
 void EffectRackController::setEffect(int slotIndex, const QString & typeId)
 {
-    const auto stdTypeId = typeId.toStdString();
-    EffectRack::EffectS effect;
-    if (stdTypeId == ReverbEffect::typeIdString()) {
-        effect = std::make_shared<ReverbEffect>();
-    } else if (stdTypeId == DelayEffect::typeIdString()) {
-        effect = std::make_shared<DelayEffect>();
-    } else if (stdTypeId == ChorusEffect::typeIdString()) {
-        effect = std::make_shared<ChorusEffect>();
-    } else if (stdTypeId == AutoPannerEffect::typeIdString()) {
-        effect = std::make_shared<AutoPannerEffect>();
-    } else if (stdTypeId == HighPassFilterEffect::typeIdString()) {
-        effect = std::make_shared<HighPassFilterEffect>();
-    } else if (stdTypeId == LowPassFilterEffect::typeIdString()) {
-        effect = std::make_shared<LowPassFilterEffect>();
-    } else if (stdTypeId == PannerEffect::typeIdString()) {
-        effect = std::make_shared<PannerEffect>();
-    } else if (stdTypeId == PanningEffect::typeIdString()) {
-        effect = std::make_shared<PanningEffect>();
-    } else if (stdTypeId == VolumeEffect::typeIdString()) {
-        effect = std::make_shared<VolumeEffect>();
-    } else if (stdTypeId == CompressorEffect::typeIdString()) {
-        effect = std::make_shared<CompressorEffect>();
-    } else if (stdTypeId == ClipperEffect::typeIdString()) {
-        effect = std::make_shared<ClipperEffect>();
-    } else if (stdTypeId == Eq8BandParametricEffect::typeIdString()) {
-        effect = std::make_shared<Eq8BandParametricEffect>();
-    }
-
-    if (effect) {
-        if (const auto rack = currentRack()) {
+    if (const auto effect = EffectFactory::createEffect(typeId.toStdString()); effect) {
+        if (const auto rack = currentRack(); rack) {
             rack->get().setEffect(static_cast<size_t>(slotIndex), std::move(effect));
             m_editorService->setIsModified(true);
             m_revision++;
@@ -179,7 +147,7 @@ void EffectRackController::setEffect(int slotIndex, const QString & typeId)
 
 void EffectRackController::clearEffect(int slotIndex)
 {
-    if (const auto rack = currentRack()) {
+    if (const auto rack = currentRack(); rack) {
         rack->get().setEffect(static_cast<size_t>(slotIndex), nullptr);
         m_editorService->setIsModified(true);
         m_revision++;
@@ -191,7 +159,7 @@ QVariantList EffectRackController::availableEffects() const
 {
     QVariantList list;
 
-    auto addEffect = [&](const QString & name, const std::string & typeId) {
+    const auto addEffect = [&](const QString & name, const std::string & typeId) {
         QVariantMap map;
         map["name"] = name;
         map["typeId"] = QString::fromStdString(typeId);
@@ -202,7 +170,6 @@ QVariantList EffectRackController::availableEffects() const
     addEffect("Chorus", ChorusEffect::typeIdString());
     addEffect("Clipper", ClipperEffect::typeIdString());
     addEffect("Compressor", CompressorEffect::typeIdString());
-    addEffect("Delay", DelayEffect::typeIdString());
     addEffect("EQ 8-Band Parametric", Eq8BandParametricEffect::typeIdString());
     addEffect("Panner", PannerEffect::typeIdString());
     addEffect("Reverb", ReverbEffect::typeIdString());
@@ -212,7 +179,7 @@ QVariantList EffectRackController::availableEffects() const
 
 bool EffectRackController::isEffectEnabled(int effectIndex) const
 {
-    if (const auto rack = currentRack()) {
+    if (const auto rack = currentRack(); rack) {
         if (const auto effect = rack->get().effect(static_cast<size_t>(effectIndex))) {
             return effect->enabled();
         }
@@ -222,8 +189,8 @@ bool EffectRackController::isEffectEnabled(int effectIndex) const
 
 void EffectRackController::setIsEffectEnabled(int effectIndex, bool enabled)
 {
-    if (const auto rack = currentRack()) {
-        if (const auto effect = rack->get().effect(static_cast<size_t>(effectIndex))) {
+    if (const auto rack = currentRack(); rack) {
+        if (const auto effect = rack->get().effect(static_cast<size_t>(effectIndex)); effect) {
             if (effect->enabled() != enabled) {
                 effect->setEnabled(enabled);
                 m_editorService->setIsModified(true);
@@ -236,8 +203,8 @@ void EffectRackController::setIsEffectEnabled(int effectIndex, bool enabled)
 
 QStringList EffectRackController::parameterNames(int effectIndex) const
 {
-    if (const auto rack = currentRack()) {
-        if (const auto effect = rack->get().effect(static_cast<size_t>(effectIndex))) {
+    if (const auto rack = currentRack(); rack) {
+        if (const auto effect = rack->get().effect(static_cast<size_t>(effectIndex)); effect) {
             QStringList names;
             for (const auto & name : effect->parameterNames()) {
                 names.append(QString::fromStdString(name));
@@ -250,8 +217,8 @@ QStringList EffectRackController::parameterNames(int effectIndex) const
 
 QString EffectRackController::effectType(int effectIndex) const
 {
-    if (const auto rack = currentRack()) {
-        if (const auto effect = rack->get().effect(static_cast<size_t>(effectIndex))) {
+    if (const auto rack = currentRack(); rack) {
+        if (const auto effect = rack->get().effect(static_cast<size_t>(effectIndex)); effect) {
             return QString::fromStdString(effect->type());
         }
     }
@@ -260,20 +227,20 @@ QString EffectRackController::effectType(int effectIndex) const
 
 QString EffectRackController::effectParametersSummary(int effectIndex) const
 {
-    if (const auto rack = currentRack()) {
-        if (const auto effect = rack->get().effect(static_cast<size_t>(effectIndex))) {
+    if (const auto rack = currentRack(); rack) {
+        if (const auto effect = rack->get().effect(static_cast<size_t>(effectIndex)); effect) {
             const auto type = QString::fromStdString(effect->type());
             if (type == Constants::RackEffectType::reverb()) {
-                auto preDelay = effect->parameter(Constants::NahdXml::xmlKeyReverbPreDelay().toStdString());
-                auto decay = effect->parameter(Constants::NahdXml::xmlKeyReverbDecay().toStdString());
+                const auto preDelay = effect->parameter(Constants::NahdXml::xmlKeyReverbPreDelay().toStdString());
+                const auto decay = effect->parameter(Constants::NahdXml::xmlKeyReverbDecay().toStdString());
                 if (preDelay && decay) {
                     return QString { "(pre=%1ms, decay=%2ms)" }
                       .arg(preDelay->get().xmlValue() / preDelay->get().xmlScale())
                       .arg(decay->get().xmlValue() / decay->get().xmlScale());
                 }
             } else if (type == Constants::RackEffectType::compressor()) {
-                auto attack = effect->parameter(Constants::NahdXml::xmlKeyAttack().toStdString());
-                auto ratio = effect->parameter(Constants::NahdXml::xmlKeyCompressorRatio().toStdString());
+                const auto attack = effect->parameter(Constants::NahdXml::xmlKeyAttack().toStdString());
+                const auto ratio = effect->parameter(Constants::NahdXml::xmlKeyCompressorRatio().toStdString());
                 if (attack && ratio) {
                     const float attackMs = static_cast<float>(ParameterMapper::mapExponential(attack->get().value(), 0.1, 500.0));
                     const int ratioValue = ratio->get().xmlValue() / ratio->get().xmlScale();
@@ -300,16 +267,16 @@ QString EffectRackController::effectParametersSummary(int effectIndex) const
                       .arg(static_cast<int>(std::round(intensity->get().value() * 100.0f)));
                 }
             } else if (type == Constants::RackEffectType::panner()) {
-                auto pan = effect->parameter(Constants::NahdXml::xmlKeyPan().toStdString());
-                auto width = effect->parameter(Constants::NahdXml::xmlKeyReverbWidth().toStdString());
+                const auto pan = effect->parameter(Constants::NahdXml::xmlKeyPan().toStdString());
+                const auto width = effect->parameter(Constants::NahdXml::xmlKeyReverbWidth().toStdString());
                 if (pan && width) {
                     return QString { "(pan=%1%, width=%2%)" }
                       .arg(static_cast<int>(std::round(pan->get().value() * 100.0f)))
                       .arg(static_cast<int>(std::round(width->get().value() * 100.0f)));
                 }
             } else if (type == Constants::RackEffectType::chorus()) {
-                auto rate = effect->parameter(Constants::NahdXml::xmlKeyChorusRate().toStdString());
-                auto mix = effect->parameter(Constants::NahdXml::xmlKeyChorusMix().toStdString());
+                const auto rate = effect->parameter(Constants::NahdXml::xmlKeyChorusRate().toStdString());
+                const auto mix = effect->parameter(Constants::NahdXml::xmlKeyChorusMix().toStdString());
                 if (rate && mix) {
                     const float rateHz = static_cast<float>(ParameterMapper::mapExponential(rate->get().value(), 0.1, 10.0));
                     return QString { "(rate=%1Hz, mix=%2%)" }
@@ -317,8 +284,7 @@ QString EffectRackController::effectParametersSummary(int effectIndex) const
                       .arg(static_cast<int>(std::round(mix->get().value() * 100.0f)));
                 }
             } else if (type == Constants::RackEffectType::clipper()) {
-                auto threshold = effect->parameter(Constants::NahdXml::xmlKeyClipperThreshold().toStdString());
-                if (threshold) {
+                if (const auto threshold = effect->parameter(Constants::NahdXml::xmlKeyClipperThreshold().toStdString()); threshold) {
                     return QString { "(thr=%1dB)" }.arg(threshold->get().xmlValue() / 100.0f, 0, 'f', 1);
                 }
             } else if (type == Constants::RackEffectType::eq8BandParametric()) {
@@ -456,22 +422,22 @@ QString EffectRackController::clipperGainKey() const
 
 QString EffectRackController::eq8BandParametricTypeKey(int bandIndex) const
 {
-    return Constants::NahdXml::xmlKeyEq8BandParametricType(bandIndex);
+    return Constants::NahdXml::xmlKeyEq8BandParametricType(static_cast<size_t>(bandIndex));
 }
 
 QString EffectRackController::eq8BandParametricFreqKey(int bandIndex) const
 {
-    return Constants::NahdXml::xmlKeyEq8BandParametricFreq(bandIndex);
+    return Constants::NahdXml::xmlKeyEq8BandParametricFreq(static_cast<size_t>(bandIndex));
 }
 
 QString EffectRackController::eq8BandParametricGainKey(int bandIndex) const
 {
-    return Constants::NahdXml::xmlKeyEq8BandParametricGain(bandIndex);
+    return Constants::NahdXml::xmlKeyEq8BandParametricGain(static_cast<size_t>(bandIndex));
 }
 
 QString EffectRackController::eq8BandParametricQKey(int bandIndex) const
 {
-    return Constants::NahdXml::xmlKeyEq8BandParametricQ(bandIndex);
+    return Constants::NahdXml::xmlKeyEq8BandParametricQ(static_cast<size_t>(bandIndex));
 }
 
 QString EffectRackController::clipperType() const
@@ -529,9 +495,9 @@ float EffectRackController::compressorReductionDb(int effectIndex) const
 
 float EffectRackController::clipperReductionDb(int effectIndex) const
 {
-    if (const auto rack = currentRack()) {
-        if (const auto effect = rack->get().effect(static_cast<size_t>(effectIndex))) {
-            if (const auto clipper = std::dynamic_pointer_cast<ClipperEffect>(effect)) {
+    if (const auto rack = currentRack(); rack) {
+        if (const auto effect = rack->get().effect(static_cast<size_t>(effectIndex)); effect) {
+            if (const auto clipper = std::dynamic_pointer_cast<ClipperEffect>(effect); clipper) {
                 return clipper->reductionDb();
             }
         }
@@ -551,12 +517,12 @@ QStringList EffectRackController::reverbPresets() const
 
 void EffectRackController::applyReverbPreset(int effectIndex, int presetIndex)
 {
-    if (const auto rack = currentRack()) {
-        if (const auto effect = rack->get().effect(static_cast<size_t>(effectIndex))) {
-            if (const auto reverb = std::dynamic_pointer_cast<ReverbEffect>(effect)) {
+    if (const auto rack = currentRack(); rack) {
+        if (const auto effect = rack->get().effect(static_cast<size_t>(effectIndex)); effect) {
+            if (const auto reverb = std::dynamic_pointer_cast<ReverbEffect>(effect); reverb) {
                 const auto presetNames = ReverbEffect::presetNames();
                 if (presetIndex >= 0 && presetIndex < static_cast<int>(presetNames.size())) {
-                    reverb->applyPreset(ReverbEffect::stringToPreset(presetNames[presetIndex]));
+                    reverb->applyPreset(ReverbEffect::stringToPreset(presetNames[static_cast<size_t>(presetIndex)]));
                     m_editorService->setIsModified(true);
                     m_revision++;
                     emit revisionChanged();

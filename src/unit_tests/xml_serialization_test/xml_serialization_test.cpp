@@ -28,6 +28,7 @@
 #include "../../application/service/side_chain_service.hpp"
 #include "../../common/constants.hpp"
 #include "../../domain/column_settings.hpp"
+#include "../../domain/devices/effect_factory.hpp"
 #include "../../domain/devices/sampler_device.hpp"
 #include "../../domain/devices/synth_device.hpp"
 #include "../../domain/dsp/chorus_effect.hpp"
@@ -43,6 +44,16 @@
 #include <QTest>
 
 namespace noteahead {
+
+void XmlSerializationTest::initTestCase()
+{
+    EffectFactory::init();
+}
+
+void XmlSerializationTest::cleanupTestCase()
+{
+    EffectFactory::clear();
+}
 
 class MockAudioFileReader : public AudioFileReader
 {

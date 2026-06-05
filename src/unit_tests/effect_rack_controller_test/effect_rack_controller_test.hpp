@@ -10,6 +10,8 @@ class EffectRackControllerTest : public QObject
     Q_OBJECT
 
 private slots:
+    void initTestCase();
+    void cleanupTestCase();
     void test_effectParametersSummary_reverb_shouldReturnFormattedSummary();
     void test_effectParametersSummary_compressor_shouldReturnFormattedSummary();
     void test_effectParametersSummary_autoPanner_shouldReturnFormattedSummary();

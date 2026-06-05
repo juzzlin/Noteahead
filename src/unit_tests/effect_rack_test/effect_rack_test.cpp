@@ -15,6 +15,7 @@
 
 #include "effect_rack_test.hpp"
 #include "../../common/constants.hpp"
+#include "../../domain/devices/effect_factory.hpp"
 #include "../../domain/devices/effect_rack.hpp"
 #include "../../domain/devices/volume_effect.hpp"
 #include "../../domain/dsp/reverb_effect.hpp"
@@ -24,6 +25,16 @@
 #include <QXmlStreamWriter>
 
 namespace noteahead {
+
+void EffectRackTest::initTestCase()
+{
+    EffectFactory::init();
+}
+
+void EffectRackTest::cleanupTestCase()
+{
+    EffectFactory::clear();
+}
 
 void EffectRackTest::test_addRemove_shouldAddAndRemoveEffects()
 {

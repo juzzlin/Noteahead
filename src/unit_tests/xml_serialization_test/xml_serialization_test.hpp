@@ -25,6 +25,8 @@ class XmlSerializationTest : public QObject
     Q_OBJECT
 
 private slots:
+    void initTestCase();
+    void cleanupTestCase();
 
     void test_toXmlFromXml_addTrack_shouldLoadSong();
 
