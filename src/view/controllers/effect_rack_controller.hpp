@@ -67,19 +67,19 @@ public:
     QString pannerType() const;
     QString reverbType() const;
 
-    Q_INVOKABLE QString effectParametersSummary(int effectIndex) const;
-    Q_INVOKABLE float parameterValue(int effectIndex, const QString & paramName) const;
-    Q_INVOKABLE void setParameterValue(int effectIndex, const QString & paramName, float value);
+    Q_INVOKABLE QString effectParametersSummary(quint32 effectIndex) const;
+    Q_INVOKABLE float parameterValue(quint32 effectIndex, const QString & paramName) const;
+    Q_INVOKABLE void setParameterValue(quint32 effectIndex, const QString & paramName, float value);
 
     Q_INVOKABLE void setEffect(int slotIndex, const QString & typeId);
     Q_INVOKABLE void clearEffect(int slotIndex);
     Q_INVOKABLE QVariantList availableEffects() const;
 
-    Q_INVOKABLE bool isEffectEnabled(int effectIndex) const;
-    Q_INVOKABLE void setIsEffectEnabled(int effectIndex, bool enabled);
+    Q_INVOKABLE bool isEffectEnabled(quint32 effectIndex) const;
+    Q_INVOKABLE void setIsEffectEnabled(quint32 effectIndex, bool enabled);
 
-    Q_INVOKABLE QStringList parameterNames(int effectIndex) const;
-    Q_INVOKABLE QString effectType(int effectIndex) const;
+    Q_INVOKABLE QStringList parameterNames(quint32 effectIndex) const;
+    Q_INVOKABLE QString effectType(quint32 effectIndex) const;
 
     Q_INVOKABLE QString reverbSizeKey() const;
     Q_INVOKABLE QString reverbDecayKey() const;
@@ -109,26 +109,26 @@ public:
     Q_INVOKABLE QString clipperThresholdKey() const;
     Q_INVOKABLE QString clipperGainKey() const;
 
-    Q_INVOKABLE QString eq8BandParametricTypeKey(int bandIndex) const;
-    Q_INVOKABLE QString eq8BandParametricFreqKey(int bandIndex) const;
-    Q_INVOKABLE QString eq8BandParametricGainKey(int bandIndex) const;
-    Q_INVOKABLE QString eq8BandParametricQKey(int bandIndex) const;
+    Q_INVOKABLE QString eq8BandParametricTypeKey(quint32 bandIndex) const;
+    Q_INVOKABLE QString eq8BandParametricFreqKey(quint32 bandIndex) const;
+    Q_INVOKABLE QString eq8BandParametricGainKey(quint32 bandIndex) const;
+    Q_INVOKABLE QString eq8BandParametricQKey(quint32 bandIndex) const;
 
-    Q_INVOKABLE float compressorReductionDb(int effectIndex) const;
-    Q_INVOKABLE float clipperReductionDb(int effectIndex) const;
+    Q_INVOKABLE float compressorReductionDb(quint32 effectIndex) const;
+    Q_INVOKABLE float clipperReductionDb(quint32 effectIndex) const;
 
     Q_INVOKABLE QStringList reverbPresets() const;
-    Q_INVOKABLE void applyReverbPreset(int effectIndex, int presetIndex);
+    Q_INVOKABLE void applyReverbPreset(quint32 effectIndex, quint32 presetIndex);
 
-    Q_INVOKABLE float deviceSend(const QString & deviceName, int effectIndex) const;
-    Q_INVOKABLE void setDeviceSend(const QString & deviceName, int effectIndex, float send);
+    Q_INVOKABLE float deviceSend(const QString & deviceName, quint32 effectIndex) const;
+    Q_INVOKABLE void setDeviceSend(const QString & deviceName, quint32 effectIndex, float send);
 
 signals:
     void effectCountChanged();
     void revisionChanged();
     void targetDeviceNameChanged();
     void isInsertRackChanged();
-    void parameterChanged(int effectIndex, const QString & paramName);
+    void parameterChanged(quint32 effectIndex, const QString & paramName);
 
 private:
     std::optional<std::reference_wrapper<EffectRack>> currentRack() const;
