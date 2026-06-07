@@ -19,10 +19,10 @@
 #include <memory>
 #include <vector>
 
-#include "domain/midi/midi_cc_automation.hpp"
-#include "domain/tracker/note_data.hpp"
-#include "domain/midi/pitch_bend_automation.hpp"
 #include "../position.hpp"
+#include "domain/midi/midi_cc_automation.hpp"
+#include "domain/midi/pitch_bend_automation.hpp"
+#include "domain/tracker/note_data.hpp"
 
 namespace noteahead {
 

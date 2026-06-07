@@ -18,9 +18,9 @@
 #include "application/service/midi_service.hpp"
 #include "application/service/mixer_service.hpp"
 #include "application/service/player_worker.hpp"
+#include "domain/midi/midi_note_data.hpp"
 #include "domain/tracker/event.hpp"
 #include "domain/tracker/instrument.hpp"
-#include "domain/midi/midi_note_data.hpp"
 #include "domain/tracker/note_data.hpp"
 
 #include <QTest>

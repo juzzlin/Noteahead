@@ -15,15 +15,15 @@
 
 #include "midi_service.hpp"
 
+#include "../instrument_request.hpp"
 #include "contrib/SimpleLogger/src/simple_logger.hpp"
-#include "domain/tracker/instrument.hpp"
+#include "device_service.hpp"
 #include "domain/midi/midi_address.hpp"
 #include "domain/midi/midi_cc_data.hpp"
 #include "domain/midi/midi_note_data.hpp"
 #include "domain/midi/pitch_bend_data.hpp"
+#include "domain/tracker/instrument.hpp"
 #include "infra/midi/midi_cc_mapping.hpp"
-#include "../instrument_request.hpp"
-#include "device_service.hpp"
 #include "midi_worker_in.hpp"
 #include "midi_worker_out.hpp"
 

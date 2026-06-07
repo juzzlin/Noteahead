@@ -17,17 +17,17 @@
 
 #include "common/constants.hpp"
 #include "common/utils.hpp"
-#include "domain/effects/delay_effect.hpp"
-#include "domain/effects/high_pass_filter_effect.hpp"
-#include "domain/effects/low_pass_filter_effect.hpp"
-#include "domain/effects/panning_effect.hpp"
-#include "domain/effects/volume_effect.hpp"
 #include "domain/dsp/cascaded_svf.hpp"
 #include "domain/dsp/chorus_effect.hpp"
 #include "domain/dsp/clipper_effect.hpp"
 #include "domain/dsp/compressor_effect.hpp"
 #include "domain/dsp/eq_8_band_parametric_effect.hpp"
 #include "domain/dsp/reverb_effect.hpp"
+#include "domain/effects/delay_effect.hpp"
+#include "domain/effects/high_pass_filter_effect.hpp"
+#include "domain/effects/low_pass_filter_effect.hpp"
+#include "domain/effects/panning_effect.hpp"
+#include "domain/effects/volume_effect.hpp"
 
 #include <QTest>
 

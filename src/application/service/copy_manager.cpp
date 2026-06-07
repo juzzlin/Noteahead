@@ -15,10 +15,10 @@
 
 #include "copy_manager.hpp"
 
-#include "contrib/SimpleLogger/src/simple_logger.hpp"
-#include "domain/tracker/pattern.hpp"
 #include "../position.hpp"
 #include "automation_service.hpp"
+#include "contrib/SimpleLogger/src/simple_logger.hpp"
+#include "domain/tracker/pattern.hpp"
 
 namespace noteahead {
 

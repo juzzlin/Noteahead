@@ -16,12 +16,12 @@
 #ifndef BASS_SYNTH_DEVICE_HPP
 #define BASS_SYNTH_DEVICE_HPP
 
+#include "domain/devices/device.hpp"
 #include "domain/dsp/adsr_envelope.hpp"
 #include "domain/dsp/cascaded_svf.hpp"
 #include "domain/dsp/diode_ladder_filter.hpp"
 #include "domain/dsp/oversampler.hpp"
 #include "domain/dsp/poly_blep_oscillator.hpp"
-#include "domain/devices/device.hpp"
 
 #include <mutex>
 #include <vector>

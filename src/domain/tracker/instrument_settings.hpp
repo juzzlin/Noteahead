@@ -23,8 +23,8 @@
 
 #include <QString>
 
-#include "domain/tracker/event_data.hpp"
 #include "domain/midi/midi_cc_setting.hpp"
+#include "domain/tracker/event_data.hpp"
 
 class QXmlStreamReader;
 class QXmlStreamWriter;

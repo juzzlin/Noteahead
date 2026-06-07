@@ -21,8 +21,8 @@
 
 #include <QString>
 
-#include "domain/tracker/instrument_settings.hpp"
 #include "domain/midi/midi_address.hpp"
+#include "domain/tracker/instrument_settings.hpp"
 
 class QXmlStreamReader;
 class QXmlStreamWriter;

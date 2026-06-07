@@ -16,6 +16,8 @@
 #ifndef SYNTH_DEVICE_HPP
 #define SYNTH_DEVICE_HPP
 
+#include "domain/devices/device.hpp"
+#include "domain/devices/synth_presets.hpp"
 #include "domain/dsp/adsr_envelope.hpp"
 #include "domain/dsp/cascaded_svf.hpp"
 #include "domain/dsp/lfo.hpp"
@@ -23,8 +25,6 @@
 #include "domain/dsp/oversampler.hpp"
 #include "domain/dsp/poly_blep_oscillator.hpp"
 #include "domain/effects/delay_effect.hpp"
-#include "domain/devices/device.hpp"
-#include "domain/devices/synth_presets.hpp"
 
 #include <mutex>
 #include <random>

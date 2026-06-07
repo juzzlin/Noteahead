@@ -16,6 +16,8 @@
 #ifndef DRUM_SYNTH_DEVICE_HPP
 #define DRUM_SYNTH_DEVICE_HPP
 
+#include "domain/devices/device.hpp"
+#include "domain/devices/drum_synth_constants.hpp"
 #include "domain/dsp/drum/crash_engine.hpp"
 #include "domain/dsp/drum/hihat_engine.hpp"
 #include "domain/dsp/drum/kick_engine.hpp"
@@ -23,8 +25,6 @@
 #include "domain/dsp/drum/snare_engine.hpp"
 #include "domain/dsp/drum/tom_engine.hpp"
 #include "domain/dsp/oversampler.hpp"
-#include "domain/devices/device.hpp"
-#include "domain/devices/drum_synth_constants.hpp"
 #include "domain/effects/high_pass_filter_effect.hpp"
 #include "domain/effects/low_pass_filter_effect.hpp"
 #include "domain/effects/panning_effect.hpp"

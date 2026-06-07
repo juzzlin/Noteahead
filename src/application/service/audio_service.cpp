@@ -15,6 +15,7 @@
 
 #include "audio_service.hpp"
 
+#include "audio_worker.hpp"
 #include "common/audio_backend.hpp"
 #include "common/constants.hpp"
 #include "common/waveform_generator.hpp"
@@ -23,7 +24,6 @@
 #include "infra/audio/implementation/jack/audio_recorder_jack.hpp"
 #include "infra/audio/implementation/librtaudio/audio_player_rt_audio.hpp"
 #include "infra/audio/implementation/librtaudio/audio_recorder_rt_audio.hpp"
-#include "audio_worker.hpp"
 #include "settings_service.hpp"
 
 #include <QFile>

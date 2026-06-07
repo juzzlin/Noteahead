@@ -15,8 +15,8 @@
 
 #include "sampler_pad_model.hpp"
 
-#include "domain/devices/sampler_device.hpp"
 #include "../../note_converter.hpp"
+#include "domain/devices/sampler_device.hpp"
 
 namespace noteahead {
 

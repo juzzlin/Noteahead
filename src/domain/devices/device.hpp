@@ -19,8 +19,8 @@
 #include <QObject>
 
 #include "domain/dsp/audio_context.hpp"
-#include "domain/tracker/parameter_container.hpp"
 #include "domain/effects/effect_rack.hpp"
+#include "domain/tracker/parameter_container.hpp"
 
 #include <cstdint>
 #include <mutex>

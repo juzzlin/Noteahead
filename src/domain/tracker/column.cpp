@@ -19,11 +19,11 @@
 #include "common/constants.hpp"
 #include "common/utils.hpp"
 #include "contrib/SimpleLogger/src/simple_logger.hpp"
-#include "domain/tracker/event.hpp"
-#include "domain/tracker/note_data.hpp"
 #include "domain/tracker/column_settings.hpp"
+#include "domain/tracker/event.hpp"
 #include "domain/tracker/line.hpp"
 #include "domain/tracker/line_event.hpp"
+#include "domain/tracker/note_data.hpp"
 
 #include <QXmlStreamReader>
 #include <QXmlStreamWriter>

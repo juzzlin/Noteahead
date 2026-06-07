@@ -15,10 +15,10 @@
 
 #include "effect_rack_test.hpp"
 #include "common/constants.hpp"
+#include "domain/dsp/reverb_effect.hpp"
 #include "domain/effects/effect_factory.hpp"
 #include "domain/effects/effect_rack.hpp"
 #include "domain/effects/volume_effect.hpp"
-#include "domain/dsp/reverb_effect.hpp"
 
 #include <QTest>
 #include <QXmlStreamReader>

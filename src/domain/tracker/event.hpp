@@ -24,8 +24,8 @@
 #include <variant>
 
 #include "domain/midi/midi_cc_data.hpp"
-#include "domain/tracker/note_data.hpp"
 #include "domain/midi/pitch_bend_data.hpp"
+#include "domain/tracker/note_data.hpp"
 
 namespace noteahead {
 

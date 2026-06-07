@@ -18,8 +18,8 @@
 #include "application/position.hpp"
 #include "application/service/automation_service.hpp"
 #include "application/service/property_service.hpp"
-#include "domain/tracker/interpolator.hpp"
 #include "domain/midi/midi_cc_automation.hpp"
+#include "domain/tracker/interpolator.hpp"
 
 #include <QSignalSpy>
 #include <QTest>

@@ -15,10 +15,10 @@
 
 #include "note_column_model.hpp"
 
+#include "../note_converter.hpp"
 #include "application/service/editor_service.hpp"
 #include "application/service/settings_service.hpp"
 #include "domain/tracker/line.hpp"
-#include "../note_converter.hpp"
 #include "note_column_line_container_helper.hpp"
 
 #include <QColor>

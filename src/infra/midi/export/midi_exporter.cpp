@@ -26,11 +26,11 @@
 
 #include "application/service/mixer_service.hpp"
 #include "contrib/SimpleLogger/src/simple_logger.hpp"
+#include "domain/midi/midi_cc_data.hpp"
+#include "domain/midi/pitch_bend_data.hpp"
 #include "domain/tracker/event.hpp"
 #include "domain/tracker/instrument.hpp"
-#include "domain/midi/midi_cc_data.hpp"
 #include "domain/tracker/note_data.hpp"
-#include "domain/midi/pitch_bend_data.hpp"
 #include "domain/tracker/song.hpp"
 
 namespace noteahead {

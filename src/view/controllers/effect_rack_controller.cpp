@@ -17,15 +17,15 @@
 
 #include "common/constants.hpp"
 #include "common/parameter_mapper.hpp"
-#include "domain/effects/auto_panner_effect.hpp"
-#include "domain/effects/effect_factory.hpp"
-#include "domain/effects/effect_rack.hpp"
-#include "domain/effects/panner_effect.hpp"
 #include "domain/dsp/chorus_effect.hpp"
 #include "domain/dsp/clipper_effect.hpp"
 #include "domain/dsp/compressor_effect.hpp"
 #include "domain/dsp/eq_8_band_parametric_effect.hpp"
 #include "domain/dsp/reverb_effect.hpp"
+#include "domain/effects/auto_panner_effect.hpp"
+#include "domain/effects/effect_factory.hpp"
+#include "domain/effects/effect_rack.hpp"
+#include "domain/effects/panner_effect.hpp"
 #include "knob_controller.hpp"
 
 #include <QStringList>

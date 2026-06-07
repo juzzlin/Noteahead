@@ -16,9 +16,9 @@
 #include "player_worker.hpp"
 
 #include "contrib/SimpleLogger/src/simple_logger.hpp"
+#include "domain/midi/midi_note_data.hpp"
 #include "domain/tracker/event.hpp"
 #include "domain/tracker/instrument_settings.hpp"
-#include "domain/midi/midi_note_data.hpp"
 #include "domain/tracker/note_data.hpp"
 #include "jack_service.hpp"
 #include "midi_service.hpp"

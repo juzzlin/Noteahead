@@ -15,8 +15,8 @@
 
 #include "reverb_effect.hpp"
 
-#include "common/constants.hpp"
 #include "audio_context.hpp"
+#include "common/constants.hpp"
 
 #include <algorithm>
 #include <cmath>
