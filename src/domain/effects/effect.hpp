@@ -19,7 +19,7 @@
 #include <string>
 
 #include "domain/dsp/dsp_component.hpp"
-#include "domain/parameter_container.hpp"
+#include "domain/tracker/parameter_container.hpp"
 
 namespace noteahead {
 

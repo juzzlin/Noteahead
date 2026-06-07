@@ -58,17 +58,17 @@ set(SRC
     ../../domain/dsp/poly_blep_oscillator.cpp
     ../../domain/dsp/reverb_effect.cpp
     ../../domain/dsp/chorus_effect.cpp
-    ../../domain/event.cpp
-    ../../domain/event_data.cpp
-    ../../domain/instrument.cpp
-    ../../domain/instrument_settings.cpp
+    ../../domain/tracker/event.cpp
+    ../../domain/tracker/event_data.cpp
+    ../../domain/tracker/instrument.cpp
+    ../../domain/tracker/instrument_settings.cpp
     ../../domain/midi/midi_address.cpp
     ../../domain/midi/midi_cc_data.cpp
     ../../domain/midi/midi_cc_setting.cpp
     ../../domain/midi/midi_note_data.cpp
-    ../../domain/note_data.cpp
-    ../../domain/parameter.cpp
-    ../../domain/parameter_container.cpp
+    ../../domain/tracker/note_data.cpp
+    ../../domain/tracker/parameter.cpp
+    ../../domain/tracker/parameter_container.cpp
     ../../domain/midi/pitch_bend_data.cpp
     ../../domain/dsp/lfo.cpp
     ../../domain/effects/auto_panner_effect.cpp

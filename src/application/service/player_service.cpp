@@ -16,7 +16,7 @@
 #include "player_service.hpp"
 
 #include "contrib/SimpleLogger/src/simple_logger.hpp"
-#include "domain/song.hpp"
+#include "domain/tracker/song.hpp"
 #include "jack_service.hpp"
 #include "midi_service.hpp"
 #include "player_worker.hpp"

@@ -13,11 +13,12 @@
 // You should have received a copy of the GNU General Public License
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
-#include "drum_synth_device.hpp"
+#include "domain/devices/drum_synth_device.hpp"
 
 #include "common/constants.hpp"
 #include "infra/midi/midi_cc_mapping.hpp"
-#include "../dsp/drum/clap_engine.hpp"
+
+#include "domain/dsp/drum/clap_engine.hpp"
 
 #include <QXmlStreamReader>
 #include <QXmlStreamWriter>

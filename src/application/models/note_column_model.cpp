@@ -17,7 +17,7 @@
 
 #include "application/service/editor_service.hpp"
 #include "application/service/settings_service.hpp"
-#include "domain/line.hpp"
+#include "domain/tracker/line.hpp"
 #include "../note_converter.hpp"
 #include "note_column_line_container_helper.hpp"
 

@@ -14,7 +14,7 @@
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
 #include "arpeggiator_test.hpp"
-#include "domain/arpeggiator.hpp"
+#include "domain/tracker/arpeggiator.hpp"
 #include <QTest>
 
 #include <algorithm>

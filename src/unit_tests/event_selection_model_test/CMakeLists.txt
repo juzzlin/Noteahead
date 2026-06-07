@@ -7,8 +7,8 @@ set(SRC
     ../../common/constants.cpp
     ../../common/parameter_mapper.cpp
     ../../common/utils.cpp
-    ../../domain/event_data.cpp
-    ../../domain/instrument_settings.cpp
+    ../../domain/tracker/event_data.cpp
+    ../../domain/tracker/instrument_settings.cpp
     ../../domain/midi/midi_cc_setting.cpp
 )
 qt_add_executable(${NAME} ${SRC})

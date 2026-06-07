@@ -18,8 +18,8 @@
 
 #include <QObject>
 
-#include "../dsp/audio_context.hpp"
-#include "../parameter_container.hpp"
+#include "domain/dsp/audio_context.hpp"
+#include "domain/tracker/parameter_container.hpp"
 #include "domain/effects/effect_rack.hpp"
 
 #include <cstdint>

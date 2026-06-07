@@ -48,8 +48,8 @@ set(SRC
     ../../domain/dsp/compressor_effect.cpp
     ../../domain/dsp/clipper_effect.cpp
     ../../domain/dsp/eq_8_band_parametric_effect.cpp
-    ../../domain/parameter.cpp
-    ../../domain/parameter_container.cpp
+    ../../domain/tracker/parameter.cpp
+    ../../domain/tracker/parameter_container.cpp
     ../../infra/audio/audio_engine.cpp
     ../../infra/audio/real_time_worker_pool.cpp
     ../../infra/audio/backend/sndfile_reader.cpp

@@ -13,13 +13,13 @@
 // You should have received a copy of the GNU General Public License
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
-#include "synth_device.hpp"
+#include "domain/devices/synth_device.hpp"
+#include "domain/devices/synth_presets.hpp"
 
 #include "common/constants.hpp"
 #include "common/parameter_mapper.hpp"
 #include "common/utils.hpp"
 #include "infra/midi/midi_cc_mapping.hpp"
-#include "synth_presets.hpp"
 
 #include <QXmlStreamReader>
 #include <QXmlStreamWriter>

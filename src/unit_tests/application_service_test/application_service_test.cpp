@@ -23,7 +23,7 @@
 #include "common/constants.hpp"
 
 #include "application/note_converter.hpp"
-#include "domain/instrument.hpp"
+#include "domain/tracker/instrument.hpp"
 #include "domain/midi/midi_note_data.hpp"
 
 #include <QSignalSpy>

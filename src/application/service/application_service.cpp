@@ -18,7 +18,7 @@
 #include "common/constants.hpp"
 #include "common/utils.hpp"
 #include "contrib/SimpleLogger/src/simple_logger.hpp"
-#include "domain/instrument.hpp"
+#include "domain/tracker/instrument.hpp"
 #include "domain/midi/midi_note_data.hpp"
 #include "../note_converter.hpp"
 #include "../state_machine.hpp"

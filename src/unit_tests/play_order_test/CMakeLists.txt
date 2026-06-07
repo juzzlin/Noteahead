@@ -4,7 +4,7 @@ set(SRC
     ${NAME}.cpp
     ${NAME}.hpp
     ../../common/constants.cpp
-    ../../domain/play_order.cpp
+    ../../domain/tracker/play_order.cpp
 )
 qt_add_executable(${NAME} ${SRC})
 set_target_properties(${NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${UNIT_TEST_BASE_DIR})

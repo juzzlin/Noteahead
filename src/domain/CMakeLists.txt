@@ -1,9 +1,9 @@
 set(HEADER_FILES
-    arpeggiator.hpp
-    automation.hpp
-    automation_location.hpp
-    column.hpp
-    column_settings.hpp
+    tracker/arpeggiator.hpp
+    tracker/automation.hpp
+    tracker/automation_location.hpp
+    tracker/column.hpp
+    tracker/column_settings.hpp
     effects/auto_panner_effect.hpp
     devices/bass_synth_device.hpp
     effects/delay_effect.hpp
@@ -43,39 +43,40 @@ set(HEADER_FILES
     dsp/poly_blep_oscillator.hpp
     dsp/reverb_effect.hpp
     dsp/svf_filter.hpp
-    event.hpp
-    event_data.hpp
-    instrument.hpp
-    instrument_settings.hpp
-    interpolator.hpp
-    line.hpp
-    line_event.hpp
+    tracker/event.hpp
+    tracker/event_data.hpp
+    tracker/instrument.hpp
+    tracker/instrument_settings.hpp
+    tracker/interpolator.hpp
+    tracker/line.hpp
+    tracker/line_event.hpp
     midi/midi_address.hpp
     midi/midi_cc_automation.hpp
     midi/midi_cc_data.hpp
     midi/midi_cc_setting.hpp
     midi/midi_import_mode.hpp
     midi/midi_note_data.hpp
-    mixer_unit.hpp
-    note_data.hpp
-    note_data_manipulator.hpp
-    parameter.hpp
-    parameter_container.hpp
-    pattern.hpp
+    tracker/mixer_unit.hpp
+    tracker/modulation.hpp
+    tracker/note_data.hpp
+    tracker/note_data_manipulator.hpp
+    tracker/parameter.hpp
+    tracker/parameter_container.hpp
+    tracker/pattern.hpp
     midi/pitch_bend_automation.hpp
     midi/pitch_bend_data.hpp
-    play_order.hpp
-    side_chain_settings.hpp
-    song.hpp
-    track.hpp
+    tracker/play_order.hpp
+    tracker/side_chain_settings.hpp
+    tracker/song.hpp
+    tracker/track.hpp
 )
 
 set(SOURCE_FILES
-    arpeggiator.cpp
-    automation.cpp
-    automation_location.cpp
-    column.cpp
-    column_settings.cpp
+    tracker/arpeggiator.cpp
+    tracker/automation.cpp
+    tracker/automation_location.cpp
+    tracker/column.cpp
+    tracker/column_settings.cpp
     effects/auto_panner_effect.cpp
     devices/bass_synth_device.cpp
     effects/delay_effect.cpp
@@ -116,29 +117,29 @@ set(SOURCE_FILES
     dsp/poly_blep_oscillator.cpp
     dsp/reverb_effect.cpp
     dsp/svf_filter.cpp
-    event.cpp
-    event_data.cpp
-    instrument.cpp
-    instrument_settings.cpp
-    interpolator.cpp
-    line.cpp
-    line_event.cpp
+    tracker/event.cpp
+    tracker/event_data.cpp
+    tracker/instrument.cpp
+    tracker/instrument_settings.cpp
+    tracker/interpolator.cpp
+    tracker/line.cpp
+    tracker/line_event.cpp
     midi/midi_address.cpp
     midi/midi_cc_automation.cpp
     midi/midi_cc_data.cpp
     midi/midi_cc_setting.cpp
     midi/midi_note_data.cpp
-    mixer_unit.cpp
-    note_data.cpp
-    note_data_manipulator.cpp
-    parameter.cpp
-    parameter_container.cpp
-    pattern.cpp
+    tracker/mixer_unit.cpp
+    tracker/note_data.cpp
+    tracker/note_data_manipulator.cpp
+    tracker/parameter.cpp
+    tracker/parameter_container.cpp
+    tracker/pattern.cpp
     midi/pitch_bend_automation.cpp
     midi/pitch_bend_data.cpp
-    play_order.cpp
-    song.cpp
-    track.cpp
+    tracker/play_order.cpp
+    tracker/song.cpp
+    tracker/track.cpp
 )
 
 add_library(${DomainLibName} STATIC ${HEADER_FILES} ${SOURCE_FILES})

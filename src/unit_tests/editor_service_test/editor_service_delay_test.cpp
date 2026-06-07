@@ -20,8 +20,8 @@
 #include "application/service/property_service.hpp"
 #include "application/service/selection_service.hpp"
 #include "application/service/settings_service.hpp"
-#include "domain/note_data.hpp"
-#include "domain/song.hpp"
+#include "domain/tracker/note_data.hpp"
+#include "domain/tracker/song.hpp"
 
 #include <QTest>
 

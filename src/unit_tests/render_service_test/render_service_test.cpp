@@ -11,7 +11,7 @@
 #include "application/service/settings_service.hpp"
 #include "application/service/side_chain_service.hpp"
 #include "common/constants.hpp"
-#include "domain/song.hpp"
+#include "domain/tracker/song.hpp"
 #include "infra/audio/audio_engine.hpp"
 
 #include <QSignalSpy>

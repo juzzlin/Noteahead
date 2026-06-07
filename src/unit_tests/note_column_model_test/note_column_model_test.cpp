@@ -23,8 +23,8 @@
 #include "application/service/selection_service.hpp"
 #include "application/service/settings_service.hpp"
 #include "application/service/util_service.hpp"
-#include "domain/line.hpp"
-#include "domain/note_data.hpp"
+#include "domain/tracker/line.hpp"
+#include "domain/tracker/note_data.hpp"
 
 #include <QSettings>
 #include <QSignalSpy>

@@ -21,7 +21,7 @@
 #include "infra/midi/export/midi_exporter.hpp"
 #include "common/constants.hpp"
 #include "common/utils.hpp"
-#include "domain/column_settings.hpp"
+#include "domain/tracker/column_settings.hpp"
 #include "domain/devices/bass_synth_device.hpp"
 #include "domain/devices/device_factory.hpp"
 #include "domain/devices/drum_synth_device.hpp"

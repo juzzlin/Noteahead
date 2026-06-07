@@ -22,7 +22,7 @@
 #include <set>
 #include <vector>
 
-#include "domain/event.hpp"
+#include "domain/tracker/event.hpp"
 #include "domain/midi/midi_cc_automation.hpp"
 #include "domain/midi/pitch_bend_automation.hpp"
 

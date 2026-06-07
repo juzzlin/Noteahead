@@ -3,7 +3,7 @@ set(NAME arpeggiator_test)
 set(SRC
     ${NAME}.cpp
     ${NAME}.hpp
-    ../../domain/arpeggiator.cpp
+    ../../domain/tracker/arpeggiator.cpp
     ../../application/service/random_service.cpp
 )
 qt_add_executable(${NAME} ${SRC})

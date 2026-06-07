@@ -37,8 +37,8 @@ set(SRC
     ../../domain/dsp/oversampler.cpp
     ../../domain/dsp/reverb_effect.cpp
     ../../domain/dsp/chorus_effect.cpp
-    ../../domain/parameter.cpp
-    ../../domain/parameter_container.cpp
+    ../../domain/tracker/parameter.cpp
+    ../../domain/tracker/parameter_container.cpp
 )
 qt_add_executable(${NAME} ${SRC})
 set_target_properties(${NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${UNIT_TEST_BASE_DIR})

@@ -13,12 +13,11 @@
 // You should have received a copy of the GNU General Public License
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
-#include "device_factory.hpp"
-
-#include "bass_synth_device.hpp"
-#include "drum_synth_device.hpp"
-#include "sampler_device.hpp"
-#include "synth_device.hpp"
+#include "domain/devices/device_factory.hpp"
+#include "domain/devices/bass_synth_device.hpp"
+#include "domain/devices/drum_synth_device.hpp"
+#include "domain/devices/sampler_device.hpp"
+#include "domain/devices/synth_device.hpp"
 
 namespace noteahead {
 

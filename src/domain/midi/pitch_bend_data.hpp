@@ -16,7 +16,7 @@
 #ifndef PITCH_BEND_DATA_HPP
 #define PITCH_BEND_DATA_HPP
 
-#include "domain/event_data.hpp"
+#include "domain/tracker/event_data.hpp"
 
 #include <cstdint>
 

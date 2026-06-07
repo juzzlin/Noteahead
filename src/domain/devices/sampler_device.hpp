@@ -17,8 +17,8 @@
 #define SAMPLER_DEVICE_HPP
 
 #include "infra/audio/backend/audio_file_reader.hpp"
-#include "../parameter_container.hpp"
-#include "device.hpp"
+#include "domain/tracker/parameter_container.hpp"
+#include "domain/devices/device.hpp"
 #include "domain/effects/effect.hpp"
 #include "domain/effects/high_pass_filter_effect.hpp"
 #include "domain/effects/low_pass_filter_effect.hpp"

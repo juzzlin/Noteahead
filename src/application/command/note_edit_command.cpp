@@ -14,7 +14,7 @@
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
 #include "note_edit_command.hpp"
-#include "domain/song.hpp"
+#include "domain/tracker/song.hpp"
 
 namespace noteahead {
 

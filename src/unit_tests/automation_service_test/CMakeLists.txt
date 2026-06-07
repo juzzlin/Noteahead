@@ -10,15 +10,15 @@ set(SRC
     ../../common/constants.cpp
     ../../common/parameter_mapper.cpp
     ../../common/utils.cpp
-    ../../domain/automation.cpp
-    ../../domain/automation_location.cpp
+    ../../domain/tracker/automation.cpp
+    ../../domain/tracker/automation_location.cpp
     ../../domain/devices/drum_synth_constants.cpp
-    ../../domain/event.cpp
-    ../../domain/event_data.cpp
-    ../../domain/interpolator.cpp
+    ../../domain/tracker/event.cpp
+    ../../domain/tracker/event_data.cpp
+    ../../domain/tracker/interpolator.cpp
     ../../domain/midi/midi_cc_automation.cpp
     ../../domain/midi/midi_cc_data.cpp
-    ../../domain/note_data.cpp
+    ../../domain/tracker/note_data.cpp
     ../../domain/midi/pitch_bend_automation.cpp
     ../../domain/midi/pitch_bend_data.cpp
     ../../infra/midi/midi_cc_mapping.cpp

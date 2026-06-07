@@ -7,8 +7,8 @@ set(SRC
     ../../common/constants.cpp
     ../../common/parameter_mapper.cpp
     ../../common/utils.cpp
-    ../../domain/automation.cpp
-    ../../domain/automation_location.cpp
+    ../../domain/tracker/automation.cpp
+    ../../domain/tracker/automation_location.cpp
     ../../domain/midi/pitch_bend_automation.cpp
 )
 qt_add_executable(${NAME} ${SRC})

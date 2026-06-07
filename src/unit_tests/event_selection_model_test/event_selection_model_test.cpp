@@ -16,7 +16,7 @@
 #include "event_selection_model_test.hpp"
 
 #include "application/models/event_selection_model.hpp"
-#include "domain/instrument_settings.hpp"
+#include "domain/tracker/instrument_settings.hpp"
 
 #include <QSignalSpy>
 #include <QTest>

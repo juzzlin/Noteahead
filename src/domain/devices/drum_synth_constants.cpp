@@ -13,7 +13,7 @@
 // You should have received a copy of the GNU General Public License
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
-#include "drum_synth_constants.hpp"
+#include "domain/devices/drum_synth_constants.hpp"
 
 #include <map>
 

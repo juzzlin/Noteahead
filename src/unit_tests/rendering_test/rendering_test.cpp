@@ -9,9 +9,9 @@
 #include "domain/effects/effect_factory.hpp"
 #include "domain/devices/sampler_device.hpp"
 #include "domain/devices/synth_device.hpp"
-#include "domain/event.hpp"
-#include "domain/instrument.hpp"
-#include "domain/note_data.hpp"
+#include "domain/tracker/event.hpp"
+#include "domain/tracker/instrument.hpp"
+#include "domain/tracker/note_data.hpp"
 #include "domain/midi/pitch_bend_data.hpp"
 #include "infra/audio/audio_engine.hpp"
 #include "infra/audio/backend/audio_file_reader.hpp"
@@ -19,8 +19,8 @@
 #include "application/service/automation_service.hpp"
 #include "application/service/property_service.hpp"
 #include "application/service/side_chain_service.hpp"
-#include "domain/pattern.hpp"
-#include "domain/song.hpp"
+#include "domain/tracker/pattern.hpp"
+#include "domain/tracker/song.hpp"
 
 #include <QTest>
 

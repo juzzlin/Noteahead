@@ -5,8 +5,8 @@ set(SRC
     ${NAME}.hpp
     ../../application/models/column_settings_model.cpp
     ../../application/service/random_service.cpp
-    ../../domain/arpeggiator.cpp
-    ../../domain/column_settings.cpp
+    ../../domain/tracker/arpeggiator.cpp
+    ../../domain/tracker/column_settings.cpp
     ../../common/constants.cpp
     ../../common/parameter_mapper.cpp
     ../../common/utils.cpp

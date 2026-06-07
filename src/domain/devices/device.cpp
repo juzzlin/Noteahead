@@ -13,7 +13,7 @@
 // You should have received a copy of the GNU General Public License
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
-#include "device.hpp"
+#include "domain/devices/device.hpp"
 
 #include "common/constants.hpp"
 #include "common/parameter_mapper.hpp"

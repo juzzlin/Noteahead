@@ -22,7 +22,7 @@
 #include "application/service/selection_service.hpp"
 #include "application/service/settings_service.hpp"
 #include "application/service/util_service.hpp"
-#include "domain/instrument_settings.hpp"
+#include "domain/tracker/instrument_settings.hpp"
 
 #include <QTest>
 

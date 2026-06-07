@@ -18,9 +18,9 @@
 #include "common/constants.hpp"
 #include "common/utils.hpp"
 #include "contrib/SimpleLogger/src/simple_logger.hpp"
-#include "domain/event.hpp"
+#include "domain/tracker/event.hpp"
 #include "domain/midi/midi_cc_data.hpp"
-#include "domain/note_data.hpp"
+#include "domain/tracker/note_data.hpp"
 
 #include <QXmlStreamReader>
 #include <QXmlStreamWriter>

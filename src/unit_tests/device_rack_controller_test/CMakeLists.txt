@@ -35,11 +35,11 @@ set(SRC
     ../../common/parameter_mapper.cpp
     ../../common/utils.cpp
     ../../common/waveform_generator.cpp
-    ../../domain/arpeggiator.cpp
-    ../../domain/automation.cpp
-    ../../domain/automation_location.cpp
-    ../../domain/column.cpp
-    ../../domain/column_settings.cpp
+    ../../domain/tracker/arpeggiator.cpp
+    ../../domain/tracker/automation.cpp
+    ../../domain/tracker/automation_location.cpp
+    ../../domain/tracker/column.cpp
+    ../../domain/tracker/column_settings.cpp
     ../../domain/devices/bass_synth_device.cpp
     ../../domain/effects/delay_effect.cpp
     ../../domain/effects/effect_factory.cpp
@@ -79,29 +79,29 @@ set(SRC
     ../../domain/dsp/poly_blep_oscillator.cpp
     ../../domain/dsp/reverb_effect.cpp
     ../../domain/dsp/chorus_effect.cpp
-    ../../domain/event.cpp
-    ../../domain/event_data.cpp
-    ../../domain/instrument.cpp
-    ../../domain/instrument_settings.cpp
-    ../../domain/interpolator.cpp
-    ../../domain/line.cpp
-    ../../domain/line_event.cpp
+    ../../domain/tracker/event.cpp
+    ../../domain/tracker/event_data.cpp
+    ../../domain/tracker/instrument.cpp
+    ../../domain/tracker/instrument_settings.cpp
+    ../../domain/tracker/interpolator.cpp
+    ../../domain/tracker/line.cpp
+    ../../domain/tracker/line_event.cpp
     ../../domain/midi/midi_address.cpp
     ../../domain/midi/midi_cc_automation.cpp
     ../../domain/midi/midi_cc_data.cpp
     ../../domain/midi/midi_cc_setting.cpp
     ../../domain/midi/midi_note_data.cpp
-    ../../domain/mixer_unit.cpp
-    ../../domain/note_data.cpp
-    ../../domain/note_data_manipulator.cpp
-    ../../domain/parameter.cpp
-    ../../domain/parameter_container.cpp
-    ../../domain/pattern.cpp
+    ../../domain/tracker/mixer_unit.cpp
+    ../../domain/tracker/note_data.cpp
+    ../../domain/tracker/note_data_manipulator.cpp
+    ../../domain/tracker/parameter.cpp
+    ../../domain/tracker/parameter_container.cpp
+    ../../domain/tracker/pattern.cpp
     ../../domain/midi/pitch_bend_automation.cpp
     ../../domain/midi/pitch_bend_data.cpp
-    ../../domain/play_order.cpp
-    ../../domain/song.cpp
-    ../../domain/track.cpp
+    ../../domain/tracker/play_order.cpp
+    ../../domain/tracker/song.cpp
+    ../../domain/tracker/track.cpp
     ../../infra/audio/audio_engine.cpp
     ../../infra/audio/backend/sndfile_reader.cpp
     ../../infra/audio/real_time_worker_pool.cpp
