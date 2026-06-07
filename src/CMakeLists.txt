@@ -509,7 +509,7 @@ target_link_libraries(${BINARY_NAME} PRIVATE Qt6::Core Qt6::Quick ${RTMIDI_LIBRA
 if(JACK_FOUND)
   target_include_directories(${BINARY_NAME} PRIVATE ${JACK_INCLUDE_DIRS})
   target_compile_definitions(${BINARY_NAME} PRIVATE HAVE_JACK)
-  target_link_libraries(${BINARY_NAME} PRIVATE ${JACK_LIBRARIES})
+  target_link_libraries(${BINARY_NAME} PRIVATE ${JACK_LDFLAGS})
 endif()
 
 include(${CMAKE_SOURCE_DIR}/cmake/DebianPackagingDefaultQt.cmake)
