@@ -12,4 +12,4 @@ This project follows strict engineering standards. Refer to [Agents.md](./Agents
 
 ### Coding Style
 - **Post-increment**: Always use post-increment (`i++`) instead of pre-increment (`++i`) for loop counters, as specified in `Agents.md`.
-- **Braced Initializers**: Always use braced initializers `{}` in generated code.
+- **Initialization**: Use `=` for initializing local normal variables. Use braced initializers `{}` ONLY for class instantiations.

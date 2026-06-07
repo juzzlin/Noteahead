@@ -47,7 +47,7 @@ Adherence to these standards is mandatory for all contributions:
 - **Implementation Location**: All implementation MUST reside in `.cpp` files. Headers MUST only contain declarations.
 
 ### C++ Specifics
-- **Braced Initializers**: Use `{}` for initialization to avoid narrowing conversions and the "most vexing parse".
+- **Initialization**: Use `=` for initializing local normal variables (e.g., `int i = 0;`). Use braced initializers `{}` only for class instantiations to avoid narrowing conversions and the "most vexing parse".
 - **Namespace**: All code belongs in the `noteahead` namespace.
 - **Formatting**: Strictly follow the project's `.clang-format` located in the root.
 - **Header Guards**: Use `#ifndef FILENAME_HPP` style instead of `#pragma once`.
