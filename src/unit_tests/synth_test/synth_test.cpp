@@ -15,9 +15,9 @@
 
 #include "synth_test.hpp"
 
-#include "../../common/constants.hpp"
-#include "../../domain/devices/synth_device.hpp"
-#include "../../domain/devices/synth_presets.hpp"
+#include "common/constants.hpp"
+#include "domain/devices/synth_device.hpp"
+#include "domain/devices/synth_presets.hpp"
 
 #include <QBuffer>
 #include <QTest>

@@ -15,7 +15,7 @@
 
 #include "theme_service.hpp"
 
-#include "../../infra/settings.hpp"
+#include "infra/settings.hpp"
 
 namespace noteahead {
 

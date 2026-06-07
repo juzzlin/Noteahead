@@ -15,13 +15,13 @@
 
 #include "note_column_model_handler_test.hpp"
 
-#include "../../application/models/note_column_model.hpp"
-#include "../../application/models/note_column_model_handler.hpp"
-#include "../../application/service/automation_service.hpp"
-#include "../../application/service/editor_service.hpp"
-#include "../../application/service/property_service.hpp"
-#include "../../application/service/selection_service.hpp"
-#include "../../application/service/settings_service.hpp"
+#include "application/models/note_column_model.hpp"
+#include "application/models/note_column_model_handler.hpp"
+#include "application/service/automation_service.hpp"
+#include "application/service/editor_service.hpp"
+#include "application/service/property_service.hpp"
+#include "application/service/selection_service.hpp"
+#include "application/service/settings_service.hpp"
 
 #include <QSettings>
 #include <QTest>

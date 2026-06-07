@@ -14,9 +14,9 @@
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
 #include "sampler_test.hpp"
-#include "../../common/constants.hpp"
-#include "../../domain/devices/sampler_device.hpp"
-#include "../../infra/audio/backend/audio_file_reader.hpp"
+#include "common/constants.hpp"
+#include "domain/devices/sampler_device.hpp"
+#include "infra/audio/backend/audio_file_reader.hpp"
 
 #include <QTest>
 #include <QXmlStreamReader>

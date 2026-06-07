@@ -15,8 +15,8 @@
 
 #include "track_settings_model.hpp"
 
-#include "../../contrib/SimpleLogger/src/simple_logger.hpp"
-#include "../../domain/instrument.hpp"
+#include "contrib/SimpleLogger/src/simple_logger.hpp"
+#include "domain/instrument.hpp"
 
 #include <iomanip>
 

@@ -15,12 +15,12 @@
 
 #include "side_chain_service.hpp"
 
-#include "../../common/constants.hpp"
-#include "../../common/utils.hpp"
-#include "../../contrib/SimpleLogger/src/simple_logger.hpp"
-#include "../../domain/event.hpp"
-#include "../../domain/midi_cc_data.hpp"
-#include "../../domain/note_data.hpp"
+#include "common/constants.hpp"
+#include "common/utils.hpp"
+#include "contrib/SimpleLogger/src/simple_logger.hpp"
+#include "domain/event.hpp"
+#include "domain/midi_cc_data.hpp"
+#include "domain/note_data.hpp"
 
 #include <QXmlStreamReader>
 #include <QXmlStreamWriter>

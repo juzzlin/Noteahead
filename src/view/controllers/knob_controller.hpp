@@ -16,7 +16,7 @@
 #ifndef KNOB_CONTROLLER_HPP
 #define KNOB_CONTROLLER_HPP
 
-#include "../../common/constants.hpp"
+#include "common/constants.hpp"
 
 #include <QObject>
 #include <QString>

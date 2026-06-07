@@ -28,7 +28,7 @@
 
 #include <QString>
 
-#include "../application/position.hpp"
+#include "application/position.hpp"
 #include "instrument.hpp"
 #include "note_data.hpp"
 

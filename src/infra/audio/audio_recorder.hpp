@@ -16,7 +16,7 @@
 #ifndef AUDIO_RECORDER_HPP
 #define AUDIO_RECORDER_HPP
 
-#include "../../common/audio_backend.hpp"
+#include "common/audio_backend.hpp"
 #include <cstdint>
 #include <memory>
 #include <string>

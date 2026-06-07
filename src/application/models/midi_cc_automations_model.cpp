@@ -15,7 +15,7 @@
 
 #include "midi_cc_automations_model.hpp"
 
-#include "../../contrib/SimpleLogger/src/simple_logger.hpp"
+#include "contrib/SimpleLogger/src/simple_logger.hpp"
 
 namespace noteahead {
 

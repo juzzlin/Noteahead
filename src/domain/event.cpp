@@ -15,8 +15,8 @@
 
 #include "event.hpp"
 
-#include "../application/service/random_service.hpp"
-#include "../common/utils.hpp"
+#include "application/service/random_service.hpp"
+#include "common/utils.hpp"
 
 #include <algorithm>
 

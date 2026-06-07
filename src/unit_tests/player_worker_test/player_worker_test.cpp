@@ -15,13 +15,13 @@
 
 #include "player_worker_test.hpp"
 
-#include "../../application/service/midi_service.hpp"
-#include "../../application/service/mixer_service.hpp"
-#include "../../application/service/player_worker.hpp"
-#include "../../domain/event.hpp"
-#include "../../domain/instrument.hpp"
-#include "../../domain/midi_note_data.hpp"
-#include "../../domain/note_data.hpp"
+#include "application/service/midi_service.hpp"
+#include "application/service/mixer_service.hpp"
+#include "application/service/player_worker.hpp"
+#include "domain/event.hpp"
+#include "domain/instrument.hpp"
+#include "domain/midi_note_data.hpp"
+#include "domain/note_data.hpp"
 
 #include <QTest>
 #include <memory>

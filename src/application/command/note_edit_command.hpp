@@ -23,7 +23,7 @@
 #include <tuple>
 #include <vector>
 
-#include "../../domain/note_data.hpp"
+#include "domain/note_data.hpp"
 #include "../position.hpp"
 
 namespace noteahead {

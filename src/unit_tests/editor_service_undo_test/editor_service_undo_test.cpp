@@ -15,13 +15,13 @@
 
 #include "editor_service_undo_test.hpp"
 
-#include "../../application/service/automation_service.hpp"
-#include "../../application/service/editor_service.hpp"
-#include "../../application/service/property_service.hpp"
-#include "../../application/service/selection_service.hpp"
-#include "../../application/service/settings_service.hpp"
-#include "../../domain/note_data.hpp"
-#include "../../domain/song.hpp"
+#include "application/service/automation_service.hpp"
+#include "application/service/editor_service.hpp"
+#include "application/service/property_service.hpp"
+#include "application/service/selection_service.hpp"
+#include "application/service/settings_service.hpp"
+#include "domain/note_data.hpp"
+#include "domain/song.hpp"
 
 #include <QSignalSpy>
 #include <QTest>

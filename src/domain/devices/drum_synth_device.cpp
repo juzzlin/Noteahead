@@ -15,8 +15,8 @@
 
 #include "drum_synth_device.hpp"
 
-#include "../../common/constants.hpp"
-#include "../../infra/midi/midi_cc_mapping.hpp"
+#include "common/constants.hpp"
+#include "infra/midi/midi_cc_mapping.hpp"
 #include "../dsp/drum/clap_engine.hpp"
 
 #include <QXmlStreamReader>

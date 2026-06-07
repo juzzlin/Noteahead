@@ -16,7 +16,7 @@
 #ifndef AUDIO_ENGINE_HPP
 #define AUDIO_ENGINE_HPP
 
-#include "../../domain/devices/device.hpp"
+#include "domain/devices/device.hpp"
 
 #include <map>
 #include <memory>

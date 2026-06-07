@@ -2,9 +2,9 @@
 // Copyright (C) 2026 Jussi Lind <jussi.lind@iki.fi>
 //
 #include "synth_controller_test.hpp"
-#include "../../common/constants.hpp"
-#include "../../domain/devices/synth_device.hpp"
-#include "../../view/controllers/synth_controller.hpp"
+#include "common/constants.hpp"
+#include "domain/devices/synth_device.hpp"
+#include "view/controllers/synth_controller.hpp"
 
 #include <QSignalSpy>
 #include <QTest>

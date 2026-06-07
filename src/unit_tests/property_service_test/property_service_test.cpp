@@ -15,14 +15,14 @@
 
 #include "property_service_test.hpp"
 
-#include "../../application/service/device_service.hpp"
-#include "../../application/service/property_service.hpp"
-#include "../../common/constants.hpp"
-#include "../../domain/devices/bass_synth_device.hpp"
-#include "../../domain/devices/drum_synth_device.hpp"
-#include "../../domain/devices/sampler_device.hpp"
-#include "../../domain/devices/synth_device.hpp"
-#include "../../infra/audio/audio_engine.hpp"
+#include "application/service/device_service.hpp"
+#include "application/service/property_service.hpp"
+#include "common/constants.hpp"
+#include "domain/devices/bass_synth_device.hpp"
+#include "domain/devices/drum_synth_device.hpp"
+#include "domain/devices/sampler_device.hpp"
+#include "domain/devices/synth_device.hpp"
+#include "infra/audio/audio_engine.hpp"
 
 #include <QTest>
 #include <memory>

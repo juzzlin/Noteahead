@@ -14,12 +14,12 @@
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 #include "device_service.hpp"
 
-#include "../../common/constants.hpp"
-#include "../../common/utils.hpp"
-#include "../../domain/devices/device_factory.hpp"
-#include "../../domain/devices/sampler_device.hpp"
-#include "../../domain/devices/synth_device.hpp"
-#include "../../infra/audio/audio_engine.hpp"
+#include "common/constants.hpp"
+#include "common/utils.hpp"
+#include "domain/devices/device_factory.hpp"
+#include "domain/devices/sampler_device.hpp"
+#include "domain/devices/synth_device.hpp"
+#include "infra/audio/audio_engine.hpp"
 
 #include <QXmlStreamReader>
 #include <QXmlStreamWriter>

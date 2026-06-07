@@ -15,7 +15,7 @@
 
 #include "delay_effect.hpp"
 
-#include "../../common/constants.hpp"
+#include "common/constants.hpp"
 #include "../dsp/audio_context.hpp"
 
 #include <algorithm>

@@ -15,10 +15,10 @@
 
 #include "bass_synth_device.hpp"
 
-#include "../../common/constants.hpp"
-#include "../../common/parameter_mapper.hpp"
-#include "../../common/utils.hpp"
-#include "../../infra/midi/midi_cc_mapping.hpp"
+#include "common/constants.hpp"
+#include "common/parameter_mapper.hpp"
+#include "common/utils.hpp"
+#include "infra/midi/midi_cc_mapping.hpp"
 
 #include <QXmlStreamReader>
 #include <QXmlStreamWriter>

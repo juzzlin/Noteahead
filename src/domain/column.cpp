@@ -15,12 +15,12 @@
 
 #include "column.hpp"
 
-#include "../application/position.hpp"
-#include "../common/constants.hpp"
-#include "../common/utils.hpp"
-#include "../contrib/SimpleLogger/src/simple_logger.hpp"
-#include "../domain/event.hpp"
-#include "../domain/note_data.hpp"
+#include "application/position.hpp"
+#include "common/constants.hpp"
+#include "common/utils.hpp"
+#include "contrib/SimpleLogger/src/simple_logger.hpp"
+#include "domain/event.hpp"
+#include "domain/note_data.hpp"
 #include "column_settings.hpp"
 #include "line.hpp"
 #include "line_event.hpp"

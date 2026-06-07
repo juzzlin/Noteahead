@@ -16,7 +16,7 @@
 #ifndef TRACK_SETTINGS_MODEL_HPP
 #define TRACK_SETTINGS_MODEL_HPP
 
-#include "../../domain/instrument.hpp"
+#include "domain/instrument.hpp"
 #include "midi_cc_selection_model.hpp"
 
 #include <memory>

@@ -15,8 +15,8 @@
 
 #include "pitch_bend_automation.hpp"
 
-#include "../common/constants.hpp"
-#include "../common/utils.hpp"
+#include "common/constants.hpp"
+#include "common/utils.hpp"
 
 #include <QXmlStreamReader>
 #include <QXmlStreamWriter>

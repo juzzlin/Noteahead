@@ -15,7 +15,7 @@
 
 #include "sampler_model.hpp"
 
-#include "../../../domain/devices/sampler_device.hpp"
+#include "domain/devices/sampler_device.hpp"
 
 namespace noteahead {
 

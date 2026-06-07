@@ -15,13 +15,13 @@
 
 #include "track.hpp"
 
-#include "../application/position.hpp"
-#include "../common/constants.hpp"
-#include "../common/utils.hpp"
-#include "../contrib/SimpleLogger/src/simple_logger.hpp"
-#include "../domain/instrument.hpp"
-#include "../domain/note_data.hpp"
-#include "../domain/track.hpp"
+#include "application/position.hpp"
+#include "common/constants.hpp"
+#include "common/utils.hpp"
+#include "contrib/SimpleLogger/src/simple_logger.hpp"
+#include "domain/instrument.hpp"
+#include "domain/note_data.hpp"
+#include "domain/track.hpp"
 #include "column.hpp"
 #include "column_settings.hpp"
 

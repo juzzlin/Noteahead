@@ -15,11 +15,11 @@
 
 #include "automation_service.hpp"
 
-#include "../../common/constants.hpp"
-#include "../../contrib/SimpleLogger/src/simple_logger.hpp"
-#include "../../domain/interpolator.hpp"
-#include "../../domain/midi_cc_data.hpp"
-#include "../../domain/pitch_bend_data.hpp"
+#include "common/constants.hpp"
+#include "contrib/SimpleLogger/src/simple_logger.hpp"
+#include "domain/interpolator.hpp"
+#include "domain/midi_cc_data.hpp"
+#include "domain/pitch_bend_data.hpp"
 #include "../position.hpp"
 #include "property_service.hpp"
 

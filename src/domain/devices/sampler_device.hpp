@@ -16,7 +16,7 @@
 #ifndef SAMPLER_DEVICE_HPP
 #define SAMPLER_DEVICE_HPP
 
-#include "../../infra/audio/backend/audio_file_reader.hpp"
+#include "infra/audio/backend/audio_file_reader.hpp"
 #include "../parameter_container.hpp"
 #include "device.hpp"
 #include "effect.hpp"

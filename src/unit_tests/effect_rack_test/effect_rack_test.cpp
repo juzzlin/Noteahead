@@ -14,11 +14,11 @@
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
 #include "effect_rack_test.hpp"
-#include "../../common/constants.hpp"
-#include "../../domain/devices/effect_factory.hpp"
-#include "../../domain/devices/effect_rack.hpp"
-#include "../../domain/devices/volume_effect.hpp"
-#include "../../domain/dsp/reverb_effect.hpp"
+#include "common/constants.hpp"
+#include "domain/devices/effect_factory.hpp"
+#include "domain/devices/effect_rack.hpp"
+#include "domain/devices/volume_effect.hpp"
+#include "domain/dsp/reverb_effect.hpp"
 
 #include <QTest>
 #include <QXmlStreamReader>

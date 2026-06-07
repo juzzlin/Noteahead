@@ -15,7 +15,7 @@
 
 #include "automation.hpp"
 
-#include "../common/constants.hpp"
+#include "common/constants.hpp"
 
 #include <QXmlStreamWriter>
 

@@ -15,9 +15,9 @@
 
 #include "column_settings.hpp"
 
-#include "../common/constants.hpp"
-#include "../common/utils.hpp"
-#include "../contrib/SimpleLogger/src/simple_logger.hpp"
+#include "common/constants.hpp"
+#include "common/utils.hpp"
+#include "contrib/SimpleLogger/src/simple_logger.hpp"
 
 #include <QStringBuilder>
 #include <QXmlStreamReader>

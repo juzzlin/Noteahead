@@ -16,7 +16,7 @@
 #ifndef NOTE_DATA_MANIPULATOR_HPP
 #define NOTE_DATA_MANIPULATOR_HPP
 
-#include "../application/position.hpp"
+#include "application/position.hpp"
 
 #include <vector>
 

@@ -15,8 +15,8 @@
 
 #include "bass_synth_test.hpp"
 
-#include "../../common/constants.hpp"
-#include "../../domain/devices/bass_synth_device.hpp"
+#include "common/constants.hpp"
+#include "domain/devices/bass_synth_device.hpp"
 
 #include <QTest>
 #include <QXmlStreamReader>

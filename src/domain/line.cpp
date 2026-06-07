@@ -15,9 +15,9 @@
 
 #include "line.hpp"
 
-#include "../common/constants.hpp"
-#include "../common/utils.hpp"
-#include "../contrib/SimpleLogger/src/simple_logger.hpp"
+#include "common/constants.hpp"
+#include "common/utils.hpp"
+#include "contrib/SimpleLogger/src/simple_logger.hpp"
 #include "instrument_settings.hpp"
 
 #include <QXmlStreamReader>

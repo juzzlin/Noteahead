@@ -18,7 +18,7 @@
 
 #include <QObject>
 
-#include "../../application/models/column_settings_model.hpp"
+#include "application/models/column_settings_model.hpp"
 
 namespace noteahead {
 

@@ -15,8 +15,8 @@
 
 #include "midi_address.hpp"
 
-#include "../common/constants.hpp"
-#include "../common/utils.hpp"
+#include "common/constants.hpp"
+#include "common/utils.hpp"
 
 #include <QXmlStreamReader>
 #include <QXmlStreamWriter>

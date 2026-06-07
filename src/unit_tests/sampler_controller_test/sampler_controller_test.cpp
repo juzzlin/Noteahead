@@ -2,9 +2,9 @@
 // Copyright (C) 2026 Jussi Lind <jussi.lind@iki.fi>
 //
 #include "sampler_controller_test.hpp"
-#include "../../common/constants.hpp"
-#include "../../domain/devices/sampler_device.hpp"
-#include "../../view/controllers/sampler_controller.hpp"
+#include "common/constants.hpp"
+#include "domain/devices/sampler_device.hpp"
+#include "view/controllers/sampler_controller.hpp"
 
 #include <QSignalSpy>
 #include <QTest>

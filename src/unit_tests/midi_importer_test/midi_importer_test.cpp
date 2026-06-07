@@ -15,15 +15,15 @@
 
 #include "midi_importer_test.hpp"
 
-#include "../../application/service/automation_service.hpp"
-#include "../../application/service/midi_service.hpp"
-#include "../../application/service/mixer_service.hpp"
-#include "../../application/service/property_service.hpp"
-#include "../../application/service/side_chain_service.hpp"
-#include "../../domain/note_data.hpp"
-#include "../../domain/song.hpp"
-#include "../../infra/midi/export/midi_exporter.hpp"
-#include "../../infra/midi/import/midi_importer.hpp"
+#include "application/service/automation_service.hpp"
+#include "application/service/midi_service.hpp"
+#include "application/service/mixer_service.hpp"
+#include "application/service/property_service.hpp"
+#include "application/service/side_chain_service.hpp"
+#include "domain/note_data.hpp"
+#include "domain/song.hpp"
+#include "infra/midi/export/midi_exporter.hpp"
+#include "infra/midi/import/midi_importer.hpp"
 
 #include <memory>
 

@@ -15,13 +15,13 @@
 
 #include "sampler_device.hpp"
 
-#include "../../common/constants.hpp"
-#include "../../common/utils.hpp"
-#include "../../infra/audio/backend/audio_file_reader.hpp"
-#include "../../infra/audio/backend/sndfile_reader.hpp"
-#include "../../infra/midi/midi_cc_mapping.hpp"
+#include "common/constants.hpp"
+#include "common/utils.hpp"
+#include "infra/audio/backend/audio_file_reader.hpp"
+#include "infra/audio/backend/sndfile_reader.hpp"
+#include "infra/midi/midi_cc_mapping.hpp"
 
-#include "../../contrib/SimpleLogger/src/simple_logger.hpp"
+#include "contrib/SimpleLogger/src/simple_logger.hpp"
 
 #include <algorithm>
 #include <cmath>

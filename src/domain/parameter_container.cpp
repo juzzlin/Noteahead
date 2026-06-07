@@ -15,7 +15,7 @@
 
 #include "parameter_container.hpp"
 
-#include "../common/constants.hpp"
+#include "common/constants.hpp"
 
 #include <QXmlStreamReader>
 #include <QXmlStreamWriter>

@@ -15,19 +15,19 @@
 
 #include "device_rack_controller_test.hpp"
 
-#include "../../application/service/device_service.hpp"
-#include "../../application/service/editor_service.hpp"
-#include "../../common/constants.hpp"
-#include "../../domain/devices/bass_synth_device.hpp"
-#include "../../domain/devices/device_factory.hpp"
-#include "../../domain/devices/drum_synth_device.hpp"
-#include "../../domain/devices/effect_factory.hpp"
-#include "../../domain/devices/sampler_device.hpp"
-#include "../../domain/devices/synth_device.hpp"
-#include "../../infra/audio/audio_engine.hpp"
-#include "../../view/controllers/device_rack_controller.hpp"
-#include "../../view/controllers/sampler_controller.hpp"
-#include "../../view/controllers/synth_controller.hpp"
+#include "application/service/device_service.hpp"
+#include "application/service/editor_service.hpp"
+#include "common/constants.hpp"
+#include "domain/devices/bass_synth_device.hpp"
+#include "domain/devices/device_factory.hpp"
+#include "domain/devices/drum_synth_device.hpp"
+#include "domain/devices/effect_factory.hpp"
+#include "domain/devices/sampler_device.hpp"
+#include "domain/devices/synth_device.hpp"
+#include "infra/audio/audio_engine.hpp"
+#include "view/controllers/device_rack_controller.hpp"
+#include "view/controllers/sampler_controller.hpp"
+#include "view/controllers/synth_controller.hpp"
 
 #include <QSignalSpy>
 #include <QTest>

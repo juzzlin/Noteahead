@@ -16,7 +16,7 @@
 #ifndef PITCH_BEND_AUTOMATIONS_MODEL_HPP
 #define PITCH_BEND_AUTOMATIONS_MODEL_HPP
 
-#include "../../domain/pitch_bend_automation.hpp"
+#include "domain/pitch_bend_automation.hpp"
 
 #include <QAbstractListModel>
 

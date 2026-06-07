@@ -15,10 +15,10 @@
 
 #include "render_service.hpp"
 
-#include "../../common/constants.hpp"
-#include "../../contrib/SimpleLogger/src/simple_logger.hpp"
-#include "../../domain/song.hpp"
-#include "../../infra/settings.hpp"
+#include "common/constants.hpp"
+#include "contrib/SimpleLogger/src/simple_logger.hpp"
+#include "domain/song.hpp"
+#include "infra/settings.hpp"
 #include "editor_service.hpp"
 #include "mixer_service.hpp"
 #include "render_worker.hpp"

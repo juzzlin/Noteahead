@@ -15,8 +15,8 @@
 
 #include "note_data.hpp"
 
-#include "../common/constants.hpp"
-#include "../common/utils.hpp"
+#include "common/constants.hpp"
+#include "common/utils.hpp"
 
 #include <sstream>
 

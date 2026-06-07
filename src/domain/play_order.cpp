@@ -15,8 +15,8 @@
 
 #include "play_order.hpp"
 
-#include "../common/constants.hpp"
-#include "../contrib/SimpleLogger/src/simple_logger.hpp"
+#include "common/constants.hpp"
+#include "contrib/SimpleLogger/src/simple_logger.hpp"
 
 #include <algorithm>
 #include <ranges>

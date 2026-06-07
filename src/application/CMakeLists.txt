@@ -1,0 +1,110 @@
+set(HEADER_FILES
+    application.hpp
+    command/automation_command.hpp
+    command/composite_command.hpp
+    command/note_edit_command.hpp
+    command/undo_stack.hpp
+    instrument_request.hpp
+    models/audio_settings_model.hpp
+    models/column_settings_model.hpp
+    models/event_selection_model.hpp
+    models/midi_cc_automations_model.hpp
+    models/midi_cc_selection_model.hpp
+    models/midi_settings_model.hpp
+    models/note_column_line_container_helper.hpp
+    models/note_column_model.hpp
+    models/note_column_model_handler.hpp
+    models/pitch_bend_automations_model.hpp
+    models/recent_files_model.hpp
+    models/sampler/sampler_model.hpp
+    models/sampler/sampler_pad_model.hpp
+    models/track_settings_model.hpp
+    note_converter.hpp
+    position.hpp
+    service/application_service.hpp
+    service/audio_service.hpp
+    service/audio_worker.hpp
+    service/automation_service.hpp
+    service/copy_manager.hpp
+    service/device_service.hpp
+    service/editor_service.hpp
+    service/jack_service.hpp
+    service/keyboard_service.hpp
+    service/midi_service.hpp
+    service/midi_worker.hpp
+    service/midi_worker_in.hpp
+    service/midi_worker_out.hpp
+    service/mixer_service.hpp
+    service/player_service.hpp
+    service/player_worker.hpp
+    service/property_service.hpp
+    service/random_service.hpp
+    service/recent_files_manager.hpp
+    service/render_service.hpp
+    service/render_worker.hpp
+    service/selection_service.hpp
+    service/settings_service.hpp
+    service/side_chain_service.hpp
+    service/theme_service.hpp
+    service/util_service.hpp
+    state_machine.hpp
+    ui_logger.hpp
+)
+
+set(SOURCE_FILES
+    application.cpp
+    command/automation_command.cpp
+    command/composite_command.cpp
+    command/note_edit_command.cpp
+    command/undo_stack.cpp
+    instrument_request.cpp
+    models/audio_settings_model.cpp
+    models/column_settings_model.cpp
+    models/event_selection_model.cpp
+    models/midi_cc_automations_model.cpp
+    models/midi_cc_selection_model.cpp
+    models/midi_settings_model.cpp
+    models/note_column_line_container_helper.cpp
+    models/note_column_model.cpp
+    models/note_column_model_handler.cpp
+    models/pitch_bend_automations_model.cpp
+    models/recent_files_model.cpp
+    models/sampler/sampler_model.cpp
+    models/sampler/sampler_pad_model.cpp
+    models/track_settings_model.cpp
+    note_converter.cpp
+    service/application_service.cpp
+    service/audio_service.cpp
+    service/audio_worker.cpp
+    service/automation_service.cpp
+    service/copy_manager.cpp
+    service/device_service.cpp
+    service/editor_service.cpp
+    service/jack_service.cpp
+    service/keyboard_service.cpp
+    service/midi_service.cpp
+    service/midi_worker.cpp
+    service/midi_worker_in.cpp
+    service/midi_worker_out.cpp
+    service/mixer_service.cpp
+    service/player_service.cpp
+    service/player_worker.cpp
+    service/property_service.cpp
+    service/random_service.cpp
+    service/recent_files_manager.cpp
+    service/render_service.cpp
+    service/render_worker.cpp
+    service/selection_service.cpp
+    service/settings_service.cpp
+    service/side_chain_service.cpp
+    service/theme_service.cpp
+    service/util_service.cpp
+    state_machine.cpp
+    ui_logger.cpp
+)
+
+add_library(${ApplicationLibName} OBJECT ${HEADER_FILES} ${SOURCE_FILES})
+target_include_directories(${ApplicationLibName} PUBLIC ..)
+target_include_directories(${ApplicationLibName} PRIVATE contrib/SimpleLogger/src contrib/Argengine/src ${RTAUDIO_INCLUDE_DIRS} ${SNDFILE_INCLUDE_DIRS})
+target_compile_definitions(${ApplicationLibName} PRIVATE QML_ROOT_DIR="${QML_ROOT_DIR}" QML_ENTRY_POINT="${MAIN}")
+target_link_libraries(${ApplicationLibName} PUBLIC ${CommonLibName} ${DomainLibName} Qt6::Core Qt6::Quick)

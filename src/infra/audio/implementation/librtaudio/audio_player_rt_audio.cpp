@@ -15,9 +15,9 @@
 
 #include "audio_player_rt_audio.hpp"
 
-#include "../../../common/constants.hpp"
-#include "../../../common/denormal_protection.hpp"
-#include "../../../contrib/SimpleLogger/src/simple_logger.hpp"
+#include "common/constants.hpp"
+#include "common/denormal_protection.hpp"
+#include "contrib/SimpleLogger/src/simple_logger.hpp"
 #include "../../audio_engine.hpp"
 
 #include <algorithm>

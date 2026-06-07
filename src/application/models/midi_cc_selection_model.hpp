@@ -16,7 +16,7 @@
 #ifndef MIDI_CC_SELECTION_MODEL_HPP
 #define MIDI_CC_SELECTION_MODEL_HPP
 
-#include "../../domain/midi_cc_setting.hpp"
+#include "domain/midi_cc_setting.hpp"
 
 #include <QAbstractListModel>
 

@@ -15,7 +15,7 @@
 
 #include "panner_effect.hpp"
 
-#include "../../common/constants.hpp"
+#include "common/constants.hpp"
 
 #include <algorithm>
 

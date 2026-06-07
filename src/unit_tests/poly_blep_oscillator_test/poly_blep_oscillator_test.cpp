@@ -14,7 +14,7 @@
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
 #include "poly_blep_oscillator_test.hpp"
-#include "../../domain/dsp/poly_blep_oscillator.hpp"
+#include "domain/dsp/poly_blep_oscillator.hpp"
 
 #include <QTest>
 #include <cmath>

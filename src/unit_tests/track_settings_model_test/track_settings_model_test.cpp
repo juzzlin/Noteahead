@@ -15,7 +15,7 @@
 
 #include "track_settings_model_test.hpp"
 
-#include "../../application/models/track_settings_model.hpp"
+#include "application/models/track_settings_model.hpp"
 
 #include <QSignalSpy>
 #include <QTest>

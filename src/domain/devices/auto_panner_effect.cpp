@@ -15,8 +15,8 @@
 
 #include "auto_panner_effect.hpp"
 
-#include "../../common/constants.hpp"
-#include "../../common/parameter_mapper.hpp"
+#include "common/constants.hpp"
+#include "common/parameter_mapper.hpp"
 #include "../dsp/audio_context.hpp"
 
 #include <algorithm>

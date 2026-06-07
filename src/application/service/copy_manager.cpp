@@ -15,8 +15,8 @@
 
 #include "copy_manager.hpp"
 
-#include "../../contrib/SimpleLogger/src/simple_logger.hpp"
-#include "../../domain/pattern.hpp"
+#include "contrib/SimpleLogger/src/simple_logger.hpp"
+#include "domain/pattern.hpp"
 #include "../position.hpp"
 #include "automation_service.hpp"
 

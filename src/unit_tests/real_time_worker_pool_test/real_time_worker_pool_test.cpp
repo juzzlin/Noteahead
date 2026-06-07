@@ -14,7 +14,7 @@
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
 #include "real_time_worker_pool_test.hpp"
-#include "../../infra/audio/real_time_worker_pool.hpp"
+#include "infra/audio/real_time_worker_pool.hpp"
 
 #include <QTest>
 

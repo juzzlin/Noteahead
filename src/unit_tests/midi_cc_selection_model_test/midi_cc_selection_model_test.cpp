@@ -15,7 +15,7 @@
 
 #include "midi_cc_selection_model_test.hpp"
 
-#include "../../application/models/midi_cc_selection_model.hpp"
+#include "application/models/midi_cc_selection_model.hpp"
 
 #include <QSignalSpy>
 #include <QTest>

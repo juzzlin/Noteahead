@@ -15,15 +15,15 @@
 
 #include "song_test.hpp"
 
-#include "../../application/position.hpp"
-#include "../../application/service/automation_service.hpp"
-#include "../../application/service/property_service.hpp"
-#include "../../application/service/side_chain_service.hpp"
-#include "../../domain/column_settings.hpp"
-#include "../../domain/event.hpp"
-#include "../../domain/note_data.hpp"
-#include "../../domain/pattern.hpp"
-#include "../../domain/song.hpp"
+#include "application/position.hpp"
+#include "application/service/automation_service.hpp"
+#include "application/service/property_service.hpp"
+#include "application/service/side_chain_service.hpp"
+#include "domain/column_settings.hpp"
+#include "domain/event.hpp"
+#include "domain/note_data.hpp"
+#include "domain/pattern.hpp"
+#include "domain/song.hpp"
 
 #include <QTest>
 #include <QXmlStreamWriter>

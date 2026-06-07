@@ -15,8 +15,8 @@
 
 #include "midi_cc_automation.hpp"
 
-#include "../common/constants.hpp"
-#include "../common/utils.hpp"
+#include "common/constants.hpp"
+#include "common/utils.hpp"
 
 #include <QXmlStreamReader>
 #include <QXmlStreamWriter>

@@ -15,11 +15,11 @@
 
 #include "synth_controller.hpp"
 
-#include "../../application/service/device_service.hpp"
-#include "../../common/constants.hpp"
-#include "../../common/utils.hpp"
-#include "../../domain/devices/synth_device.hpp"
-#include "../../domain/devices/synth_presets.hpp"
+#include "application/service/device_service.hpp"
+#include "common/constants.hpp"
+#include "common/utils.hpp"
+#include "domain/devices/synth_device.hpp"
+#include "domain/devices/synth_presets.hpp"
 
 #include <QDebug>
 #include <cmath>

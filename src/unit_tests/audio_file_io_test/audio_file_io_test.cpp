@@ -14,10 +14,10 @@
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
 #include "audio_file_io_test.hpp"
-#include "../../common/constants.hpp"
-#include "../../infra/audio/audio_file_recorder.hpp"
-#include "../../infra/audio/audio_file_streamer.hpp"
-#include "../../infra/audio/backend/audio_file_reader.hpp"
+#include "common/constants.hpp"
+#include "infra/audio/audio_file_recorder.hpp"
+#include "infra/audio/audio_file_streamer.hpp"
+#include "infra/audio/backend/audio_file_reader.hpp"
 
 #include <QTest>
 #include <condition_variable>

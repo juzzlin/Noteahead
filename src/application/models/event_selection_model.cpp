@@ -15,8 +15,8 @@
 
 #include "event_selection_model.hpp"
 
-#include "../../contrib/SimpleLogger/src/simple_logger.hpp"
-#include "../../domain/instrument_settings.hpp"
+#include "contrib/SimpleLogger/src/simple_logger.hpp"
+#include "domain/instrument_settings.hpp"
 
 namespace noteahead {
 

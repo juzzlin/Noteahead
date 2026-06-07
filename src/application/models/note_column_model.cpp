@@ -15,9 +15,9 @@
 
 #include "note_column_model.hpp"
 
-#include "../../application/service/editor_service.hpp"
-#include "../../application/service/settings_service.hpp"
-#include "../../domain/line.hpp"
+#include "application/service/editor_service.hpp"
+#include "application/service/settings_service.hpp"
+#include "domain/line.hpp"
 #include "../note_converter.hpp"
 #include "note_column_line_container_helper.hpp"
 

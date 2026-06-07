@@ -15,11 +15,11 @@
 
 #include "application_service.hpp"
 
-#include "../../common/constants.hpp"
-#include "../../common/utils.hpp"
-#include "../../contrib/SimpleLogger/src/simple_logger.hpp"
-#include "../../domain/instrument.hpp"
-#include "../../domain/midi_note_data.hpp"
+#include "common/constants.hpp"
+#include "common/utils.hpp"
+#include "contrib/SimpleLogger/src/simple_logger.hpp"
+#include "domain/instrument.hpp"
+#include "domain/midi_note_data.hpp"
 #include "../note_converter.hpp"
 #include "../state_machine.hpp"
 #include "editor_service.hpp"

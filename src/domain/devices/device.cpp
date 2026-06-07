@@ -15,9 +15,9 @@
 
 #include "device.hpp"
 
-#include "../../common/constants.hpp"
-#include "../../common/parameter_mapper.hpp"
-#include "../../common/utils.hpp"
+#include "common/constants.hpp"
+#include "common/parameter_mapper.hpp"
+#include "common/utils.hpp"
 
 #include <cmath>
 

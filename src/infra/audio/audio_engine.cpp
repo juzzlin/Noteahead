@@ -15,10 +15,10 @@
 
 #include "audio_engine.hpp"
 
-#include "../../common/constants.hpp"
-#include "../../common/denormal_protection.hpp"
-#include "../../domain/devices/effect_rack.hpp"
-#include "../../domain/dsp/reverb_effect.hpp"
+#include "common/constants.hpp"
+#include "common/denormal_protection.hpp"
+#include "domain/devices/effect_rack.hpp"
+#include "domain/dsp/reverb_effect.hpp"
 #include "real_time_worker_pool.hpp"
 
 #include <algorithm>

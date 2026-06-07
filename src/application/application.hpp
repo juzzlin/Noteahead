@@ -16,8 +16,8 @@
 #ifndef APPLICATION_HPP
 #define APPLICATION_HPP
 
-#include "../infra/midi/export/midi_exporter.hpp"
-#include "../infra/midi/import/midi_importer.hpp"
+#include "infra/midi/export/midi_exporter.hpp"
+#include "infra/midi/import/midi_importer.hpp"
 #include "state_machine.hpp"
 
 #include <memory>

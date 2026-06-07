@@ -15,8 +15,8 @@
 
 #include "midi_cc_selection_model.hpp"
 
-#include "../../contrib/SimpleLogger/src/simple_logger.hpp"
-#include "../../infra/midi/midi_cc_mapping.hpp"
+#include "contrib/SimpleLogger/src/simple_logger.hpp"
+#include "infra/midi/midi_cc_mapping.hpp"
 
 #include <algorithm>
 #include <map>

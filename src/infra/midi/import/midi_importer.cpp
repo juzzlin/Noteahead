@@ -15,15 +15,15 @@
 
 #include "midi_importer.hpp"
 
-#include "../../../application/service/midi_service.hpp"
-#include "../../../contrib/SimpleLogger/src/simple_logger.hpp"
-#include "../../../domain/event.hpp"
-#include "../../../domain/midi_cc_data.hpp"
-#include "../../../domain/note_data.hpp"
-#include "../../../domain/pattern.hpp"
-#include "../../../domain/pitch_bend_data.hpp"
-#include "../../../domain/song.hpp"
-#include "../../../domain/track.hpp"
+#include "application/service/midi_service.hpp"
+#include "contrib/SimpleLogger/src/simple_logger.hpp"
+#include "domain/event.hpp"
+#include "domain/midi_cc_data.hpp"
+#include "domain/note_data.hpp"
+#include "domain/pattern.hpp"
+#include "domain/pitch_bend_data.hpp"
+#include "domain/song.hpp"
+#include "domain/track.hpp"
 
 #include <algorithm>
 #include <array>

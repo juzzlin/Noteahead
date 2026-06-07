@@ -15,19 +15,19 @@
 
 #include "effects_test.hpp"
 
-#include "../../common/constants.hpp"
-#include "../../common/utils.hpp"
-#include "../../domain/devices/delay_effect.hpp"
-#include "../../domain/devices/high_pass_filter_effect.hpp"
-#include "../../domain/devices/low_pass_filter_effect.hpp"
-#include "../../domain/devices/panning_effect.hpp"
-#include "../../domain/devices/volume_effect.hpp"
-#include "../../domain/dsp/cascaded_svf.hpp"
-#include "../../domain/dsp/chorus_effect.hpp"
-#include "../../domain/dsp/clipper_effect.hpp"
-#include "../../domain/dsp/compressor_effect.hpp"
-#include "../../domain/dsp/eq_8_band_parametric_effect.hpp"
-#include "../../domain/dsp/reverb_effect.hpp"
+#include "common/constants.hpp"
+#include "common/utils.hpp"
+#include "domain/devices/delay_effect.hpp"
+#include "domain/devices/high_pass_filter_effect.hpp"
+#include "domain/devices/low_pass_filter_effect.hpp"
+#include "domain/devices/panning_effect.hpp"
+#include "domain/devices/volume_effect.hpp"
+#include "domain/dsp/cascaded_svf.hpp"
+#include "domain/dsp/chorus_effect.hpp"
+#include "domain/dsp/clipper_effect.hpp"
+#include "domain/dsp/compressor_effect.hpp"
+#include "domain/dsp/eq_8_band_parametric_effect.hpp"
+#include "domain/dsp/reverb_effect.hpp"
 
 #include <QTest>
 

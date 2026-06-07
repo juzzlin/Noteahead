@@ -15,7 +15,7 @@
 
 #include "note_converter_test.hpp"
 
-#include "../../application/note_converter.hpp"
+#include "application/note_converter.hpp"
 
 #include <QTest>
 

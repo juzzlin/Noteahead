@@ -15,9 +15,9 @@
 
 #include "device_controller.hpp"
 
-#include "../../common/constants.hpp"
-#include "../../common/utils.hpp"
-#include "../../domain/devices/device.hpp"
+#include "common/constants.hpp"
+#include "common/utils.hpp"
+#include "domain/devices/device.hpp"
 
 #include <QDebug>
 #include <cmath>

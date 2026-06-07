@@ -14,8 +14,8 @@
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
 #include "settings_service.hpp"
-#include "../../contrib/SimpleLogger/src/simple_logger.hpp"
-#include "../../infra/settings.hpp"
+#include "contrib/SimpleLogger/src/simple_logger.hpp"
+#include "infra/settings.hpp"
 
 #include <QGuiApplication>
 #include <QScreen>

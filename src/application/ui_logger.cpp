@@ -15,7 +15,7 @@
 
 #include "ui_logger.hpp"
 
-#include "../contrib/SimpleLogger/src/simple_logger.hpp"
+#include "contrib/SimpleLogger/src/simple_logger.hpp"
 
 namespace noteahead {
 

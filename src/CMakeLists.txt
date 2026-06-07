@@ -5,319 +5,10 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 
 # These are needed only for the IDE
-set(HEADER_FILES
-  application/application.hpp
-  application/command/automation_command.hpp
-  application/command/composite_command.hpp
-  application/command/note_edit_command.hpp
-  application/command/undo_stack.hpp
-  application/instrument_request.hpp
-  application/models/audio_settings_model.hpp
-  application/models/column_settings_model.hpp
-  application/models/event_selection_model.hpp
-  application/models/midi_cc_automations_model.hpp
-  application/models/midi_cc_selection_model.hpp
-  application/models/midi_settings_model.hpp
-  application/models/note_column_line_container_helper.hpp
-  application/models/note_column_model.hpp
-  application/models/note_column_model_handler.hpp
-  application/models/pitch_bend_automations_model.hpp
-  application/models/recent_files_model.hpp
-  application/models/sampler/sampler_model.hpp
-  application/models/sampler/sampler_pad_model.hpp
-  application/models/track_settings_model.hpp
-  application/note_converter.hpp
-  application/position.hpp
-  application/service/application_service.hpp
-  application/service/audio_service.hpp
-  application/service/audio_worker.hpp
-  application/service/automation_service.hpp
-  application/service/copy_manager.hpp
-  application/service/device_service.hpp
-  application/service/editor_service.hpp
-  application/service/jack_service.hpp
-  application/service/keyboard_service.hpp
-  application/service/midi_service.hpp
-  application/service/midi_worker.hpp
-  application/service/midi_worker_in.hpp
-  application/service/midi_worker_out.hpp
-  application/service/mixer_service.hpp
-  application/service/player_service.hpp
-  application/service/player_worker.hpp
-  application/service/property_service.hpp
-  application/service/random_service.hpp
-  application/service/recent_files_manager.hpp
-  application/service/render_service.hpp
-  application/service/render_worker.hpp
-  application/service/selection_service.hpp
-  application/service/settings_service.hpp
-  application/service/side_chain_service.hpp
-  application/service/theme_service.hpp
-  application/service/util_service.hpp
-  application/state_machine.hpp
-  application/ui_logger.hpp
-  common/constants.hpp
-  common/parameter_mapper.hpp
-  common/utils.hpp
-  common/waveform_generator.hpp
-  domain/arpeggiator.hpp
-  domain/automation.hpp
-  domain/automation_location.hpp
-  domain/column.hpp
-  domain/column_settings.hpp
-  domain/devices/auto_panner_effect.hpp
-  domain/devices/bass_synth_device.hpp
-  domain/devices/delay_effect.hpp
-  domain/devices/device.hpp
-  domain/devices/device_factory.hpp
-  domain/devices/drum_synth_constants.hpp
-  domain/devices/drum_synth_device.hpp
-  domain/devices/effect.hpp
-  domain/devices/effect_factory.hpp
-  domain/devices/effect_rack.hpp
-  domain/devices/high_pass_filter_effect.hpp
-  domain/devices/low_pass_filter_effect.hpp
-  domain/devices/panner_effect.hpp
-  domain/devices/panning_effect.hpp
-  domain/devices/sampler_device.hpp
-  domain/devices/synth_device.hpp
-  domain/devices/synth_presets.hpp
-  domain/devices/volume_effect.hpp
-  domain/dsp/adsr_envelope.hpp
-  domain/dsp/cascaded_svf.hpp
-  domain/dsp/clipper_effect.hpp
-  domain/dsp/compressor_effect.hpp
-  domain/dsp/diode_ladder_filter.hpp
-  domain/dsp/drum/clap_engine.hpp
-  domain/dsp/drum/crash_engine.hpp
-  domain/dsp/drum/drum_engine.hpp
-  domain/dsp/drum/hihat_engine.hpp
-  domain/dsp/drum/kick_engine.hpp
-  domain/dsp/drum/ride_engine.hpp
-  domain/dsp/drum/snare_engine.hpp
-  domain/dsp/drum/tom_engine.hpp
-  domain/dsp/dsp_component.hpp
-  domain/dsp/eq_8_band_parametric_effect.hpp
-  domain/dsp/lfo.hpp
-  domain/dsp/multi_engine.hpp
-  domain/dsp/oversampler.hpp
-  domain/dsp/poly_blep_oscillator.hpp
-  domain/dsp/reverb_effect.hpp
-  domain/dsp/svf_filter.hpp
-  domain/event.hpp
-  domain/event_data.hpp
-  domain/instrument.hpp
-  domain/instrument_settings.hpp
-  domain/interpolator.hpp
-  domain/line.hpp
-  domain/line_event.hpp
-  domain/midi_address.hpp
-  domain/midi_cc_automation.hpp
-  domain/midi_cc_data.hpp
-  domain/midi_cc_setting.hpp
-  domain/midi_import_mode.hpp
-  domain/midi_note_data.hpp
-  domain/mixer_unit.hpp
-  domain/note_data.hpp
-  domain/note_data_manipulator.hpp
-  domain/parameter.hpp
-  domain/parameter_container.hpp
-  domain/pattern.hpp
-  domain/pitch_bend_automation.hpp
-  domain/pitch_bend_data.hpp
-  domain/play_order.hpp
-  domain/side_chain_settings.hpp
-  domain/song.hpp
-  domain/track.hpp
-  infra/audio/audio_engine.hpp
-  infra/audio/audio_file_recorder.hpp
-  infra/audio/audio_file_streamer.hpp
-  infra/audio/audio_player.hpp
-  infra/audio/audio_recorder.hpp
-  infra/audio/backend/audio_file_reader.hpp
-  infra/audio/backend/sndfile_reader.hpp
-  infra/audio/implementation/jack/audio_player_jack.hpp
-  infra/audio/implementation/jack/audio_recorder_jack.hpp
-  infra/audio/implementation/librtaudio/audio_player_rt_audio.hpp
-  infra/audio/implementation/librtaudio/audio_recorder_rt_audio.hpp
-  infra/audio/real_time_worker_pool.hpp
-  infra/audio/ring_buffer.hpp
-  infra/midi/export/midi_exporter.hpp
-  infra/midi/implementation/librtmidi/midi_in_rt_midi.hpp
-  infra/midi/implementation/librtmidi/midi_out_rt_midi.hpp
-  infra/midi/import/midi_importer.hpp
-  infra/midi/midi_backend.hpp
-  infra/midi/midi_backend_in.hpp
-  infra/midi/midi_backend_out.hpp
-  infra/midi/midi_cc_mapping.hpp
-  infra/midi/midi_port.hpp
-  infra/settings.hpp
-  view/controllers/bass_synth_controller.hpp
-  view/controllers/device_controller.hpp
-  view/controllers/device_rack_controller.hpp
-  view/controllers/drum_synth_controller.hpp
-  view/controllers/effect_rack_controller.hpp
-  view/controllers/knob_controller.hpp
-  view/controllers/sampler_controller.hpp
-  view/controllers/synth_controller.hpp
-  view/qml/Editor/line_number_renderer.hpp
-  view/qml/Editor/note_column_renderer.hpp
-)
+set(HEADER_FILES)
 
 set(SOURCE_FILES
-  application/application.cpp
-  application/command/automation_command.cpp
-  application/command/composite_command.cpp
-  application/command/note_edit_command.cpp
-  application/command/undo_stack.cpp
-  application/instrument_request.cpp
-  application/models/audio_settings_model.cpp
-  application/models/column_settings_model.cpp
-  application/models/event_selection_model.cpp
-  application/models/midi_cc_automations_model.cpp
-  application/models/midi_cc_selection_model.cpp
-  application/models/midi_settings_model.cpp
-  application/models/note_column_line_container_helper.cpp
-  application/models/note_column_model.cpp
-  application/models/note_column_model_handler.cpp
-  application/models/pitch_bend_automations_model.cpp
-  application/models/recent_files_model.cpp
-  application/models/sampler/sampler_model.cpp
-  application/models/sampler/sampler_pad_model.cpp
-  application/models/track_settings_model.cpp
-  application/note_converter.cpp
-  application/service/application_service.cpp
-  application/service/audio_service.cpp
-  application/service/audio_worker.cpp
-  application/service/automation_service.cpp
-  application/service/copy_manager.cpp
-  application/service/device_service.cpp
-  application/service/editor_service.cpp
-  application/service/jack_service.cpp
-  application/service/keyboard_service.cpp
-  application/service/midi_service.cpp
-  application/service/midi_worker.cpp
-  application/service/midi_worker_in.cpp
-  application/service/midi_worker_out.cpp
-  application/service/mixer_service.cpp
-  application/service/player_service.cpp
-  application/service/player_worker.cpp
-  application/service/property_service.cpp
-  application/service/random_service.cpp
-  application/service/recent_files_manager.cpp
-  application/service/render_service.cpp
-  application/service/render_worker.cpp
-  application/service/selection_service.cpp
-  application/service/settings_service.cpp
-  application/service/side_chain_service.cpp
-  application/service/theme_service.cpp
-  application/service/util_service.cpp
-  application/state_machine.cpp
-  application/ui_logger.cpp
-  common/constants.cpp
-  common/parameter_mapper.cpp
-  common/utils.cpp
-  common/waveform_generator.cpp
-  domain/arpeggiator.cpp
-  domain/automation.cpp
-  domain/automation_location.cpp
-  domain/column.cpp
-  domain/column_settings.cpp
-  domain/devices/auto_panner_effect.cpp
-  domain/devices/bass_synth_device.cpp
-  domain/devices/delay_effect.cpp
-  domain/devices/device.cpp
-  domain/devices/device_factory.cpp
-  domain/devices/device_registration.cpp
-  domain/devices/drum_synth_constants.cpp
-  domain/devices/drum_synth_device.cpp
-  domain/devices/effect.cpp
-  domain/devices/effect_factory.cpp
-  domain/devices/effect_rack.cpp
-  domain/devices/high_pass_filter_effect.cpp
-  domain/devices/low_pass_filter_effect.cpp
-  domain/devices/panner_effect.cpp
-  domain/devices/panning_effect.cpp
-  domain/devices/sampler_device.cpp
-  domain/devices/synth_device.cpp
-  domain/devices/synth_presets.cpp
-  domain/devices/volume_effect.cpp
-  domain/dsp/adsr_envelope.cpp
-  domain/dsp/cascaded_svf.cpp
-  domain/dsp/chorus_effect.cpp
-  domain/dsp/clipper_effect.cpp
-  domain/dsp/compressor_effect.cpp
-  domain/dsp/diode_ladder_filter.cpp
-  domain/dsp/drum/clap_engine.cpp
-  domain/dsp/drum/crash_engine.cpp
-  domain/dsp/drum/hihat_engine.cpp
-  domain/dsp/drum/kick_engine.cpp
-  domain/dsp/drum/ride_engine.cpp
-  domain/dsp/drum/snare_engine.cpp
-  domain/dsp/drum/tom_engine.cpp
-  domain/dsp/dsp_component.cpp
-  domain/dsp/eq_8_band_parametric_effect.cpp
-  domain/dsp/lfo.cpp
-  domain/dsp/multi_engine.cpp
-  domain/dsp/oversampler.cpp
-  domain/dsp/poly_blep_oscillator.cpp
-  domain/dsp/reverb_effect.cpp
-  domain/dsp/svf_filter.cpp
-  domain/event.cpp
-  domain/event_data.cpp
-  domain/instrument.cpp
-  domain/instrument_settings.cpp
-  domain/interpolator.cpp
-  domain/line.cpp
-  domain/line_event.cpp
-  domain/midi_address.cpp
-  domain/midi_cc_automation.cpp
-  domain/midi_cc_data.cpp
-  domain/midi_cc_setting.cpp
-  domain/midi_note_data.cpp
-  domain/mixer_unit.cpp
-  domain/note_data.cpp
-  domain/note_data_manipulator.cpp
-  domain/parameter.cpp
-  domain/parameter_container.cpp
-  domain/pattern.cpp
-  domain/pitch_bend_automation.cpp
-  domain/pitch_bend_data.cpp
-  domain/play_order.cpp
-  domain/song.cpp
-  domain/track.cpp
-  infra/audio/audio_engine.cpp
-  infra/audio/audio_file_recorder.cpp
-  infra/audio/audio_file_streamer.cpp
-  infra/audio/audio_player.cpp
-  infra/audio/audio_recorder.cpp
-  infra/audio/backend/sndfile_reader.cpp
-  infra/audio/implementation/jack/audio_player_jack.cpp
-  infra/audio/implementation/jack/audio_recorder_jack.cpp
-  infra/audio/implementation/librtaudio/audio_player_rt_audio.cpp
-  infra/audio/implementation/librtaudio/audio_recorder_rt_audio.cpp
-  infra/audio/real_time_worker_pool.cpp
-  infra/midi/export/midi_exporter.cpp
-  infra/midi/implementation/librtmidi/midi_in_rt_midi.cpp
-  infra/midi/implementation/librtmidi/midi_out_rt_midi.cpp
-  infra/midi/import/midi_importer.cpp
-  infra/midi/midi_backend.cpp
-  infra/midi/midi_backend_in.cpp
-  infra/midi/midi_backend_out.cpp
-  infra/midi/midi_cc_mapping.cpp
-  infra/midi/midi_port.cpp
-  infra/settings.cpp
   main.cpp
-  view/controllers/bass_synth_controller.cpp
-  view/controllers/device_controller.cpp
-  view/controllers/device_rack_controller.cpp
-  view/controllers/drum_synth_controller.cpp
-  view/controllers/effect_rack_controller.cpp
-  view/controllers/knob_controller.cpp
-  view/controllers/sampler_controller.cpp
-  view/controllers/synth_controller.cpp
-  view/qml/Editor/line_number_renderer.cpp
-  view/qml/Editor/note_column_renderer.cpp
 )
 
 qt_add_executable(${BINARY_NAME} ${HEADER_FILES} ${SOURCE_FILES})
@@ -491,26 +182,29 @@ qt_add_qml_module(${BINARY_NAME}
     RESOURCES ${PNG_SOURCE_FILES} ${HTML_SOURCE_FILES}
 )
 
+set(ApplicationLibName "ApplicationLib")
+set(CommonLibName "CommonLib")
+set(DomainLibName "DomainLib")
+set(InfraLibName "InfraLib")
+set(ViewLibName "ViewLib")
+
+add_subdirectory(application)
+add_subdirectory(common)
+add_subdirectory(domain)
+add_subdirectory(infra)
+add_subdirectory(view)
+
 target_include_directories(${BINARY_NAME} PRIVATE contrib/SimpleLogger/src)
 target_include_directories(${BINARY_NAME} PRIVATE contrib/Argengine/src)
-target_include_directories(${BINARY_NAME} PRIVATE ${RTAUDIO_INCLUDE_DIRS})
-target_include_directories(${BINARY_NAME} PRIVATE ${SNDFILE_INCLUDE_DIRS})
 
 target_compile_definitions(${BINARY_NAME} PRIVATE $<$<OR:$<CONFIG:Debug>,$<CONFIG:RelWithDebInfo>>:QT_QML_DEBUG>)
-target_compile_definitions(${BINARY_NAME} PRIVATE QML_ROOT_DIR="${QML_ROOT_DIR}")
-target_compile_definitions(${BINARY_NAME} PRIVATE QML_ENTRY_POINT="${MAIN}")
 
 if(ENABLE_MIDI_DEBUG)
   target_compile_definitions(${BINARY_NAME} PRIVATE ENABLE_MIDI_DEBUG)
 endif()
 
-target_link_libraries(${BINARY_NAME} PRIVATE Qt6::Core Qt6::Quick ${RTMIDI_LIBRARIES} ${RTAUDIO_LIBRARIES} ${SNDFILE_LIBRARIES} SimpleLogger_static Argengine_static)
+target_link_libraries(${BINARY_NAME} PRIVATE Qt6::Core Qt6::Quick SimpleLogger_static Argengine_static ${ApplicationLibName} ${CommonLibName} ${DomainLibName} ${ViewLibName} ${InfraLibName})
 
-if(JACK_FOUND)
-  target_include_directories(${BINARY_NAME} PRIVATE ${JACK_INCLUDE_DIRS})
-  target_compile_definitions(${BINARY_NAME} PRIVATE HAVE_JACK)
-  target_link_libraries(${BINARY_NAME} PRIVATE ${JACK_LIBRARIES})
-endif()
 
 include(${CMAKE_SOURCE_DIR}/cmake/DebianPackagingDefaultQt.cmake)
 

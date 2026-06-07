@@ -65,6 +65,7 @@ pkg_check_modules(RTAUDIO REQUIRED rtaudio)
 # Use pkg-config to find JACK
 if(ENABLE_JACK_SUPPORT)
     pkg_check_modules(JACK REQUIRED jack)
+    add_definitions(-DHAVE_JACK)
 endif()
 
 # Use pkg-config to find libsndfile

@@ -18,21 +18,21 @@
 #include <algorithm> // Required for std::sort
 #include <vector> // Required for std::vector
 
-#include "../../application/service/automation_service.hpp"
-#include "../../application/service/editor_service.hpp"
-#include "../../application/service/mixer_service.hpp"
-#include "../../application/service/property_service.hpp"
-#include "../../application/service/selection_service.hpp"
-#include "../../application/service/settings_service.hpp"
-#include "../../application/service/side_chain_service.hpp"
-#include "../../domain/column_settings.hpp"
-#include "../../domain/instrument.hpp"
-#include "../../domain/note_data.hpp"
-#include "../../domain/pattern.hpp"
-#include "../../domain/side_chain_settings.hpp"
-#include "../../domain/song.hpp"
-#include "../../domain/track.hpp"
-#include "../../infra/settings.hpp"
+#include "application/service/automation_service.hpp"
+#include "application/service/editor_service.hpp"
+#include "application/service/mixer_service.hpp"
+#include "application/service/property_service.hpp"
+#include "application/service/selection_service.hpp"
+#include "application/service/settings_service.hpp"
+#include "application/service/side_chain_service.hpp"
+#include "domain/column_settings.hpp"
+#include "domain/instrument.hpp"
+#include "domain/note_data.hpp"
+#include "domain/pattern.hpp"
+#include "domain/side_chain_settings.hpp"
+#include "domain/song.hpp"
+#include "domain/track.hpp"
+#include "infra/settings.hpp"
 
 #include <QSignalSpy>
 #include <QTest>

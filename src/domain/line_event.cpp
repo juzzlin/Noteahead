@@ -15,8 +15,8 @@
 
 #include "line_event.hpp"
 
-#include "../common/constants.hpp"
-#include "../contrib/SimpleLogger/src/simple_logger.hpp"
+#include "common/constants.hpp"
+#include "contrib/SimpleLogger/src/simple_logger.hpp"
 #include "instrument_settings.hpp"
 
 #include <QXmlStreamWriter>

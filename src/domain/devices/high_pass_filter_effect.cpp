@@ -14,7 +14,7 @@
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
 #include "high_pass_filter_effect.hpp"
-#include "../../common/utils.hpp"
+#include "common/utils.hpp"
 #include "../dsp/audio_context.hpp"
 
 #include <algorithm>

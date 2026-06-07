@@ -15,8 +15,8 @@
 
 #include "note_data_manipulator.hpp"
 
-#include "../application/position.hpp"
-#include "../contrib/SimpleLogger/src/simple_logger.hpp"
+#include "application/position.hpp"
+#include "contrib/SimpleLogger/src/simple_logger.hpp"
 #include "interpolator.hpp"
 #include "note_data.hpp"
 #include "song.hpp"

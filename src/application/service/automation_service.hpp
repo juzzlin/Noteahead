@@ -22,9 +22,9 @@
 #include <set>
 #include <vector>
 
-#include "../../domain/event.hpp"
-#include "../../domain/midi_cc_automation.hpp"
-#include "../../domain/pitch_bend_automation.hpp"
+#include "domain/event.hpp"
+#include "domain/midi_cc_automation.hpp"
+#include "domain/pitch_bend_automation.hpp"
 
 class QXmlStreamReader;
 class QXmlStreamWriter;

@@ -1,9 +1,9 @@
 #include "sampler_controller.hpp"
-#include "../../application/models/sampler/sampler_pad_model.hpp"
-#include "../../common/constants.hpp"
-#include "../../common/utils.hpp"
-#include "../../common/waveform_generator.hpp"
-#include "../../domain/devices/sampler_device.hpp"
+#include "application/models/sampler/sampler_pad_model.hpp"
+#include "common/constants.hpp"
+#include "common/utils.hpp"
+#include "common/waveform_generator.hpp"
+#include "domain/devices/sampler_device.hpp"
 
 namespace noteahead {
 

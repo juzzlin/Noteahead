@@ -15,10 +15,10 @@
 
 #include "application.hpp"
 
-#include "../common/audio_backend.hpp"
-#include "../contrib/Argengine/src/argengine.hpp"
-#include "../contrib/SimpleLogger/src/simple_logger.hpp"
-#include "../infra/midi/export/midi_exporter.hpp"
+#include "common/audio_backend.hpp"
+#include "contrib/Argengine/src/argengine.hpp"
+#include "contrib/SimpleLogger/src/simple_logger.hpp"
+#include "infra/midi/export/midi_exporter.hpp"
 #include "common/constants.hpp"
 #include "common/utils.hpp"
 #include "domain/column_settings.hpp"

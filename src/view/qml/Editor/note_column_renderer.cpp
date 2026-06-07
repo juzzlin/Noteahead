@@ -15,7 +15,7 @@
 
 #include "note_column_renderer.hpp"
 
-#include "../../../application/models/note_column_model.hpp"
+#include "application/models/note_column_model.hpp"
 
 #include <QAbstractListModel>
 #include <QPainter>
