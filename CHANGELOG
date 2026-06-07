@@ -21,6 +21,8 @@ Other:
 
 * Add timestamp to individual track render filenames
 
+* Modernize dependency management with PkgConfig imported targets
+
 3.2.0
 =====
 

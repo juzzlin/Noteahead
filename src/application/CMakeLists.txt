@@ -105,6 +105,7 @@ set(SOURCE_FILES
 
 add_library(${ApplicationLibName} OBJECT ${HEADER_FILES} ${SOURCE_FILES})
 target_include_directories(${ApplicationLibName} PUBLIC ..)
-target_include_directories(${ApplicationLibName} PRIVATE contrib/SimpleLogger/src contrib/Argengine/src ${RTAUDIO_INCLUDE_DIRS} ${SNDFILE_INCLUDE_DIRS})
+target_include_directories(${ApplicationLibName} PRIVATE contrib/SimpleLogger/src contrib/Argengine/src)
 target_compile_definitions(${ApplicationLibName} PRIVATE QML_ROOT_DIR="${QML_ROOT_DIR}" QML_ENTRY_POINT="${MAIN}")
 target_link_libraries(${ApplicationLibName} PUBLIC ${CommonLibName} ${DomainLibName} Qt6::Core Qt6::Quick)
+target_link_libraries(${ApplicationLibName} PRIVATE PkgConfig::RTAUDIO PkgConfig::SNDFILE)

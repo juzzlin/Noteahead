@@ -51,14 +51,12 @@ set(SOURCE_FILES
 add_library(${InfraLibName} OBJECT ${HEADER_FILES} ${SOURCE_FILES})
 
 target_include_directories(${InfraLibName} PUBLIC ..)
-target_include_directories(${InfraLibName} PRIVATE ${RTAUDIO_INCLUDE_DIRS} ${SNDFILE_INCLUDE_DIRS} ${RTMIDI_INCLUDE_DIRS})
 
-target_link_libraries(${InfraLibName} PUBLIC ${CommonLibName} ${DomainLibName} Qt6::Core Qt6::Quick ${RTMIDI_LIBRARIES} ${RTAUDIO_LIBRARIES} ${SNDFILE_LIBRARIES})
+target_link_libraries(${InfraLibName} PUBLIC ${CommonLibName} ${DomainLibName} Qt6::Core Qt6::Quick PkgConfig::RTMIDI PkgConfig::RTAUDIO PkgConfig::SNDFILE)
 
 if(JACK_FOUND)
-    target_include_directories(${InfraLibName} PRIVATE ${JACK_INCLUDE_DIRS})
     target_compile_definitions(${InfraLibName} PUBLIC HAVE_JACK)
-    target_link_libraries(${InfraLibName} PRIVATE ${JACK_LIBRARIES})
+    target_link_libraries(${InfraLibName} PRIVATE PkgConfig::JACK)
 endif()
 
 if(ENABLE_MIDI_DEBUG)

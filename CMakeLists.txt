@@ -57,19 +57,19 @@ message(STATUS "CMake build type  : ${CMAKE_BUILD_TYPE}")
 find_package(PkgConfig REQUIRED)
 
 # Use pkg-config to find RtMidi
-pkg_check_modules(RTMIDI REQUIRED rtmidi)
+pkg_check_modules(RTMIDI REQUIRED rtmidi IMPORTED_TARGET)
 
 # Use pkg-config to find RtAudio
-pkg_check_modules(RTAUDIO REQUIRED rtaudio)
+pkg_check_modules(RTAUDIO REQUIRED rtaudio IMPORTED_TARGET)
 
 # Use pkg-config to find JACK
 if(ENABLE_JACK_SUPPORT)
-    pkg_check_modules(JACK REQUIRED jack)
+    pkg_check_modules(JACK REQUIRED jack IMPORTED_TARGET)
     add_definitions(-DHAVE_JACK)
 endif()
 
 # Use pkg-config to find libsndfile
-pkg_check_modules(SNDFILE REQUIRED sndfile)
+pkg_check_modules(SNDFILE REQUIRED sndfile IMPORTED_TARGET)
 
 # Sadly Ubuntu 24.04 LTS has only Qt 6.4.2
 find_package(QT NAMES Qt6 COMPONENTS Core REQUIRED)

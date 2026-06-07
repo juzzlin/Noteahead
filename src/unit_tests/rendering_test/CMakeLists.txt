@@ -1,4 +1,4 @@
-include_directories(${CMAKE_CURRENT_SOURCE_DIR} ${RTAUDIO_INCLUDE_DIRS} ${PROJECT_SOURCE_DIR}/src ${PROJECT_SOURCE_DIR}/src/contrib/SimpleLogger/src)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR} ${PROJECT_SOURCE_DIR}/src ${PROJECT_SOURCE_DIR}/src/contrib/SimpleLogger/src)
 
 set(TEST_NAME rendering_test)
 
@@ -104,5 +104,5 @@ target_link_libraries(${TEST_NAME} PRIVATE
     Qt${QT_VERSION_MAJOR}::Xml 
     Qt${QT_VERSION_MAJOR}::Gui 
     SimpleLogger 
-    ${SNDFILE_LIBRARIES}
+    PkgConfig::SNDFILE
 )

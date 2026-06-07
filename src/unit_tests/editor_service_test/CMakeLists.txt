@@ -105,7 +105,7 @@ set(SRC
 qt_add_executable(${NAME} ${SRC})
 set_target_properties(${NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${UNIT_TEST_BASE_DIR})
 add_test(${NAME} ${UNIT_TEST_BASE_DIR}/${NAME})
-target_link_libraries(${NAME} PRIVATE Qt${QT_VERSION_MAJOR}::Test Qt${QT_VERSION_MAJOR}::Gui SimpleLogger ${SNDFILE_LIBRARIES})
+target_link_libraries(${NAME} PRIVATE Qt${QT_VERSION_MAJOR}::Test Qt${QT_VERSION_MAJOR}::Gui SimpleLogger PkgConfig::SNDFILE)
 
 set(DELAY_TEST_NAME editor_service_delay_test)
 set(DELAY_TEST_SRC
@@ -213,4 +213,4 @@ set(DELAY_TEST_SRC
 qt_add_executable(${DELAY_TEST_NAME} ${DELAY_TEST_SRC})
 set_target_properties(${DELAY_TEST_NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${UNIT_TEST_BASE_DIR})
 add_test(${DELAY_TEST_NAME} ${UNIT_TEST_BASE_DIR}/${DELAY_TEST_NAME})
-target_link_libraries(${DELAY_TEST_NAME} PRIVATE Qt${QT_VERSION_MAJOR}::Test Qt${QT_VERSION_MAJOR}::Gui SimpleLogger ${SNDFILE_LIBRARIES})
+target_link_libraries(${DELAY_TEST_NAME} PRIVATE Qt${QT_VERSION_MAJOR}::Test Qt${QT_VERSION_MAJOR}::Gui SimpleLogger PkgConfig::SNDFILE)
