@@ -47,7 +47,8 @@ public:
     explicit SamplerController(SamplerDevice::SamplerDeviceS sampler, QObject * parent = nullptr);
     ~SamplerController() override;
 
-    std::shared_ptr<Device> device() const override;
+    DeviceS device() const override;
+    bool setDevice(DeviceS device) override;
     SamplerPadModel * padModel() const;
     SamplerDevice::SamplerDeviceS sampler() const;
     void setSampler(SamplerDevice::SamplerDeviceS sampler);

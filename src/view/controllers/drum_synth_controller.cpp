@@ -32,21 +32,28 @@ DrumSynthController::DrumSynthController(std::shared_ptr<DeviceService> deviceSe
 {
 }
 
-std::shared_ptr<Device> DrumSynthController::device() const
+DeviceController::DeviceS DrumSynthController::device() const
 {
     return m_device;
 }
 
-void DrumSynthController::setDevice(const QString & deviceName)
+bool DrumSynthController::setDevice(DeviceS device)
 {
-    if (const auto device = std::dynamic_pointer_cast<DrumSynthDevice>(m_deviceService->device(deviceName.toStdString())); device) {
+    if (const auto drumSynth = std::dynamic_pointer_cast<DrumSynthDevice>(device)) {
         if (m_device) {
             disconnect(m_device.get(), nullptr, this, nullptr);
         }
-        m_device = device;
+        m_device = drumSynth;
         connectDeviceSignals();
         requestSettings();
+        return true;
     }
+    return false;
+}
+
+void DrumSynthController::setDevice(const QString & deviceName)
+{
+    setDevice(m_deviceService->device(deviceName.toStdString()));
 }
 
 int DrumSynthController::selectedVoice() const

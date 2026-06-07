@@ -117,7 +117,8 @@ public:
     explicit SynthController(std::shared_ptr<SynthDevice> synth, QObject * parent = nullptr);
     ~SynthController() override;
 
-    std::shared_ptr<Device> device() const override;
+    DeviceS device() const override;
+    bool setDevice(DeviceS device) override;
     std::shared_ptr<SynthDevice> synth() const;
 
     // Accessors

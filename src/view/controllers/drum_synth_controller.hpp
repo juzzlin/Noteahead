@@ -71,7 +71,8 @@ class DrumSynthController : public DeviceController
 public:
     explicit DrumSynthController(std::shared_ptr<DeviceService> deviceService, QObject * parent = nullptr);
 
-    std::shared_ptr<Device> device() const override;
+    DeviceS device() const override;
+    bool setDevice(DeviceS device) override;
     Q_INVOKABLE void setDevice(const QString & deviceName);
 
     int selectedVoice() const;

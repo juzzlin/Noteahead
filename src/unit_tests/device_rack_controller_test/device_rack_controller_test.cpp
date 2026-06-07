@@ -185,7 +185,7 @@ void DeviceRackControllerTest::test_devices_shouldReturnDeviceNames()
     deviceService->setDevice(0, std::make_shared<MockDevice>(name1));
     deviceService->setDevice(1, std::make_shared<MockDevice>(name2));
 
-    DeviceRackController controller { deviceService, nullptr, nullptr, nullptr, nullptr, nullptr };
+    DeviceRackController controller { deviceService, {}, nullptr };
 
     QCOMPARE(controller.rowCount(), static_cast<int>(Constants::deviceRackSize()));
     QCOMPARE(controller.data(controller.index(0), static_cast<int>(DeviceRackController::DataRole::Name)).toString(), QString::fromStdString(name1));
@@ -213,7 +213,7 @@ void DeviceRackControllerTest::test_trackNames_shouldReturnTrackNamesForDevice()
     editorService->setMockTrackName(3, "Track 4");
     editorService->setMockInstrumentPortName(3, QString::fromStdString(name2));
 
-    DeviceRackController controller { deviceService, nullptr, nullptr, nullptr, nullptr, editorService };
+    DeviceRackController controller { deviceService, {}, editorService };
 
     QCOMPARE(controller.data(controller.index(0), static_cast<int>(DeviceRackController::DataRole::TrackNames)).toString(), QString("Track 1, Track 3"));
     QCOMPARE(controller.data(controller.index(1), static_cast<int>(DeviceRackController::DataRole::TrackNames)).toString(), QString("Track 2, Track 4"));
@@ -224,7 +224,7 @@ void DeviceRackControllerTest::test_setDevice_shouldAddDeviceAndNotify()
     const auto audioEngine = std::make_shared<AudioEngine>();
     const auto deviceService = std::make_shared<DeviceService>(audioEngine);
     const auto editorService = std::make_shared<MockEditorService>();
-    DeviceRackController controller { deviceService, nullptr, nullptr, nullptr, nullptr, editorService };
+    DeviceRackController controller { deviceService, {}, editorService };
 
     QSignalSpy revisionSpy { &controller, &DeviceRackController::revisionChanged };
     QSignalSpy dataChangedSpy { &controller, &DeviceRackController::dataChanged };
@@ -245,7 +245,7 @@ void DeviceRackControllerTest::test_clearDevice_shouldRemoveDeviceAndNotify()
     const auto editorService = std::make_shared<MockEditorService>();
     deviceService->setDevice(0, std::make_shared<MockDevice>("To be removed"));
 
-    DeviceRackController controller { deviceService, nullptr, nullptr, nullptr, nullptr, editorService };
+    DeviceRackController controller { deviceService, {}, editorService };
 
     QSignalSpy revisionSpy { &controller, &DeviceRackController::revisionChanged };
     controller.clearDevice(0);
@@ -260,7 +260,7 @@ void DeviceRackControllerTest::test_addMethods_shouldAddDevicesToFirstEmptySlot(
     const auto audioEngine = std::make_shared<AudioEngine>();
     const auto deviceService = std::make_shared<DeviceService>(audioEngine);
     const auto editorService = std::make_shared<MockEditorService>();
-    DeviceRackController controller { deviceService, nullptr, nullptr, nullptr, nullptr, editorService };
+    DeviceRackController controller { deviceService, {}, editorService };
 
     // Fill first slot
     controller.setDevice(0, QString::fromStdString(SamplerDevice::typeIdString()));
@@ -288,7 +288,7 @@ void DeviceRackControllerTest::test_addMethods_shouldAddDevicesToFirstEmptySlot(
 
 void DeviceRackControllerTest::test_availableDevices_shouldReturnCorrectList()
 {
-    DeviceRackController controller { nullptr, nullptr, nullptr, nullptr, nullptr, nullptr };
+    DeviceRackController controller { nullptr, {}, nullptr };
     const auto list = controller.availableDevices();
 
     QCOMPARE(list.size(), 4);
@@ -308,7 +308,7 @@ void DeviceRackControllerTest::test_removeDeviceByName_shouldClearCorrectSlot()
     deviceService->setDevice(0, std::make_shared<MockDevice>(prefix + " 1"));
     deviceService->setDevice(2, std::make_shared<MockDevice>(prefix + " 3"));
 
-    DeviceRackController controller { deviceService, nullptr, nullptr, nullptr, nullptr, editorService };
+    DeviceRackController controller { deviceService, {}, editorService };
 
     controller.removeDevice(QString::fromStdString(prefix + " 3"));
     QVERIFY(deviceService->device(0) != nullptr);

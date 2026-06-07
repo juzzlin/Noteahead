@@ -39,9 +39,18 @@ SynthController::SynthController(std::shared_ptr<SynthDevice> synth, QObject * p
 
 SynthController::~SynthController() = default;
 
-std::shared_ptr<Device> SynthController::device() const
+DeviceController::DeviceS SynthController::device() const
 {
     return m_synth;
+}
+
+bool SynthController::setDevice(DeviceS device)
+{
+    if (const auto synth = std::dynamic_pointer_cast<SynthDevice>(device)) {
+        setSynth(synth);
+        return true;
+    }
+    return false;
 }
 
 std::shared_ptr<SynthDevice> SynthController::synth() const

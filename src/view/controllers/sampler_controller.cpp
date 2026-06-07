@@ -18,9 +18,18 @@ SamplerController::SamplerController(SamplerDevice::SamplerDeviceS sampler, QObj
 
 SamplerController::~SamplerController() = default;
 
-std::shared_ptr<Device> SamplerController::device() const
+DeviceController::DeviceS SamplerController::device() const
 {
     return m_sampler;
+}
+
+bool SamplerController::setDevice(DeviceS device)
+{
+    if (const auto sampler = std::dynamic_pointer_cast<SamplerDevice>(device)) {
+        setSampler(sampler);
+        return true;
+    }
+    return false;
 }
 
 SamplerPadModel * SamplerController::padModel() const

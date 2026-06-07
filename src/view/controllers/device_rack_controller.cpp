@@ -32,13 +32,10 @@
 
 namespace noteahead {
 
-DeviceRackController::DeviceRackController(DeviceServiceS deviceService, SamplerControllerS samplerController, SynthControllerS synthController, BassSynthControllerS bassSynthController, DrumSynthControllerS drumSynthController, EditorServiceS editorService, QObject * parent)
+DeviceRackController::DeviceRackController(DeviceServiceS deviceService, ControllerList controllers, EditorServiceS editorService, QObject * parent)
   : QAbstractListModel { parent }
   , m_deviceService { std::move(deviceService) }
-  , m_samplerController { std::move(samplerController) }
-  , m_synthController { std::move(synthController) }
-  , m_bassSynthController { std::move(bassSynthController) }
-  , m_drumSynthController { std::move(drumSynthController) }
+  , m_controllers { std::move(controllers) }
   , m_editorService { std::move(editorService) }
 {
     if (m_deviceService) {
@@ -120,25 +117,28 @@ void DeviceRackController::refresh()
 
 void DeviceRackController::openDevice(const QString & name)
 {
-    if (const auto sampler = std::dynamic_pointer_cast<SamplerDevice>(m_deviceService->device(name.toStdString()))) {
-        m_samplerController->setSampler(sampler);
-        emit samplerDialogRequested();
-    } else if (const auto synth = std::dynamic_pointer_cast<SynthDevice>(m_deviceService->device(name.toStdString()))) {
-        m_synthController->setSynth(synth);
-        emit synthDialogRequested();
-    } else if (const auto bassSynth = std::dynamic_pointer_cast<BassSynthDevice>(m_deviceService->device(name.toStdString()))) {
-        m_bassSynthController->setDevice(bassSynth);
-        emit bassSynthDialogRequested();
-    } else if (const auto drumSynth = std::dynamic_pointer_cast<DrumSynthDevice>(m_deviceService->device(name.toStdString()))) {
-        m_drumSynthController->setDevice(name);
-        emit drumSynthDialogRequested();
+    if (const auto device = m_deviceService->device(name.toStdString()); device) {
+        for (const auto & controller : m_controllers) {
+            if (controller->setDevice(device)) {
+                if (const auto typeId = device->typeId(); typeId == SamplerDevice::typeIdString()) {
+                    emit samplerDialogRequested();
+                } else if (typeId == SynthDevice::typeIdString()) {
+                    emit synthDialogRequested();
+                } else if (typeId == BassSynthDevice::typeIdString()) {
+                    emit bassSynthDialogRequested();
+                } else if (typeId == DrumSynthDevice::typeIdString()) {
+                    emit drumSynthDialogRequested();
+                }
+                return;
+            }
+        }
     }
 }
 
 void DeviceRackController::openDevice(int slotIndex)
 {
-    if (const auto dev = m_deviceService->device(static_cast<size_t>(slotIndex))) {
-        openDevice(QString::fromStdString(dev->name()));
+    if (const auto device = m_deviceService->device(static_cast<size_t>(slotIndex))) {
+        openDevice(QString::fromStdString(device->name()));
     }
 }
 
@@ -150,8 +150,8 @@ void DeviceRackController::requestEffectSendsDialog(const QString & deviceName)
 void DeviceRackController::setDevice(int slotIndex, const QString & typeId)
 {
     const auto name = Constants::internalDevicePortPrefix().toStdString() + " " + std::to_string(slotIndex + 1);
-    if (const auto dev = DeviceFactory::createDevice(typeId.toStdString(), name); dev) {
-        m_deviceService->setDevice(static_cast<size_t>(slotIndex), std::move(dev));
+    if (const auto device = DeviceFactory::createDevice(typeId.toStdString(), name); device) {
+        m_deviceService->setDevice(static_cast<size_t>(slotIndex), std::move(device));
         m_editorService->setIsModified(true);
         m_revision++;
         emit revisionChanged();
@@ -168,32 +168,32 @@ void DeviceRackController::clearDevice(int slotIndex)
 
 QString DeviceRackController::deviceType(int slotIndex) const
 {
-    if (const auto dev = m_deviceService->device(static_cast<size_t>(slotIndex))) {
-        return QString::fromStdString(dev->typeId());
+    if (const auto device = m_deviceService->device(static_cast<size_t>(slotIndex))) {
+        return QString::fromStdString(device->typeId());
     }
     return "";
 }
 
 QString DeviceRackController::deviceTypeName(int slotIndex) const
 {
-    if (const auto dev = m_deviceService->device(static_cast<size_t>(slotIndex))) {
-        return QString::fromStdString(dev->typeName());
+    if (const auto device = m_deviceService->device(static_cast<size_t>(slotIndex))) {
+        return QString::fromStdString(device->typeName());
     }
     return "";
 }
 
 QString DeviceRackController::deviceName(int slotIndex) const
 {
-    if (const auto dev = m_deviceService->device(static_cast<size_t>(slotIndex))) {
-        return QString::fromStdString(dev->name());
+    if (const auto device = m_deviceService->device(static_cast<size_t>(slotIndex))) {
+        return QString::fromStdString(device->name());
     }
     return "";
 }
 
 QString DeviceRackController::trackNames(int slotIndex) const
 {
-    if (const auto dev = m_deviceService->device(static_cast<size_t>(slotIndex))) {
-        const auto deviceName = QString::fromStdString(dev->name());
+    if (const auto device = m_deviceService->device(static_cast<size_t>(slotIndex))) {
+        const auto deviceName = QString::fromStdString(device->name());
         QStringList trackNames;
         for (const auto index : m_editorService->trackIndices()) {
             if (const auto portName = m_editorService->instrumentPortName(index); portName == deviceName) {

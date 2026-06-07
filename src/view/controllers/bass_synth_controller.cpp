@@ -33,9 +33,18 @@ BassSynthController::BassSynthController(std::shared_ptr<BassSynthDevice> device
 
 BassSynthController::~BassSynthController() = default;
 
-std::shared_ptr<Device> BassSynthController::device() const
+DeviceController::DeviceS BassSynthController::device() const
 {
     return m_device;
+}
+
+bool BassSynthController::setDevice(DeviceS device)
+{
+    if (const auto bassSynth = std::dynamic_pointer_cast<BassSynthDevice>(device)) {
+        setDevice(bassSynth);
+        return true;
+    }
+    return false;
 }
 
 std::shared_ptr<BassSynthDevice> BassSynthController::bassSynthDevice() const

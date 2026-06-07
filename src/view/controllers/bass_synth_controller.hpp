@@ -54,7 +54,8 @@ public:
     explicit BassSynthController(std::shared_ptr<BassSynthDevice> device, QObject * parent = nullptr);
     ~BassSynthController() override;
 
-    std::shared_ptr<Device> device() const override;
+    DeviceS device() const override;
+    bool setDevice(DeviceS device) override;
     std::shared_ptr<BassSynthDevice> bassSynthDevice() const;
 
     // Accessors

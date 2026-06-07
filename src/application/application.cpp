@@ -109,7 +109,7 @@ Application::Application(int & argc, char ** argv)
   , m_bassSynthController { std::make_shared<BassSynthController>(std::make_shared<BassSynthDevice>("Default BassSynth")) }
   , m_drumSynthController { std::make_shared<DrumSynthController>(m_deviceService) }
   , m_effectRackController { std::make_shared<EffectRackController>(m_deviceService, m_editorService) }
-  , m_deviceRackController { std::make_shared<DeviceRackController>(m_deviceService, m_samplerController, m_synthController, m_bassSynthController, m_drumSynthController, m_editorService) }
+  , m_deviceRackController { std::make_shared<DeviceRackController>(m_deviceService, std::vector<DeviceController::DeviceControllerS> { m_samplerController, m_synthController, m_bassSynthController, m_drumSynthController }, m_editorService) }
   , m_knobController { std::make_shared<KnobController>() }
   , m_jackService { std::make_shared<JackService>(m_settingsService, m_audioEngine) }
   , m_audioService { std::make_shared<AudioService>(m_settingsService, m_jackService, m_audioEngine) }

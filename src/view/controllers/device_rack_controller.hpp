@@ -21,15 +21,14 @@
 #include <QStringList>
 
 #include <memory>
+#include <vector>
+
+#include "device_controller.hpp"
 
 namespace noteahead {
 
 class DeviceService;
-class BassSynthController;
-class DrumSynthController;
 class EditorService;
-class SamplerController;
-class SynthController;
 
 class DeviceRackController : public QAbstractListModel
 {
@@ -48,13 +47,10 @@ public:
     Q_ENUM(DataRole)
 
     using DeviceServiceS = std::shared_ptr<DeviceService>;
-    using SamplerControllerS = std::shared_ptr<SamplerController>;
-    using SynthControllerS = std::shared_ptr<SynthController>;
-    using BassSynthControllerS = std::shared_ptr<BassSynthController>;
-    using DrumSynthControllerS = std::shared_ptr<DrumSynthController>;
+    using DeviceControllerS = DeviceController::DeviceControllerS;
     using EditorServiceS = std::shared_ptr<EditorService>;
-
-    explicit DeviceRackController(DeviceServiceS deviceService, SamplerControllerS samplerController, SynthControllerS synthController, BassSynthControllerS bassSynthController, DrumSynthControllerS drumSynthController, EditorServiceS editorService, QObject * parent = nullptr);
+    using ControllerList = std::vector<DeviceControllerS>;
+    explicit DeviceRackController(DeviceServiceS deviceService, ControllerList controllers, EditorServiceS editorService, QObject * parent = nullptr);
     ~DeviceRackController() override;
 
     int rowCount(const QModelIndex & parent = QModelIndex()) const override;
@@ -97,10 +93,7 @@ private:
     QString trackNames(const QString & deviceName) const;
 
     DeviceServiceS m_deviceService;
-    SamplerControllerS m_samplerController;
-    SynthControllerS m_synthController;
-    BassSynthControllerS m_bassSynthController;
-    DrumSynthControllerS m_drumSynthController;
+    ControllerList m_controllers;
     EditorServiceS m_editorService;
 
     QStringList m_devices;

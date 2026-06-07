@@ -33,10 +33,14 @@ class DeviceController : public QObject
     Q_PROPERTY(uint32_t sampleRate READ sampleRate NOTIFY sampleRateChanged)
 
 public:
+    using DeviceS = std::shared_ptr<Device>;
+    using DeviceControllerS = std::shared_ptr<DeviceController>;
+
     explicit DeviceController(QObject * parent = nullptr);
     ~DeviceController() override = default;
 
-    virtual std::shared_ptr<Device> device() const = 0;
+    virtual DeviceS device() const = 0;
+    virtual bool setDevice(DeviceS device) = 0;
 
     int volume() const;
     void setVolume(int value);
