@@ -227,6 +227,7 @@ Dialog {
         VirtualKeyboard {
             Layout.fillWidth: true
             Layout.topMargin: 10
+            activeNotes: drumSynthController.activeNotes
             onNoteOnRequested: (note) => drumSynthController.playNote(note, 1.0)
             onNoteOffRequested: (note) => drumSynthController.stopNote(note)
         }

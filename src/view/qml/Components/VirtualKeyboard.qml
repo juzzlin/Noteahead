@@ -12,6 +12,7 @@ Item {
 
     property int velocityKeyTrack: 0
     property int velocityKeyTrackOffset: 0
+    property var activeNotes: []
 
     function getVelocityColor(note: int, baseColor: color): color {
         if (velocityKeyTrack <= 0) {
@@ -68,6 +69,14 @@ Item {
                     property bool pressed: false
                     property int note: rootItem.baseNote + rootItem.whiteOffset(index)
 
+                    Rectangle {
+                        anchors.fill: parent
+                        anchors.margins: 1
+                        color: themeService.accentColor
+                        opacity: 0.3
+                        visible: rootItem.activeNotes.includes(parent.note)
+                    }
+
                     MouseArea {
                         anchors.fill: parent
                         cursorShape: Qt.PointingHandCursor
@@ -107,6 +116,15 @@ Item {
                     y: 0
                     property bool pressed: false
                     property int note: rootItem.baseNote + rootItem.whiteOffset(index) + 1
+
+                    Rectangle {
+                        anchors.fill: parent
+                        anchors.margins: 1
+                        radius: parent.radius
+                        color: themeService.accentColor
+                        opacity: 0.4
+                        visible: rootItem.activeNotes.includes(parent.note)
+                    }
 
                     MouseArea {
                         anchors.fill: parent

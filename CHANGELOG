@@ -11,6 +11,8 @@ New features:
 
 * Support Pitch Bend events when rendering internal instruments
 
+* Implement active notes highlighting for DrumSynth
+
 Bug fixes:
 
 * Improve synth voice stealing logic

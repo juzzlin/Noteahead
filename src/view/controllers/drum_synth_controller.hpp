@@ -66,6 +66,7 @@ class DrumSynthController : public DeviceController
     Q_PROPERTY(bool isCymbal READ isCymbal NOTIFY selectedVoiceChanged)
     Q_PROPERTY(bool hasResonance READ hasResonance NOTIFY selectedVoiceChanged)
     Q_PROPERTY(bool hasAttack READ hasAttack NOTIFY selectedVoiceChanged)
+    Q_PROPERTY(QVariantList activeNotes READ activeNotes NOTIFY activeNotesChanged)
 
 public:
     explicit DrumSynthController(std::shared_ptr<DeviceService> deviceService, QObject * parent = nullptr);
@@ -130,6 +131,7 @@ public:
     bool isCymbal() const;
     bool hasResonance() const;
     bool hasAttack() const;
+    QVariantList activeNotes() const;
 
     Q_INVOKABLE void requestSettings() override;
     Q_INVOKABLE void playVoice(int index);
@@ -152,6 +154,7 @@ signals:
     void tomPitchDepthChanged();
     void tomPitchDecayChanged();
     void voiceResonanceChanged();
+    void activeNotesChanged();
 
 private:
     std::shared_ptr<DeviceService> m_deviceService;
