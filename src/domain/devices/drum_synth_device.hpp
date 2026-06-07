@@ -25,10 +25,10 @@
 #include "../dsp/oversampler.hpp"
 #include "device.hpp"
 #include "drum_synth_constants.hpp"
-#include "high_pass_filter_effect.hpp"
-#include "low_pass_filter_effect.hpp"
-#include "panning_effect.hpp"
-#include "volume_effect.hpp"
+#include "domain/effects/high_pass_filter_effect.hpp"
+#include "domain/effects/low_pass_filter_effect.hpp"
+#include "domain/effects/panning_effect.hpp"
+#include "domain/effects/volume_effect.hpp"
 
 #include <array>
 #include <memory>

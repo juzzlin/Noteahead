@@ -16,7 +16,7 @@
 #ifndef COMPRESSOR_EFFECT_HPP
 #define COMPRESSOR_EFFECT_HPP
 
-#include "../devices/effect.hpp"
+#include "domain/effects/effect.hpp"
 
 #include <cstdint>
 #include <vector>

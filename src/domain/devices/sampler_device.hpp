@@ -19,11 +19,11 @@
 #include "infra/audio/backend/audio_file_reader.hpp"
 #include "../parameter_container.hpp"
 #include "device.hpp"
-#include "effect.hpp"
-#include "high_pass_filter_effect.hpp"
-#include "low_pass_filter_effect.hpp"
-#include "panning_effect.hpp"
-#include "volume_effect.hpp"
+#include "domain/effects/effect.hpp"
+#include "domain/effects/high_pass_filter_effect.hpp"
+#include "domain/effects/low_pass_filter_effect.hpp"
+#include "domain/effects/panning_effect.hpp"
+#include "domain/effects/volume_effect.hpp"
 
 #include <array>
 #include <memory>

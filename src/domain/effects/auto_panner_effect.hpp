@@ -13,38 +13,38 @@
 // You should have received a copy of the GNU General Public License
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
-#include "panning_effect.hpp"
+#ifndef AUTO_PANNER_EFFECT_HPP
+#define AUTO_PANNER_EFFECT_HPP
 
-#include <algorithm>
+#include "domain/dsp/lfo.hpp"
+#include "domain/effects/effect.hpp"
 
 namespace noteahead {
 
-void PanningEffect::setPan(float pan)
+class AutoPannerEffect : public Effect
 {
-    m_pan = pan;
-}
+public:
+    AutoPannerEffect();
 
-void PanningEffect::process(double & left, double & right)
-{
-    const double gainL = std::min(1.0, 2.0 - static_cast<double>(m_pan) * 2.0);
-    const double gainR = std::min(1.0, static_cast<double>(m_pan) * 2.0);
-    left *= gainL;
-    right *= gainR;
-}
+    static std::string typeIdString();
+    std::string type() const override;
+    std::string typeId() const override;
 
-std::string PanningEffect::typeIdString()
-{
-    return "c3d4e5f6-a7b8-4c9d-0e1f-2a3b4c5d6e7f";
-}
+    void process(double & left, double & right) override;
+    void process(AudioContext & context) override;
+    void sync() override;
+    void setBpm(float bpm) override;
 
-std::string PanningEffect::type() const
-{
-    return "panning";
-}
+private:
+    Lfo m_lfo;
+    double m_intensity { 1.0 };
+    double m_rate { 0.5 };
+    double m_syncDivision { 0.25 };
+    bool m_sync { false };
 
-std::string PanningEffect::typeId() const
-{
-    return typeIdString();
-}
+    void updateLfoFrequency();
+};
 
 } // namespace noteahead
+
+#endif // AUTO_PANNER_EFFECT_HPP

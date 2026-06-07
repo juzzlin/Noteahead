@@ -16,7 +16,7 @@
 #ifndef CHORUS_EFFECT_HPP
 #define CHORUS_EFFECT_HPP
 
-#include "../devices/effect.hpp"
+#include "domain/effects/effect.hpp"
 #include "cascaded_svf.hpp"
 #include "lfo.hpp"
 

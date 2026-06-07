@@ -13,11 +13,11 @@
 // You should have received a copy of the GNU General Public License
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
-#include "effect_rack.hpp"
+#include "domain/effects/effect_rack.hpp"
 
 #include "common/constants.hpp"
 #include "common/utils.hpp"
-#include "effect_factory.hpp"
+#include "domain/effects/effect_factory.hpp"
 
 #include <QXmlStreamReader>
 

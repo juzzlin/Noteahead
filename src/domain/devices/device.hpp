@@ -20,7 +20,7 @@
 
 #include "../dsp/audio_context.hpp"
 #include "../parameter_container.hpp"
-#include "effect_rack.hpp"
+#include "domain/effects/effect_rack.hpp"
 
 #include <cstdint>
 #include <mutex>

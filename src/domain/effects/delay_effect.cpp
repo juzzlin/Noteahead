@@ -13,10 +13,10 @@
 // You should have received a copy of the GNU General Public License
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
-#include "delay_effect.hpp"
+#include "domain/effects/delay_effect.hpp"
 
 #include "common/constants.hpp"
-#include "../dsp/audio_context.hpp"
+#include "domain/dsp/audio_context.hpp"
 
 #include <algorithm>
 #include <cmath>

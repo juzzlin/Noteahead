@@ -6,18 +6,18 @@ set(SRC
     ../../common/constants.cpp
     ../../common/parameter_mapper.cpp
     ../../common/utils.cpp
-    ../../domain/devices/effect_factory.cpp
+    ../../domain/effects/effect_factory.cpp
     ../../domain/devices/device.cpp
-    ../../domain/devices/delay_effect.cpp
-    ../../domain/devices/effect.cpp
+    ../../domain/effects/delay_effect.cpp
+    ../../domain/effects/effect.cpp
     ../../domain/dsp/lfo.cpp
-    ../../domain/devices/auto_panner_effect.cpp
-    ../../domain/devices/effect_rack.cpp
-    ../../domain/devices/high_pass_filter_effect.cpp
-    ../../domain/devices/low_pass_filter_effect.cpp
-    ../../domain/devices/panner_effect.cpp
-    ../../domain/devices/panning_effect.cpp
-    ../../domain/devices/volume_effect.cpp
+    ../../domain/effects/auto_panner_effect.cpp
+    ../../domain/effects/effect_rack.cpp
+    ../../domain/effects/high_pass_filter_effect.cpp
+    ../../domain/effects/low_pass_filter_effect.cpp
+    ../../domain/effects/panner_effect.cpp
+    ../../domain/effects/panning_effect.cpp
+    ../../domain/effects/volume_effect.cpp
     ../../domain/dsp/cascaded_svf.cpp
     ../../domain/dsp/diode_ladder_filter.cpp
     ../../domain/dsp/compressor_effect.cpp

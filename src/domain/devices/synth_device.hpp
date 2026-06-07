@@ -22,7 +22,7 @@
 #include "../dsp/multi_engine.hpp"
 #include "../dsp/oversampler.hpp"
 #include "../dsp/poly_blep_oscillator.hpp"
-#include "delay_effect.hpp"
+#include "domain/effects/delay_effect.hpp"
 #include "device.hpp"
 #include "synth_presets.hpp"
 

@@ -13,9 +13,9 @@
 // You should have received a copy of the GNU General Public License
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
-#include "high_pass_filter_effect.hpp"
+#include "domain/effects/low_pass_filter_effect.hpp"
 #include "common/utils.hpp"
-#include "../dsp/audio_context.hpp"
+#include "domain/dsp/audio_context.hpp"
 
 #include <algorithm>
 #include <cmath>
@@ -23,34 +23,34 @@
 
 namespace noteahead {
 
-void HighPassFilterEffect::setCutoff(float cutoff)
+void LowPassFilterEffect::setCutoff(double cutoff)
 {
     m_cutoff = cutoff;
 }
 
-void HighPassFilterEffect::process(double & left, double & right)
+void LowPassFilterEffect::process(double & left, double & right)
 {
-    if (m_cutoff <= 0.001f) {
+    if (m_cutoff >= 0.999) {
         return;
     }
 
     // Zero-Delay Feedback State Variable Filter (2nd order)
-    const float freq = Utils::Dsp::cutoffToHz(m_cutoff, static_cast<float>(m_sampleRate));
-    const double g = std::tan(std::numbers::pi * static_cast<double>(freq) / m_sampleRate);
-    const double k = 1.0; // Q = 1.0 / k
+    const double freq = Utils::Dsp::cutoffToHz(static_cast<float>(m_cutoff), static_cast<float>(m_sampleRate));
+    const double g = std::tan(std::numbers::pi * freq / m_sampleRate);
+    const double k = 1.0; // Q = 1.0 / k. Using k = 1.0 for Q = 1.0 (slight resonance)
     const double damping = 1.0 / (1.0 + g * (g + k));
 
     processSample(left, right, g, damping, k);
 }
 
-void HighPassFilterEffect::process(AudioContext & context)
+void LowPassFilterEffect::process(AudioContext & context)
 {
-    if (m_cutoff <= 0.001f) {
+    if (m_cutoff >= 0.999) {
         return;
     }
 
-    const float freq = Utils::Dsp::cutoffToHz(m_cutoff, static_cast<float>(m_sampleRate));
-    const double g = std::tan(std::numbers::pi * static_cast<double>(freq) / m_sampleRate);
+    const double freq = Utils::Dsp::cutoffToHz(static_cast<float>(m_cutoff), static_cast<float>(m_sampleRate));
+    const double g = std::tan(std::numbers::pi * freq / m_sampleRate);
     const double k = 1.0;
     const double damping = 1.0 / (1.0 + g * (g + k));
 
@@ -59,7 +59,7 @@ void HighPassFilterEffect::process(AudioContext & context)
     }
 }
 
-void HighPassFilterEffect::processSample(double & left, double & right, double g, double damping, double k)
+void LowPassFilterEffect::processSample(double & left, double & right, double g, double damping, double k)
 {
     // Left channel
     {
@@ -70,7 +70,7 @@ void HighPassFilterEffect::processSample(double & left, double & right, double g
         const double v2 = g * v;
         const double lp = v2 + m_s2L;
         m_s2L = v2 + lp;
-        left = hp;
+        left = lp;
     }
 
     // Right channel
@@ -82,7 +82,7 @@ void HighPassFilterEffect::processSample(double & left, double & right, double g
         const double v2 = g * v;
         const double lp = v2 + m_s2R;
         m_s2R = v2 + lp;
-        right = hp;
+        right = lp;
     }
 
     // Denormal protection
@@ -103,23 +103,23 @@ void HighPassFilterEffect::processSample(double & left, double & right, double g
     }
 }
 
-void HighPassFilterEffect::reset()
+void LowPassFilterEffect::reset()
 {
     m_s1L = m_s2L = 0.0;
     m_s1R = m_s2R = 0.0;
 }
 
-std::string HighPassFilterEffect::typeIdString()
+std::string LowPassFilterEffect::typeIdString()
 {
-    return "a1b2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5d";
+    return "b2c3d4e5-f6a7-4b8c-9d0e-1f2a3b4c5d6e";
 }
 
-std::string HighPassFilterEffect::type() const
+std::string LowPassFilterEffect::type() const
 {
-    return "highPassFilter";
+    return "lowPassFilter";
 }
 
-std::string HighPassFilterEffect::typeId() const
+std::string LowPassFilterEffect::typeId() const
 {
     return typeIdString();
 }

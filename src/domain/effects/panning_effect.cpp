@@ -13,58 +13,38 @@
 // You should have received a copy of the GNU General Public License
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
-#include "effect.hpp"
-
-#include "../dsp/audio_context.hpp"
+#include "domain/effects/panning_effect.hpp"
 
 #include <algorithm>
 
 namespace noteahead {
 
-Effect::~Effect() = default;
-
-Effect::StringList Effect::parameterNames() const
+void PanningEffect::setPan(float pan)
 {
-    StringList names;
-    for (const auto & [name, p] : parameters()) {
-        names.push_back(name);
-    }
-    return names;
+    m_pan = pan;
 }
 
-void Effect::process(AudioContext & context)
+void PanningEffect::process(double & left, double & right)
 {
-    for (uint32_t i = 0; i < context.frameCount; i++) {
-        process(context.buffer[i * 2], context.buffer[i * 2 + 1]);
-    }
+    const double gainL = std::min(1.0, 2.0 - static_cast<double>(m_pan) * 2.0);
+    const double gainR = std::min(1.0, static_cast<double>(m_pan) * 2.0);
+    left *= gainL;
+    right *= gainR;
 }
 
-bool Effect::enabled() const
+std::string PanningEffect::typeIdString()
 {
-    return m_enabled;
+    return "c3d4e5f6-a7b8-4c9d-0e1f-2a3b4c5d6e7f";
 }
 
-void Effect::setEnabled(bool enabled)
+std::string PanningEffect::type() const
 {
-    m_enabled = enabled;
+    return "panning";
 }
 
-void Effect::reset()
+std::string PanningEffect::typeId() const
 {
-}
-
-void Effect::sync()
-{
-}
-
-void Effect::setBpm(float bpm)
-{
-    m_bpm = std::max(1.0f, bpm);
-}
-
-float Effect::bpm() const
-{
-    return m_bpm;
+    return typeIdString();
 }
 
 } // namespace noteahead

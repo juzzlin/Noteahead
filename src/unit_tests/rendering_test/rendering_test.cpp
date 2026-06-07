@@ -6,7 +6,7 @@
 #include "common/constants.hpp"
 #include "domain/devices/device_factory.hpp"
 #include "domain/devices/drum_synth_device.hpp"
-#include "domain/devices/effect_factory.hpp"
+#include "domain/effects/effect_factory.hpp"
 #include "domain/devices/sampler_device.hpp"
 #include "domain/devices/synth_device.hpp"
 #include "domain/event.hpp"

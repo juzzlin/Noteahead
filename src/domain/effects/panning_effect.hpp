@@ -13,34 +13,27 @@
 // You should have received a copy of the GNU General Public License
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
-#include "volume_effect.hpp"
+#ifndef PANNING_EFFECT_HPP
+#define PANNING_EFFECT_HPP
+
+#include "domain/effects/effect.hpp"
 
 namespace noteahead {
 
-void VolumeEffect::setVolume(float volume)
+class PanningEffect : public Effect
 {
-    m_volume = volume;
-}
+public:
+    static std::string typeIdString();
+    std::string type() const override;
+    std::string typeId() const override;
 
-void VolumeEffect::process(double & left, double & right)
-{
-    left *= m_volume;
-    right *= m_volume;
-}
+    void setPan(float pan);
+    void process(double & left, double & right) override;
 
-std::string VolumeEffect::typeIdString()
-{
-    return "d4e5f6a7-b8c9-4d0e-1f2a-3b4c5d6e7f8a";
-}
-
-std::string VolumeEffect::type() const
-{
-    return "volume";
-}
-
-std::string VolumeEffect::typeId() const
-{
-    return typeIdString();
-}
+private:
+    float m_pan { 0.5f };
+};
 
 } // namespace noteahead
+
+#endif // PANNING_EFFECT_HPP

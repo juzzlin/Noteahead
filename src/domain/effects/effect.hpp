@@ -18,8 +18,8 @@
 
 #include <string>
 
-#include "../dsp/dsp_component.hpp"
-#include "../parameter_container.hpp"
+#include "domain/dsp/dsp_component.hpp"
+#include "domain/parameter_container.hpp"
 
 namespace noteahead {
 

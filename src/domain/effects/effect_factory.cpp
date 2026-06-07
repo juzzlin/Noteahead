@@ -13,15 +13,15 @@
 // You should have received a copy of the GNU General Public License
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
-#include "effect_factory.hpp"
+#include "domain/effects/effect_factory.hpp"
 
-#include "../dsp/chorus_effect.hpp"
-#include "../dsp/clipper_effect.hpp"
-#include "../dsp/compressor_effect.hpp"
-#include "../dsp/eq_8_band_parametric_effect.hpp"
-#include "../dsp/reverb_effect.hpp"
-#include "auto_panner_effect.hpp"
-#include "panner_effect.hpp"
+#include "domain/dsp/chorus_effect.hpp"
+#include "domain/dsp/clipper_effect.hpp"
+#include "domain/dsp/compressor_effect.hpp"
+#include "domain/dsp/eq_8_band_parametric_effect.hpp"
+#include "domain/dsp/reverb_effect.hpp"
+#include "domain/effects/auto_panner_effect.hpp"
+#include "domain/effects/panner_effect.hpp"
 
 #include <map>
 

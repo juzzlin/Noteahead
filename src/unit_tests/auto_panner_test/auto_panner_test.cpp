@@ -15,7 +15,7 @@
 
 #include "auto_panner_test.hpp"
 #include "common/constants.hpp"
-#include "domain/devices/auto_panner_effect.hpp"
+#include "domain/effects/auto_panner_effect.hpp"
 
 #include <QTest>
 

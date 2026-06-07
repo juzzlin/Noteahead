@@ -4,24 +4,24 @@ set(HEADER_FILES
     automation_location.hpp
     column.hpp
     column_settings.hpp
-    devices/auto_panner_effect.hpp
+    effects/auto_panner_effect.hpp
     devices/bass_synth_device.hpp
-    devices/delay_effect.hpp
+    effects/delay_effect.hpp
     devices/device.hpp
     devices/device_factory.hpp
     devices/drum_synth_constants.hpp
     devices/drum_synth_device.hpp
-    devices/effect.hpp
-    devices/effect_factory.hpp
-    devices/effect_rack.hpp
-    devices/high_pass_filter_effect.hpp
-    devices/low_pass_filter_effect.hpp
-    devices/panner_effect.hpp
-    devices/panning_effect.hpp
+    effects/effect.hpp
+    effects/effect_factory.hpp
+    effects/effect_rack.hpp
+    effects/high_pass_filter_effect.hpp
+    effects/low_pass_filter_effect.hpp
+    effects/panner_effect.hpp
+    effects/panning_effect.hpp
     devices/sampler_device.hpp
     devices/synth_device.hpp
     devices/synth_presets.hpp
-    devices/volume_effect.hpp
+    effects/volume_effect.hpp
     dsp/adsr_envelope.hpp
     dsp/cascaded_svf.hpp
     dsp/clipper_effect.hpp
@@ -76,25 +76,25 @@ set(SOURCE_FILES
     automation_location.cpp
     column.cpp
     column_settings.cpp
-    devices/auto_panner_effect.cpp
+    effects/auto_panner_effect.cpp
     devices/bass_synth_device.cpp
-    devices/delay_effect.cpp
+    effects/delay_effect.cpp
     devices/device.cpp
     devices/device_factory.cpp
     devices/device_registration.cpp
     devices/drum_synth_constants.cpp
     devices/drum_synth_device.cpp
-    devices/effect.cpp
-    devices/effect_factory.cpp
-    devices/effect_rack.cpp
-    devices/high_pass_filter_effect.cpp
-    devices/low_pass_filter_effect.cpp
-    devices/panner_effect.cpp
-    devices/panning_effect.cpp
+    effects/effect.cpp
+    effects/effect_factory.cpp
+    effects/effect_rack.cpp
+    effects/high_pass_filter_effect.cpp
+    effects/low_pass_filter_effect.cpp
+    effects/panner_effect.cpp
+    effects/panning_effect.cpp
     devices/sampler_device.cpp
     devices/synth_device.cpp
     devices/synth_presets.cpp
-    devices/volume_effect.cpp
+    effects/volume_effect.cpp
     dsp/adsr_envelope.cpp
     dsp/cascaded_svf.cpp
     dsp/chorus_effect.cpp

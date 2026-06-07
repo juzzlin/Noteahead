@@ -6,12 +6,12 @@ set(SRC
     ../../common/constants.cpp
     ../../common/parameter_mapper.cpp
     ../../common/utils.cpp
-    ../../domain/devices/delay_effect.cpp
-    ../../domain/devices/effect.cpp
-    ../../domain/devices/high_pass_filter_effect.cpp
-    ../../domain/devices/low_pass_filter_effect.cpp
-    ../../domain/devices/panning_effect.cpp
-    ../../domain/devices/volume_effect.cpp
+    ../../domain/effects/delay_effect.cpp
+    ../../domain/effects/effect.cpp
+    ../../domain/effects/high_pass_filter_effect.cpp
+    ../../domain/effects/low_pass_filter_effect.cpp
+    ../../domain/effects/panning_effect.cpp
+    ../../domain/effects/volume_effect.cpp
     ../../domain/dsp/svf_filter.cpp
     ../../domain/dsp/cascaded_svf.cpp
     ../../domain/dsp/diode_ladder_filter.cpp
