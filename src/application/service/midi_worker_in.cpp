@@ -16,8 +16,8 @@
 #include "midi_worker_in.hpp"
 
 #include "contrib/SimpleLogger/src/simple_logger.hpp"
-#include "domain/midi_address.hpp"
-#include "domain/midi_note_data.hpp"
+#include "domain/midi/midi_address.hpp"
+#include "domain/midi/midi_note_data.hpp"
 #include "infra/midi/implementation/librtmidi/midi_in_rt_midi.hpp"
 
 #include <iomanip>

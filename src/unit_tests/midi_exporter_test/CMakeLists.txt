@@ -28,16 +28,16 @@ set(SRC
     ../../domain/interpolator.cpp
     ../../domain/line.cpp
     ../../domain/line_event.cpp
-    ../../domain/midi_address.cpp
-    ../../domain/midi_cc_automation.cpp
-    ../../domain/midi_cc_data.cpp
-    ../../domain/midi_cc_setting.cpp
+    ../../domain/midi/midi_address.cpp
+    ../../domain/midi/midi_cc_automation.cpp
+    ../../domain/midi/midi_cc_data.cpp
+    ../../domain/midi/midi_cc_setting.cpp
     ../../domain/mixer_unit.cpp
     ../../domain/note_data.cpp
     ../../domain/note_data_manipulator.cpp
     ../../domain/pattern.cpp
-    ../../domain/pitch_bend_automation.cpp
-    ../../domain/pitch_bend_data.cpp
+    ../../domain/midi/pitch_bend_automation.cpp
+    ../../domain/midi/pitch_bend_data.cpp
     ../../domain/play_order.cpp
     ../../domain/song.cpp
     ../../domain/track.cpp

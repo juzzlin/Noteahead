@@ -16,7 +16,7 @@
 #include "pitch_bend_automations_model_test.hpp"
 
 #include "application/models/pitch_bend_automations_model.hpp"
-#include "domain/pitch_bend_automation.hpp"
+#include "domain/midi/pitch_bend_automation.hpp"
 
 #include <QSignalSpy>
 #include <QTest>

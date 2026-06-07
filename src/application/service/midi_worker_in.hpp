@@ -18,7 +18,7 @@
 
 #include "midi_worker.hpp"
 
-#include "domain/midi_address.hpp"
+#include "domain/midi/midi_address.hpp"
 
 #include <QObject>
 

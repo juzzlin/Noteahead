@@ -18,8 +18,8 @@
 #include "common/constants.hpp"
 #include "contrib/SimpleLogger/src/simple_logger.hpp"
 #include "domain/interpolator.hpp"
-#include "domain/midi_cc_data.hpp"
-#include "domain/pitch_bend_data.hpp"
+#include "domain/midi/midi_cc_data.hpp"
+#include "domain/midi/pitch_bend_data.hpp"
 #include "../position.hpp"
 #include "property_service.hpp"
 

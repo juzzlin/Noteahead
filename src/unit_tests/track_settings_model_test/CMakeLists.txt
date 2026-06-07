@@ -11,8 +11,8 @@ set(SRC
     ../../domain/instrument.cpp
     ../../domain/instrument_settings.cpp
     ../../domain/event_data.cpp
-    ../../domain/midi_address.cpp
-    ../../domain/midi_cc_setting.cpp
+    ../../domain/midi/midi_address.cpp
+    ../../domain/midi/midi_cc_setting.cpp
     ../../infra/midi/midi_cc_mapping.cpp
 )
 qt_add_executable(${NAME} ${SRC})

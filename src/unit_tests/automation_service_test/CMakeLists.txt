@@ -16,11 +16,11 @@ set(SRC
     ../../domain/event.cpp
     ../../domain/event_data.cpp
     ../../domain/interpolator.cpp
-    ../../domain/midi_cc_automation.cpp
-    ../../domain/midi_cc_data.cpp
+    ../../domain/midi/midi_cc_automation.cpp
+    ../../domain/midi/midi_cc_data.cpp
     ../../domain/note_data.cpp
-    ../../domain/pitch_bend_automation.cpp
-    ../../domain/pitch_bend_data.cpp
+    ../../domain/midi/pitch_bend_automation.cpp
+    ../../domain/midi/pitch_bend_data.cpp
     ../../infra/midi/midi_cc_mapping.cpp
 )
 qt_add_executable(${NAME} ${SRC})

@@ -28,7 +28,7 @@
 #include "domain/effects/effect_factory.hpp"
 #include "domain/devices/sampler_device.hpp"
 #include "domain/devices/synth_device.hpp"
-#include "domain/midi_note_data.hpp"
+#include "domain/midi/midi_note_data.hpp"
 #include "infra/audio/audio_engine.hpp"
 #include "infra/audio/backend/audio_file_reader.hpp"
 #include "infra/audio/backend/sndfile_reader.hpp"

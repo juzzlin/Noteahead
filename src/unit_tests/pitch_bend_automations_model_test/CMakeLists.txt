@@ -9,7 +9,7 @@ set(SRC
     ../../common/utils.cpp
     ../../domain/automation.cpp
     ../../domain/automation_location.cpp
-    ../../domain/pitch_bend_automation.cpp
+    ../../domain/midi/pitch_bend_automation.cpp
 )
 qt_add_executable(${NAME} ${SRC})
 set_target_properties(${NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${UNIT_TEST_BASE_DIR})

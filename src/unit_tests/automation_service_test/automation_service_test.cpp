@@ -19,7 +19,7 @@
 #include "application/service/automation_service.hpp"
 #include "application/service/property_service.hpp"
 #include "domain/interpolator.hpp"
-#include "domain/midi_cc_automation.hpp"
+#include "domain/midi/midi_cc_automation.hpp"
 
 #include <QSignalSpy>
 #include <QTest>

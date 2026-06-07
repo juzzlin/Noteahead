@@ -12,7 +12,7 @@
 #include "domain/event.hpp"
 #include "domain/instrument.hpp"
 #include "domain/note_data.hpp"
-#include "domain/pitch_bend_data.hpp"
+#include "domain/midi/pitch_bend_data.hpp"
 #include "infra/audio/audio_engine.hpp"
 #include "infra/audio/backend/audio_file_reader.hpp"
 

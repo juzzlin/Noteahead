@@ -24,7 +24,7 @@
 
 #include "application/note_converter.hpp"
 #include "domain/instrument.hpp"
-#include "domain/midi_note_data.hpp"
+#include "domain/midi/midi_note_data.hpp"
 
 #include <QSignalSpy>
 #include <QTest>

@@ -16,7 +16,7 @@
 #ifndef MIDI_IMPORTER_HPP
 #define MIDI_IMPORTER_HPP
 
-#include "domain/midi_import_mode.hpp"
+#include "domain/midi/midi_import_mode.hpp"
 
 #include <cstdint>
 #include <istream>

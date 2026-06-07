@@ -50,20 +50,20 @@ set(HEADER_FILES
     interpolator.hpp
     line.hpp
     line_event.hpp
-    midi_address.hpp
-    midi_cc_automation.hpp
-    midi_cc_data.hpp
-    midi_cc_setting.hpp
-    midi_import_mode.hpp
-    midi_note_data.hpp
+    midi/midi_address.hpp
+    midi/midi_cc_automation.hpp
+    midi/midi_cc_data.hpp
+    midi/midi_cc_setting.hpp
+    midi/midi_import_mode.hpp
+    midi/midi_note_data.hpp
     mixer_unit.hpp
     note_data.hpp
     note_data_manipulator.hpp
     parameter.hpp
     parameter_container.hpp
     pattern.hpp
-    pitch_bend_automation.hpp
-    pitch_bend_data.hpp
+    midi/pitch_bend_automation.hpp
+    midi/pitch_bend_data.hpp
     play_order.hpp
     side_chain_settings.hpp
     song.hpp
@@ -123,19 +123,19 @@ set(SOURCE_FILES
     interpolator.cpp
     line.cpp
     line_event.cpp
-    midi_address.cpp
-    midi_cc_automation.cpp
-    midi_cc_data.cpp
-    midi_cc_setting.cpp
-    midi_note_data.cpp
+    midi/midi_address.cpp
+    midi/midi_cc_automation.cpp
+    midi/midi_cc_data.cpp
+    midi/midi_cc_setting.cpp
+    midi/midi_note_data.cpp
     mixer_unit.cpp
     note_data.cpp
     note_data_manipulator.cpp
     parameter.cpp
     parameter_container.cpp
     pattern.cpp
-    pitch_bend_automation.cpp
-    pitch_bend_data.cpp
+    midi/pitch_bend_automation.cpp
+    midi/pitch_bend_data.cpp
     play_order.cpp
     song.cpp
     track.cpp

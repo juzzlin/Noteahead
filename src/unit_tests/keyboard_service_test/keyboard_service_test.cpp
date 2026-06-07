@@ -21,7 +21,7 @@
 #include "application/service/player_service.hpp"
 #include "application/service/selection_service.hpp"
 #include "application/service/settings_service.hpp"
-#include "domain/midi_note_data.hpp"
+#include "domain/midi/midi_note_data.hpp"
 
 #include <QSettings>
 #include <QSignalSpy>

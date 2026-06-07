@@ -20,7 +20,7 @@
 #include "application/service/player_worker.hpp"
 #include "domain/event.hpp"
 #include "domain/instrument.hpp"
-#include "domain/midi_note_data.hpp"
+#include "domain/midi/midi_note_data.hpp"
 #include "domain/note_data.hpp"
 
 #include <QTest>

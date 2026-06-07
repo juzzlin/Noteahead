@@ -9,7 +9,7 @@ set(SRC
     ../../common/utils.cpp
     ../../domain/event_data.cpp
     ../../domain/instrument_settings.cpp
-    ../../domain/midi_cc_setting.cpp
+    ../../domain/midi/midi_cc_setting.cpp
 )
 qt_add_executable(${NAME} ${SRC})
 set_target_properties(${NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${UNIT_TEST_BASE_DIR})

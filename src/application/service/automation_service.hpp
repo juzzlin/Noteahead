@@ -23,8 +23,8 @@
 #include <vector>
 
 #include "domain/event.hpp"
-#include "domain/midi_cc_automation.hpp"
-#include "domain/pitch_bend_automation.hpp"
+#include "domain/midi/midi_cc_automation.hpp"
+#include "domain/midi/pitch_bend_automation.hpp"
 
 class QXmlStreamReader;
 class QXmlStreamWriter;
