@@ -21,6 +21,7 @@ set(HEADER_FILES
     devices/sampler_device.hpp
     devices/synth_device.hpp
     devices/synth_presets.hpp
+    devices/wavetable_synth_device.hpp
     effects/volume_effect.hpp
     dsp/adsr_envelope.hpp
     dsp/cascaded_svf.hpp
@@ -43,6 +44,7 @@ set(HEADER_FILES
     dsp/poly_blep_oscillator.hpp
     dsp/reverb_effect.hpp
     dsp/svf_filter.hpp
+    dsp/wavetable_oscillator.hpp
     tracker/event.hpp
     tracker/event_data.hpp
     tracker/instrument.hpp
@@ -95,6 +97,7 @@ set(SOURCE_FILES
     devices/sampler_device.cpp
     devices/synth_device.cpp
     devices/synth_presets.cpp
+    devices/wavetable_synth_device.cpp
     effects/volume_effect.cpp
     dsp/adsr_envelope.cpp
     dsp/cascaded_svf.cpp
@@ -117,6 +120,8 @@ set(SOURCE_FILES
     dsp/poly_blep_oscillator.cpp
     dsp/reverb_effect.cpp
     dsp/svf_filter.cpp
+    dsp/wavetable.cpp
+    dsp/wavetable_oscillator.cpp
     tracker/event.cpp
     tracker/event_data.cpp
     tracker/instrument.cpp

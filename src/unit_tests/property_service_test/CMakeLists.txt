@@ -13,6 +13,9 @@ set(SRC
     ../../domain/devices/device.cpp
     ../../domain/devices/sampler_device.cpp
     ../../domain/devices/synth_device.cpp
+    ../../domain/devices/wavetable_synth_device.cpp
+        ../../domain/dsp/wavetable.cpp
+    ../../domain/dsp/wavetable_oscillator.cpp
     ../../domain/devices/bass_synth_device.cpp
     ../../domain/devices/drum_synth_device.cpp
     ../../domain/devices/drum_synth_constants.cpp

@@ -97,6 +97,11 @@ QString synthDeviceName()
     return "Noteahead Synth";
 }
 
+QString wavetableSynthDeviceName()
+{
+    return "Noteahead WavetableSynth";
+}
+
 QString bassSynthDeviceName()
 {
     return "Noteahead BassSynth";
@@ -1255,6 +1260,156 @@ QString xmlKeySynthVco3Shape()
 QString xmlKeySynthVco3Sync()
 {
     return "vco3Sync";
+}
+
+QString xmlKeyWavetableSynthOsc1Pos()
+{
+    return "wavetableSynthOsc1Pos";
+}
+
+QString xmlKeyWavetableSynthOsc1Octave()
+{
+    return "wavetableSynthOsc1Octave";
+}
+
+QString xmlKeyWavetableSynthOsc1Pitch()
+{
+    return "wavetableSynthOsc1Pitch";
+}
+
+QString xmlKeyWavetableSynthOsc1Level()
+{
+    return "wavetableSynthOsc1Level";
+}
+
+QString xmlKeyWavetableSynthOsc2Pos()
+{
+    return "wavetableSynthOsc2Pos";
+}
+
+QString xmlKeyWavetableSynthOsc2Octave()
+{
+    return "wavetableSynthOsc2Octave";
+}
+
+QString xmlKeyWavetableSynthOsc2Pitch()
+{
+    return "wavetableSynthOsc2Pitch";
+}
+
+QString xmlKeyWavetableSynthOsc2Level()
+{
+    return "wavetableSynthOsc2Level";
+}
+
+QString xmlKeyWavetableSynthNoiseLevel()
+{
+    return "wavetableSynthNoiseLevel";
+}
+
+QString xmlKeyWavetableSynthLpfCutoff()
+{
+    return "wavetableSynthLpfCutoff";
+}
+
+QString xmlKeyWavetableSynthLpfResonance()
+{
+    return "wavetableSynthLpfResonance";
+}
+
+QString xmlKeyWavetableSynthHpfCutoff()
+{
+    return "wavetableSynthHpfCutoff";
+}
+
+QString xmlKeyWavetableSynthAmpAttack()
+{
+    return "wavetableSynthAmpAttack";
+}
+
+QString xmlKeyWavetableSynthAmpDecay()
+{
+    return "wavetableSynthAmpDecay";
+}
+
+QString xmlKeyWavetableSynthAmpSustain()
+{
+    return "wavetableSynthAmpSustain";
+}
+
+QString xmlKeyWavetableSynthAmpRelease()
+{
+    return "wavetableSynthAmpRelease";
+}
+
+QString xmlKeyWavetableSynthModAttack()
+{
+    return "wavetableSynthModAttack";
+}
+
+QString xmlKeyWavetableSynthModDecay()
+{
+    return "wavetableSynthModDecay";
+}
+
+QString xmlKeyWavetableSynthModIntensity()
+{
+    return "wavetableSynthModIntensity";
+}
+
+QString xmlKeyWavetableSynthModTarget()
+{
+    return "wavetableSynthModTarget";
+}
+
+QString xmlKeyWavetableSynthLfoWaveform()
+{
+    return "wavetableSynthLfoWaveform";
+}
+
+QString xmlKeyWavetableSynthLfoMode()
+{
+    return "wavetableSynthLfoMode";
+}
+
+QString xmlKeyWavetableSynthLfoRate()
+{
+    return "wavetableSynthLfoRate";
+}
+
+QString xmlKeyWavetableSynthLfoIntensity()
+{
+    return "wavetableSynthLfoIntensity";
+}
+
+QString xmlKeyWavetableSynthLfoTarget()
+{
+    return "wavetableSynthLfoTarget";
+}
+
+QString xmlKeyWavetableSynthVoiceMode()
+{
+    return "wavetableSynthVoiceMode";
+}
+
+QString xmlKeyWavetableSynthVoiceDepth()
+{
+    return "wavetableSynthVoiceDepth";
+}
+
+QString xmlKeyWavetableSynthPanSpread()
+{
+    return "wavetableSynthPanSpread";
+}
+
+QString xmlKeyWavetableSynthPortamento()
+{
+    return "wavetableSynthPortamento";
+}
+
+QString xmlKeyWavetableSynthWavetableIndex()
+{
+    return "wavetableSynthWavetableIndex";
 }
 
 QString xmlKeySynthMultiMode()

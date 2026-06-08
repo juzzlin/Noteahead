@@ -74,6 +74,7 @@ class ThemeService;
 class TrackSettingsModel;
 class UiLogger;
 class UtilService;
+class WavetableSynthController;
 
 class Application : public QObject
 {
@@ -149,6 +150,7 @@ private:
     std::shared_ptr<DeviceService> m_deviceService;
     std::shared_ptr<SamplerController> m_samplerController;
     std::shared_ptr<SynthController> m_synthController;
+    std::shared_ptr<WavetableSynthController> m_wavetableSynthController;
     std::shared_ptr<BassSynthController> m_bassSynthController;
     std::shared_ptr<DrumSynthController> m_drumSynthController;
     std::shared_ptr<EffectRackController> m_effectRackController;

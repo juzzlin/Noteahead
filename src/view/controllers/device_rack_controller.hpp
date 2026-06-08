@@ -76,6 +76,7 @@ public:
 
     Q_INVOKABLE void addSampler();
     Q_INVOKABLE void addSynth();
+    Q_INVOKABLE void addWavetableSynth();
     Q_INVOKABLE void addBassSynth();
     Q_INVOKABLE void addDrumSynth();
     Q_INVOKABLE void removeDevice(const QString & name);
@@ -85,6 +86,7 @@ signals:
     void revisionChanged();
     void samplerDialogRequested();
     void synthDialogRequested();
+    void wavetableSynthDialogRequested();
     void bassSynthDialogRequested();
     void drumSynthDialogRequested();
     void effectSendsDialogRequested(const QString & deviceName);

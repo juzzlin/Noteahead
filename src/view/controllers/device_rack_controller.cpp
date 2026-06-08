@@ -24,6 +24,7 @@
 #include "domain/devices/drum_synth_device.hpp"
 #include "domain/devices/sampler_device.hpp"
 #include "domain/devices/synth_device.hpp"
+#include "domain/devices/wavetable_synth_device.hpp"
 #include "drum_synth_controller.hpp"
 #include "sampler_controller.hpp"
 #include "synth_controller.hpp"
@@ -124,6 +125,8 @@ void DeviceRackController::openDevice(const QString & name)
                     emit samplerDialogRequested();
                 } else if (typeId == SynthDevice::typeIdString()) {
                     emit synthDialogRequested();
+                } else if (typeId == WavetableSynthDevice::typeIdString()) {
+                    emit wavetableSynthDialogRequested();
                 } else if (typeId == BassSynthDevice::typeIdString()) {
                     emit bassSynthDialogRequested();
                 } else if (typeId == DrumSynthDevice::typeIdString()) {
@@ -218,6 +221,7 @@ QVariantList DeviceRackController::availableDevices() const
 
     addDevice("Sampler", QString::fromStdString(SamplerDevice::typeIdString()));
     addDevice("Synth", QString::fromStdString(SynthDevice::typeIdString()));
+    addDevice("Wavetable Synth", QString::fromStdString(WavetableSynthDevice::typeIdString()));
     addDevice("Bass Synth", QString::fromStdString(BassSynthDevice::typeIdString()));
     addDevice("Drum Synth", QString::fromStdString(DrumSynthDevice::typeIdString()));
 
@@ -239,6 +243,16 @@ void DeviceRackController::addSynth()
     for (int i = 0; i < deviceCount(); i++) {
         if (!m_deviceService->device(static_cast<size_t>(i))) {
             setDevice(i, QString::fromStdString(SynthDevice::typeIdString()));
+            return;
+        }
+    }
+}
+
+void DeviceRackController::addWavetableSynth()
+{
+    for (int i = 0; i < deviceCount(); i++) {
+        if (!m_deviceService->device(static_cast<size_t>(i))) {
+            setDevice(i, QString::fromStdString(WavetableSynthDevice::typeIdString()));
             return;
         }
     }

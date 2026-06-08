@@ -8,6 +8,8 @@ set(DSP_SOURCES
     oversampler.cpp
     poly_blep_oscillator.cpp
     svf_filter.cpp
+    wavetable.cpp
+    wavetable_oscillator.cpp
     drum/clap_engine.cpp
     drum/crash_engine.cpp
     drum/hihat_engine.cpp

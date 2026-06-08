@@ -53,6 +53,14 @@ set(QML_SOURCE_FILES
     ${QML_BASE_DIR}/Dialogs/DelayCalculatorDialog.qml
     ${QML_BASE_DIR}/Dialogs/DeleteUnusedPatternsDialog.qml
     ${QML_BASE_DIR}/Dialogs/DrumSynthDialog.qml
+    ${QML_BASE_DIR}/Dialogs/WavetableSynthDialog.qml
+    ${QML_BASE_DIR}/Dialogs/WavetableSynthDialog_Envelopes.qml
+    ${QML_BASE_DIR}/Dialogs/WavetableSynthDialog_Filter.qml
+    ${QML_BASE_DIR}/Dialogs/WavetableSynthDialog_Global.qml
+    ${QML_BASE_DIR}/Dialogs/WavetableSynthDialog_Lfo.qml
+    ${QML_BASE_DIR}/Dialogs/WavetableSynthDialog_Noise.qml
+    ${QML_BASE_DIR}/Dialogs/WavetableSynthDialog_Osc1.qml
+    ${QML_BASE_DIR}/Dialogs/WavetableSynthDialog_Osc2.qml
     ${QML_BASE_DIR}/Dialogs/BassSynthDialog.qml
     ${QML_BASE_DIR}/Dialogs/BassSynthDialog_Distortion.qml
     ${QML_BASE_DIR}/Dialogs/BassSynthDialog_Filter.qml

@@ -59,6 +59,9 @@ set(SRC
     ../../domain/effects/panner_effect.cpp
     ../../domain/devices/sampler_device.cpp
     ../../domain/devices/synth_device.cpp
+    ../../domain/devices/wavetable_synth_device.cpp
+        ../../domain/dsp/wavetable.cpp
+    ../../domain/dsp/wavetable_oscillator.cpp
     ../../domain/devices/synth_presets.cpp
     ../../domain/effects/volume_effect.cpp
     ../../domain/dsp/adsr_envelope.cpp

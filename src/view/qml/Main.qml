@@ -228,6 +228,12 @@ ApplicationWindow {
         width: parent.width * Constants.largeDialogScale
         height: parent.height * Constants.largeDialogScale
     }
+    WavetableSynthDialog {
+        id: wavetableSynthDialog
+        anchors.centerIn: parent
+        width: parent.width * Constants.largeDialogScale
+        height: parent.height * Constants.largeDialogScale
+    }
     BassSynthDialog {
         id: bassSynthDialog
         anchors.centerIn: parent
@@ -494,6 +500,7 @@ ApplicationWindow {
         deviceRackController.drumSynthDialogRequested.connect(drumSynthDialog.open);
         deviceRackController.samplerDialogRequested.connect(samplerDialog.open);
         deviceRackController.synthDialogRequested.connect(synthDialog.open);
+        deviceRackController.wavetableSynthDialogRequested.connect(wavetableSynthDialog.open);
     }
     function _connectEditorService(): void {
         editorService.errorTextRequested.connect(errorText => {

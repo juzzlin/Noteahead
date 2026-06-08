@@ -86,6 +86,8 @@ All Arctic Music Project songs:
   - Central hub for managing multiple independent instances of internal instruments.
 - Synth
   - Polyphonic VA synthesizer (up to 6 voices) with dual oscillators, multi-mode filters, ADSR/Mod EGs, LFO, and built-in Delay.
+- WavetableSynth
+  - 8-voice wavetable synthesizer with two independent wavetable oscillators (Classic and Spectral sets), noise generator, cascaded LPF/HPF filters, Amp and Mod EGs, LFO, and Poly/Unison voice modes with stereo pan spread. Features 2× oversampling and portamento.
 - BassSynth
   - Monophonic acid-style synthesizer with sub-oscillator, resonant 24dB LPF, and TB-303 style accent/slide.
 - DrumSynth

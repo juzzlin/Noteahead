@@ -86,6 +86,11 @@ QString ApplicationService::synthDeviceName() const
     return Constants::synthDeviceName();
 }
 
+QString ApplicationService::wavetableSynthDeviceName() const
+{
+    return Constants::wavetableSynthDeviceName();
+}
+
 QString ApplicationService::bassSynthDeviceName() const
 {
     return Constants::bassSynthDeviceName();
@@ -149,6 +154,12 @@ void ApplicationService::requestDrumSynthDialog()
 {
     juzzlin::L(TAG).info() << "Drum Synth requested";
     emit drumSynthDialogRequested();
+}
+
+void ApplicationService::requestWavetableSynthDialog()
+{
+    juzzlin::L(TAG).info() << "Wavetable Synth requested";
+    emit wavetableSynthDialogRequested();
 }
 
 void ApplicationService::requestOpenProject()

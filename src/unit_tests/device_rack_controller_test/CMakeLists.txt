@@ -23,6 +23,7 @@ set(SRC
     ../../view/controllers/device_controller.cpp
     ../../view/controllers/drum_synth_controller.cpp
     ../../application/service/editor_service.cpp
+    ../../application/service/jack_service.cpp
     ../../application/service/mixer_service.cpp
     ../../application/service/property_service.cpp
     ../../application/service/random_service.cpp
@@ -31,6 +32,7 @@ set(SRC
     ../../application/service/settings_service.cpp
     ../../application/service/side_chain_service.cpp
     ../../view/controllers/synth_controller.cpp
+    ../../view/controllers/wavetable_synth_controller.cpp
     ../../common/constants.cpp
     ../../common/parameter_mapper.cpp
     ../../common/utils.cpp
@@ -56,10 +58,13 @@ set(SRC
     ../../domain/effects/panner_effect.cpp
     ../../domain/devices/sampler_device.cpp
     ../../domain/devices/synth_device.cpp
+    ../../domain/devices/wavetable_synth_device.cpp
     ../../domain/devices/synth_presets.cpp
     ../../domain/effects/volume_effect.cpp
     ../../domain/dsp/adsr_envelope.cpp
     ../../domain/dsp/svf_filter.cpp
+        ../../domain/dsp/wavetable.cpp
+    ../../domain/dsp/wavetable_oscillator.cpp
     ../../domain/dsp/cascaded_svf.cpp
     ../../domain/dsp/diode_ladder_filter.cpp
     ../../domain/dsp/compressor_effect.cpp
@@ -103,6 +108,8 @@ set(SRC
     ../../domain/tracker/song.cpp
     ../../domain/tracker/track.cpp
     ../../infra/audio/audio_engine.cpp
+    ../../infra/audio/audio_file_recorder.cpp
+    ../../infra/audio/audio_file_streamer.cpp
     ../../infra/audio/backend/sndfile_reader.cpp
     ../../infra/audio/real_time_worker_pool.cpp
     ../../infra/midi/midi_cc_mapping.cpp
@@ -120,4 +127,5 @@ target_link_libraries(${NAME} PRIVATE
     Qt${QT_VERSION_MAJOR}::Test
     SimpleLogger
     PkgConfig::SNDFILE
+    PkgConfig::JACK
 )

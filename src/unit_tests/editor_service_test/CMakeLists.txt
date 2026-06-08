@@ -17,6 +17,7 @@ set(SRC
     ../../view/controllers/device_controller.cpp
     ../../view/controllers/drum_synth_controller.cpp
     ../../application/service/editor_service.cpp
+    ../../application/service/jack_service.cpp
     ../../application/service/mixer_service.cpp
     ../../application/service/property_service.cpp
     ../../application/service/random_service.cpp
@@ -48,6 +49,9 @@ set(SRC
     ../../domain/effects/panner_effect.cpp
     ../../domain/devices/sampler_device.cpp
     ../../domain/devices/synth_device.cpp
+    ../../domain/devices/wavetable_synth_device.cpp
+        ../../domain/dsp/wavetable.cpp
+    ../../domain/dsp/wavetable_oscillator.cpp
     ../../domain/devices/synth_presets.cpp
     ../../domain/effects/volume_effect.cpp
     ../../domain/dsp/adsr_envelope.cpp
@@ -95,6 +99,8 @@ set(SRC
     ../../domain/tracker/song.cpp
     ../../domain/tracker/track.cpp
     ../../infra/audio/audio_engine.cpp
+    ../../infra/audio/audio_file_recorder.cpp
+    ../../infra/audio/audio_file_streamer.cpp
     ../../infra/audio/audio_player.cpp
     ../../infra/audio/audio_recorder.cpp
     ../../infra/audio/backend/sndfile_reader.cpp
@@ -105,7 +111,11 @@ set(SRC
 qt_add_executable(${NAME} ${SRC})
 set_target_properties(${NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${UNIT_TEST_BASE_DIR})
 add_test(${NAME} ${UNIT_TEST_BASE_DIR}/${NAME})
-target_link_libraries(${NAME} PRIVATE Qt${QT_VERSION_MAJOR}::Test Qt${QT_VERSION_MAJOR}::Gui SimpleLogger PkgConfig::SNDFILE)
+target_link_libraries(${NAME} PRIVATE Qt${QT_VERSION_MAJOR}::Test Qt${QT_VERSION_MAJOR}::Gui SimpleLogger PkgConfig::SNDFILE PkgConfig::JACK PkgConfig::RTMIDI PkgConfig::RTAUDIO)
+
+if(JACK_FOUND)
+  target_compile_definitions(${NAME} PRIVATE HAVE_JACK)
+endif()
 
 set(DELAY_TEST_NAME editor_service_delay_test)
 set(DELAY_TEST_SRC
@@ -125,6 +135,7 @@ set(DELAY_TEST_SRC
     ../../view/controllers/device_controller.cpp
     ../../view/controllers/drum_synth_controller.cpp
     ../../application/service/editor_service.cpp
+    ../../application/service/jack_service.cpp
     ../../application/service/mixer_service.cpp
     ../../application/service/property_service.cpp
     ../../application/service/random_service.cpp
@@ -156,6 +167,9 @@ set(DELAY_TEST_SRC
     ../../domain/effects/panner_effect.cpp
     ../../domain/devices/sampler_device.cpp
     ../../domain/devices/synth_device.cpp
+    ../../domain/devices/wavetable_synth_device.cpp
+        ../../domain/dsp/wavetable.cpp
+    ../../domain/dsp/wavetable_oscillator.cpp
     ../../domain/devices/synth_presets.cpp
     ../../domain/effects/volume_effect.cpp
     ../../domain/dsp/adsr_envelope.cpp
@@ -203,6 +217,8 @@ set(DELAY_TEST_SRC
     ../../domain/tracker/song.cpp
     ../../domain/tracker/track.cpp
     ../../infra/audio/audio_engine.cpp
+    ../../infra/audio/audio_file_recorder.cpp
+    ../../infra/audio/audio_file_streamer.cpp
     ../../infra/audio/audio_player.cpp
     ../../infra/audio/audio_recorder.cpp
     ../../infra/audio/backend/sndfile_reader.cpp
@@ -213,4 +229,8 @@ set(DELAY_TEST_SRC
 qt_add_executable(${DELAY_TEST_NAME} ${DELAY_TEST_SRC})
 set_target_properties(${DELAY_TEST_NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${UNIT_TEST_BASE_DIR})
 add_test(${DELAY_TEST_NAME} ${UNIT_TEST_BASE_DIR}/${DELAY_TEST_NAME})
-target_link_libraries(${DELAY_TEST_NAME} PRIVATE Qt${QT_VERSION_MAJOR}::Test Qt${QT_VERSION_MAJOR}::Gui SimpleLogger PkgConfig::SNDFILE)
+target_link_libraries(${DELAY_TEST_NAME} PRIVATE Qt${QT_VERSION_MAJOR}::Test Qt${QT_VERSION_MAJOR}::Gui SimpleLogger PkgConfig::SNDFILE PkgConfig::JACK PkgConfig::RTMIDI PkgConfig::RTAUDIO)
+
+if(JACK_FOUND)
+  target_compile_definitions(${DELAY_TEST_NAME} PRIVATE HAVE_JACK)
+endif()

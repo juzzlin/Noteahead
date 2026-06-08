@@ -13,6 +13,8 @@ New features:
 
 * Implement active notes highlighting for DrumSynth
 
+* Implement a wavetable synth
+
 Bug fixes:
 
 * Improve synth voice stealing logic

@@ -48,10 +48,13 @@ set(SRC
     ../../domain/effects/panner_effect.cpp
     ../../domain/devices/sampler_device.cpp
     ../../domain/devices/synth_device.cpp
+    ../../domain/devices/wavetable_synth_device.cpp
     ../../domain/devices/synth_presets.cpp
     ../../domain/effects/volume_effect.cpp
     ../../domain/dsp/adsr_envelope.cpp
     ../../domain/dsp/svf_filter.cpp
+        ../../domain/dsp/wavetable.cpp
+    ../../domain/dsp/wavetable_oscillator.cpp
     ../../domain/dsp/cascaded_svf.cpp
     ../../domain/dsp/diode_ladder_filter.cpp
     ../../domain/dsp/compressor_effect.cpp

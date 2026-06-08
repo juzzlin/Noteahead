@@ -1,5 +1,5 @@
 include_directories(${CMAKE_CURRENT_SOURCE_DIR} ${PROJECT_SOURCE_DIR}/src ${PROJECT_SOURCE_DIR}/src/contrib/SimpleLogger/src)
-set(NAME synth_controller_test)
+set(NAME wavetable_synth_controller_test)
 set(SRC
     ${NAME}.cpp
     ${NAME}.hpp
@@ -20,7 +20,6 @@ set(SRC
     ../../application/service/editor_service.cpp
     ../../view/controllers/device_controller.cpp
     ../../view/controllers/drum_synth_controller.cpp
-    ../../application/service/editor_service.cpp
     ../../application/service/jack_service.cpp
     ../../application/service/keyboard_service.cpp
     ../../application/service/midi_service.cpp
@@ -140,3 +139,4 @@ target_link_libraries(${NAME} PRIVATE Qt${QT_VERSION_MAJOR}::Test Qt${QT_VERSION
 if(JACK_FOUND)
   target_compile_definitions(${NAME} PRIVATE HAVE_JACK)
 endif()
+

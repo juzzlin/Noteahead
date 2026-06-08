@@ -25,6 +25,7 @@
 #include "domain/devices/drum_synth_device.hpp"
 #include "domain/devices/sampler_device.hpp"
 #include "domain/devices/synth_device.hpp"
+#include "domain/devices/wavetable_synth_device.hpp"
 #include "domain/effects/effect_factory.hpp"
 #include "domain/midi/midi_note_data.hpp"
 #include "domain/tracker/column_settings.hpp"
@@ -72,6 +73,7 @@
 #include "view/controllers/knob_controller.hpp"
 #include "view/controllers/sampler_controller.hpp"
 #include "view/controllers/synth_controller.hpp"
+#include "view/controllers/wavetable_synth_controller.hpp"
 #include "view/qml/Editor/line_number_renderer.hpp"
 #include "view/qml/Editor/note_column_renderer.hpp"
 
@@ -106,10 +108,11 @@ Application::Application(int & argc, char ** argv)
   , m_deviceService { std::make_shared<DeviceService>(m_audioEngine) }
   , m_samplerController { std::make_shared<SamplerController>(std::make_shared<SamplerDevice>("Default Sampler")) }
   , m_synthController { std::make_shared<SynthController>(std::make_shared<SynthDevice>("Default Synth")) }
+  , m_wavetableSynthController { std::make_shared<WavetableSynthController>(std::make_shared<WavetableSynthDevice>("Default WavetableSynth")) }
   , m_bassSynthController { std::make_shared<BassSynthController>(std::make_shared<BassSynthDevice>("Default BassSynth")) }
   , m_drumSynthController { std::make_shared<DrumSynthController>(m_deviceService) }
   , m_effectRackController { std::make_shared<EffectRackController>(m_deviceService, m_editorService) }
-  , m_deviceRackController { std::make_shared<DeviceRackController>(m_deviceService, std::vector<DeviceController::DeviceControllerS> { m_samplerController, m_synthController, m_bassSynthController, m_drumSynthController }, m_editorService) }
+  , m_deviceRackController { std::make_shared<DeviceRackController>(m_deviceService, std::vector<DeviceController::DeviceControllerS> { m_samplerController, m_synthController, m_wavetableSynthController, m_bassSynthController, m_drumSynthController }, m_editorService) }
   , m_knobController { std::make_shared<KnobController>() }
   , m_jackService { std::make_shared<JackService>(m_settingsService, m_audioEngine) }
   , m_audioService { std::make_shared<AudioService>(m_settingsService, m_jackService, m_audioEngine) }
@@ -200,6 +203,7 @@ void Application::registerTypes()
     qmlRegisterType<DrumSynthController>("Noteahead", majorVersion, minorVersion, "DrumSynthController");
     qmlRegisterType<BassSynthController>("Noteahead", majorVersion, minorVersion, "BassSynthController");
     qmlRegisterType<SynthController>("Noteahead", majorVersion, minorVersion, "SynthController");
+    qmlRegisterType<WavetableSynthController>("Noteahead", majorVersion, minorVersion, "WavetableSynthController");
     qmlRegisterType<SelectionService>("Noteahead", majorVersion, minorVersion, "SelectionService");
     qmlRegisterType<SettingsService>("Noteahead", majorVersion, minorVersion, "SettingsService");
     qmlRegisterType<SideChainService>("Noteahead", majorVersion, minorVersion, "SideChainService");
@@ -223,6 +227,7 @@ void Application::setContextProperties()
     m_engine->rootContext()->setContextProperty("editorService", m_editorService.get());
     m_engine->rootContext()->setContextProperty("samplerController", m_samplerController.get());
     m_engine->rootContext()->setContextProperty("synthController", m_synthController.get());
+    m_engine->rootContext()->setContextProperty("wavetableSynthController", m_wavetableSynthController.get());
     m_engine->rootContext()->setContextProperty("bassSynthController", m_bassSynthController.get());
     m_engine->rootContext()->setContextProperty("drumSynthController", m_drumSynthController.get());
     m_engine->rootContext()->setContextProperty("effectRackController", m_effectRackController.get());
@@ -327,11 +332,20 @@ void Application::connectDeviceService()
         emit m_applicationService->samplerDialogRequested();
     });
 
+    connect(m_deviceRackController.get(), &DeviceRackController::synthDialogRequested, m_applicationService.get(), [this]() {
+        emit m_applicationService->synthDialogRequested();
+    });
+
+    connect(m_deviceRackController.get(), &DeviceRackController::wavetableSynthDialogRequested, m_applicationService.get(), [this]() {
+        emit m_applicationService->wavetableSynthDialogRequested();
+    });
+
     connect(m_editorService.get(), &EditorService::devicesSerializationRequested, m_deviceService.get(), &DeviceService::serializeToXml);
     connect(m_editorService.get(), &EditorService::devicesDeserializationRequested, m_deviceService.get(), &DeviceService::deserializeFromXml);
     connect(m_editorService.get(), &EditorService::projectPathChanged, m_deviceService.get(), &DeviceService::setProjectPath);
 
     m_synthController->setDeviceService(m_deviceService);
+    m_wavetableSynthController->setDeviceService(m_deviceService);
     connect(m_deviceService.get(), &DeviceService::synthUserPresetsChanged, m_synthController.get(), &SynthController::setUserPresets);
 
     connect(m_deviceService.get(), &DeviceService::dataChanged, this, [this]() {

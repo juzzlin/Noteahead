@@ -36,8 +36,9 @@ set(SRC
     ../../application/service/selection_service.cpp
     ../../application/service/settings_service.cpp
     ../../application/service/side_chain_service.cpp
-    ../../view/controllers/synth_controller.cpp
     ../../application/state_machine.cpp
+    ../../view/controllers/synth_controller.cpp
+    ../../view/controllers/wavetable_synth_controller.cpp
     ../../application/models/sampler/sampler_pad_model.cpp
     ../../common/constants.cpp
     ../../common/parameter_mapper.cpp
@@ -64,10 +65,13 @@ set(SRC
     ../../domain/effects/panner_effect.cpp
     ../../domain/devices/sampler_device.cpp
     ../../domain/devices/synth_device.cpp
+    ../../domain/devices/wavetable_synth_device.cpp
     ../../domain/devices/synth_presets.cpp
     ../../domain/effects/volume_effect.cpp
     ../../domain/dsp/adsr_envelope.cpp
     ../../domain/dsp/svf_filter.cpp
+        ../../domain/dsp/wavetable.cpp
+    ../../domain/dsp/wavetable_oscillator.cpp
     ../../domain/dsp/cascaded_svf.cpp
     ../../domain/dsp/diode_ladder_filter.cpp
     ../../domain/dsp/compressor_effect.cpp

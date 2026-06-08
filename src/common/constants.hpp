@@ -46,6 +46,7 @@ int transposeMax();
 
 QString samplerDeviceName();
 QString synthDeviceName();
+QString wavetableSynthDeviceName();
 QString bassSynthDeviceName();
 QString drumSynthDeviceName();
 
@@ -343,6 +344,43 @@ QString xmlKeySynthVco3Octave();
 QString xmlKeySynthVco3Pitch();
 QString xmlKeySynthVco3Shape();
 QString xmlKeySynthVco3Sync();
+
+QString xmlKeyWavetableSynthOsc1Pos();
+QString xmlKeyWavetableSynthOsc1Octave();
+QString xmlKeyWavetableSynthOsc1Pitch();
+QString xmlKeyWavetableSynthOsc1Level();
+
+QString xmlKeyWavetableSynthOsc2Pos();
+QString xmlKeyWavetableSynthOsc2Octave();
+QString xmlKeyWavetableSynthOsc2Pitch();
+QString xmlKeyWavetableSynthOsc2Level();
+
+QString xmlKeyWavetableSynthNoiseLevel();
+
+QString xmlKeyWavetableSynthLpfCutoff();
+QString xmlKeyWavetableSynthLpfResonance();
+QString xmlKeyWavetableSynthHpfCutoff();
+
+QString xmlKeyWavetableSynthAmpAttack();
+QString xmlKeyWavetableSynthAmpDecay();
+QString xmlKeyWavetableSynthAmpSustain();
+QString xmlKeyWavetableSynthAmpRelease();
+
+QString xmlKeyWavetableSynthModAttack();
+QString xmlKeyWavetableSynthModDecay();
+QString xmlKeyWavetableSynthModIntensity();
+QString xmlKeyWavetableSynthModTarget();
+
+QString xmlKeyWavetableSynthLfoWaveform();
+QString xmlKeyWavetableSynthLfoMode();
+QString xmlKeyWavetableSynthLfoRate();
+QString xmlKeyWavetableSynthLfoIntensity();
+QString xmlKeyWavetableSynthLfoTarget();
+QString xmlKeyWavetableSynthVoiceMode();
+QString xmlKeyWavetableSynthVoiceDepth();
+QString xmlKeyWavetableSynthPanSpread();
+QString xmlKeyWavetableSynthPortamento();
+QString xmlKeyWavetableSynthWavetableIndex();
 
 QString xmlKeySynthMultiMode();
 QString xmlKeySynthMultiShape();

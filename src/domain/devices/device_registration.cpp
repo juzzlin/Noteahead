@@ -18,6 +18,7 @@
 #include "domain/devices/drum_synth_device.hpp"
 #include "domain/devices/sampler_device.hpp"
 #include "domain/devices/synth_device.hpp"
+#include "domain/devices/wavetable_synth_device.hpp"
 
 namespace noteahead {
 
@@ -34,6 +35,9 @@ void DeviceFactory::init()
     });
     registerDevice(SynthDevice::typeIdString(), [](const std::string & name) {
         return std::make_shared<SynthDevice>(name);
+    });
+    registerDevice(WavetableSynthDevice::typeIdString(), [](const std::string & name) {
+        return std::make_shared<WavetableSynthDevice>(name);
     });
 }
 
