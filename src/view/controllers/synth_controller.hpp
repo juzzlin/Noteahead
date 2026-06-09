@@ -32,6 +32,7 @@ class SynthController : public DeviceController
 
     Q_PROPERTY(QStringList vcoWaveformNames READ vcoWaveformNames CONSTANT)
     Q_PROPERTY(QStringList lfoWaveformNames READ lfoWaveformNames CONSTANT)
+    Q_PROPERTY(QStringList voiceModes READ voiceModes CONSTANT)
 
     // VCO1
     Q_PROPERTY(int vco1Waveform READ vco1Waveform WRITE setVco1Waveform NOTIFY vco1WaveformChanged)
@@ -124,6 +125,7 @@ public:
     // Accessors
     QStringList vcoWaveformNames() const;
     QStringList lfoWaveformNames() const;
+    QStringList voiceModes() const;
 
     int vco1Waveform() const;
     void setVco1Waveform(int wave);

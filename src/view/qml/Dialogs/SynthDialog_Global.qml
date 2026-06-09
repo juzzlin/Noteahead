@@ -22,7 +22,7 @@ ColumnLayout {
 
     RowLayout {
         ComboBox {
-            model: ["Poly", "Unison"]
+            model: synthController.voiceModes
             currentIndex: synthController.voiceMode
             onActivated: i => synthController.voiceMode = i
             Layout.fillWidth: true

@@ -94,6 +94,16 @@ void SynthControllerTest::test_reset_shouldRestoreDefaultValues()
     QCOMPARE(controller.volume(), 1000);
 }
 
+void SynthControllerTest::test_voiceModes()
+{
+    const auto synth = std::make_shared<SynthDevice>("Test Synth");
+    SynthController controller { synth };
+    const auto modes = controller.voiceModes();
+    QCOMPARE(modes.size(), 2);
+    QCOMPARE(modes.at(0), QString("Poly"));
+    QCOMPARE(modes.at(1), QString("Unison"));
+}
+
 } // namespace noteahead
 
 QTEST_GUILESS_MAIN(noteahead::SynthControllerTest)

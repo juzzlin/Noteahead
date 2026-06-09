@@ -76,6 +76,11 @@ QStringList SynthController::lfoWaveformNames() const
     return list;
 }
 
+QStringList SynthController::voiceModes() const
+{
+    return { tr("Poly"), tr("Unison") };
+}
+
 // VCO1
 int SynthController::vco1Waveform() const
 {
