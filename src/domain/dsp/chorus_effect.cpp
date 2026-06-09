@@ -83,9 +83,9 @@ void ChorusEffect::process(double & left, double & right)
 
     // Calculate delay in samples
     // baseDelay + mod * depth
-    // Depth 1.0 means +/- 5ms modulation (typical for chorus)
+    // Depth 1.0 means +/- 4ms modulation (musical for chorus)
     const double baseDelaySamples = m_delayMs * 0.001 * m_sampleRate;
-    const double depthSamples = m_depth * 0.005 * m_sampleRate;
+    const double depthSamples = m_depth * 0.004 * m_sampleRate;
 
     auto readFromBuffer = [&](const std::vector<double> & buffer, double delaySamples) {
         delaySamples = std::max(1.0, delaySamples);
@@ -269,7 +269,7 @@ void ChorusEffect::syncParameters()
 
     m_rate = ParameterMapper::mapExponential(rateParam->get().value(), 0.1, 10.0);
     m_depth = depthParam->get().value();
-    m_delayMs = 1.0 + delayParam->get().value() * 49.0; // 1.0 to 50.0 ms
+    m_delayMs = 5.0 + delayParam->get().value() * 25.0; // 5.0 to 30.0 ms
     m_width = widthParam->get().value();
     m_lpfCutoff = lpfParam->get().value();
     m_hpfCutoff = hpfParam->get().value();
