@@ -103,8 +103,9 @@ void ChorusEffect::process(double & left, double & right)
         return buffer[i0] * (1.0 - frac) + buffer[i1] * frac;
     };
 
-    double wetL = readFromBuffer(m_bufferL, baseDelaySamples + modL * depthSamples);
-    double wetR = readFromBuffer(m_bufferR, baseDelaySamples + modR * depthSamples);
+    // Dual-tap modulation for thicker sound
+    double wetL = (readFromBuffer(m_bufferL, baseDelaySamples + modL * depthSamples) + readFromBuffer(m_bufferL, baseDelaySamples - modL * depthSamples)) * 0.5;
+    double wetR = (readFromBuffer(m_bufferR, baseDelaySamples + modR * depthSamples) + readFromBuffer(m_bufferR, baseDelaySamples - modR * depthSamples)) * 0.5;
 
     // Stereo Width (Mid-Side approach)
     const double mid = (wetL + wetR) * 0.5;
