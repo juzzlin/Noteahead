@@ -103,12 +103,14 @@ Dialog {
                 Layout.preferredWidth: mainRow.sidebarWidth
                 Layout.fillHeight: true
                 Layout.alignment: Qt.AlignTop
-                
+
                 SynthDialog_Global {
                     Layout.fillWidth: true
                     Layout.alignment: Qt.AlignTop
                 }
-                Item { Layout.fillHeight: true } // Spacer
+                Item {
+                    Layout.fillHeight: true
+                } // Spacer
             }
 
             // Vertical Separator
@@ -141,9 +143,21 @@ Dialog {
                             columns: 3
                             columnSpacing: 20
                             width: parent.width - 20
-                            SynthDialog_Vco1 { Layout.preferredWidth: mainRow.moduleWidth; Layout.fillWidth: true; Layout.alignment: Qt.AlignTop }
-                            SynthDialog_Vco2 { Layout.preferredWidth: mainRow.moduleWidth; Layout.fillWidth: true; Layout.alignment: Qt.AlignTop }
-                            SynthDialog_Vco3 { Layout.preferredWidth: mainRow.moduleWidth; Layout.fillWidth: true; Layout.alignment: Qt.AlignTop }
+                            SynthDialog_Vco1 {
+                                Layout.preferredWidth: mainRow.moduleWidth
+                                Layout.fillWidth: true
+                                Layout.alignment: Qt.AlignTop
+                            }
+                            SynthDialog_Vco2 {
+                                Layout.preferredWidth: mainRow.moduleWidth
+                                Layout.fillWidth: true
+                                Layout.alignment: Qt.AlignTop
+                            }
+                            SynthDialog_Vco3 {
+                                Layout.preferredWidth: mainRow.moduleWidth
+                                Layout.fillWidth: true
+                                Layout.alignment: Qt.AlignTop
+                            }
                             SynthDialog_Multi {
                                 Layout.preferredWidth: mainRow.moduleWidth
                                 Layout.fillWidth: true
@@ -161,9 +175,21 @@ Dialog {
                             columns: 3
                             columnSpacing: 20
                             width: parent.width - 20
-                            SynthDialog_Filter { Layout.preferredWidth: mainRow.moduleWidth; Layout.fillWidth: true; Layout.alignment: Qt.AlignTop }
-                            SynthDialog_AmpEg { Layout.preferredWidth: mainRow.moduleWidth; Layout.fillWidth: true; Layout.alignment: Qt.AlignTop }
-                            SynthDialog_ModEg { Layout.preferredWidth: mainRow.moduleWidth; Layout.fillWidth: true; Layout.alignment: Qt.AlignTop }
+                            SynthDialog_Filter {
+                                Layout.preferredWidth: mainRow.moduleWidth
+                                Layout.fillWidth: true
+                                Layout.alignment: Qt.AlignTop
+                            }
+                            SynthDialog_AmpEg {
+                                Layout.preferredWidth: mainRow.moduleWidth
+                                Layout.fillWidth: true
+                                Layout.alignment: Qt.AlignTop
+                            }
+                            SynthDialog_ModEg {
+                                Layout.preferredWidth: mainRow.moduleWidth
+                                Layout.fillWidth: true
+                                Layout.alignment: Qt.AlignTop
+                            }
                         }
                     }
 
@@ -174,7 +200,11 @@ Dialog {
                             columns: 3
                             columnSpacing: 20
                             width: parent.width - 20
-                            SynthDialog_Lfo { Layout.preferredWidth: mainRow.moduleWidth; Layout.fillWidth: true; Layout.alignment: Qt.AlignTop }
+                            SynthDialog_Lfo {
+                                Layout.preferredWidth: mainRow.moduleWidth
+                                Layout.fillWidth: true
+                                Layout.alignment: Qt.AlignTop
+                            }
                             SynthDialog_Delay {
                                 Layout.preferredWidth: mainRow.moduleWidth * 2 + 20
                                 Layout.fillWidth: true
@@ -188,9 +218,15 @@ Dialog {
                 TabBar {
                     id: synthTabBar
                     Layout.fillWidth: true
-                    TabButton { text: qsTr("Oscillators") }
-                    TabButton { text: qsTr("Filter / Envelope") }
-                    TabButton { text: qsTr("LFO / Effects") }
+                    TabButton {
+                        text: qsTr("Oscillators")
+                    }
+                    TabButton {
+                        text: qsTr("Filter / Envelope")
+                    }
+                    TabButton {
+                        text: qsTr("LFO / Effects")
+                    }
                 }
             }
         }
