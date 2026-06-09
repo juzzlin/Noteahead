@@ -36,6 +36,7 @@ public:
     void setCutoff(double cutoff); // 0.0 to 1.0
     void setResonance(double resonance); // 0.0 to 1.0
     void setMode(Mode mode);
+    void setOrder(int order); // 2 or 4 (default)
 
     double process(double input);
     void reset();
@@ -44,6 +45,7 @@ private:
     double m_cutoff { 1.0 };
     double m_resonance { 0.0 };
     Mode m_mode { Mode::LowPass };
+    int m_order { 4 };
 
     double m_lastCutoff { -1.0 };
     double m_lastResonance { -1.0 };

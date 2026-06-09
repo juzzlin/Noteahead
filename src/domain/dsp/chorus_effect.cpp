@@ -42,6 +42,11 @@ ChorusEffect::ChorusEffect()
     m_lpfL.setMode(CascadedSvf::Mode::LowPass);
     m_lpfR.setMode(CascadedSvf::Mode::LowPass);
 
+    m_hpfL.setOrder(2);
+    m_hpfR.setOrder(2);
+    m_lpfL.setOrder(2);
+    m_lpfR.setOrder(2);
+
     ChorusEffect::syncParameters();
 }
 

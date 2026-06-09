@@ -36,6 +36,11 @@ void CascadedSvf::setMode(Mode mode)
     m_mode = mode;
 }
 
+void CascadedSvf::setOrder(int order)
+{
+    m_order = (order == 2) ? 2 : 4;
+}
+
 double CascadedSvf::process(double input)
 {
     if (m_mode == Mode::LowPass && m_cutoff >= 0.999) {
@@ -59,16 +64,18 @@ double CascadedSvf::process(double input)
         m_lastSampleRate = m_sampleRate;
     }
 
-    double out1 = m_unit1.process(input, m_g, m_damping, m_k, m_mode);
-    double out2 = m_unit2.process(out1, m_g, m_damping, m_k, m_mode);
+    double out = m_unit1.process(input, m_g, m_damping, m_k, m_mode);
+    if (m_order == 4) {
+        out = m_unit2.process(out, m_g, m_damping, m_k, m_mode);
+    }
 
     // NaN protection
-    if (std::isnan(out2)) {
+    if (std::isnan(out)) {
         reset();
         return 0.0;
     }
 
-    return out2;
+    return out;
 }
 
 void CascadedSvf::reset()
