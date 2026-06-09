@@ -53,15 +53,18 @@ void SynthDevice::Voice::trigger(uint8_t n, double freq, float p, float v, bool 
     }
     pan = p;
     velocity = v;
-    active = true;
 
     lfo.reset();
 
-    if (phaseSync) {
+    // Only sync oscillator phase on a fresh (idle) voice to avoid a pop from a
+    // hard phase jump while the voice is still producing audio (retrigger/steal).
+    if (phaseSync && !active) {
         vco1.sync(0.0);
         vco2.sync(0.0);
         vco3.sync(0.0);
     }
+
+    active = true;
     ampEg.trigger();
     modEg.trigger();
 }
@@ -76,13 +79,18 @@ void SynthDevice::Voice::triggerRandomized(uint8_t n, double freq, float p, floa
     }
     pan = p;
     velocity = v;
-    active = true;
 
     lfo.reset();
 
-    vco1.sync(randomPhase);
-    vco2.sync(std::fmod(randomPhase + 0.33, 1.0));
-    vco3.sync(std::fmod(randomPhase + 0.66, 1.0));
+    // Only sync oscillator phase on a fresh (idle) voice to avoid a pop from a
+    // hard phase jump while the voice is still producing audio (retrigger/steal).
+    if (!active) {
+        vco1.sync(randomPhase);
+        vco2.sync(std::fmod(randomPhase + 0.33, 1.0));
+        vco3.sync(std::fmod(randomPhase + 0.66, 1.0));
+    }
+
+    active = true;
     ampEg.trigger();
     modEg.trigger();
 }
