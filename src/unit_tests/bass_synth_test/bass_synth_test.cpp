@@ -53,8 +53,12 @@ void BassSynthTest::test_midiProcessing_shouldTriggerAudio()
     QVERIFY(synth.hasActiveAudio());
 
     synth.processMidiNoteOff(60);
-    // Audio might still be active due to release, but let's test all notes off
     synth.processMidiAllNotesOff();
+    // Voice is now in release phase — process audio to let the envelope reach Idle
+    const int frameCount { 1024 };
+    std::vector<double> buffer(static_cast<size_t>(frameCount) * 2, 0.0);
+    AudioContext context { std::span(buffer.data(), buffer.size()), static_cast<uint32_t>(frameCount), 44100 };
+    synth.processAudio(context);
     QVERIFY(!synth.hasActiveAudio());
 }
 

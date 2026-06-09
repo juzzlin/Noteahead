@@ -211,7 +211,9 @@ void BassSynthDevice::processMidiPitchBend(uint16_t value, uint8_t)
 void BassSynthDevice::processMidiAllNotesOff()
 {
     const std::lock_guard<std::recursive_mutex> lock(mutex());
-    m_voice.reset();
+    if (m_voice.active) {
+        m_voice.release();
+    }
 }
 
 void BassSynthDevice::processAudio(AudioContext & context)
