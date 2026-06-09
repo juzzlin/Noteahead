@@ -5,14 +5,23 @@ import QtQuick.Controls.Universal 2.15
 import Noteahead 1.0
 import "../Components"
 
-GroupBox {
-    title: qsTr("Noise")
-    font.bold: true
-    font.pixelSize: 16
+ColumnLayout {
+    Universal.theme: Universal.Dark
     Universal.accent: themeService.accentColor
+    Layout.fillWidth: true
+    Layout.alignment: Qt.AlignTop
+
+    Label {
+        text: qsTr("Noise")
+        font.bold: true
+        font.pixelSize: 16
+        color: themeService.accentColor
+        Layout.alignment: Qt.AlignLeft
+        Layout.topMargin: 10
+    }
 
     RowLayout {
-        anchors.fill: parent
+        Layout.fillWidth: true
         spacing: 10
 
         Knob {

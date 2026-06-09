@@ -10,6 +10,7 @@ ColumnLayout {
     Universal.accent: themeService.accentColor
     Layout.fillWidth: true
     Layout.alignment: Qt.AlignTop
+
     Label {
         text: qsTr("Voice / Global")
         font.bold: true
@@ -18,6 +19,7 @@ ColumnLayout {
         Layout.alignment: Qt.AlignLeft
         Layout.topMargin: 10
     }
+
     ComboBox {
         model: wavetableSynthController.voiceModes
         currentIndex: wavetableSynthController.voiceMode
