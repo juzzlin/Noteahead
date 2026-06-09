@@ -85,6 +85,34 @@ void WavetableSynthControllerTest::test_voiceModes()
     QCOMPARE(modes.at(1), QString("Unison"));
 }
 
+void WavetableSynthControllerTest::test_lfo2_properties_shouldUpdateDevice()
+{
+    const auto synth = std::make_shared<WavetableSynthDevice>("Test Synth");
+    WavetableSynthController controller { synth };
+
+    const int rate = 750;
+    controller.setLfo2Rate(rate);
+    QCOMPARE(synth->lfo2Rate(), static_cast<float>(rate) / Constants::uiInternalScaling());
+
+    const int intensity = 300;
+    controller.setLfo2Int(intensity);
+    QCOMPARE(synth->lfo2Int(), static_cast<float>(intensity) / Constants::uiInternalScaling());
+
+    controller.setLfo2Target(static_cast<int>(WavetableSynthDevice::LfoTarget::Cutoff));
+    QCOMPARE(synth->lfo2Target(), WavetableSynthDevice::LfoTarget::Cutoff);
+}
+
+void WavetableSynthControllerTest::test_lfo2_properties_shouldEmitSignals()
+{
+    const auto synth = std::make_shared<WavetableSynthDevice>("Test Synth");
+    WavetableSynthController controller { synth };
+
+    QSignalSpy spy { &controller, &WavetableSynthController::lfo2IntChanged };
+    controller.setLfo2Int(500);
+
+    QCOMPARE(spy.count(), 1);
+}
+
 } // namespace noteahead
 
 QTEST_GUILESS_MAIN(noteahead::WavetableSynthControllerTest)

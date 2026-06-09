@@ -37,6 +37,7 @@ void WavetableSynthDevice::Voice::reset()
     ampEg.reset();
     modEg.reset();
     lfo.reset();
+    lfo2.reset();
     frequency = 0.0;
     glideFrequency = 0.0;
     pan = 0.5f;
@@ -64,6 +65,7 @@ void WavetableSynthDevice::Voice::trigger(uint8_t n, double freq, float p, float
     ampEg.trigger();
     modEg.trigger();
     lfo.reset();
+    lfo2.reset();
 }
 
 void WavetableSynthDevice::Voice::release()
@@ -118,6 +120,12 @@ WavetableSynthDevice::WavetableSynthDevice(std::string name)
     addParameter(Parameter { Constants::NahdXml::xmlKeyWavetableSynthLfoRate().toStdString(), 0.5f, 0, 10000, 5000, 100 });
     addParameter(Parameter { Constants::NahdXml::xmlKeyWavetableSynthLfoIntensity().toStdString(), 0.5f, 0, 10000, 5000, 100 });
     addParameter(Parameter { Constants::NahdXml::xmlKeyWavetableSynthLfoTarget().toStdString(), 0.0f, 0, 3, 0, 1, Parameter::Type::Discrete });
+
+    addParameter(Parameter { Constants::NahdXml::xmlKeyWavetableSynthLfo2Waveform().toStdString(), 1.0f, 0, 3, 1, 1, Parameter::Type::Discrete });
+    addParameter(Parameter { Constants::NahdXml::xmlKeyWavetableSynthLfo2Mode().toStdString(), 0.0f, 0, 2, 0, 1, Parameter::Type::Discrete });
+    addParameter(Parameter { Constants::NahdXml::xmlKeyWavetableSynthLfo2Rate().toStdString(), 0.5f, 0, 10000, 5000, 100 });
+    addParameter(Parameter { Constants::NahdXml::xmlKeyWavetableSynthLfo2Intensity().toStdString(), 0.5f, 0, 10000, 5000, 100 });
+    addParameter(Parameter { Constants::NahdXml::xmlKeyWavetableSynthLfo2Target().toStdString(), 0.0f, 0, 3, 0, 1, Parameter::Type::Discrete });
 
     addParameter(Parameter { Constants::NahdXml::xmlKeyWavetableSynthVoiceMode().toStdString(), 0.0f, 0, 1, 0, 1, Parameter::Type::Discrete });
     addParameter(Parameter { Constants::NahdXml::xmlKeyWavetableSynthVoiceDepth().toStdString(), 0.1f, 0, 10000, 1000, 100 });
@@ -191,10 +199,21 @@ void WavetableSynthDevice::processAudio(AudioContext & context)
         lfoFreq = ParameterMapper::mapLfoFrequency(m_lfoRate, 0.05, 20.0);
     }
 
+    double lfo2Freq;
+    if (m_lfo2Mode == Lfo::Mode::BPM) {
+        lfo2Freq = (static_cast<double>(m_bpm) / 60.0) * (0.25 / std::max(0.0001, static_cast<double>(m_lfo2Rate)));
+    } else {
+        lfo2Freq = ParameterMapper::mapLfoFrequency(m_lfo2Rate, 0.05, 20.0);
+    }
+
     for (auto && voice : m_voices) {
         voice.lfo.setWaveform(m_lfoWaveform);
         voice.lfo.setMode(m_lfoMode);
         voice.lfo.setFrequency(lfoFreq);
+
+        voice.lfo2.setWaveform(m_lfo2Waveform);
+        voice.lfo2.setMode(m_lfo2Mode);
+        voice.lfo2.setFrequency(lfo2Freq);
 
         if (voice.active) {
             renderVoice(voice, context, oversampledRate, portamentoCoeff, pbRatio);
@@ -259,6 +278,7 @@ void WavetableSynthDevice::updateVoiceParameters(Voice & voice, uint32_t oversam
     voice.ampEg.setSampleRate(oversampledRate);
     voice.modEg.setSampleRate(oversampledRate);
     voice.lfo.setSampleRate(oversampledRate);
+    voice.lfo2.setSampleRate(oversampledRate);
 
     voice.lpf.setResonance(m_lpfResonance);
     voice.hpf.setResonance(0.0f);
@@ -438,11 +458,10 @@ WavetableSynthDevice::ModulationValues WavetableSynthDevice::calculateModulation
     mods.ampEnvelope = voice.ampEg.nextSample();
     mods.modEnvelope = voice.modEg.nextSample() * (m_modInt * 2.0 - 1.0);
     mods.lfoValue = voice.lfo.nextSample() * (m_lfoInt * 2.0 - 1.0);
+    mods.lfo2Value = voice.lfo2.nextSample() * (m_lfo2Int * 2.0 - 1.0);
 
     if (m_modTarget == ModTarget::Cutoff) {
         mods.cutoffMod = mods.modEnvelope;
-    } else if (m_modTarget == ModTarget::Pitch1 || m_modTarget == ModTarget::Pitch2) {
-        mods.pitchMod = mods.modEnvelope;
     } else if (m_modTarget == ModTarget::Osc1Pos) {
         mods.osc1PosMod = mods.modEnvelope;
     } else if (m_modTarget == ModTarget::Osc2Pos) {
@@ -451,12 +470,18 @@ WavetableSynthDevice::ModulationValues WavetableSynthDevice::calculateModulation
 
     if (m_lfoTarget == LfoTarget::Cutoff) {
         mods.cutoffMod += mods.lfoValue;
-    } else if (m_lfoTarget == LfoTarget::Pitch) {
-        mods.pitchMod += mods.lfoValue;
     } else if (m_lfoTarget == LfoTarget::Osc1Pos) {
         mods.osc1PosMod += mods.lfoValue;
     } else if (m_lfoTarget == LfoTarget::Osc2Pos) {
         mods.osc2PosMod += mods.lfoValue;
+    }
+
+    if (m_lfo2Target == LfoTarget::Cutoff) {
+        mods.cutoffMod += mods.lfo2Value;
+    } else if (m_lfo2Target == LfoTarget::Osc1Pos) {
+        mods.osc1PosMod += mods.lfo2Value;
+    } else if (m_lfo2Target == LfoTarget::Osc2Pos) {
+        mods.osc2PosMod += mods.lfo2Value;
     }
 
     return mods;
@@ -469,14 +494,27 @@ float WavetableSynthDevice::generateVoiceSample(Voice & voice, const ModulationV
     double osc1Freq = freq * m_osc1BasePitchRatio;
     double osc2Freq = freq * m_osc2BasePitchRatio;
 
+    double osc1PitchMod = 0.0;
+    double osc2PitchMod = 0.0;
+
     if (m_modTarget == ModTarget::Pitch1) {
-        osc1Freq *= std::exp2(mods.pitchMod);
+        osc1PitchMod += mods.modEnvelope;
     } else if (m_modTarget == ModTarget::Pitch2) {
-        osc2Freq *= std::exp2(mods.pitchMod);
-    } else if (m_lfoTarget == LfoTarget::Pitch) {
-        osc1Freq *= std::exp2(mods.pitchMod);
-        osc2Freq *= std::exp2(mods.pitchMod);
+        osc2PitchMod += mods.modEnvelope;
     }
+
+    if (m_lfoTarget == LfoTarget::Pitch) {
+        osc1PitchMod += mods.lfoValue;
+        osc2PitchMod += mods.lfoValue;
+    }
+
+    if (m_lfo2Target == LfoTarget::Pitch) {
+        osc1PitchMod += mods.lfo2Value;
+        osc2PitchMod += mods.lfo2Value;
+    }
+
+    osc1Freq *= std::exp2(osc1PitchMod);
+    osc2Freq *= std::exp2(osc2PitchMod);
 
     voice.osc1.setFrequency(osc1Freq);
     voice.osc1.setPosition(std::clamp(m_osc1Pos + mods.osc1PosMod, 0.0, 1.0));
@@ -544,6 +582,12 @@ void WavetableSynthDevice::syncParameters()
     updateParam(Constants::NahdXml::xmlKeyWavetableSynthLfoIntensity(), m_lfoInt);
     updateDiscreteParam(Constants::NahdXml::xmlKeyWavetableSynthLfoTarget(), m_lfoTarget);
 
+    updateDiscreteParam(Constants::NahdXml::xmlKeyWavetableSynthLfo2Waveform(), m_lfo2Waveform);
+    updateDiscreteParam(Constants::NahdXml::xmlKeyWavetableSynthLfo2Mode(), m_lfo2Mode);
+    updateParam(Constants::NahdXml::xmlKeyWavetableSynthLfo2Rate(), m_lfo2Rate);
+    updateParam(Constants::NahdXml::xmlKeyWavetableSynthLfo2Intensity(), m_lfo2Int);
+    updateDiscreteParam(Constants::NahdXml::xmlKeyWavetableSynthLfo2Target(), m_lfo2Target);
+
     updateDiscreteParam(Constants::NahdXml::xmlKeyWavetableSynthVoiceMode(), m_voiceMode);
     updateParam(Constants::NahdXml::xmlKeyWavetableSynthVoiceDepth(), m_voiceDepth);
     updateParam(Constants::NahdXml::xmlKeyWavetableSynthPanSpread(), m_panSpread);
@@ -566,6 +610,10 @@ void WavetableSynthDevice::syncParameters()
         voice.lfo.setWaveform(m_lfoWaveform);
         voice.lfo.setMode(m_lfoMode);
         voice.lfo.setFrequency(ParameterMapper::mapLfoFrequency(m_lfoRate, 0.05, 20.0));
+
+        voice.lfo2.setWaveform(m_lfo2Waveform);
+        voice.lfo2.setMode(m_lfo2Mode);
+        voice.lfo2.setFrequency(ParameterMapper::mapLfoFrequency(m_lfo2Rate, 0.05, 20.0));
 
         voice.ampEg.setAttackTime(ParameterMapper::mapExponential(m_ampAttack, 0.001, 10.0));
         voice.ampEg.setDecayTime(ParameterMapper::mapExponential(m_ampDecay, 0.01, 10.0));
@@ -977,6 +1025,77 @@ WavetableSynthDevice::LfoTarget WavetableSynthDevice::lfoTarget() const
 void WavetableSynthDevice::setLfoTarget(LfoTarget target)
 {
     if (const auto synthParameter = parameter(Constants::NahdXml::xmlKeyWavetableSynthLfoTarget().toStdString()); synthParameter) {
+        synthParameter->get().setFromXml(static_cast<int>(target));
+        syncParameters();
+        emit dataChanged();
+    }
+}
+
+// LFO 2
+Lfo::Waveform WavetableSynthDevice::lfo2Waveform() const
+{
+    return m_lfo2Waveform;
+}
+
+void WavetableSynthDevice::setLfo2Waveform(Lfo::Waveform wave)
+{
+    if (const auto synthParameter = parameter(Constants::NahdXml::xmlKeyWavetableSynthLfo2Waveform().toStdString()); synthParameter) {
+        synthParameter->get().setFromXml(static_cast<int>(wave));
+        syncParameters();
+        emit dataChanged();
+    }
+}
+
+Lfo::Mode WavetableSynthDevice::lfo2Mode() const
+{
+    return m_lfo2Mode;
+}
+
+void WavetableSynthDevice::setLfo2Mode(Lfo::Mode mode)
+{
+    if (const auto synthParameter = parameter(Constants::NahdXml::xmlKeyWavetableSynthLfo2Mode().toStdString()); synthParameter) {
+        synthParameter->get().setFromXml(static_cast<int>(mode));
+        syncParameters();
+        emit dataChanged();
+    }
+}
+
+float WavetableSynthDevice::lfo2Rate() const
+{
+    return m_lfo2Rate;
+}
+
+void WavetableSynthDevice::setLfo2Rate(float rate)
+{
+    if (const auto synthParameter = parameter(Constants::NahdXml::xmlKeyWavetableSynthLfo2Rate().toStdString()); synthParameter) {
+        synthParameter->get().setValue(rate);
+        syncParameters();
+        emit dataChanged();
+    }
+}
+
+float WavetableSynthDevice::lfo2Int() const
+{
+    return m_lfo2Int;
+}
+
+void WavetableSynthDevice::setLfo2Int(float intensity)
+{
+    if (const auto synthParameter = parameter(Constants::NahdXml::xmlKeyWavetableSynthLfo2Intensity().toStdString()); synthParameter) {
+        synthParameter->get().setValue(intensity);
+        syncParameters();
+        emit dataChanged();
+    }
+}
+
+WavetableSynthDevice::LfoTarget WavetableSynthDevice::lfo2Target() const
+{
+    return m_lfo2Target;
+}
+
+void WavetableSynthDevice::setLfo2Target(LfoTarget target)
+{
+    if (const auto synthParameter = parameter(Constants::NahdXml::xmlKeyWavetableSynthLfo2Target().toStdString()); synthParameter) {
         synthParameter->get().setFromXml(static_cast<int>(target));
         syncParameters();
         emit dataChanged();

@@ -152,7 +152,7 @@ public:
     ModTarget modTarget() const;
     void setModTarget(ModTarget target);
 
-    // LFO
+    // LFO 1
     Lfo::Waveform lfoWaveform() const;
     void setLfoWaveform(Lfo::Waveform wave);
     Lfo::Mode lfoMode() const;
@@ -163,6 +163,18 @@ public:
     void setLfoInt(float intensity);
     LfoTarget lfoTarget() const;
     void setLfoTarget(LfoTarget target);
+
+    // LFO 2
+    Lfo::Waveform lfo2Waveform() const;
+    void setLfo2Waveform(Lfo::Waveform wave);
+    Lfo::Mode lfo2Mode() const;
+    void setLfo2Mode(Lfo::Mode mode);
+    float lfo2Rate() const;
+    void setLfo2Rate(float rate);
+    float lfo2Int() const;
+    void setLfo2Int(float intensity);
+    LfoTarget lfo2Target() const;
+    void setLfo2Target(LfoTarget target);
 
     // Wavetable selection
     int wavetableIndex() const;
@@ -179,6 +191,7 @@ private:
         AdsrEnvelope ampEg;
         AdsrEnvelope modEg;
         Lfo lfo;
+        Lfo lfo2;
 
         uint8_t note { 0 };
         uint64_t triggerId { 0 };
@@ -228,14 +241,20 @@ private:
 
     float m_modAttack { 0.01f };
     float m_modDecay { 0.1f };
-    float m_modInt { 0.0f };
+    float m_modInt { 0.5f };
     ModTarget m_modTarget { ModTarget::Cutoff };
 
     Lfo::Waveform m_lfoWaveform { Lfo::Waveform::Triangle };
     Lfo::Mode m_lfoMode { Lfo::Mode::Normal };
     float m_lfoRate { 0.5f };
-    float m_lfoInt { 0.0f };
+    float m_lfoInt { 0.5f };
     LfoTarget m_lfoTarget { LfoTarget::Pitch };
+
+    Lfo::Waveform m_lfo2Waveform { Lfo::Waveform::Triangle };
+    Lfo::Mode m_lfo2Mode { Lfo::Mode::Normal };
+    float m_lfo2Rate { 0.5f };
+    float m_lfo2Int { 0.5f };
+    LfoTarget m_lfo2Target { LfoTarget::Pitch };
 
     VoiceMode m_voiceMode { VoiceMode::Poly };
     float m_voiceDepth { 0.1f };
@@ -259,10 +278,10 @@ private:
         double ampEnvelope { 0.0 };
         double modEnvelope { 0.0 };
         double lfoValue { 0.0 };
+        double lfo2Value { 0.0 };
         double cutoffMod { 0.0 };
         double osc1PosMod { 0.0 };
         double osc2PosMod { 0.0 };
-        double pitchMod { 0.0 };
     };
 
     ModulationValues calculateModulation(Voice & voice) const;

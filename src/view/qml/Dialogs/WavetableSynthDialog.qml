@@ -143,7 +143,7 @@ Dialog {
                             columnSpacing: 20
                             width: parent.width - 20
                             WavetableSynthDialog_Lfo {
-                                Layout.preferredWidth: mainRow.moduleWidth * 1.5
+                                Layout.preferredWidth: mainRow.moduleWidth * 3
                                 Layout.fillWidth: true
                                 Layout.alignment: Qt.AlignTop
                             }
@@ -160,7 +160,7 @@ Dialog {
                         text: qsTr("Filter / Envelopes")
                     }
                     TabButton {
-                        text: qsTr("LFO")
+                        text: qsTr("LFOs")
                     }
                 }
             }

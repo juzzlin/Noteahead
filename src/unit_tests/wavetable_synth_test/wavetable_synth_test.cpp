@@ -284,6 +284,62 @@ void WavetableSynthTest::test_wavetableSelection_shouldUpdateWavetable()
     QVERIFY(different);
 }
 
+void WavetableSynthTest::test_lfo2_defaultValues_shouldBeCorrect()
+{
+    const WavetableSynthDevice synth { "Test Synth" };
+    QCOMPARE(synth.lfo2Waveform(), Lfo::Waveform::Triangle);
+    QCOMPARE(synth.lfo2Mode(), Lfo::Mode::Normal);
+    QCOMPARE(synth.lfo2Rate(), 0.5f);
+    QCOMPARE(synth.lfo2Int(), 0.5f);
+    QCOMPARE(synth.lfo2Target(), WavetableSynthDevice::LfoTarget::Pitch);
+}
+
+void WavetableSynthTest::test_lfo2_parameterSetting_shouldUpdateValues()
+{
+    WavetableSynthDevice synth { "Test Synth" };
+
+    synth.setLfo2Waveform(Lfo::Waveform::Sine);
+    QCOMPARE(synth.lfo2Waveform(), Lfo::Waveform::Sine);
+
+    synth.setLfo2Mode(Lfo::Mode::BPM);
+    QCOMPARE(synth.lfo2Mode(), Lfo::Mode::BPM);
+
+    synth.setLfo2Rate(0.75f);
+    QCOMPARE(synth.lfo2Rate(), 0.75f);
+
+    synth.setLfo2Int(0.3f);
+    QCOMPARE(synth.lfo2Int(), 0.3f);
+
+    synth.setLfo2Target(WavetableSynthDevice::LfoTarget::Cutoff);
+    QCOMPARE(synth.lfo2Target(), WavetableSynthDevice::LfoTarget::Cutoff);
+}
+
+void WavetableSynthTest::test_lfo2_serialization_shouldPreserveState()
+{
+    WavetableSynthDevice synth1 { "Test Synth 1" };
+    synth1.setLfo2Waveform(Lfo::Waveform::Sine);
+    synth1.setLfo2Mode(Lfo::Mode::BPM);
+    synth1.setLfo2Rate(0.75f);
+    synth1.setLfo2Int(0.3f);
+    synth1.setLfo2Target(WavetableSynthDevice::LfoTarget::Cutoff);
+
+    QString xml;
+    QXmlStreamWriter writer { &xml };
+    synth1.serializeToXml(writer);
+
+    WavetableSynthDevice synth2 { "Test Synth 2" };
+    QXmlStreamReader reader { xml };
+    if (reader.readNextStartElement()) {
+        synth2.deserializeFromXml(reader);
+    }
+
+    QCOMPARE(synth2.lfo2Waveform(), Lfo::Waveform::Sine);
+    QCOMPARE(synth2.lfo2Mode(), Lfo::Mode::BPM);
+    QCOMPARE(synth2.lfo2Rate(), 0.75f);
+    QCOMPARE(synth2.lfo2Int(), 0.3f);
+    QCOMPARE(synth2.lfo2Target(), WavetableSynthDevice::LfoTarget::Cutoff);
+}
+
 } // namespace noteahead
 
 QTEST_GUILESS_MAIN(noteahead::WavetableSynthTest)

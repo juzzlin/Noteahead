@@ -36,6 +36,9 @@ private slots:
     void test_audio_shouldProcessWhenActive();
     void test_hpf_shouldUpdateParameterAndFilterAudio();
     void test_wavetableSelection_shouldUpdateWavetable();
+    void test_lfo2_defaultValues_shouldBeCorrect();
+    void test_lfo2_parameterSetting_shouldUpdateValues();
+    void test_lfo2_serialization_shouldPreserveState();
 };
 
 } // namespace noteahead

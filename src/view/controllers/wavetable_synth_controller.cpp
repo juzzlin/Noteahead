@@ -17,6 +17,7 @@
 
 #include "common/constants.hpp"
 #include "domain/devices/wavetable_synth_device.hpp"
+#include "domain/dsp/lfo.hpp"
 
 #include <cmath>
 
@@ -357,6 +358,67 @@ void WavetableSynthController::setLfoTarget(int target)
     }
 }
 
+// LFO 2
+int WavetableSynthController::lfo2Waveform() const
+{
+    return m_synth ? static_cast<int>(m_synth->lfo2Waveform()) : 0;
+}
+
+void WavetableSynthController::setLfo2Waveform(int wave)
+{
+    if (m_synth) {
+        m_synth->setLfo2Waveform(static_cast<Lfo::Waveform>(wave));
+    }
+}
+
+int WavetableSynthController::lfo2Mode() const
+{
+    return m_synth ? static_cast<int>(m_synth->lfo2Mode()) : 0;
+}
+
+void WavetableSynthController::setLfo2Mode(int mode)
+{
+    if (m_synth) {
+        m_synth->setLfo2Mode(static_cast<Lfo::Mode>(mode));
+    }
+}
+
+int WavetableSynthController::lfo2Rate() const
+{
+    return m_synth ? static_cast<int>(std::round(m_synth->lfo2Rate() * Constants::uiInternalScaling())) : 0;
+}
+
+void WavetableSynthController::setLfo2Rate(int rate)
+{
+    if (m_synth) {
+        m_synth->setLfo2Rate(static_cast<float>(rate) / Constants::uiInternalScaling());
+    }
+}
+
+int WavetableSynthController::lfo2Int() const
+{
+    return m_synth ? static_cast<int>(std::round(m_synth->lfo2Int() * Constants::uiInternalScaling())) : 0;
+}
+
+void WavetableSynthController::setLfo2Int(int i)
+{
+    if (m_synth) {
+        m_synth->setLfo2Int(static_cast<float>(i) / Constants::uiInternalScaling());
+    }
+}
+
+int WavetableSynthController::lfo2Target() const
+{
+    return m_synth ? static_cast<int>(m_synth->lfo2Target()) : 0;
+}
+
+void WavetableSynthController::setLfo2Target(int target)
+{
+    if (m_synth && target >= 0 && target <= 3) {
+        m_synth->setLfo2Target(static_cast<WavetableSynthDevice::LfoTarget>(target));
+    }
+}
+
 // Global
 int WavetableSynthController::voiceMode() const
 {
@@ -458,7 +520,11 @@ QStringList WavetableSynthController::modTargetNames() const
 
 QStringList WavetableSynthController::lfoWaveformNames() const
 {
-    return { tr("Sine"), tr("Triangle"), tr("Saw"), tr("Square"), tr("Random") };
+    QStringList list;
+    for (auto && name : Lfo::waveformNames()) {
+        list << QString::fromStdString(name);
+    }
+    return list;
 }
 
 QStringList WavetableSynthController::lfoModeNames() const
@@ -469,6 +535,21 @@ QStringList WavetableSynthController::lfoModeNames() const
 QStringList WavetableSynthController::lfoTargetNames() const
 {
     return { tr("Pitch"), tr("Cutoff"), tr("Osc 1 Pos"), tr("Osc 2 Pos") };
+}
+
+QStringList WavetableSynthController::lfo2WaveformNames() const
+{
+    return lfoWaveformNames();
+}
+
+QStringList WavetableSynthController::lfo2ModeNames() const
+{
+    return lfoModeNames();
+}
+
+QStringList WavetableSynthController::lfo2TargetNames() const
+{
+    return lfoTargetNames();
 }
 
 void WavetableSynthController::requestSettings()
@@ -498,6 +579,11 @@ void WavetableSynthController::requestSettings()
     emit lfoRateChanged();
     emit lfoIntChanged();
     emit lfoTargetChanged();
+    emit lfo2WaveformChanged();
+    emit lfo2ModeChanged();
+    emit lfo2RateChanged();
+    emit lfo2IntChanged();
+    emit lfo2TargetChanged();
 
     emit voiceModeChanged();
     emit voiceDepthChanged();

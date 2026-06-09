@@ -62,12 +62,19 @@ class WavetableSynthController : public DeviceController
     Q_PROPERTY(int modInt READ modInt WRITE setModInt NOTIFY modIntChanged)
     Q_PROPERTY(int modTarget READ modTarget WRITE setModTarget NOTIFY modTargetChanged)
 
-    // LFO
+    // LFO 1
     Q_PROPERTY(int lfoWaveform READ lfoWaveform WRITE setLfoWaveform NOTIFY lfoWaveformChanged)
     Q_PROPERTY(int lfoMode READ lfoMode WRITE setLfoMode NOTIFY lfoModeChanged)
     Q_PROPERTY(int lfoRate READ lfoRate WRITE setLfoRate NOTIFY lfoRateChanged)
     Q_PROPERTY(int lfoInt READ lfoInt WRITE setLfoInt NOTIFY lfoIntChanged)
     Q_PROPERTY(int lfoTarget READ lfoTarget WRITE setLfoTarget NOTIFY lfoTargetChanged)
+
+    // LFO 2
+    Q_PROPERTY(int lfo2Waveform READ lfo2Waveform WRITE setLfo2Waveform NOTIFY lfo2WaveformChanged)
+    Q_PROPERTY(int lfo2Mode READ lfo2Mode WRITE setLfo2Mode NOTIFY lfo2ModeChanged)
+    Q_PROPERTY(int lfo2Rate READ lfo2Rate WRITE setLfo2Rate NOTIFY lfo2RateChanged)
+    Q_PROPERTY(int lfo2Int READ lfo2Int WRITE setLfo2Int NOTIFY lfo2IntChanged)
+    Q_PROPERTY(int lfo2Target READ lfo2Target WRITE setLfo2Target NOTIFY lfo2TargetChanged)
 
     // Global
     Q_PROPERTY(int voiceMode READ voiceMode WRITE setVoiceMode NOTIFY voiceModeChanged)
@@ -83,6 +90,9 @@ class WavetableSynthController : public DeviceController
     Q_PROPERTY(QStringList lfoWaveformNames READ lfoWaveformNames CONSTANT)
     Q_PROPERTY(QStringList lfoModeNames READ lfoModeNames CONSTANT)
     Q_PROPERTY(QStringList lfoTargetNames READ lfoTargetNames CONSTANT)
+    Q_PROPERTY(QStringList lfo2WaveformNames READ lfo2WaveformNames CONSTANT)
+    Q_PROPERTY(QStringList lfo2ModeNames READ lfo2ModeNames CONSTANT)
+    Q_PROPERTY(QStringList lfo2TargetNames READ lfo2TargetNames CONSTANT)
 
 public:
     explicit WavetableSynthController(std::shared_ptr<WavetableSynthDevice> synth, QObject * parent = nullptr);
@@ -143,7 +153,7 @@ public:
     int modTarget() const;
     void setModTarget(int t);
 
-    // LFO
+    // LFO 1
     int lfoWaveform() const;
     void setLfoWaveform(int wave);
     int lfoMode() const;
@@ -154,6 +164,18 @@ public:
     void setLfoInt(int i);
     int lfoTarget() const;
     void setLfoTarget(int target);
+
+    // LFO 2
+    int lfo2Waveform() const;
+    void setLfo2Waveform(int wave);
+    int lfo2Mode() const;
+    void setLfo2Mode(int mode);
+    int lfo2Rate() const;
+    void setLfo2Rate(int rate);
+    int lfo2Int() const;
+    void setLfo2Int(int i);
+    int lfo2Target() const;
+    void setLfo2Target(int target);
 
     // Global
     int voiceMode() const;
@@ -176,6 +198,9 @@ public:
     QStringList lfoWaveformNames() const;
     QStringList lfoModeNames() const;
     QStringList lfoTargetNames() const;
+    QStringList lfo2WaveformNames() const;
+    QStringList lfo2ModeNames() const;
+    QStringList lfo2TargetNames() const;
 
     Q_INVOKABLE void requestSettings() override;
 
@@ -207,6 +232,11 @@ signals:
     void lfoRateChanged();
     void lfoIntChanged();
     void lfoTargetChanged();
+    void lfo2WaveformChanged();
+    void lfo2ModeChanged();
+    void lfo2RateChanged();
+    void lfo2IntChanged();
+    void lfo2TargetChanged();
     void voiceModeChanged();
     void voiceDepthChanged();
     void panSpreadChanged();

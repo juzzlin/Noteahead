@@ -30,6 +30,8 @@ private slots:
     void test_reset_shouldRestoreDefaultValues();
     void test_properties_shouldEmitSignals();
     void test_voiceModes();
+    void test_lfo2_properties_shouldUpdateDevice();
+    void test_lfo2_properties_shouldEmitSignals();
 };
 
 } // namespace noteahead

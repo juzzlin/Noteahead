@@ -1387,6 +1387,31 @@ QString xmlKeyWavetableSynthLfoTarget()
     return "wavetableSynthLfoTarget";
 }
 
+QString xmlKeyWavetableSynthLfo2Waveform()
+{
+    return "wavetableSynthLfo2Waveform";
+}
+
+QString xmlKeyWavetableSynthLfo2Mode()
+{
+    return "wavetableSynthLfo2Mode";
+}
+
+QString xmlKeyWavetableSynthLfo2Rate()
+{
+    return "wavetableSynthLfo2Rate";
+}
+
+QString xmlKeyWavetableSynthLfo2Intensity()
+{
+    return "wavetableSynthLfo2Intensity";
+}
+
+QString xmlKeyWavetableSynthLfo2Target()
+{
+    return "wavetableSynthLfo2Target";
+}
+
 QString xmlKeyWavetableSynthVoiceMode()
 {
     return "wavetableSynthVoiceMode";
