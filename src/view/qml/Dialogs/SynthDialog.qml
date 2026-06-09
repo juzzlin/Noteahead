@@ -137,82 +137,16 @@ Dialog {
                     Layout.fillHeight: true
                     Layout.bottomMargin: 10
 
-                    // Tab 1: Oscillators
-                    ScrollView {
-                        clip: true
-                        GridLayout {
-                            columns: 3
-                            columnSpacing: 20
-                            width: parent.width - 20
-                            SynthDialog_Vco1 {
-                                Layout.preferredWidth: mainRow.moduleWidth
-                                Layout.fillWidth: true
-                                Layout.alignment: Qt.AlignTop
-                            }
-                            SynthDialog_Vco2 {
-                                Layout.preferredWidth: mainRow.moduleWidth
-                                Layout.fillWidth: true
-                                Layout.alignment: Qt.AlignTop
-                            }
-                            SynthDialog_Vco3 {
-                                Layout.preferredWidth: mainRow.moduleWidth
-                                Layout.fillWidth: true
-                                Layout.alignment: Qt.AlignTop
-                            }
-                            SynthDialog_Multi {
-                                Layout.preferredWidth: mainRow.moduleWidth
-                                Layout.fillWidth: true
-                                Layout.alignment: Qt.AlignTop
-                                Layout.columnSpan: 3
-                                Layout.topMargin: 10
-                            }
-                        }
+                    SynthDialog_Tab1 {
+                        moduleWidth: mainRow.moduleWidth
                     }
 
-                    // Tab 2: Filter / Envelope
-                    ScrollView {
-                        clip: true
-                        GridLayout {
-                            columns: 3
-                            columnSpacing: 20
-                            width: parent.width - 20
-                            SynthDialog_Filter {
-                                Layout.preferredWidth: mainRow.moduleWidth
-                                Layout.fillWidth: true
-                                Layout.alignment: Qt.AlignTop
-                            }
-                            SynthDialog_AmpEg {
-                                Layout.preferredWidth: mainRow.moduleWidth
-                                Layout.fillWidth: true
-                                Layout.alignment: Qt.AlignTop
-                            }
-                            SynthDialog_ModEg {
-                                Layout.preferredWidth: mainRow.moduleWidth
-                                Layout.fillWidth: true
-                                Layout.alignment: Qt.AlignTop
-                            }
-                        }
+                    SynthDialog_Tab2 {
+                        moduleWidth: mainRow.moduleWidth
                     }
 
-                    // Tab 3: LFO / Effects
-                    ScrollView {
-                        clip: true
-                        GridLayout {
-                            columns: 3
-                            columnSpacing: 20
-                            width: parent.width - 20
-                            SynthDialog_Lfo {
-                                Layout.preferredWidth: mainRow.moduleWidth
-                                Layout.fillWidth: true
-                                Layout.alignment: Qt.AlignTop
-                            }
-                            SynthDialog_Delay {
-                                Layout.preferredWidth: mainRow.moduleWidth * 2 + 20
-                                Layout.fillWidth: true
-                                Layout.columnSpan: 2
-                                Layout.alignment: Qt.AlignTop
-                            }
-                        }
+                    SynthDialog_Tab3 {
+                        moduleWidth: mainRow.moduleWidth
                     }
                 }
 

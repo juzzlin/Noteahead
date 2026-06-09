@@ -98,6 +98,9 @@ set(QML_SOURCE_FILES
     ${QML_BASE_DIR}/Dialogs/SynthDialog_ModEg.qml
     ${QML_BASE_DIR}/Dialogs/SynthDialog_Multi.qml
     ${QML_BASE_DIR}/Dialogs/SynthDialog_Presets.qml
+    ${QML_BASE_DIR}/Dialogs/SynthDialog_Tab1.qml
+    ${QML_BASE_DIR}/Dialogs/SynthDialog_Tab2.qml
+    ${QML_BASE_DIR}/Dialogs/SynthDialog_Tab3.qml
     ${QML_BASE_DIR}/Dialogs/SynthDialog_Vco1.qml
     ${QML_BASE_DIR}/Dialogs/SynthDialog_Vco2.qml
     ${QML_BASE_DIR}/Dialogs/SynthDialog_Vco3.qml
@@ -181,8 +184,8 @@ set(PNG_SOURCE_FILES
     ${QML_BASE_DIR}/Graphics/piano.png
     ${QML_BASE_DIR}/Graphics/play.png
     ${QML_BASE_DIR}/Graphics/prev.png
-    ${QML_BASE_DIR}/Graphics/replay.png
     ${QML_BASE_DIR}/Graphics/record.png
+    ${QML_BASE_DIR}/Graphics/replay.png
     ${QML_BASE_DIR}/Graphics/settings.png
     ${QML_BASE_DIR}/Graphics/solo.png
     ${QML_BASE_DIR}/Graphics/stop.png
