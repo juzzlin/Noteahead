@@ -436,6 +436,13 @@ void SamplerDevice::reset()
     {
         std::lock_guard<std::recursive_mutex> lock { mutex() };
         Device::reset();
+        for (auto && sample : m_samples) {
+            sample = nullptr;
+        }
+        m_globalCutoff = 1.0f;
+        m_globalHpfCutoff = 0.0f;
+        m_manualGlobalCutoff = 1.0f;
+        m_manualGlobalHpfCutoff = 0.0f;
         resetAudio();
         syncParameters();
     }
