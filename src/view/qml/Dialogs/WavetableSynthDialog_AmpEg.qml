@@ -1,0 +1,58 @@
+import QtQuick 2.15
+import QtQuick.Layouts 1.15
+import QtQuick.Controls 2.15
+import QtQuick.Controls.Universal 2.15
+import Noteahead 1.0
+import "../Components"
+
+ColumnLayout {
+    Universal.theme: Universal.Dark
+    Universal.accent: themeService.accentColor
+    Layout.fillWidth: true
+    Layout.alignment: Qt.AlignTop
+
+    Label {
+        text: qsTr("Amp Envelope")
+        font.bold: true
+        font.pixelSize: 16
+        color: themeService.accentColor
+        Layout.topMargin: 10
+    }
+
+    Knob {
+        label: qsTr("Attack")
+        mapping: "exponential"
+        mapMin: 0.001
+        mapMax: 10.0
+        suffix: "s"
+        value: wavetableSynthController.ampAttack
+        onMoved: v => wavetableSynthController.ampAttack = v
+        Layout.fillWidth: true
+    }
+    Knob {
+        label: qsTr("Decay")
+        mapping: "exponential"
+        mapMin: 0.01
+        mapMax: 10.0
+        suffix: "s"
+        value: wavetableSynthController.ampDecay
+        onMoved: v => wavetableSynthController.ampDecay = v
+        Layout.fillWidth: true
+    }
+    Knob {
+        label: qsTr("Sustain")
+        value: wavetableSynthController.ampSustain
+        onMoved: v => wavetableSynthController.ampSustain = v
+        Layout.fillWidth: true
+    }
+    Knob {
+        label: qsTr("Release")
+        mapping: "exponential"
+        mapMin: 0.01
+        mapMax: 10.0
+        suffix: "s"
+        value: wavetableSynthController.ampRelease
+        onMoved: v => wavetableSynthController.ampRelease = v
+        Layout.fillWidth: true
+    }
+}

@@ -93,61 +93,14 @@ Dialog {
                     Layout.fillWidth: true
                     Layout.fillHeight: true
                     Layout.bottomMargin: 10
-                    ScrollView {
-                        clip: true
-                        GridLayout {
-                            columns: 2
-                            columnSpacing: 20
-                            width: parent.width - 20
-                            WavetableSynthDialog_Osc1 {
-                                Layout.preferredWidth: mainRow.moduleWidth * 1.5
-                                Layout.fillWidth: true
-                                Layout.alignment: Qt.AlignTop
-                            }
-                            WavetableSynthDialog_Osc2 {
-                                Layout.preferredWidth: mainRow.moduleWidth * 1.5
-                                Layout.fillWidth: true
-                                Layout.alignment: Qt.AlignTop
-                            }
-                            WavetableSynthDialog_Noise {
-                                Layout.preferredWidth: mainRow.moduleWidth * 1.5
-                                Layout.fillWidth: true
-                                Layout.alignment: Qt.AlignTop
-                                Layout.columnSpan: 2
-                                Layout.topMargin: 10
-                            }
-                        }
+                    WavetableSynthDialog_Tab1 {
+                        moduleWidth: mainRow.moduleWidth
                     }
-                    ScrollView {
-                        clip: true
-                        GridLayout {
-                            columns: 2
-                            columnSpacing: 20
-                            width: parent.width - 20
-                            WavetableSynthDialog_Filter {
-                                Layout.preferredWidth: mainRow.moduleWidth * 1.5
-                                Layout.fillWidth: true
-                                Layout.alignment: Qt.AlignTop
-                            }
-                            WavetableSynthDialog_Envelopes {
-                                Layout.preferredWidth: mainRow.moduleWidth * 1.5
-                                Layout.fillWidth: true
-                                Layout.alignment: Qt.AlignTop
-                            }
-                        }
+                    WavetableSynthDialog_Tab2 {
+                        moduleWidth: mainRow.moduleWidth
                     }
-                    ScrollView {
-                        clip: true
-                        GridLayout {
-                            columns: 1
-                            columnSpacing: 20
-                            width: parent.width - 20
-                            WavetableSynthDialog_Lfo {
-                                Layout.preferredWidth: mainRow.moduleWidth * 3
-                                Layout.fillWidth: true
-                                Layout.alignment: Qt.AlignTop
-                            }
-                        }
+                    WavetableSynthDialog_Tab3 {
+                        moduleWidth: mainRow.moduleWidth
                     }
                 }
                 TabBar {

@@ -34,61 +34,61 @@ set(QML_SOURCE_FILES
     ${QML_BASE_DIR}/Components/WaveformView.qml
     ${QML_BASE_DIR}/Constants.qml
     ${QML_BASE_DIR}/Dialogs/AboutDialog.qml
-    ${QML_BASE_DIR}/Dialogs/AudioRenderDialog.qml
-    ${QML_BASE_DIR}/Dialogs/AutoPannerDialog.qml
-    ${QML_BASE_DIR}/Dialogs/ChorusDialog.qml
     ${QML_BASE_DIR}/Dialogs/AddMidiCcAutomationDialog.qml
     ${QML_BASE_DIR}/Dialogs/AddMidiCcSettingDialog.qml
     ${QML_BASE_DIR}/Dialogs/AddPitchBendAutomationDialog.qml
-    ${QML_BASE_DIR}/Dialogs/DeviceGalleryDialog.qml
-    ${QML_BASE_DIR}/Dialogs/DeviceInsertEffectsDialog.qml
-    ${QML_BASE_DIR}/Dialogs/DeviceRackDialog.qml
-    ${QML_BASE_DIR}/Dialogs/ColumnSettingsDialog.qml
-    ${QML_BASE_DIR}/Dialogs/ColumnSettingsDialog_InstrumentSettings.qml
-    ${QML_BASE_DIR}/Dialogs/ColumnSettingsDialog_MidiEffects.qml
-    ${QML_BASE_DIR}/Dialogs/ColumnSettingsDialog_TimingSettings.qml
-    ${QML_BASE_DIR}/Dialogs/CompressorDialog.qml
-    ${QML_BASE_DIR}/Dialogs/ClipperDialog.qml
-    ${QML_BASE_DIR}/Dialogs/Eq8BandParametricDialog.qml
-    ${QML_BASE_DIR}/Dialogs/DelayCalculatorDialog.qml
-    ${QML_BASE_DIR}/Dialogs/DeleteUnusedPatternsDialog.qml
-    ${QML_BASE_DIR}/Dialogs/DrumSynthDialog.qml
-    ${QML_BASE_DIR}/Dialogs/WavetableSynthDialog.qml
-    ${QML_BASE_DIR}/Dialogs/WavetableSynthDialog_Envelopes.qml
-    ${QML_BASE_DIR}/Dialogs/WavetableSynthDialog_Filter.qml
-    ${QML_BASE_DIR}/Dialogs/WavetableSynthDialog_Global.qml
-    ${QML_BASE_DIR}/Dialogs/WavetableSynthDialog_Lfo.qml
-    ${QML_BASE_DIR}/Dialogs/WavetableSynthDialog_Noise.qml
-    ${QML_BASE_DIR}/Dialogs/WavetableSynthDialog_Osc1.qml
-    ${QML_BASE_DIR}/Dialogs/WavetableSynthDialog_Osc2.qml
+    ${QML_BASE_DIR}/Dialogs/AudioRenderDialog.qml
+    ${QML_BASE_DIR}/Dialogs/AutoPannerDialog.qml
     ${QML_BASE_DIR}/Dialogs/BassSynthDialog.qml
     ${QML_BASE_DIR}/Dialogs/BassSynthDialog_Distortion.qml
     ${QML_BASE_DIR}/Dialogs/BassSynthDialog_Filter.qml
     ${QML_BASE_DIR}/Dialogs/BassSynthDialog_Global.qml
     ${QML_BASE_DIR}/Dialogs/BassSynthDialog_Oscillator.qml
+    ${QML_BASE_DIR}/Dialogs/ChorusDialog.qml
+    ${QML_BASE_DIR}/Dialogs/ClipperDialog.qml
+    ${QML_BASE_DIR}/Dialogs/ColumnSettingsDialog.qml
+    ${QML_BASE_DIR}/Dialogs/ColumnSettingsDialog_InstrumentSettings.qml
+    ${QML_BASE_DIR}/Dialogs/ColumnSettingsDialog_MidiEffects.qml
+    ${QML_BASE_DIR}/Dialogs/ColumnSettingsDialog_TimingSettings.qml
+    ${QML_BASE_DIR}/Dialogs/CompressorDialog.qml
+    ${QML_BASE_DIR}/Dialogs/DelayCalculatorDialog.qml
+    ${QML_BASE_DIR}/Dialogs/DeleteUnusedPatternsDialog.qml
+    ${QML_BASE_DIR}/Dialogs/DeviceGalleryDialog.qml
+    ${QML_BASE_DIR}/Dialogs/DeviceInsertEffectsDialog.qml
+    ${QML_BASE_DIR}/Dialogs/DeviceRackDialog.qml
+    ${QML_BASE_DIR}/Dialogs/DrumSynthDialog.qml
     ${QML_BASE_DIR}/Dialogs/EditMidiCcAutomationsDelegate.qml
     ${QML_BASE_DIR}/Dialogs/EditMidiCcAutomationsDialog.qml
     ${QML_BASE_DIR}/Dialogs/EditPitchBendAutomationsDelegate.qml
     ${QML_BASE_DIR}/Dialogs/EditPitchBendAutomationsDialog.qml
+    ${QML_BASE_DIR}/Dialogs/EffectSendsDialog.qml
     ${QML_BASE_DIR}/Dialogs/EffectsGalleryDialog.qml
+    ${QML_BASE_DIR}/Dialogs/Eq8BandParametricDialog.qml
     ${QML_BASE_DIR}/Dialogs/EventSelectionDialog.qml
     ${QML_BASE_DIR}/Dialogs/GainConverterDialog.qml
     ${QML_BASE_DIR}/Dialogs/IntegerInputDialog.qml
-    ${QML_BASE_DIR}/Dialogs/MasterEffectsDialog.qml
-    ${QML_BASE_DIR}/Dialogs/PannerDialog.qml
-    ${QML_BASE_DIR}/Dialogs/ReverbDialog.qml
-    ${QML_BASE_DIR}/Dialogs/EffectSendsDialog.qml
     ${QML_BASE_DIR}/Dialogs/InterpolationDialog.qml
     ${QML_BASE_DIR}/Dialogs/ManualDialog.qml
+    ${QML_BASE_DIR}/Dialogs/MasterEffectsDialog.qml
     ${QML_BASE_DIR}/Dialogs/MidiCcAutomationModel.qml
     ${QML_BASE_DIR}/Dialogs/MidiCcSelector.qml
     ${QML_BASE_DIR}/Dialogs/MidiExportDialog.qml
     ${QML_BASE_DIR}/Dialogs/MidiImportDialog.qml
     ${QML_BASE_DIR}/Dialogs/ModulationGroupBox.qml
     ${QML_BASE_DIR}/Dialogs/NoteFrequencyDialog.qml
+    ${QML_BASE_DIR}/Dialogs/PannerDialog.qml
     ${QML_BASE_DIR}/Dialogs/PitchBendAutomationModel.qml
     ${QML_BASE_DIR}/Dialogs/RecentFilesDialog.qml
+    ${QML_BASE_DIR}/Dialogs/ReverbDialog.qml
     ${QML_BASE_DIR}/Dialogs/SamplerDialog.qml
+    ${QML_BASE_DIR}/Dialogs/SettingsDialog.qml
+    ${QML_BASE_DIR}/Dialogs/SettingsDialog_AudioSettings.qml
+    ${QML_BASE_DIR}/Dialogs/SettingsDialog_GeneralSettings.qml
+    ${QML_BASE_DIR}/Dialogs/SettingsDialog_MidiSettings.qml
+    ${QML_BASE_DIR}/Dialogs/SettingsDialog_ThemeSettings.qml
+    ${QML_BASE_DIR}/Dialogs/ShortcutsDialog.qml
+    ${QML_BASE_DIR}/Dialogs/SideChainTargetDelegate.qml
+    ${QML_BASE_DIR}/Dialogs/StringInputDialog.qml
     ${QML_BASE_DIR}/Dialogs/SynthDialog.qml
     ${QML_BASE_DIR}/Dialogs/SynthDialog_AmpEg.qml
     ${QML_BASE_DIR}/Dialogs/SynthDialog_Delay.qml
@@ -101,20 +101,25 @@ set(QML_SOURCE_FILES
     ${QML_BASE_DIR}/Dialogs/SynthDialog_Vco1.qml
     ${QML_BASE_DIR}/Dialogs/SynthDialog_Vco2.qml
     ${QML_BASE_DIR}/Dialogs/SynthDialog_Vco3.qml
-    ${QML_BASE_DIR}/Dialogs/SettingsDialog.qml
-    ${QML_BASE_DIR}/Dialogs/SettingsDialog_AudioSettings.qml
-    ${QML_BASE_DIR}/Dialogs/SettingsDialog_GeneralSettings.qml
-    ${QML_BASE_DIR}/Dialogs/SettingsDialog_MidiSettings.qml
-    ${QML_BASE_DIR}/Dialogs/SettingsDialog_ThemeSettings.qml
-    ${QML_BASE_DIR}/Dialogs/ShortcutsDialog.qml
-    ${QML_BASE_DIR}/Dialogs/SideChainTargetDelegate.qml
-    ${QML_BASE_DIR}/Dialogs/StringInputDialog.qml
     ${QML_BASE_DIR}/Dialogs/TrackSettingsDialog.qml
     ${QML_BASE_DIR}/Dialogs/TrackSettingsDialog_InstrumentSettings.qml
     ${QML_BASE_DIR}/Dialogs/TrackSettingsDialog_MidiCcSettings.qml
     ${QML_BASE_DIR}/Dialogs/TrackSettingsDialog_MidiEffects.qml
     ${QML_BASE_DIR}/Dialogs/TrackSettingsDialog_TimingSettings.qml
     ${QML_BASE_DIR}/Dialogs/UnsavedChangesDialog.qml
+    ${QML_BASE_DIR}/Dialogs/WavetableSynthDialog.qml
+    ${QML_BASE_DIR}/Dialogs/WavetableSynthDialog_AmpEg.qml
+    ${QML_BASE_DIR}/Dialogs/WavetableSynthDialog_Filter.qml
+    ${QML_BASE_DIR}/Dialogs/WavetableSynthDialog_Global.qml
+    ${QML_BASE_DIR}/Dialogs/WavetableSynthDialog_Lfo1.qml
+    ${QML_BASE_DIR}/Dialogs/WavetableSynthDialog_Lfo2.qml
+    ${QML_BASE_DIR}/Dialogs/WavetableSynthDialog_ModEg.qml
+    ${QML_BASE_DIR}/Dialogs/WavetableSynthDialog_Noise.qml
+    ${QML_BASE_DIR}/Dialogs/WavetableSynthDialog_Osc1.qml
+    ${QML_BASE_DIR}/Dialogs/WavetableSynthDialog_Osc2.qml
+    ${QML_BASE_DIR}/Dialogs/WavetableSynthDialog_Tab1.qml
+    ${QML_BASE_DIR}/Dialogs/WavetableSynthDialog_Tab2.qml
+    ${QML_BASE_DIR}/Dialogs/WavetableSynthDialog_Tab3.qml
     ${QML_BASE_DIR}/Editor/AudioWaveView.qml
     ${QML_BASE_DIR}/Editor/Cursor.qml
     ${QML_BASE_DIR}/Editor/EditorView.qml
