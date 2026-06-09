@@ -27,6 +27,7 @@ Dialog {
     focus: true
     width: 1000
     height: 850
+    clip: true
 
     Universal.theme: Universal.Dark
     Universal.accent: themeService.accentColor
