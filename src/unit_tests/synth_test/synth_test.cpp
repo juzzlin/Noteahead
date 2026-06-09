@@ -926,6 +926,47 @@ void SynthTest::test_oscillatorOptimization_shouldSkipSilentOscillators()
     }
 }
 
+void SynthTest::test_liveUnisonDepth_shouldUpdateFrequency()
+{
+    SynthDevice synth { "Test Synth" };
+    synth.setVoiceMode(SynthDevice::VoiceMode::Unison);
+    synth.setVoiceDepth(0.0f);
+    synth.setPortamento(0.0f);
+
+    const uint8_t note = 60;
+    const double baseFreq = 440.0 * std::pow(2.0, (note - 69) / 12.0);
+
+    synth.processMidiNoteOn(note, 100);
+
+    // Initial check: all voices should have base frequency (depth 0)
+    for (int i = 0; i < SynthDevice::MaxVoices; i++) {
+        QCOMPARE(synth.voiceGlideFrequency(i), baseFreq);
+    }
+
+    // Process some audio to make sure we are in the rendering loop where live updates happen
+    double output[256] {};
+    AudioContext context { std::span(output, 256), 128, 44100 };
+    synth.processAudio(context);
+
+    // Update depth live
+    synth.setVoiceDepth(1.0f);
+
+    // Process audio again - this should trigger the live update in updateVoiceParameters
+    synth.processAudio(context);
+
+    // Verify frequencies are now detuned
+    for (int i = 0; i < SynthDevice::MaxVoices; i++) {
+        const double detuneAmount = (static_cast<double>(i) - (SynthDevice::MaxVoices - 1) / 2.0) * std::pow(1.0f, 1.5) * 0.2;
+        const double expectedFreq = baseFreq * std::pow(2.0, detuneAmount / 12.0);
+        QVERIFY(std::abs(synth.voiceGlideFrequency(i) - expectedFreq) < 0.001);
+    }
+
+    // Also check Pan Spread live update
+    synth.setPanSpread(1.0f);
+    synth.processAudio(context);
+    // (Note: we can't easily check voice.pan directly as it's private, but it's part of the same fix)
+}
+
 } // namespace noteahead
 
 QTEST_GUILESS_MAIN(noteahead::SynthTest)

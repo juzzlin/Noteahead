@@ -230,9 +230,10 @@ void SynthDevice::processAudio(AudioContext & context)
     const double pbOffset = (static_cast<double>(m_pitchBend) - 8192.0) / 8192.0 * m_pitchBendRange;
     const double pbRatio = std::exp2(pbOffset / 12.0);
 
-    for (auto && voice : m_voices) {
+    for (size_t i = 0; i < m_voices.size(); i++) {
+        auto & voice = m_voices.at(i);
         if (voice.active) {
-            renderVoice(voice, context, oversampledRate, portamentoCoeff, pbRatio);
+            renderVoice(voice, context, oversampledRate, portamentoCoeff, pbRatio, i);
         }
     }
 
@@ -251,9 +252,9 @@ void SynthDevice::prepareForProcessing(AudioContext & context)
     std::fill(m_oversampledBuffer.begin(), m_oversampledBuffer.begin() + requiredSize, 0.0f);
 }
 
-void SynthDevice::renderVoice(Voice & voice, AudioContext & context, uint32_t oversampledRate, double portamentoCoeff, double pbRatio)
+void SynthDevice::renderVoice(Voice & voice, AudioContext & context, uint32_t oversampledRate, double portamentoCoeff, double pbRatio, size_t index)
 {
-    updateVoiceParameters(voice, oversampledRate);
+    updateVoiceParameters(voice, oversampledRate, index);
 
     const float gain = (1.0f / static_cast<float>(MaxVoices)) * linearGainInternal() * voice.velocity;
     const float panL = (1.0f - voice.pan) * (1.0f - panInternal()) * 2.0f;
@@ -276,7 +277,7 @@ void SynthDevice::renderVoice(Voice & voice, AudioContext & context, uint32_t ov
     }
 }
 
-void SynthDevice::updateVoiceParameters(Voice & voice, uint32_t oversampledRate)
+void SynthDevice::updateVoiceParameters(Voice & voice, uint32_t oversampledRate, size_t index)
 {
     voice.vco1.setSampleRate(oversampledRate);
     voice.vco2.setSampleRate(oversampledRate);
@@ -299,6 +300,16 @@ void SynthDevice::updateVoiceParameters(Voice & voice, uint32_t oversampledRate)
     voice.multi.setShape(m_multiShape);
     voice.multi.setKeyTrack(m_multiKeyTrack);
     voice.multi.setNote(voice.note);
+
+    if (m_voiceMode == VoiceMode::Unison) {
+        const double baseFreq = midiNoteToFreq(voice.note);
+        const double detuneAmount = (static_cast<double>(index) - (MaxVoices - 1) / 2.0) * std::pow(m_voiceDepth, 1.5) * 0.2;
+        voice.frequency = baseFreq * std::pow(2.0, detuneAmount / 12.0);
+    }
+
+    const float side = (index % 2 == 0) ? -1.0f : 1.0f;
+    const float depth = 1.0f - static_cast<float>(index / 2) * (2.0f / static_cast<float>(MaxVoices));
+    voice.pan = 0.5f + (side * depth * m_panSpread * 0.5f);
 }
 
 void SynthDevice::applyGlobalEffects(AudioContext & context)

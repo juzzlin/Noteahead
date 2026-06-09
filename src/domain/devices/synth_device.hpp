@@ -368,8 +368,8 @@ private:
     float generateVoiceSample(Voice & voice, const ModulationValues & mods, double oversampledRate, double pbRatio);
 
     void prepareForProcessing(AudioContext & context);
-    void updateVoiceParameters(Voice & voice, uint32_t oversampledRate);
-    void renderVoice(Voice & voice, AudioContext & context, uint32_t oversampledRate, double portamentoCoeff, double pbRatio);
+    void updateVoiceParameters(Voice & voice, uint32_t oversampledRate, size_t index);
+    void renderVoice(Voice & voice, AudioContext & context, uint32_t oversampledRate, double portamentoCoeff, double pbRatio, size_t index);
     void applyGlobalEffects(AudioContext & context);
 
     std::string m_name;

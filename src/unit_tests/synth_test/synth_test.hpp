@@ -55,6 +55,7 @@ private slots:
     void test_midiVelocity_shouldAffectVolume();
     void test_velocitySensitivity_shouldAffectVoiceVelocity();
     void test_oscillatorOptimization_shouldSkipSilentOscillators();
+    void test_liveUnisonDepth_shouldUpdateFrequency();
 };
 
 } // namespace noteahead
