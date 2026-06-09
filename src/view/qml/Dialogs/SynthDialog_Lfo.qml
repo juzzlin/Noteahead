@@ -28,7 +28,7 @@ ColumnLayout {
             Layout.fillWidth: true
         }
         ComboBox {
-            model: ["Normal", "BPM", "1-Shot"]
+            model: synthController.lfoModeNames
             currentIndex: synthController.lfoMode
             onActivated: i => synthController.lfoMode = i
             Layout.fillWidth: true
@@ -36,7 +36,7 @@ ColumnLayout {
     }
     RowLayout {
         ComboBox {
-            model: ["Pitch", "Shape", "Cutoff"]
+            model: synthController.lfoTargetNames
             currentIndex: synthController.lfoTarget
             onActivated: i => synthController.lfoTarget = i
             Layout.fillWidth: true

@@ -81,6 +81,31 @@ QStringList SynthController::voiceModes() const
     return { tr("Poly"), tr("Unison") };
 }
 
+QStringList SynthController::octaveNames() const
+{
+    return { "16'", "8'", "4'", "2'" };
+}
+
+QStringList SynthController::multiTypeNames() const
+{
+    return { tr("High"), tr("Low"), tr("Peak"), tr("Decim") };
+}
+
+QStringList SynthController::modTargetNames() const
+{
+    return { tr("Pitch 1"), tr("Pitch 2"), tr("Pitch 3"), tr("Cutoff") };
+}
+
+QStringList SynthController::lfoModeNames() const
+{
+    return { tr("Normal"), tr("BPM"), tr("1-Shot") };
+}
+
+QStringList SynthController::lfoTargetNames() const
+{
+    return { tr("Pitch"), tr("Shape"), tr("Cutoff") };
+}
+
 // VCO1
 int SynthController::vco1Waveform() const
 {

@@ -22,7 +22,7 @@ ColumnLayout {
 
     RowLayout {
         ComboBox {
-            model: ["High", "Low", "Peak", "Decim"]
+            model: synthController.multiTypeNames
             currentIndex: synthController.multiType
             onActivated: i => synthController.multiType = i
             Layout.fillWidth: true

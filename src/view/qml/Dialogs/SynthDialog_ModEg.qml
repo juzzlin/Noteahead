@@ -22,7 +22,7 @@ ColumnLayout {
 
     RowLayout {
         ComboBox {
-            model: ["Pitch 1", "Pitch 2", "Pitch 3", "Cutoff"]
+            model: synthController.modTargetNames
             currentIndex: synthController.modTarget
             onActivated: i => synthController.modTarget = i
             Layout.fillWidth: true

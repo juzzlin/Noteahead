@@ -28,7 +28,7 @@ ColumnLayout {
             Layout.fillWidth: true
         }
         ComboBox {
-            model: ["16'", "8'", "4'", "2'"]
+            model: synthController.octaveNames
             currentIndex: synthController.vco3Octave + 1
             onActivated: i => synthController.vco3Octave = i - 1
             Layout.fillWidth: true
