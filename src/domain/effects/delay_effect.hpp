@@ -43,6 +43,7 @@ public:
     void process(AudioContext & context) override;
     void setSampleRate(double sampleRate) override;
     void reset() override;
+    void sync() override;
 
     void setType(Type type);
     void setTime(double seconds);

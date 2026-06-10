@@ -598,6 +598,41 @@ void EffectsTest::test_delayEffect_shouldProcessTapeMode()
     QVERIFY(foundEcho);
 }
 
+void EffectsTest::test_delayEffect_shouldSyncParameters()
+{
+    DelayEffect effect;
+    effect.setSampleRate(44100.0);
+
+    // Initial check (defaults)
+    QCOMPARE(effect.feedbackLpf(), 1.0);
+    QCOMPARE(effect.feedbackHpf(), 0.0);
+
+    // Test Discrete Type
+    if (const auto p = effect.parameter(Constants::NahdXml::xmlKeyDelayType().toStdString()); p) {
+        p->get().setFromXml(2); // PingPong
+        effect.sync();
+    }
+
+    // Test Continuous Time
+    if (const auto p = effect.parameter(Constants::NahdXml::xmlKeyDelayTime().toStdString()); p) {
+        p->get().setValue(0.123f); // 1.23 seconds because of * 10.0 scaling
+        effect.sync();
+    }
+
+    // Test Feedback LPF/HPF which have getters
+    if (const auto p = effect.parameter(Constants::NahdXml::xmlKeyDelayFeedbackLpf().toStdString()); p) {
+        p->get().setValue(0.456f);
+        effect.sync();
+        QCOMPARE(effect.feedbackLpf(), 0.456f);
+    }
+
+    if (const auto p = effect.parameter(Constants::NahdXml::xmlKeyDelayFeedbackHpf().toStdString()); p) {
+        p->get().setValue(0.789f);
+        effect.sync();
+        QCOMPARE(effect.feedbackHpf(), 0.789f);
+    }
+}
+
 void EffectsTest::test_compressorEffect_shouldReduceGainAndHandleLookahead()
 {
     CompressorEffect effect;

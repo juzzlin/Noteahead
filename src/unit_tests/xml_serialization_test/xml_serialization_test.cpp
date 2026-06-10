@@ -32,6 +32,7 @@
 #include "domain/devices/synth_device.hpp"
 #include "domain/dsp/chorus_effect.hpp"
 #include "domain/dsp/reverb_effect.hpp"
+#include "domain/effects/delay_effect.hpp"
 #include "domain/effects/effect_factory.hpp"
 #include "domain/tracker/column_settings.hpp"
 #include "domain/tracker/instrument.hpp"
@@ -1040,6 +1041,84 @@ void XmlSerializationTest::test_toXmlFromXml_chorusEffect_shouldLoadCorrectly()
     QCOMPARE(restoredChorus->width(), 0.8f);
     QCOMPARE(restoredChorus->lpfCutoff(), 0.9f);
     QCOMPARE(restoredChorus->hpfCutoff(), 0.1f);
+}
+
+void XmlSerializationTest::test_toXmlFromXml_delayEffectRack_shouldLoadCorrectly()
+{
+    const auto engineOut = std::make_shared<AudioEngine>();
+    DeviceService deviceServiceOut { engineOut, std::make_shared<DataService>() };
+
+    // Add a delay effect to slot 1 of master send rack
+    auto delay = std::make_shared<DelayEffect>();
+    delay->setType(DelayEffect::Type::PingPong);
+    delay->setTime(0.5);
+    delay->setFeedback(0.7);
+    delay->setDepth(0.8);
+    delay->setMix(0.4);
+    delay->setSync(true);
+    delay->setSyncDivision(0.25);
+    delay->setFeedbackLpf(0.6);
+    delay->setFeedbackHpf(0.1);
+    // Important: sync() must be called to update the Parameter values from internal state before serialization
+    // OR, we should set the parameter values directly if that's how it's normally done.
+    // Actually, in normal usage, the UI sets parameters, which are then synced to internal state.
+    // For the test, we can set parameters and then check if they persist.
+    if (const auto p = delay->parameter(Constants::NahdXml::xmlKeyDelayType().toStdString()); p)
+        p->get().setFromXml(2);
+    if (const auto p = delay->parameter(Constants::NahdXml::xmlKeyDelayTime().toStdString()); p)
+        p->get().setValue(0.05f); // 0.5s
+    if (const auto p = delay->parameter(Constants::NahdXml::xmlKeyDelayFeedback().toStdString()); p)
+        p->get().setValue(0.7f);
+    if (const auto p = delay->parameter(Constants::NahdXml::xmlKeyDelayDepth().toStdString()); p)
+        p->get().setValue(0.8f);
+    if (const auto p = delay->parameter(Constants::NahdXml::xmlKeyDelayMix().toStdString()); p)
+        p->get().setValue(0.4f);
+    if (const auto p = delay->parameter(Constants::NahdXml::xmlKeyDelaySync().toStdString()); p)
+        p->get().setValue(1.0f);
+    if (const auto p = delay->parameter(Constants::NahdXml::xmlKeyDelaySyncDivision().toStdString()); p)
+        p->get().setValue(0.25f);
+    if (const auto p = delay->parameter(Constants::NahdXml::xmlKeyDelayFeedbackLpf().toStdString()); p)
+        p->get().setValue(0.6f);
+    if (const auto p = delay->parameter(Constants::NahdXml::xmlKeyDelayFeedbackHpf().toStdString()); p)
+        p->get().setValue(0.1f);
+
+    deviceServiceOut.sendEffectRack().setEffect(1, delay);
+
+    EditorService editorServiceOut { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+    connect(&editorServiceOut, &EditorService::devicesSerializationRequested, &deviceServiceOut, &DeviceService::serializeToXml);
+
+    const auto xml = editorServiceOut.toXml();
+
+    const auto engineIn = std::make_shared<AudioEngine>();
+    DeviceService deviceServiceIn { engineIn, std::make_shared<DataService>() };
+    EditorService editorServiceIn { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+    connect(&editorServiceIn, &EditorService::devicesDeserializationRequested, &deviceServiceIn, &DeviceService::deserializeFromXml);
+
+    editorServiceIn.fromXml(xml);
+
+    auto effect = deviceServiceIn.sendEffectRack().effect(1);
+    QVERIFY(effect);
+    QCOMPARE(effect->typeId(), DelayEffect::typeIdString());
+
+    // Verify parameter values
+    if (const auto p = effect->parameter(Constants::NahdXml::xmlKeyDelayType().toStdString()); p)
+        QCOMPARE(p->get().xmlValue(), 2);
+    if (const auto p = effect->parameter(Constants::NahdXml::xmlKeyDelayTime().toStdString()); p)
+        QCOMPARE(p->get().value(), 0.05f);
+    if (const auto p = effect->parameter(Constants::NahdXml::xmlKeyDelayFeedback().toStdString()); p)
+        QCOMPARE(p->get().value(), 0.7f);
+    if (const auto p = effect->parameter(Constants::NahdXml::xmlKeyDelayDepth().toStdString()); p)
+        QCOMPARE(p->get().value(), 0.8f);
+    if (const auto p = effect->parameter(Constants::NahdXml::xmlKeyDelayMix().toStdString()); p)
+        QCOMPARE(p->get().value(), 0.4f);
+    if (const auto p = effect->parameter(Constants::NahdXml::xmlKeyDelaySync().toStdString()); p)
+        QCOMPARE(p->get().value(), 1.0f);
+    if (const auto p = effect->parameter(Constants::NahdXml::xmlKeyDelaySyncDivision().toStdString()); p)
+        QCOMPARE(p->get().value(), 0.25f);
+    if (const auto p = effect->parameter(Constants::NahdXml::xmlKeyDelayFeedbackLpf().toStdString()); p)
+        QCOMPARE(p->get().value(), 0.6f);
+    if (const auto p = effect->parameter(Constants::NahdXml::xmlKeyDelayFeedbackHpf().toStdString()); p)
+        QCOMPARE(p->get().value(), 0.1f);
 }
 
 void XmlSerializationTest::test_fromXml_samplerDevice_missingId_shouldNotThrow()

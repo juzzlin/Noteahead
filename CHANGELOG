@@ -5,6 +5,8 @@ Release date:
 
 New features:
 
+* Implement Delay as a generic rack effect
+
 * Implement Chorus effect
 
 * Implement reduction meter for Clipper

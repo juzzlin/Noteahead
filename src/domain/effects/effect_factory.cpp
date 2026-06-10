@@ -21,6 +21,7 @@
 #include "domain/dsp/eq_8_band_parametric_effect.hpp"
 #include "domain/dsp/reverb_effect.hpp"
 #include "domain/effects/auto_panner_effect.hpp"
+#include "domain/effects/delay_effect.hpp"
 #include "domain/effects/panner_effect.hpp"
 
 #include <map>
@@ -77,6 +78,7 @@ void EffectFactory::init()
     registerEffect(ChorusEffect::typeIdString(), []() { return std::make_shared<ChorusEffect>(); });
     registerEffect(ClipperEffect::typeIdString(), []() { return std::make_shared<ClipperEffect>(); });
     registerEffect(CompressorEffect::typeIdString(), []() { return std::make_shared<CompressorEffect>(); });
+    registerEffect(DelayEffect::typeIdString(), []() { return std::make_shared<DelayEffect>(); });
     registerEffect(Eq8BandParametricEffect::typeIdString(), []() { return std::make_shared<Eq8BandParametricEffect>(); });
     registerEffect(PannerEffect::typeIdString(), []() { return std::make_shared<PannerEffect>(); });
     registerEffect(ReverbEffect::typeIdString(), []() { return std::make_shared<ReverbEffect>(); });
@@ -86,6 +88,7 @@ void EffectFactory::init()
     registerLegacyEffect("chorus", []() { return std::make_shared<ChorusEffect>(); });
     registerLegacyEffect("clipper", []() { return std::make_shared<ClipperEffect>(); });
     registerLegacyEffect("compressor", []() { return std::make_shared<CompressorEffect>(); });
+    registerLegacyEffect("delay", []() { return std::make_shared<DelayEffect>(); });
     registerLegacyEffect("eq_8_band_parametric", []() { return std::make_shared<Eq8BandParametricEffect>(); });
     registerLegacyEffect("panner", []() { return std::make_shared<PannerEffect>(); });
     registerLegacyEffect("reverb", []() { return std::make_shared<ReverbEffect>(); });

@@ -276,26 +276,44 @@ ApplicationWindow {
     ReverbDialog {
         id: reverbDialog
         anchors.centerIn: parent
+        width: parent.width * Constants.effectDialogScale
+        height: parent.height * Constants.effectDialogScale
     }
     ChorusDialog {
         id: chorusDialog
         anchors.centerIn: parent
+        width: parent.width * Constants.effectDialogScale
+        height: parent.height * Constants.effectDialogScale
     }
     PannerDialog {
         id: pannerDialog
         anchors.centerIn: parent
+        width: parent.width * Constants.effectDialogScale
+        height: parent.height * Constants.effectDialogScale
     }
     AutoPannerDialog {
         id: autoPannerDialog
         anchors.centerIn: parent
+        width: parent.width * Constants.effectDialogScale
+        height: parent.height * Constants.effectDialogScale
     }
     CompressorDialog {
         id: compressorDialog
         anchors.centerIn: parent
+        width: parent.width * Constants.effectDialogScale
+        height: parent.height * Constants.effectDialogScale
+    }
+    DelayDialog {
+        id: delayDialog
+        anchors.centerIn: parent
+        width: parent.width * Constants.effectDialogScale
+        height: parent.height * Constants.effectDialogScale
     }
     ClipperDialog {
         id: clipperDialog
         anchors.centerIn: parent
+        width: parent.width * Constants.effectDialogScale
+        height: parent.height * Constants.effectDialogScale
     }
     Eq8BandParametricDialog {
         id: eq8BandParametricDialog

@@ -29,6 +29,49 @@ DelayEffect::DelayEffect()
     m_fbLpfR.setMode(CascadedSvf::Mode::LowPass);
     m_fbHpfL.setMode(CascadedSvf::Mode::HighPass);
     m_fbHpfR.setMode(CascadedSvf::Mode::HighPass);
+
+    addParameter(Parameter { Constants::NahdXml::xmlKeyDelayType().toStdString(), 0.0f, 0, 3, 0, 1, Parameter::Type::Discrete });
+    addParameter(Parameter { Constants::NahdXml::xmlKeyDelayTime().toStdString(), 0.5f, 0, 10000, 500 });
+    addParameter(Parameter { Constants::NahdXml::xmlKeyDelayFeedback().toStdString(), 0.3f, 0, 10000, 3000, 100 });
+    addParameter(Parameter { Constants::NahdXml::xmlKeyDelayDepth().toStdString(), 0.5f, 0, 10000, 5000, 100 });
+    addParameter(Parameter { Constants::NahdXml::xmlKeyDelayMix().toStdString(), 0.0f, 0, 10000, 0, 100 });
+    addParameter(Parameter { Constants::NahdXml::xmlKeyDelaySync().toStdString(), 0.0f, 0, 1, 0, 1, Parameter::Type::Boolean });
+    addParameter(Parameter { Constants::NahdXml::xmlKeyDelaySyncDivision().toStdString(), 0.25f, 0, 10000, 2500, 100 });
+    addParameter(Parameter { Constants::NahdXml::xmlKeyDelayFeedbackLpf().toStdString(), 1.0f, 0, 10000, 10000, 100 });
+    addParameter(Parameter { Constants::NahdXml::xmlKeyDelayFeedbackHpf().toStdString(), 0.0f, 0, 10000, 0, 100 });
+}
+
+void DelayEffect::sync()
+{
+    if (const auto p = parameter(Constants::NahdXml::xmlKeyDelayType().toStdString()); p) {
+        m_type = static_cast<Type>(p->get().xmlValue());
+    }
+    if (const auto p = parameter(Constants::NahdXml::xmlKeyDelayTime().toStdString()); p) {
+        m_time = p->get().value() * 10.0;
+    }
+    if (const auto p = parameter(Constants::NahdXml::xmlKeyDelayFeedback().toStdString()); p) {
+        m_feedback = p->get().value();
+    }
+    if (const auto p = parameter(Constants::NahdXml::xmlKeyDelayDepth().toStdString()); p) {
+        m_depth = p->get().value();
+    }
+    if (const auto p = parameter(Constants::NahdXml::xmlKeyDelayMix().toStdString()); p) {
+        m_mix = p->get().value();
+    }
+    if (const auto p = parameter(Constants::NahdXml::xmlKeyDelaySync().toStdString()); p) {
+        m_sync = p->get().value() > 0.5;
+    }
+    if (const auto p = parameter(Constants::NahdXml::xmlKeyDelaySyncDivision().toStdString()); p) {
+        m_syncDivision = p->get().value();
+    }
+    if (const auto p = parameter(Constants::NahdXml::xmlKeyDelayFeedbackLpf().toStdString()); p) {
+        m_feedbackLpfCutoff = p->get().value();
+    }
+    if (const auto p = parameter(Constants::NahdXml::xmlKeyDelayFeedbackHpf().toStdString()); p) {
+        m_feedbackHpfCutoff = p->get().value();
+    }
+
+    updateFilters();
 }
 
 void DelayEffect::process(double & left, double & right)

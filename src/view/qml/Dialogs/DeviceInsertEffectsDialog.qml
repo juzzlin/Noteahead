@@ -98,6 +98,9 @@ Dialog {
                         } else if (effectType === effectRackController.compressorType) {
                             compressorDialog.effectIndex = index;
                             compressorDialog.open();
+                        } else if (effectType === effectRackController.delayType) {
+                            delayDialog.effectIndex = index;
+                            delayDialog.open();
                         } else if (effectType === effectRackController.eq8BandParametricType) {
                             eq8BandParametricDialog.effectIndex = index;
                             eq8BandParametricDialog.open();
