@@ -25,6 +25,23 @@ class LfoTest : public QObject
     Q_OBJECT
 
 private slots:
+    void test_waveformNames_shouldContainFiveEntries();
+
+    void test_sineWaveform_shouldOutputZeroAtPhaseZero();
+    void test_sineWaveform_shouldOutputOneAtQuarterCycle();
+    void test_sawWaveform_shouldStartAtNegativeOne();
+    void test_sawWaveform_shouldRampToPositiveOne();
+    void test_triangleWaveform_shouldStartAtNegativeOne();
+    void test_triangleWaveform_shouldPeakAtMidCycle();
+    void test_squareWaveform_shouldOutputOneInFirstHalf();
+    void test_squareWaveform_shouldOutputNegativeOneInSecondHalf();
+
+    void test_oneShotMode_shouldStopAfterOneCycle();
+    void test_normalMode_shouldContinueAcrossMultipleCycles();
+
+    void test_setPhase_shouldAffectOutput();
+    void test_higherFrequency_shouldProduceShorterCycle();
+
     void test_randomWaveform_shouldProduceValuesInRange();
     void test_randomWaveform_shouldHoldValueForOneCycle();
     void test_randomWaveform_shouldBeDeterministicAfterReset();
