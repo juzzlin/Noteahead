@@ -17,6 +17,8 @@ New features:
 
 * Make it possible to embed samples in the project file
 
+* Add Random (sample-and-hold) LFO waveform type to all synths
+
 Bug fixes:
 
 * Improve synth voice stealing logic

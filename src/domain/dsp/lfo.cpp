@@ -22,7 +22,7 @@ namespace noteahead {
 
 std::vector<std::string> Lfo::waveformNames()
 {
-    return { "Saw", "Triangle", "Square", "Sine" };
+    return { "Saw", "Triangle", "Square", "Sine", "Random" };
 }
 
 void Lfo::setSampleRate(double sampleRate)
@@ -65,6 +65,8 @@ void Lfo::reset()
 {
     m_phase = 0.0;
     m_oneShotActive = true;
+    m_rng.seed(0);
+    m_randomValue = m_dist(m_rng);
 }
 
 double Lfo::nextSample()
@@ -88,11 +90,17 @@ double Lfo::nextSample()
     case Waveform::Square:
         value = (m_phase < 0.5) ? 1.0 : -1.0;
         break;
+    case Waveform::Random:
+        value = m_randomValue;
+        break;
     }
 
     m_phase += m_phaseStep;
     if (m_phase >= 1.0) {
         m_phase -= 1.0;
+        if (m_waveform == Waveform::Random) {
+            m_randomValue = m_dist(m_rng);
+        }
         if (m_mode == Mode::OneShot) {
             m_oneShotActive = false;
             value = 0.0;

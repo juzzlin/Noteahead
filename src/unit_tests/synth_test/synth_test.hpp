@@ -56,6 +56,7 @@ private slots:
     void test_velocitySensitivity_shouldAffectVoiceVelocity();
     void test_oscillatorOptimization_shouldSkipSilentOscillators();
     void test_liveUnisonDepth_shouldUpdateFrequency();
+    void test_lfoWaveform_random_serialization_shouldPreserveState();
 };
 
 } // namespace noteahead

@@ -18,6 +18,7 @@
 
 #include "dsp_component.hpp"
 
+#include <random>
 #include <string>
 #include <vector>
 
@@ -32,6 +33,7 @@ public:
         Sine = 3,
         Square = 2,
         Triangle = 1,
+        Random = 4,
     };
 
     static std::vector<std::string> waveformNames();
@@ -60,6 +62,10 @@ private:
     double m_phase { 0.0 };
     double m_phaseStep { 0.0 };
     bool m_oneShotActive { true };
+
+    double m_randomValue { 0.0 };
+    std::mt19937 m_rng { 0 };
+    std::uniform_real_distribution<double> m_dist { -1.0, 1.0 };
 
     void updatePhaseStep();
 };

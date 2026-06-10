@@ -150,7 +150,7 @@ SynthDevice::SynthDevice(std::string name)
     addParameter(Parameter { Constants::NahdXml::xmlKeySynthModIntensity().toStdString(), 0.5f, -10000, 10000, 0, 100 });
     addParameter(Parameter { Constants::NahdXml::xmlKeySynthModTarget().toStdString(), 3.0f, 0, 3, 3, 1, Parameter::Type::Discrete }); // Cutoff default
 
-    addParameter(Parameter { Constants::NahdXml::xmlKeySynthLfoWaveform().toStdString(), 1.0f, 0, 3, 1, 1, Parameter::Type::Discrete }); // Tri default
+    addParameter(Parameter { Constants::NahdXml::xmlKeySynthLfoWaveform().toStdString(), 1.0f, 0, 4, 1, 1, Parameter::Type::Discrete }); // Tri default
     addParameter(Parameter { Constants::NahdXml::xmlKeySynthLfoMode().toStdString(), 0.0f, 0, 2, 0, 1, Parameter::Type::Discrete }); // Normal default
     addParameter(Parameter { Constants::NahdXml::xmlKeySynthLfoRate().toStdString(), 0.5f, 0, 10000, 5000, 100 });
     addParameter(Parameter { Constants::NahdXml::xmlKeySynthLfoIntensity().toStdString(), 0.5f, -10000, 10000, 0, 100 });

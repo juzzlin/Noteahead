@@ -39,6 +39,8 @@ private slots:
     void test_lfo2_defaultValues_shouldBeCorrect();
     void test_lfo2_parameterSetting_shouldUpdateValues();
     void test_lfo2_serialization_shouldPreserveState();
+    void test_lfoWaveform_random_serialization_shouldPreserveState();
+    void test_lfo2Waveform_random_serialization_shouldPreserveState();
 };
 
 } // namespace noteahead

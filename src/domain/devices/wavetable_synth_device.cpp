@@ -115,13 +115,13 @@ WavetableSynthDevice::WavetableSynthDevice(std::string name)
     addParameter(Parameter { Constants::NahdXml::xmlKeyWavetableSynthModIntensity().toStdString(), 0.5f, 0, 10000, 5000, 100 });
     addParameter(Parameter { Constants::NahdXml::xmlKeyWavetableSynthModTarget().toStdString(), 0.0f, 0, 4, 0, 1, Parameter::Type::Discrete });
 
-    addParameter(Parameter { Constants::NahdXml::xmlKeyWavetableSynthLfoWaveform().toStdString(), 1.0f, 0, 3, 1, 1, Parameter::Type::Discrete });
+    addParameter(Parameter { Constants::NahdXml::xmlKeyWavetableSynthLfoWaveform().toStdString(), 1.0f, 0, 4, 1, 1, Parameter::Type::Discrete });
     addParameter(Parameter { Constants::NahdXml::xmlKeyWavetableSynthLfoMode().toStdString(), 0.0f, 0, 2, 0, 1, Parameter::Type::Discrete });
     addParameter(Parameter { Constants::NahdXml::xmlKeyWavetableSynthLfoRate().toStdString(), 0.5f, 0, 10000, 5000, 100 });
     addParameter(Parameter { Constants::NahdXml::xmlKeyWavetableSynthLfoIntensity().toStdString(), 0.5f, 0, 10000, 5000, 100 });
     addParameter(Parameter { Constants::NahdXml::xmlKeyWavetableSynthLfoTarget().toStdString(), 0.0f, 0, 3, 0, 1, Parameter::Type::Discrete });
 
-    addParameter(Parameter { Constants::NahdXml::xmlKeyWavetableSynthLfo2Waveform().toStdString(), 1.0f, 0, 3, 1, 1, Parameter::Type::Discrete });
+    addParameter(Parameter { Constants::NahdXml::xmlKeyWavetableSynthLfo2Waveform().toStdString(), 1.0f, 0, 4, 1, 1, Parameter::Type::Discrete });
     addParameter(Parameter { Constants::NahdXml::xmlKeyWavetableSynthLfo2Mode().toStdString(), 0.0f, 0, 2, 0, 1, Parameter::Type::Discrete });
     addParameter(Parameter { Constants::NahdXml::xmlKeyWavetableSynthLfo2Rate().toStdString(), 0.5f, 0, 10000, 5000, 100 });
     addParameter(Parameter { Constants::NahdXml::xmlKeyWavetableSynthLfo2Intensity().toStdString(), 0.5f, 0, 10000, 5000, 100 });

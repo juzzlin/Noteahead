@@ -340,6 +340,42 @@ void WavetableSynthTest::test_lfo2_serialization_shouldPreserveState()
     QCOMPARE(synth2.lfo2Target(), WavetableSynthDevice::LfoTarget::Cutoff);
 }
 
+void WavetableSynthTest::test_lfoWaveform_random_serialization_shouldPreserveState()
+{
+    WavetableSynthDevice synth1 { "Test Synth 1" };
+    synth1.setLfoWaveform(Lfo::Waveform::Random);
+
+    QString xml;
+    QXmlStreamWriter writer { &xml };
+    synth1.serializeToXml(writer);
+
+    WavetableSynthDevice synth2 { "Test Synth 2" };
+    QXmlStreamReader reader { xml };
+    if (reader.readNextStartElement()) {
+        synth2.deserializeFromXml(reader);
+    }
+
+    QCOMPARE(synth2.lfoWaveform(), Lfo::Waveform::Random);
+}
+
+void WavetableSynthTest::test_lfo2Waveform_random_serialization_shouldPreserveState()
+{
+    WavetableSynthDevice synth1 { "Test Synth 1" };
+    synth1.setLfo2Waveform(Lfo::Waveform::Random);
+
+    QString xml;
+    QXmlStreamWriter writer { &xml };
+    synth1.serializeToXml(writer);
+
+    WavetableSynthDevice synth2 { "Test Synth 2" };
+    QXmlStreamReader reader { xml };
+    if (reader.readNextStartElement()) {
+        synth2.deserializeFromXml(reader);
+    }
+
+    QCOMPARE(synth2.lfo2Waveform(), Lfo::Waveform::Random);
+}
+
 } // namespace noteahead
 
 QTEST_GUILESS_MAIN(noteahead::WavetableSynthTest)

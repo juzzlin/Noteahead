@@ -967,6 +967,27 @@ void SynthTest::test_liveUnisonDepth_shouldUpdateFrequency()
     // (Note: we can't easily check voice.pan directly as it's private, but it's part of the same fix)
 }
 
+void SynthTest::test_lfoWaveform_random_serialization_shouldPreserveState()
+{
+    QByteArray data;
+    {
+        SynthDevice synth { "Test Synth" };
+        synth.setLfoWaveform(Lfo::Waveform::Random);
+        QXmlStreamWriter writer(&data);
+        synth.serializeToXml(writer);
+    }
+
+    {
+        SynthDevice synth { "Test Synth" };
+        QXmlStreamReader reader(data);
+        while (!reader.atEnd() && !reader.isStartElement()) {
+            reader.readNext();
+        }
+        synth.deserializeFromXml(reader);
+        QCOMPARE(synth.lfoWaveform(), Lfo::Waveform::Random);
+    }
+}
+
 } // namespace noteahead
 
 QTEST_GUILESS_MAIN(noteahead::SynthTest)
