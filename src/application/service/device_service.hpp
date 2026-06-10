@@ -31,6 +31,7 @@ class QXmlStreamWriter;
 namespace noteahead {
 
 class AudioEngine;
+class DataService;
 
 class DeviceService : public QObject
 {
@@ -38,7 +39,8 @@ class DeviceService : public QObject
 
 public:
     using AudioEngineS = std::shared_ptr<AudioEngine>;
-    explicit DeviceService(AudioEngineS audioEngine, QObject * parent = nullptr);
+    using DataServiceS = std::shared_ptr<DataService>;
+    explicit DeviceService(AudioEngineS audioEngine, DataServiceS dataService, QObject * parent = nullptr);
     ~DeviceService() override;
 
     using DeviceS = std::shared_ptr<Device>;
@@ -73,6 +75,8 @@ public:
     void serializeToXml(QXmlStreamWriter & writer) const;
     void deserializeFromXml(QXmlStreamReader & reader);
 
+    std::map<QString, QString> getFilesToEmbed() const;
+
     void reset();
 
     EffectRack & sendEffectRack();
@@ -84,6 +88,7 @@ signals:
 
 private:
     AudioEngineS m_audioEngine;
+    DataServiceS m_dataService;
     UserPresets m_synthUserPresets;
     std::string m_projectPath;
 };

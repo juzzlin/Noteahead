@@ -22,6 +22,7 @@
 #include "application/service/settings_service.hpp"
 #include "domain/tracker/note_data.hpp"
 #include "domain/tracker/song.hpp"
+#include "infra/data_service.hpp"
 
 #include <QSignalSpy>
 #include <QTest>
@@ -30,7 +31,7 @@ namespace noteahead {
 
 void EditorServiceUndoTest::test_undoRedo_noteOn_shouldUndoAndRedo()
 {
-    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
+    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
     editorService.requestPosition(0, 0, 0, 0, 0);
 
     // Initial state: No data
@@ -57,7 +58,7 @@ void EditorServiceUndoTest::test_undoRedo_noteOn_shouldUndoAndRedo()
 
 void EditorServiceUndoTest::test_undoRedo_noteOff_shouldUndoAndRedo()
 {
-    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
+    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
     editorService.requestPosition(0, 0, 0, 0, 0);
 
     // Initial state: No data
@@ -79,7 +80,7 @@ void EditorServiceUndoTest::test_undoRedo_noteOff_shouldUndoAndRedo()
 
 void EditorServiceUndoTest::test_undoRedo_velocityChange_shouldUndoAndRedo()
 {
-    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
+    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
     editorService.requestPosition(0, 0, 0, 0, 0);
     editorService.requestNoteOnAtCurrentPosition(1, 3, 64);
 
@@ -103,7 +104,7 @@ void EditorServiceUndoTest::test_undoRedo_velocityChange_shouldUndoAndRedo()
 
 void EditorServiceUndoTest::test_undoRedo_deleteNote_shouldUndoAndRedo()
 {
-    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
+    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
     editorService.requestPosition(0, 0, 0, 0, 0);
     editorService.requestNoteOnAtCurrentPosition(1, 3, 64);
 
@@ -123,7 +124,7 @@ void EditorServiceUndoTest::test_undoRedo_deleteNote_shouldUndoAndRedo()
 
 void EditorServiceUndoTest::test_undoRedo_insertNote_shouldUndoAndRedo()
 {
-    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
+    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
     editorService.requestPosition(0, 0, 0, 0, 0);
     editorService.requestNoteOnAtCurrentPosition(1, 3, 64);
 
@@ -147,7 +148,7 @@ void EditorServiceUndoTest::test_undoRedo_insertNote_shouldUndoAndRedo()
 
 void EditorServiceUndoTest::test_undoRedo_backspaceNote_shouldUndoAndRedo()
 {
-    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
+    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
     editorService.requestPosition(0, 0, 0, 1, 0);
     editorService.requestNoteOnAtCurrentPosition(1, 3, 64);
 
@@ -176,7 +177,7 @@ void EditorServiceUndoTest::test_undoRedo_backspaceNote_shouldUndoAndRedo()
 
 void EditorServiceUndoTest::test_undoRedo_noteOffWithRedundantRemoval_shouldUndoAndRedo()
 {
-    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
+    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
 
     // 1. Insert Note Off at Line 2
     editorService.requestPosition(0, 0, 0, 2, 0);
@@ -225,7 +226,7 @@ void EditorServiceUndoTest::test_undoRedo_noteOffWithRedundantRemoval_shouldUndo
 
 void EditorServiceUndoTest::test_undoRedo_pasteColumn_shouldUndoAndRedo()
 {
-    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
+    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
     editorService.requestPosition(0, 0, 0, 0, 0);
     editorService.requestNoteOnAtCurrentPosition(1, 3, 64);
     editorService.requestColumnCopy();
@@ -250,7 +251,7 @@ void EditorServiceUndoTest::test_undoRedo_pasteColumn_shouldUndoAndRedo()
 
 void EditorServiceUndoTest::test_undoRedo_pasteTrack_shouldUndoAndRedo()
 {
-    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
+    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
     editorService.requestPosition(0, 0, 0, 0, 0);
     editorService.requestNoteOnAtCurrentPosition(1, 3, 64);
     editorService.requestTrackCopy();
@@ -275,7 +276,7 @@ void EditorServiceUndoTest::test_undoRedo_pasteTrack_shouldUndoAndRedo()
 
 void EditorServiceUndoTest::test_undoRedo_pastePattern_shouldUndoAndRedo()
 {
-    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
+    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
     editorService.requestPosition(0, 0, 0, 0, 0);
     editorService.requestNoteOnAtCurrentPosition(1, 3, 64);
     editorService.requestPatternCopy();
@@ -302,7 +303,7 @@ void EditorServiceUndoTest::test_undoRedo_pasteSelection_shouldUndoAndRedo()
 {
     auto selectionService = std::make_shared<SelectionService>();
     const auto settingsService = std::make_shared<SettingsService>();
-    EditorService editorService { selectionService, settingsService, std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
+    EditorService editorService { selectionService, settingsService, std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
 
     editorService.requestPosition(0, 0, 0, 0, 0);
     editorService.requestNoteOnAtCurrentPosition(1, 3, 64);
@@ -330,7 +331,7 @@ void EditorServiceUndoTest::test_undoRedo_pasteSelection_shouldUndoAndRedo()
 
 void EditorServiceUndoTest::test_undoRedo_cutColumn_shouldUndoAndRedo()
 {
-    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
+    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
     editorService.requestPosition(0, 0, 0, 0, 0);
     editorService.requestNoteOnAtCurrentPosition(1, 3, 64);
     QCOMPARE(editorService.displayNoteAtPosition(0, 0, 0, 0), "C-3");
@@ -351,7 +352,7 @@ void EditorServiceUndoTest::test_undoRedo_cutColumn_shouldUndoAndRedo()
 
 void EditorServiceUndoTest::test_undoRedo_cutTrack_shouldUndoAndRedo()
 {
-    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
+    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
     editorService.requestPosition(0, 0, 0, 0, 0);
     editorService.requestNoteOnAtCurrentPosition(1, 3, 64);
     QCOMPARE(editorService.displayNoteAtPosition(0, 0, 0, 0), "C-3");
@@ -372,7 +373,7 @@ void EditorServiceUndoTest::test_undoRedo_cutTrack_shouldUndoAndRedo()
 
 void EditorServiceUndoTest::test_undoRedo_cutPattern_shouldUndoAndRedo()
 {
-    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
+    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
     editorService.requestPosition(0, 0, 0, 0, 0);
     editorService.requestNoteOnAtCurrentPosition(1, 3, 64);
     QCOMPARE(editorService.displayNoteAtPosition(0, 0, 0, 0), "C-3");
@@ -395,7 +396,7 @@ void EditorServiceUndoTest::test_undoRedo_cutSelection_shouldUndoAndRedo()
 {
     auto selectionService = std::make_shared<SelectionService>();
     const auto settingsService = std::make_shared<SettingsService>();
-    EditorService editorService { selectionService, settingsService, std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
+    EditorService editorService { selectionService, settingsService, std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
 
     editorService.requestPosition(0, 0, 0, 0, 0);
     editorService.requestNoteOnAtCurrentPosition(1, 3, 64);
@@ -420,7 +421,7 @@ void EditorServiceUndoTest::test_undoRedo_cutSelection_shouldUndoAndRedo()
 
 void EditorServiceUndoTest::test_undoRedo_canUndoRedoSignals_shouldEmitSignals()
 {
-    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
+    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
     QSignalSpy canUndoSpy(&editorService, &EditorService::canUndoChanged);
     QSignalSpy canRedoSpy(&editorService, &EditorService::canRedoChanged);
 
@@ -448,7 +449,7 @@ void EditorServiceUndoTest::test_undoRedo_canUndoRedoSignals_shouldEmitSignals()
 
 void EditorServiceUndoTest::test_undoRedo_clearsOnNewSong_shouldClearStack()
 {
-    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
+    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
     editorService.requestPosition(0, 0, 0, 0, 0);
     editorService.requestNoteOnAtCurrentPosition(1, 3, 64);
     QVERIFY(editorService.canUndo());
@@ -462,7 +463,7 @@ void EditorServiceUndoTest::test_undoRedo_clearsOnNewSong_shouldClearStack()
 
 void EditorServiceUndoTest::test_undoRedo_patternChange_shouldNotClearStack()
 {
-    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
+    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
     // Ensure we have at least two tracks for testing track change
     editorService.requestNewTrackToRight();
     editorService.requestPosition(0, 0, 0, 0, 0);
@@ -480,7 +481,7 @@ void EditorServiceUndoTest::test_undoRedo_patternChange_shouldNotClearStack()
 
 void EditorServiceUndoTest::test_undoRedo_shouldRestorePositionOnUndoRedo()
 {
-    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
+    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
     editorService.requestPosition(0, 0, 0, 0, 0);
     editorService.requestNoteOnAtCurrentPosition(1, 3, 64);
 
@@ -537,7 +538,7 @@ void EditorServiceUndoTest::test_undoRedo_shouldRestorePositionOnUndoRedo()
 
 void EditorServiceUndoTest::test_undoRedo_clearsOnStructuralChange_shouldClearStack()
 {
-    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
+    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
     editorService.requestPosition(0, 0, 0, 0, 0);
     editorService.requestNoteOnAtCurrentPosition(1, 3, 64);
     QVERIFY(editorService.canUndo());
@@ -557,7 +558,7 @@ void EditorServiceUndoTest::test_undoRedo_clearsOnStructuralChange_shouldClearSt
 
 void EditorServiceUndoTest::test_undoRedo_transposeColumn_shouldUndoAndRedo()
 {
-    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
+    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
     editorService.requestPosition(0, 0, 0, 0, 0);
     editorService.requestNoteOnAtCurrentPosition(1, 3, 64);
     QCOMPARE(editorService.displayNoteAtPosition(0, 0, 0, 0), "C-3");
@@ -578,7 +579,7 @@ void EditorServiceUndoTest::test_undoRedo_transposeColumn_shouldUndoAndRedo()
 
 void EditorServiceUndoTest::test_undoRedo_transposeTrack_shouldUndoAndRedo()
 {
-    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
+    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
     editorService.requestPosition(0, 0, 0, 0, 0);
     editorService.requestNoteOnAtCurrentPosition(1, 3, 64);
     editorService.requestNewColumn(0);
@@ -607,7 +608,7 @@ void EditorServiceUndoTest::test_undoRedo_transposeTrack_shouldUndoAndRedo()
 
 void EditorServiceUndoTest::test_undoRedo_transposePattern_shouldUndoAndRedo()
 {
-    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
+    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
     editorService.requestPosition(0, 0, 0, 0, 0);
     editorService.requestNoteOnAtCurrentPosition(1, 3, 64);
 
@@ -639,7 +640,7 @@ void EditorServiceUndoTest::test_undoRedo_transposeSelection_shouldUndoAndRedo()
 {
     auto selectionService = std::make_shared<SelectionService>();
     const auto settingsService = std::make_shared<SettingsService>();
-    EditorService editorService { selectionService, settingsService, std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
+    EditorService editorService { selectionService, settingsService, std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
 
     editorService.requestPosition(0, 0, 0, 0, 0);
     editorService.requestNoteOnAtCurrentPosition(1, 3, 64);
@@ -669,7 +670,7 @@ void EditorServiceUndoTest::test_undoRedo_transposeSelection_shouldUndoAndRedo()
 
 void EditorServiceUndoTest::test_undoRedo_linearVelocityInterpolation_shouldUndoAndRedo()
 {
-    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
+    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
 
     // Set up notes
     editorService.requestPosition(0, 0, 0, 0, 0);

@@ -106,6 +106,7 @@ set(SRC
     ../../infra/audio/backend/sndfile_reader.cpp
     ../../infra/audio/real_time_worker_pool.cpp
     ../../infra/midi/midi_cc_mapping.cpp
+    ../../infra/data_service.cpp
     ../../infra/settings.cpp
 )
 qt_add_executable(${NAME} ${SRC})
@@ -224,6 +225,7 @@ set(DELAY_TEST_SRC
     ../../infra/audio/backend/sndfile_reader.cpp
     ../../infra/audio/real_time_worker_pool.cpp
     ../../infra/midi/midi_cc_mapping.cpp
+    ../../infra/data_service.cpp
     ../../infra/settings.cpp
 )
 qt_add_executable(${DELAY_TEST_NAME} ${DELAY_TEST_SRC})

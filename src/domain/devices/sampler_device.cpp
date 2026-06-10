@@ -51,6 +51,7 @@ SamplerDevice::SamplerDevice(std::string name, AudioFileReaderU audioFileReader)
   , m_audioFileReader { audioFileReader ? std::move(audioFileReader) : std::make_unique<SndFileReader>() }
 {
     addParameter(Parameter { Constants::NahdXml::xmlKeyChannelMode().toStdString(), 0.0f, 0, 1, 0, 1, Parameter::Type::Boolean });
+    addParameter(Parameter { Constants::NahdXml::xmlKeyEmbedWaveData().toStdString(), 0.0f, 0, 1, 0, 1, Parameter::Type::Boolean });
 
     m_voices.resize(m_maxVoices);
     for (auto && sample : m_samples) {
@@ -468,10 +469,10 @@ void SamplerDevice::loadSample(uint8_t note, const std::string & filePath)
 
     const auto absolutePath = [this, &filePath]() {
         const auto path = QString::fromStdString(filePath);
-        if (QFileInfo { path }.isRelative() && !m_projectPath.empty()) {
-            return QFileInfo { QDir { QString::fromStdString(m_projectPath) }, path }.absoluteFilePath();
-        }
-        return path;
+        const auto resolvedPath = m_pathResolver ? m_pathResolver(path) : path;
+        return (QFileInfo { resolvedPath }.isRelative() && !m_projectPath.empty())
+          ? QFileInfo { QDir { QString::fromStdString(m_projectPath) }, resolvedPath }.absoluteFilePath()
+          : resolvedPath;
     }();
 
     // We always reload the sample to support cases where the file on disk has changed (e.g. after recording)
@@ -530,12 +531,12 @@ std::string SamplerDevice::absoluteFilePath(uint8_t note) const
         return "";
     }
 
-    const auto filePath = m_samples.at(note)->filePath;
-    const auto path = QString::fromStdString(filePath);
-    if (QFileInfo { path }.isRelative() && !m_projectPath.empty()) {
-        return QFileInfo { QDir { QString::fromStdString(m_projectPath) }, path }.absoluteFilePath().toStdString();
-    }
-    return filePath;
+    const auto filePath = QString::fromStdString(m_samples.at(note)->filePath);
+    const auto resolvedPath = m_pathResolver ? m_pathResolver(filePath) : filePath;
+
+    return (QFileInfo { resolvedPath }.isRelative() && !m_projectPath.empty())
+      ? QFileInfo { QDir { QString::fromStdString(m_projectPath) }, resolvedPath }.absoluteFilePath().toStdString()
+      : resolvedPath.toStdString();
 }
 
 float SamplerDevice::samplePan(uint8_t note) const
@@ -736,6 +737,42 @@ void SamplerDevice::setChannelMode(bool enabled)
     emit dataChanged();
 }
 
+bool SamplerDevice::embedWaveData() const
+{
+    std::lock_guard<std::recursive_mutex> lock { mutex() };
+    return m_embedWaveData;
+}
+
+void SamplerDevice::setEmbedWaveData(bool enabled)
+{
+    {
+        std::lock_guard<std::recursive_mutex> lock { mutex() };
+        if (auto p = parameter(Constants::NahdXml::xmlKeyEmbedWaveData().toStdString()); p) {
+            p->get().setValue(enabled ? 1.0f : 0.0f);
+            m_embedWaveData = p->get().value() > 0.5f;
+        }
+    }
+    emit dataChanged();
+}
+
+std::map<QString, QString> SamplerDevice::getFilesToEmbed() const
+{
+    std::lock_guard<std::recursive_mutex> lock { mutex() };
+    std::map<QString, QString> files;
+    if (!m_embedWaveData) {
+        return files;
+    }
+
+    for (uint8_t note = 0; note < maxSamples; note++) {
+        if (m_samples.at(note)) {
+            const auto realPath = QString::fromStdString(absoluteFilePath(note));
+            const auto nahdPath = Constants::NahdXml::embeddedDataPathPrefix() + QFileInfo { realPath }.fileName();
+            files[nahdPath] = realPath;
+        }
+    }
+    return files;
+}
+
 double SamplerDevice::playbackPosition(uint8_t note) const
 {
     std::lock_guard<std::recursive_mutex> lock { mutex() };
@@ -783,6 +820,9 @@ void SamplerDevice::serializeToXml(QXmlStreamWriter & writer) const
 
             const auto path = [this, &s]() {
                 const auto p = QString::fromStdString(s->filePath);
+                if (m_embedWaveData) {
+                    return Constants::NahdXml::embeddedDataPathPrefix() + QFileInfo { p }.fileName();
+                }
                 if (!m_projectPath.empty() && QFileInfo { p }.isAbsolute()) {
                     return QDir { QString::fromStdString(m_projectPath) }.relativeFilePath(p);
                 }
@@ -898,6 +938,12 @@ void SamplerDevice::setProjectPath(const std::string & projectPath)
     m_projectPath = projectPath;
 }
 
+void SamplerDevice::setPathResolver(PathResolver resolver)
+{
+    std::lock_guard<std::recursive_mutex> lock { mutex() };
+    m_pathResolver = std::move(resolver);
+}
+
 void SamplerDevice::setPan(float pan)
 {
     Device::setPan(pan);
@@ -923,6 +969,9 @@ void SamplerDevice::syncParameters()
     Device::syncParameters();
     if (auto p = parameter(Constants::NahdXml::xmlKeyChannelMode().toStdString()); p) {
         m_channelMode = p->get().value() > 0.5f;
+    }
+    if (auto p = parameter(Constants::NahdXml::xmlKeyEmbedWaveData().toStdString()); p) {
+        m_embedWaveData = p->get().value() > 0.5f;
     }
 
     // Update active voices with new global parameters

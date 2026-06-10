@@ -23,6 +23,7 @@ GridView {
     Layout.fillWidth: true
     Layout.fillHeight: true
     Layout.preferredWidth: parent.width * 0.66
+    implicitHeight: 400
     cellWidth: width / 4
     cellHeight: height / 4
     model: samplerController.padModel

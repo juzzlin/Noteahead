@@ -23,6 +23,7 @@
 #include "domain/devices/sampler_device.hpp"
 #include "domain/devices/synth_device.hpp"
 #include "infra/audio/audio_engine.hpp"
+#include "infra/data_service.hpp"
 
 #include <QTest>
 #include <memory>
@@ -51,7 +52,7 @@ void PropertyServiceTest::test_availableMidiControllers_shouldReturnCorrectContr
 void PropertyServiceTest::test_getAvailableMidiControllers_withInternalDevice_shouldReturnDeviceSpecificControllers()
 {
     auto audioEngine = std::make_shared<AudioEngine>();
-    auto deviceService = std::make_shared<DeviceService>(audioEngine);
+    auto deviceService = std::make_shared<DeviceService>(audioEngine, std::make_shared<DataService>());
     PropertyService propertyService;
     propertyService.setDeviceService(deviceService);
 

@@ -13,6 +13,7 @@
 #include "common/constants.hpp"
 #include "domain/tracker/song.hpp"
 #include "infra/audio/audio_engine.hpp"
+#include "infra/data_service.hpp"
 
 #include <QSignalSpy>
 #include <QTemporaryDir>
@@ -24,7 +25,7 @@ class MockEditorService : public EditorService
 {
 public:
     MockEditorService()
-      : EditorService(nullptr, nullptr, nullptr)
+      : EditorService { nullptr, nullptr, nullptr, nullptr }
     {
     }
 
@@ -76,7 +77,7 @@ private:
 void RenderServiceTest::test_renderIndividualTracks_shouldSkipNonInternalInstruments()
 {
     auto audioEngine = std::make_shared<AudioEngine>();
-    auto deviceService = std::make_shared<DeviceService>(audioEngine);
+    auto deviceService = std::make_shared<DeviceService>(audioEngine, std::make_shared<DataService>());
     auto mixerService = std::make_shared<MixerService>();
     auto editorService = std::make_shared<MockEditorService>();
     auto propertyService = std::make_shared<PropertyService>();
@@ -138,7 +139,7 @@ void RenderServiceTest::test_renderIndividualTracks_shouldSkipNonInternalInstrum
 void RenderServiceTest::test_renderIndividualTracks_shouldRestoreMixerState()
 {
     auto audioEngine = std::make_shared<AudioEngine>();
-    auto deviceService = std::make_shared<DeviceService>(audioEngine);
+    auto deviceService = std::make_shared<DeviceService>(audioEngine, std::make_shared<DataService>());
     auto mixerService = std::make_shared<MixerService>();
     auto editorService = std::make_shared<MockEditorService>();
     auto propertyService = std::make_shared<PropertyService>();

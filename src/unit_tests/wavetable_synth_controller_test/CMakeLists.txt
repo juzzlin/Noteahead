@@ -128,6 +128,7 @@ set(SRC
     ../../infra/midi/midi_backend.cpp
     ../../infra/midi/midi_backend_in.cpp
     ../../infra/midi/midi_backend_out.cpp
+    ../../infra/data_service.cpp
     ../../infra/midi/midi_cc_mapping.cpp
     ../../infra/midi/midi_port.cpp
     ../../infra/settings.cpp

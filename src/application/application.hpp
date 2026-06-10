@@ -40,6 +40,7 @@ class AudioService;
 class AudioSettingsModel;
 class AutomationService;
 class ColumnSettingsModel;
+class DataService;
 class DeviceRackController;
 class DeviceService;
 class BassSynthController;
@@ -143,6 +144,7 @@ private:
     std::shared_ptr<UtilService> m_utilService;
     std::shared_ptr<PropertyService> m_propertyService;
     std::shared_ptr<AutomationService> m_automationService;
+    std::shared_ptr<DataService> m_dataService;
 
     std::shared_ptr<EditorService> m_editorService;
 

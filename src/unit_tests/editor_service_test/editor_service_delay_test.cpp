@@ -22,6 +22,7 @@
 #include "application/service/settings_service.hpp"
 #include "domain/tracker/note_data.hpp"
 #include "domain/tracker/song.hpp"
+#include "infra/data_service.hpp"
 
 #include <QTest>
 
@@ -29,7 +30,7 @@ namespace noteahead {
 
 void EditorServiceDelayTest::test_requestDigitSetAtCurrentPosition_shouldSetDelay_whenAtDelayColumn()
 {
-    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
+    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
     editorService.requestNewTrackToRight(); // Ensure we have a track
     editorService.requestNewColumn(0); // Ensure we have a column
 
@@ -61,7 +62,7 @@ void EditorServiceDelayTest::test_requestDigitSetAtCurrentPosition_shouldSetDela
 
 void EditorServiceDelayTest::test_cursorNavigation_shouldIncludeDelayColumns()
 {
-    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
+    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
     editorService.requestNewTrackToRight();
 
     // Start at note column

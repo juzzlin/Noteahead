@@ -11,6 +11,7 @@
 #include "domain/effects/effect_rack.hpp"
 #include "domain/effects/panner_effect.hpp"
 #include "infra/audio/audio_engine.hpp"
+#include "infra/data_service.hpp"
 #include "view/controllers/effect_rack_controller.hpp"
 
 #include <QSignalSpy>
@@ -32,7 +33,7 @@ void EffectRackControllerTest::cleanupTestCase()
 void EffectRackControllerTest::test_effectParametersSummary_reverb_shouldReturnFormattedSummary()
 {
     const auto audioEngine = std::make_shared<AudioEngine>();
-    const auto deviceService = std::make_shared<DeviceService>(audioEngine);
+    const auto deviceService = std::make_shared<DeviceService>(audioEngine, std::make_shared<DataService>());
     const auto editorService = std::make_shared<EditorService>();
     EffectRackController controller { deviceService, editorService };
 
@@ -54,7 +55,7 @@ void EffectRackControllerTest::test_effectParametersSummary_reverb_shouldReturnF
 void EffectRackControllerTest::test_effectParametersSummary_compressor_shouldReturnFormattedSummary()
 {
     const auto audioEngine = std::make_shared<AudioEngine>();
-    const auto deviceService = std::make_shared<DeviceService>(audioEngine);
+    const auto deviceService = std::make_shared<DeviceService>(audioEngine, std::make_shared<DataService>());
     const auto editorService = std::make_shared<EditorService>();
     EffectRackController controller { deviceService, editorService };
 
@@ -74,7 +75,7 @@ void EffectRackControllerTest::test_effectParametersSummary_compressor_shouldRet
 void EffectRackControllerTest::test_effectParametersSummary_autoPanner_shouldReturnFormattedSummary()
 {
     const auto audioEngine = std::make_shared<AudioEngine>();
-    const auto deviceService = std::make_shared<DeviceService>(audioEngine);
+    const auto deviceService = std::make_shared<DeviceService>(audioEngine, std::make_shared<DataService>());
     const auto editorService = std::make_shared<EditorService>();
     EffectRackController controller { deviceService, editorService };
 
@@ -89,7 +90,7 @@ void EffectRackControllerTest::test_effectParametersSummary_autoPanner_shouldRet
 void EffectRackControllerTest::test_effectParametersSummary_panner_shouldReturnFormattedSummary()
 {
     const auto audioEngine = std::make_shared<AudioEngine>();
-    const auto deviceService = std::make_shared<DeviceService>(audioEngine);
+    const auto deviceService = std::make_shared<DeviceService>(audioEngine, std::make_shared<DataService>());
     const auto editorService = std::make_shared<EditorService>();
     EffectRackController controller { deviceService, editorService };
 
@@ -104,7 +105,7 @@ void EffectRackControllerTest::test_effectParametersSummary_panner_shouldReturnF
 void EffectRackControllerTest::test_effectParametersSummary_clipper_shouldReturnFormattedSummary()
 {
     const auto audioEngine = std::make_shared<AudioEngine>();
-    const auto deviceService = std::make_shared<DeviceService>(audioEngine);
+    const auto deviceService = std::make_shared<DeviceService>(audioEngine, std::make_shared<DataService>());
     const auto editorService = std::make_shared<EditorService>();
     EffectRackController controller { deviceService, editorService };
 
@@ -119,7 +120,7 @@ void EffectRackControllerTest::test_effectParametersSummary_clipper_shouldReturn
 void EffectRackControllerTest::test_effectParametersSummary_eq8BandParametric_shouldReturnFormattedSummary()
 {
     const auto audioEngine = std::make_shared<AudioEngine>();
-    const auto deviceService = std::make_shared<DeviceService>(audioEngine);
+    const auto deviceService = std::make_shared<DeviceService>(audioEngine, std::make_shared<DataService>());
     const auto editorService = std::make_shared<EditorService>();
     EffectRackController controller { deviceService, editorService };
 
@@ -133,7 +134,7 @@ void EffectRackControllerTest::test_effectParametersSummary_eq8BandParametric_sh
 void EffectRackControllerTest::test_effectParametersSummary_emptySlot_shouldReturnEmptyString()
 {
     const auto audioEngine = std::make_shared<AudioEngine>();
-    const auto deviceService = std::make_shared<DeviceService>(audioEngine);
+    const auto deviceService = std::make_shared<DeviceService>(audioEngine, std::make_shared<DataService>());
     const auto editorService = std::make_shared<EditorService>();
     EffectRackController controller { deviceService, editorService };
 
@@ -144,7 +145,7 @@ void EffectRackControllerTest::test_effectParametersSummary_emptySlot_shouldRetu
 void EffectRackControllerTest::test_isEffectEnabled_shouldReturnEnabledState()
 {
     const auto audioEngine = std::make_shared<AudioEngine>();
-    const auto deviceService = std::make_shared<DeviceService>(audioEngine);
+    const auto deviceService = std::make_shared<DeviceService>(audioEngine, std::make_shared<DataService>());
     const auto editorService = std::make_shared<EditorService>();
     EffectRackController controller { deviceService, editorService };
 
@@ -164,7 +165,7 @@ void EffectRackControllerTest::test_isEffectEnabled_shouldReturnEnabledState()
 void EffectRackControllerTest::test_revision_shouldIncrementOnPropertySet()
 {
     const auto audioEngine = std::make_shared<AudioEngine>();
-    const auto deviceService = std::make_shared<DeviceService>(audioEngine);
+    const auto deviceService = std::make_shared<DeviceService>(audioEngine, std::make_shared<DataService>());
     const auto editorService = std::make_shared<EditorService>();
     EffectRackController controller { deviceService, editorService };
 

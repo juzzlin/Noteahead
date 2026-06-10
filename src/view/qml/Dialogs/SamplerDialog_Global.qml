@@ -111,4 +111,16 @@ ColumnLayout {
         ToolTip.visible: hovered
         ToolTip.text: qsTr("When enabled, MIDI CCs on channel 1 affect pad 1, channel 2 affects pad 2, and so on. Note playing is unaffected.")
     }
+
+    CheckBox {
+        text: qsTr("Embed wave data in the project file")
+        Layout.alignment: Qt.AlignLeft
+        Layout.leftMargin: 20
+        checked: samplerController.embedWaveData
+        onToggled: samplerController.embedWaveData = checked
+        ToolTip.delay: Constants.toolTipDelay
+        ToolTip.timeout: Constants.toolTipTimeout
+        ToolTip.visible: hovered
+        ToolTip.text: qsTr("When enabled, the sample data is saved directly into the project file. This makes the project file portable, but larger.")
+    }
 }

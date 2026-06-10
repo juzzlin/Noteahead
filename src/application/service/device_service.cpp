@@ -20,6 +20,7 @@
 #include "domain/devices/sampler_device.hpp"
 #include "domain/devices/synth_device.hpp"
 #include "infra/audio/audio_engine.hpp"
+#include "infra/data_service.hpp"
 
 #include <QXmlStreamReader>
 #include <QXmlStreamWriter>
@@ -27,11 +28,12 @@
 
 namespace noteahead {
 
-DeviceService::DeviceService(AudioEngineS audioEngine, QObject * parent)
+DeviceService::DeviceService(AudioEngineS audioEngine, DataServiceS dataService, QObject * parent)
   : QObject { parent }
   , m_audioEngine { std::move(audioEngine) }
+  , m_dataService { std::move(dataService) }
 {
-    for (int i = 0; i < 128; ++i) {
+    for (int i = 0; i < 128; i++) {
         m_synthUserPresets[i] = SynthPresets::initPreset();
     }
 }
@@ -44,6 +46,9 @@ void DeviceService::setDevice(size_t slotIndex, DeviceS device)
     device->setId(slotIndex);
     if (const auto sampler = std::dynamic_pointer_cast<SamplerDevice>(device)) {
         sampler->setProjectPath(m_projectPath);
+        sampler->setPathResolver([this](const QString & path) {
+            return m_dataService->resolvePath(path);
+        });
     }
     m_audioEngine->setDevice(slotIndex, std::move(device));
     emit dataChanged();
@@ -190,11 +195,25 @@ void DeviceService::saveSynthUserPreset(int index, const SynthPreset & preset)
 void DeviceService::setProjectPath(const std::string & projectPath)
 {
     m_projectPath = projectPath;
-    for (const auto & name : internalDeviceNames()) {
-        if (const auto sampler = std::dynamic_pointer_cast<SamplerDevice>(device(name))) {
-            sampler->setProjectPath(m_projectPath);
+    for (size_t i = 0; i < Constants::deviceRackSize(); i++) {
+        if (const auto dev = m_audioEngine->device(i)) {
+            if (const auto sampler = std::dynamic_pointer_cast<SamplerDevice>(dev)) {
+                sampler->setProjectPath(m_projectPath);
+            }
         }
     }
+}
+
+std::map<QString, QString> DeviceService::getFilesToEmbed() const
+{
+    std::map<QString, QString> allFiles;
+    for (const auto & name : internalDeviceNames()) {
+        if (const auto sampler = std::dynamic_pointer_cast<SamplerDevice>(device(name))) {
+            const auto files = sampler->getFilesToEmbed();
+            allFiles.insert(files.begin(), files.end());
+        }
+    }
+    return allFiles;
 }
 
 void DeviceService::serializeToXml(QXmlStreamWriter & writer) const

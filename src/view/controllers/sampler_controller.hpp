@@ -42,6 +42,7 @@ class SamplerController : public DeviceController
     Q_PROPERTY(int selectedPadStartOffsetMilliseconds READ selectedPadStartOffsetMilliseconds WRITE setSelectedPadStartOffsetMilliseconds NOTIFY selectedPadStartOffsetChanged)
     Q_PROPERTY(double selectedPadDuration READ selectedPadDuration NOTIFY selectedPadDurationChanged)
     Q_PROPERTY(bool channelMode READ channelMode WRITE setChannelMode NOTIFY channelModeChanged)
+    Q_PROPERTY(bool embedWaveData READ embedWaveData WRITE setEmbedWaveData NOTIFY embedWaveDataChanged)
 
 public:
     explicit SamplerController(SamplerDevice::SamplerDeviceS sampler, QObject * parent = nullptr);
@@ -82,6 +83,9 @@ public:
     bool channelMode() const;
     void setChannelMode(bool enabled);
 
+    bool embedWaveData() const;
+    void setEmbedWaveData(bool enabled);
+
     Q_INVOKABLE QVariantList getWaveformData(int numPoints);
 
     Q_INVOKABLE void initialize();
@@ -105,6 +109,7 @@ signals:
     void selectedPadStartOffsetChanged();
     void selectedPadDurationChanged();
     void channelModeChanged();
+    void embedWaveDataChanged();
     void samplerChanged();
 
 private:

@@ -434,7 +434,10 @@ QString xmlKeySample();
 QString xmlKeySamples();
 QString xmlKeySamplePath();
 QString xmlKeyChannelMode();
+QString xmlKeyEmbedWaveData();
 QString xmlKeyStartOffset();
+
+QString xmlKeyData();
 
 QString xmlKeyDrumSynth();
 QString xmlKeyPad();
@@ -444,6 +447,8 @@ QString xmlKeySnappy();
 QString xmlKeyTone();
 QString xmlKeyPitchDepth();
 QString xmlKeyPitchDecay();
+
+QString embeddedDataPathPrefix();
 
 QString xmlValueFalse();
 QString xmlValueTrue();

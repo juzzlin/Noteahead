@@ -1632,9 +1632,19 @@ QString xmlKeyChannelMode()
     return "channelMode";
 }
 
+QString xmlKeyEmbedWaveData()
+{
+    return "embedWaveData";
+}
+
 QString xmlKeyStartOffset()
 {
     return "startOffset";
+}
+
+QString xmlKeyData()
+{
+    return "Data";
 }
 
 QString xmlKeyDrumSynth()
@@ -1675,6 +1685,11 @@ QString xmlKeyPitchDepth()
 QString xmlKeyPitchDecay()
 {
     return "pitchDecay";
+}
+
+QString embeddedDataPathPrefix()
+{
+    return "nahd://";
 }
 
 QString xmlValueFalse()

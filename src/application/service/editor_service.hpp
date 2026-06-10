@@ -33,6 +33,7 @@ namespace noteahead {
 
 class Song;
 class AutomationService;
+class DataService;
 class Instrument;
 class InstrumentRequest;
 class InstrumentSettings;
@@ -81,7 +82,8 @@ public:
     using SettingsServiceS = std::shared_ptr<SettingsService>;
     using MixerServiceS = std::shared_ptr<MixerService>;
     using AutomationServiceS = std::shared_ptr<AutomationService>;
-    EditorService(SelectionServiceS selectionService, SettingsServiceS settingsService, AutomationServiceS automationService);
+    using DataServiceS = std::shared_ptr<DataService>;
+    EditorService(SelectionServiceS selectionService, SettingsServiceS settingsService, AutomationServiceS automationService, DataServiceS dataService);
     ~EditorService() override;
 
     void initialize();
@@ -351,6 +353,7 @@ signals:
     void automationDeserializationRequested(QXmlStreamReader & xmlStreamReader);
     void devicesSerializationRequested(QXmlStreamWriter & xmlStreamWriter);
     void devicesDeserializationRequested(QXmlStreamReader & xmlStreamReader);
+    void dataSerializationRequested(QXmlStreamWriter & xmlStreamWriter);
     void mixerSerializationRequested(QXmlStreamWriter & xmlStreamWriter);
     void mixerDeserializationRequested(QXmlStreamReader & xmlStreamReader);
     void sideChainSerializationRequested(QXmlStreamWriter & xmlStreamWriter);
@@ -434,6 +437,7 @@ private:
     SettingsServiceS m_settingsService;
     MixerServiceS m_mixerService;
     AutomationServiceS m_automationService;
+    DataServiceS m_dataService;
 
     struct State
     {

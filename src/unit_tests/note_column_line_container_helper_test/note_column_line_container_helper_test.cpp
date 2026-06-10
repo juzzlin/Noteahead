@@ -23,6 +23,7 @@
 #include "application/service/settings_service.hpp"
 #include "application/service/util_service.hpp"
 #include "domain/tracker/instrument_settings.hpp"
+#include "infra/data_service.hpp"
 
 #include <QTest>
 
@@ -33,7 +34,7 @@ void NoteColumnLineContainerHelperTest::test_lineColorAndBorderWidth_selected_sh
     const auto automationService { std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
     const auto selectionService { std::make_shared<SelectionService>() };
     const auto settingsService { std::make_shared<SettingsService>() };
-    const auto editorService { std::make_shared<EditorService>(selectionService, settingsService, std::make_shared<AutomationService>(std::make_shared<PropertyService>())) };
+    const auto editorService { std::make_shared<EditorService>(selectionService, settingsService, std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>()) };
     const auto utilService { std::make_shared<UtilService>() };
 
     const NoteColumnLineContainerHelper helper { automationService, editorService, selectionService, utilService };
@@ -51,7 +52,7 @@ void NoteColumnLineContainerHelperTest::test_lineColorAndBorderWidth_hasInstrume
     const auto automationService { std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
     const auto selectionService { std::make_shared<SelectionService>() };
     const auto settingsService { std::make_shared<SettingsService>() };
-    const auto editorService { std::make_shared<EditorService>(selectionService, settingsService, std::make_shared<AutomationService>(std::make_shared<PropertyService>())) };
+    const auto editorService { std::make_shared<EditorService>(selectionService, settingsService, std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>()) };
     const auto utilService { std::make_shared<UtilService>() };
 
     const NoteColumnLineContainerHelper helper { automationService, editorService, selectionService, utilService };
@@ -70,7 +71,7 @@ void NoteColumnLineContainerHelperTest::test_lineColorAndBorderWidth_hasAutomati
     const auto automationService { std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
     const auto selectionService { std::make_shared<SelectionService>() };
     const auto settingsService { std::make_shared<SettingsService>() };
-    const auto editorService { std::make_shared<EditorService>(selectionService, settingsService, std::make_shared<AutomationService>(std::make_shared<PropertyService>())) };
+    const auto editorService { std::make_shared<EditorService>(selectionService, settingsService, std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>()) };
     const auto utilService { std::make_shared<UtilService>() };
 
     const NoteColumnLineContainerHelper helper { automationService, editorService, selectionService, utilService };
@@ -87,7 +88,7 @@ void NoteColumnLineContainerHelperTest::test_lineColorAndBorderWidth_default_sho
     const auto automationService { std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
     const auto selectionService { std::make_shared<SelectionService>() };
     const auto settingsService { std::make_shared<SettingsService>() };
-    const auto editorService { std::make_shared<EditorService>(selectionService, settingsService, std::make_shared<AutomationService>(std::make_shared<PropertyService>())) };
+    const auto editorService { std::make_shared<EditorService>(selectionService, settingsService, std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>()) };
     const auto utilService { std::make_shared<UtilService>() };
 
     const NoteColumnLineContainerHelper helper { automationService, editorService, selectionService, utilService };

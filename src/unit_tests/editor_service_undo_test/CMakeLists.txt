@@ -50,6 +50,7 @@ set(SRC
     ../../domain/tracker/song.cpp
     ../../domain/tracker/track.cpp
     ../../infra/midi/midi_cc_mapping.cpp
+    ../../infra/data_service.cpp
     ../../infra/settings.cpp
 )
 qt_add_executable(${NAME} ${SRC})

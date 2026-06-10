@@ -206,8 +206,22 @@ bool SamplerController::channelMode() const
 
 void SamplerController::setChannelMode(bool enabled)
 {
-    if (m_sampler) {
+    if (m_sampler && m_sampler->channelMode() != enabled) {
         m_sampler->setChannelMode(enabled);
+        emit channelModeChanged();
+    }
+}
+
+bool SamplerController::embedWaveData() const
+{
+    return m_sampler && m_sampler->embedWaveData();
+}
+
+void SamplerController::setEmbedWaveData(bool enabled)
+{
+    if (m_sampler && m_sampler->embedWaveData() != enabled) {
+        m_sampler->setEmbedWaveData(enabled);
+        emit embedWaveDataChanged();
     }
 }
 
@@ -248,6 +262,7 @@ void SamplerController::requestSettings()
     emit gainChanged();
     emit panChanged();
     emit channelModeChanged();
+    emit embedWaveDataChanged();
     emit sampleRateChanged();
 }
 

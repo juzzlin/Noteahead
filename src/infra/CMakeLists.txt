@@ -22,6 +22,7 @@ set(HEADER_FILES
     midi/midi_cc_mapping.hpp
     midi/midi_port.hpp
     settings.hpp
+    data_service.hpp
 )
 
 set(SOURCE_FILES
@@ -46,6 +47,7 @@ set(SOURCE_FILES
     midi/midi_cc_mapping.cpp
     midi/midi_port.cpp
     settings.cpp
+    data_service.cpp
 )
 
 add_library(${InfraLibName} OBJECT ${HEADER_FILES} ${SOURCE_FILES})

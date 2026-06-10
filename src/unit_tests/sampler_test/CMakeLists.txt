@@ -100,6 +100,7 @@ set(SRC
     ../../infra/audio/audio_engine.cpp
     ../../infra/audio/backend/sndfile_reader.cpp
     ../../infra/audio/real_time_worker_pool.cpp
+    ../../infra/data_service.cpp
     ../../infra/midi/midi_cc_mapping.cpp
     ../../infra/settings.cpp
 )

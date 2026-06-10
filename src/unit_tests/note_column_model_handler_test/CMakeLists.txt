@@ -53,6 +53,7 @@ set(SRC
     ../../domain/tracker/play_order.cpp
     ../../domain/tracker/song.cpp
     ../../domain/tracker/track.cpp
+    ../../infra/data_service.cpp
     ../../infra/midi/midi_cc_mapping.cpp
     ../../infra/settings.cpp
 )

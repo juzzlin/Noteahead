@@ -91,22 +91,34 @@ Dialog {
             samplerDialogVisible: root.visible
         }
 
-        RowLayout {
+        ScrollView {
+            id: bottomScrollView
             Layout.fillWidth: true
             Layout.fillHeight: true
-            spacing: 20
+            clip: true
+            contentWidth: -1
 
-            SamplerDialog_Pads {
-                fileDialog: sampleFileDialog
-                Layout.fillWidth: true
-                Layout.fillHeight: true
-                Layout.preferredWidth: parent.width * 0.66
-            }
+            RowLayout {
+                width: bottomScrollView.availableWidth
+                height: Math.max(implicitHeight, bottomScrollView.availableHeight)
+                spacing: 20
 
-            SamplerDialog_Global {
-                Layout.fillWidth: true
-                Layout.preferredWidth: parent.width * 0.33
-                Layout.alignment: Qt.AlignTop
+                SamplerDialog_Pads {
+                    fileDialog: sampleFileDialog
+                    Layout.fillWidth: true
+                    Layout.fillHeight: true
+                    Layout.preferredWidth: parent.width * 0.66
+                }
+
+                SamplerDialog_Global {
+                    Layout.fillWidth: true
+                    Layout.preferredWidth: parent.width * 0.33
+                    Layout.alignment: Qt.AlignTop
+                }
+
+                Item {
+                    Layout.preferredWidth: 15
+                }
             }
         }
     }

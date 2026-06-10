@@ -36,6 +36,7 @@
 #include "domain/tracker/pattern.hpp"
 #include "domain/tracker/song.hpp"
 #include "domain/tracker/track.hpp"
+#include "infra/data_service.hpp"
 #include "infra/settings.hpp"
 #include "mixer_service.hpp"
 #include "property_service.hpp"
@@ -55,15 +56,16 @@ using namespace std::chrono_literals;
 static const auto TAG = "EditorService";
 
 EditorService::EditorService()
-  : EditorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()) }
+  : EditorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() }
 {
 }
 
-EditorService::EditorService(SelectionServiceS selectionService, SettingsServiceS settingsService, AutomationServiceS automationService)
+EditorService::EditorService(SelectionServiceS selectionService, SettingsServiceS settingsService, AutomationServiceS automationService, DataServiceS dataService)
   : m_undoStack { std::make_unique<UndoStack>() }
-  , m_selectionService { selectionService }
-  , m_settingsService { settingsService }
-  , m_automationService { automationService }
+  , m_selectionService { std::move(selectionService) }
+  , m_settingsService { std::move(settingsService) }
+  , m_automationService { std::move(automationService) }
+  , m_dataService { std::move(dataService) }
 {
     initialize();
     m_undoStack->setCanUndoChangedCallback([this] { emit canUndoChanged(); });
@@ -244,6 +246,7 @@ void EditorService::fromXml(QString xml)
     emit aboutToChangeSong();
 
     juzzlin::L(TAG).info() << "Reading Project from XML";
+    m_dataService->extractDataFromXml(xml);
     juzzlin::L(TAG).trace() << xml.toStdString();
     QXmlStreamReader reader { xml };
     while (!(reader.atEnd())) {
@@ -314,6 +317,8 @@ QString EditorService::toXml()
         emit audioRecorderSerializationRequested(writer);
     };
     m_song->serializeToXml(writer, mixerSerializationCallback, automationSerializationCallback, devicesSerializationCallback, sideChainSerializationCallback, audioRecorderSerializationCallback);
+
+    emit dataSerializationRequested(writer);
 
     writer.writeEndElement();
     writer.writeEndDocument();

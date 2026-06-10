@@ -109,6 +109,7 @@ set(SRC
     ../../infra/audio/implementation/librtaudio/audio_player_rt_audio.cpp
     ../../infra/audio/implementation/librtaudio/audio_recorder_rt_audio.cpp
     ../../infra/audio/real_time_worker_pool.cpp
+    ../../infra/data_service.cpp
     ../../infra/midi/midi_cc_mapping.cpp
     ../../infra/settings.cpp
 )

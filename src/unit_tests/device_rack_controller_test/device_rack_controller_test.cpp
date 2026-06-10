@@ -25,6 +25,7 @@
 #include "domain/devices/synth_device.hpp"
 #include "domain/effects/effect_factory.hpp"
 #include "infra/audio/audio_engine.hpp"
+#include "infra/data_service.hpp"
 #include "view/controllers/device_rack_controller.hpp"
 #include "view/controllers/sampler_controller.hpp"
 #include "view/controllers/synth_controller.hpp"
@@ -179,7 +180,7 @@ private:
 void DeviceRackControllerTest::test_devices_shouldReturnDeviceNames()
 {
     const auto audioEngine = std::make_shared<AudioEngine>();
-    const auto deviceService = std::make_shared<DeviceService>(audioEngine);
+    const auto deviceService = std::make_shared<DeviceService>(audioEngine, std::make_shared<DataService>());
     const auto name1 = "Test Device 1";
     const auto name2 = "Test Device 2";
     deviceService->setDevice(0, std::make_shared<MockDevice>(name1));
@@ -196,7 +197,7 @@ void DeviceRackControllerTest::test_devices_shouldReturnDeviceNames()
 void DeviceRackControllerTest::test_trackNames_shouldReturnTrackNamesForDevice()
 {
     const auto audioEngine = std::make_shared<AudioEngine>();
-    const auto deviceService = std::make_shared<DeviceService>(audioEngine);
+    const auto deviceService = std::make_shared<DeviceService>(audioEngine, std::make_shared<DataService>());
     const auto name1 = "Device 1";
     const auto name2 = "Device 2";
     deviceService->setDevice(0, std::make_shared<MockDevice>(name1));
@@ -222,7 +223,7 @@ void DeviceRackControllerTest::test_trackNames_shouldReturnTrackNamesForDevice()
 void DeviceRackControllerTest::test_setDevice_shouldAddDeviceAndNotify()
 {
     const auto audioEngine = std::make_shared<AudioEngine>();
-    const auto deviceService = std::make_shared<DeviceService>(audioEngine);
+    const auto deviceService = std::make_shared<DeviceService>(audioEngine, std::make_shared<DataService>());
     const auto editorService = std::make_shared<MockEditorService>();
     DeviceRackController controller { deviceService, {}, editorService };
 
@@ -241,7 +242,7 @@ void DeviceRackControllerTest::test_setDevice_shouldAddDeviceAndNotify()
 void DeviceRackControllerTest::test_clearDevice_shouldRemoveDeviceAndNotify()
 {
     const auto audioEngine = std::make_shared<AudioEngine>();
-    const auto deviceService = std::make_shared<DeviceService>(audioEngine);
+    const auto deviceService = std::make_shared<DeviceService>(audioEngine, std::make_shared<DataService>());
     const auto editorService = std::make_shared<MockEditorService>();
     deviceService->setDevice(0, std::make_shared<MockDevice>("To be removed"));
 
@@ -258,7 +259,7 @@ void DeviceRackControllerTest::test_clearDevice_shouldRemoveDeviceAndNotify()
 void DeviceRackControllerTest::test_addMethods_shouldAddDevicesToFirstEmptySlot()
 {
     const auto audioEngine = std::make_shared<AudioEngine>();
-    const auto deviceService = std::make_shared<DeviceService>(audioEngine);
+    const auto deviceService = std::make_shared<DeviceService>(audioEngine, std::make_shared<DataService>());
     const auto editorService = std::make_shared<MockEditorService>();
     DeviceRackController controller { deviceService, {}, editorService };
 
@@ -302,7 +303,7 @@ void DeviceRackControllerTest::test_availableDevices_shouldReturnCorrectList()
 void DeviceRackControllerTest::test_removeDeviceByName_shouldClearCorrectSlot()
 {
     const auto audioEngine = std::make_shared<AudioEngine>();
-    const auto deviceService = std::make_shared<DeviceService>(audioEngine);
+    const auto deviceService = std::make_shared<DeviceService>(audioEngine, std::make_shared<DataService>());
     const auto editorService = std::make_shared<MockEditorService>();
 
     const auto prefix = Constants::internalDevicePortPrefix().toStdString();

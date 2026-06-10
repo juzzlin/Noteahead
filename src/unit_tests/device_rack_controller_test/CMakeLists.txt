@@ -113,6 +113,7 @@ set(SRC
     ../../infra/audio/backend/sndfile_reader.cpp
     ../../infra/audio/real_time_worker_pool.cpp
     ../../infra/midi/midi_cc_mapping.cpp
+    ../../infra/data_service.cpp
     ../../infra/settings.cpp
 )
 

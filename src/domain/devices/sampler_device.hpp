@@ -26,6 +26,7 @@
 #include "infra/audio/backend/audio_file_reader.hpp"
 
 #include <array>
+#include <functional>
 #include <memory>
 #include <string>
 #include <vector>
@@ -114,6 +115,11 @@ public:
     bool channelMode() const;
     void setChannelMode(bool enabled);
 
+    bool embedWaveData() const;
+    void setEmbedWaveData(bool enabled);
+
+    std::map<QString, QString> getFilesToEmbed() const;
+
     void setPan(float pan) override;
     void setVolume(float volume) override;
 
@@ -124,6 +130,9 @@ public:
     bool isFinished(uint8_t note) const;
 
     void setProjectPath(const std::string & projectPath);
+
+    using PathResolver = std::function<QString(const QString &)>;
+    void setPathResolver(PathResolver resolver);
 
     void saveState();
     void restoreState();
@@ -166,7 +175,9 @@ private:
     float m_manualGlobalCutoff = 1.0f;
     float m_manualGlobalHpfCutoff = 0.0f;
     bool m_channelMode = false;
+    bool m_embedWaveData = false;
     std::string m_projectPath;
+    PathResolver m_pathResolver;
     AudioFileReaderU m_audioFileReader;
     const size_t m_maxVoices = 32;
 };

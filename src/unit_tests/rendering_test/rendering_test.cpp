@@ -15,6 +15,7 @@
 #include "domain/tracker/note_data.hpp"
 #include "infra/audio/audio_engine.hpp"
 #include "infra/audio/backend/audio_file_reader.hpp"
+#include "infra/data_service.hpp"
 
 #include "application/service/automation_service.hpp"
 #include "application/service/property_service.hpp"
@@ -117,7 +118,7 @@ private:
 void RenderingTest::test_renderSynth_shouldPreserveParameters()
 {
     auto audioEngine = std::make_shared<AudioEngine>();
-    auto deviceService = std::make_shared<DeviceService>(audioEngine);
+    auto deviceService = std::make_shared<DeviceService>(audioEngine, std::make_shared<DataService>());
     auto mixerService = std::make_shared<MixerService>();
 
     auto synth = std::make_shared<SynthDevice>("Noteahead Synth");
@@ -150,7 +151,7 @@ void RenderingTest::test_renderSynth_shouldPreserveParameters()
 void RenderingTest::test_renderSynth_shouldNotBeSilent()
 {
     auto audioEngine = std::make_shared<AudioEngine>();
-    auto deviceService = std::make_shared<DeviceService>(audioEngine);
+    auto deviceService = std::make_shared<DeviceService>(audioEngine, std::make_shared<DataService>());
     auto mixerService = std::make_shared<MixerService>();
 
     auto synth = std::make_shared<SynthDevice>("Noteahead Synth");
@@ -205,7 +206,7 @@ void RenderingTest::test_renderSynth_shouldNotBeSilent()
 void RenderingTest::test_renderSampler_shouldPreserveParameters()
 {
     auto audioEngine = std::make_shared<AudioEngine>();
-    auto deviceService = std::make_shared<DeviceService>(audioEngine);
+    auto deviceService = std::make_shared<DeviceService>(audioEngine, std::make_shared<DataService>());
     auto mixerService = std::make_shared<MixerService>();
 
     auto sampler = std::make_shared<SamplerDevice>("Noteahead Sampler");
@@ -238,7 +239,7 @@ void RenderingTest::test_renderSampler_shouldPreserveParameters()
 void RenderingTest::test_renderDrumSynth_shouldPreserveParameters()
 {
     auto audioEngine = std::make_shared<AudioEngine>();
-    auto deviceService = std::make_shared<DeviceService>(audioEngine);
+    auto deviceService = std::make_shared<DeviceService>(audioEngine, std::make_shared<DataService>());
     auto mixerService = std::make_shared<MixerService>();
 
     auto drumSynth = std::make_shared<DrumSynthDevice>("Noteahead DrumSynth");
@@ -271,7 +272,7 @@ void RenderingTest::test_renderDrumSynth_shouldPreserveParameters()
 void RenderingTest::test_render_shouldNotCrashWithNullInstrumentEvents()
 {
     auto audioEngine = std::make_shared<AudioEngine>();
-    auto deviceService = std::make_shared<DeviceService>(audioEngine);
+    auto deviceService = std::make_shared<DeviceService>(audioEngine, std::make_shared<DataService>());
     auto mixerService = std::make_shared<MixerService>();
 
     RenderWorker worker(audioEngine, deviceService, mixerService);
@@ -295,7 +296,7 @@ void RenderingTest::test_render_shouldNotCrashWithNullInstrumentEvents()
 void RenderingTest::test_render_shouldClampSignal()
 {
     auto audioEngine = std::make_shared<AudioEngine>();
-    auto deviceService = std::make_shared<DeviceService>(audioEngine);
+    auto deviceService = std::make_shared<DeviceService>(audioEngine, std::make_shared<DataService>());
     auto mixerService = std::make_shared<MixerService>();
 
     auto drumSynth = std::make_shared<DrumSynthDevice>("Drums");
@@ -347,7 +348,7 @@ void RenderingTest::test_render_shouldClampSignal()
 void RenderingTest::test_render_midiSideChain_shouldProcessEventWhenSourceTrackIsMuted()
 {
     auto audioEngine = std::make_shared<AudioEngine>();
-    auto deviceService = std::make_shared<DeviceService>(audioEngine);
+    auto deviceService = std::make_shared<DeviceService>(audioEngine, std::make_shared<DataService>());
     auto mixerService = std::make_shared<MixerService>();
     auto propertyService = std::make_shared<PropertyService>();
     auto automationService = std::make_shared<AutomationService>(propertyService);
@@ -422,7 +423,7 @@ void RenderingTest::test_render_midiSideChain_shouldProcessEventWhenSourceTrackI
 void RenderingTest::test_render_pitchBend_shouldProcessEvent()
 {
     const auto audioEngine = std::make_shared<AudioEngine>();
-    const auto deviceService = std::make_shared<DeviceService>(audioEngine);
+    const auto deviceService = std::make_shared<DeviceService>(audioEngine, std::make_shared<DataService>());
     const auto mixerService = std::make_shared<MixerService>();
 
     const auto portName = Constants::internalDevicePortPrefix() + " 1";

@@ -22,6 +22,7 @@
 #include "application/service/property_service.hpp"
 #include "application/service/selection_service.hpp"
 #include "application/service/settings_service.hpp"
+#include "infra/data_service.hpp"
 
 #include <QSettings>
 #include <QTest>
@@ -45,7 +46,7 @@ void NoteColumnModelHandlerTest::test_columnModel_shouldCreateAndReturnModel()
     const auto automationService { std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
     const auto selectionService { std::make_shared<SelectionService>() };
     const auto settingsService { std::make_shared<SettingsService>() };
-    const auto editorService { std::make_shared<EditorService>(selectionService, settingsService, std::make_shared<AutomationService>(std::make_shared<PropertyService>())) };
+    const auto editorService { std::make_shared<EditorService>(selectionService, settingsService, std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>()) };
 
     NoteColumnModelHandler handler { editorService, selectionService, automationService, settingsService };
 
@@ -61,7 +62,7 @@ void NoteColumnModelHandlerTest::test_clear_shouldClearModels()
     const auto automationService { std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
     const auto selectionService { std::make_shared<SelectionService>() };
     const auto settingsService { std::make_shared<SettingsService>() };
-    const auto editorService { std::make_shared<EditorService>(selectionService, settingsService, std::make_shared<AutomationService>(std::make_shared<PropertyService>())) };
+    const auto editorService { std::make_shared<EditorService>(selectionService, settingsService, std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>()) };
 
     NoteColumnModelHandler handler { editorService, selectionService, automationService, settingsService };
 
@@ -78,7 +79,7 @@ void NoteColumnModelHandlerTest::test_updatePattern_shouldPreserveFocus()
     const auto automationService { std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
     const auto selectionService { std::make_shared<SelectionService>() };
     const auto settingsService { std::make_shared<SettingsService>() };
-    const auto editorService { std::make_shared<EditorService>(selectionService, settingsService, std::make_shared<AutomationService>(std::make_shared<PropertyService>())) };
+    const auto editorService { std::make_shared<EditorService>(selectionService, settingsService, std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>()) };
 
     NoteColumnModelHandler handler { editorService, selectionService, automationService, settingsService };
 

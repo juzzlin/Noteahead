@@ -6,6 +6,7 @@
 #include "common/constants.hpp"
 #include "domain/devices/drum_synth_device.hpp"
 #include "infra/audio/audio_engine.hpp"
+#include "infra/data_service.hpp"
 #include "view/controllers/drum_synth_controller.hpp"
 
 #include <QSignalSpy>
@@ -16,7 +17,7 @@ namespace noteahead {
 void DrumSynthControllerTest::test_sampleRateChange_shouldUpdateHzValues()
 {
     const auto audioEngine = std::make_shared<AudioEngine>();
-    const auto deviceService = std::make_shared<DeviceService>(audioEngine);
+    const auto deviceService = std::make_shared<DeviceService>(audioEngine, std::make_shared<DataService>());
     DrumSynthController controller { deviceService };
 
     const auto device = std::make_shared<DrumSynthDevice>(Constants::drumSynthDeviceName().toStdString());
@@ -50,7 +51,7 @@ void DrumSynthControllerTest::test_sampleRateChange_shouldUpdateHzValues()
 void DrumSynthControllerTest::test_properties_shouldUpdateDeviceAndEmitSignals()
 {
     const auto audioEngine = std::make_shared<AudioEngine>();
-    const auto deviceService = std::make_shared<DeviceService>(audioEngine);
+    const auto deviceService = std::make_shared<DeviceService>(audioEngine, std::make_shared<DataService>());
     DrumSynthController controller { deviceService };
 
     const auto device = std::make_shared<DrumSynthDevice>(Constants::drumSynthDeviceName().toStdString());
@@ -78,7 +79,7 @@ void DrumSynthControllerTest::test_properties_shouldUpdateDeviceAndEmitSignals()
 void DrumSynthControllerTest::test_reset_shouldRestoreDefaultValues()
 {
     const auto audioEngine = std::make_shared<AudioEngine>();
-    const auto deviceService = std::make_shared<DeviceService>(audioEngine);
+    const auto deviceService = std::make_shared<DeviceService>(audioEngine, std::make_shared<DataService>());
     DrumSynthController controller { deviceService };
 
     const auto device = std::make_shared<DrumSynthDevice>(Constants::drumSynthDeviceName().toStdString());

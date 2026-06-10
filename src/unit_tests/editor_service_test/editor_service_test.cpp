@@ -32,6 +32,7 @@
 #include "domain/tracker/side_chain_settings.hpp"
 #include "domain/tracker/song.hpp"
 #include "domain/tracker/track.hpp"
+#include "infra/data_service.hpp"
 #include "infra/settings.hpp"
 
 #include <QSignalSpy>
@@ -41,7 +42,7 @@ namespace noteahead {
 
 void EditorServiceTest::test_initialize_shouldInitializeCorrectly()
 {
-    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
+    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
 
     // Track emitted signals
     QSignalSpy spyAboutToInitialize(&editorService, &EditorService::aboutToInitialize);
@@ -84,7 +85,7 @@ void EditorServiceTest::test_initialize_shouldInitializeCorrectly()
 
 void EditorServiceTest::test_defaultSong_shouldReturnCorrectProperties()
 {
-    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
+    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
 
     const auto trackCount = 8;
     QCOMPARE(editorService.trackCount(), trackCount);
@@ -109,7 +110,7 @@ void EditorServiceTest::test_defaultSong_shouldReturnCorrectProperties()
 
 void EditorServiceTest::test_defaultSong_shouldNotHaveNoteData()
 {
-    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
+    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
 
     for (uint8_t pattern = 0; pattern < editorService.patternCount(); pattern++) {
         for (uint8_t track = 0; track < editorService.trackCount(); track++) {
@@ -125,7 +126,7 @@ void EditorServiceTest::test_defaultSong_shouldNotHaveNoteData()
 
 void EditorServiceTest::test_insertPattern_shouldInsertPattern()
 {
-    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
+    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
     editorService.setPatternAtSongPosition(0, 1);
     editorService.insertPatternToPlayOrder();
 
@@ -137,7 +138,7 @@ void EditorServiceTest::test_insertPattern_shouldInsertPattern()
 
 void EditorServiceTest::test_removePattern_shouldRemovePattern()
 {
-    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
+    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
     editorService.setPatternAtSongPosition(0, 1);
     editorService.insertPatternToPlayOrder();
 
@@ -148,7 +149,7 @@ void EditorServiceTest::test_removePattern_shouldRemovePattern()
 
 void EditorServiceTest::test_removePatternFromMiddle_shouldNotRemoveLastPattern()
 {
-    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
+    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
 
     // Initial length is 1.
     // Add two more patterns to have 3 patterns in total.
@@ -177,7 +178,7 @@ void EditorServiceTest::test_removePatternFromMiddle_shouldNotRemoveLastPattern(
 
 void EditorServiceTest::test_columnCutPaste_equalSizes_shouldCopyColumn()
 {
-    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
+    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
     QSignalSpy noteDataChangedSpy { &editorService, &EditorService::noteDataAtPositionChanged };
     const Position sourcePosition = { 0, 1, 0, 0, 0 };
     QVERIFY(editorService.requestPosition(sourcePosition));
@@ -204,7 +205,7 @@ void EditorServiceTest::test_columnCutPaste_equalSizes_shouldCopyColumn()
 
 void EditorServiceTest::test_columnCutPaste_shorterTarget_shouldCopyColumn()
 {
-    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
+    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
     QSignalSpy noteDataChangedSpy { &editorService, &EditorService::noteDataAtPositionChanged };
     const Position sourcePosition = { 0, 1, 0, 0, 0 };
     QVERIFY(editorService.requestPosition(sourcePosition));
@@ -232,7 +233,7 @@ void EditorServiceTest::test_columnCutPaste_shorterTarget_shouldCopyColumn()
 
 void EditorServiceTest::test_columnCopyPaste_equalSizes_shouldCopyColumn()
 {
-    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
+    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
     QSignalSpy noteDataChangedSpy { &editorService, &EditorService::noteDataAtPositionChanged };
     const Position sourcePosition = { 0, 1, 0, 0, 0 };
     QVERIFY(editorService.requestPosition(sourcePosition));
@@ -258,7 +259,7 @@ void EditorServiceTest::test_columnCopyPaste_equalSizes_shouldCopyColumn()
 
 void EditorServiceTest::test_columnCopyPaste_shorterTarget_shouldCopyColumn()
 {
-    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
+    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
     QSignalSpy noteDataChangedSpy { &editorService, &EditorService::noteDataAtPositionChanged };
     const Position sourcePosition = { 0, 1, 0, 0, 0 };
     QVERIFY(editorService.requestPosition(sourcePosition));
@@ -285,7 +286,7 @@ void EditorServiceTest::test_columnCopyPaste_shorterTarget_shouldCopyColumn()
 
 void EditorServiceTest::test_trackCutPaste_equalSizes_shouldCopyTrack()
 {
-    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
+    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
     QSignalSpy noteDataChangedSpy { &editorService, &EditorService::noteDataAtPositionChanged };
     const Position sourcePosition = { 0, 1, 0, 0, 0 };
     QVERIFY(editorService.requestPosition(sourcePosition));
@@ -312,7 +313,7 @@ void EditorServiceTest::test_trackCutPaste_equalSizes_shouldCopyTrack()
 
 void EditorServiceTest::test_trackCutPaste_shorterTarget_shouldCopyTrack()
 {
-    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
+    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
     QSignalSpy noteDataChangedSpy { &editorService, &EditorService::noteDataAtPositionChanged };
     const Position sourcePosition = { 0, 1, 0, 0, 0 };
     QVERIFY(editorService.requestPosition(sourcePosition));
@@ -340,7 +341,7 @@ void EditorServiceTest::test_trackCutPaste_shorterTarget_shouldCopyTrack()
 
 void EditorServiceTest::test_trackCopyPaste_equalSizes_shouldCopyTrack()
 {
-    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
+    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
     QSignalSpy noteDataChangedSpy { &editorService, &EditorService::noteDataAtPositionChanged };
     const Position sourcePosition = { 0, 1, 0, 0, 0 };
     QVERIFY(editorService.requestPosition(sourcePosition));
@@ -366,7 +367,7 @@ void EditorServiceTest::test_trackCopyPaste_equalSizes_shouldCopyTrack()
 
 void EditorServiceTest::test_trackCopyPaste_shorterTarget_shouldCopyTrack()
 {
-    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
+    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
     QSignalSpy noteDataChangedSpy { &editorService, &EditorService::noteDataAtPositionChanged };
     const Position sourcePosition = { 0, 1, 0, 0, 0 };
     QVERIFY(editorService.requestPosition(sourcePosition));
@@ -393,7 +394,7 @@ void EditorServiceTest::test_trackCopyPaste_shorterTarget_shouldCopyTrack()
 
 void EditorServiceTest::test_trackCopyPaste_withAutomations_shouldCopyAutomations()
 {
-    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
+    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
     auto automationService = std::make_shared<AutomationService>(std::make_shared<PropertyService>());
     editorService.setAutomationService(automationService);
 
@@ -439,7 +440,7 @@ void EditorServiceTest::test_trackCopyPaste_withAutomations_shouldCopyAutomation
 
 void EditorServiceTest::test_patternCutPaste_equalSizes_shouldCopyPattern()
 {
-    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
+    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
     QSignalSpy noteDataChangedSpy { &editorService, &EditorService::noteDataAtPositionChanged };
     const Position sourcePosition = { 0, 0, 0, 0, 0 };
     QVERIFY(editorService.requestPosition(sourcePosition));
@@ -463,7 +464,7 @@ void EditorServiceTest::test_patternCutPaste_equalSizes_shouldCopyPattern()
 
 void EditorServiceTest::test_patternCutPaste_shorterTarget_shouldCopyPattern()
 {
-    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
+    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
     QSignalSpy noteDataChangedSpy { &editorService, &EditorService::noteDataAtPositionChanged };
     const Position sourcePosition = { 0, 0, 0, 0, 0 };
     QVERIFY(editorService.requestPosition(sourcePosition));
@@ -489,7 +490,7 @@ void EditorServiceTest::test_patternCutPaste_shorterTarget_shouldCopyPattern()
 
 void EditorServiceTest::test_patternCopyPaste_equalSizes_shouldCopyPattern()
 {
-    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
+    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
     QSignalSpy noteDataChangedSpy { &editorService, &EditorService::noteDataAtPositionChanged };
     const Position sourcePosition = { 0, 0, 0, 0, 0 };
     QVERIFY(editorService.requestPosition(sourcePosition));
@@ -512,7 +513,7 @@ void EditorServiceTest::test_patternCopyPaste_equalSizes_shouldCopyPattern()
 
 void EditorServiceTest::test_patternCopyPaste_trackDeleted_shouldCopyPattern()
 {
-    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
+    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
     QSignalSpy noteDataChangedSpy { &editorService, &EditorService::noteDataAtPositionChanged };
     const Position sourcePosition = { 0, 0, 0, 0, 0 };
     QVERIFY(editorService.requestPosition(sourcePosition));
@@ -537,7 +538,7 @@ void EditorServiceTest::test_patternCopyPaste_trackDeleted_shouldCopyPattern()
 
 void EditorServiceTest::test_patternCopyPaste_shorterTarget_shouldCopyPattern()
 {
-    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
+    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
     QSignalSpy noteDataChangedSpy { &editorService, &EditorService::noteDataAtPositionChanged };
     const Position sourcePosition = { 0, 0, 0, 0, 0 };
     QVERIFY(editorService.requestPosition(sourcePosition));
@@ -564,7 +565,7 @@ void EditorServiceTest::test_selectionCutPaste_shouldCopySelection()
 {
     const auto selectionService = std::make_shared<SelectionService>();
     const auto settingsService = std::make_shared<SettingsService>();
-    EditorService editorService { selectionService, settingsService, std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
+    EditorService editorService { selectionService, settingsService, std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
     QSignalSpy noteDataChangedSpy { &editorService, &EditorService::noteDataAtPositionChanged };
     const Position sourcePosition = { 0, 1, 0, 8, 0 };
     QVERIFY(editorService.requestPosition(sourcePosition));
@@ -595,7 +596,7 @@ void EditorServiceTest::test_selectionCopyPaste_shouldCopySelection()
 {
     const auto selectionService = std::make_shared<SelectionService>();
     const auto settingsService = std::make_shared<SettingsService>();
-    EditorService editorService { selectionService, settingsService, std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
+    EditorService editorService { selectionService, settingsService, std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
     QSignalSpy noteDataChangedSpy { &editorService, &EditorService::noteDataAtPositionChanged };
     const Position sourcePosition = { 0, 1, 0, 8, 0 };
     QVERIFY(editorService.requestPosition(sourcePosition));
@@ -624,7 +625,7 @@ void EditorServiceTest::test_selectionCopyPaste_shouldCopySelection()
 
 void EditorServiceTest::test_requestCursorLeft_shouldWrapCorrectly()
 {
-    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
+    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
     editorService.requestPosition({ 0, 0, 0, 0, 0 });
     editorService.requestCursorLeft();
 
@@ -633,7 +634,7 @@ void EditorServiceTest::test_requestCursorLeft_shouldWrapCorrectly()
 
 void EditorServiceTest::test_requestDigitSetAtCurrentPosition_velocity_shouldChangeVelocity()
 {
-    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
+    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
     QSignalSpy noteDataChangedSpy { &editorService, &EditorService::noteDataAtPositionChanged };
     QVERIFY(editorService.requestPosition(0, 0, 0, 0, 0));
     QVERIFY(editorService.requestNoteOnAtCurrentPosition(1, 3, 64));
@@ -672,7 +673,7 @@ void EditorServiceTest::test_requestDigitSetAtCurrentPosition_velocity_shouldCha
 
 void EditorServiceTest::test_velocity_input_hundreds_digit_shouldSetVelocity()
 {
-    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
+    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
     QVERIFY(editorService.requestPosition(0, 0, 0, 0, 0));
 
     // Move to Hundreds digit of velocity (LineColumn 1)
@@ -700,7 +701,7 @@ void EditorServiceTest::test_velocity_input_hundreds_digit_shouldSetVelocity()
 
 void EditorServiceTest::test_requestHorizontalScrollPositionChange_shouldChangePosition()
 {
-    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
+    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
     QSignalSpy horizontalScrollChangeSpy(&editorService, &EditorService::horizontalScrollChanged);
     QSignalSpy positionChangedSpy { &editorService, &EditorService::positionChanged };
 
@@ -723,7 +724,7 @@ void EditorServiceTest::test_requestHorizontalScrollPositionChange_shouldChangeP
 
 void EditorServiceTest::test_requestNewColumn_shouldAddNewColumn()
 {
-    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
+    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
     QVERIFY(editorService.requestPosition(0, 0, 0, 0, 0));
     QSignalSpy positionChangedSpy { &editorService, &EditorService::positionChanged };
     QSignalSpy columnAddedSpy { &editorService, &EditorService::columnAdded };
@@ -742,7 +743,7 @@ void EditorServiceTest::test_requestNewColumn_shouldAddNewColumn()
 
 void EditorServiceTest::test_requestColumnDeletion_shouldDeleteColumn()
 {
-    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
+    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
     QVERIFY(editorService.requestPosition(0, 0, 0, 0, 0));
     QSignalSpy columnDeletedSpy { &editorService, &EditorService::columnDeleted };
     QSignalSpy positionChangedSpy { &editorService, &EditorService::positionChanged };
@@ -767,7 +768,7 @@ void EditorServiceTest::test_requestColumnDeletion_shouldDeleteColumn()
 
 void EditorServiceTest::test_requestNewTrackToRight_shouldAddNewTrack()
 {
-    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
+    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
     const auto initialTrackCount = editorService.trackCount();
     QVERIFY(editorService.requestPosition(0, 1, 0, 0, 0));
     QSignalSpy trackAddedSpy { &editorService, &EditorService::trackAdded };
@@ -801,7 +802,7 @@ void EditorServiceTest::test_requestNewTrackToRight_shouldAddNewTrack()
 
 void EditorServiceTest::test_requestNewTrackToLeft_shouldAddNewTrack()
 {
-    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
+    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
     const auto initialTrackCount = editorService.trackCount();
     QVERIFY(editorService.requestPosition(0, 1, 0, 0, 0));
     QSignalSpy trackAddedSpy { &editorService, &EditorService::trackAdded };
@@ -835,7 +836,7 @@ void EditorServiceTest::test_requestNewTrackToLeft_shouldAddNewTrack()
 
 void EditorServiceTest::test_requestNewTrackToLeft_firstTrack_shouldAddNewTrack()
 {
-    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
+    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
     const auto initialTrackCount = editorService.trackCount();
     QVERIFY(editorService.requestPosition(0, 0, 0, 0, 0));
     QSignalSpy trackAddedSpy { &editorService, &EditorService::trackAdded };
@@ -855,7 +856,7 @@ void EditorServiceTest::test_requestNewTrackToLeft_firstTrack_shouldAddNewTrack(
 
 void EditorServiceTest::test_requestTrackDeletion_firstTrack_shouldDeleteTrack()
 {
-    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
+    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
     const auto initialTrackCount = editorService.trackCount();
     QSignalSpy trackDeletedSpy { &editorService, &EditorService::trackDeleted };
     QSignalSpy positionChangedSpy { &editorService, &EditorService::positionChanged };
@@ -878,7 +879,7 @@ void EditorServiceTest::test_requestTrackDeletion_firstTrack_shouldDeleteTrack()
 
 void EditorServiceTest::test_requestTrackDeletion_lastTrack_shouldDeleteTrack()
 {
-    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
+    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
     const auto initialTrackCount = editorService.trackCount();
     QSignalSpy trackDeletedSpy { &editorService, &EditorService::trackDeleted };
     QSignalSpy positionChangedSpy { &editorService, &EditorService::positionChanged };
@@ -901,7 +902,7 @@ void EditorServiceTest::test_requestTrackDeletion_lastTrack_shouldDeleteTrack()
 
 void EditorServiceTest::test_requestNoteDeletionAtCurrentPosition_shouldDeleteNoteData()
 {
-    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
+    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
     QSignalSpy noteDataChangedSpy { &editorService, &EditorService::noteDataAtPositionChanged };
     QVERIFY(editorService.requestPosition(0, 0, 0, 0, 0));
     QVERIFY(editorService.requestNoteOnAtCurrentPosition(1, 3, 64));
@@ -917,7 +918,7 @@ void EditorServiceTest::test_requestNoteDeletionAtCurrentPosition_shouldDeleteNo
 
 void EditorServiceTest::test_requestNoteDeletionAtCurrentPosition_shouldDeleteNoteData_shouldShiftNotes()
 {
-    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
+    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
     QSignalSpy noteDataChangedSpy { &editorService, &EditorService::noteDataAtPositionChanged };
     QVERIFY(editorService.requestPosition(0, 0, 0, 10, 0));
     QVERIFY(editorService.requestNoteOnAtCurrentPosition(1, 3, 64));
@@ -937,7 +938,7 @@ void EditorServiceTest::test_requestNoteDeletionAtCurrentPosition_shouldDeleteNo
 
 void EditorServiceTest::test_requestNoteInsertionAtCurrentPosition_shouldInsertNoteData()
 {
-    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
+    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
     QVERIFY(editorService.requestPosition(0, 0, 0, 10, 0));
     QVERIFY(editorService.requestNoteOnAtCurrentPosition(1, 3, 64));
     QVERIFY(editorService.requestPosition(0, 0, 0, 11, 0));
@@ -962,7 +963,7 @@ void EditorServiceTest::test_requestNoteInsertionAtCurrentPosition_shouldInsertN
 
 void EditorServiceTest::test_requestNoteOnAtCurrentPosition_shouldChangeNoteData()
 {
-    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
+    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
     QSignalSpy noteDataChangedSpy { &editorService, &EditorService::noteDataAtPositionChanged };
     QVERIFY(editorService.requestPosition(0, 0, 0, 0, 0));
     QVERIFY(editorService.requestNoteOnAtCurrentPosition(1, 3, 64));
@@ -986,7 +987,7 @@ void EditorServiceTest::test_requestNoteOnAtCurrentPosition_shouldChangeNoteData
 
 void EditorServiceTest::test_requestNoteOnAtCurrentPosition_notOnNoteColumn_shouldNotChangeNoteData()
 {
-    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
+    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
     QSignalSpy noteDataChangedSpy { &editorService, &EditorService::noteDataAtPositionChanged };
 
     QVERIFY(editorService.requestPosition(0, 0, 0, 0, 1));
@@ -1000,7 +1001,7 @@ void EditorServiceTest::test_requestNoteOnAtCurrentPosition_notOnNoteColumn_shou
 
 void EditorServiceTest::test_requestNoteOffAtColumnFirstLine_shouldAddNoteOff()
 {
-    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
+    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
     QSignalSpy noteDataChangedSpy { &editorService, &EditorService::noteDataAtPositionChanged };
 
     editorService.requestPosition(0, 0, 0, 4, 0); // Move to line 4
@@ -1017,7 +1018,7 @@ void EditorServiceTest::test_requestNoteOffAtColumnFirstLine_shouldAddNoteOff()
 
 void EditorServiceTest::test_requestNoteOffAtTrackFirstLine_shouldAddNoteOff()
 {
-    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
+    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
     QSignalSpy noteDataChangedSpy { &editorService, &EditorService::noteDataAtPositionChanged };
 
     editorService.requestNewColumn(0); // Track 0 now has 2 columns
@@ -1038,7 +1039,7 @@ void EditorServiceTest::test_requestNoteOffAtTrackFirstLine_shouldAddNoteOff()
 
 void EditorServiceTest::test_requestNoteOffAtPatternFirstLine_shouldAddNoteOff()
 {
-    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
+    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
     QSignalSpy noteDataChangedSpy { &editorService, &EditorService::noteDataAtPositionChanged };
 
     const auto numTracks = editorService.trackCount();
@@ -1059,7 +1060,7 @@ void EditorServiceTest::test_requestNoteOffAtPatternFirstLine_shouldAddNoteOff()
 
 void EditorServiceTest::test_requestColumnTranspose_shouldTransposeColumn()
 {
-    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
+    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
     QSignalSpy noteDataChangedSpy { &editorService, &EditorService::noteDataAtPositionChanged };
 
     QVERIFY(editorService.requestPosition(0, 0, 0, 0, 0));
@@ -1079,7 +1080,7 @@ void EditorServiceTest::test_requestColumnTranspose_shouldTransposeColumn()
 
 void EditorServiceTest::test_requestTrackTranspose_shouldTransposeTrack()
 {
-    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
+    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
     QSignalSpy noteDataChangedSpy { &editorService, &EditorService::noteDataAtPositionChanged };
 
     QVERIFY(editorService.requestPosition(0, 0, 0, 0, 0));
@@ -1099,7 +1100,7 @@ void EditorServiceTest::test_requestTrackTranspose_shouldTransposeTrack()
 
 void EditorServiceTest::test_requestPatternTranspose_shouldTransposePattern()
 {
-    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
+    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
     QSignalSpy noteDataChangedSpy { &editorService, &EditorService::noteDataAtPositionChanged };
 
     QVERIFY(editorService.requestPosition(0, 0, 0, 0, 0));
@@ -1118,7 +1119,7 @@ void EditorServiceTest::test_requestPatternTranspose_shouldTransposePattern()
 
 void EditorServiceTest::test_requestSongTranspose_shouldTransposeSong()
 {
-    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
+    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
     QSignalSpy noteDataChangedSpy { &editorService, &EditorService::noteDataAtPositionChanged };
 
     QVERIFY(editorService.requestPosition(0, 0, 0, 0, 0));
@@ -1138,7 +1139,7 @@ void EditorServiceTest::test_requestSelectionTranspose_shouldTransposeSelection(
 {
     const auto selectionService = std::make_shared<SelectionService>();
     const auto settingsService = std::make_shared<SettingsService>();
-    EditorService editorService { selectionService, settingsService, std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
+    EditorService editorService { selectionService, settingsService, std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
     QSignalSpy noteDataChangedSpy { &editorService, &EditorService::noteDataAtPositionChanged };
 
     editorService.requestNewColumn(0);
@@ -1175,7 +1176,7 @@ void EditorServiceTest::test_requestSelectionTranspose_shouldTransposeSelection(
 
 void EditorServiceTest::test_requestLinearVelocityInterpolationOnColumn_shouldInterpolateVelocities()
 {
-    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
+    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
     QSignalSpy noteDataChangedSpy { &editorService, &EditorService::noteDataAtPositionChanged };
 
     QVERIFY(editorService.requestPosition(0, 0, 0, 0, 0));
@@ -1198,7 +1199,7 @@ void EditorServiceTest::test_requestLinearVelocityInterpolationOnColumn_shouldIn
 
 void EditorServiceTest::test_requestLinearVelocityInterpolationOnTrack_shouldInterpolateVelocities()
 {
-    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
+    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
     QSignalSpy noteDataChangedSpy { &editorService, &EditorService::noteDataAtPositionChanged };
 
     QVERIFY(editorService.requestPosition(0, 0, 0, 0, 0));
@@ -1238,7 +1239,7 @@ void EditorServiceTest::test_requestLinearVelocityInterpolationOnTrack_shouldInt
 
 void EditorServiceTest::test_requestLinearVelocityInterpolationOnColumn_shouldInterpolateVelocitiesAsPercentages()
 {
-    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
+    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
     QSignalSpy noteDataChangedSpy { &editorService, &EditorService::noteDataAtPositionChanged };
 
     QVERIFY(editorService.requestPosition(0, 0, 0, 0, 0));
@@ -1266,7 +1267,7 @@ void EditorServiceTest::test_requestLinearVelocityInterpolationOnColumn_shouldIn
 
 void EditorServiceTest::test_requestPosition_invalidPosition_shouldNotChangePosition()
 {
-    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
+    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
     QSignalSpy positionChangedSpy { &editorService, &EditorService::positionChanged };
     QSignalSpy currentTimeChangedSpy { &editorService, &EditorService::currentTimeChanged };
 
@@ -1281,7 +1282,7 @@ void EditorServiceTest::test_requestPosition_invalidPosition_shouldNotChangePosi
 
 void EditorServiceTest::test_requestPosition_validPosition_shouldChangePosition()
 {
-    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
+    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
     QSignalSpy positionChangedSpy { &editorService, &EditorService::positionChanged };
     QSignalSpy currentTimeChangedSpy { &editorService, &EditorService::currentTimeChanged };
 
@@ -1295,7 +1296,7 @@ void EditorServiceTest::test_requestPosition_validPosition_shouldChangePosition(
 
 void EditorServiceTest::test_resetSongPosition_firstTrackRemoved_shouldResetPosition()
 {
-    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
+    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
 
     QVERIFY(editorService.requestPosition(0, 0, 0, 0, 0));
     editorService.requestTrackDeletion();
@@ -1309,7 +1310,7 @@ void EditorServiceTest::test_resetSongPosition_firstTrackRemoved_shouldResetPosi
 
 void EditorServiceTest::test_requestScroll_shouldChangePosition()
 {
-    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
+    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
 
     editorService.setCurrentLineCount(65);
     editorService.requestPosition(0, 0, 0, 0, 0);
@@ -1345,7 +1346,7 @@ void EditorServiceTest::test_requestScroll_shouldChangePosition()
 
 void EditorServiceTest::test_requestScroll_shouldChangeCurrentTime()
 {
-    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
+    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
     QSignalSpy currentTimeChangedSpy { &editorService, &EditorService::currentTimeChanged };
     QCOMPARE(currentTimeChangedSpy.count(), 0);
     QCOMPARE(editorService.position().line, 0);
@@ -1360,7 +1361,7 @@ void EditorServiceTest::test_requestScroll_shouldChangeCurrentTime()
 
 void EditorServiceTest::test_requestPosition_shouldUpdatePosition()
 {
-    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
+    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
     QSignalSpy positionChangedSpy { &editorService, &EditorService::positionChanged };
 
     editorService.requestPosition(0, 0, 0, 0, 0);
@@ -1383,7 +1384,7 @@ void EditorServiceTest::test_requestPosition_shouldUpdatePosition()
 
 void EditorServiceTest::test_requestPosition_outOfBounds_shouldNotChangePosition()
 {
-    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
+    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
     QSignalSpy positionChangedSpy { &editorService, &EditorService::positionChanged };
 
     editorService.requestPosition(0, editorService.trackCount(), 0, 0, 0);
@@ -1394,7 +1395,7 @@ void EditorServiceTest::test_requestPosition_outOfBounds_shouldNotChangePosition
 
 void EditorServiceTest::test_setCurrentLineCount_shouldSetLineCount()
 {
-    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
+    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
     QSignalSpy currentLineCountChangedSpy { &editorService, &EditorService::currentLineCountChanged };
     QSignalSpy durationChangedSpy { &editorService, &EditorService::durationChanged };
     QSignalSpy positionChangedSpy { &editorService, &EditorService::positionChanged };
@@ -1453,7 +1454,7 @@ void EditorServiceTest::test_setCurrentLineCount_shouldSetLineCount()
 
 void EditorServiceTest::test_setCurrentPattern_shouldCreatePattern()
 {
-    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
+    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
 
     editorService.setCurrentLineCount(32); // New pattern should take the previous line count
 
@@ -1500,7 +1501,7 @@ void EditorServiceTest::test_setCurrentPattern_shouldCreatePattern()
 
 void EditorServiceTest::test_setCurrentPattern_addColumnFirst_shouldCreatePattern()
 {
-    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
+    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
 
     QSignalSpy positionChangedSpy { &editorService, &EditorService::positionChanged };
     QSignalSpy patternCreatedSpy { &editorService, &EditorService::patternCreated };
@@ -1519,7 +1520,7 @@ void EditorServiceTest::test_setCurrentPattern_addColumnFirst_shouldCreatePatter
 
 void EditorServiceTest::test_setInstrumentSettings_shouldSetInstrumentSettings()
 {
-    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
+    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
     QSignalSpy lineDataChangedSpy { &editorService, &EditorService::lineDataChanged };
     editorService.requestPosition(0, 1, 0, 0, 0);
     auto instrumentSettings = std::make_shared<InstrumentSettings>();
@@ -1537,7 +1538,7 @@ void EditorServiceTest::test_setInstrumentSettings_shouldSetInstrumentSettings()
 
 void EditorServiceTest::test_removeInstrumentSettings_shouldRemoveInstrumentSettings()
 {
-    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
+    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
     QSignalSpy lineDataChangedSpy { &editorService, &EditorService::lineDataChanged };
     editorService.requestPosition(0, 1, 0, 0, 0);
     auto instrumentSettings = std::make_shared<InstrumentSettings>();
@@ -1555,7 +1556,7 @@ void EditorServiceTest::test_removeInstrumentSettings_shouldRemoveInstrumentSett
 
 void EditorServiceTest::test_setPatternAtSongPosition_shouldCreatePattern()
 {
-    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
+    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
 
     QSignalSpy currentPatternChangedSpy { &editorService, &EditorService::currentPatternChanged };
     QSignalSpy durationChangedSpy { &editorService, &EditorService::durationChanged };
@@ -1609,7 +1610,7 @@ void EditorServiceTest::test_setPatternAtSongPosition_shouldCreatePattern()
 
 void EditorServiceTest::test_setSongPosition_shouldChangePattern()
 {
-    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
+    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
 
     QSignalSpy currentPatternChangedSpy { &editorService, &EditorService::currentPatternChanged };
     QSignalSpy patternAtCurrentSongPositionChangedSpy { &editorService, &EditorService::patternAtCurrentSongPositionChanged };
@@ -1652,7 +1653,7 @@ void EditorServiceTest::test_setSongPosition_shouldChangePattern()
 
 void EditorServiceTest::test_setSongPosition_trackDeleted_shouldCreatePattern()
 {
-    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
+    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
     editorService.setPatternAtSongPosition(0, 0);
     editorService.requestTrackDeletion();
     editorService.setPatternAtSongPosition(1, 1);
@@ -1661,7 +1662,7 @@ void EditorServiceTest::test_setSongPosition_trackDeleted_shouldCreatePattern()
 
 void EditorServiceTest::test_setPatternName_shouldChangePatternName()
 {
-    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
+    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
 
     editorService.setPatternName(0, "Foo");
 
@@ -1678,7 +1679,7 @@ void EditorServiceTest::test_setPatternName_shouldChangePatternName()
 
 void EditorServiceTest::test_setColumnName_shouldChangeColumnName()
 {
-    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
+    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
 
     editorService.setColumnName(0, 0, "Foo");
     editorService.setColumnName(1, 0, "Bar");
@@ -1690,7 +1691,7 @@ void EditorServiceTest::test_setColumnName_shouldChangeColumnName()
 
 void EditorServiceTest::test_setTrackName_shouldChangeTrackName()
 {
-    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
+    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
 
     editorService.setTrackName(0, "Foo");
     editorService.setTrackName(1, "Bar");
@@ -1702,7 +1703,7 @@ void EditorServiceTest::test_setTrackName_shouldChangeTrackName()
 
 void EditorServiceTest::test_velocityAtPosition_shouldReturnCorrectVelocity()
 {
-    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
+    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
 
     editorService.requestPosition(0, 0, 0, 0, 0);
     editorService.requestNoteOnAtCurrentPosition(1, 1, 50);
@@ -1716,7 +1717,7 @@ void EditorServiceTest::test_velocityAtPosition_shouldReturnCorrectVelocity()
 
 void EditorServiceTest::test_requestPositionByTick_shouldRespectUiUpdatesDisabledSetting()
 {
-    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
+    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
     QSignalSpy positionChangedSpy { &editorService, &EditorService::positionChanged };
     QSignalSpy currentTimeChangedSpy { &editorService, &EditorService::currentTimeChanged };
     QSignalSpy songPositionChangedSpy { &editorService, &EditorService::songPositionChanged };
@@ -1761,7 +1762,7 @@ void EditorServiceTest::test_midiNotesAtPosition_shouldReturnCorrectNotes()
     auto selectionService = std::make_shared<SelectionService>();
     auto settingsService = std::make_shared<SettingsService>();
     auto mixerService = std::make_shared<MixerService>();
-    EditorService editorService { selectionService, settingsService, std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
+    EditorService editorService { selectionService, settingsService, std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
     editorService.setMixerService(mixerService);
 
     // Create a pattern with notes on different tracks/columns

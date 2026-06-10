@@ -32,6 +32,7 @@
 #include "infra/audio/audio_engine.hpp"
 #include "infra/audio/backend/audio_file_reader.hpp"
 #include "infra/audio/backend/sndfile_reader.hpp"
+#include "infra/data_service.hpp"
 #include "infra/midi/export/midi_exporter.hpp"
 #include "models/audio_settings_model.hpp"
 #include "models/column_settings_model.hpp"
@@ -103,9 +104,10 @@ Application::Application(int & argc, char ** argv)
   , m_utilService { std::make_shared<UtilService>() }
   , m_propertyService { std::make_shared<PropertyService>() }
   , m_automationService { std::make_shared<AutomationService>(m_propertyService) }
-  , m_editorService { std::make_shared<EditorService>(m_selectionService, m_settingsService, m_automationService) }
+  , m_dataService { std::make_shared<DataService>() }
+  , m_editorService { std::make_shared<EditorService>(m_selectionService, m_settingsService, m_automationService, m_dataService) }
   , m_audioEngine { std::make_shared<AudioEngine>() }
-  , m_deviceService { std::make_shared<DeviceService>(m_audioEngine) }
+  , m_deviceService { std::make_shared<DeviceService>(m_audioEngine, m_dataService) }
   , m_samplerController { std::make_shared<SamplerController>(std::make_shared<SamplerDevice>("Default Sampler")) }
   , m_synthController { std::make_shared<SynthController>(std::make_shared<SynthDevice>("Default Synth")) }
   , m_wavetableSynthController { std::make_shared<WavetableSynthController>(std::make_shared<WavetableSynthDevice>("Default WavetableSynth")) }
@@ -342,6 +344,10 @@ void Application::connectDeviceService()
 
     connect(m_editorService.get(), &EditorService::devicesSerializationRequested, m_deviceService.get(), &DeviceService::serializeToXml);
     connect(m_editorService.get(), &EditorService::devicesDeserializationRequested, m_deviceService.get(), &DeviceService::deserializeFromXml);
+    connect(m_editorService.get(), &EditorService::dataSerializationRequested, this, [this](QXmlStreamWriter & writer) {
+        const auto files = m_deviceService->getFilesToEmbed();
+        m_dataService->serializeDataToXml(writer, files);
+    });
     connect(m_editorService.get(), &EditorService::projectPathChanged, m_deviceService.get(), &DeviceService::setProjectPath);
 
     m_synthController->setDeviceService(m_deviceService);

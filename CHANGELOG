@@ -15,6 +15,8 @@ New features:
 
 * Implement a wavetable synth
 
+* Make it possible to embed samples in the project file
+
 Bug fixes:
 
 * Improve synth voice stealing logic
