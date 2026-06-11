@@ -47,6 +47,11 @@ QString fileFormatExtension()
     return ".nahd";
 }
 
+QString deviceSettingsExtension()
+{
+    return ".nahddev";
+}
+
 QString midiFileExtension()
 {
     return ".mid";
@@ -805,6 +810,11 @@ QString xmlKeyGain()
 QString xmlKeyProject()
 {
     return "Project";
+}
+
+QString xmlKeySettings()
+{
+    return "Settings";
 }
 
 QString xmlKeySong()

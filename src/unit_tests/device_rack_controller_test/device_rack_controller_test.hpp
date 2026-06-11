@@ -35,6 +35,9 @@ private slots:
     void test_addMethods_shouldAddDevicesToFirstEmptySlot();
     void test_availableDevices_shouldReturnCorrectList();
     void test_removeDeviceByName_shouldClearCorrectSlot();
+    void test_importSettings_matchingType_shouldEmitConfirmationWithoutMismatch();
+    void test_importSettings_differentType_shouldEmitConfirmationWithMismatch();
+    void test_confirmImportSettings_shouldImportAndNotify();
 };
 
 } // namespace noteahead

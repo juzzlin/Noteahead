@@ -1,0 +1,115 @@
+include_directories(${CMAKE_CURRENT_SOURCE_DIR})
+
+set(NAME device_service_test)
+
+set(SRC
+    ${NAME}.cpp
+    ${NAME}.hpp
+    ../../application/instrument_request.cpp
+    ../../application/note_converter.cpp
+    ../../application/position.cpp
+    ../../application/service/automation_service.cpp
+    ../../application/service/copy_manager.cpp
+    ../../application/service/device_service.cpp
+    ../../application/service/mixer_service.cpp
+    ../../application/service/property_service.cpp
+    ../../application/service/random_service.cpp
+    ../../application/service/side_chain_service.cpp
+    ../../domain/devices/device_factory.cpp
+    ../../domain/devices/device_registration.cpp
+    ../../common/constants.cpp
+    ../../common/parameter_mapper.cpp
+    ../../common/utils.cpp
+    ../../common/waveform_generator.cpp
+    ../../domain/tracker/arpeggiator.cpp
+    ../../domain/tracker/automation.cpp
+    ../../domain/tracker/automation_location.cpp
+    ../../domain/tracker/column.cpp
+    ../../domain/tracker/column_settings.cpp
+    ../../domain/devices/bass_synth_device.cpp
+    ../../domain/effects/delay_effect.cpp
+    ../../domain/effects/effect_factory.cpp
+    ../../domain/devices/device.cpp
+    ../../domain/devices/drum_synth_constants.cpp
+    ../../domain/devices/drum_synth_device.cpp
+    ../../domain/effects/effect.cpp
+    ../../domain/dsp/lfo.cpp
+    ../../domain/effects/auto_panner_effect.cpp
+    ../../domain/effects/effect_rack.cpp
+    ../../domain/effects/high_pass_filter_effect.cpp
+    ../../domain/effects/low_pass_filter_effect.cpp
+    ../../domain/effects/panning_effect.cpp
+    ../../domain/effects/panner_effect.cpp
+    ../../domain/devices/sampler_device.cpp
+    ../../domain/devices/synth_device.cpp
+    ../../domain/devices/wavetable_synth_device.cpp
+    ../../domain/devices/synth_presets.cpp
+    ../../domain/effects/volume_effect.cpp
+    ../../domain/dsp/adsr_envelope.cpp
+    ../../domain/dsp/svf_filter.cpp
+    ../../domain/dsp/wavetable.cpp
+    ../../domain/dsp/wavetable_oscillator.cpp
+    ../../domain/dsp/cascaded_svf.cpp
+    ../../domain/dsp/diode_ladder_filter.cpp
+    ../../domain/dsp/compressor_effect.cpp
+    ../../domain/dsp/clipper_effect.cpp
+    ../../domain/dsp/drum/clap_engine.cpp
+    ../../domain/dsp/drum/crash_engine.cpp
+    ../../domain/dsp/drum/hihat_engine.cpp
+    ../../domain/dsp/drum/kick_engine.cpp
+    ../../domain/dsp/drum/ride_engine.cpp
+    ../../domain/dsp/drum/snare_engine.cpp
+    ../../domain/dsp/drum/tom_engine.cpp
+    ../../domain/dsp/dsp_component.cpp
+    ../../domain/dsp/eq_8_band_parametric_effect.cpp
+    ../../domain/dsp/multi_engine.cpp
+    ../../domain/dsp/oversampler.cpp
+    ../../domain/dsp/poly_blep_oscillator.cpp
+    ../../domain/dsp/reverb_effect.cpp
+    ../../domain/dsp/chorus_effect.cpp
+    ../../domain/tracker/event.cpp
+    ../../domain/tracker/event_data.cpp
+    ../../domain/tracker/instrument.cpp
+    ../../domain/tracker/instrument_settings.cpp
+    ../../domain/tracker/interpolator.cpp
+    ../../domain/tracker/line.cpp
+    ../../domain/tracker/line_event.cpp
+    ../../domain/midi/midi_address.cpp
+    ../../domain/midi/midi_cc_automation.cpp
+    ../../domain/midi/midi_cc_data.cpp
+    ../../domain/midi/midi_cc_setting.cpp
+    ../../domain/midi/midi_note_data.cpp
+    ../../domain/tracker/mixer_unit.cpp
+    ../../domain/tracker/note_data.cpp
+    ../../domain/tracker/note_data_manipulator.cpp
+    ../../domain/tracker/parameter.cpp
+    ../../domain/tracker/parameter_container.cpp
+    ../../domain/tracker/pattern.cpp
+    ../../domain/midi/pitch_bend_automation.cpp
+    ../../domain/midi/pitch_bend_data.cpp
+    ../../domain/tracker/play_order.cpp
+    ../../domain/tracker/song.cpp
+    ../../domain/tracker/track.cpp
+    ../../infra/audio/audio_engine.cpp
+    ../../infra/audio/audio_file_recorder.cpp
+    ../../infra/audio/audio_file_streamer.cpp
+    ../../infra/audio/backend/sndfile_reader.cpp
+    ../../infra/audio/real_time_worker_pool.cpp
+    ../../infra/midi/midi_cc_mapping.cpp
+    ../../infra/data_service.cpp
+    ../../infra/settings.cpp
+)
+
+qt_add_executable(${NAME} ${SRC})
+
+set_target_properties(${NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${UNIT_TEST_BASE_DIR})
+
+add_test(${NAME} ${UNIT_TEST_BASE_DIR}/${NAME})
+
+target_link_libraries(${NAME} PRIVATE
+    Qt${QT_VERSION_MAJOR}::Gui
+    Qt${QT_VERSION_MAJOR}::Test
+    SimpleLogger
+    PkgConfig::SNDFILE
+    PkgConfig::JACK
+)

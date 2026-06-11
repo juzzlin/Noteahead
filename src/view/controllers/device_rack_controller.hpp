@@ -19,6 +19,7 @@
 #include <QAbstractListModel>
 #include <QObject>
 #include <QStringList>
+#include <QUrl>
 
 #include <memory>
 #include <vector>
@@ -68,6 +69,10 @@ public:
     Q_INVOKABLE void setDevice(int slotIndex, const QString & typeId);
     Q_INVOKABLE void clearDevice(int slotIndex);
 
+    Q_INVOKABLE void exportSettings(int index, const QUrl & fileUrl);
+    Q_INVOKABLE void importSettings(int index, const QUrl & fileUrl);
+    Q_INVOKABLE void confirmImportSettings(int index, const QUrl & fileUrl);
+
     Q_INVOKABLE QString deviceType(int slotIndex) const;
     Q_INVOKABLE QString deviceTypeName(int slotIndex) const;
     Q_INVOKABLE QString deviceName(int slotIndex) const;
@@ -84,6 +89,7 @@ public:
 signals:
     void deviceCountChanged();
     void revisionChanged();
+    void importSettingsConfirmationRequested(int slotIndex, QUrl fileUrl, QString currentTypeName, QString importedTypeName, bool typeMismatch);
     void samplerDialogRequested();
     void synthDialogRequested();
     void wavetableSynthDialogRequested();

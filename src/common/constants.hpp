@@ -29,6 +29,7 @@ QString license();
 
 QString fileFormatVersion();
 QString fileFormatExtension();
+QString deviceSettingsExtension();
 QString midiFileExtension();
 
 QString qSettingsCompanyName();
@@ -242,6 +243,7 @@ QString xmlKeyVolume();
 QString xmlKeyGain();
 
 QString xmlKeyProject();
+QString xmlKeySettings();
 QString xmlKeySong();
 
 QString xmlKeySourceColumn();

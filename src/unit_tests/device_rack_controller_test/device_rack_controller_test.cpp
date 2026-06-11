@@ -30,8 +30,11 @@
 #include "view/controllers/sampler_controller.hpp"
 #include "view/controllers/synth_controller.hpp"
 
+#include <QBuffer>
 #include <QSignalSpy>
 #include <QTest>
+#include <QXmlStreamReader>
+#include <QXmlStreamWriter>
 
 namespace noteahead {
 
@@ -318,6 +321,82 @@ void DeviceRackControllerTest::test_removeDeviceByName_shouldClearCorrectSlot()
 
     controller.removeDevice(QString::fromStdString(prefix + " 1"));
     QVERIFY(deviceService->device(0) == nullptr);
+}
+
+void DeviceRackControllerTest::test_importSettings_matchingType_shouldEmitConfirmationWithoutMismatch()
+{
+    const auto audioEngine = std::make_shared<AudioEngine>();
+    const auto deviceService = std::make_shared<DeviceService>(audioEngine, std::make_shared<DataService>());
+    const auto editorService = std::make_shared<MockEditorService>();
+    deviceService->setDevice(0, DeviceFactory::createDevice(SynthDevice::typeIdString(), "TestSynth"));
+
+    QByteArray data;
+    QBuffer buffer { &data };
+    buffer.open(QIODevice::WriteOnly);
+    QXmlStreamWriter writer { &buffer };
+    QVERIFY(deviceService->exportDeviceSettings(0, writer));
+    buffer.close();
+
+    buffer.open(QIODevice::ReadOnly);
+    QXmlStreamReader reader { &buffer };
+    const auto typeInfo = deviceService->peekDeviceTypeInfo(reader);
+    buffer.close();
+
+    QCOMPARE(typeInfo.typeId, QString::fromStdString(SynthDevice::typeIdString()));
+    QCOMPARE(typeInfo.typeId, QString::fromStdString(deviceService->device(0)->typeId()));
+}
+
+void DeviceRackControllerTest::test_importSettings_differentType_shouldEmitConfirmationWithMismatch()
+{
+    const auto audioEngine = std::make_shared<AudioEngine>();
+    const auto deviceService = std::make_shared<DeviceService>(audioEngine, std::make_shared<DataService>());
+
+    deviceService->setDevice(0, DeviceFactory::createDevice(SynthDevice::typeIdString(), "TestSynth"));
+
+    QByteArray data;
+    QBuffer buffer { &data };
+    buffer.open(QIODevice::WriteOnly);
+    QXmlStreamWriter writer { &buffer };
+    QVERIFY(deviceService->exportDeviceSettings(0, writer));
+    buffer.close();
+
+    deviceService->setDevice(0, DeviceFactory::createDevice(SamplerDevice::typeIdString(), "TestSampler"));
+
+    buffer.open(QIODevice::ReadOnly);
+    QXmlStreamReader reader { &buffer };
+    const auto typeInfo = deviceService->peekDeviceTypeInfo(reader);
+    buffer.close();
+
+    QCOMPARE(typeInfo.typeId, QString::fromStdString(SynthDevice::typeIdString()));
+    QVERIFY(typeInfo.typeId != QString::fromStdString(deviceService->device(0)->typeId()));
+}
+
+void DeviceRackControllerTest::test_confirmImportSettings_shouldImportAndNotify()
+{
+    const auto audioEngine = std::make_shared<AudioEngine>();
+    const auto deviceService = std::make_shared<DeviceService>(audioEngine, std::make_shared<DataService>());
+    const auto editorService = std::make_shared<MockEditorService>();
+
+    const auto synth = std::dynamic_pointer_cast<SynthDevice>(DeviceFactory::createDevice(SynthDevice::typeIdString(), "TestSynth"));
+    synth->setVolume(0.42f);
+    deviceService->setDevice(0, synth);
+
+    QByteArray data;
+    QBuffer buffer { &data };
+    buffer.open(QIODevice::WriteOnly);
+    QXmlStreamWriter writer { &buffer };
+    QVERIFY(deviceService->exportDeviceSettings(0, writer));
+    buffer.close();
+
+    synth->setVolume(1.0f);
+    QCOMPARE(synth->volume(), 1.0f);
+
+    buffer.open(QIODevice::ReadOnly);
+    QXmlStreamReader reader { &buffer };
+    QVERIFY(deviceService->importDeviceSettings(0, reader));
+    buffer.close();
+
+    QCOMPARE(synth->volume(), 0.42f);
 }
 
 } // namespace noteahead

@@ -17,6 +17,9 @@ QtObject {
     signal deviceGalleryDialogRequested(int slotIndex)
     signal deviceInsertEffectsDialogRequested(string deviceName)
     signal deviceRackDialogRequested
+    signal exportDeviceSettingsRequested(int slotIndex, string deviceName, string deviceTypeName)
+    signal importDeviceSettingsRequested(int slotIndex)
+    signal importDeviceSettingsConfirmationRequested(int slotIndex, url fileUrl, string currentTypeName, string importedTypeName, bool typeMismatch)
     signal drumSynthDialogRequested
     signal editMidiCcAutomationsDialogByColumnRequested
     signal editMidiCcAutomationsDialogByLineRequested
@@ -151,6 +154,15 @@ QtObject {
     }
     function requestDeviceRackDialog(): void {
         deviceRackDialogRequested();
+    }
+    function requestExportDeviceSettings(slotIndex: int, deviceName: string, deviceTypeName: string): void {
+        exportDeviceSettingsRequested(slotIndex, deviceName, deviceTypeName);
+    }
+    function requestImportDeviceSettings(slotIndex: int): void {
+        importDeviceSettingsRequested(slotIndex);
+    }
+    function requestImportDeviceSettingsConfirmation(slotIndex: int, fileUrl: url, currentTypeName: string, importedTypeName: string, typeMismatch: bool): void {
+        importDeviceSettingsConfirmationRequested(slotIndex, fileUrl, currentTypeName, importedTypeName, typeMismatch);
     }
     function requestEffectSendsDialog(deviceName: string): void {
         effectSendsDialogRequested(deviceName);

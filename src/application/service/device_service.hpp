@@ -19,9 +19,12 @@
 #include "domain/devices/device.hpp"
 #include "domain/devices/synth_presets.hpp"
 #include "domain/effects/effect_rack.hpp"
+#include "infra/audio/backend/audio_file_reader.hpp"
 
 #include <QObject>
 #include <QStringList>
+
+#include <functional>
 #include <memory>
 #include <string>
 
@@ -32,6 +35,7 @@ namespace noteahead {
 
 class AudioEngine;
 class DataService;
+class AudioFileReader;
 
 class DeviceService : public QObject
 {
@@ -75,6 +79,24 @@ public:
     void serializeToXml(QXmlStreamWriter & writer) const;
     void deserializeFromXml(QXmlStreamReader & reader);
 
+    using SamplerAudioFileReaderFactory = std::function<std::unique_ptr<AudioFileReader>()>;
+    void setSamplerAudioFileReaderFactory(SamplerAudioFileReaderFactory factory);
+
+    Q_INVOKABLE bool exportDeviceSettings(int slotIndex, const QString & filePath) const;
+    bool exportDeviceSettings(int slotIndex, QXmlStreamWriter & writer) const;
+
+    Q_INVOKABLE bool importDeviceSettings(int slotIndex, const QString & filePath);
+    bool importDeviceSettings(int slotIndex, QXmlStreamReader & reader);
+
+    struct DeviceTypeInfo
+    {
+        QString typeId;
+        QString typeName;
+    };
+
+    DeviceTypeInfo peekDeviceTypeInfo(const QString & filePath) const;
+    DeviceTypeInfo peekDeviceTypeInfo(QXmlStreamReader & reader) const;
+
     std::map<QString, QString> getFilesToEmbed() const;
 
     void reset();
@@ -91,6 +113,7 @@ private:
     DataServiceS m_dataService;
     UserPresets m_synthUserPresets;
     std::string m_projectPath;
+    SamplerAudioFileReaderFactory m_samplerAudioFileReaderFactory;
 };
 
 } // namespace noteahead

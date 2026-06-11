@@ -51,8 +51,8 @@ set(QML_SOURCE_FILES
     ${QML_BASE_DIR}/Dialogs/ColumnSettingsDialog_MidiEffects.qml
     ${QML_BASE_DIR}/Dialogs/ColumnSettingsDialog_TimingSettings.qml
     ${QML_BASE_DIR}/Dialogs/CompressorDialog.qml
-    ${QML_BASE_DIR}/Dialogs/DelayDialog.qml
     ${QML_BASE_DIR}/Dialogs/DelayCalculatorDialog.qml
+    ${QML_BASE_DIR}/Dialogs/DelayDialog.qml
     ${QML_BASE_DIR}/Dialogs/DeleteUnusedPatternsDialog.qml
     ${QML_BASE_DIR}/Dialogs/DeviceGalleryDialog.qml
     ${QML_BASE_DIR}/Dialogs/DeviceInsertEffectsDialog.qml
@@ -67,6 +67,7 @@ set(QML_SOURCE_FILES
     ${QML_BASE_DIR}/Dialogs/Eq8BandParametricDialog.qml
     ${QML_BASE_DIR}/Dialogs/EventSelectionDialog.qml
     ${QML_BASE_DIR}/Dialogs/GainConverterDialog.qml
+    ${QML_BASE_DIR}/Dialogs/ImportDeviceSettingsConfirmationDialog.qml
     ${QML_BASE_DIR}/Dialogs/IntegerInputDialog.qml
     ${QML_BASE_DIR}/Dialogs/InterpolationDialog.qml
     ${QML_BASE_DIR}/Dialogs/ManualDialog.qml

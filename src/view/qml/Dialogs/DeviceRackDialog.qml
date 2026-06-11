@@ -158,6 +158,25 @@ Dialog {
                     }
 
                     Button {
+                        text: qsTr("Manage")
+                        Layout.preferredWidth: 80
+                        visible: deviceType !== ""
+                        onClicked: manageMenu.open()
+                        Menu {
+                            id: manageMenu
+                            y: parent.height
+                            MenuItem {
+                                text: qsTr("Export Settings...")
+                                onClicked: UiService.requestExportDeviceSettings(index, deviceName, deviceTypeName)
+                            }
+                            MenuItem {
+                                text: qsTr("Import Settings...")
+                                onClicked: UiService.requestImportDeviceSettings(index)
+                            }
+                        }
+                    }
+
+                    Button {
                         Layout.preferredWidth: 32
                         Layout.preferredHeight: 32
                         visible: deviceType !== ""

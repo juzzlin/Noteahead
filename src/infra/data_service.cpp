@@ -77,6 +77,41 @@ void DataService::extractDataFromXml(const QString & xml)
     }
 }
 
+void DataService::extractData(QXmlStreamReader & reader)
+{
+    if (!m_tempDir) {
+        m_tempDir = std::make_unique<QTemporaryDir>();
+        if (!m_tempDir->isValid()) {
+            juzzlin::L(TAG).error() << "Failed to create temporary directory for embedded data";
+            return;
+        }
+        juzzlin::L(TAG).info() << "Temporary directory created: " << m_tempDir->path().toStdString();
+    }
+
+    if (reader.isStartElement() && reader.name() == Constants::NahdXml::xmlKeyData()) {
+        const auto nahdPath = reader.attributes().value(Constants::NahdXml::xmlKeySamplePath()).toString();
+        const auto base64Data = reader.readElementText().toUtf8();
+        const auto decodedData = QByteArray::fromBase64(base64Data);
+
+        if (nahdPath.isEmpty()) {
+            juzzlin::L(TAG).warning() << "Found <Data> element with missing path attribute";
+        } else {
+            const auto fileName = QFileInfo { nahdPath }.fileName();
+            const auto tempFilePath = m_tempDir->filePath(fileName);
+
+            QFile file { tempFilePath };
+            if (file.open(QIODevice::WriteOnly)) {
+                file.write(decodedData);
+                file.close();
+                m_extractedFiles[nahdPath] = tempFilePath;
+                juzzlin::L(TAG).info() << "Extracted: " << nahdPath.toStdString() << " -> " << tempFilePath.toStdString();
+            } else {
+                juzzlin::L(TAG).error() << "Failed to write extracted file: " << tempFilePath.toStdString();
+            }
+        }
+    }
+}
+
 QString DataService::resolvePath(const QString & nahdPath) const
 {
     if (const auto it = m_extractedFiles.find(nahdPath); it != m_extractedFiles.end()) {
@@ -93,7 +128,7 @@ void DataService::serializeDataToXml(QXmlStreamWriter & writer, const std::map<Q
             juzzlin::L(TAG).info() << "Embedding file: " << realPath.toStdString() << " as " << nahdPath.toStdString();
             writer.writeStartElement(Constants::NahdXml::xmlKeyData());
             writer.writeAttribute(Constants::NahdXml::xmlKeySamplePath(), nahdPath);
-            writer.writeCharacters(file.readAll().toBase64());
+            writer.writeCharacters(QString::fromLatin1(file.readAll().toBase64()));
             writer.writeEndElement();
         } else {
             juzzlin::L(TAG).error() << "Failed to open file for embedding: " << realPath.toStdString();

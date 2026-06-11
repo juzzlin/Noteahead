@@ -21,6 +21,9 @@ New features:
 
 * Add Random (sample-and-hold) LFO waveform type to all synths
 
+* Implement individual device settings export and import
+  - Device Rack => Manage
+
 Bug fixes:
 
 * Improve synth voice stealing logic

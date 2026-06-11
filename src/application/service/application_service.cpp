@@ -56,6 +56,11 @@ QString ApplicationService::license() const
     return Constants::license();
 }
 
+QString ApplicationService::deviceSettingsExtension() const
+{
+    return Constants::deviceSettingsExtension();
+}
+
 QString ApplicationService::fileFormatExtension() const
 {
     return Constants::fileFormatExtension();

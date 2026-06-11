@@ -169,6 +169,34 @@ void DeviceRackController::clearDevice(int slotIndex)
     emit revisionChanged();
 }
 
+void DeviceRackController::exportSettings(int index, const QUrl & fileUrl)
+{
+    auto filePath = fileUrl.toLocalFile();
+    if (!filePath.endsWith(Constants::deviceSettingsExtension())) {
+        filePath += Constants::deviceSettingsExtension();
+    }
+    m_deviceService->exportDeviceSettings(index, filePath);
+}
+
+void DeviceRackController::importSettings(int index, const QUrl & fileUrl)
+{
+    const auto fileInfo = m_deviceService->peekDeviceTypeInfo(fileUrl.toLocalFile());
+    const auto currentDev = m_deviceService->device(static_cast<size_t>(index));
+    const auto currentTypeName = currentDev ? QString::fromStdString(currentDev->typeName()) : QString {};
+    const auto currentTypeId = currentDev ? QString::fromStdString(currentDev->typeId()) : QString {};
+    const bool typeMismatch = currentDev && !fileInfo.typeId.isEmpty() && currentTypeId != fileInfo.typeId;
+    emit importSettingsConfirmationRequested(index, fileUrl, currentTypeName, fileInfo.typeName, typeMismatch);
+}
+
+void DeviceRackController::confirmImportSettings(int index, const QUrl & fileUrl)
+{
+    if (m_deviceService->importDeviceSettings(index, fileUrl.toLocalFile())) {
+        m_editorService->setIsModified(true);
+        m_revision++;
+        emit revisionChanged();
+    }
+}
+
 QString DeviceRackController::deviceType(int slotIndex) const
 {
     if (const auto device = m_deviceService->device(static_cast<size_t>(slotIndex))) {

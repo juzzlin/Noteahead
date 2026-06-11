@@ -22,6 +22,8 @@
 #include "infra/audio/audio_engine.hpp"
 #include "infra/data_service.hpp"
 
+#include <QDateTime>
+#include <QFile>
 #include <QXmlStreamReader>
 #include <QXmlStreamWriter>
 #include <set>
@@ -463,6 +465,134 @@ void DeviceService::deserializeFromXml(QXmlStreamReader & reader)
         }
     }
     emit dataChanged();
+}
+
+void DeviceService::setSamplerAudioFileReaderFactory(SamplerAudioFileReaderFactory factory)
+{
+    m_samplerAudioFileReaderFactory = std::move(factory);
+}
+
+bool DeviceService::exportDeviceSettings(int slotIndex, const QString & filePath) const
+{
+    QFile file { filePath };
+    if (!file.open(QIODevice::WriteOnly)) {
+        return false;
+    }
+    QXmlStreamWriter writer { &file };
+    writer.setAutoFormatting(true);
+    writer.setAutoFormattingIndent(1);
+    return exportDeviceSettings(slotIndex, writer);
+}
+
+bool DeviceService::exportDeviceSettings(int slotIndex, QXmlStreamWriter & writer) const
+{
+    const auto dev = device(static_cast<size_t>(slotIndex));
+    if (!dev) {
+        return false;
+    }
+
+    writer.writeStartDocument();
+    writer.writeStartElement(Constants::NahdXml::xmlKeySettings());
+    writer.writeAttribute(Constants::NahdXml::xmlKeyFileFormatVersion(), Constants::fileFormatVersion());
+    writer.writeAttribute(Constants::NahdXml::xmlKeyApplicationName(), Constants::applicationName());
+    writer.writeAttribute(Constants::NahdXml::xmlKeyApplicationVersion(), Constants::applicationVersion());
+    writer.writeAttribute(Constants::NahdXml::xmlKeyCreatedDate(), QDateTime::currentDateTime().toString(Qt::DateFormat::ISODateWithMs));
+
+    dev->serializeToXml(writer);
+
+    if (const auto sampler = std::dynamic_pointer_cast<SamplerDevice>(dev)) {
+        const auto embedFiles = sampler->getFilesToEmbed();
+        m_dataService->serializeDataToXml(writer, embedFiles);
+    }
+
+    writer.writeEndElement(); // Settings
+    writer.writeEndDocument();
+
+    return true;
+}
+
+DeviceService::DeviceTypeInfo DeviceService::peekDeviceTypeInfo(const QString & filePath) const
+{
+    QFile file { filePath };
+    if (!file.open(QIODevice::ReadOnly)) {
+        return {};
+    }
+    QXmlStreamReader reader { &file };
+    return peekDeviceTypeInfo(reader);
+}
+
+DeviceService::DeviceTypeInfo DeviceService::peekDeviceTypeInfo(QXmlStreamReader & reader) const
+{
+    while (!reader.atEnd() && !reader.hasError()) {
+        if (reader.readNext() == QXmlStreamReader::StartElement) {
+            if (reader.name() == Constants::NahdXml::xmlKeyDevice()) {
+                return {
+                    reader.attributes().value(Constants::NahdXml::xmlKeyTypeId()).toString(),
+                    reader.attributes().value(Constants::NahdXml::xmlKeyTypeName()).toString()
+                };
+            }
+        }
+    }
+    return {};
+}
+
+bool DeviceService::importDeviceSettings(int slotIndex, const QString & filePath)
+{
+    QFile file { filePath };
+    if (!file.open(QIODevice::ReadOnly)) {
+        return false;
+    }
+    QXmlStreamReader reader { &file };
+    return importDeviceSettings(slotIndex, reader);
+}
+
+bool DeviceService::importDeviceSettings(int slotIndex, QXmlStreamReader & reader)
+{
+    while (!reader.atEnd() && !reader.hasError()) {
+        const auto token = reader.readNext();
+        if (token == QXmlStreamReader::StartElement) {
+            if (reader.name() == Constants::NahdXml::xmlKeySettings()) {
+                while (reader.readNextStartElement()) {
+                    if (reader.name() == Constants::NahdXml::xmlKeyDevice()) {
+                        const auto typeId = reader.attributes().value(Constants::NahdXml::xmlKeyTypeId()).toString();
+                        const auto deviceName = reader.attributes().value(Constants::NahdXml::xmlKeyName()).toString();
+
+                        auto dev = device(static_cast<size_t>(slotIndex));
+                        if (dev && dev->typeId() != typeId.toStdString()) {
+                            if (typeId.toStdString() == SamplerDevice::typeIdString() && m_samplerAudioFileReaderFactory) {
+                                dev = std::make_shared<SamplerDevice>(deviceName.toStdString(), m_samplerAudioFileReaderFactory());
+                            } else {
+                                dev = DeviceFactory::createDevice(typeId.toStdString(), deviceName.toStdString());
+                            }
+                            if (dev) {
+                                setDevice(static_cast<size_t>(slotIndex), dev);
+                                // Re-acquire dev because setDevice moved it
+                                dev = device(static_cast<size_t>(slotIndex));
+                            }
+                        }
+
+                        if (dev) {
+                            dev->deserializeFromXml(reader);
+                            dev->setId(static_cast<size_t>(slotIndex));
+                        } else {
+                            reader.skipCurrentElement();
+                        }
+                    } else if (reader.name() == Constants::NahdXml::xmlKeyData()) {
+                        m_dataService->extractData(reader);
+                    } else {
+                        reader.skipCurrentElement();
+                    }
+                }
+            }
+        }
+    }
+
+    if (reader.hasError()) {
+        return false;
+    }
+
+    emit dataChanged();
+    return true;
 }
 
 void DeviceService::reset()

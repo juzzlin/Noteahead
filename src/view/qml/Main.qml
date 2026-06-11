@@ -182,7 +182,35 @@ ApplicationWindow {
             uiLogger.info(_tag, "File selected to save: " + selectedFile);
             applicationService.saveProjectAsTemplate(selectedFile);
         }
-        onRejected: uiLogger.info(_tag, "Save As Template dialog canceled.")
+        onRejected: {
+            uiLogger.info(_tag, "Save As Template dialog canceled.")
+        }
+    }
+    FileDialog {
+        id: exportDeviceSettingsDialog
+        title: qsTr("Export Device Settings")
+        fileMode: FileDialog.SaveFile
+        currentFolder: StandardPaths.standardLocations(StandardPaths.DocumentsLocation)[0]
+        nameFilters: [qsTr("Noteahead Device Settings") + ` (*${applicationService.deviceSettingsExtension()})`]
+        property int slotIndex: -1
+        onAccepted: {
+            deviceRackController.exportSettings(slotIndex, selectedFile);
+        }
+    }
+    FileDialog {
+        id: importDeviceSettingsDialog
+        title: qsTr("Import Device Settings")
+        fileMode: FileDialog.OpenFile
+        currentFolder: StandardPaths.standardLocations(StandardPaths.DocumentsLocation)[0]
+        nameFilters: [qsTr("Noteahead Device Settings") + ` (*${applicationService.deviceSettingsExtension()})`]
+        property int slotIndex: -1
+        onAccepted: {
+            deviceRackController.importSettings(slotIndex, selectedFile);
+        }
+    }
+    ImportDeviceSettingsConfirmationDialog {
+        id: importDeviceSettingsConfirmationDialog
+        anchors.centerIn: parent
     }
     MidiExportDialog {
         id: midiExportDialog
@@ -519,6 +547,7 @@ ApplicationWindow {
         deviceRackController.samplerDialogRequested.connect(samplerDialog.open);
         deviceRackController.synthDialogRequested.connect(synthDialog.open);
         deviceRackController.wavetableSynthDialogRequested.connect(wavetableSynthDialog.open);
+        deviceRackController.importSettingsConfirmationRequested.connect(UiService.requestImportDeviceSettingsConfirmation);
     }
     function _connectEditorService(): void {
         editorService.errorTextRequested.connect(errorText => {
@@ -553,6 +582,27 @@ ApplicationWindow {
         UiService.deviceInsertEffectsDialogRequested.connect(deviceName => {
             deviceInsertEffectsDialog.deviceName = deviceName;
             deviceInsertEffectsDialog.open();
+        });
+
+        UiService.exportDeviceSettingsRequested.connect((slotIndex, deviceName, deviceTypeName) => {
+            exportDeviceSettingsDialog.slotIndex = slotIndex;
+            exportDeviceSettingsDialog.currentFile = deviceName + " (" + deviceTypeName + ")" + applicationService.deviceSettingsExtension();
+            exportDeviceSettingsDialog.open();
+        });
+        UiService.importDeviceSettingsRequested.connect(slotIndex => {
+            importDeviceSettingsDialog.slotIndex = slotIndex;
+            importDeviceSettingsDialog.open();
+        });
+        UiService.importDeviceSettingsConfirmationRequested.connect((slotIndex, fileUrl, currentTypeName, importedTypeName, typeMismatch) => {
+            if (typeMismatch) {
+                importDeviceSettingsConfirmationDialog.slotIndex = slotIndex;
+                importDeviceSettingsConfirmationDialog.fileUrl = fileUrl;
+                importDeviceSettingsConfirmationDialog.currentTypeName = currentTypeName;
+                importDeviceSettingsConfirmationDialog.importedTypeName = importedTypeName;
+                importDeviceSettingsConfirmationDialog.open();
+            } else {
+                deviceRackController.confirmImportSettings(slotIndex, fileUrl);
+            }
         });
 
         UiService.samplerDialogRequested.connect(samplerDialog.open);

@@ -54,6 +54,7 @@ public:
     Q_INVOKABLE QString applicationName() const;
     Q_INVOKABLE QString applicationVersion() const;
     Q_INVOKABLE QString copyright() const;
+    Q_INVOKABLE QString deviceSettingsExtension() const;
     Q_INVOKABLE QString fileFormatExtension() const;
     Q_INVOKABLE QString midiFileExtension() const;
     Q_INVOKABLE bool isMidiFile(const QString & filePath) const;

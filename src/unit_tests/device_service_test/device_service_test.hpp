@@ -13,37 +13,29 @@
 // You should have received a copy of the GNU General Public License
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef DATA_SERVICE_HPP
-#define DATA_SERVICE_HPP
+#ifndef DEVICE_SERVICE_TEST_HPP
+#define DEVICE_SERVICE_TEST_HPP
 
-#include <QString>
-#include <QTemporaryDir>
-#include <QXmlStreamWriter>
-#include <map>
-#include <memory>
+#include <QObject>
 
 namespace noteahead {
 
-class DataService
+class DeviceServiceTest : public QObject
 {
-public:
-    DataService();
-    ~DataService();
+    Q_OBJECT
 
-    DataService(const DataService &) = delete;
-    DataService & operator=(const DataService &) = delete;
+private slots:
+    void initTestCase();
+    void cleanupTestCase();
 
-    void extractDataFromXml(const QString & xml);
-    void extractData(QXmlStreamReader & reader);
-    QString resolvePath(const QString & nahdPath) const;
-    void serializeDataToXml(QXmlStreamWriter & writer, const std::map<QString, QString> & embedFiles) const;
-    void clear();
-
-private:
-    std::unique_ptr<QTemporaryDir> m_tempDir;
-    std::map<QString, QString> m_extractedFiles;
+    void test_exportDeviceSettings_shouldGenerateCorrectXml();
+    void test_importDeviceSettings_shouldRestoreParameters();
+    void test_importDeviceSettings_shouldReplaceDeviceIfTypeDiffers();
+    void test_exportImport_withEmbeddedData_shouldWork();
+    void test_peekDeviceTypeInfo_synth_shouldReturnCorrectTypeInfo();
+    void test_peekDeviceTypeInfo_nonexistentFile_shouldReturnEmpty();
 };
 
 } // namespace noteahead
 
-#endif // DATA_SERVICE_HPP
+#endif // DEVICE_SERVICE_TEST_HPP
