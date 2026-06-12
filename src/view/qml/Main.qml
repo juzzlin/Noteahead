@@ -109,36 +109,11 @@ ApplicationWindow {
             applicationService.cancelOpenProject();
         }
     }
-    Dialog {
+    ErrorDialog {
         id: errorDialog
         anchors.centerIn: parent
         width: parent.width * Constants.defaultDialogScale
         height: parent.height * Constants.defaultDialogScale
-        title: "<strong>" + qsTr("Error") + "</strong>"
-        modal: true
-        footer: DialogButtonBox {
-            Button {
-                text: qsTr("Ok")
-                DialogButtonBox.buttonRole: DialogButtonBox.AcceptRole
-            }
-        }
-        property alias errorMessage: errorMessage.text
-        RowLayout {
-            anchors.fill: parent
-            spacing: 20
-            Image {
-                Layout.preferredWidth: 48
-                Layout.preferredHeight: 48
-                sourceSize: Qt.size(48, 48)
-                source: "Graphics/alert.png"
-            }
-            Label {
-                id: errorMessage
-                Layout.fillWidth: true
-                wrapMode: Text.Wrap
-            }
-        }
-        Component.onCompleted: visible = false
     }
     EventSelectionDialog {
         id: eventSelectionDialog
