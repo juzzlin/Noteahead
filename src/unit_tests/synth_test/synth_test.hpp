@@ -57,6 +57,7 @@ private slots:
     void test_oscillatorOptimization_shouldSkipSilentOscillators();
     void test_liveUnisonDepth_shouldUpdateFrequency();
     void test_lfoWaveform_random_serialization_shouldPreserveState();
+    void test_panningAndAmplitude_shouldBeCorrect();
 };
 
 } // namespace noteahead

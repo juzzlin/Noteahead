@@ -33,6 +33,8 @@ Bug fixes:
 
 * Improve synth voice stealing logic
 
+* Fix panning logic in Synth and Wavetable Synth
+
 Other:
 
 * Improve parameter precision by increasing XML resolution to 100x

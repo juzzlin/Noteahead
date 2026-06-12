@@ -265,8 +265,9 @@ void SynthDevice::renderVoice(Voice & voice, AudioContext & context, uint32_t ov
     updateVoiceParameters(voice, oversampledRate, index);
 
     const float gain = (1.0f / static_cast<float>(MaxVoices)) * linearGainInternal() * voice.velocity;
-    const float panL = (1.0f - voice.pan) * (1.0f - panInternal()) * 2.0f;
-    const float panR = voice.pan * panInternal() * 2.0f;
+    const float voicePan = std::clamp(panInternal() + voice.pan - 0.5f, 0.0f, 1.0f);
+    const float panL = (1.0f - voicePan) * 2.0f;
+    const float panR = voicePan * 2.0f;
 
     for (uint32_t i = 0; i < context.frameCount; i++) {
         for (int os = 0; os < 2; os++) {

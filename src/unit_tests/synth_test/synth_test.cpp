@@ -988,6 +988,69 @@ void SynthTest::test_lfoWaveform_random_serialization_shouldPreserveState()
     }
 }
 
+void SynthTest::test_panningAndAmplitude_shouldBeCorrect()
+{
+    SynthDevice synth { "TestSynth" };
+    synth.setMixVco1(1.0f);
+    synth.setMixVco2(0.0f);
+    synth.setMixVco3(0.0f);
+    synth.setMultiLevel(0.0f);
+    synth.setVco1Waveform(PolyBlepOscillator::Waveform::Sine);
+    synth.setLpfCutoff(1.0f);
+    synth.setGain(0.5f); // 0 dB
+    synth.setVolume(1.0f);
+    synth.setDelayMix(0.0f);
+    synth.setPanSpread(0.0f);
+
+    const int frameCount { 128 };
+    std::vector<double> buffer(static_cast<size_t>(frameCount) * 2, 0.0);
+    AudioContext context { std::span(buffer.data(), buffer.size()), static_cast<uint32_t>(frameCount), 44100 };
+
+    auto getPeak = [&]() {
+        std::fill(buffer.begin(), buffer.end(), 0.0);
+        // Process enough to get past attack (default 0.5)
+        for (int i = 0; i < 20; i++) {
+            synth.processAudio(context);
+        }
+        double peakL = 0.0;
+        double peakR = 0.0;
+        for (size_t i = 0; i < buffer.size(); i += 2) {
+            peakL = std::max(peakL, std::abs(buffer[i]));
+            peakR = std::max(peakR, std::abs(buffer[i + 1]));
+        }
+        return std::make_pair(peakL, peakR);
+    };
+
+    synth.processMidiNoteOn(60, 127);
+
+    // With current gain staging:
+    // Amplitude = (1/6) * mixHeadroom(0.4) * velocity(1.0) = 0.0666...
+    // Center pan: L=Amplitude, R=Amplitude
+    // Full pan: Target=Amplitude * 2.0 = 0.1333...
+
+    // 1. Center Pan (default)
+    synth.setPan(0.5f);
+    auto [peakL_center, peakR_center] = getPeak();
+    QVERIFY2(peakL_center > 0.07 && peakL_center < 0.1, qPrintable(QString("Center L peak out of range: %1").arg(peakL_center)));
+    QVERIFY2(peakR_center > 0.07 && peakR_center < 0.1, qPrintable(QString("Center R peak out of range: %1").arg(peakR_center)));
+
+    // 2. Full Left
+    synth.resetAudio();
+    synth.processMidiNoteOn(60, 127);
+    synth.setPan(0.0f);
+    auto [peakL_left, peakR_left] = getPeak();
+    QVERIFY2(peakL_left > 0.14 && peakL_left < 0.2, qPrintable(QString("Left peak out of range: %1").arg(peakL_left)));
+    QVERIFY2(peakR_left < 0.001, qPrintable(QString("Bleed into Right: %1").arg(peakR_left)));
+
+    // 3. Full Right
+    synth.resetAudio();
+    synth.processMidiNoteOn(60, 127);
+    synth.setPan(1.0f);
+    auto [peakL_right, peakR_right] = getPeak();
+    QVERIFY2(peakL_right < 0.001, qPrintable(QString("Bleed into Left: %1").arg(peakL_right)));
+    QVERIFY2(peakR_right > 0.14 && peakR_right < 0.2, qPrintable(QString("Right peak out of range: %1").arg(peakR_right)));
+}
+
 } // namespace noteahead
 
 QTEST_GUILESS_MAIN(noteahead::SynthTest)

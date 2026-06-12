@@ -241,7 +241,6 @@ void WavetableSynthDevice::renderVoice(Voice & voice, AudioContext & context, ui
     updateVoiceParameters(voice, oversampledRate);
 
     const float gain = (1.0f / static_cast<float>(MaxVoices)) * linearGainInternal() * voice.velocity;
-
     for (uint32_t i = 0; i < context.frameCount; i++) {
         const float voicePan = std::clamp(panInternal() + voice.pan - 0.5f, 0.0f, 1.0f);
         const float panL = (1.0f - voicePan) * 2.0f;
