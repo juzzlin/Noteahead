@@ -992,6 +992,11 @@ QString xmlKeyMakeup()
     return "makeup";
 }
 
+QString xmlKeySideChainSourceDevice()
+{
+    return "sidechainSourceDevice";
+}
+
 QString xmlKeySize()
 {
     return "size";

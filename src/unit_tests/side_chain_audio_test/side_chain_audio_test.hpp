@@ -13,29 +13,24 @@
 // You should have received a copy of the GNU General Public License
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef AUDIO_CONTEXT_HPP
-#define AUDIO_CONTEXT_HPP
+#ifndef SIDE_CHAIN_AUDIO_TEST_HPP
+#define SIDE_CHAIN_AUDIO_TEST_HPP
 
-#include <cstdint>
-#include <span>
+#include <QObject>
 
 namespace noteahead {
 
-/**
- * @brief Audio processing context.
- *
- * Uses double precision for the accumulation buffer to ensure high-quality
- * mixing and summing across many voices and tracks.
- */
-struct AudioContext
+class SideChainAudioTest : public QObject
 {
-    std::span<double> buffer {};
-    uint32_t frameCount { 0 };
-    uint32_t sampleRate { 0 };
-    double bpm { 120.0 };
-    std::span<const std::span<const double>> deviceOutputBuffers {};
+    Q_OBJECT
+
+private slots:
+    void test_audioEngine_rebuildProcessingGraph_shouldCorrectlySortIndependentDevices();
+    void test_audioEngine_rebuildProcessingGraph_shouldCorrectlySortDependentDevices();
+    void test_audioEngine_rebuildProcessingGraph_shouldHandleCircularDependencyGracefully();
+    void test_compressorEffect_process_shouldApplySidechainGainReduction();
 };
 
 } // namespace noteahead
 
-#endif // AUDIO_CONTEXT_HPP
+#endif // SIDE_CHAIN_AUDIO_TEST_HPP

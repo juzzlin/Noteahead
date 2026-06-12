@@ -282,6 +282,11 @@ void Device::processInsertEffects(AudioContext & context)
     m_insertEffectRack.processInPlace(context);
 }
 
+std::vector<size_t> Device::sidechainDependencies() const
+{
+    return m_insertEffectRack.sidechainDependencies();
+}
+
 EffectRack & Device::insertEffectRack()
 {
     return m_insertEffectRack;

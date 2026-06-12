@@ -43,6 +43,7 @@ public:
 
     void process(AudioContext & outputContext, const double * sendBus, size_t effectIndex);
     void processInPlace(AudioContext & context);
+    std::vector<size_t> sidechainDependencies() const;
     void reset();
     void setBpm(float bpm);
     void clear();

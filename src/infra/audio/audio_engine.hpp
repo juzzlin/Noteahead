@@ -70,6 +70,9 @@ private:
     void ensureEffectWetBuffers(size_t effectCount, uint32_t bufferSize);
     void ensureEffectActiveFlags(size_t effectCount);
     void ensureDeviceActiveFlags(size_t deviceCount);
+    void ensureDeviceOutputBuffers(uint32_t bufferSize);
+
+    void rebuildProcessingGraph();
 
     std::map<size_t, DeviceS> m_devices;
     std::unique_ptr<EffectRack> m_sendEffectRack;
@@ -77,11 +80,15 @@ private:
     std::unique_ptr<RealTimeWorkerPool> m_workerPool;
     std::vector<AudioEngineWorkBuffer> m_workBuffers;
     std::vector<DeviceS> m_deviceSnapshot;
+    std::vector<size_t> m_deviceSlotSnapshot;
     std::vector<uint8_t> m_deviceActiveFlags;
     std::vector<double> m_deviceSendSnapshot;
     std::vector<std::vector<double>> m_sendBusBuffers;
     std::vector<std::vector<double>> m_effectWetBuffers;
     std::vector<uint8_t> m_effectActiveFlags;
+    std::vector<std::vector<double>> m_deviceOutputBuffers;
+    std::vector<std::span<const double>> m_deviceOutputBufferSpans;
+    std::vector<std::vector<size_t>> m_processingLayers;
     mutable std::mutex m_mutex;
     std::atomic<bool> m_isExclusive { false };
 };

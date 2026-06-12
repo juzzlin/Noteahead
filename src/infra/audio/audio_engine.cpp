@@ -34,10 +34,15 @@ struct DeviceProcessContext
     std::vector<AudioEngineWorkBuffer> * workBuffers {};
     std::vector<uint8_t> * deviceActiveFlags {};
     std::vector<double> * deviceSends {};
+    std::vector<size_t> * layerDevices {};
+    std::vector<size_t> * slotSnapshot {};
+    std::vector<std::vector<double>> * deviceOutputBuffersMutable {};
+    std::span<const std::span<const double>> deviceOutputBuffers {};
     size_t sendCount {};
     uint32_t frameCount {};
     uint32_t sampleRate {};
     uint32_t bufferSize {};
+    double bpm {};
 };
 
 struct EffectProcessContext
@@ -48,6 +53,7 @@ struct EffectProcessContext
     std::vector<uint8_t> * effectActiveFlags {};
     uint32_t frameCount {};
     uint32_t sampleRate {};
+    double bpm {};
 };
 
 bool bufferContainsSignal(const std::vector<double> & buffer, uint32_t bufferSize)
@@ -64,26 +70,39 @@ bool bufferContainsSignal(const std::vector<double> & buffer, uint32_t bufferSiz
 void processDeviceTask(void * context, size_t taskIndex, size_t workerIndex)
 {
     auto & deviceContext = *static_cast<DeviceProcessContext *>(context);
-    auto & device = deviceContext.devices->at(taskIndex);
+    const auto deviceSnapshotIndex = deviceContext.layerDevices ? deviceContext.layerDevices->at(taskIndex) : taskIndex;
+    auto & device = deviceContext.devices->at(deviceSnapshotIndex);
     auto & workBuffer = deviceContext.workBuffers->at(workerIndex);
 
     std::fill(workBuffer.deviceBuffer.begin(), workBuffer.deviceBuffer.begin() + deviceContext.bufferSize, 0.0);
-    if (!device->hasActiveAudio() && !deviceContext.deviceActiveFlags->at(taskIndex)) {
+    if (!device->hasActiveAudio() && !deviceContext.deviceActiveFlags->at(deviceSnapshotIndex)) {
+        if (deviceContext.deviceOutputBuffersMutable) {
+            const auto slotIndex = deviceContext.slotSnapshot->at(deviceSnapshotIndex);
+            auto & outputBuffer = deviceContext.deviceOutputBuffersMutable->at(slotIndex);
+            std::fill(outputBuffer.begin(), outputBuffer.begin() + deviceContext.bufferSize, 0.0);
+        }
         return;
     }
 
-    AudioContext audioContext { std::span(workBuffer.deviceBuffer.data(), deviceContext.bufferSize), deviceContext.frameCount, deviceContext.sampleRate };
+    AudioContext audioContext { std::span(workBuffer.deviceBuffer.data(), deviceContext.bufferSize), deviceContext.frameCount, deviceContext.sampleRate, deviceContext.bpm, deviceContext.deviceOutputBuffers };
     device->processAudio(audioContext);
     device->processInsertEffects(audioContext);
+
+    if (deviceContext.deviceOutputBuffersMutable) {
+        const auto slotIndex = deviceContext.slotSnapshot->at(deviceSnapshotIndex);
+        auto & outputBuffer = deviceContext.deviceOutputBuffersMutable->at(slotIndex);
+        std::copy(workBuffer.deviceBuffer.begin(), workBuffer.deviceBuffer.begin() + deviceContext.bufferSize, outputBuffer.begin());
+    }
+
     const bool hasOutputSignal = bufferContainsSignal(workBuffer.deviceBuffer, deviceContext.bufferSize);
-    deviceContext.deviceActiveFlags->at(taskIndex) = hasOutputSignal ? 1 : 0;
+    deviceContext.deviceActiveFlags->at(deviceSnapshotIndex) = hasOutputSignal ? 1 : 0;
 
     for (uint32_t i = 0; i < deviceContext.bufferSize; i++) {
         const double sample = workBuffer.deviceBuffer[i];
         workBuffer.outputBuffer[i] += sample;
 
         for (size_t sendIndex = 0; sendIndex < deviceContext.sendCount; sendIndex++) {
-            const double send = deviceContext.deviceSends->at(taskIndex * deviceContext.sendCount + sendIndex);
+            const double send = deviceContext.deviceSends->at(deviceSnapshotIndex * deviceContext.sendCount + sendIndex);
             workBuffer.sendBuffers[sendIndex][i] += sample * send;
         }
     }
@@ -113,7 +132,7 @@ void processEffectTask(void * context, size_t taskIndex, size_t /*workerIndex*/)
     // Copy dry signal to wet buffer for in-place processing
     std::copy(sendBus.begin(), sendBus.begin() + bufferSize, wetBuffer.begin());
 
-    AudioContext context_obj { std::span(wetBuffer.data(), bufferSize), effectContext.frameCount, effectContext.sampleRate };
+    AudioContext context_obj { std::span(wetBuffer.data(), bufferSize), effectContext.frameCount, effectContext.sampleRate, effectContext.bpm, {} };
     effect->process(context_obj);
 
     bool hasWetSignal = false;
@@ -128,6 +147,81 @@ void processEffectTask(void * context, size_t taskIndex, size_t /*workerIndex*/)
 }
 
 } // namespace
+
+void AudioEngine::ensureDeviceOutputBuffers(uint32_t bufferSize)
+{
+    const auto deviceCount = Constants::deviceRackSize();
+    if (m_deviceOutputBuffers.size() != deviceCount) {
+        m_deviceOutputBuffers.resize(deviceCount);
+        m_deviceOutputBufferSpans.resize(deviceCount);
+    }
+
+    for (size_t i = 0; i < deviceCount; i++) {
+        if (m_deviceOutputBuffers[i].size() != bufferSize) {
+            m_deviceOutputBuffers[i].assign(bufferSize, 0.0);
+        }
+        m_deviceOutputBufferSpans[i] = std::span<const double> { m_deviceOutputBuffers[i].data(), bufferSize };
+    }
+}
+
+void AudioEngine::rebuildProcessingGraph()
+{
+    m_processingLayers.clear();
+    if (m_deviceSnapshot.empty()) {
+        return;
+    }
+
+    const auto deviceCount = m_deviceSnapshot.size();
+    std::vector<std::vector<size_t>> adj(deviceCount);
+    std::vector<int> inDegree(deviceCount, 0);
+
+    for (size_t i = 0; i < deviceCount; i++) {
+        const auto deps = m_deviceSnapshot[i]->sidechainDependencies();
+        for (const auto slotIndex : deps) {
+            for (size_t j = 0; j < deviceCount; j++) {
+                if (m_deviceSlotSnapshot[j] == slotIndex) {
+                    adj[j].push_back(i);
+                    inDegree[i]++;
+                    break;
+                }
+            }
+        }
+    }
+
+    std::vector<size_t> currentLayer;
+    std::vector<bool> processed(deviceCount, false);
+    for (size_t i = 0; i < deviceCount; i++) {
+        if (inDegree[i] == 0) {
+            currentLayer.push_back(i);
+            processed[i] = true;
+        }
+    }
+
+    while (!currentLayer.empty()) {
+        m_processingLayers.push_back(currentLayer);
+        std::vector<size_t> nextLayer;
+        for (const auto u : currentLayer) {
+            for (const auto v : adj[u]) {
+                if (--inDegree[v] == 0) {
+                    nextLayer.push_back(v);
+                    processed[v] = true;
+                }
+            }
+        }
+        currentLayer = std::move(nextLayer);
+    }
+
+    // Handle circular dependencies by adding remaining unprocessed devices to a final layer
+    std::vector<size_t> circularLayer;
+    for (size_t i = 0; i < deviceCount; i++) {
+        if (!processed[i]) {
+            circularLayer.push_back(i);
+        }
+    }
+    if (!circularLayer.empty()) {
+        m_processingLayers.push_back(circularLayer);
+    }
+}
 
 AudioEngine::AudioEngine()
   : m_sendEffectRack { std::make_unique<EffectRack>() }
@@ -221,6 +315,9 @@ void AudioEngine::process(AudioContext & context)
     std::lock_guard<std::mutex> lock { m_mutex };
 
     const uint32_t bufferSize = context.frameCount * 2;
+    if (!bufferSize) {
+        return;
+    }
     auto effects = m_sendEffectRack->effects();
     const size_t sendCount = effects.size();
     const size_t laneCount = m_workerPool->laneCount();
@@ -242,17 +339,22 @@ void AudioEngine::process(AudioContext & context)
     }
 
     m_deviceSnapshot.clear();
+    m_deviceSlotSnapshot.clear();
     if (!m_devices.empty()) {
         m_deviceSnapshot.reserve(m_devices.size());
+        m_deviceSlotSnapshot.reserve(m_devices.size());
         for (auto const & [index, device] : m_devices) {
             if (device) {
                 m_deviceSnapshot.push_back(device);
+                m_deviceSlotSnapshot.push_back(index);
             }
         }
     }
 
     if (!m_deviceSnapshot.empty()) {
         ensureDeviceActiveFlags(m_deviceSnapshot.size());
+        ensureDeviceOutputBuffers(bufferSize);
+        rebuildProcessingGraph();
 
         m_deviceSendSnapshot.resize(m_deviceSnapshot.size() * sendCount);
         for (size_t deviceIndex = 0; deviceIndex < m_deviceSnapshot.size(); deviceIndex++) {
@@ -268,17 +370,24 @@ void AudioEngine::process(AudioContext & context)
             }
         }
 
-        DeviceProcessContext deviceContext {
-            &m_deviceSnapshot,
-            &m_workBuffers,
-            &m_deviceActiveFlags,
-            &m_deviceSendSnapshot,
-            sendCount,
-            context.frameCount,
-            context.sampleRate,
-            bufferSize
-        };
-        m_workerPool->run(m_deviceSnapshot.size(), &deviceContext, processDeviceTask);
+        for (auto & layer : m_processingLayers) {
+            DeviceProcessContext deviceContext {
+                &m_deviceSnapshot,
+                &m_workBuffers,
+                &m_deviceActiveFlags,
+                &m_deviceSendSnapshot,
+                &layer,
+                &m_deviceSlotSnapshot,
+                &m_deviceOutputBuffers,
+                std::span<const std::span<const double>>(m_deviceOutputBufferSpans),
+                sendCount,
+                context.frameCount,
+                context.sampleRate,
+                bufferSize,
+                context.bpm
+            };
+            m_workerPool->run(layer.size(), &deviceContext, processDeviceTask);
+        }
 
         // Sum parallel results into the main output and send buses
         for (const auto & workBuffer : m_workBuffers) {
@@ -302,7 +411,8 @@ void AudioEngine::process(AudioContext & context)
             &m_effectWetBuffers,
             &m_effectActiveFlags,
             context.frameCount,
-            context.sampleRate
+            context.sampleRate,
+            context.bpm
         };
         m_workerPool->run(sendCount, &effectContext, processEffectTask);
 

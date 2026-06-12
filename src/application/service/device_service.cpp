@@ -324,7 +324,7 @@ void DeviceService::deserializeFromXml(QXmlStreamReader & reader)
                 dev = DeviceFactory::createDevice(typeId.toStdString(), deviceName.toStdString());
 
                 if (dev) {
-                    if (!slotAttr.isNull()) {
+                    if (!slotAttr.isNull() && slotAttr.toUInt() < Constants::deviceRackSize()) {
                         setDevice(slotAttr.toUInt(), dev);
                     } else if (!idAttr.isNull() && idAttr.toUInt() <= Constants::deviceRackSize()) {
                         setDevice(idAttr.toUInt() - 1, dev);

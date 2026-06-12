@@ -34,8 +34,14 @@ CompressorEffect::CompressorEffect()
     addParameter(Parameter { Constants::NahdXml::xmlKeyKnee().toStdString(), 0.0f, 0, 2400, 0, 100 });
     addParameter(Parameter { Constants::NahdXml::xmlKeyMakeup().toStdString(), 0.5f, -1200, 1200, 0, 100 });
     addParameter(Parameter { Constants::NahdXml::xmlKeyLookahead().toStdString(), 0.0f, 0, 10, 0, 1, Parameter::Type::Continuous, { "Lookahead" } });
+    addParameter(Parameter { Constants::NahdXml::xmlKeySideChainSourceDevice().toStdString(), -1.0f, -1, static_cast<int>(Constants::deviceRackSize()) - 1, -1, 1, Parameter::Type::Discrete });
 
     syncParameters();
+}
+
+std::optional<size_t> CompressorEffect::sidechainSourceDeviceIndex() const
+{
+    return m_sidechainSourceDevice;
 }
 
 void CompressorEffect::process(double & left, double & right)
@@ -63,8 +69,23 @@ void CompressorEffect::process(AudioContext & context)
     updateBuffers();
     updateCoefficients();
 
+    const bool hasSidechain = m_sidechainSourceDevice && *m_sidechainSourceDevice < context.deviceOutputBuffers.size();
+    const auto sidechainBuffer = hasSidechain ? context.deviceOutputBuffers[*m_sidechainSourceDevice] : std::span<const double> {};
+
     for (uint32_t i = 0; i < context.frameCount; i++) {
-        process(context.buffer[i * 2], context.buffer[i * 2 + 1]);
+        double detectorL = context.buffer[i * 2];
+        double detectorR = context.buffer[i * 2 + 1];
+
+        if (hasSidechain && !sidechainBuffer.empty()) {
+            detectorL = sidechainBuffer[i * 2];
+            detectorR = sidechainBuffer[i * 2 + 1];
+        }
+
+        const double detectorDb = calculateDetectorLevelDb(detectorL, detectorR);
+        const double gainReductionDb = calculateGainReductionDb(detectorDb);
+
+        updateEnvelope(gainReductionDb);
+        applyGain(context.buffer[i * 2], context.buffer[i * 2 + 1]);
     }
 }
 
@@ -185,26 +206,33 @@ float CompressorEffect::reductionDb() const
 
 void CompressorEffect::syncParameters()
 {
-    if (auto p = parameter(Constants::NahdXml::xmlKeyThreshold().toStdString()); p) {
+    if (const auto p = parameter(Constants::NahdXml::xmlKeyThreshold().toStdString()); p) {
         m_threshold = -60.0f + p->get().value() * 60.0f;
     }
-    if (auto p = parameter(Constants::NahdXml::xmlKeyRatio().toStdString()); p) {
+    if (const auto p = parameter(Constants::NahdXml::xmlKeyRatio().toStdString()); p) {
         m_ratio = 1.0f + p->get().value() * 19.0f;
     }
-    if (auto p = parameter(Constants::NahdXml::xmlKeyAttack().toStdString()); p) {
+    if (const auto p = parameter(Constants::NahdXml::xmlKeyAttack().toStdString()); p) {
         m_attackMs = static_cast<float>(ParameterMapper::mapExponential(p->get().value(), 0.1, 500.0));
     }
-    if (auto p = parameter(Constants::NahdXml::xmlKeyRelease().toStdString()); p) {
+    if (const auto p = parameter(Constants::NahdXml::xmlKeyRelease().toStdString()); p) {
         m_releaseMs = static_cast<float>(ParameterMapper::mapExponential(p->get().value(), 1.0, 2000.0));
     }
-    if (auto p = parameter(Constants::NahdXml::xmlKeyKnee().toStdString()); p) {
+    if (const auto p = parameter(Constants::NahdXml::xmlKeyKnee().toStdString()); p) {
         m_knee = p->get().value() * 24.0f;
     }
-    if (auto p = parameter(Constants::NahdXml::xmlKeyMakeup().toStdString()); p) {
+    if (const auto p = parameter(Constants::NahdXml::xmlKeyMakeup().toStdString()); p) {
         m_makeup = -12.0f + p->get().value() * 24.0f;
     }
-    if (auto p = parameter(Constants::NahdXml::xmlKeyLookahead().toStdString()); p) {
+    if (const auto p = parameter(Constants::NahdXml::xmlKeyLookahead().toStdString()); p) {
         m_lookaheadMs = p->get().value() * 10.0f;
+    }
+    if (const auto p = parameter(Constants::NahdXml::xmlKeySideChainSourceDevice().toStdString()); p) {
+        if (const int val = p->get().xmlValue(); val >= 0) {
+            m_sidechainSourceDevice = static_cast<size_t>(val);
+        } else {
+            m_sidechainSourceDevice = std::nullopt;
+        }
     }
 }
 

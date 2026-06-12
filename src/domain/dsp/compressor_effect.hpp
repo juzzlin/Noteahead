@@ -37,6 +37,8 @@ public:
     void reset() override;
     void sync() override;
 
+    std::optional<size_t> sidechainSourceDeviceIndex() const override;
+
     float reductionDb() const;
 
 private:
@@ -55,6 +57,7 @@ private:
     float m_knee { 0.0f };
     float m_makeup { 0.0f };
     float m_lookaheadMs { 0.0f };
+    std::optional<size_t> m_sidechainSourceDevice;
 
     double m_attackCoeff { 0.0 };
     double m_releaseCoeff { 0.0 };

@@ -428,6 +428,11 @@ QString EffectRackController::compressorLookaheadKey() const
     return Constants::NahdXml::xmlKeyLookahead();
 }
 
+QString EffectRackController::compressorSideChainSourceDeviceKey() const
+{
+    return Constants::NahdXml::xmlKeySideChainSourceDevice();
+}
+
 QString EffectRackController::clipperModeKey() const
 {
     return Constants::NahdXml::xmlKeyMode();

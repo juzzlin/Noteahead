@@ -16,6 +16,7 @@
 #ifndef EFFECT_HPP
 #define EFFECT_HPP
 
+#include <optional>
 #include <string>
 
 #include "domain/dsp/dsp_component.hpp"
@@ -42,6 +43,11 @@ public:
     virtual void process(AudioContext & context);
     using StringList = std::vector<std::string>;
     virtual StringList parameterNames() const;
+
+    virtual std::optional<size_t> sidechainSourceDeviceIndex() const
+    {
+        return std::nullopt;
+    }
 
     bool enabled() const;
     void setEnabled(bool enabled);

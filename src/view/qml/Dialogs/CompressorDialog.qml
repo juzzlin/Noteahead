@@ -27,7 +27,7 @@ Dialog {
     modal: true
     focus: true
     width: 650
-    height: 500
+    height: 550
 
     Universal.theme: Universal.Dark
     Universal.accent: themeService.accentColor
@@ -46,10 +46,14 @@ Dialog {
         }
     }
 
-    RowLayout {
+    ColumnLayout {
         anchors.fill: parent
         anchors.margins: 20
-        spacing: 30
+        spacing: 16
+
+        RowLayout {
+            Layout.fillWidth: true
+            spacing: 30
 
         GridLayout {
             columns: 3
@@ -206,7 +210,33 @@ Dialog {
                 Layout.alignment: Qt.AlignHCenter
             }
         }
-    }
+        } // RowLayout
+
+        RowLayout {
+            Layout.fillWidth: true
+            spacing: 10
+            Label {
+                text: qsTr("Side Chain Source:")
+                font.bold: true
+            }
+            ComboBox {
+                id: sideChainCombo
+                Layout.fillWidth: true
+                model: {
+                    var items = [qsTr("None")];
+                    for (var i = 0; i < deviceRackController.deviceCount; i++) {
+                        items.push(qsTr("Device %1").arg(i + 1));
+                    }
+                    return items;
+                }
+                currentIndex: {
+                    effectRackController.revision;
+                    return effectRackController.parameterValue(root.effectIndex, effectRackController.compressorSideChainSourceDeviceKey()) + 1;
+                }
+                onActivated: index => effectRackController.setParameterValue(root.effectIndex, effectRackController.compressorSideChainSourceDeviceKey(), index - 1)
+            }
+        }
+    } // ColumnLayout
 
     property real currentReductionDb: 0.0
 

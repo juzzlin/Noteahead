@@ -10,6 +10,8 @@ New features:
     rates per voice for an analog feel
   - Exposed as a "Drift" knob under "Analog Character" in the effects tab
 
+* Implement zero-delay audio side-chaining
+
 Bug fixes:
 
 Other:
