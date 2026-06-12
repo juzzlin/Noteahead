@@ -21,7 +21,7 @@ import ".."
 Menu {
     title: qsTr("&Devices")
     Action {
-        text: qsTr("Built-in device rack...")
+        text: qsTr("Device rack...")
         onTriggered: applicationService.requestDeviceRackDialog()
     }
 }

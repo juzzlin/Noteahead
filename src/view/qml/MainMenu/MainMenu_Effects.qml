@@ -21,7 +21,7 @@ import ".."
 Menu {
     title: qsTr("&Effects")
     Action {
-        text: qsTr("Master effects...")
+        text: qsTr("Master effect rack...")
         onTriggered: applicationService.requestMasterEffectsDialog()
     }
 }
