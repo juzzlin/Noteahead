@@ -5,6 +5,19 @@ Release date:
 
 New features:
 
+Bug fixes:
+
+Other:
+
+4.0.0
+=====
+
+Release date:
+
+Fri, 12 Jun 2026 20:55:10 +0300
+
+New features:
+
 * Implement Delay as a generic rack effect
 
 * Implement Chorus effect
