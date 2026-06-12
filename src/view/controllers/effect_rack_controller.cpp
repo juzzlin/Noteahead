@@ -32,9 +32,9 @@
 #include <QDateTime>
 #include <QFile>
 #include <QStringList>
+#include <QVariantMap>
 #include <QXmlStreamReader>
 #include <QXmlStreamWriter>
-#include <QVariantMap>
 
 namespace noteahead {
 

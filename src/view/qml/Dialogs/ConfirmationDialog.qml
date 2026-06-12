@@ -21,54 +21,37 @@ import Noteahead 1.0
 
 Dialog {
     id: root
-    title: qsTr("Device type mismatch")
     modal: true
-    focus: true
-
-    property int slotIndex: -1
-    property url fileUrl
-    property string currentTypeName
-    property string importedTypeName
-
-    Universal.theme: Universal.Dark
-    Universal.accent: themeService.accentColor
-
-    background: Rectangle {
-        color: "#1e1e1e"
-        border.color: "#333"
-        radius: 2
-    }
-
-    ColumnLayout {
-        anchors.fill: parent
-        anchors.margins: 20
-
-        Label {
-            text: qsTr("The file contains settings for '%1' but the current device is '%2'. Replace it anyway?")
-                .arg(root.importedTypeName)
-                .arg(root.currentTypeName)
-            wrapMode: Text.WordWrap
-            Layout.fillWidth: true
-            Layout.preferredWidth: 400
-            color: "white"
-        }
-    }
-
+    property alias message: messageLabel.text
+    property string acceptButtonText: qsTr("Ok")
     footer: DialogButtonBox {
         Button {
-            text: qsTr("Replace")
+            text: root.acceptButtonText
             implicitWidth: Constants.defaultButtonWidth
             DialogButtonBox.buttonRole: DialogButtonBox.AcceptRole
-            onClicked: {
-                deviceRackController.confirmImportSettings(root.slotIndex, root.fileUrl);
-                root.close();
-            }
         }
         Button {
             text: qsTr("Cancel")
             implicitWidth: Constants.defaultButtonWidth
             DialogButtonBox.buttonRole: DialogButtonBox.RejectRole
-            onClicked: root.close()
         }
     }
+    RowLayout {
+        anchors.fill: parent
+        anchors.margins: 20
+        spacing: 20
+        Image {
+            Layout.preferredWidth: 48
+            Layout.preferredHeight: 48
+            sourceSize: Qt.size(48, 48)
+            source: "../Graphics/alert.png"
+        }
+        Label {
+            id: messageLabel
+            Layout.fillWidth: true
+            wrapMode: Text.Wrap
+            color: "white"
+        }
+    }
+    Component.onCompleted: visible = false
 }

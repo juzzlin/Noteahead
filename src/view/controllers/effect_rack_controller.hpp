@@ -151,6 +151,7 @@ private:
         QString typeId;
         QString typeName;
     };
+
     EffectTypeInfo peekEffectTypeInfo(const QUrl & fileUrl) const;
     std::optional<std::reference_wrapper<EffectRack>> currentRack() const;
 

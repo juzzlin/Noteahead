@@ -183,9 +183,14 @@ ApplicationWindow {
             deviceRackController.importSettings(slotIndex, selectedFile);
         }
     }
-    ImportDeviceSettingsConfirmationDialog {
+    ConfirmationDialog {
         id: importDeviceSettingsConfirmationDialog
         anchors.centerIn: parent
+        title: "<strong>" + qsTr("Device type mismatch") + "</strong>"
+        acceptButtonText: qsTr("Replace")
+        property int slotIndex: -1
+        property url fileUrl
+        onAccepted: deviceRackController.confirmImportSettings(slotIndex, fileUrl)
     }
     FileDialog {
         id: exportEffectSettingsDialog
@@ -211,9 +216,14 @@ ApplicationWindow {
             effectRackController.importEffectSettings(slotIndex, importEffectSettingsDialog.selectedFile);
         }
     }
-    ImportEffectSettingsConfirmationDialog {
+    ConfirmationDialog {
         id: importEffectSettingsConfirmationDialog
         anchors.centerIn: parent
+        title: "<strong>" + qsTr("Effect type mismatch") + "</strong>"
+        acceptButtonText: qsTr("Replace")
+        property int slotIndex: -1
+        property url fileUrl
+        onAccepted: effectRackController.confirmImportEffectSettings(slotIndex, fileUrl)
     }
     MidiExportDialog {
         id: midiExportDialog
@@ -612,8 +622,7 @@ ApplicationWindow {
             if (typeMismatch) {
                 importEffectSettingsConfirmationDialog.slotIndex = slotIndex;
                 importEffectSettingsConfirmationDialog.fileUrl = fileUrl;
-                importEffectSettingsConfirmationDialog.currentType = currentType;
-                importEffectSettingsConfirmationDialog.importedType = importedType;
+                importEffectSettingsConfirmationDialog.message = qsTr("The file contains settings for '%1' but the current effect is '%2'. Replace it anyway?").arg(importedType).arg(currentType);
                 importEffectSettingsConfirmationDialog.open();
             } else {
                 effectRackController.confirmImportEffectSettings(slotIndex, fileUrl);
@@ -623,8 +632,7 @@ ApplicationWindow {
             if (typeMismatch) {
                 importDeviceSettingsConfirmationDialog.slotIndex = slotIndex;
                 importDeviceSettingsConfirmationDialog.fileUrl = fileUrl;
-                importDeviceSettingsConfirmationDialog.currentTypeName = currentTypeName;
-                importDeviceSettingsConfirmationDialog.importedTypeName = importedTypeName;
+                importDeviceSettingsConfirmationDialog.message = qsTr("The file contains settings for '%1' but the current device is '%2'. Replace it anyway?").arg(importedTypeName).arg(currentTypeName);
                 importDeviceSettingsConfirmationDialog.open();
             } else {
                 deviceRackController.confirmImportSettings(slotIndex, fileUrl);
