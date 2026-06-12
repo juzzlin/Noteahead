@@ -47,6 +47,7 @@ public:
 
     void setSampleRate(double sampleRate) override;
     void setFrequency(double frequency);
+    void setFrequency(double bpm, double syncRate);
     void setWaveform(Waveform waveform);
     void setMode(Mode mode);
     void setPhase(double phase);

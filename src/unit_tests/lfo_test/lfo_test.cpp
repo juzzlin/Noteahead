@@ -249,6 +249,78 @@ void LfoTest::test_randomWaveform_shouldBeDeterministicAfterReset()
     }
 }
 
+// --- BPM frequency overload ---
+
+namespace {
+
+// Returns how many samples until the saw waveform wraps (one full cycle).
+int sawCycleLength(double sampleRate, double frequency)
+{
+    Lfo lfo;
+    lfo.setSampleRate(sampleRate);
+    lfo.setFrequency(frequency);
+    lfo.setWaveform(Lfo::Waveform::Saw);
+    lfo.reset();
+    double prev = lfo.nextSample();
+    for (int i = 1; i < 1'000'000; i++) {
+        const double curr = lfo.nextSample();
+        if (curr < prev - 1.0)
+            return i;
+        prev = curr;
+    }
+    return -1;
+}
+
+int sawCycleLengthBpm(double sampleRate, double bpm, double syncRate)
+{
+    Lfo lfo;
+    lfo.setSampleRate(sampleRate);
+    lfo.setFrequency(bpm, syncRate);
+    lfo.setWaveform(Lfo::Waveform::Saw);
+    lfo.reset();
+    double prev = lfo.nextSample();
+    for (int i = 1; i < 1'000'000; i++) {
+        const double curr = lfo.nextSample();
+        if (curr < prev - 1.0)
+            return i;
+        prev = curr;
+    }
+    return -1;
+}
+
+} // namespace
+
+void LfoTest::test_setFrequency_bpm_shouldProduceCycleMatchingBpm()
+{
+    // 120 BPM, syncRate=0.25 (quarter note) → (120/60)*(0.25/0.25) = 2 Hz
+    // At sr=100: cycle = 50 samples. Direct setFrequency(2.0) must give the same length.
+    const double sr = 100.0;
+    const int direct = sawCycleLength(sr, 2.0);
+    const int viaBpm = sawCycleLengthBpm(sr, 120.0, 0.25);
+    QCOMPARE(viaBpm, direct);
+}
+
+void LfoTest::test_setFrequency_bpm_higherBpm_shouldProduceShorterCycle()
+{
+    const double sr = 10000.0;
+    const int slow = sawCycleLengthBpm(sr, 60.0, 0.25);
+    const int fast = sawCycleLengthBpm(sr, 120.0, 0.25);
+    QVERIFY(slow > 0);
+    QVERIFY(fast > 0);
+    QVERIFY(std::abs(slow - fast * 2) <= 2);
+}
+
+void LfoTest::test_setFrequency_bpm_differentSyncRate_shouldScaleCycle()
+{
+    // Halving syncRate halves the frequency → doubles the cycle length.
+    const double sr = 10000.0;
+    const int quarter = sawCycleLengthBpm(sr, 120.0, 0.25);
+    const int half = sawCycleLengthBpm(sr, 120.0, 0.5);
+    QVERIFY(quarter > 0);
+    QVERIFY(half > 0);
+    QVERIFY(std::abs(half - quarter * 2) <= 2);
+}
+
 } // namespace noteahead
 
 QTEST_GUILESS_MAIN(noteahead::LfoTest)

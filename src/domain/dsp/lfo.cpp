@@ -40,6 +40,11 @@ void Lfo::setFrequency(double frequency)
     updatePhaseStep();
 }
 
+void Lfo::setFrequency(double bpm, double syncRate)
+{
+    setFrequency((bpm / 60.0) * (0.25 / std::max(0.0001, syncRate)));
+}
+
 void Lfo::setWaveform(Waveform waveform)
 {
     m_waveform = waveform;

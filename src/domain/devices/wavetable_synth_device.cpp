@@ -192,28 +192,22 @@ void WavetableSynthDevice::processAudio(AudioContext & context)
     const double pbOffset = (static_cast<double>(m_pitchBend) - 8192.0) / 8192.0 * m_pitchBendRange;
     const double pbRatio = std::exp2(pbOffset / 12.0);
 
-    double lfoFreq;
-    if (m_lfoMode == Lfo::Mode::BPM) {
-        lfoFreq = (static_cast<double>(m_bpm) / 60.0) * (0.25 / std::max(0.0001, static_cast<double>(m_lfoRate)));
-    } else {
-        lfoFreq = ParameterMapper::mapLfoFrequency(m_lfoRate, 0.05, 20.0);
-    }
-
-    double lfo2Freq;
-    if (m_lfo2Mode == Lfo::Mode::BPM) {
-        lfo2Freq = (static_cast<double>(m_bpm) / 60.0) * (0.25 / std::max(0.0001, static_cast<double>(m_lfo2Rate)));
-    } else {
-        lfo2Freq = ParameterMapper::mapLfoFrequency(m_lfo2Rate, 0.05, 20.0);
-    }
-
     for (auto && voice : m_voices) {
         voice.lfo.setWaveform(m_lfoWaveform);
         voice.lfo.setMode(m_lfoMode);
-        voice.lfo.setFrequency(lfoFreq);
+        if (m_lfoMode == Lfo::Mode::BPM) {
+            voice.lfo.setFrequency(m_bpm, m_lfoRate);
+        } else {
+            voice.lfo.setFrequency(ParameterMapper::mapLfoFrequency(m_lfoRate, 0.05, 20.0));
+        }
 
         voice.lfo2.setWaveform(m_lfo2Waveform);
         voice.lfo2.setMode(m_lfo2Mode);
-        voice.lfo2.setFrequency(lfo2Freq);
+        if (m_lfo2Mode == Lfo::Mode::BPM) {
+            voice.lfo2.setFrequency(m_bpm, m_lfo2Rate);
+        } else {
+            voice.lfo2.setFrequency(ParameterMapper::mapLfoFrequency(m_lfo2Rate, 0.05, 20.0));
+        }
 
         if (voice.active) {
             renderVoice(voice, context, oversampledRate, portamentoCoeff, pbRatio);
@@ -609,11 +603,19 @@ void WavetableSynthDevice::syncParameters()
 
         voice.lfo.setWaveform(m_lfoWaveform);
         voice.lfo.setMode(m_lfoMode);
-        voice.lfo.setFrequency(ParameterMapper::mapLfoFrequency(m_lfoRate, 0.05, 20.0));
+        if (m_lfoMode == Lfo::Mode::BPM) {
+            voice.lfo.setFrequency(m_bpm, m_lfoRate);
+        } else {
+            voice.lfo.setFrequency(ParameterMapper::mapLfoFrequency(m_lfoRate, 0.05, 20.0));
+        }
 
         voice.lfo2.setWaveform(m_lfo2Waveform);
         voice.lfo2.setMode(m_lfo2Mode);
-        voice.lfo2.setFrequency(ParameterMapper::mapLfoFrequency(m_lfo2Rate, 0.05, 20.0));
+        if (m_lfo2Mode == Lfo::Mode::BPM) {
+            voice.lfo2.setFrequency(m_bpm, m_lfo2Rate);
+        } else {
+            voice.lfo2.setFrequency(ParameterMapper::mapLfoFrequency(m_lfo2Rate, 0.05, 20.0));
+        }
 
         voice.ampEg.setAttackTime(ParameterMapper::mapExponential(m_ampAttack, 0.001, 10.0));
         voice.ampEg.setDecayTime(ParameterMapper::mapExponential(m_ampDecay, 0.01, 10.0));

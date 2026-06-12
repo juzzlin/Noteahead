@@ -45,6 +45,10 @@ private slots:
     void test_randomWaveform_shouldProduceValuesInRange();
     void test_randomWaveform_shouldHoldValueForOneCycle();
     void test_randomWaveform_shouldBeDeterministicAfterReset();
+
+    void test_setFrequency_bpm_shouldProduceCycleMatchingBpm();
+    void test_setFrequency_bpm_higherBpm_shouldProduceShorterCycle();
+    void test_setFrequency_bpm_differentSyncRate_shouldScaleCycle();
 };
 
 } // namespace noteahead
