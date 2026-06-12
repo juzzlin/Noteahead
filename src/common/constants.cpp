@@ -52,6 +52,11 @@ QString deviceSettingsExtension()
     return ".nahddev";
 }
 
+QString effectRackSettingsExtension()
+{
+    return ".nahdeff";
+}
+
 QString midiFileExtension()
 {
     return ".mid";

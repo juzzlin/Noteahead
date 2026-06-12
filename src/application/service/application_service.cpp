@@ -26,6 +26,9 @@
 #include "player_service.hpp"
 #include "recent_files_manager.hpp"
 
+#include <QDateTime>
+#include <QFileInfo>
+
 namespace noteahead {
 
 static const auto TAG = "ApplicationService";
@@ -59,6 +62,11 @@ QString ApplicationService::license() const
 QString ApplicationService::deviceSettingsExtension() const
 {
     return Constants::deviceSettingsExtension();
+}
+
+QString ApplicationService::effectRackSettingsExtension() const
+{
+    return Constants::effectRackSettingsExtension();
 }
 
 QString ApplicationService::fileFormatExtension() const
@@ -384,6 +392,45 @@ QString ApplicationService::lastImportDirectory() const
 void ApplicationService::setLastImportDirectory(QString directory)
 {
     m_recentFilesManager->setLastImportDirectory(directory);
+}
+
+QString ApplicationService::lastEffectImportDirectory() const
+{
+    return m_recentFilesManager->lastEffectImportDirectory();
+}
+
+void ApplicationService::setLastEffectImportDirectory(QUrl url)
+{
+    const auto fileInfo = QFileInfo { url.toLocalFile() };
+    m_recentFilesManager->setLastEffectImportDirectory(fileInfo.absolutePath());
+}
+
+QString ApplicationService::lastEffectExportDirectory() const
+{
+    return m_recentFilesManager->lastEffectExportDirectory();
+}
+
+void ApplicationService::setLastEffectExportDirectory(QUrl url)
+{
+    const auto fileInfo = QFileInfo { url.toLocalFile() };
+    m_recentFilesManager->setLastEffectExportDirectory(fileInfo.absolutePath());
+}
+
+QString ApplicationService::defaultDeviceFileName(const QString & deviceName) const
+{
+    const auto date = QDateTime::currentDateTime().toString("yyyyMMdd_HHmmss");
+    return QString { "%1-%2" }.arg(deviceName, date);
+}
+
+QString ApplicationService::defaultEffectFileName(const QString & effectType) const
+{
+    const auto date = QDateTime::currentDateTime().toString("yyyyMMdd_HHmmss");
+    return QString { "%1-%2" }.arg(effectType, date);
+}
+
+QUrl ApplicationService::fromLocalFile(const QString & localPath) const
+{
+    return QUrl::fromLocalFile(localPath);
 }
 
 void ApplicationService::requestUnsavedChangesDialog()

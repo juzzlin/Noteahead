@@ -212,6 +212,34 @@ ApplicationWindow {
         id: importDeviceSettingsConfirmationDialog
         anchors.centerIn: parent
     }
+    FileDialog {
+        id: exportEffectSettingsDialog
+        title: qsTr("Export Effect Settings")
+        fileMode: FileDialog.SaveFile
+        currentFolder: applicationService.lastEffectExportDirectory() !== "" ? applicationService.fromLocalFile(applicationService.lastEffectExportDirectory()) : StandardPaths.standardLocations(StandardPaths.DocumentsLocation)[0]
+        nameFilters: [qsTr("Noteahead Effect Settings (%1)").arg("*"+applicationService.effectRackSettingsExtension())]
+        property int slotIndex: -1
+        onAccepted: {
+            applicationService.setLastEffectExportDirectory(exportEffectSettingsDialog.selectedFile);
+            effectRackController.exportEffectSettings(slotIndex, exportEffectSettingsDialog.selectedFile);
+        }
+    }
+    FileDialog {
+        id: importEffectSettingsDialog
+        title: qsTr("Import Effect Settings")
+        fileMode: FileDialog.OpenFile
+        currentFolder: applicationService.lastEffectImportDirectory() !== "" ? applicationService.fromLocalFile(applicationService.lastEffectImportDirectory()) : StandardPaths.standardLocations(StandardPaths.DocumentsLocation)[0]
+        nameFilters: [qsTr("Noteahead Effect Settings (%1)").arg("*"+applicationService.effectRackSettingsExtension())]
+        property int slotIndex: -1
+        onAccepted: {
+            applicationService.setLastEffectImportDirectory(importEffectSettingsDialog.selectedFile);
+            effectRackController.importEffectSettings(slotIndex, importEffectSettingsDialog.selectedFile);
+        }
+    }
+    ImportEffectSettingsConfirmationDialog {
+        id: importEffectSettingsConfirmationDialog
+        anchors.centerIn: parent
+    }
     MidiExportDialog {
         id: midiExportDialog
         anchors.centerIn: parent
@@ -548,6 +576,7 @@ ApplicationWindow {
         deviceRackController.synthDialogRequested.connect(synthDialog.open);
         deviceRackController.wavetableSynthDialogRequested.connect(wavetableSynthDialog.open);
         deviceRackController.importSettingsConfirmationRequested.connect(UiService.requestImportDeviceSettingsConfirmation);
+        effectRackController.importEffectSettingsConfirmationRequested.connect(UiService.requestImportEffectSettingsConfirmation);
     }
     function _connectEditorService(): void {
         editorService.errorTextRequested.connect(errorText => {
@@ -586,12 +615,34 @@ ApplicationWindow {
 
         UiService.exportDeviceSettingsRequested.connect((slotIndex, deviceName, deviceTypeName) => {
             exportDeviceSettingsDialog.slotIndex = slotIndex;
-            exportDeviceSettingsDialog.currentFile = deviceName + " (" + deviceTypeName + ")" + applicationService.deviceSettingsExtension();
+            const filename = applicationService.defaultDeviceFileName(deviceTypeName) + applicationService.deviceSettingsExtension();
+            exportDeviceSettingsDialog.currentFile = exportDeviceSettingsDialog.currentFolder + "/" + filename;
             exportDeviceSettingsDialog.open();
         });
         UiService.importDeviceSettingsRequested.connect(slotIndex => {
             importDeviceSettingsDialog.slotIndex = slotIndex;
             importDeviceSettingsDialog.open();
+        });
+        UiService.exportEffectSettingsRequested.connect((slotIndex, effectType) => {
+            exportEffectSettingsDialog.slotIndex = slotIndex;
+            const filename = applicationService.defaultEffectFileName(effectType) + applicationService.effectRackSettingsExtension();
+            exportEffectSettingsDialog.currentFile = exportEffectSettingsDialog.currentFolder + "/" + filename;
+            exportEffectSettingsDialog.open();
+        });
+        UiService.importEffectSettingsRequested.connect(slotIndex => {
+            importEffectSettingsDialog.slotIndex = slotIndex;
+            importEffectSettingsDialog.open();
+        });
+        UiService.importEffectSettingsConfirmationRequested.connect((slotIndex, fileUrl, currentType, importedType, typeMismatch) => {
+            if (typeMismatch) {
+                importEffectSettingsConfirmationDialog.slotIndex = slotIndex;
+                importEffectSettingsConfirmationDialog.fileUrl = fileUrl;
+                importEffectSettingsConfirmationDialog.currentType = currentType;
+                importEffectSettingsConfirmationDialog.importedType = importedType;
+                importEffectSettingsConfirmationDialog.open();
+            } else {
+                effectRackController.confirmImportEffectSettings(slotIndex, fileUrl);
+            }
         });
         UiService.importDeviceSettingsConfirmationRequested.connect((slotIndex, fileUrl, currentTypeName, importedTypeName, typeMismatch) => {
             if (typeMismatch) {

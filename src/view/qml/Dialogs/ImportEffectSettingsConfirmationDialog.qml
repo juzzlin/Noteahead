@@ -21,14 +21,14 @@ import Noteahead 1.0
 
 Dialog {
     id: root
-    title: qsTr("Device type mismatch")
+    title: qsTr("Effect type mismatch")
     modal: true
     focus: true
 
     property int slotIndex: -1
     property url fileUrl
-    property string currentTypeName
-    property string importedTypeName
+    property string currentType
+    property string importedType
 
     Universal.theme: Universal.Dark
     Universal.accent: themeService.accentColor
@@ -44,9 +44,9 @@ Dialog {
         anchors.margins: 20
 
         Label {
-            text: qsTr("The file contains settings for '%1' but the current device is '%2'. Replace it anyway?")
-                .arg(root.importedTypeName)
-                .arg(root.currentTypeName)
+            text: qsTr("The file contains settings for '%1' but the current effect is '%2'. Replace it anyway?")
+                .arg(root.importedType)
+                .arg(root.currentType)
             wrapMode: Text.WordWrap
             Layout.fillWidth: true
             Layout.preferredWidth: 400
@@ -60,7 +60,7 @@ Dialog {
             implicitWidth: Constants.defaultButtonWidth
             DialogButtonBox.buttonRole: DialogButtonBox.AcceptRole
             onClicked: {
-                deviceRackController.confirmImportSettings(root.slotIndex, root.fileUrl);
+                effectRackController.confirmImportEffectSettings(root.slotIndex, root.fileUrl);
                 root.close();
             }
         }

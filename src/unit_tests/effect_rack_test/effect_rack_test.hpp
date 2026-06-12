@@ -34,6 +34,8 @@ private slots:
     void test_enabled_flag_shouldControlProcessing();
     void test_reverb_parameters_shouldGetAndSetParameters();
     void test_reverb_presets_shouldApplyPresets();
+    void test_exportImportEffectSettings_shouldWorkForSingleEffect();
+    void test_importEffectSettings_backwardsCompatibility();
 };
 
 } // namespace noteahead

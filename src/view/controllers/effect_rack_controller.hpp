@@ -20,10 +20,14 @@
 #include "application/service/editor_service.hpp"
 
 #include <QObject>
+#include <QUrl>
 
 #include <functional>
 #include <memory>
 #include <optional>
+
+class QXmlStreamReader;
+class QXmlStreamWriter;
 
 namespace noteahead {
 
@@ -73,6 +77,16 @@ public:
 
     Q_INVOKABLE void setEffect(int slotIndex, const QString & typeId);
     Q_INVOKABLE void clearEffect(int slotIndex);
+
+    Q_INVOKABLE void exportEffectSettings(int index, const QUrl & fileUrl);
+    Q_INVOKABLE void importEffectSettings(int index, const QUrl & fileUrl);
+    Q_INVOKABLE void confirmImportEffectSettings(int index, const QUrl & fileUrl);
+
+    Q_INVOKABLE void exportSettings(const QUrl & fileUrl);
+    bool exportSettings(QXmlStreamWriter & writer) const;
+
+    Q_INVOKABLE void importSettings(const QUrl & fileUrl);
+    bool importSettings(QXmlStreamReader & reader);
     Q_INVOKABLE QVariantList availableEffects() const;
 
     Q_INVOKABLE bool isEffectEnabled(quint32 effectIndex) const;
@@ -129,8 +143,15 @@ signals:
     void targetDeviceNameChanged();
     void isInsertRackChanged();
     void parameterChanged(quint32 effectIndex, const QString & paramName);
+    void importEffectSettingsConfirmationRequested(int slotIndex, QUrl fileUrl, QString currentType, QString importedType, bool typeMismatch);
 
 private:
+    struct EffectTypeInfo
+    {
+        QString typeId;
+        QString typeName;
+    };
+    EffectTypeInfo peekEffectTypeInfo(const QUrl & fileUrl) const;
     std::optional<std::reference_wrapper<EffectRack>> currentRack() const;
 
     DeviceServiceS m_deviceService;

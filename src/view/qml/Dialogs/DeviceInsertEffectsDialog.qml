@@ -167,6 +167,24 @@ Dialog {
                         ToolTip.text: qsTr("Enable/disable the effect")
                     }
                     Button {
+                        text: qsTr("Manage")
+                        Layout.preferredWidth: 80
+                        visible: effectType !== ""
+                        onClicked: manageMenu.open()
+                        Menu {
+                            id: manageMenu
+                            y: parent.height
+                            MenuItem {
+                                text: qsTr("Export Settings...")
+                                onClicked: UiService.requestExportEffectSettings(index, effectType)
+                            }
+                            MenuItem {
+                                text: qsTr("Import Settings...")
+                                onClicked: UiService.requestImportEffectSettings(index)
+                            }
+                        }
+                    }
+                    Button {
                         Layout.preferredWidth: 32
                         Layout.preferredHeight: 32
                         visible: effectType !== ""

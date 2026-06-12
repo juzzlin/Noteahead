@@ -89,4 +89,24 @@ void RecentFilesManager::setLastImportDirectory(QString directory)
     Settings::setLastImportDirectory(directory);
 }
 
+QString RecentFilesManager::lastEffectImportDirectory() const
+{
+    return Settings::lastEffectImportDirectory();
+}
+
+void RecentFilesManager::setLastEffectImportDirectory(QString directory)
+{
+    Settings::setLastEffectImportDirectory(directory);
+}
+
+QString RecentFilesManager::lastEffectExportDirectory() const
+{
+    return Settings::lastEffectExportDirectory();
+}
+
+void RecentFilesManager::setLastEffectExportDirectory(QString directory)
+{
+    Settings::setLastEffectExportDirectory(directory);
+}
+
 } // namespace noteahead

@@ -40,6 +40,12 @@ public:
     virtual QString lastImportDirectory() const;
     virtual void setLastImportDirectory(QString directory);
 
+    virtual QString lastEffectImportDirectory() const;
+    virtual void setLastEffectImportDirectory(QString directory);
+
+    virtual QString lastEffectExportDirectory() const;
+    virtual void setLastEffectExportDirectory(QString directory);
+
 signals:
     void recentFilesChanged(const QStringList & recentFiles);
 

@@ -19,7 +19,9 @@
 #include "common/utils.hpp"
 #include "domain/effects/effect_factory.hpp"
 
+#include <QDateTime>
 #include <QXmlStreamReader>
+#include <QXmlStreamWriter>
 
 namespace noteahead {
 
@@ -188,6 +190,93 @@ void EffectRack::deserializeEffect(QXmlStreamReader & reader)
     } else {
         reader.skipCurrentElement();
     }
+}
+
+bool EffectRack::exportEffectSettings(size_t index, QXmlStreamWriter & writer) const
+{
+    const std::lock_guard<std::recursive_mutex> lock { m_mutex };
+    if (index >= m_effects.size() || !m_effects[index]) {
+        return false;
+    }
+
+    const auto & effect = m_effects[index];
+
+    writer.writeStartDocument();
+    writer.writeStartElement(Constants::NahdXml::xmlKeySettings());
+    writer.writeAttribute(Constants::NahdXml::xmlKeyFileFormatVersion(), Constants::fileFormatVersion());
+    writer.writeAttribute(Constants::NahdXml::xmlKeyApplicationName(), Constants::applicationName());
+    writer.writeAttribute(Constants::NahdXml::xmlKeyApplicationVersion(), Constants::applicationVersion());
+    writer.writeAttribute(Constants::NahdXml::xmlKeyCreatedDate(), QDateTime::currentDateTime().toString(Qt::DateFormat::ISODateWithMs));
+
+    writer.writeStartElement(Constants::NahdXml::xmlKeyEffect());
+    writer.writeAttribute("slot", QString::number(index));
+    writer.writeAttribute(Constants::NahdXml::xmlKeyTypeId(), QString::fromStdString(effect->typeId()));
+    writer.writeAttribute(Constants::NahdXml::xmlKeyType(), QString::fromStdString(effect->type()));
+    writer.writeAttribute(Constants::NahdXml::xmlKeyEnabled(), effect->enabled() ? Constants::NahdXml::xmlValueTrue() : Constants::NahdXml::xmlValueFalse());
+    effect->serializeParametersToXml(writer);
+    writer.writeEndElement(); // Effect
+
+    writer.writeEndElement(); // Settings
+    writer.writeEndDocument();
+
+    return true;
+}
+
+bool EffectRack::importEffectSettings(size_t index, QXmlStreamReader & reader)
+{
+    const std::lock_guard<std::recursive_mutex> lock { m_mutex };
+    if (index >= m_effects.size()) {
+        return false;
+    }
+
+    while (!reader.atEnd() && !reader.hasError()) {
+        if (const auto token = reader.readNext(); token == QXmlStreamReader::StartElement) {
+            if (reader.name() == Constants::NahdXml::xmlKeySettings()) {
+                while (reader.readNextStartElement()) {
+                    if (reader.name() == Constants::NahdXml::xmlKeyEffect()) {
+                        const auto typeId = reader.attributes().value(Constants::NahdXml::xmlKeyTypeId()).toString().toStdString();
+                        const auto type = reader.attributes().value(Constants::NahdXml::xmlKeyType()).toString().toStdString();
+                        const auto enabled = reader.attributes().value(Constants::NahdXml::xmlKeyEnabled()).toString() != Constants::NahdXml::xmlValueFalse();
+
+                        if (const auto effect = EffectFactory::createEffect(typeId, type); effect) {
+                            effect->setEnabled(enabled);
+                            effect->deserializeParametersFromXml(reader);
+                            effect->sync();
+                            m_effects[index] = std::move(effect);
+                            return true;
+                        } else {
+                            reader.skipCurrentElement();
+                        }
+                    } else if (reader.name() == Constants::NahdXml::xmlKeyInsertEffects() || reader.name() == Constants::NahdXml::xmlKeySendEffects()) {
+                        // Backwards compatibility for old .nahdeff files that contained the whole rack
+                        while (reader.readNextStartElement()) {
+                            if (reader.name() == Constants::NahdXml::xmlKeyEffect()) {
+                                const auto typeId = reader.attributes().value(Constants::NahdXml::xmlKeyTypeId()).toString().toStdString();
+                                const auto type = reader.attributes().value(Constants::NahdXml::xmlKeyType()).toString().toStdString();
+                                const auto enabled = reader.attributes().value(Constants::NahdXml::xmlKeyEnabled()).toString() != Constants::NahdXml::xmlValueFalse();
+
+                                if (const auto effect = EffectFactory::createEffect(typeId, type); effect) {
+                                    effect->setEnabled(enabled);
+                                    effect->deserializeParametersFromXml(reader);
+                                    effect->sync();
+                                    m_effects[index] = std::move(effect);
+                                    return true;
+                                } else {
+                                    reader.skipCurrentElement();
+                                }
+                            } else {
+                                reader.skipCurrentElement();
+                            }
+                        }
+                    } else {
+                        reader.skipCurrentElement();
+                    }
+                }
+            }
+        }
+    }
+
+    return false;
 }
 
 } // namespace noteahead

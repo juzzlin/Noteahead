@@ -25,6 +25,8 @@ const auto controllerPortKey = "controllerPort";
 const auto recentFilesArrayKey = "recentFilesArray";
 const auto recentFilesFilePathKey = "filePath";
 const auto lastImportDirectoryKey = "lastImportDirectory";
+const auto lastEffectImportDirectoryKey = "lastEffectImportDirectory";
+const auto lastEffectExportDirectoryKey = "lastEffectExportDirectory";
 
 const auto audioBackendKey = "audioBackend";
 const auto audioBufferSizeKey = "audioBufferSize";
@@ -163,6 +165,40 @@ void setLastImportDirectory(const QString & directory)
     QSettings settings;
     settings.beginGroup(settingsGroupEditor);
     settings.setValue(lastImportDirectoryKey, directory);
+    settings.endGroup();
+}
+
+QString lastEffectImportDirectory()
+{
+    QSettings settings;
+    settings.beginGroup(settingsGroupEditor);
+    const auto directory = settings.value(lastEffectImportDirectoryKey, QString {}).toString();
+    settings.endGroup();
+    return directory;
+}
+
+void setLastEffectImportDirectory(const QString & directory)
+{
+    QSettings settings;
+    settings.beginGroup(settingsGroupEditor);
+    settings.setValue(lastEffectImportDirectoryKey, directory);
+    settings.endGroup();
+}
+
+QString lastEffectExportDirectory()
+{
+    QSettings settings;
+    settings.beginGroup(settingsGroupEditor);
+    const auto directory = settings.value(lastEffectExportDirectoryKey, QString {}).toString();
+    settings.endGroup();
+    return directory;
+}
+
+void setLastEffectExportDirectory(const QString & directory)
+{
+    QSettings settings;
+    settings.beginGroup(settingsGroupEditor);
+    settings.setValue(lastEffectExportDirectoryKey, directory);
     settings.endGroup();
 }
 

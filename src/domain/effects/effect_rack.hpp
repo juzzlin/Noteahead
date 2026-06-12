@@ -51,6 +51,9 @@ public:
     void deserializeEffectsFromXml(QXmlStreamReader & reader);
     void deserializeEffect(QXmlStreamReader & reader);
 
+    bool exportEffectSettings(size_t index, QXmlStreamWriter & writer) const;
+    bool importEffectSettings(size_t index, QXmlStreamReader & reader);
+
 private:
     std::vector<EffectS> m_effects;
     mutable std::recursive_mutex m_mutex;

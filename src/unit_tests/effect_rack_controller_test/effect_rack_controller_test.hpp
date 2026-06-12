@@ -21,6 +21,11 @@ private slots:
     void test_effectParametersSummary_emptySlot_shouldReturnEmptyString();
     void test_isEffectEnabled_shouldReturnEnabledState();
     void test_revision_shouldIncrementOnPropertySet();
+    void test_exportSettings_shouldSerializeEffects();
+    void test_importSettings_shouldRestoreEffects();
+    void test_importEffectSettings_matchingType_shouldEmitConfirmationWithoutMismatch();
+    void test_importEffectSettings_differentType_shouldEmitConfirmationWithMismatch();
+    void test_confirmImportEffectSettings_shouldImportAndNotify();
 };
 
 } // namespace noteahead

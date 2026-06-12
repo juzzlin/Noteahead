@@ -14,8 +14,11 @@
 #include "infra/data_service.hpp"
 #include "view/controllers/effect_rack_controller.hpp"
 
+#include <QBuffer>
 #include <QSignalSpy>
 #include <QTest>
+#include <QXmlStreamReader>
+#include <QXmlStreamWriter>
 #include <memory>
 
 namespace noteahead {
@@ -181,6 +184,171 @@ void EffectRackControllerTest::test_revision_shouldIncrementOnPropertySet()
     controller.setIsInsertRack(controller.isInsertRack());
     QCOMPARE(controller.revision(), initialRevision + 2);
     QCOMPARE(revisionSpy.count(), 2);
+}
+
+void EffectRackControllerTest::test_exportSettings_shouldSerializeEffects()
+{
+    const auto audioEngine = std::make_shared<AudioEngine>();
+    const auto deviceService = std::make_shared<DeviceService>(audioEngine, std::make_shared<DataService>());
+    const auto editorService = std::make_shared<EditorService>();
+    EffectRackController controller { deviceService, editorService };
+
+    controller.setIsInsertRack(true);
+    controller.setEffect(0, QString::fromStdString(ReverbEffect::typeIdString()));
+
+    QByteArray data;
+    QBuffer buffer { &data };
+    buffer.open(QIODevice::WriteOnly);
+    QXmlStreamWriter writer { &buffer };
+    QVERIFY(controller.exportSettings(writer));
+    buffer.close();
+
+    QVERIFY(!data.isEmpty());
+    QVERIFY(data.contains(ReverbEffect::typeIdString().c_str()));
+}
+
+void EffectRackControllerTest::test_importSettings_shouldRestoreEffects()
+{
+    const auto audioEngine = std::make_shared<AudioEngine>();
+    const auto deviceService = std::make_shared<DeviceService>(audioEngine, std::make_shared<DataService>());
+    const auto editorService = std::make_shared<EditorService>();
+    EffectRackController controller { deviceService, editorService };
+
+    controller.setIsInsertRack(true);
+    controller.setEffect(0, QString::fromStdString(ReverbEffect::typeIdString()));
+    controller.setParameterValue(0, controller.reverbDecayKey(), 0.75f);
+
+    QByteArray data;
+    QBuffer buffer { &data };
+    buffer.open(QIODevice::WriteOnly);
+    QXmlStreamWriter writer { &buffer };
+    QVERIFY(controller.exportSettings(writer));
+    buffer.close();
+
+    controller.clearEffect(0);
+    QCOMPARE(controller.effectType(0), QString {});
+
+    buffer.open(QIODevice::ReadOnly);
+    QXmlStreamReader reader { &buffer };
+    QVERIFY(controller.importSettings(reader));
+    buffer.close();
+
+    QCOMPARE(controller.effectType(0), controller.reverbType());
+    QCOMPARE(controller.parameterValue(0, controller.reverbDecayKey()), 0.75f);
+}
+
+void EffectRackControllerTest::test_importEffectSettings_matchingType_shouldEmitConfirmationWithoutMismatch()
+{
+    const auto audioEngine = std::make_shared<AudioEngine>();
+    const auto deviceService = std::make_shared<DeviceService>(audioEngine, std::make_shared<DataService>());
+    const auto editorService = std::make_shared<EditorService>();
+    EffectRackController controller { deviceService, editorService };
+
+    controller.setIsInsertRack(true);
+    controller.setEffect(0, QString::fromStdString(ReverbEffect::typeIdString()));
+
+    // Create a temporary reverb settings file
+    const QString filePath = "test_matching_effect.nahdeff";
+    const auto reverb = std::make_shared<ReverbEffect>();
+    QFile file { filePath };
+    file.open(QIODevice::WriteOnly);
+    QXmlStreamWriter writer { &file };
+    writer.writeStartDocument();
+    writer.writeStartElement(Constants::NahdXml::xmlKeySettings());
+    writer.writeStartElement(Constants::NahdXml::xmlKeyEffect());
+    writer.writeAttribute(Constants::NahdXml::xmlKeyTypeId(), QString::fromStdString(reverb->typeId()));
+    writer.writeAttribute(Constants::NahdXml::xmlKeyType(), QString::fromStdString(reverb->type()));
+    writer.writeEndElement();
+    writer.writeEndElement();
+    writer.writeEndDocument();
+    file.close();
+
+    QSignalSpy spy { &controller, &EffectRackController::importEffectSettingsConfirmationRequested };
+    controller.importEffectSettings(0, QUrl::fromLocalFile(filePath));
+
+    QCOMPARE(spy.count(), 1);
+    const auto arguments = spy.at(0);
+    QCOMPARE(arguments.at(0).toInt(), 0);
+    QCOMPARE(arguments.at(2).toString(), QString::fromStdString(reverb->type()));
+    QCOMPARE(arguments.at(3).toString(), QString::fromStdString(reverb->type()));
+    QCOMPARE(arguments.at(4).toBool(), false); // No mismatch
+
+    QFile::remove(filePath);
+}
+
+void EffectRackControllerTest::test_importEffectSettings_differentType_shouldEmitConfirmationWithMismatch()
+{
+    const auto audioEngine = std::make_shared<AudioEngine>();
+    const auto deviceService = std::make_shared<DeviceService>(audioEngine, std::make_shared<DataService>());
+    const auto editorService = std::make_shared<EditorService>();
+    EffectRackController controller { deviceService, editorService };
+
+    controller.setIsInsertRack(true);
+    controller.setEffect(0, QString::fromStdString(ReverbEffect::typeIdString()));
+
+    // Create a temporary compressor settings file
+    const QString filePath = "test_different_effect.nahdeff";
+    const auto compressor = std::make_shared<CompressorEffect>();
+    QFile file { filePath };
+    file.open(QIODevice::WriteOnly);
+    QXmlStreamWriter writer { &file };
+    writer.writeStartDocument();
+    writer.writeStartElement(Constants::NahdXml::xmlKeySettings());
+    writer.writeStartElement(Constants::NahdXml::xmlKeyEffect());
+    writer.writeAttribute(Constants::NahdXml::xmlKeyTypeId(), QString::fromStdString(compressor->typeId()));
+    writer.writeAttribute(Constants::NahdXml::xmlKeyType(), QString::fromStdString(compressor->type()));
+    writer.writeEndElement();
+    writer.writeEndElement();
+    writer.writeEndDocument();
+    file.close();
+
+    QSignalSpy spy { &controller, &EffectRackController::importEffectSettingsConfirmationRequested };
+    controller.importEffectSettings(0, QUrl::fromLocalFile(filePath));
+
+    QCOMPARE(spy.count(), 1);
+    const auto arguments = spy.at(0);
+    QCOMPARE(arguments.at(4).toBool(), true); // Mismatch
+
+    QFile::remove(filePath);
+}
+
+void EffectRackControllerTest::test_confirmImportEffectSettings_shouldImportAndNotify()
+{
+    const auto audioEngine = std::make_shared<AudioEngine>();
+    const auto deviceService = std::make_shared<DeviceService>(audioEngine, std::make_shared<DataService>());
+    const auto editorService = std::make_shared<EditorService>();
+    EffectRackController controller { deviceService, editorService };
+
+    controller.setIsInsertRack(true);
+    controller.setEffect(0, QString::fromStdString(ReverbEffect::typeIdString()));
+
+    const QString filePath = "test_confirm_effect.nahdeff";
+    const auto reverb = std::make_shared<ReverbEffect>();
+    QFile file { filePath };
+    file.open(QIODevice::WriteOnly);
+    QXmlStreamWriter writer { &file };
+    writer.writeStartDocument();
+    writer.writeStartElement(Constants::NahdXml::xmlKeySettings());
+    writer.writeStartElement(Constants::NahdXml::xmlKeyEffect());
+    writer.writeAttribute(Constants::NahdXml::xmlKeyTypeId(), QString::fromStdString(reverb->typeId()));
+    writer.writeAttribute(Constants::NahdXml::xmlKeyType(), QString::fromStdString(reverb->type()));
+    writer.writeStartElement(Constants::NahdXml::xmlKeyParameter());
+    writer.writeAttribute(Constants::NahdXml::xmlKeyName(), Constants::NahdXml::xmlKeyReverbSize());
+    writer.writeAttribute(Constants::NahdXml::xmlKeyValue(), "1230");
+    writer.writeEndElement();
+    writer.writeEndElement();
+    writer.writeEndElement();
+    writer.writeEndDocument();
+    file.close();
+
+    QSignalSpy revisionSpy { &controller, &EffectRackController::revisionChanged };
+    controller.confirmImportEffectSettings(0, QUrl::fromLocalFile(filePath));
+
+    QCOMPARE(revisionSpy.count(), 1);
+    QCOMPARE(controller.parameterValue(0, controller.reverbSizeKey()), 0.123f);
+    QVERIFY(editorService->isModified());
+
+    QFile::remove(filePath);
 }
 
 } // namespace noteahead

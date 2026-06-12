@@ -228,6 +228,57 @@ void EffectRackTest::test_reverb_presets_shouldApplyPresets()
     QCOMPARE(ReverbEffect::presetToString(ReverbEffect::Preset::Spring), "Spring");
 }
 
+void EffectRackTest::test_exportImportEffectSettings_shouldWorkForSingleEffect()
+{
+    EffectRack rack;
+    const auto reverb = std::make_shared<ReverbEffect>();
+    reverb->setSize(0.85f);
+    rack.setEffect(1, reverb);
+
+    QString xml;
+    QXmlStreamWriter writer(&xml);
+    QVERIFY(rack.exportEffectSettings(1, writer));
+
+    // Verify it contains root Settings and Effect
+    QVERIFY(xml.contains(Constants::NahdXml::xmlKeySettings()));
+    QVERIFY(xml.contains(Constants::NahdXml::xmlKeyEffect()));
+    QVERIFY(xml.contains("slot=\"1\""));
+
+    EffectRack rack2;
+    QXmlStreamReader reader(xml);
+    QVERIFY(rack2.importEffectSettings(3, reader)); // Import into slot 3
+
+    const auto reverb2 = std::dynamic_pointer_cast<ReverbEffect>(rack2.effect(3));
+    QVERIFY(reverb2 != nullptr);
+    QCOMPARE(reverb2->size(), 0.85f);
+}
+
+void EffectRackTest::test_importEffectSettings_backwardsCompatibility()
+{
+    // Old format (whole rack)
+    QString xml;
+    QXmlStreamWriter writer(&xml);
+    writer.writeStartElement(Constants::NahdXml::xmlKeySettings());
+    writer.writeStartElement(Constants::NahdXml::xmlKeyInsertEffects());
+    writer.writeStartElement(Constants::NahdXml::xmlKeyEffect());
+    writer.writeAttribute(Constants::NahdXml::xmlKeyTypeId(), QString::fromStdString(ReverbEffect::typeIdString()));
+    writer.writeStartElement(Constants::NahdXml::xmlKeyParameter());
+    writer.writeAttribute(Constants::NahdXml::xmlKeyName(), Constants::NahdXml::xmlKeyReverbSize());
+    writer.writeAttribute(Constants::NahdXml::xmlKeyValue(), "4200");
+    writer.writeEndElement(); // Parameter
+    writer.writeEndElement(); // Effect
+    writer.writeEndElement(); // InsertEffects
+    writer.writeEndElement(); // Settings
+
+    EffectRack rack;
+    QXmlStreamReader reader(xml);
+    QVERIFY(rack.importEffectSettings(0, reader));
+
+    const auto reverb = std::dynamic_pointer_cast<ReverbEffect>(rack.effect(0));
+    QVERIFY(reverb != nullptr);
+    QCOMPARE(reverb->size(), 0.42f);
+}
+
 } // namespace noteahead
 
 QTEST_GUILESS_MAIN(noteahead::EffectRackTest)

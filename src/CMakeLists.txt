@@ -68,6 +68,7 @@ set(QML_SOURCE_FILES
     ${QML_BASE_DIR}/Dialogs/EventSelectionDialog.qml
     ${QML_BASE_DIR}/Dialogs/GainConverterDialog.qml
     ${QML_BASE_DIR}/Dialogs/ImportDeviceSettingsConfirmationDialog.qml
+    ${QML_BASE_DIR}/Dialogs/ImportEffectSettingsConfirmationDialog.qml
     ${QML_BASE_DIR}/Dialogs/IntegerInputDialog.qml
     ${QML_BASE_DIR}/Dialogs/InterpolationDialog.qml
     ${QML_BASE_DIR}/Dialogs/ManualDialog.qml

@@ -30,6 +30,7 @@ QString license();
 QString fileFormatVersion();
 QString fileFormatExtension();
 QString deviceSettingsExtension();
+QString effectRackSettingsExtension();
 QString midiFileExtension();
 
 QString qSettingsCompanyName();

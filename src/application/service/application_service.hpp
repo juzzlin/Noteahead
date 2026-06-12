@@ -55,6 +55,7 @@ public:
     Q_INVOKABLE QString applicationVersion() const;
     Q_INVOKABLE QString copyright() const;
     Q_INVOKABLE QString deviceSettingsExtension() const;
+    Q_INVOKABLE QString effectRackSettingsExtension() const;
     Q_INVOKABLE QString fileFormatExtension() const;
     Q_INVOKABLE QString midiFileExtension() const;
     Q_INVOKABLE bool isMidiFile(const QString & filePath) const;
@@ -71,6 +72,17 @@ public:
     Q_INVOKABLE QString selectedFile() const;
     Q_INVOKABLE QString lastImportDirectory() const;
     Q_INVOKABLE void setLastImportDirectory(QString directory);
+
+    Q_INVOKABLE QString lastEffectImportDirectory() const;
+    Q_INVOKABLE void setLastEffectImportDirectory(QUrl url);
+
+    Q_INVOKABLE QString lastEffectExportDirectory() const;
+    Q_INVOKABLE void setLastEffectExportDirectory(QUrl url);
+
+    Q_INVOKABLE QString defaultDeviceFileName(const QString & deviceName) const;
+    Q_INVOKABLE QString defaultEffectFileName(const QString & effectType) const;
+
+    Q_INVOKABLE QUrl fromLocalFile(const QString & localPath) const;
 
     Q_INVOKABLE void acceptUnsavedChangesDialog();
 

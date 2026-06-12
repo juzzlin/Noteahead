@@ -43,6 +43,12 @@ void setRecentFiles(const QStringList & fileList);
 QString lastImportDirectory();
 void setLastImportDirectory(const QString & directory);
 
+QString lastEffectImportDirectory();
+void setLastEffectImportDirectory(const QString & directory);
+
+QString lastEffectExportDirectory();
+void setLastEffectExportDirectory(const QString & directory);
+
 int step(int defaultStep);
 void setStep(int step);
 

@@ -24,6 +24,9 @@ New features:
 * Implement individual device settings export and import
   - Device Rack => Manage
 
+* Implement individual effect settings export and import
+  - Effect Rack => Manage
+
 Bug fixes:
 
 * Improve synth voice stealing logic

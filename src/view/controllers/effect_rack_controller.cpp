@@ -29,7 +29,11 @@
 #include "domain/effects/panner_effect.hpp"
 #include "knob_controller.hpp"
 
+#include <QDateTime>
+#include <QFile>
 #include <QStringList>
+#include <QXmlStreamReader>
+#include <QXmlStreamWriter>
 #include <QVariantMap>
 
 namespace noteahead {
@@ -550,6 +554,143 @@ void EffectRackController::applyReverbPreset(quint32 effectIndex, quint32 preset
             }
         }
     }
+}
+
+void EffectRackController::exportEffectSettings(int index, const QUrl & fileUrl)
+{
+    auto filePath = fileUrl.toLocalFile();
+    if (!filePath.endsWith(Constants::effectRackSettingsExtension())) {
+        filePath += Constants::effectRackSettingsExtension();
+    }
+    QFile file { filePath };
+    if (!file.open(QIODevice::WriteOnly)) {
+        return;
+    }
+    QXmlStreamWriter writer { &file };
+    writer.setAutoFormatting(true);
+    writer.setAutoFormattingIndent(1);
+
+    if (const auto rack = currentRack(); rack) {
+        rack->get().exportEffectSettings(static_cast<size_t>(index), writer);
+    }
+}
+
+void EffectRackController::importEffectSettings(int index, const QUrl & fileUrl)
+{
+    const auto fileInfo = peekEffectTypeInfo(fileUrl);
+    const auto rack = currentRack();
+    if (!rack) {
+        return;
+    }
+
+    const auto currentEff = rack->get().effect(static_cast<size_t>(index));
+    const auto currentType = currentEff ? QString::fromStdString(currentEff->type()) : QString {};
+    const auto currentTypeId = currentEff ? QString::fromStdString(currentEff->typeId()) : QString {};
+    const bool typeMismatch = currentEff && !fileInfo.typeId.isEmpty() && currentTypeId != fileInfo.typeId;
+
+    emit importEffectSettingsConfirmationRequested(index, fileUrl, currentType, fileInfo.typeName, typeMismatch);
+}
+
+void EffectRackController::confirmImportEffectSettings(int index, const QUrl & fileUrl)
+{
+    QFile file { fileUrl.toLocalFile() };
+    if (!file.open(QIODevice::ReadOnly)) {
+        return;
+    }
+    QXmlStreamReader reader { &file };
+    if (const auto rack = currentRack(); rack) {
+        if (rack->get().importEffectSettings(static_cast<size_t>(index), reader)) {
+            m_editorService->setIsModified(true);
+            m_revision++;
+            emit revisionChanged();
+        }
+    }
+}
+
+EffectRackController::EffectTypeInfo EffectRackController::peekEffectTypeInfo(const QUrl & fileUrl) const
+{
+    QFile file { fileUrl.toLocalFile() };
+    if (!file.open(QIODevice::ReadOnly)) {
+        return {};
+    }
+    QXmlStreamReader reader { &file };
+    while (!reader.atEnd() && !reader.hasError()) {
+        if (reader.readNext() == QXmlStreamReader::StartElement) {
+            if (reader.name() == Constants::NahdXml::xmlKeyEffect()) {
+                return {
+                    reader.attributes().value(Constants::NahdXml::xmlKeyTypeId()).toString(),
+                    reader.attributes().value(Constants::NahdXml::xmlKeyType()).toString()
+                };
+            }
+        }
+    }
+    return {};
+}
+
+void EffectRackController::exportSettings(const QUrl & fileUrl)
+{
+    auto filePath = fileUrl.toLocalFile();
+    if (!filePath.endsWith(Constants::effectRackSettingsExtension())) {
+        filePath += Constants::effectRackSettingsExtension();
+    }
+    QFile file { filePath };
+    if (!file.open(QIODevice::WriteOnly)) {
+        return;
+    }
+    QXmlStreamWriter writer { &file };
+    writer.setAutoFormatting(true);
+    writer.setAutoFormattingIndent(1);
+    exportSettings(writer);
+}
+
+bool EffectRackController::exportSettings(QXmlStreamWriter & writer) const
+{
+    const auto rack = currentRack();
+    if (!rack) {
+        return false;
+    }
+    writer.writeStartDocument();
+    writer.writeStartElement(Constants::NahdXml::xmlKeySettings());
+    writer.writeAttribute(Constants::NahdXml::xmlKeyFileFormatVersion(), Constants::fileFormatVersion());
+    writer.writeAttribute(Constants::NahdXml::xmlKeyApplicationName(), Constants::applicationName());
+    writer.writeAttribute(Constants::NahdXml::xmlKeyApplicationVersion(), Constants::applicationVersion());
+    writer.writeAttribute(Constants::NahdXml::xmlKeyCreatedDate(), QDateTime::currentDateTime().toString(Qt::DateFormat::ISODateWithMs));
+    writer.writeStartElement(Constants::NahdXml::xmlKeyInsertEffects());
+    rack->get().serializeEffectsToXml(writer);
+    writer.writeEndElement(); // InsertEffects
+    writer.writeEndElement(); // Settings
+    writer.writeEndDocument();
+    return true;
+}
+
+void EffectRackController::importSettings(const QUrl & fileUrl)
+{
+    QFile file { fileUrl.toLocalFile() };
+    if (!file.open(QIODevice::ReadOnly)) {
+        return;
+    }
+    QXmlStreamReader reader { &file };
+    if (importSettings(reader)) {
+        m_revision++;
+        emit revisionChanged();
+    }
+}
+
+bool EffectRackController::importSettings(QXmlStreamReader & reader)
+{
+    const auto rack = currentRack();
+    if (!rack) {
+        return false;
+    }
+    while (!reader.atEnd() && !reader.hasError()) {
+        if (reader.readNext() == QXmlStreamReader::StartElement) {
+            if (reader.name() == Constants::NahdXml::xmlKeyInsertEffects()) {
+                rack->get().deserializeEffectsFromXml(reader);
+                return !reader.hasError();
+            }
+        }
+    }
+    return false;
 }
 
 float EffectRackController::deviceSend(const QString & deviceName, quint32 effectIndex) const
