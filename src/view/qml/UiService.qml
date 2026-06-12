@@ -16,6 +16,7 @@ QtObject {
     signal deviceDialogRequested(string deviceName)
     signal deviceGalleryDialogRequested(int slotIndex)
     signal deviceInsertEffectsDialogRequested(string deviceName)
+    signal deviceRackDialogFromTrackSettingsRequested
     signal deviceRackDialogRequested
     signal exportDeviceSettingsRequested(int slotIndex, string deviceName, string deviceTypeName)
     signal importDeviceSettingsRequested(int slotIndex)
@@ -157,6 +158,9 @@ QtObject {
     }
     function requestDeviceRackDialog(): void {
         deviceRackDialogRequested();
+    }
+    function requestDeviceRackDialogFromTrackSettings(): void {
+        deviceRackDialogFromTrackSettingsRequested();
     }
     function requestExportDeviceSettings(slotIndex: int, deviceName: string, deviceTypeName: string): void {
         exportDeviceSettingsRequested(slotIndex, deviceName, deviceTypeName);

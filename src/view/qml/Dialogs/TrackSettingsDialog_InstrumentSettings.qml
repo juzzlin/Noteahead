@@ -9,6 +9,10 @@ ColumnLayout {
     id: rootItem
     spacing: 10
     width: parent.width
+    function setPortName(name): void {
+        trackSettingsModel.portName = name;
+        portNameDropdown.setSelected(name);
+    }
     function initialize(): void {
         portNameDropdown.setSelected(trackSettingsModel.portName);
         channelDropdown.setSelected(trackSettingsModel.channel + 1);
@@ -76,7 +80,7 @@ ColumnLayout {
                     Layout.columnSpan: 2
                     Layout.row: 0
                     Layout.fillWidth: true
-                    onClicked: UiService.requestDeviceRackDialog()
+                    onClicked: UiService.requestDeviceRackDialogFromTrackSettings()
                 }
                 Label {
                     text: qsTr("Channel:")

@@ -39,6 +39,8 @@ ApplicationWindow {
     property var _editorView
     property var _songView
     readonly property string _tag: "Main"
+    property var _deviceNamesBeforeRackOpen: null
+    property string _newDeviceName: ""
     Universal.theme: Universal.Dark
     MainToolBar {
         id: mainToolBar
@@ -225,6 +227,13 @@ ApplicationWindow {
         property url fileUrl
         onAccepted: effectRackController.confirmImportEffectSettings(slotIndex, fileUrl)
     }
+    ConfirmationDialog {
+        id: portAutoAssignDialog
+        anchors.centerIn: parent
+        title: "<strong>" + qsTr("Assign Instrument Port") + "</strong>"
+        acceptButtonText: qsTr("Assign")
+        onAccepted: trackSettingsDialog.setPortName(_newDeviceName)
+    }
     MidiExportDialog {
         id: midiExportDialog
         anchors.centerIn: parent
@@ -292,6 +301,22 @@ ApplicationWindow {
         anchors.centerIn: parent
         width: parent.width * Constants.defaultDialogScale
         height: parent.height * Constants.defaultDialogScale
+        onClosed: {
+            if (_deviceNamesBeforeRackOpen === null) {
+                return;
+            }
+            const before = _deviceNamesBeforeRackOpen;
+            _deviceNamesBeforeRackOpen = null;
+            for (let i = 0; i < deviceRackController.deviceCount; i++) {
+                const name = deviceRackController.deviceName(i);
+                if (name !== "" && before.indexOf(name) === -1 && name !== trackSettingsModel.portName) {
+                    _newDeviceName = name;
+                    portAutoAssignDialog.message = qsTr("'%1' was added. Assign it as the instrument port for this track?").arg(name);
+                    portAutoAssignDialog.open();
+                    break;
+                }
+            }
+        }
     }
 
     MasterEffectsDialog {
@@ -586,6 +611,17 @@ ApplicationWindow {
             _editorView.focus = true;
         });
         UiService.deviceRackDialogRequested.connect(() => {
+            deviceRackDialog.updateUsage();
+            deviceRackDialog.open();
+        });
+        UiService.deviceRackDialogFromTrackSettingsRequested.connect(() => {
+            const names = [];
+            for (let i = 0; i < deviceRackController.deviceCount; i++) {
+                const name = deviceRackController.deviceName(i);
+                if (name !== "")
+                    names.push(name);
+            }
+            _deviceNamesBeforeRackOpen = names;
             deviceRackDialog.updateUsage();
             deviceRackDialog.open();
         });

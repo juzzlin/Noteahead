@@ -27,6 +27,8 @@ New features:
 * Implement individual effect settings export and import
   - Effect Rack => Manage
 
+* Suggest port auto-assignment when a device is added via Track Settings
+
 Bug fixes:
 
 * Improve synth voice stealing logic

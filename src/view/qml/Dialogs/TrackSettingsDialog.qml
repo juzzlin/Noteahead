@@ -16,6 +16,9 @@ Dialog {
         trackSettingsModel.trackIndex = trackIndex;
         trackSettingsModel.requestInstrumentData();
     }
+    function setPortName(name) {
+        instrumentSettings.setPortName(name);
+    }
     function initialize() {
         uiLogger.info(_tag, "Initializing");
         instrumentSettings.initialize();
