@@ -86,6 +86,7 @@ Dialog {
             isSaving: root.isSaving
             presetNameDialog: presetNameDialog
             onIsSavingChanged: root.isSaving = isSaving
+            visible: false
         }
 
         RowLayout {
